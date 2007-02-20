@@ -108,7 +108,7 @@ eurpolntk
 plurotenk
 ekrnutplo
 >>> try: r('shuf','astring')
-... except TypeError, e: print int('does not support item assignment' in str(e))
+... except TypeError, e: print int("does not support item assignment" in str(e))
 1
 >>> r('shuf',23)
 Traceback (most recent call last):

@@ -9,7 +9,7 @@ r'''
 >>>
 '''
 
-import gmpy as _g, doctest, sys, operator
+import gmpy as _g, doctest, sys, operator, gc
 __test__={}
 a=_g.mpz(123)
 b=_g.mpz(456)
@@ -443,6 +443,7 @@ mpz(0)
 >>> for x in xrange(45678):
 ...     _xx=_g.divm(b,a,20)
 >>> del _xx
+>>> __ = gc.collect()
 >>> _memsize()-_siz
 0
 >>> a.invert(100)
