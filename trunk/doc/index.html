@@ -2,9 +2,12 @@
 <HEAD>
 <TITLE>Welcome to General Multiprecision PYthon
 </TITLE>
+
+<!--
 <LINK rel="stylesheet"
     href="http://sourceforge.net/sourceforge.css"
     type="text/css">
+-->
 
 <STYLE>
 body { margin-left: 30; margin-right: 30; }
@@ -13,11 +16,11 @@ body { margin-left: 30; margin-right: 30; }
 </HEAD>
 <BODY>
 <FONT SIZE=-1>
-Last updated on: 2005, Nov 12;
-for GMPY release: 1.01 beta
-<A href="http://sourceforge.net">
-<IMG src="http://sourceforge.net/sflogo.php?group_id=13335&type=1"
-width="88" height="31" border="0" alt="Go to main SourceForge page"></A>
+Last updated on: 2007, Feb 19;
+for GMPY release: 1.2 release candidate
+<A href="http://code.google.com/p/gmpy/">
+<IMG src="http://code.google.com/images/code_sm.png"
+width="88" height="31" border="0" alt="Go to Google Code gmpy page"></A>
 <br>
 </FONT>
 <H1>GMPY Project goals and strategies</H1>
@@ -42,14 +45,17 @@ exposing its functionality through module <b>gmpy</b>.
 
 <H1>The GMPY Module</H1>
 <P>
-Existing Python modules expose a subset of the integral-MP
-(MPZ) functionality of earlier releases of the GMP library.
-The first GMPY goal is to develop this module into a complete
-exposure of MPZ, MPF (floating-point), and MPQ (rational)
-functionality of current GMP (release 4), that will fully
-support current Python releases (2.2, 2.3, 2.4) and the 'distutils'
-(and also support a "C API" allowing some level of interoperation
-with other C-written extension modules for Python).
+Python modules older than GMPY exposes a subset of the integral-MP
+(MPZ) functionality of earlier releases of the GMP library.  The
+first GMPY goal (currently nearly reached) was to develop the gmpy
+module into a complete exposure of MPZ, MPF (floating-point), and
+MPQ (rational) functionality of current GMP (release 4), as well
+as auxiliary functionality such as random number generation, with
+full support for current Python releases (2.3 and up) and the
+Python 'distutils' (and also support for a "C API" allowing some
+level of interoperation with other C-written extension modules for
+Python).
+
 <p>
 <b>Note</b>: the module's ability to be used as a "drop-in
 replacement" for Python's own implementation of <i>long</i>s,
@@ -58,14 +64,15 @@ characteristic of the gmp-module we started from, but is
 <b>not</b> a target of the gmpy project, and we have no plans
 to support it.
 <P>
-This first module is called <b>gmpy</b>, just like the whole project.
+This first GMPY
+module is called <b>gmpy</b>, just like the whole project.
 <P>
 The extended MP floating-point facilities of
 <A HREF="http://www.loria.fr/projets/mpfr/">MPFR</A>
 will later also be considered for inclusion in gmpy (either within
 the same module, or as a further, separate add-on module).
-Rooting for MPFR to be merged with GMP so we can avoid some
-awkwardness (but seeing no movement on this front so far).
+[[ Rooting for MPFR to be merged with GMP so we can avoid some
+awkwardness (but seeing no movement on this front so far) ]].
 
 <H2>Mutability... but <u>not</u> for now</H2>
 Early tests have shown that supporting Python 2's "in-place
@@ -89,9 +96,18 @@ vein, i.e., by trying to work "like Python's built-in numbers" when
 there was a choice and two or more alternatives made sense.
 
 <H1>Project Status and near-future plans</H1>
-The gmpy module's beta release (latest current release
-as of 2005/11/12: 1.01) is available for download in both
-source and Windows-binary form.  It exposes all of the mpz, mpq
+The gmpy module's release-candidate release (latest current release
+as of 2007/02/18: 1.01) is available for download in both
+source and Windows-binary form
+
+[[TODO: make the downloadable tarball and binary releases of 1.02
+for Windows and MacOSX available on code.google.com: currently,
+1.02 exists only in the SVN source repository on code.google.com,
+and binary tarballs and releases exist only for older releases,
+1.01 and back, on the project's previous home, gmpy.sf.net, and
+are not maintained any more]].
+
+gmpy 1.02 exposes all of the mpz, mpq
 and mpf functionality that was already available in GMP 3.1, and 
 most of the random-number generation functionality (there are no
 current plans to extend gmpy to expose other such functionality,
@@ -154,7 +170,7 @@ programming' cases (to handle situations that 'should never happen,
 but'...) and some cases of the new experimental 'callbacks' facility
 (mostly provided for the specific use of PySymbolic, and intended to be
 tested by that package).  We'll have to do better, eventually, but, for
-now, this can be considered OK for a beta-release.
+now, this can be considered OK.
 <p>
 In the attempt to make gmpy as useful as can be for both stand-alone
 use, and also in the context of PySymbolic, a tad too many design
@@ -171,16 +187,15 @@ more timing-measurement scripts and usage-examples.  Some of the
 currently experimental 'callbacks' will also be removed, having been
 proven unnecessary.  All relevant GMP 4 functionality will be exposed.
 <p>
-No predictions on timing, though.  gmpy 1.01 meets all current needs
+No predictions on timing, though.  gmpy 1.02 meets all current needs
 of the main author, so his motivation to work more on it is low:-).
 So, don't hold your breath (pitching in and helping it happen, on the
 other hand, _might_ be advisable, and will surely yield results:-).
 <p>
-<A HREF="http://sourceforge.net/projects/gmpy/">Project
-Summary, downloads, &amp;tc</A>
-
-<A href="http://sourceforge.net/projects/gmpy/">
-<IMG src="http://sourceforge.net/sflogo.php?group_id=13335&type=1"
-width="88" height="31" border="0" alt="Project Summary Page"></A>
+<A HREF="http://code.google.com/p/gmpy/">Project page on
+code.google.com</A>
+<A href="http://code.google.com/p/gmpy/">
+<IMG src="http://code.google.com/images/code_sm.png"
+width="88" height="31" border="0" alt="Go to Google Code gmpy page"></A>
 </BODY>
 </HTML>
