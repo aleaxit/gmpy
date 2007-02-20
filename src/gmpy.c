@@ -156,7 +156,7 @@ size_t mpq_out_str _PROTO ((FILE *, int, mpq_srcptr));
 
 char gmpy_version[] = "1.02";
 
-char _gmpy_cvs[] = "$Id: gmpy.c,v 1.22 2006/03/30 00:57:34 aleax Exp $";
+char _gmpy_cvs[] = "$Id$";
 
 /*
  * we do have a dependence on Python's internals, specifically:
