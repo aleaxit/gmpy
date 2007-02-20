@@ -30,7 +30,7 @@ setup (name = "gmpy",
        version = "1.02",
        maintainer = "Alex Martelli",
        maintainer_email = "aleaxit@gmail.com",
-       url = "http://gmpy.sourceforge.net/",
+       url = "http://code.google.com/p/gmpy/",
        description = "GMP-4 to Python-2.{2-5} interface",
        # download_url = "http://http://prdownloads.sourceforge.net/gmpy/gmpy-sources-101.zip?download",
 
