@@ -158,7 +158,7 @@ reporting and feedback is your key contribution to the gmpy project!
 (Reports of any _successful_ installations will also be welcome, if it's
 accompanied by enough details -- again, THANKS in advance!).  The best
 way to report bugs (including unit-test failures) is via the Google Code
-bug tracker.
+issue tracker.
 
 
 *General notes on gmpy*
@@ -202,8 +202,8 @@ Mixed-operand arithmetic is supported: the other operand (which
 must be a number of some kind) is coerced to a gmpy.mpz, unless
 it's of a floating type, in which case the .mpz object is coerced
 to that floating type instead (or mpq, or complex, ditto).
-gmpy currently offers experimental support for coercion of its
-types to/from the decimal.Decimal class introduced in the standard
+gmpy currently offers experimental support for coercion to its
+types from the decimal.Decimal class introduced in the standard
 library in Python 2.4; however, that support is experimental
 because it's done by "monkey patching" the Decimal class on the
 fly, and therefore it could stop working any time (e.g., if Decimal is
