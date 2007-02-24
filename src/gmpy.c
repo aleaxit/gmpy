@@ -131,6 +131,9 @@
  *      tests [mostly for out-of-memory conditions], output to stderr
  *      conditioned by options.debug, & a couple of very obscure cases)
  *
+ *   1.04:
+ *   added intset
+ *
  */
 #include "pymemcompat.h"
 
@@ -154,7 +157,7 @@ size_t mpq_out_str _PROTO ((FILE *, int, mpq_srcptr));
 #define staticforward extern
 #endif
 
-char gmpy_version[] = "1.02";
+char gmpy_version[] = "1.04";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -322,9 +325,11 @@ static void mpq_cloc(mpq_t oldo) mpq_cloc_m(oldo)
 staticforward PyTypeObject Pympz_Type;
 staticforward PyTypeObject Pympq_Type;
 staticforward PyTypeObject Pympf_Type;
+staticforward PyTypeObject Pyist_Type;
 staticforward PyMethodDef Pympz_methods [];
 staticforward PyMethodDef Pympq_methods [];
 staticforward PyMethodDef Pympf_methods [];
+staticforward PyMethodDef Pyist_methods [];
 
 /* utility macros for argument parsing */
 #define NO_ARGS() if(!PyArg_ParseTuple(args, "")) { return NULL; }
@@ -486,6 +491,17 @@ Pympf_new(unsigned int bits)
     self->rebits = bits;
     return self;
 }
+static PyistObject *
+Pyist_new(unsigned int imax)
+{
+    PyistObject * self;
+
+    if(!(self = PyObject_New(PyistObject, &Pyist_Type)))
+        return NULL;
+    mpz_inoc_m(self->z);
+    self->imax = imax;
+    return self;
+}
 
 static void
 Pympz_dealloc(PympzObject *self)
@@ -512,6 +528,14 @@ Pympf_dealloc(PympfObject *self)
         fprintf(stderr, "Pympf_dealloc: %p\n", self);
     mpf_clear(self->f);
     /* Py_XDECREF(MPOBCAL(self)); */
+    PyObject_Del(self);
+} /* Pympz_dealloc */
+static void
+Pyist_dealloc(PyistObject *self)
+{
+    if(options.debug)
+        fprintf(stderr, "Pyist_dealloc: %p\n", self);
+    mpz_cloc_m(self->z);
     PyObject_Del(self);
 } /* Pympz_dealloc */
 
@@ -2307,6 +2331,18 @@ mpf2repr(PympfObject *self)
     return Pympf_ascii(self, 10, 0, 0, -1, OP_TAG);
 }
 
+/* str and repr implementations for ist`*/
+static PyObject *
+ist2str(PyistObject *self)
+{
+    return Py_BuildValue("");
+}
+static PyObject *
+ist2repr(PyistObject *self)
+{
+    return Py_BuildValue("");
+}
+
 /* copy mpz object */
 static PyObject *
 Pympz_copy(PyObject *self, PyObject *args)
@@ -2621,6 +2657,12 @@ Pympz_popcount(PyObject *self, PyObject *args)
     Py_DECREF(self);
     return s;
 }
+static Py_ssize_t
+Pyist_len(PyObject *self)
+{
+    assert(Pyist_Check(self));
+    return mpz_popcount(Pyist_AS_MPZ(self));
+}
 
 /* return N lowest bits from an mpz */
 static char doc_lowbitsm[]="\
@@ -2685,6 +2727,34 @@ Pympz_getbit(PyObject *self, PyObject *args)
     Py_DECREF(self);
     return s;
 }
+int Pyist_contains(PyObject* self, PyObject* value)
+{
+    Py_ssize_t n;
+    int imax;
+    assert(Pyist_Check(self));
+    imax = ((PyistObject*)self)->imax;
+
+#if Py_TPFLAGS_HAVE_INDEX
+    if (PyIndex_Check(value)) {
+        n = PyNumber_AsSsize_t(value, NULL);
+#else
+    if (PyInt_Check(value)) {
+        n = PyInt_AS_LONG();
+    } else if (PyLong_Check(value)) {
+        n = PyLong_AsLong(value);
+        /* clear overflow error, if any; in that case n gets set to
+         * -1, so we'll fall through to the case in which we just
+         *  return False.
+         */
+        PyErr_Clear();
+#endif
+    } else {
+        static char* msg = "an integer is required";
+        PyErr_SetString(PyExc_TypeError, msg);
+        return -1;
+    }
+    return n>=0 && n<imax && mpz_tstbit(Pyist_AS_MPZ(self), n);
+}
 
 static char doc_setbitm[]="\
 x.setbit(n,v=1): returns a copy of the value of x, with bit n set\n\
@@ -2730,7 +2800,33 @@ Pympz_setbit(PyObject *self, PyObject *args)
     }
     return (PyObject*)s;
 }
+static char doc_add[]="\
+x.add(n): adds value n to the intset x;\n\
+n must be an ordinary Python int, >=0, <x.getimax()\n\
+";
+static PyObject *
+Pyist_add(PyObject *self, PyObject *args)
+{
+    long n, imax;
 
+    assert(Pyist_Check(self));
+    if(!PyArg_ParseTuple(args, "l", &n))
+        return 0;
+    if(n < 0) {
+        static char* msg = "n must be >= 0";
+        PyErr_SetString(PyExc_ValueError, msg);
+        return NULL;
+    }
+    imax = ((PyistObject*)self)->imax;
+    if(n >= imax) {
+        static char* msg = "n must be < the intset's getimax()";
+        PyErr_SetString(PyExc_ValueError, msg);
+        return NULL;
+    }
+    mpz_setbit(Pyist_AS_MPZ(self), n);
+ 
+    Py_RETURN_NONE;
+}
 
 /* return nth-root of an mpz (in a 2-el tuple: 2nd is int, non-0 iff exact) */
 static char doc_rootm[]="\
@@ -3435,6 +3531,31 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
     return (PyObject *) newob;
 } /* Pygmpy_mpf() */
 
+static char doc_ist[] = "\
+intset(n): build a set of integers whose elements must be between\n\
+        0 (included) and n (excluded)\n\
+";
+static PyObject *
+Pygmpy_ist(PyObject *self, PyObject *args)
+{
+    PyistObject *newob;
+    int imax;
+
+    if(options.debug)
+        fputs("Pygmpy_ist() called...\n", stderr);
+
+    if(!PyArg_ParseTuple(args, "i", &imax))
+        return NULL;
+    if(imax < 0) {
+        PyErr_SetString(PyExc_ValueError, "argument must be > 0");
+        return 0;
+    }
+
+    newob = Pyist_new(imax);
+    return (PyObject *) newob;
+}
+
+
 /* ARITHMETIC */
 
 #define MPZ_BINOP(NAME,ismul) \
@@ -4109,6 +4230,11 @@ Pympf_cmp(PympfObject *a, PympfObject *b)
 {
     return _normi(mpf_cmp(a->f, b->f));
 }
+static int
+Pyist_cmp(PyistObject *a, PyistObject *b)
+{
+    return _normi(mpz_cmp(a->z, b->z));
+}
 
 static int
 Pympz_nonzero(PympzObject *x)
@@ -4387,6 +4513,17 @@ Pympf_getattr(PympfObject *self, char *name)
         result = at_last_try((PyObject*)self, name);
     return result;
 }
+static PyObject *
+Pyist_getattr(PyistObject *self, char *name)
+{
+    PyObject *result = 0;
+    if(!result)
+        result = Py_FindMethod(Pyist_methods, (PyObject*)self, name);
+    if(!result && options.AT_cb)
+        result = at_last_try((PyObject*)self, name);
+    return result;
+}
+
 
 
 /* Miscellaneous gmpy functions */
@@ -5195,6 +5332,24 @@ Pympf_getrprec(PyObject *self, PyObject *args)
     return Py_BuildValue("i", precres);
 }
 
+static char doc_getimaxm[]="\
+x.getimax(): returns the maximum value allowed for x's items\n\
+";
+static PyObject *
+Pyist_getimax(PyObject *self, PyObject *args)
+{
+    int imax;
+
+    NO_ARGS();
+
+    assert(Pyist_Check(self));
+
+    imax = ((PyistObject*)self)->imax;
+
+    return Py_BuildValue("i", imax);
+}
+
+
 static char doc_setprecm[]="\
 x.setprec(n): sets the number of bits of precision in x to\n\
 be _at least_ n (n>0).  ***note that this alters x***!!!\n\
@@ -5584,6 +5739,63 @@ static PyNumberMethods mpf_number_methods =
 	0, /* binaryfunc nb_inplace_true_divide;	*/
 };
 
+static PyNumberMethods ist_number_methods =
+{
+    (binaryfunc) 0,
+    (binaryfunc) 0,
+    (binaryfunc) 0,
+    (binaryfunc) 0,
+    (binaryfunc) 0,     /* no rem */
+    (binaryfunc) 0,     /* no divmod */
+    (ternaryfunc) 0,
+    (unaryfunc) 0,
+    (unaryfunc) 0,
+    (unaryfunc) 0,
+    (inquiry) 0,
+    (unaryfunc) 0,      /* no bit-complement */
+    (binaryfunc) 0,     /* no left-shift */
+    (binaryfunc) 0,     /* no right-shift */
+    (binaryfunc) 0,     /* no bit-and */
+    (binaryfunc) 0,     /* no bit-xor */
+    (binaryfunc) 0,     /* no bit-ior */
+    (coercion) 0,
+    (unaryfunc) 0,
+    (unaryfunc) 0,
+    (unaryfunc) 0,
+    (unaryfunc) 0,      /* no oct */
+    (unaryfunc) 0,      /* no hex */
+	0, /* binaryfunc nb_inplace_add;	*/
+	0, /* binaryfunc nb_inplace_subtract;	*/
+	0, /* binaryfunc nb_inplace_multiply;	*/
+	0, /* binaryfunc nb_inplace_divide;	*/
+	0, /* binaryfunc nb_inplace_remainder;	*/
+	0, /* ternaryfunc nb_inplace_power;	*/
+	0, /* binaryfunc nb_inplace_lshift;	*/
+	0, /* binaryfunc nb_inplace_rshift;	*/
+	0, /* binaryfunc nb_inplace_and;	*/
+	0, /* binaryfunc nb_inplace_xor;	*/
+	0, /* binaryfunc nb_inplace_or;		*/
+
+    (binaryfunc) 0,
+    (binaryfunc) 0,
+	0, /* binaryfunc nb_inplace_floor_divide;	*/
+	0, /* binaryfunc nb_inplace_true_divide;	*/
+};
+
+static PySequenceMethods ist_sequence_methods =
+{
+    Pyist_len, /* lenfunc sq_length; */
+    0, /* binaryfunc sq_concat; */
+    0, /* ssizeargfunc sq_repeat; */
+    0, /* ssizeargfunc sq_item; */
+    0, /* ssizessizeargfunc sq_slice; */
+    0, /* ssizeobjargproc sq_ass_item; */
+    0, /* ssizessizeobjargproc sq_ass_slice; */
+    Pyist_contains, /* objobjproc sq_contains; */
+    0, /* binaryfunc sq_inplace_concat; */
+    0, /* ssizeargfunc sq_inplace_repeat; */
+};
+
 static PyMethodDef Pygmpy_methods [] =
 {
     { "version", Pygmpy_get_version, 1, doc_version },
@@ -5603,6 +5815,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "mpz", Pygmpy_mpz, 1, doc_mpz },
     { "mpq", Pygmpy_mpq, 1, doc_mpq },
     { "mpf", Pygmpy_mpf, 1, doc_mpf },
+    { "intset", Pygmpy_ist, 1, doc_ist },
     { "gcd", Pygmpy_gcd, 1, doc_gcd },
     { "gcdext", Pygmpy_gcdext, 1, doc_gcdext },
     { "lcm", Pygmpy_lcm, 1, doc_lcm },
@@ -5728,6 +5941,13 @@ statichere PyMethodDef Pympf_methods [] =
     { NULL, NULL, 1 }
 };
 
+statichere PyMethodDef Pyist_methods [] =
+{
+    { "getimax", Pyist_getimax, 1, doc_getimaxm },
+    { "add", Pyist_add, 1, doc_add },
+    { NULL, NULL, 1 }
+};
+
 statichere PyTypeObject Pympz_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
@@ -5811,6 +6031,37 @@ statichere PyTypeObject Pympf_Type =
     (PyBufferProcs *) 0,        /* tp_as_buffer */
     0, /* Py_TPFLAGS_HAVE_INPLACEOPS, tp_flags */
     "GNU Multi Precision floating point",
+};
+
+statichere PyTypeObject Pyist_Type =
+{
+    /* PyObject_HEAD_INIT(&PyType_Type) */
+    PyObject_HEAD_INIT(0)
+    0,                          /* ob_size */
+    "intset",                   /* tp_name */
+    sizeof(PyistObject),        /* tp_basicsize */
+    0,                          /* tp_itemsize */
+    /* methods */
+    (destructor) Pyist_dealloc, /* tp_dealloc */
+    0,                          /* tp_print */
+    (getattrfunc) Pyist_getattr,/* tp_getattr */
+    (setattrfunc) 0,            /* tp_setattr */
+    (cmpfunc) Pyist_cmp,        /* tp_compare */
+    (reprfunc) ist2repr,        /* tp_repr */
+    &ist_number_methods,        /* tp_as_number */
+    &ist_sequence_methods,      /* tp_as_sequence */
+    0,                          /* tp_as_mapping */
+    0,                          /* tp_hash */
+    0,                          /* tp_call */
+    (reprfunc) ist2str,         /* tp_str */
+    (getattrofunc) 0,           /* tp_getattro */
+    (setattrofunc) 0,           /* tp_setattro */
+    (PyBufferProcs *) 0,        /* tp_as_buffer */
+     Py_TPFLAGS_HAVE_SEQUENCE_IN | \
+     Py_TPFLAGS_HAVE_INPLACEOPS | \
+     Py_TPFLAGS_HAVE_RICHCOMPARE | \
+     Py_TPFLAGS_HAVE_ITER,      /* tp_flags */
+    "gmpy set of int",
 };
 
 
@@ -5938,6 +6189,7 @@ initgmpy(void)
     Pympz_Type.ob_type = &PyType_Type;
     Pympq_Type.ob_type = &PyType_Type;
     Pympf_Type.ob_type = &PyType_Type;
+    Pyist_Type.ob_type = &PyType_Type;
 
     if (options.debug)
         fputs( "initgmpy() called...\n", stderr );
