@@ -5939,6 +5939,10 @@ initgmpy(void)
     Pympq_Type.ob_type = &PyType_Type;
     Pympf_Type.ob_type = &PyType_Type;
 
+    char *do_debug = getenv("GMPY_DEBUG");
+    if (do_debug)
+        sscanf(do_debug, "%d", &options.debug);
+
     if (options.debug)
         fputs( "initgmpy() called...\n", stderr );
     _PyInitGMP();
@@ -5965,15 +5969,27 @@ initgmpy(void)
         ;
         PyObject* namespace = PyDict_New();
         PyObject* result = NULL;
+        if (options.debug)
+            fprintf(stderr, "gmpy_module imported decimal OK\n");
         PyDict_SetItemString(namespace, "decimal", decimal_module);
         PyDict_SetItemString(namespace, "gmpy", gmpy_module);
         PyDict_SetItemString(namespace, "int", (PyObject*)&PyInt_Type);
         PyDict_SetItemString(namespace, "str", (PyObject*)&PyString_Type);
         result = PyRun_String(tweak_decimal, Py_file_input,
                               namespace, namespace);
+        if (result) {
+            if (options.debug)
+                fprintf(stderr, "gmpy_module tweaked decimal OK\n");
+        } else {
+            if (options.debug)
+                fprintf(stderr, "gmpy_module could not tweak decimal\n");
+            PyErr_Clear();
+        }
         Py_DECREF(namespace);
         Py_XDECREF(result);
     } else {
         PyErr_Clear();
+        if (options.debug)
+            fprintf(stderr, "gmpy_module could not import decimal\n");
     }
 }
