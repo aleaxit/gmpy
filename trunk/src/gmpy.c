@@ -111,7 +111,7 @@
  *   1.01:
  *   cleanups, ensure support for Python 2.4.1 on MacOSX 10.4/XCode 2.1
  *     as well as Python 2.2 and 2.3 (on MacOSX and Linux)
- *   fixed memory leak on divm
+ *   fixed memory leak on divm (thanks to mensanator@aol.com)
  *   fixed bug on mpq('123') [[str2mpq on string w/o a slash]]
  *   added floordiv and truediv operators, and tests for them
  *   NOT tested on GMP 3 (have none left around...), ONLY on GMP 4.*
