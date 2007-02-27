@@ -22,7 +22,6 @@ if sys.platform in ('linux2', 'darwin'):
     import os
     try: x = int(os.popen('ps -p %d -o vsz|tail -1' % os.getpid()).read())
     except: x = 0
-    # print 'ms:', x
     return x
 else:
   def _memsize():
@@ -438,14 +437,15 @@ ZeroDivisionError: not invertible
 mpz(4)
 >>> _g.divm(0,1,2)
 mpz(0)
+>>> __ = gc.collect()
 >>> _siz = 87654
 >>> _siz = _memsize()
 >>> for x in xrange(45678):
 ...     _xx=_g.divm(b,a,20)
 >>> del _xx
 >>> __ = gc.collect()
->>> _memsize()-_siz
-0
+>>> (_memsize()-_siz) <= 16
+True
 >>> a.invert(100)
 mpz(87)
 >>> b.invert(100)
