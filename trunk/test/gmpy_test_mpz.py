@@ -437,6 +437,18 @@ ZeroDivisionError: not invertible
 mpz(4)
 >>> _g.divm(0,1,2)
 mpz(0)
+>>> # guard against regression of an ancient gmpy bug: divm w/non-coprime parms
+>>> _g.divm(4,8,20)
+mpz(3)
+>>> _g.divm(4,8,20)
+mpz(3)
+>>> _g.mpz(20)
+mpz(20)
+>>> _g.mpz(8)
+mpz(8)
+>>> _g.mpz(4)
+mpz(4)
+>>> # guard against regression of a memory leak in divm
 >>> __ = gc.collect()
 >>> _siz = 87654
 >>> _siz = _memsize()

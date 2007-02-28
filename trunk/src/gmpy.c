@@ -4474,6 +4474,7 @@ static PyObject *
 Pygmpy_divm(PyObject *self, PyObject *args)
 {
     PympzObject *num, *den, *mod, *res;
+    mpz_t numz, denz, modz;
     int ok;
 
     if(!PyArg_ParseTuple(args, "O&O&O&",
@@ -4483,27 +4484,34 @@ Pygmpy_divm(PyObject *self, PyObject *args)
     {
         return last_try("divm", 3, 3, args);
     }
-    if(!(res = Pympz_new()))
+    if(!(res = Pympz_new())) {
         return NULL;
-    if(mpz_invert(res->z, den->z, mod->z)) { /* inverse exists */
+        Py_DECREF((PyObject*)num);
+        Py_DECREF((PyObject*)den);
+        Py_DECREF((PyObject*)mod);
+    }
+    mpz_init(numz); mpz_init(denz); mpz_init(modz);
+    mpz_set(numz, num->z); mpz_set(denz, den->z); mpz_set(modz, mod->z);
+
+    if(mpz_invert(res->z, denz, modz)) { /* inverse exists */
       ok = 1;
     } else {
       /* last-ditch attempt: do num, den AND mod have a gcd>1 ? */
       PympzObject *gcd;
       if(!(gcd = Pympz_new()))
           return NULL;
-      mpz_gcd(gcd->z, num->z, den->z);
-      mpz_gcd(gcd->z, gcd->z, mod->z);
-      mpz_divexact(num->z, num->z, gcd->z);
-      mpz_divexact(den->z, den->z, gcd->z);
-      mpz_divexact(mod->z, mod->z, gcd->z);
+      mpz_gcd(gcd->z, numz, denz);
+      mpz_gcd(gcd->z, gcd->z, modz);
+      mpz_divexact(numz, numz, gcd->z);
+      mpz_divexact(denz, denz, gcd->z);
+      mpz_divexact(modz, modz, gcd->z);
       Py_DECREF((PyObject*)gcd);
-      ok = mpz_invert(res->z, den->z, mod->z);
+      ok = mpz_invert(res->z, denz, modz);
     }
 
     if (ok) {
-        mpz_mul(res->z, res->z, num->z);
-        mpz_mod(res->z, res->z, mod->z);
+        mpz_mul(res->z, res->z, numz);
+        mpz_mod(res->z, res->z, modz);
         if(options.ZM_cb && mpz_sgn(res->z)==0) {
             PyObject* result;
             if(options.debug)
@@ -4516,6 +4524,7 @@ Pygmpy_divm(PyObject *self, PyObject *args)
                 return result;
             }
         }
+        mpz_clear(numz); mpz_clear(denz); mpz_clear(modz);
         Py_DECREF((PyObject*)num);
         Py_DECREF((PyObject*)den);
         Py_DECREF((PyObject*)mod);
@@ -4528,6 +4537,7 @@ Pygmpy_divm(PyObject *self, PyObject *args)
         } else {
             PyErr_SetString(PyExc_ZeroDivisionError, "not invertible");
         }
+        mpz_clear(numz); mpz_clear(denz); mpz_clear(modz);
         Py_DECREF((PyObject*)num);
         Py_DECREF((PyObject*)den);
         Py_DECREF((PyObject*)mod);
