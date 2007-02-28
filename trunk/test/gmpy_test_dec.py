@@ -1,4 +1,6 @@
 # partial unit test for gmpy/decimal interoperability
+# note: broken in Python 2.4.0 due to a 2.4.0 bug, please update to 2.4.1
+#       or better to allow decimal/most-anything-else interoperability!-)
 # relies on Tim Peters' "doctest.py" test-driver
 # test-version 1.02
 r'''
@@ -52,6 +54,12 @@ r'''
 '''
 
 def _test(chat=None):
+    python_version = sys.version_info[:3]
+    if python_version == (2, 4, 0):
+        print "You're using Python 2.4.0, which does not allow interoperability"
+        print "  between decimal and other types (due to a bug fixed in 2.4.1)"
+        print "  No point in testing, therefore -- please upgrade your Python!"
+        return 0, 0
     if chat:
         print "Unit tests for gmpy 1.02 release candidate (decimal interoperation)"
         print "    running on Python",sys.version
