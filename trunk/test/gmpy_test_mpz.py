@@ -342,6 +342,8 @@ mpz(123)
 >>> z=_g.mpz('melancholy',256)
 >>> z
 mpz(573406620562849222387053L)
+>>> long(z)
+573406620562849222387053L
 >>> divmod(z,a)
 (mpz(4661842443600400182008L), mpz(69))
 >>> for i in range(2,37):
@@ -366,8 +368,8 @@ ValueError: base must be either 0 or in the interval 2 ... 36
 123
 >>> hash(b)
 456
->>> hash(z)
--791330233
+>>> hash(z) == hash(long(z))
+True
 >>> _g.mpz(_g.binary(-123),256)
 mpz(-123)
 >>> long(_g.mpz(-3))
