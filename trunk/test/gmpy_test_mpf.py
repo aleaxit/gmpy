@@ -123,7 +123,31 @@ Traceback (most recent call last):
 ValueError: sqrt of negative number
 >>> _g.pi(64)
 mpf('3.14159265358979323846e0',64)
->>>
+>>> x = float('inf')
+>>> _g.mpf(x)
+Traceback (most recent call last):
+  ...
+ValueError: gmpy does not handle infinity
+>>> _g.mpf(-x)
+Traceback (most recent call last):
+  ...
+ValueError: gmpy does not handle infinity
+>>> _g.mpq(x)
+Traceback (most recent call last):
+  ...
+ValueError: gmpy does not handle infinity
+>>> _g.mpq(-x)
+Traceback (most recent call last):
+  ...
+ValueError: gmpy does not handle infinity
+>>> _g.mpz(x)
+Traceback (most recent call last):
+  ...
+ValueError: gmpy does not handle infinity
+>>> _g.mpz(-x)
+Traceback (most recent call last):
+  ...
+ValueError: gmpy does not handle infinity
 '''
 
 from gmpy_truediv import truediv

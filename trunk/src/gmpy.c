@@ -130,6 +130,8 @@
  *   Pushed coverage to 93.3% (missing only "sanity check" level error
  *      tests [mostly for out-of-memory conditions], output to stderr
  *      conditioned by options.debug, & a couple of very obscure cases)
+ *   Fixed the bug that caused crashes on gmpy.mpf(float('inf')) and
+ *      other such conversions, implicit and explicit
  *
  */
 #include "pymemcompat.h"
@@ -194,6 +196,10 @@ static struct gmpy_options {
     PyObject* AT_cb; /* getattr-like "as last resort try calling this"
                         for getting of attributes from mpz &c instances */
 } options = { 0, 0, 5, 20, -2, 11, 20, 0, 0, 0, 0, 0 };
+
+/* plus and minus infinity */
+static const double pinf = 1.0 / 0.0;
+static const double ninf = -1.0 / 0.0;
 
 /* sanity check: do NOT let cache sizes become wildly large! */
 #define MAX_CACHE 1000
@@ -843,9 +849,16 @@ float2mpz(PyObject *f)
 
     assert(PyFloat_Check(f));
 
-    if(!(newob = Pympz_new()))
-        return NULL;
-    mpz_set_d(newob->z, PyFloat_AsDouble(f));
+    if(newob = Pympz_new())
+    {
+        double d = PyFloat_AsDouble(f);
+        if (d==pinf || d==ninf) {
+            PyErr_SetString(PyExc_ValueError,
+                "gmpy does not handle infinity");
+            return NULL;
+        }
+        mpz_set_d(newob->z, d);
+    }
     return newob;
 }
 
@@ -861,7 +874,15 @@ float2mpq(PyObject *f)
     PympfObject *self = Pympf_new(double_mantissa);
     if(!self) return NULL;
     assert(PyFloat_Check(f));
-    mpf_set_d(self->f, PyFloat_AsDouble(f));
+    {
+        double d = PyFloat_AsDouble(f);
+        if (d==pinf || d==ninf) {
+            PyErr_SetString(PyExc_ValueError,
+                "gmpy does not handle infinity");
+            return NULL;
+        }
+        mpf_set_d(self->f, d);
+    }
     return (PympqObject*)f2q_internal(self, 0, double_mantissa, 0);
 }
 
@@ -897,8 +918,15 @@ float2mpf(PyObject *f, unsigned int bits)
         newob = str2mpf(s, 10, bits);
         Py_DECREF(s);
     } else { /* direct float->mpf conversion, faster but rougher */
-        if((newob = Pympf_new(bits)))
-            mpf_set_d(newob->f, PyFloat_AsDouble(f));
+        if((newob = Pympf_new(bits))) {
+            double d = PyFloat_AsDouble(f);
+            if (d==pinf || d==ninf) {
+                PyErr_SetString(PyExc_ValueError,
+                    "gmpy does not handle infinity");
+                return NULL;
+            }
+            mpf_set_d(newob->f, d);
+        }
     }
     return newob;
 }
@@ -3216,8 +3244,10 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
         }
         newob = anynum2mpz(obj);
         if(!newob) {
-            PyErr_SetString(PyExc_TypeError,
-                "gmpy.mpz() expects numeric or string argument");
+            if (!PyErr_Occurred()) {
+                PyErr_SetString(PyExc_TypeError,
+                    "gmpy.mpz() expects numeric or string argument");
+            }
             return NULL;
         }
     }
