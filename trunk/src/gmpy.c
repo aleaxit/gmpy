@@ -132,6 +132,8 @@
  *      conditioned by options.debug, & a couple of very obscure cases)
  *   Fixed the bug that caused crashes on gmpy.mpf(float('inf')) and
  *      other such conversions, implicit and explicit
+ *   Fixed a bug in get_zconst's prototype affecting 64-bit machines,
+ *      thanks to Gary Bunting
  *
  */
 #include "pymemcompat.h"
@@ -282,7 +284,7 @@ static void set_zconst(int new_minzco, int new_maxzco)
     options.maxzco = new_maxzco;
 }
 /* return incref'd mpz from zconst with value 'i', or else 0 */
-static PympzObject* get_zconst(int i)
+static PympzObject* get_zconst(long i)
 {
     if(i>=options.minzco && i<options.maxzco) { /* i in zconst range */
         PympzObject* result = zconst[i-options.minzco];
@@ -849,7 +851,7 @@ float2mpz(PyObject *f)
 
     assert(PyFloat_Check(f));
 
-    if(newob = Pympz_new())
+    if((newob = Pympz_new()))
     {
         double d = PyFloat_AsDouble(f);
         if (d==pinf || d==ninf) {
