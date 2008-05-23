@@ -134,6 +134,8 @@
  *      other such conversions, implicit and explicit
  *   Fixed a bug in get_zconst's prototype affecting 64-bit machines,
  *      thanks to Gary Bunting
+ *   Fixed a bug in hashing on 64-bit systems. hash(long) now equals
+ *      hash(mpz) for large values. (casevh)
  *
  */
 #include "pymemcompat.h"
@@ -3254,7 +3256,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
         }
     }
     if(options.debug)
-        fprintf(stderr, "Pygmpy_mpz: created mpz = %ld\n", 
+        fprintf(stderr, "Pygmpy_mpz: created mpz = %ld\n",
                 mpz_get_si(newob->z));
 
 
@@ -4366,7 +4368,7 @@ Pympf_coerce(PyObject **pv, PyObject **pw)
 static long
 dohash(PyObject* tempPynum)
 {
-    int hash;
+    long hash;
     if(!tempPynum) return -1;
     hash = PyObject_Hash(tempPynum);
     Py_DECREF(tempPynum);
@@ -4641,7 +4643,7 @@ pi(n): returns pi with n bits of precision in an mpf object\n\
  * it to C and used it in his LISP interpreter.
  *
  * Original comments:
- * 
+ *
  *   sets mp pi = 3.14159... to the available precision.
  *   uses the gauss-legendre algorithm.
  *   this method requires time o(ln(t)m(t)), so it is slower
@@ -4693,7 +4695,7 @@ Pygmpy_pi(PyObject *self, PyObject *args)
         mpf_sqrt(r_i4, r_i4);
         mpf_mul_ui(ix, ix, 2);
         /* Check for convergence */
-        if (!(mpf_cmp_si(r_i2, 0) && 
+        if (!(mpf_cmp_si(r_i2, 0) &&
               mpf_get_prec(r_i2) >= (unsigned)precision)) {
             mpf_mul(pi->f, pi->f, r_i4);
             mpf_div(pi->f, pi->f, r_i3);
@@ -5334,7 +5336,7 @@ static int randquality=0;
 #  define SEEDOF(x)  ( *(mpz_t*)((x)->_mp_seed->_mp_d) )
 #else
 #  define do_randinit(state, size) gmp_randinit(state, GMP_RAND_ALG_LC, size)
-#  if (__GNU_MP_VERSION==4) 
+#  if (__GNU_MP_VERSION==4)
 #    define SEEDOF(x) ((x)->_mp_seed)
 #  else
 #    define SEEDOF(x) ((x)->seed)
