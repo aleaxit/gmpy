@@ -5,7 +5,7 @@
    and modified them to be used in Python.
 
 Copyright 2000 Pearu Peterson all rights reserved,
-Pearu Peterson <pearu@ioc.ee>          
+Pearu Peterson <pearu@ioc.ee>
 Permission to use, modify, and distribute this software is given under the
 terms of the LGPL.  See http://www.fsf.org
 
@@ -13,6 +13,9 @@ NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
 $Revision: 1.2 $
 $Date: 2003/08/08 08:57:05 $
 Pearu Peterson
+
+Bug fix for more than 32 iterations in pollard_rho method.
+  (Patch courtesy rel...@osagesoftware.com)
 
 */
 #include "Python.h"
@@ -26,7 +29,7 @@ Pearu Peterson
 
 static unsigned add[] = {4, 2, 4, 2, 4, 6, 2, 6};
 
-#if defined (__hpux) || defined (__alpha)  || defined (__svr4__) || defined (__SVR4) 
+#if defined (__hpux) || defined (__alpha)  || defined (__svr4__) || defined (__SVR4)
 /* HPUX lacks random().  DEC OSF/1 1.2 random() returns a double.  */
 long mrand48 ();
 static long
@@ -129,7 +132,7 @@ factor_using_division (mpz_t t, unsigned int limit, PyObject *res)
     {
       mpz_tdiv_qr_ui (q, r, t, 3);
       if (mpz_cmp_ui (r, 0) != 0)
-	break;
+        break;
       mpz_set (t, q);
       count++;
     }
@@ -139,7 +142,7 @@ factor_using_division (mpz_t t, unsigned int limit, PyObject *res)
     {
       mpz_tdiv_qr_ui (q, r, t, 5);
       if (mpz_cmp_ui (r, 0) != 0)
-	break;
+        break;
       mpz_set (t, q);
       count++;
     }
@@ -149,27 +152,27 @@ factor_using_division (mpz_t t, unsigned int limit, PyObject *res)
   f = 7;
   ai = 0;
   count = 0;
-  while (mpz_cmp_ui (t, 1) != 0) 
+  while (mpz_cmp_ui (t, 1) != 0)
     {
       mpz_tdiv_qr_ui (q, r, t, f);
       if (mpz_cmp_ui (r, 0) != 0)
-	{
-	  res_append(res,f,count);
-	  count = 0;
-	  f += addv[ai];
-	  if (mpz_cmp_ui (q, f) < 0)
-	    break;
-	  ai = (ai + 1) & 7;
-	  failures++;
-	  if (failures > limit)
-	    break;
-	}
+        {
+          res_append(res,f,count);
+          count = 0;
+          f += addv[ai];
+          if (mpz_cmp_ui (q, f) < 0)
+            break;
+          ai = (ai + 1) & 7;
+          failures++;
+          if (failures > limit)
+            break;
+        }
       else
-	{
-	  mpz_swap (t, q);
-	  failures = 0;
-	  count++;
-	}
+        {
+          mpz_swap (t, q);
+          failures = 0;
+          count++;
+        }
     }
   res_append(res,f,count);
   mpz_clear (q);
@@ -192,11 +195,11 @@ factor_using_division_2kp (mpz_t t, unsigned int limit, unsigned long p, PyObjec
       mpz_tdiv_r (r, t, f);
       count = 0;
       while (mpz_cmp_ui (r, 0) == 0)
-	{
-	  mpz_tdiv_q (t, t, f);
-	  mpz_tdiv_r (r, t, f);
-	  count++;
-	}
+        {
+          mpz_tdiv_q (t, t, f);
+          mpz_tdiv_r (r, t, f);
+          count++;
+        }
       res_append_mpz(res,f,count);
       mpz_add_ui (f, f, 2 * p);
     }
@@ -213,7 +216,8 @@ factor_using_pollard_rho (mpz_t n, int a_int, unsigned long p,PyObject *res)
   mpz_t a;
   mpz_t g;
   mpz_t t1, t2;
-  int k, l, c, i;
+  mpz_t kz, lz, iz;
+  int c;
   unsigned long int count;
 
   mpz_init (g);
@@ -224,8 +228,10 @@ factor_using_pollard_rho (mpz_t n, int a_int, unsigned long p,PyObject *res)
   mpz_init_set_si (y, 2);
   mpz_init_set_si (x, 2);
   mpz_init_set_si (x1, 2);
-  k = 1;
-  l = 1;
+
+  mpz_init (iz);
+  mpz_init_set_si (kz, 1);
+  mpz_init_set_si (lz, 1);
   mpz_init_set_ui (P, 1);
   c = 0;
   count = 0;
@@ -233,74 +239,77 @@ factor_using_pollard_rho (mpz_t n, int a_int, unsigned long p,PyObject *res)
     {
 S2:
       if (p != 0)
-	{
-	  mpz_powm_ui (x, x, p, n); mpz_add (x, x, a);
-	}
+        {
+          mpz_powm_ui (x, x, p, n); mpz_add (x, x, a);
+        }
       else
-	{
-	  mpz_mul (x, x, x); mpz_add (x, x, a); mpz_mod (x, x, n);
-	}
+        {
+          mpz_mul (x, x, x); mpz_add (x, x, a); mpz_mod (x, x, n);
+        }
       mpz_sub (t1, x1, x); mpz_mul (t2, P, t1); mpz_mod (P, t2, n);
       c++;
       if (c == 20)
-	{
-	  c = 0;
-	  mpz_gcd (g, P, n);
-	  if (mpz_cmp_ui (g, 1) != 0)
-	    goto S4;
-	  mpz_set (y, x);
-	}
+        {
+          c = 0;
+          mpz_gcd (g, P, n);
+          if (mpz_cmp_ui (g, 1) != 0)
+            goto S4;
+          mpz_set (y, x);
+        }
 /* S3: */
-      k--;
-      if (k != 0)
-	goto S2;
+      mpz_sub_ui (kz, kz, 1);
+      if (mpz_cmp_ui(kz,0) > 0)
+        goto S2;
 
       mpz_gcd (g, P, n);
       if (mpz_cmp_ui (g, 1) != 0)
-	goto S4;
+        goto S4;
 
       mpz_set (x1, x);
-      k = l;
-      l = 2 * l;
-      for (i = 0; i < k; i++)
-	{
-	  if (p != 0)
-	    {
-	      mpz_powm_ui (x, x, p, n); mpz_add (x, x, a);
-	    }
-	  else
-	    {
-	      mpz_mul (x, x, x); mpz_add (x, x, a); mpz_mod (x, x, n);
-	    }
-	}
+      mpz_set (kz, lz);
+      mpz_mul_ui (lz, lz, 2);
+
+      // for loop with integer index works fine for k < 2**31
+      // using mpz_t allows unlimited range
+      for ( mpz_set (iz, kz);  mpz_cmp_ui(iz,0) > 0; mpz_sub_ui (iz, iz, 1) )
+        {
+          if (p != 0)
+            {
+              mpz_powm_ui (x, x, p, n); mpz_add (x, x, a);
+            }
+          else
+            {
+              mpz_mul (x, x, x); mpz_add (x, x, a); mpz_mod (x, x, n);
+            }
+        }
       mpz_set (y, x);
       c = 0;
       goto S2;
 S4:
       do
-	{
-	  if (p != 0)
-	    {
-	      mpz_powm_ui (y, y, p, n); mpz_add (y, y, a); 
-	    }
-	  else
-	    {
-	      mpz_mul (y, y, y); mpz_add (y, y, a); mpz_mod (y, y, n);
-	    }
-	  mpz_sub (t1, x1, y); mpz_gcd (g, t1, n);
-	}
+        {
+          if (p != 0)
+            {
+              mpz_powm_ui (y, y, p, n); mpz_add (y, y, a);
+            }
+          else
+            {
+              mpz_mul (y, y, y); mpz_add (y, y, a); mpz_mod (y, y, n);
+            }
+          mpz_sub (t1, x1, y); mpz_gcd (g, t1, n);
+        }
       while (mpz_cmp_ui (g, 1) == 0);
 
       if (!mpz_probab_prime_p (g, 3))
-	{
-	  do
-	    a_int = random ();
-	  while (a_int == -2 || a_int == 0);
-	  factor_using_pollard_rho (g, a_int, p, res);
-	  break;
-	}
+        {
+          do
+            a_int = random ();
+          while (a_int == -2 || a_int == 0);
+          factor_using_pollard_rho (g, a_int, p, res);
+          break;
+        }
       else
-	count ++;
+        count ++;
 
       res_append_mpz(res,g,count);
       count = 0;
@@ -309,12 +318,15 @@ S4:
       mpz_mod (x1, x1, n);
       mpz_mod (y, y, n);
       if (mpz_probab_prime_p (n, 3))
-	{
-	  count++;
-	  break;
-	}
+        {
+          count++;
+          break;
+        }
     }
   res_append_mpz(res,n,count);
+  mpz_clear (iz);
+  mpz_clear (kz);
+  mpz_clear (lz);
   mpz_clear (g);
   mpz_clear (P);
   mpz_clear (t2);
@@ -369,8 +381,8 @@ Pysym_factor(PyObject *self, PyObject *args)
   PyObject *p_py = NULL;
   PyObject *res = NULL;
   if (!PyArg_ParseTuple(args, "O&|O&",\
-			Pympz_convert_arg,&t_py,\
-			Pympz_convert_arg,&p_py))
+                        Pympz_convert_arg,&t_py,\
+                        Pympz_convert_arg,&p_py))
     return NULL;
 
   res = PyList_New(0);
@@ -404,7 +416,7 @@ statichere PyMethodDef Pysym_methods [] =
 
 void
 initpysymbolicext(void)
-{ 
+{
   Py_InitModule("pysymbolicext", Pysym_methods);
   import_gmpy();
 }
