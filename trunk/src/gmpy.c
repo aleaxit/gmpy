@@ -136,6 +136,8 @@
  *      thanks to Gary Bunting
  *   Fixed a bug in hashing on 64-bit systems. hash(long) now equals
  *      hash(mpz) for large values. (casevh)
+ *   Changed int() to return a long value instead of OverFlowError.
+ *      Complies with PEP 237. (casevh)
  *
  */
 #include "pymemcompat.h"
@@ -1487,8 +1489,7 @@ static PyObject *
 mpz2int(PympzObject *x)
 {
     if(notanint(x->z)) {
-        PyErr_SetString(PyExc_OverflowError, "mpz too large for int");
-        return NULL;
+        return mpz2long(x);
     }
     return PyInt_FromLong(mpz_get_si(x->z));
 }
