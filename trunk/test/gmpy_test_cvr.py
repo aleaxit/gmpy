@@ -24,7 +24,7 @@ r'''
 >>> _g.set_fcoform()
 >>> print _g.mpf(3.0)
 3.0
->>> 
+>>>
 '''
 
 __test__['user_errors']=\
@@ -171,10 +171,8 @@ ValueError: string too short to be a gmpy.mpf binary encoding
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: invalid digits
->>> int(_g.mpz(1000L*1000*1000*1000*1000*1000*1000)) 
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-OverflowError: mpz too large for int
+>>> int(_g.mpz(1000L*1000*1000*1000*1000*1000*1000))
+1000000000000000000000L
 >>> _g.scan0(12,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -470,6 +468,14 @@ ValueError: jacobi's y must be odd prime > 0
 Traceback (most recent call last):
   ...
 ValueError: legendre's y must be odd and > 0
+>>> # guard against conversion error on 64-bit systems
+>>> _g.mpz(2**32-2)
+mpz(4294967294)
+>>> # test hash properties on 64-bit systems
+>>> temp = 123456789012345678901234567890
+>>> hash(temp) == hash(_g.mpz(temp))
+True
+>>> del temp
 '''
 
 def _test(chat=None):

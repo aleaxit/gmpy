@@ -42,10 +42,10 @@ def factorize(x):
     factors=[]
     while x>=prime:
         newx,mult=x.remove(prime)
-	if mult:
-	    factors.extend([int(prime)]*mult)
-	    x=newx
-	prime=_g.next_prime(prime)
+        if mult:
+            factors.extend([int(prime)]*mult)
+            x=newx
+        prime=_g.next_prime(prime)
     for factor in factors: assert _g.is_prime(factor)
     from operator import mul
     assert reduce(mul, factors)==savex
@@ -115,7 +115,7 @@ mpz(99)
 -1
 >>> z=b-b; z.sign()
 0
->>> 
+>>>
 '''
 
 from gmpy_truediv import truediv
@@ -270,7 +270,7 @@ mpz(122)
 [1, 1, 3, 3, 6, 6, 6, 8, 8, 10, 10, 12, 12, 13, 14, -1, None, None]
 >>> [n.scan1(j) for j in range(33)]
 [0, 2, 2, 4, 4, 5, 7, 7, 9, 9, 11, 11, 15, 15, 15, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
->>> 
+>>>
 '''
 
 __test__['format']=\
@@ -374,7 +374,7 @@ True
 mpz(-123)
 >>> long(_g.mpz(-3))
 -3L
->>> 
+>>>
 '''
 
 __test__['number']=\
@@ -609,12 +609,12 @@ ValueError: 'floa' needs arg>=0
 
 def _test(chat=None):
     if chat:
-	print "Unit tests for gmpy 1.02 release candidate (mpz functionality)"
-	print "    running on Python",sys.version
-	print
-	print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
-	    (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
-	    ) + _g.get_zconst())
+        print "Unit tests for gmpy 1.02 release candidate (mpz functionality)"
+        print "    running on Python",sys.version
+        print
+        print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
+            (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
+            ) + _g.get_zconst())
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
@@ -624,19 +624,19 @@ def _test(chat=None):
 
     sav = sys.stdout
     class _Dummy:
-	def write(self,*whatever):
-	    pass
+        def write(self,*whatever):
+            pass
     try:
-	sys.stdout = _Dummy()
-	doctest.testmod(thismod, report=0)
+        sys.stdout = _Dummy()
+        doctest.testmod(thismod, report=0)
     finally:
-	sys.stdout = sav
+        sys.stdout = sav
 
     if chat:
-	print
-	print "Overall results for cvr:"
+        print
+        print "Overall results for cvr:"
     return doctest.master.summarize(chat)
-    
+
 
 if __name__=='__main__':
     _test(1)
