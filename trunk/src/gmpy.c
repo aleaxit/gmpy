@@ -1,6 +1,25 @@
 /* gmpy.c
  *
  * Python interface to the GMP multiple precision library,
+ * Copyright (C) 2000 - 2008 Alex Martelli
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301  USA
+ *
+ *************************************************************************
+ *
  * originally written for GMP-2.0 (by AMK...?)
  * Rewritten by Niels Möller, May 1996
  *
@@ -9,6 +28,7 @@
  * cleanups & reorgs leading to 1.0: Alex Martelli (until Aug 2003)
  * further cleanups and bugfixes leading to 1.01, Alex Martelli (Nov 2005)
  * minor bugfixes+new decimal (&c) support to 1.02, Alex Martelli (Feb 2006)
+ * various bugfixes for 64-bit platforms, 1.03, aleaxit and casevh (Jun 2008)
  *
  * Some hacks by Gustavo Niemeyer <niemeyer@conectiva.com>.
  *
@@ -130,6 +150,8 @@
  *   Pushed coverage to 93.3% (missing only "sanity check" level error
  *      tests [mostly for out-of-memory conditions], output to stderr
  *      conditioned by options.debug, & a couple of very obscure cases)
+ *
+ *   1.03
  *   Fixed the bug that caused crashes on gmpy.mpf(float('inf')) and
  *      other such conversions, implicit and explicit
  *   Fixed a bug in get_zconst's prototype affecting 64-bit machines,
@@ -162,7 +184,7 @@ size_t mpq_out_str _PROTO ((FILE *, int, mpq_srcptr));
 #define staticforward extern
 #endif
 
-char gmpy_version[] = "1.02";
+char gmpy_version[] = "1.03";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -5953,7 +5975,7 @@ static void _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] = "\
-gmpy 1.02 - General Multiprecision arithmetic for PYthon:\n\
+gmpy 1.03 - General Multiprecision arithmetic for PYthon:\n\
 exposes functionality from the GMP 4 library to Python 2.{2,3,4}.\n\
 \n\
 Allows creation of multiprecision integer (mpz), float (mpf),\n\

@@ -5,6 +5,7 @@
   Created by Pearu Peterson <pearu@cens.ioc.ee>, November 2000.
   Edited by A. Martelli <aleaxit@yahoo.com>, December 2000.
   Version 1.02, February 2007.
+  Version 1.03, June 2008
  */
 
 #ifndef Py_GMPYMODULE_H
@@ -65,7 +66,7 @@ typedef struct {
 #define Pympf_Type_NUM 2
 
   /* C API functions */
-  
+
 #define Pympz_new_NUM 3
 #define Pympz_new_RETURN PympzObject *
 #define Pympz_new_PROTO (void)
@@ -89,7 +90,7 @@ typedef struct {
 #define Pympf_dealloc_NUM 8
 #define Pympf_dealloc_RETURN void
 #define Pympf_dealloc_PROTO (PympfObject *self)
-  
+
 #define Pympz_convert_arg_NUM 9
 #define Pympz_convert_arg_RETURN int
 #define Pympz_convert_arg_PROTO (PyObject *arg, PyObject **ptr)
@@ -195,7 +196,7 @@ static void **Pygmpy_API;
      }
 
 #endif
-  
+
 #ifdef __cplusplus
 }
 #endif
