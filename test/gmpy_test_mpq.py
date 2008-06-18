@@ -1,6 +1,6 @@
-# partial unit test for gmpy 1.02 mpq functionality
+# partial unit test for gmpy 1.03 mpq functionality
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.02
+# test-version 1.03
 r'''
 >>> dir(a)
 ['_copy', 'binary', 'denom', 'digits', 'numer', 'qdiv', 'sign']
@@ -262,7 +262,7 @@ r'''
 1
 >>> hash(-b)==hash(-_g.mpf(b))==hash(-float(b))
 1
->>> 
+>>>
 '''
 
 __test__['power']=\
@@ -317,7 +317,7 @@ mpq(12,5)
 
 def _test(chat=None):
     if chat:
-	print "Unit tests for gmpy 1.02 release candidate (mpq functionality)"
+	print "Unit tests for gmpy 1.03 release candidate (mpq functionality)"
 	print "    running on Python",sys.version
 	print
 	print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
@@ -343,7 +343,7 @@ def _test(chat=None):
 	print
 	print "Overall results for cvr:"
     return doctest.master.summarize(chat)
-    
+
 
 if __name__=='__main__':
     _test(1)

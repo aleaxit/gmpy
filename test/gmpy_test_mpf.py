@@ -1,6 +1,6 @@
-# partial unit test for gmpy 1.02 mpf functionality
+# partial unit test for gmpy 1.03 mpf functionality
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.02
+# test-version 1.03
 r'''
 >>> dir(a)
 ['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'setprec', 'sign', 'sqrt', 'trunc']
@@ -153,7 +153,7 @@ ValueError: gmpy does not handle infinity
 from gmpy_truediv import truediv
 __test__['newdiv']=\
 r'''
->>> 
+>>>
 >>> a/b
 mpf('1.56447093799065544915e-1')
 >>> a//b
@@ -232,7 +232,7 @@ mpf('1.e12')
 0
 >>> a==c
 1
->>> 
+>>>
 '''
 
 __test__['format']=\
@@ -306,7 +306,7 @@ mpf('1.23456e2',33)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 TypeError: argument can not be converted to mpf
->>> 
+>>>
 '''
 
 __test__['binio']=\
@@ -372,12 +372,12 @@ r'''
 123
 >>> int(-a)
 -123
->>> 
+>>>
 '''
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.02 release candidate (mpf functionality)"
+        print "Unit tests for gmpy 1.03 release candidate (mpf functionality)"
         print "    running on Python",sys.version
         print
         print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
