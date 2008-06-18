@@ -16,8 +16,8 @@ body { margin-left: 30; margin-right: 30; }
 </HEAD>
 <BODY>
 <FONT SIZE=-1>
-Last updated on: 2007, Feb 19;
-for GMPY release: 1.2 release candidate
+Last updated on: 2008, June 16;
+for GMPY release: 1.03
 <A href="http://code.google.com/p/gmpy/">
 <IMG src="http://code.google.com/images/code_sm.png"
 width="88" height="31" border="0" alt="Go to Google Code gmpy page"></A>
@@ -40,7 +40,7 @@ to Python, exactly these existing libraries (possibly with
 additional "convenience" wrappers written in Python itself).
 For starters, we've focused on the popular (and excellent)
 GNU Multiple Precision library,
-<A HREF="http://www.swox.com/gmp/">GMP</A>,
+<A HREF="http://gmplib.org/">GMP</A>,
 exposing its functionality through module <b>gmpy</b>.
 
 <H1>The GMPY Module</H1>
@@ -96,19 +96,19 @@ vein, i.e., by trying to work "like Python's built-in numbers" when
 there was a choice and two or more alternatives made sense.
 
 <H1>Project Status and near-future plans</H1>
-The gmpy module's release-candidate release (latest current release
-as of 2007/02/18: 1.01) is available for download in both
+The gmpy module's current release (latest current release
+as of 2008/06/16: 1.03) is available for download in both
 source and Windows-binary form
 
-[[TODO: make the downloadable tarball and binary releases of 1.02
+[[TODO: make the downloadable tarball and binary releases of 1.03
 for Windows and MacOSX available on code.google.com: currently,
-1.02 exists only in the SVN source repository on code.google.com,
+1.03 exists only in the SVN source repository on code.google.com,
 and binary tarballs and releases exist only for older releases,
 1.01 and back, on the project's previous home, gmpy.sf.net, and
 are not maintained any more]].
 
 gmpy 1.02 exposes all of the mpz, mpq
-and mpf functionality that was already available in GMP 3.1, and 
+and mpf functionality that was already available in GMP 3.1, and
 most of the random-number generation functionality (there are no
 current plans to extend gmpy to expose other such functionality,
 although the currently experimental way in which it is architected
@@ -121,7 +121,10 @@ with <strong>older</strong> GMP versions, such as GMP 3, and you may
 have to install the latest GMP version instead -- beware also of
 /usr/lib vs /usr/local/lib issues.
 <p>
-The exception to this need is under (32-bit) Windows, where
+Please read the file "windows_build.txt" for detailed instructions on
+compiling GMP and GMPY using the freely available MinGW tools.
+<p>
+[[ OLD: The exception to this need is under (32-bit) Windows, where
 binary-accompanied releases are the norm, and builds of GMP usable
 with MS VC++ 6 (the main C compiler used for Python on this platform)
 are traditionally hard to come by.
@@ -135,7 +138,7 @@ to offer all needed files and instructions for Windows developers who
 want to re-build the gmpy module from sources; the gmpy project itself
 just supplies a separate 'binary module' package is supplied, containing
 only the pre-built GMPY.PYD, for those who do <b>not</b> want to
-re-build from sources.
+re-build from sources. ]]
 <p>
 <b>Do</b> note, however, that <b>all</b> gmpy users should download the
 gmpy source-package as well, as currently that is the one including
