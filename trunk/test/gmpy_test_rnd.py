@@ -1,6 +1,6 @@
-# partial unit test for gmpy 1.02 rand functionality
+# partial unit test for gmpy 1.03 rand functionality
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.02
+# test-version 1.03
 r'''
 >>> r
 <built-in function rand>
@@ -114,7 +114,7 @@ ekrnutplo
 Traceback (most recent call last):
    ...
 TypeError: 'shuf' needs mutable sequence
->>> 
+>>>
 '''
 
 # adapt to python 2.3's slightly different error message in an exception
@@ -124,21 +124,21 @@ if sys.version<'2.4':
 
 def _test(chat=None):
     if chat:
-	print "Unit tests for gmpy 1.02 release candidate (rand functionality)"
-	print "    running on Python", sys.version
-	print
-	print "Testing gmpy %s (GMP %s) with default caching (%s, %s..%s)" % (
-	    (_g.version(), _g.gmp_version(), _g.get_zcache()
-	    ) + _g.get_zconst())
+        print "Unit tests for gmpy 1.03 release candidate (rand functionality)"
+        print "    running on Python", sys.version
+        print
+        print "Testing gmpy %s (GMP %s) with default caching (%s, %s..%s)" % (
+            (_g.version(), _g.gmp_version(), _g.get_zcache()
+            ) + _g.get_zconst())
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
     if chat:
-	print
-	print "Overall results for rnd:"
+        print
+        print "Overall results for rnd:"
     return doctest.master.summarize(chat)
-    
+
 
 if __name__=='__main__':
     _test(1)
- 
+

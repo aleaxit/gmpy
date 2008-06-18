@@ -7,7 +7,6 @@ from time import time
 # you will need to compile GMP from scratch and try a different memory
 # allocation option.
 
-print "Testing operations with large numbers."
 
 
 def pi(N):
@@ -27,4 +26,6 @@ def pi(N):
     print "Computation took %5.2f seconds." % (time() - start)
     return 1/a
 
-pi(1000000)
+if __name__ == '__main__':
+    print "Testing operations with large numbers."
+    pi(1000000)

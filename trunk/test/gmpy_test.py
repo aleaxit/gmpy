@@ -1,6 +1,6 @@
 r'''
 >>> gmpy.version()
-'1.02'
+'1.03'
 >>>
 '''
 
@@ -20,12 +20,10 @@ import gmpy_test_dec
 
 
 test_modules = (gmpy_test_cvr, gmpy_test_rnd, gmpy_test_mpf,
-    gmpy_test_mpq, gmpy_test_mpz,
-    gmpy_test_dec,
-    )
+    gmpy_test_mpq, gmpy_test_mpz, gmpy_test_dec)
 
 _g = gmpy
-print "Unit tests for gmpy 1.02 release candidate"
+print "Unit tests for gmpy 1.03"
 print "    on Python", sys.version
 print "Testing gmpy %s (GMP %s), default caching (%s, %s, %s..%s)" % (
     (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),

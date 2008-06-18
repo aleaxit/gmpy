@@ -1,11 +1,11 @@
-# partial unit test for gmpy 1.02 extra cover
+# partial unit test for gmpy 1.03 extra cover
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.02
+# test-version 1.03
 r'''
 >>> print int(_g.gmp_version()[:3] in ('4.2', '4.1', '4.0', '3.1'))
 1
 >>> _g.version()
-'1.02'
+'1.03'
 >>> int('gmpy.c' in _g._cvsid())
 1
 '''
@@ -469,8 +469,8 @@ Traceback (most recent call last):
   ...
 ValueError: legendre's y must be odd and > 0
 >>> # guard against conversion error on 64-bit systems
->>> _g.mpz(2**32-2)
-mpz(4294967294)
+>>> _g.mpz(1<<32) != _g.mpz(0)
+True
 >>> # test hash properties on 64-bit systems
 >>> temp = 123456789012345678901234567890
 >>> hash(temp) == hash(_g.mpz(temp))
@@ -480,7 +480,7 @@ True
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.02 release candidate (extra cover)"
+        print "Unit tests for gmpy 1.03 release candidate (extra cover)"
         print "    running on Python", sys.version
         print
         print "Testing gmpy %s (GMP %s) with default caching" \
