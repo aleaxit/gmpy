@@ -100,6 +100,9 @@ case recommended, since it contains all of gmpy's docs, tests and
 examples, as well as gmpy's soruces).  These old installers are, at
 the time of this writing, only available at gmpy.sourceforge.net.
 
+The file "windows_build.txt" contains detailed instructions for compiling
+GMP and GMPY using the freely available MinGW tools.
+
 The sources zipfile also contains this file (gmpydoc.txt), an
 example C source file for a separate module that uses the C-API of
 gmpy to interoperate with it, a copy of the index.html for the
@@ -110,7 +113,7 @@ performance of, and test, some functionality of the gmpy module.
 To test the installation, cd to the directory where you unpacked
 the gmpy sources, and run, at the command prompt:
 
-        ct test
+        cd test
 
 and then, at the next prompt:
 
@@ -121,7 +124,7 @@ Expected output is something like (details may differ!):
 
 """
 Unit tests for gmpy 1.02 release candidate
-    on Python 2.5 (r25:51918, Sep 19 2006, 08:49:13) 
+    on Python 2.5 (r25:51918, Sep 19 2006, 08:49:13)
 [GCC 4.0.1 (Apple Computer, Inc. build 5341)]
 Testing gmpy 1.02 (GMP 4.2), default caching (20, 20, -2..11)
 gmpy_test_cvr 270 tests, 0 failures
