@@ -1,5 +1,5 @@
 General MultiPrecision arithmetic for Python -- i.e., Python 2.2/.3/2.4/2.5
-interface module for library GMP 4 -- release 1.02 candidate (Feb 2007).
+interface module for library GMP 4 -- release 1.03 (June 2008).
 
 The gmpy project is moving to Google Code:
     http://code.google.com/p/gmpy/
@@ -7,12 +7,13 @@ Please check that site for better-updated sources, docs, etc.
 
 Detailed documentation in subdirectory doc.
 
-To install gmpy 1.02 from sources (you need to have Python 2.2 or better, and
+To install gmpy 1.03 from sources (you need to have Python 2.2 or better, and
 GMP 4, previously installed): at a shell prompt, python setup.py install
 
 Note that, on Windows, you may use the distributed binary release, rather
-than having to rebuid from sources; to build from sources, you need a
-Windows installation of GMP 4 (http://www.cs.nyu.edu/exact/core/gmp/).
+than having to rebuild from source. To build GMP and GMPY from source, see the
+file "windows_build.txt".
+
 Binary installations are also available for MacOSX (and for many Linux
 distributions, but those are not distributed by the gmpy project).
 
