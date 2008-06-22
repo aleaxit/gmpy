@@ -11,12 +11,16 @@ if sys.version < '2.2.3':
 # determine include and library dirs
 incdirs = libdirs = ()
 if sys.version.find('MSC') == -1:
-    # Unix-like build
+    # Unix-like build (including MacOSX)
     incdirs = ['./src']
     if os.path.isfile('/usr/local/include/gmp.h'):
         incdirs.append('/usr/local/include')
+    elif os.path.isfile('/opt/local/include/gmp.h'):
+        incdirs.append('/opt/local/include')
     if os.path.isfile('/usr/local/lib/libgmp.a'):
         libdirs=['/usr/local/lib']
+    elif os.path.isfile('/opt/local/lib/libgmp.a'):
+        libdirs=['/opt/local/lib']
 
 # decomment next line (w/gcc, only!) to support gcov
 #   os.environ['CFLAGS'] = '-fprofile-arcs -ftest-coverage -O0'
