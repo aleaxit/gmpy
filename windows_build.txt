@@ -4,7 +4,7 @@ GMPY binaries can be compiled for the Windows operating systems using
 the free MinGW toolkit. The MinGW toolkit provides a Minimalist GNU
 for Windows environment.
 
-1) Download and install MinGW-5.1.4.exe.
+1) Download and install MinGW-5.1.4.exe. Choose the "current" release.
 
 2) Download and install MSYS-1.0.10.exe.
 
