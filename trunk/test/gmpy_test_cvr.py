@@ -515,7 +515,7 @@ Traceback (most recent call last):
   ...
 ValueError: legendre's y must be odd and > 0
 >>> # guard against conversion error on 64-bit systems
->>> _g.mpz(1<<32) != _g.mpz(0)
+>>> _g.mpz(2**32) != _g.mpz(0)
 True
 >>> # test hash properties on 64-bit systems
 >>> temp = 123456789012345678901234567890
