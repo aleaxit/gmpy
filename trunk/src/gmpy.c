@@ -23,8 +23,8 @@
  * originally written for GMP-2.0 (by AMK...?)
  * Rewritten by Niels Möller, May 1996
  *
- * Version for GMP-4, Python-2.{2,3,4}, with support for MSVC++6,
- * addition of mpf's, &c: Alex Martelli (aleaxit@yahoo.com, Nov 2000).
+ * Version for GMP-4, Python-2.{2,3,4,5,6,...}, with support for MSVC++6,
+ * addition of mpf's, &c: Alex Martelli (now aleaxit@gmail.com, Nov 2000).
  * cleanups & reorgs leading to 1.0: Alex Martelli (until Aug 2003)
  * further cleanups and bugfixes leading to 1.01, Alex Martelli (Nov 2005)
  * minor bugfixes+new decimal (&c) support to 1.02, Alex Martelli (Feb 2006)
@@ -160,7 +160,8 @@
  *      hash(mpz) for large values. (casevh)
  *   Changed int() to return a long value instead of OverFlowError.
  *      Complies with PEP 237. (casevh)
- *
+ *   Added support in setup.py for darwinports/macports build of GMP
+ *      on MacOSX. (aleaxit)
  */
 #include "pymemcompat.h"
 

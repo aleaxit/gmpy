@@ -29,6 +29,9 @@ r'''
 
 try:
     x = float('inf')
+except ValueError:
+    pass
+else:
     __test__['infinity'] = \
 r'''
 >>> x = float('inf')
@@ -70,8 +73,6 @@ Traceback (most recent call last):
   ...
 ValueError: gmpy does not handle nan
 '''
-except ValueError:
-    pass
 
 __test__['user_errors']=\
 r'''
