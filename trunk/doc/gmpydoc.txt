@@ -1,4 +1,4 @@
-gmpy module -- a complete Python 2.{2,3,4} interface for GMP 4
+gmpy module -- a complete Python 2.{3,4,5,6} interface for GMP 4
 (including Win32/MSVC++ binary builds).
 
 
@@ -36,6 +36,7 @@ Minor editing for version 1.0 (2003/08/08).
 Minor editing for version 1.01 (2005/11/12);
 maintainer's preferred email changed to aleaxit@gmail.com .
 Minor editing for version 1.02 (2007/02/19).
+Minor editing for version 1.03 (2008/06/22).
 
 
 *Acknowledgments*
@@ -59,10 +60,13 @@ the Windows binary installers for gmpy 1.01.
 Chip Turner and Daniel Lord helped with the changes leading to version
 1.02, so, thanks to them as well!
 
+Case Vanhorsten has done almost all of the work leading to version 1.03,
+so, SUPER thanks!-)
+
 
 *Installation and testing*
 
-Pre-requisites: Python 2.2 or better, and GMP 4.0.1 or better (see
+Pre-requisites: Python 2.3 or better, and GMP 4.0.1 or better (see
 later for Win32).  GMP 3.* is not being tested any more, even
 though gmpy doesn't yet expose any GMP4-only functionality and
 presumably "should" build OK with GMP 3.  No support nor bugfixes
@@ -102,6 +106,9 @@ the time of this writing, only available at gmpy.sourceforge.net.
 
 The file "windows_build.txt" contains detailed instructions for compiling
 GMP and GMPY using the freely available MinGW tools.
+
+The file "mac_build.txt" contains detailed instructions for compiling
+GMP and GMPY on MacOSX (or getting GMP via mactools/darwintools).
 
 The sources zipfile also contains this file (gmpydoc.txt), an
 example C source file for a separate module that uses the C-API of
@@ -155,7 +162,7 @@ the key issue is the 'Test passed' line at the end of each run!
 
 *PLEASE* report any failures to gmpy's maintainers, with all details you
 can supply on your machine, on your OS, and on your installation of GMP
-4, gmpy 1.02, Python 2.3, 2.4, or 2.5, and any other relevant issue
+4, gmpy 1.03, Python 2.3, 2.4, 2.5, or 2.6, and any other relevant issue
 (your C/C++ compiler & libraries, &c).  *THANKS* in advance -- bug
 reporting and feedback is your key contribution to the gmpy project!
 (Reports of any _successful_ installations will also be welcome, if it's
