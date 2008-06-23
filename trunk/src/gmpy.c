@@ -225,10 +225,6 @@ static struct gmpy_options {
                         for getting of attributes from mpz &c instances */
 } options = { 0, 0, 5, 20, -2, 11, 20, 0, 0, 0, 0, 0 };
 
-/* plus and minus infinity */
-static const double pinf = 1.0 / 0.0;
-static const double ninf = -1.0 / 0.0;
-
 /* sanity check: do NOT let cache sizes become wildly large! */
 #define MAX_CACHE 1000
 
@@ -880,9 +876,14 @@ float2mpz(PyObject *f)
     if((newob = Pympz_new()))
     {
         double d = PyFloat_AsDouble(f);
-        if (d==pinf || d==ninf) {
+        if isinf(d) {
             PyErr_SetString(PyExc_ValueError,
                 "gmpy does not handle infinity");
+            return NULL;
+        }
+        if isnan(d) {
+            PyErr_SetString(PyExc_ValueError,
+                "gmpy does not handle nan");
             return NULL;
         }
         mpz_set_d(newob->z, d);
@@ -904,9 +905,14 @@ float2mpq(PyObject *f)
     assert(PyFloat_Check(f));
     {
         double d = PyFloat_AsDouble(f);
-        if (d==pinf || d==ninf) {
+        if isinf(d) {
             PyErr_SetString(PyExc_ValueError,
                 "gmpy does not handle infinity");
+            return NULL;
+        }
+        if isnan(d) {
+            PyErr_SetString(PyExc_ValueError,
+                "gmpy does not handle nan");
             return NULL;
         }
         mpf_set_d(self->f, d);
@@ -948,9 +954,14 @@ float2mpf(PyObject *f, unsigned int bits)
     } else { /* direct float->mpf conversion, faster but rougher */
         if((newob = Pympf_new(bits))) {
             double d = PyFloat_AsDouble(f);
-            if (d==pinf || d==ninf) {
+            if isinf(d) {
                 PyErr_SetString(PyExc_ValueError,
                     "gmpy does not handle infinity");
+                return NULL;
+            }
+            if isnan(d) {
+                PyErr_SetString(PyExc_ValueError,
+                    "gmpy does not handle nan");
                 return NULL;
             }
             mpf_set_d(newob->f, d);
