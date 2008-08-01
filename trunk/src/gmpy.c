@@ -162,6 +162,12 @@
  *      Complies with PEP 237. (casevh)
  *   Added support in setup.py for darwinports/macports build of GMP
  *      on MacOSX. (aleaxit)
+ *
+ *   Post 1.03 changes
+ *   Avoid GMP/mingw32 bug when converting very small floats to mpz.
+ *      (casevh)
+ *   Significant performance improvement for long->mpz and mpz->long.
+ *      (casevh)
  */
 #include "pymemcompat.h"
 
@@ -172,6 +178,7 @@
 
 #define GMPY_MODULE
 #include "gmpy.h"
+#include "gmp.h"
 
 #if defined(MS_WIN32) && defined(_MSC_VER)
 /* so one won't need to link explicitly to gmp.lib...: */
@@ -1053,12 +1060,13 @@ mpq2mpz(PyObject * obj)
  * to convert-from-long, we have a dependence on longs' internals:
  * we concentrate this dependence _right here_.
  */
+
 static PympzObject *
 long2mpz(PyObject * obj)
 {
     PympzObject *newob;
     mpz_t digit;
-    int len, i, negative;
+    int len, negative;
     PyLongObject *l = (PyLongObject *) obj;
 
     assert(PyLong_Check(obj));
@@ -1075,11 +1083,7 @@ long2mpz(PyObject * obj)
         len = l->ob_size;
         negative = 0;
     }
-    for(i=0; i<len; i++) {
-        mpz_set_ui(digit, l->ob_digit[i]);
-        mpz_mul_2exp(digit, digit, i * SHIFT);
-        mpz_ior(newob->z, newob->z, digit);
-    }
+    mpz_import(newob->z, len, -1, sizeof(l->ob_digit[0]), 0, sizeof(l->ob_digit[0])*8 - SHIFT, l->ob_digit);
     if(negative)
         mpz_neg(newob->z, newob->z);
     mpz_cloc(digit);
@@ -1445,6 +1449,7 @@ mpz2long(PympzObject *x)
     int negative;
     int size;
     int i;
+    size_t count;
     PyLongObject *newob;
     mpz_t temp;
 
@@ -1466,10 +1471,8 @@ mpz2long(PympzObject *x)
         mpz_cloc(temp);
         return NULL;
     }
-    for(i=0; i<size; i++) {
-        newob->ob_digit[i] = (unsigned short)(mpz_get_ui(temp) & MASK);
-        mpz_fdiv_q_2exp(temp, temp, SHIFT);
-    }
+    mpz_export(newob->ob_digit, &count, -1, sizeof(newob->ob_digit[0]), 0, sizeof(newob->ob_digit[0])*8 - SHIFT, temp);
+    if (count == 0) newob->ob_digit[0] = 0;
     assert(mpz_sgn(temp) == 0);
     mpz_cloc(temp);
 
