@@ -1,7 +1,7 @@
 import sys, os
 from distutils.core import setup, Extension
 
-# patch distutils if it can't cope with the "classifiers" and
+# monkey-patch distutils if it can't cope with the "classifiers" and
 # "download_url" keywords
 if sys.version < '2.2.3':
     from distutils.dist import DistributionMetadata
