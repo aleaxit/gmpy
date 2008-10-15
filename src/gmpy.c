@@ -1596,7 +1596,7 @@ mpq2float(PympqObject *x)
  *  build binary representation of mpz (base-256 little-endian)
  *  Note: design limitation used to forbid binary repr of <0 mpz;
  *  this has now been remedied, but at the price of full compatibility
- *  with files saved in releases 0.6 and earlier.
+ *  with files saved in gmpy releases 0.6 and earlier.
  */
 static PyObject *
 mpz2binary(PympzObject *x)
@@ -2222,9 +2222,18 @@ anynum2mpz(PyObject* obj)
         if(result) {
             if(Pympz_Check(result)) {
                 newob = (PympzObject *)result;
+                if(options.debug)
+                    fprintf(stderr, "__gmpy_z__ result mpz(%ld)\n",
+                            mpz_get_si(newob->z));
+
             } else {
+                if(options.debug)
+                    fprintf(stderr, "__gmpy_z__ result not an mpz!\n");
                 Py_DECREF(result);
             }
+        } else {
+          if(options.debug)
+              fprintf(stderr, "__gmpy_z__ result 0!\n");
         }
     }
     if(options.debug)
@@ -2289,7 +2298,7 @@ Pympz_convert_arg(PyObject *arg, PyObject **ptr)
         return 1;
     } else {
         PyErr_SetString(PyExc_TypeError,
-            "argument can not be converted to mpz");
+            "argument cannot be converted to mpz");
         return 0;
     }
 }
@@ -4170,6 +4179,11 @@ static int _normi(int result)
 static int
 Pympz_cmp(PympzObject *a, PympzObject *b)
 {
+    if(options.debug)
+        fprintf(stderr, "Pympz_cmp: compare %ld to %ld\n",
+                mpz_get_si(a->z),
+                mpz_get_si(b->z)
+                );
     return _normi(mpz_cmp(a->z, b->z));
 }
 static int
