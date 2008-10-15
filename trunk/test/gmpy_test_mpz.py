@@ -164,6 +164,14 @@ r'''
 1
 >>> not a
 0
+>>> _g.mpz(1) == None
+False
+>>> _g.mpz(1) == '1'
+False
+>>> _g.mpz(1) == 'abc'
+False
+>>> [_g.mpz(23), None].count(None)
+1
 >>> coerce(a,1)
 (mpz(123), mpz(1))
 >>> coerce(1,a)
