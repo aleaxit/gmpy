@@ -20,6 +20,8 @@ if _d: d=_d.Decimal('12.34')
 
 __test__['elemop']=\
 r'''
+>>> print _g.mpz(23) == _d.Decimal(23)
+True
 >>> print _g.mpz(d)
 12
 >>> print _g.mpq(d)
@@ -62,7 +64,7 @@ def _test(chat=None):
         return 0, 0
     if chat:
         print "Unit tests for gmpy 1.03 release candidate (decimal interoperation)"
-        print "    running on Python",sys.version
+        print "    running on Python", sys.version
         print
         print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
             (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
@@ -81,4 +83,3 @@ def _test(chat=None):
 
 if __name__=='__main__':
     _test(1)
-
