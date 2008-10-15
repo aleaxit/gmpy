@@ -10,7 +10,7 @@ from time import time
 
 
 def pi(N):
-    print "Computng pi to %s decimal places." % N
+    print "Computing pi to %s decimal places." % N
     start = time()
     N = int(round(log(10,2)*N))
     sq2 = fsqrt(mpf(2, N))
