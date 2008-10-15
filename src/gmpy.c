@@ -5574,22 +5574,22 @@ static PyNumberMethods mpz_number_methods =
     (unaryfunc) mpz2float,
     (unaryfunc) Pympz_oct,
     (unaryfunc) Pympz_hex,
-	0, /* binaryfunc nb_inplace_add;	*/
-	0, /* binaryfunc nb_inplace_subtract;	*/
-	0, /* binaryfunc nb_inplace_multiply;	*/
-	0, /* binaryfunc nb_inplace_divide;	*/
-	0, /* binaryfunc nb_inplace_remainder;	*/
-	0, /* ternaryfunc nb_inplace_power;	*/
-	0, /* binaryfunc nb_inplace_lshift;	*/
-	0, /* binaryfunc nb_inplace_rshift;	*/
-	0, /* binaryfunc nb_inplace_and;	*/
-	0, /* binaryfunc nb_inplace_xor;	*/
-	0, /* binaryfunc nb_inplace_or;		*/
+        0, /* binaryfunc nb_inplace_add;        */
+        0, /* binaryfunc nb_inplace_subtract;   */
+        0, /* binaryfunc nb_inplace_multiply;   */
+        0, /* binaryfunc nb_inplace_divide;     */
+        0, /* binaryfunc nb_inplace_remainder;  */
+        0, /* ternaryfunc nb_inplace_power;     */
+        0, /* binaryfunc nb_inplace_lshift;     */
+        0, /* binaryfunc nb_inplace_rshift;     */
+        0, /* binaryfunc nb_inplace_and;        */
+        0, /* binaryfunc nb_inplace_xor;        */
+        0, /* binaryfunc nb_inplace_or;         */
 
-    (binaryfunc) Pympz_div,		/* binaryfunc nb_floor_divide; */
-    (binaryfunc) Pympany_truediv,	/* binaryfunc nb_true_divide; */
-	0, /* binaryfunc nb_inplace_floor_divide;	*/
-	0, /* binaryfunc nb_inplace_true_divide;	*/
+    (binaryfunc) Pympz_div,             /* binaryfunc nb_floor_divide; */
+    (binaryfunc) Pympany_truediv,       /* binaryfunc nb_true_divide; */
+        0, /* binaryfunc nb_inplace_floor_divide;       */
+        0, /* binaryfunc nb_inplace_true_divide;        */
 #if Py_TPFLAGS_HAVE_INDEX
     (unaryfunc) Pympz_asindex,            /* unaryfunc nb_index; */
 #endif
@@ -5620,22 +5620,22 @@ static PyNumberMethods mpq_number_methods =
     (unaryfunc) mpq2float,
     (unaryfunc) 0,      /* no oct */
     (unaryfunc) 0,      /* no hex */
-	0, /* binaryfunc nb_inplace_add;	*/
-	0, /* binaryfunc nb_inplace_subtract;	*/
-	0, /* binaryfunc nb_inplace_multiply;	*/
-	0, /* binaryfunc nb_inplace_divide;	*/
-	0, /* binaryfunc nb_inplace_remainder;	*/
-	0, /* ternaryfunc nb_inplace_power;	*/
-	0, /* binaryfunc nb_inplace_lshift;	*/
-	0, /* binaryfunc nb_inplace_rshift;	*/
-	0, /* binaryfunc nb_inplace_and;	*/
-	0, /* binaryfunc nb_inplace_xor;	*/
-	0, /* binaryfunc nb_inplace_or;		*/
+        0, /* binaryfunc nb_inplace_add;        */
+        0, /* binaryfunc nb_inplace_subtract;   */
+        0, /* binaryfunc nb_inplace_multiply;   */
+        0, /* binaryfunc nb_inplace_divide;     */
+        0, /* binaryfunc nb_inplace_remainder;  */
+        0, /* ternaryfunc nb_inplace_power;     */
+        0, /* binaryfunc nb_inplace_lshift;     */
+        0, /* binaryfunc nb_inplace_rshift;     */
+        0, /* binaryfunc nb_inplace_and;        */
+        0, /* binaryfunc nb_inplace_xor;        */
+        0, /* binaryfunc nb_inplace_or;         */
 
-    (binaryfunc) Pympq_floordiv,		/* binaryfunc nb_floor_divide; */
-    (binaryfunc) Pympany_truediv,	/* binaryfunc nb_true_divide; */
-	0, /* binaryfunc nb_inplace_floor_divide;	*/
-	0, /* binaryfunc nb_inplace_true_divide;	*/
+    (binaryfunc) Pympq_floordiv,                /* binaryfunc nb_floor_divide; */
+    (binaryfunc) Pympany_truediv,       /* binaryfunc nb_true_divide; */
+        0, /* binaryfunc nb_inplace_floor_divide;       */
+        0, /* binaryfunc nb_inplace_true_divide;        */
 };
 
 static PyNumberMethods mpf_number_methods =
@@ -5663,22 +5663,22 @@ static PyNumberMethods mpf_number_methods =
     (unaryfunc) mpf2float,
     (unaryfunc) 0,      /* no oct */
     (unaryfunc) 0,      /* no hex */
-	0, /* binaryfunc nb_inplace_add;	*/
-	0, /* binaryfunc nb_inplace_subtract;	*/
-	0, /* binaryfunc nb_inplace_multiply;	*/
-	0, /* binaryfunc nb_inplace_divide;	*/
-	0, /* binaryfunc nb_inplace_remainder;	*/
-	0, /* ternaryfunc nb_inplace_power;	*/
-	0, /* binaryfunc nb_inplace_lshift;	*/
-	0, /* binaryfunc nb_inplace_rshift;	*/
-	0, /* binaryfunc nb_inplace_and;	*/
-	0, /* binaryfunc nb_inplace_xor;	*/
-	0, /* binaryfunc nb_inplace_or;		*/
+        0, /* binaryfunc nb_inplace_add;        */
+        0, /* binaryfunc nb_inplace_subtract;   */
+        0, /* binaryfunc nb_inplace_multiply;   */
+        0, /* binaryfunc nb_inplace_divide;     */
+        0, /* binaryfunc nb_inplace_remainder;  */
+        0, /* ternaryfunc nb_inplace_power;     */
+        0, /* binaryfunc nb_inplace_lshift;     */
+        0, /* binaryfunc nb_inplace_rshift;     */
+        0, /* binaryfunc nb_inplace_and;        */
+        0, /* binaryfunc nb_inplace_xor;        */
+        0, /* binaryfunc nb_inplace_or;         */
 
-    (binaryfunc) Pympf_floordiv,	/* binaryfunc nb_floor_divide; */
-    (binaryfunc) Pympany_truediv,	/* binaryfunc nb_true_divide; */
-	0, /* binaryfunc nb_inplace_floor_divide;	*/
-	0, /* binaryfunc nb_inplace_true_divide;	*/
+    (binaryfunc) Pympf_floordiv,        /* binaryfunc nb_floor_divide; */
+    (binaryfunc) Pympany_truediv,       /* binaryfunc nb_true_divide; */
+        0, /* binaryfunc nb_inplace_floor_divide;       */
+        0, /* binaryfunc nb_inplace_true_divide;        */
 };
 
 static PyMethodDef Pygmpy_methods [] =
