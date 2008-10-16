@@ -1,6 +1,6 @@
-# partial unit test for gmpy 1.03 mpf functionality
+# partial unit test for gmpy 1.04 mpf functionality
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.03
+# test-version 1.04
 r'''
 >>> dir(a)
 ['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'setprec', 'sign', 'sqrt', 'trunc']
@@ -353,7 +353,7 @@ r'''
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.03 release candidate (mpf functionality)"
+        print "Unit tests for gmpy 1.04 (mpf functionality)"
         print "    running on Python",sys.version
         print
         print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (

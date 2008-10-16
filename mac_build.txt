@@ -1,4 +1,19 @@
-How to build gmpy with XCode 3 and Mac OS X 10.5.
+With GMP 4.2.3 (which unfortunately has a bug badly affecting gmpy) and the
+current (as of today 10/16/08) 4.2.4, GMP appears to build effortlessly and
+seamlessly on XCode 3 and Mac OS X 10.5 (fingers crossed...!-).  Just download
+ftp://ftp.gnu.org/gnu/gmp/gmp-4.2.4.tar.bz2 -- and do the usual dance of
+software build and install: tar xjf, cd gmp-4.2.4, ./configure, make, make check
+(make sure to scroll back or use |less to verify all tests pass), sudo make
+install.  Here's hoping everything stays THAT easy;-).  ((Note: you WILL get a
+warning from ld when you use this setup to build gmpy, but [fingers again
+crossed] it looks like the warning is benign, as gmpy does pass tests)).
+
+If that doesn't work for you try darwinports (which unfortunately currently
+comes with the buggy 4.2.3, sigh, so some gmpy tests WILL fail -- they're for a
+somewhat marginal part of gmpy, if you don't use set_fcoform you should still be
+OK..):
+
+How to build gmpy with XCode 3 and Mac OS X 10.5 (one easy way):
 
 - install macports AKA darwinports, see http://darwinports.com/
   (you do need to install XCode 3 first); no need to set PATH &c
@@ -10,7 +25,7 @@ How to build gmpy with XCode 3 and Mac OS X 10.5.
 - now, 'python setup.py install' should work just fine
 
 - verify with python test/gmpy_test.py -- expect at the end of the output:
-  1163 passed and 0 failed.
+  1172 passed and 0 failed.
   Test passed.
 
 For older systems, or to try and do without XCode, see:
