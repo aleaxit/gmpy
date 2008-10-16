@@ -158,21 +158,22 @@ formatting functionality.
 <p>
 Unit tests are not considered a weak point any more; the over 1000
 unit-tests now being run provide a decent cover of 93+% SLOC for gmpy.c,
-up from 72% in 0.7.  The non-covered SLOCs (about 370 of gmpy.c's
-current 5820) are mostly disaster-tests to handle out-of-memory
-situations, code providing optional debugging output (for debugging the
-gmpy module -- see the set_debug facility), a smattering of 'defensive
+up from 72% in 0.7.  The non-covered SLOCs (about 150 of gmpy.c's
+current 2311 executable lines out of 6205 total)
+are mostly disaster-tests to handle out-of-memory
+situations, a smattering of 'defensive
 programming' cases (to handle situations that 'should never happen,
 but'...) and some cases of the new experimental 'callbacks' facility
 (mostly provided for the specific use of PySymbolic, and intended to be
-tested by that package).  We'll have to do better, eventually, but, for
-now, this can be considered OK.
+tested by that package).  We'll have to do better, eventually (presumably with
+some mocking approach e.g. to simulate out-of-memory situations), but, for now,
+this can be considered OK.
 <p>
 In the attempt to make gmpy as useful as can be for both stand-alone
 use, and also in the context of PySymbolic, a tad too many design
 decisions have been delayed/postponed by introducing module-level
-flags, letting us 'have it both ways' in the current beta
-gmpy; this has produced a somewhat unwieldy mix of module-level
+flags, letting us 'have it both ways' in the current
+gmpy 1.04; this has produced a somewhat unwieldy mix of module-level
 flag-setting and call-back functions.  This whole area's architecture
 will neet to be revisited, including other such design-decisions yet.
 
