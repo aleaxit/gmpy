@@ -887,12 +887,12 @@ float2mpz(PyObject *f)
     if((newob = Pympz_new()))
     {
         double d = PyFloat_AsDouble(f);
-        if isinf(d) {
+        if (isinf(d)) {
             PyErr_SetString(PyExc_ValueError,
                 "gmpy does not handle infinity");
             return NULL;
         }
-        if isnan(d) {
+        if (isnan(d)) {
             PyErr_SetString(PyExc_ValueError,
                 "gmpy does not handle nan");
             return NULL;
@@ -917,12 +917,12 @@ float2mpq(PyObject *f)
     assert(PyFloat_Check(f));
     {
         double d = PyFloat_AsDouble(f);
-        if isinf(d) {
+        if (isinf(d)) {
             PyErr_SetString(PyExc_ValueError,
                 "gmpy does not handle infinity");
             return NULL;
         }
-        if isnan(d) {
+        if (isnan(d)) {
             PyErr_SetString(PyExc_ValueError,
                 "gmpy does not handle nan");
             return NULL;
@@ -966,12 +966,12 @@ float2mpf(PyObject *f, unsigned int bits)
     } else { /* direct float->mpf conversion, faster but rougher */
         if((newob = Pympf_new(bits))) {
             double d = PyFloat_AsDouble(f);
-            if isinf(d) {
+            if (isinf(d)) {
                 PyErr_SetString(PyExc_ValueError,
                     "gmpy does not handle infinity");
                 return NULL;
             }
-            if isnan(d) {
+            if (isnan(d)) {
                 PyErr_SetString(PyExc_ValueError,
                     "gmpy does not handle nan");
                 return NULL;
