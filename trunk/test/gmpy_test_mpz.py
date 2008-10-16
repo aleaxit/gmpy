@@ -1,6 +1,6 @@
-# partial unit test for gmpy 1.03 mpz functionality
+# partial unit test for gmpy 1.04 mpz functionality
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.03
+# test-version 1.04
 r'''
 >>> filter(lambda x: not x.startswith('_'), dir(_g))
 ['binary', 'bincoef', 'ceil', 'comb', 'denom', 'digits', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fib', 'floor', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_qcache', 'get_zcache', 'get_zconst', 'getbit', 'getprec', 'getrprec', 'gmp_version', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'lowbits', 'mpf', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'rand', 'reldiff', 'remove', 'root', 'scan0', 'scan1', 'set_callback', 'set_debug', 'set_fcoform', 'set_minprec', 'set_qcache', 'set_tagoff', 'set_zcache', 'set_zconst', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'trunc', 'version']
@@ -617,7 +617,7 @@ ValueError: 'floa' needs arg>=0
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.03 release candidate (mpz functionality)"
+        print "Unit tests for gmpy 1.04 (mpz functionality)"
         print "    running on Python",sys.version
         print
         print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (

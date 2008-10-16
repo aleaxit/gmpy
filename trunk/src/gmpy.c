@@ -29,6 +29,7 @@
  * further cleanups and bugfixes leading to 1.01, Alex Martelli (Nov 2005)
  * minor bugfixes+new decimal (&c) support to 1.02, Alex Martelli (Feb 2006)
  * various bugfixes for 64-bit platforms, 1.03, aleaxit and casevh (Jun 2008)
+ * rich comparisons, 1.04, aleaxit and casevh (Oct 2008)
  *
  * Some hacks by Gustavo Niemeyer <niemeyer@conectiva.com>.
  *
@@ -163,11 +164,13 @@
  *   Added support in setup.py for darwinports/macports build of GMP
  *      on MacOSX. (aleaxit)
  *
- *   Post 1.03 changes
+ *   1.04
  *   Avoid GMP/mingw32 bug when converting very small floats to mpz.
  *      (casevh)
  *   Significant performance improvement for long->mpz and mpz->long.
  *      (casevh)
+ *   Added "rich comparisons" to mpz, mpq and mpf types (aleaxit)
+ *   Added some more tests (casevh, aleaxit)
  */
 #include "pymemcompat.h"
 
@@ -192,7 +195,7 @@ size_t mpq_out_str _PROTO ((FILE *, int, mpq_srcptr));
 #define staticforward extern
 #endif
 
-char gmpy_version[] = "1.03";
+char gmpy_version[] = "1.04";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -4197,6 +4200,110 @@ Pympf_cmp(PympfObject *a, PympfObject *b)
     return _normi(mpf_cmp(a->f, b->f));
 }
 
+static int Pympz_coerce(PyObject **pv, PyObject **pw);
+static int Pympf_coerce(PyObject **pv, PyObject **pw);
+static int Pympq_coerce(PyObject **pv, PyObject **pw);
+
+static PyObject *_cmp_to_object(int c, int op)
+{
+    PyObject *result;
+    switch (op) {
+    case Py_LT: c = c <  0; break;
+    case Py_LE: c = c <= 0; break;
+    case Py_EQ: c = c == 0; break;
+    case Py_NE: c = c != 0; break;
+    case Py_GT: c = c >  0; break;
+    case Py_GE: c = c >= 0; break;
+    }
+    result = c ? Py_True : Py_False;
+    Py_INCREF(result);
+    return result;
+}
+static PyObject *
+mpz_richcompare(PympzObject *a, PyObject *b, int op)
+{
+    int c = -2;
+    PyObject *poa = (PyObject*) a;
+    if (!PyObject_TypeCheck(b, &Pympz_Type)) {
+        if(Pympz_coerce(&poa, &b) == -1) {
+            c = 23;
+        }
+    } else {
+        Py_INCREF(poa);
+        Py_INCREF(b);
+    }
+    if (c == -2) {
+        c = Pympz_cmp(a, (PympzObject*)b);
+        Py_DECREF(poa);
+        Py_DECREF(b);
+    } else {
+        if (op == Py_EQ || op == Py_NE) {
+            c = 1;
+        } else {
+            PyObject *result = Py_NotImplemented;
+            Py_INCREF(result);
+            return result;
+        }
+    }
+    return _cmp_to_object(c, op);
+}
+static PyObject *
+mpq_richcompare(PympqObject *a, PyObject *b, int op)
+{
+    int c = -2;
+    PyObject *poa = (PyObject*) a;
+    if (!PyObject_TypeCheck(b, &Pympq_Type)) {
+        if(Pympq_coerce(&poa, &b) == -1) {
+            c = 23;
+        }
+    } else {
+        Py_INCREF(poa);
+        Py_INCREF(b);
+    }
+    if (c == -2) {
+        c = Pympq_cmp(a, (PympqObject*)b);
+        Py_DECREF((PyObject*)a);
+        Py_DECREF(b);
+    } else {
+        if (op == Py_EQ || op == Py_NE) {
+            c = 1;
+        } else {
+            PyObject *result = Py_NotImplemented;
+            Py_INCREF(result);
+            return result;
+        }
+    }
+    return _cmp_to_object(c, op);
+}
+static PyObject *
+mpf_richcompare(PympfObject *a, PyObject *b, int op)
+{
+    int c = -2;
+    PyObject *poa = (PyObject*) a;
+    if (!PyObject_TypeCheck(b, &Pympf_Type)) {
+        if(Pympf_coerce(&poa, &b) == -1) {
+            c = 23;
+        }
+    } else {
+        Py_INCREF(poa);
+        Py_INCREF(b);
+    }
+    if (c == -2) {
+        c = Pympf_cmp(a, (PympfObject*)b);
+        Py_DECREF((PyObject*)a);
+        Py_DECREF(b);
+    } else {
+        if (op == Py_EQ || op == Py_NE) {
+            c = 1;
+        } else {
+            PyObject *result = Py_NotImplemented;
+            Py_INCREF(result);
+            return result;
+        }
+    }
+    return _cmp_to_object(c, op);
+}
+
 static int
 Pympz_nonzero(PympzObject *x)
 {
@@ -4323,9 +4430,6 @@ Pympz_hex(PympzObject *self)
 }
 
 /* coercion (in the Python sense) */
-
-static int Pympf_coerce(PyObject **pv, PyObject **pw);
-static int Pympq_coerce(PyObject **pv, PyObject **pw);
 
 static int
 Pympz_coerce(PyObject **pv, PyObject **pw)
@@ -5849,8 +5953,11 @@ statichere PyTypeObject Pympz_Type =
     (getattrofunc) 0,           /* tp_getattro */
     (setattrofunc) 0,           /* tp_setattro */
     (PyBufferProcs *) 0,        /* tp_as_buffer */
-    Py_TPFLAGS_HAVE_INDEX,      /* tp_flags */
+    Py_TPFLAGS_HAVE_INDEX|Py_TPFLAGS_HAVE_RICHCOMPARE,      /* tp_flags */
     "GNU Multi Precision signed integer",
+    0,                          /* tp_traverse */
+    0,                          /* tp_clear */
+    (richcmpfunc)&mpz_richcompare, /* tp_richcompare */
 };
 
 statichere PyTypeObject Pympq_Type =
@@ -5877,8 +5984,11 @@ statichere PyTypeObject Pympq_Type =
     (getattrofunc) 0,           /* tp_getattro */
     (setattrofunc) 0,           /* tp_setattro */
     (PyBufferProcs *) 0,        /* tp_as_buffer */
-    0, /* Py_TPFLAGS_HAVE_INPLACEOPS, tp_flags */
+    Py_TPFLAGS_HAVE_RICHCOMPARE, /* tp_flags */
     "GNU Multi Precision rational number",
+    0,                          /* tp_traverse */
+    0,                          /* tp_clear */
+    (richcmpfunc)&mpq_richcompare, /* tp_richcompare */
 };
 
 
@@ -5906,8 +6016,11 @@ statichere PyTypeObject Pympf_Type =
     (getattrofunc) 0,           /* tp_getattro */
     (setattrofunc) 0,           /* tp_setattro */
     (PyBufferProcs *) 0,        /* tp_as_buffer */
-    0, /* Py_TPFLAGS_HAVE_INPLACEOPS, tp_flags */
+    Py_TPFLAGS_HAVE_RICHCOMPARE, /* tp_flags */
     "GNU Multi Precision floating point",
+    0,                          /* tp_traverse */
+    0,                          /* tp_clear */
+    (richcmpfunc)&mpf_richcompare, /* tp_richcompare */
 };
 
 
@@ -6005,7 +6118,7 @@ static void _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] = "\
-gmpy 1.03 - General Multiprecision arithmetic for PYthon:\n\
+gmpy 1.04 - General Multiprecision arithmetic for PYthon:\n\
 exposes functionality from the GMP 4 library to Python 2.{2,3,4}.\n\
 \n\
 Allows creation of multiprecision integer (mpz), float (mpf),\n\

@@ -37,6 +37,7 @@ Minor editing for version 1.01 (2005/11/12);
 maintainer's preferred email changed to aleaxit@gmail.com .
 Minor editing for version 1.02 (2007/02/19).
 Minor editing for version 1.03 (2008/06/22).
+Minor editing for version 1.04 (2008/10/16).
 
 
 *Acknowledgments*
@@ -54,14 +55,16 @@ discoveries.
 Thanks also to Keith Briggs for his precious feedback, and to Tim
 Peters, Fredrik Lundh, "and a cast of thousands" (posters to
 c.l.py and, in some few cases, gmpy's sf discussion groups) for their
-suggestions.  Furthermore, thanks to Case Van Horsen, who provided
+suggestions.  Furthermore, thanks to Case Vanhorsen, who provided
 the Windows binary installers for gmpy 1.01.
 
 Chip Turner and Daniel Lord helped with the changes leading to version
 1.02, so, thanks to them as well!
 
-Case Vanhorsten has done almost all of the work leading to version 1.03,
-so, SUPER thanks!-)
+Case Vanhorsen has done almost all of the work leading to version 1.03,
+so, SUPER thanks!-)  (He's also pointed out the issues requiring the
+enhancements in 1.04, mainly rich comparisons, and done other changes
+leading from 1.03 to 1.04).
 
 
 *Installation and testing*
@@ -162,7 +165,7 @@ the key issue is the 'Test passed' line at the end of each run!
 
 *PLEASE* report any failures to gmpy's maintainers, with all details you
 can supply on your machine, on your OS, and on your installation of GMP
-4, gmpy 1.03, Python 2.3, 2.4, 2.5, or 2.6, and any other relevant issue
+4, gmpy 1.04, Python 2.3, 2.4, 2.5, or 2.6, and any other relevant issue
 (your C/C++ compiler & libraries, &c).  *THANKS* in advance -- bug
 reporting and feedback is your key contribution to the gmpy project!
 (Reports of any _successful_ installations will also be welcome, if it's

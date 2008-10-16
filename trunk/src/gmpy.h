@@ -6,6 +6,7 @@
   Edited by A. Martelli <aleaxit@yahoo.com>, December 2000.
   Version 1.02, February 2007.
   Version 1.03, June 2008
+  Version 1.04, June 2008 (no changes)
  */
 
 #ifndef Py_GMPYMODULE_H
