@@ -171,6 +171,7 @@
  *      (casevh)
  *   Added "rich comparisons" to mpz, mpq and mpf types (aleaxit)
  *   Added some more tests (casevh, aleaxit)
+ *   Fixed bug when converting very large mpz to str (casevh)
  */
 #include "pymemcompat.h"
 
@@ -189,8 +190,6 @@
 /* fix anomalies of .h vs .lib on Windows; also, use alloca */
 #undef mpq_out_str
 size_t mpq_out_str _PROTO ((FILE *, int, mpq_srcptr));
-#define USE_ALLOCA 1
-#define alloca _alloca
 #undef staticforward
 #define staticforward extern
 #endif
@@ -204,10 +203,6 @@ char _gmpy_cvs[] = "$Id$";
  * how Python "long int"s are internally represented.
  */
 #include "longintrepr.h"
-
-#ifdef __GNUC__
-#define USE_ALLOCA 1
-#endif
 
 /*
  * global data declarations
@@ -1627,15 +1622,11 @@ mpz2binary(PympzObject *x)
     if(negative || needtrail)
         ++size;
 
-#ifdef USE_ALLOCA
-    buffer = alloca(size);
-#else
     if(!(buffer = malloc(size))) {
         mpz_cloc(temp);
         PyErr_NoMemory();
         return NULL;
     }
-#endif
     for (i = 0; i<usize; i++) {
         buffer[i] = (char)(mpz_get_ui(temp) & 0xff);
         mpz_fdiv_q_2exp(temp, temp, 8);
@@ -1645,9 +1636,7 @@ mpz2binary(PympzObject *x)
     }
     mpz_cloc(temp);
     s = PyString_FromStringAndSize(buffer, size);
-#ifndef USE_ALLOCA
     free(buffer);
-#endif
     return s;
 }
 
@@ -1681,15 +1670,11 @@ mpq2binary(PympqObject *x)
     sizeden = (mpz_sizeinbase(mpq_denref(qtemp), 2) + 7) / 8;
     size = sizenum+sizeden+4;
 
-#ifdef USE_ALLOCA
-    buffer = alloca(size);
-#else
     if(!(buffer = malloc(size))) {
         mpz_cloc(temp);
         PyErr_NoMemory();
         return NULL;
     }
-#endif
     sizetemp = sizenum;
     for(i=0; i<4; i++) {
         buffer[i] = (char)(sizetemp & 0xff);
@@ -1711,9 +1696,7 @@ mpq2binary(PympqObject *x)
     mpz_cloc(temp);
     mpq_cloc(qtemp);
     s = PyString_FromStringAndSize(buffer, size);
-#ifndef USE_ALLOCA
     free(buffer);
-#endif
     return s;
 }
 
@@ -1866,15 +1849,11 @@ mpz_ascii(mpz_t z, int base, int with_tag)
      *                                  -----
      *                                   15
      */
-#ifdef USE_ALLOCA
-    buffer = alloca(mpz_sizeinbase(z, base) + 16);
-#else
     if(!(buffer = malloc(mpz_sizeinbase(z, base) + 16)))  {
         mpz_cloc(temp);
         PyErr_NoMemory();
         return NULL;
     }
-#endif
     p = buffer;
     if(with_tag) {
        strcpy(p, ztag+options.tagoff);
@@ -1897,9 +1876,7 @@ mpz_ascii(mpz_t z, int base, int with_tag)
         *(p++) = ')';
     s = PyString_FromStringAndSize(buffer, p - buffer);
     mpz_cloc(temp);
-#ifndef USE_ALLOCA
     free(buffer);
-#endif
     return s;
 }
 static PyObject *
