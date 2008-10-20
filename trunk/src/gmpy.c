@@ -172,6 +172,7 @@
  *   Added "rich comparisons" to mpz, mpq and mpf types (aleaxit)
  *   Added some more tests (casevh, aleaxit)
  *   Fixed bug when converting very large mpz to str (casevh)
+ *   Faster conversion from mpz->binary and binary-mpz (casevh)
  */
 #include "pymemcompat.h"
 
@@ -190,6 +191,8 @@
 /* fix anomalies of .h vs .lib on Windows; also, use alloca */
 #undef mpq_out_str
 size_t mpq_out_str _PROTO ((FILE *, int, mpq_srcptr));
+#define USE_ALLOCA 1
+#define alloca _alloca
 #undef staticforward
 #define staticforward extern
 #endif
@@ -203,6 +206,34 @@ char _gmpy_cvs[] = "$Id$";
  * how Python "long int"s are internally represented.
  */
 #include "longintrepr.h"
+
+#ifdef __GNUC__
+#define USE_ALLOCA 1
+#endif
+
+#define ALLOC_THRESHOLD 8192
+
+#ifdef USE_ALLOCA
+#define TEMP_ALLOC(B, S) \
+    if(S < ALLOC_THRESHOLD) { \
+        B = alloca(S); \
+    } else { \
+        if(!(B = malloc(S))) { \
+            mpz_cloc(temp); \
+            PyErr_NoMemory(); \
+            return NULL; \
+        } \
+    }
+#define TEMP_FREE(B, S) if(S >= ALLOC_THRESHOLD) free(B)
+#else
+#define TEMP_ALLOC(B, S) \
+    if(!(B = malloc(S)))  { \
+        mpz_cloc(temp); \
+        PyErr_NoMemory(); \
+        return NULL; \
+    }
+#define TEMP_FREE(B, S) free(B)
+#endif
 
 /*
  * global data declarations
@@ -1152,13 +1183,7 @@ str2mpz(PyObject *s, long base)
         }
         mpz_set_si(newob->z, 0);
         mpz_inoc(digit);
-
-        /* loop converting octet by octet */
-        for(i=0; i<len; i++) {
-            mpz_set_ui(digit, cp[i]);
-            mpz_mul_2exp(digit, digit, i * 8);
-            mpz_ior(newob->z, newob->z, digit);
-        }
+        mpz_import(newob->z, len, -1, sizeof(char), 0, 0, cp);
         if(negative)
             mpz_neg(newob->z, newob->z);
         mpz_cloc(digit);
@@ -1601,7 +1626,7 @@ mpz2binary(PympzObject *x)
 {
     mpz_t temp;
     size_t size, usize;
-    int negative, i, needtrail;
+    int negative, needtrail;
     char *buffer;
     PyObject *s;
 
@@ -1622,21 +1647,14 @@ mpz2binary(PympzObject *x)
     if(negative || needtrail)
         ++size;
 
-    if(!(buffer = malloc(size))) {
-        mpz_cloc(temp);
-        PyErr_NoMemory();
-        return NULL;
-    }
-    for (i = 0; i<usize; i++) {
-        buffer[i] = (char)(mpz_get_ui(temp) & 0xff);
-        mpz_fdiv_q_2exp(temp, temp, 8);
-    }
+    TEMP_ALLOC(buffer, size);
+    mpz_export(buffer, NULL, -1, sizeof(char), 0, 0, temp);
     if(usize < size) {
         buffer[usize] = negative?0xff:0x00;
     }
     mpz_cloc(temp);
     s = PyString_FromStringAndSize(buffer, size);
-    free(buffer);
+    TEMP_FREE(buffer, size);
     return s;
 }
 
@@ -1670,11 +1688,7 @@ mpq2binary(PympqObject *x)
     sizeden = (mpz_sizeinbase(mpq_denref(qtemp), 2) + 7) / 8;
     size = sizenum+sizeden+4;
 
-    if(!(buffer = malloc(size))) {
-        mpz_cloc(temp);
-        PyErr_NoMemory();
-        return NULL;
-    }
+    TEMP_ALLOC(buffer, size);
     sizetemp = sizenum;
     for(i=0; i<4; i++) {
         buffer[i] = (char)(sizetemp & 0xff);
@@ -1696,7 +1710,7 @@ mpq2binary(PympqObject *x)
     mpz_cloc(temp);
     mpq_cloc(qtemp);
     s = PyString_FromStringAndSize(buffer, size);
-    free(buffer);
+    TEMP_FREE(buffer, size);
     return s;
 }
 
@@ -1823,7 +1837,7 @@ mpz_ascii(mpz_t z, int base, int with_tag)
     PyObject *s;
     char *buffer, *p;
     mpz_t temp;
-    int minus;
+    int minus, size;
 
     if((base != 0) && ((base < 2) || (base > 36))) {
         PyErr_SetString(PyExc_ValueError,
@@ -1849,11 +1863,8 @@ mpz_ascii(mpz_t z, int base, int with_tag)
      *                                  -----
      *                                   15
      */
-    if(!(buffer = malloc(mpz_sizeinbase(z, base) + 16)))  {
-        mpz_cloc(temp);
-        PyErr_NoMemory();
-        return NULL;
-    }
+    size = mpz_sizeinbase(z, base) + 16;
+    TEMP_ALLOC(buffer, size);
     p = buffer;
     if(with_tag) {
        strcpy(p, ztag+options.tagoff);
@@ -1876,7 +1887,7 @@ mpz_ascii(mpz_t z, int base, int with_tag)
         *(p++) = ')';
     s = PyString_FromStringAndSize(buffer, p - buffer);
     mpz_cloc(temp);
-    free(buffer);
+    TEMP_FREE(buffer, size);
     return s;
 }
 static PyObject *
