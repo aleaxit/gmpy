@@ -173,6 +173,8 @@
  *   Added some more tests (casevh, aleaxit)
  *   Fixed bug when converting very large mpz to str (casevh)
  *   Faster conversion from mpz->binary and binary-mpz (casevh)
+ *   Added support for pickling (casevh)
+ *   Added divexact (casevh)
  */
 #include "pymemcompat.h"
 
@@ -5133,6 +5135,41 @@ Pympz_hamdist(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+static char doc_divexactm[]="\
+x.divexact(y): returns the quotient of x divided by y. Faster than\n\
+standard division but requires the remainder is zero!  y must be an mpz,\n\
+or else gets coerced to one.\n\
+";
+static char doc_divexactg[]="\
+divexact(x,y): returns the quotient of x divided by y. Faster than\n\
+standard division but requires the remainder is zero!  x and y must\n\
+be mpz, or else get coerced to mpz.\n\
+";
+static PyObject *
+Pympz_divexact(PyObject *self, PyObject *args)
+{
+    PyObject *other;
+    PympzObject *result;
+    
+    SELF_ONE_ARG_CONVERTED("divexact", Pympz_convert_arg, &other);
+    assert(Pympz_Check(self));
+    assert(Pympz_Check(other));
+
+    result = Pympz_new();
+    if(!result) {
+        Py_XDECREF((PyObject*)result);
+        Py_DECREF((PyObject*)self);
+        Py_DECREF((PyObject*)other);
+        return NULL;
+    }
+
+    mpz_divexact(result->z,Pympz_AS_MPZ(self),Pympz_AS_MPZ(other));
+
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
 
 static char doc_is_squarem[]="\
 x.is_square(): returns 1 if x is a perfect square, else 0.\n\
@@ -5818,6 +5855,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "setbit", Pympz_setbit, 1, doc_setbitg },
     { "popcount", Pympz_popcount, 1, doc_popcountg },
     { "hamdist", Pympz_hamdist, 1, doc_hamdistg },
+    { "divexact", Pympz_divexact, 1, doc_divexactg },
     { "scan0", Pympz_scan0, 1, doc_scan0g },
     { "scan1", Pympz_scan1, 1, doc_scan1g },
     { "root", Pympz_root, 1, doc_rootg },
@@ -5873,6 +5911,7 @@ statichere PyMethodDef Pympz_methods [] =
     { "setbit", Pympz_setbit, 1, doc_setbitm },
     { "popcount", Pympz_popcount, 1, doc_popcountm },
     { "hamdist", Pympz_hamdist, 1, doc_hamdistm },
+    { "divexact", Pympz_divexact, 1, doc_divexactm },
     { "scan0", Pympz_scan0, 1, doc_scan0m },
     { "scan1", Pympz_scan1, 1, doc_scan1m },
     { "root", Pympz_root, 1, doc_rootm },
