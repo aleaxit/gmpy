@@ -2423,12 +2423,12 @@ Pympq_copy(PyObject *self, PyObject *args)
 static char doc_binarym[]="\
 x.binary(): returns a Python string that is a portable binary\n\
 representation of x (the string can later be passed to the mpz\n\
-costructor function to obtain an exact copy of x's value).\n\
+constructor function to obtain an exact copy of x's value).\n\
 ";
 static char doc_binaryg[]="\
 binary(x): returns a Python string that is a portable binary\n\
 representation of x (the string can later be passed to the mpz\n\
-costructor function to obtain an exact copy of x's value).\n\
+constructor function to obtain an exact copy of x's value).\n\
 x must be an mpz, or else gets coerced to one.\n\
 ";
 static PyObject *
@@ -2446,12 +2446,12 @@ Pympz_binary(PyObject *self, PyObject *args)
 static char doc_qbinarym[]="\
 x.binary(): returns a Python string that is a portable binary\n\
 representation of x (the string can later be passed to the mpq\n\
-costructor function to obtain an exact copy of x's value).\n\
+constructor function to obtain an exact copy of x's value).\n\
 ";
 static char doc_qbinaryg[]="\
 qbinary(x): returns a Python string that is a portable binary\n\
 representation of x (the string can later be passed to the mpq\n\
-costructor function to obtain an exact copy of x's value).\n\
+constructor function to obtain an exact copy of x's value).\n\
 x must be an mpq, or else gets coerced to one.\n\
 ";
 static PyObject *
@@ -2469,12 +2469,12 @@ Pympq_binary(PyObject *self, PyObject *args)
 static char doc_fbinarym[]="\
 x.binary(): returns a Python string that is a portable binary\n\
 representation of x (the string can later be passed to the mpf\n\
-costructor function to obtain an exact copy of x's value).\n\
+constructor function to obtain an exact copy of x's value).\n\
 ";
 static char doc_fbinaryg[]="\
 fbinary(f): returns a Python string that is a portable binary\n\
 representation of x, which is an mpf or else gets coerced to one.\n\
-The string can later be passed to the mpf costructor function\n\
+The string can later be passed to the mpf constructor function\n\
 to obtain an exact copy of x's mpf value.\n\
 ";
 static PyObject *
@@ -6132,6 +6132,7 @@ void
 initgmpy(void)
 {
     PyObject* decimal_module = NULL;
+    PyObject* copy_reg_module = NULL;
 
     Pympz_Type.ob_type = &PyType_Type;
     Pympq_Type.ob_type = &PyType_Type;
@@ -6151,6 +6152,43 @@ initgmpy(void)
 
     if (options.debug)
         fprintf(stderr, "gmpy_module at %p\n", gmpy_module);
+    
+    /* Add support for pickling. */
+    copy_reg_module = PyImport_ImportModule("copy_reg");
+    if (copy_reg_module) {
+        char* enable_pickle =
+            "def mpz_reducer(an_mpz): return (gmpy.mpz, (an_mpz.binary(), 256))\n"
+            "def mpq_reducer(an_mpq): return (gmpy.mpq, (an_mpq.binary(), 256))\n"
+            "def mpf_reducer(an_mpf): return (gmpy.mpf, (an_mpf.binary(), 0, 256))\n"
+            "copy_reg.pickle(type(gmpy.mpz(0)), mpz_reducer)\n"
+            "copy_reg.pickle(type(gmpy.mpq(0)), mpq_reducer)\n"
+            "copy_reg.pickle(type(gmpy.mpf(0)), mpf_reducer)\n"
+        ;
+        PyObject* namespace = PyDict_New();
+        PyObject* result = NULL;
+        if (options.debug)
+            fprintf(stderr, "gmpy_module imported copy_reg OK\n");
+        PyDict_SetItemString(namespace, "copy_reg", copy_reg_module);
+        PyDict_SetItemString(namespace, "gmpy", gmpy_module);
+        PyDict_SetItemString(namespace, "type", (PyObject*)&PyType_Type);
+        result = PyRun_String(enable_pickle, Py_file_input,
+                              namespace, namespace);
+        if (result) {
+            if (options.debug)
+                fprintf(stderr, "gmpy_module enable pickle OK\n");
+        } else {
+            if (options.debug)
+                fprintf(stderr, "gmpy_module could not enable pickle\n");
+            PyErr_Clear();
+        }
+        Py_DECREF(namespace);
+        Py_XDECREF(result);
+    } else {
+        PyErr_Clear();
+        if (options.debug)
+            fprintf(stderr, "gmpy_module could not import copy_reg\n");
+    }
+
 
     /* Experimental: adapt module decimal to our needs */
     decimal_module = PyImport_ImportModule("decimal");
