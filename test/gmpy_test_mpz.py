@@ -115,6 +115,9 @@ mpz(99)
 -1
 >>> z=b-b; z.sign()
 0
+>>> import pickle
+>>> pickle.loads(pickle.dumps(_g.mpz(12346789)))
+mpz(12346789)
 >>>
 '''
 

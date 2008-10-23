@@ -77,6 +77,9 @@ mpq(41,152)
 1
 >>> (a+a) == _g.mpq(an*ad+ad*an,ad*ad)
 1
+>>> import pickle
+>>> pickle.loads(pickle.dumps(_g.mpq(1234,6789)))
+mpq(1234,6789)
 >>>
 '''
 
