@@ -1746,7 +1746,7 @@ mpf2binary(PympfObject *x)
     int sign, codebyte;
     mp_exp_t the_exp;
     long lexp, lprec;
-    int lexpodd;
+    int lexpodd, extrabyte;
 
     assert(Pympf_Check( (PyObject *) x));
 
@@ -1791,7 +1791,9 @@ mpf2binary(PympfObject *x)
 
     /* allocate suitably-sized, uninitialized Python string */
     size = (hexdigs+1)/2;
-    s = PyString_FromStringAndSize(0, 1+4+size+4);
+    /* allocate an extra byte if lexpodd and hexdigs is even */
+    extrabyte = lexpodd & ~hexdigs;
+    s = PyString_FromStringAndSize(0, 1+4+size+4+extrabyte);
     if(!s) return 0;
     /* set the data to the new Python string's buffer */
     aux = PyString_AS_STRING(s);
@@ -1816,7 +1818,7 @@ mpf2binary(PympfObject *x)
         aux[i+9] = di256('0',buffer[0]);
         j=1; i=1;
     }
-    for(; i<size; ++i) {
+    for(; i<size+extrabyte; ++i) {
         int secdig = (j+1)<hexdigs? buffer[j+1] : '0';
         aux[i+9] = di256(buffer[j], secdig);
         j += 2;
@@ -4189,6 +4191,11 @@ Pympf_cmp(PympfObject *a, PympfObject *b)
 {
     return _normi(mpf_cmp(a->f, b->f));
 }
+static int
+Pympf_eq(PympfObject *a, PympfObject *b, unsigned long prec)
+{
+    return _normi(mpf_eq(a->f, b->f, prec));
+}
 
 static int Pympz_coerce(PyObject **pv, PyObject **pw);
 static int Pympf_coerce(PyObject **pv, PyObject **pw);
@@ -4269,6 +4276,8 @@ static PyObject *
 mpf_richcompare(PympfObject *a, PyObject *b, int op)
 {
     int c = -2;
+    long minprec, aprec, bprec;
+
     PyObject *poa = (PyObject*) a;
     if (!PyObject_TypeCheck(b, &Pympf_Type)) {
         if(Pympf_coerce(&poa, &b) == -1) {
@@ -4279,7 +4288,13 @@ mpf_richcompare(PympfObject *a, PyObject *b, int op)
         Py_INCREF(b);
     }
     if (c == -2) {
-        c = Pympf_cmp(a, (PympfObject*)b);
+        aprec = mpf_get_prec(a->f);
+        bprec = mpf_get_prec(((PympfObject*)b)->f);
+        minprec = aprec<bprec ? aprec : bprec;
+        /* add 1 to minprec to force comparison of an extra limb */
+        if(!Pympf_eq(a, (PympfObject*)b, minprec+1)) {
+            c = Pympf_cmp(a, (PympfObject*)b);
+        } else c = 0;
         Py_DECREF((PyObject*)a);
         Py_DECREF(b);
     } else {
@@ -5150,7 +5165,7 @@ Pympz_divexact(PyObject *self, PyObject *args)
 {
     PyObject *other;
     PympzObject *result;
-    
+
     SELF_ONE_ARG_CONVERTED("divexact", Pympz_convert_arg, &other);
     assert(Pympz_Check(self));
     assert(Pympz_Check(other));
@@ -6191,7 +6206,7 @@ initgmpy(void)
 
     if (options.debug)
         fprintf(stderr, "gmpy_module at %p\n", gmpy_module);
-    
+
     /* Add support for pickling. */
     copy_reg_module = PyImport_ImportModule("copy_reg");
     if (copy_reg_module) {
