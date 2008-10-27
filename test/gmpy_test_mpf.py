@@ -124,8 +124,12 @@ ValueError: sqrt of negative number
 >>> _g.pi(64)
 mpf('3.14159265358979323846e0',64)
 >>> import pickle
->>> pickle.loads(pickle.dumps(_g.mpf(1234.6789)))
-mpf('1.23467889999999988504e3')
+>>> flt = _g.mpf(1234.6789)
+>>> flt == pickle.loads(pickle.dumps(flt))
+True
+>>> flt = _g.mpf('1.1')
+>>> flt == pickle.loads(pickle.dumps(flt))
+True
 '''
 
 
