@@ -4276,7 +4276,7 @@ static PyObject *
 mpf_richcompare(PympfObject *a, PyObject *b, int op)
 {
     int c = -2;
-    long minprec, aprec, bprec;
+    long aprec, bprec;
 
     PyObject *poa = (PyObject*) a;
     if (!PyObject_TypeCheck(b, &Pympf_Type)) {
@@ -4290,11 +4290,12 @@ mpf_richcompare(PympfObject *a, PyObject *b, int op)
     if (c == -2) {
         aprec = mpf_get_prec(a->f);
         bprec = mpf_get_prec(((PympfObject*)b)->f);
-        minprec = aprec<bprec ? aprec : bprec;
-        /* add 1 to minprec to force comparison of an extra limb */
-        if(!Pympf_eq(a, (PympfObject*)b, minprec+1)) {
+        /* add 1 to aprec to force comparison of an extra limb */
+        if((aprec == bprec) && (Pympf_eq(a, (PympfObject*)b, aprec+1))) {
+            c = 0;
+        } else {
             c = Pympf_cmp(a, (PympfObject*)b);
-        } else c = 0;
+        }
         Py_DECREF((PyObject*)a);
         Py_DECREF(b);
     } else {
