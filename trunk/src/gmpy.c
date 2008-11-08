@@ -199,6 +199,25 @@ size_t mpq_out_str _PROTO ((FILE *, int, mpq_srcptr));
 #define staticforward extern
 #endif
 
+#define GNU_MP_VER \
+__GNU_MP_VERSION * 10000 + \
+__GNU_MP_VERSION_MINOR * 100 + \
+__GNU_MP_VERSION_PATCHLEVEL
+#if GNU_MP_VER > 40201
+char gmpy_license[] = "\
+The GMPY source code is licensed under LGPL 2.1 or later. \
+This version of the GMP library is licensed under LGPL 3 or later. \
+Therefore, this combined module is licensed under LGPL 3 or later.\
+";
+#else
+char gmpy_license[] = "\
+The GMPY source code is licensed under LGPL 2.1 or later. \
+This version of the GMP library is licensed under LGPL 2.1 or later. \
+Therefore, this combined module is licensed under LGPL 2.1 or later.\
+";
+#endif
+#undef GNU_MP_VER
+
 char gmpy_version[] = "1.04";
 
 char _gmpy_cvs[] = "$Id$";
@@ -583,6 +602,17 @@ Pympf_dealloc(PympfObject *self)
     /* Py_XDECREF(MPOBCAL(self)); */
     PyObject_Del(self);
 } /* Pympz_dealloc */
+
+/* Return license information. */
+static char doc_license[]="\
+license(): returns string giving license information\n\
+";
+static PyObject *
+Pygmpy_license(PyObject *self, PyObject *args)
+{
+    NO_ARGS();
+    return Py_BuildValue("s", gmpy_license);
+}
 
 /* return GMPY, resp. GMP, versions, or CVS Id, as strings */
 static char doc_version[]="\
@@ -5831,6 +5861,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "version", Pygmpy_get_version, 1, doc_version },
     { "_cvsid", Pygmpy_get_cvsid, 1, doc_cvsid },
     { "gmp_version", Pygmpy_get_gmp_version, 1, doc_gmp_version },
+    { "license", Pygmpy_license, 1, doc_license },
     { "set_debug", Pygmpy_set_debug, 1, doc_set_debug },
     { "set_minprec", Pygmpy_set_minprec, 1, doc_set_minprec },
     { "set_tagoff", Pygmpy_set_tagoff, 1, doc_set_tagoff },
