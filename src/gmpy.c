@@ -840,6 +840,51 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
         return Py_BuildValue("");
 }
 
+/*
+ * Normalize the internal representation of an mpf. GMP allocates 1
+ * or more additional limbs to store the mantissa of an mpf. The
+ * additional limbs may or may not be used but when used, they can
+ * confuse comparisions. We will normalize all mpf such that the additional
+ * limbs, if used, are set to 0.
+ */
+
+static void mpf_normalize(PympfObject *i)
+{
+    long size, prec, toclear, temp;
+    mp_limb_t carry;
+
+    prec = mpf_get_prec(i->f);
+    size = mpf_size(i->f);
+    toclear = size - ((prec / GMP_NUMB_BITS) + 1);
+    if(toclear>0) {
+        carry = (i->f->_mp_d[toclear-1] & ((mp_limb_t)1 << (GMP_NUMB_BITS - 1))) ? 1 : 0;
+    } else {
+        carry = 0;
+    }
+    if(options.debug) {
+        fprintf(stderr, "prec %ld size %ld toclear %ld carry %ld\n",
+               prec, size, toclear, carry
+               );
+    }
+    temp = toclear;
+    if(temp>0) {
+        i->f->_mp_d[--temp] = 0;
+    }
+    if(carry) {
+        if(options.debug) {
+            fprintf(stderr, "adding carry bit\n");
+        }
+        carry = mpn_add_1(i->f->_mp_d + toclear, i->f->_mp_d + toclear, size-toclear, carry);
+        if(carry) {
+            if(options.debug) {
+                fprintf(stderr, "carry bit extended\n");
+            }
+            i->f->_mp_d[size-1] = 1;
+            i->f->_mp_exp++;
+        }
+    }
+}
+
 /* CONVERSIONS AND COPIES */
 static PympzObject *
 mpz2mpz(PympzObject *i)
@@ -874,6 +919,7 @@ mpf2mpf(PympfObject *f, unsigned int bits)
     if(!(newob = Pympf_new(bits)))
         return NULL;
     mpf_set(newob->f, f->f);
+    mpf_normalize(newob);
     return newob;
 }
 
@@ -932,6 +978,7 @@ int2mpf(PyObject *i, unsigned int bits)
     if(!(newob = Pympf_new(bits)))
         return NULL;
     mpf_set_si(newob->f, li);
+    mpf_normalize(newob);
     return newob;
 }
 
@@ -1037,6 +1084,7 @@ float2mpf(PyObject *f, unsigned int bits)
             mpf_set_d(newob->f, d);
         }
     }
+    mpf_normalize(newob);
     return newob;
 }
 
@@ -1051,7 +1099,7 @@ mpz2mpf(PyObject * obj, unsigned int bits)
     if(!(newob = Pympf_new(bits)))
         return NULL;
     mpf_set_z(newob->f, Pympz_AS_MPZ(obj));
-
+    mpf_normalize(newob);
     return newob;
 }
 
@@ -1099,7 +1147,7 @@ mpq2mpf(PyObject * obj, unsigned int bits)
     if(!(newob = Pympf_new(bits)))
         return NULL;
     mpf_set_q(newob->f, Pympq_AS_MPQ(obj));
-
+    mpf_normalize(newob);
     return newob;
 }
 
@@ -1491,6 +1539,7 @@ str2mpf(PyObject *s, long base, unsigned int bits)
             return NULL;
         }
     }
+    mpf_normalize(newob);
     return newob;
 }
 
@@ -3591,6 +3640,7 @@ Py##NAME(PympfObject *a, PympfObject *b) \
           return result; \
       } \
   } \
+  mpf_normalize(r); \
   return (PyObject *) r; \
 }
 
@@ -4185,6 +4235,7 @@ Pympf_pow(PympfObject *b, PympfObject *e, PympfObject *m)
             return result;
         }
     }
+    mpf_normalize(e);
     return r;
 }
 
@@ -4220,11 +4271,6 @@ static int
 Pympf_cmp(PympfObject *a, PympfObject *b)
 {
     return _normi(mpf_cmp(a->f, b->f));
-}
-static int
-Pympf_eq(PympfObject *a, PympfObject *b, unsigned long prec)
-{
-    return _normi(mpf_eq(a->f, b->f, prec));
 }
 
 static int Pympz_coerce(PyObject **pv, PyObject **pw);
@@ -4306,7 +4352,6 @@ static PyObject *
 mpf_richcompare(PympfObject *a, PyObject *b, int op)
 {
     int c = -2;
-    long aprec, bprec;
 
     PyObject *poa = (PyObject*) a;
     if (!PyObject_TypeCheck(b, &Pympf_Type)) {
@@ -4318,14 +4363,7 @@ mpf_richcompare(PympfObject *a, PyObject *b, int op)
         Py_INCREF(b);
     }
     if (c == -2) {
-        aprec = mpf_get_prec(a->f);
-        bprec = mpf_get_prec(((PympfObject*)b)->f);
-        /* add 1 to aprec to force comparison of an extra limb */
-        if((aprec == bprec) && (Pympf_eq(a, (PympfObject*)b, aprec+1))) {
-            c = 0;
-        } else {
-            c = Pympf_cmp(a, (PympfObject*)b);
-        }
+        c = Pympf_cmp(a, (PympfObject*)b);
         Py_DECREF((PyObject*)a);
         Py_DECREF(b);
     } else {
@@ -4386,6 +4424,7 @@ Py##NAME(PyObject* self, PyObject *args) \
       } \
   } \
   Py_DECREF(self); \
+  mpf_normalize(r); \
   return (PyObject *) r; \
 }
 
@@ -4901,6 +4940,7 @@ Pygmpy_pi(PyObject *self, PyObject *args)
     mpf_clear(r_i3);
     mpf_clear(r_i4);
 
+    mpf_normalize(pi);
     return (PyObject*)pi;
 }
 
@@ -4983,6 +5023,7 @@ Pympf_sqrt(PyObject *self, PyObject *args)
     }
     mpf_sqrt(root->f, Pympf_AS_MPF(self));
     Py_DECREF(self);
+    mpf_normalize(root);
     return (PyObject *) root;
 }
 
@@ -5487,6 +5528,7 @@ Pympf_setprec(PyObject *self, PyObject *args)
 
     mpf_set_prec(Pympf_AS_MPF(self), precres);
     ((PympfObject*)self)->rebits = precres;
+    mpf_normalize((PympfObject*)self);
     return Py_BuildValue("");
 }
 
@@ -5693,6 +5735,7 @@ Pygmpy_rand(PyObject *self, PyObject *args)
             PympfObject *resob = Pympf_new(bits);
             if(bits>0 && resob) {
                 mpf_urandomb(resob->f, randstate, bits);
+                mpf_normalize(resob);
                 result = (PyObject*)resob;
             } else if(bits<=0) {
                 if(resob)

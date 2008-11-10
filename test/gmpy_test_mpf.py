@@ -221,6 +221,15 @@ True
 False
 >>> _g.mpf('1.1',64) == _g.mpf(_g.mpf('1.1',128),64)
 True
+>>> a = _g.mpf('.123', 64)
+>>> b = _g.mpf('.123', 128)
+>>> c = _g.mpf('.123', 128) * _g.mpf(1, 128)
+>>> a == b
+False
+>>> a == c
+False
+>>> b == c
+True
 >>>
 '''
 
@@ -254,6 +263,9 @@ gmpy.mpf('1.23456e2')
 '1.23456e2'
 >>> a.digits(10,8)
 '1.23456e2'
+>>> for i in range(11,99):
+...     assert str(_g.mpf(i/10.0))==('%.20f' % (i/10.0))[:len(str(_g.mpf(i/10.0)))]
+...
 >>> junk=_g.set_fcoform(14)
 >>> frmt=_g.set_fcoform(14)
 >>> frmt
@@ -262,12 +274,9 @@ gmpy.mpf('1.23456e2')
 >>> ofmt
 '%.14e'
 >>> _g.mpf(3.4)
-mpf('3.4e0')
+mpf('3.39999999999999999998e0')
 >>> print _g.mpf(3.4)
-3.4
->>> for i in range(11,99):
-...     assert str(_g.mpf(i/10.0))==str(i/10.0)
-...
+3.39999999999999999998
 >>> a.digits(1)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
