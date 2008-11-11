@@ -608,7 +608,7 @@ static char doc_license[]="\
 license(): returns string giving license information\n\
 ";
 static PyObject *
-Pygmpy_license(PyObject *self, PyObject *args)
+Pygmpy_get_license(PyObject *self, PyObject *args)
 {
     NO_ARGS();
     return Py_BuildValue("s", gmpy_license);
@@ -641,6 +641,15 @@ Pygmpy_get_gmp_version(PyObject *self, PyObject *args)
 {
     NO_ARGS();
     return Py_BuildValue("s", gmp_version);
+}
+static char doc_gmp_limbsize[]="\
+gmp_limbsize(): returns the number of bits per limb\n\
+";
+static PyObject *
+Pygmpy_get_gmp_limbsize(PyObject *self, PyObject *args)
+{
+    NO_ARGS();
+    return Py_BuildValue("i", GMP_NUMB_BITS);
 }
 
 /*
@@ -5511,6 +5520,9 @@ Pympf_getrprec(PyObject *self, PyObject *args)
 static char doc_setprecm[]="\
 x.setprec(n): sets the number of bits of precision in x to\n\
 be _at least_ n (n>0).  ***note that this alters x***!!!\n\
+Please use x.round(); it returns a new value instead of\n\
+altering the existing value. setprec() will be removed in a\n\
+future release.\n\
 ";
 static PyObject *
 Pympf_setprec(PyObject *self, PyObject *args)
@@ -5520,6 +5532,10 @@ Pympf_setprec(PyObject *self, PyObject *args)
     assert(self);   /* exists _as method, ONLY_ */
     assert(Pympf_Check(self));
 
+    if(PyErr_Warn(PyExc_DeprecationWarning,
+        "setprec() will be removed, use round() instead")) {
+        return 0;
+    }
     ONE_ARG("setprec", "l", &precres);
     if(precres<0) {
         PyErr_SetString(PyExc_ValueError, "n must be >=0");
@@ -5530,6 +5546,28 @@ Pympf_setprec(PyObject *self, PyObject *args)
     ((PympfObject*)self)->rebits = precres;
     mpf_normalize((PympfObject*)self);
     return Py_BuildValue("");
+}
+
+static char doc_froundm[] = "\
+x.round(n): returns x rounded to least n bits. Actual precision will\n\
+be a multiple of gmp_limbsize().\n\
+";
+static char doc_froundg[] = "\
+fround(x, n): returns x rounded to least n bits. Actual precision will\n\
+be a multiple of gmp_limbsize(). x an mpf or coerced to an mpf.\n\
+";
+static PyObject *
+Pympf_round(PyObject *self, PyObject *args)
+{
+    /* Should really get default precision. */
+    long prec = 64;
+    PyObject *s;
+
+    SELF_ONE_ARG("fround",Pympf_convert_arg,"|l",&prec);
+    assert(Pympf_Check(self));
+    s = (PyObject*)mpf2mpf((PympfObject*)self, prec);
+    Py_DECREF(self);
+    return s;
 }
 
 
@@ -5904,7 +5942,8 @@ static PyMethodDef Pygmpy_methods [] =
     { "version", Pygmpy_get_version, 1, doc_version },
     { "_cvsid", Pygmpy_get_cvsid, 1, doc_cvsid },
     { "gmp_version", Pygmpy_get_gmp_version, 1, doc_gmp_version },
-    { "license", Pygmpy_license, 1, doc_license },
+    { "license", Pygmpy_get_license, 1, doc_license },
+    { "gmp_limbsize", Pygmpy_get_gmp_limbsize, 1, doc_gmp_limbsize },
     { "set_debug", Pygmpy_set_debug, 1, doc_set_debug },
     { "set_minprec", Pygmpy_set_minprec, 1, doc_set_minprec },
     { "set_tagoff", Pygmpy_set_tagoff, 1, doc_set_tagoff },
@@ -5927,7 +5966,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "fib", Pygmpy_fib, 1, doc_fib },
     { "pi", Pygmpy_pi, 1, doc_pi },
     { "rand", Pygmpy_rand, 1, doc_rand },
-
     { "sqrt", Pympz_sqrt, 1, doc_sqrtg },
     { "sqrtrem", Pympz_sqrtrem, 1, doc_sqrtremg },
     { "is_square", Pympz_is_square, 1, doc_is_squareg },
@@ -5955,7 +5993,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "invert", Pympz_invert, 1, doc_invertg },
     { "_copy", Pympz_copy, 1 },
     { "sign", Pympz_sign, 1, doc_signg },
-
     { "fsqrt", Pympf_sqrt, 1, doc_fsqrtg },
     { "qsign", Pympq_sign, 1, doc_qsigng },
     { "numer", Pympq_numer, 1, doc_numerg },
@@ -5965,10 +6002,10 @@ static PyMethodDef Pygmpy_methods [] =
     { "_qcopy", Pympq_copy, 1 },
     { "qsign", Pympq_sign, 1, doc_qsigng },
     { "qdiv", Pympq_qdiv, 1, doc_qdivg },
-
     { "reldiff", Pympf_doreldiff, 1, doc_reldiffg },
     { "fbinary", Pympf_binary, 1, doc_fbinaryg },
     { "fdigits", Pympf_digits, 1, doc_fdigitsg },
+    { "fround", Pympf_round, 1, doc_froundg },
     { "getprec", Pympf_getprec, 1, doc_getprecg },
     { "getrprec", Pympf_getrprec, 1, doc_getrprecg },
     /* NOT here: { "setprec", Pympf_setprec, 1, doc_setprecg }, */
@@ -6032,6 +6069,7 @@ statichere PyMethodDef Pympf_methods [] =
     { "reldiff", Pympf_doreldiff, 1, doc_reldiffm },
     { "binary", Pympf_binary, 1, doc_fbinarym },
     { "digits", Pympf_digits, 1, doc_fdigitsm },
+    { "round", Pympf_round, 1, doc_froundm },
     { "getprec", Pympf_getprec, 1, doc_getprecm },
     { "getrprec", Pympf_getrprec, 1, doc_getrprecm },
     { "setprec", Pympf_setprec, 1, doc_setprecm },

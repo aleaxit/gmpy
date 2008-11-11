@@ -24,7 +24,8 @@ r'''
 >>> _g.set_fcoform()
 >>> print _g.mpf(3.0)
 3.0
->>>
+>>> _g.gmp_limbsize() in (32, 64)
+True
 '''
 
 try:

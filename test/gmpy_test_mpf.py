@@ -3,9 +3,11 @@
 # test-version 1.04
 r'''
 >>> dir(a)
-['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'setprec', 'sign', 'sqrt', 'trunc']
+['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
 >>>
 '''
+import warnings
+warnings.filterwarnings('ignore', 'setprec')
 
 import gmpy as _g, doctest, sys
 __test__={}
@@ -229,6 +231,10 @@ False
 >>> a == c
 False
 >>> b == c
+True
+>>> a == b.round(64)
+True
+>>> a == _g.fround(b, 64)
 True
 >>>
 '''
