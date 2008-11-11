@@ -5,7 +5,7 @@
 # test-version 1.04
 r'''
 >>> dir(f)
-['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'setprec', 'sign', 'sqrt', 'trunc']
+['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
 >>>
 '''
 try: import decimal as _d
