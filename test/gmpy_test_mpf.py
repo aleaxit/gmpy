@@ -236,6 +236,10 @@ True
 True
 >>> a == _g.fround(b, 64)
 True
+>>> _g.mpf('ffffffffffffffffe8000000000000000', 256, 16).round(64).digits(16)
+'f.fffffffffffffffe@32'
+>>> _g.mpf('fffffffffffffffff8000000000000000', 256, 16).round(64).digits(16)
+'1.@33'
 >>>
 '''
 
