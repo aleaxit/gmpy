@@ -860,13 +860,15 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
 static void mpf_normalize(PympfObject *i)
 {
     long size, prec, toclear, temp;
-    mp_limb_t carry;
+    mp_limb_t bit1, rem, carry;
 
     prec = mpf_get_prec(i->f);
     size = mpf_size(i->f);
     toclear = size - ((prec / GMP_NUMB_BITS) + 1);
     if(toclear>0) {
-        carry = (i->f->_mp_d[toclear-1] & ((mp_limb_t)1 << (GMP_NUMB_BITS - 1))) ? 1 : 0;
+        bit1 = (i->f->_mp_d[toclear-1] & ((mp_limb_t)1 << (GMP_NUMB_BITS - 1))) ? 1 : 0;
+        rem = (i->f->_mp_d[toclear-1] & (((mp_limb_t)1 << (GMP_NUMB_BITS - 1)) - 1)) ? 1 : 0;
+        carry = bit1 && ((i->f->_mp_d[toclear] & 1) || rem);
     } else {
         carry = 0;
     }
