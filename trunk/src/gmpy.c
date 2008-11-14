@@ -175,6 +175,8 @@
  *   Faster conversion from mpz->binary and binary-mpz (casevh)
  *   Added support for pickling (casevh)
  *   Added divexact (casevh)
+ *   Fixed mpf comparisons by rounding mpf results when GMP returns
+ *      a longer result. Added fround() (casevh)
  */
 #include "pymemcompat.h"
 
@@ -5267,7 +5269,6 @@ Pympz_divexact(PyObject *self, PyObject *args)
     Py_DECREF(other);
     return (PyObject*)result;
 }
-
 
 static char doc_is_squarem[]="\
 x.is_square(): returns 1 if x is a perfect square, else 0.\n\
