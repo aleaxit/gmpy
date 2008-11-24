@@ -1590,7 +1590,6 @@ mpz2long(PympzObject *x)
     }
     mpz_export(newob->ob_digit, &count, -1, sizeof(newob->ob_digit[0]), 0, sizeof(newob->ob_digit[0])*8 - SHIFT, temp);
     if (count == 0) newob->ob_digit[0] = 0;
-    assert(mpz_sgn(temp) == 0);
     mpz_cloc(temp);
 
     /* long_normalize() is file-static so we must reimplement it */
