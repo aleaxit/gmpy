@@ -274,7 +274,9 @@ gmpy.mpf('1.23456e2')
 >>> a.digits(10,8)
 '1.23456e2'
 >>> for i in range(11,99):
-...     assert str(_g.mpf(i/10.0))==('%.20f' % (i/10.0))[:len(str(_g.mpf(i/10.0)))]
+...     tempa='%.16f' % (i/10.0)
+...     tempb=_g.mpf(i/10.0).digits(10,17)
+...     assert tempb.startswith(tempa.rstrip('0')), (tempa, tempb)
 ...
 >>> junk=_g.set_fcoform(14)
 >>> frmt=_g.set_fcoform(14)
