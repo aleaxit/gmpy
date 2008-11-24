@@ -5270,6 +5270,101 @@ Pympz_divexact(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+static char doc_mpmath_normalizeg[]="\
+_mpmath_normalize(...): helper function for mpmath.\n\
+";
+static PyObject *
+Pympz_mpmath_normalize(PyObject *self, PyObject *args)
+{
+    long sign, bc, prec, shift, zbits, carry = 0;
+    PyObject *exp = 0;
+    PympzObject *man = 0, *upper = 0, *lower = 0;
+    char rnd;
+
+    if(!PyArg_ParseTuple(args, "lO&Ollc", &sign, Pympz_convert_arg, &man, &exp, &bc, &prec, &rnd))
+        return NULL;
+    assert(Pympz_Check(man));
+
+    /* If the mantissa is 0, return the normalized representation. */
+    if(!mpz_sgn(man->z)) {
+        return Py_BuildValue("lOll", 0, man, 0, 0);
+    }
+
+    upper = Pympz_new();
+    lower = Pympz_new();
+    if(!upper||!lower) {
+        Py_DECREF((PyObject*)man);
+        Py_XDECREF((PyObject*)upper);
+        Py_XDECREF((PyObject*)lower);
+        return NULL;
+    }
+
+    shift = bc - prec;
+    if(shift>0) {
+        switch(rnd) {
+            case 'n':
+                mpz_tdiv_r_2exp(lower->z, man->z, shift);
+                mpz_tdiv_q_2exp(upper->z, man->z, shift);
+                if(mpz_sgn(lower->z)) {
+                    /* lower is not 0 so it must have at least 1 bit set */
+                    if(mpz_sizeinbase(lower->z, 2)==shift) {
+                        /* lower is >= 1/2 */
+                        if(mpz_scan1(lower->z, 0)==shift-1) {
+                            /* lower is exactly 1/2 */
+                            if(mpz_odd_p(upper->z))
+                                carry = 1;
+                        } else {
+                            carry = 1;
+                        }
+                    }
+                }
+                if(carry)
+                    mpz_add_ui(upper->z, upper->z, 1);
+                break;
+            case 'f':
+                if(sign) {
+                    mpz_cdiv_q_2exp(upper->z, man->z, shift);
+                } else {
+                    mpz_fdiv_q_2exp(upper->z, man->z, shift);
+                }
+                break;
+            case 'c':
+                if(sign) {
+                    mpz_fdiv_q_2exp(upper->z, man->z, shift);
+                } else {
+                    mpz_cdiv_q_2exp(upper->z, man->z, shift);
+                }
+                break;
+            case 'd':
+                mpz_fdiv_q_2exp(upper->z, man->z, shift);
+                break;
+            case 'u':
+                mpz_cdiv_q_2exp(upper->z, man->z, shift);
+                break;
+            default:
+                /* Really should raise an error here. */
+                mpz_set(upper->z, man->z);
+        }
+        exp = PyNumber_InPlaceAdd(exp, PyInt_FromLong(shift));
+        bc = prec;
+    } else {
+        mpz_set(upper->z, man->z);
+    }
+
+    /* Strip trailing 0 bits. */
+    zbits = mpz_scan1(upper->z, 0);
+    mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
+    exp = PyNumber_InPlaceAdd(exp, PyInt_FromLong(zbits));
+    bc -= zbits;
+    /* Check if one less than a power of 2 was rounded up. */
+    if(!mpz_cmp_ui(upper->z, 1))
+        bc = 1;
+
+    Py_DECREF((PyObject*)lower);
+    Py_DECREF((PyObject*)man);
+    return Py_BuildValue("lOOl", sign, upper, exp, bc);
+}
+
 static char doc_is_squarem[]="\
 x.is_square(): returns 1 if x is a perfect square, else 0.\n\
 ";
@@ -6018,6 +6113,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "ceil", Pympf_ceil, 1, doc_ceilg },
     { "floor", Pympf_floor, 1, doc_floorg },
     { "trunc", Pympf_trunc, 1, doc_truncg },
+    { "_mpmath_normalize", Pympz_mpmath_normalize, 1, doc_mpmath_normalizeg },
 
     { NULL, NULL, 1}
 };
