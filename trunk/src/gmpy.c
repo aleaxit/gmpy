@@ -29,7 +29,7 @@
  * further cleanups and bugfixes leading to 1.01, Alex Martelli (Nov 2005)
  * minor bugfixes+new decimal (&c) support to 1.02, Alex Martelli (Feb 2006)
  * various bugfixes for 64-bit platforms, 1.03, aleaxit and casevh (Jun 2008)
- * rich comparisons, 1.04, aleaxit and casevh (Oct 2008)
+ * rich comparisons, 1.04, aleaxit and casevh (Dec 2008)
  *
  * Some hacks by Gustavo Niemeyer <niemeyer@conectiva.com>.
  *
@@ -152,7 +152,7 @@
  *      tests [mostly for out-of-memory conditions], output to stderr
  *      conditioned by options.debug, & a couple of very obscure cases)
  *
- *   1.03
+ *   1.03:
  *   Fixed the bug that caused crashes on gmpy.mpf(float('inf')) and
  *      other such conversions, implicit and explicit
  *   Fixed a bug in get_zconst's prototype affecting 64-bit machines,
@@ -164,13 +164,13 @@
  *   Added support in setup.py for darwinports/macports build of GMP
  *      on MacOSX. (aleaxit)
  *
- *   1.04
+ *   1.04:
  *   Avoid GMP/mingw32 bug when converting very small floats to mpz.
  *      (casevh)
  *   Significant performance improvement for long->mpz and mpz->long.
  *      (casevh)
  *   Added "rich comparisons" to mpz, mpq and mpf types (aleaxit)
- *   Added some more tests (casevh, aleaxit)
+ *   Added additional tests (casevh, aleaxit)
  *   Fixed bug when converting very large mpz to str (casevh)
  *   Faster conversion from mpz->binary and binary-mpz (casevh)
  *   Added support for pickling (casevh)
@@ -2620,7 +2620,7 @@ static char doc_numdigitsg[]="\
 numdigits(x[,base]): returns length of string representing x in\n\
 the given base (2 to 36, default 10 if omitted or 0); the value\n\
 returned may sometimes be 1 more than necessary; no provision\n\
-for any 'sign' characte, nor leading '0' or '0x' decoration,\n\
+for any 'sign' character, nor leading '0' or '0x' decoration,\n\
 is made in the returned length.  x must be an mpz, or else gets\n\
 coerced into one.\n\
 ";
@@ -5276,7 +5276,7 @@ static PyObject *
 Pympz_mpmath_normalize(PyObject *self, PyObject *args)
 {
     long sign, bc, prec, shift, zbits, carry = 0;
-    PyObject *exp = 0;
+    PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp =0;
     PympzObject *man = 0, *upper = 0, *lower = 0;
     char rnd;
 
@@ -5286,7 +5286,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
 
     /* If the mantissa is 0, return the normalized representation. */
     if(!mpz_sgn(man->z)) {
-        return Py_BuildValue("lOll", 0, man, 0, 0);
+        return Py_BuildValue("(lNll)", 0, man, 0, 0);
     }
 
     upper = Pympz_new();
@@ -5301,25 +5301,6 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     shift = bc - prec;
     if(shift>0) {
         switch(rnd) {
-            case 'n':
-                mpz_tdiv_r_2exp(lower->z, man->z, shift);
-                mpz_tdiv_q_2exp(upper->z, man->z, shift);
-                if(mpz_sgn(lower->z)) {
-                    /* lower is not 0 so it must have at least 1 bit set */
-                    if(mpz_sizeinbase(lower->z, 2)==shift) {
-                        /* lower is >= 1/2 */
-                        if(mpz_scan1(lower->z, 0)==shift-1) {
-                            /* lower is exactly 1/2 */
-                            if(mpz_odd_p(upper->z))
-                                carry = 1;
-                        } else {
-                            carry = 1;
-                        }
-                    }
-                }
-                if(carry)
-                    mpz_add_ui(upper->z, upper->z, 1);
-                break;
             case 'f':
                 if(sign) {
                     mpz_cdiv_q_2exp(upper->z, man->z, shift);
@@ -5340,28 +5321,77 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
             case 'u':
                 mpz_cdiv_q_2exp(upper->z, man->z, shift);
                 break;
+            case 'n':
             default:
-                /* Really should raise an error here. */
-                mpz_set(upper->z, man->z);
+                mpz_tdiv_r_2exp(lower->z, man->z, shift);
+                mpz_tdiv_q_2exp(upper->z, man->z, shift);
+                if(mpz_sgn(lower->z)) {
+                    /* lower is not 0 so it must have at least 1 bit set */
+                    if(mpz_sizeinbase(lower->z, 2)==shift) {
+                        /* lower is >= 1/2 */
+                        if(mpz_scan1(lower->z, 0)==shift-1) {
+                            /* lower is exactly 1/2 */
+                            if(mpz_odd_p(upper->z))
+                                carry = 1;
+                        } else {
+                            carry = 1;
+                        }
+                    }
+                }
+                if(carry)
+                    mpz_add_ui(upper->z, upper->z, 1);
         }
-        exp = PyNumber_InPlaceAdd(exp, PyInt_FromLong(shift));
+        if (!(tmp = PyInt_FromLong(shift))) {
+            Py_DECREF(man);
+            Py_DECREF((PyObject*)upper);
+            Py_DECREF((PyObject*)lower);
+            return NULL;
+        }
+        if (!(newexp = PyNumber_Add(exp, tmp))) {
+            Py_DECREF(man);
+            Py_DECREF((PyObject*)upper);
+            Py_DECREF((PyObject*)lower);
+            Py_DECREF(tmp);
+            return NULL;
+        }
+        Py_DECREF(tmp);
         bc = prec;
     } else {
         mpz_set(upper->z, man->z);
+        newexp = exp;
+        Py_INCREF(newexp);
     }
 
     /* Strip trailing 0 bits. */
     zbits = mpz_scan1(upper->z, 0);
     mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
-    exp = PyNumber_InPlaceAdd(exp, PyInt_FromLong(zbits));
+
+    if (!(tmp = PyInt_FromLong(zbits))) {
+        Py_DECREF(man);
+        Py_DECREF((PyObject*)upper);
+        Py_DECREF((PyObject*)lower);
+        Py_DECREF(newexp);
+        return NULL;
+    }
+    if (!(newexp2 = PyNumber_Add(newexp, tmp))) {
+        Py_DECREF(man);
+        Py_DECREF((PyObject*)upper);
+        Py_DECREF((PyObject*)lower);
+        Py_DECREF(tmp);
+        Py_DECREF(newexp);
+        return NULL;
+    }
+    Py_DECREF(newexp);
+    Py_DECREF(tmp);
+
     bc -= zbits;
     /* Check if one less than a power of 2 was rounded up. */
     if(!mpz_cmp_ui(upper->z, 1))
         bc = 1;
 
     Py_DECREF((PyObject*)lower);
-    Py_DECREF((PyObject*)man);
-    return Py_BuildValue("lOOl", sign, upper, exp, bc);
+    Py_DECREF(man);
+    return Py_BuildValue("(lNNl)", sign, upper, newexp2, bc);
 }
 
 static char doc_is_squarem[]="\
@@ -6372,7 +6402,7 @@ static void _PyInitGMP(void)
 
 static char _gmpy_docs[] = "\
 gmpy 1.04 - General Multiprecision arithmetic for PYthon:\n\
-exposes functionality from the GMP 4 library to Python 2.{2,3,4}.\n\
+exposes functionality from the GMP 4 library to Python 2.{2...6}.\n\
 \n\
 Allows creation of multiprecision integer (mpz), float (mpf),\n\
 and rational (mpq) numbers, conversion between them and to/from\n\
