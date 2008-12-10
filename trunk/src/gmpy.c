@@ -5342,13 +5342,13 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
                     mpz_add_ui(upper->z, upper->z, 1);
         }
         if (!(tmp = PyInt_FromLong(shift))) {
-            Py_DECREF(man);
+            Py_DECREF((PyObject*)man);
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
         }
         if (!(newexp = PyNumber_Add(exp, tmp))) {
-            Py_DECREF(man);
+            Py_DECREF((PyObject*)man);
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             Py_DECREF(tmp);
@@ -5367,14 +5367,14 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
     if (!(tmp = PyInt_FromLong(zbits))) {
-        Py_DECREF(man);
+        Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
         Py_DECREF(newexp);
         return NULL;
     }
     if (!(newexp2 = PyNumber_Add(newexp, tmp))) {
-        Py_DECREF(man);
+        Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
         Py_DECREF(tmp);
@@ -5390,7 +5390,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         bc = 1;
 
     Py_DECREF((PyObject*)lower);
-    Py_DECREF(man);
+    Py_DECREF((PyObject*)man);
     return Py_BuildValue("(lNNl)", sign, upper, newexp2, bc);
 }
 
