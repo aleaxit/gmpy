@@ -55,13 +55,13 @@ discoveries.
 Thanks also to Keith Briggs for his precious feedback, and to Tim
 Peters, Fredrik Lundh, "and a cast of thousands" (posters to
 c.l.py and, in some few cases, gmpy's sf discussion groups) for their
-suggestions.  Furthermore, thanks to Case Vanhorsen, who provided
+suggestions.  Furthermore, thanks to Case Van Horsen, who provided
 the Windows binary installers for gmpy 1.01.
 
 Chip Turner and Daniel Lord helped with the changes leading to version
 1.02, so, thanks to them as well!
 
-Case Vanhorsen has done almost all of the work leading to version 1.03,
+Case Van Horsen has done almost all of the work leading to version 1.03,
 so, SUPER thanks!-)  (He's also pointed out the issues requiring the
 enhancements in 1.04, mainly rich comparisons, and done other changes
 leading from 1.03 to 1.04).
@@ -405,6 +405,9 @@ int.  Same as gmpy.popcount(x^y).
 gmpy._copy(x) or x._copy(): provide a separate copy of x (only
 relevant for future mutability of mpz... currently useless!).
 
+gmpy.divexact(x,y): returns the quotient of x divided by y. It uses
+a fasterr  division algorithm but requires that the remainder is 0.
+It will return garbage if the remainder is not 0! (New in 1.04.)
 
 *gmpy module-level setting functions*
 [NOTE: the overall architecture of these functions is due to be
@@ -544,6 +547,30 @@ get the actual precision that was _requested_ for a given mpf
 object, x.getrprec() and gmpy.getrprec(x) are also supplied -- the
 value returned from getprec will always be greater than, or equal
 to, the one returned from getrprec.
+
+** The following behavior is in new in gmpy 1.04. **
+
+GMP only guarantees that the precision of a result is greater than
+or equal to the requested precision. But comparisons would use all
+the bits computed, regardless of whether they are accurate. This
+leads to situations where mpf('1.1') * mpf('1') != mpf('1.1').
+Beginning with gmpy 1.04, the results of all mpf calculations are
+rounded to the requested precision.
+
+Note: GMP uses radix 2**32 (or 2**64) arithmetic and rounding is
+done on those boundaries. Let's assume we request 53 bits of
+precision on a 32-bit system. GMP rounds the requested precision
+up to 64 bits and then allocates three 32-bit words to store the
+mantissa. GMP also allocates one additional 32-bit word to simplify
+their internal operations. The additional word may or may not be
+present on any particular result. So in our scenario, GMP can return
+a mantissa with anywhere between 65 and 128 bits. The presence of
+the additional word caused the strange behavior with comparisons.
+If the additional word is present, the mantissa is rounded and the
+additional word is set to 0 so the effective precision is between
+65 and 96 bits.
+
+** End new section. **
 
 An mpf is built by passing to the gmpy.mpf constructor function
 any Python built-in number, another mpf (this *shares* object
