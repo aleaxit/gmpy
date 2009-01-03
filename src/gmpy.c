@@ -177,6 +177,7 @@
  *   Added divexact (casevh)
  *   Fixed mpf comparisons by rounding mpf results when GMP returns
  *      a longer result. Added fround() (casevh)
+ *   Added bit_length (Thanks Mario Pernici)
  */
 #include "pymemcompat.h"
 
@@ -2639,6 +2640,27 @@ Pympz_numdigits(PyObject *self, PyObject *args)
         return NULL;
     }
     s = Py_BuildValue("l", (long) mpz_sizeinbase(Pympz_AS_MPZ(self), base));
+    Py_DECREF(self);
+    return s;
+}
+
+static char doc_bit_lengthm[]="\
+x.bit_length(): returns length of string representing x in base 2\n\
+";
+static char doc_bit_lengthg[]="\
+bit_length(x): returns length of string representing x in base 2\n\
+";
+static PyObject *
+Pympz_bit_length(PyObject *self, PyObject *args)
+{
+    PyObject *s;
+    long i = 0;
+
+    SELF_NO_ARG("bit_length", Pympz_convert_arg);
+    assert(Pympz_Check(self));
+    if (mpz_size(Pympz_AS_MPZ(self)))
+        i = (long) mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
+    s = Py_BuildValue("l", i);
     Py_DECREF(self);
     return s;
 }
@@ -6105,6 +6127,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "binary", Pympz_binary, 1, doc_binaryg },
     { "digits", Pympz_digits, 1, doc_digitsg },
     { "numdigits", Pympz_numdigits, 1, doc_numdigitsg },
+    { "bit_length", Pympz_bit_length, 1, doc_bit_lengthg },
     { "lowbits", Pympz_lowbits, 1, doc_lowbitsg },
     { "getbit", Pympz_getbit, 1, doc_getbitg },
     { "setbit", Pympz_setbit, 1, doc_setbitg },
@@ -6161,6 +6184,7 @@ statichere PyMethodDef Pympz_methods [] =
     { "binary", Pympz_binary, 1, doc_binarym },
     { "digits", Pympz_digits, 1, doc_digitsm },
     { "numdigits", Pympz_numdigits, 1, doc_numdigitsm },
+    { "bit_length", Pympz_bit_length, 1, doc_bit_lengthm },
     { "lowbits", Pympz_lowbits, 1, doc_lowbitsm },
     { "getbit", Pympz_getbit, 1, doc_getbitm },
     { "setbit", Pympz_setbit, 1, doc_setbitm },
