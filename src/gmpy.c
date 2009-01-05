@@ -5422,10 +5422,13 @@ _mpmath_create(...): helper function for mpmath.\n\
 static PyObject *
 Pympz_mpmath_create(PyObject *self, PyObject *args)
 {
-    long sign, bc, prec, shift, zbits, carry = 0;
+    long sign, bc, shift, zbits, carry = 0;
     PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0, *precobj = 0;
     PympzObject *man = 0, *upper = 0, *lower = 0;
+
     char rnd = 'f';
+    long prec = 0;
+    precobj = PyInt_FromLong(0);
 
     if(!PyArg_ParseTuple(args, "O&O|Oc", Pympz_convert_arg, &man, &exp, &precobj, &rnd))
         return NULL;
@@ -5436,55 +5439,52 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
         return Py_BuildValue("(lNll)", 0, man, 0, 0);
     }
 
-    /* Extract sign, make man positive, and set bit count */
-    sign = mpz_sgn(man->z);
-    mpz_abs(man->z, man->z);
-    bc = mpz_sizeinbase(man->z, 2);
-
-    /* Check desired precision */
-    if(PyInt_CheckExact(precobj)) {
-        prec = abs(PyInt_AS_LONG(precobj));
-    } else {
-        prec = bc;
-    }
-
     upper = Pympz_new();
     lower = Pympz_new();
     if(!upper||!lower) {
-        Py_DECREF((PyObject*)precobj);
+        //~ Py_DECREF((PyObject*)precobj);
         Py_DECREF((PyObject*)man);
         Py_XDECREF((PyObject*)upper);
         Py_XDECREF((PyObject*)lower);
         return NULL;
     }
 
+    /* Extract sign, make man positive, and set bit count */
+    sign = (mpz_sgn(man->z) == -1);
+    mpz_abs(upper->z, man->z);
+    bc = mpz_sizeinbase(upper->z, 2);
+
+    /* Check desired precision */
+    if(PyInt_CheckExact(precobj)) prec = abs(PyInt_AS_LONG(precobj));
+    if(!prec) prec = bc;
+
     shift = bc - prec;
     if(shift>0) {
         switch(rnd) {
             case 'f':
                 if(sign) {
-                    mpz_cdiv_q_2exp(upper->z, man->z, shift);
+                    mpz_cdiv_q_2exp(upper->z, upper->z, shift);
                 } else {
-                    mpz_fdiv_q_2exp(upper->z, man->z, shift);
+                    mpz_fdiv_q_2exp(upper->z, upper->z, shift);
                 }
                 break;
             case 'c':
                 if(sign) {
-                    mpz_fdiv_q_2exp(upper->z, man->z, shift);
+                    mpz_fdiv_q_2exp(upper->z, upper->z, shift);
                 } else {
-                    mpz_cdiv_q_2exp(upper->z, man->z, shift);
+                    mpz_cdiv_q_2exp(upper->z, upper->z, shift);
                 }
                 break;
             case 'd':
-                mpz_fdiv_q_2exp(upper->z, man->z, shift);
+                mpz_fdiv_q_2exp(upper->z, upper->z, shift);
                 break;
             case 'u':
-                mpz_cdiv_q_2exp(upper->z, man->z, shift);
+                mpz_cdiv_q_2exp(upper->z, upper->z, shift);
                 break;
             case 'n':
             default:
-                mpz_tdiv_r_2exp(lower->z, man->z, shift);
-                mpz_tdiv_q_2exp(upper->z, man->z, shift);
+                mpz_tdiv_r_2exp(lower->z, upper->z, shift);
+                mpz_tdiv_q_2exp(upper->z, upper->z, shift);
                 if(mpz_sgn(lower->z)) {
                     /* lower is not 0 so it must have at least 1 bit set */
                     if(mpz_sizeinbase(lower->z, 2)==shift) {
@@ -5502,14 +5502,14 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                     mpz_add_ui(upper->z, upper->z, 1);
         }
         if (!(tmp = PyInt_FromLong(shift))) {
-            Py_DECREF((PyObject*)precobj);
+            //~ Py_DECREF((PyObject*)precobj);
             Py_DECREF((PyObject*)man);
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
         }
         if (!(newexp = PyNumber_Add(exp, tmp))) {
-            Py_DECREF((PyObject*)precobj);
+            //~ Py_DECREF((PyObject*)precobj);
             Py_DECREF((PyObject*)man);
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
@@ -5519,7 +5519,6 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
         Py_DECREF(tmp);
         bc = prec;
     } else {
-        mpz_set(upper->z, man->z);
         newexp = exp;
         Py_INCREF(newexp);
     }
@@ -5529,7 +5528,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
     if (!(tmp = PyInt_FromLong(zbits))) {
-        Py_DECREF((PyObject*)precobj);
+        //~ Py_DECREF((PyObject*)precobj);
         Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
@@ -5537,7 +5536,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
         return NULL;
     }
     if (!(newexp2 = PyNumber_Add(newexp, tmp))) {
-        Py_DECREF((PyObject*)precobj);
+        //~ Py_DECREF((PyObject*)precobj);
         Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
@@ -5553,7 +5552,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     if(!mpz_cmp_ui(upper->z, 1))
         bc = 1;
 
-    Py_DECREF((PyObject*)precobj);
+    //~ Py_DECREF((PyObject*)precobj);
     Py_DECREF((PyObject*)lower);
     Py_DECREF((PyObject*)man);
     return Py_BuildValue("(lNNl)", sign, upper, newexp2, bc);
