@@ -29,7 +29,7 @@
  * further cleanups and bugfixes leading to 1.01, Alex Martelli (Nov 2005)
  * minor bugfixes+new decimal (&c) support to 1.02, Alex Martelli (Feb 2006)
  * various bugfixes for 64-bit platforms, 1.03, aleaxit and casevh (Jun 2008)
- * rich comparisons, 1.04, aleaxit and casevh (Dec 2008)
+ * rich comparisons, 1.04, aleaxit and casevh (Jan 2009)
  *
  * Some hacks by Gustavo Niemeyer <niemeyer@conectiva.com>.
  *
@@ -178,6 +178,7 @@
  *   Fixed mpf comparisons by rounding mpf results when GMP returns
  *      a longer result. Added fround() (casevh)
  *   Added bit_length (Thanks Mario Pernici)
+ *   Added helper functions for mpmath (casevh)
  */
 #include "pymemcompat.h"
 
@@ -5291,6 +5292,37 @@ Pympz_divexact(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+/* Internal helper function for mpmath. */
+
+static PyObject *
+mpmath_build_mpf(long sign, PympzObject *man, PyObject *exp, long bc)
+{
+    PyObject *tup, *tsign, *tbc;
+    if(!(tup = PyTuple_New(4))){
+        Py_DECREF((PyObject*)man);
+        Py_DECREF(exp);
+        return NULL;
+    }
+    if(!(tsign=PyInt_FromLong(sign))){
+        Py_DECREF((PyObject*)man);
+        Py_DECREF(exp);
+        Py_DECREF(tup);
+        return NULL;
+    }
+    if(!(tbc=PyInt_FromLong(bc))){
+        Py_DECREF((PyObject*)man);
+        Py_DECREF(exp);
+        Py_DECREF(tup);
+        Py_DECREF(tsign);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tup, 0, tsign);
+    PyTuple_SET_ITEM(tup, 1, (PyObject*)man);
+    PyTuple_SET_ITEM(tup, 2, (exp)?exp:PyInt_FromLong(0));
+    PyTuple_SET_ITEM(tup, 3, tbc);
+    return tup;
+}
+
 static char doc_mpmath_normalizeg[]="\
 _mpmath_normalize(...): helper function for mpmath.\n\
 ";
@@ -5298,7 +5330,7 @@ static PyObject *
 Pympz_mpmath_normalize(PyObject *self, PyObject *args)
 {
     long sign, bc, prec, shift, zbits, carry = 0;
-    PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp =0;
+    PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0;
     PympzObject *man = 0, *upper = 0, *lower = 0;
     char rnd;
 
@@ -5308,7 +5340,13 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
 
     /* If the mantissa is 0, return the normalized representation. */
     if(!mpz_sgn(man->z)) {
-        return Py_BuildValue("(lNll)", 0, man, 0, 0);
+        return mpmath_build_mpf(0, man, 0, 0);
+    }
+
+    /* if bc <= prec and the number is odd return it */
+    if ((bc <= prec) && mpz_odd_p(man->z)) {
+        Py_INCREF((PyObject*)exp);
+        return mpmath_build_mpf(sign, man, exp, bc);
     }
 
     upper = Pympz_new();
@@ -5413,7 +5451,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
 
     Py_DECREF((PyObject*)lower);
     Py_DECREF((PyObject*)man);
-    return Py_BuildValue("(lNNl)", sign, upper, newexp2, bc);
+    return mpmath_build_mpf(sign, upper, newexp2, bc);
 }
 
 static char doc_mpmath_createg[]="\
@@ -5428,7 +5466,6 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
 
     char rnd = 'f';
     long prec = 0;
-    precobj = PyInt_FromLong(0);
 
     if(!PyArg_ParseTuple(args, "O&O|Oc", Pympz_convert_arg, &man, &exp, &precobj, &rnd))
         return NULL;
@@ -5436,7 +5473,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
 
     /* If the mantissa is 0, return the normalized representation. */
     if(!mpz_sgn(man->z)) {
-        return Py_BuildValue("(lNll)", 0, man, 0, 0);
+        return mpmath_build_mpf(0, man, 0, 0);
     }
 
     upper = Pympz_new();
@@ -5455,7 +5492,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     bc = mpz_sizeinbase(upper->z, 2);
 
     /* Check desired precision */
-    if(PyInt_CheckExact(precobj)) prec = abs(PyInt_AS_LONG(precobj));
+    if((precobj)&&(PyInt_CheckExact(precobj))) prec = abs(PyInt_AS_LONG(precobj));
     if(!prec) prec = bc;
 
     shift = bc - prec;
@@ -5502,14 +5539,11 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                     mpz_add_ui(upper->z, upper->z, 1);
         }
         if (!(tmp = PyInt_FromLong(shift))) {
-            //~ Py_DECREF((PyObject*)precobj);
-            Py_DECREF((PyObject*)man);
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
         }
         if (!(newexp = PyNumber_Add(exp, tmp))) {
-            //~ Py_DECREF((PyObject*)precobj);
             Py_DECREF((PyObject*)man);
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
@@ -5528,7 +5562,6 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
     if (!(tmp = PyInt_FromLong(zbits))) {
-        //~ Py_DECREF((PyObject*)precobj);
         Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
@@ -5536,7 +5569,6 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
         return NULL;
     }
     if (!(newexp2 = PyNumber_Add(newexp, tmp))) {
-        //~ Py_DECREF((PyObject*)precobj);
         Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
@@ -5552,10 +5584,9 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     if(!mpz_cmp_ui(upper->z, 1))
         bc = 1;
 
-    //~ Py_DECREF((PyObject*)precobj);
     Py_DECREF((PyObject*)lower);
     Py_DECREF((PyObject*)man);
-    return Py_BuildValue("(lNNl)", sign, upper, newexp2, bc);
+    return mpmath_build_mpf(sign, upper, newexp2, bc);
 }
 
 static char doc_is_squarem[]="\
@@ -6590,7 +6621,7 @@ potentially-huge or extremely-tiny magnitudes), as well as\n\
 unlimited-precision rationals, with reasonably-fast operations,\n\
 which are not built-in features of Python.\n\
 ";
-void
+DL_EXPORT(void)
 initgmpy(void)
 {
     PyObject* decimal_module = NULL;
