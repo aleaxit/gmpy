@@ -1765,7 +1765,6 @@ mpz2binary(PympzObject *x)
 static PyObject *
 mpq2binary(PympqObject *x)
 {
-    mpz_t temp;
     int sizenum, sizeden, size, sizetemp;
     int negative=0;
     char *buffer;
@@ -1799,18 +1798,8 @@ mpq2binary(PympqObject *x)
     }
     if(negative) buffer[3] |= 0x80;
 
-    mpz_inoc(temp);
-    mpz_set(temp, mpq_numref(qtemp));
-    for (i = 0; i<sizenum; i++) {
-        buffer[i+4] = (char)(mpz_get_ui(temp) & 0xff);
-        mpz_fdiv_q_2exp(temp, temp, 8);
-    }
-    mpz_set(temp, mpq_denref(qtemp));
-    for (i = 0; i<sizeden; i++) {
-        buffer[i+4+sizenum] = (char)(mpz_get_ui(temp) & 0xff);
-        mpz_fdiv_q_2exp(temp, temp, 8);
-    }
-    mpz_cloc(temp);
+    mpz_export(buffer+4, NULL, -1, sizeof(char), 0, 0, mpq_numref(qtemp));
+    mpz_export(buffer+sizenum+4, NULL, -1, sizeof(char), 0, 0, mpq_denref(qtemp));
     mpq_cloc(qtemp);
     s = PyString_FromStringAndSize(buffer, size);
     free(buffer);
