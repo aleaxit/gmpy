@@ -193,10 +193,14 @@
 
 #if defined(MS_WIN32) && defined(_MSC_VER)
 /* so one won't need to link explicitly to gmp.lib...: */
-#   pragma comment(lib,"gmp.lib")
-/* fix anomalies of .h vs .lib on Windows; also, use alloca */
-#undef mpq_out_str
-size_t mpq_out_str _PROTO ((FILE *, int, mpq_srcptr));
+#pragma comment(lib,"gmp.lib")
+#ifndef _MSC_VER
+  #undef mpq_out_str
+  size_t mpq_out_str _PROTO ((FILE *, int, mpq_srcptr));
+#else
+  #define isnan _isnan
+  #define isinf !_finite
+#endif
 #define USE_ALLOCA 1
 #define alloca _alloca
 #undef staticforward
@@ -1783,7 +1787,11 @@ mpq2binary(PympqObject *x)
     sizeden = (mpz_sizeinbase(mpq_denref(qtemp), 2) + 7) / 8;
     size = sizenum+sizeden+4;
 
-    TEMP_ALLOC(buffer, size);
+    if(!(buffer = malloc(size))) {
+        mpq_cloc(qtemp);
+        PyErr_NoMemory();
+        return NULL;
+    }
     sizetemp = sizenum;
     for(i=0; i<4; i++) {
         buffer[i] = (char)(sizetemp & 0xff);
@@ -1805,7 +1813,7 @@ mpq2binary(PympqObject *x)
     mpz_cloc(temp);
     mpq_cloc(qtemp);
     s = PyString_FromStringAndSize(buffer, size);
-    TEMP_FREE(buffer, size);
+    free(buffer);
     return s;
 }
 
@@ -6626,12 +6634,12 @@ initgmpy(void)
 {
     PyObject* decimal_module = NULL;
     PyObject* copy_reg_module = NULL;
+    char *do_debug = getenv("GMPY_DEBUG");
 
     Pympz_Type.ob_type = &PyType_Type;
     Pympq_Type.ob_type = &PyType_Type;
     Pympf_Type.ob_type = &PyType_Type;
 
-    char *do_debug = getenv("GMPY_DEBUG");
     if (do_debug)
         sscanf(do_debug, "%d", &options.debug);
 
