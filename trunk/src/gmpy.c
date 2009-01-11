@@ -194,10 +194,7 @@
 #if defined(MS_WIN32) && defined(_MSC_VER)
 /* so one won't need to link explicitly to gmp.lib...: */
 #pragma comment(lib,"gmp.lib")
-#ifndef _MSC_VER
-  #undef mpq_out_str
-  size_t mpq_out_str _PROTO ((FILE *, int, mpq_srcptr));
-#else
+#ifdef _MSC_VER
   #define isnan _isnan
   #define isinf !_finite
 #endif
