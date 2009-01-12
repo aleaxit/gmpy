@@ -172,13 +172,15 @@
  *   Added "rich comparisons" to mpz, mpq and mpf types (aleaxit)
  *   Added additional tests (casevh, aleaxit)
  *   Fixed bug when converting very large mpz to str (casevh)
- *   Faster conversion from mpz->binary and binary-mpz (casevh)
+ *   Faster conversion from mpz->binary and binary->mpz (casevh)
  *   Added support for pickling (casevh)
  *   Added divexact (casevh)
  *   Fixed mpf comparisons by rounding mpf results when GMP returns
  *      a longer result. Added fround() (casevh)
  *   Added bit_length (Thanks Mario Pernici)
  *   Added helper functions for mpmath (casevh)
+ *   Faster conversion from mpq->binary and binary->mpq (casevh)
+ *   Recognize MPIR, mpir_version() (casevh)
  */
 #include "pymemcompat.h"
 
@@ -190,6 +192,11 @@
 #define GMPY_MODULE
 #include "gmpy.h"
 #include "gmp.h"
+
+/* Define the minimum memory amount allocated. 8 has historically been
+ * used, but 16 might be better for some applications or 64-bit systems.
+ */
+#define GMPY_ALLOC_MIN 8
 
 #if defined(MS_WIN32) && defined(_MSC_VER)
 /* so one won't need to link explicitly to gmp.lib...: */
@@ -204,6 +211,17 @@
 #define staticforward extern
 #endif
 
+#ifdef __MPIR_VERSION
+#define MPIR_VER \
+__MPIR_VERSION * 10000 + \
+__MPIR_VERSION_MINOR * 100 + \
+__MPIR_VERSION_PATCHLEVEL
+char gmpy_license[] = "\
+The GMPY source code is licensed under LGPL 2.1 or later. \
+The MPIR libarary is licensed under LGPL 2.1 or later. \
+Therefore, this combined module is licensed under LGPL 2.1 or later.\
+";
+#else
 #define GNU_MP_VER \
 __GNU_MP_VERSION * 10000 + \
 __GNU_MP_VERSION_MINOR * 100 + \
@@ -220,6 +238,7 @@ The GMPY source code is licensed under LGPL 2.1 or later. \
 This version of the GMP library is licensed under LGPL 2.1 or later. \
 Therefore, this combined module is licensed under LGPL 2.1 or later.\
 ";
+#endif
 #endif
 #undef GNU_MP_VER
 
@@ -639,13 +658,32 @@ Pygmpy_get_cvsid(PyObject *self, PyObject *args)
     return Py_BuildValue("s", _gmpy_cvs);
 }
 static char doc_gmp_version[]="\
-gmp_version(): returns string giving current GMP version\n\
+gmp_version(): returns string giving current GMP version. Empty string\n\
+returned if MPIR was used.\n\
 ";
 static PyObject *
 Pygmpy_get_gmp_version(PyObject *self, PyObject *args)
 {
     NO_ARGS();
+#ifndef __MPIR_VERSION
     return Py_BuildValue("s", gmp_version);
+#else
+    return Py_BuildValue("s", "");
+#endif
+}
+static char doc_mpir_version[]="\
+mpir_version(): returns string giving current MPIR version. Empty string\n\
+returned if GMP was used.\n\
+";
+static PyObject *
+Pygmpy_get_mpir_version(PyObject *self, PyObject *args)
+{
+    NO_ARGS();
+#ifdef __MPIR_VERSION
+    return Py_BuildValue("s", mpir_version);
+#else
+    return Py_BuildValue("s", "");
+#endif
 }
 static char doc_gmp_limbsize[]="\
 gmp_limbsize(): returns the number of bits per limb\n\
@@ -6258,6 +6296,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "version", Pygmpy_get_version, 1, doc_version },
     { "_cvsid", Pygmpy_get_cvsid, 1, doc_cvsid },
     { "gmp_version", Pygmpy_get_gmp_version, 1, doc_gmp_version },
+    { "mpir_version", Pygmpy_get_mpir_version, 1, doc_mpir_version },
     { "license", Pygmpy_get_license, 1, doc_license },
     { "gmp_limbsize", Pygmpy_get_gmp_limbsize, 1, doc_gmp_limbsize },
     { "set_debug", Pygmpy_set_debug, 1, doc_set_debug },
@@ -6504,7 +6543,7 @@ gmpy_allocate(size_t size)
 {
     void *res;
     size_t usize=size;
-    if(usize<8) usize=8;
+    if(usize<GMPY_ALLOC_MIN) usize=GMPY_ALLOC_MIN;
 
     if(options.debug)
         fprintf(stderr, "mp_allocate( %d->%d )\n", (int)size, (int)usize);
@@ -6524,8 +6563,8 @@ gmpy_reallocate(void *ptr, size_t old_size, size_t new_size)
     void *res;
     size_t uold=old_size;
     size_t unew=new_size;
-    if(uold<8) uold=8;
-    if(unew<8) unew=8;
+    if(uold<GMPY_ALLOC_MIN) uold=GMPY_ALLOC_MIN;
+    if(unew<GMPY_ALLOC_MIN) unew=GMPY_ALLOC_MIN;
 
     if(options.debug)
         fprintf(stderr,
@@ -6552,7 +6591,7 @@ static void
 gmpy_free( void *ptr, size_t size)
 {
     size_t usize=size;
-    if(usize<8) usize=8;
+    if(usize<GMPY_ALLOC_MIN) usize=GMPY_ALLOC_MIN;
 
     if(options.debug)
         fprintf(stderr, "mp_free      : old address %8p, old size %d(%d)\n",
