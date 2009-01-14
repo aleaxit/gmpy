@@ -2698,6 +2698,27 @@ Pympz_bit_length(PyObject *self, PyObject *args)
     return s;
 }
 
+static char doc_mpmath_bitcountg[]="\
+_mpmath_bitcount(x): returns length of string representing x in base 2\n\
+where x must be an mpz object\n\
+";
+static PyObject *
+Pympz_mpmath_bitcount(PyObject *self, PyObject *args)
+{
+    PympzObject *man = 0;
+    if(PyTuple_GET_SIZE(args) == 1)
+        man = (PympzObject *)PyTuple_GET_ITEM(args, 0);
+    else {
+        PyErr_SetString(PyExc_TypeError, "mpz argument needed");
+        return NULL;
+    }
+    if(!Pympz_Check(man)){
+        PyErr_SetString(PyExc_TypeError, "argument is not an mpz");
+        return NULL;
+    }
+    return PyInt_FromLong(mpz_sizeinbase(Pympz_AS_MPZ(man), 2));
+}
+
 /* produce digits for an mpq in requested base, default 10 */
 static char doc_qdigitsm[]="\
 x.digits([base]): returns Python string representing x in the\n\
@@ -5361,22 +5382,41 @@ _mpmath_normalize(...): helper function for mpmath.\n\
 static PyObject *
 Pympz_mpmath_normalize(PyObject *self, PyObject *args)
 {
-    long sign, bc, prec, shift, zbits, carry = 0;
+    long sign = 0, bc = 0, prec = 0, shift, zbits, carry = 0;
     PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0;
     PympzObject *man = 0, *upper = 0, *lower = 0;
-    char rnd;
+    char rnd = 0;
 
-    if(!PyArg_ParseTuple(args, "lO&Ollc", &sign, Pympz_convert_arg, &man, &exp, &bc, &prec, &rnd))
+    if(PyTuple_GET_SIZE(args) == 6){
+        sign = PyInt_AsLong(PyTuple_GET_ITEM(args, 0));
+        man = (PympzObject *)PyTuple_GET_ITEM(args, 1);
+        exp = PyTuple_GET_ITEM(args, 2);
+        bc = PyInt_AsLong(PyTuple_GET_ITEM(args, 3));
+        prec = PyInt_AsLong(PyTuple_GET_ITEM(args, 4));
+        rnd = PyString_AS_STRING(PyTuple_GET_ITEM(args, 5))[0];
+        if(PyErr_Occurred()){
+            PyErr_SetString(PyExc_TypeError, "arguments long, PympzObject*,"
+                "PyObject*, long, long, char needed");
+            return NULL;
+        }
+    } else {
+        PyErr_SetString(PyExc_TypeError, "6 arguments required");
         return NULL;
-    assert(Pympz_Check(man));
+    }
+    if(!Pympz_Check(man)){
+        PyErr_SetString(PyExc_TypeError, "argument is not an mpz");
+	return NULL;
+    }
 
     /* If the mantissa is 0, return the normalized representation. */
     if(!mpz_sgn(man->z)) {
+        Py_INCREF((PyObject*)man);
         return mpmath_build_mpf(0, man, 0, 0);
     }
 
     /* if bc <= prec and the number is odd return it */
     if ((bc <= prec) && mpz_odd_p(man->z)) {
+        Py_INCREF((PyObject*)man);
         Py_INCREF((PyObject*)exp);
         return mpmath_build_mpf(sign, man, exp, bc);
     }
@@ -5434,13 +5474,11 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
                     mpz_add_ui(upper->z, upper->z, 1);
         }
         if (!(tmp = PyInt_FromLong(shift))) {
-            Py_DECREF((PyObject*)man);
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
         }
         if (!(newexp = PyNumber_Add(exp, tmp))) {
-            Py_DECREF((PyObject*)man);
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             Py_DECREF(tmp);
@@ -5459,14 +5497,12 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
     if (!(tmp = PyInt_FromLong(zbits))) {
-        Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
         Py_DECREF(newexp);
         return NULL;
     }
     if (!(newexp2 = PyNumber_Add(newexp, tmp))) {
-        Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
         Py_DECREF(tmp);
@@ -5482,7 +5518,6 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         bc = 1;
 
     Py_DECREF((PyObject*)lower);
-    Py_DECREF((PyObject*)man);
     return mpmath_build_mpf(sign, upper, newexp2, bc);
 }
 
@@ -6373,6 +6408,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "trunc", Pympf_trunc, 1, doc_truncg },
     { "_mpmath_normalize", Pympz_mpmath_normalize, 1, doc_mpmath_normalizeg },
     { "_mpmath_create", Pympz_mpmath_create, 1, doc_mpmath_createg },
+    { "_mpmath_bitcount", Pympz_mpmath_bitcount, 1, doc_mpmath_bitcountg },
 
     { NULL, NULL, 1}
 };
