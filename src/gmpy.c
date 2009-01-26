@@ -2686,37 +2686,40 @@ bit_length(x): returns length of string representing x in base 2\n\
 static PyObject *
 Pympz_bit_length(PyObject *self, PyObject *args)
 {
-    PyObject *s;
     long i = 0;
-
-    SELF_NO_ARG("bit_length", Pympz_convert_arg);
-    assert(Pympz_Check(self));
-    if (mpz_size(Pympz_AS_MPZ(self)))
-        i = (long) mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
-    s = Py_BuildValue("l", i);
-    Py_DECREF(self);
-    return s;
-}
-
-static char doc_mpmath_bitcountg[]="\
-_mpmath_bitcount(x): returns length of string representing x in base 2\n\
-where x must be an mpz object\n\
-";
-static PyObject *
-Pympz_mpmath_bitcount(PyObject *self, PyObject *args)
-{
-    PympzObject *man = 0;
-    if(PyTuple_GET_SIZE(args) == 1)
-        man = (PympzObject *)PyTuple_GET_ITEM(args, 0);
+    if(self) {
+        if(PyTuple_GET_SIZE(args) != 0)
+            return NULL;
+        assert(Pympz_Check(self));
+        if ((i=mpz_sizeinbase(Pympz_AS_MPZ(self), 2))==1)
+            return PyInt_FromLong((long) mpz_size(Pympz_AS_MPZ(self)));
+        else
+            return PyInt_FromLong(i);
+    }
     else {
-        PyErr_SetString(PyExc_TypeError, "mpz argument needed");
-        return NULL;
+        if(PyTuple_GET_SIZE(args) != 1){
+            PyErr_SetString(PyExc_TypeError, "argument is not an mpz");
+            return NULL;
+        }
+        PympzObject* newob = anynum2mpz(PyTuple_GET_ITEM(args, 0));
+        if(newob) {
+            assert(Pympz_Check(newob));
+            if (mpz_size(Pympz_AS_MPZ(newob)))
+                i = (long) mpz_sizeinbase(Pympz_AS_MPZ(newob), 2);
+            Py_DECREF((PyObject*)newob);
+            return PyInt_FromLong(i);
+        }
+        else {
+            PyObject *s;
+            SELF_NO_ARG("bit_length", Pympz_convert_arg);
+            assert(Pympz_Check(self));
+            if (mpz_size(Pympz_AS_MPZ(self)))
+                i = (long) mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
+            s = Py_BuildValue("l", i);
+            Py_DECREF(self);
+            return s;
+        }
     }
-    if(!Pympz_Check(man)){
-        PyErr_SetString(PyExc_TypeError, "argument is not an mpz");
-        return NULL;
-    }
-    return PyInt_FromLong(mpz_sizeinbase(Pympz_AS_MPZ(man), 2));
 }
 
 /* produce digits for an mpq in requested base, default 10 */
@@ -2743,7 +2746,6 @@ Pympq_digits(PyObject *self, PyObject *args)
     Py_DECREF(self);
     return s;
 }
-
 
 /* return scan0/scan1 for an mpz */
 static char doc_scan0m[]="\
@@ -6408,7 +6410,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "trunc", Pympf_trunc, 1, doc_truncg },
     { "_mpmath_normalize", Pympz_mpmath_normalize, 1, doc_mpmath_normalizeg },
     { "_mpmath_create", Pympz_mpmath_create, 1, doc_mpmath_createg },
-    { "_mpmath_bitcount", Pympz_mpmath_bitcount, 1, doc_mpmath_bitcountg },
 
     { NULL, NULL, 1}
 };
