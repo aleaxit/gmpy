@@ -1056,7 +1056,7 @@ float2mpz(PyObject *f)
                 "gmpy does not handle nan");
             return NULL;
         }
-        if(abs(d) < 1) d = 0.0;
+        if(fabs(d) < 1.0) d = 0.0;
         mpz_set_d(newob->z, d);
     }
     return newob;
