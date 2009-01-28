@@ -2698,7 +2698,7 @@ Pympz_bit_length(PyObject *self, PyObject *args)
     }
     else {
         if(PyTuple_GET_SIZE(args) != 1){
-            PyErr_SetString(PyExc_TypeError, "argument is not an mpz");
+            PyErr_SetString(PyExc_TypeError, "one argument needed");
             return NULL;
         }
         PympzObject* newob = anynum2mpz(PyTuple_GET_ITEM(args, 0));
