@@ -28,13 +28,13 @@ if sys.version.find('MSC') == -1:
 # decomment next line (w/gcc, only!) to support gcov
 #   os.environ['CFLAGS'] = '-fprofile-arcs -ftest-coverage -O0'
 # prepare the extension for building
-gmpy_ext = Extension('gmpy', sources=['src/gmpy.c'],
+gmpy2_ext = Extension('gmpy2', sources=['src/gmpy2.c'],
     include_dirs=incdirs,
     library_dirs=libdirs,
     libraries=['gmp'])
 
-setup (name = "gmpy",
-       version = "1.04",
+setup (name = "gmpy2",
+       version = "2.00",
        maintainer = "Alex Martelli",
        maintainer_email = "aleaxit@gmail.com",
        url = "http://code.google.com/p/gmpy/",
@@ -55,5 +55,5 @@ setup (name = "gmpy",
          'Topic :: Software Development :: Libraries :: Python Modules',
        ],
 
-       ext_modules = [ gmpy_ext ]
+       ext_modules = [ gmpy2_ext ]
 )
