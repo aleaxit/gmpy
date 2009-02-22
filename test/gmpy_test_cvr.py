@@ -1,13 +1,13 @@
-# partial unit test for gmpy 1.04 extra cover
+# partial unit test for gmpy 1.05 extra cover
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.04
+# test-version 1.05
 r'''
 >>> print int(_g.gmp_version()[:3] in ('4.2', '4.1', '4.0', '3.1', ''))
 1
 >>> print int(_g.mpir_version()[:3] in ('0.9', '1.0', ''))
 1
 >>> _g.version()
-'1.04'
+'1.05'
 >>> int('gmpy.c' in _g._cvsid())
 1
 '''
@@ -530,7 +530,7 @@ True
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.04 (extra cover)"
+        print "Unit tests for gmpy 1.05 (extra cover)"
         print "    running on Python", sys.version
         print
         print "Testing gmpy %s (GMP %s) with default caching" \
@@ -540,70 +540,6 @@ def _test(chat=None):
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
-    if chat: print "Repeating tests, with empty callbacks"
-
-    def _zd(where,*args):
-        if where=='qdiv':
-            raise ZeroDivisionError, "qdiv: zero divisor"
-        elif where=='mpz_divmod':
-            raise ZeroDivisionError, "mpz.divmod by zero"
-        elif where=='mpq_pow':
-            raise ZeroDivisionError, "mpq.pow 0 base to <0 exponent"
-        elif where=='divm':
-            raise ZeroDivisionError, "not invertible"
-        else:
-            raise ZeroDivisionError, "mpq: zero denominator"
-
-    def _zm(*args):
-        return None
-
-    def _at(self,name):
-        return name.upper()
-
-    def _er(where, what, *args):
-        raise ValueError, what
-
-    _g.set_callback('ZM',_zm)
-    _g.set_callback('ZD',_zd)
-    _g.set_callback('ER',_er)
-    _g.set_callback('AT',_at)
-
-    class _Fakenum:
-        def __gmpy__(self, where, args, other, extype, exvalue):
-            raise extype, exvalue
-    _fn = _Fakenum()
-    try: x = _g.getbit(_fn,17)
-    except TypeError: pass
-    try: x = _g.divm(23,45,_fn)
-    except TypeError: pass
-
-    assert(_g.mpz(23).foop=='FOOP')
-    assert(_g.mpq(23).foop=='FOOP')
-    assert(_g.mpf(23).foop=='FOOP')
-
-    # avoid merge-reports for the second run
-    sav = sys.stdout
-    class _Dummy:
-        def write(self,*whatever):
-            pass
-    try:
-        sys.stdout = _Dummy()
-        doctest.testmod(thismod, report=0)
-    finally:
-        sys.stdout = sav
-
-    # just generate a little extra coverage...!
-    _g.set_callback('ZM')
-    _g.set_callback('ZD',None)
-    _g.set_callback('ER')
-    _g.set_callback('AT')
-    try: _g.set_callback('ZD',23,45)
-    except: pass
-    try: _g.set_callback('ZD',23)
-    except: pass
-    try: _g.set_callback('ZZ')
-    except: pass
-
     if chat:
         print
         print "Overall results for cvr:"
@@ -611,6 +547,3 @@ def _test(chat=None):
 
 if __name__=='__main__':
     _test(1)
-    if sys.platform == 'win32':
-        print 'NOTE: known bugs with scan0 and scan1 on Windows'
-        print 'they are being investigated, no need to report, thanks'
