@@ -185,6 +185,7 @@
  *   1.05:
  *   Remove dependancy on py pymemcompat.h (casevh)
  *   Remove callback (casevh)
+ *   Added support for -DMPIR to include MPIR instead of GMP (casevh)
  */
 #include "Python.h"
 
@@ -195,7 +196,6 @@
 
 #define GMPY_MODULE
 #include "gmpy.h"
-#include "gmp.h"
 
 /* Define the minimum memory amount allocated. 8 has historically been
  * used, but 16 might be better for some applications or 64-bit systems.
