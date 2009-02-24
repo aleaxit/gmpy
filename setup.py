@@ -8,6 +8,13 @@ if sys.version < '2.2.3':
     DistributionMetadata.classifiers = None
     DistributionMetadata.download_url = None
 
+# Check if MPIR or GMP should be used.
+mplib='gmp'
+for token in sys.argv:
+    if token.endswith('MPIR'):
+        mplib='mpir'
+        break
+
 # determine include and library dirs
 incdirs = libdirs = ()
 if sys.version.find('MSC') == -1:
@@ -16,12 +23,12 @@ if sys.version.find('MSC') == -1:
     dirord = ['/opt/local', '/usr/local']
     for adir in dirord:
         lookin = '%s/include' % adir
-        if os.path.isfile(lookin + '/gmp.h'):
+        if os.path.isfile(lookin + '/' + mplib + '.h'):
             incdirs.append(lookin)
             break
     for adir in dirord:
         lookin = '%s/lib' % adir
-        if os.path.isfile(lookin + '/libgmp.a'):
+        if os.path.isfile(lookin + '/lib' + mplib + '.a'):
             libdirs = [lookin]
             break
 
@@ -31,14 +38,14 @@ if sys.version.find('MSC') == -1:
 gmpy_ext = Extension('gmpy', sources=['src/gmpy.c'],
     include_dirs=incdirs,
     library_dirs=libdirs,
-    libraries=['gmp'])
+    libraries=[mplib])
 
 setup (name = "gmpy",
-       version = "1.04",
+       version = "1.05",
        maintainer = "Alex Martelli",
        maintainer_email = "aleaxit@gmail.com",
        url = "http://code.google.com/p/gmpy/",
-       description = "GMP-4 to Python-2.{2-5} interface",
+       description = "MPIR/GMP-4 to Python-2.{3-6} interface",
        # download_url = "http://http://prdownloads.sourceforge.net/gmpy/gmpy-sources-101.zip?download",
 
        classifiers = [
