@@ -2640,6 +2640,9 @@ static PyObject *
 Pympz_bit_length(PyObject *self, PyObject *args)
 {
     long i = 0;
+    PympzObject* newob;
+    PyObject *s;
+
     if(self) {
         if(PyTuple_GET_SIZE(args) != 0)
             return NULL;
@@ -2654,7 +2657,7 @@ Pympz_bit_length(PyObject *self, PyObject *args)
             PyErr_SetString(PyExc_TypeError, "one argument needed");
             return NULL;
         }
-        PympzObject* newob = anynum2mpz(PyTuple_GET_ITEM(args, 0));
+        newob = anynum2mpz(PyTuple_GET_ITEM(args, 0));
         if(newob) {
             assert(Pympz_Check(newob));
             if (mpz_size(Pympz_AS_MPZ(newob)))
@@ -2663,7 +2666,6 @@ Pympz_bit_length(PyObject *self, PyObject *args)
             return PyInt_FromLong(i);
         }
         else {
-            PyObject *s;
             SELF_NO_ARG("bit_length", Pympz_convert_arg);
             assert(Pympz_Check(self));
             if (mpz_size(Pympz_AS_MPZ(self)))
