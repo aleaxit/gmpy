@@ -183,9 +183,10 @@
  *   Recognize MPIR, mpir_version() (casevh)
  *
  *   1.05:
- *   Remove dependancy on py pymemcompat.h (casevh)
+ *   Remove dependancy on pymemcompat.h (casevh)
  *   Remove callback (casevh)
  *   Added support for -DMPIR to include MPIR instead of GMP (casevh)
+ *   Remove use of statichere and staticforward (casevh)
  */
 #include "Python.h"
 
@@ -211,8 +212,6 @@
 #endif
 #define USE_ALLOCA 1
 #define alloca _alloca
-#undef staticforward
-#define staticforward extern
 #endif
 
 #ifdef __MPIR_VERSION
@@ -435,12 +434,12 @@ static void mpq_inoc(mpq_t newo) mpq_inoc_m(newo)
 static void mpq_cloc(mpq_t oldo) mpq_cloc_m(oldo)
 
 /* forward declarations of type-objects and method-arrays for them */
-staticforward PyTypeObject Pympz_Type;
-staticforward PyTypeObject Pympq_Type;
-staticforward PyTypeObject Pympf_Type;
-staticforward PyMethodDef Pympz_methods [];
-staticforward PyMethodDef Pympq_methods [];
-staticforward PyMethodDef Pympf_methods [];
+static PyTypeObject Pympz_Type;
+static PyTypeObject Pympq_Type;
+static PyTypeObject Pympf_Type;
+static PyMethodDef Pympz_methods [];
+static PyMethodDef Pympq_methods [];
+static PyMethodDef Pympf_methods [];
 
 /* utility macros for argument parsing */
 #define NO_ARGS() if(!PyArg_ParseTuple(args, "")) { return NULL; }
@@ -6034,7 +6033,7 @@ static PyMethodDef Pygmpy_methods [] =
     { NULL, NULL, 1}
 };
 
-statichere PyMethodDef Pympz_methods [] =
+static PyMethodDef Pympz_methods [] =
 {
     { "sqrt", Pympz_sqrt, 1, doc_sqrtm },
     { "sqrtrem", Pympz_sqrtrem, 1, doc_sqrtremm },
@@ -6068,7 +6067,7 @@ statichere PyMethodDef Pympz_methods [] =
     { NULL, NULL, 1 }
 };
 
-statichere PyMethodDef Pympq_methods [] =
+static PyMethodDef Pympq_methods [] =
 {
     { "sign", Pympq_sign, 1, doc_qsignm },
     { "numer", Pympq_numer, 1, doc_numerm },
@@ -6080,7 +6079,7 @@ statichere PyMethodDef Pympq_methods [] =
     { NULL, NULL, 1 }
 };
 
-statichere PyMethodDef Pympf_methods [] =
+static PyMethodDef Pympf_methods [] =
 {
     { "reldiff", Pympf_doreldiff, 1, doc_reldiffm },
     { "binary", Pympf_binary, 1, doc_fbinarym },
@@ -6100,7 +6099,7 @@ statichere PyMethodDef Pympf_methods [] =
     { NULL, NULL, 1 }
 };
 
-statichere PyTypeObject Pympz_Type =
+static PyTypeObject Pympz_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
     PyObject_HEAD_INIT(0)
@@ -6131,7 +6130,7 @@ statichere PyTypeObject Pympz_Type =
     (richcmpfunc)&mpz_richcompare, /* tp_richcompare */
 };
 
-statichere PyTypeObject Pympq_Type =
+static PyTypeObject Pympq_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
     PyObject_HEAD_INIT(0)
@@ -6163,7 +6162,7 @@ statichere PyTypeObject Pympq_Type =
 };
 
 
-statichere PyTypeObject Pympf_Type =
+static PyTypeObject Pympf_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
     PyObject_HEAD_INIT(0)
