@@ -114,11 +114,11 @@ typedef struct {
 
 #ifdef GMPY_MODULE
 /* This section is used when compiling gmpy.c */
-staticforward PyTypeObject Pympz_Type;
+static PyTypeObject Pympz_Type;
 #define Pympz_Check(v) (((PyObject*)v)->ob_type == &Pympz_Type)
-staticforward PyTypeObject Pympq_Type;
+static PyTypeObject Pympq_Type;
 #define Pympq_Check(v) (((PyObject*)v)->ob_type == &Pympq_Type)
-staticforward PyTypeObject Pympf_Type;
+static PyTypeObject Pympf_Type;
 #define Pympf_Check(v) (((PyObject*)v)->ob_type == &Pympf_Type)
 
 static Pympz_new_RETURN Pympz_new Pympz_new_PROTO;
