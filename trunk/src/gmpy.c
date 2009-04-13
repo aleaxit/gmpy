@@ -6310,8 +6310,32 @@ potentially-huge or extremely-tiny magnitudes), as well as\n\
 unlimited-precision rationals, with reasonably-fast operations,\n\
 which are not built-in features of Python.\n\
 ";
+
+/* Notes on Python 3.x support: Full support for PEP-3121 has not been
+ * implemented. No per-module state has been defined.
+ */
+
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef moduledef = {
+        PyModuleDef_HEAD_INIT,
+        "gmpy",
+        _gmpy_docs,
+        -1, /*sizeof(struct module_state) */
+        Pygmpy_methods,
+        NULL,
+        NULL, /* gmpy_traverse */
+        NULL, /* gmpy_clear */
+        NULL
+};
+
+PyObject *
+PyInit_gmpy(void)
+#else
+#define INITERROR return
 DL_EXPORT(void)
 initgmpy(void)
+#endif
 {
     PyObject* decimal_module = NULL;
     PyObject* copy_reg_module = NULL;
@@ -6328,7 +6352,13 @@ initgmpy(void)
         fputs( "initgmpy() called...\n", stderr );
     _PyInitGMP();
 
+#if PY_MAJOR_VERSION >= 3
+    gmpy_module = PyModule_Create(&moduledef);
+#else
     gmpy_module = Py_InitModule3("gmpy", Pygmpy_methods, _gmpy_docs);
+#endif
+
+    /* Todo: Add error checking for status of gmpy_module returned above. */
 
     export_gmpy(gmpy_module);
 
@@ -6410,4 +6440,7 @@ initgmpy(void)
         if (options.debug)
             fprintf(stderr, "gmpy_module could not import decimal\n");
     }
+#if PY_MAJOR_VERSION >= 3
+    return gmpy_module;
+#endif
 }
