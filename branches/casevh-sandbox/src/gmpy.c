@@ -181,8 +181,14 @@
  *   Added helper functions for mpmath (casevh)
  *   Faster conversion from mpq->binary and binary->mpq (casevh)
  *   Recognize MPIR, mpir_version() (casevh)
+ *
+ *   1.05:
+ *   Remove dependancy on pymemcompat.h (casevh)
+ *   Remove callback (casevh)
+ *   Added support for -DMPIR to include MPIR instead of GMP (casevh)
+ *   Remove use of statichere and staticforward (casevh)
  */
-#include "pymemcompat.h"
+#include "Python.h"
 
 #include <assert.h>
 #include <math.h>
@@ -191,7 +197,6 @@
 
 #define GMPY_MODULE
 #include "gmpy.h"
-#include "gmp.h"
 
 /* Define the minimum memory amount allocated. 8 has historically been
  * used, but 16 might be better for some applications or 64-bit systems.
@@ -207,8 +212,6 @@
 #endif
 #define USE_ALLOCA 1
 #define alloca _alloca
-#undef staticforward
-#define staticforward extern
 #endif
 
 #ifdef __MPIR_VERSION
@@ -242,9 +245,9 @@ Therefore, this combined module is licensed under LGPL 2.1 or later.\
 #endif
 #undef GNU_MP_VER
 
-char gmpy_version[] = "1.04";
+char gmpy_version[] = "1.05";
 
-char _gmpy_cvs[] = "$Id$";
+char _gmpy_cvs[] = "$Id: gmpy.c 90 2009-04-13 01:15:29Z casevh $";
 
 /*
  * we do have a dependence on Python's internals, specifically:
@@ -431,12 +434,12 @@ static void mpq_inoc(mpq_t newo) mpq_inoc_m(newo)
 static void mpq_cloc(mpq_t oldo) mpq_cloc_m(oldo)
 
 /* forward declarations of type-objects and method-arrays for them */
-staticforward PyTypeObject Pympz_Type;
-staticforward PyTypeObject Pympq_Type;
-staticforward PyTypeObject Pympf_Type;
-staticforward PyMethodDef Pympz_methods [];
-staticforward PyMethodDef Pympq_methods [];
-staticforward PyMethodDef Pympf_methods [];
+static PyTypeObject Pympz_Type;
+static PyTypeObject Pympq_Type;
+static PyTypeObject Pympf_Type;
+static PyMethodDef Pympz_methods [];
+static PyMethodDef Pympq_methods [];
+static PyMethodDef Pympf_methods [];
 
 /* utility macros for argument parsing */
 #define NO_ARGS() if(!PyArg_ParseTuple(args, "")) { return NULL; }
@@ -506,57 +509,12 @@ last_try_self(const char* nm, int min, int max, PyObject* args, PyObject* self)
     return PyObject_CallMethod(funky_arg, "__gmpy__",
         "sOONN", nm, args, self, extype, exvalue);
 }
+
 static PyObject*
 last_try(const char* nm, int min, int max, PyObject* args)
 {
     return last_try_self(nm, min, max, args, Py_None);
 }
-
-static PyObject*
-at_last_try(PyObject* self, const char* name)
-{
-    PyErr_Clear();
-    return PyObject_CallFunction(options.AT_cb, "Os", self, name);
-}
-
-static PyObject *
-Pygmpy_set_callback(PyObject *self, PyObject *args)
-{
-    PyObject *old = 0;
-    PyObject *new = 0;
-    char* kind = 0;
-
-    if(!PyArg_ParseTuple(args, "s|O", &kind, &new)) {
-        return NULL;
-    }
-    if(new == Py_None)
-        new = 0;
-
-    if(new && !PyCallable_Check(new)) {
-        PyErr_SetString(PyExc_TypeError, "non-callable callback");
-        return 0;
-    }
-    if(strcmp(kind,"ZD")==0) {
-        old = options.ZD_cb;
-        options.ZD_cb = new;
-    } else if(strcmp(kind,"ZM")==0) {
-        old = options.ZM_cb;
-        options.ZM_cb = new;
-    } else if(strcmp(kind,"ER")==0) {
-        old = options.ER_cb;
-        options.ER_cb = new;
-    } else if(strcmp(kind,"AT")==0) {
-        old = options.AT_cb;
-        options.AT_cb = new;
-    } else {
-        PyErr_SetString(PyExc_ValueError, kind);
-        return 0;
-    }
-    Py_XINCREF(new);
-
-    return old?old:Py_BuildValue("");
-}
-
 
 /* Number of bits that are significant in a float */
 static unsigned int double_mantissa = 0;
@@ -1464,14 +1422,8 @@ str2mpq(PyObject *stringarg, long base)
                 }
                 if(0==mpz_sgn(mpq_denref(newob->q))) {
                     Py_DECREF((PyObject *) newob);
-                    if(options.ZD_cb) {
-                        return (PympqObject*)PyObject_CallFunction(
-                            options.ZD_cb, "sO", "str2mpq", stringarg);
-                    } else {
-                        PyErr_SetString(PyExc_ZeroDivisionError,
-                                "mpq: zero denominator");
-                        return NULL;
-                    }
+                    PyErr_SetString(PyExc_ZeroDivisionError, "mpq: zero denominator");
+                    return NULL;
                 }
                 mpq_canonicalize(newob->q);
             } else {
@@ -2687,6 +2639,9 @@ static PyObject *
 Pympz_bit_length(PyObject *self, PyObject *args)
 {
     long i = 0;
+    PympzObject* newob;
+    PyObject *s;
+
     if(self) {
         if(PyTuple_GET_SIZE(args) != 0)
             return NULL;
@@ -2701,7 +2656,7 @@ Pympz_bit_length(PyObject *self, PyObject *args)
             PyErr_SetString(PyExc_TypeError, "one argument needed");
             return NULL;
         }
-        PympzObject* newob = anynum2mpz(PyTuple_GET_ITEM(args, 0));
+        newob = anynum2mpz(PyTuple_GET_ITEM(args, 0));
         if(newob) {
             assert(Pympz_Check(newob));
             if (mpz_size(Pympz_AS_MPZ(newob)))
@@ -2710,7 +2665,6 @@ Pympz_bit_length(PyObject *self, PyObject *args)
             return PyInt_FromLong(i);
         }
         else {
-            PyObject *s;
             SELF_NO_ARG("bit_length", Pympz_convert_arg);
             assert(Pympz_Check(self));
             if (mpz_size(Pympz_AS_MPZ(self)))
@@ -2771,11 +2725,7 @@ Pympz_scan0(PyObject *self, PyObject *args)
     SELF_ONE_ARG("scan0",Pympz_convert_arg,"|l",&starting_bit);
     assert(Pympz_Check(self));
     if(starting_bit < 0) {
-        static char* msg = "starting bit must be >= 0";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssOl", "scan0", msg, self, starting_bit);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "starting bit must be >= 0");
         return NULL;
     }
     maxbit = mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
@@ -2819,11 +2769,7 @@ Pympz_scan1(PyObject *self, PyObject *args)
     SELF_ONE_ARG("scan1",Pympz_convert_arg,"|l",&starting_bit);
     assert(Pympz_Check(self));
     if(starting_bit < 0) {
-        static char* msg = "starting bit must be >= 0";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssOl", "scan1", msg, self, starting_bit);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "starting bit must be >= 0");
         return NULL;
     }
     maxbit = mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
@@ -2885,11 +2831,7 @@ Pympz_lowbits(PyObject *self, PyObject *args)
     SELF_ONE_ARG("lowbits", Pympz_convert_arg,"l",&nbits);
     assert(Pympz_Check(self));
     if(nbits <= 0) {
-        static char* msg = "nbits must be > 0";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssOl", "lowbits", msg, self, nbits);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "nbits must be > 0");
         return NULL;
     }
     if(!(s = Pympz_new()))
@@ -2918,11 +2860,7 @@ Pympz_getbit(PyObject *self, PyObject *args)
     SELF_ONE_ARG("getbit", Pympz_convert_arg,"l",&bit_index);
     assert(Pympz_Check(self));
     if(bit_index < 0) {
-        static char* msg = "bit_index must be >= 0";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssOl", "getbit", msg, self, bit_index);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "bit_index must be >= 0");
         return NULL;
     }
     s = Py_BuildValue("i", mpz_tstbit(Pympz_AS_MPZ(self), bit_index));
@@ -2957,11 +2895,7 @@ Pympz_setbit(PyObject *self, PyObject *args)
     }
     assert(Pympz_Check(self));
     if(bit_index < 0) {
-        static char* msg = "bit_index must be >= 0";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssOl", "setbit", msg, self, bit_index);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "bit_index must be >= 0");
         return NULL;
     }
     if(!(s = mpz2mpz((PympzObject*)self)))
@@ -2999,20 +2933,12 @@ Pympz_root(PyObject *self, PyObject *args)
     SELF_ONE_ARG("mpz_root", Pympz_convert_arg,"l",&n);
     assert(Pympz_Check(self));
     if(n <= 0) {
-        static char* msg = "n must be > 0";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssOl", "mpz_root", msg, self, n);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "n must be > 0");
         return NULL;
     } else if(n>1) {
         int sign = mpz_sgn(Pympz_AS_MPZ(self));
         if(sign<0) {
-            static char* msg = "root of negative number";
-            if(options.ER_cb)
-                return PyObject_CallFunction(options.ER_cb,
-                    "ssOl", "mpz_root", msg, self, n);
-            PyErr_SetString(PyExc_ValueError, msg);
+            PyErr_SetString(PyExc_ValueError, "root of negative number");
             return NULL;
         }
     }
@@ -3257,15 +3183,9 @@ Pympq_qdiv(PyObject *self, PyObject *args)
         }
         if(mpq_sgn(Pympq_AS_MPQ(other))==0) {
             PyObject* result = 0;
-            if(options.ZD_cb) {
-                result = PyObject_CallFunction(options.ZD_cb,
-                    "sNN", "qdiv", self, other);
-            } else {
-                PyErr_SetString(PyExc_ZeroDivisionError,
-                        "qdiv: zero divisor");
-                Py_DECREF(self);
-                Py_DECREF(other);
-            }
+            PyErr_SetString(PyExc_ZeroDivisionError,"qdiv: zero divisor");
+            Py_DECREF(self);
+            Py_DECREF(other);
             return result;
         }
         s = (PyObject*)Pympq_new();
@@ -3561,15 +3481,9 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
         }
         if(0==mpq_sgn(Pympq_AS_MPQ(denominator))) {
             PyObject* result = 0;
-            if(options.ZD_cb) {
-                result = PyObject_CallFunction(options.ZD_cb,
-                    "sNN", "mpq", newob, denominator);
-            } else {
-                PyErr_SetString(PyExc_ZeroDivisionError,
-                        "mpq: zero denominator");
-                Py_DECREF((PyObject *) newob);
-                Py_DECREF(denominator);
-            }
+            PyErr_SetString(PyExc_ZeroDivisionError,"mpq: zero denominator");
+            Py_DECREF((PyObject *) newob);
+            Py_DECREF(denominator);
             return result;
         }
         result = Pympq_div(newob,(PympqObject*)denominator);
@@ -3683,7 +3597,7 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
 
 /* ARITHMETIC */
 
-#define MPZ_BINOP(NAME,ismul) \
+#define MPZ_BINOP(NAME) \
 static PyObject * \
 Py##NAME(PympzObject *a, PympzObject *b) \
 { \
@@ -3692,21 +3606,10 @@ Py##NAME(PympzObject *a, PympzObject *b) \
   if (!(r = Pympz_new())) return NULL; \
   NAME(r->z, a->z, b->z); \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
-  if(ismul && options.ZM_cb && mpz_sgn(r->z)==0) { \
-      PyObject* result; \
-      if(options.debug) \
-          fprintf(stderr, "calling %p from %s for %p %p %p\n", \
-              options.ZM_cb, #NAME, r, a, b); \
-      result = PyObject_CallFunction(options.ZM_cb, "sOOO", #NAME, r, a, b); \
-      if(result != Py_None) { \
-          Py_DECREF((PyObject*)r); \
-          return result; \
-      } \
-  } \
   return (PyObject *) r; \
 }
 
-#define MPF_BINOP(NAME,ismul) \
+#define MPF_BINOP(NAME) \
 static PyObject * \
 Py##NAME(PympfObject *a, PympfObject *b) \
 { \
@@ -3719,22 +3622,11 @@ Py##NAME(PympfObject *a, PympfObject *b) \
   if (!(r = Pympf_new(bits))) return NULL; \
   NAME(r->f, a->f, b->f); \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", r); \
-  if(ismul && options.ZM_cb && mpf_sgn(r->f)==0) { \
-      PyObject* result; \
-      if(options.debug) \
-          fprintf(stderr, "calling %p from %s for %p %p %p\n", \
-              options.ZM_cb, #NAME, r, a, b); \
-      result = PyObject_CallFunction(options.ZM_cb, "sOOO", #NAME, r, a, b); \
-      if(result != Py_None) { \
-          Py_DECREF((PyObject*)r); \
-          return result; \
-      } \
-  } \
   mpf_normalize(r); \
   return (PyObject *) r; \
 }
 
-#define MPQ_BINOP(NAME,ismul) \
+#define MPQ_BINOP(NAME) \
 static PyObject * \
 Py##NAME(PympqObject *a, PympqObject *b) \
 { \
@@ -3743,33 +3635,22 @@ Py##NAME(PympqObject *a, PympqObject *b) \
   if (!(r = Pympq_new())) return NULL; \
   NAME(r->q, a->q, b->q); \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", r); \
-  if(ismul && options.ZM_cb && mpq_sgn(r->q)==0) { \
-      PyObject* result; \
-      if(options.debug) \
-          fprintf(stderr, "calling %p from %s for %p %p %p\n", \
-              options.ZM_cb, #NAME, r, a, b); \
-      result = PyObject_CallFunction(options.ZM_cb, "sOOO", #NAME, r, a, b); \
-      if(result != Py_None) { \
-          Py_DECREF((PyObject*)r); \
-          return result; \
-      } \
-  } \
   return (PyObject *) r; \
 }
 
-MPZ_BINOP(mpz_add,0)
-MPZ_BINOP(mpz_sub,0)
-MPZ_BINOP(mpz_mul,1)
+MPZ_BINOP(mpz_add)
+MPZ_BINOP(mpz_sub)
+MPZ_BINOP(mpz_mul)
 
-MPF_BINOP(mpf_add,0)
-MPF_BINOP(mpf_sub,0)
-MPF_BINOP(mpf_mul,1)
+MPF_BINOP(mpf_add)
+MPF_BINOP(mpf_sub)
+MPF_BINOP(mpf_mul)
 
-MPQ_BINOP(mpq_add,0)
-MPQ_BINOP(mpq_sub,0)
-MPQ_BINOP(mpq_mul,1)
+MPQ_BINOP(mpq_add)
+MPQ_BINOP(mpq_sub)
+MPQ_BINOP(mpq_mul)
 
-MPF_BINOP(mpf_reldiff,0)
+MPF_BINOP(mpf_reldiff)
 
 #define MPZ_DIVOP(NAME, OP) \
 static PyObject * \
@@ -3778,28 +3659,12 @@ NAME(PympzObject *a, PympzObject *b) \
   PympzObject *r; \
   if (options.debug) fprintf(stderr, #NAME ": %p, %p", a, b); \
   if (mpz_sgn(b->z) == 0) { \
-    if(options.ZD_cb) { \
-        return PyObject_CallFunction(options.ZD_cb, \
-            "sOO", #NAME, a, b); \
-    } else { \
-        PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
-        return NULL; \
-    } \
+    PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
+   return NULL; \
   } \
   if (!(r = Pympz_new())) return NULL; \
   OP(r->z, a->z, b->z); \
   if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
-  if(options.ZM_cb && mpz_sgn(r->z)==0) { \
-      PyObject* result; \
-      if(options.debug) \
-          fprintf(stderr, "calling %p from %s for %p %p %p\n", \
-              options.ZM_cb, #NAME, r, a, b); \
-      result = PyObject_CallFunction(options.ZM_cb, "sOOO", #NAME, r, a, b); \
-      if(result != Py_None) { \
-          Py_DECREF((PyObject*)r); \
-          return result; \
-      } \
-  } \
   return (PyObject *) r; \
 }
 
@@ -3810,28 +3675,12 @@ NAME(PympqObject *a, PympqObject *b) \
   PympqObject *r; \
   if (options.debug) fprintf(stderr, #NAME ": %p, %p", a, b); \
   if (mpq_sgn(b->q) == 0) { \
-    if(options.ZD_cb) { \
-        return PyObject_CallFunction(options.ZD_cb, \
-            "sOO", #NAME, a, b); \
-    } else { \
-        PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
-        return NULL; \
-    } \
+    PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
+    return NULL; \
   } \
   if (!(r = Pympq_new())) return NULL; \
   OP(r->q, a->q, b->q); \
   if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
-  if(options.ZM_cb && mpq_sgn(r->q)==0) { \
-      PyObject* result; \
-      if(options.debug) \
-          fprintf(stderr, "calling %p from %s for %p %p %p\n", \
-              options.ZM_cb, #NAME, r, a, b); \
-      result = PyObject_CallFunction(options.ZM_cb, "sOOO", #NAME, r, a, b); \
-      if(result != Py_None) { \
-          Py_DECREF((PyObject*)r); \
-          return result; \
-      } \
-  } \
   return (PyObject *) r; \
 }
 
@@ -3843,13 +3692,8 @@ NAME(PympfObject *a, PympfObject *b) \
   PympfObject *r; \
   if (options.debug) fprintf(stderr, #NAME ": %p, %p", a, b); \
   if (mpf_sgn(b->f) == 0) { \
-    if(options.ZD_cb) { \
-        return PyObject_CallFunction(options.ZD_cb, \
-            "sOO", #NAME, a, b); \
-    } else { \
-        PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
-        return NULL; \
-    } \
+    PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
+    return NULL; \
   } \
   bits = a->rebits; \
   bbits = b->rebits; \
@@ -3857,17 +3701,6 @@ NAME(PympfObject *a, PympfObject *b) \
   if (!(r = Pympf_new(bits))) return NULL; \
   OP(r->f, a->f, b->f); \
   if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
-  if(options.ZM_cb && mpf_sgn(r->f)==0) { \
-      PyObject* result; \
-      if(options.debug) \
-          fprintf(stderr, "calling %p from %s for %p %p %p\n", \
-              options.ZM_cb, #NAME, r, a, b); \
-      result = PyObject_CallFunction(options.ZM_cb, "sOOO", #NAME, r, a, b); \
-      if(result != Py_None) { \
-          Py_DECREF((PyObject*)r); \
-          return result; \
-      } \
-  } \
   return (PyObject *) r; \
 }
 
@@ -3932,14 +3765,8 @@ Pympz_divmod(PympzObject *a, PympzObject *b)
     if (options.debug)
         fprintf(stderr, "Pympz_divmod: %p, %p\n", a, b);
     if (mpz_sgn(b->z) == 0) {
-        if(options.ZD_cb) {
-            return PyObject_CallFunction(options.ZD_cb,
-                "sOO", "mpz_divmod", a, b);
-        } else {
-            PyErr_SetString(PyExc_ZeroDivisionError,
-                "mpz.divmod by zero");
-            return NULL;
-        }
+        PyErr_SetString(PyExc_ZeroDivisionError,"mpz.divmod by zero");
+        return NULL;
     }
     if (!(q = Pympz_new()))
         return NULL;
@@ -3950,19 +3777,6 @@ Pympz_divmod(PympzObject *a, PympzObject *b)
     mpz_fdiv_qr(q->z, r->z, a->z, b->z);
     if (options.debug)
         fprintf(stderr, "Pympz_divmod -> %p, %p\n", q, r);
-    if(options.ZM_cb && (mpz_sgn(r->z)==0 || mpz_sgn(q->z)==0) ) {
-        PyObject* result;
-        if(options.debug)
-            fprintf(stderr, "calling %p from %s for %p %p %p %p\n",
-                options.ZM_cb, "Pympz_divmod", q, r, a, b);
-        result = PyObject_CallFunction(options.ZM_cb, "sOOOO", "Pympz_divmod",
-                                       q, r, a, b);
-        if(result != Py_None) {
-            Py_DECREF((PyObject*)q);
-            Py_DECREF((PyObject*)r);
-            return result;
-        }
-    }
     return Py_BuildValue("(NN)", q, r);
 }
 
@@ -3975,17 +3789,6 @@ Py##NAME(PympzObject *x) \
   if (!(r = Pympz_new())) return NULL; \
   NAME(r->z, x->z); \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
-  if(options.ZM_cb && mpz_sgn(r->z)==0) { \
-      PyObject* result; \
-      if(options.debug) \
-          fprintf(stderr, "calling %p from %s for %p %p\n", \
-              options.ZM_cb, #NAME, r, x); \
-      result = PyObject_CallFunction(options.ZM_cb, "sOO", #NAME, r, x); \
-      if(result != Py_None) { \
-          Py_DECREF((PyObject*)r); \
-          return result; \
-      } \
-  } \
   return (PyObject *) r; \
 }
 
@@ -3998,17 +3801,6 @@ Py##NAME(PympfObject *x) \
   if (!(r = Pympf_new(x->rebits))) return NULL; \
   NAME(r->f, x->f); \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
-  if(options.ZM_cb && mpf_sgn(r->f)==0) { \
-      PyObject* result; \
-      if(options.debug) \
-          fprintf(stderr, "calling %p from %s for %p %p\n", \
-              options.ZM_cb, #NAME, r, x); \
-      result = PyObject_CallFunction(options.ZM_cb, "sOO", #NAME, r, x); \
-      if(result != Py_None) { \
-          Py_DECREF((PyObject*)r); \
-          return result; \
-      } \
-  } \
   return (PyObject *) r; \
 }
 
@@ -4021,17 +3813,6 @@ Py##NAME(PympqObject *x) \
   if (!(r = Pympq_new())) return NULL; \
   NAME(r->q, x->q); \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
-  if(options.ZM_cb && mpq_sgn(r->q)==0) { \
-      PyObject* result; \
-      if(options.debug) \
-          fprintf(stderr, "calling %p from %s for %p %p\n", \
-              options.ZM_cb, #NAME, r, x); \
-      result = PyObject_CallFunction(options.ZM_cb, "sOO", #NAME, r, x); \
-      if(result != Py_None) { \
-          Py_DECREF((PyObject*)r); \
-          return result; \
-      } \
-  } \
   return (PyObject *) r; \
 }
 
@@ -4051,18 +3832,6 @@ Pympq_abs(PympqObject *x)
     mpq_set(r->q, x->q);
     mpz_abs(mpq_numref(r->q),mpq_numref(r->q));
     if (options.debug) fprintf(stderr, "Pympq_abs-> %p\n", r);
-    if(options.ZM_cb && mpq_sgn(r->q)==0) {
-        PyObject* result;
-        if(options.debug)
-            fprintf(stderr, "calling %p from %s for %p %p\n",
-                options.ZM_cb, "Pympq_abs", r, x);
-        result = PyObject_CallFunction(options.ZM_cb, "sOO", "Pympq_abs",
-                                       r, x);
-        if(result != Py_None) {
-            Py_DECREF((PyObject*)r);
-            return result;
-        }
-    }
     return (PyObject *) r;
 }
 
@@ -4097,11 +3866,7 @@ Pympz_pow(PympzObject *b, PympzObject *e, PympzObject *m)
         fprintf(stderr, "Pympz_pow: %p, %p, %p\n", b, e, m);
 
     if(mpz_sgn(e->z) < 0) {
-        static char* msg = "mpz.pow with negative power";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssOOO", "mpz_pow", msg, b, e, m);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "mpz.pow with negative power");
         return NULL;
     }
 
@@ -4109,11 +3874,7 @@ Pympz_pow(PympzObject *b, PympzObject *e, PympzObject *m)
         /* When no modulo is present, the exponent must fit in C ulong */
         unsigned long el;
         if(notanint(e->z)) {
-            static char* msg = "mpz.pow outrageous exponent";
-            if(options.ER_cb)
-                return PyObject_CallFunction(options.ER_cb,
-                    "ssOOO", "mpz_pow", msg, b, e, m);
-            PyErr_SetString(PyExc_ValueError, msg);
+            PyErr_SetString(PyExc_ValueError, "mpz.pow outrageous exponent");
             return NULL;
         }
         el = mpz_get_ui(e->z);
@@ -4128,11 +3889,7 @@ Pympz_pow(PympzObject *b, PympzObject *e, PympzObject *m)
 
         sign = mpz_sgn(m->z);
         if(sign == 0) {
-            static char* msg = "mpz.pow divide by zero";
-            if(options.ER_cb)
-                return PyObject_CallFunction(options.ER_cb,
-                    "ssOOO", "mpz_pow", msg, b, e, m);
-            PyErr_SetString(PyExc_ValueError, msg);
+            PyErr_SetString(PyExc_ValueError, "mpz.pow divide by zero");
             return NULL;
         }
         if(!(r = Pympz_new()))
@@ -4150,18 +3907,6 @@ Pympz_pow(PympzObject *b, PympzObject *e, PympzObject *m)
         }
         if(options.debug)
             fprintf(stderr, "Pympz_pow -> %p\n", r);
-    }
-    if(options.ZM_cb && mpz_sgn(r->z)==0) {
-        PyObject* result;
-        if(options.debug)
-            fprintf(stderr, "calling %p from %s for %p %p %p %p\n",
-                options.ZM_cb, "Pympz_pow", r, b, e, m);
-        result = PyObject_CallFunction(options.ZM_cb, "sOOOO", "Pympz_pow",
-                                       r, b, e, m);
-        if(result != Py_None) {
-            Py_DECREF((PyObject*)r);
-            return result;
-        }
     }
     return (PyObject*)r;
 }
@@ -4183,19 +3928,11 @@ Pympq_pow(PympqObject *b, PympqObject *e, PympqObject *m)
         return NULL;
     }
     if(notanint(mpq_numref(e->q))) {
-        static char* msg = "mpq.pow outrageous exp num";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssOOO", "mpq_pow", msg, b, e, m);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "mpq.pow outrageous exp num");
         return NULL;
     }
     if(notanint(mpq_denref(e->q))) {
-        static char* msg = "mpq.pow outrageous exp den";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssOOO", "mpq_pow", msg, b, e, m);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "mpq.pow outrageous exp den");
         return NULL;
     }
     if(!(r = Pympq_new()))
@@ -4211,13 +3948,7 @@ Pympq_pow(PympqObject *b, PympqObject *e, PympqObject *m)
         int bsign = mpq_sgn(b->q);
         if(bsign == 0) {
             PyObject* result = 0;
-            if(options.ZD_cb) {
-                result = PyObject_CallFunction(options.ZD_cb,
-                    "sOO", "mpq_pow", b, e);
-            } else {
-                PyErr_SetString(PyExc_ZeroDivisionError,
-                        "mpq.pow 0 base to <0 exponent");
-            }
+            PyErr_SetString(PyExc_ZeroDivisionError,"mpq.pow 0 base to <0 exponent");
             Py_DECREF((PyObject*)r);
             return result;
         }
@@ -4256,27 +3987,12 @@ Pympq_pow(PympqObject *b, PympqObject *e, PympqObject *m)
         }
         if(!exact) {
             Py_DECREF((PyObject*)r);
-            if(options.ER_cb)
-                return PyObject_CallFunction(options.ER_cb,
-                    "ssOOO", "mpq_pow", msg, b, e, m);
             PyErr_SetString(PyExc_ValueError, msg);
             return NULL;
         }
     }
     if(options.debug)
         fprintf(stderr, "Pympq_pow (ui) -> %p\n", r);
-    if(options.ZM_cb && mpq_sgn(r->q)==0) {
-        PyObject* result;
-        if(options.debug)
-            fprintf(stderr, "calling %p from %s for %p %p %p %p\n",
-                options.ZM_cb, "Pympq_pow", r, b, e, m);
-        result = PyObject_CallFunction(options.ZM_cb, "sOOOO", "Pympq_pow",
-                                       r, b, e, m);
-        if(result != Py_None) {
-            Py_DECREF((PyObject*)r);
-            return result;
-        }
-    }
     return (PyObject*)r;
 }
 
@@ -4312,18 +4028,6 @@ Pympf_pow(PympfObject *b, PympfObject *e, PympfObject *m)
         qb = (PympqObject*)r;
         r = (PyObject*)mpq2mpf((PyObject*)qb, bits);
         Py_DECREF((PyObject*)qb);
-    }
-    if(options.ZM_cb && mpf_sgn(Pympf_AS_MPF(r))==0) {
-        PyObject* result;
-        if(options.debug)
-            fprintf(stderr, "calling %p from %s for %p %p %p %p\n",
-                options.ZM_cb, "Pympq_pow", r, b, e, m);
-        result = PyObject_CallFunction(options.ZM_cb, "sOOOO", "Pympq_pow",
-                                       r, b, e, m);
-        if(result != Py_None) {
-            Py_DECREF((PyObject*)r);
-            return result;
-        }
     }
     mpf_normalize(e);
     return r;
@@ -4502,17 +4206,6 @@ Py##NAME(PyObject* self, PyObject *args) \
   if (!(r = Pympf_new(((PympfObject*)self)->rebits))) return NULL; \
   NAME(r->f, Pympf_AS_MPF(self)); \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
-  if(options.ZM_cb && mpf_sgn(r->f)==0) { \
-      PyObject* result; \
-      if(options.debug) \
-          fprintf(stderr, "calling %p from %s for %p %p\n", \
-              options.ZM_cb, #NAME, r, self); \
-      result = PyObject_CallFunction(options.ZM_cb, "sOO", #NAME, r, self); \
-      if(result != Py_None) { \
-          Py_DECREF((PyObject*)r); \
-          return result; \
-      } \
-  } \
   Py_DECREF(self); \
   mpf_normalize(r); \
   return (PyObject *) r; \
@@ -4549,9 +4242,9 @@ MPF_UNIOP(mpf_trunc)
 
 /* BIT OPERATIONS (mpz-only) */
 MPZ_MONOP(mpz_com)
-MPZ_BINOP(mpz_and,0)
-MPZ_BINOP(mpz_ior,0)
-MPZ_BINOP(mpz_xor,0)
+MPZ_BINOP(mpz_and)
+MPZ_BINOP(mpz_ior)
+MPZ_BINOP(mpz_xor)
 
 #define MPZ_SHIFTOP(NAME, OP) \
 static PyObject * \
@@ -4561,16 +4254,10 @@ NAME(PympzObject *a, PympzObject *b) \
   unsigned long count; \
   if(mpz_sgn(b->z) < 0) { \
     static char* msg = #NAME " negative shift count"; \
-    if(options.ER_cb) \
-        return PyObject_CallFunction(options.ER_cb, \
-            "ssOO", #NAME, msg, a, b); \
     PyErr_SetString(PyExc_ValueError, msg); \
     return NULL; } \
   if(!mpz_fits_ulong_p(b->z)) { \
     static char* msg = #NAME " outrageous shift count"; \
-    if(options.ER_cb) \
-        return PyObject_CallFunction(options.ER_cb, \
-            "ssOO", #NAME, msg, a, b); \
     PyErr_SetString(PyExc_ValueError, msg); \
     return NULL; } \
   count = mpz_get_ui(b->z); \
@@ -4719,8 +4406,6 @@ Pympz_getattr(PympzObject *self, char *name)
     PyObject *result = 0;
     if(!result)
         result = Py_FindMethod(Pympz_methods, (PyObject*)self, name);
-    if(!result && options.AT_cb)
-        result = at_last_try((PyObject*)self, name);
     return result;
 }
 static PyObject *
@@ -4729,8 +4414,6 @@ Pympq_getattr(PympqObject *self, char *name)
     PyObject *result = 0;
     if(!result)
         result = Py_FindMethod(Pympq_methods, (PyObject*)self, name);
-    if(!result && options.AT_cb)
-        result = at_last_try((PyObject*)self, name);
     return result;
 }
 static PyObject *
@@ -4739,8 +4422,6 @@ Pympf_getattr(PympfObject *self, char *name)
     PyObject *result = 0;
     if(!result)
         result = Py_FindMethod(Pympf_methods, (PyObject*)self, name);
-    if(!result && options.AT_cb)
-        result = at_last_try((PyObject*)self, name);
     return result;
 }
 
@@ -4868,18 +4549,6 @@ Pygmpy_divm(PyObject *self, PyObject *args)
     if (ok) {
         mpz_mul(res->z, res->z, numz);
         mpz_mod(res->z, res->z, modz);
-        if(options.ZM_cb && mpz_sgn(res->z)==0) {
-            PyObject* result;
-            if(options.debug)
-                fprintf(stderr, "calling %p from %s for %p %p %p %p\n",
-                    options.ZM_cb, "divm", res, num, den, mod);
-            result = PyObject_CallFunction(options.ZM_cb, "sOOOO", "divm",
-                                           res, num, den, mod);
-            if(result != Py_None) {
-                Py_DECREF((PyObject*)res);
-                return result;
-            }
-        }
         mpz_clear(numz); mpz_clear(denz); mpz_clear(modz);
         Py_DECREF((PyObject*)num);
         Py_DECREF((PyObject*)den);
@@ -4887,12 +4556,7 @@ Pygmpy_divm(PyObject *self, PyObject *args)
         return (PyObject*)res;
     } else {
         PyObject* result = 0;
-        if(options.ZD_cb) {
-            result = PyObject_CallFunction(options.ZD_cb,
-                "sOOO", "divm", num, den, mod);
-        } else {
-            PyErr_SetString(PyExc_ZeroDivisionError, "not invertible");
-        }
+        PyErr_SetString(PyExc_ZeroDivisionError, "not invertible");
         mpz_clear(numz); mpz_clear(denz); mpz_clear(modz);
         Py_DECREF((PyObject*)num);
         Py_DECREF((PyObject*)den);
@@ -4915,11 +4579,7 @@ Pygmpy_fac(PyObject *self, PyObject *args)
     ONE_ARG("fac", "l", &n);
 
     if(n < 0) {
-        static char* msg = "factorial of negative number";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssl", "fac", msg, n);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "factorial of negative number");
         return NULL;
     }
     if(!(fac = Pympz_new()))
@@ -4942,11 +4602,7 @@ Pygmpy_fib(PyObject *self, PyObject *args)
     ONE_ARG("fib", "l", &n);
 
     if(n < 0) {
-        static char* msg = "Fibonacci of negative number";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssl", "fib", msg, n);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "Fibonacci of negative number");
         return NULL;
     }
     if(!(fib = Pympz_new()))
@@ -5063,11 +4719,7 @@ Pympz_bincoef(PyObject *self, PyObject *args)
     assert(Pympz_Check(self));
 
     if(k < 0) {
-        static char* msg = "binomial coefficient with negative k";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssNl", "bincoef", msg, self, k);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "binomial coefficient with negative k");
         Py_DECREF(self);
         return NULL;
     }
@@ -5098,11 +4750,7 @@ Pympf_sqrt(PyObject *self, PyObject *args)
     assert(Pympf_Check(self));
 
     if(mpf_sgn(Pympf_AS_MPF(self)) < 0) {
-        static char* msg = "sqrt of negative number";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssN", "fsqrt", msg, self);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "sqrt of negative number");
         Py_DECREF(self);
         return NULL;
     }
@@ -5135,11 +4783,7 @@ Pympz_sqrt(PyObject *self, PyObject *args)
     assert(Pympz_Check(self));
 
     if(mpz_sgn(Pympz_AS_MPZ(self)) < 0) {
-        static char* msg = "sqrt of negative number";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssN", "sqrt", msg, self);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "sqrt of negative number");
         Py_DECREF(self);
         return NULL;
     }
@@ -5172,11 +4816,7 @@ Pympz_sqrtrem(PyObject *self, PyObject *args)
     assert(Pympz_Check(self));
 
     if(mpz_sgn(Pympz_AS_MPZ(self)) < 0) {
-        static char* msg = "sqrt of negative number";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssN", "sqrtrem", msg, self);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "sqrt of negative number");
         Py_DECREF(self);
         return NULL;
     }
@@ -5222,11 +4862,7 @@ Pympz_remove(PyObject *self, PyObject *args)
     assert(Pympz_Check(factor));
 
     if(mpz_sgn(Pympz_AS_MPZ(factor)) <= 0) {
-        static char* msg = "factor must be > 0";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssNN", "remove", msg, self, factor);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "factor must be > 0");
         return NULL;
     }
 
@@ -5272,10 +4908,6 @@ Pympz_invert(PyObject *self, PyObject *args)
     }
     success = mpz_invert(result->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(modulo));
     if(!success) {
-        static char* msg = "modulo-inverse does not exist";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssNN", "invert", msg, self, modulo);
         mpz_set_ui(result->z, 0);
     }
     Py_DECREF(self);
@@ -5775,11 +5407,7 @@ Pympz_jacobi(PyObject *self, PyObject *args)
     assert(Pympz_Check(self));
     assert(Pympz_Check(other));
     if(mpz_sgn(Pympz_AS_MPZ(other))<=0) {
-        static char* msg = "jacobi's y must be odd prime > 0";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssNN", "jacobi", msg, self, other);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "jacobi's y must be odd prime > 0");
         Py_DECREF(self); Py_DECREF(other);
         return NULL;
     }
@@ -5807,11 +5435,7 @@ Pympz_legendre(PyObject *self, PyObject *args)
     assert(Pympz_Check(self));
     assert(Pympz_Check(other));
     if(mpz_sgn(Pympz_AS_MPZ(other))<=0) {
-        static char* msg = "legendre's y must be odd and > 0";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssNN", "legendre", msg, self, other);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "legendre's y must be odd and > 0");
         Py_DECREF(self); Py_DECREF(other);
         return NULL;
     }
@@ -5853,11 +5477,7 @@ Pympz_kronecker(PyObject *self, PyObject *args)
         ires = mpz_kronecker_si(Pympz_AS_MPZ(self),
             mpz_get_si(Pympz_AS_MPZ(other)));
     } else {
-        static char* msg = "Either arg in Kronecker must fit in an int";
-        if(options.ER_cb)
-            return PyObject_CallFunction(options.ER_cb,
-                "ssNN", "kronecker", msg, self, other);
-        PyErr_SetString(PyExc_ValueError, msg);
+        PyErr_SetString(PyExc_ValueError, "Either arg in Kronecker must fit in an int");
         Py_DECREF(self); Py_DECREF(other);
         return NULL;
     }
@@ -6340,7 +5960,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "set_minprec", Pygmpy_set_minprec, 1, doc_set_minprec },
     { "set_tagoff", Pygmpy_set_tagoff, 1, doc_set_tagoff },
     { "set_fcoform", Pygmpy_set_fcoform, 1, doc_set_fcoform },
-    { "set_callback", Pygmpy_set_callback, 1, 0 },
     { "get_zcache", Pygmpy_get_zcache, 1, doc_get_zcache },
     { "set_zcache", Pygmpy_set_zcache, 1, doc_set_zcache },
     { "get_qcache", Pygmpy_get_qcache, 1, doc_get_qcache },
@@ -6414,7 +6033,7 @@ static PyMethodDef Pygmpy_methods [] =
     { NULL, NULL, 1}
 };
 
-statichere PyMethodDef Pympz_methods [] =
+static PyMethodDef Pympz_methods [] =
 {
     { "sqrt", Pympz_sqrt, 1, doc_sqrtm },
     { "sqrtrem", Pympz_sqrtrem, 1, doc_sqrtremm },
@@ -6448,7 +6067,7 @@ statichere PyMethodDef Pympz_methods [] =
     { NULL, NULL, 1 }
 };
 
-statichere PyMethodDef Pympq_methods [] =
+static PyMethodDef Pympq_methods [] =
 {
     { "sign", Pympq_sign, 1, doc_qsignm },
     { "numer", Pympq_numer, 1, doc_numerm },
@@ -6460,7 +6079,7 @@ statichere PyMethodDef Pympq_methods [] =
     { NULL, NULL, 1 }
 };
 
-statichere PyMethodDef Pympf_methods [] =
+static PyMethodDef Pympf_methods [] =
 {
     { "reldiff", Pympf_doreldiff, 1, doc_reldiffm },
     { "binary", Pympf_binary, 1, doc_fbinarym },
@@ -6480,7 +6099,7 @@ statichere PyMethodDef Pympf_methods [] =
     { NULL, NULL, 1 }
 };
 
-statichere PyTypeObject Pympz_Type =
+static PyTypeObject Pympz_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
     PyObject_HEAD_INIT(0)
@@ -6511,7 +6130,7 @@ statichere PyTypeObject Pympz_Type =
     (richcmpfunc)&mpz_richcompare, /* tp_richcompare */
 };
 
-statichere PyTypeObject Pympq_Type =
+static PyTypeObject Pympq_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
     PyObject_HEAD_INIT(0)
@@ -6543,7 +6162,7 @@ statichere PyTypeObject Pympq_Type =
 };
 
 
-statichere PyTypeObject Pympf_Type =
+static PyTypeObject Pympf_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
     PyObject_HEAD_INIT(0)
@@ -6691,8 +6310,32 @@ potentially-huge or extremely-tiny magnitudes), as well as\n\
 unlimited-precision rationals, with reasonably-fast operations,\n\
 which are not built-in features of Python.\n\
 ";
+
+/* Notes on Python 3.x support: Full support for PEP-3121 has not been
+ * implemented. No per-module state has been defined.
+ */
+
+#if PY_MAJOR_VERSION >= 3
+#define INITERROR return NULL
+static struct PyModuleDef moduledef = {
+        PyModuleDef_HEAD_INIT,
+        "gmpy",
+        _gmpy_docs,
+        -1, /*sizeof(struct module_state) */
+        Pygmpy_methods,
+        NULL,
+        NULL, /* gmpy_traverse */
+        NULL, /* gmpy_clear */
+        NULL
+};
+
+PyObject *
+PyInit_gmpy(void)
+#else
+#define INITERROR return
 DL_EXPORT(void)
 initgmpy(void)
+#endif
 {
     PyObject* decimal_module = NULL;
     PyObject* copy_reg_module = NULL;
@@ -6709,7 +6352,13 @@ initgmpy(void)
         fputs( "initgmpy() called...\n", stderr );
     _PyInitGMP();
 
+#if PY_MAJOR_VERSION >= 3
+    gmpy_module = PyModule_Create(&moduledef);
+#else
     gmpy_module = Py_InitModule3("gmpy", Pygmpy_methods, _gmpy_docs);
+#endif
+
+    /* Todo: Add error checking for status of gmpy_module returned above. */
 
     export_gmpy(gmpy_module);
 
@@ -6791,4 +6440,7 @@ initgmpy(void)
         if (options.debug)
             fprintf(stderr, "gmpy_module could not import decimal\n");
     }
+#if PY_MAJOR_VERSION >= 3
+    return gmpy_module;
+#endif
 }
