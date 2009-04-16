@@ -433,8 +433,9 @@ r'''
 1
 >>> _g.gcd(a,b)
 mpz(3)
->>> _g.gcdext(a,b)
-(mpz(3), mpz(-63), mpz(17))
+>>> temp=_g.gcdext(a,b)
+>>> temp[0]==a*temp[1]+b*temp[2]
+True
 >>> _g.lcm(a,b)
 mpz(18696)
 >>> _g.fac(7)
