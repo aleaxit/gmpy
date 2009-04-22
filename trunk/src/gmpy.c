@@ -214,6 +214,30 @@
 #define alloca _alloca
 #endif
 
+/* Define various macros to deal with differences between Python 2 and 3. */
+
+#if PY_MAJOR_VERSION >= 3
+#define Py2or3Int_Check PyLong_Check
+#define Py2or3Int_AsLong PyLong_AsLong
+#define Py2or3Int_FromLong PyLong_FromLong
+#define Py2or3String_FromString PyUnicode_FromString
+#define Py2or3String_Check PyUnicode_Check
+#define Py2or3String_Format PyUnicode_Format
+#define Py2or3String_AsString PyUnicode_AS_DATA
+#define Py2or3Long_SHIFT PyLong_SHIFT
+#define Py2or3String_FromStringAndSize PyUnicode_FromStringAndSize
+#else
+#define Py2or3Int_Check PyInt_Check
+#define Py2or3Int_AsLong PyInt_AsLong
+#define Py2or3Int_FromLong PyInt_FromLong
+#define Py2or3String_FromString PyString_FromString
+#define Py2or3String_Check PyString_Check
+#define Py2or3String_Format PyString_Format
+#define Py2or3String_AsString PyString_AsString
+#define Py2or3Long_SHIFT SHIFT
+#define Py2or3String_FromStringAndSize PyString_FromStringAndSize
+#endif
+
 #ifdef __MPIR_VERSION
 #define MPIR_VER \
 __MPIR_VERSION * 10000 + \
@@ -820,9 +844,14 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
     if(new == Py_None) { /* none == missing-argument (reset string use) */
         new = 0;
     } else if(new) {
-        if(PyInt_Check(new)) {
+        if(Py2or3Int_Check(new)) {
             /* int arg (1 to 30) used as # of digits for intermediate string */
-            long inew = PyInt_AS_LONG(new);
+            long inew = Py2or3Int_AsLong(new);
+            if(inew==-1 && PyErr_Occurred()) {
+                PyErr_SetString(PyExc_ValueError,
+                    "number of digits n must be 0<n<=30");
+                return 0;
+            }
             char buf[20];
             /* check range for number-of-digits setting */
             if(inew<=0 || inew>30) {
@@ -832,9 +861,9 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
             }
             /* prepare Python format-string '%.12e' or whatever */
             sprintf(buf,"%%.%lde",inew);
-            new = PyString_FromString(buf);
+            new = Py2or3String_FromString(buf);
         } else { /* else arg must be string directly usable in formatting */
-            if(!PyString_Check(new)) {
+            if(!Py2or3String_Check(new)) {
                 PyErr_SetString(PyExc_TypeError,
                     "set_fcoform argument must be int, string, or None");
                 return 0;
@@ -948,33 +977,53 @@ mpz_from_c_long(long i)
     return newob;
 }
 
+/* Forward declaration for long2mpz */
+static PympzObject * long2mpz(PyObject * obj);
+
 static PympzObject *
 int2mpz(PyObject *i)
 {
+#if PY_MAJOR_VERSION >= 3
+    return long2mpz(i);
+#else
     assert(PyInt_Check(i));
     return mpz_from_c_long(PyInt_AsLong(i));
+#endif
 }
+
+/* Forward declaration for long2mpq */
+static PympqObject * long2mpq(PyObject * obj);
 
 static PympqObject *
 int2mpq(PyObject *i)
 {
+#if PY_MAJOR_VERSION >= 3
+    return long2mpq(i);
+#else
     PympqObject *newob;
 
-    assert(PyInt_Check(i));
+    assert(Py2or3Int_Check(i));
 
     if(!(newob = Pympq_new()))
         return NULL;
     mpq_set_si(newob->q, PyInt_AsLong(i), 1);
     return newob;
+#endif
 }
+
+/* Forward declaration for long2mpq */
+static PympfObject * long2mpf(PyObject * obj, unsigned int bits);
 
 static PympfObject *
 int2mpf(PyObject *i, unsigned int bits)
 {
+#if PY_MAJOR_VERSION >= 3
+    return long2mpf(i, bits);
+#else
     PympfObject *newob;
     long li;
 
-    assert(PyInt_Check(i));
+    assert(Py2or3Int_Check(i));
     li = PyInt_AsLong(i);
     /* on a 64-bit machine, SIZEOF_LONG*8 > double_mantissa, so to simplify
        the representation, only use that many bits if we have an integer that
@@ -992,6 +1041,7 @@ int2mpf(PyObject *i, unsigned int bits)
     mpf_set_si(newob->f, li);
     mpf_normalize(newob);
     return newob;
+#endif
 }
 
 static PympzObject *
@@ -1069,13 +1119,13 @@ float2mpf(PyObject *f, unsigned int bits)
         PyObject* tuple=Py_BuildValue("(O)",f);
         PyObject* s;
         if(!tuple) return 0;
-        s=PyString_Format(options.fcoform, tuple);
+        s=Py2or3String_Format(options.fcoform, tuple);
         Py_DECREF(tuple);
         if(options.debug)
             fprintf(stderr,"f2mp(%s,%f->%s)\n",
-                    PyString_AsString(options.fcoform),
+                    Py2or3String_AsString(options.fcoform),
                     PyFloat_AsDouble(f),
-                    s?PyString_AsString(s):"<NoString>");
+                    s?Py2or3String_AsString(s):"<NoString>");
 
         if(!s) return 0;
         newob = str2mpf(s, 10, bits);
@@ -1197,6 +1247,15 @@ long2mpz(PyObject * obj)
     mpz_set_si(newob->z, 0);
     mpz_inoc(digit);
 
+#if PY_MAJOR_VERSION >= 3
+    if(l->ob_base.ob_size < 0) {
+        len = - l->ob_base.ob_size;
+        negative = 1;
+    } else {
+        len = l->ob_base.ob_size;
+        negative = 0;
+    }
+#else
     if(l->ob_size < 0) {
         len = - l->ob_size;
         negative = 1;
@@ -1204,7 +1263,9 @@ long2mpz(PyObject * obj)
         len = l->ob_size;
         negative = 0;
     }
-    mpz_import(newob->z, len, -1, sizeof(l->ob_digit[0]), 0, sizeof(l->ob_digit[0])*8 - SHIFT, l->ob_digit);
+#endif
+    mpz_import(newob->z, len, -1, sizeof(l->ob_digit[0]), 0,
+                sizeof(l->ob_digit[0])*8 - Py2or3Long_SHIFT, l->ob_digit);
     if(negative)
         mpz_neg(newob->z, newob->z);
     mpz_cloc(digit);
@@ -1255,14 +1316,36 @@ str2mpz(PyObject *s, long base)
     unsigned char *cp;
     Py_ssize_t len;
     int i;
+    PyObject *ascii_str = NULL;
 
+#if PY_MAJOR_VERSION >= 3
+    assert(PyBytes_Check(s) || PyUnicode_Check(s));
+#else
     assert(PyString_Check(s));
+#endif
 
     if(!(newob = Pympz_new()))
         return NULL;
 
+#if PY_MAJOR_VERSION >= 3
+    if(PyBytes_Check(s)) {
+        len = PyBytes_Size(s);
+        cp = (unsigned char*)PyBytes_AsString(s);
+    } else {
+        ascii_str = PyUnicode_AsASCIIString(s);
+        if(!ascii_str) {
+            PyErr_SetString(PyExc_ValueError,
+                    "string contains non-ASCII characters");
+            Py_XDECREF(ascii_str);
+            return NULL;
+        }
+        len = PyUnicode_GetSize(ascii_str);
+        cp = (unsigned char*)PyUnicode_AsUnicode(ascii_str);
+    }
+#else
     len = PyString_Size(s);
     cp = (unsigned char*)PyString_AsString(s);
+#endif
 
     if(256 == base) {
         /* Least significant octet first */
@@ -1286,6 +1369,7 @@ str2mpz(PyObject *s, long base)
                 PyErr_SetString(PyExc_ValueError,
                     "string without NULL characters expected");
                 Py_DECREF((PyObject *) newob);
+                Py_XDECREF(ascii_str);
                 return NULL;
             }
         }
@@ -1293,9 +1377,11 @@ str2mpz(PyObject *s, long base)
         if(-1 == mpz_set_str(newob->z, (char*)cp, base)) {
             PyErr_SetString(PyExc_ValueError, "invalid digits");
             Py_DECREF((PyObject *) newob);
+            Py_XDECREF(ascii_str);
             return NULL;
         }
     }
+    Py_XDECREF(ascii_str);
     return newob;
 }
 
@@ -1319,14 +1405,36 @@ str2mpq(PyObject *stringarg, long base)
     unsigned char *cp;
     Py_ssize_t len;
     int i;
+    PyObject *ascii_str = NULL;
 
+#if PY_MAJOR_VERSION >= 3
+    assert(PyBytes_Check(stringarg) || PyUnicode_Check(stringarg));
+#else
     assert(PyString_Check(stringarg));
+#endif
 
     if(!(newob = Pympq_new()))
         return NULL;
 
+#if PY_MAJOR_VERSION >= 3
+    if(PyBytes_Check(stringarg)) {
+        len = PyBytes_Size(stringarg);
+        cp = (unsigned char*)PyBytes_AsString(stringarg);
+    } else {
+        ascii_str = PyUnicode_AsASCIIString(stringarg);
+        if(!ascii_str) {
+            PyErr_SetString(PyExc_ValueError,
+                    "string contains non-ASCII characters");
+            Py_XDECREF(ascii_str);
+            return NULL;
+        }
+        len = PyUnicode_GetSize(ascii_str);
+        cp = (unsigned char*)PyUnicode_AsUnicode(ascii_str);
+    }
+#else
     len = PyString_Size(stringarg);
     cp = (unsigned char*)PyString_AsString(stringarg);
+#endif
 
     if(256 == base) {
         /* TODO: better factoring of str2mpz (for speed) */
@@ -1336,6 +1444,7 @@ str2mpq(PyObject *stringarg, long base)
         if(len < 6) {
             PyErr_SetString(PyExc_ValueError, "invalid mpq binary (too short)");
             Py_DECREF((PyObject*)newob);
+            Py_XDECREF(ascii_str);
             return 0;
         }
         topper = cp[3] & 0x7f;
@@ -1344,29 +1453,33 @@ str2mpq(PyObject *stringarg, long base)
         if(len < (4+numlen+1)) {
             PyErr_SetString(PyExc_ValueError, "invalid mpq binary (num len)");
             Py_DECREF((PyObject*)newob);
+            Py_XDECREF(ascii_str);
             return 0;
         }
-        s = PyString_FromStringAndSize((char*)cp+4, numlen);
+        s = Py2or3String_FromStringAndSize((char*)cp+4, numlen);
         numerator = str2mpz(s,256);
         Py_DECREF(s);
         if (!numerator) {
             Py_DECREF((PyObject*)newob);
+            Py_XDECREF(ascii_str);
             return 0;
         }
         if(mpz_sgn(numerator->z) < 0) {
             PyErr_SetString(PyExc_ValueError, "invalid mpq binary (num sgn)");
             Py_DECREF((PyObject*)newob);
             Py_DECREF((PyObject*)numerator);
+            Py_XDECREF(ascii_str);
             return 0;
         }
         if(isnega)
             mpz_neg(numerator->z, numerator->z);
-        s = PyString_FromStringAndSize((char*)cp+4+numlen, len-4-numlen);
+        s = Py2or3String_FromStringAndSize((char*)cp+4+numlen, len-4-numlen);
         denominator = str2mpz(s,256);
         Py_DECREF(s);
         if (!denominator) {
             Py_DECREF((PyObject*)newob);
             Py_DECREF((PyObject*)numerator);
+            Py_XDECREF(ascii_str);
             return 0;
         }
         if(mpz_sgn(denominator->z) != 1) {
@@ -1374,6 +1487,7 @@ str2mpq(PyObject *stringarg, long base)
             Py_DECREF((PyObject*)newob);
             Py_DECREF((PyObject*)numerator);
             Py_DECREF((PyObject*)denominator);
+            Py_XDECREF(ascii_str);
             return 0;
         }
         mpq_set_num(newob->q, numerator->z);
@@ -1388,6 +1502,7 @@ str2mpq(PyObject *stringarg, long base)
                 PyErr_SetString(PyExc_ValueError,
                     "string without NULL characters expected");
                 Py_DECREF((PyObject *) newob);
+                Py_XDECREF(ascii_str);
                 return NULL;
             }
         }
@@ -1411,6 +1526,7 @@ str2mpq(PyObject *stringarg, long base)
                 if(whereslash) *whereslash = '/';
                 PyErr_SetString(PyExc_ValueError, "invalid digits");
                 Py_DECREF((PyObject *) newob);
+                Py_XDECREF(ascii_str);
                 return NULL;
             }
             if(whereslash) {
@@ -1418,10 +1534,12 @@ str2mpq(PyObject *stringarg, long base)
                 if(-1==mpz_set_str(mpq_denref(newob->q), whereslash+1, base)) {
                     PyErr_SetString(PyExc_ValueError, "invalid digits");
                     Py_DECREF((PyObject *) newob);
+                    Py_XDECREF(ascii_str);
                     return NULL;
                 }
                 if(0==mpz_sgn(mpq_denref(newob->q))) {
                     Py_DECREF((PyObject *) newob);
+                    Py_XDECREF(ascii_str);
                     PyErr_SetString(PyExc_ZeroDivisionError, "mpq: zero denominator");
                     return NULL;
                 }
@@ -1431,6 +1549,7 @@ str2mpq(PyObject *stringarg, long base)
             }
         }
     }
+    Py_XDECREF(ascii_str);
     return newob;
 }
 
@@ -1447,10 +1566,33 @@ str2mpf(PyObject *s, long base, unsigned int bits)
     unsigned char *cp;
     Py_ssize_t len;
     int precision, i;
+    PyObject *ascii_str = NULL;
 
+#if PY_MAJOR_VERSION >= 3
+    assert(PyBytes_Check(s) || PyUnicode_Check(s));
+#else
     assert(PyString_Check(s));
+#endif
+
+#if PY_MAJOR_VERSION >= 3
+    if(PyBytes_Check(s)) {
+        len = PyBytes_Size(s);
+        cp = (unsigned char*)PyBytes_AsString(s);
+    } else {
+        ascii_str = PyUnicode_AsASCIIString(s);
+        if(!ascii_str) {
+            PyErr_SetString(PyExc_ValueError,
+                    "string contains non-ASCII characters");
+            Py_XDECREF(ascii_str);
+            return NULL;
+        }
+        len = PyUnicode_GetSize(ascii_str);
+        cp = (unsigned char*)PyUnicode_AsUnicode(ascii_str);
+    }
+#else
     len = PyString_Size(s);
     cp = (unsigned char*)PyString_AsString(s);
+#endif
 
     if(bits>0) {
         precision = bits;
@@ -1503,6 +1645,7 @@ str2mpf(PyObject *s, long base, unsigned int bits)
             PyErr_SetString(PyExc_ValueError,
                 "string too short to be a gmpy.mpf binary encoding");
             Py_DECREF((PyObject *) newob);
+            Py_XDECREF(ascii_str);
             return NULL;
         }
         /* reconstruct exponent */
@@ -1534,6 +1677,7 @@ str2mpf(PyObject *s, long base, unsigned int bits)
                 PyErr_SetString(PyExc_ValueError,
                     "string without NULL characters expected");
                 Py_DECREF((PyObject *) newob);
+                Py_XDECREF(ascii_str);
                 return NULL;
             }
         }
@@ -1542,10 +1686,12 @@ str2mpf(PyObject *s, long base, unsigned int bits)
             PyErr_SetString(PyExc_ValueError,
                 "invalid digits");
             Py_DECREF((PyObject *) newob);
+            Py_XDECREF(ascii_str);
             return NULL;
         }
     }
     mpf_normalize(newob);
+    Py_XDECREF(ascii_str);
     return newob;
 }
 
@@ -1564,7 +1710,7 @@ mpz2long(PympzObject *x)
     mpz_t temp;
 
     /* Assume gmp uses limbs as least as large as the builtin longs do */
-    assert(mp_bits_per_limb >= SHIFT);
+    assert(mp_bits_per_limb >= Py2or3Long_SHIFT);
 
     mpz_inoc(temp);
     if(mpz_sgn(x->z) < 0) {
@@ -1575,13 +1721,14 @@ mpz2long(PympzObject *x)
         mpz_set(temp, x->z);
     }
 
-    size = (mpz_sizeinbase(temp, 2) + SHIFT - 1) / SHIFT;
+    size = (mpz_sizeinbase(temp, 2) + Py2or3Long_SHIFT - 1) / Py2or3Long_SHIFT;
 
     if(!(newob = _PyLong_New(size))) {
         mpz_cloc(temp);
         return NULL;
     }
-    mpz_export(newob->ob_digit, &count, -1, sizeof(newob->ob_digit[0]), 0, sizeof(newob->ob_digit[0])*8 - SHIFT, temp);
+    mpz_export(newob->ob_digit, &count, -1, sizeof(newob->ob_digit[0]), 0,
+            sizeof(newob->ob_digit[0])*8 - Py2or3Long_SHIFT, temp);
     if (count == 0) newob->ob_digit[0] = 0;
     mpz_cloc(temp);
 
@@ -1590,10 +1737,13 @@ mpz2long(PympzObject *x)
     i = size;
     while ( (i>0) && (newob->ob_digit[i-1] == 0))
         i--;
+    if(negative) i = -i;
+#if PY_MAJOR_VERSION >= 3
+    newob->ob_base.ob_size = i;
+#else
     newob->ob_size = i;
+#endif
 
-    if(negative)
-        newob->ob_size = - newob->ob_size;
     return (PyObject *) newob;
 }
 
@@ -1635,10 +1785,14 @@ notanint(mpz_t z)
 static PyObject *
 mpz2int(PympzObject *x)
 {
+#if PY_MAJOR_VERSION >= 3
+    return mpz2long(x);
+#else
     if(notanint(x->z)) {
         return mpz2long(x);
     }
     return PyInt_FromLong(mpz_get_si(x->z));
+#endif
 }
 
 #if Py_TPFLAGS_HAVE_INDEX
@@ -1739,7 +1893,11 @@ mpz2binary(PympzObject *x)
         buffer[usize] = negative?0xff:0x00;
     }
     mpz_cloc(temp);
+#if PY_MAJOR_VERSION >= 3
+    s = PyBytes_FromStringAndSize(buffer, size);
+#else
     s = PyString_FromStringAndSize(buffer, size);
+#endif
     TEMP_FREE(buffer, size);
     return s;
 }
@@ -1788,7 +1946,11 @@ mpq2binary(PympqObject *x)
     mpz_export(buffer+4, NULL, -1, sizeof(char), 0, 0, mpq_numref(qtemp));
     mpz_export(buffer+sizenum+4, NULL, -1, sizeof(char), 0, 0, mpq_denref(qtemp));
     mpq_cloc(qtemp);
+#if PY_MAJOR_VERSION >= 3
+    s = PyBytes_FromStringAndSize(buffer, size);
+#else
     s = PyString_FromStringAndSize(buffer, size);
+#endif
     free(buffer);
     return s;
 }
@@ -1870,10 +2032,18 @@ mpf2binary(PympfObject *x)
     size = (hexdigs+1)/2;
     /* allocate an extra byte if lexpodd and hexdigs is even */
     extrabyte = lexpodd & ~hexdigs;
+#if PY_MAJOR_VERSION >= 3
+    s = PyBytes_FromStringAndSize(0, 1+4+size+4+extrabyte);
+#else
     s = PyString_FromStringAndSize(0, 1+4+size+4+extrabyte);
+#endif
     if(!s) return 0;
     /* set the data to the new Python string's buffer */
+#if PY_MAJOR_VERSION >= 3
+    aux = PyBytes_AS_STRING(s);
+#else
     aux = PyString_AS_STRING(s);
+#endif
     /* codebyte first */
     aux[0] = (char)codebyte;
     /* then precision */
@@ -1962,11 +2132,13 @@ mpz_ascii(mpz_t z, int base, int with_tag)
 
     mpz_get_str(p, base, temp); /* Doesn't return number of characters */
     p = buffer + strlen(buffer); /* Address of NULL byte */
+#if PY_MAJOR_VERSION < 3
     if(with_tag && notanint(temp))
         *(p++) = 'L';
+#endif
     if(with_tag)
         *(p++) = ')';
-    s = PyString_FromStringAndSize(buffer, p - buffer);
+    s = Py2or3String_FromStringAndSize(buffer, p - buffer);
     mpz_cloc(temp);
     TEMP_FREE(buffer, size);
     return s;
@@ -1989,6 +2161,7 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
     PyObject *result = 0;
     PyObject *numstr = mpz_ascii(mpq_numref(self->q), base, 0);
     PyObject *denstr = 0;
+    PyObject *temp = 0;
 
     if(!numstr) return 0;
 
@@ -2001,42 +2174,48 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
     }
 
     if(with_tag) {
-        result = PyString_FromString(qtag+options.tagoff);
+        result = Py2or3String_FromString(qtag+options.tagoff);
         if(result) PyString_ConcatAndDel(&result, numstr);
         if(!result) {
-            if(denstr) { Py_DECREF(denstr); }
+            Py_XDECREF(denstr);
             return 0;
         }
+#if PY_MAJOR_VERSION < 3
         if(notanint(mpq_numref(self->q))) {
-            PyObject *Lstr = PyString_FromString("L");
-            PyString_ConcatAndDel(&result, Lstr);
+            temp = Py2or3String_FromString("L");
+            PyString_ConcatAndDel(&result, temp);
             if(!result) {
-                if(denstr) { Py_DECREF(denstr); }
+                Py_XDECREF(denstr);
                 return 0;
             }
         }
+#endif
     } else {
         result = numstr;
         numstr = 0;
     }
     if(denstr) {
         char* separator = with_tag?",":"/";
-        PyString_ConcatAndDel(&result, PyString_FromString(separator));
+        temp = Py2or3String_FromString(separator);
+        PyString_ConcatAndDel(&result, temp);
         if(!result) {
             Py_DECREF(denstr);
             return 0;
         }
         PyString_ConcatAndDel(&result, denstr);
+#if PY_MAJOR_VERSION < 3
         if(with_tag && notanint(mpq_denref(self->q))) {
-            PyObject *Lstr = PyString_FromString("L");
-            PyString_ConcatAndDel(&result, Lstr);
+            temp = PyString_FromString("L");
+            PyString_ConcatAndDel(&result, temp);
             if(!result) {
                 return 0;
             }
         }
+#endif
     }
     if(with_tag && result) {
-        PyString_ConcatAndDel(&result, PyString_FromString(")"));
+        temp = PyString_FromString(")");
+        PyString_ConcatAndDel(&result, temp);
     }
     return result;
 }
@@ -2246,7 +2425,7 @@ anynum2mpq(PyObject* obj)
         newob = (PympqObject *) obj;
     } else if(Pympz_Check(obj)) {
         newob = mpz2mpq(obj);
-    } else if(PyInt_Check(obj)) {
+    } else if(Py2or3Int_Check(obj)) {
         newob = int2mpq(obj);
     } else if(Pympf_Check(obj)) {
         newob = mpf2mpq(obj);
@@ -2279,7 +2458,7 @@ anynum2mpz(PyObject* obj)
     if(Pympz_Check(obj)) {
         Py_INCREF(obj);
         newob = (PympzObject *) obj;
-    } else if(PyInt_Check(obj)) {
+    } else if(Py2or3Int_Check(obj)) {
         newob = int2mpz(obj);
     } else if(PyLong_Check(obj)) {
         newob = long2mpz(obj);
@@ -2328,7 +2507,7 @@ anynum2mpf(PyObject* obj, unsigned int bits)
         }
     } else if(PyFloat_Check(obj)) {
         newob = float2mpf(obj, bits);
-    } else if(PyInt_Check(obj)) {
+    } else if(Py2or3Int_Check(obj)) {
         newob = int2mpf(obj, bits);
     } else if(Pympq_Check(obj)) {
         newob = mpq2mpf(obj, bits);
@@ -2647,9 +2826,9 @@ Pympz_bit_length(PyObject *self, PyObject *args)
             return NULL;
         assert(Pympz_Check(self));
         if ((i=mpz_sizeinbase(Pympz_AS_MPZ(self), 2))==1)
-            return PyInt_FromLong((long) mpz_size(Pympz_AS_MPZ(self)));
+            return Py2or3Int_FromLong((long) mpz_size(Pympz_AS_MPZ(self)));
         else
-            return PyInt_FromLong(i);
+            return Py2or3Int_FromLong(i);
     }
     else {
         if(PyTuple_GET_SIZE(args) != 1){
@@ -2662,7 +2841,7 @@ Pympz_bit_length(PyObject *self, PyObject *args)
             if (mpz_size(Pympz_AS_MPZ(newob)))
                 i = (long) mpz_sizeinbase(Pympz_AS_MPZ(newob), 2);
             Py_DECREF((PyObject*)newob);
-            return PyInt_FromLong(i);
+            return Py2or3Int_FromLong(i);
         }
         else {
             SELF_NO_ARG("bit_length", Pympz_convert_arg);
@@ -3117,8 +3296,10 @@ static int isOne(PyObject* obj)
                (0==mpz_cmp_ui(mpq_numref(Pympq_AS_MPQ(obj)),1));
     } else if(Pympz_Check(obj)) {
         return 0==mpz_cmp_ui(Pympz_AS_MPZ(obj),1);
+#if PY_MAJOR_VERSION < 3
     } else if(PyInt_Check(obj)) {
         return PyInt_AS_LONG(obj)==1;
+#endif
     } else if(Pympf_Check(obj)) {
         return mpf_get_d(Pympf_AS_MPF(obj))==1.0;
     } else if(PyFloat_Check(obj)) {
@@ -3355,12 +3536,12 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
         long base=10;
         if(argc == 2) {
             PyObject *pbase = PyTuple_GetItem(args, 1);
-            if(!PyInt_Check(pbase)) {
+            if(!Py2or3Int_Check(pbase)) {
                 PyErr_SetString(PyExc_TypeError,
                     "gmpy.mpz(): base must be an integer");
                 return NULL;
             }
-            base = PyInt_AsLong(pbase);
+            base = Py2or3Int_AsLong(pbase);
             if((base!=0) && (base!=256) && ((base<2)||(base>36))) {
                 PyErr_SetString(PyExc_ValueError,
                     "base for gmpy.mpz must be 0, 256, or in the "
@@ -3438,12 +3619,12 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
         wasnumeric=0;
         if(argc == 2) {
             PyObject *pbase = PyTuple_GetItem(args, 1);
-            if(!PyInt_Check(pbase)) {
+            if(!Py2or3Int_Check(pbase)) {
                 PyErr_SetString(PyExc_TypeError,
                     "gmpy.mpq(): base must be an integer");
                 return NULL;
             }
-            base = PyInt_AsLong(pbase);
+            base = Py2or3Int_AsLong(pbase);
             if((base!=0) && (base!=256) && ((base<2)||(base>36))) {
                 PyErr_SetString(PyExc_ValueError,
                     "base for gmpy.mpq() must be 0, 256, or in the "
@@ -3536,12 +3717,12 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
     if(2 <= argc) {
         int sbits;
         PyObject *pbits = PyTuple_GetItem(args, 1);
-        if(!PyInt_Check(pbits)) {
+        if(!Py2or3Int_Check(pbits)) {
             PyErr_SetString(PyExc_TypeError,
                 "gmpy.mpf(): bits must be an integer");
             return NULL;
         }
-        sbits = PyInt_AsLong(pbits);
+        sbits = Py2or3Int_AsLong(pbits);
         if(sbits<0) {
             PyErr_SetString(PyExc_ValueError,
                 "bits for gmpy.mpf must be >= 0");
@@ -3555,12 +3736,12 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
         long base=10;
         if(3 == argc) {
             PyObject *pbase = PyTuple_GetItem(args, 2);
-            if(!PyInt_Check(pbase)) {
+            if(!Py2or3Int_Check(pbase)) {
                 PyErr_SetString(PyExc_TypeError,
                     "gmpy.mpf(): base must be an integer");
                 return NULL;
             }
-            base = PyInt_AsLong(pbase);
+            base = Py2or3Int_AsLong(pbase);
             if((base!=0) && (base!=256) && ((base<2)||(base>36))) {
                 PyErr_SetString(PyExc_ValueError,
                     "base for gmpy.mpf must be 0, 256, or in the "
@@ -4990,13 +5171,13 @@ mpmath_build_mpf(long sign, PympzObject *man, PyObject *exp, long bc)
         Py_DECREF(exp);
         return NULL;
     }
-    if(!(tsign=PyInt_FromLong(sign))){
+    if(!(tsign=Py2or3Int_FromLong(sign))){
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
         return NULL;
     }
-    if(!(tbc=PyInt_FromLong(bc))){
+    if(!(tbc=Py2or3Int_FromLong(bc))){
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
@@ -5005,7 +5186,7 @@ mpmath_build_mpf(long sign, PympzObject *man, PyObject *exp, long bc)
     }
     PyTuple_SET_ITEM(tup, 0, tsign);
     PyTuple_SET_ITEM(tup, 1, (PyObject*)man);
-    PyTuple_SET_ITEM(tup, 2, (exp)?exp:PyInt_FromLong(0));
+    PyTuple_SET_ITEM(tup, 2, (exp)?exp:Py2or3Int_FromLong(0));
     PyTuple_SET_ITEM(tup, 3, tbc);
     return tup;
 }
@@ -5022,11 +5203,13 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     char rnd = 0;
 
     if(PyTuple_GET_SIZE(args) == 6){
-        sign = PyInt_AsLong(PyTuple_GET_ITEM(args, 0));
+        /* Need better error-checking here. Under Python 3.0, overflow into
+           C-long is possible. */
+        sign = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 0));
         man = (PympzObject *)PyTuple_GET_ITEM(args, 1);
         exp = PyTuple_GET_ITEM(args, 2);
-        bc = PyInt_AsLong(PyTuple_GET_ITEM(args, 3));
-        prec = PyInt_AsLong(PyTuple_GET_ITEM(args, 4));
+        bc = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 3));
+        prec = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 4));
         rnd = PyString_AS_STRING(PyTuple_GET_ITEM(args, 5))[0];
         if(PyErr_Occurred()){
             PyErr_SetString(PyExc_TypeError, "arguments long, PympzObject*,"
@@ -5107,7 +5290,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
                 if(carry)
                     mpz_add_ui(upper->z, upper->z, 1);
         }
-        if (!(tmp = PyInt_FromLong(shift))) {
+        if (!(tmp = Py2or3Int_FromLong(shift))) {
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
@@ -5130,7 +5313,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     if((zbits = mpz_scan1(upper->z, 0)))
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
-    if (!(tmp = PyInt_FromLong(zbits))) {
+    if (!(tmp = Py2or3Int_FromLong(zbits))) {
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
         Py_DECREF(newexp);
@@ -5193,7 +5376,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     bc = mpz_sizeinbase(upper->z, 2);
 
     /* Check desired precision */
-    if((precobj)&&(PyInt_CheckExact(precobj))) prec = abs(PyInt_AS_LONG(precobj));
+    if((precobj)&&(Py2or3Int_Check(precobj))) prec = abs(Py2or3Int_AsLong(precobj));
     if(!prec) prec = bc;
 
     shift = bc - prec;
@@ -5239,7 +5422,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                 if(carry)
                     mpz_add_ui(upper->z, upper->z, 1);
         }
-        if (!(tmp = PyInt_FromLong(shift))) {
+        if (!(tmp = Py2or3Int_FromLong(shift))) {
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
@@ -5262,7 +5445,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     if((zbits = mpz_scan1(upper->z, 0)))
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
-    if (!(tmp = PyInt_FromLong(zbits))) {
+    if (!(tmp = Py2or3Int_FromLong(zbits))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
