@@ -4584,33 +4584,6 @@ Pympq_hash(PympqObject *self)
     return dohash(mpq2float(self));
 }
 
-/* attribute-accessors */
-static PyObject *
-Pympz_getattr(PympzObject *self, char *name)
-{
-    PyObject *result = 0;
-    if(!result)
-        result = Py_FindMethod(Pympz_methods, (PyObject*)self, name);
-    return result;
-}
-static PyObject *
-Pympq_getattr(PympqObject *self, char *name)
-{
-    PyObject *result = 0;
-    if(!result)
-        result = Py_FindMethod(Pympq_methods, (PyObject*)self, name);
-    return result;
-}
-static PyObject *
-Pympf_getattr(PympfObject *self, char *name)
-{
-    PyObject *result = 0;
-    if(!result)
-        result = Py_FindMethod(Pympf_methods, (PyObject*)self, name);
-    return result;
-}
-
-
 /* Miscellaneous gmpy functions */
 static char doc_gcd[]="\
 gcd(a,b): returns the greatest common denominator of numbers a and b\n\
@@ -6422,7 +6395,7 @@ static PyTypeObject Pympz_Type =
     /* methods */
     (destructor) Pympz_dealloc,     /* tp_dealloc       */
         0,                          /* tp_print         */
-    (getattrfunc) Pympz_getattr,    /* tp_getattr       */
+        0,                          /* tp_getattr       */
         0,                          /* tp_setattr       */
         0,                          /* tp_reserved      */
     (reprfunc) mpz2repr,            /* tp_repr          */
@@ -6444,6 +6417,10 @@ static PyTypeObject Pympz_Type =
         0,                          /* tp_traverse      */
         0,                          /* tp_clear         */
     (richcmpfunc)&mpz_richcompare,  /* tp_richcompare   */
+        0,                          /* tp_weaklistoffset*/
+        0,                          /* tp_iter          */
+        0,                          /* tp_iternext      */
+    Pympz_methods,                  /* tp_methods       */
 };
 
 static PyTypeObject Pympq_Type =
@@ -6461,7 +6438,7 @@ static PyTypeObject Pympq_Type =
     /* methods */
     (destructor) Pympq_dealloc,             /* tp_dealloc       */
         0,                                  /* tp_print         */
-    (getattrfunc) Pympq_getattr,            /* tp_getattr       */
+        0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
     (reprfunc) mpq2repr,                    /* tp_repr          */
@@ -6483,6 +6460,10 @@ static PyTypeObject Pympq_Type =
         0,                                  /* tp_traverse      */
         0,                                  /* tp_clear         */
     (richcmpfunc)&mpq_richcompare,          /* tp_richcompare   */
+        0,                                  /* tp_weaklistoffset*/
+        0,                                  /* tp_iter          */
+        0,                                  /* tp_iternext      */
+    Pympq_methods,                          /* tp_methods       */
 };
 
 
@@ -6501,7 +6482,7 @@ static PyTypeObject Pympf_Type =
     /* methods */
     (destructor) Pympf_dealloc,             /* tp_dealloc       */
         0,                                  /* tp_print         */
-    (getattrfunc) Pympf_getattr,            /* tp_getattr       */
+        0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
     (reprfunc) mpf2repr,                    /* tp_repr          */
@@ -6523,6 +6504,10 @@ static PyTypeObject Pympf_Type =
         0,                                  /* tp_traverse      */
         0,                                  /* tp_clear         */
     (richcmpfunc)&mpf_richcompare,          /* tp_richcompare   */
+        0,                                  /* tp_weaklistoffset*/
+        0,                                  /* tp_iter          */
+        0,                                  /* tp_iternext      */
+    Pympf_methods,                          /* tp_methods       */
 };
 
 
@@ -6672,15 +6657,12 @@ initgmpy(void)
     PyObject* decimal_module = NULL;
     PyObject* copy_reg_module = NULL;
     char *do_debug = getenv("GMPY_DEBUG");
-#if PY_MAJOR_VERSION >= 3
-    Pympz_Type.ob_base.ob_base.ob_type = &PyType_Type;
-    Pympq_Type.ob_base.ob_base.ob_type = &PyType_Type;
-    Pympf_Type.ob_base.ob_base.ob_type = &PyType_Type;
-#else
-    Pympz_Type.ob_type = &PyType_Type;
-    Pympq_Type.ob_type = &PyType_Type;
-    Pympf_Type.ob_type = &PyType_Type;
-#endif
+    if (PyType_Ready(&Pympz_Type) < 0)
+        return NULL;
+    if (PyType_Ready(&Pympq_Type) < 0)
+        return NULL;
+    if (PyType_Ready(&Pympf_Type) < 0)
+        return NULL;
 
     if (do_debug)
         sscanf(do_debug, "%d", &options.debug);
