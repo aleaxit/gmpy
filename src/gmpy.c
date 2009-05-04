@@ -6410,95 +6410,119 @@ static PyMethodDef Pympf_methods [] =
 static PyTypeObject Pympz_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
+#if PY_MAJOR_VERSION >= 3
+    PyVarObject_HEAD_INIT(0, 0)
+#else
     PyObject_HEAD_INIT(0)
-    0,                          /* ob_size */
-    "mpz",                      /* tp_name */
-    sizeof(PympzObject),        /* tp_basicsize */
-    0,                          /* tp_itemsize */
+        0,                          /* ob_size          */
+#endif
+    "mpz",                          /* tp_name          */
+    sizeof(PympzObject),            /* tp_basicsize     */
+        0,                          /* tp_itemsize      */
     /* methods */
-    (destructor) Pympz_dealloc, /* tp_dealloc */
-    0,                          /* tp_print */
-    (getattrfunc) Pympz_getattr,/* tp_getattr */
-    (setattrfunc) 0,            /* tp_setattr */
-    (cmpfunc) Pympz_cmp,        /* tp_compare */
-    (reprfunc) mpz2repr,        /* tp_repr */
-    &mpz_number_methods,        /* tp_as_number */
-    0,                          /* tp_as_sequence */
-    0,                          /* tp_as_mapping */
-    (hashfunc) Pympz_hash,      /* tp_hash */
-    0,                          /* tp_call */
-    (reprfunc) mpz2str,         /* tp_str */
-    (getattrofunc) 0,           /* tp_getattro */
-    (setattrofunc) 0,           /* tp_setattro */
-    (PyBufferProcs *) 0,        /* tp_as_buffer */
+    (destructor) Pympz_dealloc,     /* tp_dealloc       */
+        0,                          /* tp_print         */
+    (getattrfunc) Pympz_getattr,    /* tp_getattr       */
+        0,                          /* tp_setattr       */
+        0,                          /* tp_reserved      */
+    (reprfunc) mpz2repr,            /* tp_repr          */
+    &mpz_number_methods,            /* tp_as_number     */
+        0,                          /* tp_as_sequence   */
+        0,                          /* tp_as_mapping    */
+    (hashfunc) Pympz_hash,          /* tp_hash          */
+        0,                          /* tp_call          */
+    (reprfunc) mpz2str,             /* tp_str           */
+    (getattrofunc) 0,               /* tp_getattr       */
+    (setattrofunc) 0,               /* tp_setattro      */
+        0,                          /* tp_as_buffer     */
+#if PY_MAJOR_VERSION >= 3
+    Py_TPFLAGS_DEFAULT,             /* tp_flags         */
+#else
     Py_TPFLAGS_HAVE_INDEX|Py_TPFLAGS_HAVE_RICHCOMPARE,      /* tp_flags */
-    "GNU Multi Precision signed integer",
-    0,                          /* tp_traverse */
-    0,                          /* tp_clear */
-    (richcmpfunc)&mpz_richcompare, /* tp_richcompare */
+#endif
+    "GNU Multi Precision signed integer",                   /* tp_doc   */
+        0,                          /* tp_traverse      */
+        0,                          /* tp_clear         */
+    (richcmpfunc)&mpz_richcompare,  /* tp_richcompare   */
 };
 
 static PyTypeObject Pympq_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
+#if PY_MAJOR_VERSION >= 3
+    PyVarObject_HEAD_INIT(NULL, 0)
+#else
     PyObject_HEAD_INIT(0)
-    0,                          /* ob_size */
-    "mpq",                      /* tp_name */
-    sizeof(PympqObject),        /* tp_basicsize */
-    0,                          /* tp_itemsize */
+        0,                                  /* ob_size          */
+#endif
+    "mpq",                                  /* tp_name          */
+    sizeof(PympqObject),                    /* tp_basicsize     */
+        0,                                  /* tp_itemsize      */
     /* methods */
-    (destructor) Pympq_dealloc, /* tp_dealloc */
-    0,                          /* tp_print */
-    (getattrfunc) Pympq_getattr,/* tp_getattr */
-    (setattrfunc) 0,            /* tp_setattr */
-    (cmpfunc) Pympq_cmp,        /* tp_compare */
-    (reprfunc) mpq2repr,        /* tp_repr */
-    &mpq_number_methods,        /* tp_as_number */
-    0,                          /* tp_as_sequence */
-    0,                          /* tp_as_mapping */
-    (hashfunc) Pympq_hash,      /* tp_hash */
-    0,                          /* tp_call */
-    (reprfunc) mpq2str,         /* tp_str */
-    (getattrofunc) 0,           /* tp_getattro */
-    (setattrofunc) 0,           /* tp_setattro */
-    (PyBufferProcs *) 0,        /* tp_as_buffer */
-    Py_TPFLAGS_HAVE_RICHCOMPARE, /* tp_flags */
-    "GNU Multi Precision rational number",
-    0,                          /* tp_traverse */
-    0,                          /* tp_clear */
-    (richcmpfunc)&mpq_richcompare, /* tp_richcompare */
+    (destructor) Pympq_dealloc,             /* tp_dealloc       */
+        0,                                  /* tp_print         */
+    (getattrfunc) Pympq_getattr,            /* tp_getattr       */
+        0,                                  /* tp_setattr       */
+        0,                                  /* tp_reserved      */
+    (reprfunc) mpq2repr,                    /* tp_repr          */
+    &mpq_number_methods,                    /* tp_as_number     */
+        0,                                  /* tp_as_sequence   */
+        0,                                  /* tp_as_mapping    */
+    (hashfunc) Pympq_hash,                  /* tp_hash          */
+        0,                                  /* tp_call          */
+    (reprfunc) mpq2str,                     /* tp_str           */
+    (getattrofunc) 0,                       /* tp_getattro      */
+    (setattrofunc) 0,                       /* tp_setattro      */
+        0,                                  /* tp_as_buffer     */
+#if PY_MAJOR_VERSION >= 3
+    Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
+#else
+    Py_TPFLAGS_HAVE_RICHCOMPARE,            /* tp_flags         */
+#endif
+    "GNU Multi Precision rational number",  /* tp_doc           */
+        0,                                  /* tp_traverse      */
+        0,                                  /* tp_clear         */
+    (richcmpfunc)&mpq_richcompare,          /* tp_richcompare   */
 };
 
 
 static PyTypeObject Pympf_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
+#if PY_MAJOR_VERSION >= 3
+    PyVarObject_HEAD_INIT(NULL, 0)
+#else
     PyObject_HEAD_INIT(0)
-    0,                          /* ob_size */
-    "mpf",                      /* tp_name */
-    sizeof(PympfObject),        /* tp_basicsize */
-    0,                          /* tp_itemsize */
+    0,                                      /* ob_size          */
+#endif
+    "mpf",                                  /* tp_name          */
+    sizeof(PympfObject),                    /* tp_basicsize     */
+        0,                                  /* tp_itemsize      */
     /* methods */
-    (destructor) Pympf_dealloc, /* tp_dealloc */
-    0,                          /* tp_print */
-    (getattrfunc) Pympf_getattr,/* tp_getattr */
-    (setattrfunc) 0,            /* tp_setattr */
-    (cmpfunc) Pympf_cmp,        /* tp_compare */
-    (reprfunc) mpf2repr,        /* tp_repr */
-    &mpf_number_methods,        /* tp_as_number */
-    0,                          /* tp_as_sequence */
-    0,                          /* tp_as_mapping */
-    (hashfunc) Pympf_hash,      /* tp_hash */
-    0,                          /* tp_call */
-    (reprfunc) mpf2str,         /* tp_str */
-    (getattrofunc) 0,           /* tp_getattro */
-    (setattrofunc) 0,           /* tp_setattro */
-    (PyBufferProcs *) 0,        /* tp_as_buffer */
-    Py_TPFLAGS_HAVE_RICHCOMPARE, /* tp_flags */
-    "GNU Multi Precision floating point",
-    0,                          /* tp_traverse */
-    0,                          /* tp_clear */
-    (richcmpfunc)&mpf_richcompare, /* tp_richcompare */
+    (destructor) Pympf_dealloc,             /* tp_dealloc       */
+        0,                                  /* tp_print         */
+    (getattrfunc) Pympf_getattr,            /* tp_getattr       */
+        0,                                  /* tp_setattr       */
+        0,                                  /* tp_reserved      */
+    (reprfunc) mpf2repr,                    /* tp_repr          */
+    &mpf_number_methods,                    /* tp_as_number     */
+        0,                                  /* tp_as_sequence   */
+        0,                                  /* tp_as_mapping    */
+    (hashfunc) Pympf_hash,                  /* tp_hash          */
+        0,                                  /* tp_call          */
+    (reprfunc) mpf2str,                     /* tp_str           */
+    (getattrofunc) 0,                       /* tp_getattro      */
+    (setattrofunc) 0,                       /* tp_setattro      */
+        0,                                  /* tp_as_buffer     */
+#if PY_MAJOR_VERSION >= 3
+    Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
+#else
+    Py_TPFLAGS_HAVE_RICHCOMPARE,            /* tp_flags         */
+#endif
+    "GNU Multi Precision floating point",   /* tp_doc           */
+        0,                                  /* tp_traverse      */
+        0,                                  /* tp_clear         */
+    (richcmpfunc)&mpf_richcompare,          /* tp_richcompare   */
 };
 
 
@@ -6648,10 +6672,15 @@ initgmpy(void)
     PyObject* decimal_module = NULL;
     PyObject* copy_reg_module = NULL;
     char *do_debug = getenv("GMPY_DEBUG");
-
+#if PY_MAJOR_VERSION >= 3
+    Pympz_Type.ob_base.ob_base.ob_type = &PyType_Type;
+    Pympq_Type.ob_base.ob_base.ob_type = &PyType_Type;
+    Pympf_Type.ob_base.ob_base.ob_type = &PyType_Type;
+#else
     Pympz_Type.ob_type = &PyType_Type;
     Pympq_Type.ob_type = &PyType_Type;
     Pympf_Type.ob_type = &PyType_Type;
+#endif
 
     if (do_debug)
         sscanf(do_debug, "%d", &options.debug);
@@ -6729,8 +6758,13 @@ initgmpy(void)
             fprintf(stderr, "gmpy_module imported decimal OK\n");
         PyDict_SetItemString(namespace, "decimal", decimal_module);
         PyDict_SetItemString(namespace, "gmpy", gmpy_module);
+#if PY_MAJOR_VERSION >= 3
+        PyDict_SetItemString(namespace, "int", (PyObject*)&PyLong_Type);
+        PyDict_SetItemString(namespace, "str", (PyObject*)&PyUnicode_Type);
+#else
         PyDict_SetItemString(namespace, "int", (PyObject*)&PyInt_Type);
         PyDict_SetItemString(namespace, "str", (PyObject*)&PyString_Type);
+#endif
         result = PyRun_String(tweak_decimal, Py_file_input,
                               namespace, namespace);
         if (result) {
