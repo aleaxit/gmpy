@@ -220,22 +220,30 @@
 #define Py2or3Int_Check PyLong_Check
 #define Py2or3Int_AsLong PyLong_AsLong
 #define Py2or3Int_FromLong PyLong_FromLong
+#define Py2or3Long_SHIFT PyLong_SHIFT
 #define Py2or3String_FromString PyUnicode_FromString
 #define Py2or3String_Check PyUnicode_Check
 #define Py2or3String_Format PyUnicode_Format
 #define Py2or3String_AsString PyUnicode_AS_DATA
-#define Py2or3Long_SHIFT PyLong_SHIFT
 #define Py2or3String_FromStringAndSize PyUnicode_FromStringAndSize
+#define Py2or3Bytes_ConcatAndDel PyBytes_ConcatAndDel
+#define Py2or3Bytes_FromString PyBytes_FromString
+#define Py2or3Bytes_AS_STRING PyBytes_AS_STRING
+#define Py2or3Bytes_FromStringAndSize PyBytes_FromStringAndSize
 #else
 #define Py2or3Int_Check PyInt_Check
 #define Py2or3Int_AsLong PyInt_AsLong
 #define Py2or3Int_FromLong PyInt_FromLong
+#define Py2or3Long_SHIFT SHIFT
 #define Py2or3String_FromString PyString_FromString
 #define Py2or3String_Check PyString_Check
 #define Py2or3String_Format PyString_Format
 #define Py2or3String_AsString PyString_AsString
-#define Py2or3Long_SHIFT SHIFT
 #define Py2or3String_FromStringAndSize PyString_FromStringAndSize
+#define Py2or3Bytes_ConcatAndDel PyString_ConcatAndDel
+#define Py2or3Bytes_FromString PyString_FromString
+#define Py2or3Bytes_AS_STRING PyString_AS_STRING
+#define Py2or3Bytes_FromStringAndSize PyString_FromStringAndSize
 #endif
 
 #ifdef __MPIR_VERSION
@@ -1456,7 +1464,7 @@ str2mpq(PyObject *stringarg, long base)
             Py_XDECREF(ascii_str);
             return 0;
         }
-        s = Py2or3String_FromStringAndSize((char*)cp+4, numlen);
+        s = Py2or3Bytes_FromStringAndSize((char*)cp+4, numlen);
         numerator = str2mpz(s,256);
         Py_DECREF(s);
         if (!numerator) {
@@ -1473,7 +1481,7 @@ str2mpq(PyObject *stringarg, long base)
         }
         if(isnega)
             mpz_neg(numerator->z, numerator->z);
-        s = Py2or3String_FromStringAndSize((char*)cp+4+numlen, len-4-numlen);
+        s = Py2or3Bytes_FromStringAndSize((char*)cp+4+numlen, len-4-numlen);
         denominator = str2mpz(s,256);
         Py_DECREF(s);
         if (!denominator) {
@@ -1795,7 +1803,7 @@ mpz2int(PympzObject *x)
 #endif
 }
 
-#if Py_TPFLAGS_HAVE_INDEX
+#if Py_TPFLAGS_HAVE_INDEX || (PY_MAJOR_VERSION >= 3)
 static PyObject*
 Pympz_asindex(PympzObject *x)
 {
@@ -1893,11 +1901,7 @@ mpz2binary(PympzObject *x)
         buffer[usize] = negative?0xff:0x00;
     }
     mpz_cloc(temp);
-#if PY_MAJOR_VERSION >= 3
-    s = PyBytes_FromStringAndSize(buffer, size);
-#else
-    s = PyString_FromStringAndSize(buffer, size);
-#endif
+    s = Py2or3Bytes_FromStringAndSize(buffer, size);
     TEMP_FREE(buffer, size);
     return s;
 }
@@ -1946,11 +1950,7 @@ mpq2binary(PympqObject *x)
     mpz_export(buffer+4, NULL, -1, sizeof(char), 0, 0, mpq_numref(qtemp));
     mpz_export(buffer+sizenum+4, NULL, -1, sizeof(char), 0, 0, mpq_denref(qtemp));
     mpq_cloc(qtemp);
-#if PY_MAJOR_VERSION >= 3
-    s = PyBytes_FromStringAndSize(buffer, size);
-#else
-    s = PyString_FromStringAndSize(buffer, size);
-#endif
+    s = Py2or3Bytes_FromStringAndSize(buffer, size);
     free(buffer);
     return s;
 }
@@ -2032,18 +2032,10 @@ mpf2binary(PympfObject *x)
     size = (hexdigs+1)/2;
     /* allocate an extra byte if lexpodd and hexdigs is even */
     extrabyte = lexpodd & ~hexdigs;
-#if PY_MAJOR_VERSION >= 3
-    s = PyBytes_FromStringAndSize(0, 1+4+size+4+extrabyte);
-#else
-    s = PyString_FromStringAndSize(0, 1+4+size+4+extrabyte);
-#endif
+    s = Py2or3Bytes_FromStringAndSize(0, 1+4+size+4+extrabyte);
     if(!s) return 0;
     /* set the data to the new Python string's buffer */
-#if PY_MAJOR_VERSION >= 3
-    aux = PyBytes_AS_STRING(s);
-#else
-    aux = PyString_AS_STRING(s);
-#endif
+    aux = Py2or3Bytes_AS_STRING(s);
     /* codebyte first */
     aux[0] = (char)codebyte;
     /* then precision */
@@ -2138,7 +2130,7 @@ mpz_ascii(mpz_t z, int base, int with_tag)
 #endif
     if(with_tag)
         *(p++) = ')';
-    s = Py2or3String_FromStringAndSize(buffer, p - buffer);
+    s = Py2or3Bytes_FromStringAndSize(buffer, p - buffer);
     mpz_cloc(temp);
     TEMP_FREE(buffer, size);
     return s;
@@ -2174,16 +2166,16 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
     }
 
     if(with_tag) {
-        result = Py2or3String_FromString(qtag+options.tagoff);
-        if(result) PyString_ConcatAndDel(&result, numstr);
+        result = Py2or3Bytes_FromString(qtag+options.tagoff);
+        if(result) Py2or3Bytes_ConcatAndDel(&result, numstr);
         if(!result) {
             Py_XDECREF(denstr);
             return 0;
         }
 #if PY_MAJOR_VERSION < 3
         if(notanint(mpq_numref(self->q))) {
-            temp = Py2or3String_FromString("L");
-            PyString_ConcatAndDel(&result, temp);
+            temp = Py2or3Bytes_FromString("L");
+            Py2or3Bytes_ConcatAndDel(&result, temp);
             if(!result) {
                 Py_XDECREF(denstr);
                 return 0;
@@ -2197,16 +2189,16 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
     if(denstr) {
         char* separator = with_tag?",":"/";
         temp = Py2or3String_FromString(separator);
-        PyString_ConcatAndDel(&result, temp);
+        Py2or3Bytes_ConcatAndDel(&result, temp);
         if(!result) {
             Py_DECREF(denstr);
             return 0;
         }
-        PyString_ConcatAndDel(&result, denstr);
+        Py2or3Bytes_ConcatAndDel(&result, denstr);
 #if PY_MAJOR_VERSION < 3
         if(with_tag && notanint(mpq_denref(self->q))) {
-            temp = PyString_FromString("L");
-            PyString_ConcatAndDel(&result, temp);
+            temp = Py2or3Bytes_FromString("L");
+            Py2or3Bytes_ConcatAndDel(&result, temp);
             if(!result) {
                 return 0;
             }
@@ -2214,8 +2206,8 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
 #endif
     }
     if(with_tag && result) {
-        temp = PyString_FromString(")");
-        PyString_ConcatAndDel(&result, temp);
+        temp = Py2or3Bytes_FromString(")");
+        Py2or3Bytes_ConcatAndDel(&result, temp);
     }
     return result;
 }
@@ -2317,11 +2309,11 @@ Pympf_ascii(PympfObject *self, int base, int digits,
         }
 
         /* allocate the string itself (uninitialized, as yet) */
-        res = PyString_FromStringAndSize(0, size);
+        res = Py2or3Bytes_FromStringAndSize(0, size);
 
         {
             /* proceed with building the string-buffer value */
-            char* pd = PyString_AS_STRING(res);
+            char* pd = Py2or3Bytes_AS_STRING(res);
             char* ps = buffer;
 
             /* insert leading tag if requested */
@@ -3531,7 +3523,11 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
     }
 
     obj = PyTuple_GetItem(args, 0);
+#if PY_MAJOR_VERSION >= 3
+    if(PyBytes_Check(obj) || PyUnicode_Check(obj)) {
+#else
     if(PyString_Check(obj)) {
+#endif
         /* build-from-string (ascii or binary) */
         long base=10;
         if(argc == 2) {
@@ -3613,7 +3609,11 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
     }
 
     obj = PyTuple_GetItem(args, 0);
+#if PY_MAJOR_VERSION >= 3
+    if(PyBytes_Check(obj) || PyUnicode_Check(obj)) {
+#else
     if(PyString_Check(obj)) {
+#endif
         /* build-from-string (ascii or binary) */
         long base=10;
         wasnumeric=0;
@@ -3731,7 +3731,11 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
         bits = sbits;
     }
 
+#if PY_MAJOR_VERSION >= 3
+    if(PyBytes_Check(obj) || PyUnicode_Check(obj)) {
+#else
     if(PyString_Check(obj)) {
+#endif
         /* build-from-string (ascii or binary) */
         long base=10;
         if(3 == argc) {
@@ -5210,7 +5214,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         exp = PyTuple_GET_ITEM(args, 2);
         bc = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 3));
         prec = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 4));
-        rnd = PyString_AS_STRING(PyTuple_GET_ITEM(args, 5))[0];
+        rnd = Py2or3Bytes_AS_STRING(PyTuple_GET_ITEM(args, 5))[0];
         if(PyErr_Occurred()){
             PyErr_SetString(PyExc_TypeError, "arguments long, PympzObject*,"
                 "PyObject*, long, long, char needed");
@@ -5999,6 +6003,46 @@ Pygmpy_rand(PyObject *self, PyObject *args)
 
 /* method-tables */
 
+#if PY_MAJOR_VERSION >= 3
+static PyNumberMethods mpz_number_methods =
+{
+    (binaryfunc) Pympz_add,        /* binaryfunc nb_add;                  */
+    (binaryfunc) Pympz_sub,        /* binaryfunc nb_subtract;             */
+    (binaryfunc) Pympz_mul,        /* binaryfunc nb_multiply;             */
+    (binaryfunc) Pympz_rem,        /* binaryfunc nb_remaider;             */
+    (binaryfunc) Pympz_divmod,     /* binaryfunc nb_divmod;               */
+    (ternaryfunc) Pympz_pow,       /* ternaryfunc nb_power;               */
+    (unaryfunc) Pympz_neg,         /* unaryfunc nb_negative;              */
+    (unaryfunc) Pympz_pos,         /* unaryfunc nb_positive;              */
+    (unaryfunc) Pympz_abs,         /* unaryfunc nb_absolute;              */
+    (inquiry) Pympz_nonzero,       /* inquiry nb_bool;                    */
+    (unaryfunc) Pympz_com,         /* unaryfunc nb_invert;                */
+    (binaryfunc) Pympz_lshift,     /* binaryfunc nb_lshift;               */
+    (binaryfunc) Pympz_rshift,     /* binaryfunc nb_rshift;               */
+    (binaryfunc) Pympz_and,        /* binaryfunc nb_and;                  */
+    (binaryfunc) Pympz_xor,        /* binaryfunc nb_xor;                  */
+    (binaryfunc) Pympz_ior,        /* binaryfunc nb_or;                   */
+    (unaryfunc) mpz2long,          /* unaryfunc nb_int                    */
+        0,                         /* void *nb_reserved;                  */
+    (unaryfunc) mpz2float,         /* unaryfunc nb_float;                 */
+        0,                         /* binaryfunc nb_inplace_add;          */
+        0,                         /* binaryfunc nb_inplace_subtract;     */
+        0,                         /* binaryfunc nb_inplace_multiply;     */
+        0,                         /* binaryfunc nb_inplace_remainder;    */
+        0,                         /* ternaryfunc nb_inplace_power;       */
+        0,                         /* binaryfunc nb_inplace_lshift;       */
+        0,                         /* binaryfunc nb_inplace_rshift;       */
+        0,                         /* binaryfunc nb_inplace_and;          */
+        0,                         /* binaryfunc nb_inplace_xor;          */
+        0,                         /* binaryfunc nb_inplace_or;           */
+    (binaryfunc) Pympz_div,        /* binaryfunc nb_floor_divide;         */
+    (binaryfunc) Pympany_truediv,  /* binaryfunc nb_true_divide;          */
+        0,                         /* binaryfunc nb_inplace_floor_divide; */
+        0,                         /* binaryfunc nb_inplace_true_divide;  */
+    (unaryfunc)  Pympz_asindex,    /* unaryfunc nb_index;                 */
+};
+
+#else
 static PyNumberMethods mpz_number_methods =
 {
     (binaryfunc) Pympz_add,
@@ -6044,7 +6088,47 @@ static PyNumberMethods mpz_number_methods =
     (unaryfunc) Pympz_asindex,            /* unaryfunc nb_index; */
 #endif
 };
+#endif
 
+#if PY_MAJOR_VERSION >= 3
+static PyNumberMethods mpq_number_methods =
+{
+    (binaryfunc) Pympq_add,        /* binaryfunc nb_add;                  */
+    (binaryfunc) Pympq_sub,        /* binaryfunc nb_subtract;             */
+    (binaryfunc) Pympq_mul,        /* binaryfunc nb_multiply;             */
+        0,                         /* binaryfunc nb_remaider;             */
+        0,                         /* binaryfunc nb_divmod;               */
+    (ternaryfunc) Pympq_pow,       /* ternaryfunc nb_power;               */
+    (unaryfunc) Pympq_neg,         /* unaryfunc nb_negative;              */
+    (unaryfunc) Pympq_pos,         /* unaryfunc nb_positive;              */
+    (unaryfunc) Pympq_abs,         /* unaryfunc nb_absolute;              */
+    (inquiry) Pympq_nonzero,       /* inquiry nb_bool;                    */
+        0,                         /* unaryfunc nb_invert;                */
+        0,                         /* binaryfunc nb_lshift;               */
+        0,                         /* binaryfunc nb_rshift;               */
+        0,                         /* binaryfunc nb_and;                  */
+        0,                         /* binaryfunc nb_xor;                  */
+        0,                         /* binaryfunc nb_or;                   */
+    (unaryfunc) mpq2long,          /* unaryfunc nb_int                    */
+        0,                         /* void *nb_reserved;                  */
+    (unaryfunc) mpq2float,         /* unaryfunc nb_float;                 */
+        0,                         /* binaryfunc nb_inplace_add;          */
+        0,                         /* binaryfunc nb_inplace_subtract;     */
+        0,                         /* binaryfunc nb_inplace_multiply;     */
+        0,                         /* binaryfunc nb_inplace_remainder;    */
+        0,                         /* ternaryfunc nb_inplace_power;       */
+        0,                         /* binaryfunc nb_inplace_lshift;       */
+        0,                         /* binaryfunc nb_inplace_rshift;       */
+        0,                         /* binaryfunc nb_inplace_and;          */
+        0,                         /* binaryfunc nb_inplace_xor;          */
+        0,                         /* binaryfunc nb_inplace_or;           */
+    (binaryfunc) Pympq_div,        /* binaryfunc nb_floor_divide;         */
+    (binaryfunc) Pympany_truediv,  /* binaryfunc nb_true_divide;          */
+        0,                         /* binaryfunc nb_inplace_floor_divide; */
+        0,                         /* binaryfunc nb_inplace_true_divide;  */
+        0,                         /* unaryfunc nb_index;                 */
+};
+#else
 static PyNumberMethods mpq_number_methods =
 {
     (binaryfunc) Pympq_add,
@@ -6087,7 +6171,47 @@ static PyNumberMethods mpq_number_methods =
         0, /* binaryfunc nb_inplace_floor_divide;       */
         0, /* binaryfunc nb_inplace_true_divide;        */
 };
+#endif
 
+#if PY_MAJOR_VERSION >= 3
+static PyNumberMethods mpf_number_methods =
+{
+    (binaryfunc) Pympf_add,        /* binaryfunc nb_add;                  */
+    (binaryfunc) Pympf_sub,        /* binaryfunc nb_subtract;             */
+    (binaryfunc) Pympf_mul,        /* binaryfunc nb_multiply;             */
+        0,                         /* binaryfunc nb_remaider;             */
+        0,                         /* binaryfunc nb_divmod;               */
+    (ternaryfunc) Pympf_pow,       /* ternaryfunc nb_power;               */
+    (unaryfunc) Pympf_neg,         /* unaryfunc nb_negative;              */
+    (unaryfunc) Pympf_pos,         /* unaryfunc nb_positive;              */
+    (unaryfunc) Pympf_abs,         /* unaryfunc nb_absolute;              */
+    (inquiry) Pympf_nonzero,       /* inquiry nb_bool;                    */
+        0,                         /* unaryfunc nb_invert;                */
+        0,                         /* binaryfunc nb_lshift;               */
+        0,                         /* binaryfunc nb_rshift;               */
+        0,                         /* binaryfunc nb_and;                  */
+        0,                         /* binaryfunc nb_xor;                  */
+        0,                         /* binaryfunc nb_or;                   */
+    (unaryfunc) mpf2long,          /* unaryfunc nb_int                    */
+        0,                         /* void *nb_reserved;                  */
+    (unaryfunc) mpf2float,         /* unaryfunc nb_float;                 */
+        0,                         /* binaryfunc nb_inplace_add;          */
+        0,                         /* binaryfunc nb_inplace_subtract;     */
+        0,                         /* binaryfunc nb_inplace_multiply;     */
+        0,                         /* binaryfunc nb_inplace_remainder;    */
+        0,                         /* ternaryfunc nb_inplace_power;       */
+        0,                         /* binaryfunc nb_inplace_lshift;       */
+        0,                         /* binaryfunc nb_inplace_rshift;       */
+        0,                         /* binaryfunc nb_inplace_and;          */
+        0,                         /* binaryfunc nb_inplace_xor;          */
+        0,                         /* binaryfunc nb_inplace_or;           */
+    (binaryfunc) Pympf_floordiv,   /* binaryfunc nb_floor_divide;         */
+    (binaryfunc) Pympany_truediv,  /* binaryfunc nb_true_divide;          */
+        0,                         /* binaryfunc nb_inplace_floor_divide; */
+        0,                         /* binaryfunc nb_inplace_true_divide;  */
+        0,                         /* unaryfunc nb_index;                 */
+};
+#else
 static PyNumberMethods mpf_number_methods =
 {
     (binaryfunc) Pympf_add,
@@ -6130,6 +6254,7 @@ static PyNumberMethods mpf_number_methods =
         0, /* binaryfunc nb_inplace_floor_divide;       */
         0, /* binaryfunc nb_inplace_true_divide;        */
 };
+#endif
 
 static PyMethodDef Pygmpy_methods [] =
 {
