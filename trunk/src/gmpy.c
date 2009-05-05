@@ -1344,11 +1344,10 @@ str2mpz(PyObject *s, long base)
         if(!ascii_str) {
             PyErr_SetString(PyExc_ValueError,
                     "string contains non-ASCII characters");
-            Py_XDECREF(ascii_str);
             return NULL;
         }
-        len = PyUnicode_GetSize(ascii_str);
-        cp = (unsigned char*)PyUnicode_AsUnicode(ascii_str);
+        len = PyBytes_Size(ascii_str);
+        cp = (unsigned char*)PyBytes_AsString(ascii_str);
     }
 #else
     len = PyString_Size(s);
@@ -1433,11 +1432,10 @@ str2mpq(PyObject *stringarg, long base)
         if(!ascii_str) {
             PyErr_SetString(PyExc_ValueError,
                     "string contains non-ASCII characters");
-            Py_XDECREF(ascii_str);
             return NULL;
         }
-        len = PyUnicode_GetSize(ascii_str);
-        cp = (unsigned char*)PyUnicode_AsUnicode(ascii_str);
+        len = PyBytes_Size(ascii_str);
+        cp = (unsigned char*)PyBytes_AsString(ascii_str);
     }
 #else
     len = PyString_Size(stringarg);
@@ -1591,17 +1589,15 @@ str2mpf(PyObject *s, long base, unsigned int bits)
         if(!ascii_str) {
             PyErr_SetString(PyExc_ValueError,
                     "string contains non-ASCII characters");
-            Py_XDECREF(ascii_str);
             return NULL;
         }
-        len = PyUnicode_GetSize(ascii_str);
-        cp = (unsigned char*)PyUnicode_AsUnicode(ascii_str);
+        len = PyBytes_Size(ascii_str);
+        cp = (unsigned char*)PyBytes_AsString(ascii_str);
     }
 #else
     len = PyString_Size(s);
     cp = (unsigned char*)PyString_AsString(s);
 #endif
-
     if(bits>0) {
         precision = bits;
     } else { /* precision to be defaulted or fetched */
@@ -2138,8 +2134,17 @@ mpz_ascii(mpz_t z, int base, int with_tag)
 static PyObject *
 Pympz_ascii(PympzObject *self, int base, int with_tag)
 {
+#if PY_MAJOR_VERSION >= 3
+    PyObject *s, *t;
+    assert(Pympz_Check( (PyObject *) self));
+    t = mpz_ascii(self->z, base, with_tag);
+    s = PyUnicode_FromString(PyBytes_AS_STRING(t));
+    Py_DECREF(t);
+    return s;
+#else
     assert(Pympz_Check( (PyObject *) self));
     return mpz_ascii(self->z, base, with_tag);
+#endif
 }
 
 static char* qtag = "gmpy.mpq(";
@@ -2188,7 +2193,7 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
     }
     if(denstr) {
         char* separator = with_tag?",":"/";
-        temp = Py2or3String_FromString(separator);
+        temp = Py2or3Bytes_FromString(separator);
         Py2or3Bytes_ConcatAndDel(&result, temp);
         if(!result) {
             Py_DECREF(denstr);
@@ -2209,7 +2214,13 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
         temp = Py2or3Bytes_FromString(")");
         Py2or3Bytes_ConcatAndDel(&result, temp);
     }
+#if PY_MAJOR_VERSION >= 3
+    temp = PyUnicode_FromString(PyBytes_AS_STRING(result));
+    Py_DECREF(result);
+    return temp;
+#else
     return result;
+#endif
 }
 
 #define OP_TAG 1
@@ -2244,6 +2255,9 @@ Pympf_ascii(PympfObject *self, int base, int digits,
     int minexfi, int maxexfi, int optionflags)
 {
     PyObject *res;
+#if PY_MAJOR_VERSION >= 3
+    PyObject *temp;
+#endif
     char *buffer;
     mp_exp_t the_exp;
 
@@ -2399,9 +2413,14 @@ Pympf_ascii(PympfObject *self, int base, int digits,
             }
         }
     }
-
     free(buffer);
+#if PY_MAJOR_VERSION >= 3
+    temp = PyUnicode_FromString(PyBytes_AS_STRING(res));
+    Py_DECREF(res);
+    return temp;
+#else
     return res;
+#endif
 }
 
 /*
@@ -6605,8 +6624,8 @@ static void _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] = "\
-gmpy 1.04 - General Multiprecision arithmetic for PYthon:\n\
-exposes functionality from the GMP 4 library to Python 2.{2...6}.\n\
+gmpy 1.05 - General Multiprecision arithmetic for PYthon:\n\
+exposes functionality from the GMP 4 library to Python 2.x & 3.x.\n\
 \n\
 Allows creation of multiprecision integer (mpz), float (mpf),\n\
 and rational (mpq) numbers, conversion between them and to/from\n\
@@ -6658,11 +6677,11 @@ initgmpy(void)
     PyObject* copy_reg_module = NULL;
     char *do_debug = getenv("GMPY_DEBUG");
     if (PyType_Ready(&Pympz_Type) < 0)
-        return NULL;
+        INITERROR;
     if (PyType_Ready(&Pympq_Type) < 0)
-        return NULL;
+        INITERROR;
     if (PyType_Ready(&Pympf_Type) < 0)
-        return NULL;
+        INITERROR;
 
     if (do_debug)
         sscanf(do_debug, "%d", &options.debug);
