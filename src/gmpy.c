@@ -205,7 +205,11 @@
 
 #if defined(MS_WIN32) && defined(_MSC_VER)
 /* so one won't need to link explicitly to gmp.lib...: */
+#if defined(MPIR)
+#pragma comment(lib,"mpir.lib")
+#else
 #pragma comment(lib,"gmp.lib")
+#endif
 #ifdef _MSC_VER
   #define isnan _isnan
   #define isinf !_finite
@@ -852,6 +856,7 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
     if(new == Py_None) { /* none == missing-argument (reset string use) */
         new = 0;
     } else if(new) {
+        char buf[20];
         if(Py2or3Int_Check(new)) {
             /* int arg (1 to 30) used as # of digits for intermediate string */
             long inew = Py2or3Int_AsLong(new);
@@ -860,7 +865,6 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
                     "number of digits n must be 0<n<=30");
                 return 0;
             }
-            char buf[20];
             /* check range for number-of-digits setting */
             if(inew<=0 || inew>30) {
                 PyErr_SetString(PyExc_ValueError,
@@ -2465,12 +2469,15 @@ static PympzObject*
 anynum2mpz(PyObject* obj)
 {
     PympzObject* newob = 0;
+    //~ fprintf(stderr, "in anynum2mpz!\n");
 
     if(Pympz_Check(obj)) {
         Py_INCREF(obj);
         newob = (PympzObject *) obj;
-    } else if(Py2or3Int_Check(obj)) {
+#if PY_MAJOR_VERSION < 3
+    } else if(PyInt_Check(obj)) {
         newob = int2mpz(obj);
+#endif
     } else if(PyLong_Check(obj)) {
         newob = long2mpz(obj);
     } else if(Pympq_Check(obj)) {
@@ -3591,9 +3598,15 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
     return (PyObject *) newob;
 }
 
+#if PY_MAJOR_VERSION >= 3
+#define FORWARD_MPQ_BINOP(NAME) \
+static PyObject * \
+Py##NAME(PyObject *a, PyObject *b)
+#else
 #define FORWARD_MPQ_BINOP(NAME) \
 static PyObject * \
 Py##NAME(PympqObject *a, PympqObject *b)
+#endif
 
 FORWARD_MPQ_BINOP(mpq_div);
 
@@ -3686,7 +3699,11 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
             Py_DECREF(denominator);
             return result;
         }
+#if PY_MAJOR_VERSION >= 3
+        result = Pympq_div((PyObject*)newob,(PyObject*)denominator);
+#else
         result = Pympq_div(newob,(PympqObject*)denominator);
+#endif
         Py_DECREF((PyObject*)newob);
         Py_DECREF(denominator);
         newob = (PympqObject*)result;
@@ -3801,6 +3818,30 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
 
 /* ARITHMETIC */
 
+#if PY_MAJOR_VERSION >= 3
+#define MPZ_BINOP(NAME) \
+static PyObject * \
+Py##NAME(PyObject *a, PyObject *b) \
+{ \
+  PympzObject *r; \
+  PympzObject *pa = anynum2mpz(a); \
+  PympzObject *pb = anynum2mpz(b); \
+  if(!pa || !pb) { \
+    PyObject *r = Py_NotImplemented; \
+    Py_XDECREF(pa); \
+    Py_XDECREF(pb); \
+    Py_INCREF(r); \
+    return r; \
+  } \
+  if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p\n", pa, pb); \
+  if (!(r = Pympz_new())) return NULL; \
+  NAME(r->z, pa->z, pb->z); \
+  Py_DECREF((PyObject*)pa); \
+  Py_DECREF((PyObject*)pb); \
+  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
+  return (PyObject *) r; \
+}
+#else
 #define MPZ_BINOP(NAME) \
 static PyObject * \
 Py##NAME(PympzObject *a, PympzObject *b) \
@@ -3812,7 +3853,35 @@ Py##NAME(PympzObject *a, PympzObject *b) \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
   return (PyObject *) r; \
 }
+#endif
 
+#if PY_MAJOR_VERSION >= 3
+#define MPF_BINOP(NAME) \
+static PyObject * \
+Py##NAME(PyObject *a, PyObject *b) \
+{ \
+  unsigned int bits, bbits; \
+  PympfObject *r; \
+  PympfObject *pa = anynum2mpf(a, 0); \
+  PympfObject *pb = anynum2mpf(b, 0); \
+  if(!pa || !pb) { \
+    PyObject *r = Py_NotImplemented; \
+    Py_XDECREF(pa); \
+    Py_XDECREF(pb); \
+    Py_INCREF(r); \
+    return r; \
+  } \
+  if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p", pa, pb); \
+  bits = pa->rebits; \
+  bbits = pb->rebits; \
+  if(bits>bbits) bits=bbits; \
+  if (!(r = Pympf_new(bits))) return NULL; \
+  NAME(r->f, pa->f, pb->f); \
+  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", r); \
+  mpf_normalize(r); \
+  return (PyObject *) r; \
+}
+#else
 #define MPF_BINOP(NAME) \
 static PyObject * \
 Py##NAME(PympfObject *a, PympfObject *b) \
@@ -3829,7 +3898,30 @@ Py##NAME(PympfObject *a, PympfObject *b) \
   mpf_normalize(r); \
   return (PyObject *) r; \
 }
+#endif
 
+#if PY_MAJOR_VERSION >= 3
+#define MPQ_BINOP(NAME) \
+static PyObject * \
+Py##NAME(PyObject *a, PyObject *b) \
+{ \
+  PympqObject *r; \
+  PympqObject *pa = anynum2mpq(a); \
+  PympqObject *pb = anynum2mpq(b); \
+  if(!pa || !pb) { \
+    PyObject *r = Py_NotImplemented; \
+    Py_XDECREF(pa); \
+    Py_XDECREF(pb); \
+    Py_INCREF(r); \
+    return r; \
+  } \
+  if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p", pa, pb); \
+  if (!(r = Pympq_new())) return NULL; \
+  NAME(r->q, pa->q, pb->q); \
+  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", r); \
+  return (PyObject *) r; \
+}
+#else
 #define MPQ_BINOP(NAME) \
 static PyObject * \
 Py##NAME(PympqObject *a, PympqObject *b) \
@@ -3841,6 +3933,7 @@ Py##NAME(PympqObject *a, PympqObject *b) \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", r); \
   return (PyObject *) r; \
 }
+#endif
 
 MPZ_BINOP(mpz_add)
 MPZ_BINOP(mpz_sub)
@@ -3856,6 +3949,32 @@ MPQ_BINOP(mpq_mul)
 
 MPF_BINOP(mpf_reldiff)
 
+#if PY_MAJOR_VERSION >= 3
+#define MPZ_DIVOP(NAME, OP) \
+static PyObject * \
+NAME(PyObject *a, PyObject *b) \
+{ \
+  PympzObject *r; \
+  PympzObject *pa = anynum2mpz(a); \
+  PympzObject *pb = anynum2mpz(b); \
+  if(!pa || !pb) { \
+    PyObject *r = Py_NotImplemented; \
+    Py_XDECREF(pa); \
+    Py_XDECREF(pb); \
+    Py_INCREF(r); \
+    return r; \
+  } \
+  if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
+  if (mpz_sgn(pb->z) == 0) { \
+    PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
+   return NULL; \
+  } \
+  if (!(r = Pympz_new())) return NULL; \
+  OP(r->z, pa->z, pb->z); \
+  if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
+  return (PyObject *) r; \
+}
+#else
 #define MPZ_DIVOP(NAME, OP) \
 static PyObject * \
 NAME(PympzObject *a, PympzObject *b) \
@@ -3871,7 +3990,34 @@ NAME(PympzObject *a, PympzObject *b) \
   if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
   return (PyObject *) r; \
 }
+#endif
 
+#if PY_MAJOR_VERSION >= 3
+#define MPQ_DIVOP(NAME, OP) \
+static PyObject * \
+NAME(PyObject *a, PyObject *b) \
+{ \
+  PympqObject *r; \
+  PympqObject *pa = anynum2mpq(a); \
+  PympqObject *pb = anynum2mpq(b); \
+  if(!pa || !pb) { \
+    PyObject *r = Py_NotImplemented; \
+    Py_XDECREF(pa); \
+    Py_XDECREF(pb); \
+    Py_INCREF(r); \
+    return r; \
+  } \
+  if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
+  if (mpq_sgn(pb->q) == 0) { \
+    PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
+    return NULL; \
+  } \
+  if (!(r = Pympq_new())) return NULL; \
+  OP(r->q, pa->q, pb->q); \
+  if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
+  return (PyObject *) r; \
+}
+#else
 #define MPQ_DIVOP(NAME, OP) \
 static PyObject * \
 NAME(PympqObject *a, PympqObject *b) \
@@ -3887,7 +4033,38 @@ NAME(PympqObject *a, PympqObject *b) \
   if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
   return (PyObject *) r; \
 }
+#endif
 
+#if PY_MAJOR_VERSION >= 3
+#define MPF_DIVOP(NAME, OP) \
+static PyObject * \
+NAME(PyObject *a, PyObject *b) \
+{ \
+  unsigned int bits, bbits; \
+  PympfObject *r; \
+  PympfObject *pa = anynum2mpf(a, 0); \
+  PympfObject *pb = anynum2mpf(b, 0); \
+  if(!pa || !pb) { \
+    PyObject *r = Py_NotImplemented; \
+    Py_XDECREF(pa); \
+    Py_XDECREF(pb); \
+    Py_INCREF(r); \
+    return r; \
+  } \
+  if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
+  if (mpf_sgn(pb->f) == 0) { \
+    PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
+    return NULL; \
+  } \
+  bits = pa->rebits; \
+  bbits = pb->rebits; \
+  if(bits>bbits) bits=bbits; \
+  if (!(r = Pympf_new(bits))) return NULL; \
+  OP(r->f, pa->f, pb->f); \
+  if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
+  return (PyObject *) r; \
+}
+#else
 #define MPF_DIVOP(NAME, OP) \
 static PyObject * \
 NAME(PympfObject *a, PympfObject *b) \
@@ -3907,6 +4084,7 @@ NAME(PympfObject *a, PympfObject *b) \
   if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
   return (PyObject *) r; \
 }
+#endif
 
 MPZ_DIVOP(Pympz_div, mpz_fdiv_q)
 MPZ_DIVOP(Pympz_rem, mpz_fdiv_r)
@@ -3920,7 +4098,11 @@ Pympany_truediv(PyObject *a, PyObject *b)
     PympfObject *pb = anynum2mpf(b, 0);
     PyObject *result;
     if (!pa || !pb) return 0;
+#if PY_MAJOR_VERSION >= 3
+    result = Pympf_div((PyObject*)pa, (PyObject*)pb);
+#else
     result = Pympf_div(pa, pb);
+#endif
     Py_DECREF((PyObject*)pa);
     Py_DECREF((PyObject*)pb);
     return result;
@@ -3933,7 +4115,11 @@ Pympq_floordiv(PyObject *a, PyObject *b)
     PympfObject *pb = anynum2mpf(b, 0);
     PyObject *result;
     if (!pa || !pb) return 0;
+#if PY_MAJOR_VERSION >= 3
+    result = Pympf_div((PyObject*)pa, (PyObject*)pb);
+#else
     result = Pympf_div(pa, pb);
+#endif
     Py_DECREF((PyObject*)pa);
     Py_DECREF((PyObject*)pb);
     if( result) {
@@ -3951,7 +4137,11 @@ Pympf_floordiv(PyObject *a, PyObject *b)
     PympfObject *pb = anynum2mpf(b, 0);
     PyObject *result;
     if (!pa || !pb) return 0;
+#if PY_MAJOR_VERSION >= 3
+    result = Pympf_div((PyObject*)pa, (PyObject*)pb);
+#else
     result = Pympf_div(pa, pb);
+#endif
     Py_DECREF((PyObject*)pa);
     Py_DECREF((PyObject*)pb);
     if( result) {
@@ -3984,6 +4174,25 @@ Pympz_divmod(PympzObject *a, PympzObject *b)
     return Py_BuildValue("(NN)", q, r);
 }
 
+#if PY_MAJOR_VERSION >= 3
+#define MPZ_MONOP(NAME) \
+static PyObject * \
+Py##NAME(PyObject *x) \
+{ \
+  PympzObject *r; \
+  PympzObject *px = anynum2mpz(x); \
+  if(!px) { \
+    PyObject *r = Py_NotImplemented; \
+    Py_INCREF(r); \
+    return r; \
+  } \
+  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", px); \
+  if (!(r = Pympz_new())) return NULL; \
+  NAME(r->z, px->z); \
+  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
+  return (PyObject *) r; \
+}
+#else
 #define MPZ_MONOP(NAME) \
 static PyObject * \
 Py##NAME(PympzObject *x) \
@@ -3995,7 +4204,27 @@ Py##NAME(PympzObject *x) \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
   return (PyObject *) r; \
 }
+#endif
 
+#if PY_MAJOR_VERSION >= 3
+#define MPF_MONOP(NAME) \
+static PyObject * \
+Py##NAME(PyObject *x) \
+{ \
+  PympfObject *r; \
+  PympfObject *px = anynum2mpf(x, 0); \
+  if(!px) { \
+    PyObject *r = Py_NotImplemented; \
+    Py_INCREF(r); \
+    return r; \
+  } \
+  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", px); \
+  if (!(r = Pympf_new(px->rebits))) return NULL; \
+  NAME(r->f, px->f); \
+  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
+  return (PyObject *) r; \
+}
+#else
 #define MPF_MONOP(NAME) \
 static PyObject * \
 Py##NAME(PympfObject *x) \
@@ -4007,7 +4236,27 @@ Py##NAME(PympfObject *x) \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
   return (PyObject *) r; \
 }
+#endif
 
+#if PY_MAJOR_VERSION >= 3
+#define MPQ_MONOP(NAME) \
+static PyObject * \
+Py##NAME(PyObject *x) \
+{ \
+  PympqObject *r; \
+  PympqObject *px = anynum2mpq(x); \
+  if(!px) { \
+    PyObject *r = Py_NotImplemented; \
+    Py_INCREF(r); \
+    return r; \
+  } \
+  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", px); \
+  if (!(r = Pympq_new())) return NULL; \
+  NAME(r->q, px->q); \
+  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
+  return (PyObject *) r; \
+}
+#else
 #define MPQ_MONOP(NAME) \
 static PyObject * \
 Py##NAME(PympqObject *x) \
@@ -4019,6 +4268,7 @@ Py##NAME(PympqObject *x) \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
   return (PyObject *) r; \
 }
+#endif
 
 MPZ_MONOP(mpz_abs)
 MPZ_MONOP(mpz_neg)
