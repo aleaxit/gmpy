@@ -124,18 +124,18 @@ if sys.version<'2.4':
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.05 (rand functionality)"
-        print "    running on Python", sys.version
-        print
-        print "Testing gmpy %s (GMP %s) with default caching (%s, %s..%s)" % (
+        writeln("Unit tests for gmpy 1.05 (rand functionality)")
+        writeln("    running on Python %s" % sys.version)
+        writeln("")
+        writeln("Testing gmpy %s (GMP %s) with default caching (%s, %s..%s)" % (
             (_g.version(), _g.gmp_version(), _g.get_zcache()
-            ) + _g.get_zconst())
+            ) + _g.get_zconst()))
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
     if chat:
-        print
-        print "Overall results for rnd:"
+        writeln("")
+        writeln("Overall results for rnd:")
     return doctest.master.summarize(chat)
 
 

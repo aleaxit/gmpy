@@ -3,11 +3,15 @@
 # test-version 1.05
 r'''
 >>> dir(a)
-['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
+['__abs__', '__add__', '__class__', '__coerce__', '__delattr__', '__div__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__long__', '__lt__', '__mul__', '__ne__', '__neg__', '__new__', '__nonzero__', '__pos__', '__pow__', '__radd__', '__rdiv__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
 >>>
 '''
 import warnings
 warnings.filterwarnings('ignore', 'setprec')
+
+import sys
+def writeln(s):
+    sys.stdout.write(s+'\n')
 
 import gmpy as _g, doctest, sys
 __test__={}
@@ -16,26 +20,26 @@ b=_g.mpf('789.123')
 
 __test__['elemop']=\
 r'''
->>> print a+b
-912.579
->>> print a-b
--665.667
->>> print a*b
-97421.969088
->>> print a/b
-0.156447093799065544915
->>> print b+a
-912.579
->>> print b-a
-665.667
->>> print b*a
-97421.969088
->>> print b/a
-6.39193720839813374806
->>> print -a
--123.456
->>> print abs(-a)
-123.456
+>>> str(a+b)
+'912.579'
+>>> str(a-b)
+'-665.667'
+>>> str(a*b)
+'97421.969088'
+>>> str(a/b)
+'0.156447093799065544915'
+>>> str(b+a)
+'912.579'
+>>> str(b-a)
+'665.667'
+>>> str(b*a)
+'97421.969088'
+>>> str(b/a)
+'6.39193720839813374806'
+>>> str(-a)
+'-123.456'
+>>> str(abs(-a))
+'123.456'
 >>> _g.fsign(b-a)
 1
 >>> _g.fsign(b-b)
@@ -51,37 +55,37 @@ r'''
 >>> import math
 >>> math.ceil(a)
 124.0
->>> print a.ceil()
-124.0
->>> print _g.ceil(a)
-124.0
+>>> str(a.ceil())
+'124.0'
+>>> str(_g.ceil(a))
+'124.0'
 >>> math.floor(a)
 123.0
->>> print a.floor()
-123.0
->>> print _g.floor(a)
-123.0
->>> print a.trunc()
-123.0
->>> print _g.trunc(a)
-123.0
+>>> str(a.floor())
+'123.0'
+>>> str(_g.floor(a))
+'123.0'
+>>> str(a.trunc())
+'123.0'
+>>> str(_g.trunc(a))
+'123.0'
 >>> x=-a
 >>> math.floor(x)
 -124.0
->>> print x.floor()
--124.
->>> print _g.floor(x)
--124.
->>> print x.ceil()
--123.
+>>> str(x.floor())
+'-124.'
+>>> str(_g.floor(x))
+'-124.'
+>>> str(x.ceil())
+'-123.'
 >>> math.ceil(x)
 -123.0
->>> print _g.ceil(x)
--123.
->>> print x.trunc()
--123.
->>> print _g.trunc(x)
--123.
+>>> str(_g.ceil(x))
+'-123.'
+>>> str(x.trunc())
+'-123.'
+>>> str(_g.trunc(x))
+'-123.'
 >>> _g.ceil(12.3)==math.ceil(12.3)
 1
 >>> _g.floor(12.3)==math.floor(12.3)
@@ -387,18 +391,18 @@ r'''
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.05 (mpf functionality)"
-        print "    running on Python",sys.version
-        print
-        print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
+        writeln("Unit tests for gmpy 1.05 (mpf functionality)")
+        writeln("    running on Python %s" % sys.version)
+        writeln("")
+        writeln("Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
             (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
-            ) + _g.get_zconst())
+            ) + _g.get_zconst()))
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
     if chat:
-        print
-        print "Overall results for mpf:"
+        writeln("")
+        writeln("Overall results for mpf:")
     return doctest.master.summarize(chat)
 
 if __name__=='__main__':
