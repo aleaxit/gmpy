@@ -3602,15 +3602,9 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
     return (PyObject *) newob;
 }
 
-#if PY_MAJOR_VERSION >= 3
 #define FORWARD_MPQ_BINOP(NAME) \
 static PyObject * \
 Py##NAME(PyObject *a, PyObject *b)
-#else
-#define FORWARD_MPQ_BINOP(NAME) \
-static PyObject * \
-Py##NAME(PympqObject *a, PympqObject *b)
-#endif
 
 FORWARD_MPQ_BINOP(mpq_div);
 
@@ -3703,11 +3697,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
             Py_DECREF(denominator);
             return result;
         }
-#if PY_MAJOR_VERSION >= 3
         result = Pympq_div((PyObject*)newob,(PyObject*)denominator);
-#else
-        result = Pympq_div(newob,(PympqObject*)denominator);
-#endif
         Py_DECREF((PyObject*)newob);
         Py_DECREF(denominator);
         newob = (PympqObject*)result;
@@ -3844,7 +3834,11 @@ Py##NAME(PyObject *a, PyObject *b) \
       return r; \
     } \
     if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p\n", pa, pb); \
-    if (!(r = Pympz_new())) return NULL; \
+    if (!(r = Pympz_new())) { \
+      Py_DECREF((PyObject*)pa); \
+      Py_DECREF((PyObject*)pb); \
+      return NULL; \
+    } \
     NAME(r->z, pa->z, pb->z); \
     Py_DECREF((PyObject*)pa); \
     Py_DECREF((PyObject*)pb); \
@@ -3882,7 +3876,11 @@ Py##NAME(PyObject *a, PyObject *b) \
     bits = pa->rebits; \
     bbits = pb->rebits; \
     if(bits>bbits) bits=bbits; \
-    if (!(r = Pympf_new(bits))) return NULL; \
+    if (!(r = Pympf_new(bits))) { \
+      Py_DECREF((PyObject*)pa); \
+      Py_DECREF((PyObject*)pb); \
+      return NULL; \
+    } \
     NAME(r->f, pa->f, pb->f); \
     Py_DECREF((PyObject*)pa); \
     Py_DECREF((PyObject*)pb); \
@@ -3914,8 +3912,14 @@ Py##NAME(PyObject *a, PyObject *b) \
       return r; \
     } \
     if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p", pa, pb); \
-    if (!(r = Pympq_new())) return NULL; \
+    if (!(r = Pympq_new())) { \
+      Py_DECREF(pa); \
+      Py_DECREF(pb); \
+      return NULL; \
+    } \
     NAME(r->q, pa->q, pb->q); \
+    Py_DECREF(pa); \
+    Py_DECREF(pb); \
   } \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", r); \
   return (PyObject *) r; \
@@ -3935,142 +3939,135 @@ MPQ_BINOP(mpq_mul)
 
 MPF_BINOP(mpf_reldiff)
 
-#if PY_MAJOR_VERSION >= 3
 #define MPZ_DIVOP(NAME, OP) \
 static PyObject * \
 NAME(PyObject *a, PyObject *b) \
 { \
   PympzObject *r; \
-  PympzObject *pa = anynum2mpz(a); \
-  PympzObject *pb = anynum2mpz(b); \
-  if(!pa || !pb) { \
-    PyObject *r = Py_NotImplemented; \
-    Py_XDECREF(pa); \
-    Py_XDECREF(pb); \
-    Py_INCREF(r); \
-    return r; \
+  PympzObject *pa = 0; \
+  PympzObject *pb = 0; \
+  if(Pympz_Check(a) && Pympz_Check(b)) { \
+    if (options.debug) fprintf(stderr, #NAME ": %p, %p", a, b); \
+    if (!(r = Pympz_new())) return NULL; \
+    OP(r->z, ((PympzObject*)a)->z, ((PympzObject*)b)->z); \
+  } else { \
+    pa = anynum2mpz(a); \
+    pb = anynum2mpz(b); \
+    if(!pa || !pb) { \
+      PyObject *r = Py_NotImplemented; \
+      Py_XDECREF(pa); \
+      Py_XDECREF(pb); \
+      Py_INCREF(r); \
+      return r; \
+    } \
+    if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
+  if  (mpz_sgn(pb->z) == 0) { \
+      PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
+      Py_DECREF(pa); \
+      Py_DECREF(pb); \
+      return NULL; \
+    } \
+    if (!(r = Pympz_new())) { \
+      Py_DECREF(pa); \
+      Py_DECREF(pb); \
+      return NULL; \
+    } \
+    OP(r->z, pa->z, pb->z); \
+    Py_DECREF(pa); \
+    Py_DECREF(pb); \
   } \
-  if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
-  if (mpz_sgn(pb->z) == 0) { \
-    PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
-   return NULL; \
-  } \
-  if (!(r = Pympz_new())) return NULL; \
-  OP(r->z, pa->z, pb->z); \
   if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
   return (PyObject *) r; \
 }
-#else
-#define MPZ_DIVOP(NAME, OP) \
-static PyObject * \
-NAME(PympzObject *a, PympzObject *b) \
-{ \
-  PympzObject *r; \
-  if (options.debug) fprintf(stderr, #NAME ": %p, %p", a, b); \
-  if (mpz_sgn(b->z) == 0) { \
-    PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
-   return NULL; \
-  } \
-  if (!(r = Pympz_new())) return NULL; \
-  OP(r->z, a->z, b->z); \
-  if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
-  return (PyObject *) r; \
-}
-#endif
 
-#if PY_MAJOR_VERSION >= 3
 #define MPQ_DIVOP(NAME, OP) \
 static PyObject * \
 NAME(PyObject *a, PyObject *b) \
 { \
   PympqObject *r; \
-  PympqObject *pa = anynum2mpq(a); \
-  PympqObject *pb = anynum2mpq(b); \
-  if(!pa || !pb) { \
-    PyObject *r = Py_NotImplemented; \
-    Py_XDECREF(pa); \
-    Py_XDECREF(pb); \
-    Py_INCREF(r); \
-    return r; \
+  PympqObject *pa = 0; \
+  PympqObject *pb = 0; \
+  if(Pympq_Check(a) && Pympq_Check(b)) { \
+    if (options.debug) fprintf(stderr, #NAME ": %p, %p", a, b); \
+    if (!(r = Pympq_new())) return NULL; \
+    OP(r->q, ((PympqObject*)a)->q, ((PympqObject*)b)->q); \
+  } else { \
+    pa = anynum2mpq(a); \
+    pb = anynum2mpq(b); \
+    if(!pa || !pb) { \
+      PyObject *r = Py_NotImplemented; \
+      Py_XDECREF(pa); \
+      Py_XDECREF(pb); \
+      Py_INCREF(r); \
+      return r; \
+    } \
+    if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
+    if (mpq_sgn(pb->q) == 0) { \
+      PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
+      Py_DECREF(pa); \
+      Py_DECREF(pb); \
+      return NULL; \
+    } \
+    if (!(r = Pympq_new())) { \
+      Py_DECREF(pa); \
+      Py_DECREF(pb); \
+      return NULL; \
+    } \
+    OP(r->q, pa->q, pb->q); \
+    Py_DECREF(pa); \
+    Py_DECREF(pb); \
   } \
-  if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
-  if (mpq_sgn(pb->q) == 0) { \
-    PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
-    return NULL; \
-  } \
-  if (!(r = Pympq_new())) return NULL; \
-  OP(r->q, pa->q, pb->q); \
   if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
   return (PyObject *) r; \
 }
-#else
-#define MPQ_DIVOP(NAME, OP) \
-static PyObject * \
-NAME(PympqObject *a, PympqObject *b) \
-{ \
-  PympqObject *r; \
-  if (options.debug) fprintf(stderr, #NAME ": %p, %p", a, b); \
-  if (mpq_sgn(b->q) == 0) { \
-    PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
-    return NULL; \
-  } \
-  if (!(r = Pympq_new())) return NULL; \
-  OP(r->q, a->q, b->q); \
-  if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
-  return (PyObject *) r; \
-}
-#endif
 
-#if PY_MAJOR_VERSION >= 3
 #define MPF_DIVOP(NAME, OP) \
 static PyObject * \
 NAME(PyObject *a, PyObject *b) \
 { \
   unsigned int bits, bbits; \
   PympfObject *r; \
-  PympfObject *pa = anynum2mpf(a, 0); \
-  PympfObject *pb = anynum2mpf(b, 0); \
-  if(!pa || !pb) { \
-    PyObject *r = Py_NotImplemented; \
-    Py_XDECREF(pa); \
-    Py_XDECREF(pb); \
-    Py_INCREF(r); \
-    return r; \
+  PympfObject *pa = 0; \
+  PympfObject *pb = 0; \
+  if(Pympf_Check(a) && Pympf_Check(b)) { \
+    if (options.debug) fprintf(stderr, #NAME ": %p, %p", a, b); \
+    bits = ((PympfObject*)a)->rebits; \
+    bbits = ((PympfObject*)b)->rebits; \
+    if(bits>bbits) bits=bbits; \
+    if (!(r = Pympf_new(bits))) return NULL; \
+    OP(r->f, ((PympfObject*)a)->f, ((PympfObject*)b)->f); \
+  } else { \
+    pa = anynum2mpf(a, 0); \
+    pb = anynum2mpf(b, 0); \
+    if(!pa || !pb) { \
+      PyObject *r = Py_NotImplemented; \
+      Py_XDECREF(pa); \
+      Py_XDECREF(pb); \
+      Py_INCREF(r); \
+      return r; \
+    } \
+    if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
+    if (mpf_sgn(pb->f) == 0) { \
+      PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
+      Py_DECREF(pa); \
+      Py_DECREF(pb); \
+      return NULL; \
+    } \
+    bits = pa->rebits; \
+    bbits = pb->rebits; \
+    if(bits>bbits) bits=bbits; \
+    if (!(r = Pympf_new(bits))) { \
+      Py_DECREF(pa); \
+      Py_DECREF(pb); \
+      return NULL; \
+    } \
+    OP(r->f, pa->f, pb->f); \
+    Py_DECREF(pa); \
+    Py_DECREF(pb); \
   } \
-  if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
-  if (mpf_sgn(pb->f) == 0) { \
-    PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
-    return NULL; \
-  } \
-  bits = pa->rebits; \
-  bbits = pb->rebits; \
-  if(bits>bbits) bits=bbits; \
-  if (!(r = Pympf_new(bits))) return NULL; \
-  OP(r->f, pa->f, pb->f); \
   if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
   return (PyObject *) r; \
 }
-#else
-#define MPF_DIVOP(NAME, OP) \
-static PyObject * \
-NAME(PympfObject *a, PympfObject *b) \
-{ \
-  unsigned int bits, bbits; \
-  PympfObject *r; \
-  if (options.debug) fprintf(stderr, #NAME ": %p, %p", a, b); \
-  if (mpf_sgn(b->f) == 0) { \
-    PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
-    return NULL; \
-  } \
-  bits = a->rebits; \
-  bbits = b->rebits; \
-  if(bits>bbits) bits=bbits; \
-  if (!(r = Pympf_new(bits))) return NULL; \
-  OP(r->f, a->f, b->f); \
-  if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
-  return (PyObject *) r; \
-}
-#endif
 
 MPZ_DIVOP(Pympz_div, mpz_fdiv_q)
 MPZ_DIVOP(Pympz_rem, mpz_fdiv_r)
@@ -4083,12 +4080,14 @@ Pympany_truediv(PyObject *a, PyObject *b)
     PympfObject *pa = anynum2mpf(a, 0);
     PympfObject *pb = anynum2mpf(b, 0);
     PyObject *result;
-    if (!pa || !pb) return 0;
-#if PY_MAJOR_VERSION >= 3
+    if (!pa || !pb) {
+        PyObject *result = Py_NotImplemented;
+        Py_XDECREF(pa);
+        Py_XDECREF(pb);
+        Py_INCREF(result);
+        return result;
+    }
     result = Pympf_div((PyObject*)pa, (PyObject*)pb);
-#else
-    result = Pympf_div(pa, pb);
-#endif
     Py_DECREF((PyObject*)pa);
     Py_DECREF((PyObject*)pb);
     return result;
@@ -4100,15 +4099,17 @@ Pympq_floordiv(PyObject *a, PyObject *b)
     PympfObject *pa = anynum2mpf(a, 0);
     PympfObject *pb = anynum2mpf(b, 0);
     PyObject *result;
-    if (!pa || !pb) return 0;
-#if PY_MAJOR_VERSION >= 3
+    if (!pa || !pb) {
+        PyObject *result = Py_NotImplemented;
+        Py_XDECREF(pa);
+        Py_XDECREF(pb);
+        Py_INCREF(result);
+        return result;
+    }
     result = Pympf_div((PyObject*)pa, (PyObject*)pb);
-#else
-    result = Pympf_div(pa, pb);
-#endif
     Py_DECREF((PyObject*)pa);
     Py_DECREF((PyObject*)pb);
-    if( result) {
+    if(result) {
         result = (PyObject*) anynum2mpz(result);
         if (result)
             result = (PyObject*) anynum2mpq(result);
@@ -4122,15 +4123,17 @@ Pympf_floordiv(PyObject *a, PyObject *b)
     PympfObject *pa = anynum2mpf(a, 0);
     PympfObject *pb = anynum2mpf(b, 0);
     PyObject *result;
-    if (!pa || !pb) return 0;
-#if PY_MAJOR_VERSION >= 3
+    if (!pa || !pb) {
+        PyObject *result = Py_NotImplemented;
+        Py_XDECREF(pa);
+        Py_XDECREF(pb);
+        Py_INCREF(result);
+        return result;
+    }
     result = Pympf_div((PyObject*)pa, (PyObject*)pb);
-#else
-    result = Pympf_div(pa, pb);
-#endif
     Py_DECREF((PyObject*)pa);
     Py_DECREF((PyObject*)pb);
-    if( result) {
+    if(result) {
         result = (PyObject*) anynum2mpz(result);
         if (result)
             result = (PyObject*) anynum2mpf(result, 0);
@@ -4139,46 +4142,58 @@ Pympf_floordiv(PyObject *a, PyObject *b)
 }
 
 static PyObject *
-Pympz_divmod(PympzObject *a, PympzObject *b)
+Pympz_divmod(PyObject *a, PyObject *b)
 {
     PympzObject *q, *r;
-    if (options.debug)
-        fprintf(stderr, "Pympz_divmod: %p, %p\n", a, b);
-    if (mpz_sgn(b->z) == 0) {
-        PyErr_SetString(PyExc_ZeroDivisionError,"mpz.divmod by zero");
-        return NULL;
+    PympzObject *pa = 0;
+    PympzObject *pb = 0;
+    if(Pympz_Check(a) && Pympz_Check(b)) {
+        if (options.debug)
+            fprintf(stderr, "Pympz_divmod: %p, %p\n", a, b);
+        if (mpz_sgn(((PympzObject*)b)->z) == 0) {
+            PyErr_SetString(PyExc_ZeroDivisionError,"mpz.divmod by zero");
+            return NULL;
+        }
+        if (!(q = Pympz_new()))
+            return NULL;
+        if (!(r = Pympz_new())) {
+            Pympz_dealloc(q);
+            return NULL;
+        }
+        mpz_fdiv_qr(q->z, r->z, ((PympzObject*)a)->z, ((PympzObject*)b)->z);
+        if (options.debug)
+            fprintf(stderr, "Pympz_divmod -> %p, %p\n", q, r);
+    } else {
+        pa = anynum2mpz(a);
+        pb = anynum2mpz(b);
+        if(!pa || !pb) {
+            PyObject *r = Py_NotImplemented;
+            Py_XDECREF(pa);
+            Py_XDECREF(pb);
+            Py_INCREF(r);
+            return r;
+        }
+        if (options.debug)
+            fprintf(stderr, "Pympz_divmod: %p, %p\n", pa, pb);
+        if (mpz_sgn(pb->z) == 0) {
+            PyErr_SetString(PyExc_ZeroDivisionError,"mpz.divmod by zero");
+            return NULL;
+        }
+        if (!(q = Pympz_new()))
+            return NULL;
+        if (!(r = Pympz_new())) {
+            Pympz_dealloc(q);
+            return NULL;
+        }
+        mpz_fdiv_qr(q->z, r->z, pa->z, pb->z);
+        Py_DECREF(pa);
+        Py_DECREF(pb);
     }
-    if (!(q = Pympz_new()))
-        return NULL;
-    if (!(r = Pympz_new())) {
-        Pympz_dealloc(q);
-        return NULL;
-    }
-    mpz_fdiv_qr(q->z, r->z, a->z, b->z);
     if (options.debug)
         fprintf(stderr, "Pympz_divmod -> %p, %p\n", q, r);
     return Py_BuildValue("(NN)", q, r);
 }
 
-#if PY_MAJOR_VERSION >= 3
-#define MPZ_MONOP(NAME) \
-static PyObject * \
-Py##NAME(PyObject *x) \
-{ \
-  PympzObject *r; \
-  PympzObject *px = anynum2mpz(x); \
-  if(!px) { \
-    PyObject *r = Py_NotImplemented; \
-    Py_INCREF(r); \
-    return r; \
-  } \
-  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", px); \
-  if (!(r = Pympz_new())) return NULL; \
-  NAME(r->z, px->z); \
-  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
-  return (PyObject *) r; \
-}
-#else
 #define MPZ_MONOP(NAME) \
 static PyObject * \
 Py##NAME(PympzObject *x) \
@@ -4190,27 +4205,7 @@ Py##NAME(PympzObject *x) \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
   return (PyObject *) r; \
 }
-#endif
 
-#if PY_MAJOR_VERSION >= 3
-#define MPF_MONOP(NAME) \
-static PyObject * \
-Py##NAME(PyObject *x) \
-{ \
-  PympfObject *r; \
-  PympfObject *px = anynum2mpf(x, 0); \
-  if(!px) { \
-    PyObject *r = Py_NotImplemented; \
-    Py_INCREF(r); \
-    return r; \
-  } \
-  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", px); \
-  if (!(r = Pympf_new(px->rebits))) return NULL; \
-  NAME(r->f, px->f); \
-  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
-  return (PyObject *) r; \
-}
-#else
 #define MPF_MONOP(NAME) \
 static PyObject * \
 Py##NAME(PympfObject *x) \
@@ -4222,27 +4217,7 @@ Py##NAME(PympfObject *x) \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
   return (PyObject *) r; \
 }
-#endif
 
-#if PY_MAJOR_VERSION >= 3
-#define MPQ_MONOP(NAME) \
-static PyObject * \
-Py##NAME(PyObject *x) \
-{ \
-  PympqObject *r; \
-  PympqObject *px = anynum2mpq(x); \
-  if(!px) { \
-    PyObject *r = Py_NotImplemented; \
-    Py_INCREF(r); \
-    return r; \
-  } \
-  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", px); \
-  if (!(r = Pympq_new())) return NULL; \
-  NAME(r->q, px->q); \
-  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
-  return (PyObject *) r; \
-}
-#else
 #define MPQ_MONOP(NAME) \
 static PyObject * \
 Py##NAME(PympqObject *x) \
@@ -4254,7 +4229,6 @@ Py##NAME(PympqObject *x) \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
   return (PyObject *) r; \
 }
-#endif
 
 MPZ_MONOP(mpz_abs)
 MPZ_MONOP(mpz_neg)
@@ -4298,28 +4272,50 @@ Pympf_pos(PympfObject *x)
 }
 
 static PyObject *
-Pympz_pow(PympzObject *b, PympzObject *e, PympzObject *m)
+Pympz_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
 {
     PympzObject *r;
+    PympzObject *b = anynum2mpz(in_b);
+    PympzObject *e = anynum2mpz(in_e);
+    PympzObject *m = anynum2mpz(in_m);
+
+    if(!b || !e || (!m && ((PyObject*)in_m != Py_None))) {
+        Py_XDECREF(b);
+        Py_XDECREF(e);
+        Py_XDECREF(m);
+        PyObject *r = Py_NotImplemented;
+        Py_INCREF(r);
+        return r;
+    }
 
     if(options.debug)
         fprintf(stderr, "Pympz_pow: %p, %p, %p\n", b, e, m);
 
     if(mpz_sgn(e->z) < 0) {
         PyErr_SetString(PyExc_ValueError, "mpz.pow with negative power");
+        Py_XDECREF(b);
+        Py_XDECREF(e);
+        Py_XDECREF(m);
         return NULL;
     }
 
-    if((PyObject*)m == Py_None) {
+    if((PyObject*)in_m == Py_None) {
         /* When no modulo is present, the exponent must fit in C ulong */
         unsigned long el;
         if(notanint(e->z)) {
             PyErr_SetString(PyExc_ValueError, "mpz.pow outrageous exponent");
+            Py_XDECREF(b);
+            Py_XDECREF(e);
+            Py_XDECREF(m);
             return NULL;
         }
         el = mpz_get_ui(e->z);
-        if(!(r = Pympz_new()))
+        if(!(r = Pympz_new())) {
+            Py_XDECREF(b);
+            Py_XDECREF(e);
+            Py_XDECREF(m);
             return NULL;
+        }
         mpz_pow_ui(r->z, b->z, el);
         if(options.debug)
             fprintf(stderr, "Pympz_pow (ui) -> %p\n", r);
@@ -4330,10 +4326,17 @@ Pympz_pow(PympzObject *b, PympzObject *e, PympzObject *m)
         sign = mpz_sgn(m->z);
         if(sign == 0) {
             PyErr_SetString(PyExc_ValueError, "mpz.pow divide by zero");
+            Py_XDECREF(b);
+            Py_XDECREF(e);
+            Py_XDECREF(m);
             return NULL;
         }
-        if(!(r = Pympz_new()))
+        if(!(r = Pympz_new())) {
+            Py_XDECREF(b);
+            Py_XDECREF(e);
+            Py_XDECREF(m);
             return NULL;
+        }
         mpz_inoc(mm);
         mpz_abs(mm, m->z);
         mpz_powm(r->z, b->z, e->z, mm);
@@ -4348,41 +4351,67 @@ Pympz_pow(PympzObject *b, PympzObject *e, PympzObject *m)
         if(options.debug)
             fprintf(stderr, "Pympz_pow -> %p\n", r);
     }
+    Py_XDECREF(b);
+    Py_XDECREF(e);
+    Py_XDECREF(m);
     return (PyObject*)r;
 }
 
 static PyObject *
-Pympq_pow(PympqObject *b, PympqObject *e, PympqObject *m)
+Pympq_pow(PyObject *in_b, PyObject *in_e, PyObject *m)
 {
     PympqObject *r;
+    PympqObject *b = anynum2mpq(in_b);
+    PympqObject *e = anynum2mpq(in_e);
+
     int esign;
     unsigned long ultem;
 
     assert(Pympq_Check(b));
     assert(Pympq_Check(e));
+
+    if(!b || !e) {
+        Py_XDECREF(b);
+        Py_XDECREF(e);
+        PyObject *r = Py_NotImplemented;
+        Py_INCREF(r);
+        return r;
+    }
+
     if(options.debug)
         fprintf(stderr, "Pympq_pow: %p, %p, %p\n", b, e, m);
 
     if((PyObject*)m != Py_None) {
         PyErr_SetString(PyExc_ValueError, "mpq.pow no modulo allowed");
+        Py_DECREF(b);
+        Py_DECREF(e);
         return NULL;
     }
     if(notanint(mpq_numref(e->q))) {
         PyErr_SetString(PyExc_ValueError, "mpq.pow outrageous exp num");
+        Py_DECREF(b);
+        Py_DECREF(e);
         return NULL;
     }
     if(notanint(mpq_denref(e->q))) {
         PyErr_SetString(PyExc_ValueError, "mpq.pow outrageous exp den");
+        Py_DECREF(b);
+        Py_DECREF(e);
         return NULL;
     }
-    if(!(r = Pympq_new()))
+    if(!(r = Pympq_new())) {
+        Py_DECREF(b);
+        Py_DECREF(e);
         return NULL;
+    }
 
     esign = mpq_sgn(e->q);
     if(esign == 0) {
         if(options.debug)
             fprintf(stderr, "Pympq_pow (ui,0) -> %p\n", r);
         mpq_set_si(r->q, 1, 1);
+        Py_DECREF(b);
+        Py_DECREF(e);
         return (PyObject*)r;
     } else if(esign < 0) {
         int bsign = mpq_sgn(b->q);
@@ -4390,6 +4419,8 @@ Pympq_pow(PympqObject *b, PympqObject *e, PympqObject *m)
             PyObject* result = 0;
             PyErr_SetString(PyExc_ZeroDivisionError,"mpq.pow 0 base to <0 exponent");
             Py_DECREF((PyObject*)r);
+            Py_DECREF(b);
+            Py_DECREF(e);
             return result;
         }
         if(bsign < 0) {
@@ -4428,11 +4459,15 @@ Pympq_pow(PympqObject *b, PympqObject *e, PympqObject *m)
         if(!exact) {
             Py_DECREF((PyObject*)r);
             PyErr_SetString(PyExc_ValueError, msg);
+            Py_DECREF(b);
+            Py_DECREF(e);
             return NULL;
         }
     }
     if(options.debug)
         fprintf(stderr, "Pympq_pow (ui) -> %p\n", r);
+    Py_DECREF(b);
+    Py_DECREF(e);
     return (PyObject*)r;
 }
 
@@ -4479,7 +4514,7 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
     } else {
         qb = mpf2mpq((PyObject*)b);
         qe = mpf2mpq((PyObject*)e);
-        r = Pympq_pow(qb, qe, (PympqObject*)m);
+        r = Pympq_pow((PyObject*)qb, (PyObject*)qe, (PyObject*)m);
         Py_DECREF((PyObject*)qb); Py_DECREF((PyObject*)qe);
         if(!r || !Pympq_Check(r)) {
             Py_DECREF(e);
@@ -4711,21 +4746,53 @@ MPZ_BINOP(mpz_xor)
 
 #define MPZ_SHIFTOP(NAME, OP) \
 static PyObject * \
-NAME(PympzObject *a, PympzObject *b) \
+NAME(PyObject *a, PyObject *b) \
 { \
   PympzObject *r; \
-  unsigned long count; \
-  if(mpz_sgn(b->z) < 0) { \
-    static char* msg = #NAME " negative shift count"; \
-    PyErr_SetString(PyExc_ValueError, msg); \
-    return NULL; } \
-  if(!mpz_fits_ulong_p(b->z)) { \
-    static char* msg = #NAME " outrageous shift count"; \
-    PyErr_SetString(PyExc_ValueError, msg); \
-    return NULL; } \
-  count = mpz_get_ui(b->z); \
-  if (! (r = Pympz_new())) return NULL; \
-  OP(r->z, a->z, count); \
+  PympzObject *pa = anynum2mpz(a); \
+  PympzObject *pb = 0; \
+  long count; \
+  if(!pa) { \
+    PyObject *r = Py_NotImplemented; \
+    Py_INCREF(r); \
+    return r; \
+  } \
+  if(Py2or3Int_Check(b) && ((count = Py2or3Int_AsLong(b)) > 0)) { \
+      if (!(r = Pympz_new())) { \
+        Py_DECREF(pa); \
+        return NULL; \
+      } \
+      OP(r->z, ((PympzObject*)a)->z, count); \
+  } else { \
+    pb = anynum2mpz(b); \
+    if(!pb) { \
+      Py_DECREF(pa); \
+      PyObject *r = Py_NotImplemented; \
+      Py_INCREF(r); \
+      return r; \
+    } \
+    if(mpz_sgn(pb->z) < 0) { \
+      static char* msg = #NAME " negative shift count"; \
+      PyErr_SetString(PyExc_ValueError, msg); \
+      Py_DECREF(pa); \
+      Py_DECREF(pb); \
+      return NULL; } \
+    if(!mpz_fits_slong_p(pb->z)) { \
+      static char* msg = #NAME " outrageous shift count"; \
+      PyErr_SetString(PyExc_ValueError, msg); \
+      Py_DECREF(pa); \
+      Py_DECREF(pb); \
+      return NULL; } \
+    count = mpz_get_si(pb->z); \
+    if (!(r = Pympz_new())) { \
+      Py_DECREF(pa); \
+      Py_DECREF(pb); \
+      return NULL; \
+    } \
+    OP(r->z, pa->z, count); \
+    Py_DECREF(pa); \
+    Py_DECREF(pb); \
+  } \
   return (PyObject *) r; \
 }
 
@@ -4746,7 +4813,7 @@ Pympz_hex(PympzObject *self)
 
 /* coercion (in the Python sense) */
 
-static int
+int
 Pympz_coerce(PyObject **pv, PyObject **pw)
 {
     PyObject *z;
@@ -6313,7 +6380,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pympz_and,
     (binaryfunc) Pympz_xor,
     (binaryfunc) Pympz_ior,
-    (coercion) Pympz_coerce,
+        0,      /* was coerce */
     (unaryfunc) mpz2int,
     (unaryfunc) mpz2long,
     (unaryfunc) mpz2float,
@@ -6689,7 +6756,7 @@ static PyTypeObject Pympz_Type =
 #if PY_MAJOR_VERSION >= 3
     Py_TPFLAGS_DEFAULT,             /* tp_flags         */
 #else
-    Py_TPFLAGS_HAVE_INDEX|Py_TPFLAGS_HAVE_RICHCOMPARE,      /* tp_flags */
+    Py_TPFLAGS_HAVE_INDEX|Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,      /* tp_flags */
 #endif
     "GNU Multi Precision signed integer",                   /* tp_doc   */
         0,                          /* tp_traverse      */
