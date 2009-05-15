@@ -5,11 +5,15 @@ r'''
 >>> filter(lambda x: not x.startswith('_'), dir(_g))
 ['binary', 'bincoef', 'bit_length', 'ceil', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fib', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_qcache', 'get_zcache', 'get_zconst', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'rand', 'reldiff', 'remove', 'root', 'scan0', 'scan1', 'set_debug', 'set_fcoform', 'set_minprec', 'set_qcache', 'set_tagoff', 'set_zcache', 'set_zconst', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'trunc', 'version']
 >>> dir(a)
-['__abs__', '__add__', '__and__', '__class__', '__coerce__', '__delattr__', '__div__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__hex__', '__index__', '__init__', '__int__', '__invert__', '__le__', '__long__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__nonzero__', '__oct__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdiv__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', '_copy', 'binary', 'bincoef', 'bit_length', 'comb', 'digits', 'divexact', 'getbit', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem']
+['__abs__', '__add__', '__and__', '__class__', '__delattr__', '__div__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__hex__', '__index__', '__init__', '__int__', '__invert__', '__le__', '__long__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__nonzero__', '__oct__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdiv__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', '_copy', 'binary', 'bincoef', 'bit_length', 'comb', 'digits', 'divexact', 'getbit', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem']
 >>>
 '''
 import warnings
 warnings.filterwarnings('ignore', 'setprec')
+
+import sys
+def writeln(s):
+    sys.stdout.write(s+'\n')
 
 import gmpy as _g, doctest, sys, operator, gc
 __test__={}
@@ -187,12 +191,6 @@ False
 False
 >>> [_g.mpz(23), None].count(None)
 1
->>> coerce(a,1)
-(mpz(123), mpz(1))
->>> coerce(1,a)
-(mpz(1), mpz(123))
->>> coerce(a,1.0)
-(123.0, 1.0)
 >>> _g.mpz(3.14)
 mpz(3)
 >>> _g.mpz(_g.mpq(17,3))
@@ -636,16 +634,16 @@ ValueError: 'floa' needs arg>=0
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.05 (mpz functionality)"
-        print "    running on Python",sys.version
-        print
-        print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
+        writeln("Unit tests for gmpy 1.05 (mpz functionality)")
+        writeln("    running on Python %s" % sys.version)
+        writeln("")
+        writeln("Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
             (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
-            ) + _g.get_zconst())
+            ) + _g.get_zconst()))
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
-    if chat: print "Repeating tests, with caching disabled"
+    if chat: writeln("Repeating tests, with caching disabled")
     _g.set_zcache(0)
     _g.set_zconst(0,0)
 
@@ -660,8 +658,8 @@ def _test(chat=None):
         sys.stdout = sav
 
     if chat:
-        print
-        print "Overall results for cvr:"
+        writeln("")
+        writeln("Overall results for mpz:")
     return doctest.master.summarize(chat)
 
 
