@@ -10,8 +10,6 @@ import warnings
 warnings.filterwarnings('ignore', 'setprec')
 
 import sys
-def writeln(s):
-    sys.stdout.write(s+'\n')
 
 import gmpy as _g, doctest, sys
 __test__={}
@@ -391,18 +389,18 @@ r'''
 
 def _test(chat=None):
     if chat:
-        writeln("Unit tests for gmpy 1.05 (mpf functionality)")
-        writeln("    running on Python %s" % sys.version)
-        writeln("")
-        writeln("Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
+        print "Unit tests for gmpy 1.05 (mpf functionality)"
+        print "    running on Python %s" % sys.version
+        print
+        print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
             (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
-            ) + _g.get_zconst()))
+            ) + _g.get_zconst())
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
     if chat:
-        writeln("")
-        writeln("Overall results for mpf:")
+        print
+        print "Overall results for mpf:"
     return doctest.master.summarize(chat)
 
 if __name__=='__main__':

@@ -455,7 +455,7 @@ ValueError: mpf.pow no modulo allowed
 >>> _g.mpz(1)+'bu'
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: coercion to gmpy.mpz type failed
+TypeError: unsupported operand type(s) for +: 'mpz' and 'str'
 >>> _g.mpz(1)+_g.mpf(1)
 mpf('2.e0')
 >>> _g.mpz(1)+_g.mpq(1)
@@ -463,11 +463,11 @@ mpq(2)
 >>> _g.mpq(1)+'bu'
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: coercion to gmpy.mpq type failed
+TypeError: unsupported operand type(s) for +: 'mpq' and 'str'
 >>> _g.mpf(1)+'bu'
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: coercion to gmpy.mpf type failed
+TypeError: unsupported operand type(s) for +: 'mpf' and 'str'
 >>> _g.mpf(1)+_g.mpq(2)
 mpq(3)
 >>> divmod(_g.mpz(3),0)
