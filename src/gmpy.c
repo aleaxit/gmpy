@@ -2467,11 +2467,36 @@ anynum2mpq(PyObject* obj)
     return newob;
 }
 
+/* Convert an integer or mpz to mpq. */
+
+static PympqObject*
+anyrational2mpq(PyObject* obj)
+{
+    PympqObject* newob = 0;
+
+    if(Pympq_Check(obj)) {
+        Py_INCREF(obj);
+        newob = (PympqObject *) obj;
+    } else if(Pympz_Check(obj)) {
+        newob = mpz2mpq(obj);
+#if PY_MAJOR_VERSION == 2
+    } else if(PyInt_Check(obj)) {
+        newob = int2mpq(obj);
+#endif
+    } else if(PyLong_Check(obj)) {
+        newob = long2mpq(obj);
+    }
+
+    if(options.debug)
+        fprintf(stderr,"anyrational2mpq(%p)->%p\n", obj, newob);
+
+    return newob;
+}
+
 static PympzObject*
 anynum2mpz(PyObject* obj)
 {
     PympzObject* newob = 0;
-    //~ fprintf(stderr, "in anynum2mpz!\n");
 
     if(Pympz_Check(obj)) {
         Py_INCREF(obj);
@@ -2509,6 +2534,30 @@ anynum2mpz(PyObject* obj)
     }
     if(options.debug)
         fprintf(stderr,"anynum2mpz(%p)->%p\n", obj, newob);
+
+    return newob;
+}
+
+/* Convert an integer-like object to an mpz.
+   Todo: possibly add support for objects that support an index method. */
+
+static PympzObject*
+anyint2mpz(PyObject* obj)
+{
+    PympzObject* newob = 0;
+
+    if(Pympz_Check(obj)) {
+        Py_INCREF(obj);
+        newob = (PympzObject *) obj;
+#if PY_MAJOR_VERSION == 2
+    } else if(PyInt_Check(obj)) {
+        newob = int2mpz(obj);
+#endif
+    } else if(PyLong_Check(obj)) {
+        newob = long2mpz(obj);
+    }
+    if(options.debug)
+        fprintf(stderr,"anyint2mpz(%p)->%p\n", obj, newob);
 
     return newob;
 }
@@ -2555,6 +2604,72 @@ anynum2mpf(PyObject* obj, unsigned int bits)
     return newob;
 }
 
+/* Convert any int, mpz, mpq to mpf. If input is already an mpf, the reference
+   count will be incremented and the new reference will be returned. */
+
+static PympfObject*
+anyreal2mpf(PyObject* obj, unsigned int bits)
+{
+    PympfObject* newob = 0;
+
+    if(Pympf_Check(obj)) {
+        newob = (PympfObject *) obj;
+        if(!bits || newob->rebits==bits) {
+            Py_INCREF(obj);
+        } else {
+            newob = mpf2mpf(newob, bits);
+        }
+    } else if(PyFloat_Check(obj)) {
+        newob = float2mpf(obj, bits);
+#if PY_MAJOR_VERSION == 2
+    } else if(PyInt_Check(obj)) {
+        newob = int2mpf(obj, bits);
+#endif
+    } else if(Pympq_Check(obj)) {
+        newob = mpq2mpf(obj, bits);
+    } else if(Pympz_Check(obj)) {
+        newob = mpz2mpf(obj, bits);
+    } else if(PyLong_Check(obj)) {
+        newob = long2mpf(obj, bits);
+    }
+
+    if(options.debug)
+        fprintf(stderr, "anyreal2mpf(%p,%d)->%p (%d)\n", obj,
+                bits, newob, newob != 0 ? newob->rebits : -1);
+
+    return newob;
+}
+
+static PympfObject*
+anyrational2mpf(PyObject* obj, unsigned int bits)
+{
+    PympfObject* newob = 0;
+
+    if(Pympf_Check(obj)) {
+        newob = (PympfObject *) obj;
+        if(!bits || newob->rebits==bits) {
+            Py_INCREF(obj);
+        } else {
+            newob = mpf2mpf(newob, bits);
+        }
+#if PY_MAJOR_VERSION == 2
+    } else if(PyInt_Check(obj)) {
+        newob = int2mpf(obj, bits);
+#endif
+    } else if(Pympq_Check(obj)) {
+        newob = mpq2mpf(obj, bits);
+    } else if(Pympz_Check(obj)) {
+        newob = mpz2mpf(obj, bits);
+    } else if(PyLong_Check(obj)) {
+        newob = long2mpf(obj, bits);
+    }
+
+    if(options.debug)
+        fprintf(stderr, "anyreal2mpf(%p,%d)->%p (%d)\n", obj,
+                bits, newob, newob != 0 ? newob->rebits : -1);
+
+    return newob;
+}
 
 /*
  * coerce any number to a mpz
@@ -3819,30 +3934,24 @@ Py##NAME(PyObject *a, PyObject *b) \
   PympzObject *r; \
   PympzObject *pa = 0; \
   PympzObject *pb = 0; \
-  if(Pympz_Check(a) && Pympz_Check(b)) { \
-    if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p\n", a, b); \
-    if (!(r = Pympz_new())) return NULL; \
-    NAME(r->z, ((PympzObject*)a)->z, ((PympzObject*)b)->z); \
-  } else { \
-    pa = anynum2mpz(a); \
-    pb = anynum2mpz(b); \
-    if(!pa || !pb) { \
-      PyObject *r = Py_NotImplemented; \
-      Py_XDECREF(pa); \
-      Py_XDECREF(pb); \
-      Py_INCREF(r); \
-      return r; \
-    } \
-    if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p\n", pa, pb); \
-    if (!(r = Pympz_new())) { \
-      Py_DECREF((PyObject*)pa); \
-      Py_DECREF((PyObject*)pb); \
-      return NULL; \
-    } \
-    NAME(r->z, pa->z, pb->z); \
+  pa = anyint2mpz(a); \
+  pb = anyint2mpz(b); \
+  if(!pa || !pb) { \
+    PyObject *r = Py_NotImplemented; \
+    Py_XDECREF(pa); \
+    Py_XDECREF(pb); \
+    Py_INCREF(r); \
+    return r; \
+  } \
+  if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p\n", pa, pb); \
+  if (!(r = Pympz_new())) { \
     Py_DECREF((PyObject*)pa); \
     Py_DECREF((PyObject*)pb); \
+    return NULL; \
   } \
+  NAME(r->z, pa->z, pb->z); \
+  Py_DECREF((PyObject*)pa); \
+  Py_DECREF((PyObject*)pb); \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
   return (PyObject *) r; \
 }
@@ -3855,36 +3964,27 @@ Py##NAME(PyObject *a, PyObject *b) \
   PympfObject *r; \
   PympfObject *pa = 0; \
   PympfObject *pb = 0; \
-  if(Pympf_Check(a) && Pympf_Check(b)) { \
-    if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p\n", a, b); \
-    bits = ((PympfObject*)a)->rebits; \
-    bbits = ((PympfObject*)b)->rebits; \
-    if(bits>bbits) bits=bbits; \
-    if (!(r = Pympf_new(bits))) return NULL; \
-    NAME(r->f, ((PympfObject*)a)->f, ((PympfObject*)b)->f); \
-  } else { \
-    pa = anynum2mpf(a, 0); \
-    pb = anynum2mpf(b, 0); \
-    if(!pa || !pb) { \
-      PyObject *r = Py_NotImplemented; \
-      Py_XDECREF(pa); \
-      Py_XDECREF(pb); \
-      Py_INCREF(r); \
-      return r; \
-    } \
-    if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p", pa, pb); \
-    bits = pa->rebits; \
-    bbits = pb->rebits; \
-    if(bits>bbits) bits=bbits; \
-    if (!(r = Pympf_new(bits))) { \
-      Py_DECREF((PyObject*)pa); \
-      Py_DECREF((PyObject*)pb); \
-      return NULL; \
-    } \
-    NAME(r->f, pa->f, pb->f); \
+  pa = anyreal2mpf(a, 0); \
+  pb = anyreal2mpf(b, 0); \
+  if(!pa || !pb) { \
+    PyObject *r = Py_NotImplemented; \
+    Py_XDECREF(pa); \
+    Py_XDECREF(pb); \
+    Py_INCREF(r); \
+    return r; \
+  } \
+  if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p", pa, pb); \
+  bits = pa->rebits; \
+  bbits = pb->rebits; \
+  if(bits>bbits) bits=bbits; \
+  if (!(r = Pympf_new(bits))) { \
     Py_DECREF((PyObject*)pa); \
     Py_DECREF((PyObject*)pb); \
+    return NULL; \
   } \
+  NAME(r->f, pa->f, pb->f); \
+  Py_DECREF((PyObject*)pa); \
+  Py_DECREF((PyObject*)pb); \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", r); \
   mpf_normalize(r); \
   return (PyObject *) r; \
@@ -3897,30 +3997,24 @@ Py##NAME(PyObject *a, PyObject *b) \
   PympqObject *r; \
   PympqObject *pa = 0; \
   PympqObject *pb = 0; \
-  if(Pympq_Check(a) && Pympq_Check(b)) { \
-    if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p\n", a, b); \
-    if (!(r = Pympq_new())) return NULL; \
-    NAME(r->q, ((PympqObject*)a)->q, ((PympqObject*)b)->q); \
-  } else { \
-    pa = anynum2mpq(a); \
-    pb = anynum2mpq(b); \
-    if(!pa || !pb) { \
-      PyObject *r = Py_NotImplemented; \
-      Py_XDECREF(pa); \
-      Py_XDECREF(pb); \
-      Py_INCREF(r); \
-      return r; \
-    } \
-    if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p", pa, pb); \
-    if (!(r = Pympq_new())) { \
-      Py_DECREF(pa); \
-      Py_DECREF(pb); \
-      return NULL; \
-    } \
-    NAME(r->q, pa->q, pb->q); \
+  pa = anyrational2mpq(a); \
+  pb = anyrational2mpq(b); \
+  if(!pa || !pb) { \
+    PyObject *r = Py_NotImplemented; \
+    Py_XDECREF(pa); \
+    Py_XDECREF(pb); \
+    Py_INCREF(r); \
+    return r; \
+  } \
+  if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p", pa, pb); \
+  if (!(r = Pympq_new())) { \
     Py_DECREF(pa); \
     Py_DECREF(pb); \
+    return NULL; \
   } \
+  NAME(r->q, pa->q, pb->q); \
+  Py_DECREF(pa); \
+  Py_DECREF(pb); \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", r); \
   return (PyObject *) r; \
 }
@@ -3946,36 +4040,30 @@ NAME(PyObject *a, PyObject *b) \
   PympzObject *r; \
   PympzObject *pa = 0; \
   PympzObject *pb = 0; \
-  if(Pympz_Check(a) && Pympz_Check(b)) { \
-    if (options.debug) fprintf(stderr, #NAME ": %p, %p", a, b); \
-    if (!(r = Pympz_new())) return NULL; \
-    OP(r->z, ((PympzObject*)a)->z, ((PympzObject*)b)->z); \
-  } else { \
-    pa = anynum2mpz(a); \
-    pb = anynum2mpz(b); \
-    if(!pa || !pb) { \
-      PyObject *r = Py_NotImplemented; \
-      Py_XDECREF(pa); \
-      Py_XDECREF(pb); \
-      Py_INCREF(r); \
-      return r; \
-    } \
-    if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
+  pa = anyint2mpz(a); \
+  pb = anyint2mpz(b); \
+  if(!pa || !pb) { \
+    PyObject *r = Py_NotImplemented; \
+    Py_XDECREF(pa); \
+    Py_XDECREF(pb); \
+    Py_INCREF(r); \
+    return r; \
+  } \
+  if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
   if  (mpz_sgn(pb->z) == 0) { \
-      PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
-      Py_DECREF(pa); \
-      Py_DECREF(pb); \
-      return NULL; \
-    } \
-    if (!(r = Pympz_new())) { \
-      Py_DECREF(pa); \
-      Py_DECREF(pb); \
-      return NULL; \
-    } \
-    OP(r->z, pa->z, pb->z); \
+    PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
     Py_DECREF(pa); \
     Py_DECREF(pb); \
+    return NULL; \
   } \
+  if (!(r = Pympz_new())) { \
+    Py_DECREF(pa); \
+    Py_DECREF(pb); \
+    return NULL; \
+  } \
+  OP(r->z, pa->z, pb->z); \
+  Py_DECREF(pa); \
+  Py_DECREF(pb); \
   if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
   return (PyObject *) r; \
 }
@@ -3987,36 +4075,30 @@ NAME(PyObject *a, PyObject *b) \
   PympqObject *r; \
   PympqObject *pa = 0; \
   PympqObject *pb = 0; \
-  if(Pympq_Check(a) && Pympq_Check(b)) { \
-    if (options.debug) fprintf(stderr, #NAME ": %p, %p", a, b); \
-    if (!(r = Pympq_new())) return NULL; \
-    OP(r->q, ((PympqObject*)a)->q, ((PympqObject*)b)->q); \
-  } else { \
-    pa = anynum2mpq(a); \
-    pb = anynum2mpq(b); \
-    if(!pa || !pb) { \
-      PyObject *r = Py_NotImplemented; \
-      Py_XDECREF(pa); \
-      Py_XDECREF(pb); \
-      Py_INCREF(r); \
-      return r; \
-    } \
-    if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
-    if (mpq_sgn(pb->q) == 0) { \
-      PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
-      Py_DECREF(pa); \
-      Py_DECREF(pb); \
-      return NULL; \
-    } \
-    if (!(r = Pympq_new())) { \
-      Py_DECREF(pa); \
-      Py_DECREF(pb); \
-      return NULL; \
-    } \
-    OP(r->q, pa->q, pb->q); \
+  pa = anyrational2mpq(a); \
+  pb = anyrational2mpq(b); \
+  if(!pa || !pb) { \
+    PyObject *r = Py_NotImplemented; \
+    Py_XDECREF(pa); \
+    Py_XDECREF(pb); \
+    Py_INCREF(r); \
+    return r; \
+  } \
+  if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
+  if (mpq_sgn(pb->q) == 0) { \
+    PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
     Py_DECREF(pa); \
     Py_DECREF(pb); \
+    return NULL; \
   } \
+  if (!(r = Pympq_new())) { \
+    Py_DECREF(pa); \
+    Py_DECREF(pb); \
+    return NULL; \
+  } \
+  OP(r->q, pa->q, pb->q); \
+  Py_DECREF(pa); \
+  Py_DECREF(pb); \
   if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
   return (PyObject *) r; \
 }
@@ -4029,42 +4111,33 @@ NAME(PyObject *a, PyObject *b) \
   PympfObject *r; \
   PympfObject *pa = 0; \
   PympfObject *pb = 0; \
-  if(Pympf_Check(a) && Pympf_Check(b)) { \
-    if (options.debug) fprintf(stderr, #NAME ": %p, %p", a, b); \
-    bits = ((PympfObject*)a)->rebits; \
-    bbits = ((PympfObject*)b)->rebits; \
-    if(bits>bbits) bits=bbits; \
-    if (!(r = Pympf_new(bits))) return NULL; \
-    OP(r->f, ((PympfObject*)a)->f, ((PympfObject*)b)->f); \
-  } else { \
-    pa = anynum2mpf(a, 0); \
-    pb = anynum2mpf(b, 0); \
-    if(!pa || !pb) { \
-      PyObject *r = Py_NotImplemented; \
-      Py_XDECREF(pa); \
-      Py_XDECREF(pb); \
-      Py_INCREF(r); \
-      return r; \
-    } \
-    if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
-    if (mpf_sgn(pb->f) == 0) { \
-      PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
-      Py_DECREF(pa); \
-      Py_DECREF(pb); \
-      return NULL; \
-    } \
-    bits = pa->rebits; \
-    bbits = pb->rebits; \
-    if(bits>bbits) bits=bbits; \
-    if (!(r = Pympf_new(bits))) { \
-      Py_DECREF(pa); \
-      Py_DECREF(pb); \
-      return NULL; \
-    } \
-    OP(r->f, pa->f, pb->f); \
+  pa = anyreal2mpf(a, 0); \
+  pb = anyreal2mpf(b, 0); \
+  if(!pa || !pb) { \
+    PyObject *r = Py_NotImplemented; \
+    Py_XDECREF(pa); \
+    Py_XDECREF(pb); \
+    Py_INCREF(r); \
+    return r; \
+  } \
+  if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
+  if (mpf_sgn(pb->f) == 0) { \
+    PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
     Py_DECREF(pa); \
     Py_DECREF(pb); \
+    return NULL; \
   } \
+  bits = pa->rebits; \
+  bbits = pb->rebits; \
+  if(bits>bbits) bits=bbits; \
+  if (!(r = Pympf_new(bits))) { \
+    Py_DECREF(pa); \
+    Py_DECREF(pb); \
+    return NULL; \
+  } \
+  OP(r->f, pa->f, pb->f); \
+  Py_DECREF(pa); \
+  Py_DECREF(pb); \
   if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
   return (PyObject *) r; \
 }
@@ -4077,8 +4150,8 @@ MPF_DIVOP(Pympf_div, mpf_div)
 static PyObject *
 Pympany_truediv(PyObject *a, PyObject *b)
 {
-    PympfObject *pa = anynum2mpf(a, 0);
-    PympfObject *pb = anynum2mpf(b, 0);
+    PympfObject *pa = anyreal2mpf(a, 0);
+    PympfObject *pb = anyreal2mpf(b, 0);
     PyObject *result;
     if (!pa || !pb) {
         PyObject *result = Py_NotImplemented;
@@ -4096,8 +4169,8 @@ Pympany_truediv(PyObject *a, PyObject *b)
 static PyObject *
 Pympq_floordiv(PyObject *a, PyObject *b)
 {
-    PympfObject *pa = anynum2mpf(a, 0);
-    PympfObject *pb = anynum2mpf(b, 0);
+    PympfObject *pa = anyrational2mpf(a, 0);
+    PympfObject *pb = anyrational2mpf(b, 0);
     PyObject *result;
     if (!pa || !pb) {
         PyObject *result = Py_NotImplemented;
@@ -4120,8 +4193,8 @@ Pympq_floordiv(PyObject *a, PyObject *b)
 static PyObject *
 Pympf_floordiv(PyObject *a, PyObject *b)
 {
-    PympfObject *pa = anynum2mpf(a, 0);
-    PympfObject *pb = anynum2mpf(b, 0);
+    PympfObject *pa = anyreal2mpf(a, 0);
+    PympfObject *pb = anyreal2mpf(b, 0);
     PyObject *result;
     if (!pa || !pb) {
         PyObject *result = Py_NotImplemented;
@@ -4147,48 +4220,30 @@ Pympz_divmod(PyObject *a, PyObject *b)
     PympzObject *q, *r;
     PympzObject *pa = 0;
     PympzObject *pb = 0;
-    if(Pympz_Check(a) && Pympz_Check(b)) {
-        if (options.debug)
-            fprintf(stderr, "Pympz_divmod: %p, %p\n", a, b);
-        if (mpz_sgn(((PympzObject*)b)->z) == 0) {
-            PyErr_SetString(PyExc_ZeroDivisionError,"mpz.divmod by zero");
-            return NULL;
-        }
-        if (!(q = Pympz_new()))
-            return NULL;
-        if (!(r = Pympz_new())) {
-            Pympz_dealloc(q);
-            return NULL;
-        }
-        mpz_fdiv_qr(q->z, r->z, ((PympzObject*)a)->z, ((PympzObject*)b)->z);
-        if (options.debug)
-            fprintf(stderr, "Pympz_divmod -> %p, %p\n", q, r);
-    } else {
-        pa = anynum2mpz(a);
-        pb = anynum2mpz(b);
-        if(!pa || !pb) {
-            PyObject *r = Py_NotImplemented;
-            Py_XDECREF(pa);
-            Py_XDECREF(pb);
-            Py_INCREF(r);
-            return r;
-        }
-        if (options.debug)
-            fprintf(stderr, "Pympz_divmod: %p, %p\n", pa, pb);
-        if (mpz_sgn(pb->z) == 0) {
-            PyErr_SetString(PyExc_ZeroDivisionError,"mpz.divmod by zero");
-            return NULL;
-        }
-        if (!(q = Pympz_new()))
-            return NULL;
-        if (!(r = Pympz_new())) {
-            Pympz_dealloc(q);
-            return NULL;
-        }
-        mpz_fdiv_qr(q->z, r->z, pa->z, pb->z);
-        Py_DECREF(pa);
-        Py_DECREF(pb);
+    pa = anyint2mpz(a);
+    pb = anyint2mpz(b);
+    if(!pa || !pb) {
+        PyObject *r = Py_NotImplemented;
+        Py_XDECREF(pa);
+        Py_XDECREF(pb);
+        Py_INCREF(r);
+        return r;
     }
+    if (options.debug)
+        fprintf(stderr, "Pympz_divmod: %p, %p\n", pa, pb);
+    if (mpz_sgn(pb->z) == 0) {
+        PyErr_SetString(PyExc_ZeroDivisionError,"mpz.divmod by zero");
+        return NULL;
+    }
+    if (!(q = Pympz_new()))
+        return NULL;
+    if (!(r = Pympz_new())) {
+        Pympz_dealloc(q);
+        return NULL;
+    }
+    mpz_fdiv_qr(q->z, r->z, pa->z, pb->z);
+    Py_DECREF(pa);
+    Py_DECREF(pb);
     if (options.debug)
         fprintf(stderr, "Pympz_divmod -> %p, %p\n", q, r);
     return Py_BuildValue("(NN)", q, r);
@@ -4275,9 +4330,9 @@ static PyObject *
 Pympz_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
 {
     PympzObject *r;
-    PympzObject *b = anynum2mpz(in_b);
-    PympzObject *e = anynum2mpz(in_e);
-    PympzObject *m = anynum2mpz(in_m);
+    PympzObject *b = anyint2mpz(in_b);
+    PympzObject *e = anyint2mpz(in_e);
+    PympzObject *m = anyint2mpz(in_m);
 
     if(!b || !e || (!m && ((PyObject*)in_m != Py_None))) {
         Py_XDECREF(b);
@@ -4361,8 +4416,8 @@ static PyObject *
 Pympq_pow(PyObject *in_b, PyObject *in_e, PyObject *m)
 {
     PympqObject *r;
-    PympqObject *b = anynum2mpq(in_b);
-    PympqObject *e = anynum2mpq(in_e);
+    PympqObject *b = anyrational2mpq(in_b);
+    PympqObject *e = anyrational2mpq(in_e);
 
     int esign;
     unsigned long ultem;
@@ -4478,8 +4533,8 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
     PyObject *r;
     unsigned int bits;
     int iexpo;
-    PympfObject *b = anynum2mpf(xb, 0);
-    PympfObject *e = anynum2mpf(xe, 0);
+    PympfObject *b = anyreal2mpf(xb, 0);
+    PympfObject *e = anyreal2mpf(xe, 0);
 
     if((PyObject*)m != Py_None) {
         PyErr_SetString(PyExc_ValueError, "mpf.pow no modulo allowed");
@@ -6380,7 +6435,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pympz_and,
     (binaryfunc) Pympz_xor,
     (binaryfunc) Pympz_ior,
-        0,      /* was coerce */
+    (coercion) Pympz_coerce,
     (unaryfunc) mpz2int,
     (unaryfunc) mpz2long,
     (unaryfunc) mpz2float,
@@ -6549,7 +6604,7 @@ static PyNumberMethods mpf_number_methods =
     (binaryfunc) 0,     /* no bit-and */
     (binaryfunc) 0,     /* no bit-xor */
     (binaryfunc) 0,     /* no bit-ior */
-    (coercion) Pympf_coerce,
+    (coercion) Pympf_coerce,      /* was coerce */
     (unaryfunc) mpf2int,
     (unaryfunc) mpf2long,
     (unaryfunc) mpf2float,
@@ -6799,7 +6854,7 @@ static PyTypeObject Pympq_Type =
 #if PY_MAJOR_VERSION >= 3
     Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
 #else
-    Py_TPFLAGS_HAVE_RICHCOMPARE,            /* tp_flags         */
+    Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,            /* tp_flags         */
 #endif
     "GNU Multi Precision rational number",  /* tp_doc           */
         0,                                  /* tp_traverse      */
@@ -6843,7 +6898,7 @@ static PyTypeObject Pympf_Type =
 #if PY_MAJOR_VERSION >= 3
     Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
 #else
-    Py_TPFLAGS_HAVE_RICHCOMPARE,            /* tp_flags         */
+    Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,            /* tp_flags         */
 #endif
     "GNU Multi Precision floating point",   /* tp_doc           */
         0,                                  /* tp_traverse      */
