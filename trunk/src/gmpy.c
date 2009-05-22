@@ -2958,21 +2958,32 @@ Pympz_bit_length(PyObject *self, PyObject *args)
     PympzObject* newob;
     PyObject *s;
 
-    if(self) {
-        if(PyTuple_GET_SIZE(args) != 0)
+    //~ fprintf(stderr,"self is %p\n", self);
+    //~ if(self) fprintf(stderr,"type is %s\n", self->ob_type->tp_name);
+    //~ fprintf(stderr,"args is %p\n", args);
+    //~ if(args) fprintf(stderr,"args is %s\n", args->ob_type->tp_name);
+
+    //~ if(self) {
+    if(self && Pympz_Check(self)) {
+        //~ fprintf(stderr,"hello\n");
+        if(PyTuple_GET_SIZE(args) != 0) {
+            PyErr_SetString(PyExc_TypeError,
+                "bit_length() takes exactly 1 argument");
             return NULL;
+        }
         assert(Pympz_Check(self));
         if ((i=mpz_sizeinbase(Pympz_AS_MPZ(self), 2))==1)
             return Py2or3Int_FromLong((long) mpz_size(Pympz_AS_MPZ(self)));
         else
             return Py2or3Int_FromLong(i);
-    }
-    else {
+    } else {
+        //~ fprintf(stderr,"hello again\n");
         if(PyTuple_GET_SIZE(args) != 1){
-            PyErr_SetString(PyExc_TypeError, "one argument needed");
+            PyErr_SetString(PyExc_TypeError,
+                "bit_length() takes exactly 1 argument");
             return NULL;
         }
-        newob = anynum2mpz(PyTuple_GET_ITEM(args, 0));
+        newob = anyint2mpz(PyTuple_GET_ITEM(args, 0));
         if(newob) {
             assert(Pympz_Check(newob));
             if (mpz_size(Pympz_AS_MPZ(newob)))
@@ -2981,13 +2992,17 @@ Pympz_bit_length(PyObject *self, PyObject *args)
             return Py2or3Int_FromLong(i);
         }
         else {
-            SELF_NO_ARG("bit_length", Pympz_convert_arg);
-            assert(Pympz_Check(self));
-            if (mpz_size(Pympz_AS_MPZ(self)))
-                i = (long) mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
-            s = Py_BuildValue("l", i);
-            Py_DECREF(self);
-            return s;
+            //~ fprintf(stderr, "Why?\n");
+            //~ SELF_NO_ARG("bit_length", Pympz_convert_arg);
+            //~ assert(Pympz_Check(self));
+            //~ if (mpz_size(Pympz_AS_MPZ(self)))
+                //~ i = (long) mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
+            //~ s = Py_BuildValue("l", i);
+            //~ Py_DECREF(self);
+            //~ return s;
+            PyErr_SetString(PyExc_TypeError,
+                "unsupported operand type for bit_length: integer required");
+            return NULL;
         }
     }
 }
@@ -6805,8 +6820,8 @@ static PyTypeObject Pympz_Type =
     (hashfunc) Pympz_hash,          /* tp_hash          */
         0,                          /* tp_call          */
     (reprfunc) mpz2str,             /* tp_str           */
-    (getattrofunc) 0,               /* tp_getattr       */
-    (setattrofunc) 0,               /* tp_setattro      */
+        0,                          /* tp_getattro      */
+        0,                          /* tp_setattro      */
         0,                          /* tp_as_buffer     */
 #if PY_MAJOR_VERSION >= 3
     Py_TPFLAGS_DEFAULT,             /* tp_flags         */
