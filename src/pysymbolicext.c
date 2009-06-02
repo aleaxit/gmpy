@@ -408,16 +408,36 @@ Pysym_factor(PyObject *self, PyObject *args)
   return res;
 }
 
-statichere PyMethodDef Pysym_methods [] =
+static PyMethodDef Pysym_methods [] =
 {
     { "factor", Pysym_factor, METH_VARARGS, doc_factor },
     { NULL, NULL}
 };
 
+#if PY_MAJOR_VERSION >= 3
+
+static struct PyModuleDef Pysym_module = {
+    PyModuleDef_HEAD_INIT,
+    "pysymbolicext",
+    NULL,
+    -1,
+    Pysym_methods,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+
+#endif
+
 void
 initpysymbolicext(void)
 {
+#if PY_MAJOR_VERSION >= 3
+  PyModule_Create(&Pysym_module);
+#else
   Py_InitModule("pysymbolicext", Pysym_methods);
+#endif
   import_gmpy();
 }
 

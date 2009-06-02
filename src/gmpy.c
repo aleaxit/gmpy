@@ -470,12 +470,20 @@ static void mpq_inoc(mpq_t newo) mpq_inoc_m(newo)
 static void mpq_cloc(mpq_t oldo) mpq_cloc_m(oldo)
 
 /* forward declarations of type-objects and method-arrays for them */
-static PyTypeObject Pympz_Type;
+#ifdef _MSC_VER
+PyTypeObject Pympz_Type;
+PyTypeObject Pympq_Type;
+PyTypeObject Pympf_Type;
+PyMethodDef Pympz_methods [];
+PyMethodDef Pympq_methods [];
+PyMethodDef Pympf_methods [];
+#elsestatic PyTypeObject Pympz_Type;
 static PyTypeObject Pympq_Type;
 static PyTypeObject Pympf_Type;
 static PyMethodDef Pympz_methods [];
 static PyMethodDef Pympq_methods [];
 static PyMethodDef Pympf_methods [];
+#endif
 
 /* utility macros for argument parsing */
 #define NO_ARGS() if(!PyArg_ParseTuple(args, "")) { return NULL; }
@@ -4350,10 +4358,11 @@ Pympz_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
     PympzObject *m = anyint2mpz(in_m);
 
     if(!b || !e || (!m && ((PyObject*)in_m != Py_None))) {
+        PyObject *r;
         Py_XDECREF(b);
         Py_XDECREF(e);
         Py_XDECREF(m);
-        PyObject *r = Py_NotImplemented;
+        r = Py_NotImplemented;
         Py_INCREF(r);
         return r;
     }
@@ -4441,9 +4450,10 @@ Pympq_pow(PyObject *in_b, PyObject *in_e, PyObject *m)
     assert(Pympq_Check(e));
 
     if(!b || !e) {
+        PyObject *r;
         Py_XDECREF(b);
         Py_XDECREF(e);
-        PyObject *r = Py_NotImplemented;
+        r = Py_NotImplemented;
         Py_INCREF(r);
         return r;
     }
@@ -4836,8 +4846,9 @@ NAME(PyObject *a, PyObject *b) \
   } else { \
     pb = anynum2mpz(b); \
     if(!pb) { \
+      PyObject *r; \
       Py_DECREF(pa); \
-      PyObject *r = Py_NotImplemented; \
+      r = Py_NotImplemented; \
       Py_INCREF(r); \
       return r; \
     } \
@@ -7061,6 +7072,9 @@ static struct PyModuleDef moduledef = {
         NULL
 };
 
+#ifdef _MSC_VER
+__declspec(dllexport)
+#endif
 PyObject *
 PyInit_gmpy(void)
 #else
