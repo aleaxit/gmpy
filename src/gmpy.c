@@ -487,47 +487,119 @@ static PyMethodDef Pympf_methods [];
 
 /* utility macros for argument parsing */
 #define NO_ARGS() if(!PyArg_ParseTuple(args, "")) { return NULL; }
+
 #define ONE_ARG(nm, fm, var) \
     if(!PyArg_ParseTuple(args, fm, var)) { return NULL; }
-#define SELF_NO_ARG(nm, converter) \
-    if(self) { \
+
+/* Define three different versions of the SELF_NO_ARG macro. Under Python
+   2.x, self is NULL when a function is called via gmpy.fname(..). But
+   under Python 3.x, self is a module. Don't understand. */
+
+#define SELF_MPZ_NO_ARG \
+    if(self && Pympz_Check(self)) { \
         if(!PyArg_ParseTuple(args, "")) \
             return NULL; \
         Py_INCREF(self); \
     } else { \
-        if(!PyArg_ParseTuple(args, "O&", converter, &self)) \
-            return last_try(nm, 1, 1, args); \
+        if(!PyArg_ParseTuple(args, "O&", Pympz_convert_arg, &self)) \
+            return NULL; \
     }
-#define SELF_ONE_ARG(nm, converter, fm, var) \
-    if(self) { \
+#define SELF_MPQ_NO_ARG \
+    if(self && Pympq_Check(self)) { \
+        if(!PyArg_ParseTuple(args, "")) \
+            return NULL; \
+        Py_INCREF(self); \
+    } else { \
+        if(!PyArg_ParseTuple(args, "O&", Pympq_convert_arg, &self)) \
+            return NULL; \
+    }
+#define SELF_MPF_NO_ARG \
+    if(self && Pympf_Check(self)) { \
+        if(!PyArg_ParseTuple(args, "")) \
+            return NULL; \
+        Py_INCREF(self); \
+    } else { \
+        if(!PyArg_ParseTuple(args, "O&", Pympf_convert_arg, &self)) \
+            return NULL; \
+    }
+
+
+#define SELF_MPZ_ONE_ARG(fm, var) \
+    if(self && Pympz_Check(self)) { \
         if(!PyArg_ParseTuple(args, fm, var)) \
-            return last_try_self(nm, 1, 1, args, self); \
+            return NULL; \
         Py_INCREF(self); \
     } else { \
-        if(!PyArg_ParseTuple(args, "O&" fm, converter, &self, var)) \
-            return last_try(nm, 1, 2, args); \
+        if(!PyArg_ParseTuple(args, "O&" fm, Pympz_convert_arg, &self, var)) \
+            return NULL; \
     }
-#define SELF_ONE_ARG_CONVERTED(nm, converter, var) \
-    if(self) { \
-        if(args && !PyArg_ParseTuple(args, "O&", converter, var)) \
-            return last_try_self(nm, 1, 1, args, self); \
+#define SELF_MPQ_ONE_ARG(fm, var) \
+    if(self && Pympq_Check(self)) { \
+        if(!PyArg_ParseTuple(args, fm, var)) \
+            return NULL; \
         Py_INCREF(self); \
     } else { \
-        if(!PyArg_ParseTuple(args, "O&O&", converter,&self, converter,var)) \
-            return last_try(nm, 2, 2, args); \
+        if(!PyArg_ParseTuple(args, "O&" fm, Pympq_convert_arg, &self, var)) \
+            return NULL; \
     }
-#define SELF_ONE_ARG_CONVERTED_OPT(nm, converter, var) \
-    if(self) { \
-        if(args && !PyArg_ParseTuple(args, "|O&", converter, var)) \
-            return last_try_self(nm, 0, 1, args, self); \
+#define SELF_MPF_ONE_ARG(fm, var) \
+    if(self && Pympf_Check(self)) { \
+        if(!PyArg_ParseTuple(args, fm, var)) \
+            return NULL; \
         Py_INCREF(self); \
     } else { \
-        if(!PyArg_ParseTuple(args, "O&|O&", converter,&self, converter,var)) \
-            return last_try(nm, 1, 2, args); \
+        if(!PyArg_ParseTuple(args, "O&" fm, Pympf_convert_arg, &self, var)) \
+            return NULL; \
     }
-#define TWO_ARG_CONVERTED(nm, converter, var1, var2) \
-    if(!PyArg_ParseTuple(args, "O&O&", converter, var1, converter, var2)) \
-        return last_try(nm, 2, 2, args);
+
+
+#define SELF_MPZ_ONE_ARG_CONVERTED(var) \
+    if(self && Pympz_Check(self)) { \
+        if(args && !PyArg_ParseTuple(args, "O&", Pympz_convert_arg, var)) \
+            return NULL; \
+        Py_INCREF(self); \
+    } else { \
+        if(!PyArg_ParseTuple(args, "O&O&", Pympz_convert_arg,&self, \
+                Pympz_convert_arg,var)) \
+            return NULL; \
+    }
+#define SELF_MPQ_ONE_ARG_CONVERTED(var) \
+    if(self && Pympq_Check(self)) { \
+        if(args && !PyArg_ParseTuple(args, "O&", Pympq_convert_arg, var)) \
+            return NULL; \
+        Py_INCREF(self); \
+    } else { \
+        if(!PyArg_ParseTuple(args, "O&O&", Pympq_convert_arg,&self, \
+                Pympq_convert_arg,var)) \
+            return NULL; \
+    }
+#define SELF_MPF_ONE_ARG_CONVERTED(var) \
+    if(self && Pympf_Check(self)) { \
+        if(args && !PyArg_ParseTuple(args, "O&", Pympf_convert_arg, var)) \
+            return NULL; \
+        Py_INCREF(self); \
+    } else { \
+        if(!PyArg_ParseTuple(args, "O&O&", Pympf_convert_arg,&self, \
+                Pympf_convert_arg,var)) \
+            return NULL; \
+    }
+
+
+#define SELF_MPF_ONE_ARG_CONVERTED_OPT(var) \
+    if(self && Pympf_Check(self)) { \
+        if(args && !PyArg_ParseTuple(args, "|O&", Pympf_convert_arg,var)) \
+            return NULL; \
+        Py_INCREF(self); \
+    } else { \
+        if(!PyArg_ParseTuple(args, "O&|O&", Pympf_convert_arg,&self, \
+                Pympf_convert_arg,var)) \
+            return NULL; \
+    }
+
+
+#define TWO_ARG_CONVERTED(converter, var1, var2) \
+    if(!PyArg_ParseTuple(args, "O&O&", converter,var1, converter,var2)) \
+        return NULL;
 
 static PyObject*
 last_try_self(const char* nm, int min, int max, PyObject* args, PyObject* self)
@@ -2788,7 +2860,7 @@ static PyObject *
 Pympz_copy(PyObject *self, PyObject *args)
 {
     PyObject *s;
-    SELF_NO_ARG("mpz_copy", Pympz_convert_arg);
+    SELF_MPZ_NO_ARG;
     assert(Pympz_Check(self));
     s = (PyObject*)mpz2mpz((PympzObject*)self);
     Py_DECREF(self);
@@ -2801,7 +2873,7 @@ Pympf_copy(PyObject *self, PyObject *args)
 {
     PyObject *s;
     unsigned int bits=0;
-    SELF_ONE_ARG("mpf_copy", Pympf_convert_arg,"|I",&bits);
+    SELF_MPF_ONE_ARG("|I",&bits);
 
     assert(Pympf_Check(self));
     if(!bits) bits = ((PympfObject*)self)->rebits;
@@ -2816,7 +2888,7 @@ Pympq_copy(PyObject *self, PyObject *args)
 {
     PyObject *s;
 
-    SELF_NO_ARG("mpq_copy", Pympq_convert_arg);
+    SELF_MPQ_NO_ARG;
     assert(Pympq_Check(self));
     s = (PyObject*)mpq2mpq((PympqObject*)self);
     Py_DECREF(self);
@@ -2840,7 +2912,7 @@ static PyObject *
 Pympz_binary(PyObject *self, PyObject *args)
 {
     PyObject *s;
-    SELF_NO_ARG("binary", Pympz_convert_arg);
+    SELF_MPZ_NO_ARG;
     assert(Pympz_Check(self));
     s = mpz2binary((PympzObject*)self);
     Py_DECREF(self);
@@ -2863,7 +2935,7 @@ static PyObject *
 Pympq_binary(PyObject *self, PyObject *args)
 {
     PyObject *s;
-    SELF_NO_ARG("qbinary", Pympq_convert_arg);
+    SELF_MPQ_NO_ARG;
     assert(Pympq_Check(self));
     s = mpq2binary((PympqObject*)self);
     Py_DECREF(self);
@@ -2886,7 +2958,7 @@ static PyObject *
 Pympf_binary(PyObject *self, PyObject *args)
 {
     PyObject *s;
-    SELF_NO_ARG("fbinary", Pympf_convert_arg);
+    SELF_MPF_NO_ARG;
     assert(Pympf_Check(self));
     s = mpf2binary((PympfObject*)self);
     Py_DECREF(self);
@@ -2911,7 +2983,7 @@ Pympz_digits(PyObject *self, PyObject *args)
     int base = 10;
     PyObject *s;
 
-    SELF_ONE_ARG("digits",Pympz_convert_arg,"|i",&base);
+    SELF_MPZ_ONE_ARG("|i",&base);
     assert(Pympz_Check(self));
     s = Pympz_ascii((PympzObject*)self, base, 0);
     Py_DECREF(self);
@@ -2940,7 +3012,7 @@ Pympz_numdigits(PyObject *self, PyObject *args)
     int base = 10;
     PyObject *s;
 
-    SELF_ONE_ARG("numdigits",Pympz_convert_arg,"|i",&base);
+    SELF_MPZ_ONE_ARG("|i",&base);
     assert(Pympz_Check(self));
     if(base==0) base=10;
     if((base < 2) || (base > 36)) {
@@ -2964,7 +3036,7 @@ Pympz_bit_length(PyObject *self, PyObject *args)
 {
     long i = 0;
     PympzObject* newob;
-    PyObject *s;
+    //~ PyObject *s;
 
     //~ fprintf(stderr,"self is %p\n", self);
     //~ if(self) fprintf(stderr,"type is %s\n", self->ob_type->tp_name);
@@ -3033,7 +3105,7 @@ Pympq_digits(PyObject *self, PyObject *args)
     int base = 10;
     PyObject *s;
 
-    SELF_ONE_ARG("qdigits",Pympq_convert_arg,"|i",&base);
+    SELF_MPQ_ONE_ARG("|i",&base);
     assert(Pympq_Check(self));
     s = Pympq_ascii((PympqObject*)self, base, 0);
     Py_DECREF(self);
@@ -3061,7 +3133,7 @@ Pympz_scan0(PyObject *self, PyObject *args)
     long maxbit;
     PyObject *s;
 
-    SELF_ONE_ARG("scan0",Pympz_convert_arg,"|l",&starting_bit);
+    SELF_MPZ_ONE_ARG("|l",&starting_bit);
     assert(Pympz_Check(self));
     if(starting_bit < 0) {
         PyErr_SetString(PyExc_ValueError, "starting bit must be >= 0");
@@ -3105,7 +3177,7 @@ Pympz_scan1(PyObject *self, PyObject *args)
     long maxbit;
     PyObject *s;
 
-    SELF_ONE_ARG("scan1",Pympz_convert_arg,"|l",&starting_bit);
+    SELF_MPZ_ONE_ARG("|l",&starting_bit);
     assert(Pympz_Check(self));
     if(starting_bit < 0) {
         PyErr_SetString(PyExc_ValueError, "starting bit must be >= 0");
@@ -3144,7 +3216,7 @@ Pympz_popcount(PyObject *self, PyObject *args)
 {
     PyObject *s;
 
-    SELF_NO_ARG("popcount", Pympz_convert_arg);
+    SELF_MPZ_NO_ARG;
     assert(Pympz_Check(self));
     s = Py_BuildValue("l", mpz_popcount(Pympz_AS_MPZ(self)));
     Py_DECREF(self);
@@ -3167,7 +3239,7 @@ Pympz_lowbits(PyObject *self, PyObject *args)
     long nbits;
     PympzObject *s;
 
-    SELF_ONE_ARG("lowbits", Pympz_convert_arg,"l",&nbits);
+    SELF_MPZ_ONE_ARG("l",&nbits);
     assert(Pympz_Check(self));
     if(nbits <= 0) {
         PyErr_SetString(PyExc_ValueError, "nbits must be > 0");
@@ -3196,7 +3268,7 @@ Pympz_getbit(PyObject *self, PyObject *args)
     long bit_index;
     PyObject *s;
 
-    SELF_ONE_ARG("getbit", Pympz_convert_arg,"l",&bit_index);
+    SELF_MPZ_ONE_ARG("l",&bit_index);
     assert(Pympz_Check(self));
     if(bit_index < 0) {
         PyErr_SetString(PyExc_ValueError, "bit_index must be >= 0");
@@ -3223,7 +3295,7 @@ Pympz_setbit(PyObject *self, PyObject *args)
     long bit_value=1;
     PympzObject *s;
 
-    if(self) {
+    if(self && Pympz_Check(self)) {
         if(!PyArg_ParseTuple(args, "l|l", &bit_index, &bit_value))
             return last_try_self("setbit", 1, 2, args, self);
         Py_INCREF(self);
@@ -3269,7 +3341,7 @@ Pympz_root(PyObject *self, PyObject *args)
     int exact;
     PympzObject *s;
 
-    SELF_ONE_ARG("mpz_root", Pympz_convert_arg,"l",&n);
+    SELF_MPZ_ONE_ARG("l",&n);
     assert(Pympz_Check(self));
     if(n <= 0) {
         PyErr_SetString(PyExc_ValueError, "n must be > 0");
@@ -3338,7 +3410,7 @@ Pympf_digits(PyObject *self, PyObject *args)
     int opts = 0;
     PyObject *s;
 
-    if(self) {
+    if(self && Pympf_Check(self)) {
         if(!PyArg_ParseTuple(args, "|iiiii", &base, &digs, &mine, &maxe, &opts))
             return last_try_self("fdigits", 1, 5, args, self);
         Py_INCREF(self);
@@ -3365,7 +3437,7 @@ Pympz_sign(PyObject *self, PyObject *args)
 {
     PyObject *s;
 
-    SELF_NO_ARG("mpz_sign", Pympz_convert_arg);
+    SELF_MPZ_NO_ARG;
     assert(Pympz_Check(self));
     s = Py_BuildValue("i", mpz_sgn(Pympz_AS_MPZ(self)));
     Py_DECREF(self);
@@ -3384,7 +3456,7 @@ Pympq_sign(PyObject *self, PyObject *args)
 {
     PyObject *s;
 
-    SELF_NO_ARG("mpq_sign", Pympq_convert_arg);
+    SELF_MPQ_NO_ARG;
     assert(Pympq_Check(self));
     s = Py_BuildValue("i", mpq_sgn(Pympq_AS_MPQ(self)));
     Py_DECREF(self);
@@ -3406,7 +3478,7 @@ Pympq_numer(PyObject *self, PyObject *args)
     if(!(s = Pympz_new()))
         return NULL;
 
-    SELF_NO_ARG("numer", Pympq_convert_arg);
+    SELF_MPQ_NO_ARG;
     assert(Pympq_Check(self));
 
     mpz_set(s->z, mpq_numref(Pympq_AS_MPQ(self)));
@@ -3430,7 +3502,7 @@ Pympq_denom(PyObject *self, PyObject *args)
     if(!(s = Pympz_new()))
         return NULL;
 
-    SELF_NO_ARG("denom", Pympq_convert_arg);
+    SELF_MPQ_NO_ARG;
     assert(Pympq_Check(self));
 
     mpz_set(s->z, mpq_denref(Pympq_AS_MPQ(self)));
@@ -3476,7 +3548,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
     PyObject *s = 0;
     int wasone;
 
-    if(self) {
+    if(self && Pympq_Check(self)) {
         if(!PyArg_ParseTuple(args, "|O", &other))
             return NULL;
     } else {
@@ -3566,7 +3638,7 @@ Pympf_f2q(PyObject *self, PyObject *args)
     if(options.debug)
         fprintf(stderr, "Pympf_f2q: %p, %p\n", self, args);
 
-    SELF_ONE_ARG_CONVERTED_OPT("f2q", Pympf_convert_arg, &err);
+    SELF_MPF_ONE_ARG_CONVERTED_OPT(&err);
     assert(Pympf_Check(self));
     fself = (PympfObject*)self;
 
@@ -4773,7 +4845,7 @@ static PyObject * \
 Py##NAME(PyObject* self, PyObject *args) \
 { \
   PympfObject *r; \
-  if(self) { \
+  if(self && Pympf_Check(self)) { \
       if(args && !PyArg_ParseTuple(args, "")) return NULL; \
       Py_INCREF(self); \
   } else { \
@@ -5020,7 +5092,7 @@ Pygmpy_gcd(PyObject *self, PyObject *args)
 {
     PympzObject *a, *b, *c;
 
-    TWO_ARG_CONVERTED("gcd", Pympz_convert_arg,&a,&b);
+    TWO_ARG_CONVERTED(Pympz_convert_arg,&a,&b);
 
     assert(Pympz_Check((PyObject*)a));
     assert(Pympz_Check((PyObject*)b));
@@ -5043,7 +5115,7 @@ Pygmpy_lcm(PyObject *self, PyObject *args)
 {
     PympzObject *a, *b, *c;
 
-    TWO_ARG_CONVERTED("lcm", Pympz_convert_arg,&a,&b);
+    TWO_ARG_CONVERTED(Pympz_convert_arg,&a,&b);
 
     assert(Pympz_Check((PyObject*)a));
     assert(Pympz_Check((PyObject*)b));
@@ -5068,7 +5140,7 @@ Pygmpy_gcdext(PyObject *self, PyObject *args)
     PympzObject *a, *b, *g=0, *s=0, *t=0;
     PyObject *res;
 
-    TWO_ARG_CONVERTED("gcdext", Pympz_convert_arg,&a,&b);
+    TWO_ARG_CONVERTED(Pympz_convert_arg,&a,&b);
     assert(a && Pympz_Check((PyObject*)a));
     assert(b && Pympz_Check((PyObject*)b));
 
@@ -5298,7 +5370,7 @@ Pympz_bincoef(PyObject *self, PyObject *args)
     PympzObject *bincoef;
     long k;
 
-    SELF_ONE_ARG("bincoef", Pympz_convert_arg,"l",&k);
+    SELF_MPZ_ONE_ARG("l",&k);
 
     assert(Pympz_Check(self));
 
@@ -5330,7 +5402,8 @@ Pympf_sqrt(PyObject *self, PyObject *args)
 {
     PympfObject *root;
 
-    SELF_NO_ARG("fsqrt",Pympf_convert_arg);
+    SELF_MPF_NO_ARG;
+
     assert(Pympf_Check(self));
 
     if(mpf_sgn(Pympf_AS_MPF(self)) < 0) {
@@ -5339,7 +5412,7 @@ Pympf_sqrt(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if(!(root = Pympf_new( ((PympfObject*)self)->rebits))) {
+    if(!(root = Pympf_new(((PympfObject*)self)->rebits))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -5363,7 +5436,7 @@ Pympz_sqrt(PyObject *self, PyObject *args)
 {
     PympzObject *root;
 
-    SELF_NO_ARG("sqrt",Pympz_convert_arg);
+    SELF_MPZ_NO_ARG;
     assert(Pympz_Check(self));
 
     if(mpz_sgn(Pympz_AS_MPZ(self)) < 0) {
@@ -5396,7 +5469,7 @@ Pympz_sqrtrem(PyObject *self, PyObject *args)
     PympzObject *root=0, *rem=0;
     PyObject *res;
 
-    SELF_NO_ARG("sqrtrem",Pympz_convert_arg);
+    SELF_MPZ_NO_ARG;
     assert(Pympz_Check(self));
 
     if(mpz_sgn(Pympz_AS_MPZ(self)) < 0) {
@@ -5441,7 +5514,7 @@ Pympz_remove(PyObject *self, PyObject *args)
     PyObject *restuple;
     int multiplicity;
 
-    SELF_ONE_ARG_CONVERTED("remove", Pympz_convert_arg, &factor);
+    SELF_MPZ_ONE_ARG_CONVERTED(&factor);
     assert(Pympz_Check(self));
     assert(Pympz_Check(factor));
 
@@ -5481,7 +5554,7 @@ Pympz_invert(PyObject *self, PyObject *args)
     PyObject *modulo;
     int success;
 
-    SELF_ONE_ARG_CONVERTED("invert", Pympz_convert_arg, &modulo);
+    SELF_MPZ_ONE_ARG_CONVERTED(&modulo);
     assert(Pympz_Check(self));
     assert(Pympz_Check(modulo));
 
@@ -5516,7 +5589,7 @@ Pympz_hamdist(PyObject *self, PyObject *args)
     PyObject *result;
     PyObject *other;
 
-    SELF_ONE_ARG_CONVERTED("hamdist", Pympz_convert_arg, &other);
+    SELF_MPZ_ONE_ARG_CONVERTED(&other);
     assert(Pympz_Check(self));
     assert(Pympz_Check(other));
 
@@ -5544,7 +5617,7 @@ Pympz_divexact(PyObject *self, PyObject *args)
     PyObject *other;
     PympzObject *result;
 
-    SELF_ONE_ARG_CONVERTED("divexact", Pympz_convert_arg, &other);
+    SELF_MPZ_ONE_ARG_CONVERTED(&other);
     assert(Pympz_Check(self));
     assert(Pympz_Check(other));
 
@@ -5888,7 +5961,7 @@ Pympz_is_square(PyObject *self, PyObject *args)
 {
     PyObject *res;
 
-    SELF_NO_ARG("is_square", Pympz_convert_arg);
+    SELF_MPZ_NO_ARG;
     assert(Pympz_Check(self));
 
     res = Py_BuildValue("i", mpz_perfect_square_p(Pympz_AS_MPZ(self)));
@@ -5910,7 +5983,7 @@ Pympz_is_power(PyObject *self, PyObject *args)
 {
     PyObject *res;
 
-    SELF_NO_ARG("is_power", Pympz_convert_arg);
+    SELF_MPZ_NO_ARG;
     assert(Pympz_Check(self));
 
     res = Py_BuildValue("i", mpz_perfect_power_p(Pympz_AS_MPZ(self)));
@@ -5936,7 +6009,7 @@ Pympz_is_prime(PyObject *self, PyObject *args)
     PyObject *res;
     int reps = 25;
 
-    SELF_ONE_ARG("is_prime", Pympz_convert_arg,"|i",&reps);
+    SELF_MPZ_ONE_ARG("|i",&reps);
     assert(Pympz_Check(self));
     if(reps <= 0) {
         PyErr_SetString(PyExc_ValueError,
@@ -5966,7 +6039,7 @@ Pympz_next_prime(PyObject *self, PyObject *args)
 {
     PympzObject *res;
 
-    SELF_NO_ARG("next_prime", Pympz_convert_arg);
+    SELF_MPZ_NO_ARG;
     assert(Pympz_Check(self));
     if(!(res = Pympz_new()))
         return NULL;
@@ -5989,7 +6062,7 @@ Pympz_jacobi(PyObject *self, PyObject *args)
     PyObject* other;
     PyObject* res;
 
-    SELF_ONE_ARG_CONVERTED("jacobi", Pympz_convert_arg, &other);
+    SELF_MPZ_ONE_ARG_CONVERTED(&other);
     assert(Pympz_Check(self));
     assert(Pympz_Check(other));
     if(mpz_sgn(Pympz_AS_MPZ(other))<=0) {
@@ -6017,7 +6090,7 @@ Pympz_legendre(PyObject *self, PyObject *args)
     PyObject* other;
     PyObject* res;
 
-    SELF_ONE_ARG_CONVERTED("legendre", Pympz_convert_arg, &other);
+    SELF_MPZ_ONE_ARG_CONVERTED(&other);
     assert(Pympz_Check(self));
     assert(Pympz_Check(other));
     if(mpz_sgn(Pympz_AS_MPZ(other))<=0) {
@@ -6047,7 +6120,7 @@ Pympz_kronecker(PyObject *self, PyObject *args)
     PyObject* res=0;
     int ires;
 
-    SELF_ONE_ARG_CONVERTED("kronecker", Pympz_convert_arg, &other);
+    SELF_MPZ_ONE_ARG_CONVERTED(&other);
     assert(Pympz_Check(self));
     assert(Pympz_Check(other));
     if(mpz_fits_ulong_p(Pympz_AS_MPZ(self))) {
@@ -6084,7 +6157,7 @@ Pympf_getprec(PyObject *self, PyObject *args)
 {
     unsigned long precres;
 
-    SELF_NO_ARG("getprec", Pympf_convert_arg);
+    SELF_MPF_NO_ARG;
     assert(Pympf_Check(self));
 
     precres = mpf_get_prec(Pympf_AS_MPF(self));
@@ -6106,7 +6179,7 @@ Pympf_getrprec(PyObject *self, PyObject *args)
 {
     int precres;
 
-    SELF_NO_ARG("getrprec", Pympf_convert_arg);
+    SELF_MPF_NO_ARG;
     assert(Pympf_Check(self));
 
     precres = ((PympfObject*)self)->rebits;
@@ -6160,7 +6233,7 @@ Pympf_round(PyObject *self, PyObject *args)
     long prec = 64;
     PyObject *s;
 
-    SELF_ONE_ARG("fround",Pympf_convert_arg,"|l",&prec);
+    SELF_MPF_ONE_ARG("|l",&prec);
     assert(Pympf_Check(self));
     s = (PyObject*)mpf2mpf((PympfObject*)self, prec);
     Py_DECREF(self);
@@ -6184,7 +6257,7 @@ Pympf_doreldiff(PyObject *self, PyObject *args)
     PympfObject *op;
     PyObject *res;
 
-    SELF_ONE_ARG_CONVERTED("reldiff", Pympf_convert_arg, &op);
+    SELF_MPF_ONE_ARG_CONVERTED(&op);
     assert(Pympf_Check(self));
 
     res = Pympf_reldiff((PyObject*)self, (PyObject*)op);
@@ -6205,7 +6278,7 @@ Pympf_sign(PyObject *self, PyObject *args)
 {
     int sign;
 
-    SELF_NO_ARG("mpf_sign", Pympf_convert_arg);
+    SELF_MPF_NO_ARG;
     assert(Pympf_Check(self));
 
     sign = mpf_sgn(Pympf_AS_MPF(self));
