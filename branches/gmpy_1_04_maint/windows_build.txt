@@ -1,0 +1,60 @@
+Instructions for compiling GMPY for Windows.
+
+GMPY binaries can be compiled for the Windows operating systems using
+the free MinGW toolkit. The MinGW toolkit provides a Minimalist GNU
+for Windows environment.
+
+1) Download and install MinGW-5.1.4.exe. Choose the "current" release.
+
+2) Download and install MSYS-1.0.10.exe.
+
+3) The following instructions assume that both Python and gcc (part of
+   MinGW) exist on the operating system PATH. On Windows XP, this can be
+   done using Settings -> Control Panel -> System -> Environment Variables.
+
+   If not already present, add c:\python25 and c:\mingw\bin to the PATH.
+   The entries should be separated by a semi-colon. Note: Python 2.5 si
+   used in this example.
+
+4) A icon entitled "MSYS" should be created on the desktop. It provides
+   a GNU-compatible command line interface. Start MSYS and create a
+   directory that will contain the GMP and GMPY source code. C:\src will
+   be used for this build. Note that /c/src is the MSYS equivalent of
+   C:\src.
+
+   $ mkdir /c/src
+
+5) Download the GMP source code and save it in C:\src. For this example,
+   I used gmp-4.2.1.tar.gz.
+
+6) Download the GMPY source code and save it in C:\src. For this example,
+   I used gmpy-1.03.zip and I assume the files are save in C:\src\gmpy.
+
+7) Using MSYS, compile GMP. The resulting files are installed in C:\src.
+
+   $ cd /c/src
+   $ gunzip gmp-4.2.1.tar.gz
+   $ tar -xf gmp-4.2.1.tar
+   $ cd gmp-4.2.1
+   $ ./configure --prefix=/c/src
+   $ make
+   $ make install
+
+8) Unzip GMPY. The instructions assume the unzipped files are in the
+   C:\src\gmpy directory. Use the Windows command line for these commands.
+
+   > cd C:\src\gmpy
+   > python setup.py build_ext -cmingw32 -Ic:\src\include -Lc:\src\lib -f install
+   > python test\gmpy_test.py
+
+Miscellaneous notes on compiling GMP and GMPY
+
+The binaries made available at http://code.google.com/p/gmpy/ are compiled
+using GMP 4.2.1.
+
+You may get better performance by compiling GMP and GMPY from source. There
+are versions of GMP available on the Internet that provide faster performance
+on specific processors. For example, a Core2 specific version of GMP is
+available at http://www.geocities.jp/ct35z/gmp-core2-en.html. This version is
+approximately 30% faster than the stock GMP 4.2.2.
+
