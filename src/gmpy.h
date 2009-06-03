@@ -7,7 +7,6 @@
   Version 1.02, February 2007.
   Version 1.03, June 2008
   Version 1.04, June 2008 (no changes)
-  Version 1.05, February 2009 (support MPIR)
  */
 
 #ifndef Py_GMPYMODULE_H
@@ -24,11 +23,7 @@ extern "C" {
 #    define _PROTO(x) x
 #endif
 
-#if defined MPIR
-#include "mpir.h"
-#else
 #include "gmp.h"
-#endif
 
 /* ensure 2.5 compatibility */
 #if PY_VERSION_HEX < 0x02050000
@@ -114,11 +109,11 @@ typedef struct {
 
 #ifdef GMPY_MODULE
 /* This section is used when compiling gmpy.c */
-static PyTypeObject Pympz_Type;
+staticforward PyTypeObject Pympz_Type;
 #define Pympz_Check(v) (((PyObject*)v)->ob_type == &Pympz_Type)
-static PyTypeObject Pympq_Type;
+staticforward PyTypeObject Pympq_Type;
 #define Pympq_Check(v) (((PyObject*)v)->ob_type == &Pympq_Type)
-static PyTypeObject Pympf_Type;
+staticforward PyTypeObject Pympf_Type;
 #define Pympf_Check(v) (((PyObject*)v)->ob_type == &Pympf_Type)
 
 static Pympz_new_RETURN Pympz_new Pympz_new_PROTO;

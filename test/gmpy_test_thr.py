@@ -1,6 +1,6 @@
-# partial unit test for gmpy 1.05 threaded mpz functionality
+# partial unit test for gmpy 1.04 threaded mpz functionality
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.05
+# test-version 1.04
 
 import gmpy as _g, doctest, sys, operator, gc, Queue, threading
 __test__={}
@@ -27,10 +27,10 @@ def factorize(x=c):
     factors=[]
     while x>=prime:
         newx,mult=x.remove(prime)
-        if mult:
-            factors.extend([int(prime)]*mult)
-            x=newx
-        prime=_g.next_prime(prime)
+	if mult:
+	    factors.extend([int(prime)]*mult)
+	    x=newx
+	prime=_g.next_prime(prime)
     for factor in factors: assert _g.is_prime(factor)
     from operator import mul
     assert reduce(mul, factors)==savex
@@ -67,12 +67,12 @@ def elemop(N=1000):
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.05 (threading)"
-        print "    running on Python", sys.version
-        print
-        print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
-            (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
-            ) + _g.get_zconst())
+	print "Unit tests for gmpy 1.04 (threading)"
+	print "    running on Python", sys.version
+	print
+	print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
+	    (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
+	    ) + _g.get_zconst())
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
@@ -82,19 +82,19 @@ def _test(chat=None):
 
     sav = sys.stdout
     class _Dummy:
-        def write(self,*whatever):
-            pass
+	def write(self,*whatever):
+	    pass
     try:
-        sys.stdout = _Dummy()
-        doctest.testmod(thismod, report=0)
+	sys.stdout = _Dummy()
+	doctest.testmod(thismod, report=0)
     finally:
-        sys.stdout = sav
+	sys.stdout = sav
 
     if chat:
-        print
-        print "Overall results for cvr:"
+	print
+	print "Overall results for cvr:"
     return doctest.master.summarize(chat)
-
+    
 class DoOne(threading.Thread):
     def __init__(self, q):
         threading.Thread.__init__(self)

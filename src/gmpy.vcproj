@@ -44,8 +44,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\Python26\include;&quot;..\..\mpir&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR"
+				AdditionalIncludeDirectories="C:\Python26\include;&quot;..\gmp&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -65,7 +65,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\mpir\build.vc9\lib\$(IntDir)\mpir.lib C:\Python26\libs\python26.lib"
+				AdditionalDependencies="..\gmp\build.vc9\lib\$(IntDir)\gmp.lib C:\Python26\libs\python26.lib"
 				OutputFile="$(OutDir)\$(ProjectName).pyd"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -120,11 +120,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\Python31\include;&quot;..\..\mpir&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR"
+				AdditionalIncludeDirectories="C:\Python26\include;&quot;..\gmp&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -141,7 +141,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\mpir\build.vc9\lib\$(IntDir)\mpir.lib C:\Python31\libs\python31.lib"
+				AdditionalDependencies="..\gmp\build.vc9\lib\$(IntDir)\gmp.lib C:\Python26\libs\python26.lib"
 				OutputFile="$(OutDir)\$(ProjectName).pyd"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="C:\Python25\libs"
@@ -198,8 +198,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="C:\Python26\include;&quot;..\..\mpir&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR"
+				AdditionalIncludeDirectories="C:\Python26\include;&quot;..\gmp&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -218,7 +218,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\mpir\build.vc9\lib\$(IntDir)\mpir.lib C:\Python26\libs\python26.lib"
+				AdditionalDependencies="..\gmp\build.vc9\lib\$(IntDir)\gmp.lib C:\Python26\libs\python26.lib"
 				OutputFile="$(OutDir)\$(ProjectName).pyd"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
@@ -277,9 +277,9 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="C:\Python31\include;&quot;..\..\mpir&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR"
-				RuntimeLibrary="0"
+				AdditionalIncludeDirectories="C:\Python26\include;&quot;..\gmp&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -297,7 +297,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\mpir\build.vc9\lib\$(IntDir)\mpir.lib C:\Python31\libs\python31.lib"
+				AdditionalDependencies="..\gmp\build.vc9\lib\$(IntDir)\gmp.lib C:\Python26\libs\python26.lib"
 				OutputFile="$(OutDir)\$(ProjectName).pyd"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
