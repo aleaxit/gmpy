@@ -188,6 +188,7 @@
  *   Added support for -DMPIR to include MPIR instead of GMP (casevh)
  *   Major code revisions to add support for Python 3.x (casevh)
  *   Changed version number to 1.10 to allow release of 1.05 (casevh)
+ *   Fixed bug in binary() and qbinary() (casevh)
  */
 #include "Python.h"
 
@@ -1977,6 +1978,7 @@ mpz2binary(PympzObject *x)
         ++size;
 
     TEMP_ALLOC(buffer, size);
+    buffer[0] = 0x00;
     mpz_export(buffer, NULL, -1, sizeof(char), 0, 0, temp);
     if(usize < size) {
         buffer[usize] = negative?0xff:0x00;
@@ -2027,6 +2029,7 @@ mpq2binary(PympqObject *x)
         sizetemp >>= 8;
     }
     if(negative) buffer[3] |= 0x80;
+    buffer[4] = 0x00;
 
     mpz_export(buffer+4, NULL, -1, sizeof(char), 0, 0, mpq_numref(qtemp));
     mpz_export(buffer+sizenum+4, NULL, -1, sizeof(char), 0, 0, mpq_denref(qtemp));
