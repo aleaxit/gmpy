@@ -636,7 +636,7 @@ ValueError: 'floa' needs arg>=0
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.05 (mpz functionality)"
+        print "Unit tests for gmpy 1.10 (mpz functionality)"
         print "    running on Python %s" % sys.version
         print
         print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (

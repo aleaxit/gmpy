@@ -391,7 +391,7 @@ b'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy 1.05 (mpf functionality)")
+        print("Unit tests for gmpy 1.10 (mpf functionality)")
         print("    running on Python %s" % sys.version)
         print()
         print("Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (

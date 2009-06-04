@@ -124,7 +124,7 @@ if sys.version<'2.4':
 
 def _test(chat=None):
     if chat:
-        writeln("Unit tests for gmpy 1.05 (rand functionality)")
+        writeln("Unit tests for gmpy 1.10 (rand functionality)")
         writeln("    running on Python %s" % sys.version)
         writeln("")
         writeln("Testing gmpy %s (GMP %s) with default caching (%s, %s..%s)" % (

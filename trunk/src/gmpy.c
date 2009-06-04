@@ -182,11 +182,12 @@
  *   Faster conversion from mpq->binary and binary->mpq (casevh)
  *   Recognize MPIR, mpir_version() (casevh)
  *
- *   1.05:
+ *   1.10:
  *   Remove dependancy on pymemcompat.h (casevh)
  *   Remove callback (casevh)
  *   Added support for -DMPIR to include MPIR instead of GMP (casevh)
- *   Remove use of statichere and staticforward (casevh)
+ *   Major code revisions to add support for Python 3.x (casevh)
+ *   Changed version number to 1.10 to allow release of 1.05 (casevh)
  */
 #include "Python.h"
 
@@ -281,7 +282,7 @@ Therefore, this combined module is licensed under LGPL 2.1 or later.\
 #endif
 #undef GNU_MP_VER
 
-char gmpy_version[] = "1.05";
+char gmpy_version[] = "1.10";
 
 char _gmpy_cvs[] = "$Id$";
 
