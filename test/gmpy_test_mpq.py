@@ -320,12 +320,12 @@ mpq(12,5)
 
 def _test(chat=None):
     if chat:
-	print "Unit tests for gmpy 1.04 (mpq functionality)"
-	print "    running on Python",sys.version
-	print
-	print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
-	    (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
-	    ) + _g.get_zconst())
+        print "Unit tests for gmpy 1.05 (mpq functionality)"
+        print "    running on Python",sys.version
+        print
+        print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
+            (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
+            ) + _g.get_zconst())
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
@@ -334,17 +334,17 @@ def _test(chat=None):
 
     sav = sys.stdout
     class _Dummy:
-	def write(self,*whatever):
-	    pass
+        def write(self,*whatever):
+            pass
     try:
-	sys.stdout = _Dummy()
-	doctest.testmod(thismod, report=0)
+        sys.stdout = _Dummy()
+        doctest.testmod(thismod, report=0)
     finally:
-	sys.stdout = sav
+        sys.stdout = sav
 
     if chat:
-	print
-	print "Overall results for cvr:"
+        print
+        print "Overall results for cvr:"
     return doctest.master.summarize(chat)
 
 

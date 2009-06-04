@@ -181,6 +181,9 @@
  *   Added helper functions for mpmath (casevh)
  *   Faster conversion from mpq->binary and binary->mpq (casevh)
  *   Recognize MPIR, mpir_version() (casevh)
+ *
+ *   1.05:
+ *   Fixed bug when converting mpz(0) or mpq(0) to binary. (casevh)
  */
 #include "pymemcompat.h"
 
@@ -242,7 +245,7 @@ Therefore, this combined module is licensed under LGPL 2.1 or later.\
 #endif
 #undef GNU_MP_VER
 
-char gmpy_version[] = "1.04";
+char gmpy_version[] = "1.05";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -1782,6 +1785,9 @@ mpz2binary(PympzObject *x)
         ++size;
 
     TEMP_ALLOC(buffer, size);
+    /* mpz_export doesn't write anything if temp is 0, so preload it with 0.
+     */
+    buffer[0] = 0x00;
     mpz_export(buffer, NULL, -1, sizeof(char), 0, 0, temp);
     if(usize < size) {
         buffer[usize] = negative?0xff:0x00;
@@ -1832,6 +1838,11 @@ mpq2binary(PympqObject *x)
         sizetemp >>= 8;
     }
     if(negative) buffer[3] |= 0x80;
+
+    /* If num is 0, nothing is written by mpz_export, so store a 0x00 in the
+     * location of num. It will be over-written if there is a real value.
+     */
+    buffer[4] = 0x00;
 
     mpz_export(buffer+4, NULL, -1, sizeof(char), 0, 0, mpq_numref(qtemp));
     mpz_export(buffer+sizenum+4, NULL, -1, sizeof(char), 0, 0, mpq_denref(qtemp));
@@ -6669,7 +6680,7 @@ static void _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] = "\
-gmpy 1.04 - General Multiprecision arithmetic for PYthon:\n\
+gmpy 1.05 - General Multiprecision arithmetic for PYthon:\n\
 exposes functionality from the GMP 4 library to Python 2.{2...6}.\n\
 \n\
 Allows creation of multiprecision integer (mpz), float (mpf),\n\

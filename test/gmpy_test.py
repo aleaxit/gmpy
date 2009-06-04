@@ -1,6 +1,6 @@
 r'''
 >>> gmpy.version()
-'1.04'
+'1.05'
 >>>
 '''
 
@@ -23,11 +23,17 @@ test_modules = (gmpy_test_cvr, gmpy_test_rnd, gmpy_test_mpf,
     gmpy_test_mpq, gmpy_test_mpz, gmpy_test_dec)
 
 _g = gmpy
-print "Unit tests for gmpy 1.04"
+print "Unit tests for gmpy 1.05"
 print "    on Python", sys.version
-print "Testing gmpy %s (GMP %s), default caching (%s, %s, %s..%s)" % (
-    (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
-            ) + _g.get_zconst())
+if _g.gmp_version:
+    print "Testing gmpy %s (GMP %s), default caching (%s, %s, %s..%s)" % (
+        (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
+                ) + _g.get_zconst())
+else:
+    print "Testing gmpy %s (MPIR %s), default caching (%s, %s, %s..%s)" % (
+        (_g.version(), _g.mpir_version(), _g.get_zcache(), _g.get_qcache(),
+                ) + _g.get_zconst())
+
 
 pf, pt = 0, 0
 for x in test_modules:
