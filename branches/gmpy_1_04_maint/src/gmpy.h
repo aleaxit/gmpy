@@ -7,6 +7,7 @@
   Version 1.02, February 2007.
   Version 1.03, June 2008
   Version 1.04, June 2008 (no changes)
+  Version 1.05, June 2009 (support MPIR)
  */
 
 #ifndef Py_GMPYMODULE_H
@@ -23,7 +24,11 @@ extern "C" {
 #    define _PROTO(x) x
 #endif
 
+#if defined(MPIR)
+#include "mpir.h"
+#else
 #include "gmp.h"
+#endif
 
 /* ensure 2.5 compatibility */
 #if PY_VERSION_HEX < 0x02050000

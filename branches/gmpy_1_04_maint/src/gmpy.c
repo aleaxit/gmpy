@@ -184,6 +184,7 @@
  *
  *   1.05:
  *   Fixed bug when converting mpz(0) or mpq(0) to binary. (casevh)
+ *   Improved support for MPIR. (casevh)
  */
 #include "pymemcompat.h"
 
@@ -194,7 +195,6 @@
 
 #define GMPY_MODULE
 #include "gmpy.h"
-#include "gmp.h"
 
 /* Define the minimum memory amount allocated. 8 has historically been
  * used, but 16 might be better for some applications or 64-bit systems.
@@ -203,7 +203,11 @@
 
 #if defined(MS_WIN32) && defined(_MSC_VER)
 /* so one won't need to link explicitly to gmp.lib...: */
+#if defined(MPIR)
+#pragma comment(lib,"mpir.lib")
+#else
 #pragma comment(lib,"gmp.lib")
+#endif
 #ifdef _MSC_VER
   #define isnan _isnan
   #define isinf !_finite
