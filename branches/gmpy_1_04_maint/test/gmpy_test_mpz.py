@@ -433,8 +433,9 @@ r'''
 1
 >>> _g.gcd(a,b)
 mpz(3)
->>> _g.gcdext(a,b)
-(mpz(3), mpz(-63), mpz(17))
+>>> temp=_g.gcdext(a,b)
+>>> int(temp[0]==a*temp[1]+b*temp[2])
+1
 >>> _g.lcm(a,b)
 mpz(18696)
 >>> _g.fac(7)
@@ -635,7 +636,7 @@ ValueError: 'floa' needs arg>=0
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.04 (mpz functionality)"
+        print "Unit tests for gmpy 1.05 (mpz functionality)"
         print "    running on Python",sys.version
         print
         print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (

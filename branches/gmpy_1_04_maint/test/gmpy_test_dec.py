@@ -63,7 +63,7 @@ def _test(chat=None):
         print "  No point in testing, therefore -- please upgrade your Python!"
         return 0, 0
     if chat:
-        print "Unit tests for gmpy 1.04 (decimal interoperation)"
+        print "Unit tests for gmpy 1.05 (decimal interoperation)"
         print "    running on Python", sys.version
         print
         print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
