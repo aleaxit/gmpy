@@ -320,7 +320,7 @@ mpq(12,5)
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.05 (mpq functionality)"
+        print "Unit tests for gmpy 1.10 (mpq functionality)"
         print "    running on Python",sys.version
         print
         print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
