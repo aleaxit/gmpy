@@ -25,7 +25,7 @@ test_modules = (gmpy_test_cvr, gmpy_test_rnd, gmpy_test_mpf,
 _g = gmpy
 print "Unit tests for gmpy 1.05"
 print "    on Python", sys.version
-if _g.gmp_version:
+if _g.gmp_version():
     print "Testing gmpy %s (GMP %s), default caching (%s, %s, %s..%s)" % (
         (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
                 ) + _g.get_zconst())
