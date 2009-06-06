@@ -2,10 +2,10 @@
 # relies on Tim Peters' "doctest.py" test-driver
 # test-version 1.05
 r'''
->>> filter(lambda x: not x.startswith('_'), dir(_g))
+>>> list(filter(lambda x: not x.startswith('_'), dir(_g)))
 ['binary', 'bincoef', 'bit_length', 'ceil', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fib', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_qcache', 'get_zcache', 'get_zconst', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'rand', 'reldiff', 'remove', 'root', 'scan0', 'scan1', 'set_debug', 'set_fcoform', 'set_minprec', 'set_qcache', 'set_tagoff', 'set_zcache', 'set_zconst', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'trunc', 'version']
 >>> dir(a)
-['__abs__', '__add__', '__and__', '__class__', '__coerce__', '__delattr__', '__div__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__hex__', '__index__', '__init__', '__int__', '__invert__', '__le__', '__long__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__nonzero__', '__oct__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdiv__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', '_copy', 'binary', 'bincoef', 'bit_length', 'comb', 'digits', 'divexact', 'getbit', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem']
+['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__index__', '__init__', '__int__', '__invert__', '__le__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', '_copy', 'binary', 'bincoef', 'bit_length', 'comb', 'digits', 'divexact', 'getbit', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem']
 >>>
 '''
 import warnings
@@ -50,27 +50,18 @@ def factorize(x):
         prime=_g.next_prime(prime)
     for factor in factors: assert _g.is_prime(factor)
     from operator import mul
+    from functools import reduce
     assert reduce(mul, factors)==savex
     return factors
 
-if sys.version[:3] >= '2.5':
-  __test__['index']=\
+__test__['index']=\
 r'''
 >>> range(333)[a]
 123
 >>> range(333)[b]
 Traceback (innermost last):
   ...
-IndexError: list index out of range
->>> ix = operator.index
->>> ix(_g.mpz(sys.maxint)) == sys.maxint
-True
->>> type(ix(_g.mpz(sys.maxint))) is int
-True
->>> ix(_g.mpz(sys.maxint+1)) == sys.maxint+1
-True
->>> type(ix(_g.mpz(sys.maxint+1))) is long
-True
+IndexError: range object index out of range
 '''
 
 __test__['elemop']=\
@@ -81,8 +72,14 @@ mpz(579)
 mpz(-333)
 >>> a*b
 mpz(56088)
->>> a/b
+>>> a//b
 mpz(0)
+>>> a/b
+mpf('2.69736842105263157895e-1')
+>>> b//a
+mpz(3)
+>>> b/a
+mpf('3.70731707317073170732e0')
 >>> a%b
 mpz(123)
 >>> b+a
@@ -102,7 +99,7 @@ mpz(-123)
 >>> abs(-a)==a
 1
 >>> pow(a,10)
-mpz(792594609605189126649L)
+mpz(792594609605189126649)
 >>> pow(a,7,b)
 mpz(99)
 >>> _g.sign(b-a)
@@ -123,31 +120,13 @@ mpz(12346789)
 >>>
 '''
 
-from gmpy_truediv import truediv
-__test__['newdiv']=\
-r'''
->>> a/b
-mpz(0)
->>> a//b
-mpz(0)
->>> truediv(a,b)
-mpf('2.69736842105263157895e-1')
->>> b/a
-mpz(3)
->>> b//a
-mpz(3)
->>> truediv(b,a)
-mpf('3.70731707317073170732e0')
->>>
-'''
-
 __test__['divexact']=\
 r'''
 >>> a=_g.mpz('1234567912345678912345679')
 >>> b=_g.mpz('789789789789789789789789')
 >>> c=a*b
 >>> _g.divexact(c,a)
-mpz(789789789789789789789789L)
+mpz(789789789789789789789789)
 >>>
 '''
 
@@ -167,10 +146,6 @@ r'''
 0
 >>> a == d
 1
->>> cmp(a,c)
-0
->>> cmp(a,b)
--1
 >>> a>b
 0
 >>> a<b
@@ -187,26 +162,17 @@ False
 False
 >>> [_g.mpz(23), None].count(None)
 1
->>> coerce(a,1)
-(mpz(123), mpz(1))
->>> coerce(1,a)
-(mpz(1), mpz(123))
->>> coerce(a,1.0)
-(123.0, 1.0)
 >>> _g.mpz(3.14)
 mpz(3)
 >>> _g.mpz(_g.mpq(17,3))
 mpz(5)
->>> _g.mpz(23L)
+>>> _g.mpz(23)
 mpz(23)
->>> _g.mpz(-23L)
+>>> _g.mpz(-23)
 mpz(-23)
->>> x=1000L*1000*1000*1000*1000*1000*1000
+>>> x=1000*1000*1000*1000*1000*1000*1000
 >>> _g.mpz(x)
-mpz(1000000000000000000000L)
->>> try: print cmp(_g.mpz(1), _g.mpz(-1))
-... except: print 'ouch!'
-1
+mpz(1000000000000000000000)
 '''
 
 __test__['bitops']=\
@@ -275,15 +241,29 @@ mpz(1048699)
 >>> a.setbit(0,0)
 mpz(122)
 >>> for i in range(8):
-...     print a.getbit(i),
-...     if i==7: print
+...     print(a.getbit(i))
 ...
-1 1 0 1 1 1 1 0
+1
+1
+0
+1
+1
+1
+1
+0
 >>> for i in range(10):
-...     print b.getbit(i),
-...     if i==9: print
+...     print(b.getbit(i))
 ...
-0 0 0 1 0 0 1 1 1 0
+0
+0
+0
+1
+0
+0
+1
+1
+1
+0
 >>> [a.scan0(j) for j in range(33)]
 [2, 2, 2, 7, 7, 7, 7, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
 >>> [a.scan1(j) for j in range(10)]
@@ -308,7 +288,7 @@ r'''
 >>> hex(a)
 '0x7b'
 >>> oct(a)
-'0173'
+'0o173'
 >>> _g.mpz('123')
 mpz(123)
 >>> _g.mpz('1001001011',2)
@@ -316,19 +296,47 @@ mpz(587)
 >>> _g.mpz('1001001011',2).digits(2)
 '1001001011'
 >>> for i in range(2,37):
-...     print a.digits(i),
-...     if i%6==0: print
+...     print(a.digits(i))
 ...
-1111011 11120 1323 443 323
-234 0173 146 123 102 a3
-96 8b 83 0x7b 74 6f
-69 63 5i 5d 58 53
-4n 4j 4f 4b 47 43
-3u 3r 3o 3l 3i 3f
->>> print a.digits(37)
+1111011
+11120
+1323
+443
+323
+234
+0173
+146
+123
+102
+a3
+96
+8b
+83
+0x7b
+74
+6f
+69
+63
+5i
+5d
+58
+53
+4n
+4j
+4f
+4b
+47
+43
+3u
+3r
+3o
+3l
+3i
+3f
+>>> print(a.digits(37))
 Traceback (innermost last):
   File "<stdin>", line 1, in ?
-    print a.digits(37)
+    print(a.digits(37))
 ValueError: base must be either 0 or in the interval 2 ... 36
 >>> _g.set_tagoff(0)
 1
@@ -358,30 +366,58 @@ __test__['binio']=\
 r'''
 >>> ba=a.binary()
 >>> ba
-'{'
+b'{'
 >>> _g.mpz(ba,256)
 mpz(123)
 >>> _g.mpz(ba,256)==a
 1
 >>> _g.binary(123)
-'{'
+b'{'
 >>> z=_g.mpz('melancholy',256)
 >>> z
-mpz(573406620562849222387053L)
->>> long(z)
-573406620562849222387053L
+mpz(573406620562849222387053)
+>>> int(z)
+573406620562849222387053
 >>> divmod(z,a)
-(mpz(4661842443600400182008L), mpz(69))
+(mpz(4661842443600400182008), mpz(69))
 >>> for i in range(2,37):
-...    print i,z.numdigits(i),
-...    if i%6==0: print
+...    print(i,z.numdigits(i))
 ...
-2 79 3 50 4 40 5 35 6 31
-7 29 8 27 9 25 10 24 11 23 12 23
-13 22 14 21 15 21 16 20 17 20 18 19
-19 19 20 19 21 18 22 18 23 18 24 18
-25 18 26 17 27 17 28 17 29 17 30 17
-31 16 32 16 33 16 34 16 35 16 36 16
+2 79
+3 50
+4 40
+5 35
+6 31
+7 29
+8 27
+9 25
+10 24
+11 23
+12 23
+13 22
+14 21
+15 21
+16 20
+17 20
+18 19
+19 19
+20 19
+21 18
+22 18
+23 18
+24 18
+25 18
+26 17
+27 17
+28 17
+29 17
+30 17
+31 16
+32 16
+33 16
+34 16
+35 16
+36 16
 >>> _g.numdigits(23)
 2
 >>> _g.numdigits(23,2)
@@ -394,23 +430,27 @@ ValueError: base must be either 0 or in the interval 2 ... 36
 123
 >>> hash(b)
 456
->>> hash(z) == hash(long(z))
+>>> hash(z) == hash(int(z))
 True
 >>> _g.mpz(_g.binary(-123),256)
 mpz(-123)
->>> long(_g.mpz(-3))
--3L
+>>> int(_g.mpz(-3))
+-3
 >>>
 '''
 
 __test__['number']=\
 r'''
->>> print a.sqrt(), b.sqrt()
-11 21
->>> print a.sqrtrem(), b.sqrtrem()
-(mpz(11), mpz(2)) (mpz(21), mpz(15))
+>>> print(a.sqrt())
+11
+>>> print(b.sqrt())
+21
+>>> print(a.sqrtrem())
+(mpz(11), mpz(2))
+>>> print(b.sqrtrem())
+(mpz(21), mpz(15))
 >>> for i in range(5):
-...    print a.root(i+1),b.root(i+1)
+...    print(a.root(i+1),b.root(i+1))
 ...
 (mpz(123), 1) (mpz(456), 1)
 (mpz(11), 0) (mpz(21), 0)
@@ -443,7 +483,7 @@ mpz(5040)
 >>> _g.fib(17)
 mpz(1597)
 >>> for i in range(10):
-...     print _g.bincoef(10,i)
+...     print(_g.bincoef(10,i))
 ...
 1
 10
@@ -481,7 +521,7 @@ mpz(4)
 >>> __ = gc.collect()
 >>> _siz = 87654
 >>> _siz = _memsize()
->>> for x in xrange(45678):
+>>> for x in range(45678):
 ...     _xx=_g.divm(b,a,20)
 >>> del _xx
 >>> __ = gc.collect()
@@ -602,7 +642,7 @@ Traceback (innermost last):
   File "<pyshell#184>", line 1, in ?
     a.kronecker(3, 4)
 TypeError: function takes exactly 1 argument (2 given)
->>> a=10L**20
+>>> a=10**20
 >>> b=a+39
 >>> _g.jacobi(a,b)
 1
