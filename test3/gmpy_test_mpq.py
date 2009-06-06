@@ -3,7 +3,7 @@
 # test-version 1.05
 r'''
 >>> dir(a)
-['__abs__', '__add__', '__class__', '__coerce__', '__delattr__', '__div__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__long__', '__lt__', '__mul__', '__ne__', '__neg__', '__new__', '__nonzero__', '__pos__', '__pow__', '__radd__', '__rdiv__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'denom', 'digits', 'numer', 'qdiv', 'sign']
+['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'denom', 'digits', 'numer', 'qdiv', 'sign']
 >>>
 '''
 
@@ -117,10 +117,6 @@ r'''
 0
 >>> a == d
 1
->>> cmp(a,c)
-0
->>> cmp(a,b)
--1
 >>> a>b
 0
 >>> a<b
@@ -129,16 +125,6 @@ r'''
 1
 >>> not a
 0
->>> coerce(a,1)
-(mpq(41,152), mpq(1))
->>> coerce(1,a)
-(mpq(1), mpq(41,152))
->>> coerce(a,1.0)
-(mpq(41,152), mpq(1))
->>> coerce(a,_g.mpz(1))
-(mpq(41,152), mpq(1))
->>> coerce(a,_g.mpf(1))
-(mpq(41,152), mpq(1))
 >>> a>1
 0
 >>> a>1.0
@@ -151,14 +137,6 @@ r'''
 0
 >>> a==1.0
 0
->>> cmp(a,1)
--1
->>> cmp(1.0,a)
-1
->>> long(1/a)
-3L
->>> long(-1/a)
--3L
 >>> int(1/a)
 3
 >>> int(-1/a)
@@ -191,16 +169,16 @@ gmpy.mpq(617,50)
 >>> for i in range(1,7):
 ...    for j in range(3,10):
 ...       if _g.mpq(i,j) != _g.mpq("%d/%d"%(i,j)):
-...          print 'er1:',i,j; break
+...          print('er1:',i,j); break
 ...       aa=_g.mpq(i,j); ai=aa.numer(); aj=aa.denom()
 ...       if aj!=1 and str(aa) != ("%d/%d"%(ai,aj)):
-...          print 'er2:',i,j,str(aa),("%d/%d"%(ai,aj)); break
+...          print('er2:',i,j,str(aa),("%d/%d"%(ai,aj))); break
 ...       if aj==1 and str(aa) != ("%d"%ai):
-...          print 'er3:',i,j,str(aa),"%d"%ai; break
+...          print('er3:',i,j,str(aa),"%d"%ai); break
 ...       if aj!=1 and repr(aa) != ("mpq(%d,%d)"%(ai,aj)):
-...          print 'er4:',i,j,repr(aa),("mpq(%d,%d)"%(ai,aj)); break
+...          print('er4:',i,j,repr(aa),("mpq(%d,%d)"%(ai,aj))); break
 ...       if aj==1 and repr(aa) != ("mpq(%d)"%ai):
-...          print 'er5:',i,j,repr(aa),"mpq(%d)"%ai; break
+...          print('er5:',i,j,repr(aa),"mpq(%d)"%ai); break
 >>> fmo='_g.mpq('+a.numer().digits(16)+','+a.denom().digits(16)+')'
 >>> fmo
 '_g.mpq(0x29,0x98)'
@@ -215,12 +193,12 @@ gmpy.mpq(617,50)
 '1b/52'
 >>> a.digits(30)
 '1b/52'
->>> _g.mpq(1000L*1000*1000*1000*1000*1000*1000,23)
-mpq(1000000000000000000000L,23)
->>> _g.mpq(23,1000L*1000*1000*1000*1000*1000*1000)
-mpq(23,1000000000000000000000L)
->>> _g.mpq(23L**15L,1000L**7L)
-mpq(266635235464391245607L,1000000000000000000000L)
+>>> _g.mpq(1000*1000*1000*1000*1000*1000*1000,23)
+mpq(1000000000000000000000,23)
+>>> _g.mpq(23,1000*1000*1000*1000*1000*1000*1000)
+mpq(23,1000000000000000000000)
+>>> _g.mpq(23**15,1000**7)
+mpq(266635235464391245607,1000000000000000000000)
 >>> _g.qbinary('pep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -239,10 +217,14 @@ r'''
 >>> len(ba)
 6
 >>> for i in range(len(ba)):
-...     print ord(ba[i]),
-...     if i==len(ba)-1: print
+...     print(ba[i])
 ...
-1 0 0 0 41 152
+1
+0
+0
+0
+41
+152
 >>> _g.mpq(ba,256)==a
 1
 >>> ba == _g.qbinary(a)
@@ -251,10 +233,14 @@ r'''
 >>> len(ba)
 6
 >>> for i in range(len(ba)):
-...     print ord(ba[i]),
-...     if i==len(ba)-1: print
+...     print(ba[i])
 ...
-1 0 0 128 41 152
+1
+0
+0
+128
+41
+152
 >>> _g.mpq(ba,256)==-a
 1
 >>> hash(a)==hash(_g.mpf(a))==hash(float(a))
@@ -278,16 +264,16 @@ mpq(4,9)
 mpq(27,8)
 >>> _g.mpq(8,27)**_g.mpq('-2/3')
 mpq(9,4)
->>> print float(_g.mpf('0.2')**2)
+>>> print(float(_g.mpf('0.2')**2))
 0.04
->>> print float(_g.mpf('0.2')**-2)
+>>> print(float(_g.mpf('0.2')**-2))
 25.0
 >>> _g.mpq(3)**3 == _g.mpz(3)**3
-1
+True
 >>> (a**-7) == 1/(a**7)
-1
+True
 >>> (b**5) == 1/(b**-5)
-1
+True
 >>>
 '''
 
