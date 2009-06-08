@@ -603,37 +603,6 @@ static PyMethodDef Pympf_methods [];
     if(!PyArg_ParseTuple(args, "O&O&", converter,var1, converter,var2)) \
         return NULL;
 
-static PyObject*
-last_try_self(const char* nm, int min, int max, PyObject* args, PyObject* self)
-{
-    PyObject *funky_arg=0, *extype, *exvalue, *extb;
-    int i;
-    Py_ssize_t tlen = PyTuple_Size(args);
-    if(tlen<min || tlen>max) return 0;
-    PyErr_Fetch(&extype, &exvalue, &extb);
-    PyErr_NormalizeException(&extype, &exvalue, &extb);
-    for(i=0; i<tlen; ++i) {
-        funky_arg = PyTuple_GET_ITEM(args, i);
-        if(PyObject_HasAttrString(funky_arg, "__gmpy__"))
-            break;
-    }
-    if(i>=tlen || !funky_arg) {
-        PyErr_Restore(extype, exvalue, extb);
-        return 0;
-    }
-    Py_XDECREF(extb);
-    if(!extype) extype=Py_BuildValue("");
-    if(!exvalue) exvalue=Py_BuildValue("");
-    return PyObject_CallMethod(funky_arg, "__gmpy__",
-        "sOONN", nm, args, self, extype, exvalue);
-}
-
-static PyObject*
-last_try(const char* nm, int min, int max, PyObject* args)
-{
-    return last_try_self(nm, min, max, args, Py_None);
-}
-
 /* Number of bits that are significant in a float */
 static unsigned int double_mantissa = 0;
 
@@ -1310,6 +1279,7 @@ mpq2mpf(PyObject * obj, unsigned int bits)
 static PympzObject *
 mpq2mpz(PyObject * obj)
 {
+
     PympzObject *newob;
 
     assert(Pympq_Check(obj));
@@ -2385,10 +2355,13 @@ Pympf_ascii(PympfObject *self, int base, int digits,
          * trailing 0's, other indication of exponent...)
          */
         int buflen = strlen(buffer);
+        /* account for the decimal point that is always inserted */
         int size = buflen+1;
         char expobuf[24];
         char auprebuf[24];
         int isfp=1;   /* flag: fixed-point format (FP)? */
+        int isnegative=0;
+        if(buffer[0]==0x2d) isnegative=1;
 
         /* compute size of needed Python string */
         if(optionflags & OP_TAG) {
@@ -2410,8 +2383,8 @@ Pympf_ascii(PympfObject *self, int base, int digits,
                 size += abs(the_exp)+1;
             } else {
                 /* add trailing 0's if needed */
-                if(the_exp >= buflen)
-                    size += (the_exp-buflen) +1;
+                if(the_exp >= (buflen-isnegative))
+                    size += (the_exp-(buflen-isnegative))+1;
             }
         }
 
@@ -2720,6 +2693,12 @@ anyreal2mpf(PyObject* obj, unsigned int bits)
         newob = mpz2mpf(obj, bits);
     } else if(PyLong_Check(obj)) {
         newob = long2mpf(obj, bits);
+    } else if(!strcmp(obj->ob_type->tp_name, "Decimal")) {
+        PyObject *s = PyObject_Str(obj);
+        if(s) {
+            newob = str2mpf(s, 10, bits);
+            Py_DECREF(s);
+        }
     }
 
     if(options.debug)
@@ -2766,7 +2745,7 @@ anyrational2mpf(PyObject* obj, unsigned int bits)
 int
 Pympz_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympzObject* newob = anynum2mpz(arg);
+    PympzObject* newob = anyint2mpz(arg);
     if(options.debug)
         fprintf(stderr, "mpz_conv_arg(%p)->%p\n", arg, newob);
 
@@ -2786,7 +2765,7 @@ Pympz_convert_arg(PyObject *arg, PyObject **ptr)
 int
 Pympq_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympqObject* newob = anynum2mpq(arg);
+    PympqObject* newob = anyrational2mpq(arg);
     if(options.debug)
         fprintf(stderr, "mpq_conv_arg(%p)->%p\n", arg, newob);
 
@@ -2808,7 +2787,7 @@ Pympq_convert_arg(PyObject *arg, PyObject **ptr)
 int
 Pympf_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympfObject* newob = anynum2mpf(arg,0);
+    PympfObject* newob = anyreal2mpf(arg,0);
     if(options.debug)
         fprintf(stderr, "mpf_conv_arg(%p)->%p\n", arg, newob);
 
@@ -3306,12 +3285,12 @@ Pympz_setbit(PyObject *self, PyObject *args)
 
     if(self && Pympz_Check(self)) {
         if(!PyArg_ParseTuple(args, "l|l", &bit_index, &bit_value))
-            return last_try_self("setbit", 1, 2, args, self);
+            return NULL;
         Py_INCREF(self);
     } else {
         if(!PyArg_ParseTuple(args, "O&l|l", Pympz_convert_arg, &self,
                     &bit_index, &bit_value))
-            return last_try("setbit", 2, 3, args);
+            return NULL;
     }
     assert(Pympz_Check(self));
     if(bit_index < 0) {
@@ -3421,12 +3400,12 @@ Pympf_digits(PyObject *self, PyObject *args)
 
     if(self && Pympf_Check(self)) {
         if(!PyArg_ParseTuple(args, "|iiiii", &base, &digs, &mine, &maxe, &opts))
-            return last_try_self("fdigits", 1, 5, args, self);
+            return NULL;
         Py_INCREF(self);
     } else {
         if(!PyArg_ParseTuple(args, "O&|iiiii", Pympf_convert_arg, &self, &base,
                 &digs, &mine, &maxe, &opts))
-            return last_try("fdigits", 1, 6, args);
+            return NULL;
     }
     assert(Pympf_Check(self));
     s = Pympf_ascii( (PympfObject *) self, base, digs, mine, maxe, opts);
@@ -3583,25 +3562,25 @@ Pympq_qdiv(PyObject *self, PyObject *args)
         return self;
     }
     /* normal, non-optimized case: must make new object as result */
-    self = (PyObject*)anynum2mpq(self);
+    self = (PyObject*)anyrational2mpq(self);
     if(!self) {
         if(!PyErr_Occurred()) {
             PyErr_SetString(PyExc_TypeError,
                 "first argument to qdiv not a number");
         }
-        return last_try("qdiv", 1, 2, args);
+        return NULL;
     }
     if(wasone) { /* self was mpf, float, int, long... */
         s = self;
     } else {     /* other explicitly present and !=1... must compute */
-        other = (PyObject*)anynum2mpq(other);
+        other = (PyObject*)anyrational2mpq(other);
         if(!other) {
             Py_DECREF(self);
             if(!PyErr_Occurred()) {
                 PyErr_SetString(PyExc_TypeError,
                     "second argument to qdiv not a number");
             }
-            return last_try("qdiv", 1, 2, args);
+            return NULL;
         }
         if(mpq_sgn(Pympq_AS_MPQ(other))==0) {
             PyObject* result = 0;
@@ -3804,7 +3783,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
                 "gmpy.mpz() with numeric argument needs exactly 1 argument");
             return NULL;
         }
-        newob = anynum2mpz(obj);
+        newob = anyint2mpz(obj);
         if(!newob) {
             if (!PyErr_Occurred()) {
                 PyErr_SetString(PyExc_TypeError,
@@ -3887,7 +3866,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
         }
     } else {
         wasnumeric=1;
-        newob = anynum2mpq(obj);
+        newob = anyrational2mpq(obj);
         if(!newob) {
             if(!PyErr_Occurred()) {
                 PyErr_SetString(PyExc_TypeError,
@@ -4012,7 +3991,7 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
                 "gmpy.mpf() with numeric 1st argument needs 1 or 2 arguments");
             return NULL;
         }
-        newob = anynum2mpf(obj, bits);
+        newob = anyreal2mpf(obj, bits);
         if(!newob) {
             if(!PyErr_Occurred())
                 PyErr_SetString(PyExc_TypeError,
@@ -4302,9 +4281,9 @@ Pympq_floordiv(PyObject *a, PyObject *b)
     Py_DECREF((PyObject*)pa);
     Py_DECREF((PyObject*)pb);
     if(result) {
-        result = (PyObject*) anynum2mpz(result);
+        result = (PyObject*) anyint2mpz(result);
         if (result)
-            result = (PyObject*) anynum2mpq(result);
+            result = (PyObject*) anyrational2mpq(result);
     }
     return result;
 }
@@ -4326,9 +4305,9 @@ Pympf_floordiv(PyObject *a, PyObject *b)
     Py_DECREF((PyObject*)pa);
     Py_DECREF((PyObject*)pb);
     if(result) {
-        result = (PyObject*) anynum2mpz(result);
+        result = (PyObject*) anyint2mpz(result);
         if (result)
-            result = (PyObject*) anynum2mpf(result, 0);
+            result = (PyObject*) anyreal2mpf(result, 0);
     }
     return result;
 }
@@ -4654,9 +4633,7 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
     PyObject *r;
     unsigned int bits;
     int iexpo;
-    PympfObject *b, *e;
-    //~ PympfObject *b = anyreal2mpf(xb, 0);
-    //~ PympfObject *e = anyreal2mpf(xe, 0);
+    PympfObject *b = 0, *e = 0;
 
     if((PyObject*)m != Py_None) {
         PyErr_SetString(PyExc_ValueError, "mpf.pow no modulo allowed");
@@ -4911,7 +4888,7 @@ static PyObject * \
 NAME(PyObject *a, PyObject *b) \
 { \
   PympzObject *r; \
-  PympzObject *pa = anynum2mpz(a); \
+  PympzObject *pa = anyint2mpz(a); \
   PympzObject *pb = 0; \
   long count; \
   if(!pa) { \
@@ -4926,7 +4903,7 @@ NAME(PyObject *a, PyObject *b) \
       } \
       OP(r->z, ((PympzObject*)a)->z, count); \
   } else { \
-    pb = anynum2mpz(b); \
+    pb = anyint2mpz(b); \
     if(!pb) { \
       PyObject *r; \
       Py_DECREF(pa); \
@@ -5185,7 +5162,7 @@ Pygmpy_divm(PyObject *self, PyObject *args)
         Pympz_convert_arg, &den,
         Pympz_convert_arg, &mod))
     {
-        return last_try("divm", 3, 3, args);
+        return NULL;
     }
     if(!(res = Pympz_new())) {
         return NULL;
@@ -7166,7 +7143,7 @@ DL_EXPORT(void)
 initgmpy(void)
 #endif
 {
-    PyObject* decimal_module = NULL;
+    //~ PyObject* decimal_module = NULL;
     PyObject* copy_reg_module = NULL;
     char *do_debug = getenv("GMPY_DEBUG");
     if (PyType_Ready(&Pympz_Type) < 0)
@@ -7271,48 +7248,48 @@ initgmpy(void)
 
 
     /* Experimental: adapt module decimal to our needs */
-    decimal_module = PyImport_ImportModule("decimal");
-    if (decimal_module) {
-        char* tweak_decimal =
-            "def __gmpy_z__(self, f=gmpy.mpz): return f(int(self))\n"
-            "def __gmpy_q__(self, f=gmpy.mpq): return f(str(self))\n"
-            "def __gmpy_f__(self, f=gmpy.mpf): return f(str(self))\n"
-            "try:\n"
-            "  decimal.Decimal.__gmpy_z__ = __gmpy_z__\n"
-            "  decimal.Decimal.__gmpy_q__ = __gmpy_q__\n"
-            "  decimal.Decimal.__gmpy_f__ = __gmpy_f__\n"
-            "except: pass\n"
-        ;
-        PyObject* namespace = PyDict_New();
-        PyObject* result = NULL;
-        if (options.debug)
-            fprintf(stderr, "gmpy_module imported decimal OK\n");
-        PyDict_SetItemString(namespace, "decimal", decimal_module);
-        PyDict_SetItemString(namespace, "gmpy", gmpy_module);
-#if PY_MAJOR_VERSION >= 3
-        PyDict_SetItemString(namespace, "int", (PyObject*)&PyLong_Type);
-        PyDict_SetItemString(namespace, "str", (PyObject*)&PyUnicode_Type);
-#else
-        PyDict_SetItemString(namespace, "int", (PyObject*)&PyInt_Type);
-        PyDict_SetItemString(namespace, "str", (PyObject*)&PyString_Type);
-#endif
-        result = PyRun_String(tweak_decimal, Py_file_input,
-                              namespace, namespace);
-        if (result) {
-            if (options.debug)
-                fprintf(stderr, "gmpy_module tweaked decimal OK\n");
-        } else {
-            if (options.debug)
-                fprintf(stderr, "gmpy_module could not tweak decimal\n");
-            PyErr_Clear();
-        }
-        Py_DECREF(namespace);
-        Py_XDECREF(result);
-    } else {
-        PyErr_Clear();
-        if (options.debug)
-            fprintf(stderr, "gmpy_module could not import decimal\n");
-    }
+    //~ decimal_module = PyImport_ImportModule("decimal");
+    //~ if (decimal_module) {
+        //~ char* tweak_decimal =
+            //~ "def __gmpy_z__(self, f=gmpy.mpz): return f(int(self))\n"
+            //~ "def __gmpy_q__(self, f=gmpy.mpq): return f(str(self))\n"
+            //~ "def __gmpy_f__(self, f=gmpy.mpf): return f(str(self))\n"
+            //~ "try:\n"
+            //~ "  decimal.Decimal.__gmpy_z__ = __gmpy_z__\n"
+            //~ "  decimal.Decimal.__gmpy_q__ = __gmpy_q__\n"
+            //~ "  decimal.Decimal.__gmpy_f__ = __gmpy_f__\n"
+            //~ "except: pass\n"
+        //~ ;
+        //~ PyObject* namespace = PyDict_New();
+        //~ PyObject* result = NULL;
+        //~ if (options.debug)
+            //~ fprintf(stderr, "gmpy_module imported decimal OK\n");
+        //~ PyDict_SetItemString(namespace, "decimal", decimal_module);
+        //~ PyDict_SetItemString(namespace, "gmpy", gmpy_module);
+//~ #if PY_MAJOR_VERSION >= 3
+        //~ PyDict_SetItemString(namespace, "int", (PyObject*)&PyLong_Type);
+        //~ PyDict_SetItemString(namespace, "str", (PyObject*)&PyUnicode_Type);
+//~ #else
+        //~ PyDict_SetItemString(namespace, "int", (PyObject*)&PyInt_Type);
+        //~ PyDict_SetItemString(namespace, "str", (PyObject*)&PyString_Type);
+//~ #endif
+        //~ result = PyRun_String(tweak_decimal, Py_file_input,
+                              //~ namespace, namespace);
+        //~ if (result) {
+            //~ if (options.debug)
+                //~ fprintf(stderr, "gmpy_module tweaked decimal OK\n");
+        //~ } else {
+            //~ if (options.debug)
+                //~ fprintf(stderr, "gmpy_module could not tweak decimal\n");
+            //~ PyErr_Clear();
+        //~ }
+        //~ Py_DECREF(namespace);
+        //~ Py_XDECREF(result);
+    //~ } else {
+        //~ PyErr_Clear();
+        //~ if (options.debug)
+            //~ fprintf(stderr, "gmpy_module could not import decimal\n");
+    //~ }
 #if PY_MAJOR_VERSION >= 3
     return gmpy_module;
 #endif
