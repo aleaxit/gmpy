@@ -3,7 +3,7 @@
 # test-version 1.05
 r'''
 >>> dir(a)
-['__abs__', '__add__', '__class__', '__coerce__', '__delattr__', '__div__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__long__', '__lt__', '__mul__', '__ne__', '__neg__', '__new__', '__nonzero__', '__pos__', '__pow__', '__radd__', '__rdiv__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
+['__abs__', '__add__', '__class__', '__delattr__', '__div__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__long__', '__lt__', '__mul__', '__ne__', '__neg__', '__new__', '__nonzero__', '__pos__', '__pow__', '__radd__', '__rdiv__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
 >>>
 '''
 import warnings
@@ -71,19 +71,19 @@ r'''
 >>> math.floor(x)
 -124.0
 >>> str(x.floor())
-'-124.'
+'-124.0'
 >>> str(_g.floor(x))
-'-124.'
+'-124.0'
 >>> str(x.ceil())
-'-123.'
+'-123.0'
 >>> math.ceil(x)
 -123.0
 >>> str(_g.ceil(x))
-'-123.'
+'-123.0'
 >>> str(x.trunc())
-'-123.'
+'-123.0'
 >>> str(_g.trunc(x))
-'-123.'
+'-123.0'
 >>> _g.ceil(12.3)==math.ceil(12.3)
 1
 >>> _g.floor(12.3)==math.floor(12.3)
@@ -184,12 +184,6 @@ r'''
 1
 >>> not a
 0
->>> coerce(a,1)
-(mpf('1.23456e2'), mpf('1.e0'))
->>> coerce(1,a)
-(mpf('1.e0'), mpf('1.23456e2'))
->>> coerce(a,1.0)
-(mpf('1.23456e2'), mpf('1.e0'))
 >>> a.f2q(0.1)
 mpz(123)
 >>> a.f2q(0.01)

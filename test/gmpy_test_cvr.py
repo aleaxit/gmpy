@@ -469,7 +469,7 @@ Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 TypeError: unsupported operand type(s) for +: 'mpf' and 'str'
 >>> _g.mpf(1)+_g.mpq(2)
-mpq(3)
+mpf('3.e0')
 >>> divmod(_g.mpz(3),0)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?

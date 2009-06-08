@@ -22,6 +22,8 @@ mpq(-38295,6232)
 mpq(263,152)
 >>> a/b
 mpq(1681,39976)
+>>> a//b
+mpz(0)
 >>> b+a
 mpq(41657,6232)
 >>> b-a
@@ -30,6 +32,8 @@ mpq(38295,6232)
 mpq(263,152)
 >>> b/a
 mpq(39976,1681)
+>>> b//a
+mpz(23)
 >>> a+1
 mpq(193,152)
 >>> 1+a
@@ -80,24 +84,6 @@ mpq(41,152)
 >>> import pickle
 >>> pickle.loads(pickle.dumps(_g.mpq(1234,6789)))
 mpq(1234,6789)
->>>
-'''
-
-from gmpy_truediv import truediv
-__test__['newdiv']=\
-r'''
->>> a/b
-mpq(1681,39976)
->>> a//b
-mpq(0)
->>> truediv(a,b).digits(10,19)
-'4.205023013808284971e-2'
->>> b/a
-mpq(39976,1681)
->>> b//a
-mpq(23)
->>> truediv(b,a).digits(10,19)
-'2.378108268887566924e1'
 >>>
 '''
 

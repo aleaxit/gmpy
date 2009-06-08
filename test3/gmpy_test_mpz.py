@@ -37,7 +37,6 @@ def factorize(x):
     [2, 2, 2, 3, 19]
     >>>
     '''
-    import gmpy as _g
     savex=x
     prime=2
     x=_g.mpz(x)
@@ -706,5 +705,7 @@ def _test(chat=None):
 
 
 if __name__=='__main__':
-    _test(1)
+    for i in range(1):
+        _test(1)
+
 
