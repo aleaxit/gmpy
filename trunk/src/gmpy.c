@@ -479,7 +479,8 @@ PyTypeObject Pympf_Type;
 PyMethodDef Pympz_methods [];
 PyMethodDef Pympq_methods [];
 PyMethodDef Pympf_methods [];
-#elsestatic PyTypeObject Pympz_Type;
+#else
+static PyTypeObject Pympz_Type;
 static PyTypeObject Pympq_Type;
 static PyTypeObject Pympf_Type;
 static PyMethodDef Pympz_methods [];
@@ -3783,7 +3784,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
                 "gmpy.mpz() with numeric argument needs exactly 1 argument");
             return NULL;
         }
-        newob = anyint2mpz(obj);
+        newob = anynum2mpz(obj);
         if(!newob) {
             if (!PyErr_Occurred()) {
                 PyErr_SetString(PyExc_TypeError,
@@ -3866,7 +3867,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
         }
     } else {
         wasnumeric=1;
-        newob = anyrational2mpq(obj);
+        newob = anynum2mpq(obj);
         if(!newob) {
             if(!PyErr_Occurred()) {
                 PyErr_SetString(PyExc_TypeError,
@@ -3991,7 +3992,7 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
                 "gmpy.mpf() with numeric 1st argument needs 1 or 2 arguments");
             return NULL;
         }
-        newob = anyreal2mpf(obj, bits);
+        newob = anynum2mpf(obj, bits);
         if(!newob) {
             if(!PyErr_Occurred())
                 PyErr_SetString(PyExc_TypeError,
