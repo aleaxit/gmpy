@@ -1235,7 +1235,6 @@ static PympzObject *
 long2mpz(PyObject * obj)
 {
     PympzObject *newob;
-    mpz_t digit;
     int len, negative;
     PyLongObject *l = (PyLongObject *) obj;
 
@@ -1244,7 +1243,6 @@ long2mpz(PyObject * obj)
     if(!(newob = Pympz_new()))
         return NULL;
     mpz_set_si(newob->z, 0);
-    mpz_inoc(digit);
 
     if(l->ob_size < 0) {
         len = - l->ob_size;
@@ -1256,7 +1254,6 @@ long2mpz(PyObject * obj)
     mpz_import(newob->z, len, -1, sizeof(l->ob_digit[0]), 0, sizeof(l->ob_digit[0])*8 - SHIFT, l->ob_digit);
     if(negative)
         mpz_neg(newob->z, newob->z);
-    mpz_cloc(digit);
     return newob;
 }
 
