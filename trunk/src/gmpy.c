@@ -335,18 +335,7 @@ static struct gmpy_options {
     int maxzco;    /* max mpz that will come as constant (exclusive) */
     int qcache;    /* size of cache for mpq objects */
     PyObject* fcoform;  /* if non-NULL, format for float->mpf (via string) */
-    /* experimental callbacks for various anomalous cases; if a callback
-       is non-NULL, it's called to supply a result or raise an appropriate
-       specialized exception, rather than (as per default) gmpy raising a
-       normal exception or computing the result directly.  By request of
-       Pearu Peterson, to ease use of gmpy in symbolic computations.
-    */
-    PyObject* ZD_cb; /* division by zero */
-    PyObject* ZM_cb; /* multiplication by zero */
-    PyObject* ER_cb; /* erroneous arguments to functions/methods */
-    PyObject* AT_cb; /* getattr-like "as last resort try calling this"
-                        for getting of attributes from mpz &c instances */
-} options = { 0, 0, 5, 20, -2, 11, 20, 0, 0, 0, 0, 0 };
+} options = { 0, 0, 5, 20, -2, 11, 20, 0 };
 
 /* sanity check: do NOT let cache sizes become wildly large! */
 #define MAX_CACHE 1000
@@ -1301,7 +1290,6 @@ static PympzObject *
 long2mpz(PyObject * obj)
 {
     PympzObject *newob;
-    mpz_t digit;
     int len, negative;
     PyLongObject *l = (PyLongObject *) obj;
 
@@ -1310,7 +1298,6 @@ long2mpz(PyObject * obj)
     if(!(newob = Pympz_new()))
         return NULL;
     mpz_set_si(newob->z, 0);
-    mpz_inoc(digit);
 
 #if PY_MAJOR_VERSION >= 3
     if(l->ob_base.ob_size < 0) {
@@ -1333,7 +1320,6 @@ long2mpz(PyObject * obj)
                 sizeof(l->ob_digit[0])*8 - Py2or3Long_SHIFT, l->ob_digit);
     if(negative)
         mpz_neg(newob->z, newob->z);
-    mpz_cloc(digit);
     return newob;
 }
 
@@ -2513,15 +2499,6 @@ anynum2mpq(PyObject* obj)
         newob = float2mpq(obj);
     } else if(PyLong_Check(obj)) {
         newob = long2mpq(obj);
-    } else if(PyObject_HasAttrString(obj, "__gmpy_q__")) {
-        PyObject* result = PyObject_CallMethod(obj, "__gmpy_q__", "");
-        if(result) {
-            if(Pympq_Check(result)) {
-                newob = (PympqObject *)result;
-            } else {
-                Py_DECREF(result);
-            }
-        }
     }
 
     if(options.debug)
@@ -2576,24 +2553,6 @@ anynum2mpz(PyObject* obj)
         newob = mpf2mpz(obj);
     } else if(PyFloat_Check(obj)) {
         newob = float2mpz(obj);
-    } else if(PyObject_HasAttrString(obj, "__gmpy_z__")) {
-        PyObject* result = PyObject_CallMethod(obj, "__gmpy_z__", "");
-        if(result) {
-            if(Pympz_Check(result)) {
-                newob = (PympzObject *)result;
-                if(options.debug)
-                    fprintf(stderr, "__gmpy_z__ result mpz(%ld)\n",
-                            mpz_get_si(newob->z));
-
-            } else {
-                if(options.debug)
-                    fprintf(stderr, "__gmpy_z__ result not an mpz!\n");
-                Py_DECREF(result);
-            }
-        } else {
-          if(options.debug)
-              fprintf(stderr, "__gmpy_z__ result 0!\n");
-        }
     }
     if(options.debug)
         fprintf(stderr,"anynum2mpz(%p)->%p\n", obj, newob);
@@ -2649,15 +2608,6 @@ anynum2mpf(PyObject* obj, unsigned int bits)
         newob = mpz2mpf(obj, bits);
     } else if(PyLong_Check(obj)) {
         newob = long2mpf(obj, bits);
-    } else if(PyObject_HasAttrString(obj, "__gmpy_f__")) {
-        PyObject* result = PyObject_CallMethod(obj, "__gmpy_f__", "");
-        if(result) {
-            if(Pympf_Check(result)) {
-                newob = (PympfObject *)result;
-            } else {
-                Py_DECREF(result);
-            }
-        }
     }
 
     if(options.debug)
@@ -7248,49 +7198,6 @@ initgmpy(void)
 #endif
 
 
-    /* Experimental: adapt module decimal to our needs */
-    //~ decimal_module = PyImport_ImportModule("decimal");
-    //~ if (decimal_module) {
-        //~ char* tweak_decimal =
-            //~ "def __gmpy_z__(self, f=gmpy.mpz): return f(int(self))\n"
-            //~ "def __gmpy_q__(self, f=gmpy.mpq): return f(str(self))\n"
-            //~ "def __gmpy_f__(self, f=gmpy.mpf): return f(str(self))\n"
-            //~ "try:\n"
-            //~ "  decimal.Decimal.__gmpy_z__ = __gmpy_z__\n"
-            //~ "  decimal.Decimal.__gmpy_q__ = __gmpy_q__\n"
-            //~ "  decimal.Decimal.__gmpy_f__ = __gmpy_f__\n"
-            //~ "except: pass\n"
-        //~ ;
-        //~ PyObject* namespace = PyDict_New();
-        //~ PyObject* result = NULL;
-        //~ if (options.debug)
-            //~ fprintf(stderr, "gmpy_module imported decimal OK\n");
-        //~ PyDict_SetItemString(namespace, "decimal", decimal_module);
-        //~ PyDict_SetItemString(namespace, "gmpy", gmpy_module);
-//~ #if PY_MAJOR_VERSION >= 3
-        //~ PyDict_SetItemString(namespace, "int", (PyObject*)&PyLong_Type);
-        //~ PyDict_SetItemString(namespace, "str", (PyObject*)&PyUnicode_Type);
-//~ #else
-        //~ PyDict_SetItemString(namespace, "int", (PyObject*)&PyInt_Type);
-        //~ PyDict_SetItemString(namespace, "str", (PyObject*)&PyString_Type);
-//~ #endif
-        //~ result = PyRun_String(tweak_decimal, Py_file_input,
-                              //~ namespace, namespace);
-        //~ if (result) {
-            //~ if (options.debug)
-                //~ fprintf(stderr, "gmpy_module tweaked decimal OK\n");
-        //~ } else {
-            //~ if (options.debug)
-                //~ fprintf(stderr, "gmpy_module could not tweak decimal\n");
-            //~ PyErr_Clear();
-        //~ }
-        //~ Py_DECREF(namespace);
-        //~ Py_XDECREF(result);
-    //~ } else {
-        //~ PyErr_Clear();
-        //~ if (options.debug)
-            //~ fprintf(stderr, "gmpy_module could not import decimal\n");
-    //~ }
 #if PY_MAJOR_VERSION >= 3
     return gmpy_module;
 #endif
