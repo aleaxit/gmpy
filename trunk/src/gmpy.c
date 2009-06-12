@@ -2794,16 +2794,29 @@ mpf2repr(PympfObject *self)
     return Pympf_ascii(self, 10, 0, 0, -1, OP_TAG);
 }
 
-/* copy mpz object */
 static PyObject *
 Pympz_copy(PyObject *self, PyObject *args)
 {
-    PyObject *s;
-    SELF_MPZ_NO_ARG;
-    assert(Pympz_Check(self));
-    s = (PyObject*)mpz2mpz((PympzObject*)self);
-    Py_DECREF(self);
-    return s;
+    PyObject* temp;
+    if(self && Pympz_Check(self)) {
+        if(PyTuple_GET_SIZE(args) != 0) {
+            PyErr_SetString(PyExc_TypeError, "_copy() takes exactly 1 argument");
+            return NULL;
+        }
+        return (PyObject*)mpz2mpz((PympzObject*)self);
+    } else {
+        if(PyTuple_GET_SIZE(args) != 1){
+            PyErr_SetString(PyExc_TypeError, "_copy() takes exactly 1 argument");
+            return NULL;
+        }
+        temp = PyTuple_GET_ITEM(args, 0);
+        if(Pympz_Check(temp)) {
+            return (PyObject*)mpz2mpz((PympzObject*)temp);
+        } else {
+            PyErr_SetString(PyExc_TypeError, "unsupported operand type for _copy(): mpz required");
+            return NULL;
+        }
+    }
 }
 
 /* copy mpf object */
