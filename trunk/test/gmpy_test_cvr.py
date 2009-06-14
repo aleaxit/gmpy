@@ -263,7 +263,11 @@ ValueError: n must be > 0
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: root of negative number
->>> _g.digits(3.14,'peep')
+>>> _g.digits(3.14)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in ?
+TypeError: argument can not be converted to mpz
+>>> _g.digits(3,'peep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 TypeError: an integer is required
@@ -272,6 +276,10 @@ Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 TypeError: an integer is required
 >>> _g.qdigits(3.14,'peep')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in ?
+TypeError: argument can not be converted to mpq
+>>> _g.qdigits(3,'peep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 TypeError: an integer is required
@@ -298,7 +306,7 @@ mpz(3)
 >>> _g.qdiv(3,'bu')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: second argument to qdiv not a number
+TypeError: second argument can not be converted to mpq
 >>> _g.mpq(2).qdiv(3,4)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -310,10 +318,12 @@ TypeError: function takes at most 2 arguments (3 given)
 >>> _g.qdiv('bu')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: first argument to qdiv not a number
+TypeError: first argument can not be converted to mpq
 >>> _g.qdiv(1.0,1)
-mpz(1)
->>> _g.qdiv(1.0,0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in ?
+TypeError: first argument can not be converted to mpq
+>>> _g.qdiv(1,0)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ZeroDivisionError: qdiv: zero divisor
