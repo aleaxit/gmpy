@@ -2705,7 +2705,7 @@ Pympz_convert_arg(PyObject *arg, PyObject **ptr)
         return 1;
     } else {
         PyErr_SetString(PyExc_TypeError,
-            "argument cannot be converted to mpz");
+            "argument can not be converted to mpz");
         return 0;
     }
 }
@@ -3556,7 +3556,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
     if(!self) {
         if(!PyErr_Occurred()) {
             PyErr_SetString(PyExc_TypeError,
-                "first argument to qdiv not a number");
+                "first argument can not be converted to mpq");
         }
         return NULL;
     }
@@ -3568,7 +3568,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
             Py_DECREF(self);
             if(!PyErr_Occurred()) {
                 PyErr_SetString(PyExc_TypeError,
-                    "second argument to qdiv not a number");
+                    "second argument can not be converted to mpq");
             }
             return NULL;
         }
