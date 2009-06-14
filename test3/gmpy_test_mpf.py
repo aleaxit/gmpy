@@ -136,23 +136,17 @@ True
 True
 '''
 
-
-from gmpy_truediv import truediv
 __test__['newdiv']=\
 r'''
 >>>
 >>> a/b
 mpf('1.56447093799065544915e-1')
 >>> a//b
-mpf('0.e0')
->>> truediv(a,b)
-mpf('1.56447093799065544915e-1')
+mpz(0)
 >>> b/a
 mpf('6.39193720839813374806e0')
 >>> b//a
-mpf('6.e0')
->>> truediv(b,a)
-mpf('6.39193720839813374806e0')
+mpz(6)
 >>>
 '''
 
