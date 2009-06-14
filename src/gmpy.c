@@ -2838,15 +2838,27 @@ Pympf_copy(PyObject *self, PyObject *args)
 static PyObject *
 Pympq_copy(PyObject *self, PyObject *args)
 {
-    PyObject *s;
-
-    SELF_MPQ_NO_ARG;
-    assert(Pympq_Check(self));
-    s = (PyObject*)mpq2mpq((PympqObject*)self);
-    Py_DECREF(self);
-    return s;
+    PyObject* temp;
+    if(self && Pympq_Check(self)) {
+        if(PyTuple_GET_SIZE(args) != 0) {
+            PyErr_SetString(PyExc_TypeError, "function takes exactly 1 argument");
+            return NULL;
+        }
+        return (PyObject*)mpq2mpq((PympqObject*)self);
+    } else {
+        if(PyTuple_GET_SIZE(args) != 1){
+            PyErr_SetString(PyExc_TypeError, "function takes exactly 1 argument");
+            return NULL;
+        }
+        temp = PyTuple_GET_ITEM(args, 0);
+        if(Pympq_Check(temp)) {
+            return (PyObject*)mpq2mpq((PympqObject*)temp);
+        } else {
+            PyErr_SetString(PyExc_TypeError, "unsupported operand type for _qcopy(): mpq required");
+            return NULL;
+        }
+    }
 }
-
 
 /* produce portable binary form for mpz object */
 static char doc_binarym[]="\
@@ -2863,12 +2875,26 @@ x must be an mpz, or else gets coerced to one.\n\
 static PyObject *
 Pympz_binary(PyObject *self, PyObject *args)
 {
-    PyObject *s;
-    SELF_MPZ_NO_ARG;
-    assert(Pympz_Check(self));
-    s = mpz2binary((PympzObject*)self);
-    Py_DECREF(self);
-    return s;
+    PympzObject* temp;
+    if(self && Pympz_Check(self)) {
+        if(PyTuple_GET_SIZE(args) != 0) {
+            PyErr_SetString(PyExc_TypeError, "function takes exactly 1 argument");
+            return NULL;
+        }
+        return mpz2binary((PympzObject*)self);
+    } else {
+        if(PyTuple_GET_SIZE(args) != 1){
+            PyErr_SetString(PyExc_TypeError, "function takes exactly 1 argument");
+            return NULL;
+        }
+        temp = anyint2mpz(PyTuple_GET_ITEM(args, 0));
+        if(!temp) {
+            PyErr_SetString(PyExc_TypeError, "argument is not an integer");
+            return NULL;
+        } else {
+            return mpz2binary((PympzObject*)temp);
+        }
+    }
 }
 
 /* produce portable binary form for mpq object */
