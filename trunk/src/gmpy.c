@@ -4156,84 +4156,137 @@ NAME(PyObject *a, PyObject *b) \
   return (PyObject *) r; \
 }
 
-#define MPQ_DIVOP(NAME, OP) \
-static PyObject * \
-NAME(PyObject *a, PyObject *b) \
-{ \
-  PympqObject *r; \
-  PympqObject *pa = 0; \
-  PympqObject *pb = 0; \
-  pa = anyrational2mpq(a); \
-  pb = anyrational2mpq(b); \
-  if(!pa || !pb) { \
-    PyObject *r = Py_NotImplemented; \
-    Py_XDECREF(pa); \
-    Py_XDECREF(pb); \
-    Py_INCREF(r); \
-    return r; \
-  } \
-  if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
-  if (mpq_sgn(pb->q) == 0) { \
-    PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
-    Py_DECREF(pa); \
-    Py_DECREF(pb); \
-    return NULL; \
-  } \
-  if (!(r = Pympq_new())) { \
-    Py_DECREF(pa); \
-    Py_DECREF(pb); \
-    return NULL; \
-  } \
-  OP(r->q, pa->q, pb->q); \
-  Py_DECREF(pa); \
-  Py_DECREF(pb); \
-  if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
-  return (PyObject *) r; \
-}
-
-#define MPF_DIVOP(NAME, OP) \
-static PyObject * \
-NAME(PyObject *a, PyObject *b) \
-{ \
-  unsigned int bits, bbits; \
-  PympfObject *r; \
-  PympfObject *pa = 0; \
-  PympfObject *pb = 0; \
-  pa = anyreal2mpf(a, 0); \
-  pb = anyreal2mpf(b, 0); \
-  if(!pa || !pb) { \
-    PyObject *r = Py_NotImplemented; \
-    Py_XDECREF(pa); \
-    Py_XDECREF(pb); \
-    Py_INCREF(r); \
-    return r; \
-  } \
-  if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
-  if (mpf_sgn(pb->f) == 0) { \
-    PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
-    Py_DECREF(pa); \
-    Py_DECREF(pb); \
-    return NULL; \
-  } \
-  bits = pa->rebits; \
-  bbits = pb->rebits; \
-  if(bits>bbits) bits=bbits; \
-  if (!(r = Pympf_new(bits))) { \
-    Py_DECREF(pa); \
-    Py_DECREF(pb); \
-    return NULL; \
-  } \
-  OP(r->f, pa->f, pb->f); \
-  Py_DECREF(pa); \
-  Py_DECREF(pb); \
-  if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
-  return (PyObject *) r; \
-}
-
 MPZ_DIVOP(Pympz_div, mpz_fdiv_q)
 MPZ_DIVOP(Pympz_rem, mpz_fdiv_r)
-MPQ_DIVOP(Pympq_div, mpq_div)
-MPF_DIVOP(Pympf_div, mpf_div)
+
+static PyObject *
+Pympq_div(PyObject *a, PyObject *b)
+{
+    PympqObject *result;
+    PympqObject *pa = anyrational2mpq(a);
+    PympqObject *pb = anyrational2mpq(b);
+    if(!pa || !pb) {
+        PyObject *result = Py_NotImplemented;
+        Py_XDECREF(pa); Py_XDECREF(pb);
+        Py_INCREF(result);
+        return result;
+    }
+    if (options.debug) fprintf(stderr, "Pympq_div: %p, %p", pa, pb);
+    if (mpq_sgn(pb->q) == 0) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "Pympq_div: division by zero");
+        Py_DECREF(pa); Py_DECREF(pb);
+        return NULL;
+    }
+    if (!(result = Pympq_new())) {
+        Py_DECREF(pa); Py_DECREF(pb);
+        return NULL;
+    }
+    mpq_div(result->q, pa->q, pb->q);
+    Py_DECREF(pa);
+    Py_DECREF(pb);
+    if (options.debug) fprintf(stderr, "Pympq_div-> %p", result);
+    return (PyObject *) result;
+}
+
+static PyObject *
+Pympq_floordiv(PyObject *a, PyObject *b)
+{
+    PympzObject *result;
+    PympqObject *temp;
+    PympqObject *pa = anyrational2mpq(a);
+    PympqObject *pb = anyrational2mpq(b);
+    if (!pa || !pb) {
+        PyObject *result = Py_NotImplemented;
+        Py_XDECREF(pa); Py_XDECREF(pb);
+        Py_INCREF(result);
+        return result;
+    }
+    if (options.debug) fprintf(stderr, "Pympq_floordiv: %p, %p", pa, pb);
+    if (mpq_sgn(pb->q) == 0) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "Pympq_floordiv: division by zero");
+        Py_DECREF(pa); Py_DECREF(pb);
+        return NULL;
+    }
+    if (!(temp = Pympq_new())) {
+        Py_DECREF(pa); Py_DECREF(pb);
+        return NULL;
+    }
+    mpq_div(temp->q, pa->q, pb->q);
+    Py_DECREF(pa); Py_DECREF(pb);
+    if (!(result = Pympz_new())) {
+        return NULL;
+    }
+    mpz_fdiv_q(result->z, mpq_numref(temp->q), mpq_denref(temp->q));
+    Py_DECREF(temp);
+    return (PyObject *) result;
+}
+
+
+static PyObject *
+Pympf_div(PyObject *a, PyObject *b)
+{
+    unsigned int bits, bbits;
+    PympfObject *result;
+    PympfObject *pa = anyreal2mpf(a, 0);
+    PympfObject *pb = anyreal2mpf(b, 0);
+    if(!pa || !pb) {
+        PyObject *result = Py_NotImplemented;
+        Py_XDECREF(pa); Py_XDECREF(pb);
+        Py_INCREF(result);
+        return result;
+    }
+    if (options.debug) fprintf(stderr, "Pympf_div: %p, %p", pa, pb);
+    if (mpf_sgn(pb->f) == 0) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "Pympf_div: division by zero");
+        Py_DECREF(pa); Py_DECREF(pb);
+        return NULL;
+    }
+    bits = pa->rebits;
+    bbits = pb->rebits;
+    if(bits>bbits) bits=bbits;
+    if (!(result = Pympf_new(bits))) {
+        Py_DECREF(pa); Py_DECREF(pb);
+        return NULL;
+    }
+    mpf_div(result->f, pa->f, pb->f);
+    Py_DECREF(pa); Py_DECREF(pb);
+    if (options.debug) fprintf(stderr, "Pympf_div-> %p", result);
+    return (PyObject *) result;
+}
+
+
+static PyObject *
+Pympf_floordiv(PyObject *a, PyObject *b)
+{
+    PympzObject *result;
+    PympfObject *temp;
+    PympfObject *pa = anyreal2mpf(a, 0);
+    PympfObject *pb = anyreal2mpf(b, 0);
+    if (!pa || !pb) {
+        PyObject *result = Py_NotImplemented;
+        Py_XDECREF(pa); Py_XDECREF(pb);
+        Py_INCREF(result);
+        return result;
+    }
+    if (options.debug) fprintf(stderr, "Pympf_floordiv: %p, %p", pa, pb);
+    if (mpf_sgn(pb->f) == 0) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "Pympf_floordiv: division by zero");
+        Py_DECREF(pa); Py_DECREF(pb);
+        return NULL;
+    }
+    if (!(temp = Pympf_new(0))) {
+        Py_DECREF(pa); Py_DECREF(pb);
+        return NULL;
+    }
+    mpf_div(temp->f, pa->f, pb->f);
+    if (!(result = Pympz_new())) {
+        Py_DECREF(pa); Py_DECREF(pb);
+        return NULL;
+    }
+    mpz_set_f(result->z, temp->f);
+    Py_DECREF(temp);
+    return (PyObject *) result;
+}
 
 static PyObject *
 Pympany_truediv(PyObject *a, PyObject *b)
@@ -4254,53 +4307,6 @@ Pympany_truediv(PyObject *a, PyObject *b)
     return result;
 }
 
-static PyObject *
-Pympq_floordiv(PyObject *a, PyObject *b)
-{
-    PympfObject *pa = anyrational2mpf(a, 0);
-    PympfObject *pb = anyrational2mpf(b, 0);
-    PyObject *result;
-    if (!pa || !pb) {
-        PyObject *result = Py_NotImplemented;
-        Py_XDECREF(pa);
-        Py_XDECREF(pb);
-        Py_INCREF(result);
-        return result;
-    }
-    result = Pympf_div((PyObject*)pa, (PyObject*)pb);
-    Py_DECREF((PyObject*)pa);
-    Py_DECREF((PyObject*)pb);
-    if(result) {
-        result = (PyObject*) anyint2mpz(result);
-        if (result)
-            result = (PyObject*) anyrational2mpq(result);
-    }
-    return result;
-}
-
-static PyObject *
-Pympf_floordiv(PyObject *a, PyObject *b)
-{
-    PympfObject *pa = anyreal2mpf(a, 0);
-    PympfObject *pb = anyreal2mpf(b, 0);
-    PyObject *result;
-    if (!pa || !pb) {
-        PyObject *result = Py_NotImplemented;
-        Py_XDECREF(pa);
-        Py_XDECREF(pb);
-        Py_INCREF(result);
-        return result;
-    }
-    result = Pympf_div((PyObject*)pa, (PyObject*)pb);
-    Py_DECREF((PyObject*)pa);
-    Py_DECREF((PyObject*)pb);
-    if(result) {
-        result = (PyObject*) anyint2mpz(result);
-        if (result)
-            result = (PyObject*) anyreal2mpf(result, 0);
-    }
-    return result;
-}
 
 static PyObject *
 Pympz_divmod(PyObject *a, PyObject *b)
