@@ -2476,8 +2476,33 @@ Pympf_ascii(PympfObject *self, int base, int digits,
     }
 }
 
-/*
- * generic conversions
+/* Number conversion routines
+ *
+ * The routines anynum2mpX will attempt to convert any number-like object into
+ * into a gmpy object. These routines are intended for construction of mpXs.
+ * The accepted number-like objects are:
+ *      1) int (Python 2.x)
+ *      2) long (Python 2.x and 3.x)
+ *      3) float
+ *      4) Decimal
+ *      5) Fraction
+ *      6) other gmpy objects
+ *
+ * The routine anyint2mpz will only convert integer-like objects into to a
+ * gmpy mpz. The accepted integer-like objects are:
+ *      1) int
+ *      2) long
+ *      2) mpz
+ *
+ * The routine anyrational2mpq will convert an integer- and rational-like
+ * object into a gmpy mpq. The accepted objects are:
+ *      1) int
+ *      2) long
+ *      3) Fraction
+ *      4) mpz
+ *      5) mpq
+ *
+ *
  */
 static PympqObject*
 anynum2mpq(PyObject* obj)
@@ -2499,10 +2524,22 @@ anynum2mpq(PyObject* obj)
         newob = float2mpq(obj);
     } else if(PyLong_Check(obj)) {
         newob = long2mpq(obj);
+    } else if(!strcmp(obj->ob_type->tp_name, "Decimal")) {
+        PyObject *s = PyObject_Str(obj);
+        if(s) {
+            newob = str2mpq(s, 10);
+            Py_DECREF(s);
+        }
+    } else if(!strcmp(obj->ob_type->tp_name, "Fraction")) {
+        PyObject *s = PyObject_Str(obj);
+        if(s) {
+            newob = str2mpq(s, 10);
+            Py_DECREF(s);
+        }
     }
 
     if(options.debug)
-        fprintf(stderr,"any2mpq(%p)->%p\n", obj, newob);
+        fprintf(stderr,"anynum2mpq(%p)->%p\n", obj, newob);
 
     return newob;
 }
@@ -2525,6 +2562,12 @@ anyrational2mpq(PyObject* obj)
 #endif
     } else if(PyLong_Check(obj)) {
         newob = long2mpq(obj);
+    } else if(!strcmp(obj->ob_type->tp_name, "Fraction")) {
+        PyObject *s = PyObject_Str(obj);
+        if(s) {
+            newob = str2mpq(s, 10);
+            Py_DECREF(s);
+        }
     }
 
     if(options.debug)
@@ -2537,6 +2580,7 @@ static PympzObject*
 anynum2mpz(PyObject* obj)
 {
     PympzObject* newob = 0;
+    PympqObject* temp = 0;
 
     if(Pympz_Check(obj)) {
         Py_INCREF(obj);
@@ -2553,6 +2597,19 @@ anynum2mpz(PyObject* obj)
         newob = mpf2mpz(obj);
     } else if(PyFloat_Check(obj)) {
         newob = float2mpz(obj);
+    } else if(!strcmp(obj->ob_type->tp_name, "Decimal")) {
+        PyObject *s = PyObject_Str(obj);
+        if(s) {
+            newob = str2mpz(s, 10);
+            Py_DECREF(s);
+        }
+    } else if(!strcmp(obj->ob_type->tp_name, "Fraction")) {
+        PyObject *s = PyObject_Str(obj);
+        if(s) {
+            temp = str2mpq(s, 10);
+            newob = mpq2mpz(temp);
+            Py_DECREF(s); Py_DECREF(temp);
+        }
     }
     if(options.debug)
         fprintf(stderr,"anynum2mpz(%p)->%p\n", obj, newob);
@@ -2560,8 +2617,6 @@ anynum2mpz(PyObject* obj)
     return newob;
 }
 
-/* Convert an integer-like object to an mpz.
-   Todo: possibly add support for objects that support an index method. */
 
 static PympzObject*
 anyint2mpz(PyObject* obj)
@@ -2584,46 +2639,12 @@ anyint2mpz(PyObject* obj)
     return newob;
 }
 
+
 static PympfObject*
 anynum2mpf(PyObject* obj, unsigned int bits)
 {
     PympfObject* newob = 0;
-
-    if(Pympf_Check(obj)) {
-        newob = (PympfObject *) obj;
-        if(!bits || newob->rebits==bits) {
-            Py_INCREF(obj);
-        } else {
-            newob = mpf2mpf(newob, bits);
-        }
-    } else if(PyFloat_Check(obj)) {
-        newob = float2mpf(obj, bits);
-#if PY_MAJOR_VERSION == 2
-    } else if(PyInt_Check(obj)) {
-        newob = int2mpf(obj, bits);
-#endif
-    } else if(Pympq_Check(obj)) {
-        newob = mpq2mpf(obj, bits);
-    } else if(Pympz_Check(obj)) {
-        newob = mpz2mpf(obj, bits);
-    } else if(PyLong_Check(obj)) {
-        newob = long2mpf(obj, bits);
-    }
-
-    if(options.debug)
-        fprintf(stderr, "anynum2mpf(%p,%d)->%p (%d)\n", obj,
-                bits, newob, newob != 0 ? newob->rebits : -1);
-
-    return newob;
-}
-
-/* Convert any int, mpz, mpq to mpf. If input is already an mpf, the reference
-   count will be incremented and the new reference will be returned. */
-
-static PympfObject*
-anyreal2mpf(PyObject* obj, unsigned int bits)
-{
-    PympfObject* newob = 0;
+    PympqObject* temp = 0;
 
     if(Pympf_Check(obj)) {
         newob = (PympfObject *) obj;
@@ -2650,45 +2671,22 @@ anyreal2mpf(PyObject* obj, unsigned int bits)
             newob = str2mpf(s, 10, bits);
             Py_DECREF(s);
         }
-    }
-
-    if(options.debug)
-        fprintf(stderr, "anyreal2mpf(%p,%d)->%p (%d)\n", obj,
-                bits, newob, newob != 0 ? newob->rebits : -1);
-
-    return newob;
-}
-
-static PympfObject*
-anyrational2mpf(PyObject* obj, unsigned int bits)
-{
-    PympfObject* newob = 0;
-
-    if(Pympf_Check(obj)) {
-        newob = (PympfObject *) obj;
-        if(!bits || newob->rebits==bits) {
-            Py_INCREF(obj);
-        } else {
-            newob = mpf2mpf(newob, bits);
+    } else if(!strcmp(obj->ob_type->tp_name, "Fraction")) {
+        PyObject *s = PyObject_Str(obj);
+        if(s) {
+            temp = str2mpq(s, 10);
+            newob = mpq2mpf((PyObject *)temp, bits);
+            Py_DECREF(s); Py_DECREF(temp);
         }
-#if PY_MAJOR_VERSION == 2
-    } else if(PyInt_Check(obj)) {
-        newob = int2mpf(obj, bits);
-#endif
-    } else if(Pympq_Check(obj)) {
-        newob = mpq2mpf(obj, bits);
-    } else if(Pympz_Check(obj)) {
-        newob = mpz2mpf(obj, bits);
-    } else if(PyLong_Check(obj)) {
-        newob = long2mpf(obj, bits);
     }
 
     if(options.debug)
-        fprintf(stderr, "anyreal2mpf(%p,%d)->%p (%d)\n", obj,
+        fprintf(stderr, "anynum2mpf(%p,%d)->%p (%d)\n", obj,
                 bits, newob, newob != 0 ? newob->rebits : -1);
 
     return newob;
 }
+
 
 /*
  * coerce any number to a mpz
@@ -2738,7 +2736,7 @@ Pympq_convert_arg(PyObject *arg, PyObject **ptr)
 int
 Pympf_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympfObject* newob = anyreal2mpf(arg,0);
+    PympfObject* newob = anynum2mpf(arg,0);
     if(options.debug)
         fprintf(stderr, "mpf_conv_arg(%p)->%p\n", arg, newob);
 
@@ -3790,11 +3788,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
     return (PyObject *) newob;
 }
 
-#define FORWARD_MPQ_BINOP(NAME) \
-static PyObject * \
-Py##NAME(PyObject *a, PyObject *b)
-
-FORWARD_MPQ_BINOP(mpq_div);
+static PyObject * Pympq_div(PyObject *a, PyObject *b);
 
 static char doc_mpq[] = "\
 mpq(n): builds an mpq object with a numeric value n\n\
@@ -4054,8 +4048,8 @@ Py##NAME(PyObject *a, PyObject *b) \
     } else { \
       bits = ((PympfObject*)b)->rebits; \
     } \
-    pa = anyreal2mpf(a, bits); \
-    pb = anyreal2mpf(b, bits); \
+    pa = anynum2mpf(a, bits); \
+    pb = anynum2mpf(b, bits); \
     if(!pa || !pb) { \
       PyObject *r = Py_NotImplemented; \
       Py_XDECREF(pa); \
@@ -4227,8 +4221,8 @@ Pympf_div(PyObject *a, PyObject *b)
 {
     unsigned int bits, bbits;
     PympfObject *result;
-    PympfObject *pa = anyreal2mpf(a, 0);
-    PympfObject *pb = anyreal2mpf(b, 0);
+    PympfObject *pa = anynum2mpf(a, 0);
+    PympfObject *pb = anynum2mpf(b, 0);
     if(!pa || !pb) {
         PyObject *result = Py_NotImplemented;
         Py_XDECREF(pa); Py_XDECREF(pb);
@@ -4260,8 +4254,8 @@ Pympf_floordiv(PyObject *a, PyObject *b)
 {
     PympzObject *result;
     PympfObject *temp;
-    PympfObject *pa = anyreal2mpf(a, 0);
-    PympfObject *pb = anyreal2mpf(b, 0);
+    PympfObject *pa = anynum2mpf(a, 0);
+    PympfObject *pb = anynum2mpf(b, 0);
     if (!pa || !pb) {
         PyObject *result = Py_NotImplemented;
         Py_XDECREF(pa); Py_XDECREF(pb);
@@ -4291,8 +4285,8 @@ Pympf_floordiv(PyObject *a, PyObject *b)
 static PyObject *
 Pympany_truediv(PyObject *a, PyObject *b)
 {
-    PympfObject *pa = anyreal2mpf(a, 0);
-    PympfObject *pb = anyreal2mpf(b, 0);
+    PympfObject *pa = anynum2mpf(a, 0);
+    PympfObject *pb = anynum2mpf(b, 0);
     PyObject *result;
     if (!pa || !pb) {
         PyObject *result = Py_NotImplemented;
@@ -4637,16 +4631,16 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
     }
 
     if((Pympf_Check(xb) && Pympf_Check(xe))) {
-        b = anyreal2mpf(xb, 0);
-        e = anyreal2mpf(xe, 0);
+        b = anynum2mpf(xb, 0);
+        e = anynum2mpf(xe, 0);
     } else {
         if(Pympf_Check(xb)) {
-            b = anyreal2mpf(xb, 0);
-            e = anyreal2mpf(xe, ((PympfObject*)xb)->rebits);
+            b = anynum2mpf(xb, 0);
+            e = anynum2mpf(xe, ((PympfObject*)xb)->rebits);
         }
         if(Pympf_Check(xe)) {
-            b = anyreal2mpf(xb, ((PympfObject*)xe)->rebits);
-            e = anyreal2mpf(xe, 0);
+            b = anynum2mpf(xb, ((PympfObject*)xe)->rebits);
+            e = anynum2mpf(xe, 0);
         }
     }
 
@@ -4793,7 +4787,7 @@ static PyObject *
 mpf_richcompare(PympfObject *a, PyObject *b, int op)
 {
     int c;
-    PympfObject *bb = anyreal2mpf(b, 0);
+    PympfObject *bb = anynum2mpf(b, 0);
     if(!bb) {
         PyObject *result = Py_NotImplemented;
         Py_INCREF(result);
@@ -4947,97 +4941,6 @@ Pympz_hex(PympzObject *self)
     return Pympz_ascii(self, 16, 0);
 }
 
-/* coercion (in the Python sense) */
-
-//~ int
-//~ Pympz_coerce(PyObject **pv, PyObject **pw)
-//~ {
-    //~ PyObject *z;
-
-    //~ if(options.debug)
-        //~ fprintf(stderr, "Pympz.coerce(%p, %p) called...\n", *pv, *pw);
-    //~ assert(Pympz_Check(*pv));
-
-    //~ /* if other arg is float, mpf, mpq, then mpz gets converted to its type */
-    //~ if(PyFloat_Check(*pw)) {
-        //~ /* convert mpz to float, instead */
-        //~ if (options.debug)
-            //~ fprintf(stderr, "Pympz.coerce(): float \n");
-        //~ if (!(z = mpz2float((PympzObject*)*pv)))
-            //~ return -1;
-        //~ *pv = z;
-        //~ Py_INCREF(*pw);
-        //~ return 0;
-    //~ } else if(Pympf_Check(*pw)) {
-        //~ return Pympf_coerce(pw,pv);
-    //~ } else if(Pympq_Check(*pw)) {
-        //~ return Pympq_coerce(pw,pv);
-    //~ }
-    //~ /* else, try converting other-number (Python int or long) to mpz */
-    //~ z = (PyObject*)anynum2mpz(*pw);
-    //~ if(z) {
-        //~ Py_INCREF(*pv);
-        //~ *pw = z;
-        //~ return 0;
-    //~ } else {
-        //~ if(!PyErr_Occurred())
-            //~ PyErr_SetString(PyExc_TypeError,
-                    //~ "coercion to gmpy.mpz type failed");
-        //~ return -1;
-    //~ }
-//~ }
-
-//~ static int
-//~ Pympq_coerce(PyObject **pv, PyObject **pw)
-//~ {
-    //~ PympqObject *q;
-
-    //~ if(options.debug)
-        //~ fprintf(stderr, "Pympq.coerce(%p, %p) called...\n", *pv, *pw);
-    //~ assert(Pympq_Check(*pv));
-
-    //~ q = anynum2mpq(*pw);
-    //~ if(q) {
-        //~ *pw = (PyObject*)q;
-        //~ Py_INCREF(*pv);
-        //~ return 0;
-    //~ } else {
-        //~ if(!PyErr_Occurred()) {
-            //~ PyErr_SetString(PyExc_TypeError,
-                            //~ "coercion to gmpy.mpq type failed");
-        //~ }
-        //~ return -1;
-    //~ }
-//~ }
-
-//~ static int
-//~ Pympf_coerce(PyObject **pv, PyObject **pw)
-//~ {
-    //~ PyObject *z;
-    //~ PympfObject* self;
-
-    //~ if(options.debug)
-        //~ fprintf(stderr, "Pympf.coerce(%p, %p) called...\n", *pv, *pw);
-    //~ assert(Pympf_Check(*pv));
-    //~ self = (PympfObject*)(*pv);
-
-    //~ /* if other arg is mpq, then mpf gets converted to its type */
-    //~ if(Pympq_Check(*pw)) {
-        //~ return Pympq_coerce(pw,pv);
-    //~ }
-    //~ /* else, try converting other-number (Python int or long) to mpf */
-    //~ z = (PyObject*)anynum2mpf(*pw, self->rebits);
-    //~ if(z) {
-        //~ Py_INCREF(*pv);
-        //~ *pw = z;
-        //~ return 0;
-    //~ } else {
-        //~ if(!PyErr_Occurred())
-            //~ PyErr_SetString(PyExc_TypeError,
-                    //~ "coercion to gmpy.mpf type failed");
-        //~ return -1;
-    //~ }
-//~ }
 
 /* hashing */
 static long
