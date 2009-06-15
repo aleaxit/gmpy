@@ -1387,6 +1387,7 @@ str2mpz(PyObject *s, long base)
         if(!ascii_str) {
             PyErr_SetString(PyExc_ValueError,
                     "string contains non-ASCII characters");
+            Py_DECREF(newob);
             return NULL;
         }
         len = PyBytes_Size(ascii_str);
@@ -1418,7 +1419,7 @@ str2mpz(PyObject *s, long base)
             if(cp[i] == '\0') {
                 PyErr_SetString(PyExc_ValueError,
                     "string without NULL characters expected");
-                Py_DECREF((PyObject *) newob);
+                Py_DECREF(newob);
                 Py_XDECREF(ascii_str);
                 return NULL;
             }
@@ -1426,7 +1427,7 @@ str2mpz(PyObject *s, long base)
         /* delegate rest to GMP's _set_str function */
         if(-1 == mpz_set_str(newob->z, (char*)cp, base)) {
             PyErr_SetString(PyExc_ValueError, "invalid digits");
-            Py_DECREF((PyObject *) newob);
+            Py_DECREF(newob);
             Py_XDECREF(ascii_str);
             return NULL;
         }
@@ -1475,6 +1476,7 @@ str2mpq(PyObject *stringarg, long base)
         if(!ascii_str) {
             PyErr_SetString(PyExc_ValueError,
                     "string contains non-ASCII characters");
+            Py_DECREF(newob);
             return NULL;
         }
         len = PyBytes_Size(ascii_str);
@@ -1550,7 +1552,7 @@ str2mpq(PyObject *stringarg, long base)
             if(cp[i] == '\0') {
                 PyErr_SetString(PyExc_ValueError,
                     "string without NULL characters expected");
-                Py_DECREF((PyObject *) newob);
+                Py_DECREF(newob);
                 Py_XDECREF(ascii_str);
                 return NULL;
             }
@@ -1574,7 +1576,7 @@ str2mpq(PyObject *stringarg, long base)
             if(-1 == mpz_set_str(mpq_numref(newob->q), (char*)cp, base)) {
                 if(whereslash) *whereslash = '/';
                 PyErr_SetString(PyExc_ValueError, "invalid digits");
-                Py_DECREF((PyObject *) newob);
+                Py_DECREF(newob);
                 Py_XDECREF(ascii_str);
                 return NULL;
             }
@@ -1582,12 +1584,12 @@ str2mpq(PyObject *stringarg, long base)
                 *whereslash = '/';
                 if(-1==mpz_set_str(mpq_denref(newob->q), whereslash+1, base)) {
                     PyErr_SetString(PyExc_ValueError, "invalid digits");
-                    Py_DECREF((PyObject *) newob);
+                    Py_DECREF(newob);
                     Py_XDECREF(ascii_str);
                     return NULL;
                 }
                 if(0==mpz_sgn(mpq_denref(newob->q))) {
-                    Py_DECREF((PyObject *) newob);
+                    Py_DECREF(newob);
                     Py_XDECREF(ascii_str);
                     PyErr_SetString(PyExc_ZeroDivisionError, "mpq: zero denominator");
                     return NULL;
@@ -1658,8 +1660,10 @@ str2mpf(PyObject *s, long base, unsigned int bits)
         if(precision<=0) precision=1;
     }
 
-    if(!(newob = Pympf_new(precision)))
+    if(!(newob = Pympf_new(precision))) {
+        Py_XDECREF(ascii_str);
         return NULL;
+    }
 
     if(256 == base) {
         /*
@@ -1691,7 +1695,7 @@ str2mpf(PyObject *s, long base, unsigned int bits)
         if(len<6+precilen) {
             PyErr_SetString(PyExc_ValueError,
                 "string too short to be a gmpy.mpf binary encoding");
-            Py_DECREF((PyObject *) newob);
+            Py_DECREF(newob);
             Py_XDECREF(ascii_str);
             return NULL;
         }
@@ -1723,7 +1727,7 @@ str2mpf(PyObject *s, long base, unsigned int bits)
             if(cp[i] == '\0') {
                 PyErr_SetString(PyExc_ValueError,
                     "string without NULL characters expected");
-                Py_DECREF((PyObject *) newob);
+                Py_DECREF(newob);
                 Py_XDECREF(ascii_str);
                 return NULL;
             }
@@ -1732,7 +1736,7 @@ str2mpf(PyObject *s, long base, unsigned int bits)
         if(-1 == mpf_set_str(newob->f, (char*)cp, base)) {
             PyErr_SetString(PyExc_ValueError,
                 "invalid digits");
-            Py_DECREF((PyObject *) newob);
+            Py_DECREF(newob);
             Py_XDECREF(ascii_str);
             return NULL;
         }
@@ -2607,7 +2611,7 @@ anynum2mpz(PyObject* obj)
         PyObject *s = PyObject_Str(obj);
         if(s) {
             temp = str2mpq(s, 10);
-            newob = mpq2mpz(temp);
+            newob = mpq2mpz((PyObject *)temp);
             Py_DECREF(s); Py_DECREF(temp);
         }
     }
@@ -2994,6 +2998,7 @@ Pympz_numdigits(PyObject *self, PyObject *args)
     if((base < 2) || (base > 36)) {
         PyErr_SetString(PyExc_ValueError,
             "base must be either 0 or in the interval 2 ... 36");
+        Py_DECREF(self);
         return NULL;
     }
     s = Py_BuildValue("l", (long) mpz_sizeinbase(Pympz_AS_MPZ(self), base));
@@ -3012,16 +3017,8 @@ Pympz_bit_length(PyObject *self, PyObject *args)
 {
     long i = 0;
     PympzObject* newob;
-    //~ PyObject *s;
 
-    //~ fprintf(stderr,"self is %p\n", self);
-    //~ if(self) fprintf(stderr,"type is %s\n", self->ob_type->tp_name);
-    //~ fprintf(stderr,"args is %p\n", args);
-    //~ if(args) fprintf(stderr,"args is %s\n", args->ob_type->tp_name);
-
-    //~ if(self) {
     if(self && Pympz_Check(self)) {
-        //~ fprintf(stderr,"hello\n");
         if(PyTuple_GET_SIZE(args) != 0) {
             PyErr_SetString(PyExc_TypeError,
                 "bit_length() takes exactly 1 argument");
@@ -3033,7 +3030,6 @@ Pympz_bit_length(PyObject *self, PyObject *args)
         else
             return Py2or3Int_FromLong(i);
     } else {
-        //~ fprintf(stderr,"hello again\n");
         if(PyTuple_GET_SIZE(args) != 1){
             PyErr_SetString(PyExc_TypeError,
                 "bit_length() takes exactly 1 argument");
@@ -3044,18 +3040,10 @@ Pympz_bit_length(PyObject *self, PyObject *args)
             assert(Pympz_Check(newob));
             if (mpz_size(Pympz_AS_MPZ(newob)))
                 i = (long) mpz_sizeinbase(Pympz_AS_MPZ(newob), 2);
-            Py_DECREF((PyObject*)newob);
+            Py_DECREF(newob);
             return Py2or3Int_FromLong(i);
         }
         else {
-            //~ fprintf(stderr, "Why?\n");
-            //~ SELF_NO_ARG("bit_length", Pympz_convert_arg);
-            //~ assert(Pympz_Check(self));
-            //~ if (mpz_size(Pympz_AS_MPZ(self)))
-                //~ i = (long) mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
-            //~ s = Py_BuildValue("l", i);
-            //~ Py_DECREF(self);
-            //~ return s;
             PyErr_SetString(PyExc_TypeError,
                 "unsupported operand type for bit_length: integer required");
             return NULL;
@@ -3113,6 +3101,7 @@ Pympz_scan0(PyObject *self, PyObject *args)
     assert(Pympz_Check(self));
     if(starting_bit < 0) {
         PyErr_SetString(PyExc_ValueError, "starting bit must be >= 0");
+        Py_DECREF(self);
         return NULL;
     }
     maxbit = mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
@@ -3157,6 +3146,7 @@ Pympz_scan1(PyObject *self, PyObject *args)
     assert(Pympz_Check(self));
     if(starting_bit < 0) {
         PyErr_SetString(PyExc_ValueError, "starting bit must be >= 0");
+        Py_DECREF(self);
         return NULL;
     }
     maxbit = mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
@@ -3219,10 +3209,13 @@ Pympz_lowbits(PyObject *self, PyObject *args)
     assert(Pympz_Check(self));
     if(nbits <= 0) {
         PyErr_SetString(PyExc_ValueError, "nbits must be > 0");
+        Py_DECREF(self);
         return NULL;
     }
-    if(!(s = Pympz_new()))
+    if(!(s = Pympz_new())) {
+        Py_DECREF(self);
         return NULL;
+    }
     mpz_fdiv_r_2exp(s->z, Pympz_AS_MPZ(self), nbits);
     Py_DECREF(self);
     return (PyObject*)s;
@@ -3248,6 +3241,7 @@ Pympz_getbit(PyObject *self, PyObject *args)
     assert(Pympz_Check(self));
     if(bit_index < 0) {
         PyErr_SetString(PyExc_ValueError, "bit_index must be >= 0");
+        Py_DECREF(self);
         return NULL;
     }
     s = Py_BuildValue("i", mpz_tstbit(Pympz_AS_MPZ(self), bit_index));
@@ -3283,10 +3277,13 @@ Pympz_setbit(PyObject *self, PyObject *args)
     assert(Pympz_Check(self));
     if(bit_index < 0) {
         PyErr_SetString(PyExc_ValueError, "bit_index must be >= 0");
+        Py_DECREF(self);
         return NULL;
     }
-    if(!(s = mpz2mpz((PympzObject*)self)))
+    if(!(s = mpz2mpz((PympzObject*)self))) {
+        Py_DECREF(self);
         return NULL;
+    }
     Py_DECREF(self);
     if(bit_value) {
         mpz_setbit(s->z, bit_index);
@@ -3321,16 +3318,20 @@ Pympz_root(PyObject *self, PyObject *args)
     assert(Pympz_Check(self));
     if(n <= 0) {
         PyErr_SetString(PyExc_ValueError, "n must be > 0");
+        Py_DECREF(self);
         return NULL;
     } else if(n>1) {
         int sign = mpz_sgn(Pympz_AS_MPZ(self));
         if(sign<0) {
             PyErr_SetString(PyExc_ValueError, "root of negative number");
+            Py_DECREF(self);
             return NULL;
         }
     }
-    if(!(s = Pympz_new()))
+    if(!(s = Pympz_new())) {
+        Py_DECREF(self);
         return NULL;
+    }
     exact = mpz_root(s->z, Pympz_AS_MPZ(self), n);
     Py_DECREF(self);
     return Py_BuildValue("(Ni)", s, exact);
@@ -4878,26 +4879,21 @@ static PyObject * \
 NAME(PyObject *a, PyObject *b) \
 { \
   PympzObject *r; \
-  PympzObject *pa = anyint2mpz(a); \
+  PympzObject *pa = 0; \
   PympzObject *pb = 0; \
   long count; \
-  if(!pa) { \
-    PyObject *r = Py_NotImplemented; \
-    Py_INCREF(r); \
-    return r; \
-  } \
-  if(Py2or3Int_Check(b) && ((count = Py2or3Int_AsLong(b)) > 0)) { \
+  if(Pympz_Check(a) && Py2or3Int_Check(b) && ((count = Py2or3Int_AsLong(b)) > 0)) { \
       if (!(r = Pympz_new())) { \
-        Py_DECREF(pa); \
         return NULL; \
       } \
       OP(r->z, ((PympzObject*)a)->z, count); \
   } else { \
+    pa = anyint2mpz(a); \
     pb = anyint2mpz(b); \
-    if(!pb) { \
-      PyObject *r; \
-      Py_DECREF(pa); \
-      r = Py_NotImplemented; \
+    if(!pb || !pa) { \
+      PyObject *r = Py_NotImplemented; \
+      Py_XDECREF(pa); \
+      Py_XDECREF(pb); \
       Py_INCREF(r); \
       return r; \
     } \
@@ -5406,6 +5402,8 @@ Pympz_remove(PyObject *self, PyObject *args)
 
     if(mpz_sgn(Pympz_AS_MPZ(factor)) <= 0) {
         PyErr_SetString(PyExc_ValueError, "factor must be > 0");
+        Py_DECREF(self);
+        Py_DECREF(factor);
         return NULL;
     }
 
@@ -5900,6 +5898,7 @@ Pympz_is_prime(PyObject *self, PyObject *args)
     if(reps <= 0) {
         PyErr_SetString(PyExc_ValueError,
             "repetition count for is_prime must be positive");
+        Py_DECREF(self);
         return NULL;
     }
     res = Py_BuildValue("i", mpz_probab_prime_p(Pympz_AS_MPZ(self), reps));
@@ -5927,8 +5926,10 @@ Pympz_next_prime(PyObject *self, PyObject *args)
 
     SELF_MPZ_NO_ARG;
     assert(Pympz_Check(self));
-    if(!(res = Pympz_new()))
+    if(!(res = Pympz_new())) {
+        Py_DECREF(self);
         return NULL;
+    }
     mpz_nextprime(res->z, Pympz_AS_MPZ(self));
     Py_DECREF(self);
     return (PyObject*)res;

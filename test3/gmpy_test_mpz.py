@@ -435,7 +435,6 @@ True
 mpz(-123)
 >>> int(_g.mpz(-3))
 -3
->>>
 '''
 
 __test__['number']=\
@@ -524,7 +523,7 @@ mpz(4)
 ...     _xx=_g.divm(b,a,20)
 >>> del _xx
 >>> __ = gc.collect()
->>> (_memsize()-_siz) <= 16
+>>> (_memsize()-_siz) <= 32
 True
 >>> a.invert(100)
 mpz(87)
@@ -705,7 +704,6 @@ def _test(chat=None):
 
 
 if __name__=='__main__':
-    for i in range(1):
-        _test(1)
+    _test(1)
 
 
