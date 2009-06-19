@@ -1419,7 +1419,7 @@ str2mpz(PyObject *s, long base)
             if(cp[i] == '\0') {
                 PyErr_SetString(PyExc_ValueError,
                     "string without NULL characters expected");
-                Py_DECREF(newob);
+                Py_DECREF((PyObject*)newob);
                 Py_XDECREF(ascii_str);
                 return NULL;
             }
@@ -1427,7 +1427,7 @@ str2mpz(PyObject *s, long base)
         /* delegate rest to GMP's _set_str function */
         if(-1 == mpz_set_str(newob->z, (char*)cp, base)) {
             PyErr_SetString(PyExc_ValueError, "invalid digits");
-            Py_DECREF(newob);
+            Py_DECREF((PyObject*)newob);
             Py_XDECREF(ascii_str);
             return NULL;
         }
@@ -1552,7 +1552,7 @@ str2mpq(PyObject *stringarg, long base)
             if(cp[i] == '\0') {
                 PyErr_SetString(PyExc_ValueError,
                     "string without NULL characters expected");
-                Py_DECREF(newob);
+                Py_DECREF((PyObject*)newob);
                 Py_XDECREF(ascii_str);
                 return NULL;
             }
@@ -1576,7 +1576,7 @@ str2mpq(PyObject *stringarg, long base)
             if(-1 == mpz_set_str(mpq_numref(newob->q), (char*)cp, base)) {
                 if(whereslash) *whereslash = '/';
                 PyErr_SetString(PyExc_ValueError, "invalid digits");
-                Py_DECREF(newob);
+                Py_DECREF((PyObject*)newob);
                 Py_XDECREF(ascii_str);
                 return NULL;
             }
@@ -1584,12 +1584,12 @@ str2mpq(PyObject *stringarg, long base)
                 *whereslash = '/';
                 if(-1==mpz_set_str(mpq_denref(newob->q), whereslash+1, base)) {
                     PyErr_SetString(PyExc_ValueError, "invalid digits");
-                    Py_DECREF(newob);
+                    Py_DECREF((PyObject*)newob);
                     Py_XDECREF(ascii_str);
                     return NULL;
                 }
                 if(0==mpz_sgn(mpq_denref(newob->q))) {
-                    Py_DECREF(newob);
+                    Py_DECREF((PyObject*)newob);
                     Py_XDECREF(ascii_str);
                     PyErr_SetString(PyExc_ZeroDivisionError, "mpq: zero denominator");
                     return NULL;
@@ -1695,7 +1695,7 @@ str2mpf(PyObject *s, long base, unsigned int bits)
         if(len<6+precilen) {
             PyErr_SetString(PyExc_ValueError,
                 "string too short to be a gmpy.mpf binary encoding");
-            Py_DECREF(newob);
+            Py_DECREF((PyObject*)newob);
             Py_XDECREF(ascii_str);
             return NULL;
         }
@@ -1727,7 +1727,7 @@ str2mpf(PyObject *s, long base, unsigned int bits)
             if(cp[i] == '\0') {
                 PyErr_SetString(PyExc_ValueError,
                     "string without NULL characters expected");
-                Py_DECREF(newob);
+                Py_DECREF((PyObject*)newob);
                 Py_XDECREF(ascii_str);
                 return NULL;
             }
@@ -1736,7 +1736,7 @@ str2mpf(PyObject *s, long base, unsigned int bits)
         if(-1 == mpf_set_str(newob->f, (char*)cp, base)) {
             PyErr_SetString(PyExc_ValueError,
                 "invalid digits");
-            Py_DECREF(newob);
+            Py_DECREF((PyObject*)newob);
             Py_XDECREF(ascii_str);
             return NULL;
         }
@@ -2612,7 +2612,7 @@ anynum2mpz(PyObject* obj)
         if(s) {
             temp = str2mpq(s, 10);
             newob = mpq2mpz((PyObject *)temp);
-            Py_DECREF(s); Py_DECREF(temp);
+            Py_DECREF(s); Py_DECREF((PyObject*)temp);
         }
     }
     if(options.debug)
@@ -2680,7 +2680,7 @@ anynum2mpf(PyObject* obj, unsigned int bits)
         if(s) {
             temp = str2mpq(s, 10);
             newob = mpq2mpf((PyObject *)temp, bits);
-            Py_DECREF(s); Py_DECREF(temp);
+            Py_DECREF(s); Py_DECREF((PyObject*)temp);
         }
     }
 
@@ -3040,7 +3040,7 @@ Pympz_bit_length(PyObject *self, PyObject *args)
             assert(Pympz_Check(newob));
             if (mpz_size(Pympz_AS_MPZ(newob)))
                 i = (long) mpz_sizeinbase(Pympz_AS_MPZ(newob), 2);
-            Py_DECREF(newob);
+            Py_DECREF((PyObject*)newob);
             return Py2or3Int_FromLong(i);
         }
         else {
@@ -4006,8 +4006,8 @@ Py##NAME(PyObject *a, PyObject *b) \
   pb = anyint2mpz(b); \
   if(!pa || !pb) { \
     PyObject *r = Py_NotImplemented; \
-    Py_XDECREF(pa); \
-    Py_XDECREF(pb); \
+    Py_XDECREF((PyObject*)pa); \
+    Py_XDECREF((PyObject*)pb); \
     Py_INCREF(r); \
     return r; \
   } \
@@ -4053,8 +4053,8 @@ Py##NAME(PyObject *a, PyObject *b) \
     pb = anynum2mpf(b, bits); \
     if(!pa || !pb) { \
       PyObject *r = Py_NotImplemented; \
-      Py_XDECREF(pa); \
-      Py_XDECREF(pb); \
+      Py_XDECREF((PyObject*)pa); \
+      Py_XDECREF((PyObject*)pb); \
       Py_INCREF(r); \
       return r; \
     } \
@@ -4084,20 +4084,20 @@ Py##NAME(PyObject *a, PyObject *b) \
   pb = anyrational2mpq(b); \
   if(!pa || !pb) { \
     PyObject *r = Py_NotImplemented; \
-    Py_XDECREF(pa); \
-    Py_XDECREF(pb); \
-    Py_INCREF(r); \
+    Py_XDECREF((PyObject*)pa); \
+    Py_XDECREF((PyObject*)pb); \
+    Py_INCREF((PyObject*)r); \
     return r; \
   } \
   if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p", pa, pb); \
   if (!(r = Pympq_new())) { \
-    Py_DECREF(pa); \
-    Py_DECREF(pb); \
+    Py_DECREF((PyObject*)pa); \
+    Py_DECREF((PyObject*)pb); \
     return NULL; \
   } \
   NAME(r->q, pa->q, pb->q); \
-  Py_DECREF(pa); \
-  Py_DECREF(pb); \
+  Py_DECREF((PyObject*)pa); \
+  Py_DECREF((PyObject*)pb); \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", r); \
   return (PyObject *) r; \
 }
@@ -4127,26 +4127,26 @@ NAME(PyObject *a, PyObject *b) \
   pb = anyint2mpz(b); \
   if(!pa || !pb) { \
     PyObject *r = Py_NotImplemented; \
-    Py_XDECREF(pa); \
-    Py_XDECREF(pb); \
-    Py_INCREF(r); \
+    Py_XDECREF((PyObject*)pa); \
+    Py_XDECREF((PyObject*)pb); \
+    Py_INCREF((PyObject*)r); \
     return r; \
   } \
   if (options.debug) fprintf(stderr, #NAME ": %p, %p", pa, pb); \
   if  (mpz_sgn(pb->z) == 0) { \
     PyErr_SetString(PyExc_ZeroDivisionError, #NAME " by zero"); \
-    Py_DECREF(pa); \
-    Py_DECREF(pb); \
+    Py_DECREF((PyObject*)pa); \
+    Py_DECREF((PyObject*)pb); \
     return NULL; \
   } \
   if (!(r = Pympz_new())) { \
-    Py_DECREF(pa); \
-    Py_DECREF(pb); \
+    Py_DECREF((PyObject*)pa); \
+    Py_DECREF((PyObject*)pb); \
     return NULL; \
   } \
   OP(r->z, pa->z, pb->z); \
-  Py_DECREF(pa); \
-  Py_DECREF(pb); \
+  Py_DECREF((PyObject*)pa); \
+  Py_DECREF((PyObject*)pb); \
   if (options.debug) fprintf(stderr, #NAME "-> %p", r); \
   return (PyObject *) r; \
 }
@@ -4162,23 +4162,23 @@ Pympq_div(PyObject *a, PyObject *b)
     PympqObject *pb = anyrational2mpq(b);
     if(!pa || !pb) {
         PyObject *result = Py_NotImplemented;
-        Py_XDECREF(pa); Py_XDECREF(pb);
+        Py_XDECREF((PyObject*)pa); Py_XDECREF((PyObject*)pb);
         Py_INCREF(result);
         return result;
     }
     if (options.debug) fprintf(stderr, "Pympq_div: %p, %p", pa, pb);
     if (mpq_sgn(pb->q) == 0) {
         PyErr_SetString(PyExc_ZeroDivisionError, "Pympq_div: division by zero");
-        Py_DECREF(pa); Py_DECREF(pb);
+        Py_DECREF((PyObject*)pa); Py_DECREF((PyObject*)pb);
         return NULL;
     }
     if (!(result = Pympq_new())) {
-        Py_DECREF(pa); Py_DECREF(pb);
+        Py_DECREF((PyObject*)pa); Py_DECREF((PyObject*)pb);
         return NULL;
     }
     mpq_div(result->q, pa->q, pb->q);
-    Py_DECREF(pa);
-    Py_DECREF(pb);
+    Py_DECREF((PyObject*)pa);
+    Py_DECREF((PyObject*)pb);
     if (options.debug) fprintf(stderr, "Pympq_div-> %p", result);
     return (PyObject *) result;
 }
@@ -4192,27 +4192,27 @@ Pympq_floordiv(PyObject *a, PyObject *b)
     PympqObject *pb = anyrational2mpq(b);
     if (!pa || !pb) {
         PyObject *result = Py_NotImplemented;
-        Py_XDECREF(pa); Py_XDECREF(pb);
+        Py_XDECREF((PyObject*)pa); Py_XDECREF((PyObject*)pb);
         Py_INCREF(result);
         return result;
     }
     if (options.debug) fprintf(stderr, "Pympq_floordiv: %p, %p", pa, pb);
     if (mpq_sgn(pb->q) == 0) {
         PyErr_SetString(PyExc_ZeroDivisionError, "Pympq_floordiv: division by zero");
-        Py_DECREF(pa); Py_DECREF(pb);
+        Py_DECREF((PyObject*)pa); Py_DECREF((PyObject*)pb);
         return NULL;
     }
     if (!(temp = Pympq_new())) {
-        Py_DECREF(pa); Py_DECREF(pb);
+        Py_DECREF((PyObject*)pa); Py_DECREF((PyObject*)pb);
         return NULL;
     }
     mpq_div(temp->q, pa->q, pb->q);
-    Py_DECREF(pa); Py_DECREF(pb);
+    Py_DECREF((PyObject*)pa); Py_DECREF((PyObject*)pb);
     if (!(result = Pympz_new())) {
         return NULL;
     }
     mpz_fdiv_q(result->z, mpq_numref(temp->q), mpq_denref(temp->q));
-    Py_DECREF(temp);
+    Py_DECREF((PyObject*)temp);
     return (PyObject *) result;
 }
 
@@ -4226,25 +4226,25 @@ Pympf_div(PyObject *a, PyObject *b)
     PympfObject *pb = anynum2mpf(b, 0);
     if(!pa || !pb) {
         PyObject *result = Py_NotImplemented;
-        Py_XDECREF(pa); Py_XDECREF(pb);
+        Py_XDECREF((PyObject*)pa); Py_XDECREF((PyObject*)pb);
         Py_INCREF(result);
         return result;
     }
     if (options.debug) fprintf(stderr, "Pympf_div: %p, %p", pa, pb);
     if (mpf_sgn(pb->f) == 0) {
         PyErr_SetString(PyExc_ZeroDivisionError, "Pympf_div: division by zero");
-        Py_DECREF(pa); Py_DECREF(pb);
+        Py_DECREF((PyObject*)pa); Py_DECREF((PyObject*)pb);
         return NULL;
     }
     bits = pa->rebits;
     bbits = pb->rebits;
     if(bits>bbits) bits=bbits;
     if (!(result = Pympf_new(bits))) {
-        Py_DECREF(pa); Py_DECREF(pb);
+        Py_DECREF((PyObject*)pa); Py_DECREF((PyObject*)pb);
         return NULL;
     }
     mpf_div(result->f, pa->f, pb->f);
-    Py_DECREF(pa); Py_DECREF(pb);
+    Py_DECREF((PyObject*)pa); Py_DECREF((PyObject*)pb);
     if (options.debug) fprintf(stderr, "Pympf_div-> %p", result);
     return (PyObject *) result;
 }
@@ -4259,27 +4259,27 @@ Pympf_floordiv(PyObject *a, PyObject *b)
     PympfObject *pb = anynum2mpf(b, 0);
     if (!pa || !pb) {
         PyObject *result = Py_NotImplemented;
-        Py_XDECREF(pa); Py_XDECREF(pb);
+        Py_XDECREF((PyObject*)pa); Py_XDECREF((PyObject*)pb);
         Py_INCREF(result);
         return result;
     }
     if (options.debug) fprintf(stderr, "Pympf_floordiv: %p, %p", pa, pb);
     if (mpf_sgn(pb->f) == 0) {
         PyErr_SetString(PyExc_ZeroDivisionError, "Pympf_floordiv: division by zero");
-        Py_DECREF(pa); Py_DECREF(pb);
+        Py_DECREF((PyObject*)pa); Py_DECREF((PyObject*)pb);
         return NULL;
     }
     if (!(temp = Pympf_new(0))) {
-        Py_DECREF(pa); Py_DECREF(pb);
+        Py_DECREF((PyObject*)pa); Py_DECREF((PyObject*)pb);
         return NULL;
     }
     mpf_div(temp->f, pa->f, pb->f);
     if (!(result = Pympz_new())) {
-        Py_DECREF(pa); Py_DECREF(pb);
+        Py_DECREF((PyObject*)pa); Py_DECREF((PyObject*)pb);
         return NULL;
     }
     mpz_set_f(result->z, temp->f);
-    Py_DECREF(temp);
+    Py_DECREF((PyObject*)temp);
     return (PyObject *) result;
 }
 
@@ -4291,8 +4291,8 @@ Pympany_truediv(PyObject *a, PyObject *b)
     PyObject *result;
     if (!pa || !pb) {
         PyObject *result = Py_NotImplemented;
-        Py_XDECREF(pa);
-        Py_XDECREF(pb);
+        Py_XDECREF((PyObject*)pa);
+        Py_XDECREF((PyObject*)pb);
         Py_INCREF(result);
         return result;
     }
@@ -4313,8 +4313,8 @@ Pympz_divmod(PyObject *a, PyObject *b)
     pb = anyint2mpz(b);
     if(!pa || !pb) {
         PyObject *r = Py_NotImplemented;
-        Py_XDECREF(pa);
-        Py_XDECREF(pb);
+        Py_XDECREF((PyObject*)pa);
+        Py_XDECREF((PyObject*)pb);
         Py_INCREF(r);
         return r;
     }
@@ -4331,8 +4331,8 @@ Pympz_divmod(PyObject *a, PyObject *b)
         return NULL;
     }
     mpz_fdiv_qr(q->z, r->z, pa->z, pb->z);
-    Py_DECREF(pa);
-    Py_DECREF(pb);
+    Py_DECREF((PyObject*)pa);
+    Py_DECREF((PyObject*)pb);
     if (options.debug)
         fprintf(stderr, "Pympz_divmod -> %p, %p\n", q, r);
     return Py_BuildValue("(NN)", q, r);
@@ -4425,9 +4425,9 @@ Pympz_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
 
     if(!b || !e || (!m && ((PyObject*)in_m != Py_None))) {
         PyObject *r;
-        Py_XDECREF(b);
-        Py_XDECREF(e);
-        Py_XDECREF(m);
+        Py_XDECREF((PyObject*)b);
+        Py_XDECREF((PyObject*)e);
+        Py_XDECREF((PyObject*)m);
         r = Py_NotImplemented;
         Py_INCREF(r);
         return r;
@@ -4438,9 +4438,9 @@ Pympz_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
 
     if(mpz_sgn(e->z) < 0) {
         PyErr_SetString(PyExc_ValueError, "mpz.pow with negative power");
-        Py_XDECREF(b);
-        Py_XDECREF(e);
-        Py_XDECREF(m);
+        Py_XDECREF((PyObject*)b);
+        Py_XDECREF((PyObject*)e);
+        Py_XDECREF((PyObject*)m);
         return NULL;
     }
 
@@ -4449,16 +4449,16 @@ Pympz_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
         unsigned long el;
         if(notanint(e->z)) {
             PyErr_SetString(PyExc_ValueError, "mpz.pow outrageous exponent");
-            Py_XDECREF(b);
-            Py_XDECREF(e);
-            Py_XDECREF(m);
+            Py_XDECREF((PyObject*)b);
+            Py_XDECREF((PyObject*)e);
+            Py_XDECREF((PyObject*)m);
             return NULL;
         }
         el = mpz_get_ui(e->z);
         if(!(r = Pympz_new())) {
-            Py_XDECREF(b);
-            Py_XDECREF(e);
-            Py_XDECREF(m);
+            Py_XDECREF((PyObject*)b);
+            Py_XDECREF((PyObject*)e);
+            Py_XDECREF((PyObject*)m);
             return NULL;
         }
         mpz_pow_ui(r->z, b->z, el);
@@ -4471,15 +4471,15 @@ Pympz_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
         sign = mpz_sgn(m->z);
         if(sign == 0) {
             PyErr_SetString(PyExc_ValueError, "mpz.pow divide by zero");
-            Py_XDECREF(b);
-            Py_XDECREF(e);
-            Py_XDECREF(m);
+            Py_XDECREF((PyObject*)b);
+            Py_XDECREF((PyObject*)e);
+            Py_XDECREF((PyObject*)m);
             return NULL;
         }
         if(!(r = Pympz_new())) {
-            Py_XDECREF(b);
-            Py_XDECREF(e);
-            Py_XDECREF(m);
+            Py_XDECREF((PyObject*)b);
+            Py_XDECREF((PyObject*)e);
+            Py_XDECREF((PyObject*)m);
             return NULL;
         }
         mpz_inoc(mm);
@@ -4496,9 +4496,9 @@ Pympz_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
         if(options.debug)
             fprintf(stderr, "Pympz_pow -> %p\n", r);
     }
-    Py_XDECREF(b);
-    Py_XDECREF(e);
-    Py_XDECREF(m);
+    Py_XDECREF((PyObject*)b);
+    Py_XDECREF((PyObject*)e);
+    Py_XDECREF((PyObject*)m);
     return (PyObject*)r;
 }
 
@@ -4517,8 +4517,8 @@ Pympq_pow(PyObject *in_b, PyObject *in_e, PyObject *m)
 
     if(!b || !e) {
         PyObject *r;
-        Py_XDECREF(b);
-        Py_XDECREF(e);
+        Py_XDECREF((PyObject*)b);
+        Py_XDECREF((PyObject*)e);
         r = Py_NotImplemented;
         Py_INCREF(r);
         return r;
@@ -4529,25 +4529,25 @@ Pympq_pow(PyObject *in_b, PyObject *in_e, PyObject *m)
 
     if((PyObject*)m != Py_None) {
         PyErr_SetString(PyExc_ValueError, "mpq.pow no modulo allowed");
-        Py_DECREF(b);
-        Py_DECREF(e);
+        Py_DECREF((PyObject*)b);
+        Py_DECREF((PyObject*)e);
         return NULL;
     }
     if(notanint(mpq_numref(e->q))) {
         PyErr_SetString(PyExc_ValueError, "mpq.pow outrageous exp num");
-        Py_DECREF(b);
-        Py_DECREF(e);
+        Py_DECREF((PyObject*)b);
+        Py_DECREF((PyObject*)e);
         return NULL;
     }
     if(notanint(mpq_denref(e->q))) {
         PyErr_SetString(PyExc_ValueError, "mpq.pow outrageous exp den");
-        Py_DECREF(b);
-        Py_DECREF(e);
+        Py_DECREF((PyObject*)b);
+        Py_DECREF((PyObject*)e);
         return NULL;
     }
     if(!(r = Pympq_new())) {
-        Py_DECREF(b);
-        Py_DECREF(e);
+        Py_DECREF((PyObject*)b);
+        Py_DECREF((PyObject*)e);
         return NULL;
     }
 
@@ -4556,8 +4556,8 @@ Pympq_pow(PyObject *in_b, PyObject *in_e, PyObject *m)
         if(options.debug)
             fprintf(stderr, "Pympq_pow (ui,0) -> %p\n", r);
         mpq_set_si(r->q, 1, 1);
-        Py_DECREF(b);
-        Py_DECREF(e);
+        Py_DECREF((PyObject*)b);
+        Py_DECREF((PyObject*)e);
         return (PyObject*)r;
     } else if(esign < 0) {
         int bsign = mpq_sgn(b->q);
@@ -4565,8 +4565,8 @@ Pympq_pow(PyObject *in_b, PyObject *in_e, PyObject *m)
             PyObject* result = 0;
             PyErr_SetString(PyExc_ZeroDivisionError,"mpq.pow 0 base to <0 exponent");
             Py_DECREF((PyObject*)r);
-            Py_DECREF(b);
-            Py_DECREF(e);
+            Py_DECREF((PyObject*)b);
+            Py_DECREF((PyObject*)e);
             return result;
         }
         if(bsign < 0) {
@@ -4605,15 +4605,15 @@ Pympq_pow(PyObject *in_b, PyObject *in_e, PyObject *m)
         if(!exact) {
             Py_DECREF((PyObject*)r);
             PyErr_SetString(PyExc_ValueError, msg);
-            Py_DECREF(b);
-            Py_DECREF(e);
+            Py_DECREF((PyObject*)b);
+            Py_DECREF((PyObject*)e);
             return NULL;
         }
     }
     if(options.debug)
         fprintf(stderr, "Pympq_pow (ui) -> %p\n", r);
-    Py_DECREF(b);
-    Py_DECREF(e);
+    Py_DECREF((PyObject*)b);
+    Py_DECREF((PyObject*)e);
     return (PyObject*)r;
 }
 
@@ -4648,8 +4648,8 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
     if(!e || !b) {
         PyObject *r = Py_NotImplemented;
         Py_INCREF(r);
-        Py_XDECREF(e);
-        Py_XDECREF(b);
+        Py_XDECREF((PyObject*)e);
+        Py_XDECREF((PyObject*)b);
         return r;
     }
 
@@ -4663,8 +4663,8 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
     if(iexpo>0 && 0==mpf_cmp_si(e->f, iexpo)) {
         r = (PyObject*)Pympf_new(b->rebits);
         if(!r) {
-            Py_DECREF(e);
-            Py_DECREF(b);
+            Py_DECREF((PyObject*)e);
+            Py_DECREF((PyObject*)b);
             return 0;
         }
         mpf_pow_ui(Pympf_AS_MPF(r), b->f, iexpo);
@@ -4674,8 +4674,8 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
         r = Pympq_pow((PyObject*)qb, (PyObject*)qe, (PyObject*)m);
         Py_DECREF((PyObject*)qb); Py_DECREF((PyObject*)qe);
         if(!r || !Pympq_Check(r)) {
-            Py_DECREF(e);
-            Py_DECREF(b);
+            Py_DECREF((PyObject*)e);
+            Py_DECREF((PyObject*)b);
             return r;
         }
         qb = (PympqObject*)r;
@@ -4683,8 +4683,8 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
         Py_DECREF((PyObject*)qb);
     }
     mpf_normalize((PympfObject*)r);
-    Py_DECREF(e);
-    Py_DECREF(b);
+    Py_DECREF((PyObject*)e);
+    Py_DECREF((PyObject*)b);
     return r;
 }
 
@@ -4756,7 +4756,7 @@ mpz_richcompare(PympzObject *a, PyObject *b, int op)
         }
     } else {
         c = sign(mpz_cmp(a->z, bb->z));
-        Py_DECREF(bb);
+        Py_DECREF((PyObject*)bb);
     }
     return _cmp_to_object(c, op);
 }
@@ -4780,7 +4780,7 @@ mpq_richcompare(PympqObject *a, PyObject *b, int op)
         }
     } else {
         c = sign(mpq_cmp(a->q, bb->q));
-        Py_DECREF(bb);
+        Py_DECREF((PyObject*)bb);
     }
     return _cmp_to_object(c, op);
 }
@@ -4795,7 +4795,7 @@ mpf_richcompare(PympfObject *a, PyObject *b, int op)
         return result;
     } else {
         c = sign(mpf_cmp(a->f, bb->f));
-        Py_DECREF(bb);
+        Py_DECREF((PyObject*)bb);
     }
     return _cmp_to_object(c, op);
 }
@@ -4892,32 +4892,32 @@ NAME(PyObject *a, PyObject *b) \
     pb = anyint2mpz(b); \
     if(!pb || !pa) { \
       PyObject *r = Py_NotImplemented; \
-      Py_XDECREF(pa); \
-      Py_XDECREF(pb); \
+      Py_XDECREF((PyObject*)pa); \
+      Py_XDECREF((PyObject*)pb); \
       Py_INCREF(r); \
       return r; \
     } \
     if(mpz_sgn(pb->z) < 0) { \
       static char* msg = #NAME " negative shift count"; \
       PyErr_SetString(PyExc_ValueError, msg); \
-      Py_DECREF(pa); \
-      Py_DECREF(pb); \
+      Py_DECREF((PyObject*)pa); \
+      Py_DECREF((PyObject*)pb); \
       return NULL; } \
     if(!mpz_fits_slong_p(pb->z)) { \
       static char* msg = #NAME " outrageous shift count"; \
       PyErr_SetString(PyExc_ValueError, msg); \
-      Py_DECREF(pa); \
-      Py_DECREF(pb); \
+      Py_DECREF((PyObject*)pa); \
+      Py_DECREF((PyObject*)pb); \
       return NULL; } \
     count = mpz_get_si(pb->z); \
     if (!(r = Pympz_new())) { \
-      Py_DECREF(pa); \
-      Py_DECREF(pb); \
+      Py_DECREF((PyObject*)pa); \
+      Py_DECREF((PyObject*)pb); \
       return NULL; \
     } \
     OP(r->z, pa->z, count); \
-    Py_DECREF(pa); \
-    Py_DECREF(pb); \
+    Py_DECREF((PyObject*)pa); \
+    Py_DECREF((PyObject*)pb); \
   } \
   return (PyObject *) r; \
 }
