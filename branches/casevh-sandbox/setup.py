@@ -34,7 +34,7 @@ gmpy_ext = Extension('gmpy', sources=['src/gmpy.c'],
     libraries=['gmp'])
 
 setup (name = "gmpy",
-       version = "1.04",
+       version = "1.10",
        maintainer = "Alex Martelli",
        maintainer_email = "aleaxit@gmail.com",
        url = "http://code.google.com/p/gmpy/",
