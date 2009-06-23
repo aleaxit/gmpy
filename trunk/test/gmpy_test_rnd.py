@@ -1,6 +1,6 @@
-# partial unit test for gmpy 1.05 rand functionality
+# partial unit test for gmpy 1.10 rand functionality
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.05
+# test-version 1.10
 r'''
 >>> r
 <built-in function rand>

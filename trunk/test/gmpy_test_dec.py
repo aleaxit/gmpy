@@ -2,10 +2,10 @@
 # note: broken in Python 2.4.0 due to a 2.4.0 bug, please update to 2.4.1
 #       or better to allow decimal/most-anything-else interoperability!-)
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.05
+# test-version 1.10
 r'''
->>> dir(f)
-['__abs__', '__add__', '__class__', '__delattr__', '__div__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__long__', '__lt__', '__mul__', '__ne__', '__neg__', '__new__', '__nonzero__', '__pos__', '__pow__', '__radd__', '__rdiv__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
+>>> filter(lambda x: not x.startswith('__'), dir(f))
+['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
 >>>
 '''
 try: import decimal as _d
@@ -33,13 +33,17 @@ True
 >>> print d+f
 135.796
 >>> print q+d
-801463/1000
+Traceback (most recent call last):
+  ...
+TypeError: unsupported operand type(s) for +: 'mpq' and 'Decimal'
 >>> print d+q
-801463/1000
+Traceback (most recent call last):
+  ...
+TypeError: unsupported operand type(s) for +: 'Decimal' and 'mpq'
 >>> print z+d
-246
+246.34
 >>> print d+z
-246
+246.34
 >>> print _g.ceil(d)
 13.0
 >>> print _g.floor(d)

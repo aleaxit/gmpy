@@ -1,9 +1,9 @@
 # partial unit test for gmpy 1.05 mpq functionality
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.05
+# test-version 1.10
 r'''
->>> dir(a)
-['__abs__', '__add__', '__class__', '__delattr__', '__div__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__long__', '__lt__', '__mul__', '__ne__', '__neg__', '__new__', '__nonzero__', '__pos__', '__pow__', '__radd__', '__rdiv__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'denom', 'digits', 'numer', 'qdiv', 'sign']
+>>> filter(lambda x: not x.startswith('__'), dir(a))
+['_copy', 'binary', 'denom', 'digits', 'numer', 'qdiv', 'sign']
 >>>
 '''
 
@@ -90,14 +90,14 @@ r'''
 mpq(1681,39976)
 >>> a//b
 mpz(0)
->>> truediv(a,b).digits(10,19)
-'4.205023013808284971e-2'
+>>> truediv(a,b)
+mpq(1681,39976)
 >>> b/a
 mpq(39976,1681)
 >>> b//a
 mpz(23)
->>> truediv(b,a).digits(10,19)
-'2.378108268887566924e1'
+>>> truediv(b,a)
+mpq(39976,1681)
 >>>
 '''
 
@@ -183,14 +183,10 @@ gmpy.mpq(617,50)
 ...       if _g.mpq(i,j) != _g.mpq("%d/%d"%(i,j)):
 ...          print 'er1:',i,j; break
 ...       aa=_g.mpq(i,j); ai=aa.numer(); aj=aa.denom()
-...       if aj!=1 and str(aa) != ("%d/%d"%(ai,aj)):
+...       if str(aa) != ("%d/%d"%(ai,aj)):
 ...          print 'er2:',i,j,str(aa),("%d/%d"%(ai,aj)); break
-...       if aj==1 and str(aa) != ("%d"%ai):
-...          print 'er3:',i,j,str(aa),"%d"%ai; break
-...       if aj!=1 and repr(aa) != ("mpq(%d,%d)"%(ai,aj)):
-...          print 'er4:',i,j,repr(aa),("mpq(%d,%d)"%(ai,aj)); break
-...       if aj==1 and repr(aa) != ("mpq(%d)"%ai):
-...          print 'er5:',i,j,repr(aa),"mpq(%d)"%ai; break
+...       if repr(aa) != ("mpq(%d,%d)"%(ai,aj)):
+...          print 'er3:',i,j,repr(aa),("mpq(%d,%d)"%(ai,aj)); break
 >>> fmo='_g.mpq('+a.numer().digits(16)+','+a.denom().digits(16)+')'
 >>> fmo
 '_g.mpq(0x29,0x98)'
@@ -218,7 +214,7 @@ TypeError: argument can not be converted to mpq
 >>> x=_g.mpq('234/567')
 >>> del x
 >>> _g.mpq('7788')
-mpq(7788)
+mpq(7788,1)
 >>> _g.mpq('12.34')
 mpq(617,50)
 '''

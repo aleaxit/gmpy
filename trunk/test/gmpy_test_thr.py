@@ -1,6 +1,6 @@
-# partial unit test for gmpy 1.05 threaded mpz functionality
+# partial unit test for gmpy 1.10 threaded mpz functionality
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.05
+# test-version 1.10
 
 import gmpy as _g, doctest, sys, operator, gc, Queue, threading
 __test__={}
