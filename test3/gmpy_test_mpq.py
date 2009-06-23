@@ -157,14 +157,10 @@ gmpy.mpq(617,50)
 ...       if _g.mpq(i,j) != _g.mpq("%d/%d"%(i,j)):
 ...          print('er1:',i,j); break
 ...       aa=_g.mpq(i,j); ai=aa.numer(); aj=aa.denom()
-...       if aj!=1 and str(aa) != ("%d/%d"%(ai,aj)):
+...       if str(aa) != ("%d/%d"%(ai,aj)):
 ...          print('er2:',i,j,str(aa),("%d/%d"%(ai,aj))); break
-...       if aj==1 and str(aa) != ("%d"%ai):
-...          print('er3:',i,j,str(aa),"%d"%ai); break
-...       if aj!=1 and repr(aa) != ("mpq(%d,%d)"%(ai,aj)):
-...          print('er4:',i,j,repr(aa),("mpq(%d,%d)"%(ai,aj))); break
-...       if aj==1 and repr(aa) != ("mpq(%d)"%ai):
-...          print('er5:',i,j,repr(aa),"mpq(%d)"%ai); break
+...       if repr(aa) != ("mpq(%d,%d)"%(ai,aj)):
+...          print('er3:',i,j,repr(aa),("mpq(%d,%d)"%(ai,aj))); break
 >>> fmo='_g.mpq('+a.numer().digits(16)+','+a.denom().digits(16)+')'
 >>> fmo
 '_g.mpq(0x29,0x98)'
@@ -192,7 +188,7 @@ TypeError: argument can not be converted to mpq
 >>> x=_g.mpq('234/567')
 >>> del x
 >>> _g.mpq('7788')
-mpq(7788)
+mpq(7788,1)
 >>> _g.mpq('12.34')
 mpq(617,50)
 '''

@@ -16,7 +16,10 @@ __test__={}
 a=_g.mpz(123)
 b=_g.mpz(456)
 
-if sys.platform in ('linux2', 'darwin'):
+# Disable tests since they are not reliable with Python 3.1 but left behind
+# in case it is needed in the future.
+
+if sys.platform in ('__DISABLE__linux2', '__DISABLE__darwin'):
   def _memsize():
     """ this function tries to return a measurement of how much memory
         this process is consuming (if it doesn't manage to, it returns 0).
