@@ -5023,7 +5023,7 @@ NAME(PyObject *a, PyObject *b) \
       return NULL; } \
     if(!mpz_fits_slong_p(pb->z)) { \
       static char* msg = #NAME " outrageous shift count"; \
-      PyErr_SetString(PyExc_ValueError, msg); \
+      PyErr_SetString(PyExc_OverflowError, msg); \
       Py_DECREF((PyObject*)pa); \
       Py_DECREF((PyObject*)pb); \
       return NULL; } \
