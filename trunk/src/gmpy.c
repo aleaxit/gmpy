@@ -3078,6 +3078,18 @@ Pympz_bit_length(PyObject *self, PyObject *args)
     long i = 0;
     PympzObject* newob;
 
+    /* Debugging code for differences between Python 2.x and 3.x. Uncomment
+     * the following two lines and compile with 2.x and 3.x. The output is
+     * different with the following sequence of commands:
+     * >>> import gmpy
+     * >>> a=gmpy.mpz(9)
+     * >>> a.bit_length()
+     * >>> gmpy.bit_length(a)
+     */
+    
+    //~ fprintf(stderr,"self is %p\n", self);
+    //~ if(self) fprintf(stderr,"type is %s\n", self->ob_type->tp_name);
+
     if(self && Pympz_Check(self)) {
         if(PyTuple_GET_SIZE(args) != 0) {
             PyErr_SetString(PyExc_TypeError,
@@ -5700,7 +5712,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     }
     if(!Pympz_Check(man)){
         PyErr_SetString(PyExc_TypeError, "argument is not an mpz");
-	return NULL;
+    return NULL;
     }
 
     /* If the mantissa is 0, return the normalized representation. */
