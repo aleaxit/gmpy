@@ -228,7 +228,7 @@ Pympany_sub(PyObject *a, PyObject *b)
         } else if(Pympf_Check(a)) {
             paf = anynum2mpf(a, 0);
             pbf = anynum2mpf(b, paf->rebits);
-        } else {
+        } else { 
             pbf = anynum2mpf(b, 0);
             paf = anynum2mpf(a, pbf->rebits);
         }
@@ -249,7 +249,7 @@ Pympany_sub(PyObject *a, PyObject *b)
         return (PyObject *) rf;
     }
 
-    r= Py_NotImplemented;
+    r = Py_NotImplemented;
     Py_INCREF(r);
     return r;
 }
@@ -353,12 +353,14 @@ Pympany_mul(PyObject *a, PyObject *b)
         return (PyObject *) rf;
     }
 
-    r= Py_NotImplemented;
+    r = Py_NotImplemented;
     Py_INCREF(r);
     return r;
 }
 
-/* Pympany_floordiv follows the // semantics from Python 3.x */
+/* Pympany_floordiv follows the // semantics from Python 3.x. An mpz is 
+ * as the result type in all cases.
+ */
 
 static PyObject *
 Pympany_floordiv(PyObject *a, PyObject *b)
@@ -478,10 +480,19 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         return (PyObject *) rz;
     }
 
-    r= Py_NotImplemented;
+    r = Py_NotImplemented;
     Py_INCREF(r);
     return r;
 }
+
+/* Pympany_truediv follows the / semantics from Python 3.x. The result types
+ * are:
+ *   mpz / mpz -> mpf
+ *   mpq / mpq -> mpq
+ *   mpf / mpf -> mpf
+ * 
+ * The behavior of mpq now mimics the behavior of fractions.Fraction.
+ */
 
 static PyObject *
 Pympany_truediv(PyObject *a, PyObject *b)
@@ -580,12 +591,19 @@ Pympany_truediv(PyObject *a, PyObject *b)
         return (PyObject *) rf;
     }
 
-    r= Py_NotImplemented;
+    r = Py_NotImplemented;
     Py_INCREF(r);
     return r;
 }
 
-/* Pympz_div2 follows the conversions rules for Python 2.x */
+/* Pympany_div2 follows the conversions rules for Python 2.x. The behavior is
+ * a mix of floordiv and truediv. The type conversion behavior is:
+ *   mpz / mpz -> mpz
+ *   mpq / mpq -> mpq
+ *   mpf / mpf -> mpf
+ * 
+ * A division operator with these properties is not available with Python 3.x.
+ */
 
 static PyObject *
 Pympany_div2(PyObject *a, PyObject *b)
@@ -704,11 +722,145 @@ Pympany_div2(PyObject *a, PyObject *b)
         return (PyObject *) rf;
     }
 
-    r= Py_NotImplemented;
+    r = Py_NotImplemented;
     Py_INCREF(r);
     return r;
 }
 
+/* Pympany_rem follows the / semantics from Python 3.x. The result types
+ * are:
+ *   mpz / mpz -> mpz
+ *   mpq / mpq -> mpq
+ *   mpf / mpf -> mpf
+ * 
+ * The behavior of mpq now mimics the behavior of fractions.Fraction.
+ */
+
+static PyObject *
+Pympany_rem(PyObject *a, PyObject *b)
+{
+    PyObject *r = 0;
+    PympzObject *rz = 0, *paz = 0, *pbz = 0;
+    PympqObject *rq = 0, *paq = 0, *pbq = 0;
+    PympfObject *rf = 0, *paf = 0, *pbf = 0;
+    long temp;
+    unsigned int bits;
+
+    if(Pympz_Check(a) && Py2or3Int_Check(b)) {
+        if (options.debug) fprintf(stderr, "Modulo (mpz,small_int)\n");
+        if((temp=Py2or3Int_AsLong(b))<0) {
+            if(PyErr_Occurred()) {
+                PyErr_Clear();
+            } else {
+                if (!(rz = Pympz_new())) return NULL;
+                mpz_cdiv_r_ui(rz->z, ((PympzObject*)a)->z, -temp);
+                mpz_neg(rz->z, rz->z);
+                return (PyObject *) rz;
+            }
+        } else {
+            if(temp==0) {
+                PyErr_SetString(PyExc_ZeroDivisionError, "mpz division by zero");
+                return NULL;
+            }
+            if (!(rz = Pympz_new())) return NULL;
+            mpz_fdiv_r_ui(rz->z, ((PympzObject*)a)->z, temp);
+            return (PyObject *) rz;
+        }
+    }
+
+    if(isInteger(a) && isInteger(b)) {
+        if(options.debug) fprintf(stderr, "Modulo (integer,integer)\n");
+        paz = anyint2mpz(a);
+        pbz = anyint2mpz(b);
+        if(!paz || !pbz) {
+            Py_XDECREF((PyObject*)paz); Py_XDECREF((PyObject*)pbz);
+            PyErr_SetString(PyExc_SystemError, "Can not convert integer to mpz");
+            return NULL;
+        }
+        if(mpz_sgn(pbz->z)==0) {
+            PyErr_SetString(PyExc_ZeroDivisionError, "mpz division by zero");
+            Py_DECREF((PyObject*)paz); Py_DECREF((PyObject*)pbz);
+            return NULL;
+        }
+        if (!(rz = Pympz_new())) {
+            Py_DECREF((PyObject*)paz); Py_DECREF((PyObject*)pbz);
+            return NULL;
+        }
+        mpz_fdiv_r(rz->z, paz->z, pbz->z);
+        Py_DECREF((PyObject*)paz); Py_DECREF((PyObject*)pbz);
+        return (PyObject *) rz;
+    }
+
+    if(isRational(a) && isRational(b)) {
+        if(options.debug) fprintf(stderr, "Modulo (rational,rational)\n");
+        paq = anyrational2mpq(a);
+        pbq = anyrational2mpq(b);
+        if(!paq || !pbq) {
+            PyErr_SetString(PyExc_SystemError, "Can not convert rational to mpq");
+            Py_XDECREF((PyObject*)paq); Py_XDECREF((PyObject*)pbq);
+            return NULL;
+        }
+        if(mpq_sgn(pbq->q)==0) {
+            PyErr_SetString(PyExc_ZeroDivisionError, "mpq division by zero");
+            Py_DECREF((PyObject*)paq); Py_DECREF((PyObject*)pbq);
+            return NULL;
+        }
+        if (!(rq = Pympq_new()) || !(rz = Pympz_new())) {
+            Py_XDECREF((PyObject*)rq); Py_XDECREF((PyObject*)rz);
+            Py_DECREF((PyObject*)paq); Py_DECREF((PyObject*)pbq);
+            return NULL;
+        }
+        mpq_div(rq->q, paq->q, pbq->q);
+        mpz_fdiv_q(rz->z, mpq_numref(rq->q), mpq_denref(rq->q));
+	/* Need to calculate paq - rz * pbq */
+	mpq_set_z(rq->q, rz->z);
+	mpq_mul(rq->q, rq->q, pbq->q);
+	mpq_sub(rq->q, paq->q, rq->q);
+        Py_DECREF((PyObject*)paq); Py_DECREF((PyObject*)pbq);
+        Py_DECREF((PyObject*)rz);
+        return (PyObject *) rq;
+    } 
+
+    if(isNumber(a) && isNumber(b)) {
+        if(options.debug) fprintf(stderr, "Modulo (number,number)\n");
+        if(Pympf_Check(a) && Pympf_Check(b)) {
+            paf = anynum2mpf(a, 0);
+            pbf = anynum2mpf(b, 0);
+        } else if(Pympf_Check(a)) {
+            paf = anynum2mpf(a, 0);
+            pbf = anynum2mpf(b, paf->rebits);
+        } else {
+            pbf = anynum2mpf(b, 0);
+            paf = anynum2mpf(a, pbf->rebits);
+        }
+        if(!paf || !pbf) {
+            PyErr_SetString(PyExc_SystemError, "Can not convert number to mpf");
+            Py_XDECREF((PyObject*)paf); Py_XDECREF((PyObject*)pbf);
+            return NULL;
+        }
+        if(mpf_sgn(pbf->f)==0) {
+            PyErr_SetString(PyExc_ZeroDivisionError, "mpf division by zero");
+            Py_DECREF((PyObject*)paf); Py_DECREF((PyObject*)pbf);
+            return NULL;
+        }
+        bits = paf->rebits;
+        if(pbf->rebits<bits) bits=pbf->rebits;
+        if (!(rf = Pympf_new(bits)) || !(rz = Pympz_new())) {
+            Py_XDECREF((PyObject*)rf); Py_XDECREF((PyObject*)rz);
+            Py_DECREF((PyObject*)paf); Py_DECREF((PyObject*)pbf);
+            return NULL;
+        }
+        mpf_div(rf->f, paf->f, pbf->f);
+        mpf_floor(rf->f, rf->f);
+	mpf_sub(rf->f, paf->f, rf->f);
+	Py_DECREF((PyObject*)paf); Py_DECREF((PyObject*)pbf);
+        return (PyObject *) rf;
+    }
+
+    r = Py_NotImplemented;
+    Py_INCREF(r);
+    return r;
+}
 /* Pympz_rem2 follows the conversions rules for Python 2.x */
 
 static PyObject *
