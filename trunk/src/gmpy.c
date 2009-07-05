@@ -1622,7 +1622,7 @@ str2mpf(PyObject *s, long base, unsigned int bits)
 #if PY_MAJOR_VERSION >= 3
     assert(PyBytes_Check(s) || PyUnicode_Check(s));
 #else
-    assert(PyString_Check(s));
+    assert(PyString_Check(s) || PyUnicode_Check(s));
 #endif
 
 #if PY_MAJOR_VERSION >= 3
@@ -1640,8 +1640,19 @@ str2mpf(PyObject *s, long base, unsigned int bits)
         cp = (unsigned char*)PyBytes_AsString(ascii_str);
     }
 #else
-    len = PyString_Size(s);
-    cp = (unsigned char*)PyString_AsString(s);
+    if(PyString_Check(s)) {
+        len = PyString_Size(s);
+        cp = (unsigned char*)PyString_AsString(s);
+    } else {
+        ascii_str = PyUnicode_AsASCIIString(s);
+        if(!ascii_str) {
+            PyErr_SetString(PyExc_ValueError,
+                    "string contains non-ASCII characters");
+            return NULL;
+        }
+        len = PyBytes_Size(ascii_str);
+        cp = (unsigned char*)PyBytes_AsString(ascii_str);
+    }
 #endif
     if(bits>0) {
         precision = bits;
@@ -3815,7 +3826,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
 #if PY_MAJOR_VERSION >= 3
     if(PyBytes_Check(obj) || PyUnicode_Check(obj)) {
 #else
-    if(PyString_Check(obj)) {
+    if(PyString_Check(obj) || PyUnicode_Check(obj)) {
 #endif
         /* build-from-string (ascii or binary) */
         long base=10;
