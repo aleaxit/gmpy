@@ -368,7 +368,8 @@ Pympany_mul(PyObject *a, PyObject *b)
 }
 
 /* Pympany_floordiv follows the // semantics from Python 3.x. The result is
- * always an mpz.
+ * an mpz when the arguments are mpz or mpq, but the result is an mpf when
+ * the arguments are mpf.
  */
 
 static PyObject *
@@ -476,17 +477,15 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         }
         bits = paf->rebits;
         if(pbf->rebits<bits) bits=pbf->rebits;
-        if (!(rf = Pympf_new(bits)) || !(rz = Pympz_new())) {
-            Py_XDECREF((PyObject*)rf); Py_XDECREF((PyObject*)rz);
+        if (!(rf = Pympf_new(bits))) {
+            Py_XDECREF((PyObject*)rf);
             Py_DECREF((PyObject*)paf); Py_DECREF((PyObject*)pbf);
             return NULL;
         }
         mpf_div(rf->f, paf->f, pbf->f);
         mpf_floor(rf->f, rf->f);
-        mpz_set_f(rz->z, rf->f);
         Py_DECREF((PyObject*)paf); Py_DECREF((PyObject*)pbf);
-        Py_DECREF((PyObject*)rf);
-        return (PyObject *) rz;
+        return (PyObject *) rf;
     }
 
     r = Py_NotImplemented;
