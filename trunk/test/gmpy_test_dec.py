@@ -33,13 +33,9 @@ True
 >>> print d+f
 135.796
 >>> print q+d
-Traceback (most recent call last):
-  ...
-TypeError: unsupported operand type(s) for +: 'mpq' and 'Decimal'
+801.463
 >>> print d+q
-Traceback (most recent call last):
-  ...
-TypeError: unsupported operand type(s) for +: 'Decimal' and 'mpq'
+801.463
 >>> print z+d
 246.34
 >>> print d+z

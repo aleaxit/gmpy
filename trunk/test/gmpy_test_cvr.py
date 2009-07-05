@@ -483,7 +483,7 @@ mpf('3.e0')
 >>> divmod(_g.mpz(3),0)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ZeroDivisionError: mpz.divmod by zero
+ZeroDivisionError: mpz divmod by zero
 >>> divmod(_g.mpz(0),3)
 (mpz(0), mpz(0))
 >>> _g.divm(1,2,0)

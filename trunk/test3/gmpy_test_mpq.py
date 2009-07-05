@@ -3,7 +3,7 @@
 # test-version 1.05
 r'''
 >>> dir(a)
-['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'denom', 'digits', 'numer', 'qdiv', 'sign']
+['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'denom', 'digits', 'numer', 'qdiv', 'sign']
 >>>
 '''
 
@@ -23,6 +23,12 @@ mpq(263,152)
 >>> a/b
 mpq(1681,39976)
 >>> a//b
+mpz(0)
+>>> a//-b
+mpz(-1)
+>>> -a//b
+mpz(-1)
+>>> -a//-b
 mpz(0)
 >>> b+a
 mpq(41657,6232)
@@ -50,6 +56,12 @@ mpq(41,152)
 mpq(41,152)
 >>> 1/a
 mpq(152,41)
+>>> a % b
+mpq(41,152)
+>>> a % -b
+mpq(-38295,6232)
+>>> 2*a % 7*b
+mpq(263,76)
 >>> -a
 mpq(-41,152)
 >>> abs(-a)
