@@ -189,6 +189,8 @@
  *   Major code revisions to add support for Python 3.x (casevh)
  *   Changed version number to 1.10 to allow release of 1.05 (casevh)
  *   Fixed bug in binary() and qbinary() (casevh)
+ *   Fixed bug in rich comparisons (casevh)
+ *   Added % and divmod support to mpq and mpf (casevh)
  */
 #include "Python.h"
 
@@ -3842,8 +3844,6 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
     return (PyObject *) newob;
 }
 
-static PyObject * Pympq_div(PyObject *a, PyObject *b);
-
 static char doc_mpq[] = "\
 mpq(n): builds an mpq object with a numeric value n\n\
 mpq(n,m): builds an mpq object with a numeric value n/m\n\
@@ -3919,24 +3919,21 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
         putc('\n', stderr);
     }
     if(wasnumeric && argc==2) {
-        PyObject *secondarg = PyTuple_GetItem(args, 1);
-        PyObject *denominator;
-        PyObject *result;
-        if(!Pympq_convert_arg(secondarg,&denominator)) {
+        PympqObject *denominator;
+        denominator = anynum2mpq(PyTuple_GET_ITEM(args, 1));
+        if(!denominator) {
+            PyErr_SetString(PyExc_TypeError, "argument can not be converted to mpq");
             Py_DECREF((PyObject*)newob);
-            return 0;
+            return NULL;
         }
         if(0==mpq_sgn(Pympq_AS_MPQ(denominator))) {
-            PyObject* result = 0;
             PyErr_SetString(PyExc_ZeroDivisionError,"mpq: zero denominator");
-            Py_DECREF((PyObject *) newob);
+            Py_DECREF((PyObject*) newob);
             Py_DECREF(denominator);
-            return result;
+            return NULL;
         }
-        result = Pympq_div((PyObject*)newob,(PyObject*)denominator);
-        Py_DECREF((PyObject*)newob);
+        mpq_div(newob->q, newob->q, denominator->q);
         Py_DECREF(denominator);
-        newob = (PympqObject*)result;
     }
 
     return (PyObject *) newob;
@@ -4158,37 +4155,6 @@ Py##NAME(PyObject *a, PyObject *b) \
 }
 
 MPF_BINOP(mpf_reldiff)
-
-
-static PyObject *
-Pympq_div(PyObject *a, PyObject *b)
-{
-    PympqObject *result;
-    PympqObject *pa = anyrational2mpq(a);
-    PympqObject *pb = anyrational2mpq(b);
-    if(!pa || !pb) {
-        PyObject *result = Py_NotImplemented;
-        Py_XDECREF((PyObject*)pa); Py_XDECREF((PyObject*)pb);
-        Py_INCREF(result);
-        return result;
-    }
-    if (options.debug) fprintf(stderr, "Pympq_div: %p, %p", pa, pb);
-    if (mpq_sgn(pb->q) == 0) {
-        PyErr_SetString(PyExc_ZeroDivisionError, "Pympq_div: division by zero");
-        Py_DECREF((PyObject*)pa); Py_DECREF((PyObject*)pb);
-        return NULL;
-    }
-    if (!(result = Pympq_new())) {
-        Py_DECREF((PyObject*)pa); Py_DECREF((PyObject*)pb);
-        return NULL;
-    }
-    mpq_div(result->q, pa->q, pb->q);
-    Py_DECREF((PyObject*)pa);
-    Py_DECREF((PyObject*)pb);
-    if (options.debug) fprintf(stderr, "Pympq_div-> %p", result);
-    return (PyObject *) result;
-}
-
 
 #define MPZ_MONOP(NAME) \
 static PyObject * \
