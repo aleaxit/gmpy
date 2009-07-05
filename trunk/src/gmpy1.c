@@ -604,6 +604,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
     return r;
 }
 
+#if PY_MAJOR_VERSION < 3
 /* Pympany_div2 follows the conversions rules for Python 2.x. The behavior is
  * a mix of floordiv and truediv. The type conversion behavior is:
  *   mpz / mpz -> mpz
@@ -734,6 +735,7 @@ Pympany_div2(PyObject *a, PyObject *b)
     Py_INCREF(r);
     return r;
 }
+#endif
 
 /* Pympany_rem follows the % semantics from Python 3.x. The result types
  * are:
