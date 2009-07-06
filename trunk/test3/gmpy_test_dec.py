@@ -5,7 +5,7 @@
 # test-version 1.05
 r'''
 >>> dir(f)
-['__abs__', '__add__', '__class__', '__coerce__', '__delattr__', '__div__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__long__', '__lt__', '__mul__', '__ne__', '__neg__', '__new__', '__nonzero__', '__pos__', '__pow__', '__radd__', '__rdiv__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
+['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
 >>>
 '''
 try: import decimal as _d
@@ -20,38 +20,36 @@ if _d: d=_d.Decimal('12.34')
 
 __test__['elemop']=\
 r'''
->>> print _g.mpz(23) == _d.Decimal(23)
+>>> print(_g.mpz(23) == _d.Decimal(23))
 True
->>> print _g.mpz(d)
+>>> print(_g.mpz(d))
 12
->>> print _g.mpq(d)
+>>> print(_g.mpq(d))
 617/50
->>> print _g.mpf(d)
+>>> print(_g.mpf(d))
 12.34
->>> print f+d
+>>> print(f+d)
 135.796
->>> print d+f
+>>> print(d+f)
 135.796
->>> print q+d
-801463/1000
->>> print d+q
-801463/1000
->>> print z+d
-246
->>> print d+z
-246
->>> print _g.ceil(d)
+>>> print(q+d)
+801.463
+>>> print(d+q)
+801.463
+>>> print(z+d)
+246.34
+>>> print(d+z)
+246.34
+>>> print(_g.ceil(d))
 13.0
->>> print _g.floor(d)
+>>> print(_g.floor(d))
 12.0
->>> print _g.trunc(d)
+>>> print(_g.trunc(d))
 12.0
 >>> _g.getrprec(d)
 53
 >>> _g.fsqrt(d)==_g.mpf(d).sqrt()
 1
->>> coerce(d, _g.mpf(1.0))
-(mpf('1.234e1'), mpf('1.e0'))
 >>>
 '''
 
