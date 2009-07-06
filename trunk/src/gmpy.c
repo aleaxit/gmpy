@@ -4572,18 +4572,6 @@ Pympany_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
 }
 
 /* COMPARING */
-static int sign(int result)
-{
-    if(result) {
-       if(result>0) {
-           return 1;
-       } else {
-           return -1;
-       }
-    } else {
-        return 0;
-    }
-}
 
 static PyObject *_cmp_to_object(int c, int op)
 {
@@ -4601,78 +4589,58 @@ static PyObject *_cmp_to_object(int c, int op)
     return result;
 }
 static PyObject *
-mpz_richcompare(PympzObject *a, PyObject *b, int op)
+mpany_richcompare(PyObject *a, PyObject *b, int op)
 {
     int c;
-    PympzObject *bb = anyint2mpz(b);
-    PympzObject *temp = 0;
+    long temp;
+    PyObject *tempa = 0, *tempb = 0;
 
-    if(!bb) {
-        if(PyFloat_Check(b)) {
-            c = sign(mpz_cmp_d(a->z, PyFloat_AS_DOUBLE(b)));
-        } else if(PyNumber_Check(b) && !strcmp(b->ob_type->tp_name, "Decimal")) {
-            PyObject *s = PyNumber_Long(b);
-            if(!s) {
-                return NULL;
-            } else {
-                temp = long2mpz(s);
-                if(!temp) {
-                    return NULL;
-                } else {
-                    c = sign(mpz_cmp(a->z, temp->z));
-                    Py_DECREF((PyObject*)s);
-                }
-                Py_DECREF((PyObject*)s);
-            }
+    if(Pympz_Check(a) && Py2or3Int_Check(b)) {
+        if(options.debug) fprintf(stderr, "compare (mpz,small_int)\n");
+        temp=Py2or3Int_AsLong(b);
+        if((temp==-1) && PyErr_Occurred()) {
+            PyErr_Clear();
         } else {
-            PyObject *result = Py_NotImplemented;
-            Py_INCREF(result);
-            return result;
+            if(options.debug) fprintf(stderr, "temp: %ld\n", temp);
+            return _cmp_to_object(mpz_cmp_si(Pympz_AS_MPZ(a), temp), op);
         }
-    } else {
-        c = sign(mpz_cmp(a->z, bb->z));
-        Py_DECREF((PyObject*)bb);
+    } else if(Pympz_Check(a) && Pympz_Check(b)) {
+        if(options.debug) fprintf(stderr, "compare (mpz,mpz)\n");
+        return _cmp_to_object(mpz_cmp(Pympz_AS_MPZ(a), Pympz_AS_MPZ(b)), op);
+    } else if(Pympq_Check(a) && Pympq_Check(b)) {
+        if(options.debug) fprintf(stderr, "compare (mpq,mpq)\n");
+        return _cmp_to_object(mpq_cmp(Pympq_AS_MPQ(a), Pympq_AS_MPQ(b)), op);
+    } else if(Pympf_Check(a) && Pympf_Check(b)) {
+        if(options.debug) fprintf(stderr, "compare (mpf,mpf)\n");
+        return _cmp_to_object(mpf_cmp(Pympf_AS_MPF(a), Pympf_AS_MPF(b)), op);
+    } else if(isInteger(a) && isInteger(b)) {
+        if(options.debug) fprintf(stderr, "compare (mpz,int)\n");
+        tempa = (PyObject*)anyint2mpz(a);
+        tempb = (PyObject*)anyint2mpz(b);
+        c = mpz_cmp(Pympz_AS_MPZ(tempa), Pympz_AS_MPZ(tempb));
+        Py_DECREF(tempa);
+        Py_DECREF(tempb);
+        return _cmp_to_object(c, op);
+     } else if(isRational(a) && isRational(b)) {
+        if(options.debug) fprintf(stderr, "compare (mpq,rational)\n");
+        tempa = (PyObject*)anyrational2mpq(a);
+        tempb = (PyObject*)anyrational2mpq(b);
+        c = mpq_cmp(Pympq_AS_MPQ(tempa), Pympq_AS_MPQ(tempb));
+        Py_DECREF(tempa);
+        Py_DECREF(tempb);
+        return _cmp_to_object(c, op);
+    } else if(isNumber(a) && isNumber(b)) {
+        if(options.debug) fprintf(stderr, "compare (mpf,float)\n");
+        tempa = (PyObject*)anynum2mpf(a,0);
+        tempb = (PyObject*)anynum2mpf(b,0);
+        c = mpf_cmp(Pympf_AS_MPF(tempa), Pympf_AS_MPF(tempb));
+        Py_DECREF(tempa);
+        Py_DECREF(tempb);
+        return _cmp_to_object(c, op);
     }
-    return _cmp_to_object(c, op);
-}
-
-static PyObject *
-mpq_richcompare(PympqObject *a, PyObject *b, int op)
-{
-    int c;
-    mpq_t temp;
-    PympqObject *bb = anyrational2mpq(b);
-    if(!bb) {
-        if(PyFloat_Check(b)) {
-            mpq_inoc(temp);
-            mpq_set_d(temp, PyFloat_AS_DOUBLE(b));
-            c = sign(mpq_cmp(a->q, temp));
-            mpq_cloc(temp);
-        } else {
-            PyObject *result = Py_NotImplemented;
-            Py_INCREF(result);
-            return result;
-        }
-    } else {
-        c = sign(mpq_cmp(a->q, bb->q));
-        Py_DECREF((PyObject*)bb);
-    }
-    return _cmp_to_object(c, op);
-}
-static PyObject *
-mpf_richcompare(PympfObject *a, PyObject *b, int op)
-{
-    int c;
-    PympfObject *bb = anynum2mpf(b, 0);
-    if(!bb) {
-        PyObject *result = Py_NotImplemented;
-        Py_INCREF(result);
-        return result;
-    } else {
-        c = sign(mpf_cmp(a->f, bb->f));
-        Py_DECREF((PyObject*)bb);
-    }
-    return _cmp_to_object(c, op);
+    PyObject *result = Py_NotImplemented;
+    Py_INCREF(result);
+    return result;
 }
 
 static int
@@ -6681,7 +6649,7 @@ static PyTypeObject Pympz_Type =
     "GNU Multi Precision signed integer",                   /* tp_doc   */
         0,                          /* tp_traverse      */
         0,                          /* tp_clear         */
-    (richcmpfunc)&mpz_richcompare,  /* tp_richcompare   */
+    (richcmpfunc)&mpany_richcompare,  /* tp_richcompare   */
         0,                          /* tp_weaklistoffset*/
         0,                          /* tp_iter          */
         0,                          /* tp_iternext      */
@@ -6724,7 +6692,7 @@ static PyTypeObject Pympq_Type =
     "GNU Multi Precision rational number",  /* tp_doc           */
         0,                                  /* tp_traverse      */
         0,                                  /* tp_clear         */
-    (richcmpfunc)&mpq_richcompare,          /* tp_richcompare   */
+    (richcmpfunc)&mpany_richcompare,        /* tp_richcompare   */
         0,                                  /* tp_weaklistoffset*/
         0,                                  /* tp_iter          */
         0,                                  /* tp_iternext      */
@@ -6768,7 +6736,7 @@ static PyTypeObject Pympf_Type =
     "GNU Multi Precision floating point",   /* tp_doc           */
         0,                                  /* tp_traverse      */
         0,                                  /* tp_clear         */
-    (richcmpfunc)&mpf_richcompare,          /* tp_richcompare   */
+    (richcmpfunc)&mpany_richcompare,        /* tp_richcompare   */
         0,                                  /* tp_weaklistoffset*/
         0,                                  /* tp_iter          */
         0,                                  /* tp_iternext      */
