@@ -28,6 +28,12 @@ r'''
 3.0
 >>> _g.gmp_limbsize() in (32, 64)
 True
+>>> _g.mpz(u"123")
+mpz(123)
+>>> _g.mpq(u"12/37")
+mpq(12,37)
+>>> _g.mpf(u"123")
+mpf('1.23e2')
 '''
 
 try:
