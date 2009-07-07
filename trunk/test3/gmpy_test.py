@@ -44,3 +44,6 @@ for x in test_modules:
     pf, pt = failures, tests
 
 doctest.master.summarize(1)
+
+print("There is a known bug with Fraction == mpq so there is no need to")
+print("report that failure.")
