@@ -122,7 +122,12 @@ mpf('2.e0')
 >>> import pickle
 >>> pickle.loads(pickle.dumps(_g.mpz(12346789)))
 mpz(12346789)
->>>
+>>> s='12345678901234567890123456789'
+>>> int(s) == _g.mpz(s)
+True
+>>> _g.mpz(s) == int(s)
+True
+>>> del s
 '''
 
 from gmpy_truediv import truediv

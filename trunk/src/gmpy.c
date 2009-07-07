@@ -1348,7 +1348,7 @@ str2mpz(PyObject *s, long base)
 #if PY_MAJOR_VERSION >= 3
     assert(PyBytes_Check(s) || PyUnicode_Check(s));
 #else
-    assert(PyString_Check(s));
+    assert(PyString_Check(s) || PyUnicode_Check(s));
 #endif
 
     if(!(newob = Pympz_new()))
@@ -1370,8 +1370,19 @@ str2mpz(PyObject *s, long base)
         cp = (unsigned char*)PyBytes_AsString(ascii_str);
     }
 #else
-    len = PyString_Size(s);
-    cp = (unsigned char*)PyString_AsString(s);
+    if(PyString_Check(s)) {
+        len = PyString_Size(s);
+        cp = (unsigned char*)PyString_AsString(s);
+    } else {
+        ascii_str = PyUnicode_AsASCIIString(s);
+        if(!ascii_str) {
+            PyErr_SetString(PyExc_ValueError,
+                    "string contains non-ASCII characters");
+            return NULL;
+        }
+        len = PyBytes_Size(ascii_str);
+        cp = (unsigned char*)PyBytes_AsString(ascii_str);
+    }
 #endif
 
     if(256 == base) {
@@ -1437,7 +1448,7 @@ str2mpq(PyObject *stringarg, long base)
 #if PY_MAJOR_VERSION >= 3
     assert(PyBytes_Check(stringarg) || PyUnicode_Check(stringarg));
 #else
-    assert(PyString_Check(stringarg));
+    assert(PyString_Check(stringarg) || PyUnicode_Check(stringarg));
 #endif
 
     if(!(newob = Pympq_new()))
@@ -1459,8 +1470,19 @@ str2mpq(PyObject *stringarg, long base)
         cp = (unsigned char*)PyBytes_AsString(ascii_str);
     }
 #else
-    len = PyString_Size(stringarg);
-    cp = (unsigned char*)PyString_AsString(stringarg);
+    if(PyString_Check(stringarg)) {
+        len = PyString_Size(stringarg);
+        cp = (unsigned char*)PyString_AsString(stringarg);
+    } else {
+        ascii_str = PyUnicode_AsASCIIString(stringarg);
+        if(!ascii_str) {
+            PyErr_SetString(PyExc_ValueError,
+                    "string contains non-ASCII characters");
+            return NULL;
+        }
+        len = PyBytes_Size(ascii_str);
+        cp = (unsigned char*)PyBytes_AsString(ascii_str);
+    }
 #endif
 
     if(256 == base) {
@@ -3884,7 +3906,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
 #if PY_MAJOR_VERSION >= 3
     if(PyBytes_Check(obj) || PyUnicode_Check(obj)) {
 #else
-    if(PyString_Check(obj)) {
+    if(PyString_Check(obj) || PyUnicode_Check(obj)) {
 #endif
         /* build-from-string (ascii or binary) */
         long base=10;
@@ -4003,7 +4025,7 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
 #if PY_MAJOR_VERSION >= 3
     if(PyBytes_Check(obj) || PyUnicode_Check(obj)) {
 #else
-    if(PyString_Check(obj)) {
+    if(PyString_Check(obj) || PyUnicode_Check(obj)) {
 #endif
         /* build-from-string (ascii or binary) */
         long base=10;
