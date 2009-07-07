@@ -8,9 +8,48 @@ r'''
 '''
 
 import gmpy as _g, doctest,sys
+import fractions
+F=fractions.Fraction
+
 __test__={}
 a=_g.mpq('123/456')
 b=_g.mpq('789/123')
+af=F(123,456)
+bf=F(789,123)
+
+__test__['compat']=\
+r'''
+>>> a==af
+True
+>>> af==a
+True
+>>> a < af
+False
+>>> a <= af
+True
+>>> a > af
+False
+>>> a >= af
+True
+>>> af < a
+False
+>>> af <= a
+True
+>>> af > a
+False
+>>> af >= a
+True
+>>> a+bf
+mpq(41657,6232)
+>>> divmod(123*a, b) == divmod(123*af, bf)
+True
+>>> divmod(-23*a, b) == divmod(-23*af, bf)
+True
+>>> divmod(a+17, b-23) == divmod(af+17, bf-23)
+True
+>>> divmod(-a, -b) == divmod(-af, -bf)
+True
+'''
 
 __test__['elemop']=\
 r'''

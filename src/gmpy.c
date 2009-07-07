@@ -2471,6 +2471,8 @@ Pympf_ascii(PympfObject *self, int base, int digits,
 
 static int isNumber(PyObject* obj)
 {
+    if(options.debug)
+        fprintf(stderr, "isNumber: object type is %s\n", obj->ob_type->tp_name);
     if(Pympz_Check(obj)) {
         return 1;
     } else if(PyLong_Check(obj)) {
@@ -2495,6 +2497,8 @@ static int isNumber(PyObject* obj)
 
 static int isRational(PyObject* obj)
 {
+    if(options.debug)
+        fprintf(stderr, "isRational: object type is %s\n", obj->ob_type->tp_name);
     if(Pympz_Check(obj)) {
         return 1;
     } else if(PyLong_Check(obj)) {
@@ -2513,6 +2517,8 @@ static int isRational(PyObject* obj)
 
 static int isInteger(PyObject* obj)
 {
+    if(options.debug)
+        fprintf(stderr, "isInteger: object type is %s\n", obj->ob_type->tp_name);
     if(Pympz_Check(obj)) {
         return 1;
     } else if(PyLong_Check(obj)) {
@@ -4595,25 +4601,36 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     long temp;
     PyObject *tempa = 0, *tempb = 0;
 
+    if(options.debug) {
+        fprintf(stderr, "rich_compare: type(a) is %s\n", a->ob_type->tp_name);
+        fprintf(stderr, "rich_compare: type(b) is %s\n", b->ob_type->tp_name);
+    }
+
     if(Pympz_Check(a) && Py2or3Int_Check(b)) {
         if(options.debug) fprintf(stderr, "compare (mpz,small_int)\n");
         temp=Py2or3Int_AsLong(b);
+        if(options.debug) fprintf(stderr,"temp is %ld\n", temp);
         if((temp==-1) && PyErr_Occurred()) {
             PyErr_Clear();
+            if(options.debug) fprintf(stderr, "clearing error\n");
         } else {
             if(options.debug) fprintf(stderr, "temp: %ld\n", temp);
             return _cmp_to_object(mpz_cmp_si(Pympz_AS_MPZ(a), temp), op);
         }
-    } else if(Pympz_Check(a) && Pympz_Check(b)) {
+    }
+    if(Pympz_Check(a) && Pympz_Check(b)) {
         if(options.debug) fprintf(stderr, "compare (mpz,mpz)\n");
         return _cmp_to_object(mpz_cmp(Pympz_AS_MPZ(a), Pympz_AS_MPZ(b)), op);
-    } else if(Pympq_Check(a) && Pympq_Check(b)) {
+    }
+    if(Pympq_Check(a) && Pympq_Check(b)) {
         if(options.debug) fprintf(stderr, "compare (mpq,mpq)\n");
         return _cmp_to_object(mpq_cmp(Pympq_AS_MPQ(a), Pympq_AS_MPQ(b)), op);
-    } else if(Pympf_Check(a) && Pympf_Check(b)) {
+    }
+    if(Pympf_Check(a) && Pympf_Check(b)) {
         if(options.debug) fprintf(stderr, "compare (mpf,mpf)\n");
         return _cmp_to_object(mpf_cmp(Pympf_AS_MPF(a), Pympf_AS_MPF(b)), op);
-    } else if(isInteger(a) && isInteger(b)) {
+    }
+    if(isInteger(a) && isInteger(b)) {
         if(options.debug) fprintf(stderr, "compare (mpz,int)\n");
         tempa = (PyObject*)anyint2mpz(a);
         tempb = (PyObject*)anyint2mpz(b);
@@ -4621,7 +4638,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         Py_DECREF(tempa);
         Py_DECREF(tempb);
         return _cmp_to_object(c, op);
-     } else if(isRational(a) && isRational(b)) {
+    }
+    if(isRational(a) && isRational(b)) {
         if(options.debug) fprintf(stderr, "compare (mpq,rational)\n");
         tempa = (PyObject*)anyrational2mpq(a);
         tempb = (PyObject*)anyrational2mpq(b);
@@ -4629,7 +4647,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         Py_DECREF(tempa);
         Py_DECREF(tempb);
         return _cmp_to_object(c, op);
-    } else if(isNumber(a) && isNumber(b)) {
+    }
+    if(isNumber(a) && isNumber(b)) {
         if(options.debug) fprintf(stderr, "compare (mpf,float)\n");
         tempa = (PyObject*)anynum2mpf(a,0);
         tempb = (PyObject*)anynum2mpf(b,0);

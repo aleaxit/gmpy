@@ -16,7 +16,32 @@ __test__={}
 f=_g.mpf('123.456')
 q=_g.mpq('789123/1000')
 z=_g.mpz('234')
-if _d: d=_d.Decimal('12.34')
+if _d:
+    d=_d.Decimal('12.34')
+    fd=_d.Decimal('123.456')
+    qd=_d.Decimal('789.123')
+    zd=_d.Decimal('234')
+
+__test__['compat']=\
+r'''
+>>> f == fd
+True
+>>> fd == f
+True
+>>> q == qd
+True
+>>> qd == q
+True
+>>> z == zd
+True
+>>> zd == z
+True
+>>> f > d
+True
+>>> d > f
+False
+'''
+
 
 __test__['elemop']=\
 r'''
