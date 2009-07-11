@@ -1380,8 +1380,8 @@ str2mpz(PyObject *s, long base)
                     "string contains non-ASCII characters");
             return NULL;
         }
-        len = PyBytes_Size(ascii_str);
-        cp = (unsigned char*)PyBytes_AsString(ascii_str);
+        len = PyString_Size(ascii_str);
+        cp = (unsigned char*)PyString_AsString(ascii_str);
     }
 #endif
 
@@ -1480,8 +1480,8 @@ str2mpq(PyObject *stringarg, long base)
                     "string contains non-ASCII characters");
             return NULL;
         }
-        len = PyBytes_Size(ascii_str);
-        cp = (unsigned char*)PyBytes_AsString(ascii_str);
+        len = PyString_Size(ascii_str);
+        cp = (unsigned char*)PyString_AsString(ascii_str);
     }
 #endif
 
@@ -1648,8 +1648,8 @@ str2mpf(PyObject *s, long base, unsigned int bits)
                     "string contains non-ASCII characters");
             return NULL;
         }
-        len = PyBytes_Size(ascii_str);
-        cp = (unsigned char*)PyBytes_AsString(ascii_str);
+        len = PyString_Size(ascii_str);
+        cp = (unsigned char*)PyString_AsString(ascii_str);
     }
 #endif
     if(bits>0) {
@@ -3098,8 +3098,8 @@ Pympz_bit_length(PyObject *self, PyObject *args)
      * >>> gmpy.bit_length(a)
      */
 
-    //~ fprintf(stderr,"self is %p\n", self);
-    //~ if(self) fprintf(stderr,"type is %s\n", self->ob_type->tp_name);
+    fprintf(stderr,"self is %p\n", self);
+    if(self) fprintf(stderr,"type is %s\n", self->ob_type->tp_name);
 
     if(self && Pympz_Check(self)) {
         if(PyTuple_GET_SIZE(args) != 0) {
@@ -3957,11 +3957,11 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
         if(0==mpq_sgn(Pympq_AS_MPQ(denominator))) {
             PyErr_SetString(PyExc_ZeroDivisionError,"mpq: zero denominator");
             Py_DECREF((PyObject*) newob);
-            Py_DECREF(denominator);
+            Py_DECREF((PyObject*)denominator);
             return NULL;
         }
         mpq_div(newob->q, newob->q, denominator->q);
-        Py_DECREF(denominator);
+        Py_DECREF((PyObject*)denominator);
     }
 
     return (PyObject *) newob;
