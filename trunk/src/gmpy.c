@@ -207,6 +207,11 @@
  */
 #define GMPY_ALLOC_MIN 8
 
+/* To prevent excessive memory usage, we don't want to save very large
+ * numbers in the cache. 
+ */
+#define MAX_CACHE_LIMBS 128
+
 #if defined(MS_WIN32) && defined(_MSC_VER)
 /* so one won't need to link explicitly to gmp.lib...: */
 #if defined(MPIR)
@@ -382,7 +387,7 @@ static void mpz_inoc(mpz_t newo) mpz_inoc_m(newo)
 /* clear-or-cache macro & function -- stash into cache, else clear, an MPZ */
 #define mpz_cloc_m(oldo) \
 { \
-    if(in_zcache<options.zcache) { \
+    if(in_zcache<options.zcache && oldo->_mp_alloc <= MAX_CACHE_LIMBS) { \
         (zcache[in_zcache++])[0] = oldo[0]; \
         if(options.debug) \
             fprintf(stderr, "Stashed %d to zcache\n", in_zcache); \
@@ -449,7 +454,9 @@ static void mpq_inoc(mpq_t newo) mpq_inoc_m(newo)
 /* clear-or-cache macro & function -- stash into cache, else clear, an MPQ */
 #define mpq_cloc_m(oldo) \
 { \
-    if(in_qcache<options.qcache) { \
+    if(in_qcache<options.qcache \
+            && mpq_numref(oldo)->_mp_alloc <= MAX_CACHE_LIMBS \
+            && mpq_denref(oldo)->_mp_alloc <= MAX_CACHE_LIMBS) { \
         (qcache[in_qcache++])[0] = oldo[0]; \
         if(options.debug) \
             fprintf(stderr, "Stashed %d to qcache\n", in_qcache); \
@@ -3098,8 +3105,8 @@ Pympz_bit_length(PyObject *self, PyObject *args)
      * >>> gmpy.bit_length(a)
      */
 
-    fprintf(stderr,"self is %p\n", self);
-    if(self) fprintf(stderr,"type is %s\n", self->ob_type->tp_name);
+    //~ fprintf(stderr,"self is %p\n", self);
+    //~ if(self) fprintf(stderr,"type is %s\n", self->ob_type->tp_name);
 
     if(self && Pympz_Check(self)) {
         if(PyTuple_GET_SIZE(args) != 0) {
