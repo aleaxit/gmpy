@@ -208,7 +208,7 @@
 #define GMPY_ALLOC_MIN 8
 
 /* To prevent excessive memory usage, we don't want to save very large
- * numbers in the cache. 
+ * numbers in the cache.
  */
 #define MAX_CACHE_LIMBS 128
 
@@ -4628,7 +4628,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
 {
     int c;
     long temp;
-    PyObject *tempa = 0, *tempb = 0;
+    PyObject *tempa = 0, *tempb = 0, *result = 0;
 
     if(options.debug) {
         fprintf(stderr, "rich_compare: type(a) is %s\n", a->ob_type->tp_name);
@@ -4686,7 +4686,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         Py_DECREF(tempb);
         return _cmp_to_object(c, op);
     }
-    PyObject *result = Py_NotImplemented;
+    result = Py_NotImplemented;
     Py_INCREF(result);
     return result;
 }
