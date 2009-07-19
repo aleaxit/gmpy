@@ -232,7 +232,7 @@
 /* Define various macros to deal with differences between Python 2 and 3. */
 
 #if PY_MAJOR_VERSION >= 3
-#define Py2or3Int_Check PyLong_Check
+#define Py2or3Int_Check PyLong_CheckExact
 #define Py2or3Int_AsLong PyLong_AsLong
 #define Py2or3Int_FromLong PyLong_FromLong
 #define Py2or3Long_SHIFT PyLong_SHIFT
@@ -246,7 +246,7 @@
 #define Py2or3Bytes_AS_STRING PyBytes_AS_STRING
 #define Py2or3Bytes_FromStringAndSize PyBytes_FromStringAndSize
 #else
-#define Py2or3Int_Check PyInt_Check
+#define Py2or3Int_Check PyInt_CheckExact
 #define Py2or3Int_AsLong PyInt_AsLong
 #define Py2or3Int_FromLong PyInt_FromLong
 #define Py2or3Long_SHIFT SHIFT
@@ -958,7 +958,7 @@ int2mpz(PyObject *i)
 {
     PympzObject *newob;
 
-    assert(PyInt_Check(i));
+    assert(PyInt_CheckExact(i));
     if(!(newob = Pympz_new()))
         return NULL;
     mpz_set_si(newob->z, PyInt_AsLong(i));
@@ -970,7 +970,7 @@ int2mpq(PyObject *i)
 {
     PympqObject *newob;
 
-    assert(PyInt_Check(i));
+    assert(PyInt_CheckExact(i));
 
     if(!(newob = Pympq_new()))
         return NULL;
@@ -1201,7 +1201,7 @@ long2mpz(PyObject * obj)
     int len, negative;
     PyLongObject *l = (PyLongObject *) obj;
 
-    assert(PyLong_Check(obj));
+    assert(PyLong_CheckExact(obj));
 
     if(!(newob = Pympz_new()))
         return NULL;
@@ -2428,10 +2428,10 @@ static int isNumber(PyObject* obj)
         fprintf(stderr, "isNumber: object type is %s\n", obj->ob_type->tp_name);
     if(Pympz_Check(obj)) {
         return 1;
-    } else if(PyLong_Check(obj)) {
+    } else if(PyLong_CheckExact(obj)) {
         return 1;
 #if PY_MAJOR_VERSION == 2
-    } else if(PyInt_Check(obj)) {
+    } else if(PyInt_CheckExact(obj)) {
         return 1;
 #endif
     } else if(Pympq_Check(obj)) {
@@ -2454,10 +2454,10 @@ static int isRational(PyObject* obj)
         fprintf(stderr, "isRational: object type is %s\n", obj->ob_type->tp_name);
     if(Pympz_Check(obj)) {
         return 1;
-    } else if(PyLong_Check(obj)) {
+    } else if(PyLong_CheckExact(obj)) {
         return 1;
 #if PY_MAJOR_VERSION == 2
-    } else if(PyInt_Check(obj)) {
+    } else if(PyInt_CheckExact(obj)) {
         return 1;
 #endif
     } else if(Pympq_Check(obj)) {
@@ -2474,10 +2474,10 @@ static int isInteger(PyObject* obj)
         fprintf(stderr, "isInteger: object type is %s\n", obj->ob_type->tp_name);
     if(Pympz_Check(obj)) {
         return 1;
-    } else if(PyLong_Check(obj)) {
+    } else if(PyLong_CheckExact(obj)) {
         return 1;
 #if PY_MAJOR_VERSION == 2
-    } else if(PyInt_Check(obj)) {
+    } else if(PyInt_CheckExact(obj)) {
         return 1;
 #endif
     }
@@ -2522,14 +2522,14 @@ anynum2mpq(PyObject* obj)
     } else if(Pympz_Check(obj)) {
         newob = mpz2mpq(obj);
 #if PY_MAJOR_VERSION == 2
-    } else if(PyInt_Check(obj)) {
+    } else if(PyInt_CheckExact(obj)) {
         newob = int2mpq(obj);
 #endif
     } else if(Pympf_Check(obj)) {
         newob = mpf2mpq(obj);
     } else if(PyFloat_Check(obj)) {
         newob = float2mpq(obj);
-    } else if(PyLong_Check(obj)) {
+    } else if(PyLong_CheckExact(obj)) {
         newob = long2mpq(obj);
     } else if(!strcmp(obj->ob_type->tp_name, "Decimal")) {
         PyObject *s = PyObject_Str(obj);
@@ -2564,10 +2564,10 @@ anyrational2mpq(PyObject* obj)
     } else if(Pympz_Check(obj)) {
         newob = mpz2mpq(obj);
 #if PY_MAJOR_VERSION == 2
-    } else if(PyInt_Check(obj)) {
+    } else if(PyInt_CheckExact(obj)) {
         newob = int2mpq(obj);
 #endif
-    } else if(PyLong_Check(obj)) {
+    } else if(PyLong_CheckExact(obj)) {
         newob = long2mpq(obj);
     } else if(!strcmp(obj->ob_type->tp_name, "Fraction")) {
         PyObject *s = PyObject_Str(obj);
@@ -2593,10 +2593,10 @@ anynum2mpz(PyObject* obj)
         Py_INCREF(obj);
         newob = (PympzObject *) obj;
 #if PY_MAJOR_VERSION == 2
-    } else if(PyInt_Check(obj)) {
+    } else if(PyInt_CheckExact(obj)) {
         newob = int2mpz(obj);
 #endif
-    } else if(PyLong_Check(obj)) {
+    } else if(PyLong_CheckExact(obj)) {
         newob = long2mpz(obj);
     } else if(Pympq_Check(obj)) {
         newob = mpq2mpz(obj);
@@ -2634,10 +2634,10 @@ anyint2mpz(PyObject* obj)
         Py_INCREF(obj);
         newob = (PympzObject *) obj;
 #if PY_MAJOR_VERSION == 2
-    } else if(PyInt_Check(obj)) {
+    } else if(PyInt_CheckExact(obj)) {
         newob = int2mpz(obj);
 #endif
-    } else if(PyLong_Check(obj)) {
+    } else if(PyLong_CheckExact(obj)) {
         newob = long2mpz(obj);
     }
     if(options.debug)
@@ -2663,14 +2663,14 @@ anynum2mpf(PyObject* obj, unsigned int bits)
     } else if(PyFloat_Check(obj)) {
         newob = float2mpf(obj, bits);
 #if PY_MAJOR_VERSION == 2
-    } else if(PyInt_Check(obj)) {
+    } else if(PyInt_CheckExact(obj)) {
         newob = int2mpf(obj, bits);
 #endif
     } else if(Pympq_Check(obj)) {
         newob = mpq2mpf(obj, bits);
     } else if(Pympz_Check(obj)) {
         newob = mpz2mpf(obj, bits);
-    } else if(PyLong_Check(obj)) {
+    } else if(PyLong_CheckExact(obj)) {
         newob = long2mpf(obj, bits);
     } else if(!strcmp(obj->ob_type->tp_name, "Decimal")) {
         PyObject *s = PyObject_Str(obj);
@@ -3520,14 +3520,14 @@ static int isOne(PyObject* obj)
     } else if(Pympz_Check(obj)) {
         return 0==mpz_cmp_ui(Pympz_AS_MPZ(obj),1);
 #if PY_MAJOR_VERSION < 3
-    } else if(PyInt_Check(obj)) {
+    } else if(PyInt_CheckExact(obj)) {
         return PyInt_AS_LONG(obj)==1;
 #endif
     } else if(Pympf_Check(obj)) {
         return mpf_get_d(Pympf_AS_MPF(obj))==1.0;
     } else if(PyFloat_Check(obj)) {
         return PyFloat_AS_DOUBLE(obj)==1.0;
-    } else if (PyLong_Check(obj)) {
+    } else if (PyLong_CheckExact(obj)) {
         return PyLong_AsLong(obj)==1;
     }
     return 0;
