@@ -3,6 +3,7 @@
 # test-version 1.10
 
 import gmpy as _g, doctest, sys, operator, gc, Queue, threading
+
 __test__={}
 def _tf(N=2, _K=1234**5678):
     """Takes about 100ms on a first-generation Macbook Pro"""
@@ -70,15 +71,14 @@ def _test(chat=None):
         print "Unit tests for gmpy 1.10 (threading)"
         print "    running on Python", sys.version
         print
-        print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
-            (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
-            ) + _g.get_zconst())
+        print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
+            (_g.version(), _g.gmp_version(), _g.get_zcache(),
+            _g.get_qcache()))
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
     if chat: print "Repeating tests, with caching disabled"
     _g.set_zcache(0)
-    _g.set_zconst(0,0)
 
     sav = sys.stdout
     class _Dummy:
@@ -92,7 +92,7 @@ def _test(chat=None):
 
     if chat:
         print
-        print "Overall results for cvr:"
+        print "Overall results for thr:"
     return doctest.master.summarize(chat)
 
 class DoOne(threading.Thread):

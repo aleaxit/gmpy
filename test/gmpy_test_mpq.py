@@ -309,9 +309,9 @@ def _test(chat=None):
         print "Unit tests for gmpy 1.10 (mpq functionality)"
         print "    running on Python",sys.version
         print
-        print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
-            (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
-            ) + _g.get_zconst())
+        print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
+            (_g.version(), _g.gmp_version(), _g.get_zcache(),
+            _g.get_qcache()))
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
@@ -330,7 +330,7 @@ def _test(chat=None):
 
     if chat:
         print
-        print "Overall results for cvr:"
+        print "Overall results for mpq:"
     return doctest.master.summarize(chat)
 
 

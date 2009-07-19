@@ -521,10 +521,9 @@ def _test(chat=None):
         print "Unit tests for gmpy 1.10 (extra cover)"
         print "    running on Python", sys.version
         print
-        print "Testing gmpy %s (GMP %s) with default caching" \
-            "(%s, %s, %s..%s)" % (
-            (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
-            ) + _g.get_zconst())
+        print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
+            (_g.version(), _g.gmp_version(), _g.get_zcache(),
+            _g.get_qcache()))
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 

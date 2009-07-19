@@ -1,6 +1,6 @@
-# partial unit test for gmpy 1.05 extra cover
+# partial unit test for gmpy 1.10 extra cover
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.05
+# test-version 1.10
 r'''
 >>> _g.gmp_version()[:3] in ('4.3', '4.2', '4.1', '4.0', '3.1', '')
 True
@@ -515,10 +515,9 @@ def _test(chat=None):
         print("Unit tests for gmpy 1.10 (extra cover)")
         print("    running on Python", sys.version)
         print()
-        print("Testing gmpy %s (GMP %s) with default caching" \
-            "(%s, %s, %s..%s)" % (
-            (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
-            ) + _g.get_zconst()))
+        print("Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
+            (_g.version(), _g.gmp_version(), _g.get_zcache(),
+            _g.get_qcache())))
         print(__test__.keys())
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
