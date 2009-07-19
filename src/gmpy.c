@@ -191,6 +191,8 @@
  *   Fixed bug in binary() and qbinary() (casevh)
  *   Fixed bug in rich comparisons (casevh)
  *   Added % and divmod support to mpq and mpf (casevh)
+ *   Changed memory allocation functions to use PyMem (casevh)
+ *   Removed small number interning (casevh)
  */
 #include "Python.h"
 
@@ -338,11 +340,9 @@ static struct gmpy_options {
     unsigned long minprec;   /* min #of bits' precision on new mpf's built */
     int tagoff;    /* 0 for full tags 'gmpy.mpz()', else 5 for 'mpz()' */
     int zcache;    /* size of cache for mpz objects */
-    int minzco;    /* min mpz that will come as constant (inclusive) */
-    int maxzco;    /* max mpz that will come as constant (exclusive) */
     int qcache;    /* size of cache for mpq objects */
     PyObject* fcoform;  /* if non-NULL, format for float->mpf (via string) */
-} options = { 0, 0, 5, 20, -2, 11, 20, 0 };
+} options = { 0, 0, 5, 20, 20, 0 };
 
 /* sanity check: do NOT let cache sizes become wildly large! */
 #define MAX_CACHE 1000
@@ -400,41 +400,6 @@ static void mpz_inoc(mpz_t newo) mpz_inoc_m(newo)
 }
 static void mpz_cloc(mpz_t oldo) mpz_cloc_m(oldo)
 
-static PympzObject *mpz_from_c_long(long i); /* forward... */
-
-/* extra cache-of-small-constants for MPZ */
-static PympzObject** zconst;
-/* change the zconst range to 'minzco included upto maxzco excluded' */
-static void set_zconst(int new_minzco, int new_maxzco)
-{
-    int i;
-    if(zconst) { /* a previous zconst-cache, remove it */
-        for(i=options.minzco; i<options.maxzco; ++i)
-            Py_DECREF((PyObject*)zconst[i-options.minzco]);
-        PyMem_Free(zconst); zconst = 0;
-    }
-    if(new_maxzco > new_minzco) { /* non-empty new zconst-cache, build it */
-        PympzObject** new_zconst;
-        options.minzco = options.maxzco = 0;
-        new_zconst = PyMem_Malloc(sizeof(PympzObject*)*(new_maxzco-new_minzco));
-        for(i=new_minzco; i<new_maxzco; ++i)
-            new_zconst[i-new_minzco] = mpz_from_c_long(i);
-        zconst = new_zconst;
-    }
-    options.minzco = new_minzco;
-    options.maxzco = new_maxzco;
-}
-/* return incref'd mpz from zconst with value 'i', or else 0 */
-static PympzObject* get_zconst(long i)
-{
-    if(i>=options.minzco && i<options.maxzco) { /* i in zconst range */
-        PympzObject* result = zconst[i-options.minzco];
-        Py_INCREF((PyObject*)result);
-        return result;
-    } else {
-        return 0;
-    }
-}
 
 /* init-or-cache macro & function -- fetch from cache, else init, an MPQ */
 #define mpq_inoc_m(newo) \
@@ -758,18 +723,6 @@ Pygmpy_get_qcache(PyObject *self, PyObject *args)
     return Py_BuildValue("i", options.qcache);
 }
 
-static char doc_get_zconst[]="\
-get_zconst(): returns a 2-element tuple, the min (inclusive) and\n\
-max (exclusive) mpz values for which pre-registered constant\n\
-Python objects are supplied by the gmpy module.\n\
-";
-static PyObject *
-Pygmpy_get_zconst(PyObject *self, PyObject *args)
-{
-    NO_ARGS();
-    return Py_BuildValue("(ii)", options.minzco, options.maxzco);
-}
-
 static char doc_set_zcache[]="\
 set_zcache(n): sets the current cache-size (number of objects)\n\
 for mpz objects to n (does not immediately flush or enlarge the\n\
@@ -805,27 +758,6 @@ Pygmpy_set_qcache(PyObject *self, PyObject *args)
         return 0;
     }
     set_qcache(newval);
-    return Py_BuildValue("");
-}
-
-static char doc_set_zconst[]="\
-set_zconst(min,max): sets the min (inclusive) and max (exclusive)\n\
-mpz values for which pre-registered constant Python objects are\n\
-supplied by the gmpy module (the set of objects uses is immediately\n\
-re-built [as and if needed] when set_zconst changes min and/or max).\n\
-Note: cache size (max-min) must be between 0 and 1000, included.\n\
-";
-static PyObject *
-Pygmpy_set_zconst(PyObject *self, PyObject *args)
-{
-    int newmin, newmax;
-    if(!PyArg_ParseTuple(args, "ii", &newmin, &newmax))
-        return NULL;
-    if(newmin>newmax || (newmax-newmin)>MAX_CACHE) {
-        PyErr_SetString(PyExc_ValueError, "cache must between 0 and 1000");
-        return 0;
-    }
-    set_zconst(newmin, newmax);
     return Py_BuildValue("");
 }
 
@@ -1020,25 +952,17 @@ mpf2mpf(PympfObject *f, unsigned int bits)
     return newob;
 }
 
-static PympzObject *
-mpz_from_c_long(long i)
-{
-    PympzObject *newob = get_zconst(i);
-
-    if(!newob) {
-        if(!(newob = Pympz_new()))
-            return NULL;
-        mpz_set_si(newob->z, i);
-    }
-    return newob;
-}
-
 #if PY_MAJOR_VERSION < 3
 static PympzObject *
 int2mpz(PyObject *i)
 {
+    PympzObject *newob;
+
     assert(PyInt_Check(i));
-    return mpz_from_c_long(PyInt_AsLong(i));
+    if(!(newob = Pympz_new()))
+        return NULL;
+    mpz_set_si(newob->z, PyInt_AsLong(i));
+    return newob;
 }
 
 static PympqObject *
@@ -1046,7 +970,7 @@ int2mpq(PyObject *i)
 {
     PympqObject *newob;
 
-    assert(Py2or3Int_Check(i));
+    assert(PyInt_Check(i));
 
     if(!(newob = Pympq_new()))
         return NULL;
@@ -6526,8 +6450,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "set_zcache", Pygmpy_set_zcache, 1, doc_set_zcache },
     { "get_qcache", Pygmpy_get_qcache, 1, doc_get_qcache },
     { "set_qcache", Pygmpy_set_qcache, 1, doc_set_qcache },
-    { "get_zconst", Pygmpy_get_zconst, 1, doc_get_zconst },
-    { "set_zconst", Pygmpy_set_zconst, 1, doc_set_zconst },
     { "mpz", Pygmpy_mpz, 1, doc_mpz },
     { "mpq", Pygmpy_mpq, 1, doc_mpq },
     { "mpf", Pygmpy_mpf, 1, doc_mpf },
@@ -6582,7 +6504,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "fround", Pympf_round, 1, doc_froundg },
     { "getprec", Pympf_getprec, 1, doc_getprecg },
     { "getrprec", Pympf_getrprec, 1, doc_getrprecg },
-    /* NOT here: { "setprec", Pympf_setprec, 1, doc_setprecg }, */
     { "_fcopy", Pympf_copy, 1 },
     { "fsign", Pympf_sign, 1, doc_fsigng },
     { "f2q", Pympf_f2q, 1, doc_f2qg },
@@ -6882,7 +6803,6 @@ static void _PyInitGMP(void)
     options.minprec = double_mantissa;
     set_zcache(options.zcache);
     set_qcache(options.qcache);
-    set_zconst(options.minzco, options.maxzco);
 }
 
 static char _gmpy_docs[] = "\

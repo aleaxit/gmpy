@@ -33,13 +33,13 @@ _g = gmpy
 writeln("Unit tests for gmpy 1.10")
 writeln("    on Python %s" % sys.version)
 if _g.gmp_version():
-    writeln("Testing gmpy %s (GMP %s), default caching (%s, %s, %s..%s)" % (
-            (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
-            ) + _g.get_zconst()))
+    writeln("Testing gmpy %s (GMP %s), default caching (%s, %s)" % (
+            (_g.version(), _g.gmp_version(), _g.get_zcache(),
+            _g.get_qcache())))
 else:
-    writeln("Testing gmpy %s (MPIR %s), default caching (%s, %s, %s..%s)" % (
-            (_g.version(), _g.mpir_version(), _g.get_zcache(), _g.get_qcache(),
-            ) + _g.get_zconst()))
+    writeln("Testing gmpy %s (MPIR %s), default caching (%s, %s)" % (
+            (_g.version(), _g.mpir_version(), _g.get_zcache(),
+            _g.get_qcache())))
 
 
 pf, pt = 0, 0

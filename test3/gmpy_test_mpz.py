@@ -3,7 +3,7 @@
 # test-version 1.05
 r'''
 >>> list(filter(lambda x: not x.startswith('_'), dir(_g)))
-['binary', 'bincoef', 'bit_length', 'ceil', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fib', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_qcache', 'get_zcache', 'get_zconst', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'rand', 'reldiff', 'remove', 'root', 'scan0', 'scan1', 'set_debug', 'set_fcoform', 'set_minprec', 'set_qcache', 'set_tagoff', 'set_zcache', 'set_zconst', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'trunc', 'version']
+['binary', 'bincoef', 'bit_length', 'ceil', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fib', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_qcache', 'get_zcache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'rand', 'reldiff', 'remove', 'root', 'scan0', 'scan1', 'set_debug', 'set_fcoform', 'set_minprec', 'set_qcache', 'set_tagoff', 'set_zcache', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'trunc', 'version']
 >>> dir(a)
 ['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__index__', '__init__', '__int__', '__invert__', '__le__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', '_copy', 'binary', 'bincoef', 'bit_length', 'comb', 'digits', 'divexact', 'getbit', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem']
 >>>
@@ -693,7 +693,6 @@ def _test(chat=None):
 
     if chat: print("Repeating tests, with caching disabled")
     _g.set_zcache(0)
-    _g.set_zconst(0,0)
 
     sav = sys.stdout
     class _Dummy:
