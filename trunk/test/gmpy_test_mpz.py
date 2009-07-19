@@ -3,7 +3,7 @@
 # test-version 1.10
 r'''
 >>> filter(lambda x: not x.startswith('_'), dir(_g))
-['binary', 'bincoef', 'bit_length', 'ceil', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fib', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_qcache', 'get_zcache', 'get_zconst', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'rand', 'reldiff', 'remove', 'root', 'scan0', 'scan1', 'set_debug', 'set_fcoform', 'set_minprec', 'set_qcache', 'set_tagoff', 'set_zcache', 'set_zconst', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'trunc', 'version']
+['binary', 'bincoef', 'bit_length', 'ceil', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fib', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_qcache', 'get_zcache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'rand', 'reldiff', 'remove', 'root', 'scan0', 'scan1', 'set_debug', 'set_fcoform', 'set_minprec', 'set_qcache', 'set_tagoff', 'set_zcache', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'trunc', 'version']
 >>> filter(lambda x: not x.startswith('__'), dir(a))
 ['_copy', 'binary', 'bincoef', 'bit_length', 'comb', 'digits', 'divexact', 'getbit', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem']
 >>>
@@ -16,7 +16,10 @@ __test__={}
 a=_g.mpz(123)
 b=_g.mpz(456)
 
-if sys.platform in ('linux2', 'darwin'):
+# Disable tests since they are not reliable with Python 3.1 but left behind
+# in case it is needed in the future.
+
+if sys.platform in ('__DISABLE__linux2', '__DISABLE__darwin'):
   def _memsize():
     """ this function tries to return a measurement of how much memory
         this process is consuming (if it doesn't manage to, it returns 0).
@@ -641,14 +644,12 @@ def _test(chat=None):
         print "    running on Python %s" % sys.version
         print
         print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s..%s)" % (
-            (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache(),
-            ) + _g.get_zconst())
+            (_g.version(), _g.gmp_version(), _g.get_zcache(), _g.get_qcache()))
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
     if chat: print "Repeating tests, with caching disabled"
     _g.set_zcache(0)
-    _g.set_zconst(0,0)
 
     sav = sys.stdout
     class _Dummy:

@@ -117,34 +117,6 @@ ValueError: cache must between 0 and 1000
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: cache must between 0 and 1000
->>> _g.get_zconst(23)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: function takes exactly 0 arguments (1 given)
->>> _g.set_zconst()
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: function takes exactly 2 arguments (0 given)
->>> _g.set_zconst(23)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: function takes exactly 2 arguments (1 given)
->>> _g.set_zconst(23,45,67)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: function takes exactly 2 arguments (3 given)
->>> _g.set_zconst(23,'blub')
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: an integer is required
->>> _g.set_zconst(-1000,1000)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: cache must between 0 and 1000
->>> _g.set_zconst(100,-100)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: cache must between 0 and 1000
 >>> _g.set_debug()
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
