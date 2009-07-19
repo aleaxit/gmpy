@@ -205,7 +205,7 @@
 /* Define the minimum memory amount allocated. 8 has historically been
  * used, but 16 might be better for some applications or 64-bit systems.
  */
-#define GMPY_ALLOC_MIN 8
+#define GMPY_ALLOC_MIN (2 * (GMP_NUMB_BITS >> 3))
 
 /* To prevent excessive memory usage, we don't want to save very large
  * numbers in the cache.
@@ -311,21 +311,21 @@ char _gmpy_cvs[] = "$Id$";
     if(S < ALLOC_THRESHOLD) { \
         B = alloca(S); \
     } else { \
-        if(!(B = malloc(S))) { \
+        if(!(B = PyMem_Malloc(S))) { \
             mpz_cloc(temp); \
             PyErr_NoMemory(); \
             return NULL; \
         } \
     }
-#define TEMP_FREE(B, S) if(S >= ALLOC_THRESHOLD) free(B)
+#define TEMP_FREE(B, S) if(S >= ALLOC_THRESHOLD) PyMem_Free(B)
 #else
 #define TEMP_ALLOC(B, S) \
-    if(!(B = malloc(S)))  { \
+    if(!(B = PyMem_Malloc(S)))  { \
         mpz_cloc(temp); \
         PyErr_NoMemory(); \
         return NULL; \
     }
-#define TEMP_FREE(B, S) free(B)
+#define TEMP_FREE(B, S) PyMem_Free(B)
 #endif
 
 /*
@@ -362,7 +362,7 @@ static void set_Xcache(int new_Xcache) \
             mpX_clear(Xcache[i]); \
         in_Xcache = new_Xcache; \
     } \
-    Xcache = realloc(Xcache, sizeof(mpX_t)*new_Xcache); \
+    Xcache = PyMem_Realloc(Xcache, sizeof(mpX_t)*new_Xcache); \
     options.Xcache = new_Xcache; \
 }
 
@@ -411,12 +411,12 @@ static void set_zconst(int new_minzco, int new_maxzco)
     if(zconst) { /* a previous zconst-cache, remove it */
         for(i=options.minzco; i<options.maxzco; ++i)
             Py_DECREF((PyObject*)zconst[i-options.minzco]);
-        free(zconst); zconst = 0;
+        PyMem_Free(zconst); zconst = 0;
     }
     if(new_maxzco > new_minzco) { /* non-empty new zconst-cache, build it */
         PympzObject** new_zconst;
         options.minzco = options.maxzco = 0;
-        new_zconst = malloc(sizeof(PympzObject*)*(new_maxzco-new_minzco));
+        new_zconst = PyMem_Malloc(sizeof(PympzObject*)*(new_maxzco-new_minzco));
         for(i=new_minzco; i<new_maxzco; ++i)
             new_zconst[i-new_minzco] = mpz_from_c_long(i);
         zconst = new_zconst;
@@ -1996,7 +1996,7 @@ mpq2binary(PympqObject *x)
     sizeden = (mpz_sizeinbase(mpq_denref(qtemp), 2) + 7) / 8;
     size = sizenum+sizeden+4;
 
-    if(!(buffer = malloc(size))) {
+    if(!(buffer = PyMem_Malloc(size))) {
         mpq_cloc(qtemp);
         PyErr_NoMemory();
         return NULL;
@@ -2013,7 +2013,7 @@ mpq2binary(PympqObject *x)
     mpz_export(buffer+sizenum+4, NULL, -1, sizeof(char), 0, 0, mpq_denref(qtemp));
     mpq_cloc(qtemp);
     s = Py2or3Bytes_FromStringAndSize(buffer, size);
-    free(buffer);
+    PyMem_Free(buffer);
     return s;
 }
 
@@ -2129,7 +2129,7 @@ mpf2binary(PympfObject *x)
         j += 2;
     }
 
-    free(buffer);
+    PyMem_Free(buffer);
     return s;
 }
 
@@ -2343,15 +2343,15 @@ Pympf_ascii(PympfObject *self, int base, int digits,
     buffer = mpf_get_str(0, &the_exp, base, digits, self->f);
     if(!*buffer) {
         /* need to use malloc here for uniformity with mpf_get_str */
-        free(buffer);
-        buffer = malloc(2);
+        PyMem_Free(buffer);
+        buffer = PyMem_Malloc(2);
         strcpy(buffer, "0");
         the_exp = 1;
     }
 
     if(optionflags & OP_RAW) {
         res = Py_BuildValue("(sii)", buffer, the_exp, self->rebits);
-        free(buffer);
+        PyMem_Free(buffer);
         return res;
     } else {
         /* insert formatting elements (decimal-point, leading or
@@ -2481,7 +2481,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
                 *pd++ = ')';
             }
         }
-        free(buffer);
+        PyMem_Free(buffer);
 #if PY_MAJOR_VERSION >= 3
         temp = PyUnicode_FromString(PyBytes_AS_STRING(res));
         Py_DECREF(res);
@@ -6801,7 +6801,7 @@ gmpy_allocate(size_t size)
 
     if(options.debug)
         fprintf(stderr, "mp_allocate( %d->%d )\n", (int)size, (int)usize);
-    if(!(res = malloc(usize)))
+    if(!(res = PyMem_Malloc(usize)))
         Py_FatalError("mp_allocate failure");
 
     if(options.debug)
@@ -6831,7 +6831,7 @@ gmpy_reallocate(void *ptr, size_t old_size, size_t new_size)
         return ptr;
     }
 
-    if(!(res = realloc(ptr, unew)))
+    if(!(res = PyMem_Realloc(ptr, unew)))
         Py_FatalError("mp_reallocate failure");
 
     if(options.debug)
@@ -6851,7 +6851,7 @@ gmpy_free( void *ptr, size_t size)
         fprintf(stderr, "mp_free      : old address %8p, old size %d(%d)\n",
             ptr, (int)size, (int)usize);
 
-    free(ptr);
+    PyMem_Free(ptr);
 } /* mp_free() */
 
 
