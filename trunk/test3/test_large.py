@@ -10,7 +10,7 @@ from time import time
 
 
 def pi(N):
-    print "Computing pi to %s decimal places." % N
+    print("Computing pi to %s decimal places." % N)
     start = time()
     N = int(round(log(10,2)*N))
     sq2 = fsqrt(mpf(2, N))
@@ -23,9 +23,9 @@ def pi(N):
         if anew == a:
             break
         a = anew
-    print "Computation took %5.2f seconds." % (time() - start)
+    print("Computation took %5.2f seconds." % (time() - start))
     return 1/a
 
 if __name__ == '__main__':
-    print "Testing operations with large numbers."
+    print("Testing operations with large numbers.")
     pi(1000000)

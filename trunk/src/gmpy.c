@@ -1,7 +1,7 @@
 /* gmpy.c
  *
  * Python interface to the GMP multiple precision library,
- * Copyright (C) 2000 - 2008 Alex Martelli
+ * Copyright (C) 2000 - 2009 Alex Martelli
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,13 +23,14 @@
  * originally written for GMP-2.0 (by AMK...?)
  * Rewritten by Niels Möller, May 1996
  *
- * Version for GMP-4, Python-2.{2,3,4,5,6,...}, with support for MSVC++6,
+ * Version for GMP-4, Python 2.X, with support for MSVC++6,
  * addition of mpf's, &c: Alex Martelli (now aleaxit@gmail.com, Nov 2000).
  * cleanups & reorgs leading to 1.0: Alex Martelli (until Aug 2003)
  * further cleanups and bugfixes leading to 1.01, Alex Martelli (Nov 2005)
  * minor bugfixes+new decimal (&c) support to 1.02, Alex Martelli (Feb 2006)
  * various bugfixes for 64-bit platforms, 1.03, aleaxit and casevh (Jun 2008)
  * rich comparisons, 1.04, aleaxit and casevh (Jan 2009)
+ * support for Python 3.x, 1.10, casevh (Jul 2009)
  *
  * Some hacks by Gustavo Niemeyer <niemeyer@conectiva.com>.
  *
@@ -187,7 +188,6 @@
  *   Remove callback (casevh)
  *   Added support for -DMPIR to include MPIR instead of GMP (casevh)
  *   Major code revisions to add support for Python 3.x (casevh)
- *   Changed version number to 1.10 to allow release of 1.05 (casevh)
  *   Fixed bug in binary() and qbinary() (casevh)
  *   Fixed bug in rich comparisons (casevh)
  *   Added % and divmod support to mpq and mpf (casevh)
@@ -6806,7 +6806,7 @@ static void _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] = "\
-gmpy 1.05 - General Multiprecision arithmetic for PYthon:\n\
+gmpy 1.10 - General Multiprecision arithmetic for Python:\n\
 exposes functionality from the GMP 4 library to Python 2.x & 3.x.\n\
 \n\
 Allows creation of multiprecision integer (mpz), float (mpf),\n\
