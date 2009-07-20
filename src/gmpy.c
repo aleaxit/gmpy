@@ -341,13 +341,14 @@ static struct gmpy_options {
     int tagoff;    /* 0 for full tags 'gmpy.mpz()', else 5 for 'mpz()' */
     int zcache;    /* size of cache for mpz objects */
     int qcache;    /* size of cache for mpq objects */
+    int fcache;    /* size of cache for mpf objects */
     PyObject* fcoform;  /* if non-NULL, format for float->mpf (via string) */
-} options = { 0, 0, 5, 20, 20, 0 };
+} options = { 0, 0, 5, 100, 100, 100 };
 
 /* sanity check: do NOT let cache sizes become wildly large! */
 #define MAX_CACHE 1000
 
-/* caching macro (later expanded for mpz, mpq) */
+/* caching macro (later expanded for mpz, mpq, mpf) */
 #define DEFCACHE(mpX_t,Xcache,in_Xcache,set_Xcache,new_Xcache,mpX_clear) \
 static mpX_t* Xcache; \
 static int in_Xcache; \
@@ -368,71 +369,102 @@ static void set_Xcache(int new_Xcache) \
 
 DEFCACHE(mpz_t,zcache,in_zcache,set_zcache,new_zcache,mpz_clear)
 DEFCACHE(mpq_t,qcache,in_qcache,set_qcache,new_qcache,mpq_clear)
+DEFCACHE(mpf_t,fcache,in_fcache,set_fcache,new_fcache,mpf_clear)
 
 /* init-or-cache macro & function -- fetch from cache, else init, an MPZ */
-#define mpz_inoc_m(newo) \
-{ \
-    if(in_zcache) { \
+static void
+mpz_inoc(mpz_t newo)
+{
+    if(in_zcache) {
+        if(options.debug)
+            fprintf(stderr, "Getting %d from zcache\n", in_zcache);
+        newo[0] = (zcache[--in_zcache])[0];
+    } else {
         if(options.debug) \
-            fprintf(stderr, "Getting %d from zcache\n", in_zcache); \
-        newo[0] = (zcache[--in_zcache])[0]; \
-    } else { \
-        if(options.debug) \
-            fprintf(stderr, "Initing new not in zcache\n"); \
-        mpz_init(newo); \
-    } \
+            fprintf(stderr, "Initing new not in zcache\n");
+        mpz_init(newo);
+    }
 }
-static void mpz_inoc(mpz_t newo) mpz_inoc_m(newo)
 
 /* clear-or-cache macro & function -- stash into cache, else clear, an MPZ */
-#define mpz_cloc_m(oldo) \
-{ \
-    if(in_zcache<options.zcache && oldo->_mp_alloc <= MAX_CACHE_LIMBS) { \
-        (zcache[in_zcache++])[0] = oldo[0]; \
-        if(options.debug) \
-            fprintf(stderr, "Stashed %d to zcache\n", in_zcache); \
-    } else { \
-        if(options.debug) \
-            fprintf(stderr, "Not placing in full zcache(%d/%d)\n", \
-                    in_zcache, options.zcache); \
-        mpz_clear(oldo); \
-    } \
+static void
+mpz_cloc(mpz_t oldo)
+{
+    if(in_zcache<options.zcache && oldo->_mp_alloc <= MAX_CACHE_LIMBS) {
+        (zcache[in_zcache++])[0] = oldo[0];
+        if(options.debug)
+            fprintf(stderr, "Stashed %d to zcache\n", in_zcache);
+    } else {
+        if(options.debug)
+            fprintf(stderr, "Not placing in full zcache(%d/%d)\n",
+                    in_zcache, options.zcache);
+        mpz_clear(oldo);
+    }
 }
-static void mpz_cloc(mpz_t oldo) mpz_cloc_m(oldo)
-
 
 /* init-or-cache macro & function -- fetch from cache, else init, an MPQ */
-#define mpq_inoc_m(newo) \
-{ \
-    if(in_qcache) { \
-        if(options.debug) \
-            fprintf(stderr, "Getting %d from qcache\n", in_qcache); \
-        newo[0] = (qcache[--in_qcache])[0]; \
-    } else { \
-        if(options.debug) \
-            fprintf(stderr, "Initing new not in qcache\n"); \
-        mpq_init(newo); \
-    } \
+static void
+mpq_inoc(mpq_t newo)
+{
+    if(in_qcache) {
+        if(options.debug)
+            fprintf(stderr, "Getting %d from qcache\n", in_qcache);
+        newo[0] = (qcache[--in_qcache])[0];
+    } else {
+        if(options.debug)
+            fprintf(stderr, "Initing new not in qcache\n");
+        mpq_init(newo);
+    }
 }
-static void mpq_inoc(mpq_t newo) mpq_inoc_m(newo)
 
 /* clear-or-cache macro & function -- stash into cache, else clear, an MPQ */
-#define mpq_cloc_m(oldo) \
-{ \
-    if(in_qcache<options.qcache \
-            && mpq_numref(oldo)->_mp_alloc <= MAX_CACHE_LIMBS \
-            && mpq_denref(oldo)->_mp_alloc <= MAX_CACHE_LIMBS) { \
-        (qcache[in_qcache++])[0] = oldo[0]; \
-        if(options.debug) \
-            fprintf(stderr, "Stashed %d to qcache\n", in_qcache); \
-    } else { \
-        if(options.debug) \
-            fprintf(stderr, "Not placing in full qcache(%d/%d)\n", \
-                    in_qcache, options.qcache); \
-        mpq_clear(oldo); \
+static void
+mpq_cloc(mpq_t oldo)
+{
+    if(in_qcache<options.qcache
+            && mpq_numref(oldo)->_mp_alloc <= MAX_CACHE_LIMBS
+            && mpq_denref(oldo)->_mp_alloc <= MAX_CACHE_LIMBS) {
+        (qcache[in_qcache++])[0] = oldo[0];
+        if(options.debug)
+            fprintf(stderr, "Stashed %d to qcache\n", in_qcache);
+    } else {
+        if(options.debug)
+            fprintf(stderr, "Not placing in full qcache(%d/%d)\n",
+                    in_qcache, options.qcache);
+        mpq_clear(oldo);
+    }
+}
+
+/* init-or-cache macro & function -- fetch from cache, else init, an MPF */
+static void
+mpf_inoc(mpf_t newo)
+{
+    if(in_fcache) {
+        if(options.debug)
+            fprintf(stderr, "Getting %d from fcache\n", in_fcache);
+        newo[0] = (fcache[--in_fcache])[0];
+    } else {
+        if(options.debug)
+            fprintf(stderr, "Initing new not in fcache\n");
+        mpf_init(newo);
     } \
 }
-static void mpq_cloc(mpq_t oldo) mpq_cloc_m(oldo)
+
+/* clear-or-cache macro & function -- stash into cache, else clear, an MPF */
+static void
+mpf_cloc(mpf_t oldo)
+{
+    if(in_fcache<options.fcache && mpf_size(oldo) <= MAX_CACHE_LIMBS) {
+        (fcache[in_fcache++])[0] = oldo[0];
+        if(options.debug)
+            fprintf(stderr, "Stashed %d to fcache\n", in_fcache); \
+    } else { \
+        if(options.debug) \
+            fprintf(stderr, "Not placing in full fcache(%d/%d)\n", \
+                    in_fcache, options.fcache); \
+        mpf_clear(oldo); \
+    } \
+}
 
 /* forward declarations of type-objects and method-arrays for them */
 #ifdef _MSC_VER
@@ -578,7 +610,7 @@ Pympz_new(void)
 
     if(!(self = PyObject_New(PympzObject, &Pympz_Type)))
         return NULL;
-    mpz_inoc_m(self->z);
+    mpz_inoc(self->z);
     return self;
 }
 static PympqObject *
@@ -588,7 +620,7 @@ Pympq_new(void)
 
     if(!(self = PyObject_New(PympqObject, &Pympq_Type)))
         return NULL;
-    mpq_inoc_m(self->q);
+    mpq_inoc(self->q);
     return self;
 }
 static PympfObject *
@@ -610,17 +642,19 @@ Pympz_dealloc(PympzObject *self)
 {
     if(options.debug)
         fprintf(stderr, "Pympz_dealloc: %p\n", self);
-    mpz_cloc_m(self->z);
+    mpz_cloc(self->z);
     PyObject_Del(self);
 } /* Pympz_dealloc */
+
 static void
 Pympq_dealloc(PympqObject *self)
 {
     if(options.debug)
         fprintf(stderr, "Pympq_dealloc: %p\n", self);
-    mpq_cloc_m(self->q);
+    mpq_cloc(self->q);
     PyObject_Del(self);
 } /* Pympq_dealloc */
+
 static void
 Pympf_dealloc(PympfObject *self)
 {
@@ -628,7 +662,7 @@ Pympf_dealloc(PympfObject *self)
         fprintf(stderr, "Pympf_dealloc: %p\n", self);
     mpf_clear(self->f);
     PyObject_Del(self);
-} /* Pympz_dealloc */
+} /* Pympf_dealloc */
 
 /* Return license information. */
 static char doc_license[]="\
@@ -699,7 +733,7 @@ Pygmpy_get_gmp_limbsize(PyObject *self, PyObject *args)
 }
 
 /*
- * access cache & constants options
+ * access cache options
  */
 static char doc_get_zcache[]="\
 get_zcache(): returns the current cache-size (number of objects)\n\
@@ -721,6 +755,17 @@ Pygmpy_get_qcache(PyObject *self, PyObject *args)
 {
     NO_ARGS();
     return Py_BuildValue("i", options.qcache);
+}
+
+static char doc_get_fcache[]="\
+get_fcache(): returns the current cache-size (number of objects)\n\
+for mpf objects.\n\
+";
+static PyObject *
+Pygmpy_get_fcache(PyObject *self, PyObject *args)
+{
+    NO_ARGS();
+    return Py_BuildValue("i", options.fcache);
 }
 
 static char doc_set_zcache[]="\
@@ -758,6 +803,25 @@ Pygmpy_set_qcache(PyObject *self, PyObject *args)
         return 0;
     }
     set_qcache(newval);
+    return Py_BuildValue("");
+}
+
+static char doc_set_fcache[]="\
+set_fcache(n): sets the current cache-size (number of objects)\n\
+for mpf objects to n (does not immediately flush or enlarge the\n\
+cache, but rather lets it grow/shrink during later normal use).\n\
+Note: cache size n must be between 0 and 1000, included.\n\
+";
+static PyObject *
+Pygmpy_set_fcache(PyObject *self, PyObject *args)
+{
+    int newval;
+    ONE_ARG("set_fcache", "i", &newval);
+    if(newval<0 || newval>MAX_CACHE) {
+        PyErr_SetString(PyExc_ValueError, "cache must between 0 and 1000");
+        return 0;
+    }
+    set_fcache(newval);
     return Py_BuildValue("");
 }
 
@@ -6450,6 +6514,8 @@ static PyMethodDef Pygmpy_methods [] =
     { "set_zcache", Pygmpy_set_zcache, 1, doc_set_zcache },
     { "get_qcache", Pygmpy_get_qcache, 1, doc_get_qcache },
     { "set_qcache", Pygmpy_set_qcache, 1, doc_set_qcache },
+    { "get_fcache", Pygmpy_get_fcache, 1, doc_get_fcache },
+    { "set_fcache", Pygmpy_set_fcache, 1, doc_set_fcache },
     { "mpz", Pygmpy_mpz, 1, doc_mpz },
     { "mpq", Pygmpy_mpq, 1, doc_mpq },
     { "mpf", Pygmpy_mpf, 1, doc_mpf },
@@ -6803,6 +6869,7 @@ static void _PyInitGMP(void)
     options.minprec = double_mantissa;
     set_zcache(options.zcache);
     set_qcache(options.qcache);
+    set_fcache(options.fcache);
 }
 
 static char _gmpy_docs[] = "\
