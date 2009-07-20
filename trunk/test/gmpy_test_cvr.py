@@ -117,6 +117,18 @@ ValueError: cache must between 0 and 1000
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: cache must between 0 and 1000
+>>> _g.get_fcache(23)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in ?
+TypeError: function takes exactly 0 arguments (1 given)
+>>> _g.set_fcache(2000)
+Traceback (most recent call last):
+  File "<string>", line 1, in ?
+ValueError: cache must between 0 and 1000
+>>> _g.set_fcache(-23)
+Traceback (most recent call last):
+  File "<string>", line 1, in ?
+ValueError: cache must between 0 and 1000
 >>> _g.set_debug()
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -523,7 +535,7 @@ def _test(chat=None):
         print
         print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
             (_g.version(), _g.gmp_version(), _g.get_zcache(),
-            _g.get_qcache()))
+            _g.get_qcache(), _g.get_fcache()))
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 

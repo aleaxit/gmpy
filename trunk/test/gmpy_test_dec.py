@@ -64,9 +64,9 @@ def _test(chat=None):
         print "Unit tests for gmpy 1.10 (decimal interoperation)"
         print "    running on Python", sys.version
         print
-        print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
+        print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s)" % (
             (_g.version(), _g.gmp_version(), _g.get_zcache(),
-            _g.get_qcache()))
+            _g.get_qcache(), _g.get_fcache()))
     if not _d:
         if chat:
             print "Can't test, since can't import decimal"

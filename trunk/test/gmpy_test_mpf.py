@@ -285,6 +285,8 @@ gmpy.mpf('1.23456e2')
 mpf('3.39999999999999999998e0')
 >>> print _g.mpf(3.4)
 3.39999999999999999998
+>>> _g.set_fcoform(junk)
+'%.14e'
 >>> a.digits(1)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
@@ -388,11 +390,24 @@ def _test(chat=None):
         print "Unit tests for gmpy 1.10 (mpf functionality)"
         print "    running on Python %s" % sys.version
         print
-        print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
+        print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s)" % (
             (_g.version(), _g.gmp_version(), _g.get_zcache(),
-            _g.get_qcache()))
+            _g.get_qcache(), _g.get_fcache()))
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
+
+    if chat: print "Repeating tests, with caching disabled"
+    _g.set_fcache(0)
+
+    sav = sys.stdout
+    class _Dummy:
+        def write(self,*whatever):
+            pass
+    try:
+        sys.stdout = _Dummy()
+        doctest.testmod(thismod, report=0)
+    finally:
+        sys.stdout = sav
 
     if chat:
         print
