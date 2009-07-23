@@ -672,7 +672,7 @@ Pympf_dealloc(PympfObject *self)
  * limbs, if used, are set to 0.
  */
 
-static void mpf_normalize(PympfObject *i)
+static void Pympf_normalize(PympfObject *i)
 {
     long size, prec, toclear, temp;
     mp_limb_t bit1, rem, carry;
@@ -713,7 +713,7 @@ static void mpf_normalize(PympfObject *i)
 
 /* CONVERSIONS AND COPIES */
 static PympzObject *
-mpz2mpz(PympzObject *i)
+Pympz2Pympz(PympzObject *i)
 {
     PympzObject *newob;
 
@@ -725,7 +725,7 @@ mpz2mpz(PympzObject *i)
 }
 
 static PympqObject *
-mpq2mpq(PympqObject *q)
+Pympq2Pympq(PympqObject *q)
 {
     PympqObject *newob;
 
@@ -737,7 +737,7 @@ mpq2mpq(PympqObject *q)
 }
 
 static PympfObject *
-mpf2mpf(PympfObject *f, unsigned int bits)
+Pympf2Pympf(PympfObject *f, unsigned int bits)
 {
     PympfObject *newob;
 
@@ -745,13 +745,13 @@ mpf2mpf(PympfObject *f, unsigned int bits)
     if(!(newob = Pympf_new(bits)))
         return NULL;
     mpf_set(newob->f, f->f);
-    mpf_normalize(newob);
+    Pympf_normalize(newob);
     return newob;
 }
 
 #if PY_MAJOR_VERSION < 3
 static PympzObject *
-int2mpz(PyObject *i)
+PyInt2Pympz(PyObject *i)
 {
     PympzObject *newob;
 
@@ -763,7 +763,7 @@ int2mpz(PyObject *i)
 }
 
 static PympqObject *
-int2mpq(PyObject *i)
+PyInt2Pympq(PyObject *i)
 {
     PympqObject *newob;
 
@@ -776,7 +776,7 @@ int2mpq(PyObject *i)
 }
 
 static PympfObject *
-int2mpf(PyObject *i, unsigned int bits)
+PyInt2Pympf(PyObject *i, unsigned int bits)
 {
     PympfObject *newob;
     long li;
@@ -797,13 +797,13 @@ int2mpf(PyObject *i, unsigned int bits)
     if(!(newob = Pympf_new(bits)))
         return NULL;
     mpf_set_si(newob->f, li);
-    mpf_normalize(newob);
+    Pympf_normalize(newob);
     return newob;
 }
 #endif
 
 static PympzObject *
-float2mpz(PyObject *f)
+PyFloat2Pympz(PyObject *f)
 {
     PympzObject *newob;
 
@@ -832,10 +832,10 @@ float2mpz(PyObject *f)
 static PyObject *f2q_internal(PympfObject* self, PympfObject* err,
         unsigned int bits, int mayz);
 static PyObject* Pympf_f2q(PyObject *self, PyObject *args);
-static PympfObject* anynum2mpf(PyObject* obj, unsigned int bits);
+static PympfObject* anynum2Pympf(PyObject* obj, unsigned int bits);
 
 static PympqObject *
-float2mpq(PyObject *f)
+PyFloat2Pympq(PyObject *f)
 {
     PympfObject *self = Pympf_new(double_mantissa);
     if(!self) return NULL;
@@ -857,17 +857,17 @@ float2mpq(PyObject *f)
     return (PympqObject*)f2q_internal(self, 0, double_mantissa, 0);
 }
 
-static PympfObject *str2mpf(PyObject *s, long base, unsigned int bits); /* forward */
+static PympfObject *PyStr2Pympf(PyObject *s, long base, unsigned int bits); /* forward */
 
 static PympfObject *
-float2mpf(PyObject *f, unsigned int bits)
+PyFloat2Pympf(PyObject *f, unsigned int bits)
 {
     PympfObject *newob = 0;
 
     assert(PyFloat_Check(f));
     if(!bits) bits=double_mantissa;
     if(options.debug)
-        fprintf(stderr, "float2mpf(%p,%d)\n", f, bits);
+        fprintf(stderr, "PyFloat2Pympf(%p,%d)\n", f, bits);
 
     if(options.fcoform) {
         /* 2-step float->mpf conversion process: first, get a
@@ -886,7 +886,7 @@ float2mpf(PyObject *f, unsigned int bits)
                     s?Py2or3String_AsString(s):"<NoString>");
 
         if(!s) return 0;
-        newob = str2mpf(s, 10, bits);
+        newob = PyStr2Pympf(s, 10, bits);
         Py_DECREF(s);
     } else { /* direct float->mpf conversion, faster but rougher */
         if((newob = Pympf_new(bits))) {
@@ -904,12 +904,12 @@ float2mpf(PyObject *f, unsigned int bits)
             mpf_set_d(newob->f, d);
         }
     }
-    mpf_normalize(newob);
+    Pympf_normalize(newob);
     return newob;
 }
 
 static PympfObject *
-mpz2mpf(PyObject * obj, unsigned int bits)
+Pympz2Pympf(PyObject * obj, unsigned int bits)
 {
     PympfObject *newob;
 
@@ -919,12 +919,12 @@ mpz2mpf(PyObject * obj, unsigned int bits)
     if(!(newob = Pympf_new(bits)))
         return NULL;
     mpf_set_z(newob->f, Pympz_AS_MPZ(obj));
-    mpf_normalize(newob);
+    Pympf_normalize(newob);
     return newob;
 }
 
 static PympzObject *
-mpf2mpz(PyObject * obj)
+Pympf2Pympz(PyObject * obj)
 {
     PympzObject *newob;
 
@@ -938,7 +938,7 @@ mpf2mpz(PyObject * obj)
 }
 
 static PympqObject *
-mpz2mpq(PyObject * obj)
+Pympz2Pympq(PyObject * obj)
 {
     PympqObject *newob;
 
@@ -952,13 +952,13 @@ mpz2mpq(PyObject * obj)
 }
 
 static PympqObject *
-mpf2mpq(PyObject * obj)
+Pympf2Pympq(PyObject * obj)
 {
     return (PympqObject*) Pympf_f2q(obj,0);
 }
 
 static PympfObject *
-mpq2mpf(PyObject * obj, unsigned int bits)
+Pympq2Pympf(PyObject * obj, unsigned int bits)
 {
     PympfObject *newob;
 
@@ -967,12 +967,12 @@ mpq2mpf(PyObject * obj, unsigned int bits)
     if(!(newob = Pympf_new(bits)))
         return NULL;
     mpf_set_q(newob->f, Pympq_AS_MPQ(obj));
-    mpf_normalize(newob);
+    Pympf_normalize(newob);
     return newob;
 }
 
 static PympzObject *
-mpq2mpz(PyObject * obj)
+Pympq2Pympz(PyObject * obj)
 {
 
     PympzObject *newob;
@@ -992,7 +992,7 @@ mpq2mpz(PyObject * obj)
  */
 
 static PympzObject *
-long2mpz(PyObject * obj)
+PyLong2Pympz(PyObject * obj)
 {
     PympzObject *newob;
     int len, negative;
@@ -1033,24 +1033,24 @@ long2mpz(PyObject * obj)
  * the above-seen dependencies; ditto long->mpq
  */
 static PympfObject *
-long2mpf(PyObject * obj, unsigned int bits)
+PyLong2Pympf(PyObject * obj, unsigned int bits)
 {
     PympfObject *newob;
-    PyObject *intermediate = (PyObject*)long2mpz(obj);
+    PyObject *intermediate = (PyObject*)PyLong2Pympz(obj);
     if(!intermediate) return 0;
 
-    newob = mpz2mpf(intermediate, bits);
+    newob = Pympz2Pympf(intermediate, bits);
     Py_DECREF(intermediate);
     return newob;
 }
 static PympqObject *
-long2mpq(PyObject * obj)
+PyLong2Pympq(PyObject * obj)
 {
     PympqObject *newob;
-    PyObject *intermediate = (PyObject*)long2mpz(obj);
+    PyObject *intermediate = (PyObject*)PyLong2Pympz(obj);
     if(!intermediate) return 0;
 
-    newob = mpz2mpq(intermediate);
+    newob = Pympz2Pympq(intermediate);
     Py_DECREF(intermediate);
     return newob;
 }
@@ -1065,7 +1065,7 @@ long2mpq(PyObject * obj)
  * 0x00 for >0 (the latter only if the #bits is exact multiple of 8).
  */
 static PympzObject *
-str2mpz(PyObject *s, long base)
+PyStr2Pympz(PyObject *s, long base)
 {
     PympzObject *newob;
     unsigned char *cp;
@@ -1165,7 +1165,7 @@ str2mpz(PyObject *s, long base)
  * numerator (as above for mpz), then denominator (ditto).
  */
 static PympqObject *
-str2mpq(PyObject *stringarg, long base)
+PyStr2Pympq(PyObject *stringarg, long base)
 {
     PympqObject *newob;
     unsigned char *cp;
@@ -1234,7 +1234,7 @@ str2mpq(PyObject *stringarg, long base)
             return 0;
         }
         s = Py2or3Bytes_FromStringAndSize((char*)cp+4, numlen);
-        numerator = str2mpz(s,256);
+        numerator = PyStr2Pympz(s,256);
         Py_DECREF(s);
         if (!numerator) {
             Py_DECREF((PyObject*)newob);
@@ -1251,7 +1251,7 @@ str2mpq(PyObject *stringarg, long base)
         if(isnega)
             mpz_neg(numerator->z, numerator->z);
         s = Py2or3Bytes_FromStringAndSize((char*)cp+4+numlen, len-4-numlen);
-        denominator = str2mpz(s,256);
+        denominator = PyStr2Pympz(s,256);
         Py_DECREF(s);
         if (!denominator) {
             Py_DECREF((PyObject*)newob);
@@ -1291,9 +1291,9 @@ str2mpq(PyObject *stringarg, long base)
             else {
                 wheredot = strchr((char*)cp, '.');
                 if(wheredot) {
-                    PympfObject* temp = str2mpf(stringarg, base, 4*len);
+                    PympfObject* temp = PyStr2Pympf(stringarg, base, 4*len);
                     if(temp) {
-                        newob = mpf2mpq((PyObject*)temp);
+                        newob = Pympf2Pympq((PyObject*)temp);
                         Py_DECREF((PyObject*)temp);
                     }
                     return newob;
@@ -1337,7 +1337,7 @@ str2mpq(PyObject *stringarg, long base)
  * if any is denoted by 'e' if base<=10, else by '@', and is always decimal.
  */
 static PympfObject *
-str2mpf(PyObject *s, long base, unsigned int bits)
+PyStr2Pympf(PyObject *s, long base, unsigned int bits)
 {
     PympfObject *newob;
     unsigned char *cp;
@@ -1478,7 +1478,7 @@ str2mpf(PyObject *s, long base, unsigned int bits)
             return NULL;
         }
     }
-    mpf_normalize(newob);
+    Pympf_normalize(newob);
     Py_XDECREF(ascii_str);
     return newob;
 }
@@ -1488,7 +1488,7 @@ str2mpf(PyObject *s, long base, unsigned int bits)
  * just as for the reverse-trip.  We concentrate dependence here.
  */
 static PyObject *
-mpz2long(PympzObject *x)
+Pympz2PyLong(PympzObject *x)
 {
     int negative;
     int size;
@@ -1540,44 +1540,44 @@ mpz2long(PympzObject *x)
  * the above-seen thorny dependencies; ditto mpq->long
  */
 static PyObject *
-mpf2long(PympfObject *x)
+Pympf2PyLong(PympfObject *x)
 {
     PyObject* result;
 
-    PympzObject *intermediate = mpf2mpz((PyObject*)x);
+    PympzObject *intermediate = Pympf2Pympz((PyObject*)x);
     if(!intermediate) return 0;
 
-    result = mpz2long(intermediate);
+    result = Pympz2PyLong(intermediate);
     Py_DECREF((PyObject*)intermediate);
     return result;
 }
 static PyObject *
-mpq2long(PympqObject *x)
+Pympq2PyLong(PympqObject *x)
 {
     PyObject* result;
 
-    PympzObject *intermediate = mpq2mpz((PyObject*)x);
+    PympzObject *intermediate = Pympq2Pympz((PyObject*)x);
     if(!intermediate) return 0;
 
-    result = mpz2long(intermediate);
+    result = Pympz2PyLong(intermediate);
     Py_DECREF((PyObject*)intermediate);
     return result;
 }
 
 static int
-notanint(mpz_t z)
+mpz_notanint(mpz_t z)
 {
     return !mpz_fits_slong_p(z) && mpz_size(z);
 }
 
 static PyObject *
-mpz2int(PympzObject *x)
+Pympz2PyInt(PympzObject *x)
 {
 #if PY_MAJOR_VERSION >= 3
-    return mpz2long(x);
+    return Pympz2PyLong(x);
 #else
-    if(notanint(x->z)) {
-        return mpz2long(x);
+    if(mpz_notanint(x->z)) {
+        return Pympz2PyLong(x);
     }
     return PyInt_FromLong(mpz_get_si(x->z));
 #endif
@@ -1587,10 +1587,10 @@ mpz2int(PympzObject *x)
 static PyObject*
 Pympz_asindex(PympzObject *x)
 {
-    PyObject* result = mpz2int(x);
+    PyObject* result = Pympz2PyInt(x);
     if(result) return result;
     PyErr_Clear();
-    return mpz2long(x);
+    return Pympz2PyLong(x);
 }
 #endif
 
@@ -1599,45 +1599,45 @@ Pympz_asindex(PympzObject *x)
  */
 #if PY_MAJOR_VERSION < 3
 static PyObject *
-mpf2int(PympfObject *x)
+Pympf2PyInt(PympfObject *x)
 {
     PyObject* result;
 
-    PympzObject *intermediate = mpf2mpz((PyObject*)x);
+    PympzObject *intermediate = Pympf2Pympz((PyObject*)x);
     if(!intermediate) return 0;
 
-    result = mpz2int(intermediate);
+    result = Pympz2PyInt(intermediate);
     Py_DECREF((PyObject*)intermediate);
     return result;
 }
 static PyObject *
-mpq2int(PympqObject *x)
+Pympq2PyInt(PympqObject *x)
 {
     PyObject* result;
 
-    PympzObject *intermediate = mpq2mpz((PyObject*)x);
+    PympzObject *intermediate = Pympq2Pympz((PyObject*)x);
     if(!intermediate) return 0;
 
-    result = mpz2int(intermediate);
+    result = Pympz2PyInt(intermediate);
     Py_DECREF((PyObject*)intermediate);
     return result;
 }
 #endif
 
 static PyObject *
-mpz2float(PympzObject *x)
+Pympz2PyFloat(PympzObject *x)
 {
     double res = mpz_get_d(x->z);
     return PyFloat_FromDouble(res);
 }
 static PyObject *
-mpf2float(PympfObject *x)
+Pympf2PyFloat(PympfObject *x)
 {
     double res = mpf_get_d(x->f);
     return PyFloat_FromDouble(res);
 }
 static PyObject *
-mpq2float(PympqObject *x)
+Pympq2PyFloat(PympqObject *x)
 {
     double res = mpq_get_d(x->q);
     return PyFloat_FromDouble(res);
@@ -1651,7 +1651,7 @@ mpq2float(PympqObject *x)
  *  with files saved in gmpy releases 0.6 and earlier.
  */
 static PyObject *
-mpz2binary(PympzObject *x)
+Pympz2binary(PympzObject *x)
 {
     mpz_t temp;
     size_t size, usize;
@@ -1694,7 +1694,7 @@ mpz2binary(PympzObject *x)
  *  numerator, which also encode sign as the single top bit).
  */
 static PyObject *
-mpq2binary(PympqObject *x)
+Pympq2binary(PympqObject *x)
 {
     int sizenum, sizeden, size, sizetemp;
     int negative=0;
@@ -1759,7 +1759,7 @@ static char di256(int di1, int di2)
  * build binary representation of mpf (see format description above)
  */
 static PyObject *
-mpf2binary(PympfObject *x)
+Pympf2binary(PympfObject *x)
 {
     int size, hexdigs;
     char *buffer, *aux;
@@ -1912,7 +1912,7 @@ mpz_ascii(mpz_t z, int base, int with_tag)
     mpz_get_str(p, base, temp); /* Doesn't return number of characters */
     p = buffer + strlen(buffer); /* Address of NULL byte */
 #if PY_MAJOR_VERSION < 3
-    if(with_tag && notanint(temp))
+    if(with_tag && mpz_notanint(temp))
         *(p++) = 'L';
 #endif
     if(with_tag)
@@ -1965,7 +1965,7 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
             return 0;
         }
 #if PY_MAJOR_VERSION < 3
-        if(notanint(mpq_numref(self->q))) {
+        if(mpz_notanint(mpq_numref(self->q))) {
             temp = Py2or3Bytes_FromString("L");
             Py2or3Bytes_ConcatAndDel(&result, temp);
             if(!result) {
@@ -1988,7 +1988,7 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
         }
         Py2or3Bytes_ConcatAndDel(&result, denstr);
 #if PY_MAJOR_VERSION < 3
-        if(with_tag && notanint(mpq_denref(self->q))) {
+        if(with_tag && mpz_notanint(mpq_denref(self->q))) {
             temp = Py2or3Bytes_FromString("L");
             Py2or3Bytes_ConcatAndDel(&result, temp);
             if(!result) {
@@ -2293,13 +2293,13 @@ static int isInteger(PyObject* obj)
  *      5) Fraction
  *      6) other gmpy objects
  *
- * The routine anyint2mpz will only convert integer-like objects into to a
+ * The routine anyint2Pympz will only convert integer-like objects into to a
  * gmpy mpz. The accepted integer-like objects are:
  *      1) int
  *      2) long
  *      2) mpz
  *
- * The routine anyrational2mpq will convert an integer- and rational-like
+ * The routine anyrational2Pympq will convert an integer- and rational-like
  * object into a gmpy mpq. The accepted objects are:
  *      1) int
  *      2) long
@@ -2309,7 +2309,7 @@ static int isInteger(PyObject* obj)
  */
 
 static PympqObject*
-anynum2mpq(PyObject* obj)
+anynum2Pympq(PyObject* obj)
 {
     PympqObject* newob = 0;
 
@@ -2317,33 +2317,33 @@ anynum2mpq(PyObject* obj)
         Py_INCREF(obj);
         newob = (PympqObject *) obj;
     } else if(Pympz_Check(obj)) {
-        newob = mpz2mpq(obj);
+        newob = Pympz2Pympq(obj);
 #if PY_MAJOR_VERSION == 2
     } else if(PyInt_CheckExact(obj)) {
-        newob = int2mpq(obj);
+        newob = PyInt2Pympq(obj);
 #endif
     } else if(Pympf_Check(obj)) {
-        newob = mpf2mpq(obj);
+        newob = Pympf2Pympq(obj);
     } else if(PyFloat_Check(obj)) {
-        newob = float2mpq(obj);
+        newob = PyFloat2Pympq(obj);
     } else if(PyLong_CheckExact(obj)) {
-        newob = long2mpq(obj);
+        newob = PyLong2Pympq(obj);
     } else if(!strcmp(obj->ob_type->tp_name, "Decimal")) {
         PyObject *s = PyObject_Str(obj);
         if(s) {
-            newob = str2mpq(s, 10);
+            newob = PyStr2Pympq(s, 10);
             Py_DECREF(s);
         }
     } else if(!strcmp(obj->ob_type->tp_name, "Fraction")) {
         PyObject *s = PyObject_Str(obj);
         if(s) {
-            newob = str2mpq(s, 10);
+            newob = PyStr2Pympq(s, 10);
             Py_DECREF(s);
         }
     }
 
     if(options.debug)
-        fprintf(stderr,"anynum2mpq(%p)->%p\n", obj, newob);
+        fprintf(stderr,"anynum2Pympq(%p)->%p\n", obj, newob);
 
     return newob;
 }
@@ -2351,7 +2351,7 @@ anynum2mpq(PyObject* obj)
 /* Convert an integer or mpz to mpq. */
 
 static PympqObject*
-anyrational2mpq(PyObject* obj)
+anyrational2Pympq(PyObject* obj)
 {
     PympqObject* newob = 0;
 
@@ -2359,29 +2359,29 @@ anyrational2mpq(PyObject* obj)
         Py_INCREF(obj);
         newob = (PympqObject *) obj;
     } else if(Pympz_Check(obj)) {
-        newob = mpz2mpq(obj);
+        newob = Pympz2Pympq(obj);
 #if PY_MAJOR_VERSION == 2
     } else if(PyInt_CheckExact(obj)) {
-        newob = int2mpq(obj);
+        newob = PyInt2Pympq(obj);
 #endif
     } else if(PyLong_CheckExact(obj)) {
-        newob = long2mpq(obj);
+        newob = PyLong2Pympq(obj);
     } else if(!strcmp(obj->ob_type->tp_name, "Fraction")) {
         PyObject *s = PyObject_Str(obj);
         if(s) {
-            newob = str2mpq(s, 10);
+            newob = PyStr2Pympq(s, 10);
             Py_DECREF(s);
         }
     }
 
     if(options.debug)
-        fprintf(stderr,"anyrational2mpq(%p)->%p\n", obj, newob);
+        fprintf(stderr,"anyrational2Pympq(%p)->%p\n", obj, newob);
 
     return newob;
 }
 
 static PympzObject*
-anynum2mpz(PyObject* obj)
+anynum2Pympz(PyObject* obj)
 {
     PympzObject* newob = 0;
     PympqObject* temp = 0;
@@ -2391,39 +2391,39 @@ anynum2mpz(PyObject* obj)
         newob = (PympzObject *) obj;
 #if PY_MAJOR_VERSION == 2
     } else if(PyInt_CheckExact(obj)) {
-        newob = int2mpz(obj);
+        newob = PyInt2Pympz(obj);
 #endif
     } else if(PyLong_CheckExact(obj)) {
-        newob = long2mpz(obj);
+        newob = PyLong2Pympz(obj);
     } else if(Pympq_Check(obj)) {
-        newob = mpq2mpz(obj);
+        newob = Pympq2Pympz(obj);
     } else if(Pympf_Check(obj)) {
-        newob = mpf2mpz(obj);
+        newob = Pympf2Pympz(obj);
     } else if(PyFloat_Check(obj)) {
-        newob = float2mpz(obj);
+        newob = PyFloat2Pympz(obj);
     } else if(PyNumber_Check(obj) && !strcmp(obj->ob_type->tp_name, "Decimal")) {
         PyObject *s = PyNumber_Long(obj);
         if(s) {
-            newob = long2mpz(s);
+            newob = PyLong2Pympz(s);
             Py_DECREF(s);
         }
     } else if(!strcmp(obj->ob_type->tp_name, "Fraction")) {
         PyObject *s = PyObject_Str(obj);
         if(s) {
-            temp = str2mpq(s, 10);
-            newob = mpq2mpz((PyObject *)temp);
+            temp = PyStr2Pympq(s, 10);
+            newob = Pympq2Pympz((PyObject *)temp);
             Py_DECREF(s); Py_DECREF((PyObject*)temp);
         }
     }
     if(options.debug)
-        fprintf(stderr,"anynum2mpz(%p)->%p\n", obj, newob);
+        fprintf(stderr,"anynum2Pympz(%p)->%p\n", obj, newob);
 
     return newob;
 }
 
 
 static PympzObject*
-anyint2mpz(PyObject* obj)
+anyint2Pympz(PyObject* obj)
 {
     PympzObject* newob = 0;
 
@@ -2432,20 +2432,20 @@ anyint2mpz(PyObject* obj)
         newob = (PympzObject *) obj;
 #if PY_MAJOR_VERSION == 2
     } else if(PyInt_CheckExact(obj)) {
-        newob = int2mpz(obj);
+        newob = PyInt2Pympz(obj);
 #endif
     } else if(PyLong_CheckExact(obj)) {
-        newob = long2mpz(obj);
+        newob = PyLong2Pympz(obj);
     }
     if(options.debug)
-        fprintf(stderr,"anyint2mpz(%p)->%p\n", obj, newob);
+        fprintf(stderr,"anyint2Pympz(%p)->%p\n", obj, newob);
 
     return newob;
 }
 
 
 static PympfObject*
-anynum2mpf(PyObject* obj, unsigned int bits)
+anynum2Pympf(PyObject* obj, unsigned int bits)
 {
     PympfObject* newob = 0;
     PympqObject* temp = 0;
@@ -2455,37 +2455,37 @@ anynum2mpf(PyObject* obj, unsigned int bits)
         if(!bits || newob->rebits==bits) {
             Py_INCREF(obj);
         } else {
-            newob = mpf2mpf(newob, bits);
+            newob = Pympf2Pympf(newob, bits);
         }
     } else if(PyFloat_Check(obj)) {
-        newob = float2mpf(obj, bits);
+        newob = PyFloat2Pympf(obj, bits);
 #if PY_MAJOR_VERSION == 2
     } else if(PyInt_CheckExact(obj)) {
-        newob = int2mpf(obj, bits);
+        newob = PyInt2Pympf(obj, bits);
 #endif
     } else if(Pympq_Check(obj)) {
-        newob = mpq2mpf(obj, bits);
+        newob = Pympq2Pympf(obj, bits);
     } else if(Pympz_Check(obj)) {
-        newob = mpz2mpf(obj, bits);
+        newob = Pympz2Pympf(obj, bits);
     } else if(PyLong_CheckExact(obj)) {
-        newob = long2mpf(obj, bits);
+        newob = PyLong2Pympf(obj, bits);
     } else if(!strcmp(obj->ob_type->tp_name, "Decimal")) {
         PyObject *s = PyObject_Str(obj);
         if(s) {
-            newob = str2mpf(s, 10, bits);
+            newob = PyStr2Pympf(s, 10, bits);
             Py_DECREF(s);
         }
     } else if(!strcmp(obj->ob_type->tp_name, "Fraction")) {
         PyObject *s = PyObject_Str(obj);
         if(s) {
-            temp = str2mpq(s, 10);
-            newob = mpq2mpf((PyObject *)temp, bits);
+            temp = PyStr2Pympq(s, 10);
+            newob = Pympq2Pympf((PyObject *)temp, bits);
             Py_DECREF(s); Py_DECREF((PyObject*)temp);
         }
     }
 
     if(options.debug)
-        fprintf(stderr, "anynum2mpf(%p,%d)->%p (%d)\n", obj,
+        fprintf(stderr, "anynum2Pympf(%p,%d)->%p (%d)\n", obj,
                 bits, newob, newob != 0 ? newob->rebits : -1);
 
     return newob;
@@ -2497,7 +2497,7 @@ anynum2mpf(PyObject* obj, unsigned int bits)
 int
 Pympz_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympzObject* newob = anyint2mpz(arg);
+    PympzObject* newob = anyint2Pympz(arg);
     if(options.debug)
         fprintf(stderr, "mpz_conv_arg(%p)->%p\n", arg, newob);
 
@@ -2517,7 +2517,7 @@ Pympz_convert_arg(PyObject *arg, PyObject **ptr)
 int
 Pympq_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympqObject* newob = anyrational2mpq(arg);
+    PympqObject* newob = anyrational2Pympq(arg);
     if(options.debug)
         fprintf(stderr, "mpq_conv_arg(%p)->%p\n", arg, newob);
 
@@ -2539,7 +2539,7 @@ Pympq_convert_arg(PyObject *arg, PyObject **ptr)
 int
 Pympf_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympfObject* newob = anynum2mpf(arg,0);
+    PympfObject* newob = anynum2Pympf(arg,0);
     if(options.debug)
         fprintf(stderr, "mpf_conv_arg(%p)->%p\n", arg, newob);
 
@@ -2555,13 +2555,13 @@ Pympf_convert_arg(PyObject *arg, PyObject **ptr)
 
 /* str and repr implementations for mpz */
 static PyObject *
-mpz2str(PympzObject *self)
+Pympz2str(PympzObject *self)
 {
     /* base-10, no tag */
     return Pympz_ascii(self, 10, 0);
 }
 static PyObject *
-mpz2repr(PympzObject *self)
+Pympz2repr(PympzObject *self)
 {
     /* base-10, with tag */
     return Pympz_ascii(self, 10, 1);
@@ -2569,13 +2569,13 @@ mpz2repr(PympzObject *self)
 
 /* str and repr implementations for mpq */
 static PyObject *
-mpq2str(PympqObject *self)
+Pympq2str(PympqObject *self)
 {
     /* base-10, no tag */
     return Pympq_ascii(self, 10, 0);
 }
 static PyObject *
-mpq2repr(PympqObject *self)
+Pympq2repr(PympqObject *self)
 {
     /* base-10, with tag */
     return Pympq_ascii(self, 10, 1);
@@ -2583,13 +2583,13 @@ mpq2repr(PympqObject *self)
 
 /* str and repr implementations for mpz */
 static PyObject *
-mpf2str(PympfObject *self)
+Pympf2str(PympfObject *self)
 {
     /* base-10, FP for exp -2 to 8, no tag */
     return Pympf_ascii(self, 10, 0, -2, 8, 0);
 }
 static PyObject *
-mpf2repr(PympfObject *self)
+Pympf2repr(PympfObject *self)
 {
     /* base-10, always mantissa+exp, with tag */
     return Pympf_ascii(self, 10, 0, 0, -1, OP_TAG);
@@ -2628,7 +2628,7 @@ Pympz_copy(PyObject *self, PyObject *args)
             PyErr_SetString(PyExc_TypeError, "_copy() takes exactly 1 argument");
             return NULL;
         }
-        return (PyObject*)mpz2mpz((PympzObject*)self);
+        return (PyObject*)Pympz2Pympz((PympzObject*)self);
     } else {
         if(PyTuple_GET_SIZE(args) != 1){
             PyErr_SetString(PyExc_TypeError, "_copy() takes exactly 1 argument");
@@ -2636,7 +2636,7 @@ Pympz_copy(PyObject *self, PyObject *args)
         }
         temp = PyTuple_GET_ITEM(args, 0);
         if(Pympz_Check(temp)) {
-            return (PyObject*)mpz2mpz((PympzObject*)temp);
+            return (PyObject*)Pympz2Pympz((PympzObject*)temp);
         } else {
             PyErr_SetString(PyExc_TypeError, "unsupported operand type for _copy(): mpz required");
             return NULL;
@@ -2654,7 +2654,7 @@ Pympf_copy(PyObject *self, PyObject *args)
 
     assert(Pympf_Check(self));
     if(!bits) bits = ((PympfObject*)self)->rebits;
-    s = (PyObject*)mpf2mpf((PympfObject*)self, bits);
+    s = (PyObject*)Pympf2Pympf((PympfObject*)self, bits);
     Py_DECREF(self);
     return s;
 }
@@ -2669,7 +2669,7 @@ Pympq_copy(PyObject *self, PyObject *args)
             PyErr_SetString(PyExc_TypeError, "function takes exactly 1 argument");
             return NULL;
         }
-        return (PyObject*)mpq2mpq((PympqObject*)self);
+        return (PyObject*)Pympq2Pympq((PympqObject*)self);
     } else {
         if(PyTuple_GET_SIZE(args) != 1){
             PyErr_SetString(PyExc_TypeError, "function takes exactly 1 argument");
@@ -2677,7 +2677,7 @@ Pympq_copy(PyObject *self, PyObject *args)
         }
         temp = PyTuple_GET_ITEM(args, 0);
         if(Pympq_Check(temp)) {
-            return (PyObject*)mpq2mpq((PympqObject*)temp);
+            return (PyObject*)Pympq2Pympq((PympqObject*)temp);
         } else {
             PyErr_SetString(PyExc_TypeError, "unsupported operand type for _qcopy(): mpq required");
             return NULL;
@@ -2706,18 +2706,18 @@ Pympz_binary(PyObject *self, PyObject *args)
             PyErr_SetString(PyExc_TypeError, "function takes exactly 1 argument");
             return NULL;
         }
-        return mpz2binary((PympzObject*)self);
+        return Pympz2binary((PympzObject*)self);
     } else {
         if(PyTuple_GET_SIZE(args) != 1){
             PyErr_SetString(PyExc_TypeError, "function takes exactly 1 argument");
             return NULL;
         }
-        temp = anyint2mpz(PyTuple_GET_ITEM(args, 0));
+        temp = anyint2Pympz(PyTuple_GET_ITEM(args, 0));
         if(!temp) {
             PyErr_SetString(PyExc_TypeError, "argument is not an integer");
             return NULL;
         } else {
-            return mpz2binary((PympzObject*)temp);
+            return Pympz2binary((PympzObject*)temp);
         }
     }
 }
@@ -2740,7 +2740,7 @@ Pympq_binary(PyObject *self, PyObject *args)
     PyObject *s;
     SELF_MPQ_NO_ARG;
     assert(Pympq_Check(self));
-    s = mpq2binary((PympqObject*)self);
+    s = Pympq2binary((PympqObject*)self);
     Py_DECREF(self);
     return s;
 }
@@ -2763,7 +2763,7 @@ Pympf_binary(PyObject *self, PyObject *args)
     PyObject *s;
     SELF_MPF_NO_ARG;
     assert(Pympf_Check(self));
-    s = mpf2binary((PympfObject*)self);
+    s = Pympf2binary((PympfObject*)self);
     Py_DECREF(self);
     return s;
 }
@@ -2870,7 +2870,7 @@ Pympz_bit_length(PyObject *self, PyObject *args)
                 "bit_length() takes exactly 1 argument");
             return NULL;
         }
-        newob = anyint2mpz(PyTuple_GET_ITEM(args, 0));
+        newob = anyint2Pympz(PyTuple_GET_ITEM(args, 0));
         if(newob) {
             assert(Pympz_Check(newob));
             if (mpz_size(Pympz_AS_MPZ(newob)))
@@ -3115,7 +3115,7 @@ Pympz_setbit(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
-    if(!(s = mpz2mpz((PympzObject*)self))) {
+    if(!(s = Pympz2Pympz((PympzObject*)self))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -3386,7 +3386,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
         return self;
     }
     /* normal, non-optimized case: must make new object as result */
-    self = (PyObject*)anyrational2mpq(self);
+    self = (PyObject*)anyrational2Pympq(self);
     if(!self) {
         if(!PyErr_Occurred()) {
             PyErr_SetString(PyExc_TypeError,
@@ -3397,7 +3397,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
     if(wasone) { /* self was mpf, float, int, long... */
         s = self;
     } else {     /* other explicitly present and !=1... must compute */
-        other = (PyObject*)anyrational2mpq(other);
+        other = (PyObject*)anyrational2Pympq(other);
         if(!other) {
             Py_DECREF(self);
             if(!PyErr_Occurred()) {
@@ -3597,7 +3597,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
                 return NULL;
             }
         }
-        newob = str2mpz(obj, base);
+        newob = PyStr2Pympz(obj, base);
         if (!newob) {
             return NULL;
         }
@@ -3607,7 +3607,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
                 "gmpy.mpz() with numeric argument needs exactly 1 argument");
             return NULL;
         }
-        newob = anynum2mpz(obj);
+        newob = anynum2Pympz(obj);
         if(!newob) {
             if (!PyErr_Occurred()) {
                 PyErr_SetString(PyExc_TypeError,
@@ -3678,13 +3678,13 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
                 return NULL;
             }
         }
-        newob = str2mpq(obj, base);
+        newob = PyStr2Pympq(obj, base);
         if (!newob) {
             return NULL;
         }
     } else {
         wasnumeric=1;
-        newob = anynum2mpq(obj);
+        newob = anynum2Pympq(obj);
         if(!newob) {
             if(!PyErr_Occurred()) {
                 PyErr_SetString(PyExc_TypeError,
@@ -3700,7 +3700,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
     }
     if(wasnumeric && argc==2) {
         PympqObject *denominator;
-        denominator = anynum2mpq(PyTuple_GET_ITEM(args, 1));
+        denominator = anynum2Pympq(PyTuple_GET_ITEM(args, 1));
         if(!denominator) {
             PyErr_SetString(PyExc_TypeError, "argument can not be converted to mpq");
             Py_DECREF((PyObject*)newob);
@@ -3796,7 +3796,7 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
                 return NULL;
             }
         }
-        newob = str2mpf(obj, base, bits);
+        newob = PyStr2Pympf(obj, base, bits);
         if (!newob) {
             return NULL;
         }
@@ -3806,7 +3806,7 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
                 "gmpy.mpf() with numeric 1st argument needs 1 or 2 arguments");
             return NULL;
         }
-        newob = anynum2mpf(obj, bits);
+        newob = anynum2Pympf(obj, bits);
         if(!newob) {
             if(!PyErr_Occurred())
                 PyErr_SetString(PyExc_TypeError,
@@ -3834,8 +3834,8 @@ Py##NAME(PyObject *a, PyObject *b) \
   PympzObject *r; \
   PympzObject *pa = 0; \
   PympzObject *pb = 0; \
-  pa = anyint2mpz(a); \
-  pb = anyint2mpz(b); \
+  pa = anyint2Pympz(a); \
+  pb = anyint2Pympz(b); \
   if(!pa || !pb) { \
     PyObject *r = Py_NotImplemented; \
     Py_XDECREF((PyObject*)pa); \
@@ -3873,7 +3873,7 @@ Py##NAME(PyObject *a, PyObject *b) \
     } \
     NAME(r->f, ((PympfObject*)a)->f, ((PympfObject*)b)->f); \
     if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", r); \
-    mpf_normalize(r); \
+    Pympf_normalize(r); \
     return (PyObject *) r; \
   } else { \
     if(Pympf_Check(a)) { \
@@ -3881,8 +3881,8 @@ Py##NAME(PyObject *a, PyObject *b) \
     } else { \
       bits = ((PympfObject*)b)->rebits; \
     } \
-    pa = anynum2mpf(a, bits); \
-    pb = anynum2mpf(b, bits); \
+    pa = anynum2Pympf(a, bits); \
+    pb = anynum2Pympf(b, bits); \
     if(!pa || !pb) { \
       PyObject *r = Py_NotImplemented; \
       Py_XDECREF((PyObject*)pa); \
@@ -3900,7 +3900,7 @@ Py##NAME(PyObject *a, PyObject *b) \
     Py_DECREF((PyObject*)pa); \
     Py_DECREF((PyObject*)pb); \
     if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", r); \
-    mpf_normalize(r); \
+    Pympf_normalize(r); \
     return (PyObject *) r; \
   } \
 }
@@ -3912,8 +3912,8 @@ Py##NAME(PyObject *a, PyObject *b) \
   PympqObject *r; \
   PympqObject *pa = 0; \
   PympqObject *pb = 0; \
-  pa = anyrational2mpq(a); \
-  pb = anyrational2mpq(b); \
+  pa = anyrational2Pympq(a); \
+  pb = anyrational2Pympq(b); \
   if(!pa || !pb) { \
     PyObject *r = Py_NotImplemented; \
     Py_XDECREF((PyObject*)pa); \
@@ -4017,9 +4017,9 @@ static PyObject *
 Pympz_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
 {
     PympzObject *r;
-    PympzObject *b = anyint2mpz(in_b);
-    PympzObject *e = anyint2mpz(in_e);
-    PympzObject *m = anyint2mpz(in_m);
+    PympzObject *b = anyint2Pympz(in_b);
+    PympzObject *e = anyint2Pympz(in_e);
+    PympzObject *m = anyint2Pympz(in_m);
 
     if(!b || !e || (!m && ((PyObject*)in_m != Py_None))) {
         PyObject *r;
@@ -4045,7 +4045,7 @@ Pympz_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
     if((PyObject*)in_m == Py_None) {
         /* When no modulo is present, the exponent must fit in C ulong */
         unsigned long el;
-        if(notanint(e->z)) {
+        if(mpz_notanint(e->z)) {
             PyErr_SetString(PyExc_ValueError, "mpz.pow outrageous exponent");
             Py_XDECREF((PyObject*)b);
             Py_XDECREF((PyObject*)e);
@@ -4104,8 +4104,8 @@ static PyObject *
 Pympq_pow(PyObject *in_b, PyObject *in_e, PyObject *m)
 {
     PympqObject *r;
-    PympqObject *b = anyrational2mpq(in_b);
-    PympqObject *e = anyrational2mpq(in_e);
+    PympqObject *b = anyrational2Pympq(in_b);
+    PympqObject *e = anyrational2Pympq(in_e);
 
     int esign;
     unsigned long ultem;
@@ -4131,13 +4131,13 @@ Pympq_pow(PyObject *in_b, PyObject *in_e, PyObject *m)
         Py_DECREF((PyObject*)e);
         return NULL;
     }
-    if(notanint(mpq_numref(e->q))) {
+    if(mpz_notanint(mpq_numref(e->q))) {
         PyErr_SetString(PyExc_ValueError, "mpq.pow outrageous exp num");
         Py_DECREF((PyObject*)b);
         Py_DECREF((PyObject*)e);
         return NULL;
     }
-    if(notanint(mpq_denref(e->q))) {
+    if(mpz_notanint(mpq_denref(e->q))) {
         PyErr_SetString(PyExc_ValueError, "mpq.pow outrageous exp den");
         Py_DECREF((PyObject*)b);
         Py_DECREF((PyObject*)e);
@@ -4230,16 +4230,16 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
     }
 
     if((Pympf_Check(xb) && Pympf_Check(xe))) {
-        b = anynum2mpf(xb, 0);
-        e = anynum2mpf(xe, 0);
+        b = anynum2Pympf(xb, 0);
+        e = anynum2Pympf(xe, 0);
     } else {
         if(Pympf_Check(xb)) {
-            b = anynum2mpf(xb, 0);
-            e = anynum2mpf(xe, ((PympfObject*)xb)->rebits);
+            b = anynum2Pympf(xb, 0);
+            e = anynum2Pympf(xe, ((PympfObject*)xb)->rebits);
         }
         if(Pympf_Check(xe)) {
-            b = anynum2mpf(xb, ((PympfObject*)xe)->rebits);
-            e = anynum2mpf(xe, 0);
+            b = anynum2Pympf(xb, ((PympfObject*)xe)->rebits);
+            e = anynum2Pympf(xe, 0);
         }
     }
 
@@ -4267,8 +4267,8 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
         }
         mpf_pow_ui(Pympf_AS_MPF(r), b->f, iexpo);
     } else {
-        qb = mpf2mpq((PyObject*)b);
-        qe = mpf2mpq((PyObject*)e);
+        qb = Pympf2Pympq((PyObject*)b);
+        qe = Pympf2Pympq((PyObject*)e);
         r = Pympq_pow((PyObject*)qb, (PyObject*)qe, (PyObject*)m);
         Py_DECREF((PyObject*)qb); Py_DECREF((PyObject*)qe);
         if(!r || !Pympq_Check(r)) {
@@ -4277,10 +4277,10 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
             return r;
         }
         qb = (PympqObject*)r;
-        r = (PyObject*)mpq2mpf((PyObject*)qb, bits);
+        r = (PyObject*)Pympq2Pympf((PyObject*)qb, bits);
         Py_DECREF((PyObject*)qb);
     }
-    mpf_normalize((PympfObject*)r);
+    Pympf_normalize((PympfObject*)r);
     Py_DECREF((PyObject*)e);
     Py_DECREF((PyObject*)b);
     return r;
@@ -4301,11 +4301,11 @@ Pympany_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
             return NULL;
         } else {
             if(Pympz_Check(in_b)) {
-                temp_b = mpz2float((PympzObject*)in_b);
+                temp_b = Pympz2PyFloat((PympzObject*)in_b);
             } else if(Pympq_Check(in_b)) {
-                temp_b = mpq2float((PympqObject*)in_b);
+                temp_b = Pympq2PyFloat((PympqObject*)in_b);
             } else if(Pympz_Check(in_b)) {
-                temp_b = mpf2float((PympfObject*)in_b);
+                temp_b = Pympf2PyFloat((PympfObject*)in_b);
             } else if(PyFloat_Check(in_b)) {
                 temp_b = in_b;
                 Py_INCREF(temp_b);
@@ -4316,11 +4316,11 @@ Pympany_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
                 return r;
             }
             if(Pympz_Check(in_e)) {
-                temp_e = mpz2float((PympzObject*)in_e);
+                temp_e = Pympz2PyFloat((PympzObject*)in_e);
             } else if(Pympq_Check(in_e)) {
-                temp_e = mpq2float((PympqObject*)in_e);
+                temp_e = Pympq2PyFloat((PympqObject*)in_e);
             } else if(Pympz_Check(in_e)) {
-                temp_e = mpf2float((PympfObject*)in_e);
+                temp_e = Pympf2PyFloat((PympfObject*)in_e);
             } else if(PyFloat_Check(in_e)) {
                 temp_e = in_e;
                 Py_INCREF(temp_e);
@@ -4337,7 +4337,7 @@ Pympany_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
             if(!temp_r) {
                 return NULL;
             }
-            res = (PyObject *)float2mpf(temp_r, 0);
+            res = (PyObject *)PyFloat2Pympf(temp_r, 0);
             Py_DECREF((PyObject*)temp_r);
             return (PyObject *)res;
         }
@@ -4406,8 +4406,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     }
     if(isInteger(a) && isInteger(b)) {
         if(options.debug) fprintf(stderr, "compare (mpz,int)\n");
-        tempa = (PyObject*)anyint2mpz(a);
-        tempb = (PyObject*)anyint2mpz(b);
+        tempa = (PyObject*)anyint2Pympz(a);
+        tempb = (PyObject*)anyint2Pympz(b);
         c = mpz_cmp(Pympz_AS_MPZ(tempa), Pympz_AS_MPZ(tempb));
         Py_DECREF(tempa);
         Py_DECREF(tempb);
@@ -4415,8 +4415,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     }
     if(isRational(a) && isRational(b)) {
         if(options.debug) fprintf(stderr, "compare (mpq,rational)\n");
-        tempa = (PyObject*)anyrational2mpq(a);
-        tempb = (PyObject*)anyrational2mpq(b);
+        tempa = (PyObject*)anyrational2Pympq(a);
+        tempb = (PyObject*)anyrational2Pympq(b);
         c = mpq_cmp(Pympq_AS_MPQ(tempa), Pympq_AS_MPQ(tempb));
         Py_DECREF(tempa);
         Py_DECREF(tempb);
@@ -4424,8 +4424,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     }
     if(isNumber(a) && isNumber(b)) {
         if(options.debug) fprintf(stderr, "compare (mpf,float)\n");
-        tempa = (PyObject*)anynum2mpf(a,0);
-        tempb = (PyObject*)anynum2mpf(b,0);
+        tempa = (PyObject*)anynum2Pympf(a,0);
+        tempb = (PyObject*)anynum2Pympf(b,0);
         c = mpf_cmp(Pympf_AS_MPF(tempa), Pympf_AS_MPF(tempb));
         Py_DECREF(tempa);
         Py_DECREF(tempb);
@@ -4471,7 +4471,7 @@ Py##NAME(PyObject* self, PyObject *args) \
   NAME(r->f, Pympf_AS_MPF(self)); \
   if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
   Py_DECREF(self); \
-  mpf_normalize(r); \
+  Pympf_normalize(r); \
   return (PyObject *) r; \
 }
 
@@ -4524,8 +4524,8 @@ NAME(PyObject *a, PyObject *b) \
       } \
       OP(r->z, ((PympzObject*)a)->z, count); \
   } else { \
-    pa = anyint2mpz(a); \
-    pb = anyint2mpz(b); \
+    pa = anyint2Pympz(a); \
+    pb = anyint2Pympz(b); \
     if(!pb || !pa) { \
       PyObject *r = Py_NotImplemented; \
       Py_XDECREF((PyObject*)pa); \
@@ -4588,17 +4588,17 @@ dohash(PyObject* tempPynum)
 static long
 Pympz_hash(PympzObject *self)
 {
-    return dohash(mpz2long(self));
+    return dohash(Pympz2PyLong(self));
 }
 static long
 Pympf_hash(PympfObject *self)
 {
-    return dohash(mpf2float(self));
+    return dohash(Pympf2PyFloat(self));
 }
 static long
 Pympq_hash(PympqObject *self)
 {
-    return dohash(mpq2float(self));
+    return dohash(Pympq2PyFloat(self));
 }
 
 /* Miscellaneous gmpy functions */
@@ -4861,7 +4861,7 @@ Pygmpy_pi(PyObject *self, PyObject *args)
     mpf_clear(r_i3);
     mpf_clear(r_i4);
 
-    mpf_normalize(pi);
+    Pympf_normalize(pi);
     return (PyObject*)pi;
 }
 
@@ -4937,7 +4937,7 @@ Pympf_sqrt(PyObject *self, PyObject *args)
     }
     mpf_sqrt(root->f, Pympf_AS_MPF(self));
     Py_DECREF(self);
-    mpf_normalize(root);
+    Pympf_normalize(root);
     return (PyObject *) root;
 }
 
@@ -5741,7 +5741,7 @@ Pympf_setprec(PyObject *self, PyObject *args)
 
     mpf_set_prec(Pympf_AS_MPF(self), precres);
     ((PympfObject*)self)->rebits = precres;
-    mpf_normalize((PympfObject*)self);
+    Pympf_normalize((PympfObject*)self);
     return Py_BuildValue("");
 }
 
@@ -5762,7 +5762,7 @@ Pympf_round(PyObject *self, PyObject *args)
 
     SELF_MPF_ONE_ARG("|l",&prec);
     assert(Pympf_Check(self));
-    s = (PyObject*)mpf2mpf((PympfObject*)self, prec);
+    s = (PyObject*)Pympf2Pympf((PympfObject*)self, prec);
     Py_DECREF(self);
     return s;
 }
@@ -5970,7 +5970,7 @@ Pygmpy_rand(PyObject *self, PyObject *args)
             PympfObject *resob = Pympf_new(bits);
             if(bits>0 && resob) {
                 mpf_urandomb(resob->f, randstate, bits);
-                mpf_normalize(resob);
+                Pympf_normalize(resob);
                 result = (PyObject*)resob;
             } else if(bits<=0) {
                 if(resob)
@@ -6021,9 +6021,9 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pympz_and,        /* binaryfunc nb_and;                  */
     (binaryfunc) Pympz_xor,        /* binaryfunc nb_xor;                  */
     (binaryfunc) Pympz_ior,        /* binaryfunc nb_or;                   */
-    (unaryfunc) mpz2long,          /* unaryfunc nb_int                    */
+    (unaryfunc) Pympz2PyLong,      /* unaryfunc nb_int                    */
         0,                         /* void *nb_reserved;                  */
-    (unaryfunc) mpz2float,         /* unaryfunc nb_float;                 */
+    (unaryfunc) Pympz2PyFloat,         /* unaryfunc nb_float;                 */
         0,                         /* binaryfunc nb_inplace_add;          */
         0,                         /* binaryfunc nb_inplace_subtract;     */
         0,                         /* binaryfunc nb_inplace_multiply;     */
@@ -6062,9 +6062,9 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pympz_xor,
     (binaryfunc) Pympz_ior,
     (coercion) 0,
-    (unaryfunc) mpz2int,
-    (unaryfunc) mpz2long,
-    (unaryfunc) mpz2float,
+    (unaryfunc) Pympz2PyInt,
+    (unaryfunc) Pympz2PyLong,
+    (unaryfunc) Pympz2PyFloat,
     (unaryfunc) Pympz_oct,
     (unaryfunc) Pympz_hex,
         0, /* binaryfunc nb_inplace_add;        */
@@ -6108,9 +6108,9 @@ static PyNumberMethods mpq_number_methods =
         0,                         /* binaryfunc nb_and;                  */
         0,                         /* binaryfunc nb_xor;                  */
         0,                         /* binaryfunc nb_or;                   */
-    (unaryfunc) mpq2long,          /* unaryfunc nb_int                    */
+    (unaryfunc) Pympq2PyLong,          /* unaryfunc nb_int                    */
         0,                         /* void *nb_reserved;                  */
-    (unaryfunc) mpq2float,         /* unaryfunc nb_float;                 */
+    (unaryfunc) Pympq2PyFloat,         /* unaryfunc nb_float;                 */
         0,                         /* binaryfunc nb_inplace_add;          */
         0,                         /* binaryfunc nb_inplace_subtract;     */
         0,                         /* binaryfunc nb_inplace_multiply;     */
@@ -6148,9 +6148,9 @@ static PyNumberMethods mpq_number_methods =
     (binaryfunc) 0,     /* no bit-xor */
     (binaryfunc) 0,     /* no bit-ior */
     (coercion) 0,
-    (unaryfunc) mpq2int,
-    (unaryfunc) mpq2long,
-    (unaryfunc) mpq2float,
+    (unaryfunc) Pympq2PyInt,
+    (unaryfunc) Pympq2PyLong,
+    (unaryfunc) Pympq2PyFloat,
     (unaryfunc) 0,      /* no oct */
     (unaryfunc) 0,      /* no hex */
         0, /* binaryfunc nb_inplace_add;        */
@@ -6191,9 +6191,9 @@ static PyNumberMethods mpf_number_methods =
         0,                         /* binaryfunc nb_and;                  */
         0,                         /* binaryfunc nb_xor;                  */
         0,                         /* binaryfunc nb_or;                   */
-    (unaryfunc) mpf2long,          /* unaryfunc nb_int                    */
+    (unaryfunc) Pympf2PyLong,          /* unaryfunc nb_int                    */
         0,                         /* void *nb_reserved;                  */
-    (unaryfunc) mpf2float,         /* unaryfunc nb_float;                 */
+    (unaryfunc) Pympf2PyFloat,         /* unaryfunc nb_float;                 */
         0,                         /* binaryfunc nb_inplace_add;          */
         0,                         /* binaryfunc nb_inplace_subtract;     */
         0,                         /* binaryfunc nb_inplace_multiply;     */
@@ -6231,9 +6231,9 @@ static PyNumberMethods mpf_number_methods =
     (binaryfunc) 0,     /* no bit-xor */
     (binaryfunc) 0,     /* no bit-ior */
     (coercion) 0,      /* was coerce */
-    (unaryfunc) mpf2int,
-    (unaryfunc) mpf2long,
-    (unaryfunc) mpf2float,
+    (unaryfunc) Pympf2PyInt,
+    (unaryfunc) Pympf2PyLong,
+    (unaryfunc) Pympf2PyFloat,
     (unaryfunc) 0,      /* no oct */
     (unaryfunc) 0,      /* no hex */
         0, /* binaryfunc nb_inplace_add;        */
@@ -6423,13 +6423,13 @@ static PyTypeObject Pympz_Type =
         0,                          /* tp_getattr       */
         0,                          /* tp_setattr       */
         0,                          /* tp_reserved      */
-    (reprfunc) mpz2repr,            /* tp_repr          */
+    (reprfunc) Pympz2repr,            /* tp_repr          */
     &mpz_number_methods,            /* tp_as_number     */
         0,                          /* tp_as_sequence   */
         0,                          /* tp_as_mapping    */
     (hashfunc) Pympz_hash,          /* tp_hash          */
         0,                          /* tp_call          */
-    (reprfunc) mpz2str,             /* tp_str           */
+    (reprfunc) Pympz2str,             /* tp_str           */
         0,                          /* tp_getattro      */
         0,                          /* tp_setattro      */
         0,                          /* tp_as_buffer     */
@@ -6466,13 +6466,13 @@ static PyTypeObject Pympq_Type =
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
-    (reprfunc) mpq2repr,                    /* tp_repr          */
+    (reprfunc) Pympq2repr,                    /* tp_repr          */
     &mpq_number_methods,                    /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
         0,                                  /* tp_as_mapping    */
     (hashfunc) Pympq_hash,                  /* tp_hash          */
         0,                                  /* tp_call          */
-    (reprfunc) mpq2str,                     /* tp_str           */
+    (reprfunc) Pympq2str,                     /* tp_str           */
     (getattrofunc) 0,                       /* tp_getattro      */
     (setattrofunc) 0,                       /* tp_setattro      */
         0,                                  /* tp_as_buffer     */
@@ -6510,13 +6510,13 @@ static PyTypeObject Pympf_Type =
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
-    (reprfunc) mpf2repr,                    /* tp_repr          */
+    (reprfunc) Pympf2repr,                    /* tp_repr          */
     &mpf_number_methods,                    /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
         0,                                  /* tp_as_mapping    */
     (hashfunc) Pympf_hash,                  /* tp_hash          */
         0,                                  /* tp_call          */
-    (reprfunc) mpf2str,                     /* tp_str           */
+    (reprfunc) Pympf2str,                     /* tp_str           */
     (getattrofunc) 0,                       /* tp_getattro      */
     (setattrofunc) 0,                       /* tp_setattro      */
         0,                                  /* tp_as_buffer     */
