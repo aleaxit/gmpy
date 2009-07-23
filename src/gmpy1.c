@@ -69,8 +69,8 @@ Pympany_add(PyObject *a, PyObject *b)
 
     if(isInteger(a) && isInteger(b)) {
         if(options.debug) fprintf(stderr, "Adding (integer,integer)\n");
-        paz = anyint2mpz(a);
-        pbz = anyint2mpz(b);
+        paz = anyint2Pympz(a);
+        pbz = anyint2Pympz(b);
         if(!paz || !pbz) {
             Py_XDECREF((PyObject*)paz); Py_XDECREF((PyObject*)pbz);
             PyErr_SetString(PyExc_SystemError, "Can not convert integer to mpz");
@@ -87,8 +87,8 @@ Pympany_add(PyObject *a, PyObject *b)
 
     if(isRational(a) && isRational(b)) {
         if (options.debug) fprintf(stderr, "Adding (rational,rational)\n");
-        paq = anyrational2mpq(a);
-        pbq = anyrational2mpq(b);
+        paq = anyrational2Pympq(a);
+        pbq = anyrational2Pympq(b);
         if(!paq || !pbq) {
             PyErr_SetString(PyExc_SystemError, "Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq); Py_XDECREF((PyObject*)pbq);
@@ -106,14 +106,14 @@ Pympany_add(PyObject *a, PyObject *b)
     if(isNumber(a) && isNumber(b)) {
         if (options.debug) fprintf(stderr, "Adding (number,number)\n");
         if(Pympf_Check(a) && Pympf_Check(b)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, 0);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, 0);
         } else if(Pympf_Check(a)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, paf->rebits);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, paf->rebits);
         } else {
-            pbf = anynum2mpf(b, 0);
-            paf = anynum2mpf(a, pbf->rebits);
+            pbf = anynum2Pympf(b, 0);
+            paf = anynum2Pympf(a, pbf->rebits);
         }
         if(!paf || !pbf) {
             PyErr_SetString(PyExc_SystemError, "Can not convert number to mpf");
@@ -128,7 +128,7 @@ Pympany_add(PyObject *a, PyObject *b)
         }
         mpf_add(rf->f, paf->f, pbf->f);
         Py_DECREF((PyObject*)paf); Py_DECREF((PyObject*)pbf);
-        mpf_normalize(rf);
+        Pympf_normalize(rf);
         return (PyObject *) rf;
     }
 
@@ -190,8 +190,8 @@ Pympany_sub(PyObject *a, PyObject *b)
 
     if(isInteger(a) && isInteger(b)) {
         if(options.debug) fprintf(stderr, "Subtractinging (integer,integer)\n");
-        paz = anyint2mpz(a);
-        pbz = anyint2mpz(b);
+        paz = anyint2Pympz(a);
+        pbz = anyint2Pympz(b);
         if(!paz || !pbz) {
             Py_XDECREF((PyObject*)paz); Py_XDECREF((PyObject*)pbz);
             PyErr_SetString(PyExc_SystemError, "Can not convert integer to mpz");
@@ -208,8 +208,8 @@ Pympany_sub(PyObject *a, PyObject *b)
 
     if(isRational(a) && isRational(b)) {
         if (options.debug) fprintf(stderr, "Subtracting (rational,rational)\n");
-        paq = anyrational2mpq(a);
-        pbq = anyrational2mpq(b);
+        paq = anyrational2Pympq(a);
+        pbq = anyrational2Pympq(b);
         if(!paq || !pbq) {
             PyErr_SetString(PyExc_SystemError, "Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq); Py_XDECREF((PyObject*)pbq);
@@ -227,14 +227,14 @@ Pympany_sub(PyObject *a, PyObject *b)
     if(isNumber(a) && isNumber(b)) {
         if (options.debug) fprintf(stderr, "Subtracting (number,number)\n");
         if(Pympf_Check(a) && Pympf_Check(b)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, 0);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, 0);
         } else if(Pympf_Check(a)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, paf->rebits);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, paf->rebits);
         } else {
-            pbf = anynum2mpf(b, 0);
-            paf = anynum2mpf(a, pbf->rebits);
+            pbf = anynum2Pympf(b, 0);
+            paf = anynum2Pympf(a, pbf->rebits);
         }
         if(!paf || !pbf) {
             PyErr_SetString(PyExc_SystemError, "Can not convert number to mpf");
@@ -249,7 +249,7 @@ Pympany_sub(PyObject *a, PyObject *b)
         }
         mpf_sub(rf->f, paf->f, pbf->f);
         Py_DECREF((PyObject*)paf); Py_DECREF((PyObject*)pbf);
-        mpf_normalize(rf);
+        Pympf_normalize(rf);
         return (PyObject *) rf;
     }
 
@@ -299,8 +299,8 @@ Pympany_mul(PyObject *a, PyObject *b)
 
     if(isInteger(a) && isInteger(b)) {
         if(options.debug) fprintf(stderr, "Multiplying (integer,integer)\n");
-        paz = anyint2mpz(a);
-        pbz = anyint2mpz(b);
+        paz = anyint2Pympz(a);
+        pbz = anyint2Pympz(b);
         if(!paz || !pbz) {
             Py_XDECREF((PyObject*)paz); Py_XDECREF((PyObject*)pbz);
             PyErr_SetString(PyExc_SystemError, "Can not convert integer to mpz");
@@ -317,8 +317,8 @@ Pympany_mul(PyObject *a, PyObject *b)
 
     if(isRational(a) && isRational(b)) {
         if (options.debug) fprintf(stderr, "Multiplying (rational,rational)\n");
-        paq = anyrational2mpq(a);
-        pbq = anyrational2mpq(b);
+        paq = anyrational2Pympq(a);
+        pbq = anyrational2Pympq(b);
         if(!paq || !pbq) {
             PyErr_SetString(PyExc_SystemError, "Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq); Py_XDECREF((PyObject*)pbq);
@@ -336,14 +336,14 @@ Pympany_mul(PyObject *a, PyObject *b)
     if(isNumber(a) && isNumber(b)) {
         if (options.debug) fprintf(stderr, "Multiplying (number,number)\n");
         if(Pympf_Check(a) && Pympf_Check(b)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, 0);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, 0);
         } else if(Pympf_Check(a)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, paf->rebits);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, paf->rebits);
         } else {
-            pbf = anynum2mpf(b, 0);
-            paf = anynum2mpf(a, pbf->rebits);
+            pbf = anynum2Pympf(b, 0);
+            paf = anynum2Pympf(a, pbf->rebits);
         }
         if(!paf || !pbf) {
             PyErr_SetString(PyExc_SystemError, "Can not convert number to mpf");
@@ -358,7 +358,7 @@ Pympany_mul(PyObject *a, PyObject *b)
         }
         mpf_mul(rf->f, paf->f, pbf->f);
         Py_DECREF((PyObject*)paf); Py_DECREF((PyObject*)pbf);
-        mpf_normalize(rf);
+        Pympf_normalize(rf);
         return (PyObject *) rf;
     }
 
@@ -406,8 +406,8 @@ Pympany_floordiv(PyObject *a, PyObject *b)
 
     if(isInteger(a) && isInteger(b)) {
         if(options.debug) fprintf(stderr, "Floor divide (integer,integer)\n");
-        paz = anyint2mpz(a);
-        pbz = anyint2mpz(b);
+        paz = anyint2Pympz(a);
+        pbz = anyint2Pympz(b);
         if(!paz || !pbz) {
             Py_XDECREF((PyObject*)paz); Py_XDECREF((PyObject*)pbz);
             PyErr_SetString(PyExc_SystemError, "Can not convert integer to mpz");
@@ -429,8 +429,8 @@ Pympany_floordiv(PyObject *a, PyObject *b)
 
     if(isRational(a) && isRational(b)) {
         if(options.debug) fprintf(stderr, "Floor divide (rational,rational)\n");
-        paq = anyrational2mpq(a);
-        pbq = anyrational2mpq(b);
+        paq = anyrational2Pympq(a);
+        pbq = anyrational2Pympq(b);
         if(!paq || !pbq) {
             PyErr_SetString(PyExc_SystemError, "Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq); Py_XDECREF((PyObject*)pbq);
@@ -456,14 +456,14 @@ Pympany_floordiv(PyObject *a, PyObject *b)
     if(isNumber(a) && isNumber(b)) {
         if(options.debug) fprintf(stderr, "Floor divide (number,number)\n");
         if(Pympf_Check(a) && Pympf_Check(b)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, 0);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, 0);
         } else if(Pympf_Check(a)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, paf->rebits);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, paf->rebits);
         } else {
-            pbf = anynum2mpf(b, 0);
-            paf = anynum2mpf(a, pbf->rebits);
+            pbf = anynum2Pympf(b, 0);
+            paf = anynum2Pympf(a, pbf->rebits);
         }
         if(!paf || !pbf) {
             PyErr_SetString(PyExc_SystemError, "Can not convert number to mpf");
@@ -513,14 +513,14 @@ Pympany_truediv(PyObject *a, PyObject *b)
     if(isInteger(a) && isInteger(b)) {
         if(options.debug) fprintf(stderr, "True divide (integer,integer)\n");
         if(Pympf_Check(a) && Pympf_Check(b)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, 0);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, 0);
         } else if(Pympf_Check(a)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, paf->rebits);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, paf->rebits);
         } else {
-            pbf = anynum2mpf(b, 0);
-            paf = anynum2mpf(a, pbf->rebits);
+            pbf = anynum2Pympf(b, 0);
+            paf = anynum2Pympf(a, pbf->rebits);
         }
         if(!paf || !pbf) {
             PyErr_SetString(PyExc_SystemError, "Can not convert number to mpf");
@@ -545,8 +545,8 @@ Pympany_truediv(PyObject *a, PyObject *b)
 
     if(isRational(a) && isRational(b)) {
         if(options.debug) fprintf(stderr, "True divide (rational,rational)\n");
-        paq = anyrational2mpq(a);
-        pbq = anyrational2mpq(b);
+        paq = anyrational2Pympq(a);
+        pbq = anyrational2Pympq(b);
         if(!paq || !pbq) {
             PyErr_SetString(PyExc_SystemError, "Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq); Py_XDECREF((PyObject*)pbq);
@@ -569,14 +569,14 @@ Pympany_truediv(PyObject *a, PyObject *b)
     if(isNumber(a) && isNumber(b)) {
         if(options.debug) fprintf(stderr, "True divide (number,number)\n");
         if(Pympf_Check(a) && Pympf_Check(b)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, 0);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, 0);
         } else if(Pympf_Check(a)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, paf->rebits);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, paf->rebits);
         } else {
-            pbf = anynum2mpf(b, 0);
-            paf = anynum2mpf(a, pbf->rebits);
+            pbf = anynum2Pympf(b, 0);
+            paf = anynum2Pympf(a, pbf->rebits);
         }
         if(!paf || !pbf) {
             PyErr_SetString(PyExc_SystemError, "Can not convert number to mpf");
@@ -650,8 +650,8 @@ Pympany_div2(PyObject *a, PyObject *b)
 
     if(isInteger(a) && isInteger(b)) {
         if(options.debug) fprintf(stderr, "Floor divide (integer,integer)\n");
-        paz = anyint2mpz(a);
-        pbz = anyint2mpz(b);
+        paz = anyint2Pympz(a);
+        pbz = anyint2Pympz(b);
         if(!paz || !pbz) {
             Py_XDECREF((PyObject*)paz); Py_XDECREF((PyObject*)pbz);
             PyErr_SetString(PyExc_SystemError, "Can not convert integer to mpz");
@@ -675,8 +675,8 @@ Pympany_div2(PyObject *a, PyObject *b)
 
     if(isRational(a) && isRational(b)) {
         if(options.debug) fprintf(stderr, "True divide (rational,rational)\n");
-        paq = anyrational2mpq(a);
-        pbq = anyrational2mpq(b);
+        paq = anyrational2Pympq(a);
+        pbq = anyrational2Pympq(b);
         if(!paq || !pbq) {
             PyErr_SetString(PyExc_SystemError, "Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq); Py_XDECREF((PyObject*)pbq);
@@ -701,14 +701,14 @@ Pympany_div2(PyObject *a, PyObject *b)
     if(isNumber(a) && isNumber(b)) {
         if(options.debug) fprintf(stderr, "True divide (number,number)\n");
         if(Pympf_Check(a) && Pympf_Check(b)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, 0);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, 0);
         } else if(Pympf_Check(a)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, paf->rebits);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, paf->rebits);
         } else {
-            pbf = anynum2mpf(b, 0);
-            paf = anynum2mpf(a, pbf->rebits);
+            pbf = anynum2Pympf(b, 0);
+            paf = anynum2Pympf(a, pbf->rebits);
         }
         if(!paf || !pbf) {
             PyErr_SetString(PyExc_SystemError, "Can not convert number to mpf");
@@ -780,8 +780,8 @@ Pympany_rem(PyObject *a, PyObject *b)
 
     if(isInteger(a) && isInteger(b)) {
         if(options.debug) fprintf(stderr, "Modulo (integer,integer)\n");
-        paz = anyint2mpz(a);
-        pbz = anyint2mpz(b);
+        paz = anyint2Pympz(a);
+        pbz = anyint2Pympz(b);
         if(!paz || !pbz) {
             Py_XDECREF((PyObject*)paz); Py_XDECREF((PyObject*)pbz);
             PyErr_SetString(PyExc_SystemError, "Can not convert integer to mpz");
@@ -803,8 +803,8 @@ Pympany_rem(PyObject *a, PyObject *b)
 
     if(isRational(a) && isRational(b)) {
         if(options.debug) fprintf(stderr, "Modulo (rational,rational)\n");
-        paq = anyrational2mpq(a);
-        pbq = anyrational2mpq(b);
+        paq = anyrational2Pympq(a);
+        pbq = anyrational2Pympq(b);
         if(!paq || !pbq) {
             PyErr_SetString(PyExc_SystemError, "Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq); Py_XDECREF((PyObject*)pbq);
@@ -834,14 +834,14 @@ Pympany_rem(PyObject *a, PyObject *b)
     if(isNumber(a) && isNumber(b)) {
         if(options.debug) fprintf(stderr, "Modulo (number,number)\n");
         if(Pympf_Check(a) && Pympf_Check(b)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, 0);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, 0);
         } else if(Pympf_Check(a)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, paf->rebits);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, paf->rebits);
         } else {
-            pbf = anynum2mpf(b, 0);
-            paf = anynum2mpf(a, pbf->rebits);
+            pbf = anynum2Pympf(b, 0);
+            paf = anynum2Pympf(a, pbf->rebits);
         }
         if(!paf || !pbf) {
             PyErr_SetString(PyExc_SystemError, "Can not convert number to mpf");
@@ -928,8 +928,8 @@ Pympany_divmod(PyObject *a, PyObject *b)
 
     if(isInteger(a) && isInteger(b)) {
         if(options.debug) fprintf(stderr, "Divmod (integer,integer)\n");
-        paz = anyint2mpz(a);
-        pbz = anyint2mpz(b);
+        paz = anyint2Pympz(a);
+        pbz = anyint2Pympz(b);
         if(!paz || !pbz) {
             Py_XDECREF((PyObject*)paz); Py_XDECREF((PyObject*)pbz);
             PyErr_SetString(PyExc_SystemError, "Can not convert integer to mpz");
@@ -952,8 +952,8 @@ Pympany_divmod(PyObject *a, PyObject *b)
 
     if(isRational(a) && isRational(b)) {
         if(options.debug) fprintf(stderr, "Divmod (rational,rational)\n");
-        paq = anyrational2mpq(a);
-        pbq = anyrational2mpq(b);
+        paq = anyrational2Pympq(a);
+        pbq = anyrational2Pympq(b);
         if(!paq || !pbq) {
             PyErr_SetString(PyExc_SystemError, "Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq); Py_XDECREF((PyObject*)pbq);
@@ -982,14 +982,14 @@ Pympany_divmod(PyObject *a, PyObject *b)
     if(isNumber(a) && isNumber(b)) {
         if(options.debug) fprintf(stderr, "Divmod (number,number)\n");
         if(Pympf_Check(a) && Pympf_Check(b)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, 0);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, 0);
         } else if(Pympf_Check(a)) {
-            paf = anynum2mpf(a, 0);
-            pbf = anynum2mpf(b, paf->rebits);
+            paf = anynum2Pympf(a, 0);
+            pbf = anynum2Pympf(b, paf->rebits);
         } else {
-            pbf = anynum2mpf(b, 0);
-            paf = anynum2mpf(a, pbf->rebits);
+            pbf = anynum2Pympf(b, 0);
+            paf = anynum2Pympf(a, pbf->rebits);
         }
         if(!paf || !pbf) {
             PyErr_SetString(PyExc_SystemError, "Can not convert number to mpf");
