@@ -3842,6 +3842,7 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
  */
 
 #if defined(FAST)
+#include "gmpy_utility_fast.c"
 #include "gmpy_basic_fast.c"
 #else
 #include "gmpy_basic.c"
