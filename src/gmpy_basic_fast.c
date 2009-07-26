@@ -605,16 +605,8 @@ Pympany_truediv(PyObject *a, PyObject *b)
 
     if(isInteger(a) && isInteger(b)) {
         if(options.debug) fprintf(stderr, "True divide (integer,integer)\n");
-        if(Pympf_Check(a) && Pympf_Check(b)) {
-            paf = anynum2Pympf(a, 0);
-            pbf = anynum2Pympf(b, 0);
-        } else if(Pympf_Check(a)) {
-            paf = anynum2Pympf(a, 0);
-            pbf = anynum2Pympf(b, paf->rebits);
-        } else {
-            pbf = anynum2Pympf(b, 0);
-            paf = anynum2Pympf(a, pbf->rebits);
-        }
+        paf = anynum2Pympf(a, 0);
+        pbf = anynum2Pympf(b, 0);
         if(!paf || !pbf) {
             PyErr_SetString(PyExc_SystemError, "Can not convert number to mpf");
             Py_XDECREF((PyObject*)paf); Py_XDECREF((PyObject*)pbf);
@@ -625,9 +617,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)paf); Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        bits = paf->rebits;
-        if(pbf->rebits<bits) bits=pbf->rebits;
-        if (!(rf = Pympf_new(bits))) {
+        if (!(rf = Pympf_new(0))) {
             Py_DECREF((PyObject*)paf); Py_DECREF((PyObject*)pbf);
             return NULL;
         }
