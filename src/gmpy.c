@@ -3825,7 +3825,27 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
 
 /* ARITHMETIC */
 
-#include "gmpy1.c"
+/* Include the basic arithmetic operations from gmpy_basic.py.
+ *
+ * The following routines are contained in gmpy_basic.py:
+ *   Pympany_add()
+ *   Pympany_sub()
+ *   Pympany_mul()
+ *   Pympany_floordiv()
+ *   Pympany_truediv()
+ *   Pympany_div2()     -- Python 2.x only!
+ *   Pympany_divmod()
+ *
+ * If -DFAST is specified at compile time, an highly optimized version of
+ * will be used. If the optimized version is truly faster, it will become the
+ * default version.
+ */
+
+#if defined(FAST)
+#include "gmpy_basic_fast.c"
+#else
+#include "gmpy_basic.c"
+#endif
 
 #define MPZ_BINOP(NAME) \
 static PyObject * \

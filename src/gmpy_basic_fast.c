@@ -1,6 +1,6 @@
-/* gmpy1.c
+/* gmpy_basic_fast.c
  *
- * Generic methods for gmpy types.
+ * Generic methods for gmpy types. The routines are highly optimized.
  *
  * This file should be considered part of gmpy.c
  */

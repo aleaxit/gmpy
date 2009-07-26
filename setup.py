@@ -11,7 +11,7 @@ if sys.version < '2.2.3':
 # Check if MPIR or GMP should be used.
 mplib='gmp'
 for token in sys.argv:
-    if token.endswith('MPIR'):
+    if token.startswith('-D') and 'MPIR' in token:
         mplib='mpir'
         break
 
