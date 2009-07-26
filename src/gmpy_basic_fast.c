@@ -34,10 +34,10 @@ Pympany_add(PyObject *a, PyObject *b)
     /* Try to make mpz + small_int faster */
 
     if(Pympz_Check(a)) {
+        mpz_inoc(rzz);
 #if PY_MAJOR_VERSION == 2
         if(PyInt_CheckExact(b)) {
             //~ if (options.debug) fprintf(stderr, "Adding (mpz,small_int)\n");
-            mpz_inoc(rzz);
             if((temp = PyInt_AS_LONG(b))>=0) {
                 mpz_add_ui(rzz, Pympz_AS_MPZ(a), temp);
             } else {
@@ -49,7 +49,6 @@ Pympany_add(PyObject *a, PyObject *b)
 
         if(PyLong_CheckExact(b)) {
             //~ if (options.debug) fprintf(stderr, "Adding (mpz,long)\n");
-            mpz_inoc(rzz);
             if((temp=PyLong_AsLong(b))>=0) {
                 mpz_add_ui(rzz, Pympz_AS_MPZ(a), temp);
             } else if((temp==-1) && PyErr_Occurred()) {
@@ -66,17 +65,16 @@ Pympany_add(PyObject *a, PyObject *b)
 
         if(Pympz_Check(b)) {
             //~ if(options.debug) fprintf(stderr, "Adding (mpz,mpz)\n");
-            mpz_inoc(rzz);
             mpz_add(rzz, Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject *)Pympz_FROM_MPZ(rzz);
         }
     }
 
     if(Pympz_Check(b)) {
+        mpz_inoc(rzz);
 #if PY_MAJOR_VERSION == 2
         if(PyInt_CheckExact(a)) {
             //~ if (options.debug) fprintf(stderr, "Adding (small_int,mpz)\n");
-            mpz_inoc(rzz);
             if((temp = PyInt_AS_LONG(a))>=0) {
                 mpz_add_ui(rzz, Pympz_AS_MPZ(b), temp);
             } else {
@@ -88,7 +86,6 @@ Pympany_add(PyObject *a, PyObject *b)
 
         if(PyLong_CheckExact(a)) {
             //~ if (options.debug) fprintf(stderr, "Adding (long,mpz)\n");
-            mpz_inoc(rzz);
             if((temp=PyLong_AsLong(a))>=0) {
                 mpz_add_ui(rzz, Pympz_AS_MPZ(b), temp);
             } else if((temp==-1) && PyErr_Occurred()) {
@@ -100,13 +97,6 @@ Pympany_add(PyObject *a, PyObject *b)
             } else {
                 mpz_sub_ui(rzz, Pympz_AS_MPZ(b), -temp);
             }
-            return (PyObject *)Pympz_FROM_MPZ(rzz);
-        }
-
-        if(Pympz_Check(a)) {
-            //~ if(options.debug) fprintf(stderr, "Adding (mpz,mpz)\n");
-            mpz_inoc(rzz);
-            mpz_add(rzz, Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject *)Pympz_FROM_MPZ(rzz);
         }
     }
@@ -179,10 +169,10 @@ Pympany_sub(PyObject *a, PyObject *b)
     unsigned int bits;
 
     if(Pympz_Check(a)) {
+        mpz_inoc(rzz);
 #if PY_MAJOR_VERSION == 2
         if(PyInt_CheckExact(b)) {
             //~ if (options.debug) fprintf(stderr, "Adding (mpz,small_int)\n");
-            mpz_inoc(rzz);
             if((temp = PyInt_AS_LONG(b))>=0) {
                 mpz_sub_ui(rzz, Pympz_AS_MPZ(a), temp);
             } else {
@@ -194,7 +184,6 @@ Pympany_sub(PyObject *a, PyObject *b)
 
         if(PyLong_CheckExact(b)) {
             //~ if (options.debug) fprintf(stderr, "Subtracting (mpz,long)\n");
-            mpz_inoc(rzz);
             if((temp=PyLong_AsLong(b))>=0) {
                 mpz_sub_ui(rzz, Pympz_AS_MPZ(a), temp);
             } else if((temp==-1) && PyErr_Occurred()) {
@@ -211,17 +200,16 @@ Pympany_sub(PyObject *a, PyObject *b)
 
         if(Pympz_Check(b)) {
             //~ if(options.debug) fprintf(stderr, "Subtracting (mpz,mpz)\n");
-            mpz_inoc(rzz);
             mpz_sub(rzz, Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject *)Pympz_FROM_MPZ(rzz);
         }
     }
 
     if(Pympz_Check(b)) {
+        mpz_inoc(rzz);
 #if PY_MAJOR_VERSION == 2
         if(PyInt_CheckExact(a)) {
             //~ if (options.debug) fprintf(stderr, "Subtracting (small_int,mpz)\n");
-            mpz_inoc(rzz);
             if((temp = PyInt_AS_LONG(a))>=0) {
                 mpz_ui_sub(rzz, temp, Pympz_AS_MPZ(b));
             } else {
@@ -234,7 +222,6 @@ Pympany_sub(PyObject *a, PyObject *b)
 
         if(PyLong_CheckExact(a)) {
             //~ if (options.debug) fprintf(stderr, "Subtracting (long,mpz)\n");
-            mpz_inoc(rzz);
             if((temp=PyLong_AsLong(a))>=0) {
                 mpz_ui_sub(rzz, temp, Pympz_AS_MPZ(b));
             } else if((temp==-1) && PyErr_Occurred()) {
@@ -247,13 +234,6 @@ Pympany_sub(PyObject *a, PyObject *b)
                 mpz_add_ui(rzz, Pympz_AS_MPZ(b), -temp);
                 mpz_neg(rzz, rzz);
             }
-            return (PyObject *)Pympz_FROM_MPZ(rzz);
-        }
-
-        if(Pympz_Check(a)) {
-            //~ if(options.debug) fprintf(stderr, "Subtracting (mpz,mpz)\n");
-            mpz_inoc(rzz);
-            mpz_sub(rzz, Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject *)Pympz_FROM_MPZ(rzz);
         }
     }
@@ -326,10 +306,10 @@ Pympany_mul(PyObject *a, PyObject *b)
     unsigned int bits;
 
     if(Pympz_Check(a)) {
+        mpz_inoc(rzz);
 #if PY_MAJOR_VERSION == 2
         if(PyInt_CheckExact(b)) {
             //~ if (options.debug) fprintf(stderr, "Multiplying (mpz,small_int)\n");
-            mpz_inoc(rzz);
             mpz_mul_si(rzz, Pympz_AS_MPZ(a), PyInt_AS_LONG(b));
             return (PyObject *)Pympz_FROM_MPZ(rzz);
         }
@@ -337,7 +317,6 @@ Pympany_mul(PyObject *a, PyObject *b)
 
         if(PyLong_CheckExact(b)) {
             //~ if (options.debug) fprintf(stderr, "Multiplying (mpz,long)\n");
-            mpz_inoc(rzz);
             if((temp=PyLong_AsLong(b))==-1 && PyErr_Occurred()) {
                 PyErr_Clear();
                 mpz_inoc(pbz);
@@ -352,17 +331,16 @@ Pympany_mul(PyObject *a, PyObject *b)
 
         if(Pympz_Check(b)) {
             //~ if(options.debug) fprintf(stderr, "Multiplying (mpz,mpz)\n");
-            mpz_inoc(rzz);
             mpz_mul(rzz, Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject *)Pympz_FROM_MPZ(rzz);
         }
     }
 
     if(Pympz_Check(b)) {
+        mpz_inoc(rzz);
 #if PY_MAJOR_VERSION == 2
         if(PyInt_CheckExact(a)) {
             //~ if (options.debug) fprintf(stderr, "Multiplying (small_int,mpz)\n");
-            mpz_inoc(rzz);
             mpz_mul_si(rzz, Pympz_AS_MPZ(b), PyInt_AS_LONG(a));
             return (PyObject *)Pympz_FROM_MPZ(rzz);
         }
@@ -370,7 +348,6 @@ Pympany_mul(PyObject *a, PyObject *b)
 
         if(PyLong_CheckExact(a)) {
             //~ if (options.debug) fprintf(stderr, "Multiplying (long,mpz)\n");
-            mpz_inoc(rzz);
             if((temp=PyLong_AsLong(a))==-1 && PyErr_Occurred()) {
                 PyErr_Clear();
                 mpz_inoc(paz);
@@ -382,59 +359,7 @@ Pympany_mul(PyObject *a, PyObject *b)
             }
             return (PyObject *)Pympz_FROM_MPZ(rzz);
         }
-
-        if(Pympz_Check(a)) {
-            //~ if(options.debug) fprintf(stderr, "Multiplying (mpz,mpz)\n");
-            mpz_inoc(rzz);
-            mpz_mul(rzz, Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));
-            return (PyObject *)Pympz_FROM_MPZ(rzz);
-        }
     }
-
-
-
-
-    //~ if(Pympz_Check(a) && Py2or3Int_Check(b)) {
-        //~ if (options.debug) fprintf(stderr, "Multiplying (mpz,small_int)\n");
-        //~ temp=Py2or3Int_AsLong(b);
-        //~ if(PyErr_Occurred()) {
-            //~ PyErr_Clear();
-        //~ } else {
-            //~ if (!(rz = Pympz_new())) return NULL;
-            //~ mpz_mul_si(rz->z, ((PympzObject*)a)->z, temp);
-            //~ return (PyObject *) rz;
-        //~ }
-    //~ }
-
-    //~ if(Pympz_Check(b) && Py2or3Int_Check(a)) {
-        //~ if (options.debug) fprintf(stderr, "Multiplying (mpz,small_int)\n");
-        //~ temp=Py2or3Int_AsLong(a);
-        //~ if(PyErr_Occurred()) {
-            //~ PyErr_Clear();
-        //~ } else {
-            //~ if (!(rz = Pympz_new())) return NULL;
-            //~ mpz_mul_si(rz->z, ((PympzObject*)b)->z, temp);
-            //~ return (PyObject *) rz;
-        //~ }
-    //~ }
-
-    //~ if(isInteger(a) && isInteger(b)) {
-        //~ if(options.debug) fprintf(stderr, "Multiplying (integer,integer)\n");
-        //~ paz = anyint2Pympz(a);
-        //~ pbz = anyint2Pympz(b);
-        //~ if(!paz || !pbz) {
-            //~ Py_XDECREF((PyObject*)paz); Py_XDECREF((PyObject*)pbz);
-            //~ PyErr_SetString(PyExc_SystemError, "Can not convert integer to mpz");
-            //~ return NULL;
-        //~ }
-        //~ if (!(rz = Pympz_new())) {
-            //~ Py_DECREF((PyObject*)paz); Py_DECREF((PyObject*)pbz);
-            //~ return NULL;
-        //~ }
-        //~ mpz_mul(rz->z, paz->z, pbz->z);
-        //~ Py_DECREF((PyObject*)paz); Py_DECREF((PyObject*)pbz);
-        //~ return (PyObject *) rz;
-    //~ }
 
     if(isRational(a) && isRational(b)) {
         if (options.debug) fprintf(stderr, "Multiplying (rational,rational)\n");
@@ -497,56 +422,103 @@ static PyObject *
 Pympany_floordiv(PyObject *a, PyObject *b)
 {
     PyObject *r = 0;
-    PympzObject *rz = 0, *paz = 0, *pbz = 0;
+    mpz_t rzz, paz, pbz;
+    PympzObject *rz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
     PympfObject *rf = 0, *paf = 0, *pbf = 0;
     long temp;
     unsigned int bits;
 
-    if(Pympz_Check(a) && Py2or3Int_Check(b)) {
-        if (options.debug) fprintf(stderr, "Dividing (mpz,small_int)\n");
-        if((temp=Py2or3Int_AsLong(b))<0) {
-            if(PyErr_Occurred()) {
-                PyErr_Clear();
-            } else {
-                if (!(rz = Pympz_new())) return NULL;
-                mpz_cdiv_q_ui(rz->z, ((PympzObject*)a)->z, -temp);
-                mpz_neg(rz->z, rz->z);
-                return (PyObject *) rz;
-            }
-        } else {
-            if(temp==0) {
+    if(Pympz_Check(a)) {
+        mpz_inoc(rzz);
+#if PY_MAJOR_VERSION == 2
+        if(PyInt_CheckExact(b)) {
+            //~ if (options.debug) fprintf(stderr, "Floor divide (mpz,small_int)\n");
+            if((temp=PyInt_AS_LONG(b))==0) {
                 PyErr_SetString(PyExc_ZeroDivisionError, "mpz division by zero");
+                mpz_cloc(rzz);
+                return NULL;
+            } else if(temp>0) {
+                mpz_fdiv_q_ui(rzz, Pympz_AS_MPZ(a), temp);
+            } else {
+                mpz_cdiv_q_ui(rzz, Pympz_AS_MPZ(a), -temp);
+                mpz_neg(rzz, rzz);
+            }
+            return (PyObject *)Pympz_FROM_MPZ(rzz);
+        }
+#endif
+        if(PyLong_CheckExact(b)) {
+            //~ if (options.debug) fprintf(stderr, "Floor divide (mpz,long)\n");
+            if((temp=PyLong_AsLong(b))==-1 && PyErr_Occurred()) {
+                PyErr_Clear();
+                mpz_inoc(pbz);
+                mpz_set_PyLong(pbz, b);
+                mpz_fdiv_q(rzz, Pympz_AS_MPZ(a), pbz);
+                mpz_cloc(pbz);
+            } else if(temp==0) {
+                PyErr_SetString(PyExc_ZeroDivisionError, "mpz division by zero");
+                mpz_cloc(rzz);
+                return NULL;
+            } else if(temp>0) {
+                mpz_fdiv_q_ui(rzz, Pympz_AS_MPZ(a), temp);
+            } else {
+                mpz_cdiv_q_ui(rzz, Pympz_AS_MPZ(a), -temp);
+                mpz_neg(rzz, rzz);
+            }
+            return (PyObject *)Pympz_FROM_MPZ(rzz);
+        }
+
+        if(Pympz_Check(b)) {
+            //~ if(options.debug) fprintf(stderr, "Floor divide (integer,integer)\n");
+            if(mpz_sgn(Pympz_AS_MPZ(b))==0) {
+                PyErr_SetString(PyExc_ZeroDivisionError, "mpz division by zero");
+                mpz_cloc(rzz);
                 return NULL;
             }
-            if (!(rz = Pympz_new())) return NULL;
-            mpz_fdiv_q_ui(rz->z, ((PympzObject*)a)->z, temp);
-            return (PyObject *) rz;
+            mpz_fdiv_q(rzz, Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));
+            return (PyObject *)Pympz_FROM_MPZ(rzz);
         }
     }
 
-    if(isInteger(a) && isInteger(b)) {
-        if(options.debug) fprintf(stderr, "Floor divide (integer,integer)\n");
-        paz = anyint2Pympz(a);
-        pbz = anyint2Pympz(b);
-        if(!paz || !pbz) {
-            Py_XDECREF((PyObject*)paz); Py_XDECREF((PyObject*)pbz);
-            PyErr_SetString(PyExc_SystemError, "Can not convert integer to mpz");
-            return NULL;
+    if(Pympz_Check(b)) {
+        mpz_inoc(rzz);
+#if PY_MAJOR_VERSION == 2
+        if(PyInt_CheckExact(a)) {
+            //~ if (options.debug) fprintf(stderr, "Floor divide (small_int,mpz)\n");
+            if((temp=PyInt_AS_LONG(a))==0) {
+                PyErr_SetString(PyExc_ZeroDivisionError, "mpz division by zero");
+                mpz_cloc(rzz);
+                return NULL;
+            } else {
+                mpz_inoc(paz);
+                mpz_set_si(paz, temp);
+                mpz_fdiv_q(rzz, paz, Pympz_AS_MPZ(b));
+                mpz_cloc(paz);
+            }
+            return (PyObject *)Pympz_FROM_MPZ(rzz);
         }
-        if(mpz_sgn(pbz->z)==0) {
-            PyErr_SetString(PyExc_ZeroDivisionError, "mpz division by zero");
-            Py_DECREF((PyObject*)paz); Py_DECREF((PyObject*)pbz);
-            return NULL;
+#endif
+        if(PyLong_CheckExact(a)) {
+            //~ if (options.debug) fprintf(stderr, "Floor divide (long,mpz)\n");
+            if((temp=PyLong_AsLong(a))==-1 && PyErr_Occurred()) {
+                PyErr_Clear();
+                mpz_inoc(paz);
+                mpz_set_PyLong(paz, a);
+                mpz_fdiv_q(rzz, paz, Pympz_AS_MPZ(b));
+                mpz_cloc(paz);
+            } else if(temp==0) {
+                PyErr_SetString(PyExc_ZeroDivisionError, "mpz division by zero");
+                mpz_cloc(rzz);
+                return NULL;
+            } else {
+                mpz_inoc(paz);
+                mpz_set_si(paz, temp);
+                mpz_fdiv_q(rzz, paz, Pympz_AS_MPZ(b));
+                mpz_cloc(paz);
+            }
+            return (PyObject *)Pympz_FROM_MPZ(rzz);
         }
-        if (!(rz = Pympz_new())) {
-            Py_DECREF((PyObject*)paz); Py_DECREF((PyObject*)pbz);
-            return NULL;
-        }
-        mpz_fdiv_q(rz->z, paz->z, pbz->z);
-        Py_DECREF((PyObject*)paz); Py_DECREF((PyObject*)pbz);
-        return (PyObject *) rz;
-    }
+}
 
     if(isRational(a) && isRational(b)) {
         if(options.debug) fprintf(stderr, "Floor divide (rational,rational)\n");
