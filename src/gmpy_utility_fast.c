@@ -68,6 +68,7 @@ static void
 mpf_normalize(mpf_t op)
 {
     long size, prec, toclear, temp;
+    int i;
     mp_limb_t bit1, rem, carry;
 
     prec = mpf_get_prec(op);
@@ -83,6 +84,8 @@ mpf_normalize(mpf_t op)
     if(options.debug) {
         fprintf(stderr, "prec %ld size %ld toclear %ld carry %ld\n",
                prec, size, toclear, carry);
+        for(i=0; i<size; i++)
+            fprintf(stderr,"[%d]=%lx\n", i, op->_mp_d[i]);
     }
     temp = toclear;
     if(temp>0) {
@@ -100,6 +103,10 @@ mpf_normalize(mpf_t op)
             op->_mp_d[size-1] = 1;
             op->_mp_exp++;
         }
+    }
+    if(options.debug) {
+        for(i=0; i<size; i++)
+            fprintf(stderr,"[%d]=%lx\n", i, op->_mp_d[i]);
     }
 }
 
