@@ -745,6 +745,8 @@ Pympf2Pympf(PympfObject *f, unsigned int bits)
     if(!(newob = Pympf_new(bits)))
         return NULL;
     mpf_set(newob->f, f->f);
+    mpf_set_prec(newob->f, bits);
+    newob->rebits = bits;
     Pympf_normalize(newob);
     return newob;
 }

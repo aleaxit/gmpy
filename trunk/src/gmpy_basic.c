@@ -485,6 +485,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         mpf_div(rf->f, paf->f, pbf->f);
         mpf_floor(rf->f, rf->f);
         Py_DECREF((PyObject*)paf); Py_DECREF((PyObject*)pbf);
+        Pympf_normalize(rf);
         return (PyObject *) rf;
     }
 
@@ -586,6 +587,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
         }
         mpf_div(rf->f, paf->f, pbf->f);
         Py_DECREF((PyObject*)paf); Py_DECREF((PyObject*)pbf);
+        Pympf_normalize(rf);
         return (PyObject *) rf;
     }
 
@@ -718,6 +720,7 @@ Pympany_div2(PyObject *a, PyObject *b)
         }
         mpf_div(rf->f, paf->f, pbf->f);
         Py_DECREF((PyObject*)paf); Py_DECREF((PyObject*)pbf);
+        Pympf_normalize(rf);
         return (PyObject *) rf;
     }
 
@@ -861,6 +864,7 @@ Pympany_rem(PyObject *a, PyObject *b)
         mpf_set_prec(rf->f, bits);
         rf->rebits = bits;
         Py_DECREF((PyObject*)paf); Py_DECREF((PyObject*)pbf);
+        Pympf_normalize(rf);
         return (PyObject *) rf;
     }
 
@@ -1012,6 +1016,8 @@ Pympany_divmod(PyObject *a, PyObject *b)
         mpf_set_prec(qf->f, bits);
         qf->rebits = bits;
         Py_DECREF((PyObject*)paf); Py_DECREF((PyObject*)pbf);
+        Pympf_normalize(qf);
+        Pympf_normalize(rf);
         return Py_BuildValue("(NN)", qf, rf);
     }
 
