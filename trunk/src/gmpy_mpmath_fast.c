@@ -64,7 +64,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     }
     if(!Pympz_Check(man)){
         PyErr_SetString(PyExc_TypeError, "argument is not an mpz");
-    return NULL;
+        return NULL;
     }
 
     /* If the mantissa is 0, return the normalized representation. */
