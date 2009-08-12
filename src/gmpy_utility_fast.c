@@ -27,32 +27,22 @@ mpz_set_PyInt(mpz_t rop, PyObject *obj)
 static void
 mpz_set_PyLong(mpz_t rop, PyObject * obj)
 {
-    int len, negative;
-    PyLongObject *l = (PyLongObject *) obj;
+    int negative;
+    long len;
+    PyLongObject *lptr = (PyLongObject *) obj;
 
     assert(PyLong_CheckExact(obj));
 
     mpz_set_si(rop, 0);
-
-#if PY_MAJOR_VERSION >= 3
-    if(l->ob_base.ob_size < 0) {
-        len = - l->ob_base.ob_size;
+    len = Py_SIZE(lptr);
+    if(len<0) {
+        len = -len;
         negative = 1;
     } else {
-        len = l->ob_base.ob_size;
         negative = 0;
     }
-#else
-    if(l->ob_size < 0) {
-        len = - l->ob_size;
-        negative = 1;
-    } else {
-        len = l->ob_size;
-        negative = 0;
-    }
-#endif
-    mpz_import(rop, len, -1, sizeof(l->ob_digit[0]), 0,
-                sizeof(l->ob_digit[0])*8 - Py2or3Long_SHIFT, l->ob_digit);
+    mpz_import(rop, len, -1, sizeof(lptr->ob_digit[0]), 0,
+                sizeof(lptr->ob_digit[0])*8 - Py2or3Long_SHIFT, lptr->ob_digit);
     if(negative)
         mpz_neg(rop, rop);
 }
