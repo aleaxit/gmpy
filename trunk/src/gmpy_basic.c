@@ -757,7 +757,6 @@ Pympany_rem(PyObject *a, PyObject *b)
             } else {
                 if (!(rz = Pympz_new())) return NULL;
                 mpz_cdiv_r_ui(rz->z, ((PympzObject*)a)->z, -temp);
-                mpz_neg(rz->z, rz->z);
                 return (PyObject *) rz;
             }
         } else {
@@ -903,7 +902,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
                     return NULL;
                 }
                 mpz_cdiv_qr_ui(qz->z, rz->z, ((PympzObject*)a)->z, -temp);
-                mpz_neg(rz->z, rz->z);
+                mpz_neg(qz->z, qz->z);
                 return Py_BuildValue("(NN)", qz, rz);
             }
         } else {

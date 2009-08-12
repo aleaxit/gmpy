@@ -88,6 +88,8 @@ mpz(56088)
 mpz(0)
 >>> a%b
 mpz(123)
+>>> 0%b
+mpz(0)
 >>> b+a
 mpz(579)
 >>> b-a
@@ -100,6 +102,8 @@ mpz(87)
 (mpz(0), mpz(123))
 >>> divmod(b,a)
 (mpz(3), mpz(87))
+>>> divmod(0,b)
+(mpz(0), mpz(0))
 >>> -a
 mpz(-123)
 >>> a+1
