@@ -24,6 +24,7 @@
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
+			InheritedPropertySheets=".\mp_lib.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -44,8 +45,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\Python26\include;&quot;..\..\mpir&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR"
+				AdditionalIncludeDirectories="C:\Python26\include;&quot;..\..\$(mp_lib)&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR;FAST"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -65,7 +66,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\mpir\build.vc9\lib\$(IntDir)\mpir.lib C:\Python26\libs\python26.lib"
+				AdditionalDependencies="..\..\$(mp_lib)\build.vc9\lib\$(IntDir)\$(mp_lib).lib C:\Python26\libs\python26.lib"
 				OutputFile="$(OutDir)\$(ProjectName).pyd"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -99,6 +100,7 @@
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
+			InheritedPropertySheets=".\mp_lib.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -120,8 +122,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\Python31\include;&quot;..\..\mpir&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR"
+				AdditionalIncludeDirectories="C:\Python31\include;&quot;..\..\$(mp_lib)&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR;FAST"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -141,7 +143,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\mpir\build.vc9\lib\$(IntDir)\mpir.lib C:\Python31\libs\python31.lib"
+				AdditionalDependencies="..\..\$(mp_lib)\build.vc9\lib\$(IntDir)\$(mp_lib).lib C:\Python31\libs\python31.lib"
 				OutputFile="$(OutDir)\$(ProjectName).pyd"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="C:\Python25\libs"
@@ -176,6 +178,7 @@
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
+			InheritedPropertySheets=".\mp_lib.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -198,8 +201,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="C:\Python26\include;&quot;..\..\mpir&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR"
+				AdditionalIncludeDirectories="C:\Python26\include;&quot;..\..\$(mp_lib)&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR;FAST"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -218,7 +221,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\mpir\build.vc9\lib\$(IntDir)\mpir.lib C:\Python26\libs\python26.lib"
+				AdditionalDependencies="..\..\$(mp_lib)\build.vc9\lib\$(IntDir)\$(mp_lib).lib C:\Python26\libs\python26.lib"
 				OutputFile="$(OutDir)\$(ProjectName).pyd"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
@@ -254,6 +257,7 @@
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
+			InheritedPropertySheets=".\mp_lib.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -277,8 +281,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="C:\Python31\include;&quot;..\..\mpir&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR"
+				AdditionalIncludeDirectories="C:\Python31\include;&quot;..\..\$(mp_lib)&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR;FAST"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -297,7 +301,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\mpir\build.vc9\lib\$(IntDir)\mpir.lib C:\Python31\libs\python31.lib"
+				AdditionalDependencies="..\..\$(mp_lib)\build.vc9\lib\$(IntDir)\$(mp_lib).lib C:\Python31\libs\python31.lib"
 				OutputFile="$(OutDir)\$(ProjectName).pyd"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
