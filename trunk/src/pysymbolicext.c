@@ -124,7 +124,7 @@ factor_using_division (mpz_t t, unsigned int limit, PyObject *res)
 
   count = 0;
   f = mpz_scan1 (t, 0);
-  mpz_div_2exp (t, t, f);
+  mpz_fdiv_q_2exp (t, t, f);
   res_append(res,2,f);
 
   count = 0;
@@ -313,7 +313,7 @@ S4:
 
       res_append_mpz(res,g,count);
       count = 0;
-      mpz_div (n, n, g);
+      mpz_fdiv_q (n, n, g);
       mpz_mod (x, x, n);
       mpz_mod (x1, x1, n);
       mpz_mod (y, y, n);
