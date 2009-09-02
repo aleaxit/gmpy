@@ -438,6 +438,7 @@ mpq_cloc(mpq_t oldo)
     }
 }
 
+#ifdef FALSE
 /* init-or-cache macro & function -- fetch from cache, else init, an MPF */
 static void
 mpf_inoc(mpf_t newo)
@@ -450,7 +451,7 @@ mpf_inoc(mpf_t newo)
         if(options.debug)
             fprintf(stderr, "Initing new not in fcache\n");
         mpf_init(newo);
-    } \
+    }
 }
 
 /* clear-or-cache macro & function -- stash into cache, else clear, an MPF */
@@ -460,14 +461,15 @@ mpf_cloc(mpf_t oldo)
     if(in_fcache<options.fcache && mpf_size(oldo) <= MAX_CACHE_LIMBS) {
         (fcache[in_fcache++])[0] = oldo[0];
         if(options.debug)
-            fprintf(stderr, "Stashed %d to fcache\n", in_fcache); \
-    } else { \
-        if(options.debug) \
-            fprintf(stderr, "Not placing in full fcache(%d/%d)\n", \
-                    in_fcache, options.fcache); \
-        mpf_clear(oldo); \
-    } \
+            fprintf(stderr, "Stashed %d to fcache\n", in_fcache);
+    } else {
+        if(options.debug)
+            fprintf(stderr, "Not placing in full fcache(%d/%d)\n",
+                    in_fcache, options.fcache);
+        mpf_clear(oldo);
+    }
 }
+#endif
 
 /* forward declarations of type-objects and method-arrays for them */
 #ifdef _MSC_VER
@@ -3823,16 +3825,12 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
  *   Pympany_truediv()
  *   Pympany_div2()     -- Python 2.x only!
  *   Pympany_divmod()
- *
- * If -DFAST is specified at compile time, an highly optimized version of
- * will be used. If the optimized version is truly faster, it will become the
- * default version.
  */
 
-#if defined(FAST)
-#include "gmpy_utility_fast.c"
-#include "gmpy_basic_fast.c"
+#if defined(REFERENCE)
+#include "gmpy_basic_reference.c"
 #else
+#include "gmpy_utility.c"
 #include "gmpy_basic.c"
 #endif
 
@@ -5168,11 +5166,7 @@ Pympz_divexact(PyObject *self, PyObject *args)
 
 /* Include helper functions for mpmath. */
 
-#if defined(FAST)
-#include "gmpy_mpmath_fast.c"
-#else
 #include "gmpy_mpmath.c"
-#endif
 
 static char doc_is_squarem[]="\
 x.is_square(): returns 1 if x is a perfect square, else 0.\n\
