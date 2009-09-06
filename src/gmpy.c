@@ -5717,7 +5717,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pympz_ior,        /* binaryfunc nb_or;                   */
     (unaryfunc) Pympz2PyLong,      /* unaryfunc nb_int                    */
         0,                         /* void *nb_reserved;                  */
-    (unaryfunc) Pympz2PyFloat,         /* unaryfunc nb_float;                 */
+    (unaryfunc) Pympz2PyFloat,     /* unaryfunc nb_float;                 */
         0,                         /* binaryfunc nb_inplace_add;          */
         0,                         /* binaryfunc nb_inplace_subtract;     */
         0,                         /* binaryfunc nb_inplace_multiply;     */
@@ -5802,9 +5802,9 @@ static PyNumberMethods mpq_number_methods =
         0,                         /* binaryfunc nb_and;                  */
         0,                         /* binaryfunc nb_xor;                  */
         0,                         /* binaryfunc nb_or;                   */
-    (unaryfunc) Pympq2PyLong,          /* unaryfunc nb_int                    */
+    (unaryfunc) Pympq2PyLong,      /* unaryfunc nb_int                    */
         0,                         /* void *nb_reserved;                  */
-    (unaryfunc) Pympq2PyFloat,         /* unaryfunc nb_float;                 */
+    (unaryfunc) Pympq2PyFloat,     /* unaryfunc nb_float;                 */
         0,                         /* binaryfunc nb_inplace_add;          */
         0,                         /* binaryfunc nb_inplace_subtract;     */
         0,                         /* binaryfunc nb_inplace_multiply;     */
@@ -5885,9 +5885,9 @@ static PyNumberMethods mpf_number_methods =
         0,                         /* binaryfunc nb_and;                  */
         0,                         /* binaryfunc nb_xor;                  */
         0,                         /* binaryfunc nb_or;                   */
-    (unaryfunc) Pympf2PyLong,          /* unaryfunc nb_int                    */
+    (unaryfunc) Pympf2PyLong,      /* unaryfunc nb_int                    */
         0,                         /* void *nb_reserved;                  */
-    (unaryfunc) Pympf2PyFloat,         /* unaryfunc nb_float;                 */
+    (unaryfunc) Pympf2PyFloat,     /* unaryfunc nb_float;                 */
         0,                         /* binaryfunc nb_inplace_add;          */
         0,                         /* binaryfunc nb_inplace_subtract;     */
         0,                         /* binaryfunc nb_inplace_multiply;     */
@@ -6029,6 +6029,11 @@ static PyMethodDef Pygmpy_methods [] =
     { "trunc", Pympf_trunc, 1, doc_truncg },
     { "_mpmath_normalize", Pympz_mpmath_normalize, 1, doc_mpmath_normalizeg },
     { "_mpmath_create", Pympz_mpmath_create, 1, doc_mpmath_createg },
+    { "_mpmath_trim", Pympz_mpmath_trim, 1, doc_mpmath_trimg },
+    { "_mpmath_add", Pympz_mpmath_add, 1, doc_mpmath_addg },
+    { "_mpmath_mult", Pympz_mpmath_mult, 1, doc_mpmath_multg },
+    { "_mpmath_div", Pympz_mpmath_div, 1, doc_mpmath_divg },
+    { "_mpmath_sqrt", Pympz_mpmath_sqrt, 1, doc_mpmath_sqrtg },
 
     { NULL, NULL, 1}
 };
