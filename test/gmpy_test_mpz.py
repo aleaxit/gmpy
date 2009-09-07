@@ -231,6 +231,42 @@ mpz(1000000000000000000000L)
 >>> try: print cmp(_g.mpz(1), _g.mpz(-1))
 ... except: print 'ouch!'
 1
+>>> a == float('Inf')
+False
+>>> a != float('Inf')
+True
+>>> a > float('Inf')
+False
+>>> a >= float('Inf')
+False
+>>> a < float('Inf')
+True
+>>> a <= float('Inf')
+True
+>>> a == float('-Inf')
+False
+>>> a != float('-Inf')
+True
+>>> a > float('-Inf')
+True
+>>> a >= float('-Inf')
+True
+>>> a < float('-Inf')
+False
+>>> a <= float('-Inf')
+False
+>>> a == float('nan')
+False
+>>> a != float('nan')
+True
+>>> a > float('nan')
+False
+>>> a >= float('nan')
+False
+>>> a < float('nan')
+False
+>>> a <= float('nan')
+False
 '''
 
 __test__['bitops']=\

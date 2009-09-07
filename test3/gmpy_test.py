@@ -44,5 +44,7 @@ for x in test_modules:
 
 doctest.master.summarize(1)
 
-print("There is a known bug with Fraction == mpq so there is no need to")
-print("report that failure.")
+if sys.version_info < (3,1,1):
+    print("There is a known bug with Fraction == mpq for versions of Python")
+    print("less than 3.1.1. Please upgrade if you rely on comparisons between")
+    print("Python's Fraction and gmpy's mpq.")

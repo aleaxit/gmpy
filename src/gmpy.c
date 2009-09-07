@@ -4431,6 +4431,21 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     }
     if(isNumber(a) && isNumber(b)) {
         if(options.debug) fprintf(stderr, "compare (mpf,float)\n");
+        /* Handle non-numbers separately. */
+        if(PyFloat_Check(b)) {
+            double d = PyFloat_AS_DOUBLE(b);
+            if (isinf(d)) {
+                if(d < 0) {
+                    return _cmp_to_object(1, op);
+                } else {
+                    return _cmp_to_object(-1, op);
+                }
+            } else if(isnan(d)) {
+                result = (op == Py_NE) ? Py_True : Py_False;
+                Py_INCREF(result);
+                return result;
+            }
+        }
         tempa = (PyObject*)anynum2Pympf(a,0);
         tempb = (PyObject*)anynum2Pympf(b,0);
         c = mpf_cmp(Pympf_AS_MPF(tempa), Pympf_AS_MPF(tempb));

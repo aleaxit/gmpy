@@ -200,6 +200,42 @@ mpz(-23)
 >>> x=1000*1000*1000*1000*1000*1000*1000
 >>> _g.mpz(x)
 mpz(1000000000000000000000)
+>>> a == float('Inf')
+False
+>>> a != float('Inf')
+True
+>>> a > float('Inf')
+False
+>>> a >= float('Inf')
+False
+>>> a < float('Inf')
+True
+>>> a <= float('Inf')
+True
+>>> a == float('-Inf')
+False
+>>> a != float('-Inf')
+True
+>>> a > float('-Inf')
+True
+>>> a >= float('-Inf')
+True
+>>> a < float('-Inf')
+False
+>>> a <= float('-Inf')
+False
+>>> a == float('nan')
+False
+>>> a != float('nan')
+True
+>>> a > float('nan')
+False
+>>> a >= float('nan')
+False
+>>> a < float('nan')
+False
+>>> a <= float('nan')
+False
 '''
 
 __test__['bitops']=\
