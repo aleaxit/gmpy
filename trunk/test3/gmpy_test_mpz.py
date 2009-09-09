@@ -147,6 +147,200 @@ True
 >>> del s
 '''
 
+__test__['special'] = \
+r'''
+>>> a == float('Inf')
+False
+>>> a != float('Inf')
+True
+>>> a > float('Inf')
+False
+>>> a >= float('Inf')
+False
+>>> a < float('Inf')
+True
+>>> a <= float('Inf')
+True
+>>> a == float('-Inf')
+False
+>>> a != float('-Inf')
+True
+>>> a > float('-Inf')
+True
+>>> a >= float('-Inf')
+True
+>>> a < float('-Inf')
+False
+>>> a <= float('-Inf')
+False
+>>> a == float('nan')
+False
+>>> a != float('nan')
+True
+>>> a > float('nan')
+False
+>>> a >= float('nan')
+False
+>>> a < float('nan')
+False
+>>> a <= float('nan')
+False
+>>> float('Inf') == a
+False
+>>> float('Inf') != a
+True
+>>> float('Inf') > a
+True
+>>> float('Inf') >= a
+True
+>>> float('Inf') < a
+False
+>>> float('Inf') <= a
+False
+>>> float('-Inf') == a
+False
+>>> float('-Inf') != a
+True
+>>> float('-Inf') > a
+False
+>>> float('-Inf') >= a
+False
+>>> float('-Inf') < a
+True
+>>> float('-Inf') <= a
+True
+>>> float('nan') == a
+False
+>>> float('nan') != a
+True
+>>> float('nan') > a
+False
+>>> float('nan') >= a
+False
+>>> float('nan') < a
+False
+>>> float('nan') <= a
+False
+>>> a + float('Inf')
+inf
+>>> float('Inf') + a
+inf
+>>> a + float('-Inf')
+-inf
+>>> float('-Inf') + a
+-inf
+>>> a + float('nan')
+nan
+>>> float('nan') + a
+nan
+>>> a - float('Inf')
+-inf
+>>> float('Inf') - a
+inf
+>>> a - float('-Inf')
+inf
+>>> float('-Inf') - a
+-inf
+>>> a - float('nan')
+nan
+>>> float('nan') - a
+nan
+>>> a * float('Inf')
+inf
+>>> float('Inf') * a
+inf
+>>> a * float('-Inf')
+-inf
+>>> float('-Inf') * a
+-inf
+>>> -a * float('Inf')
+-inf
+>>> float('Inf') * -a
+-inf
+>>> -a * float('-Inf')
+inf
+>>> float('-Inf') * -a
+inf
+>>> a * float('nan')
+nan
+>>> float('nan') * a
+nan
+>>> _g.mpz(0) * float('Inf')
+nan
+>>> _g.mpz(0) * float('-Inf')
+nan
+>>> float('Inf') * _g.mpz(0)
+nan
+>>> float('-Inf') * _g.mpz(0)
+nan
+>>> a / float('Inf')
+mpf('0.e0')
+>>> -a / float('Inf')
+mpf('0.e0')
+>>> float('Inf') / a
+inf
+>>> float('Inf') / -a
+-inf
+>>> a / float('-Inf')
+mpf('0.e0')
+>>> -a / float('-Inf')
+mpf('0.e0')
+>>> float('-Inf') / a
+-inf
+>>> float('-Inf') / -a
+inf
+>>> a / float('nan')
+nan
+>>> float('nan') / a
+nan
+>>> float('nan') / _g.mpz(0)
+Traceback (most recent call last):
+  ...
+ZeroDivisionError: mpz division by zero
+>>> divmod(a, float('Inf'))
+(mpf('0.e0'), mpf('1.23e2'))
+>>> divmod(a, float('-Inf'))
+(mpf('-1.e0'), -inf)
+>>> divmod(-a, float('Inf'))
+(mpf('-1.e0'), inf)
+>>> divmod(-a, float('-Inf'))
+(mpf('0.e0'), mpf('-1.23e2'))
+>>> divmod(a, float('nan'))
+(nan, nan)
+>>> divmod(-a, float('nan'))
+(nan, nan)
+>>> divmod(_g.mpz(0), float('Inf'))
+(mpf('0.e0'), mpf('0.e0'))
+>>> divmod(_g.mpz(0), float('-Inf'))
+(mpf('0.e0'), mpf('0.e0'))
+>>> divmod(_g.mpz(0), float('nan'))
+(nan, nan)
+>>> divmod(float('Inf'), a)
+(nan, nan)
+>>> divmod(float('-Inf'), a)
+(nan, nan)
+>>> divmod(float('Inf'), -a)
+(nan, nan)
+>>> divmod(float('-Inf'), -a)
+(nan, nan)
+>>> divmod(float('nan'), a)
+(nan, nan)
+>>> divmod(float('nan'), -a)
+(nan, nan)
+>>> divmod(float('Inf'), _g.mpz(0))
+Traceback (most recent call last):
+  ...
+ZeroDivisionError: mpz modulo by zero
+>>> divmod(float('-Inf'), _g.mpz(0))
+Traceback (most recent call last):
+  ...
+ZeroDivisionError: mpz modulo by zero
+>>> divmod(float('nan'), _g.mpz(0))
+Traceback (most recent call last):
+  ...
+ZeroDivisionError: mpz modulo by zero
+'''
+
 __test__['divexact']=\
 r'''
 >>> a=_g.mpz('1234567912345678912345679')
