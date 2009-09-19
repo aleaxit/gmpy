@@ -651,8 +651,8 @@ static PyObject *
 Pympz_mpmath_div(PyObject *self, PyObject *args)
 {
     PyObject *arg0 = 0, *arg1 = 0, *arg2 = 0, * arg3 = 0, *result;
-    mpz_t man, exp;
-    long prec = 0;
+    mpz_t quot, rem, exp, delta_z;
+    long prec = 0, delta;
     const char *rnd = "d";
 
     switch(PyTuple_GET_SIZE(args)) {
@@ -676,20 +676,60 @@ Pympz_mpmath_div(PyObject *self, PyObject *args)
         Py_XDECREF(arg2);
         Py_XDECREF(arg3);
         return NULL;
-    } else {
-        mpz_inoc(man);
-        mpz_inoc(exp);
-        mpz_mul(man, Pympz_AS_MPZ(arg0), Pympz_AS_MPZ(arg2));
-        mpz_add(exp, Pympz_AS_MPZ(arg1), Pympz_AS_MPZ(arg3));
-        result = do_mpmath_trim(man, exp, prec, rnd[0]);
-        mpz_cloc(man);
-        mpz_cloc(exp);
-        Py_DECREF(arg0);
-        Py_DECREF(arg1);
-        Py_DECREF(arg2);
-        Py_DECREF(arg3);
-        return result;
     }
+    /* Check if either argument is zero. */
+    if(mpz_sgn(Pympz_AS_MPZ(arg2)) == 0) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "mpmath division by 0");
+        result = NULL;
+        goto return_result;
+    }
+    if(mpz_sgn(Pympz_AS_MPZ(arg0)) == 0) {
+        result = do_mpmath_trim(Pympz_AS_MPZ(arg0), Pympz_AS_MPZ(arg1), prec, rnd[0]);
+        goto return_result;
+    }
+
+    mpz_inoc(delta_z);
+    mpz_set_ui(delta_z, prec);
+    mpz_sub_ui(delta_z, delta_z, mpz_sizeinbase(Pympz_AS_MPZ(arg0), 2));
+    mpz_add_ui(delta_z, delta_z, mpz_sizeinbase(Pympz_AS_MPZ(arg2), 2));
+    mpz_add_ui(delta_z, delta_z, 5);
+    if(mpz_cmp_ui(delta_z, 5) < 0) {
+        mpz_set_ui(delta_z, 5);
+    }
+
+    mpz_inoc(quot);
+    mpz_inoc(rem);
+    mpz_inoc(exp);
+    if(!mpz_fits_slong_p(delta_z)) {
+        PyErr_SetString(PyExc_ValueError, "delta too large");
+        result = NULL;
+        goto return_result;
+    } else {
+        delta = mpz_get_si(delta_z);
+    }
+    mpz_set(quot, Pympz_AS_MPZ(arg0));
+    mpz_mul_2exp(quot, quot, delta);
+    mpz_tdiv_qr(quot, rem, quot, Pympz_AS_MPZ(arg2));
+    /* Probably doesn't handle perbutation correctly for negative arguments. */
+    if(mpz_sgn(rem)) {
+        mpz_mul_2exp(quot, quot, 1);
+        mpz_add_ui(quot, quot, 1);
+    }
+    mpz_set(exp, Pympz_AS_MPZ(arg1));
+    mpz_sub(exp, exp, Pympz_AS_MPZ(arg3));
+    mpz_sub(exp, exp, delta_z);
+    result = do_mpmath_trim(quot, exp, prec, rnd[0]);
+
+    mpz_cloc(quot);
+    mpz_cloc(rem);
+    mpz_cloc(exp);
+    mpz_cloc(delta_z);
+return_result:
+    Py_DECREF(arg0);
+    Py_DECREF(arg1);
+    Py_DECREF(arg2);
+    Py_DECREF(arg3);
+    return result;
 }
 
 static char doc_mpmath_sqrtg[]="\
