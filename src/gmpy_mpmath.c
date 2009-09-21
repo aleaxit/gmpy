@@ -396,7 +396,11 @@ do_mpmath_trim(mpz_t xman, mpz_t xexp, long prec, char rnd) {
             mpz_cloc(lower);
             /* Add the carry bit. */
             if(carry) {
-                mpz_add_ui(rman->z, rman->z, 1);
+                if(mpz_sgn(rman->z) < 0) {
+                    mpz_sub_ui(rman->z, rman->z, 1);
+                } else {
+                    mpz_add_ui(rman->z, rman->z, 1);
+                }
             }
     }
     if((zbits = mpz_scan1(rman->z, 0))) {
