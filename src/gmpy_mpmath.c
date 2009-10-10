@@ -459,8 +459,8 @@ static PyObject *
 Pympz_mpmath_add(PyObject *self, PyObject *args)
 {
     PyObject *arg0 = 0, *arg1 = 0, *arg2 = 0, * arg3 = 0, *result, *temp;
-    mpz_t man, exp, offset_z, delta_z, prec_z;
-    long prec = 0, offset;
+    mpz_t man, exp, xbc_z, ybc_z, prec_z, offset_z, temp_z;
+    long prec = 0, offset, zbits;
     const char *rnd = "d";
 
     switch(PyTuple_GET_SIZE(args)) {
@@ -495,6 +495,16 @@ Pympz_mpmath_add(PyObject *self, PyObject *args)
         goto return_result;
     }
 
+    /* Remove trailing 0 bits. */
+    if((zbits = mpz_scan1(Pympz_AS_MPZ(arg0), 0))) {
+        mpz_tdiv_q_2exp(Pympz_AS_MPZ(arg0), Pympz_AS_MPZ(arg0), zbits);
+        mpz_add_ui(Pympz_AS_MPZ(arg1), Pympz_AS_MPZ(arg1), zbits);
+    }
+    if((zbits = mpz_scan1(Pympz_AS_MPZ(arg2), 0))) {
+        mpz_tdiv_q_2exp(Pympz_AS_MPZ(arg2), Pympz_AS_MPZ(arg2), zbits);
+        mpz_add_ui(Pympz_AS_MPZ(arg3), Pympz_AS_MPZ(arg3), zbits);
+    }
+
     /* Swap arguments to ensure arg1 >= arg3. Note: this does NOT imply that (arg0,arg1)
      * represents a number with a larger (in absolute terms) than (arg2,arg3).
      */
@@ -507,68 +517,64 @@ Pympz_mpmath_add(PyObject *self, PyObject *args)
         arg3 = temp;
     }
 
+    /* Get the bit lengths of the mantissas. */
+    mpz_inoc(xbc_z);
+    mpz_set_ui(xbc_z, mpz_sizeinbase(Pympz_AS_MPZ(arg0), 2));
+    mpz_inoc(ybc_z);
+    mpz_set_ui(ybc_z, mpz_sizeinbase(Pympz_AS_MPZ(arg2), 2));
+
     /* Calculate the amount arg0 must be shifted to line up with arg2. */
     mpz_inoc(offset_z);
     mpz_set(offset_z, Pympz_AS_MPZ(arg1));
     mpz_sub(offset_z, offset_z, Pympz_AS_MPZ(arg3));
 
-    /* delta is the difference in bitlength of the two mantissas. If it is
-     * greater than prec+4, then we don't do a full addition.
+    /* xbc_z now has the effective bitlength. It assumes the mantissa is
+     * shifted.
      */
-    mpz_inoc(delta_z);
-    mpz_set_ui(delta_z, mpz_sizeinbase(Pympz_AS_MPZ(arg0), 2));
-    mpz_add(delta_z, delta_z, offset_z);
-    mpz_sub_ui(delta_z, delta_z, mpz_sizeinbase(Pympz_AS_MPZ(arg2), 2));
+    mpz_add(xbc_z, xbc_z, offset_z);
+
+    /* ybc_z is incremented by 2. If offset_z is greater than ybc_z, then
+     * we only need to perturb the result.
+     */
+    mpz_add_ui(ybc_z, ybc_z, 2);
 
     mpz_inoc(prec_z);
     mpz_set_ui(prec_z, prec);
-    mpz_add_ui(prec_z, prec_z, 4);
+    mpz_add_ui(prec_z, prec_z, 3);
+
+    mpz_inoc(temp_z);
+    mpz_sub(temp_z, offset_z, ybc_z);
 
     mpz_inoc(man);
     mpz_inoc(exp);
-    if(prec && mpz_cmpabs(delta_z, prec_z) > 0) {
+    //~ fprintf(stderr,"starting\n");
+    //~ fprintf(stderr,"offset: %ld\n", mpz_get_si(offset_z));
+    //~ fprintf(stderr,"xbc_z:  %ld\n", mpz_get_si(xbc_z));
+    //~ fprintf(stderr,"ybc_z:  %ld\n", mpz_get_si(ybc_z));
+
+    if(prec && mpz_cmp(temp_z, prec_z) > 0) {
         /* only need to perturb the result */
-        if(mpz_cmp_ui(delta_z, 0) > 0) {
-            /* (arg0,arg1) is larger */
-            if(!mpz_fits_slong_p(prec_z)) {
-                PyErr_SetString(PyExc_ValueError, "prec too large");
-                result = NULL;
-                goto return_result_clearall;
-            } else {
-                offset = mpz_get_si(prec_z);
-                }
-            mpz_set(man, Pympz_AS_MPZ(arg0));
-            mpz_mul_2exp(man, man, offset);
-            if(mpz_sgn(Pympz_AS_MPZ(arg2)) > 0) {
-                mpz_add_ui(man, man, 1);
-            } else {
-                mpz_sub_ui(man, man, 1);
-            }
-            mpz_set(exp, Pympz_AS_MPZ(arg1));
-            mpz_sub_ui(exp, exp, offset);
-            result = do_mpmath_trim(man, exp, prec, rnd[0]);
+        //~ fprintf(stderr,"starting perturb\n");
+        if(!mpz_fits_slong_p(offset_z)) {
+            PyErr_SetString(PyExc_ValueError, "offset too large");
+            result = NULL;
+            goto return_result;
         } else {
-            /* (arg2,arg3) is larger */
-            if(!mpz_fits_slong_p(prec_z)) {
-                PyErr_SetString(PyExc_ValueError, "prec too large");
-                result = NULL;
-                goto return_result_clearall;
-            } else {
-                offset = mpz_get_si(prec_z);
-                }
-            mpz_set(man, Pympz_AS_MPZ(arg2));
-            mpz_mul_2exp(man, man, offset);
-            if(mpz_sgn(Pympz_AS_MPZ(arg0)) > 0) {
-                mpz_add_ui(man, man, 1);
-            } else {
-                mpz_sub_ui(man, man, 1);
-            }
-            mpz_set(exp, Pympz_AS_MPZ(arg3));
-            mpz_sub_ui(exp, exp, offset);
-            result = do_mpmath_trim(man, exp, prec, rnd[0]);
+            offset = mpz_get_si(offset_z);
         }
+        mpz_set(man, Pympz_AS_MPZ(arg0));
+        mpz_mul_2exp(man, man, offset + 3);
+        if(mpz_sgn(Pympz_AS_MPZ(arg2)) > 0) {
+            mpz_add_ui(man, man, 1);
+        } else {
+            mpz_sub_ui(man, man, 1);
+        }
+        mpz_set(exp, Pympz_AS_MPZ(arg1));
+        mpz_sub_ui(exp, exp, offset + 3);
+        result = do_mpmath_trim(man, exp, prec, rnd[0]);
     } else {
         /* do a full addition */
+        //~ fprintf(stderr,"starting full addition\n");
         if(!mpz_fits_slong_p(offset_z)) {
             PyErr_SetString(PyExc_ValueError, "offset too large");
             result = NULL;
@@ -582,12 +588,13 @@ Pympz_mpmath_add(PyObject *self, PyObject *args)
         mpz_add(man, man, Pympz_AS_MPZ(arg2));
         result = do_mpmath_trim(man, Pympz_AS_MPZ(arg3), prec, rnd[0]);
     }
-return_result_clearall:
     mpz_cloc(exp);
     mpz_cloc(man);
-    mpz_cloc(prec_z);
-    mpz_cloc(delta_z);
     mpz_cloc(offset_z);
+    mpz_cloc(temp_z);
+    mpz_cloc(prec_z);
+    mpz_cloc(xbc_z);
+    mpz_cloc(ybc_z);
 return_result:
     Py_DECREF(arg0);
     Py_DECREF(arg1);
