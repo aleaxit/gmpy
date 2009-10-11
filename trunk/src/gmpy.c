@@ -5179,6 +5179,117 @@ Pympz_divexact(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+static char doc_cdivmodm[]="\
+x.cdivmod(y): returns the quotient and remainder of x divided by y. The\n\
+quotient is rounded towards +Inf and the remainder will have the opposite\n\
+sign to y. y must be an mpz, or else gets coerced to one.\n\
+";
+static char doc_cdivmodg[]="\
+cdivmod(x,y): returns the quotient of x divided by y. The quotient\n\
+is rounded towards +Inf and the remaider will have the opposite sign\n\
+to y. x and y must be mpz, or else get coerced to mpz.\n\
+";
+static PyObject *
+Pympz_cdivmod(PyObject *self, PyObject *args)
+{
+    PyObject *other;
+    PympzObject *quot, *rem;
+
+    SELF_MPZ_ONE_ARG_CONVERTED(&other);
+    assert(Pympz_Check(self));
+    assert(Pympz_Check(other));
+
+    quot = Pympz_new();
+    rem = Pympz_new();
+    if(!quot || !rem) {
+        Py_XDECREF((PyObject*)quot);
+        Py_XDECREF((PyObject*)rem);
+        Py_DECREF((PyObject*)self);
+        Py_DECREF((PyObject*)other);
+        return NULL;
+    }
+
+    mpz_cdiv_qr(quot->z, rem->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
+
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return Py_BuildValue("(NN)", quot, rem);
+}
+
+static char doc_fdivmodm[]="\
+x.fdivmod(y): returns the quotient and remainder of x divided by y. The\n\
+quotient is rounded towards -Inf and the remainder will have the same\n\
+sign as y. y must be an mpz, or else gets coerced to one.\n\
+";
+static char doc_fdivmodg[]="\
+fdivmod(x,y): returns the quotient of x divided by y. The quotient\n\
+is rounded towards -Inf and the remaider will have the same sign\n\
+as y. x and y must be mpz, or else get coerced to mpz.\n\
+";
+static PyObject *
+Pympz_fdivmod(PyObject *self, PyObject *args)
+{
+    PyObject *other;
+    PympzObject *quot, *rem;
+
+    SELF_MPZ_ONE_ARG_CONVERTED(&other);
+    assert(Pympz_Check(self));
+    assert(Pympz_Check(other));
+
+    quot = Pympz_new();
+    rem = Pympz_new();
+    if(!quot || !rem) {
+        Py_XDECREF((PyObject*)quot);
+        Py_XDECREF((PyObject*)rem);
+        Py_DECREF((PyObject*)self);
+        Py_DECREF((PyObject*)other);
+        return NULL;
+    }
+
+    mpz_fdiv_qr(quot->z, rem->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
+
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return Py_BuildValue("(NN)", quot, rem);
+}
+
+static char doc_tdivmodm[]="\
+x.tdivmod(y): returns the quotient and remainder of x divided by y. The\n\
+quotient is rounded towards zero and the remainder will have the same\n\
+sign as x. y must be an mpz, or else gets coerced to one.\n\
+";
+static char doc_tdivmodg[]="\
+tdivmod(x,y): returns the quotient of x divided by y. The quotient\n\
+is rounded towards zero and the remaider will have the same sign\n\
+as x. x and y must be mpz, or else get coerced to mpz.\n\
+";
+static PyObject *
+Pympz_tdivmod(PyObject *self, PyObject *args)
+{
+    PyObject *other;
+    PympzObject *quot, *rem;
+
+    SELF_MPZ_ONE_ARG_CONVERTED(&other);
+    assert(Pympz_Check(self));
+    assert(Pympz_Check(other));
+
+    quot = Pympz_new();
+    rem = Pympz_new();
+    if(!quot || !rem) {
+        Py_XDECREF((PyObject*)quot);
+        Py_XDECREF((PyObject*)rem);
+        Py_DECREF((PyObject*)self);
+        Py_DECREF((PyObject*)other);
+        return NULL;
+    }
+
+    mpz_tdiv_qr(quot->z, rem->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
+
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return Py_BuildValue("(NN)", quot, rem);
+}
+
 /* Include helper functions for mpmath. */
 
 #include "gmpy_mpmath.c"
@@ -6012,6 +6123,9 @@ static PyMethodDef Pygmpy_methods [] =
     { "popcount", Pympz_popcount, 1, doc_popcountg },
     { "hamdist", Pympz_hamdist, 1, doc_hamdistg },
     { "divexact", Pympz_divexact, 1, doc_divexactg },
+    { "cdivmod", Pympz_cdivmod, 1, doc_cdivmodg },
+    { "fdivmod", Pympz_fdivmod, 1, doc_fdivmodg },
+    { "tdivmod", Pympz_tdivmod, 1, doc_tdivmodg },
     { "scan0", Pympz_scan0, 1, doc_scan0g },
     { "scan1", Pympz_scan1, 1, doc_scan1g },
     { "root", Pympz_root, 1, doc_rootg },
@@ -6074,6 +6188,9 @@ static PyMethodDef Pympz_methods [] =
     { "popcount", Pympz_popcount, 1, doc_popcountm },
     { "hamdist", Pympz_hamdist, 1, doc_hamdistm },
     { "divexact", Pympz_divexact, 1, doc_divexactm },
+    { "cdivmod", Pympz_cdivmod, 1, doc_cdivmodm },
+    { "fdivmod", Pympz_fdivmod, 1, doc_fdivmodm },
+    { "tdivmod", Pympz_tdivmod, 1, doc_tdivmodm },
     { "scan0", Pympz_scan0, 1, doc_scan0m },
     { "scan1", Pympz_scan1, 1, doc_scan1m },
     { "root", Pympz_root, 1, doc_rootm },
