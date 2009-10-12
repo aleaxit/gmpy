@@ -547,14 +547,9 @@ Pympz_mpmath_add(PyObject *self, PyObject *args)
 
     mpz_inoc(man);
     mpz_inoc(exp);
-    //~ fprintf(stderr,"starting\n");
-    //~ fprintf(stderr,"offset: %ld\n", mpz_get_si(offset_z));
-    //~ fprintf(stderr,"xbc_z:  %ld\n", mpz_get_si(xbc_z));
-    //~ fprintf(stderr,"ybc_z:  %ld\n", mpz_get_si(ybc_z));
 
     if(prec && mpz_cmp(temp_z, prec_z) > 0) {
         /* only need to perturb the result */
-        //~ fprintf(stderr,"starting perturb\n");
         if(!mpz_fits_slong_p(offset_z)) {
             PyErr_SetString(PyExc_ValueError, "offset too large");
             result = NULL;
@@ -574,7 +569,6 @@ Pympz_mpmath_add(PyObject *self, PyObject *args)
         result = do_mpmath_trim(man, exp, prec, rnd[0]);
     } else {
         /* do a full addition */
-        //~ fprintf(stderr,"starting full addition\n");
         if(!mpz_fits_slong_p(offset_z)) {
             PyErr_SetString(PyExc_ValueError, "offset too large");
             result = NULL;
@@ -663,7 +657,7 @@ Pympz_mpmath_div(PyObject *self, PyObject *args)
 {
     PyObject *arg0 = 0, *arg1 = 0, *arg2 = 0, * arg3 = 0, *result;
     mpz_t quot, rem, exp, delta_z;
-    long prec = 0, delta;
+    long prec = 0, delta, zbits;
     const char *rnd = "d";
 
     switch(PyTuple_GET_SIZE(args)) {
@@ -694,9 +688,20 @@ Pympz_mpmath_div(PyObject *self, PyObject *args)
         result = NULL;
         goto return_result;
     }
+
     if(mpz_sgn(Pympz_AS_MPZ(arg0)) == 0) {
         result = do_mpmath_trim(Pympz_AS_MPZ(arg0), Pympz_AS_MPZ(arg1), prec, rnd[0]);
         goto return_result;
+    }
+
+    /* Remove trailing 0 bits. */
+    if((zbits = mpz_scan1(Pympz_AS_MPZ(arg0), 0))) {
+        mpz_tdiv_q_2exp(Pympz_AS_MPZ(arg0), Pympz_AS_MPZ(arg0), zbits);
+        mpz_add_ui(Pympz_AS_MPZ(arg1), Pympz_AS_MPZ(arg1), zbits);
+    }
+    if((zbits = mpz_scan1(Pympz_AS_MPZ(arg2), 0))) {
+        mpz_tdiv_q_2exp(Pympz_AS_MPZ(arg2), Pympz_AS_MPZ(arg2), zbits);
+        mpz_add_ui(Pympz_AS_MPZ(arg3), Pympz_AS_MPZ(arg3), zbits);
     }
 
     mpz_inoc(delta_z);
@@ -721,10 +726,15 @@ Pympz_mpmath_div(PyObject *self, PyObject *args)
     mpz_set(quot, Pympz_AS_MPZ(arg0));
     mpz_mul_2exp(quot, quot, delta);
     mpz_tdiv_qr(quot, rem, quot, Pympz_AS_MPZ(arg2));
-    /* Probably doesn't handle perbutation correctly for negative arguments. */
+
     if(mpz_sgn(rem)) {
         mpz_mul_2exp(quot, quot, 1);
-        mpz_add_ui(quot, quot, 1);
+        if(mpz_sgn(quot) < 0) {
+            mpz_sub_ui(quot, quot, 1);
+        } else {
+            mpz_add_ui(quot, quot, 1);
+        }
+        mpz_add_ui(delta_z, delta_z, 1);
     }
     mpz_set(exp, Pympz_AS_MPZ(arg1));
     mpz_sub(exp, exp, Pympz_AS_MPZ(arg3));
