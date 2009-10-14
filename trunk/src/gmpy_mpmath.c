@@ -437,8 +437,8 @@ Pympz_mpmath_trim(PyObject *self, PyObject *args)
         case 1:
             arg0 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 0));
     }
-    if(!arg0 || !arg1 || PyErr_Occurred()) {
-        PyErr_SetString(PyExc_TypeError, "arguments mpz, mpz, long, char needed");
+    if(!arg0 || !arg1 || (prec < 0) || PyErr_Occurred()) {
+        PyErr_SetString(PyExc_TypeError, "arguments mpz, mpz, long(>=0), char needed");
         Py_XDECREF(arg0);
         Py_XDECREF(arg1);
         return NULL;
@@ -477,8 +477,8 @@ Pympz_mpmath_add(PyObject *self, PyObject *args)
         case 1:
             arg0 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 0));
     }
-    if(!arg0 || !arg1 || !arg2 || !arg3 || PyErr_Occurred()) {
-        PyErr_SetString(PyExc_TypeError, "arguments mpz, mpz, mpz, mpz, long, char needed");
+    if(!arg0 || !arg1 || !arg2 || !arg3 || (prec < 0) || PyErr_Occurred()) {
+        PyErr_SetString(PyExc_TypeError, "arguments mpz, mpz, mpz, mpz, long(>=0), char needed");
         Py_XDECREF(arg0);
         Py_XDECREF(arg1);
         Py_XDECREF(arg2);
@@ -624,8 +624,8 @@ Pympz_mpmath_mult(PyObject *self, PyObject *args)
         case 1:
             arg0 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 0));
     }
-    if(!arg0 || !arg1 || !arg2 || !arg3 || PyErr_Occurred()) {
-        PyErr_SetString(PyExc_TypeError, "arguments mpz, mpz, mpz, mpz, long, char needed");
+    if(!arg0 || !arg1 || !arg2 || !arg3 || (prec < 0) || PyErr_Occurred()) {
+        PyErr_SetString(PyExc_TypeError, "arguments mpz, mpz, mpz, mpz, long(>=0), char needed");
         Py_XDECREF(arg0);
         Py_XDECREF(arg1);
         Py_XDECREF(arg2);
@@ -674,8 +674,8 @@ Pympz_mpmath_div(PyObject *self, PyObject *args)
         case 1:
             arg0 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 0));
     }
-    if(!arg0 || !arg1 || !arg2 || !arg3 || PyErr_Occurred()) {
-        PyErr_SetString(PyExc_TypeError, "arguments mpz, mpz, mpz, mpz, long, char needed");
+    if(!arg0 || !arg1 || !arg2 || !arg3 || (prec < 1) || PyErr_Occurred()) {
+        PyErr_SetString(PyExc_TypeError, "arguments mpz, mpz, mpz, mpz, long(>=1), char needed");
         Py_XDECREF(arg0);
         Py_XDECREF(arg1);
         Py_XDECREF(arg2);
@@ -761,6 +761,89 @@ _mpmath_sqrt(man, exp, prec, rounding):\n\
 static PyObject *
 Pympz_mpmath_sqrt(PyObject *self, PyObject *args)
 {
-    return Py2or3Int_FromLong(0);
+    PyObject *arg0 = 0, *arg1 = 0, *result;
+    mpz_t man, exp, rem;
+    long prec = 0, zbits;
+    unsigned long shift, temp;
+    const char *rnd = "d";
+
+    switch(PyTuple_GET_SIZE(args)) {
+        case 4:
+            rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 3));
+        case 3:
+            prec = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 2));
+        case 2:
+            arg1 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 1));
+        case 1:
+            arg0 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 0));
+    }
+    if(!arg0 || !arg1 || (prec < 1) || PyErr_Occurred()) {
+        PyErr_SetString(PyExc_TypeError, "arguments mpz, mpz, long(>=1), char needed");
+        Py_XDECREF(arg0);
+        Py_XDECREF(arg1);
+        return NULL;
+    }
+
+    mpz_inoc(man);
+    mpz_inoc(exp);
+    mpz_inoc(rem);
+    mpz_set(man, Pympz_AS_MPZ(arg0));
+    mpz_set(exp, Pympz_AS_MPZ(arg1));
+
+    if(mpz_sgn(man) < 0) {
+        PyErr_SetString(PyExc_ValueError, "square root of a negative number");
+        result = NULL;
+        goto return_result;
+    }
+    if(mpz_sgn(man) == 0) {
+        result = do_mpmath_trim(man, exp, prec, rnd[0]);
+        goto return_result;
+    }
+    if((zbits = mpz_scan1(man, 0))) {
+        mpz_tdiv_q_2exp(man, man, zbits);
+        mpz_add_ui(exp, exp, zbits);
+    }
+    if(mpz_odd_p(exp)) {
+        mpz_sub_ui(exp, exp, 1);
+        mpz_mul_2exp(man, man, 1);
+    } else if(!mpz_cmp_ui(man, 1)) {
+        /* Handle even powers of 2. */
+        mpz_tdiv_q_2exp(exp, exp, 1);
+        result = do_mpmath_trim(man, exp, prec, rnd[0]);
+        goto return_result;
+    }
+
+    shift = (2 * prec) + 4;
+    temp = mpz_sizeinbase(man, 2);
+    if(temp >= shift) {
+        shift = 4;
+    } else {
+        shift -= temp;
+    }
+    if(shift < 4) shift = 4;
+    shift += shift & 1;
+    mpz_mul_2exp(man, man, shift);
+    if((rnd[0] == 'f') || (rnd[0] == 'd')) {
+        mpz_sqrt(man, man);
+    } else {
+        mpz_sqrtrem(man, rem, man);
+        if(mpz_sgn(rem)) {
+            mpz_mul_2exp(man, man, 1);
+            mpz_add_ui(man, man, 1);
+            shift += 2;
+        }
+    }
+
+    mpz_sub_ui(exp, exp, shift);
+    mpz_tdiv_q_2exp(exp, exp, 1);
+    result = do_mpmath_trim(man, exp, prec, rnd[0]);
+
+return_result:
+    mpz_cloc(man);
+    mpz_cloc(exp);
+    mpz_cloc(rem);
+    Py_DECREF(arg0);
+    Py_DECREF(arg1);
+    return result;
 }
 
