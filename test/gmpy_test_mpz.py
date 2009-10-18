@@ -881,6 +881,12 @@ ValueError: 'floa' needs arg>=0
 '''
 
 def _test(chat=None):
+    try:
+        float('nan')
+    except ValueError:
+        if "special" in __test__:
+            del(__test__["special"])
+
     if chat:
         print "Unit tests for gmpy 1.10 (mpz functionality)"
         print "    running on Python %s" % sys.version
