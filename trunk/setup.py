@@ -45,7 +45,7 @@ setup (name = "gmpy",
        maintainer = "Alex Martelli",
        maintainer_email = "aleaxit@gmail.com",
        url = "http://code.google.com/p/gmpy/",
-       description = "MPIR/GMP-4 to Python-2.{3-6} interface",
+       description = "MPIR/GMP interface to Python 2.4+ and 3.x",
        # download_url = "http://http://prdownloads.sourceforge.net/gmpy/gmpy-sources-101.zip?download",
 
        classifiers = [
