@@ -22,43 +22,6 @@ mpz_set_PyInt(mpz_t rop, PyObject *obj)
 #endif
 
 /*
- * to convert-from-long, we have a dependence on longs' internals:
- * we concentrate this dependence _right here_.
- */
-
-static void
-mpz_set_PyLong(mpz_t rop, PyObject * obj)
-{
-    int negative;
-    long len;
-    PyLongObject *lptr = (PyLongObject *) obj;
-
-    assert(PyLong_CheckExact(obj));
-
-    mpz_set_si(rop, 0);
-#if PY_MAJOR_VERSION >= 3
-    if(lptr->ob_base.ob_size < 0) {
-        len = - lptr->ob_base.ob_size;
-        negative = 1;
-    } else {
-        len = lptr->ob_base.ob_size;
-        negative = 0;
-    }
-#else
-    if(lptr->ob_size < 0) {
-        len = - lptr->ob_size;
-        negative = 1;
-    } else {
-        len = lptr->ob_size;
-        negative = 0;
-    }
-#endif
-    mpz_import(rop, len, -1, sizeof(lptr->ob_digit[0]), 0,
-                sizeof(lptr->ob_digit[0])*8 - Py2or3Long_SHIFT, lptr->ob_digit);
-    if(negative)
-        mpz_neg(rop, rop);
-}
-/*
  * Normalize the internal representation of an mpf. GMP allocates 1
  * or more additional limbs to store the mantissa of an mpf. The
  * additional limbs may or may not be used but when used, they can

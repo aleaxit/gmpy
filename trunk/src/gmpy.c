@@ -193,8 +193,18 @@
  *   Added % and divmod support to mpq and mpf (casevh)
  *   Changed memory allocation functions to use PyMem (casevh)
  *   Removed small number interning (casevh)
+ *   Added tdivmod, cdivmod, and fdivmoc (casevh)
+ *   Added more helper functions for mpmath (casevh)
+ *   Faster mpz<>PyLong conversion (casevh)
+ *   Faster hash(mpz) (casevh)
  */
 #include "Python.h"
+
+/*
+ * we do have a dependence on Python's internals, specifically:
+ * how Python "long int"s are internally represented.
+ */
+#include "longintrepr.h"
 
 #include <assert.h>
 #include <math.h>
@@ -228,7 +238,6 @@
 #define USE_ALLOCA 1
 #define alloca _alloca
 #endif
-
 /* Define various macros to deal with differences between Python 2 and 3. */
 
 #if PY_MAJOR_VERSION >= 3
@@ -236,6 +245,7 @@
 #define Py2or3Int_AsLong PyLong_AsLong
 #define Py2or3Int_FromLong PyLong_FromLong
 #define Py2or3Long_SHIFT PyLong_SHIFT
+#define Py2or3Long_MASK PyLong_MASK
 #define Py2or3String_FromString PyUnicode_FromString
 #define Py2or3String_Check PyUnicode_Check
 #define Py2or3String_Format PyUnicode_Format
@@ -250,6 +260,7 @@
 #define Py2or3Int_AsLong PyInt_AsLong
 #define Py2or3Int_FromLong PyInt_FromLong
 #define Py2or3Long_SHIFT SHIFT
+#define Py2or3Long_MASK MASK
 #define Py2or3String_FromString PyString_FromString
 #define Py2or3String_Check PyString_Check
 #define Py2or3String_Format PyString_Format
@@ -260,6 +271,9 @@
 #define Py2or3Bytes_AS_STRING PyString_AS_STRING
 #define Py2or3Bytes_FromStringAndSize PyString_FromStringAndSize
 #endif
+
+/* Include fast mpz to/from PyLong conversion from sage. */
+#include "mpz_pylong.c"
 
 #ifdef __MPIR_VERSION
 #define MPIR_VER \
@@ -296,11 +310,6 @@ char gmpy_version[] = "1.10";
 
 char _gmpy_cvs[] = "$Id$";
 
-/*
- * we do have a dependence on Python's internals, specifically:
- * how Python "long int"s are internally represented.
- */
-#include "longintrepr.h"
 
 #ifdef __GNUC__
 #define USE_ALLOCA 1
@@ -990,45 +999,16 @@ Pympq2Pympz(PyObject * obj)
     return newob;
 }
 
-/*
- * to convert-from-long, we have a dependence on longs' internals:
- * we concentrate this dependence _right here_.
+/* For fast conversion between PyLong and mpz, we use code located in
+ * mpz_pylong.c.
  */
-
 static PympzObject *
 PyLong2Pympz(PyObject * obj)
 {
     PympzObject *newob;
-    int len, negative;
-    PyLongObject *l = (PyLongObject *) obj;
-
-    assert(PyLong_CheckExact(obj));
-
     if(!(newob = Pympz_new()))
         return NULL;
-    mpz_set_si(newob->z, 0);
-
-#if PY_MAJOR_VERSION >= 3
-    if(l->ob_base.ob_size < 0) {
-        len = - l->ob_base.ob_size;
-        negative = 1;
-    } else {
-        len = l->ob_base.ob_size;
-        negative = 0;
-    }
-#else
-    if(l->ob_size < 0) {
-        len = - l->ob_size;
-        negative = 1;
-    } else {
-        len = l->ob_size;
-        negative = 0;
-    }
-#endif
-    mpz_import(newob->z, len, -1, sizeof(l->ob_digit[0]), 0,
-                sizeof(l->ob_digit[0])*8 - Py2or3Long_SHIFT, l->ob_digit);
-    if(negative)
-        mpz_neg(newob->z, newob->z);
+    mpz_set_PyLong(Pympz_AS_MPZ(newob), obj);
     return newob;
 }
 
@@ -1334,7 +1314,6 @@ PyStr2Pympq(PyObject *stringarg, long base)
     return newob;
 }
 
-
 /*
  * mpf conversion from string includes from-binary (base-256, format is
  * explained later) and 'true' from-string (bases 2 to 36), where exponent
@@ -1487,56 +1466,12 @@ PyStr2Pympf(PyObject *s, long base, unsigned int bits)
     return newob;
 }
 
-/*
- * to convert-to-long, we have a dependence on longs' internals,
- * just as for the reverse-trip.  We concentrate dependence here.
+/* For fast mpz to PyLong conversion, we use code located in mpz_pylong.
  */
 static PyObject *
 Pympz2PyLong(PympzObject *x)
 {
-    int negative;
-    int size;
-    int i;
-    size_t count;
-    PyLongObject *newob;
-    mpz_t temp;
-
-    /* Assume gmp uses limbs as least as large as the builtin longs do */
-    assert(mp_bits_per_limb >= Py2or3Long_SHIFT);
-
-    mpz_inoc(temp);
-    if(mpz_sgn(x->z) < 0) {
-        negative = 1;
-        mpz_neg(temp, x->z);
-    } else {
-        negative = 0;
-        mpz_set(temp, x->z);
-    }
-
-    size = (mpz_sizeinbase(temp, 2) + Py2or3Long_SHIFT - 1) / Py2or3Long_SHIFT;
-
-    if(!(newob = _PyLong_New(size))) {
-        mpz_cloc(temp);
-        return NULL;
-    }
-    mpz_export(newob->ob_digit, &count, -1, sizeof(newob->ob_digit[0]), 0,
-            sizeof(newob->ob_digit[0])*8 - Py2or3Long_SHIFT, temp);
-    if (count == 0) newob->ob_digit[0] = 0;
-    mpz_cloc(temp);
-
-    /* long_normalize() is file-static so we must reimplement it */
-    /* longobjp = long_normalize(longobjp); */
-    i = size;
-    while ( (i>0) && (newob->ob_digit[i-1] == 0))
-        i--;
-    if(negative) i = -i;
-#if PY_MAJOR_VERSION >= 3
-    newob->ob_base.ob_size = i;
-#else
-    newob->ob_size = i;
-#endif
-
-    return (PyObject *) newob;
+    return mpz_get_PyLong(Pympz_AS_MPZ(x));
 }
 
 /*
@@ -1646,7 +1581,6 @@ Pympq2PyFloat(PympqObject *x)
     double res = mpq_get_d(x->q);
     return PyFloat_FromDouble(res);
 }
-
 
 /*
  *  build binary representation of mpz (base-256 little-endian)
@@ -4610,7 +4544,8 @@ dohash(PyObject* tempPynum)
 static long
 Pympz_hash(PympzObject *self)
 {
-    return dohash(Pympz2PyLong(self));
+    //~ return dohash(Pympz2PyLong(self));
+    return mpz_pythonhash(Pympz_AS_MPZ(self));
 }
 static long
 Pympf_hash(PympfObject *self)
