@@ -13,7 +13,7 @@ for Windows environment.
    done using Settings -> Control Panel -> System -> Environment Variables.
 
    If not already present, add c:\python25 and c:\mingw\bin to the PATH.
-   The entries should be separated by a semi-colon. Note: Python 2.5 si
+   The entries should be separated by a semi-colon. Note: Python 2.5 is
    used in this example.
 
 4) A icon entitled "MSYS" should be created on the desktop. It provides
