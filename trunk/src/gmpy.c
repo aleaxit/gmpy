@@ -30,7 +30,7 @@
  * minor bugfixes+new decimal (&c) support to 1.02, Alex Martelli (Feb 2006)
  * various bugfixes for 64-bit platforms, 1.03, aleaxit and casevh (Jun 2008)
  * rich comparisons, 1.04, aleaxit and casevh (Jan 2009)
- * support for Python 3.x, 1.10, casevh (Jul 2009)
+ * support for Python 3.x, 1.10, casevh (Oct 2009)
  *
  * Some hacks by Gustavo Niemeyer <niemeyer@conectiva.com>.
  *
@@ -238,6 +238,7 @@
 #define USE_ALLOCA 1
 #define alloca _alloca
 #endif
+
 /* Define various macros to deal with differences between Python 2 and 3. */
 
 #if PY_MAJOR_VERSION >= 3
@@ -870,7 +871,8 @@ PyFloat2Pympq(PyObject *f)
     return (PympqObject*)f2q_internal(self, 0, double_mantissa, 0);
 }
 
-static PympfObject *PyStr2Pympf(PyObject *s, long base, unsigned int bits); /* forward */
+/* forward */
+static PympfObject *PyStr2Pympf(PyObject *s, long base, unsigned int bits);
 
 static PympfObject *
 PyFloat2Pympf(PyObject *f, unsigned int bits)
@@ -1522,7 +1524,6 @@ Pympz2PyInt(PympzObject *x)
 #endif
 }
 
-#if Py_TPFLAGS_HAVE_INDEX || (PY_MAJOR_VERSION >= 3)
 static PyObject*
 Pympz_asindex(PympzObject *x)
 {
@@ -1531,7 +1532,6 @@ Pympz_asindex(PympzObject *x)
     PyErr_Clear();
     return Pympz2PyLong(x);
 }
-#endif
 
 /*
  * mpf->int delegates via mpf->mpz->int for convenience; ditto mpq->int
@@ -3761,12 +3761,8 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
  *   Pympany_divmod()
  */
 
-#if defined(REFERENCE)
-#include "gmpy_basic_reference.c"
-#else
 #include "gmpy_utility.c"
 #include "gmpy_basic.c"
-#endif
 
 #define MPZ_BINOP(NAME) \
 static PyObject * \
