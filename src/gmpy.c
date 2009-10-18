@@ -826,14 +826,14 @@ PyFloat2Pympz(PyObject *f)
     if((newob = Pympz_new()))
     {
         double d = PyFloat_AsDouble(f);
-        if (isinf(d)) {
-            PyErr_SetString(PyExc_ValueError,
-                "gmpy does not handle infinity");
-            return NULL;
-        }
         if (isnan(d)) {
             PyErr_SetString(PyExc_ValueError,
                 "gmpy does not handle nan");
+            return NULL;
+        }
+        if (isinf(d)) {
+            PyErr_SetString(PyExc_ValueError,
+                "gmpy does not handle infinity");
             return NULL;
         }
         if(fabs(d) < 1.0) d = 0.0;
@@ -856,14 +856,14 @@ PyFloat2Pympq(PyObject *f)
     assert(PyFloat_Check(f));
     {
         double d = PyFloat_AsDouble(f);
-        if (isinf(d)) {
-            PyErr_SetString(PyExc_ValueError,
-                "gmpy does not handle infinity");
-            return NULL;
-        }
         if (isnan(d)) {
             PyErr_SetString(PyExc_ValueError,
                 "gmpy does not handle nan");
+            return NULL;
+        }
+        if (isinf(d)) {
+            PyErr_SetString(PyExc_ValueError,
+                "gmpy does not handle infinity");
             return NULL;
         }
         mpf_set_d(self->f, d);
@@ -906,14 +906,14 @@ PyFloat2Pympf(PyObject *f, unsigned int bits)
     } else { /* direct float->mpf conversion, faster but rougher */
         if((newob = Pympf_new(bits))) {
             double d = PyFloat_AsDouble(f);
-            if (isinf(d)) {
-                PyErr_SetString(PyExc_ValueError,
-                    "gmpy does not handle infinity");
-                return NULL;
-            }
             if (isnan(d)) {
                 PyErr_SetString(PyExc_ValueError,
                     "gmpy does not handle nan");
+                return NULL;
+            }
+            if (isinf(d)) {
+                PyErr_SetString(PyExc_ValueError,
+                    "gmpy does not handle infinity");
                 return NULL;
             }
             mpf_set_d(newob->f, d);
@@ -4364,16 +4364,16 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         /* Handle non-numbers separately. */
         if(PyFloat_Check(b)) {
             double d = PyFloat_AS_DOUBLE(b);
-            if (isinf(d)) {
+            if(isnan(d)) {
+                result = (op == Py_NE) ? Py_True : Py_False;
+                Py_INCREF(result);
+                return result;
+            } else if (isinf(d)) {
                 if(d < 0) {
                     return _cmp_to_object(1, op);
                 } else {
                     return _cmp_to_object(-1, op);
                 }
-            } else if(isnan(d)) {
-                result = (op == Py_NE) ? Py_True : Py_False;
-                Py_INCREF(result);
-                return result;
             }
         }
         tempa = (PyObject*)anynum2Pympf(a,0);

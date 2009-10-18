@@ -535,7 +535,11 @@ Pympany_mul(PyObject *a, PyObject *b)
             /* Need to handle special float values. */
             if(pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(isinf(d)) {
+                if(isnan(d)) {
+                    r = PyFloat_FromDouble(d);
+                    Py_DECREF((PyObject*)pbf);
+                    return r;
+                } else if(isinf(d)) {
                     if(mpf_sgn(pbf->f) == 0) {
                         r = PyFloat_FromDouble(d * 0.0);
                     } else if(mpf_sgn(pbf->f) < 0) {
@@ -545,14 +549,14 @@ Pympany_mul(PyObject *a, PyObject *b)
                     }
                     Py_DECREF((PyObject*)pbf);
                     return r;
-                } else if(isnan(d)) {
-                    r = PyFloat_FromDouble(d);
-                    Py_DECREF((PyObject*)pbf);
-                    return r;
                 }
             } else if(paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(isinf(d)) {
+                if(isnan(d)) {
+                    r = PyFloat_FromDouble(d);
+                    Py_DECREF((PyObject*)paf);
+                    return r;
+                } else if(isinf(d)) {
                     if(mpf_sgn(paf->f) == 0) {
                         r = PyFloat_FromDouble(d * 0.0);
                     } else if(mpf_sgn(paf->f) < 0) {
@@ -560,10 +564,6 @@ Pympany_mul(PyObject *a, PyObject *b)
                     } else {
                         r = PyFloat_FromDouble(d);
                     }
-                    Py_DECREF((PyObject*)paf);
-                    return r;
-                } else if(isnan(d)) {
-                    r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
                 }
@@ -756,7 +756,17 @@ Pympany_floordiv(PyObject *a, PyObject *b)
             /* Need to handle special float values. */
             if(pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(isinf(d)) {
+                if(isnan(d)) {
+                    if(mpf_sgn(pbf->f) == 0) {
+                        PyErr_SetString(PyExc_ZeroDivisionError,
+                            "mpf division by zero");
+                        r = NULL;
+                    } else {
+                        r = PyFloat_FromDouble(d);
+                    }
+                    Py_DECREF((PyObject*)pbf);
+                    return r;
+                } else if(isinf(d)) {
                     if(mpf_sgn(pbf->f) == 0) {
                         PyErr_SetString(PyExc_ZeroDivisionError,
                             "mpf division by zero");
@@ -768,26 +778,16 @@ Pympany_floordiv(PyObject *a, PyObject *b)
                     }
                     Py_DECREF((PyObject*)pbf);
                     return r;
-                } else if(isnan(d)) {
-                    if(mpf_sgn(pbf->f) == 0) {
-                        PyErr_SetString(PyExc_ZeroDivisionError,
-                            "mpf division by zero");
-                        r = NULL;
-                    } else {
-                        r = PyFloat_FromDouble(d);
-                    }
-                    Py_DECREF((PyObject*)pbf);
-                    return r;
                 }
             } else if(paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(isinf(d)) {
-                    mpf_set_d(paf->f, 0.0);
-                    return (PyObject*)paf;
-                } else if(isnan(d)) {
+                if(isnan(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
+                } else if(isinf(d)) {
+                    mpf_set_d(paf->f, 0.0);
+                    return (PyObject*)paf;
                 }
             } else {
                 PyErr_SetString(PyExc_SystemError, "Can not convert number to mpf");
@@ -919,7 +919,17 @@ Pympany_truediv(PyObject *a, PyObject *b)
             /* Need to handle special float values. */
             if(pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(isinf(d)) {
+                if(isnan(d)) {
+                    if(mpf_sgn(pbf->f) == 0) {
+                        PyErr_SetString(PyExc_ZeroDivisionError,
+                            "mpf division by zero");
+                        r = NULL;
+                    } else {
+                        r = PyFloat_FromDouble(d);
+                    }
+                    Py_DECREF((PyObject*)pbf);
+                    return r;
+                } else if(isinf(d)) {
                     if(mpf_sgn(pbf->f) == 0) {
                         PyErr_SetString(PyExc_ZeroDivisionError,
                             "mpf division by zero");
@@ -931,26 +941,16 @@ Pympany_truediv(PyObject *a, PyObject *b)
                     }
                     Py_DECREF((PyObject*)pbf);
                     return r;
-                } else if(isnan(d)) {
-                    if(mpf_sgn(pbf->f) == 0) {
-                        PyErr_SetString(PyExc_ZeroDivisionError,
-                            "mpf division by zero");
-                        r = NULL;
-                    } else {
-                        r = PyFloat_FromDouble(d);
-                    }
-                    Py_DECREF((PyObject*)pbf);
-                    return r;
                 }
             } else if(paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(isinf(d)) {
-                    mpf_set_d(paf->f, 0.0);
-                    return (PyObject*)paf;
-                } else if(isnan(d)) {
+                if(isnan(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
+                } else if(isinf(d)) {
+                    mpf_set_d(paf->f, 0.0);
+                    return (PyObject*)paf;
                 }
             } else {
                 PyErr_SetString(PyExc_SystemError, "Can not convert number to mpf");
@@ -1153,7 +1153,17 @@ Pympany_div2(PyObject *a, PyObject *b)
             /* Need to handle special float values. */
             if(pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(isinf(d)) {
+                if(isnan(d)) {
+                    if(mpf_sgn(pbf->f) == 0) {
+                        PyErr_SetString(PyExc_ZeroDivisionError,
+                            "mpf division by zero");
+                        r = NULL;
+                    } else {
+                        r = PyFloat_FromDouble(d);
+                    }
+                    Py_DECREF((PyObject*)pbf);
+                    return r;
+                } else if(isinf(d)) {
                     if(mpf_sgn(pbf->f) == 0) {
                         PyErr_SetString(PyExc_ZeroDivisionError,
                             "mpf division by zero");
@@ -1165,26 +1175,16 @@ Pympany_div2(PyObject *a, PyObject *b)
                     }
                     Py_DECREF((PyObject*)pbf);
                     return r;
-                } else if(isnan(d)) {
-                    if(mpf_sgn(pbf->f) == 0) {
-                        PyErr_SetString(PyExc_ZeroDivisionError,
-                            "mpf division by zero");
-                        r = NULL;
-                    } else {
-                        r = PyFloat_FromDouble(d);
-                    }
-                    Py_DECREF((PyObject*)pbf);
-                    return r;
                 }
             } else if(paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(isinf(d)) {
-                    mpf_set_d(paf->f, 0.0);
-                    return (PyObject*)paf;
-                } else if(isnan(d)) {
+                if(isnan(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
+                } else if(isinf(d)) {
+                    mpf_set_d(paf->f, 0.0);
+                    return (PyObject*)paf;
                 }
             } else {
                 PyErr_SetString(PyExc_SystemError, "Can not convert number to mpf");
@@ -1385,7 +1385,17 @@ Pympany_rem(PyObject *a, PyObject *b)
             /* Need to handle special float values. */
             if(pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(isinf(d)) {
+                if(isnan(d)) {
+                    if(mpf_sgn(pbf->f) == 0) {
+                        PyErr_SetString(PyExc_ZeroDivisionError,
+                            "mpf division by zero");
+                        r = NULL;
+                    } else {
+                        r = PyFloat_FromDouble(d);
+                    }
+                    Py_DECREF((PyObject*)pbf);
+                    return r;
+                } else if(isinf(d)) {
                     if(mpf_sgn(pbf->f) == 0) {
                         PyErr_SetString(PyExc_ZeroDivisionError,
                             "mpf division by zero");
@@ -1397,26 +1407,16 @@ Pympany_rem(PyObject *a, PyObject *b)
                     }
                     Py_DECREF((PyObject*)pbf);
                     return r;
-                } else if(isnan(d)) {
-                    if(mpf_sgn(pbf->f) == 0) {
-                        PyErr_SetString(PyExc_ZeroDivisionError,
-                            "mpf division by zero");
-                        r = NULL;
-                    } else {
-                        r = PyFloat_FromDouble(d);
-                    }
-                    Py_DECREF((PyObject*)pbf);
-                    return r;
                 }
             } else if(paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(isinf(d)) {
-                    mpf_set_d(paf->f, 0.0);
-                    return (PyObject*)paf;
-                } else if(isnan(d)) {
+                if(isnan(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
+                } else if(isinf(d)) {
+                    mpf_set_d(paf->f, 0.0);
+                    return (PyObject*)paf;
                 }
             } else {
                 PyErr_SetString(PyExc_SystemError, "Can not convert number to mpf");
@@ -1669,7 +1669,12 @@ Pympany_divmod(PyObject *a, PyObject *b)
             } else if(paf && !pbf && PyFloat_Check(b)) {
                 /* divmod(number, inf|nan) */
                 double d = PyFloat_AS_DOUBLE(b);
-                if(isinf(d)) {
+                if(isnan(d)) {
+                    Py_DECREF((PyObject*)paf);
+                    paf = (PympfObject*)PyFloat_FromDouble(d);
+                    pbf = (PympfObject*)PyFloat_FromDouble(d);
+                    return Py_BuildValue("(NN)", paf, pbf);
+                } else if(isinf(d)) {
                     if(mpf_sgn(paf->f) == 0) {
                         /* if number == 0, return (0.0, 0.0) */
                         pbf = Pympf_new(paf->rebits);
@@ -1706,11 +1711,6 @@ Pympany_divmod(PyObject *a, PyObject *b)
                             return Py_BuildValue("(NN)", pbf, paf);
                         }
                     }
-                } else if(isnan(d)) {
-                    Py_DECREF((PyObject*)paf);
-                    paf = (PympfObject*)PyFloat_FromDouble(d);
-                    pbf = (PympfObject*)PyFloat_FromDouble(d);
-                    return Py_BuildValue("(NN)", paf, pbf);
                 }
             } else {
                 PyErr_SetString(PyExc_SystemError, "Can not convert number to mpf");
