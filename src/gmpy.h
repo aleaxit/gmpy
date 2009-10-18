@@ -22,6 +22,7 @@ extern "C" {
 #    define __MPN(x) __gmpn_##x
 #    define _GMP_H_HAVE_FILE
 #    define _PROTO(x) x
+#define inline __inline
 #endif
 
 #if defined MPIR
