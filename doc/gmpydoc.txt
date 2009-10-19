@@ -1,5 +1,4 @@
-gmpy module -- a complete Python 2.{3,4,5,6} interface for GMP 4
-(including Win32/MSVC++ binary builds).
+gmpy module -- a complete Python 2.4+ and 3.x interface for GMP/MPIR.
 
 
 *Notes on history of file gmpydoc.txt*
@@ -38,6 +37,7 @@ maintainer's preferred email changed to aleaxit@gmail.com .
 Minor editing for version 1.02 (2007/02/19).
 Minor editing for version 1.03 (2008/06/22).
 Minor editing for version 1.04 (2008/10/16).
+Minor editing for version 1.10 (2009/10/18)
 
 
 *Acknowledgments*
@@ -69,18 +69,15 @@ leading from 1.03 to 1.04).
 
 *Installation and testing*
 
-Pre-requisites: Python 2.3 or better, and GMP 4.0.1 or better (see
-later for Win32).  GMP 3.* is not being tested any more, even
-though gmpy doesn't yet expose any GMP4-only functionality and
-presumably "should" build OK with GMP 3.  No support nor bugfixes
-are planned for older releases of either Python or GMP.
+Pre-requisites: Python 2.4+ or 3.x, and recent versions of GMP
+(http://gmplib.org) or MPIR (http://www.mpir.org). gmpy has been tested
+with GMP version 4.2+ and MPIR 1.2+.
 
 To build gmpy from sources, get the sources from svn (or a sources
-zipfile, such as gmpy-sources-101.zip for release 1.01; old versions are
-at http://gmpy.sourceforge.net, new ones at
-http://code.google.com/p/gmpy/source) into a new, dedicated directory;
-cd to that directory (from any shell on Unix/Linux, from a 'Dos box' aka
-'command box' on Windows, from Terminal on Mac OS X, etc), and run:
+zipfile, such as gmpy-1.10.zip) from http://code.google.com/p/gmpy/source.
+Place the source code into a new, dedicated directory, cd to that
+directory (from any shell on Unix/Linux, or from Terminal on Mac OS X),
+and run:
 
     python setup.py install
 
@@ -89,26 +86,13 @@ install the gmpy module for you (you may need to use 'sudo' or
 'su' appropriately to actually perform the isntallation, depending
 on the permissions you're using on Python's site-packages).
 
-On Unix, GMP 4.0.1 or better must have been previously and
-separately installed; for Win32, see the instructions at
-http://www.cs.nyu.edu/exact/core/gmp/ .  Take care, when
-installing GMP 4, that an older GMP 3 doesn't keep being used
-instead; e.g. on Linux, if you have a system-installed GMP 3 in
-/usr/lib and install the newer GMP 4 using GMP's default settings
-(it then goes into /usr/local/lib, and depending on various
-details of your system configuration the /usr/lib version may keep
-being used instead).
-
-On Windows, you may also choose to download and run the installer
-gmpy-win32-py24-binary-101.exe (if you have Python 2.4 installed)
-and/or gmpy-win32-py23-binary-101.exe (if you have Python 2.3), in
-*addition* to the gmpy-sources-101.zip zipfile (which is in any
-case recommended, since it contains all of gmpy's docs, tests and
-examples, as well as gmpy's soruces).  These old installers are, at
-the time of this writing, only available at gmpy.sourceforge.net.
-
-The file "windows_build.txt" contains detailed instructions for compiling
-GMP and GMPY using the freely available MinGW tools.
+Detailed instructions for building on Windows are included in
+"windows_build.txt" and "win_x64_sdk_build.txt". "windows_build.txt"
+describes the build process using Mingw32 and MSYS and was used to
+build the 32-bit Windows binaries. "win_x64_sdk_build.txt" describes
+the build process using the Microsoft Platform SDK and was used to
+build the 64-bit Windows binaries. The MPIR library offers better
+support for Windows and is recommended.
 
 The file "mac_build.txt" contains detailed instructions for compiling
 GMP and GMPY on MacOSX (or getting GMP via mactools/darwintools).
@@ -119,11 +103,12 @@ gmpy to interoperate with it, a copy of the index.html for the
 gmpy sourceforge site, and python scripts that exemplify, show the
 performance of, and test, some functionality of the gmpy module.
 
-
 To test the installation, cd to the directory where you unpacked
 the gmpy sources, and run, at the command prompt:
 
         cd test
+
+(Note: use "cd test3" if you are using Python 3.x.)
 
 and then, at the next prompt:
 
@@ -177,21 +162,25 @@ issue tracker.
 *General notes on gmpy*
 
 gmpy exposes to Python three types of numbers that are implemented
-in both GMP 3 and GMP 4:
+in GMP and MPIR:
     mpz unlimited-precision integers
     mpq unlimited-precision rationals
     mpf extended-precision floats
 
 See GMP documentation for general descriptions of them!
-    GNU MP Home Page:  http://swox.com/gmp/
+    GNU MP Home Page:  http://gmplib.org
 
-Licensing: since GMP is distributed under the LGPL, so, therefore,
-is also gmpy.  IANAL, but, summarizing, this means: other
+The MPIR documentation is available from:
+    MPIR Home Page: http://www.mpir.org
+
+Licensing: gmpy is licensed under LGPL v2 or later. MPIR is also
+licensed under LGPL v2 or later. GMP converted to LGPL v3 beginning
+with version 4.2.2. IANAL, but, summarizing, this means: other
 _libraries_ that are derived from gmpy must also be distributed
-under the LPGL (or full-GPL), as must any
-modifications/changes/additions to gmpy; but, no such restriction
-applies on code that just _uses_ these modules/libraries (such
-gmpy-using code may thus be licensed in whatever way is desired).
+under the LPGL (or full-GPL), as must any modifications/additions to
+gmpy; but, no such restriction applies on code that just _uses_ these
+modules/libraries (such gmpy-using code may thus be licensed in whatever
+way is desired).
 
 Warranty: NONE -- as usual for open-source software (see the
 detailed disclaimers in GMP's license)!
@@ -213,15 +202,10 @@ as multiplication of huge numbers]).
 
 Mixed-operand arithmetic is supported: the other operand (which
 must be a number of some kind) is coerced to a gmpy.mpz, unless
-it's of a floating type, in which case the .mpz object is coerced
-to that floating type instead (or mpq, or complex, ditto).
-gmpy currently offers experimental support for coercion to its
-types from the decimal.Decimal class introduced in the standard
-library in Python 2.4; however, that support is experimental
-because it's done by "monkey patching" the Decimal class on the
-fly, and therefore it could stop working any time (e.g., if Decimal is
-made into a C-coded type in some future version of Python).
-
+it's of a floating type, in which case both operands are coerced into
+a gmpy.mpf object. Instances of the decimal.Decimal class are coerced
+into gmpy.mpf also. Instances of the fractions.Fraction class are
+coerced int gmpy.mpq.
 
 An mpz object can be  built by passing to the gmpy.mpz constructor
 function any Python built-in, non-complex number, another mpz
@@ -249,7 +233,7 @@ representation is NOT accepted in the string argument to
 gmpy.mpz()!
 
 (Please note that all from-string transformations are performed by
-GMP, and thus may follow slightly different conventions from
+GMP or MPIR, and thus may follow slightly different conventions from
 normal Python ones).
 
 An mpz object can be transformed into a Python number by passing
@@ -261,13 +245,11 @@ mpz objects also support the hash built-in function, and can thus
 be used as dictionary keys; for any Python int or long N,
 hash(mpz(n)) and hash(n) are equal.
 
-
 Other operations on mpz objects are all exposed as functions of
 module gmpy, and some, also, as methods of mpz objects.  Unless
 otherwise noted, arguments to the following gmpy module functions
 are coerced to mpz (unless already of mpz type), and values
 returned from either functions or methods are also of mpz type.
-
 
 gmpy.binary(x) or x.binary(): returns a portable binary
 representation (base-256 little endian) of an mpz object, suitable
@@ -806,6 +788,9 @@ gmpy.rand('shuf',arg)
 
 
 *Experimental: the callbacks-facility*
+
+The "callback" facilities were removed in gmpy 1.10. The documentation
+is left as-is for historical reference.
 
 Since gmpy 0.8, gmpy exposes 'callback' facilities to help
 client-code customize the handling of what, in pure-gmpy, would be
