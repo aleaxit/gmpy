@@ -5077,8 +5077,8 @@ Pympz_hamdist(PyObject *self, PyObject *args)
 
 static char doc_divexactm[]="\
 x.divexact(y): returns the quotient of x divided by y. Faster than\n\
-standard division but requires the remainder is zero!  y must be an mpz,\n\
-or else gets coerced to one.\n\
+standard division but requires the remainder is zero!  y must be an\n\
+mpz, or else gets coerced to one.\n\
 ";
 static char doc_divexactg[]="\
 divexact(x,y): returns the quotient of x divided by y. Faster than\n\
@@ -5117,8 +5117,8 @@ sign to y. y must be an mpz, or else gets coerced to one.\n\
 ";
 static char doc_cdivmodg[]="\
 cdivmod(x,y): returns the quotient of x divided by y. The quotient\n\
-is rounded towards +Inf and the remaider will have the opposite sign\n\
-to y. x and y must be mpz, or else get coerced to mpz.\n\
+is rounded towards +Inf and the remainder will have the opposite\n\
+sign to y. x and y must be mpz, or else get coerced to mpz.\n\
 ";
 static PyObject *
 Pympz_cdivmod(PyObject *self, PyObject *args)
@@ -5154,7 +5154,7 @@ sign as y. y must be an mpz, or else gets coerced to one.\n\
 ";
 static char doc_fdivmodg[]="\
 fdivmod(x,y): returns the quotient of x divided by y. The quotient\n\
-is rounded towards -Inf and the remaider will have the same sign\n\
+is rounded towards -Inf and the remainder will have the same sign\n\
 as y. x and y must be mpz, or else get coerced to mpz.\n\
 ";
 static PyObject *
