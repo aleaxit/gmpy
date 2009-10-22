@@ -1,6 +1,6 @@
 /* gmpy.c
  *
- * Python interface to the GMP multiple precision library,
+ * Python interface to the GMP or MPIR multiple precision library,
  * Copyright (C) 2000 - 2009 Alex Martelli
  *
  * This library is free software; you can redistribute it and/or
@@ -283,7 +283,7 @@ __MPIR_VERSION_MINOR * 100 + \
 __MPIR_VERSION_PATCHLEVEL
 char gmpy_license[] = "\
 The GMPY source code is licensed under LGPL 2.1 or later. \
-The MPIR libarary is licensed under LGPL 2.1 or later. \
+The MPIR library is licensed under LGPL 2.1 or later. \
 Therefore, this combined module is licensed under LGPL 2.1 or later.\
 ";
 #else
@@ -1101,7 +1101,6 @@ PyStr2Pympz(PyObject *s, long base)
 
     if(256 == base) {
         /* Least significant octet first */
-        mpz_t digit;
         int negative = 0;
 
         if(cp[len-1] == 0xFF) {
@@ -1109,11 +1108,9 @@ PyStr2Pympz(PyObject *s, long base)
             --len;
         }
         mpz_set_si(newob->z, 0);
-        mpz_inoc(digit);
         mpz_import(newob->z, len, -1, sizeof(char), 0, 0, cp);
         if(negative)
             mpz_neg(newob->z, newob->z);
-        mpz_cloc(digit);
     } else {
         /* Don't allow NULL characters */
         for(i=0; i<len; i++) {
@@ -6185,25 +6182,25 @@ static PyTypeObject Pympz_Type =
         0,                          /* tp_getattr       */
         0,                          /* tp_setattr       */
         0,                          /* tp_reserved      */
-    (reprfunc) Pympz2repr,            /* tp_repr          */
+    (reprfunc) Pympz2repr,          /* tp_repr          */
     &mpz_number_methods,            /* tp_as_number     */
         0,                          /* tp_as_sequence   */
         0,                          /* tp_as_mapping    */
     (hashfunc) Pympz_hash,          /* tp_hash          */
         0,                          /* tp_call          */
-    (reprfunc) Pympz2str,             /* tp_str           */
+    (reprfunc) Pympz2str,           /* tp_str           */
         0,                          /* tp_getattro      */
         0,                          /* tp_setattro      */
         0,                          /* tp_as_buffer     */
 #if PY_MAJOR_VERSION >= 3
     Py_TPFLAGS_DEFAULT,             /* tp_flags         */
 #else
-    Py_TPFLAGS_HAVE_INDEX|Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,      /* tp_flags */
+    Py_TPFLAGS_HAVE_INDEX|Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,
 #endif
-    "GNU Multi Precision signed integer",                   /* tp_doc   */
+    "GNU Multi Precision signed integer",   /* tp_doc   */
         0,                          /* tp_traverse      */
         0,                          /* tp_clear         */
-    (richcmpfunc)&mpany_richcompare,  /* tp_richcompare   */
+    (richcmpfunc)&mpany_richcompare,/* tp_richcompare   */
         0,                          /* tp_weaklistoffset*/
         0,                          /* tp_iter          */
         0,                          /* tp_iternext      */
@@ -6228,20 +6225,20 @@ static PyTypeObject Pympq_Type =
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
-    (reprfunc) Pympq2repr,                    /* tp_repr          */
+    (reprfunc) Pympq2repr,                  /* tp_repr          */
     &mpq_number_methods,                    /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
         0,                                  /* tp_as_mapping    */
     (hashfunc) Pympq_hash,                  /* tp_hash          */
         0,                                  /* tp_call          */
-    (reprfunc) Pympq2str,                     /* tp_str           */
+    (reprfunc) Pympq2str,                   /* tp_str           */
     (getattrofunc) 0,                       /* tp_getattro      */
     (setattrofunc) 0,                       /* tp_setattro      */
         0,                                  /* tp_as_buffer     */
 #if PY_MAJOR_VERSION >= 3
     Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
 #else
-    Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,            /* tp_flags         */
+    Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,   /* tp_flags  */
 #endif
     "GNU Multi Precision rational number",  /* tp_doc           */
         0,                                  /* tp_traverse      */
@@ -6272,20 +6269,20 @@ static PyTypeObject Pympf_Type =
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
-    (reprfunc) Pympf2repr,                    /* tp_repr          */
+    (reprfunc) Pympf2repr,                  /* tp_repr          */
     &mpf_number_methods,                    /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
         0,                                  /* tp_as_mapping    */
     (hashfunc) Pympf_hash,                  /* tp_hash          */
         0,                                  /* tp_call          */
-    (reprfunc) Pympf2str,                     /* tp_str           */
+    (reprfunc) Pympf2str,                   /* tp_str           */
     (getattrofunc) 0,                       /* tp_getattro      */
     (setattrofunc) 0,                       /* tp_setattro      */
         0,                                  /* tp_as_buffer     */
 #if PY_MAJOR_VERSION >= 3
     Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
 #else
-    Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,            /* tp_flags         */
+    Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,  /* tp_flags */
 #endif
     "GNU Multi Precision floating point",   /* tp_doc           */
         0,                                  /* tp_traverse      */
@@ -6393,7 +6390,8 @@ static void _PyInitGMP(void)
 
 static char _gmpy_docs[] = "\
 gmpy 1.10 - General Multiprecision arithmetic for Python:\n\
-exposes functionality from the GMP 4 library to Python 2.x & 3.x.\n\
+exposes functionality from the GMP or MPIR library to Python 2.4+\n\
+and  3.1+.\n\
 \n\
 Allows creation of multiprecision integer (mpz), float (mpf),\n\
 and rational (mpq) numbers, conversion between them and to/from\n\
