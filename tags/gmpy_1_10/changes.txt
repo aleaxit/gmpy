@@ -1,0 +1,52 @@
+Changes in gmpy 1.10
+
+Number conversion rules have changed.
+-------------------------------------
+The arguments in operations involving mixed types are converted using the
+following rules:
+
+   Integer --> Rational   --> Floating-point
+    'int'       'Fraction'     'float'
+    'long'      'mpq'          'Decimal'
+    'mpz'                      'mpf'
+
+   Old behavior:
+     mpz(1) + float(1.2)     --> float(2.2)
+     mpz(1) + Decimal('1.2') --> mpz(2)
+
+   New behavior:
+     mpz(1) + float(1.2)     --> mpf(2.2)
+     mpz(1) + Decimal('1.2') --> mpf(2.2)
+
+As a side-effect of Python 3.x compatibility, coerce() is no longer supported.
+
+The result of // will be an mpz if the arguments are Integer or Rational, but
+will be an mpf if either argument is Floating-point.
+
+The result of 'mpq'/'mpq' will be an 'mpq'. It will not be converted to an
+'mpf'. This matches the behavior of the 'Fraction' type in Python 3.x.
+
+The result of 'mpz'/'float' will an 'mpf' instead of a 'float'.
+
+Type-specific methods require appropriate arguments.
+----------------------------------------------------
+If you call an 'mpq' specific method, i.e. gmpy.qdiv, the arguments are
+required to be either integer or rational. Floating-point arguments are not
+automatically converted to rational when an 'mpq' specific method is
+called. Similarly, if you call an 'mpz' specific method, the arguments must
+be integers.
+
+Other bug fixes and changes
+--------------------------
+Corrected formating bug with mpf where last digit was missing.
+
+The wording of some error messages has changed. The type of error has not
+changed.
+
+The result of gcdext may no longer be the "minimal" values. They result
+does solve gcd(a,b) = ax + by. This is a side-effect of GMP 4.3 using a
+different (faster) algorithm.
+
+Unicode strings are now supported.
+
+
