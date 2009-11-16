@@ -6477,7 +6477,9 @@ initgmpy(void)
 
     /* Todo: Add error checking for status of gmpy_module returned above. */
 
+#if PY_MAJOR_VERSION < 3
     export_gmpy(gmpy_module);
+#endif
 
     if (options.debug)
         fprintf(stderr, "gmpy_module at %p\n", gmpy_module);
