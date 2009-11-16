@@ -2,7 +2,7 @@
 # note: broken in Python 2.4.0 due to a 2.4.0 bug, please update to 2.4.1
 #       or better to allow decimal/most-anything-else interoperability!-)
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.10
+# test-version 1.11
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(f))
 ['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
@@ -61,7 +61,7 @@ def _test(chat=None):
         print "  No point in testing, therefore -- please upgrade your Python!"
         return 0, 0
     if chat:
-        print "Unit tests for gmpy 1.10 (decimal interoperation)"
+        print "Unit tests for gmpy 1.11 (decimal interoperation)"
         print "    running on Python", sys.version
         print
         print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s)" % (
