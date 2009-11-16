@@ -2,7 +2,7 @@
 # note: broken in Python 2.4.0 due to a 2.4.0 bug, please update to 2.4.1
 #       or better to allow decimal/most-anything-else interoperability!-)
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.10
+# test-version 1.11
 r'''
 >>> dir(f)
 ['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
@@ -86,7 +86,7 @@ def _test(chat=None):
         print("  No point in testing, therefore -- please upgrade your Python!")
         return 0, 0
     if chat:
-        print("Unit tests for gmpy 1.10 (decimal interoperation)")
+        print("Unit tests for gmpy 1.11 (decimal interoperation)")
         print("    running on Python", sys.version)
         print()
         print("Testing gmpy %s (GMP %s) with default caching (%s, %s, %s)" % (

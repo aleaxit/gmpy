@@ -1,6 +1,6 @@
-# partial unit test for gmpy 1.10 mpq functionality
+# partial unit test for gmpy 1.11 mpq functionality
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.10
+# test-version 1.11
 r'''
 >>> dir(a)
 ['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'denom', 'digits', 'numer', 'qdiv', 'sign']
@@ -339,7 +339,7 @@ mpq(12,5)
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy 1.10 (mpq functionality)")
+        print("Unit tests for gmpy 1.11 (mpq functionality)")
         print("    running on Python",sys.version)
         print()
         print("Testing gmpy %s (GMP %s) with default caching (%s, %s, %s)" % (
