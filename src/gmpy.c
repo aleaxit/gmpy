@@ -902,8 +902,13 @@ PyFloat2Pympf(PyObject *f, unsigned int bits)
                     PyFloat_AsDouble(f),
                     s?Py2or3String_AsString(s):"<NoString>");
 
-        if(!s) return 0;
+        if(!s)
+            return NULL;
         newob = PyStr2Pympf(s, 10, bits);
+        if(!newob) {
+            Py_DECREF(s);
+            return NULL;
+        }
         Py_DECREF(s);
     } else { /* direct float->mpf conversion, faster but rougher */
         if((newob = Pympf_new(bits))) {
@@ -2408,6 +2413,10 @@ anynum2Pympf(PyObject* obj, unsigned int bits)
         PyObject *s = PyObject_Str(obj);
         if(s) {
             newob = PyStr2Pympf(s, 10, bits);
+            if(!newob) {
+                Py_DECREF(s);
+                return NULL;
+            }
             Py_DECREF(s);
         }
     } else if(!strcmp(obj->ob_type->tp_name, "Fraction")) {
