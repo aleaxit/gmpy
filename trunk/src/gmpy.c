@@ -227,18 +227,18 @@
 #define MAX_CACHE_LIMBS 128
 
 #if defined(MS_WIN32) && defined(_MSC_VER)
-/* so one won't need to link explicitly to gmp.lib...: */
-#if defined(MPIR)
-#pragma comment(lib,"mpir.lib")
-#else
-#pragma comment(lib,"gmp.lib")
-#endif
-#ifdef _MSC_VER
-  #define isnan _isnan
-  #define isinf !_finite
-#endif
-#define USE_ALLOCA 1
-#define alloca _alloca
+  /* so one won't need to link explicitly to gmp.lib...: */
+  #if defined(MPIR)
+    #pragma comment(lib,"mpir.lib")
+  #else
+    #pragma comment(lib,"gmp.lib")
+  #endif
+  #ifdef _MSC_VER
+    #define isnan _isnan
+    #define isinf !_finite
+  #endif
+  #define USE_ALLOCA 1
+  #define alloca _alloca
 #endif
 
 /* Define various macros to deal with differences between Python 2 and 3. */
@@ -326,7 +326,6 @@ char _gmpy_cvs[] = "$Id$";
         B = alloca(S); \
     } else { \
         if(!(B = PyMem_Malloc(S))) { \
-            mpz_cloc(temp); \
             PyErr_NoMemory(); \
             return NULL; \
         } \
@@ -335,7 +334,6 @@ char _gmpy_cvs[] = "$Id$";
 #else
 #define TEMP_ALLOC(B, S) \
     if(!(B = PyMem_Malloc(S)))  { \
-        mpz_cloc(temp); \
         PyErr_NoMemory(); \
         return NULL; \
     }
@@ -1595,7 +1593,6 @@ Pympq2PyFloat(PympqObject *x)
 static PyObject *
 Pympz2binary(PympzObject *x)
 {
-    mpz_t temp;
     size_t size, usize;
     int negative, needtrail;
     char *buffer;
@@ -1603,16 +1600,14 @@ Pympz2binary(PympzObject *x)
 
     assert(Pympz_Check( (PyObject *) x));
 
-    mpz_inoc(temp);
     if(mpz_sgn(x->z) < 0) {
         negative = 1;
-        mpz_neg(temp, x->z);
+        mpz_neg(x->z, x->z); /* Change the sign temporarily! */
     } else {
         negative = 0;
-        mpz_set(temp, x->z);
     }
 
-    size = mpz_sizeinbase(temp, 2);
+    size = mpz_sizeinbase(x->z, 2);
     needtrail = (size%8)==0;
     usize = size = (size + 7) / 8;
     if(negative || needtrail)
@@ -1620,11 +1615,13 @@ Pympz2binary(PympzObject *x)
 
     TEMP_ALLOC(buffer, size);
     buffer[0] = 0x00;
-    mpz_export(buffer, NULL, -1, sizeof(char), 0, 0, temp);
+    mpz_export(buffer, NULL, -1, sizeof(char), 0, 0, x->z);
     if(usize < size) {
         buffer[usize] = negative?0xff:0x00;
     }
-    mpz_cloc(temp);
+    if(negative) {
+        mpz_neg(x->z, x->z);
+    }
     s = Py2or3Bytes_FromStringAndSize(buffer, size);
     TEMP_FREE(buffer, size);
     return s;
@@ -1643,27 +1640,23 @@ Pympq2binary(PympqObject *x)
     char *buffer;
     int i;
     PyObject *s;
-    mpq_t qtemp;
 
     assert(Pympq_Check( (PyObject *) x));
-    mpq_inoc(qtemp);
-    mpq_set(qtemp, x->q);
 
-    if(mpq_sgn(qtemp) < 0) {
+    if(mpq_sgn(x->q) < 0) {
         negative = 1;
-        mpz_abs(mpq_numref(qtemp), mpq_numref(qtemp));
+        mpz_abs(mpq_numref(x->q), mpq_numref(x->q));
+    } else {
+        negative = 0;
     }
-    assert(mpz_sgn(mpq_denref(qtemp))>0);
+    assert(mpz_sgn(mpq_denref(x->q))>0);
 
-    sizenum = (mpz_sizeinbase(mpq_numref(qtemp), 2) + 7) / 8;
-    sizeden = (mpz_sizeinbase(mpq_denref(qtemp), 2) + 7) / 8;
+    sizenum = (mpz_sizeinbase(mpq_numref(x->q), 2) + 7) / 8;
+    sizeden = (mpz_sizeinbase(mpq_denref(x->q), 2) + 7) / 8;
     size = sizenum+sizeden+4;
 
-    if(!(buffer = PyMem_Malloc(size))) {
-        mpq_cloc(qtemp);
-        PyErr_NoMemory();
-        return NULL;
-    }
+    TEMP_ALLOC(buffer, size);
+
     sizetemp = sizenum;
     for(i=0; i<4; i++) {
         buffer[i] = (char)(sizetemp & 0xff);
@@ -1672,11 +1665,15 @@ Pympq2binary(PympqObject *x)
     if(negative) buffer[3] |= 0x80;
     buffer[4] = 0x00;
 
-    mpz_export(buffer+4, NULL, -1, sizeof(char), 0, 0, mpq_numref(qtemp));
-    mpz_export(buffer+sizenum+4, NULL, -1, sizeof(char), 0, 0, mpq_denref(qtemp));
-    mpq_cloc(qtemp);
+    mpz_export(buffer+4, NULL, -1, sizeof(char), 0, 0, mpq_numref(x->q));
+    mpz_export(buffer+sizenum+4, NULL, -1, sizeof(char), 0, 0, mpq_denref(x->q));
+    if(negative) {
+        mpz_neg( mpq_numref(x->q), mpq_numref(x->q));
+    }
     s = Py2or3Bytes_FromStringAndSize(buffer, size);
-    PyMem_Free(buffer);
+
+    TEMP_FREE(buffer, size);
+
     return s;
 }
 
@@ -1817,15 +1814,6 @@ mpz_ascii(mpz_t z, int base, int with_tag)
         return NULL;
     }
 
-    mpz_inoc(temp);
-    if(mpz_sgn(z) < 0) {
-        minus = 1;
-        mpz_neg(temp, z);
-    } else {
-        minus = 0;
-        mpz_set(temp, z);
-    }
-
     /* Allocate extra space for:
      *
      * minus sign and trailing NULL byte (2)
@@ -1837,6 +1825,16 @@ mpz_ascii(mpz_t z, int base, int with_tag)
      */
     size = mpz_sizeinbase(z, base) + 16;
     TEMP_ALLOC(buffer, size);
+
+    mpz_inoc(temp);
+    if(mpz_sgn(z) < 0) {
+        minus = 1;
+        mpz_neg(temp, z);
+    } else {
+        minus = 0;
+        mpz_set(temp, z);
+    }
+
     p = buffer;
     if(with_tag) {
        strcpy(p, ztag+options.tagoff);
@@ -1864,6 +1862,7 @@ mpz_ascii(mpz_t z, int base, int with_tag)
     TEMP_FREE(buffer, size);
     return s;
 }
+
 static PyObject *
 Pympz_ascii(PympzObject *self, int base, int with_tag)
 {
