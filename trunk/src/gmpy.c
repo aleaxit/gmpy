@@ -499,7 +499,133 @@ static PyMethodDef Pympf_methods [];
 #endif
 
 /* utility macros for argument parsing */
-#define NO_ARGS() if(!PyArg_ParseTuple(args, "")) { return NULL; }
+
+/*
+ * Verify that a function expects no arguments. "msg" should be an error
+ * message that includes the function name. Replaces NO_ARGS.
+ */
+
+#define PARSE_NO_ARGS(msg)\
+    if (PyTuple_GET_SIZE(args) != 0) {\
+        PyErr_SetString(PyExc_TypeError, msg);\
+        return NULL;\
+    }
+
+/*
+ * Parses one, and only one, argument into "self" and converts it to an
+ * mpz. Is faster, but not as generic, as using PyArg_ParseTuple. It
+ * supports either gmpy2.fname(z) or z.fname(). "self" must be decref'ed.
+ * "msg" should be an error message that includes the function name and
+ * describes the required arguments. Replaces SELF_MPZ_NO_ARG.
+ */
+
+#define PARSE_ONE_MPZ(msg) \
+    if(self && Pympz_Check(self)) {\
+        if (PyTuple_GET_SIZE(args) != 0) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        Py_INCREF(self);\
+    } else {\
+        if (PyTuple_GET_SIZE(args) != 1) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+        if(!self) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+    }
+
+/*
+ * Parses one argument into "self" and an optional second argument into
+ * 'var". The second argument is converted into a C long. If there is not a
+ * second argument, "var" is unchanged. Is faster, but not as generic, as
+ * using PyArg_ParseTuple with "|l". It supports either gmpy2.fname(z,l) or
+ * z.fname(l). "self" must be decref'ed. "var" must be a pointer to a long.
+ * "msg" should be an error message that includes the function name and
+ * describes the required arguments. Replaces some uses of SELF_MPZ_ONE_ARG.
+ */
+
+#define PARSE_ONE_MPZ_OPT_CLONG(var, msg) \
+    if(self && Pympz_Check(self)) {\
+        if (PyTuple_GET_SIZE(args) == 1) {\
+            *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            if(*var == -1 && PyErr_Occurred()) {\
+                PyErr_SetString(PyExc_TypeError, msg);\
+                return NULL;\
+            }\
+        } else if (PyTuple_GET_SIZE(args) > 1) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        Py_INCREF(self);\
+    } else {\
+        if (PyTuple_GET_SIZE(args) == 2) {\
+            *var = clong_From_Integer(PyTuple_GET_ITEM(args, 1)); \
+            if(*var == -1 && PyErr_Occurred()) {\
+                PyErr_SetString(PyExc_TypeError, msg);\
+                return NULL;\
+            }\
+            self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+        } else if (PyTuple_GET_SIZE(args) == 1) {\
+            self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+        } else {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        if(!self) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+    }
+
+/*
+ * Parses one argument into "self" and a required second argument into
+ * 'var". The second argument is converted into a C long. Is faster, but not
+ * as generic, as using PyArg_ParseTuple with "l". It supports either
+ * gmpy2.fname(z,l) or z.fname(l). "self" must be decref'ed. "var" must be a
+ * pointer to a long. "msg" should be an error message that includes the
+ * function name and describes the required arguments. Replaces some uses of
+ * SELF_MPZ_ONE_ARG.
+ */
+
+#define PARSE_ONE_MPZ_REQ_CLONG(var, msg) \
+    if(self && Pympz_Check(self)) {\
+        if (PyTuple_GET_SIZE(args) != 1) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        } else {\
+            *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            if(*var == -1 && PyErr_Occurred()) {\
+                PyErr_SetString(PyExc_TypeError, msg);\
+                return NULL;\
+            }\
+        }\
+        Py_INCREF(self);\
+    } else {\
+        if (PyTuple_GET_SIZE(args) != 2) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        } else {\
+            *var = clong_From_Integer(PyTuple_GET_ITEM(args, 1)); \
+            if(*var == -1 && PyErr_Occurred()) {\
+                PyErr_SetString(PyExc_TypeError, msg);\
+                return NULL;\
+            }\
+            self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+        }\
+        if(!self) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+    }
+
+
+
+
+
 
 #define ONE_ARG(nm, fm, var) \
     if(!PyArg_ParseTuple(args, fm, var)) { return NULL; }
@@ -508,15 +634,6 @@ static PyMethodDef Pympf_methods [];
    2.x, self is NULL when a function is called via gmpy.fname(..). But
    under Python 3.x, self is a module. */
 
-#define SELF_MPZ_NO_ARG \
-    if(self && Pympz_Check(self)) { \
-        if(!PyArg_ParseTuple(args, "")) \
-            return NULL; \
-        Py_INCREF(self); \
-    } else { \
-        if(!PyArg_ParseTuple(args, "O&", Pympz_convert_arg, &self)) \
-            return NULL; \
-    }
 #define SELF_MPQ_NO_ARG \
     if(self && Pympq_Check(self)) { \
         if(!PyArg_ParseTuple(args, "")) \
@@ -2232,7 +2349,7 @@ static int isInteger(PyObject* obj)
  *      5) Fraction
  *      6) other gmpy objects
  *
- * The routine anyint2Pympz will only convert integer-like objects into to a
+ * The routine Pympz_From_Integer will only convert integer-like objects into to a
  * gmpy mpz. The accepted integer-like objects are:
  *      1) int
  *      2) long
@@ -2360,15 +2477,20 @@ anynum2Pympz(PyObject* obj)
     return newob;
 }
 
+/*
+ * Convert an Integer-like object (as determined by isInteger) to
+ * a Pympz. Returns NULL but does NOT raise an exception if obj was
+ * not an Integer-like object.
+ */
 
 static PympzObject*
-anyint2Pympz(PyObject* obj)
+Pympz_From_Integer(PyObject* obj)
 {
     PympzObject* newob = 0;
 
     if(Pympz_Check(obj)) {
         Py_INCREF(obj);
-        newob = (PympzObject *) obj;
+        newob = (PympzObject*) obj;
 #if PY_MAJOR_VERSION == 2
     } else if(PyInt_CheckExact(obj)) {
         newob = PyInt2Pympz(obj);
@@ -2377,11 +2499,39 @@ anyint2Pympz(PyObject* obj)
         newob = PyLong2Pympz(obj);
     }
     if(options.debug)
-        fprintf(stderr,"anyint2Pympz(%p)->%p\n", obj, newob);
-
+        fprintf(stderr,"Pympz_From_Integer(%p)->%p\n", obj, newob);
+    if(!newob) {
+        PyErr_SetString(PyExc_SystemError,
+            "conversion error in clong_From_Integer");
+    }
     return newob;
 }
 
+/*
+ * Convert an Integer-like object (as determined by isInteger) to
+ * a C long. Returns -1 and raises OverflowError if the the number is
+ * too large. Returns -1 and raises SystemError if obj was not an
+ * Integer-like object.
+ */
+
+static long
+clong_From_Integer(PyObject *obj)
+{
+    if(PyLong_CheckExact(obj)) {
+        return PyLong_AsLong(obj);
+#if PY_MAJOR_VERSION == 2
+    } else if(PyInt_CheckExact(obj)) {
+        return PyInt_AS_LONG(obj);
+#endif
+    } else if(Pympz_Check(obj)) {
+        if(mpz_fits_slong_p(Pympz_AS_MPZ(obj))) {
+            return mpz_get_si(Pympz_AS_MPZ(obj));
+        }
+    }
+    PyErr_SetString(PyExc_SystemError,
+        "conversion error in clong_From_Integer");
+    return -1;
+}
 
 static PympfObject*
 anynum2Pympf(PyObject* obj, unsigned int bits)
@@ -2440,7 +2590,7 @@ anynum2Pympf(PyObject* obj, unsigned int bits)
 int
 Pympz_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympzObject* newob = anyint2Pympz(arg);
+    PympzObject* newob = Pympz_From_Integer(arg);
     if(options.debug)
         fprintf(stderr, "mpz_conv_arg(%p)->%p\n", arg, newob);
 
@@ -2655,7 +2805,7 @@ Pympz_binary(PyObject *self, PyObject *args)
             PyErr_SetString(PyExc_TypeError, "function takes exactly 1 argument");
             return NULL;
         }
-        temp = anyint2Pympz(PyTuple_GET_ITEM(args, 0));
+        temp = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
         if(!temp) {
             PyErr_SetString(PyExc_TypeError, "argument is not an integer");
             return NULL;
@@ -2729,7 +2879,7 @@ Pympz_digits(PyObject *self, PyObject *args)
     int base = 10;
     PyObject *s;
 
-    SELF_MPZ_ONE_ARG("|i",&base);
+    PARSE_ONE_MPZ_OPT_CLONG(&base, "digits expects 'mpz',[base] arguments");
     assert(Pympz_Check(self));
     s = Pympz_ascii((PympzObject*)self, base, 0);
     Py_DECREF(self);
@@ -2758,7 +2908,7 @@ Pympz_numdigits(PyObject *self, PyObject *args)
     int base = 10;
     PyObject *s;
 
-    SELF_MPZ_ONE_ARG("|i",&base);
+    PARSE_ONE_MPZ_OPT_CLONG(&base, "numdigits expects 'mpz',[base] arguments");
     assert(Pympz_Check(self));
     if(base==0) base=10;
     if((base < 2) || (base > 36)) {
@@ -2801,15 +2951,14 @@ Pympz_bit_length(PyObject *self, PyObject *args)
                 "bit_length() takes exactly 1 argument");
             return NULL;
         }
-        newob = anyint2Pympz(PyTuple_GET_ITEM(args, 0));
+        newob = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
         if(newob) {
             assert(Pympz_Check(newob));
             if (mpz_size(Pympz_AS_MPZ(newob)))
                 i = (long) mpz_sizeinbase(Pympz_AS_MPZ(newob), 2);
             Py_DECREF((PyObject*)newob);
             return Py2or3Int_FromLong(i);
-        }
-        else {
+        } else {
             PyErr_SetString(PyExc_TypeError,
                 "unsupported operand type for bit_length: integer required");
             return NULL;
@@ -2863,7 +3012,9 @@ Pympz_scan0(PyObject *self, PyObject *args)
     long maxbit;
     PyObject *s;
 
-    SELF_MPZ_ONE_ARG("|l",&starting_bit);
+    PARSE_ONE_MPZ_OPT_CLONG(&starting_bit,
+            "scan0 expects 'mpz',[starting_bit] arguments");
+
     assert(Pympz_Check(self));
     if(starting_bit < 0) {
         PyErr_SetString(PyExc_ValueError, "starting bit must be >= 0");
@@ -2908,7 +3059,9 @@ Pympz_scan1(PyObject *self, PyObject *args)
     long maxbit;
     PyObject *s;
 
-    SELF_MPZ_ONE_ARG("|l",&starting_bit);
+    PARSE_ONE_MPZ_OPT_CLONG(&starting_bit,
+            "scan1 expects 'mpz',[starting_bit] arguments");
+
     assert(Pympz_Check(self));
     if(starting_bit < 0) {
         PyErr_SetString(PyExc_ValueError, "starting bit must be >= 0");
@@ -2948,7 +3101,7 @@ Pympz_popcount(PyObject *self, PyObject *args)
 {
     PyObject *s;
 
-    SELF_MPZ_NO_ARG;
+    PARSE_ONE_MPZ("popcount expects 'mpz' argument");
     assert(Pympz_Check(self));
     s = Py_BuildValue("l", mpz_popcount(Pympz_AS_MPZ(self)));
     Py_DECREF(self);
@@ -2971,7 +3124,9 @@ Pympz_lowbits(PyObject *self, PyObject *args)
     long nbits;
     PympzObject *s;
 
-    SELF_MPZ_ONE_ARG("l",&nbits);
+    PARSE_ONE_MPZ_REQ_CLONG(&nbits,
+            "lowbits expects 'mpz',nbits arguments");
+
     assert(Pympz_Check(self));
     if(nbits <= 0) {
         PyErr_SetString(PyExc_ValueError, "nbits must be > 0");
@@ -3003,7 +3158,9 @@ Pympz_getbit(PyObject *self, PyObject *args)
     long bit_index;
     PyObject *s;
 
-    SELF_MPZ_ONE_ARG("l",&bit_index);
+    PARSE_ONE_MPZ_REQ_CLONG(&bit_index,
+            "getbit expects 'mpz',bit_index arguments");
+
     assert(Pympz_Check(self));
     if(bit_index < 0) {
         PyErr_SetString(PyExc_ValueError, "bit_index must be >= 0");
@@ -3080,7 +3237,9 @@ Pympz_root(PyObject *self, PyObject *args)
     int exact;
     PympzObject *s;
 
-    SELF_MPZ_ONE_ARG("l",&n);
+    PARSE_ONE_MPZ_REQ_CLONG(&n,
+            "root expects 'mpz',n arguments");
+
     assert(Pympz_Check(self));
     if(n <= 0) {
         PyErr_SetString(PyExc_ValueError, "n must be > 0");
@@ -3180,7 +3339,7 @@ Pympz_sign(PyObject *self, PyObject *args)
 {
     PyObject *s;
 
-    SELF_MPZ_NO_ARG;
+    PARSE_ONE_MPZ("sign expects 'mpz' argument");
     assert(Pympz_Check(self));
     s = Py_BuildValue("i", mpz_sgn(Pympz_AS_MPZ(self)));
     Py_DECREF(self);
@@ -3783,9 +3942,10 @@ Py##NAME(PyObject *a, PyObject *b) \
   PympzObject *r; \
   PympzObject *pa = 0; \
   PympzObject *pb = 0; \
-  pa = anyint2Pympz(a); \
-  pb = anyint2Pympz(b); \
+  pa = Pympz_From_Integer(a); \
+  pb = Pympz_From_Integer(b); \
   if(!pa || !pb) { \
+    PyErr_Clear(); \
     PyObject *r = Py_NotImplemented; \
     Py_XDECREF((PyObject*)pa); \
     Py_XDECREF((PyObject*)pb); \
@@ -3969,12 +4129,21 @@ Pympf_pos(PympfObject *x)
 static PyObject *
 Pympz_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
 {
-    PympzObject *r;
-    PympzObject *b = anyint2Pympz(in_b);
-    PympzObject *e = anyint2Pympz(in_e);
-    PympzObject *m = anyint2Pympz(in_m);
+    PympzObject *r, *b, *e, *m;
 
-    if(!b || !e || (!m && ((PyObject*)in_m != Py_None))) {
+    b = Pympz_From_Integer(in_b);
+    e = Pympz_From_Integer(in_e);
+
+    /* m will either be an number or Py_None. */
+    if(in_m != Py_None) {
+        m = Pympz_From_Integer(in_m);
+    } else {
+        m = (PympzObject*) in_m;
+        Py_INCREF((PyObject*)m);
+    }
+
+    if(!b || !e || (!m && ((PyObject*)m != Py_None))) {
+        PyErr_Clear();
         PyObject *r;
         Py_XDECREF((PyObject*)b);
         Py_XDECREF((PyObject*)e);
@@ -4359,8 +4528,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     }
     if(isInteger(a) && isInteger(b)) {
         if(options.debug) fprintf(stderr, "compare (mpz,int)\n");
-        tempa = (PyObject*)anyint2Pympz(a);
-        tempb = (PyObject*)anyint2Pympz(b);
+        tempa = (PyObject*)Pympz_From_Integer(a);
+        tempb = (PyObject*)Pympz_From_Integer(b);
         c = mpz_cmp(Pympz_AS_MPZ(tempa), Pympz_AS_MPZ(tempb));
         Py_DECREF(tempa);
         Py_DECREF(tempb);
@@ -4492,9 +4661,10 @@ NAME(PyObject *a, PyObject *b) \
       } \
       OP(r->z, ((PympzObject*)a)->z, count); \
   } else { \
-    pa = anyint2Pympz(a); \
-    pb = anyint2Pympz(b); \
+    pa = Pympz_From_Integer(a); \
+    pb = Pympz_From_Integer(b); \
     if(!pb || !pa) { \
+      PyErr_Clear(); \
       PyObject *r = Py_NotImplemented; \
       Py_XDECREF((PyObject*)pa); \
       Py_XDECREF((PyObject*)pb); \
@@ -4924,7 +5094,7 @@ Pympz_sqrt(PyObject *self, PyObject *args)
 {
     PympzObject *root;
 
-    SELF_MPZ_NO_ARG;
+    PARSE_ONE_MPZ("sqrt expects 'mpz' argument");
     assert(Pympz_Check(self));
 
     if(mpz_sgn(Pympz_AS_MPZ(self)) < 0) {
@@ -4957,7 +5127,7 @@ Pympz_sqrtrem(PyObject *self, PyObject *args)
     PympzObject *root=0, *rem=0;
     PyObject *res;
 
-    SELF_MPZ_NO_ARG;
+    PARSE_ONE_MPZ("sqrtrem expects 'mpz' argument");
     assert(Pympz_Check(self));
 
     if(mpz_sgn(Pympz_AS_MPZ(self)) < 0) {
@@ -5253,7 +5423,7 @@ Pympz_is_square(PyObject *self, PyObject *args)
 {
     PyObject *res;
 
-    SELF_MPZ_NO_ARG;
+    PARSE_ONE_MPZ("is_square expects 'mpz' argument");
     assert(Pympz_Check(self));
 
     res = Py_BuildValue("i", mpz_perfect_square_p(Pympz_AS_MPZ(self)));
@@ -5275,7 +5445,7 @@ Pympz_is_power(PyObject *self, PyObject *args)
 {
     PyObject *res;
 
-    SELF_MPZ_NO_ARG;
+    PARSE_ONE_MPZ("is_power expects 'mpz' argument");
     assert(Pympz_Check(self));
 
     res = Py_BuildValue("i", mpz_perfect_power_p(Pympz_AS_MPZ(self)));
@@ -5301,7 +5471,9 @@ Pympz_is_prime(PyObject *self, PyObject *args)
     PyObject *res;
     int reps = 25;
 
-    SELF_MPZ_ONE_ARG("|i",&reps);
+    PARSE_ONE_MPZ_OPT_CLONG(&reps,
+            "is_prime expects 'mpz',[reps] arguments");
+
     assert(Pympz_Check(self));
     if(reps <= 0) {
         PyErr_SetString(PyExc_ValueError,
@@ -5331,7 +5503,7 @@ Pympz_next_prime(PyObject *self, PyObject *args)
 {
     PympzObject *res;
 
-    SELF_MPZ_NO_ARG;
+    PARSE_ONE_MPZ("next_prime expects 'mpz' argument");
     assert(Pympz_Check(self));
     if(!(res = Pympz_new())) {
         Py_DECREF(self);

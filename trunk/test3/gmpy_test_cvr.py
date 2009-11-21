@@ -81,16 +81,16 @@ __test__['user_errors']=\
 r'''
 >>> _g.version(23)
 Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: function takes exactly 0 arguments (1 given)
+  ...
+TypeError: version expects 0 arguments
 >>> _g.gmp_version(23)
 Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: function takes exactly 0 arguments (1 given)
+  ...
+TypeError: gmp_version expects 0 arguments
 >>> _g.get_zcache(23)
 Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: function takes exactly 0 arguments (1 given)
+  ...
+TypeError: get_zcache expects 0 arguments
 >>> _g.set_zcache(2000)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
@@ -101,8 +101,8 @@ Traceback (most recent call last):
 ValueError: cache must between 0 and 1000
 >>> _g.get_qcache(23)
 Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: function takes exactly 0 arguments (1 given)
+  ...
+TypeError: get_qcache expects 0 arguments
 >>> _g.set_qcache(2000)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -113,8 +113,8 @@ Traceback (most recent call last):
 ValueError: cache must between 0 and 1000
 >>> _g.get_fcache(23)
 Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: function takes exactly 0 arguments (1 given)
+  ...
+TypeError: get_fcache expects 0 arguments
 >>> _g.set_fcache(2000)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
@@ -249,12 +249,12 @@ Traceback (most recent call last):
 ValueError: root of negative number
 >>> _g.digits(3,'peep')
 Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: an integer is required
+  ...
+TypeError: digits expects 'mpz',[base] arguments
 >>> _g.digits(3.14)
 Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: argument can not be converted to mpz
+  ...
+TypeError: digits expects 'mpz',[base] arguments
 >>> _g.fdigits(3.14,'peep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -269,8 +269,8 @@ Traceback (most recent call last):
 TypeError: an integer is required
 >>> _g.mpz(3).digits('bu')
 Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: an integer is required
+  ...
+TypeError: digits expects 'mpz',[base] arguments
 >>> _g.mpf(3).digits('bu')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?

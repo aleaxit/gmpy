@@ -512,7 +512,7 @@ Pympz_inplace_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
         return NULL;
     }
 
-    e = anyint2Pympz(in_e);
+    e = Pympz_From_Integer(in_e);
     if(!e || (in_m != Py_None)) {
         PyErr_Clear();
         Py_XDECREF((PyObject*)e);

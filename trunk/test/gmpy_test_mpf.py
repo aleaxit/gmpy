@@ -319,8 +319,8 @@ mpf('1.23456e2',33)
 '0.000022'
 >>> _g.digits(_g.mpf(23.45))
 Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: argument can not be converted to mpz
+  ...
+TypeError: digits expects 'mpz',[base] arguments
 >>> _g.fbinary('pep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?

@@ -12,7 +12,7 @@ license(): returns string giving license information\n\
 static PyObject *
 Pygmpy_get_license(PyObject *self, PyObject *args)
 {
-    NO_ARGS();
+    PARSE_NO_ARGS("license expects 0 arguments");
     return Py_BuildValue("s", gmpy_license);
 }
 
@@ -23,7 +23,7 @@ version(): returns string giving current GMPY version\n\
 static PyObject *
 Pygmpy_get_version(PyObject *self, PyObject *args)
 {
-    NO_ARGS();
+    PARSE_NO_ARGS("version expects 0 arguments");
     return Py_BuildValue("s", gmpy_version);
 }
 
@@ -33,7 +33,7 @@ _cvsid(): returns string giving current GMPY cvs Id\n\
 static PyObject *
 Pygmpy_get_cvsid(PyObject *self, PyObject *args)
 {
-    NO_ARGS();
+    PARSE_NO_ARGS("get_cvsid expects 0 arguments");
     return Py_BuildValue("s", _gmpy_cvs);
 }
 
@@ -44,7 +44,7 @@ returned if MPIR was used.\n\
 static PyObject *
 Pygmpy_get_gmp_version(PyObject *self, PyObject *args)
 {
-    NO_ARGS();
+    PARSE_NO_ARGS("gmp_version expects 0 arguments");
 #ifndef __MPIR_VERSION
     return Py_BuildValue("s", gmp_version);
 #else
@@ -59,7 +59,7 @@ returned if GMP was used.\n\
 static PyObject *
 Pygmpy_get_mpir_version(PyObject *self, PyObject *args)
 {
-    NO_ARGS();
+    PARSE_NO_ARGS("mpir_version expects 0 arguments");
 #ifdef __MPIR_VERSION
     return Py_BuildValue("s", mpir_version);
 #else
@@ -73,7 +73,7 @@ gmp_limbsize(): returns the number of bits per limb\n\
 static PyObject *
 Pygmpy_get_gmp_limbsize(PyObject *self, PyObject *args)
 {
-    NO_ARGS();
+    PARSE_NO_ARGS("gmp_limbsize expects 0 arguments");
     return Py_BuildValue("i", GMP_NUMB_BITS);
 }
 
@@ -87,7 +87,7 @@ for mpz objects.\n\
 static PyObject *
 Pygmpy_get_zcache(PyObject *self, PyObject *args)
 {
-    NO_ARGS();
+    PARSE_NO_ARGS("get_zcache expects 0 arguments");
     return Py_BuildValue("i", options.zcache);
 }
 
@@ -98,7 +98,7 @@ for mpq objects.\n\
 static PyObject *
 Pygmpy_get_qcache(PyObject *self, PyObject *args)
 {
-    NO_ARGS();
+    PARSE_NO_ARGS("get_qcache expects 0 arguments");
     return Py_BuildValue("i", options.qcache);
 }
 
@@ -109,7 +109,7 @@ for mpf objects.\n\
 static PyObject *
 Pygmpy_get_fcache(PyObject *self, PyObject *args)
 {
-    NO_ARGS();
+    PARSE_NO_ARGS("get_fcache expects 0 arguments");
     return Py_BuildValue("i", options.fcache);
 }
 
