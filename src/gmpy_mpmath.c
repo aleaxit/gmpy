@@ -434,9 +434,9 @@ Pympz_mpmath_trim(PyObject *self, PyObject *args)
         case 3:
             prec = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 2));
         case 2:
-            arg1 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 1));
+            arg1 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
         case 1:
-            arg0 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 0));
+            arg0 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     }
     if(!arg0 || !arg1 || (prec < 0) || PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "arguments mpz, mpz, long(>=0), char needed");
@@ -470,13 +470,13 @@ Pympz_mpmath_add(PyObject *self, PyObject *args)
         case 5:
             prec = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 4));
         case 4:
-            arg3 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 3));
+            arg3 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 3));
         case 3:
-            arg2 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 2));
+            arg2 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
         case 2:
-            arg1 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 1));
+            arg1 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
         case 1:
-            arg0 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 0));
+            arg0 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     }
     if(!arg0 || !arg1 || !arg2 || !arg3 || (prec < 0) || PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "arguments mpz, mpz, mpz, mpz, long(>=0), char needed");
@@ -617,13 +617,13 @@ Pympz_mpmath_mult(PyObject *self, PyObject *args)
         case 5:
             prec = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 4));
         case 4:
-            arg3 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 3));
+            arg3 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 3));
         case 3:
-            arg2 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 2));
+            arg2 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
         case 2:
-            arg1 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 1));
+            arg1 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
         case 1:
-            arg0 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 0));
+            arg0 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     }
     if(!arg0 || !arg1 || !arg2 || !arg3 || (prec < 0) || PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "arguments mpz, mpz, mpz, mpz, long(>=0), char needed");
@@ -667,13 +667,13 @@ Pympz_mpmath_div(PyObject *self, PyObject *args)
         case 5:
             prec = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 4));
         case 4:
-            arg3 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 3));
+            arg3 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 3));
         case 3:
-            arg2 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 2));
+            arg2 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
         case 2:
-            arg1 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 1));
+            arg1 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
         case 1:
-            arg0 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 0));
+            arg0 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     }
     if(!arg0 || !arg1 || !arg2 || !arg3 || (prec < 1) || PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "arguments mpz, mpz, mpz, mpz, long(>=1), char needed");
@@ -774,9 +774,9 @@ Pympz_mpmath_sqrt(PyObject *self, PyObject *args)
         case 3:
             prec = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 2));
         case 2:
-            arg1 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 1));
+            arg1 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
         case 1:
-            arg0 = (PyObject*)anyint2Pympz(PyTuple_GET_ITEM(args, 0));
+            arg0 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     }
     if(!arg0 || !arg1 || (prec < 1) || PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "arguments mpz, mpz, long(>=1), char needed");
