@@ -181,19 +181,36 @@ static PyObject *
 Pympz_mpmath_create(PyObject *self, PyObject *args)
 {
     long sign, bc, shift, zbits, carry = 0;
-    PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0, *precobj = 0;
+    PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0;
     PympzObject *man = 0, *upper = 0, *lower = 0;
 
-    char rnd = 'f';
+    const char *rnd = "f";
     long prec = 0;
 
-#if PY_MAJOR_VERSION >= 3
-    if(!PyArg_ParseTuple(args, "O&O|OC", Pympz_convert_arg, &man, &exp, &precobj, &rnd))
-#else
-    if(!PyArg_ParseTuple(args, "O&O|Oc", Pympz_convert_arg, &man, &exp, &precobj, &rnd))
-#endif
+    if(PyTuple_GET_SIZE(args) < 2) {
+        PyErr_SetString(PyExc_TypeError,
+                "mpmath_create() expects 'mpz','int'[,'int','str'] arguments");
         return NULL;
-    assert(Pympz_Check(man));
+    }
+
+    switch(PyTuple_GET_SIZE(args)) {
+        case 4:
+            rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 3));
+        case 3:
+            prec = clong_From_Integer(PyTuple_GET_ITEM(args, 2));
+            if(prec == -1 && PyErr_Occurred())
+                return NULL;
+            prec = abs(prec);
+        case 2:
+            exp = PyTuple_GET_ITEM(args, 1);
+        case 1:
+            man = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+            if(!man) {
+                PyErr_SetString(PyExc_TypeError,
+                        "mpmath_create() expects 'mpz','int'[,'int','str'] arguments");
+                return NULL;
+            }
+    }
 
     /* If the mantissa is 0, return the normalized representation. */
     if(!mpz_sgn(man->z)) {
@@ -214,23 +231,11 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     mpz_abs(upper->z, man->z);
     bc = mpz_sizeinbase(upper->z, 2);
 
-    /* Check desired precision */
-    if(precobj) {
-        prec = clong_From_Integer(precobj);
-        if(prec == -1 && PyErr_Occurred()) {
-            Py_DECREF((PyObject*)man);
-            Py_DECREF((PyObject*)upper);
-            Py_DECREF((PyObject*)lower);
-            return NULL;
-        } else {
-            prec = abs(prec);
-        }
-    }
     if(!prec) prec = bc;
 
     shift = bc - prec;
     if(shift>0) {
-        switch(rnd) {
+        switch(rnd[0]) {
             case 'f':
                 if(sign) {
                     mpz_cdiv_q_2exp(upper->z, upper->z, shift);
@@ -442,7 +447,7 @@ Pympz_mpmath_trim(PyObject *self, PyObject *args)
         case 4:
             rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 3));
         case 3:
-            prec = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 2));
+            prec = clong_From_Integer(PyTuple_GET_ITEM(args, 2));
         case 2:
             arg1 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
         case 1:
@@ -478,7 +483,7 @@ Pympz_mpmath_add(PyObject *self, PyObject *args)
         case 6:
             rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 5));
         case 5:
-            prec = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 4));
+            prec = clong_From_Integer(PyTuple_GET_ITEM(args, 4));
         case 4:
             arg3 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 3));
         case 3:
@@ -625,7 +630,7 @@ Pympz_mpmath_mult(PyObject *self, PyObject *args)
         case 6:
             rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 5));
         case 5:
-            prec = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 4));
+            prec = clong_From_Integer(PyTuple_GET_ITEM(args, 4));
         case 4:
             arg3 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 3));
         case 3:
@@ -675,7 +680,7 @@ Pympz_mpmath_div(PyObject *self, PyObject *args)
         case 6:
             rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 5));
         case 5:
-            prec = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 4));
+            prec = clong_From_Integer(PyTuple_GET_ITEM(args, 4));
         case 4:
             arg3 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 3));
         case 3:
@@ -782,7 +787,7 @@ Pympz_mpmath_sqrt(PyObject *self, PyObject *args)
         case 4:
             rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 3));
         case 3:
-            prec = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 2));
+            prec = clong_From_Integer(PyTuple_GET_ITEM(args, 2));
         case 2:
             arg1 = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
         case 1:

@@ -17,7 +17,7 @@
  */
 
 /* This code assumes that SHIFT < GMP_NUMB_BITS */
-#if Py2or3Long_SHIFT >= GMP_NUMB_BITS
+#if PyLong_SHIFT >= GMP_NUMB_BITS
 #error "Python limb larger than GMP limb !!!"
 #endif
 
@@ -65,15 +65,15 @@ pylong_sizebits(digit *digits, size_t size) {
   unsigned long cnt;
   digit x;
   if (size==0) return 0;
-  cnt = (size - 1) * Py2or3Long_SHIFT;
+  cnt = (size - 1) * PyLong_SHIFT;
   x = digits[size - 1];
-#if Py2or3Long_SHIFT > 32
+#if PyLong_SHIFT > 32
   if ((x >> 32) != 0) { x >>= 32; cnt += 32; }
 #endif
-#if Py2or3Long_SHIFT > 16
+#if PyLong_SHIFT > 16
   if ((x >> 16) != 0) { x >>= 16; cnt += 16; }
 #endif
-#if Py2or3Long_SHIFT > 8
+#if PyLong_SHIFT > 8
   if ((x >>  8) != 0) { x >>=  8; cnt += 8; }
 #endif
   return cnt + ((x & 0x80) ? 8 : __sizebits_tab[x]);
@@ -84,7 +84,7 @@ pylong_sizebits(digit *digits, size_t size) {
 int
 mpn_pylong_size (mp_ptr up, size_t un)
 {
-  return (mpn_sizebits(up, un) + Py2or3Long_SHIFT - 1) / Py2or3Long_SHIFT;
+  return (mpn_sizebits(up, un) + PyLong_SHIFT - 1) / PyLong_SHIFT;
 }
 
 /* this is based from GMP code in mpn/get_str.c */
@@ -109,19 +109,19 @@ mpn_get_pylong (digit *digits, size_t size, mp_ptr up, size_t un)
 
   i = un - 1;
   n1 = up[i];
-  bit_pos = size * Py2or3Long_SHIFT - i * GMP_NUMB_BITS;
+  bit_pos = size * PyLong_SHIFT - i * GMP_NUMB_BITS;
 
   for (;;)
     {
-      bit_pos -= Py2or3Long_SHIFT;
+      bit_pos -= PyLong_SHIFT;
       while (bit_pos >= 0)
         {
-          *--s = (n1 >> bit_pos) & Py2or3Long_MASK;
-          bit_pos -= Py2or3Long_SHIFT;
+          *--s = (n1 >> bit_pos) & PyLong_MASK;
+          bit_pos -= PyLong_SHIFT;
         }
       if (i == 0)
         break;
-      n0 = (n1 << -bit_pos) & Py2or3Long_MASK;
+      n0 = (n1 << -bit_pos) & PyLong_MASK;
       n1 = up[--i];
       bit_pos += GMP_NUMB_BITS;
       *--s = n0 | (n1 >> bit_pos);
@@ -153,22 +153,22 @@ mpn_set_pylong (mp_ptr up, size_t un, digit *digits, size_t size)
 
   i = un - 1;
   n1 = 0;
-  bit_pos = size * Py2or3Long_SHIFT - i * GMP_NUMB_BITS;
+  bit_pos = size * PyLong_SHIFT - i * GMP_NUMB_BITS;
 
   for (;;)
     {
-      bit_pos -= Py2or3Long_SHIFT;
+      bit_pos -= PyLong_SHIFT;
       while (bit_pos >= 0)
         {
           d = (mp_limb_t) *--s;
           n1 |= (d << bit_pos) & GMP_NUMB_MASK;
-          bit_pos -= Py2or3Long_SHIFT;
+          bit_pos -= PyLong_SHIFT;
         }
       if (i == 0)
         break;
       d = (mp_limb_t) *--s;
       /* add some high bits of d; maybe none if bit_pos=-SHIFT */
-      up[i--] = n1 | (d & Py2or3Long_MASK) >> -bit_pos;
+      up[i--] = n1 | (d & PyLong_MASK) >> -bit_pos;
       bit_pos += GMP_NUMB_BITS;
       n1 = (d << bit_pos) & GMP_NUMB_MASK;
     }
@@ -180,7 +180,7 @@ mpn_set_pylong (mp_ptr up, size_t un, digit *digits, size_t size)
 
 /* Hashing functions */
 
-#define LONG_BIT_SHIFT  (8*sizeof(long) - Py2or3Long_SHIFT)
+#define LONG_BIT_SHIFT  (8*sizeof(long) - PyLong_SHIFT)
 
 /*
  * for an mpz, this number has to be multiplied by the sign
@@ -201,8 +201,8 @@ mpn_pythonhash (mp_ptr up, mp_size_t un)
   n1 = up[i];
   {
     unsigned long bits;
-    bits = mpn_sizebits(up, un) + Py2or3Long_SHIFT - 1;
-    bits -= bits % Py2or3Long_SHIFT;
+    bits = mpn_sizebits(up, un) + PyLong_SHIFT - 1;
+    bits -= bits % PyLong_SHIFT;
     /* position of the MSW in base 2^SHIFT, counted from the MSW in
      * the GMP representation (in base 2^GMP_NUMB_BITS)
      */
@@ -214,24 +214,24 @@ mpn_pythonhash (mp_ptr up, mp_size_t un)
       while (bit_pos >= 0)
         {
           /* Force a native long #-bits (32 or 64) circular shift */
-          x = ((x << Py2or3Long_SHIFT) & ~(long)Py2or3Long_MASK) | ((x >> LONG_BIT_SHIFT) & (long)Py2or3Long_MASK);
+          x = ((x << PyLong_SHIFT) & ~(long)PyLong_MASK) | ((x >> LONG_BIT_SHIFT) & (long)PyLong_MASK);
 	  /* Shifting to the right by more than wordsize bits
              actually shifts by (wordsize % 32) bits -- which is
              *not* the intended behavior here. */
 	  if (bit_pos <= 8*sizeof(mp_limb_t))
-            x += (n1 >> bit_pos) & (long)Py2or3Long_MASK;
-          bit_pos -= Py2or3Long_SHIFT;
+            x += (n1 >> bit_pos) & (long)PyLong_MASK;
+          bit_pos -= PyLong_SHIFT;
         }
       i--;
       if (i < 0)
         break;
-      n0 = (n1 << -bit_pos) & (long)Py2or3Long_MASK;
+      n0 = (n1 << -bit_pos) & (long)PyLong_MASK;
       n1 = up[i];
       bit_pos += GMP_NUMB_BITS;
       /* Force a native long #-bits (32 or 64) circular shift */
-      x = ((x << Py2or3Long_SHIFT) & ~(long)Py2or3Long_MASK) | ((x >> LONG_BIT_SHIFT) & (long)Py2or3Long_MASK);
+      x = ((x << PyLong_SHIFT) & ~(long)PyLong_MASK) | ((x >> LONG_BIT_SHIFT) & (long)PyLong_MASK);
       x += n0 | (n1 >> bit_pos);
-      bit_pos -= Py2or3Long_SHIFT;
+      bit_pos -= PyLong_SHIFT;
     }
 
   return x;
