@@ -247,33 +247,34 @@
 /* Define various macros to deal with differences between Python 2 and 3. */
 
 #if PY_MAJOR_VERSION >= 3
-#define Py2or3Int_AsLong PyLong_AsLong
-#define Py2or3Int_FromLong PyLong_FromLong
-#define Py2or3Long_SHIFT PyLong_SHIFT
-#define Py2or3Long_MASK PyLong_MASK
-#define Py2or3String_FromString PyUnicode_FromString
-#define Py2or3String_Check PyUnicode_Check
-#define Py2or3String_Format PyUnicode_Format
-#define Py2or3String_AsString PyUnicode_AS_DATA
-#define Py2or3String_FromStringAndSize PyUnicode_FromStringAndSize
-#define Py2or3Bytes_ConcatAndDel PyBytes_ConcatAndDel
-#define Py2or3Bytes_FromString PyBytes_FromString
-#define Py2or3Bytes_AS_STRING PyBytes_AS_STRING
-#define Py2or3Bytes_FromStringAndSize PyBytes_FromStringAndSize
+#define Py2or3Int_FromLong              PyLong_FromLong
+#define Py2or3String_FromString         PyUnicode_FromString
+#define Py2or3String_Check              PyUnicode_Check
+#define Py2or3String_Format             PyUnicode_Format
+#define Py2or3String_AsString           PyUnicode_AS_DATA
+#define Py2or3String_FromStringAndSize  PyUnicode_FromStringAndSize
+#define Py2or3Bytes_ConcatAndDel        PyBytes_ConcatAndDel
+#define Py2or3Bytes_FromString          PyBytes_FromString
+#define Py2or3Bytes_AS_STRING           PyBytes_AS_STRING
+#define Py2or3Bytes_FromStringAndSize   PyBytes_FromStringAndSize
 #else
-#define Py2or3Int_AsLong PyInt_AsLong
-#define Py2or3Int_FromLong PyInt_FromLong
-#define Py2or3Long_SHIFT SHIFT
-#define Py2or3Long_MASK MASK
-#define Py2or3String_FromString PyString_FromString
-#define Py2or3String_Check PyString_Check
-#define Py2or3String_Format PyString_Format
-#define Py2or3String_AsString PyString_AsString
-#define Py2or3String_FromStringAndSize PyString_FromStringAndSize
-#define Py2or3Bytes_ConcatAndDel PyString_ConcatAndDel
-#define Py2or3Bytes_FromString PyString_FromString
-#define Py2or3Bytes_AS_STRING PyString_AS_STRING
-#define Py2or3Bytes_FromStringAndSize PyString_FromStringAndSize
+#define Py2or3Int_FromLong              PyInt_FromLong
+#define Py2or3String_FromString         PyString_FromString
+#define Py2or3String_Check              PyString_Check
+#define Py2or3String_Format             PyString_Format
+#define Py2or3String_AsString           PyString_AsString
+#define Py2or3String_FromStringAndSize  PyString_FromStringAndSize
+#define Py2or3Bytes_ConcatAndDel        PyString_ConcatAndDel
+#define Py2or3Bytes_FromString          PyString_FromString
+#define Py2or3Bytes_AS_STRING           PyString_AS_STRING
+#define Py2or3Bytes_FromStringAndSize   PyString_FromStringAndSize
+#endif
+
+#ifndef PyLong_SHIFT
+#define PyLong_SHIFT SHIFT
+#endif
+#ifndef PyLong_MASK
+#define PyLong_MASK MASK
 #endif
 
 /* Include fast mpz to/from PyLong conversion from sage. */
@@ -2480,8 +2481,8 @@ anynum2Pympz(PyObject* obj)
 
 /*
  * Convert an Integer-like object (as determined by isInteger) to
- * a Pympz. Returns NULL but does NOT raise an exception if obj was
- * not an Integer-like object.
+ * a Pympz. Returns NULL and raises a TypeError if obj is not an
+ * Integer-like object.
  */
 
 static PympzObject*
@@ -2502,8 +2503,8 @@ Pympz_From_Integer(PyObject* obj)
     if(options.debug)
         fprintf(stderr,"Pympz_From_Integer(%p)->%p\n", obj, newob);
     if(!newob) {
-        PyErr_SetString(PyExc_SystemError,
-            "conversion error in clong_From_Integer");
+        PyErr_SetString(PyExc_TypeError,
+            "conversion error in Pympz_From_Integer");
     }
     return newob;
 }
@@ -2511,7 +2512,7 @@ Pympz_From_Integer(PyObject* obj)
 /*
  * Convert an Integer-like object (as determined by isInteger) to
  * a C long. Returns -1 and raises OverflowError if the the number is
- * too large. Returns -1 and raises SystemError if obj was not an
+ * too large. Returns -1 and raises TypeError if obj was not an
  * Integer-like object.
  */
 
@@ -2529,7 +2530,7 @@ clong_From_Integer(PyObject *obj)
             return mpz_get_si(Pympz_AS_MPZ(obj));
         }
     }
-    PyErr_SetString(PyExc_SystemError,
+    PyErr_SetString(PyExc_TypeError,
         "conversion error in clong_From_Integer");
     return -1;
 }
