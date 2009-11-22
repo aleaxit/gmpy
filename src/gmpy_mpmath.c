@@ -47,11 +47,11 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     if(PyTuple_GET_SIZE(args) == 6){
         /* Need better error-checking here. Under Python 3.0, overflow into
            C-long is possible. */
-        sign = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 0));
+        sign = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
         man = (PympzObject *)PyTuple_GET_ITEM(args, 1);
         exp = PyTuple_GET_ITEM(args, 2);
-        bc = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 3));
-        prec = Py2or3Int_AsLong(PyTuple_GET_ITEM(args, 4));
+        bc = clong_From_Integer(PyTuple_GET_ITEM(args, 3));
+        prec = clong_From_Integer(PyTuple_GET_ITEM(args, 4));
         rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 5))[0];
         if(PyErr_Occurred()){
             PyErr_SetString(PyExc_TypeError, "arguments long, PympzObject*,"
@@ -215,7 +215,17 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     bc = mpz_sizeinbase(upper->z, 2);
 
     /* Check desired precision */
-    if((precobj)&&(Py2or3Int_Check(precobj))) prec = abs(Py2or3Int_AsLong(precobj));
+    if(precobj) {
+        prec = clong_From_Integer(precobj);
+        if(prec == -1 && PyErr_Occurred()) {
+            Py_DECREF((PyObject*)man);
+            Py_DECREF((PyObject*)upper);
+            Py_DECREF((PyObject*)lower);
+            return NULL;
+        } else {
+            prec = abs(prec);
+        }
+    }
     if(!prec) prec = bc;
 
     shift = bc - prec;

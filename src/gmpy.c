@@ -241,10 +241,12 @@
   #define alloca _alloca
 #endif
 
+#define Py_RETURN_NOTIMPLEMENTED\
+    return Py_INCREF(Py_NotImplemented), Py_NotImplemented
+
 /* Define various macros to deal with differences between Python 2 and 3. */
 
 #if PY_MAJOR_VERSION >= 3
-#define Py2or3Int_Check PyLong_CheckExact
 #define Py2or3Int_AsLong PyLong_AsLong
 #define Py2or3Int_FromLong PyLong_FromLong
 #define Py2or3Long_SHIFT PyLong_SHIFT
@@ -259,7 +261,6 @@
 #define Py2or3Bytes_AS_STRING PyBytes_AS_STRING
 #define Py2or3Bytes_FromStringAndSize PyBytes_FromStringAndSize
 #else
-#define Py2or3Int_Check PyInt_CheckExact
 #define Py2or3Int_AsLong PyInt_AsLong
 #define Py2or3Int_FromLong PyInt_FromLong
 #define Py2or3Long_SHIFT SHIFT
@@ -912,7 +913,7 @@ PyInt2Pympf(PyObject *i, unsigned int bits)
     PympfObject *newob;
     long li;
 
-    assert(Py2or3Int_Check(i));
+    assert(PyInt_Check(i));
     li = PyInt_AsLong(i);
     /* on a 64-bit machine, SIZEOF_LONG*8 > double_mantissa, so to simplify
        the representation, only use that many bits if we have an integer that
@@ -3674,16 +3675,16 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
         long base=10;
         if(argc == 2) {
             PyObject *pbase = PyTuple_GetItem(args, 1);
-            if(!Py2or3Int_Check(pbase)) {
+            base = clong_From_Integer(pbase);
+            if(base == -1 && PyErr_Occurred()) {
                 PyErr_SetString(PyExc_TypeError,
-                    "gmpy.mpz(): base must be an integer");
+                        "gmpy.mpz(): base must be an integer");
                 return NULL;
             }
-            base = Py2or3Int_AsLong(pbase);
             if((base!=0) && (base!=256) && ((base<2)||(base>36))) {
                 PyErr_SetString(PyExc_ValueError,
-                    "base for gmpy.mpz must be 0, 256, or in the "
-                    "interval 2 ... 36 .");
+                        "base for gmpy.mpz must be 0, 256, or in the "
+                        "interval 2 ... 36 .");
                 return NULL;
             }
         }
@@ -3694,7 +3695,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
     } else {
         if(argc==2) {
             PyErr_SetString(PyExc_TypeError,
-                "gmpy.mpz() with numeric argument needs exactly 1 argument");
+                    "gmpy.mpz() with numeric argument needs exactly 1 argument");
             return NULL;
         }
         newob = anynum2Pympz(obj);
@@ -3755,16 +3756,16 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
         wasnumeric=0;
         if(argc == 2) {
             PyObject *pbase = PyTuple_GetItem(args, 1);
-            if(!Py2or3Int_Check(pbase)) {
+            base = clong_From_Integer(pbase);
+            if(base == -1 && PyErr_Occurred()) {
                 PyErr_SetString(PyExc_TypeError,
-                    "gmpy.mpq(): base must be an integer");
+                        "gmpy.mpq(): base must be an integer");
                 return NULL;
             }
-            base = Py2or3Int_AsLong(pbase);
             if((base!=0) && (base!=256) && ((base<2)||(base>36))) {
                 PyErr_SetString(PyExc_ValueError,
-                    "base for gmpy.mpq() must be 0, 256, or in the "
-                    "interval 2 ... 36 .");
+                        "base for gmpy.mpq() must be 0, 256, or in the "
+                        "interval 2 ... 36 .");
                 return NULL;
             }
         }
@@ -3848,17 +3849,17 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
     obj = PyTuple_GetItem(args, 0);
 
     if(2 <= argc) {
-        int sbits;
+        long sbits;
         PyObject *pbits = PyTuple_GetItem(args, 1);
-        if(!Py2or3Int_Check(pbits)) {
+        sbits = clong_From_Integer(pbits);
+        if(sbits == -1 && PyErr_Occurred()) {
             PyErr_SetString(PyExc_TypeError,
-                "gmpy.mpf(): bits must be an integer");
+                    "gmpy.mpf(): bits must be an integer");
             return NULL;
         }
-        sbits = Py2or3Int_AsLong(pbits);
         if(sbits<0) {
             PyErr_SetString(PyExc_ValueError,
-                "bits for gmpy.mpf must be >= 0");
+                    "bits for gmpy.mpf must be >= 0");
             return NULL;
         }
         bits = sbits;
@@ -3873,16 +3874,16 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
         long base=10;
         if(3 == argc) {
             PyObject *pbase = PyTuple_GetItem(args, 2);
-            if(!Py2or3Int_Check(pbase)) {
+            base = clong_From_Integer(pbase);
+            if(base == -1 && PyErr_Occurred()) {
                 PyErr_SetString(PyExc_TypeError,
-                    "gmpy.mpf(): base must be an integer");
+                        "gmpy.mpf(): base must be an integer");
                 return NULL;
             }
-            base = Py2or3Int_AsLong(pbase);
             if((base!=0) && (base!=256) && ((base<2)||(base>36))) {
                 PyErr_SetString(PyExc_ValueError,
-                    "base for gmpy.mpf must be 0, 256, or in the "
-                    "interval 2 ... 36 .");
+                        "base for gmpy.mpf must be 0, 256, or in the "
+                        "interval 2 ... 36 .");
                 return NULL;
             }
         }
@@ -4502,11 +4503,15 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         fprintf(stderr, "rich_compare: type(b) is %s\n", b->ob_type->tp_name);
     }
 
-    if(Pympz_Check(a) && Py2or3Int_Check(b)) {
+#if PY_MAJOR_VERSION == 3
+    if(Pympz_Check(a) && PyLong_CheckExact(b)) {
+#else
+    if(Pympz_Check(a) && (PyInt_CheckExact(b) || PyLong_CheckExact(b))) {
+#endif
         if(options.debug) fprintf(stderr, "compare (mpz,small_int)\n");
-        temp=Py2or3Int_AsLong(b);
+        temp = clong_From_Integer(b);
         if(options.debug) fprintf(stderr,"temp is %ld\n", temp);
-        if((temp==-1) && PyErr_Occurred()) {
+        if(temp==-1 && PyErr_Occurred()) {
             PyErr_Clear();
             if(options.debug) fprintf(stderr, "clearing error\n");
         } else {
@@ -4647,57 +4652,161 @@ MPZ_BINOP(mpz_and)
 MPZ_BINOP(mpz_ior)
 MPZ_BINOP(mpz_xor)
 
-#define MPZ_SHIFTOP(NAME, OP) \
-static PyObject * \
-NAME(PyObject *a, PyObject *b) \
-{ \
-  PympzObject *r; \
-  PympzObject *pa = 0; \
-  PympzObject *pb = 0; \
-  long count; \
-  if(Pympz_Check(a) && Py2or3Int_Check(b) && ((count = Py2or3Int_AsLong(b)) > 0)) { \
-      if (!(r = Pympz_new())) { \
-        return NULL; \
-      } \
-      OP(r->z, ((PympzObject*)a)->z, count); \
-  } else { \
-    pa = Pympz_From_Integer(a); \
-    pb = Pympz_From_Integer(b); \
-    if(!pb || !pa) { \
-      PyErr_Clear(); \
-      PyObject *r = Py_NotImplemented; \
-      Py_XDECREF((PyObject*)pa); \
-      Py_XDECREF((PyObject*)pb); \
-      Py_INCREF(r); \
-      return r; \
-    } \
-    if(mpz_sgn(pb->z) < 0) { \
-      static char* msg = #NAME " negative shift count"; \
-      PyErr_SetString(PyExc_ValueError, msg); \
-      Py_DECREF((PyObject*)pa); \
-      Py_DECREF((PyObject*)pb); \
-      return NULL; } \
-    if(!mpz_fits_slong_p(pb->z)) { \
-      static char* msg = #NAME " outrageous shift count"; \
-      PyErr_SetString(PyExc_OverflowError, msg); \
-      Py_DECREF((PyObject*)pa); \
-      Py_DECREF((PyObject*)pb); \
-      return NULL; } \
-    count = mpz_get_si(pb->z); \
-    if (!(r = Pympz_new())) { \
-      Py_DECREF((PyObject*)pa); \
-      Py_DECREF((PyObject*)pb); \
-      return NULL; \
-    } \
-    OP(r->z, pa->z, count); \
-    Py_DECREF((PyObject*)pa); \
-    Py_DECREF((PyObject*)pb); \
-  } \
-  return (PyObject *) r; \
+static PyObject *
+Pympz_rshift(PyObject *a, PyObject *b)
+{
+    PympzObject *rz, *pa, *pb;
+    long count;
+#if PY_MAJOR_VERSION == 3
+    int overflow;
+#endif
+
+    if(!(rz = Pympz_new()))
+        return NULL;
+
+    /* Try to make mpz >> Python int/long as fast as possible. */
+    if(Pympz_Check(a)) {
+#if PY_MAJOR_VERSION == 2
+        if(PyInt_CheckExact(b)) {
+            if((count = PyInt_AS_LONG(b)) >= 0) {
+                mpz_fdiv_q_2exp(rz->z, Pympz_AS_MPZ(a), count);
+                return (PyObject *)rz;
+            } else {
+                PyErr_SetString(PyExc_ValueError, "negative shift count");
+                Py_DECREF((PyObject*)rz);
+                return NULL;
+            }
+        }
+#endif
+        if(PyLong_CheckExact(b)) {
+#if PY_MAJOR_VERSION == 3
+            count = PyLong_AsLongAndOverflow(b, &overflow);
+            if(overflow) {
+#else
+            count = PyLong_AsLong(b);
+            if(PyErr_Occurred()) {
+#endif
+                PyErr_SetString(PyExc_ValueError, "outrageous shift count");
+                Py_DECREF((PyObject*)rz);
+                return NULL;
+            } else if(count >= 0) {
+                mpz_fdiv_q_2exp(rz->z, Pympz_AS_MPZ(a), count);
+                return (PyObject *)rz;
+            } else {
+                PyErr_SetString(PyExc_ValueError, "negative shift count");
+                Py_DECREF((PyObject*)rz);
+                return NULL;
+            }
+        }
+    }
+    pa = Pympz_From_Integer(a);
+    pb = Pympz_From_Integer(b);
+    if(!pb || !pa) {
+        PyErr_Clear();
+        Py_DECREF((PyObject*)rz);
+        Py_XDECREF((PyObject*)pa);
+        Py_XDECREF((PyObject*)pb);
+        Py_RETURN_NOTIMPLEMENTED;
+        }
+    if(mpz_sgn(Pympz_AS_MPZ(pb)) < 0) {
+        PyErr_SetString(PyExc_ValueError, "negative shift count");
+        Py_DECREF((PyObject*)rz);
+        Py_DECREF((PyObject*)pa);
+        Py_DECREF((PyObject*)pb);
+        return NULL;
+    }
+    if(!mpz_fits_slong_p(pb->z)) {
+        PyErr_SetString(PyExc_OverflowError, "outrageous shift count");
+        Py_DECREF((PyObject*)rz);
+        Py_DECREF((PyObject*)pa);
+        Py_DECREF((PyObject*)pb);
+        return NULL;
+    }
+    count = mpz_get_si(pb->z);
+    mpz_fdiv_q_2exp(rz->z, pa->z, count);
+    Py_DECREF((PyObject*)pa);
+    Py_DECREF((PyObject*)pb);
+    return (PyObject*)rz;
 }
 
-MPZ_SHIFTOP(Pympz_rshift, mpz_fdiv_q_2exp)
-MPZ_SHIFTOP(Pympz_lshift, mpz_mul_2exp)
+static PyObject *
+Pympz_lshift(PyObject *a, PyObject *b)
+{
+    PympzObject *rz, *pa, *pb;
+    long count;
+#if PY_MAJOR_VERSION == 3
+    int overflow;
+#endif
+
+    if(!(rz = Pympz_new()))
+        return NULL;
+
+    /* Try to make mpz >> Python int/long as fast as possible. */
+    if(Pympz_Check(a)) {
+#if PY_MAJOR_VERSION == 2
+        if(PyInt_CheckExact(b)) {
+            if((count = PyInt_AS_LONG(b)) >= 0) {
+                mpz_mul_2exp(rz->z, Pympz_AS_MPZ(a), count);
+                return (PyObject *)rz;
+            } else {
+                PyErr_SetString(PyExc_ValueError, "negative shift count");
+                Py_DECREF((PyObject*)rz);
+                return NULL;
+            }
+        }
+#endif
+        if(PyLong_CheckExact(b)) {
+#if PY_MAJOR_VERSION == 3
+            count = PyLong_AsLongAndOverflow(b, &overflow);
+            if(overflow) {
+#else
+            count = PyLong_AsLong(b);
+            if(PyErr_Occurred()) {
+#endif
+                PyErr_SetString(PyExc_ValueError, "outrageous shift count");
+                Py_DECREF((PyObject*)rz);
+                return NULL;
+            } else if(count >= 0) {
+                mpz_mul_2exp(rz->z, Pympz_AS_MPZ(a), count);
+                return (PyObject *)rz;
+            } else {
+                PyErr_SetString(PyExc_ValueError, "negative shift count");
+                Py_DECREF((PyObject*)rz);
+                return NULL;
+            }
+        }
+    }
+    pa = Pympz_From_Integer(a);
+    pb = Pympz_From_Integer(b);
+    if(!pb || !pa) {
+        PyErr_Clear();
+        Py_DECREF((PyObject*)rz);
+        Py_XDECREF((PyObject*)pa);
+        Py_XDECREF((PyObject*)pb);
+        Py_RETURN_NOTIMPLEMENTED;
+        }
+    if(mpz_sgn(Pympz_AS_MPZ(pb)) < 0) {
+        PyErr_SetString(PyExc_ValueError, "negative shift count");
+        Py_DECREF((PyObject*)rz);
+        Py_DECREF((PyObject*)pa);
+        Py_DECREF((PyObject*)pb);
+        return NULL;
+    }
+    if(!mpz_fits_slong_p(pb->z)) {
+        PyErr_SetString(PyExc_OverflowError, "outrageous shift count");
+        Py_DECREF((PyObject*)rz);
+        Py_DECREF((PyObject*)pa);
+        Py_DECREF((PyObject*)pb);
+        return NULL;
+    }
+    count = mpz_get_si(pb->z);
+    mpz_mul_2exp(rz->z, pa->z, count);
+    Py_DECREF((PyObject*)pa);
+    Py_DECREF((PyObject*)pb);
+    return (PyObject*)rz;
+}
+
+
 
 #if PY_MAJOR_VERSION < 3
 /* hex/oct formatting (mpz-only) */

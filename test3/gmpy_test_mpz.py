@@ -476,14 +476,12 @@ mpz(246)
 mpz(61)
 >>> a<<-1
 Traceback (innermost last):
-  File "<pyshell#42>", line 1, in ?
-    a<<-1
-ValueError: Pympz_lshift negative shift count
+  ...
+ValueError: negative shift count
 >>> a>>-2
 Traceback (innermost last):
-  File "<pyshell#43>", line 1, in ?
-    a>>-2
-ValueError: Pympz_rshift negative shift count
+  ...
+ValueError: negative shift count
 >>> a<<0
 mpz(123)
 >>> a>>0
