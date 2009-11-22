@@ -236,15 +236,16 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
 {
     PyObject *old = options.fcoform;
     PyObject *new = 0;
+    long inew;
 
     ONE_ARG("set_fcoform", "|O", &new);
     if(new == Py_None) { /* none == missing-argument (reset string use) */
         new = 0;
     } else if(new) {
         char buf[20];
-        if(Py2or3Int_Check(new)) {
+        if(isInteger(new)) {
             /* int arg (1 to 30) used as # of digits for intermediate string */
-            long inew = Py2or3Int_AsLong(new);
+            inew = clong_From_Integer(new);
             if(inew==-1 && PyErr_Occurred()) {
                 PyErr_SetString(PyExc_ValueError,
                     "number of digits n must be 0<n<=30");
