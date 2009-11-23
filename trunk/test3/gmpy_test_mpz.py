@@ -498,19 +498,16 @@ mpz(123)
 6
 >>> _g.hamdist(3)
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    _g.hamdist(3)
-TypeError: function takes exactly 2 arguments (1 given)
+  ...
+TypeError: hamdist() expects 'mpz','mpz' arguments
 >>> a.hamdist()
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    a.hamdist()
-TypeError: function takes exactly 1 argument (0 given)
+  ...
+TypeError: hamdist() expects 'mpz','mpz' arguments
 >>> a.hamdist(3, 4)
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    a.hamdist(3, 4)
-TypeError: function takes exactly 1 argument (2 given)
+  ...
+TypeError: hamdist() expects 'mpz','mpz' arguments
 >>> a.lowbits(5)
 mpz(27)
 >>> b.lowbits(5)
@@ -815,19 +812,16 @@ mpz(87)
 mpz(0)
 >>> _g.invert(3)
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    _g.invert(3)
-TypeError: function takes exactly 2 arguments (1 given)
+  ...
+TypeError: invert() expects 'mpz','mpz' arguments
 >>> a.invert()
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    a.invert()
-TypeError: function takes exactly 1 argument (0 given)
+  ...
+TypeError: invert() expects 'mpz','mpz' arguments
 >>> a.invert(3, 4)
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    a.invert(3, 4)
-TypeError: function takes exactly 1 argument (2 given)
+  ...
+TypeError: invert() expects 'mpz','mpz' arguments
 >>> _g.comb(3,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -846,19 +840,16 @@ Traceback (most recent call last):
 ValueError: factor must be > 0
 >>> _g.remove(3)
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    _g.remove(3)
-TypeError: function takes exactly 2 arguments (1 given)
+  ...
+TypeError: remove() expects 'mpz','mpz' arguments
 >>> a.remove()
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    a.remove()
-TypeError: function takes exactly 1 argument (0 given)
+  ...
+TypeError: remove() expects 'mpz','mpz' arguments
 >>> a.remove(3, 4)
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    a.remove(3, 4)
-TypeError: function takes exactly 1 argument (2 given)
+  ...
+TypeError: remove() expects 'mpz','mpz' arguments
 >>> _g.is_prime(3,-3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -871,19 +862,16 @@ Traceback (most recent call last):
 ValueError: jacobi's y must be odd prime > 0
 >>> _g.jacobi(3)
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    _g.jacobi(3)
-TypeError: function takes exactly 2 arguments (1 given)
+  ...
+TypeError: jacobi() expects 'mpz','mpz' arguments
 >>> a.jacobi()
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    a.jacobi()
-TypeError: function takes exactly 1 argument (0 given)
+  ...
+TypeError: jacobi() expects 'mpz','mpz' arguments
 >>> a.jacobi(3, 4)
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    a.jacobi(3, 4)
-TypeError: function takes exactly 1 argument (2 given)
+  ...
+TypeError: jacobi() expects 'mpz','mpz' arguments
 >>> _g.legendre(10,3)
 1
 >>> _g.legendre(10,-3)
@@ -892,38 +880,32 @@ Traceback (most recent call last):
 ValueError: legendre's y must be odd and > 0
 >>> _g.legendre(3)
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    _g.legendre(3)
-TypeError: function takes exactly 2 arguments (1 given)
+  ...
+TypeError: legendre() expects 'mpz','mpz' arguments
 >>> a.legendre()
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    a.legendre()
-TypeError: function takes exactly 1 argument (0 given)
+  ...
+TypeError: legendre() expects 'mpz','mpz' arguments
 >>> a.legendre(3, 4)
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    a.legendre(3, 4)
-TypeError: function takes exactly 1 argument (2 given)
+  ...
+TypeError: legendre() expects 'mpz','mpz' arguments
 >>> _g.kronecker(10,3)
 1
 >>> _g.kronecker(10,-3)
 1
 >>> _g.kronecker(3)
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    _g.kronecker(3)
-TypeError: function takes exactly 2 arguments (1 given)
+  ...
+TypeError: kronecker() expects 'mpz','mpz' arguments
 >>> a.kronecker()
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    a.kronecker()
-TypeError: function takes exactly 1 argument (0 given)
+  ...
+TypeError: kronecker() expects 'mpz','mpz' arguments
 >>> a.kronecker(3, 4)
 Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    a.kronecker(3, 4)
-TypeError: function takes exactly 1 argument (2 given)
+  ...
+TypeError: kronecker() expects 'mpz','mpz' arguments
 >>> a=10**20
 >>> b=a+39
 >>> _g.jacobi(a,b)
