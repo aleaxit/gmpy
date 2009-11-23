@@ -1237,7 +1237,7 @@ PyStr2Pympz(PyObject *s, long base)
         if(!ascii_str) {
             PyErr_SetString(PyExc_ValueError,
                     "string contains non-ASCII characters");
-            Py_DECREF(newob);
+            Py_DECREF((PyObject*)newob);
             return NULL;
         }
         len = PyString_Size(ascii_str);
@@ -1335,7 +1335,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
         if(!ascii_str) {
             PyErr_SetString(PyExc_ValueError,
                     "string contains non-ASCII characters");
-            Py_DECREF(newob);
+            Py_DECREF((PyObject*)newob);
             return NULL;
         }
         len = PyString_Size(ascii_str);
@@ -4875,20 +4875,20 @@ gcd(a,b): returns the greatest common denominator of numbers a and b\n\
 static PyObject *
 Pygmpy_gcd(PyObject *self, PyObject *args)
 {
-    PympzObject *a, *b, *c;
+    PympzObject *result;
+    PyObject *other;
 
-    TWO_ARG_CONVERTED(Pympz_convert_arg,&a,&b);
+    PARSE_TWO_MPZ(other, "gcd() expects 'mpz','mpz' arguments");
 
-    assert(Pympz_Check((PyObject*)a));
-    assert(Pympz_Check((PyObject*)b));
-
-    if(!(c = Pympz_new())) {
-        Py_DECREF((PyObject*)a); Py_DECREF((PyObject*)b);
+    if(!(result = Pympz_new())) {
+        Py_DECREF(self);
+        Py_DECREF(other);
         return NULL;
     }
-    mpz_gcd(c->z, a->z, b->z);
-    Py_DECREF((PyObject*)a); Py_DECREF((PyObject*)b);
-    return (PyObject*)c;
+    mpz_gcd(result->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
 }
 
 static char doc_lcm[]="\
@@ -4898,20 +4898,20 @@ lcm(a,b): returns the lowest common multiple of numbers a and b\n\
 static PyObject *
 Pygmpy_lcm(PyObject *self, PyObject *args)
 {
-    PympzObject *a, *b, *c;
+    PympzObject *result;
+    PyObject *other;
 
-    TWO_ARG_CONVERTED(Pympz_convert_arg,&a,&b);
+    PARSE_TWO_MPZ(other, "lcm() expects 'mpz','mpz' arguments");
 
-    assert(Pympz_Check((PyObject*)a));
-    assert(Pympz_Check((PyObject*)b));
-
-    if(!(c = Pympz_new())) {
-        Py_DECREF((PyObject*)a); Py_DECREF((PyObject*)b);
+    if(!(result = Pympz_new())) {
+        Py_DECREF(self);
+        Py_DECREF(other);
         return NULL;
     }
-    mpz_lcm(c->z, a->z, b->z);
-    Py_DECREF((PyObject*)a); Py_DECREF((PyObject*)b);
-    return (PyObject*)c;
+    mpz_lcm(result->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
 }
 
 static char doc_gcdext[]="\
@@ -4922,25 +4922,23 @@ gcdext(a,b): returns a 3-element tuple (g,s,t) such that\n\
 static PyObject *
 Pygmpy_gcdext(PyObject *self, PyObject *args)
 {
-    PympzObject *a, *b, *g=0, *s=0, *t=0;
-    PyObject *res;
+    PympzObject *g=0, *s=0, *t=0;
+    PyObject *result, *other;
 
-    TWO_ARG_CONVERTED(Pympz_convert_arg,&a,&b);
-    assert(a && Pympz_Check((PyObject*)a));
-    assert(b && Pympz_Check((PyObject*)b));
+    PARSE_TWO_MPZ(other, "gcdext() expects 'mpz','mpz' arguments");
 
     g = Pympz_new(); s = Pympz_new(); t = Pympz_new();
     if(!g||!s||!t) {
-        Py_DECREF((PyObject*)a); Py_DECREF((PyObject*)b);
+        Py_DECREF(self); Py_DECREF(other);
         Py_XDECREF((PyObject*)g); Py_XDECREF((PyObject*)s);
         Py_XDECREF((PyObject*)t);
         return NULL;
     }
-    mpz_gcdext(g->z, s->z, t->z, a->z, b->z);
-    Py_DECREF((PyObject*)a); Py_DECREF((PyObject*)b);
-    res = Py_BuildValue("(NNN)", g, s, t); /* Does NOT increment refcounts! */
+    mpz_gcdext(g->z, s->z, t->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
+    Py_DECREF(self); Py_DECREF(other);
+    result = Py_BuildValue("(NNN)", g, s, t); /* Does NOT increment refcounts! */
 
-    return (PyObject *) res;
+    return (PyObject *) result;
 }
 
 static char doc_divm[]="\
@@ -4952,7 +4950,7 @@ static PyObject *
 Pygmpy_divm(PyObject *self, PyObject *args)
 {
     PympzObject *num, *den, *mod, *res;
-    mpz_t numz, denz, modz;
+    mpz_t numz, denz, modz, gcdz;
     int ok;
 
     if(!PyArg_ParseTuple(args, "O&O&O&",
@@ -4963,34 +4961,32 @@ Pygmpy_divm(PyObject *self, PyObject *args)
         return NULL;
     }
     if(!(res = Pympz_new())) {
-        return NULL;
         Py_DECREF((PyObject*)num);
         Py_DECREF((PyObject*)den);
         Py_DECREF((PyObject*)mod);
+        return NULL;
     }
-    mpz_init(numz); mpz_init(denz); mpz_init(modz);
+    mpz_inoc(numz); mpz_inoc(denz); mpz_inoc(modz);
     mpz_set(numz, num->z); mpz_set(denz, den->z); mpz_set(modz, mod->z);
 
     if(mpz_invert(res->z, denz, modz)) { /* inverse exists */
-      ok = 1;
+        ok = 1;
     } else {
-      /* last-ditch attempt: do num, den AND mod have a gcd>1 ? */
-      PympzObject *gcd;
-      if(!(gcd = Pympz_new()))
-          return NULL;
-      mpz_gcd(gcd->z, numz, denz);
-      mpz_gcd(gcd->z, gcd->z, modz);
-      mpz_divexact(numz, numz, gcd->z);
-      mpz_divexact(denz, denz, gcd->z);
-      mpz_divexact(modz, modz, gcd->z);
-      Py_DECREF((PyObject*)gcd);
-      ok = mpz_invert(res->z, denz, modz);
+        /* last-ditch attempt: do num, den AND mod have a gcd>1 ? */
+        mpz_inoc(gcdz);
+        mpz_gcd(gcdz, numz, denz);
+        mpz_gcd(gcdz, gcdz, modz);
+        mpz_divexact(numz, numz, gcdz);
+        mpz_divexact(denz, denz, gcdz);
+        mpz_divexact(modz, modz, gcdz);
+        mpz_cloc(gcdz);
+        ok = mpz_invert(res->z, denz, modz);
     }
 
     if (ok) {
         mpz_mul(res->z, res->z, numz);
         mpz_mod(res->z, res->z, modz);
-        mpz_clear(numz); mpz_clear(denz); mpz_clear(modz);
+        mpz_cloc(numz); mpz_cloc(denz); mpz_cloc(modz);
         Py_DECREF((PyObject*)num);
         Py_DECREF((PyObject*)den);
         Py_DECREF((PyObject*)mod);
@@ -4998,7 +4994,7 @@ Pygmpy_divm(PyObject *self, PyObject *args)
     } else {
         PyObject* result = 0;
         PyErr_SetString(PyExc_ZeroDivisionError, "not invertible");
-        mpz_clear(numz); mpz_clear(denz); mpz_clear(modz);
+        mpz_cloc(numz); mpz_cloc(denz); mpz_cloc(modz);
         Py_DECREF((PyObject*)num);
         Py_DECREF((PyObject*)den);
         Py_DECREF((PyObject*)mod);
@@ -5155,9 +5151,8 @@ Pympz_bincoef(PyObject *self, PyObject *args)
     PympzObject *bincoef;
     long k;
 
-    SELF_MPZ_ONE_ARG("l",&k);
-
-    assert(Pympz_Check(self));
+    PARSE_ONE_MPZ_REQ_CLONG(&k,
+            "bincoef() expects 'mpz','int' arguments");
 
     if(k < 0) {
         PyErr_SetString(PyExc_ValueError, "binomial coefficient with negative k");
@@ -5221,7 +5216,7 @@ Pympz_sqrt(PyObject *self, PyObject *args)
 {
     PympzObject *root;
 
-    PARSE_ONE_MPZ("sqrt expects 'mpz' argument");
+    PARSE_ONE_MPZ("sqrt() expects 'mpz' argument");
     assert(Pympz_Check(self));
 
     if(mpz_sgn(Pympz_AS_MPZ(self)) < 0) {
@@ -5252,10 +5247,9 @@ static PyObject *
 Pympz_sqrtrem(PyObject *self, PyObject *args)
 {
     PympzObject *root=0, *rem=0;
-    PyObject *res;
+    PyObject *result;
 
-    PARSE_ONE_MPZ("sqrtrem expects 'mpz' argument");
-    assert(Pympz_Check(self));
+    PARSE_ONE_MPZ("sqrtrem() expects 'mpz' argument");
 
     if(mpz_sgn(Pympz_AS_MPZ(self)) < 0) {
         PyErr_SetString(PyExc_ValueError, "sqrt of negative number");
@@ -5265,16 +5259,19 @@ Pympz_sqrtrem(PyObject *self, PyObject *args)
 
     root = Pympz_new();
     rem = Pympz_new();
-    if(!root || !rem) {
-        Py_XDECREF((PyObject*)rem); Py_XDECREF((PyObject*)root);
+    result = PyTuple_New(2);
+    if(!root || !rem || !result) {
+        Py_XDECREF((PyObject*)rem);
+        Py_XDECREF((PyObject*)root);
+        Py_XDECREF(result);
         Py_DECREF((PyObject*)self);
         return NULL;
     }
     mpz_sqrtrem(root->z, rem->z, Pympz_AS_MPZ(self));
-
-    res = Py_BuildValue("(NN)", root, rem);
     Py_DECREF(self);
-    return res;
+    PyTuple_SET_ITEM(result, 0, (PyObject*)root);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
+    return result;
 }
 
 static char doc_removem[]="\
@@ -5535,14 +5532,13 @@ x must be an mpz, or else gets coerced to one.\n\
 static PyObject *
 Pympz_is_square(PyObject *self, PyObject *args)
 {
-    PyObject *res;
+    long i;
 
     PARSE_ONE_MPZ("is_square() expects 'mpz' argument");
-    assert(Pympz_Check(self));
 
-    res = Py_BuildValue("i", mpz_perfect_square_p(Pympz_AS_MPZ(self)));
+    i = (long) mpz_perfect_square_p(Pympz_AS_MPZ(self));
     Py_DECREF(self);
-    return res;
+    return Py2or3Int_FromLong(i);
 }
 
 static char doc_is_powerm[]="\
@@ -5557,14 +5553,13 @@ gets coerced to one.\n\
 static PyObject *
 Pympz_is_power(PyObject *self, PyObject *args)
 {
-    PyObject *res;
+    long i;
 
     PARSE_ONE_MPZ("is_power() expects 'mpz' argument");
-    assert(Pympz_Check(self));
 
-    res = Py_BuildValue("i", mpz_perfect_power_p(Pympz_AS_MPZ(self)));
+    i = (long) mpz_perfect_power_p(Pympz_AS_MPZ(self));
     Py_DECREF(self);
-    return res;
+    return Py2or3Int_FromLong(i);
 }
 
 static char doc_is_primem[]="\
@@ -5582,22 +5577,21 @@ GMP design choice. x must be an mpz, or else gets coerced to one.\n\
 static PyObject *
 Pympz_is_prime(PyObject *self, PyObject *args)
 {
-    PyObject *res;
+    long i;
     int reps = 25;
 
     PARSE_ONE_MPZ_OPT_CLONG(&reps,
             "is_prime() expects 'mpz',[reps] arguments");
 
-    assert(Pympz_Check(self));
     if(reps <= 0) {
         PyErr_SetString(PyExc_ValueError,
             "repetition count for is_prime must be positive");
         Py_DECREF(self);
         return NULL;
     }
-    res = Py_BuildValue("i", mpz_probab_prime_p(Pympz_AS_MPZ(self), reps));
+    i = (long) mpz_probab_prime_p(Pympz_AS_MPZ(self), reps);
     Py_DECREF(self);
-    return res;
+    return Py2or3Int_FromLong(i);
 }
 
 static char doc_next_primem[]="\
@@ -5640,7 +5634,7 @@ static PyObject *
 Pympz_jacobi(PyObject *self, PyObject *args)
 {
     PyObject* other;
-    PyObject* res;
+    long i;
 
     PARSE_TWO_MPZ(other, "jacobi() expects 'mpz','mpz' arguments");
 
@@ -5650,10 +5644,10 @@ Pympz_jacobi(PyObject *self, PyObject *args)
         Py_DECREF(other);
         return NULL;
     }
-    res = Py2or3Int_FromLong(mpz_jacobi(Pympz_AS_MPZ(self), Pympz_AS_MPZ(other)));
+    i =(long) (mpz_jacobi(Pympz_AS_MPZ(self), Pympz_AS_MPZ(other)));
     Py_DECREF(self);
     Py_DECREF(other);
-    return res;
+    return Py2or3Int_FromLong(i);
 }
 
 static char doc_legendrem[]="\
@@ -5668,7 +5662,7 @@ static PyObject *
 Pympz_legendre(PyObject *self, PyObject *args)
 {
     PyObject* other;
-    PyObject* res;
+    long i;
 
     PARSE_TWO_MPZ(other, "legendre() expects 'mpz','mpz' arguments");
 
@@ -5678,10 +5672,10 @@ Pympz_legendre(PyObject *self, PyObject *args)
         Py_DECREF(other);
         return NULL;
     }
-    res = Py2or3Int_FromLong(mpz_legendre(Pympz_AS_MPZ(self), Pympz_AS_MPZ(other)));
+    i = (long) mpz_legendre(Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
     Py_DECREF(self);
     Py_DECREF(other);
-    return res;
+    return Py2or3Int_FromLong(i);
 }
 
 static char doc_kroneckerm[]="\
@@ -5734,14 +5728,14 @@ which must be an mpf or else gets coerced to one.\n\
 static PyObject *
 Pympf_getprec(PyObject *self, PyObject *args)
 {
-    unsigned long precres;
+    long precres;
 
     SELF_MPF_NO_ARG;
     assert(Pympf_Check(self));
 
-    precres = mpf_get_prec(Pympf_AS_MPF(self));
+    precres = (long) mpf_get_prec(Pympf_AS_MPF(self));
     Py_DECREF(self);
-    return Py_BuildValue("l", precres);
+    return Py2or3Int_FromLong(precres);
 }
 
 static char doc_getrprecm[]="\
@@ -5756,14 +5750,14 @@ x must be an mpf, or else gets coerced to one.\n\
 static PyObject *
 Pympf_getrprec(PyObject *self, PyObject *args)
 {
-    int precres;
+    long precres;
 
     SELF_MPF_NO_ARG;
     assert(Pympf_Check(self));
 
-    precres = ((PympfObject*)self)->rebits;
+    precres = (long) ((PympfObject*)self)->rebits;
     Py_DECREF(self);
-    return Py_BuildValue("i", precres);
+    return Py2or3Int_FromLong(precres);
 }
 
 static char doc_setprecm[]="\
@@ -5783,12 +5777,12 @@ Pympf_setprec(PyObject *self, PyObject *args)
 
     if(PyErr_Warn(PyExc_DeprecationWarning,
         "setprec() will be removed, use round() instead")) {
-        return 0;
+        return NULL;
     }
     ONE_ARG("setprec", "l", &precres);
     if(precres<0) {
         PyErr_SetString(PyExc_ValueError, "n must be >=0");
-        return 0;
+        return NULL;
     }
 
     mpf_set_prec(Pympf_AS_MPF(self), precres);
@@ -5855,14 +5849,14 @@ x must be an mpf, or else gets coerced to one.\n\
 static PyObject *
 Pympf_sign(PyObject *self, PyObject *args)
 {
-    int sign;
+    long sign;
 
     SELF_MPF_NO_ARG;
     assert(Pympf_Check(self));
 
-    sign = mpf_sgn(Pympf_AS_MPF(self));
+    sign = (long) mpf_sgn(Pympf_AS_MPF(self));
     Py_DECREF(self);
-    return Py_BuildValue("i", sign);
+    return Py2or3Int_FromLong(sign);
 }
 
 /* random-number issues -- TODO: repackage as separate functions */
