@@ -275,8 +275,17 @@
 #ifndef PyLong_SHIFT
 #define PyLong_SHIFT SHIFT
 #endif
+
 #ifndef PyLong_MASK
 #define PyLong_MASK MASK
+#endif
+
+#ifndef Py_SIZE
+#define Py_SIZE(ob)		(((PyVarObject*)(ob))->ob_size)
+#endif
+
+#ifndef Py_TYPE
+#define Py_TYPE(ob)		(((PyObject*)(ob))->ob_type)
 #endif
 
 /* Include fast mpz to/from PyLong conversion from sage. */
@@ -2297,7 +2306,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
 static int isNumber(PyObject* obj)
 {
     if(options.debug)
-        fprintf(stderr, "isNumber: object type is %s\n", obj->ob_type->tp_name);
+        fprintf(stderr, "isNumber: object type is %s\n", Py_TYPE(obj)->tp_name);
     if(Pympz_Check(obj)) {
         return 1;
     } else if(PyLong_CheckExact(obj)) {
@@ -2312,9 +2321,9 @@ static int isNumber(PyObject* obj)
         return 1;
     } else if(PyFloat_Check(obj)) {
         return 1;
-    } else if(!strcmp(obj->ob_type->tp_name, "Decimal")) {
+    } else if(!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
         return 1;
-    } else if(!strcmp(obj->ob_type->tp_name, "Fraction")) {
+    } else if(!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
         return 1;
     }
     return 0;
@@ -2323,7 +2332,7 @@ static int isNumber(PyObject* obj)
 static int isRational(PyObject* obj)
 {
     if(options.debug)
-        fprintf(stderr, "isRational: object type is %s\n", obj->ob_type->tp_name);
+        fprintf(stderr, "isRational: object type is %s\n", Py_TYPE(obj)->tp_name);
     if(Pympz_Check(obj)) {
         return 1;
     } else if(PyLong_CheckExact(obj)) {
@@ -2334,7 +2343,7 @@ static int isRational(PyObject* obj)
 #endif
     } else if(Pympq_Check(obj)) {
         return 1;
-    } else if(!strcmp(obj->ob_type->tp_name, "Fraction")) {
+    } else if(!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
         return 1;
     }
     return 0;
@@ -2343,7 +2352,7 @@ static int isRational(PyObject* obj)
 static int isInteger(PyObject* obj)
 {
     if(options.debug)
-        fprintf(stderr, "isInteger: object type is %s\n", obj->ob_type->tp_name);
+        fprintf(stderr, "isInteger: object type is %s\n", Py_TYPE(obj)->tp_name);
     if(Pympz_Check(obj)) {
         return 1;
     } else if(PyLong_CheckExact(obj)) {
@@ -2403,13 +2412,13 @@ anynum2Pympq(PyObject* obj)
         newob = PyFloat2Pympq(obj);
     } else if(PyLong_CheckExact(obj)) {
         newob = PyLong2Pympq(obj);
-    } else if(!strcmp(obj->ob_type->tp_name, "Decimal")) {
+    } else if(!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
         PyObject *s = PyObject_Str(obj);
         if(s) {
             newob = PyStr2Pympq(s, 10);
             Py_DECREF(s);
         }
-    } else if(!strcmp(obj->ob_type->tp_name, "Fraction")) {
+    } else if(!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
         PyObject *s = PyObject_Str(obj);
         if(s) {
             newob = PyStr2Pympq(s, 10);
@@ -2441,7 +2450,7 @@ anyrational2Pympq(PyObject* obj)
 #endif
     } else if(PyLong_CheckExact(obj)) {
         newob = PyLong2Pympq(obj);
-    } else if(!strcmp(obj->ob_type->tp_name, "Fraction")) {
+    } else if(!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
         PyObject *s = PyObject_Str(obj);
         if(s) {
             newob = PyStr2Pympq(s, 10);
@@ -2476,13 +2485,13 @@ anynum2Pympz(PyObject* obj)
         newob = Pympf2Pympz(obj);
     } else if(PyFloat_Check(obj)) {
         newob = PyFloat2Pympz(obj);
-    } else if(PyNumber_Check(obj) && !strcmp(obj->ob_type->tp_name, "Decimal")) {
+    } else if(PyNumber_Check(obj) && !strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
         PyObject *s = PyNumber_Long(obj);
         if(s) {
             newob = PyLong2Pympz(s);
             Py_DECREF(s);
         }
-    } else if(!strcmp(obj->ob_type->tp_name, "Fraction")) {
+    } else if(PyNumber_Check(obj) && !strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
         PyObject *s = PyObject_Str(obj);
         if(s) {
             temp = PyStr2Pympq(s, 10);
@@ -2577,7 +2586,7 @@ anynum2Pympf(PyObject* obj, unsigned int bits)
         newob = Pympz2Pympf(obj, bits);
     } else if(PyLong_CheckExact(obj)) {
         newob = PyLong2Pympf(obj, bits);
-    } else if(!strcmp(obj->ob_type->tp_name, "Decimal")) {
+    } else if(!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
         PyObject *s = PyObject_Str(obj);
         if(s) {
             newob = PyStr2Pympf(s, 10, bits);
@@ -2587,7 +2596,7 @@ anynum2Pympf(PyObject* obj, unsigned int bits)
             }
             Py_DECREF(s);
         }
-    } else if(!strcmp(obj->ob_type->tp_name, "Fraction")) {
+    } else if(!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
         PyObject *s = PyObject_Str(obj);
         if(s) {
             temp = PyStr2Pympq(s, 10);
@@ -4517,8 +4526,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     PyObject *tempa = 0, *tempb = 0, *result = 0;
 
     if(options.debug) {
-        fprintf(stderr, "rich_compare: type(a) is %s\n", a->ob_type->tp_name);
-        fprintf(stderr, "rich_compare: type(b) is %s\n", b->ob_type->tp_name);
+        fprintf(stderr, "rich_compare: type(a) is %s\n", Py_TYPE(a)->tp_name);
+        fprintf(stderr, "rich_compare: type(b) is %s\n", Py_TYPE(b)->tp_name);
     }
 
 #if PY_MAJOR_VERSION == 3

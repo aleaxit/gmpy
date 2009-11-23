@@ -261,11 +261,7 @@ mpz_get_PyLong(mpz_srcptr z)
   {
     mpn_get_pylong(lptr->ob_digit, size, z->_mp_d, abs(z->_mp_size));
     if (z->_mp_size < 0)
-#if PY_MAJOR_VERSION >= 3
-      lptr->ob_base.ob_size = -(lptr->ob_base.ob_size);
-#else
-      lptr->ob_size = -(lptr->ob_size);
-#endif
+      Py_SIZE(lptr) = -(Py_SIZE(lptr));
   }
 
   return (PyObject *) lptr;
@@ -284,22 +280,13 @@ mpz_set_PyLong(mpz_ptr z, PyObject * lsrc)
     return -1;
   }
 
-#if PY_MAJOR_VERSION >= 3
-  size = mpn_size_from_pylong(lptr->ob_digit, abs(lptr->ob_base.ob_size));
-#else
-  size = mpn_size_from_pylong(lptr->ob_digit, abs(lptr->ob_size));
-#endif
+  size = mpn_size_from_pylong(lptr->ob_digit, abs(Py_SIZE(lptr)));
 
   if (z->_mp_alloc < size)
     _mpz_realloc (z, size);
 
-#if PY_MAJOR_VERSION >= 3
-  mpn_set_pylong(z->_mp_d, size, lptr->ob_digit, abs(lptr->ob_base.ob_size));
-  z->_mp_size = lptr->ob_base.ob_size < 0 ? -size : size;
-#else
-  mpn_set_pylong(z->_mp_d, size, lptr->ob_digit, abs(lptr->ob_size));
-  z->_mp_size = lptr->ob_size < 0 ? -size : size;
-#endif
+  mpn_set_pylong(z->_mp_d, size, lptr->ob_digit, abs(Py_SIZE(lptr)));
+  z->_mp_size = Py_SIZE(lptr) < 0 ? -size : size;
 
   return size;
 }
