@@ -241,6 +241,10 @@
   #define alloca _alloca
 #endif
 
+#ifdef __GNUC__
+#define USE_ALLOCA 1
+#endif
+
 #define Py_RETURN_NOTIMPLEMENTED\
     return Py_INCREF(Py_NotImplemented), Py_NotImplemented
 
@@ -252,7 +256,6 @@
 #define Py2or3String_Check              PyUnicode_Check
 #define Py2or3String_Format             PyUnicode_Format
 #define Py2or3String_AsString           PyUnicode_AS_DATA
-#define Py2or3String_FromStringAndSize  PyUnicode_FromStringAndSize
 #define Py2or3Bytes_ConcatAndDel        PyBytes_ConcatAndDel
 #define Py2or3Bytes_FromString          PyBytes_FromString
 #define Py2or3Bytes_AS_STRING           PyBytes_AS_STRING
@@ -263,7 +266,6 @@
 #define Py2or3String_Check              PyString_Check
 #define Py2or3String_Format             PyString_Format
 #define Py2or3String_AsString           PyString_AsString
-#define Py2or3String_FromStringAndSize  PyString_FromStringAndSize
 #define Py2or3Bytes_ConcatAndDel        PyString_ConcatAndDel
 #define Py2or3Bytes_FromString          PyString_FromString
 #define Py2or3Bytes_AS_STRING           PyString_AS_STRING
@@ -314,11 +316,6 @@ Therefore, this combined module is licensed under LGPL 2.1 or later.\
 char gmpy_version[] = "1.11";
 
 char _gmpy_cvs[] = "$Id$";
-
-
-#ifdef __GNUC__
-#define USE_ALLOCA 1
-#endif
 
 #define ALLOC_THRESHOLD 8192
 
@@ -624,6 +621,41 @@ static PyMethodDef Pympf_methods [];
         }\
     }
 
+/*
+ * Parses two, and only two, arguments into "self" and "var" and converts
+ * them both to mpz. Is faster, but not as generic, as using PyArg_ParseTuple.
+ * It supports either gmpy2.fname(z,z) or z.fname(z). "self" & "var" must be
+ * decref'ed after use. "msg" should be an error message that includes the
+ * function name and describes the required arguments. Replaces
+ * SELF_MPZ_ONE_ARG_CONVERTED(var).
+ */
+
+#define PARSE_TWO_MPZ(var, msg) \
+    if(self && Pympz_Check(self)) {\
+        if (PyTuple_GET_SIZE(args) != 1) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        var = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+        if(!var) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        Py_INCREF(self);\
+    } else {\
+        if (PyTuple_GET_SIZE(args) != 2) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+        var = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));\
+        if(!self || !var) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            Py_XDECREF((PyObject*)self);\
+            Py_XDECREF((PyObject*)var);\
+            return NULL;\
+        }\
+    }
 
 
 
@@ -684,17 +716,6 @@ static PyMethodDef Pympf_methods [];
             return NULL; \
     }
 
-
-#define SELF_MPZ_ONE_ARG_CONVERTED(var) \
-    if(self && Pympz_Check(self)) { \
-        if(args && !PyArg_ParseTuple(args, "O&", Pympz_convert_arg, var)) \
-            return NULL; \
-        Py_INCREF(self); \
-    } else { \
-        if(!PyArg_ParseTuple(args, "O&O&", Pympz_convert_arg,&self, \
-                Pympz_convert_arg,var)) \
-            return NULL; \
-    }
 #define SELF_MPQ_ONE_ARG_CONVERTED(var) \
     if(self && Pympq_Check(self)) { \
         if(args && !PyArg_ParseTuple(args, "O&", Pympq_convert_arg, var)) \
@@ -1216,6 +1237,7 @@ PyStr2Pympz(PyObject *s, long base)
         if(!ascii_str) {
             PyErr_SetString(PyExc_ValueError,
                     "string contains non-ASCII characters");
+            Py_DECREF(newob);
             return NULL;
         }
         len = PyString_Size(ascii_str);
@@ -1313,6 +1335,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
         if(!ascii_str) {
             PyErr_SetString(PyExc_ValueError,
                     "string contains non-ASCII characters");
+            Py_DECREF(newob);
             return NULL;
         }
         len = PyString_Size(ascii_str);
@@ -1626,22 +1649,16 @@ Pympq2PyLong(PympqObject *x)
     return result;
 }
 
-static int
-mpz_notanint(mpz_t z)
-{
-    return !mpz_fits_slong_p(z) && mpz_size(z);
-}
-
 static PyObject *
 Pympz2PyInt(PympzObject *x)
 {
 #if PY_MAJOR_VERSION >= 3
     return Pympz2PyLong(x);
 #else
-    if(mpz_notanint(x->z)) {
+    if(mpz_fits_slong_p(x->z))
+        return PyInt_FromLong(mpz_get_si(x->z));
+    else
         return Pympz2PyLong(x);
-    }
-    return PyInt_FromLong(mpz_get_si(x->z));
 #endif
 }
 
@@ -1971,7 +1988,7 @@ mpz_ascii(mpz_t z, int base, int with_tag)
     mpz_get_str(p, base, temp); /* Doesn't return number of characters */
     p = buffer + strlen(buffer); /* Address of NULL byte */
 #if PY_MAJOR_VERSION < 3
-    if(with_tag && mpz_notanint(temp))
+    if(with_tag && !mpz_fits_slong_p(temp))
         *(p++) = 'L';
 #endif
     if(with_tag)
@@ -2025,7 +2042,7 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
             return 0;
         }
 #if PY_MAJOR_VERSION < 3
-        if(mpz_notanint(mpq_numref(self->q))) {
+        if(!mpz_fits_slong_p(mpq_numref(self->q))) {
             temp = Py2or3Bytes_FromString("L");
             Py2or3Bytes_ConcatAndDel(&result, temp);
             if(!result) {
@@ -2048,7 +2065,7 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
         }
         Py2or3Bytes_ConcatAndDel(&result, denstr);
 #if PY_MAJOR_VERSION < 3
-        if(with_tag && mpz_notanint(mpq_denref(self->q))) {
+        if(with_tag && !mpz_fits_slong_p(mpq_denref(self->q))) {
             temp = Py2or3Bytes_FromString("L");
             Py2or3Bytes_ConcatAndDel(&result, temp);
             if(!result) {
@@ -4169,7 +4186,7 @@ Pympz_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
     if((PyObject*)in_m == Py_None) {
         /* When no modulo is present, the exponent must fit in C ulong */
         unsigned long el;
-        if(mpz_notanint(e->z)) {
+        if(!mpz_fits_slong_p(e->z)) {
             PyErr_SetString(PyExc_ValueError, "mpz.pow outrageous exponent");
             Py_XDECREF((PyObject*)b);
             Py_XDECREF((PyObject*)e);
@@ -4255,13 +4272,13 @@ Pympq_pow(PyObject *in_b, PyObject *in_e, PyObject *m)
         Py_DECREF((PyObject*)e);
         return NULL;
     }
-    if(mpz_notanint(mpq_numref(e->q))) {
+    if(!mpz_fits_slong_p(mpq_numref(e->q))) {
         PyErr_SetString(PyExc_ValueError, "mpq.pow outrageous exp num");
         Py_DECREF((PyObject*)b);
         Py_DECREF((PyObject*)e);
         return NULL;
     }
-    if(mpz_notanint(mpq_denref(e->q))) {
+    if(!mpz_fits_slong_p(mpq_denref(e->q))) {
         PyErr_SetString(PyExc_ValueError, "mpq.pow outrageous exp den");
         Py_DECREF((PyObject*)b);
         Py_DECREF((PyObject*)e);
@@ -5279,12 +5296,9 @@ Pympz_remove(PyObject *self, PyObject *args)
 {
     PympzObject *result;
     PyObject *factor;
-    PyObject *restuple;
-    int multiplicity;
+    unsigned long multiplicity;
 
-    SELF_MPZ_ONE_ARG_CONVERTED(&factor);
-    assert(Pympz_Check(self));
-    assert(Pympz_Check(factor));
+    PARSE_TWO_MPZ(factor, "remove() expects 'mpz','mpz' arguments");
 
     if(mpz_sgn(Pympz_AS_MPZ(factor)) <= 0) {
         PyErr_SetString(PyExc_ValueError, "factor must be > 0");
@@ -5298,12 +5312,10 @@ Pympz_remove(PyObject *self, PyObject *args)
         Py_DECREF(factor);
         return NULL;
     }
-    multiplicity = mpz_remove(result->z, Pympz_AS_MPZ(self),
-        Pympz_AS_MPZ(factor));
-    restuple = Py_BuildValue("(Ni)", result, multiplicity);
+    multiplicity = mpz_remove(result->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(factor));
     Py_DECREF(self);
     Py_DECREF(factor);
-    return restuple;
+    return Py_BuildValue("(Nk)", result, multiplicity);
 }
 
 static char doc_invertm[]="\
@@ -5324,9 +5336,7 @@ Pympz_invert(PyObject *self, PyObject *args)
     PyObject *modulo;
     int success;
 
-    SELF_MPZ_ONE_ARG_CONVERTED(&modulo);
-    assert(Pympz_Check(self));
-    assert(Pympz_Check(modulo));
+    PARSE_TWO_MPZ(modulo, "invert() expects 'mpz','mpz' arguments");
 
     if(!(result = Pympz_new())) {
         Py_DECREF(self);
@@ -5334,14 +5344,12 @@ Pympz_invert(PyObject *self, PyObject *args)
         return NULL;
     }
     success = mpz_invert(result->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(modulo));
-    if(!success) {
+    if(!success)
         mpz_set_ui(result->z, 0);
-    }
     Py_DECREF(self);
     Py_DECREF(modulo);
     return (PyObject*)result;
 }
-
 
 static char doc_hamdistm[]="\
 x.hamdist(y): returns the Hamming distance (number of bit-positions\n\
@@ -5356,16 +5364,12 @@ get coerced to mpz.\n\
 static PyObject *
 Pympz_hamdist(PyObject *self, PyObject *args)
 {
-    PyObject *result;
-    PyObject *other;
+    PyObject *result, *other;
 
-    SELF_MPZ_ONE_ARG_CONVERTED(&other);
-    assert(Pympz_Check(self));
-    assert(Pympz_Check(other));
+    PARSE_TWO_MPZ(other, "hamdist() expects 'mpz','mpz' arguments");
 
-    result = Py_BuildValue("i",
-                 mpz_hamdist(Pympz_AS_MPZ(self),Pympz_AS_MPZ(other)));
-
+    result = Py2or3Int_FromLong(
+            mpz_hamdist(Pympz_AS_MPZ(self),Pympz_AS_MPZ(other)));
     Py_DECREF(self);
     Py_DECREF(other);
     return (PyObject*)result;
@@ -5387,20 +5391,14 @@ Pympz_divexact(PyObject *self, PyObject *args)
     PyObject *other;
     PympzObject *result;
 
-    SELF_MPZ_ONE_ARG_CONVERTED(&other);
-    assert(Pympz_Check(self));
-    assert(Pympz_Check(other));
+    PARSE_TWO_MPZ(other, "divexact() expects 'mpz','mpz' arguments");
 
-    result = Pympz_new();
-    if(!result) {
-        Py_XDECREF((PyObject*)result);
-        Py_DECREF((PyObject*)self);
-        Py_DECREF((PyObject*)other);
+    if(!(result = Pympz_new())) {
+        Py_DECREF(self);
+        Py_DECREF(other);
         return NULL;
     }
-
     mpz_divexact(result->z,Pympz_AS_MPZ(self),Pympz_AS_MPZ(other));
-
     Py_DECREF(self);
     Py_DECREF(other);
     return (PyObject*)result;
@@ -5419,20 +5417,20 @@ sign to y. x and y must be mpz, or else get coerced to mpz.\n\
 static PyObject *
 Pympz_cdivmod(PyObject *self, PyObject *args)
 {
-    PyObject *other;
+    PyObject *other, *result;
     PympzObject *quot, *rem;
 
-    SELF_MPZ_ONE_ARG_CONVERTED(&other);
-    assert(Pympz_Check(self));
-    assert(Pympz_Check(other));
+    PARSE_TWO_MPZ(other, "cdivmod() expects 'mpz','mpz' arguments");
 
     quot = Pympz_new();
     rem = Pympz_new();
-    if(!quot || !rem) {
+    result = PyTuple_New(2);
+    if(!quot || !rem || !result) {
+        Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)quot);
         Py_XDECREF((PyObject*)rem);
-        Py_DECREF((PyObject*)self);
-        Py_DECREF((PyObject*)other);
+        Py_DECREF(self);
+        Py_DECREF(other);
         return NULL;
     }
 
@@ -5440,7 +5438,9 @@ Pympz_cdivmod(PyObject *self, PyObject *args)
 
     Py_DECREF(self);
     Py_DECREF(other);
-    return Py_BuildValue("(NN)", quot, rem);
+    PyTuple_SET_ITEM(result, 0, (PyObject*)quot);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
+    return result;
 }
 
 static char doc_fdivmodm[]="\
@@ -5456,20 +5456,20 @@ as y. x and y must be mpz, or else get coerced to mpz.\n\
 static PyObject *
 Pympz_fdivmod(PyObject *self, PyObject *args)
 {
-    PyObject *other;
+    PyObject *other, *result;
     PympzObject *quot, *rem;
 
-    SELF_MPZ_ONE_ARG_CONVERTED(&other);
-    assert(Pympz_Check(self));
-    assert(Pympz_Check(other));
+    PARSE_TWO_MPZ(other, "fdivmod() expects 'mpz','mpz' arguments");
 
     quot = Pympz_new();
     rem = Pympz_new();
-    if(!quot || !rem) {
+    result = PyTuple_New(2);
+    if(!quot || !rem || !result) {
+        Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)quot);
         Py_XDECREF((PyObject*)rem);
-        Py_DECREF((PyObject*)self);
-        Py_DECREF((PyObject*)other);
+        Py_DECREF(self);
+        Py_DECREF(other);
         return NULL;
     }
 
@@ -5477,7 +5477,9 @@ Pympz_fdivmod(PyObject *self, PyObject *args)
 
     Py_DECREF(self);
     Py_DECREF(other);
-    return Py_BuildValue("(NN)", quot, rem);
+    PyTuple_SET_ITEM(result, 0, (PyObject*)quot);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
+    return result;
 }
 
 static char doc_tdivmodm[]="\
@@ -5493,20 +5495,20 @@ as x. x and y must be mpz, or else get coerced to mpz.\n\
 static PyObject *
 Pympz_tdivmod(PyObject *self, PyObject *args)
 {
-    PyObject *other;
+    PyObject *other, *result;
     PympzObject *quot, *rem;
 
-    SELF_MPZ_ONE_ARG_CONVERTED(&other);
-    assert(Pympz_Check(self));
-    assert(Pympz_Check(other));
+    PARSE_TWO_MPZ(other, "tdivmod() expects 'mpz','mpz' arguments");
 
     quot = Pympz_new();
     rem = Pympz_new();
-    if(!quot || !rem) {
+    result = PyTuple_New(2);
+    if(!quot || !rem || !result) {
+        Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)quot);
         Py_XDECREF((PyObject*)rem);
-        Py_DECREF((PyObject*)self);
-        Py_DECREF((PyObject*)other);
+        Py_DECREF(self);
+        Py_DECREF(other);
         return NULL;
     }
 
@@ -5514,7 +5516,9 @@ Pympz_tdivmod(PyObject *self, PyObject *args)
 
     Py_DECREF(self);
     Py_DECREF(other);
-    return Py_BuildValue("(NN)", quot, rem);
+    PyTuple_SET_ITEM(result, 0, (PyObject*)quot);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
+    return result;
 }
 
 /* Include helper functions for mpmath. */
@@ -5533,7 +5537,7 @@ Pympz_is_square(PyObject *self, PyObject *args)
 {
     PyObject *res;
 
-    PARSE_ONE_MPZ("is_square expects 'mpz' argument");
+    PARSE_ONE_MPZ("is_square() expects 'mpz' argument");
     assert(Pympz_Check(self));
 
     res = Py_BuildValue("i", mpz_perfect_square_p(Pympz_AS_MPZ(self)));
@@ -5555,7 +5559,7 @@ Pympz_is_power(PyObject *self, PyObject *args)
 {
     PyObject *res;
 
-    PARSE_ONE_MPZ("is_power expects 'mpz' argument");
+    PARSE_ONE_MPZ("is_power() expects 'mpz' argument");
     assert(Pympz_Check(self));
 
     res = Py_BuildValue("i", mpz_perfect_power_p(Pympz_AS_MPZ(self)));
@@ -5582,7 +5586,7 @@ Pympz_is_prime(PyObject *self, PyObject *args)
     int reps = 25;
 
     PARSE_ONE_MPZ_OPT_CLONG(&reps,
-            "is_prime expects 'mpz',[reps] arguments");
+            "is_prime() expects 'mpz',[reps] arguments");
 
     assert(Pympz_Check(self));
     if(reps <= 0) {
@@ -5613,7 +5617,7 @@ Pympz_next_prime(PyObject *self, PyObject *args)
 {
     PympzObject *res;
 
-    PARSE_ONE_MPZ("next_prime expects 'mpz' argument");
+    PARSE_ONE_MPZ("next_prime() expects 'mpz' argument");
     assert(Pympz_Check(self));
     if(!(res = Pympz_new())) {
         Py_DECREF(self);
@@ -5638,17 +5642,17 @@ Pympz_jacobi(PyObject *self, PyObject *args)
     PyObject* other;
     PyObject* res;
 
-    SELF_MPZ_ONE_ARG_CONVERTED(&other);
-    assert(Pympz_Check(self));
-    assert(Pympz_Check(other));
+    PARSE_TWO_MPZ(other, "jacobi() expects 'mpz','mpz' arguments");
+
     if(mpz_sgn(Pympz_AS_MPZ(other))<=0) {
         PyErr_SetString(PyExc_ValueError, "jacobi's y must be odd prime > 0");
-        Py_DECREF(self); Py_DECREF(other);
+        Py_DECREF(self);
+        Py_DECREF(other);
         return NULL;
     }
-    res = Py_BuildValue("i",
-        mpz_jacobi(Pympz_AS_MPZ(self), Pympz_AS_MPZ(other)));
-    Py_DECREF(self); Py_DECREF(other);
+    res = Py2or3Int_FromLong(mpz_jacobi(Pympz_AS_MPZ(self), Pympz_AS_MPZ(other)));
+    Py_DECREF(self);
+    Py_DECREF(other);
     return res;
 }
 
@@ -5666,17 +5670,17 @@ Pympz_legendre(PyObject *self, PyObject *args)
     PyObject* other;
     PyObject* res;
 
-    SELF_MPZ_ONE_ARG_CONVERTED(&other);
-    assert(Pympz_Check(self));
-    assert(Pympz_Check(other));
+    PARSE_TWO_MPZ(other, "legendre() expects 'mpz','mpz' arguments");
+
     if(mpz_sgn(Pympz_AS_MPZ(other))<=0) {
         PyErr_SetString(PyExc_ValueError, "legendre's y must be odd and > 0");
-        Py_DECREF(self); Py_DECREF(other);
+        Py_DECREF(self);
+        Py_DECREF(other);
         return NULL;
     }
-    res = Py_BuildValue("i",
-        mpz_legendre(Pympz_AS_MPZ(self), Pympz_AS_MPZ(other)));
-    Py_DECREF(self); Py_DECREF(other);
+    res = Py2or3Int_FromLong(mpz_legendre(Pympz_AS_MPZ(self), Pympz_AS_MPZ(other)));
+    Py_DECREF(self);
+    Py_DECREF(other);
     return res;
 }
 
@@ -5693,32 +5697,31 @@ static PyObject *
 Pympz_kronecker(PyObject *self, PyObject *args)
 {
     PyObject* other;
-    PyObject* res=0;
     int ires;
 
-    SELF_MPZ_ONE_ARG_CONVERTED(&other);
-    assert(Pympz_Check(self));
-    assert(Pympz_Check(other));
+    PARSE_TWO_MPZ(other, "kronecker() expects 'mpz','mpz' arguments");
+
     if(mpz_fits_ulong_p(Pympz_AS_MPZ(self))) {
-        ires = mpz_ui_kronecker(mpz_get_ui(Pympz_AS_MPZ(self)),
-            Pympz_AS_MPZ(other));
+        ires = mpz_ui_kronecker(
+                mpz_get_ui(Pympz_AS_MPZ(self)),Pympz_AS_MPZ(other));
     } else if(mpz_fits_ulong_p(Pympz_AS_MPZ(other))) {
-        ires = mpz_kronecker_ui(Pympz_AS_MPZ(self),
-            mpz_get_ui(Pympz_AS_MPZ(other)));
+        ires = mpz_kronecker_ui(
+                Pympz_AS_MPZ(self),mpz_get_ui(Pympz_AS_MPZ(other)));
     } else if(mpz_fits_slong_p(Pympz_AS_MPZ(self))) {
-        ires = mpz_si_kronecker(mpz_get_si(Pympz_AS_MPZ(self)),
-            Pympz_AS_MPZ(other));
+        ires = mpz_si_kronecker(
+                mpz_get_si(Pympz_AS_MPZ(self)),Pympz_AS_MPZ(other));
     } else if(mpz_fits_slong_p(Pympz_AS_MPZ(other))) {
-        ires = mpz_kronecker_si(Pympz_AS_MPZ(self),
-            mpz_get_si(Pympz_AS_MPZ(other)));
+        ires = mpz_kronecker_si(
+                Pympz_AS_MPZ(self),mpz_get_si(Pympz_AS_MPZ(other)));
     } else {
         PyErr_SetString(PyExc_ValueError, "Either arg in Kronecker must fit in an int");
-        Py_DECREF(self); Py_DECREF(other);
+        Py_DECREF(self);
+        Py_DECREF(other);
         return NULL;
     }
-    res = Py_BuildValue("i", ires);
-    Py_DECREF(self); Py_DECREF(other);
-    return res;
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return Py2or3Int_FromLong(ires);
 }
 
 static char doc_getprecm[]="\
