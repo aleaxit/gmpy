@@ -3214,18 +3214,57 @@ Pympz_setbit(PyObject *self, PyObject *args)
 {
     long bit_index;
     long bit_value=1;
+    int argc;
     PympzObject *s;
 
+    argc = PyTuple_GET_SIZE(args);
     if(self && Pympz_Check(self)) {
-        if(!PyArg_ParseTuple(args, "l|l", &bit_index, &bit_value))
+        if(argc == 1) {
+            bit_index = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
+            if(bit_index == -1 && PyErr_Occurred()) {
+                PyErr_SetString(PyExc_TypeError,
+                        "setbit() expects 'mpz','int'[,'int'] arguments");
+                return NULL;
+            }
+        } else if(argc == 2) {
+            bit_index = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
+            bit_value = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
+            if((bit_index == -1 || bit_value == -1) && PyErr_Occurred()) {
+                PyErr_SetString(PyExc_TypeError,
+                        "setbit() expects 'mpz','int'[,'int'] arguments");
+                return NULL;
+            }
+        } else {
+            PyErr_SetString(PyExc_TypeError,
+                    "setbit() expects 'mpz','int'[,'int'] arguments");
             return NULL;
+        }
         Py_INCREF(self);
     } else {
-        if(!PyArg_ParseTuple(args, "O&l|l", Pympz_convert_arg, &self,
-                    &bit_index, &bit_value))
+        if(argc == 2) {
+            self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+            bit_index = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
+            if(!self || (bit_index == -1 && PyErr_Occurred())) {
+                PyErr_SetString(PyExc_TypeError,
+                        "setbit() expects 'mpz','int'[,'int'] arguments");
+                return NULL;
+            }
+        } else if(argc == 3) {
+            self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+            bit_index = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
+            bit_value = clong_From_Integer(PyTuple_GET_ITEM(args, 2));
+            if(!self ||
+                ((bit_index == -1 || bit_value == -1) && PyErr_Occurred())) {
+                PyErr_SetString(PyExc_TypeError,
+                        "setbit() expects 'mpz','int'[,'int'] arguments");
+                return NULL;
+            }
+        } else {
+            PyErr_SetString(PyExc_TypeError,
+                    "setbit() expects 'mpz','int'[,'int'] arguments");
             return NULL;
+        }
     }
-    assert(Pympz_Check(self));
     if(bit_index < 0) {
         PyErr_SetString(PyExc_ValueError, "bit_index must be >= 0");
         Py_DECREF(self);

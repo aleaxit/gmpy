@@ -229,12 +229,12 @@ Traceback (most recent call last):
 ValueError: bit_index must be >= 0
 >>> _g.mpz(23).setbit(12,1,2,3)
 Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: function takes at most 2 arguments (4 given)
+  ...
+TypeError: setbit() expects 'mpz','int'[,'int'] arguments
 >>> _g.setbit(12,1,2,3)
 Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: function takes at most 3 arguments (4 given)
+  ...
+TypeError: setbit() expects 'mpz','int'[,'int'] arguments
 >>> _g.root(12,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
