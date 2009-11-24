@@ -893,7 +893,7 @@ def _test(chat=None):
         def write(self,*whatever):
             pass
     try:
-        #~ sys.stdout = _Dummy()
+        sys.stdout = _Dummy()
         doctest.testmod(thismod, report=0)
     finally:
         sys.stdout = sav
