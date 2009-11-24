@@ -14,7 +14,7 @@
 static void
 mpz_set_PyInt(mpz_t rop, PyObject *obj)
 {
-    assert(PyInt_CheckExact(obj));
+    assert(PyInt_Check(obj));
     mpz_set_si(rop, PyInt_AsLong(obj));
     return;
 }

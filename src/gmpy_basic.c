@@ -42,7 +42,7 @@ Pympany_add(PyObject *a, PyObject *b)
             return NULL;
 
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(b)) {
+        if(PyInt_Check(b)) {
             if(options.debug)
                 fprintf(stderr, "Adding (mpz,small_int)\n");
             if((temp = PyInt_AS_LONG(b)) >= 0) {
@@ -54,7 +54,7 @@ Pympany_add(PyObject *a, PyObject *b)
         }
 #endif
 
-        if(PyLong_CheckExact(b)) {
+        if(PyLong_Check(b)) {
             if(options.debug)
                 fprintf(stderr, "Adding (mpz,long)\n");
 #if PY_MAJOR_VERSION == 3
@@ -90,7 +90,7 @@ Pympany_add(PyObject *a, PyObject *b)
             return NULL;
 
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(a)) {
+        if(PyInt_Check(a)) {
             if(options.debug)
                 fprintf(stderr, "Adding (small_int,mpz)\n");
             if((temp = PyInt_AS_LONG(a)) >= 0) {
@@ -102,7 +102,7 @@ Pympany_add(PyObject *a, PyObject *b)
         }
 #endif
 
-        if(PyLong_CheckExact(a)) {
+        if(PyLong_Check(a)) {
             if(options.debug)
                 fprintf(stderr, "Adding (long,mpz)\n");
 #if PY_MAJOR_VERSION == 3
@@ -230,7 +230,7 @@ Pympany_sub(PyObject *a, PyObject *b)
             return NULL;
 
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(b)) {
+        if(PyInt_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Subtracting (mpz,small_int)\n");
             if((temp = PyInt_AS_LONG(b)) >= 0) {
@@ -242,7 +242,7 @@ Pympany_sub(PyObject *a, PyObject *b)
         }
 #endif
 
-        if(PyLong_CheckExact(b)) {
+        if(PyLong_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Subtracting (mpz,long)\n");
 #if PY_MAJOR_VERSION == 3
@@ -278,7 +278,7 @@ Pympany_sub(PyObject *a, PyObject *b)
             return NULL;
 
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(a)) {
+        if(PyInt_Check(a)) {
             if (options.debug)
                 fprintf(stderr, "Subtracting (small_int,mpz)\n");
             if((temp = PyInt_AS_LONG(a)) >= 0) {
@@ -291,7 +291,7 @@ Pympany_sub(PyObject *a, PyObject *b)
         }
 #endif
 
-        if(PyLong_CheckExact(a)) {
+        if(PyLong_Check(a)) {
             if (options.debug)
                 fprintf(stderr, "Subtracting (long,mpz)\n");
 #if PY_MAJOR_VERSION == 3
@@ -419,7 +419,7 @@ Pympany_mul(PyObject *a, PyObject *b)
         if(!(rz = Pympz_new()))
             return NULL;
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(b)) {
+        if(PyInt_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Multiplying (mpz,small_int)\n");
             mpz_mul_si(rz->z, Pympz_AS_MPZ(a), PyInt_AS_LONG(b));
@@ -427,7 +427,7 @@ Pympany_mul(PyObject *a, PyObject *b)
         }
 #endif
 
-        if(PyLong_CheckExact(b)) {
+        if(PyLong_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Multiplying (mpz,long)\n");
 #if PY_MAJOR_VERSION == 3
@@ -460,7 +460,7 @@ Pympany_mul(PyObject *a, PyObject *b)
         if(!(rz = Pympz_new()))
             return NULL;
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(a)) {
+        if(PyInt_Check(a)) {
             if (options.debug)
                 fprintf(stderr, "Multiplying (small_int,mpz)\n");
             mpz_mul_si(rz->z, Pympz_AS_MPZ(b), PyInt_AS_LONG(a));
@@ -468,7 +468,7 @@ Pympany_mul(PyObject *a, PyObject *b)
         }
 #endif
 
-        if(PyLong_CheckExact(a)) {
+        if(PyLong_Check(a)) {
             if (options.debug)
                 fprintf(stderr, "Multiplying (long,mpz)\n");
 #if PY_MAJOR_VERSION == 3
@@ -615,7 +615,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
             return NULL;
 
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(b)) {
+        if(PyInt_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Floor divide (mpz,small_int)\n");
             if((temp=PyInt_AS_LONG(b)) > 0) {
@@ -632,7 +632,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         }
 #endif
 
-        if(PyLong_CheckExact(b)) {
+        if(PyLong_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Floor divide (mpz,long)\n");
 #if PY_MAJOR_VERSION == 3
@@ -682,7 +682,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
             return NULL;
 
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(a)) {
+        if(PyInt_Check(a)) {
             if (options.debug)
                 fprintf(stderr, "Floor divide (small_int,mpz)\n");
             mpz_inoc(tempz);
@@ -693,7 +693,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         }
 #endif
 
-        if(PyLong_CheckExact(a)) {
+        if(PyLong_Check(a)) {
             if (options.debug)
                 fprintf(stderr, "Floor divide (long,mpz)\n");
             mpz_inoc(tempz);
@@ -1012,7 +1012,7 @@ Pympany_div2(PyObject *a, PyObject *b)
             return NULL;
 
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(b)) {
+        if(PyInt_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "True divide (mpz,small_int)\n");
             if((temp=PyInt_AS_LONG(b)) > 0) {
@@ -1029,7 +1029,7 @@ Pympany_div2(PyObject *a, PyObject *b)
         }
 #endif
 
-        if(PyLong_CheckExact(b)) {
+        if(PyLong_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "True divide (mpz,long)\n");
 #if PY_MAJOR_VERSION == 3
@@ -1079,7 +1079,7 @@ Pympany_div2(PyObject *a, PyObject *b)
             return NULL;
 
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(a)) {
+        if(PyInt_Check(a)) {
             if (options.debug)
                 fprintf(stderr, "True divide (small_int,mpz)\n");
             mpz_inoc(tempz);
@@ -1089,7 +1089,7 @@ Pympany_div2(PyObject *a, PyObject *b)
             return (PyObject *)rz;
         }
 #endif
-        if(PyLong_CheckExact(a)) {
+        if(PyLong_Check(a)) {
             if (options.debug)
                 fprintf(stderr, "True divide (long,mpz)\n");
             mpz_inoc(tempz);
@@ -1244,7 +1244,7 @@ Pympany_rem(PyObject *a, PyObject *b)
             return NULL;
 
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(b)) {
+        if(PyInt_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Modulo (mpz,small_int)\n");
             if((temp=PyInt_AS_LONG(b)) == 0) {
@@ -1259,7 +1259,7 @@ Pympany_rem(PyObject *a, PyObject *b)
             return (PyObject *)rz;
         }
 #endif
-        if(PyLong_CheckExact(b)) {
+        if(PyLong_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Modulo (mpz,long)\n");
 #if PY_MAJOR_VERSION == 3
@@ -1307,7 +1307,7 @@ Pympany_rem(PyObject *a, PyObject *b)
         if(!(rz = Pympz_new()))
             return NULL;
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(a)) {
+        if(PyInt_Check(a)) {
             if (options.debug)
                 fprintf(stderr, "Modulo (small_int,mpz)\n");
             mpz_inoc(tempz);
@@ -1317,7 +1317,7 @@ Pympany_rem(PyObject *a, PyObject *b)
             return (PyObject *)rz;
         }
 #endif
-        if(PyLong_CheckExact(a)) {
+        if(PyLong_Check(a)) {
             if (options.debug)
                 fprintf(stderr, "Modulo (long,mpz)\n");
             mpz_inoc(tempz);
@@ -1488,7 +1488,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
             return NULL;
         }
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(b)) {
+        if(PyInt_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "divmod (mpz,small_int)\n");
             if((temp=PyInt_AS_LONG(b)) > 0) {
@@ -1508,7 +1508,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
             return r;
         }
 #endif
-        if(PyLong_CheckExact(b)) {
+        if(PyLong_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "divmod (mpz,long)\n");
 #if PY_MAJOR_VERSION == 3
@@ -1569,7 +1569,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
         }
 
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(a)) {
+        if(PyInt_Check(a)) {
             if (options.debug)
                 fprintf(stderr, "divmod (small_int,mpz)\n");
             mpz_inoc(tempz);
@@ -1581,7 +1581,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
             return r;
         }
 #endif
-        if(PyLong_CheckExact(a)) {
+        if(PyLong_Check(a)) {
             if (options.debug)
                 fprintf(stderr, "divmod (long,mpz)\n");
             mpz_inoc(tempz);
