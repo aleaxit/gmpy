@@ -250,11 +250,11 @@ ValueError: root of negative number
 >>> _g.digits(3,'peep')
 Traceback (most recent call last):
   ...
-TypeError: digits expects 'mpz',[base] arguments
+TypeError: digits() expects 'mpz',['int'] arguments
 >>> _g.digits(3.14)
 Traceback (most recent call last):
   ...
-TypeError: digits expects 'mpz',[base] arguments
+TypeError: digits() expects 'mpz',['int'] arguments
 >>> _g.fdigits(3.14,'peep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -270,7 +270,7 @@ TypeError: an integer is required
 >>> _g.mpz(3).digits('bu')
 Traceback (most recent call last):
   ...
-TypeError: digits expects 'mpz',[base] arguments
+TypeError: digits() expects 'mpz',['int'] arguments
 >>> _g.mpf(3).digits('bu')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
