@@ -118,6 +118,14 @@ mpz(124)
 mpz(-122)
 >>> (-1)-a
 mpz(-124)
+>>> a+True
+mpz(124)
+>>> a+False
+mpz(123)
+>>> a*False
+mpz(0)
+>>> a//True
+mpz(123)
 >>> abs(-a)==a
 1
 >>> pow(a,10)

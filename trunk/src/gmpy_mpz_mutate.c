@@ -31,7 +31,7 @@ Pympz_inplace_add(PyObject *a, PyObject *b)
     /* Try to make mpz + small_int faster */
     if(Pympz_Check(a)) {
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(b)) {
+        if(PyInt_Check(b)) {
             if(options.debug)
                 fprintf(stderr, "Adding (mpz,small_int)\n");
             if((temp = PyInt_AS_LONG(b)) >= 0) {
@@ -43,7 +43,7 @@ Pympz_inplace_add(PyObject *a, PyObject *b)
             return a;
         }
 #endif
-        if(PyLong_CheckExact(b)) {
+        if(PyLong_Check(b)) {
             if(options.debug)
                 fprintf(stderr, "Adding (mpz,long)\n");
 #if PY_MAJOR_VERSION == 3
@@ -93,7 +93,7 @@ Pympz_inplace_sub(PyObject *a, PyObject *b)
     if(Pympz_Check(a)) {
 
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(b)) {
+        if(PyInt_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Subtracting (mpz,small_int)\n");
             if((temp = PyInt_AS_LONG(b)) >= 0) {
@@ -106,7 +106,7 @@ Pympz_inplace_sub(PyObject *a, PyObject *b)
         }
 #endif
 
-        if(PyLong_CheckExact(b)) {
+        if(PyLong_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Subtracting (mpz,long)\n");
 #if PY_MAJOR_VERSION == 3
@@ -156,7 +156,7 @@ Pympz_inplace_mul(PyObject *a, PyObject *b)
     if(Pympz_Check(a)) {
 
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(b)) {
+        if(PyInt_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Multiplying (mpz,small_int)\n");
             mpz_mul_si(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a), PyInt_AS_LONG(b));
@@ -165,7 +165,7 @@ Pympz_inplace_mul(PyObject *a, PyObject *b)
         }
 #endif
 
-        if(PyLong_CheckExact(b)) {
+        if(PyLong_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Multiplying (mpz,long)\n");
 #if PY_MAJOR_VERSION == 3
@@ -214,7 +214,7 @@ Pympz_inplace_floordiv(PyObject *a, PyObject *b)
     if(Pympz_Check(a)) {
 
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(b)) {
+        if(PyInt_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Floor divide (mpz,small_int)\n");
             if((temp=PyInt_AS_LONG(b)) > 0) {
@@ -231,7 +231,7 @@ Pympz_inplace_floordiv(PyObject *a, PyObject *b)
         }
 #endif
 
-        if(PyLong_CheckExact(b)) {
+        if(PyLong_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Floor divide (mpz,long)\n");
 #if PY_MAJOR_VERSION == 3
@@ -288,7 +288,7 @@ Pympz_inplace_rem(PyObject *a, PyObject *b)
     if(Pympz_Check(a)) {
 
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(b)) {
+        if(PyInt_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Modulo (mpz,small_int)\n");
             if((temp=PyInt_AS_LONG(b)) > 0) {
@@ -304,7 +304,7 @@ Pympz_inplace_rem(PyObject *a, PyObject *b)
         }
 #endif
 
-        if(PyLong_CheckExact(b)) {
+        if(PyLong_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Modulo (mpz,long)\n");
 #if PY_MAJOR_VERSION == 3
@@ -361,7 +361,7 @@ Pympz_inplace_rshift(PyObject *a, PyObject *b)
     /* Try to make mpz + small_int faster */
     if(Pympz_Check(a)) {
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(b)) {
+        if(PyInt_Check(b)) {
             if(options.debug)
                 fprintf(stderr, "right shift\n");
             if((temp = PyInt_AS_LONG(b)) >= 0) {
@@ -374,7 +374,7 @@ Pympz_inplace_rshift(PyObject *a, PyObject *b)
             }
         }
 #endif
-        if(PyLong_CheckExact(b)) {
+        if(PyLong_Check(b)) {
             if(options.debug)
                 fprintf(stderr, "right shift\n");
 #if PY_MAJOR_VERSION == 3
@@ -430,7 +430,7 @@ Pympz_inplace_lshift(PyObject *a, PyObject *b)
     /* Try to make mpz + small_int faster */
     if(Pympz_Check(a)) {
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(b)) {
+        if(PyInt_Check(b)) {
             if(options.debug)
                 fprintf(stderr, "left shift\n");
             if((temp = PyInt_AS_LONG(b)) >= 0) {
@@ -443,7 +443,7 @@ Pympz_inplace_lshift(PyObject *a, PyObject *b)
             }
         }
 #endif
-        if(PyLong_CheckExact(b)) {
+        if(PyLong_Check(b)) {
             if(options.debug)
                 fprintf(stderr, "left shift\n");
 #if PY_MAJOR_VERSION == 3
