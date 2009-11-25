@@ -199,6 +199,9 @@
  *   Faster hash(mpz) (casevh)
  *
  *   1.11:
+ *   Recognize True/False (bug in 1.10) (casevh)
+ *   Optimize argument handling (casevh)
+ *   Added caching for mpz (casevh)
  */
 #include "Python.h"
 
@@ -360,8 +363,9 @@ static struct gmpy_options {
     int zcache;    /* size of cache for mpz objects */
     int qcache;    /* size of cache for mpq objects */
     int fcache;    /* size of cache for mpf objects */
+    int pympzcache;  /* size of cache for Pympz objects */
     PyObject* fcoform;  /* if non-NULL, format for float->mpf (via string) */
-} options = { 0, 0, 5, 100, 100, 100 };
+} options = { 0, 0, 5, 100, 100, 100, 100, 0 };
 
 /* Number of bits that are significant in a float */
 static unsigned int double_mantissa = 0;
@@ -488,6 +492,24 @@ mpf_cloc(mpf_t oldo)
     }
 }
 #endif
+
+/* Cache Pympz objects directly */
+
+static PympzObject **pympzcache;
+static int in_pympzcache;
+
+static void
+set_pympzcache(int new_pympzcache)
+{
+    int i;
+    if(in_pympzcache > new_pympzcache) {
+        for(i = new_pympzcache; i < in_pympzcache; ++i)
+            mpz_clear(zcache[i]);
+        in_pympzcache = new_pympzcache;
+    }
+    pympzcache = PyMem_Realloc(pympzcache, sizeof(PympzObject)*new_pympzcache);
+    options.pympzcache = new_pympzcache;
+}
 
 /* forward declarations of type-objects and method-arrays for them */
 #ifdef _MSC_VER
@@ -769,9 +791,13 @@ Pympz_new(void)
 {
     PympzObject * self;
 
-    if(!(self = PyObject_New(PympzObject, &Pympz_Type)))
-        return NULL;
-    mpz_inoc(self->z);
+    if(in_pympzcache) {
+        self = (pympzcache[--in_pympzcache]);
+    } else {
+        if(!(self = PyObject_New(PympzObject, &Pympz_Type)))
+            return NULL;
+        mpz_inoc(self->z);
+    }
     return self;
 }
 static PympqObject *
@@ -803,8 +829,13 @@ Pympz_dealloc(PympzObject *self)
 {
     if(options.debug)
         fprintf(stderr, "Pympz_dealloc: %p\n", self);
-    mpz_cloc(self->z);
-    PyObject_Del(self);
+    if(in_pympzcache<options.pympzcache && self->z->_mp_alloc<=MAX_CACHE_LIMBS) {
+        Py_INCREF((PyObject*)self);
+        (pympzcache[in_pympzcache++]) = self;
+    } else {
+        mpz_cloc(self->z);
+        PyObject_Del(self);
+    }
 } /* Pympz_dealloc */
 
 static void
@@ -6738,6 +6769,7 @@ static void _PyInitGMP(void)
     set_zcache(options.zcache);
     set_qcache(options.qcache);
     set_fcache(options.fcache);
+    set_pympzcache(options.pympzcache);
 }
 
 static char _gmpy_docs[] = "\
