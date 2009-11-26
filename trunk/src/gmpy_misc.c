@@ -82,10 +82,21 @@ Pygmpy_get_gmp_limbsize(PyObject *self, PyObject *args)
  */
 static char doc_get_zcache[]="\
 get_zcache(): returns the current cache-size (number of objects)\n\
-for mpz objects.\n\
+for mpz_t objects.\n\
 ";
 static PyObject *
 Pygmpy_get_zcache(PyObject *self, PyObject *args)
+{
+    PARSE_NO_ARGS("get_zcache expects 0 arguments");
+    return Py_BuildValue("i", options.zcache);
+}
+
+static char doc_get_pympzcache[]="\
+get_pympzcache(): returns the current cache-size (number of objects)\n\
+for Pympz objects.\n\
+";
+static PyObject *
+Pygmpy_get_pympzcache(PyObject *self, PyObject *args)
 {
     PARSE_NO_ARGS("get_zcache expects 0 arguments");
     return Py_BuildValue("i", options.zcache);
@@ -129,6 +140,25 @@ Pygmpy_set_zcache(PyObject *self, PyObject *args)
         return 0;
     }
     set_zcache(newval);
+    return Py_BuildValue("");
+}
+
+static char doc_set_pympzcache[]="\
+set_zcache(n): sets the current cache-size (number of objects)\n\
+for mpz objects to n (does not immediately flush or enlarge the\n\
+cache, but rather lets it grow/shrink during later normal use).\n\
+Note: cache size n must be between 0 and 1000, included.\n\
+";
+static PyObject *
+Pygmpy_set_pympzcache(PyObject *self, PyObject *args)
+{
+    int newval;
+    ONE_ARG("set_pympzcache", "i", &newval);
+    if(newval<0 || newval>MAX_CACHE) {
+        PyErr_SetString(PyExc_ValueError, "cache must between 0 and 1000");
+        return 0;
+    }
+    set_pympzcache(newval);
     return Py_BuildValue("");
 }
 

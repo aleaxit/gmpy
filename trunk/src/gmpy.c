@@ -503,8 +503,11 @@ set_pympzcache(int new_pympzcache)
 {
     int i;
     if(in_pympzcache > new_pympzcache) {
-        for(i = new_pympzcache; i < in_pympzcache; ++i)
-            mpz_clear(zcache[i]);
+        for(i = new_pympzcache; i < in_pympzcache; ++i) {
+            Py_DECREF((PyObject*)pympzcache[i]);
+            mpz_cloc(pympzcache[i]->z);
+            PyObject_Del(pympzcache[i]);
+        }
         in_pympzcache = new_pympzcache;
     }
     pympzcache = PyMem_Realloc(pympzcache, sizeof(PympzObject)*new_pympzcache);
@@ -718,16 +721,6 @@ static PyMethodDef Pympf_methods [];
             return NULL; \
     }
 
-
-#define SELF_MPZ_ONE_ARG(fm, var) \
-    if(self && Pympz_Check(self)) { \
-        if(!PyArg_ParseTuple(args, fm, var)) \
-            return NULL; \
-        Py_INCREF(self); \
-    } else { \
-        if(!PyArg_ParseTuple(args, "O&" fm, Pympz_convert_arg, &self, var)) \
-            return NULL; \
-    }
 #define SELF_MPQ_ONE_ARG(fm, var) \
     if(self && Pympq_Check(self)) { \
         if(!PyArg_ParseTuple(args, fm, var)) \
@@ -737,6 +730,7 @@ static PyMethodDef Pympf_methods [];
         if(!PyArg_ParseTuple(args, "O&" fm, Pympq_convert_arg, &self, var)) \
             return NULL; \
     }
+
 #define SELF_MPF_ONE_ARG(fm, var) \
     if(self && Pympf_Check(self)) { \
         if(!PyArg_ParseTuple(args, fm, var)) \
@@ -6398,6 +6392,8 @@ static PyMethodDef Pygmpy_methods [] =
     { "set_qcache", Pygmpy_set_qcache, 1, doc_set_qcache },
     { "get_fcache", Pygmpy_get_fcache, 1, doc_get_fcache },
     { "set_fcache", Pygmpy_set_fcache, 1, doc_set_fcache },
+    { "get_pympzcache", Pygmpy_get_pympzcache, 1, doc_get_pympzcache },
+    { "set_pympzcache", Pygmpy_set_pympzcache, 1, doc_set_pympzcache },
     { "mpz", Pygmpy_mpz, 1, doc_mpz },
     { "mpq", Pygmpy_mpq, 1, doc_mpq },
     { "mpf", Pygmpy_mpf, 1, doc_mpf },
