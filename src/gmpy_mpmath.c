@@ -426,7 +426,7 @@ do_mpmath_trim(mpz_t xman, mpz_t xexp, long prec, char rnd) {
 
 return_result:
     PyTuple_SET_ITEM(result, 0, (PyObject*)rman);
-    PyTuple_SET_ITEM(result, 1, Pympz_asindex(rexp));
+    PyTuple_SET_ITEM(result, 1, Pympz_To_Integer(rexp));
     Py_DECREF((PyObject*)rexp);
     return result;
 }
