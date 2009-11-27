@@ -504,7 +504,6 @@ set_pympzcache(int new_pympzcache)
     int i;
     if(in_pympzcache > new_pympzcache) {
         for(i = new_pympzcache; i < in_pympzcache; ++i) {
-            Py_DECREF((PyObject*)pympzcache[i]);
             mpz_cloc(pympzcache[i]->z);
             PyObject_Del(pympzcache[i]);
         }
@@ -787,6 +786,7 @@ Pympz_new(void)
 
     if(in_pympzcache) {
         self = (pympzcache[--in_pympzcache]);
+        Py_INCREF((PyObject*)self);
     } else {
         if(!(self = PyObject_New(PympzObject, &Pympz_Type)))
             return NULL;
@@ -824,7 +824,6 @@ Pympz_dealloc(PympzObject *self)
     if(options.debug)
         fprintf(stderr, "Pympz_dealloc: %p\n", self);
     if(in_pympzcache<options.pympzcache && self->z->_mp_alloc<=MAX_CACHE_LIMBS) {
-        Py_INCREF((PyObject*)self);
         (pympzcache[in_pympzcache++]) = self;
     } else {
         mpz_cloc(self->z);

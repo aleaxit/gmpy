@@ -959,6 +959,7 @@ def _test(chat=None):
 
     if chat: print("Repeating tests, with caching disabled")
     _g.set_zcache(0)
+    _g.set_pympzcache(0)
 
     sav = sys.stdout
     class _Dummy:
