@@ -1683,7 +1683,7 @@ Pympq2PyLong(PympqObject *x)
 }
 
 static PyObject *
-Pympz2PyInt(PympzObject *x)
+Pympz_To_Integer(PympzObject *x)
 {
 #if PY_MAJOR_VERSION >= 3
     return Pympz2PyLong(x);
@@ -1693,15 +1693,6 @@ Pympz2PyInt(PympzObject *x)
     else
         return Pympz2PyLong(x);
 #endif
-}
-
-static PyObject*
-Pympz_asindex(PympzObject *x)
-{
-    PyObject* result = Pympz2PyInt(x);
-    if(result) return result;
-    PyErr_Clear();
-    return Pympz2PyLong(x);
 }
 
 /*
@@ -1716,7 +1707,7 @@ Pympf2PyInt(PympfObject *x)
     PympzObject *intermediate = Pympf2Pympz((PyObject*)x);
     if(!intermediate) return 0;
 
-    result = Pympz2PyInt(intermediate);
+    result = Pympz_To_Integer(intermediate);
     Py_DECREF((PyObject*)intermediate);
     return result;
 }
@@ -1728,7 +1719,7 @@ Pympq2PyInt(PympqObject *x)
     PympzObject *intermediate = Pympq2Pympz((PyObject*)x);
     if(!intermediate) return 0;
 
-    result = Pympz2PyInt(intermediate);
+    result = Pympz_To_Integer(intermediate);
     Py_DECREF((PyObject*)intermediate);
     return result;
 }
@@ -6156,7 +6147,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pympany_truediv,  /* binaryfunc nb_true_divide;          */
     (binaryfunc) Pympz_inplace_floordiv,  /* binaryfunc nb_inplace_floor_divide; */
         0,                         /* binaryfunc nb_inplace_true_divide;  */
-    (unaryfunc)  Pympz_asindex,    /* unaryfunc nb_index;                 */
+    (unaryfunc)  Pympz_To_Integer,    /* unaryfunc nb_index;                 */
 };
 
 #else
@@ -6180,7 +6171,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pympz_xor,
     (binaryfunc) Pympz_ior,
     (coercion) 0,
-    (unaryfunc) Pympz2PyInt,
+    (unaryfunc) Pympz_To_Integer,
     (unaryfunc) Pympz2PyLong,
     (unaryfunc) Pympz2PyFloat,
     (unaryfunc) Pympz_oct,
@@ -6202,7 +6193,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pympz_inplace_floordiv,  /* binaryfunc nb_inplace_floor_divide; */
         0, /* binaryfunc nb_inplace_true_divide;        */
 #if Py_TPFLAGS_HAVE_INDEX
-    (unaryfunc) Pympz_asindex,            /* unaryfunc nb_index; */
+    (unaryfunc) Pympz_To_Integer,            /* unaryfunc nb_index; */
 #endif
 };
 #endif
