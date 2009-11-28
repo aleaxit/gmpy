@@ -942,7 +942,7 @@ PyInt2Pympz(PyObject *i)
 {
     PympzObject *newob;
 
-    assert(PyInt_CheckExact(i));
+    assert(PyInt_Check(i));
     if(!(newob = Pympz_new()))
         return NULL;
     mpz_set_si(newob->z, PyInt_AsLong(i));
@@ -954,7 +954,7 @@ PyInt2Pympq(PyObject *i)
 {
     PympqObject *newob;
 
-    assert(PyInt_CheckExact(i));
+    assert(PyInt_Check(i));
 
     if(!(newob = Pympq_new()))
         return NULL;
@@ -2324,10 +2324,10 @@ static int isNumber(PyObject* obj)
         fprintf(stderr, "isNumber: object type is %s\n", Py_TYPE(obj)->tp_name);
     if(Pympz_Check(obj)) {
         return 1;
-    } else if(PyLong_CheckExact(obj)) {
+    } else if(PyLong_Check(obj)) {
         return 1;
 #if PY_MAJOR_VERSION == 2
-    } else if(PyInt_CheckExact(obj)) {
+    } else if(PyInt_Check(obj)) {
         return 1;
 #endif
     } else if(Pympq_Check(obj)) {
@@ -2350,10 +2350,10 @@ static int isRational(PyObject* obj)
         fprintf(stderr, "isRational: object type is %s\n", Py_TYPE(obj)->tp_name);
     if(Pympz_Check(obj)) {
         return 1;
-    } else if(PyLong_CheckExact(obj)) {
+    } else if(PyLong_Check(obj)) {
         return 1;
 #if PY_MAJOR_VERSION == 2
-    } else if(PyInt_CheckExact(obj)) {
+    } else if(PyInt_Check(obj)) {
         return 1;
 #endif
     } else if(Pympq_Check(obj)) {
@@ -2370,10 +2370,10 @@ static int isInteger(PyObject* obj)
         fprintf(stderr, "isInteger: object type is %s\n", Py_TYPE(obj)->tp_name);
     if(Pympz_Check(obj)) {
         return 1;
-    } else if(PyLong_CheckExact(obj)) {
+    } else if(PyLong_Check(obj)) {
         return 1;
 #if PY_MAJOR_VERSION == 2
-    } else if(PyInt_CheckExact(obj)) {
+    } else if(PyInt_Check(obj)) {
         return 1;
 #endif
     }
@@ -2418,14 +2418,14 @@ anynum2Pympq(PyObject* obj)
     } else if(Pympz_Check(obj)) {
         newob = Pympz2Pympq(obj);
 #if PY_MAJOR_VERSION == 2
-    } else if(PyInt_CheckExact(obj)) {
+    } else if(PyInt_Check(obj)) {
         newob = PyInt2Pympq(obj);
 #endif
     } else if(Pympf_Check(obj)) {
         newob = Pympf2Pympq(obj);
     } else if(PyFloat_Check(obj)) {
         newob = PyFloat2Pympq(obj);
-    } else if(PyLong_CheckExact(obj)) {
+    } else if(PyLong_Check(obj)) {
         newob = PyLong2Pympq(obj);
     } else if(!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
         PyObject *s = PyObject_Str(obj);
@@ -2460,10 +2460,10 @@ anyrational2Pympq(PyObject* obj)
     } else if(Pympz_Check(obj)) {
         newob = Pympz2Pympq(obj);
 #if PY_MAJOR_VERSION == 2
-    } else if(PyInt_CheckExact(obj)) {
+    } else if(PyInt_Check(obj)) {
         newob = PyInt2Pympq(obj);
 #endif
-    } else if(PyLong_CheckExact(obj)) {
+    } else if(PyLong_Check(obj)) {
         newob = PyLong2Pympq(obj);
     } else if(!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
         PyObject *s = PyObject_Str(obj);
@@ -2489,10 +2489,10 @@ anynum2Pympz(PyObject* obj)
         Py_INCREF(obj);
         newob = (PympzObject *) obj;
 #if PY_MAJOR_VERSION == 2
-    } else if(PyInt_CheckExact(obj)) {
+    } else if(PyInt_Check(obj)) {
         newob = PyInt2Pympz(obj);
 #endif
-    } else if(PyLong_CheckExact(obj)) {
+    } else if(PyLong_Check(obj)) {
         newob = PyLong2Pympz(obj);
     } else if(Pympq_Check(obj)) {
         newob = Pympq2Pympz(obj);
@@ -2535,10 +2535,10 @@ Pympz_From_Integer(PyObject* obj)
         Py_INCREF(obj);
         newob = (PympzObject*) obj;
 #if PY_MAJOR_VERSION == 2
-    } else if(PyInt_CheckExact(obj)) {
+    } else if(PyInt_Check(obj)) {
         newob = PyInt2Pympz(obj);
 #endif
-    } else if(PyLong_CheckExact(obj)) {
+    } else if(PyLong_Check(obj)) {
         newob = PyLong2Pympz(obj);
     }
     if(options.debug)
@@ -2560,10 +2560,10 @@ Pympz_From_Integer(PyObject* obj)
 static long
 clong_From_Integer(PyObject *obj)
 {
-    if(PyLong_CheckExact(obj)) {
+    if(PyLong_Check(obj)) {
         return PyLong_AsLong(obj);
 #if PY_MAJOR_VERSION == 2
-    } else if(PyInt_CheckExact(obj)) {
+    } else if(PyInt_Check(obj)) {
         return PyInt_AS_LONG(obj);
 #endif
     } else if(Pympz_Check(obj)) {
@@ -2592,14 +2592,14 @@ anynum2Pympf(PyObject* obj, unsigned int bits)
     } else if(PyFloat_Check(obj)) {
         newob = PyFloat2Pympf(obj, bits);
 #if PY_MAJOR_VERSION == 2
-    } else if(PyInt_CheckExact(obj)) {
+    } else if(PyInt_Check(obj)) {
         newob = PyInt2Pympf(obj, bits);
 #endif
     } else if(Pympq_Check(obj)) {
         newob = Pympq2Pympf(obj, bits);
     } else if(Pympz_Check(obj)) {
         newob = Pympz2Pympf(obj, bits);
-    } else if(PyLong_CheckExact(obj)) {
+    } else if(PyLong_Check(obj)) {
         newob = PyLong2Pympf(obj, bits);
     } else if(!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
         PyObject *s = PyObject_Str(obj);
@@ -3513,14 +3513,14 @@ static int isOne(PyObject* obj)
     } else if(Pympz_Check(obj)) {
         return 0==mpz_cmp_ui(Pympz_AS_MPZ(obj),1);
 #if PY_MAJOR_VERSION < 3
-    } else if(PyInt_CheckExact(obj)) {
+    } else if(PyInt_Check(obj)) {
         return PyInt_AS_LONG(obj)==1;
 #endif
     } else if(Pympf_Check(obj)) {
         return mpf_get_d(Pympf_AS_MPF(obj))==1.0;
     } else if(PyFloat_Check(obj)) {
         return PyFloat_AS_DOUBLE(obj)==1.0;
-    } else if (PyLong_CheckExact(obj)) {
+    } else if (PyLong_Check(obj)) {
         return PyLong_AsLong(obj)==1;
     }
     return 0;
@@ -4585,9 +4585,9 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     }
 
 #if PY_MAJOR_VERSION == 3
-    if(Pympz_Check(a) && PyLong_CheckExact(b)) {
+    if(Pympz_Check(a) && PyLong_Check(b)) {
 #else
-    if(Pympz_Check(a) && (PyInt_CheckExact(b) || PyLong_CheckExact(b))) {
+    if(Pympz_Check(a) && (PyInt_Check(b) || PyLong_Check(b))) {
 #endif
         if(options.debug) fprintf(stderr, "compare (mpz,small_int)\n");
         temp = clong_From_Integer(b);
@@ -4748,7 +4748,7 @@ Pympz_rshift(PyObject *a, PyObject *b)
     /* Try to make mpz >> Python int/long as fast as possible. */
     if(Pympz_Check(a)) {
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(b)) {
+        if(PyInt_Check(b)) {
             if((count = PyInt_AS_LONG(b)) >= 0) {
                 mpz_fdiv_q_2exp(rz->z, Pympz_AS_MPZ(a), count);
                 return (PyObject *)rz;
@@ -4759,7 +4759,7 @@ Pympz_rshift(PyObject *a, PyObject *b)
             }
         }
 #endif
-        if(PyLong_CheckExact(b)) {
+        if(PyLong_Check(b)) {
 #if PY_MAJOR_VERSION == 3
             count = PyLong_AsLongAndOverflow(b, &overflow);
             if(overflow) {
@@ -4825,7 +4825,7 @@ Pympz_lshift(PyObject *a, PyObject *b)
     /* Try to make mpz >> Python int/long as fast as possible. */
     if(Pympz_Check(a)) {
 #if PY_MAJOR_VERSION == 2
-        if(PyInt_CheckExact(b)) {
+        if(PyInt_Check(b)) {
             if((count = PyInt_AS_LONG(b)) >= 0) {
                 mpz_mul_2exp(rz->z, Pympz_AS_MPZ(a), count);
                 return (PyObject *)rz;
@@ -4836,7 +4836,7 @@ Pympz_lshift(PyObject *a, PyObject *b)
             }
         }
 #endif
-        if(PyLong_CheckExact(b)) {
+        if(PyLong_Check(b)) {
 #if PY_MAJOR_VERSION == 3
             count = PyLong_AsLongAndOverflow(b, &overflow);
             if(overflow) {

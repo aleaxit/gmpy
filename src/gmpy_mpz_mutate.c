@@ -505,7 +505,7 @@ Pympz_inplace_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
         PyErr_SetString(PyExc_SystemError, "modulo not expected");
         return NULL;
     }
-    e = anyint2Pympz(in_e);
+    e = Pympz_From_Integer(in_e);
     if(!e) {
         PyErr_SetString(PyExc_TypeError, "expected an integer exponent");
         return NULL;
