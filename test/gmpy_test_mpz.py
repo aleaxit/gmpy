@@ -3,7 +3,7 @@
 # test-version 1.11
 r'''
 >>> filter(lambda x: not x.startswith('_'), dir(_g))
-['binary', 'bincoef', 'bit_length', 'cdivmod', 'ceil', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fdivmod', 'fib', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_fcache', 'get_pympzcache', 'get_qcache', 'get_zcache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'rand', 'reldiff', 'remove', 'root', 'scan0', 'scan1', 'set_debug', 'set_fcache', 'set_fcoform', 'set_minprec', 'set_pympzcache', 'set_qcache', 'set_tagoff', 'set_zcache', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod', 'trunc', 'version']
+['binary', 'bincoef', 'bit_length', 'cdivmod', 'ceil', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fdivmod', 'fib', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'rand', 'reldiff', 'remove', 'root', 'scan0', 'scan1', 'set_cache', 'set_debug', 'set_fcoform', 'set_minprec', 'set_tagoff', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod', 'trunc', 'version']
 >>> filter(lambda x: not x.startswith('__'), dir(a))
 ['_copy', 'binary', 'bincoef', 'bit_length', 'cdivmod', 'comb', 'digits', 'divexact', 'fdivmod', 'getbit', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod']
 >>>
@@ -879,15 +879,20 @@ def _test(chat=None):
         print "Unit tests for gmpy 1.11 (mpz functionality)"
         print "    running on Python %s" % sys.version
         print
-        print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s, %s)" % (
-            (_g.version(), _g.gmp_version(), _g.get_zcache(),
-            _g.get_qcache(), _g.get_fcache(), _g.get_pympzcache()))
+        if _g.gmp_version():
+            print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
+                (_g.version(), _g.gmp_version(), _g.get_cache()[0],
+                _g.get_cache()[1]))
+        else:
+            print "Testing gmpy %s (MPIR %s) with default caching (%s, %s)" % (
+                (_g.version(), _g.mpir_version(), _g.get_cache()[0],
+                _g.get_cache()[1]))
+
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
     if chat: print "Repeating tests, with caching disabled"
-    _g.set_zcache(0)
-    _g.set_pympzcache(0)
+    _g.set_cache(0,128)
 
     sav = sys.stdout
     class _Dummy:

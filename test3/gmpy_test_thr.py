@@ -5,6 +5,7 @@
 import gmpy as _g, doctest, sys, operator, gc, queue, threading
 from functools import reduce
 __test__={}
+
 def _tf(N=2, _K=1234**5678):
     """Takes about 100ms on a first-generation Macbook Pro"""
     for i in range(N): assert (_g.mpz(1234)**5678)==_K
@@ -71,14 +72,20 @@ def _test(chat=None):
         print("Unit tests for gmpy 1.11 (threading)")
         print("    running on Python", sys.version)
         print()
-        print("Testing gmpy %s (GMP %s) with default caching (%s, %s, %s)" % (
-            (_g.version(), _g.gmp_version(), _g.get_zcache(),
-            _g.get_qcache(), _g.get_fcache())))
+        if _g.gmp_version():
+            print("Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
+                (_g.version(), _g.gmp_version(), _g.get_cache()[0],
+                _g.get_cache()[1])))
+        else:
+            print("Testing gmpy %s (MPIR %s) with default caching (%s, %s)" % (
+                (_g.version(), _g.mpir_version(), _g.get_cache()[0],
+                _g.get_cache()[1])))
+
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
     if chat: print("Repeating tests, with caching disabled")
-    _g.set_zcache(0)
+    _g.set_cache(0,128)
 
     sav = sys.stdout
     class _Dummy:

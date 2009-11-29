@@ -26,13 +26,13 @@ _g = gmpy
 print("Unit tests for gmpy 1.11")
 print("    on Python %s" % sys.version)
 if _g.gmp_version():
-    print("Testing gmpy %s (GMP %s), default caching (%s, %s, %s, %s)" % (
-        (_g.version(), _g.gmp_version(), _g.get_zcache(),
-        _g.get_qcache(), _g.get_fcache(), _g.get_pympzcache())))
+    print("Testing gmpy %s (GMP %s), default caching (%s, %s)" % (
+        (_g.version(), _g.gmp_version(), _g.get_cache()[0],
+        _g.get_cache()[1])))
 else:
-    print("Testing gmpy %s (MPIR %s), default caching (%s, %s, %s, %s)" % (
-        (_g.version(), _g.mpir_version(), _g.get_zcache(),
-        _g.get_qcache(), _g.get_fcache(), _g.get_pympzcache())))
+    print("Testing gmpy %s (MPIR %s), default caching (%s, %s)" % (
+        (_g.version(), _g.mpir_version(), _g.get_cache()[0],
+        _g.get_cache()[1])))
 
 pf, pt = 0, 0
 for x in test_modules:
