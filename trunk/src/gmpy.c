@@ -236,16 +236,30 @@
   #else
     #pragma comment(lib,"gmp.lib")
   #endif
-  #ifdef _MSC_VER
-    #define isnan _isnan
-    #define isinf !_finite
-  #endif
+  #define isnan _isnan
+  #define isinf !_finite
   #define USE_ALLOCA 1
-  #define alloca _alloca
 #endif
 
 #ifdef __GNUC__
 #define USE_ALLOCA 1
+#endif
+
+#ifndef alloca
+# ifdef __GNUC__
+#  define alloca __builtin_alloca
+# else
+#   ifdef _MSC_VER
+#    include <malloc.h>
+#    define alloca _alloca
+#   else
+#    if HAVE_ALLOCA_H
+#     include <alloca.h>
+#    else
+       char *alloca ();
+#    endif
+#   endif
+# endif
 #endif
 
 #define Py_RETURN_NOTIMPLEMENTED\
@@ -289,6 +303,10 @@
 
 #ifndef Py_TYPE
 #define Py_TYPE(ob)		(((PyObject*)(ob))->ob_type)
+#endif
+
+#ifndef Py_REFCNT
+#define Py_REFCNT(ob)		(((PyObject*)(ob))->ob_refcnt)
 #endif
 
 /* Include fast mpz to/from PyLong conversion from sage. */
@@ -439,6 +457,8 @@ mpq_inoc(mpq_t newo)
         if(options.debug)
             fprintf(stderr, "Initing new not in qcache\n");
         mpq_init(newo);
+        if(options.debug)
+            fprintf(stderr, "Initing new not in qcache, done\n");
     }
 }
 
@@ -502,6 +522,8 @@ static void
 set_pympzcache(int new_pympzcache)
 {
     int i;
+    if(options.debug)
+        fprintf(stderr, "Entering set_pympzcache\n");
     if(in_pympzcache > new_pympzcache) {
         for(i = new_pympzcache; i < in_pympzcache; ++i) {
             mpz_cloc(pympzcache[i]->z);
@@ -784,10 +806,19 @@ Pympz_new(void)
 {
     PympzObject * self;
 
+    if(options.debug)
+        fprintf(stderr, "Entering Pympz_new\n");
+
     if(in_pympzcache) {
+        if(options.debug)
+            fprintf(stderr, "Pympz_new is reusing an old object\n");
         self = (pympzcache[--in_pympzcache]);
-        Py_INCREF((PyObject*)self);
+        /* Py_INCREF does not set the debugging pointers, so need to use
+           _Py_NewReference instead. */
+        _Py_NewReference((PyObject*)self);
     } else {
+        if(options.debug)
+            fprintf(stderr, "Pympz_new is creating a new object\n");
         if(!(self = PyObject_New(PympzObject, &Pympz_Type)))
             return NULL;
         mpz_inoc(self->z);
