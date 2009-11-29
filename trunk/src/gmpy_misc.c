@@ -80,123 +80,43 @@ Pygmpy_get_gmp_limbsize(PyObject *self, PyObject *args)
 /*
  * access cache options
  */
-static char doc_get_zcache[]="\
-get_zcache(): returns the current cache-size (number of objects)\n\
-for mpz_t objects.\n\
+static char doc_get_cache[]="\
+get_cache(): returns the current cache-size (number of objects)\n\
+and maximum size per object (number of limbs) for all objects.\n\
 ";
 static PyObject *
-Pygmpy_get_zcache(PyObject *self, PyObject *args)
+Pygmpy_get_cache(PyObject *self, PyObject *args)
 {
-    PARSE_NO_ARGS("get_zcache expects 0 arguments");
-    return Py_BuildValue("i", options.zcache);
+    PARSE_NO_ARGS("get_cache expects 0 arguments");
+    return Py_BuildValue("ii", options.cache_size, options.cache_obsize);
 }
 
-static char doc_get_pympzcache[]="\
-get_pympzcache(): returns the current cache-size (number of objects)\n\
-for Pympz objects.\n\
+static char doc_set_cache[]="\
+set_cache(n,size): sets the current cache-size (number of objects) to\n\
+'n' and the maximum size per object (number of limbs) to 'size'.\n\
+Note: cache size 'n' must be between 0 and 1000, included. Object size\n\
+'size' must be between 0 and 16384, included.\n\
 ";
 static PyObject *
-Pygmpy_get_pympzcache(PyObject *self, PyObject *args)
+Pygmpy_set_cache(PyObject *self, PyObject *args)
 {
-    PARSE_NO_ARGS("get_zcache expects 0 arguments");
-    return Py_BuildValue("i", options.zcache);
-}
-
-static char doc_get_qcache[]="\
-get_qcache(): returns the current cache-size (number of objects)\n\
-for mpq objects.\n\
-";
-static PyObject *
-Pygmpy_get_qcache(PyObject *self, PyObject *args)
-{
-    PARSE_NO_ARGS("get_qcache expects 0 arguments");
-    return Py_BuildValue("i", options.qcache);
-}
-
-static char doc_get_fcache[]="\
-get_fcache(): returns the current cache-size (number of objects)\n\
-for mpf objects.\n\
-";
-static PyObject *
-Pygmpy_get_fcache(PyObject *self, PyObject *args)
-{
-    PARSE_NO_ARGS("get_fcache expects 0 arguments");
-    return Py_BuildValue("i", options.fcache);
-}
-
-static char doc_set_zcache[]="\
-set_zcache(n): sets the current cache-size (number of objects)\n\
-for mpz objects to n (does not immediately flush or enlarge the\n\
-cache, but rather lets it grow/shrink during later normal use).\n\
-Note: cache size n must be between 0 and 1000, included.\n\
-";
-static PyObject *
-Pygmpy_set_zcache(PyObject *self, PyObject *args)
-{
-    int newval;
-    ONE_ARG("set_zcache", "i", &newval);
-    if(newval<0 || newval>MAX_CACHE) {
+    int newcache, newsize;
+    if(!PyArg_ParseTuple(args, "ii", &newcache, &newsize))
+        return NULL;
+    if(newcache<0 || newcache>MAX_CACHE) {
         PyErr_SetString(PyExc_ValueError, "cache must between 0 and 1000");
-        return 0;
+        return NULL;
     }
-    set_zcache(newval);
-    return Py_BuildValue("");
-}
-
-static char doc_set_pympzcache[]="\
-set_zcache(n): sets the current cache-size (number of objects)\n\
-for mpz objects to n (does not immediately flush or enlarge the\n\
-cache, but rather lets it grow/shrink during later normal use).\n\
-Note: cache size n must be between 0 and 1000, included.\n\
-";
-static PyObject *
-Pygmpy_set_pympzcache(PyObject *self, PyObject *args)
-{
-    int newval;
-    ONE_ARG("set_pympzcache", "i", &newval);
-    if(newval<0 || newval>MAX_CACHE) {
-        PyErr_SetString(PyExc_ValueError, "cache must between 0 and 1000");
-        return 0;
+    if(newsize<0 || newsize>MAX_CACHE_LIMBS) {
+        PyErr_SetString(PyExc_ValueError, "object size must between 0 and 16384");
+        return NULL;
     }
-    set_pympzcache(newval);
-    return Py_BuildValue("");
-}
-
-static char doc_set_qcache[]="\
-set_qcache(n): sets the current cache-size (number of objects)\n\
-for mpq objects to n (does not immediately flush or enlarge the\n\
-cache, but rather lets it grow/shrink during later normal use).\n\
-Note: cache size n must be between 0 and 1000, included.\n\
-";
-static PyObject *
-Pygmpy_set_qcache(PyObject *self, PyObject *args)
-{
-    int newval;
-    ONE_ARG("set_qcache", "i", &newval);
-    if(newval<0 || newval>MAX_CACHE) {
-        PyErr_SetString(PyExc_ValueError, "cache must between 0 and 1000");
-        return 0;
-    }
-    set_qcache(newval);
-    return Py_BuildValue("");
-}
-
-static char doc_set_fcache[]="\
-set_fcache(n): sets the current cache-size (number of objects)\n\
-for mpf objects to n (does not immediately flush or enlarge the\n\
-cache, but rather lets it grow/shrink during later normal use).\n\
-Note: cache size n must be between 0 and 1000, included.\n\
-";
-static PyObject *
-Pygmpy_set_fcache(PyObject *self, PyObject *args)
-{
-    int newval;
-    ONE_ARG("set_fcache", "i", &newval);
-    if(newval<0 || newval>MAX_CACHE) {
-        PyErr_SetString(PyExc_ValueError, "cache must between 0 and 1000");
-        return 0;
-    }
-    set_fcache(newval);
+    options.cache_size=newcache;
+    options.cache_obsize=newsize;
+    set_zcache();
+    set_qcache();
+    set_fcache();
+    set_pympzcache();
     return Py_BuildValue("");
 }
 

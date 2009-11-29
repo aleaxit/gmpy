@@ -93,42 +93,34 @@ TypeError: version expects 0 arguments
 Traceback (most recent call last):
   ...
 TypeError: gmp_version expects 0 arguments
->>> _g.get_zcache(23)
+>>> _g.get_cache(23)
 Traceback (most recent call last):
   ...
-TypeError: get_zcache expects 0 arguments
->>> _g.set_zcache(2000)
+TypeError: get_cache expects 0 arguments
+>>> _g.set_cache()
+Traceback (most recent call last):
+  ...
+TypeError: function takes exactly 2 arguments (0 given)
+>>> _g.set_cache(200)
+Traceback (most recent call last):
+  ...
+TypeError: function takes exactly 2 arguments (1 given)
+>>> _g.set_cache(200,-23)
+Traceback (most recent call last):
+  ...
+ValueError: object size must between 0 and 16384
+>>> _g.set_cache(2000,256)
 Traceback (most recent call last):
   ...
 ValueError: cache must between 0 and 1000
->>> _g.set_zcache(-23)
+>>> _g.set_cache(-23,256)
 Traceback (most recent call last):
   ...
 ValueError: cache must between 0 and 1000
->>> _g.get_qcache(23)
+>>> _g.set_cache(200,256000)
 Traceback (most recent call last):
   ...
-TypeError: get_qcache expects 0 arguments
->>> _g.set_qcache(2000)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: cache must between 0 and 1000
->>> _g.set_qcache(-42)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: cache must between 0 and 1000
->>> _g.get_fcache(23)
-Traceback (most recent call last):
-  ...
-TypeError: get_fcache expects 0 arguments
->>> _g.set_fcache(2000)
-Traceback (most recent call last):
-  File "<string>", line 1, in ?
-ValueError: cache must between 0 and 1000
->>> _g.set_fcache(-23)
-Traceback (most recent call last):
-  File "<string>", line 1, in ?
-ValueError: cache must between 0 and 1000
+ValueError: object size must between 0 and 16384
 >>> _g.set_debug()
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -533,9 +525,15 @@ def _test(chat=None):
         print "Unit tests for gmpy 1.11 (extra cover)"
         print "    running on Python", sys.version
         print
-        print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
-            (_g.version(), _g.gmp_version(), _g.get_zcache(),
-            _g.get_qcache(), _g.get_fcache()))
+        if _g.gmp_version():
+            print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
+                (_g.version(), _g.gmp_version(), _g.get_cache()[0],
+                _g.get_cache()[1]))
+        else:
+            print "Testing gmpy %s (MPIR %s) with default caching (%s, %s)" % (
+                (_g.version(), _g.mpir_version(), _g.get_cache()[0],
+                _g.get_cache()[1]))
+
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 

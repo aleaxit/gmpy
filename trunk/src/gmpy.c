@@ -225,9 +225,15 @@
 #define GMPY_ALLOC_MIN (2 * (GMP_NUMB_BITS >> 3))
 
 /* To prevent excessive memory usage, we don't want to save very large
- * numbers in the cache.
+ * numbers in the cache. The default value specified in the options
+ * structure is 128 words (512 bytes on 32-bit platforms, 1024 bytes on
+ * 64-bit platforms).
  */
-#define MAX_CACHE_LIMBS 128
+#define MAX_CACHE_LIMBS 16384
+
+/* The maximum number of objects that can be saved in a cache is specified
+ * here. The default value is 100.*/
+#define MAX_CACHE 1000
 
 #if defined(MS_WIN32) && defined(_MSC_VER)
   /* so one won't need to link explicitly to gmp.lib...: */
@@ -377,42 +383,36 @@ static PyObject *gmpy_module = NULL;
 static struct gmpy_options {
     int debug;     /* != 0 if debug messages desired on stderr */
     unsigned long minprec;   /* min #of bits' precision on new mpf's built */
-    int tagoff;    /* 0 for full tags 'gmpy.mpz()', else 5 for 'mpz()' */
-    int zcache;    /* size of cache for mpz objects */
-    int qcache;    /* size of cache for mpq objects */
-    int fcache;    /* size of cache for mpf objects */
-    int pympzcache;  /* size of cache for Pympz objects */
+    int tagoff;         /* 0 for full tags 'gmpy.mpz()', else 5 for 'mpz()' */
+    int cache_size;    /* size of cache, for all caches */
+    int cache_obsize;  /* maximum size of the objects that are cached */
     PyObject* fcoform;  /* if non-NULL, format for float->mpf (via string) */
-} options = { 0, 0, 5, 100, 100, 100, 100, 0 };
+} options = { 0, 0, 5, 100, 128, 0 };
 
 /* Number of bits that are significant in a float */
 static unsigned int double_mantissa = 0;
 
-/* sanity check: do NOT let cache sizes become wildly large! */
-#define MAX_CACHE 1000
-
 /* caching macro (later expanded for mpz, mpq, mpf) */
-#define DEFCACHE(mpX_t,Xcache,in_Xcache,set_Xcache,new_Xcache,mpX_clear) \
+#define DEFCACHE(mpX_t,Xcache,in_Xcache,set_Xcache,mpX_clear) \
 static mpX_t* Xcache; \
 static int in_Xcache; \
-static void set_Xcache(int new_Xcache) \
+static void set_Xcache(void) \
 { \
-    if(in_Xcache > new_Xcache) { \
+    if(in_Xcache > options.cache_size) { \
         int i; \
         if(options.debug) \
             fprintf(stderr, "Clean %d from " #Xcache "\n", \
-                    in_Xcache-new_Xcache); \
-        for(i=new_Xcache; i<in_Xcache; ++i) \
+                    in_Xcache-options.cache_size); \
+        for(i=options.cache_size; i<in_Xcache; ++i) \
             mpX_clear(Xcache[i]); \
-        in_Xcache = new_Xcache; \
+        in_Xcache = options.cache_size; \
     } \
-    Xcache = PyMem_Realloc(Xcache, sizeof(mpX_t)*new_Xcache); \
-    options.Xcache = new_Xcache; \
+    Xcache = PyMem_Realloc(Xcache, sizeof(mpX_t)*options.cache_size); \
 }
 
-DEFCACHE(mpz_t,zcache,in_zcache,set_zcache,new_zcache,mpz_clear)
-DEFCACHE(mpq_t,qcache,in_qcache,set_qcache,new_qcache,mpq_clear)
-DEFCACHE(mpf_t,fcache,in_fcache,set_fcache,new_fcache,mpf_clear)
+DEFCACHE(mpz_t,zcache,in_zcache,set_zcache,mpz_clear)
+DEFCACHE(mpq_t,qcache,in_qcache,set_qcache,mpq_clear)
+DEFCACHE(mpf_t,fcache,in_fcache,set_fcache,mpf_clear)
 
 /* init-or-cache macro & function -- fetch from cache, else init, an MPZ */
 static void
@@ -423,7 +423,7 @@ mpz_inoc(mpz_t newo)
             fprintf(stderr, "Getting %d from zcache\n", in_zcache);
         newo[0] = (zcache[--in_zcache])[0];
     } else {
-        if(options.debug) \
+        if(options.debug)
             fprintf(stderr, "Initing new not in zcache\n");
         mpz_init(newo);
     }
@@ -433,14 +433,14 @@ mpz_inoc(mpz_t newo)
 static void
 mpz_cloc(mpz_t oldo)
 {
-    if(in_zcache<options.zcache && oldo->_mp_alloc <= MAX_CACHE_LIMBS) {
+    if(in_zcache<options.cache_size && oldo->_mp_alloc <= options.cache_obsize) {
         (zcache[in_zcache++])[0] = oldo[0];
         if(options.debug)
             fprintf(stderr, "Stashed %d to zcache\n", in_zcache);
     } else {
         if(options.debug)
             fprintf(stderr, "Not placing in full zcache(%d/%d)\n",
-                    in_zcache, options.zcache);
+                    in_zcache, options.cache_size);
         mpz_clear(oldo);
     }
 }
@@ -466,16 +466,16 @@ mpq_inoc(mpq_t newo)
 static void
 mpq_cloc(mpq_t oldo)
 {
-    if(in_qcache<options.qcache
-            && mpq_numref(oldo)->_mp_alloc <= MAX_CACHE_LIMBS
-            && mpq_denref(oldo)->_mp_alloc <= MAX_CACHE_LIMBS) {
+    if(in_qcache<options.cache_size
+            && mpq_numref(oldo)->_mp_alloc <= options.cache_obsize
+            && mpq_denref(oldo)->_mp_alloc <= options.cache_obsize) {
         (qcache[in_qcache++])[0] = oldo[0];
         if(options.debug)
             fprintf(stderr, "Stashed %d to qcache\n", in_qcache);
     } else {
         if(options.debug)
             fprintf(stderr, "Not placing in full qcache(%d/%d)\n",
-                    in_qcache, options.qcache);
+                    in_qcache, options.cache_size);
         mpq_clear(oldo);
     }
 }
@@ -500,14 +500,14 @@ mpf_inoc(mpf_t newo)
 static void
 mpf_cloc(mpf_t oldo)
 {
-    if(in_fcache<options.fcache && mpf_size(oldo) <= MAX_CACHE_LIMBS) {
+    if(in_fcache<options.cache_size && mpf_size(oldo) <= options.cache_obsize) {
         (fcache[in_fcache++])[0] = oldo[0];
         if(options.debug)
             fprintf(stderr, "Stashed %d to fcache\n", in_fcache);
     } else {
         if(options.debug)
-            fprintf(stderr, "Not placing in full fcache(%d/%d)\n",
-                    in_fcache, options.fcache);
+            fprintf(stderr, "Not placing in full fcache(%d/%ld)\n",
+                    in_fcache, options.cache_size);
         mpf_clear(oldo);
     }
 }
@@ -519,20 +519,19 @@ static PympzObject **pympzcache;
 static int in_pympzcache;
 
 static void
-set_pympzcache(int new_pympzcache)
+set_pympzcache(void)
 {
     int i;
     if(options.debug)
         fprintf(stderr, "Entering set_pympzcache\n");
-    if(in_pympzcache > new_pympzcache) {
-        for(i = new_pympzcache; i < in_pympzcache; ++i) {
+    if(in_pympzcache > options.cache_size) {
+        for(i = options.cache_size; i < in_pympzcache; ++i) {
             mpz_cloc(pympzcache[i]->z);
             PyObject_Del(pympzcache[i]);
         }
-        in_pympzcache = new_pympzcache;
+        in_pympzcache = options.cache_size;
     }
-    pympzcache = PyMem_Realloc(pympzcache, sizeof(PympzObject)*new_pympzcache);
-    options.pympzcache = new_pympzcache;
+    pympzcache = PyMem_Realloc(pympzcache, sizeof(PympzObject)*options.cache_size);
 }
 
 /* forward declarations of type-objects and method-arrays for them */
@@ -854,7 +853,7 @@ Pympz_dealloc(PympzObject *self)
 {
     if(options.debug)
         fprintf(stderr, "Pympz_dealloc: %p\n", self);
-    if(in_pympzcache<options.pympzcache && self->z->_mp_alloc<=MAX_CACHE_LIMBS) {
+    if(in_pympzcache<options.cache_size && self->z->_mp_alloc<=options.cache_obsize) {
         (pympzcache[in_pympzcache++]) = self;
     } else {
         mpz_cloc(self->z);
@@ -6407,14 +6406,8 @@ static PyMethodDef Pygmpy_methods [] =
     { "set_minprec", Pygmpy_set_minprec, 1, doc_set_minprec },
     { "set_tagoff", Pygmpy_set_tagoff, 1, doc_set_tagoff },
     { "set_fcoform", Pygmpy_set_fcoform, 1, doc_set_fcoform },
-    { "get_zcache", Pygmpy_get_zcache, 1, doc_get_zcache },
-    { "set_zcache", Pygmpy_set_zcache, 1, doc_set_zcache },
-    { "get_qcache", Pygmpy_get_qcache, 1, doc_get_qcache },
-    { "set_qcache", Pygmpy_set_qcache, 1, doc_set_qcache },
-    { "get_fcache", Pygmpy_get_fcache, 1, doc_get_fcache },
-    { "set_fcache", Pygmpy_set_fcache, 1, doc_set_fcache },
-    { "get_pympzcache", Pygmpy_get_pympzcache, 1, doc_get_pympzcache },
-    { "set_pympzcache", Pygmpy_set_pympzcache, 1, doc_set_pympzcache },
+    { "get_cache", Pygmpy_get_cache, 1, doc_get_cache },
+    { "set_cache", Pygmpy_set_cache, 1, doc_set_cache },
     { "mpz", Pygmpy_mpz, 1, doc_mpz },
     { "mpq", Pygmpy_mpq, 1, doc_mpq },
     { "mpf", Pygmpy_mpf, 1, doc_mpf },
@@ -6783,10 +6776,10 @@ static void _PyInitGMP(void)
     mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
     double_mantissa = get_precision();
     options.minprec = double_mantissa;
-    set_zcache(options.zcache);
-    set_qcache(options.qcache);
-    set_fcache(options.fcache);
-    set_pympzcache(options.pympzcache);
+    set_zcache();
+    set_qcache();
+    set_fcache();
+    set_pympzcache();
 }
 
 static char _gmpy_docs[] = "\

@@ -71,9 +71,15 @@ def _test(chat=None):
         print "Unit tests for gmpy 1.11 (threading)"
         print "    running on Python", sys.version
         print
-        print "Testing gmpy %s (GMP %s) with default caching (%s, %s, %s)" % (
-            (_g.version(), _g.gmp_version(), _g.get_zcache(),
-            _g.get_qcache(), _g.get_fcache()))
+        if _g.gmp_version():
+            print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
+                (_g.version(), _g.gmp_version(), _g.get_cache()[0],
+                _g.get_cache()[1]))
+        else:
+            print "Testing gmpy %s (MPIR %s) with default caching (%s, %s)" % (
+                (_g.version(), _g.mpir_version(), _g.get_cache()[0],
+                _g.get_cache()[1]))
+
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
