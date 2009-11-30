@@ -4058,11 +4058,9 @@ Py##NAME(PyObject *a, PyObject *b) \
   pb = Pympz_From_Integer(b); \
   if(!pa || !pb) { \
     PyErr_Clear(); \
-    PyObject *r = Py_NotImplemented; \
     Py_XDECREF((PyObject*)pa); \
     Py_XDECREF((PyObject*)pb); \
-    Py_INCREF(r); \
-    return r; \
+    Py_RETURN_NOTIMPLEMENTED; \
   } \
   if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p\n", pa, pb); \
   if (!(r = Pympz_new())) { \
@@ -4256,13 +4254,10 @@ Pympz_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
 
     if(!b || !e || (!m && ((PyObject*)m != Py_None))) {
         PyErr_Clear();
-        PyObject *r;
         Py_XDECREF((PyObject*)b);
         Py_XDECREF((PyObject*)e);
         Py_XDECREF((PyObject*)m);
-        r = Py_NotImplemented;
-        Py_INCREF(r);
-        return r;
+        Py_RETURN_NOTIMPLEMENTED;
     }
 
     if(options.debug)

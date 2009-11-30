@@ -20,8 +20,6 @@ familiarity with the command line.
     version appropriate for your system: X86 for a 32-bit system or AMD64
     for a 64-bit system.
 
-    To save time and disk space, you only need to install "Developer Tools".
-
 5)  Download the current version of the YASM assembler. It can be found at
     "http://www.tortall.net/projects/yasm/". Again, use the version approp-
     riate for your system.
@@ -35,9 +33,10 @@ familiarity with the command line.
 
     mkdir c:\src
 
-7)  Download gmpy-1.10.zip and mpir-1.3.0.tar.gz. They should be unzipped
-    into c:\src. There should be c:\src\gmpy-1.10 and c:\src\mpir-1.3.0
-    directories in c:\src.
+7)  Download the GMPY and MPIR source code. This example uses
+    gmpy-1.11rc1.zip and mpir-1.3.0rc3.tar.gz. They should be
+    unzipped (or untarred) into c:\src. There should be
+    c:\src\gmpy-1.11rc1 and c:\src\mpir-1.3.0 directories in c:\src.
 
 8)  The file "yasm.rules" must be copied from
 
@@ -57,7 +56,8 @@ familiarity with the command line.
 
     rem Check contents of configure.bat to see allowed options. Verify that
     rem all tests pass.
-    configure --enable-static --ABI64 --cpu-core2
+    rem Binaries build with --cpu-k8.
+    configure
     make
     make check
 
@@ -68,7 +68,7 @@ familiarity with the command line.
     xcopy /Y lib\x64\release\*.??b c:\src\lib\*.*
 
     rem Done with mpir, now build gmpy.
-    cd c:\src\gmpy-1.10
+    cd c:\src\gmpy-1.11rc1
 
     rem Convince setup.py to use the SDK tools.
     set MSSdk=1
@@ -80,5 +80,5 @@ familiarity with the command line.
     rem Run the test suite
     python test3\gmpy_test.py
 
-    rem (Optional) Build an installer, located in c:\src\gmpy-1.10\dist.
+    rem (Optional) Build an installer, located in c:\src\gmpy-1.11rc1\dist.
     python setup.py bdist_wininst
