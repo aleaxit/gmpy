@@ -1,6 +1,6 @@
-# partial unit test for gmpy 1.11 rand functionality
+# partial unit test for gmpy 1.20 rand functionality
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.11
+# test-version 1.20
 r'''
 >>> r
 <built-in function rand>
@@ -124,7 +124,7 @@ if sys.version<'2.4':
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.11 (rnd functionality)"
+        print "Unit tests for gmpy 1.20 (rnd functionality)"
         print "    running on Python %s" % sys.version
         print
         if _g.gmp_version():

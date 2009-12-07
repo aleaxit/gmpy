@@ -1,6 +1,6 @@
-# partial unit test for gmpy 1.11 mpq functionality
+# partial unit test for gmpy 1.20 mpq functionality
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.11
+# test-version 1.20
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(a))
 ['_copy', 'binary', 'denom', 'digits', 'numer', 'qdiv', 'sign']
@@ -306,7 +306,7 @@ mpq(12,5)
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.11 (mpq functionality)"
+        print "Unit tests for gmpy 1.20 (mpq functionality)"
         print "    running on Python",sys.version
         print
         if _g.gmp_version():
