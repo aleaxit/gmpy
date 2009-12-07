@@ -202,6 +202,8 @@
  *   Recognize True/False (bug in 1.10) (casevh)
  *   Optimize argument handling (casevh)
  *   Added caching for mpz (casevh)
+ *
+ *   1.20:
  */
 #include "Python.h"
 
@@ -349,7 +351,7 @@ Therefore, this combined module is licensed under LGPL 2.1 or later.\
 #endif
 #undef GNU_MP_VER
 
-char gmpy_version[] = "1.11";
+char gmpy_version[] = "1.20";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -6778,7 +6780,7 @@ static void _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] = "\
-gmpy 1.11 - General Multiprecision arithmetic for Python:\n\
+gmpy 1.20 - General Multiprecision arithmetic for Python:\n\
 exposes functionality from the GMP or MPIR library to Python 2.4+\n\
 and  3.1+.\n\
 \n\

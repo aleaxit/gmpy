@@ -1,13 +1,13 @@
-# partial unit test for gmpy 1.11 extra cover
+# partial unit test for gmpy 1.20 extra cover
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.11
+# test-version 1.20
 r'''
 >>> _g.gmp_version()[:3] in ('4.3', '4.2', '4.1', '4.0', '3.1', '')
 True
 >>> _g.mpir_version()[:3] in ('0.9', '1.0', '1.1', '1.2', '1.3', '')
 True
 >>> _g.version()
-'1.11'
+'1.20'
 >>> int('gmpy.c' in _g._cvsid())
 1
 '''
@@ -516,7 +516,7 @@ True
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy 1.11 (extra cover)")
+        print("Unit tests for gmpy 1.20 (extra cover)")
         print("    running on Python", sys.version)
         print()
         if _g.gmp_version():
