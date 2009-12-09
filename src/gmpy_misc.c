@@ -115,8 +115,8 @@ Pygmpy_set_cache(PyObject *self, PyObject *args)
     options.cache_obsize=newsize;
     set_zcache();
     set_qcache();
-    set_fcache();
     set_pympzcache();
+    set_pympqcache();
     return Py_BuildValue("");
 }
 
