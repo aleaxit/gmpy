@@ -414,7 +414,6 @@ static void set_Xcache(void) \
 
 DEFCACHE(mpz_t,zcache,in_zcache,set_zcache,mpz_clear)
 DEFCACHE(mpq_t,qcache,in_qcache,set_qcache,mpq_clear)
-DEFCACHE(mpf_t,fcache,in_fcache,set_fcache,mpf_clear)
 
 /* init-or-cache macro & function -- fetch from cache, else init, an MPZ */
 static void
@@ -482,39 +481,6 @@ mpq_cloc(mpq_t oldo)
     }
 }
 
-#ifdef FALSE
-/* init-or-cache macro & function -- fetch from cache, else init, an MPF */
-static void
-mpf_inoc(mpf_t newo)
-{
-    if(in_fcache) {
-        if(options.debug)
-            fprintf(stderr, "Getting %d from fcache\n", in_fcache);
-        newo[0] = (fcache[--in_fcache])[0];
-    } else {
-        if(options.debug)
-            fprintf(stderr, "Initing new not in fcache\n");
-        mpf_init(newo);
-    }
-}
-
-/* clear-or-cache macro & function -- stash into cache, else clear, an MPF */
-static void
-mpf_cloc(mpf_t oldo)
-{
-    if(in_fcache<options.cache_size && mpf_size(oldo) <= options.cache_obsize) {
-        (fcache[in_fcache++])[0] = oldo[0];
-        if(options.debug)
-            fprintf(stderr, "Stashed %d to fcache\n", in_fcache);
-    } else {
-        if(options.debug)
-            fprintf(stderr, "Not placing in full fcache(%d/%ld)\n",
-                    in_fcache, options.cache_size);
-        mpf_clear(oldo);
-    }
-}
-#endif
-
 /* Cache Pympz objects directly */
 
 static PympzObject **pympzcache;
@@ -534,6 +500,27 @@ set_pympzcache(void)
         in_pympzcache = options.cache_size;
     }
     pympzcache = PyMem_Realloc(pympzcache, sizeof(PympzObject)*options.cache_size);
+}
+
+/* Cache Pympq objects directly */
+
+static PympqObject **pympqcache;
+static int in_pympqcache;
+
+static void
+set_pympqcache(void)
+{
+    int i;
+    if(options.debug)
+        fprintf(stderr, "Entering set_pympqcache\n");
+    if(in_pympqcache > options.cache_size) {
+        for(i = options.cache_size; i < in_pympqcache; ++i) {
+            mpq_cloc(pympqcache[i]->q);
+            PyObject_Del(pympqcache[i]);
+        }
+        in_pympqcache = options.cache_size;
+    }
+    pympqcache = PyMem_Realloc(pympqcache, sizeof(PympqObject)*options.cache_size);
 }
 
 /* forward declarations of type-objects and method-arrays for them */
@@ -826,16 +813,33 @@ Pympz_new(void)
     }
     return self;
 }
+
 static PympqObject *
 Pympq_new(void)
 {
     PympqObject * self;
 
-    if(!(self = PyObject_New(PympqObject, &Pympq_Type)))
-        return NULL;
-    mpq_inoc(self->q);
+    if(options.debug)
+        fprintf(stderr, "Entering Pympq_new\n");
+
+    if(in_pympqcache) {
+        if(options.debug)
+            fprintf(stderr, "Pympq_new is reusing an old object\n");
+        self = (pympqcache[--in_pympqcache]);
+        /* Py_INCREF does not set the debugging pointers, so need to use
+           _Py_NewReference instead. */
+        _Py_NewReference((PyObject*)self);
+    } else {
+        if(options.debug)
+            fprintf(stderr, "Pympq_new is creating a new object\n");
+        if(!(self = PyObject_New(PympqObject, &Pympq_Type)))
+            return NULL;
+        mpq_inoc(self->q);
+    }
     return self;
+
 }
+
 static PympfObject *
 Pympf_new(unsigned int bits)
 {
@@ -6775,8 +6779,8 @@ static void _PyInitGMP(void)
     options.minprec = double_mantissa;
     set_zcache();
     set_qcache();
-    set_fcache();
     set_pympzcache();
+    set_pympqcache();
 }
 
 static char _gmpy_docs[] = "\
