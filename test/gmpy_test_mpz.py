@@ -3,9 +3,9 @@
 # test-version 1.20
 r'''
 >>> filter(lambda x: not x.startswith('_'), dir(_g))
-['binary', 'bincoef', 'bit_length', 'cdivmod', 'ceil', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fdivmod', 'fib', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'rand', 'reldiff', 'remove', 'root', 'scan0', 'scan1', 'set_cache', 'set_debug', 'set_fcoform', 'set_minprec', 'set_tagoff', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod', 'trunc', 'version']
+['binary', 'bincoef', 'bit_length', 'cdivmod', 'ceil', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fdivmod', 'fib', 'fib2', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'lucas', 'lucas2', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'rand', 'reldiff', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'set_cache', 'set_debug', 'set_fcoform', 'set_minprec', 'set_tagoff', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod', 'trunc', 'version']
 >>> filter(lambda x: not x.startswith('__'), dir(a))
-['_copy', 'binary', 'bincoef', 'bit_length', 'cdivmod', 'comb', 'digits', 'divexact', 'fdivmod', 'getbit', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod']
+['_copy', 'binary', 'bincoef', 'bit_length', 'cdivmod', 'comb', 'digits', 'divexact', 'fdivmod', 'getbit', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod']
 >>>
 '''
 import warnings
@@ -654,6 +654,16 @@ mpz(-123)
 
 __test__['number']=\
 r'''
+>>> a.rootrem(2)
+(mpz(11), mpz(2))
+>>> a.rootrem(3)
+(mpz(4), mpz(59))
+>>> _g.rootrem(a*a)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: rootrem expects 'mpz',n arguments
+>>> _g.rootrem(a*a,2)
+(mpz(123), mpz(0))
 >>> print a.sqrt(), b.sqrt()
 11 21
 >>> print a.sqrtrem(), b.sqrtrem()
