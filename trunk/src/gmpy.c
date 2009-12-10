@@ -204,6 +204,8 @@
  *   Added caching for mpz (casevh)
  *
  *   1.20:
+ *   Added caching for mpq (casevh)
+ *   Added rootrem, fib2, lucas, lucas2 (casevh)
  */
 #include "Python.h"
 
@@ -554,9 +556,27 @@ static PyMethodDef Pympf_methods [];
     }
 
 /*
+ * Verify that a function has only one argument, and convert that argument
+ * to a C-long. Only applies to gmpy.fname()."msg" should be an error
+ * message that includes the function name. Replaces ONE_ARG.
+ */
+
+#define PARSE_ONE_CLONG(var, msg)\
+    if (PyTuple_GET_SIZE(args) != 1) {\
+        PyErr_SetString(PyExc_TypeError, msg);\
+        return NULL;\
+    } else {\
+        *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+        if(*var == -1 && PyErr_Occurred()) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+    }
+
+/*
  * Parses one, and only one, argument into "self" and converts it to an
  * mpz. Is faster, but not as generic, as using PyArg_ParseTuple. It
- * supports either gmpy2.fname(z) or z.fname(). "self" must be decref'ed.
+ * supports either gmpy.fname(z) or z.fname(). "self" must be decref'ed.
  * "msg" should be an error message that includes the function name and
  * describes the required arguments. Replaces SELF_MPZ_NO_ARG.
  */
@@ -584,7 +604,7 @@ static PyMethodDef Pympf_methods [];
  * Parses one argument into "self" and an optional second argument into
  * 'var". The second argument is converted into a C long. If there is not a
  * second argument, "var" is unchanged. Is faster, but not as generic, as
- * using PyArg_ParseTuple with "|l". It supports either gmpy2.fname(z,l) or
+ * using PyArg_ParseTuple with "|l". It supports either gmpy.fname(z,l) or
  * z.fname(l). "self" must be decref'ed. "var" must be a pointer to a long.
  * "msg" should be an error message that includes the function name and
  * describes the required arguments. Replaces some uses of SELF_MPZ_ONE_ARG.
@@ -627,7 +647,7 @@ static PyMethodDef Pympf_methods [];
  * Parses one argument into "self" and a required second argument into
  * 'var". The second argument is converted into a C long. Is faster, but not
  * as generic, as using PyArg_ParseTuple with "l". It supports either
- * gmpy2.fname(z,l) or z.fname(l). "self" must be decref'ed. "var" must be a
+ * gmpy.fname(z,l) or z.fname(l). "self" must be decref'ed. "var" must be a
  * pointer to a long. "msg" should be an error message that includes the
  * function name and describes the required arguments. Replaces some uses of
  * SELF_MPZ_ONE_ARG.
@@ -667,7 +687,7 @@ static PyMethodDef Pympf_methods [];
 /*
  * Parses two, and only two, arguments into "self" and "var" and converts
  * them both to mpz. Is faster, but not as generic, as using PyArg_ParseTuple.
- * It supports either gmpy2.fname(z,z) or z.fname(z). "self" & "var" must be
+ * It supports either gmpy.fname(z,z) or z.fname(z). "self" & "var" must be
  * decref'ed after use. "msg" should be an error message that includes the
  * function name and describes the required arguments. Replaces
  * SELF_MPZ_ONE_ARG_CONVERTED(var).
@@ -3380,6 +3400,49 @@ Pympz_root(PyObject *self, PyObject *args)
     return Py_BuildValue("(Ni)", s, exact);
 }
 
+static char doc_rootremm[]="\
+x.rootrem(n): returns a 2-element tuple (y,r), such that y is the\n\
+(possibly truncated) n-th root of x; r is the remainder. n must be an\n\
+ordinary Python int, >=0.\n\
+";
+static char doc_rootremg[]="\
+rootrem(x,n): returns a 2-element tuple (y,r), such that y is the\n\
+(possibly truncated) n-th root of x; r is the remainder. n must be an\n\
+ordinary Python int, >=0. x must be an mpz, or else gets coerced to one.\n\
+";
+static PyObject *
+Pympz_rootrem(PyObject *self, PyObject *args)
+{
+    long n;
+    PympzObject *y = 0, *r = 0;
+
+    PARSE_ONE_MPZ_REQ_CLONG(&n,
+            "rootrem expects 'mpz',n arguments");
+
+    assert(Pympz_Check(self));
+    if(n <= 0) {
+        PyErr_SetString(PyExc_ValueError, "n must be > 0");
+        Py_DECREF(self);
+        return NULL;
+    } else if(n>1) {
+        int sign = mpz_sgn(Pympz_AS_MPZ(self));
+        if(sign<0) {
+            PyErr_SetString(PyExc_ValueError, "root of negative number");
+            Py_DECREF(self);
+            return NULL;
+        }
+    }
+    if(!(y = Pympz_new()) || !(r = Pympz_new())) {
+        Py_DECREF(self);
+        Py_XDECREF((PyObject*)y);
+        Py_XDECREF((PyObject*)r);
+        return NULL;
+    }
+    mpz_rootrem(y->z, r->z, Pympz_AS_MPZ(self), n);
+    Py_DECREF(self);
+    return Py_BuildValue("(NN)", y, r);
+}
+
 /* produce string for an mpf with requested/defaulted parameters */
 static char doc_fdigitsm[]="\
 x.digits(base=10, digs=0, mine=0, maxe=-1, opts=0): formats x.\n\
@@ -5107,7 +5170,7 @@ Pygmpy_fac(PyObject *self, PyObject *args)
     PympzObject *fac;
     long n;
 
-    ONE_ARG("fac", "l", &n);
+    PARSE_ONE_CLONG(&n, "fac() expects n argument");
 
     if(n < 0) {
         PyErr_SetString(PyExc_ValueError, "factorial of negative number");
@@ -5130,7 +5193,7 @@ Pygmpy_fib(PyObject *self, PyObject *args)
     PympzObject *fib;
     long n;
 
-    ONE_ARG("fib", "l", &n);
+    PARSE_ONE_CLONG(&n, "fib() expects n argument");
 
     if(n < 0) {
         PyErr_SetString(PyExc_ValueError, "Fibonacci of negative number");
@@ -5141,6 +5204,93 @@ Pygmpy_fib(PyObject *self, PyObject *args)
     mpz_fib_ui(fib->z, n);
 
     return (PyObject *) fib;
+}
+
+static char doc_fib2[]="\
+fib2(n): returns the n-th and n+1-th Fibonacci numbers; takes O(n) time;\n\
+n must be an ordinary Python int, >=0.\n\
+";
+static PyObject *
+Pygmpy_fib2(PyObject *self, PyObject *args)
+{
+    PympzObject *fib1 = 0, *fib2 = 0;
+    PyObject *result = 0;
+    long n;
+
+    PARSE_ONE_CLONG(&n, "fib2() expects n argument");
+
+    if(n < 0) {
+        PyErr_SetString(PyExc_ValueError, "Fibonacci of negative number");
+        return NULL;
+    }
+    fib1 = Pympz_new();
+    fib2 = Pympz_new();
+    result = PyTuple_New(2);
+    if(!fib1 || !fib2 || !result) {
+        Py_XDECREF((PyObject*)fib1);
+        Py_XDECREF((PyObject*)fib2);
+        return NULL;
+    }
+    mpz_fib2_ui(fib1->z, fib2->z, n);
+
+    PyTuple_SET_ITEM(result, 0, (PyObject*)fib1);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)fib2);
+    return result;
+}
+
+static char doc_lucas[]="\
+lucas(n): returns the n-th Lucas number; takes O(n) time; n must be\n\
+an ordinary Python int, >=0.\n\
+";
+static PyObject *
+Pygmpy_lucas(PyObject *self, PyObject *args)
+{
+    PympzObject *luc;
+    long n;
+
+    PARSE_ONE_CLONG(&n, "lucas() expects n argument");
+
+    if(n < 0) {
+        PyErr_SetString(PyExc_ValueError, "Lucas of negative number");
+        return NULL;
+    }
+    if(!(luc = Pympz_new()))
+        return NULL;
+    mpz_lucnum_ui(luc->z, n);
+
+    return (PyObject *) luc;
+}
+
+static char doc_lucas2[]="\
+lucas(n): returns the n-th Lucas number; takes O(n) time; n must be\n\
+an ordinary Python int, >=0.\n\
+";
+static PyObject *
+Pygmpy_lucas2(PyObject *self, PyObject *args)
+{
+    PympzObject *luc1 = 0, *luc2 = 0;
+    PyObject* result = 0;
+    long n;
+
+    PARSE_ONE_CLONG(&n, "lucas2() expects 'n' argument");
+
+    if(n < 0) {
+        PyErr_SetString(PyExc_ValueError, "Lucas of negative number");
+        return NULL;
+    }
+    luc1 = Pympz_new();
+    luc2 = Pympz_new();
+    result = PyTuple_New(2);
+    if(!luc1 || !luc2 || !result) {
+        Py_XDECREF((PyObject*)luc1);
+        Py_XDECREF((PyObject*)luc2);
+        return NULL;
+    }
+    mpz_lucnum2_ui(luc1->z, luc2->z, n);
+
+    PyTuple_SET_ITEM(result, 0, (PyObject*)luc1);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)luc2);
+    return result;
 }
 
 static char doc_pi[]="\
@@ -6418,6 +6568,9 @@ static PyMethodDef Pygmpy_methods [] =
     { "divm", Pygmpy_divm, 1, doc_divm },
     { "fac", Pygmpy_fac, 1, doc_fac },
     { "fib", Pygmpy_fib, 1, doc_fib },
+    { "fib2", Pygmpy_fib2, 1, doc_fib2 },
+    { "lucas", Pygmpy_lucas, 1, doc_lucas },
+    { "lucas2", Pygmpy_lucas2, 1, doc_lucas2 },
     { "pi", Pygmpy_pi, 1, doc_pi },
     { "rand", Pygmpy_rand, 1, doc_rand },
     { "sqrt", Pympz_sqrt, 1, doc_sqrtg },
@@ -6445,6 +6598,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "scan0", Pympz_scan0, 1, doc_scan0g },
     { "scan1", Pympz_scan1, 1, doc_scan1g },
     { "root", Pympz_root, 1, doc_rootg },
+    { "rootrem", Pympz_rootrem, 1, doc_rootremg },
     { "bincoef", Pympz_bincoef, 1, doc_bincoefg },
     { "comb", Pympz_bincoef, 1, doc_combg },
     { "remove", Pympz_remove, 1, doc_removeg },
@@ -6510,6 +6664,7 @@ static PyMethodDef Pympz_methods [] =
     { "scan0", Pympz_scan0, 1, doc_scan0m },
     { "scan1", Pympz_scan1, 1, doc_scan1m },
     { "root", Pympz_root, 1, doc_rootm },
+    { "rootrem", Pympz_rootrem, 1, doc_rootremm },
     { "bincoef", Pympz_bincoef, 1, doc_bincoefm },
     { "comb", Pympz_bincoef, 1, doc_combm },
     { "remove", Pympz_remove, 1, doc_removem },
