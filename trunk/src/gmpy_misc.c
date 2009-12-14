@@ -6,6 +6,38 @@
  */
 
 /* Return license information. */
+
+#ifdef __MPIR_VERSION
+#define MPIR_VER \
+__MPIR_VERSION * 10000 + \
+__MPIR_VERSION_MINOR * 100 + \
+__MPIR_VERSION_PATCHLEVEL
+char gmpy_license[] = "\
+The GMPY source code is licensed under LGPL 2.1 or later. \
+The MPIR library is licensed under LGPL 2.1 or later. \
+Therefore, this combined module is licensed under LGPL 2.1 or later.\
+";
+#else
+#define GNU_MP_VER \
+__GNU_MP_VERSION * 10000 + \
+__GNU_MP_VERSION_MINOR * 100 + \
+__GNU_MP_VERSION_PATCHLEVEL
+#if GNU_MP_VER > 40201
+char gmpy_license[] = "\
+The GMPY source code is licensed under LGPL 2.1 or later. \
+This version of the GMP library is licensed under LGPL 3 or later. \
+Therefore, this combined module is licensed under LGPL 3 or later.\
+";
+#else
+char gmpy_license[] = "\
+The GMPY source code is licensed under LGPL 2.1 or later. \
+This version of the GMP library is licensed under LGPL 2.1 or later. \
+Therefore, this combined module is licensed under LGPL 2.1 or later.\
+";
+#endif
+#endif
+#undef GNU_MP_VER
+
 static char doc_license[]="\
 license(): returns string giving license information\n\
 ";
