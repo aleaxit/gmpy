@@ -135,41 +135,30 @@ static char doc_bit_lengthg[]="\
 bit_length(x): returns length of string representing x in base 2\n\
 ";
 static PyObject *
-Pympz_bit_length(PyObject *self, PyObject *args)
+Pympz_bit_length(PyObject *self, PyObject *other)
 {
     long i = 0;
     PympzObject* newob;
 
     if(self && Pympz_Check(self)) {
-        if(PyTuple_GET_SIZE(args) != 0) {
-            PyErr_SetString(PyExc_TypeError,
-                "bit_length() takes exactly 1 argument");
-            return NULL;
-        }
-        assert(Pympz_Check(self));
-        if ((i=mpz_sizeinbase(Pympz_AS_MPZ(self), 2))==1)
-            return Py2or3Int_FromLong((long) mpz_size(Pympz_AS_MPZ(self)));
-        else
-            return Py2or3Int_FromLong(i);
+        if (mpz_size(Pympz_AS_MPZ(self)))
+            i = (long) mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
+    } else if(Pympz_Check(other)) {
+        if (mpz_size(Pympz_AS_MPZ(other)))
+            i = (long) mpz_sizeinbase(Pympz_AS_MPZ(other), 2);
     } else {
-        if(PyTuple_GET_SIZE(args) != 1){
-            PyErr_SetString(PyExc_TypeError,
-                "bit_length() takes exactly 1 argument");
-            return NULL;
-        }
-        newob = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+        newob = Pympz_From_Integer(other);
         if(newob) {
-            assert(Pympz_Check(newob));
             if (mpz_size(Pympz_AS_MPZ(newob)))
                 i = (long) mpz_sizeinbase(Pympz_AS_MPZ(newob), 2);
             Py_DECREF((PyObject*)newob);
-            return Py2or3Int_FromLong(i);
         } else {
             PyErr_SetString(PyExc_TypeError,
                 "unsupported operand type for bit_length: integer required");
             return NULL;
         }
     }
+    return Py2or3Int_FromLong(i);
 }
 
 /* return scan0/scan1 for an mpz */
@@ -543,48 +532,25 @@ Pympz_sign(PyObject *self, PyObject *args)
     return s;
 }
 
-#define MPZ_MONOP(NAME) \
-static PyObject * \
-Py##NAME(PympzObject *x) \
-{ \
-  PympzObject *r; \
-  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", x); \
-  if (!(r = Pympz_new())) return NULL; \
-  NAME(r->z, x->z); \
-  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
-  return (PyObject *) r; \
+static PyObject *
+Pympz_abs(PympzObject *x)
+{
+    PympzObject *result;
+    if(!(result = Pympz_new()))
+        return NULL;
+    mpz_abs(Pympz_AS_MPZ(result), Pympz_AS_MPZ(x));
+    return (PyObject *)result;
 }
 
-#define MPZ_BINOP(NAME) \
-static PyObject * \
-Py##NAME(PyObject *a, PyObject *b) \
-{ \
-  PympzObject *r; \
-  PympzObject *pa = 0; \
-  PympzObject *pb = 0; \
-  pa = Pympz_From_Integer(a); \
-  pb = Pympz_From_Integer(b); \
-  if(!pa || !pb) { \
-    PyErr_Clear(); \
-    Py_XDECREF((PyObject*)pa); \
-    Py_XDECREF((PyObject*)pb); \
-    Py_RETURN_NOTIMPLEMENTED; \
-  } \
-  if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p\n", pa, pb); \
-  if (!(r = Pympz_new())) { \
-    Py_DECREF((PyObject*)pa); \
-    Py_DECREF((PyObject*)pb); \
-    return NULL; \
-  } \
-  NAME(r->z, pa->z, pb->z); \
-  Py_DECREF((PyObject*)pa); \
-  Py_DECREF((PyObject*)pb); \
-  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
-  return (PyObject *) r; \
+static PyObject *
+Pympz_neg(PympzObject *x)
+{
+    PympzObject *result;
+    if(!(result = Pympz_new()))
+        return NULL;
+    mpz_neg(Pympz_AS_MPZ(result), Pympz_AS_MPZ(x));
+    return (PyObject *)result;
 }
-
-MPZ_MONOP(mpz_abs)
-MPZ_MONOP(mpz_neg)
 
 static PyObject *
 Pympz_pos(PympzObject *x)
@@ -697,7 +663,45 @@ Pympz_nonzero(PympzObject *x)
 }
 
 /* BIT OPERATIONS (mpz-only) */
-MPZ_MONOP(mpz_com)
+
+static PyObject *
+Pympz_com(PympzObject *x)
+{
+    PympzObject *result;
+    if(!(result = Pympz_new()))
+        return NULL;
+    mpz_com(Pympz_AS_MPZ(result), Pympz_AS_MPZ(x));
+    return (PyObject *)result;
+}
+
+#define MPZ_BINOP(NAME) \
+static PyObject * \
+Py##NAME(PyObject *a, PyObject *b) \
+{ \
+  PympzObject *r; \
+  PympzObject *pa = 0; \
+  PympzObject *pb = 0; \
+  pa = Pympz_From_Integer(a); \
+  pb = Pympz_From_Integer(b); \
+  if(!pa || !pb) { \
+    PyErr_Clear(); \
+    Py_XDECREF((PyObject*)pa); \
+    Py_XDECREF((PyObject*)pb); \
+    Py_RETURN_NOTIMPLEMENTED; \
+  } \
+  if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p\n", pa, pb); \
+  if (!(r = Pympz_new())) { \
+    Py_DECREF((PyObject*)pa); \
+    Py_DECREF((PyObject*)pb); \
+    return NULL; \
+  } \
+  NAME(r->z, pa->z, pb->z); \
+  Py_DECREF((PyObject*)pa); \
+  Py_DECREF((PyObject*)pb); \
+  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
+  return (PyObject *) r; \
+}
+
 MPZ_BINOP(mpz_and)
 MPZ_BINOP(mpz_ior)
 MPZ_BINOP(mpz_xor)
