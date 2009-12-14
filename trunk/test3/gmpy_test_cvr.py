@@ -82,15 +82,15 @@ r'''
 >>> _g.version(23)
 Traceback (most recent call last):
   ...
-TypeError: version expects 0 arguments
+TypeError: version() takes no arguments (1 given)
 >>> _g.gmp_version(23)
 Traceback (most recent call last):
   ...
-TypeError: gmp_version expects 0 arguments
+TypeError: gmp_version() takes no arguments (1 given)
 >>> _g.get_cache(23)
 Traceback (most recent call last):
   ...
-TypeError: get_cache expects 0 arguments
+TypeError: get_cache() takes no arguments (1 given)
 >>> _g.set_cache()
 Traceback (most recent call last):
   ...
