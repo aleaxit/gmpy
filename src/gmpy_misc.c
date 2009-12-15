@@ -173,8 +173,10 @@ Pygmpy_set_tagoff(PyObject *self, PyObject *args)
 {
     int old = options.tagoff;
 
-    ONE_ARG("set_tagoff", "i", &options.tagoff);
-    if(options.tagoff) options.tagoff=5;
+    if(!PyArg_ParseTuple(args, "i", &options.tagoff))
+        return NULL;
+    if(options.tagoff)
+        options.tagoff=5;
     return Py_BuildValue("i", old!=0);
 }
 
@@ -189,11 +191,12 @@ Pygmpy_set_minprec(PyObject *self, PyObject *args)
     long old = options.minprec;
     int i;
 
-    ONE_ARG("set_minprec", "i", &i);
+    if(!PyArg_ParseTuple(args, "i", &i))
+        return NULL;
     if(i<0) {
         PyErr_SetString(PyExc_ValueError,
             "minimum precision must be >= 0");
-        return 0;
+        return NULL;
     }
     options.minprec = i;
     return Py_BuildValue("l", old);
@@ -214,7 +217,8 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
     PyObject *new = 0;
     long inew;
 
-    ONE_ARG("set_fcoform", "|O", &new);
+    if(!PyArg_ParseTuple(args, "|O", &new))
+        return NULL;
     if(new == Py_None) { /* none == missing-argument (reset string use) */
         new = 0;
     } else if(new) {
@@ -225,13 +229,13 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
             if(inew==-1 && PyErr_Occurred()) {
                 PyErr_SetString(PyExc_ValueError,
                     "number of digits n must be 0<n<=30");
-                return 0;
+                return NULL;
             }
             /* check range for number-of-digits setting */
             if(inew<=0 || inew>30) {
                 PyErr_SetString(PyExc_ValueError,
                     "number of digits n must be 0<n<=30");
-                return 0;
+                return NULL;
             }
             /* prepare Python format-string '%.12e' or whatever */
             sprintf(buf,"%%.%lde",inew);
@@ -240,7 +244,7 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
             if(!Py2or3String_Check(new)) {
                 PyErr_SetString(PyExc_TypeError,
                     "set_fcoform argument must be int, string, or None");
-                return 0;
+                return NULL;
             }
             Py_INCREF(new);
         }

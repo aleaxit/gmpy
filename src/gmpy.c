@@ -679,9 +679,6 @@ set_pympqcache(void)
         }\
     }
 
-#define ONE_ARG(nm, fm, var) \
-    if(!PyArg_ParseTuple(args, fm, var)) { return NULL; }
-
 /* Define three different versions of the SELF_NO_ARG macro. Under Python
    2.x, self is NULL when a function is called via gmpy.fname(..). But
    under Python 3.x, self is a module. */
@@ -4872,7 +4869,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "jacobi", Pympz_jacobi, METH_VARARGS, doc_jacobig },
     { "legendre", Pympz_legendre, METH_VARARGS, doc_legendreg },
     { "kronecker", Pympz_kronecker, METH_VARARGS, doc_kroneckerm },
-    { "binary", Pympz_binary, METH_VARARGS, doc_binaryg },
+    { "binary", Pympz_binary, METH_O, doc_binaryg },
     { "digits", Pympz_digits, METH_VARARGS, doc_digitsg },
     { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsg },
     { "bit_length", Pympz_bit_length, METH_O, doc_bit_lengthg },
@@ -4893,7 +4890,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "comb", Pympz_bincoef, METH_VARARGS, doc_combg },
     { "remove", Pympz_remove, METH_VARARGS, doc_removeg },
     { "invert", Pympz_invert, METH_VARARGS, doc_invertg },
-    { "_copy", Pympz_copy, METH_VARARGS },
+    { "_copy", Pympz_copy, METH_O },
     { "sign", Pympz_sign, METH_VARARGS, doc_signg },
     { "fsqrt", Pympf_sqrt, METH_VARARGS, doc_fsqrtg },
     { "qsign", Pympq_sign, METH_VARARGS, doc_qsigng },
@@ -4938,7 +4935,7 @@ static PyMethodDef Pympz_methods [] =
     { "jacobi", Pympz_jacobi, METH_VARARGS, doc_jacobim },
     { "legendre", Pympz_legendre, METH_VARARGS, doc_legendrem },
     { "kronecker", Pympz_kronecker, METH_VARARGS, doc_kroneckerg },
-    { "binary", Pympz_binary, METH_VARARGS, doc_binarym },
+    { "binary", Pympz_binary, METH_NOARGS, doc_binarym },
     { "digits", Pympz_digits, METH_VARARGS, doc_digitsm },
     { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsm },
     { "bit_length", Pympz_bit_length, METH_NOARGS, doc_bit_lengthm },
@@ -4959,7 +4956,7 @@ static PyMethodDef Pympz_methods [] =
     { "comb", Pympz_bincoef, METH_VARARGS, doc_combm },
     { "remove", Pympz_remove, METH_VARARGS, doc_removem },
     { "invert", Pympz_invert, METH_VARARGS, doc_invertm },
-    { "_copy", Pympz_copy, METH_VARARGS },
+    { "_copy", Pympz_copy, METH_NOARGS },
     { "sign", Pympz_sign, METH_VARARGS, doc_signm },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivm },
     { NULL, NULL, 1 }

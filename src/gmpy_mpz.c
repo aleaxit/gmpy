@@ -6,27 +6,15 @@
  */
 
 static PyObject *
-Pympz_copy(PyObject *self, PyObject *args)
+Pympz_copy(PyObject *self, PyObject *other)
 {
-    PyObject* temp;
     if(self && Pympz_Check(self)) {
-        if(PyTuple_GET_SIZE(args) != 0) {
-            PyErr_SetString(PyExc_TypeError, "_copy() takes exactly 1 argument");
-            return NULL;
-        }
         return (PyObject*)Pympz2Pympz((PympzObject*)self);
+    } else if(Pympz_Check(other)) {
+        return (PyObject*)Pympz2Pympz((PympzObject*)other);
     } else {
-        if(PyTuple_GET_SIZE(args) != 1){
-            PyErr_SetString(PyExc_TypeError, "_copy() takes exactly 1 argument");
-            return NULL;
-        }
-        temp = PyTuple_GET_ITEM(args, 0);
-        if(Pympz_Check(temp)) {
-            return (PyObject*)Pympz2Pympz((PympzObject*)temp);
-        } else {
-            PyErr_SetString(PyExc_TypeError, "unsupported operand type for _copy(): mpz required");
-            return NULL;
-        }
+        PyErr_SetString(PyExc_TypeError, "unsupported operand type for _copy(): mpz required");
+        return NULL;
     }
 }
 
@@ -43,26 +31,24 @@ constructor function to obtain an exact copy of x's value).\n\
 x must be an mpz, or else gets coerced to one.\n\
 ";
 static PyObject *
-Pympz_binary(PyObject *self, PyObject *args)
+Pympz_binary(PyObject *self, PyObject *other)
 {
+    PyObject* result;
     PympzObject* temp;
+
     if(self && Pympz_Check(self)) {
-        if(PyTuple_GET_SIZE(args) != 0) {
-            PyErr_SetString(PyExc_TypeError, "function takes exactly 1 argument");
-            return NULL;
-        }
         return Pympz2binary((PympzObject*)self);
+    } else if(Pympz_Check(other)) {
+        return Pympz2binary((PympzObject*)other);
     } else {
-        if(PyTuple_GET_SIZE(args) != 1){
-            PyErr_SetString(PyExc_TypeError, "function takes exactly 1 argument");
-            return NULL;
-        }
-        temp = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+        temp = Pympz_From_Integer(other);
         if(!temp) {
             PyErr_SetString(PyExc_TypeError, "argument is not an integer");
             return NULL;
         } else {
-            return Pympz2binary((PympzObject*)temp);
+            result = Pympz2binary(temp);
+            Py_DECREF((PyObject*)temp);
+            return result;
         }
     }
 }
@@ -198,12 +184,14 @@ Pympz_scan0(PyObject *self, PyObject *args)
             fprintf(stderr,"scan0 start=%ld max=%ld sig=%d\n",
                 starting_bit, maxbit, sig);
 
-        if(sig<0)
-            s = Py_BuildValue("");
-        else
-            s = Py_BuildValue("l", starting_bit);
+        if(sig<0) {
+            s = Py_None;
+            Py_INCREF(s);
+        } else {
+            s = Py2or3Int_FromLong(starting_bit);
+        }
     } else {
-        s = Py_BuildValue("l", mpz_scan0(Pympz_AS_MPZ(self), starting_bit));
+        s = Py2or3Int_FromLong(mpz_scan0(Pympz_AS_MPZ(self), starting_bit));
     }
     Py_DECREF(self);
     return s;
@@ -244,13 +232,14 @@ Pympz_scan1(PyObject *self, PyObject *args)
         if(options.debug)
             fprintf(stderr,"scan1 start=%ld max=%ld sig=%d\n",
                 starting_bit, maxbit, sig);
-
-        if(sig>=0)
-            s = Py_BuildValue("");
-        else
-            s = Py_BuildValue("l", starting_bit);
+        if(sig>=0) {
+            s = Py_None;
+            Py_INCREF(s);
+        } else {
+            s = Py2or3Int_FromLong(starting_bit);
+        }
     } else {
-        s = Py_BuildValue("l", mpz_scan1(Pympz_AS_MPZ(self), starting_bit));
+        s = Py2or3Int_FromLong(mpz_scan1(Pympz_AS_MPZ(self), starting_bit));
     }
     Py_DECREF(self);
     return s;
@@ -273,7 +262,7 @@ Pympz_popcount(PyObject *self, PyObject *args)
 
     PARSE_ONE_MPZ("popcount expects 'mpz' argument");
     assert(Pympz_Check(self));
-    s = Py_BuildValue("l", mpz_popcount(Pympz_AS_MPZ(self)));
+    s = Py2or3Int_FromLong(mpz_popcount(Pympz_AS_MPZ(self)));
     Py_DECREF(self);
     return s;
 }
@@ -337,7 +326,7 @@ Pympz_getbit(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
-    s = Py_BuildValue("i", mpz_tstbit(Pympz_AS_MPZ(self), bit_index));
+    s = Py2or3Int_FromLong(mpz_tstbit(Pympz_AS_MPZ(self), bit_index));
     Py_DECREF(self);
     return s;
 }
@@ -444,6 +433,7 @@ Pympz_root(PyObject *self, PyObject *args)
     long n;
     int exact;
     PympzObject *s;
+    PyObject *result;
 
     PARSE_ONE_MPZ_REQ_CLONG(&n,
             "root expects 'mpz',n arguments");
@@ -461,13 +451,19 @@ Pympz_root(PyObject *self, PyObject *args)
             return NULL;
         }
     }
-    if(!(s = Pympz_new())) {
+    s = Pympz_new();
+    result = PyTuple_New(2);
+    if(!s || !result) {
         Py_DECREF(self);
+        Py_XDECREF((PyObject*)s);
+        Py_XDECREF(result);
         return NULL;
     }
     exact = mpz_root(s->z, Pympz_AS_MPZ(self), n);
     Py_DECREF(self);
-    return Py_BuildValue("(Ni)", s, exact);
+    PyTuple_SET_ITEM(result, 0, (PyObject*)s);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)Py2or3Int_FromLong(exact));
+    return result;
 }
 
 static char doc_rootremm[]="\
@@ -485,6 +481,7 @@ Pympz_rootrem(PyObject *self, PyObject *args)
 {
     long n;
     PympzObject *y = 0, *r = 0;
+    PyObject *result;
 
     PARSE_ONE_MPZ_REQ_CLONG(&n,
             "rootrem expects 'mpz',n arguments");
@@ -502,15 +499,21 @@ Pympz_rootrem(PyObject *self, PyObject *args)
             return NULL;
         }
     }
-    if(!(y = Pympz_new()) || !(r = Pympz_new())) {
+    y = Pympz_new();
+    r = Pympz_new();
+    result = PyTuple_New(2);
+    if(!y || !r || !result) {
         Py_DECREF(self);
+        Py_XDECREF(result);
         Py_XDECREF((PyObject*)y);
         Py_XDECREF((PyObject*)r);
         return NULL;
     }
     mpz_rootrem(y->z, r->z, Pympz_AS_MPZ(self), n);
     Py_DECREF(self);
-    return Py_BuildValue("(NN)", y, r);
+    PyTuple_SET_ITEM(result, 0, (PyObject*)y);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)r);
+    return result;
 }
 
 static char doc_signm[]="\
@@ -527,7 +530,7 @@ Pympz_sign(PyObject *self, PyObject *args)
 
     PARSE_ONE_MPZ("sign expects 'mpz' argument");
     assert(Pympz_Check(self));
-    s = Py_BuildValue("i", mpz_sgn(Pympz_AS_MPZ(self)));
+    s = Py2or3Int_FromLong(mpz_sgn(Pympz_AS_MPZ(self)));
     Py_DECREF(self);
     return s;
 }
