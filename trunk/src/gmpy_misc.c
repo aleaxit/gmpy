@@ -129,15 +129,15 @@ Pygmpy_set_cache(PyObject *self, PyObject *args)
     if(!PyArg_ParseTuple(args, "ii", &newcache, &newsize))
         return NULL;
     if(newcache<0 || newcache>MAX_CACHE) {
-        PyErr_SetString(PyExc_ValueError, "cache must between 0 and 1000");
+        PyErr_SetString(PyExc_ValueError, "cache size must between 0 and 1000");
         return NULL;
     }
     if(newsize<0 || newsize>MAX_CACHE_LIMBS) {
         PyErr_SetString(PyExc_ValueError, "object size must between 0 and 16384");
         return NULL;
     }
-    options.cache_size=newcache;
-    options.cache_obsize=newsize;
+    options.cache_size = newcache;
+    options.cache_obsize = newsize;
     set_zcache();
     set_qcache();
     set_pympzcache();
@@ -157,7 +157,8 @@ Pygmpy_set_debug(PyObject *self, PyObject *args)
 {
     long old = options.debug;
 
-    ONE_ARG("set_debug", "l", &options.debug);
+    if(!PyArg_ParseTuple(args, "l", &options.debug))
+        return NULL;
     return Py_BuildValue("l", old);
 }
 

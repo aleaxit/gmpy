@@ -5,7 +5,7 @@
 # test-version 1.20
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(f))
-['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
+['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
 >>>
 '''
 try: import decimal as _d

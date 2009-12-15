@@ -206,6 +206,7 @@
  *   1.20:
  *   Added caching for mpq (casevh)
  *   Added rootrem, fib2, lucas, lucas2 (casevh)
+ *   Removed mpf.setprec(), use mpf.round() (casevh)
  */
 #include "Python.h"
 
@@ -4197,10 +4198,11 @@ Pygmpy_pi(PyObject *self, PyObject *args)
     mpf_t r_i2, r_i3, r_i4;
     mpf_t ix;
 
-    ONE_ARG("pi", "i", &precision);
-    if(!(pi = Pympf_new(precision))) {
+    if(!PyArg_ParseTuple(args, "i", &precision))
         return NULL;
-    }
+    if(!(pi = Pympf_new(precision)))
+        return NULL;
+
 
     mpf_set_si(pi->f, 1);
 
@@ -4322,37 +4324,6 @@ Pympf_getrprec(PyObject *self, PyObject *args)
     precres = (long) ((PympfObject*)self)->rebits;
     Py_DECREF(self);
     return Py2or3Int_FromLong(precres);
-}
-
-static char doc_setprecm[]="\
-x.setprec(n): sets the number of bits of precision in x to\n\
-be _at least_ n (n>0).  ***note that this alters x***!!!\n\
-Please use x.round(); it returns a new value instead of\n\
-altering the existing value. setprec() will be removed in a\n\
-future release.\n\
-";
-static PyObject *
-Pympf_setprec(PyObject *self, PyObject *args)
-{
-    long precres;
-
-    assert(self);   /* exists _as method, ONLY_ */
-    assert(Pympf_Check(self));
-
-    if(PyErr_Warn(PyExc_DeprecationWarning,
-        "setprec() will be removed, use round() instead")) {
-        return NULL;
-    }
-    ONE_ARG("setprec", "l", &precres);
-    if(precres<0) {
-        PyErr_SetString(PyExc_ValueError, "n must be >=0");
-        return NULL;
-    }
-
-    mpf_set_prec(Pympf_AS_MPF(self), precres);
-    ((PympfObject*)self)->rebits = precres;
-    Pympf_normalize((PympfObject*)self);
-    return Py_BuildValue("");
 }
 
 static char doc_froundm[] = "\
@@ -5014,7 +4985,6 @@ static PyMethodDef Pympf_methods [] =
     { "round", Pympf_round, METH_VARARGS, doc_froundm },
     { "getprec", Pympf_getprec, METH_VARARGS, doc_getprecm },
     { "getrprec", Pympf_getrprec, METH_VARARGS, doc_getrprecm },
-    { "setprec", Pympf_setprec, METH_VARARGS, doc_setprecm },
     { "_copy", Pympf_copy, METH_VARARGS },
     { "sign", Pympf_sign, METH_VARARGS, doc_fsignm },
     { "sqrt", Pympf_sqrt, METH_VARARGS, doc_fsqrtm },

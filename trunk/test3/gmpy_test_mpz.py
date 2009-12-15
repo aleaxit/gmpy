@@ -8,9 +8,6 @@ r'''
 ['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__iadd__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__', '__index__', '__init__', '__int__', '__invert__', '__ipow__', '__irshift__', '__isub__', '__le__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', '_copy', 'binary', 'bincoef', 'bit_length', 'cdivmod', 'comb', 'digits', 'divexact', 'fdivmod', 'getbit', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod']
 >>>
 '''
-import warnings
-warnings.filterwarnings('ignore', 'setprec')
-
 import gmpy as _g, doctest, sys, operator, gc
 __test__={}
 a=_g.mpz(123)
@@ -934,11 +931,6 @@ TypeError: kronecker() expects 'mpz','mpz' arguments
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: Either arg in Kronecker must fit in an int
->>> f=_g.mpf(3.3)
->>> f.setprec(-1)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: n must be >=0
 >>> _g.rand('init',-1)
 >>> _g.rand('init',-7)
 Traceback (most recent call last):

@@ -8,9 +8,6 @@ r'''
 ['_copy', 'binary', 'bincoef', 'bit_length', 'cdivmod', 'comb', 'digits', 'divexact', 'fdivmod', 'getbit', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod']
 >>>
 '''
-import warnings
-warnings.filterwarnings('ignore', 'setprec')
-
 import gmpy as _g, doctest, sys, operator, gc
 __test__={}
 a=_g.mpz(123)
@@ -856,11 +853,6 @@ TypeError: kronecker() expects 'mpz','mpz' arguments
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: Either arg in Kronecker must fit in an int
->>> f=_g.mpf(3.3)
->>> f.setprec(-1)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: n must be >=0
 >>> _g.rand('init',-1)
 >>> _g.rand('init',-7)
 Traceback (most recent call last):
