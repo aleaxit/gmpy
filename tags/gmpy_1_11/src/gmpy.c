@@ -2866,7 +2866,9 @@ x must be an mpz, or else gets coerced to one.\n\
 static PyObject *
 Pympz_binary(PyObject *self, PyObject *args)
 {
+    PyObject* result;
     PympzObject* temp;
+
     if(self && Pympz_Check(self)) {
         if(PyTuple_GET_SIZE(args) != 0) {
             PyErr_SetString(PyExc_TypeError, "function takes exactly 1 argument");
@@ -2883,7 +2885,9 @@ Pympz_binary(PyObject *self, PyObject *args)
             PyErr_SetString(PyExc_TypeError, "argument is not an integer");
             return NULL;
         } else {
-            return Pympz2binary((PympzObject*)temp);
+            result = Pympz2binary((PympzObject*)temp);
+            Py_DECREF((PyObject*)temp);
+            return result;
         }
     }
 }
