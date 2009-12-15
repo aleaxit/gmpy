@@ -3,12 +3,9 @@
 # test-version 1.20
 r'''
 >>> dir(a)
-['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
+['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
 >>>
 '''
-import warnings
-warnings.filterwarnings('ignore', 'setprec')
-
 import sys
 
 import gmpy as _g, doctest, sys
@@ -298,12 +295,13 @@ ValueError: digits must be >= 0
 >>> a.digits(10,0,0,-1,2)
 ('123456', 3, 53)
 >>> saveprec=a.getrprec()
->>> a.setprec(33)
->>> a
+>>> newa = a.round(33)
+>>> newa
 mpf('1.23456e2',33)
->>> a.setprec(saveprec)
->>> a.getrprec()==saveprec
+>>> newa = newa.round(saveprec)
+>>> newa.getrprec()==saveprec
 1
+>>> del(newa)
 >>> _g.fdigits(2.2e5, 0, 6, -10, 10)
 '220000.0'
 >>> _g.fdigits(2.2e-5, 0, 6, -10, 10)

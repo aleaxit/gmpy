@@ -106,11 +106,11 @@ ValueError: object size must between 0 and 16384
 >>> _g.set_cache(2000,256)
 Traceback (most recent call last):
   ...
-ValueError: cache must between 0 and 1000
+ValueError: cache size must between 0 and 1000
 >>> _g.set_cache(-23,256)
 Traceback (most recent call last):
   ...
-ValueError: cache must between 0 and 1000
+ValueError: cache size must between 0 and 1000
 >>> _g.set_cache(200,256000)
 Traceback (most recent call last):
   ...
