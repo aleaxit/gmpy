@@ -276,37 +276,7 @@
 #define Py_RETURN_NOTIMPLEMENTED\
     return Py_INCREF(Py_NotImplemented), Py_NotImplemented
 
-/* Define various macros to deal with differences between Python 2 and 3. */
-
-#if PY_MAJOR_VERSION >= 3
-#define Py2or3Int_FromLong              PyLong_FromLong
-#define Py2or3String_FromString         PyUnicode_FromString
-#define Py2or3String_Check              PyUnicode_Check
-#define Py2or3String_Format             PyUnicode_Format
-#define Py2or3String_AsString           PyUnicode_AS_DATA
-#define Py2or3Bytes_ConcatAndDel        PyBytes_ConcatAndDel
-#define Py2or3Bytes_FromString          PyBytes_FromString
-#define Py2or3Bytes_AS_STRING           PyBytes_AS_STRING
-#define Py2or3Bytes_FromStringAndSize   PyBytes_FromStringAndSize
-#else
-#define Py2or3Int_FromLong              PyInt_FromLong
-#define Py2or3String_FromString         PyString_FromString
-#define Py2or3String_Check              PyString_Check
-#define Py2or3String_Format             PyString_Format
-#define Py2or3String_AsString           PyString_AsString
-#define Py2or3Bytes_ConcatAndDel        PyString_ConcatAndDel
-#define Py2or3Bytes_FromString          PyString_FromString
-#define Py2or3Bytes_AS_STRING           PyString_AS_STRING
-#define Py2or3Bytes_FromStringAndSize   PyString_FromStringAndSize
-#endif
-
-#ifndef PyLong_SHIFT
-#define PyLong_SHIFT SHIFT
-#endif
-
-#ifndef PyLong_MASK
-#define PyLong_MASK MASK
-#endif
+/* Various defs to mask differences between Python versions. */
 
 #ifndef Py_SIZE
 #define Py_SIZE(ob)		(((PyVarObject*)(ob))->ob_size)
@@ -320,8 +290,40 @@
 #define Py_REFCNT(ob)		(((PyObject*)(ob))->ob_refcnt)
 #endif
 
+/* Add support for PyLong_AsLongAndOverflow to older versions of Python */
+
+#if (PY_VERSION_HEX < 0x02070000)
+#include "py3intcompat.c"
+#endif
+
 /* Include fast mpz to/from PyLong conversion from sage. */
 #include "mpz_pylong.c"
+
+/* Define various macros to deal with differences between Python 2 and 3. */
+
+#if PY_MAJOR_VERSION >= 3
+#define Py2or3Int_FromLong              PyLong_FromLong
+#define Py2or3String_FromString         PyUnicode_FromString
+#define Py2or3String_Check              PyUnicode_Check
+#define Py2or3String_Format             PyUnicode_Format
+#define Py2or3String_AsString           PyUnicode_AS_DATA
+#define Py2or3Bytes_ConcatAndDel        PyBytes_ConcatAndDel
+#define Py2or3Bytes_FromString          PyBytes_FromString
+#define Py2or3Bytes_AS_STRING           PyBytes_AS_STRING
+#define Py2or3Bytes_FromStringAndSize   PyBytes_FromStringAndSize
+#define PyIntOrLong_Check(op)           PyLong_Check(op)
+#else
+#define Py2or3Int_FromLong              PyInt_FromLong
+#define Py2or3String_FromString         PyString_FromString
+#define Py2or3String_Check              PyString_Check
+#define Py2or3String_Format             PyString_Format
+#define Py2or3String_AsString           PyString_AsString
+#define Py2or3Bytes_ConcatAndDel        PyString_ConcatAndDel
+#define Py2or3Bytes_FromString          PyString_FromString
+#define Py2or3Bytes_AS_STRING           PyString_AS_STRING
+#define Py2or3Bytes_FromStringAndSize   PyString_FromStringAndSize
+#define PyIntOrLong_Check(op)           (PyInt_Check(op) || PyLong_Check(op))
+#endif
 
 char gmpy_version[] = "1.20";
 
@@ -352,6 +354,7 @@ char _gmpy_cvs[] = "$Id$";
 /*
  * global data declarations
  */
+
 static PyObject *gmpy_module = NULL;
 
 static struct gmpy_options {
@@ -2331,12 +2334,8 @@ static int isNumber(PyObject* obj)
         fprintf(stderr, "isNumber: object type is %s\n", Py_TYPE(obj)->tp_name);
     if(Pympz_Check(obj)) {
         return 1;
-    } else if(PyLong_Check(obj)) {
+    } else if(PyIntOrLong_Check(obj)) {
         return 1;
-#if PY_MAJOR_VERSION == 2
-    } else if(PyInt_Check(obj)) {
-        return 1;
-#endif
     } else if(Pympq_Check(obj)) {
         return 1;
     } else if(Pympf_Check(obj)) {
@@ -2357,12 +2356,8 @@ static int isRational(PyObject* obj)
         fprintf(stderr, "isRational: object type is %s\n", Py_TYPE(obj)->tp_name);
     if(Pympz_Check(obj)) {
         return 1;
-    } else if(PyLong_Check(obj)) {
+    } else if(PyIntOrLong_Check(obj)) {
         return 1;
-#if PY_MAJOR_VERSION == 2
-    } else if(PyInt_Check(obj)) {
-        return 1;
-#endif
     } else if(Pympq_Check(obj)) {
         return 1;
     } else if(!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
@@ -2377,12 +2372,8 @@ static int isInteger(PyObject* obj)
         fprintf(stderr, "isInteger: object type is %s\n", Py_TYPE(obj)->tp_name);
     if(Pympz_Check(obj)) {
         return 1;
-    } else if(PyLong_Check(obj)) {
+    } else if(PyIntOrLong_Check(obj)) {
         return 1;
-#if PY_MAJOR_VERSION == 2
-    } else if(PyInt_Check(obj)) {
-        return 1;
-#endif
     }
     return 0;
 }

@@ -109,7 +109,7 @@ Pympz_numdigits(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
-    s = Py_BuildValue("l", (long) mpz_sizeinbase(Pympz_AS_MPZ(self), base));
+    s = Py2or3Int_FromLong((long) mpz_sizeinbase(Pympz_AS_MPZ(self), base));
     Py_DECREF(self);
     return s;
 }
@@ -714,35 +714,16 @@ Pympz_rshift(PyObject *a, PyObject *b)
 {
     PympzObject *rz, *pa, *pb;
     long count;
-#if PY_MAJOR_VERSION == 3
     int overflow;
-#endif
 
     if(!(rz = Pympz_new()))
         return NULL;
 
     /* Try to make mpz >> Python int/long as fast as possible. */
     if(Pympz_Check(a)) {
-#if PY_MAJOR_VERSION == 2
-        if(PyInt_Check(b)) {
-            if((count = PyInt_AS_LONG(b)) >= 0) {
-                mpz_fdiv_q_2exp(rz->z, Pympz_AS_MPZ(a), count);
-                return (PyObject *)rz;
-            } else {
-                PyErr_SetString(PyExc_ValueError, "negative shift count");
-                Py_DECREF((PyObject*)rz);
-                return NULL;
-            }
-        }
-#endif
-        if(PyLong_Check(b)) {
-#if PY_MAJOR_VERSION == 3
+        if(PyIntOrLong_Check(b)) {
             count = PyLong_AsLongAndOverflow(b, &overflow);
             if(overflow) {
-#else
-            count = PyLong_AsLong(b);
-            if(PyErr_Occurred()) {
-#endif
                 PyErr_SetString(PyExc_ValueError, "outrageous shift count");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
@@ -791,35 +772,16 @@ Pympz_lshift(PyObject *a, PyObject *b)
 {
     PympzObject *rz, *pa, *pb;
     long count;
-#if PY_MAJOR_VERSION == 3
     int overflow;
-#endif
 
     if(!(rz = Pympz_new()))
         return NULL;
 
     /* Try to make mpz >> Python int/long as fast as possible. */
     if(Pympz_Check(a)) {
-#if PY_MAJOR_VERSION == 2
-        if(PyInt_Check(b)) {
-            if((count = PyInt_AS_LONG(b)) >= 0) {
-                mpz_mul_2exp(rz->z, Pympz_AS_MPZ(a), count);
-                return (PyObject *)rz;
-            } else {
-                PyErr_SetString(PyExc_ValueError, "negative shift count");
-                Py_DECREF((PyObject*)rz);
-                return NULL;
-            }
-        }
-#endif
-        if(PyLong_Check(b)) {
-#if PY_MAJOR_VERSION == 3
+        if(PyIntOrLong_Check(b)) {
             count = PyLong_AsLongAndOverflow(b, &overflow);
             if(overflow) {
-#else
-            count = PyLong_AsLong(b);
-            if(PyErr_Occurred()) {
-#endif
                 PyErr_SetString(PyExc_ValueError, "outrageous shift count");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
