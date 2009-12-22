@@ -1,15 +1,23 @@
-/* This file contains source code copied from Python's source code. This file
-   is covered by the Python Software Foundation License.
+/* This file contains source code copied from Python's source code.
 
-   See http://www.python.org/psf/license/.
+   "Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Python
+    Software Foundation; All Rights Reserved"
+
+   For the full text of the license, see http://www.python.org/psf/license/.
 
    =======================================
 
    Python 3 introduced a new C API function PyLong_AsLongAndOverflow. It was
-   backported to Python 2.7. To assist extension authors, this file can be
-   included with the extension's source code and provides a version of
-   PyLong_AsLongAndOverflow that can be compiled with versions of Python
-   prior to 2.7.
+   backported to Python 2.7. This file can be included with an extension's
+   source code and provides a version of PyLong_AsLongAndOverflow that can be
+   compiled with versions of Python prior to 2.7.
+
+   PyLong_AsLongAndOverflow will accept either a PyInt or PyLong object so
+   PyIntOrLong_Check is defined to accept either type of integer. Actually,
+   PyLong_AsLongAndOverflow will try to convert almost any object to an
+   integer if it is not already a PyInt or PyLong. If you don't verify the
+   object is either a PyInt or PyLong first, you MUST check the for an error
+   in the return value.
 
    Example
    -------
@@ -36,6 +44,19 @@
            Process a PyInt or a PyLong that will fit into a C long.
        }
    }
+
+   ......
+
+   # Don't check the object type first.
+   temp = PyLong_AsLongAndOverflow(obj, &overflow);
+   if (temp == -1 && PyErr_Occurred()) {
+       raise an error message
+   } else if (overflow) {
+       obj is a PyLong that won't fit into a C long.
+   } else {
+       Process a PyInt or a PyLong that will fit into a C long.
+   }
+
 
 */
 
@@ -80,10 +101,11 @@ PyLong_AsLongAndOverflow(PyObject *vv, int *overflow)
         return PyInt_AsLong(vv);
 
 	if (!PyLong_Check(vv)) {
-		PyNumberMethods *nb;
-		if ((nb = vv->ob_type->tp_as_number) == NULL ||
-		    nb->nb_int == NULL) {
-			PyErr_SetString(PyExc_TypeError, "an integer is required");
+        PyNumberMethods *nb;
+		nb = vv->ob_type->tp_as_number;
+		if (nb == NULL || nb->nb_int == NULL) {
+			PyErr_SetString(PyExc_TypeError,
+					"an integer is required");
 			return -1;
 		}
 		vv = (*nb->nb_int) (vv);
@@ -141,7 +163,7 @@ PyLong_AsLongAndOverflow(PyObject *vv, int *overflow)
 			res = LONG_MIN;
 		}
 		else {
-			*overflow = Py_SIZE(v) > 0 ? 1 : -1;
+			*overflow = sign;
 			/* res is already set to -1 */
 		}
 	}
