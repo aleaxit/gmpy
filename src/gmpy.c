@@ -3347,7 +3347,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
         if(!newob) {
             if (!PyErr_Occurred()) {
                 PyErr_SetString(PyExc_TypeError,
-                    "gmpy.mpz() expects numeric or string argument");
+                    "gmpy.mpz() requires numeric or string argument");
             }
             return NULL;
         }
@@ -3424,7 +3424,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
         if(!newob) {
             if(!PyErr_Occurred()) {
                 PyErr_SetString(PyExc_TypeError,
-                    "gmpy.mpq() expects numeric or string argument");
+                    "gmpy.mpq() requires numeric or string argument");
             }
             return NULL;
         }
@@ -3546,7 +3546,7 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
         if(!newob) {
             if(!PyErr_Occurred())
                 PyErr_SetString(PyExc_TypeError,
-                    "gmpy.mpf() expects numeric or string argument");
+                    "gmpy.mpf() requires numeric or string argument");
             return NULL;
         }
     }
