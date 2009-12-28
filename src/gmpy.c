@@ -4573,86 +4573,85 @@ Pygmpy_rand(PyObject *self, PyObject *args)
 #if PY_MAJOR_VERSION >= 3
 static PyNumberMethods mpz_number_methods =
 {
-    (binaryfunc) Pympany_add,      /* binaryfunc nb_add;                  */
-    (binaryfunc) Pympany_sub,      /* binaryfunc nb_subtract;             */
-    (binaryfunc) Pympany_mul,      /* binaryfunc nb_multiply;             */
-    (binaryfunc) Pympany_rem,      /* binaryfunc nb_remaider;             */
-    (binaryfunc) Pympany_divmod,   /* binaryfunc nb_divmod;               */
-    (ternaryfunc) Pympany_pow,     /* ternaryfunc nb_power;               */
-    (unaryfunc) Pympz_neg,         /* unaryfunc nb_negative;              */
-    (unaryfunc) Pympz_pos,         /* unaryfunc nb_positive;              */
-    (unaryfunc) Pympz_abs,         /* unaryfunc nb_absolute;              */
-    (inquiry) Pympz_nonzero,       /* inquiry nb_bool;                    */
-    (unaryfunc) Pympz_com,         /* unaryfunc nb_invert;                */
-    (binaryfunc) Pympz_lshift,     /* binaryfunc nb_lshift;               */
-    (binaryfunc) Pympz_rshift,     /* binaryfunc nb_rshift;               */
-    (binaryfunc) Pympz_and,        /* binaryfunc nb_and;                  */
-    (binaryfunc) Pympz_xor,        /* binaryfunc nb_xor;                  */
-    (binaryfunc) Pympz_ior,        /* binaryfunc nb_or;                   */
-    (unaryfunc) Pympz2PyLong,      /* unaryfunc nb_int                    */
-        0,                         /* void *nb_reserved;                  */
-    (unaryfunc) Pympz2PyFloat,     /* unaryfunc nb_float;                 */
-    (binaryfunc) Pympz_inplace_add,  /* binaryfunc nb_inplace_add;          */
-    (binaryfunc) Pympz_inplace_sub,  /* binaryfunc nb_inplace_subtract;     */
-    (binaryfunc) Pympz_inplace_mul,  /* binaryfunc nb_inplace_multiply;     */
-    (binaryfunc) Pympz_inplace_rem,  /* binaryfunc nb_inplace_remainder;    */
-    (ternaryfunc) Pympz_inplace_pow,     /* ternaryfunc nb_inplace_power;       */
-    (binaryfunc) Pympz_inplace_lshift,   /* binaryfunc nb_inplace_lshift;       */
-    (binaryfunc) Pympz_inplace_rshift,   /* binaryfunc nb_inplace_rshift;       */
-        0,   /* binaryfunc nb_inplace_and;          */
-        0,                         /* binaryfunc nb_inplace_xor;          */
-        0,                         /* binaryfunc nb_inplace_or;           */
-    (binaryfunc) Pympany_floordiv, /* binaryfunc nb_floor_divide;         */
-    (binaryfunc) Pympany_truediv,  /* binaryfunc nb_true_divide;          */
-    (binaryfunc) Pympz_inplace_floordiv,  /* binaryfunc nb_inplace_floor_divide; */
-        0,                         /* binaryfunc nb_inplace_true_divide;  */
-    (unaryfunc)  Pympz_To_Integer,    /* unaryfunc nb_index;                 */
+    (binaryfunc) Pympany_add,            /* nb_add                  */
+    (binaryfunc) Pympany_sub,            /* nb_subtract             */
+    (binaryfunc) Pympany_mul,            /* nb_multiply             */
+    (binaryfunc) Pympany_rem,            /* nb_remaider             */
+    (binaryfunc) Pympany_divmod,         /* nb_divmod               */
+    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (unaryfunc) Pympz_neg,               /* nb_negative             */
+    (unaryfunc) Pympz_pos,               /* nb_positive             */
+    (unaryfunc) Pympz_abs,               /* nb_absolute             */
+    (inquiry) Pympz_nonzero,             /* nb_bool                 */
+    (unaryfunc) Pympz_com,               /* nb_invert               */
+    (binaryfunc) Pympz_lshift,           /* nb_lshift               */
+    (binaryfunc) Pympz_rshift,           /* nb_rshift               */
+    (binaryfunc) Pympz_and,              /* nb_and                  */
+    (binaryfunc) Pympz_xor,              /* nb_xor                  */
+    (binaryfunc) Pympz_ior,              /* nb_or                   */
+    (unaryfunc) Pympz2PyLong,            /* nb_int                  */
+        0,                               /* nb_reserved             */
+    (unaryfunc) Pympz2PyFloat,           /* nb_float                */
+    (binaryfunc) Pympz_inplace_add,      /* nb_inplace_add          */
+    (binaryfunc) Pympz_inplace_sub,      /* nb_inplace_subtract     */
+    (binaryfunc) Pympz_inplace_mul,      /* nb_inplace_multiply     */
+    (binaryfunc) Pympz_inplace_rem,      /* nb_inplace_remainder    */
+    (ternaryfunc) Pympz_inplace_pow,     /* nb_inplace_power        */
+    (binaryfunc) Pympz_inplace_lshift,   /* nb_inplace_lshift       */
+    (binaryfunc) Pympz_inplace_rshift,   /* nb_inplace_rshift       */
+        0,                               /* nb_inplace_and          */
+        0,                               /* nb_inplace_xor          */
+        0,                               /* nb_inplace_or           */
+    (binaryfunc) Pympany_floordiv,       /* nb_floor_divide         */
+    (binaryfunc) Pympany_truediv,        /* nb_true_divide          */
+    (binaryfunc) Pympz_inplace_floordiv, /* nb_inplace_floor_divide */
+        0,                               /* nb_inplace_true_divide  */
+    (unaryfunc)  Pympz_To_Integer,       /* nb_index                */
 };
 
 #else
 static PyNumberMethods mpz_number_methods =
 {
-    (binaryfunc) Pympany_add,
-    (binaryfunc) Pympany_sub,
-    (binaryfunc) Pympany_mul,
-    (binaryfunc) Pympany_div2,
-    (binaryfunc) Pympany_rem,
-    (binaryfunc) Pympany_divmod,
-    (ternaryfunc) Pympany_pow,
-    (unaryfunc) Pympz_neg,
-    (unaryfunc) Pympz_pos,  /* nb_positive */
-    (unaryfunc) Pympz_abs,
-    (inquiry) Pympz_nonzero,
-    (unaryfunc) Pympz_com,
-    (binaryfunc) Pympz_lshift,
-    (binaryfunc) Pympz_rshift,
-    (binaryfunc) Pympz_and,
-    (binaryfunc) Pympz_xor,
-    (binaryfunc) Pympz_ior,
-    (coercion) 0,
-    (unaryfunc) Pympz_To_Integer,
-    (unaryfunc) Pympz2PyLong,
-    (unaryfunc) Pympz2PyFloat,
-    (unaryfunc) Pympz_oct,
-    (unaryfunc) Pympz_hex,
-    (binaryfunc) Pympz_inplace_add,  /* binaryfunc nb_inplace_add;          */
-    (binaryfunc) Pympz_inplace_sub,  /* binaryfunc nb_inplace_subtract;     */
-    (binaryfunc) Pympz_inplace_mul,  /* binaryfunc nb_inplace_multiply;     */
-        0, /* binaryfunc nb_inplace_divide;     */
-    (binaryfunc) Pympz_inplace_rem,  /* binaryfunc nb_inplace_remainder;    */
-    (ternaryfunc) Pympz_inplace_pow,     /* ternaryfunc nb_inplace_power;       */
-    (binaryfunc) Pympz_inplace_lshift, /* binaryfunc nb_inplace_lshift;     */
-    (binaryfunc) Pympz_inplace_rshift, /* binaryfunc nb_inplace_rshift;     */
-        0, /* binaryfunc nb_inplace_and;        */
-        0, /* binaryfunc nb_inplace_xor;        */
-        0, /* binaryfunc nb_inplace_or;         */
-
-    (binaryfunc) Pympany_floordiv,      /* binaryfunc nb_floor_divide; */
-    (binaryfunc) Pympany_truediv,       /* binaryfunc nb_true_divide;  */
-    (binaryfunc) Pympz_inplace_floordiv,  /* binaryfunc nb_inplace_floor_divide; */
-        0, /* binaryfunc nb_inplace_true_divide;        */
+    (binaryfunc) Pympany_add,            /* nb_add                  */
+    (binaryfunc) Pympany_sub,            /* nb_subtract             */
+    (binaryfunc) Pympany_mul,            /* nb_multiply             */
+    (binaryfunc) Pympany_div2,           /* nb_divide               */
+    (binaryfunc) Pympany_rem,            /* nb_remaider             */
+    (binaryfunc) Pympany_divmod,         /* nb_divmod               */
+    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (unaryfunc) Pympz_neg,               /* nb_negative             */
+    (unaryfunc) Pympz_pos,               /* nb_positive             */
+    (unaryfunc) Pympz_abs,               /* nb_absolute             */
+    (inquiry) Pympz_nonzero,             /* nb_bool                 */
+    (unaryfunc) Pympz_com,               /* nb_invert               */
+    (binaryfunc) Pympz_lshift,           /* nb_lshift               */
+    (binaryfunc) Pympz_rshift,           /* nb_rshift               */
+    (binaryfunc) Pympz_and,              /* nb_and                  */
+    (binaryfunc) Pympz_xor,              /* nb_xor                  */
+    (binaryfunc) Pympz_ior,              /* nb_or                   */
+        0,                               /* nb_coerce               */
+    (unaryfunc) Pympz_To_Integer,        /* nb_int                  */
+    (unaryfunc) Pympz2PyLong,            /* nb_long                 */
+    (unaryfunc) Pympz2PyFloat,           /* nb_float                */
+    (unaryfunc) Pympz_oct,               /* nb_oct                  */
+    (unaryfunc) Pympz_hex,               /* nb_hex                  */
+    (binaryfunc) Pympz_inplace_add,      /* nb_inplace_add          */
+    (binaryfunc) Pympz_inplace_sub,      /* nb_inplace_subtract     */
+    (binaryfunc) Pympz_inplace_mul,      /* nb_inplace_multiply     */
+        0,                               /* nb_inplace_divide       */
+    (binaryfunc) Pympz_inplace_rem,      /* nb_inplace_remainder    */
+    (ternaryfunc) Pympz_inplace_pow,     /* nb_inplace_power        */
+    (binaryfunc) Pympz_inplace_lshift,   /* nb_inplace_lshift       */
+    (binaryfunc) Pympz_inplace_rshift,   /* nb_inplace_rshift       */
+        0,                               /* nb_inplace_and          */
+        0,                               /* nb_inplace_xor          */
+        0,                               /* nb_inplace_or           */
+    (binaryfunc) Pympany_floordiv,       /* nb_floor_divide         */
+    (binaryfunc) Pympany_truediv,        /* nb_true_divide          */
+    (binaryfunc) Pympz_inplace_floordiv, /* nb_inplace_floor_divide */
+        0,                               /* nb_inplace_true_divide  */
 #if Py_TPFLAGS_HAVE_INDEX
-    (unaryfunc) Pympz_To_Integer,            /* unaryfunc nb_index; */
+    (unaryfunc) Pympz_To_Integer,        /* nb_index                */
 #endif
 };
 #endif
@@ -4660,166 +4659,164 @@ static PyNumberMethods mpz_number_methods =
 #if PY_MAJOR_VERSION >= 3
 static PyNumberMethods mpq_number_methods =
 {
-    (binaryfunc) Pympany_add,      /* binaryfunc nb_add;                  */
-    (binaryfunc) Pympany_sub,      /* binaryfunc nb_subtract;             */
-    (binaryfunc) Pympany_mul,      /* binaryfunc nb_multiply;             */
-    (binaryfunc) Pympany_rem,      /* binaryfunc nb_remaider;             */
-    (binaryfunc) Pympany_divmod,   /* binaryfunc nb_divmod;               */
-    (ternaryfunc) Pympany_pow,     /* ternaryfunc nb_power;               */
-    (unaryfunc) Pympq_neg,         /* unaryfunc nb_negative;              */
-    (unaryfunc) Pympq_pos,         /* unaryfunc nb_positive;              */
-    (unaryfunc) Pympq_abs,         /* unaryfunc nb_absolute;              */
-    (inquiry) Pympq_nonzero,       /* inquiry nb_bool;                    */
-        0,                         /* unaryfunc nb_invert;                */
-        0,                         /* binaryfunc nb_lshift;               */
-        0,                         /* binaryfunc nb_rshift;               */
-        0,                         /* binaryfunc nb_and;                  */
-        0,                         /* binaryfunc nb_xor;                  */
-        0,                         /* binaryfunc nb_or;                   */
-    (unaryfunc) Pympq2PyLong,      /* unaryfunc nb_int                    */
-        0,                         /* void *nb_reserved;                  */
-    (unaryfunc) Pympq2PyFloat,     /* unaryfunc nb_float;                 */
-        0,                         /* binaryfunc nb_inplace_add;          */
-        0,                         /* binaryfunc nb_inplace_subtract;     */
-        0,                         /* binaryfunc nb_inplace_multiply;     */
-        0,                         /* binaryfunc nb_inplace_remainder;    */
-        0,                         /* ternaryfunc nb_inplace_power;       */
-        0,                         /* binaryfunc nb_inplace_lshift;       */
-        0,                         /* binaryfunc nb_inplace_rshift;       */
-        0,                         /* binaryfunc nb_inplace_and;          */
-        0,                         /* binaryfunc nb_inplace_xor;          */
-        0,                         /* binaryfunc nb_inplace_or;           */
-    (binaryfunc) Pympany_floordiv, /* binaryfunc nb_floor_divide;         */
-    (binaryfunc) Pympany_truediv,  /* binaryfunc nb_true_divide;          */
-        0,                         /* binaryfunc nb_inplace_floor_divide; */
-        0,                         /* binaryfunc nb_inplace_true_divide;  */
-        0,                         /* unaryfunc nb_index;                 */
+    (binaryfunc) Pympany_add,            /* nb_add                  */
+    (binaryfunc) Pympany_sub,            /* nb_subtract             */
+    (binaryfunc) Pympany_mul,            /* nb_multiply             */
+    (binaryfunc) Pympany_rem,            /* nb_remaider             */
+    (binaryfunc) Pympany_divmod,         /* nb_divmod               */
+    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (unaryfunc) Pympq_neg,               /* nb_negative             */
+    (unaryfunc) Pympq_pos,               /* nb_positive             */
+    (unaryfunc) Pympq_abs,               /* nb_absolute             */
+    (inquiry) Pympq_nonzero,             /* nb_bool                 */
+        0,                               /* nb_invert               */
+        0,                               /* nb_lshift               */
+        0,                               /* nb_rshift               */
+        0,                               /* nb_and                  */
+        0,                               /* nb_xor                  */
+        0,                               /* nb_or                   */
+    (unaryfunc) Pympq2PyLong,            /* nb_int                  */
+        0,                               /* nb_reserved             */
+    (unaryfunc) Pympq2PyFloat,           /* nb_float                */
+        0,                               /* nb_inplace_add          */
+        0,                               /* nb_inplace_subtract     */
+        0,                               /* nb_inplace_multiply     */
+        0,                               /* nb_inplace_remainder    */
+        0,                               /* nb_inplace_power        */
+        0,                               /* nb_inplace_lshift       */
+        0,                               /* nb_inplace_rshift       */
+        0,                               /* nb_inplace_and          */
+        0,                               /* nb_inplace_xor          */
+        0,                               /* nb_inplace_or           */
+    (binaryfunc) Pympany_floordiv,       /* nb_floor_divide         */
+    (binaryfunc) Pympany_truediv,        /* nb_true_divide          */
+        0,                               /* nb_inplace_floor_divide */
+        0,                               /* nb_inplace_true_divide  */
+        0,                               /* nb_index                */
 };
 #else
 static PyNumberMethods mpq_number_methods =
 {
-    (binaryfunc) Pympany_add,
-    (binaryfunc) Pympany_sub,
-    (binaryfunc) Pympany_mul,
-    (binaryfunc) Pympany_div2,
-    (binaryfunc) Pympany_rem,
-    (binaryfunc) Pympany_divmod,
-    (ternaryfunc) Pympany_pow,
-    (unaryfunc) Pympq_neg,
-    (unaryfunc) Pympq_pos,  /* nb_positive */
-    (unaryfunc) Pympq_abs,
-    (inquiry) Pympq_nonzero,
-    (unaryfunc) 0,      /* no bit-complement */
-    (binaryfunc) 0,     /* no left-shift */
-    (binaryfunc) 0,     /* no right-shift */
-    (binaryfunc) 0,     /* no bit-and */
-    (binaryfunc) 0,     /* no bit-xor */
-    (binaryfunc) 0,     /* no bit-ior */
-    (coercion) 0,
-    (unaryfunc) Pympq2PyInt,
-    (unaryfunc) Pympq2PyLong,
-    (unaryfunc) Pympq2PyFloat,
-    (unaryfunc) 0,      /* no oct */
-    (unaryfunc) 0,      /* no hex */
-        0, /* binaryfunc nb_inplace_add;        */
-        0, /* binaryfunc nb_inplace_subtract;   */
-        0, /* binaryfunc nb_inplace_multiply;   */
-        0, /* binaryfunc nb_inplace_divide;     */
-        0, /* binaryfunc nb_inplace_remainder;  */
-        0, /* ternaryfunc nb_inplace_power;     */
-        0, /* binaryfunc nb_inplace_lshift;     */
-        0, /* binaryfunc nb_inplace_rshift;     */
-        0, /* binaryfunc nb_inplace_and;        */
-        0, /* binaryfunc nb_inplace_xor;        */
-        0, /* binaryfunc nb_inplace_or;         */
-
-    (binaryfunc) Pympany_floordiv,      /* binaryfunc nb_floor_divide; */
-    (binaryfunc) Pympany_truediv,       /* binaryfunc nb_true_divide;  */
-        0, /* binaryfunc nb_inplace_floor_divide;       */
-        0, /* binaryfunc nb_inplace_true_divide;        */
+    (binaryfunc) Pympany_add,            /* nb_add                  */
+    (binaryfunc) Pympany_sub,            /* nb_subtract             */
+    (binaryfunc) Pympany_mul,            /* nb_multiply             */
+    (binaryfunc) Pympany_div2,           /* nb_divide               */
+    (binaryfunc) Pympany_rem,            /* nb_remaider             */
+    (binaryfunc) Pympany_divmod,         /* nb_divmod               */
+    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (unaryfunc) Pympq_neg,               /* nb_negative             */
+    (unaryfunc) Pympq_pos,               /* nb_positive             */
+    (unaryfunc) Pympq_abs,               /* nb_absolute             */
+    (inquiry) Pympq_nonzero,             /* nb_bool                 */
+        0,                               /* nb_invert               */
+        0,                               /* nb_lshift               */
+        0,                               /* nb_rshift               */
+        0,                               /* nb_and                  */
+        0,                               /* nb_xor                  */
+        0,                               /* nb_or                   */
+        0,                               /* nb_coerce               */
+    (unaryfunc) Pympq2PyInt,             /* nb_int                  */
+    (unaryfunc) Pympq2PyLong,            /* nb_long                 */
+    (unaryfunc) Pympq2PyFloat,           /* nb_float                */
+        0,                               /* nb_oct                  */
+        0,                               /* nb_hex                  */
+        0,                               /* nb_inplace_add;         */
+        0,                               /* nb_inplace_subtract     */
+        0,                               /* nb_inplace_multiply     */
+        0,                               /* nb_inplace_divide       */
+        0,                               /* nb_inplace_remainder    */
+        0,                               /* nb_inplace_power        */
+        0,                               /* nb_inplace_lshift       */
+        0,                               /* nb_inplace_rshift       */
+        0,                               /* nb_inplace_and          */
+        0,                               /* nb_inplace_xor          */
+        0,                               /* nb_inplace_or           */
+    (binaryfunc) Pympany_floordiv,       /* nb_floor_divide         */
+    (binaryfunc) Pympany_truediv,        /* nb_true_divide          */
+        0,                               /* nb_inplace_floor_divide */
+        0,                               /* nb_inplace_true_divide  */
 };
 #endif
 
 #if PY_MAJOR_VERSION >= 3
 static PyNumberMethods mpf_number_methods =
 {
-    (binaryfunc) Pympany_add,      /* binaryfunc nb_add;                  */
-    (binaryfunc) Pympany_sub,      /* binaryfunc nb_subtract;             */
-    (binaryfunc) Pympany_mul,      /* binaryfunc nb_multiply;             */
-    (binaryfunc) Pympany_rem,      /* binaryfunc nb_remaider;             */
-    (binaryfunc) Pympany_divmod,   /* binaryfunc nb_divmod;               */
-    (ternaryfunc) Pympany_pow,     /* ternaryfunc nb_power;               */
-    (unaryfunc) Pympf_neg,         /* unaryfunc nb_negative;              */
-    (unaryfunc) Pympf_pos,         /* unaryfunc nb_positive;              */
-    (unaryfunc) Pympf_abs,         /* unaryfunc nb_absolute;              */
-    (inquiry) Pympf_nonzero,       /* inquiry nb_bool;                    */
-        0,                         /* unaryfunc nb_invert;                */
-        0,                         /* binaryfunc nb_lshift;               */
-        0,                         /* binaryfunc nb_rshift;               */
-        0,                         /* binaryfunc nb_and;                  */
-        0,                         /* binaryfunc nb_xor;                  */
-        0,                         /* binaryfunc nb_or;                   */
-    (unaryfunc) Pympf2PyLong,      /* unaryfunc nb_int                    */
-        0,                         /* void *nb_reserved;                  */
-    (unaryfunc) Pympf2PyFloat,     /* unaryfunc nb_float;                 */
-        0,                         /* binaryfunc nb_inplace_add;          */
-        0,                         /* binaryfunc nb_inplace_subtract;     */
-        0,                         /* binaryfunc nb_inplace_multiply;     */
-        0,                         /* binaryfunc nb_inplace_remainder;    */
-        0,                         /* ternaryfunc nb_inplace_power;       */
-        0,                         /* binaryfunc nb_inplace_lshift;       */
-        0,                         /* binaryfunc nb_inplace_rshift;       */
-        0,                         /* binaryfunc nb_inplace_and;          */
-        0,                         /* binaryfunc nb_inplace_xor;          */
-        0,                         /* binaryfunc nb_inplace_or;           */
-    (binaryfunc) Pympany_floordiv, /* binaryfunc nb_floor_divide;         */
-    (binaryfunc) Pympany_truediv,  /* binaryfunc nb_true_divide;          */
-        0,                         /* binaryfunc nb_inplace_floor_divide; */
-        0,                         /* binaryfunc nb_inplace_true_divide;  */
-        0,                         /* unaryfunc nb_index;                 */
+    (binaryfunc) Pympany_add,            /* nb_add                  */
+    (binaryfunc) Pympany_sub,            /* nb_subtract             */
+    (binaryfunc) Pympany_mul,            /* nb_multiply             */
+    (binaryfunc) Pympany_rem,            /* nb_remaider             */
+    (binaryfunc) Pympany_divmod,         /* nb_divmod               */
+    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (unaryfunc) Pympf_neg,               /* nb_negative             */
+    (unaryfunc) Pympf_pos,               /* nb_positive             */
+    (unaryfunc) Pympf_abs,               /* nb_absolute             */
+    (inquiry) Pympf_nonzero,             /* nb_bool                 */
+        0,                               /* nb_invert               */
+        0,                               /* nb_lshift               */
+        0,                               /* nb_rshift               */
+        0,                               /* nb_and                  */
+        0,                               /* nb_xor                  */
+        0,                               /* nb_or                   */
+    (unaryfunc) Pympf2PyLong,            /* nb_int                  */
+        0,                               /* nb_reserved             */
+    (unaryfunc) Pympf2PyFloat,           /* nb_float                */
+        0,                               /* nb_inplace_add          */
+        0,                               /* nb_inplace_subtract     */
+        0,                               /* nb_inplace_multiply     */
+        0,                               /* nb_inplace_remainder    */
+        0,                               /* nb_inplace_power        */
+        0,                               /* nb_inplace_lshift       */
+        0,                               /* nb_inplace_rshift       */
+        0,                               /* nb_inplace_and          */
+        0,                               /* nb_inplace_xor          */
+        0,                               /* nb_inplace_or           */
+    (binaryfunc) Pympany_floordiv,       /* nb_floor_divide         */
+    (binaryfunc) Pympany_truediv,        /* nb_true_divide          */
+        0,                               /* nb_inplace_floor_divide */
+        0,                               /* nb_inplace_true_divide  */
+        0,                               /* nb_index                */
 };
 #else
 static PyNumberMethods mpf_number_methods =
 {
-    (binaryfunc) Pympany_add,
-    (binaryfunc) Pympany_sub,
-    (binaryfunc) Pympany_mul,
-    (binaryfunc) Pympany_div2,
-    (binaryfunc) Pympany_rem,
-    (binaryfunc) Pympany_divmod,
-    (ternaryfunc) Pympany_pow,
-    (unaryfunc) Pympf_neg,
-    (unaryfunc) Pympf_pos,  /* nb_positive */
-    (unaryfunc) Pympf_abs,
-    (inquiry) Pympf_nonzero,
-    (unaryfunc) 0,      /* no bit-complement */
-    (binaryfunc) 0,     /* no left-shift */
-    (binaryfunc) 0,     /* no right-shift */
-    (binaryfunc) 0,     /* no bit-and */
-    (binaryfunc) 0,     /* no bit-xor */
-    (binaryfunc) 0,     /* no bit-ior */
-    (coercion) 0,      /* was coerce */
-    (unaryfunc) Pympf2PyInt,
-    (unaryfunc) Pympf2PyLong,
-    (unaryfunc) Pympf2PyFloat,
-    (unaryfunc) 0,      /* no oct */
-    (unaryfunc) 0,      /* no hex */
-        0, /* binaryfunc nb_inplace_add;        */
-        0, /* binaryfunc nb_inplace_subtract;   */
-        0, /* binaryfunc nb_inplace_multiply;   */
-        0, /* binaryfunc nb_inplace_divide;     */
-        0, /* binaryfunc nb_inplace_remainder;  */
-        0, /* ternaryfunc nb_inplace_power;     */
-        0, /* binaryfunc nb_inplace_lshift;     */
-        0, /* binaryfunc nb_inplace_rshift;     */
-        0, /* binaryfunc nb_inplace_and;        */
-        0, /* binaryfunc nb_inplace_xor;        */
-        0, /* binaryfunc nb_inplace_or;         */
-
-    (binaryfunc) Pympany_floordiv,      /* binaryfunc nb_floor_divide; */
-    (binaryfunc) Pympany_truediv,       /* binaryfunc nb_true_divide;  */
-        0, /* binaryfunc nb_inplace_floor_divide;       */
-        0, /* binaryfunc nb_inplace_true_divide;        */
+    (binaryfunc) Pympany_add,            /* nb_add                  */
+    (binaryfunc) Pympany_sub,            /* nb_subtract             */
+    (binaryfunc) Pympany_mul,            /* nb_multiply             */
+    (binaryfunc) Pympany_div2,           /* nb_divide               */
+    (binaryfunc) Pympany_rem,            /* nb_remaider             */
+    (binaryfunc) Pympany_divmod,         /* nb_divmod               */
+    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (unaryfunc) Pympf_neg,               /* nb_negative             */
+    (unaryfunc) Pympf_pos,               /* nb_positive             */
+    (unaryfunc) Pympf_abs,               /* nb_absolute             */
+    (inquiry) Pympf_nonzero,             /* nb_bool                 */
+        0,                               /* nb_invert               */
+        0,                               /* nb_lshift               */
+        0,                               /* nb_rshift               */
+        0,                               /* nb_and                  */
+        0,                               /* nb_xor                  */
+        0,                               /* nb_or                   */
+        0,                               /* nb_coerce               */
+    (unaryfunc) Pympf2PyInt,             /* nb_int                  */
+    (unaryfunc) Pympf2PyLong,            /* nb_long                 */
+    (unaryfunc) Pympf2PyFloat,           /* nb_float                */
+        0,                               /* nb_oct                  */
+        0,                               /* nb_hex                  */
+        0,                               /* nb_inplace_add          */
+        0,                               /* nb_inplace_subtract     */
+        0,                               /* nb_inplace_multiply     */
+        0,                               /* nb_inplace_divide       */
+        0,                               /* nb_inplace_remainder    */
+        0,                               /* nb_inplace_power        */
+        0,                               /* nb_inplace_lshift       */
+        0,                               /* nb_inplace_rshift       */
+        0,                               /* nb_inplace_and          */
+        0,                               /* nb_inplace_xor          */
+        0,                               /* nb_inplace_or           */
+    (binaryfunc) Pympany_floordiv,       /* nb_floor_divide         */
+    (binaryfunc) Pympany_truediv,        /* nb_true_divide          */
+        0,                               /* nb_inplace_floor_divide */
+        0,                               /* nb_inplace_true_divide  */
 };
 #endif
 
@@ -4991,46 +4988,46 @@ static PyTypeObject Pympz_Type =
     PyVarObject_HEAD_INIT(0, 0)
 #else
     PyObject_HEAD_INIT(0)
-        0,                          /* ob_size          */
+        0,                                  /* ob_size          */
 #endif
-    "mpz",                          /* tp_name          */
-    sizeof(PympzObject),            /* tp_basicsize     */
-        0,                          /* tp_itemsize      */
+    "mpz",                                  /* tp_name          */
+    sizeof(PympzObject),                    /* tp_basicsize     */
+        0,                                  /* tp_itemsize      */
     /* methods */
-    (destructor) Pympz_dealloc,     /* tp_dealloc       */
-        0,                          /* tp_print         */
-        0,                          /* tp_getattr       */
-        0,                          /* tp_setattr       */
-        0,                          /* tp_reserved      */
-    (reprfunc) Pympz2repr,          /* tp_repr          */
-    &mpz_number_methods,            /* tp_as_number     */
-        0,                          /* tp_as_sequence   */
-        0,                          /* tp_as_mapping    */
+    (destructor) Pympz_dealloc,             /* tp_dealloc       */
+        0,                                  /* tp_print         */
+        0,                                  /* tp_getattr       */
+        0,                                  /* tp_setattr       */
+        0,                                  /* tp_reserved      */
+    (reprfunc) Pympz2repr,                  /* tp_repr          */
+    &mpz_number_methods,                    /* tp_as_number     */
+        0,                                  /* tp_as_sequence   */
+        0,                                  /* tp_as_mapping    */
 #ifdef MUTATE
-        0,                          /* tp_hash          */
+        0,                                  /* tp_hash          */
 #else
-    (hashfunc) Pympz_hash,          /* tp_hash          */
+    (hashfunc) Pympz_hash,                  /* tp_hash          */
 #endif
-        0,                          /* tp_call          */
-    (reprfunc) Pympz2str,           /* tp_str           */
-        0,                          /* tp_getattro      */
-        0,                          /* tp_setattro      */
-        0,                          /* tp_as_buffer     */
+        0,                                  /* tp_call          */
+    (reprfunc) Pympz2str,                   /* tp_str           */
+        0,                                  /* tp_getattro      */
+        0,                                  /* tp_setattro      */
+        0,                                  /* tp_as_buffer     */
 #if PY_MAJOR_VERSION >= 3
-    Py_TPFLAGS_DEFAULT,             /* tp_flags         */
+    Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
 #else
     Py_TPFLAGS_HAVE_INDEX|Py_TPFLAGS_HAVE_RICHCOMPARE| \
     Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_CLASS| \
     Py_TPFLAGS_HAVE_INPLACEOPS,
 #endif
-    "GNU Multi Precision signed integer",   /* tp_doc   */
-        0,                          /* tp_traverse      */
-        0,                          /* tp_clear         */
-    (richcmpfunc)&mpany_richcompare,/* tp_richcompare   */
-        0,                          /* tp_weaklistoffset*/
-        0,                          /* tp_iter          */
-        0,                          /* tp_iternext      */
-    Pympz_methods,                  /* tp_methods       */
+    "GNU Multi Precision signed integer",   /* tp_doc           */
+        0,                                  /* tp_traverse      */
+        0,                                  /* tp_clear         */
+    (richcmpfunc)&mpany_richcompare,        /* tp_richcompare   */
+        0,                                  /* tp_weaklistoffset*/
+        0,                                  /* tp_iter          */
+        0,                                  /* tp_iternext      */
+    Pympz_methods,                          /* tp_methods       */
 };
 
 static PyTypeObject Pympq_Type =
@@ -5064,7 +5061,7 @@ static PyTypeObject Pympq_Type =
 #if PY_MAJOR_VERSION >= 3
     Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
 #else
-    Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,   /* tp_flags  */
+    Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES, /* tp_flags  */
 #endif
     "GNU Multi Precision rational number",  /* tp_doc           */
         0,                                  /* tp_traverse      */
