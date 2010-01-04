@@ -4,10 +4,14 @@
 
   Created by Pearu Peterson <pearu@cens.ioc.ee>, November 2000.
   Edited by A. Martelli <aleaxit@yahoo.com>, December 2000.
+  Edited by Case Van Horsen <casevh@gmail.com>, 2009, 2010.
+
   Version 1.02, February 2007.
   Version 1.03, June 2008
   Version 1.04, June 2008 (no changes)
   Version 1.05, February 2009 (support MPIR)
+  Version 1.20, January 2010 (remove obsolete MS hacks, added
+                PyInt_FromSize_t) casevh
  */
 
 #ifndef Py_GMPYMODULE_H
@@ -18,10 +22,6 @@ extern "C" {
 #endif
 
 #if defined(MS_WIN32) && defined(_MSC_VER)
-/* the __MPN determination in stock gmp.h doesn't work, so...: */
-#    define __MPN(x) __gmpn_##x
-#    define _GMP_H_HAVE_FILE
-#    define _PROTO(x) x
 #define inline __inline
 #endif
 
@@ -34,11 +34,18 @@ extern "C" {
 /* ensure 2.5 compatibility */
 #if PY_VERSION_HEX < 0x02050000
 typedef int Py_ssize_t;
+
+static PyObject *
+PyInt_FromSize_t(size_t ival)
+{
+	if (ival <= LONG_MAX)
+		return PyInt_FromLong((long)ival);
+	return PyLong_FromUnsignedLongLong((unsigned long long)ival);
+}
 #endif
 #ifndef Py_TPFLAGS_HAVE_INDEX
 #define Py_TPFLAGS_HAVE_INDEX 0
 #endif
-
 
 /* Header file for gmpy */
 typedef struct {
@@ -84,7 +91,7 @@ typedef struct {
 
 #define Pympf_new_NUM 5
 #define Pympf_new_RETURN PympfObject *
-#define Pympf_new_PROTO (unsigned int bits)
+#define Pympf_new_PROTO (unsigned long bits)
 
 #define Pympz_dealloc_NUM 6
 #define Pympz_dealloc_RETURN void

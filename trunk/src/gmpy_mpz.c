@@ -127,20 +127,20 @@ bit_length(x): returns length of string representing x in base 2\n\
 static PyObject *
 Pympz_bit_length(PyObject *self, PyObject *other)
 {
-    long i = 0;
+    size_t i = 0;
     PympzObject* newob;
 
     if(self && Pympz_Check(self)) {
         if (mpz_size(Pympz_AS_MPZ(self)))
-            i = (long) mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
+            i = mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
     } else if(Pympz_Check(other)) {
         if (mpz_size(Pympz_AS_MPZ(other)))
-            i = (long) mpz_sizeinbase(Pympz_AS_MPZ(other), 2);
+            i = mpz_sizeinbase(Pympz_AS_MPZ(other), 2);
     } else {
         newob = Pympz_From_Integer(other);
         if(newob) {
             if (mpz_size(Pympz_AS_MPZ(newob)))
-                i = (long) mpz_sizeinbase(Pympz_AS_MPZ(newob), 2);
+                i = mpz_sizeinbase(Pympz_AS_MPZ(newob), 2);
             Py_DECREF((PyObject*)newob);
         } else {
             PyErr_SetString(PyExc_TypeError,
@@ -148,7 +148,7 @@ Pympz_bit_length(PyObject *self, PyObject *other)
             return NULL;
         }
     }
-    return Py2or3Int_FromLong(i);
+    return PyIntOrLong_FromSize_t(i);
 }
 
 /* return scan0/scan1 for an mpz */
