@@ -312,6 +312,7 @@
 #define Py2or3Bytes_AS_STRING           PyBytes_AS_STRING
 #define Py2or3Bytes_FromStringAndSize   PyBytes_FromStringAndSize
 #define PyIntOrLong_Check(op)           PyLong_Check(op)
+#define PyIntOrLong_FromSize_t          PyLong_FromSize_t
 #else
 #define Py2or3Int_FromLong              PyInt_FromLong
 #define Py2or3String_FromString         PyString_FromString
@@ -323,6 +324,7 @@
 #define Py2or3Bytes_AS_STRING           PyString_AS_STRING
 #define Py2or3Bytes_FromStringAndSize   PyString_FromStringAndSize
 #define PyIntOrLong_Check(op)           (PyInt_Check(op) || PyLong_Check(op))
+#define PyIntOrLong_FromSize_t          PyInt_FromSize_t
 #endif
 
 char gmpy_version[] = "1.20";
@@ -815,7 +817,7 @@ Pympq_new(void)
 }
 
 static PympfObject *
-Pympf_new(unsigned int bits)
+Pympf_new(unsigned long bits)
 {
     PympfObject * self;
 
@@ -869,8 +871,9 @@ Pympf_dealloc(PympfObject *self)
 
 static void Pympf_normalize(PympfObject *i)
 {
-    long size, prec, toclear, temp;
+    long prec;
     mp_limb_t bit1, rem, carry;
+    ssize_t size, toclear, temp;
 
     prec = mpf_get_prec(i->f);
     size = mpf_size(i->f);
@@ -895,7 +898,8 @@ static void Pympf_normalize(PympfObject *i)
         if(options.debug) {
             fprintf(stderr, "adding carry bit\n");
         }
-        carry = mpn_add_1(i->f->_mp_d + toclear, i->f->_mp_d + toclear, size-toclear, carry);
+        carry = mpn_add_1(i->f->_mp_d + toclear, i->f->_mp_d + toclear,
+                    (mp_size_t)(size-toclear), carry);
         if(carry) {
             if(options.debug) {
                 fprintf(stderr, "carry bit extended\n");
@@ -1055,7 +1059,7 @@ PyFloat2Pympq(PyObject *f)
 }
 
 /* forward */
-static PympfObject *PyStr2Pympf(PyObject *s, long base, unsigned int bits);
+static PympfObject *PyStr2Pympf(PyObject *s, long base, Py_ssize_t bits);
 
 static PympfObject *
 PyFloat2Pympf(PyObject *f, unsigned int bits)
@@ -1112,13 +1116,21 @@ PyFloat2Pympf(PyObject *f, unsigned int bits)
 }
 
 static PympfObject *
-Pympz2Pympf(PyObject * obj, unsigned int bits)
+Pympz2Pympf(PyObject * obj, unsigned long bits)
 {
     PympfObject *newob;
+    size_t temp;
 
     assert(Pympz_Check(obj));
-    if(!bits) bits = mpz_sizeinbase(Pympz_AS_MPZ(obj),2)+2;
-
+    if(!bits) {
+        temp = mpz_sizeinbase(Pympz_AS_MPZ(obj),2)+2;
+        if(temp > LONG_MAX) {
+            PyErr_SetString(PyExc_ValueError,
+                "too large to convert to mpf");
+        } else {
+            bits = (long) temp;
+        }
+    }
     if(!(newob = Pympf_new(bits)))
         return NULL;
     mpf_set_z(newob->f, Pympz_AS_MPZ(obj));
@@ -1509,12 +1521,11 @@ PyStr2Pympq(PyObject *stringarg, long base)
  * if any is denoted by 'e' if base<=10, else by '@', and is always decimal.
  */
 static PympfObject *
-PyStr2Pympf(PyObject *s, long base, unsigned int bits)
+PyStr2Pympf(PyObject *s, long base, Py_ssize_t bits)
 {
     PympfObject *newob;
     unsigned char *cp;
-    Py_ssize_t len;
-    int precision, i;
+    Py_ssize_t i, len, precision;
     PyObject *ascii_str = NULL;
 
 #if PY_MAJOR_VERSION >= 3
@@ -1569,7 +1580,7 @@ PyStr2Pympf(PyObject *s, long base, unsigned int bits)
         if(precision<=0) precision=1;
     }
 
-    if(!(newob = Pympf_new(precision))) {
+    if(!(newob = Pympf_new((unsigned long)precision))) {
         Py_XDECREF(ascii_str);
         return NULL;
     }
@@ -1618,7 +1629,7 @@ PyStr2Pympf(PyObject *s, long base, unsigned int bits)
         mpf_init2(digit, newob->rebits);
         for(i=5+precilen; i<len; i++) {
             mpf_set_ui(digit, cp[i]);
-            mpf_div_2exp(digit, digit, (i-4-precilen) * 8);
+            mpf_div_2exp(digit, digit, (unsigned long)((i-4-precilen) * 8));
             mpf_add(newob->f, newob->f, digit);
         }
         mpf_clear(digit);
@@ -1805,7 +1816,7 @@ Pympz2binary(PympzObject *x)
 static PyObject *
 Pympq2binary(PympqObject *x)
 {
-    int sizenum, sizeden, size, sizetemp;
+    size_t sizenum, sizeden, size, sizetemp;
     int negative=0;
     char *buffer;
     int i;
@@ -1823,7 +1834,7 @@ Pympq2binary(PympqObject *x)
 
     sizenum = (mpz_sizeinbase(mpq_numref(x->q), 2) + 7) / 8;
     sizeden = (mpz_sizeinbase(mpq_denref(x->q), 2) + 7) / 8;
-    size = sizenum+sizeden+4;
+    size = sizenum + sizeden + 4;
 
     TEMP_ALLOC(buffer, size);
 
@@ -1857,7 +1868,7 @@ static int hof(int hedi)
     static char table[] = "0123456789abcdef";
     char* p = strchr(table, tolower(hedi));
     assert(hedi && p);
-    return p-table;
+    return (int)(p-table);
 }
 static char di256(int di1, int di2)
 {
@@ -1870,9 +1881,8 @@ static char di256(int di1, int di2)
 static PyObject *
 Pympf2binary(PympfObject *x)
 {
-    int size, hexdigs;
+    size_t size, hexdigs, i, j;
     char *buffer, *aux;
-    int i, j;
     PyObject *s;
     int sign, codebyte;
     mp_exp_t the_exp;
@@ -1976,7 +1986,8 @@ mpz_ascii(mpz_t z, int base, int with_tag)
     PyObject *s;
     char *buffer, *p;
     mpz_t temp;
-    int minus, size;
+    int minus;
+    size_t size;
 
     if((base != 0) && ((base < 2) || (base > 36))) {
         PyErr_SetString(PyExc_ValueError,
@@ -2189,9 +2200,9 @@ Pympf_ascii(PympfObject *self, int base, int digits,
         /* insert formatting elements (decimal-point, leading or
          * trailing 0's, other indication of exponent...)
          */
-        int buflen = strlen(buffer);
+        size_t buflen = strlen(buffer);
         /* account for the decimal point that is always inserted */
-        int size = buflen+1;
+        size_t size = buflen+1;
         char expobuf[24];
         char auprebuf[24];
         int isfp=1;   /* flag: fixed-point format (FP)? */
@@ -5122,16 +5133,21 @@ static void *
 gmpy_allocate(size_t size)
 {
     void *res;
-    size_t usize=size;
-    if(usize<GMPY_ALLOC_MIN) usize=GMPY_ALLOC_MIN;
+    size_t usize = size;
+    if(usize < GMPY_ALLOC_MIN) usize = GMPY_ALLOC_MIN;
 
     if(options.debug)
-        fprintf(stderr, "mp_allocate( %d->%d )\n", (int)size, (int)usize);
-    if(!(res = PyMem_Malloc(usize)))
+        fprintf(stderr, "mp_allocate( %llu->%llu )\n",
+            (unsigned long long)size, (unsigned long long)usize);
+    if(!(res = PyMem_Malloc(usize))) {
+        fprintf(stderr, "mp_allocate( %llu->%llu )\n",
+            (unsigned long long)size, (unsigned long long)usize);
         Py_FatalError("mp_allocate failure");
+    }
 
     if(options.debug)
-        fprintf(stderr, "mp_allocate( %d->%d ) ->%8p\n", (int)size, (int)usize, res);
+        fprintf(stderr, "mp_allocate( %llu->%llu ) ->%8p\n",
+            (unsigned long long)size, (unsigned long long)usize, res);
 
     return res;
 } /* mp_allocate() */
@@ -5141,28 +5157,35 @@ static void *
 gmpy_reallocate(void *ptr, size_t old_size, size_t new_size)
 {
     void *res;
-    size_t uold=old_size;
-    size_t unew=new_size;
-    if(uold<GMPY_ALLOC_MIN) uold=GMPY_ALLOC_MIN;
-    if(unew<GMPY_ALLOC_MIN) unew=GMPY_ALLOC_MIN;
+    size_t uold = old_size;
+    size_t unew = new_size;
+    if(uold < GMPY_ALLOC_MIN) uold = GMPY_ALLOC_MIN;
+    if(unew < GMPY_ALLOC_MIN) unew = GMPY_ALLOC_MIN;
 
     if(options.debug)
         fprintf(stderr,
-            "mp_reallocate: old address %8p, old size %d(%d), new %d(%d)\n",
-            ptr, (int)old_size, (int)uold, (int)new_size, (int)unew);
+            "mp_reallocate: old address %8p, old size %llu(%llu), new %llu(%llu)\n",
+            ptr, (unsigned long long)old_size, (unsigned long long)uold,
+            (unsigned long long)new_size, (unsigned long long)unew);
 
     if(uold==unew) {
         if(options.debug)
-            fprintf(stderr, "mp_reallocate: avoided realloc for %d\n", (int)unew);
+            fprintf(stderr, "mp_reallocate: avoided realloc for %llu\n",
+                (unsigned long long)unew);
         return ptr;
     }
 
-    if(!(res = PyMem_Realloc(ptr, unew)))
+    if(!(res = PyMem_Realloc(ptr, unew))) {
+        fprintf(stderr,
+            "mp_reallocate: old address %8p, old size %llu(%llu), new %llu(%llu)\n",
+            ptr, (unsigned long long)old_size, (unsigned long long)uold,
+            (unsigned long long)new_size, (unsigned long long)unew);
         Py_FatalError("mp_reallocate failure");
+    }
 
     if(options.debug)
-        fprintf(stderr, "mp_reallocate: newob address %8p, newob size %d(%d)\n",
-        res, (int)new_size, (int)unew);
+        fprintf(stderr, "mp_reallocate: newob address %8p, newob size %llu(%llu)\n",
+        res, (unsigned long long)new_size, (unsigned long long)unew);
 
     return res;
 } /* mp_reallocate() */
@@ -5171,11 +5194,11 @@ static void
 gmpy_free( void *ptr, size_t size)
 {
     size_t usize=size;
-    if(usize<GMPY_ALLOC_MIN) usize=GMPY_ALLOC_MIN;
+    if(usize < GMPY_ALLOC_MIN) usize = GMPY_ALLOC_MIN;
 
     if(options.debug)
-        fprintf(stderr, "mp_free      : old address %8p, old size %d(%d)\n",
-            ptr, (int)size, (int)usize);
+        fprintf(stderr, "mp_free      : old address %8p, old size %llu(%llu)\n",
+            ptr, (unsigned long long)size, (unsigned long long)usize);
 
     PyMem_Free(ptr);
 } /* mp_free() */

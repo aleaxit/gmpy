@@ -21,6 +21,10 @@
 #error "Python limb larger than GMP limb !!!"
 #endif
 
+#ifndef ABS
+#define ABS(a)  (((a) < 0) ? -(a) : (a))
+#endif
+
 /* Use these "portable" (I hope) sizebits functions.
  * We could implement this in terms of count_leading_zeros from GMP,
  * but it is not exported!
@@ -40,9 +44,9 @@ __sizebits_tab[128] =
 #endif
 
 static inline
-unsigned long
-mpn_sizebits(mp_ptr up, mp_size_t un) {
-  unsigned long cnt;
+size_t
+mpn_sizebits(mp_ptr up, size_t un) {
+  size_t cnt;
   mp_limb_t x;
   if (un==0) return 0;
   cnt = (un - 1) * GMP_NUMB_BITS;
@@ -60,9 +64,9 @@ mpn_sizebits(mp_ptr up, mp_size_t un) {
 }
 
 static inline
-unsigned long
+size_t
 pylong_sizebits(digit *digits, size_t size) {
-  unsigned long cnt;
+  size_t cnt;
   digit x;
   if (size==0) return 0;
   cnt = (size - 1) * PyLong_SHIFT;
@@ -81,7 +85,7 @@ pylong_sizebits(digit *digits, size_t size) {
 
 /* mpn -> pylong conversion */
 
-int
+size_t
 mpn_pylong_size (mp_ptr up, size_t un)
 {
   return (mpn_sizebits(up, un) + PyLong_SHIFT - 1) / PyLong_SHIFT;
@@ -97,7 +101,7 @@ mpn_get_pylong (digit *digits, size_t size, mp_ptr up, size_t un)
 {
   mp_limb_t n1, n0;
   size_t i;
-  int bit_pos;
+  ssize_t bit_pos;
   /* point past the allocated chunk */
   digit * s = digits + size;
 
@@ -124,7 +128,7 @@ mpn_get_pylong (digit *digits, size_t size, mp_ptr up, size_t un)
       n0 = (n1 << -bit_pos) & PyLong_MASK;
       n1 = up[--i];
       bit_pos += GMP_NUMB_BITS;
-      *--s = n0 | (n1 >> bit_pos);
+      *--s = (digit)(n0 | (n1 >> bit_pos));
     }
 }
 
@@ -140,8 +144,8 @@ void
 mpn_set_pylong (mp_ptr up, size_t un, digit *digits, size_t size)
 {
   mp_limb_t n1, d;
-  mp_size_t i;
-  int bit_pos;
+  size_t i;
+  ssize_t bit_pos;
   /* point past the allocated chunk */
   digit * s = digits + size;
 
@@ -191,7 +195,7 @@ mpn_pythonhash (mp_ptr up, mp_size_t un)
 {
   mp_limb_t n1, n0;
   mp_size_t i;
-  int bit_pos;
+  ssize_t bit_pos;
   long x = 0;
 
   /* input length 0 is special ! */
@@ -200,7 +204,7 @@ mpn_pythonhash (mp_ptr up, mp_size_t un)
   i = un - 1;
   n1 = up[i];
   {
-    unsigned long bits;
+    size_t bits;
     bits = mpn_sizebits(up, un) + PyLong_SHIFT - 1;
     bits -= bits % PyLong_SHIFT;
     /* position of the MSW in base 2^SHIFT, counted from the MSW in
@@ -215,10 +219,10 @@ mpn_pythonhash (mp_ptr up, mp_size_t un)
         {
           /* Force a native long #-bits (32 or 64) circular shift */
           x = ((x << PyLong_SHIFT) & ~(long)PyLong_MASK) | ((x >> LONG_BIT_SHIFT) & (long)PyLong_MASK);
-	  /* Shifting to the right by more than wordsize bits
+          /* Shifting to the right by more than wordsize bits
              actually shifts by (wordsize % 32) bits -- which is
              *not* the intended behavior here. */
-	  if (bit_pos <= 8*sizeof(mp_limb_t))
+      if (bit_pos <= 8*sizeof(mp_limb_t))
             x += (n1 >> bit_pos) & (long)PyLong_MASK;
           bit_pos -= PyLong_SHIFT;
         }
@@ -230,7 +234,7 @@ mpn_pythonhash (mp_ptr up, mp_size_t un)
       bit_pos += GMP_NUMB_BITS;
       /* Force a native long #-bits (32 or 64) circular shift */
       x = ((x << PyLong_SHIFT) & ~(long)PyLong_MASK) | ((x >> LONG_BIT_SHIFT) & (long)PyLong_MASK);
-      x += n0 | (n1 >> bit_pos);
+      x += (long)(n0 | (n1 >> bit_pos));
       bit_pos -= PyLong_SHIFT;
     }
 
@@ -242,7 +246,7 @@ mpn_pythonhash (mp_ptr up, mp_size_t un)
 long
 mpz_pythonhash(mpz_srcptr z)
 {
-  long x = mpn_pythonhash(z->_mp_d, abs(z->_mp_size));
+  long x = mpn_pythonhash(z->_mp_d, ABS(z->_mp_size));
   if (z->_mp_size < 0)
     x = -x;
   if (x == -1)
@@ -254,12 +258,12 @@ mpz_pythonhash(mpz_srcptr z)
 PyObject *
 mpz_get_PyLong(mpz_srcptr z)
 {
-  size_t size = mpn_pylong_size(z->_mp_d, abs(z->_mp_size));
+  size_t size = mpn_pylong_size(z->_mp_d, ABS(z->_mp_size));
   PyLongObject *lptr = PyObject_NEW_VAR(PyLongObject, &PyLong_Type, size);
 
   if (lptr != NULL)
   {
-    mpn_get_pylong(lptr->ob_digit, size, z->_mp_d, abs(z->_mp_size));
+    mpn_get_pylong(lptr->ob_digit, size, z->_mp_d, ABS(z->_mp_size));
     if (z->_mp_size < 0)
       Py_SIZE(lptr) = -(Py_SIZE(lptr));
   }
@@ -272,22 +276,21 @@ int
 mpz_set_PyLong(mpz_ptr z, PyObject * lsrc)
 {
   register PyLongObject * lptr = (PyLongObject *) lsrc;
-  size_t size;
-  //~ int i;
+  ssize_t size;
 
   if (lptr==NULL || !PyLong_Check(lptr)) {
     PyErr_BadInternalCall();
     return -1;
   }
 
-  size = mpn_size_from_pylong(lptr->ob_digit, abs(Py_SIZE(lptr)));
+  size = (ssize_t)mpn_size_from_pylong(lptr->ob_digit, ABS(Py_SIZE(lptr)));
 
   if (z->_mp_alloc < size)
-    _mpz_realloc (z, size);
+    _mpz_realloc (z, (mp_size_t)size);
 
-  mpn_set_pylong(z->_mp_d, size, lptr->ob_digit, abs(Py_SIZE(lptr)));
-  z->_mp_size = Py_SIZE(lptr) < 0 ? -size : size;
+  mpn_set_pylong(z->_mp_d, size, lptr->ob_digit, ABS(Py_SIZE(lptr)));
+  z->_mp_size = (int)(Py_SIZE(lptr) < 0 ? -size : size);
 
-  return size;
+  return (int)size;
 }
 

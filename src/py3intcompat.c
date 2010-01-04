@@ -60,13 +60,12 @@
 
 */
 
+#include "longintrepr.h"
 
 /* Get a C long int from a long int object.
    Returns -1 and sets an error condition if overflow occurs. */
 
-
 #if (PY_VERSION_HEX < 0x02070000)
-#include "longintrepr.h"
 
 #ifndef PyLong_SHIFT
 #define PyLong_SHIFT SHIFT
