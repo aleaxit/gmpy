@@ -84,7 +84,7 @@ typedef struct {
 
 #define Pympf_new_NUM 5
 #define Pympf_new_RETURN PympfObject *
-#define Pympf_new_PROTO (unsigned int bits)
+#define Pympf_new_PROTO (unsigned long bits)
 
 #define Pympz_dealloc_NUM 6
 #define Pympz_dealloc_RETURN void

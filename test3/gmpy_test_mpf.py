@@ -311,7 +311,7 @@ mpf('1.23456e2',33)
 >>> _g.digits(_g.mpf(23.45))
 Traceback (most recent call last):
   ...
-TypeError: digits() expects 'mpz',['int'] arguments
+TypeError: digits() requires 'mpz',['int'] arguments
 >>> _g.fbinary('pep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?

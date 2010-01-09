@@ -567,7 +567,7 @@ static PyMethodDef Pympf_methods [];
 /*
  * Parses one, and only one, argument into "self" and converts it to an
  * mpz. Is faster, but not as generic, as using PyArg_ParseTuple. It
- * supports either gmpy2.fname(z) or z.fname(). "self" must be decref'ed.
+ * supports either gmpy.fname(z) or z.fname(). "self" must be decref'ed.
  * "msg" should be an error message that includes the function name and
  * describes the required arguments. Replaces SELF_MPZ_NO_ARG.
  */
@@ -595,7 +595,7 @@ static PyMethodDef Pympf_methods [];
  * Parses one argument into "self" and an optional second argument into
  * 'var". The second argument is converted into a C long. If there is not a
  * second argument, "var" is unchanged. Is faster, but not as generic, as
- * using PyArg_ParseTuple with "|l". It supports either gmpy2.fname(z,l) or
+ * using PyArg_ParseTuple with "|l". It supports either gmpy.fname(z,l) or
  * z.fname(l). "self" must be decref'ed. "var" must be a pointer to a long.
  * "msg" should be an error message that includes the function name and
  * describes the required arguments. Replaces some uses of SELF_MPZ_ONE_ARG.
@@ -638,7 +638,7 @@ static PyMethodDef Pympf_methods [];
  * Parses one argument into "self" and a required second argument into
  * 'var". The second argument is converted into a C long. Is faster, but not
  * as generic, as using PyArg_ParseTuple with "l". It supports either
- * gmpy2.fname(z,l) or z.fname(l). "self" must be decref'ed. "var" must be a
+ * gmpy.fname(z,l) or z.fname(l). "self" must be decref'ed. "var" must be a
  * pointer to a long. "msg" should be an error message that includes the
  * function name and describes the required arguments. Replaces some uses of
  * SELF_MPZ_ONE_ARG.
@@ -678,7 +678,7 @@ static PyMethodDef Pympf_methods [];
 /*
  * Parses two, and only two, arguments into "self" and "var" and converts
  * them both to mpz. Is faster, but not as generic, as using PyArg_ParseTuple.
- * It supports either gmpy2.fname(z,z) or z.fname(z). "self" & "var" must be
+ * It supports either gmpy.fname(z,z) or z.fname(z). "self" & "var" must be
  * decref'ed after use. "msg" should be an error message that includes the
  * function name and describes the required arguments. Replaces
  * SELF_MPZ_ONE_ARG_CONVERTED(var).
@@ -835,7 +835,7 @@ Pympq_new(void)
     return self;
 }
 static PympfObject *
-Pympf_new(unsigned int bits)
+Pympf_new(unsigned long bits)
 {
     PympfObject * self;
 
@@ -889,8 +889,9 @@ Pympf_dealloc(PympfObject *self)
 
 static void Pympf_normalize(PympfObject *i)
 {
-    long size, prec, toclear, temp;
+    long prec;
     mp_limb_t bit1, rem, carry;
+    ssize_t size, toclear, temp;
 
     prec = mpf_get_prec(i->f);
     size = mpf_size(i->f);
@@ -1075,7 +1076,7 @@ PyFloat2Pympq(PyObject *f)
 }
 
 /* forward */
-static PympfObject *PyStr2Pympf(PyObject *s, long base, unsigned int bits);
+static PympfObject *PyStr2Pympf(PyObject *s, long base, Py_ssize_t bits);
 
 static PympfObject *
 PyFloat2Pympf(PyObject *f, unsigned int bits)
@@ -1132,13 +1133,21 @@ PyFloat2Pympf(PyObject *f, unsigned int bits)
 }
 
 static PympfObject *
-Pympz2Pympf(PyObject * obj, unsigned int bits)
+Pympz2Pympf(PyObject * obj, unsigned long bits)
 {
     PympfObject *newob;
+    size_t temp;
 
     assert(Pympz_Check(obj));
-    if(!bits) bits = mpz_sizeinbase(Pympz_AS_MPZ(obj),2)+2;
-
+    if(!bits) {
+        temp = mpz_sizeinbase(Pympz_AS_MPZ(obj),2)+2;
+        if(temp > LONG_MAX) {
+            PyErr_SetString(PyExc_ValueError,
+                "too large to convert to mpf");
+        } else {
+            bits = (long) temp;
+        }
+    }
     if(!(newob = Pympf_new(bits)))
         return NULL;
     mpf_set_z(newob->f, Pympz_AS_MPZ(obj));
@@ -1529,12 +1538,11 @@ PyStr2Pympq(PyObject *stringarg, long base)
  * if any is denoted by 'e' if base<=10, else by '@', and is always decimal.
  */
 static PympfObject *
-PyStr2Pympf(PyObject *s, long base, unsigned int bits)
+PyStr2Pympf(PyObject *s, long base, Py_ssize_t bits)
 {
     PympfObject *newob;
     unsigned char *cp;
-    Py_ssize_t len;
-    int precision, i;
+    Py_ssize_t i, len, precision;
     PyObject *ascii_str = NULL;
 
 #if PY_MAJOR_VERSION >= 3
@@ -1589,7 +1597,7 @@ PyStr2Pympf(PyObject *s, long base, unsigned int bits)
         if(precision<=0) precision=1;
     }
 
-    if(!(newob = Pympf_new(precision))) {
+    if(!(newob = Pympf_new((unsigned long)precision))) {
         Py_XDECREF(ascii_str);
         return NULL;
     }
@@ -1825,7 +1833,7 @@ Pympz2binary(PympzObject *x)
 static PyObject *
 Pympq2binary(PympqObject *x)
 {
-    int sizenum, sizeden, size, sizetemp;
+    size_t sizenum, sizeden, size, sizetemp;
     int negative=0;
     char *buffer;
     int i;
@@ -1843,7 +1851,7 @@ Pympq2binary(PympqObject *x)
 
     sizenum = (mpz_sizeinbase(mpq_numref(x->q), 2) + 7) / 8;
     sizeden = (mpz_sizeinbase(mpq_denref(x->q), 2) + 7) / 8;
-    size = sizenum+sizeden+4;
+    size = sizenum + sizeden + 4;
 
     TEMP_ALLOC(buffer, size);
 
@@ -1877,7 +1885,7 @@ static int hof(int hedi)
     static char table[] = "0123456789abcdef";
     char* p = strchr(table, tolower(hedi));
     assert(hedi && p);
-    return p-table;
+    return (int)(p-table);
 }
 static char di256(int di1, int di2)
 {
@@ -1890,9 +1898,8 @@ static char di256(int di1, int di2)
 static PyObject *
 Pympf2binary(PympfObject *x)
 {
-    int size, hexdigs;
+    size_t size, hexdigs, i, j;
     char *buffer, *aux;
-    int i, j;
     PyObject *s;
     int sign, codebyte;
     mp_exp_t the_exp;
@@ -1996,7 +2003,8 @@ mpz_ascii(mpz_t z, int base, int with_tag)
     PyObject *s;
     char *buffer, *p;
     mpz_t temp;
-    int minus, size;
+    int minus;
+    size_t size;
 
     if((base != 0) && ((base < 2) || (base > 36))) {
         PyErr_SetString(PyExc_ValueError,
@@ -2209,9 +2217,9 @@ Pympf_ascii(PympfObject *self, int base, int digits,
         /* insert formatting elements (decimal-point, leading or
          * trailing 0's, other indication of exponent...)
          */
-        int buflen = strlen(buffer);
+        size_t buflen = strlen(buffer);
         /* account for the decimal point that is always inserted */
-        int size = buflen+1;
+        size_t size = buflen+1;
         char expobuf[24];
         char auprebuf[24];
         int isfp=1;   /* flag: fixed-point format (FP)? */
@@ -2956,7 +2964,7 @@ Pympz_digits(PyObject *self, PyObject *args)
     int base = 10;
     PyObject *s;
 
-    PARSE_ONE_MPZ_OPT_CLONG(&base, "digits() expects 'mpz',['int'] arguments");
+    PARSE_ONE_MPZ_OPT_CLONG(&base, "digits() requires 'mpz',['int'] arguments");
     assert(Pympz_Check(self));
     s = Pympz_ascii((PympzObject*)self, base, 0);
     Py_DECREF(self);
@@ -2985,7 +2993,7 @@ Pympz_numdigits(PyObject *self, PyObject *args)
     int base = 10;
     PyObject *s;
 
-    PARSE_ONE_MPZ_OPT_CLONG(&base, "numdigits expects 'mpz',[base] arguments");
+    PARSE_ONE_MPZ_OPT_CLONG(&base, "numdigits() requires 'mpz',[base] arguments");
     assert(Pympz_Check(self));
     if(base==0) base=10;
     if((base < 2) || (base > 36)) {
@@ -3090,7 +3098,7 @@ Pympz_scan0(PyObject *self, PyObject *args)
     PyObject *s;
 
     PARSE_ONE_MPZ_OPT_CLONG(&starting_bit,
-            "scan0 expects 'mpz',[starting_bit] arguments");
+            "scan0() requires 'mpz',[starting_bit] arguments");
 
     assert(Pympz_Check(self));
     if(starting_bit < 0) {
@@ -3137,7 +3145,7 @@ Pympz_scan1(PyObject *self, PyObject *args)
     PyObject *s;
 
     PARSE_ONE_MPZ_OPT_CLONG(&starting_bit,
-            "scan1 expects 'mpz',[starting_bit] arguments");
+            "scan1() requires 'mpz',[starting_bit] arguments");
 
     assert(Pympz_Check(self));
     if(starting_bit < 0) {
@@ -3178,7 +3186,7 @@ Pympz_popcount(PyObject *self, PyObject *args)
 {
     PyObject *s;
 
-    PARSE_ONE_MPZ("popcount expects 'mpz' argument");
+    PARSE_ONE_MPZ("popcount() requires 'mpz' argument");
     assert(Pympz_Check(self));
     s = Py_BuildValue("l", mpz_popcount(Pympz_AS_MPZ(self)));
     Py_DECREF(self);
@@ -3202,7 +3210,7 @@ Pympz_lowbits(PyObject *self, PyObject *args)
     PympzObject *s;
 
     PARSE_ONE_MPZ_REQ_CLONG(&nbits,
-            "lowbits expects 'mpz',nbits arguments");
+            "lowbits() requires 'mpz',nbits arguments");
 
     assert(Pympz_Check(self));
     if(nbits <= 0) {
@@ -3236,7 +3244,7 @@ Pympz_getbit(PyObject *self, PyObject *args)
     PyObject *s;
 
     PARSE_ONE_MPZ_REQ_CLONG(&bit_index,
-            "getbit expects 'mpz',bit_index arguments");
+            "getbit() requires 'mpz',bit_index arguments");
 
     assert(Pympz_Check(self));
     if(bit_index < 0) {
@@ -3272,7 +3280,7 @@ Pympz_setbit(PyObject *self, PyObject *args)
             bit_index = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
             if(bit_index == -1 && PyErr_Occurred()) {
                 PyErr_SetString(PyExc_TypeError,
-                        "setbit() expects 'mpz','int'[,'int'] arguments");
+                        "setbit() requires 'mpz','int'[,'int'] arguments");
                 return NULL;
             }
         } else if(argc == 2) {
@@ -3280,12 +3288,12 @@ Pympz_setbit(PyObject *self, PyObject *args)
             bit_value = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
             if((bit_index == -1 || bit_value == -1) && PyErr_Occurred()) {
                 PyErr_SetString(PyExc_TypeError,
-                        "setbit() expects 'mpz','int'[,'int'] arguments");
+                        "setbit() requires 'mpz','int'[,'int'] arguments");
                 return NULL;
             }
         } else {
             PyErr_SetString(PyExc_TypeError,
-                    "setbit() expects 'mpz','int'[,'int'] arguments");
+                    "setbit() requires 'mpz','int'[,'int'] arguments");
             return NULL;
         }
         Py_INCREF(self);
@@ -3295,7 +3303,7 @@ Pympz_setbit(PyObject *self, PyObject *args)
             bit_index = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
             if(!self || (bit_index == -1 && PyErr_Occurred())) {
                 PyErr_SetString(PyExc_TypeError,
-                        "setbit() expects 'mpz','int'[,'int'] arguments");
+                        "setbit() requires 'mpz','int'[,'int'] arguments");
                 return NULL;
             }
         } else if(argc == 3) {
@@ -3305,12 +3313,12 @@ Pympz_setbit(PyObject *self, PyObject *args)
             if(!self ||
                 ((bit_index == -1 || bit_value == -1) && PyErr_Occurred())) {
                 PyErr_SetString(PyExc_TypeError,
-                        "setbit() expects 'mpz','int'[,'int'] arguments");
+                        "setbit() requires 'mpz','int'[,'int'] arguments");
                 return NULL;
             }
         } else {
             PyErr_SetString(PyExc_TypeError,
-                    "setbit() expects 'mpz','int'[,'int'] arguments");
+                    "setbit() requires 'mpz','int'[,'int'] arguments");
             return NULL;
         }
     }
@@ -3354,7 +3362,7 @@ Pympz_root(PyObject *self, PyObject *args)
     PympzObject *s;
 
     PARSE_ONE_MPZ_REQ_CLONG(&n,
-            "root expects 'mpz',n arguments");
+            "root() requires 'mpz',n arguments");
 
     assert(Pympz_Check(self));
     if(n <= 0) {
@@ -3455,7 +3463,7 @@ Pympz_sign(PyObject *self, PyObject *args)
 {
     PyObject *s;
 
-    PARSE_ONE_MPZ("sign expects 'mpz' argument");
+    PARSE_ONE_MPZ("sign() requires 'mpz' argument");
     assert(Pympz_Check(self));
     s = Py_BuildValue("i", mpz_sgn(Pympz_AS_MPZ(self)));
     Py_DECREF(self);
@@ -3817,7 +3825,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
         if(!newob) {
             if (!PyErr_Occurred()) {
                 PyErr_SetString(PyExc_TypeError,
-                    "gmpy.mpz() expects numeric or string argument");
+                    "gmpy.mpz() requires numeric or string argument");
             }
             return NULL;
         }
@@ -3894,7 +3902,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
         if(!newob) {
             if(!PyErr_Occurred()) {
                 PyErr_SetString(PyExc_TypeError,
-                    "gmpy.mpq() expects numeric or string argument");
+                    "gmpy.mpq() requires numeric or string argument");
             }
             return NULL;
         }
@@ -4016,7 +4024,7 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
         if(!newob) {
             if(!PyErr_Occurred())
                 PyErr_SetString(PyExc_TypeError,
-                    "gmpy.mpf() expects numeric or string argument");
+                    "gmpy.mpf() requires numeric or string argument");
             return NULL;
         }
     }
@@ -4970,7 +4978,7 @@ Pygmpy_gcd(PyObject *self, PyObject *args)
     PympzObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPZ(other, "gcd() expects 'mpz','mpz' arguments");
+    PARSE_TWO_MPZ(other, "gcd() requires 'mpz','mpz' arguments");
 
     if(!(result = Pympz_new())) {
         Py_DECREF(self);
@@ -4993,7 +5001,7 @@ Pygmpy_lcm(PyObject *self, PyObject *args)
     PympzObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPZ(other, "lcm() expects 'mpz','mpz' arguments");
+    PARSE_TWO_MPZ(other, "lcm() requires 'mpz','mpz' arguments");
 
     if(!(result = Pympz_new())) {
         Py_DECREF(self);
@@ -5017,7 +5025,7 @@ Pygmpy_gcdext(PyObject *self, PyObject *args)
     PympzObject *g=0, *s=0, *t=0;
     PyObject *result, *other;
 
-    PARSE_TWO_MPZ(other, "gcdext() expects 'mpz','mpz' arguments");
+    PARSE_TWO_MPZ(other, "gcdext() requires 'mpz','mpz' arguments");
 
     g = Pympz_new(); s = Pympz_new(); t = Pympz_new();
     if(!g||!s||!t) {
@@ -5244,7 +5252,7 @@ Pympz_bincoef(PyObject *self, PyObject *args)
     long k;
 
     PARSE_ONE_MPZ_REQ_CLONG(&k,
-            "bincoef() expects 'mpz','int' arguments");
+            "bincoef() requires 'mpz','int' arguments");
 
     if(k < 0) {
         PyErr_SetString(PyExc_ValueError, "binomial coefficient with negative k");
@@ -5308,7 +5316,7 @@ Pympz_sqrt(PyObject *self, PyObject *args)
 {
     PympzObject *root;
 
-    PARSE_ONE_MPZ("sqrt() expects 'mpz' argument");
+    PARSE_ONE_MPZ("sqrt() requires 'mpz' argument");
     assert(Pympz_Check(self));
 
     if(mpz_sgn(Pympz_AS_MPZ(self)) < 0) {
@@ -5341,7 +5349,7 @@ Pympz_sqrtrem(PyObject *self, PyObject *args)
     PympzObject *root=0, *rem=0;
     PyObject *result;
 
-    PARSE_ONE_MPZ("sqrtrem() expects 'mpz' argument");
+    PARSE_ONE_MPZ("sqrtrem() requires 'mpz' argument");
 
     if(mpz_sgn(Pympz_AS_MPZ(self)) < 0) {
         PyErr_SetString(PyExc_ValueError, "sqrt of negative number");
@@ -5387,7 +5395,7 @@ Pympz_remove(PyObject *self, PyObject *args)
     PyObject *factor;
     unsigned long multiplicity;
 
-    PARSE_TWO_MPZ(factor, "remove() expects 'mpz','mpz' arguments");
+    PARSE_TWO_MPZ(factor, "remove() requires 'mpz','mpz' arguments");
 
     if(mpz_sgn(Pympz_AS_MPZ(factor)) <= 0) {
         PyErr_SetString(PyExc_ValueError, "factor must be > 0");
@@ -5425,7 +5433,7 @@ Pympz_invert(PyObject *self, PyObject *args)
     PyObject *modulo;
     int success;
 
-    PARSE_TWO_MPZ(modulo, "invert() expects 'mpz','mpz' arguments");
+    PARSE_TWO_MPZ(modulo, "invert() requires 'mpz','mpz' arguments");
 
     if(!(result = Pympz_new())) {
         Py_DECREF(self);
@@ -5455,7 +5463,7 @@ Pympz_hamdist(PyObject *self, PyObject *args)
 {
     PyObject *result, *other;
 
-    PARSE_TWO_MPZ(other, "hamdist() expects 'mpz','mpz' arguments");
+    PARSE_TWO_MPZ(other, "hamdist() requires 'mpz','mpz' arguments");
 
     result = Py2or3Int_FromLong(
             mpz_hamdist(Pympz_AS_MPZ(self),Pympz_AS_MPZ(other)));
@@ -5480,7 +5488,7 @@ Pympz_divexact(PyObject *self, PyObject *args)
     PyObject *other;
     PympzObject *result;
 
-    PARSE_TWO_MPZ(other, "divexact() expects 'mpz','mpz' arguments");
+    PARSE_TWO_MPZ(other, "divexact() requires 'mpz','mpz' arguments");
 
     if(!(result = Pympz_new())) {
         Py_DECREF(self);
@@ -5509,7 +5517,7 @@ Pympz_cdivmod(PyObject *self, PyObject *args)
     PyObject *other, *result;
     PympzObject *quot, *rem;
 
-    PARSE_TWO_MPZ(other, "cdivmod() expects 'mpz','mpz' arguments");
+    PARSE_TWO_MPZ(other, "cdivmod() requires 'mpz','mpz' arguments");
 
     quot = Pympz_new();
     rem = Pympz_new();
@@ -5548,7 +5556,7 @@ Pympz_fdivmod(PyObject *self, PyObject *args)
     PyObject *other, *result;
     PympzObject *quot, *rem;
 
-    PARSE_TWO_MPZ(other, "fdivmod() expects 'mpz','mpz' arguments");
+    PARSE_TWO_MPZ(other, "fdivmod() requires 'mpz','mpz' arguments");
 
     quot = Pympz_new();
     rem = Pympz_new();
@@ -5587,7 +5595,7 @@ Pympz_tdivmod(PyObject *self, PyObject *args)
     PyObject *other, *result;
     PympzObject *quot, *rem;
 
-    PARSE_TWO_MPZ(other, "tdivmod() expects 'mpz','mpz' arguments");
+    PARSE_TWO_MPZ(other, "tdivmod() requires 'mpz','mpz' arguments");
 
     quot = Pympz_new();
     rem = Pympz_new();
@@ -5626,7 +5634,7 @@ Pympz_is_square(PyObject *self, PyObject *args)
 {
     long i;
 
-    PARSE_ONE_MPZ("is_square() expects 'mpz' argument");
+    PARSE_ONE_MPZ("is_square() requires 'mpz' argument");
 
     i = (long) mpz_perfect_square_p(Pympz_AS_MPZ(self));
     Py_DECREF(self);
@@ -5647,7 +5655,7 @@ Pympz_is_power(PyObject *self, PyObject *args)
 {
     long i;
 
-    PARSE_ONE_MPZ("is_power() expects 'mpz' argument");
+    PARSE_ONE_MPZ("is_power() requires 'mpz' argument");
 
     i = (long) mpz_perfect_power_p(Pympz_AS_MPZ(self));
     Py_DECREF(self);
@@ -5673,7 +5681,7 @@ Pympz_is_prime(PyObject *self, PyObject *args)
     int reps = 25;
 
     PARSE_ONE_MPZ_OPT_CLONG(&reps,
-            "is_prime() expects 'mpz',[reps] arguments");
+            "is_prime() requires 'mpz',[reps] arguments");
 
     if(reps <= 0) {
         PyErr_SetString(PyExc_ValueError,
@@ -5703,7 +5711,7 @@ Pympz_next_prime(PyObject *self, PyObject *args)
 {
     PympzObject *res;
 
-    PARSE_ONE_MPZ("next_prime() expects 'mpz' argument");
+    PARSE_ONE_MPZ("next_prime() requires 'mpz' argument");
     assert(Pympz_Check(self));
     if(!(res = Pympz_new())) {
         Py_DECREF(self);
@@ -5728,7 +5736,7 @@ Pympz_jacobi(PyObject *self, PyObject *args)
     PyObject* other;
     long i;
 
-    PARSE_TWO_MPZ(other, "jacobi() expects 'mpz','mpz' arguments");
+    PARSE_TWO_MPZ(other, "jacobi() requires 'mpz','mpz' arguments");
 
     if(mpz_sgn(Pympz_AS_MPZ(other))<=0) {
         PyErr_SetString(PyExc_ValueError, "jacobi's y must be odd prime > 0");
@@ -5756,7 +5764,7 @@ Pympz_legendre(PyObject *self, PyObject *args)
     PyObject* other;
     long i;
 
-    PARSE_TWO_MPZ(other, "legendre() expects 'mpz','mpz' arguments");
+    PARSE_TWO_MPZ(other, "legendre() requires 'mpz','mpz' arguments");
 
     if(mpz_sgn(Pympz_AS_MPZ(other))<=0) {
         PyErr_SetString(PyExc_ValueError, "legendre's y must be odd and > 0");
@@ -5785,7 +5793,7 @@ Pympz_kronecker(PyObject *self, PyObject *args)
     PyObject* other;
     int ires;
 
-    PARSE_TWO_MPZ(other, "kronecker() expects 'mpz','mpz' arguments");
+    PARSE_TWO_MPZ(other, "kronecker() requires 'mpz','mpz' arguments");
 
     if(mpz_fits_ulong_p(Pympz_AS_MPZ(self))) {
         ires = mpz_ui_kronecker(
@@ -6691,16 +6699,21 @@ static void *
 gmpy_allocate(size_t size)
 {
     void *res;
-    size_t usize=size;
-    if(usize<GMPY_ALLOC_MIN) usize=GMPY_ALLOC_MIN;
+    size_t usize = size;
+    if(usize < GMPY_ALLOC_MIN) usize = GMPY_ALLOC_MIN;
 
     if(options.debug)
-        fprintf(stderr, "mp_allocate( %d->%d )\n", (int)size, (int)usize);
-    if(!(res = PyMem_Malloc(usize)))
+        fprintf(stderr, "mp_allocate( %llu->%llu )\n",
+            (unsigned long long)size, (unsigned long long)usize);
+    if(!(res = PyMem_Malloc(usize))) {
+        fprintf(stderr, "mp_allocate( %llu->%llu )\n",
+            (unsigned long long)size, (unsigned long long)usize);
         Py_FatalError("mp_allocate failure");
+    }
 
     if(options.debug)
-        fprintf(stderr, "mp_allocate( %d->%d ) ->%8p\n", (int)size, (int)usize, res);
+        fprintf(stderr, "mp_allocate( %llu->%llu ) ->%8p\n",
+            (unsigned long long)size, (unsigned long long)usize, res);
 
     return res;
 } /* mp_allocate() */
@@ -6710,28 +6723,35 @@ static void *
 gmpy_reallocate(void *ptr, size_t old_size, size_t new_size)
 {
     void *res;
-    size_t uold=old_size;
-    size_t unew=new_size;
-    if(uold<GMPY_ALLOC_MIN) uold=GMPY_ALLOC_MIN;
-    if(unew<GMPY_ALLOC_MIN) unew=GMPY_ALLOC_MIN;
+    size_t uold = old_size;
+    size_t unew = new_size;
+    if(uold < GMPY_ALLOC_MIN) uold = GMPY_ALLOC_MIN;
+    if(unew < GMPY_ALLOC_MIN) unew = GMPY_ALLOC_MIN;
 
     if(options.debug)
         fprintf(stderr,
-            "mp_reallocate: old address %8p, old size %d(%d), new %d(%d)\n",
-            ptr, (int)old_size, (int)uold, (int)new_size, (int)unew);
+            "mp_reallocate: old address %8p, old size %llu(%llu), new %llu(%llu)\n",
+            ptr, (unsigned long long)old_size, (unsigned long long)uold,
+            (unsigned long long)new_size, (unsigned long long)unew);
 
     if(uold==unew) {
         if(options.debug)
-            fprintf(stderr, "mp_reallocate: avoided realloc for %d\n", (int)unew);
+            fprintf(stderr, "mp_reallocate: avoided realloc for %llu\n",
+                (unsigned long long)unew);
         return ptr;
     }
 
-    if(!(res = PyMem_Realloc(ptr, unew)))
+    if(!(res = PyMem_Realloc(ptr, unew))) {
+        fprintf(stderr,
+            "mp_reallocate: old address %8p, old size %llu(%llu), new %llu(%llu)\n",
+            ptr, (unsigned long long)old_size, (unsigned long long)uold,
+            (unsigned long long)new_size, (unsigned long long)unew);
         Py_FatalError("mp_reallocate failure");
+    }
 
     if(options.debug)
-        fprintf(stderr, "mp_reallocate: newob address %8p, newob size %d(%d)\n",
-        res, (int)new_size, (int)unew);
+        fprintf(stderr, "mp_reallocate: newob address %8p, newob size %llu(%llu)\n",
+        res, (unsigned long long)new_size, (unsigned long long)unew);
 
     return res;
 } /* mp_reallocate() */
@@ -6740,11 +6760,11 @@ static void
 gmpy_free( void *ptr, size_t size)
 {
     size_t usize=size;
-    if(usize<GMPY_ALLOC_MIN) usize=GMPY_ALLOC_MIN;
+    if(usize < GMPY_ALLOC_MIN) usize = GMPY_ALLOC_MIN;
 
     if(options.debug)
-        fprintf(stderr, "mp_free      : old address %8p, old size %d(%d)\n",
-            ptr, (int)size, (int)usize);
+        fprintf(stderr, "mp_free      : old address %8p, old size %llu(%llu)\n",
+            ptr, (unsigned long long)size, (unsigned long long)usize);
 
     PyMem_Free(ptr);
 } /* mp_free() */
