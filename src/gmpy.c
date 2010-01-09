@@ -283,6 +283,7 @@
 #define Py2or3Bytes_FromString          PyBytes_FromString
 #define Py2or3Bytes_AS_STRING           PyBytes_AS_STRING
 #define Py2or3Bytes_FromStringAndSize   PyBytes_FromStringAndSize
+#define PyIntOrLong_FromSize_t          PyLong_FromSize_t
 #else
 #define Py2or3Int_FromLong              PyInt_FromLong
 #define Py2or3String_FromString         PyString_FromString
@@ -293,6 +294,7 @@
 #define Py2or3Bytes_FromString          PyString_FromString
 #define Py2or3Bytes_AS_STRING           PyString_AS_STRING
 #define Py2or3Bytes_FromStringAndSize   PyString_FromStringAndSize
+#define PyIntOrLong_FromSize_t          PyInt_FromSize_t
 #endif
 
 #ifndef PyLong_SHIFT
@@ -1902,8 +1904,8 @@ Pympf2binary(PympfObject *x)
     char *buffer, *aux;
     PyObject *s;
     int sign, codebyte;
-    mp_exp_t the_exp;
-    long lexp, lprec;
+    mp_exp_t the_exp, lexp;
+    long lprec;
     int lexpodd, extrabyte;
 
     assert(Pympf_Check( (PyObject *) x));
@@ -2223,7 +2225,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
         char expobuf[24];
         char auprebuf[24];
         int isfp=1;   /* flag: fixed-point format (FP)? */
-        int isnegative=0;
+        unsigned int isnegative=0;
         if(buffer[0]==0x2d) isnegative=1;
 
         /* compute size of needed Python string */
@@ -2243,10 +2245,10 @@ Pympf_ascii(PympfObject *self, int base, int digits,
             /* add number of leading or trailing 0's */
             if(the_exp <= 0) {
                 /* add leading 0's */
-                size += abs(the_exp)+1;
+                size += ABS(the_exp)+1;
             } else {
                 /* add trailing 0's if needed */
-                if(the_exp >= (buflen-isnegative))
+                if(the_exp >= (unsigned)(buflen-isnegative))
                     size += (the_exp-(buflen-isnegative))+1;
             }
         }
@@ -2283,7 +2285,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
             /* insert what else goes before '.' for FP */
             if(isfp && the_exp>1) {
                 /* number of digits-to-copy before the '.' */
-                int dtc = the_exp-1;
+                size_t dtc = the_exp-1;
                 /* copy requested # of digits as long as there
                  * are still digits to copy in the buffer
                  */
@@ -2315,7 +2317,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
              * from the buffer
              */
             if(isfp && the_exp<0) {
-                int dtc = abs(the_exp);
+                size_t dtc = ABS(the_exp);
                 while(dtc>0) {
                     *pd++ = '0';
                     --dtc;
@@ -3016,39 +3018,37 @@ bit_length(x): returns length of string representing x in base 2\n\
 static PyObject *
 Pympz_bit_length(PyObject *self, PyObject *args)
 {
-    long i = 0;
+    size_t i = 0;
     PympzObject* newob;
 
     if(self && Pympz_Check(self)) {
         if(PyTuple_GET_SIZE(args) != 0) {
             PyErr_SetString(PyExc_TypeError,
-                "bit_length() takes exactly 1 argument");
+                "bit_length() requires 'mpz' argument");
             return NULL;
         }
         assert(Pympz_Check(self));
-        if ((i=mpz_sizeinbase(Pympz_AS_MPZ(self), 2))==1)
-            return Py2or3Int_FromLong((long) mpz_size(Pympz_AS_MPZ(self)));
-        else
-            return Py2or3Int_FromLong(i);
+        if (mpz_size(Pympz_AS_MPZ(self)))
+            i = mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
     } else {
         if(PyTuple_GET_SIZE(args) != 1){
             PyErr_SetString(PyExc_TypeError,
-                "bit_length() takes exactly 1 argument");
+                "bit_length() requires 'mpz' argument");
             return NULL;
         }
         newob = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
         if(newob) {
             assert(Pympz_Check(newob));
             if (mpz_size(Pympz_AS_MPZ(newob)))
-                i = (long) mpz_sizeinbase(Pympz_AS_MPZ(newob), 2);
+                i = mpz_sizeinbase(Pympz_AS_MPZ(newob), 2);
             Py_DECREF((PyObject*)newob);
-            return Py2or3Int_FromLong(i);
         } else {
             PyErr_SetString(PyExc_TypeError,
                 "unsupported operand type for bit_length: integer required");
             return NULL;
         }
     }
+    return PyIntOrLong_FromSize_t(i);
 }
 
 /* produce digits for an mpq in requested base, default 10 */
@@ -3271,7 +3271,7 @@ Pympz_setbit(PyObject *self, PyObject *args)
 {
     long bit_index;
     long bit_value=1;
-    int argc;
+    Py_ssize_t argc;
     PympzObject *s;
 
     argc = PyTuple_GET_SIZE(args);
@@ -3854,7 +3854,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
     PympqObject *newob;
     PyObject *obj;
     int wasnumeric;
-    int argc;
+    Py_ssize_t argc;
 
     if(options.debug)
         fputs("Pygmpy_mpq() called...\n", stderr);
@@ -3954,7 +3954,7 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
 {
     PympfObject *newob;
     PyObject *obj;
-    int argc;
+    Py_ssize_t argc;
     unsigned int bits=0;
 
     if(options.debug)

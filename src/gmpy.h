@@ -18,10 +18,6 @@ extern "C" {
 #endif
 
 #if defined(MS_WIN32) && defined(_MSC_VER)
-/* the __MPN determination in stock gmp.h doesn't work, so...: */
-#    define __MPN(x) __gmpn_##x
-#    define _GMP_H_HAVE_FILE
-#    define _PROTO(x) x
 #define inline __inline
 #endif
 
