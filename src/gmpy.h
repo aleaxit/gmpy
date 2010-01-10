@@ -18,6 +18,10 @@ extern "C" {
 #endif
 
 #if defined(MS_WIN32) && defined(_MSC_VER)
+/* the __MPN determination in stock gmp.h doesn't work, so...: */
+#    define __MPN(x) __gmpn_##x
+#    define _GMP_H_HAVE_FILE
+#    define _PROTO(x) x
 #define inline __inline
 #endif
 
@@ -80,7 +84,7 @@ typedef struct {
 
 #define Pympf_new_NUM 5
 #define Pympf_new_RETURN PympfObject *
-#define Pympf_new_PROTO (unsigned long bits)
+#define Pympf_new_PROTO (unsigned int bits)
 
 #define Pympz_dealloc_NUM 6
 #define Pympz_dealloc_RETURN void

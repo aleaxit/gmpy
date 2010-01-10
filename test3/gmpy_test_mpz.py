@@ -507,15 +507,15 @@ mpz(123)
 >>> _g.hamdist(3)
 Traceback (innermost last):
   ...
-TypeError: hamdist() requires 'mpz','mpz' arguments
+TypeError: hamdist() expects 'mpz','mpz' arguments
 >>> a.hamdist()
 Traceback (innermost last):
   ...
-TypeError: hamdist() requires 'mpz','mpz' arguments
+TypeError: hamdist() expects 'mpz','mpz' arguments
 >>> a.hamdist(3, 4)
 Traceback (innermost last):
   ...
-TypeError: hamdist() requires 'mpz','mpz' arguments
+TypeError: hamdist() expects 'mpz','mpz' arguments
 >>> a.lowbits(5)
 mpz(27)
 >>> b.lowbits(5)
@@ -821,15 +821,15 @@ mpz(0)
 >>> _g.invert(3)
 Traceback (innermost last):
   ...
-TypeError: invert() requires 'mpz','mpz' arguments
+TypeError: invert() expects 'mpz','mpz' arguments
 >>> a.invert()
 Traceback (innermost last):
   ...
-TypeError: invert() requires 'mpz','mpz' arguments
+TypeError: invert() expects 'mpz','mpz' arguments
 >>> a.invert(3, 4)
 Traceback (innermost last):
   ...
-TypeError: invert() requires 'mpz','mpz' arguments
+TypeError: invert() expects 'mpz','mpz' arguments
 >>> _g.comb(3,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -849,15 +849,15 @@ ValueError: factor must be > 0
 >>> _g.remove(3)
 Traceback (innermost last):
   ...
-TypeError: remove() requires 'mpz','mpz' arguments
+TypeError: remove() expects 'mpz','mpz' arguments
 >>> a.remove()
 Traceback (innermost last):
   ...
-TypeError: remove() requires 'mpz','mpz' arguments
+TypeError: remove() expects 'mpz','mpz' arguments
 >>> a.remove(3, 4)
 Traceback (innermost last):
   ...
-TypeError: remove() requires 'mpz','mpz' arguments
+TypeError: remove() expects 'mpz','mpz' arguments
 >>> _g.is_prime(3,-3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -871,15 +871,15 @@ ValueError: jacobi's y must be odd prime > 0
 >>> _g.jacobi(3)
 Traceback (innermost last):
   ...
-TypeError: jacobi() requires 'mpz','mpz' arguments
+TypeError: jacobi() expects 'mpz','mpz' arguments
 >>> a.jacobi()
 Traceback (innermost last):
   ...
-TypeError: jacobi() requires 'mpz','mpz' arguments
+TypeError: jacobi() expects 'mpz','mpz' arguments
 >>> a.jacobi(3, 4)
 Traceback (innermost last):
   ...
-TypeError: jacobi() requires 'mpz','mpz' arguments
+TypeError: jacobi() expects 'mpz','mpz' arguments
 >>> _g.legendre(10,3)
 1
 >>> _g.legendre(10,-3)
@@ -889,15 +889,15 @@ ValueError: legendre's y must be odd and > 0
 >>> _g.legendre(3)
 Traceback (innermost last):
   ...
-TypeError: legendre() requires 'mpz','mpz' arguments
+TypeError: legendre() expects 'mpz','mpz' arguments
 >>> a.legendre()
 Traceback (innermost last):
   ...
-TypeError: legendre() requires 'mpz','mpz' arguments
+TypeError: legendre() expects 'mpz','mpz' arguments
 >>> a.legendre(3, 4)
 Traceback (innermost last):
   ...
-TypeError: legendre() requires 'mpz','mpz' arguments
+TypeError: legendre() expects 'mpz','mpz' arguments
 >>> _g.kronecker(10,3)
 1
 >>> _g.kronecker(10,-3)
@@ -905,15 +905,15 @@ TypeError: legendre() requires 'mpz','mpz' arguments
 >>> _g.kronecker(3)
 Traceback (innermost last):
   ...
-TypeError: kronecker() requires 'mpz','mpz' arguments
+TypeError: kronecker() expects 'mpz','mpz' arguments
 >>> a.kronecker()
 Traceback (innermost last):
   ...
-TypeError: kronecker() requires 'mpz','mpz' arguments
+TypeError: kronecker() expects 'mpz','mpz' arguments
 >>> a.kronecker(3, 4)
 Traceback (innermost last):
   ...
-TypeError: kronecker() requires 'mpz','mpz' arguments
+TypeError: kronecker() expects 'mpz','mpz' arguments
 >>> a=10**20
 >>> b=a+39
 >>> _g.jacobi(a,b)
