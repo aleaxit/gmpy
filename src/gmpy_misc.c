@@ -239,9 +239,13 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
             }
             /* prepare Python format-string '%.12e' or whatever */
             sprintf(buf,"%%.%lde",inew);
-            new = Py2or3String_FromString(buf);
+#if PY_MAJOR_VERSION == 3
+            new = PyUnicode_FromString(buf);
+#else
+            new = PyString_FromString(buf);
+#endif
         } else { /* else arg must be string directly usable in formatting */
-            if(!Py2or3String_Check(new)) {
+            if(!PyBytesOrUnicode_Check(new)) {
                 PyErr_SetString(PyExc_TypeError,
                     "set_fcoform argument must be int, string, or None");
                 return NULL;

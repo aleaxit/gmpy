@@ -257,29 +257,20 @@
 /* Define various macros to deal with differences between Python 2 and 3. */
 
 #if PY_MAJOR_VERSION >= 3
-#define Py2or3Int_FromLong              PyLong_FromLong
-#define Py2or3String_FromString         PyUnicode_FromString
-#define Py2or3String_Check              PyUnicode_Check
-#define Py2or3String_Format             PyUnicode_Format
-#define Py2or3String_AsString           PyUnicode_AS_DATA
-#define Py2or3Bytes_ConcatAndDel        PyBytes_ConcatAndDel
-#define Py2or3Bytes_FromString          PyBytes_FromString
-#define Py2or3Bytes_AS_STRING           PyBytes_AS_STRING
-#define Py2or3Bytes_FromStringAndSize   PyBytes_FromStringAndSize
+#define PyBytesOrUnicode_AS_DATA        PyUnicode_AS_DATA
+#define PyIntOrLong_FromLong            PyLong_FromLong
 #define PyIntOrLong_Check(op)           PyLong_Check(op)
 #define PyIntOrLong_FromSize_t          PyLong_FromSize_t
+#define PyBytesOrUnicode_Check(s)       (PyBytes_Check(s) || PyUnicode_Check(s))
 #else
-#define Py2or3Int_FromLong              PyInt_FromLong
-#define Py2or3String_FromString         PyString_FromString
-#define Py2or3String_Check              PyString_Check
-#define Py2or3String_Format             PyString_Format
-#define Py2or3String_AsString           PyString_AsString
-#define Py2or3Bytes_ConcatAndDel        PyString_ConcatAndDel
-#define Py2or3Bytes_FromString          PyString_FromString
-#define Py2or3Bytes_AS_STRING           PyString_AS_STRING
-#define Py2or3Bytes_FromStringAndSize   PyString_FromStringAndSize
+#define PyBytesOrUnicode_AS_DATA        PyString_AsString
+#define PyBytes_Check                   PyString_Check
+#define PyBytes_Size                    PyString_Size
+#define PyBytes_AsString                PyString_AsString
+#define PyIntOrLong_FromLong            PyInt_FromLong
 #define PyIntOrLong_Check(op)           (PyInt_Check(op) || PyLong_Check(op))
 #define PyIntOrLong_FromSize_t          PyInt_FromSize_t
+#define PyBytesOrUnicode_Check(s)       (PyString_Check(s) || PyUnicode_Check(s))
 #endif
 
 char gmpy_version[] = "1.20";
@@ -794,13 +785,17 @@ PyFloat2Pympf(PyObject *f, unsigned int bits)
         PyObject* tuple=Py_BuildValue("(O)",f);
         PyObject* s;
         if(!tuple) return 0;
-        s=Py2or3String_Format(options.fcoform, tuple);
+#if PY_MAJOR_VERSION == 3
+        s=PyUnicode_Format(options.fcoform, tuple);
+#else
+        s=PyString_Format(options.fcoform, tuple);
+#endif
         Py_DECREF(tuple);
         if(options.debug)
             fprintf(stderr,"f2mp(%s,%f->%s)\n",
-                    Py2or3String_AsString(options.fcoform),
+                    PyBytesOrUnicode_AS_DATA(options.fcoform),
                     PyFloat_AsDouble(f),
-                    s?Py2or3String_AsString(s):"<NoString>");
+                    s?PyBytesOrUnicode_AS_DATA(s):"<NoString>");
 
         if(!s)
             return NULL;
@@ -974,16 +969,11 @@ PyStr2Pympz(PyObject *s, long base)
     int i;
     PyObject *ascii_str = NULL;
 
-#if PY_MAJOR_VERSION >= 3
-    assert(PyBytes_Check(s) || PyUnicode_Check(s));
-#else
-    assert(PyString_Check(s) || PyUnicode_Check(s));
-#endif
+    assert(PyBytesOrUnicode_Check(s));
 
     if(!(newob = Pympz_new()))
         return NULL;
 
-#if PY_MAJOR_VERSION >= 3
     if(PyBytes_Check(s)) {
         len = PyBytes_Size(s);
         cp = (unsigned char*)PyBytes_AsString(s);
@@ -998,22 +988,6 @@ PyStr2Pympz(PyObject *s, long base)
         len = PyBytes_Size(ascii_str);
         cp = (unsigned char*)PyBytes_AsString(ascii_str);
     }
-#else
-    if(PyString_Check(s)) {
-        len = PyString_Size(s);
-        cp = (unsigned char*)PyString_AsString(s);
-    } else {
-        ascii_str = PyUnicode_AsASCIIString(s);
-        if(!ascii_str) {
-            PyErr_SetString(PyExc_ValueError,
-                    "string contains non-ASCII characters");
-            Py_DECREF((PyObject*)newob);
-            return NULL;
-        }
-        len = PyString_Size(ascii_str);
-        cp = (unsigned char*)PyString_AsString(ascii_str);
-    }
-#endif
 
     if(256 == base) {
         /* Least significant octet first */
@@ -1072,16 +1046,11 @@ PyStr2Pympq(PyObject *stringarg, long base)
     int i;
     PyObject *ascii_str = NULL;
 
-#if PY_MAJOR_VERSION >= 3
-    assert(PyBytes_Check(stringarg) || PyUnicode_Check(stringarg));
-#else
-    assert(PyString_Check(stringarg) || PyUnicode_Check(stringarg));
-#endif
+    assert(PyBytesOrUnicode_Check(stringarg) || PyUnicode_Check(stringarg));
 
     if(!(newob = Pympq_new()))
         return NULL;
 
-#if PY_MAJOR_VERSION >= 3
     if(PyBytes_Check(stringarg)) {
         len = PyBytes_Size(stringarg);
         cp = (unsigned char*)PyBytes_AsString(stringarg);
@@ -1096,22 +1065,6 @@ PyStr2Pympq(PyObject *stringarg, long base)
         len = PyBytes_Size(ascii_str);
         cp = (unsigned char*)PyBytes_AsString(ascii_str);
     }
-#else
-    if(PyString_Check(stringarg)) {
-        len = PyString_Size(stringarg);
-        cp = (unsigned char*)PyString_AsString(stringarg);
-    } else {
-        ascii_str = PyUnicode_AsASCIIString(stringarg);
-        if(!ascii_str) {
-            PyErr_SetString(PyExc_ValueError,
-                    "string contains non-ASCII characters");
-            Py_DECREF((PyObject*)newob);
-            return NULL;
-        }
-        len = PyString_Size(ascii_str);
-        cp = (unsigned char*)PyString_AsString(ascii_str);
-    }
-#endif
 
     if(256 == base) {
         /* TODO: better factoring of str2mpz (for speed) */
@@ -1133,7 +1086,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
             Py_XDECREF(ascii_str);
             return 0;
         }
-        s = Py2or3Bytes_FromStringAndSize((char*)cp+4, numlen);
+        s = PyBytes_FromStringAndSize((char*)cp+4, numlen);
         numerator = PyStr2Pympz(s,256);
         Py_DECREF(s);
         if (!numerator) {
@@ -1150,7 +1103,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
         }
         if(isnega)
             mpz_neg(numerator->z, numerator->z);
-        s = Py2or3Bytes_FromStringAndSize((char*)cp+4+numlen, len-4-numlen);
+        s = PyBytes_FromStringAndSize((char*)cp+4+numlen, len-4-numlen);
         denominator = PyStr2Pympz(s,256);
         Py_DECREF(s);
         if (!denominator) {
@@ -1243,13 +1196,8 @@ PyStr2Pympf(PyObject *s, long base, Py_ssize_t bits)
     Py_ssize_t i, len, precision;
     PyObject *ascii_str = NULL;
 
-#if PY_MAJOR_VERSION >= 3
-    assert(PyBytes_Check(s) || PyUnicode_Check(s));
-#else
-    assert(PyString_Check(s) || PyUnicode_Check(s));
-#endif
+    assert(PyBytesOrUnicode_Check(s) || PyUnicode_Check(s));
 
-#if PY_MAJOR_VERSION >= 3
     if(PyBytes_Check(s)) {
         len = PyBytes_Size(s);
         cp = (unsigned char*)PyBytes_AsString(s);
@@ -1263,21 +1211,7 @@ PyStr2Pympf(PyObject *s, long base, Py_ssize_t bits)
         len = PyBytes_Size(ascii_str);
         cp = (unsigned char*)PyBytes_AsString(ascii_str);
     }
-#else
-    if(PyString_Check(s)) {
-        len = PyString_Size(s);
-        cp = (unsigned char*)PyString_AsString(s);
-    } else {
-        ascii_str = PyUnicode_AsASCIIString(s);
-        if(!ascii_str) {
-            PyErr_SetString(PyExc_ValueError,
-                    "string contains non-ASCII characters");
-            return NULL;
-        }
-        len = PyString_Size(ascii_str);
-        cp = (unsigned char*)PyString_AsString(ascii_str);
-    }
-#endif
+
     if(bits>0) {
         precision = bits;
     } else { /* precision to be defaulted or fetched */
@@ -1518,7 +1452,7 @@ Pympz2binary(PympzObject *x)
     if(negative) {
         mpz_neg(x->z, x->z);
     }
-    s = Py2or3Bytes_FromStringAndSize(buffer, size);
+    s = PyBytes_FromStringAndSize(buffer, size);
     TEMP_FREE(buffer, size);
     return s;
 }
@@ -1566,7 +1500,7 @@ Pympq2binary(PympqObject *x)
     if(negative) {
         mpz_neg( mpq_numref(x->q), mpq_numref(x->q));
     }
-    s = Py2or3Bytes_FromStringAndSize(buffer, size);
+    s = PyBytes_FromStringAndSize(buffer, size);
 
     TEMP_FREE(buffer, size);
 
@@ -1653,10 +1587,10 @@ Pympf2binary(PympfObject *x)
     size = (hexdigs+1)/2;
     /* allocate an extra byte if lexpodd and hexdigs is even */
     extrabyte = lexpodd & ~hexdigs;
-    s = Py2or3Bytes_FromStringAndSize(0, 1+4+size+4+extrabyte);
+    s = PyBytes_FromStringAndSize(0, 1+4+size+4+extrabyte);
     if(!s) return 0;
     /* set the data to the new Python string's buffer */
-    aux = Py2or3Bytes_AS_STRING(s);
+    aux = PyBytes_AS_STRING(s);
     /* codebyte first */
     aux[0] = (char)codebyte;
     /* then precision */
@@ -1753,7 +1687,7 @@ mpz_ascii(mpz_t z, int base, int with_tag)
 #endif
     if(with_tag)
         *(p++) = ')';
-    s = Py2or3Bytes_FromStringAndSize(buffer, p - buffer);
+    s = PyBytes_FromStringAndSize(buffer, p - buffer);
     mpz_cloc(temp);
     TEMP_FREE(buffer, size);
     return s;
@@ -1795,16 +1729,16 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
     }
 
     if(with_tag) {
-        result = Py2or3Bytes_FromString(qtag+options.tagoff);
-        if(result) Py2or3Bytes_ConcatAndDel(&result, numstr);
+        result = PyBytes_FromString(qtag+options.tagoff);
+        if(result) PyBytes_ConcatAndDel(&result, numstr);
         if(!result) {
             Py_XDECREF(denstr);
             return 0;
         }
 #if PY_MAJOR_VERSION < 3
         if(!mpz_fits_slong_p(mpq_numref(self->q))) {
-            temp = Py2or3Bytes_FromString("L");
-            Py2or3Bytes_ConcatAndDel(&result, temp);
+            temp = PyBytes_FromString("L");
+            PyBytes_ConcatAndDel(&result, temp);
             if(!result) {
                 Py_XDECREF(denstr);
                 return 0;
@@ -1817,17 +1751,17 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
     }
     if(denstr) {
         char* separator = with_tag?",":"/";
-        temp = Py2or3Bytes_FromString(separator);
-        Py2or3Bytes_ConcatAndDel(&result, temp);
+        temp = PyBytes_FromString(separator);
+        PyBytes_ConcatAndDel(&result, temp);
         if(!result) {
             Py_DECREF(denstr);
             return 0;
         }
-        Py2or3Bytes_ConcatAndDel(&result, denstr);
+        PyBytes_ConcatAndDel(&result, denstr);
 #if PY_MAJOR_VERSION < 3
         if(with_tag && !mpz_fits_slong_p(mpq_denref(self->q))) {
-            temp = Py2or3Bytes_FromString("L");
-            Py2or3Bytes_ConcatAndDel(&result, temp);
+            temp = PyBytes_FromString("L");
+            PyBytes_ConcatAndDel(&result, temp);
             if(!result) {
                 return 0;
             }
@@ -1835,8 +1769,8 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
 #endif
     }
     if(with_tag && result) {
-        temp = Py2or3Bytes_FromString(")");
-        Py2or3Bytes_ConcatAndDel(&result, temp);
+        temp = PyBytes_FromString(")");
+        PyBytes_ConcatAndDel(&result, temp);
     }
 #if PY_MAJOR_VERSION >= 3
     temp = PyUnicode_FromString(PyBytes_AS_STRING(result));
@@ -1950,11 +1884,11 @@ Pympf_ascii(PympfObject *self, int base, int digits,
         }
 
         /* allocate the string itself (uninitialized, as yet) */
-        res = Py2or3Bytes_FromStringAndSize(0, size);
+        res = PyBytes_FromStringAndSize(0, size);
 
         {
             /* proceed with building the string-buffer value */
-            char* pd = Py2or3Bytes_AS_STRING(res);
+            char* pd = PyBytes_AS_STRING(res);
             char* ps = buffer;
 
             /* insert leading tag if requested */
@@ -4015,7 +3949,7 @@ Pympf_getprec(PyObject *self, PyObject *args)
 
     precres = (long) mpf_get_prec(Pympf_AS_MPF(self));
     Py_DECREF(self);
-    return Py2or3Int_FromLong(precres);
+    return PyIntOrLong_FromLong(precres);
 }
 
 static char doc_getrprecm[]="\
@@ -4037,7 +3971,7 @@ Pympf_getrprec(PyObject *self, PyObject *args)
 
     precres = (long) ((PympfObject*)self)->rebits;
     Py_DECREF(self);
-    return Py2or3Int_FromLong(precres);
+    return PyIntOrLong_FromLong(precres);
 }
 
 static char doc_froundm[] = "\
@@ -4104,7 +4038,7 @@ Pympf_sign(PyObject *self, PyObject *args)
 
     sign = (long) mpf_sgn(Pympf_AS_MPF(self));
     Py_DECREF(self);
-    return Py2or3Int_FromLong(sign);
+    return PyIntOrLong_FromLong(sign);
 }
 
 /* random-number issues -- TODO: repackage as separate functions */

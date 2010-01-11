@@ -113,7 +113,7 @@ Pympz_numdigits(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
-    s = Py2or3Int_FromLong((long) mpz_sizeinbase(Pympz_AS_MPZ(self), base));
+    s = PyIntOrLong_FromLong((long) mpz_sizeinbase(Pympz_AS_MPZ(self), base));
     Py_DECREF(self);
     return s;
 }
@@ -192,10 +192,10 @@ Pympz_scan0(PyObject *self, PyObject *args)
             s = Py_None;
             Py_INCREF(s);
         } else {
-            s = Py2or3Int_FromLong(starting_bit);
+            s = PyIntOrLong_FromLong(starting_bit);
         }
     } else {
-        s = Py2or3Int_FromLong(mpz_scan0(Pympz_AS_MPZ(self), starting_bit));
+        s = PyIntOrLong_FromLong(mpz_scan0(Pympz_AS_MPZ(self), starting_bit));
     }
     Py_DECREF(self);
     return s;
@@ -240,10 +240,10 @@ Pympz_scan1(PyObject *self, PyObject *args)
             s = Py_None;
             Py_INCREF(s);
         } else {
-            s = Py2or3Int_FromLong(starting_bit);
+            s = PyIntOrLong_FromLong(starting_bit);
         }
     } else {
-        s = Py2or3Int_FromLong(mpz_scan1(Pympz_AS_MPZ(self), starting_bit));
+        s = PyIntOrLong_FromLong(mpz_scan1(Pympz_AS_MPZ(self), starting_bit));
     }
     Py_DECREF(self);
     return s;
@@ -266,7 +266,7 @@ Pympz_popcount(PyObject *self, PyObject *args)
 
     PARSE_ONE_MPZ("popcount() requires 'mpz' argument");
     assert(Pympz_Check(self));
-    s = Py2or3Int_FromLong(mpz_popcount(Pympz_AS_MPZ(self)));
+    s = PyIntOrLong_FromLong(mpz_popcount(Pympz_AS_MPZ(self)));
     Py_DECREF(self);
     return s;
 }
@@ -330,7 +330,7 @@ Pympz_getbit(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
-    s = Py2or3Int_FromLong(mpz_tstbit(Pympz_AS_MPZ(self), bit_index));
+    s = PyIntOrLong_FromLong(mpz_tstbit(Pympz_AS_MPZ(self), bit_index));
     Py_DECREF(self);
     return s;
 }
@@ -458,7 +458,7 @@ Pympz_root(PyObject *self, PyObject *args)
     exact = mpz_root(s->z, Pympz_AS_MPZ(self), n);
     Py_DECREF(self);
     PyTuple_SET_ITEM(result, 0, (PyObject*)s);
-    PyTuple_SET_ITEM(result, 1, (PyObject*)Py2or3Int_FromLong(exact));
+    PyTuple_SET_ITEM(result, 1, (PyObject*)PyIntOrLong_FromLong(exact));
     return result;
 }
 
@@ -526,7 +526,7 @@ Pympz_sign(PyObject *self, PyObject *args)
 
     PARSE_ONE_MPZ("sign() requires 'mpz' argument");
     assert(Pympz_Check(self));
-    s = Py2or3Int_FromLong(mpz_sgn(Pympz_AS_MPZ(self)));
+    s = PyIntOrLong_FromLong(mpz_sgn(Pympz_AS_MPZ(self)));
     Py_DECREF(self);
     return s;
 }
@@ -1315,7 +1315,7 @@ Pympz_hamdist(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPZ(other, "hamdist() requires 'mpz','mpz' arguments");
 
-    result = Py2or3Int_FromLong(
+    result = PyIntOrLong_FromLong(
             mpz_hamdist(Pympz_AS_MPZ(self),Pympz_AS_MPZ(other)));
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1484,7 +1484,7 @@ Pympz_is_square(PyObject *self, PyObject *args)
 
     i = (long) mpz_perfect_square_p(Pympz_AS_MPZ(self));
     Py_DECREF(self);
-    return Py2or3Int_FromLong(i);
+    return PyIntOrLong_FromLong(i);
 }
 
 static char doc_is_powerm[]="\
@@ -1505,7 +1505,7 @@ Pympz_is_power(PyObject *self, PyObject *args)
 
     i = (long) mpz_perfect_power_p(Pympz_AS_MPZ(self));
     Py_DECREF(self);
-    return Py2or3Int_FromLong(i);
+    return PyIntOrLong_FromLong(i);
 }
 
 static char doc_is_primem[]="\
@@ -1537,7 +1537,7 @@ Pympz_is_prime(PyObject *self, PyObject *args)
     }
     i = (long) mpz_probab_prime_p(Pympz_AS_MPZ(self), reps);
     Py_DECREF(self);
-    return Py2or3Int_FromLong(i);
+    return PyIntOrLong_FromLong(i);
 }
 
 static char doc_next_primem[]="\
@@ -1593,7 +1593,7 @@ Pympz_jacobi(PyObject *self, PyObject *args)
     i =(long) (mpz_jacobi(Pympz_AS_MPZ(self), Pympz_AS_MPZ(other)));
     Py_DECREF(self);
     Py_DECREF(other);
-    return Py2or3Int_FromLong(i);
+    return PyIntOrLong_FromLong(i);
 }
 
 static char doc_legendrem[]="\
@@ -1621,7 +1621,7 @@ Pympz_legendre(PyObject *self, PyObject *args)
     i = (long) mpz_legendre(Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
     Py_DECREF(self);
     Py_DECREF(other);
-    return Py2or3Int_FromLong(i);
+    return PyIntOrLong_FromLong(i);
 }
 
 static char doc_kroneckerm[]="\
@@ -1661,6 +1661,6 @@ Pympz_kronecker(PyObject *self, PyObject *args)
     }
     Py_DECREF(self);
     Py_DECREF(other);
-    return Py2or3Int_FromLong(ires);
+    return PyIntOrLong_FromLong(ires);
 }
 
