@@ -488,7 +488,7 @@ Pympz_new(void)
             fprintf(stderr, "Pympz_new is reusing an old object\n");
         self = (pympzcache[--in_pympzcache]);
         /* Py_INCREF does not set the debugging pointers, so need to use
-           _Py_NewReference instead. */
+         * _Py_NewReference instead. */
         _Py_NewReference((PyObject*)self);
     } else {
         if(options.debug)
@@ -557,8 +557,14 @@ Pympq_dealloc(PympqObject *self)
 {
     if(options.debug)
         fprintf(stderr, "Pympq_dealloc: %p\n", self);
-    mpq_cloc(self->q);
-    PyObject_Del(self);
+    if(in_pympqcache<options.cache_size
+            && mpq_numref(self->q)->_mp_alloc <= options.cache_obsize
+            && mpq_denref(self->q)->_mp_alloc <= options.cache_obsize) {
+        (pympqcache[in_pympqcache++]) = self;
+    } else {
+        mpq_cloc(self->q);
+        PyObject_Del(self);
+    }
 } /* Pympq_dealloc */
 
 static void
