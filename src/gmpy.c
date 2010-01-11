@@ -224,6 +224,11 @@
 #define GMPY_MODULE
 #include "gmpy.h"
 
+/* The gmpy_args.h file includes macros that are used for argument
+ * processing.
+ */
+#include "gmpy_args.h"
+
 /* Define the minimum memory amount allocated. 8 has historically been
  * used, but 16 might be better for some applications or 64-bit systems.
  */
@@ -239,56 +244,6 @@
 /* The maximum number of objects that can be saved in a cache is specified
  * here. The default value is 100.*/
 #define MAX_CACHE 1000
-
-#if defined(MS_WIN32) && defined(_MSC_VER)
-  /* so one won't need to link explicitly to gmp.lib...: */
-  #if defined(MPIR)
-    #pragma comment(lib,"mpir.lib")
-  #else
-    #pragma comment(lib,"gmp.lib")
-  #endif
-  #define isnan _isnan
-  #define isinf !_finite
-  #define USE_ALLOCA 1
-#endif
-
-#ifdef __GNUC__
-#define USE_ALLOCA 1
-#endif
-
-#ifndef alloca
-# ifdef __GNUC__
-#  define alloca __builtin_alloca
-# else
-#   ifdef _MSC_VER
-#    include <malloc.h>
-#    define alloca _alloca
-#   else
-#    if HAVE_ALLOCA_H
-#     include <alloca.h>
-#    else
-       char *alloca ();
-#    endif
-#   endif
-# endif
-#endif
-
-#define Py_RETURN_NOTIMPLEMENTED\
-    return Py_INCREF(Py_NotImplemented), Py_NotImplemented
-
-/* Various defs to mask differences between Python versions. */
-
-#ifndef Py_SIZE
-#define Py_SIZE(ob)		(((PyVarObject*)(ob))->ob_size)
-#endif
-
-#ifndef Py_TYPE
-#define Py_TYPE(ob)		(((PyObject*)(ob))->ob_type)
-#endif
-
-#ifndef Py_REFCNT
-#define Py_REFCNT(ob)		(((PyObject*)(ob))->ob_refcnt)
-#endif
 
 /* Add support for PyLong_AsLongAndOverflow to older versions of Python */
 
@@ -331,28 +286,6 @@ char gmpy_version[] = "1.20";
 
 char _gmpy_cvs[] = "$Id$";
 
-#define ALLOC_THRESHOLD 8192
-
-#ifdef USE_ALLOCA
-#define TEMP_ALLOC(B, S) \
-    if(S < ALLOC_THRESHOLD) { \
-        B = alloca(S); \
-    } else { \
-        if(!(B = PyMem_Malloc(S))) { \
-            PyErr_NoMemory(); \
-            return NULL; \
-        } \
-    }
-#define TEMP_FREE(B, S) if(S >= ALLOC_THRESHOLD) PyMem_Free(B)
-#else
-#define TEMP_ALLOC(B, S) \
-    if(!(B = PyMem_Malloc(S)))  { \
-        PyErr_NoMemory(); \
-        return NULL; \
-    }
-#define TEMP_FREE(B, S) PyMem_Free(B)
-#endif
-
 /*
  * global data declarations
  */
@@ -388,28 +321,55 @@ static PyMethodDef Pympq_methods [];
 static PyMethodDef Pympf_methods [];
 #endif
 
-/* caching macro (later expanded for mpz, mpq) */
-#define DEFCACHE(mpX_t,Xcache,in_Xcache,set_Xcache,mpX_clear) \
-static mpX_t* Xcache; \
-static int in_Xcache; \
-static void set_Xcache(void) \
-{ \
-    if(in_Xcache > options.cache_size) { \
-        int i; \
-        if(options.debug) \
-            fprintf(stderr, "Clean %d from " #Xcache "\n", \
-                    in_Xcache-options.cache_size); \
-        for(i=options.cache_size; i<in_Xcache; ++i) \
-            mpX_clear(Xcache[i]); \
-        in_Xcache = options.cache_size; \
-    } \
-    Xcache = PyMem_Realloc(Xcache, sizeof(mpX_t)*options.cache_size); \
+/* gmpy caches objects so they can be reused quickly without involving a new
+ * memory allocation or object construction. There are two different types of
+ * object caches used in gmpy.
+ *
+ * "zcache" and "qcache" are used to cache mpz_t and mpq_t objects. The cache
+ * is accessed via the functions mpz_inoc/mpz_cloc and mpq_inoc/mpq_cloc. The
+ * functions set_zcache and set_qcache are used to change the size of the
+ * array used to store the cached objects.
+ *
+ * "pympzcache" and "pympqcache" are used to cache Pympz and Pympq objects.
+ * The cache is accessed via Pympz_new/Pympz_dealloc and Pympq_new/
+ * Pympq_dealloc. The functions set_pympzcache and set_pympqcache are used
+ * to change the size of the array used to the store the cached objects.
+ */
+
+static mpz_t* zcache;
+static int in_zcache;
+
+static void
+set_zcache(void)
+{
+    if(options.debug)
+        fprintf(stderr, "Entering set_zcache\n");
+    if(in_zcache > options.cache_size) {
+        int i;
+        for(i = options.cache_size; i < in_zcache; ++i)
+            mpz_clear(zcache[i]);
+        in_zcache = options.cache_size;
+    }
+    zcache = PyMem_Realloc(zcache, sizeof(mpz_t) * options.cache_size);
 }
 
-DEFCACHE(mpz_t,zcache,in_zcache,set_zcache,mpz_clear)
-DEFCACHE(mpq_t,qcache,in_qcache,set_qcache,mpq_clear)
+static mpq_t* qcache;
+static int in_qcache;
 
-/* init-or-cache macro & function -- fetch from cache, else init, an MPZ */
+static void
+set_qcache(void)
+{
+    if(options.debug)
+        fprintf(stderr, "Entering set_qcache\n");
+    if(in_qcache > options.cache_size) {
+        int i;
+        for(i = options.cache_size; i < in_qcache; ++i)
+            mpq_clear(qcache[i]);
+        in_qcache = options.cache_size;
+    }
+    qcache = PyMem_Realloc(qcache, sizeof(mpq_t) * options.cache_size);
+}
+
 static void
 mpz_inoc(mpz_t newo)
 {
@@ -424,7 +384,6 @@ mpz_inoc(mpz_t newo)
     }
 }
 
-/* clear-or-cache macro & function -- stash into cache, else clear, an MPZ */
 static void
 mpz_cloc(mpz_t oldo)
 {
@@ -440,7 +399,6 @@ mpz_cloc(mpz_t oldo)
     }
 }
 
-/* init-or-cache macro & function -- fetch from cache, else init, an MPQ */
 static void
 mpq_inoc(mpq_t newo)
 {
@@ -457,7 +415,6 @@ mpq_inoc(mpq_t newo)
     }
 }
 
-/* clear-or-cache macro & function -- stash into cache, else clear, an MPQ */
 static void
 mpq_cloc(mpq_t oldo)
 {
@@ -516,254 +473,6 @@ set_pympqcache(void)
     }
     pympqcache = PyMem_Realloc(pympqcache, sizeof(PympqObject)*options.cache_size);
 }
-
-/* utility macros for argument parsing */
-
-/*
- * Verify that a function has only one argument, and convert that argument
- * to a C-long. Only applies to gmpy.fname()."msg" should be an error
- * message that includes the function name. Replaces ONE_ARG.
- */
-
-#define PARSE_ONE_CLONG(var, msg)\
-    if (PyTuple_GET_SIZE(args) != 1) {\
-        PyErr_SetString(PyExc_TypeError, msg);\
-        return NULL;\
-    } else {\
-        *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-        if(*var == -1 && PyErr_Occurred()) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-    }
-
-/*
- * Parses one, and only one, argument into "self" and converts it to an
- * mpz. Is faster, but not as generic, as using PyArg_ParseTuple. It
- * supports either gmpy.fname(z) or z.fname(). "self" must be decref'ed.
- * "msg" should be an error message that includes the function name and
- * describes the required arguments. Replaces SELF_MPZ_NO_ARG.
- */
-
-#define PARSE_ONE_MPZ(msg) \
-    if(self && Pympz_Check(self)) {\
-        if (PyTuple_GET_SIZE(args) != 0) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        Py_INCREF(self);\
-    } else {\
-        if (PyTuple_GET_SIZE(args) != 1) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-        if(!self) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-    }
-
-/*
- * Parses one argument into "self" and an optional second argument into
- * 'var". The second argument is converted into a C long. If there is not a
- * second argument, "var" is unchanged. Is faster, but not as generic, as
- * using PyArg_ParseTuple with "|l". It supports either gmpy.fname(z,l) or
- * z.fname(l). "self" must be decref'ed. "var" must be a pointer to a long.
- * "msg" should be an error message that includes the function name and
- * describes the required arguments. Replaces some uses of SELF_MPZ_ONE_ARG.
- */
-
-#define PARSE_ONE_MPZ_OPT_CLONG(var, msg) \
-    if(self && Pympz_Check(self)) {\
-        if (PyTuple_GET_SIZE(args) == 1) {\
-            *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            if(*var == -1 && PyErr_Occurred()) {\
-                PyErr_SetString(PyExc_TypeError, msg);\
-                return NULL;\
-            }\
-        } else if (PyTuple_GET_SIZE(args) > 1) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        Py_INCREF(self);\
-    } else {\
-        if (PyTuple_GET_SIZE(args) == 2) {\
-            *var = clong_From_Integer(PyTuple_GET_ITEM(args, 1)); \
-            if(*var == -1 && PyErr_Occurred()) {\
-                PyErr_SetString(PyExc_TypeError, msg);\
-                return NULL;\
-            }\
-            self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-        } else if (PyTuple_GET_SIZE(args) == 1) {\
-            self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-        } else {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        if(!self) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-    }
-
-/*
- * Parses one argument into "self" and a required second argument into
- * 'var". The second argument is converted into a C long. Is faster, but not
- * as generic, as using PyArg_ParseTuple with "l". It supports either
- * gmpy.fname(z,l) or z.fname(l). "self" must be decref'ed. "var" must be a
- * pointer to a long. "msg" should be an error message that includes the
- * function name and describes the required arguments. Replaces some uses of
- * SELF_MPZ_ONE_ARG.
- */
-
-#define PARSE_ONE_MPZ_REQ_CLONG(var, msg) \
-    if(self && Pympz_Check(self)) {\
-        if (PyTuple_GET_SIZE(args) != 1) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        } else {\
-            *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            if(*var == -1 && PyErr_Occurred()) {\
-                PyErr_SetString(PyExc_TypeError, msg);\
-                return NULL;\
-            }\
-        }\
-        Py_INCREF(self);\
-    } else {\
-        if (PyTuple_GET_SIZE(args) != 2) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        } else {\
-            *var = clong_From_Integer(PyTuple_GET_ITEM(args, 1)); \
-            if(*var == -1 && PyErr_Occurred()) {\
-                PyErr_SetString(PyExc_TypeError, msg);\
-                return NULL;\
-            }\
-            self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-        }\
-        if(!self) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-    }
-
-/*
- * Parses two, and only two, arguments into "self" and "var" and converts
- * them both to mpz. Is faster, but not as generic, as using PyArg_ParseTuple.
- * It supports either gmpy.fname(z,z) or z.fname(z). "self" & "var" must be
- * decref'ed after use. "msg" should be an error message that includes the
- * function name and describes the required arguments. Replaces
- * SELF_MPZ_ONE_ARG_CONVERTED(var).
- */
-
-#define PARSE_TWO_MPZ(var, msg) \
-    if(self && Pympz_Check(self)) {\
-        if (PyTuple_GET_SIZE(args) != 1) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        var = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-        if(!var) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        Py_INCREF(self);\
-    } else {\
-        if (PyTuple_GET_SIZE(args) != 2) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-        var = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));\
-        if(!self || !var) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            Py_XDECREF((PyObject*)self);\
-            Py_XDECREF((PyObject*)var);\
-            return NULL;\
-        }\
-    }
-
-/* Define three different versions of the SELF_NO_ARG macro. Under Python
-   2.x, self is NULL when a function is called via gmpy.fname(..). But
-   under Python 3.x, self is a module. */
-
-#define SELF_MPQ_NO_ARG \
-    if(self && Pympq_Check(self)) { \
-        if(!PyArg_ParseTuple(args, "")) \
-            return NULL; \
-        Py_INCREF(self); \
-    } else { \
-        if(!PyArg_ParseTuple(args, "O&", Pympq_convert_arg, &self)) \
-            return NULL; \
-    }
-#define SELF_MPF_NO_ARG \
-    if(self && Pympf_Check(self)) { \
-        if(!PyArg_ParseTuple(args, "")) \
-            return NULL; \
-        Py_INCREF(self); \
-    } else { \
-        if(!PyArg_ParseTuple(args, "O&", Pympf_convert_arg, &self)) \
-            return NULL; \
-    }
-
-#define SELF_MPQ_ONE_ARG(fm, var) \
-    if(self && Pympq_Check(self)) { \
-        if(!PyArg_ParseTuple(args, fm, var)) \
-            return NULL; \
-        Py_INCREF(self); \
-    } else { \
-        if(!PyArg_ParseTuple(args, "O&" fm, Pympq_convert_arg, &self, var)) \
-            return NULL; \
-    }
-
-#define SELF_MPF_ONE_ARG(fm, var) \
-    if(self && Pympf_Check(self)) { \
-        if(!PyArg_ParseTuple(args, fm, var)) \
-            return NULL; \
-        Py_INCREF(self); \
-    } else { \
-        if(!PyArg_ParseTuple(args, "O&" fm, Pympf_convert_arg, &self, var)) \
-            return NULL; \
-    }
-
-#define SELF_MPQ_ONE_ARG_CONVERTED(var) \
-    if(self && Pympq_Check(self)) { \
-        if(args && !PyArg_ParseTuple(args, "O&", Pympq_convert_arg, var)) \
-            return NULL; \
-        Py_INCREF(self); \
-    } else { \
-        if(!PyArg_ParseTuple(args, "O&O&", Pympq_convert_arg,&self, \
-                Pympq_convert_arg,var)) \
-            return NULL; \
-    }
-#define SELF_MPF_ONE_ARG_CONVERTED(var) \
-    if(self && Pympf_Check(self)) { \
-        if(args && !PyArg_ParseTuple(args, "O&", Pympf_convert_arg, var)) \
-            return NULL; \
-        Py_INCREF(self); \
-    } else { \
-        if(!PyArg_ParseTuple(args, "O&O&", Pympf_convert_arg,&self, \
-                Pympf_convert_arg,var)) \
-            return NULL; \
-    }
-
-
-#define SELF_MPF_ONE_ARG_CONVERTED_OPT(var) \
-    if(self && Pympf_Check(self)) { \
-        if(args && !PyArg_ParseTuple(args, "|O&", Pympf_convert_arg,var)) \
-            return NULL; \
-        Py_INCREF(self); \
-    } else { \
-        if(!PyArg_ParseTuple(args, "O&|O&", Pympf_convert_arg,&self, \
-                Pympf_convert_arg,var)) \
-            return NULL; \
-    }
-
-
-#define TWO_ARG_CONVERTED(converter, var1, var2) \
-    if(!PyArg_ParseTuple(args, "O&O&", converter,var1, converter,var2)) \
-        return NULL;
 
 /* generation of new, uninitialized objects; deallocations */
 static PympzObject *

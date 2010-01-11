@@ -22,14 +22,88 @@ extern "C" {
 #endif
 
 #if defined(MS_WIN32) && defined(_MSC_VER)
-#define inline __inline
+   /* so one won't need to link explicitly to gmp.lib...: */
+#  if defined(MPIR)
+#    pragma comment(lib,"mpir.lib")
+#  else
+#    pragma comment(lib,"gmp.lib")
+#  endif
+#  define isnan _isnan
+#  define isinf !_finite
+#  define USE_ALLOCA 1
+#  define inline __inline
 #endif
 
 #if defined MPIR
-#include "mpir.h"
+#  include "mpir.h"
 #else
-#include "gmp.h"
+#  include "gmp.h"
 #endif
+
+#ifndef Py_TPFLAGS_HAVE_INDEX
+#  define Py_TPFLAGS_HAVE_INDEX 0
+#endif
+
+#ifdef __GNUC__
+#define USE_ALLOCA 1
+#endif
+
+#ifndef alloca
+# ifdef __GNUC__
+#  define alloca __builtin_alloca
+# else
+#   ifdef _MSC_VER
+#    include <malloc.h>
+#    define alloca _alloca
+#   else
+#    if HAVE_ALLOCA_H
+#     include <alloca.h>
+#    else
+       char *alloca ();
+#    endif
+#   endif
+# endif
+#endif
+
+#define ALLOC_THRESHOLD 8192
+
+#ifdef USE_ALLOCA
+#define TEMP_ALLOC(B, S) \
+    if(S < ALLOC_THRESHOLD) { \
+        B = alloca(S); \
+    } else { \
+        if(!(B = PyMem_Malloc(S))) { \
+            PyErr_NoMemory(); \
+            return NULL; \
+        } \
+    }
+#define TEMP_FREE(B, S) if(S >= ALLOC_THRESHOLD) PyMem_Free(B)
+#else
+#define TEMP_ALLOC(B, S) \
+    if(!(B = PyMem_Malloc(S)))  { \
+        PyErr_NoMemory(); \
+        return NULL; \
+    }
+#define TEMP_FREE(B, S) PyMem_Free(B)
+#endif
+
+/* Various defs to mask differences between Python versions. */
+
+#define Py_RETURN_NOTIMPLEMENTED\
+    return Py_INCREF(Py_NotImplemented), Py_NotImplemented
+
+#ifndef Py_SIZE
+#define Py_SIZE(ob)     (((PyVarObject*)(ob))->ob_size)
+#endif
+
+#ifndef Py_TYPE
+#define Py_TYPE(ob)     (((PyObject*)(ob))->ob_type)
+#endif
+
+#ifndef Py_REFCNT
+#define Py_REFCNT(ob)   (((PyObject*)(ob))->ob_refcnt)
+#endif
+
 
 /* ensure 2.5 compatibility */
 #if PY_VERSION_HEX < 0x02050000
@@ -38,13 +112,10 @@ typedef int Py_ssize_t;
 static PyObject *
 PyInt_FromSize_t(size_t ival)
 {
-	if (ival <= LONG_MAX)
-		return PyInt_FromLong((long)ival);
-	return PyLong_FromUnsignedLongLong((unsigned long long)ival);
+    if (ival <= LONG_MAX)
+        return PyInt_FromLong((long)ival);
+    return PyLong_FromUnsignedLongLong((unsigned long long)ival);
 }
-#endif
-#ifndef Py_TPFLAGS_HAVE_INDEX
-#define Py_TPFLAGS_HAVE_INDEX 0
 #endif
 
 /* Header file for gmpy */
