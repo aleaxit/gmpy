@@ -12,13 +12,13 @@ mpmath_build_mpf(long sign, PympzObject *man, PyObject *exp, long bc)
         Py_DECREF(exp);
         return NULL;
     }
-    if(!(tsign=Py2or3Int_FromLong(sign))){
+    if(!(tsign=PyIntOrLong_FromLong(sign))){
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
         return NULL;
     }
-    if(!(tbc=Py2or3Int_FromLong(bc))){
+    if(!(tbc=PyIntOrLong_FromLong(bc))){
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
@@ -27,7 +27,7 @@ mpmath_build_mpf(long sign, PympzObject *man, PyObject *exp, long bc)
     }
     PyTuple_SET_ITEM(tup, 0, tsign);
     PyTuple_SET_ITEM(tup, 1, (PyObject*)man);
-    PyTuple_SET_ITEM(tup, 2, (exp)?exp:Py2or3Int_FromLong(0));
+    PyTuple_SET_ITEM(tup, 2, (exp)?exp:PyIntOrLong_FromLong(0));
     PyTuple_SET_ITEM(tup, 3, tbc);
     return tup;
 }
@@ -52,7 +52,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         exp = PyTuple_GET_ITEM(args, 2);
         bc = clong_From_Integer(PyTuple_GET_ITEM(args, 3));
         prec = clong_From_Integer(PyTuple_GET_ITEM(args, 4));
-        rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 5))[0];
+        rnd = PyBytesOrUnicode_AS_DATA(PyTuple_GET_ITEM(args, 5))[0];
         if(PyErr_Occurred()){
             PyErr_SetString(PyExc_TypeError, "arguments long, PympzObject*,"
                 "PyObject*, long, long, char needed");
@@ -126,7 +126,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
                 if(carry)
                     mpz_add_ui(upper, upper, 1);
         }
-        if (!(tmp = Py2or3Int_FromLong(shift))) {
+        if (!(tmp = PyIntOrLong_FromLong(shift))) {
             mpz_cloc(upper);
             mpz_cloc(lower);
             return NULL;
@@ -149,7 +149,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     if((zbits = mpz_scan1(upper, 0)))
         mpz_tdiv_q_2exp(upper, upper, zbits);
 
-    if (!(tmp = Py2or3Int_FromLong(zbits))) {
+    if (!(tmp = PyIntOrLong_FromLong(zbits))) {
         mpz_cloc(upper);
         mpz_cloc(lower);
         Py_DECREF(newexp);
@@ -195,7 +195,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
 
     switch(PyTuple_GET_SIZE(args)) {
         case 4:
-            rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 3));
+            rnd = PyBytesOrUnicode_AS_DATA(PyTuple_GET_ITEM(args, 3));
         case 3:
             prec = clong_From_Integer(PyTuple_GET_ITEM(args, 2));
             if(prec == -1 && PyErr_Occurred())
@@ -276,7 +276,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                 if(carry)
                     mpz_add_ui(upper->z, upper->z, 1);
         }
-        if (!(tmp = Py2or3Int_FromLong(shift))) {
+        if (!(tmp = PyIntOrLong_FromLong(shift))) {
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
@@ -299,7 +299,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     if((zbits = mpz_scan1(upper->z, 0)))
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
-    if (!(tmp = Py2or3Int_FromLong(zbits))) {
+    if (!(tmp = PyIntOrLong_FromLong(zbits))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
@@ -445,7 +445,7 @@ Pympz_mpmath_trim(PyObject *self, PyObject *args)
 
     switch(PyTuple_GET_SIZE(args)) {
         case 4:
-            rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 3));
+            rnd = PyBytesOrUnicode_AS_DATA(PyTuple_GET_ITEM(args, 3));
         case 3:
             prec = clong_From_Integer(PyTuple_GET_ITEM(args, 2));
         case 2:
@@ -481,7 +481,7 @@ Pympz_mpmath_add(PyObject *self, PyObject *args)
 
     switch(PyTuple_GET_SIZE(args)) {
         case 6:
-            rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 5));
+            rnd = PyBytesOrUnicode_AS_DATA(PyTuple_GET_ITEM(args, 5));
         case 5:
             prec = clong_From_Integer(PyTuple_GET_ITEM(args, 4));
         case 4:
@@ -628,7 +628,7 @@ Pympz_mpmath_mult(PyObject *self, PyObject *args)
 
     switch(PyTuple_GET_SIZE(args)) {
         case 6:
-            rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 5));
+            rnd = PyBytesOrUnicode_AS_DATA(PyTuple_GET_ITEM(args, 5));
         case 5:
             prec = clong_From_Integer(PyTuple_GET_ITEM(args, 4));
         case 4:
@@ -678,7 +678,7 @@ Pympz_mpmath_div(PyObject *self, PyObject *args)
 
     switch(PyTuple_GET_SIZE(args)) {
         case 6:
-            rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 5));
+            rnd = PyBytesOrUnicode_AS_DATA(PyTuple_GET_ITEM(args, 5));
         case 5:
             prec = clong_From_Integer(PyTuple_GET_ITEM(args, 4));
         case 4:
@@ -785,7 +785,7 @@ Pympz_mpmath_sqrt(PyObject *self, PyObject *args)
 
     switch(PyTuple_GET_SIZE(args)) {
         case 4:
-            rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 3));
+            rnd = PyBytesOrUnicode_AS_DATA(PyTuple_GET_ITEM(args, 3));
         case 3:
             prec = clong_From_Integer(PyTuple_GET_ITEM(args, 2));
         case 2:
