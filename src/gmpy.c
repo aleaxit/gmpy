@@ -4415,12 +4415,12 @@ rand(opt[,arg]): expose various GMP random-number operations,\n\
 static gmp_randstate_t randstate;
 static int randinited=0;
 static int randquality=0;
-#if (__GNU_MP_VERSION==4) && (__GNU_MP_VERSION_MINOR>=2)
+#if ((__GNU_MP_VERSION==5) || ((__GNU_MP_VERSION==4) && (__GNU_MP_VERSION_MINOR>=2)))
 #  define do_randinit(state, size) gmp_randinit_lc_2exp_size(state, size)
 #  define SEEDOF(x)  ( *(mpz_t*)((x)->_mp_seed->_mp_d) )
 #else
 #  define do_randinit(state, size) gmp_randinit(state, GMP_RAND_ALG_LC, size)
-#  if (__GNU_MP_VERSION==4)
+#  if (__GNU_MP_VERSION>=4)
 #    define SEEDOF(x) ((x)->_mp_seed)
 #  else
 #    define SEEDOF(x) ((x)->seed)
