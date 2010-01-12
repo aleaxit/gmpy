@@ -239,7 +239,7 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
             }
             /* prepare Python format-string '%.12e' or whatever */
             sprintf(buf,"%%.%lde",inew);
-#if PY_MAJOR_VERSION == 3
+#if PY3
             new = PyUnicode_FromString(buf);
 #else
             new = PyString_FromString(buf);

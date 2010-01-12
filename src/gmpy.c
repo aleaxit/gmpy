@@ -257,12 +257,14 @@
 /* Define various macros to deal with differences between Python 2 and 3. */
 
 #if PY_MAJOR_VERSION >= 3
+#define PY3                             1
 #define PyBytesOrUnicode_AS_DATA        PyUnicode_AS_DATA
 #define PyIntOrLong_FromLong            PyLong_FromLong
 #define PyIntOrLong_Check(op)           PyLong_Check(op)
 #define PyIntOrLong_FromSize_t          PyLong_FromSize_t
 #define PyBytesOrUnicode_Check(s)       (PyBytes_Check(s) || PyUnicode_Check(s))
 #else
+#define PY2                             1
 #define PyBytesOrUnicode_AS_DATA        PyString_AsString
 #define PyBytes_Check                   PyString_Check
 #define PyBytes_Size                    PyString_Size
@@ -656,7 +658,7 @@ Pympf2Pympf(PympfObject *f, unsigned int bits)
     return newob;
 }
 
-#if PY_MAJOR_VERSION < 3
+#if PY2
 static PympzObject *
 PyInt2Pympz(PyObject *i)
 {
@@ -785,7 +787,7 @@ PyFloat2Pympf(PyObject *f, unsigned int bits)
         PyObject* tuple=Py_BuildValue("(O)",f);
         PyObject* s;
         if(!tuple) return 0;
-#if PY_MAJOR_VERSION == 3
+#if PY3
         s=PyUnicode_Format(options.fcoform, tuple);
 #else
         s=PyString_Format(options.fcoform, tuple);
@@ -1355,7 +1357,7 @@ Pympq2PyLong(PympqObject *x)
 static PyObject *
 Pympz_To_Integer(PympzObject *x)
 {
-#if PY_MAJOR_VERSION >= 3
+#if PY3
     return Pympz2PyLong(x);
 #else
     if(mpz_fits_slong_p(x->z))
@@ -1368,7 +1370,7 @@ Pympz_To_Integer(PympzObject *x)
 /*
  * mpf->int delegates via mpf->mpz->int for convenience; ditto mpq->int
  */
-#if PY_MAJOR_VERSION < 3
+#if PY2
 static PyObject *
 Pympf2PyInt(PympfObject *x)
 {
@@ -1544,7 +1546,7 @@ Pympf2binary(PympfObject *x)
     sign = mpf_sgn(x->f);
     if(sign==0) {
         /* 0 -> single codebyte with 'zerovalue' bit set */
-#if PY_MAJOR_VERSION >= 3
+#if PY3
         return Py_BuildValue("y", "\004");
 #else
         return Py_BuildValue("s", "\004");
@@ -1681,7 +1683,7 @@ mpz_ascii(mpz_t z, int base, int with_tag)
 
     mpz_get_str(p, base, temp); /* Doesn't return number of characters */
     p = buffer + strlen(buffer); /* Address of NULL byte */
-#if PY_MAJOR_VERSION < 3
+#if PY2
     if(with_tag && !mpz_fits_slong_p(temp))
         *(p++) = 'L';
 #endif
@@ -1696,7 +1698,7 @@ mpz_ascii(mpz_t z, int base, int with_tag)
 static PyObject *
 Pympz_ascii(PympzObject *self, int base, int with_tag)
 {
-#if PY_MAJOR_VERSION >= 3
+#if PY3
     PyObject *s, *t;
     assert(Pympz_Check( (PyObject *) self));
     t = mpz_ascii(self->z, base, with_tag);
@@ -1735,7 +1737,7 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
             Py_XDECREF(denstr);
             return 0;
         }
-#if PY_MAJOR_VERSION < 3
+#if PY2
         if(!mpz_fits_slong_p(mpq_numref(self->q))) {
             temp = PyBytes_FromString("L");
             PyBytes_ConcatAndDel(&result, temp);
@@ -1758,7 +1760,7 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
             return 0;
         }
         PyBytes_ConcatAndDel(&result, denstr);
-#if PY_MAJOR_VERSION < 3
+#if PY2
         if(with_tag && !mpz_fits_slong_p(mpq_denref(self->q))) {
             temp = PyBytes_FromString("L");
             PyBytes_ConcatAndDel(&result, temp);
@@ -1772,7 +1774,7 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
         temp = PyBytes_FromString(")");
         PyBytes_ConcatAndDel(&result, temp);
     }
-#if PY_MAJOR_VERSION >= 3
+#if PY3
     temp = PyUnicode_FromString(PyBytes_AS_STRING(result));
     Py_DECREF(result);
     return temp;
@@ -1813,7 +1815,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
     int minexfi, int maxexfi, int optionflags)
 {
     PyObject *res;
-#if PY_MAJOR_VERSION >= 3
+#if PY3
     PyObject *temp;
 #endif
     char *buffer;
@@ -1974,7 +1976,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
             }
         }
         PyMem_Free(buffer);
-#if PY_MAJOR_VERSION >= 3
+#if PY3
         temp = PyUnicode_FromString(PyBytes_AS_STRING(res));
         Py_DECREF(res);
         return temp;
@@ -2075,7 +2077,7 @@ anynum2Pympq(PyObject* obj)
         newob = (PympqObject *) obj;
     } else if(Pympz_Check(obj)) {
         newob = Pympz2Pympq(obj);
-#if PY_MAJOR_VERSION == 2
+#if PY2
     } else if(PyInt_Check(obj)) {
         newob = PyInt2Pympq(obj);
 #endif
@@ -2117,7 +2119,7 @@ anyrational2Pympq(PyObject* obj)
         newob = (PympqObject *) obj;
     } else if(Pympz_Check(obj)) {
         newob = Pympz2Pympq(obj);
-#if PY_MAJOR_VERSION == 2
+#if PY2
     } else if(PyInt_Check(obj)) {
         newob = PyInt2Pympq(obj);
 #endif
@@ -2146,7 +2148,7 @@ anynum2Pympz(PyObject* obj)
     if(Pympz_Check(obj)) {
         Py_INCREF(obj);
         newob = (PympzObject *) obj;
-#if PY_MAJOR_VERSION == 2
+#if PY2
     } else if(PyInt_Check(obj)) {
         newob = PyInt2Pympz(obj);
 #endif
@@ -2192,7 +2194,7 @@ Pympz_From_Integer(PyObject* obj)
     if(Pympz_Check(obj)) {
         Py_INCREF(obj);
         newob = (PympzObject*) obj;
-#if PY_MAJOR_VERSION == 2
+#if PY2
     } else if(PyInt_Check(obj)) {
         newob = PyInt2Pympz(obj);
 #endif
@@ -2220,7 +2222,7 @@ clong_From_Integer(PyObject *obj)
 {
     if(PyLong_Check(obj)) {
         return PyLong_AsLong(obj);
-#if PY_MAJOR_VERSION == 2
+#if PY2
     } else if(PyInt_Check(obj)) {
         return PyInt_AS_LONG(obj);
 #endif
@@ -2249,7 +2251,7 @@ anynum2Pympf(PyObject* obj, unsigned int bits)
         }
     } else if(PyFloat_Check(obj)) {
         newob = PyFloat2Pympf(obj, bits);
-#if PY_MAJOR_VERSION == 2
+#if PY2
     } else if(PyInt_Check(obj)) {
         newob = PyInt2Pympf(obj, bits);
 #endif
@@ -2736,7 +2738,7 @@ static int isOne(PyObject* obj)
                (0==mpz_cmp_ui(mpq_numref(Pympq_AS_MPQ(obj)),1));
     } else if(Pympz_Check(obj)) {
         return 0==mpz_cmp_ui(Pympz_AS_MPZ(obj),1);
-#if PY_MAJOR_VERSION < 3
+#if PY2
     } else if(PyInt_Check(obj)) {
         return PyInt_AS_LONG(obj)==1;
 #endif
@@ -2971,7 +2973,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
     }
 
     obj = PyTuple_GetItem(args, 0);
-#if PY_MAJOR_VERSION >= 3
+#if PY3
     if(PyBytes_Check(obj) || PyUnicode_Check(obj)) {
 #else
     if(PyString_Check(obj) || PyUnicode_Check(obj)) {
@@ -3051,7 +3053,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
     }
 
     obj = PyTuple_GetItem(args, 0);
-#if PY_MAJOR_VERSION >= 3
+#if PY3
     if(PyBytes_Check(obj) || PyUnicode_Check(obj)) {
 #else
     if(PyString_Check(obj) || PyUnicode_Check(obj)) {
@@ -3170,7 +3172,7 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
         bits = sbits;
     }
 
-#if PY_MAJOR_VERSION >= 3
+#if PY3
     if(PyBytes_Check(obj) || PyUnicode_Check(obj)) {
 #else
     if(PyString_Check(obj) || PyUnicode_Check(obj)) {
@@ -3657,7 +3659,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         fprintf(stderr, "rich_compare: type(b) is %s\n", Py_TYPE(b)->tp_name);
     }
 
-#if PY_MAJOR_VERSION == 3
+#if PY3
     if(Pympz_Check(a) && PyLong_Check(b)) {
 #else
     if(Pympz_Check(a) && (PyInt_Check(b) || PyLong_Check(b))) {
@@ -4230,7 +4232,7 @@ Pygmpy_rand(PyObject *self, PyObject *args)
 
 /* method-tables */
 
-#if PY_MAJOR_VERSION >= 3
+#if PY3
 static PyNumberMethods mpz_number_methods =
 {
     (binaryfunc) Pympany_add,            /* nb_add                  */
@@ -4316,7 +4318,7 @@ static PyNumberMethods mpz_number_methods =
 };
 #endif
 
-#if PY_MAJOR_VERSION >= 3
+#if PY3
 static PyNumberMethods mpq_number_methods =
 {
     (binaryfunc) Pympany_add,            /* nb_add                  */
@@ -4398,7 +4400,7 @@ static PyNumberMethods mpq_number_methods =
 };
 #endif
 
-#if PY_MAJOR_VERSION >= 3
+#if PY3
 static PyNumberMethods mpf_number_methods =
 {
     (binaryfunc) Pympany_add,            /* nb_add                  */
@@ -4644,7 +4646,7 @@ static PyMethodDef Pympf_methods [] =
 static PyTypeObject Pympz_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
-#if PY_MAJOR_VERSION >= 3
+#if PY3
     PyVarObject_HEAD_INIT(0, 0)
 #else
     PyObject_HEAD_INIT(0)
@@ -4673,7 +4675,7 @@ static PyTypeObject Pympz_Type =
         0,                                  /* tp_getattro      */
         0,                                  /* tp_setattro      */
         0,                                  /* tp_as_buffer     */
-#if PY_MAJOR_VERSION >= 3
+#if PY3
     Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
 #else
     Py_TPFLAGS_HAVE_INDEX|Py_TPFLAGS_HAVE_RICHCOMPARE| \
@@ -4693,7 +4695,7 @@ static PyTypeObject Pympz_Type =
 static PyTypeObject Pympq_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
-#if PY_MAJOR_VERSION >= 3
+#if PY3
     PyVarObject_HEAD_INIT(NULL, 0)
 #else
     PyObject_HEAD_INIT(0)
@@ -4718,7 +4720,7 @@ static PyTypeObject Pympq_Type =
     (getattrofunc) 0,                       /* tp_getattro      */
     (setattrofunc) 0,                       /* tp_setattro      */
         0,                                  /* tp_as_buffer     */
-#if PY_MAJOR_VERSION >= 3
+#if PY3
     Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
 #else
     Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES, /* tp_flags  */
@@ -4737,7 +4739,7 @@ static PyTypeObject Pympq_Type =
 static PyTypeObject Pympf_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
-#if PY_MAJOR_VERSION >= 3
+#if PY3
     PyVarObject_HEAD_INIT(NULL, 0)
 #else
     PyObject_HEAD_INIT(0)
@@ -4762,7 +4764,7 @@ static PyTypeObject Pympf_Type =
     (getattrofunc) 0,                       /* tp_getattro      */
     (setattrofunc) 0,                       /* tp_setattro      */
         0,                                  /* tp_as_buffer     */
-#if PY_MAJOR_VERSION >= 3
+#if PY3
     Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
 #else
     Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,  /* tp_flags */
@@ -4913,7 +4915,7 @@ which are not built-in features of Python.\n\
  * implemented. No per-module state has been defined.
  */
 
-#if PY_MAJOR_VERSION >= 3
+#if PY3
 #define INITERROR return NULL
 static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
@@ -4954,7 +4956,7 @@ initgmpy(void)
         fputs( "initgmpy() called...\n", stderr );
     _PyInitGMP();
 
-#if PY_MAJOR_VERSION >= 3
+#if PY3
     gmpy_module = PyModule_Create(&moduledef);
 #else
     gmpy_module = Py_InitModule3("gmpy", Pygmpy_methods, _gmpy_docs);
@@ -4962,7 +4964,7 @@ initgmpy(void)
 
     /* Todo: Add error checking for status of gmpy_module returned above. */
 
-#if PY_MAJOR_VERSION < 3
+#if PY2
     export_gmpy(gmpy_module);
 #endif
 
@@ -4970,7 +4972,7 @@ initgmpy(void)
         fprintf(stderr, "gmpy_module at %p\n", gmpy_module);
 
     /* Add support for pickling. */
-#if PY_MAJOR_VERSION >= 3
+#if PY3
     copy_reg_module = PyImport_ImportModule("copyreg");
     if (copy_reg_module) {
         char* enable_pickle =
@@ -5043,7 +5045,7 @@ initgmpy(void)
 #endif
 
 
-#if PY_MAJOR_VERSION >= 3
+#if PY3
     return gmpy_module;
 #endif
 }

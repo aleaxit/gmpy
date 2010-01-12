@@ -13,9 +13,6 @@
 
 #include <math.h>
 
-#define Py_RETURN_NOTIMPLEMENTED\
-    return Py_INCREF(Py_NotImplemented), Py_NotImplemented
-
 /* Inplace mpz addition.
  */
 
