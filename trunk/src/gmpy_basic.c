@@ -544,7 +544,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         if(!(rz = Pympz_new()))
             return NULL;
 
-#if PY2
+#ifdef PY2
         if(PyInt_Check(a)) {
             if (options.debug)
                 fprintf(stderr, "Floor divide (small_int,mpz)\n");
@@ -844,7 +844,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
     return r;
 }
 
-#if PY2
+#ifdef PY2
 /* Pympany_div2 follows the conversions rules for Python 2.x. The behavior is
  * a mix of floordiv and truediv. The type conversion behavior is:
  *   mpz / mpz -> mpz
@@ -915,7 +915,7 @@ Pympany_div2(PyObject *a, PyObject *b)
         if(!(rz = Pympz_new()))
             return NULL;
 
-#if PY2
+#ifdef PY2
         if(PyInt_Check(a)) {
             if (options.debug)
                 fprintf(stderr, "True divide (small_int,mpz)\n");
@@ -1119,7 +1119,7 @@ Pympany_rem(PyObject *a, PyObject *b)
         }
         if(!(rz = Pympz_new()))
             return NULL;
-#if PY2
+#ifdef PY2
         if(PyInt_Check(a)) {
             if (options.debug)
                 fprintf(stderr, "Modulo (small_int,mpz)\n");
@@ -1352,7 +1352,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
             return NULL;
         }
 
-#if PY2
+#ifdef PY2
         if(PyInt_Check(a)) {
             if (options.debug)
                 fprintf(stderr, "divmod (small_int,mpz)\n");

@@ -52,7 +52,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         exp = PyTuple_GET_ITEM(args, 2);
         bc = clong_From_Integer(PyTuple_GET_ITEM(args, 3));
         prec = clong_From_Integer(PyTuple_GET_ITEM(args, 4));
-        rnd = PyBytesOrUnicode_AS_DATA(PyTuple_GET_ITEM(args, 5))[0];
+        rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 5))[0];
         if(PyErr_Occurred()){
             PyErr_SetString(PyExc_TypeError, "arguments long, PympzObject*,"
                 "PyObject*, long, long, char needed");
@@ -195,7 +195,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
 
     switch(PyTuple_GET_SIZE(args)) {
         case 4:
-            rnd = PyBytesOrUnicode_AS_DATA(PyTuple_GET_ITEM(args, 3));
+            rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 3));
         case 3:
             prec = clong_From_Integer(PyTuple_GET_ITEM(args, 2));
             if(prec == -1 && PyErr_Occurred())
@@ -445,7 +445,7 @@ Pympz_mpmath_trim(PyObject *self, PyObject *args)
 
     switch(PyTuple_GET_SIZE(args)) {
         case 4:
-            rnd = PyBytesOrUnicode_AS_DATA(PyTuple_GET_ITEM(args, 3));
+            rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 3));
         case 3:
             prec = clong_From_Integer(PyTuple_GET_ITEM(args, 2));
         case 2:
@@ -481,7 +481,7 @@ Pympz_mpmath_add(PyObject *self, PyObject *args)
 
     switch(PyTuple_GET_SIZE(args)) {
         case 6:
-            rnd = PyBytesOrUnicode_AS_DATA(PyTuple_GET_ITEM(args, 5));
+            rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 5));
         case 5:
             prec = clong_From_Integer(PyTuple_GET_ITEM(args, 4));
         case 4:
@@ -628,7 +628,7 @@ Pympz_mpmath_mult(PyObject *self, PyObject *args)
 
     switch(PyTuple_GET_SIZE(args)) {
         case 6:
-            rnd = PyBytesOrUnicode_AS_DATA(PyTuple_GET_ITEM(args, 5));
+            rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 5));
         case 5:
             prec = clong_From_Integer(PyTuple_GET_ITEM(args, 4));
         case 4:
@@ -678,7 +678,7 @@ Pympz_mpmath_div(PyObject *self, PyObject *args)
 
     switch(PyTuple_GET_SIZE(args)) {
         case 6:
-            rnd = PyBytesOrUnicode_AS_DATA(PyTuple_GET_ITEM(args, 5));
+            rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 5));
         case 5:
             prec = clong_From_Integer(PyTuple_GET_ITEM(args, 4));
         case 4:
@@ -785,7 +785,7 @@ Pympz_mpmath_sqrt(PyObject *self, PyObject *args)
 
     switch(PyTuple_GET_SIZE(args)) {
         case 4:
-            rnd = PyBytesOrUnicode_AS_DATA(PyTuple_GET_ITEM(args, 3));
+            rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 3));
         case 3:
             prec = clong_From_Integer(PyTuple_GET_ITEM(args, 2));
         case 2:
