@@ -104,18 +104,8 @@ extern "C" {
 #define Py_REFCNT(ob)   (((PyObject*)(ob))->ob_refcnt)
 #endif
 
-
-/* ensure 2.5 compatibility */
 #if PY_VERSION_HEX < 0x02050000
-typedef int Py_ssize_t;
-
-static PyObject *
-PyInt_FromSize_t(size_t ival)
-{
-    if (ival <= LONG_MAX)
-        return PyInt_FromLong((long)ival);
-    return PyLong_FromUnsignedLongLong((unsigned long long)ival);
-}
+#  error "GMPY 1.2 requires Python 2.5 or later."
 #endif
 
 /* Header file for gmpy */

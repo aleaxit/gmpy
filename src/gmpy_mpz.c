@@ -821,7 +821,7 @@ Pympz_lshift(PyObject *a, PyObject *b)
     return (PyObject*)rz;
 }
 
-#if PY2
+#if PY_MAJOR_VERSION < 3
 /* hex/oct formatting (mpz-only) */
 static PyObject *
 Pympz_oct(PympzObject *self)
