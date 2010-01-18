@@ -314,16 +314,16 @@ static unsigned int double_mantissa = 0;
 
 /* forward declarations of type-objects and method-arrays for them */
 #ifdef _MSC_VER
-PyTypeObject Pympz_Type;
-PyTypeObject Pympq_Type;
-PyTypeObject Pympf_Type;
+//~ PyTypeObject Pympz_Type;
+//~ PyTypeObject Pympq_Type;
+//~ PyTypeObject Pympf_Type;
 PyMethodDef Pympz_methods [];
 PyMethodDef Pympq_methods [];
 PyMethodDef Pympf_methods [];
 #else
-static PyTypeObject Pympz_Type;
-static PyTypeObject Pympq_Type;
-static PyTypeObject Pympf_Type;
+//~ static PyTypeObject Pympz_Type;
+//~ static PyTypeObject Pympq_Type;
+//~ static PyTypeObject Pympf_Type;
 static PyMethodDef Pympz_methods [];
 static PyMethodDef Pympq_methods [];
 static PyMethodDef Pympf_methods [];
@@ -4922,16 +4922,10 @@ static struct PyModuleDef moduledef = {
         NULL, /* gmpy_clear */
         NULL
 };
-
-#ifdef _MSC_VER
-__declspec(dllexport)
-#endif
-PyObject *
-PyInit_gmpy(void)
+PyMODINIT_FUNC PyInit_gmpy(void)
 #else
 #define INITERROR return
-DL_EXPORT(void)
-initgmpy(void)
+PyMODINIT_FUNC initgmpy(void)
 #endif
 {
     PyObject* copy_reg_module = NULL;
@@ -4957,10 +4951,6 @@ initgmpy(void)
 #endif
 
     /* Todo: Add error checking for status of gmpy_module returned above. */
-
-#ifdef PY2
-    export_gmpy(gmpy_module);
-#endif
 
     if (options.debug)
         fprintf(stderr, "gmpy_module at %p\n", gmpy_module);
