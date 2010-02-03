@@ -247,9 +247,7 @@
 
 /* Add support for PyLong_AsLongAndOverflow to older versions of Python */
 
-#if (PY_VERSION_HEX < 0x02070000)
 #include "py3intcompat.c"
-#endif
 
 /* Include fast mpz to/from PyLong conversion from sage. */
 #include "mpz_pylong.c"
