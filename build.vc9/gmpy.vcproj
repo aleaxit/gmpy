@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files (x86)\Python26\include&quot;;&quot;..\..\$(mp_lib)&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\$(mp_lib)&quot;;&quot;C:\Program Files (x86)\Python26\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR;FAST"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -122,7 +122,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\Python31\include&quot;;&quot;..\..\$(mp_lib)&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\$(mp_lib)&quot;;&quot;C:\Program Files\Python31\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR;FAST"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -201,7 +201,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;C:\Program Files (x86)\Python26\include&quot;;&quot;..\..\$(mp_lib)&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\$(mp_lib)&quot;;&quot;C:\Program Files (x86)\Python26\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR;FAST"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -281,7 +281,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\Python31\include&quot;;&quot;..\..\$(mp_lib)&quot;"
+				AdditionalIncludeDirectories="&quot;..\..\$(mp_lib)&quot;;&quot;C:\Program Files\Python31\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR;FAST"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -342,7 +342,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\gmpy.c"
+				RelativePath="..\src\gmpy.c"
 				>
 			</File>
 		</Filter>
@@ -352,11 +352,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\gmpy.h"
-				>
-			</File>
-			<File
-				RelativePath=".\pymemcompat.h"
+				RelativePath="..\src\gmpy.h"
 				>
 			</File>
 		</Filter>
