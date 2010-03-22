@@ -6,44 +6,13 @@
  */
 
 /* Return license information. */
-
-#ifdef __MPIR_VERSION
-#define MPIR_VER \
-__MPIR_VERSION * 10000 + \
-__MPIR_VERSION_MINOR * 100 + \
-__MPIR_VERSION_PATCHLEVEL
-char gmpy_license[] = "\
-The GMPY source code is licensed under LGPL 2.1 or later. \
-The MPIR library is licensed under LGPL 2.1 or later. \
-Therefore, this combined module is licensed under LGPL 2.1 or later.\
-";
-#else
-#define GNU_MP_VER \
-__GNU_MP_VERSION * 10000 + \
-__GNU_MP_VERSION_MINOR * 100 + \
-__GNU_MP_VERSION_PATCHLEVEL
-#if GNU_MP_VER > 40201
-char gmpy_license[] = "\
-The GMPY source code is licensed under LGPL 2.1 or later. \
-This version of the GMP library is licensed under LGPL 3 or later. \
-Therefore, this combined module is licensed under LGPL 3 or later.\
-";
-#else
-char gmpy_license[] = "\
-The GMPY source code is licensed under LGPL 2.1 or later. \
-This version of the GMP library is licensed under LGPL 2.1 or later. \
-Therefore, this combined module is licensed under LGPL 2.1 or later.\
-";
-#endif
-#endif
-#undef GNU_MP_VER
-
 static char doc_license[]="\
 license(): returns string giving license information\n\
 ";
 static PyObject *
 Pygmpy_get_license(PyObject *self, PyObject *args)
 {
+    PARSE_NO_ARGS("license expects 0 arguments");
     return Py_BuildValue("s", gmpy_license);
 }
 
@@ -54,6 +23,7 @@ version(): returns string giving current GMPY version\n\
 static PyObject *
 Pygmpy_get_version(PyObject *self, PyObject *args)
 {
+    PARSE_NO_ARGS("version expects 0 arguments");
     return Py_BuildValue("s", gmpy_version);
 }
 
@@ -63,6 +33,7 @@ _cvsid(): returns string giving current GMPY cvs Id\n\
 static PyObject *
 Pygmpy_get_cvsid(PyObject *self, PyObject *args)
 {
+    PARSE_NO_ARGS("get_cvsid expects 0 arguments");
     return Py_BuildValue("s", _gmpy_cvs);
 }
 
@@ -73,6 +44,7 @@ returned if MPIR was used.\n\
 static PyObject *
 Pygmpy_get_gmp_version(PyObject *self, PyObject *args)
 {
+    PARSE_NO_ARGS("gmp_version expects 0 arguments");
 #ifndef __MPIR_VERSION
     return Py_BuildValue("s", gmp_version);
 #else
@@ -87,6 +59,7 @@ returned if GMP was used.\n\
 static PyObject *
 Pygmpy_get_mpir_version(PyObject *self, PyObject *args)
 {
+    PARSE_NO_ARGS("mpir_version expects 0 arguments");
 #ifdef __MPIR_VERSION
     return Py_BuildValue("s", mpir_version);
 #else
@@ -100,6 +73,7 @@ gmp_limbsize(): returns the number of bits per limb\n\
 static PyObject *
 Pygmpy_get_gmp_limbsize(PyObject *self, PyObject *args)
 {
+    PARSE_NO_ARGS("gmp_limbsize expects 0 arguments");
     return Py_BuildValue("i", GMP_NUMB_BITS);
 }
 
@@ -113,6 +87,7 @@ and maximum size per object (number of limbs) for all objects.\n\
 static PyObject *
 Pygmpy_get_cache(PyObject *self, PyObject *args)
 {
+    PARSE_NO_ARGS("get_cache expects 0 arguments");
     return Py_BuildValue("ii", options.cache_size, options.cache_obsize);
 }
 
@@ -129,19 +104,19 @@ Pygmpy_set_cache(PyObject *self, PyObject *args)
     if(!PyArg_ParseTuple(args, "ii", &newcache, &newsize))
         return NULL;
     if(newcache<0 || newcache>MAX_CACHE) {
-        PyErr_SetString(PyExc_ValueError, "cache size must between 0 and 1000");
+        PyErr_SetString(PyExc_ValueError, "cache must between 0 and 1000");
         return NULL;
     }
     if(newsize<0 || newsize>MAX_CACHE_LIMBS) {
         PyErr_SetString(PyExc_ValueError, "object size must between 0 and 16384");
         return NULL;
     }
-    options.cache_size = newcache;
-    options.cache_obsize = newsize;
+    options.cache_size=newcache;
+    options.cache_obsize=newsize;
     set_zcache();
     set_qcache();
+    set_fcache();
     set_pympzcache();
-    set_pympqcache();
     return Py_BuildValue("");
 }
 
@@ -157,8 +132,7 @@ Pygmpy_set_debug(PyObject *self, PyObject *args)
 {
     long old = options.debug;
 
-    if(!PyArg_ParseTuple(args, "l", &options.debug))
-        return NULL;
+    ONE_ARG("set_debug", "l", &options.debug);
     return Py_BuildValue("l", old);
 }
 
@@ -173,10 +147,8 @@ Pygmpy_set_tagoff(PyObject *self, PyObject *args)
 {
     int old = options.tagoff;
 
-    if(!PyArg_ParseTuple(args, "i", &options.tagoff))
-        return NULL;
-    if(options.tagoff)
-        options.tagoff=5;
+    ONE_ARG("set_tagoff", "i", &options.tagoff);
+    if(options.tagoff) options.tagoff=5;
     return Py_BuildValue("i", old!=0);
 }
 
@@ -191,12 +163,11 @@ Pygmpy_set_minprec(PyObject *self, PyObject *args)
     long old = options.minprec;
     int i;
 
-    if(!PyArg_ParseTuple(args, "i", &i))
-        return NULL;
+    ONE_ARG("set_minprec", "i", &i);
     if(i<0) {
         PyErr_SetString(PyExc_ValueError,
             "minimum precision must be >= 0");
-        return NULL;
+        return 0;
     }
     options.minprec = i;
     return Py_BuildValue("l", old);
@@ -217,8 +188,7 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
     PyObject *new = 0;
     long inew;
 
-    if(!PyArg_ParseTuple(args, "|O", &new))
-        return NULL;
+    ONE_ARG("set_fcoform", "|O", &new);
     if(new == Py_None) { /* none == missing-argument (reset string use) */
         new = 0;
     } else if(new) {
@@ -229,26 +199,22 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
             if(inew==-1 && PyErr_Occurred()) {
                 PyErr_SetString(PyExc_ValueError,
                     "number of digits n must be 0<n<=30");
-                return NULL;
+                return 0;
             }
             /* check range for number-of-digits setting */
             if(inew<=0 || inew>30) {
                 PyErr_SetString(PyExc_ValueError,
                     "number of digits n must be 0<n<=30");
-                return NULL;
+                return 0;
             }
             /* prepare Python format-string '%.12e' or whatever */
             sprintf(buf,"%%.%lde",inew);
-#ifdef PY3
-            new = PyUnicode_FromString(buf);
-#else
-            new = PyString_FromString(buf);
-#endif
+            new = Py2or3String_FromString(buf);
         } else { /* else arg must be string directly usable in formatting */
             if(!Py2or3String_Check(new)) {
                 PyErr_SetString(PyExc_TypeError,
                     "set_fcoform argument must be int, string, or None");
-                return NULL;
+                return 0;
             }
             Py_INCREF(new);
         }

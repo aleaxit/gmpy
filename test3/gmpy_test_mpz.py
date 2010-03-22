@@ -1,13 +1,16 @@
-# partial unit test for gmpy 1.20 mpz functionality
+# partial unit test for gmpy 1.12 mpz functionality
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.20
+# test-version 1.12
 r'''
 >>> list(filter(lambda x: not x.startswith('_'), dir(_g)))
-['binary', 'bincoef', 'bit_length', 'cdivmod', 'ceil', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fdivmod', 'fib', 'fib2', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'lucas', 'lucas2', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'rand', 'reldiff', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'set_cache', 'set_debug', 'set_fcoform', 'set_minprec', 'set_tagoff', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod', 'trunc', 'version']
+['binary', 'bincoef', 'bit_length', 'cdivmod', 'ceil', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fdivmod', 'fib', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'rand', 'reldiff', 'remove', 'root', 'scan0', 'scan1', 'set_cache', 'set_debug', 'set_fcoform', 'set_minprec', 'set_tagoff', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod', 'trunc', 'version']
 >>> dir(a)
-['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__iadd__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__', '__index__', '__init__', '__int__', '__invert__', '__ipow__', '__irshift__', '__isub__', '__le__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', '_copy', 'binary', 'bincoef', 'bit_length', 'cdivmod', 'comb', 'digits', 'divexact', 'fdivmod', 'getbit', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod']
+['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__iadd__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__', '__index__', '__init__', '__int__', '__invert__', '__ipow__', '__irshift__', '__isub__', '__le__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', '_copy', 'binary', 'bincoef', 'bit_length', 'cdivmod', 'comb', 'digits', 'divexact', 'fdivmod', 'getbit', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod']
 >>>
 '''
+import warnings
+warnings.filterwarnings('ignore', 'setprec')
+
 import gmpy as _g, doctest, sys, operator, gc
 __test__={}
 a=_g.mpz(123)
@@ -504,15 +507,15 @@ mpz(123)
 >>> _g.hamdist(3)
 Traceback (innermost last):
   ...
-TypeError: hamdist() requires 'mpz','mpz' arguments
+TypeError: hamdist() expects 'mpz','mpz' arguments
 >>> a.hamdist()
 Traceback (innermost last):
   ...
-TypeError: hamdist() requires 'mpz','mpz' arguments
+TypeError: hamdist() expects 'mpz','mpz' arguments
 >>> a.hamdist(3, 4)
 Traceback (innermost last):
   ...
-TypeError: hamdist() requires 'mpz','mpz' arguments
+TypeError: hamdist() expects 'mpz','mpz' arguments
 >>> a.lowbits(5)
 mpz(27)
 >>> b.lowbits(5)
@@ -725,16 +728,6 @@ mpz(-123)
 
 __test__['number']=\
 r'''
->>> a.rootrem(2)
-(mpz(11), mpz(2))
->>> a.rootrem(3)
-(mpz(4), mpz(59))
->>> _g.rootrem(a*a)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-TypeError: rootrem() requires 'mpz','int' arguments
->>> _g.rootrem(a*a,2)
-(mpz(123), mpz(0))
 >>> print(a.sqrt())
 11
 >>> print(b.sqrt())
@@ -828,15 +821,15 @@ mpz(0)
 >>> _g.invert(3)
 Traceback (innermost last):
   ...
-TypeError: invert() requires 'mpz','mpz' arguments
+TypeError: invert() expects 'mpz','mpz' arguments
 >>> a.invert()
 Traceback (innermost last):
   ...
-TypeError: invert() requires 'mpz','mpz' arguments
+TypeError: invert() expects 'mpz','mpz' arguments
 >>> a.invert(3, 4)
 Traceback (innermost last):
   ...
-TypeError: invert() requires 'mpz','mpz' arguments
+TypeError: invert() expects 'mpz','mpz' arguments
 >>> _g.comb(3,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -856,15 +849,15 @@ ValueError: factor must be > 0
 >>> _g.remove(3)
 Traceback (innermost last):
   ...
-TypeError: remove() requires 'mpz','mpz' arguments
+TypeError: remove() expects 'mpz','mpz' arguments
 >>> a.remove()
 Traceback (innermost last):
   ...
-TypeError: remove() requires 'mpz','mpz' arguments
+TypeError: remove() expects 'mpz','mpz' arguments
 >>> a.remove(3, 4)
 Traceback (innermost last):
   ...
-TypeError: remove() requires 'mpz','mpz' arguments
+TypeError: remove() expects 'mpz','mpz' arguments
 >>> _g.is_prime(3,-3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -878,15 +871,15 @@ ValueError: jacobi's y must be odd prime > 0
 >>> _g.jacobi(3)
 Traceback (innermost last):
   ...
-TypeError: jacobi() requires 'mpz','mpz' arguments
+TypeError: jacobi() expects 'mpz','mpz' arguments
 >>> a.jacobi()
 Traceback (innermost last):
   ...
-TypeError: jacobi() requires 'mpz','mpz' arguments
+TypeError: jacobi() expects 'mpz','mpz' arguments
 >>> a.jacobi(3, 4)
 Traceback (innermost last):
   ...
-TypeError: jacobi() requires 'mpz','mpz' arguments
+TypeError: jacobi() expects 'mpz','mpz' arguments
 >>> _g.legendre(10,3)
 1
 >>> _g.legendre(10,-3)
@@ -896,15 +889,15 @@ ValueError: legendre's y must be odd and > 0
 >>> _g.legendre(3)
 Traceback (innermost last):
   ...
-TypeError: legendre() requires 'mpz','mpz' arguments
+TypeError: legendre() expects 'mpz','mpz' arguments
 >>> a.legendre()
 Traceback (innermost last):
   ...
-TypeError: legendre() requires 'mpz','mpz' arguments
+TypeError: legendre() expects 'mpz','mpz' arguments
 >>> a.legendre(3, 4)
 Traceback (innermost last):
   ...
-TypeError: legendre() requires 'mpz','mpz' arguments
+TypeError: legendre() expects 'mpz','mpz' arguments
 >>> _g.kronecker(10,3)
 1
 >>> _g.kronecker(10,-3)
@@ -912,15 +905,15 @@ TypeError: legendre() requires 'mpz','mpz' arguments
 >>> _g.kronecker(3)
 Traceback (innermost last):
   ...
-TypeError: kronecker() requires 'mpz','mpz' arguments
+TypeError: kronecker() expects 'mpz','mpz' arguments
 >>> a.kronecker()
 Traceback (innermost last):
   ...
-TypeError: kronecker() requires 'mpz','mpz' arguments
+TypeError: kronecker() expects 'mpz','mpz' arguments
 >>> a.kronecker(3, 4)
 Traceback (innermost last):
   ...
-TypeError: kronecker() requires 'mpz','mpz' arguments
+TypeError: kronecker() expects 'mpz','mpz' arguments
 >>> a=10**20
 >>> b=a+39
 >>> _g.jacobi(a,b)
@@ -931,6 +924,11 @@ TypeError: kronecker() requires 'mpz','mpz' arguments
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: Either arg in Kronecker must fit in an int
+>>> f=_g.mpf(3.3)
+>>> f.setprec(-1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in ?
+ValueError: n must be >=0
 >>> _g.rand('init',-1)
 >>> _g.rand('init',-7)
 Traceback (most recent call last):
@@ -950,7 +948,7 @@ ValueError: 'floa' needs arg>=0
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy 1.20 (mpz functionality)")
+        print("Unit tests for gmpy 1.12 (mpz functionality)")
         print("    running on Python %s" % sys.version)
         print()
         if _g.gmp_version():
@@ -969,6 +967,7 @@ def _test(chat=None):
 
     sav = sys.stdout
     class _Dummy:
+        encoding = None
         def write(self,*whatever):
             pass
     try:

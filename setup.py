@@ -1,11 +1,12 @@
 import sys, os
 from distutils.core import setup, Extension
 
-# Fail gracefully for old versions of Python.
-if sys.version < '2.5.0':
-    sys.stdout.write("GMPY 1.2 and later requires Python 2.5 or later.\n")
-    sys.stdout.write("Please use GMPY 1.1x for earlier versions of Python.\n")
-    sys.exit()
+# monkey-patch distutils if it can't cope with the "classifiers" and
+# "download_url" keywords
+if sys.version < '2.2.3':
+    from distutils.dist import DistributionMetadata
+    DistributionMetadata.classifiers = None
+    DistributionMetadata.download_url = None
 
 # Check if MPIR or GMP should be used.
 mplib='gmp'
@@ -40,11 +41,12 @@ gmpy_ext = Extension('gmpy', sources=['src/gmpy.c'],
     libraries=[mplib])
 
 setup (name = "gmpy",
-       version = "1.20a0",
+       version = "1.11",
        maintainer = "Alex Martelli",
        maintainer_email = "aleaxit@gmail.com",
        url = "http://code.google.com/p/gmpy/",
-       description = "MPIR/GMP interface to Python 2.5+ and 3.x",
+       description = "MPIR/GMP interface to Python 2.4+ and 3.x",
+       # download_url = "http://http://prdownloads.sourceforge.net/gmpy/gmpy-sources-101.zip?download",
 
        classifiers = [
          'Development Status :: 5 - Production/Stable',

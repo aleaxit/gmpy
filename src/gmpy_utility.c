@@ -10,7 +10,7 @@
  */
 
 #ifdef FALSE
-#if PY2
+#if PY_MAJOR_VERSION == 2
 static void
 mpz_set_PyInt(mpz_t rop, PyObject *obj)
 {

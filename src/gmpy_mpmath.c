@@ -12,13 +12,13 @@ mpmath_build_mpf(long sign, PympzObject *man, PyObject *exp, long bc)
         Py_DECREF(exp);
         return NULL;
     }
-    if(!(tsign=PyIntOrLong_FromLong(sign))){
+    if(!(tsign=Py2or3Int_FromLong(sign))){
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
         return NULL;
     }
-    if(!(tbc=PyIntOrLong_FromLong(bc))){
+    if(!(tbc=Py2or3Int_FromLong(bc))){
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
@@ -27,7 +27,7 @@ mpmath_build_mpf(long sign, PympzObject *man, PyObject *exp, long bc)
     }
     PyTuple_SET_ITEM(tup, 0, tsign);
     PyTuple_SET_ITEM(tup, 1, (PyObject*)man);
-    PyTuple_SET_ITEM(tup, 2, (exp)?exp:PyIntOrLong_FromLong(0));
+    PyTuple_SET_ITEM(tup, 2, (exp)?exp:Py2or3Int_FromLong(0));
     PyTuple_SET_ITEM(tup, 3, tbc);
     return tup;
 }
@@ -126,7 +126,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
                 if(carry)
                     mpz_add_ui(upper, upper, 1);
         }
-        if (!(tmp = PyIntOrLong_FromLong(shift))) {
+        if (!(tmp = Py2or3Int_FromLong(shift))) {
             mpz_cloc(upper);
             mpz_cloc(lower);
             return NULL;
@@ -149,7 +149,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     if((zbits = mpz_scan1(upper, 0)))
         mpz_tdiv_q_2exp(upper, upper, zbits);
 
-    if (!(tmp = PyIntOrLong_FromLong(zbits))) {
+    if (!(tmp = Py2or3Int_FromLong(zbits))) {
         mpz_cloc(upper);
         mpz_cloc(lower);
         Py_DECREF(newexp);
@@ -276,7 +276,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                 if(carry)
                     mpz_add_ui(upper->z, upper->z, 1);
         }
-        if (!(tmp = PyIntOrLong_FromLong(shift))) {
+        if (!(tmp = Py2or3Int_FromLong(shift))) {
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
@@ -299,7 +299,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     if((zbits = mpz_scan1(upper->z, 0)))
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
-    if (!(tmp = PyIntOrLong_FromLong(zbits))) {
+    if (!(tmp = Py2or3Int_FromLong(zbits))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);

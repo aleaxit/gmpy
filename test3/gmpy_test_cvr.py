@@ -1,13 +1,13 @@
-# partial unit test for gmpy 1.20 extra cover
+# partial unit test for gmpy 1.12 extra cover
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.20
+# test-version 1.12
 r'''
 >>> _g.gmp_version()[:3] in ('5.0', '4.3', '4.2', '4.1', '4.0', '3.1', '')
 True
 >>> _g.mpir_version()[:3] in ('0.9', '1.0', '1.1', '1.2', '1.3', '')
 True
 >>> _g.version()
-'1.20'
+'1.12'
 >>> int('gmpy.c' in _g._cvsid())
 1
 '''
@@ -82,15 +82,15 @@ r'''
 >>> _g.version(23)
 Traceback (most recent call last):
   ...
-TypeError: version() takes no arguments (1 given)
+TypeError: version expects 0 arguments
 >>> _g.gmp_version(23)
 Traceback (most recent call last):
   ...
-TypeError: gmp_version() takes no arguments (1 given)
+TypeError: gmp_version expects 0 arguments
 >>> _g.get_cache(23)
 Traceback (most recent call last):
   ...
-TypeError: get_cache() takes no arguments (1 given)
+TypeError: get_cache expects 0 arguments
 >>> _g.set_cache()
 Traceback (most recent call last):
   ...
@@ -106,11 +106,11 @@ ValueError: object size must between 0 and 16384
 >>> _g.set_cache(2000,256)
 Traceback (most recent call last):
   ...
-ValueError: cache size must between 0 and 1000
+ValueError: cache must between 0 and 1000
 >>> _g.set_cache(-23,256)
 Traceback (most recent call last):
   ...
-ValueError: cache size must between 0 and 1000
+ValueError: cache must between 0 and 1000
 >>> _g.set_cache(200,256000)
 Traceback (most recent call last):
   ...
@@ -188,7 +188,7 @@ ZeroDivisionError: mpq: zero denominator
 >>> _g.mpf([])
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: gmpy.mpf() requires numeric or string argument
+TypeError: gmpy.mpf() expects numeric or string argument
 >>> _g.mpf('bo',0,256)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -222,11 +222,11 @@ ValueError: bit_index must be >= 0
 >>> _g.mpz(23).setbit(12,1,2,3)
 Traceback (most recent call last):
   ...
-TypeError: setbit() requires 'mpz','int'[,'int'] arguments
+TypeError: setbit() expects 'mpz','int'[,'int'] arguments
 >>> _g.setbit(12,1,2,3)
 Traceback (most recent call last):
   ...
-TypeError: setbit() requires 'mpz','int'[,'int'] arguments
+TypeError: setbit() expects 'mpz','int'[,'int'] arguments
 >>> _g.root(12,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -242,11 +242,11 @@ ValueError: root of negative number
 >>> _g.digits(3,'peep')
 Traceback (most recent call last):
   ...
-TypeError: digits() requires 'mpz',['int'] arguments
+TypeError: digits() expects 'mpz',['int'] arguments
 >>> _g.digits(3.14)
 Traceback (most recent call last):
   ...
-TypeError: digits() requires 'mpz',['int'] arguments
+TypeError: digits() expects 'mpz',['int'] arguments
 >>> _g.fdigits(3.14,'peep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -262,7 +262,7 @@ TypeError: an integer is required
 >>> _g.mpz(3).digits('bu')
 Traceback (most recent call last):
   ...
-TypeError: digits() requires 'mpz',['int'] arguments
+TypeError: digits() expects 'mpz',['int'] arguments
 >>> _g.mpf(3).digits('bu')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -324,7 +324,7 @@ TypeError: gmpy.mpz() with numeric argument needs exactly 1 argument
 >>> _g.mpz(None)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: gmpy.mpz() requires numeric or string argument
+TypeError: gmpy.mpz() expects numeric or string argument
 >>> _g.mpq(1,2,3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -340,7 +340,7 @@ ValueError: base for gmpy.mpq() must be 0, 256, or in the interval 2 ... 36 .
 >>> _g.mpq(None)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: gmpy.mpq() requires numeric or string argument
+TypeError: gmpy.mpq() expects numeric or string argument
 >>> _g.mpq(1,None)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -516,7 +516,7 @@ True
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy 1.20 (extra cover)")
+        print("Unit tests for gmpy 1.12 (extra cover)")
         print("    running on Python", sys.version)
         print()
         if _g.gmp_version():

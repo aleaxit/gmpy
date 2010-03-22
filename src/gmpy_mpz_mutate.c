@@ -13,7 +13,10 @@
 
 #include <math.h>
 
-/* Inplace mpz addition.
+#define Py_RETURN_NOTIMPLEMENTED\
+    return Py_INCREF(Py_NotImplemented), Py_NotImplemented
+
+/* Inplace mpz addition. Does NOT mutate!
  */
 
 static PyObject *
@@ -21,15 +24,36 @@ Pympz_inplace_add(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
     long temp;
+#if PY_MAJOR_VERSION == 3
     int overflow;
+#endif
 
     /* Try to make mpz + small_int faster */
     if(Pympz_Check(a)) {
-        if(PyIntOrLong_Check(b)) {
+#if PY_MAJOR_VERSION == 2
+        if(PyInt_Check(b)) {
+            if(options.debug)
+                fprintf(stderr, "Adding (mpz,small_int)\n");
+            if((temp = PyInt_AS_LONG(b)) >= 0) {
+                mpz_add_ui(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a), temp);
+            } else {
+                mpz_sub_ui(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a), -temp);
+            }
+            Py_INCREF(a);
+            return a;
+        }
+#endif
+        if(PyLong_Check(b)) {
             if(options.debug)
                 fprintf(stderr, "Adding (mpz,long)\n");
+#if PY_MAJOR_VERSION == 3
             temp = PyLong_AsLongAndOverflow(b, &overflow);
             if(overflow) {
+#else
+            temp = PyLong_AsLong(b);
+            if(PyErr_Occurred()) {
+                PyErr_Clear();
+#endif
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_add(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a), tempz);
@@ -54,7 +78,7 @@ Pympz_inplace_add(PyObject *a, PyObject *b)
     Py_RETURN_NOTIMPLEMENTED;
 }
 
-/* Inplace mpz subtraction.
+/* Inplace mpz subtraction. Does NOT mutate!
  */
 
 static PyObject *
@@ -62,14 +86,37 @@ Pympz_inplace_sub(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
     long temp;
+#if PY_MAJOR_VERSION == 3
     int overflow;
+#endif
 
     if(Pympz_Check(a)) {
-        if(PyIntOrLong_Check(b)) {
+
+#if PY_MAJOR_VERSION == 2
+        if(PyInt_Check(b)) {
+            if (options.debug)
+                fprintf(stderr, "Subtracting (mpz,small_int)\n");
+            if((temp = PyInt_AS_LONG(b)) >= 0) {
+                mpz_sub_ui(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a), temp);
+            } else {
+                mpz_add_ui(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a), -temp);
+            }
+            Py_INCREF(a);
+            return a;
+        }
+#endif
+
+        if(PyLong_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Subtracting (mpz,long)\n");
+#if PY_MAJOR_VERSION == 3
             temp = PyLong_AsLongAndOverflow(b, &overflow);
             if(overflow) {
+#else
+            temp = PyLong_AsLong(b);
+            if(PyErr_Occurred()) {
+                PyErr_Clear();
+#endif
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_sub(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a), tempz);
@@ -94,7 +141,7 @@ Pympz_inplace_sub(PyObject *a, PyObject *b)
     Py_RETURN_NOTIMPLEMENTED;
 }
 
-/* Inplace mpz multiplication.
+/* Inplace mpz multiplication. Does NOT mutate!
  */
 
 static PyObject *
@@ -102,14 +149,33 @@ Pympz_inplace_mul(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
     long temp;
+#if PY_MAJOR_VERSION == 3
     int overflow;
+#endif
 
     if(Pympz_Check(a)) {
-        if(PyIntOrLong_Check(b)) {
+
+#if PY_MAJOR_VERSION == 2
+        if(PyInt_Check(b)) {
+            if (options.debug)
+                fprintf(stderr, "Multiplying (mpz,small_int)\n");
+            mpz_mul_si(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a), PyInt_AS_LONG(b));
+            Py_INCREF(a);
+            return a;
+        }
+#endif
+
+        if(PyLong_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Multiplying (mpz,long)\n");
+#if PY_MAJOR_VERSION == 3
             temp = PyLong_AsLongAndOverflow(b, &overflow);
             if(overflow) {
+#else
+            temp = PyLong_AsLong(b);
+            if(PyErr_Occurred()) {
+                PyErr_Clear();
+#endif
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_mul(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a), tempz);
@@ -141,14 +207,41 @@ Pympz_inplace_floordiv(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
     long temp;
+#if PY_MAJOR_VERSION == 3
     int overflow;
+#endif
 
     if(Pympz_Check(a)) {
-        if(PyIntOrLong_Check(b)) {
+
+#if PY_MAJOR_VERSION == 2
+        if(PyInt_Check(b)) {
+            if (options.debug)
+                fprintf(stderr, "Floor divide (mpz,small_int)\n");
+            if((temp=PyInt_AS_LONG(b)) > 0) {
+                mpz_fdiv_q_ui(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a), temp);
+            } else if(temp == 0) {
+                PyErr_SetString(PyExc_ZeroDivisionError, "mpz division by zero");
+                return NULL;
+            } else {
+                mpz_cdiv_q_ui(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a), -temp);
+                mpz_neg(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a));
+            }
+            Py_INCREF(a);
+            return a;
+        }
+#endif
+
+        if(PyLong_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Floor divide (mpz,long)\n");
+#if PY_MAJOR_VERSION == 3
             temp = PyLong_AsLongAndOverflow(b, &overflow);
             if(overflow) {
+#else
+            temp = PyLong_AsLong(b);
+            if(PyErr_Occurred()) {
+                PyErr_Clear();
+#endif
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_fdiv_q(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a), tempz);
@@ -188,14 +281,40 @@ Pympz_inplace_rem(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
     long temp;
+#if PY_MAJOR_VERSION == 3
     int overflow;
+#endif
 
     if(Pympz_Check(a)) {
-        if(PyIntOrLong_Check(b)) {
+
+#if PY_MAJOR_VERSION == 2
+        if(PyInt_Check(b)) {
+            if (options.debug)
+                fprintf(stderr, "Modulo (mpz,small_int)\n");
+            if((temp=PyInt_AS_LONG(b)) > 0) {
+                mpz_fdiv_r_ui(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a), temp);
+            } else if(temp == 0) {
+                PyErr_SetString(PyExc_ZeroDivisionError, "mpz modulo by zero");
+                return NULL;
+            } else {
+                mpz_cdiv_r_ui(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a), -temp);
+            }
+            Py_INCREF(a);
+            return a;
+        }
+#endif
+
+        if(PyLong_Check(b)) {
             if (options.debug)
                 fprintf(stderr, "Modulo (mpz,long)\n");
+#if PY_MAJOR_VERSION == 3
             temp = PyLong_AsLongAndOverflow(b, &overflow);
             if(overflow) {
+#else
+            temp = PyLong_AsLong(b);
+            if(PyErr_Occurred()) {
+                PyErr_Clear();
+#endif
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_fdiv_r(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a), tempz);
@@ -235,15 +354,36 @@ static PyObject *
 Pympz_inplace_rshift(PyObject *a, PyObject *b)
 {
     long temp;
+#if PY_MAJOR_VERSION == 3
     int overflow;
+#endif
 
     /* Try to make mpz + small_int faster */
     if(Pympz_Check(a)) {
-        if(PyIntOrLong_Check(b)) {
+#if PY_MAJOR_VERSION == 2
+        if(PyInt_Check(b)) {
             if(options.debug)
                 fprintf(stderr, "right shift\n");
+            if((temp = PyInt_AS_LONG(b)) >= 0) {
+                mpz_fdiv_q_2exp(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a), temp);
+                Py_INCREF(a);
+                return a;
+            } else {
+                PyErr_SetString(PyExc_ValueError, "negative shift count");
+                return NULL;
+            }
+        }
+#endif
+        if(PyLong_Check(b)) {
+            if(options.debug)
+                fprintf(stderr, "right shift\n");
+#if PY_MAJOR_VERSION == 3
             temp = PyLong_AsLongAndOverflow(b, &overflow);
             if(overflow) {
+#else
+            temp = PyLong_AsLong(b);
+            if(PyErr_Occurred()) {
+#endif
                 PyErr_SetString(PyExc_ValueError, "outrageous shift count");
                 return NULL;
             } else if(temp >= 0) {
@@ -283,15 +423,36 @@ static PyObject *
 Pympz_inplace_lshift(PyObject *a, PyObject *b)
 {
     long temp;
+#if PY_MAJOR_VERSION == 3
     int overflow;
+#endif
 
     /* Try to make mpz + small_int faster */
     if(Pympz_Check(a)) {
-        if(PyIntOrLong_Check(b)) {
+#if PY_MAJOR_VERSION == 2
+        if(PyInt_Check(b)) {
             if(options.debug)
                 fprintf(stderr, "left shift\n");
+            if((temp = PyInt_AS_LONG(b)) >= 0) {
+                mpz_mul_2exp(Pympz_AS_MPZ(a), Pympz_AS_MPZ(a), temp);
+                Py_INCREF(a);
+                return a;
+            } else {
+                PyErr_SetString(PyExc_ValueError, "negative shift count");
+                return NULL;
+            }
+        }
+#endif
+        if(PyLong_Check(b)) {
+            if(options.debug)
+                fprintf(stderr, "left shift\n");
+#if PY_MAJOR_VERSION == 3
             temp = PyLong_AsLongAndOverflow(b, &overflow);
             if(overflow) {
+#else
+            temp = PyLong_AsLong(b);
+            if(PyErr_Occurred()) {
+#endif
                 PyErr_SetString(PyExc_ValueError, "outrageous shift count");
                 return NULL;
             } else if(temp >= 0) {
