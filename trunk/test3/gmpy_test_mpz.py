@@ -969,6 +969,7 @@ def _test(chat=None):
 
     sav = sys.stdout
     class _Dummy:
+        encoding = None
         def write(self,*whatever):
             pass
     try:
