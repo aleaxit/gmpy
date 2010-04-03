@@ -4919,8 +4919,6 @@ Pympz_lshift(PyObject *a, PyObject *b)
     return (PyObject*)rz;
 }
 
-
-
 #if PY_MAJOR_VERSION < 3
 /* hex/oct formatting (mpz-only) */
 static PyObject *
@@ -4948,18 +4946,54 @@ dohash(PyObject* tempPynum)
 static long
 Pympz_hash(PympzObject *self)
 {
-    //~ return dohash(Pympz2PyLong(self));
+#ifdef _PyHASH_MASK
+    long hash = 0;
+    hash = (long)mpz_tdiv_ui((self->z), _PyHASH_MASK);
+    if(mpz_sgn(self->z)<0)
+        hash = -hash;
+    if(hash==-1) hash = -2;
+    return hash;
+#else
     return mpz_pythonhash(Pympz_AS_MPZ(self));
+#endif
 }
 static long
 Pympf_hash(PympfObject *self)
 {
-    return dohash(Pympf2PyFloat(self));
+    double temp;
+    temp = mpf_get_d(self->f);
+    return _Py_HashDouble(temp);
 }
 static long
 Pympq_hash(PympqObject *self)
 {
+#ifdef _PyHASH_MASK
+    long hash = 0;
+    mpz_t temp, mask;
+    mpz_inoc(temp);
+    mpz_inoc(mask);
+    mpz_set_si(mask, _PyHASH_MASK);
+
+    if(!mpz_invert(temp, mpq_denref(self->q), mask)) {
+        mpz_cloc(temp);
+        mpz_cloc(mask);
+        return _PyHASH_INF;
+    }
+    mpz_powm_ui(temp, mpq_denref(self->q), _PyHASH_MASK - 2, mask);
+
+    hash = (long)mpz_tdiv_ui(mpq_numref(self->q), _PyHASH_MASK);
+    mpz_mul_si(temp, temp, hash);
+    hash = (long)mpz_tdiv_ui(temp, _PyHASH_MASK);
+
+    if(mpz_sgn(mpq_numref(self->q))<0)
+        hash = -hash;
+    if(hash==-1) hash = -2;
+    mpz_cloc(temp);
+    mpz_cloc(mask);
+    return hash;
+#else
     return dohash(Pympq2PyFloat(self));
+#endif
 }
 
 /* Miscellaneous gmpy functions */
