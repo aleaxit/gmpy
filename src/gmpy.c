@@ -4934,6 +4934,7 @@ Pympz_hex(PympzObject *self)
 #endif
 
 /* hashing */
+#ifndef _PyHASH_MASK
 static long
 dohash(PyObject* tempPynum)
 {
@@ -4943,6 +4944,7 @@ dohash(PyObject* tempPynum)
     Py_DECREF(tempPynum);
     return hash;
 }
+#endif
 static long
 Pympz_hash(PympzObject *self)
 {
@@ -4960,9 +4962,47 @@ Pympz_hash(PympzObject *self)
 static long
 Pympf_hash(PympfObject *self)
 {
+#ifdef _PyHASH_MASK
+    unsigned long hash = 0;
+    long exp = 0;
+    size_t mbits = 0;
+    double notneeded;
+    mpz_t hack;
+    int sign;
+
+    /* Calculate the hash of the mantissa. */
+    if(self->f->_mp_size>0) {
+        hash = mpn_mod_1(self->f->_mp_d, self->f->_mp_size, _PyHASH_MASK);
+        sign = 1;
+    } else if(self->f->_mp_size<0) {
+        hash = mpn_mod_1(self->f->_mp_d, -(self->f->_mp_size), _PyHASH_MASK);
+        sign = -1;
+    } else {
+        return 0;
+    }
+
+    /* Get the number of bits in the mantissa. Ugly hack. */
+    hack->_mp_size = self->f->_mp_size;
+    hack->_mp_d = self->f->_mp_d;
+    mbits = mpz_sizeinbase(hack, 2);
+
+    /* Get the exponent as a power of 2. */
+    notneeded = mpf_get_d_2exp(&exp, self->f);
+
+    /* Calculate the final hash. */
+    exp -= (long)mbits;
+    exp = exp >= 0 ? exp % _PyHASH_BITS : _PyHASH_BITS-1-((-1-exp) % _PyHASH_BITS);
+    hash = ((hash << exp) & _PyHASH_MASK) | hash >> (_PyHASH_BITS - exp);
+
+    hash *= sign;
+    if(hash==(unsigned long)-1)
+        hash = (unsigned long)-2;
+    return hash;
+#else
     double temp;
     temp = mpf_get_d(self->f);
     return _Py_HashDouble(temp);
+#endif
 }
 static long
 Pympq_hash(PympqObject *self)
