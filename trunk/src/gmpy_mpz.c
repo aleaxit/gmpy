@@ -1088,8 +1088,8 @@ Pygmpy_lucas(PyObject *self, PyObject *args)
 }
 
 static char doc_lucas2[]="\
-lucas(n): returns the n-th Lucas number; takes O(n) time; n must be\n\
-an ordinary Python int, >=0.\n\
+lucas2(n): returns the n-1 and n-th Lucas number; takes O(n) time; n must\n\
+be an ordinary Python int, >=0.\n\
 ";
 static PyObject *
 Pygmpy_lucas2(PyObject *self, PyObject *args)
@@ -1673,3 +1673,68 @@ Pympz_kronecker(PyObject *self, PyObject *args)
     return PyIntOrLong_FromLong(ires);
 }
 
+static char doc_is_evenm[]="\
+x.even(): returns True if x is even, False otherwise.\n\
+";
+static char doc_is_eveng[]="\
+even(x): returns True if x is even, False otherwise.\n\
+";
+static PyObject *
+Pympz_is_even(PyObject *self, PyObject *other)
+{
+    int res;
+    PympzObject* newob;
+
+    if(self && Pympz_Check(self)) {
+        res = mpz_even_p(Pympz_AS_MPZ(self));
+    } else if(Pympz_Check(other)) {
+        res = mpz_even_p(Pympz_AS_MPZ(other));
+    } else {
+        newob = Pympz_From_Integer(other);
+        if(newob) {
+            res = mpz_even_p(Pympz_AS_MPZ(newob));
+            Py_DECREF((PyObject*)newob);
+        } else {
+            PyErr_SetString(PyExc_TypeError,
+                            "is_even() requires 'mpz' argument");
+            return NULL;
+        }
+    }
+    if(res)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
+static char doc_is_oddm[]="\
+x.even(): returns True if x is even, False otherwise.\n\
+";
+static char doc_is_oddg[]="\
+even(x): returns True if x is even, False otherwise.\n\
+";
+static PyObject *
+Pympz_is_odd(PyObject *self, PyObject *other)
+{
+    int res;
+    PympzObject* newob;
+
+    if(self && Pympz_Check(self)) {
+        res = mpz_odd_p(Pympz_AS_MPZ(self));
+    } else if(Pympz_Check(other)) {
+        res = mpz_odd_p(Pympz_AS_MPZ(other));
+    } else {
+        newob = Pympz_From_Integer(other);
+        if(newob) {
+            res = mpz_odd_p(Pympz_AS_MPZ(newob));
+            Py_DECREF((PyObject*)newob);
+        } else {
+            PyErr_SetString(PyExc_TypeError,
+                            "is_odd() requires 'mpz' argument");
+            return NULL;
+        }
+    }
+    if(res)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}

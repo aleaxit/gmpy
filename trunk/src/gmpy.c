@@ -209,6 +209,7 @@
  *   Removed mpf.setprec(), use mpf.round() (casevh)
  *   Fix test compatibility with Python 3.1.2 and 3.2 (casevh)
  *   Support changed hash function in Python 3.2 (casevh)
+ *   Added is_even, is_odd (casevh)
  */
 #include "Python.h"
 
@@ -4577,6 +4578,8 @@ static PyMethodDef Pygmpy_methods [] =
     { "is_square", Pympz_is_square, METH_VARARGS, doc_is_squareg },
     { "is_power", Pympz_is_power, METH_VARARGS, doc_is_powerg },
     { "is_prime", Pympz_is_prime, METH_VARARGS, doc_is_primeg },
+    { "is_even", Pympz_is_even, METH_O, doc_is_eveng },
+    { "is_odd", Pympz_is_odd, METH_O, doc_is_oddg },
     { "next_prime", Pympz_next_prime, METH_VARARGS, doc_next_primeg },
     { "jacobi", Pympz_jacobi, METH_VARARGS, doc_jacobig },
     { "legendre", Pympz_legendre, METH_VARARGS, doc_legendreg },
@@ -4651,6 +4654,8 @@ static PyMethodDef Pympz_methods [] =
     { "digits", Pympz_digits, METH_VARARGS, doc_digitsm },
     { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsm },
     { "bit_length", Pympz_bit_length, METH_NOARGS, doc_bit_lengthm },
+    { "is_even", Pympz_is_even, METH_NOARGS, doc_is_evenm },
+    { "is_odd", Pympz_is_odd, METH_NOARGS, doc_is_oddm },
     { "lowbits", Pympz_lowbits, METH_VARARGS, doc_lowbitsm },
     { "getbit", Pympz_getbit, METH_VARARGS, doc_getbitm },
     { "setbit", Pympz_setbit, METH_VARARGS, doc_setbitm },
