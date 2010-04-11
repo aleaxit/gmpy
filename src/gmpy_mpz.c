@@ -838,7 +838,16 @@ Pympz_hex(PympzObject *self)
 static long
 Pympz_hash(PympzObject *self)
 {
+#ifdef _PyHASH_MASK
+    long hash = 0;
+    hash = (long)mpz_tdiv_ui((self->z), _PyHASH_MASK);
+    if(mpz_sgn(self->z)<0)
+        hash = -hash;
+    if(hash==-1) hash = -2;
+    return hash;
+#else
     return mpz_pythonhash(Pympz_AS_MPZ(self));
+#endif
 }
 
 /* Miscellaneous gmpy functions */
