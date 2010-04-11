@@ -204,7 +204,9 @@
  *   Added caching for mpz (casevh)
  *
  *   1.12:
- *   Fix test compatibility with Python 3.1.2 and 3.2.
+ *   Fix test compatibility with Python 3.1.2 and 3.2 (casevh)
+ *   Change hash function for Python 3.2 (casevh)
+ *   Support MPIR 2.0 (casevh)
  */
 #include "Python.h"
 
@@ -326,11 +328,19 @@
 __MPIR_VERSION * 10000 + \
 __MPIR_VERSION_MINOR * 100 + \
 __MPIR_VERSION_PATCHLEVEL
+#if MPIR_VER >= 20000
 char gmpy_license[] = "\
 The GMPY source code is licensed under LGPL 2.1 or later. \
-The MPIR library is licensed under LGPL 2.1 or later. \
+This version of the MPIR library is licensed under LGPL 3 or later. \
+Therefore, this combined module is licensed under LGPL 3 or later.\
+";
+#else
+char gmpy_license[] = "\
+The GMPY source code is licensed under LGPL 2.1 or later. \
+This version of the MPIR library is licensed under LGPL 2.1 or later. \
 Therefore, this combined module is licensed under LGPL 2.1 or later.\
 ";
+#endif
 #else
 #define GNU_MP_VER \
 __GNU_MP_VERSION * 10000 + \
