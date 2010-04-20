@@ -3,8 +3,8 @@ from distutils.core import setup, Extension
 
 # Fail gracefully for old versions of Python.
 if sys.version < '2.5.0':
-    sys.stdout.write("GMPY 1.2 and later requires Python 2.5 or later.\n")
-    sys.stdout.write("Please use GMPY 1.1x for earlier versions of Python.\n")
+    sys.stdout.write("GMPY2 requires Python 2.5 or later.\n")
+    sys.stdout.write("Please use GMPY 1.x for earlier versions of Python.\n")
     sys.exit()
 
 # Check if MPIR or GMP should be used.
@@ -34,17 +34,17 @@ if sys.version.find('MSC') == -1:
 # decomment next line (w/gcc, only!) to support gcov
 #   os.environ['CFLAGS'] = '-fprofile-arcs -ftest-coverage -O0'
 # prepare the extension for building
-gmpy_ext = Extension('gmpy', sources=['src/gmpy.c'],
+gmpy2_ext = Extension('gmpy2', sources=['src/gmpy2.c'],
     include_dirs=incdirs,
     library_dirs=libdirs,
     libraries=[mplib])
 
-setup (name = "gmpy",
-       version = "1.20a0",
+setup (name = "gmpy2",
+       version = "2.0.0a0",
        maintainer = "Alex Martelli",
        maintainer_email = "aleaxit@gmail.com",
        url = "http://code.google.com/p/gmpy/",
-       description = "MPIR/GMP interface to Python 2.5+ and 3.x",
+       description = "GMP/MPIR interface to Python 2.5+ and 3.x",
 
        classifiers = [
          'Development Status :: 5 - Production/Stable',
@@ -62,5 +62,5 @@ setup (name = "gmpy",
          'Topic :: Software Development :: Libraries :: Python Modules',
        ],
 
-       ext_modules = [ gmpy_ext ]
+       ext_modules = [ gmpy2_ext ]
 )

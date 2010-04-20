@@ -12,6 +12,7 @@
   Version 1.05, February 2009 (support MPIR)
   Version 1.20, January 2010 (remove obsolete MS hacks, added
                 PyInt_FromSize_t) casevh
+  Version 2.00, April 2010, (change to gmpy2) casevh
  */
 
 #ifndef Py_GMPYMODULE_H
@@ -105,10 +106,10 @@ extern "C" {
 #endif
 
 #if PY_VERSION_HEX < 0x02050000
-#  error "GMPY 1.2 requires Python 2.5 or later."
+#  error "GMPY2 requires Python 2.5 or later."
 #endif
 
-/* Header file for gmpy */
+/* Header file for gmpy2 */
 typedef struct {
     PyObject_HEAD
     /* PyObject* callable; */
@@ -139,18 +140,6 @@ static PyTypeObject Pympq_Type;
 #define Pympq_Check(v) (((PyObject*)v)->ob_type == &Pympq_Type)
 static PyTypeObject Pympf_Type;
 #define Pympf_Check(v) (((PyObject*)v)->ob_type == &Pympf_Type)
-
-//~ static PympzObject * Pympz_new(void);
-//~ static void Pympz_dealloc(PympzObject *self);
-//~ static int Pympz_convert_arg(PyObject *arg, PyObject **ptr);
-
-//~ static PympqObject * Pympq_new(void);
-//~ static void Pympq_dealloc(PympqObject *self);
-//~ static int Pympq_convert_arg(PyObject *arg, PyObject **ptr);
-
-//~ static PympfObject * Pympf_new(unsigned long bits);
-//~ static void Pympf_dealloc(PympfObject *self);
-//~ static int Pympf_convert_arg(PyObject *arg, PyObject **ptr);
 
 #ifdef __cplusplus
 }

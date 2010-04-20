@@ -1,4 +1,5 @@
-import gmpy, time
+import time
+import gmpy2 as gmpy
 
 
 try: sum

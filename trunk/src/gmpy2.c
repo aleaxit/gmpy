@@ -193,7 +193,7 @@
  *   Added % and divmod support to mpq and mpf (casevh)
  *   Changed memory allocation functions to use PyMem (casevh)
  *   Removed small number interning (casevh)
- *   Added tdivmod, cdivmod, and fdivmoc (casevh)
+ *   Added tdivmod, cdivmod, and fdivmod (casevh)
  *   Added more helper functions for mpmath (casevh)
  *   Faster mpz<>PyLong conversion (casevh)
  *   Faster hash(mpz) (casevh)
@@ -210,6 +210,11 @@
  *   Fix test compatibility with Python 3.1.2 and 3.2 (casevh)
  *   Support changed hash function in Python 3.2 (casevh)
  *   Added is_even, is_odd (casevh)
+ *
+ ************************************************************************
+ *
+ *   2.00:
+ *   Rename to gmpy2 to allow backwards incompatible changes (casevh)
  */
 #include "Python.h"
 
@@ -291,7 +296,7 @@
 #define PyBytes_FromStringAndSize       PyString_FromStringAndSize
 #endif
 
-char gmpy_version[] = "1.20";
+char gmpy_version[] = "2.0.0a0";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -4954,8 +4959,8 @@ static void _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] = "\
-gmpy 1.20 - General Multiprecision arithmetic for Python:\n\
-exposes functionality from the GMP or MPIR library to Python 2.4+\n\
+gmpy2 2.0.0a0 - General Multiprecision arithmetic for Python:\n\
+exposes functionality from the GMP or MPIR library to Python 2.5+\n\
 and  3.1+.\n\
 \n\
 Allows creation of multiprecision integer (mpz), float (mpf),\n\
@@ -4986,7 +4991,7 @@ which are not built-in features of Python.\n\
 #define INITERROR return NULL
 static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
-        "gmpy",
+        "gmpy2",
         _gmpy_docs,
         -1, /*sizeof(struct module_state) */
         Pygmpy_methods,
@@ -4995,10 +5000,10 @@ static struct PyModuleDef moduledef = {
         NULL, /* gmpy_clear */
         NULL
 };
-PyMODINIT_FUNC PyInit_gmpy(void)
+PyMODINIT_FUNC PyInit_gmpy2(void)
 #else
 #define INITERROR return
-PyMODINIT_FUNC initgmpy(void)
+PyMODINIT_FUNC initgmpy2(void)
 #endif
 {
     PyObject* copy_reg_module = NULL;
@@ -5014,13 +5019,13 @@ PyMODINIT_FUNC initgmpy(void)
         sscanf(do_debug, "%d", &options.debug);
 
     if (options.debug)
-        fputs( "initgmpy() called...\n", stderr );
+        fputs( "initgmpy2() called...\n", stderr );
     _PyInitGMP();
 
 #ifdef PY3
     gmpy_module = PyModule_Create(&moduledef);
 #else
-    gmpy_module = Py_InitModule3("gmpy", Pygmpy_methods, _gmpy_docs);
+    gmpy_module = Py_InitModule3("gmpy2", Pygmpy_methods, _gmpy_docs);
 #endif
 
     /* Todo: Add error checking for status of gmpy_module returned above. */
@@ -5033,19 +5038,19 @@ PyMODINIT_FUNC initgmpy(void)
     copy_reg_module = PyImport_ImportModule("copyreg");
     if (copy_reg_module) {
         char* enable_pickle =
-            "def mpz_reducer(an_mpz): return (gmpy.mpz, (an_mpz.binary(), 256))\n"
-            "def mpq_reducer(an_mpq): return (gmpy.mpq, (an_mpq.binary(), 256))\n"
-            "def mpf_reducer(an_mpf): return (gmpy.mpf, (an_mpf.binary(), 0, 256))\n"
-            "copyreg.pickle(type(gmpy.mpz(0)), mpz_reducer)\n"
-            "copyreg.pickle(type(gmpy.mpq(0)), mpq_reducer)\n"
-            "copyreg.pickle(type(gmpy.mpf(0)), mpf_reducer)\n"
+            "def mpz_reducer(an_mpz): return (gmpy2.mpz, (an_mpz.binary(), 256))\n"
+            "def mpq_reducer(an_mpq): return (gmpy2.mpq, (an_mpq.binary(), 256))\n"
+            "def mpf_reducer(an_mpf): return (gmpy2.mpf, (an_mpf.binary(), 0, 256))\n"
+            "copyreg.pickle(type(gmpy2.mpz(0)), mpz_reducer)\n"
+            "copyreg.pickle(type(gmpy2.mpq(0)), mpq_reducer)\n"
+            "copyreg.pickle(type(gmpy2.mpf(0)), mpf_reducer)\n"
         ;
         PyObject* namespace = PyDict_New();
         PyObject* result = NULL;
         if (options.debug)
             fprintf(stderr, "gmpy_module imported copyreg OK\n");
         PyDict_SetItemString(namespace, "copyreg", copy_reg_module);
-        PyDict_SetItemString(namespace, "gmpy", gmpy_module);
+        PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
         PyDict_SetItemString(namespace, "type", (PyObject*)&PyType_Type);
         result = PyRun_String(enable_pickle, Py_file_input,
                               namespace, namespace);
@@ -5068,19 +5073,19 @@ PyMODINIT_FUNC initgmpy(void)
     copy_reg_module = PyImport_ImportModule("copy_reg");
     if (copy_reg_module) {
         char* enable_pickle =
-            "def mpz_reducer(an_mpz): return (gmpy.mpz, (an_mpz.binary(), 256))\n"
-            "def mpq_reducer(an_mpq): return (gmpy.mpq, (an_mpq.binary(), 256))\n"
-            "def mpf_reducer(an_mpf): return (gmpy.mpf, (an_mpf.binary(), 0, 256))\n"
-            "copy_reg.pickle(type(gmpy.mpz(0)), mpz_reducer)\n"
-            "copy_reg.pickle(type(gmpy.mpq(0)), mpq_reducer)\n"
-            "copy_reg.pickle(type(gmpy.mpf(0)), mpf_reducer)\n"
+            "def mpz_reducer(an_mpz): return (gmpy2.mpz, (an_mpz.binary(), 256))\n"
+            "def mpq_reducer(an_mpq): return (gmpy2.mpq, (an_mpq.binary(), 256))\n"
+            "def mpf_reducer(an_mpf): return (gmpy2.mpf, (an_mpf.binary(), 0, 256))\n"
+            "copy_reg.pickle(type(gmpy2.mpz(0)), mpz_reducer)\n"
+            "copy_reg.pickle(type(gmpy2.mpq(0)), mpq_reducer)\n"
+            "copy_reg.pickle(type(gmpy2.mpf(0)), mpf_reducer)\n"
         ;
         PyObject* namespace = PyDict_New();
         PyObject* result = NULL;
         if (options.debug)
             fprintf(stderr, "gmpy_module imported copy_reg OK\n");
         PyDict_SetItemString(namespace, "copy_reg", copy_reg_module);
-        PyDict_SetItemString(namespace, "gmpy", gmpy_module);
+        PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
         PyDict_SetItemString(namespace, "type", (PyObject*)&PyType_Type);
         result = PyRun_String(enable_pickle, Py_file_input,
                               namespace, namespace);

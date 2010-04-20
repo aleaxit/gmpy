@@ -1,12 +1,12 @@
 r'''
->>> gmpy.version()
-'1.20'
+>>> gmpy2.version()
+'2.0.0a0'
 >>>
 '''
 
 import sys
 import doctest
-import gmpy
+import gmpy2
 
 def writeln(s):
     sys.stdout.write(s+'\n')
@@ -29,15 +29,15 @@ import gmpy_test_dec
 test_modules = (gmpy_test_cvr, gmpy_test_rnd, gmpy_test_mpf,
     gmpy_test_mpq, gmpy_test_mpz, gmpy_test_dec)
 
-_g = gmpy
-writeln("Unit tests for gmpy 1.20")
+_g = gmpy2
+writeln("Unit tests for gmpy2")
 writeln("    on Python %s" % sys.version)
 if _g.gmp_version():
-    writeln("Testing gmpy %s (GMP %s), default caching (%s, %s)" % (
+    writeln("Testing gmpy2 %s (GMP %s), default caching (%s, %s)" % (
             (_g.version(), _g.gmp_version(), _g.get_cache()[0],
             _g.get_cache()[1])))
 else:
-    writeln("Testing gmpy %s (MPIR %s), default caching (%s, %s)" % (
+    writeln("Testing gmpy2 %s (MPIR %s), default caching (%s, %s)" % (
             (_g.version(), _g.mpir_version(), _g.get_cache()[0],
             _g.get_cache()[1])))
 
