@@ -22,7 +22,7 @@
     <ClInclude Include="..\src\gmpy.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\gmpy.c" />
+    <ClCompile Include="..\src\gmpy2.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{CA80B30F-7C98-4A7C-A412-9E0012C5E27E}</ProjectGuid>
