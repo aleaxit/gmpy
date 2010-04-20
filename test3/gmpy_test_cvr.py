@@ -13,7 +13,6 @@ True
 
 import gmpy2 as _g, doctest, sys
 __test__={}
-r = _g.rand
 
 __test__['misc_stuff']=\
 r'''
