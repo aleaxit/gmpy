@@ -1,8 +1,5 @@
 # partial unit test for gmpy/decimal interoperability
-# note: broken in Python 2.4.0 due to a 2.4.0 bug, please update to 2.4.1
-#       or better to allow decimal/most-anything-else interoperability!-)
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.20
 r'''
 >>> dir(f)
 ['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
@@ -11,7 +8,7 @@ r'''
 try: import decimal as _d
 except ImportError: _d = None
 
-import gmpy as _g, doctest, sys
+import gmpy2 as _g, doctest, sys
 __test__={}
 f=_g.mpf('123.456')
 q=_g.mpq('789123/1000')
@@ -79,22 +76,16 @@ True
 '''
 
 def _test(chat=None):
-    python_version = sys.version_info[:3]
-    if python_version == (2, 4, 0):
-        print("You're using Python 2.4.0, which does not allow interoperability")
-        print("  between decimal and other types (due to a bug fixed in 2.4.1)")
-        print("  No point in testing, therefore -- please upgrade your Python!")
-        return 0, 0
     if chat:
-        print("Unit tests for gmpy 1.20 (decimal interoperation)")
+        print("Unit tests for gmpy2 (decimal interoperation)")
         print("    running on Python", sys.version)
         print()
         if _g.gmp_version():
-            print("Testing gmpy %s (GMP %s), default caching (%s, %s)" % (
+            print("Testing gmpy2 %s (GMP %s), default caching (%s, %s)" % (
                 (_g.version(), _g.gmp_version(), _g.get_cache()[0],
                 _g.get_cache()[1])))
         else:
-            print("Testing gmpy %s (MPIR %s), default caching (%s, %s)" % (
+            print("Testing gmpy2 %s (MPIR %s), default caching (%s, %s)" % (
                 (_g.version(), _g.mpir_version(), _g.get_cache()[0],
                 _g.get_cache()[1])))
     if not _d:

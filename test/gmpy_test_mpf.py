@@ -1,6 +1,5 @@
-# partial unit test for gmpy 1.20 mpf functionality
+# partial unit test for gmpy2 mpf functionality
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.20
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(a))
 ['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
@@ -8,7 +7,7 @@ r'''
 '''
 import sys
 
-import gmpy as _g, doctest, sys
+import gmpy2 as _g, doctest, sys
 __test__={}
 a=_g.mpf('123.456')
 b=_g.mpf('789.123')
@@ -394,15 +393,15 @@ r'''
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.20 (mpf functionality)"
+        print "Unit tests for gmpy2 (mpf functionality)"
         print "    running on Python %s" % sys.version
         print
         if _g.gmp_version():
-            print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
+            print "Testing gmpy2 %s (GMP %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.gmp_version(), _g.get_cache()[0],
                 _g.get_cache()[1]))
         else:
-            print "Testing gmpy %s (MPIR %s) with default caching (%s, %s)" % (
+            print "Testing gmpy2 %s (MPIR %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.mpir_version(), _g.get_cache()[0],
                 _g.get_cache()[1]))
 

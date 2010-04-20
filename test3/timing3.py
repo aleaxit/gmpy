@@ -1,4 +1,4 @@
-import gmpy as _g
+import gmpy2 as _g
 import time
 
 print("Typical expected results would be:","""

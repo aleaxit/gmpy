@@ -1,18 +1,17 @@
-# partial unit test for gmpy 1.20 extra cover
+# partial unit test for gmpy2 extra cover
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.20
 r'''
->>> _g.gmp_version()[:3] in ('5.0', '4.3', '4.2', '')
+>>> _g.gmp_version()[:3] in ('5.0', '')
 True
->>> _g.mpir_version()[:3] in ('0.9', '1.0', '1.1', '1.2', '1.3', '2.0', '')
+>>> _g.mpir_version()[:3] in ('2.0', '')
 True
 >>> _g.version()
-'1.20'
->>> int('gmpy.c' in _g._cvsid())
+'2.0.0a0'
+>>> int('gmpy2.c' in _g._cvsid())
 1
 '''
 
-import gmpy as _g, doctest, sys
+import gmpy2 as _g, doctest, sys
 __test__={}
 r = _g.rand
 
@@ -516,15 +515,15 @@ True
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy 1.20 (extra cover)")
+        print("Unit tests for gmpy2 (extra cover)")
         print("    running on Python", sys.version)
         print()
         if _g.gmp_version():
-            print("Testing gmpy %s (GMP %s), default caching (%s, %s)" % (
+            print("Testing gmpy2 %s (GMP %s), default caching (%s, %s)" % (
                 (_g.version(), _g.gmp_version(), _g.get_cache()[0],
                 _g.get_cache()[1])))
         else:
-            print("Testing gmpy %s (MPIR %s), default caching (%s, %s)" % (
+            print("Testing gmpy2 %s (MPIR %s), default caching (%s, %s)" % (
                 (_g.version(), _g.mpir_version(), _g.get_cache()[0],
                 _g.get_cache()[1])))
 

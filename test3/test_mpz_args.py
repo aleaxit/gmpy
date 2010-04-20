@@ -3,7 +3,7 @@
 # arguments.
 
 import sys
-import gmpy
+import gmpy2 as gmpy
 
 if sys.version.startswith('3'):
     intTypes = (int,)

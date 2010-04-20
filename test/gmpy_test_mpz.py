@@ -1,6 +1,5 @@
-# partial unit test for gmpy 1.20 mpz functionality
+# partial unit test for gmpy2 mpz functionality
 # relies on Tim Peters' "doctest.py" test-driver
-# test-version 1.20
 r'''
 >>> filter(lambda x: not x.startswith('_'), dir(_g))
 ['binary', 'bincoef', 'bit_length', 'cdivmod', 'ceil', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fdivmod', 'fib', 'fib2', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'lucas', 'lucas2', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'rand', 'reldiff', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'set_cache', 'set_debug', 'set_fcoform', 'set_minprec', 'set_tagoff', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod', 'trunc', 'version']
@@ -8,7 +7,7 @@ r'''
 ['_copy', 'binary', 'bincoef', 'bit_length', 'cdivmod', 'comb', 'digits', 'divexact', 'fdivmod', 'getbit', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod']
 >>>
 '''
-import gmpy as _g, doctest, sys, operator, gc
+import gmpy2 as _g, doctest, sys, operator, gc
 __test__={}
 a=_g.mpz(123)
 b=_g.mpz(456)
@@ -892,15 +891,15 @@ def _test(chat=None):
             del(__test__["special"])
 
     if chat:
-        print "Unit tests for gmpy 1.20 (mpz functionality)"
+        print "Unit tests for gmpy2 (mpz functionality)"
         print "    running on Python %s" % sys.version
         print
         if _g.gmp_version():
-            print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
+            print "Testing gmpy2 %s (GMP %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.gmp_version(), _g.get_cache()[0],
                 _g.get_cache()[1]))
         else:
-            print "Testing gmpy %s (MPIR %s) with default caching (%s, %s)" % (
+            print "Testing gmpy2 %s (MPIR %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.mpir_version(), _g.get_cache()[0],
                 _g.get_cache()[1]))
 
