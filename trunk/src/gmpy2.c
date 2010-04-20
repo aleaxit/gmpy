@@ -4111,193 +4111,6 @@ Pympf_sign(PyObject *self, PyObject *args)
     return PyIntOrLong_FromLong(sign);
 }
 
-/* random-number issues -- TODO: repackage as separate functions */
-static char doc_rand[]="\
-rand(opt[,arg]): expose various GMP random-number operations,\n\
-    depending on value of parameter 'opt' (a string) -- arg is\n\
-    normally an int or mpz (or else gets coerced to mpz), but\n\
-    must be a Python mutable sequence when opt is 'shuf':\n\
-'init': initialize random-state to support arg bits of 'good\n\
-    randomness', for arg between 1 and 128 (default 32).\n\
-    May be called again to change this 'random-quality'.\n\
-'qual': returns the number-of-bits-of-good-randomness (0 if\n\
-    the random-generator not yet initialized), arg ignored.\n\
-'seed': set/reset random-state's seed to arg.\n\
-'save': get random-state seed (for saving) - arg is ignored.\n\
-'next': get random mpz, 0 (included) to arg (excluded)\n\
-    (default range is 0..2**31).\n\
-'floa': get random mpf, range 0<=x<1, with arg meaningful bits\n\
-    (default, if arg missing or 0, is current 'random quality').\n\
-'shuf': random shuffle of Python list (or other mutable\n\
-    sequence) 'arg'; shuffle is in-place, None returned.\n\
-";
-static gmp_randstate_t randstate;
-static int randinited=0;
-static int randquality=0;
-#if ((__GNU_MP_VERSION==5) || ((__GNU_MP_VERSION==4) && (__GNU_MP_VERSION_MINOR>=2)))
-#  define do_randinit(state, size) gmp_randinit_lc_2exp_size(state, size)
-#  define SEEDOF(x)  ( *(mpz_t*)((x)->_mp_seed->_mp_d) )
-#else
-#  define do_randinit(state, size) gmp_randinit(state, GMP_RAND_ALG_LC, size)
-#  if (__GNU_MP_VERSION>=4)
-#    define SEEDOF(x) ((x)->_mp_seed)
-#  else
-#    define SEEDOF(x) ((x)->seed)
-#  endif
-#endif
-
-static int randbits(PyObject* arg)
-{
-    int req = arg?mpz_get_si(Pympz_AS_MPZ(arg)):0;
-    return req?req:randquality;
-}
-static int randinit(int size)
-{
-    if(size==-1) size = 32;
-    if(size<=0 || size>128) {
-        PyErr_SetString(PyExc_ValueError, "size must be in 1..128");
-        return 0;
-    }
-    if(randinited)
-        gmp_randclear(randstate);
-    do_randinit(randstate, size);
-    randquality = size;
-    randinited = 1;
-    return 1;
-}
-static PyObject *random_shuffle(PyObject* seq)
-{
-    int i, j;
-    int len = PySequence_Length(seq);
-    PyObject* result;
-    mpz_t temp1, temp2;
-    mpz_inoc(temp1);
-    mpz_inoc(temp2);
-    mpz_set_si(temp1,len);
-
-    result = Py_BuildValue("");
-    for(i=0; i<(len-1); ++i) {
-        mpz_urandomm(temp2, randstate, temp1);
-        j = mpz_get_si(temp2);
-        if(j!=0) {
-            int rc;
-            PyObject* temp = PySequence_GetItem(seq, i);
-            rc = PySequence_SetItem(seq, i, PySequence_GetItem(seq, i+j));
-            if(!rc) {
-                rc = PySequence_SetItem(seq, i+j, temp);
-            }
-            if(rc) {
-                Py_DECREF(result);
-                result = 0;
-                break;
-            }
-        }
-        mpz_sub_ui(temp1, temp1, 1);
-    }
-
-    mpz_cloc(temp1);
-    mpz_cloc(temp2);
-    return result;
-}
-static PyObject *
-Pygmpy_rand(PyObject *self, PyObject *args)
-{
-    char* opt;
-    int iseq=0;
-    PyObject* arg=0;
-    PyObject* result=0;
-
-    if(!PyArg_ParseTuple(args, "s|O&", &opt, Pympz_convert_arg, &arg)) {
-        int retry = PyArg_ParseTuple(args, "sO", &opt, &arg);
-        if(retry && 0==strncmp(opt,"shuf",4) && PySequence_Check(arg)) {
-            PyErr_Clear();
-            iseq=1;
-            Py_INCREF(arg);
-        } else {
-            return 0;
-        }
-    }
-    assert(!arg || iseq || Pympz_Check(arg));
-
-    if(0==strncmp(opt,"init",4)) {
-        int ok = randinit(arg?mpz_get_si(Pympz_AS_MPZ(arg)):-1);
-        if(ok)
-            result = Py_BuildValue("");
-    } else if(0==strncmp(opt,"qual",4)) {
-        result = Py_BuildValue("i", randquality);
-    } else if(0==strncmp(opt,"seed",4)) {
-        int ok=1;
-        if(!randinited) {
-            ok = randinit(-1);
-        }
-        if(ok) {
-            if(arg) gmp_randseed(randstate, Pympz_AS_MPZ(arg));
-            else gmp_randseed_ui(randstate, rand());
-            result = Py_BuildValue("");
-        }
-    } else if(0==strncmp(opt,"save",4)) {
-        if(!randinited) {
-            PyErr_SetString(PyExc_RuntimeError, "can't save before init");
-        } else {
-            PympzObject *resob = Pympz_new();
-            if(resob) {
-                mpz_set(resob->z, SEEDOF(randstate));
-                result = (PyObject*)resob;
-            }
-        }
-    } else if(0==strncmp(opt,"next",4)) {
-        int ok=1;
-        if(!randinited) {
-            ok = randinit(-1);
-        }
-        if(ok) {
-            PympzObject *resob = Pympz_new();
-            if(resob) {
-                if(arg) mpz_urandomm(resob->z, randstate, Pympz_AS_MPZ(arg));
-                else mpz_urandomb(resob->z, randstate, 31);
-                result = (PyObject*)resob;
-            }
-        }
-    } else if(0==strncmp(opt,"floa",4)) {
-        int ok=1;
-        if(!randinited) {
-            ok = randinit(-1);
-        }
-        if(ok) {
-            int bits = randbits(arg);
-            PympfObject *resob = Pympf_new(bits);
-            if(bits>0 && resob) {
-                mpf_urandomb(resob->f, randstate, bits);
-                Pympf_normalize(resob);
-                result = (PyObject*)resob;
-            } else if(bits<=0) {
-                if(resob)
-                    mpf_clear(resob->f);
-                PyErr_SetString(PyExc_ValueError,
-                    "'floa' needs arg>=0");
-            }
-        }
-    } else if(0==strncmp(opt,"shuf",4)) {
-        if(!iseq) {
-            PyErr_SetString(PyExc_TypeError, "'shuf' needs mutable sequence");
-        } else {
-            int ok=1;
-            if(!randinited) {
-                ok = randinit(-1);
-            }
-            if(ok) {
-                result = random_shuffle(arg);
-            }
-        }
-    } else {
-        char buff[128];
-        sprintf(buff,"unknown option '%s'",opt);
-        PyErr_SetString(PyExc_ValueError, buff);
-    }
-    if(arg) { Py_DECREF(arg); }
-    return result;
-}
-
 /* method-tables */
 
 #ifdef PY3
@@ -4577,7 +4390,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "lucas", Pygmpy_lucas, METH_VARARGS, doc_lucas },
     { "lucas2", Pygmpy_lucas2, METH_VARARGS, doc_lucas2 },
     { "pi", Pygmpy_pi, METH_VARARGS, doc_pi },
-    { "rand", Pygmpy_rand, METH_VARARGS, doc_rand },
     { "sqrt", Pympz_sqrt, METH_VARARGS, doc_sqrtg },
     { "sqrtrem", Pympz_sqrtrem, METH_VARARGS, doc_sqrtremg },
     { "is_square", Pympz_is_square, METH_VARARGS, doc_is_squareg },
@@ -4966,8 +4778,7 @@ and  3.1+.\n\
 Allows creation of multiprecision integer (mpz), float (mpf),\n\
 and rational (mpq) numbers, conversion between them and to/from\n\
 Python numbers/strings, arithmetic, bitwise, and some other\n\
-higher-level mathematical operations; also, pretty good-quality\n\
-linear-congruential random number generation and shuffling.\n\
+higher-level mathematical operations.\n\
 \n\
 mpz has comparable functionality to Python's builtin longs, but\n\
 can be faster for some operations (particularly multiplication\n\

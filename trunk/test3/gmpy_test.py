@@ -12,14 +12,14 @@ if sys.argv[-1] == 'debug':
     gmpy.set_debug(1)
 
 import gmpy_test_cvr
-import gmpy_test_rnd
+#~ import gmpy_test_rnd
 import gmpy_test_mpf
 import gmpy_test_mpq
 import gmpy_test_mpz
 import gmpy_test_dec
 
 
-test_modules = (gmpy_test_cvr, gmpy_test_rnd, gmpy_test_mpf,
+test_modules = (gmpy_test_cvr, gmpy_test_mpf,
     gmpy_test_mpq, gmpy_test_mpz, gmpy_test_dec)
 
 _g = gmpy2
