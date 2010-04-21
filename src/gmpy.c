@@ -4944,7 +4944,7 @@ Pympz_hex(PympzObject *self)
 #endif
 
 /* hashing */
-#ifndef _PyHASH_MASK
+#ifndef _PyHASH_MODULUS
 static long
 dohash(PyObject* tempPynum)
 {
@@ -4958,9 +4958,9 @@ dohash(PyObject* tempPynum)
 static long
 Pympz_hash(PympzObject *self)
 {
-#ifdef _PyHASH_MASK
+#ifdef _PyHASH_MODULUS
     long hash = 0;
-    hash = (long)mpz_tdiv_ui((self->z), _PyHASH_MASK);
+    hash = (long)mpz_tdiv_ui((self->z), _PyHASH_MODULUS);
     if(mpz_sgn(self->z)<0)
         hash = -hash;
     if(hash==-1) hash = -2;
@@ -4972,7 +4972,7 @@ Pympz_hash(PympzObject *self)
 static long
 Pympf_hash(PympfObject *self)
 {
-#ifdef _PyHASH_MASK
+#ifdef _PyHASH_MODULUS
     unsigned long hash = 0;
     long exp = 0;
     size_t mbits = 0;
@@ -4982,10 +4982,10 @@ Pympf_hash(PympfObject *self)
 
     /* Calculate the hash of the mantissa. */
     if(self->f->_mp_size>0) {
-        hash = mpn_mod_1(self->f->_mp_d, self->f->_mp_size, _PyHASH_MASK);
+        hash = mpn_mod_1(self->f->_mp_d, self->f->_mp_size, _PyHASH_MODULUS);
         sign = 1;
     } else if(self->f->_mp_size<0) {
-        hash = mpn_mod_1(self->f->_mp_d, -(self->f->_mp_size), _PyHASH_MASK);
+        hash = mpn_mod_1(self->f->_mp_d, -(self->f->_mp_size), _PyHASH_MODULUS);
         sign = -1;
     } else {
         return 0;
@@ -5002,7 +5002,7 @@ Pympf_hash(PympfObject *self)
     /* Calculate the final hash. */
     exp -= (long)mbits;
     exp = exp >= 0 ? exp % _PyHASH_BITS : _PyHASH_BITS-1-((-1-exp) % _PyHASH_BITS);
-    hash = ((hash << exp) & _PyHASH_MASK) | hash >> (_PyHASH_BITS - exp);
+    hash = ((hash << exp) & _PyHASH_MODULUS) | hash >> (_PyHASH_BITS - exp);
 
     hash *= sign;
     if(hash==(unsigned long)-1)
@@ -5017,23 +5017,23 @@ Pympf_hash(PympfObject *self)
 static long
 Pympq_hash(PympqObject *self)
 {
-#ifdef _PyHASH_MASK
+#ifdef _PyHASH_MODULUS
     long hash = 0;
     mpz_t temp, mask;
     mpz_inoc(temp);
     mpz_inoc(mask);
-    mpz_set_si(mask, _PyHASH_MASK);
+    mpz_set_si(mask, _PyHASH_MODULUS);
 
     if(!mpz_invert(temp, mpq_denref(self->q), mask)) {
         mpz_cloc(temp);
         mpz_cloc(mask);
         return _PyHASH_INF;
     }
-    mpz_powm_ui(temp, mpq_denref(self->q), _PyHASH_MASK - 2, mask);
+    mpz_powm_ui(temp, mpq_denref(self->q), _PyHASH_MODULUS - 2, mask);
 
-    hash = (long)mpz_tdiv_ui(mpq_numref(self->q), _PyHASH_MASK);
+    hash = (long)mpz_tdiv_ui(mpq_numref(self->q), _PyHASH_MODULUS);
     mpz_mul_si(temp, temp, hash);
-    hash = (long)mpz_tdiv_ui(temp, _PyHASH_MASK);
+    hash = (long)mpz_tdiv_ui(temp, _PyHASH_MODULUS);
 
     if(mpz_sgn(mpq_numref(self->q))<0)
         hash = -hash;
