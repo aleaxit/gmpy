@@ -838,15 +838,17 @@ Pympz_hex(PympzObject *self)
 static long
 Pympz_hash(PympzObject *self)
 {
-#ifdef _PyHASH_MASK
+    if(self->hash_cache != -1)
+        return self->hash_cache;
+#ifdef _PyHASH_MODULUS
     long hash = 0;
-    hash = (long)mpz_tdiv_ui((self->z), _PyHASH_MASK);
+    hash = (long)mpz_tdiv_ui((self->z), _PyHASH_MODULUS);
     if(mpz_sgn(self->z)<0)
         hash = -hash;
     if(hash==-1) hash = -2;
-    return hash;
+    return (self->hash_cache =hash);
 #else
-    return mpz_pythonhash(Pympz_AS_MPZ(self));
+    return (self->hash_cache =mpz_pythonhash(Pympz_AS_MPZ(self)));
 #endif
 }
 

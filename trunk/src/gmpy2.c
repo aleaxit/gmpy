@@ -511,6 +511,7 @@ Pympz_new(void)
             return NULL;
         mpz_inoc(self->z);
     }
+    self->hash_cache = -1;
     return self;
 }
 
@@ -536,6 +537,7 @@ Pympq_new(void)
             return NULL;
         mpq_inoc(self->q);
     }
+    self->hash_cache = -1;
     return self;
 }
 
@@ -550,6 +552,7 @@ Pympf_new(unsigned long bits)
         bits = options.minprec;
     mpf_init2(self->f, bits);
     self->rebits = bits;
+    self->hash_cache = -1;
     return self;
 }
 
@@ -3798,7 +3801,7 @@ x must be an mpf, or else gets coerced to one.\n\
 MPF_UNIOP(mpf_trunc)
 
 /* hashing */
-#ifndef _PyHASH_MASK
+#ifndef _PyHASH_MODULUS
 static long
 dohash(PyObject* tempPynum)
 {
@@ -3812,7 +3815,7 @@ dohash(PyObject* tempPynum)
 static long
 Pympf_hash(PympfObject *self)
 {
-#ifdef _PyHASH_MASK
+#ifdef _PyHASH_MODULUS
     unsigned long hash = 0;
     long exp = 0;
     size_t mbits = 0;
@@ -3820,12 +3823,15 @@ Pympf_hash(PympfObject *self)
     mpz_t hack;
     int sign;
 
+    if(self->hash_cache != -1)
+        return self->hash_cache;
+
     /* Calculate the hash of the mantissa. */
     if(self->f->_mp_size>0) {
-        hash = mpn_mod_1(self->f->_mp_d, self->f->_mp_size, _PyHASH_MASK);
+        hash = mpn_mod_1(self->f->_mp_d, self->f->_mp_size, _PyHASH_MODULUS);
         sign = 1;
     } else if(self->f->_mp_size<0) {
-        hash = mpn_mod_1(self->f->_mp_d, -(self->f->_mp_size), _PyHASH_MASK);
+        hash = mpn_mod_1(self->f->_mp_d, -(self->f->_mp_size), _PyHASH_MODULUS);
         sign = -1;
     } else {
         return 0;
@@ -3842,47 +3848,56 @@ Pympf_hash(PympfObject *self)
     /* Calculate the final hash. */
     exp -= (long)mbits;
     exp = exp >= 0 ? exp % _PyHASH_BITS : _PyHASH_BITS-1-((-1-exp) % _PyHASH_BITS);
-    hash = ((hash << exp) & _PyHASH_MASK) | hash >> (_PyHASH_BITS - exp);
+    hash = ((hash << exp) & _PyHASH_MODULUS) | hash >> (_PyHASH_BITS - exp);
 
     hash *= sign;
     if(hash==(unsigned long)-1)
         hash = (unsigned long)-2;
-    return hash;
+    return (self->hash_cache = (long)hash);
 #else
     double temp;
+    if(self->hash_cache != -1)
+        return self->hash_cache;
     temp = mpf_get_d(self->f);
-    return _Py_HashDouble(temp);
+    return (self->hash_cache = Py_HashDouble(temp));
 #endif
 }
 static long
 Pympq_hash(PympqObject *self)
 {
-#ifdef _PyHASH_MASK
+#ifdef _PyHASH_MODULUS
     long hash = 0;
     mpz_t temp, mask;
     mpz_inoc(temp);
     mpz_inoc(mask);
-    mpz_set_si(mask, _PyHASH_MASK);
+    mpz_set_si(mask, _PyHASH_MODULUS);
+
+    if(self->hash_cache != -1)
+        return self->hash_cache;
 
     if(!mpz_invert(temp, mpq_denref(self->q), mask)) {
         mpz_cloc(temp);
         mpz_cloc(mask);
+        self->hash_cache = _PyHASH_INF;
         return _PyHASH_INF;
     }
-    mpz_powm_ui(temp, mpq_denref(self->q), _PyHASH_MASK - 2, mask);
+    mpz_powm_ui(temp, mpq_denref(self->q), _PyHASH_MODULUS - 2, mask);
 
-    hash = (long)mpz_tdiv_ui(mpq_numref(self->q), _PyHASH_MASK);
+    hash = (long)mpz_tdiv_ui(mpq_numref(self->q), _PyHASH_MODULUS);
     mpz_mul_si(temp, temp, hash);
-    hash = (long)mpz_tdiv_ui(temp, _PyHASH_MASK);
+    hash = (long)mpz_tdiv_ui(temp, _PyHASH_MODULUS);
 
     if(mpz_sgn(mpq_numref(self->q))<0)
         hash = -hash;
     if(hash==-1) hash = -2;
     mpz_cloc(temp);
     mpz_cloc(mask);
+    self->hash_cache = hash;
     return hash;
 #else
-    return dohash(Pympq2PyFloat(self));
+    if(self->hash_cache != -1)
+        return self->hash_cache;
+    return (self->hash_cache = dohash(Pympq2PyFloat(self)));
 #endif
 }
 
