@@ -368,7 +368,10 @@ Pympany_sub(PyObject *a, PyObject *b)
             } else if(paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
                 if(isinf(d) || isnan(d)) {
-                    r = PyFloat_FromDouble(-d);
+                    if(isinf(d))
+                        r = PyFloat_FromDouble(-d);
+                    else
+                        r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
                 }
@@ -541,7 +544,11 @@ Pympany_mul(PyObject *a, PyObject *b)
                     return r;
                 } else if(isinf(d)) {
                     if(mpf_sgn(pbf->f) == 0) {
-                        r = PyFloat_FromDouble(d * 0.0);
+                        /* Ugly hack to avoid creating -NaN. This issue appears with
+                         * gcc 4.4.3: Inf * 0 returns -NaN.
+                         */
+                        d = d * 0.0;
+                        r = PyFloat_FromDouble(-d);
                     } else if(mpf_sgn(pbf->f) < 0) {
                         r = PyFloat_FromDouble(-d);
                     } else {
@@ -558,7 +565,11 @@ Pympany_mul(PyObject *a, PyObject *b)
                     return r;
                 } else if(isinf(d)) {
                     if(mpf_sgn(paf->f) == 0) {
-                        r = PyFloat_FromDouble(d * 0.0);
+                        /* Ugly hack to avoid creating -NaN. This issue appears with
+                         * gcc 4.4.3: Inf * 0 returns -NaN.
+                         */
+                        d = d * 0.0;
+                        r = PyFloat_FromDouble(-d);
                     } else if(mpf_sgn(paf->f) < 0) {
                         r = PyFloat_FromDouble(-d);
                     } else {
@@ -1661,8 +1672,17 @@ Pympany_divmod(PyObject *a, PyObject *b)
                     } else {
                         /* if number != 0, return (nan,nan) */
                         Py_DECREF((PyObject*)pbf);
-                        paf = (PympfObject*)PyFloat_FromDouble(d * 0.0);
-                        pbf = (PympfObject*)PyFloat_FromDouble(d * 0.0);
+                        if(isinf(d)) {
+                            /* Ugly hack to avoid creating -NaN. This issue appears with
+                             * gcc 4.4.3: Inf * 0 returns -NaN.
+                             */
+                            d = d * 0.0;
+                            paf = (PympfObject*)PyFloat_FromDouble(-d);
+                            pbf = (PympfObject*)PyFloat_FromDouble(-d);
+                        } else {
+                            paf = (PympfObject*)PyFloat_FromDouble(d);
+                            pbf = (PympfObject*)PyFloat_FromDouble(d);
+                        }
                         return Py_BuildValue("(NN)", paf, pbf);
                     }
                 }
