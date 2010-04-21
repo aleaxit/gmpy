@@ -114,22 +114,24 @@ typedef struct {
 typedef struct {
     mpob ob;
     mpz_t z;
+    long hash_cache;
 } PympzObject;
 typedef struct {
     mpob ob;
     mpq_t q;
+    long hash_cache;
 } PympqObject;
 typedef struct {
     mpob ob;
     mpf_t f;
     unsigned int rebits;
+    long hash_cache;
 } PympfObject;
 
 #define Pympz_AS_MPZ(obj) (((PympzObject *)(obj))->z)
 #define Pympq_AS_MPQ(obj) (((PympqObject *)(obj))->q)
 #define Pympf_AS_MPF(obj) (((PympfObject *)(obj))->f)
 
-/* This section is used when compiling gmpy.c */
 static PyTypeObject Pympz_Type;
 #define Pympz_Check(v) (((PyObject*)v)->ob_type == &Pympz_Type)
 static PyTypeObject Pympq_Type;
