@@ -4193,9 +4193,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pympany_truediv,        /* nb_true_divide          */
     (binaryfunc) Pympz_inplace_floordiv, /* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */
-#if Py_TPFLAGS_HAVE_INDEX
     (unaryfunc) Pympz_To_Integer,        /* nb_index                */
-#endif
 };
 #endif
 

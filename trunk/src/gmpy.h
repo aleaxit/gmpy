@@ -41,10 +41,6 @@ extern "C" {
 #  include "gmp.h"
 #endif
 
-#ifndef Py_TPFLAGS_HAVE_INDEX
-#  define Py_TPFLAGS_HAVE_INDEX 0
-#endif
-
 #ifdef __GNUC__
 #define USE_ALLOCA 1
 #endif
