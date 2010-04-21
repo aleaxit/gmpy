@@ -287,7 +287,10 @@ Pympany_sub(PyObject *a, PyObject *b)
             } else if(paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
                 if(isinf(d) || isnan(d)) {
-                    r = PyFloat_FromDouble(-d);
+                    if(isinf(d))
+                        r = PyFloat_FromDouble(-d);
+                    else
+                        r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
                 }
