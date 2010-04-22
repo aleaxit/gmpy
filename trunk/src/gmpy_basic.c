@@ -130,14 +130,14 @@ Pympany_add(PyObject *a, PyObject *b)
             /* Need to handle special float values. */
             if(pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(isinf(d) || isnan(d)) {
+                if(Py_IS_INFINITY(d) || Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)pbf);
                     return r;
                 }
             } else if(paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(isinf(d) || isnan(d)) {
+                if(Py_IS_INFINITY(d) || Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
@@ -160,10 +160,7 @@ Pympany_add(PyObject *a, PyObject *b)
         mpf_normalize(rf->f);
         return (PyObject *) rf;
     }
-
-    r = Py_NotImplemented;
-    Py_INCREF(r);
-    return r;
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Generic Subtraction
@@ -279,15 +276,15 @@ Pympany_sub(PyObject *a, PyObject *b)
             /* Need to handle special float values. */
             if(pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(isinf(d) || isnan(d)) {
+                if(Py_IS_INFINITY(d) || Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)pbf);
                     return r;
                 }
             } else if(paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(isinf(d) || isnan(d)) {
-                    if(isinf(d))
+                if(Py_IS_INFINITY(d) || Py_IS_NAN(d)) {
+                    if(Py_IS_INFINITY(d))
                         r = PyFloat_FromDouble(-d);
                     else
                         r = PyFloat_FromDouble(d);
@@ -312,10 +309,7 @@ Pympany_sub(PyObject *a, PyObject *b)
         mpf_normalize(rf->f);
         return (PyObject *) rf;
     }
-
-    r = Py_NotImplemented;
-    Py_INCREF(r);
-    return r;
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Generic Multiplication
@@ -427,13 +421,13 @@ Pympany_mul(PyObject *a, PyObject *b)
             /* Need to handle special float values. */
             if(pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(isnan(d)) {
+                if(Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)pbf);
                     return r;
-                } else if(isinf(d)) {
+                } else if(Py_IS_INFINITY(d)) {
                     if(mpf_sgn(pbf->f) == 0) {
-                        r = PyFloat_FromDouble(d * 0.0);
+                        r = PyFloat_FromDouble(Py_NAN);
                     } else if(mpf_sgn(pbf->f) < 0) {
                         r = PyFloat_FromDouble(-d);
                     } else {
@@ -444,13 +438,13 @@ Pympany_mul(PyObject *a, PyObject *b)
                 }
             } else if(paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(isnan(d)) {
+                if(Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
-                } else if(isinf(d)) {
+                } else if(Py_IS_INFINITY(d)) {
                     if(mpf_sgn(paf->f) == 0) {
-                        r = PyFloat_FromDouble(d * 0.0);
+                        r = PyFloat_FromDouble(Py_NAN);
                     } else if(mpf_sgn(paf->f) < 0) {
                         r = PyFloat_FromDouble(-d);
                     } else {
@@ -477,10 +471,7 @@ Pympany_mul(PyObject *a, PyObject *b)
         mpf_normalize(rf->f);
         return (PyObject *) rf;
     }
-
-    r = Py_NotImplemented;
-    Py_INCREF(r);
-    return r;
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Pympany_floordiv follows the // semantics from Python 3.x. The result is
@@ -622,7 +613,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
             /* Need to handle special float values. */
             if(pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(isnan(d)) {
+                if(Py_IS_NAN(d)) {
                     if(mpf_sgn(pbf->f) == 0) {
                         PyErr_SetString(PyExc_ZeroDivisionError,
                             "mpf division by zero");
@@ -632,7 +623,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
                     }
                     Py_DECREF((PyObject*)pbf);
                     return r;
-                } else if(isinf(d)) {
+                } else if(Py_IS_INFINITY(d)) {
                     if(mpf_sgn(pbf->f) == 0) {
                         PyErr_SetString(PyExc_ZeroDivisionError,
                             "mpf division by zero");
@@ -647,11 +638,11 @@ Pympany_floordiv(PyObject *a, PyObject *b)
                 }
             } else if(paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(isnan(d)) {
+                if(Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
-                } else if(isinf(d)) {
+                } else if(Py_IS_INFINITY(d)) {
                     mpf_set_d(paf->f, 0.0);
                     return (PyObject*)paf;
                 }
@@ -680,10 +671,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         mpf_normalize(rf->f);
         return (PyObject *) rf;
     }
-
-    r = Py_NotImplemented;
-    Py_INCREF(r);
-    return r;
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Pympany_truediv follows the / semantics from Python 3.x. The result types
@@ -785,7 +773,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
             /* Need to handle special float values. */
             if(pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(isnan(d)) {
+                if(Py_IS_NAN(d)) {
                     if(mpf_sgn(pbf->f) == 0) {
                         PyErr_SetString(PyExc_ZeroDivisionError,
                             "mpf division by zero");
@@ -795,7 +783,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
                     }
                     Py_DECREF((PyObject*)pbf);
                     return r;
-                } else if(isinf(d)) {
+                } else if(Py_IS_INFINITY(d)) {
                     if(mpf_sgn(pbf->f) == 0) {
                         PyErr_SetString(PyExc_ZeroDivisionError,
                             "mpf division by zero");
@@ -810,11 +798,11 @@ Pympany_truediv(PyObject *a, PyObject *b)
                 }
             } else if(paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(isnan(d)) {
+                if(Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
-                } else if(isinf(d)) {
+                } else if(Py_IS_INFINITY(d)) {
                     mpf_set_d(paf->f, 0.0);
                     return (PyObject*)paf;
                 }
@@ -841,10 +829,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
         mpf_normalize(rf->f);
         return (PyObject *) rf;
     }
-
-    r = Py_NotImplemented;
-    Py_INCREF(r);
-    return r;
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 #ifdef PY2
@@ -993,7 +978,7 @@ Pympany_div2(PyObject *a, PyObject *b)
             /* Need to handle special float values. */
             if(pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(isnan(d)) {
+                if(Py_IS_NAN(d)) {
                     if(mpf_sgn(pbf->f) == 0) {
                         PyErr_SetString(PyExc_ZeroDivisionError,
                             "mpf division by zero");
@@ -1003,7 +988,7 @@ Pympany_div2(PyObject *a, PyObject *b)
                     }
                     Py_DECREF((PyObject*)pbf);
                     return r;
-                } else if(isinf(d)) {
+                } else if(Py_IS_INFINITY(d)) {
                     if(mpf_sgn(pbf->f) == 0) {
                         PyErr_SetString(PyExc_ZeroDivisionError,
                             "mpf division by zero");
@@ -1018,11 +1003,11 @@ Pympany_div2(PyObject *a, PyObject *b)
                 }
             } else if(paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(isnan(d)) {
+                if(Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
-                } else if(isinf(d)) {
+                } else if(Py_IS_INFINITY(d)) {
                     mpf_set_d(paf->f, 0.0);
                     return (PyObject*)paf;
                 }
@@ -1049,10 +1034,7 @@ Pympany_div2(PyObject *a, PyObject *b)
         mpf_normalize(rf->f);
         return (PyObject *) rf;
     }
-
-    r = Py_NotImplemented;
-    Py_INCREF(r);
-    return r;
+    Py_RETURN_NOTIMPLEMENTED;
 }
 #endif
 
@@ -1201,7 +1183,7 @@ Pympany_rem(PyObject *a, PyObject *b)
             /* Need to handle special float values. */
             if(pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(isnan(d)) {
+                if(Py_IS_NAN(d)) {
                     if(mpf_sgn(pbf->f) == 0) {
                         PyErr_SetString(PyExc_ZeroDivisionError,
                             "mpf division by zero");
@@ -1211,7 +1193,7 @@ Pympany_rem(PyObject *a, PyObject *b)
                     }
                     Py_DECREF((PyObject*)pbf);
                     return r;
-                } else if(isinf(d)) {
+                } else if(Py_IS_INFINITY(d)) {
                     if(mpf_sgn(pbf->f) == 0) {
                         PyErr_SetString(PyExc_ZeroDivisionError,
                             "mpf division by zero");
@@ -1226,11 +1208,11 @@ Pympany_rem(PyObject *a, PyObject *b)
                 }
             } else if(paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(isnan(d)) {
+                if(Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
-                } else if(isinf(d)) {
+                } else if(Py_IS_INFINITY(d)) {
                     mpf_set_d(paf->f, 0.0);
                     return (PyObject*)paf;
                 }
@@ -1267,10 +1249,7 @@ Pympany_rem(PyObject *a, PyObject *b)
         mpf_normalize(rf->f);
         return (PyObject *) rf;
     }
-
-    r = Py_NotImplemented;
-    Py_INCREF(r);
-    return r;
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Pympany_divmod follows the semantics from Python 3.x. The result types
@@ -1436,7 +1415,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
             /* Need to handle special float values. */
             if(pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(isinf(d) || isnan(d)) {
+                if(Py_IS_INFINITY(d) || Py_IS_NAN(d)) {
                     /* divmod(inf|nan, number) */
                     if(mpf_sgn(pbf->f) == 0) {
                         /* if number == 0, raise ZeroDivisionError */
@@ -1448,20 +1427,20 @@ Pympany_divmod(PyObject *a, PyObject *b)
                     } else {
                         /* if number != 0, return (nan,nan) */
                         Py_DECREF((PyObject*)pbf);
-                        paf = (PympfObject*)PyFloat_FromDouble(d * 0.0);
-                        pbf = (PympfObject*)PyFloat_FromDouble(d * 0.0);
+                        paf = (PympfObject*)PyFloat_FromDouble(Py_NAN);
+                        pbf = (PympfObject*)PyFloat_FromDouble(Py_NAN);
                         return Py_BuildValue("(NN)", paf, pbf);
                     }
                 }
             } else if(paf && !pbf && PyFloat_Check(b)) {
                 /* divmod(number, inf|nan) */
                 double d = PyFloat_AS_DOUBLE(b);
-                if(isnan(d)) {
+                if(Py_IS_NAN(d)) {
                     Py_DECREF((PyObject*)paf);
                     paf = (PympfObject*)PyFloat_FromDouble(d);
                     pbf = (PympfObject*)PyFloat_FromDouble(d);
                     return Py_BuildValue("(NN)", paf, pbf);
-                } else if(isinf(d)) {
+                } else if(Py_IS_INFINITY(d)) {
                     if(mpf_sgn(paf->f) == 0) {
                         /* if number == 0, return (0.0, 0.0) */
                         pbf = Pympf_new(paf->rebits);
@@ -1536,8 +1515,5 @@ Pympany_divmod(PyObject *a, PyObject *b)
         mpf_normalize(rf->f);
         return Py_BuildValue("(NN)", qf, rf);
     }
-
-    r = Py_NotImplemented;
-    Py_INCREF(r);
-    return r;
+    Py_RETURN_NOTIMPLEMENTED;
 }

@@ -745,17 +745,16 @@ PyFloat2Pympz(PyObject *f)
     if((newob = Pympz_new()))
     {
         double d = PyFloat_AsDouble(f);
-        if (isnan(d)) {
+        if (Py_IS_NAN(d)) {
             PyErr_SetString(PyExc_ValueError,
                 "gmpy does not handle nan");
             return NULL;
         }
-        if (isinf(d)) {
+        if (Py_IS_INFINITY(d)) {
             PyErr_SetString(PyExc_ValueError,
                 "gmpy does not handle infinity");
             return NULL;
         }
-        if(fabs(d) < 1.0) d = 0.0;
         mpz_set_d(newob->z, d);
     }
     return newob;
@@ -775,12 +774,12 @@ PyFloat2Pympq(PyObject *f)
     assert(PyFloat_Check(f));
     {
         double d = PyFloat_AsDouble(f);
-        if (isnan(d)) {
+        if (Py_IS_NAN(d)) {
             PyErr_SetString(PyExc_ValueError,
                 "gmpy does not handle nan");
             return NULL;
         }
-        if (isinf(d)) {
+        if (Py_IS_INFINITY(d)) {
             PyErr_SetString(PyExc_ValueError,
                 "gmpy does not handle infinity");
             return NULL;
@@ -830,12 +829,12 @@ PyFloat2Pympf(PyObject *f, unsigned int bits)
     } else { /* direct float->mpf conversion, faster but rougher */
         if((newob = Pympf_new(bits))) {
             double d = PyFloat_AsDouble(f);
-            if (isnan(d)) {
+            if (Py_IS_NAN(d)) {
                 PyErr_SetString(PyExc_ValueError,
                     "gmpy does not handle nan");
                 return NULL;
             }
-            if (isinf(d)) {
+            if (Py_IS_INFINITY(d)) {
                 PyErr_SetString(PyExc_ValueError,
                     "gmpy does not handle infinity");
                 return NULL;
@@ -3278,11 +3277,9 @@ Py##NAME(PyObject *a, PyObject *b) \
     pa = anynum2Pympf(a, bits); \
     pb = anynum2Pympf(b, bits); \
     if(!pa || !pb) { \
-      PyObject *r = Py_NotImplemented; \
       Py_XDECREF((PyObject*)pa); \
       Py_XDECREF((PyObject*)pb); \
-      Py_INCREF(r); \
-      return r; \
+      Py_RETURN_NOTIMPLEMENTED; \
     } \
     if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p", pa, pb); \
     if (!(r = Pympf_new(bits))) { \
@@ -3309,11 +3306,9 @@ Py##NAME(PyObject *a, PyObject *b) \
   pa = anyrational2Pympq(a); \
   pb = anyrational2Pympq(b); \
   if(!pa || !pb) { \
-    PyObject *r = Py_NotImplemented; \
     Py_XDECREF((PyObject*)pa); \
     Py_XDECREF((PyObject*)pb); \
-    Py_INCREF((PyObject*)r); \
-    return r; \
+    Py_RETURN_NOTIMPLEMENTED; \
   } \
   if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p", pa, pb); \
   if (!(r = Pympq_new())) { \
@@ -3400,12 +3395,9 @@ Pympq_pow(PyObject *in_b, PyObject *in_e, PyObject *m)
     assert(Pympq_Check(e));
 
     if(!b || !e) {
-        PyObject *r;
         Py_XDECREF((PyObject*)b);
         Py_XDECREF((PyObject*)e);
-        r = Py_NotImplemented;
-        Py_INCREF(r);
-        return r;
+        Py_RETURN_NOTIMPLEMENTED;
     }
 
     if(options.debug)
@@ -3530,11 +3522,9 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
     }
 
     if(!e || !b) {
-        PyObject *r = Py_NotImplemented;
-        Py_INCREF(r);
         Py_XDECREF((PyObject*)e);
         Py_XDECREF((PyObject*)b);
-        return r;
+        Py_RETURN_NOTIMPLEMENTED;
     }
 
     bits = b->rebits;
@@ -3575,7 +3565,6 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
 static PyObject *
 Pympany_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
 {
-    PyObject *r;
     PyObject *temp_b = 0, *temp_e = 0, *temp_r = 0, *res = 0;
 
     if(isInteger(in_b) && isInteger(in_e)) {
@@ -3597,9 +3586,7 @@ Pympany_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
                 Py_INCREF(temp_b);
             }
             if(!temp_b) {
-                r = Py_NotImplemented;
-                Py_INCREF(r);
-                return r;
+                Py_RETURN_NOTIMPLEMENTED;
             }
             if(Pympz_Check(in_e)) {
                 temp_e = Pympz2PyFloat((PympzObject*)in_e);
@@ -3612,10 +3599,8 @@ Pympany_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
                 Py_INCREF(temp_e);
             }
             if(!temp_e) {
-                r = Py_NotImplemented;
                 Py_DECREF((PyObject*)temp_b);
-                Py_INCREF(r);
-                return r;
+                Py_RETURN_NOTIMPLEMENTED;
             }
             temp_r = PyNumber_Power(temp_b, temp_e, Py_None);
             Py_DECREF((PyObject*)temp_b);
@@ -3632,9 +3617,7 @@ Pympany_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
     } else if(isNumber(in_b) && isNumber(in_e)) {
         return Pympf_pow(in_b, in_e, in_m);
     }
-    r = Py_NotImplemented;
-    Py_INCREF(r);
-    return r;
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* COMPARING */
@@ -3713,12 +3696,12 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         /* Handle non-numbers separately. */
         if(PyFloat_Check(b)) {
             double d = PyFloat_AS_DOUBLE(b);
-            if(isnan(d)) {
+            if(Py_IS_NAN(d)) {
                 result = (op == Py_NE) ? Py_True : Py_False;
                 Py_INCREF(result);
                 return result;
-            } else if (isinf(d)) {
-                if(d < 0) {
+            } else if (Py_IS_INFINITY(d)) {
+                if(d < 0.0) {
                     return _cmp_to_object(1, op);
                 } else {
                     return _cmp_to_object(-1, op);
@@ -3732,9 +3715,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         Py_DECREF(tempb);
         return _cmp_to_object(c, op);
     }
-    result = Py_NotImplemented;
-    Py_INCREF(result);
-    return result;
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 static int
@@ -4785,8 +4766,8 @@ static void _PyInitGMP(void)
 
 static char _gmpy_docs[] = "\
 gmpy2 2.0.0a0 - General Multiprecision arithmetic for Python:\n\
-exposes functionality from the GMP or MPIR library to Python 2.5+\n\
-and  3.1+.\n\
+exposes functionality from the GMP or MPIR library to Python 2.6\n\
+and later.\n\
 \n\
 Allows creation of multiprecision integer (mpz), float (mpf),\n\
 and rational (mpq) numbers, conversion between them and to/from\n\
