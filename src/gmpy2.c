@@ -3859,7 +3859,7 @@ Pympf_hash(PympfObject *self)
     if(self->hash_cache != -1)
         return self->hash_cache;
     temp = mpf_get_d(self->f);
-    return (self->hash_cache = Py_HashDouble(temp));
+    return (self->hash_cache = _Py_HashDouble(temp));
 #endif
 }
 static long
