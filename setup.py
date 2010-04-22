@@ -2,8 +2,8 @@ import sys, os
 from distutils.core import setup, Extension
 
 # Fail gracefully for old versions of Python.
-if sys.version < '2.5.0':
-    sys.stdout.write("GMPY2 requires Python 2.5 or later.\n")
+if sys.version < '2.6.0':
+    sys.stdout.write("GMPY2 requires Python 2.6 or later.\n")
     sys.stdout.write("Please use GMPY 1.x for earlier versions of Python.\n")
     sys.exit()
 

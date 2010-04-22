@@ -101,8 +101,8 @@ extern "C" {
 #define Py_REFCNT(ob)   (((PyObject*)(ob))->ob_refcnt)
 #endif
 
-#if PY_VERSION_HEX < 0x02050000
-#  error "GMPY2 requires Python 2.5 or later."
+#if PY_VERSION_HEX < 0x02060000
+#  error "GMPY2 requires Python 2.6 or later."
 #endif
 
 /* Header file for gmpy2 */
