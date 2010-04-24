@@ -172,9 +172,9 @@ r'''
 >>> _g.set_tagoff(0)
 1
 >>> a
-gmpy.mpq(41,152)
+gmpy2.mpq(41,152)
 >>> _g.mpq('12.34')
-gmpy.mpq(617,50)
+gmpy2.mpq(617,50)
 >>> _g.set_tagoff(1)
 0
 >>> for i in range(1,7):

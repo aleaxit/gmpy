@@ -127,10 +127,17 @@ typedef struct {
     unsigned int rebits;
     long hash_cache;
 } PympfObject;
+typedef struct {
+    mpob ob;
+    mpz_t z;
+    long hash_cache;
+    Py_ssize_t max_bits;
+} PyxmpzObject;
 
 #define Pympz_AS_MPZ(obj) (((PympzObject *)(obj))->z)
 #define Pympq_AS_MPQ(obj) (((PympqObject *)(obj))->q)
 #define Pympf_AS_MPF(obj) (((PympfObject *)(obj))->f)
+#define Pyxmpz_AS_MPZ(obj) (((PyxmpzObject *)(obj))->z)
 
 static PyTypeObject Pympz_Type;
 #define Pympz_Check(v) (((PyObject*)v)->ob_type == &Pympz_Type)
@@ -138,6 +145,8 @@ static PyTypeObject Pympq_Type;
 #define Pympq_Check(v) (((PyObject*)v)->ob_type == &Pympq_Type)
 static PyTypeObject Pympf_Type;
 #define Pympf_Check(v) (((PyObject*)v)->ob_type == &Pympf_Type)
+static PyTypeObject Pyxmpz_Type;
+#define Pyxmpz_Check(v) (((PyObject*)v)->ob_type == &Pyxmpz_Type)
 
 #ifdef __cplusplus
 }
