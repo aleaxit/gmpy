@@ -176,7 +176,7 @@ Pygmpy_set_tagoff(PyObject *self, PyObject *args)
     if(!PyArg_ParseTuple(args, "i", &options.tagoff))
         return NULL;
     if(options.tagoff)
-        options.tagoff=5;
+        options.tagoff = GMPY2_TAGOFF;
     return Py_BuildValue("i", old!=0);
 }
 

@@ -639,7 +639,7 @@ ValueError: base must be either 0 or in the interval 2 ... 36
 >>> _g.set_tagoff(0)
 1
 >>> a
-gmpy.mpz(123)
+gmpy2.mpz(123)
 >>> _g.set_tagoff(1)
 0
 >>> _g.mpz('43')

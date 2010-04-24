@@ -253,7 +253,7 @@ r'''
 >>> _g.set_tagoff(0)
 1
 >>> a
-gmpy.mpf('1.23456e2')
+gmpy2.mpf('1.23456e2')
 >>> _g.set_tagoff(1)
 0
 >>> a.digits(10,0)

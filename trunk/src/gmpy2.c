@@ -215,6 +215,9 @@
  *
  *   2.00:
  *   Rename to gmpy2 to allow backwards incompatible changes (casevh)
+ *   Remove old random number functions, to be replaced later (casevh)
+ *   Add caching of the calculated hash value (casevh)
+ *   Add xmpz (mutablue mpz) type (casevh)
  */
 #include "Python.h"
 
@@ -286,16 +289,6 @@
 #define PyIntOrLong_FromSize_t          PyInt_FromSize_t
 #endif
 
-#if (PY_VERSION_HEX < 0x02060000)
-#define PyBytes_Check                   PyString_Check
-#define PyBytes_Size                    PyString_Size
-#define PyBytes_AsString                PyString_AsString
-#define PyBytes_AS_STRING               PyString_AS_STRING
-#define PyBytes_FromString              PyString_FromString
-#define PyBytes_ConcatAndDel            PyString_ConcatAndDel
-#define PyBytes_FromStringAndSize       PyString_FromStringAndSize
-#endif
-
 char gmpy_version[] = "2.0.0a0";
 
 char _gmpy_cvs[] = "$Id$";
@@ -306,14 +299,16 @@ char _gmpy_cvs[] = "$Id$";
 
 static PyObject *gmpy_module = NULL;
 
+#define GMPY2_TAGOFF 6
+
 static struct gmpy_options {
     int debug;               /* != 0 if debug messages desired on stderr */
     unsigned long minprec;   /* min #of bits' precision on new mpf's built */
-    int tagoff;              /* 0 for full tags 'gmpy.mpz()', else 5 for 'mpz()' */
+    int tagoff;              /* 0 for full tags 'gmpy2.mpz()', else 6 for 'mpz()' */
     int cache_size;          /* size of cache, for all caches */
     int cache_obsize;        /* maximum size of the objects that are cached */
     PyObject* fcoform;       /* if non-NULL, format for float->mpf (via string) */
-} options = { 0, 0, 5, 100, 128, 0 };
+} options = { 0, 0, GMPY2_TAGOFF, 100, 128, 0 };
 
 /* Number of bits that are significant in a float */
 static unsigned int double_mantissa = 0;
@@ -467,6 +462,27 @@ set_pympzcache(void)
     pympzcache = PyMem_Realloc(pympzcache, sizeof(PympzObject)*options.cache_size);
 }
 
+/* Cache Pyxmpz objects directly */
+
+static PyxmpzObject **pyxmpzcache;
+static int in_pyxmpzcache;
+
+static void
+set_pyxmpzcache(void)
+{
+    int i;
+    if(options.debug)
+        fprintf(stderr, "Entering set_pyxmpzcache\n");
+    if(in_pyxmpzcache > options.cache_size) {
+        for(i = options.cache_size; i < in_pyxmpzcache; ++i) {
+            mpz_cloc(pyxmpzcache[i]->z);
+            PyObject_Del(pyxmpzcache[i]);
+        }
+        in_pyxmpzcache = options.cache_size;
+    }
+    pyxmpzcache = PyMem_Realloc(pyxmpzcache, sizeof(PyxmpzObject)*options.cache_size);
+}
+
 /* Cache Pympq objects directly */
 
 static PympqObject **pympqcache;
@@ -512,6 +528,33 @@ Pympz_new(void)
         mpz_inoc(self->z);
     }
     self->hash_cache = -1;
+    return self;
+}
+
+static PyxmpzObject *
+Pyxmpz_new(void)
+{
+    PyxmpzObject * self;
+
+    if(options.debug)
+        fprintf(stderr, "Entering Pyxmpz_new\n");
+
+    if(in_pyxmpzcache) {
+        if(options.debug)
+            fprintf(stderr, "Pyxmpz_new is reusing an old object\n");
+        self = (pyxmpzcache[--in_pyxmpzcache]);
+        /* Py_INCREF does not set the debugging pointers, so need to use
+         * _Py_NewReference instead. */
+        _Py_NewReference((PyObject*)self);
+    } else {
+        if(options.debug)
+            fprintf(stderr, "Pyxmpz_new is creating a new object\n");
+        if(!(self = PyObject_New(PyxmpzObject, &Pyxmpz_Type)))
+            return NULL;
+        mpz_inoc(self->z);
+    }
+    self->hash_cache = -1;
+    self->max_bits = 0;
     return self;
 }
 
@@ -568,6 +611,19 @@ Pympz_dealloc(PympzObject *self)
         PyObject_Del(self);
     }
 } /* Pympz_dealloc */
+
+static void
+Pyxmpz_dealloc(PyxmpzObject *self)
+{
+    if(options.debug)
+        fprintf(stderr, "Pyxmpz_dealloc: %p\n", self);
+    if(in_pyxmpzcache<options.cache_size && self->z->_mp_alloc<=options.cache_obsize) {
+        (pyxmpzcache[in_pyxmpzcache++]) = self;
+    } else {
+        mpz_cloc(self->z);
+        PyObject_Del(self);
+    }
+} /* Pyxmpz_dealloc */
 
 static void
 Pympq_dealloc(PympqObject *self)
@@ -690,6 +746,18 @@ PyInt2Pympz(PyObject *i)
 
     assert(PyInt_Check(i));
     if(!(newob = Pympz_new()))
+        return NULL;
+    mpz_set_si(newob->z, PyInt_AsLong(i));
+    return newob;
+}
+
+static PyxmpzObject *
+PyInt2Pyxmpz(PyObject *i)
+{
+    PyxmpzObject *newob;
+
+    assert(PyInt_Check(i));
+    if(!(newob = Pyxmpz_new()))
         return NULL;
     mpz_set_si(newob->z, PyInt_AsLong(i));
     return newob;
@@ -945,6 +1013,16 @@ PyLong2Pympz(PyObject * obj)
     return newob;
 }
 
+static PyxmpzObject *
+PyLong2Pyxmpz(PyObject * obj)
+{
+    PyxmpzObject *newob;
+    if(!(newob = Pyxmpz_new()))
+        return NULL;
+    mpz_set_PyLong(Pyxmpz_AS_MPZ(newob), obj);
+    return newob;
+}
+
 /*
  * long->mpf delegates via long->mpz->mpf to avoid duplicating
  * the above-seen dependencies; ditto long->mpq
@@ -981,19 +1059,18 @@ PyLong2Pympq(PyObject * obj)
  * extended to <0 values, by adding one last sign-byte, 0xFF for <0,
  * 0x00 for >0 (the latter only if the #bits is exact multiple of 8).
  */
-static PympzObject *
-PyStr2Pympz(PyObject *s, long base)
+
+/* mpz_set_PyStr returns -1 on error. */
+
+static int
+mpz_set_PyStr(mpz_ptr z, PyObject *s, long base)
 {
-    PympzObject *newob;
     unsigned char *cp;
     Py_ssize_t len;
     int i;
     PyObject *ascii_str = NULL;
 
     assert(PyStrOrUnicode_Check(s));
-
-    if(!(newob = Pympz_new()))
-        return NULL;
 
     if(PyBytes_Check(s)) {
         len = PyBytes_Size(s);
@@ -1003,8 +1080,7 @@ PyStr2Pympz(PyObject *s, long base)
         if(!ascii_str) {
             PyErr_SetString(PyExc_ValueError,
                     "string contains non-ASCII characters");
-            Py_DECREF((PyObject*)newob);
-            return NULL;
+            return -1;
         }
         len = PyBytes_Size(ascii_str);
         cp = (unsigned char*)PyBytes_AsString(ascii_str);
@@ -1018,30 +1094,45 @@ PyStr2Pympz(PyObject *s, long base)
             negative = 1;
             --len;
         }
-        mpz_set_si(newob->z, 0);
-        mpz_import(newob->z, len, -1, sizeof(char), 0, 0, cp);
+        mpz_set_si(z, 0);
+        mpz_import(z, len, -1, sizeof(char), 0, 0, cp);
         if(negative)
-            mpz_neg(newob->z, newob->z);
+            mpz_neg(z, z);
     } else {
         /* Don't allow NULL characters */
         for(i=0; i<len; i++) {
             if(cp[i] == '\0') {
                 PyErr_SetString(PyExc_ValueError,
                     "string without NULL characters expected");
-                Py_DECREF((PyObject*)newob);
                 Py_XDECREF(ascii_str);
-                return NULL;
+                return -1;
             }
         }
         /* delegate rest to GMP's _set_str function */
-        if(-1 == mpz_set_str(newob->z, (char*)cp, base)) {
+        if(-1 == mpz_set_str(z, (char*)cp, base)) {
             PyErr_SetString(PyExc_ValueError, "invalid digits");
-            Py_DECREF((PyObject*)newob);
             Py_XDECREF(ascii_str);
-            return NULL;
+            return -1;
         }
     }
     Py_XDECREF(ascii_str);
+    return 1;
+}
+
+static PympzObject *
+PyStr2Pympz(PyObject *s, long base)
+{
+    PympzObject *newob;
+
+    assert(PyStrOrUnicode_Check(s));
+
+    if(!(newob = Pympz_new()))
+        return NULL;
+
+    if(mpz_set_PyStr(newob->z, s, base) == -1) {
+        Py_DECREF((PyObject*)newob);
+        return NULL;
+    }
     return newob;
 }
 
@@ -1646,9 +1737,9 @@ Pympf2binary(PympfObject *x)
  * format mpz into any base (2 to 36), optionally with
  * a "gmpy.mpz(...)" tag around it so it can be recovered
  * through a Python eval of the resulting string
- * Note: tag can be just mpz() if options.tagoff=5
+ * Note: tag can be just mpz() if options.tagoff=6
  */
-static char* ztag = "gmpy.mpz(";
+static char* ztag = "gmpy2.mpz(";
 static PyObject *
 mpz_ascii(mpz_t z, int base, int with_tag)
 {
@@ -1667,13 +1758,13 @@ mpz_ascii(mpz_t z, int base, int with_tag)
     /* Allocate extra space for:
      *
      * minus sign and trailing NULL byte (2)
-     * 'gmpy.mpz()' tag                  (10)
+     * 'gmpy2.mpz()' tag                 (11)
      * '0x' prefix                       (2)
      * 'L' suffix                        (1)
      *                                  -----
-     *                                   15
+     *                                   16
      */
-    size = mpz_sizeinbase(z, base) + 16;
+    size = mpz_sizeinbase(z, base) + 17;
     TEMP_ALLOC(buffer, size);
 
     mpz_inoc(temp);
@@ -1730,7 +1821,7 @@ Pympz_ascii(PympzObject *self, int base, int with_tag)
 #endif
 }
 
-static char* qtag = "gmpy.mpq(";
+static char* qtag = "gmpy2.mpq(";
 
 static PyObject *
 Pympq_ascii(PympqObject *self, int base, int with_tag)
@@ -1803,12 +1894,12 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
 
 #define OP_TAG 1
 #define OP_RAW 2
-static char ftag[]="gmpy.mpf('";
+static char ftag[]="gmpy2.mpf('";
 /*
  * format mpf into any base (2 to 36), optionally with
- * a "gmpy.mpf('...')" tag around it so it can be recovered
+ * a "gmpy2.mpf('...')" tag around it so it can be recovered
  * through a Python eval of the resulting string.
- * Note: tag can be just mpf() if options.tagoff=5
+ * Note: tag can be just mpf() if options.tagoff=6
  * digits: number of digits to ask GMP for (0=all of
  *     them) -- fewer will be given, if fewer significant
  * minexfi: format as mantissa-exponent if exp<minexfi
@@ -1820,7 +1911,7 @@ static char ftag[]="gmpy.mpf('";
  *     is _always_ explicitly inserted by this function
  *     (except when bit OP_RAW is set in optionflags).
  * optionflags: bitmap of option-values; currently:
- *     OP_TAG (1): add the gmpy.mpf('...') tag
+ *     OP_TAG (1): add the gmpy2.mpf('...') tag
  *     OP_RAW (2): ignore minexfi/maxexfi/OP_TAG
  *         and return a 3-element tuple digits/exponent/rprec
  *         (as GMP gives them) for Python formatting;
