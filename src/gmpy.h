@@ -131,7 +131,7 @@ typedef struct {
     mpob ob;
     mpz_t z;
     long hash_cache;
-    Py_ssize_t max_bits;
+    size_t max_bits;
 } PyxmpzObject;
 
 #define Pympz_AS_MPZ(obj) (((PympzObject *)(obj))->z)

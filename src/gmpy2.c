@@ -1060,7 +1060,7 @@ PyLong2Pympq(PyObject * obj)
  * 0x00 for >0 (the latter only if the #bits is exact multiple of 8).
  */
 
-/* mpz_set_PyStr returns -1 on error. */
+/* mpz_set_PyStr returns -1 on error, 1 if successful. */
 
 static int
 mpz_set_PyStr(mpz_ptr z, PyObject *s, long base)
@@ -1133,6 +1133,29 @@ PyStr2Pympz(PyObject *s, long base)
         Py_DECREF((PyObject*)newob);
         return NULL;
     }
+    return newob;
+}
+
+static PyxmpzObject *
+PyStr2Pyxmpz(PyObject *s, long base, size_t bits)
+{
+    PyxmpzObject *newob;
+    Py_ssize_t temp;
+
+    assert(PyStrOrUnicode_Check(s));
+
+    if(!(newob = Pyxmpz_new()))
+        return NULL;
+
+    if(mpz_set_PyStr(newob->z, s, base) == -1) {
+        Py_DECREF((PyObject*)newob);
+        return NULL;
+    }
+    temp = mpz_sizeinbase(newob->z, 2);
+    if(bits > temp) {
+        mpz_tdiv_q_2exp(newob->z, newob->z, bits);
+    }
+    newob->max_bits = bits;
     return newob;
 }
 
@@ -1434,6 +1457,12 @@ Pympz2PyLong(PympzObject *x)
     return mpz_get_PyLong(Pympz_AS_MPZ(x));
 }
 
+static PyObject *
+Pyxmpz2PyLong(PyxmpzObject *x)
+{
+    return mpz_get_PyLong(Pyxmpz_AS_MPZ(x));
+}
+
 /*
  * mpf->long delegates via mpf->mpz->long to avoid duplicating
  * the above-seen thorny dependencies; ditto mpq->long
@@ -1473,6 +1502,19 @@ Pympz_To_Integer(PympzObject *x)
         return PyInt_FromLong(mpz_get_si(x->z));
     else
         return Pympz2PyLong(x);
+#endif
+}
+
+static PyObject *
+Pyxmpz_To_Integer(PyxmpzObject *x)
+{
+#ifdef PY3
+    return Pyxmpz2PyLong(x);
+#else
+    if(mpz_fits_slong_p(x->z))
+        return PyInt_FromLong(mpz_get_si(x->z));
+    else
+        return Pyxmpz2PyLong(x);
 #endif
 }
 
@@ -1532,23 +1574,21 @@ Pympq2PyFloat(PympqObject *x)
  *  with files saved in gmpy releases 0.6 and earlier.
  */
 static PyObject *
-Pympz2binary(PympzObject *x)
+mpz2binary(mpz_ptr z)
 {
     size_t size, usize;
     int negative, needtrail;
     char *buffer;
     PyObject *s;
 
-    assert(Pympz_Check( (PyObject *) x));
-
-    if(mpz_sgn(x->z) < 0) {
+    if(mpz_sgn(z) < 0) {
         negative = 1;
-        mpz_neg(x->z, x->z); /* Change the sign temporarily! */
+        mpz_neg(z, z); /* Change the sign temporarily! */
     } else {
         negative = 0;
     }
 
-    size = mpz_sizeinbase(x->z, 2);
+    size = mpz_sizeinbase(z, 2);
     needtrail = (size%8)==0;
     usize = size = (size + 7) / 8;
     if(negative || needtrail)
@@ -1556,16 +1596,28 @@ Pympz2binary(PympzObject *x)
 
     TEMP_ALLOC(buffer, size);
     buffer[0] = 0x00;
-    mpz_export(buffer, NULL, -1, sizeof(char), 0, 0, x->z);
+    mpz_export(buffer, NULL, -1, sizeof(char), 0, 0, z);
     if(usize < size) {
         buffer[usize] = negative?0xff:0x00;
     }
     if(negative) {
-        mpz_neg(x->z, x->z);
+        mpz_neg(z, z);
     }
     s = PyBytes_FromStringAndSize(buffer, size);
     TEMP_FREE(buffer, size);
     return s;
+}
+
+static PyObject *
+Pympz2binary(PympzObject *x)
+{
+    return mpz2binary(x->z);
+}
+
+static PyObject *
+Pyxmpz2binary(PyxmpzObject *x)
+{
+    return mpz2binary(x->z);
 }
 
 /*
