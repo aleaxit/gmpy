@@ -1797,8 +1797,7 @@ mpz_ascii(mpz_t z, int base, int with_tag)
 {
     PyObject *s;
     char *buffer, *p;
-    mpz_t temp;
-    int minus;
+    int negative = 0;
     size_t size;
 
     if((base != 0) && ((base < 2) || (base > 36))) {
@@ -1819,13 +1818,9 @@ mpz_ascii(mpz_t z, int base, int with_tag)
     size = mpz_sizeinbase(z, base) + 17;
     TEMP_ALLOC(buffer, size);
 
-    mpz_inoc(temp);
     if(mpz_sgn(z) < 0) {
-        minus = 1;
-        mpz_neg(temp, z);
-    } else {
-        minus = 0;
-        mpz_set(temp, z);
+        negative = 1;
+        mpz_neg(z, z);
     }
 
     p = buffer;
@@ -1833,25 +1828,36 @@ mpz_ascii(mpz_t z, int base, int with_tag)
        strcpy(p, ztag+options.tagoff);
        p += strlen(p);
     }
-    if(minus)
+    if(negative)
         *(p++) = '-';
-    if(base == 8)
+#ifdef PY2
+    if(base == 8) {
         *(p++) = '0';
-    else if(base == 16) {
+#else
+    if(base == 2) {
+        *(p++) = '0';
+        *(p++) = 'b';
+    } else if(base == 8) {
+        *(p++) = '0';
+        *(p++) = 'o';
+#endif
+    } else if(base == 16) {
         *(p++) = '0';
         *(p++) = 'x';
     }
 
-    mpz_get_str(p, base, temp); /* Doesn't return number of characters */
+    mpz_get_str(p, base, z);     /* Doesn't return number of characters */
     p = buffer + strlen(buffer); /* Address of NULL byte */
 #ifdef PY2
-    if(with_tag && !mpz_fits_slong_p(temp))
+    if(with_tag && !mpz_fits_slong_p(z))
         *(p++) = 'L';
 #endif
     if(with_tag)
         *(p++) = ')';
     s = PyBytes_FromStringAndSize(buffer, p - buffer);
-    mpz_cloc(temp);
+    if(negative == 1) {
+        mpz_neg(z, z);
+    }
     TEMP_FREE(buffer, size);
     return s;
 }
