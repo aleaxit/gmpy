@@ -3621,11 +3621,8 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
 
 #include "gmpy_utility.c"
 #include "gmpy_basic.c"
-#ifdef MUTATE
-#include "gmpy_mpz_mutate.c"
-#else
 #include "gmpy_mpz_inplace.c"
-#endif
+#include "gmpy_xmpz_inplace.c"
 
 #define MPF_BINOP(NAME) \
 static PyObject * \
@@ -4593,21 +4590,21 @@ static PyNumberMethods xmpz_number_methods =
     (unaryfunc) Pympz2PyLong,            /* nb_int                  */
         0,                               /* nb_reserved             */
     (unaryfunc) Pympz2PyFloat,           /* nb_float                */
-    (binaryfunc) Pympz_inplace_add,      /* nb_inplace_add          */
-    (binaryfunc) Pympz_inplace_sub,      /* nb_inplace_subtract     */
-    (binaryfunc) Pympz_inplace_mul,      /* nb_inplace_multiply     */
-    (binaryfunc) Pympz_inplace_rem,      /* nb_inplace_remainder    */
-    (ternaryfunc) Pympz_inplace_pow,     /* nb_inplace_power        */
-    (binaryfunc) Pympz_inplace_lshift,   /* nb_inplace_lshift       */
-    (binaryfunc) Pympz_inplace_rshift,   /* nb_inplace_rshift       */
+    (binaryfunc) Pyxmpz_inplace_add,     /* nb_inplace_add          */
+    (binaryfunc) Pyxmpz_inplace_sub,     /* nb_inplace_subtract     */
+    (binaryfunc) Pyxmpz_inplace_mul,     /* nb_inplace_multiply     */
+    (binaryfunc) Pyxmpz_inplace_rem,     /* nb_inplace_remainder    */
+    (ternaryfunc) Pyxmpz_inplace_pow,    /* nb_inplace_power        */
+    (binaryfunc) Pyxmpz_inplace_lshift,  /* nb_inplace_lshift       */
+    (binaryfunc) Pyxmpz_inplace_rshift,  /* nb_inplace_rshift       */
         0,                               /* nb_inplace_and          */
         0,                               /* nb_inplace_xor          */
         0,                               /* nb_inplace_or           */
     (binaryfunc) Pympany_floordiv,       /* nb_floor_divide         */
     (binaryfunc) Pympany_truediv,        /* nb_true_divide          */
-    (binaryfunc) Pympz_inplace_floordiv, /* nb_inplace_floor_divide */
+    (binaryfunc) Pyxmpz_inplace_floordiv,/* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */
-    (unaryfunc)  Pympz_To_Integer,       /* nb_index                */
+    (unaryfunc)  Pyxmpz_To_Integer,      /* nb_index                */
 };
 
 #else
@@ -4636,22 +4633,22 @@ static PyNumberMethods xmpz_number_methods =
     (unaryfunc) Pympz2PyFloat,           /* nb_float                */
     (unaryfunc) Pympz_oct,               /* nb_oct                  */
     (unaryfunc) Pympz_hex,               /* nb_hex                  */
-    (binaryfunc) Pympz_inplace_add,      /* nb_inplace_add          */
-    (binaryfunc) Pympz_inplace_sub,      /* nb_inplace_subtract     */
-    (binaryfunc) Pympz_inplace_mul,      /* nb_inplace_multiply     */
+    (binaryfunc) Pyxmpz_inplace_add,     /* nb_inplace_add          */
+    (binaryfunc) Pyxmpz_inplace_sub,     /* nb_inplace_subtract     */
+    (binaryfunc) Pyxmpz_inplace_mul,     /* nb_inplace_multiply     */
         0,                               /* nb_inplace_divide       */
-    (binaryfunc) Pympz_inplace_rem,      /* nb_inplace_remainder    */
-    (ternaryfunc) Pympz_inplace_pow,     /* nb_inplace_power        */
-    (binaryfunc) Pympz_inplace_lshift,   /* nb_inplace_lshift       */
-    (binaryfunc) Pympz_inplace_rshift,   /* nb_inplace_rshift       */
+    (binaryfunc) Pyxmpz_inplace_rem,     /* nb_inplace_remainder    */
+    (ternaryfunc) Pyxmpz_inplace_pow,    /* nb_inplace_power        */
+    (binaryfunc) Pyxmpz_inplace_lshift,  /* nb_inplace_lshift       */
+    (binaryfunc) Pyxmpz_inplace_rshift,  /* nb_inplace_rshift       */
         0,                               /* nb_inplace_and          */
         0,                               /* nb_inplace_xor          */
         0,                               /* nb_inplace_or           */
     (binaryfunc) Pympany_floordiv,       /* nb_floor_divide         */
     (binaryfunc) Pympany_truediv,        /* nb_true_divide          */
-    (binaryfunc) Pympz_inplace_floordiv, /* nb_inplace_floor_divide */
+    (binaryfunc) Pyxmpz_inplace_floordiv,/* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */
-    (unaryfunc) Pympz_To_Integer,        /* nb_index                */
+    (unaryfunc) Pyxmpz_To_Integer,       /* nb_index                */
 };
 #endif
 
