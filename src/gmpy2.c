@@ -547,8 +547,6 @@ Pyxmpz_new(void)
             return NULL;
         mpz_inoc(self->z);
     }
-    self->hash_cache = -1;
-    self->max_bits = 0;
     return self;
 }
 
@@ -1192,10 +1190,9 @@ PyStr2Pympz(PyObject *s, long base)
 }
 
 static PyxmpzObject *
-PyStr2Pyxmpz(PyObject *s, size_t bits, long base)
+PyStr2Pyxmpz(PyObject *s, long base)
 {
     PyxmpzObject *newob;
-    Py_ssize_t temp;
 
     assert(PyStrOrUnicode_Check(s));
 
@@ -1206,11 +1203,6 @@ PyStr2Pyxmpz(PyObject *s, size_t bits, long base)
         Py_DECREF((PyObject*)newob);
         return NULL;
     }
-    temp = mpz_sizeinbase(newob->z, 2);
-    if(bits > temp) {
-        mpz_tdiv_q_2exp(newob->z, newob->z, bits);
-    }
-    newob->max_bits = bits;
     return newob;
 }
 
@@ -1917,6 +1909,83 @@ mpz_ascii(mpz_t z, int base, int with_tag)
     return s;
 }
 
+/*
+ * format xmpz into any base (2 to 36), optionally with
+ * a "gmpy2.xmpz(...)" tag around it so it can be recovered
+ * through a Python eval of the resulting string
+ * Note: tag can be just xmpz() if options.tagoff=6
+ */
+static char* xztag = "gmpy2.xmpz(";
+static PyObject *
+xmpz_ascii(mpz_t z, int base, int with_tag)
+{
+    PyObject *s;
+    char *buffer, *p;
+    int negative = 0;
+    size_t size;
+
+    if((base != 0) && ((base < 2) || (base > 36))) {
+        PyErr_SetString(PyExc_ValueError,
+            "base must be either 0 or in the interval 2 ... 36");
+        return NULL;
+    }
+
+    /* Allocate extra space for:
+     *
+     * minus sign and trailing NULL byte (2)
+     * 'gmpy2.xmpz()' tag                (12)
+     * '0x' prefix                       (2)
+     * 'L' suffix                        (1)
+     *                                  -----
+     *                                   17
+     */
+    size = mpz_sizeinbase(z, base) + 18;
+    TEMP_ALLOC(buffer, size);
+
+    if(mpz_sgn(z) < 0) {
+        negative = 1;
+        mpz_neg(z, z);
+    }
+
+    p = buffer;
+    if(with_tag) {
+       strcpy(p, xztag+options.tagoff);
+       p += strlen(p);
+    }
+    if(negative)
+        *(p++) = '-';
+#ifdef PY2
+    if(base == 8) {
+        *(p++) = '0';
+#else
+    if(base == 2) {
+        *(p++) = '0';
+        *(p++) = 'b';
+    } else if(base == 8) {
+        *(p++) = '0';
+        *(p++) = 'o';
+#endif
+    } else if(base == 16) {
+        *(p++) = '0';
+        *(p++) = 'x';
+    }
+
+    mpz_get_str(p, base, z);     /* Doesn't return number of characters */
+    p = buffer + strlen(buffer); /* Address of NULL byte */
+#ifdef PY2
+    if(with_tag && !mpz_fits_slong_p(z))
+        *(p++) = 'L';
+#endif
+    if(with_tag)
+        *(p++) = ')';
+    s = PyBytes_FromStringAndSize(buffer, p - buffer);
+    if(negative == 1) {
+        mpz_neg(z, z);
+    }
+    TEMP_FREE(buffer, size);
+    return s;
+}
+
 static PyObject *
 Pympz_ascii(PympzObject *self, int base, int with_tag)
 {
@@ -1940,14 +2009,14 @@ Pyxmpz_ascii(PyxmpzObject *self, int base, int with_tag)
 #ifdef PY3
     PyObject *s, *t;
     assert(Pyxmpz_Check( (PyObject *) self));
-    t = mpz_ascii(self->z, base, with_tag);
+    t = xmpz_ascii(self->z, base, with_tag);
     if(!t) return NULL;
     s = PyUnicode_FromString(PyBytes_AS_STRING(t));
     Py_DECREF(t);
     return s;
 #else
     assert(Pyxmpz_Check( (PyObject *) self));
-    return mpz_ascii(self->z, base, with_tag);
+    return xmpz_ascii(self->z, base, with_tag);
 #endif
 }
 
@@ -3315,31 +3384,28 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
         fprintf(stderr, "Pygmpy_mpz: created mpz = %ld\n",
                 mpz_get_si(newob->z));
 
-
     return (PyObject *) newob;
 }
 
 static char doc_xmpz[] = "\
-xmpz(n, bits=0):\
-        builds an xmpz object from any number n (truncating n\n\
-        to its integer part if it's a float or mpf)\n\
-xmpz(s, bits=0, base=0):\
-        builds an xmpz object from a string s made up of digits in\n\
-        the given base.  Binary, octal, and hex strings are recognized\n\
-        by leading 0b, 0o, or 0x characters, otherwise the string is\n\
-        assumed to be decimal.  If base=256, s must be a gmpy2.xmpz\n\
-        portable binary representation as built by the function\n\
-        gmpy2.binary (and the .binary method of xmpz objects).\n\
+xmpz(n):\
+      builds an xmpz object from any number n (truncating n\n\
+      to its integer part if it's a float or mpf)\n\
+xmpz(s, base=0):\
+      builds an xmpz object from a string s made up of digits in\n\
+      the given base.  Binary, octal, and hex strings are recognized\n\
+      by leading 0b, 0o, or 0x characters, otherwise the string is\n\
+      assumed to be decimal.  If base=256, s must be a gmpy2.xmpz\n\
+      portable binary representation as built by the function\n\
+      gmpy2.binary (and the .binary method of xmpz objects).\n\
 ";
 static PyObject *
 Pygmpy_xmpz(PyObject *self, PyObject *args)
 {
     PyxmpzObject *newob;
-    PyObject *obj, *obj1, *obj2;
+    PyObject *obj, *obj1;
     Py_ssize_t argc;
-    long temp, base = 0;
-    size_t bits = 0;
-
+    long base = 0;
 
     if(options.debug)
         fputs("Pygmpy_xmpz() called...\n", stderr);
@@ -3347,22 +3413,22 @@ Pygmpy_xmpz(PyObject *self, PyObject *args)
     assert(PyTuple_Check(args));
 
     argc = PyTuple_Size(args);
-    if((argc < 1) || (argc > 3)) {
+    if((argc < 1) || (argc > 2)) {
         PyErr_SetString(PyExc_TypeError,
-            "gmpy2.xmpz() requires 1, 2, or 3 arguments");
+            "gmpy2.xmpz() requires 1, or 2 arguments");
         return NULL;
     }
 
     obj = PyTuple_GetItem(args, 0);
 
-    if(argc == 3) {
+    if(argc == 2) {
         if(!PyStrOrUnicode_Check(obj)) {
             PyErr_SetString(PyExc_TypeError,
-                    "gmpy2.xmpz() with numeric argument needs 1 or 2 arguments");
+                    "gmpy2.xmpz() with numeric argument accepts only 1 argument");
             return NULL;
         }
-        obj2 = PyTuple_GetItem(args, 2);
-        base = clong_From_Integer(obj2);
+        obj1 = PyTuple_GetItem(args, 1);
+        base = clong_From_Integer(obj1);
         if(base == -1 && PyErr_Occurred()) {
             PyErr_SetString(PyExc_TypeError,
                     "gmpy2.xmpz(): base must be an integer");
@@ -3376,20 +3442,9 @@ Pygmpy_xmpz(PyObject *self, PyObject *args)
         }
     }
 
-    if(argc == 2) {
-        obj1 = PyTuple_GetItem(args, 1);
-        temp = clong_From_Integer(obj1);
-        if(temp < 0) {
-            PyErr_SetString(PyExc_TypeError,
-                    "gmpy2.xmpz(): bits must be a positive integer");
-            return NULL;
-        }
-        bits = (size_t)temp;
-    }
-
     if(PyStrOrUnicode_Check(obj)) {
         /* build-from-string (ascii or binary) */
-        newob = PyStr2Pyxmpz(obj, bits, base);
+        newob = PyStr2Pyxmpz(obj, base);
         if(!newob) {
             if(!PyErr_Occurred()) {
                 PyErr_SetString(PyExc_ValueError,
@@ -5008,11 +5063,7 @@ static PyTypeObject Pympz_Type =
     &mpz_number_methods,                    /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
         0,                                  /* tp_as_mapping    */
-#ifdef MUTATE
-        0,                                  /* tp_hash          */
-#else
     (hashfunc) Pympz_hash,                  /* tp_hash          */
-#endif
         0,                                  /* tp_call          */
     (reprfunc) Pympz2str,                   /* tp_str           */
         0,                                  /* tp_getattro      */
