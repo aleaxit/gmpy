@@ -704,6 +704,18 @@ Pympz2Pympz(PympzObject *i)
     return newob;
 }
 
+static PyxmpzObject *
+Pyxmpz2Pyxmpz(PyxmpzObject *i)
+{
+    PyxmpzObject *newob;
+
+    assert(Pyxmpz_Check(i));
+    if(!(newob = Pyxmpz_new()))
+        return NULL;
+    mpz_set(newob->z, i->z);
+    return newob;
+}
+
 static PympzObject *
 Pyxmpz2Pympz(PyObject *i)
 {
@@ -748,6 +760,8 @@ Pympf2Pympf(PympfObject *f, unsigned int bits)
     assert(Pympf_Check(f));
     if(!(newob = Pympf_new(bits)))
         return NULL;
+    if(bits==0)
+        bits = f->rebits;
     mpf_set(newob->f, f->f);
     mpf_set_prec(newob->f, bits);
     newob->rebits = bits;
@@ -2848,47 +2862,6 @@ Pympf2repr(PympfObject *self)
 
 #include "gmpy_mpz.c"
 
-/* copy mpf object */
-static PyObject *
-Pympf_copy(PyObject *self, PyObject *args)
-{
-    PyObject *s;
-    unsigned int bits=0;
-    SELF_MPF_ONE_ARG("|I",&bits);
-
-    assert(Pympf_Check(self));
-    if(!bits) bits = ((PympfObject*)self)->rebits;
-    s = (PyObject*)Pympf2Pympf((PympfObject*)self, bits);
-    Py_DECREF(self);
-    return s;
-}
-
-/* copy mpq object */
-static PyObject *
-Pympq_copy(PyObject *self, PyObject *args)
-{
-    PyObject* temp;
-    if(self && Pympq_Check(self)) {
-        if(PyTuple_GET_SIZE(args) != 0) {
-            PyErr_SetString(PyExc_TypeError, "function takes exactly 1 argument");
-            return NULL;
-        }
-        return (PyObject*)Pympq2Pympq((PympqObject*)self);
-    } else {
-        if(PyTuple_GET_SIZE(args) != 1){
-            PyErr_SetString(PyExc_TypeError, "function takes exactly 1 argument");
-            return NULL;
-        }
-        temp = PyTuple_GET_ITEM(args, 0);
-        if(Pympq_Check(temp)) {
-            return (PyObject*)Pympq2Pympq((PympqObject*)temp);
-        } else {
-            PyErr_SetString(PyExc_TypeError, "unsupported operand type for _qcopy(): mpq required");
-            return NULL;
-        }
-    }
-}
-
 /* produce portable binary form for mpq object */
 static char doc_qbinarym[]="\
 x.binary(): returns a Python string that is a portable binary\n\
@@ -4951,7 +4924,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "comb", Pympz_bincoef, METH_VARARGS, doc_combg },
     { "remove", Pympz_remove, METH_VARARGS, doc_removeg },
     { "invert", Pympz_invert, METH_VARARGS, doc_invertg },
-    { "_copy", Pympz_copy, METH_O },
+    { "copy", Pympany_copy, METH_O, doc_copyg },
     { "sign", Pympz_sign, METH_VARARGS, doc_signg },
     { "fsqrt", Pympf_sqrt, METH_VARARGS, doc_fsqrtg },
     { "qsign", Pympq_sign, METH_VARARGS, doc_qsigng },
@@ -4959,7 +4932,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "denom", Pympq_denom, METH_VARARGS, doc_denomg },
     { "qbinary", Pympq_binary, METH_VARARGS, doc_qbinaryg },
     { "qdigits", Pympq_digits, METH_VARARGS, doc_qdigitsg },
-    { "_qcopy", Pympq_copy, METH_VARARGS },
     { "qsign", Pympq_sign, METH_VARARGS, doc_qsigng },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivg },
     { "reldiff", Pympf_doreldiff, METH_VARARGS, doc_reldiffg },
@@ -4968,7 +4940,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "fround", Pympf_round, METH_VARARGS, doc_froundg },
     { "getprec", Pympf_getprec, METH_VARARGS, doc_getprecg },
     { "getrprec", Pympf_getrprec, METH_VARARGS, doc_getrprecg },
-    { "_fcopy", Pympf_copy, METH_VARARGS },
     { "fsign", Pympf_sign, METH_VARARGS, doc_fsigng },
     { "f2q", Pympf_f2q, METH_VARARGS, doc_f2qg },
     { "ceil", Pympf_ceil, METH_VARARGS, doc_ceilg },
@@ -4987,6 +4958,8 @@ static PyMethodDef Pygmpy_methods [] =
 
 static PyMethodDef Pympz_methods [] =
 {
+    { "is_even", Pympz_is_even, METH_NOARGS, doc_is_evenm },
+    { "is_odd", Pympz_is_odd, METH_NOARGS, doc_is_oddm },
     { "sqrt", Pympz_sqrt, METH_VARARGS, doc_sqrtm },
     { "sqrtrem", Pympz_sqrtrem, METH_VARARGS, doc_sqrtremm },
     { "is_square", Pympz_is_square, METH_VARARGS, doc_is_squarem },
@@ -5000,8 +4973,6 @@ static PyMethodDef Pympz_methods [] =
     { "digits", Pympz_digits, METH_VARARGS, doc_digitsm },
     { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsm },
     { "bit_length", Pympz_bit_length, METH_NOARGS, doc_bit_lengthm },
-    { "is_even", Pympz_is_even, METH_NOARGS, doc_is_evenm },
-    { "is_odd", Pympz_is_odd, METH_NOARGS, doc_is_oddm },
     { "lowbits", Pympz_lowbits, METH_VARARGS, doc_lowbitsm },
     { "getbit", Pympz_getbit, METH_VARARGS, doc_getbitm },
     { "setbit", Pympz_setbit, METH_VARARGS, doc_setbitm },
@@ -5019,7 +4990,7 @@ static PyMethodDef Pympz_methods [] =
     { "comb", Pympz_bincoef, METH_VARARGS, doc_combm },
     { "remove", Pympz_remove, METH_VARARGS, doc_removem },
     { "invert", Pympz_invert, METH_VARARGS, doc_invertm },
-    { "_copy", Pympz_copy, METH_NOARGS },
+    { "copy", Pympany_copy, METH_NOARGS, doc_copym },
     { "sign", Pympz_sign, METH_VARARGS, doc_signm },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivm },
     { NULL, NULL, 1 }
@@ -5035,7 +5006,7 @@ static PyMethodDef Pympq_methods [] =
     { "sign", Pympq_sign, METH_VARARGS, doc_qsignm },
     { "numer", Pympq_numer, METH_VARARGS, doc_numerm },
     { "denom", Pympq_denom, METH_VARARGS, doc_denomm },
-    { "_copy", Pympq_copy, METH_VARARGS },
+    { "copy", Pympany_copy, METH_NOARGS, doc_copym },
     { "binary", Pympq_binary, METH_VARARGS, doc_qbinarym },
     { "digits", Pympq_digits, METH_VARARGS, doc_qdigitsm },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivm },
@@ -5050,7 +5021,7 @@ static PyMethodDef Pympf_methods [] =
     { "round", Pympf_round, METH_VARARGS, doc_froundm },
     { "getprec", Pympf_getprec, METH_VARARGS, doc_getprecm },
     { "getrprec", Pympf_getrprec, METH_VARARGS, doc_getrprecm },
-    { "_copy", Pympf_copy, METH_VARARGS },
+    { "copy", Pympany_copy, METH_NOARGS, doc_copym },
     { "sign", Pympf_sign, METH_VARARGS, doc_fsignm },
     { "sqrt", Pympf_sqrt, METH_VARARGS, doc_fsqrtm },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivm },
