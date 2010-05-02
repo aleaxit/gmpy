@@ -307,8 +307,9 @@ static struct gmpy_options {
     int tagoff;              /* 0 for full tags 'gmpy2.mpz()', else 6 for 'mpz()' */
     int cache_size;          /* size of cache, for all caches */
     int cache_obsize;        /* maximum size of the objects that are cached */
+    int prefer_mutable;      /* != 0 if mixed mpz/xmpz operation results in xmpz */
     PyObject* fcoform;       /* if non-NULL, format for float->mpf (via string) */
-} options = { 0, 0, GMPY2_TAGOFF, 100, 128, 0 };
+} options = { 0, 0, GMPY2_TAGOFF, 100, 128, 0, 0 };
 
 /* Number of bits that are significant in a float */
 static unsigned int double_mantissa = 0;
@@ -2522,6 +2523,8 @@ Pympz_From_Integer(PyObject* obj)
 #endif
     } else if(PyLong_Check(obj)) {
         newob = PyLong2Pympz(obj);
+    } else if(Pyxmpz_Check(obj)) {
+        newob = Pyxmpz2Pympz(obj);
     }
     if(options.debug)
         fprintf(stderr,"Pympz_From_Integer(%p)->%p\n", obj, newob);
@@ -4095,6 +4098,22 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         if(options.debug) fprintf(stderr, "compare (mpz,mpz)\n");
         return _cmp_to_object(mpz_cmp(Pympz_AS_MPZ(a), Pympz_AS_MPZ(b)), op);
     }
+    if(Pyxmpz_Check(a) && PyIntOrLong_Check(b)) {
+        if(options.debug) fprintf(stderr, "compare (xmpz,small_int)\n");
+        temp = clong_From_Integer(b);
+        if(options.debug) fprintf(stderr,"temp is %ld\n", temp);
+        if(temp==-1 && PyErr_Occurred()) {
+            PyErr_Clear();
+            if(options.debug) fprintf(stderr, "clearing error\n");
+        } else {
+            if(options.debug) fprintf(stderr, "temp: %ld\n", temp);
+            return _cmp_to_object(mpz_cmp_si(Pyxmpz_AS_MPZ(a), temp), op);
+        }
+    }
+    if(Pyxmpz_Check(a) && Pyxmpz_Check(b)) {
+        if(options.debug) fprintf(stderr, "compare (xmpz,xmpz)\n");
+        return _cmp_to_object(mpz_cmp(Pyxmpz_AS_MPZ(a), Pyxmpz_AS_MPZ(b)), op);
+    }
     if(Pympq_Check(a) && Pympq_Check(b)) {
         if(options.debug) fprintf(stderr, "compare (mpq,mpq)\n");
         return _cmp_to_object(mpq_cmp(Pympq_AS_MPQ(a), Pympq_AS_MPQ(b)), op);
@@ -4880,6 +4899,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "license", Pygmpy_get_license, METH_NOARGS, doc_license },
     { "gmp_limbsize", Pygmpy_get_gmp_limbsize, METH_NOARGS, doc_gmp_limbsize },
     { "set_debug", Pygmpy_set_debug, METH_VARARGS, doc_set_debug },
+    { "set_prefer_mutable", Pygmpy_set_prefer_mutable, METH_VARARGS, doc_set_prefer_mutable },
     { "set_minprec", Pygmpy_set_minprec, METH_VARARGS, doc_set_minprec },
     { "set_tagoff", Pygmpy_set_tagoff, METH_VARARGS, doc_set_tagoff },
     { "set_fcoform", Pygmpy_set_fcoform, METH_VARARGS, doc_set_fcoform },

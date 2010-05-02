@@ -162,6 +162,21 @@ Pygmpy_set_debug(PyObject *self, PyObject *args)
     return Py_BuildValue("l", old);
 }
 
+static char doc_set_prefer_mutable[]="\
+set_prefer_mutable(n): If set, the result of combining a\n\
+mutable and immutable type will be a mutable type. If clear,\n\
+the result will be an immutable type.\n\
+";
+static PyObject *
+Pygmpy_set_prefer_mutable(PyObject *self, PyObject *args)
+{
+    long old = options.prefer_mutable;
+
+    if(!PyArg_ParseTuple(args, "l", &options.prefer_mutable))
+        return NULL;
+    return Py_BuildValue("l", old);
+}
+
 static char doc_set_tagoff[]="\
 set_tagoff(n): resets (if n==0) or sets (if n!=0) the module\n\
 level 'tagoff' setting, removing the 'gmpy.' prefix of the tag\n\
