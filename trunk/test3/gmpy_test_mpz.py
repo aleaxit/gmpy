@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> list(filter(lambda x: not x.startswith('_'), dir(_g)))
-['binary', 'bincoef', 'bit_length', 'cdivmod', 'ceil', 'comb', 'copy', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fdivmod', 'fib', 'fib2', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'lucas', 'lucas2', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'reldiff', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'set_cache', 'set_debug', 'set_fcoform', 'set_minprec', 'set_prefer_mutable', 'set_tagoff', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod', 'trunc', 'version', 'xmpz']
+['binary', 'bincoef', 'bit_length', 'cdivmod', 'ceil', 'comb', 'copy', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fdigits', 'fdivmod', 'fib', 'fib2', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'lucas', 'lucas2', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qdigits', 'qdiv', 'qsign', 'reldiff', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'set_cache', 'set_debug', 'set_fcoform', 'set_minprec', 'set_prefer_mutable', 'set_tagoff', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod', 'trunc', 'version', 'xmpz']
 >>> dir(a)
 ['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__iadd__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__', '__index__', '__init__', '__int__', '__invert__', '__ipow__', '__irshift__', '__isub__', '__le__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', 'binary', 'bincoef', 'bit_length', 'cdivmod', 'comb', 'copy', 'digits', 'divexact', 'fdivmod', 'getbit', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod']
 >>>
@@ -669,7 +669,7 @@ b'{'
 mpz(123)
 >>> _g.mpz(ba,256)==a
 1
->>> _g.binary(123)
+>>> _g.binary(_g.mpz(123))
 b'{'
 >>> z=_g.mpz('melancholy',256)
 >>> z
@@ -730,7 +730,7 @@ ValueError: base must be either 0 or in the interval 2 ... 36
 456
 >>> hash(z) == hash(int(z))
 True
->>> _g.mpz(_g.binary(-123),256)
+>>> _g.mpz(_g.binary(_g.mpz(-123)),256)
 mpz(-123)
 >>> int(_g.mpz(-3))
 -3

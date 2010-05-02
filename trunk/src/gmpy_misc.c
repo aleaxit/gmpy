@@ -286,66 +286,60 @@ copy(x): returns a copy of x, x must be a gmpy2 object.\n\
 static PyObject *
 Pympany_copy(PyObject *self, PyObject *other)
 {
-    if(self) {
-        if(Pympz_Check(self))
-            return (PyObject*)Pympz2Pympz((PympzObject*)self);
-        else if(Pyxmpz_Check(self))
-            return (PyObject*)Pyxmpz2Pyxmpz((PyxmpzObject*)self);
-        else if(Pympq_Check(self))
-            return (PyObject*)Pympq2Pympq((PympqObject*)self);
-        else if(Pympf_Check(self))
-            return (PyObject*)Pympf2Pympf((PympfObject*)self, 0);
-    } else {
-        if(Pympz_Check(other))
-            return (PyObject*)Pympz2Pympz((PympzObject*)other);
-        else if(Pyxmpz_Check(other))
-            return (PyObject*)Pyxmpz2Pyxmpz((PyxmpzObject*)other);
-        else if(Pympq_Check(other))
-            return (PyObject*)Pympq2Pympq((PympqObject*)other);
-        else if(Pympf_Check(other))
-            return (PyObject*)Pympf2Pympf((PympfObject*)other, 0);
-    }
+    if(self && Pympz_Check(self))
+        return (PyObject*)Pympz2Pympz((PympzObject*)self);
+    else if(self && Pyxmpz_Check(self))
+        return (PyObject*)Pyxmpz2Pyxmpz((PyxmpzObject*)self);
+    else if(self && Pympq_Check(self))
+        return (PyObject*)Pympq2Pympq((PympqObject*)self);
+    else if(self && Pympf_Check(self))
+        return (PyObject*)Pympf2Pympf((PympfObject*)self, 0);
+    else if(Pympz_Check(other))
+        return (PyObject*)Pympz2Pympz((PympzObject*)other);
+    else if(Pyxmpz_Check(other))
+        return (PyObject*)Pyxmpz2Pyxmpz((PyxmpzObject*)other);
+    else if(Pympq_Check(other))
+        return (PyObject*)Pympq2Pympq((PympqObject*)other);
+    else if(Pympf_Check(other))
+        return (PyObject*)Pympf2Pympf((PympfObject*)other, 0);
     PyErr_SetString(PyExc_TypeError,
                     "copy() requires a gmpy2 object as argument");
     return NULL;
 }
 
-/* produce portable binary form for mpz or xmpz object */
+/* produce portable binary form for a gmpy2 object */
 static char doc_binarym[]="\
 x.binary(): returns a Python string that is a portable binary\n\
-representation of x (the string can later be passed to the mpz\n\
-constructor function to obtain an exact copy of x's value).\n\
+representation of a gmpy2 object x (the string can later be\n\
+passed to the appropriate constructor function to obtain an exact\n\
+copy of x's value).\n\
 ";
 static char doc_binaryg[]="\
 binary(x): returns a Python string that is a portable binary\n\
-representation of x (the string can later be passed to the mpz\n\
-constructor function to obtain an exact copy of x's value).\n\
-x must be an mpz, or else gets coerced to one.\n\
+representation of a gmpy2 object x (the string can later be\n\
+passed to the appropriate constructor function to obtain an exact\n\
+copy of x's value).\n\
 ";
 static PyObject *
-Pympz_binary(PyObject *self, PyObject *other)
+Pympany_binary(PyObject *self, PyObject *other)
 {
-    PyObject* result;
-    PympzObject* temp;
-
-    if(self && Pympz_Check(self)) {
+    if(self && Pympz_Check(self))
         return Pympz2binary((PympzObject*)self);
-    } else if(self && Pyxmpz_Check(self)) {
+    else if(self && Pyxmpz_Check(self))
         return Pyxmpz2binary((PyxmpzObject*)self);
-    } else if(Pympz_Check(other)) {
+    else if(self && Pympq_Check(self))
+        return Pympq2binary((PympqObject*)self);
+    else if(self && Pympf_Check(self))
+        return Pympf2binary((PympfObject*)self);
+    else if(Pympz_Check(other))
         return Pympz2binary((PympzObject*)other);
-    } else if(Pyxmpz_Check(other)) {
+    else if(Pyxmpz_Check(other))
         return Pyxmpz2binary((PyxmpzObject*)other);
-    } else {
-        temp = Pympz_From_Integer(other);
-        if(!temp) {
-            PyErr_SetString(PyExc_TypeError,
-                            "binary() requires an 'mpz' argument");
-            return NULL;
-        } else {
-            result = Pympz2binary(temp);
-            Py_DECREF((PyObject*)temp);
-            return result;
-        }
-    }
+    else if(Pympq_Check(other))
+        return Pympq2binary((PympqObject*)other);
+    else if(Pympf_Check(other))
+        return Pympf2binary((PympfObject*)other);
+    PyErr_SetString(PyExc_TypeError,
+                    "binary() requires a gmpy2 object as argument");
+    return NULL;
 }
