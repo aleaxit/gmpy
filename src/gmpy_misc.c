@@ -275,3 +275,77 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
     else
         return Py_BuildValue("");
 }
+
+/* create a copy of a gmpy2 object */
+static char doc_copym[]="\
+x.copy(): returns a copy of x.\n\
+";
+static char doc_copyg[]="\
+copy(x): returns a copy of x, x must be a gmpy2 object.\n\
+";
+static PyObject *
+Pympany_copy(PyObject *self, PyObject *other)
+{
+    if(self) {
+        if(Pympz_Check(self))
+            return (PyObject*)Pympz2Pympz((PympzObject*)self);
+        else if(Pyxmpz_Check(self))
+            return (PyObject*)Pyxmpz2Pyxmpz((PyxmpzObject*)self);
+        else if(Pympq_Check(self))
+            return (PyObject*)Pympq2Pympq((PympqObject*)self);
+        else if(Pympf_Check(self))
+            return (PyObject*)Pympf2Pympf((PympfObject*)self, 0);
+    } else {
+        if(Pympz_Check(other))
+            return (PyObject*)Pympz2Pympz((PympzObject*)other);
+        else if(Pyxmpz_Check(other))
+            return (PyObject*)Pyxmpz2Pyxmpz((PyxmpzObject*)other);
+        else if(Pympq_Check(other))
+            return (PyObject*)Pympq2Pympq((PympqObject*)other);
+        else if(Pympf_Check(other))
+            return (PyObject*)Pympf2Pympf((PympfObject*)other, 0);
+    }
+    PyErr_SetString(PyExc_TypeError,
+                    "copy() requires a gmpy2 object as argument");
+    return NULL;
+}
+
+/* produce portable binary form for mpz or xmpz object */
+static char doc_binarym[]="\
+x.binary(): returns a Python string that is a portable binary\n\
+representation of x (the string can later be passed to the mpz\n\
+constructor function to obtain an exact copy of x's value).\n\
+";
+static char doc_binaryg[]="\
+binary(x): returns a Python string that is a portable binary\n\
+representation of x (the string can later be passed to the mpz\n\
+constructor function to obtain an exact copy of x's value).\n\
+x must be an mpz, or else gets coerced to one.\n\
+";
+static PyObject *
+Pympz_binary(PyObject *self, PyObject *other)
+{
+    PyObject* result;
+    PympzObject* temp;
+
+    if(self && Pympz_Check(self)) {
+        return Pympz2binary((PympzObject*)self);
+    } else if(self && Pyxmpz_Check(self)) {
+        return Pyxmpz2binary((PyxmpzObject*)self);
+    } else if(Pympz_Check(other)) {
+        return Pympz2binary((PympzObject*)other);
+    } else if(Pyxmpz_Check(other)) {
+        return Pyxmpz2binary((PyxmpzObject*)other);
+    } else {
+        temp = Pympz_From_Integer(other);
+        if(!temp) {
+            PyErr_SetString(PyExc_TypeError,
+                            "binary() requires an 'mpz' argument");
+            return NULL;
+        } else {
+            result = Pympz2binary(temp);
+            Py_DECREF((PyObject*)temp);
+            return result;
+        }
+    }
+}
