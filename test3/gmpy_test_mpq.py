@@ -231,10 +231,10 @@ mpq(1000000000000000000000,23)
 mpq(23,1000000000000000000000)
 >>> _g.mpq(23**15,1000**7)
 mpq(266635235464391245607,1000000000000000000000)
->>> _g.qbinary('pep')
+>>> _g.binary('pep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: argument can not be converted to mpq
+TypeError: binary() requires a gmpy2 object as argument
 >>> x=_g.mpq('234/567')
 >>> del x
 >>> _g.mpq('7788')
@@ -259,7 +259,7 @@ r'''
 152
 >>> _g.mpq(ba,256)==a
 1
->>> ba == _g.qbinary(a)
+>>> ba == _g.binary(a)
 1
 >>> ba=(-a).binary()
 >>> len(ba)

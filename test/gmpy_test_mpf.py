@@ -318,10 +318,10 @@ mpf('1.23456e2',33)
 Traceback (most recent call last):
   ...
 TypeError: digits() requires 'mpz',['int'] arguments
->>> _g.fbinary('pep')
+>>> _g.binary('pep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: argument can not be converted to mpf
+TypeError: binary() requires a gmpy2 object as argument
 >>>
 '''
 
@@ -348,25 +348,25 @@ r'''
 >>> ia=(1/a).binary()
 >>> (1/a).reldiff(_g.mpf(ia,0,256)) <= epsilon
 1
->>> _g.fbinary(0)
+>>> _g.binary(_g.mpf(0))
 '\x04'
->>> _g.mpf(_g.fbinary(0), 0, 256) == 0
+>>> _g.mpf(_g.binary(_g.mpf(0)), 0, 256) == 0
 1
->>> _g.fbinary(0.5)
+>>> _g.binary(_g.mpf(0.5))
 '\x085\x00\x00\x00\x00\x00\x00\x00\x80'
->>> _g.mpf(_g.fbinary(0.5), 0, 256) == 0.5
+>>> _g.mpf(_g.binary(_g.mpf(0.5)), 0, 256) == 0.5
 1
->>> _g.fbinary(-0.5)
+>>> _g.binary(_g.mpf(-0.5))
 '\t5\x00\x00\x00\x00\x00\x00\x00\x80'
->>> _g.mpf(_g.fbinary(-0.5), 0, 256) == -0.5
+>>> _g.mpf(_g.binary(_g.mpf(-0.5)), 0, 256) == -0.5
 1
->>> _g.fbinary(-2.0)
+>>> _g.binary(_g.mpf(-2.0))
 '\t5\x00\x00\x00\x01\x00\x00\x00\x02'
->>> _g.mpf(_g.fbinary(-2.0), 0, 256) == -2.0
+>>> _g.mpf(_g.binary(_g.mpf(-2.0)), 0, 256) == -2.0
 1
->>> _g.fbinary(2.0)
+>>> _g.binary(_g.mpf(2.0))
 '\x085\x00\x00\x00\x01\x00\x00\x00\x02'
->>> _g.mpf(_g.fbinary(2.0), 0, 256) == 2.0
+>>> _g.mpf(_g.binary(_g.mpf(2.0)), 0, 256) == 2.0
 1
 >>> prec=_g.set_minprec(0)
 >>> junk=_g.set_minprec(prec)

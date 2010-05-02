@@ -2862,52 +2862,6 @@ Pympf2repr(PympfObject *self)
 
 #include "gmpy_mpz.c"
 
-/* produce portable binary form for mpq object */
-static char doc_qbinarym[]="\
-x.binary(): returns a Python string that is a portable binary\n\
-representation of x (the string can later be passed to the mpq\n\
-constructor function to obtain an exact copy of x's value).\n\
-";
-static char doc_qbinaryg[]="\
-qbinary(x): returns a Python string that is a portable binary\n\
-representation of x (the string can later be passed to the mpq\n\
-constructor function to obtain an exact copy of x's value).\n\
-x must be an mpq, or else gets coerced to one.\n\
-";
-static PyObject *
-Pympq_binary(PyObject *self, PyObject *args)
-{
-    PyObject *s;
-    SELF_MPQ_NO_ARG;
-    assert(Pympq_Check(self));
-    s = Pympq2binary((PympqObject*)self);
-    Py_DECREF(self);
-    return s;
-}
-
-/* produce portable binary form for mpf object */
-static char doc_fbinarym[]="\
-x.binary(): returns a Python string that is a portable binary\n\
-representation of x (the string can later be passed to the mpf\n\
-constructor function to obtain an exact copy of x's value).\n\
-";
-static char doc_fbinaryg[]="\
-fbinary(f): returns a Python string that is a portable binary\n\
-representation of x, which is an mpf or else gets coerced to one.\n\
-The string can later be passed to the mpf constructor function\n\
-to obtain an exact copy of x's mpf value.\n\
-";
-static PyObject *
-Pympf_binary(PyObject *self, PyObject *args)
-{
-    PyObject *s;
-    SELF_MPF_NO_ARG;
-    assert(Pympf_Check(self));
-    s = Pympf2binary((PympfObject*)self);
-    Py_DECREF(self);
-    return s;
-}
-
 /* produce digits for an mpq in requested base, default 10 */
 static char doc_qdigitsm[]="\
 x.digits([base]): returns Python string representing x in the\n\
@@ -4903,7 +4857,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "jacobi", Pympz_jacobi, METH_VARARGS, doc_jacobig },
     { "legendre", Pympz_legendre, METH_VARARGS, doc_legendreg },
     { "kronecker", Pympz_kronecker, METH_VARARGS, doc_kroneckerm },
-    { "binary", Pympz_binary, METH_O, doc_binaryg },
+    { "binary", Pympany_binary, METH_O, doc_binaryg },
     { "digits", Pympz_digits, METH_VARARGS, doc_digitsg },
     { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsg },
     { "bit_length", Pympz_bit_length, METH_O, doc_bit_lengthg },
@@ -4930,12 +4884,10 @@ static PyMethodDef Pygmpy_methods [] =
     { "qsign", Pympq_sign, METH_VARARGS, doc_qsigng },
     { "numer", Pympq_numer, METH_VARARGS, doc_numerg },
     { "denom", Pympq_denom, METH_VARARGS, doc_denomg },
-    { "qbinary", Pympq_binary, METH_VARARGS, doc_qbinaryg },
     { "qdigits", Pympq_digits, METH_VARARGS, doc_qdigitsg },
     { "qsign", Pympq_sign, METH_VARARGS, doc_qsigng },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivg },
     { "reldiff", Pympf_doreldiff, METH_VARARGS, doc_reldiffg },
-    { "fbinary", Pympf_binary, METH_VARARGS, doc_fbinaryg },
     { "fdigits", Pympf_digits, METH_VARARGS, doc_fdigitsg },
     { "fround", Pympf_round, METH_VARARGS, doc_froundg },
     { "getprec", Pympf_getprec, METH_VARARGS, doc_getprecg },
@@ -4969,7 +4921,7 @@ static PyMethodDef Pympz_methods [] =
     { "jacobi", Pympz_jacobi, METH_VARARGS, doc_jacobim },
     { "legendre", Pympz_legendre, METH_VARARGS, doc_legendrem },
     { "kronecker", Pympz_kronecker, METH_VARARGS, doc_kroneckerg },
-    { "binary", Pympz_binary, METH_NOARGS, doc_binarym },
+    { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
     { "digits", Pympz_digits, METH_VARARGS, doc_digitsm },
     { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsm },
     { "bit_length", Pympz_bit_length, METH_NOARGS, doc_bit_lengthm },
@@ -5007,7 +4959,7 @@ static PyMethodDef Pympq_methods [] =
     { "numer", Pympq_numer, METH_VARARGS, doc_numerm },
     { "denom", Pympq_denom, METH_VARARGS, doc_denomm },
     { "copy", Pympany_copy, METH_NOARGS, doc_copym },
-    { "binary", Pympq_binary, METH_VARARGS, doc_qbinarym },
+    { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
     { "digits", Pympq_digits, METH_VARARGS, doc_qdigitsm },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivm },
     { NULL, NULL, 1 }
@@ -5016,7 +4968,7 @@ static PyMethodDef Pympq_methods [] =
 static PyMethodDef Pympf_methods [] =
 {
     { "reldiff", Pympf_doreldiff, METH_VARARGS, doc_reldiffm },
-    { "binary", Pympf_binary, METH_VARARGS, doc_fbinarym },
+    { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
     { "digits", Pympf_digits, METH_VARARGS, doc_fdigitsm },
     { "round", Pympf_round, METH_VARARGS, doc_froundm },
     { "getprec", Pympf_getprec, METH_VARARGS, doc_getprecm },
