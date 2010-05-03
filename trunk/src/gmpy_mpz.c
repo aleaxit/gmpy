@@ -25,7 +25,6 @@ Pympz_digits(PyObject *self, PyObject *args)
 
     PARSE_ONE_MPZ_OPT_CLONG(&base,
                             "digits() requires 'mpz',['int'] arguments");
-    assert(Pympz_Check(self));
     s = Pympz_ascii((PympzObject*)self, base, 0);
     Py_DECREF(self);
     return s;
@@ -63,7 +62,7 @@ Pympz_numdigits(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
-    s = PyIntOrLong_FromLong((long) mpz_sizeinbase(Pympz_AS_MPZ(self), base));
+    s = PyIntOrLong_FromSize_t(mpz_sizeinbase(Pympz_AS_MPZ(self), base));
     Py_DECREF(self);
     return s;
 }
@@ -80,10 +79,10 @@ Pympz_bit_length(PyObject *self, PyObject *other)
     size_t i = 0;
     PympzObject* newob;
 
-    if(self && Pympz_Check(self)) {
+    if(self && (Pympz_Check(self) || Pyxmpz_Check(self))) {
         if (mpz_size(Pympz_AS_MPZ(self)))
             i = mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
-    } else if(Pympz_Check(other)) {
+    } else if(Pympz_Check(other) || Pyxmpz_Check(other)) {
         if (mpz_size(Pympz_AS_MPZ(other)))
             i = mpz_sizeinbase(Pympz_AS_MPZ(other), 2);
     } else {
@@ -119,13 +118,12 @@ static PyObject *
 Pympz_scan0(PyObject *self, PyObject *args)
 {
     long starting_bit = 0;
-    long maxbit;
+    size_t maxbit;
     PyObject *s;
 
     PARSE_ONE_MPZ_OPT_CLONG(&starting_bit,
                             "scan0() requires 'mpz',['int'] arguments");
 
-    assert(Pympz_Check(self));
     if(starting_bit < 0) {
         PyErr_SetString(PyExc_ValueError, "starting bit must be >= 0");
         Py_DECREF(self);
@@ -174,7 +172,6 @@ Pympz_scan1(PyObject *self, PyObject *args)
     PARSE_ONE_MPZ_OPT_CLONG(&starting_bit,
                             "scan1() requires 'mpz',['int'] arguments");
 
-    assert(Pympz_Check(self));
     if(starting_bit < 0) {
         PyErr_SetString(PyExc_ValueError, "starting bit must be >= 0");
         Py_DECREF(self);
@@ -210,49 +207,23 @@ this is 'infinite' if x<0, and in that case, -1 is returned.\n\
 x must be an mpz, or else gets coerced to one.\n\
 ";
 static PyObject *
-Pympz_popcount(PyObject *self, PyObject *args)
+Pympz_popcount(PyObject *self, PyObject *other)
 {
-    PyObject *s;
+    PympzObject *temp;
 
-    PARSE_ONE_MPZ("popcount() requires 'mpz' argument");
-    assert(Pympz_Check(self));
-    s = PyIntOrLong_FromLong(mpz_popcount(Pympz_AS_MPZ(self)));
-    Py_DECREF(self);
-    return s;
-}
-
-/* return N lowest bits from an mpz */
-static char doc_lowbitsm[]="\
-x.lowbits(n): returns the n lowest bits of x; n must be an\n\
-ordinary Python int, >0.\n\
-";
-static char doc_lowbitsg[]="\
-lowbits(x,n): returns the n lowest bits of x; n must be an\n\
-ordinary Python int, >0; x must be an mpz, or else gets\n\
-coerced to one.\n\
-";
-static PyObject *
-Pympz_lowbits(PyObject *self, PyObject *args)
-{
-    long nbits;
-    PympzObject *s;
-
-    PARSE_ONE_MPZ_REQ_CLONG(&nbits,
-                            "lowbits()  requires expects 'mpz','int' arguments");
-
-    assert(Pympz_Check(self));
-    if(nbits <= 0) {
-        PyErr_SetString(PyExc_ValueError, "nbits must be > 0");
-        Py_DECREF(self);
-        return NULL;
+    if(self && (Pympz_Check(self) || Pyxmpz_Check(self)))
+        return PyIntOrLong_FromLong(mpz_popcount(Pympz_AS_MPZ(self)));
+    else if(Pympz_Check(other) || Pyxmpz_Check(other))
+        return PyIntOrLong_FromLong(mpz_popcount(Pympz_AS_MPZ(other)));
+    else {
+        if((temp = Pympz_From_Integer(other)))
+            return PyIntOrLong_FromLong(mpz_popcount(Pympz_AS_MPZ(temp)));
+        else {
+            PyErr_SetString(PyExc_TypeError,
+                            "popcount() requires 'mpz' argument");
+            return NULL;
+        }
     }
-    if(!(s = Pympz_new())) {
-        Py_DECREF(self);
-        return NULL;
-    }
-    mpz_fdiv_r_2exp(s->z, Pympz_AS_MPZ(self), nbits);
-    Py_DECREF(self);
-    return (PyObject*)s;
 }
 
 /* get & return one bit from an mpz */
@@ -274,7 +245,6 @@ Pympz_getbit(PyObject *self, PyObject *args)
     PARSE_ONE_MPZ_REQ_CLONG(&bit_index,
             "getbit() requires 'mpz','int' arguments");
 
-    assert(Pympz_Check(self));
     if(bit_index < 0) {
         PyErr_SetString(PyExc_ValueError, "bit_index must be >= 0");
         Py_DECREF(self);
@@ -303,7 +273,7 @@ Pympz_setbit(PyObject *self, PyObject *args)
     PympzObject *s;
 
     argc = PyTuple_GET_SIZE(args);
-    if(self && Pympz_Check(self)) {
+    if(self && (Pympz_Check(self) || Pyxmpz_Check(self))) {
         if(argc == 1) {
             bit_index = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
             if(bit_index == -1 && PyErr_Occurred()) {
@@ -1637,9 +1607,9 @@ Pympz_is_even(PyObject *self, PyObject *other)
     int res;
     PympzObject* newob;
 
-    if(self && Pympz_Check(self)) {
+    if(self && (Pympz_Check(self) || Pyxmpz_Check(self))) {
         res = mpz_even_p(Pympz_AS_MPZ(self));
-    } else if(Pympz_Check(other)) {
+    } else if(Pympz_Check(other) || Pyxmpz_Check(other)) {
         res = mpz_even_p(Pympz_AS_MPZ(other));
     } else {
         newob = Pympz_From_Integer(other);
@@ -1670,9 +1640,9 @@ Pympz_is_odd(PyObject *self, PyObject *other)
     int res;
     PympzObject* newob;
 
-    if(self && Pympz_Check(self)) {
+    if(self && (Pympz_Check(self) || Pyxmpz_Check(self))) {
         res = mpz_odd_p(Pympz_AS_MPZ(self));
-    } else if(Pympz_Check(other)) {
+    } else if(Pympz_Check(other) || Pyxmpz_Check(other)) {
         res = mpz_odd_p(Pympz_AS_MPZ(other));
     } else {
         newob = Pympz_From_Integer(other);

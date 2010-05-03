@@ -24,10 +24,12 @@
  * supports either gmpy.fname(z) or z.fname(). "self" must be decref'ed.
  * "msg" should be an error message that includes the function name and
  * describes the required arguments. Replaces SELF_MPZ_NO_ARG.
+ *
+ * Also considers an 'xmpz' to be equivalent to an 'mpz'.
  */
 
 #define PARSE_ONE_MPZ(msg) \
-    if(self && Pympz_Check(self)) {\
+    if(self && (Pympz_Check(self) || Pyxmpz_Check(self))) {\
         if (PyTuple_GET_SIZE(args) != 0) {\
             PyErr_SetString(PyExc_TypeError, msg);\
             return NULL;\
@@ -53,10 +55,12 @@
  * z.fname(l). "self" must be decref'ed. "var" must be a pointer to a long.
  * "msg" should be an error message that includes the function name and
  * describes the required arguments. Replaces some uses of SELF_MPZ_ONE_ARG.
+ *
+ * Also considers an 'xmpz' to be equivalent to an 'mpz'.
  */
 
 #define PARSE_ONE_MPZ_OPT_CLONG(var, msg) \
-    if(self && Pympz_Check(self)) {\
+    if(self && (Pympz_Check(self) || Pyxmpz_Check(self))) {\
         if (PyTuple_GET_SIZE(args) == 1) {\
             *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             if(*var == -1 && PyErr_Occurred()) {\
@@ -96,10 +100,12 @@
  * pointer to a long. "msg" should be an error message that includes the
  * function name and describes the required arguments. Replaces some uses of
  * SELF_MPZ_ONE_ARG.
+ *
+ * Also considers an 'xmpz' to be equivalent to an 'mpz'.
  */
 
 #define PARSE_ONE_MPZ_REQ_CLONG(var, msg) \
-    if(self && Pympz_Check(self)) {\
+    if(self && (Pympz_Check(self) || Pyxmpz_Check(self))) {\
         if (PyTuple_GET_SIZE(args) != 1) {\
             PyErr_SetString(PyExc_TypeError, msg);\
             return NULL;\
@@ -136,10 +142,12 @@
  * decref'ed after use. "msg" should be an error message that includes the
  * function name and describes the required arguments. Replaces
  * SELF_MPZ_ONE_ARG_CONVERTED(var).
+ *
+ * Also considers an 'xmpz' to be equivalent to an 'mpz'.
  */
 
 #define PARSE_TWO_MPZ(var, msg) \
-    if(self && Pympz_Check(self)) {\
+    if(self && (Pympz_Check(self) || Pyxmpz_Check(self))) {\
         if (PyTuple_GET_SIZE(args) != 1) {\
             PyErr_SetString(PyExc_TypeError, msg);\
             return NULL;\

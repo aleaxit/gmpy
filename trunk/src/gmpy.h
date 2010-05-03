@@ -64,6 +64,9 @@ extern "C" {
 
 #define ALLOC_THRESHOLD 8192
 
+#define TYPE_ERROR(msg) PyErr_SetString(PyExc_TypeError, msg)
+#define VALUE_ERROR(msg) PyErr_SetString(PyExc_ValueError, msg)
+
 #ifdef USE_ALLOCA
 #define TEMP_ALLOC(B, S) \
     if(S < ALLOC_THRESHOLD) { \
