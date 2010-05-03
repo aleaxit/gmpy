@@ -2861,7 +2861,7 @@ Pympf2repr(PympfObject *self)
  */
 
 #include "gmpy_mpz.c"
-#include "gmpy_mpz_optimized.c"
+#include "gmpy_mpz_divmod2exp.c"
 
 /* produce digits for an mpq in requested base, default 10 */
 static char doc_qdigitsm[]="\
