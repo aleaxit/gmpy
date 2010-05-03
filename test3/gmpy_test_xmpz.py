@@ -1,56 +1,12 @@
-# partial unit test for gmpy2 mpz functionality
+# partial unit test for gmpy2 xmpz functionality
 # relies on Tim Peters' "doctest.py" test-driver
-r'''
->>> list(filter(lambda x: not x.startswith('_'), dir(_g)))
-['binary', 'bincoef', 'bit_length', 'cdivmod', 'ceil', 'comb', 'copy', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fdigits', 'fdivmod', 'fib', 'fib2', 'floor', 'fmod2exp', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lucas', 'lucas2', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qdigits', 'qdiv', 'qsign', 'reldiff', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'set_cache', 'set_debug', 'set_fcoform', 'set_minprec', 'set_prefer_mutable', 'set_tagoff', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod', 'trunc', 'version', 'xmpz']
->>> dir(a)
-['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__iadd__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__', '__index__', '__init__', '__int__', '__invert__', '__ipow__', '__irshift__', '__isub__', '__le__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', 'binary', 'bincoef', 'bit_length', 'cdivmod', 'comb', 'copy', 'digits', 'divexact', 'fdivmod', 'fmod2exp', 'getbit', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod']
->>>
-'''
+
 import gmpy2 as _g, doctest, sys, operator, gc
 __test__={}
-a=_g.mpz(123)
-b=_g.mpz(456)
-
-# Disable tests since they are not reliable with Python 3.1 but left behind
-# in case it is needed in the future.
-
-if sys.platform in ('__DISABLE__linux2', '__DISABLE__darwin'):
-  def _memsize():
-    """ this function tries to return a measurement of how much memory
-        this process is consuming (if it doesn't manage to, it returns 0).
-    """
-    import os
-    try: x = int(os.popen('ps -p %d -o vsz|tail -1' % os.getpid()).read())
-    except: x = 0
-    return x
-else:
-  def _memsize():
-    return 0
-
-def factorize(x):
-    r'''
-    >>> factorize(a)
-    [3, 41]
-    >>> factorize(b)
-    [2, 2, 2, 3, 19]
-    >>>
-    '''
-    savex=x
-    prime=2
-    x=_g.mpz(x)
-    factors=[]
-    while x>=prime:
-        newx,mult=x.remove(prime)
-        if mult:
-            factors.extend([int(prime)]*mult)
-            x=newx
-        prime=_g.next_prime(prime)
-    for factor in factors: assert _g.is_prime(factor)
-    from operator import mul
-    from functools import reduce
-    assert reduce(mul, factors)==savex
-    return factors
+a=_g.xmpz(123)
+b=_g.xmpz(456)
+aa=_g.mpz(123)
+bb=_g.mpz(456)
 
 __test__['index']=\
 r'''
@@ -65,69 +21,69 @@ IndexError: range object index out of range
 __test__['elemop']=\
 r'''
 >>> a+b
-mpz(579)
+xmpz(579)
 >>> a-b
-mpz(-333)
+xmpz(-333)
 >>> a*b
-mpz(56088)
+xmpz(56088)
 >>> a//b
-mpz(0)
+xmpz(0)
 >>> a/b
 mpf('2.69736842105263157895e-1')
 >>> b//a
-mpz(3)
+xmpz(3)
 >>> b/a
 mpf('3.70731707317073170732e0')
 >>> a%b
-mpz(123)
+xmpz(123)
 >>> 0%b
-mpz(0)
+xmpz(0)
 >>> b+a
-mpz(579)
+xmpz(579)
 >>> b-a
-mpz(333)
+xmpz(333)
 >>> b*a
-mpz(56088)
+xmpz(56088)
 >>> b%a
-mpz(87)
+xmpz(87)
 >>> divmod(a,b)
-(mpz(0), mpz(123))
+(xmpz(0), xmpz(123))
 >>> divmod(b,a)
-(mpz(3), mpz(87))
+(xmpz(3), xmpz(87))
 >>> divmod(0,b)
-(mpz(0), mpz(0))
+(xmpz(0), xmpz(0))
 >>> -a
-mpz(-123)
+xmpz(-123)
 >>> a+1
-mpz(124)
+xmpz(124)
 >>> a+(-1)
-mpz(122)
+xmpz(122)
 >>> (-1)+a
-mpz(122)
+xmpz(122)
 >>> 1+a
-mpz(124)
+xmpz(124)
 >>> a-1
-mpz(122)
+xmpz(122)
 >>> a-(-1)
-mpz(124)
+xmpz(124)
 >>> 1-a
-mpz(-122)
+xmpz(-122)
 >>> (-1)-a
-mpz(-124)
+xmpz(-124)
 >>> a+True
-mpz(124)
+xmpz(124)
 >>> a+False
-mpz(123)
+xmpz(123)
 >>> a*False
-mpz(0)
+xmpz(0)
 >>> a//True
-mpz(123)
+xmpz(123)
 >>> abs(-a)==a
-1
+True
 >>> pow(a,10)
-mpz(792594609605189126649)
+xmpz(792594609605189126649)
 >>> pow(a,7,b)
-mpz(99)
+xmpz(99)
 >>> _g.sign(b-a)
 1
 >>> _g.sign(b-b)
@@ -140,13 +96,10 @@ mpz(99)
 -1
 >>> z=b-b; z.sign()
 0
->>> import pickle
->>> pickle.loads(pickle.dumps(_g.mpz(12346789)))
-mpz(12346789)
 >>> s='12345678901234567890123456789'
->>> int(s) == _g.mpz(s)
+>>> int(s) == _g.xmpz(s)
 True
->>> _g.mpz(s) == int(s)
+>>> _g.xmpz(s) == int(s)
 True
 >>> del s
 >>> _g.is_even(a)
@@ -283,13 +236,13 @@ inf
 nan
 >>> float('nan') * a
 nan
->>> _g.mpz(0) * float('Inf')
+>>> _g.xmpz(0) * float('Inf')
 nan
->>> _g.mpz(0) * float('-Inf')
+>>> _g.xmpz(0) * float('-Inf')
 nan
->>> float('Inf') * _g.mpz(0)
+>>> float('Inf') * _g.xmpz(0)
 nan
->>> float('-Inf') * _g.mpz(0)
+>>> float('-Inf') * _g.xmpz(0)
 nan
 >>> a / float('Inf')
 mpf('0.e0')
@@ -311,7 +264,7 @@ inf
 nan
 >>> float('nan') / a
 nan
->>> float('nan') / _g.mpz(0)
+>>> float('nan') / _g.xmpz(0)
 Traceback (most recent call last):
   ...
 ZeroDivisionError: mpz division by zero
@@ -327,11 +280,11 @@ ZeroDivisionError: mpz division by zero
 (nan, nan)
 >>> divmod(-a, float('nan'))
 (nan, nan)
->>> divmod(_g.mpz(0), float('Inf'))
+>>> divmod(_g.xmpz(0), float('Inf'))
 (mpf('0.e0'), mpf('0.e0'))
->>> divmod(_g.mpz(0), float('-Inf'))
+>>> divmod(_g.xmpz(0), float('-Inf'))
 (mpf('0.e0'), mpf('0.e0'))
->>> divmod(_g.mpz(0), float('nan'))
+>>> divmod(_g.xmpz(0), float('nan'))
 (nan, nan)
 >>> divmod(float('Inf'), a)
 (nan, nan)
@@ -345,15 +298,15 @@ ZeroDivisionError: mpz division by zero
 (nan, nan)
 >>> divmod(float('nan'), -a)
 (nan, nan)
->>> divmod(float('Inf'), _g.mpz(0))
+>>> divmod(float('Inf'), _g.xmpz(0))
 Traceback (most recent call last):
   ...
 ZeroDivisionError: mpz modulo by zero
->>> divmod(float('-Inf'), _g.mpz(0))
+>>> divmod(float('-Inf'), _g.xmpz(0))
 Traceback (most recent call last):
   ...
 ZeroDivisionError: mpz modulo by zero
->>> divmod(float('nan'), _g.mpz(0))
+>>> divmod(float('nan'), _g.xmpz(0))
 Traceback (most recent call last):
   ...
 ZeroDivisionError: mpz modulo by zero
@@ -361,8 +314,8 @@ ZeroDivisionError: mpz modulo by zero
 
 __test__['divexact']=\
 r'''
->>> a=_g.mpz('1234567912345678912345679')
->>> b=_g.mpz('789789789789789789789789')
+>>> a=_g.xmpz('1234567912345678912345679')
+>>> b=_g.xmpz('789789789789789789789789')
 >>> c=a*b
 >>> _g.divexact(c,a)
 mpz(789789789789789789789789)
@@ -399,9 +352,9 @@ r'''
 
 __test__['cmpr']=\
 r'''
->>> c=_g.mpz(a)
+>>> c=_g.xmpz(a)
 >>> c is a
-1
+0
 >>> c==a
 1
 >>> c>a
@@ -417,28 +370,28 @@ r'''
 0
 >>> a<b
 1
->>> not _g.mpz(0)
+>>> not _g.xmpz(0)
 1
 >>> not a
 0
->>> _g.mpz(1) == None
+>>> _g.xmpz(1) == None
 False
->>> _g.mpz(1) == '1'
+>>> _g.xmpz(1) == '1'
 False
->>> _g.mpz(1) == 'abc'
+>>> _g.xmpz(1) == 'abc'
 False
->>> [_g.mpz(23), None].count(None)
+>>> [_g.xmpz(23), None].count(None)
 1
->>> _g.mpz(3.14)
+>>> _g.xmpz(3.14)
 mpz(3)
->>> _g.mpz(_g.mpq(17,3))
+>>> _g.xmpz(_g.mpq(17,3))
 mpz(5)
->>> _g.mpz(23)
+>>> _g.xmpz(23)
 mpz(23)
->>> _g.mpz(-23)
+>>> _g.xmpz(-23)
 mpz(-23)
 >>> x=1000*1000*1000*1000*1000*1000*1000
->>> _g.mpz(x)
+>>> _g.xmpz(x)
 mpz(1000000000000000000000)
 >>> a == float('Inf')
 False
@@ -526,13 +479,13 @@ TypeError: hamdist() requires 'mpz','mpz' arguments
 Traceback (innermost last):
   ...
 TypeError: hamdist() requires 'mpz','mpz' arguments
->>> a.fmod2exp(5)
+>>> a.lowbits(5)
 mpz(27)
->>> b.fmod2exp(5)
+>>> b.lowbits(5)
 mpz(8)
->>> b.fmod2exp(5)==(b%32)
+>>> b.lowbits(5)==(b%32)
 1
->>> a.fmod2exp(5)==(a%32)
+>>> a.lowbits(5)==(a%32)
 1
 >>> a.setbit(20)
 mpz(1048699)
@@ -566,14 +519,14 @@ mpz(122)
 [2, 2, 2, 7, 7, 7, 7, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
 >>> [a.scan1(j) for j in range(10)]
 [0, 1, 3, 3, 4, 5, 6, None, None, None]
->>> n=_g.mpz(-(7+6*16+5*256+7*4092))
+>>> n=_g.xmpz(-(7+6*16+5*256+7*4092))
 >>> [n.scan0(j) for j in range(18)]
 [1, 1, 3, 3, 6, 6, 6, 8, 8, 10, 10, 12, 12, 13, 14, -1, None, None]
 >>> [n.scan1(j) for j in range(33)]
 [0, 2, 2, 4, 4, 5, 7, 7, 9, 9, 11, 11, 15, 15, 15, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
->>> _g.mpz(0).bit_length()
+>>> _g.xmpz(0).bit_length()
 0
->>> _g.mpz(12345).bit_length()
+>>> _g.xmpz(12345).bit_length()
 14
 '''
 
@@ -582,16 +535,16 @@ r'''
 >>> str(a)
 '123'
 >>> repr(a)
-'mpz(123)'
+'xmpz(123)'
 >>> hex(a)
 '0x7b'
 >>> oct(a)
 '0o173'
->>> _g.mpz('123')
-mpz(123)
->>> _g.mpz('1001001011',2)
-mpz(587)
->>> _g.mpz('1001001011',2).digits(2)
+>>> _g.xmpz('123')
+xmpz(123)
+>>> _g.xmpz('1001001011',2)
+xmpz(587)
+>>> _g.xmpz('1001001011',2).digits(2)
 '0b1001001011'
 >>> for i in range(2,37):
 ...     print(a.digits(i))
@@ -639,23 +592,23 @@ ValueError: base must be either 0 or in the interval 2 ... 36
 >>> _g.set_tagoff(0)
 1
 >>> a
-gmpy2.mpz(123)
+gmpy2.xmpz(123)
 >>> _g.set_tagoff(1)
 0
->>> _g.mpz('43')
-mpz(43)
->>> _g.mpz('043')
-mpz(43)
->>> _g.mpz('43',0)
-mpz(43)
->>> _g.mpz('043',0)
-mpz(35)
->>> _g.mpz('0x43',0)
-mpz(67)
->>> _g.mpz('0x43')
+>>> _g.xmpz('43')
+xmpz(43)
+>>> _g.xmpz('043')
+xmpz(43)
+>>> _g.xmpz('43',0)
+xmpz(43)
+>>> _g.xmpz('043',0)
+xmpz(35)
+>>> _g.xmpz('0x43',0)
+xmpz(67)
+>>> _g.xmpz('0x43')
 Traceback (innermost last):
   File "<pyshell#181>", line 1, in ?
-    _g.mpz('0x43')
+    _g.xmpz('0x43')
 ValueError: invalid digits
 >>>
 '''
@@ -665,19 +618,19 @@ r'''
 >>> ba=a.binary()
 >>> ba
 b'{'
->>> _g.mpz(ba,256)
-mpz(123)
->>> _g.mpz(ba,256)==a
+>>> _g.xmpz(ba,256)
+xmpz(123)
+>>> _g.xmpz(ba,256)==a
 1
->>> _g.binary(_g.mpz(123))
+>>> _g.binary(_g.xmpz(123))
 b'{'
->>> z=_g.mpz('melancholy',256)
+>>> z=_g.xmpz('melancholy',256)
 >>> z
-mpz(573406620562849222387053)
+xmpz(573406620562849222387053)
 >>> int(z)
 573406620562849222387053
 >>> divmod(z,a)
-(mpz(4661842443600400182008), mpz(69))
+(xmpz(4661842443600400182008), xmpz(69))
 >>> for i in range(2,37):
 ...    print(i,z.numdigits(i))
 ...
@@ -724,15 +677,9 @@ mpz(573406620562849222387053)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
 ValueError: base must be either 0 or in the interval 2 ... 36
->>> hash(a)
-123
->>> hash(b)
-456
->>> hash(z) == hash(int(z))
-True
->>> _g.mpz(_g.binary(_g.mpz(-123)),256)
-mpz(-123)
->>> int(_g.mpz(-3))
+>>> _g.xmpz(_g.binary(_g.xmpz(-123)),256)
+xmpz(-123)
+>>> int(_g.xmpz(-3))
 -3
 '''
 
@@ -818,11 +765,11 @@ mpz(0)
 mpz(3)
 >>> _g.divm(4,8,20)
 mpz(3)
->>> _g.mpz(20)
+>>> _g.xmpz(20)
 mpz(20)
->>> _g.mpz(8)
+>>> _g.xmpz(8)
 mpz(8)
->>> _g.mpz(4)
+>>> _g.xmpz(4)
 mpz(4)
 >>> # guard against regression of a memory leak in divm
 >>> __ = gc.collect()

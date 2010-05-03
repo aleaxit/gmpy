@@ -2,9 +2,9 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('_'), dir(_g))
-['binary', 'bincoef', 'bit_length', 'cdivmod', 'ceil', 'comb', 'copy', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fdigits', 'fdivmod', 'fib', 'fib2', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'lucas', 'lucas2', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qdigits', 'qdiv', 'qsign', 'reldiff', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'set_cache', 'set_debug', 'set_fcoform', 'set_minprec', 'set_prefer_mutable', 'set_tagoff', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod', 'trunc', 'version', 'xmpz']
+['binary', 'bincoef', 'bit_length', 'cdivmod', 'ceil', 'comb', 'copy', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fdigits', 'fdivmod', 'fib', 'fib2', 'floor', 'fmod2exp', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lucas', 'lucas2', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qdigits', 'qdiv', 'qsign', 'reldiff', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'set_cache', 'set_debug', 'set_fcoform', 'set_minprec', 'set_prefer_mutable', 'set_tagoff', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod', 'trunc', 'version', 'xmpz']
 >>> filter(lambda x: not x.startswith('__'), dir(a))
-['binary', 'bincoef', 'bit_length', 'cdivmod', 'comb', 'copy', 'digits', 'divexact', 'fdivmod', 'getbit', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod']
+['binary', 'bincoef', 'bit_length', 'cdivmod', 'comb', 'copy', 'digits', 'divexact', 'fdivmod', 'fmod2exp', 'getbit', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod']
 >>>
 '''
 import gmpy2 as _g, doctest, sys, operator, gc
@@ -521,13 +521,13 @@ TypeError: hamdist() requires 'mpz','mpz' arguments
 Traceback (innermost last):
   ...
 TypeError: hamdist() requires 'mpz','mpz' arguments
->>> a.lowbits(5)
+>>> a.fmod2exp(5)
 mpz(27)
->>> b.lowbits(5)
+>>> b.fmod2exp(5)
 mpz(8)
->>> b.lowbits(5)==(b%32)
+>>> b.fmod2exp(5)==(b%32)
 1
->>> a.lowbits(5)==(a%32)
+>>> a.fmod2exp(5)==(a%32)
 1
 >>> a.setbit(20)
 mpz(1048699)
