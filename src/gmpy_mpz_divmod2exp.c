@@ -1,12 +1,10 @@
-/* gmpy_mpz_optimized.c
- *
- * Optimized functions that operate strictly on mpz or xmpz.
+/* gmpy_mpz_divmod2exp.c
  *
  * This file should be considered part of gmpy.c
  *
- * This file contains functions that are optimized for performance. Functions
- * are optimized by writing distinct functions for gmpy2.function versus
- * mpz.function.
+ * This file contains functions related to division and remainder by a power
+ * of two. Functions are optimized by writing distinct functions for
+ * gmpy2.function versus mpz.function.
  */
 
 /*
