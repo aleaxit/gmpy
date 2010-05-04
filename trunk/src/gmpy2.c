@@ -2862,6 +2862,7 @@ Pympf2repr(PympfObject *self)
 
 #include "gmpy_mpz.c"
 #include "gmpy_mpz_divmod2exp.c"
+#include "gmpy_mpz_divmod.c"
 
 /* produce digits for an mpq in requested base, default 10 */
 static char doc_qdigitsm[]="\
@@ -4922,16 +4923,12 @@ static PyMethodDef Pympz_methods [] =
     { "bincoef", Pympz_bincoef, METH_VARARGS, doc_bincoefm },
     { "bit_length", Pympz_bit_length, METH_NOARGS, doc_bit_lengthm },
     { "cdiv2exp", Pympz_cdiv2expm, METH_O, doc_cdiv2expm },
-    { "cdivmod", Pympz_cdivmod, METH_VARARGS, doc_cdivmodm },
-    { "cdivmod2exp", Pympz_cdivmod2expm, METH_O, doc_cdivmod2expm },
     { "cmod2exp", Pympz_cmod2expm, METH_O, doc_cmod2expm },
     { "comb", Pympz_bincoef, METH_VARARGS, doc_combm },
     { "copy", Pympany_copy, METH_NOARGS, doc_copym },
     { "digits", Pympz_digits, METH_VARARGS, doc_digitsm },
     { "divexact", Pympz_divexact, METH_VARARGS, doc_divexactm },
     { "fdiv2exp", Pympz_fdiv2expm, METH_O, doc_fdiv2expm },
-    { "fdivmod", Pympz_fdivmod, METH_VARARGS, doc_fdivmodm },
-    { "fdivmod2exp", Pympz_fdivmod2expm, METH_O, doc_fdivmod2expm },
     { "fmod2exp", Pympz_fmod2expm, METH_O, doc_fmod2expm },
     { "getbit", Pympz_getbit, METH_VARARGS, doc_getbitm },
     { "hamdist", Pympz_hamdist, METH_VARARGS, doc_hamdistm },
@@ -4958,8 +4955,6 @@ static PyMethodDef Pympz_methods [] =
     { "sqrt", Pympz_sqrt, METH_VARARGS, doc_sqrtm },
     { "sqrtrem", Pympz_sqrtrem, METH_VARARGS, doc_sqrtremm },
     { "tdiv2exp", Pympz_tdiv2expm, METH_O, doc_tdiv2expm },
-    { "tdivmod", Pympz_tdivmod, METH_VARARGS, doc_tdivmodm },
-    { "tdivmod2exp", Pympz_tdivmod2expm, METH_O, doc_tdivmod2expm },
     { "tmod2exp", Pympz_tmod2expm, METH_O, doc_tmod2expm },
     { NULL, NULL, 1 }
 };
@@ -4970,16 +4965,12 @@ static PyMethodDef Pyxmpz_methods [] =
     { "bincoef", Pympz_bincoef, METH_VARARGS, doc_bincoefm },
     { "bit_length", Pympz_bit_length, METH_NOARGS, doc_bit_lengthm },
     { "cdiv2exp", Pympz_cdiv2expm, METH_O, doc_cdiv2expm },
-    { "cdivmod", Pympz_cdivmod, METH_VARARGS, doc_cdivmodm },
-    { "cdivmod2exp", Pympz_cdivmod2expm, METH_O, doc_cdivmod2expm },
     { "cmod2exp", Pympz_cmod2expm, METH_O, doc_cmod2expm },
     { "comb", Pympz_bincoef, METH_VARARGS, doc_combm },
     { "copy", Pympany_copy, METH_NOARGS, doc_copym },
     { "digits", Pympz_digits, METH_VARARGS, doc_digitsm },
     { "divexact", Pympz_divexact, METH_VARARGS, doc_divexactm },
     { "fdiv2exp", Pympz_fdiv2expm, METH_O, doc_fdiv2expm },
-    { "fdivmod", Pympz_fdivmod, METH_VARARGS, doc_fdivmodm },
-    { "fdivmod2exp", Pympz_fdivmod2expm, METH_O, doc_fdivmod2expm },
     { "fmod2exp", Pympz_fmod2expm, METH_O, doc_fmod2expm },
     { "getbit", Pympz_getbit, METH_VARARGS, doc_getbitm },
     { "hamdist", Pympz_hamdist, METH_VARARGS, doc_hamdistm },
@@ -5006,8 +4997,6 @@ static PyMethodDef Pyxmpz_methods [] =
     { "sqrt", Pympz_sqrt, METH_VARARGS, doc_sqrtm },
     { "sqrtrem", Pympz_sqrtrem, METH_VARARGS, doc_sqrtremm },
     { "tdiv2exp", Pympz_tdiv2expm, METH_O, doc_tdiv2expm },
-    { "tdivmod", Pympz_tdivmod, METH_VARARGS, doc_tdivmodm },
-    { "tdivmod2exp", Pympz_tdivmod2expm, METH_O, doc_tdivmod2expm },
     { "tmod2exp", Pympz_tmod2expm, METH_O, doc_tmod2expm },
     { NULL, NULL, 1 }
 };

@@ -67,17 +67,17 @@ Pympz_fmod2expg(PyObject *self, PyObject *args)
     }
 }
 
-static char doc_fmod2expm[]="\
-x.fmod2exp(n): returns remainder after dividing x by 2**n. Uses 'floor'\n\
-rounding. Will mutate x if it is an 'xmpz'. n must be > 0.\n\
-";
-
 /* This function can only be used as a bound method of mpz or xmpz. The
  * function assumes 'self' contains an instance of 'mpz' or 'xmpz'. 'other'
  * containts the numbers of bits.
  *
  * This function will mutate an xmpz.
  */
+
+static char doc_fmod2expm[]="\
+x.fmod2exp(n): returns remainder after dividing x by 2**n. Uses 'floor'\n\
+rounding. Will mutate x if it is an 'xmpz'. n must be > 0.\n\
+";
 
 static PyObject *
 Pympz_fmod2expm(PyObject *self, PyObject *other)
@@ -162,17 +162,17 @@ Pympz_fdiv2expg(PyObject *self, PyObject *args)
     }
 }
 
-static char doc_fdiv2expm[]="\
-x.fdiv2exp(n): returns quotient after dividing x by 2**n. Uses 'floor'\n\
-rounding. Will mutate x if it is an 'xmpz'. n must be > 0.\n\
-";
-
 /* This function can only be used as a bound method of mpz or xmpz. The
  * function assumes 'self' contains an instance of 'mpz' or 'xmpz'. 'other'
  * containts the numbers of bits.
  *
  * This function will mutate an xmpz.
  */
+
+static char doc_fdiv2expm[]="\
+x.fdiv2exp(n): returns quotient after dividing x by 2**n. Uses 'floor'\n\
+rounding. Will mutate x if it is an 'xmpz'. n must be > 0.\n\
+";
 
 static PyObject *
 Pympz_fdiv2expm(PyObject *self, PyObject *other)
@@ -265,56 +265,6 @@ Pympz_fdivmod2expg(PyObject *self, PyObject *args)
         PyTuple_SET_ITEM(result, 1, (PyObject*)r);
         return result;
     }
-}
-
-static char doc_fdivmod2expm[]="\
-x.fdivmod2exp(n): returns quotient and remainder after dividing x by 2**n.\n\
-Uses 'floor' rounding. Both quotient and remainder are new objects. The result\n\
-types will match the type of x. n must be > 0.\n\
-";
-
-/* This function can only be used as a bound method of mpz or xmpz. The
- * function assumes 'self' contains an instance of 'mpz' or 'xmpz'. 'other'
- * containts the numbers of bits.
- *
- * This function will mutate an xmpz.
- */
-
-static PyObject *
-Pympz_fdivmod2expm(PyObject *self, PyObject *other)
-{
-    long nbits;
-    PyObject *q, *r, *result;
-
-    nbits = clong_From_Integer(other);
-    if(nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("mpz.fdivmod2exp() requires expects 'int' argument");
-        return NULL;
-    }
-    if(nbits <= 0) {
-        VALUE_ERROR("nbits must be > 0");
-        return NULL;
-    }
-    if(Pyxmpz_Check(self)) {
-        q = (PyObject*)Pyxmpz_new();
-        r = (PyObject*)Pyxmpz_new();
-    } else {
-        q = (PyObject*)Pympz_new();
-        r = (PyObject*)Pympz_new();
-    }
-    result = PyTuple_New(2);
-    if(!q || !r || !result) {
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)q);
-        Py_XDECREF((PyObject*)r);
-        return NULL;
-    }
-
-    mpz_fdiv_q_2exp(Pympz_AS_MPZ(q), Pympz_AS_MPZ(self), nbits);
-    mpz_fdiv_r_2exp(Pympz_AS_MPZ(r), Pympz_AS_MPZ(self), nbits);
-    PyTuple_SET_ITEM(result, 0, (PyObject*)q);
-    PyTuple_SET_ITEM(result, 1, (PyObject*)r);
-    return result;
 }
 
 /*
@@ -576,56 +526,6 @@ Pympz_cdivmod2expg(PyObject *self, PyObject *args)
     }
 }
 
-/* This function can only be used as a bound method of mpz or xmpz. The
- * function assumes 'self' contains an instance of 'mpz' or 'xmpz'. 'other'
- * containts the numbers of bits.
- *
- * This function will mutate an xmpz.
- */
-
-static char doc_cdivmod2expm[]="\
-x.cdivmod2exp(n): returns quotient and remainder after dividing x by 2**n.\n\
-Uses 'ceiling' rounding. Both quotient and remainder are new objects. The result\n\
-types will match the type of x. n must be > 0.\n\
-";
-
-static PyObject *
-Pympz_cdivmod2expm(PyObject *self, PyObject *other)
-{
-    long nbits;
-    PyObject *q, *r, *result;
-
-    nbits = clong_From_Integer(other);
-    if(nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("mpz.cdivmod2exp() requires expects 'int' argument");
-        return NULL;
-    }
-    if(nbits <= 0) {
-        VALUE_ERROR("nbits must be > 0");
-        return NULL;
-    }
-    if(Pyxmpz_Check(self)) {
-        q = (PyObject*)Pyxmpz_new();
-        r = (PyObject*)Pyxmpz_new();
-    } else {
-        q = (PyObject*)Pympz_new();
-        r = (PyObject*)Pympz_new();
-    }
-    result = PyTuple_New(2);
-    if(!q || !r || !result) {
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)q);
-        Py_XDECREF((PyObject*)r);
-        return NULL;
-    }
-
-    mpz_cdiv_q_2exp(Pympz_AS_MPZ(q), Pympz_AS_MPZ(self), nbits);
-    mpz_cdiv_r_2exp(Pympz_AS_MPZ(r), Pympz_AS_MPZ(self), nbits);
-    PyTuple_SET_ITEM(result, 0, (PyObject*)q);
-    PyTuple_SET_ITEM(result, 1, (PyObject*)r);
-    return result;
-}
-
 /*
  **************************************************************************
  *Truncating division and remainder by power of two.
@@ -884,54 +784,3 @@ Pympz_tdivmod2expg(PyObject *self, PyObject *args)
         return result;
     }
 }
-
-/* This function can only be used as a bound method of mpz or xmpz. The
- * function assumes 'self' contains an instance of 'mpz' or 'xmpz'. 'other'
- * containts the numbers of bits.
- *
- * This function will mutate an xmpz.
- */
-
-static char doc_tdivmod2expm[]="\
-x.tdivmod2exp(n): returns quotient and remainder after dividing x by 2**n.\n\
-Uses 'truncate' rounding. Both quotient and remainder are new objects. The\n\
-result types will match the type of x. n must be > 0.\n\
-";
-
-static PyObject *
-Pympz_tdivmod2expm(PyObject *self, PyObject *other)
-{
-    long nbits;
-    PyObject *q, *r, *result;
-
-    nbits = clong_From_Integer(other);
-    if(nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("mpz.tdivmod2exp() requires expects 'int' argument");
-        return NULL;
-    }
-    if(nbits <= 0) {
-        VALUE_ERROR("nbits must be > 0");
-        return NULL;
-    }
-    if(Pyxmpz_Check(self)) {
-        q = (PyObject*)Pyxmpz_new();
-        r = (PyObject*)Pyxmpz_new();
-    } else {
-        q = (PyObject*)Pympz_new();
-        r = (PyObject*)Pympz_new();
-    }
-    result = PyTuple_New(2);
-    if(!q || !r || !result) {
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)q);
-        Py_XDECREF((PyObject*)r);
-        return NULL;
-    }
-
-    mpz_tdiv_q_2exp(Pympz_AS_MPZ(q), Pympz_AS_MPZ(self), nbits);
-    mpz_tdiv_r_2exp(Pympz_AS_MPZ(r), Pympz_AS_MPZ(self), nbits);
-    PyTuple_SET_ITEM(result, 0, (PyObject*)q);
-    PyTuple_SET_ITEM(result, 1, (PyObject*)r);
-    return result;
-}
-
