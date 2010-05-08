@@ -5551,11 +5551,6 @@ Pympz_hamdist(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_divexactm[]="\
-x.divexact(y): returns the quotient of x divided by y. Faster than\n\
-standard division but requires the remainder is zero!  y must be an\n\
-mpz, or else gets coerced to one.\n\
-";
 static char doc_divexactg[]="\
 divexact(x,y): returns the quotient of x divided by y. Faster than\n\
 standard division but requires the remainder is zero!  x and y must\n\
@@ -5569,6 +5564,14 @@ Pympz_divexact(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPZ(other, "divexact() expects 'mpz','mpz' arguments");
 
+    if(mpz_sgn(Pympz_AS_MPZ(other)) == 0) {
+        PyErr_SetString(PyExc_ZeroDivisionError,
+                "divexact() division by 0");
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
     if(!(result = Pympz_new())) {
         Py_DECREF(self);
         Py_DECREF(other);
@@ -5580,11 +5583,6 @@ Pympz_divexact(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_cdivmodm[]="\
-x.cdivmod(y): returns the quotient and remainder of x divided by y. The\n\
-quotient is rounded towards +Inf and the remainder will have the opposite\n\
-sign to y. y must be an mpz, or else gets coerced to one.\n\
-";
 static char doc_cdivmodg[]="\
 cdivmod(x,y): returns the quotient of x divided by y. The quotient\n\
 is rounded towards +Inf and the remainder will have the opposite\n\
@@ -5597,6 +5595,14 @@ Pympz_cdivmod(PyObject *self, PyObject *args)
     PympzObject *quot, *rem;
 
     PARSE_TWO_MPZ(other, "cdivmod() expects 'mpz','mpz' arguments");
+
+    if(mpz_sgn(Pympz_AS_MPZ(other)) == 0) {
+        PyErr_SetString(PyExc_ZeroDivisionError,
+                "cdivmod() division by 0");
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
 
     quot = Pympz_new();
     rem = Pympz_new();
@@ -5619,11 +5625,6 @@ Pympz_cdivmod(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_fdivmodm[]="\
-x.fdivmod(y): returns the quotient and remainder of x divided by y. The\n\
-quotient is rounded towards -Inf and the remainder will have the same\n\
-sign as y. y must be an mpz, or else gets coerced to one.\n\
-";
 static char doc_fdivmodg[]="\
 fdivmod(x,y): returns the quotient of x divided by y. The quotient\n\
 is rounded towards -Inf and the remainder will have the same sign\n\
@@ -5637,6 +5638,14 @@ Pympz_fdivmod(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPZ(other, "fdivmod() expects 'mpz','mpz' arguments");
 
+    if(mpz_sgn(Pympz_AS_MPZ(other)) == 0) {
+        PyErr_SetString(PyExc_ZeroDivisionError,
+                "fdivmod() division by 0");
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
     quot = Pympz_new();
     rem = Pympz_new();
     result = PyTuple_New(2);
@@ -5649,6 +5658,7 @@ Pympz_fdivmod(PyObject *self, PyObject *args)
         return NULL;
     }
 
+
     mpz_fdiv_qr(quot->z, rem->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
 
     Py_DECREF(self);
@@ -5658,11 +5668,6 @@ Pympz_fdivmod(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_tdivmodm[]="\
-x.tdivmod(y): returns the quotient and remainder of x divided by y. The\n\
-quotient is rounded towards zero and the remainder will have the same\n\
-sign as x. y must be an mpz, or else gets coerced to one.\n\
-";
 static char doc_tdivmodg[]="\
 tdivmod(x,y): returns the quotient of x divided by y. The quotient\n\
 is rounded towards zero and the remaider will have the same sign\n\
@@ -5675,6 +5680,14 @@ Pympz_tdivmod(PyObject *self, PyObject *args)
     PympzObject *quot, *rem;
 
     PARSE_TWO_MPZ(other, "tdivmod() expects 'mpz','mpz' arguments");
+
+    if(mpz_sgn(Pympz_AS_MPZ(other)) == 0) {
+        PyErr_SetString(PyExc_ZeroDivisionError,
+                "tdivmod() division by 0");
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
 
     quot = Pympz_new();
     rem = Pympz_new();
@@ -5695,6 +5708,68 @@ Pympz_tdivmod(PyObject *self, PyObject *args)
     PyTuple_SET_ITEM(result, 0, (PyObject*)quot);
     PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
     return result;
+}
+
+static char doc_is_evenm[]="\
+x.even(): returns True if x is even, False otherwise.\n\
+";
+static char doc_is_eveng[]="\
+even(x): returns True if x is even, False otherwise.\n\
+";
+static PyObject *
+Pympz_is_even(PyObject *self, PyObject *other)
+{
+    int res;
+    PympzObject* newob;
+
+    if(self && Pympz_Check(self)) {
+        res = mpz_even_p(Pympz_AS_MPZ(self));
+    } else {
+        newob = Pympz_From_Integer(other);
+        if(newob) {
+            res = mpz_even_p(Pympz_AS_MPZ(newob));
+            Py_DECREF((PyObject*)newob);
+        } else {
+            PyErr_SetString(PyExc_TypeError,
+                            "is_even() requires 'mpz' argument");
+            return NULL;
+        }
+    }
+    if(res)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
+static char doc_is_oddm[]="\
+x.even(): returns True if x is even, False otherwise.\n\
+";
+static char doc_is_oddg[]="\
+even(x): returns True if x is even, False otherwise.\n\
+";
+static PyObject *
+Pympz_is_odd(PyObject *self, PyObject *other)
+{
+    int res;
+    PympzObject* newob;
+
+    if(self && Pympz_Check(self)) {
+        res = mpz_odd_p(Pympz_AS_MPZ(self));
+    } else {
+        newob = Pympz_From_Integer(other);
+        if(newob) {
+            res = mpz_odd_p(Pympz_AS_MPZ(newob));
+            Py_DECREF((PyObject*)newob);
+        } else {
+            PyErr_SetString(PyExc_TypeError,
+                            "is_odd() requires 'mpz' argument");
+            return NULL;
+        }
+    }
+    if(res)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
 }
 
 /* Include helper functions for mpmath. */
@@ -6507,6 +6582,8 @@ static PyMethodDef Pygmpy_methods [] =
     { "rand", Pygmpy_rand, 1, doc_rand },
     { "sqrt", Pympz_sqrt, 1, doc_sqrtg },
     { "sqrtrem", Pympz_sqrtrem, 1, doc_sqrtremg },
+    { "is_even", Pympz_is_even, 1, doc_is_eveng },
+    { "is_odd", Pympz_is_odd, 1, doc_is_oddg },
     { "is_square", Pympz_is_square, 1, doc_is_squareg },
     { "is_power", Pympz_is_power, 1, doc_is_powerg },
     { "is_prime", Pympz_is_prime, 1, doc_is_primeg },
@@ -6572,6 +6649,8 @@ static PyMethodDef Pympz_methods [] =
 {
     { "sqrt", Pympz_sqrt, 1, doc_sqrtm },
     { "sqrtrem", Pympz_sqrtrem, 1, doc_sqrtremm },
+    { "is_even", Pympz_is_even, 1, doc_is_evenm },
+    { "is_odd", Pympz_is_odd, 1, doc_is_oddm },
     { "is_square", Pympz_is_square, 1, doc_is_squarem },
     { "is_power", Pympz_is_power, 1, doc_is_powerm },
     { "is_prime", Pympz_is_prime, 1, doc_is_primem },
@@ -6588,10 +6667,6 @@ static PyMethodDef Pympz_methods [] =
     { "setbit", Pympz_setbit, 1, doc_setbitm },
     { "popcount", Pympz_popcount, 1, doc_popcountm },
     { "hamdist", Pympz_hamdist, 1, doc_hamdistm },
-    { "divexact", Pympz_divexact, 1, doc_divexactm },
-    { "cdivmod", Pympz_cdivmod, 1, doc_cdivmodm },
-    { "fdivmod", Pympz_fdivmod, 1, doc_fdivmodm },
-    { "tdivmod", Pympz_tdivmod, 1, doc_tdivmodm },
     { "scan0", Pympz_scan0, 1, doc_scan0m },
     { "scan1", Pympz_scan1, 1, doc_scan1m },
     { "root", Pympz_root, 1, doc_rootm },

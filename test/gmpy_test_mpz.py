@@ -3,9 +3,9 @@
 # test-version 1.12
 r'''
 >>> filter(lambda x: not x.startswith('_'), dir(_g))
-['binary', 'bincoef', 'bit_length', 'cdivmod', 'ceil', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fdivmod', 'fib', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'rand', 'reldiff', 'remove', 'root', 'scan0', 'scan1', 'set_cache', 'set_debug', 'set_fcoform', 'set_minprec', 'set_tagoff', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod', 'trunc', 'version']
+['binary', 'bincoef', 'bit_length', 'cdivmod', 'ceil', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fdivmod', 'fib', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'rand', 'reldiff', 'remove', 'root', 'scan0', 'scan1', 'set_cache', 'set_debug', 'set_fcoform', 'set_minprec', 'set_tagoff', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod', 'trunc', 'version']
 >>> filter(lambda x: not x.startswith('__'), dir(a))
-['_copy', 'binary', 'bincoef', 'bit_length', 'cdivmod', 'comb', 'digits', 'divexact', 'fdivmod', 'getbit', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod']
+['_copy', 'binary', 'bincoef', 'bit_length', 'comb', 'digits', 'getbit', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem']
 >>>
 '''
 import warnings
@@ -186,6 +186,10 @@ r'''
 >>> c=a*b
 >>> _g.divexact(c,a)
 mpz(789789789789789789789789L)
+>>> _g.divexact(10,0)
+Traceback (most recent call last):
+  ...
+ZeroDivisionError: divexact() division by 0
 >>>
 '''
 
@@ -215,6 +219,18 @@ r'''
 (mpz(-3), mpz(2))
 >>> _g.tdivmod(-17,-5)
 (mpz(3), mpz(-2))
+>>> _g.cdivmod(10,0)
+Traceback (most recent call last):
+  ...
+ZeroDivisionError: cdivmod() division by 0
+>>> _g.fdivmod(10,0)
+Traceback (most recent call last):
+  ...
+ZeroDivisionError: fdivmod() division by 0
+>>> _g.tdivmod(10,0)
+Traceback (most recent call last):
+  ...
+ZeroDivisionError: tdivmod() division by 0
 '''
 
 __test__['cmpr']=\
