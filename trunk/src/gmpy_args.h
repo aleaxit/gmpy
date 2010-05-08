@@ -1,3 +1,50 @@
+/* utility macros for creating the correct return type */
+
+/*
+ * Create a single object of type 'mpz' or 'xmpz'.
+ */
+
+#define CREATE_ONE_MPZANY(x, r)\
+    if(Pyxmpz_Check(x)) {\
+        r = (PyObject*)Pyxmpz_new();\
+    } else if(Pympz_Check(x)) {\
+        r = (PyObject*)Pympz_new();\
+    } else if(options.prefer_mutable) {\
+        r = (PyObject*)Pyxmpz_new();\
+    } else {\
+        r = (PyObject*)Pympz_new();\
+    }\
+    if(!r) {\
+        Py_XDECREF((PyObject*)r);\
+        return NULL;\
+    }
+
+/*
+ * Create two objects of type 'mpz' or 'xmpz' and a tuple
+ */
+
+#define CREATE_TWO_MPZANY_TUPLE(x, q, r, t)\
+    if(Pyxmpz_Check(x)) {\
+        q = (PyObject*)Pyxmpz_new();\
+        r = (PyObject*)Pyxmpz_new();\
+    } else if(Pympz_Check(x)) {\
+        q = (PyObject*)Pympz_new();\
+        r = (PyObject*)Pympz_new();\
+    } else if(options.prefer_mutable) {\
+        q = (PyObject*)Pyxmpz_new();\
+        r = (PyObject*)Pyxmpz_new();\
+    } else {\
+        q = (PyObject*)Pympz_new();\
+        r = (PyObject*)Pympz_new();\
+    }\
+    t = PyTuple_New(2);\
+    if(!q || !r || !t) {\
+        Py_XDECREF((PyObject*)t);\
+        Py_XDECREF((PyObject*)q);\
+        Py_XDECREF((PyObject*)r);\
+        return NULL;\
+    }
+
 /* utility macros for argument parsing */
 
 /*

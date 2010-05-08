@@ -150,6 +150,8 @@ static PyTypeObject Pympf_Type;
 static PyTypeObject Pyxmpz_Type;
 #define Pyxmpz_Check(v) (((PyObject*)v)->ob_type == &Pyxmpz_Type)
 
+#define CHECK_MPZANY(v) (Pympz_Check(v) || Pyxmpz_Check(v))
+
 #ifdef __cplusplus
 }
 #endif

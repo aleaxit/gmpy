@@ -479,14 +479,6 @@ TypeError: hamdist() requires 'mpz','mpz' arguments
 Traceback (innermost last):
   ...
 TypeError: hamdist() requires 'mpz','mpz' arguments
->>> a.lowbits(5)
-mpz(27)
->>> b.lowbits(5)
-mpz(8)
->>> b.lowbits(5)==(b%32)
-1
->>> a.lowbits(5)==(a%32)
-1
 >>> a.setbit(20)
 mpz(1048699)
 >>> a.setbit(0,0)
