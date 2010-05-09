@@ -67,6 +67,14 @@ extern "C" {
 #define TYPE_ERROR(msg) PyErr_SetString(PyExc_TypeError, msg)
 #define VALUE_ERROR(msg) PyErr_SetString(PyExc_ValueError, msg)
 #define ZERO_ERROR(msg) PyErr_SetString(PyExc_ZeroDivisionError, msg)
+#define SYSTEM_ERROR(msg) PyErr_SetString(PyExc_SystemError, msg)
+
+#ifdef FAST
+#define TRACE(msg)
+#else
+#define TRACE(msg) if(options.debug) fprintf(stderr, msg)
+#endif
+
 
 #ifdef USE_ALLOCA
 #define TEMP_ALLOC(B, S) \
