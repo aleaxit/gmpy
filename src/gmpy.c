@@ -5710,68 +5710,6 @@ Pympz_tdivmod(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_is_evenm[]="\
-x.even(): returns True if x is even, False otherwise.\n\
-";
-static char doc_is_eveng[]="\
-even(x): returns True if x is even, False otherwise.\n\
-";
-static PyObject *
-Pympz_is_even(PyObject *self, PyObject *other)
-{
-    int res;
-    PympzObject* newob;
-
-    if(self && Pympz_Check(self)) {
-        res = mpz_even_p(Pympz_AS_MPZ(self));
-    } else {
-        newob = Pympz_From_Integer(other);
-        if(newob) {
-            res = mpz_even_p(Pympz_AS_MPZ(newob));
-            Py_DECREF((PyObject*)newob);
-        } else {
-            PyErr_SetString(PyExc_TypeError,
-                            "is_even() requires 'mpz' argument");
-            return NULL;
-        }
-    }
-    if(res)
-        Py_RETURN_TRUE;
-    else
-        Py_RETURN_FALSE;
-}
-
-static char doc_is_oddm[]="\
-x.even(): returns True if x is even, False otherwise.\n\
-";
-static char doc_is_oddg[]="\
-even(x): returns True if x is even, False otherwise.\n\
-";
-static PyObject *
-Pympz_is_odd(PyObject *self, PyObject *other)
-{
-    int res;
-    PympzObject* newob;
-
-    if(self && Pympz_Check(self)) {
-        res = mpz_odd_p(Pympz_AS_MPZ(self));
-    } else {
-        newob = Pympz_From_Integer(other);
-        if(newob) {
-            res = mpz_odd_p(Pympz_AS_MPZ(newob));
-            Py_DECREF((PyObject*)newob);
-        } else {
-            PyErr_SetString(PyExc_TypeError,
-                            "is_odd() requires 'mpz' argument");
-            return NULL;
-        }
-    }
-    if(res)
-        Py_RETURN_TRUE;
-    else
-        Py_RETURN_FALSE;
-}
-
 /* Include helper functions for mpmath. */
 
 #include "gmpy_mpmath.c"
@@ -6582,8 +6520,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "rand", Pygmpy_rand, 1, doc_rand },
     { "sqrt", Pympz_sqrt, 1, doc_sqrtg },
     { "sqrtrem", Pympz_sqrtrem, 1, doc_sqrtremg },
-    { "is_even", Pympz_is_even, 1, doc_is_eveng },
-    { "is_odd", Pympz_is_odd, 1, doc_is_oddg },
     { "is_square", Pympz_is_square, 1, doc_is_squareg },
     { "is_power", Pympz_is_power, 1, doc_is_powerg },
     { "is_prime", Pympz_is_prime, 1, doc_is_primeg },
@@ -6649,8 +6585,6 @@ static PyMethodDef Pympz_methods [] =
 {
     { "sqrt", Pympz_sqrt, 1, doc_sqrtm },
     { "sqrtrem", Pympz_sqrtrem, 1, doc_sqrtremm },
-    { "is_even", Pympz_is_even, 1, doc_is_evenm },
-    { "is_odd", Pympz_is_odd, 1, doc_is_oddm },
     { "is_square", Pympz_is_square, 1, doc_is_squarem },
     { "is_power", Pympz_is_power, 1, doc_is_powerm },
     { "is_prime", Pympz_is_prime, 1, doc_is_primem },
