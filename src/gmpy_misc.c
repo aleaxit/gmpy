@@ -129,11 +129,11 @@ Pygmpy_set_cache(PyObject *self, PyObject *args)
     if(!PyArg_ParseTuple(args, "ii", &newcache, &newsize))
         return NULL;
     if(newcache<0 || newcache>MAX_CACHE) {
-        PyErr_SetString(PyExc_ValueError, "cache size must between 0 and 1000");
+        VALUE_ERROR("cache size must between 0 and 1000");
         return NULL;
     }
     if(newsize<0 || newsize>MAX_CACHE_LIMBS) {
-        PyErr_SetString(PyExc_ValueError, "object size must between 0 and 16384");
+        VALUE_ERROR("object size must between 0 and 16384");
         return NULL;
     }
     options.cache_size = newcache;
@@ -142,6 +142,7 @@ Pygmpy_set_cache(PyObject *self, PyObject *args)
     set_qcache();
     set_pympzcache();
     set_pympqcache();
+    set_pyxmpzcache();
     return Py_BuildValue("");
 }
 
@@ -209,8 +210,7 @@ Pygmpy_set_minprec(PyObject *self, PyObject *args)
     if(!PyArg_ParseTuple(args, "i", &i))
         return NULL;
     if(i<0) {
-        PyErr_SetString(PyExc_ValueError,
-            "minimum precision must be >= 0");
+        VALUE_ERROR("minimum precision must be >= 0");
         return NULL;
     }
     options.minprec = i;
@@ -242,14 +242,12 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
             /* int arg (1 to 30) used as # of digits for intermediate string */
             inew = clong_From_Integer(new);
             if(inew==-1 && PyErr_Occurred()) {
-                PyErr_SetString(PyExc_ValueError,
-                    "number of digits n must be 0<n<=30");
+                VALUE_ERROR("number of digits n must be 0<n<=30");
                 return NULL;
             }
             /* check range for number-of-digits setting */
             if(inew<=0 || inew>30) {
-                PyErr_SetString(PyExc_ValueError,
-                    "number of digits n must be 0<n<=30");
+                VALUE_ERROR("number of digits n must be 0<n<=30");
                 return NULL;
             }
             /* prepare Python format-string '%.12e' or whatever */
@@ -261,8 +259,7 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
 #endif
         } else { /* else arg must be string directly usable in formatting */
             if(!Py2or3String_Check(new)) {
-                PyErr_SetString(PyExc_TypeError,
-                    "set_fcoform argument must be int, string, or None");
+                TYPE_ERROR("set_fcoform argument must be int, string, or None");
                 return NULL;
             }
             Py_INCREF(new);
@@ -302,8 +299,7 @@ Pympany_copy(PyObject *self, PyObject *other)
         return (PyObject*)Pympq2Pympq((PympqObject*)other);
     else if(Pympf_Check(other))
         return (PyObject*)Pympf2Pympf((PympfObject*)other, 0);
-    PyErr_SetString(PyExc_TypeError,
-                    "copy() requires a gmpy2 object as argument");
+    TYPE_ERROR("copy() requires a gmpy2 object as argument");
     return NULL;
 }
 
@@ -339,7 +335,6 @@ Pympany_binary(PyObject *self, PyObject *other)
         return Pympq2binary((PympqObject*)other);
     else if(Pympf_Check(other))
         return Pympf2binary((PympfObject*)other);
-    PyErr_SetString(PyExc_TypeError,
-                    "binary() requires a gmpy2 object as argument");
+    TYPE_ERROR("binary() requires a gmpy2 object as argument");
     return NULL;
 }
