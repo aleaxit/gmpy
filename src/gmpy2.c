@@ -4002,8 +4002,9 @@ static PyObject *_cmp_to_object(int c, int op)
 static PyObject *
 mpany_richcompare(PyObject *a, PyObject *b, int op)
 {
-    int c;
+    int c, overflow;
     long temp;
+    mpz_t tempz;
     PyObject *tempa = 0, *tempb = 0, *result = 0;
 
     if(options.debug) {
@@ -4011,37 +4012,23 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         fprintf(stderr, "rich_compare: type(b) is %s\n", Py_TYPE(b)->tp_name);
     }
 
-    if(Pympz_Check(a) && PyIntOrLong_Check(b)) {
-        if(options.debug) fprintf(stderr, "compare (mpz,small_int)\n");
-        temp = clong_From_Integer(b);
-        if(options.debug) fprintf(stderr,"temp is %ld\n", temp);
-        if(temp==-1 && PyErr_Occurred()) {
-            PyErr_Clear();
-            if(options.debug) fprintf(stderr, "clearing error\n");
+    if(CHECK_MPZANY(a) && PyIntOrLong_Check(b)) {
+        if(options.debug)
+            fprintf(stderr, "compare (mpz,small_int)\n");
+        temp = PyLong_AsLongAndOverflow(b, &overflow);
+        if(overflow) {
+            mpz_inoc(tempz);
+            mpz_set_PyLong(tempz, b);
+            c = mpz_cmp(Pympz_AS_MPZ(a), tempz);
+            mpz_cloc(tempz);
         } else {
-            if(options.debug) fprintf(stderr, "temp: %ld\n", temp);
-            return _cmp_to_object(mpz_cmp_si(Pympz_AS_MPZ(a), temp), op);
+            c = mpz_cmp_si(Pympz_AS_MPZ(a), temp);
         }
+        return _cmp_to_object(c, op);
     }
-    if(Pympz_Check(a) && Pympz_Check(b)) {
+    if(CHECK_MPZANY(a) && CHECK_MPZANY(b)) {
         if(options.debug) fprintf(stderr, "compare (mpz,mpz)\n");
         return _cmp_to_object(mpz_cmp(Pympz_AS_MPZ(a), Pympz_AS_MPZ(b)), op);
-    }
-    if(Pyxmpz_Check(a) && PyIntOrLong_Check(b)) {
-        if(options.debug) fprintf(stderr, "compare (xmpz,small_int)\n");
-        temp = clong_From_Integer(b);
-        if(options.debug) fprintf(stderr,"temp is %ld\n", temp);
-        if(temp==-1 && PyErr_Occurred()) {
-            PyErr_Clear();
-            if(options.debug) fprintf(stderr, "clearing error\n");
-        } else {
-            if(options.debug) fprintf(stderr, "temp: %ld\n", temp);
-            return _cmp_to_object(mpz_cmp_si(Pyxmpz_AS_MPZ(a), temp), op);
-        }
-    }
-    if(Pyxmpz_Check(a) && Pyxmpz_Check(b)) {
-        if(options.debug) fprintf(stderr, "compare (xmpz,xmpz)\n");
-        return _cmp_to_object(mpz_cmp(Pyxmpz_AS_MPZ(a), Pyxmpz_AS_MPZ(b)), op);
     }
     if(Pympq_Check(a) && Pympq_Check(b)) {
         if(options.debug) fprintf(stderr, "compare (mpq,mpq)\n");

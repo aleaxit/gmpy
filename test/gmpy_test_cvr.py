@@ -214,7 +214,7 @@ ValueError: starting bit must be >= 0
 >>> _g.fmod2exp(12,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: nbits must be > 0
+ValueError: fmod2exp() requires n > 0
 >>> _g.getbit(12,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
