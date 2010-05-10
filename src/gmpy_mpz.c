@@ -642,117 +642,61 @@ MPZ_BINOP(mpz_xor)
 static PyObject *
 Pympz_rshift(PyObject *a, PyObject *b)
 {
-    PympzObject *rz, *pa, *pb;
+    PyObject *result;
     long count;
     int overflow;
 
-    if(!(rz = Pympz_new()))
-        return NULL;
+    CREATE_ONE_MPZANY(a, result);
 
     /* Try to make mpz >> Python int/long as fast as possible. */
-    if(Pympz_Check(a)) {
+    if(CHECK_MPZANY(a)) {
         if(PyIntOrLong_Check(b)) {
             count = PyLong_AsLongAndOverflow(b, &overflow);
             if(overflow) {
                 VALUE_ERROR("outrageous shift count");
-                Py_DECREF((PyObject*)rz);
+                Py_DECREF(result);
                 return NULL;
             } else if(count >= 0) {
-                mpz_fdiv_q_2exp(rz->z, Pympz_AS_MPZ(a), count);
-                return (PyObject *)rz;
+                mpz_fdiv_q_2exp(Pympz_AS_MPZ(result), Pympz_AS_MPZ(a), count);
+                return result;
             } else {
                 VALUE_ERROR("negative shift count");
-                Py_DECREF((PyObject*)rz);
+                Py_DECREF(result);
                 return NULL;
             }
         }
     }
-    pa = Pympz_From_Integer(a);
-    pb = Pympz_From_Integer(b);
-    if(!pb || !pa) {
-        PyErr_Clear();
-        Py_DECREF((PyObject*)rz);
-        Py_XDECREF((PyObject*)pa);
-        Py_XDECREF((PyObject*)pb);
-        Py_RETURN_NOTIMPLEMENTED;
-        }
-    if(mpz_sgn(Pympz_AS_MPZ(pb)) < 0) {
-        VALUE_ERROR("negative shift count");
-        Py_DECREF((PyObject*)rz);
-        Py_DECREF((PyObject*)pa);
-        Py_DECREF((PyObject*)pb);
-        return NULL;
-    }
-    if(!mpz_fits_slong_p(pb->z)) {
-        PyErr_SetString(PyExc_OverflowError, "outrageous shift count");
-        Py_DECREF((PyObject*)rz);
-        Py_DECREF((PyObject*)pa);
-        Py_DECREF((PyObject*)pb);
-        return NULL;
-    }
-    count = mpz_get_si(pb->z);
-    mpz_fdiv_q_2exp(rz->z, pa->z, count);
-    Py_DECREF((PyObject*)pa);
-    Py_DECREF((PyObject*)pb);
-    return (PyObject*)rz;
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 static PyObject *
 Pympz_lshift(PyObject *a, PyObject *b)
 {
-    PympzObject *rz, *pa, *pb;
+    PyObject *result;
     long count;
     int overflow;
 
-    if(!(rz = Pympz_new()))
-        return NULL;
+    CREATE_ONE_MPZANY(a, result);
 
     /* Try to make mpz >> Python int/long as fast as possible. */
-    if(Pympz_Check(a)) {
+    if(CHECK_MPZANY(a)) {
         if(PyIntOrLong_Check(b)) {
             count = PyLong_AsLongAndOverflow(b, &overflow);
             if(overflow) {
                 VALUE_ERROR("outrageous shift count");
-                Py_DECREF((PyObject*)rz);
+                Py_DECREF(result);
                 return NULL;
             } else if(count >= 0) {
-                mpz_mul_2exp(rz->z, Pympz_AS_MPZ(a), count);
-                return (PyObject *)rz;
+                mpz_mul_2exp(Pympz_AS_MPZ(result), Pympz_AS_MPZ(a), count);
+                return result;
             } else {
                 VALUE_ERROR("negative shift count");
-                Py_DECREF((PyObject*)rz);
+                Py_DECREF(result);
                 return NULL;
             }
         }
     }
-    pa = Pympz_From_Integer(a);
-    pb = Pympz_From_Integer(b);
-    if(!pb || !pa) {
-        PyErr_Clear();
-        Py_DECREF((PyObject*)rz);
-        Py_XDECREF((PyObject*)pa);
-        Py_XDECREF((PyObject*)pb);
-        Py_RETURN_NOTIMPLEMENTED;
-        }
-    if(mpz_sgn(Pympz_AS_MPZ(pb)) < 0) {
-        VALUE_ERROR("negative shift count");
-        Py_DECREF((PyObject*)rz);
-        Py_DECREF((PyObject*)pa);
-        Py_DECREF((PyObject*)pb);
-        return NULL;
-    }
-    if(!mpz_fits_slong_p(pb->z)) {
-        PyErr_SetString(PyExc_OverflowError, "outrageous shift count");
-        Py_DECREF((PyObject*)rz);
-        Py_DECREF((PyObject*)pa);
-        Py_DECREF((PyObject*)pb);
-        return NULL;
-    }
-    count = mpz_get_si(pb->z);
-    mpz_mul_2exp(rz->z, pa->z, count);
-    Py_DECREF((PyObject*)pa);
-    Py_DECREF((PyObject*)pb);
-    return (PyObject*)rz;
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 #if PY_MAJOR_VERSION < 3
@@ -793,20 +737,35 @@ gcd(a,b): returns the greatest common denominator of numbers a and b\n\
 static PyObject *
 Pygmpy_gcd(PyObject *self, PyObject *args)
 {
-    PympzObject *result;
-    PyObject *other;
+    PyObject *result, *a, *b;
+    PympzObject *tempa, *tempb;
 
-    PARSE_TWO_MPZ(other, "gcd() requires 'mpz','mpz' arguments");
-
-    if(!(result = Pympz_new())) {
-        Py_DECREF(self);
-        Py_DECREF(other);
+    if(PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("gcd() requires 'mpz','mpz' arguments");
         return NULL;
     }
-    mpz_gcd(result->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
-    Py_DECREF(self);
-    Py_DECREF(other);
-    return (PyObject*)result;
+
+    a = PyTuple_GET_ITEM(args, 0);
+    b = PyTuple_GET_ITEM(args, 1);
+    CREATE2_ONE_MPZANY(a, b, result);
+
+    if(CHECK_MPZANY(a) && CHECK_MPZANY(b)) {
+        mpz_gcd(Pympz_AS_MPZ(result), Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));
+    } else {
+        tempa = Pympz_From_Integer(a);
+        tempb = Pympz_From_Integer(b);
+        if(!tempa || !tempb) {
+            TYPE_ERROR("gcd() requires 'mpz','mpz' arguments");
+            Py_XDECREF((PyObject*)tempa);
+            Py_XDECREF((PyObject*)tempb);
+            Py_DECREF(result);
+            return NULL;
+        }
+        mpz_gcd(Pympz_AS_MPZ(result), tempa->z, tempb->z);
+        Py_DECREF((PyObject*)tempa);
+        Py_DECREF((PyObject*)tempb);
+    }
+    return result;
 }
 
 static char doc_lcm[]="\
@@ -816,20 +775,35 @@ lcm(a,b): returns the lowest common multiple of numbers a and b\n\
 static PyObject *
 Pygmpy_lcm(PyObject *self, PyObject *args)
 {
-    PympzObject *result;
-    PyObject *other;
+    PyObject *result, *a, *b;
+    PympzObject *tempa, *tempb;
 
-    PARSE_TWO_MPZ(other, "lcm() requires 'mpz','mpz' arguments");
-
-    if(!(result = Pympz_new())) {
-        Py_DECREF(self);
-        Py_DECREF(other);
+    if(PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("lcm() requires 'mpz','mpz' arguments");
         return NULL;
     }
-    mpz_lcm(result->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
-    Py_DECREF(self);
-    Py_DECREF(other);
-    return (PyObject*)result;
+
+    a = PyTuple_GET_ITEM(args, 0);
+    b = PyTuple_GET_ITEM(args, 1);
+    CREATE2_ONE_MPZANY(a, b, result);
+
+    if(CHECK_MPZANY(a) && CHECK_MPZANY(b)) {
+        mpz_lcm(Pympz_AS_MPZ(result), Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));
+    } else {
+        tempa = Pympz_From_Integer(a);
+        tempb = Pympz_From_Integer(b);
+        if(!tempa || !tempb) {
+            TYPE_ERROR("lcm() requires 'mpz','mpz' arguments");
+            Py_XDECREF((PyObject*)tempa);
+            Py_XDECREF((PyObject*)tempb);
+            Py_DECREF(result);
+            return NULL;
+        }
+        mpz_lcm(Pympz_AS_MPZ(result), tempa->z, tempb->z);
+        Py_DECREF((PyObject*)tempa);
+        Py_DECREF((PyObject*)tempb);
+    }
+    return result;
 }
 
 static char doc_gcdext[]="\
@@ -840,23 +814,43 @@ gcdext(a,b): returns a 3-element tuple (g,s,t) such that\n\
 static PyObject *
 Pygmpy_gcdext(PyObject *self, PyObject *args)
 {
-    PympzObject *g=0, *s=0, *t=0;
-    PyObject *result, *other;
+    PyObject *g, *s, *t, *a, *b, *result;
+    PympzObject *tempa, *tempb;
 
-    PARSE_TWO_MPZ(other, "gcdext() requires 'mpz','mpz' arguments");
-
-    g = Pympz_new(); s = Pympz_new(); t = Pympz_new();
-    if(!g||!s||!t) {
-        Py_DECREF(self); Py_DECREF(other);
-        Py_XDECREF((PyObject*)g); Py_XDECREF((PyObject*)s);
-        Py_XDECREF((PyObject*)t);
+    if(PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("gcdext() requires 'mpz','mpz' arguments");
         return NULL;
     }
-    mpz_gcdext(g->z, s->z, t->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
-    Py_DECREF(self); Py_DECREF(other);
-    result = Py_BuildValue("(NNN)", g, s, t); /* Does NOT increment refcounts! */
 
-    return (PyObject *) result;
+    a = PyTuple_GET_ITEM(args, 0);
+    b = PyTuple_GET_ITEM(args, 1);
+    CREATE2_THREE_MPZANY(a, b, g, s, t, result);
+
+    if(CHECK_MPZANY(a) && CHECK_MPZANY(b)) {
+        mpz_gcdext(Pympz_AS_MPZ(g), Pympz_AS_MPZ(s), Pympz_AS_MPZ(t),
+                    Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));
+    } else {
+        tempa = Pympz_From_Integer(a);
+        tempb = Pympz_From_Integer(b);
+        if(!tempa || !tempb) {
+            TYPE_ERROR("gcdext() requires 'mpz','mpz' arguments");
+            Py_XDECREF((PyObject*)tempa);
+            Py_XDECREF((PyObject*)tempb);
+            Py_DECREF(g);
+            Py_DECREF(s);
+            Py_DECREF(t);
+            Py_DECREF(result);
+            return NULL;
+        }
+        mpz_gcdext(Pympz_AS_MPZ(g), Pympz_AS_MPZ(s), Pympz_AS_MPZ(t),
+                    Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));
+        Py_DECREF((PyObject*)tempa);
+        Py_DECREF((PyObject*)tempb);
+    }
+    PyTuple_SET_ITEM(result, 0, g);
+    PyTuple_SET_ITEM(result, 1, s);
+    PyTuple_SET_ITEM(result, 2, t);
+    return result;
 }
 
 static char doc_divm[]="\
@@ -1523,10 +1517,10 @@ Pympz_is_even(PyObject *self, PyObject *other)
 }
 
 static char doc_is_oddm[]="\
-x.even(): returns True if x is even, False otherwise.\n\
+x.is_odd(): returns True if x is odd, False otherwise.\n\
 ";
 static char doc_is_oddg[]="\
-even(x): returns True if x is even, False otherwise.\n\
+is_odd(x): returns True if x is odd, False otherwise.\n\
 ";
 static PyObject *
 Pympz_is_odd(PyObject *self, PyObject *other)
