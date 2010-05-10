@@ -15,7 +15,45 @@
         r = (PyObject*)Pympz_new();\
     }\
     if(!r) {\
-        Py_XDECREF((PyObject*)r);\
+        return NULL;\
+    }
+
+/*
+ * Create a single object of type 'mpz' or 'xmpz'. The
+ * resulting type is based on two input objects.
+ */
+
+#define CREATE2_ONE_MPZANY(x, y, r)\
+    if(Pympz_Check(x)) {\
+        if(Pyxmpz_Check(y)) {\
+            if(options.prefer_mutable)\
+                r = (PyObject*)Pyxmpz_new();\
+            else\
+                r = (PyObject*)Pympz_new();\
+        } else {\
+            r = (PyObject*)Pympz_new();\
+        }\
+    } else if(Pyxmpz_Check(x)) {\
+        if(Pympz_Check(y)) {\
+            if(options.prefer_mutable)\
+                r = (PyObject*)Pyxmpz_new();\
+            else\
+                r = (PyObject*)Pympz_new();\
+        } else {\
+            r = (PyObject*)Pyxmpz_new();\
+        }\
+    } else {\
+        if(Pympz_Check(y)) {\
+            r = (PyObject*)Pympz_new();\
+        } else if(Pyxmpz_Check(y)) {\
+            r = (PyObject*)Pyxmpz_new();\
+        } else if(options.prefer_mutable) {\
+            r = (PyObject*)Pyxmpz_new();\
+        } else {\
+            r = (PyObject*)Pympz_new();\
+        }\
+    }\
+    if(!r) {\
         return NULL;\
     }
 
