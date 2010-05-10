@@ -435,15 +435,26 @@ sign(x): returns -1, 0, or +1, if x is negative, 0, positive;\n\
 x must be an mpz, or else gets coerced to one.\n\
 ";
 static PyObject *
-Pympz_sign(PyObject *self, PyObject *args)
+Pympz_sign(PyObject *self, PyObject *other)
 {
-    PyObject *s;
+    long res;
+    PympzObject* tempx;
 
-    PARSE_ONE_MPZ("sign() requires 'mpz' argument");
-    assert(Pympz_Check(self));
-    s = PyIntOrLong_FromLong(mpz_sgn(Pympz_AS_MPZ(self)));
-    Py_DECREF(self);
-    return s;
+    if(self && (CHECK_MPZANY(self))) {
+        res = mpz_sgn(Pympz_AS_MPZ(self));
+    } else if(CHECK_MPZANY(other)) {
+        res = mpz_sgn(Pympz_AS_MPZ(other));
+    } else {
+        tempx = Pympz_From_Integer(other);
+        if(tempx) {
+            res = mpz_sgn(Pympz_AS_MPZ(tempx));
+            Py_DECREF((PyObject*)tempx);
+        } else {
+            TYPE_ERROR("sign() requires 'mpz' argument");
+            return NULL;
+        }
+    }
+    return PyIntOrLong_FromLong(res);
 }
 
 static PyObject *
@@ -592,28 +603,36 @@ Pympz_com(PympzObject *x)
 static PyObject * \
 Py##NAME(PyObject *a, PyObject *b) \
 { \
-  PympzObject *r; \
-  PympzObject *pa = 0; \
-  PympzObject *pb = 0; \
-  pa = Pympz_From_Integer(a); \
-  pb = Pympz_From_Integer(b); \
-  if(!pa || !pb) { \
-    PyErr_Clear(); \
-    Py_XDECREF((PyObject*)pa); \
-    Py_XDECREF((PyObject*)pb); \
-    Py_RETURN_NOTIMPLEMENTED; \
-  } \
-  if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p\n", pa, pb); \
-  if (!(r = Pympz_new())) { \
-    Py_DECREF((PyObject*)pa); \
-    Py_DECREF((PyObject*)pb); \
-    return NULL; \
-  } \
-  NAME(r->z, pa->z, pb->z); \
-  Py_DECREF((PyObject*)pa); \
-  Py_DECREF((PyObject*)pb); \
-  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
-  return (PyObject *) r; \
+    PyObject *r = 0; \
+    PympzObject *tempz = 0; \
+    CREATE2_ONE_MPZANY(a, b, r);\
+    if(CHECK_MPZANY(a)) {\
+        if(CHECK_MPZANY(b)) {\
+            NAME(Pympz_AS_MPZ(r), Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));\
+        } else {\
+            if(!(tempz = Pympz_From_Integer(b))) {\
+                Py_DECREF(r);\
+                return NULL;\
+            }\
+            NAME(Pympz_AS_MPZ(r), Pympz_AS_MPZ(a), tempz->z);\
+            Py_DECREF((PyObject*)tempz);\
+        }\
+    } else if(CHECK_MPZANY(b)) {\
+        if(CHECK_MPZANY(a)) {\
+          NAME(Pympz_AS_MPZ(r), Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));\
+        } else {\
+            if(!(tempz = Pympz_From_Integer(a))) {\
+                Py_DECREF(r);\
+                return NULL;\
+            }\
+            NAME(Pympz_AS_MPZ(r), tempz->z, Pympz_AS_MPZ(b));\
+            Py_DECREF((PyObject*)tempz);\
+        }\
+    } else {\
+        Py_DECREF(r);\
+        Py_RETURN_NOTIMPLEMENTED;\
+    }\
+    return r;\
 }
 
 MPZ_BINOP(mpz_and)

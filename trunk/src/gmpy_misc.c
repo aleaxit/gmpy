@@ -2,7 +2,7 @@
  *
  * Miscellaneous module-level functions.
  *
- * This file should be considered part of gmpy.c
+ * This file should be considered part of gmpy2.c
  */
 
 /* Return license information. */
@@ -12,11 +12,19 @@
 __MPIR_VERSION * 10000 + \
 __MPIR_VERSION_MINOR * 100 + \
 __MPIR_VERSION_PATCHLEVEL
+#if ((MPIR_VER < 10300) && (MPIR_VER > 10399))
 char gmpy_license[] = "\
-The GMPY source code is licensed under LGPL 2.1 or later. \
+The GMPY2 source code is licensed under LGPL 2.1 or later. \
+The MPIR library is licensed under LGPL 3 or later. \
+Therefore, this combined module is licensed under LGPL 2.1 or later.\
+";
+#else
+char gmpy_license[] = "\
+The GMPY2 source code is licensed under LGPL 2.1 or later. \
 The MPIR library is licensed under LGPL 2.1 or later. \
 Therefore, this combined module is licensed under LGPL 2.1 or later.\
 ";
+#endif
 #else
 #define GNU_MP_VER \
 __GNU_MP_VERSION * 10000 + \
@@ -24,13 +32,13 @@ __GNU_MP_VERSION_MINOR * 100 + \
 __GNU_MP_VERSION_PATCHLEVEL
 #if GNU_MP_VER > 40201
 char gmpy_license[] = "\
-The GMPY source code is licensed under LGPL 2.1 or later. \
+The GMPY2 source code is licensed under LGPL 2.1 or later. \
 This version of the GMP library is licensed under LGPL 3 or later. \
 Therefore, this combined module is licensed under LGPL 3 or later.\
 ";
 #else
 char gmpy_license[] = "\
-The GMPY source code is licensed under LGPL 2.1 or later. \
+The GMPY2 source code is licensed under LGPL 2.1 or later. \
 This version of the GMP library is licensed under LGPL 2.1 or later. \
 Therefore, this combined module is licensed under LGPL 2.1 or later.\
 ";
