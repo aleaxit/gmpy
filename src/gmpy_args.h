@@ -5,7 +5,7 @@
  * of options.prefer_mutable.
  */
 
-#define CREATE0_MPZANY(r)\
+#define CREATE0_ONE_MPZANY(r)\
     if(options.prefer_mutable) {\
         r = (PyObject*)Pyxmpz_new();\
     } else {\

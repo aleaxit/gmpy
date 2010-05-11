@@ -980,7 +980,7 @@ Pygmpy_fac(PyObject *self, PyObject *other)
         VALUE_ERROR("factorial of negative number");
         return NULL;
     } else {
-        CREATE0_MPZANY(result);
+        CREATE0_ONE_MPZANY(result);
         mpz_fac_ui(Pympz_AS_MPZ(result), n);
     }
     return result;
@@ -1004,7 +1004,7 @@ Pygmpy_fib(PyObject *self, PyObject *other)
         VALUE_ERROR("Fibonacci of negative number");
         return NULL;
     } else {
-        CREATE0_MPZANY(result);
+        CREATE0_ONE_MPZANY(result);
         mpz_fib_ui(Pympz_AS_MPZ(result), n);
     }
     return result;
@@ -1054,7 +1054,7 @@ Pygmpy_lucas(PyObject *self, PyObject *other)
         VALUE_ERROR("Lucas of negative number");
         return NULL;
     } else {
-        CREATE0_MPZANY(result);
+        CREATE0_ONE_MPZANY(result);
         mpz_lucnum_ui(Pympz_AS_MPZ(result), n);
     }
     return result;
@@ -1335,15 +1335,29 @@ is_square(x): returns 1 if x is a perfect square, else 0.\n\
 x must be an mpz, or else gets coerced to one.\n\
 ";
 static PyObject *
-Pympz_is_square(PyObject *self, PyObject *args)
+Pympz_is_square(PyObject *self, PyObject *other)
 {
-    long i;
+    int res;
+    PympzObject* newob;
 
-    PARSE_ONE_MPZ("is_square() requires 'mpz' argument");
-
-    i = (long) mpz_perfect_square_p(Pympz_AS_MPZ(self));
-    Py_DECREF(self);
-    return PyIntOrLong_FromLong(i);
+    if(self && (CHECK_MPZANY(self))) {
+        res = mpz_perfect_square_p(Pympz_AS_MPZ(self));
+    } else if(CHECK_MPZANY(other)) {
+        res = mpz_perfect_square_p(Pympz_AS_MPZ(other));
+    } else {
+        newob = Pympz_From_Integer(other);
+        if(newob) {
+            res = mpz_perfect_square_p(Pympz_AS_MPZ(newob));
+            Py_DECREF((PyObject*)newob);
+        } else {
+            TYPE_ERROR("is_square() requires 'mpz' argument");
+            return NULL;
+        }
+    }
+    if(res)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
 }
 
 static char doc_is_powerm[]="\
@@ -1356,15 +1370,29 @@ y, and n>1, such that x==y**n; else, 0. x must be an mpz, or else\n\
 gets coerced to one.\n\
 ";
 static PyObject *
-Pympz_is_power(PyObject *self, PyObject *args)
+Pympz_is_power(PyObject *self, PyObject *other)
 {
-    long i;
+    int res;
+    PympzObject* newob;
 
-    PARSE_ONE_MPZ("is_power() requires 'mpz' argument");
-
-    i = (long) mpz_perfect_power_p(Pympz_AS_MPZ(self));
-    Py_DECREF(self);
-    return PyIntOrLong_FromLong(i);
+    if(self && (CHECK_MPZANY(self))) {
+        res = mpz_perfect_power_p(Pympz_AS_MPZ(self));
+    } else if(CHECK_MPZANY(other)) {
+        res = mpz_perfect_power_p(Pympz_AS_MPZ(other));
+    } else {
+        newob = Pympz_From_Integer(other);
+        if(newob) {
+            res = mpz_perfect_power_p(Pympz_AS_MPZ(newob));
+            Py_DECREF((PyObject*)newob);
+        } else {
+            TYPE_ERROR("is_power() requires 'mpz' argument");
+            return NULL;
+        }
+    }
+    if(res)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
 }
 
 static char doc_is_primem[]="\
@@ -1411,19 +1439,29 @@ if x<0 GMP considers x 'prime' iff -x is prime; gmpy reflects these\n\
 GMP design choices. x must be an mpz, or else gets coerced to one.\n\
 ";
 static PyObject *
-Pympz_next_prime(PyObject *self, PyObject *args)
+Pympz_next_prime(PyObject *self, PyObject *other)
 {
-    PympzObject *res;
+    PyObject *result;
+    PympzObject *tempx;
 
-    PARSE_ONE_MPZ("next_prime() requires 'mpz' argument");
-    assert(Pympz_Check(self));
-    if(!(res = Pympz_new())) {
-        Py_DECREF(self);
-        return NULL;
+    if(self && (CHECK_MPZANY(self))) {
+        CREATE1_ONE_MPZANY(self, result);
+        mpz_nextprime(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self));
+    } else if(CHECK_MPZANY(other)) {
+        CREATE1_ONE_MPZANY(other, result);
+        mpz_nextprime(Pympz_AS_MPZ(result), Pympz_AS_MPZ(other));
+    } else {
+        CREATE0_ONE_MPZANY(result);
+        tempx = Pympz_From_Integer(other);
+        if(tempx) {
+            mpz_nextprime(Pympz_AS_MPZ(result), tempx->z);
+            Py_DECREF((PyObject*)tempx);
+        } else {
+            TYPE_ERROR("next_prime() requires 'mpz' argument");
+            return NULL;
+        }
     }
-    mpz_nextprime(res->z, Pympz_AS_MPZ(self));
-    Py_DECREF(self);
-    return (PyObject*)res;
+    return result;
 }
 
 static char doc_jacobim[]="\
