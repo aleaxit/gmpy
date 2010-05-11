@@ -24,7 +24,7 @@ Pympz_digits(PyObject *self, PyObject *args)
     PyObject *s;
 
     PARSE_ONE_MPZ_OPT_CLONG(&base,
-                            "digits() requires 'mpz',['int'] arguments");
+            "digits() requires 'mpz',['int'] arguments");
     s = Pympz_ascii((PympzObject*)self, base, 0);
     Py_DECREF(self);
     return s;
@@ -53,12 +53,10 @@ Pympz_numdigits(PyObject *self, PyObject *args)
     PyObject *s;
 
     PARSE_ONE_MPZ_OPT_CLONG(&base,
-                            "numdigits() requires 'mpz',['int'] arguments");
-    assert(Pympz_Check(self));
+            "numdigits() requires 'mpz',['int'] arguments");
     if(base==0) base=10;
     if((base < 2) || (base > 36)) {
-        PyErr_SetString(PyExc_ValueError,
-            "base must be either 0 or in the interval 2 ... 36");
+        VALUE_ERROR("base must be either 0 or in the interval 2 ... 36");
         Py_DECREF(self);
         return NULL;
     }
@@ -121,7 +119,7 @@ Pympz_scan0(PyObject *self, PyObject *args)
     PyObject *s;
 
     PARSE_ONE_MPZ_OPT_CLONG(&starting_bit,
-                            "scan0() requires 'mpz',['int'] arguments");
+            "scan0() requires 'mpz',['int'] arguments");
 
     if(starting_bit < 0) {
         VALUE_ERROR("starting bit must be >= 0");
@@ -133,7 +131,7 @@ Pympz_scan0(PyObject *self, PyObject *args)
         int sig = mpz_sgn(Pympz_AS_MPZ(self));
         if(options.debug)
             fprintf(stderr,"scan0() start=%ld max=%ld sig=%d\n",
-                starting_bit, maxbit, sig);
+                    starting_bit, maxbit, sig);
 
         if(sig<0) {
             Py_RETURN_NONE;
@@ -168,7 +166,7 @@ Pympz_scan1(PyObject *self, PyObject *args)
     PyObject *s;
 
     PARSE_ONE_MPZ_OPT_CLONG(&starting_bit,
-                            "scan1() requires 'mpz',['int'] arguments");
+            "scan1() requires 'mpz',['int'] arguments");
 
     if(starting_bit < 0) {
         VALUE_ERROR("starting bit must be >= 0");
@@ -180,7 +178,7 @@ Pympz_scan1(PyObject *self, PyObject *args)
         int sig = mpz_sgn(Pympz_AS_MPZ(self));
         if(options.debug)
             fprintf(stderr,"scan1 start=%ld max=%ld sig=%d\n",
-                starting_bit, maxbit, sig);
+                    starting_bit, maxbit, sig);
         if(sig>=0) {
             Py_RETURN_NONE;
         } else {
@@ -206,16 +204,19 @@ x must be an mpz, or else gets coerced to one.\n\
 static PyObject *
 Pympz_popcount(PyObject *self, PyObject *other)
 {
-    PympzObject *temp;
+    long temp;
+    PympzObject *tempx;
 
     if(self && (CHECK_MPZANY(self)))
         return PyIntOrLong_FromLong(mpz_popcount(Pympz_AS_MPZ(self)));
     else if(CHECK_MPZANY(other))
         return PyIntOrLong_FromLong(mpz_popcount(Pympz_AS_MPZ(other)));
     else {
-        if((temp = Pympz_From_Integer(other)))
-            return PyIntOrLong_FromLong(mpz_popcount(Pympz_AS_MPZ(temp)));
-        else {
+        if((tempx = Pympz_From_Integer(other))) {
+            temp = mpz_popcount(Pympz_AS_MPZ(tempx));
+            Py_DECREF((PyObject*)tempx);
+            return PyIntOrLong_FromLong(temp);
+        } else {
             TYPE_ERROR("popcount() requires 'mpz' argument");
             return NULL;
         }
@@ -468,6 +469,13 @@ Pympz_abs(PympzObject *x)
 }
 
 static PyObject *
+Pyxmpz_abs(PyxmpzObject *x)
+{
+    mpz_abs(Pympz_AS_MPZ(x), Pympz_AS_MPZ(x));
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 Pympz_neg(PympzObject *x)
 {
     PympzObject *result;
@@ -478,10 +486,23 @@ Pympz_neg(PympzObject *x)
 }
 
 static PyObject *
+Pyxmpz_neg(PyxmpzObject *x)
+{
+    mpz_neg(Pympz_AS_MPZ(x), Pympz_AS_MPZ(x));
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 Pympz_pos(PympzObject *x)
 {
     Py_INCREF((PyObject*)x);
     return (PyObject *) x;
+}
+
+static PyObject *
+Pyxmpz_pos(PyxmpzObject *x)
+{
+    Py_RETURN_NONE;
 }
 
 /* Pympz_pow is called by Pympany_pow after verifying that all the
@@ -587,6 +608,12 @@ Pympz_nonzero(PympzObject *x)
     return mpz_sgn(x->z) != 0;
 }
 
+static int
+Pyxmpz_nonzero(PyxmpzObject *x)
+{
+    return mpz_sgn(x->z) != 0;
+}
+
 /* BIT OPERATIONS (mpz-only) */
 
 static PyObject *
@@ -597,6 +624,13 @@ Pympz_com(PympzObject *x)
         return NULL;
     mpz_com(Pympz_AS_MPZ(result), Pympz_AS_MPZ(x));
     return (PyObject *)result;
+}
+
+static PyObject *
+Pyxmpz_com(PyxmpzObject *x)
+{
+    mpz_com(Pympz_AS_MPZ(x), Pympz_AS_MPZ(x));
+    Py_RETURN_NONE;
 }
 
 #define MPZ_BINOP(NAME) \
@@ -646,7 +680,7 @@ Pympz_rshift(PyObject *a, PyObject *b)
     long count;
     int overflow;
 
-    CREATE_ONE_MPZANY(a, result);
+    CREATE1_ONE_MPZANY(a, result);
 
     /* Try to make mpz >> Python int/long as fast as possible. */
     if(CHECK_MPZANY(a)) {
@@ -676,7 +710,7 @@ Pympz_lshift(PyObject *a, PyObject *b)
     long count;
     int overflow;
 
-    CREATE_ONE_MPZANY(a, result);
+    CREATE1_ONE_MPZANY(a, result);
 
     /* Try to make mpz >> Python int/long as fast as possible. */
     if(CHECK_MPZANY(a)) {
@@ -706,10 +740,23 @@ Pympz_oct(PympzObject *self)
 {
     return Pympz_ascii(self, 8, 0);
 }
+
+static PyObject *
+Pyxmpz_oct(PyxmpzObject *self)
+{
+    return Pyxmpz_ascii(self, 8, 0);
+}
+
 static PyObject *
 Pympz_hex(PympzObject *self)
 {
     return Pympz_ascii(self, 16, 0);
+}
+
+static PyObject *
+Pyxmpz_hex(PyxmpzObject *self)
+{
+    return Pyxmpz_ascii(self, 16, 0);
 }
 #endif
 
@@ -920,22 +967,23 @@ fac(n): returns the factorial of n; takes O(n) time; n must be\n\
 an ordinary Python int, >=0.\n\
 ";
 static PyObject *
-Pygmpy_fac(PyObject *self, PyObject *args)
+Pygmpy_fac(PyObject *self, PyObject *other)
 {
-    PympzObject *fac;
+    PyObject *result;
     long n;
 
-    PARSE_ONE_CLONG(&n, "fac() requires 'int' argument");
-
-    if(n < 0) {
+    n = clong_From_Integer(other);
+    if((n == -1) && PyErr_Occurred()) {
+        TYPE_ERROR("fac() requires 'int' argument");
+        return NULL;
+    } else if(n < 0) {
         VALUE_ERROR("factorial of negative number");
         return NULL;
+    } else {
+        CREATE0_MPZANY(result);
+        mpz_fac_ui(Pympz_AS_MPZ(result), n);
     }
-    if(!(fac = Pympz_new()))
-        return NULL;
-    mpz_fac_ui(fac->z, n);
-
-    return (PyObject *) fac;
+    return result;
 }
 
 static char doc_fib[]="\
@@ -943,22 +991,23 @@ fib(n): returns the n-th Fibonacci number; takes O(n) time; n must be\n\
 an ordinary Python int, >=0.\n\
 ";
 static PyObject *
-Pygmpy_fib(PyObject *self, PyObject *args)
+Pygmpy_fib(PyObject *self, PyObject *other)
 {
-    PympzObject *fib;
+    PyObject *result;
     long n;
 
-    PARSE_ONE_CLONG(&n, "fib() requires 'int' argument");
-
-    if(n < 0) {
+    n = clong_From_Integer(other);
+    if((n == -1) && PyErr_Occurred()) {
+        TYPE_ERROR("fib() requires 'int' argument");
+        return NULL;
+    } else if(n < 0) {
         VALUE_ERROR("Fibonacci of negative number");
         return NULL;
+    } else {
+        CREATE0_MPZANY(result);
+        mpz_fib_ui(Pympz_AS_MPZ(result), n);
     }
-    if(!(fib = Pympz_new()))
-        return NULL;
-    mpz_fib_ui(fib->z, n);
-
-    return (PyObject *) fib;
+    return result;
 }
 
 static char doc_fib2[]="\
@@ -966,30 +1015,24 @@ fib2(n): returns the n-th and n+1-th Fibonacci numbers; takes O(n) time;\n\
 n must be an ordinary Python int, >=0.\n\
 ";
 static PyObject *
-Pygmpy_fib2(PyObject *self, PyObject *args)
+Pygmpy_fib2(PyObject *self, PyObject *other)
 {
-    PympzObject *fib1 = 0, *fib2 = 0;
-    PyObject *result = 0;
+    PyObject *fib1, *fib2, *result;
     long n;
 
-    PARSE_ONE_CLONG(&n, "fib2() requires 'int' argument");
-
-    if(n < 0) {
+    n = clong_From_Integer(other);
+    if((n == -1) && PyErr_Occurred()) {
+        TYPE_ERROR("fib2() requires 'int' argument");
+        return NULL;
+    } else if(n < 0) {
         VALUE_ERROR("Fibonacci of negative number");
         return NULL;
+    } else {
+        CREATE0_TWO_MPZANY_TUPLE(fib1, fib2, result);
+        mpz_fib2_ui(Pympz_AS_MPZ(fib1), Pympz_AS_MPZ(fib2), n);
     }
-    fib1 = Pympz_new();
-    fib2 = Pympz_new();
-    result = PyTuple_New(2);
-    if(!fib1 || !fib2 || !result) {
-        Py_XDECREF((PyObject*)fib1);
-        Py_XDECREF((PyObject*)fib2);
-        return NULL;
-    }
-    mpz_fib2_ui(fib1->z, fib2->z, n);
-
-    PyTuple_SET_ITEM(result, 0, (PyObject*)fib1);
-    PyTuple_SET_ITEM(result, 1, (PyObject*)fib2);
+    PyTuple_SET_ITEM(result, 0, fib1);
+    PyTuple_SET_ITEM(result, 1, fib2);
     return result;
 }
 
@@ -998,22 +1041,23 @@ lucas(n): returns the n-th Lucas number; takes O(n) time; n must be\n\
 an ordinary Python int, >=0.\n\
 ";
 static PyObject *
-Pygmpy_lucas(PyObject *self, PyObject *args)
+Pygmpy_lucas(PyObject *self, PyObject *other)
 {
-    PympzObject *luc;
+    PyObject *result;
     long n;
 
-    PARSE_ONE_CLONG(&n, "lucas() requires 'int' argument");
-
-    if(n < 0) {
+    n = clong_From_Integer(other);
+    if((n == -1) && PyErr_Occurred()) {
+        TYPE_ERROR("luc() requires 'int' argument");
+        return NULL;
+    } else if(n < 0) {
         VALUE_ERROR("Lucas of negative number");
         return NULL;
+    } else {
+        CREATE0_MPZANY(result);
+        mpz_lucnum_ui(Pympz_AS_MPZ(result), n);
     }
-    if(!(luc = Pympz_new()))
-        return NULL;
-    mpz_lucnum_ui(luc->z, n);
-
-    return (PyObject *) luc;
+    return result;
 }
 
 static char doc_lucas2[]="\
@@ -1021,30 +1065,24 @@ lucas2(n): returns the n-1 and n-th Lucas number; takes O(n) time; n must\n\
 be an ordinary Python int, >=0.\n\
 ";
 static PyObject *
-Pygmpy_lucas2(PyObject *self, PyObject *args)
+Pygmpy_lucas2(PyObject *self, PyObject *other)
 {
-    PympzObject *luc1 = 0, *luc2 = 0;
-    PyObject* result = 0;
+    PyObject *luc1, *luc2, *result;
     long n;
 
-    PARSE_ONE_CLONG(&n, "lucas2() requires 'int' argument");
-
-    if(n < 0) {
+    n = clong_From_Integer(other);
+    if((n == -1) && PyErr_Occurred()) {
+        TYPE_ERROR("luc2() requires 'int' argument");
+        return NULL;
+    } else if(n < 0) {
         VALUE_ERROR("Lucas of negative number");
         return NULL;
+    } else {
+        CREATE0_TWO_MPZANY_TUPLE(luc1, luc2, result);
+        mpz_fib2_ui(Pympz_AS_MPZ(luc1), Pympz_AS_MPZ(luc2), n);
     }
-    luc1 = Pympz_new();
-    luc2 = Pympz_new();
-    result = PyTuple_New(2);
-    if(!luc1 || !luc2 || !result) {
-        Py_XDECREF((PyObject*)luc1);
-        Py_XDECREF((PyObject*)luc2);
-        return NULL;
-    }
-    mpz_lucnum2_ui(luc1->z, luc2->z, n);
-
-    PyTuple_SET_ITEM(result, 0, (PyObject*)luc1);
-    PyTuple_SET_ITEM(result, 1, (PyObject*)luc2);
+    PyTuple_SET_ITEM(result, 0, luc1);
+    PyTuple_SET_ITEM(result, 1, luc2);
     return result;
 }
 
@@ -1485,10 +1523,10 @@ Pympz_kronecker(PyObject *self, PyObject *args)
 }
 
 static char doc_is_evenm[]="\
-x.even(): returns True if x is even, False otherwise.\n\
+x.is_even(): returns True if x is even, False otherwise.\n\
 ";
 static char doc_is_eveng[]="\
-even(x): returns True if x is even, False otherwise.\n\
+is_even(x): returns True if x is even, False otherwise.\n\
 ";
 static PyObject *
 Pympz_is_even(PyObject *self, PyObject *other)

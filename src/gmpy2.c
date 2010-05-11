@@ -4491,11 +4491,11 @@ static PyNumberMethods xmpz_number_methods =
     (binaryfunc) Pympany_rem,            /* nb_remaider             */
     (binaryfunc) Pympany_divmod,         /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
-    (unaryfunc) Pympz_neg,               /* nb_negative             */
-    (unaryfunc) Pympz_pos,               /* nb_positive             */
-    (unaryfunc) Pympz_abs,               /* nb_absolute             */
-    (inquiry) Pympz_nonzero,             /* nb_bool                 */
-    (unaryfunc) Pympz_com,               /* nb_invert               */
+    (unaryfunc) Pyxmpz_neg,              /* nb_negative             */
+    (unaryfunc) Pyxmpz_pos,              /* nb_positive             */
+    (unaryfunc) Pyxmpz_abs,              /* nb_absolute             */
+    (inquiry) Pyxmpz_nonzero,            /* nb_bool                 */
+    (unaryfunc) Pyxmpz_com,              /* nb_invert               */
     (binaryfunc) Pympz_lshift,           /* nb_lshift               */
     (binaryfunc) Pympz_rshift,           /* nb_rshift               */
     (binaryfunc) Pympz_and,              /* nb_and                  */
@@ -4531,11 +4531,11 @@ static PyNumberMethods xmpz_number_methods =
     (binaryfunc) Pympany_rem,            /* nb_remaider             */
     (binaryfunc) Pympany_divmod,         /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
-    (unaryfunc) Pympz_neg,               /* nb_negative             */
-    (unaryfunc) Pympz_pos,               /* nb_positive             */
-    (unaryfunc) Pympz_abs,               /* nb_absolute             */
-    (inquiry) Pympz_nonzero,             /* nb_bool                 */
-    (unaryfunc) Pympz_com,               /* nb_invert               */
+    (unaryfunc) Pyxmpz_neg,              /* nb_negative             */
+    (unaryfunc) Pyxmpz_pos,              /* nb_positive             */
+    (unaryfunc) Pyxmpz_abs,              /* nb_absolute             */
+    (inquiry) Pyxmpz_nonzero,            /* nb_bool                 */
+    (unaryfunc) Pyxmpz_com,              /* nb_invert               */
     (binaryfunc) Pympz_lshift,           /* nb_lshift               */
     (binaryfunc) Pympz_rshift,           /* nb_rshift               */
     (binaryfunc) Pympz_and,              /* nb_and                  */
@@ -4545,8 +4545,8 @@ static PyNumberMethods xmpz_number_methods =
     (unaryfunc) Pympz_To_Integer,        /* nb_int                  */
     (unaryfunc) Pympz2PyLong,            /* nb_long                 */
     (unaryfunc) Pympz2PyFloat,           /* nb_float                */
-    (unaryfunc) Pympz_oct,               /* nb_oct                  */
-    (unaryfunc) Pympz_hex,               /* nb_hex                  */
+    (unaryfunc) Pyxmpz_oct,              /* nb_oct                  */
+    (unaryfunc) Pyxmpz_hex,              /* nb_hex                  */
     (binaryfunc) Pyxmpz_inplace_add,     /* nb_inplace_add          */
     (binaryfunc) Pyxmpz_inplace_sub,     /* nb_inplace_subtract     */
     (binaryfunc) Pyxmpz_inplace_mul,     /* nb_inplace_multiply     */
@@ -4749,14 +4749,14 @@ static PyMethodDef Pygmpy_methods [] =
     { "digits", Pympz_digits, METH_VARARGS, doc_digitsg },
     { "divexact", Pympz_divexact, METH_VARARGS, doc_divexactg },
     { "divm", Pygmpy_divm, METH_VARARGS, doc_divm },
-    { "fac", Pygmpy_fac, METH_VARARGS, doc_fac },
+    { "fac", Pygmpy_fac, METH_O, doc_fac },
     { "fdigits", Pympf_digits, METH_VARARGS, doc_fdigitsg },
     { "fdiv", Pygmpy_fdiv, METH_VARARGS, doc_fdivg },
     { "fdiv2exp", Pygmpy_fdiv2exp, METH_VARARGS, doc_fdiv2expg },
     { "fdivmod", Pygmpy_fdivmod, METH_VARARGS, doc_fdivmodg },
     { "fdivmod2exp", Pygmpy_fdivmod2exp, METH_VARARGS, doc_fdivmod2expg },
-    { "fib", Pygmpy_fib, METH_VARARGS, doc_fib },
-    { "fib2", Pygmpy_fib2, METH_VARARGS, doc_fib2 },
+    { "fib", Pygmpy_fib, METH_O, doc_fib },
+    { "fib2", Pygmpy_fib2, METH_O, doc_fib2 },
     { "floor", Pympf_floor, METH_VARARGS, doc_floorg },
     { "fmod", Pygmpy_fmod, METH_VARARGS, doc_fmodg },
     { "fmod2exp", Pygmpy_fmod2exp, METH_VARARGS, doc_fmod2expg },
@@ -4784,8 +4784,8 @@ static PyMethodDef Pygmpy_methods [] =
     { "lcm", Pygmpy_lcm, METH_VARARGS, doc_lcm },
     { "legendre", Pympz_legendre, METH_VARARGS, doc_legendreg },
     { "license", Pygmpy_get_license, METH_NOARGS, doc_license },
-    { "lucas", Pygmpy_lucas, METH_VARARGS, doc_lucas },
-    { "lucas2", Pygmpy_lucas2, METH_VARARGS, doc_lucas2 },
+    { "lucas", Pygmpy_lucas, METH_O, doc_lucas },
+    { "lucas2", Pygmpy_lucas2, METH_O, doc_lucas2 },
     { "mpf", Pygmpy_mpf, METH_VARARGS, doc_mpf },
     { "mpir_version", Pygmpy_get_mpir_version, METH_NOARGS, doc_mpir_version },
     { "mpq", Pygmpy_mpq, METH_VARARGS, doc_mpq },
