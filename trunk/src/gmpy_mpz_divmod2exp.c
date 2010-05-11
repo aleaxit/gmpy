@@ -42,7 +42,7 @@ Pygmpy_cdivmod2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    CREATE_TWO_MPZANY_TUPLE(x, q, r, result);
+    CREATE1_TWO_MPZANY_TUPLE(x, q, r, result);
 
     if(CHECK_MPZANY(x)) {
         mpz_cdiv_q_2exp(Pympz_AS_MPZ(q), Pympz_AS_MPZ(x), nbits);
@@ -92,7 +92,7 @@ Pygmpy_cdiv2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    CREATE_ONE_MPZANY(x, result);
+    CREATE1_ONE_MPZANY(x, result);
 
     if(CHECK_MPZANY(x)) {
         mpz_cdiv_q_2exp(Pympz_AS_MPZ(result), Pympz_AS_MPZ(x), nbits);
@@ -136,7 +136,7 @@ Pygmpy_cmod2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    CREATE_ONE_MPZANY(x, result);
+    CREATE1_ONE_MPZANY(x, result);
 
     if(CHECK_MPZANY(x)) {
         mpz_cdiv_r_2exp(Pympz_AS_MPZ(result), Pympz_AS_MPZ(x), nbits);
@@ -255,7 +255,7 @@ Pygmpy_fdivmod2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    CREATE_TWO_MPZANY_TUPLE(x, q, r, result);
+    CREATE1_TWO_MPZANY_TUPLE(x, q, r, result);
 
     if(CHECK_MPZANY(x)) {
         mpz_fdiv_q_2exp(Pympz_AS_MPZ(q), Pympz_AS_MPZ(x), nbits);
@@ -305,7 +305,7 @@ Pygmpy_fdiv2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    CREATE_ONE_MPZANY(x, result);
+    CREATE1_ONE_MPZANY(x, result);
 
     if(CHECK_MPZANY(x)) {
         mpz_fdiv_q_2exp(Pympz_AS_MPZ(result), Pympz_AS_MPZ(x), nbits);
@@ -349,7 +349,7 @@ Pygmpy_fmod2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    CREATE_ONE_MPZANY(x, result);
+    CREATE1_ONE_MPZANY(x, result);
 
     if(CHECK_MPZANY(x)) {
         mpz_fdiv_r_2exp(Pympz_AS_MPZ(result), Pympz_AS_MPZ(x), nbits);
@@ -468,7 +468,7 @@ Pygmpy_tdivmod2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    CREATE_TWO_MPZANY_TUPLE(x, q, r, result);
+    CREATE1_TWO_MPZANY_TUPLE(x, q, r, result);
 
     if(CHECK_MPZANY(x)) {
         mpz_tdiv_q_2exp(Pympz_AS_MPZ(q), Pympz_AS_MPZ(x), nbits);
@@ -518,7 +518,7 @@ Pygmpy_tdiv2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    CREATE_ONE_MPZANY(x, result);
+    CREATE1_ONE_MPZANY(x, result);
 
     if(CHECK_MPZANY(x)) {
         mpz_tdiv_q_2exp(Pympz_AS_MPZ(result), Pympz_AS_MPZ(x), nbits);
@@ -562,7 +562,7 @@ Pygmpy_tmod2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    CREATE_ONE_MPZANY(x, result);
+    CREATE1_ONE_MPZANY(x, result);
 
     if(CHECK_MPZANY(x)) {
         mpz_tdiv_r_2exp(Pympz_AS_MPZ(result), Pympz_AS_MPZ(x), nbits);
