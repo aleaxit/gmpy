@@ -1444,8 +1444,12 @@ Pympz_next_prime(PyObject *self, PyObject *other)
     PyObject *result;
     PympzObject *tempx;
 
-    if(self && (CHECK_MPZANY(self))) {
-        CREATE1_ONE_MPZANY(self, result);
+    if(self && Pyxmpz_Check(self)) {
+        mpz_nextprime(Pympz_AS_MPZ(self), Pympz_AS_MPZ(self));
+        Py_RETURN_NONE;
+    } else if(self && Pympz_Check(self)) {
+        if(!(result = (PyObject*)Pympz_new()))
+            return NULL;
         mpz_nextprime(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self));
     } else if(CHECK_MPZANY(other)) {
         CREATE1_ONE_MPZANY(other, result);
