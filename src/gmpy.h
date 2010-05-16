@@ -68,6 +68,7 @@ extern "C" {
 #define VALUE_ERROR(msg) PyErr_SetString(PyExc_ValueError, msg)
 #define ZERO_ERROR(msg) PyErr_SetString(PyExc_ZeroDivisionError, msg)
 #define SYSTEM_ERROR(msg) PyErr_SetString(PyExc_SystemError, msg)
+#define OVERFLOW_ERROR(msg) PyErr_SetString(PyExc_OverflowError, msg)
 
 #ifdef FAST
 #define TRACE(msg)

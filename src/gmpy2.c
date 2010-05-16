@@ -4511,9 +4511,9 @@ static PyNumberMethods xmpz_number_methods =
     (ternaryfunc) Pyxmpz_inplace_pow,    /* nb_inplace_power        */
     (binaryfunc) Pyxmpz_inplace_lshift,  /* nb_inplace_lshift       */
     (binaryfunc) Pyxmpz_inplace_rshift,  /* nb_inplace_rshift       */
-        0,                               /* nb_inplace_and          */
-        0,                               /* nb_inplace_xor          */
-        0,                               /* nb_inplace_or           */
+    (binaryfunc) Pyxmpz_inplace_and,     /* nb_inplace_and          */
+    (binaryfunc) Pyxmpz_inplace_xor,     /* nb_inplace_xor          */
+    (binaryfunc) Pyxmpz_inplace_ior,     /* nb_inplace_or           */
     (binaryfunc) Pympany_floordiv,       /* nb_floor_divide         */
     (binaryfunc) Pympany_truediv,        /* nb_true_divide          */
     (binaryfunc) Pyxmpz_inplace_floordiv,/* nb_inplace_floor_divide */
@@ -4555,9 +4555,9 @@ static PyNumberMethods xmpz_number_methods =
     (ternaryfunc) Pyxmpz_inplace_pow,    /* nb_inplace_power        */
     (binaryfunc) Pyxmpz_inplace_lshift,  /* nb_inplace_lshift       */
     (binaryfunc) Pyxmpz_inplace_rshift,  /* nb_inplace_rshift       */
-        0,                               /* nb_inplace_and          */
-        0,                               /* nb_inplace_xor          */
-        0,                               /* nb_inplace_or           */
+    (binaryfunc) Pyxmpz_inplace_and,     /* nb_inplace_and          */
+    (binaryfunc) Pyxmpz_inplace_xor,     /* nb_inplace_xor          */
+    (binaryfunc) Pyxmpz_inplace_ior,     /* nb_inplace_or           */
     (binaryfunc) Pympany_floordiv,       /* nb_floor_divide         */
     (binaryfunc) Pympany_truediv,        /* nb_true_divide          */
     (binaryfunc) Pyxmpz_inplace_floordiv,/* nb_inplace_floor_divide */
