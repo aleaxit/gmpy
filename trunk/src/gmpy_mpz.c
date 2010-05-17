@@ -234,22 +234,59 @@ n must be an ordinary Python int, >=0; x is an mpz, or else\n\
 gets coerced to one.\n\
 ";
 static PyObject *
-Pympz_getbit(PyObject *self, PyObject *args)
+Pygmpy_getbit(PyObject *self, PyObject *args)
 {
     long bit_index;
-    PyObject *s;
+    PyObject *x;
+    PympzObject *tempx;
 
-    PARSE_ONE_MPZ_REQ_CLONG(&bit_index,
-            "getbit() requires 'mpz','int' arguments");
+    if(PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("getbit() requires 'mpz','int' arguments");
+        return NULL;
+    }
+
+    bit_index = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
+    if(bit_index == -1 && PyErr_Occurred()) {
+        TYPE_ERROR("getbit() requires 'mpz','int' arguments");
+        return NULL;
+    }
 
     if(bit_index < 0) {
         VALUE_ERROR("bit_index must be >= 0");
         Py_DECREF(self);
         return NULL;
     }
-    s = PyIntOrLong_FromLong(mpz_tstbit(Pympz_AS_MPZ(self), bit_index));
-    Py_DECREF(self);
-    return s;
+
+    x = PyTuple_GET_ITEM(args, 0);
+    if(CHECK_MPZANY(x)) {
+        return PyIntOrLong_FromLong(mpz_tstbit(Pympz_AS_MPZ(x), bit_index));
+    } else {
+        if(!(tempx = Pympz_From_Integer(x))) {
+            TYPE_ERROR("getbit() requires 'mpz','int' arguments");
+            return NULL;
+        }
+        return PyIntOrLong_FromLong(mpz_tstbit(Pympz_AS_MPZ(tempx), bit_index));
+    }
+}
+
+static PyObject *
+Pympz_getbit(PyObject *self, PyObject *other)
+{
+    long bit_index;
+
+    bit_index = clong_From_Integer(other);
+    if(bit_index == -1 && PyErr_Occurred()) {
+        TYPE_ERROR("getbit() requires 'mpz','int' arguments");
+        return NULL;
+    }
+
+    if(bit_index < 0) {
+        VALUE_ERROR("bit_index must be >= 0");
+        Py_DECREF(self);
+        return NULL;
+    }
+
+    return PyIntOrLong_FromLong(mpz_tstbit(Pympz_AS_MPZ(self), bit_index));
 }
 
 static char doc_setbitm[]="\
