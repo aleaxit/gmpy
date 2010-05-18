@@ -224,36 +224,32 @@ Pympz_popcount(PyObject *self, PyObject *other)
 }
 
 /* get & return one bit from an mpz */
-static char doc_getbitm[]="\
-x.getbit(n): returns 0 or 1, the bit-value of bit n of x;\n\
-n must be an ordinary Python int, >=0.\n\
+static char doc_bit_testm[]="\
+x.bit_test(n): return the value of the nth bit of x.\n\
 ";
-static char doc_getbitg[]="\
-getbit(x,n): returns 0 or 1, the bit-value of bit n of x;\n\
-n must be an ordinary Python int, >=0; x is an mpz, or else\n\
-gets coerced to one.\n\
+static char doc_bit_testg[]="\
+bit_test(x,n): return the value of the nth bit of x.\n\
 ";
 static PyObject *
-Pygmpy_getbit(PyObject *self, PyObject *args)
+Pygmpy_bit_test(PyObject *self, PyObject *args)
 {
     long bit_index;
     PyObject *x;
     PympzObject *tempx;
 
     if(PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("getbit() requires 'mpz','int' arguments");
+        TYPE_ERROR("bit_test() requires 'mpz','int' arguments");
         return NULL;
     }
 
     bit_index = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
     if(bit_index == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("getbit() requires 'mpz','int' arguments");
+        TYPE_ERROR("bit_test() requires 'mpz','int' arguments");
         return NULL;
     }
 
     if(bit_index < 0) {
         VALUE_ERROR("bit_index must be >= 0");
-        Py_DECREF(self);
         return NULL;
     }
 
@@ -262,7 +258,7 @@ Pygmpy_getbit(PyObject *self, PyObject *args)
         return PyIntOrLong_FromLong(mpz_tstbit(Pympz_AS_MPZ(x), bit_index));
     } else {
         if(!(tempx = Pympz_From_Integer(x))) {
-            TYPE_ERROR("getbit() requires 'mpz','int' arguments");
+            TYPE_ERROR("bit_test() requires 'mpz','int' arguments");
             return NULL;
         }
         return PyIntOrLong_FromLong(mpz_tstbit(Pympz_AS_MPZ(tempx), bit_index));
@@ -270,98 +266,176 @@ Pygmpy_getbit(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-Pympz_getbit(PyObject *self, PyObject *other)
+Pympz_bit_test(PyObject *self, PyObject *other)
 {
     long bit_index;
 
     bit_index = clong_From_Integer(other);
     if(bit_index == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("getbit() requires 'mpz','int' arguments");
+        TYPE_ERROR("bit_test() requires 'mpz','int' arguments");
         return NULL;
     }
 
     if(bit_index < 0) {
         VALUE_ERROR("bit_index must be >= 0");
-        Py_DECREF(self);
         return NULL;
     }
 
     return PyIntOrLong_FromLong(mpz_tstbit(Pympz_AS_MPZ(self), bit_index));
 }
 
-static char doc_setbitm[]="\
-x.setbit(n,v=1): returns a copy of the value of x, with bit n set\n\
-to value v; n must be an ordinary Python int, >=0; v, 0 or !=0.\n\
+static char doc_bit_clearm[]="\
+x.bit_clear(n): clear the nth bit of x. If x is an xmpz, x is mutated.\n\
+If x is an mpz, a new object is returned.\n\
 ";
-static char doc_setbitg[]="\
-setbit(x,n,v=1): returns a copy of the value of x, with bit n set\n\
-to value v; n must be an ordinary Python int, >=0; v, 0 or !=0;\n\
-x must be an mpz, or else gets coerced to one.\n\
+static char doc_bit_clearg[]="\
+bit_clear(x,n): clear the nth bit of x. A new object is always returned.\n\
 ";
+
 static PyObject *
-Pympz_setbit(PyObject *self, PyObject *args)
+Pygmpy_bit_clear(PyObject *self, PyObject *args)
 {
     long bit_index;
-    long bit_value=1;
-    int argc;
-    PympzObject *s;
+    PyObject *x, *result;
+    PympzObject *tempx;
 
-    argc = PyTuple_GET_SIZE(args);
-    if(self && (CHECK_MPZANY(self))) {
-        if(argc == 1) {
-            bit_index = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
-            if(bit_index == -1 && PyErr_Occurred()) {
-                goto bad_args;
-            }
-        } else if(argc == 2) {
-            bit_index = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
-            bit_value = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
-            if((bit_index == -1 || bit_value == -1) && PyErr_Occurred()) {
-                goto bad_args;
-            }
-        } else {
-            goto bad_args;
-        }
-        Py_INCREF(self);
-    } else {
-        if(argc == 2) {
-            self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
-            bit_index = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
-            if(!self || (bit_index == -1 && PyErr_Occurred())) {
-                goto bad_args;
-            }
-        } else if(argc == 3) {
-            self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
-            bit_index = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
-            bit_value = clong_From_Integer(PyTuple_GET_ITEM(args, 2));
-            if(!self ||
-                ((bit_index == -1 || bit_value == -1) && PyErr_Occurred())) {
-                goto bad_args;            }
-        } else {
-            goto bad_args;
-        }
+    if(PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("bit_clear() requires 'mpz','int' arguments");
+        return NULL;
     }
+
+    bit_index = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
+    if(bit_index == -1 && PyErr_Occurred()) {
+        TYPE_ERROR("bit_clear() requires 'mpz','int' arguments");
+        return NULL;
+    }
+
     if(bit_index < 0) {
         VALUE_ERROR("bit_index must be >= 0");
-        Py_DECREF(self);
         return NULL;
     }
-    if(!(s = Pympz2Pympz((PympzObject*)self))) {
-        Py_DECREF(self);
-        return NULL;
-    }
-    Py_DECREF(self);
-    if(bit_value) {
-        mpz_setbit(s->z, bit_index);
-    } else {
-        mpz_clrbit(s->z, bit_index);
-    }
-    return (PyObject*)s;
 
- bad_args:
-    TYPE_ERROR("setbit() requires 'mpz','int'[,'int'] arguments");
-    return NULL;
+    x = PyTuple_GET_ITEM(args, 0);
+    CREATE1_ONE_MPZANY(x, result);
+    if(CHECK_MPZANY(x)) {
+        mpz_set(Pympz_AS_MPZ(result), Pympz_AS_MPZ(x));
+        mpz_clrbit(Pympz_AS_MPZ(result), bit_index);
+    } else {
+        if(!(tempx = Pympz_From_Integer(x))) {
+            TYPE_ERROR("bit_clear() requires 'mpz','int' arguments");
+            return NULL;
+        }
+        mpz_swap(Pympz_AS_MPZ(result), Pympz_AS_MPZ(tempx));
+        Py_DECREF((PyObject*)tempx);
+        mpz_clrbit(Pympz_AS_MPZ(result), bit_index);
+    }
+    return result;
 }
+
+static PyObject *
+Pympz_bit_clear(PyObject *self, PyObject *other)
+{
+    long bit_index;
+    PyObject *result;
+
+    bit_index = clong_From_Integer(other);
+    if(bit_index == -1 && PyErr_Occurred()) {
+        TYPE_ERROR("bit_clear() requires 'mpz','int' arguments");
+        return NULL;
+    }
+
+    if(bit_index < 0) {
+        VALUE_ERROR("bit_index must be >= 0");
+        return NULL;
+    }
+
+    if(Pyxmpz_Check(self)) {
+        mpz_clrbit(Pympz_AS_MPZ(self), bit_index);
+        Py_RETURN_NONE;
+    } else {
+        CREATE0_ONE_MPZANY(result);
+        mpz_set(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self));
+        mpz_clrbit(Pympz_AS_MPZ(result), bit_index);
+        return result;
+    }
+}
+
+static char doc_bit_setm[]="\
+x.bit_set(n): set the nth bit of x. If x is an xmpz, x is mutated.\n\
+If x is an mpz, a new object is returned.\n\
+";
+static char doc_bit_setg[]="\
+bit_set(x,n): clear the nth bit of x. A new object is always returned.\n\
+";
+
+static PyObject *
+Pygmpy_bit_set(PyObject *self, PyObject *args)
+{
+    long bit_index;
+    PyObject *x, *result;
+    PympzObject *tempx;
+
+    if(PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("bit_set() requires 'mpz','int' arguments");
+        return NULL;
+    }
+
+    bit_index = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
+    if(bit_index == -1 && PyErr_Occurred()) {
+        TYPE_ERROR("bit_set() requires 'mpz','int' arguments");
+        return NULL;
+    }
+
+    if(bit_index < 0) {
+        VALUE_ERROR("bit_index must be >= 0");
+        return NULL;
+    }
+
+    x = PyTuple_GET_ITEM(args, 0);
+    CREATE1_ONE_MPZANY(x, result);
+    if(CHECK_MPZANY(x)) {
+        mpz_set(Pympz_AS_MPZ(result), Pympz_AS_MPZ(x));
+        mpz_setbit(Pympz_AS_MPZ(result), bit_index);
+    } else {
+        if(!(tempx = Pympz_From_Integer(x))) {
+            TYPE_ERROR("bit_set() requires 'mpz','int' arguments");
+            return NULL;
+        }
+        mpz_swap(Pympz_AS_MPZ(result), Pympz_AS_MPZ(tempx));
+        Py_DECREF((PyObject*)tempx);
+        mpz_setbit(Pympz_AS_MPZ(result), bit_index);
+    }
+    return result;
+}
+
+static PyObject *
+Pympz_bit_set(PyObject *self, PyObject *other)
+{
+    long bit_index;
+    PyObject *result;
+
+    bit_index = clong_From_Integer(other);
+    if(bit_index == -1 && PyErr_Occurred()) {
+        TYPE_ERROR("bit_set() requires 'mpz','int' arguments");
+        return NULL;
+    }
+
+    if(bit_index < 0) {
+        VALUE_ERROR("bit_index must be >= 0");
+        return NULL;
+    }
+
+    if(Pyxmpz_Check(self)) {
+        mpz_setbit(Pympz_AS_MPZ(self), bit_index);
+        Py_RETURN_NONE;
+    } else {
+        CREATE0_ONE_MPZANY(result);
+        mpz_set(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self));
+        mpz_setbit(Pympz_AS_MPZ(result), bit_index);
+        return result;
+    }
+}
+
 
 /* return nth-root of an mpz (in a 2-el tuple: 2nd is int, non-0 iff exact) */
 static char doc_rootm[]="\

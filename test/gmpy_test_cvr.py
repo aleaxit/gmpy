@@ -215,22 +215,22 @@ ValueError: starting bit must be >= 0
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: fmod2exp() requires n > 0
->>> _g.getbit(12,-1)
+>>> _g.bit_test(12,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: bit_index must be >= 0
->>> _g.setbit(12,-1)
+>>> _g.bit_set(12,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: bit_index must be >= 0
->>> _g.mpz(23).setbit(12,1,2,3)
+>>> _g.mpz(23).bit_set(12,1,2,3)
 Traceback (most recent call last):
   ...
-TypeError: setbit() requires 'mpz','int'[,'int'] arguments
->>> _g.setbit(12,1,2,3)
+TypeError: bit_set() takes exactly one argument (4 given)
+>>> _g.bit_set(12,1,2,3)
 Traceback (most recent call last):
   ...
-TypeError: setbit() requires 'mpz','int'[,'int'] arguments
+TypeError: bit_set() requires 'mpz','int' arguments
 >>> _g.root(12,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
