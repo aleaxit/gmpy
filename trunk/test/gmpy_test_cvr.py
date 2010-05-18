@@ -203,11 +203,11 @@ Traceback (most recent call last):
 ValueError: invalid digits
 >>> int(_g.mpz(1000L*1000*1000*1000*1000*1000*1000))
 1000000000000000000000L
->>> _g.scan0(12,-1)
+>>> _g.bit_scan0(12,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: starting bit must be >= 0
->>> _g.scan1(12,-1)
+>>> _g.bit_scan1(12,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: starting bit must be >= 0
