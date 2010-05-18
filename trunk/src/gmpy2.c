@@ -2770,7 +2770,7 @@ Pympf2repr(PympfObject *self)
  *   Pympz_scan1(PyObject *self, PyObject *args)
  *   Pympz_popcount(PyObject *self, PyObject *args)
  *   Pympz_lowbits(PyObject *self, PyObject *args)
- *   Pympz_getbit(PyObject *self, PyObject *args)
+ *   Pympz_bit_test(PyObject *self, PyObject *args)
  *   Pympz_setbit(PyObject *self, PyObject *args)
  *   Pympz_root(PyObject *self, PyObject *args)
  *   Pympz_rootrem(PyObject *self, PyObject *args)
@@ -4733,7 +4733,10 @@ static PyNumberMethods mpf_number_methods =
 static PyMethodDef Pygmpy_methods [] =
 {
     { "_cvsid", Pygmpy_get_cvsid, METH_NOARGS, doc_cvsid },
+    { "bit_clear", Pygmpy_bit_clear, METH_VARARGS, doc_bit_clearg },
     { "bit_length", Pympz_bit_length, METH_O, doc_bit_lengthg },
+    { "bit_set", Pygmpy_bit_set, METH_VARARGS, doc_bit_setg },
+    { "bit_test", Pygmpy_bit_test, METH_VARARGS, doc_bit_testg },
     { "binary", Pympany_binary, METH_O, doc_binaryg },
     { "bincoef", Pympz_bincoef, METH_VARARGS, doc_bincoefg },
     { "cdiv", Pygmpy_cdiv, METH_VARARGS, doc_cdivg },
@@ -4771,7 +4774,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "gmp_limbsize", Pygmpy_get_gmp_limbsize, METH_NOARGS, doc_gmp_limbsize },
     { "getprec", Pympf_getprec, METH_VARARGS, doc_getprecg },
     { "getrprec", Pympf_getrprec, METH_VARARGS, doc_getrprecg },
-    { "getbit", Pygmpy_getbit, METH_VARARGS, doc_getbitg },
     { "hamdist", Pympz_hamdist, METH_VARARGS, doc_hamdistg },
     { "invert", Pympz_invert, METH_VARARGS, doc_invertg },
     { "is_even", Pympz_is_even, METH_O, doc_is_eveng },
@@ -4810,7 +4812,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "set_minprec", Pygmpy_set_minprec, METH_VARARGS, doc_set_minprec },
     { "set_prefer_mutable", Pygmpy_set_prefer_mutable, METH_VARARGS, doc_set_prefer_mutable },
     { "set_tagoff", Pygmpy_set_tagoff, METH_VARARGS, doc_set_tagoff },
-    { "setbit", Pympz_setbit, METH_VARARGS, doc_setbitg },
     { "sign", Pympz_sign, METH_O, doc_signg },
     { "sqrt", Pympz_sqrt, METH_VARARGS, doc_sqrtg },
     { "sqrtrem", Pympz_sqrtrem, METH_VARARGS, doc_sqrtremg },
@@ -4838,7 +4839,10 @@ static PyMethodDef Pympz_methods [] =
 {
     { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
     { "bincoef", Pympz_bincoef, METH_VARARGS, doc_bincoefm },
+    { "bit_clear", Pympz_bit_clear, METH_O, doc_bit_clearm },
     { "bit_length", Pympz_bit_length, METH_NOARGS, doc_bit_lengthm },
+    { "bit_set", Pympz_bit_set, METH_O, doc_bit_setm },
+    { "bit_test", Pympz_bit_test, METH_O, doc_bit_testm },
     { "cdiv", Pympz_cdiv, METH_O, doc_cdivm },
     { "cdiv2exp", Pympz_cdiv2exp, METH_O, doc_cdiv2expm },
     { "cmod", Pympz_cmod, METH_O, doc_cmodm },
@@ -4851,7 +4855,6 @@ static PyMethodDef Pympz_methods [] =
     { "fdiv2exp", Pympz_fdiv2exp, METH_O, doc_fdiv2expm },
     { "fmod", Pympz_fmod, METH_O, doc_fmodm },
     { "fmod2exp", Pympz_fmod2exp, METH_O, doc_fmod2expm },
-    { "getbit", Pympz_getbit, METH_O, doc_getbitm },
     { "hamdist", Pympz_hamdist, METH_VARARGS, doc_hamdistm },
     { "invert", Pympz_invert, METH_VARARGS, doc_invertm },
     { "is_even", Pympz_is_even, METH_NOARGS, doc_is_evenm },
@@ -4871,7 +4874,6 @@ static PyMethodDef Pympz_methods [] =
     { "rootrem", Pympz_rootrem, METH_VARARGS, doc_rootremm },
     { "scan0", Pympz_scan0, METH_VARARGS, doc_scan0m },
     { "scan1", Pympz_scan1, METH_VARARGS, doc_scan1m },
-    { "setbit", Pympz_setbit, METH_VARARGS, doc_setbitm },
     { "sign", Pympz_sign, METH_NOARGS, doc_signm },
     { "sqrt", Pympz_sqrt, METH_VARARGS, doc_sqrtm },
     { "sqrtrem", Pympz_sqrtrem, METH_VARARGS, doc_sqrtremm },
@@ -4886,7 +4888,10 @@ static PyMethodDef Pyxmpz_methods [] =
 {
     { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
     { "bincoef", Pympz_bincoef, METH_VARARGS, doc_bincoefm },
+    { "bit_clear", Pympz_bit_clear, METH_O, doc_bit_clearm },
     { "bit_length", Pympz_bit_length, METH_NOARGS, doc_bit_lengthm },
+    { "bit_set", Pympz_bit_set, METH_O, doc_bit_setm },
+    { "bit_test", Pympz_bit_test, METH_O, doc_bit_testm },
     { "cdiv", Pympz_cdiv, METH_O, doc_cdivm },
     { "cdiv2exp", Pympz_cdiv2exp, METH_O, doc_cdiv2expm },
     { "cmod", Pympz_cmod, METH_O, doc_cmodm },
@@ -4899,7 +4904,6 @@ static PyMethodDef Pyxmpz_methods [] =
     { "fdiv2exp", Pympz_fdiv2exp, METH_O, doc_fdiv2expm },
     { "fmod", Pympz_fmod, METH_O, doc_fmodm },
     { "fmod2exp", Pympz_fmod2exp, METH_O, doc_fmod2expm },
-    { "getbit", Pympz_getbit, METH_O, doc_getbitm },
     { "hamdist", Pympz_hamdist, METH_VARARGS, doc_hamdistm },
     { "invert", Pympz_invert, METH_VARARGS, doc_invertm },
     { "is_even", Pympz_is_even, METH_NOARGS, doc_is_evenm },
@@ -4919,7 +4923,6 @@ static PyMethodDef Pyxmpz_methods [] =
     { "rootrem", Pympz_rootrem, METH_VARARGS, doc_rootremm },
     { "scan0", Pympz_scan0, METH_VARARGS, doc_scan0m },
     { "scan1", Pympz_scan1, METH_VARARGS, doc_scan1m },
-    { "setbit", Pympz_setbit, METH_VARARGS, doc_setbitm },
     { "sign", Pympz_sign, METH_NOARGS, doc_signm },
     { "sqrt", Pympz_sqrt, METH_VARARGS, doc_sqrtm },
     { "sqrtrem", Pympz_sqrtrem, METH_VARARGS, doc_sqrtremm },

@@ -2,9 +2,9 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> list(filter(lambda x: not x.startswith('_'), dir(_g)))
-['binary', 'bincoef', 'bit_length', 'cdiv', 'cdiv2exp', 'cdivmod', 'cdivmod2exp', 'ceil', 'cmod', 'cmod2exp', 'comb', 'copy', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fdigits', 'fdiv', 'fdiv2exp', 'fdivmod', 'fdivmod2exp', 'fib', 'fib2', 'floor', 'fmod', 'fmod2exp', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lucas', 'lucas2', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qdigits', 'qdiv', 'qsign', 'reldiff', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'set_cache', 'set_debug', 'set_fcoform', 'set_minprec', 'set_prefer_mutable', 'set_tagoff', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdiv', 'tdiv2exp', 'tdivmod', 'tdivmod2exp', 'tmod', 'tmod2exp', 'trunc', 'version', 'xmpz']
+['binary', 'bincoef', 'bit_clear', 'bit_length', 'bit_set', 'bit_test', 'cdiv', 'cdiv2exp', 'cdivmod', 'cdivmod2exp', 'ceil', 'cmod', 'cmod2exp', 'comb', 'copy', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fdigits', 'fdiv', 'fdiv2exp', 'fdivmod', 'fdivmod2exp', 'fib', 'fib2', 'floor', 'fmod', 'fmod2exp', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lucas', 'lucas2', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qdigits', 'qdiv', 'qsign', 'reldiff', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'set_cache', 'set_debug', 'set_fcoform', 'set_minprec', 'set_prefer_mutable', 'set_tagoff', 'sign', 'sqrt', 'sqrtrem', 'tdiv', 'tdiv2exp', 'tdivmod', 'tdivmod2exp', 'tmod', 'tmod2exp', 'trunc', 'version', 'xmpz']
 >>> dir(a)
-['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__iadd__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__', '__index__', '__init__', '__int__', '__invert__', '__ipow__', '__irshift__', '__isub__', '__le__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', 'binary', 'bincoef', 'bit_length', 'cdiv', 'cdiv2exp', 'cmod', 'cmod2exp', 'comb', 'copy', 'digits', 'divexact', 'fdiv', 'fdiv2exp', 'fmod', 'fmod2exp', 'getbit', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdiv', 'tdiv2exp', 'tmod', 'tmod2exp']
+['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__iadd__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__', '__index__', '__init__', '__int__', '__invert__', '__ipow__', '__irshift__', '__isub__', '__le__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', 'binary', 'bincoef', 'bit_clear', 'bit_length', 'bit_set', 'bit_test', 'cdiv', 'cdiv2exp', 'cmod', 'cmod2exp', 'comb', 'copy', 'digits', 'divexact', 'fdiv', 'fdiv2exp', 'fmod', 'fmod2exp', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'scan0', 'scan1', 'sign', 'sqrt', 'sqrtrem', 'tdiv', 'tdiv2exp', 'tmod', 'tmod2exp']
 >>>
 '''
 import gmpy2 as _g, doctest, sys, operator, gc
@@ -534,12 +534,12 @@ mpz(8)
 1
 >>> a.fmod2exp(5)==(a%32)
 1
->>> a.setbit(20)
+>>> a.bit_set(20)
 mpz(1048699)
->>> a.setbit(0,0)
+>>> a.bit_clear(0)
 mpz(122)
 >>> for i in range(8):
-...     print(a.getbit(i))
+...     print(a.bit_test(i))
 ...
 1
 1
@@ -550,7 +550,7 @@ mpz(122)
 1
 0
 >>> for i in range(10):
-...     print(b.getbit(i))
+...     print(b.bit_test(i))
 ...
 0
 0
