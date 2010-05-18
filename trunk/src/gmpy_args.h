@@ -270,7 +270,7 @@
  */
 
 #define PARSE_ONE_MPZ(msg) \
-    if(self && (Pympz_Check(self) || Pyxmpz_Check(self))) {\
+    if(self && CHECK_MPZANY(self)) {\
         if (PyTuple_GET_SIZE(args) != 0) {\
             PyErr_SetString(PyExc_TypeError, msg);\
             return NULL;\
@@ -281,7 +281,16 @@
             PyErr_SetString(PyExc_TypeError, msg);\
             return NULL;\
         }\
-        self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+        self = PyTuple_GET_ITEM(args, 0);\
+        if(CHECK_MPZANY(self)) {\
+            Py_INCREF((PyObject*)self);\
+        } else {\
+            if(options.prefer_mutable) {\
+                self = (PyObject*)Pyxmpz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+            } else {\
+                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+            }\
+        }\
         if(!self) {\
             PyErr_SetString(PyExc_TypeError, msg);\
             return NULL;\
@@ -301,7 +310,7 @@
  */
 
 #define PARSE_ONE_MPZ_OPT_CLONG(var, msg) \
-    if(self && (Pympz_Check(self) || Pyxmpz_Check(self))) {\
+    if(self && CHECK_MPZANY(self)) {\
         if (PyTuple_GET_SIZE(args) == 1) {\
             *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             if(*var == -1 && PyErr_Occurred()) {\
@@ -320,9 +329,27 @@
                 PyErr_SetString(PyExc_TypeError, msg);\
                 return NULL;\
             }\
-            self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+            self = PyTuple_GET_ITEM(args, 0);\
+            if(CHECK_MPZANY(self)) {\
+                Py_INCREF((PyObject*)self);\
+            } else {\
+                if(options.prefer_mutable) {\
+                    self = (PyObject*)Pyxmpz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+                } else {\
+                    self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+                }\
+            }\
         } else if (PyTuple_GET_SIZE(args) == 1) {\
-            self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+            self = PyTuple_GET_ITEM(args, 0);\
+            if(CHECK_MPZANY(self)) {\
+                Py_INCREF((PyObject*)self);\
+            } else {\
+                if(options.prefer_mutable) {\
+                    self = (PyObject*)Pyxmpz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+                } else {\
+                    self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+                }\
+            }\
         } else {\
             PyErr_SetString(PyExc_TypeError, msg);\
             return NULL;\
@@ -346,7 +373,7 @@
  */
 
 #define PARSE_ONE_MPZ_REQ_CLONG(var, msg) \
-    if(self && (Pympz_Check(self) || Pyxmpz_Check(self))) {\
+    if(self && CHECK_MPZANY(self)) {\
         if (PyTuple_GET_SIZE(args) != 1) {\
             PyErr_SetString(PyExc_TypeError, msg);\
             return NULL;\
@@ -368,7 +395,16 @@
                 PyErr_SetString(PyExc_TypeError, msg);\
                 return NULL;\
             }\
-            self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+            self = PyTuple_GET_ITEM(args, 0);\
+            if(CHECK_MPZANY(self)) {\
+                Py_INCREF((PyObject*)self);\
+            } else {\
+                if(options.prefer_mutable) {\
+                    self = (PyObject*)Pyxmpz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+                } else {\
+                    self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+                }\
+            }\
         }\
         if(!self) {\
             PyErr_SetString(PyExc_TypeError, msg);\
@@ -388,7 +424,7 @@
  */
 
 #define PARSE_TWO_MPZ(var, msg) \
-    if(self && (Pympz_Check(self) || Pyxmpz_Check(self))) {\
+    if(self && CHECK_MPZANY(self)) {\
         if (PyTuple_GET_SIZE(args) != 1) {\
             PyErr_SetString(PyExc_TypeError, msg);\
             return NULL;\

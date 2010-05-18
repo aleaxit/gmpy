@@ -21,13 +21,13 @@ static PyObject *
 Pympz_digits(PyObject *self, PyObject *args)
 {
     int base = 10;
-    PyObject *s;
+    PyObject *result;
 
     PARSE_ONE_MPZ_OPT_CLONG(&base,
             "digits() requires 'mpz',['int'] arguments");
-    s = Pympz_ascii((PympzObject*)self, base, 0);
+    result = Pympz_ascii((PympzObject*)self, base, 0);
     Py_DECREF(self);
-    return s;
+    return result;
 }
 
 /* return number-of-digits for an mpz in requested base, default 10 */
@@ -50,7 +50,7 @@ static PyObject *
 Pympz_numdigits(PyObject *self, PyObject *args)
 {
     int base = 10;
-    PyObject *s;
+    PyObject *result;
 
     PARSE_ONE_MPZ_OPT_CLONG(&base,
             "numdigits() requires 'mpz',['int'] arguments");
@@ -60,9 +60,9 @@ Pympz_numdigits(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
-    s = PyIntOrLong_FromSize_t(mpz_sizeinbase(Pympz_AS_MPZ(self), base));
+    result = PyIntOrLong_FromSize_t(mpz_sizeinbase(Pympz_AS_MPZ(self), base));
     Py_DECREF(self);
-    return s;
+    return result;
 }
 
 static char doc_bit_lengthm[]="\
@@ -75,7 +75,7 @@ static PyObject *
 Pympz_bit_length(PyObject *self, PyObject *other)
 {
     size_t i = 0;
-    PympzObject* newob;
+    PympzObject* tempx;
 
     if(self && (CHECK_MPZANY(self))) {
         if (mpz_size(Pympz_AS_MPZ(self)))
@@ -84,14 +84,13 @@ Pympz_bit_length(PyObject *self, PyObject *other)
         if (mpz_size(Pympz_AS_MPZ(other)))
             i = mpz_sizeinbase(Pympz_AS_MPZ(other), 2);
     } else {
-        newob = Pympz_From_Integer(other);
-        if(newob) {
-            if (mpz_size(Pympz_AS_MPZ(newob)))
-                i = mpz_sizeinbase(Pympz_AS_MPZ(newob), 2);
-            Py_DECREF((PyObject*)newob);
-        } else {
+        if(!(tempx = Pympz_From_Integer(other))) {
             TYPE_ERROR("bit_length() requires 'mpz' argument");
             return NULL;
+        } else {
+            if (mpz_size(Pympz_AS_MPZ(tempx)))
+                i = mpz_sizeinbase(Pympz_AS_MPZ(tempx), 2);
+            Py_DECREF((PyObject*)tempx);
         }
     }
     return PyIntOrLong_FromSize_t(i);
@@ -524,36 +523,38 @@ Pympz_root(PyObject *self, PyObject *args)
 {
     long n;
     int exact;
-    PympzObject *s;
+    PyObject *s;
     PyObject *result;
 
     PARSE_ONE_MPZ_REQ_CLONG(&n,
                             "root() requires 'mpz','int' arguments");
 
-    assert(Pympz_Check(self));
     if(n <= 0) {
         VALUE_ERROR("n must be > 0");
         Py_DECREF(self);
         return NULL;
     } else if(n>1) {
-        int sign = mpz_sgn(Pympz_AS_MPZ(self));
-        if(sign<0) {
+        if(mpz_sgn(Pympz_AS_MPZ(self))<0) {
             VALUE_ERROR("root of negative number");
             Py_DECREF(self);
             return NULL;
         }
     }
-    s = Pympz_new();
+    if(Pyxmpz_Check(self)) {
+        s = (PyObject*)Pyxmpz_new();
+    } else {
+        s = (PyObject*)Pympz_new();
+    }
     result = PyTuple_New(2);
     if(!s || !result) {
         Py_DECREF(self);
-        Py_XDECREF((PyObject*)s);
+        Py_XDECREF(s);
         Py_XDECREF(result);
         return NULL;
     }
-    exact = mpz_root(s->z, Pympz_AS_MPZ(self), n);
+    exact = mpz_root(Pympz_AS_MPZ(s), Pympz_AS_MPZ(self), n);
     Py_DECREF(self);
-    PyTuple_SET_ITEM(result, 0, (PyObject*)s);
+    PyTuple_SET_ITEM(result, 0, s);
     PyTuple_SET_ITEM(result, 1, (PyObject*)PyIntOrLong_FromLong(exact));
     return result;
 }
@@ -572,39 +573,41 @@ static PyObject *
 Pympz_rootrem(PyObject *self, PyObject *args)
 {
     long n;
-    PympzObject *y = 0, *r = 0;
-    PyObject *result;
+    PyObject *y = 0, *r = 0, *result;
 
     PARSE_ONE_MPZ_REQ_CLONG(&n,
             "rootrem() requires 'mpz','int' arguments");
 
-    assert(Pympz_Check(self));
     if(n <= 0) {
         VALUE_ERROR("n must be > 0");
         Py_DECREF(self);
         return NULL;
     } else if(n>1) {
-        int sign = mpz_sgn(Pympz_AS_MPZ(self));
-        if(sign<0) {
+        if(mpz_sgn(Pympz_AS_MPZ(self))<0) {
             VALUE_ERROR("root of negative number");
             Py_DECREF(self);
             return NULL;
         }
     }
-    y = Pympz_new();
-    r = Pympz_new();
+    if(Pyxmpz_Check(self)) {
+        y = (PyObject*)Pyxmpz_new();
+        r = (PyObject*)Pyxmpz_new();
+    } else {
+        y = (PyObject*)Pympz_new();
+        r = (PyObject*)Pympz_new();
+    }
     result = PyTuple_New(2);
     if(!y || !r || !result) {
         Py_DECREF(self);
         Py_XDECREF(result);
-        Py_XDECREF((PyObject*)y);
-        Py_XDECREF((PyObject*)r);
+        Py_XDECREF(y);
+        Py_XDECREF(r);
         return NULL;
     }
-    mpz_rootrem(y->z, r->z, Pympz_AS_MPZ(self), n);
+    mpz_rootrem(Pympz_AS_MPZ(y), Pympz_AS_MPZ(r), Pympz_AS_MPZ(self), n);
     Py_DECREF(self);
-    PyTuple_SET_ITEM(result, 0, (PyObject*)y);
-    PyTuple_SET_ITEM(result, 1, (PyObject*)r);
+    PyTuple_SET_ITEM(result, 0, y);
+    PyTuple_SET_ITEM(result, 1, r);
     return result;
 }
 
