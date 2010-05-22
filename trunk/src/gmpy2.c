@@ -4148,8 +4148,11 @@ Pympq_hash(PympqObject *self)
     if(!mpz_invert(temp, mpq_denref(self->q), mask)) {
         mpz_cloc(temp);
         mpz_cloc(mask);
-        self->hash_cache = _PyHASH_INF;
-        return _PyHASH_INF;
+        hash = _PyHASH_INF;
+        if(mpz_sgn(mpq_numref(self->q))<0)
+            hash = -hash;
+        self->hash_cache = hash;
+        return hash;
     }
     mpz_powm_ui(temp, mpq_denref(self->q), _PyHASH_MODULUS - 2, mask);
 
