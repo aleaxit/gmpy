@@ -5027,7 +5027,10 @@ Pympq_hash(PympqObject *self)
     if(!mpz_invert(temp, mpq_denref(self->q), mask)) {
         mpz_cloc(temp);
         mpz_cloc(mask);
-        return _PyHASH_INF;
+        if(mpz_sgn(mpq_numref(self->q))<0)
+            return -_PyHASH_INF;
+        else
+            return _PyHASH_INF;
     }
     mpz_powm_ui(temp, mpq_denref(self->q), _PyHASH_MODULUS - 2, mask);
 
