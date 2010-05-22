@@ -1290,7 +1290,7 @@ an mpz, or else gets converted to one.\n\
 static PyObject *
 Pympz_bincoef(PyObject *self, PyObject *args)
 {
-    PympzObject *bincoef;
+    PyObject *result;
     long k;
 
     PARSE_ONE_MPZ_REQ_CLONG(&k,
@@ -1302,13 +1302,18 @@ Pympz_bincoef(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if(!(bincoef = Pympz_new())) {
+    if(Pyxmpz_Check(self)) {
+        result = (PyObject*)Pyxmpz_new();
+    } else {
+        result = (PyObject*)Pympz_new();
+    }
+    if(!(result)) {
         Py_DECREF(self);
         return NULL;
     }
-    mpz_bin_ui(bincoef->z, Pympz_AS_MPZ(self), k);
+    mpz_bin_ui(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self), k);
     Py_DECREF(self);
-    return (PyObject*)bincoef;
+    return result;
 }
 
 static char doc_sqrtm[]="\
