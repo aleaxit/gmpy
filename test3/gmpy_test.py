@@ -17,10 +17,11 @@ import gmpy_test_mpf
 import gmpy_test_mpq
 import gmpy_test_mpz
 import gmpy_test_dec
+import gmpy_test_xmpz
 
 
 test_modules = (gmpy_test_cvr, gmpy_test_mpf,
-    gmpy_test_mpq, gmpy_test_mpz, gmpy_test_dec)
+    gmpy_test_mpq, gmpy_test_mpz, gmpy_test_dec, gmpy_test_xmpz)
 
 _g = gmpy2
 print("Unit tests for gmpy2")

@@ -292,21 +292,21 @@ static PyObject *
 Pympany_copy(PyObject *self, PyObject *other)
 {
     if(self && Pympz_Check(self))
-        return (PyObject*)Pympz2Pympz((PympzObject*)self);
+        return (PyObject*)Pympz2Pympz(self);
     else if(self && Pyxmpz_Check(self))
-        return (PyObject*)Pyxmpz2Pyxmpz((PyxmpzObject*)self);
+        return (PyObject*)Pyxmpz2Pyxmpz(self);
     else if(self && Pympq_Check(self))
-        return (PyObject*)Pympq2Pympq((PympqObject*)self);
+        return (PyObject*)Pympq2Pympq(self);
     else if(self && Pympf_Check(self))
-        return (PyObject*)Pympf2Pympf((PympfObject*)self, 0);
+        return (PyObject*)Pympf2Pympf(self, 0);
     else if(Pympz_Check(other))
-        return (PyObject*)Pympz2Pympz((PympzObject*)other);
+        return (PyObject*)Pympz2Pympz(other);
     else if(Pyxmpz_Check(other))
-        return (PyObject*)Pyxmpz2Pyxmpz((PyxmpzObject*)other);
+        return (PyObject*)Pyxmpz2Pyxmpz(other);
     else if(Pympq_Check(other))
-        return (PyObject*)Pympq2Pympq((PympqObject*)other);
+        return (PyObject*)Pympq2Pympq(other);
     else if(Pympf_Check(other))
-        return (PyObject*)Pympf2Pympf((PympfObject*)other, 0);
+        return (PyObject*)Pympf2Pympf(other, 0);
     TYPE_ERROR("copy() requires a gmpy2 object as argument");
     return NULL;
 }

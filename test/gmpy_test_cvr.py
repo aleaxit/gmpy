@@ -46,39 +46,39 @@ r'''
 >>> _g.mpf(x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy does not handle infinity
+ValueError: gmpy2 does not handle infinity
 >>> _g.mpf(-x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy does not handle infinity
+ValueError: gmpy2 does not handle infinity
 >>> _g.mpq(x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy does not handle infinity
+ValueError: gmpy2 does not handle infinity
 >>> _g.mpq(-x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy does not handle infinity
+ValueError: gmpy2 does not handle infinity
 >>> _g.mpz(x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy does not handle infinity
+ValueError: gmpy2 does not handle infinity
 >>> _g.mpz(-x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy does not handle infinity
+ValueError: gmpy2 does not handle infinity
 >>> _g.mpf(n)
 Traceback (most recent call last):
   ...
-ValueError: gmpy does not handle nan
+ValueError: gmpy2 does not handle nan
 >>> _g.mpf(n)
 Traceback (most recent call last):
   ...
-ValueError: gmpy does not handle nan
+ValueError: gmpy2 does not handle nan
 >>> _g.mpf(n)
 Traceback (most recent call last):
   ...
-ValueError: gmpy does not handle nan
+ValueError: gmpy2 does not handle nan
 '''
 
 __test__['user_errors']=\
