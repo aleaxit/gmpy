@@ -4253,12 +4253,13 @@ Pympq_hash(PympqObject *self)
 #ifdef _PyHASH_MODULUS
     long hash = 0;
     mpz_t temp, mask;
-    mpz_inoc(temp);
-    mpz_inoc(mask);
-    mpz_set_si(mask, _PyHASH_MODULUS);
 
     if(self->hash_cache != -1)
         return self->hash_cache;
+
+    mpz_inoc(temp);
+    mpz_inoc(mask);
+    mpz_set_si(mask, _PyHASH_MODULUS);
 
     if(!mpz_invert(temp, mpq_denref(self->q), mask)) {
         mpz_cloc(temp);
