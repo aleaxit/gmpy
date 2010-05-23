@@ -1326,26 +1326,55 @@ largest y such that x>=y*y. x must be an mpz, or else gets coerced\n\
 to one; further, x must be >= 0.\n\
 ";
 static PyObject *
+Pygmpy_sqrt(PyObject *self, PyObject *other)
+{
+    PyObject *result;
+
+    if(mpz_sgn(Pympz_AS_MPZ(other)) < 0) {
+        VALUE_ERROR("sqrt of negative number");
+        return NULL;
+    }
+
+    if(Pyxmpz_Check(other))
+        result = (PyObject*)Pyxmpz_new();
+    else
+        result = (PyObject*)Pympz_new();
+    if(!result) {
+        return NULL;
+    }
+
+    mpz_sqrt(Pympz_AS_MPZ(result), Pympz_AS_MPZ(other));
+    return result;
+}
+
+static PyObject *
 Pympz_sqrt(PyObject *self, PyObject *args)
 {
-    PympzObject *root;
-
-    PARSE_ONE_MPZ("sqrt() requires 'mpz' argument");
-    assert(Pympz_Check(self));
+    PyObject *result;
 
     if(mpz_sgn(Pympz_AS_MPZ(self)) < 0) {
         VALUE_ERROR("sqrt of negative number");
-        Py_DECREF(self);
         return NULL;
     }
 
-    if(!(root = Pympz_new())) {
-        Py_DECREF(self);
+    if(!(result=(PyObject*)Pympz_new())) {
         return NULL;
     }
-    mpz_sqrt(root->z, Pympz_AS_MPZ(self));
-    Py_DECREF(self);
-    return (PyObject *) root;
+
+    mpz_sqrt(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self));
+    return result;
+}
+
+static PyObject *
+Pyxmpz_sqrt(PyObject *self, PyObject *args)
+{
+    if(mpz_sgn(Pympz_AS_MPZ(self)) < 0) {
+        VALUE_ERROR("sqrt of negative number");
+        return NULL;
+    }
+
+    mpz_sqrt(Pympz_AS_MPZ(self), Pympz_AS_MPZ(self));
+    Py_RETURN_NONE;
 }
 
 static char doc_sqrtremm[]="\
@@ -1360,8 +1389,7 @@ coerced to one; further, x must be >= 0.\n\
 static PyObject *
 Pympz_sqrtrem(PyObject *self, PyObject *args)
 {
-    PympzObject *root=0, *rem=0;
-    PyObject *result;
+    PyObject *root = 0, *rem = 0, *result = 0;
 
     PARSE_ONE_MPZ("sqrtrem() requires 'mpz' argument");
 
@@ -1371,17 +1399,23 @@ Pympz_sqrtrem(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    root = Pympz_new();
-    rem = Pympz_new();
+    if(Pyxmpz_Check(self)) {
+        root = (PyObject*)Pyxmpz_new();
+        rem = (PyObject*)Pyxmpz_new();
+    } else {
+        root = (PyObject*)Pympz_new();
+        rem = (PyObject*)Pympz_new();
+    }
     result = PyTuple_New(2);
     if(!root || !rem || !result) {
-        Py_XDECREF((PyObject*)rem);
-        Py_XDECREF((PyObject*)root);
+        Py_DECREF(self);
         Py_XDECREF(result);
-        Py_DECREF((PyObject*)self);
+        Py_XDECREF(root);
+        Py_XDECREF(rem);
         return NULL;
     }
-    mpz_sqrtrem(root->z, rem->z, Pympz_AS_MPZ(self));
+
+    mpz_sqrtrem(Pympz_AS_MPZ(root), Pympz_AS_MPZ(rem), Pympz_AS_MPZ(self));
     Py_DECREF(self);
     PyTuple_SET_ITEM(result, 0, (PyObject*)root);
     PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
