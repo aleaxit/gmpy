@@ -676,26 +676,26 @@ static void Pympf_normalize(PympfObject *i)
 
 /* CONVERSIONS AND COPIES */
 static PympzObject *
-Pympz2Pympz(PympzObject *i)
+Pympz2Pympz(PyObject *i)
 {
     PympzObject *newob;
 
     assert(Pympz_Check(i));
     if(!(newob = Pympz_new()))
         return NULL;
-    mpz_set(newob->z, i->z);
+    mpz_set(newob->z, Pympz_AS_MPZ(i));
     return newob;
 }
 
 static PyxmpzObject *
-Pyxmpz2Pyxmpz(PyxmpzObject *i)
+Pyxmpz2Pyxmpz(PyObject *i)
 {
     PyxmpzObject *newob;
 
     assert(Pyxmpz_Check(i));
     if(!(newob = Pyxmpz_new()))
         return NULL;
-    mpz_set(newob->z, i->z);
+    mpz_set(newob->z, Pyxmpz_AS_MPZ(i));
     return newob;
 }
 
@@ -724,19 +724,19 @@ Pympz2Pyxmpz(PyObject *i)
 }
 
 static PympqObject *
-Pympq2Pympq(PympqObject *q)
+Pympq2Pympq(PyObject *q)
 {
     PympqObject *newob;
 
     assert(Pympq_Check(q));
     if(!(newob = Pympq_new()))
         return NULL;
-    mpq_set(newob->q, q->q);
+    mpq_set(newob->q, Pympq_AS_MPQ(q));
     return newob;
 }
 
 static PympfObject *
-Pympf2Pympf(PympfObject *f, unsigned int bits)
+Pympf2Pympf(PyObject *f, unsigned int bits)
 {
     PympfObject *newob;
 
@@ -744,8 +744,8 @@ Pympf2Pympf(PympfObject *f, unsigned int bits)
     if(!(newob = Pympf_new(bits)))
         return NULL;
     if(bits==0)
-        bits = f->rebits;
-    mpf_set(newob->f, f->f);
+        bits = ((PympfObject*)f)->rebits;
+    mpf_set(newob->f, Pympf_AS_MPF(f));
     mpf_set_prec(newob->f, bits);
     newob->rebits = bits;
     Pympf_normalize(newob);
@@ -828,11 +828,34 @@ PyFloat2Pympz(PyObject *f)
     {
         double d = PyFloat_AsDouble(f);
         if (Py_IS_NAN(d)) {
-            VALUE_ERROR("gmpy does not handle nan");
+            VALUE_ERROR("gmpy2 does not handle nan");
             return NULL;
         }
         if (Py_IS_INFINITY(d)) {
-            VALUE_ERROR("gmpy does not handle infinity");
+            VALUE_ERROR("gmpy2 does not handle infinity");
+            return NULL;
+        }
+        mpz_set_d(newob->z, d);
+    }
+    return newob;
+}
+
+static PyxmpzObject *
+PyFloat2Pyxmpz(PyObject *f)
+{
+    PyxmpzObject *newob;
+
+    assert(PyFloat_Check(f));
+
+    if((newob = Pyxmpz_new()))
+    {
+        double d = PyFloat_AsDouble(f);
+        if (Py_IS_NAN(d)) {
+            VALUE_ERROR("gmpy2 does not handle nan");
+            return NULL;
+        }
+        if (Py_IS_INFINITY(d)) {
+            VALUE_ERROR("gmpy2 does not handle infinity");
             return NULL;
         }
         mpz_set_d(newob->z, d);
@@ -855,11 +878,11 @@ PyFloat2Pympq(PyObject *f)
     {
         double d = PyFloat_AsDouble(f);
         if (Py_IS_NAN(d)) {
-            VALUE_ERROR("gmpy does not handle nan");
+            VALUE_ERROR("gmpy2 does not handle nan");
             return NULL;
         }
         if (Py_IS_INFINITY(d)) {
-            VALUE_ERROR("gmpy does not handle infinity");
+            VALUE_ERROR("gmpy2 does not handle infinity");
             return NULL;
         }
         mpf_set_d(self->f, d);
@@ -908,11 +931,11 @@ PyFloat2Pympf(PyObject *f, unsigned int bits)
         if((newob = Pympf_new(bits))) {
             double d = PyFloat_AsDouble(f);
             if (Py_IS_NAN(d)) {
-                VALUE_ERROR("gmpy does not handle nan");
+                VALUE_ERROR("gmpy2 does not handle nan");
                 return NULL;
             }
             if (Py_IS_INFINITY(d)) {
-                VALUE_ERROR("gmpy does not handle infinity");
+                VALUE_ERROR("gmpy2 does not handle infinity");
                 return NULL;
             }
             mpf_set_d(newob->f, d);
@@ -980,6 +1003,20 @@ Pympf2Pympz(PyObject * obj)
     return newob;
 }
 
+static PyxmpzObject *
+Pympf2Pyxmpz(PyObject * obj)
+{
+    PyxmpzObject *newob;
+
+    assert(Pympf_Check(obj));
+
+    if(!(newob = Pyxmpz_new()))
+        return NULL;
+    mpz_set_f(newob->z, Pympf_AS_MPF(obj));
+
+    return newob;
+}
+
 static PympqObject *
 Pympz2Pympq(PyObject * obj)
 {
@@ -1037,6 +1074,21 @@ Pympq2Pympz(PyObject * obj)
     assert(Pympq_Check(obj));
 
     if(!(newob = Pympz_new()))
+        return NULL;
+    mpz_set_q(newob->z, Pympq_AS_MPQ(obj));
+
+    return newob;
+}
+
+static PyxmpzObject *
+Pympq2Pyxmpz(PyObject * obj)
+{
+
+    PyxmpzObject *newob;
+
+    assert(Pympq_Check(obj));
+
+    if(!(newob = Pyxmpz_new()))
         return NULL;
     mpz_set_q(newob->z, Pympq_AS_MPQ(obj));
 
@@ -1150,6 +1202,24 @@ mpz_set_PyStr(mpz_ptr z, PyObject *s, long base)
             }
         }
         /* delegate rest to GMP's _set_str function */
+        if(base==0) {
+            if(cp[0]=='0') {
+                if(cp[1]=='b') {
+                    base = 2;
+                    cp+=2;
+                } else if(cp[1]=='o') {
+                    base = 8;
+                    cp+=2;
+                } else if(cp[1]=='x') {
+                    base = 16;
+                    cp+=2;
+                } else {
+                    base = 10;
+                }
+            } else {
+                base = 10;
+            }
+        }
         if(-1 == mpz_set_str(z, (char*)cp, base)) {
             VALUE_ERROR("invalid digits");
             Py_XDECREF(ascii_str);
@@ -2483,6 +2553,49 @@ anynum2Pympz(PyObject* obj)
     return newob;
 }
 
+static PyxmpzObject*
+anynum2Pyxmpz(PyObject* obj)
+{
+    PyxmpzObject* newob = 0;
+    PympqObject* temp = 0;
+
+    if(Pympz_Check(obj)) {
+        newob = Pympz2Pyxmpz(obj);
+#ifdef PY2
+    } else if(PyInt_Check(obj)) {
+        newob = PyInt2Pyxmpz(obj);
+#endif
+    } else if(PyLong_Check(obj)) {
+        newob = PyLong2Pyxmpz(obj);
+    } else if(Pympq_Check(obj)) {
+        newob = Pympq2Pyxmpz(obj);
+    } else if(Pympf_Check(obj)) {
+        newob = Pympf2Pyxmpz(obj);
+    } else if(PyFloat_Check(obj)) {
+        newob = PyFloat2Pyxmpz(obj);
+    } else if(Pyxmpz_Check(obj)) {
+        newob = Pyxmpz2Pyxmpz(obj);
+    } else if(PyNumber_Check(obj) && !strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
+        PyObject *s = PyNumber_Long(obj);
+        if(s) {
+            newob = PyLong2Pyxmpz(s);
+            Py_DECREF(s);
+        }
+    } else if(PyNumber_Check(obj) && !strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
+        PyObject *s = PyObject_Str(obj);
+        if(s) {
+            temp = PyStr2Pympq(s, 10);
+            newob = Pympq2Pyxmpz((PyObject *)temp);
+            Py_DECREF(s);
+            Py_DECREF((PyObject*)temp);
+        }
+    }
+    if(options.debug)
+        fprintf(stderr,"anynum2Pympz(%p)->%p\n", obj, newob);
+
+    return newob;
+}
+
 /*
  * Convert an Integer-like object (as determined by isInteger) to
  * a Pympz. Returns NULL and raises a TypeError if obj is not an
@@ -2577,7 +2690,7 @@ anynum2Pympf(PyObject* obj, unsigned int bits)
         if(!bits || newob->rebits==bits) {
             Py_INCREF(obj);
         } else {
-            newob = Pympf2Pympf(newob, bits);
+            newob = Pympf2Pympf((PyObject*)newob, bits);
         }
     } else if(PyFloat_Check(obj)) {
         newob = PyFloat2Pympf(obj, bits);
@@ -3200,14 +3313,16 @@ f2q_internal(PympfObject* self, PympfObject* err, unsigned int bits, int mayz)
 
 /* CONSTRUCTORS */
 static char doc_mpz[] = "\
-mpz(n): builds an mpz object with a numeric value n (truncating n\n\
-        to its integer part if it's a float or mpf)\n\
-mpz(s,base=10): builds an mpz object from a string s made up of\n\
-        digits in the given base.  If base=0, hex and oct Python\n\
-        strings may also be interpreted (started with '0x' and '0'\n\
-        respectively), as well as decimal.  If base=256, s must be\n\
-        a gmpy2.mpz portable binary representation as built by the\n\
-        function gmpy2.binary (and the .binary method of mpz objects).\n\
+mpz(n):\
+      builds an mpz object with a numeric value n (truncating n\n\
+      to its integer part if it's a float or mpf)\n\
+mpz(s,base=0):\
+      builds an mpz object from a string s made up of digits in the\n\
+      given base.  If base=0, binary, octal, or hex Python strings\n\
+      are recognized by leading 0b, 0o, or 0x characters, otherwise\n\
+      the string is assumed to be decimal. If base=256, s must be a\n\
+      gmpy2.mpz portable binary representation as built by the function\n\
+      gmpy2.binary (and the .binary method of mpz objects).\n\
 ";
 static PyObject *
 Pygmpy_mpz(PyObject *self, PyObject *args)
@@ -3229,7 +3344,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
     obj = PyTuple_GetItem(args, 0);
     if(PyStrOrUnicode_Check(obj)) {
         /* build-from-string (ascii or binary) */
-        long base=10;
+        long base=0;
         if(argc == 2) {
             PyObject *pbase = PyTuple_GetItem(args, 1);
             base = clong_From_Integer(pbase);
@@ -3271,11 +3386,11 @@ xmpz(n):\
       builds an xmpz object from any number n (truncating n\n\
       to its integer part if it's a float or mpf)\n\
 xmpz(s, base=0):\
-      builds an xmpz object from a string s made up of digits in\n\
-      the given base.  Binary, octal, and hex strings are recognized\n\
-      by leading 0b, 0o, or 0x characters, otherwise the string is\n\
-      assumed to be decimal.  If base=256, s must be a gmpy2.xmpz\n\
-      portable binary representation as built by the function\n\
+      builds an xmpz object from a string s made up of digits in the\n\
+      given base.  If base=0, binary, octal, and hex Python strings\n\
+      are recognized by leading 0b, 0o, or 0x characters, otherwise\n\
+      the string is assumed to be decimal. If base=256, s must be a\n\
+      gmpy2.xmpz portable binary representation as built by the function\n\
       gmpy2.binary (and the .binary method of xmpz objects).\n\
 ";
 static PyObject *
@@ -3292,7 +3407,7 @@ Pygmpy_xmpz(PyObject *self, PyObject *args)
 
     argc = PyTuple_Size(args);
     if((argc < 1) || (argc > 2)) {
-        TYPE_ERROR("gmpy2.xmpz() requires 1, or 2 arguments");
+        TYPE_ERROR("gmpy2.xmpz() requires 1 or 2 arguments");
         return NULL;
     }
 
@@ -3326,7 +3441,7 @@ Pygmpy_xmpz(PyObject *self, PyObject *args)
             return NULL;
         }
     } else {
-        newob = Pyxmpz_From_Integer(obj);
+        newob = anynum2Pyxmpz(obj);
         if(!newob) {
             if(!PyErr_Occurred()) {
                 TYPE_ERROR("gmpy2.xmpz() requires integer or string argument");
@@ -4349,7 +4464,7 @@ Pympf_round(PyObject *self, PyObject *args)
 
     SELF_MPF_ONE_ARG("|l",&prec);
     assert(Pympf_Check(self));
-    s = (PyObject*)Pympf2Pympf((PympfObject*)self, prec);
+    s = (PyObject*)Pympf2Pympf(self, prec);
     Py_DECREF(self);
     return s;
 }
