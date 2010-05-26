@@ -404,27 +404,54 @@ static PyObject *
 Pympz_bit_set(PyObject *self, PyObject *other)
 {
     long bit_index;
-    PyObject *result;
+    PyObject *result, *iterator, *item;
 
-    bit_index = clong_From_Integer(other);
-    if(bit_index == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("bit_set() requires 'mpz','int' arguments");
-        return NULL;
-    }
-
-    if(bit_index < 0) {
-        VALUE_ERROR("bit_index must be >= 0");
-        return NULL;
-    }
-
-    if(Pyxmpz_Check(self)) {
-        mpz_setbit(Pympz_AS_MPZ(self), bit_index);
+    if((Pyxmpz_Check(self) && (PyIter_Check(other)))) {
+        iterator = PyObject_GetIter(other);
+        if(!iterator) {
+            TYPE_ERROR("bit_set() failed with iterator");
+            return NULL;
+        }
+        while((item = PyIter_Next(iterator))) {
+            bit_index = clong_From_Integer(item);
+            if(bit_index == -1 && PyErr_Occurred()) {
+                TYPE_ERROR("bit_set() requires 'mpz','int' arguments");
+                Py_DECREF(item);
+                Py_DECREF(iterator);
+                return NULL;
+            }
+            if(bit_index < 0) {
+                VALUE_ERROR("bit_index must be >= 0");
+                Py_DECREF(item);
+                Py_DECREF(iterator);
+                return NULL;
+            }
+            mpz_setbit(Pympz_AS_MPZ(self), bit_index);
+            Py_DECREF(item);
+        }
+        Py_DECREF(iterator);
         Py_RETURN_NONE;
     } else {
-        CREATE0_ONE_MPZANY(result);
-        mpz_set(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self));
-        mpz_setbit(Pympz_AS_MPZ(result), bit_index);
-        return result;
+        bit_index = clong_From_Integer(other);
+        if(bit_index == -1 && PyErr_Occurred()) {
+            TYPE_ERROR("bit_set() requires 'mpz','int' arguments");
+            return NULL;
+        }
+
+        if(bit_index < 0) {
+            VALUE_ERROR("bit_index must be >= 0");
+            return NULL;
+        }
+
+        if(Pyxmpz_Check(self)) {
+            mpz_setbit(Pympz_AS_MPZ(self), bit_index);
+            Py_RETURN_NONE;
+        } else {
+            CREATE0_ONE_MPZANY(result);
+            mpz_set(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self));
+            mpz_setbit(Pympz_AS_MPZ(result), bit_index);
+            return result;
+        }
     }
 }
 
