@@ -1,6 +1,8 @@
 /* gmpy_mpmath.c
  *
  * Internal helper function for mpmath.
+ *
+ * This file should be considered part of gmpy.c.
  */
 
 static PyObject *

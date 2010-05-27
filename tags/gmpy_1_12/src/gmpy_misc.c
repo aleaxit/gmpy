@@ -2,7 +2,7 @@
  *
  * Miscellaneous module-level functions.
  *
- * This file should be considered part of gmpy.c
+ * This file should be considered part of gmpy.c.
  */
 
 /* Return license information. */

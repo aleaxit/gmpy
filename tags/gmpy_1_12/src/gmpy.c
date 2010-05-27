@@ -1,7 +1,7 @@
 /* gmpy.c
  *
  * Python interface to the GMP or MPIR multiple precision library,
- * Copyright (C) 2000 - 2009 Alex Martelli
+ * Copyright (C) 2000 - 2010 Alex Martelli
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public

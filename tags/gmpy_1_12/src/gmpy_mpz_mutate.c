@@ -8,7 +8,7 @@
  *       hashing must also be disabled. The gmpy test suite will fail if
  *       MUTATE is enabled; no attempt will be made to fix the test suite.
  *
- * This file should be considered part of gmpy.c
+ * This file should be considered part of gmpy.c.
  */
 
 #include <math.h>
