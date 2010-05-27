@@ -7,6 +7,8 @@
  *   Pympz_FROM_MPZ(mpz_t)
  *   Pympq_FROM_MPQ(mpq_t)
  *   Pympf_FROM_MPF(mpf_t)
+ *
+ * This file should be considered part of gmpy.c.
  */
 
 #ifdef FALSE

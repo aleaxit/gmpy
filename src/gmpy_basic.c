@@ -2,7 +2,7 @@
  *
  * Generic methods for gmpy types. The routines are highly optimized.
  *
- * This file should be considered part of gmpy.c
+ * This file should be considered part of gmpy.c.
  */
 
 #include <math.h>

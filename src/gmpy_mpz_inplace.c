@@ -4,7 +4,7 @@
  *
  * NOTE: These functions do NOT mutate the mpz.
  *
- * This file should be considered part of gmpy.c
+ * This file should be considered part of gmpy.c.
  */
 
 #include <math.h>
