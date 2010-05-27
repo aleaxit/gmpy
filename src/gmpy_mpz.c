@@ -405,6 +405,8 @@ Pympz_bit_set(PyObject *self, PyObject *other)
 {
     long bit_index;
     PyObject *result, *iterator, *item;
+    int temp;
+    Py_ssize_t i, length, start, stop, step, slicelength;
 
     if((Pyxmpz_Check(self) && (PyIter_Check(other)))) {
         iterator = PyObject_GetIter(other);
@@ -430,6 +432,17 @@ Pympz_bit_set(PyObject *self, PyObject *other)
             Py_DECREF(item);
         }
         Py_DECREF(iterator);
+        Py_RETURN_NONE;
+    } else if((Pyxmpz_Check(self) && (PySlice_Check(other)))) {
+        length = mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
+        temp = PySlice_GetIndicesEx((PySliceObject*)other, length, &start, &stop, &step, &slicelength);
+        if(temp == -1) {
+            TYPE_ERROR("bit_set() failed with slice");
+            return NULL;
+        }
+        for(i=start;i<stop;i+=step) {
+            mpz_setbit(Pympz_AS_MPZ(self), i);
+        }
         Py_RETURN_NONE;
     } else {
         bit_index = clong_From_Integer(other);
