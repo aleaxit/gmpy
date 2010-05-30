@@ -1896,12 +1896,9 @@ Pyxmpz_subscript(PyxmpzObject* self, PyObject* item)
             (step > 0 && start > stop))
             stop = start;
 
-        if (slicelength <= 0) {
-            Py_RETURN_NONE;
-        } else {
-            if (!(result = (PyObject*)Pyxmpz_new())) return NULL;
-            mpz_set_ui(Pympz_AS_MPZ(result), 0);
-
+        if (!(result = (PyObject*)Pyxmpz_new())) return NULL;
+        mpz_set_ui(Pympz_AS_MPZ(result), 0);
+        if (slicelength > 0) {
             for (cur = start, i = 0; i < slicelength; cur += step, i++) {
                 if(mpz_tstbit(self->z, cur)) {
                     mpz_setbit(Pympz_AS_MPZ(result), i);
@@ -1958,6 +1955,7 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
             return -1;
         } else {
             Py_ssize_t cur, i;
+            int bit;
 
             if (value == Py_True) {
                 for (cur = start, i = 0; i < slicelength; cur += step, i++) {
@@ -1967,11 +1965,21 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
                 for (cur = start, i = 0; i < slicelength; cur += step, i++) {
                     mpz_clrbit(self->z, cur);
                 }
-            } else  {
-                TYPE_ERROR("not yet supported");
-                return -1;
+            } else {
+                PympzObject *tempx;
+                if(!(tempx=Pympz_From_Integer(value))) {
+                    VALUE_ERROR("must specify sequence of bits");
+                    return -1;
+                }
+                for (cur = start, i = 0; i < slicelength; cur += step, i++) {
+                    bit = mpz_tstbit(tempx->z, i);
+                    if(bit)
+                        mpz_setbit(self->z, cur);
+                    else
+                        mpz_clrbit(self->z, cur);
+                }
+                Py_DECREF(tempx);
             }
-
             return 0;
         }
     } else {
