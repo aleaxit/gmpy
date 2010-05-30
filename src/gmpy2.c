@@ -4685,6 +4685,13 @@ static PyNumberMethods xmpz_number_methods =
 };
 #endif
 
+static PyMappingMethods xmpz_mapping_methods = {
+    (lenfunc)Pyxmpz_nbits,
+    (binaryfunc)Pyxmpz_subscript,
+    (objobjargproc)Pyxmpz_assign_subscript
+};
+
+
 #ifdef PY3
 static PyNumberMethods mpq_number_methods =
 {
@@ -5152,7 +5159,7 @@ static PyTypeObject Pyxmpz_Type =
     (reprfunc) Pyxmpz2repr,                 /* tp_repr          */
     &xmpz_number_methods,                   /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
-        0,                                  /* tp_as_mapping    */
+    &xmpz_mapping_methods,                  /* tp_as_mapping    */
         0,                                  /* tp_hash          */
         0,                                  /* tp_call          */
     (reprfunc) Pyxmpz2str,                  /* tp_str           */

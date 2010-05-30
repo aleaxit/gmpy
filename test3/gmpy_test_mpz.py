@@ -541,27 +541,27 @@ mpz(122)
 >>> for i in range(8):
 ...     print(a.bit_test(i))
 ...
-1
-1
-0
-1
-1
-1
-1
-0
+True
+True
+False
+True
+True
+True
+True
+False
 >>> for i in range(10):
 ...     print(b.bit_test(i))
 ...
-0
-0
-0
-1
-0
-0
-1
-1
-1
-0
+False
+False
+False
+True
+False
+False
+True
+True
+True
+False
 >>> [a.bit_scan0(j) for j in range(33)]
 [2, 2, 2, 7, 7, 7, 7, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
 >>> [a.bit_scan1(j) for j in range(10)]

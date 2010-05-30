@@ -226,6 +226,7 @@ static PyObject *
 Pygmpy_bit_test(PyObject *self, PyObject *args)
 {
     long bit_index;
+    int temp;
     PyObject *x;
     PympzObject *tempx;
 
@@ -247,14 +248,19 @@ Pygmpy_bit_test(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     if(CHECK_MPZANY(x)) {
-        return PyIntOrLong_FromLong(mpz_tstbit(Pympz_AS_MPZ(x), bit_index));
+        temp = mpz_tstbit(Pympz_AS_MPZ(x), bit_index);
     } else {
         if(!(tempx = Pympz_From_Integer(x))) {
             TYPE_ERROR("bit_test() requires 'mpz','int' arguments");
             return NULL;
         }
-        return PyIntOrLong_FromLong(mpz_tstbit(Pympz_AS_MPZ(tempx), bit_index));
+        temp = mpz_tstbit(Pympz_AS_MPZ(tempx), bit_index);
+        Py_DECREF(tempx);
     }
+    if(temp)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
 }
 
 static PyObject *
@@ -273,7 +279,10 @@ Pympz_bit_test(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    return PyIntOrLong_FromLong(mpz_tstbit(Pympz_AS_MPZ(self), bit_index));
+    if(mpz_tstbit(Pympz_AS_MPZ(self), bit_index))
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
 }
 
 static char doc_bit_clearm[]="\
@@ -404,67 +413,27 @@ static PyObject *
 Pympz_bit_set(PyObject *self, PyObject *other)
 {
     long bit_index;
-    PyObject *result, *iterator, *item;
-    int temp;
-    Py_ssize_t i, length, start, stop, step, slicelength;
+    PyObject *result;
 
-    if((Pyxmpz_Check(self) && (PyIter_Check(other)))) {
-        iterator = PyObject_GetIter(other);
-        if(!iterator) {
-            TYPE_ERROR("bit_set() failed with iterator");
-            return NULL;
-        }
-        while((item = PyIter_Next(iterator))) {
-            bit_index = clong_From_Integer(item);
-            if(bit_index == -1 && PyErr_Occurred()) {
-                TYPE_ERROR("bit_set() requires 'mpz','int' arguments");
-                Py_DECREF(item);
-                Py_DECREF(iterator);
-                return NULL;
-            }
-            if(bit_index < 0) {
-                VALUE_ERROR("bit_index must be >= 0");
-                Py_DECREF(item);
-                Py_DECREF(iterator);
-                return NULL;
-            }
-            mpz_setbit(Pympz_AS_MPZ(self), bit_index);
-            Py_DECREF(item);
-        }
-        Py_DECREF(iterator);
-        Py_RETURN_NONE;
-    } else if((Pyxmpz_Check(self) && (PySlice_Check(other)))) {
-        length = mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
-        temp = PySlice_GetIndicesEx((PySliceObject*)other, length, &start, &stop, &step, &slicelength);
-        if(temp == -1) {
-            TYPE_ERROR("bit_set() failed with slice");
-            return NULL;
-        }
-        for(i=start;i<stop;i+=step) {
-            mpz_setbit(Pympz_AS_MPZ(self), i);
-        }
+    bit_index = clong_From_Integer(other);
+    if(bit_index == -1 && PyErr_Occurred()) {
+        TYPE_ERROR("bit_set() requires 'mpz','int' arguments");
+        return NULL;
+    }
+
+    if(bit_index < 0) {
+        VALUE_ERROR("bit_index must be >= 0");
+        return NULL;
+    }
+
+    if(Pyxmpz_Check(self)) {
+        mpz_setbit(Pympz_AS_MPZ(self), bit_index);
         Py_RETURN_NONE;
     } else {
-        bit_index = clong_From_Integer(other);
-        if(bit_index == -1 && PyErr_Occurred()) {
-            TYPE_ERROR("bit_set() requires 'mpz','int' arguments");
-            return NULL;
-        }
-
-        if(bit_index < 0) {
-            VALUE_ERROR("bit_index must be >= 0");
-            return NULL;
-        }
-
-        if(Pyxmpz_Check(self)) {
-            mpz_setbit(Pympz_AS_MPZ(self), bit_index);
-            Py_RETURN_NONE;
-        } else {
-            CREATE0_ONE_MPZANY(result);
-            mpz_set(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self));
-            mpz_setbit(Pympz_AS_MPZ(result), bit_index);
-            return result;
-        }
+        CREATE0_ONE_MPZANY(result);
+        mpz_set(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self));
+        mpz_setbit(Pympz_AS_MPZ(result), bit_index);
+        return result;
     }
 }
 
@@ -1685,7 +1654,10 @@ Pympz_is_prime(PyObject *self, PyObject *args)
     }
     i = (long) mpz_probab_prime_p(Pympz_AS_MPZ(self), reps);
     Py_DECREF(self);
-    return PyIntOrLong_FromLong(i);
+    if(i)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
 }
 
 static char doc_next_primem[]="\
@@ -1888,4 +1860,123 @@ Pympz_is_odd(PyObject *self, PyObject *other)
         Py_RETURN_TRUE;
     else
         Py_RETURN_FALSE;
+}
+
+/*
+ * Add mapping support to xmpz objects.
+ */
+
+static Py_ssize_t
+Pyxmpz_nbits(PyxmpzObject *obj)
+{
+    return mpz_sizeinbase(obj->z, 2);
+}
+
+static PyObject *
+Pyxmpz_subscript(PyxmpzObject* self, PyObject* item)
+{
+    if (PyIndex_Check(item)) {
+        Py_ssize_t i;
+        i = PyNumber_AsSsize_t(item, PyExc_IndexError);
+        if (i == -1 && PyErr_Occurred())
+            return NULL;
+        if (i < 0)
+            i += mpz_sizeinbase(self->z, 2);
+        return PyIntOrLong_FromLong(mpz_tstbit(self->z, i));
+    } else if (PySlice_Check(item)) {
+        Py_ssize_t start, stop, step, slicelength, cur, i;
+        PyObject* result;
+
+        if (PySlice_GetIndicesEx((PySliceObject*)item, mpz_sizeinbase(self->z, 2),
+                         &start, &stop, &step, &slicelength) < 0) {
+            return NULL;
+        }
+
+        if ((step < 0 && start < stop) ||
+            (step > 0 && start > stop))
+            stop = start;
+
+        if (slicelength <= 0) {
+            Py_RETURN_NONE;
+        } else {
+            if (!(result = (PyObject*)Pyxmpz_new())) return NULL;
+            mpz_set_ui(Pympz_AS_MPZ(result), 0);
+
+            for (cur = start, i = 0; i < slicelength; cur += step, i++) {
+                if(mpz_tstbit(self->z, cur)) {
+                    mpz_setbit(Pympz_AS_MPZ(result), i);
+                }
+            }
+        }
+        return result;
+    } else {
+        TYPE_ERROR("bit positions must be integers");
+        return NULL;
+    }
+}
+
+static int
+Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
+{
+    if (PyIndex_Check(item)) {
+        Py_ssize_t bit, i;
+        i = PyNumber_AsSsize_t(item, PyExc_IndexError);
+        if (i == -1 && PyErr_Occurred())
+            return -1;
+        if (i < 0)
+            i += mpz_sizeinbase(self->z, 2);
+
+        bit = PyNumber_AsSsize_t(value, PyExc_ValueError);
+        if (bit == -1 && PyErr_Occurred()) {
+            VALUE_ERROR("bit value must be 0 or 1");
+            return -1;
+        }
+        if (bit == 1) {
+            mpz_setbit(self->z, i);
+            return 0;
+        } else if (bit == 0) {
+            mpz_clrbit(self->z, i);
+            return 0;
+        } else {
+            VALUE_ERROR("bit value must be 0 or 1");
+            return -1;
+        }
+    } else if (PySlice_Check(item)) {
+        Py_ssize_t start, stop, step, slicelength;
+
+        if (PySlice_GetIndicesEx((PySliceObject*)item, mpz_sizeinbase(self->z, 2),
+                         &start, &stop, &step, &slicelength) < 0) {
+            return -1;
+        }
+
+        if ((step < 0 && start < stop) ||
+            (step > 0 && start > stop))
+            stop = start;
+
+        if (value == NULL) {
+            TYPE_ERROR("deleting bits not supported");
+            return -1;
+        } else {
+            Py_ssize_t cur, i;
+
+            if (value == Py_True) {
+                for (cur = start, i = 0; i < slicelength; cur += step, i++) {
+                    mpz_setbit(self->z, cur);
+                }
+            } else if (value == Py_False) {
+                for (cur = start, i = 0; i < slicelength; cur += step, i++) {
+                    mpz_clrbit(self->z, cur);
+                }
+            } else  {
+                TYPE_ERROR("not yet supported");
+                return -1;
+            }
+
+            return 0;
+        }
+    } else {
+        TYPE_ERROR("bit positions must be integers");
+        return -1;
+    }
+    return -1;
 }
