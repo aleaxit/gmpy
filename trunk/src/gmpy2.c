@@ -1286,7 +1286,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
     int i;
     PyObject *ascii_str = NULL;
 
-    assert(PyStrOrUnicode_Check(s));
+    assert(PyStrOrUnicode_Check(stringarg));
 
     if(!(newob = Pympq_new()))
         return NULL;
