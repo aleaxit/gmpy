@@ -702,96 +702,94 @@ Pyxmpz_pos(PyxmpzObject *x)
  */
 
 static PyObject *
-Pympz_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
+Pympz_pow(PyObject *b, PyObject *e, PyObject *m)
 {
-    PympzObject *r, *b, *e, *m;
+    PyObject *result;
+    PympzObject *tempb, *tempe, *tempm = 0;
 
-    b = Pympz_From_Integer(in_b);
-    e = Pympz_From_Integer(in_e);
+    CREATE1_ONE_MPZANY(b, result);
 
-    /* m will either be an number or Py_None. */
-    if(in_m != Py_None) {
-        m = Pympz_From_Integer(in_m);
-    } else {
-        m = (PympzObject*) in_m;
-        Py_INCREF((PyObject*)m);
+    tempb = Pympz_From_Integer(b);
+    tempe = Pympz_From_Integer(e);
+
+    /* m will either be a number or Py_None. */
+    if(m != Py_None) {
+        tempm = Pympz_From_Integer(m);
     }
 
-    if(!b || !e || (!m && ((PyObject*)m != Py_None))) {
+    if(!tempb || !tempe || (!tempm && (m != Py_None))) {
         PyErr_Clear();
-        Py_XDECREF((PyObject*)b);
-        Py_XDECREF((PyObject*)e);
-        Py_XDECREF((PyObject*)m);
+        Py_XDECREF((PyObject*)tempb);
+        Py_XDECREF((PyObject*)tempe);
+        Py_XDECREF((PyObject*)tempm);
+        Py_DECREF(result);
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    if(options.debug)
-        fprintf(stderr, "Pympz_pow: %p, %p, %p\n", b, e, m);
-
-    if(mpz_sgn(e->z) < 0) {
-        VALUE_ERROR("mpz.pow with negative power");
-        Py_XDECREF((PyObject*)b);
-        Py_XDECREF((PyObject*)e);
-        Py_XDECREF((PyObject*)m);
-        return NULL;
-    }
-
-    if((PyObject*)in_m == Py_None) {
-        /* When no modulo is present, the exponent must fit in C ulong */
+    if(m == Py_None) {
+        /* When no modulo is present, the exponent must fit in C ulong
+         * the exponent must be positive.
+         */
         unsigned long el;
-        if(!mpz_fits_slong_p(e->z)) {
-            VALUE_ERROR("mpz.pow outrageous exponent");
-            Py_XDECREF((PyObject*)b);
-            Py_XDECREF((PyObject*)e);
-            Py_XDECREF((PyObject*)m);
-            return NULL;
+        if(mpz_sgn(tempe->z) < 0) {
+            VALUE_ERROR("pow() exponent cannot be negative");
+            goto err;
         }
-        el = mpz_get_ui(e->z);
-        if(!(r = Pympz_new())) {
-            Py_XDECREF((PyObject*)b);
-            Py_XDECREF((PyObject*)e);
-            Py_XDECREF((PyObject*)m);
-            return NULL;
+        if(!mpz_fits_ulong_p(tempe->z)) {
+            VALUE_ERROR("pow() outrageous exponent");
+            goto err;
         }
-        mpz_pow_ui(r->z, b->z, el);
-        if(options.debug)
-            fprintf(stderr, "Pympz_pow (ui) -> %p\n", r);
+        el = mpz_get_ui(tempe->z);
+        mpz_pow_ui(Pympz_AS_MPZ(result), tempb->z, el);
     } else { /* Modulo exponentiation */
         int sign;
-        mpz_t mm;
+        mpz_t mm, base, exp;
 
-        sign = mpz_sgn(m->z);
+        sign = mpz_sgn(tempm->z);
         if(sign == 0) {
-            VALUE_ERROR("mpz.pow divide by zero");
-            Py_XDECREF((PyObject*)b);
-            Py_XDECREF((PyObject*)e);
-            Py_XDECREF((PyObject*)m);
-            return NULL;
-        }
-        if(!(r = Pympz_new())) {
-            Py_XDECREF((PyObject*)b);
-            Py_XDECREF((PyObject*)e);
-            Py_XDECREF((PyObject*)m);
-            return NULL;
+            VALUE_ERROR("pow() 3rd argument cannot be 0");
+            goto err;
         }
         mpz_inoc(mm);
-        mpz_abs(mm, m->z);
-        mpz_powm(r->z, b->z, e->z, mm);
+        mpz_abs(mm, tempm->z);
+        /* A negative exponent is allowed if inverse exists. */
+        if(mpz_sgn(tempe->z) < 0) {
+            mpz_inoc(base);
+            if(!mpz_invert(base, tempb->z, mm)) {
+                VALUE_ERROR("pow() base not invertible");
+                mpz_cloc(base);
+                mpz_cloc(mm);
+                goto err;
+            } else {
+                mpz_inoc(exp);
+                mpz_abs(exp, tempe->z);
+            }
+            mpz_powm(Pympz_AS_MPZ(result), base, exp, mm);
+            mpz_cloc(base);
+            mpz_cloc(exp);
+        } else {
+            mpz_powm(Pympz_AS_MPZ(result), tempb->z, tempe->z, mm);
+        }
         mpz_cloc(mm);
-        if((sign<0) && (mpz_sgn(r->z) > 0)) {
+        if((sign<0) && (mpz_sgn(Pympz_AS_MPZ(result)) > 0)) {
         /* Python uses a rather peculiar convention for negative modulos
          * If the modulo is negative, result should be in the interval
          * m < r <= 0 .
          */
-            mpz_add(r->z, r->z, m->z);
+            mpz_add(Pympz_AS_MPZ(result), Pympz_AS_MPZ(result), tempm->z);
         }
-        if(options.debug)
-            fprintf(stderr, "Pympz_pow -> %p\n", r);
     }
-    Py_XDECREF((PyObject*)b);
-    Py_XDECREF((PyObject*)e);
-    Py_XDECREF((PyObject*)m);
-    return (PyObject*)r;
+    Py_XDECREF((PyObject*)tempb);
+    Py_XDECREF((PyObject*)tempe);
+    Py_XDECREF((PyObject*)tempm);
+    return (PyObject*)result;
+
+  err:
+    Py_XDECREF((PyObject*)tempb);
+    Py_XDECREF((PyObject*)tempe);
+    Py_XDECREF((PyObject*)tempm);
+    Py_DECREF(result);
+    return NULL;
 }
 
 static int
@@ -1100,27 +1098,51 @@ a ZeroDivisionError exception if no such value x exists\n\
 static PyObject *
 Pygmpy_divm(PyObject *self, PyObject *args)
 {
-    PympzObject *num, *den, *mod, *res;
+    PyObject *a, *b, *m, *result;
+    PympzObject *num, *den, *mod;
     mpz_t numz, denz, modz, gcdz;
     int ok;
 
-    if(!PyArg_ParseTuple(args, "O&O&O&",
-        Pympz_convert_arg, &num,
-        Pympz_convert_arg, &den,
-        Pympz_convert_arg, &mod))
-    {
+    if(PyTuple_GET_SIZE(args) != 3) {
+        TYPE_ERROR("divm() requires 'mpz','mpz','mpz' arguments");
         return NULL;
     }
-    if(!(res = Pympz_new())) {
-        Py_DECREF((PyObject*)num);
-        Py_DECREF((PyObject*)den);
-        Py_DECREF((PyObject*)mod);
-        return NULL;
-    }
-    mpz_inoc(numz); mpz_inoc(denz); mpz_inoc(modz);
-    mpz_set(numz, num->z); mpz_set(denz, den->z); mpz_set(modz, mod->z);
 
-    if(mpz_invert(res->z, denz, modz)) { /* inverse exists */
+    a = PyTuple_GET_ITEM(args, 0);
+    b = PyTuple_GET_ITEM(args, 1);
+    m = PyTuple_GET_ITEM(args, 2);
+
+    if(Pyxmpz_Check(a) && Pyxmpz_Check(b) && Pyxmpz_Check(m)) {
+        result = (PyObject*)Pyxmpz_new();
+    } else if(Pympz_Check(a) && Pympz_Check(b) && Pympz_Check(m)) {
+        result = (PyObject*)Pympz_new();
+    } else if(options.prefer_mutable) {
+        result = (PyObject*)Pyxmpz_new();
+    } else {
+        result = (PyObject*)Pympz_new();
+    }
+    if(!result) return NULL;
+
+    num = Pympz_From_Integer(a);
+    den = Pympz_From_Integer(b);
+    mod = Pympz_From_Integer(m);
+    if(!num || !den || !mod) {
+        TYPE_ERROR("divm() requires 'mpz','mpz','mpz' arguments");
+        Py_XDECREF((PyObject*)num);
+        Py_XDECREF((PyObject*)den);
+        Py_XDECREF((PyObject*)mod);
+        Py_DECREF(result);
+        return NULL;
+    }
+
+    mpz_inoc(numz);
+    mpz_inoc(denz);
+    mpz_inoc(modz);
+    mpz_set(numz, num->z);
+    mpz_set(denz, den->z);
+    mpz_set(modz, mod->z);
+
+    if(mpz_invert(Pympz_AS_MPZ(result), denz, modz)) { /* inverse exists */
         ok = 1;
     } else {
         /* last-ditch attempt: do num, den AND mod have a gcd>1 ? */
@@ -1131,26 +1153,29 @@ Pygmpy_divm(PyObject *self, PyObject *args)
         mpz_divexact(denz, denz, gcdz);
         mpz_divexact(modz, modz, gcdz);
         mpz_cloc(gcdz);
-        ok = mpz_invert(res->z, denz, modz);
+        ok = mpz_invert(Pympz_AS_MPZ(result), denz, modz);
     }
 
     if (ok) {
-        mpz_mul(res->z, res->z, numz);
-        mpz_mod(res->z, res->z, modz);
-        mpz_cloc(numz); mpz_cloc(denz); mpz_cloc(modz);
+        mpz_mul(Pympz_AS_MPZ(result), Pympz_AS_MPZ(result), numz);
+        mpz_mod(Pympz_AS_MPZ(result), Pympz_AS_MPZ(result), modz);
+        mpz_cloc(numz);
+        mpz_cloc(denz);
+        mpz_cloc(modz);
         Py_DECREF((PyObject*)num);
         Py_DECREF((PyObject*)den);
         Py_DECREF((PyObject*)mod);
-        return (PyObject*)res;
-    } else {
-        PyObject* result = 0;
-        PyErr_SetString(PyExc_ZeroDivisionError, "not invertible");
-        mpz_cloc(numz); mpz_cloc(denz); mpz_cloc(modz);
-        Py_DECREF((PyObject*)num);
-        Py_DECREF((PyObject*)den);
-        Py_DECREF((PyObject*)mod);
-        Py_DECREF((PyObject*)res);
         return result;
+    } else {
+        ZERO_ERROR("not invertible");
+        mpz_cloc(numz);
+        mpz_cloc(denz);
+        mpz_cloc(modz);
+        Py_DECREF((PyObject*)num);
+        Py_DECREF((PyObject*)den);
+        Py_DECREF((PyObject*)mod);
+        Py_DECREF(result);
+        return NULL;
     }
 }
 
