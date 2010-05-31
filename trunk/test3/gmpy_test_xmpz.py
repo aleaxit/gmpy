@@ -325,6 +325,8 @@ r'''
 
 __test__['cmpr']=\
 r'''
+>>> a=_g.xmpz(123)
+>>> b=_g.xmpz(456)
 >>> c=_g.xmpz(a)
 >>> c is a
 0
@@ -406,6 +408,8 @@ False
 
 __test__['bitops']=\
 r'''
+>>> a=_g.xmpz(123)
+>>> b=_g.xmpz(456)
 >>> ~a
 >>> a
 xmpz(-124)
@@ -590,6 +594,8 @@ ValueError: invalid digits
 
 __test__['binio']=\
 r'''
+>>> a=_g.xmpz(123)
+>>> b=_g.xmpz(456)
 >>> ba=a.binary()
 >>> ba
 b'{'
@@ -737,7 +743,7 @@ xmpz(1597)
 120
 45
 10
->>> _g.divm(b,a,20)
+>>> _g.divm(b,a,_g.xmpz(20))
 xmpz(12)
 >>> _g.divm(a,b,100)
 Traceback (innermost last):

@@ -380,15 +380,15 @@ mpq(1,1)
 >>> _g.mpz(2)**-2
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: mpz.pow with negative power
->>> _g.mpz(2)**_g.mpz(1000000*10000000000000)
+ValueError: pow() exponent cannot be negative
+>>> _g.mpz(2)**_g.mpz(1000000000000000*1000000000000000)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: mpz.pow outrageous exponent
+ValueError: pow() outrageous exponent
 >>> pow(_g.mpz(2),3,0)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: mpz.pow divide by zero
+ValueError: pow() 3rd argument cannot be 0
 >>> pow(_g.mpz(2),3,-5)
 mpz(-2)
 >>> pow(_g.mpq(2),3,-5)
