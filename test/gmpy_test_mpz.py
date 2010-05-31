@@ -767,11 +767,11 @@ TypeError: invert() requires 'mpz','mpz' arguments
 >>> a.invert()
 Traceback (innermost last):
   ...
-TypeError: invert() requires 'mpz','mpz' arguments
+TypeError: invert() takes exactly one argument (0 given)
 >>> a.invert(3, 4)
 Traceback (innermost last):
   ...
-TypeError: invert() requires 'mpz','mpz' arguments
+TypeError: invert() takes exactly one argument (2 given)
 >>> _g.comb(3,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?

@@ -1493,25 +1493,110 @@ m must be an ordinary Python int, !=0; x must be an mpz,\n\
 or else gets converted to one.\n\
 ";
 static PyObject *
-Pympz_invert(PyObject *self, PyObject *args)
+Pygmpy_invert(PyObject *self, PyObject *args)
 {
-    PympzObject *result;
-    PyObject *modulo;
+    PyObject *x, *y, *result;
+    PympzObject *tempx, *tempy;
     int success;
 
-    PARSE_TWO_MPZ(modulo, "invert() requires 'mpz','mpz' arguments");
-
-    if(!(result = Pympz_new())) {
-        Py_DECREF(self);
-        Py_DECREF(modulo);
+    if(PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("invert() requires 'mpz','mpz' arguments");
         return NULL;
     }
-    success = mpz_invert(result->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(modulo));
-    if(!success)
-        mpz_set_ui(result->z, 0);
-    Py_DECREF(self);
-    Py_DECREF(modulo);
-    return (PyObject*)result;
+
+    x = PyTuple_GET_ITEM(args, 0);
+    y = PyTuple_GET_ITEM(args, 1);
+    CREATE1_ONE_MPZANY(x, result);
+
+    if(CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
+        if(mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
+            ZERO_ERROR("invert() division by 0");
+            Py_DECREF(result);
+            return NULL;
+        }
+        success = mpz_invert(Pympz_AS_MPZ(result), Pympz_AS_MPZ(x), Pympz_AS_MPZ(y));
+        if(!success)
+            mpz_set_ui(Pympz_AS_MPZ(result), 0);
+    } else {
+        tempx = Pympz_From_Integer(x);
+        tempy = Pympz_From_Integer(y);
+        if(!tempx || !tempy) {
+            TYPE_ERROR("invert() requires 'mpz','mpz' arguments");
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF(result);
+            return NULL;
+        }
+        if(mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
+            ZERO_ERROR("invert() division by 0");
+            Py_DECREF((PyObject*)tempx);
+            Py_DECREF((PyObject*)tempy);
+            Py_DECREF(result);
+            return NULL;
+        }
+        success = mpz_invert(Pympz_AS_MPZ(result), tempx->z, tempy->z);
+        if(!success)
+            mpz_set_ui(Pympz_AS_MPZ(result), 0);
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+    }
+    return result;
+}
+
+static PyObject *
+Pympz_invert(PyObject *self, PyObject *other)
+{
+    PyObject *result;
+    PympzObject *tempx;
+    int success;
+
+    if(CHECK_MPZANY(other)) {
+        if(mpz_sgn(Pympz_AS_MPZ(other)) == 0) {
+            ZERO_ERROR("invert() division by 0");
+            return NULL;
+        }
+        if(Pyxmpz_Check(self)) {
+            success = mpz_invert(Pympz_AS_MPZ(self), Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
+            if(!success)
+                mpz_set_ui(Pympz_AS_MPZ(self), 0);
+            Py_RETURN_NONE;
+        } else {
+            if(!(result = (PyObject*)Pympz_new())) {
+                return NULL;
+            }
+            success = mpz_invert(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
+            if(!success)
+                mpz_set_ui(Pympz_AS_MPZ(result), 0);
+            return result;
+        }
+    } else {
+        if(!(tempx = Pympz_From_Integer(other))) {
+            TYPE_ERROR("invert() requires 'mpz','mpz' arguments");
+            return NULL;
+        }
+        if(mpz_sgn(Pympz_AS_MPZ(tempx)) == 0) {
+            ZERO_ERROR("invert() division by 0");
+            Py_DECREF((PyObject*)tempx);
+            return NULL;
+        }
+        if(Pyxmpz_Check(self)) {
+            success = mpz_invert(Pympz_AS_MPZ(self), Pympz_AS_MPZ(self), tempx->z);
+            if(!success)
+                mpz_set_ui(Pympz_AS_MPZ(self), 0);
+            Py_DECREF((PyObject*)tempx);
+            Py_RETURN_NONE;
+        } else {
+            if(!(result = (PyObject*)Pympz_new())) {
+                Py_DECREF((PyObject*)tempx);
+                return NULL;
+            }
+            success = mpz_invert(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self), tempx->z);
+            if(!success)
+                mpz_set_ui(Pympz_AS_MPZ(result), 0);
+            Py_DECREF((PyObject*)tempx);
+            return result;
+        }
+    }
 }
 
 static char doc_hamdistm[]="\

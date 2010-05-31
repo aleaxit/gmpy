@@ -752,8 +752,10 @@ xmpz(0)
 >>> temp=_g.set_prefer_mutable(0)
 >>> del temp
 >>> a.invert(100)
+>>> a
 xmpz(87)
 >>> b.invert(100)
+>>> b
 xmpz(0)
 >>> _g.invert(3)
 Traceback (innermost last):
@@ -762,11 +764,11 @@ TypeError: invert() requires 'mpz','mpz' arguments
 >>> a.invert()
 Traceback (innermost last):
   ...
-TypeError: invert() requires 'mpz','mpz' arguments
+TypeError: invert() takes exactly one argument (0 given)
 >>> a.invert(3, 4)
 Traceback (innermost last):
   ...
-TypeError: invert() requires 'mpz','mpz' arguments
+TypeError: invert() takes exactly one argument (2 given)
 >>> _g.comb(3,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
