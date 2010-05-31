@@ -1338,21 +1338,30 @@ static PyObject *
 Pygmpy_sqrt(PyObject *self, PyObject *other)
 {
     PyObject *result;
+    PympzObject *tempx;
 
     if(mpz_sgn(Pympz_AS_MPZ(other)) < 0) {
         VALUE_ERROR("sqrt of negative number");
         return NULL;
     }
 
-    if(Pyxmpz_Check(other))
-        result = (PyObject*)Pyxmpz_new();
-    else
-        result = (PyObject*)Pympz_new();
-    if(!result) {
-        return NULL;
-    }
+    CREATE1_ONE_MPZANY(other, result);
 
-    mpz_sqrt(Pympz_AS_MPZ(result), Pympz_AS_MPZ(other));
+    if(CHECK_MPZANY(other)) {
+        mpz_sqrt(Pympz_AS_MPZ(result), Pympz_AS_MPZ(other));
+    } else {
+        if(!(tempx = Pympz_From_Integer(other))) {
+            TYPE_ERROR("sqrt requires 'mpz' argument");
+            return NULL;
+        }
+        if(mpz_sgn(tempx->z) < 0) {
+            VALUE_ERROR("sqrt of negative number");
+            Py_DECREF(tempx);
+            return NULL;
+        }
+        mpz_sqrt(Pympz_AS_MPZ(result), tempx->z);
+        Py_DECREF(tempx);
+    }
     return result;
 }
 
