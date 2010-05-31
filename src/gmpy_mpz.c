@@ -1549,22 +1549,95 @@ standard division but requires the remainder is zero!  x and y must\n\
 be mpz, or else get coerced to mpz.\n\
 ";
 static PyObject *
-Pympz_divexact(PyObject *self, PyObject *args)
+Pygmpy_divexact(PyObject *self, PyObject *args)
 {
-    PyObject *other;
-    PympzObject *result;
+    PyObject *x, *y, *result;
+    PympzObject *tempx, *tempy;
 
-    PARSE_TWO_MPZ(other, "divexact() requires 'mpz','mpz' arguments");
-
-    if(!(result = Pympz_new())) {
-        Py_DECREF(self);
-        Py_DECREF(other);
+    if(PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("divexact() requires 'mpz','mpz' arguments");
         return NULL;
     }
-    mpz_divexact(result->z,Pympz_AS_MPZ(self),Pympz_AS_MPZ(other));
-    Py_DECREF(self);
-    Py_DECREF(other);
-    return (PyObject*)result;
+
+    x = PyTuple_GET_ITEM(args, 0);
+    y = PyTuple_GET_ITEM(args, 1);
+    CREATE1_ONE_MPZANY(x, result);
+
+    if(CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
+        if(mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
+            ZERO_ERROR("divexact() division by 0");
+            Py_DECREF(result);
+            return NULL;
+        }
+        mpz_divexact(Pympz_AS_MPZ(result), Pympz_AS_MPZ(x), Pympz_AS_MPZ(y));
+    } else {
+        tempx = Pympz_From_Integer(x);
+        tempy = Pympz_From_Integer(y);
+        if(!tempx || !tempy) {
+            TYPE_ERROR("divexact() requires 'mpz','mpz' arguments");
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF(result);
+            return NULL;
+        }
+        if(mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
+            ZERO_ERROR("divexact() division by 0");
+            Py_DECREF((PyObject*)tempx);
+            Py_DECREF((PyObject*)tempy);
+            Py_DECREF(result);
+            return NULL;
+        }
+        mpz_divexact(Pympz_AS_MPZ(result), tempx->z, tempy->z);
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+    }
+    return result;
+}
+
+static PyObject *
+Pympz_divexact(PyObject *self, PyObject *other)
+{
+    PyObject *result;
+    PympzObject *tempx;
+
+    if(CHECK_MPZANY(other)) {
+        if(mpz_sgn(Pympz_AS_MPZ(other)) == 0) {
+            ZERO_ERROR("divexact() division by 0");
+            return NULL;
+        }
+        if(Pyxmpz_Check(self)) {
+            mpz_divexact(Pympz_AS_MPZ(self), Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
+            Py_RETURN_NONE;
+        } else {
+            if(!(result = (PyObject*)Pympz_new())) {
+                return NULL;
+            }
+            mpz_divexact(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
+            return result;
+        }
+    } else {
+        if(!(tempx = Pympz_From_Integer(other))) {
+            TYPE_ERROR("divexact() requires 'mpz','mpz' arguments");
+            return NULL;
+        }
+        if(mpz_sgn(Pympz_AS_MPZ(tempx)) == 0) {
+            ZERO_ERROR("divexact() division by 0");
+            Py_DECREF((PyObject*)tempx);
+            return NULL;
+        }
+        if(Pyxmpz_Check(self)) {
+            mpz_divexact(Pympz_AS_MPZ(self), Pympz_AS_MPZ(self), tempx->z);
+            Py_DECREF((PyObject*)tempx);
+            Py_RETURN_NONE;
+        } else {
+            if(!(result = (PyObject*)Pympz_new())) {
+                return NULL;
+            }
+            mpz_divexact(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self), tempx->z);
+            Py_DECREF((PyObject*)tempx);
+            return result;
+        }
+    }
 }
 
 static char doc_is_squarem[]="\
