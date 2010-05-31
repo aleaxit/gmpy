@@ -1356,7 +1356,7 @@ Pygmpy_sqrt(PyObject *self, PyObject *other)
         }
         if(mpz_sgn(tempx->z) < 0) {
             VALUE_ERROR("sqrt of negative number");
-            Py_DECREF(tempx);
+            Py_DECREF((PyObject*)tempx);
             return NULL;
         }
         mpz_sqrt(Pympz_AS_MPZ(result), tempx->z);
@@ -1716,6 +1716,7 @@ Pympz_divexact(PyObject *self, PyObject *other)
             Py_RETURN_NONE;
         } else {
             if(!(result = (PyObject*)Pympz_new())) {
+                Py_DECREF((PyObject*)tempx);
                 return NULL;
             }
             mpz_divexact(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self), tempx->z);

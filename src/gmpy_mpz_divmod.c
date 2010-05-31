@@ -217,6 +217,7 @@ Pympz_cdiv(PyObject *self, PyObject *other)
             Py_RETURN_NONE;
         } else {
             if(!(result = (PyObject*)Pympz_new())) {
+                Py_DECREF((PyObject*)tempx);
                 return NULL;
             }
             mpz_cdiv_q(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self), tempx->z);
@@ -269,6 +270,7 @@ Pympz_cmod(PyObject *self, PyObject *other)
             Py_RETURN_NONE;
         } else {
             if(!(result = (PyObject*)Pympz_new())) {
+                Py_DECREF((PyObject*)tempx);
                 return NULL;
             }
             mpz_cdiv_r(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self), tempx->z);
@@ -486,6 +488,7 @@ Pympz_fdiv(PyObject *self, PyObject *other)
             Py_RETURN_NONE;
         } else {
             if(!(result = (PyObject*)Pympz_new())) {
+                Py_DECREF((PyObject*)tempx);
                 return NULL;
             }
             mpz_fdiv_q(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self), tempx->z);
@@ -538,6 +541,7 @@ Pympz_fmod(PyObject *self, PyObject *other)
             Py_RETURN_NONE;
         } else {
             if(!(result = (PyObject*)Pympz_new())) {
+                Py_DECREF((PyObject*)tempx);
                 return NULL;
             }
             mpz_fdiv_r(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self), tempx->z);
@@ -757,6 +761,7 @@ Pympz_tdiv(PyObject *self, PyObject *other)
             Py_RETURN_NONE;
         } else {
             if(!(result = (PyObject*)Pympz_new())) {
+                Py_DECREF((PyObject*)tempx);
                 return NULL;
             }
             mpz_tdiv_q(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self), tempx->z);
@@ -809,6 +814,7 @@ Pympz_tmod(PyObject *self, PyObject *other)
             Py_RETURN_NONE;
         } else {
             if(!(result = (PyObject*)Pympz_new())) {
+                Py_DECREF((PyObject*)tempx);
                 return NULL;
             }
             mpz_tdiv_r(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self), tempx->z);
