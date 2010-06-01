@@ -5029,7 +5029,7 @@ static PyMethodDef Pyxmpz_methods [] =
     { "cmod2exp", Pympz_cmod2exp, METH_O, doc_cmod2expm },
     { "comb", Pympz_bincoef, METH_VARARGS, doc_combm },
     { "copy", Pympany_copy, METH_NOARGS, doc_copym },
-    { "digits", Pympz_digits, METH_VARARGS, doc_digitsm },
+    { "digits", Pyxmpz_digits, METH_VARARGS, doc_digitsm },
     { "divexact", Pympz_divexact, METH_O, doc_divexactm },
     { "fdiv", Pympz_fdiv, METH_O, doc_fdivm },
     { "fdiv2exp", Pympz_fdiv2exp, METH_O, doc_fdiv2expm },

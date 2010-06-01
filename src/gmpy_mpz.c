@@ -30,6 +30,19 @@ Pympz_digits(PyObject *self, PyObject *args)
     return result;
 }
 
+static PyObject *
+Pyxmpz_digits(PyObject *self, PyObject *args)
+{
+    int base = 10;
+    PyObject *result;
+
+    PARSE_ONE_MPZ_OPT_CLONG(&base,
+            "digits() requires 'xmpz',['int'] arguments");
+    result = Pyxmpz_ascii((PyxmpzObject*)self, base, 0);
+    Py_DECREF(self);
+    return result;
+}
+
 /* return number-of-digits for an mpz in requested base, default 10 */
 static char doc_numdigitsm[]="\
 x.numdigits([base]): returns length of string representing x in\n\
