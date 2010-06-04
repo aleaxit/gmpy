@@ -2122,22 +2122,22 @@ static int
 Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
 {
     if (PyIndex_Check(item)) {
-        Py_ssize_t bit, i;
+        Py_ssize_t bit_value, i;
         i = PyNumber_AsSsize_t(item, PyExc_IndexError);
         if (i == -1 && PyErr_Occurred())
             return -1;
         if (i < 0)
             i += mpz_sizeinbase(self->z, 2);
 
-        bit = PyNumber_AsSsize_t(value, PyExc_ValueError);
-        if (bit == -1 && PyErr_Occurred()) {
+        bit_value = PyNumber_AsSsize_t(value, PyExc_ValueError);
+        if (bit_value == -1 && PyErr_Occurred()) {
             VALUE_ERROR("bit value must be 0 or 1");
             return -1;
         }
-        if (bit == 1) {
+        if (bit_value == 1) {
             mpz_setbit(self->z, i);
             return 0;
-        } else if (bit == 0) {
+        } else if (bit_value == 0) {
             mpz_clrbit(self->z, i);
             return 0;
         } else {
@@ -2145,7 +2145,7 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
             return -1;
         }
     } else if (PySlice_Check(item)) {
-        Py_ssize_t start, stop, step, slicelength;
+        Py_ssize_t bit_value, start, stop, step, slicelength;
 
         if (PySlice_GetIndicesEx((PySliceObject*)item, mpz_sizeinbase(self->z, 2),
                          &start, &stop, &step, &slicelength) < 0) {
@@ -2161,22 +2161,42 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
             return -1;
         } else {
             Py_ssize_t cur, i;
-            int bit;
 
-            if (value == Py_True) {
-                for (cur = start, i = 0; i < slicelength; cur += step, i++) {
-                    mpz_setbit(self->z, cur);
-                }
-            } else if (value == Py_False) {
+            bit_value = PyNumber_AsSsize_t(value, PyExc_ValueError);
+            if (bit_value == -1 && PyErr_Occurred()) {
+                VALUE_ERROR("bit value must be 0 or 1");
+                return -1;
+            }
+            if (bit_value == 0) {
                 for (cur = start, i = 0; i < slicelength; cur += step, i++) {
                     mpz_clrbit(self->z, cur);
                 }
-            } else {
-                PympzObject *tempx;
-                if(!(tempx=Pympz_From_Integer(value))) {
-                    VALUE_ERROR("must specify sequence of bits");
-                    return -1;
+            } else if (bit_value == 1) {
+                for (cur = start, i = 0; i < slicelength; cur += step, i++) {
+                    mpz_setbit(self->z, cur);
                 }
+            } else {
+                VALUE_ERROR("bit value must be 0 or 1");
+                return -1;
+            }
+#if 0
+        } else {
+            Py_ssize_t cur, i;
+            int bit;
+            PympzObject *tempx;
+            if(!(tempx=Pympz_From_Integer(value))) {
+                VALUE_ERROR("must specify bits sequence as an mpz");
+                return -1;
+            }
+            if (mpz_sgn(tempx->z) == 0) {
+                for (cur = start, i = 0; i < slicelength; cur += step, i++) {
+                    mpz_clrbit(self->z, cur);
+                }
+            } else if (!(mpz_cmp_si(tempx->z, -1))) {
+                for (cur = start, i = 0; i < slicelength; cur += step, i++) {
+                    mpz_setbit(self->z, cur);
+                }
+            } else {
                 for (cur = start, i = 0; i < slicelength; cur += step, i++) {
                     bit = mpz_tstbit(tempx->z, i);
                     if(bit)
@@ -2184,8 +2204,9 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
                     else
                         mpz_clrbit(self->z, cur);
                 }
-                Py_DECREF(tempx);
             }
+            Py_DECREF(tempx);
+#endif
             return 0;
         }
     } else {
