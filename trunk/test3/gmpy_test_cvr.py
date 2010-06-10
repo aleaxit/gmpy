@@ -3,7 +3,7 @@
 r'''
 >>> _g.gmp_version()[:3] in ('5.0', '')
 True
->>> _g.mpir_version()[:3] in ('2.0', '')
+>>> _g.mpir_version()[:3] in ('2.0', '2.1', '')
 True
 >>> _g.version()
 '2.0.0a0'

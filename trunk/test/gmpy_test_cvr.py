@@ -1,9 +1,9 @@
 # partial unit test for gmpy2 extra cover
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
->>> print int(_g.gmp_version()[:3] in ('5.0', '4.3', '4.2', ''))
+>>> print int(_g.gmp_version()[:3] in ('', '5.0'))
 1
->>> print int(_g.mpir_version()[:3] in ('', '0.9', '1.0', '1.1', '1.2', '1.3', '2.0'))
+>>> print int(_g.mpir_version()[:3] in ('', '2.0', '2.1'))
 1
 >>> _g.version()
 '2.0.0a0'
