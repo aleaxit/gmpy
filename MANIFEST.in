@@ -1,1 +1,1 @@
-include README *.txt *.py doc/* src/* test/*.py test3/*.py
+include README *.txt *.py doc/* src/* test/*.py test3/*.py build.vc10/* build.vc9/*
