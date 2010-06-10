@@ -34,13 +34,13 @@ familiarity with the command line.
     mkdir c:\src
 
 7)  Download the GMPY and MPIR source code. This example uses
-    gmpy-1.11rc1.zip and mpir-1.3.0rc3.tar.gz. They should be
-    unzipped (or untarred) into c:\src. There should be
-    c:\src\gmpy-1.11rc1 and c:\src\mpir-1.3.0 directories in c:\src.
+    gmpy-1.12.zip and mpir-2.1.1.tar.gz. They should be unzipped
+    (or untarred) into c:\src. There should be c:\src\gmpy-1.12
+    and c:\src\mpir-2.1.1 directories in c:\src.
 
 8)  The file "yasm.rules" must be copied from
 
-    c:\src\mpir-1.3.0\build.vc9\
+    c:\src\mpir-2.1.1\build.vc9\
 
     to
 
@@ -53,7 +53,7 @@ familiarity with the command line.
     "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars64.bat"
 
     rem Build mpir first.
-    cd C:\src\mpir-1.3.0\build.vc9
+    cd C:\src\mpir-2.1.1\build.vc9
 
     rem Check contents of configure.bat to see allowed options. Verify that
     rem all tests pass.
@@ -71,7 +71,7 @@ familiarity with the command line.
     xcopy /Y lib\x64\release\*.??b c:\src\lib\*.*
 
     rem Done with mpir, now build gmpy.
-    cd c:\src\gmpy-1.11rc1
+    cd c:\src\gmpy-1.12
 
     rem Convince setup.py to use the SDK tools.
     set MSSdk=1
@@ -83,5 +83,5 @@ familiarity with the command line.
     rem Run the test suite
     python test\gmpy_test.py
 
-    rem (Optional) Build an installer, located in c:\src\gmpy-1.11rc1\dist.
+    rem (Optional) Build an installer, located in c:\src\gmpy-1.12\dist.
     python setup.py bdist_wininst
