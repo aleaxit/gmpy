@@ -34,7 +34,7 @@ procedure for MPIR is indentical.
 
    ( Or download the MPIR source code from www.mpir.org and save it in
      C:\src. The MPIR source code is also available at
-     http://gmpy.googlecode.com/files/mpir-2.1.0.tar.gz. )
+     http://gmpy.googlecode.com/files/mpir-2.1.1.tar.gz. )
 
 6) Download the GMPY source code and save it in C:\src.
 
