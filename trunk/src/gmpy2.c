@@ -203,7 +203,7 @@
  *   Optimize argument handling (casevh)
  *   Added caching for mpz (casevh)
  *
- *   1.20:
+ *   1.12:
  *   Added caching for mpq (casevh)
  *   Added rootrem, fib2, lucas, lucas2 (casevh)
  *   Removed mpf.setprec(), use mpf.round() (casevh)
@@ -217,7 +217,7 @@
  *   Rename to gmpy2 to allow backwards incompatible changes (casevh)
  *   Remove old random number functions, to be replaced later (casevh)
  *   Add caching of the calculated hash value (casevh)
- *   Add xmpz (mutablue mpz) type (casevh)
+ *   Add xmpz (mutable mpz) type (casevh)
  */
 #include "Python.h"
 
