@@ -4862,6 +4862,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "bit_clear", Pygmpy_bit_clear, METH_VARARGS, doc_bit_clearg },
     { "bit_flip", Pygmpy_bit_flip, METH_VARARGS, doc_bit_flipg },
     { "bit_length", Pympz_bit_length, METH_O, doc_bit_lengthg },
+    { "bit_mask", Pympz_bit_mask, METH_O, doc_bit_maskg },
     { "bit_scan0", Pympz_bit_scan0, METH_VARARGS, doc_bit_scan0g },
     { "bit_scan1", Pympz_bit_scan1, METH_VARARGS, doc_bit_scan1g },
     { "bit_set", Pygmpy_bit_set, METH_VARARGS, doc_bit_setg },

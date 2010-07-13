@@ -109,6 +109,36 @@ Pympz_bit_length(PyObject *self, PyObject *other)
     return PyIntOrLong_FromSize_t(i);
 }
 
+static char doc_bit_maskg[]="\
+bit_mask(x): create an 'mpz' or 'xmpz' exactly x bits in length, all bits\n\
+are set\n\
+";
+static PyObject *
+Pympz_bit_mask(PyObject *self, PyObject *other)
+{
+    long i = 0;
+    PyObject* result;
+
+    CREATE0_ONE_MPZANY(result);
+
+    i = clong_From_Integer(other);
+    if(i == -1 && PyErr_Occurred()) {
+        TYPE_ERROR("bit_mask() requires 'int' argument");
+        return NULL;
+    }
+
+    if(i < 0) {
+        VALUE_ERROR("mask length must be >= 0");
+        return NULL;
+    }
+
+    mpz_set_ui(Pympz_AS_MPZ(result), 1);
+    mpz_mul_2exp(Pympz_AS_MPZ(result), Pympz_AS_MPZ(result), i);
+    mpz_sub_ui(Pympz_AS_MPZ(result), Pympz_AS_MPZ(result), 1);
+
+    return result;
+}
+
 /* return scan0/scan1 for an mpz */
 static char doc_bit_scan0m[]="\
 x.bit_scan0(n=0): returns the bit-index of the first 0-bit of x (that\n\
