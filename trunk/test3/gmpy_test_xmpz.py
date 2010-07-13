@@ -503,6 +503,11 @@ False
 0
 >>> _g.xmpz(12345).bit_length()
 14
+>>> _old=_g.set_prefer_mutable(1)
+>>> _g.bit_mask(9)
+xmpz(511)
+>>> _old=_g.set_prefer_mutable(_old)
+>>> del(_old)
 '''
 
 __test__['format']=\
