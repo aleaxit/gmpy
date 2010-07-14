@@ -203,17 +203,15 @@
  *   Optimize argument handling (casevh)
  *   Added caching for mpz (casevh)
  *
- *   1.12:
+ ************************************************************************
+ *
+ *   2.00:
  *   Added caching for mpq (casevh)
  *   Added rootrem, fib2, lucas, lucas2 (casevh)
  *   Removed mpf.setprec(), use mpf.round() (casevh)
  *   Fix test compatibility with Python 3.1.2 and 3.2 (casevh)
  *   Support changed hash function in Python 3.2 (casevh)
  *   Added is_even, is_odd (casevh)
- *
- ************************************************************************
- *
- *   2.00:
  *   Rename to gmpy2 to allow backwards incompatible changes (casevh)
  *   Remove old random number functions, to be replaced later (casevh)
  *   Add caching of the calculated hash value (casevh)
@@ -346,8 +344,7 @@ static int in_zcache;
 static void
 set_zcache(void)
 {
-    if(options.debug)
-        fprintf(stderr, "Entering set_zcache\n");
+    TRACE("Entering set_zcache\n");
     if(in_zcache > options.cache_size) {
         int i;
         for(i = options.cache_size; i < in_zcache; ++i)
@@ -363,8 +360,7 @@ static int in_qcache;
 static void
 set_qcache(void)
 {
-    if(options.debug)
-        fprintf(stderr, "Entering set_qcache\n");
+    TRACE("Entering set_qcache\n");
     if(in_qcache > options.cache_size) {
         int i;
         for(i = options.cache_size; i < in_qcache; ++i)
@@ -382,8 +378,7 @@ mpz_inoc(mpz_t newo)
             fprintf(stderr, "Getting %d from zcache\n", in_zcache);
         newo[0] = (zcache[--in_zcache])[0];
     } else {
-        if(options.debug)
-            fprintf(stderr, "Initing new not in zcache\n");
+        TRACE("Initing new not in zcache\n");
         mpz_init(newo);
     }
 }
@@ -411,11 +406,8 @@ mpq_inoc(mpq_t newo)
             fprintf(stderr, "Getting %d from qcache\n", in_qcache);
         newo[0] = (qcache[--in_qcache])[0];
     } else {
-        if(options.debug)
-            fprintf(stderr, "Initing new not in qcache\n");
+        TRACE("Initing new not in qcache\n");
         mpq_init(newo);
-        if(options.debug)
-            fprintf(stderr, "Initing new not in qcache, done\n");
     }
 }
 
@@ -445,8 +437,7 @@ static void
 set_pympzcache(void)
 {
     int i;
-    if(options.debug)
-        fprintf(stderr, "Entering set_pympzcache\n");
+    TRACE("Entering set_pympzcache\n");
     if(in_pympzcache > options.cache_size) {
         for(i = options.cache_size; i < in_pympzcache; ++i) {
             mpz_cloc(pympzcache[i]->z);
@@ -466,8 +457,7 @@ static void
 set_pyxmpzcache(void)
 {
     int i;
-    if(options.debug)
-        fprintf(stderr, "Entering set_pyxmpzcache\n");
+    TRACE("Entering set_pyxmpzcache\n");
     if(in_pyxmpzcache > options.cache_size) {
         for(i = options.cache_size; i < in_pyxmpzcache; ++i) {
             mpz_cloc(pyxmpzcache[i]->z);
@@ -487,8 +477,7 @@ static void
 set_pympqcache(void)
 {
     int i;
-    if(options.debug)
-        fprintf(stderr, "Entering set_pympqcache\n");
+    TRACE("Entering set_pympqcache\n");
     if(in_pympqcache > options.cache_size) {
         for(i = options.cache_size; i < in_pympqcache; ++i) {
             mpq_cloc(pympqcache[i]->q);
