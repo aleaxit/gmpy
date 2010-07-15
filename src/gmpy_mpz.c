@@ -912,6 +912,7 @@ Pympz_rshift(PyObject *a, PyObject *b)
     PyObject *result;
     long count;
     int overflow;
+    PympzObject *tempa, *tempb;
 
     CREATE1_ONE_MPZANY(a, result);
 
@@ -933,7 +934,35 @@ Pympz_rshift(PyObject *a, PyObject *b)
             }
         }
     }
-    Py_RETURN_NOTIMPLEMENTED;
+
+    tempa = Pympz_From_Integer(a);
+    tempb = Pympz_From_Integer(b);
+    if(!tempb || !tempa) {
+        PyErr_Clear();
+        Py_DECREF(result);
+        Py_XDECREF((PyObject*)tempa);
+        Py_XDECREF((PyObject*)tempb);
+        Py_RETURN_NOTIMPLEMENTED;
+        }
+    if(mpz_sgn(Pympz_AS_MPZ(tempb)) < 0) {
+        PyErr_SetString(PyExc_ValueError, "negative shift count");
+        Py_DECREF(result);
+        Py_DECREF((PyObject*)tempa);
+        Py_DECREF((PyObject*)tempb);
+        return NULL;
+    }
+    if(!mpz_fits_slong_p(Pympz_AS_MPZ(tempb))) {
+        PyErr_SetString(PyExc_OverflowError, "outrageous shift count");
+        Py_DECREF(result);
+        Py_DECREF((PyObject*)tempa);
+        Py_DECREF((PyObject*)tempb);
+        return NULL;
+    }
+    count = mpz_get_si(Pympz_AS_MPZ(tempb));
+    mpz_fdiv_q_2exp(Pympz_AS_MPZ(result), Pympz_AS_MPZ(tempa), count);
+    Py_DECREF((PyObject*)tempa);
+    Py_DECREF((PyObject*)tempb);
+    return result;
 }
 
 static PyObject *
@@ -942,6 +971,7 @@ Pympz_lshift(PyObject *a, PyObject *b)
     PyObject *result;
     long count;
     int overflow;
+    PympzObject *tempa, *tempb;
 
     CREATE1_ONE_MPZANY(a, result);
 
@@ -963,7 +993,35 @@ Pympz_lshift(PyObject *a, PyObject *b)
             }
         }
     }
-    Py_RETURN_NOTIMPLEMENTED;
+
+    tempa = Pympz_From_Integer(a);
+    tempb = Pympz_From_Integer(b);
+    if(!tempb || !tempa) {
+        PyErr_Clear();
+        Py_DECREF(result);
+        Py_XDECREF((PyObject*)tempa);
+        Py_XDECREF((PyObject*)tempb);
+        Py_RETURN_NOTIMPLEMENTED;
+        }
+    if(mpz_sgn(Pympz_AS_MPZ(tempb)) < 0) {
+        PyErr_SetString(PyExc_ValueError, "negative shift count");
+        Py_DECREF(result);
+        Py_DECREF((PyObject*)tempa);
+        Py_DECREF((PyObject*)tempb);
+        return NULL;
+    }
+    if(!mpz_fits_slong_p(Pympz_AS_MPZ(tempb))) {
+        PyErr_SetString(PyExc_OverflowError, "outrageous shift count");
+        Py_DECREF(result);
+        Py_DECREF((PyObject*)tempa);
+        Py_DECREF((PyObject*)tempb);
+        return NULL;
+    }
+    count = mpz_get_si(Pympz_AS_MPZ(tempb));
+    mpz_mul_2exp(Pympz_AS_MPZ(result), Pympz_AS_MPZ(tempa), count);
+    Py_DECREF((PyObject*)tempa);
+    Py_DECREF((PyObject*)tempb);
+    return result;
 }
 
 #if PY_MAJOR_VERSION < 3
