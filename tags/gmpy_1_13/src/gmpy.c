@@ -210,6 +210,7 @@
  *
  *   1.13:
  *   Fix regression in formatting of mpq (casevh)
+ *   Improved caching for mpq (casevh)
  */
 #include "Python.h"
 
@@ -550,6 +551,26 @@ set_pympzcache(void)
     pympzcache = PyMem_Realloc(pympzcache, sizeof(PympzObject)*options.cache_size);
 }
 
+/* Cache Pympq objects directly */
+
+static PympqObject **pympqcache;
+static int in_pympqcache;
+
+static void
+set_pympqcache(void)
+{
+    int i;
+    if(options.debug)
+        fprintf(stderr, "Entering set_pympqcache\n");
+    if(in_pympqcache > options.cache_size) {
+        for(i = options.cache_size; i < in_pympqcache; ++i) {
+            mpq_cloc(pympqcache[i]->q);
+            PyObject_Del(pympqcache[i]);
+        }
+        in_pympqcache = options.cache_size;
+    }
+    pympqcache = PyMem_Realloc(pympqcache, sizeof(PympqObject)*options.cache_size);
+}
 /* forward declarations of type-objects and method-arrays for them */
 #ifdef _MSC_VER
 PyTypeObject Pympz_Type;
@@ -845,11 +866,26 @@ Pympq_new(void)
 {
     PympqObject * self;
 
-    if(!(self = PyObject_New(PympqObject, &Pympq_Type)))
-        return NULL;
-    mpq_inoc(self->q);
+    if(options.debug)
+        fprintf(stderr, "Entering Pympq_new\n");
+
+    if(in_pympqcache) {
+        if(options.debug)
+            fprintf(stderr, "Pympq_new is reusing an old object\n");
+        self = (pympqcache[--in_pympqcache]);
+        /* Py_INCREF does not set the debugging pointers, so need to use
+           _Py_NewReference instead. */
+        _Py_NewReference((PyObject*)self);
+    } else {
+        if(options.debug)
+            fprintf(stderr, "Pympq_new is creating a new object\n");
+        if(!(self = PyObject_New(PympqObject, &Pympq_Type)))
+            return NULL;
+        mpq_inoc(self->q);
+    }
     return self;
 }
+
 static PympfObject *
 Pympf_new(unsigned int bits)
 {
@@ -882,8 +918,14 @@ Pympq_dealloc(PympqObject *self)
 {
     if(options.debug)
         fprintf(stderr, "Pympq_dealloc: %p\n", self);
-    mpq_cloc(self->q);
-    PyObject_Del(self);
+    if(in_pympqcache<options.cache_size
+            && mpq_numref(self->q)->_mp_alloc <= options.cache_obsize
+            && mpq_denref(self->q)->_mp_alloc <= options.cache_obsize) {
+        (pympqcache[in_pympqcache++]) = self;
+    } else {
+        mpq_cloc(self->q);
+        PyObject_Del(self);
+    }
 } /* Pympq_dealloc */
 
 static void
@@ -6886,6 +6928,7 @@ static void _PyInitGMP(void)
     set_qcache();
     set_fcache();
     set_pympzcache();
+    set_pympqcache();
 }
 
 static char _gmpy_docs[] = "\
