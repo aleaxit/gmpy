@@ -382,7 +382,7 @@ mpz(1)
 >>> +_g.mpf(1)
 mpf('1.e0')
 >>> +_g.mpq(1)
-mpq(1,1)
+mpq(1)
 >>> _g.mpz(2)**-2
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -411,7 +411,7 @@ Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: mpq.pow outrageous exp den
 >>> _g.mpq(2)**0
-mpq(1,1)
+mpq(1)
 >>> _g.mpq(2)**-1
 mpq(1,2)
 >>> _g.mpq(2)**_g.mpq(1,2)
@@ -423,13 +423,13 @@ Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: mpq.pow fractional exponent, nonreal-root
 >>> _g.mpq(0)**_g.mpq(1,2)
-mpq(0,1)
+mpq(0)
 >>> _g.mpq(0)**-1
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ZeroDivisionError: mpq.pow 0 base to <0 exponent
 >>> _g.mpq(-1)**-1
-mpq(-1,1)
+mpq(-1)
 >>> _g.mpf(9,100)**2
 mpf('8.1e1',100)
 >>> _g.mpf(9,100)**0.5
@@ -449,7 +449,7 @@ TypeError: unsupported operand type(s) for +: 'mpz' and 'str'
 >>> _g.mpz(1)+_g.mpf(1)
 mpf('2.e0')
 >>> _g.mpz(1)+_g.mpq(1)
-mpq(2,1)
+mpq(2)
 >>> _g.mpq(1)+'bu'
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -471,11 +471,11 @@ Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ZeroDivisionError: not invertible
 >>> abs(_g.mpq(0))
-mpq(0,1)
+mpq(0)
 >>> _g.mpz(0)**2
 mpz(0)
 >>> _g.mpq(-2)**0
-mpq(1,1)
+mpq(1)
 >>> _g.fac(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?

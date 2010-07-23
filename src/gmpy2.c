@@ -2063,6 +2063,11 @@ Pyxmpz_ascii(PyxmpzObject *self, int base, int with_tag)
 
 static char* qtag = "gmpy2.mpq(";
 
+static int qden_1(mpq_t q)
+{
+    return 0==mpz_cmp_ui(mpq_denref(q),1);
+}
+
 static PyObject *
 Pympq_ascii(PympqObject *self, int base, int with_tag)
 {
@@ -2073,10 +2078,12 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
 
     if(!numstr) return 0;
 
-    denstr = mpz_ascii(mpq_denref(self->q), base, 0);
-    if(!denstr) {
-        Py_DECREF(numstr);
-        return 0;
+    if(!qden_1(self->q)) {
+        denstr = mpz_ascii(mpq_denref(self->q), base, 0);
+        if(!denstr) {
+            Py_DECREF(numstr);
+            return 0;
+        }
     }
 
     if(with_tag) {
