@@ -1,13 +1,17 @@
-# partial unit test for gmpy2 mpf functionality
+# partial unit test for gmpy mpf functionality
 # relies on Tim Peters' "doctest.py" test-driver
+
 r'''
 >>> dir(a)
-['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', 'binary', 'ceil', 'copy', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
+['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
 >>>
 '''
+import warnings
+warnings.filterwarnings('ignore', 'setprec')
+
 import sys
 
-import gmpy2 as _g, doctest, sys
+import gmpy as _g, doctest, sys
 __test__={}
 a=_g.mpf('123.456')
 b=_g.mpf('789.123')
@@ -165,7 +169,7 @@ r'''
 0
 >>> c<a
 0
->>> d=a.copy()
+>>> d=a._copy()
 >>> a is d
 0
 >>> a == d
@@ -244,7 +248,7 @@ r'''
 >>> _g.set_tagoff(0)
 1
 >>> a
-gmpy2.mpf('1.23456e2')
+gmpy.mpf('1.23456e2')
 >>> _g.set_tagoff(1)
 0
 >>> a.digits(10,0)
@@ -294,13 +298,12 @@ ValueError: digits must be >= 0
 >>> a.digits(10,0,0,-1,2)
 ('123456', 3, 53)
 >>> saveprec=a.getrprec()
->>> newa = a.round(33)
->>> newa
+>>> a.setprec(33)
+>>> a
 mpf('1.23456e2',33)
->>> newa = newa.round(saveprec)
->>> newa.getrprec()==saveprec
+>>> a.setprec(saveprec)
+>>> a.getrprec()==saveprec
 1
->>> del(newa)
 >>> _g.fdigits(2.2e5, 0, 6, -10, 10)
 '220000.0'
 >>> _g.fdigits(2.2e-5, 0, 6, -10, 10)
@@ -308,11 +311,11 @@ mpf('1.23456e2',33)
 >>> _g.digits(_g.mpf(23.45))
 Traceback (most recent call last):
   ...
-TypeError: digits() requires 'mpz',['int'] arguments
->>> _g.binary('pep')
+TypeError: digits() expects 'mpz',['int'] arguments
+>>> _g.fbinary('pep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: binary() requires a gmpy2 object as argument
+TypeError: argument can not be converted to mpf
 >>>
 '''
 
@@ -355,25 +358,25 @@ r'''
 >>> ia=(1/a).binary()
 >>> (1/a).reldiff(_g.mpf(ia,0,256)) <= epsilon
 1
->>> _g.binary(_g.mpf(0))
+>>> _g.fbinary(0)
 b'\x04'
->>> _g.mpf(_g.binary(_g.mpf(0)), 0, 256) == 0
+>>> _g.mpf(_g.fbinary(0), 0, 256) == 0
 1
->>> _g.binary(_g.mpf(0.5))
+>>> _g.fbinary(0.5)
 b'\x085\x00\x00\x00\x00\x00\x00\x00\x80'
->>> _g.mpf(_g.binary(_g.mpf(0.5)), 0, 256) == 0.5
+>>> _g.mpf(_g.fbinary(0.5), 0, 256) == 0.5
 1
->>> _g.binary(_g.mpf(-0.5))
+>>> _g.fbinary(-0.5)
 b'\t5\x00\x00\x00\x00\x00\x00\x00\x80'
->>> _g.mpf(_g.binary(_g.mpf(-0.5)), 0, 256) == -0.5
+>>> _g.mpf(_g.fbinary(-0.5), 0, 256) == -0.5
 1
->>> _g.binary(_g.mpf(-2.0))
+>>> _g.fbinary(-2.0)
 b'\t5\x00\x00\x00\x01\x00\x00\x00\x02'
->>> _g.mpf(_g.binary(_g.mpf(-2.0)), 0, 256) == -2.0
+>>> _g.mpf(_g.fbinary(-2.0), 0, 256) == -2.0
 1
->>> _g.binary(_g.mpf(2.0))
+>>> _g.fbinary(2.0)
 b'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
->>> _g.mpf(_g.binary(_g.mpf(2.0)), 0, 256) == 2.0
+>>> _g.mpf(_g.fbinary(2.0), 0, 256) == 2.0
 1
 >>> prec=_g.set_minprec(0)
 >>> junk=_g.set_minprec(prec)
@@ -396,15 +399,15 @@ b'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy2 (mpf functionality)")
+        print("Unit tests for gmpy 1.13 (mpf functionality)")
         print("    running on Python %s" % sys.version)
         print()
         if _g.gmp_version():
-            print("Testing gmpy2 %s (GMP %s), default caching (%s, %s)" % (
+            print("Testing gmpy %s (GMP %s), default caching (%s, %s)" % (
                 (_g.version(), _g.gmp_version(), _g.get_cache()[0],
                 _g.get_cache()[1])))
         else:
-            print("Testing gmpy2 %s (MPIR %s), default caching (%s, %s)" % (
+            print("Testing gmpy %s (MPIR %s), default caching (%s, %s)" % (
                 (_g.version(), _g.mpir_version(), _g.get_cache()[0],
                 _g.get_cache()[1])))
 
@@ -416,7 +419,7 @@ def _test(chat=None):
 
     sav = sys.stdout
     class _Dummy:
-        encoding = None
+        encoding=None
         def write(self,*whatever):
             pass
     try:

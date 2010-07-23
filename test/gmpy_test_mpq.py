@@ -1,12 +1,13 @@
-# partial unit test for gmpy2 mpq functionality
+# partial unit test for gmpy mpq functionality
 # relies on Tim Peters' "doctest.py" test-driver
+
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(a))
-['binary', 'copy', 'denom', 'digits', 'numer', 'qdiv', 'sign']
+['_copy', 'binary', 'denom', 'digits', 'numer', 'qdiv', 'sign']
 >>>
 '''
 
-import gmpy2 as _g, doctest,sys
+import gmpy as _g, doctest,sys
 __test__={}
 a=_g.mpq('123/456')
 b=_g.mpq('789/123')
@@ -111,7 +112,7 @@ r'''
 0
 >>> c<a
 0
->>> d=a.copy()
+>>> d=a._copy()
 >>> a is d
 0
 >>> a == d
@@ -172,9 +173,9 @@ r'''
 >>> _g.set_tagoff(0)
 1
 >>> a
-gmpy2.mpq(41,152)
+gmpy.mpq(41,152)
 >>> _g.mpq('12.34')
-gmpy2.mpq(617,50)
+gmpy.mpq(617,50)
 >>> _g.set_tagoff(1)
 0
 >>> for i in range(1,7):
@@ -182,10 +183,14 @@ gmpy2.mpq(617,50)
 ...       if _g.mpq(i,j) != _g.mpq("%d/%d"%(i,j)):
 ...          print 'er1:',i,j; break
 ...       aa=_g.mpq(i,j); ai=aa.numer(); aj=aa.denom()
-...       if str(aa) != ("%d/%d"%(ai,aj)):
+...       if aj!=1 and str(aa) != ("%d/%d"%(ai,aj)):
 ...          print 'er2:',i,j,str(aa),("%d/%d"%(ai,aj)); break
-...       if repr(aa) != ("mpq(%d,%d)"%(ai,aj)):
-...          print 'er3:',i,j,repr(aa),("mpq(%d,%d)"%(ai,aj)); break
+...       if aj==1 and str(aa) != ("%d"%ai):
+...          print 'er3:',i,j,str(aa),"%d"%ai; break
+...       if aj!=1 and repr(aa) != ("mpq(%d,%d)"%(ai,aj)):
+...          print 'er4:',i,j,repr(aa),("mpq(%d,%d)"%(ai,aj)); break
+...       if aj==1 and repr(aa) != ("mpq(%d)"%ai):
+...          print 'er5:',i,j,repr(aa),"mpq(%d)"%ai; break
 >>> fmo='_g.mpq('+a.numer().digits(16)+','+a.denom().digits(16)+')'
 >>> fmo
 '_g.mpq(0x29,0x98)'
@@ -206,14 +211,14 @@ mpq(1000000000000000000000L,23)
 mpq(23,1000000000000000000000L)
 >>> _g.mpq(23L**15L,1000L**7L)
 mpq(266635235464391245607L,1000000000000000000000L)
->>> _g.binary('pep')
+>>> _g.qbinary('pep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: binary() requires a gmpy2 object as argument
+TypeError: argument can not be converted to mpq
 >>> x=_g.mpq('234/567')
 >>> del x
 >>> _g.mpq('7788')
-mpq(7788,1)
+mpq(7788)
 >>> _g.mpq('12.34')
 mpq(617,50)
 '''
@@ -230,7 +235,7 @@ r'''
 1 0 0 0 41 152
 >>> _g.mpq(ba,256)==a
 1
->>> ba == _g.binary(a)
+>>> ba == _g.qbinary(a)
 1
 >>> ba=(-a).binary()
 >>> len(ba)
@@ -305,15 +310,15 @@ mpq(12,5)
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy2 (mpq functionality)"
+        print "Unit tests for gmpy 1.12 (mpq functionality)"
         print "    running on Python",sys.version
         print
         if _g.gmp_version():
-            print "Testing gmpy2 %s (GMP %s) with default caching (%s, %s)" % (
+            print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.gmp_version(), _g.get_cache()[0],
                 _g.get_cache()[1]))
         else:
-            print "Testing gmpy2 %s (MPIR %s) with default caching (%s, %s)" % (
+            print "Testing gmpy %s (MPIR %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.mpir_version(), _g.get_cache()[0],
                 _g.get_cache()[1]))
 
