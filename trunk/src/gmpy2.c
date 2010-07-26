@@ -216,6 +216,7 @@
  *   Remove old random number functions, to be replaced later (casevh)
  *   Add caching of the calculated hash value (casevh)
  *   Add xmpz (mutable mpz) type (casevh)
+ *   Fix mpq formatting issue (casevh)
  */
 #include "Python.h"
 
