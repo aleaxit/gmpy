@@ -3,7 +3,7 @@
 
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(a))
-['_copy', 'binary', 'denom', 'digits', 'numer', 'qdiv', 'sign']
+['_copy', 'binary', 'denom', 'denominator', 'digits', 'numer', 'numerator', 'qdiv', 'sign']
 >>>
 '''
 
@@ -62,6 +62,10 @@ mpq(41,152)
 -1
 >>> z=b-b; z.sign()
 0
+>>> a.numer() == a.numerator
+True
+>>> a.denom() == a.denominator
+True
 >>> an=a.numer(); ad=a.denom();
 >>> an==0 or 1==a*_g.mpq(ad,an)
 1

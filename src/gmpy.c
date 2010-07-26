@@ -211,6 +211,7 @@
  *   1.13:
  *   Fix regression in formatting of mpq (casevh)
  *   Improved caching for mpq (casevh)
+ *   Added .numerator and .denominator to mpq (casevh)
  */
 #include "Python.h"
 
@@ -3568,6 +3569,17 @@ Pympq_numer(PyObject *self, PyObject *args)
     return (PyObject*)s;
 }
 
+static PyObject *
+Pympq_getnumer(PympqObject *self, void *closure)
+{
+    PympzObject *result;
+
+    if(!(result = Pympz_new()))
+        return NULL;
+    mpz_set(result->z, mpq_numref(Pympq_AS_MPQ(self)));
+    return (PyObject*)result;
+}    
+
 static char doc_denomm[]="\
 x.denom(): returns denominator of x.\n\
 ";
@@ -3591,6 +3603,17 @@ Pympq_denom(PyObject *self, PyObject *args)
     Py_DECREF(self);
     return (PyObject*)s;
 }
+
+static PyObject *
+Pympq_getdenom(PympqObject *self, void *closure)
+{
+    PympzObject *result;
+
+    if(!(result = Pympz_new()))
+        return NULL;
+    mpz_set(result->z, mpq_denref(Pympq_AS_MPQ(self)));
+    return (PyObject*)result;
+}    
 
 static char doc_qdivm[]="\
 x.qdiv(y=1): returns x/y as mpz if possible, or as mpq\n\
@@ -6463,6 +6486,13 @@ static PyNumberMethods mpq_number_methods =
 };
 #endif
 
+static PyGetSetDef Pympq_getseters[] =
+{
+    { "numerator", (getter)Pympq_getnumer, NULL, "numerator", NULL },
+    { "denominator", (getter)Pympq_getdenom, NULL, "denominator", NULL },
+    {NULL}
+};
+
 #if PY_MAJOR_VERSION >= 3
 static PyNumberMethods mpf_number_methods =
 {
@@ -6779,7 +6809,8 @@ static PyTypeObject Pympq_Type =
 #if PY_MAJOR_VERSION >= 3
     Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
 #else
-    Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,   /* tp_flags  */
+    Py_TPFLAGS_HAVE_RICHCOMPARE |
+        Py_TPFLAGS_CHECKTYPES,              /* tp_flags         */
 #endif
     "GNU Multi Precision rational number",  /* tp_doc           */
         0,                                  /* tp_traverse      */
@@ -6789,7 +6820,8 @@ static PyTypeObject Pympq_Type =
         0,                                  /* tp_iter          */
         0,                                  /* tp_iternext      */
     Pympq_methods,                          /* tp_methods       */
-};
+        0,                                  /* tp_members       */
+    Pympq_getseters,                        /* tp_getset        */};
 
 
 static PyTypeObject Pympf_Type =
