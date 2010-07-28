@@ -2190,7 +2190,8 @@ Pyxmpz_subscript(PyxmpzObject* self, PyObject* item)
             (step > 0 && start > stop))
             stop = start;
 
-        if (!(result = (PyObject*)Pyxmpz_new())) return NULL;
+        if (!(result = (PyObject*)Pyxmpz_new()))
+            return NULL;
         mpz_set_ui(Pympz_AS_MPZ(result), 0);
         if (slicelength > 0) {
             for (cur = start, i = 0; i < slicelength; cur += step, i++) {
@@ -2233,7 +2234,7 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
             return -1;
         }
     } else if (PySlice_Check(item)) {
-        Py_ssize_t bit_value, start, stop, step, slicelength;
+        Py_ssize_t start, stop, step, slicelength;
 
         if (PySlice_GetIndicesEx((PySliceObject*)item, mpz_sizeinbase(self->z, 2),
                          &start, &stop, &step, &slicelength) < 0) {
@@ -2247,6 +2248,8 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
         if (value == NULL) {
             TYPE_ERROR("deleting bits not supported");
             return -1;
+#if 0
+        /* Left as reference. The following code only sets or clears a slice o' bits. */
         } else {
             Py_ssize_t cur, i;
 
@@ -2267,13 +2270,13 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
                 VALUE_ERROR("bit value must be 0 or 1");
                 return -1;
             }
-#if 0
+#endif
         } else {
             Py_ssize_t cur, i;
             int bit;
             PympzObject *tempx;
             if(!(tempx=Pympz_From_Integer(value))) {
-                VALUE_ERROR("must specify bits sequence as an mpz");
+                VALUE_ERROR("must specify bit sequence as an integer");
                 return -1;
             }
             if (mpz_sgn(tempx->z) == 0) {
@@ -2294,7 +2297,6 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
                 }
             }
             Py_DECREF(tempx);
-#endif
             return 0;
         }
     } else {
