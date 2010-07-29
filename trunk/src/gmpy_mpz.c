@@ -2156,6 +2156,22 @@ Pympz_is_odd(PyObject *self, PyObject *other)
         Py_RETURN_FALSE;
 }
 
+static char doc_make_mpzm[]="\
+x.make_mpz(): returns x converted to an 'mpz'.\n\
+NOTE: Optimized for speed so x is set to 0!.\n\
+";
+
+static PyObject *
+Pyxmpz_make_mpz(PyObject *self, PyObject *other)
+{
+    PyObject* result;
+    
+    if (!(result = (PyObject*)Pympz_new()))
+        return NULL;
+    mpz_swap(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self));
+    mpz_set_ui(Pympz_AS_MPZ(self), 0);
+    return result;
+}
 /*
  * Add mapping support to xmpz objects.
  */
