@@ -2305,3 +2305,55 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
     }
     return -1;
 }
+
+/*
+ * Add mapping support to mpz objects.
+ */
+
+static Py_ssize_t
+Pympz_nbits(PyxmpzObject *obj)
+{
+    return mpz_sizeinbase(obj->z, 2);
+}
+
+static PyObject *
+Pympz_subscript(PyxmpzObject* self, PyObject* item)
+{
+    if (PyIndex_Check(item)) {
+        Py_ssize_t i;
+        i = PyNumber_AsSsize_t(item, PyExc_IndexError);
+        if (i == -1 && PyErr_Occurred())
+            return NULL;
+        if (i < 0)
+            i += mpz_sizeinbase(self->z, 2);
+        return PyIntOrLong_FromLong(mpz_tstbit(self->z, i));
+    } else if (PySlice_Check(item)) {
+        Py_ssize_t start, stop, step, slicelength, cur, i;
+        PyObject* result;
+
+        if (PySlice_GetIndicesEx((PySliceObject*)item, mpz_sizeinbase(self->z, 2),
+                         &start, &stop, &step, &slicelength) < 0) {
+            return NULL;
+        }
+
+        if ((step < 0 && start < stop) ||
+            (step > 0 && start > stop))
+            stop = start;
+
+        if (!(result = (PyObject*)Pympz_new()))
+            return NULL;
+        mpz_set_ui(Pympz_AS_MPZ(result), 0);
+        if (slicelength > 0) {
+            for (cur = start, i = 0; i < slicelength; cur += step, i++) {
+                if(mpz_tstbit(self->z, cur)) {
+                    mpz_setbit(Pympz_AS_MPZ(result), i);
+                }
+            }
+        }
+        return result;
+    } else {
+        TYPE_ERROR("bit positions must be integers");
+        return NULL;
+    }
+}
+
