@@ -283,10 +283,10 @@ Pygmpy_set_fcoform(PyObject *self, PyObject *args)
 
 /* create a copy of a gmpy2 object */
 static char doc_copym[]="\
-x.copy(): returns a copy of x.\n\
+x._copy(): returns a copy of x.\n\
 ";
 static char doc_copyg[]="\
-copy(x): returns a copy of x, x must be a gmpy2 object.\n\
+_copy(x): returns a copy of x, x must be a gmpy2 object.\n\
 ";
 static PyObject *
 Pympany_copy(PyObject *self, PyObject *other)
