@@ -441,8 +441,8 @@ Pympz_fmod2exp(PyObject *self, PyObject *other)
 
 static char doc_tdivmod2expg[]="\
 tdivmod2exp(x,n): returns the quotient and remainder of x divided by 2**n.\n\
-The quotient is rounded towards zero and the remainder will be positive.\n\
-x must be an integer. n must be > 0.\n\
+The quotient is rounded towards zero and the remainder will have the same\n\
+sign as x. x must be an integer. n must be > 0.\n\
 ";
 
 static PyObject *
