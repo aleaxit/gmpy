@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(a))
-['binary', 'copy', 'denom', 'denominator', 'digits', 'numer', 'numerator', 'qdiv', 'sign']
+['_copy', 'binary', 'denom', 'denominator', 'digits', 'numer', 'numerator', 'qdiv', 'sign']
 >>>
 '''
 
@@ -115,7 +115,7 @@ r'''
 0
 >>> c<a
 0
->>> d=a.copy()
+>>> d=a._copy()
 >>> a is d
 0
 >>> a == d
