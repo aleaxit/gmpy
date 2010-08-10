@@ -475,7 +475,7 @@ Pygmpy_tdivmod2exp(PyObject *self, PyObject *args)
         mpz_tdiv_r_2exp(Pympz_AS_MPZ(r), Pympz_AS_MPZ(x), nbits);
     } else {
         if(!(tempx = Pympz_From_Integer(x))) {
-            TYPE_ERROR("fdivmod2exp() requires 'mpz','int' arguments");
+            TYPE_ERROR("tdivmod2exp() requires 'mpz','int' arguments");
             Py_DECREF(q);
             Py_DECREF(r);
             Py_DECREF(result);
@@ -645,3 +645,102 @@ Pympz_tmod2exp(PyObject *self, PyObject *other)
         return result;
     }
 }
+
+/*
+ **************************************************************************
+ * pack and unpack methods.
+ **************************************************************************
+ */
+
+static char doc_packg[]="\
+pack(l,n): packs a list of integers 'l' into a single 'mpz' (or 'xmpz') by\n\
+concatenating each integer after padding to length n bits. Raises error\n\
+if any integer if negative or greater than n bits in length.\n\
+";
+
+static PyObject *
+Pygmpy_pack(PyObject *self, PyObject *args)
+{
+    Py_ssize_t nbits, total_bits, index, lst_count, i, temp_bits, limb_count, extra_bits;
+    PyObject *lst, *result;
+    mpz_t temp;
+    PympzObject *tempx = 0;
+
+    if(PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("pack() requires 'list','int' arguments");
+        return NULL;
+    }
+
+    nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
+    if(nbits == -1 && PyErr_Occurred()) {
+        TYPE_ERROR("pack() requires 'list','int' arguments");
+        return NULL;
+    }
+    
+    if(nbits <= 0) {
+        VALUE_ERROR("pack() requires n > 0");
+        return NULL;
+    }
+    
+    if(!PyList_Check(PyTuple_GET_ITEM(args, 0))) {
+        TYPE_ERROR("pack() requires 'list','int' arguments");
+        return NULL;
+    }
+    
+    lst = PyTuple_GET_ITEM(args, 0);
+    lst_count = PyList_GET_SIZE(lst);
+    total_bits = nbits * lst_count;
+    
+    CREATE0_ONE_MPZANY(result);
+    mpz_setbit(Pympz_AS_MPZ(result), total_bits+1);
+    
+    mpz_inoc(temp);
+    mpz_set_ui(temp, 0);
+    limb_count = 0;
+    extra_bits = 0;
+    
+    for(index = 0; index < lst_count; index++) {
+        if(!(tempx = Pympz_From_Integer(PyList_GetItem(lst, index)))
+            || (mpz_sgn(Pympz_AS_MPZ(tempx)) < 0)
+            || (mpz_sizeinbase(Pympz_AS_MPZ(tempx),2) > nbits)) {
+            TYPE_ERROR("pack() requires list elements be positive integers < 2^nbits");
+            mpz_cloc(temp);
+            Py_XDECREF((PyObject*)tempx);
+            Py_DECREF(result);
+            return NULL;
+        }
+        mpz_mul_2exp(Pympz_AS_MPZ(tempx), Pympz_AS_MPZ(tempx), extra_bits);
+        mpz_add(temp, temp, Pympz_AS_MPZ(tempx));
+        extra_bits += nbits;
+        i = 0;
+        temp_bits = mpz_sizeinbase(temp, 2) * mpz_sgn(temp);
+        while(extra_bits >= mp_bits_per_limb) {
+            if(temp_bits > 0)
+                Pympz_AS_MPZ(result)->_mp_d[limb_count] = mpz_getlimbn(temp, i);
+            i += 1;
+            extra_bits -= mp_bits_per_limb;
+            limb_count += 1;
+            temp_bits -= mp_bits_per_limb;
+        }
+        if(temp_bits > 0) {
+            mpz_tdiv_q_2exp(temp, temp, mp_bits_per_limb * i);
+        } else {
+            mpz_set_ui(temp, 0);
+        }
+        Py_DECREF((PyObject*)tempx);
+    }
+    Pympz_AS_MPZ(result)->_mp_d[limb_count] = mpz_getlimbn(temp, 0);
+    mpz_clrbit(Pympz_AS_MPZ(result), total_bits+1);
+    mpz_cloc(temp);
+    /* Sanity check */
+    if(limb_count * mp_bits_per_limb + extra_bits >= total_bits + 1) {
+        fprintf(stderr, "total_bits = %ld\n", total_bits);
+        fprintf(stderr, "actual = %ld\n", limb_count * mp_bits_per_limb + extra_bits);
+        SYSTEM_ERROR("Internal inconsistency in pack()");
+        Py_DECREF(result);
+        return NULL;
+    }
+    return result;
+}
+
+
