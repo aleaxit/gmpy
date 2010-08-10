@@ -4956,6 +4956,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "next_prime", Pympz_next_prime, METH_O, doc_next_primeg },
     { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsg },
     { "numer", Pympq_numer, METH_VARARGS, doc_numerg },
+    { "pack", Pygmpy_pack, METH_VARARGS, doc_packg },
     { "pi", Pygmpy_pi, METH_VARARGS, doc_pi },
     { "popcount", Pympz_popcount, METH_O, doc_popcountg },
     { "qdigits", Pympq_digits, METH_VARARGS, doc_qdigitsg },
