@@ -648,14 +648,20 @@ Pympz_tmod2exp(PyObject *self, PyObject *other)
 
 /*
  **************************************************************************
- * pack and unpack methods.
+ * pack and unpack methods
+ *
+ * Both pack and unpack use a devious trick when stuffing values into the
+ * internal structure of an mpz_t. By setting a bit beyond the range of
+ * interest, we are guaranteed that memory will remain available. When
+ * the bit is cleared, it also triggers normalization of the value by
+ * accounting for leading bits that are zero.
  **************************************************************************
  */
 
 static char doc_packg[]="\
 pack(l,n): packs a list of integers 'l' into a single 'mpz' (or 'xmpz') by\n\
 concatenating each integer after padding to length n bits. Raises error\n\
-if any integer if negative or greater than n bits in length.\n\
+if any integer is negative or greater than n bits in length.\n\
 ";
 
 static PyObject *
@@ -732,14 +738,111 @@ Pygmpy_pack(PyObject *self, PyObject *args)
     Pympz_AS_MPZ(result)->_mp_d[limb_count] = mpz_getlimbn(temp, 0);
     mpz_clrbit(Pympz_AS_MPZ(result), total_bits+1);
     mpz_cloc(temp);
-    /* Sanity check */
-    if(limb_count * mp_bits_per_limb + extra_bits >= total_bits + 1) {
-        fprintf(stderr, "total_bits = %ld\n", total_bits);
-        fprintf(stderr, "actual = %ld\n", limb_count * mp_bits_per_limb + extra_bits);
-        SYSTEM_ERROR("Internal inconsistency in pack()");
-        Py_DECREF(result);
+    return result;
+}
+
+static char doc_unpackg[]="\
+unpack(x,n): unpacks an integer 'x' into a list of n-bit values. Raises error\n\
+if 'x' is negative.\n\
+";
+
+static PyObject *
+Pygmpy_unpack(PyObject *self, PyObject *args)
+{
+    Py_ssize_t nbits, total_bits, index = 0, lst_count, i, temp_bits = 0, extra_bits = 0;
+    Py_ssize_t guard_bit, lst_ptr = 0;
+    PyObject *item, *result;
+    mpz_t temp;
+    mp_limb_t extra = 0;
+    PympzObject *tempx = 0;
+
+    if(PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("unpack() requires 'int','int' arguments");
         return NULL;
     }
+
+    nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
+    if(nbits == -1 && PyErr_Occurred()) {
+        TYPE_ERROR("unpack() requires 'int','int' arguments");
+        return NULL;
+    }
+    
+    if(nbits <= 0) {
+        VALUE_ERROR("unpack() requires n > 0");
+        return NULL;
+    }
+    
+    if(!(tempx = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)))) {
+        TYPE_ERROR("unpack() requires 'int','int' arguments");
+        return NULL;
+    }
+    
+    total_bits = mpz_sizeinbase(Pympz_AS_MPZ(tempx), 2) * mpz_sgn(Pympz_AS_MPZ(tempx));
+    lst_count = total_bits / nbits;
+    if((total_bits % nbits) || !lst_count)
+        lst_count += 1;
+    
+    if(!(result = PyList_New(lst_count))) {
+        Py_DECREF((PyObject*)tempx);
+        return NULL;
+    }
+    
+    if(mpz_sgn(Pympz_AS_MPZ(tempx))==0) {
+        if(options.prefer_mutable) {
+            item = (PyObject*)Pyxmpz_new();
+        } else {
+            item = (PyObject*)Pympz_new();
+        }
+        if(!item) {
+            Py_DECREF((PyObject*)tempx);
+            Py_DECREF(result);
+            return NULL;
+        }
+        mpz_set_ui(Pympz_AS_MPZ(item), 0);
+        PyList_SET_ITEM(result, 0, item);
+        Py_DECREF((PyObject*)tempx);
+        return result;
+    }
+       
+    mpz_inoc(temp);
+    guard_bit = nbits + (2 * mp_bits_per_limb);
+    
+    while(lst_ptr < lst_count) {
+        i = 0;
+        temp_bits = 0;
+        mpz_set_ui(temp, 0);
+        mpz_setbit(temp, guard_bit);
+        while(temp_bits + extra_bits < nbits) {
+            temp->_mp_d[i++] = mpz_getlimbn(Pympz_AS_MPZ(tempx), index++);
+            temp_bits += mp_bits_per_limb;
+        }
+        mpz_clrbit(temp, guard_bit);
+        mpz_mul_2exp(temp, temp, extra_bits);
+        mpz_add_ui(temp, temp, extra);
+        temp_bits += extra_bits;
+
+        while((lst_ptr <lst_count) && (temp_bits >= nbits)) {
+            if(options.prefer_mutable) {
+                item = (PyObject*)Pyxmpz_new();
+            } else {
+                item = (PyObject*)Pympz_new();
+            }
+            if(!item) {
+                mpz_cloc(temp);
+                Py_DECREF((PyObject*)tempx);
+                Py_DECREF(result);
+                return NULL;
+            }
+            mpz_tdiv_r_2exp(Pympz_AS_MPZ(item), temp, nbits);
+            PyList_SET_ITEM(result, lst_ptr++, item);
+            mpz_tdiv_q_2exp(temp, temp, nbits);
+            temp_bits -= nbits;
+        }
+        extra = mpz_get_ui(temp);
+        extra_bits = temp_bits;
+    }
+    Py_DECREF((PyObject*)tempx);
+    mpz_cloc(temp);
     return result;
 }
 

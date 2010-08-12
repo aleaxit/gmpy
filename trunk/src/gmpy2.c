@@ -4982,6 +4982,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "tmod", Pygmpy_tmod, METH_VARARGS, doc_tmodg },
     { "tmod2exp", Pygmpy_tmod2exp, METH_VARARGS, doc_tmod2expg },
     { "trunc", Pympf_trunc, METH_VARARGS, doc_truncg },
+    { "unpack", Pygmpy_unpack, METH_VARARGS, doc_unpackg },
     { "version", Pygmpy_get_version, METH_NOARGS, doc_version },
     { "xmpz", Pygmpy_xmpz, METH_VARARGS, doc_xmpz },
     { "_mpmath_normalize", Pympz_mpmath_normalize, METH_VARARGS, doc_mpmath_normalizeg },
