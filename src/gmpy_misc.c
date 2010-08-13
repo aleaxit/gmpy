@@ -15,13 +15,13 @@ __MPIR_VERSION_PATCHLEVEL
 #if ((MPIR_VER < 10300) && (MPIR_VER > 10399))
 char gmpy_license[] = "\
 The GMPY2 source code is licensed under LGPL 2.1 or later. \
-The MPIR library is licensed under LGPL 3 or later. \
-Therefore, this combined module is licensed under LGPL 2.1 or later.\
+This version of the MPIR library is licensed under LGPL 3 or later. \
+Therefore, this combined module is licensed under LGPL 3 or later.\
 ";
 #else
 char gmpy_license[] = "\
 The GMPY2 source code is licensed under LGPL 2.1 or later. \
-The MPIR library is licensed under LGPL 2.1 or later. \
+This version of the MPIR library is licensed under LGPL 2.1 or later. \
 Therefore, this combined module is licensed under LGPL 2.1 or later.\
 ";
 #endif
