@@ -11,12 +11,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\gmpy.h">
+    <ClInclude Include="..\..\src\gmpy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\gmpy2.c">
+    <ClCompile Include="..\..\src\gmpy2.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

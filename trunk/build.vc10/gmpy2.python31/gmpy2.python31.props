@@ -3,10 +3,20 @@
   <PropertyGroup Label="UserMacros">
     <mp_dir>mpir</mp_dir>
     <mp_lib>mpir.lib</mp_lib>
+    <python_version>python31</python_version>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30128.1</_ProjectFileVersion>
   </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>MPIR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\$(mp_dir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>..\..\..\$(mp_dir)\build.vc10\lib\$(IntDir)$(mp_lib);%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <BuildMacro Include="mp_dir">
       <Value>$(mp_dir)</Value>
@@ -15,6 +25,9 @@
     <BuildMacro Include="mp_lib">
       <Value>$(mp_lib)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="python_version">
+      <Value>$(python_version)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
