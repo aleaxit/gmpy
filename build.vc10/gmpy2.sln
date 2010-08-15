@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmpy2.python27", "gmpy2.python27\gmpy2.python27.vcxproj", "{2410C45F-AA6C-4F9E-9B4F-E1F9356C3DFE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmpy2.python31", "gmpy2.python31\gmpy2.python31.vcxproj", "{EC1A078B-F935-4FE6-9558-C90EDFD1E0FC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2410C45F-AA6C-4F9E-9B4F-E1F9356C3DFE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2410C45F-AA6C-4F9E-9B4F-E1F9356C3DFE}.Debug|Win32.Build.0 = Debug|Win32
+		{2410C45F-AA6C-4F9E-9B4F-E1F9356C3DFE}.Debug|x64.ActiveCfg = Debug|x64
+		{2410C45F-AA6C-4F9E-9B4F-E1F9356C3DFE}.Debug|x64.Build.0 = Debug|x64
+		{2410C45F-AA6C-4F9E-9B4F-E1F9356C3DFE}.Release|Win32.ActiveCfg = Release|Win32
+		{2410C45F-AA6C-4F9E-9B4F-E1F9356C3DFE}.Release|Win32.Build.0 = Release|Win32
+		{2410C45F-AA6C-4F9E-9B4F-E1F9356C3DFE}.Release|x64.ActiveCfg = Release|x64
+		{2410C45F-AA6C-4F9E-9B4F-E1F9356C3DFE}.Release|x64.Build.0 = Release|x64
+		{EC1A078B-F935-4FE6-9558-C90EDFD1E0FC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EC1A078B-F935-4FE6-9558-C90EDFD1E0FC}.Debug|Win32.Build.0 = Debug|Win32
+		{EC1A078B-F935-4FE6-9558-C90EDFD1E0FC}.Debug|x64.ActiveCfg = Debug|x64
+		{EC1A078B-F935-4FE6-9558-C90EDFD1E0FC}.Debug|x64.Build.0 = Debug|x64
+		{EC1A078B-F935-4FE6-9558-C90EDFD1E0FC}.Release|Win32.ActiveCfg = Release|Win32
+		{EC1A078B-F935-4FE6-9558-C90EDFD1E0FC}.Release|Win32.Build.0 = Release|Win32
+		{EC1A078B-F935-4FE6-9558-C90EDFD1E0FC}.Release|x64.ActiveCfg = Release|x64
+		{EC1A078B-F935-4FE6-9558-C90EDFD1E0FC}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
