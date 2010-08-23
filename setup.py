@@ -40,11 +40,11 @@ gmpy2_ext = Extension('gmpy2', sources=['src/gmpy2.c'],
     libraries=[mplib])
 
 setup (name = "gmpy2",
-       version = "2.0.0a0",
+       version = "2.0.0a1",
        maintainer = "Alex Martelli",
        maintainer_email = "aleaxit@gmail.com",
        url = "http://code.google.com/p/gmpy/",
-       description = "GMP/MPIR interface to Python 2.5+ and 3.x",
+       description = "GMP/MPIR interface to Python 2.6+ and 3.x",
 
        classifiers = [
          'Development Status :: 5 - Production/Stable',

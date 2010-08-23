@@ -288,7 +288,7 @@
 #define PyIntOrLong_FromSize_t          PyInt_FromSize_t
 #endif
 
-char gmpy_version[] = "2.0.0a0";
+char gmpy_version[] = "2.0.0a1";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -3074,7 +3074,7 @@ Pympq_getnumer(PympqObject *self, void *closure)
         return NULL;
     mpz_set(result->z, mpq_numref(Pympq_AS_MPQ(self)));
     return (PyObject*)result;
-}    
+}
 
 static char doc_denomm[]="\
 x.denom(): returns denominator of x.\n\
@@ -5249,7 +5249,7 @@ static PyTypeObject Pympq_Type =
 #ifdef PY3
     Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
 #else
-    Py_TPFLAGS_HAVE_RICHCOMPARE | 
+    Py_TPFLAGS_HAVE_RICHCOMPARE |
         Py_TPFLAGS_CHECKTYPES,              /* tp_flags         */
 #endif
     "GNU Multi Precision rational number",  /* tp_doc           */
