@@ -6,7 +6,7 @@ True
 >>> _g.mpir_version()[:3] in ('2.0', '2.1', '')
 True
 >>> _g.version()
-'2.0.0a0'
+'2.0.0a1'
 >>> int('gmpy2.c' in _g._cvsid())
 1
 '''
