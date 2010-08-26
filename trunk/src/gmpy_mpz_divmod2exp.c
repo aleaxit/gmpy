@@ -14,9 +14,9 @@
  */
 
 static char doc_cdivmod2expg[]="\
-cdivmod2exp(x,n): returns the quotient and remainder of x divided by 2**n.\n\
-The quotient is rounded towards +Inf and the remainder will be negative.\n\
-x must be an integer. n must be > 0.\n\
+cdivmod2exp(x,n): returns the quotient and remainder of x divided\n\
+by 2**n. The quotient is rounded towards +Inf and the remainder\n\
+will be negative. x must be an integer. n must be > 0.\n\
 ";
 
 static PyObject *
@@ -65,8 +65,9 @@ Pygmpy_cdivmod2exp(PyObject *self, PyObject *args)
 }
 
 static char doc_cdiv2expg[]="\
-cdiv2exp(x,n): returns the quotient of x divided by 2**n. The quotient is\n\
-rounded towards +inf. x must be an integer. n must be > 0.\n\
+cdiv2exp(x,n): returns the quotient of x divided by 2**n. The\n\
+quotient is rounded towards +inf. x must be an integer. n must\n\
+be > 0.\n\
 ";
 
 static PyObject *
@@ -109,8 +110,8 @@ Pygmpy_cdiv2exp(PyObject *self, PyObject *args)
 }
 
 static char doc_cmod2expg[]="\
-cmod2exp(x,n): returns the remainder of x divided by 2**n. The remainder\n\
-will be negative. x must be an integer. n must be > 0.\n\
+cmod2exp(x,n): returns the remainder of x divided by 2**n. The\n\
+remainder will be negative. x must be an integer. n must be > 0.\n\
 ";
 
 static PyObject *
@@ -153,9 +154,9 @@ Pygmpy_cmod2exp(PyObject *self, PyObject *args)
 }
 
 static char doc_cdiv2expm[]="\
-x.cdiv2exp(n): returns the quotient of x divided by 2**n. The quotient\n\
-is rounded towards +Inf. x must be an integer. n must be > 0. Will\n\
-mutate x if it is an 'xmpz'.\n\
+x.cdiv2exp(n): returns the quotient of x divided by 2**n. The\n\
+quotient is rounded towards +Inf. x must be an integer. n must\n\
+be > 0. If x is an 'xmpz', it will be modified in-place.\n\
 ";
 
 static PyObject *
@@ -187,9 +188,9 @@ Pympz_cdiv2exp(PyObject *self, PyObject *other)
 }
 
 static char doc_cmod2expm[]="\
-x.cmod2exp(n): returns the remainder of x divided by 2**n. The remainder\n\
-will be negative. x must be an integer. n must be > 0. Will mutate x if it\n\
-is an 'xmpz'.\n\
+x.cmod2exp(n): returns the remainder of x divided by 2**n. The\n\
+remainder will be negative. x must be an integer. n must be > 0.\n\
+If x is an 'xmpz', it will be modified in-place.\n\
 ";
 
 static PyObject *
@@ -682,29 +683,29 @@ Pygmpy_pack(PyObject *self, PyObject *args)
         TYPE_ERROR("pack() requires 'list','int' arguments");
         return NULL;
     }
-    
+
     if(nbits <= 0) {
         VALUE_ERROR("pack() requires n > 0");
         return NULL;
     }
-    
+
     if(!PyList_Check(PyTuple_GET_ITEM(args, 0))) {
         TYPE_ERROR("pack() requires 'list','int' arguments");
         return NULL;
     }
-    
+
     lst = PyTuple_GET_ITEM(args, 0);
     lst_count = PyList_GET_SIZE(lst);
     total_bits = nbits * lst_count;
-    
+
     CREATE0_ONE_MPZANY(result);
     mpz_setbit(Pympz_AS_MPZ(result), total_bits+1);
-    
+
     mpz_inoc(temp);
     mpz_set_ui(temp, 0);
     limb_count = 0;
     extra_bits = 0;
-    
+
     for(index = 0; index < lst_count; index++) {
         if(!(tempx = Pympz_From_Integer(PyList_GetItem(lst, index)))
             || (mpz_sgn(Pympz_AS_MPZ(tempx)) < 0)
@@ -766,27 +767,27 @@ Pygmpy_unpack(PyObject *self, PyObject *args)
         TYPE_ERROR("unpack() requires 'int','int' arguments");
         return NULL;
     }
-    
+
     if(nbits <= 0) {
         VALUE_ERROR("unpack() requires n > 0");
         return NULL;
     }
-    
+
     if(!(tempx = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)))) {
         TYPE_ERROR("unpack() requires 'int','int' arguments");
         return NULL;
     }
-    
+
     total_bits = mpz_sizeinbase(Pympz_AS_MPZ(tempx), 2) * mpz_sgn(Pympz_AS_MPZ(tempx));
     lst_count = total_bits / nbits;
     if((total_bits % nbits) || !lst_count)
         lst_count += 1;
-    
+
     if(!(result = PyList_New(lst_count))) {
         Py_DECREF((PyObject*)tempx);
         return NULL;
     }
-    
+
     if(mpz_sgn(Pympz_AS_MPZ(tempx))==0) {
         if(options.prefer_mutable) {
             item = (PyObject*)Pyxmpz_new();
@@ -803,10 +804,10 @@ Pygmpy_unpack(PyObject *self, PyObject *args)
         Py_DECREF((PyObject*)tempx);
         return result;
     }
-       
+
     mpz_inoc(temp);
     guard_bit = nbits + (2 * mp_bits_per_limb);
-    
+
     while(lst_ptr < lst_count) {
         i = 0;
         temp_bits = 0;

@@ -14,9 +14,9 @@
  */
 
 static char doc_cdivmodg[]="\
-cdivmod(x,y): returns the quotient and remainder of x divided by y. The\n\
-quotient is rounded towards +Inf and the remainder will have the opposite\n\
-sign of y. x and y must be integers.\n\
+cdivmod(x,y): returns the quotient and remainder of x divided by\n\
+y. The quotient is rounded towards +Inf and the remainder will\n\
+have the opposite sign of y. x and y must be integers.\n\
 ";
 
 static PyObject *
@@ -74,8 +74,8 @@ Pygmpy_cdivmod(PyObject *self, PyObject *args)
 }
 
 static char doc_cdivg[]="\
-cdiv(x,y): returns the quotient of x divided by y. The quotient is rounded\n\
-towards +Inf. x and y must be integers.\n\
+cdiv(x,y): returns the quotient of x divided by y. The quotient\n\
+is rounded towards +Inf. x and y must be integers.\n\
 ";
 
 static PyObject *
@@ -125,8 +125,8 @@ Pygmpy_cdiv(PyObject *self, PyObject *args)
 }
 
 static char doc_cmodg[]="\
-cmod(x,y): returns the remainder of x divided by y. The remainder will\n\
-have the opposite sign of y. x and y must be integers.\n\
+cmod(x,y): returns the remainder of x divided by y. The remainder\n\
+will have the opposite sign of y. x and y must be integers.\n\
 ";
 
 static PyObject *
@@ -176,8 +176,9 @@ Pygmpy_cmod(PyObject *self, PyObject *args)
 }
 
 static char doc_cdivm[]="\
-x.cdiv(y): returns the quotient of x divided by y. The quotient is rounded\n\
-towards +Inf. x and y must be integers. Will mutate x if it is an 'xmpz'.\n\
+x.cdiv(y): returns the quotient of x divided by y. The quotient is\n\
+rounded towards +Inf. x and y must be integers. If x is an 'xmpz',\n\
+it will be modified in-place.\n\
 ";
 
 static PyObject *

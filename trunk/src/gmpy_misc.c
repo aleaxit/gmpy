@@ -313,16 +313,16 @@ Pympany_copy(PyObject *self, PyObject *other)
 
 /* produce portable binary form for a gmpy2 object */
 static char doc_binarym[]="\
-x.binary(): returns a Python string that is a portable binary\n\
-representation of a gmpy2 object x (the string can later be\n\
-passed to the appropriate constructor function to obtain an exact\n\
-copy of x's value).\n\
+x.binary(): returns a Python string (or bytes for Python 3+)\n\
+that is a portable binary representation of a gmpy2 object x.\n\
+The string/bytes can later be passed to the appropriate\n\
+constructor function to obtain an exact copy of x's value.\n\
 ";
 static char doc_binaryg[]="\
-binary(x): returns a Python string that is a portable binary\n\
-representation of a gmpy2 object x (the string can later be\n\
-passed to the appropriate constructor function to obtain an exact\n\
-copy of x's value).\n\
+binary(x): returns a Python string (or bytes for Python 3+)\n\
+that is a portable binary representation of a gmpy2 object x.\n\
+The string/bytes can later be passed to the appropriate\n\
+constructor function to obtain an exact copy of x's value.\n\
 ";
 static PyObject *
 Pympany_binary(PyObject *self, PyObject *other)
