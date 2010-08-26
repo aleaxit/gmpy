@@ -217,6 +217,9 @@
  *   Add caching of the calculated hash value (casevh)
  *   Add xmpz (mutable mpz) type (casevh)
  *   Fix mpq formatting issue (casevh)
+ *   Add read/write bit access using slices to xmpz (casevh)
+ *   Add read-only bit access using slices to mpz (casevh)
+ *   Add pack()/unpack() methods (casevh)
  */
 #include "Python.h"
 
@@ -5417,14 +5420,14 @@ static void _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] = "\
-gmpy2 2.0.0a0 - General Multiprecision arithmetic for Python:\n\
+gmpy2 2.0.0a1 - General Multiprecision arithmetic for Python:\n\
 exposes functionality from the GMP or MPIR library to Python 2.6\n\
 and later.\n\
 \n\
-Allows creation of multiprecision integer (mpz), float (mpf),\n\
-and rational (mpq) numbers, conversion between them and to/from\n\
-Python numbers/strings, arithmetic, bitwise, and some other\n\
-higher-level mathematical operations.\n\
+Allows creation of multiprecision integer (mpz), mutable integers\n\
+(xmpz), float (mpf), and rational (mpq) numbers, conversion between\n\
+them and to/from Python numbers/strings, arithmetic, bitwise, and\n\
+some other higher-level mathematical operations.\n\
 \n\
 mpz has comparable functionality to Python's builtin longs, but\n\
 can be faster for some operations (particularly multiplication\n\

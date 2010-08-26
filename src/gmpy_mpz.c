@@ -79,10 +79,12 @@ Pympz_numdigits(PyObject *self, PyObject *args)
 }
 
 static char doc_bit_lengthm[]="\
-x.bit_length(): returns length of string representing x in base 2\n\
+x.bit_length(): returns the number of significant bits in the\n\
+radix-2 representation of x. Note: bit_length(0) returns 0.\n\
 ";
 static char doc_bit_lengthg[]="\
-bit_length(x): returns length of string representing x in base 2\n\
+bit_length(x): returns the number of significant bits in the\n\
+radix-2 representation of x. Note: bit_length(0) returns 0.\n\
 ";
 static PyObject *
 Pympz_bit_length(PyObject *self, PyObject *other)
@@ -110,8 +112,8 @@ Pympz_bit_length(PyObject *self, PyObject *other)
 }
 
 static char doc_bit_maskg[]="\
-bit_mask(x): create an 'mpz' or 'xmpz' exactly x bits in length, all bits\n\
-are set\n\
+bit_mask(n): create an 'mpz' or 'xmpz' exactly n bits in length\n\
+with all bits set.\n\
 ";
 static PyObject *
 Pympz_bit_mask(PyObject *self, PyObject *other)
@@ -141,17 +143,16 @@ Pympz_bit_mask(PyObject *self, PyObject *other)
 
 /* return scan0/scan1 for an mpz */
 static char doc_bit_scan0m[]="\
-x.bit_scan0(n=0): returns the bit-index of the first 0-bit of x (that\n\
-is at least n); n must be an ordinary Python int, >=0.  If no more\n\
-0-bits are in x at or above bit-index n (which can only happen for\n\
-x<0, notionally extended with infinite 1-bits), None is returned.\n\
+x.bit_scan0(n=0): returns the index of the first 0-bit of x that\n\
+is >= n. n must be >= 0.  If no more 0-bits are in x at or above\n\
+index n (which can only happen for x<0, notionally extended with\n\
+infinite 1-bits), None is returned.\n\
 ";
 static char doc_bit_scan0g[]="\
-bit_scan0(x, n=0): returns the bit-index of the first 0-bit of x (that\n\
-is at least n); n must be an ordinary Python int, >=0.  If no more\n\
-0-bits are in x at or above bit-index n (which can only happen for\n\
-x<0, notionally extended with infinite 1-bits), None is returned.\n\
-x must be an mpz, or else gets coerced to one.\n\
+bit_scan0(x, n=0): returns the index of the first 0-bit of x that\n\
+is >= n. n must be >= 0.  If no more 0-bits are in x at or above\n\
+index n (which can only happen for x<0, notionally extended with\n\
+infinite 1-bits), None is returned.\n\
 ";
 static PyObject *
 Pympz_bit_scan0(PyObject *self, PyObject *args)
@@ -184,17 +185,16 @@ Pympz_bit_scan0(PyObject *self, PyObject *args)
 }
 
 static char doc_bit_scan1m[]="\
-x.bit_scan1(n=0): returns the bit-index of the first 1-bit of x (that\n\
-is at least n); n must be an ordinary Python int, >=0.  If no more\n\
-1-bits are in x at or above bit-index n (which can only happen for\n\
-x>=0, notionally extended with infinite 0-bits), None is returned.\n\
+x.bit_scan1(n=0): returns the index of the first 1-bit of x that\n\
+is >= n. n must be >= 0.  If no more 1-bits are in x at or above\n\
+index n (which can only happen for x>=0, notionally extended with\n\
+infinite 0-bits), None is returned.\n\
 ";
 static char doc_bit_scan1g[]="\
-bit_scan1(x, n=0): returns the bit-index of the first 1-bit of x (that\n\
-is at least n); n must be an ordinary Python int, >=0.  If no more\n\
-1-bits are in x at or above bit-index n (which can only happen for\n\
-x>=0, notionally extended with infinite 0-bits), None is returned.\n\
-x must be an mpz, or else gets coerced to one.\n\
+bit_scan1(x, n=0): returns the index of the first 1-bit of x that\n\
+is >= n. n must be >= 0.  If no more 1-bits are in x at or above\n\
+index n (which can only happen for x>=0, notionally extended with\n\
+infinite 0-bits), None is returned.\n\
 ";
 static PyObject *
 Pympz_bit_scan1(PyObject *self, PyObject *args)
@@ -260,10 +260,10 @@ Pympz_popcount(PyObject *self, PyObject *other)
 
 /* get & return one bit from an mpz */
 static char doc_bit_testm[]="\
-x.bit_test(n): return the value of the nth bit of x.\n\
+x.bit_test(n): return the value of the n-th bit of x.\n\
 ";
 static char doc_bit_testg[]="\
-bit_test(x,n): return the value of the nth bit of x.\n\
+bit_test(x,n): return the value of the n-th bit of x.\n\
 ";
 static PyObject *
 Pygmpy_bit_test(PyObject *self, PyObject *args)
@@ -329,11 +329,12 @@ Pympz_bit_test(PyObject *self, PyObject *other)
 }
 
 static char doc_bit_clearm[]="\
-x.bit_clear(n): clear the nth bit of x. If x is an xmpz, x is mutated.\n\
-If x is an mpz, a new object is returned.\n\
+x.bit_clear(n): clear the n-th bit of x. If x is an xmpz, x is\n\
+modified in-place. If x is an mpz, a new object is returned.\n\
 ";
 static char doc_bit_clearg[]="\
-bit_clear(x,n): clear the nth bit of x. A new object is always returned.\n\
+bit_clear(x,n): clear the n-th bit of x. A new object is always\n\
+returned.\n\
 ";
 
 static PyObject *
@@ -405,11 +406,12 @@ Pympz_bit_clear(PyObject *self, PyObject *other)
 }
 
 static char doc_bit_setm[]="\
-x.bit_set(n): set the nth bit of x. If x is an xmpz, x is mutated.\n\
-If x is an mpz, a new object is returned.\n\
+x.bit_set(n): set the n-th bit of x. If x is an xmpz, x is\n\
+modified in-place. If x is an mpz, a new object is returned.\n\
 ";
 static char doc_bit_setg[]="\
-bit_set(x,n): set the nth bit of x. A new object is always returned.\n\
+bit_set(x,n): set the n-th bit of x. A new object is always\n\
+returned.\n\
 ";
 
 static PyObject *
@@ -481,11 +483,11 @@ Pympz_bit_set(PyObject *self, PyObject *other)
 }
 
 static char doc_bit_flipm[]="\
-x.bit_flip(n): complements the nth bit of x. If x is an xmpz,\n\
-x is mutated. If x is an mpz, a new object is returned.\n\
+x.bit_flip(n): complements the n-th bit of x. If x is an xmpz,\n\
+x is modified in-place. If x is an mpz, a new object is returned.\n\
 ";
 static char doc_bit_flipg[]="\
-bit_flip(x,n): complements the nth bit of x. A new object is \n\
+bit_flip(x,n): complements the n-th bit of x. A new object is \n\
 always returned.\n\
 ";
 
@@ -2165,7 +2167,7 @@ static PyObject *
 Pyxmpz_make_mpz(PyObject *self, PyObject *other)
 {
     PyObject* result;
-    
+
     if (!(result = (PyObject*)Pympz_new()))
         return NULL;
     mpz_swap(Pympz_AS_MPZ(result), Pympz_AS_MPZ(self));
