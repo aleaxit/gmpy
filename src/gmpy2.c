@@ -3335,10 +3335,10 @@ f2q_internal(PympfObject* self, PympfObject* err, unsigned int bits, int mayz)
 
 /* CONSTRUCTORS */
 static char doc_mpz[] = "\
-mpz(n):\
+mpz(n):\n\
       builds an mpz object with a numeric value n (truncating n\n\
       to its integer part if it's a float or mpf)\n\
-mpz(s,base=0):\
+mpz(s,base=0):\n\
       builds an mpz object from a string s made up of digits in the\n\
       given base.  If base=0, binary, octal, or hex Python strings\n\
       are recognized by leading 0b, 0o, or 0x characters, otherwise\n\
@@ -3404,16 +3404,16 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
 }
 
 static char doc_xmpz[] = "\
-xmpz(n):\
-      builds an xmpz object from any number n (truncating n\n\
-      to its integer part if it's a float or mpf)\n\
-xmpz(s, base=0):\
-      builds an xmpz object from a string s made up of digits in the\n\
-      given base.  If base=0, binary, octal, and hex Python strings\n\
-      are recognized by leading 0b, 0o, or 0x characters, otherwise\n\
-      the string is assumed to be decimal. If base=256, s must be a\n\
-      gmpy2.xmpz portable binary representation as built by the function\n\
-      gmpy2.binary (and the .binary method of xmpz objects).\n\
+xmpz(n):\n\
+    builds an xmpz object from any number n (truncating n\n\
+    to its integer part if it's a float or mpf)\n\
+xmpz(s, base=0):\n\
+    builds an xmpz object from a string s made up of digits in the\n\
+    given base.  If base=0, binary, octal, and hex Python strings\n\
+    are recognized by leading 0b, 0o, or 0x characters, otherwise\n\
+    the string is assumed to be decimal. If base=256, s must be a\n\
+    gmpy2.xmpz portable binary representation as built by the function\n\
+    gmpy2.binary (and the .binary method of xmpz objects).\n\
 ";
 static PyObject *
 Pygmpy_xmpz(PyObject *self, PyObject *args)
@@ -3479,14 +3479,16 @@ Pygmpy_xmpz(PyObject *self, PyObject *args)
 }
 
 static char doc_mpq[] = "\
-mpq(n): builds an mpq object with a numeric value n\n\
-mpq(n,m): builds an mpq object with a numeric value n/m\n\
-mpq(s,base=10): builds an mpq object from a string s made up of\n\
-        digits in the given base.  s may be made up of two\n\
-        numbers in the same base separated by a '/' character.\n\
-        If base=256, s must be a gmpy2.mpq portable binary\n\
-        representation as built by the gmpy2.qbinary (and the\n\
-        .binary method of mpq objects).\n\
+mpq(n):\n\
+    builds an mpq object with a numeric value n\n\
+mpq(n,m):\n\
+    builds an mpq object with a numeric value n/m\n\
+mpq(s,base=10):\n\
+    builds an mpq object from a string s made up of digits in the\n\
+    given base.  s may be made up of two numbers in the same base\n\
+    separated by a '/' character.  If base=256, s must be a\n\
+    gmpy2.mpq portable binary representation as built by the\n\
+    gmpy2.qbinary (or the .binary method of mpq objects).\n\
 ";
 static PyObject *
 Pygmpy_mpq(PyObject *self, PyObject *args)
@@ -3564,20 +3566,23 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
 }
 
 static char doc_mpf[] = "\
-mpf(n): builds an mpf object with a numeric value n (n may be any\n\
-        Python number, or an mpz, mpq, or mpf object) and a default\n\
-        precision (in bits) depending on the nature of n\n\
-mpf(n,bits=0): as above, but with the specified number of bits (0\n\
-        means to use default precision, as above)\n\
-mpf(s,bits=0,base=10): builds an mpf object from a string s made up of\n\
-        digits in the given base, possibly with fraction-part (with\n\
-        period as a separator) and/or exponent-part (with exponent\n\
-        marker 'e' for base<=10, else '@'). If base=256, s must be\n\
-        a gmpy2.mpf portable binary representation as built by the\n\
-        function gmpy2.fbinary (and the .binary method of mpf objects).\n\
-        The resulting mpf object is built with a default precision (in\n\
-        bits) if bits is 0 or absent, else with the specified number\n\
-        of bits.\n\
+mpf(n):\n\
+    builds an mpf object with a numeric value n (n may be any\n\
+    Python number, or an mpz, mpq, or mpf object) and a default\n\
+    precision (in bits) depending on the nature of n\n\
+mpf(n,bits=0):\n\
+    as above, but with the specified number of bits (0\n\
+    means to use default precision, as above)\n\
+mpf(s,bits=0,base=10):\n\
+    builds an mpf object from a string s made up of\n\
+    digits in the given base, possibly with fraction-part (with\n\
+    period as a separator) and/or exponent-part (with exponent\n\
+    marker 'e' for base<=10, else '@'). If base=256, s must be\n\
+    a gmpy2.mpf portable binary representation as built by the\n\
+    function gmpy2.fbinary (and the .binary method of mpf objects).\n\
+    The resulting mpf object is built with a default precision (in\n\
+    bits) if bits is 0 or absent, else with the specified number\n\
+    of bits.\n\
 ";
 static PyObject *
 Pygmpy_mpf(PyObject *self, PyObject *args)

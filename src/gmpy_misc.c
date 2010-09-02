@@ -75,8 +75,8 @@ Pygmpy_get_cvsid(PyObject *self, PyObject *args)
 }
 
 static char doc_gmp_version[]="\
-gmp_version(): returns string giving current GMP version. Empty string\n\
-returned if MPIR was used.\n\
+gmp_version(): returns string giving current GMP version. Empty\n\
+string returned if MPIR was used.\n\
 ";
 static PyObject *
 Pygmpy_get_gmp_version(PyObject *self, PyObject *args)
@@ -89,8 +89,8 @@ Pygmpy_get_gmp_version(PyObject *self, PyObject *args)
 }
 
 static char doc_mpir_version[]="\
-mpir_version(): returns string giving current MPIR version. Empty string\n\
-returned if GMP was used.\n\
+mpir_version(): returns string giving current MPIR version. Empty\n\
+string returned if GMP was used.\n\
 ";
 static PyObject *
 Pygmpy_get_mpir_version(PyObject *self, PyObject *args)
