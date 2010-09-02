@@ -228,9 +228,9 @@ Pympz_cmod2exp(PyObject *self, PyObject *other)
  */
 
 static char doc_fdivmod2expg[]="\
-fdivmod2exp(x,n): returns quotient and remainder after dividing x by 2**n.\n\
-The quotient is rounded towards -Inf and the remainder will be positive.\n\
-x must be an integer. n must be > 0.\n\
+fdivmod2exp(x,n): returns quotient and remainder after dividing x by\n\
+2**n. The quotient is rounded towards -Inf and the remainder will be\n\
+positive. x must be an integer. n must be > 0.\n\
 ";
 
 static PyObject *
@@ -323,8 +323,8 @@ Pygmpy_fdiv2exp(PyObject *self, PyObject *args)
 }
 
 static char doc_fmod2expg[]="\
-fmod2exp(x,n): returns remainder of x divided by 2**n. The remainder will\n\
-be positive. x must be an integer. n must be greater than 0.\n\
+fmod2exp(x,n): returns remainder of x divided by 2**n. The remainder\n\
+will be positive. x must be an integer. n must be greater than 0.\n\
 ";
 
 static PyObject *
@@ -441,9 +441,9 @@ Pympz_fmod2exp(PyObject *self, PyObject *other)
  */
 
 static char doc_tdivmod2expg[]="\
-tdivmod2exp(x,n): returns the quotient and remainder of x divided by 2**n.\n\
-The quotient is rounded towards zero and the remainder will have the same\n\
-sign as x. x must be an integer. n must be > 0.\n\
+tdivmod2exp(x,n): returns the quotient and remainder of x divided by\n\
+2**n. The quotient is rounded towards zero and the remainder will have\n\
+the same sign as x. x must be an integer. n must be > 0.\n\
 ";
 
 static PyObject *
@@ -660,9 +660,9 @@ Pympz_tmod2exp(PyObject *self, PyObject *other)
  */
 
 static char doc_packg[]="\
-pack(l,n): packs a list of integers 'l' into a single 'mpz' (or 'xmpz') by\n\
-concatenating each integer after padding to length n bits. Raises error\n\
-if any integer is negative or greater than n bits in length.\n\
+pack(l,n): packs a list of integers 'l' into a single 'mpz' (or 'xmpz')\n\
+by concatenating each integer after padding to length n bits. Raises an\n\
+error if any integer is negative or greater than n bits in length.\n\
 ";
 
 static PyObject *
@@ -743,8 +743,8 @@ Pygmpy_pack(PyObject *self, PyObject *args)
 }
 
 static char doc_unpackg[]="\
-unpack(x,n): unpacks an integer 'x' into a list of n-bit values. Raises error\n\
-if 'x' is negative.\n\
+unpack(x,n): unpacks an integer 'x' into a list of n-bit values. Raises\n\
+error if 'x' is negative.\n\
 ";
 
 static PyObject *

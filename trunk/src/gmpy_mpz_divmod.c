@@ -289,8 +289,8 @@ Pympz_cmod(PyObject *self, PyObject *other)
 
 static char doc_fdivmodg[]="\
 fdivmod(x,y): returns the quotient and remainder of x divided by y. The\n\
-quotient is rounded towards -Inf and the remainder will have the same sign\n\
-as y. x and y must be integers.\n\
+quotient is rounded towards -Inf and the remainder will have the same\n\
+sign as y. x and y must be integers.\n\
 ";
 static PyObject *
 Pygmpy_fdivmod(PyObject *self, PyObject *args)
@@ -347,8 +347,8 @@ Pygmpy_fdivmod(PyObject *self, PyObject *args)
 }
 
 static char doc_fdivg[]="\
-fdiv(x,y): returns the quotient of x divided by y. The quotient is rounded\n\
-towards -Inf. x and y must be integers.\n\
+fdiv(x,y): returns the quotient of x divided by y. The quotient is\n\
+rounded towards -Inf. x and y must be integers.\n\
 ";
 
 static PyObject *
@@ -560,8 +560,8 @@ Pympz_fmod(PyObject *self, PyObject *other)
 
 static char doc_tdivmodg[]="\
 tdivmod(x,y): returns the quotient and remainder of x divided by y. The\n\
-quotient is rounded towards zero and the remainder will have the same sign\n\
-as x. x and y must be integers.\n\
+quotient is rounded towards zero and the remainder will have the same\n\
+sign as x. x and y must be integers.\n\
 ";
 static PyObject *
 Pygmpy_tdivmod(PyObject *self, PyObject *args)
@@ -618,8 +618,8 @@ Pygmpy_tdivmod(PyObject *self, PyObject *args)
 }
 
 static char doc_tdivg[]="\
-tdiv(x,y): returns the quotient of x divided by y. The quotient is rounded\n\
-towards 0. x and y must be integers.\n\
+tdiv(x,y): returns the quotient of x divided by y. The quotient is \n\
+rounded towards 0. x and y must be integers.\n\
 ";
 
 static PyObject *

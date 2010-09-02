@@ -1381,8 +1381,8 @@ Pygmpy_lucas(PyObject *self, PyObject *other)
 }
 
 static char doc_lucas2[]="\
-lucas2(n): returns the n-1 and n-th Lucas number; takes O(n) time; n must\n\
-be an ordinary Python int, >=0.\n\
+lucas2(n): returns the n-1 and n-th Lucas number; takes O(n) time;\n\
+n must be an ordinary Python int, >=0.\n\
 ";
 static PyObject *
 Pygmpy_lucas2(PyObject *self, PyObject *other)
