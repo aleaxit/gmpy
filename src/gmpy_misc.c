@@ -166,20 +166,33 @@ Pygmpy_set_debug(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_set_prefer_mutable,
-"set_prefer_mutable(boolean) -> boolean\n\n\
-If set to True, the result type of an ambiguous operation (i.e.\n\
-adding an 'mpz' and 'xmpz', or creating a GMPY2 type from a Python\n\
-number) will be an 'xmpz'. Returns the previous value. Default is\n\
-is False.");
+"set_prefer_mutable(boolean)\n\n\
+If set to True, the result type of an ambiguous operation (i.e. adding\n\
+an 'mpz' and 'xmpz', or creating a GMPY2 type from a Python number)\n\
+will be an 'xmpz'.");
 
 static PyObject *
 Pygmpy_set_prefer_mutable(PyObject *self, PyObject *args)
 {
-    long old = options.prefer_mutable;
+    long value = 0;
 
-    if(!PyArg_ParseTuple(args, "l", &options.prefer_mutable))
+    if (!PyArg_ParseTuple(args, "l", &value))
         return NULL;
-    return Py_BuildValue("l", old);
+    options.prefer_mutable = value ? 1 : 0;
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(doc_get_prefer_mutable,
+"get_prefer_mutable() -> boolean\n\n\
+Return the value of the prefer_mutable option.");
+
+static PyObject *
+Pygmpy_get_prefer_mutable(PyObject *self, PyObject *args)
+{
+    if (options.prefer_mutable)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
 }
 
 static char doc_set_tagoff[]="\

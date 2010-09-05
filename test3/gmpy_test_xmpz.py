@@ -294,7 +294,7 @@ xmpz(789789789789789789789789)
 
 __test__['divmod']=\
 r'''
->>> temp=_g.set_prefer_mutable(1)
+>>> _g.set_prefer_mutable(1)
 >>> _g.cdivmod(17,5)
 (xmpz(4), xmpz(-3))
 >>> _g.cdivmod(-17,5)
@@ -319,8 +319,7 @@ r'''
 (xmpz(-3), xmpz(2))
 >>> _g.tdivmod(-17,-5)
 (xmpz(3), xmpz(-2))
->>> temp=_g.set_prefer_mutable(0)
->>> del temp
+>>> _g.set_prefer_mutable(0)
 '''
 
 __test__['cmpr']=\
@@ -503,10 +502,11 @@ False
 0
 >>> _g.xmpz(12345).bit_length()
 14
->>> _old=_g.set_prefer_mutable(1)
+>>> _old=_g.get_prefer_mutable()
+>>> _g.set_prefer_mutable(1)
 >>> _g.bit_mask(9)
 xmpz(511)
->>> _old=_g.set_prefer_mutable(_old)
+>>> _g.set_prefer_mutable(_old)
 >>> del(_old)
 '''
 
@@ -728,12 +728,12 @@ xmpz(3)
 True
 >>> _g.lcm(a,b)
 xmpz(18696)
->>> temp=_g.set_prefer_mutable(1)
+>>> _g.set_prefer_mutable(1)
 >>> _g.fac(7)
 xmpz(5040)
 >>> _g.fib(17)
 xmpz(1597)
->>> temp=_g.set_prefer_mutable(0)
+>>> _g.set_prefer_mutable(0)
 >>> del temp
 >>> for i in range(10):
 ...     print(_g.bincoef(10,i))
@@ -755,13 +755,12 @@ Traceback (innermost last):
   File "<pyshell#184>", line 1, in ?
     _g.divm(a,b,100)
 ZeroDivisionError: not invertible
->>> temp=_g.set_prefer_mutable(1)
+>>> _g.set_prefer_mutable(1)
 >>> _g.divm(6,12,14)
 xmpz(4)
 >>> _g.divm(0,1,2)
 xmpz(0)
->>> temp=_g.set_prefer_mutable(0)
->>> del temp
+>>> _g.set_prefer_mutable(0)
 >>> a.invert(100)
 >>> a
 xmpz(87)
