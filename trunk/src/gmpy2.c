@@ -4939,6 +4939,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "gcd", Pygmpy_gcd, METH_VARARGS, doc_gcd },
     { "gcdext", Pygmpy_gcdext, METH_VARARGS, doc_gcdext },
     { "get_cache", Pygmpy_get_cache, METH_NOARGS, doc_get_cache },
+    { "get_prefer_mutable", Pygmpy_get_prefer_mutable, METH_NOARGS, doc_get_prefer_mutable },
     { "gmp_version", Pygmpy_get_gmp_version, METH_NOARGS, doc_gmp_version },
     { "gmp_limbsize", Pygmpy_get_gmp_limbsize, METH_NOARGS, doc_gmp_limbsize },
     { "getprec", Pympf_getprec, METH_VARARGS, doc_getprecg },
