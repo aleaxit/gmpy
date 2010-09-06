@@ -37,141 +37,149 @@ Pympany_add(PyObject *a, PyObject *b)
     int overflow;
     unsigned int bits;
 
-    if(Pympz_Check(a)) {
-        if(!(rz = Pympz_new()))
+    if (Pympz_Check(a)) {
+        if (!(rz = Pympz_new()))
             return NULL;
 
         /* mpz + integer */
-        if(PyIntOrLong_Check(b)) {
+        if (PyIntOrLong_Check(b)) {
             TRACE("Adding (mpz,integer)\n");
             temp = PyLong_AsLongAndOverflow(b, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_add(rz->z, Pympz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
-            } else if(temp >= 0) {
+            }
+            else if (temp >= 0) {
                 mpz_add_ui(rz->z, Pympz_AS_MPZ(a), temp);
-            } else {
+            }
+            else {
                 mpz_sub_ui(rz->z, Pympz_AS_MPZ(a), -temp);
             }
             return (PyObject *) rz;
         }
 
         /* mpz + mpz */
-        if(Pympz_Check(b)) {
+        if (Pympz_Check(b)) {
             TRACE("Adding (mpz,mpz)\n");
             mpz_add(rz->z, Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject *)rz;
         }
 
         /* mpz + xmpz */
-        if((!options.prefer_mutable) && Pyxmpz_Check(b)) {
+        if ((!options.prefer_mutable) && Pyxmpz_Check(b)) {
             TRACE("Adding (mpz,xmpz)\n");
             mpz_add(rz->z, Pympz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
             return (PyObject *)rz;
         }
     }
 
-    if(Pympz_Check(b)) {
-        if(!(rz = Pympz_new()))
+    if (Pympz_Check(b)) {
+        if (!(rz = Pympz_new()))
             return NULL;
 
         /* integer + mpz */
-        if(PyIntOrLong_Check(a)) {
+        if (PyIntOrLong_Check(a)) {
             TRACE("Adding (long,mpz)\n");
             temp = PyLong_AsLongAndOverflow(a, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, a);
                 mpz_add(rz->z, Pympz_AS_MPZ(b), tempz);
                 mpz_cloc(tempz);
-            } else if(temp >=0) {
+            }
+            else if (temp >=0) {
                 mpz_add_ui(rz->z, Pympz_AS_MPZ(b), temp);
-            } else {
+            }
+            else {
                 mpz_sub_ui(rz->z, Pympz_AS_MPZ(b), -temp);
             }
             return (PyObject *) rz;
         }
 
         /* xmpz * mpz */
-        if((!options.prefer_mutable) && Pyxmpz_Check(a)) {
+        if ((!options.prefer_mutable) && Pyxmpz_Check(a)) {
             TRACE("Adding (xmpz,mpz)\n");
             mpz_add(rz->z, Pyxmpz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject *)rz;
         }
     }
 
-    if(Pyxmpz_Check(a)) {
-        if(!(rxz = Pyxmpz_new()))
+    if (Pyxmpz_Check(a)) {
+        if (!(rxz = Pyxmpz_new()))
             return NULL;
 
         /* xmpz + integer */
-        if(PyIntOrLong_Check(b)) {
+        if (PyIntOrLong_Check(b)) {
             TRACE("Adding (xmpz,integer)\n");
             temp = PyLong_AsLongAndOverflow(b, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_add(rxz->z, Pyxmpz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
-            } else if(temp >= 0) {
+            }
+            else if (temp >= 0) {
                 mpz_add_ui(rxz->z, Pyxmpz_AS_MPZ(a), temp);
-            } else {
+            }
+            else {
                 mpz_sub_ui(rxz->z, Pyxmpz_AS_MPZ(a), -temp);
             }
             return (PyObject *) rxz;
         }
 
         /* xmpz + xmpz */
-        if(Pyxmpz_Check(b)) {
+        if (Pyxmpz_Check(b)) {
             TRACE("Adding (xmpz,xmpz)\n");
             mpz_add(rxz->z, Pyxmpz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
             return (PyObject *)rxz;
         }
 
         /* xmpz + mpz */
-        if((options.prefer_mutable) && Pympz_Check(b)) {
+        if ((options.prefer_mutable) && Pympz_Check(b)) {
             TRACE("Adding (xmpz,mpz)\n");
             mpz_add(rxz->z, Pyxmpz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject *)rxz;
         }
     }
 
-    if(Pyxmpz_Check(b)) {
-        if(!(rxz = Pyxmpz_new()))
+    if (Pyxmpz_Check(b)) {
+        if (!(rxz = Pyxmpz_new()))
             return NULL;
 
         /* integer + xmpz */
-        if(PyIntOrLong_Check(a)) {
+        if (PyIntOrLong_Check(a)) {
             TRACE("Adding (long,xmpz)\n");
             temp = PyLong_AsLongAndOverflow(a, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, a);
                 mpz_add(rz->z, Pyxmpz_AS_MPZ(b), tempz);
                 mpz_cloc(tempz);
-            } else if(temp >=0) {
+            }
+            else if (temp >=0) {
                 mpz_add_ui(rxz->z, Pyxmpz_AS_MPZ(b), temp);
-            } else {
+            }
+            else {
                 mpz_sub_ui(rxz->z, Pyxmpz_AS_MPZ(b), -temp);
             }
             return (PyObject *) rxz;
         }
 
         /* mpz + xmpz */
-        if((options.prefer_mutable) && Pympz_Check(a)) {
+        if ((options.prefer_mutable) && Pympz_Check(a)) {
             TRACE("Adding (mpz,xmpz)\n");
             mpz_add(rxz->z, Pympz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
             return (PyObject *)rxz;
         }
     }
 
-    if(isRational(a) && isRational(b)) {
+    if (isRational(a) && isRational(b)) {
         TRACE("Adding (rational,rational)\n");
         paq = anyrational2Pympq(a);
         pbq = anyrational2Pympq(b);
-        if(!paq || !pbq) {
+        if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq);
             Py_XDECREF((PyObject*)pbq);
@@ -188,61 +196,67 @@ Pympany_add(PyObject *a, PyObject *b)
         return (PyObject *) rq;
     }
 
-    if(isNumber(a) && isNumber(b)) {
+    if (isNumber(a) && isNumber(b)) {
         TRACE("Adding (number,number)\n");
-        if(Pympf_Check(a) && Pympf_Check(b)) {
+        if (Pympf_Check(a) && Pympf_Check(b)) {
             paf = anynum2Pympf(a, 0);
             pbf = anynum2Pympf(b, 0);
-        } else if(Pympf_Check(a)) {
+        }
+        else if (Pympf_Check(a)) {
             paf = anynum2Pympf(a, 0);
-            pbf = anynum2Pympf(b, paf->rebits);
-        } else if(Pympf_Check(b)) {
+            pbf = anynum2Pympf(b, mpfr_get_prec(paf->f));
+        }
+        else if (Pympf_Check(b)) {
             pbf = anynum2Pympf(b, 0);
-            paf = anynum2Pympf(a, pbf->rebits);
-        } else {
+            paf = anynum2Pympf(a, mpfr_get_prec(pbf->f));
+        }
+        else {
             pbf = anynum2Pympf(b, 0);
             paf = anynum2Pympf(a, 0);
         }
-        if(!paf || !pbf) {
-            if(PyErr_Occurred()) {
+        if (!paf || !pbf) {
+            if (PyErr_Occurred()) {
                 PyErr_Clear();
-            } else {
+            }
+            else {
                 SYSTEM_ERROR("Internal error status is confused.");
                 return NULL;
             }
             /* Need to handle special float values. */
-            if(pbf && !paf && PyFloat_Check(a)) {
+            if (pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(Py_IS_INFINITY(d) || Py_IS_NAN(d)) {
+                if (Py_IS_INFINITY(d) || Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)pbf);
                     return r;
                 }
-            } else if(paf && !pbf && PyFloat_Check(b)) {
+            }
+            else if (paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(Py_IS_INFINITY(d) || Py_IS_NAN(d)) {
+                if (Py_IS_INFINITY(d) || Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
                 }
-            } else {
+            }
+            else {
                 SYSTEM_ERROR("Can not convert number to mpf");
                 Py_XDECREF((PyObject*)paf);
                 Py_XDECREF((PyObject*)pbf);
                 return NULL;
             }
         }
-        bits = paf->rebits;
-        if(pbf->rebits<bits) bits=pbf->rebits;
+        bits = mpfr_get_prec(paf->f);
+        if (mpfr_get_prec(pbf->f)<bits)
+            bits = mpfr_get_prec(pbf->f);
         if (!(rf = Pympf_new(bits))) {
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        mpf_add(rf->f, paf->f, pbf->f);
+        mpfr_add(rf->f, paf->f, pbf->f, options.rounding);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        mpf_normalize(rf->f);
         return (PyObject *) rf;
     }
     Py_RETURN_NOTIMPLEMENTED;
@@ -266,58 +280,62 @@ Pympany_sub(PyObject *a, PyObject *b)
     unsigned int bits;
     int overflow;
 
-    if(Pympz_Check(a)) {
-        if(!(rz = Pympz_new()))
+    if (Pympz_Check(a)) {
+        if (!(rz = Pympz_new()))
             return NULL;
 
         /* mpz - integer */
-        if(PyIntOrLong_Check(b)) {
+        if (PyIntOrLong_Check(b)) {
             TRACE("Subtracting (mpz,long)\n");
             temp = PyLong_AsLongAndOverflow(b, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_sub(rz->z, Pympz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
-            } else if(temp >= 0) {
+            }
+            else if (temp >= 0) {
                 mpz_sub_ui(rz->z, Pympz_AS_MPZ(a), temp);
-            } else {
+            }
+            else {
                 mpz_add_ui(rz->z, Pympz_AS_MPZ(a), -temp);
             }
             return (PyObject *)rz;
         }
 
         /* mpz - mpz */
-        if(Pympz_Check(b)) {
+        if (Pympz_Check(b)) {
             TRACE("Subtracting (mpz,mpz)\n");
             mpz_sub(rz->z, Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject *)rz;
         }
 
         /* mpz - xmpz */
-        if((!options.prefer_mutable) && Pyxmpz_Check(b)) {
+        if ((!options.prefer_mutable) && Pyxmpz_Check(b)) {
             TRACE("Subtracting (mpz,xmpz)\n");
             mpz_sub(rz->z, Pympz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
             return (PyObject *)rz;
         }
     }
 
-    if(Pympz_Check(b)) {
-        if(!(rz = Pympz_new()))
+    if (Pympz_Check(b)) {
+        if (!(rz = Pympz_new()))
             return NULL;
 
         /* integer - mpz */
-        if(PyIntOrLong_Check(a)) {
+        if (PyIntOrLong_Check(a)) {
             TRACE("Subtracting (long,mpz)\n");
             temp = PyLong_AsLongAndOverflow(a, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, a);
                 mpz_sub(rz->z, tempz, Pympz_AS_MPZ(b));
                 mpz_cloc(tempz);
-            } else if(temp >= 0) {
+            }
+            else if (temp >= 0) {
                 mpz_ui_sub(rz->z, temp, Pympz_AS_MPZ(b));
-            } else {
+            }
+            else {
                 mpz_add_ui(rz->z, Pympz_AS_MPZ(b), -temp);
                 mpz_neg(rz->z, rz->z);
             }
@@ -325,65 +343,69 @@ Pympany_sub(PyObject *a, PyObject *b)
         }
 
         /* xmpz - mpz */
-        if((!options.prefer_mutable) && Pyxmpz_Check(a)) {
+        if ((!options.prefer_mutable) && Pyxmpz_Check(a)) {
             TRACE("Subtracting (xmpz,mpz)\n");
             mpz_sub(rz->z, Pyxmpz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject *)rz;
         }
     }
 
-    if(Pyxmpz_Check(a)) {
-        if(!(rxz = Pyxmpz_new()))
+    if (Pyxmpz_Check(a)) {
+        if (!(rxz = Pyxmpz_new()))
             return NULL;
 
         /* xmpz - integer */
-        if(PyIntOrLong_Check(b)) {
+        if (PyIntOrLong_Check(b)) {
             TRACE("Subtracting (xmpz,long)\n");
             temp = PyLong_AsLongAndOverflow(b, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_sub(rxz->z, Pyxmpz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
-            } else if(temp >= 0) {
+            }
+            else if (temp >= 0) {
                 mpz_sub_ui(rxz->z, Pyxmpz_AS_MPZ(a), temp);
-            } else {
+            }
+            else {
                 mpz_add_ui(rxz->z, Pyxmpz_AS_MPZ(a), -temp);
             }
             return (PyObject *)rxz;
         }
 
         /* xmpz - xmpz */
-        if(Pyxmpz_Check(b)) {
+        if (Pyxmpz_Check(b)) {
             TRACE("Subtracting (xmpz,xmpz)\n");
             mpz_sub(rxz->z, Pyxmpz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
             return (PyObject *)rxz;
         }
 
         /* xmpz - mpz */
-        if((options.prefer_mutable) && Pympz_Check(b)) {
+        if ((options.prefer_mutable) && Pympz_Check(b)) {
             TRACE("Subtracting (xmpz,mpz)\n");
             mpz_sub(rxz->z, Pyxmpz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject *)rxz;
         }
     }
 
-    if(Pyxmpz_Check(b)) {
-        if(!(rxz = Pyxmpz_new()))
+    if (Pyxmpz_Check(b)) {
+        if (!(rxz = Pyxmpz_new()))
             return NULL;
 
         /* integer - xmpz */
-        if(PyIntOrLong_Check(a)) {
+        if (PyIntOrLong_Check(a)) {
             TRACE("Subtracting (long,xmpz)\n");
             temp = PyLong_AsLongAndOverflow(a, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, a);
                 mpz_sub(rxz->z, tempz, Pyxmpz_AS_MPZ(b));
                 mpz_cloc(tempz);
-            } else if(temp >= 0) {
+            }
+            else if (temp >= 0) {
                 mpz_ui_sub(rxz->z, temp, Pyxmpz_AS_MPZ(b));
-            } else {
+            }
+            else {
                 mpz_add_ui(rxz->z, Pyxmpz_AS_MPZ(b), -temp);
                 mpz_neg(rxz->z, rxz->z);
             }
@@ -391,18 +413,18 @@ Pympany_sub(PyObject *a, PyObject *b)
         }
 
         /* mpz - xmpz */
-        if((options.prefer_mutable) && Pympz_Check(a)) {
+        if ((options.prefer_mutable) && Pympz_Check(a)) {
             TRACE("Subtracting (mpz,xmpz)\n");
             mpz_sub(rxz->z, Pympz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
             return (PyObject *)rxz;
         }
     }
 
-    if(isRational(a) && isRational(b)) {
+    if (isRational(a) && isRational(b)) {
         TRACE("Subtracting (rational,rational)\n");
         paq = anyrational2Pympq(a);
         pbq = anyrational2Pympq(b);
-        if(!paq || !pbq) {
+        if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq);
             Py_XDECREF((PyObject*)pbq);
@@ -419,64 +441,69 @@ Pympany_sub(PyObject *a, PyObject *b)
         return (PyObject *) rq;
     }
 
-    if(isNumber(a) && isNumber(b)) {
+    if (isNumber(a) && isNumber(b)) {
         TRACE("Subtracting (number,number)\n");
-        if(Pympf_Check(a) && Pympf_Check(b)) {
+        if (Pympf_Check(a) && Pympf_Check(b)) {
             paf = anynum2Pympf(a, 0);
             pbf = anynum2Pympf(b, 0);
-        } else if(Pympf_Check(a)) {
+        }
+        else if (Pympf_Check(a)) {
             paf = anynum2Pympf(a, 0);
-            pbf = anynum2Pympf(b, paf->rebits);
-        } else if(Pympf_Check(b)) {
+            pbf = anynum2Pympf(b, mpfr_get_prec(paf->f));
+        }
+        else if (Pympf_Check(b)) {
             pbf = anynum2Pympf(b, 0);
-            paf = anynum2Pympf(a, pbf->rebits);
-        } else {
+            paf = anynum2Pympf(a, mpfr_get_prec(pbf->f));
+        }
+        else {
             pbf = anynum2Pympf(b, 0);
             paf = anynum2Pympf(a, 0);
         }
-        if(!paf || !pbf) {
-            if(PyErr_Occurred()) {
+        if (!paf || !pbf) {
+            if (PyErr_Occurred()) {
                 PyErr_Clear();
-            } else {
+            }
+            else {
                 SYSTEM_ERROR("Internal error status is confused.");
                 return NULL;
             }
             /* Need to handle special float values. */
-            if(pbf && !paf && PyFloat_Check(a)) {
+            if (pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(Py_IS_INFINITY(d) || Py_IS_NAN(d)) {
+                if (Py_IS_INFINITY(d) || Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)pbf);
                     return r;
                 }
-            } else if(paf && !pbf && PyFloat_Check(b)) {
+            }
+            else if (paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(Py_IS_INFINITY(d) || Py_IS_NAN(d)) {
-                    if(Py_IS_INFINITY(d))
+                if (Py_IS_INFINITY(d) || Py_IS_NAN(d)) {
+                    if (Py_IS_INFINITY(d))
                         r = PyFloat_FromDouble(-d);
                     else
                         r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
                 }
-            } else {
+            }
+            else {
                 SYSTEM_ERROR("Can not convert number to mpf");
                 Py_XDECREF((PyObject*)paf);
                 Py_XDECREF((PyObject*)pbf);
                 return NULL;
             }
         }
-        bits = paf->rebits;
-        if(pbf->rebits<bits) bits=pbf->rebits;
+        bits = mpfr_get_prec(paf->f);
+        if (mpfr_get_prec(pbf->f)<bits) bits=mpfr_get_prec(pbf->f);
         if (!(rf = Pympf_new(bits))) {
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        mpf_sub(rf->f, paf->f, pbf->f);
+        mpfr_sub(rf->f, paf->f, pbf->f, options.rounding);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        mpf_normalize(rf->f);
         return (PyObject *) rf;
     }
     Py_RETURN_NOTIMPLEMENTED;
@@ -500,133 +527,137 @@ Pympany_mul(PyObject *a, PyObject *b)
     unsigned int bits;
     int overflow;
 
-    if(Pympz_Check(a)) {
-        if(!(rz = Pympz_new()))
+    if (Pympz_Check(a)) {
+        if (!(rz = Pympz_new()))
             return NULL;
 
         /* mpz * integer */
-        if(PyIntOrLong_Check(b)) {
+        if (PyIntOrLong_Check(b)) {
             TRACE("Multiplying (mpz,long)\n");
             temp = PyLong_AsLongAndOverflow(b, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_mul(rz->z, Pympz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
-            } else {
+            }
+            else {
                 mpz_mul_si(rz->z, Pympz_AS_MPZ(a), temp);
             }
             return (PyObject *)rz;
         }
 
         /* mpz * mpz */
-        if(Pympz_Check(b)) {
+        if (Pympz_Check(b)) {
             TRACE("Multiplying (mpz,mpz)\n");
             mpz_mul(rz->z, Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject *)rz;
         }
 
         /* mpz * xmpz */
-        if((!options.prefer_mutable) && Pyxmpz_Check(b)) {
+        if ((!options.prefer_mutable) && Pyxmpz_Check(b)) {
             TRACE("Multiplying (mpz,xmpz)\n");
             mpz_mul(rz->z, Pympz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
             return (PyObject *)rz;
         }
     }
 
-    if(Pympz_Check(b)) {
-        if(!(rz = Pympz_new()))
+    if (Pympz_Check(b)) {
+        if (!(rz = Pympz_new()))
             return NULL;
 
         /* integer * mpz */
-        if(PyIntOrLong_Check(a)) {
+        if (PyIntOrLong_Check(a)) {
             TRACE("Multiplying (long,mpz)\n");
             temp = PyLong_AsLongAndOverflow(a, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, a);
                 mpz_mul(rz->z, Pympz_AS_MPZ(b), tempz);
                 mpz_cloc(tempz);
-            } else {
+            }
+            else {
                 mpz_mul_si(rz->z, Pympz_AS_MPZ(b), temp);
             }
             return (PyObject *)rz;
         }
 
         /* xmpz * mpz */
-        if((!options.prefer_mutable) && Pyxmpz_Check(a)) {
+        if ((!options.prefer_mutable) && Pyxmpz_Check(a)) {
             TRACE("Multiplying (mpz,xmpz)\n");
             mpz_mul(rz->z, Pyxmpz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject *)rz;
         }
     }
 
-    if(Pyxmpz_Check(a)) {
-        if(!(rxz = Pyxmpz_new()))
+    if (Pyxmpz_Check(a)) {
+        if (!(rxz = Pyxmpz_new()))
             return NULL;
 
         /* xmpz * integer */
-        if(PyIntOrLong_Check(b)) {
+        if (PyIntOrLong_Check(b)) {
             TRACE("Multiplying (xmpz,long)\n");
             temp = PyLong_AsLongAndOverflow(b, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_mul(rxz->z, Pyxmpz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
-            } else {
+            }
+            else {
                 mpz_mul_si(rxz->z, Pyxmpz_AS_MPZ(a), temp);
             }
             return (PyObject *)rxz;
         }
 
         /* xmpz * xmpz */
-        if(Pyxmpz_Check(b)) {
+        if (Pyxmpz_Check(b)) {
             TRACE("Multiplying (xmpz,xmpz)\n");
             mpz_mul(rxz->z, Pyxmpz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
             return (PyObject *)rxz;
         }
 
         /* xmpz * mpz */
-        if((options.prefer_mutable) && Pympz_Check(b)) {
+        if ((options.prefer_mutable) && Pympz_Check(b)) {
             TRACE("Multiplying (xmpz,mpz)\n");
             mpz_mul(rxz->z, Pyxmpz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject *)rxz;
         }
     }
 
-    if(Pyxmpz_Check(b)) {
-        if(!(rxz = Pyxmpz_new()))
+    if (Pyxmpz_Check(b)) {
+        if (!(rxz = Pyxmpz_new()))
             return NULL;
 
         /* integer * xmpz */
-        if(PyIntOrLong_Check(a)) {
+        if (PyIntOrLong_Check(a)) {
             TRACE("Multiplying (long,xmpz)\n");
             temp = PyLong_AsLongAndOverflow(a, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, a);
                 mpz_mul(rxz->z, Pyxmpz_AS_MPZ(b), tempz);
                 mpz_cloc(tempz);
-            } else {
+            }
+            else {
                 mpz_mul_si(rxz->z, Pyxmpz_AS_MPZ(b), temp);
             }
             return (PyObject *)rxz;
         }
 
         /* mpz * xmpz */
-        if((options.prefer_mutable) && Pympz_Check(a)) {
+        if ((options.prefer_mutable) && Pympz_Check(a)) {
             TRACE("Multiplying (mpz,xmpz)\n");
             mpz_mul(rxz->z, Pympz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
             return (PyObject *)rxz;
         }
     }
 
-    if(isRational(a) && isRational(b)) {
+    if (isRational(a) && isRational(b)) {
         TRACE("Multiplying (rational,rational)\n");
         paq = anyrational2Pympq(a);
         pbq = anyrational2Pympq(b);
-        if(!paq || !pbq) {
+        if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq);
             Py_XDECREF((PyObject*)pbq);
@@ -643,81 +674,92 @@ Pympany_mul(PyObject *a, PyObject *b)
         return (PyObject *) rq;
     }
 
-    if(isNumber(a) && isNumber(b)) {
+    if (isNumber(a) && isNumber(b)) {
         TRACE("Multiplying (number,number)\n");
-        if(Pympf_Check(a) && Pympf_Check(b)) {
+        if (Pympf_Check(a) && Pympf_Check(b)) {
             paf = anynum2Pympf(a, 0);
             pbf = anynum2Pympf(b, 0);
-        } else if(Pympf_Check(a)) {
+        }
+        else if (Pympf_Check(a)) {
             paf = anynum2Pympf(a, 0);
-            pbf = anynum2Pympf(b, paf->rebits);
-        } else if(Pympf_Check(b)) {
+            pbf = anynum2Pympf(b, mpfr_get_prec(paf->f));
+        }
+        else if (Pympf_Check(b)) {
             pbf = anynum2Pympf(b, 0);
-            paf = anynum2Pympf(a, pbf->rebits);
-        } else {
+            paf = anynum2Pympf(a, mpfr_get_prec(pbf->f));
+        }
+        else {
             pbf = anynum2Pympf(b, 0);
             paf = anynum2Pympf(a, 0);
         }
-        if(!paf || !pbf) {
-            if(PyErr_Occurred()) {
+        if (!paf || !pbf) {
+            if (PyErr_Occurred()) {
                 PyErr_Clear();
-            } else {
+            }
+            else {
                 SYSTEM_ERROR("Internal error status is confused.");
                 return NULL;
             }
             /* Need to handle special float values. */
-            if(pbf && !paf && PyFloat_Check(a)) {
+            if (pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(Py_IS_NAN(d)) {
+                if (Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)pbf);
                     return r;
-                } else if(Py_IS_INFINITY(d)) {
-                    if(mpf_sgn(pbf->f) == 0) {
+                }
+                else if (Py_IS_INFINITY(d)) {
+                    if (mpfr_sgn(pbf->f) == 0) {
                         r = PyFloat_FromDouble(Py_NAN);
-                    } else if(mpf_sgn(pbf->f) < 0) {
+                    }
+                    else if (mpfr_sgn(pbf->f) < 0) {
                         r = PyFloat_FromDouble(-d);
-                    } else {
+                    }
+                    else {
                         r = PyFloat_FromDouble(d);
                     }
                     Py_DECREF((PyObject*)pbf);
                     return r;
                 }
-            } else if(paf && !pbf && PyFloat_Check(b)) {
+            }
+            else if (paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(Py_IS_NAN(d)) {
+                if (Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
-                } else if(Py_IS_INFINITY(d)) {
-                    if(mpf_sgn(paf->f) == 0) {
+                }
+                else if (Py_IS_INFINITY(d)) {
+                    if (mpfr_sgn(paf->f) == 0) {
                         r = PyFloat_FromDouble(Py_NAN);
-                    } else if(mpf_sgn(paf->f) < 0) {
+                    }
+                    else if (mpfr_sgn(paf->f) < 0) {
                         r = PyFloat_FromDouble(-d);
-                    } else {
+                    }
+                    else {
                         r = PyFloat_FromDouble(d);
                     }
                     Py_DECREF((PyObject*)paf);
                     return r;
                 }
-            } else {
+            }
+            else {
                 SYSTEM_ERROR("Can not convert number to mpf");
                 Py_XDECREF((PyObject*)paf);
                 Py_XDECREF((PyObject*)pbf);
                 return NULL;
             }
         }
-        bits = paf->rebits;
-        if(pbf->rebits<bits) bits=pbf->rebits;
+        bits = mpfr_get_prec(paf->f);
+        if (mpfr_get_prec(pbf->f)<bits) bits=mpfr_get_prec(pbf->f);
         if (!(rf = Pympf_new(bits))) {
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        mpf_mul(rf->f, paf->f, pbf->f);
+        mpfr_mul(rf->f, paf->f, pbf->f, options.rounding);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        mpf_normalize(rf->f);
         return (PyObject *) rf;
     }
     Py_RETURN_NOTIMPLEMENTED;
@@ -741,26 +783,29 @@ Pympany_floordiv(PyObject *a, PyObject *b)
     unsigned int bits;
     int overflow;
 
-    if(Pympz_Check(a)) {
-        if(!(rz = Pympz_new()))
+    if (Pympz_Check(a)) {
+        if (!(rz = Pympz_new()))
             return NULL;
 
         /* mpz // integer */
-        if(PyIntOrLong_Check(b)) {
+        if (PyIntOrLong_Check(b)) {
             TRACE("Floor divide (mpz,long)\n");
             temp = PyLong_AsLongAndOverflow(b, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_fdiv_q(rz->z, Pympz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
-            } else if(temp == 0) {
+            }
+            else if (temp == 0) {
                 ZERO_ERROR("mpz division by zero");
                 Py_DECREF((PyObject *)rz);
                 return NULL;
-            } else if(temp > 0) {
+            }
+            else if (temp > 0) {
                 mpz_fdiv_q_ui(rz->z, Pympz_AS_MPZ(a), temp);
-            } else {
+            }
+            else {
                 mpz_cdiv_q_ui(rz->z, Pympz_AS_MPZ(a), -temp);
                 mpz_neg(rz->z, rz->z);
             }
@@ -768,9 +813,9 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         }
 
         /* mpz // mpz */
-        if(Pympz_Check(b)) {
+        if (Pympz_Check(b)) {
             TRACE("Floor divide (mpz,mpz)\n");
-            if(mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
+            if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
                 ZERO_ERROR("mpz division by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
@@ -780,9 +825,9 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         }
 
         /* mpz // xmpz */
-        if((!options.prefer_mutable) && Pyxmpz_Check(b)) {
+        if ((!options.prefer_mutable) && Pyxmpz_Check(b)) {
             TRACE("Floor divide (mpz,xmpz)\n");
-            if(mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
+            if (mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
                 ZERO_ERROR("mpz division by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
@@ -792,17 +837,17 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         }
     }
 
-    if(Pympz_Check(b)) {
-        if(mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
+    if (Pympz_Check(b)) {
+        if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
             ZERO_ERROR("mpz division by zero");
             return NULL;
         }
-        if(!(rz = Pympz_new()))
+        if (!(rz = Pympz_new()))
             return NULL;
 
         /* integer // mpz */
 #ifdef PY2
-        if(PyInt_Check(a)) {
+        if (PyInt_Check(a)) {
             TRACE("Floor divide (integer,mpz)\n");
             mpz_inoc(tempz);
             mpz_set_si(tempz, PyInt_AS_LONG(a));
@@ -812,7 +857,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         }
 #endif
 
-        if(PyLong_Check(a)) {
+        if (PyLong_Check(a)) {
             TRACE("Floor divide (integer,mpz)\n");
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, a);
@@ -822,33 +867,36 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         }
 
         /* xmpz // mpz */
-        if((!options.prefer_mutable) && Pyxmpz_Check(a)) {
+        if ((!options.prefer_mutable) && Pyxmpz_Check(a)) {
             TRACE("Floor divide (xmpz,mpz)\n");
             mpz_fdiv_q(rz->z, Pyxmpz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject *)rz;
         }
     }
 
-    if(Pyxmpz_Check(a)) {
-        if(!(rxz = Pyxmpz_new()))
+    if (Pyxmpz_Check(a)) {
+        if (!(rxz = Pyxmpz_new()))
             return NULL;
 
         /* xmpz // integer */
-        if(PyIntOrLong_Check(b)) {
+        if (PyIntOrLong_Check(b)) {
             TRACE("Floor divide (xmpz,integer)\n");
             temp = PyLong_AsLongAndOverflow(b, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_fdiv_q(rxz->z, Pyxmpz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
-            } else if(temp == 0) {
+            }
+            else if (temp == 0) {
                 ZERO_ERROR("xmpz division by zero");
                 Py_DECREF((PyObject *)rxz);
                 return NULL;
-            } else if(temp > 0) {
+            }
+            else if (temp > 0) {
                 mpz_fdiv_q_ui(rxz->z, Pyxmpz_AS_MPZ(a), temp);
-            } else {
+            }
+            else {
                 mpz_cdiv_q_ui(rxz->z, Pyxmpz_AS_MPZ(a), -temp);
                 mpz_neg(rxz->z, rxz->z);
             }
@@ -856,9 +904,9 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         }
 
         /* xmpz // xmpz */
-        if(Pyxmpz_Check(b)) {
+        if (Pyxmpz_Check(b)) {
             TRACE("Floor divide (xmpz,xmpz)\n");
-            if(mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
+            if (mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
                 ZERO_ERROR("xmpz division by zero");
                 Py_DECREF((PyObject*)rxz);
                 return NULL;
@@ -868,24 +916,24 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         }
 
         /* xmpz // mpz */
-        if((options.prefer_mutable) && Pympz_Check(b)) {
+        if ((options.prefer_mutable) && Pympz_Check(b)) {
             TRACE("Floor divide (xmpz,mpz)\n");
             mpz_fdiv_q(rxz->z, Pyxmpz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject *)rxz;
         }
     }
 
-    if(Pyxmpz_Check(b)) {
-        if(mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
+    if (Pyxmpz_Check(b)) {
+        if (mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
             ZERO_ERROR("xmpz division by zero");
             return NULL;
         }
-        if(!(rxz = Pyxmpz_new()))
+        if (!(rxz = Pyxmpz_new()))
             return NULL;
 
         /* integer // xmpz */
 #ifdef PY2
-        if(PyInt_Check(a)) {
+        if (PyInt_Check(a)) {
             TRACE("Floor divide (integer,xmpz)\n");
             mpz_inoc(tempz);
             mpz_set_si(tempz, PyInt_AS_LONG(a));
@@ -895,7 +943,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         }
 #endif
 
-        if(PyLong_Check(a)) {
+        if (PyLong_Check(a)) {
             TRACE("Floor divide (integer,xmpz)\n");
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, a);
@@ -905,24 +953,24 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         }
 
         /* mpz // xmpz */
-        if((options.prefer_mutable) && Pympz_Check(a)) {
+        if ((options.prefer_mutable) && Pympz_Check(a)) {
             TRACE("Floor divide (mpz,xmpz)\n");
             mpz_fdiv_q(rxz->z, Pympz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
             return (PyObject *)rxz;
         }
     }
 
-    if(isRational(a) && isRational(b)) {
+    if (isRational(a) && isRational(b)) {
         TRACE("Floor divide (rational,rational)\n");
         paq = anyrational2Pympq(a);
         pbq = anyrational2Pympq(b);
-        if(!paq || !pbq) {
+        if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq);
             Py_XDECREF((PyObject*)pbq);
             return NULL;
         }
-        if(mpq_sgn(pbq->q)==0) {
+        if (mpq_sgn(pbq->q)==0) {
             ZERO_ERROR("mpq division by zero");
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
@@ -943,88 +991,98 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         return (PyObject *) rz;
     }
 
-    if(isNumber(a) && isNumber(b)) {
+    if (isNumber(a) && isNumber(b)) {
         TRACE("Floor divide (number,number)\n");
-        if(Pympf_Check(a) && Pympf_Check(b)) {
+        if (Pympf_Check(a) && Pympf_Check(b)) {
             paf = anynum2Pympf(a, 0);
             pbf = anynum2Pympf(b, 0);
-        } else if(Pympf_Check(a)) {
+        }
+        else if (Pympf_Check(a)) {
             paf = anynum2Pympf(a, 0);
-            pbf = anynum2Pympf(b, paf->rebits);
-        } else if(Pympf_Check(b)) {
+            pbf = anynum2Pympf(b, mpfr_get_prec(paf->f));
+        }
+        else if (Pympf_Check(b)) {
             pbf = anynum2Pympf(b, 0);
-            paf = anynum2Pympf(a, pbf->rebits);
-        } else {
+            paf = anynum2Pympf(a, mpfr_get_prec(pbf->f));
+        }
+        else {
             pbf = anynum2Pympf(b, 0);
             paf = anynum2Pympf(a, 0);
         }
-        if(!paf || !pbf) {
-            if(PyErr_Occurred()) {
+        if (!paf || !pbf) {
+            if (PyErr_Occurred()) {
                 PyErr_Clear();
-            } else {
+            }
+            else {
                 SYSTEM_ERROR("Internal error status is confused.");
                 return NULL;
             }
             /* Need to handle special float values. */
-            if(pbf && !paf && PyFloat_Check(a)) {
+            if (pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(Py_IS_NAN(d)) {
-                    if(mpf_sgn(pbf->f) == 0) {
+                if (Py_IS_NAN(d)) {
+                    if (mpfr_sgn(pbf->f) == 0) {
                         ZERO_ERROR("mpf division by zero");
                         r = NULL;
-                    } else {
-                        r = PyFloat_FromDouble(d);
                     }
-                    Py_DECREF((PyObject*)pbf);
-                    return r;
-                } else if(Py_IS_INFINITY(d)) {
-                    if(mpf_sgn(pbf->f) == 0) {
-                        ZERO_ERROR("mpf division by zero");
-                        r = NULL;
-                    } else if(mpf_sgn(pbf->f) < 0) {
-                        r = PyFloat_FromDouble(-d);
-                    } else {
+                    else {
                         r = PyFloat_FromDouble(d);
                     }
                     Py_DECREF((PyObject*)pbf);
                     return r;
                 }
-            } else if(paf && !pbf && PyFloat_Check(b)) {
+                else if (Py_IS_INFINITY(d)) {
+                    if (mpfr_sgn(pbf->f) == 0) {
+                        ZERO_ERROR("mpf division by zero");
+                        r = NULL;
+                    }
+                    else if (mpfr_sgn(pbf->f) < 0) {
+                        r = PyFloat_FromDouble(-d);
+                    }
+                    else {
+                        r = PyFloat_FromDouble(d);
+                    }
+                    Py_DECREF((PyObject*)pbf);
+                    return r;
+                }
+            }
+            else if (paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(Py_IS_NAN(d)) {
+                if (Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
-                } else if(Py_IS_INFINITY(d)) {
-                    mpf_set_d(paf->f, 0.0);
+                }
+                else if (Py_IS_INFINITY(d)) {
+                    mpfr_set_d(paf->f, 0.0, options.rounding);
                     return (PyObject*)paf;
                 }
-            } else {
+            }
+            else {
                 SYSTEM_ERROR("Can not convert number to mpf");
                 Py_XDECREF((PyObject*)paf);
                 Py_XDECREF((PyObject*)pbf);
                 return NULL;
             }
         }
-        if(mpf_sgn(pbf->f)==0) {
+        if (mpfr_sgn(pbf->f)==0) {
             ZERO_ERROR("mpf division by zero");
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        bits = paf->rebits;
-        if(pbf->rebits<bits) bits=pbf->rebits;
+        bits = mpfr_get_prec(paf->f);
+        if (mpfr_get_prec(pbf->f)<bits) bits=mpfr_get_prec(pbf->f);
         if (!(rf = Pympf_new(bits))) {
             Py_XDECREF((PyObject*)rf);
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        mpf_div(rf->f, paf->f, pbf->f);
-        mpf_floor(rf->f, rf->f);
+        mpfr_div(rf->f, paf->f, pbf->f, options.rounding);
+        mpfr_floor(rf->f, rf->f);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        mpf_normalize(rf->f);
         return (PyObject *) rf;
     }
     Py_RETURN_NOTIMPLEMENTED;
@@ -1047,27 +1105,27 @@ Pympany_truediv(PyObject *a, PyObject *b)
     PympfObject *rf = 0, *paf = 0, *pbf = 0;
     unsigned int bits;
 
-    if(CHECK_MPZANY(b) && (mpz_sgn(Pympz_AS_MPZ(b)) == 0)) {
+    if (CHECK_MPZANY(b) && (mpz_sgn(Pympz_AS_MPZ(b)) == 0)) {
         ZERO_ERROR("mpz division by zero");
         return NULL;
     }
 
-    if(Pympq_Check(b) && (mpq_sgn(Pympq_AS_MPQ(b)) == 0)) {
+    if (Pympq_Check(b) && (mpq_sgn(Pympq_AS_MPQ(b)) == 0)) {
         ZERO_ERROR("mpq division by zero");
         return NULL;
     }
 
-    if(isInteger(a) && isInteger(b)) {
+    if (isInteger(a) && isInteger(b)) {
         TRACE("True divide (integer,integer)\n");
         paf = anynum2Pympf(a, 0);
         pbf = anynum2Pympf(b, 0);
-        if(!paf || !pbf) {
+        if (!paf || !pbf) {
             SYSTEM_ERROR("Can not convert number to mpf");
             Py_XDECREF((PyObject*)paf);
             Py_XDECREF((PyObject*)pbf);
             return NULL;
         }
-        if(mpf_sgn(pbf->f)==0) {
+        if (mpfr_sgn(pbf->f)==0) {
             ZERO_ERROR("mpz division by zero");
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
@@ -1078,23 +1136,23 @@ Pympany_truediv(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        mpf_div(rf->f, paf->f, pbf->f);
+        mpfr_div(rf->f, paf->f, pbf->f, options.rounding);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
         return (PyObject *) rf;
     }
 
-    if(isRational(a) && isRational(b)) {
+    if (isRational(a) && isRational(b)) {
         TRACE("True divide (rational,rational)\n");
         paq = anyrational2Pympq(a);
         pbq = anyrational2Pympq(b);
-        if(!paq || !pbq) {
+        if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq);
             Py_XDECREF((PyObject*)pbq);
             return NULL;
         }
-        if(mpq_sgn(pbq->q)==0) {
+        if (mpq_sgn(pbq->q)==0) {
             ZERO_ERROR("mpq division by zero");
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
@@ -1111,86 +1169,96 @@ Pympany_truediv(PyObject *a, PyObject *b)
         return (PyObject *) rq;
     }
 
-    if(isNumber(a) && isNumber(b)) {
+    if (isNumber(a) && isNumber(b)) {
         TRACE("True divide (number,number)\n");
-        if(Pympf_Check(a) && Pympf_Check(b)) {
+        if (Pympf_Check(a) && Pympf_Check(b)) {
             paf = anynum2Pympf(a, 0);
             pbf = anynum2Pympf(b, 0);
-        } else if(Pympf_Check(a)) {
+        }
+        else if (Pympf_Check(a)) {
             paf = anynum2Pympf(a, 0);
-            pbf = anynum2Pympf(b, paf->rebits);
-        } else if(Pympf_Check(b)) {
+            pbf = anynum2Pympf(b, mpfr_get_prec(paf->f));
+        }
+        else if (Pympf_Check(b)) {
             pbf = anynum2Pympf(b, 0);
-            paf = anynum2Pympf(a, pbf->rebits);
-        } else {
+            paf = anynum2Pympf(a, mpfr_get_prec(pbf->f));
+        }
+        else {
             pbf = anynum2Pympf(b, 0);
             paf = anynum2Pympf(a, 0);
         }
-        if(!paf || !pbf) {
-            if(PyErr_Occurred()) {
+        if (!paf || !pbf) {
+            if (PyErr_Occurred()) {
                 PyErr_Clear();
-            } else {
+            }
+            else {
                 SYSTEM_ERROR("Internal error status is confused.");
                 return NULL;
             }
             /* Need to handle special float values. */
-            if(pbf && !paf && PyFloat_Check(a)) {
+            if (pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(Py_IS_NAN(d)) {
-                    if(mpf_sgn(pbf->f) == 0) {
+                if (Py_IS_NAN(d)) {
+                    if (mpfr_sgn(pbf->f) == 0) {
                         ZERO_ERROR("mpf division by zero");
                         r = NULL;
-                    } else {
-                        r = PyFloat_FromDouble(d);
                     }
-                    Py_DECREF((PyObject*)pbf);
-                    return r;
-                } else if(Py_IS_INFINITY(d)) {
-                    if(mpf_sgn(pbf->f) == 0) {
-                        ZERO_ERROR("mpf division by zero");
-                        r = NULL;
-                    } else if(mpf_sgn(pbf->f) < 0) {
-                        r = PyFloat_FromDouble(-d);
-                    } else {
+                    else {
                         r = PyFloat_FromDouble(d);
                     }
                     Py_DECREF((PyObject*)pbf);
                     return r;
                 }
-            } else if(paf && !pbf && PyFloat_Check(b)) {
+                else if (Py_IS_INFINITY(d)) {
+                    if (mpfr_sgn(pbf->f) == 0) {
+                        ZERO_ERROR("mpf division by zero");
+                        r = NULL;
+                    }
+                    else if (mpfr_sgn(pbf->f) < 0) {
+                        r = PyFloat_FromDouble(-d);
+                    }
+                    else {
+                        r = PyFloat_FromDouble(d);
+                    }
+                    Py_DECREF((PyObject*)pbf);
+                    return r;
+                }
+            }
+            else if (paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(Py_IS_NAN(d)) {
+                if (Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
-                } else if(Py_IS_INFINITY(d)) {
-                    mpf_set_d(paf->f, 0.0);
+                }
+                else if (Py_IS_INFINITY(d)) {
+                    mpfr_set_d(paf->f, 0.0, options.rounding);
                     return (PyObject*)paf;
                 }
-            } else {
+            }
+            else {
                 SYSTEM_ERROR("Can not convert number to mpf");
                 Py_XDECREF((PyObject*)paf);
                 Py_XDECREF((PyObject*)pbf);
                 return NULL;
             }
         }
-        if(mpf_sgn(pbf->f)==0) {
+        if (mpfr_sgn(pbf->f)==0) {
             ZERO_ERROR("mpf division by zero");
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        bits = paf->rebits;
-        if(pbf->rebits<bits) bits=pbf->rebits;
+        bits = mpfr_get_prec(paf->f);
+        if (mpfr_get_prec(pbf->f)<bits) bits=mpfr_get_prec(pbf->f);
         if (!(rf = Pympf_new(bits))) {
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        mpf_div(rf->f, paf->f, pbf->f);
+        mpfr_div(rf->f, paf->f, pbf->f, options.rounding);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        mpf_normalize(rf->f);
         return (PyObject *) rf;
     }
     Py_RETURN_NOTIMPLEMENTED;
@@ -1221,26 +1289,29 @@ Pympany_div2(PyObject *a, PyObject *b)
 
     /* Use floordiv for integer types. */
 
-    if(Pympz_Check(a)) {
-        if(!(rz = Pympz_new()))
+    if (Pympz_Check(a)) {
+        if (!(rz = Pympz_new()))
             return NULL;
 
         /* mpz / integer */
-        if(PyIntOrLong_Check(b)) {
+        if (PyIntOrLong_Check(b)) {
             TRACE("True divide (mpz,integer)\n");
             temp = PyLong_AsLongAndOverflow(b, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_fdiv_q(rz->z, Pympz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
-            } else if(temp > 0) {
+            }
+            else if (temp > 0) {
                 mpz_fdiv_q_ui(rz->z, Pympz_AS_MPZ(a), temp);
-            } else if(temp == 0) {
+            }
+            else if (temp == 0) {
                 ZERO_ERROR("mpz division by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
-            } else {
+            }
+            else {
                 mpz_cdiv_q_ui(rz->z, Pympz_AS_MPZ(a), temp);
                 mpz_neg(rz->z, rz->z);
             }
@@ -1248,9 +1319,9 @@ Pympany_div2(PyObject *a, PyObject *b)
         }
 
         /* mpz / mpz */
-        if(Pympz_Check(b)) {
+        if (Pympz_Check(b)) {
             TRACE("True divide (mpz,mpz)\n");
-            if(mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
+            if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
                 ZERO_ERROR("mpz division by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
@@ -1260,9 +1331,9 @@ Pympany_div2(PyObject *a, PyObject *b)
         }
 
         /* mpz / xmpz */
-        if((!options.prefer_mutable) && Pyxmpz_Check(b)) {
+        if ((!options.prefer_mutable) && Pyxmpz_Check(b)) {
             TRACE("True divide (mpz,xmpz)\n");
-            if(mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
+            if (mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
                 ZERO_ERROR("mpz division by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
@@ -1272,17 +1343,17 @@ Pympany_div2(PyObject *a, PyObject *b)
         }
     }
 
-    if(Pympz_Check(b)) {
-        if(mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
+    if (Pympz_Check(b)) {
+        if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
             ZERO_ERROR("mpz division by zero");
             return NULL;
         }
-        if(!(rz = Pympz_new()))
+        if (!(rz = Pympz_new()))
             return NULL;
 
         /* integer / mpz */
 #ifdef PY2
-        if(PyInt_Check(a)) {
+        if (PyInt_Check(a)) {
             TRACE("True divide (integer,mpz)\n");
             mpz_inoc(tempz);
             mpz_set_si(tempz, PyInt_AS_LONG(a));
@@ -1291,7 +1362,7 @@ Pympany_div2(PyObject *a, PyObject *b)
             return (PyObject *)rz;
         }
 #endif
-        if(PyLong_Check(a)) {
+        if (PyLong_Check(a)) {
             TRACE("True divide (integer,mpz)\n");
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, a);
@@ -1301,33 +1372,36 @@ Pympany_div2(PyObject *a, PyObject *b)
         }
 
         /* xmpz / mpz */
-        if((!options.prefer_mutable) && Pyxmpz_Check(a)) {
+        if ((!options.prefer_mutable) && Pyxmpz_Check(a)) {
             TRACE("True divide (xmpz,mpz)\n");
             mpz_fdiv_q(rz->z, Pyxmpz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject*)rz;
         }
     }
 
-    if(Pyxmpz_Check(a)) {
-        if(!(rxz = Pyxmpz_new()))
+    if (Pyxmpz_Check(a)) {
+        if (!(rxz = Pyxmpz_new()))
             return NULL;
 
         /* xmpz / integer */
-        if(PyIntOrLong_Check(b)) {
+        if (PyIntOrLong_Check(b)) {
             TRACE("True divide (xmpz,long)\n");
             temp = PyLong_AsLongAndOverflow(b, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_fdiv_q(rxz->z, Pyxmpz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
-            } else if(temp > 0) {
+            }
+            else if (temp > 0) {
                 mpz_fdiv_q_ui(rxz->z, Pyxmpz_AS_MPZ(a), temp);
-            } else if(temp == 0) {
+            }
+            else if (temp == 0) {
                 ZERO_ERROR("xmpz division by zero");
                 Py_DECREF((PyObject*)rxz);
                 return NULL;
-            } else {
+            }
+            else {
                 mpz_cdiv_q_ui(rxz->z, Pyxmpz_AS_MPZ(a), temp);
                 mpz_neg(rxz->z, rxz->z);
             }
@@ -1335,9 +1409,9 @@ Pympany_div2(PyObject *a, PyObject *b)
         }
 
         /* xmpz / xmpz */
-        if(Pyxmpz_Check(b)) {
+        if (Pyxmpz_Check(b)) {
             TRACE("True divide (xmpz,xmpz)\n");
-            if(mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
+            if (mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
                 ZERO_ERROR("xmpz division by zero");
                 Py_DECREF((PyObject*)rxz);
                 return NULL;
@@ -1347,9 +1421,9 @@ Pympany_div2(PyObject *a, PyObject *b)
         }
 
         /* xmpz / mpz */
-        if((options.prefer_mutable) && Pympz_Check(b)) {
+        if ((options.prefer_mutable) && Pympz_Check(b)) {
             TRACE("True divide (xmpz,mpz)\n");
-            if(mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
+            if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
                 ZERO_ERROR("xmpz division by zero");
                 Py_DECREF((PyObject*)rxz);
                 return NULL;
@@ -1359,17 +1433,17 @@ Pympany_div2(PyObject *a, PyObject *b)
         }
     }
 
-    if(Pyxmpz_Check(b)) {
-        if(mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
+    if (Pyxmpz_Check(b)) {
+        if (mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
             ZERO_ERROR("xmpz division by zero");
             return NULL;
         }
-        if(!(rxz = Pyxmpz_new()))
+        if (!(rxz = Pyxmpz_new()))
             return NULL;
 
         /* integer / xmpz */
 #ifdef PY2
-        if(PyInt_Check(a)) {
+        if (PyInt_Check(a)) {
             TRACE("True divide (integer,xmpz)\n");
             mpz_inoc(tempz);
             mpz_set_si(tempz, PyInt_AS_LONG(a));
@@ -1378,7 +1452,7 @@ Pympany_div2(PyObject *a, PyObject *b)
             return (PyObject *)rxz;
         }
 #endif
-        if(PyLong_Check(a)) {
+        if (PyLong_Check(a)) {
             TRACE("True divide (integer,xmpz)\n");
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, a);
@@ -1388,7 +1462,7 @@ Pympany_div2(PyObject *a, PyObject *b)
         }
 
         /* mpz / xmpz */
-        if((options.prefer_mutable) && Pympz_Check(a)) {
+        if ((options.prefer_mutable) && Pympz_Check(a)) {
             TRACE("True divide (mpz,xmpz)\n");
             mpz_fdiv_q(rxz->z, Pympz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
             return (PyObject*)rxz;
@@ -1397,17 +1471,17 @@ Pympany_div2(PyObject *a, PyObject *b)
 
     /* Use truediv for rational types. */
 
-    if(isRational(a) && isRational(b)) {
+    if (isRational(a) && isRational(b)) {
         TRACE("True divide (rational,rational)\n");
         paq = anyrational2Pympq(a);
         pbq = anyrational2Pympq(b);
-        if(!paq || !pbq) {
+        if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq);
             Py_XDECREF((PyObject*)pbq);
             return NULL;
         }
-        if(mpq_sgn(pbq->q)==0) {
+        if (mpq_sgn(pbq->q)==0) {
             ZERO_ERROR("mpq division by zero");
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
@@ -1426,77 +1500,88 @@ Pympany_div2(PyObject *a, PyObject *b)
 
     /* Use truediv for floating-point types. */
 
-    if(isNumber(a) && isNumber(b)) {
+    if (isNumber(a) && isNumber(b)) {
         TRACE("True divide (number,number)\n");
-        if(Pympf_Check(a) && Pympf_Check(b)) {
+        if (Pympf_Check(a) && Pympf_Check(b)) {
             paf = anynum2Pympf(a, 0);
             pbf = anynum2Pympf(b, 0);
-        } else if(Pympf_Check(a)) {
+        }
+        else if (Pympf_Check(a)) {
             paf = anynum2Pympf(a, 0);
-            pbf = anynum2Pympf(b, paf->rebits);
-        } else if(Pympf_Check(b)) {
+            pbf = anynum2Pympf(b, mpfr_get_prec(paf->f));
+        }
+        else if (Pympf_Check(b)) {
             pbf = anynum2Pympf(b, 0);
-            paf = anynum2Pympf(a, pbf->rebits);
-        } else {
+            paf = anynum2Pympf(a, mpfr_get_prec(pbf->f));
+        }
+        else {
             pbf = anynum2Pympf(b, 0);
             paf = anynum2Pympf(a, 0);
         }
-        if(!paf || !pbf) {
-            if(PyErr_Occurred()) {
+        if (!paf || !pbf) {
+            if (PyErr_Occurred()) {
                 PyErr_Clear();
-            } else {
+            }
+            else {
                 SYSTEM_ERROR("Internal error status is confused.");
                 return NULL;
             }
             /* Need to handle special float values. */
-            if(pbf && !paf && PyFloat_Check(a)) {
+            if (pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(Py_IS_NAN(d)) {
-                    if(mpf_sgn(pbf->f) == 0) {
+                if (Py_IS_NAN(d)) {
+                    if (mpfr_sgn(pbf->f) == 0) {
                         ZERO_ERROR("mpf division by zero");
                         r = NULL;
-                    } else {
-                        r = PyFloat_FromDouble(d);
                     }
-                    Py_DECREF((PyObject*)pbf);
-                    return r;
-                } else if(Py_IS_INFINITY(d)) {
-                    if(mpf_sgn(pbf->f) == 0) {
-                        ZERO_ERROR("mpf division by zero");
-                        r = NULL;
-                    } else if(mpf_sgn(pbf->f) < 0) {
-                        r = PyFloat_FromDouble(-d);
-                    } else {
+                    else {
                         r = PyFloat_FromDouble(d);
                     }
                     Py_DECREF((PyObject*)pbf);
                     return r;
                 }
-            } else if(paf && !pbf && PyFloat_Check(b)) {
+                else if (Py_IS_INFINITY(d)) {
+                    if (mpfr_sgn(pbf->f) == 0) {
+                        ZERO_ERROR("mpf division by zero");
+                        r = NULL;
+                    }
+                    else if (mpfr_sgn(pbf->f) < 0) {
+                        r = PyFloat_FromDouble(-d);
+                    }
+                    else {
+                        r = PyFloat_FromDouble(d);
+                    }
+                    Py_DECREF((PyObject*)pbf);
+                    return r;
+                }
+            }
+            else if (paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(Py_IS_NAN(d)) {
+                if (Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
-                } else if(Py_IS_INFINITY(d)) {
+                }
+                else if (Py_IS_INFINITY(d)) {
                     mpf_set_d(paf->f, 0.0);
                     return (PyObject*)paf;
                 }
-            } else {
+            }
+            else {
                 SYSTEM_ERROR("Can not convert number to mpf");
                 Py_XDECREF((PyObject*)paf);
                 Py_XDECREF((PyObject*)pbf);
                 return NULL;
             }
         }
-        if(mpf_sgn(pbf->f)==0) {
+        if (mpfr_sgn(pbf->f)==0) {
             ZERO_ERROR("mpf division by zero");
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        bits = paf->rebits;
-        if(pbf->rebits<bits) bits=pbf->rebits;
+        bits = mpfr_get_prec(paf->f);
+        if (mpfr_get_prec(pbf->f)<bits) bits=mpfr_get_prec(pbf->f);
         if (!(rf = Pympf_new(bits))) {
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
@@ -1505,7 +1590,6 @@ Pympany_div2(PyObject *a, PyObject *b)
         mpf_div(rf->f, paf->f, pbf->f);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        mpf_normalize(rf->f);
         return (PyObject *) rf;
     }
     Py_RETURN_NOTIMPLEMENTED;
@@ -1534,35 +1618,38 @@ Pympany_rem(PyObject *a, PyObject *b)
     unsigned int bits;
     int overflow;
 
-    if(Pympz_Check(a)) {
-        if(!(rz = Pympz_new()))
+    if (Pympz_Check(a)) {
+        if (!(rz = Pympz_new()))
             return NULL;
 
         /* mpz % integer */
-        if(PyIntOrLong_Check(b)) {
+        if (PyIntOrLong_Check(b)) {
             TRACE("Modulo (mpz,integer)\n");
             temp = PyLong_AsLongAndOverflow(b, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_fdiv_r(rz->z, Pympz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
-            } else if(temp > 0) {
+            }
+            else if (temp > 0) {
                 mpz_fdiv_r_ui(rz->z, Pympz_AS_MPZ(a), temp);
-            } else if(temp == 0) {
+            }
+            else if (temp == 0) {
                 ZERO_ERROR("mpz modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
-            } else {
+            }
+            else {
                 mpz_cdiv_r_ui(rz->z, Pympz_AS_MPZ(a), -temp);
             }
             return (PyObject *)rz;
         }
 
         /* mpz % mpz */
-        if(Pympz_Check(b)) {
+        if (Pympz_Check(b)) {
             TRACE("Modulo (integer,integer)\n");
-            if(mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
+            if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
                 ZERO_ERROR("mpz modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
@@ -1572,9 +1659,9 @@ Pympany_rem(PyObject *a, PyObject *b)
         }
 
         /* mpz % xmpz */
-        if((!options.prefer_mutable) && Pyxmpz_Check(b)) {
+        if ((!options.prefer_mutable) && Pyxmpz_Check(b)) {
             TRACE("Modulo (mpz,xmpz)\n");
-            if(mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
+            if (mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
                 ZERO_ERROR("mpz modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
@@ -1584,17 +1671,17 @@ Pympany_rem(PyObject *a, PyObject *b)
         }
     }
 
-    if(Pympz_Check(b)) {
-        if(mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
+    if (Pympz_Check(b)) {
+        if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
             ZERO_ERROR("mpz division by zero");
             return NULL;
         }
-        if(!(rz = Pympz_new()))
+        if (!(rz = Pympz_new()))
             return NULL;
 
         /* integer % mpz */
 #ifdef PY2
-        if(PyInt_Check(a)) {
+        if (PyInt_Check(a)) {
             TRACE("Modulo (integer,mpz)\n");
             mpz_inoc(tempz);
             mpz_set_si(tempz, PyInt_AS_LONG(a));
@@ -1603,7 +1690,7 @@ Pympany_rem(PyObject *a, PyObject *b)
             return (PyObject *)rz;
         }
 #endif
-        if(PyLong_Check(a)) {
+        if (PyLong_Check(a)) {
             TRACE("Modulo (integer,mpz)\n");
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, a);
@@ -1613,42 +1700,45 @@ Pympany_rem(PyObject *a, PyObject *b)
         }
 
         /* xmpz % mpz */
-        if((!options.prefer_mutable) && Pyxmpz_Check(a)) {
+        if ((!options.prefer_mutable) && Pyxmpz_Check(a)) {
             TRACE("Modulo (xmpz,mpz)\n");
             mpz_fdiv_r(rz->z, Pyxmpz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject *)rz;
         }
     }
 
-    if(Pyxmpz_Check(a)) {
-        if(!(rxz = Pyxmpz_new()))
+    if (Pyxmpz_Check(a)) {
+        if (!(rxz = Pyxmpz_new()))
             return NULL;
 
         /* xmpz % integer */
-        if(PyIntOrLong_Check(b)) {
+        if (PyIntOrLong_Check(b)) {
             TRACE("Modulo (xmpz,integer)\n");
             temp = PyLong_AsLongAndOverflow(b, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_fdiv_r(rxz->z, Pyxmpz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
-            } else if(temp > 0) {
+            }
+            else if (temp > 0) {
                 mpz_fdiv_r_ui(rxz->z, Pyxmpz_AS_MPZ(a), temp);
-            } else if(temp == 0) {
+            }
+            else if (temp == 0) {
                 ZERO_ERROR("xmpz modulo by zero");
                 Py_DECREF((PyObject*)rxz);
                 return NULL;
-            } else {
+            }
+            else {
                 mpz_cdiv_r_ui(rxz->z, Pyxmpz_AS_MPZ(a), -temp);
             }
             return (PyObject *)rxz;
         }
 
         /* xmpz % xmpz */
-        if(Pyxmpz_Check(b)) {
+        if (Pyxmpz_Check(b)) {
             TRACE("Modulo (xmpz,xmpz)\n");
-            if(mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
+            if (mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
                 ZERO_ERROR("xmpz modulo by zero");
                 Py_DECREF((PyObject*)rxz);
                 return NULL;
@@ -1658,9 +1748,9 @@ Pympany_rem(PyObject *a, PyObject *b)
         }
 
         /* xmpz % mpz */
-        if((options.prefer_mutable) && Pympz_Check(b)) {
+        if ((options.prefer_mutable) && Pympz_Check(b)) {
             TRACE("Modulo (xmpz,mpz)\n");
-            if(mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
+            if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
                 ZERO_ERROR("xmpz modulo by zero");
                 Py_DECREF((PyObject*)rxz);
                 return NULL;
@@ -1670,17 +1760,17 @@ Pympany_rem(PyObject *a, PyObject *b)
         }
     }
 
-    if(Pyxmpz_Check(b)) {
-        if(mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
+    if (Pyxmpz_Check(b)) {
+        if (mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
             ZERO_ERROR("mpz division by zero");
             return NULL;
         }
-        if(!(rxz = Pyxmpz_new()))
+        if (!(rxz = Pyxmpz_new()))
             return NULL;
 
         /* integer % xmpz */
 #ifdef PY2
-        if(PyInt_Check(a)) {
+        if (PyInt_Check(a)) {
             TRACE("Modulo (integer,xmpz)\n");
             mpz_inoc(tempz);
             mpz_set_si(tempz, PyInt_AS_LONG(a));
@@ -1689,7 +1779,7 @@ Pympany_rem(PyObject *a, PyObject *b)
             return (PyObject *)rxz;
         }
 #endif
-        if(PyLong_Check(a)) {
+        if (PyLong_Check(a)) {
             TRACE("Modulo (integer,xmpz)\n");
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, a);
@@ -1699,24 +1789,24 @@ Pympany_rem(PyObject *a, PyObject *b)
         }
 
         /* mpz % xmpz */
-        if((options.prefer_mutable) && Pympz_Check(a)) {
+        if ((options.prefer_mutable) && Pympz_Check(a)) {
             TRACE("Modulo (mpz,xmpz)\n");
             mpz_fdiv_r(rxz->z, Pympz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
             return (PyObject *)rxz;
         }
     }
 
-    if(isRational(a) && isRational(b)) {
+    if (isRational(a) && isRational(b)) {
         TRACE("Modulo (rational,rational)\n");
         paq = anyrational2Pympq(a);
         pbq = anyrational2Pympq(b);
-        if(!paq || !pbq) {
+        if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq);
             Py_XDECREF((PyObject*)pbq);
             return NULL;
         }
-        if(mpq_sgn(pbq->q)==0) {
+        if (mpq_sgn(pbq->q)==0) {
             ZERO_ERROR("mpq modulo by zero");
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
@@ -1741,96 +1831,100 @@ Pympany_rem(PyObject *a, PyObject *b)
         return (PyObject *) rq;
     }
 
-    if(isNumber(a) && isNumber(b)) {
+    if (isNumber(a) && isNumber(b)) {
         TRACE("Modulo (number,number)\n");
-        if(Pympf_Check(a) && Pympf_Check(b)) {
+        if (Pympf_Check(a) && Pympf_Check(b)) {
             paf = anynum2Pympf(a, 0);
             pbf = anynum2Pympf(b, 0);
-        } else if(Pympf_Check(a)) {
+        }
+        else if (Pympf_Check(a)) {
             paf = anynum2Pympf(a, 0);
-            pbf = anynum2Pympf(b, paf->rebits);
-        } else if(Pympf_Check(b)) {
+            pbf = anynum2Pympf(b, mpfr_get_prec(paf->f));
+        }
+        else if (Pympf_Check(b)) {
             pbf = anynum2Pympf(b, 0);
-            paf = anynum2Pympf(a, pbf->rebits);
-        } else {
+            paf = anynum2Pympf(a, mpfr_get_prec(pbf->f));
+        }
+        else {
             pbf = anynum2Pympf(b, 0);
             paf = anynum2Pympf(a, 0);
         }
-        if(!paf || !pbf) {
-            if(PyErr_Occurred()) {
+        if (!paf || !pbf) {
+            if (PyErr_Occurred()) {
                 PyErr_Clear();
-            } else {
+            }
+            else {
                 SYSTEM_ERROR("Internal error status is confused.");
                 return NULL;
             }
             /* Need to handle special float values. */
-            if(pbf && !paf && PyFloat_Check(a)) {
+            if (pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(Py_IS_NAN(d)) {
-                    if(mpf_sgn(pbf->f) == 0) {
+                if (Py_IS_NAN(d)) {
+                    if (mpfr_sgn(pbf->f) == 0) {
                         ZERO_ERROR("mpf division by zero");
                         r = NULL;
-                    } else {
-                        r = PyFloat_FromDouble(d);
                     }
-                    Py_DECREF((PyObject*)pbf);
-                    return r;
-                } else if(Py_IS_INFINITY(d)) {
-                    if(mpf_sgn(pbf->f) == 0) {
-                        ZERO_ERROR("mpf division by zero");
-                        r = NULL;
-                    } else if(mpf_sgn(pbf->f) < 0) {
-                        r = PyFloat_FromDouble(-d);
-                    } else {
+                    else {
                         r = PyFloat_FromDouble(d);
                     }
                     Py_DECREF((PyObject*)pbf);
                     return r;
                 }
-            } else if(paf && !pbf && PyFloat_Check(b)) {
+                else if (Py_IS_INFINITY(d)) {
+                    if (mpfr_sgn(pbf->f) == 0) {
+                        ZERO_ERROR("mpf division by zero");
+                        r = NULL;
+                    }
+                    else if (mpfr_sgn(pbf->f) < 0) {
+                        r = PyFloat_FromDouble(-d);
+                    }
+                    else {
+                        r = PyFloat_FromDouble(d);
+                    }
+                    Py_DECREF((PyObject*)pbf);
+                    return r;
+                }
+            }
+            else if (paf && !pbf && PyFloat_Check(b)) {
                 double d = PyFloat_AS_DOUBLE(b);
-                if(Py_IS_NAN(d)) {
+                if (Py_IS_NAN(d)) {
                     r = PyFloat_FromDouble(d);
                     Py_DECREF((PyObject*)paf);
                     return r;
-                } else if(Py_IS_INFINITY(d)) {
-                    mpf_set_d(paf->f, 0.0);
+                }
+                else if (Py_IS_INFINITY(d)) {
+                    mpfr_set_d(paf->f, 0.0, options.rounding);
                     return (PyObject*)paf;
                 }
-            } else {
+            }
+            else {
                 SYSTEM_ERROR("Can not convert number to mpf");
                 Py_XDECREF((PyObject*)paf);
                 Py_XDECREF((PyObject*)pbf);
                 return NULL;
             }
         }
-        if(mpf_sgn(pbf->f)==0) {
+        if (mpfr_sgn(pbf->f)==0) {
             ZERO_ERROR("mpf modulo by zero");
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        bits = paf->rebits;
-        if(pbf->rebits<bits) bits=pbf->rebits;
-        /* To prevent rounding errors, the working precision is increased. */
-        temp = (paf->f->_mp_exp - pbf->f->_mp_exp) * GMP_NUMB_BITS + bits;
-        if(options.debug) {
-            fprintf(stderr, "Working precision %ld\n", temp);
-        }
-        if (!(rf = Pympf_new(temp))) {
+        bits = mpfr_get_prec(paf->f);
+        if (mpfr_get_prec(pbf->f)<bits)
+            bits = mpfr_get_prec(pbf->f);
+        if (!(rf = Pympf_new(bits))) {
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        mpf_div(rf->f, paf->f, pbf->f);
-        mpf_floor(rf->f, rf->f);
-        mpf_mul(rf->f, pbf->f, rf->f);
-        mpf_sub(rf->f, paf->f, rf->f);
-        mpf_set_prec(rf->f, bits);
-        rf->rebits = bits;
+        mpfr_div(rf->f, paf->f, pbf->f, options.rounding);
+        mpfr_floor(rf->f, rf->f);
+        mpfr_mul(rf->f, pbf->f, rf->f, options.rounding);
+        mpfr_sub(rf->f, paf->f, rf->f, options.rounding);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        mpf_normalize(rf->f);
         return (PyObject *) rf;
     }
     Py_RETURN_NOTIMPLEMENTED;
@@ -1858,8 +1952,8 @@ Pympany_divmod(PyObject *a, PyObject *b)
     unsigned int bits;
     int overflow;
 
-    if(Pympz_Check(a)) {
-        if(!(r=PyTuple_New(2)) || !(rz=Pympz_new()) || !(qz=Pympz_new())) {
+    if (Pympz_Check(a)) {
+        if (!(r=PyTuple_New(2)) || !(rz=Pympz_new()) || !(qz=Pympz_new())) {
             Py_XDECREF((PyObject*)rz);
             Py_XDECREF((PyObject*)qz);
             Py_XDECREF(r);
@@ -1867,22 +1961,25 @@ Pympany_divmod(PyObject *a, PyObject *b)
         }
 
         /* divmod(mpz,integer) */
-        if(PyIntOrLong_Check(b)) {
+        if (PyIntOrLong_Check(b)) {
             TRACE("divmod (mpz,integer)\n");
             temp = PyLong_AsLongAndOverflow(b, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_fdiv_qr(qz->z, rz->z, Pympz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
-            } else if(temp > 0) {
+            }
+            else if (temp > 0) {
                 mpz_fdiv_qr_ui(qz->z, rz->z, Pympz_AS_MPZ(a), temp);
-            } else if(temp == 0) {
+            }
+            else if (temp == 0) {
                 ZERO_ERROR("mpz divmod by zero");
                 Py_DECREF((PyObject*)rz);
                 Py_DECREF((PyObject*)qz);
                 return NULL;
-            } else {
+            }
+            else {
                 mpz_cdiv_qr_ui(qz->z, rz->z, Pympz_AS_MPZ(a), -temp);
                 mpz_neg(qz->z, qz->z);
             }
@@ -1892,9 +1989,9 @@ Pympany_divmod(PyObject *a, PyObject *b)
         }
 
         /* divmod(mpz,mpz) */
-        if(Pympz_Check(b)) {
+        if (Pympz_Check(b)) {
             TRACE("divmod (mpz,mpz)\n");
-            if(mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
+            if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
                 ZERO_ERROR("mpz divmod by zero");
                 Py_DECREF((PyObject*)rz);
                 Py_DECREF((PyObject*)qz);
@@ -1908,9 +2005,9 @@ Pympany_divmod(PyObject *a, PyObject *b)
         }
 
         /* divmod(mpz,xmpz) */
-        if((!options.prefer_mutable) && Pyxmpz_Check(b)) {
+        if ((!options.prefer_mutable) && Pyxmpz_Check(b)) {
             TRACE("divmod (mpz,xmpz)\n");
-            if(mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
+            if (mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
                 ZERO_ERROR("mpz divmod by zero");
                 Py_DECREF((PyObject*)rz);
                 Py_DECREF((PyObject*)qz);
@@ -1924,12 +2021,12 @@ Pympany_divmod(PyObject *a, PyObject *b)
         }
    }
 
-    if(Pympz_Check(b)) {
-        if(mpz_sgn(Pympz_AS_MPZ(b))==0) {
+    if (Pympz_Check(b)) {
+        if (mpz_sgn(Pympz_AS_MPZ(b))==0) {
             ZERO_ERROR("mpz modulo by zero");
             return NULL;
         }
-        if(!(r=PyTuple_New(2)) || !(rz=Pympz_new()) || !(qz=Pympz_new())) {
+        if (!(r=PyTuple_New(2)) || !(rz=Pympz_new()) || !(qz=Pympz_new())) {
             Py_XDECREF((PyObject*)rz);
             Py_XDECREF((PyObject*)qz);
             Py_XDECREF(r);
@@ -1938,7 +2035,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
 
         /* divmod(integer,mpz) */
 #ifdef PY2
-        if(PyInt_Check(a)) {
+        if (PyInt_Check(a)) {
             TRACE("divmod (integer,mpz)\n");
             mpz_inoc(tempz);
             mpz_set_si(tempz, PyInt_AS_LONG(a));
@@ -1949,7 +2046,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
             return r;
         }
 #endif
-        if(PyLong_Check(a)) {
+        if (PyLong_Check(a)) {
             TRACE("divmod (integer,mpz)\n");
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, a);
@@ -1961,7 +2058,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
         }
 
         /* divmod(xmpz,mpz) */
-        if((!options.prefer_mutable) && Pyxmpz_Check(a)) {
+        if ((!options.prefer_mutable) && Pyxmpz_Check(a)) {
             TRACE("divmod (xmpz,mpz)\n");
             mpz_fdiv_qr(qz->z, rz->z, Pyxmpz_AS_MPZ(a), Pympz_AS_MPZ(b));
             PyTuple_SET_ITEM(r, 0, (PyObject*)qz);
@@ -1970,8 +2067,8 @@ Pympany_divmod(PyObject *a, PyObject *b)
         }
     }
 
-    if(Pyxmpz_Check(a)) {
-        if(!(r=PyTuple_New(2)) || !(rxz=Pyxmpz_new()) || !(qxz=Pyxmpz_new())) {
+    if (Pyxmpz_Check(a)) {
+        if (!(r=PyTuple_New(2)) || !(rxz=Pyxmpz_new()) || !(qxz=Pyxmpz_new())) {
             Py_XDECREF((PyObject*)rxz);
             Py_XDECREF((PyObject*)qxz);
             Py_XDECREF(r);
@@ -1979,22 +2076,25 @@ Pympany_divmod(PyObject *a, PyObject *b)
         }
 
         /* divmod(xmpz,integer) */
-        if(PyIntOrLong_Check(b)) {
+        if (PyIntOrLong_Check(b)) {
             TRACE("divmod (xmpz,integer)\n");
             temp = PyLong_AsLongAndOverflow(b, &overflow);
-            if(overflow) {
+            if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_fdiv_qr(qxz->z, rxz->z, Pyxmpz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
-            } else if(temp > 0) {
+            }
+            else if (temp > 0) {
                 mpz_fdiv_qr_ui(qxz->z, rxz->z, Pyxmpz_AS_MPZ(a), temp);
-            } else if(temp == 0) {
+            }
+            else if (temp == 0) {
                 ZERO_ERROR("xmpz divmod by zero");
                 Py_DECREF((PyObject*)rxz);
                 Py_DECREF((PyObject*)qxz);
                 return NULL;
-            } else {
+            }
+            else {
                 mpz_cdiv_qr_ui(qxz->z, rxz->z, Pyxmpz_AS_MPZ(a), -temp);
                 mpz_neg(qxz->z, qxz->z);
             }
@@ -2004,9 +2104,9 @@ Pympany_divmod(PyObject *a, PyObject *b)
         }
 
         /* divmod(xmpz,xmpz) */
-        if(Pyxmpz_Check(b)) {
+        if (Pyxmpz_Check(b)) {
             TRACE("divmod (xmpz,xmpz)\n");
-            if(mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
+            if (mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
                 ZERO_ERROR("xmpz divmod by zero");
                 Py_DECREF((PyObject*)rxz);
                 Py_DECREF((PyObject*)qxz);
@@ -2020,9 +2120,9 @@ Pympany_divmod(PyObject *a, PyObject *b)
         }
 
         /* divmod(xmpz,mpz) */
-        if((options.prefer_mutable) && Pympz_Check(b)) {
+        if ((options.prefer_mutable) && Pympz_Check(b)) {
             TRACE("divmod (xmpz,mpz)\n");
-            if(mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
+            if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
                 ZERO_ERROR("xmpz divmod by zero");
                 Py_DECREF((PyObject*)rxz);
                 Py_DECREF((PyObject*)qxz);
@@ -2036,12 +2136,12 @@ Pympany_divmod(PyObject *a, PyObject *b)
         }
     }
 
-    if(Pyxmpz_Check(b)) {
-        if(mpz_sgn(Pyxmpz_AS_MPZ(b))==0) {
+    if (Pyxmpz_Check(b)) {
+        if (mpz_sgn(Pyxmpz_AS_MPZ(b))==0) {
             ZERO_ERROR("xmpz divmod by zero");
             return NULL;
         }
-        if(!(r=PyTuple_New(2)) || !(rxz=Pyxmpz_new()) || !(qxz=Pyxmpz_new())) {
+        if (!(r=PyTuple_New(2)) || !(rxz=Pyxmpz_new()) || !(qxz=Pyxmpz_new())) {
             Py_XDECREF((PyObject*)rxz);
             Py_XDECREF((PyObject*)qxz);
             Py_XDECREF(r);
@@ -2050,7 +2150,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
 
         /* divmod(integer,xmpz) */
 #ifdef PY2
-        if(PyInt_Check(a)) {
+        if (PyInt_Check(a)) {
             TRACE("divmod (integer,xmpz)\n");
             mpz_inoc(tempz);
             mpz_set_si(tempz, PyInt_AS_LONG(a));
@@ -2061,7 +2161,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
             return r;
         }
 #endif
-        if(PyLong_Check(a)) {
+        if (PyLong_Check(a)) {
             TRACE("divmod (integer,xmpz)\n");
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, a);
@@ -2073,7 +2173,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
         }
 
         /* divmod(mpz,xmpz) */
-        if((options.prefer_mutable) && Pympz_Check(a)) {
+        if ((options.prefer_mutable) && Pympz_Check(a)) {
             TRACE("divmod (xmpz,mpz)\n");
             mpz_fdiv_qr(qxz->z, rxz->z, Pympz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
             PyTuple_SET_ITEM(r, 0, (PyObject*)qxz);
@@ -2082,17 +2182,17 @@ Pympany_divmod(PyObject *a, PyObject *b)
         }
     }
 
-    if(isRational(a) && isRational(b)) {
+    if (isRational(a) && isRational(b)) {
         TRACE("Divmod (rational,rational)\n");
         paq = anyrational2Pympq(a);
         pbq = anyrational2Pympq(b);
-        if(!paq || !pbq) {
+        if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq);
             Py_XDECREF((PyObject*)pbq);
             return NULL;
         }
-        if(mpq_sgn(pbq->q)==0) {
+        if (mpq_sgn(pbq->q)==0) {
             ZERO_ERROR("mpq divmod by zero");
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
@@ -2116,40 +2216,45 @@ Pympany_divmod(PyObject *a, PyObject *b)
         return Py_BuildValue("(NN)", qz, rq);
     }
 
-    if(isNumber(a) && isNumber(b)) {
+    if (isNumber(a) && isNumber(b)) {
         TRACE("Divmod (number,number)\n");
-        if(Pympf_Check(a) && Pympf_Check(b)) {
+        if (Pympf_Check(a) && Pympf_Check(b)) {
             paf = anynum2Pympf(a, 0);
             pbf = anynum2Pympf(b, 0);
-        } else if(Pympf_Check(a)) {
+        }
+        else if (Pympf_Check(a)) {
             paf = anynum2Pympf(a, 0);
-            pbf = anynum2Pympf(b, paf->rebits);
-        } else if(Pympf_Check(b)) {
+            pbf = anynum2Pympf(b, mpfr_get_prec(paf->f));
+        }
+        else if (Pympf_Check(b)) {
             pbf = anynum2Pympf(b, 0);
-            paf = anynum2Pympf(a, pbf->rebits);
-        } else {
+            paf = anynum2Pympf(a, mpfr_get_prec(pbf->f));
+        }
+        else {
             pbf = anynum2Pympf(b, 0);
             paf = anynum2Pympf(a, 0);
         }
-        if(!paf || !pbf) {
-            if(PyErr_Occurred()) {
+        if (!paf || !pbf) {
+            if (PyErr_Occurred()) {
                 PyErr_Clear();
-            } else {
+            }
+            else {
                 SYSTEM_ERROR("Internal error status is confused.");
                 return NULL;
             }
             /* Need to handle special float values. */
-            if(pbf && !paf && PyFloat_Check(a)) {
+            if (pbf && !paf && PyFloat_Check(a)) {
                 double d = PyFloat_AS_DOUBLE(a);
-                if(Py_IS_INFINITY(d) || Py_IS_NAN(d)) {
+                if (Py_IS_INFINITY(d) || Py_IS_NAN(d)) {
                     /* divmod(inf|nan, number) */
-                    if(mpf_sgn(pbf->f) == 0) {
+                    if (mpfr_sgn(pbf->f) == 0) {
                         /* if number == 0, raise ZeroDivisionError */
                         ZERO_ERROR("mpf division by zero");
                         r = NULL;
                         Py_DECREF((PyObject*)pbf);
                         return r;
-                    } else {
+                    }
+                    else {
                         /* if number != 0, return (nan,nan) */
                         Py_DECREF((PyObject*)pbf);
                         paf = (PympfObject*)PyFloat_FromDouble(Py_NAN);
@@ -2157,91 +2262,86 @@ Pympany_divmod(PyObject *a, PyObject *b)
                         return Py_BuildValue("(NN)", paf, pbf);
                     }
                 }
-            } else if(paf && !pbf && PyFloat_Check(b)) {
+            }
+            else if (paf && !pbf && PyFloat_Check(b)) {
                 /* divmod(number, inf|nan) */
                 double d = PyFloat_AS_DOUBLE(b);
-                if(Py_IS_NAN(d)) {
+                if (Py_IS_NAN(d)) {
                     Py_DECREF((PyObject*)paf);
                     paf = (PympfObject*)PyFloat_FromDouble(d);
                     pbf = (PympfObject*)PyFloat_FromDouble(d);
                     return Py_BuildValue("(NN)", paf, pbf);
-                } else if(Py_IS_INFINITY(d)) {
-                    if(mpf_sgn(paf->f) == 0) {
+                }
+                else if (Py_IS_INFINITY(d)) {
+                    if (mpfr_sgn(paf->f) == 0) {
                         /* if number == 0, return (0.0, 0.0) */
-                        pbf = Pympf_new(paf->rebits);
-                        mpf_set_d(pbf->f, 0.0);
-                        mpf_set_d(paf->f, 0.0);
+                        pbf = Pympf_new(mpfr_get_prec(paf->f));
+                        mpfr_set_d(pbf->f, 0.0, options.rounding);
+                        mpfr_set_d(paf->f, 0.0, options.rounding);
                         return Py_BuildValue("(NN)", paf, pbf);
-                    } else if(mpf_sgn(paf->f) < 0) {
-                        if(d < 0) {
+                    }
+                    else if (mpfr_sgn(paf->f) < 0) {
+                        if (d < 0) {
                             /* return (0, number) */
                             /* XXX Not checking out-of-memory! */
-                            pbf = Pympf_new(paf->rebits);
-                            mpf_set_d(pbf->f, 0.0);
+                            pbf = Pympf_new(mpfr_get_prec(paf->f));
+                            mpfr_set_d(pbf->f, 0.0, options.rounding);
                             return Py_BuildValue("(NN)", pbf, paf);
-                        } else {
+                        }
+                        else {
                             /* return (-1.0, inf) */
-                            pbf = Pympf_new(paf->rebits);
-                            mpf_set_d(pbf->f, -1.0);
+                            pbf = Pympf_new(mpfr_get_prec(paf->f));
+                            mpfr_set_d(pbf->f, -1.0, options.rounding);
                             Py_DECREF((PyObject*)paf);
                             paf = (PympfObject*)PyFloat_FromDouble(d);
                             return Py_BuildValue("(NN)", pbf, paf);
                         }
-                    } else {
-                        if(d > 0) {
+                    }
+                    else {
+                        if (d > 0) {
                             /* return (0, number) */
-                            pbf = Pympf_new(paf->rebits);
-                            mpf_set_d(pbf->f, 0.0);
+                            pbf = Pympf_new(mpfr_get_prec(paf->f));
+                            mpfr_set_d(pbf->f, 0.0, options.rounding);
                             return Py_BuildValue("(NN)", pbf, paf);
-                        } else {
+                        }
+                        else {
                             /* return (-1.0, inf) */
-                            pbf = Pympf_new(paf->rebits);
-                            mpf_set_d(pbf->f, -1.0);
+                            pbf = Pympf_new(mpfr_get_prec(paf->f));
+                            mpfr_set_d(pbf->f, -1.0, options.rounding);
                             Py_DECREF((PyObject*)paf);
                             paf = (PympfObject*)PyFloat_FromDouble(d);
                             return Py_BuildValue("(NN)", pbf, paf);
                         }
                     }
                 }
-            } else {
+            }
+            else {
                 SYSTEM_ERROR("Can not convert number to mpf");
                 Py_XDECREF((PyObject*)paf);
                 Py_XDECREF((PyObject*)pbf);
                 return NULL;
             }
         }
-        if(mpf_sgn(pbf->f)==0) {
+        if (mpfr_sgn(pbf->f)==0) {
             ZERO_ERROR("mpf divmod by zero");
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        bits = paf->rebits;
-        if(pbf->rebits<bits) bits=pbf->rebits;
-        /* To prevent rounding errors, the working precision is increased. */
-        temp = (paf->f->_mp_exp - pbf->f->_mp_exp) * GMP_NUMB_BITS + bits;
-        if(options.debug) {
-            fprintf(stderr, "Working precision %ld\n", temp);
-        }
-        if (!(qf = Pympf_new(temp)) || !(rf = Pympf_new(temp))) {
+        bits = mpfr_get_prec(paf->f);
+        if (!(qf = Pympf_new(bits)) || !(rf = Pympf_new(bits))) {
             Py_XDECREF((PyObject*)qf);
             Py_XDECREF((PyObject*)rf);
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        mpf_div(qf->f, paf->f, pbf->f);
-        mpf_floor(qf->f, qf->f);
-        mpf_mul(rf->f, pbf->f, qf->f);
-        mpf_sub(rf->f, paf->f, rf->f);
-        mpf_set_prec(rf->f, bits);
-        rf->rebits = bits;
-        mpf_set_prec(qf->f, bits);
-        qf->rebits = bits;
+        mpfr_div(qf->f, paf->f, pbf->f, options.rounding);
+        mpfr_floor(qf->f, qf->f);
+        mpfr_mul(rf->f, pbf->f, qf->f, options.rounding);
+        mpfr_sub(rf->f, paf->f, rf->f, options.rounding);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        mpf_normalize(qf->f);
-        mpf_normalize(rf->f);
         return Py_BuildValue("(NN)", qf, rf);
     }
     Py_RETURN_NOTIMPLEMENTED;

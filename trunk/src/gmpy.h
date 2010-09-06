@@ -143,25 +143,18 @@ typedef struct {
 } PympqObject;
 typedef struct {
     mpob ob;
-    mpf_t f;
-    unsigned int rebits;
+    mpfr_t f;
     long hash_cache;
 } PympfObject;
 typedef struct {
     mpob ob;
     mpz_t z;
 } PyxmpzObject;
-typedef struct {
-    mpob ob;
-    mpfr_t f;
-    long hash_cache;
-} PympfrObject;
 
 #define Pympz_AS_MPZ(obj) (((PympzObject *)(obj))->z)
 #define Pympq_AS_MPQ(obj) (((PympqObject *)(obj))->q)
 #define Pympf_AS_MPF(obj) (((PympfObject *)(obj))->f)
 #define Pyxmpz_AS_MPZ(obj) (((PyxmpzObject *)(obj))->z)
-#define Pympfr_AS_MPFR(obj) (((PympfrObject *)(obj))->f)
 
 static PyTypeObject Pympz_Type;
 #define Pympz_Check(v) (((PyObject*)v)->ob_type == &Pympz_Type)
@@ -171,8 +164,6 @@ static PyTypeObject Pympf_Type;
 #define Pympf_Check(v) (((PyObject*)v)->ob_type == &Pympf_Type)
 static PyTypeObject Pyxmpz_Type;
 #define Pyxmpz_Check(v) (((PyObject*)v)->ob_type == &Pyxmpz_Type)
-static PyTypeObject Pympfr_Type;
-#define Pympfr_Check(v) (((PyObject*)v)->ob_type == &Pympfr_Type)
 
 #define CHECK_MPZANY(v) (Pympz_Check(v) || Pyxmpz_Check(v))
 
