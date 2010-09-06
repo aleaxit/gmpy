@@ -305,26 +305,27 @@ static PyObject *gmpy_module = NULL;
 
 static struct gmpy_options {
     int debug;               /* != 0 if debug messages desired on stderr */
-    unsigned long minprec;   /* min #of bits' precision on new mpf's built */
+    mpfr_prec_t precision;   /* #of bits' precision on new mpfr's built */
     int tagoff;              /* 0 for full tags 'gmpy2.mpz()', else 6 for 'mpz()' */
     int cache_size;          /* size of cache, for all caches */
     int cache_obsize;        /* maximum size of the objects that are cached */
     int prefer_mutable;      /* != 0 if mixed mpz/xmpz operation results in xmpz */
     PyObject* fcoform;       /* if non-NULL, format for float->mpf (via string) */
-} options = { 0, 0, GMPY2_TAGOFF, 100, 128, 0, 0 };
-
-/* Number of bits that are significant in a float */
-static unsigned int double_mantissa = 0;
+} options = { 0, DBL_MANT_DIG, GMPY2_TAGOFF, 100, 128, 0, 0 };
 
 /* forward declarations of type-objects and method-arrays for them */
 #ifdef _MSC_VER
 PyMethodDef Pympz_methods [];
 PyMethodDef Pympq_methods [];
 PyMethodDef Pympf_methods [];
+PyMethodDef Pyxmpz_methods [];
+PyMethodDef Pympfr_methods [];
 #else
 static PyMethodDef Pympz_methods [];
 static PyMethodDef Pympq_methods [];
 static PyMethodDef Pympf_methods [];
+static PyMethodDef Pyxmpz_methods [];
+static PyMethodDef Pympfr_methods [];
 #endif
 
 /* gmpy2 caches objects so they can be reused quickly without involving a new
@@ -568,8 +569,8 @@ Pympf_new(unsigned long bits)
 
     if(!(self = PyObject_New(PympfObject, &Pympf_Type)))
         return NULL;
-    if(bits < options.minprec)
-        bits = options.minprec;
+    if(bits < options.precision)
+        bits = options.precision;
     mpf_init2(self->f, bits);
     self->rebits = bits;
     self->hash_cache = -1;
@@ -791,7 +792,7 @@ PyInt2Pympf(PyObject *i, unsigned int bits)
 
     assert(PyInt_Check(i));
     li = PyInt_AsLong(i);
-    /* on a 64-bit machine, SIZEOF_LONG*8 > double_mantissa, so to simplify
+    /* on a 64-bit machine, SIZEOF_LONG*8 > DBL_MANT_DIG, so to simplify
        the representation, only use that many bits if we have an integer that
        won't fit in an int. */
     if(!bits) {
@@ -865,7 +866,7 @@ static PympfObject* anynum2Pympf(PyObject* obj, unsigned int bits);
 static PympqObject *
 PyFloat2Pympq(PyObject *f)
 {
-    PympfObject *self = Pympf_new(double_mantissa);
+    PympfObject *self = Pympf_new(DBL_MANT_DIG);
     if(!self) return NULL;
     assert(PyFloat_Check(f));
     {
@@ -880,7 +881,7 @@ PyFloat2Pympq(PyObject *f)
         }
         mpf_set_d(self->f, d);
     }
-    return (PympqObject*)f2q_internal(self, 0, double_mantissa, 0);
+    return (PympqObject*)f2q_internal(self, 0, DBL_MANT_DIG, 0);
 }
 
 /* forward */
@@ -892,7 +893,7 @@ PyFloat2Pympf(PyObject *f, unsigned int bits)
     PympfObject *newob = 0;
 
     assert(PyFloat_Check(f));
-    if(!bits) bits=double_mantissa;
+    if(!bits) bits=DBL_MANT_DIG;
     if(options.debug)
         fprintf(stderr, "PyFloat2Pympf(%p,%d)\n", f, bits);
 
@@ -1453,7 +1454,7 @@ PyStr2Pympf(PyObject *s, long base, Py_ssize_t bits)
                 }
             }
         } else { /* true-string, never encoded, just default it */
-            precision = double_mantissa;
+            precision = DBL_MANT_DIG;
         }
         if(precision<=0) precision=1;
     }
@@ -2222,7 +2223,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
         /* compute size of needed Python string */
         if(optionflags & OP_TAG) {
             size += strlen(ftag+options.tagoff) + 2;
-            if(self->rebits != double_mantissa) {
+            if(self->rebits != DBL_MANT_DIG) {
                 sprintf(auprebuf,",%d",self->rebits);
                 size += strlen(auprebuf);
             }
@@ -2329,7 +2330,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
             if(optionflags & OP_TAG) {
                 char* pe = auprebuf;
                 *pd++ = '\'';
-                if(self->rebits != double_mantissa)
+                if(self->rebits != DBL_MANT_DIG)
                     while(*pe) *pd++ = *pe++;
                 *pd++ = ')';
             }
@@ -5392,32 +5393,10 @@ gmpy_free( void *ptr, size_t size)
     PyMem_Free(ptr);
 } /* mp_free() */
 
-
-/* Find out how many bits are significant in a double */
-static unsigned get_precision(void)
-{
-#if defined(DBL_MANT_BITS)
-    return DBL_MANT_BITS;
-#elif !defined(FLT_RADIX) || (FLT_RADIX!=2)
-#   error "FLT_RADIX undefined or != 2, pls set DBL_MANT_BITS"
-#elif !defined(DBL_MANT_DIG)
-#   error "DBL_MANT_DIG undefined, pls set DBL_MANT_BITS"
-#else
-    return DBL_MANT_DIG;
-#endif
-#if 0
-    int bit;
-    double eps;
-    for(bit = 0, eps = 1.0; 1.0 != (1.0 + eps); bit++) eps /= 2;
-    return bit;
-#endif
-}
-
 static void _PyInitGMP(void)
 {
     mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
-    double_mantissa = get_precision();
-    options.minprec = double_mantissa;
+    options.precision = DBL_MANT_DIG;
     set_zcache();
     set_qcache();
     set_pympzcache();

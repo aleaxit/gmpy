@@ -221,7 +221,7 @@ returns the previous value of this module-level setting.\n\
 static PyObject *
 Pygmpy_set_minprec(PyObject *self, PyObject *args)
 {
-    long old = options.minprec;
+    long old = options.precision;
     int i;
 
     if(!PyArg_ParseTuple(args, "i", &i))
@@ -230,7 +230,7 @@ Pygmpy_set_minprec(PyObject *self, PyObject *args)
         VALUE_ERROR("minimum precision must be >= 0");
         return NULL;
     }
-    options.minprec = i;
+    options.precision = i;
     return Py_BuildValue("l", old);
 }
 
