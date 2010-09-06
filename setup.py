@@ -37,7 +37,7 @@ if sys.version.find('MSC') == -1:
 gmpy2_ext = Extension('gmpy2', sources=['src/gmpy2.c'],
     include_dirs=incdirs,
     library_dirs=libdirs,
-    libraries=[mplib])
+    libraries=[mplib] + ["mpfr"])
 
 setup (name = "gmpy2",
        version = "2.0.0a1",
