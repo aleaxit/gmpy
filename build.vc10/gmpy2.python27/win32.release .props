@@ -3,7 +3,7 @@
   <PropertyGroup Label="UserMacros">
     <mp_dir>mpir</mp_dir>
     <mp_lib>mpir.lib</mp_lib>
-    <python_version>python26</python_version>
+    <python_version>python27</python_version>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30128.1</_ProjectFileVersion>
@@ -11,10 +11,11 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>MPIR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\$(mp_dir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\$(python_version)\include;..\..\..\$(mp_dir);..\..\..\mpfr\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>..\..\..\$(mp_dir)\build.vc10\lib\$(IntDir)$(mp_lib);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>C:\Program Files (x86)\$(python_version)\libs\$(python_version).lib;..\..\..\$(mp_dir)\build.vc10\lib\$(IntDir)$(mp_lib);..\..\..\mpfr\build.vc10\lib\$(IntDir)mpfr.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
