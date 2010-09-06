@@ -751,7 +751,7 @@ PyInt2Pympf(PyObject *self, mpfr_prec_t bits)
 
     assert(PyInt_Check(self));
     if ((newob = Pympf_new(bits)))
-        mpfr_set_si(newob->f, PyInt_AsLong(self));
+        mpfr_set_si(newob->f, PyInt_AsLong(self), options.rounding);
     return newob;
 }
 #endif
@@ -4338,7 +4338,7 @@ Pympf_hash(PympfObject *self)
     double temp;
     if (self->hash_cache != -1)
         return self->hash_cache;
-    temp = mpf_get_d(self->f);
+    temp = mpfr_get_d(self->f, options.rounding);
     return (self->hash_cache = _Py_HashDouble(temp));
 #endif
 }
@@ -4862,9 +4862,9 @@ static PyNumberMethods mpf_number_methods =
     (binaryfunc) Pympany_rem,            /* nb_remaider             */
     (binaryfunc) Pympany_divmod,         /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
-    (unaryfunc) Pympf_neg,               /* nb_negative             */
+    (unaryfunc) Pympfr_neg,               /* nb_negative             */
     (unaryfunc) Pympf_pos,               /* nb_positive             */
-    (unaryfunc) Pympf_abs,               /* nb_absolute             */
+    (unaryfunc) Pympfr_abs,               /* nb_absolute             */
     (inquiry) Pympf_nonzero,             /* nb_bool                 */
         0,                               /* nb_invert               */
         0,                               /* nb_lshift               */

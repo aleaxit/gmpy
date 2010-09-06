@@ -1563,7 +1563,7 @@ Pympany_div2(PyObject *a, PyObject *b)
                     return r;
                 }
                 else if (Py_IS_INFINITY(d)) {
-                    mpf_set_d(paf->f, 0.0);
+                    mpfr_set_d(paf->f, 0.0, options.rounding);
                     return (PyObject*)paf;
                 }
             }
@@ -1587,7 +1587,7 @@ Pympany_div2(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        mpf_div(rf->f, paf->f, pbf->f);
+        mpfr_div(rf->f, paf->f, pbf->f, options.rounding);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
         return (PyObject *) rf;
