@@ -22,6 +22,14 @@
 extern "C" {
 #endif
 
+#if PY_VERSION_HEX < 0x02060000
+#  error "GMPY2 requires Python 2.6 or later."
+#endif
+
+#if !defined(FLT_RADIX) || (FLT_RADIX!=2)
+#   error "FLT_RADIX undefined or != 2, GMPY2 is confused. :("
+#endif
+
 #if defined(MS_WIN32) && defined(_MSC_VER)
    /* so one won't need to link explicitly to gmp.lib...: */
 #  if defined(MPIR)
@@ -29,6 +37,7 @@ extern "C" {
 #  else
 #    pragma comment(lib,"gmp.lib")
 #  endif
+#  pragma comment(lib,"mpfr.lib")
 #  define isnan _isnan
 #  define isinf !_finite
 #  define USE_ALLOCA 1
@@ -40,6 +49,8 @@ extern "C" {
 #else
 #  include "gmp.h"
 #endif
+
+#include "mpfr.h"
 
 #ifdef __GNUC__
 #define USE_ALLOCA 1
@@ -114,10 +125,6 @@ extern "C" {
 #define Py_REFCNT(ob)   (((PyObject*)(ob))->ob_refcnt)
 #endif
 
-#if PY_VERSION_HEX < 0x02060000
-#  error "GMPY2 requires Python 2.6 or later."
-#endif
-
 /* Header file for gmpy2 */
 typedef struct {
     PyObject_HEAD
@@ -144,11 +151,17 @@ typedef struct {
     mpob ob;
     mpz_t z;
 } PyxmpzObject;
+typedef struct {
+    mpob ob;
+    mpfr_t f;
+    long hash_cache;
+} PympfrObject;
 
 #define Pympz_AS_MPZ(obj) (((PympzObject *)(obj))->z)
 #define Pympq_AS_MPQ(obj) (((PympqObject *)(obj))->q)
 #define Pympf_AS_MPF(obj) (((PympfObject *)(obj))->f)
 #define Pyxmpz_AS_MPZ(obj) (((PyxmpzObject *)(obj))->z)
+#define Pympfr_AS_MPFR(obj) (((PympfrObject *)(obj))->f)
 
 static PyTypeObject Pympz_Type;
 #define Pympz_Check(v) (((PyObject*)v)->ob_type == &Pympz_Type)
@@ -158,6 +171,8 @@ static PyTypeObject Pympf_Type;
 #define Pympf_Check(v) (((PyObject*)v)->ob_type == &Pympf_Type)
 static PyTypeObject Pyxmpz_Type;
 #define Pyxmpz_Check(v) (((PyObject*)v)->ob_type == &Pyxmpz_Type)
+static PyTypeObject Pympfr_Type;
+#define Pympfr_Check(v) (((PyObject*)v)->ob_type == &Pympfr_Type)
 
 #define CHECK_MPZANY(v) (Pympz_Check(v) || Pyxmpz_Check(v))
 
