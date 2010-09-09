@@ -195,24 +195,6 @@ Pygmpy_get_prefer_mutable(PyObject *self, PyObject *args)
         Py_RETURN_FALSE;
 }
 
-static char doc_set_tagoff[]="\
-set_tagoff(n): resets (if n==0) or sets (if n!=0) the module\n\
-level 'tagoff' setting, removing the 'gmpy2.' prefix of the tag\n\
-strings used by repr and (optionally) digits/fdigits/qdigits;\n\
-also returns the previous value of this module-level setting.\n\
-";
-static PyObject *
-Pygmpy_set_tagoff(PyObject *self, PyObject *args)
-{
-    int old = options.tagoff;
-
-    if(!PyArg_ParseTuple(args, "i", &options.tagoff))
-        return NULL;
-    if(options.tagoff)
-        options.tagoff = GMPY2_TAGOFF;
-    return Py_BuildValue("i", old!=0);
-}
-
 static char doc_set_minprec[]="\
 set_minprec(n): sets number of bits of precision to be at\n\
 least n for all mpf objects generated from now on; also\n\

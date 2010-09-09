@@ -220,6 +220,7 @@
  *   Add read/write bit access using slices to xmpz (casevh)
  *   Add read-only bit access using slices to mpz (casevh)
  *   Add pack()/unpack() methods (casevh)
+ *   Remove tagoff option (casevh)
  */
 #include "Python.h"
 
@@ -299,18 +300,15 @@ char _gmpy_cvs[] = "$Id$";
 
 static PyObject *gmpy_module = NULL;
 
-#define GMPY2_TAGOFF 6
-
 static struct gmpy_options {
     int debug;               /* != 0 if debug messages desired on stderr */
     mpfr_prec_t precision;   /* current precision in bits */
     mpfr_rnd_t rounding;     /* current rounding mode */
-    int tagoff;              /* 0 for full tags 'gmpy2.mpz()', else 6 for 'mpz()' */
     int cache_size;          /* size of cache, for all caches */
     int cache_obsize;        /* maximum size of the objects that are cached */
     int prefer_mutable;      /* != 0 if mixed mpz/xmpz operation results in xmpz */
     PyObject* fcoform;       /* if non-NULL, format for float->mpf (via string) */
-} options = { 0, DBL_MANT_DIG, MPFR_RNDN, GMPY2_TAGOFF, 100, 128, 0, 0 };
+} options = { 0, DBL_MANT_DIG, MPFR_RNDN, 100, 128, 0, 0 };
 
 /* forward declarations of type-objects and method-arrays for them */
 #ifdef _MSC_VER
@@ -1817,9 +1815,8 @@ Pympf2binary(PympfObject *self)
  * format mpz into any base (2 to 36), optionally with
  * a "gmpy2.mpz(...)" tag around it so it can be recovered
  * through a Python eval of the resulting string
- * Note: tag can be just mpz() if options.tagoff=6
  */
-static char* ztag = "gmpy2.mpz(";
+static char* ztag = "mpz(";
 static PyObject *
 mpz_ascii(mpz_t z, int base, int with_tag)
 {
@@ -1836,13 +1833,13 @@ mpz_ascii(mpz_t z, int base, int with_tag)
     /* Allocate extra space for:
      *
      * minus sign and trailing NULL byte (2)
-     * 'gmpy2.mpz()' tag                 (11)
+     * 'mpz()' tag                       (5)
      * '0x' prefix                       (2)
      * 'L' suffix                        (1)
      *                                  -----
-     *                                   16
+     *                                   10
      */
-    size = mpz_sizeinbase(z, base) + 17;
+    size = mpz_sizeinbase(z, base) + 11;
     TEMP_ALLOC(buffer, size);
 
     if (mpz_sgn(z) < 0) {
@@ -1852,7 +1849,7 @@ mpz_ascii(mpz_t z, int base, int with_tag)
 
     p = buffer;
     if (with_tag) {
-       strcpy(p, ztag+options.tagoff);
+       strcpy(p, ztag);
        p += strlen(p);
     }
     if (negative)
@@ -1895,9 +1892,8 @@ mpz_ascii(mpz_t z, int base, int with_tag)
  * format xmpz into any base (2 to 36), optionally with
  * a "gmpy2.xmpz(...)" tag around it so it can be recovered
  * through a Python eval of the resulting string
- * Note: tag can be just xmpz() if options.tagoff=6
  */
-static char* xztag = "gmpy2.xmpz(";
+static char* xztag = "xmpz(";
 static PyObject *
 xmpz_ascii(mpz_t z, int base, int with_tag)
 {
@@ -1914,13 +1910,13 @@ xmpz_ascii(mpz_t z, int base, int with_tag)
     /* Allocate extra space for:
      *
      * minus sign and trailing NULL byte (2)
-     * 'gmpy2.xmpz()' tag                (12)
+     * 'gmpy2.xmpz()' tag                (6)
      * '0x' prefix                       (2)
      * 'L' suffix                        (1)
      *                                  -----
-     *                                   17
+     *                                   11
      */
-    size = mpz_sizeinbase(z, base) + 18;
+    size = mpz_sizeinbase(z, base) + 12;
     TEMP_ALLOC(buffer, size);
 
     if (mpz_sgn(z) < 0) {
@@ -1930,7 +1926,7 @@ xmpz_ascii(mpz_t z, int base, int with_tag)
 
     p = buffer;
     if (with_tag) {
-       strcpy(p, xztag+options.tagoff);
+       strcpy(p, xztag);
        p += strlen(p);
     }
     if (negative)
@@ -2033,7 +2029,7 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
     }
 
     if (with_tag) {
-        result = PyBytes_FromString(qtag+options.tagoff);
+        result = PyBytes_FromString(qtag);
         if (!result) {
             Py_XDECREF(denstr);
             return NULL;
@@ -2088,12 +2084,11 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
 
 #define OP_TAG 1
 #define OP_RAW 2
-static char ftag[]="gmpy2.mpf('";
+static char ftag[]="mpf('";
 /*
  * format mpf into any base (2 to 36), optionally with
  * a "gmpy2.mpf('...')" tag around it so it can be recovered
  * through a Python eval of the resulting string.
- * Note: tag can be just mpf() if options.tagoff=6
  * digits: number of digits to ask GMP for (0=all of
  *     them) -- fewer will be given, if fewer significant
  * minexfi: format as mantissa-exponent if exp<minexfi
@@ -2166,7 +2161,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
 
         /* compute size of needed Python string */
         if (optionflags & OP_TAG) {
-            size += strlen(ftag + options.tagoff) + 2;
+            size += strlen(ftag) + 2;
             if (mpfr_get_prec(self->f) != DBL_MANT_DIG) {
                 sprintf(auprebuf, ",%ld", (long)mpfr_get_prec(self->f));
                 size += strlen(auprebuf);
@@ -2201,7 +2196,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
 
             /* insert leading tag if requested */
             if (optionflags & OP_TAG) {
-                char* pt = ftag + options.tagoff;
+                char* pt = ftag;
                 while(*pt) *pd++ = *pt++;
             }
 
@@ -2879,7 +2874,6 @@ Pympf2repr(PympfObject *self)
  *   Pygmpy_set_qcache(PyObject *self, PyObject *args)
  *   Pygmpy_set_fcache(PyObject *self, PyObject *args)
  *   Pygmpy_set_debug(PyObject *self, PyObject *args)
- *   Pygmpy_set_tagoff(PyObject *self, PyObject *args)
  *   Pygmpy_set_minprec(PyObject *self, PyObject *args)
  *   Pygmpy_set_fcoform(PyObject *self, PyObject *args)
  *
@@ -2988,7 +2982,6 @@ exponent-separator is 'e' for base up to 10, else '@' -- the\n\
 exponent is always output as a signed, base-10 integer). If opts\n\
 has bit 1 set, the whole is wrapped in 'gmpy2.mpf(...)', to ease\n\
 later approximate reconstruction via builtin function eval\n\
-(Or, in just mpf(...) if gmpy2.set_tagoff(1) was called).\n\
 \n\
 If opts has bit 2 set, then opts bit 1, mine, and maxe, are\n\
 ignored; the result is then a 2-element tuple, first element\n\
@@ -3008,7 +3001,6 @@ exponent-separator is 'e' for base up to 10, else '@' -- the\n\
 exponent is always output as a signed, base-10 integer). If opts\n\
 has bit 1 set, the whole is wrapped in 'gmpy2.mpf(...)', to ease\n\
 later approximate reconstruction via builtin function eval\n\
-(Or, in just mpf(...) if gmpy2.set_tagoff(1) was called).\n\
 \n\
 If opts has bit 2 set, then opts bit 1, mine, and maxe, are\n\
 ignored; the result is then a 2-element tuple, first element\n\
@@ -4981,7 +4973,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "set_fcoform", Pygmpy_set_fcoform, METH_VARARGS, doc_set_fcoform },
     { "set_minprec", Pygmpy_set_minprec, METH_VARARGS, doc_set_minprec },
     { "set_prefer_mutable", Pygmpy_set_prefer_mutable, METH_VARARGS, doc_set_prefer_mutable },
-    { "set_tagoff", Pygmpy_set_tagoff, METH_VARARGS, doc_set_tagoff },
     { "sign", Pympz_sign, METH_O, doc_signg },
     { "sqrt", Pygmpy_sqrt, METH_O, doc_sqrtg },
     { "sqrtrem", Pympz_sqrtrem, METH_VARARGS, doc_sqrtremg },
