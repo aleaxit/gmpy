@@ -2945,6 +2945,7 @@ Pympf2repr(PympfObject *self)
 #include "gmpy_mpz.c"
 #include "gmpy_mpz_divmod2exp.c"
 #include "gmpy_mpz_divmod.c"
+#include "gmpy_mpf.c"
 
 /* produce digits for an mpq in requested base, default 10 */
 static char doc_qdigitsm[]="\
@@ -4447,28 +4448,6 @@ Pympf_getprec(PyObject *self, PyObject *args)
     return PyIntOrLong_FromLong(precres);
 }
 
-static char doc_getrprecm[]="\
-x.getrprec(): returns the number of bits of precision in x\n\
-_that were requested_ (.getprec may return a higher value).\n\
-";
-static char doc_getrprecg[]="\
-getrprec(x): returns the number of bits of precision in x,\n\
-_that were requested_ (getprec may return a higher value).\n\
-x must be an mpf, or else gets coerced to one.\n\
-";
-static PyObject *
-Pympf_getrprec(PyObject *self, PyObject *args)
-{
-    long precres;
-
-    SELF_MPF_NO_ARG;
-    assert(Pympf_Check(self));
-
-    precres = (long)mpfr_get_prec(Pympf_AS_MPF(self));
-    Py_DECREF(self);
-    return PyIntOrLong_FromLong(precres);
-}
-
 static char doc_froundm[] = "\
 x.round(n): returns x rounded to least n bits. Actual precision will\n\
 be a multiple of gmp_limbsize().\n\
@@ -4889,6 +4868,12 @@ static PyNumberMethods mpf_number_methods =
 };
 #endif
 
+static PyGetSetDef Pympf_getseters[] =
+{
+    { "precision", (getter)Pympf_getprec2, NULL, "precision in bits", NULL },
+    {NULL}
+};
+
 static PyMethodDef Pygmpy_methods [] =
 {
     { "_cvsid", Pygmpy_get_cvsid, METH_NOARGS, doc_cvsid },
@@ -4938,7 +4923,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "gmp_version", Pygmpy_get_gmp_version, METH_NOARGS, doc_gmp_version },
     { "gmp_limbsize", Pygmpy_get_gmp_limbsize, METH_NOARGS, doc_gmp_limbsize },
     { "getprec", Pympf_getprec, METH_VARARGS, doc_getprecg },
-    { "getrprec", Pympf_getrprec, METH_VARARGS, doc_getrprecg },
     { "hamdist", Pympz_hamdist, METH_VARARGS, doc_hamdistg },
     { "invert", Pygmpy_invert, METH_VARARGS, doc_invertg },
     { "is_even", Pympz_is_even, METH_O, doc_is_eveng },
@@ -5119,7 +5103,6 @@ static PyMethodDef Pympf_methods [] =
     { "digits", Pympf_digits, METH_VARARGS, doc_fdigitsm },
     { "round", Pympf_round, METH_VARARGS, doc_froundm },
     { "getprec", Pympf_getprec, METH_VARARGS, doc_getprecm },
-    { "getrprec", Pympf_getrprec, METH_VARARGS, doc_getrprecm },
     { "_copy", Pympany_copy, METH_NOARGS, doc_copym },
     { "sign", Pympf_sign, METH_VARARGS, doc_fsignm },
     { "sqrt", Pympf_sqrt, METH_VARARGS, doc_fsqrtm },
@@ -5309,6 +5292,8 @@ static PyTypeObject Pympf_Type =
         0,                                  /* tp_iter          */
         0,                                  /* tp_iternext      */
     Pympf_methods,                          /* tp_methods       */
+        0,                                  /* tp_members       */
+    Pympf_getseters,                        /* tp_getset        */
 };
 
 

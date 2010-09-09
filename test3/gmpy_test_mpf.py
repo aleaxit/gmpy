@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> dir(a)
-['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
+['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
 >>>
 '''
 import sys
@@ -96,11 +96,11 @@ mpf('6.e0',200)
 1
 >>> _g.floor(-12.3)==math.floor(-12.3)
 1
->>> (a**2).reldiff(float(a)**2) < 1.03 * (2.0**-(a.getrprec()-1))
+>>> (a**2).reldiff(float(a)**2) < 1.03 * (2.0**-(a.getprec()-1))
 1
 >>> (a**2).reldiff(a*a) < (2.0**-(a.getprec()-1))
 1
->>> (b**2).reldiff(float(b)**2) < 1.03 * (2.0**-(b.getrprec()-1))
+>>> (b**2).reldiff(float(b)**2) < 1.03 * (2.0**-(b.getprec()-1))
 1
 >>> (b**2).reldiff(b*b) < (2.0**-(b.getprec()-1))
 1
@@ -287,12 +287,12 @@ Traceback (most recent call last):
 ValueError: digits must be >= 0
 >>> a.digits(10,0,0,-1,2)
 ('123456', 3, 53)
->>> saveprec=a.getrprec()
+>>> saveprec=a.getprec()
 >>> newa = a.round(33)
 >>> newa
 mpf('1.23456e2',33)
 >>> newa = newa.round(saveprec)
->>> newa.getrprec()==saveprec
+>>> newa.getprec()==saveprec
 1
 >>> del(newa)
 >>> _g.fdigits(2.2e5, 0, 6, -10, 10)
@@ -312,7 +312,7 @@ TypeError: binary() requires a gmpy2 object as argument
 
 __test__['binio']=\
 r'''
->>> epsilon=_g.mpf(2)**-(a.getrprec())
+>>> epsilon=_g.mpf(2)**-(a.getprec())
 >>> ba=a.binary()
 >>> a.reldiff(_g.mpf(ba,0,256)) <= epsilon
 1
@@ -371,11 +371,11 @@ b'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
 1
 >>> prec=_g.set_minprec(0)
 >>> junk=_g.set_minprec(prec)
->>> a.getrprec()==prec
+>>> a.getprec()==prec
 1
->>> b.getrprec()==prec
+>>> b.getprec()==prec
 1
->>> _g.mpf(1.0).getrprec()==prec
+>>> _g.mpf(1.0).getprec()==prec
 1
 >>> hash(_g.mpf(23.0))==hash(23)
 1
