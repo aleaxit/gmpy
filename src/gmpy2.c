@@ -2874,7 +2874,8 @@ Pympf2repr(PympfObject *self)
  *   Pygmpy_set_qcache(PyObject *self, PyObject *args)
  *   Pygmpy_set_fcache(PyObject *self, PyObject *args)
  *   Pygmpy_set_debug(PyObject *self, PyObject *args)
- *   Pygmpy_set_minprec(PyObject *self, PyObject *args)
+ *   Pygmpy_set_precison(PyObject *self, PyObject *args)
+ *   Pygmpy_get_precison(PyObject *self, PyObject *args)
  *   Pygmpy_set_fcoform(PyObject *self, PyObject *args)
  *
  */
@@ -4932,6 +4933,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "gcd", Pygmpy_gcd, METH_VARARGS, doc_gcd },
     { "gcdext", Pygmpy_gcdext, METH_VARARGS, doc_gcdext },
     { "get_cache", Pygmpy_get_cache, METH_NOARGS, doc_get_cache },
+    { "get_precision", Pygmpy_get_precision, METH_VARARGS, doc_get_precision },
     { "get_prefer_mutable", Pygmpy_get_prefer_mutable, METH_NOARGS, doc_get_prefer_mutable },
     { "gmp_version", Pygmpy_get_gmp_version, METH_NOARGS, doc_gmp_version },
     { "gmp_limbsize", Pygmpy_get_gmp_limbsize, METH_NOARGS, doc_gmp_limbsize },
@@ -4971,7 +4973,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "set_cache", Pygmpy_set_cache, METH_VARARGS, doc_set_cache },
     { "set_debug", Pygmpy_set_debug, METH_VARARGS, doc_set_debug },
     { "set_fcoform", Pygmpy_set_fcoform, METH_VARARGS, doc_set_fcoform },
-    { "set_minprec", Pygmpy_set_minprec, METH_VARARGS, doc_set_minprec },
+    { "set_precision", Pygmpy_set_precision, METH_VARARGS, doc_set_precision },
     { "set_prefer_mutable", Pygmpy_set_prefer_mutable, METH_VARARGS, doc_set_prefer_mutable },
     { "sign", Pympz_sign, METH_O, doc_signg },
     { "sqrt", Pygmpy_sqrt, METH_O, doc_sqrtg },
