@@ -2086,10 +2086,8 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
 #define OP_RAW 2
 static char ftag[]="mpf('";
 /*
- * format mpf into any base (2 to 36), optionally with
- * a "gmpy2.mpf('...')" tag around it so it can be recovered
- * through a Python eval of the resulting string.
- * digits: number of digits to ask GMP for (0=all of
+ * format mpf into any base (2 to 62)
+ * digits: number of digits to ask MPFR for (0=all of
  *     them) -- fewer will be given, if fewer significant
  * minexfi: format as mantissa-exponent if exp<minexfi
  * maxexfi: format as mantissa-exponent if exp>maxexfi
@@ -2112,7 +2110,7 @@ static PyObject *
 Pympf_ascii(PympfObject *self, int base, int digits,
     int minexfi, int maxexfi, int optionflags)
 {
-    PyObject *res;
+    PyObject *result;
 #ifdef PY3
     PyObject *temp;
 #endif
@@ -2121,13 +2119,51 @@ Pympf_ascii(PympfObject *self, int base, int digits,
 
     /* check arguments are valid */
     assert(Pympf_Check((PyObject*)self));
-    if (!( (base==0) || ((base >= 2) && (base <= 36)))) {
-        VALUE_ERROR("base must be either 0 or in the interval 2 ... 36");
+    if (!( (base==0) || ((base >= 2) && (base <= 62)))) {
+        VALUE_ERROR("base must be either 0 or in the interval 2 ... 62");
         return NULL;
     }
-    if (digits < 0) {
-        VALUE_ERROR("digits must be >= 0");
+    if ((digits < 0) || (digits == 1)) {
+        VALUE_ERROR("digits must be 0 or >= 2");
         return NULL;
+    }
+
+    /* Process special cases first */
+    if (!(mpfr_regular_p(self->f))) {
+        if (mpfr_nan_p(self->f)) {
+            if (optionflags & OP_RAW)
+                result = Py_BuildValue("(sii)", "nan", 0, 0);
+            else
+                result = Py_BuildValue("s", "nan");
+        }
+        else if (mpfr_inf_p(self->f) && !mpfr_signbit(self->f)) {
+            if (optionflags & OP_RAW)
+                result = Py_BuildValue("(sii)", "inf", 0, 0);
+            else
+                result = Py_BuildValue("s", "inf");
+        }
+        else if (mpfr_inf_p(self->f) && mpfr_signbit(self->f)) {
+            if (optionflags & OP_RAW)
+                result = Py_BuildValue("(sii)", "-inf", 0, 0);
+            else
+                result = Py_BuildValue("s", "-inf");
+        }
+        /* 0 is not considered a 'regular" number */
+        else if (mpfr_signbit(self->f)) {
+            if (optionflags & OP_RAW)
+                result = Py_BuildValue("(sii)", "-0", 0,
+                                       mpfr_get_prec(self->f));
+            else
+                result = Py_BuildValue("s", "mpf('-0.e0')");
+        }
+        else {
+            if (optionflags & OP_RAW)
+                result = Py_BuildValue("(sii)", "0", 0,
+                                       mpfr_get_prec(self->f));
+            else
+                result = Py_BuildValue("s", "mpf('0.e0')");
+        }
+        return result;
     }
 
     /* obtain digits-string and exponent */
@@ -2141,9 +2177,9 @@ Pympf_ascii(PympfObject *self, int base, int digits,
     }
 
     if (optionflags & OP_RAW) {
-        res = Py_BuildValue("(sii)", buffer, the_exp, mpfr_get_prec(self->f));
+        result = Py_BuildValue("(sii)", buffer, the_exp, mpfr_get_prec(self->f));
         PyMem_Free(buffer);
-        return res;
+        return result;
     }
     else {
         /* insert formatting elements (decimal-point, leading or
@@ -2151,11 +2187,12 @@ Pympf_ascii(PympfObject *self, int base, int digits,
          */
         size_t buflen = strlen(buffer);
         /* account for the decimal point that is always inserted */
-        size_t size = buflen+1;
+        size_t size = buflen + 1;
         char expobuf[24];
         char auprebuf[24];
-        int isfp=1;   /* flag: fixed-point format (FP)? */
-        int isnegative=0;
+        int isfp = 1;   /* flag: fixed-point format (FP)? */
+        int isnegative = 0;
+
         if (buffer[0]==0x2d)
             isnegative = 1;
 
@@ -2187,11 +2224,11 @@ Pympf_ascii(PympfObject *self, int base, int digits,
         }
 
         /* allocate the string itself (uninitialized, as yet) */
-        res = PyBytes_FromStringAndSize(0, size);
+        result = PyBytes_FromStringAndSize(0, size);
 
         {
             /* proceed with building the string-buffer value */
-            char* pd = PyBytes_AS_STRING(res);
+            char* pd = PyBytes_AS_STRING(result);
             char* ps = buffer;
 
             /* insert leading tag if requested */
@@ -2278,11 +2315,11 @@ Pympf_ascii(PympfObject *self, int base, int digits,
         }
         PyMem_Free(buffer);
 #ifdef PY3
-        temp = PyUnicode_FromString(PyBytes_AS_STRING(res));
-        Py_DECREF(res);
+        temp = PyUnicode_FromString(PyBytes_AS_STRING(result));
+        Py_DECREF(result);
         return temp;
 #else
-        return res;
+        return result;
 #endif
     }
 }
