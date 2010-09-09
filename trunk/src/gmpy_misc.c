@@ -195,25 +195,31 @@ Pygmpy_get_prefer_mutable(PyObject *self, PyObject *args)
         Py_RETURN_FALSE;
 }
 
-static char doc_set_minprec[]="\
-set_minprec(n): sets number of bits of precision to be at\n\
-least n for all mpf objects generated from now on; also\n\
-returns the previous value of this module-level setting.\n\
-";
+PyDoc_STRVAR(doc_set_precision,
+"set_precision(n)\n\n"
+"Set the number of bits of precision to use for calculations.");
 static PyObject *
-Pygmpy_set_minprec(PyObject *self, PyObject *args)
+Pygmpy_set_precision(PyObject *self, PyObject *args)
 {
-    long old = options.precision;
-    int i;
+    int bits;
 
-    if(!PyArg_ParseTuple(args, "i", &i))
+    if(!PyArg_ParseTuple(args, "i", &bits))
         return NULL;
-    if(i<0) {
-        VALUE_ERROR("minimum precision must be >= 0");
+    if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
+        VALUE_ERROR("invalid value for precision");
         return NULL;
     }
-    options.precision = i;
-    return Py_BuildValue("l", old);
+    options.precision = bits;
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(doc_get_precision,
+"get_precision() -> integer\n\n"
+"Return the number of bits of precision used for calculations.");
+static PyObject *
+Pygmpy_get_precision(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("l", options.precision);
 }
 
 static char doc_set_fcoform[]="\
