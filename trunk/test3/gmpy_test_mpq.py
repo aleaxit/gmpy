@@ -198,14 +198,6 @@ r'''
 'mpq(-41,152)'
 >>> (-a)==eval(repr(-a),_g.__dict__)
 1
->>> _g.set_tagoff(0)
-1
->>> a
-gmpy2.mpq(41,152)
->>> _g.mpq('12.34')
-gmpy2.mpq(617,50)
->>> _g.set_tagoff(1)
-0
 >>> for i in range(1,7):
 ...    for j in range(3,10):
 ...       if _g.mpq(i,j) != _g.mpq("%d/%d"%(i,j)):
