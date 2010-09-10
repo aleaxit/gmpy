@@ -205,80 +205,80 @@ False
 >>> float('nan') <= a
 False
 >>> a + float('Inf')
-inf
+mpf('inf')
 >>> float('Inf') + a
-inf
+mpf('inf')
 >>> a + float('-Inf')
--inf
+mpf('-inf')
 >>> float('-Inf') + a
--inf
+mpf('-inf')
 >>> a + float('nan')
-nan
+mpf('nan')
 >>> float('nan') + a
-nan
+mpf('nan')
 >>> a - float('Inf')
--inf
+mpf('-inf')
 >>> float('Inf') - a
-inf
+mpf('inf')
 >>> a - float('-Inf')
-inf
+mpf('inf')
 >>> float('-Inf') - a
--inf
+mpf('-inf')
 >>> a - float('nan')
-nan
+mpf('nan')
 >>> float('nan') - a
-nan
+mpf('nan')
 >>> a * float('Inf')
-inf
+mpf('inf')
 >>> float('Inf') * a
-inf
+mpf('inf')
 >>> a * float('-Inf')
--inf
+mpf('-inf')
 >>> float('-Inf') * a
--inf
+mpf('-inf')
 >>> -a
 >>> a * float('Inf')
--inf
+mpf('-inf')
 >>> float('Inf') * a
--inf
+mpf('-inf')
 >>> a * float('-Inf')
-inf
+mpf('inf')
 >>> float('-Inf') * a
-inf
+mpf('inf')
 >>> -a
 >>> a * float('nan')
-nan
+mpf('nan')
 >>> float('nan') * a
-nan
+mpf('nan')
 >>> _g.xmpz(0) * float('Inf')
-nan
+mpf('nan')
 >>> _g.xmpz(0) * float('-Inf')
-nan
+mpf('nan')
 >>> float('Inf') * _g.xmpz(0)
-nan
+mpf('nan')
 >>> float('-Inf') * _g.xmpz(0)
-nan
+mpf('nan')
 >>> a / float('Inf')
 mpf('0.e0')
 >>> float('Inf') / a
-inf
+mpf('inf')
 >>> a / float('-Inf')
 mpf('0.e0')
 >>> float('-Inf') / a
--inf
+mpf('-inf')
 >>> a / float('nan')
-nan
+mpf('nan')
 >>> float('nan') / a
-nan
+mpf('nan')
 >>> -a
 >>> a / float('Inf')
 mpf('0.e0')
 >>> float('Inf') / a
--inf
+mpf('-inf')
 >>> a / float('-Inf')
 mpf('0.e0')
 >>> float('-Inf') / a
-inf
+mpf('inf')
 >>> -a
 '''
 
@@ -573,12 +573,6 @@ Traceback (innermost last):
   File "<stdin>", line 1, in ?
     print(a.digits(37))
 ValueError: base must be either 0 or in the interval 2 ... 36
->>> _g.set_tagoff(0)
-1
->>> a
-gmpy2.xmpz(123)
->>> _g.set_tagoff(1)
-0
 >>> _g.xmpz('43')
 xmpz(43)
 >>> _g.xmpz('043')

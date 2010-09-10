@@ -282,7 +282,7 @@ mpf('3.39999999999999999998e0')
 >>> a.digits(1)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
-ValueError: base must be either 0 or in the interval 2 ... 62
+ValueError: base must be in the interval 2 ... 62
 >>> a.digits(2,-1)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
@@ -297,11 +297,9 @@ mpf('1.23456e2',33)
 >>> newa.precision==saveprec
 1
 >>> del(newa)
->>> _g.fdigits(2.2e5, 0, 6, -10, 10)
+>>> _g.fdigits(2.2e5, 10, 0, 6, -10, 10)
 '220000.0'
->>> saveprec
-57
->>> _g.fdigits(2.2e-5, 0, 6, -10, 10)
+>>> _g.fdigits(2.2e-5, 10, 0, 6, -10, 10)
 '0.000022'
 >>> _g.digits(_g.mpf(23.45))
 Traceback (most recent call last):

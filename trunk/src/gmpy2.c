@@ -2115,12 +2115,12 @@ Pympf_ascii(PympfObject *self, int base, int digits,
     PyObject *temp;
 #endif
     char *buffer;
-    mp_exp_t the_exp;
+    mpfr_exp_t the_exp;
 
     /* check arguments are valid */
     assert(Pympf_Check((PyObject*)self));
-    if (!( (base==0) || ((base >= 2) && (base <= 62)))) {
-        VALUE_ERROR("base must be either 0 or in the interval 2 ... 62");
+    if (!((base >= 2) && (base <= 62))) {
+        VALUE_ERROR("base must be in the interval 2 ... 62");
         return NULL;
     }
     if ((digits < 0) || (digits == 1)) {
@@ -2164,9 +2164,9 @@ Pympf_ascii(PympfObject *self, int base, int digits,
                                        mpfr_get_prec(self->f));
             else
                 if (optionflags & OP_TAG)
-                    result = Py_BuildValue("s", "mpf('-0.0')");
+                    result = Py_BuildValue("s", "mpf('-0.e0')");
                 else
-                    result = Py_BuildValue("s", "-0.0");
+                    result = Py_BuildValue("s", "-0.e0");
         }
         else {
             if (optionflags & OP_RAW)
@@ -2174,9 +2174,9 @@ Pympf_ascii(PympfObject *self, int base, int digits,
                                        mpfr_get_prec(self->f));
             else
                 if (optionflags & OP_TAG)
-                    result = Py_BuildValue("s", "mpf('0.0')");
+                    result = Py_BuildValue("s", "mpf('0.e0')");
                 else
-                    result = Py_BuildValue("s", "0.0");
+                    result = Py_BuildValue("s", "0.e0");
         }
         return result;
     }
@@ -2184,11 +2184,8 @@ Pympf_ascii(PympfObject *self, int base, int digits,
     /* obtain digits-string and exponent */
     buffer = mpfr_get_str(0, &the_exp, base, digits, self->f, options.rounding);
     if (!*buffer) {
-        /* need to use malloc here for uniformity with mpfr_get_str */
-        PyMem_Free(buffer);
-        buffer = PyMem_Malloc(2);
-        strcpy(buffer, "0");
-        the_exp = 1;
+        SYSTEM_ERROR("Internal error in Pympf_ascii");
+        return NULL;
     }
 
     if (optionflags & OP_RAW) {
