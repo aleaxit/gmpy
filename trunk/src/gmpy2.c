@@ -2003,7 +2003,7 @@ Pyxmpz_ascii(PyxmpzObject *self, int base, int with_tag)
 #endif
 }
 
-static char* qtag = "gmpy2.mpq(";
+static char* qtag = "mpq(";
 static int qden_1(mpq_t q)
 {
     return 0 == mpz_cmp_ui(mpq_denref(q),1);
@@ -2098,7 +2098,7 @@ static char ftag[]="mpf('";
  *     is _always_ explicitly inserted by this function
  *     (except when bit OP_RAW is set in optionflags).
  * optionflags: bitmap of option-values; currently:
- *     OP_TAG (1): add the gmpy2.mpf('...') tag
+ *     OP_TAG (1): add the mpf('...') tag
  *     OP_RAW (2): ignore minexfi/maxexfi/OP_TAG
  *         and return a 3-element tuple digits/exponent/rprec
  *         (as GMP gives them) for Python formatting;
@@ -2134,19 +2134,28 @@ Pympf_ascii(PympfObject *self, int base, int digits,
             if (optionflags & OP_RAW)
                 result = Py_BuildValue("(sii)", "nan", 0, 0);
             else
-                result = Py_BuildValue("s", "nan");
+                if (optionflags & OP_TAG)
+                    result = Py_BuildValue("s", "mpf('nan')");
+                else
+                    result = Py_BuildValue("s", "nan");
         }
         else if (mpfr_inf_p(self->f) && !mpfr_signbit(self->f)) {
             if (optionflags & OP_RAW)
                 result = Py_BuildValue("(sii)", "inf", 0, 0);
             else
-                result = Py_BuildValue("s", "inf");
+                if (optionflags & OP_TAG)
+                    result = Py_BuildValue("s", "mpf('inf')");
+                else
+                    result = Py_BuildValue("s", "inf");
         }
         else if (mpfr_inf_p(self->f) && mpfr_signbit(self->f)) {
             if (optionflags & OP_RAW)
                 result = Py_BuildValue("(sii)", "-inf", 0, 0);
             else
-                result = Py_BuildValue("s", "-inf");
+                if (optionflags & OP_TAG)
+                    result = Py_BuildValue("s", "mpf('-inf')");
+                else
+                    result = Py_BuildValue("s", "-inf");
         }
         /* 0 is not considered a 'regular" number */
         else if (mpfr_signbit(self->f)) {
@@ -2154,14 +2163,20 @@ Pympf_ascii(PympfObject *self, int base, int digits,
                 result = Py_BuildValue("(sii)", "-0", 0,
                                        mpfr_get_prec(self->f));
             else
-                result = Py_BuildValue("s", "mpf('-0.e0')");
+                if (optionflags & OP_TAG)
+                    result = Py_BuildValue("s", "mpf('-0.0')");
+                else
+                    result = Py_BuildValue("s", "-0.0");
         }
         else {
             if (optionflags & OP_RAW)
                 result = Py_BuildValue("(sii)", "0", 0,
                                        mpfr_get_prec(self->f));
             else
-                result = Py_BuildValue("s", "mpf('0.e0')");
+                if (optionflags & OP_TAG)
+                    result = Py_BuildValue("s", "mpf('0.0')");
+                else
+                    result = Py_BuildValue("s", "0.0");
         }
         return result;
     }
