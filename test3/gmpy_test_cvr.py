@@ -38,41 +38,31 @@ r'''
 >>> x = float('inf')
 >>> n = float('nan')
 >>> _g.mpf(x)
-Traceback (most recent call last):
-  ...
-ValueError: gmpy2 does not handle infinity
+mpf('inf')
 >>> _g.mpf(-x)
-Traceback (most recent call last):
-  ...
-ValueError: gmpy2 does not handle infinity
+mpf('-inf')
 >>> _g.mpq(x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy2 does not handle infinity
+ValueError: gmpy2.mpq does not handle infinity
 >>> _g.mpq(-x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy2 does not handle infinity
+ValueError: gmpy2.mpq does not handle infinity
 >>> _g.mpz(x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy2 does not handle infinity
+ValueError: gmpy2.mpz does not handle infinity
 >>> _g.mpz(-x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy2 does not handle infinity
+ValueError: gmpy2.mpz does not handle infinity
 >>> _g.mpf(n)
-Traceback (most recent call last):
-  ...
-ValueError: gmpy2 does not handle nan
+mpf('nan')
 >>> _g.mpf(n)
-Traceback (most recent call last):
-  ...
-ValueError: gmpy2 does not handle nan
+mpf('nan')
 >>> _g.mpf(n)
-Traceback (most recent call last):
-  ...
-ValueError: gmpy2 does not handle nan
+mpf('nan')
 '''
 
 __test__['user_errors']=\
@@ -125,10 +115,10 @@ TypeError: function takes exactly 1 argument (2 given)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 TypeError: an integer is required
->>> _g.set_minprec(-1)
+>>> _g.set_precision(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: minimum precision must be >= 0
+ValueError: invalid value for precision
 >>> _g.set_fcoform(33)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?

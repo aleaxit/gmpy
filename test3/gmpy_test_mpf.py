@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> dir(a)
-['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
+['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'precision', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
 >>>
 '''
 import sys
@@ -244,7 +244,9 @@ r'''
 >>> a.digits(10,0)
 '1.23456e2'
 >>> a.digits(10,1)
-'1.e2'
+Traceback (most recent call last):
+  ...
+ValueError: digits must be 0 or >= 2
 >>> a.digits(10,2)
 '1.2e2'
 >>> a.digits(10,3)
@@ -280,23 +282,25 @@ mpf('3.39999999999999999998e0')
 >>> a.digits(1)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
-ValueError: base must be either 0 or in the interval 2 ... 36
+ValueError: base must be either 0 or in the interval 2 ... 62
 >>> a.digits(2,-1)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
-ValueError: digits must be >= 0
+ValueError: digits must be 0 or >= 2
 >>> a.digits(10,0,0,-1,2)
 ('123456', 3, 53)
->>> saveprec=a.getprec()
+>>> saveprec=a.precision
 >>> newa = a.round(33)
 >>> newa
 mpf('1.23456e2',33)
 >>> newa = newa.round(saveprec)
->>> newa.getprec()==saveprec
+>>> newa.precision==saveprec
 1
 >>> del(newa)
 >>> _g.fdigits(2.2e5, 0, 6, -10, 10)
 '220000.0'
+>>> saveprec
+57
 >>> _g.fdigits(2.2e-5, 0, 6, -10, 10)
 '0.000022'
 >>> _g.digits(_g.mpf(23.45))
@@ -369,13 +373,13 @@ b'\t5\x00\x00\x00\x01\x00\x00\x00\x02'
 b'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
 >>> _g.mpf(_g.binary(_g.mpf(2.0)), 0, 256) == 2.0
 1
->>> prec=_g.set_minprec(0)
->>> junk=_g.set_minprec(prec)
->>> a.getprec()==prec
+>>> prec=_g.get_precision()
+>>> _g.set_precision(prec)
+>>> a.precision==prec
 1
->>> b.getprec()==prec
+>>> b.precision==prec
 1
->>> _g.mpf(1.0).getprec()==prec
+>>> _g.mpf(1.0).precision==prec
 1
 >>> hash(_g.mpf(23.0))==hash(23)
 1
