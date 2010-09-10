@@ -240,77 +240,77 @@ False
 >>> float('nan') <= a
 False
 >>> a + float('Inf')
-inf
+mpf('inf')
 >>> float('Inf') + a
-inf
+mpf('inf')
 >>> a + float('-Inf')
--inf
+mpf('-inf')
 >>> float('-Inf') + a
--inf
+mpf('-inf')
 >>> a + float('nan')
-nan
+mpf('nan')
 >>> float('nan') + a
-nan
+mpf('nan')
 >>> a - float('Inf')
--inf
+mpf('-inf')
 >>> float('Inf') - a
-inf
+mpf('inf')
 >>> a - float('-Inf')
-inf
+mpf('inf')
 >>> float('-Inf') - a
--inf
+mpf('-inf')
 >>> a - float('nan')
-nan
+mpf('nan')
 >>> float('nan') - a
-nan
+mpf('nan')
 >>> a * float('Inf')
-inf
+mpf('inf')
 >>> float('Inf') * a
-inf
+mpf('inf')
 >>> a * float('-Inf')
--inf
+mpf('-inf')
 >>> float('-Inf') * a
--inf
+mpf('-inf')
 >>> -a * float('Inf')
--inf
+mpf('-inf')
 >>> float('Inf') * -a
--inf
+mpf('-inf')
 >>> -a * float('-Inf')
-inf
+mpf('inf')
 >>> float('-Inf') * -a
-inf
+mpf('inf')
 >>> a * float('nan')
-nan
+mpf('nan')
 >>> float('nan') * a
-nan
+mpf('nan')
 >>> _g.mpz(0) * float('Inf')
-nan
+mpf('nan')
 >>> _g.mpz(0) * float('-Inf')
-nan
+mpf('nan')
 >>> float('Inf') * _g.mpz(0)
-nan
+mpf('nan')
 >>> float('-Inf') * _g.mpz(0)
-nan
+mpf('nan')
 >>> a / float('Inf')
 mpf('0.e0')
 >>> -a / float('Inf')
 mpf('0.e0')
 >>> float('Inf') / a
-inf
+mpf('inf')
 >>> float('Inf') / -a
--inf
+mpf('-inf')
 >>> a / float('-Inf')
 mpf('0.e0')
 >>> -a / float('-Inf')
 mpf('0.e0')
 >>> float('-Inf') / a
--inf
+mpf('-inf')
 >>> float('-Inf') / -a
-inf
+mpf('inf')
 >>> a / float('nan')
-nan
+mpf('nan')
 >>> float('nan') / a
-nan
+mpf('nan')
 >>> float('nan') / _g.mpz(0)
 Traceback (most recent call last):
   ...
