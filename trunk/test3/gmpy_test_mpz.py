@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> list(filter(lambda x: not x.startswith('_'), dir(_g)))
-['binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'cdiv', 'cdiv2exp', 'cdivmod', 'cdivmod2exp', 'ceil', 'cmod', 'cmod2exp', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fdigits', 'fdiv', 'fdiv2exp', 'fdivmod', 'fdivmod2exp', 'fib', 'fib2', 'floor', 'fmod', 'fmod2exp', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'get_precision', 'get_prefer_mutable', 'getprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lucas', 'lucas2', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pack', 'pi', 'popcount', 'qdigits', 'qdiv', 'qsign', 'reldiff', 'remove', 'root', 'rootrem', 'set_cache', 'set_debug', 'set_fcoform', 'set_precision', 'set_prefer_mutable', 'sign', 'sqrt', 'sqrtrem', 'tdiv', 'tdiv2exp', 'tdivmod', 'tdivmod2exp', 'tmod', 'tmod2exp', 'trunc', 'unpack', 'version', 'xmpz']
+['binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'cdiv', 'cdiv2exp', 'cdivmod', 'cdivmod2exp', 'ceil', 'cmod', 'cmod2exp', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fdiv', 'fdiv2exp', 'fdivmod', 'fdivmod2exp', 'fib', 'fib2', 'floor', 'fmod', 'fmod2exp', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'get_precision', 'get_prefer_mutable', 'getprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lucas', 'lucas2', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pack', 'pi', 'popcount', 'qdigits', 'qdiv', 'qsign', 'reldiff', 'remove', 'root', 'rootrem', 'set_cache', 'set_debug', 'set_fcoform', 'set_precision', 'set_prefer_mutable', 'sign', 'sqrt', 'sqrtrem', 'tdiv', 'tdiv2exp', 'tdivmod', 'tdivmod2exp', 'tmod', 'tmod2exp', 'trunc', 'unpack', 'version', 'xmpz']
 >>> dir(a)
 ['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__iadd__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__', '__index__', '__init__', '__int__', '__invert__', '__ipow__', '__irshift__', '__isub__', '__le__', '__len__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', '_copy', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'cdiv', 'cdiv2exp', 'cmod', 'cmod2exp', 'comb', 'digits', 'divexact', 'fdiv', 'fdiv2exp', 'fmod', 'fmod2exp', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'sign', 'sqrt', 'sqrtrem', 'tdiv', 'tdiv2exp', 'tmod', 'tmod2exp']
 >>>
@@ -73,11 +73,11 @@ mpz(56088)
 >>> a//b
 mpz(0)
 >>> a/b
-mpf('2.69736842105263157895e-1')
+mpf('2.6973684210526316e-1')
 >>> b//a
 mpz(3)
 >>> b/a
-mpf('3.70731707317073170732e0')
+mpf('3.7073170731707319e0')
 >>> a%b
 mpz(123)
 >>> 0%b
@@ -292,17 +292,17 @@ mpf('nan')
 >>> float('-Inf') * _g.mpz(0)
 mpf('nan')
 >>> a / float('Inf')
-mpf('0.e0')
+mpf('0.0e0')
 >>> -a / float('Inf')
-mpf('0.e0')
+mpf('-0.0e0')
 >>> float('Inf') / a
 mpf('inf')
 >>> float('Inf') / -a
 mpf('-inf')
 >>> a / float('-Inf')
-mpf('0.e0')
+mpf('-0.0e0')
 >>> -a / float('-Inf')
-mpf('0.e0')
+mpf('0.0e0')
 >>> float('-Inf') / a
 mpf('-inf')
 >>> float('-Inf') / -a
@@ -316,21 +316,21 @@ Traceback (most recent call last):
   ...
 ZeroDivisionError: mpz division by zero
 >>> divmod(a, float('Inf'))
-(mpf('0.e0'), mpf('1.23e2'))
+(mpf('0.0e0'), mpf('1.23e2'))
 >>> divmod(a, float('-Inf'))
-(mpf('-1.e0'), -inf)
+(mpf('-1.0e0'), -inf)
 >>> divmod(-a, float('Inf'))
-(mpf('-1.e0'), inf)
+(mpf('-1.0e0'), inf)
 >>> divmod(-a, float('-Inf'))
-(mpf('0.e0'), mpf('-1.23e2'))
+(mpf('0.0e0'), mpf('-1.23e2'))
 >>> divmod(a, float('nan'))
 (nan, nan)
 >>> divmod(-a, float('nan'))
 (nan, nan)
 >>> divmod(_g.mpz(0), float('Inf'))
-(mpf('0.e0'), mpf('0.e0'))
+(mpf('0.0e0'), mpf('0.0e0'))
 >>> divmod(_g.mpz(0), float('-Inf'))
-(mpf('0.e0'), mpf('0.e0'))
+(mpf('0.0e0'), mpf('0.0e0'))
 >>> divmod(_g.mpz(0), float('nan'))
 (nan, nan)
 >>> divmod(float('Inf'), a)
