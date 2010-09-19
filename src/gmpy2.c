@@ -839,7 +839,7 @@ PyFloat2Pympf(PyObject *self, mpfr_prec_t bits)
 
     assert(PyFloat_Check(self));
     if (!bits)
-        bits = DBL_MANT_DIG;
+        bits = options.precision;
     if (options.debug)
         fprintf(stderr, "PyFloat2Pympf(%p,%ld)\n", self, (long) bits);
 
@@ -1366,17 +1366,37 @@ PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits)
         len = PyBytes_Size(ascii_str);
         cp = (unsigned char*)PyBytes_AsString(ascii_str);
     }
-    if ((!bits) && (base ==256)) {
-        prec = 8 * (len - 5);
-        if ((len >= 5) && (cp[0] & 8)) {
-            bits = 0;
-            for(i=4; i>0; --i) {
-                bits = (bits<<8) | cp[i];
+    //~ if ((!bits) && (base ==256)) {
+        //~ prec = 8 * (len - 5);
+        //~ if ((len >= 5) && (cp[0] & 8)) {
+            //~ bits = 0;
+            //~ for(i=4; i>0; --i) {
+                //~ bits = (bits<<8) | cp[i];
+            //~ }
+        //~ }
+    //~ }
+
+    if (bits > 0) {
+        prec = bits;
+    }
+    else { /* precision to be defaulted or fetched */
+        if (base == 256) {  /* it may be encoded for fetching */
+            prec = 8 * (len - 5);      /* default precision */
+            if ((len>=5) && (cp[0]&8)) { /* precision must be fetched */
+                prec = 0;
+                for (i=4; i>0; --i) {
+                    prec = (prec << 8) | cp[i];
+                }
             }
         }
+        else { /* true-string, never encoded, just default it */
+            prec = options.precision;
+        }
     }
+    if (prec < MPFR_PREC_MIN)
+        prec = MPFR_PREC_MIN;
 
-    if (!(newob = Pympf_new(bits))) {
+    if (!(newob = Pympf_new(prec))) {
         Py_XDECREF(ascii_str);
         return NULL;
     }
@@ -1401,7 +1421,7 @@ PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits)
 
         /* mpf zero has a very compact (1-byte) binary encoding!-) */
         if (resuzero) {
-            mpfr_set_ui(newob->f, bits, options.rounding);
+            mpfr_set_ui(newob->f, 0, options.rounding);
             return newob;
         }
 
@@ -1420,8 +1440,8 @@ PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits)
         }
 
         /* reconstruct 'mantissa' (significand) */
-        mpfr_set_si(newob->f, bits, options.rounding);
-        mpfr_init2(digit, bits);
+        mpfr_set_si(newob->f, 0, options.rounding);
+        mpfr_init2(digit, prec);
         for (i = 5 + precilen; i<len; i++) {
             mpfr_set_ui(digit, cp[i], options.rounding);
             mpfr_div_2ui(digit, digit, (unsigned long)((i-4-precilen) * 8),
@@ -1747,6 +1767,12 @@ Pympf2binary(PympfObject *self)
 
     /* get buffer of base-16 digits */
     buffer  = mpfr_get_str(0, &the_exp, 16, 0, self->f, options.rounding);
+
+    /* strip trailing zeros */
+    hexdigs = strlen(buffer) - 1;
+    while ((hexdigs >= 1) && (buffer[hexdigs] == '0'))
+        buffer[hexdigs--] = 0x00;
+
     /* no need to worry about null-buffer as x->f==0.0 was
      * already handled above (see first test on 'sign').
      */
@@ -2116,6 +2142,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
 #endif
     char *buffer;
     mpfr_exp_t the_exp;
+    size_t buflen;
 
     /* check arguments are valid */
     assert(Pympf_Check((PyObject*)self));
@@ -2164,9 +2191,9 @@ Pympf_ascii(PympfObject *self, int base, int digits,
                                        mpfr_get_prec(self->f));
             else
                 if (optionflags & OP_TAG)
-                    result = Py_BuildValue("s", "mpf('-0.e0')");
+                    result = Py_BuildValue("s", "mpf('-0.0e0')");
                 else
-                    result = Py_BuildValue("s", "-0.e0");
+                    result = Py_BuildValue("s", "-0.0e0");
         }
         else {
             if (optionflags & OP_RAW)
@@ -2174,9 +2201,9 @@ Pympf_ascii(PympfObject *self, int base, int digits,
                                        mpfr_get_prec(self->f));
             else
                 if (optionflags & OP_TAG)
-                    result = Py_BuildValue("s", "mpf('0.e0')");
+                    result = Py_BuildValue("s", "mpf('0.0e0')");
                 else
-                    result = Py_BuildValue("s", "0.e0");
+                    result = Py_BuildValue("s", "0.0e0");
         }
         return result;
     }
@@ -2194,6 +2221,11 @@ Pympf_ascii(PympfObject *self, int base, int digits,
         return result;
     }
     else {
+        /* strip trailing zeros */
+        buflen = strlen(buffer) - 1;
+        while ((buflen >= 2) && (buffer[buflen] == '0'))
+            buffer[buflen--] = 0x00;
+
         /* insert formatting elements (decimal-point, leading or
          * trailing 0's, other indication of exponent...)
          */
@@ -2772,7 +2804,8 @@ anynum2Pympf(PyObject* obj, mpfr_prec_t bits)
         if (s) {
             temp = PyStr2Pympq(s, 10);
             newob = Pympq2Pympf((PyObject *)temp, bits);
-            Py_DECREF(s); Py_DECREF((PyObject*)temp);
+            Py_DECREF(s);
+            Py_DECREF((PyObject*)temp);
         }
     }
 
@@ -3023,40 +3056,12 @@ Pympq_digits(PyObject *self, PyObject *args)
 
 /* produce string for an mpf with requested/defaulted parameters */
 static char doc_fdigitsm[]="\
-x.digits(base=10, digs=0, mine=0, maxe=-1, opts=0): formats x.\n\
+x.digits(base=10, digs=0): formats x.\n\
 \n\
 Returns up to digs digits in the given base (if digs is 0, as many\n\
 digits as are available), but no more than available given x's\n\
-precision; the resulting string is formatted in fixed point\n\
-if the exponent is >=mine and <=maxe, else in exponential (the\n\
-exponent-separator is 'e' for base up to 10, else '@' -- the\n\
-exponent is always output as a signed, base-10 integer). If opts\n\
-has bit 1 set, the whole is wrapped in 'gmpy2.mpf(...)', to ease\n\
-later approximate reconstruction via builtin function eval\n\
-\n\
-If opts has bit 2 set, then opts bit 1, mine, and maxe, are\n\
-ignored; the result is then a 2-element tuple, first element\n\
-the raw string of base-digits without formatting, second the\n\
-exponent in base as a Python int.\n\
-";
-
-static char doc_fdigitsg[]="\
-fdigits(x, base=10, digs=0, mine=0, maxe=-1, opts=0): formats x,\n\
-which is an mpf or else gets coerced to one.\n\
-\n\
-Returns up to digs digits in the given base (if digs is 0, as many\n\
-digits as are available), but no more than available given x's\n\
-precision; the resulting string is formatted in fixed point\n\
-if the exponent is >=mine and <=maxe, else in exponential (the\n\
-exponent-separator is 'e' for base up to 10, else '@' -- the\n\
-exponent is always output as a signed, base-10 integer). If opts\n\
-has bit 1 set, the whole is wrapped in 'gmpy2.mpf(...)', to ease\n\
-later approximate reconstruction via builtin function eval\n\
-\n\
-If opts has bit 2 set, then opts bit 1, mine, and maxe, are\n\
-ignored; the result is then a 2-element tuple, first element\n\
-the raw string of base-digits without formatting, second the\n\
-exponent in base as a Python int.\n\
+precision. The result is a three element tuple containig the mantissa,\n\
+the exponent, and the number of bits of precision.\n\
 ";
 
 static PyObject *
@@ -3064,25 +3069,10 @@ Pympf_digits(PyObject *self, PyObject *args)
 {
     int base = 10;
     int digs = 0;
-    int mine = 0;
-    int maxe = -1;
-    int opts = 0;
-    PyObject *result;
 
-    if (self && Pympf_Check(self)) {
-        if (!PyArg_ParseTuple(args, "|iiiii", &base, &digs, &mine, &maxe, &opts))
-            return NULL;
-        Py_INCREF(self);
-    }
-    else {
-        if (!PyArg_ParseTuple(args, "O&|iiiii", Pympf_convert_arg, &self, &base,
-                &digs, &mine, &maxe, &opts))
-            return NULL;
-    }
-    assert(Pympf_Check(self));
-    result = Pympf_ascii( (PympfObject*)self, base, digs, mine, maxe, opts);
-    Py_DECREF(self);
-    return result;
+    if (!PyArg_ParseTuple(args, "|ii", &base, &digs))
+        return NULL;
+    return Pympf_ascii( (PympfObject*)self, base, digs, 0, 0, 2);
 }
 
 static char doc_qsignm[]="\
@@ -3720,9 +3710,9 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
                 TYPE_ERROR("gmpy2.mpf(): base must be an integer");
                 return NULL;
             }
-            if ((base!=0) && (base!=256) && ((base<2)||(base>36))) {
+            if ((base!=0) && (base!=256) && ((base<2)||(base>62))) {
                 VALUE_ERROR("base for gmpy2.mpf must be 0, 256, or in the "
-                            "interval 2 ... 36 .");
+                            "interval 2 ... 62 .");
                 return NULL;
             }
         }
@@ -4950,7 +4940,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "divexact", Pygmpy_divexact, METH_VARARGS, doc_divexactg },
     { "divm", Pygmpy_divm, METH_VARARGS, doc_divm },
     { "fac", Pygmpy_fac, METH_O, doc_fac },
-    { "fdigits", Pympf_digits, METH_VARARGS, doc_fdigitsg },
     { "fdiv", Pygmpy_fdiv, METH_VARARGS, doc_fdivg },
     { "fdiv2exp", Pygmpy_fdiv2exp, METH_VARARGS, doc_fdiv2expg },
     { "fdivmod", Pygmpy_fdivmod, METH_VARARGS, doc_fdivmodg },

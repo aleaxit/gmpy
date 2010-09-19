@@ -15,33 +15,33 @@ b=_g.mpf('789.123')
 __test__['elemop']=\
 r'''
 >>> str(a+b)
-'912.579'
+'912.57900000000006'
 >>> str(a-b)
-'-665.667'
+'-665.66700000000003'
 >>> str(a*b)
-'97421.969088'
+'97421.969088000013'
 >>> str(a/b)
-'0.156447093799065544915'
+'0.15644709379906555'
 >>> str(b+a)
-'912.579'
+'912.57900000000006'
 >>> str(b-a)
-'665.667'
+'665.66700000000003'
 >>> str(b*a)
-'97421.969088'
+'97421.969088000013'
 >>> str(b/a)
-'6.39193720839813374807'
+'6.3919372083981338'
 >>> str(-a)
 '-123.456'
 >>> str(abs(-a))
 '123.456'
 >>> _g.mpf(2,200) + 3
-mpf('5.e0',200)
+mpf('5.0e0',200)
 >>> 3 + _g.mpf(2,200)
-mpf('5.e0',200)
+mpf('5.0e0',200)
 >>> _g.mpf(2,200) * 3
-mpf('6.e0',200)
+mpf('6.0e0',200)
 >>> 3 * _g.mpf(2,200)
-mpf('6.e0',200)
+mpf('6.0e0',200)
 >>> _g.fsign(b-a)
 1
 >>> _g.fsign(b-b)
@@ -120,9 +120,9 @@ Traceback (innermost last):
     _g.reldiff(3, 4)
 TypeError: function takes exactly 1 argument (2 given)
 >>> a.sqrt()
-mpf('1.11110755554986664846e1')
+mpf('1.1111075555498667e1')
 >>> _g.fsqrt(a)
-mpf('1.11110755554986664846e1')
+mpf('1.1111075555498667e1')
 >>> _g.fsqrt(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -144,13 +144,13 @@ __test__['newdiv']=\
 r'''
 >>>
 >>> a/b
-mpf('1.56447093799065544915e-1')
+mpf('1.5644709379906555e-1')
 >>> a//b
-mpf('0.e0')
+mpf('0.0e0')
 >>> b/a
-mpf('6.39193720839813374807e0')
+mpf('6.3919372083981338e0')
 >>> b//a
-mpf('6.e0')
+mpf('6.0e0')
 >>>
 '''
 
@@ -198,7 +198,7 @@ mpq(15432,125)
 1234.0
 >>> x=1000*1000*1000*1000
 >>> _g.mpf(x)
-mpf('1.e12')
+mpf('1.0e12')
 >>> c=_g.mpf(a)
 >>> a is c
 1
@@ -222,17 +222,6 @@ False
 False
 >>> b == c
 True
->>> a == b.round(64)
-True
->>> a == _g.fround(b, 64)
-True
->>> _g.mpf('ffffffffffffffffe8000000000000000', 256, 16).round(64).digits(16)
-'f.fffffffffffffffe@32'
->>> _g.mpf('fffffffffffffffff8000000000000000', 256, 16).round(64).digits(16)
-'1.@33'
->>> b.round(64)
-mpf('1.23e-1',64)
->>>
 '''
 
 __test__['format']=\
@@ -242,28 +231,28 @@ r'''
 >>> repr(a)
 "mpf('1.23456e2')"
 >>> a.digits(10,0)
-'1.23456e2'
+('12345600000000000', 3, 53)
 >>> a.digits(10,1)
 Traceback (most recent call last):
   ...
 ValueError: digits must be 0 or >= 2
 >>> a.digits(10,2)
-'1.2e2'
+('12', 3, 53)
 >>> a.digits(10,3)
-'1.23e2'
+('123', 3, 53)
 >>> a.digits(10,4)
-'1.235e2'
+('1235', 3, 53)
 >>> a.digits(10,5)
-'1.2346e2'
+('12346', 3, 53)
 >>> a.digits(10,6)
-'1.23456e2'
+('123456', 3, 53)
 >>> a.digits(10,7)
-'1.23456e2'
+('1234560', 3, 53)
 >>> a.digits(10,8)
-'1.23456e2'
+('12345600', 3, 53)
 >>> for i in range(11,99):
-...     tempa='%.16f' % (i/10.0)
-...     tempb=_g.mpf(i/10.0).digits(10,17)
+...     tempa=('%.16f' % (i/10.0)).replace('.','')
+...     tempb=_g.mpf(i/10.0).digits(10,17)[0]
 ...     assert tempb.startswith(tempa.rstrip('0')), (tempa, tempb)
 ...
 >>> junk=_g.set_fcoform(14)
@@ -274,9 +263,9 @@ ValueError: digits must be 0 or >= 2
 >>> ofmt
 '%.14e'
 >>> _g.mpf(3.4)
-mpf('3.39999999999999999998e0')
+mpf('3.3999999999999999e0')
 >>> print(_g.mpf(3.4))
-3.39999999999999999998
+3.3999999999999999
 >>> _g.set_fcoform(junk)
 '%.14e'
 >>> a.digits(1)
@@ -287,8 +276,8 @@ ValueError: base must be in the interval 2 ... 62
 Traceback (most recent call last):
   File "<string>", line 1, in ?
 ValueError: digits must be 0 or >= 2
->>> a.digits(10,0,0,-1,2)
-('123456', 3, 53)
+>>> a.digits(10,0)
+('12345600000000000', 3, 53)
 >>> saveprec=a.precision
 >>> newa = a.round(33)
 >>> newa
@@ -297,10 +286,6 @@ mpf('1.23456e2',33)
 >>> newa.precision==saveprec
 1
 >>> del(newa)
->>> _g.fdigits(2.2e5, 10, 0, 6, -10, 10)
-'220000.0'
->>> _g.fdigits(2.2e-5, 10, 0, 6, -10, 10)
-'0.000022'
 >>> _g.digits(_g.mpf(23.45))
 Traceback (most recent call last):
   ...
@@ -314,12 +299,12 @@ TypeError: binary() requires a gmpy2 object as argument
 
 __test__['binio']=\
 r'''
->>> epsilon=_g.mpf(2)**-(a.getprec())
+>>> epsilon=_g.mpf(2)**-(a.precision)
 >>> ba=a.binary()
 >>> a.reldiff(_g.mpf(ba,0,256)) <= epsilon
 1
 >>> len(ba)
-18
+16
 >>> for i in range(len(ba)):
 ...     print(ba[i])
 ...
@@ -338,9 +323,7 @@ r'''
 106
 126
 249
-219
-34
-209
+220
 >>> na=(-a).binary()
 >>> (-a).reldiff(_g.mpf(na,0,256)) <= epsilon
 1
@@ -382,7 +365,7 @@ b'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
 >>> hash(_g.mpf(23.0))==hash(23)
 1
 >>> print(_g.mpf('\004',0,256))
-0.0
+0.0e0
 >>> int(a)
 123
 >>> int(-a)
