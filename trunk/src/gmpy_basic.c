@@ -29,13 +29,12 @@ Pympany_add(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
     PympzObject *rz = 0, *paz = 0, *pbz = 0;
-    PyxmpzObject *rxz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
     PympfObject *rf = 0, *paf = 0, *pbf = 0;
     long temp;
     int overflow;
 
-    if (Pympz_Check(a)) {
+    if (CHECK_MPZANY(a)) {
         if (!(rz = Pympz_new()))
             return NULL;
 
@@ -59,21 +58,14 @@ Pympany_add(PyObject *a, PyObject *b)
         }
 
         /* mpz + mpz */
-        if (Pympz_Check(b)) {
+        if (CHECK_MPZANY(b)) {
             TRACE("Adding (mpz,mpz)\n");
             mpz_add(rz->z, Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject*)rz;
         }
-
-        /* mpz + xmpz */
-        if ((!options.prefer_mutable) && Pyxmpz_Check(b)) {
-            TRACE("Adding (mpz,xmpz)\n");
-            mpz_add(rz->z, Pympz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
-            return (PyObject*)rz;
-        }
     }
 
-    if (Pympz_Check(b)) {
+    if (CHECK_MPZANY(b)) {
         if (!(rz = Pympz_new()))
             return NULL;
 
@@ -95,82 +87,93 @@ Pympany_add(PyObject *a, PyObject *b)
             }
             return (PyObject*)rz;
         }
+    }
 
-        /* xmpz * mpz */
-        if ((!options.prefer_mutable) && Pyxmpz_Check(a)) {
-            TRACE("Adding (xmpz,mpz)\n");
-            mpz_add(rz->z, Pyxmpz_AS_MPZ(a), Pympz_AS_MPZ(b));
-            return (PyObject*)rz;
+    if (Pympf_Check(a)) {
+        TRACE("Adding (mpf,number)\n");
+        if (!(rf = Pympf_new(0))) {
+            return NULL;
+        }
+        if (isInteger(b)) {
+            if (!(pbz = Pympz_From_Integer(b))) {
+                SYSTEM_ERROR("Can not convert number to mpz");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_add_z(rf->f, Pympf_AS_MPF(a), pbz->z, options.rounding);
+            Py_DECREF((PyObject*)pbz);
+            return (PyObject*)rf;
+        }
+        else if (isRational(b)) {
+            if (!(pbq = anyrational2Pympq(b))) {
+                SYSTEM_ERROR("Can not convert number to mpq");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_add_q(rf->f, Pympf_AS_MPF(a), pbq->q, options.rounding);
+            Py_DECREF((PyObject*)pbq);
+            return (PyObject*)rf;
+        }
+        else if (PyFloat_Check(b)) {
+            mpfr_add_d(rf->f, Pympf_AS_MPF(a), PyFloat_AS_DOUBLE(b), options.rounding);
+            return (PyObject*)rf;
         }
     }
 
-    if (Pyxmpz_Check(a)) {
-        if (!(rxz = Pyxmpz_new()))
+    if (Pympf_Check(b)) {
+        TRACE("Adding (number,mpf)\n");
+        if (!(rf = Pympf_new(0))) {
             return NULL;
-
-        /* xmpz + integer */
-        if (PyIntOrLong_Check(b)) {
-            TRACE("Adding (xmpz,integer)\n");
-            temp = PyLong_AsLongAndOverflow(b, &overflow);
-            if (overflow) {
-                mpz_inoc(tempz);
-                mpz_set_PyLong(tempz, b);
-                mpz_add(rxz->z, Pyxmpz_AS_MPZ(a), tempz);
-                mpz_cloc(tempz);
-            }
-            else if (temp >= 0) {
-                mpz_add_ui(rxz->z, Pyxmpz_AS_MPZ(a), temp);
-            }
-            else {
-                mpz_sub_ui(rxz->z, Pyxmpz_AS_MPZ(a), -temp);
-            }
-            return (PyObject*)rxz;
         }
-
-        /* xmpz + xmpz */
-        if (Pyxmpz_Check(b)) {
-            TRACE("Adding (xmpz,xmpz)\n");
-            mpz_add(rxz->z, Pyxmpz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
-            return (PyObject*)rxz;
+        if (isInteger(a)) {
+            if (!(paz = Pympz_From_Integer(a))) {
+                SYSTEM_ERROR("Can not convert number to mpz");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_add_z(rf->f, Pympf_AS_MPF(b), paz->z, options.rounding);
+            Py_DECREF((PyObject*)paz);
+            return (PyObject*)rf;
         }
-
-        /* xmpz + mpz */
-        if ((options.prefer_mutable) && Pympz_Check(b)) {
-            TRACE("Adding (xmpz,mpz)\n");
-            mpz_add(rxz->z, Pyxmpz_AS_MPZ(a), Pympz_AS_MPZ(b));
-            return (PyObject*)rxz;
+        else if (isRational(a)) {
+            if (!(paq = anyrational2Pympq(a))) {
+                SYSTEM_ERROR("Can not convert number to mpq");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_add_q(rf->f, Pympf_AS_MPF(b), paq->q, options.rounding);
+            Py_DECREF((PyObject*)paq);
+            return (PyObject*)rf;
+        }
+        else if (PyFloat_Check(a)) {
+            mpfr_add_d(rf->f, Pympf_AS_MPF(b), PyFloat_AS_DOUBLE(a), options.rounding);
+            return (PyObject*)rf;
         }
     }
 
-    if (Pyxmpz_Check(b)) {
-        if (!(rxz = Pyxmpz_new()))
+    /* This code allows isInteger() and anyinteger2Pympz() to support types
+     * other than PyInt/PyLong/mpz/xmpz.
+     */
+
+    if (isInteger(a) && isInteger(b)) {
+        TRACE("Adding (integer,integer)\n");
+        paz = Pympz_From_Integer(a);
+        pbz = Pympz_From_Integer(b);
+        if (!paz || !pbz) {
+            SYSTEM_ERROR("Can not convert integer to mpz");
+            Py_XDECREF((PyObject*)paz);
+            Py_XDECREF((PyObject*)pbz);
             return NULL;
-
-        /* integer + xmpz */
-        if (PyIntOrLong_Check(a)) {
-            TRACE("Adding (long,xmpz)\n");
-            temp = PyLong_AsLongAndOverflow(a, &overflow);
-            if (overflow) {
-                mpz_inoc(tempz);
-                mpz_set_PyLong(tempz, a);
-                mpz_add(rz->z, Pyxmpz_AS_MPZ(b), tempz);
-                mpz_cloc(tempz);
-            }
-            else if (temp >=0) {
-                mpz_add_ui(rxz->z, Pyxmpz_AS_MPZ(b), temp);
-            }
-            else {
-                mpz_sub_ui(rxz->z, Pyxmpz_AS_MPZ(b), -temp);
-            }
-            return (PyObject*)rxz;
         }
-
-        /* mpz + xmpz */
-        if ((options.prefer_mutable) && Pympz_Check(a)) {
-            TRACE("Adding (mpz,xmpz)\n");
-            mpz_add(rxz->z, Pympz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
-            return (PyObject*)rxz;
+        if (!(rz = Pympz_new())) {
+            Py_DECREF((PyObject*)paz);
+            Py_DECREF((PyObject*)pbz);
+            return NULL;
         }
+        mpz_add(rz->z, paz->z, pbz->z);
+        Py_DECREF((PyObject*)paz);
+        Py_DECREF((PyObject*)pbz);
+        return (PyObject*)rz;
     }
 
     if (isRational(a) && isRational(b)) {
@@ -194,105 +197,27 @@ Pympany_add(PyObject *a, PyObject *b)
         return (PyObject*)rq;
     }
 
-    if (Pympf_Check(a)) {
+    if (isNumber(a) && isNumber(b)) {
         TRACE("Adding (number,number)\n");
-        if (isInteger(b)) {
-            if (!(rf = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(a))))) {
-                return NULL;
-            }
-            if (!(pbz = Pympz_From_Integer(b))) {
-                SYSTEM_ERROR("Can not convert number to mpz");
-                Py_DECREF((PyObject*)rf);
-                return NULL;
-            }
-            mpfr_add_z(rf->f, Pympf_AS_MPF(a), pbz->z, options.rounding);
-            Py_DECREF((PyObject*)pbz);
-            return (PyObject*)rf;
+        paf = Pympf_From_Number(a, 0);
+        pbf = Pympf_From_Number(b, 0);
+        if (!paf || !pbf) {
+            SYSTEM_ERROR("Can not convert number to mpf");
+            Py_XDECREF((PyObject*)paf);
+            Py_XDECREF((PyObject*)pbf);
+            return NULL;
         }
-        else if (isRational(b)) {
-            if (!(rf = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(a))))) {
-                return NULL;
-            }
-            if (!(pbq = anyrational2Pympq(b))) {
-                SYSTEM_ERROR("Can not convert number to mpq");
-                Py_DECREF((PyObject*)rf);
-                return NULL;
-            }
-            mpfr_add_q(rf->f, Pympf_AS_MPF(a), pbq->q, options.rounding);
-            Py_DECREF((PyObject*)pbq);
-            return (PyObject*)rf;
-        }
-        else if (PyFloat_Check(b)) {
-            if (!(rf = Pympf_new(options.precision))) {
-                return NULL;
-            }
-            mpfr_add_d(rf->f, Pympf_AS_MPF(a), PyFloat_AS_DOUBLE(b), options.rounding);
-            return (PyObject*)rf;
-        }
-        else if (isNumber(b)) {
-            if (!(rf = Pympf_new(options.precision))) {
-                return NULL;
-            }
-            if (!(pbf = anynum2Pympf(b, options.precision))) {
-                SYSTEM_ERROR("Can not convert number to mpf");
-                Py_DECREF((PyObject*)rf);
-                return NULL;
-            }
-            mpfr_add(rf->f, Pympf_AS_MPF(a), pbf->f, options.rounding);
+        if (!(rf = Pympf_new(0))) {
+            Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
-            return (PyObject*)rf;
+            return NULL;
         }
+        mpfr_add(rf->f, paf->f, pbf->f, options.rounding);
+        Py_DECREF((PyObject*)paf);
+        Py_DECREF((PyObject*)pbf);
+        return (PyObject*)rf;
     }
 
-    if (Pympf_Check(b)) {
-        TRACE("Adding (number,number)\n");
-        if (isInteger(a)) {
-            if (!(rf = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(b))))) {
-                return NULL;
-            }
-            if (!(paz = Pympz_From_Integer(a))) {
-                SYSTEM_ERROR("Can not convert number to mpz");
-                Py_DECREF((PyObject*)rf);
-                return NULL;
-            }
-            mpfr_add_z(rf->f, Pympf_AS_MPF(b), paz->z, options.rounding);
-            Py_DECREF((PyObject*)paz);
-            return (PyObject*)rf;
-        }
-        else if (isRational(a)) {
-            if (!(rf = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(b))))) {
-                return NULL;
-            }
-            if (!(paq = anyrational2Pympq(a))) {
-                SYSTEM_ERROR("Can not convert number to mpq");
-                Py_DECREF((PyObject*)rf);
-                return NULL;
-            }
-            mpfr_add_q(rf->f, Pympf_AS_MPF(b), paq->q, options.rounding);
-            Py_DECREF((PyObject*)paq);
-            return (PyObject*)rf;
-        }
-        else if (PyFloat_Check(a)) {
-            if (!(rf = Pympf_new(options.precision))) {
-                return NULL;
-            }
-            mpfr_add_d(rf->f, Pympf_AS_MPF(b), PyFloat_AS_DOUBLE(a), options.rounding);
-            return (PyObject*)rf;
-        }
-        else if (isNumber(a)) {
-            if (!(rf = Pympf_new(options.precision))) {
-                return NULL;
-            }
-            if (!(paf = anynum2Pympf(a, options.precision))) {
-                SYSTEM_ERROR("Can not convert number to mpf");
-                Py_DECREF((PyObject*)rf);
-                return NULL;
-            }
-            mpfr_add(rf->f, Pympf_AS_MPF(b), paf->f, options.rounding);
-            Py_DECREF((PyObject*)paf);
-            return (PyObject*)rf;
-        }
-    }
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -305,7 +230,7 @@ static PyObject *
 Pympany_sub(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
-    PympzObject *rz;
+    PympzObject *rz = 0, *paz = 0, *pbz = 0;
     PyxmpzObject *rxz;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
     PympfObject *rf = 0, *paf = 0, *pbf = 0;
@@ -473,25 +398,114 @@ Pympany_sub(PyObject *a, PyObject *b)
         return (PyObject*)rq;
     }
 
-    if (isNumber(a) && isNumber(b)) {
+    if (Pympf_Check(a) || PyFloat_Check(a)) {
         TRACE("Subtracting (number,number)\n");
-        paf = anynum2Pympf(a, 0);
-        pbf = anynum2Pympf(b, 0);
-        if (!paf || !pbf) {
+        if (!(paf = Pympf_From_Number(a, 0))) {
             SYSTEM_ERROR("Can not convert number to mpf");
-            Py_XDECREF((PyObject*)paf);
-            Py_XDECREF((PyObject*)pbf);
             return NULL;
         }
         if (!(rf = Pympf_new(0))) {
             Py_DECREF((PyObject*)paf);
+            return NULL;
+        }
+        if (isInteger(b)) {
+            if (!(pbz = Pympz_From_Integer(b))) {
+                SYSTEM_ERROR("Can not convert number to mpz");
+                Py_DECREF((PyObject*)paf);
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_sub_z(rf->f, paf->f, pbz->z, options.rounding);
+            Py_DECREF((PyObject*)paf);
+            Py_DECREF((PyObject*)pbz);
+            return (PyObject*)rf;
+        }
+        else if (isRational(b)) {
+            if (!(pbq = anyrational2Pympq(b))) {
+                SYSTEM_ERROR("Can not convert number to mpq");
+                Py_DECREF((PyObject*)paf);
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_sub_q(rf->f, paf->f, pbq->q, options.rounding);
+            Py_DECREF((PyObject*)paf);
+            Py_DECREF((PyObject*)pbq);
+            return (PyObject*)rf;
+        }
+        else if (PyFloat_Check(b)) {
+            mpfr_sub_d(rf->f, paf->f, PyFloat_AS_DOUBLE(b), options.rounding);
+            Py_DECREF((PyObject*)paf);
+            return (PyObject*)rf;
+        }
+        else if (isNumber(b)) {
+            if (!(pbf = Pympf_From_Number(b, options.precision))) {
+                SYSTEM_ERROR("Can not convert number to mpf");
+                Py_DECREF((PyObject*)paf);
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_sub(rf->f, paf->f, pbf->f, options.rounding);
+            Py_DECREF((PyObject*)paf);
+            Py_DECREF((PyObject*)pbf);
+            return (PyObject*)rf;
+        }
+    }
+
+    if (Pympf_Check(b) || PyFloat_Check(b)) {
+        TRACE("Subtracting (number,number)\n");
+        if (!(pbf = Pympf_From_Number(b, 0))) {
+            SYSTEM_ERROR("Can not convert number to mpf");
+            return NULL;
+        }
+        if (!(rf = Pympf_new(0))) {
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        mpfr_sub(rf->f, paf->f, pbf->f, options.rounding);
-        Py_DECREF((PyObject*)paf);
-        Py_DECREF((PyObject*)pbf);
-        return (PyObject*)rf;
+        if (isInteger(a)) {
+            if (!(paz = Pympz_From_Integer(a))) {
+                SYSTEM_ERROR("Can not convert number to mpz");
+                Py_DECREF((PyObject*)pbf);
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_sub_z(rf->f, pbf->f, paz->z, options.rounding);
+            mpfr_neg(rf->f, rf->f, options.rounding);
+            Py_DECREF((PyObject*)pbf);
+            Py_DECREF((PyObject*)paz);
+            return (PyObject*)rf;
+        }
+        else if (isRational(a)) {
+            if (!(paq = anyrational2Pympq(a))) {
+                SYSTEM_ERROR("Can not convert number to mpq");
+                Py_DECREF((PyObject*)pbf);
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_add_q(rf->f, pbf->f, paq->q, options.rounding);
+            mpfr_neg(rf->f, rf->f, options.rounding);
+            Py_DECREF((PyObject*)pbf);
+            Py_DECREF((PyObject*)paq);
+            return (PyObject*)rf;
+        }
+        else if (PyFloat_Check(a)) {
+            mpfr_sub_d(rf->f, pbf->f, PyFloat_AS_DOUBLE(a), options.rounding);
+            mpfr_neg(rf->f, rf->f, options.rounding);
+            Py_DECREF((PyObject*)pbf);
+            return (PyObject*)rf;
+        }
+        else if (isNumber(a)) {
+            if (!(paf = Pympf_From_Number(a, options.precision))) {
+                SYSTEM_ERROR("Can not convert number to mpf");
+                Py_DECREF((PyObject*)pbf);
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_add(rf->f, pbf->f, paf->f, options.rounding);
+            mpfr_neg(rf->f, rf->f, options.rounding);
+            Py_DECREF((PyObject*)pbf);
+            Py_DECREF((PyObject*)paf);
+            return (PyObject*)rf;
+        }
     }
     Py_RETURN_NOTIMPLEMENTED;
 }
@@ -661,8 +675,8 @@ Pympany_mul(PyObject *a, PyObject *b)
 
     if (isNumber(a) && isNumber(b)) {
         TRACE("Multiplying (number,number)\n");
-        paf = anynum2Pympf(a, 0);
-        pbf = anynum2Pympf(b, 0);
+        paf = Pympf_From_Number(a, 0);
+        pbf = Pympf_From_Number(b, 0);
         if (!paf || !pbf) {
             SYSTEM_ERROR("Can not convert number to mpf");
             Py_XDECREF((PyObject*)paf);
@@ -908,8 +922,8 @@ Pympany_floordiv(PyObject *a, PyObject *b)
 
     if (isNumber(a) && isNumber(b)) {
         TRACE("Floor divide (number,number)\n");
-        paf = anynum2Pympf(a, 0);
-        pbf = anynum2Pympf(b, 0);
+        paf = Pympf_From_Number(a, 0);
+        pbf = Pympf_From_Number(b, 0);
         if (!paf || !pbf) {
             SYSTEM_ERROR("Can not convert number to mpf");
             Py_XDECREF((PyObject*)paf);
@@ -964,8 +978,8 @@ Pympany_truediv(PyObject *a, PyObject *b)
 
     if (isInteger(a) && isInteger(b)) {
         TRACE("True divide (integer,integer)\n");
-        paf = anynum2Pympf(a, 0);
-        pbf = anynum2Pympf(b, 0);
+        paf = Pympf_From_Number(a, 0);
+        pbf = Pympf_From_Number(b, 0);
         if (!paf || !pbf) {
             SYSTEM_ERROR("Can not convert number to mpf");
             Py_XDECREF((PyObject*)paf);
@@ -1018,8 +1032,8 @@ Pympany_truediv(PyObject *a, PyObject *b)
 
     if (isNumber(a) && isNumber(b)) {
         TRACE("True divide (number,number)\n");
-        paf = anynum2Pympf(a, 0);
-        pbf = anynum2Pympf(b, 0);
+        paf = Pympf_From_Number(a, 0);
+        pbf = Pympf_From_Number(b, 0);
         if (!paf || !pbf) {
             if (PyErr_Occurred()) {
                 PyErr_Clear();
@@ -1289,8 +1303,8 @@ Pympany_div2(PyObject *a, PyObject *b)
 
     if (isNumber(a) && isNumber(b)) {
         TRACE("True divide (number,number)\n");
-        paf = anynum2Pympf(a, 0);
-        pbf = anynum2Pympf(b, 0);
+        paf = Pympf_From_Number(a, 0);
+        pbf = Pympf_From_Number(b, 0);
         if (!paf || !pbf) {
             SYSTEM_ERROR("Can not convert number to mpf");
             Py_XDECREF((PyObject*)paf);
@@ -1552,8 +1566,8 @@ Pympany_rem(PyObject *a, PyObject *b)
 
     if (isNumber(a) && isNumber(b)) {
         TRACE("Modulo (number,number)\n");
-        paf = anynum2Pympf(a, 0);
-        pbf = anynum2Pympf(b, 0);
+        paf = Pympf_From_Number(a, 0);
+        pbf = Pympf_From_Number(b, 0);
         if (!paf || !pbf) {
             SYSTEM_ERROR("Can not convert number to mpf");
             Py_XDECREF((PyObject*)paf);
@@ -1869,8 +1883,8 @@ Pympany_divmod(PyObject *a, PyObject *b)
 
     if (isNumber(a) && isNumber(b)) {
         TRACE("Divmod (number,number)\n");
-        paf = anynum2Pympf(a, 0);
-        pbf = anynum2Pympf(b, 0);
+        paf = Pympf_From_Number(a, 0);
+        pbf = Pympf_From_Number(b, 0);
         if (!paf || !pbf) {
             SYSTEM_ERROR("Can not convert number to mpf");
             Py_XDECREF((PyObject*)paf);

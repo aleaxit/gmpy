@@ -804,7 +804,7 @@ PyFloat2Pyxmpz(PyObject *self)
 static PyObject *f2q_internal(PympfObject* self, PympfObject* err,
         unsigned int bits, int mayz);
 static PyObject* Pympf_f2q(PyObject *self, PyObject *args);
-static PympfObject* anynum2Pympf(PyObject* obj, mpfr_prec_t bits);
+static PympfObject* Pympf_From_Number(PyObject* obj, mpfr_prec_t bits);
 
 static PympqObject *
 PyFloat2Pympq(PyObject *self)
@@ -839,7 +839,7 @@ PyFloat2Pympf(PyObject *self, mpfr_prec_t bits)
 
     assert(PyFloat_Check(self));
     if (!bits)
-        bits = options.precision;
+        bits = DBL_MANT_DIG;
     if (options.debug)
         fprintf(stderr, "PyFloat2Pympf(%p,%ld)\n", self, (long) bits);
 
@@ -868,7 +868,7 @@ PyFloat2Pympf(PyObject *self, mpfr_prec_t bits)
     }
     else { /* direct float->mpf conversion, faster but rougher */
         if ((newob = Pympf_new(bits)))
-            mpfr_set_d(newob->f, PyFloat_AsDouble(self), bits);
+            mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), bits);
     }
     return newob;
 }
@@ -2753,8 +2753,17 @@ clong_From_Integer(PyObject *obj)
     return -1;
 }
 
+/*
+ * If obj is a PyFloat and bits is 0, then the conversion is done exactly.
+ * If obj is a Pympf and bits is 0 or bits is the same as the precision of
+ * obj, then a new reference is created.
+ *
+ * For all other numerical types with bits = 0, the conversion is rounded to
+ * options.precision.
+ */
+
 static PympfObject*
-anynum2Pympf(PyObject* obj, mpfr_prec_t bits)
+Pympf_From_Number(PyObject* obj, mpfr_prec_t bits)
 {
     PympfObject* newob = 0;
     PympqObject* temp = 0;
@@ -2810,7 +2819,7 @@ anynum2Pympf(PyObject* obj, mpfr_prec_t bits)
     }
 
     if (options.debug)
-        fprintf(stderr, "anynum2Pympf(%p,%ld)->%p (%ld)\n", obj,
+        fprintf(stderr, "Pympf_From_Number(%p,%ld)->%p (%ld)\n", obj,
                 (long)bits, newob, newob != 0 ? (long)mpfr_get_prec(newob->f) : -1);
 
     return newob;
@@ -2866,7 +2875,7 @@ Pympq_convert_arg(PyObject *arg, PyObject **ptr)
 int
 Pympf_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympfObject* newob = anynum2Pympf(arg,0);
+    PympfObject* newob = Pympf_From_Number(arg, 0);
 
     if (options.debug)
         fprintf(stderr, "mpf_conv_arg(%p)->%p\n", arg, newob);
@@ -3726,7 +3735,7 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
             TYPE_ERROR("gmpy2.mpf() with numeric 1st argument needs 1 or 2 arguments");
             return NULL;
         }
-        newob = anynum2Pympf(obj, bits);
+        newob = Pympf_From_Number(obj, bits);
         if (!newob) {
             if (!PyErr_Occurred())
                 TYPE_ERROR("gmpy2.mpf() requires numeric or string argument");
@@ -3785,8 +3794,8 @@ Py##NAME(PyObject *a, PyObject *b) \
     } else { \
       bits = mpfr_get_prec(((PympfObject*)b)->f); \
     } \
-    pa = anynum2Pympf(a, bits); \
-    pb = anynum2Pympf(b, bits); \
+    pa = Pympf_From_Number(a, bits); \
+    pb = Pympf_From_Number(b, bits); \
     if (!pa || !pb) { \
       Py_XDECREF((PyObject*)pa); \
       Py_XDECREF((PyObject*)pb); \
@@ -4022,17 +4031,17 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
     }
 
     if ((Pympf_Check(xb) && Pympf_Check(xe))) {
-        b = anynum2Pympf(xb, 0);
-        e = anynum2Pympf(xe, 0);
+        b = Pympf_From_Number(xb, 0);
+        e = Pympf_From_Number(xe, 0);
     }
     else {
         if (Pympf_Check(xb)) {
-            b = anynum2Pympf(xb, 0);
-            e = anynum2Pympf(xe, mpfr_get_prec(((PympfObject*)xb)->f));
+            b = Pympf_From_Number(xb, 0);
+            e = Pympf_From_Number(xe, mpfr_get_prec(((PympfObject*)xb)->f));
         }
         if (Pympf_Check(xe)) {
-            b = anynum2Pympf(xb, mpfr_get_prec(((PympfObject*)xe)->f));
-            e = anynum2Pympf(xe, 0);
+            b = Pympf_From_Number(xb, mpfr_get_prec(((PympfObject*)xe)->f));
+            e = Pympf_From_Number(xe, 0);
         }
     }
 
@@ -4238,8 +4247,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 }
             }
         }
-        tempa = (PyObject*)anynum2Pympf(a,0);
-        tempb = (PyObject*)anynum2Pympf(b,0);
+        tempa = (PyObject*)Pympf_From_Number(a,0);
+        tempb = (PyObject*)Pympf_From_Number(b,0);
         c = mpfr_cmp(Pympf_AS_MPF(tempa), Pympf_AS_MPF(tempb));
         Py_DECREF(tempa);
         Py_DECREF(tempb);
@@ -4499,14 +4508,14 @@ static PyObject *
 Pympf_round(PyObject *self, PyObject *args)
 {
     /* Should really get default precision. */
-    long prec = DBL_MANT_DIG;
-    PyObject *s;
+    mpfr_prec_t prec = options.precision;
+    PyObject *result;
 
-    SELF_MPF_ONE_ARG("|l",&prec);
+    SELF_MPF_ONE_ARG("|l", &prec);
     assert(Pympf_Check(self));
-    s = (PyObject*)Pympf2Pympf(self, prec);
+    result = (PyObject*)Pympf2Pympf(self, prec);
     Py_DECREF(self);
-    return s;
+    return result;
 }
 
 static char doc_reldiffm[] = "\
