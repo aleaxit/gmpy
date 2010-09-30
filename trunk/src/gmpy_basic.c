@@ -94,7 +94,10 @@ Pympany_add(PyObject *a, PyObject *b)
         if (!(rf = Pympf_new(0))) {
             return NULL;
         }
-        if (isInteger(b)) {
+        if (Pympf_Check(b)) {
+            mpfr_add(rf->f, Pympf_AS_MPF(a), Pympf_AS_MPF(b), options.rounding);
+        }
+        else if (isInteger(b)) {
             if (!(pbz = Pympz_From_Integer(b))) {
                 SYSTEM_ERROR("Can not convert number to mpz");
                 Py_DECREF((PyObject*)rf);
@@ -151,10 +154,6 @@ Pympany_add(PyObject *a, PyObject *b)
         }
     }
 
-    /* This code allows isInteger() and anyinteger2Pympz() to support types
-     * other than PyInt/PyLong/mpz/xmpz.
-     */
-
     if (isInteger(a) && isInteger(b)) {
         TRACE("Adding (integer,integer)\n");
         paz = Pympz_From_Integer(a);
@@ -197,10 +196,10 @@ Pympany_add(PyObject *a, PyObject *b)
         return (PyObject*)rq;
     }
 
-    if (isNumber(a) && isNumber(b)) {
+    if (isFloat(a) && isFloat(b)) {
         TRACE("Adding (number,number)\n");
-        paf = Pympf_From_Number(a, 0);
-        pbf = Pympf_From_Number(b, 0);
+        paf = Pympf_From_Float(a, 0);
+        pbf = Pympf_From_Float(b, 0);
         if (!paf || !pbf) {
             SYSTEM_ERROR("Can not convert number to mpf");
             Py_XDECREF((PyObject*)paf);
@@ -400,7 +399,7 @@ Pympany_sub(PyObject *a, PyObject *b)
 
     if (Pympf_Check(a) || PyFloat_Check(a)) {
         TRACE("Subtracting (number,number)\n");
-        if (!(paf = Pympf_From_Number(a, 0))) {
+        if (!(paf = Pympf_From_Float(a, 0))) {
             SYSTEM_ERROR("Can not convert number to mpf");
             return NULL;
         }
@@ -437,8 +436,8 @@ Pympany_sub(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)paf);
             return (PyObject*)rf;
         }
-        else if (isNumber(b)) {
-            if (!(pbf = Pympf_From_Number(b, options.precision))) {
+        else if (isFloat(b)) {
+            if (!(pbf = Pympf_From_Float(b, options.precision))) {
                 SYSTEM_ERROR("Can not convert number to mpf");
                 Py_DECREF((PyObject*)paf);
                 Py_DECREF((PyObject*)rf);
@@ -453,7 +452,7 @@ Pympany_sub(PyObject *a, PyObject *b)
 
     if (Pympf_Check(b) || PyFloat_Check(b)) {
         TRACE("Subtracting (number,number)\n");
-        if (!(pbf = Pympf_From_Number(b, 0))) {
+        if (!(pbf = Pympf_From_Float(b, 0))) {
             SYSTEM_ERROR("Can not convert number to mpf");
             return NULL;
         }
@@ -493,8 +492,8 @@ Pympany_sub(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbf);
             return (PyObject*)rf;
         }
-        else if (isNumber(a)) {
-            if (!(paf = Pympf_From_Number(a, options.precision))) {
+        else if (isFloat(a)) {
+            if (!(paf = Pympf_From_Float(a, options.precision))) {
                 SYSTEM_ERROR("Can not convert number to mpf");
                 Py_DECREF((PyObject*)pbf);
                 Py_DECREF((PyObject*)rf);
@@ -673,10 +672,10 @@ Pympany_mul(PyObject *a, PyObject *b)
         return (PyObject*)rq;
     }
 
-    if (isNumber(a) && isNumber(b)) {
+    if (isFloat(a) && isFloat(b)) {
         TRACE("Multiplying (number,number)\n");
-        paf = Pympf_From_Number(a, 0);
-        pbf = Pympf_From_Number(b, 0);
+        paf = Pympf_From_Float(a, 0);
+        pbf = Pympf_From_Float(b, 0);
         if (!paf || !pbf) {
             SYSTEM_ERROR("Can not convert number to mpf");
             Py_XDECREF((PyObject*)paf);
@@ -920,10 +919,10 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         return (PyObject*)rz;
     }
 
-    if (isNumber(a) && isNumber(b)) {
+    if (isFloat(a) && isFloat(b)) {
         TRACE("Floor divide (number,number)\n");
-        paf = Pympf_From_Number(a, 0);
-        pbf = Pympf_From_Number(b, 0);
+        paf = Pympf_From_Float(a, 0);
+        pbf = Pympf_From_Float(b, 0);
         if (!paf || !pbf) {
             SYSTEM_ERROR("Can not convert number to mpf");
             Py_XDECREF((PyObject*)paf);
@@ -978,8 +977,8 @@ Pympany_truediv(PyObject *a, PyObject *b)
 
     if (isInteger(a) && isInteger(b)) {
         TRACE("True divide (integer,integer)\n");
-        paf = Pympf_From_Number(a, 0);
-        pbf = Pympf_From_Number(b, 0);
+        paf = Pympf_From_Float(a, 0);
+        pbf = Pympf_From_Float(b, 0);
         if (!paf || !pbf) {
             SYSTEM_ERROR("Can not convert number to mpf");
             Py_XDECREF((PyObject*)paf);
@@ -1030,10 +1029,10 @@ Pympany_truediv(PyObject *a, PyObject *b)
         return (PyObject*) rq;
     }
 
-    if (isNumber(a) && isNumber(b)) {
+    if (isFloat(a) && isFloat(b)) {
         TRACE("True divide (number,number)\n");
-        paf = Pympf_From_Number(a, 0);
-        pbf = Pympf_From_Number(b, 0);
+        paf = Pympf_From_Float(a, 0);
+        pbf = Pympf_From_Float(b, 0);
         if (!paf || !pbf) {
             if (PyErr_Occurred()) {
                 PyErr_Clear();
@@ -1301,10 +1300,10 @@ Pympany_div2(PyObject *a, PyObject *b)
 
     /* Use truediv for floating-point types. */
 
-    if (isNumber(a) && isNumber(b)) {
+    if (isFloat(a) && isFloat(b)) {
         TRACE("True divide (number,number)\n");
-        paf = Pympf_From_Number(a, 0);
-        pbf = Pympf_From_Number(b, 0);
+        paf = Pympf_From_Float(a, 0);
+        pbf = Pympf_From_Float(b, 0);
         if (!paf || !pbf) {
             SYSTEM_ERROR("Can not convert number to mpf");
             Py_XDECREF((PyObject*)paf);
@@ -1564,10 +1563,10 @@ Pympany_rem(PyObject *a, PyObject *b)
         return (PyObject*)rq;
     }
 
-    if (isNumber(a) && isNumber(b)) {
+    if (isFloat(a) && isFloat(b)) {
         TRACE("Modulo (number,number)\n");
-        paf = Pympf_From_Number(a, 0);
-        pbf = Pympf_From_Number(b, 0);
+        paf = Pympf_From_Float(a, 0);
+        pbf = Pympf_From_Float(b, 0);
         if (!paf || !pbf) {
             SYSTEM_ERROR("Can not convert number to mpf");
             Py_XDECREF((PyObject*)paf);
@@ -1881,10 +1880,10 @@ Pympany_divmod(PyObject *a, PyObject *b)
         return Py_BuildValue("(NN)", qz, rq);
     }
 
-    if (isNumber(a) && isNumber(b)) {
+    if (isFloat(a) && isFloat(b)) {
         TRACE("Divmod (number,number)\n");
-        paf = Pympf_From_Number(a, 0);
-        pbf = Pympf_From_Number(b, 0);
+        paf = Pympf_From_Float(a, 0);
+        pbf = Pympf_From_Float(b, 0);
         if (!paf || !pbf) {
             SYSTEM_ERROR("Can not convert number to mpf");
             Py_XDECREF((PyObject*)paf);

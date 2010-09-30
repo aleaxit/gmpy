@@ -804,7 +804,7 @@ PyFloat2Pyxmpz(PyObject *self)
 static PyObject *f2q_internal(PympfObject* self, PympfObject* err,
         unsigned int bits, int mayz);
 static PyObject* Pympf_f2q(PyObject *self, PyObject *args);
-static PympfObject* Pympf_From_Number(PyObject* obj, mpfr_prec_t bits);
+static PympfObject* Pympf_From_Float(PyObject* obj, mpfr_prec_t bits);
 
 static PympqObject *
 PyFloat2Pympq(PyObject *self)
@@ -2372,10 +2372,10 @@ Pympf_ascii(PympfObject *self, int base, int digits,
  * number, it must be properly converted by the routines below.
  */
 
-static int isNumber(PyObject* obj)
+static int isFloat(PyObject* obj)
 {
     if (options.debug)
-        fprintf(stderr, "isNumber: object type is %s\n", Py_TYPE(obj)->tp_name);
+        fprintf(stderr, "isFloat: object type is %s\n", Py_TYPE(obj)->tp_name);
     if (Pympz_Check(obj)) {
         return 1;
     }
@@ -2763,7 +2763,7 @@ clong_From_Integer(PyObject *obj)
  */
 
 static PympfObject*
-Pympf_From_Number(PyObject* obj, mpfr_prec_t bits)
+Pympf_From_Float(PyObject* obj, mpfr_prec_t bits)
 {
     PympfObject* newob = 0;
     PympqObject* temp = 0;
@@ -2819,7 +2819,7 @@ Pympf_From_Number(PyObject* obj, mpfr_prec_t bits)
     }
 
     if (options.debug)
-        fprintf(stderr, "Pympf_From_Number(%p,%ld)->%p (%ld)\n", obj,
+        fprintf(stderr, "Pympf_From_Float(%p,%ld)->%p (%ld)\n", obj,
                 (long)bits, newob, newob != 0 ? (long)mpfr_get_prec(newob->f) : -1);
 
     return newob;
@@ -2875,7 +2875,7 @@ Pympq_convert_arg(PyObject *arg, PyObject **ptr)
 int
 Pympf_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympfObject* newob = Pympf_From_Number(arg, 0);
+    PympfObject* newob = Pympf_From_Float(arg, 0);
 
     if (options.debug)
         fprintf(stderr, "mpf_conv_arg(%p)->%p\n", arg, newob);
@@ -3735,7 +3735,7 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
             TYPE_ERROR("gmpy2.mpf() with numeric 1st argument needs 1 or 2 arguments");
             return NULL;
         }
-        newob = Pympf_From_Number(obj, bits);
+        newob = Pympf_From_Float(obj, bits);
         if (!newob) {
             if (!PyErr_Occurred())
                 TYPE_ERROR("gmpy2.mpf() requires numeric or string argument");
@@ -3794,8 +3794,8 @@ Py##NAME(PyObject *a, PyObject *b) \
     } else { \
       bits = mpfr_get_prec(((PympfObject*)b)->f); \
     } \
-    pa = Pympf_From_Number(a, bits); \
-    pb = Pympf_From_Number(b, bits); \
+    pa = Pympf_From_Float(a, bits); \
+    pb = Pympf_From_Float(b, bits); \
     if (!pa || !pb) { \
       Py_XDECREF((PyObject*)pa); \
       Py_XDECREF((PyObject*)pb); \
@@ -4031,17 +4031,17 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
     }
 
     if ((Pympf_Check(xb) && Pympf_Check(xe))) {
-        b = Pympf_From_Number(xb, 0);
-        e = Pympf_From_Number(xe, 0);
+        b = Pympf_From_Float(xb, 0);
+        e = Pympf_From_Float(xe, 0);
     }
     else {
         if (Pympf_Check(xb)) {
-            b = Pympf_From_Number(xb, 0);
-            e = Pympf_From_Number(xe, mpfr_get_prec(((PympfObject*)xb)->f));
+            b = Pympf_From_Float(xb, 0);
+            e = Pympf_From_Float(xe, mpfr_get_prec(((PympfObject*)xb)->f));
         }
         if (Pympf_Check(xe)) {
-            b = Pympf_From_Number(xb, mpfr_get_prec(((PympfObject*)xe)->f));
-            e = Pympf_From_Number(xe, 0);
+            b = Pympf_From_Float(xb, mpfr_get_prec(((PympfObject*)xe)->f));
+            e = Pympf_From_Float(xe, 0);
         }
     }
 
@@ -4148,7 +4148,7 @@ Pympany_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
     else if (isRational(in_b) && isRational(in_e)) {
         return Pympq_pow(in_b, in_e, in_m);
     }
-    else if (isNumber(in_b) && isNumber(in_e)) {
+    else if (isFloat(in_b) && isFloat(in_e)) {
         return Pympf_pow(in_b, in_e, in_m);
     }
     Py_RETURN_NOTIMPLEMENTED;
@@ -4228,7 +4228,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         Py_DECREF(tempb);
         return _cmp_to_object(c, op);
     }
-    if (isNumber(a) && isNumber(b)) {
+    if (isFloat(a) && isFloat(b)) {
         TRACE("compare (mpf,float)\n");
         /* Handle non-numbers separately. */
         if (PyFloat_Check(b)) {
@@ -4247,8 +4247,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 }
             }
         }
-        tempa = (PyObject*)Pympf_From_Number(a,0);
-        tempb = (PyObject*)Pympf_From_Number(b,0);
+        tempa = (PyObject*)Pympf_From_Float(a,0);
+        tempb = (PyObject*)Pympf_From_Float(b,0);
         c = mpfr_cmp(Pympf_AS_MPF(tempa), Pympf_AS_MPF(tempb));
         Py_DECREF(tempa);
         Py_DECREF(tempb);
