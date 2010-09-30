@@ -2460,7 +2460,7 @@ static int isInteger(PyObject* obj)
  *      3) mpz
  *      4) xmpz
  *
- * The routine anyrational2Pympq will convert an integer- and rational-like
+ * The routine Pympq_From_Rational will convert an integer- and rational-like
  * object into a gmpy mpq. The accepted objects are:
  *      1) int
  *      2) long
@@ -2523,7 +2523,7 @@ anynum2Pympq(PyObject* obj)
 /* Convert an integer or mpz to mpq. */
 
 static PympqObject*
-anyrational2Pympq(PyObject* obj)
+Pympq_From_Rational(PyObject* obj)
 {
     PympqObject* newob = 0;
 
@@ -2554,7 +2554,7 @@ anyrational2Pympq(PyObject* obj)
     }
 
     if (options.debug)
-        fprintf(stderr,"anyrational2Pympq(%p)->%p\n", obj, newob);
+        fprintf(stderr,"Pympq_From_Rational(%p)->%p\n", obj, newob);
 
     return newob;
 }
@@ -2852,7 +2852,7 @@ Pympz_convert_arg(PyObject *arg, PyObject **ptr)
 int
 Pympq_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympqObject* newob = anyrational2Pympq(arg);
+    PympqObject* newob = Pympq_From_Rational(arg);
 
     if (options.debug)
         fprintf(stderr, "mpq_conv_arg(%p)->%p\n", arg, newob);
@@ -3242,7 +3242,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
         return self;
     }
     /* normal, non-optimized case: must make new object as result */
-    self = (PyObject*)anyrational2Pympq(self);
+    self = (PyObject*)Pympq_From_Rational(self);
     if (!self) {
         if (!PyErr_Occurred())
             TYPE_ERROR("first argument can not be converted to mpq");
@@ -3252,7 +3252,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
         s = self;
     }
     else {     /* other explicitly present and !=1... must compute */
-        other = (PyObject*)anyrational2Pympq(other);
+        other = (PyObject*)Pympq_From_Rational(other);
         if (!other) {
             Py_DECREF(self);
             if (!PyErr_Occurred())
@@ -3822,8 +3822,8 @@ Py##NAME(PyObject *a, PyObject *b) \
   PympqObject *r; \
   PympqObject *pa = 0; \
   PympqObject *pb = 0; \
-  pa = anyrational2Pympq(a); \
-  pb = anyrational2Pympq(b); \
+  pa = Pympq_From_Rational(a); \
+  pb = Pympq_From_Rational(b); \
   if (!pa || !pb) { \
     Py_XDECREF((PyObject*)pa); \
     Py_XDECREF((PyObject*)pb); \
@@ -3904,8 +3904,8 @@ static PyObject *
 Pympq_pow(PyObject *in_b, PyObject *in_e, PyObject *m)
 {
     PympqObject *r;
-    PympqObject *b = anyrational2Pympq(in_b);
-    PympqObject *e = anyrational2Pympq(in_e);
+    PympqObject *b = Pympq_From_Rational(in_b);
+    PympqObject *e = Pympq_From_Rational(in_e);
 
     int esign;
     unsigned long ultem;
@@ -4221,8 +4221,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     }
     if (isRational(a) && isRational(b)) {
         TRACE("compare (mpq,rational)\n");
-        tempa = (PyObject*)anyrational2Pympq(a);
-        tempb = (PyObject*)anyrational2Pympq(b);
+        tempa = (PyObject*)Pympq_From_Rational(a);
+        tempb = (PyObject*)Pympq_From_Rational(b);
         c = mpq_cmp(Pympq_AS_MPQ(tempa), Pympq_AS_MPQ(tempb));
         Py_DECREF(tempa);
         Py_DECREF(tempb);
