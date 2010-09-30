@@ -105,7 +105,7 @@ Pympany_add(PyObject *a, PyObject *b)
             return (PyObject*)rf;
         }
         else if (isRational(b)) {
-            if (!(pbq = anyrational2Pympq(b))) {
+            if (!(pbq = Pympq_From_Rational(b))) {
                 SYSTEM_ERROR("Can not convert number to mpq");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -136,7 +136,7 @@ Pympany_add(PyObject *a, PyObject *b)
             return (PyObject*)rf;
         }
         else if (isRational(a)) {
-            if (!(paq = anyrational2Pympq(a))) {
+            if (!(paq = Pympq_From_Rational(a))) {
                 SYSTEM_ERROR("Can not convert number to mpq");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -178,8 +178,8 @@ Pympany_add(PyObject *a, PyObject *b)
 
     if (isRational(a) && isRational(b)) {
         TRACE("Adding (rational,rational)\n");
-        paq = anyrational2Pympq(a);
-        pbq = anyrational2Pympq(b);
+        paq = Pympq_From_Rational(a);
+        pbq = Pympq_From_Rational(b);
         if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq);
@@ -379,8 +379,8 @@ Pympany_sub(PyObject *a, PyObject *b)
 
     if (isRational(a) && isRational(b)) {
         TRACE("Subtracting (rational,rational)\n");
-        paq = anyrational2Pympq(a);
-        pbq = anyrational2Pympq(b);
+        paq = Pympq_From_Rational(a);
+        pbq = Pympq_From_Rational(b);
         if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq);
@@ -421,7 +421,7 @@ Pympany_sub(PyObject *a, PyObject *b)
             return (PyObject*)rf;
         }
         else if (isRational(b)) {
-            if (!(pbq = anyrational2Pympq(b))) {
+            if (!(pbq = Pympq_From_Rational(b))) {
                 SYSTEM_ERROR("Can not convert number to mpq");
                 Py_DECREF((PyObject*)paf);
                 Py_DECREF((PyObject*)rf);
@@ -475,7 +475,7 @@ Pympany_sub(PyObject *a, PyObject *b)
             return (PyObject*)rf;
         }
         else if (isRational(a)) {
-            if (!(paq = anyrational2Pympq(a))) {
+            if (!(paq = Pympq_From_Rational(a))) {
                 SYSTEM_ERROR("Can not convert number to mpq");
                 Py_DECREF((PyObject*)pbf);
                 Py_DECREF((PyObject*)rf);
@@ -654,8 +654,8 @@ Pympany_mul(PyObject *a, PyObject *b)
 
     if (isRational(a) && isRational(b)) {
         TRACE("Multiplying (rational,rational)\n");
-        paq = anyrational2Pympq(a);
-        pbq = anyrational2Pympq(b);
+        paq = Pympq_From_Rational(a);
+        pbq = Pympq_From_Rational(b);
         if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq);
@@ -891,8 +891,8 @@ Pympany_floordiv(PyObject *a, PyObject *b)
 
     if (isRational(a) && isRational(b)) {
         TRACE("Floor divide (rational,rational)\n");
-        paq = anyrational2Pympq(a);
-        pbq = anyrational2Pympq(b);
+        paq = Pympq_From_Rational(a);
+        pbq = Pympq_From_Rational(b);
         if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq);
@@ -1005,8 +1005,8 @@ Pympany_truediv(PyObject *a, PyObject *b)
 
     if (isRational(a) && isRational(b)) {
         TRACE("True divide (rational,rational)\n");
-        paq = anyrational2Pympq(a);
-        pbq = anyrational2Pympq(b);
+        paq = Pympq_From_Rational(a);
+        pbq = Pympq_From_Rational(b);
         if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq);
@@ -1274,8 +1274,8 @@ Pympany_div2(PyObject *a, PyObject *b)
 
     if (isRational(a) && isRational(b)) {
         TRACE("True divide (rational,rational)\n");
-        paq = anyrational2Pympq(a);
-        pbq = anyrational2Pympq(b);
+        paq = Pympq_From_Rational(a);
+        pbq = Pympq_From_Rational(b);
         if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq);
@@ -1531,8 +1531,8 @@ Pympany_rem(PyObject *a, PyObject *b)
 
     if (isRational(a) && isRational(b)) {
         TRACE("Modulo (rational,rational)\n");
-        paq = anyrational2Pympq(a);
-        pbq = anyrational2Pympq(b);
+        paq = Pympq_From_Rational(a);
+        pbq = Pympq_From_Rational(b);
         if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq);
@@ -1849,8 +1849,8 @@ Pympany_divmod(PyObject *a, PyObject *b)
 
     if (isRational(a) && isRational(b)) {
         TRACE("Divmod (rational,rational)\n");
-        paq = anyrational2Pympq(a);
-        pbq = anyrational2Pympq(b);
+        paq = Pympq_From_Rational(a);
+        pbq = Pympq_From_Rational(b);
         if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert rational to mpq");
             Py_XDECREF((PyObject*)paq);
