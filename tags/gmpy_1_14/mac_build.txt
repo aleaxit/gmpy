@@ -1,0 +1,26 @@
+News update as of gmpy 1.04: macports AKA darwinports now comes with GMP 4.2.4
+and thus offers again the simplest and most effective preliminary to building
+and installing gmpy (I've tried Pyton 2.5.* and 2.6.* on OSX 10.5 with Intel
+processors, and 2.5.1 on OSX 10.5 with PowerPC processors -- sorry but I don't
+currently have at hand other Python/OS/processor combinations to try!).
+
+How to build gmpy with XCode 3 and Mac OS X 10.5 (one easy way):
+
+- install macports AKA darwinports, see http://darwinports.com/
+  (you do need to install XCode 3 first); no need to set PATH &c
+  or install X11 etc etc, if all you need is to build gmpy
+
+- instructions at http://gmp.darwinports.com/ are wrong, just do (after install
+  & selfupdate of darwinports): sudo /opt/local/bin/port install gmp
+  (or if you have an older macports gmp, port update it)
+
+- now, 'python setup.py install' in gmpy's directory should work just fine
+
+- verify with python test/gmpy_test.py -- expect at the end of the output:
+  1214 passed and 0 failed.
+  Test passed.
+
+For older systems, or to try and do without XCode, see:
+  http://gmpy.googlecode.com/files/gmpy-1.02.macosx.README.txt
+and good luck!
+

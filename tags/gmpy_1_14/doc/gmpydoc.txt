@@ -1,0 +1,839 @@
+gmpy module -- a complete Python 2.4+ and 3.x interface for GMP/MPIR.
+
+
+*Notes on history of file gmpydoc.txt*
+
+Notes for version 0.1 (pre-alpha), first one placed on sourceforge
+-- A. Martelli, aleaxit@yahoo.com, 00/11/06.
+
+Edited for version 0.2 (still pre-alpha), bugfixes & minor
+performance tweaks, 00/11/15 -- many thanks to Pearu Peterson for
+his contributions re 0.1 -> 0.2!
+
+Edited for version 0.3 (ditto) -- cleanup, exposing more mpz
+functions (almost all there...!), large performance-tweaks via
+caching (tx to PP for the inspiration!), some unit-tests -- **NEED
+MANY MORE TESTS FOR 0.4**!!! -- 00/11/18.
+
+Small edits for version 0.4 (ditto) -- just a couple more
+functions, and minor error-corrections -- 11/24.  (Added
+docstrings in 0.4; would be nice to build a doc of some kind
+automatically from ONE place...).
+
+Edited for version 0.5 (ditto) -- documented the new functionality
+(mostly mpq; also: random, jacobi/legendre/ kronecker), minor
+cleanups & corrections -- 11/30.
+
+Editing for versions 0.6 (12/07), 0.7 (12/16), 0.8 (12/26):
+documented new functionalities, and performed minor cleanups
+& corrections, each time.
+
+Very minor editing for version 0.9 (2001/01/25).
+Minor editing for version 0.9b (2002/02/28).
+Minor editing for version 0.9c (2002/03/05).
+Minor editing for version 1.0 (2003/08/08).
+Minor editing for version 1.01 (2005/11/12);
+maintainer's preferred email changed to aleaxit@gmail.com .
+Minor editing for version 1.02 (2007/02/19).
+Minor editing for version 1.03 (2008/06/22).
+Minor editing for version 1.04 (2008/10/16).
+Minor editing for version 1.10 (2009/10/18)
+
+
+*Acknowledgments*
+
+gmpy 0.1 was based on previous versions of gmpmodule.c (for
+earlier Python and GMP releases) by AMK and Niels Möller (only
+removed feature: conditional possibility to substitute this
+implementation in place of Python's built-in longs; lots and lots
+of added features).
+
+Special thanks are due to Pearu Peterson for his MANY important
+inputs on design aspects, performance tweak suggestions, and bug
+discoveries.
+
+Thanks also to Keith Briggs for his precious feedback, and to Tim
+Peters, Fredrik Lundh, "and a cast of thousands" (posters to
+c.l.py and, in some few cases, gmpy's sf discussion groups) for their
+suggestions.  Furthermore, thanks to Case Van Horsen, who provided
+the Windows binary installers for gmpy 1.01.
+
+Chip Turner and Daniel Lord helped with the changes leading to version
+1.02, so, thanks to them as well!
+
+Case Van Horsen has done almost all of the work leading to version 1.03,
+so, SUPER thanks!-)  (He's also pointed out the issues requiring the
+enhancements in 1.04, mainly rich comparisons, and done other changes
+leading from 1.03 to 1.04).
+
+
+*Installation and testing*
+
+Pre-requisites: Python 2.4+ or 3.x, and recent versions of GMP
+(http://gmplib.org) or MPIR (http://www.mpir.org). gmpy has been tested
+with GMP version 4.2+ and MPIR 1.2+.
+
+To build gmpy from sources, get the sources from svn (or a sources
+zipfile, such as gmpy-1.10.zip) from http://code.google.com/p/gmpy/source.
+Place the source code into a new, dedicated directory, cd to that
+directory (from any shell on Unix/Linux, or from Terminal on Mac OS X),
+and run:
+
+    python setup.py install
+
+The DistUtils that come with Python take over and build and
+install the gmpy module for you (you may need to use 'sudo' or
+'su' appropriately to actually perform the isntallation, depending
+on the permissions you're using on Python's site-packages).
+
+Detailed instructions for building on Windows are included in
+"windows_build.txt" and "win_x64_sdk_build.txt". "windows_build.txt"
+describes the build process using Mingw32 and MSYS and was used to
+build the 32-bit Windows binaries. "win_x64_sdk_build.txt" describes
+the build process using the Microsoft Platform SDK and was used to
+build the 64-bit Windows binaries. The MPIR library offers better
+support for Windows and is recommended.
+
+The file "mac_build.txt" contains detailed instructions for compiling
+GMP and GMPY on MacOSX (or getting GMP via mactools/darwintools).
+
+The sources zipfile also contains this file (gmpydoc.txt), an
+example C source file for a separate module that uses the C-API of
+gmpy to interoperate with it, a copy of the index.html for the
+gmpy sourceforge site, and python scripts that exemplify, show the
+performance of, and test, some functionality of the gmpy module.
+
+To test the installation, cd to the directory where you unpacked
+the gmpy sources, and run, at the command prompt:
+
+        cd test
+
+(Note: use "cd test3" if you are using Python 3.x.)
+
+and then, at the next prompt:
+
+        python gmpy_test.py
+
+
+Expected output is something like (details may differ!):
+
+"""
+Unit tests for gmpy 1.02 release candidate
+    on Python 2.5 (r25:51918, Sep 19 2006, 08:49:13)
+[GCC 4.0.1 (Apple Computer, Inc. build 5341)]
+Testing gmpy 1.02 (GMP 4.2), default caching (20, 20, -2..11)
+gmpy_test_cvr 270 tests, 0 failures
+gmpy_test_rnd  26 tests, 0 failures
+gmpy_test_mpf 155 tests, 0 failures
+gmpy_test_mpq 264 tests, 0 failures
+gmpy_test_mpz 386 tests, 0 failures
+gmpy_test_dec  16 tests, 0 failures
+7 items had no tests:
+    [[ snip snip ]]
+31 items passed all tests:
+    [[ snip snip ]]
+1117 tests in 38 items.
+1117 passed and 0 failed.
+Test passed.
+"""
+
+Should you wish to test some specific portion, please note that
+each of the various modules listed at the start can also be run
+independently, if so desired:
+        python gmpy_test_mpq.py
+        python gmpy_test_mpz.py
+and so on, expecting output analogous to the above example.  You
+may also run, for example,
+        python gmpy_test_mpq.py -v
+to get very verbose and detailed output.  However, in any case,
+the key issue is the 'Test passed' line at the end of each run!
+
+*PLEASE* report any failures to gmpy's maintainers, with all details you
+can supply on your machine, on your OS, and on your installation of GMP
+4, gmpy 1.04, Python 2.3, 2.4, 2.5, or 2.6, and any other relevant issue
+(your C/C++ compiler & libraries, &c).  *THANKS* in advance -- bug
+reporting and feedback is your key contribution to the gmpy project!
+(Reports of any _successful_ installations will also be welcome, if it's
+accompanied by enough details -- again, THANKS in advance!).  The best
+way to report bugs (including unit-test failures) is via the Google Code
+issue tracker.
+
+
+*General notes on gmpy*
+
+gmpy exposes to Python three types of numbers that are implemented
+in GMP and MPIR:
+    mpz unlimited-precision integers
+    mpq unlimited-precision rationals
+    mpf extended-precision floats
+
+See GMP documentation for general descriptions of them!
+    GNU MP Home Page:  http://gmplib.org
+
+The MPIR documentation is available from:
+    MPIR Home Page: http://www.mpir.org
+
+Licensing: gmpy is licensed under LGPL v2 or later. MPIR is also
+licensed under LGPL v2 or later. GMP converted to LGPL v3 beginning
+with version 4.2.2. IANAL, but, summarizing, this means: other
+_libraries_ that are derived from gmpy must also be distributed
+under the LPGL (or full-GPL), as must any modifications/additions to
+gmpy; but, no such restriction applies on code that just _uses_ these
+modules/libraries (such gmpy-using code may thus be licensed in whatever
+way is desired).
+
+Warranty: NONE -- as usual for open-source software (see the
+detailed disclaimers in GMP's license)!
+
+
+*gmpy.mpz -- unlimited-precision integral numbers*
+
+gmpy.mpz objects have the full arithmetic abilities of Python
+longs (in the future, there may also be mutable versions of them
+[for performance], but NOT yet).
+
+Specifically, arithmetic operators + and - (unary and binary), *,
+/ (truncating), %, **, bitwise operators such as &, |, ^, <<, >>,
+~, and builtin Python functions such as divmod and pow, all work
+as expected on mpz objects (basically, the same way as on builtin
+Python longs, except that the speed can be quite different -- from
+'a bit slower' for some things, up to much faster for others [such
+as multiplication of huge numbers]).
+
+Mixed-operand arithmetic is supported: the other operand (which
+must be a number of some kind) is coerced to a gmpy.mpz, unless
+it's of a floating type, in which case both operands are coerced into
+a gmpy.mpf object. Instances of the decimal.Decimal class are coerced
+into gmpy.mpf also. Instances of the fractions.Fraction class are
+coerced int gmpy.mpq.
+
+An mpz object can be  built by passing to the gmpy.mpz constructor
+function any Python built-in, non-complex number, another mpz
+(this *shares* object identity, does *not* copy it -- which should
+be indifferent, since such objects are in any case immutable), a
+mpq or mpf (which gets truncated, as also a Python float does), or
+a string (representing the number in base 10).
+
+gmpy.mpz can also be called with TWO arguments: the first one a
+string representing the number in some base N, the second one, the
+integer N.  N can be between 2 and 36, or it can be 256, which
+implies that the string is the _portable binary gmpy
+representation_ of the mpz (as produced by method .binary() of mpz
+objects, and function gmpy.binary() of the module).
+
+An N of 0 is also accepted, and means the string is interpreted as
+decimal, unless it starts with 0x (then, hexadecimal) or 0 (then,
+octal).  When N=16 a starting a leading '0x' is also accepted, but
+not required; leading 0's are always accepted and ignored (they do
+NOT mean the rest is taken as octal!) if the base N is explicitly
+given as a Python int, or if it's omitted (and defaults to 10).
+
+*NOTE* that the trailing-L in a Python's "long" string
+representation is NOT accepted in the string argument to
+gmpy.mpz()!
+
+(Please note that all from-string transformations are performed by
+GMP or MPIR, and thus may follow slightly different conventions from
+normal Python ones).
+
+An mpz object can be transformed into a Python number by passing
+it as the argument of a call to Python's built-in number types
+(int, long, float, complex); it can also be formatted as an octal
+or hex string with Python built-in functions oct and hex.
+
+mpz objects also support the hash built-in function, and can thus
+be used as dictionary keys; for any Python int or long N,
+hash(mpz(n)) and hash(n) are equal.
+
+Other operations on mpz objects are all exposed as functions of
+module gmpy, and some, also, as methods of mpz objects.  Unless
+otherwise noted, arguments to the following gmpy module functions
+are coerced to mpz (unless already of mpz type), and values
+returned from either functions or methods are also of mpz type.
+
+gmpy.binary(x) or x.binary(): returns a portable binary
+representation (base-256 little endian) of an mpz object, suitable
+for saving into a file (or db, whatever) -- this string can later
+be passed as the first argument to function gmpy.mpz (with a
+second argument with value 256) to reconstruct a copy of the
+original mpz object.  *NOTE*: the binary format used by gmpy
+release 0.7 and later is not compatible with that of 0.6 and
+earlier, as the latter, as a design limitation, could not
+represent any mpz number that was < 0.
+
+gmpy.digits(x[,base]) or x.digits([base]): returns a string
+representing x in the given base (between 2 and 36, defaulting to
+10 if omitted or zero); a leading '-' will be present if x<0, but
+no leading '+' if x>=0.  If base is 8 or 16, a decoration of a
+leading '0' (or, respectively, '0x') is present (after the '-'
+sign, if the number is negative).
+
+gmpy.numdigits(x[,base]) or x.numdigits([base]): returns an
+approximation to the number of digits for x in the given base
+(result is either exact [guaranteed if base is a power or 2] or 1
+more than actual length; space for a "sign", or leading
+decorations of '0' or '0x', is NOT considered).  Base must be
+between 2 and 36, defaulting to 10 if omitted or zero.
+
+gmpy.sign(x) or x.sign(): -1, 0, or 1, depending on whether x is
+negative, zero, or positive.
+
+gmpy.divm(a, b, M): x such that b*x == a modulo M (will raise a
+ZeroDivisionError exception if no such x exists).
+
+gmpy.fac(x): factorial of x (takes O(x) time; x must be an
+ordinary Python non-negative integer!)
+
+gmpy.fib(x): x-th Fibonacci number (takes O(x) time; x must be an
+ordinary Python non-negative integer).
+
+gmpy.gcd(a,b): greatest common divisor of a and b (an mpz, >= 0).
+
+gmpy.gcdext(a, b): a tuple (g,s,t) such that
+    g==gmpy.gcd(a,b) and g == a*s + b*t
+(g, s and t are all mpz).
+
+gmpy.lcm(a,b): least common multiple of a and b (an mpz, >= 0).
+
+gmpy.is_square(x) or x.is_square(): 1 iff x is a perfect square,
+else 0 (returns Python int).
+
+gmpy.is_power(x) or x.is_power(): 1 iff x is a perfect power
+(i.e., there exist a, b such that a**b==x and b>1), else 0
+(returns Python int).
+
+gmpy.is_prime(x [, count]) or x.is_prime([count]): 2 if x is
+_certainly_ prime, 1 if x is _probably_ prime, 0 if x is
+_certainly_ composite; count defaults to 25 (probability of
+non-primality, if is_prime returns 1, is guaranteed to be no
+higher than 1 in 2**count).  Returns Python int.
+NOTE: GMP believes negative numbers can be primes, and gmpy just
+reflects this stance (cfr discussion at
+http://www.utm.edu/research/primes/notes/faq/negative_primes.html)
+
+gmpy.next_prime(x) or x.next_prime(): returns mpz that is the
+lowest prime > x; *probabilistic* algorithm for
+prime-determination (see is_prime).
+
+gmpy.sqrt(x) or x.sqrt(): integer square-root of non negative
+number (truncating, unless is_square(x)).
+
+gmpy.sqrtrem(x) or x.sqrtrem(): tuple (s,t) such that
+s==gmpy.sqrt(x) and x==s*s+t.  (s and t are mpz, >= 0).
+
+gmpy.root(x,n) or x.root(n): tuple (s,b) such that s is the
+truncated nth-root of x, b!=0 if s is the _exact_ root (i.e.
+x==s**n); n must be an ordinary Python int, >0.  (s is an mpz, b a
+Python int).
+
+gmpy.bincoef(x, N) or x.bincoef(N): binomial coefficient "x over
+N"; N must be an ordinary Python int, >=0! (x may be < 0 , see
+Knuth vol 1, sect 1.2.6, part G).  [Also known as: gmpy.comb(x, N)
+or x.comb(N), since the binomial coefficient is also the number of
+different combinations of x objects taken N at a time, with
+ordering ignored].
+
+gmpy.remove(x, f) or x.remove(f): "remove factors": returns a
+two-element tuple (y,m), where y, an mpz, is x without any factor
+of f, and m (an ordinary Python int) is the multiplicity of f in x
+(e.g.: m==0 and y==x unless x%f==0; and in any case, it's ensured
+that x==y*(f**m) and that y%f!=0).
+
+gmpy.invert(x, m) or x.invert(m): modulo-inverse; returns an y
+such that x*y mod m = 1, if one exists, else 0 (returns an mpz in
+either case).
+
+
+gmpy.lowbits(x, n) or x.lowbits(n): returns the n lowest bits of x
+(n must be an ordinary Python int, >0; returns an mpz, >= 0).
+Note that x<0 is assumed to be in 2's complement notation (i.e.,
+"extended on the left" with infinite 1-bits); so, for example, for
+any n>0, gmpy.lowbits(-1,n) returns an mpz>0 with the lowest n
+bits set to 1, i.e., (2**n)-1.
+
+gmpy.setbit(x, n, v) or x.setbit(n, v), n being a bitindex (0 and
+up, ordinary Python int) and v an int value (0 or 1, default 1):
+returns a copy of x with bit n set to v (mpz's are not mutable --
+yet...!).  [Any value v != 0 is equivalent to v=1, i.e., the bit
+is 'set'; so, for example, gmpy.setbit(0,n,-4) for any n>=0
+returns an mpz worth 2**n].
+
+gmp.getbit(x, n) or x.getbit(n), n being a bitindex (0 and up,
+ordinary Python int): returns an int which is 0 or 1, same as the
+value of bit n of x.  (See note on gmpy.lowbits for x<0).
+
+gmpy.scan0(x [, n]) or x.scan0([n]): returns the bit index of the
+next 0-bit starting at bit n (default 0); n must be an ordinary
+Python int, >=0; returns a Python int (-1 if there is no such
+bit-index, which can only happen for an x<0, which notionally is
+extended with infinite 1-bits).
+
+gmpy.scan1(x [, n]) or x.scan1([n]): returns the bit index of the
+next 1-bit starting at bit n (default 0); n must be an ordinary
+Python int, >=0; returns a Python int (-1 if there is no such
+bit-index, which can only happen for an x>=0, which notionally is
+extended with infinite 0-bits).
+
+gmpy.popcount(x) or x.popcount(): returns the "population count"
+(number of bits set to 1) of x; note that this is 'infinite' for
+x<0 (-1 is then returned).  Returns a Python int.
+
+gmpy.hamdist(x,y) or x.hamdist(y): returns the Hamming-distance
+|x,y| if both >=0 or both < 0 (returns -1 if one but not both are
+<0) (the hamming distance is defined as: the number of
+bit-positions in which the two numbers differ).  Returns a Python
+int.  Same as gmpy.popcount(x^y).
+
+gmpy._copy(x) or x._copy(): provide a separate copy of x (only
+relevant for future mutability of mpz... currently useless!).
+
+gmpy.divexact(x,y): returns the quotient of x divided by y. It uses
+a fasterr  division algorithm but requires that the remainder is 0.
+It will return garbage if the remainder is not 0! (New in 1.04.)
+
+*gmpy module-level setting functions*
+[NOTE: the overall architecture of these functions is due to be
+reworked sooner or later, NOT backwards-compatibly].
+
+gmpy.set_debug(flag): turns on/off debugging output from the gmpy
+module (returns previous setting).  [Only of interest to
+develop/debug gmpy itself!] Argument must be an ordinary Python
+int: debug is set on if flag!=0, off if flag==0.  Returns a Python
+int (0 or 1, the _previous_ setting).
+
+gmpy.set_tagoff(flag): turns off/on the 'gmpy.' prefix to the
+"tag" that repr() places around the string-representation of gmpy
+objects (returns a Python int, 0 or 1, the previous setting).
+
+gmpy. get_zcache(), set_zcache(N), get_zconst(), set_zconst(N,M),
+get_qcache(), set_qcache(N)...: *internal tweaks/experimental
+stuff*, please don't use them unless you've read the C sources and
+understand what they do!  Not further documented here (docstrings
+for these functions in gmpy may give a little more detail).
+
+
+*gmpy.mpq -- unlimited-precision rational numbers*
+
+gmpy.mpq objects have a subset of the arithmetic abilities of
+Python floats (in the future, mutable versions will also be
+supplied, but, NOT YET!), but represent arbitrary rational numbers
+with no loss of precision whatsoever.
+[Note, in particular, that raising-to-power works only without a
+modulo, and, if the exponent is a fraction with a denominator D
+(or gets converted to one), the base must be an exact D-th power,
+or the operation fails raising a ValueError exception].
+
+Mixed-operand arithmetic is supported: the other operand is
+coerced to a gmpy.mpq.  NOTE: the % operator and the divmod
+built-in function are NOT supported.  mpq objects also support the
+hash built-in function, and can thus be used as dictionary keys;
+for any Python int or long N, hash(mpq(n)) and hash(n) are equal.
+
+A mpq object has a _numerator_ and a _denominator_; they can be
+obtained by calling on an mpq object the methods .numer() and
+.denom() -- each method has no arguments and returns an mpz (the
+denominator will always be >0; the numerator can be any; also, the
+numerator and denominator never have any common factors; mpq
+corresponding to integers, including 0, always have a denominator
+of exactly 1).
+
+
+An mpq is built by passing to the gmpy.mpq constructor function
+any Python number, another mpq (this *shares* object identity,
+does *not* copy it), a mpf or mpz, or a string (representing the
+number in base 10).  [If an mpf or float argument is passed, the
+mpq is built from it with an 'optimal' approach based on a
+Stern-Brocot tree; see also the f2q method of mpf objects, and
+gmpy.f2q module-level function, which differ from explicit
+mpq-construction in that it can return an mpz if the mpq's
+denominator would be 1].
+
+gmpy.mpq can also be called with TWO arguments: the first one a
+string representing the number in base N, the second one, the
+integer N.  N can be between 2 and 36, or, it can be 256, which
+implies that the string is the _portable binary gmpy
+representation_ of the mpq (as produced by method .binary() of mpq
+objects, and function gmpy.qbinary() of the module).
+
+gmpy.mpq is typically called with a string that contains a '/'
+character: the digits before it will then be taken as the
+numerator, those after it, as the denominator (the resulting
+number is normalized: denominator>0, no common factors).  A
+ZeroDivisionError is raised if the denominator thus supplied is
+zero; a ValueError, if the string is otherwise invalid (e.g., '/3'
+or '3/').  Hex and octal representations are supported if the base
+N is given as 0; see above gmpy.mpz; for example,
+mpq('0x13/011',0) is the same as mpq(19,9).
+
+gmpy.mpq can also be called with two number arguments: the first
+one is taken as the numerator, the second one as the denominator
+(the resulting number is normalized: denominator>0, no common
+factors).  A ZeroDivisionError is raised if the denominator thus
+supplied is zero.
+
+
+Other operations on mpq objects are all exposed as functions of
+modules gmpy, and some, also, as methods of mpq objects:
+
+gmpy.qbinary(x) or x.binary(): returns a portable binary
+representation of any mpq object.
+
+gmpy.qsign(x) or x.sign(): -1, 0, or 1, depending on whether x is
+negative, zero, or positive.
+
+gmpy.qdiv(x[,y]) or x.qdiv([y]), which is _also_ supplied as a
+method on mpz and mpf objects (which are implicitly converted to
+mpq's in this case): return x/y (or just x, if y is absent), as an
+mpz if possible (==if a resulting mpq would have a denominator of
+1), else as an mpq (with a denominator > 1).  The functions are
+optimized, so that, if x is an mpz and y is absent or 1, or if x
+is an mpq with a denom>1 and y is absent or 1, then the same
+object-identity as x is returned, so that the operation is very
+fast.  In other words, gmpy.qdiv only ever takes substantial time
+if it DOES have an important job to perform, and can thus be
+called rather freely, even in loops, to 'normalize' numeric
+results.
+
+Specifically, please note that, for an x that is an mpq, x.qdiv()
+returns either x, if x.denom()==1, or else the same mpz as
+x.numer() would return; if x is an mpz, x.qdiv() returns x (so it
+can be used polymorphically on an x that can be either, without
+any performance hit).
+
+
+
+*gmpy.mpf -- variable-precision floating numbers*
+
+gmpy.mpf objects have a subset of the arithmetic abilities of
+Python floats (in the future, mutable versions will also be
+supplied, but, NOT YET!).
+
+Mixed-operand arithmetic is supported: the other operand is
+coerced to a gmpy.mpf, except that, if the other operand is an
+mpq, then both are coerced to mpq.  NOTE: trigonometric and
+exponential functionalities on mpf objects are NOT currently
+supported [GMP 3.1.1 had none; waiting to expose the MPFR
+extensions to GMP.]  mpf objects also support the hash built-in
+function, and can thus be used as dictionary keys; for any Python
+float X, hash(mpf(x)) and hash(x) are equal.
+
+Each mpf object has a _precision_ -- a number of bits of precision
+to which values are stored in it.  The precision of all newly
+generated mpf's is at least that set at module level via module
+function gmpy.set_minprec(n); a specific mpf's precision can be
+set to >= n bits by x.setprec(n); it can be queried (the exact
+current number of bits of precision is returned) by x.getprec() or
+gmpy.getprec(x).  The granularity of precision of current MPF's is
+rough; exact precision setting is one of MPFR's enhancements.  To
+get the actual precision that was _requested_ for a given mpf
+object, x.getrprec() and gmpy.getrprec(x) are also supplied -- the
+value returned from getprec will always be greater than, or equal
+to, the one returned from getrprec.
+
+** The following behavior is in new in gmpy 1.04. **
+
+GMP only guarantees that the precision of a result is greater than
+or equal to the requested precision. But comparisons would use all
+the bits computed, regardless of whether they are accurate. This
+leads to situations where mpf('1.1') * mpf('1') != mpf('1.1').
+Beginning with gmpy 1.04, the results of all mpf calculations are
+rounded to the requested precision.
+
+Note: GMP uses radix 2**32 (or 2**64) arithmetic and rounding is
+done on those boundaries. Let's assume we request 53 bits of
+precision on a 32-bit system. GMP rounds the requested precision
+up to 64 bits and then allocates three 32-bit words to store the
+mantissa. GMP also allocates one additional 32-bit word to simplify
+their internal operations. The additional word may or may not be
+present on any particular result. So in our scenario, GMP can return
+a mantissa with anywhere between 65 and 128 bits. The presence of
+the additional word caused the strange behavior with comparisons.
+If the additional word is present, the mantissa is rounded and the
+additional word is set to 0 so the effective precision is between
+65 and 96 bits.
+
+** End new section. **
+
+An mpf is built by passing to the gmpy.mpf constructor function
+any Python built-in number, another mpf (this *shares* object
+identity, does *not* copy it -- unless specific precision is
+requested for the resulting mpf, see later), a mpq or mpz, or a
+string (representing the number in base 10, possibly with decimal
+point and/or exponent).
+
+If gmpy.mpf is called with a float argument, the exact steps used
+in conversion depend on the setting of module level option fcoform
+(set by gmpy.set_fcoform()).
+
+If fcoform is None, the float number is converted 'exactly' to an
+mpf (which often leaves spurious trailing bits from literals).  If
+fcoform is a string, it's used as the format (left operand of %)
+in a formatting operation (with the float being transformed as the
+right operand), and the resulting intermediate string is the one
+that actually gets transformed to mpf (this normally gives good
+results with formats somewhere between '%.12e' and '%.16e',
+depending on the actual precision of the float being transformed).
+
+fcoform also applies to _implicit_ conversions of float to mpf, as
+invoked for mixed-mode arithmetic or when gmpy functions expecting
+an mpf argument are called with a float argument (a string could
+not be passed _explicitly_ here -- an explicit mpz() around it
+would be needed -- but it's OK if a float gets _implicitly_
+converted-to-mpf-via-string in these cases, through the fcoform
+mechanism).
+
+An optional second argument can always be supplied to gmpy.mpf,
+whether the first argument is a numner or a string; if supplied,
+it must be a Python int, >=0.  If absent or 0, the precision of
+the mpf that is generated is determined by default depending on
+the input argument (in many cases, it's the number of significant
+bits in machine-floats; e.g., 53 on machines using IEEE 64-bit
+floating point).  If the second argument is supplied and > 0, it's
+used as the requested-precision for the resulting mpf, ignoring
+the bits-of-precision held or implied by the first argument.
+Note, that if x is an mpf with n bits of precision, gmpy.mpf(x,m)
+will be able to return the same object identity as x if, and only
+if, m==n; else, a new mpf object of the requested precision will
+be generated.
+
+Note that, in arithmetic operations, the bits of precision of the
+result are generally set to the _lowest_ number of
+bits-of-precision of all the operands involved.
+
+
+gmpy.mpf can also be called with *3* arguments: the first one a
+string representing the number in base N, the second one the bits
+of precision requested (or 0 to accept the default determination
+of the bits), the third one, the integer N.  N can be between 2
+and 36, or, it can be 256, which implies that the string is the
+_portable binary gmpy representation_ of the mpf (as produced by
+method .binary() of mpf objects, and function gmpy.fbinary() of
+the module).  (Hex and octal decorations are *not* supported here;
+an N of 0 is totally equivalent to one of 10).
+
+Note that therefore, if a reasonable fcoform is set, two
+constructor calls such as
+    gmpy.mpf(3.4)
+and
+    gmpy.mpf('3.4')
+will produce the same mpf object, although the second way is
+faster (and does not depend on the module-level fcoform setting)
+and recommended as preferable to the first one.
+
+
+Other operations on mpf objects are all exposed as functions of
+modules gmpy, and some, also, as methods of mpf objects:
+
+gmpy.fbinary(x) or x.binary(): returns a portable binary
+representation of any mpf object.
+
+gmpy.fdigits(x[,args...]) or x.digits([args]): returns a string
+representing x.  Arguments (must currently be passed positionally,
+if at all -- keywords NOT accepted!) are...:
+    base: number-base (between 2 and 36), default 10
+    digits: how many digits are requested (default 0,
+        "all of them" within x's precision; fewer than
+        requested may be obtained, if fewer available)
+    minexp: minimum exponent for which the number is
+        still to be formatted in integer.fraction form
+        (it's formatted as fraction-exponent form if
+        exponent is lower than minexp), default 0
+    maxexp: maximum exponent for which the number is
+        still to be formatted in integer.fraction form
+        (it's formatted as fraction-exponent form if
+        exponent is higher than maxexp), default -1
+    option: bitmask argument, default 0 (no options)
+
+Note that, by default, the formating is in fraction-and-exponent
+form:
+    [<sign>]<digit>.<digits><marker><signed exponent>
+sign is '-' if x is negative, omitted if x>=0
+<marker> is 'e' for base<=10, otherwise '@'
+the signed exponent (sign omitted if exponent>=0) is always
+expressed in base 10, whatever the base used for the significand's
+digits.
+
+If option's bit 1 is set, the whole result string is enclosed
+between "gmpy.mpf('" at the start and "')" at the end, so it can
+be subject to eval to recover an approximation of the original
+number (depending on the settings of gmpy.set_tagoff(), the
+starting tag may actually be shortened to just "mpf('").  The
+precision, in bits, is also output in this case, just before the
+')', separated from the "first argument to gmpy.mpf" by a comma
+character (it is the same number as returned by .getrprec).
+
+If option's bit 2 is set, then minexp, maxexp, and option's bit 1,
+are ignored: the result is a tuple of 2 objects: first, a string
+made up of all the digits (and maybe a leading - sign) and nothing
+else; second, an integer that is the exponent to use. This can be
+used by Python code that wants finer-grained control on resulting
+string format.
+
+
+gmp.reldiff(x,y) or x.reldiff(y): returns the relative difference
+between x and y, a non-negative mpf roughly equal to
+abs(x-y)/((abs(x)+abs(y))/2).
+
+gmpy._fcopy(x) or x._copy(): provide a separate copy of x (only
+relevant for future mutability of mpf..!).
+
+gmpy.fsign(x) or x.sign(): -1, 0, or 1, depending on whether x is
+negative, zero, or positive.
+
+gmpy.f2q(x) or x.f2q(): like gmpy.mpq(x), but, like qdiv, will
+return an mpz (instead of, as normally, an mpq), if the mpq's
+denominator would be 1.
+
+gmpy.fsqrt(x) or x.sqrt(): square-root of non negative number x.
+
+gmpy.set_fcoform([x]): sets or resets the format with which to
+build the intermediate-string to be used for float->mpf
+conversion.  If x is None, or is absent, then the format is reset,
+and such conversions proceed 'directly'.  If x is a Python int, it
+must be between 1 and 30, and is used as the number of digits in
+the format string '%.<x>e' (for example, set_fcoform(12) will set
+the format string for float-conversion to '%.12e').  Else, x must
+be a Python string usable as:
+    x%f
+to format a float object f in some suitable way.  set_fcoform also
+returns the previous setting of this option, None or a string.
+(See also the paragraph above about the float->mpf conversion
+mechanics, which gives more details about the way in which this
+format string is used by gmpy).
+
+
+*Experimental: function gmpy.rand*
+
+Since gmpy 0.5, the linear congruential random number generator of
+GMP is exposed via gmpy (with some modest added-value
+functionality) through function gmpy.rand.  A couple options were
+added in 0.6.  This will be refactored into separate functions in
+some future release.
+
+Its first parameter is a string 'opt' (4-characters, lowercase)
+which determines the exact functionality; it normally has a second
+paramenter 'arg' (which is optional for most values of 'opt') and
+may return either None or a significant value (an mpz, except for
+opt='floa', when an mpf is returned).
+
+gmpy.rand('init')
+        Initialize the random-generator state (this
+        is _implicitly_ called by other options of
+        gmpy.rand, if needed, but should be explicitly
+        called) to ensure 32 bits' randomness per
+        each generation ('throw').  Returns None.
+gmpy.rand('init', arg)
+        ditto, but ensure 'arg' bits of randomness
+        (arg being an int between 1 and 128).  This
+        tweaks the linear congruential parameters
+        according to the number of needed bits (it
+        may be faster to generate just the needed
+        number of 'good' bits).  Returns None.
+gmpy.rand('qual')
+        returns the current 'quality of random
+        numbers' (the arg value passed to 'init',
+        with a default of 32), or 0 if random
+        number generation is not inited yet.
+        [ignores arg, if present]
+gmpy.rand('seed', arg)
+        set the current random-seed to 'arg', an
+        mpz (or coerced to mpz).  Returns None.
+gmpy.rand('seed')
+        set the current random-seed 'randomly' in
+        its turn (uses C-level function 'rand()').
+        Returns None.
+gmpy.rand('save')
+        returns the current random-seed (an mpz)
+        so that it can be saved (e.g. for program
+        checkpointing) and later restored via
+        a gmpy.rand('seed', x) call.
+        [ignores arg, if present]
+gmpy.rand('next')
+        returns a uniformly distributed random
+        number in the range 0:2**31 (note that
+        the UPPER end is EXCLUDED) and advances
+        the random-number gneration by 1 step.
+	(Basically, returns '31 random bits', if
+	the current quality of the generator is
+	at least 31; for lower-quality generators,
+	upper bits tend to be "better" than less
+	significant ones).
+gmpy.rand('next',arg)
+        returns a uniformly distributed random
+        number in the range 0:arg (note that
+        the UPPER end is EXCLUDED) and advances
+        the random-number generation by 1 step.
+        Value returned is integral (mpz).
+gmpy.rand('floa',arg)
+        returns a uniformly distributed random
+        number in the range 0:1 (note that
+        the UPPER end is EXCLUDED), with arg
+        meaningful bits (default, if arg is 0,
+        is current 'quality'), and advances the
+        random-number generation by 1 step.
+        Value returned is floating-point (mpf).
+gmpy.rand('floa')
+        returns a uniformly distributed random
+        number in the range 0:1 (note that
+        the UPPER end is EXCLUDED), with as many
+        meaningful bits as the current 'quality',
+        and advances random-number generation by 1
+        step. Value returned is floating-point (mpf).
+gmpy.rand('shuf',arg)
+        randomly shuffles mutable-sequence 'arg'
+        (normally a list), in a way that ensures
+        all permutations are equally likely.  It
+        advances random-number generation by
+        len(arg)-1 steps.  Returns None.
+
+
+*Experimental: the callbacks-facility*
+
+The "callback" facilities were removed in gmpy 1.10. The documentation
+is left as-is for historical reference.
+
+Since gmpy 0.8, gmpy exposes 'callback' facilities to help
+client-code customize the handling of what, in pure-gmpy, would be
+error-cases.  This is mostly intended for the use of Pearu
+Peterson's PySymbolic package, and is not currently documented
+(nor tested) in great detail for general use.  You are welcome to
+contact gmpy's maintainer directly (and/or study gmpy's C
+sources:-) if you think you may have use for this facility, or are
+interested in doing something similar in other C modules for
+Python use -- it IS an interesting and reasonably novel approach.
+
+To summarize: with gmpy.set_callback(name, callable), client-code
+may set a Python callable as a callback for gmpy in a set of
+situations determined by the string 'name'.  For example,
+	gmpy.set_callback('ZD', myfun)
+sets 'myfun' as the callback that gmpy is to use in
+'zero-division' situations.  When gmpy is about to raise a
+ZeroDivision error, it checks if the 'ZD' callback is set; if so,
+then, instead of raising the exception itself, it delegates
+everything to the callback in question, passing it the name of the
+gmpy function involved, the arguments it was called with, and the
+error-string gmpy would use if it did raise the error.  It's up to
+the callback to either raise a ZeroDivision itself, OR return some
+special object to map this situation -- for example, PySymbolic
+may return an 'infinity' object and suppress the error.
+
+Basically, this works around Python's (excellent!) choice to adopt
+the terminating-model rather than the restartable one for
+exception handling, in a few cases of specific interest to numeric
+computation that's being used in a symbolic setting.
+
+Most callbacks are module-global, with one specific exception.
+When any gmpy function or method is trying to convert arguments to
+gmpy objects (mpz, mpq, mpf), and a conversion fails, all argument
+objects are examined, looking for a method called '__gmpy__' in
+any of them.
+
+If one is found, then, rather than raising an error to indicate
+the conversion failure, that method is called as a 'localized
+callback' as above.  This lets other, non-gmpy objects participate
+in gmpy computations (if they're willing to handle all cases
+involving them!): Python does much of this via __coerce__ etc, and
+this localized-callback facility does the rest for named
+module-functions and methods, where normal coercion would not
+apply.
+
