@@ -1,4 +1,4 @@
-from gmpy2 import *
+from gmpy import *
 from math import log
 from time import time
 

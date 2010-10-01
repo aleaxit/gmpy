@@ -1,7 +1,8 @@
-# partial unit test for gmpy2 threaded mpz functionality
+# partial unit test for gmpy threaded mpz functionality
 # relies on Tim Peters' "doctest.py" test-driver
 
-import gmpy2 as _g, doctest, sys, operator, gc, Queue, threading
+
+import gmpy as _g, doctest, sys, operator, gc, Queue, threading
 
 __test__={}
 def _tf(N=2, _K=1234**5678):
@@ -20,7 +21,7 @@ def factorize(x=c):
     [2, 2, 2, 3, 19]
     >>>
     '''
-    import gmpy2 as _g
+    import gmpy as _g
     savex=x
     prime=2
     x=_g.mpz(x)
@@ -67,15 +68,15 @@ def elemop(N=1000):
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy2 (threading)"
+        print "Unit tests for gmpy 1.14 (threading)"
         print "    running on Python", sys.version
         print
         if _g.gmp_version():
-            print "Testing gmpy2 %s (GMP %s) with default caching (%s, %s)" % (
+            print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.gmp_version(), _g.get_cache()[0],
                 _g.get_cache()[1]))
         else:
-            print "Testing gmpy2 %s (MPIR %s) with default caching (%s, %s)" % (
+            print "Testing gmpy %s (MPIR %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.mpir_version(), _g.get_cache()[0],
                 _g.get_cache()[1]))
 

@@ -1,5 +1,4 @@
-import time
-import gmpy2 as gmpy
+import gmpy, time
 
 def timedfib(n, zero):
     start=time.clock()

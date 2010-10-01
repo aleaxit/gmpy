@@ -1,12 +1,13 @@
-# partial unit test for gmpy2 mpq functionality
+# partial unit test for gmpy mpq functionality
 # relies on Tim Peters' "doctest.py" test-driver
+
 r'''
 >>> dir(a)
 ['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'denom', 'denominator', 'digits', 'numer', 'numerator', 'qdiv', 'sign']
 >>>
 '''
 
-import gmpy2 as _g, doctest,sys
+import gmpy as _g, doctest,sys
 import fractions
 F=fractions.Fraction
 
@@ -198,6 +199,14 @@ r'''
 'mpq(-41,152)'
 >>> (-a)==eval(repr(-a),_g.__dict__)
 1
+>>> _g.set_tagoff(0)
+1
+>>> a
+gmpy.mpq(41,152)
+>>> _g.mpq('12.34')
+gmpy.mpq(617,50)
+>>> _g.set_tagoff(1)
+0
 >>> for i in range(1,7):
 ...    for j in range(3,10):
 ...       if _g.mpq(i,j) != _g.mpq("%d/%d"%(i,j)):
@@ -231,10 +240,10 @@ mpq(1000000000000000000000,23)
 mpq(23,1000000000000000000000)
 >>> _g.mpq(23**15,1000**7)
 mpq(266635235464391245607,1000000000000000000000)
->>> _g.binary('pep')
+>>> _g.qbinary('pep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: binary() requires a gmpy2 object as argument
+TypeError: argument can not be converted to mpq
 >>> x=_g.mpq('234/567')
 >>> del x
 >>> _g.mpq('7788')
@@ -259,7 +268,7 @@ r'''
 152
 >>> _g.mpq(ba,256)==a
 1
->>> ba == _g.binary(a)
+>>> ba == _g.qbinary(a)
 1
 >>> ba=(-a).binary()
 >>> len(ba)
@@ -288,6 +297,10 @@ mpq(4,9)
 mpq(27,8)
 >>> _g.mpq(8,27)**_g.mpq('-2/3')
 mpq(9,4)
+>>> print(float(_g.mpf('0.2')**2))
+0.04
+>>> print(float(_g.mpf('0.2')**-2))
+25.0
 >>> _g.mpq(3)**3 == _g.mpz(3)**3
 True
 >>> (a**-7) == 1/(a**7)
@@ -326,15 +339,15 @@ mpq(12,5)
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy2 (mpq functionality)")
+        print("Unit tests for gmpy 1.14 (mpq functionality)")
         print("    running on Python",sys.version)
         print()
         if _g.gmp_version():
-            print("Testing gmpy2 %s (GMP %s), default caching (%s, %s)" % (
+            print("Testing gmpy %s (GMP %s), default caching (%s, %s)" % (
                 (_g.version(), _g.gmp_version(), _g.get_cache()[0],
                 _g.get_cache()[1])))
         else:
-            print("Testing gmpy2 %s (MPIR %s), default caching (%s, %s)" % (
+            print("Testing gmpy %s (MPIR %s), default caching (%s, %s)" % (
                 (_g.version(), _g.mpir_version(), _g.get_cache()[0],
                 _g.get_cache()[1])))
 

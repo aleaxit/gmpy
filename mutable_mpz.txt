@@ -1,0 +1,48 @@
+There have been multiple requests to support efficient inplace operations
+on mutable integers. gmpy 1.10 did not provide any extra support for inplace
+operations. gmpy 1.11 adds support for the standard, immutable versions of
+the inplace operations. There is a compile-time option (-DMUTATE) that uses
+mutating versions of the inplace operations. A simple benchmark is:
+
+(Python 2.6)
+fact = gmpy.mpz(1)
+for i in xrange(10000000):
+    fact *= i
+
+(Python 3.1)
+fact = gmpy.mpz(1)
+for i in range(10000000):
+    fact *= i
+
+Measured results:
+
+gmpy ver:   |   1.10  |  1.11(immutable)  |  1.11 (mutable)
+------------------------------------------------------------
+Python 2.6  |  2.482s |    2.380s (4%)    |   1.712s (31%)
+Python 3.1  |  2.470s |    2.374s (4%)    |   1.846s (25%)
+
+The question is "How much benefit is there in real-world code?" If you have
+examples of real-world code that see a significant improvement with mutable
+integers, please let us know at:
+
+        http://code.google.com/p/gmpy/
+
+Build instructions
+==================
+
+To build gmpy with mutable integers, use the following command:
+
+$python setup.py build_ext -DMUTATE -f install
+
+If you are using MPIR instead of GMP, use the following command:
+
+$python setup.py build_ext -DMPIR,MUTATE -f install
+
+Caveats
+=======
+Hashing is disabled for mpz when built with MUTATE enabled.
+
+The behavior of many expressions involving mpz will change.
+
+To make a copy of an mpz, use "x=a._copy()".
+

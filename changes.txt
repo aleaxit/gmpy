@@ -1,26 +1,3 @@
-Changes in gmpy2
-
-1) Support for random number generation has been been removed and will be
-   replaced with new functions that follow GMP more closely.
-
-2) Support for a mutable integer type - "xmpz" - has been added. A new
-   option called "prefer_mutable" has been to control the type of the result
-   in ambiguous cases. By default, mpz + xmpz will return an mpz but if
-   prefer_mutable is set, the result will be an xmpz.
-
-3) The names of the bit manipulation methods have been changed. They now
-   begin with "bit_". bit_clear and bit_flip have been added.
-
-4) Support for the different rounding modes for division have been added.
-   The method names begin with "cdiv" for ceiling divsion, "tdiv" for
-   truncating division, and "fdiv" for floor division.
-
-5) is_even() and is_odd() were added.
-
-6) "xmpz" supports slicing notation for setting/clearing bits.
-
-7) Various other changes I've forgotten.
-
 Changes in gmpy 1.10
 
 Number conversion rules have changed.

@@ -1,13 +1,17 @@
-# partial unit test for gmpy2 mpf functionality
+# partial unit test for gmpy mpf functionality
 # relies on Tim Peters' "doctest.py" test-driver
+
 r'''
 >>> dir(a)
-['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'precision', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
+['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
 >>>
 '''
+import warnings
+warnings.filterwarnings('ignore', 'setprec')
+
 import sys
 
-import gmpy2 as _g, doctest, sys
+import gmpy as _g, doctest, sys
 __test__={}
 a=_g.mpf('123.456')
 b=_g.mpf('789.123')
@@ -15,33 +19,33 @@ b=_g.mpf('789.123')
 __test__['elemop']=\
 r'''
 >>> str(a+b)
-'912.57900000000006'
+'912.579'
 >>> str(a-b)
-'-665.66700000000003'
+'-665.667'
 >>> str(a*b)
-'97421.969088000013'
+'97421.969088'
 >>> str(a/b)
-'0.15644709379906555'
+'0.156447093799065544915'
 >>> str(b+a)
-'912.57900000000006'
+'912.579'
 >>> str(b-a)
-'665.66700000000003'
+'665.667'
 >>> str(b*a)
-'97421.969088000013'
+'97421.969088'
 >>> str(b/a)
-'6.3919372083981338'
+'6.39193720839813374807'
 >>> str(-a)
 '-123.456'
 >>> str(abs(-a))
 '123.456'
 >>> _g.mpf(2,200) + 3
-mpf('5.0e0',200)
+mpf('5.e0',200)
 >>> 3 + _g.mpf(2,200)
-mpf('5.0e0',200)
+mpf('5.e0',200)
 >>> _g.mpf(2,200) * 3
-mpf('6.0e0',200)
+mpf('6.e0',200)
 >>> 3 * _g.mpf(2,200)
-mpf('6.0e0',200)
+mpf('6.e0',200)
 >>> _g.fsign(b-a)
 1
 >>> _g.fsign(b-b)
@@ -96,11 +100,11 @@ mpf('6.0e0',200)
 1
 >>> _g.floor(-12.3)==math.floor(-12.3)
 1
->>> (a**2).reldiff(float(a)**2) < 1.03 * (2.0**-(a.getprec()-1))
+>>> (a**2).reldiff(float(a)**2) < 1.03 * (2.0**-(a.getrprec()-1))
 1
 >>> (a**2).reldiff(a*a) < (2.0**-(a.getprec()-1))
 1
->>> (b**2).reldiff(float(b)**2) < 1.03 * (2.0**-(b.getprec()-1))
+>>> (b**2).reldiff(float(b)**2) < 1.03 * (2.0**-(b.getrprec()-1))
 1
 >>> (b**2).reldiff(b*b) < (2.0**-(b.getprec()-1))
 1
@@ -120,9 +124,9 @@ Traceback (innermost last):
     _g.reldiff(3, 4)
 TypeError: function takes exactly 1 argument (2 given)
 >>> a.sqrt()
-mpf('1.1111075555498667e1')
+mpf('1.11110755554986664846e1')
 >>> _g.fsqrt(a)
-mpf('1.1111075555498667e1')
+mpf('1.11110755554986664846e1')
 >>> _g.fsqrt(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -144,13 +148,13 @@ __test__['newdiv']=\
 r'''
 >>>
 >>> a/b
-mpf('1.5644709379906555e-1')
+mpf('1.56447093799065544915e-1')
 >>> a//b
-mpf('0.0e0')
+mpf('0.e0')
 >>> b/a
-mpf('6.3919372083981338e0')
+mpf('6.39193720839813374807e0')
 >>> b//a
-mpf('6.0e0')
+mpf('6.e0')
 >>>
 '''
 
@@ -198,7 +202,7 @@ mpq(15432,125)
 1234.0
 >>> x=1000*1000*1000*1000
 >>> _g.mpf(x)
-mpf('1.0e12')
+mpf('1.e12')
 >>> c=_g.mpf(a)
 >>> a is c
 1
@@ -222,6 +226,17 @@ False
 False
 >>> b == c
 True
+>>> a == b.round(64)
+True
+>>> a == _g.fround(b, 64)
+True
+>>> _g.mpf('ffffffffffffffffe8000000000000000', 256, 16).round(64).digits(16)
+'f.fffffffffffffffe@32'
+>>> _g.mpf('fffffffffffffffff8000000000000000', 256, 16).round(64).digits(16)
+'1.@33'
+>>> b.round(64)
+mpf('1.23e-1',64)
+>>>
 '''
 
 __test__['format']=\
@@ -230,29 +245,33 @@ r'''
 '123.456'
 >>> repr(a)
 "mpf('1.23456e2')"
+>>> _g.set_tagoff(0)
+1
+>>> a
+gmpy.mpf('1.23456e2')
+>>> _g.set_tagoff(1)
+0
 >>> a.digits(10,0)
-('12345600000000000', 3, 53)
+'1.23456e2'
 >>> a.digits(10,1)
-Traceback (most recent call last):
-  ...
-ValueError: digits must be 0 or >= 2
+'1.e2'
 >>> a.digits(10,2)
-('12', 3, 53)
+'1.2e2'
 >>> a.digits(10,3)
-('123', 3, 53)
+'1.23e2'
 >>> a.digits(10,4)
-('1235', 3, 53)
+'1.235e2'
 >>> a.digits(10,5)
-('12346', 3, 53)
+'1.2346e2'
 >>> a.digits(10,6)
-('123456', 3, 53)
+'1.23456e2'
 >>> a.digits(10,7)
-('1234560', 3, 53)
+'1.23456e2'
 >>> a.digits(10,8)
-('12345600', 3, 53)
+'1.23456e2'
 >>> for i in range(11,99):
-...     tempa=('%.16f' % (i/10.0)).replace('.','')
-...     tempb=_g.mpf(i/10.0).digits(10,17)[0]
+...     tempa='%.16f' % (i/10.0)
+...     tempb=_g.mpf(i/10.0).digits(10,17)
 ...     assert tempb.startswith(tempa.rstrip('0')), (tempa, tempb)
 ...
 >>> junk=_g.set_fcoform(14)
@@ -263,48 +282,51 @@ ValueError: digits must be 0 or >= 2
 >>> ofmt
 '%.14e'
 >>> _g.mpf(3.4)
-mpf('3.3999999999999999e0')
+mpf('3.39999999999999999998e0')
 >>> print(_g.mpf(3.4))
-3.3999999999999999
+3.39999999999999999998
 >>> _g.set_fcoform(junk)
 '%.14e'
 >>> a.digits(1)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
-ValueError: base must be in the interval 2 ... 62
+ValueError: base must be either 0 or in the interval 2 ... 36
 >>> a.digits(2,-1)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
-ValueError: digits must be 0 or >= 2
->>> a.digits(10,0)
-('12345600000000000', 3, 53)
->>> saveprec=a.precision
->>> newa = a.round(33)
->>> newa
+ValueError: digits must be >= 0
+>>> a.digits(10,0,0,-1,2)
+('123456', 3, 53)
+>>> saveprec=a.getrprec()
+>>> a.setprec(33)
+>>> a
 mpf('1.23456e2',33)
->>> newa = newa.round(saveprec)
->>> newa.precision==saveprec
+>>> a.setprec(saveprec)
+>>> a.getrprec()==saveprec
 1
->>> del(newa)
+>>> _g.fdigits(2.2e5, 0, 6, -10, 10)
+'220000.0'
+>>> _g.fdigits(2.2e-5, 0, 6, -10, 10)
+'0.000022'
 >>> _g.digits(_g.mpf(23.45))
 Traceback (most recent call last):
   ...
-TypeError: digits() requires 'mpz',['int'] arguments
->>> _g.binary('pep')
+TypeError: digits() expects 'mpz',['int'] arguments
+>>> _g.fbinary('pep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: binary() requires a gmpy2 object as argument
+TypeError: argument can not be converted to mpf
 >>>
 '''
 
 __test__['binio']=\
 r'''
->>> epsilon=_g.mpf(2)**-(a.precision)
+>>> epsilon=_g.mpf(2)**-(a.getrprec())
 >>> ba=a.binary()
 >>> a.reldiff(_g.mpf(ba,0,256)) <= epsilon
 1
 >>> len(ba)
-16
+18
 >>> for i in range(len(ba)):
 ...     print(ba[i])
 ...
@@ -323,7 +345,9 @@ r'''
 106
 126
 249
-220
+219
+34
+209
 >>> na=(-a).binary()
 >>> (-a).reldiff(_g.mpf(na,0,256)) <= epsilon
 1
@@ -334,38 +358,38 @@ r'''
 >>> ia=(1/a).binary()
 >>> (1/a).reldiff(_g.mpf(ia,0,256)) <= epsilon
 1
->>> _g.binary(_g.mpf(0))
+>>> _g.fbinary(0)
 b'\x04'
->>> _g.mpf(_g.binary(_g.mpf(0)), 0, 256) == 0
+>>> _g.mpf(_g.fbinary(0), 0, 256) == 0
 1
->>> _g.binary(_g.mpf(0.5))
+>>> _g.fbinary(0.5)
 b'\x085\x00\x00\x00\x00\x00\x00\x00\x80'
->>> _g.mpf(_g.binary(_g.mpf(0.5)), 0, 256) == 0.5
+>>> _g.mpf(_g.fbinary(0.5), 0, 256) == 0.5
 1
->>> _g.binary(_g.mpf(-0.5))
+>>> _g.fbinary(-0.5)
 b'\t5\x00\x00\x00\x00\x00\x00\x00\x80'
->>> _g.mpf(_g.binary(_g.mpf(-0.5)), 0, 256) == -0.5
+>>> _g.mpf(_g.fbinary(-0.5), 0, 256) == -0.5
 1
->>> _g.binary(_g.mpf(-2.0))
+>>> _g.fbinary(-2.0)
 b'\t5\x00\x00\x00\x01\x00\x00\x00\x02'
->>> _g.mpf(_g.binary(_g.mpf(-2.0)), 0, 256) == -2.0
+>>> _g.mpf(_g.fbinary(-2.0), 0, 256) == -2.0
 1
->>> _g.binary(_g.mpf(2.0))
+>>> _g.fbinary(2.0)
 b'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
->>> _g.mpf(_g.binary(_g.mpf(2.0)), 0, 256) == 2.0
+>>> _g.mpf(_g.fbinary(2.0), 0, 256) == 2.0
 1
->>> prec=_g.get_precision()
->>> _g.set_precision(prec)
->>> a.precision==prec
+>>> prec=_g.set_minprec(0)
+>>> junk=_g.set_minprec(prec)
+>>> a.getrprec()==prec
 1
->>> b.precision==prec
+>>> b.getrprec()==prec
 1
->>> _g.mpf(1.0).precision==prec
+>>> _g.mpf(1.0).getrprec()==prec
 1
 >>> hash(_g.mpf(23.0))==hash(23)
 1
 >>> print(_g.mpf('\004',0,256))
-0.0e0
+0.0
 >>> int(a)
 123
 >>> int(-a)
@@ -375,15 +399,15 @@ b'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy2 (mpf functionality)")
+        print("Unit tests for gmpy 1.14 (mpf functionality)")
         print("    running on Python %s" % sys.version)
         print()
         if _g.gmp_version():
-            print("Testing gmpy2 %s (GMP %s), default caching (%s, %s)" % (
+            print("Testing gmpy %s (GMP %s), default caching (%s, %s)" % (
                 (_g.version(), _g.gmp_version(), _g.get_cache()[0],
                 _g.get_cache()[1])))
         else:
-            print("Testing gmpy2 %s (MPIR %s), default caching (%s, %s)" % (
+            print("Testing gmpy %s (MPIR %s), default caching (%s, %s)" % (
                 (_g.version(), _g.mpir_version(), _g.get_cache()[0],
                 _g.get_cache()[1])))
 
@@ -395,7 +419,7 @@ def _test(chat=None):
 
     sav = sys.stdout
     class _Dummy:
-        encoding = None
+        encoding=None
         def write(self,*whatever):
             pass
     try:

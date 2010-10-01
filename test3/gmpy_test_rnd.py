@@ -1,12 +1,13 @@
-# partial unit test for gmpy2 rand functionality
+# partial unit test for gmpy rand functionality
 # relies on Tim Peters' "doctest.py" test-driver
+
 r'''
 >>> r
 <built-in function rand>
 >>>
 '''
 
-import gmpy2 as _g, doctest,sys
+import gmpy as _g, doctest,sys
 __test__={}
 r = _g.rand
 
@@ -119,17 +120,22 @@ TypeError: 'shuf' needs mutable sequence
 >>>
 '''
 
+# adapt to python 2.3's slightly different error message in an exception
+import sys
+if sys.version<'2.4':
+    __test__['rand'] = __test__['rand'].replace("does not", "doesn't")
+
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy2 (rand functionality)")
+        print("Unit tests for gmpy 1.14 (rand functionality)")
         print("    running on Python %s" % sys.version)
         print("")
         if _g.gmp_version():
-            print("Testing gmpy2 %s (GMP %s) with default caching (%s, %s)" % (
+            print("Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.gmp_version(), _g.get_cache()[0],
                 _g.get_cache()[1])))
         else:
-            print("Testing gmpy2 %s (MPIR %s) with default caching (%s, %s)" % (
+            print("Testing gmpy %s (MPIR %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.mpir_version(), _g.get_cache()[0],
                 _g.get_cache()[1])))
 

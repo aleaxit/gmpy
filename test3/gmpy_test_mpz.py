@@ -1,13 +1,17 @@
-# partial unit test for gmpy2 mpz functionality
+# partial unit test for gmpy mpz functionality
 # relies on Tim Peters' "doctest.py" test-driver
+
 r'''
 >>> list(filter(lambda x: not x.startswith('_'), dir(_g)))
-['binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'cdiv', 'cdiv2exp', 'cdivmod', 'cdivmod2exp', 'ceil', 'cmod', 'cmod2exp', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fdiv', 'fdiv2exp', 'fdivmod', 'fdivmod2exp', 'fib', 'fib2', 'floor', 'fmod', 'fmod2exp', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'get_precision', 'get_prefer_mutable', 'getprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lucas', 'lucas2', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pack', 'pi', 'popcount', 'qdigits', 'qdiv', 'qsign', 'reldiff', 'remove', 'root', 'rootrem', 'set_cache', 'set_debug', 'set_fcoform', 'set_precision', 'set_prefer_mutable', 'sign', 'sqrt', 'sqrtrem', 'tdiv', 'tdiv2exp', 'tdivmod', 'tdivmod2exp', 'tmod', 'tmod2exp', 'trunc', 'unpack', 'version', 'xmpz']
+['binary', 'bincoef', 'bit_length', 'cdivmod', 'ceil', 'comb', 'denom', 'digits', 'divexact', 'divm', 'f2q', 'fac', 'fbinary', 'fdigits', 'fdivmod', 'fib', 'floor', 'fround', 'fsign', 'fsqrt', 'gcd', 'gcdext', 'get_cache', 'getbit', 'getprec', 'getrprec', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'lcm', 'legendre', 'license', 'lowbits', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pi', 'popcount', 'qbinary', 'qdigits', 'qdiv', 'qsign', 'rand', 'reldiff', 'remove', 'root', 'scan0', 'scan1', 'set_cache', 'set_debug', 'set_fcoform', 'set_minprec', 'set_tagoff', 'setbit', 'sign', 'sqrt', 'sqrtrem', 'tdivmod', 'trunc', 'version']
 >>> dir(a)
-['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__iadd__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__', '__index__', '__init__', '__int__', '__invert__', '__ipow__', '__irshift__', '__isub__', '__le__', '__len__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', '_copy', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'cdiv', 'cdiv2exp', 'cmod', 'cmod2exp', 'comb', 'digits', 'divexact', 'fdiv', 'fdiv2exp', 'fmod', 'fmod2exp', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'sign', 'sqrt', 'sqrtrem', 'tdiv', 'tdiv2exp', 'tmod', 'tmod2exp']
+['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__iadd__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__', '__index__', '__init__', '__int__', '__invert__', '__ipow__', '__irshift__', '__isub__', '__le__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', '_copy', 'binary', 'bincoef', 'bit_length', 'comb', 'digits', 'getbit', 'hamdist', 'invert', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'lowbits', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'scan0', 'scan1', 'setbit', 'sign', 'sqrt', 'sqrtrem']
 >>>
 '''
-import gmpy2 as _g, doctest, sys, operator, gc
+import warnings
+warnings.filterwarnings('ignore', 'setprec')
+
+import gmpy as _g, doctest, sys, operator, gc
 __test__={}
 a=_g.mpz(123)
 b=_g.mpz(456)
@@ -73,11 +77,11 @@ mpz(56088)
 >>> a//b
 mpz(0)
 >>> a/b
-mpf('2.6973684210526316e-1')
+mpf('2.69736842105263157895e-1')
 >>> b//a
 mpz(3)
 >>> b/a
-mpf('3.7073170731707319e0')
+mpf('3.70731707317073170732e0')
 >>> a%b
 mpz(123)
 >>> 0%b
@@ -149,20 +153,6 @@ True
 >>> _g.mpz(s) == int(s)
 True
 >>> del s
->>> _g.is_even(a)
-False
->>> _g.is_odd(a)
-True
->>> _g.is_even(b)
-True
->>> _g.is_odd(b)
-False
->>> a.is_odd()
-True
->>> a.is_even()
-False
->>> _g.is_even(2)
-True
 '''
 
 __test__['special'] = \
@@ -240,97 +230,97 @@ False
 >>> float('nan') <= a
 False
 >>> a + float('Inf')
-mpf('inf')
+inf
 >>> float('Inf') + a
-mpf('inf')
+inf
 >>> a + float('-Inf')
-mpf('-inf')
+-inf
 >>> float('-Inf') + a
-mpf('-inf')
+-inf
 >>> a + float('nan')
-mpf('nan')
+nan
 >>> float('nan') + a
-mpf('nan')
+nan
 >>> a - float('Inf')
-mpf('-inf')
+-inf
 >>> float('Inf') - a
-mpf('inf')
+inf
 >>> a - float('-Inf')
-mpf('inf')
+inf
 >>> float('-Inf') - a
-mpf('-inf')
+-inf
 >>> a - float('nan')
-mpf('nan')
+nan
 >>> float('nan') - a
-mpf('nan')
+nan
 >>> a * float('Inf')
-mpf('inf')
+inf
 >>> float('Inf') * a
-mpf('inf')
+inf
 >>> a * float('-Inf')
-mpf('-inf')
+-inf
 >>> float('-Inf') * a
-mpf('-inf')
+-inf
 >>> -a * float('Inf')
-mpf('-inf')
+-inf
 >>> float('Inf') * -a
-mpf('-inf')
+-inf
 >>> -a * float('-Inf')
-mpf('inf')
+inf
 >>> float('-Inf') * -a
-mpf('inf')
+inf
 >>> a * float('nan')
-mpf('nan')
+nan
 >>> float('nan') * a
-mpf('nan')
+nan
 >>> _g.mpz(0) * float('Inf')
-mpf('nan')
+nan
 >>> _g.mpz(0) * float('-Inf')
-mpf('nan')
+nan
 >>> float('Inf') * _g.mpz(0)
-mpf('nan')
+nan
 >>> float('-Inf') * _g.mpz(0)
-mpf('nan')
+nan
 >>> a / float('Inf')
-mpf('0.0e0')
+mpf('0.e0')
 >>> -a / float('Inf')
-mpf('-0.0e0')
+mpf('0.e0')
 >>> float('Inf') / a
-mpf('inf')
+inf
 >>> float('Inf') / -a
-mpf('-inf')
+-inf
 >>> a / float('-Inf')
-mpf('-0.0e0')
+mpf('0.e0')
 >>> -a / float('-Inf')
-mpf('0.0e0')
+mpf('0.e0')
 >>> float('-Inf') / a
-mpf('-inf')
+-inf
 >>> float('-Inf') / -a
-mpf('inf')
+inf
 >>> a / float('nan')
-mpf('nan')
+nan
 >>> float('nan') / a
-mpf('nan')
+nan
 >>> float('nan') / _g.mpz(0)
 Traceback (most recent call last):
   ...
 ZeroDivisionError: mpz division by zero
 >>> divmod(a, float('Inf'))
-(mpf('0.0e0'), mpf('1.23e2'))
+(mpf('0.e0'), mpf('1.23e2'))
 >>> divmod(a, float('-Inf'))
-(mpf('-1.0e0'), -inf)
+(mpf('-1.e0'), -inf)
 >>> divmod(-a, float('Inf'))
-(mpf('-1.0e0'), inf)
+(mpf('-1.e0'), inf)
 >>> divmod(-a, float('-Inf'))
-(mpf('0.0e0'), mpf('-1.23e2'))
+(mpf('0.e0'), mpf('-1.23e2'))
 >>> divmod(a, float('nan'))
 (nan, nan)
 >>> divmod(-a, float('nan'))
 (nan, nan)
 >>> divmod(_g.mpz(0), float('Inf'))
-(mpf('0.0e0'), mpf('0.0e0'))
+(mpf('0.e0'), mpf('0.e0'))
 >>> divmod(_g.mpz(0), float('-Inf'))
-(mpf('0.0e0'), mpf('0.0e0'))
+(mpf('0.e0'), mpf('0.e0'))
 >>> divmod(_g.mpz(0), float('nan'))
 (nan, nan)
 >>> divmod(float('Inf'), a)
@@ -366,6 +356,10 @@ r'''
 >>> c=a*b
 >>> _g.divexact(c,a)
 mpz(789789789789789789789789)
+>>> _g.divexact(10,0)
+Traceback (most recent call last):
+  ...
+ZeroDivisionError: divexact() division by 0
 >>>
 '''
 
@@ -395,6 +389,18 @@ r'''
 (mpz(-3), mpz(2))
 >>> _g.tdivmod(-17,-5)
 (mpz(3), mpz(-2))
+>>> _g.cdivmod(10,0)
+Traceback (most recent call last):
+  ...
+ZeroDivisionError: cdivmod() division by 0
+>>> _g.fdivmod(10,0)
+Traceback (most recent call last):
+  ...
+ZeroDivisionError: fdivmod() division by 0
+>>> _g.tdivmod(10,0)
+Traceback (most recent call last):
+  ...
+ZeroDivisionError: tdivmod() division by 0
 '''
 
 __test__['cmpr']=\
@@ -517,66 +523,64 @@ mpz(123)
 >>> _g.hamdist(3)
 Traceback (innermost last):
   ...
-TypeError: hamdist() requires 'mpz','mpz' arguments
+TypeError: hamdist() expects 'mpz','mpz' arguments
 >>> a.hamdist()
 Traceback (innermost last):
   ...
-TypeError: hamdist() requires 'mpz','mpz' arguments
+TypeError: hamdist() expects 'mpz','mpz' arguments
 >>> a.hamdist(3, 4)
 Traceback (innermost last):
   ...
-TypeError: hamdist() requires 'mpz','mpz' arguments
->>> a.fmod2exp(5)
+TypeError: hamdist() expects 'mpz','mpz' arguments
+>>> a.lowbits(5)
 mpz(27)
->>> b.fmod2exp(5)
+>>> b.lowbits(5)
 mpz(8)
->>> b.fmod2exp(5)==(b%32)
+>>> b.lowbits(5)==(b%32)
 1
->>> a.fmod2exp(5)==(a%32)
+>>> a.lowbits(5)==(a%32)
 1
->>> a.bit_set(20)
+>>> a.setbit(20)
 mpz(1048699)
->>> a.bit_clear(0)
+>>> a.setbit(0,0)
 mpz(122)
 >>> for i in range(8):
-...     print(a.bit_test(i))
+...     print(a.getbit(i))
 ...
-True
-True
-False
-True
-True
-True
-True
-False
+1
+1
+0
+1
+1
+1
+1
+0
 >>> for i in range(10):
-...     print(b.bit_test(i))
+...     print(b.getbit(i))
 ...
-False
-False
-False
-True
-False
-False
-True
-True
-True
-False
->>> [a.bit_scan0(j) for j in range(33)]
+0
+0
+0
+1
+0
+0
+1
+1
+1
+0
+>>> [a.scan0(j) for j in range(33)]
 [2, 2, 2, 7, 7, 7, 7, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
->>> [a.bit_scan1(j) for j in range(10)]
+>>> [a.scan1(j) for j in range(10)]
 [0, 1, 3, 3, 4, 5, 6, None, None, None]
 >>> n=_g.mpz(-(7+6*16+5*256+7*4092))
->>> [n.bit_scan0(j) for j in range(18)]
+>>> [n.scan0(j) for j in range(18)]
 [1, 1, 3, 3, 6, 6, 6, 8, 8, 10, 10, 12, 12, 13, 14, -1, None, None]
->>> [n.bit_scan1(j) for j in range(33)]
+>>> [n.scan1(j) for j in range(33)]
 [0, 2, 2, 4, 4, 5, 7, 7, 9, 9, 11, 11, 15, 15, 15, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
 >>> _g.mpz(0).bit_length()
 0
 >>> _g.mpz(12345).bit_length()
 14
->>> _g.bit_mask(9)
-mpz(511)
 '''
 
 __test__['format']=\
@@ -594,17 +598,17 @@ mpz(123)
 >>> _g.mpz('1001001011',2)
 mpz(587)
 >>> _g.mpz('1001001011',2).digits(2)
-'0b1001001011'
+'1001001011'
 >>> for i in range(2,37):
 ...     print(a.digits(i))
 ...
-0b1111011
+1111011
 11120
 1323
 443
 323
 234
-0o173
+0173
 146
 123
 102
@@ -638,17 +642,23 @@ Traceback (innermost last):
   File "<stdin>", line 1, in ?
     print(a.digits(37))
 ValueError: base must be either 0 or in the interval 2 ... 36
+>>> _g.set_tagoff(0)
+1
+>>> a
+gmpy.mpz(123)
+>>> _g.set_tagoff(1)
+0
 >>> _g.mpz('43')
 mpz(43)
 >>> _g.mpz('043')
 mpz(43)
 >>> _g.mpz('43',0)
 mpz(43)
->>> _g.mpz('0o43')
+>>> _g.mpz('043',0)
 mpz(35)
->>> _g.mpz('0x43')
+>>> _g.mpz('0x43',0)
 mpz(67)
->>> _g.mpz('0x43',10)
+>>> _g.mpz('0x43')
 Traceback (innermost last):
   File "<pyshell#181>", line 1, in ?
     _g.mpz('0x43')
@@ -665,7 +675,7 @@ b'{'
 mpz(123)
 >>> _g.mpz(ba,256)==a
 1
->>> _g.binary(_g.mpz(123))
+>>> _g.binary(123)
 b'{'
 >>> z=_g.mpz('melancholy',256)
 >>> z
@@ -726,7 +736,7 @@ ValueError: base must be either 0 or in the interval 2 ... 36
 456
 >>> hash(z) == hash(int(z))
 True
->>> _g.mpz(_g.binary(_g.mpz(-123)),256)
+>>> _g.mpz(_g.binary(-123),256)
 mpz(-123)
 >>> int(_g.mpz(-3))
 -3
@@ -734,16 +744,6 @@ mpz(-123)
 
 __test__['number']=\
 r'''
->>> a.rootrem(2)
-(mpz(11), mpz(2))
->>> a.rootrem(3)
-(mpz(4), mpz(59))
->>> _g.rootrem(a*a)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-TypeError: rootrem() requires 'mpz','int' arguments
->>> _g.rootrem(a*a,2)
-(mpz(123), mpz(0))
 >>> print(a.sqrt())
 11
 >>> print(b.sqrt())
@@ -837,15 +837,15 @@ mpz(0)
 >>> _g.invert(3)
 Traceback (innermost last):
   ...
-TypeError: invert() requires 'mpz','mpz' arguments
+TypeError: invert() expects 'mpz','mpz' arguments
 >>> a.invert()
 Traceback (innermost last):
   ...
-TypeError: invert() takes exactly one argument (0 given)
+TypeError: invert() expects 'mpz','mpz' arguments
 >>> a.invert(3, 4)
 Traceback (innermost last):
   ...
-TypeError: invert() takes exactly one argument (2 given)
+TypeError: invert() expects 'mpz','mpz' arguments
 >>> _g.comb(3,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -865,15 +865,15 @@ ValueError: factor must be > 0
 >>> _g.remove(3)
 Traceback (innermost last):
   ...
-TypeError: remove() requires 'mpz','mpz' arguments
+TypeError: remove() expects 'mpz','mpz' arguments
 >>> a.remove()
 Traceback (innermost last):
   ...
-TypeError: remove() requires 'mpz','mpz' arguments
+TypeError: remove() expects 'mpz','mpz' arguments
 >>> a.remove(3, 4)
 Traceback (innermost last):
   ...
-TypeError: remove() requires 'mpz','mpz' arguments
+TypeError: remove() expects 'mpz','mpz' arguments
 >>> _g.is_prime(3,-3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -887,15 +887,15 @@ ValueError: jacobi's y must be odd prime > 0
 >>> _g.jacobi(3)
 Traceback (innermost last):
   ...
-TypeError: jacobi() requires 'mpz','mpz' arguments
+TypeError: jacobi() expects 'mpz','mpz' arguments
 >>> a.jacobi()
 Traceback (innermost last):
   ...
-TypeError: jacobi() requires 'mpz','mpz' arguments
+TypeError: jacobi() expects 'mpz','mpz' arguments
 >>> a.jacobi(3, 4)
 Traceback (innermost last):
   ...
-TypeError: jacobi() requires 'mpz','mpz' arguments
+TypeError: jacobi() expects 'mpz','mpz' arguments
 >>> _g.legendre(10,3)
 1
 >>> _g.legendre(10,-3)
@@ -905,15 +905,15 @@ ValueError: legendre's y must be odd and > 0
 >>> _g.legendre(3)
 Traceback (innermost last):
   ...
-TypeError: legendre() requires 'mpz','mpz' arguments
+TypeError: legendre() expects 'mpz','mpz' arguments
 >>> a.legendre()
 Traceback (innermost last):
   ...
-TypeError: legendre() requires 'mpz','mpz' arguments
+TypeError: legendre() expects 'mpz','mpz' arguments
 >>> a.legendre(3, 4)
 Traceback (innermost last):
   ...
-TypeError: legendre() requires 'mpz','mpz' arguments
+TypeError: legendre() expects 'mpz','mpz' arguments
 >>> _g.kronecker(10,3)
 1
 >>> _g.kronecker(10,-3)
@@ -921,15 +921,15 @@ TypeError: legendre() requires 'mpz','mpz' arguments
 >>> _g.kronecker(3)
 Traceback (innermost last):
   ...
-TypeError: kronecker() requires 'mpz','mpz' arguments
+TypeError: kronecker() expects 'mpz','mpz' arguments
 >>> a.kronecker()
 Traceback (innermost last):
   ...
-TypeError: kronecker() requires 'mpz','mpz' arguments
+TypeError: kronecker() expects 'mpz','mpz' arguments
 >>> a.kronecker(3, 4)
 Traceback (innermost last):
   ...
-TypeError: kronecker() requires 'mpz','mpz' arguments
+TypeError: kronecker() expects 'mpz','mpz' arguments
 >>> a=10**20
 >>> b=a+39
 >>> _g.jacobi(a,b)
@@ -940,19 +940,39 @@ TypeError: kronecker() requires 'mpz','mpz' arguments
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: Either arg in Kronecker must fit in an int
+>>> f=_g.mpf(3.3)
+>>> f.setprec(-1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in ?
+ValueError: n must be >=0
+>>> _g.rand('init',-1)
+>>> _g.rand('init',-7)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in ?
+ValueError: size must be in 1..128
+>>> _g.rand('init',200)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in ?
+ValueError: size must be in 1..128
+>>> _g.rand('qual')
+32
+>>> _g.rand('floa',-7)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in ?
+ValueError: 'floa' needs arg>=0
 '''
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy2 (mpz functionality)")
+        print("Unit tests for gmpy 1.14 (mpz functionality)")
         print("    running on Python %s" % sys.version)
         print()
         if _g.gmp_version():
-            print("Testing gmpy2 %s (GMP %s), default caching (%s, %s)" % (
+            print("Testing gmpy %s (GMP %s), default caching (%s, %s)" % (
                 (_g.version(), _g.gmp_version(), _g.get_cache()[0],
                 _g.get_cache()[1])))
         else:
-            print("Testing gmpy2 %s (MPIR %s), default caching (%s, %s)" % (
+            print("Testing gmpy %s (MPIR %s), default caching (%s, %s)" % (
                 (_g.version(), _g.mpir_version(), _g.get_cache()[0],
                 _g.get_cache()[1])))
     thismod = sys.modules.get(__name__)

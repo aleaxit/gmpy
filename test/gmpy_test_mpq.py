@@ -1,12 +1,13 @@
-# partial unit test for gmpy2 mpq functionality
+# partial unit test for gmpy mpq functionality
 # relies on Tim Peters' "doctest.py" test-driver
+
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(a))
 ['_copy', 'binary', 'denom', 'denominator', 'digits', 'numer', 'numerator', 'qdiv', 'sign']
 >>>
 '''
 
-import gmpy2 as _g, doctest,sys
+import gmpy as _g, doctest,sys
 __test__={}
 a=_g.mpq('123/456')
 b=_g.mpq('789/123')
@@ -173,6 +174,14 @@ r'''
 'mpq(-41,152)'
 >>> (-a)==eval(repr(-a),_g.__dict__)
 1
+>>> _g.set_tagoff(0)
+1
+>>> a
+gmpy.mpq(41,152)
+>>> _g.mpq('12.34')
+gmpy.mpq(617,50)
+>>> _g.set_tagoff(1)
+0
 >>> for i in range(1,7):
 ...    for j in range(3,10):
 ...       if _g.mpq(i,j) != _g.mpq("%d/%d"%(i,j)):
@@ -206,10 +215,10 @@ mpq(1000000000000000000000L,23)
 mpq(23,1000000000000000000000L)
 >>> _g.mpq(23L**15L,1000L**7L)
 mpq(266635235464391245607L,1000000000000000000000L)
->>> _g.binary('pep')
+>>> _g.qbinary('pep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: binary() requires a gmpy2 object as argument
+TypeError: argument can not be converted to mpq
 >>> x=_g.mpq('234/567')
 >>> del x
 >>> _g.mpq('7788')
@@ -230,7 +239,7 @@ r'''
 1 0 0 0 41 152
 >>> _g.mpq(ba,256)==a
 1
->>> ba == _g.binary(a)
+>>> ba == _g.qbinary(a)
 1
 >>> ba=(-a).binary()
 >>> len(ba)
@@ -305,15 +314,15 @@ mpq(12,5)
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy2 (mpq functionality)"
+        print "Unit tests for gmpy 1.14 (mpq functionality)"
         print "    running on Python",sys.version
         print
         if _g.gmp_version():
-            print "Testing gmpy2 %s (GMP %s) with default caching (%s, %s)" % (
+            print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.gmp_version(), _g.get_cache()[0],
                 _g.get_cache()[1]))
         else:
-            print "Testing gmpy2 %s (MPIR %s) with default caching (%s, %s)" % (
+            print "Testing gmpy %s (MPIR %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.mpir_version(), _g.get_cache()[0],
                 _g.get_cache()[1]))
 
