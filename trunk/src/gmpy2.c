@@ -221,6 +221,7 @@
  *   Add read-only bit access using slices to mpz (casevh)
  *   Add pack()/unpack() methods (casevh)
  *   Remove tagoff option (casevh)
+ *   Add support for MPFR (casevh)
  */
 #include "Python.h"
 
