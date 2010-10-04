@@ -314,7 +314,7 @@ mpf('nan')
 >>> float('nan') / _g.mpz(0)
 Traceback (most recent call last):
   ...
-ZeroDivisionError: mpz division by zero
+ZeroDivisionError: mpf division by zero
 >>> divmod(a, float('Inf'))
 (mpf('0.0e0'), mpf('1.23e2'))
 >>> divmod(a, float('-Inf'))

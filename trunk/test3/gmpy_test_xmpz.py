@@ -258,12 +258,14 @@ mpf('nan')
 mpf('nan')
 >>> float('-Inf') * _g.xmpz(0)
 mpf('nan')
+>>> a
+2
 >>> a / float('Inf')
-mpf('0.e0')
+mpf('0.0e0')
 >>> float('Inf') / a
 mpf('inf')
 >>> a / float('-Inf')
-mpf('0.e0')
+mpf('-0.0e0')
 >>> float('-Inf') / a
 mpf('-inf')
 >>> a / float('nan')
@@ -272,11 +274,11 @@ mpf('nan')
 mpf('nan')
 >>> -a
 >>> a / float('Inf')
-mpf('0.e0')
+mpf('0.0e0')
 >>> float('Inf') / a
 mpf('-inf')
 >>> a / float('-Inf')
-mpf('0.e0')
+mpf('0.0e0')
 >>> float('-Inf') / a
 mpf('inf')
 >>> -a

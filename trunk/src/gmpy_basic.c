@@ -1152,7 +1152,7 @@ Pympany_rem(PyObject *a, PyObject *b)
     mpz_t tempz;
     PympzObject *rz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
-    PympfObject *rf = 0, *paf = 0, *pbf = 0;
+    PympfObject *qf = 0, *rf = 0, *paf = 0, *pbf = 0;
     long temp;
     int overflow;
 
@@ -1261,15 +1261,18 @@ Pympany_rem(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        if (!(rf = Pympf_new(options.rounding))) {
+        if (!(rf = Pympf_new(0)) || !(qf = Pympf_new(0))) {
+            Py_XDECREF((PyObject*)rf);
+            Py_XDECREF((PyObject*)qf);
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        mpfr_fmod(rf->f, paf->f, pbf->f, options.rounding);
-        //~ mpfr_floor(rf->f, rf->f);
-        //~ mpfr_mul(rf->f, pbf->f, rf->f, options.rounding);
-        //~ mpfr_sub(rf->f, paf->f, rf->f, options.rounding);
+        mpfr_div(qf->f, paf->f, pbf->f, MPFR_RNDD);
+        mpfr_floor(qf->f, qf->f);
+        mpfr_fms(rf->f, qf->f, pbf->f, paf->f, options.rounding);
+        mpfr_neg(rf->f, rf->f, options.rounding);
+        Py_XDECREF((PyObject*)qf);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
         return (PyObject*)rf;
@@ -1291,22 +1294,19 @@ Pympany_divmod(PyObject *a, PyObject *b)
 {
     PyObject *r = 0;
     mpz_t tempz;
-    PympzObject *qz = 0, *rz = 0;
-    PyxmpzObject *qxz = 0, *rxz = 0;
+    PympzObject *qz = 0, *rz = 0, *paz = 0, *pbz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
     PympfObject *qf = 0, *rf = 0, *paf = 0, *pbf = 0;
     long temp;
     int overflow;
 
-    if (Pympz_Check(a)) {
+    if (CHECK_MPZANY(a)) {
         if (!(r=PyTuple_New(2)) || !(rz=Pympz_new()) || !(qz=Pympz_new())) {
             Py_XDECREF((PyObject*)rz);
             Py_XDECREF((PyObject*)qz);
             Py_XDECREF(r);
             return NULL;
         }
-
-        /* divmod(mpz,integer) */
         if (PyIntOrLong_Check(b)) {
             TRACE("divmod (mpz,integer)\n");
             temp = PyLong_AsLongAndOverflow(b, &overflow);
@@ -1333,9 +1333,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
             PyTuple_SET_ITEM(r, 1, (PyObject*)rz);
             return r;
         }
-
-        /* divmod(mpz,mpz) */
-        if (Pympz_Check(b)) {
+        if (CHECK_MPZANY(b)) {
             TRACE("divmod (mpz,mpz)\n");
             if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
                 ZERO_ERROR("mpz divmod by zero");
@@ -1349,25 +1347,12 @@ Pympany_divmod(PyObject *a, PyObject *b)
             PyTuple_SET_ITEM(r, 1, (PyObject*)rz);
             return r;
         }
+        Py_DECREF((PyObject*)rz);
+        Py_DECREF((PyObject*)qz);
+        Py_DECREF(r);
+    }
 
-        /* divmod(mpz,xmpz) */
-        if ((!options.prefer_mutable) && Pyxmpz_Check(b)) {
-            TRACE("divmod (mpz,xmpz)\n");
-            if (mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
-                ZERO_ERROR("mpz divmod by zero");
-                Py_DECREF((PyObject*)rz);
-                Py_DECREF((PyObject*)qz);
-                Py_DECREF(r);
-                return NULL;
-            }
-            mpz_fdiv_qr(qz->z, rz->z, Pympz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
-            PyTuple_SET_ITEM(r, 0, (PyObject*)qz);
-            PyTuple_SET_ITEM(r, 1, (PyObject*)rz);
-            return r;
-        }
-   }
-
-    if (Pympz_Check(b)) {
+    if (CHECK_MPZANY(b)) {
         if (mpz_sgn(Pympz_AS_MPZ(b))==0) {
             ZERO_ERROR("mpz modulo by zero");
             return NULL;
@@ -1378,21 +1363,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
             Py_XDECREF(r);
             return NULL;
         }
-
-        /* divmod(integer,mpz) */
-#ifdef PY2
-        if (PyInt_Check(a)) {
-            TRACE("divmod (integer,mpz)\n");
-            mpz_inoc(tempz);
-            mpz_set_si(tempz, PyInt_AS_LONG(a));
-            mpz_fdiv_qr(qz->z, rz->z, tempz, Pympz_AS_MPZ(b));
-            mpz_cloc(tempz);
-            PyTuple_SET_ITEM(r, 0, (PyObject*)qz);
-            PyTuple_SET_ITEM(r, 1, (PyObject*)rz);
-            return r;
-        }
-#endif
-        if (PyLong_Check(a)) {
+        if (PyIntOrLong_Check(a)) {
             TRACE("divmod (integer,mpz)\n");
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, a);
@@ -1402,130 +1373,41 @@ Pympany_divmod(PyObject *a, PyObject *b)
             PyTuple_SET_ITEM(r, 1, (PyObject*)rz);
             return r;
         }
-
-        /* divmod(xmpz,mpz) */
-        if ((!options.prefer_mutable) && Pyxmpz_Check(a)) {
-            TRACE("divmod (xmpz,mpz)\n");
-            mpz_fdiv_qr(qz->z, rz->z, Pyxmpz_AS_MPZ(a), Pympz_AS_MPZ(b));
-            PyTuple_SET_ITEM(r, 0, (PyObject*)qz);
-            PyTuple_SET_ITEM(r, 1, (PyObject*)rz);
-            return r;
-        }
+        Py_DECREF((PyObject*)rz);
+        Py_DECREF((PyObject*)qz);
+        Py_DECREF(r);
     }
 
-    if (Pyxmpz_Check(a)) {
-        if (!(r=PyTuple_New(2)) || !(rxz=Pyxmpz_new()) || !(qxz=Pyxmpz_new())) {
-            Py_XDECREF((PyObject*)rxz);
-            Py_XDECREF((PyObject*)qxz);
-            Py_XDECREF(r);
+    if (isInteger(a) && isInteger(b)) {
+        TRACE("Divmod (integer,integer)\n");
+        paz = Pympz_From_Integer(a);
+        pbz = Pympz_From_Integer(b);
+        if (!paz || !pbz) {
+            SYSTEM_ERROR("Can not convert integer to mpz");
+            Py_XDECREF((PyObject*)paz);
+            Py_XDECREF((PyObject*)pbz);
             return NULL;
         }
-
-        /* divmod(xmpz,integer) */
-        if (PyIntOrLong_Check(b)) {
-            TRACE("divmod (xmpz,integer)\n");
-            temp = PyLong_AsLongAndOverflow(b, &overflow);
-            if (overflow) {
-                mpz_inoc(tempz);
-                mpz_set_PyLong(tempz, b);
-                mpz_fdiv_qr(qxz->z, rxz->z, Pyxmpz_AS_MPZ(a), tempz);
-                mpz_cloc(tempz);
-            }
-            else if (temp > 0) {
-                mpz_fdiv_qr_ui(qxz->z, rxz->z, Pyxmpz_AS_MPZ(a), temp);
-            }
-            else if (temp == 0) {
-                ZERO_ERROR("xmpz divmod by zero");
-                Py_DECREF((PyObject*)rxz);
-                Py_DECREF((PyObject*)qxz);
-                return NULL;
-            }
-            else {
-                mpz_cdiv_qr_ui(qxz->z, rxz->z, Pyxmpz_AS_MPZ(a), -temp);
-                mpz_neg(qxz->z, qxz->z);
-            }
-            PyTuple_SET_ITEM(r, 0, (PyObject*)qxz);
-            PyTuple_SET_ITEM(r, 1, (PyObject*)rxz);
-            return r;
-        }
-
-        /* divmod(xmpz,xmpz) */
-        if (Pyxmpz_Check(b)) {
-            TRACE("divmod (xmpz,xmpz)\n");
-            if (mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
-                ZERO_ERROR("xmpz divmod by zero");
-                Py_DECREF((PyObject*)rxz);
-                Py_DECREF((PyObject*)qxz);
-                Py_DECREF(r);
-                return NULL;
-            }
-            mpz_fdiv_qr(qxz->z, rxz->z, Pyxmpz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
-            PyTuple_SET_ITEM(r, 0, (PyObject*)qxz);
-            PyTuple_SET_ITEM(r, 1, (PyObject*)rxz);
-            return r;
-        }
-
-        /* divmod(xmpz,mpz) */
-        if ((options.prefer_mutable) && Pympz_Check(b)) {
-            TRACE("divmod (xmpz,mpz)\n");
-            if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
-                ZERO_ERROR("xmpz divmod by zero");
-                Py_DECREF((PyObject*)rxz);
-                Py_DECREF((PyObject*)qxz);
-                Py_DECREF(r);
-                return NULL;
-            }
-            mpz_fdiv_qr(qxz->z, rxz->z, Pyxmpz_AS_MPZ(a), Pympz_AS_MPZ(b));
-            PyTuple_SET_ITEM(r, 0, (PyObject*)qxz);
-            PyTuple_SET_ITEM(r, 1, (PyObject*)rxz);
-            return r;
-        }
-    }
-
-    if (Pyxmpz_Check(b)) {
-        if (mpz_sgn(Pyxmpz_AS_MPZ(b))==0) {
-            ZERO_ERROR("xmpz divmod by zero");
+        if (mpz_sgn(pbz->z) == 0) {
+            ZERO_ERROR("mpz divmod by zero");
+            Py_DECREF((PyObject*)paz);
+            Py_DECREF((PyObject*)pbz);
             return NULL;
         }
-        if (!(r=PyTuple_New(2)) || !(rxz=Pyxmpz_new()) || !(qxz=Pyxmpz_new())) {
-            Py_XDECREF((PyObject*)rxz);
-            Py_XDECREF((PyObject*)qxz);
-            Py_XDECREF(r);
+        if (!(r = PyTuple_New(2)) || !(rz = Pympz_new()) || !(qz = Pympz_new())) {
+            Py_XDECREF((PyObject*)r);
+            Py_XDECREF((PyObject*)rz);
+            Py_XDECREF((PyObject*)qz);
+            Py_DECREF((PyObject*)paz);
+            Py_DECREF((PyObject*)pbz);
             return NULL;
         }
-
-        /* divmod(integer,xmpz) */
-#ifdef PY2
-        if (PyInt_Check(a)) {
-            TRACE("divmod (integer,xmpz)\n");
-            mpz_inoc(tempz);
-            mpz_set_si(tempz, PyInt_AS_LONG(a));
-            mpz_fdiv_qr(qxz->z, rxz->z, tempz, Pyxmpz_AS_MPZ(b));
-            mpz_cloc(tempz);
-            PyTuple_SET_ITEM(r, 0, (PyObject*)qxz);
-            PyTuple_SET_ITEM(r, 1, (PyObject*)rxz);
-            return r;
-        }
-#endif
-        if (PyLong_Check(a)) {
-            TRACE("divmod (integer,xmpz)\n");
-            mpz_inoc(tempz);
-            mpz_set_PyLong(tempz, a);
-            mpz_fdiv_qr(qxz->z, rxz->z, tempz, Pyxmpz_AS_MPZ(b));
-            mpz_cloc(tempz);
-            PyTuple_SET_ITEM(r, 0, (PyObject*)qxz);
-            PyTuple_SET_ITEM(r, 1, (PyObject*)rxz);
-            return r;
-        }
-
-        /* divmod(mpz,xmpz) */
-        if ((options.prefer_mutable) && Pympz_Check(a)) {
-            TRACE("divmod (xmpz,mpz)\n");
-            mpz_fdiv_qr(qxz->z, rxz->z, Pympz_AS_MPZ(a), Pyxmpz_AS_MPZ(b));
-            PyTuple_SET_ITEM(r, 0, (PyObject*)qxz);
-            PyTuple_SET_ITEM(r, 1, (PyObject*)rxz);
-            return r;
-        }
+        mpz_fdiv_qr(qz->z, rz->z, paz->z, pbz->z);
+        Py_DECREF((PyObject*)paz);
+        Py_DECREF((PyObject*)pbz);
+        PyTuple_SET_ITEM(r, 0, (PyObject*)qz);
+        PyTuple_SET_ITEM(r, 1, (PyObject*)rq);
+        return r;
     }
 
     if (isRational(a) && isRational(b)) {
@@ -1544,7 +1426,8 @@ Pympany_divmod(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbq);
             return NULL;
         }
-        if (!(rq = Pympq_new()) || !(qz = Pympz_new())) {
+        if (!(r = PyTuple_New(2)) || !(rq = Pympq_new()) || !(qz = Pympz_new())) {
+            Py_XDECREF((PyObject*)r);
             Py_XDECREF((PyObject*)rq);
             Py_XDECREF((PyObject*)qz);
             Py_DECREF((PyObject*)paq);
@@ -1559,7 +1442,9 @@ Pympany_divmod(PyObject *a, PyObject *b)
         mpq_sub(rq->q, paq->q, rq->q);
         Py_DECREF((PyObject*)paq);
         Py_DECREF((PyObject*)pbq);
-        return Py_BuildValue("(NN)", qz, rq);
+        PyTuple_SET_ITEM(r, 0, (PyObject*)qz);
+        PyTuple_SET_ITEM(r, 1, (PyObject*)rq);
+        return r;
     }
 
     if (isFloat(a) && isFloat(b)) {
@@ -1578,21 +1463,39 @@ Pympany_divmod(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        if (!(qf = Pympf_new(options.precision)) ||
-            !(rf = Pympf_new(options.precision))) {
+        if (!(r = PyTuple_New(2)) || !(qf = Pympf_new(0)) || !(rf = Pympf_new(0))) {
+            Py_XDECREF((PyObject*)r);
             Py_XDECREF((PyObject*)qf);
             Py_XDECREF((PyObject*)rf);
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        mpfr_div(qf->f, paf->f, pbf->f, options.rounding);
-        mpfr_floor(qf->f, qf->f);
-        mpfr_mul(rf->f, pbf->f, qf->f, options.rounding);
-        mpfr_sub(rf->f, paf->f, rf->f, options.rounding);
+        if (mpfr_nan_p(paf->f) || mpfr_nan_p(pbf->f) || mpfr_inf_p(paf->f)) {
+            mpfr_set_nan(qf->f);
+            mpfr_set_nan(rf->f);
+        }
+        else if (mpfr_inf_p(pbf->f)) {
+            if (mpfr_signbit(pbf->f)) {
+                mpfr_set_si(qf->f, -1, options.rounding);
+                mpfr_set_inf(rf->f, -1);
+            }
+            else {
+                mpfr_set_si(qf->f, 0, options.rounding);
+                mpfr_set(rf->f, paf->f, options.rounding);
+            }
+        }
+        else {
+            mpfr_div(qf->f, paf->f, pbf->f, MPFR_RNDD);
+            mpfr_floor(qf->f, qf->f);
+            mpfr_fms(rf->f, qf->f, pbf->f, paf->f, options.rounding);
+            mpfr_neg(rf->f, rf->f, options.rounding);
+        }
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        return Py_BuildValue("(NN)", qf, rf);
+        PyTuple_SET_ITEM(r, 0, (PyObject*)qf);
+        PyTuple_SET_ITEM(r, 1, (PyObject*)rf);
+        return r;
     }
     Py_RETURN_NOTIMPLEMENTED;
 }
