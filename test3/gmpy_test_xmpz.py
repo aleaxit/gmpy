@@ -25,73 +25,79 @@ r'''
 >>> a=_g.xmpz(123)
 >>> b=_g.xmpz(456)
 >>> a+b
-xmpz(579)
+mpz(579)
 >>> a-b
-xmpz(-333)
+mpz(-333)
 >>> a*b
-xmpz(56088)
+mpz(56088)
 >>> a//b
-xmpz(0)
+mpz(0)
 >>> a/b
 mpf('2.69736842105263157895e-1')
 >>> b//a
-xmpz(3)
+mpz(3)
 >>> b/a
 mpf('3.70731707317073170732e0')
 >>> a%b
-xmpz(123)
+mpz(123)
 >>> 0%b
-xmpz(0)
+mpz(0)
 >>> b+a
-xmpz(579)
+mpz(579)
 >>> b-a
-xmpz(333)
+mpz(333)
 >>> b*a
-xmpz(56088)
+mpz(56088)
 >>> b%a
-xmpz(87)
+mpz(87)
 >>> divmod(a,b)
-(xmpz(0), xmpz(123))
+(mpz(0), mpz(123))
 >>> divmod(b,a)
-(xmpz(3), xmpz(87))
+(mpz(3), mpz(87))
 >>> divmod(0,b)
-(xmpz(0), xmpz(0))
+(mpz(0), mpz(0))
 >>> -a
 >>> a
 xmpz(-123)
 >>> a=_g.xmpz(123)
 >>> a+1
+mpz(124)
+>>> a+=1; a
 xmpz(124)
+>>> a=_g.xmpz(123)
 >>> a+(-1)
+mpz(122)
+>>> a-=1; a
 xmpz(122)
+>>> a=_g.xmpz(123)
 >>> (-1)+a
-xmpz(122)
+mpz(122)
 >>> 1+a
-xmpz(124)
+mpz(124)
 >>> a-1
-xmpz(122)
+mpz(122)
 >>> a-(-1)
-xmpz(124)
+mpz(124)
 >>> 1-a
-xmpz(-122)
+mpz(-122)
 >>> (-1)-a
-xmpz(-124)
+mpz(-124)
 >>> a+True
-xmpz(124)
+mpz(124)
 >>> a+False
-xmpz(123)
+mpz(123)
 >>> a*False
-xmpz(0)
+mpz(0)
 >>> a//True
-xmpz(123)
+mpz(123)
 >>> -a
 >>> abs(a)
 >>> a
 xmpz(123)
 >>> pow(a,10)
-xmpz(792594609605189126649)
+mpz(792594609605189126649)
 >>> pow(a,7,b)
-xmpz(99)
+mpz(99)
 >>> _g.sign(b-a)
 1
 >>> _g.sign(b-b)
@@ -290,7 +296,7 @@ r'''
 >>> b=_g.xmpz('789789789789789789789789')
 >>> c=a*b
 >>> _g.divexact(c,a)
-xmpz(789789789789789789789789)
+mpz(789789789789789789789789)
 >>>
 '''
 
@@ -298,29 +304,29 @@ __test__['divmod']=\
 r'''
 >>> _g.set_prefer_mutable(1)
 >>> _g.cdivmod(17,5)
-(xmpz(4), xmpz(-3))
+(mpz(4), mpz(-3))
 >>> _g.cdivmod(-17,5)
-(xmpz(-3), xmpz(-2))
+(mpz(-3), mpz(-2))
 >>> _g.cdivmod(17,-5)
-(xmpz(-3), xmpz(2))
+(mpz(-3), mpz(2))
 >>> _g.cdivmod(-17,-5)
-(xmpz(4), xmpz(3))
+(mpz(4), mpz(3))
 >>> _g.fdivmod(17,5)
-(xmpz(3), xmpz(2))
+(mpz(3), mpz(2))
 >>> _g.fdivmod(-17,5)
-(xmpz(-4), xmpz(3))
+(mpz(-4), mpz(3))
 >>> _g.fdivmod(17,-5)
-(xmpz(-4), xmpz(-3))
+(mpz(-4), mpz(-3))
 >>> _g.fdivmod(-17,-5)
-(xmpz(3), xmpz(-2))
+(mpz(3), mpz(-2))
 >>> _g.tdivmod(17,5)
-(xmpz(3), xmpz(2))
+(mpz(3), mpz(2))
 >>> _g.tdivmod(-17,5)
-(xmpz(-3), xmpz(-2))
+(mpz(-3), mpz(-2))
 >>> _g.tdivmod(17,-5)
-(xmpz(-3), xmpz(2))
+(mpz(-3), mpz(2))
 >>> _g.tdivmod(-17,-5)
-(xmpz(3), xmpz(-2))
+(mpz(3), mpz(-2))
 >>> _g.set_prefer_mutable(0)
 '''
 

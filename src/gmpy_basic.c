@@ -514,7 +514,6 @@ Pympany_mul(PyObject *a, PyObject *b)
                 return NULL;
             }
             mpfr_mul_z(rf->f, Pympf_AS_MPF(b), paz->z, options.rounding);
-            mpfr_neg(rf->f, rf->f, options.rounding);
             Py_DECREF((PyObject*)paz);
             return (PyObject*)rf;
         }
@@ -1489,9 +1488,13 @@ Pympany_divmod(PyObject *a, PyObject *b)
             mpfr_set_nan(rf->f);
         }
         else if (mpfr_inf_p(pbf->f)) {
-            if (mpfr_signbit(pbf->f)) {
+            if (mpfr_zero_p(paf->f)) {
+                mpfr_set_zero(qf->f, mpfr_sgn(pbf->f));
+                mpfr_set_zero(rf->f, mpfr_sgn(pbf->f));
+            }
+            else if ((mpfr_signbit(paf->f)) != (mpfr_signbit(pbf->f))) {
                 mpfr_set_si(qf->f, -1, options.rounding);
-                mpfr_set_inf(rf->f, -1);
+                mpfr_set_inf(rf->f, mpfr_sgn(pbf->f));
             }
             else {
                 mpfr_set_si(qf->f, 0, options.rounding);
