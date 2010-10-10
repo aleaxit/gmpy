@@ -1268,10 +1268,23 @@ Pympany_rem(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbf);
             return NULL;
         }
-        mpfr_div(qf->f, paf->f, pbf->f, MPFR_RNDD);
-        mpfr_floor(qf->f, qf->f);
-        mpfr_fms(rf->f, qf->f, pbf->f, paf->f, options.rounding);
-        mpfr_neg(rf->f, rf->f, options.rounding);
+        if (mpfr_nan_p(paf->f) || mpfr_nan_p(pbf->f) || mpfr_inf_p(paf->f)) {
+            mpfr_set_nan(rf->f);
+        }
+        else if (mpfr_inf_p(pbf->f)) {
+            if (mpfr_signbit(pbf->f)) {
+                mpfr_set_inf(rf->f, -1);
+            }
+            else {
+                mpfr_set(rf->f, paf->f, options.rounding);
+            }
+        }
+        else {
+            mpfr_div(qf->f, paf->f, pbf->f, MPFR_RNDD);
+            mpfr_floor(qf->f, qf->f);
+            mpfr_fms(rf->f, qf->f, pbf->f, paf->f, options.rounding);
+            mpfr_neg(rf->f, rf->f, options.rounding);
+        }
         Py_XDECREF((PyObject*)qf);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
