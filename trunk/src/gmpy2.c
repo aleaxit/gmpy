@@ -1469,7 +1469,7 @@ PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits)
                 return NULL;
             }
         }
-        /* delegate the rest to GMP */
+        /* delegate the rest to MPFR */
         if (-1 == mpfr_set_str(newob->f, (char*)cp, base, options.rounding)) {
             VALUE_ERROR("invalid digits");
             Py_DECREF((PyObject*)newob);
@@ -2222,24 +2222,27 @@ Pympf_ascii(PympfObject *self, int base, int digits,
         return result;
     }
     else {
-        /* strip trailing zeros */
-        buflen = strlen(buffer) - 1;
-        while ((buflen >= 2) && (buffer[buflen] == '0'))
-            buffer[buflen--] = 0x00;
-
-        /* insert formatting elements (decimal-point, leading or
-         * trailing 0's, other indication of exponent...)
-         */
-        size_t buflen = strlen(buffer);
-        /* account for the decimal point that is always inserted */
-        size_t size = buflen + 1;
         char expobuf[24];
         char auprebuf[24];
         int isfp = 1;   /* flag: fixed-point format (FP)? */
         int isnegative = 0;
+        size_t size;
 
+        /* check if it is negative */
         if (buffer[0]==0x2d)
             isnegative = 1;
+
+        /* strip trailing zeros */
+        buflen = strlen(buffer) - 1;
+        while ((buflen >= (2 + isnegative)) && (buffer[buflen] == '0'))
+            buffer[buflen--] = 0x00;
+
+        /* insert formatting elements (decimal-point, leading or
+           trailing 0's, other indication of exponent...) */
+        buflen = strlen(buffer);
+
+        /* account for the decimal point that is always inserted */
+        size = buflen + 1;
 
         /* compute size of needed Python string */
         if (optionflags & OP_TAG) {
@@ -2249,13 +2252,16 @@ Pympf_ascii(PympfObject *self, int base, int digits,
                 size += strlen(auprebuf);
             }
         }
-        if (the_exp < minexfi || the_exp > maxexfi) { /* exponential format */
+
+        /* exponential format */
+        if (the_exp < minexfi || the_exp > maxexfi) {
             /* add exponent-length + 1 for '@' or 'e' marker */
             sprintf(expobuf, "%ld", the_exp - 1);
             size += strlen(expobuf) + 1;
             isfp = 0;
         }
-        else { /* 'fixed-point' format */
+        /* 'fixed-point' format */
+        else {
             /* add number of leading or trailing 0's */
             if (the_exp <= 0) {
                 /* add leading 0's */
@@ -2263,7 +2269,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
             }
             else {
                 /* add trailing 0's if needed */
-                if (the_exp >= (buflen-isnegative))
+                if (the_exp >= (buflen - isnegative))
                     size += (the_exp - (buflen - isnegative)) + 1;
             }
         }
@@ -2283,7 +2289,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
             }
 
             /* copy sign if it's there */
-            if (*ps=='-') {
+            if (*ps == '-') {
                 *pd++ = *ps++;
             }
 
@@ -2312,7 +2318,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
                  * needed to make up the total # digits
                  * that go before the '.' in FP/large exp
                  */
-                while (dtc>0) {
+                while (dtc > 0) {
                     *pd++ = '0';
                     --dtc;
                 }
@@ -5587,7 +5593,6 @@ PyMODINIT_FUNC initgmpy2(void)
             fprintf(stderr, "gmpy_module could not import copy_reg\n");
     }
 #endif
-
 
 #ifdef PY3
     return gmpy_module;
