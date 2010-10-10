@@ -4332,49 +4332,53 @@ dohash(PyObject* tempPynum)
     return hash;
 }
 #endif
+
 static long
 Pympf_hash(PympfObject *self)
 {
 #ifdef _PyHASH_MODULUS
     unsigned long hash = 0;
-    long exp = 0;
-    size_t mbits = 0, fsize;
-    double notneeded;
-    mpz_t hack;
+    long exp;
+    size_t msize;
     int sign;
 
     if (self->hash_cache != -1)
         return self->hash_cache;
-    fsize = (self->f->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
+
+    /* Handle special cases first */
+    if (!mpfr_number_p(self->f)) {
+        if (mpfr_inf_p(self->f))
+            if (mpfr_sgn(self->f) > 0)
+                return (self->hash_cache = _PyHASH_INF);
+            else
+                return (self->hash_cache = -_PyHASH_INF);
+        else
+            return (self->hash_cache = _PyHASH_NAN);
+    }
+
+    /* Calculate the number of limbs in the mantissa. */
+    msize = (self->f->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
 
     /* Calculate the hash of the mantissa. */
-    if (self->f->_mpfr_sign>0) {
-        hash = mpn_mod_1(self->f->_mpfr_d, fsize, _PyHASH_MODULUS);
+    if (mpfr_sgn(self->f) > 0) {
+        hash = mpn_mod_1(self->f->_mpfr_d, msize, _PyHASH_MODULUS);
         sign = 1;
     }
-    else if (self->f->_mpfr_sign<0) {
-        hash = mpn_mod_1(self->f->_mpfr_d, fsize, _PyHASH_MODULUS);
+    else if (mpfr_sgn(self->f) < 0) {
+        hash = mpn_mod_1(self->f->_mpfr_d, msize, _PyHASH_MODULUS);
         sign = -1;
     }
     else {
-        return 0;
+        return (self->hash_cache = 0);
     }
 
-    /* Get the number of bits in the mantissa. Ugly hack. */
-    hack->_mp_size = fsize;
-    hack->_mp_d = self->f->_mpfr_d;
-    mbits = mpz_sizeinbase(hack, 2);
-
-    /* Get the exponent as a power of 2. */
-    notneeded = self->f->_mpfr_exp;
-
     /* Calculate the final hash. */
-    exp -= (long)mbits;
+    exp = self->f->_mpfr_exp - (msize * mp_bits_per_limb);
     exp = exp >= 0 ? exp % _PyHASH_BITS : _PyHASH_BITS-1-((-1-exp) % _PyHASH_BITS);
     hash = ((hash << exp) & _PyHASH_MODULUS) | hash >> (_PyHASH_BITS - exp);
 
     hash *= sign;
-    if (hash==(unsigned long)-1)
+    if (hash == (unsigned long)-1)
         hash = (unsigned long)-2;
     return (self->hash_cache = (long)hash);
 #else
@@ -4385,6 +4389,7 @@ Pympf_hash(PympfObject *self)
     return (self->hash_cache = _Py_HashDouble(temp));
 #endif
 }
+
 static long
 Pympq_hash(PympqObject *self)
 {
