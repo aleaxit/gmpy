@@ -19,26 +19,6 @@ Pympf_nonzero(PympfObject *x)
 
 /* float-truncations (return still a float!) */
 
-#define MPF_UNIOP(NAME) \
-static PyObject * \
-Py##NAME(PyObject* self, PyObject *args) \
-{ \
-  PympfObject *r; \
-  if (self && Pympf_Check(self)) { \
-      if (args && !PyArg_ParseTuple(args, "")) return NULL; \
-      Py_INCREF(self); \
-  } else { \
-      if (!PyArg_ParseTuple(args, "O&", Pympf_convert_arg, &self)) return NULL; \
-  } \
-  assert(Pympf_Check(self)); \
-  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", self); \
-  if (!(r = Pympf_new(mpfr_get_prec(((PympfObject*)self)->f)))) return NULL; \
-  NAME(r->f, Pympf_AS_MPF(self)); \
-  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
-  Py_DECREF(self); \
-  return (PyObject *) r; \
-}
-
 static char doc_ceilm[]="\
 x.ceil(): returns an mpf that is the smallest integer >= x\n\
 ";
@@ -46,7 +26,19 @@ static char doc_ceilg[]="\
 ceil(x): returns an mpf that is the smallest integer >= x\n\
 x must be an mpf, or else gets coerced to one.\n\
 ";
-MPF_UNIOP(mpfr_ceil)
+static PyObject *
+Pympf_ceil(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+
+    PARSE_ONE_MPF("ceil() requires 'mpf' argument");
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+    mpfr_ceil(result->f, Pympf_AS_MPF(self));
+    Py_DECREF(self);
+    return (PyObject*)result;
+}
 
 static char doc_floorm[]="\
 x.floor(): returns an mpf that is the smallest integer <= x\n\
@@ -55,7 +47,19 @@ static char doc_floorg[]="\
 floor(x): returns an mpf that is the smallest integer <= x\n\
 x must be an mpf, or else gets coerced to one.\n\
 ";
-MPF_UNIOP(mpfr_floor)
+static PyObject *
+Pympf_floor(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+
+    PARSE_ONE_MPF("ceil() requires 'mpf' argument");
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+    mpfr_floor(result->f, Pympf_AS_MPF(self));
+    Py_DECREF(self);
+    return (PyObject*)result;
+}
 
 static char doc_truncm[]="\
 x.trunc(): returns an mpf that is x truncated towards 0\n\
@@ -66,7 +70,19 @@ trunc(x): returns an mpf that is x truncated towards 0\n\
 (same as x.floor() if x>=0, x.ceil() if x<0).\n\
 x must be an mpf, or else gets coerced to one.\n\
 ";
-MPF_UNIOP(mpfr_trunc)
+static PyObject *
+Pympf_trunc(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+
+    PARSE_ONE_MPF("ceil() requires 'mpf' argument");
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+    mpfr_trunc(result->f, Pympf_AS_MPF(self));
+    Py_DECREF(self);
+    return (PyObject*)result;
+}
 
 static long
 Pympf_hash(PympfObject *self)

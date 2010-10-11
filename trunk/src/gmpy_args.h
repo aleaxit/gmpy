@@ -71,6 +71,38 @@
     }
 
 /*
+ * Parses one, and only one, argument into "self" and converts it to an
+ * mpf. Is faster, but not as generic, as using PyArg_ParseTuple. It
+ * supports either gmpy.fname(z) or z.fname(). "self" must be decref'ed.
+ * "msg" should be an error message that includes the function name and
+ * describes the required arguments. Replaces SELF_MPZ_NO_ARG.
+ */
+
+#define PARSE_ONE_MPF(msg) \
+    if(self && Pympf_Check(self)) {\
+        if (PyTuple_GET_SIZE(args) != 0) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        Py_INCREF(self);\
+    } else {\
+        if (PyTuple_GET_SIZE(args) != 1) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        self = PyTuple_GET_ITEM(args, 0);\
+        if(Pympf_Check(self)) {\
+            Py_INCREF((PyObject*)self);\
+        } else {\
+            self = (PyObject*)Pympf_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
+        }\
+        if(!self) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+    }
+
+/*
  * Parses one argument into "self" and an optional second argument into
  * 'var". The second argument is converted into a C long. If there is not a
  * second argument, "var" is unchanged. Is faster, but not as generic, as
