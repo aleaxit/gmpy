@@ -4640,6 +4640,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "digits", Pympz_digits, METH_VARARGS, doc_digitsg },
     { "divexact", Pygmpy_divexact, METH_VARARGS, doc_divexactg },
     { "divm", Pygmpy_divm, METH_VARARGS, doc_divm },
+    { "euler", Pygmpy_euler, METH_NOARGS, doc_euler },
     { "fac", Pygmpy_fac, METH_O, doc_fac },
     { "fdiv", Pygmpy_fdiv, METH_VARARGS, doc_fdivg },
     { "fdiv2exp", Pygmpy_fdiv2exp, METH_VARARGS, doc_fdiv2expg },
