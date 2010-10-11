@@ -174,11 +174,25 @@ Pygmpy_pi(PyObject *self, PyObject *args)
     return (PyObject*)pi;
 }
 
-static char doc_euler[]="\
-euler(): returns the euler constant using default precision\n\
+static char doc_const_pi[]="\
+const_pi(): returns the constant pi using default precision\n\
 ";
 static PyObject *
-Pygmpy_euler(PyObject *self, PyObject *args)
+Pygmpy_const_pi(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+    mpfr_const_pi(result->f, options.rounding);
+    return (PyObject*)result;
+}
+
+static char doc_const_euler[]="\
+const_euler(): returns the euler constant using default precision\n\
+";
+static PyObject *
+Pygmpy_const_euler(PyObject *self, PyObject *args)
 {
     PympfObject *result;
 
@@ -188,11 +202,11 @@ Pygmpy_euler(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_log2[]="\
-log2(): returns the log2 constant using default precision\n\
+static char doc_const_log2[]="\
+const_log2(): returns the log2 constant using default precision\n\
 ";
 static PyObject *
-Pygmpy_log2(PyObject *self, PyObject *args)
+Pygmpy_const_log2(PyObject *self, PyObject *args)
 {
     PympfObject *result;
 
@@ -202,11 +216,11 @@ Pygmpy_log2(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_catalan[]="\
-catalan(): returns the catalan constant using default precision\n\
+static char doc_const_catalan[]="\
+const_catalan(): returns the catalan constant using default precision\n\
 ";
 static PyObject *
-Pygmpy_catalan(PyObject *self, PyObject *args)
+Pygmpy_const_catalan(PyObject *self, PyObject *args)
 {
     PympfObject *result;
 
