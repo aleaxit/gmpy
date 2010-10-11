@@ -489,7 +489,7 @@ ValueError: sqrt of negative number
 >>> _g.fsqrt(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: sqrt of negative number
+ValueError: sqrt() of negative number
 >>> _g.jacobi(23, -34)
 Traceback (most recent call last):
   ...

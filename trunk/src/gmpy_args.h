@@ -20,7 +20,7 @@
 
 /*
  * Verify that a function has only one argument, and convert that argument
- * to a C-long. Only applies to gmpy.fname()."msg" should be an error
+ * to a C-long. Only applies to gmpy.fname(). "msg" should be an error
  * message that includes the function name. Replaces ONE_ARG.
  */
 
