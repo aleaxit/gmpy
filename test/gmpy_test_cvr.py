@@ -44,41 +44,35 @@ r'''
 >>> x = float('inf')
 >>> n = float('nan')
 >>> _g.mpf(x)
-Traceback (most recent call last):
-  ...
-ValueError: gmpy2 does not handle infinity
+mpf('inf')
 >>> _g.mpf(-x)
-Traceback (most recent call last):
-  ...
-ValueError: gmpy2 does not handle infinity
+mpf('-inf')
 >>> _g.mpq(x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy2 does not handle infinity
+ValueError: gmpy2.mpq does not handle infinity
 >>> _g.mpq(-x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy2 does not handle infinity
+ValueError: gmpy2.mpq does not handle infinity
 >>> _g.mpz(x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy2 does not handle infinity
+ValueError: gmpy2.mpz does not handle infinity
 >>> _g.mpz(-x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy2 does not handle infinity
+ValueError: gmpy2.mpz does not handle infinity
 >>> _g.mpf(n)
+mpf('nan')
+>>> _g.mpq(n)
 Traceback (most recent call last):
   ...
-ValueError: gmpy2 does not handle nan
->>> _g.mpf(n)
+ValueError: gmpy2.mpq does not handle nan
+>>> _g.mpz(n)
 Traceback (most recent call last):
   ...
-ValueError: gmpy2 does not handle nan
->>> _g.mpf(n)
-Traceback (most recent call last):
-  ...
-ValueError: gmpy2 does not handle nan
+ValueError: gmpy2.mpz does not handle nan
 '''
 
 __test__['user_errors']=\
@@ -131,10 +125,10 @@ TypeError: function takes exactly 1 argument (2 given)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 TypeError: an integer is required
->>> _g.set_minprec(-1)
+>>> _g.set_precision(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: minimum precision must be >= 0
+ValueError: invalid value for precision
 >>> _g.set_fcoform(33)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -251,10 +245,6 @@ TypeError: digits() requires 'mpz',['int'] arguments
 Traceback (most recent call last):
   ...
 TypeError: digits() requires 'mpz',['int'] arguments
->>> _g.fdigits(3.14,'peep')
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: an integer is required
 >>> _g.qdigits(3.14,'peep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -372,7 +362,7 @@ TypeError: gmpy2.mpf(): base must be an integer
 >>> _g.mpf('ba',0,99)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: base for gmpy2.mpf must be 0, 256, or in the interval 2 ... 36 .
+ValueError: base for gmpy2.mpf must be 0, 256, or in the interval 2 ... 62 .
 >>> _g.mpf(1,2,3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -380,7 +370,7 @@ TypeError: gmpy2.mpf() with numeric 1st argument needs 1 or 2 arguments
 >>> +_g.mpz(1)
 mpz(1)
 >>> +_g.mpf(1)
-mpf('1.e0')
+mpf('1.0e0')
 >>> +_g.mpq(1)
 mpq(1)
 >>> _g.mpz(2)**-2
@@ -433,11 +423,11 @@ mpq(-1)
 >>> _g.mpf(9,100)**2
 mpf('8.1e1',100)
 >>> _g.mpf(9,100)**0.5
-mpf('3.e0',100)
+mpf('3.0e0',100)
 >>> _g.mpf(9,100)**_g.mpf(0.5)
-mpf('3.e0')
+mpf('3.0e0')
 >>> _g.mpf(0)**2
-mpf('0.e0')
+mpf('0.0e0')
 >>> pow(_g.mpf(2),3,-5)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -447,7 +437,7 @@ Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 TypeError: unsupported operand type(s) for +: 'mpz' and 'str'
 >>> _g.mpz(1)+_g.mpf(1)
-mpf('2.e0')
+mpf('2.0e0')
 >>> _g.mpz(1)+_g.mpq(1)
 mpq(2)
 >>> _g.mpq(1)+'bu'
@@ -459,7 +449,7 @@ Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 TypeError: unsupported operand type(s) for +: 'mpf' and 'str'
 >>> _g.mpf(1)+_g.mpq(2)
-mpf('3.e0')
+mpf('3.0e0')
 >>> divmod(_g.mpz(3),0)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?

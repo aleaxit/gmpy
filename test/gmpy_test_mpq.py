@@ -242,14 +242,6 @@ r'''
 1 0 0 128 41 152
 >>> _g.mpq(ba,256)==-a
 1
->>> hash(a)==hash(_g.mpf(a))==hash(float(a))
-1
->>> hash(b)==hash(_g.mpf(b))==hash(float(b))
-1
->>> hash(-a)==hash(-_g.mpf(a))==hash(-float(a))
-1
->>> hash(-b)==hash(-_g.mpf(b))==hash(-float(b))
-1
 >>>
 '''
 

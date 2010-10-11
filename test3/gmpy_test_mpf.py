@@ -221,7 +221,7 @@ False
 >>> a == c
 False
 >>> b == c
-True
+False
 '''
 
 __test__['format']=\
