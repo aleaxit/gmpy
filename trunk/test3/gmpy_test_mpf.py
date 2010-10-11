@@ -129,8 +129,12 @@ Traceback (most recent call last):
   File "a.py", line 9, in _er
     raise ValueError, what
 ValueError: sqrt of negative number
+>>> _g.pi()
+mpf('3.1415926535897931e0')
 >>> _g.pi(64)
-mpf('3.14159265358979323846e0',64)
+mpf('3.14159265358979323851e0',64)
+>>> _g.pi(200)
+mpf('3.1415926535897932384626433832795028841971693993751058209749445e0',200)
 >>> import pickle
 >>> flt = _g.mpf(1234.6789)
 >>> flt == pickle.loads(pickle.dumps(flt))
