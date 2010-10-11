@@ -17,6 +17,63 @@ Pympf_nonzero(PympfObject *x)
     return mpfr_sgn(x->f) != 0;
 }
 
+static long
+Pympf_hash(PympfObject *self)
+{
+#ifdef _PyHASH_MODULUS
+    unsigned long hash = 0;
+    long exp;
+    size_t msize;
+    int sign;
+
+    if (self->hash_cache != -1)
+        return self->hash_cache;
+
+    /* Handle special cases first */
+    if (!mpfr_number_p(self->f)) {
+        if (mpfr_inf_p(self->f))
+            if (mpfr_sgn(self->f) > 0)
+                return (self->hash_cache = _PyHASH_INF);
+            else
+                return (self->hash_cache = -_PyHASH_INF);
+        else
+            return (self->hash_cache = _PyHASH_NAN);
+    }
+
+    /* Calculate the number of limbs in the mantissa. */
+    msize = (self->f->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
+
+    /* Calculate the hash of the mantissa. */
+    if (mpfr_sgn(self->f) > 0) {
+        hash = mpn_mod_1(self->f->_mpfr_d, msize, _PyHASH_MODULUS);
+        sign = 1;
+    }
+    else if (mpfr_sgn(self->f) < 0) {
+        hash = mpn_mod_1(self->f->_mpfr_d, msize, _PyHASH_MODULUS);
+        sign = -1;
+    }
+    else {
+        return (self->hash_cache = 0);
+    }
+
+    /* Calculate the final hash. */
+    exp = self->f->_mpfr_exp - (msize * mp_bits_per_limb);
+    exp = exp >= 0 ? exp % _PyHASH_BITS : _PyHASH_BITS-1-((-1-exp) % _PyHASH_BITS);
+    hash = ((hash << exp) & _PyHASH_MODULUS) | hash >> (_PyHASH_BITS - exp);
+
+    hash *= sign;
+    if (hash == (unsigned long)-1)
+        hash = (unsigned long)-2;
+    return (self->hash_cache = (long)hash);
+#else
+    double temp;
+    if (self->hash_cache != -1)
+        return self->hash_cache;
+    temp = mpfr_get_d(self->f, options.rounding);
+    return (self->hash_cache = _Py_HashDouble(temp));
+#endif
+}
+
 /* float-truncations (return still a float!) */
 
 static char doc_ceilm[]="\
@@ -84,63 +141,6 @@ Pympf_trunc(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static long
-Pympf_hash(PympfObject *self)
-{
-#ifdef _PyHASH_MODULUS
-    unsigned long hash = 0;
-    long exp;
-    size_t msize;
-    int sign;
-
-    if (self->hash_cache != -1)
-        return self->hash_cache;
-
-    /* Handle special cases first */
-    if (!mpfr_number_p(self->f)) {
-        if (mpfr_inf_p(self->f))
-            if (mpfr_sgn(self->f) > 0)
-                return (self->hash_cache = _PyHASH_INF);
-            else
-                return (self->hash_cache = -_PyHASH_INF);
-        else
-            return (self->hash_cache = _PyHASH_NAN);
-    }
-
-    /* Calculate the number of limbs in the mantissa. */
-    msize = (self->f->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
-
-    /* Calculate the hash of the mantissa. */
-    if (mpfr_sgn(self->f) > 0) {
-        hash = mpn_mod_1(self->f->_mpfr_d, msize, _PyHASH_MODULUS);
-        sign = 1;
-    }
-    else if (mpfr_sgn(self->f) < 0) {
-        hash = mpn_mod_1(self->f->_mpfr_d, msize, _PyHASH_MODULUS);
-        sign = -1;
-    }
-    else {
-        return (self->hash_cache = 0);
-    }
-
-    /* Calculate the final hash. */
-    exp = self->f->_mpfr_exp - (msize * mp_bits_per_limb);
-    exp = exp >= 0 ? exp % _PyHASH_BITS : _PyHASH_BITS-1-((-1-exp) % _PyHASH_BITS);
-    hash = ((hash << exp) & _PyHASH_MODULUS) | hash >> (_PyHASH_BITS - exp);
-
-    hash *= sign;
-    if (hash == (unsigned long)-1)
-        hash = (unsigned long)-2;
-    return (self->hash_cache = (long)hash);
-#else
-    double temp;
-    if (self->hash_cache != -1)
-        return self->hash_cache;
-    temp = mpfr_get_d(self->f, options.rounding);
-    return (self->hash_cache = _Py_HashDouble(temp));
-#endif
-}
-
 static char doc_pi[]="\
 pi(n): returns pi with n bits of precision in an mpf object\n\
 ";
@@ -148,9 +148,29 @@ static PyObject *
 Pygmpy_pi(PyObject *self, PyObject *args)
 {
     PympfObject *pi;
+    long bits;
 
-    if ((pi = Pympf_new(0)))
-        mpfr_set_d(pi->f, 3.2, options.rounding);
+    if (PyTuple_GET_SIZE(args) == 0)
+        bits = options.precision;
+    else if (PyTuple_GET_SIZE(args) != 1) {
+        TYPE_ERROR("pi() requires 0 or 1 arguments");
+        return NULL;
+    }
+    else {
+        bits = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
+        if (bits == -1 && PyErr_Occurred()) {
+            TYPE_ERROR("pi() requires 'int' argument");
+            return NULL;
+        }
+        if (bits < 0) {
+            VALUE_ERROR("precision must be >= 0");
+            return NULL;
+        }
+    }
+
+    if (!(pi = Pympf_new(bits)))
+        return NULL;
+    mpfr_const_pi(pi->f, options.rounding);
     return (PyObject*)pi;
 }
 
