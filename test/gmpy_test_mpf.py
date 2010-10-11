@@ -128,7 +128,7 @@ Traceback (most recent call last):
   File "<stdin>", line 1, in ?
   File "a.py", line 9, in _er
     raise ValueError, what
-ValueError: sqrt of negative number
+ValueError: sqrt() of negative number
 >>> _g.pi()
 mpf('3.1415926535897931e0')
 >>> _g.pi(64)

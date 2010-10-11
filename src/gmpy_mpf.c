@@ -240,25 +240,23 @@ else gets coerced to one; further, x must be >= 0.\n\
 static PyObject *
 Pympf_sqrt(PyObject *self, PyObject *args)
 {
-    PympfObject *root;
+    PympfObject *result;
 
-    SELF_MPF_NO_ARG;
-
-    assert(Pympf_Check(self));
+    PARSE_ONE_MPF("sqrt() requires 'mpf' argument");
 
     if (mpfr_sgn(Pympf_AS_MPF(self)) < 0) {
-        PyErr_SetString(PyExc_ValueError, "sqrt of negative number");
+        VALUE_ERROR("sqrt() of negative number");
         Py_DECREF(self);
         return NULL;
     }
 
-    if (!(root = Pympf_new(mpfr_get_prec(((PympfObject*)self)->f)))) {
+    if (!(result = Pympf_new(0))) {
         Py_DECREF(self);
         return NULL;
     }
-    mpfr_sqrt(root->f, Pympf_AS_MPF(self), options.rounding);
+    mpfr_sqrt(result->f, Pympf_AS_MPF(self), options.rounding);
     Py_DECREF(self);
-    return (PyObject *) root;
+    return (PyObject*)result;
 }
 
 static char doc_getprecm[]="\
