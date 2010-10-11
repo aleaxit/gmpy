@@ -300,7 +300,6 @@ mpz(789789789789789789789789)
 
 __test__['divmod']=\
 r'''
->>> _g.set_prefer_mutable(1)
 >>> _g.cdivmod(17,5)
 (mpz(4), mpz(-3))
 >>> _g.cdivmod(-17,5)
@@ -325,7 +324,6 @@ r'''
 (mpz(-3), mpz(2))
 >>> _g.tdivmod(-17,-5)
 (mpz(3), mpz(-2))
->>> _g.set_prefer_mutable(0)
 '''
 
 __test__['cmpr']=\
@@ -722,12 +720,10 @@ mpz(3)
 True
 >>> _g.lcm(a,b)
 mpz(18696)
->>> _g.set_prefer_mutable(1)
 >>> _g.fac(7)
 mpz(5040)
 >>> _g.fib(17)
 mpz(1597)
->>> _g.set_prefer_mutable(0)
 >>> del temp
 >>> for i in range(10):
 ...     print(_g.bincoef(10,i))
@@ -749,12 +745,10 @@ Traceback (innermost last):
   File "<pyshell#184>", line 1, in ?
     _g.divm(a,b,100)
 ZeroDivisionError: not invertible
->>> _g.set_prefer_mutable(1)
 >>> _g.divm(6,12,14)
 mpz(4)
 >>> _g.divm(0,1,2)
 mpz(0)
->>> _g.set_prefer_mutable(0)
 >>> a.invert(100)
 mpz(87)
 >>> b.invert(100)

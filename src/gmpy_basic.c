@@ -11,9 +11,6 @@
  *
  * Support addition for gmpy types with automatic conversion of Python types.
  *
- * When adding an 'mpz' and 'xmpz', the result type is determined by checking
- * options.prefer_mutable.
- *
  * The following conversion logic is used:
  *  1) 'mpz' combined with an integer type returns an 'mpz'
  *  2) 'mpz' combined with a rational type returns an 'mpq'
@@ -1067,11 +1064,6 @@ Pympany_div2(PyObject *a, PyObject *b)
             mpz_set_PyLong(tempz, a);
             mpz_fdiv_q(rz->z, tempz, Pympz_AS_MPZ(b));
             mpz_cloc(tempz);
-            return (PyObject*)rz;
-        }
-        if ((!options.prefer_mutable) && Pyxmpz_Check(a)) {
-            TRACE("True divide (xmpz,mpz)\n");
-            mpz_fdiv_q(rz->z, Pyxmpz_AS_MPZ(a), Pympz_AS_MPZ(b));
             return (PyObject*)rz;
         }
         Py_DECREF((PyObject*)rz);
