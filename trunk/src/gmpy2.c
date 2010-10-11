@@ -264,7 +264,6 @@
 
 #include "py3intcompat.c"
 
-
 /* Define various macros to deal with differences between Python 2 and 3. */
 
 #if (PY_MAJOR_VERSION == 3)
@@ -308,9 +307,8 @@ static struct gmpy_options {
     mpfr_rnd_t rounding;     /* current rounding mode */
     int cache_size;          /* size of cache, for all caches */
     int cache_obsize;        /* maximum size of the objects that are cached */
-    int prefer_mutable;      /* != 0 if mixed mpz/xmpz operation results in xmpz */
     PyObject* fcoform;       /* if non-NULL, format for float->mpf (via string) */
-} options = { 0, DBL_MANT_DIG, MPFR_RNDN, 100, 128, 0, 0 };
+} options = { 0, DBL_MANT_DIG, MPFR_RNDN, 100, 128, 0 };
 
 /* forward declarations of type-objects and method-arrays for them */
 #ifdef _MSC_VER
@@ -2702,33 +2700,6 @@ Pympz_From_Integer(PyObject* obj)
     return newob;
 }
 
-static PyxmpzObject*
-Pyxmpz_From_Integer(PyObject* obj)
-{
-    PyxmpzObject* newob = 0;
-
-    if (Pyxmpz_Check(obj)) {
-        Py_INCREF(obj);
-        newob = (PyxmpzObject*) obj;
-#ifdef PY2
-    }
-    else if (PyInt_Check(obj)) {
-        newob = PyInt2Pyxmpz(obj);
-#endif
-    }
-    else if (Pympz_Check(obj)) {
-        newob = Pympz2Pyxmpz(obj);
-    }
-    else if (PyLong_Check(obj)) {
-        newob = PyLong2Pyxmpz(obj);
-    }
-    if (options.debug)
-        fprintf(stderr,"Pyxmpz_From_Integer(%p)->%p\n", obj, newob);
-    if (!newob)
-        TYPE_ERROR("conversion error in Pyxmpz_From_Integer");
-    return newob;
-}
-
 /*
  * Convert an Integer-like object (as determined by isInteger) to
  * a C long. Returns -1 and raises OverflowError if the the number is
@@ -4979,7 +4950,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "gcdext", Pygmpy_gcdext, METH_VARARGS, doc_gcdext },
     { "get_cache", Pygmpy_get_cache, METH_NOARGS, doc_get_cache },
     { "get_precision", Pygmpy_get_precision, METH_VARARGS, doc_get_precision },
-    { "get_prefer_mutable", Pygmpy_get_prefer_mutable, METH_NOARGS, doc_get_prefer_mutable },
     { "gmp_version", Pygmpy_get_gmp_version, METH_NOARGS, doc_gmp_version },
     { "gmp_limbsize", Pygmpy_get_gmp_limbsize, METH_NOARGS, doc_gmp_limbsize },
     { "getprec", Pympf_getprec, METH_VARARGS, doc_getprecg },
@@ -5018,7 +4988,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "set_debug", Pygmpy_set_debug, METH_VARARGS, doc_set_debug },
     { "set_fcoform", Pygmpy_set_fcoform, METH_VARARGS, doc_set_fcoform },
     { "set_precision", Pygmpy_set_precision, METH_VARARGS, doc_set_precision },
-    { "set_prefer_mutable", Pygmpy_set_prefer_mutable, METH_VARARGS, doc_set_prefer_mutable },
     { "sign", Pympz_sign, METH_O, doc_signg },
     { "sqrt", Pygmpy_sqrt, METH_O, doc_sqrtg },
     { "sqrtrem", Pympz_sqrtrem, METH_VARARGS, doc_sqrtremg },

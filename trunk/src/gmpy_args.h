@@ -1,83 +1,5 @@
 /* utility macros for creating the correct return type */
 
-/*
- * Create a single object of type 'mpz' or 'xmpz' based on the status
- * of options.prefer_mutable.
- */
-
-#define CREATE0_ONE_MPZANY(r)\
-    if(options.prefer_mutable) {\
-        r = (PyObject*)Pyxmpz_new();\
-    } else {\
-        r = (PyObject*)Pympz_new();\
-    }\
-    if(!r) {\
-        return NULL;\
-    }
-
-/*
- * Create two objects of type 'mpz' or 'xmpz' and a tuple
- */
-
-#define CREATE0_TWO_MPZANY_TUPLE(q, r, t)\
-    if(options.prefer_mutable) {\
-        q = (PyObject*)Pyxmpz_new();\
-        r = (PyObject*)Pyxmpz_new();\
-    } else {\
-        q = (PyObject*)Pympz_new();\
-        r = (PyObject*)Pympz_new();\
-    }\
-    t = PyTuple_New(2);\
-    if(!q || !r || !t) {\
-        Py_XDECREF((PyObject*)t);\
-        Py_XDECREF((PyObject*)q);\
-        Py_XDECREF((PyObject*)r);\
-        return NULL;\
-    }
-
-/*
- * Create a single object of type 'mpz' or 'xmpz' based on the type of x.
- */
-
-#define CREATE1_ONE_MPZANY(x, r)\
-    if(Pyxmpz_Check(x)) {\
-        r = (PyObject*)Pyxmpz_new();\
-    } else if(Pympz_Check(x)) {\
-        r = (PyObject*)Pympz_new();\
-    } else if(options.prefer_mutable) {\
-        r = (PyObject*)Pyxmpz_new();\
-    } else {\
-        r = (PyObject*)Pympz_new();\
-    }\
-    if(!r) {\
-        return NULL;\
-    }
-
-/*
- * Create two objects of type 'mpz' or 'xmpz' and a tuple
- */
-
-#define CREATE1_TWO_MPZANY_TUPLE(x, q, r, t)\
-    if(Pyxmpz_Check(x)) {\
-        q = (PyObject*)Pyxmpz_new();\
-        r = (PyObject*)Pyxmpz_new();\
-    } else if(Pympz_Check(x)) {\
-        q = (PyObject*)Pympz_new();\
-        r = (PyObject*)Pympz_new();\
-    } else if(options.prefer_mutable) {\
-        q = (PyObject*)Pyxmpz_new();\
-        r = (PyObject*)Pyxmpz_new();\
-    } else {\
-        q = (PyObject*)Pympz_new();\
-        r = (PyObject*)Pympz_new();\
-    }\
-    t = PyTuple_New(2);\
-    if(!q || !r || !t) {\
-        Py_XDECREF((PyObject*)t);\
-        Py_XDECREF((PyObject*)q);\
-        Py_XDECREF((PyObject*)r);\
-        return NULL;\
-    }
 
 /*
  * Create two 'mpz' and a 2-tuple.
@@ -91,166 +13,6 @@
         Py_XDECREF(t);\
         Py_XDECREF((PyObject*)q);\
         Py_XDECREF((PyObject*)r);\
-        return NULL;\
-    }
-
-/*
- * Create a single object of type 'mpz' or 'xmpz'. The
- * resulting type is based on two input objects.
- */
-
-#define CREATE2_ONE_MPZANY(x, y, r)\
-    if(Pympz_Check(x)) {\
-        if(Pyxmpz_Check(y)) {\
-            if(options.prefer_mutable)\
-                r = (PyObject*)Pyxmpz_new();\
-            else\
-                r = (PyObject*)Pympz_new();\
-        } else {\
-            r = (PyObject*)Pympz_new();\
-        }\
-    } else if(Pyxmpz_Check(x)) {\
-        if(Pympz_Check(y)) {\
-            if(options.prefer_mutable)\
-                r = (PyObject*)Pyxmpz_new();\
-            else\
-                r = (PyObject*)Pympz_new();\
-        } else {\
-            r = (PyObject*)Pyxmpz_new();\
-        }\
-    } else {\
-        if(Pympz_Check(y)) {\
-            r = (PyObject*)Pympz_new();\
-        } else if(Pyxmpz_Check(y)) {\
-            r = (PyObject*)Pyxmpz_new();\
-        } else if(options.prefer_mutable) {\
-            r = (PyObject*)Pyxmpz_new();\
-        } else {\
-            r = (PyObject*)Pympz_new();\
-        }\
-    }\
-    if(!r) {\
-        return NULL;\
-    }
-
-/*
- * Create two objects of type 'mpz' or 'xmpz' and a 2-tuple
- * to store them in.
- */
-
-#define CREATE2_TWO_MPZANY(x, y, q, r, t)\
-    if(Pympz_Check(x)) {\
-        if(Pyxmpz_Check(y)) {\
-            if(options.prefer_mutable) {\
-                q = (PyObject*)Pyxmpz_new();\
-                r = (PyObject*)Pyxmpz_new();\
-            } else {\
-                q = (PyObject*)Pympz_new();\
-                r = (PyObject*)Pympz_new();\
-            }\
-        } else {\
-            q = (PyObject*)Pympz_new();\
-            r = (PyObject*)Pympz_new();\
-        }\
-    } else if(Pyxmpz_Check(x)) {\
-        if(Pympz_Check(y)) {\
-            if(options.prefer_mutable) {\
-                q = (PyObject*)Pyxmpz_new();\
-                r = (PyObject*)Pyxmpz_new();\
-            } else {\
-                q = (PyObject*)Pympz_new();\
-                r = (PyObject*)Pympz_new();\
-            }\
-        } else {\
-            q = (PyObject*)Pyxmpz_new();\
-            r = (PyObject*)Pyxmpz_new();\
-        }\
-    } else {\
-        if(Pympz_Check(y)) {\
-            q = (PyObject*)Pympz_new();\
-            r = (PyObject*)Pympz_new();\
-        } else if(Pyxmpz_Check(y)) {\
-            q = (PyObject*)Pyxmpz_new();\
-            r = (PyObject*)Pyxmpz_new();\
-        } else if(options.prefer_mutable) {\
-            q = (PyObject*)Pyxmpz_new();\
-            r = (PyObject*)Pyxmpz_new();\
-        } else {\
-            q = (PyObject*)Pympz_new();\
-            r = (PyObject*)Pympz_new();\
-        }\
-    }\
-    t = PyTuple_New(2);\
-    if(!q || !r || !t) {\
-        Py_XDECREF((PyObject*)t);\
-        Py_XDECREF((PyObject*)q);\
-        Py_XDECREF((PyObject*)r);\
-        return NULL;\
-    }
-
-/*
- * Create two objects of type 'mpz' or 'xmpz' and a 2-tuple
- * to store them in.
- */
-
-#define CREATE2_THREE_MPZANY(x, y, q, r, s, t)\
-    if(Pympz_Check(x)) {\
-        if(Pyxmpz_Check(y)) {\
-            if(options.prefer_mutable) {\
-                q = (PyObject*)Pyxmpz_new();\
-                r = (PyObject*)Pyxmpz_new();\
-                s = (PyObject*)Pyxmpz_new();\
-            } else {\
-                q = (PyObject*)Pympz_new();\
-                r = (PyObject*)Pympz_new();\
-                s = (PyObject*)Pympz_new();\
-            }\
-        } else {\
-            q = (PyObject*)Pympz_new();\
-            r = (PyObject*)Pympz_new();\
-            s = (PyObject*)Pympz_new();\
-        }\
-    } else if(Pyxmpz_Check(x)) {\
-        if(Pympz_Check(y)) {\
-            if(options.prefer_mutable) {\
-                q = (PyObject*)Pyxmpz_new();\
-                r = (PyObject*)Pyxmpz_new();\
-                s = (PyObject*)Pyxmpz_new();\
-            } else {\
-                q = (PyObject*)Pympz_new();\
-                r = (PyObject*)Pympz_new();\
-                s = (PyObject*)Pympz_new();\
-            }\
-        } else {\
-            q = (PyObject*)Pyxmpz_new();\
-            r = (PyObject*)Pyxmpz_new();\
-            s = (PyObject*)Pyxmpz_new();\
-        }\
-    } else {\
-        if(Pympz_Check(y)) {\
-            q = (PyObject*)Pympz_new();\
-            r = (PyObject*)Pympz_new();\
-            s = (PyObject*)Pympz_new();\
-        } else if(Pyxmpz_Check(y)) {\
-            q = (PyObject*)Pyxmpz_new();\
-            r = (PyObject*)Pyxmpz_new();\
-            s = (PyObject*)Pyxmpz_new();\
-        } else if(options.prefer_mutable) {\
-            q = (PyObject*)Pyxmpz_new();\
-            r = (PyObject*)Pyxmpz_new();\
-            s = (PyObject*)Pyxmpz_new();\
-        } else {\
-            q = (PyObject*)Pympz_new();\
-            r = (PyObject*)Pympz_new();\
-            s = (PyObject*)Pympz_new();\
-        }\
-    }\
-    t = PyTuple_New(3);\
-    if(!q || !r || !s || !t) {\
-        Py_XDECREF((PyObject*)t);\
-        Py_XDECREF((PyObject*)q);\
-        Py_XDECREF((PyObject*)r);\
-        Py_XDECREF((PyObject*)s);\
         return NULL;\
     }
 
@@ -300,11 +62,7 @@
         if(CHECK_MPZANY(self)) {\
             Py_INCREF((PyObject*)self);\
         } else {\
-            if(options.prefer_mutable) {\
-                self = (PyObject*)Pyxmpz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-            } else {\
-                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-            }\
+            self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
         }\
         if(!self) {\
             PyErr_SetString(PyExc_TypeError, msg);\
@@ -348,22 +106,14 @@
             if(CHECK_MPZANY(self)) {\
                 Py_INCREF((PyObject*)self);\
             } else {\
-                if(options.prefer_mutable) {\
-                    self = (PyObject*)Pyxmpz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-                } else {\
-                    self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-                }\
+                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
             }\
         } else if (PyTuple_GET_SIZE(args) == 1) {\
             self = PyTuple_GET_ITEM(args, 0);\
             if(CHECK_MPZANY(self)) {\
                 Py_INCREF((PyObject*)self);\
             } else {\
-                if(options.prefer_mutable) {\
-                    self = (PyObject*)Pyxmpz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-                } else {\
-                    self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-                }\
+                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
             }\
         } else {\
             PyErr_SetString(PyExc_TypeError, msg);\
@@ -414,11 +164,7 @@
             if(CHECK_MPZANY(self)) {\
                 Py_INCREF((PyObject*)self);\
             } else {\
-                if(options.prefer_mutable) {\
-                    self = (PyObject*)Pyxmpz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-                } else {\
-                    self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-                }\
+                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
             }\
         }\
         if(!self) {\
