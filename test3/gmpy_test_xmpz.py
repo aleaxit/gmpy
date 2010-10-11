@@ -264,8 +264,6 @@ mpf('nan')
 mpf('nan')
 >>> float('-Inf') * _g.xmpz(0)
 mpf('nan')
->>> a
-2
 >>> a / float('Inf')
 mpf('0.0e0')
 >>> float('Inf') / a
@@ -280,7 +278,7 @@ mpf('nan')
 mpf('nan')
 >>> -a
 >>> a / float('Inf')
-mpf('0.0e0')
+mpf('-0.0e0')
 >>> float('Inf') / a
 mpf('-inf')
 >>> a / float('-Inf')
@@ -422,15 +420,15 @@ r'''
 xmpz(-124)
 >>> a=_g.xmpz(123)
 >>> a&b
-xmpz(72)
+mpz(72)
 >>> a|b
-xmpz(507)
+mpz(507)
 >>> a^b
-xmpz(435)
+mpz(435)
 >>> a<<1
-xmpz(246)
+mpz(246)
 >>> a>>1
-xmpz(61)
+mpz(61)
 >>> a<<-1
 Traceback (innermost last):
   ...
@@ -440,9 +438,9 @@ Traceback (innermost last):
   ...
 ValueError: negative shift count
 >>> a<<0
-xmpz(123)
+mpz(123)
 >>> a>>0
-xmpz(123)
+mpz(123)
 >>> a.popcount()
 6
 >>> _g.popcount(b)
@@ -466,12 +464,10 @@ Traceback (innermost last):
   ...
 TypeError: hamdist() requires 'mpz','mpz' arguments
 >>> a.bit_set(20)
->>> a
-xmpz(1048699)
+mpz(1048699)
 >>> a=_g.xmpz(123)
 >>> a.bit_clear(0)
->>> a
-xmpz(122)
+mpz(122)
 >>> a=_g.xmpz(123)
 >>> for i in range(8):
 ...     print(a.bit_test(i))
@@ -510,12 +506,10 @@ False
 0
 >>> _g.xmpz(12345).bit_length()
 14
->>> _old=_g.get_prefer_mutable()
->>> _g.set_prefer_mutable(1)
 >>> _g.bit_mask(9)
+mpz(511)
+>>> _g.xbit_mask(9)
 xmpz(511)
->>> _g.set_prefer_mutable(_old)
->>> del(_old)
 '''
 
 __test__['format']=\
@@ -618,7 +612,7 @@ xmpz(573406620562849222387053)
 >>> int(z)
 573406620562849222387053
 >>> divmod(z,a)
-(xmpz(4661842443600400182008), xmpz(69))
+(mpz(4661842443600400182008), mpz(69))
 >>> for i in range(2,37):
 ...    print(i,z.numdigits(i))
 ...
@@ -676,37 +670,35 @@ r'''
 >>> a=_g.xmpz(123)
 >>> b=_g.xmpz(456)
 >>> a.rootrem(2)
-(xmpz(11), xmpz(2))
+(mpz(11), mpz(2))
 >>> a.rootrem(3)
-(xmpz(4), xmpz(59))
+(mpz(4), mpz(59))
 >>> _g.rootrem(a*a)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: rootrem() requires 'mpz','int' arguments
 >>> _g.rootrem(a*a,2)
-(xmpz(123), xmpz(0))
+(mpz(123), mpz(0))
 >>> a.sqrt()
->>> print(a)
-11
+mpz(11)
 >>> b.sqrt()
->>> print(b)
-21
+mpz(21)
 >>> a=_g.xmpz(123)
 >>> b=_g.xmpz(456)
 >>> print(a.sqrtrem())
-(xmpz(11), xmpz(2))
+(mpz(11), mpz(2))
 >>> print(b.sqrtrem())
-(xmpz(21), xmpz(15))
+(mpz(21), mpz(15))
 >>> for i in range(5):
 ...    a=_g.xmpz(123)
 ...    b=_g.xmpz(456)
 ...    print(a.root(i+1),b.root(i+1))
 ...
-(xmpz(123), 1) (xmpz(456), 1)
-(xmpz(11), 0) (xmpz(21), 0)
-(xmpz(4), 0) (xmpz(7), 0)
-(xmpz(3), 0) (xmpz(4), 0)
-(xmpz(2), 0) (xmpz(3), 0)
+(mpz(123), 1) (mpz(456), 1)
+(mpz(11), 0) (mpz(21), 0)
+(mpz(4), 0) (mpz(7), 0)
+(mpz(3), 0) (mpz(4), 0)
+(mpz(2), 0) (mpz(3), 0)
 >>> a=_g.xmpz(123)
 >>> b=_g.xmpz(456)
 >>> a.is_square()
@@ -724,17 +716,17 @@ TypeError: rootrem() requires 'mpz','int' arguments
 >>> _g.is_power(99*99*99)
 1
 >>> _g.gcd(a,b)
-xmpz(3)
+mpz(3)
 >>> temp=_g.gcdext(a,b)
 >>> temp[0]==a*temp[1]+b*temp[2]
 True
 >>> _g.lcm(a,b)
-xmpz(18696)
+mpz(18696)
 >>> _g.set_prefer_mutable(1)
 >>> _g.fac(7)
-xmpz(5040)
+mpz(5040)
 >>> _g.fib(17)
-xmpz(1597)
+mpz(1597)
 >>> _g.set_prefer_mutable(0)
 >>> del temp
 >>> for i in range(10):
@@ -751,7 +743,7 @@ xmpz(1597)
 45
 10
 >>> _g.divm(b,a,_g.xmpz(20))
-xmpz(12)
+mpz(12)
 >>> _g.divm(a,b,100)
 Traceback (innermost last):
   File "<pyshell#184>", line 1, in ?
@@ -759,16 +751,14 @@ Traceback (innermost last):
 ZeroDivisionError: not invertible
 >>> _g.set_prefer_mutable(1)
 >>> _g.divm(6,12,14)
-xmpz(4)
+mpz(4)
 >>> _g.divm(0,1,2)
-xmpz(0)
+mpz(0)
 >>> _g.set_prefer_mutable(0)
 >>> a.invert(100)
->>> a
-xmpz(87)
+mpz(87)
 >>> b.invert(100)
->>> b
-xmpz(0)
+mpz(0)
 >>> _g.invert(3)
 Traceback (innermost last):
   ...
