@@ -80,6 +80,21 @@
     }
 
 /*
+ * Create two 'mpz' and a 2-tuple.
+ */
+
+#define CREATE_TWO_MPZ_TUPLE(q, r, t)\
+    q = Pympz_new();\
+    r = Pympz_new();\
+    t = PyTuple_New(2);\
+    if(!q || !r || !t) {\
+        Py_XDECREF(t);\
+        Py_XDECREF((PyObject*)q);\
+        Py_XDECREF((PyObject*)r);\
+        return NULL;\
+    }
+
+/*
  * Create a single object of type 'mpz' or 'xmpz'. The
  * resulting type is based on two input objects.
  */
