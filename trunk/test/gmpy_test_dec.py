@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(f))
-['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
+['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'precision', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
 >>>
 '''
 try: import decimal as _d
@@ -26,13 +26,13 @@ True
 >>> print _g.mpf(d)
 12.34
 >>> print f+d
-135.796
+135.79599999999999
 >>> print d+f
-135.796
+135.79599999999999
 >>> print q+d
-801.463
+801.46300000000008
 >>> print d+q
-801.463
+801.46300000000008
 >>> print z+d
 246.34
 >>> print d+z
@@ -43,7 +43,7 @@ True
 12.0
 >>> print _g.trunc(d)
 12.0
->>> _g.getrprec(d)
+>>> _g.mpf(d).precision
 53
 >>> _g.fsqrt(d)==_g.mpf(d).sqrt()
 1

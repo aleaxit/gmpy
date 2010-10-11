@@ -264,8 +264,6 @@
 
 #include "py3intcompat.c"
 
-/* Include fast mpz to/from PyLong conversion from sage. */
-#include "mpz_pylong.c"
 
 /* Define various macros to deal with differences between Python 2 and 3. */
 
@@ -290,6 +288,9 @@
 #define PyIntOrLong_Check(op)       (PyInt_Check(op) || PyLong_Check(op))
 #define PyIntOrLong_FromSize_t      PyInt_FromSize_t
 #endif
+
+/* Include fast mpz to/from PyLong conversion from sage. */
+#include "mpz_pylong.c"
 
 char gmpy_version[] = "2.0.0a1";
 
@@ -717,7 +718,7 @@ PyInt2Pympz(PyObject *self)
 
     assert(PyInt_Check(self));
     if ((newob = Pympz_new()))
-        mpz_set_si(newob->z, PyInt_AsLong(self));
+        mpz_set_si(newob->z, PyInt_AS_LONG(self));
     return newob;
 }
 

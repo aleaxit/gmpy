@@ -1365,7 +1365,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
     }
 
     if (CHECK_MPZANY(b)) {
-        if (mpz_sgn(Pympz_AS_MPZ(b))==0) {
+        if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
             ZERO_ERROR("mpz modulo by zero");
             return NULL;
         }
@@ -1378,7 +1378,11 @@ Pympany_divmod(PyObject *a, PyObject *b)
         if (PyIntOrLong_Check(a)) {
             TRACE("divmod (integer,mpz)\n");
             mpz_inoc(tempz);
+            if (PyErr_Occurred())
+                fprintf(stderr, "Oopsy\n");
             mpz_set_PyLong(tempz, a);
+            if (PyErr_Occurred())
+                fprintf(stderr, "Oopsy Doopsy\n");
             mpz_fdiv_qr(qz->z, rz->z, tempz, Pympz_AS_MPZ(b));
             mpz_cloc(tempz);
             PyTuple_SET_ITEM(r, 0, (PyObject*)qz);
