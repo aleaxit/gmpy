@@ -174,6 +174,20 @@ Pygmpy_pi(PyObject *self, PyObject *args)
     return (PyObject*)pi;
 }
 
+static char doc_euler[]="\
+euler(): returns the euler constant using default precision\n\
+";
+static PyObject *
+Pygmpy_euler(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+    mpfr_const_euler(result->f, options.rounding);
+    return (PyObject*)result;
+}
+
 static char doc_fsqrtm[]="\
 x.fsqrt(): returns the square root of x.  x must be >= 0.\n\
 ";
