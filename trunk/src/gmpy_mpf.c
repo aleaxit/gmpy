@@ -188,6 +188,34 @@ Pygmpy_euler(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+static char doc_log2[]="\
+log2(): returns the log2 constant using default precision\n\
+";
+static PyObject *
+Pygmpy_log2(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+    mpfr_const_log2(result->f, options.rounding);
+    return (PyObject*)result;
+}
+
+static char doc_catalan[]="\
+catalan(): returns the catalan constant using default precision\n\
+";
+static PyObject *
+Pygmpy_catalan(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+    mpfr_const_catalan(result->f, options.rounding);
+    return (PyObject*)result;
+}
+
 static char doc_fsqrtm[]="\
 x.fsqrt(): returns the square root of x.  x must be >= 0.\n\
 ";
