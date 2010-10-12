@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(f))
-['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'precision', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
+['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'precision', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
 >>>
 '''
 try: import decimal as _d

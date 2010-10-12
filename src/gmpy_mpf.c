@@ -259,26 +259,6 @@ Pympf_sqrt(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_getprecm[]="\
-x.getprec(): returns the number of bits of precision in x.\n\
-";
-static char doc_getprecg[]="\
-getprec(x): returns the number of bits of precision in x,\n\
-which must be an mpf or else gets coerced to one.\n\
-";
-static PyObject *
-Pympf_getprec(PyObject *self, PyObject *args)
-{
-    long precres;
-
-    SELF_MPF_NO_ARG;
-    assert(Pympf_Check(self));
-
-    precres = (long) mpfr_get_prec(Pympf_AS_MPF(self));
-    Py_DECREF(self);
-    return PyIntOrLong_FromLong(precres);
-}
-
 static char doc_froundm[] = "\
 x.round(n): returns x rounded to least n bits. Actual precision will\n\
 be a multiple of gmp_limbsize().\n\

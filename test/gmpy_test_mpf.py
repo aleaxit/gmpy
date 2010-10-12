@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(a))
-['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'precision', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
+['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'precision', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
 >>>
 '''
 import sys
@@ -96,13 +96,13 @@ mpf('6.0e0')
 1
 >>> _g.floor(-12.3)==math.floor(-12.3)
 1
->>> (a**2).reldiff(float(a)**2) < 1.03 * (2.0**-(a.getprec()-1))
+>>> (a**2).reldiff(float(a)**2) < 1.03 * (2.0**-(a.precision-1))
 1
->>> (a**2).reldiff(a*a) < (2.0**-(a.getprec()-1))
+>>> (a**2).reldiff(a*a) < (2.0**-(a.precision-1))
 1
->>> (b**2).reldiff(float(b)**2) < 1.03 * (2.0**-(b.getprec()-1))
+>>> (b**2).reldiff(float(b)**2) < 1.03 * (2.0**-(b.precision-1))
 1
->>> (b**2).reldiff(b*b) < (2.0**-(b.getprec()-1))
+>>> (b**2).reldiff(b*b) < (2.0**-(b.precision-1))
 1
 >>> _g.reldiff(3.4)
 Traceback (innermost last):
@@ -319,12 +319,12 @@ ValueError: digits must be 0 or >= 2
 Traceback (most recent call last):
   ...
 TypeError: function takes at most 2 arguments (5 given)
->>> saveprec=a.getprec()
+>>> saveprec=a.precision
 >>> newa = a.round(33)
 >>> newa
 mpf('1.23456e2',33)
 >>> newa = newa.round(saveprec)
->>> newa.getprec()==saveprec
+>>> newa.precision==saveprec
 1
 >>> del(newa)
 >>> _g.digits(_g.mpf(23.45))
@@ -340,7 +340,7 @@ TypeError: binary() requires a gmpy2 object as argument
 
 __test__['binio']=\
 r'''
->>> epsilon=_g.mpf(2)**-(a.getprec())
+>>> epsilon=_g.mpf(2)**-(a.precision)
 >>> ba=a.binary()
 >>> a.reldiff(_g.mpf(ba,0,256)) <= epsilon
 1
