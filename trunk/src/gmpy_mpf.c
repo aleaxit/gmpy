@@ -284,76 +284,35 @@ Pympf_round(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-#define MPF_BINOP(NAME) \
-static PyObject * \
-Py##NAME(PyObject *a, PyObject *b) \
-{ \
-  unsigned int bits, bbits; \
-  PympfObject *r; \
-  PympfObject *pa = 0; \
-  PympfObject *pb = 0; \
-  if (Pympf_Check(a) && Pympf_Check(b)) { \
-    bits = mpfr_get_prec(((PympfObject*)a)->f); \
-    bbits = mpfr_get_prec(((PympfObject*)b)->f); \
-    if (bits>bbits) bits=bbits; \
-    if (!(r = Pympf_new(bits))) { \
-      return NULL; \
-    } \
-    NAME(r->f, ((PympfObject*)a)->f, ((PympfObject*)b)->f, options.rounding); \
-    if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", r); \
-    return (PyObject *) r; \
-  } else { \
-    if (Pympf_Check(a)) { \
-      bits = mpfr_get_prec(((PympfObject*)a)->f); \
-    } else { \
-      bits = mpfr_get_prec(((PympfObject*)b)->f); \
-    } \
-    pa = Pympf_From_Float(a, bits); \
-    pb = Pympf_From_Float(b, bits); \
-    if (!pa || !pb) { \
-      Py_XDECREF((PyObject*)pa); \
-      Py_XDECREF((PyObject*)pb); \
-      Py_RETURN_NOTIMPLEMENTED; \
-    } \
-    if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p", pa, pb); \
-    if (!(r = Pympf_new(bits))) { \
-      Py_DECREF((PyObject*)pa); \
-      Py_DECREF((PyObject*)pb); \
-      return NULL; \
-    } \
-    NAME(r->f, pa->f, pb->f, options.rounding); \
-    Py_DECREF((PyObject*)pa); \
-    Py_DECREF((PyObject*)pb); \
-    if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", r); \
-    return (PyObject *) r; \
-  } \
-}
-
-MPF_BINOP(mpfr_reldiff)
-
 static char doc_reldiffm[] = "\
 x.reldiff(y): returns the relative difference between x and y,\n\
 where y can be any number and gets coerced to an mpf; result is\n\
-a non-negative mpf roughly equal to abs(x-y)/((abs(x)+abs(y))/2).\n\
+an mpf roughly equal to abs(x-y)/x.\n\
 ";
 static char doc_reldiffg[] = "\
 reldiff(x,y): returns the relative difference between x and y,\n\
 where x and y can be any numbers and get coerced to mpf; result is\n\
-a non-negative mpf roughly equal to abs(x-y)/((abs(x)+abs(y))/2).\n\
+an mpf roughly equal to abs(x-y)/x.\n\
 ";
 static PyObject *
 Pympf_doreldiff(PyObject *self, PyObject *args)
 {
-    PympfObject *op;
-    PyObject *res;
+    PympfObject *result;
+    PyObject *other;
 
-    SELF_MPF_ONE_ARG_CONVERTED(&op);
-    assert(Pympf_Check(self));
+    PARSE_TWO_MPF(other, "reldiff() requires 'mpf,'mpf' arguments");
 
-    res = Pympfr_reldiff((PyObject*)self, (PyObject*)op);
-    Py_DECREF(self); Py_DECREF((PyObject*)op);
+    if (!(result = Pympf_new(0))) {
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
 
-    return res;
+    mpfr_reldiff(result->f, Pympf_AS_MPF(self), Pympf_AS_MPF(other),
+                options.rounding);
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
 }
 
 static char doc_fsignm[]="\

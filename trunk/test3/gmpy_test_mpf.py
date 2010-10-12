@@ -108,17 +108,17 @@ mpf('6.0e0')
 Traceback (innermost last):
   File "<pyshell#184>", line 1, in ?
     _g.reldiff(3.4)
-TypeError: function takes exactly 2 arguments (1 given)
+TypeError: reldiff() requires 'mpf,'mpf' arguments
 >>> a.reldiff()
 Traceback (innermost last):
   File "<pyshell#184>", line 1, in ?
     _g.reldiff()
-TypeError: function takes exactly 1 argument (0 given)
+TypeError: reldiff() requires 'mpf,'mpf' arguments
 >>> a.reldiff(3, 4)
 Traceback (innermost last):
   File "<pyshell#184>", line 1, in ?
     _g.reldiff(3, 4)
-TypeError: function takes exactly 1 argument (2 given)
+TypeError: reldiff() requires 'mpf,'mpf' arguments
 >>> a.sqrt()
 mpf('1.1111075555498667e1')
 >>> _g.fsqrt(a)
