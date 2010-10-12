@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(a))
-['_copy', 'binary', 'ceil', 'digits', 'exp', 'exp10', 'exp2', 'f2q', 'floor', 'log', 'log10', 'log2', 'precision', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
+['_copy', 'acos', 'acosh', 'ai', 'asin', 'asinh', 'atan', 'atanh', 'binary', 'ceil', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'digamma', 'digits', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'floor', 'gamma', 'j0', 'j1', 'li2', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'precision', 'qdiv', 'reldiff', 'round', 'sec', 'sech', 'sign', 'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'trunc', 'y0', 'y1', 'zeta']
 >>>
 '''
 import sys

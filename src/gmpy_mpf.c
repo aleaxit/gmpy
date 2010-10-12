@@ -349,38 +349,39 @@ Pympf_sign(PyObject *self, PyObject *other)
     return PyIntOrLong_FromLong(sign);
 }
 
+#define MPF_UNIOP(NAME) \
+static PyObject * \
+Pympf_##NAME(PyObject* self, PyObject *other) \
+{ \
+    PympfObject *result, *tempx; \
+    if (!(result = Pympf_new(0))) return NULL; \
+    if(self && Pympf_Check(self)) { \
+        mpfr_##NAME(result->f, Pympf_AS_MPF(self), options.rounding); \
+    } \
+    else if (Pympf_Check(other)) { \
+        mpfr_##NAME(result->f, Pympf_AS_MPF(other), options.rounding); \
+    } \
+    else { \
+        if (!(tempx = Pympf_From_Float(other, 0))) { \
+            TYPE_ERROR(#NAME "() requires 'mpf' argument"); \
+            return NULL; \
+        } \
+        else { \
+            mpfr_##NAME(result->f, tempx->f, options.rounding); \
+            Py_DECREF((PyObject*)tempx); \
+        } \
+    } \
+    return (PyObject*)result; \
+}
+
 static char doc_flogm[]="\
 x.log(): returns natural logarithm of x.\n\
 ";
 static char doc_flogg[]="\
 log(x): returns natural logarithm of x.\n\
 ";
-static PyObject *
-Pympf_log(PyObject *self, PyObject *other)
-{
-    PympfObject *result, *tempx;
 
-    if (!(result = Pympf_new(0)))
-        return NULL;
-
-    if (self && (Pympf_Check(self))) {
-        mpfr_log(result->f, Pympf_AS_MPF(self), options.rounding);
-    }
-    else if (Pympf_Check(other)) {
-        mpfr_log(result->f, Pympf_AS_MPF(other), options.rounding);
-    }
-    else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("log() requires 'mpf' argument");
-            return NULL;
-        }
-        else {
-            mpfr_log(result->f, tempx->f, options.rounding);
-            Py_DECREF((PyObject*)tempx);
-        }
-    }
-    return (PyObject*)result;
-}
+MPF_UNIOP(log)
 
 static char doc_flog2m[]="\
 x.log2(): returns base-2 logarithm of x.\n\
@@ -388,32 +389,8 @@ x.log2(): returns base-2 logarithm of x.\n\
 static char doc_flog2g[]="\
 log2(x): returns base-2 logarithm of x.\n\
 ";
-static PyObject *
-Pympf_log2(PyObject *self, PyObject *other)
-{
-    PympfObject *result, *tempx;
 
-    if (!(result = Pympf_new(0)))
-        return NULL;
-
-    if (self && (Pympf_Check(self))) {
-        mpfr_log2(result->f, Pympf_AS_MPF(self), options.rounding);
-    }
-    else if (Pympf_Check(other)) {
-        mpfr_log2(result->f, Pympf_AS_MPF(other), options.rounding);
-    }
-    else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("log2() requires 'mpf' argument");
-            return NULL;
-        }
-        else {
-            mpfr_log2(result->f, tempx->f, options.rounding);
-            Py_DECREF((PyObject*)tempx);
-        }
-    }
-    return (PyObject*)result;
-}
+MPF_UNIOP(log2)
 
 static char doc_flog10m[]="\
 x.log10(): returns base-10 logarithm of x.\n\
@@ -421,32 +398,8 @@ x.log10(): returns base-10 logarithm of x.\n\
 static char doc_flog10g[]="\
 log10(x): returns base-10 logarithm of x.\n\
 ";
-static PyObject *
-Pympf_log10(PyObject *self, PyObject *other)
-{
-    PympfObject *result, *tempx;
 
-    if (!(result = Pympf_new(0)))
-        return NULL;
-
-    if (self && (Pympf_Check(self))) {
-        mpfr_log10(result->f, Pympf_AS_MPF(self), options.rounding);
-    }
-    else if (Pympf_Check(other)) {
-        mpfr_log10(result->f, Pympf_AS_MPF(other), options.rounding);
-    }
-    else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("log10() requires 'mpf' argument");
-            return NULL;
-        }
-        else {
-            mpfr_log10(result->f, tempx->f, options.rounding);
-            Py_DECREF((PyObject*)tempx);
-        }
-    }
-    return (PyObject*)result;
-}
+MPF_UNIOP(log10)
 
 static char doc_fexpm[]="\
 x.exp(): returns exponential x.\n\
@@ -454,32 +407,8 @@ x.exp(): returns exponential x.\n\
 static char doc_fexpg[]="\
 exp(x): returns exponential of x.\n\
 ";
-static PyObject *
-Pympf_exp(PyObject *self, PyObject *other)
-{
-    PympfObject *result, *tempx;
 
-    if (!(result = Pympf_new(0)))
-        return NULL;
-
-    if (self && (Pympf_Check(self))) {
-        mpfr_exp(result->f, Pympf_AS_MPF(self), options.rounding);
-    }
-    else if (Pympf_Check(other)) {
-        mpfr_exp(result->f, Pympf_AS_MPF(other), options.rounding);
-    }
-    else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("exp() requires 'mpf' argument");
-            return NULL;
-        }
-        else {
-            mpfr_exp(result->f, tempx->f, options.rounding);
-            Py_DECREF((PyObject*)tempx);
-        }
-    }
-    return (PyObject*)result;
-}
+MPF_UNIOP(exp)
 
 static char doc_fexp2m[]="\
 x.exp2(): returns 2**x.\n\
@@ -487,32 +416,8 @@ x.exp2(): returns 2**x.\n\
 static char doc_fexp2g[]="\
 exp2(x): returns 2**x.\n\
 ";
-static PyObject *
-Pympf_exp2(PyObject *self, PyObject *other)
-{
-    PympfObject *result, *tempx;
 
-    if (!(result = Pympf_new(0)))
-        return NULL;
-
-    if (self && (Pympf_Check(self))) {
-        mpfr_exp2(result->f, Pympf_AS_MPF(self), options.rounding);
-    }
-    else if (Pympf_Check(other)) {
-        mpfr_exp2(result->f, Pympf_AS_MPF(other), options.rounding);
-    }
-    else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("exp2() requires 'mpf' argument");
-            return NULL;
-        }
-        else {
-            mpfr_exp2(result->f, tempx->f, options.rounding);
-            Py_DECREF((PyObject*)tempx);
-        }
-    }
-    return (PyObject*)result;
-}
+MPF_UNIOP(exp2)
 
 static char doc_fexp10m[]="\
 x.exp10(): returns 10**x.\n\
@@ -520,30 +425,303 @@ x.exp10(): returns 10**x.\n\
 static char doc_fexp10g[]="\
 exp10(x): returns 10**x.\n\
 ";
-static PyObject *
-Pympf_exp10(PyObject *self, PyObject *other)
-{
-    PympfObject *result, *tempx;
 
-    if (!(result = Pympf_new(0)))
-        return NULL;
+MPF_UNIOP(exp10)
 
-    if (self && (Pympf_Check(self))) {
-        mpfr_exp10(result->f, Pympf_AS_MPF(self), options.rounding);
-    }
-    else if (Pympf_Check(other)) {
-        mpfr_exp10(result->f, Pympf_AS_MPF(other), options.rounding);
-    }
-    else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("exp10() requires 'mpf' argument");
-            return NULL;
-        }
-        else {
-            mpfr_exp10(result->f, tempx->f, options.rounding);
-            Py_DECREF((PyObject*)tempx);
-        }
-    }
-    return (PyObject*)result;
-}
+static char doc_fsinm[]="\
+x.sin(): returns sine of x; x in radians.\n\
+";
+static char doc_fsing[]="\
+sin(x): returns sine of x; x in radians.\n\
+";
+
+MPF_UNIOP(sin)
+
+static char doc_fcosm[]="\
+x.cos(): returns cosine of x; x in radians.\n\
+";
+static char doc_fcosg[]="\
+cos(x): returns cosine of x; x in radians.\n\
+";
+
+MPF_UNIOP(cos)
+
+static char doc_ftanm[]="\
+x.tan(): returns tangent of x; x in radians.\n\
+";
+static char doc_ftang[]="\
+tan(x): returns tangent of x; x in radians.\n\
+";
+
+MPF_UNIOP(tan)
+
+static char doc_fsecm[]="\
+x.sec(): returns secant of x; x in radians.\n\
+";
+static char doc_fsecg[]="\
+sec(x): returns secant of x; x in radians.\n\
+";
+
+MPF_UNIOP(sec)
+
+static char doc_fcscm[]="\
+x.csc(): returns cosecant of x; x in radians.\n\
+";
+static char doc_fcscg[]="\
+csc(x): returns cosecant of x; x in radians.\n\
+";
+
+MPF_UNIOP(csc)
+
+static char doc_fcotm[]="\
+x.cot(): returns cotangent of x; x in radians.\n\
+";
+static char doc_fcotg[]="\
+cot(x): returns cotangent of x; x in radians.\n\
+";
+
+MPF_UNIOP(cot)
+
+static char doc_facosm[]="\
+x.acos(): returns arc-cosine of x; x in radians.\n\
+";
+static char doc_facosg[]="\
+acos(x): returns arc-cosine of x; x in radians.\n\
+";
+
+MPF_UNIOP(acos)
+
+static char doc_fasinm[]="\
+x.asin(): returns arc-sine of x; x in radians.\n\
+";
+static char doc_fasing[]="\
+asin(x): returns arc-sine of x; x in radians.\n\
+";
+
+MPF_UNIOP(asin)
+
+static char doc_fatanm[]="\
+x.atan(): returns arc-tangent of x; x in radians.\n\
+";
+static char doc_fatang[]="\
+atan(x): returns arc-tangent of x; x in radians.\n\
+";
+
+MPF_UNIOP(atan)
+
+static char doc_fcoshm[]="\
+x.cosh(): returns hyperbolic cosine of x.\n\
+";
+static char doc_fcoshg[]="\
+cosh(x): returns hyperbolic cosine of x.\n\
+";
+
+MPF_UNIOP(cosh)
+
+static char doc_fsinhm[]="\
+x.sinh(): returns hyperbolic sine of x.\n\
+";
+static char doc_fsinhg[]="\
+sinh(x): returns hyperbolic sine of x.\n\
+";
+
+MPF_UNIOP(sinh)
+
+static char doc_ftanhm[]="\
+x.tanh(): returns hyperbolic tangent of x.\n\
+";
+static char doc_ftanhg[]="\
+tanh(x): returns hyperbolic tangent of x.\n\
+";
+
+MPF_UNIOP(tanh)
+
+static char doc_fsechm[]="\
+x.sech(): returns hyperbolic secant of x.\n\
+";
+static char doc_fsechg[]="\
+sech(x): returns hyperbolic secant of x.\n\
+";
+
+MPF_UNIOP(sech)
+
+static char doc_fcschm[]="\
+x.csch(): returns hyperbolic cosecant of x.\n\
+";
+static char doc_fcschg[]="\
+csch(x): returns hyperbolic cosecant of x.\n\
+";
+
+MPF_UNIOP(csch)
+
+static char doc_fcothm[]="\
+x.coth(): returns hyperbolic cotangent of x.\n\
+";
+static char doc_fcothg[]="\
+coth(x): returns hyperbolic cotangent of x.\n\
+";
+
+MPF_UNIOP(coth)
+
+static char doc_facoshm[]="\
+x.acosh(): returns inverse hyperbolic cosine of x.\n\
+";
+static char doc_facoshg[]="\
+acosh(x): returns inverse hyperbolic cosine of x.\n\
+";
+
+MPF_UNIOP(acosh)
+
+static char doc_fasinhm[]="\
+x.asinh(): returns inverse hyperbolic sine of x.\n\
+";
+static char doc_fasinhg[]="\
+asinh(x): returns inverse hyperbolic sine of x.\n\
+";
+
+MPF_UNIOP(asinh)
+
+static char doc_fatanhm[]="\
+x.atanh(): returns inverse hyperbolic tangent of x.\n\
+";
+static char doc_fatanhg[]="\
+atanh(x): returns inverse hyperbolic tangent of x.\n\
+";
+
+MPF_UNIOP(atanh)
+
+static char doc_flog1pm[]="\
+x.log1p(): returns logarithm of (1+x).\n\
+";
+static char doc_flog1pg[]="\
+log1p(x): returns logarithm of (1+x).\n\
+";
+
+MPF_UNIOP(log1p)
+
+static char doc_fexpm1m[]="\
+x.expm1(): returns exponential(x) - 1.\n\
+";
+static char doc_fexpm1g[]="\
+expm1(x): returns exponential(x) - 1.\n\
+";
+
+MPF_UNIOP(expm1)
+
+static char doc_feintm[]="\
+x.eint(): returns exponential integral of x.\n\
+";
+static char doc_feintg[]="\
+eint(x): returns exponential integral of x.\n\
+";
+
+MPF_UNIOP(eint)
+
+static char doc_fli2m[]="\
+x.li2(): returns real part of dilogarithm of x.\n\
+";
+static char doc_fli2g[]="\
+li2(x): returns real part of dilogarithm of x.\n\
+";
+
+MPF_UNIOP(li2)
+
+static char doc_fgammam[]="\
+x.gamma(): returns gamma of x.\n\
+";
+static char doc_fgammag[]="\
+gamma(x): returns gamma of x.\n\
+";
+
+MPF_UNIOP(gamma)
+
+static char doc_flngammam[]="\
+x.lngamma(): returns logarithm of gamma(x).\n\
+";
+static char doc_flngammag[]="\
+lngamma(x): returns logarithm of gamma(x).\n\
+";
+
+MPF_UNIOP(lngamma)
+
+static char doc_fdigammam[]="\
+x.digamma(): returns digamma of x.\n\
+";
+static char doc_fdigammag[]="\
+digamma(x): returns digamma of x.\n\
+";
+
+MPF_UNIOP(digamma)
+
+static char doc_fzetam[]="\
+x.zeta(): returns Riemann zeta of x.\n\
+";
+static char doc_fzetag[]="\
+zeta(x): returns Riemann zeta of x.\n\
+";
+
+MPF_UNIOP(zeta)
+
+static char doc_ferfm[]="\
+x.erf(): returns error function of x.\n\
+";
+static char doc_ferfg[]="\
+erf(x): returns error function of x.\n\
+";
+
+MPF_UNIOP(erf)
+
+static char doc_ferfcm[]="\
+x.erfc(): returns complementary error function of x.\n\
+";
+static char doc_ferfcg[]="\
+erfc(x): returns complementary error function of x.\n\
+";
+
+MPF_UNIOP(erfc)
+
+static char doc_fj0m[]="\
+x.j0(): returns first kind Bessel function of order 0 of x.\n\
+";
+static char doc_fj0g[]="\
+j0(x): returns first kind Bessel function of order 0 of x.\n\
+";
+
+MPF_UNIOP(j0)
+
+static char doc_fj1m[]="\
+x.j1(): returns first kind Bessel function of order 1 of x.\n\
+";
+static char doc_fj1g[]="\
+j1(x): returns first kind Bessel function of order 1 of x.\n\
+";
+
+MPF_UNIOP(j1)
+
+static char doc_fy0m[]="\
+x.y0(): returns second kind Bessel function of order 0 of x.\n\
+";
+static char doc_fy0g[]="\
+y0(x): returns second kind Bessel function of order 0 of x.\n\
+";
+
+MPF_UNIOP(y0)
+
+static char doc_fy1m[]="\
+x.y1(): returns second kind Bessel function of order 1 of x.\n\
+";
+static char doc_fy1g[]="\
+y1(x): returns second kind Bessel function of order 1 of x.\n\
+";
+
+MPF_UNIOP(y1)
+
+static char doc_faim[]="\
+x.ai(): returns Airy function of x.\n\
+";
+static char doc_faig[]="\
+ai(x): returns Airy function of x.\n\
+";
+
+MPF_UNIOP(ai)
 
