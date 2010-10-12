@@ -382,3 +382,168 @@ Pympf_log(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
+static char doc_flog2m[]="\
+x.log2(): returns base-2 logarithm of x.\n\
+";
+static char doc_flog2g[]="\
+log2(x): returns base-2 logarithm of x.\n\
+";
+static PyObject *
+Pympf_log2(PyObject *self, PyObject *other)
+{
+    PympfObject *result, *tempx;
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+
+    if (self && (Pympf_Check(self))) {
+        mpfr_log2(result->f, Pympf_AS_MPF(self), options.rounding);
+    }
+    else if (Pympf_Check(other)) {
+        mpfr_log2(result->f, Pympf_AS_MPF(other), options.rounding);
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("log2() requires 'mpf' argument");
+            return NULL;
+        }
+        else {
+            mpfr_log2(result->f, tempx->f, options.rounding);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    return (PyObject*)result;
+}
+
+static char doc_flog10m[]="\
+x.log10(): returns base-10 logarithm of x.\n\
+";
+static char doc_flog10g[]="\
+log10(x): returns base-10 logarithm of x.\n\
+";
+static PyObject *
+Pympf_log10(PyObject *self, PyObject *other)
+{
+    PympfObject *result, *tempx;
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+
+    if (self && (Pympf_Check(self))) {
+        mpfr_log10(result->f, Pympf_AS_MPF(self), options.rounding);
+    }
+    else if (Pympf_Check(other)) {
+        mpfr_log10(result->f, Pympf_AS_MPF(other), options.rounding);
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("log10() requires 'mpf' argument");
+            return NULL;
+        }
+        else {
+            mpfr_log10(result->f, tempx->f, options.rounding);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    return (PyObject*)result;
+}
+
+static char doc_fexpm[]="\
+x.exp(): returns exponential x.\n\
+";
+static char doc_fexpg[]="\
+exp(x): returns exponential of x.\n\
+";
+static PyObject *
+Pympf_exp(PyObject *self, PyObject *other)
+{
+    PympfObject *result, *tempx;
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+
+    if (self && (Pympf_Check(self))) {
+        mpfr_exp(result->f, Pympf_AS_MPF(self), options.rounding);
+    }
+    else if (Pympf_Check(other)) {
+        mpfr_exp(result->f, Pympf_AS_MPF(other), options.rounding);
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("exp() requires 'mpf' argument");
+            return NULL;
+        }
+        else {
+            mpfr_exp(result->f, tempx->f, options.rounding);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    return (PyObject*)result;
+}
+
+static char doc_fexp2m[]="\
+x.exp2(): returns 2**x.\n\
+";
+static char doc_fexp2g[]="\
+exp2(x): returns 2**x.\n\
+";
+static PyObject *
+Pympf_exp2(PyObject *self, PyObject *other)
+{
+    PympfObject *result, *tempx;
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+
+    if (self && (Pympf_Check(self))) {
+        mpfr_exp2(result->f, Pympf_AS_MPF(self), options.rounding);
+    }
+    else if (Pympf_Check(other)) {
+        mpfr_exp2(result->f, Pympf_AS_MPF(other), options.rounding);
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("exp2() requires 'mpf' argument");
+            return NULL;
+        }
+        else {
+            mpfr_exp2(result->f, tempx->f, options.rounding);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    return (PyObject*)result;
+}
+
+static char doc_fexp10m[]="\
+x.exp10(): returns 10**x.\n\
+";
+static char doc_fexp10g[]="\
+exp10(x): returns 10**x.\n\
+";
+static PyObject *
+Pympf_exp10(PyObject *self, PyObject *other)
+{
+    PympfObject *result, *tempx;
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+
+    if (self && (Pympf_Check(self))) {
+        mpfr_exp10(result->f, Pympf_AS_MPF(self), options.rounding);
+    }
+    else if (Pympf_Check(other)) {
+        mpfr_exp10(result->f, Pympf_AS_MPF(other), options.rounding);
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("exp10() requires 'mpf' argument");
+            return NULL;
+        }
+        else {
+            mpfr_exp10(result->f, tempx->f, options.rounding);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    return (PyObject*)result;
+}
+
