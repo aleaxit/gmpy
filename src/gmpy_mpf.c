@@ -231,7 +231,7 @@ Pygmpy_const_catalan(PyObject *self, PyObject *args)
 }
 
 static char doc_fsqrtm[]="\
-x.fsqrt(): returns the square root of x.  x must be >= 0.\n\
+x.sqrt(): returns the square root of x.  x must be >= 0.\n\
 ";
 static char doc_fsqrtg[]="\
 fsqrt(x): returns the square root of x.  x must be an mpf, or\n\
@@ -260,25 +260,28 @@ Pympf_sqrt(PyObject *self, PyObject *args)
 }
 
 static char doc_froundm[] = "\
-x.round(n): returns x rounded to least n bits. Actual precision will\n\
-be a multiple of gmp_limbsize().\n\
+x.round(n): returns x rounded to n bits. Uses default precision if\n\
+n is not specified.\n\
 ";
 static char doc_froundg[] = "\
-fround(x, n): returns x rounded to least n bits. Actual precision will\n\
-be a multiple of gmp_limbsize(). x an mpf or coerced to an mpf.\n\
+fround(x, n): returns x rounded to n bits. Uses default precision\n\
+if n is not specified.\n\
 ";
 static PyObject *
 Pympf_round(PyObject *self, PyObject *args)
 {
-    /* Should really get default precision. */
     mpfr_prec_t prec = options.precision;
-    PyObject *result;
+    PympfObject *result;
 
-    SELF_MPF_ONE_ARG("|l", &prec);
-    assert(Pympf_Check(self));
-    result = (PyObject*)Pympf2Pympf(self, prec);
+    PARSE_ONE_MPF_OPT_CLONG(&prec,
+            "round() requires 'mpf',['int'] arguments");
+    if (!(result = Pympf_new(prec))) {
+        Py_DECREF(self);
+        return NULL;
+    }
+    mpfr_set(result->f, Pympf_AS_MPF(self), options.rounding);
     Py_DECREF(self);
-    return result;
+    return (PyObject*)result;
 }
 
 #define MPF_BINOP(NAME) \
