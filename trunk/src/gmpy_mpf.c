@@ -323,15 +323,28 @@ fsign(x): returns -1, 0, or +1, if x is negative, 0, positive;\n\
 x must be an mpf, or else gets coerced to one.\n\
 ";
 static PyObject *
-Pympf_sign(PyObject *self, PyObject *args)
+Pympf_sign(PyObject *self, PyObject *other)
 {
     long sign;
 
-    SELF_MPF_NO_ARG;
-    assert(Pympf_Check(self));
+    PympfObject* tempx;
 
-    sign = (long) mpfr_sgn(Pympf_AS_MPF(self));
-    Py_DECREF(self);
+    if (self && (Pympf_Check(self))) {
+        sign = mpfr_sgn(Pympf_AS_MPF(self));
+    }
+    else if (Pympf_Check(other)) {
+        sign = mpfr_sgn(Pympf_AS_MPF(other));
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("sign() requires 'mpf' argument");
+            return NULL;
+        }
+        else {
+            sign = mpfr_sgn(tempx->f);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
     return PyIntOrLong_FromLong(sign);
 }
 
