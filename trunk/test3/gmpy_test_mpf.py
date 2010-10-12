@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> dir(a)
-['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'precision', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
+['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'precision', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
 >>>
 '''
 import sys
@@ -96,13 +96,13 @@ mpf('6.0e0')
 1
 >>> _g.floor(-12.3)==math.floor(-12.3)
 1
->>> (a**2).reldiff(float(a)**2) < 1.03 * (2.0**-(a.getprec()-1))
+>>> (a**2).reldiff(float(a)**2) < 1.03 * (2.0**-(a.precision-1))
 1
->>> (a**2).reldiff(a*a) < (2.0**-(a.getprec()-1))
+>>> (a**2).reldiff(a*a) < (2.0**-(a.precision-1))
 1
->>> (b**2).reldiff(float(b)**2) < 1.03 * (2.0**-(b.getprec()-1))
+>>> (b**2).reldiff(float(b)**2) < 1.03 * (2.0**-(b.precision-1))
 1
->>> (b**2).reldiff(b*b) < (2.0**-(b.getprec()-1))
+>>> (b**2).reldiff(b*b) < (2.0**-(b.precision-1))
 1
 >>> _g.reldiff(3.4)
 Traceback (innermost last):
