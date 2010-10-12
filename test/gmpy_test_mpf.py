@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(a))
-['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'precision', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
+['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'log', 'precision', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
 >>>
 '''
 import sys
@@ -11,6 +11,30 @@ import gmpy2 as _g, doctest, sys
 __test__={}
 a=_g.mpf('123.456')
 b=_g.mpf('789.123')
+
+__test__['functions']=\
+r'''
+>>> _g.log(2)
+mpf('6.9314718055994529e-1')
+>>> _g.log(10)
+mpf('2.3025850929940459e0')
+>>> _g.log('a')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: log() requires 'mpf' argument
+>>> _g.log(float('nan'))
+mpf('nan')
+>>> _g.log(float('inf'))
+mpf('inf')
+>>> _g.log(float('-inf'))
+mpf('nan')
+>>> _g.mpf('12.3456').log()
+mpf('2.5132997242892183e0')
+>>> _g.mpf('12.3456').log(7)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: log() takes no arguments (1 given)
+'''
 
 __test__['elemop']=\
 r'''

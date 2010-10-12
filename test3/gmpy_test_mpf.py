@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> dir(a)
-['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'precision', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
+['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'log', 'precision', 'qdiv', 'reldiff', 'round', 'sign', 'sqrt', 'trunc']
 >>>
 '''
 import sys
@@ -11,6 +11,30 @@ import gmpy2 as _g, doctest, sys
 __test__={}
 a=_g.mpf('123.456')
 b=_g.mpf('789.123')
+
+__test__['functions']=\
+r'''
+>>> _g.log(2)
+mpf('6.9314718055994529e-1')
+>>> _g.log(10)
+mpf('2.3025850929940459e0')
+>>> _g.log('a')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: log() requires 'mpf' argument
+>>> _g.log(float('nan'))
+mpf('nan')
+>>> _g.log(float('inf'))
+mpf('inf')
+>>> _g.log(float('-inf'))
+mpf('nan')
+>>> _g.mpf('12.3456').log()
+mpf('2.5132997242892183e0')
+>>> _g.mpf('12.3456').log(7)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: log() takes no arguments (1 given)
+'''
 
 __test__['elemop']=\
 r'''

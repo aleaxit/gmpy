@@ -109,7 +109,7 @@ Pympf_floor(PyObject *self, PyObject *args)
 {
     PympfObject *result;
 
-    PARSE_ONE_MPF("ceil() requires 'mpf' argument");
+    PARSE_ONE_MPF("floor() requires 'mpf' argument");
 
     if (!(result = Pympf_new(0)))
         return NULL;
@@ -132,7 +132,7 @@ Pympf_trunc(PyObject *self, PyObject *args)
 {
     PympfObject *result;
 
-    PARSE_ONE_MPF("ceil() requires 'mpf' argument");
+    PARSE_ONE_MPF("trunc() requires 'mpf' argument");
 
     if (!(result = Pympf_new(0)))
         return NULL;
@@ -148,7 +148,7 @@ static PyObject *
 Pygmpy_pi(PyObject *self, PyObject *args)
 {
     PympfObject *pi;
-    long bits;
+    mpfr_prec_t bits;
 
     if (PyTuple_GET_SIZE(args) == 0)
         bits = options.precision;
@@ -275,6 +275,7 @@ Pympf_round(PyObject *self, PyObject *args)
 
     PARSE_ONE_MPF_OPT_CLONG(&prec,
             "round() requires 'mpf',['int'] arguments");
+
     if (!(result = Pympf_new(prec))) {
         Py_DECREF(self);
         return NULL;
@@ -327,7 +328,7 @@ Pympf_sign(PyObject *self, PyObject *other)
 {
     long sign;
 
-    PympfObject* tempx;
+    PympfObject *tempx;
 
     if (self && (Pympf_Check(self))) {
         sign = mpfr_sgn(Pympf_AS_MPF(self));
@@ -346,5 +347,38 @@ Pympf_sign(PyObject *self, PyObject *other)
         }
     }
     return PyIntOrLong_FromLong(sign);
+}
+
+static char doc_flogm[]="\
+x.log(): returns natural logarithm of x.\n\
+";
+static char doc_flogg[]="\
+log(x): returns natural logarithm of x.\n\
+";
+static PyObject *
+Pympf_log(PyObject *self, PyObject *other)
+{
+    PympfObject *result, *tempx;
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+
+    if (self && (Pympf_Check(self))) {
+        mpfr_log(result->f, Pympf_AS_MPF(self), options.rounding);
+    }
+    else if (Pympf_Check(other)) {
+        mpfr_log(result->f, Pympf_AS_MPF(other), options.rounding);
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("log() requires 'mpf' argument");
+            return NULL;
+        }
+        else {
+            mpfr_log(result->f, tempx->f, options.rounding);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    return (PyObject*)result;
 }
 
