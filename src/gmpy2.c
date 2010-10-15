@@ -3744,7 +3744,6 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
  *   Pympany_divmod()
  */
 
-#include "gmpy_utility.c"
 #include "gmpy_basic.c"
 #include "gmpy_mpz_inplace.c"
 #include "gmpy_xmpz_inplace.c"
@@ -4684,6 +4683,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "gcdext", Pygmpy_gcdext, METH_VARARGS, doc_gcdext },
     { "get_cache", Pygmpy_get_cache, METH_NOARGS, doc_get_cache },
     { "get_precision", Pygmpy_get_precision, METH_VARARGS, doc_get_precision },
+    { "get_rounding", Pygmpy_get_rounding, METH_VARARGS, doc_get_rounding },
     { "gmp_version", Pygmpy_get_gmp_version, METH_NOARGS, doc_gmp_version },
     { "gmp_limbsize", Pygmpy_get_gmp_limbsize, METH_NOARGS, doc_gmp_limbsize },
     { "hamdist", Pympz_hamdist, METH_VARARGS, doc_hamdistg },
@@ -4731,6 +4731,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "set_debug", Pygmpy_set_debug, METH_VARARGS, doc_set_debug },
     { "set_fcoform", Pygmpy_set_fcoform, METH_VARARGS, doc_set_fcoform },
     { "set_precision", Pygmpy_set_precision, METH_VARARGS, doc_set_precision },
+    { "set_rounding", Pygmpy_set_rounding, METH_VARARGS, doc_set_rounding },
     { "sign", Pympz_sign, METH_O, doc_signg },
     { "sin", Pympf_sin, METH_O, doc_fsing },
     { "sinh", Pympf_sinh, METH_O, doc_fsinhg },
@@ -5265,7 +5266,16 @@ PyMODINIT_FUNC initgmpy2(void)
     gmpy_module = Py_InitModule3("gmpy2", Pygmpy_methods, _gmpy_docs);
 #endif
 
-    /* Todo: Add error checking for status of gmpy_module returned above. */
+    if (gmpy_module == NULL)
+        INITERROR;
+
+    /* Add the constants for defining rounding modes. */
+
+    PyModule_AddIntConstant(gmpy_module, "RoundToNearest", MPFR_RNDN);
+    PyModule_AddIntConstant(gmpy_module, "RoundToZero", MPFR_RNDZ);
+    PyModule_AddIntConstant(gmpy_module, "RoundUp", MPFR_RNDU);
+    PyModule_AddIntConstant(gmpy_module, "RoundDown", MPFR_RNDD);
+    PyModule_AddIntConstant(gmpy_module, "RoundAwayZero", MPFR_RNDA);
 
     if (options.debug)
         fprintf(stderr, "gmpy_module at %p\n", gmpy_module);

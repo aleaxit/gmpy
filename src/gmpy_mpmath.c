@@ -32,6 +32,17 @@ mpmath_build_mpf(long sign, PympzObject *man, PyObject *exp, long bc)
     return tup;
 }
 
+static PympzObject *
+Pympz_FROM_MPZ(mpz_t z)
+{
+    PympzObject *self;
+
+    if(!(self = PyObject_New(PympzObject, &Pympz_Type)))
+        return NULL;
+    self->z[0] = z[0];
+    return self;
+}
+
 static char doc_mpmath_normalizeg[]="\
 _mpmath_normalize(...): helper function for mpmath.\n\
 ";
