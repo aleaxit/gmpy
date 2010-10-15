@@ -4754,11 +4754,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "zeta", Pympf_zeta, METH_O, doc_fzetag },
     { "_mpmath_normalize", Pympz_mpmath_normalize, METH_VARARGS, doc_mpmath_normalizeg },
     { "_mpmath_create", Pympz_mpmath_create, METH_VARARGS, doc_mpmath_createg },
-    { "_mpmath_trim", Pympz_mpmath_trim, METH_VARARGS, doc_mpmath_trimg },
-    { "_mpmath_add", Pympz_mpmath_add, METH_VARARGS, doc_mpmath_addg },
-    { "_mpmath_mult", Pympz_mpmath_mult, METH_VARARGS, doc_mpmath_multg },
-    { "_mpmath_div", Pympz_mpmath_div, METH_VARARGS, doc_mpmath_divg },
-    { "_mpmath_sqrt", Pympz_mpmath_sqrt, METH_VARARGS, doc_mpmath_sqrtg },
     { NULL, NULL, 1}
 };
 
