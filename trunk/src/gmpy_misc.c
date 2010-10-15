@@ -183,6 +183,44 @@ Pygmpy_set_precision(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+PyDoc_STRVAR(doc_get_rounding,
+"get_rounding() -> integer\n\n"
+"Return the rounding mode. Value will be one of RoundToNearest,\n"
+"RoundToZero, RoundUp, RoundDown, RoundAwayZero.");
+static PyObject *
+Pygmpy_get_rounding(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("l", options.rounding);
+}
+
+PyDoc_STRVAR(doc_set_rounding,
+"set_rounding(n)\n\n"
+"Set the rounding mode. Value must mbe one of RoundToNearest,\n"
+"RoundToZero, RoundUp, RoundDown, RoundAwayZero.");
+static PyObject *
+Pygmpy_set_rounding(PyObject *self, PyObject *args)
+{
+    int mode;
+
+    if(!PyArg_ParseTuple(args, "i", &mode))
+        return NULL;
+    if (mode == MPFR_RNDN)
+        options.rounding = mode;
+    else if (mode == MPFR_RNDZ)
+        options.rounding = mode;
+    else if (mode == MPFR_RNDU)
+        options.rounding = mode;
+    else if (mode == MPFR_RNDD)
+        options.rounding = mode;
+    else if (mode == MPFR_RNDA)
+        options.rounding = mode;
+    else {
+        VALUE_ERROR("invalid rounding mode");
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+
 PyDoc_STRVAR(doc_get_precision,
 "get_precision() -> integer\n\n"
 "Return the number of bits of precision used for calculations.");
