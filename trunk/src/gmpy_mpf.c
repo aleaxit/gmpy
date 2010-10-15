@@ -74,72 +74,6 @@ Pympf_hash(PympfObject *self)
 #endif
 }
 
-/* float-truncations (return still a float!) */
-
-static char doc_ceilm[]="\
-x.ceil(): returns an mpf that is the smallest integer >= x\n\
-";
-static char doc_ceilg[]="\
-ceil(x): returns an mpf that is the smallest integer >= x\n\
-x must be an mpf, or else gets coerced to one.\n\
-";
-static PyObject *
-Pympf_ceil(PyObject *self, PyObject *args)
-{
-    PympfObject *result;
-
-    PARSE_ONE_MPF("ceil() requires 'mpf' argument");
-
-    if (!(result = Pympf_new(0)))
-        return NULL;
-    mpfr_ceil(result->f, Pympf_AS_MPF(self));
-    Py_DECREF(self);
-    return (PyObject*)result;
-}
-
-static char doc_floorm[]="\
-x.floor(): returns an mpf that is the smallest integer <= x\n\
-";
-static char doc_floorg[]="\
-floor(x): returns an mpf that is the smallest integer <= x\n\
-x must be an mpf, or else gets coerced to one.\n\
-";
-static PyObject *
-Pympf_floor(PyObject *self, PyObject *args)
-{
-    PympfObject *result;
-
-    PARSE_ONE_MPF("floor() requires 'mpf' argument");
-
-    if (!(result = Pympf_new(0)))
-        return NULL;
-    mpfr_floor(result->f, Pympf_AS_MPF(self));
-    Py_DECREF(self);
-    return (PyObject*)result;
-}
-
-static char doc_truncm[]="\
-x.trunc(): returns an mpf that is x truncated towards 0\n\
-(same as x.floor() if x>=0, x.ceil() if x<0).\n\
-";
-static char doc_truncg[]="\
-trunc(x): returns an mpf that is x truncated towards 0\n\
-(same as x.floor() if x>=0, x.ceil() if x<0).\n\
-x must be an mpf, or else gets coerced to one.\n\
-";
-static PyObject *
-Pympf_trunc(PyObject *self, PyObject *args)
-{
-    PympfObject *result;
-
-    PARSE_ONE_MPF("trunc() requires 'mpf' argument");
-
-    if (!(result = Pympf_new(0)))
-        return NULL;
-    mpfr_trunc(result->f, Pympf_AS_MPF(self));
-    Py_DECREF(self);
-    return (PyObject*)result;
-}
 
 static char doc_pi[]="\
 pi(n): returns pi with n bits of precision in an mpf object\n\
@@ -238,24 +172,41 @@ fsqrt(x): returns the square root of x.  x must be an mpf, or\n\
 else gets coerced to one; further, x must be >= 0.\n\
 ";
 static PyObject *
-Pympf_sqrt(PyObject *self, PyObject *args)
+Pympf_sqrt(PyObject *self, PyObject *other)
 {
-    PympfObject *result;
+    PympfObject *result, *tempx;
 
-    PARSE_ONE_MPF("sqrt() requires 'mpf' argument");
-
-    if (mpfr_sgn(Pympf_AS_MPF(self)) < 0) {
-        VALUE_ERROR("sqrt() of negative number");
-        Py_DECREF(self);
+    if (!(result = Pympf_new(0)))
         return NULL;
+    if(self && Pympf_Check(self)) {
+        if (mpfr_sgn(Pympf_AS_MPF(self)) < 0) {
+            VALUE_ERROR("sqrt() of negative number");
+            return NULL;
+        }
+        mpfr_sqrt(result->f, Pympf_AS_MPF(self), options.rounding);
     }
-
-    if (!(result = Pympf_new(0))) {
-        Py_DECREF(self);
-        return NULL;
+    else if (Pympf_Check(other)) {
+        if (mpfr_sgn(Pympf_AS_MPF(other)) < 0) {
+            VALUE_ERROR("sqrt() of negative number");
+            return NULL;
+        }
+        mpfr_sqrt(result->f, Pympf_AS_MPF(other), options.rounding);
     }
-    mpfr_sqrt(result->f, Pympf_AS_MPF(self), options.rounding);
-    Py_DECREF(self);
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("sqrt() requires 'mpf' argument");
+            return NULL;
+        }
+        else {
+            if (mpfr_sgn(Pympf_AS_MPF(tempx)) < 0) {
+                VALUE_ERROR("sqrt() of negative number");
+                Py_DECREF((PyObject*)tempx);
+                return NULL;
+            }
+            mpfr_sqrt(result->f, tempx->f, options.rounding);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
     return (PyObject*)result;
 }
 
@@ -348,6 +299,63 @@ Pympf_sign(PyObject *self, PyObject *other)
     }
     return PyIntOrLong_FromLong(sign);
 }
+
+#define MPF_UNIOP_NOROUND(NAME) \
+static PyObject * \
+Pympf_##NAME(PyObject* self, PyObject *other) \
+{ \
+    PympfObject *result, *tempx; \
+    if (!(result = Pympf_new(0))) return NULL; \
+    if(self && Pympf_Check(self)) { \
+        mpfr_##NAME(result->f, Pympf_AS_MPF(self)); \
+    } \
+    else if (Pympf_Check(other)) { \
+        mpfr_##NAME(result->f, Pympf_AS_MPF(other)); \
+    } \
+    else { \
+        if (!(tempx = Pympf_From_Float(other, 0))) { \
+            TYPE_ERROR(#NAME "() requires 'mpf' argument"); \
+            return NULL; \
+        } \
+        else { \
+            mpfr_##NAME(result->f, tempx->f); \
+            Py_DECREF((PyObject*)tempx); \
+        } \
+    } \
+    return (PyObject*)result; \
+}
+
+static char doc_ceilm[]="\
+x.ceil(): returns an mpf that is the smallest integer >= x\n\
+";
+static char doc_ceilg[]="\
+ceil(x): returns an mpf that is the smallest integer >= x\n\
+x must be an mpf, or else gets coerced to one.\n\
+";
+
+MPF_UNIOP_NOROUND(ceil)
+
+static char doc_floorm[]="\
+x.floor(): returns an mpf that is the smallest integer <= x\n\
+";
+static char doc_floorg[]="\
+floor(x): returns an mpf that is the smallest integer <= x\n\
+x must be an mpf, or else gets coerced to one.\n\
+";
+
+MPF_UNIOP_NOROUND(floor);
+
+static char doc_truncm[]="\
+x.trunc(): returns an mpf that is x truncated towards 0\n\
+(same as x.floor() if x>=0, x.ceil() if x<0).\n\
+";
+static char doc_truncg[]="\
+trunc(x): returns an mpf that is x truncated towards 0\n\
+(same as x.floor() if x>=0, x.ceil() if x<0).\n\
+x must be an mpf, or else gets coerced to one.\n\
+";
+
+MPF_UNIOP_NOROUND(trunc)
 
 #define MPF_UNIOP(NAME) \
 static PyObject * \
