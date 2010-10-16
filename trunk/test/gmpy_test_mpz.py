@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('_'), dir(_g))
-['ModeMPFR', 'ModePython', 'RoundAwayZero', 'RoundDown', 'RoundToNearest', 'RoundToZero', 'RoundUp', 'acos', 'acosh', 'ai', 'asin', 'asinh', 'atan', 'atanh', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'cdiv', 'cdiv2exp', 'cdivmod', 'cdivmod2exp', 'ceil', 'cmod', 'cmod2exp', 'comb', 'const_catalan', 'const_euler', 'const_log2', 'const_pi', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'denom', 'digamma', 'digits', 'divexact', 'divm', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'fac', 'fdiv', 'fdiv2exp', 'fdivmod', 'fdivmod2exp', 'fib', 'fib2', 'floor', 'fmod', 'fmod2exp', 'fround', 'fsqrt', 'gamma', 'gcd', 'gcdext', 'get_cache', 'get_emax', 'get_emax_max', 'get_emin', 'get_emin_min', 'get_mode', 'get_precision', 'get_rounding', 'get_ternary', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'j0', 'j1', 'jacobi', 'kronecker', 'lcm', 'legendre', 'li2', 'license', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'lucas', 'lucas2', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pack', 'pi', 'popcount', 'qdiv', 'reldiff', 'remove', 'root', 'rootrem', 'sec', 'sech', 'set_cache', 'set_debug', 'set_emax', 'set_emin', 'set_fcoform', 'set_mode', 'set_precision', 'set_rounding', 'sign', 'sin', 'sinh', 'sqrt', 'sqrtrem', 'square', 'tan', 'tanh', 'tdiv', 'tdiv2exp', 'tdivmod', 'tdivmod2exp', 'tmod', 'tmod2exp', 'trunc', 'unpack', 'version', 'xbit_mask', 'xmpz', 'y0', 'y1', 'zeta']
+['ModeMPFR', 'ModePython', 'RoundAwayZero', 'RoundDown', 'RoundToNearest', 'RoundToZero', 'RoundUp', 'acos', 'acosh', 'ai', 'asin', 'asinh', 'atan', 'atanh', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'cdiv', 'cdiv2exp', 'cdivmod', 'cdivmod2exp', 'ceil', 'cmod', 'cmod2exp', 'comb', 'const_catalan', 'const_euler', 'const_log2', 'const_pi', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'denom', 'digamma', 'digits', 'divexact', 'divm', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'fac', 'fdiv', 'fdiv2exp', 'fdivmod', 'fdivmod2exp', 'fib', 'fib2', 'floor', 'fmod', 'fmod2exp', 'gamma', 'gcd', 'gcdext', 'get_cache', 'get_emax', 'get_emax_max', 'get_emin', 'get_emin_min', 'get_mode', 'get_precision', 'get_rounding', 'get_ternary', 'gmp_limbsize', 'gmp_version', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'j0', 'j1', 'jacobi', 'kronecker', 'lcm', 'legendre', 'li2', 'license', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'lucas', 'lucas2', 'mpf', 'mpir_version', 'mpq', 'mpz', 'next_prime', 'numdigits', 'numer', 'pack', 'pi', 'popcount', 'qdiv', 'reldiff', 'remove', 'root', 'rootrem', 'round', 'sec', 'sech', 'set_cache', 'set_debug', 'set_emax', 'set_emin', 'set_fcoform', 'set_mode', 'set_precision', 'set_rounding', 'sign', 'sin', 'sinh', 'sqrt', 'sqrtrem', 'square', 'tan', 'tanh', 'tdiv', 'tdiv2exp', 'tdivmod', 'tdivmod2exp', 'tmod', 'tmod2exp', 'trunc', 'unpack', 'version', 'xbit_mask', 'xmpz', 'y0', 'y1', 'zeta']
 >>> filter(lambda x: not x.startswith('__'), dir(a))
 ['_copy', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'cdiv', 'cdiv2exp', 'cmod', 'cmod2exp', 'comb', 'digits', 'divexact', 'fdiv', 'fdiv2exp', 'fmod', 'fmod2exp', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'sign', 'sqrt', 'sqrtrem', 'tdiv', 'tdiv2exp', 'tmod', 'tmod2exp']
 >>>
@@ -773,11 +773,11 @@ ValueError: binomial coefficient with negative k
 >>> _g.sqrt(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: sqrt of negative number
+ValueError: sqrt() of negative number
 >>> _g.sqrtrem(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: sqrt of negative number
+ValueError: sqrtrem() of negative number
 >>> _g.remove(3,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?

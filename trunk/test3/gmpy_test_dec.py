@@ -70,7 +70,7 @@ True
 12.0
 >>> _g.mpf(d).precision
 53
->>> _g.fsqrt(d)==_g.mpf(d).sqrt()
+>>> _g.sqrt(d)==_g.mpf(d).sqrt()
 1
 >>>
 '''

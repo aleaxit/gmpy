@@ -1481,20 +1481,23 @@ static char doc_sqrtm[]="\
 x.sqrt(): returns the integer, truncated square root of x, i.e. the\n\
 largest y such that x>=y*y. x must be >= 0.\n\
 ";
-static char doc_sqrtg[]="\
-sqrt(x): returns the integer, truncated square root of x, i.e. the\n\
-largest y such that x>=y*y. x must be an mpz, or else gets coerced\n\
-to one; further, x must be >= 0.\n\
-";
 static PyObject *
-Pygmpy_sqrt(PyObject *self, PyObject *other)
+Pympz_sqrt(PyObject *self, PyObject *other)
 {
     PympzObject *result;
 
-
-    if (CHECK_MPZANY(other)) {
+    if (self && (CHECK_MPZANY(self))) {
+        if (mpz_sgn(Pympz_AS_MPZ(self)) < 0) {
+            VALUE_ERROR("sqrt() of negative number");
+            return NULL;
+        }
+        if (!(result = Pympz_new()))
+            return NULL;
+        mpz_sqrt(result->z, Pympz_AS_MPZ(self));
+    }
+    else if (CHECK_MPZANY(other)) {
         if (mpz_sgn(Pympz_AS_MPZ(other)) < 0) {
-            VALUE_ERROR("sqrt of negative number");
+            VALUE_ERROR("sqrt() of negative number");
             return NULL;
         }
         if (!(result = Pympz_new()))
@@ -1503,33 +1506,16 @@ Pygmpy_sqrt(PyObject *self, PyObject *other)
     }
     else {
         if (!(result = Pympz_From_Integer(other))) {
-            TYPE_ERROR("sqrt requires 'mpz' argument");
+            TYPE_ERROR("sqrt() requires 'mpz' argument");
             return NULL;
         }
         if (mpz_sgn(result->z) < 0) {
-            VALUE_ERROR("sqrt of negative number");
+            VALUE_ERROR("sqrt() of negative number");
             Py_DECREF((PyObject*)result);
             return NULL;
         }
         mpz_sqrt(result->z, result->z);
     }
-    return (PyObject*)result;
-}
-
-static PyObject *
-Pympz_sqrt(PyObject *self, PyObject *args)
-{
-    PympzObject *result;
-
-    if (mpz_sgn(Pympz_AS_MPZ(self)) < 0) {
-        VALUE_ERROR("sqrt of negative number");
-        return NULL;
-    }
-
-    if (!(result= Pympz_new()))
-        return NULL;
-
-    mpz_sqrt(result->z, Pympz_AS_MPZ(self));
     return (PyObject*)result;
 }
 
@@ -1551,7 +1537,7 @@ Pympz_sqrtrem(PyObject *self, PyObject *args)
     PARSE_ONE_MPZ("sqrtrem() requires 'mpz' argument");
 
     if (mpz_sgn(Pympz_AS_MPZ(self)) < 0) {
-        VALUE_ERROR("sqrt of negative number");
+        VALUE_ERROR("sqrtrem() of negative number");
         Py_DECREF(self);
         return NULL;
     }
