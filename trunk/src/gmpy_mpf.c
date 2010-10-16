@@ -296,7 +296,7 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
             Py_DECREF((PyObject*)b);
             return 0;
         }
-        mpfr_pow_ui(Pympf_AS_MPF(r), b->f, iexpo, options.rounding);
+        gmpy_ternary = mpfr_pow_ui(Pympf_AS_MPF(r), b->f, iexpo, options.rounding);
     }
     else {
         qb = Pympf2Pympq((PyObject*)b);
@@ -346,7 +346,7 @@ Pygmpy_pi(PyObject *self, PyObject *args)
 
     if (!(pi = Pympf_new(bits)))
         return NULL;
-    mpfr_const_pi(pi->f, options.rounding);
+    gmpy_ternary = mpfr_const_pi(pi->f, options.rounding);
     return (PyObject*)pi;
 }
 
@@ -360,7 +360,7 @@ Pygmpy_const_pi(PyObject *self, PyObject *args)
 
     if (!(result = Pympf_new(0)))
         return NULL;
-    mpfr_const_pi(result->f, options.rounding);
+    gmpy_ternary = mpfr_const_pi(result->f, options.rounding);
     return (PyObject*)result;
 }
 
@@ -374,7 +374,7 @@ Pygmpy_const_euler(PyObject *self, PyObject *args)
 
     if (!(result = Pympf_new(0)))
         return NULL;
-    mpfr_const_euler(result->f, options.rounding);
+    gmpy_ternary = mpfr_const_euler(result->f, options.rounding);
     return (PyObject*)result;
 }
 
@@ -388,7 +388,7 @@ Pygmpy_const_log2(PyObject *self, PyObject *args)
 
     if (!(result = Pympf_new(0)))
         return NULL;
-    mpfr_const_log2(result->f, options.rounding);
+    gmpy_ternary = mpfr_const_log2(result->f, options.rounding);
     return (PyObject*)result;
 }
 
@@ -402,7 +402,7 @@ Pygmpy_const_catalan(PyObject *self, PyObject *args)
 
     if (!(result = Pympf_new(0)))
         return NULL;
-    mpfr_const_catalan(result->f, options.rounding);
+    gmpy_ternary = mpfr_const_catalan(result->f, options.rounding);
     return (PyObject*)result;
 }
 
@@ -425,14 +425,14 @@ Pympf_sqrt(PyObject *self, PyObject *other)
             VALUE_ERROR("sqrt() of negative number");
             return NULL;
         }
-        mpfr_sqrt(result->f, Pympf_AS_MPF(self), options.rounding);
+        gmpy_ternary = mpfr_sqrt(result->f, Pympf_AS_MPF(self), options.rounding);
     }
     else if (Pympf_Check(other)) {
         if (mpfr_sgn(Pympf_AS_MPF(other)) < 0) {
             VALUE_ERROR("sqrt() of negative number");
             return NULL;
         }
-        mpfr_sqrt(result->f, Pympf_AS_MPF(other), options.rounding);
+        gmpy_ternary = mpfr_sqrt(result->f, Pympf_AS_MPF(other), options.rounding);
     }
     else {
         if (!(tempx = Pympf_From_Float(other, 0))) {
@@ -445,7 +445,7 @@ Pympf_sqrt(PyObject *self, PyObject *other)
                 Py_DECREF((PyObject*)tempx);
                 return NULL;
             }
-            mpfr_sqrt(result->f, tempx->f, options.rounding);
+            gmpy_ternary = mpfr_sqrt(result->f, tempx->f, options.rounding);
             Py_DECREF((PyObject*)tempx);
         }
     }
@@ -473,7 +473,7 @@ Pympf_round(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
-    mpfr_set(result->f, Pympf_AS_MPF(self), options.rounding);
+    gmpy_ternary = mpfr_set(result->f, Pympf_AS_MPF(self), options.rounding);
     Py_DECREF(self);
     return (PyObject*)result;
 }
@@ -602,10 +602,10 @@ Pympf_##NAME(PyObject* self, PyObject *other) \
     PympfObject *result, *tempx; \
     if (!(result = Pympf_new(0))) return NULL; \
     if(self && Pympf_Check(self)) { \
-        mpfr_##NAME(result->f, Pympf_AS_MPF(self), options.rounding); \
+        gmpy_ternary = mpfr_##NAME(result->f, Pympf_AS_MPF(self), options.rounding); \
     } \
     else if (Pympf_Check(other)) { \
-        mpfr_##NAME(result->f, Pympf_AS_MPF(other), options.rounding); \
+        gmpy_ternary = mpfr_##NAME(result->f, Pympf_AS_MPF(other), options.rounding); \
     } \
     else { \
         if (!(tempx = Pympf_From_Float(other, 0))) { \
@@ -613,7 +613,7 @@ Pympf_##NAME(PyObject* self, PyObject *other) \
             return NULL; \
         } \
         else { \
-            mpfr_##NAME(result->f, tempx->f, options.rounding); \
+            gmpy_ternary = mpfr_##NAME(result->f, tempx->f, options.rounding); \
             Py_DECREF((PyObject*)tempx); \
         } \
     } \

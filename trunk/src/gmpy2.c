@@ -311,6 +311,10 @@ static struct gmpy_options {
     PyObject* fcoform;       /* if non-NULL, format for float->mpf (via string) */
 } options = { 0, GMPY_MODE_PYTHON, DBL_MANT_DIG, MPFR_RNDN, 100, 128, 0 };
 
+/* Save the ternary result code from MPFR operations. */
+
+static int gmpy_ternary = 0;
+
 /* forward declarations of type-objects and method-arrays for them */
 #ifdef _MSC_VER
 PyMethodDef Pympz_methods [];
@@ -705,7 +709,7 @@ Pympf2Pympf(PyObject *self, mpfr_prec_t bits)
     if (bits == 0)
         bits = mpfr_get_prec(Pympf_AS_MPF(self));
     if ((newob = Pympf_new(bits)))
-        mpfr_set(newob->f, Pympf_AS_MPF(self), options.rounding);
+        gmpy_ternary = mpfr_set(newob->f, Pympf_AS_MPF(self), options.rounding);
     return newob;
 }
 
@@ -750,7 +754,7 @@ PyInt2Pympf(PyObject *self, mpfr_prec_t bits)
 
     assert(PyInt_Check(self));
     if ((newob = Pympf_new(bits)))
-        mpfr_set_si(newob->f, PyInt_AsLong(self), options.rounding);
+        gmpy_ternary = mpfr_set_si(newob->f, PyInt_AsLong(self), options.rounding);
     return newob;
 }
 #endif
@@ -869,7 +873,7 @@ PyFloat2Pympf(PyObject *self, mpfr_prec_t bits)
     }
     else { /* direct float->mpf conversion, faster but rougher */
         if ((newob = Pympf_new(bits)))
-            mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), bits);
+            gmpy_ternary = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), bits);
     }
     return newob;
 }
@@ -881,7 +885,7 @@ Pympz2Pympf(PyObject *self, mpfr_prec_t bits)
 
     assert(Pympz_Check(self));
     if ((newob = Pympf_new(bits)))
-        mpfr_set_z(newob->f, Pympz_AS_MPZ(self), options.rounding);
+        gmpy_ternary = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), options.rounding);
     return newob;
 }
 
@@ -892,7 +896,7 @@ Pyxmpz2Pympf(PyObject *self, mpfr_prec_t bits)
 
     assert(Pyxmpz_Check(obj));
     if ((newob = Pympf_new(bits)))
-        mpfr_set_z(newob->f, Pympz_AS_MPZ(self), options.rounding);
+        gmpy_ternary = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), options.rounding);
     return newob;
 }
 
@@ -913,7 +917,7 @@ Pympf2Pympz(PyObject *self)
             VALUE_ERROR("gmpy2.mpz does not handle infinity");
             return NULL;
         }
-        mpfr_get_z(newob->z, Pympf_AS_MPF(self), options.rounding);
+        gmpy_ternary = mpfr_get_z(newob->z, Pympf_AS_MPF(self), options.rounding);
     }
     return newob;
 }
@@ -935,7 +939,7 @@ Pympf2Pyxmpz(PyObject *self)
             VALUE_ERROR("gmpy2.xmpz does not handle infinity");
             return NULL;
         }
-        mpfr_get_z(newob->z, Pympf_AS_MPF(self), options.rounding);
+        gmpy_ternary = mpfr_get_z(newob->z, Pympf_AS_MPF(self), options.rounding);
     }
     return newob;
 }
@@ -976,7 +980,7 @@ Pympq2Pympf(PyObject *self, mpfr_prec_t bits)
     assert(Pympq_Check(self));
     if (!(newob = Pympf_new(bits)))
         return NULL;
-    mpfr_set_q(newob->f, Pympq_AS_MPQ(self), options.rounding);
+    gmpy_ternary = mpfr_set_q(newob->f, Pympq_AS_MPQ(self), options.rounding);
     return newob;
 }
 
@@ -1422,7 +1426,7 @@ PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits)
 
         /* mpf zero has a very compact (1-byte) binary encoding!-) */
         if (resuzero) {
-            mpfr_set_ui(newob->f, 0, options.rounding);
+            gmpy_ternary = mpfr_set_ui(newob->f, 0, options.rounding);
             return newob;
         }
 
@@ -3896,9 +3900,10 @@ static PyMethodDef Pygmpy_methods [] =
     { "get_emax_max", Pygmpy_get_emax_max, METH_NOARGS, doc_get_emax_max },
     { "get_emin", Pygmpy_get_emin, METH_NOARGS, doc_get_emin },
     { "get_emin_min", Pygmpy_get_emin_min, METH_NOARGS, doc_get_emin_min },
-    { "get_mode", Pygmpy_get_mode, METH_VARARGS, doc_get_mode },
-    { "get_precision", Pygmpy_get_precision, METH_VARARGS, doc_get_precision },
-    { "get_rounding", Pygmpy_get_rounding, METH_VARARGS, doc_get_rounding },
+    { "get_mode", Pygmpy_get_mode, METH_NOARGS, doc_get_mode },
+    { "get_precision", Pygmpy_get_precision, METH_NOARGS, doc_get_precision },
+    { "get_rounding", Pygmpy_get_rounding, METH_NOARGS, doc_get_rounding },
+    { "get_ternary", Pygmpy_get_ternary, METH_NOARGS, doc_get_ternary },
     { "gmp_version", Pygmpy_get_gmp_version, METH_NOARGS, doc_gmp_version },
     { "gmp_limbsize", Pygmpy_get_gmp_limbsize, METH_NOARGS, doc_gmp_limbsize },
     { "hamdist", Pympz_hamdist, METH_VARARGS, doc_hamdistg },
