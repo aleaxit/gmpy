@@ -40,6 +40,30 @@ Pygmpy_square(PyObject *self, PyObject *other)
     return NULL;
 }
 
+/* gmpy_sqrt is only intended to be used at the module level!
+ * gmpy_sqrt uses the METH_O/METH_NOARGS calling convention!
+ * gmpy_sqrt assumes mpX_square also use the METH_O/METH_NOARGS convention!
+ */
+
+PyDoc_STRVAR(doc_gmpy_sqrt,
+"sqrt(x) -> number\n\n"
+"Return square root of x. If x is an integer, then the result is the\n"
+"integer portion of the square root. If x is a rational or a float,\n"
+"then the result is an 'mpf'.");
+
+static PyObject *
+Pygmpy_sqrt(PyObject *self, PyObject *other)
+{
+    if (isInteger(other))
+        return Pympz_sqrt(self, other);
+    else if (isRational(other) || isFloat(other)) {
+        return Pympf_sqrt(self, other);
+    }
+
+    TYPE_ERROR("sqrt() not supported");
+    return NULL;
+}
+
 /* gmpy_digits is only intended to be used at the module level!
  * gmpy_digits uses the METH_VARARGS calling convention!
  * gmpy_digits assumes mpX_digits also use the METH_VARARGS convention!

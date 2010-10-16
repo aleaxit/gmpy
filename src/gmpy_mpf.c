@@ -409,10 +409,6 @@ Pygmpy_const_catalan(PyObject *self, PyObject *args)
 static char doc_fsqrtm[]="\
 x.sqrt(): returns the square root of x.  x must be >= 0.\n\
 ";
-static char doc_fsqrtg[]="\
-fsqrt(x): returns the square root of x.  x must be an mpf, or\n\
-else gets coerced to one; further, x must be >= 0.\n\
-";
 static PyObject *
 Pympf_sqrt(PyObject *self, PyObject *other)
 {
@@ -420,9 +416,11 @@ Pympf_sqrt(PyObject *self, PyObject *other)
 
     if (!(result = Pympf_new(0)))
         return NULL;
+
     if(self && Pympf_Check(self)) {
         if (mpfr_sgn(Pympf_AS_MPF(self)) < 0) {
             VALUE_ERROR("sqrt() of negative number");
+            Py_DECREF((PyObject*)result);
             return NULL;
         }
         gmpy_ternary = mpfr_sqrt(result->f, Pympf_AS_MPF(self), options.rounding);
@@ -430,6 +428,7 @@ Pympf_sqrt(PyObject *self, PyObject *other)
     else if (Pympf_Check(other)) {
         if (mpfr_sgn(Pympf_AS_MPF(other)) < 0) {
             VALUE_ERROR("sqrt() of negative number");
+            Py_DECREF((PyObject*)result);
             return NULL;
         }
         gmpy_ternary = mpfr_sqrt(result->f, Pympf_AS_MPF(other), options.rounding);
@@ -443,6 +442,7 @@ Pympf_sqrt(PyObject *self, PyObject *other)
             if (mpfr_sgn(Pympf_AS_MPF(tempx)) < 0) {
                 VALUE_ERROR("sqrt() of negative number");
                 Py_DECREF((PyObject*)tempx);
+                Py_DECREF((PyObject*)result);
                 return NULL;
             }
             gmpy_ternary = mpfr_sqrt(result->f, tempx->f, options.rounding);
@@ -452,12 +452,12 @@ Pympf_sqrt(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_froundm[] = "\
+static char doc_mpf_roundm[] = "\
 x.round(n): returns x rounded to n bits. Uses default precision if\n\
 n is not specified.\n\
 ";
-static char doc_froundg[] = "\
-fround(x, n): returns x rounded to n bits. Uses default precision\n\
+static char doc_mpf_roundg[] = "\
+round(x, n): returns x rounded to n bits. Uses default precision\n\
 if n is not specified.\n\
 ";
 static PyObject *

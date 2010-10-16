@@ -145,9 +145,9 @@ Traceback (innermost last):
 TypeError: reldiff() requires 'mpf,'mpf' arguments
 >>> a.sqrt()
 mpf('1.1111075555498667e1')
->>> _g.fsqrt(a)
+>>> _g.sqrt(a)
 mpf('1.1111075555498667e1')
->>> _g.fsqrt(-1)
+>>> _g.sqrt(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
   File "a.py", line 9, in _er
@@ -282,7 +282,7 @@ False
 False
 >>> a == b.round(64)
 True
->>> a == _g.fround(b, 64)
+>>> a == _g.round(b, 64)
 True
 >>> _g.mpf('ffffffffffffffffe8000000000000000', 256, 16).round(64).digits(16)
 ('10000000000000000', 34, 64)
