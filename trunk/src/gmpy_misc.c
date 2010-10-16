@@ -165,6 +165,47 @@ Pygmpy_set_debug(PyObject *self, PyObject *args)
     return Py_BuildValue("l", old);
 }
 
+PyDoc_STRVAR(doc_get_mode,
+"get_mode() -> integer\n\n"
+"Return the active mode for handling errors: ModePython raises\n"
+"exception, ModeMPFR returns 'nan'.");
+static PyObject *
+Pygmpy_get_mode(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("l", options.mode);
+}
+
+PyDoc_STRVAR(doc_set_mode,
+"set_mode(n)\n\n"
+"Set the active mode for handling errors: ModePython raises\n"
+"exception, ModeMPFR returns 'nan'.");
+static PyObject *
+Pygmpy_set_mode(PyObject *self, PyObject *args)
+{
+    int mode;
+
+    if (!PyArg_ParseTuple(args, "i", &mode))
+        return NULL;
+    if (mode == GMPY_MODE_PYTHON)
+        options.mode = GMPY_MODE_PYTHON;
+    else if (mode == GMPY_MODE_MPFR)
+        options.mode = GMPY_MODE_MPFR;
+    else {
+        VALUE_ERROR("invalid value for error handling mode");
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(doc_get_precision,
+"get_precision() -> integer\n\n"
+"Return the number of bits of precision used for calculations.");
+static PyObject *
+Pygmpy_get_precision(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("l", options.precision);
+}
+
 PyDoc_STRVAR(doc_set_precision,
 "set_precision(n)\n\n"
 "Set the number of bits of precision to use for calculations.");
@@ -219,15 +260,6 @@ Pygmpy_set_rounding(PyObject *self, PyObject *args)
         return NULL;
     }
     Py_RETURN_NONE;
-}
-
-PyDoc_STRVAR(doc_get_precision,
-"get_precision() -> integer\n\n"
-"Return the number of bits of precision used for calculations.");
-static PyObject *
-Pygmpy_get_precision(PyObject *self, PyObject *args)
-{
-    return Py_BuildValue("l", options.precision);
 }
 
 static char doc_set_fcoform[]="\

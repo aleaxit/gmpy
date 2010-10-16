@@ -303,12 +303,13 @@ static PyObject *gmpy_module = NULL;
 
 static struct gmpy_options {
     int debug;               /* != 0 if debug messages desired on stderr */
+    int mode;                /* use Python vs. MPFR approach to errors */
     mpfr_prec_t precision;   /* current precision in bits */
     mpfr_rnd_t rounding;     /* current rounding mode */
     int cache_size;          /* size of cache, for all caches */
     int cache_obsize;        /* maximum size of the objects that are cached */
     PyObject* fcoform;       /* if non-NULL, format for float->mpf (via string) */
-} options = { 0, DBL_MANT_DIG, MPFR_RNDN, 100, 128, 0 };
+} options = { 0, GMPY_MODE_PYTHON, DBL_MANT_DIG, MPFR_RNDN, 100, 128, 0 };
 
 /* forward declarations of type-objects and method-arrays for them */
 #ifdef _MSC_VER
@@ -4250,6 +4251,10 @@ Pympq_hash(PympqObject *self)
 #endif
 }
 
+/* Include the module-level methods that call the type-specific methods. */
+
+#include "gmpy_mpany.c"
+
 /* Include helper functions for mpmath. */
 
 #include "gmpy_mpmath.c"
@@ -4573,9 +4578,9 @@ static PyNumberMethods mpf_number_methods =
     (binaryfunc) Pympany_rem,            /* nb_remaider             */
     (binaryfunc) Pympany_divmod,         /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
-    (unaryfunc) Pympfr_neg,               /* nb_negative             */
+    (unaryfunc) Pympfr_neg,              /* nb_negative             */
     (unaryfunc) Pympf_pos,               /* nb_positive             */
-    (unaryfunc) Pympfr_abs,               /* nb_absolute             */
+    (unaryfunc) Pympfr_abs,              /* nb_absolute             */
     (inquiry) Pympf_nonzero,             /* nb_bool                 */
         0,                               /* nb_invert               */
         0,                               /* nb_lshift               */
@@ -4682,6 +4687,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "gcd", Pygmpy_gcd, METH_VARARGS, doc_gcd },
     { "gcdext", Pygmpy_gcdext, METH_VARARGS, doc_gcdext },
     { "get_cache", Pygmpy_get_cache, METH_NOARGS, doc_get_cache },
+    { "get_mode", Pygmpy_get_mode, METH_VARARGS, doc_get_mode },
     { "get_precision", Pygmpy_get_precision, METH_VARARGS, doc_get_precision },
     { "get_rounding", Pygmpy_get_rounding, METH_VARARGS, doc_get_rounding },
     { "gmp_version", Pygmpy_get_gmp_version, METH_NOARGS, doc_gmp_version },
@@ -4729,12 +4735,14 @@ static PyMethodDef Pygmpy_methods [] =
     { "sech", Pympf_sech, METH_O, doc_fsechg },
     { "set_cache", Pygmpy_set_cache, METH_VARARGS, doc_set_cache },
     { "set_debug", Pygmpy_set_debug, METH_VARARGS, doc_set_debug },
+    { "set_mode", Pygmpy_set_mode, METH_VARARGS, doc_set_mode },
     { "set_fcoform", Pygmpy_set_fcoform, METH_VARARGS, doc_set_fcoform },
     { "set_precision", Pygmpy_set_precision, METH_VARARGS, doc_set_precision },
     { "set_rounding", Pygmpy_set_rounding, METH_VARARGS, doc_set_rounding },
     { "sign", Pympz_sign, METH_O, doc_signg },
     { "sin", Pympf_sin, METH_O, doc_fsing },
     { "sinh", Pympf_sinh, METH_O, doc_fsinhg },
+    { "square", Pygmpy_square, METH_O, doc_gmpy_square },
     { "sqrt", Pygmpy_sqrt, METH_O, doc_sqrtg },
     { "sqrtrem", Pympz_sqrtrem, METH_VARARGS, doc_sqrtremg },
     { "tan", Pympf_tan, METH_O, doc_ftang },
@@ -4917,6 +4925,7 @@ static PyMethodDef Pympf_methods [] =
     { "sign", Pympf_sign, METH_NOARGS, doc_fsignm },
     { "sin", Pympf_sin, METH_NOARGS, doc_fsinm },
     { "sinh", Pympf_sinh, METH_NOARGS, doc_fsinhm },
+    { "square", Pympf_sqr, METH_NOARGS, doc_mpf_sqr },
     { "sqrt", Pympf_sqrt, METH_NOARGS, doc_fsqrtm },
     { "tan", Pympf_tan, METH_NOARGS, doc_ftanm },
     { "tanh", Pympf_tanh, METH_NOARGS, doc_ftanhm },
@@ -5276,6 +5285,8 @@ PyMODINIT_FUNC initgmpy2(void)
     PyModule_AddIntConstant(gmpy_module, "RoundUp", MPFR_RNDU);
     PyModule_AddIntConstant(gmpy_module, "RoundDown", MPFR_RNDD);
     PyModule_AddIntConstant(gmpy_module, "RoundAwayZero", MPFR_RNDA);
+    PyModule_AddIntConstant(gmpy_module, "ModePython", GMPY_MODE_PYTHON);
+    PyModule_AddIntConstant(gmpy_module, "ModeMPFR", GMPY_MODE_MPFR);
 
     if (options.debug)
         fprintf(stderr, "gmpy_module at %p\n", gmpy_module);
