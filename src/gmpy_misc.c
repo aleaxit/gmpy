@@ -165,6 +165,76 @@ Pygmpy_set_debug(PyObject *self, PyObject *args)
     return Py_BuildValue("l", old);
 }
 
+PyDoc_STRVAR(doc_get_emin,
+"get_emin() -> integer\n\n"
+"Return the minimum exponent currently allowed.");
+static PyObject *
+Pygmpy_get_emin(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("n", (Py_ssize_t)mpfr_get_emin());
+}
+
+PyDoc_STRVAR(doc_get_emin_min,
+"get_emin_min() -> integer\n\n"
+"Return the minimum possible exponent that can be set.");
+static PyObject *
+Pygmpy_get_emin_min(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("n", (Py_ssize_t)mpfr_get_emin_min());
+}
+
+PyDoc_STRVAR(doc_set_emin,
+"set_min(n)\n\n"
+"Set the minimum allowed exponent.");
+static PyObject *
+Pygmpy_set_emin(PyObject *self, PyObject *args)
+{
+    Py_ssize_t exp;
+
+    if (!PyArg_ParseTuple(args, "n", &exp))
+        return NULL;
+    if (mpfr_set_emin(exp)) {
+        VALUE_ERROR("requested minimum exponent is invalid");
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(doc_get_emax,
+"get_emax() -> integer\n\n"
+"Return the maximum exponent currently allowed.");
+static PyObject *
+Pygmpy_get_emax(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("n", (Py_ssize_t)mpfr_get_emax());
+}
+
+PyDoc_STRVAR(doc_get_emax_max,
+"get_emax_max() -> integer\n\n"
+"Return the maximum possible exponent that can be set.");
+static PyObject *
+Pygmpy_get_emax_max(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("n", (Py_ssize_t)mpfr_get_emax_max());
+}
+
+PyDoc_STRVAR(doc_set_emax,
+"set_max(n)\n\n"
+"Set the maximum allowed exponent.");
+static PyObject *
+Pygmpy_set_emax(PyObject *self, PyObject *args)
+{
+    Py_ssize_t exp;
+
+    if (!PyArg_ParseTuple(args, "n", &exp))
+        return NULL;
+    if (mpfr_set_emax(exp)) {
+        VALUE_ERROR("requested maximum exponent is invalid");
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+
 PyDoc_STRVAR(doc_get_mode,
 "get_mode() -> integer\n\n"
 "Return the active mode for handling errors: ModePython raises\n"
