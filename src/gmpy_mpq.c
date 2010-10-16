@@ -11,12 +11,6 @@ x.digits([base]): returns Python string representing x in the\n\
 given base (2 to 36, default 10 if omitted or 0); leading '-'\n\
 is present if x<0, but no leading '+' if x>=0.\n\
 ";
-static char doc_qdigitsg[]="\
-qdigits(x[,base]): returns Python string representing x in the\n\
-given base (2 to 36, default 10 if omitted or 0); leading '-'\n\
-present if x<0, but no leading '+' if x>=0. x must be an mpq,\n\
-or else gets coerced into one.\n\
-";
 static PyObject *
 Pympq_digits(PyObject *self, PyObject *args)
 {
@@ -33,20 +27,29 @@ Pympq_digits(PyObject *self, PyObject *args)
 static char doc_qsignm[]="\
 x.sign(): returns -1, 0, or +1, if x is negative, 0, positive.\n\
 ";
-static char doc_qsigng[]="\
-qsign(x): returns -1, 0, or +1, if x is negative, 0, positive;\n\
-x must be an mpq, or else gets coerced to one.\n\
-";
 static PyObject *
-Pympq_sign(PyObject *self, PyObject *args)
+Pympq_sign(PyObject *self, PyObject *other)
 {
-    PyObject *result;
+    long res;
+    PympqObject* tempx;
 
-    SELF_MPQ_NO_ARG;
-    assert(Pympq_Check(self));
-    result = Py_BuildValue("i", mpq_sgn(Pympq_AS_MPQ(self)));
-    Py_DECREF(self);
-    return result;
+    if (self && (Pympq_Check(self))) {
+        res = mpq_sgn(Pympq_AS_MPQ(self));
+    }
+    else if (Pympq_Check(other)) {
+        res = mpq_sgn(Pympq_AS_MPQ(other));
+    }
+    else {
+        if (!(tempx = Pympq_From_Rational(other))) {
+            TYPE_ERROR("sign() requires 'mpq' argument");
+            return NULL;
+        }
+        else {
+            res = mpq_sgn(tempx->q);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    return PyIntOrLong_FromLong(res);
 }
 
 static char doc_numerm[]="\

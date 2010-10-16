@@ -11,8 +11,8 @@
  */
 
 /* gmpy_square is only intended to be used at the module level!
- * gmpy_square uses the METH_O calling convention!
- * gmpy_square assumes mpX_square also use the METH_O convention!
+ * gmpy_square uses the METH_O/METH_NOARGS calling convention!
+ * gmpy_square assumes mpX_square also use the METH_O/METH_NOARGS convention!
  */
 
 PyDoc_STRVAR(doc_gmpy_square,
@@ -35,6 +35,63 @@ Pygmpy_square(PyObject *self, PyObject *other)
     else if (isFloat(other)) {
         return Pympf_sqr(self, other);
     }
+
     TYPE_ERROR("square() not supported");
     return NULL;
 }
+
+/* gmpy_digits is only intended to be used at the module level!
+ * gmpy_digits uses the METH_VARARGS calling convention!
+ * gmpy_digits assumes mpX_digits also use the METH_VARARGS convention!
+ */
+
+PyDoc_STRVAR(doc_gmpy_digits,
+"digits(x,[base]) -> string\n\n"
+"Return string representing x. Calls mpz.digits, mpq.digits, or\n"
+"mpf.digits as appropriate.");
+
+static PyObject *
+Pygmpy_digits(PyObject *self, PyObject *args)
+{
+    PyObject *temp;
+
+    if (PyTuple_GET_SIZE(args) == 0) {
+        TYPE_ERROR("digits() requires at least one argument");
+        return NULL;
+    }
+
+    temp = PyTuple_GET_ITEM(args, 0);
+    if (isInteger(temp))
+        return Pympz_digits(self, args);
+    else if (isRational(temp))
+        return Pympq_digits(self, args);
+    else if (isFloat(temp))
+        return Pympf_digits(self, args);
+
+    TYPE_ERROR("digits() not supported");
+    return NULL;
+}
+
+/* gmpy_sign is only intended to be used at the module level!
+ * gmpy_sign uses the METH_O/METH_NOARGS calling convention!
+ * gmpy_sign assumes mpX_sign also use the METH_O/METH_NOARGS convention!
+ */
+
+PyDoc_STRVAR(doc_gmpy_sign,
+"sign(x) -> number\n\n"
+"Return -1 if x < 0, 0 if x == 0, or +1 if x >0.");
+
+static PyObject *
+Pygmpy_sign(PyObject *self, PyObject *other)
+{
+    if (isInteger(other))
+        return Pympz_sign(self, other);
+    else if (isRational(other))
+        return Pympq_sign(self, other);
+    else if (isFloat(other))
+        return Pympf_sign(self, other);
+
+    TYPE_ERROR("sign() not supported");
+    return NULL;
+}
+

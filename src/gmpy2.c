@@ -3261,6 +3261,19 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
     return (PyObject *) newob;
 } /* Pygmpy_mpf() */
 
+/* Helper function for hashing for Python < 3.2 */
+#ifndef _PyHASH_MODULUS
+static long
+dohash(PyObject* tempPynum)
+{
+    long hash;
+    if (!tempPynum) return -1;
+    hash = PyObject_Hash(tempPynum);
+    Py_DECREF(tempPynum);
+    return hash;
+}
+#endif
+
 /* ARITHMETIC */
 
 #include "gmpy_misc.c"
@@ -3443,19 +3456,6 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     }
     Py_RETURN_NOTIMPLEMENTED;
 }
-
-/* hashing */
-#ifndef _PyHASH_MODULUS
-static long
-dohash(PyObject* tempPynum)
-{
-    long hash;
-    if (!tempPynum) return -1;
-    hash = PyObject_Hash(tempPynum);
-    Py_DECREF(tempPynum);
-    return hash;
-}
-#endif
 
 /* Include the module-level methods that call the type-specific methods. */
 
@@ -3865,7 +3865,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "csch", Pympf_csch, METH_O, doc_fcschg },
     { "denom", Pympq_denom, METH_VARARGS, doc_denomg },
     { "digamma", Pympf_digamma, METH_O, doc_fdigammag },
-    { "digits", Pympz_digits, METH_VARARGS, doc_digitsg },
+    { "digits", Pygmpy_digits, METH_VARARGS, doc_gmpy_digits },
     { "divexact", Pygmpy_divexact, METH_VARARGS, doc_divexactg },
     { "divm", Pygmpy_divm, METH_VARARGS, doc_divm },
     { "eint", Pympf_eint, METH_O, doc_feintg },
@@ -3886,7 +3886,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "fmod", Pygmpy_fmod, METH_VARARGS, doc_fmodg },
     { "fmod2exp", Pygmpy_fmod2exp, METH_VARARGS, doc_fmod2expg },
     { "fround", Pympf_round, METH_VARARGS, doc_froundg },
-    { "fsign", Pympf_sign, METH_O, doc_fsigng },
     { "fsqrt", Pympf_sqrt, METH_O, doc_fsqrtg },
     { "f2q", Pympf_f2q, METH_VARARGS, doc_f2qg },
     { "gamma", Pympf_gamma, METH_O, doc_fgammag },
@@ -3930,9 +3929,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "pack", Pygmpy_pack, METH_VARARGS, doc_packg },
     { "pi", Pygmpy_pi, METH_VARARGS, doc_pi },
     { "popcount", Pympz_popcount, METH_O, doc_popcountg },
-    { "qdigits", Pympq_digits, METH_VARARGS, doc_qdigitsg },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivg },
-    { "qsign", Pympq_sign, METH_VARARGS, doc_qsigng },
     { "reldiff", Pympf_doreldiff, METH_VARARGS, doc_reldiffg },
     { "remove", Pympz_remove, METH_VARARGS, doc_removeg },
     { "root", Pympz_root, METH_VARARGS, doc_rootg },
@@ -3945,7 +3942,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "set_fcoform", Pygmpy_set_fcoform, METH_VARARGS, doc_set_fcoform },
     { "set_precision", Pygmpy_set_precision, METH_VARARGS, doc_set_precision },
     { "set_rounding", Pygmpy_set_rounding, METH_VARARGS, doc_set_rounding },
-    { "sign", Pympz_sign, METH_O, doc_signg },
+    { "sign", Pygmpy_sign, METH_O, doc_gmpy_sign },
     { "sin", Pympf_sin, METH_O, doc_fsing },
     { "sinh", Pympf_sinh, METH_O, doc_fsinhg },
     { "square", Pygmpy_square, METH_O, doc_gmpy_square },
@@ -3989,7 +3986,7 @@ static PyMethodDef Pympz_methods [] =
     { "cmod2exp", Pympz_cmod2exp, METH_O, doc_cmod2expm },
     { "comb", Pympz_bincoef, METH_VARARGS, doc_combm },
     { "_copy", Pympany_copy, METH_NOARGS, doc_copym },
-    { "digits", Pympz_digits, METH_VARARGS, doc_digitsm },
+    { "digits", Pympz_digits, METH_VARARGS, doc_mpz_digits },
     { "divexact", Pympz_divexact, METH_O, doc_divexactm },
     { "fdiv", Pympz_fdiv, METH_O, doc_fdivm },
     { "fdiv2exp", Pympz_fdiv2exp, METH_O, doc_fdiv2expm },
@@ -4039,7 +4036,7 @@ static PyMethodDef Pyxmpz_methods [] =
     { "cmod2exp", Pympz_cmod2exp, METH_O, doc_cmod2expm },
     { "comb", Pympz_bincoef, METH_VARARGS, doc_combm },
     { "_copy", Pympany_copy, METH_NOARGS, doc_copym },
-    { "digits", Pyxmpz_digits, METH_VARARGS, doc_digitsm },
+    { "digits", Pyxmpz_digits, METH_VARARGS, doc_mpz_digits },
     { "divexact", Pympz_divexact, METH_O, doc_divexactm },
     { "fdiv", Pympz_fdiv, METH_O, doc_fdivm },
     { "fdiv2exp", Pympz_fdiv2exp, METH_O, doc_fdiv2expm },
@@ -4075,7 +4072,7 @@ static PyMethodDef Pyxmpz_methods [] =
 
 static PyMethodDef Pympq_methods [] =
 {
-    { "sign", Pympq_sign, METH_VARARGS, doc_qsignm },
+    { "sign", Pympq_sign, METH_NOARGS, doc_qsignm },
     { "numer", Pympq_numer, METH_VARARGS, doc_numerm },
     { "denom", Pympq_denom, METH_VARARGS, doc_denomm },
     { "_copy", Pympany_copy, METH_NOARGS, doc_copym },
