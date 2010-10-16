@@ -165,6 +165,20 @@ Pygmpy_set_debug(PyObject *self, PyObject *args)
     return Py_BuildValue("l", old);
 }
 
+PyDoc_STRVAR(doc_get_ternary,
+"get_ternary() -> integer\n\n\
+Return the ternary result code from the most recent MPFR operation."
+"If the ternary value is 0, the result of the operation is exact."
+"If the ternary value is > 0, the result of the operation is greater"
+"than the exact result. If the ternary value < 0, then the result"
+"of the operation is less than the exact result.");
+
+static PyObject *
+Pygmpy_get_ternary(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("i", gmpy_ternary);
+}
+
 PyDoc_STRVAR(doc_get_emin,
 "get_emin() -> integer\n\n"
 "Return the minimum exponent currently allowed.");
