@@ -5,6 +5,8 @@
  * This file should be considered part of gmpy2.c
  */
 
+/* This implements the .precision attribute of an mpf. */
+
 static PyObject *
 Pympf_getprec2(PympfObject *self, void *closure)
 {
@@ -15,6 +17,163 @@ static int
 Pympf_nonzero(PympfObject *x)
 {
     return mpfr_sgn(x->f) != 0;
+}
+
+/* produce string for an mpf with requested/defaulted parameters */
+static char doc_fdigitsm[]="\
+x.digits(base=10, digs=0): formats x.\n\
+\n\
+Returns up to digs digits in the given base (if digs is 0, as many\n\
+digits as are available), but no more than available given x's\n\
+precision. The result is a three element tuple containig the mantissa,\n\
+the exponent, and the number of bits of precision.\n\
+";
+
+static PyObject *
+Pympf_digits(PyObject *self, PyObject *args)
+{
+    int base = 10;
+    int digs = 0;
+
+    if (!PyArg_ParseTuple(args, "|ii", &base, &digs))
+        return NULL;
+    return Pympf_ascii( (PympfObject*)self, base, digs, 0, 0, 2);
+}
+
+static char doc_f2qm[]="\
+x.f2q([err]): returns the 'best' mpq approximating x to\n\
+within relative error err (default, x's precision); 'best'\n\
+rationals as per Stern-Brocot tree; mpz if denom is 1.\n\
+If err<0, error sought is 2.0 ** err.\n\
+";
+static char doc_f2qg[]="\
+f2q(x[,err]): returns the 'best' mpq approximating x to\n\
+within relative error err (default, x's precision); 'best'\n\
+rationals as per Stern-Brocot tree; mpz if denom is 1.\n\
+If err<0, error sought is 2.0 ** err.\n\
+";
+static PyObject *
+Pympf_f2q(PyObject *self, PyObject *args)
+{
+    PympfObject *err = 0;
+    PympfObject *fself;
+
+    if (options.debug)
+        fprintf(stderr, "Pympf_f2q: %p, %p\n", self, args);
+
+    SELF_MPF_ONE_ARG_CONVERTED_OPT(&err);
+    assert(Pympf_Check(self));
+    fself = (PympfObject*)self;
+
+    return f2q_internal(fself, err, mpfr_get_prec(fself->f), args!=0);
+}
+
+static PyObject *
+f2q_internal(PympfObject* self, PympfObject* err, unsigned int bits, int mayz)
+{
+    PympqObject *res = 0;
+    int i, negative, errsign;
+    mpfr_t f, al, a, r1[3], r2[3], minerr, curerr, newerr, temp;
+
+    assert(!err || Pympf_Check(err));
+    errsign = err ? mpfr_sgn(err->f) : 0;
+    if (errsign == 0) {
+        if (err)
+            Py_DECREF((PyObject*)err);
+        if (!(err = Pympf_new(20))) {
+            Py_DECREF((PyObject*)self);
+            return NULL;
+        }
+        mpfr_set_si(err->f, 1, options.rounding);
+        mpfr_div_2ui(err->f, err->f, bits, options.rounding);
+    }
+    else if (errsign < 0) {
+        int ubits;
+        mpfr_floor(err->f, err->f);
+        ubits = (int)mpfr_get_d(err->f, options.rounding);
+        mpfr_set_si(err->f, 1, options.rounding);
+        mpfr_div_2si(err->f, err->f, -ubits, options.rounding);
+    }
+    if (!(res = Pympq_new()))
+        return NULL;
+    mpfr_init2(minerr, 20);
+    mpfr_set(minerr, err->f, options.rounding);
+    Py_DECREF((PyObject*)err);
+
+    mpfr_init2(f, bits);
+    if (mpfr_sgn(self->f) < 0) {
+        negative = 1;
+        mpfr_abs(f, self->f, options.rounding);
+    }
+    else {
+        negative = 0;
+        mpfr_set(f, self->f, options.rounding);
+    }
+    Py_DECREF((PyObject*)self);
+    mpfr_init2(al, bits);
+    mpfr_set(al, f, options.rounding);
+    mpfr_init2(a, bits);
+    mpfr_floor(a, al);
+    mpfr_init2(temp, bits);
+    for (i=0; i<3; ++i) {
+        mpfr_init2(r1[i], bits);
+        mpfr_init2(r2[i], bits);
+    }
+    mpfr_set_si(r1[0], 0, options.rounding);
+    mpfr_set_si(r1[1], 0, options.rounding);
+    mpfr_set_si(r1[2], 1, options.rounding);
+    mpfr_set_si(r2[0], 0, options.rounding);
+    mpfr_set_si(r2[1], 1, options.rounding);
+    mpfr_set(r2[2], a, options.rounding);
+    mpfr_init2(curerr, 20);
+    mpfr_init2(newerr, 20);
+    mpfr_reldiff(curerr, f, a, options.rounding);
+    while (mpfr_cmp(curerr, minerr) > 0) {
+        mpfr_sub(temp, al, a, options.rounding);
+        mpfr_ui_div(al, 1, temp, options.rounding);
+        mpfr_floor(a, al);
+        mpfr_swap(r1[0], r1[1]);
+        mpfr_swap(r1[1], r1[2]);
+        mpfr_mul(r1[2], r1[1], a, options.rounding);
+        mpfr_add(r1[2], r1[2], r1[0], options.rounding);
+        mpfr_swap(r2[0], r2[1]);
+        mpfr_swap(r2[1], r2[2]);
+        mpfr_mul(r2[2], r2[1], a, options.rounding);
+        mpfr_add(r2[2], r2[2], r2[0], options.rounding);
+        mpfr_div(temp, r2[2], r1[2], options.rounding);
+        mpfr_reldiff(newerr, f, temp, options.rounding);
+        if (mpfr_cmp(curerr, newerr) <= 0) {
+            mpfr_swap(r1[1],r1[2]);
+            mpfr_swap(r2[1],r2[2]);
+            break;
+        }
+        mpfr_swap(curerr, newerr);
+    }
+    if (mayz && (mpfr_cmp_ui(r1[2],1)==0)) {
+        Py_DECREF((PyObject*)res);
+        res = (PympqObject*)Pympz_new();
+        mpfr_get_z(Pympz_AS_MPZ(res), r2[2], options.rounding);
+        if (negative)
+            mpz_neg(Pympz_AS_MPZ(res),Pympz_AS_MPZ(res));
+    }
+    else {
+        mpfr_get_z(mpq_numref(res->q), r2[2], options.rounding);
+        mpfr_get_z(mpq_denref(res->q), r1[2], options.rounding);
+        if (negative)
+            mpz_neg(mpq_numref(res->q), mpq_numref(res->q));
+    }
+    mpfr_clear(minerr);
+    mpfr_clear(al);
+    mpfr_clear(a);
+    mpfr_clear(f);
+    for (i=0; i<3; ++i) {
+        mpfr_clear(r1[i]);
+        mpfr_clear(r2[i]);
+    }
+    mpfr_clear(curerr);
+    mpfr_clear(newerr);
+    mpfr_clear(temp);
+    return (PyObject*)res;
 }
 
 static long
@@ -74,6 +233,75 @@ Pympf_hash(PympfObject *self)
 #endif
 }
 
+static PyObject *
+Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
+{
+    PympqObject *qb, *qe;
+    PyObject *r;
+    unsigned int bits;
+    int iexpo;
+    PympfObject *b = 0, *e = 0;
+
+    if ((PyObject*)m != Py_None) {
+        PyErr_SetString(PyExc_ValueError, "mpf.pow no modulo allowed");
+        return NULL;
+    }
+
+    if ((Pympf_Check(xb) && Pympf_Check(xe))) {
+        b = Pympf_From_Float(xb, 0);
+        e = Pympf_From_Float(xe, 0);
+    }
+    else {
+        if (Pympf_Check(xb)) {
+            b = Pympf_From_Float(xb, 0);
+            e = Pympf_From_Float(xe, mpfr_get_prec(((PympfObject*)xb)->f));
+        }
+        if (Pympf_Check(xe)) {
+            b = Pympf_From_Float(xb, mpfr_get_prec(((PympfObject*)xe)->f));
+            e = Pympf_From_Float(xe, 0);
+        }
+    }
+
+    if (!e || !b) {
+        Py_XDECREF((PyObject*)e);
+        Py_XDECREF((PyObject*)b);
+        Py_RETURN_NOTIMPLEMENTED;
+    }
+
+    bits = mpfr_get_prec(b->f);
+    if (bits > mpfr_get_prec(e->f))
+        bits = mpfr_get_prec(e->f);
+    if (options.debug)
+        fprintf(stderr, "Pympf_pow(%d): %p, %p, %p\n", bits, b, e, m);
+
+    iexpo = (int)mpfr_get_d(e->f, options.rounding);
+    if (iexpo>0 && 0==mpfr_cmp_si(e->f, iexpo)) {
+        r = (PyObject*)Pympf_new(mpfr_get_prec(b->f));
+        if (!r) {
+            Py_DECREF((PyObject*)e);
+            Py_DECREF((PyObject*)b);
+            return 0;
+        }
+        mpfr_pow_ui(Pympf_AS_MPF(r), b->f, iexpo, options.rounding);
+    }
+    else {
+        qb = Pympf2Pympq((PyObject*)b);
+        qe = Pympf2Pympq((PyObject*)e);
+        r = Pympq_pow((PyObject*)qb, (PyObject*)qe, (PyObject*)m);
+        Py_DECREF((PyObject*)qb); Py_DECREF((PyObject*)qe);
+        if (!r || !Pympq_Check(r)) {
+            Py_DECREF((PyObject*)e);
+            Py_DECREF((PyObject*)b);
+            return r;
+        }
+        qb = (PympqObject*)r;
+        r = (PyObject*)Pympq2Pympf((PyObject*)qb, bits);
+        Py_DECREF((PyObject*)qb);
+    }
+    Py_DECREF((PyObject*)e);
+    Py_DECREF((PyObject*)b);
+    return r;
+}
 
 static char doc_pi[]="\
 pi(n): returns pi with n bits of precision in an mpf object\n\
