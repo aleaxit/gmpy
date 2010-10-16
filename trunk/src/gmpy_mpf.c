@@ -5,13 +5,15 @@
  * This file should be considered part of gmpy2.c
  */
 
-/* This implements the .precision attribute of an mpf. */
+/* Implement the .precision attribute of an mpf. */
 
 static PyObject *
 Pympf_getprec2(PympfObject *self, void *closure)
 {
     return PyIntOrLong_FromSize_t((size_t)mpfr_get_prec(self->f));
 }
+
+/* Implement the nb_bool slot. */
 
 static int
 Pympf_nonzero(PympfObject *x)
@@ -20,6 +22,7 @@ Pympf_nonzero(PympfObject *x)
 }
 
 /* produce string for an mpf with requested/defaulted parameters */
+
 static char doc_fdigitsm[]="\
 x.digits(base=10, digs=0): formats x.\n\
 \n\
@@ -34,10 +37,21 @@ Pympf_digits(PyObject *self, PyObject *args)
 {
     int base = 10;
     int digs = 0;
+    PyObject *result;
 
-    if (!PyArg_ParseTuple(args, "|ii", &base, &digs))
+    if (self && Pympf_Check(self)) {
+        if (!PyArg_ParseTuple(args, "|ii", &base, &digs))
+            return NULL;
+        Py_INCREF(self);
+    }
+    else {
+        if(!PyArg_ParseTuple(args, "O&|ii", Pympf_convert_arg, &self,
+                            &base, &digs))
         return NULL;
-    return Pympf_ascii( (PympfObject*)self, base, digs, 0, 0, 2);
+    }
+    result = Pympf_ascii((PympfObject*)self, base, digs, 0, 0, 2);
+    Py_DECREF(self);
+    return result;
 }
 
 static char doc_f2qm[]="\
@@ -497,10 +511,6 @@ Pympf_doreldiff(PyObject *self, PyObject *args)
 
 static char doc_fsignm[]="\
 x.sign(): returns -1, 0, or +1, if x is negative, 0, positive.\n\
-";
-static char doc_fsigng[]="\
-fsign(x): returns -1, 0, or +1, if x is negative, 0, positive;\n\
-x must be an mpf, or else gets coerced to one.\n\
 ";
 static PyObject *
 Pympf_sign(PyObject *self, PyObject *other)

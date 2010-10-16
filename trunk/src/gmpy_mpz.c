@@ -6,16 +6,10 @@
  */
 
 /* produce digits for an mpz in requested base, default 10 */
-static char doc_digitsm[]="\
+static char doc_mpz_digits[]="\
 x.digits([base]): returns Python string representing x in the\n\
 given base (2 to 36, default 10 if omitted or 0); leading '-'\n\
 is present if x<0, but no leading '+' if x>=0.\n\
-";
-static char doc_digitsg[]="\
-digits(x[,base]): returns Python string representing x in the\n\
-given base (2 to 36, default 10 if omitted or 0); leading '-'\n\
-present if x<0, but no leading '+' if x>=0. x must be an mpz,\n\
-or else gets coerced into one.\n\
 ";
 static PyObject *
 Pympz_digits(PyObject *self, PyObject *args)
@@ -685,10 +679,6 @@ Pympz_rootrem(PyObject *self, PyObject *args)
 
 static char doc_signm[]="\
 x.sign(): returns -1, 0, or +1, if x is negative, 0, positive.\n\
-";
-static char doc_signg[]="\
-sign(x): returns -1, 0, or +1, if x is negative, 0, positive;\n\
-x must be an mpz, or else gets coerced to one.\n\
 ";
 static PyObject *
 Pympz_sign(PyObject *self, PyObject *other)

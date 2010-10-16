@@ -232,17 +232,11 @@ Traceback (most recent call last):
   ...
 TypeError: digits() requires 'mpz',['int'] arguments
 >>> _g.digits(3.14)
+('31400000000000001', 1, 53)
+>>> _g.digits(3,'peep')
 Traceback (most recent call last):
   ...
 TypeError: digits() requires 'mpz',['int'] arguments
->>> _g.qdigits(3.14)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: argument can not be converted to mpq
->>> _g.qdigits(3,'peep')
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: an integer is required
 >>> _g.mpz(3).digits('bu')
 Traceback (most recent call last):
   ...

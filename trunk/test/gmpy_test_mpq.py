@@ -49,11 +49,11 @@ mpq(152,41)
 mpq(-41,152)
 >>> abs(-a)
 mpq(41,152)
->>> _g.qsign(b-a)
+>>> _g.sign(b-a)
 1
->>> _g.qsign(b-b)
+>>> _g.sign(b-b)
 0
->>> _g.qsign(a-b)
+>>> _g.sign(a-b)
 -1
 >>> a.sign()
 1
@@ -196,7 +196,7 @@ r'''
 '_g.mpq("1b/52",30)'
 >>> eval(fmo)==a
 1
->>> _g.qdigits(a,30)
+>>> _g.digits(a,30)
 '1b/52'
 >>> a.digits(30)
 '1b/52'

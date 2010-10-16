@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(a))
-['_copy', 'acos', 'acosh', 'ai', 'asin', 'asinh', 'atan', 'atanh', 'binary', 'ceil', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'digamma', 'digits', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'floor', 'gamma', 'j0', 'j1', 'li2', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'precision', 'qdiv', 'reldiff', 'round', 'sec', 'sech', 'sign', 'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'trunc', 'y0', 'y1', 'zeta']
+['_copy', 'acos', 'acosh', 'ai', 'asin', 'asinh', 'atan', 'atanh', 'binary', 'ceil', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'digamma', 'digits', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'floor', 'gamma', 'j0', 'j1', 'li2', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'precision', 'qdiv', 'reldiff', 'round', 'sec', 'sech', 'sign', 'sin', 'sinh', 'sqrt', 'square', 'tan', 'tanh', 'trunc', 'y0', 'y1', 'zeta']
 >>>
 '''
 import sys
@@ -66,11 +66,11 @@ mpf('6.0e0')
 mpf('6.0e0')
 >>> str(abs(-a))
 '123.456'
->>> _g.fsign(b-a)
+>>> _g.sign(b-a)
 1
->>> _g.fsign(b-b)
+>>> _g.sign(b-b)
 0
->>> _g.fsign(a-b)
+>>> _g.sign(a-b)
 -1
 >>> a.sign()
 1
@@ -352,9 +352,7 @@ mpf('1.23456e2',33)
 1
 >>> del(newa)
 >>> _g.digits(_g.mpf(23.45))
-Traceback (most recent call last):
-  ...
-TypeError: digits() requires 'mpz',['int'] arguments
+('23449999999999999', 2, 53)
 >>> _g.binary('pep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
