@@ -130,10 +130,10 @@ Note: only useful to debug gmpy's own internals!\n\
 static PyObject *
 Pygmpy_set_debug(PyObject *self, PyObject *args)
 {
-    long old = options.debug;
+    int old = options.debug;
 
-    ONE_ARG("set_debug", "l", &options.debug);
-    return Py_BuildValue("l", old);
+    ONE_ARG("set_debug", "i", &options.debug);
+    return Py_BuildValue("i", old);
 }
 
 static char doc_set_tagoff[]="\
