@@ -87,8 +87,8 @@ extern "C" {
 #define TRACE(msg) if(options.debug) fprintf(stderr, msg)
 #endif
 
-#define GMPY_MODE_PYTHON 0
-#define GMPY_MODE_MPFR 1
+#define GMPY_MODE_MPFR 0
+#define GMPY_MODE_PYTHON 1
 
 #ifdef USE_ALLOCA
 #define TEMP_ALLOC(B, S) \
