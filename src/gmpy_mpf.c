@@ -382,6 +382,12 @@ Pympf_##NAME(PyObject* self, PyObject *other) \
     return (PyObject*)result; \
 }
 
+PyDoc_STRVAR(doc_mpf_sqr,
+"x.square() ->: mpf\n\n"
+"Return x * x.");
+
+MPF_UNIOP(sqr)
+
 static char doc_flogm[]="\
 x.log(): returns natural logarithm of x.\n\
 ";
