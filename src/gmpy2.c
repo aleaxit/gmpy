@@ -303,7 +303,7 @@ static PyObject *gmpy_module = NULL;
 
 static struct gmpy_options {
     int debug;               /* != 0 if debug messages desired on stderr */
-    int mode;                /* use Python vs. MPFR approach to errors */
+    int raise;               /* use Python vs. MPFR approach to errors */
     mpfr_prec_t precision;   /* current precision in bits */
     mpfr_rnd_t rounding;     /* current rounding mode */
     int cache_size;          /* size of cache, for all caches */

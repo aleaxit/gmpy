@@ -167,6 +167,8 @@ True
 
 __test__['special'] = \
 r'''
+>>> _g.get_mode() == _g.ModePython
+True
 >>> a == float('Inf')
 False
 >>> a != float('Inf')

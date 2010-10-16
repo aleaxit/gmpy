@@ -158,11 +158,11 @@ sent to stderr. Note: only useful to debug GMPY2's own internals!");
 static PyObject *
 Pygmpy_set_debug(PyObject *self, PyObject *args)
 {
-    long old = options.debug;
+    int old = options.debug;
 
-    if (!PyArg_ParseTuple(args, "l", &options.debug))
+    if (!PyArg_ParseTuple(args, "i", &options.debug))
         return NULL;
-    return Py_BuildValue("l", old);
+    return Py_BuildValue("i", old);
 }
 
 PyDoc_STRVAR(doc_get_ternary,
@@ -256,7 +256,7 @@ PyDoc_STRVAR(doc_get_mode,
 static PyObject *
 Pygmpy_get_mode(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("l", options.mode);
+    return Py_BuildValue("i", options.raise);
 }
 
 PyDoc_STRVAR(doc_set_mode,
@@ -271,9 +271,9 @@ Pygmpy_set_mode(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i", &mode))
         return NULL;
     if (mode == GMPY_MODE_PYTHON)
-        options.mode = GMPY_MODE_PYTHON;
+        options.raise = GMPY_MODE_PYTHON;
     else if (mode == GMPY_MODE_MPFR)
-        options.mode = GMPY_MODE_MPFR;
+        options.raise = GMPY_MODE_MPFR;
     else {
         VALUE_ERROR("invalid value for error handling mode");
         return NULL;
@@ -287,7 +287,7 @@ PyDoc_STRVAR(doc_get_precision,
 static PyObject *
 Pygmpy_get_precision(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("l", options.precision);
+    return Py_BuildValue("n", options.precision);
 }
 
 PyDoc_STRVAR(doc_set_precision,
@@ -315,7 +315,7 @@ PyDoc_STRVAR(doc_get_rounding,
 static PyObject *
 Pygmpy_get_rounding(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("l", options.rounding);
+    return Py_BuildValue("i", options.rounding);
 }
 
 PyDoc_STRVAR(doc_set_rounding,
