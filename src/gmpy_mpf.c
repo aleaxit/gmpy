@@ -80,6 +80,178 @@ Pygmpy_set_zero(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
+PyDoc_STRVAR(doc_mpf_is_nan,
+"x.is_nan() -> boolean\n\n"
+"Return True if x is nan (Not A Number), False otherwise.");
+PyDoc_STRVAR(doc_gmpy_is_nan,
+"is_nan(x) -> boolean\n\n"
+"Return True if x is nan (Not A Number), False otherwise.");
+static PyObject *
+Pympf_is_nan(PyObject *self, PyObject *other)
+{
+    int res;
+    PympfObject *tempx;
+
+    if (self && (Pympf_Check(self))) {
+        res = mpfr_nan_p(Pympf_AS_MPF(self));
+    }
+    else if (Pympf_Check(other)) {
+        res = mpfr_nan_p(Pympf_AS_MPF(other));
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("is_nan() requires 'mpf' argument");
+            return NULL;
+        }
+        else {
+            res = mpfr_nan_p(tempx->f);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    if (res)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
+PyDoc_STRVAR(doc_mpf_is_inf,
+"x.is_inf() -> boolean\n\n"
+"Return True if x is +Infinity or -Infinity, False otherwise.");
+PyDoc_STRVAR(doc_gmpy_is_inf,
+"is_inf(x) -> boolean\n\n"
+"Return True if x is +Infinity or -Infinity, False otherwise.");
+static PyObject *
+Pympf_is_inf(PyObject *self, PyObject *other)
+{
+    int res;
+    PympfObject *tempx;
+
+    if (self && (Pympf_Check(self))) {
+        res = mpfr_inf_p(Pympf_AS_MPF(self));
+    }
+    else if (Pympf_Check(other)) {
+        res = mpfr_inf_p(Pympf_AS_MPF(other));
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("is_inf() requires 'mpf' argument");
+            return NULL;
+        }
+        else {
+            res = mpfr_nan_p(tempx->f);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    if (res)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
+PyDoc_STRVAR(doc_mpf_is_number,
+"x.is_number() -> boolean\n\n"
+"Return True if x is an actual number (i.e. not NaN or Infinity),\n"
+"False otherwise.");
+PyDoc_STRVAR(doc_gmpy_is_number,
+"is_number(x) -> boolean\n\n"
+"Return True if x is an actual number (i.e. not NaN or Infinity),\n"
+"False otherwise.");
+static PyObject *
+Pympf_is_number(PyObject *self, PyObject *other)
+{
+    int res;
+    PympfObject *tempx;
+
+    if (self && (Pympf_Check(self))) {
+        res = mpfr_number_p(Pympf_AS_MPF(self));
+    }
+    else if (Pympf_Check(other)) {
+        res = mpfr_number_p(Pympf_AS_MPF(other));
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("is_number() requires 'mpf' argument");
+            return NULL;
+        }
+        else {
+            res = mpfr_number_p(tempx->f);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    if (res)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
+PyDoc_STRVAR(doc_mpf_is_zero,
+"x.is_zero() -> boolean\n\n"
+"Return True if x is zero, False otherwise.");
+PyDoc_STRVAR(doc_gmpy_is_zero,
+"is_zero(x) -> boolean\n\n"
+"Return True if x is zero, False otherwise.");
+static PyObject *
+Pympf_is_zero(PyObject *self, PyObject *other)
+{
+    int res;
+    PympfObject *tempx;
+
+    if (self && (Pympf_Check(self))) {
+        res = mpfr_zero_p(Pympf_AS_MPF(self));
+    }
+    else if (Pympf_Check(other)) {
+        res = mpfr_zero_p(Pympf_AS_MPF(other));
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("is_zero() requires 'mpf' argument");
+            return NULL;
+        }
+        else {
+            res = mpfr_zero_p(tempx->f);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    if (res)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
+PyDoc_STRVAR(doc_mpf_is_regular,
+"x.is_regular() -> boolean\n\n"
+"Return True if x is not zero, NaN, or Infinity, False otherwise.");
+PyDoc_STRVAR(doc_gmpy_is_regular,
+"is_regular(x) -> boolean\n\n"
+"Return True if x is not zero, NaN, or Infinity, False otherwise.");
+static PyObject *
+Pympf_is_regular(PyObject *self, PyObject *other)
+{
+    int res;
+    PympfObject *tempx;
+
+    if (self && (Pympf_Check(self))) {
+        res = mpfr_regular_p(Pympf_AS_MPF(self));
+    }
+    else if (Pympf_Check(other)) {
+        res = mpfr_regular_p(Pympf_AS_MPF(other));
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("is_regular() requires 'mpf' argument");
+            return NULL;
+        }
+        else {
+            res = mpfr_regular_p(tempx->f);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    if (res)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
 /* produce string for an mpf with requested/defaulted parameters */
 
 static char doc_fdigitsm[]="\
@@ -1267,5 +1439,351 @@ Pympfr_pow(PyObject *self, PyObject *args)
     Py_DECREF(self);
     Py_DECREF(other);
     return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpf_atan2,
+"y.atan2(x) -> mpf\n\n"
+"Return arc-tangent of (y/x).");
+PyDoc_STRVAR(doc_gmpy_atan2,
+"atan2(y, x) -> mpf\n\n"
+"Return arc-tangent of (y/x).");
+
+static PyObject *
+Pympfr_atan2(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPF(other, "atan2() requires 'mpf,'mpf' arguments");
+
+    if (!(result = Pympf_new(0))) {
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    gmpy_ternary = mpfr_atan2(result->f, Pympf_AS_MPF(self),
+                            Pympf_AS_MPF(other), options.rounding);
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpf_agm,
+"x.agm(y) -> mpf\n\n"
+"Return arithmetic-geometric mean of x and y.");
+PyDoc_STRVAR(doc_gmpy_agm,
+"agm(x, y) -> mpf\n\n"
+"Return arithmetic-geometric mean of x and y.");
+
+static PyObject *
+Pympfr_agm(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPF(other, "agm() requires 'mpf,'mpf' arguments");
+
+    if (!(result = Pympf_new(0))) {
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    gmpy_ternary = mpfr_agm(result->f, Pympf_AS_MPF(self),
+                            Pympf_AS_MPF(other), options.rounding);
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpf_hypot,
+"y.hypot(x) -> mpf\n\n"
+"Return square root of (x**2 + y**2).");
+PyDoc_STRVAR(doc_gmpy_hypot,
+"hypot(y, x) -> mpf\n\n"
+"Return square root of (x**2 + y**2).");
+
+static PyObject *
+Pympfr_hypot(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPF(other, "hypot() requires 'mpf,'mpf' arguments");
+
+    if (!(result = Pympf_new(0))) {
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    gmpy_ternary = mpfr_hypot(result->f, Pympf_AS_MPF(self),
+                            Pympf_AS_MPF(other), options.rounding);
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpf_max,
+"y.max(x) -> mpf\n\n"
+"Return maximum of x and y.");
+PyDoc_STRVAR(doc_gmpy_max,
+"max(y, x) -> mpf\n\n"
+"Return maximum of x and y.");
+
+static PyObject *
+Pympfr_max(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPF(other, "max() requires 'mpf,'mpf' arguments");
+
+    if (!(result = Pympf_new(0))) {
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    gmpy_ternary = mpfr_max(result->f, Pympf_AS_MPF(self),
+                            Pympf_AS_MPF(other), options.rounding);
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpf_min,
+"y.min(x) -> mpf\n\n"
+"Return minimum of x and y.");
+PyDoc_STRVAR(doc_gmpy_min,
+"min(y, x) -> mpf\n\n"
+"Return minimum of x and y.");
+
+static PyObject *
+Pympfr_min(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPF(other, "min() requires 'mpf,'mpf' arguments");
+
+    if (!(result = Pympf_new(0))) {
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    gmpy_ternary = mpfr_min(result->f, Pympf_AS_MPF(self),
+                            Pympf_AS_MPF(other), options.rounding);
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpf_nexttoward,
+"x.next_toward(y) -> mpf\n\n"
+"Return the next mpf from x in the direction of y.");
+PyDoc_STRVAR(doc_gmpy_nexttoward,
+"next_toward(y, x) -> mpf\n\n"
+"Return the next mpf from x in the direction of y.");
+
+static PyObject *
+Pympfr_nexttoward(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPF(other, "next_toward() requires 'mpf,'mpf' arguments");
+
+    if (!(result = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(self))))) {
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    mpfr_set(result->f, Pympf_AS_MPF(self), options.rounding);
+    mpfr_nexttoward(result->f, Pympf_AS_MPF(other));
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpf_nextabove,
+"x.next_above() -> mpf\n\n"
+"Return the next mpf from x toward +Infinity.");
+PyDoc_STRVAR(doc_gmpy_nextabove,
+"next_above(x) -> mpf\n\n"
+"Return the next mpf from x toward +Infinity.");
+
+static PyObject *
+Pympfr_nextabove(PyObject *self, PyObject *other)
+{
+    PympfObject *result, *tempx;
+
+    if(self && Pympf_Check(self)) {
+        if (!(result = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(self)))))
+            return NULL;
+        mpfr_set(result->f, Pympf_AS_MPF(self), options.rounding);
+        mpfr_nextabove(result->f);
+    }
+    else if (Pympf_Check(other)) {
+        if (!(result = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(other)))))
+            return NULL;
+        mpfr_set(result->f, Pympf_AS_MPF(other), options.rounding);
+        mpfr_nextabove(result->f);
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("next_above() requires 'mpf' argument");
+            return NULL;
+        }
+        else {
+            if (!(result = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(tempx)))))
+                return NULL;
+            mpfr_set(result->f, Pympf_AS_MPF(tempx), options.rounding);
+            mpfr_nextabove(result->f);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpf_nextbelow,
+"x.next_below() -> mpf\n\n"
+"Return the next mpf from x toward -Infinity.");
+PyDoc_STRVAR(doc_gmpy_nextbelow,
+"next_below(x) -> mpf\n\n"
+"Return the next mpf from x toward -Infinity.");
+
+static PyObject *
+Pympfr_nextbelow(PyObject *self, PyObject *other)
+{
+    PympfObject *result, *tempx;
+
+    if(self && Pympf_Check(self)) {
+        if (!(result = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(self)))))
+            return NULL;
+        mpfr_set(result->f, Pympf_AS_MPF(self), options.rounding);
+        mpfr_nextbelow(result->f);
+    }
+    else if (Pympf_Check(other)) {
+        if (!(result = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(other)))))
+            return NULL;
+        mpfr_set(result->f, Pympf_AS_MPF(other), options.rounding);
+         mpfr_nextbelow(result->f);
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("next_below() requires 'mpf' argument");
+            return NULL;
+        }
+        else {
+            if (!(result = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(tempx)))))
+                return NULL;
+            mpfr_set(result->f, Pympf_AS_MPF(tempx), options.rounding);
+            mpfr_nextbelow(result->f);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpf_sin_cos,
+"x.sin_cos() -> (mpf, mpf)\n\n"
+"Return a tuple containing the sine and cosine of x.");
+PyDoc_STRVAR(doc_gmpy_sin_cos,
+"sin_cos(x) -> (mpf, mpf)\n\n"
+"Return a tuple containing the sine and cosine of x.");
+static PyObject *
+Pympfr_sin_cos(PyObject *self, PyObject *other)
+{
+    PympfObject *s, *c, *tempx;
+    PyObject *result;
+
+    s = Pympf_new(0);
+    c = Pympf_new(0);
+    result = PyTuple_New(2);
+    if (!s || !c || !result) {
+        Py_XDECREF((PyObject*)s);
+        Py_XDECREF((PyObject*)c);
+        Py_XDECREF(result);
+        return NULL;
+    }
+
+    if(self && Pympf_Check(self)) {
+        gmpy_ternary = mpfr_sin_cos(s->f, c->f, Pympf_AS_MPF(self),
+                                    options.rounding);
+    }
+    else if (Pympf_Check(other)) {
+        gmpy_ternary = mpfr_sin_cos(s->f, c->f, Pympf_AS_MPF(other),
+                                    options.rounding);
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("sin_cos() requires 'mpf' argument");
+            Py_XDECREF((PyObject*)s);
+            Py_XDECREF((PyObject*)c);
+            Py_XDECREF(result);
+            return NULL;
+        }
+        else {
+            gmpy_ternary = mpfr_sin_cos(s->f, c->f, tempx->f,
+                                        options.rounding);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    PyTuple_SET_ITEM(result, 0, (PyObject*)s);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)c);
+    return result;
+}
+
+PyDoc_STRVAR(doc_mpf_sinh_cosh,
+"x.sinh_cosh() -> (mpf, mpf)\n\n"
+"Return a tuple containing the hyperbolic sine and cosine of x.");
+PyDoc_STRVAR(doc_gmpy_sinh_cosh,
+"sinh_cosh(x) -> (mpf, mpf)\n\n"
+"Return a tuple containing the hyperbolic sine and cosine of x.");
+static PyObject *
+Pympfr_sinh_cosh(PyObject *self, PyObject *other)
+{
+    PympfObject *s, *c, *tempx;
+    PyObject *result;
+
+    s = Pympf_new(0);
+    c = Pympf_new(0);
+    result = PyTuple_New(2);
+    if (!s || !c || !result) {
+        Py_XDECREF((PyObject*)s);
+        Py_XDECREF((PyObject*)c);
+        Py_XDECREF(result);
+        return NULL;
+    }
+
+    if(self && Pympf_Check(self)) {
+        gmpy_ternary = mpfr_sinh_cosh(s->f, c->f, Pympf_AS_MPF(self),
+                                      options.rounding);
+    }
+    else if (Pympf_Check(other)) {
+        gmpy_ternary = mpfr_sinh_cosh(s->f, c->f, Pympf_AS_MPF(other),
+                                      options.rounding);
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("sinh_cosh() requires 'mpf' argument");
+            Py_XDECREF((PyObject*)s);
+            Py_XDECREF((PyObject*)c);
+            Py_XDECREF(result);
+            return NULL;
+        }
+        else {
+            gmpy_ternary = mpfr_sinh_cosh(s->f, c->f, tempx->f,
+                                          options.rounding);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    PyTuple_SET_ITEM(result, 0, (PyObject*)s);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)c);
+    return result;
 }
 
