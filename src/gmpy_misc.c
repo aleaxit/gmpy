@@ -165,6 +165,176 @@ Pygmpy_set_debug(PyObject *self, PyObject *args)
     return Py_BuildValue("i", old);
 }
 
+PyDoc_STRVAR(doc_clear_underflow,
+"clear_underflow()\n\n"
+"Clear the underflow flag.");
+static PyObject *
+Pygmpy_clear_underflow(PyObject *self, PyObject *args)
+{
+    mpfr_clear_underflow();
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(doc_clear_overflow,
+"clear_overflow()\n\n"
+"Clear the overflow flag.");
+static PyObject *
+Pygmpy_clear_overflow(PyObject *self, PyObject *args)
+{
+    mpfr_clear_overflow();
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(doc_clear_nanflag,
+"clear_nanflag()\n\n"
+"Clear the Not A Number (nan) flag.");
+static PyObject *
+Pygmpy_clear_nanflag(PyObject *self, PyObject *args)
+{
+    mpfr_clear_nanflag();
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(doc_clear_inexflag,
+"clear_inexactflag()\n\n"
+"Clear the inexact flag.");
+static PyObject *
+Pygmpy_clear_inexflag(PyObject *self, PyObject *args)
+{
+    mpfr_clear_inexflag();
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(doc_clear_erangeflag,
+"clear_erangeflag()\n\n"
+"Clear the range error flag.");
+static PyObject *
+Pygmpy_clear_erangeflag(PyObject *self, PyObject *args)
+{
+    mpfr_clear_erangeflag();
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(doc_clear_flags,
+"clear_flags()\n\n"
+"Clear all exception flags.");
+static PyObject *
+Pygmpy_clear_flags(PyObject *self, PyObject *args)
+{
+    mpfr_clear_flags();
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(doc_set_underflow,
+"set_underflow()\n\n"
+"Set the underflow flag.");
+static PyObject *
+Pygmpy_set_underflow(PyObject *self, PyObject *args)
+{
+    mpfr_set_underflow();
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(doc_set_overflow,
+"set_overflow()\n\n"
+"Set the overflow flag.");
+static PyObject *
+Pygmpy_set_overflow(PyObject *self, PyObject *args)
+{
+    mpfr_set_overflow();
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(doc_set_nanflag,
+"set_nanflag()\n\n"
+"Set the Not A Number (nan) flag.");
+static PyObject *
+Pygmpy_set_nanflag(PyObject *self, PyObject *args)
+{
+    mpfr_set_nanflag();
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(doc_set_inexflag,
+"set_inexactflag()\n\n"
+"Set the inexact flag.");
+static PyObject *
+Pygmpy_set_inexflag(PyObject *self, PyObject *args)
+{
+    mpfr_set_inexflag();
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(doc_set_erangeflag,
+"set_erangeflag()\n\n"
+"Set the range error flag.");
+static PyObject *
+Pygmpy_set_erangeflag(PyObject *self, PyObject *args)
+{
+    mpfr_set_erangeflag();
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(doc_is_underflow,
+"is_underflow() -> boolean\n\n"
+"Return True if underflow flag is set.");
+static PyObject *
+Pygmpy_is_underflow(PyObject *self, PyObject *args)
+{
+    if (mpfr_underflow_p())
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
+PyDoc_STRVAR(doc_is_overflow,
+"is_overflow() -> boolean\n\n"
+"Return True if overflow flag is set.");
+static PyObject *
+Pygmpy_is_overflow(PyObject *self, PyObject *args)
+{
+    if (mpfr_overflow_p())
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
+PyDoc_STRVAR(doc_is_nanflag,
+"is_nanflag() -> boolean\n\n"
+"Return True if Not A Number (nan) flag is set.");
+static PyObject *
+Pygmpy_is_nanflag(PyObject *self, PyObject *args)
+{
+    if (mpfr_nanflag_p())
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
+PyDoc_STRVAR(doc_is_inexflag,
+"is_inexactflag() -> boolean\n\n"
+"Return True if inexact flag is set.");
+static PyObject *
+Pygmpy_is_inexflag(PyObject *self, PyObject *args)
+{
+    if (mpfr_inexflag_p())
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
+PyDoc_STRVAR(doc_is_erangeflag,
+"is_erangeflag() -> boolean\n\n"
+"Return True if range error flag is set.");
+static PyObject *
+Pygmpy_is_erangeflag(PyObject *self, PyObject *args)
+{
+    if (mpfr_erangeflag_p())
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
 PyDoc_STRVAR(doc_get_ternary,
 "get_ternary() -> integer\n\n\
 Return the ternary result code from the most recent MPFR operation."
@@ -172,7 +342,6 @@ Return the ternary result code from the most recent MPFR operation."
 "If the ternary value is > 0, the result of the operation is greater"
 "than the exact result. If the ternary value < 0, then the result"
 "of the operation is less than the exact result.");
-
 static PyObject *
 Pygmpy_get_ternary(PyObject *self, PyObject *args)
 {
