@@ -580,18 +580,10 @@ Pympz_bit_flip(PyObject *self, PyObject *other)
 }
 
 /* return nth-root of an mpz (in a 2-el tuple: 2nd is int, non-0 iff exact) */
-static char doc_rootm[]="\
-x.root(n): returns a 2-element tuple (y,m), such that y is the\n\
-(possibly truncated) n-th root of x; m, an ordinary Python int,\n\
-is 1 if the root is exact (x==y**n), else 0.  n must be an ordinary\n\
-Python int, >=0.\n\
-";
-static char doc_rootg[]="\
-root(x,n): returns a 2-element tuple (y,m), such that y is the\n\
-(possibly truncated) n-th root of x; m, an ordinary Python int,\n\
-is 1 if the root is exact (x==y**n), else 0.  n must be an ordinary\n\
-Python int, >=0. x must be an mpz, or else gets coerced to one.\n\
-";
+PyDoc_STRVAR(doc_mpz_root,
+"x.root(n) -> (mpz, boolean)\n\n"
+"Return a tuple containing the integer portion of the root and True\n"
+"if the root is exact.");
 static PyObject *
 Pympz_root(PyObject *self, PyObject *args)
 {
@@ -610,7 +602,7 @@ Pympz_root(PyObject *self, PyObject *args)
     }
     else if (n>1) {
         if (mpz_sgn(Pympz_AS_MPZ(self))<0) {
-            VALUE_ERROR("root of negative number");
+            VALUE_ERROR("root() of negative number");
             Py_DECREF(self);
             return NULL;
         }
@@ -624,7 +616,7 @@ Pympz_root(PyObject *self, PyObject *args)
     exact = mpz_root(s->z, Pympz_AS_MPZ(self), n);
     Py_DECREF(self);
     PyTuple_SET_ITEM(result, 0, (PyObject*)s);
-    PyTuple_SET_ITEM(result, 1, (PyObject*)PyIntOrLong_FromLong(exact));
+    PyTuple_SET_ITEM(result, 1, (PyObject*)PyBool_FromLong(exact));
     return result;
 }
 

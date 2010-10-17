@@ -64,6 +64,39 @@ Pygmpy_sqrt(PyObject *self, PyObject *other)
     return NULL;
 }
 
+/* gmpy_root is only intended to be used at the module level!
+ * gmpy_root uses the METH_VARARGS calling convention!
+ * gmpy_root assumes mpX_square also use the METH_VARARGS convention!
+ */
+
+PyDoc_STRVAR(doc_gmpy_root,
+"root(x,n) -> number\n\n"
+"Return n-th root of x. If x is an integer, then the result is a\n"
+"tuple containing the integer portion of the root and True if the\n"
+"result is exact. If x is a rational or a float, then the result\n"
+"is an 'mpf'.");
+
+static PyObject *
+Pygmpy_root(PyObject *self, PyObject *args)
+{
+    PyObject *temp;
+
+    if (PyTuple_GET_SIZE(args) == 0) {
+        TYPE_ERROR("root() requires at least one argument");
+        return NULL;
+    }
+
+    temp = PyTuple_GET_ITEM(args, 0);
+    if (isInteger(temp))
+        return Pympz_root(self, args);
+    else if (isRational(temp) || isFloat(temp)) {
+        return Pympf_root(self, args);
+    }
+
+    TYPE_ERROR("root() not supported");
+    return NULL;
+}
+
 /* gmpy_digits is only intended to be used at the module level!
  * gmpy_digits uses the METH_VARARGS calling convention!
  * gmpy_digits assumes mpX_digits also use the METH_VARARGS convention!
