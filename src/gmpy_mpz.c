@@ -119,9 +119,6 @@ Pympz_bit_mask(PyObject *self, PyObject *other)
     long i = 0;
     PympzObject* result;
 
-    if (!(result = Pympz_new()))
-        return NULL;
-
     i = clong_From_Integer(other);
     if (i == -1 && PyErr_Occurred()) {
         TYPE_ERROR("bit_mask() requires 'int' argument");
@@ -132,6 +129,9 @@ Pympz_bit_mask(PyObject *self, PyObject *other)
         VALUE_ERROR("mask length must be >= 0");
         return NULL;
     }
+
+    if (!(result = Pympz_new()))
+        return NULL;
 
     mpz_set_ui(result->z, 1);
     mpz_mul_2exp(result->z, result->z, i);
@@ -150,9 +150,6 @@ Pyxmpz_xbit_mask(PyObject *self, PyObject *other)
     long i = 0;
     PyxmpzObject* result;
 
-    if (!(result = Pyxmpz_new()))
-        return NULL;
-
     i = clong_From_Integer(other);
     if (i == -1 && PyErr_Occurred()) {
         TYPE_ERROR("xbit_mask() requires 'int' argument");
@@ -163,6 +160,9 @@ Pyxmpz_xbit_mask(PyObject *self, PyObject *other)
         VALUE_ERROR("mask length must be >= 0");
         return NULL;
     }
+
+    if (!(result = Pyxmpz_new()))
+        return NULL;
 
     mpz_set_ui(result->z, 1);
     mpz_mul_2exp(result->z, result->z, i);
