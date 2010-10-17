@@ -21,6 +21,65 @@ Pympf_nonzero(PympfObject *x)
     return mpfr_sgn(x->f) != 0;
 }
 
+PyDoc_STRVAR(doc_set_nan,
+"nan() -> mpf\n\n"
+"Return an mpf inialized to nan.");
+static PyObject *
+Pygmpy_set_nan(PyObject *self, PyObject *other)
+{
+    PympfObject *result;
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+
+    mpfr_set_nan(result->f);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_set_inf,
+"inf(n) -> mpf\n\n"
+"Return an mpf inialized to inf with the same sign as n.");
+static PyObject *
+Pygmpy_set_inf(PyObject *self, PyObject *other)
+{
+    PympfObject *result;
+    long s = 0;
+
+    s = clong_From_Integer(other);
+    if (s == -1 && PyErr_Occurred()) {
+        TYPE_ERROR("inf() requires 'int' argument");
+        return NULL;
+    }
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+
+    mpfr_set_inf(result->f, (int)s);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_set_zero,
+"zero() -> mpf\n\n"
+"Return an mpf inialized to 0.0 with the same sign as n.");
+static PyObject *
+Pygmpy_set_zero(PyObject *self, PyObject *other)
+{
+    PympfObject *result;
+    long s = 0;
+
+    s = clong_From_Integer(other);
+    if (s == -1 && PyErr_Occurred()) {
+        TYPE_ERROR("zero() requires 'int' argument");
+        return NULL;
+    }
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+
+    mpfr_set_zero(result->f, (int)s);
+    return (PyObject*)result;
+}
+
 /* produce string for an mpf with requested/defaulted parameters */
 
 static char doc_fdigitsm[]="\

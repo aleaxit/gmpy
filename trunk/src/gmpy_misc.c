@@ -459,6 +459,17 @@ Pygmpy_get_precision(PyObject *self, PyObject *args)
     return Py_BuildValue("n", options.precision);
 }
 
+PyDoc_STRVAR(doc_get_max_precision,
+"get_max_precision() -> integer\n\n"
+"Return the maximum bits of precision that can be used for calculations.\n"
+"Note: to allow extra precision for intermediate calculations, avoid\n"
+"setting precision close the maximum precisicon");
+static PyObject *
+Pygmpy_get_max_precision(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("n", MPFR_PREC_MAX);
+}
+
 PyDoc_STRVAR(doc_set_precision,
 "set_precision(n)\n\n"
 "Set the number of bits of precision to use for calculations.");
