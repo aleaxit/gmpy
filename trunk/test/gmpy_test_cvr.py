@@ -236,7 +236,7 @@ ValueError: n must be > 0
 >>> _g.root(-12,2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: root of negative number
+ValueError: root() of negative number
 >>> _g.digits(3.14)
 ('31400000000000001', 1, 53)
 >>> _g.digits(3,'peep')

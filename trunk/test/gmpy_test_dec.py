@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(f))
-['_copy', 'acos', 'acosh', 'ai', 'asin', 'asinh', 'atan', 'atanh', 'binary', 'ceil', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'digamma', 'digits', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'floor', 'gamma', 'j0', 'j1', 'li2', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'precision', 'qdiv', 'reldiff', 'round', 'sec', 'sech', 'sign', 'sin', 'sinh', 'sqrt', 'square', 'tan', 'tanh', 'trunc', 'y0', 'y1', 'zeta']
+['_copy', 'acos', 'acosh', 'add', 'ai', 'asin', 'asinh', 'atan', 'atanh', 'binary', 'cbrt', 'ceil', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'digamma', 'digits', 'div', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'floor', 'gamma', 'j0', 'j1', 'li2', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'mul', 'pow', 'precision', 'qdiv', 'rec_sqrt', 'reldiff', 'root', 'round', 'sec', 'sech', 'sign', 'sin', 'sinh', 'sqrt', 'square', 'sub', 'tan', 'tanh', 'trunc', 'y0', 'y1', 'zeta']
 >>>
 '''
 try: import decimal as _d

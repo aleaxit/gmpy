@@ -477,7 +477,7 @@ Pympf_sqrt(PyObject *self, PyObject *other)
         return NULL;
 
     if(self && Pympf_Check(self)) {
-        if (mpfr_sgn(Pympf_AS_MPF(self)) < 0) {
+        if (options.raise && mpfr_sgn(Pympf_AS_MPF(self)) < 0) {
             VALUE_ERROR("sqrt() of negative number");
             Py_DECREF((PyObject*)result);
             return NULL;
@@ -485,7 +485,7 @@ Pympf_sqrt(PyObject *self, PyObject *other)
         gmpy_ternary = mpfr_sqrt(result->f, Pympf_AS_MPF(self), options.rounding);
     }
     else if (Pympf_Check(other)) {
-        if (mpfr_sgn(Pympf_AS_MPF(other)) < 0) {
+        if (options.raise && mpfr_sgn(Pympf_AS_MPF(other)) < 0) {
             VALUE_ERROR("sqrt() of negative number");
             Py_DECREF((PyObject*)result);
             return NULL;
@@ -498,7 +498,7 @@ Pympf_sqrt(PyObject *self, PyObject *other)
             return NULL;
         }
         else {
-            if (mpfr_sgn(Pympf_AS_MPF(tempx)) < 0) {
+            if (options.raise && mpfr_sgn(Pympf_AS_MPF(tempx)) < 0) {
                 VALUE_ERROR("sqrt() of negative number");
                 Py_DECREF((PyObject*)tempx);
                 Py_DECREF((PyObject*)result);
@@ -510,6 +510,90 @@ Pympf_sqrt(PyObject *self, PyObject *other)
     }
     return (PyObject*)result;
 }
+
+PyDoc_STRVAR(doc_mpf_rec_sqrt,
+"x.rec_sqrt() -> mpf\n\n"
+"Return the reciprocal of the square root of x.");
+PyDoc_STRVAR(doc_gmpy_rec_sqrt,
+"rec_sqrt(x) -> mpf\n\n"
+"Return the reciprocal of the square root of x.");
+
+static PyObject *
+Pympf_rec_sqrt(PyObject *self, PyObject *other)
+{
+    PympfObject *result, *tempx;
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+
+    if(self && Pympf_Check(self)) {
+        if (options.raise && mpfr_zero_p(Pympf_AS_MPF(self))) {
+            VALUE_ERROR("rec_sqrt() of zero");
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+        gmpy_ternary = mpfr_rec_sqrt(result->f, Pympf_AS_MPF(self), options.rounding);
+    }
+    else if (Pympf_Check(other)) {
+        if (options.raise && mpfr_zero_p(Pympf_AS_MPF(other))) {
+            VALUE_ERROR("rec_sqrt() of zero");
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+        gmpy_ternary = mpfr_rec_sqrt(result->f, Pympf_AS_MPF(other), options.rounding);
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("rec_sqrt() requires 'mpf' argument");
+            return NULL;
+        }
+        else {
+            if (options.raise && mpfr_zero_p(Pympf_AS_MPF(tempx))) {
+                VALUE_ERROR("rec_sqrt() of zero");
+                Py_DECREF((PyObject*)tempx);
+                Py_DECREF((PyObject*)result);
+                return NULL;
+            }
+            gmpy_ternary = mpfr_rec_sqrt(result->f, tempx->f, options.rounding);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpf_root,
+"x.root(n) -> mpf\n\n"
+"Return the n-th root of x.");
+static PyObject *
+Pympf_root(PyObject *self, PyObject *args)
+{
+    long n;
+    PympfObject *result;
+
+    PARSE_ONE_MPF_REQ_CLONG(&n,
+                            "root() requires 'mpf','int' arguments");
+
+    if (n <= 0) {
+        VALUE_ERROR("n must be > 0");
+        Py_DECREF(self);
+        return NULL;
+    }
+    if (options.raise && !(n & 1) && mpfr_sgn(Pympf_AS_MPF(self))<0) {
+        VALUE_ERROR("root() of negative number");
+        Py_DECREF(self);
+        return NULL;
+    }
+
+    if(!(result = Pympf_new(0))) {
+        Py_DECREF(self);
+        return NULL;
+    }
+    gmpy_ternary = mpfr_root(result->f, Pympf_AS_MPF(self), n,
+                            options.rounding);
+    Py_DECREF(self);
+    return (PyObject*)result;
+}
+
 
 static char doc_mpf_roundm[] = "\
 x.round(n): returns x rounded to n bits. Uses default precision if\n\
@@ -684,6 +768,15 @@ PyDoc_STRVAR(doc_mpf_sqr,
 "Return x * x.");
 
 MPF_UNIOP(sqr)
+
+PyDoc_STRVAR(doc_mpf_cbrt,
+"x.cbrt() -> mpf\n\n"
+"Return the cube root of x.");
+PyDoc_STRVAR(doc_gmpy_cbrt,
+"cbrt(x) -> mpf\n\n"
+"Return the cube root of x.");
+
+MPF_UNIOP(cbrt)
 
 static char doc_flogm[]="\
 x.log(): returns natural logarithm of x.\n\
@@ -1035,4 +1128,144 @@ ai(x): returns Airy function of x.\n\
 ";
 
 MPF_UNIOP(ai)
+
+PyDoc_STRVAR(doc_mpf_add,
+"x.add(y) -> mpf\n\n"
+"Return x + y.");
+PyDoc_STRVAR(doc_gmpy_add,
+"add(x, y) -> mpf\n\n"
+"Return x + y.");
+
+static PyObject *
+Pympfr_add(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPF(other, "add() requires 'mpf,'mpf' arguments");
+
+    if (!(result = Pympf_new(0))) {
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    gmpy_ternary = mpfr_add(result->f, Pympf_AS_MPF(self),
+                            Pympf_AS_MPF(other), options.rounding);
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpf_sub,
+"x.sub(y) -> mpf\n\n"
+"Return x - y.");
+PyDoc_STRVAR(doc_gmpy_sub,
+"sub(x, y) -> mpf\n\n"
+"Return x - y.");
+
+static PyObject *
+Pympfr_sub(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPF(other, "sub() requires 'mpf,'mpf' arguments");
+
+    if (!(result = Pympf_new(0))) {
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    gmpy_ternary = mpfr_sub(result->f, Pympf_AS_MPF(self),
+                            Pympf_AS_MPF(other), options.rounding);
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpf_mul,
+"x.mul(y) -> mpf\n\n"
+"Return x * y.");
+PyDoc_STRVAR(doc_gmpy_mul,
+"mul(x, y) -> mpf\n\n"
+"Return x * y.");
+
+static PyObject *
+Pympfr_mul(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPF(other, "mul() requires 'mpf,'mpf' arguments");
+
+    if (!(result = Pympf_new(0))) {
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    gmpy_ternary = mpfr_mul(result->f, Pympf_AS_MPF(self),
+                            Pympf_AS_MPF(other), options.rounding);
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpf_div,
+"x.div(y) -> mpf\n\n"
+"Return x / y.");
+PyDoc_STRVAR(doc_gmpy_div,
+"div(x, y) -> mpf\n\n"
+"Return x / y.");
+
+static PyObject *
+Pympfr_div(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPF(other, "div() requires 'mpf,'mpf' arguments");
+
+    if (!(result = Pympf_new(0))) {
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    gmpy_ternary = mpfr_div(result->f, Pympf_AS_MPF(self),
+                            Pympf_AS_MPF(other), options.rounding);
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpf_pow,
+"x.pow(y) -> mpf\n\n"
+"Return x ** y.");
+PyDoc_STRVAR(doc_gmpy_pow,
+"pow(x, y) -> mpf\n\n"
+"Return x ** y.");
+
+static PyObject *
+Pympfr_pow(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPF(other, "pow() requires 'mpf,'mpf' arguments");
+
+    if (!(result = Pympf_new(0))) {
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    gmpy_ternary = mpfr_pow(result->f, Pympf_AS_MPF(self),
+                            Pympf_AS_MPF(other), options.rounding);
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
 
