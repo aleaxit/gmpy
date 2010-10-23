@@ -26,6 +26,11 @@ extern "C" {
 #  error "GMPY2 requires Python 2.6 or later."
 #endif
 
+#if PY_VERSION_HEX < 0x030200A3
+typedef long Py_hash_t;
+typedef unsigned long Py_uhash_t;
+#endif
+
 #if !defined(FLT_RADIX) || (FLT_RADIX!=2)
 #   error "FLT_RADIX undefined or != 2, GMPY2 is confused. :("
 #endif
@@ -136,17 +141,17 @@ typedef struct {
 typedef struct {
     mpob ob;
     mpz_t z;
-    long hash_cache;
+    Py_hash_t hash_cache;
 } PympzObject;
 typedef struct {
     mpob ob;
     mpq_t q;
-    long hash_cache;
+    Py_hash_t  hash_cache;
 } PympqObject;
 typedef struct {
     mpob ob;
     mpfr_t f;
-    long hash_cache;
+    Py_hash_t hash_cache;
 } PympfObject;
 typedef struct {
     mpob ob;
