@@ -421,12 +421,12 @@ f2q_internal(PympfObject* self, PympfObject* err, unsigned int bits, int mayz)
     return (PyObject*)res;
 }
 
-static long
+static Py_hash_t
 Pympf_hash(PympfObject *self)
 {
 #ifdef _PyHASH_MODULUS
-    unsigned long hash = 0;
-    long exp;
+    Py_uhash_t hash = 0;
+    Py_ssize_t exp;
     size_t msize;
     int sign;
 
@@ -466,9 +466,9 @@ Pympf_hash(PympfObject *self)
     hash = ((hash << exp) & _PyHASH_MODULUS) | hash >> (_PyHASH_BITS - exp);
 
     hash *= sign;
-    if (hash == (unsigned long)-1)
-        hash = (unsigned long)-2;
-    return (self->hash_cache = (long)hash);
+    if (hash == (Py_uhash_t)-1)
+        hash = (Py_uhash_t)-2;
+    return (self->hash_cache = (Py_hash_t)hash);
 #else
     double temp;
     if (self->hash_cache != -1)

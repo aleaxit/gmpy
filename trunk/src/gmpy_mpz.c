@@ -1055,16 +1055,16 @@ Pyxmpz_hex(PyxmpzObject *self)
 }
 #endif
 
-static long
+static Py_hash_t
 Pympz_hash(PympzObject *self)
 {
 #ifdef _PyHASH_MODULUS
-    long hash;
+    Py_hash_t hash;
 
     if (self->hash_cache != -1)
         return self->hash_cache;
-
-    hash = (long)mpz_tdiv_ui((self->z), _PyHASH_MODULUS);
+    
+    hash = (Py_hash_t)mpn_mod_1(self->z->_mp_d, mpz_size(self->z), _PyHASH_MODULUS);
     if (mpz_sgn(self->z)<0)
         hash = -hash;
     if (hash==-1)

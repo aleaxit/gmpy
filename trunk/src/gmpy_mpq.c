@@ -438,22 +438,26 @@ Pympq_nonzero(PympqObject *x)
     return mpq_sgn(x->q) != 0;
 }
 
-static long
+static Py_hash_t
 Pympq_hash(PympqObject *self)
 {
 #ifdef _PyHASH_MODULUS
-    long hash = 0;
-    mpz_t temp, mask;
+    Py_hash_t hash = 0;
+    mpz_t temp, temp1, mask;
 
     if (self->hash_cache != -1)
         return self->hash_cache;
 
     mpz_inoc(temp);
+    mpz_inoc(temp1);
     mpz_inoc(mask);
-    mpz_set_si(mask, _PyHASH_MODULUS);
+    mpz_set_si(mask, 1);
+    mpz_mul_2exp(mask, mask, _PyHASH_BITS);
+    mpz_sub_ui(mask, mask, 1);
 
     if (!mpz_invert(temp, mpq_denref(self->q), mask)) {
         mpz_cloc(temp);
+        mpz_cloc(temp1);
         mpz_cloc(mask);
         hash = _PyHASH_INF;
         if (mpz_sgn(mpq_numref(self->q))<0)
@@ -461,16 +465,19 @@ Pympq_hash(PympqObject *self)
         self->hash_cache = hash;
         return hash;
     }
-    mpz_powm_ui(temp, mpq_denref(self->q), _PyHASH_MODULUS - 2, mask);
-
-    hash = (long)mpz_tdiv_ui(mpq_numref(self->q), _PyHASH_MODULUS);
-    mpz_mul_si(temp, temp, hash);
-    hash = (long)mpz_tdiv_ui(temp, _PyHASH_MODULUS);
+    mpz_set(temp1, mask);
+    mpz_sub_ui(temp1, temp1, 2);
+    mpz_powm(temp, mpq_denref(self->q), temp1, mask);
+    
+    mpz_tdiv_r(temp1, mpq_numref(self->q), mask);
+    mpz_mul(temp, temp, temp1);
+    hash = (Py_hash_t)mpn_mod_1(temp->_mp_d, mpz_size(temp), _PyHASH_MODULUS);
 
     if (mpz_sgn(mpq_numref(self->q))<0)
         hash = -hash;
     if (hash==-1) hash = -2;
     mpz_cloc(temp);
+    mpz_cloc(temp1);
     mpz_cloc(mask);
     self->hash_cache = hash;
     return hash;
