@@ -688,7 +688,7 @@ Pygmpy_pack(PyObject *self, PyObject *args)
     for (index = 0; index < lst_count; index++) {
         if (!(tempx = Pympz_From_Integer(PyList_GetItem(lst, index)))
             || (mpz_sgn(tempx->z) < 0)
-            || (mpz_sizeinbase(tempx->z,2) > nbits)) {
+            || (mpz_sizeinbase(tempx->z,2) > (size_t)nbits)) {
             TYPE_ERROR("pack() requires list elements be positive integers < 2^nbits");
             mpz_cloc(temp);
             Py_XDECREF((PyObject*)tempx);
@@ -794,7 +794,8 @@ Pygmpy_unpack(PyObject *self, PyObject *args)
         }
         mpz_clrbit(temp, guard_bit);
         mpz_mul_2exp(temp, temp, extra_bits);
-        mpz_add_ui(temp, temp, extra);
+	/* This is safe since the dest. has enough room. (See line above.) */
+        mpn_add_1(temp->_mp_d, temp->_mp_d, mpz_size(temp), extra);
         temp_bits += extra_bits;
 
         while ((lst_ptr <lst_count) && (temp_bits >= nbits)) {
@@ -809,7 +810,7 @@ Pygmpy_unpack(PyObject *self, PyObject *args)
             mpz_tdiv_q_2exp(temp, temp, nbits);
             temp_bits -= nbits;
         }
-        extra = mpz_get_ui(temp);
+        extra = mpz_getlimbn(temp, 0);
         extra_bits = temp_bits;
     }
     Py_DECREF((PyObject*)tempx);

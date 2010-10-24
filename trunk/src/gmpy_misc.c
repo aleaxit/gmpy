@@ -376,7 +376,7 @@ Pygmpy_set_emin(PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "n", &exp))
         return NULL;
-    if (mpfr_set_emin(exp)) {
+    if (mpfr_set_emin((mpfr_prec_t)exp)) {
         VALUE_ERROR("requested minimum exponent is invalid");
         return NULL;
     }
@@ -411,7 +411,7 @@ Pygmpy_set_emax(PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "n", &exp))
         return NULL;
-    if (mpfr_set_emax(exp)) {
+    if (mpfr_set_emax((mpfr_prec_t)exp)) {
         VALUE_ERROR("requested maximum exponent is invalid");
         return NULL;
     }
