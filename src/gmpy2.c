@@ -835,7 +835,7 @@ PyFloat2Pympq(PyObject *self)
 }
 
 /* forward */
-static PympfObject *PyStr2Pympf(PyObject *s, long base, Py_ssize_t bits);
+static PympfObject *PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits);
 
 static PympfObject *
 PyFloat2Pympf(PyObject *self, mpfr_prec_t bits)
@@ -1301,7 +1301,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
             else {
                 wheredot = strchr((char*)cp, '.');
                 if (wheredot) {
-                    PympfObject* temp = PyStr2Pympf(stringarg, base, 4*len);
+                    PympfObject* temp = PyStr2Pympf(stringarg, base, (mpfr_prec_t)len*4);
                     if (temp) {
                         newob = Pympf2Pympq((PyObject*)temp);
                         Py_DECREF((PyObject*)temp);
@@ -1386,7 +1386,7 @@ PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits)
     }
     else { /* precision to be defaulted or fetched */
         if (base == 256) {  /* it may be encoded for fetching */
-            prec = 8 * (len - 5);      /* default precision */
+            prec = (mpfr_prec_t)(8 * (len - 5));      /* default precision */
             if ((len>=5) && (cp[0]&8)) { /* precision must be fetched */
                 prec = 0;
                 for (i=4; i>0; --i) {
@@ -3099,7 +3099,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
     PympqObject *newob;
     PyObject *obj;
     int wasnumeric;
-    int argc;
+    Py_ssize_t argc;
 
     TRACE("Pygmpy_mpq() called...\n");
 
@@ -3193,8 +3193,8 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
 {
     PympfObject *newob;
     PyObject *obj;
-    int argc;
-    unsigned int bits=0;
+    Py_ssize_t argc;
+    mpfr_prec_t bits=0;
 
     TRACE("Pygmpy_mpf() called...\n");
 
