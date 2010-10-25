@@ -37,6 +37,24 @@
     }
 
 /*
+ * Verify that a function has only one argument, and convert that argument
+ * to a Py_ssize_t. Only applies to gmpy.fname(). "msg" should be an error
+ * message that includes the function name. Replaces ONE_ARG.
+ */
+
+#define PARSE_ONE_SSIZE_T(var, msg)\
+    if (PyTuple_GET_SIZE(args) != 1) {\
+        PyErr_SetString(PyExc_TypeError, msg);\
+        return NULL;\
+    } else {\
+        *var = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+        if(*var == -1 && PyErr_Occurred()) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+    }
+
+/*
  * Parses one, and only one, argument into "self" and converts it to an
  * mpz. Is faster, but not as generic, as using PyArg_ParseTuple. It
  * supports either gmpy.fname(z) or z.fname(). "self" must be decref'ed.
@@ -158,6 +176,62 @@
     }
 
 /*
+ * Parses one argument into "self" and an optional second argument into 'var'.
+ * The second argument is converted into a Py_ssize_t. If there is not a
+ * second argument, "var" is unchanged. Is faster, but not as generic, as
+ * using PyArg_ParseTuple with "|l". It supports either gmpy.fname(z,l) or
+ * z.fname(l). "self" must be decref'ed. "var" must be a pointer to a
+ * Py_ssize_t. "msg" should be an error message that includes the function
+ * name and describes the required arguments. Replaces some uses of
+ * SELF_MPZ_ONE_ARG.
+ *
+ * Also considers an 'xmpz' to be equivalent to an 'mpz'.
+ */
+
+#define PARSE_ONE_MPZ_OPT_SSIZE_T(var, msg) \
+    if(self && CHECK_MPZANY(self)) {\
+        if (PyTuple_GET_SIZE(args) == 1) {\
+            *var = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            if(*var == -1 && PyErr_Occurred()) {\
+                PyErr_SetString(PyExc_TypeError, msg);\
+                return NULL;\
+            }\
+        } else if (PyTuple_GET_SIZE(args) > 1) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        Py_INCREF(self);\
+    } else {\
+        if (PyTuple_GET_SIZE(args) == 2) {\
+            *var = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 1)); \
+            if(*var == -1 && PyErr_Occurred()) {\
+                PyErr_SetString(PyExc_TypeError, msg);\
+                return NULL;\
+            }\
+            self = PyTuple_GET_ITEM(args, 0);\
+            if(CHECK_MPZANY(self)) {\
+                Py_INCREF((PyObject*)self);\
+            } else {\
+                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+            }\
+        } else if (PyTuple_GET_SIZE(args) == 1) {\
+            self = PyTuple_GET_ITEM(args, 0);\
+            if(CHECK_MPZANY(self)) {\
+                Py_INCREF((PyObject*)self);\
+            } else {\
+                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+            }\
+        } else {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        if(!self) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+    }
+
+/*
  * Parses one argument into "self" and an optional second argument into
  * 'var". The second argument is converted into a C long. If there is not a
  * second argument, "var" is unchanged. Is faster, but not as generic, as
@@ -183,6 +257,60 @@
     } else {\
         if (PyTuple_GET_SIZE(args) == 2) {\
             *var = clong_From_Integer(PyTuple_GET_ITEM(args, 1)); \
+            if(*var == -1 && PyErr_Occurred()) {\
+                PyErr_SetString(PyExc_TypeError, msg);\
+                return NULL;\
+            }\
+            self = PyTuple_GET_ITEM(args, 0);\
+            if(Pympf_Check(self)) {\
+                Py_INCREF((PyObject*)self);\
+            } else {\
+                self = (PyObject*)Pympf_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
+            }\
+        } else if (PyTuple_GET_SIZE(args) == 1) {\
+            self = PyTuple_GET_ITEM(args, 0);\
+            if(Pympf_Check(self)) {\
+                Py_INCREF((PyObject*)self);\
+            } else {\
+                self = (PyObject*)Pympf_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
+            }\
+        } else {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        if(!self) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+    }
+
+/*
+ * Parses one argument into "self" and an optional second argument into
+ * "var". The second argument is converted into a Py_ssize_t. If there is
+ * not a second argument, "var" is unchanged. Is faster, but not as generic,
+ * as using PyArg_ParseTuple with "|l". It supports either gmpy.fname(z,l) or
+ * z.fname(l). "self" must be decref'ed. "var" must be a pointer to a
+ * Py_ssize_t. "msg" should be an error message that includes the function
+ * name and describes the required arguments. Replaces some uses of
+ * SELF_MPF_ONE_ARG.
+ */
+
+#define PARSE_ONE_MPF_OPT_SSIZE_T(var, msg) \
+    if(self && Pympf_Check(self)) {\
+        if (PyTuple_GET_SIZE(args) == 1) {\
+            *var = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            if(*var == -1 && PyErr_Occurred()) {\
+                PyErr_SetString(PyExc_TypeError, msg);\
+                return NULL;\
+            }\
+        } else if (PyTuple_GET_SIZE(args) > 1) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        Py_INCREF(self);\
+    } else {\
+        if (PyTuple_GET_SIZE(args) == 2) {\
+            *var = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 1)); \
             if(*var == -1 && PyErr_Occurred()) {\
                 PyErr_SetString(PyExc_TypeError, msg);\
                 return NULL;\
@@ -260,6 +388,54 @@
 
 /*
  * Parses one argument into "self" and a required second argument into
+ * "var". The second argument is converted into a Py_ssize_t. Is faster, but
+ * not as generic, as using PyArg_ParseTuple with "l". It supports either
+ * gmpy.fname(z,l) or z.fname(l). "self" must be decref'ed. "var" must be a
+ * pointer to a Py_ssize_t. "msg" should be an error message that includes
+ * the function name and describes the required arguments. Replaces some uses
+ * of SELF_MPZ_ONE_ARG.
+ *
+ * Also considers an 'xmpz' to be equivalent to an 'mpz'.
+ */
+
+#define PARSE_ONE_MPZ_REQ_SSIZE_T(var, msg) \
+    if(self && CHECK_MPZANY(self)) {\
+        if (PyTuple_GET_SIZE(args) != 1) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        } else {\
+            *var = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            if(*var == -1 && PyErr_Occurred()) {\
+                PyErr_SetString(PyExc_TypeError, msg);\
+                return NULL;\
+            }\
+        }\
+        Py_INCREF(self);\
+    } else {\
+        if (PyTuple_GET_SIZE(args) != 2) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        } else {\
+            *var = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 1)); \
+            if(*var == -1 && PyErr_Occurred()) {\
+                PyErr_SetString(PyExc_TypeError, msg);\
+                return NULL;\
+            }\
+            self = PyTuple_GET_ITEM(args, 0);\
+            if(CHECK_MPZANY(self)) {\
+                Py_INCREF((PyObject*)self);\
+            } else {\
+                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
+            }\
+        }\
+        if(!self) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+    }
+
+/*
+ * Parses one argument into "self" and a required second argument into
  * 'var". The second argument is converted into a C long. Is faster, but not
  * as generic, as using PyArg_ParseTuple with "l". It supports either
  * gmpy.fname(z,l) or z.fname(l). "self" must be decref'ed. "var" must be a
@@ -286,6 +462,51 @@
             return NULL;\
         } else {\
             *var = clong_From_Integer(PyTuple_GET_ITEM(args, 1)); \
+            if(*var == -1 && PyErr_Occurred()) {\
+                PyErr_SetString(PyExc_TypeError, msg);\
+                return NULL;\
+            }\
+            self = PyTuple_GET_ITEM(args, 0);\
+            if(Pympf_Check(self)) {\
+                Py_INCREF((PyObject*)self);\
+            } else {\
+                self = (PyObject*)Pympf_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
+            }\
+        }\
+        if(!self) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+    }
+
+/*
+ * Parses one argument into "self" and a required second argument into
+ * "var". The second argument is converted into a Py_ssize_t. Is faster, but
+ * not as generic, as using PyArg_ParseTuple with "l". It supports either
+ * gmpy.fname(z,l) or z.fname(l). "self" must be decref'ed. "var" must be a
+ * pointer to a Py_ssize_t. "msg" should be an error message that includes
+ * the function name and describes the required arguments.
+ */
+
+#define PARSE_ONE_MPF_REQ_SSIZE_T(var, msg) \
+    if(self && Pympf_Check(self)) {\
+        if (PyTuple_GET_SIZE(args) != 1) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        } else {\
+            *var = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            if(*var == -1 && PyErr_Occurred()) {\
+                PyErr_SetString(PyExc_TypeError, msg);\
+                return NULL;\
+            }\
+        }\
+        Py_INCREF(self);\
+    } else {\
+        if (PyTuple_GET_SIZE(args) != 2) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        } else {\
+            *var = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 1)); \
             if(*var == -1 && PyErr_Occurred()) {\
                 PyErr_SetString(PyExc_TypeError, msg);\
                 return NULL;\
@@ -390,6 +611,7 @@
         if(!PyArg_ParseTuple(args, "O&", Pympq_convert_arg, &self)) \
             return NULL; \
     }
+
 #define SELF_MPF_NO_ARG \
     if(self && Pympf_Check(self)) { \
         if(!PyArg_ParseTuple(args, "")) \
