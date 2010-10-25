@@ -122,7 +122,7 @@
 
 /*
  * Parses one argument into "self" and an optional second argument into
- * 'var". The second argument is converted into a C long. If there is not a
+ * "var". The second argument is converted into a C long. If there is not a
  * second argument, "var" is unchanged. Is faster, but not as generic, as
  * using PyArg_ParseTuple with "|l". It supports either gmpy.fname(z,l) or
  * z.fname(l). "self" must be decref'ed. "var" must be a pointer to a long.
@@ -176,7 +176,7 @@
     }
 
 /*
- * Parses one argument into "self" and an optional second argument into 'var'.
+ * Parses one argument into "self" and an optional second argument into "var".
  * The second argument is converted into a Py_ssize_t. If there is not a
  * second argument, "var" is unchanged. Is faster, but not as generic, as
  * using PyArg_ParseTuple with "|l". It supports either gmpy.fname(z,l) or
@@ -233,7 +233,7 @@
 
 /*
  * Parses one argument into "self" and an optional second argument into
- * 'var". The second argument is converted into a C long. If there is not a
+ * "var". The second argument is converted into a C long. If there is not a
  * second argument, "var" is unchanged. Is faster, but not as generic, as
  * using PyArg_ParseTuple with "|l". It supports either gmpy.fname(z,l) or
  * z.fname(l). "self" must be decref'ed. "var" must be a pointer to a long.
@@ -340,7 +340,7 @@
 
 /*
  * Parses one argument into "self" and a required second argument into
- * 'var". The second argument is converted into a C long. Is faster, but not
+ * "var". The second argument is converted into a C long. Is faster, but not
  * as generic, as using PyArg_ParseTuple with "l". It supports either
  * gmpy.fname(z,l) or z.fname(l). "self" must be decref'ed. "var" must be a
  * pointer to a long. "msg" should be an error message that includes the
@@ -436,7 +436,7 @@
 
 /*
  * Parses one argument into "self" and a required second argument into
- * 'var". The second argument is converted into a C long. Is faster, but not
+ * "var". The second argument is converted into a C long. Is faster, but not
  * as generic, as using PyArg_ParseTuple with "l". It supports either
  * gmpy.fname(z,l) or z.fname(l). "self" must be decref'ed. "var" must be a
  * pointer to a long. "msg" should be an error message that includes the

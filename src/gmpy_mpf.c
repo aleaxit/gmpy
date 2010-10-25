@@ -323,8 +323,9 @@ f2q_internal(PympfObject* self, PympfObject* err, unsigned int bits, int mayz)
     assert(!err || Pympf_Check(err));
     errsign = err ? mpfr_sgn(err->f) : 0;
     if (errsign == 0) {
-        if (err)
+        if (err) {
             Py_DECREF((PyObject*)err);
+        }
         if (!(err = Pympf_new(20))) {
             Py_DECREF((PyObject*)self);
             return NULL;
@@ -1220,6 +1221,42 @@ lngamma(x): returns logarithm of gamma(x).\n\
 
 MPF_UNIOP(lngamma)
 
+static char doc_mpf_lgamma[]="\
+x.lgamma(): returns logarithm of absolute value of gamma(x).\n\
+";
+static char doc_gmpy_lgamma[]="\
+lgamma(x): returns logarithm of absolute value of gamma(x).\n\
+";
+static PyObject *
+Pympf_lgamma(PyObject* self, PyObject *other)
+{
+    PympfObject *result, *tempx;
+    int signp = 0;
+
+    if (!(result = Pympf_new(0)))
+        return NULL;
+    if (self && Pympf_Check(self)) {
+        gmpy_ternary = mpfr_lgamma(result->f, &signp, Pympf_AS_MPF(self),
+                                   options.rounding);
+    }
+    else if (Pympf_Check(other)) {
+        gmpy_ternary = mpfr_lgamma(result->f, &signp, Pympf_AS_MPF(other),
+                                   options.rounding);
+    }
+    else {
+        if (!(tempx = Pympf_From_Float(other, 0))) {
+            TYPE_ERROR("lgamma() requires 'mpf' argument");
+            return NULL;
+        }
+        else {
+            gmpy_ternary = mpfr_lgamma(result->f, &signp, tempx->f,
+                                       options.rounding);
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    return (PyObject*)result;
+}
+
 static char doc_fdigammam[]="\
 x.digamma(): returns digamma of x.\n\
 ";
@@ -1274,6 +1311,31 @@ j1(x): returns first kind Bessel function of order 1 of x.\n\
 
 MPF_UNIOP(j1)
 
+PyDoc_STRVAR(doc_gmpy_jn,
+"x.jn(n) -> mpf\n\n"
+"Return the first kind Bessel function of order n of x.");
+PyDoc_STRVAR(doc_mpf_jn,
+"jn(x,n) -> mpf\n\n"
+"Return the first kind Bessel function of order n of x.");
+static PyObject *
+Pympf_jn(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+    long n = 0;
+
+    PARSE_ONE_MPF_REQ_CLONG(&n, "jn() requires 'mpf,'int' arguments");
+
+    if (!(result = Pympf_new(0))) {
+        Py_DECREF(self);
+        return NULL;
+    }
+
+    gmpy_ternary = mpfr_jn(result->f, n, Pympf_AS_MPF(self),
+                           options.rounding);
+    Py_DECREF(self);
+    return (PyObject*)result;
+}
+
 static char doc_fy0m[]="\
 x.y0(): returns second kind Bessel function of order 0 of x.\n\
 ";
@@ -1291,6 +1353,31 @@ y1(x): returns second kind Bessel function of order 1 of x.\n\
 ";
 
 MPF_UNIOP(y1)
+
+PyDoc_STRVAR(doc_gmpy_yn,
+"x.yn(n) -> mpf\n\n"
+"Return the second kind Bessel function of order n of x.");
+PyDoc_STRVAR(doc_mpf_yn,
+"yn(x,n) -> mpf\n\n"
+"Return the second kind Bessel function of order n of x.");
+static PyObject *
+Pympf_yn(PyObject *self, PyObject *args)
+{
+    PympfObject *result;
+    long n = 0;
+
+    PARSE_ONE_MPF_REQ_CLONG(&n, "yn() requires 'mpf,'int' arguments");
+
+    if (!(result = Pympf_new(0))) {
+        Py_DECREF(self);
+        return NULL;
+    }
+
+    gmpy_ternary = mpfr_yn(result->f, n, Pympf_AS_MPF(self),
+                           options.rounding);
+    Py_DECREF(self);
+    return (PyObject*)result;
+}
 
 static char doc_faim[]="\
 x.ai(): returns Airy function of x.\n\
@@ -1785,5 +1872,71 @@ Pympfr_sinh_cosh(PyObject *self, PyObject *other)
     PyTuple_SET_ITEM(result, 0, (PyObject*)s);
     PyTuple_SET_ITEM(result, 1, (PyObject*)c);
     return result;
+}
+
+PyDoc_STRVAR(doc_gmpy_fma,
+"fma(x,y,z) -> mpf\n\n"
+"Return correctly rounded result of (x * y) + z.");
+static PyObject *
+Pygmpy_fma(PyObject *self, PyObject *args)
+{
+    PympfObject *result, *x, *y, *z;
+
+    if (PyTuple_GET_SIZE(args) != 3) {
+        TYPE_ERROR("fma() requires 'mpf','mpf','mpf' arguments.");
+        return NULL;
+    }
+
+    result = Pympf_new(0);
+    x = Pympf_From_Float(PyTuple_GET_ITEM(args, 0), 0);
+    y = Pympf_From_Float(PyTuple_GET_ITEM(args, 1), 0);
+    z = Pympf_From_Float(PyTuple_GET_ITEM(args, 2), 0);
+    if (!result || !x || !y || !z) {
+        TYPE_ERROR("fma() requires 'mpf','mpf','mpf' arguments.");
+        Py_XDECREF((PyObject*)result);
+        Py_XDECREF((PyObject*)x);
+        Py_XDECREF((PyObject*)y);
+        Py_XDECREF((PyObject*)z);
+        return NULL;
+    }
+
+    gmpy_ternary = mpfr_fma(result->f, x->f, y->f, z->f, options.rounding);
+    Py_DECREF((PyObject*)x);
+    Py_DECREF((PyObject*)y);
+    Py_DECREF((PyObject*)z);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_gmpy_fms,
+"fms(x,y,z) -> mpf\n\n"
+"Return correctly rounded result of (x * y) - z.");
+static PyObject *
+Pygmpy_fms(PyObject *self, PyObject *args)
+{
+    PympfObject *result, *x, *y, *z;
+
+    if (PyTuple_GET_SIZE(args) != 3) {
+        TYPE_ERROR("fms() requires 'mpf','mpf','mpf' arguments.");
+        return NULL;
+    }
+
+    result = Pympf_new(0);
+    x = Pympf_From_Float(PyTuple_GET_ITEM(args, 0), 0);
+    y = Pympf_From_Float(PyTuple_GET_ITEM(args, 1), 0);
+    z = Pympf_From_Float(PyTuple_GET_ITEM(args, 2), 0);
+    if (!result || !x || !y || !z) {
+        TYPE_ERROR("fms() requires 'mpf','mpf','mpf' arguments.");
+        Py_XDECREF((PyObject*)result);
+        Py_XDECREF((PyObject*)x);
+        Py_XDECREF((PyObject*)y);
+        Py_XDECREF((PyObject*)z);
+        return NULL;
+    }
+
+    gmpy_ternary = mpfr_fms(result->f, x->f, y->f, z->f, options.rounding);
+    Py_DECREF((PyObject*)x);
+    Py_DECREF((PyObject*)y);
+    Py_DECREF((PyObject*)z);
+    return (PyObject*)result;
 }
 
