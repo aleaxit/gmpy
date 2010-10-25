@@ -2717,23 +2717,61 @@ clong_From_Integer(PyObject *obj)
 {
     if (PyLong_Check(obj)) {
         return PyLong_AsLong(obj);
-#ifdef PY2
     }
+#ifdef PY2
     else if (PyInt_Check(obj)) {
         return PyInt_AS_LONG(obj);
-#endif
     }
-    else if (Pympz_Check(obj)) {
+#endif
+    else if (CHECK_MPZANY(obj)) {
         if (mpz_fits_slong_p(Pympz_AS_MPZ(obj))) {
             return mpz_get_si(Pympz_AS_MPZ(obj));
         }
     }
-    else if (Pyxmpz_Check(obj)) {
-        if (mpz_fits_slong_p(Pyxmpz_AS_MPZ(obj))) {
-            return mpz_get_si(Pyxmpz_AS_MPZ(obj));
+    TYPE_ERROR("conversion error in clong_From_Integer");
+    return -1;
+}
+
+/*
+ * Convert an Integer-like object (as determined by isInteger) to
+ * a Py_ssize_t. Returns -1 and raises OverflowError if the the number is
+ * too large. Returns -1 and raises TypeError if obj was not an
+ * Integer-like object.
+ */
+
+static Py_ssize_t
+ssize_t_From_Integer(PyObject *obj)
+{
+    Py_ssize_t val;
+    PyObject* temp;
+
+    if (PyLong_Check(obj)) {
+        return PyLong_AsSsize_t(obj);
+    }
+#ifdef PY2
+    else if (PyInt_Check(obj)) {
+        return PyInt_AsSize_t(obj);
+    }
+#endif
+    else if (CHECK_MPZANY(obj)) {
+        if (mpz_fits_slong_p(Pympz_AS_MPZ(obj))) {
+            return (Py_ssize_t)mpz_get_si(Pympz_AS_MPZ(obj));
+        }
+        else {
+            /* This section should only be called on Win64. */
+            temp = mpz_get_PyLong(Pympz_AS_MPZ(obj));
+            if (!temp) {
+                TYPE_ERROR("conversion error in ssize_t_From_Integer");
+                return -1;
+            }
+            else {
+                val = PyLong_AsSize_t(temp);
+                Py_DECREF(temp);
+                return val;
+            }
         }
     }
-    TYPE_ERROR("conversion error in clong_From_Integer");
+    TYPE_ERROR("conversion error in ssize_t_From_Integer");
     return -1;
 }
 
@@ -3259,7 +3297,8 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
     if (options.debug) {
         fputs("Pygmpy_mpf: created mpf = ", stderr);
         mpfr_out_str(stderr, 10, 0, newob->f, options.rounding);
-        fprintf(stderr," bits=%ld (%d)\n", (long)mpfr_get_prec(newob->f), bits);
+        fprintf(stderr," bits=%ld (%ld)\n",
+                (long)mpfr_get_prec(newob->f), (long)bits);
     }
 
     return (PyObject *) newob;

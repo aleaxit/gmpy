@@ -116,10 +116,11 @@ all bits set.\n\
 static PyObject *
 Pympz_bit_mask(PyObject *self, PyObject *other)
 {
-    long i = 0;
+    Py_ssize_t i = 0;
     PympzObject* result;
 
-    i = clong_From_Integer(other);
+    i = ssize_t_From_Integer(other);
+
     if (i == -1 && PyErr_Occurred()) {
         TYPE_ERROR("bit_mask() requires 'int' argument");
         return NULL;
@@ -1063,7 +1064,7 @@ Pympz_hash(PympzObject *self)
 
     if (self->hash_cache != -1)
         return self->hash_cache;
-    
+
     hash = (Py_hash_t)mpn_mod_1(self->z->_mp_d, mpz_size(self->z), _PyHASH_MODULUS);
     if (mpz_sgn(self->z)<0)
         hash = -hash;
