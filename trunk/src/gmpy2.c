@@ -2750,7 +2750,7 @@ ssize_t_From_Integer(PyObject *obj)
     }
 #ifdef PY2
     else if (PyInt_Check(obj)) {
-        return PyInt_AsSize_t(obj);
+        return PyInt_AsSsize_t(obj);
     }
 #endif
     else if (CHECK_MPZANY(obj)) {
@@ -2765,7 +2765,7 @@ ssize_t_From_Integer(PyObject *obj)
                 return -1;
             }
             else {
-                val = PyLong_AsSize_t(temp);
+                val = PyLong_AsSsize_t(temp);
                 Py_DECREF(temp);
                 return val;
             }
@@ -3937,6 +3937,8 @@ static PyMethodDef Pygmpy_methods [] =
     { "fib", Pygmpy_fib, METH_O, doc_fib },
     { "fib2", Pygmpy_fib2, METH_O, doc_fib2 },
     { "floor", Pympf_floor, METH_O, doc_floorg },
+    { "fma", Pygmpy_fma, METH_VARARGS, doc_gmpy_fma },
+    { "fms", Pygmpy_fms, METH_VARARGS, doc_gmpy_fms },
     { "fmod", Pygmpy_fmod, METH_VARARGS, doc_fmodg },
     { "fmod2exp", Pygmpy_fmod2exp, METH_VARARGS, doc_fmod2expg },
     { "f2q", Pympf_f2q, METH_VARARGS, doc_f2qg },
@@ -3975,11 +3977,13 @@ static PyMethodDef Pygmpy_methods [] =
     { "is_underflow", Pygmpy_is_underflow, METH_NOARGS, doc_is_underflow },
     { "is_zero", Pympf_is_zero, METH_O, doc_gmpy_is_zero },
     { "jacobi", Pympz_jacobi, METH_VARARGS, doc_jacobig },
+    { "jn", Pympf_jn, METH_VARARGS, doc_gmpy_jn },
     { "j0", Pympf_j0, METH_O, doc_fj0g },
     { "j1", Pympf_j1, METH_O, doc_fj1g },
     { "kronecker", Pympz_kronecker, METH_VARARGS, doc_kroneckerm },
     { "lcm", Pygmpy_lcm, METH_VARARGS, doc_lcm },
     { "legendre", Pympz_legendre, METH_VARARGS, doc_legendreg },
+    { "lgamma", Pympf_lgamma, METH_O, doc_gmpy_lgamma },
     { "license", Pygmpy_get_license, METH_NOARGS, doc_license },
     { "li2", Pympf_li2, METH_O, doc_fli2g },
     { "lngamma", Pympf_lngamma, METH_O, doc_flngammag },
@@ -4051,6 +4055,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "version", Pygmpy_get_version, METH_NOARGS, doc_version },
     { "xbit_mask", Pyxmpz_xbit_mask, METH_O, doc_xbit_maskg },
     { "xmpz", Pygmpy_xmpz, METH_VARARGS, doc_xmpz },
+    { "yn", Pympf_yn, METH_VARARGS, doc_gmpy_yn },
     { "y0", Pympf_y0, METH_O, doc_fy0g },
     { "y1", Pympf_y1, METH_O, doc_fy1g },
     { "zero", Pygmpy_set_zero, METH_O, doc_set_zero },
@@ -4214,8 +4219,10 @@ static PyMethodDef Pympf_methods [] =
     { "is_number", Pympf_is_number, METH_NOARGS, doc_mpf_is_number },
     { "is_regular", Pympf_is_regular, METH_NOARGS, doc_mpf_is_regular },
     { "is_zero", Pympf_is_zero, METH_NOARGS, doc_mpf_is_zero },
+    { "jn", Pympf_jn, METH_VARARGS, doc_mpf_jn },
     { "j0", Pympf_j0, METH_NOARGS, doc_fj0m },
     { "j1", Pympf_j1, METH_NOARGS, doc_fj1m },
+    { "lgamma", Pympf_lgamma, METH_NOARGS, doc_mpf_lgamma },
     { "li2", Pympf_li2, METH_NOARGS, doc_fli2m },
     { "lngamma", Pympf_lngamma, METH_NOARGS, doc_flngammam },
     { "log", Pympf_log, METH_NOARGS, doc_flogm },
@@ -4247,6 +4254,7 @@ static PyMethodDef Pympf_methods [] =
     { "tan", Pympf_tan, METH_NOARGS, doc_ftanm },
     { "tanh", Pympf_tanh, METH_NOARGS, doc_ftanhm },
     { "trunc", Pympf_trunc, METH_NOARGS, doc_truncm },
+    { "yn", Pympf_yn, METH_VARARGS, doc_mpf_yn },
     { "y0", Pympf_y0, METH_NOARGS, doc_fy0m },
     { "y1", Pympf_y1, METH_NOARGS, doc_fy1m },
     { "zeta", Pympf_zeta, METH_NOARGS, doc_fzetam },
