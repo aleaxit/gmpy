@@ -39,6 +39,10 @@ typedef int Py_ssize_t;
 #define Py_TPFLAGS_HAVE_INDEX 0
 #endif
 
+#if PY_VERSION_HEX < 0x030200A3
+typedef long Py_hash_t;
+typedef unsigned long Py_uhash_t;
+#endif
 
 /* Header file for gmpy */
 typedef struct {

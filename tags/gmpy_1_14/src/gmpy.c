@@ -215,6 +215,8 @@
  *
  *   1.14
  *   Fix leaking reference in basic operations (casevh)
+ *   Fixed incorrect type declaration for options.debug (casevh)
+ *   Support wide hash result on Win64, new for Python 3.2 (casevh)
  */
 #include "Python.h"
 
@@ -5021,22 +5023,23 @@ Pympz_hex(PympzObject *self)
 
 /* hashing */
 #ifndef _PyHASH_MODULUS
-static long
+static Py_hash_t
 dohash(PyObject* tempPynum)
 {
-    long hash;
+    Py_hash_t hash;
     if(!tempPynum) return -1;
     hash = PyObject_Hash(tempPynum);
     Py_DECREF(tempPynum);
     return hash;
 }
 #endif
-static long
+static Py_hash_t
 Pympz_hash(PympzObject *self)
 {
 #ifdef _PyHASH_MODULUS
-    long hash = 0;
-    hash = (long)mpz_tdiv_ui((self->z), _PyHASH_MODULUS);
+    Py_hash_t hash = 0;
+    hash = (Py_hash_t)mpn_mod_1(self->z->_mp_d, mpz_size(self->z),
+                                _PyHASH_MODULUS);
     if(mpz_sgn(self->z)<0)
         hash = -hash;
     if(hash==-1) hash = -2;
@@ -5045,12 +5048,12 @@ Pympz_hash(PympzObject *self)
     return mpz_pythonhash(Pympz_AS_MPZ(self));
 #endif
 }
-static long
+static Py_hash_t
 Pympf_hash(PympfObject *self)
 {
 #ifdef _PyHASH_MODULUS
-    unsigned long hash = 0;
-    long exp = 0;
+    Py_uhash_t hash = 0;
+    Py_ssize_t exp = 0;
     size_t mbits = 0;
     double notneeded;
     mpz_t hack;
@@ -5058,7 +5061,7 @@ Pympf_hash(PympfObject *self)
 
     /* Calculate the hash of the mantissa. */
     if(self->f->_mp_size>0) {
-        hash = mpn_mod_1(self->f->_mp_d, self->f->_mp_size, _PyHASH_MODULUS);
+        hash = (Py_hash_t)mpn_mod_1(self->f->_mp_d, self->f->_mp_size, _PyHASH_MODULUS);
         sign = 1;
     } else if(self->f->_mp_size<0) {
         hash = mpn_mod_1(self->f->_mp_d, -(self->f->_mp_size), _PyHASH_MODULUS);
@@ -5076,48 +5079,56 @@ Pympf_hash(PympfObject *self)
     notneeded = mpf_get_d_2exp(&exp, self->f);
 
     /* Calculate the final hash. */
-    exp -= (long)mbits;
+    exp -= (Py_ssize_t)mbits;
     exp = exp >= 0 ? exp % _PyHASH_BITS : _PyHASH_BITS-1-((-1-exp) % _PyHASH_BITS);
     hash = ((hash << exp) & _PyHASH_MODULUS) | hash >> (_PyHASH_BITS - exp);
 
-    hash *= sign;
-    if(hash==(unsigned long)-1)
-        hash = (unsigned long)-2;
-    return hash;
+    hash = (Py_hash_t)hash * sign;
+    if(hash==(Py_uhash_t)-1)
+        hash = (Py_uhash_t)-2;
+    return (Py_hash_t)hash;
 #else
     double temp;
     temp = mpf_get_d(self->f);
     return _Py_HashDouble(temp);
 #endif
 }
-static long
+static Py_hash_t
 Pympq_hash(PympqObject *self)
 {
 #ifdef _PyHASH_MODULUS
-    long hash = 0;
-    mpz_t temp, mask;
+    Py_hash_t hash = 0;
+    mpz_t temp, temp1, mask;
+
     mpz_inoc(temp);
+    mpz_inoc(temp1);
     mpz_inoc(mask);
-    mpz_set_si(mask, _PyHASH_MODULUS);
+    mpz_set_si(mask, 1);
+    mpz_mul_2exp(mask, mask, _PyHASH_BITS);
+    mpz_sub_ui(mask, mask, 1);
 
-    if(!mpz_invert(temp, mpq_denref(self->q), mask)) {
+    if (!mpz_invert(temp, mpq_denref(self->q), mask)) {
         mpz_cloc(temp);
+        mpz_cloc(temp1);
         mpz_cloc(mask);
-        if(mpz_sgn(mpq_numref(self->q))<0)
-            return -_PyHASH_INF;
-        else
-            return _PyHASH_INF;
+        hash = _PyHASH_INF;
+        if (mpz_sgn(mpq_numref(self->q))<0)
+            hash = -hash;
+        return hash;
     }
-    mpz_powm_ui(temp, mpq_denref(self->q), _PyHASH_MODULUS - 2, mask);
+    mpz_set(temp1, mask);
+    mpz_sub_ui(temp1, temp1, 2);
+    mpz_powm(temp, mpq_denref(self->q), temp1, mask);
 
-    hash = (long)mpz_tdiv_ui(mpq_numref(self->q), _PyHASH_MODULUS);
-    mpz_mul_si(temp, temp, hash);
-    hash = (long)mpz_tdiv_ui(temp, _PyHASH_MODULUS);
+    mpz_tdiv_r(temp1, mpq_numref(self->q), mask);
+    mpz_mul(temp, temp, temp1);
+    hash = (Py_hash_t)mpn_mod_1(temp->_mp_d, mpz_size(temp), _PyHASH_MODULUS);
 
-    if(mpz_sgn(mpq_numref(self->q))<0)
+    if (mpz_sgn(mpq_numref(self->q))<0)
         hash = -hash;
-    if(hash==-1) hash = -2;
+    if (hash==-1) hash = -2;
     mpz_cloc(temp);
+    mpz_cloc(temp1);
     mpz_cloc(mask);
     return hash;
 #else
