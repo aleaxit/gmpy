@@ -10,9 +10,9 @@
   Version 1.03, June 2008
   Version 1.04, June 2008 (no changes)
   Version 1.05, February 2009 (support MPIR)
-  Version 1.20, January 2010 (remove obsolete MS hacks, added
-                PyInt_FromSize_t) casevh
+  Version 1.20, January 2010 (remove obsolete MS hacks) casevh
   Version 2.00, April 2010, (change to gmpy2) casevh
+                October 2010, (added Py_hash_t) casevh
  */
 
 #ifndef Py_GMPYMODULE_H

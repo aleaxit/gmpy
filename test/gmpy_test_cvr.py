@@ -388,40 +388,34 @@ mpz(-2)
 >>> pow(_g.mpq(2),3,-5)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: mpq.pow no modulo allowed
+TypeError: mpq.pow() no modulo allowed
 >>> a=10000000000L**2
 >>> _g.mpq(2)**a
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: mpq.pow outrageous exp num
+ValueError: mpq.pow() outrageous exponent
 >>> _g.mpq(2)**_g.mpq(1,a)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: mpq.pow outrageous exp den
+mpf('1.0e0')
 >>> _g.mpq(2)**0
 mpq(1)
 >>> _g.mpq(2)**-1
 mpq(1,2)
 >>> _g.mpq(2)**_g.mpq(1,2)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: mpq.pow fractional exponent, inexact-root
+mpf('1.4142135623730951e0')
 >>> _g.mpq(-2)**_g.mpq(1,2)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: mpq.pow fractional exponent, nonreal-root
+mpf('nan')
 >>> _g.mpq(0)**_g.mpq(1,2)
-mpq(0)
+mpf('0.0e0')
 >>> _g.mpq(0)**-1
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ZeroDivisionError: mpq.pow 0 base to <0 exponent
+ZeroDivisionError: mpq.pow() 0 base to negative exponent
 >>> _g.mpq(-1)**-1
 mpq(-1)
 >>> _g.mpf(9,100)**2
-mpf('8.1e1',100)
+mpf('8.1e1')
 >>> _g.mpf(9,100)**0.5
-mpf('3.0e0',100)
+mpf('3.0e0')
 >>> _g.mpf(9,100)**_g.mpf(0.5)
 mpf('3.0e0')
 >>> _g.mpf(0)**2
@@ -429,7 +423,7 @@ mpf('0.0e0')
 >>> pow(_g.mpf(2),3,-5)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: mpf.pow no modulo allowed
+TypeError: mpf.pow() no modulo allowed
 >>> _g.mpz(1)+'bu'
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
