@@ -317,119 +317,92 @@ Pympf_pos(PympfObject *x)
 }
 
 static PyObject *
-Pympq_pow(PyObject *in_b, PyObject *in_e, PyObject *m)
+Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
 {
-    PympqObject *r;
-    PympqObject *b = Pympq_From_Rational(in_b);
-    PympqObject *e = Pympq_From_Rational(in_e);
-
-    int esign;
-    unsigned long ultem;
-
-    assert(Pympq_Check(b));
-    assert(Pympq_Check(e));
-
-    if (!b || !e) {
-        Py_XDECREF((PyObject*)b);
-        Py_XDECREF((PyObject*)e);
-        Py_RETURN_NOTIMPLEMENTED;
-    }
-
-    if (options.debug)
-        fprintf(stderr, "Pympq_pow: %p, %p, %p\n", b, e, m);
+    PympqObject *rq, *tempbq;
+    PympzObject *tempez;
+    PympfObject *rf, *tempbf, *tempef;
+    int esign, bsign;
+    long tempexp;
 
     if ((PyObject*)m != Py_None) {
-        PyErr_SetString(PyExc_ValueError, "mpq.pow no modulo allowed");
-        Py_DECREF((PyObject*)b);
-        Py_DECREF((PyObject*)e);
-        return NULL;
-    }
-    if (!mpz_fits_slong_p(mpq_numref(e->q))) {
-        PyErr_SetString(PyExc_ValueError, "mpq.pow outrageous exp num");
-        Py_DECREF((PyObject*)b);
-        Py_DECREF((PyObject*)e);
-        return NULL;
-    }
-    if (!mpz_fits_slong_p(mpq_denref(e->q))) {
-        PyErr_SetString(PyExc_ValueError, "mpq.pow outrageous exp den");
-        Py_DECREF((PyObject*)b);
-        Py_DECREF((PyObject*)e);
-        return NULL;
-    }
-    if (!(r = Pympq_new())) {
-        Py_DECREF((PyObject*)b);
-        Py_DECREF((PyObject*)e);
+        TYPE_ERROR("mpq.pow() no modulo allowed");
         return NULL;
     }
 
-    esign = mpq_sgn(e->q);
-    if (esign == 0) {
-        if (options.debug)
-            fprintf(stderr, "Pympq_pow (ui,0) -> %p\n", r);
-        mpq_set_si(r->q, 1, 1);
-        Py_DECREF((PyObject*)b);
-        Py_DECREF((PyObject*)e);
-        return (PyObject*)r;
-    }
-    else if (esign < 0) {
-        int bsign = mpq_sgn(b->q);
-        if (bsign == 0) {
-            PyObject* result = 0;
-            ZERO_ERROR("mpq.pow 0 base to <0 exponent");
-            Py_DECREF((PyObject*)r);
-            Py_DECREF((PyObject*)b);
-            Py_DECREF((PyObject*)e);
-            return result;
-        }
-        if (bsign < 0) {
-            mpz_neg(mpq_numref(r->q), mpq_denref(b->q));
-        }
-        else {
-            mpz_set(mpq_numref(r->q), mpq_denref(b->q));
-        }
-        mpz_abs(mpq_denref(r->q), mpq_numref(b->q));
-        ultem = -mpz_get_si(mpq_numref(e->q));
-    }
-    else {
-        mpq_set(r->q, b->q);
-        ultem = mpz_get_ui(mpq_numref(e->q));
-    }
-    if (ultem>1) {
-        mpz_pow_ui(mpq_numref(r->q), mpq_numref(r->q), ultem);
-        mpz_pow_ui(mpq_denref(r->q), mpq_denref(r->q), ultem);
-    }
-    ultem = mpz_get_ui(mpq_denref(e->q));
-    if (ultem>1) {
-        static char* msgi = "mpq.pow fractional exponent, inexact-root";
-        char* msg = msgi;
-        int exact=0;
-        if (mpq_sgn(r->q)<0) {
-            static char* msgi = "mpq.pow fractional exponent, nonreal-root";
-            msg = msgi;
-        }
-        else {
-            mpz_t temp; /* workaround mpz_root bug in GMP 3.1.1 */
-            mpz_inoc(temp);
-            exact = mpz_root(temp, mpq_numref(r->q), ultem);
-            if (exact) {
-                mpz_set(mpq_numref(r->q), temp);
-                exact = mpz_root(temp, mpq_denref(r->q), ultem);
-                mpz_set(mpq_denref(r->q), temp);
-            }
-        }
-        if (!exact) {
-            Py_DECREF((PyObject*)r);
-            VALUE_ERROR(msg);
-            Py_DECREF((PyObject*)b);
-            Py_DECREF((PyObject*)e);
+    /* Only support mpq**int. Everything else gets converted to mpf. */
+    if (isRational(base) && isInteger(exp)) {
+        tempbq = Pympq_From_Rational(base);
+        tempez = Pympz_From_Integer(exp);
+        if (!tempbq || !tempez) {
+            Py_XDECREF((PyObject*)tempbq);
+            Py_XDECREF((PyObject*)tempez);
             return NULL;
         }
+        if (!mpz_fits_slong_p(tempez->z)) {
+            VALUE_ERROR("mpq.pow() outrageous exponent");
+            Py_DECREF((PyObject*)tempbq);
+            Py_DECREF((PyObject*)tempez);
+            return NULL;
+        }
+        if (!(rq = Pympq_new())) {
+            Py_DECREF((PyObject*)tempbq);
+            Py_DECREF((PyObject*)tempez);
+            return NULL;
+        }
+        esign = mpz_sgn(tempez->z);
+        if (esign == 0) {
+            mpq_set_si(rq->q, 1, 1);
+            Py_DECREF((PyObject*)tempbq);
+            Py_DECREF((PyObject*)tempez);
+            return (PyObject*)rq;
+        }
+        bsign = mpq_sgn(tempbq->q);
+        if (esign < 0) {
+            if (bsign == 0) {
+                ZERO_ERROR("mpq.pow() 0 base to negative exponent");
+                Py_DECREF((PyObject*)rq);
+                Py_DECREF((PyObject*)tempbq);
+                Py_DECREF((PyObject*)tempez);
+                return NULL;
+            }
+            if (bsign < 0) {
+                mpz_neg(mpq_numref(rq->q), mpq_denref(tempbq->q));
+            }
+            else {
+                mpz_set(mpq_numref(rq->q), mpq_denref(tempbq->q));
+            }
+            mpz_abs(mpq_denref(rq->q), mpq_numref(tempbq->q));
+            tempexp = -mpz_get_si(tempez->z);
+        }
+        else {
+            mpq_set(rq->q, tempbq->q);
+            tempexp = mpz_get_si(tempez->z);
+        }
+        if (tempexp>1) {
+            mpz_pow_ui(mpq_numref(rq->q), mpq_numref(rq->q), tempexp);
+            mpz_pow_ui(mpq_denref(rq->q), mpq_denref(rq->q), tempexp);
+        }
+        Py_DECREF((PyObject*)tempbq);
+        Py_DECREF((PyObject*)tempez);
+        return (PyObject*)rq;
     }
-    if (options.debug)
-        fprintf(stderr, "Pympq_pow (ui) -> %p\n", r);
-    Py_DECREF((PyObject*)b);
-    Py_DECREF((PyObject*)e);
-    return (PyObject*)r;
+    else {
+        tempbf = Pympf_From_Float(base, 0);
+        tempef = Pympf_From_Float(exp, 0);
+        rf = Pympf_new(0);
+        if (!tempbf || !tempef || !rf) {
+            TYPE_ERROR("mpq.pow() unsupported operands");
+            Py_XDECREF((PyObject*)tempbf);
+            Py_XDECREF((PyObject*)tempef);
+            Py_XDECREF((PyObject*)rf);
+            return NULL;
+        }
+        gmpy_ternary = mpfr_pow(rf->f, tempbf->f, tempef->f, options.rounding);
+        Py_DECREF((PyObject*)tempbf);
+        Py_DECREF((PyObject*)tempef);
+        return (PyObject*)rf;
+    }
 }
 
 static int
@@ -468,7 +441,7 @@ Pympq_hash(PympqObject *self)
     mpz_set(temp1, mask);
     mpz_sub_ui(temp1, temp1, 2);
     mpz_powm(temp, mpq_denref(self->q), temp1, mask);
-    
+
     mpz_tdiv_r(temp1, mpq_numref(self->q), mask);
     mpz_mul(temp, temp, temp1);
     hash = (Py_hash_t)mpn_mod_1(temp->_mp_d, mpz_size(temp), _PyHASH_MODULUS);

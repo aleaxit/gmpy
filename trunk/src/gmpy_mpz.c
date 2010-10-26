@@ -768,7 +768,7 @@ Pympz_pow(PyObject *b, PyObject *e, PyObject *m)
     }
 
     if (!tempb || !tempe || (!tempm && (m != Py_None))) {
-        SYSTEM_ERROR("Unexpected error in Pympz_pow()");
+        TYPE_ERROR("Unsupported operand in mpz.pow()");
         goto err;
     }
 

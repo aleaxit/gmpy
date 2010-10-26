@@ -1583,3 +1583,17 @@ Pympany_divmod(PyObject *a, PyObject *b)
     }
     Py_RETURN_NOTIMPLEMENTED;
 }
+
+static PyObject *
+Pympany_pow(PyObject *base, PyObject *exp, PyObject *mod)
+{
+
+    if (isInteger(base) && isInteger(exp))
+        return Pympz_pow(base, exp, mod);
+    else if (isRational(base) && isRational(exp))
+        return Pympq_pow(base, exp, mod);
+    else if (isFloat(base) && isFloat(exp));
+        return Pympf_pow(base, exp, mod);
+
+    Py_RETURN_NOTIMPLEMENTED;
+}

@@ -480,73 +480,30 @@ Pympf_hash(PympfObject *self)
 }
 
 static PyObject *
-Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
+Pympf_pow(PyObject *base, PyObject *exp, PyObject *m)
 {
-    PympqObject *qb, *qe;
-    PyObject *r;
-    unsigned int bits;
-    int iexpo;
-    PympfObject *b = 0, *e = 0;
+    PympfObject *tempb, *tempe, *result;
 
     if ((PyObject*)m != Py_None) {
-        PyErr_SetString(PyExc_ValueError, "mpf.pow no modulo allowed");
+        TYPE_ERROR("mpf.pow() no modulo allowed");
         return NULL;
     }
 
-    if ((Pympf_Check(xb) && Pympf_Check(xe))) {
-        b = Pympf_From_Float(xb, 0);
-        e = Pympf_From_Float(xe, 0);
-    }
-    else {
-        if (Pympf_Check(xb)) {
-            b = Pympf_From_Float(xb, 0);
-            e = Pympf_From_Float(xe, mpfr_get_prec(((PympfObject*)xb)->f));
-        }
-        if (Pympf_Check(xe)) {
-            b = Pympf_From_Float(xb, mpfr_get_prec(((PympfObject*)xe)->f));
-            e = Pympf_From_Float(xe, 0);
-        }
-    }
+    tempb = Pympf_From_Float(base, 0);
+    tempe = Pympf_From_Float(exp, 0);
+    result = Pympf_new(0);
 
-    if (!e || !b) {
-        Py_XDECREF((PyObject*)e);
-        Py_XDECREF((PyObject*)b);
+    if (!tempe || !tempb || !result) {
+        Py_XDECREF((PyObject*)tempe);
+        Py_XDECREF((PyObject*)tempb);
+        Py_XDECREF((PyObject*)result);
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    bits = mpfr_get_prec(b->f);
-    if (bits > mpfr_get_prec(e->f))
-        bits = mpfr_get_prec(e->f);
-    if (options.debug)
-        fprintf(stderr, "Pympf_pow(%d): %p, %p, %p\n", bits, b, e, m);
-
-    iexpo = (int)mpfr_get_d(e->f, options.rounding);
-    if (iexpo>0 && 0==mpfr_cmp_si(e->f, iexpo)) {
-        r = (PyObject*)Pympf_new(mpfr_get_prec(b->f));
-        if (!r) {
-            Py_DECREF((PyObject*)e);
-            Py_DECREF((PyObject*)b);
-            return 0;
-        }
-        gmpy_ternary = mpfr_pow_ui(Pympf_AS_MPF(r), b->f, iexpo, options.rounding);
-    }
-    else {
-        qb = Pympf2Pympq((PyObject*)b);
-        qe = Pympf2Pympq((PyObject*)e);
-        r = Pympq_pow((PyObject*)qb, (PyObject*)qe, (PyObject*)m);
-        Py_DECREF((PyObject*)qb); Py_DECREF((PyObject*)qe);
-        if (!r || !Pympq_Check(r)) {
-            Py_DECREF((PyObject*)e);
-            Py_DECREF((PyObject*)b);
-            return r;
-        }
-        qb = (PympqObject*)r;
-        r = (PyObject*)Pympq2Pympf((PyObject*)qb, bits);
-        Py_DECREF((PyObject*)qb);
-    }
-    Py_DECREF((PyObject*)e);
-    Py_DECREF((PyObject*)b);
-    return r;
+    gmpy_ternary = mpfr_pow(result->f, tempb->f, tempe->f, options.rounding);
+    Py_DECREF((PyObject*)tempe);
+    Py_DECREF((PyObject*)tempb);
+    return (PyObject*)result;
 }
 
 static char doc_pi[]="\
