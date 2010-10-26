@@ -2051,7 +2051,7 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
     if (!numstr)
         return NULL;
 
-    if (!qden_1(self->q)) {
+    if (with_tag || !qden_1(self->q)) {
         denstr = mpz_ascii(mpq_denref(self->q), base, 0);
         if (!denstr) {
             Py_DECREF(numstr);
@@ -2062,6 +2062,7 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
     if (with_tag) {
         result = PyBytes_FromString(qtag);
         if (!result) {
+            Py_XDECREF(numstr);
             Py_XDECREF(denstr);
             return NULL;
         }
@@ -2069,6 +2070,11 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
 #ifdef PY2
         if (!mpz_fits_slong_p(mpq_numref(self->q))) {
             temp = PyBytes_FromString("L");
+            if (!temp) {
+                Py_XDECREF(denstr);
+                Py_XDECREF(result);
+                return NULL;
+            }
             PyBytes_ConcatAndDel(&result, temp);
             if (!result) {
                 Py_XDECREF(denstr);
@@ -2084,6 +2090,11 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
     if (denstr) {
         char* separator = with_tag?",":"/";
         temp = PyBytes_FromString(separator);
+        if (!temp) {
+            Py_XDECREF(denstr);
+            Py_XDECREF(result);
+            return NULL;
+        }
         PyBytes_ConcatAndDel(&result, temp);
         if (!result) {
             Py_DECREF(denstr);
@@ -2093,16 +2104,25 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
 #ifdef PY2
         if (with_tag && !mpz_fits_slong_p(mpq_denref(self->q))) {
             temp = PyBytes_FromString("L");
-            PyBytes_ConcatAndDel(&result, temp);
-            if (!result) {
+            if (!temp) {
+                Py_XDECREF(result);
                 return NULL;
             }
+            PyBytes_ConcatAndDel(&result, temp);
+            if (!result)
+                return NULL;
         }
 #endif
     }
     if (with_tag && result) {
         temp = PyBytes_FromString(")");
+        if (!temp) {
+            Py_XDECREF(result);
+            return NULL;
+        }
         PyBytes_ConcatAndDel(&result, temp);
+        if (!result)
+            return NULL;
     }
 #ifdef PY3
     temp = PyUnicode_FromString(PyBytes_AS_STRING(result));

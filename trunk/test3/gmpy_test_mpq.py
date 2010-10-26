@@ -209,8 +209,8 @@ r'''
 ...          print('er3:',i,j,str(aa),"%d"%ai); break
 ...       if aj!=1 and repr(aa) != ("mpq(%d,%d)"%(ai,aj)):
 ...          print('er4:',i,j,repr(aa),("mpq(%d,%d)"%(ai,aj))); break
-...       if aj==1 and repr(aa) != ("mpq(%d)"%ai):
-...          print('er5:',i,j,repr(aa),"mpq(%d)"%ai); break
+...       if aj==1 and repr(aa) != ("mpq(%d,%d)"%(ai,aj)):
+...          print('er5:',i,j,repr(aa),"mpq(%d,%d)"%(ai,aj)); break
 >>> fmo='_g.mpq('+a.numer().digits(16)+','+a.denom().digits(16)+')'
 >>> fmo
 '_g.mpq(0x29,0x98)'
@@ -238,7 +238,7 @@ TypeError: binary() requires a gmpy2 object as argument
 >>> x=_g.mpq('234/567')
 >>> del x
 >>> _g.mpq('7788')
-mpq(7788)
+mpq(7788,1)
 >>> _g.mpq('12.34')
 mpq(617,50)
 '''
