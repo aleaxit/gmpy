@@ -217,6 +217,7 @@
  *   Fix leaking reference in basic operations (casevh)
  *   Fixed incorrect type declaration for options.debug (casevh)
  *   Support wide hash result on Win64, new for Python 3.2 (casevh)
+ *   Fix repr(mpq) formatting when denominator was 1 (casevh)
  */
 #include "Python.h"
 
@@ -2149,7 +2150,7 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
 
     if(!numstr) return 0;
 
-    if(!qden_1(self->q)) {
+    if(with_tag || !qden_1(self->q)) {
         denstr = mpz_ascii(mpq_denref(self->q), base, 0);
         if(!denstr) {
             Py_DECREF(numstr);
