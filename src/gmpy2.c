@@ -3882,6 +3882,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "exp10", Pympf_exp10, METH_O, doc_fexp10g },
     { "exp2", Pympf_exp2, METH_O, doc_fexp2g },
     { "fac", Pygmpy_fac, METH_O, doc_fac },
+    { "factorial", Pygmpy_factorial, METH_O, doc_factorial },
     { "fdiv", Pygmpy_fdiv, METH_VARARGS, doc_fdivg },
     { "fdiv2exp", Pygmpy_fdiv2exp, METH_VARARGS, doc_fdiv2expg },
     { "fdivmod", Pygmpy_fdivmod, METH_VARARGS, doc_fdivmodg },

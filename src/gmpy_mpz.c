@@ -1289,10 +1289,10 @@ Pygmpy_divm(PyObject *self, PyObject *args)
     }
 }
 
-static char doc_fac[]="\
-fac(n): returns the factorial of n; takes O(n) time; n must be\n\
-an ordinary Python int, >=0.\n\
-";
+PyDoc_STRVAR(doc_fac,
+"fac(n) -> mpz\n\n"
+"Return the exact factorial of n.\n"
+"See factorial(n) to get the floating-point approximation.");
 static PyObject *
 Pygmpy_fac(PyObject *self, PyObject *other)
 {
@@ -1305,7 +1305,7 @@ Pygmpy_fac(PyObject *self, PyObject *other)
         return NULL;
     }
     else if (n < 0) {
-        VALUE_ERROR("factorial of negative number");
+        VALUE_ERROR("fac() of negative number");
         return NULL;
     }
     else {

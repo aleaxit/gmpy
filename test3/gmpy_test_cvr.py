@@ -447,7 +447,7 @@ mpq(1,1)
 >>> _g.fac(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: factorial of negative number
+ValueError: fac() of negative number
 >>> _g.fib(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?

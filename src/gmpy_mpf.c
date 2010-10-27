@@ -1897,3 +1897,30 @@ Pygmpy_fms(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+PyDoc_STRVAR(doc_factorial,
+"factorial(n) -> mpf\n\n"
+"Return the floating-point approximation to the factorial of n.\n"
+"See fac(n) to get the exact integer result.");
+static PyObject *
+Pygmpy_factorial(PyObject *self, PyObject *other)
+{
+    PympfObject *result;
+    long n;
+
+    n = clong_From_Integer(other);
+    if ((n == -1) && PyErr_Occurred()) {
+        TYPE_ERROR("factorial() requires 'int' argument");
+        return NULL;
+    }
+    else if (n < 0) {
+        VALUE_ERROR("factorial() of negative number");
+        return NULL;
+    }
+    else {
+        if (!(result = Pympf_new(0)))
+            return NULL;
+        mpfr_fac_ui(result->f, n, options.rounding);
+    }
+    return (PyObject*)result;
+}
+
