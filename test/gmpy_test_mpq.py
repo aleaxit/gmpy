@@ -298,16 +298,12 @@ mpq(12,5)
 def _test(chat=None):
     if chat:
         print "Unit tests for gmpy2 (mpq functionality)"
-        print "    running on Python",sys.version
-        print
-        if _g.gmp_version():
-            print "Testing gmpy2 %s (GMP %s) with default caching (%s, %s)" % (
-                (_g.version(), _g.gmp_version(), _g.get_cache()[0],
-                _g.get_cache()[1]))
-        else:
-            print "Testing gmpy2 %s (MPIR %s) with default caching (%s, %s)" % (
-                (_g.version(), _g.mpir_version(), _g.get_cache()[0],
-                _g.get_cache()[1]))
+        print "    on Python %s" % sys.version
+        print "Testing gmpy2 {}".format(_g.version())
+        print "  Mutliple-precision library:   {}".format(_g.mp_version())
+        print "  Floating-point library:       {}".format(_g.mpfr_version())
+        print "  Caching Values: (Number)      {}".format(_g.get_cache()[0])
+        print "  Caching Values: (Size, limbs) {}".format(_g.get_cache()[1])
 
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)

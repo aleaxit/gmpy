@@ -1,10 +1,6 @@
 # partial unit test for gmpy2 extra cover
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
->>> _g.gmp_version()[:3] in ('5.0', '')
-True
->>> _g.mpir_version()[:3] in ('2.0', '2.1', '')
-True
 >>> _g.version()
 '2.0.0a1'
 >>> int('gmpy2.c' in _g._cvsid())
@@ -24,7 +20,7 @@ r'''
 >>> _g.set_fcoform()
 >>> print(_g.mpf(3.0))
 3.0
->>> _g.gmp_limbsize() in (32, 64)
+>>> _g.mp_limbsize() in (32, 64)
 True
 '''
 
@@ -71,10 +67,10 @@ r'''
 Traceback (most recent call last):
   ...
 TypeError: version() takes no arguments (1 given)
->>> _g.gmp_version(23)
+>>> _g.mp_version(23)
 Traceback (most recent call last):
   ...
-TypeError: gmp_version() takes no arguments (1 given)
+TypeError: mp_version() takes no arguments (1 given)
 >>> _g.get_cache(23)
 Traceback (most recent call last):
   ...
@@ -489,16 +485,12 @@ True
 def _test(chat=None):
     if chat:
         print("Unit tests for gmpy2 (extra cover)")
-        print("    running on Python", sys.version)
-        print()
-        if _g.gmp_version():
-            print("Testing gmpy2 %s (GMP %s), default caching (%s, %s)" % (
-                (_g.version(), _g.gmp_version(), _g.get_cache()[0],
-                _g.get_cache()[1])))
-        else:
-            print("Testing gmpy2 %s (MPIR %s), default caching (%s, %s)" % (
-                (_g.version(), _g.mpir_version(), _g.get_cache()[0],
-                _g.get_cache()[1])))
+        print("    on Python %s" % sys.version)
+        print("Testing gmpy2 {}".format(_g.version()))
+        print("  Mutliple-precision library:   {}".format(_g.mp_version()))
+        print("  Floating-point library:       {}".format(_g.mpfr_version()))
+        print("  Caching Values: (Number)      {}".format(_g.get_cache()[0]))
+        print("  Caching Values: (Size, limbs) {}".format(_g.get_cache()[1]))
 
         print(__test__.keys())
     thismod = sys.modules.get(__name__)

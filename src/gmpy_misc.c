@@ -33,8 +33,8 @@ module is licensed under LGPL 3 or later.";
 #undef MPIR_VER
 
 PyDoc_STRVAR(doc_license,
-"license() -> string\n\n\
-Return string giving license information.");
+"license() -> string\n\n"
+"Return string giving license information.");
 
 static PyObject *
 Pygmpy_get_license(PyObject *self, PyObject *args)
@@ -43,8 +43,8 @@ Pygmpy_get_license(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_version,
-"version() -> string\n\n\
-Return string giving current GMPY2 version.");
+"version() -> string\n\n"
+"Return string giving current GMPY2 version.");
 
 static PyObject *
 Pygmpy_get_version(PyObject *self, PyObject *args)
@@ -53,8 +53,8 @@ Pygmpy_get_version(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_cvsid,
-"_cvsid() -> string\n\n\
-Return string giving current GMPY2 cvs Id.");
+"_cvsid() -> string\n\n"
+"Return string giving current GMPY2 cvs Id.");
 
 static PyObject *
 Pygmpy_get_cvsid(PyObject *self, PyObject *args)
@@ -62,44 +62,40 @@ Pygmpy_get_cvsid(PyObject *self, PyObject *args)
     return Py_BuildValue("s", _gmpy_cvs);
 }
 
-PyDoc_STRVAR(doc_gmp_version,
-"gmp_version() -> string\n\n\
-Return string giving current GMP version. Empty string returned if\n\
-MPIR is used.");
+PyDoc_STRVAR(doc_mp_version,
+"mp_version() -> string\n\n"
+"Return string giving the name and version of the multiple precision\n"
+"library used.");
 
 static PyObject *
-Pygmpy_get_gmp_version(PyObject *self, PyObject *args)
+Pygmpy_get_mp_version(PyObject *self, PyObject *args)
 {
 #ifndef __MPIR_VERSION
-    return Py_BuildValue("s", gmp_version);
+    return PyUnicode_FromFormat("%s %s", "GMP", gmp_version);
 #else
-    return Py_BuildValue("s", "");
+    return PyUnicode_FromFormat("%s %s", "MPIR", mpir_version);
 #endif
 }
 
-PyDoc_STRVAR(doc_mpir_version,
-"mpir_version() -> string\n\n\
-Return string giving current MPIR version. Empty string is returned if\n\
-GMP was used.");
+PyDoc_STRVAR(doc_mpfr_version,
+"mpfr_version() -> string\n\n"
+"Return string giving current MPFR version.");
 
 static PyObject *
-Pygmpy_get_mpir_version(PyObject *self, PyObject *args)
+Pygmpy_get_mpfr_version(PyObject *self, PyObject *args)
 {
-#ifdef __MPIR_VERSION
-    return Py_BuildValue("s", mpir_version);
-#else
-    return Py_BuildValue("s", "");
-#endif
+    return PyUnicode_FromFormat("%s %s", "MPFR",
+                                MPFR_VERSION_STRING);
 }
 
-PyDoc_STRVAR(doc_gmp_limbsize,
-"gmp_limbsize() -> integer\n\n\
+PyDoc_STRVAR(doc_mp_limbsize,
+"mp_limbsize() -> integer\n\n\
 Return the number of bits per limb.");
 
 static PyObject *
-Pygmpy_get_gmp_limbsize(PyObject *self, PyObject *args)
+Pygmpy_get_mp_limbsize(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("i", GMP_NUMB_BITS);
+    return Py_BuildValue("i", mp_bits_per_limb);
 }
 
 /*
@@ -337,10 +333,10 @@ Pygmpy_is_erangeflag(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_get_ternary,
 "get_ternary() -> integer\n\n\
-Return the ternary result code from the most recent MPFR operation."
-"If the ternary value is 0, the result of the operation is exact."
-"If the ternary value is > 0, the result of the operation is greater"
-"than the exact result. If the ternary value < 0, then the result"
+Return the ternary result code from the most recent MPFR operation.\n"
+"If the ternary value is 0, the result of the operation is exact.\n"
+"If the ternary value is > 0, the result of the operation is greater\n"
+"than the exact result. If the ternary value < 0, then the result\n"
 "of the operation is less than the exact result.");
 static PyObject *
 Pygmpy_get_ternary(PyObject *self, PyObject *args)
