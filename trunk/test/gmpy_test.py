@@ -32,15 +32,11 @@ test_modules = (gmpy_test_cvr, gmpy_test_mpf,
 _g = gmpy2
 writeln("Unit tests for gmpy2")
 writeln("    on Python %s" % sys.version)
-if _g.gmp_version():
-    writeln("Testing gmpy2 %s (GMP %s), default caching (%s, %s)" % (
-            (_g.version(), _g.gmp_version(), _g.get_cache()[0],
-            _g.get_cache()[1])))
-else:
-    writeln("Testing gmpy2 %s (MPIR %s), default caching (%s, %s)" % (
-            (_g.version(), _g.mpir_version(), _g.get_cache()[0],
-            _g.get_cache()[1])))
-
+writeln("Testing gmpy2 {}".format(_g.version()))
+writeln("  Mutliple-precision library:   {}".format(_g.mp_version()))
+writeln("  Floating-point library:       {}".format(_g.mpfr_version()))
+writeln("  Caching Values: (Number)      {}".format(_g.get_cache()[0]))
+writeln("  Caching Values: (Size, limbs) {}".format(_g.get_cache()[1]))
 
 pf, pt = 0, 0
 for x in test_modules:
