@@ -530,7 +530,7 @@ xmpz(587)
 xmpz(587)
 >>> _g.xmpz('1001001011',2).digits(2)
 '0b1001001011'
->>> for i in range(2,37):
+>>> for i in range(2,63):
 ...     print(a.digits(i))
 ...
 0b1111011
@@ -568,11 +568,36 @@ a3
 3l
 3i
 3f
->>> print(a.digits(37))
+3C
+39
+36
+33
+30
+2d
+2b
+2Z
+2X
+2V
+2T
+2R
+2P
+2N
+2L
+2J
+2H
+2F
+2D
+2B
+29
+27
+25
+23
+21
+1z
+>>> print(a.digits(63))
 Traceback (innermost last):
-  File "<stdin>", line 1, in ?
-    print(a.digits(37))
-ValueError: base must be either 0 or in the interval 2 ... 36
+  ...
+ValueError: base must be either 0 or in the interval 2 ... 62
 >>> _g.xmpz('43')
 xmpz(43)
 >>> _g.xmpz('043')
@@ -656,7 +681,7 @@ xmpz(573406620562849222387053)
 >>> _g.numdigits(23,99)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
-ValueError: base must be either 0 or in the interval 2 ... 36
+ValueError: base must be either 0 or in the interval 2 ... 62
 >>> _g.xmpz(_g.binary(_g.xmpz(-123)),256)
 xmpz(-123)
 >>> int(_g.xmpz(-3))

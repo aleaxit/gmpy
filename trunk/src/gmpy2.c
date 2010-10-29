@@ -1093,7 +1093,7 @@ PyLong2Pympq(PyObject *self)
 
 /*
  * mpz conversion from string includes from-binary (base-256 LSB string
- * of bytes) and 'true' from-string (bases 2 to 36; bases 8 and 16 are
+ * of bytes) and 'true' from-string (bases 2 to 62; bases 8 and 16 are
  * special -- decorations of leading 0/0x are allowed (not required).
  *
  * Binary form was previously (0.6) limited to >=0 values; now (0.7)
@@ -1875,9 +1875,7 @@ Pympf2binary(PympfObject *self)
 }
 
 /*
- * format mpz into any base (2 to 36), optionally with
- * a "gmpy2.mpz(...)" tag around it so it can be recovered
- * through a Python eval of the resulting string
+ * format mpz into any base (2 to 62)
  */
 static char* ztag = "mpz(";
 static PyObject *
@@ -1888,8 +1886,8 @@ mpz_ascii(mpz_t z, int base, int with_tag)
     int negative = 0;
     size_t size;
 
-    if ((base != 0) && ((base < 2) || (base > 36))) {
-        VALUE_ERROR("base must be either 0 or in the interval 2 ... 36");
+    if ((base != 0) && ((base < 2) || (base > 62))) {
+        VALUE_ERROR("base must be either 0 or in the interval 2 ... 62");
         return NULL;
     }
 
@@ -1952,9 +1950,7 @@ mpz_ascii(mpz_t z, int base, int with_tag)
 }
 
 /*
- * format xmpz into any base (2 to 36), optionally with
- * a "gmpy2.xmpz(...)" tag around it so it can be recovered
- * through a Python eval of the resulting string
+ * format xmpz into any base (2 to 62)
  */
 static char* xztag = "xmpz(";
 static PyObject *
@@ -1965,8 +1961,8 @@ xmpz_ascii(mpz_t z, int base, int with_tag)
     int negative = 0;
     size_t size;
 
-    if ((base != 0) && ((base < 2) || (base > 36))) {
-        VALUE_ERROR("base must be either 0 or in the interval 2 ... 36");
+    if ((base != 0) && ((base < 2) || (base > 62))) {
+        VALUE_ERROR("base must be either 0 or in the interval 2 ... 62");
         return NULL;
     }
 
@@ -3081,9 +3077,9 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
                 TYPE_ERROR("gmpy2.mpz(): base must be an integer");
                 return NULL;
             }
-            if ((base!=0) && (base!=256) && ((base<2)||(base>36))) {
+            if ((base!=0) && (base!=256) && ((base<2)||(base>62))) {
                 VALUE_ERROR("base for gmpy2.mpz must be 0, 256, or in the "
-                            "interval 2 ... 36 .");
+                            "interval 2 ... 62");
                 return NULL;
             }
         }
@@ -3155,9 +3151,9 @@ Pygmpy_xmpz(PyObject *self, PyObject *args)
             TYPE_ERROR("gmpy2.xmpz(): base must be an integer");
             return NULL;
         }
-        if ((base!=0) && (base!=256) && ((base<2)||(base>36))) {
+        if ((base!=0) && (base!=256) && ((base<2)||(base>62))) {
             VALUE_ERROR("gmpy2.xmpz(): base must be 0, 256, or in the "
-                        "interval 2 ... 36 .");
+                        "interval 2 ... 62");
             return NULL;
         }
     }
@@ -3345,7 +3341,7 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
             }
             if ((base!=0) && (base!=256) && ((base<2)||(base>62))) {
                 VALUE_ERROR("base for gmpy2.mpf must be 0, 256, or in the "
-                            "interval 2 ... 62 .");
+                            "interval 2 ... 62");
                 return NULL;
             }
         }
