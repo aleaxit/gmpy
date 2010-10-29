@@ -247,7 +247,6 @@ Py##NAME(PyObject *a, PyObject *b) \
     Py_XDECREF((PyObject*)pb); \
     Py_RETURN_NOTIMPLEMENTED; \
   } \
-  if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p", pa, pb); \
   if (!(r = Pympq_new())) { \
     Py_DECREF((PyObject*)pa); \
     Py_DECREF((PyObject*)pb); \
@@ -256,7 +255,6 @@ Py##NAME(PyObject *a, PyObject *b) \
   NAME(r->q, pa->q, pb->q); \
   Py_DECREF((PyObject*)pa); \
   Py_DECREF((PyObject*)pb); \
-  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", r); \
   return (PyObject *) r; \
 }
 
@@ -265,10 +263,8 @@ static PyObject * \
 Py##NAME(PympfObject *x) \
 { \
   PympfObject *r; \
-  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", x); \
   if (!(r = Pympf_new(mpfr_get_prec(x->f)))) return NULL; \
   NAME(r->f, x->f, options.rounding); \
-  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
   return (PyObject *) r; \
 }
 
@@ -277,10 +273,8 @@ static PyObject * \
 Py##NAME(PympqObject *x) \
 { \
   PympqObject *r; \
-  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", x); \
   if (!(r = Pympq_new())) return NULL; \
   NAME(r->q, x->q); \
-  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
   return (PyObject *) r; \
 }
 

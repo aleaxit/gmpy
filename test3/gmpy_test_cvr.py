@@ -12,10 +12,6 @@ __test__={}
 
 __test__['misc_stuff']=\
 r'''
->>> junk=_g.set_debug(0)
->>> knuj=_g.set_debug(junk)
->>> junk==_g.set_debug(junk)
-1
 >>> _g.set_fcoform(None)
 >>> _g.set_fcoform()
 >>> print(_g.mpf(3.0))
@@ -99,18 +95,6 @@ ValueError: cache size must between 0 and 1000
 Traceback (most recent call last):
   ...
 ValueError: object size must between 0 and 16384
->>> _g.set_debug()
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: function takes exactly 1 argument (0 given)
->>> _g.set_debug(2,3)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: function takes exactly 1 argument (2 given)
->>> _g.set_debug('boh')
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: an integer is required
 >>> _g.set_precision(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?

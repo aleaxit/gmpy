@@ -86,7 +86,7 @@ typedef unsigned long Py_uhash_t;
 #define SYSTEM_ERROR(msg) PyErr_SetString(PyExc_SystemError, msg)
 #define OVERFLOW_ERROR(msg) PyErr_SetString(PyExc_OverflowError, msg)
 
-#ifdef FAST
+#ifdef DEBUG
 #define TRACE(msg)
 #else
 #define TRACE(msg) if(options.debug) fprintf(stderr, msg)
