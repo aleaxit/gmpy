@@ -87,9 +87,9 @@ typedef unsigned long Py_uhash_t;
 #define OVERFLOW_ERROR(msg) PyErr_SetString(PyExc_OverflowError, msg)
 
 #ifdef DEBUG
-#define TRACE(msg)
-#else
 #define TRACE(msg) if(options.debug) fprintf(stderr, msg)
+#else
+#define TRACE(msg)
 #endif
 
 #define GMPY_MODE_MPFR 0
