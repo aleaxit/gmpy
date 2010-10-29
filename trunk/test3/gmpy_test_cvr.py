@@ -12,8 +12,6 @@ __test__={}
 
 __test__['misc_stuff']=\
 r'''
->>> _g.set_fcoform(None)
->>> _g.set_fcoform()
 >>> print(_g.mpf(3.0))
 3.0
 >>> _g.mp_limbsize() in (32, 64)
@@ -99,14 +97,6 @@ ValueError: object size must between 0 and 16384
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: invalid value for precision
->>> _g.set_fcoform(33)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: number of digits n must be 0<n<=30
->>> _g.set_fcoform([])
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: set_fcoform argument must be int, string, or None
 >>> _g.mpz('12'+chr(0)+'34')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
