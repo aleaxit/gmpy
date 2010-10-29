@@ -528,62 +528,6 @@ Pygmpy_set_rounding(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-static char doc_set_fcoform[]="\
-set_fcoform(s=None): resets (if s is None) or sets the module level\n\
-'fcoform' setting, the format in which to build an intermediate string\n\
-to be used in float->mpf conversion (direct, if no fcoform); also\n\
-returns the previous value of this module-level setting.  Note that\n\
-s must be a string usable for s%f formatting; or, s may be a Python\n\
-int, 0<s<=30, in which case format is set to '%.<s>e'.\n\
-";
-static PyObject *
-Pygmpy_set_fcoform(PyObject *self, PyObject *args)
-{
-    PyObject *old = options.fcoform;
-    PyObject *new = 0;
-    long inew;
-
-    if(!PyArg_ParseTuple(args, "|O", &new))
-        return NULL;
-    if(new == Py_None) { /* none == missing-argument (reset string use) */
-        new = 0;
-    } else if(new) {
-        char buf[20];
-        if(isInteger(new)) {
-            /* int arg (1 to 30) used as # of digits for intermediate string */
-            inew = clong_From_Integer(new);
-            if(inew==-1 && PyErr_Occurred()) {
-                VALUE_ERROR("number of digits n must be 0<n<=30");
-                return NULL;
-            }
-            /* check range for number-of-digits setting */
-            if(inew<=0 || inew>30) {
-                VALUE_ERROR("number of digits n must be 0<n<=30");
-                return NULL;
-            }
-            /* prepare Python format-string '%.12e' or whatever */
-            sprintf(buf,"%%.%lde",inew);
-#ifdef PY3
-            new = PyUnicode_FromString(buf);
-#else
-            new = PyString_FromString(buf);
-#endif
-        } else { /* else arg must be string directly usable in formatting */
-            if(!Py2or3String_Check(new)) {
-                TYPE_ERROR("set_fcoform argument must be int, string, or None");
-                return NULL;
-            }
-            Py_INCREF(new);
-        }
-    }
-    /* set new 'float conversion format' and return old one if any */
-    options.fcoform = new;
-    if(old)
-        return old;
-    else
-        return Py_BuildValue("");
-}
-
 /* create a copy of a gmpy2 object */
 PyDoc_STRVAR(doc_copym,
 "x._copy() -> gmpy2_object\n\n"

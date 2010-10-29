@@ -303,19 +303,10 @@ ValueError: digits must be 0 or >= 2
 ...     tempb=_g.mpf(i/10.0).digits(10,17)[0]
 ...     assert tempb.startswith(tempa.rstrip('0')), (tempa, tempb)
 ...
->>> junk=_g.set_fcoform(14)
->>> frmt=_g.set_fcoform(14)
->>> frmt
-'%.14e'
->>> ofmt=_g.set_fcoform(frmt)
->>> ofmt
-'%.14e'
 >>> _g.mpf(3.4)
 mpf('3.3999999999999999e0')
 >>> print(_g.mpf(3.4))
 3.3999999999999999
->>> _g.set_fcoform(junk)
-'%.14e'
 >>> a.digits(1)
 Traceback (most recent call last):
   File "<string>", line 1, in ?

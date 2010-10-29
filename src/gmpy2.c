@@ -223,6 +223,7 @@
  *   Remove tagoff option (casevh)
  *   Add support for MPFR (casevh)
  *   Debug messages only available if compiled with -DDEBUG (casevh)
+ *   Removed fcoform float conversion modifier (casevh)
  */
 #include "Python.h"
 
@@ -309,8 +310,7 @@ static struct gmpy_options {
     mpfr_rnd_t rounding;     /* current rounding mode */
     int cache_size;          /* size of cache, for all caches */
     int cache_obsize;        /* maximum size of the objects that are cached */
-    PyObject* fcoform;       /* if non-NULL, format for float->mpf (via string) */
-} options = { 0, GMPY_MODE_PYTHON, DBL_MANT_DIG, MPFR_RNDN, 100, 128, 0 };
+} options = { 0, GMPY_MODE_PYTHON, DBL_MANT_DIG, MPFR_RNDN, 100, 128 };
 
 /* Save the ternary result code from MPFR operations. */
 
@@ -905,33 +905,8 @@ PyFloat2Pympf(PyObject *self, mpfr_prec_t bits)
     if (options.debug)
         fprintf(stderr, "PyFloat2Pympf(%p,%ld)\n", self, (long) bits);
 #endif
-    if (options.fcoform) {
-        /* 2-step float->mpf conversion process: first, get a
-         * Python string by formatting the Python float; then,
-         * use str2mpf to build the mpf from the string.
-         */
-        PyObject *tuple, *s, *fmt;
-
-        if (!(tuple = Py_BuildValue("(O)", self)))
-            return NULL;
-        if (!(fmt = (PyObject*)Py2or3String_FromString("%s"))) {
-            Py_DECREF(tuple);
-            return NULL;
-        }
-        s = Py2or3String_Format(fmt, tuple);
-        Py_DECREF(tuple);
-        Py_DECREF(fmt);
-        if (!s)
-            return NULL;
-        newob = PyStr2Pympf(s, 10, bits);
-        Py_DECREF(s);
-        if (!newob)
-            return NULL;
-    }
-    else { /* direct float->mpf conversion, faster but rougher */
-        if ((newob = Pympf_new(bits)))
-            gmpy_ternary = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), bits);
-    }
+    if ((newob = Pympf_new(bits)))
+        gmpy_ternary = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), bits);
     return newob;
 }
 
@@ -4057,7 +4032,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "set_emax", Pygmpy_set_emax, METH_VARARGS, doc_set_emax },
     { "set_emin", Pygmpy_set_emin, METH_VARARGS, doc_set_emin },
     { "set_erangeflag", Pygmpy_set_erangeflag, METH_NOARGS, doc_set_erangeflag },
-    { "set_fcoform", Pygmpy_set_fcoform, METH_VARARGS, doc_set_fcoform },
     { "set_inexactflag", Pygmpy_set_inexflag, METH_NOARGS, doc_set_inexflag },
     { "set_mode", Pygmpy_set_mode, METH_VARARGS, doc_set_mode },
     { "set_nanflag", Pygmpy_set_nanflag, METH_NOARGS, doc_set_nanflag },
