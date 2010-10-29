@@ -6,15 +6,15 @@
  */
 
 /* produce digits for an mpz in requested base, default 10 */
-static char doc_mpz_digits[]="\
-x.digits([base]): returns Python string representing x in the\n\
-given base (2 to 36, default 10 if omitted or 0); leading '-'\n\
-is present if x<0, but no leading '+' if x>=0.\n\
-";
+PyDoc_STRVAR(doc_mpz_digits,
+"x.digits([base]) -> string\n\n"
+"Return Python string representing x in the given base (2 to 62,\n"
+"default 10 if omitted or 0); leading '-' is present if x<0, but\n"
+"no leading '+' if x>=0.");
 static PyObject *
 Pympz_digits(PyObject *self, PyObject *args)
 {
-    int base = 10;
+    long base = 10;
     PyObject *result;
 
     PARSE_ONE_MPZ_OPT_CLONG(&base,
@@ -27,7 +27,7 @@ Pympz_digits(PyObject *self, PyObject *args)
 static PyObject *
 Pyxmpz_digits(PyObject *self, PyObject *args)
 {
-    int base = 10;
+    long base = 10;
     PyObject *result;
 
     PARSE_ONE_MPZ_OPT_CLONG(&base,
@@ -38,37 +38,36 @@ Pyxmpz_digits(PyObject *self, PyObject *args)
 }
 
 /* return number-of-digits for an mpz in requested base, default 10 */
-static char doc_numdigitsm[]="\
-x.numdigits([base]): returns length of string representing x in\n\
-the given base (2 to 36, default 10 if omitted or 0); the value\n\
-returned may sometimes be 1 more than necessary; no provision\n\
-for any 'sign' character, nor leading '0' or '0x' decoration,\n\
-is made in the returned length.\n\
-";
-static char doc_numdigitsg[]="\
-numdigits(x[,base]): returns length of string representing x in\n\
-the given base (2 to 36, default 10 if omitted or 0); the value\n\
-returned may sometimes be 1 more than necessary; no provision\n\
-for any 'sign' character, nor leading '0' or '0x' decoration,\n\
-is made in the returned length.  x must be an mpz, or else gets\n\
-coerced into one.\n\
-";
+PyDoc_STRVAR(doc_numdigitsm,
+"x.numdigits([base]) -> int\n\n"
+"Return length of string representing x in the given base (2 to 62,\n"
+"default 10 if omitted or 0); the value returned may sometimes be 1\n"
+"more than necessary; no provision for any 'sign' character, nor\n"
+"leading '0' or '0x' decoration, is made in the returned length.");
+
+PyDoc_STRVAR(doc_numdigitsg,
+"numdigits(x[,base]) -> int\n\n"
+"Return length of string representing x in the given base (2 to 62,\n"
+"default 10 if omitted or 0); the value returned may sometimes be 1\n"
+"more than necessary; no provision for any 'sign' character, nor\n"
+"leading '0' or '0x' decoration, is made in the returned length.");
 static PyObject *
 Pympz_numdigits(PyObject *self, PyObject *args)
 {
-    int base = 10;
+    long base = 10;
     PyObject *result;
 
     PARSE_ONE_MPZ_OPT_CLONG(&base,
             "numdigits() requires 'mpz',['int'] arguments");
     if (base == 0)
         base = 10;
-    if ((base < 2) || (base > 36)) {
-        VALUE_ERROR("base must be either 0 or in the interval 2 ... 36");
+    if ((base < 2) || (base > 62)) {
+        VALUE_ERROR("base must be either 0 or in the interval 2 ... 62");
         Py_DECREF(self);
         return NULL;
     }
-    result = PyIntOrLong_FromSize_t(mpz_sizeinbase(Pympz_AS_MPZ(self), base));
+    result = PyIntOrLong_FromSize_t(mpz_sizeinbase(Pympz_AS_MPZ(self),
+                                    (int)base));
     Py_DECREF(self);
     return result;
 }

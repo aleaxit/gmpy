@@ -264,7 +264,7 @@ TypeError: gmpy2.mpz(): base must be an integer
 >>> _g.mpz('bi',99)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: base for gmpy2.mpz must be 0, 256, or in the interval 2 ... 36 .
+ValueError: base for gmpy2.mpz must be 0, 256, or in the interval 2 ... 62
 >>> _g.mpz(1,2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -316,7 +316,7 @@ TypeError: gmpy2.mpf(): base must be an integer
 >>> _g.mpf('ba',0,99)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: base for gmpy2.mpf must be 0, 256, or in the interval 2 ... 62 .
+ValueError: base for gmpy2.mpf must be 0, 256, or in the interval 2 ... 62
 >>> _g.mpf(1,2,3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
