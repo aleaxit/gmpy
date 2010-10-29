@@ -302,10 +302,10 @@ Pympf_f2q(PyObject *self, PyObject *args)
 {
     PympfObject *err = 0;
     PympfObject *fself;
-
+#ifdef DEBUG
     if (options.debug)
         fprintf(stderr, "Pympf_f2q: %p, %p\n", self, args);
-
+#endif
     SELF_MPF_ONE_ARG_CONVERTED_OPT(&err);
     assert(Pympf_Check(self));
     fself = (PympfObject*)self;
