@@ -342,6 +342,8 @@ static PyMethodDef Pyxmpz_methods [];
  * The cache is accessed via Pympz_new/Pympz_dealloc and Pympq_new/
  * Pympq_dealloc. The functions set_pympzcache and set_pympqcache are used
  * to change the size of the array used to the store the cached objects.
+ *
+ * Caching for PympfObject added later.
  */
 
 static mpz_t* zcache;
@@ -510,6 +512,26 @@ set_pympqcache(void)
     pympqcache = PyMem_Realloc(pympqcache, sizeof(PympqObject)*options.cache_size);
 }
 
+/* Cache Pympf objects directly */
+
+static PympfObject **pympfcache;
+static int in_pympfcache;
+
+static void
+set_pympfcache(void)
+{
+    TRACE("Entering set_pympfcache\n");
+    if (in_pympfcache > options.cache_size) {
+        int i;
+        for (i = options.cache_size; i < in_pympfcache; ++i) {
+            mpfr_clear(pympfcache[i]->f);
+            PyObject_Del(pympfcache[i]);
+        }
+        in_pympfcache = options.cache_size;
+    }
+    pympfcache = PyMem_Realloc(pympfcache, sizeof(PympfObject)*options.cache_size);
+}
+
 /* generation of new, uninitialized objects; deallocations */
 static PympzObject *
 Pympz_new(void)
@@ -585,15 +607,26 @@ Pympf_new(mpfr_prec_t bits)
     PympfObject *self;
 
     TRACE("Entering Pympf_new\n");
-    if (!(self = PyObject_New(PympfObject, &Pympf_Type)))
-        return NULL;
     if (bits == 0)
         bits = options.precision;
     if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");
         return NULL;
     }
-    mpfr_init2(self->f, bits);
+    if (in_pympfcache) {
+        TRACE("Pympf_new is reusing an old object\n");
+        self = (pympfcache[--in_pympfcache]);
+        /* Py_INCREF does not set the debugging pointers, so need to use
+           _Py_NewReference instead. */
+        _Py_NewReference((PyObject*)self);
+        mpfr_set_prec(self->f, bits);
+    }
+    else {
+        TRACE("Pympf_new is creating a new object\n");
+        if (!(self = PyObject_New(PympfObject, &Pympf_Type)))
+            return NULL;
+        mpfr_init2(self->f, bits);
+    }
     self->hash_cache = -1;
     return self;
 }
@@ -644,9 +677,19 @@ Pympq_dealloc(PympqObject *self)
 static void
 Pympf_dealloc(PympfObject *self)
 {
+    size_t msize;
+
     TRACE("Pympf_dealloc\n");
-    mpfr_clear(self->f);
-    PyObject_Del(self);
+    /* Calculate the number of limbs in the mantissa. */
+    msize = (self->f->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
+    if (in_pympfcache < options.cache_size &&
+        msize <= options.cache_obsize) {
+        (pympfcache[in_pympfcache++]) = self;
+    }
+    else {
+        mpfr_clear(self->f);
+        PyObject_Del(self);
+    }
 }
 
 /* CONVERSIONS AND COPIES */
@@ -4525,6 +4568,7 @@ static void _PyInitGMP(void)
     set_pympzcache();
     set_pympqcache();
     set_pyxmpzcache();
+    set_pympfcache();
 }
 
 static char _gmpy_docs[] = "\
