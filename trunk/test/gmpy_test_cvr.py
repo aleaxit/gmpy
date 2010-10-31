@@ -298,7 +298,7 @@ TypeError: gmpy2.mpq(): base must be an integer
 >>> _g.mpq('bi',99)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: base for gmpy2.mpq() must be 0, 256, or in the interval 2 ... 36 .
+ValueError: base for gmpy2.mpq() must be 0, 256, or in the interval 2 ... 62
 >>> _g.mpq(None)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?

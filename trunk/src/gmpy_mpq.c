@@ -8,7 +8,7 @@
 /* produce digits for an mpq in requested base, default 10 */
 static char doc_qdigitsm[]="\
 x.digits([base]): returns Python string representing x in the\n\
-given base (2 to 36, default 10 if omitted or 0); leading '-'\n\
+given base (2 to 62, default 10 if omitted or 0); leading '-'\n\
 is present if x<0, but no leading '+' if x>=0.\n\
 ";
 static PyObject *
