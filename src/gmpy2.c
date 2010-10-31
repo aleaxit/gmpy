@@ -1214,9 +1214,9 @@ PyStr2Pyxmpz(PyObject *s, long base)
 
 /*
  * mpq conversion from string includes from-binary (base-256 LSB string
- * of bytes) and 'true' from-string (bases 2 to 36; bases 8 and 16 are
+ * of bytes) and 'true' from-string (bases 2 to 62; bases 8 and 16 are
  * special -- decorations of leading 0/0x are allowed (but not required).
- * For 'true-bases' 2..36 there is a '/' separator between numerator and
+ * For 'true-bases' 2..62 there is a '/' separator between numerator and
  * denominator (if none, just numerator!); decimal point NOT allowed.
  *
  * Added in gmpy 1.02: also support a string of the form '12.34', i.e.,
@@ -1376,7 +1376,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
 
 /*
  * mpf conversion from string includes from-binary (base-256, format is
- * explained later) and 'true' from-string (bases 2 to 36), where exponent
+ * explained later) and 'true' from-string (bases 2 to 62), where exponent
  * if any is denoted by 'e' if base<=10, else by '@', and is always decimal.
  */
 static PympfObject *
@@ -3227,9 +3227,9 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
                 TYPE_ERROR("gmpy2.mpq(): base must be an integer");
                 return NULL;
             }
-            if ((base!=0) && (base!=256) && ((base<2)||(base>36))) {
+            if ((base!=0) && (base!=256) && ((base<2)||(base>62))) {
                 VALUE_ERROR("base for gmpy2.mpq() must be 0, 256, or in the "
-                            "interval 2 ... 36 .");
+                            "interval 2 ... 62");
                 return NULL;
             }
         }
