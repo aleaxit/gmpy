@@ -1178,26 +1178,35 @@ lngamma(x): returns logarithm of gamma(x).\n\
 
 MPF_UNIOP(lngamma)
 
-static char doc_mpf_lgamma[]="\
-x.lgamma(): returns logarithm of absolute value of gamma(x).\n\
-";
-static char doc_gmpy_lgamma[]="\
-lgamma(x): returns logarithm of absolute value of gamma(x).\n\
-";
+PyDoc_STRVAR(doc_mpf_lgamma,
+"x.lgamma() -> (mpf, int)\n\n"
+"Return a 2-tuple containing the logarithm of the absolute value of\n"
+"gamma(x) and the sign of gamma(x)");
+PyDoc_STRVAR(doc_gmpy_lgamma,
+"lgamma(x) -> (mpf, int)\n\n"
+"Return a 2-tuple containing the logarithm of the absolute value of\n"
+"gamma(x) and the sign of gamma(x)");
 static PyObject *
 Pympf_lgamma(PyObject* self, PyObject *other)
 {
-    PympfObject *result, *tempx;
+    PyObject *result;
+    PympfObject *value, *tempx;
     int signp = 0;
 
-    if (!(result = Pympf_new(0)))
+    value = Pympf_new(0);
+    result = PyTuple_New(2);
+    if (!value || !result) {
+        Py_XDECREF(result);
+        Py_XDECREF((PyObject*)value);
         return NULL;
+    }
+
     if (self && Pympf_Check(self)) {
-        gmpy_ternary = mpfr_lgamma(result->f, &signp, Pympf_AS_MPF(self),
+        gmpy_ternary = mpfr_lgamma(value->f, &signp, Pympf_AS_MPF(self),
                                    options.rounding);
     }
     else if (Pympf_Check(other)) {
-        gmpy_ternary = mpfr_lgamma(result->f, &signp, Pympf_AS_MPF(other),
+        gmpy_ternary = mpfr_lgamma(value->f, &signp, Pympf_AS_MPF(other),
                                    options.rounding);
     }
     else {
@@ -1206,12 +1215,14 @@ Pympf_lgamma(PyObject* self, PyObject *other)
             return NULL;
         }
         else {
-            gmpy_ternary = mpfr_lgamma(result->f, &signp, tempx->f,
+            gmpy_ternary = mpfr_lgamma(value->f, &signp, tempx->f,
                                        options.rounding);
             Py_DECREF((PyObject*)tempx);
         }
     }
-    return (PyObject*)result;
+    PyTuple_SET_ITEM(result, 0, (PyObject*)value);
+    PyTuple_SET_ITEM(result, 1, PyIntOrLong_FromLong((long)signp));
+    return result;
 }
 
 static char doc_fdigammam[]="\
@@ -1924,3 +1935,52 @@ Pygmpy_factorial(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
+PyDoc_STRVAR(doc_gmpy_lessgreater,
+"x.is_lessgreater(y) -> boolean\n\n"
+"Return True if x > y or x < y. Return False if x == y or either x\n"
+"and/or y is NaN.");
+PyDoc_STRVAR(doc_mpf_lessgreater,
+"is_lessgreater(x,y) -> boolean\n\n"
+"Return True if x > y or x < y. Return False if x == y or either x\n"
+"and/or y is NaN.");
+static PyObject *
+Pympf_lessgreater(PyObject *self, PyObject *args)
+{
+    PyObject *other;
+    int temp;
+
+    PARSE_TWO_MPF(other, "is_lessgreater() requires 'mpf,'mpf' arguments");
+
+    temp = mpfr_lessgreater_p(Pympf_AS_MPF(self), Pympf_AS_MPF(other));
+    Py_DECREF(self);
+    Py_DECREF(other);
+    if (temp)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
+PyDoc_STRVAR(doc_gmpy_unordered,
+"x.unordered(y) -> boolean\n\n"
+"Return True if x > y or x < y. Return False if x == y or either x\n"
+"and/or y is NaN.");
+PyDoc_STRVAR(doc_mpf_unordered,
+"unordered(x,y) -> boolean\n\n"
+"Return True if x > y or x < y. Return False if x == y or either x\n"
+"and/or y is NaN.");
+static PyObject *
+Pympf_unordered(PyObject *self, PyObject *args)
+{
+    PyObject *other;
+    int temp;
+
+    PARSE_TWO_MPF(other, "unordered() requires 'mpf,'mpf' arguments");
+
+    temp = mpfr_unordered_p(Pympf_AS_MPF(self), Pympf_AS_MPF(other));
+    Py_DECREF(self);
+    Py_DECREF(other);
+    if (temp)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
