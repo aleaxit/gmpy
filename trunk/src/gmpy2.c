@@ -536,12 +536,12 @@ set_pympfcache(void)
 static PympzObject *
 Pympz_new(void)
 {
-    PympzObject * self;
+    PympzObject *self;
 
     TRACE("Entering Pympz_new\n");
     if (in_pympzcache) {
         TRACE("Pympz_new is reusing an old object\n");
-        self = (pympzcache[--in_pympzcache]);
+        self = pympzcache[--in_pympzcache];
         /* Py_INCREF does not set the debugging pointers, so need to use
          * _Py_NewReference instead. */
         _Py_NewReference((PyObject*)self);
@@ -564,7 +564,7 @@ Pyxmpz_new(void)
     TRACE("Entering Pyxmpz_new\n");
     if (in_pyxmpzcache) {
         TRACE("Pyxmpz_new is reusing an old object\n");
-        self = (pyxmpzcache[--in_pyxmpzcache]);
+        self = pyxmpzcache[--in_pyxmpzcache];
         /* Py_INCREF does not set the debugging pointers, so need to use
          * _Py_NewReference instead. */
         _Py_NewReference((PyObject*)self);
@@ -586,7 +586,7 @@ Pympq_new(void)
     TRACE("Entering Pympq_new\n");
     if (in_pympqcache) {
         TRACE("Pympq_new is reusing an old object\n");
-        self = (pympqcache[--in_pympqcache]);
+        self = pympqcache[--in_pympqcache];
         /* Py_INCREF does not set the debugging pointers, so need to use
            _Py_NewReference instead. */
         _Py_NewReference((PyObject*)self);
@@ -615,7 +615,7 @@ Pympf_new(mpfr_prec_t bits)
     }
     if (in_pympfcache) {
         TRACE("Pympf_new is reusing an old object\n");
-        self = (pympfcache[--in_pympfcache]);
+        self = pympfcache[--in_pympfcache];
         /* Py_INCREF does not set the debugging pointers, so need to use
            _Py_NewReference instead. */
         _Py_NewReference((PyObject*)self);
@@ -637,7 +637,7 @@ Pympz_dealloc(PympzObject *self)
     TRACE("Pympz_dealloc\n");
     if (in_pympzcache < options.cache_size &&
         self->z->_mp_alloc <= options.cache_obsize) {
-        (pympzcache[in_pympzcache++]) = self;
+        pympzcache[in_pympzcache++] = self;
     }
     else {
         mpz_cloc(self->z);
@@ -651,7 +651,7 @@ Pyxmpz_dealloc(PyxmpzObject *self)
     TRACE("Pyxmpz_dealloc\n");
     if (in_pyxmpzcache < options.cache_size &&
         self->z->_mp_alloc <= options.cache_obsize) {
-        (pyxmpzcache[in_pyxmpzcache++]) = self;
+        pyxmpzcache[in_pyxmpzcache++] = self;
     }
     else {
         mpz_cloc(self->z);
@@ -666,7 +666,7 @@ Pympq_dealloc(PympqObject *self)
     if (in_pympqcache<options.cache_size &&
         mpq_numref(self->q)->_mp_alloc <= options.cache_obsize &&
         mpq_denref(self->q)->_mp_alloc <= options.cache_obsize) {
-        (pympqcache[in_pympqcache++]) = self;
+        pympqcache[in_pympqcache++] = self;
     }
     else {
         mpq_cloc(self->q);
@@ -684,7 +684,7 @@ Pympf_dealloc(PympfObject *self)
     msize = (self->f->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
     if (in_pympfcache < options.cache_size &&
         msize <= options.cache_obsize) {
-        (pympfcache[in_pympfcache++]) = self;
+        pympfcache[in_pympfcache++] = self;
     }
     else {
         mpfr_clear(self->f);
