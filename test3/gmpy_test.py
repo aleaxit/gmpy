@@ -26,11 +26,11 @@ test_modules = (gmpy_test_cvr, gmpy_test_mpf,
 _g = gmpy2
 print("Unit tests for gmpy2")
 print("    on Python %s" % sys.version)
-print("Testing gmpy2 {}".format(_g.version()))
-print("  Mutliple-precision library:   {}".format(_g.mp_version()))
-print("  Floating-point library:       {}".format(_g.mpfr_version()))
-print("  Caching Values: (Number)      {}".format(_g.get_cache()[0]))
-print("  Caching Values: (Size, limbs) {}".format(_g.get_cache()[1]))
+print("Testing gmpy2 {0}".format(_g.version()))
+print("  Mutliple-precision library:   {0}".format(_g.mp_version()))
+print("  Floating-point library:       {0}".format(_g.mpfr_version()))
+print("  Caching Values: (Number)      {0}".format(_g.get_cache()[0]))
+print("  Caching Values: (Size, limbs) {0}".format(_g.get_cache()[1]))
 
 pf, pt = 0, 0
 for x in test_modules:

@@ -506,39 +506,6 @@ Pympf_pow(PyObject *base, PyObject *exp, PyObject *m)
     return (PyObject*)result;
 }
 
-static char doc_pi[]="\
-pi(n): returns pi with n bits of precision in an mpf object\n\
-";
-static PyObject *
-Pygmpy_pi(PyObject *self, PyObject *args)
-{
-    PympfObject *pi;
-    mpfr_prec_t bits;
-
-    if (PyTuple_GET_SIZE(args) == 0)
-        bits = options.precision;
-    else if (PyTuple_GET_SIZE(args) != 1) {
-        TYPE_ERROR("pi() requires 0 or 1 arguments");
-        return NULL;
-    }
-    else {
-        bits = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
-        if (bits == -1 && PyErr_Occurred()) {
-            TYPE_ERROR("pi() requires 'int' argument");
-            return NULL;
-        }
-        if (bits < 0) {
-            VALUE_ERROR("precision must be >= 0");
-            return NULL;
-        }
-    }
-
-    if (!(pi = Pympf_new(bits)))
-        return NULL;
-    gmpy_ternary = mpfr_const_pi(pi->f, options.rounding);
-    return (PyObject*)pi;
-}
-
 static char doc_const_pi[]="\
 const_pi(): returns the constant pi using default precision\n\
 ";
