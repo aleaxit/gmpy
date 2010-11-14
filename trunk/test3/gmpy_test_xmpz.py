@@ -888,13 +888,13 @@ ValueError: Either arg in Kronecker must fit in an int
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy2 (mpz functionality)")
+        print("Unit tests for gmpy2 (xmpz functionality)")
         print("    on Python %s" % sys.version)
-        print("Testing gmpy2 {}".format(_g.version()))
-        print("  Mutliple-precision library:   {}".format(_g.mp_version()))
-        print("  Floating-point library:       {}".format(_g.mpfr_version()))
-        print("  Caching Values: (Number)      {}".format(_g.get_cache()[0]))
-        print("  Caching Values: (Size, limbs) {}".format(_g.get_cache()[1]))
+        print("Testing gmpy2 {0}".format(_g.version()))
+        print("  Mutliple-precision library:   {0}".format(_g.mp_version()))
+        print("  Floating-point library:       {0}".format(_g.mpfr_version()))
+        print("  Caching Values: (Number)      {0}".format(_g.get_cache()[0]))
+        print("  Caching Values: (Size, limbs) {0}".format(_g.get_cache()[1]))
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 

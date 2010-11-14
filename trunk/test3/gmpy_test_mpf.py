@@ -153,12 +153,6 @@ Traceback (most recent call last):
   File "a.py", line 9, in _er
     raise ValueError, what
 ValueError: sqrt() of negative number
->>> _g.pi()
-mpf('3.1415926535897931e0')
->>> _g.pi(64)
-mpf('3.14159265358979323851e0',64)
->>> _g.pi(200)
-mpf('3.1415926535897932384626433832795028841971693993751058209749445e0',200)
 >>> save=_g.get_precision()
 >>> _g.const_catalan()
 mpf('9.1596559417721901e-1')
@@ -414,11 +408,11 @@ def _test(chat=None):
     if chat:
         print("Unit tests for gmpy2 (mpf functionality)")
         print("    on Python %s" % sys.version)
-        print("Testing gmpy2 {}".format(_g.version()))
-        print("  Mutliple-precision library:   {}".format(_g.mp_version()))
-        print("  Floating-point library:       {}".format(_g.mpfr_version()))
-        print("  Caching Values: (Number)      {}".format(_g.get_cache()[0]))
-        print("  Caching Values: (Size, limbs) {}".format(_g.get_cache()[1]))
+        print("Testing gmpy2 {0}".format(_g.version()))
+        print("  Mutliple-precision library:   {0}".format(_g.mp_version()))
+        print("  Floating-point library:       {0}".format(_g.mpfr_version()))
+        print("  Caching Values: (Number)      {0}".format(_g.get_cache()[0]))
+        print("  Caching Values: (Size, limbs) {0}".format(_g.get_cache()[1]))
 
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
