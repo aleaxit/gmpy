@@ -926,7 +926,7 @@ Pyxmpz2Pympf(PyObject *self, mpfr_prec_t bits)
 {
     PympfObject *newob;
 
-    assert(Pyxmpz_Check(obj));
+    assert(Pyxmpz_Check(self));
     if ((newob = Pympf_new(bits)))
         gmpy_ternary = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), options.rounding);
     return newob;
