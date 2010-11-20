@@ -26,7 +26,7 @@ extern "C" {
 #  error "GMPY2 requires Python 2.6 or later."
 #endif
 
-#if PY_VERSION_HEX < 0x030200A3
+#if PY_VERSION_HEX < 0x030200A4
 typedef long Py_hash_t;
 typedef unsigned long Py_uhash_t;
 #endif
@@ -126,10 +126,6 @@ typedef unsigned long Py_uhash_t;
 
 #ifndef Py_TYPE
 #define Py_TYPE(ob)     (((PyObject*)(ob))->ob_type)
-#endif
-
-#ifndef Py_REFCNT
-#define Py_REFCNT(ob)   (((PyObject*)(ob))->ob_refcnt)
 #endif
 
 /* Header file for gmpy2 */
