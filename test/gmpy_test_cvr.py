@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> _g.version()
-'2.0.0a1'
+'2.0.0a1+'
 >>> int('gmpy2.c' in _g._cvsid())
 1
 '''

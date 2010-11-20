@@ -293,7 +293,7 @@
 /* Include fast mpz to/from PyLong conversion from sage. */
 #include "mpz_pylong.c"
 
-char gmpy_version[] = "2.0.0a1";
+char gmpy_version[] = "2.0.0a1+";
 
 char _gmpy_cvs[] = "$Id$";
 
