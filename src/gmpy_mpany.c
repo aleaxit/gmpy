@@ -103,7 +103,7 @@ Pygmpy_root(PyObject *self, PyObject *args)
  */
 
 PyDoc_STRVAR(doc_gmpy_digits,
-"digits(x,[base]) -> string\n\n"
+"digits(x,[base,[prec]]) -> string\n\n"
 "Return string representing x. Calls mpz.digits, mpq.digits, or\n"
 "mpf.digits as appropriate.");
 

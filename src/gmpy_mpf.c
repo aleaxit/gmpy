@@ -254,33 +254,32 @@ Pympf_is_regular(PyObject *self, PyObject *other)
 
 /* produce string for an mpf with requested/defaulted parameters */
 
-static char doc_fdigitsm[]="\
-x.digits(base=10, digs=0): formats x.\n\
-\n\
-Returns up to digs digits in the given base (if digs is 0, as many\n\
-digits as are available), but no more than available given x's\n\
-precision. The result is a three element tuple containig the mantissa,\n\
-the exponent, and the number of bits of precision.\n\
-";
+PyDoc_STRVAR(doc_fdigitsm,
+"x.digits(base=10, prec=0) -> (mantissa, exponent, bits)\n\n"
+"Returns up to 'prec' digits in the given base. If 'prec' is 0, as many\n"
+"digits that are available are returned. No more digits than available\n"
+"given x's precision are returned. 'base' must be between 2 and 62,\n"
+"inclusive. The result is a three element tuple containig the mantissa,\n"
+"the exponent, and the number of bits of precision.");
 
 static PyObject *
 Pympf_digits(PyObject *self, PyObject *args)
 {
     int base = 10;
-    int digs = 0;
+    int prec = 0;
     PyObject *result;
 
     if (self && Pympf_Check(self)) {
-        if (!PyArg_ParseTuple(args, "|ii", &base, &digs))
+        if (!PyArg_ParseTuple(args, "|ii", &base, &prec))
             return NULL;
         Py_INCREF(self);
     }
     else {
         if(!PyArg_ParseTuple(args, "O&|ii", Pympf_convert_arg, &self,
-                            &base, &digs))
+                            &base, &prec))
         return NULL;
     }
-    result = Pympf_ascii((PympfObject*)self, base, digs, 0, 0, 2);
+    result = Pympf_ascii((PympfObject*)self, base, prec, 0, 0, 2);
     Py_DECREF(self);
     return result;
 }
