@@ -645,7 +645,7 @@ error if any integer is negative or greater than n bits in length.\n\
 static PyObject *
 Pygmpy_pack(PyObject *self, PyObject *args)
 {
-    Py_ssize_t nbits, total_bits, index, lst_count, i, temp_bits, limb_count, extra_bits;
+    Py_ssize_t nbits, total_bits, index, lst_count, i, temp_bits, limb_count, tempx_bits;
     PyObject *lst;
     mpz_t temp;
     PympzObject *result, *tempx = 0;
@@ -655,7 +655,7 @@ Pygmpy_pack(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
+    nbits = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (nbits == -1 && PyErr_Occurred()) {
         TYPE_ERROR("pack() requires 'list','int' arguments");
         return NULL;
@@ -678,12 +678,13 @@ Pygmpy_pack(PyObject *self, PyObject *args)
     lst_count = PyList_GET_SIZE(lst);
     total_bits = nbits * lst_count;
 
-    mpz_setbit(result->z, total_bits+1);
+    mpz_set_ui(result->z, 0);
+    mpz_setbit(result->z, total_bits + (mp_bits_per_limb * 2));
 
     mpz_inoc(temp);
     mpz_set_ui(temp, 0);
     limb_count = 0;
-    extra_bits = 0;
+    tempx_bits = 0;
 
     for (index = 0; index < lst_count; index++) {
         if (!(tempx = Pympz_From_Integer(PyList_GetItem(lst, index)))
@@ -695,16 +696,17 @@ Pygmpy_pack(PyObject *self, PyObject *args)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        mpz_mul_2exp(tempx->z, tempx->z, extra_bits);
+        mpz_mul_2exp(tempx->z, tempx->z, tempx_bits);
         mpz_add(temp, temp, tempx->z);
-        extra_bits += nbits;
+        tempx_bits += nbits;
         i = 0;
         temp_bits = mpz_sizeinbase(temp, 2) * mpz_sgn(temp);
-        while (extra_bits >= mp_bits_per_limb) {
-            if (temp_bits > 0)
+        while (tempx_bits >= mp_bits_per_limb) {
+            if (temp_bits > 0) {
                 result->z->_mp_d[limb_count] = mpz_getlimbn(temp, i);
+            }
             i += 1;
-            extra_bits -= mp_bits_per_limb;
+            tempx_bits -= mp_bits_per_limb;
             limb_count += 1;
             temp_bits -= mp_bits_per_limb;
         }
@@ -717,7 +719,7 @@ Pygmpy_pack(PyObject *self, PyObject *args)
         Py_DECREF((PyObject*)tempx);
     }
     result->z->_mp_d[limb_count] = mpz_getlimbn(temp, 0);
-    mpz_clrbit(result->z, total_bits+1);
+    mpz_clrbit(result->z, total_bits + (mp_bits_per_limb * 2));
     mpz_cloc(temp);
     return (PyObject*)result;
 }
@@ -742,7 +744,7 @@ Pygmpy_unpack(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
+    nbits = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (nbits == -1 && PyErr_Occurred()) {
         TYPE_ERROR("unpack() requires 'int','int' arguments");
         return NULL;
@@ -774,7 +776,7 @@ Pygmpy_unpack(PyObject *self, PyObject *args)
             Py_DECREF(result);
             return NULL;
         }
-        mpz_set_ui(Pympz_AS_MPZ(item), 0);
+        mpz_set_ui(item->z, 0);
         PyList_SET_ITEM(result, 0, (PyObject*)item);
         Py_DECREF((PyObject*)tempx);
         return result;
@@ -794,11 +796,16 @@ Pygmpy_unpack(PyObject *self, PyObject *args)
         }
         mpz_clrbit(temp, guard_bit);
         mpz_mul_2exp(temp, temp, extra_bits);
-	/* This is safe since the dest. has enough room. (See line above.) */
-        mpn_add_1(temp->_mp_d, temp->_mp_d, mpz_size(temp), extra);
+        if (mpz_sgn(temp) == 0) {
+            mpz_set_ui(temp, 1);
+            temp->_mp_d[0] = extra;
+        }
+        else {
+           mpn_add_1(temp->_mp_d, temp->_mp_d, mpz_size(temp), extra);
+        }
         temp_bits += extra_bits;
 
-        while ((lst_ptr <lst_count) && (temp_bits >= nbits)) {
+        while ((lst_ptr < lst_count) && (temp_bits >= nbits)) {
             if(!(item = Pympz_new())) {
                 mpz_cloc(temp);
                 Py_DECREF((PyObject*)tempx);
