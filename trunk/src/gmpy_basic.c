@@ -1220,7 +1220,8 @@ Pympany_rem(PyObject *a, PyObject *b)
     int overflow;
 
     if (CHECK_MPZANY(a)) {
-        if (!(rz = Pympz_new())) return NULL;
+        if (!(rz = Pympz_new()))
+            return NULL;
         if (PyIntOrLong_Check(b)) {
             TRACE("Modulo (mpz,integer)\n");
             temp = PyLong_AsLongAndOverflow(b, &overflow);
@@ -1399,6 +1400,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
                 ZERO_ERROR("mpz divmod by zero");
                 Py_DECREF((PyObject*)rz);
                 Py_DECREF((PyObject*)qz);
+                Py_DECREF(r);
                 return NULL;
             }
             else {
@@ -1442,11 +1444,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
         if (PyIntOrLong_Check(a)) {
             TRACE("divmod (integer,mpz)\n");
             mpz_inoc(tempz);
-            if (PyErr_Occurred())
-                fprintf(stderr, "Oopsy\n");
             mpz_set_PyLong(tempz, a);
-            if (PyErr_Occurred())
-                fprintf(stderr, "Oopsy Doopsy\n");
             mpz_fdiv_qr(qz->z, rz->z, tempz, Pympz_AS_MPZ(b));
             mpz_cloc(tempz);
             PyTuple_SET_ITEM(r, 0, (PyObject*)qz);
