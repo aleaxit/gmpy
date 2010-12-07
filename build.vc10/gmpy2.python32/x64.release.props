@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="UserMacros">
+    <mp_dir>mpir</mp_dir>
+    <mp_lib>mpir.lib</mp_lib>
+    <python_version>python32</python_version>
+  </PropertyGroup>
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30128.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>MPIR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Program Files\$(python_version)\include;..\..\..\$(mp_dir);..\..\..\mpfr\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>C:\Program Files\$(python_version)\libs\$(python_version).lib;..\..\..\$(mp_dir)\build.vc10\lib\$(IntDir)$(mp_lib);..\..\..\mpfr\build.vc10\lib\$(IntDir)mpfr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="mp_dir">
+      <Value>$(mp_dir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="mp_lib">
+      <Value>$(mp_lib)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="python_version">
+      <Value>$(python_version)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>
