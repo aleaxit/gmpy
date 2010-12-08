@@ -314,9 +314,10 @@ static struct gmpy_options {
     int cache_obsize;        /* maximum size of the objects that are cached */
 } options = { 0, GMPY_MODE_PYTHON, DBL_MANT_DIG, MPFR_RNDN, MPC_RNDNN, 100, 128 };
 
-/* Save the ternary result code from MPFR operations. */
+/* Save the ternary result code from MPFR and MPC operations. */
 
 static int mpfr_rc = 0;
+static int mpc_rc = 0;
 
 /* forward declarations of type-objects and method-arrays for them */
 #ifdef _MSC_VER
@@ -403,60 +404,6 @@ mpz_cloc(mpz_t oldo)
                     in_zcache, options.cache_size);
 #endif
         mpz_clear(oldo);
-    }
-}
-
-static mpq_t* qcache;
-static int in_qcache;
-
-static void
-set_qcache(void)
-{
-    TRACE("Entering set_qcache\n");
-    if (in_qcache > options.cache_size) {
-        int i;
-        for (i = options.cache_size; i < in_qcache; ++i)
-            mpq_clear(qcache[i]);
-        in_qcache = options.cache_size;
-    }
-    qcache = PyMem_Realloc(qcache, sizeof(mpq_t) * options.cache_size);
-}
-
-static void
-mpq_inoc(mpq_t newo)
-{
-    if (in_qcache) {
-#ifdef DEBUG
-        if (options.debug)
-            fprintf(stderr, "Getting %d from qcache\n", in_qcache);
-#endif
-        newo[0] = (qcache[--in_qcache])[0];
-    }
-    else {
-        TRACE("Initing new not in qcache\n");
-        mpq_init(newo);
-    }
-}
-
-static void
-mpq_cloc(mpq_t oldo)
-{
-    if (in_qcache<options.cache_size &&
-            mpq_numref(oldo)->_mp_alloc <= options.cache_obsize &&
-            mpq_denref(oldo)->_mp_alloc <= options.cache_obsize) {
-        (qcache[in_qcache++])[0] = oldo[0];
-#ifdef DEBUG
-        if (options.debug)
-            fprintf(stderr, "Stashed %d to qcache\n", in_qcache);
-#endif
-    }
-    else {
-#ifdef DEBUG
-        if (options.debug)
-            fprintf(stderr, "Not placing in full qcache(%d/%d)\n",
-                    in_qcache, options.cache_size);
-#endif
-        mpq_clear(oldo);
     }
 }
 
@@ -585,7 +532,7 @@ set_pympqcache(void)
     if (in_pympqcache > options.cache_size) {
         int i;
         for (i = options.cache_size; i < in_pympqcache; ++i) {
-            mpq_cloc(pympqcache[i]->q);
+            mpq_clear(pympqcache[i]->q);
             PyObject_Del(pympqcache[i]);
         }
         in_pympqcache = options.cache_size;
@@ -610,7 +557,7 @@ Pympq_new(void)
         TRACE("Pympq_new is creating a new object\n");
         if (!(self = PyObject_New(PympqObject, &Pympq_Type)))
             return NULL;
-        mpq_inoc(self->q);
+        mpq_init(self->q);
     }
     self->hash_cache = -1;
     return self;
@@ -626,7 +573,7 @@ Pympq_dealloc(PympqObject *self)
         pympqcache[in_pympqcache++] = self;
     }
     else {
-        mpq_cloc(self->q);
+        mpq_clear(self->q);
         PyObject_Del(self);
     }
 }
@@ -4613,12 +4560,11 @@ static void _PyInitGMP(void)
     mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
     options.precision = DBL_MANT_DIG;
     set_zcache();
-    set_qcache();
     set_pympzcache();
     set_pympqcache();
-    set_pyxmpzcache();
     set_pympfcache();
     set_pympccache();
+    set_pyxmpzcache();
 }
 
 static char _gmpy_docs[] = "\

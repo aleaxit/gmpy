@@ -138,12 +138,11 @@ Pygmpy_set_cache(PyObject *self, PyObject *args)
     options.cache_size = newcache;
     options.cache_obsize = newsize;
     set_zcache();
-    set_qcache();
     set_pympzcache();
     set_pympqcache();
-    set_pyxmpzcache();
     set_pympfcache();
     set_pympccache();
+    set_pyxmpzcache();
     Py_RETURN_NONE;
 }
 

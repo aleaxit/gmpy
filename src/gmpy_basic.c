@@ -997,12 +997,12 @@ Pympany_truediv(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbz);
             return NULL;
         }
-        mpq_inoc(tempq);
+        mpq_init(tempq);
         mpq_set_num(tempq, paz->z);
         mpq_set_den(tempq, pbz->z);
         mpq_canonicalize(tempq);
         mpfr_set_q(rf->f, tempq, options.rounding);
-        mpq_cloc(tempq);
+        mpq_clear(tempq);
         Py_DECREF((PyObject*)paz);
         Py_DECREF((PyObject*)pbz);
         return (PyObject*) rf;
