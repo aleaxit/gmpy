@@ -224,6 +224,7 @@
  *   Add support for MPFR (casevh)
  *   Debug messages only available if compiled with -DDEBUG (casevh)
  *   Removed fcoform float conversion modifier (casevh)
+ *   Add support for MPC (casevh)
  */
 #include "Python.h"
 
@@ -307,25 +308,28 @@ static struct gmpy_options {
     int debug;               /* != 0 if debug messages desired on stderr */
     int raise;               /* use Python vs. MPFR approach to errors */
     mpfr_prec_t precision;   /* current precision in bits */
-    mpfr_rnd_t rounding;     /* current rounding mode */
+    mpfr_rnd_t rounding;     /* current rounding mode for float (MPFR) */
+    mpc_rnd_t crounding;     /* current rounding mode for complex (MPC)*/
     int cache_size;          /* size of cache, for all caches */
     int cache_obsize;        /* maximum size of the objects that are cached */
-} options = { 0, GMPY_MODE_PYTHON, DBL_MANT_DIG, MPFR_RNDN, 100, 128 };
+} options = { 0, GMPY_MODE_PYTHON, DBL_MANT_DIG, MPFR_RNDN, MPC_RNDNN, 100, 128 };
 
 /* Save the ternary result code from MPFR operations. */
 
-static int gmpy_ternary = 0;
+static int mpfr_rc = 0;
 
 /* forward declarations of type-objects and method-arrays for them */
 #ifdef _MSC_VER
 PyMethodDef Pympz_methods [];
 PyMethodDef Pympq_methods [];
 PyMethodDef Pympf_methods [];
+PyMethodDef Pympc_methods [];
 PyMethodDef Pyxmpz_methods [];
 #else
 static PyMethodDef Pympz_methods [];
 static PyMethodDef Pympq_methods [];
 static PyMethodDef Pympf_methods [];
+static PyMethodDef Pympc_methods [];
 static PyMethodDef Pyxmpz_methods [];
 #endif
 
@@ -346,6 +350,10 @@ static PyMethodDef Pyxmpz_methods [];
  * Caching for PympfObject added later.
  */
 
+/* Caching logic for gmp native types: mpz and mpq.
+ * Caching for mpq will probable be removed in the future.
+ */
+
 static mpz_t* zcache;
 static int in_zcache;
 
@@ -360,22 +368,6 @@ set_zcache(void)
         in_zcache = options.cache_size;
     }
     zcache = PyMem_Realloc(zcache, sizeof(mpz_t) * options.cache_size);
-}
-
-static mpq_t* qcache;
-static int in_qcache;
-
-static void
-set_qcache(void)
-{
-    TRACE("Entering set_qcache\n");
-    if (in_qcache > options.cache_size) {
-        int i;
-        for (i = options.cache_size; i < in_qcache; ++i)
-            mpq_clear(qcache[i]);
-        in_qcache = options.cache_size;
-    }
-    qcache = PyMem_Realloc(qcache, sizeof(mpq_t) * options.cache_size);
 }
 
 static void
@@ -412,6 +404,22 @@ mpz_cloc(mpz_t oldo)
 #endif
         mpz_clear(oldo);
     }
+}
+
+static mpq_t* qcache;
+static int in_qcache;
+
+static void
+set_qcache(void)
+{
+    TRACE("Entering set_qcache\n");
+    if (in_qcache > options.cache_size) {
+        int i;
+        for (i = options.cache_size; i < in_qcache; ++i)
+            mpq_clear(qcache[i]);
+        in_qcache = options.cache_size;
+    }
+    qcache = PyMem_Realloc(qcache, sizeof(mpq_t) * options.cache_size);
 }
 
 static void
@@ -452,7 +460,7 @@ mpq_cloc(mpq_t oldo)
     }
 }
 
-/* Cache Pympz objects directly */
+/* Caching logic for Pympz. */
 
 static PympzObject **pympzcache;
 static int in_pympzcache;
@@ -472,67 +480,6 @@ set_pympzcache(void)
     pympzcache = PyMem_Realloc(pympzcache, sizeof(PympzObject)*options.cache_size);
 }
 
-/* Cache Pyxmpz objects directly */
-
-static PyxmpzObject **pyxmpzcache;
-static int in_pyxmpzcache;
-
-static void
-set_pyxmpzcache(void)
-{
-    TRACE("Entering set_pyxmpzcache\n");
-    if (in_pyxmpzcache > options.cache_size) {
-        int i;
-        for (i = options.cache_size; i < in_pyxmpzcache; ++i) {
-            mpz_cloc(pyxmpzcache[i]->z);
-            PyObject_Del(pyxmpzcache[i]);
-        }
-        in_pyxmpzcache = options.cache_size;
-    }
-    pyxmpzcache = PyMem_Realloc(pyxmpzcache, sizeof(PyxmpzObject)*options.cache_size);
-}
-
-/* Cache Pympq objects directly */
-
-static PympqObject **pympqcache;
-static int in_pympqcache;
-
-static void
-set_pympqcache(void)
-{
-    TRACE("Entering set_pympqcache\n");
-    if (in_pympqcache > options.cache_size) {
-        int i;
-        for (i = options.cache_size; i < in_pympqcache; ++i) {
-            mpq_cloc(pympqcache[i]->q);
-            PyObject_Del(pympqcache[i]);
-        }
-        in_pympqcache = options.cache_size;
-    }
-    pympqcache = PyMem_Realloc(pympqcache, sizeof(PympqObject)*options.cache_size);
-}
-
-/* Cache Pympf objects directly */
-
-static PympfObject **pympfcache;
-static int in_pympfcache;
-
-static void
-set_pympfcache(void)
-{
-    TRACE("Entering set_pympfcache\n");
-    if (in_pympfcache > options.cache_size) {
-        int i;
-        for (i = options.cache_size; i < in_pympfcache; ++i) {
-            mpfr_clear(pympfcache[i]->f);
-            PyObject_Del(pympfcache[i]);
-        }
-        in_pympfcache = options.cache_size;
-    }
-    pympfcache = PyMem_Realloc(pympfcache, sizeof(PympfObject)*options.cache_size);
-}
-
-/* generation of new, uninitialized objects; deallocations */
 static PympzObject *
 Pympz_new(void)
 {
@@ -554,6 +501,40 @@ Pympz_new(void)
     }
     self->hash_cache = -1;
     return self;
+}
+
+static void
+Pympz_dealloc(PympzObject *self)
+{
+    TRACE("Pympz_dealloc\n");
+    if (in_pympzcache < options.cache_size &&
+        self->z->_mp_alloc <= options.cache_obsize) {
+        pympzcache[in_pympzcache++] = self;
+    }
+    else {
+        mpz_cloc(self->z);
+        PyObject_Del(self);
+    }
+}
+
+/* Caching logic for Pyxmpz. */
+
+static PyxmpzObject **pyxmpzcache;
+static int in_pyxmpzcache;
+
+static void
+set_pyxmpzcache(void)
+{
+    TRACE("Entering set_pyxmpzcache\n");
+    if (in_pyxmpzcache > options.cache_size) {
+        int i;
+        for (i = options.cache_size; i < in_pyxmpzcache; ++i) {
+            mpz_cloc(pyxmpzcache[i]->z);
+            PyObject_Del(pyxmpzcache[i]);
+        }
+        in_pyxmpzcache = options.cache_size;
+    }
+    pyxmpzcache = PyMem_Realloc(pyxmpzcache, sizeof(PyxmpzObject)*options.cache_size);
 }
 
 static PyxmpzObject *
@@ -578,6 +559,40 @@ Pyxmpz_new(void)
     return self;
 }
 
+static void
+Pyxmpz_dealloc(PyxmpzObject *self)
+{
+    TRACE("Pyxmpz_dealloc\n");
+    if (in_pyxmpzcache < options.cache_size &&
+        self->z->_mp_alloc <= options.cache_obsize) {
+        pyxmpzcache[in_pyxmpzcache++] = self;
+    }
+    else {
+        mpz_cloc(self->z);
+        PyObject_Del(self);
+    }
+}
+
+/* Caching logic for Pympq. */
+
+static PympqObject **pympqcache;
+static int in_pympqcache;
+
+static void
+set_pympqcache(void)
+{
+    TRACE("Entering set_pympqcache\n");
+    if (in_pympqcache > options.cache_size) {
+        int i;
+        for (i = options.cache_size; i < in_pympqcache; ++i) {
+            mpq_cloc(pympqcache[i]->q);
+            PyObject_Del(pympqcache[i]);
+        }
+        in_pympqcache = options.cache_size;
+    }
+    pympqcache = PyMem_Realloc(pympqcache, sizeof(PympqObject)*options.cache_size);
+}
+
 static PympqObject *
 Pympq_new(void)
 {
@@ -599,6 +614,41 @@ Pympq_new(void)
     }
     self->hash_cache = -1;
     return self;
+}
+
+static void
+Pympq_dealloc(PympqObject *self)
+{
+    TRACE("Pympq_dealloc\n");
+    if (in_pympqcache<options.cache_size &&
+        mpq_numref(self->q)->_mp_alloc <= options.cache_obsize &&
+        mpq_denref(self->q)->_mp_alloc <= options.cache_obsize) {
+        pympqcache[in_pympqcache++] = self;
+    }
+    else {
+        mpq_cloc(self->q);
+        PyObject_Del(self);
+    }
+}
+
+/* Caching logic for Pympf. */
+
+static PympfObject **pympfcache;
+static int in_pympfcache;
+
+static void
+set_pympfcache(void)
+{
+    TRACE("Entering set_pympfcache\n");
+    if (in_pympfcache > options.cache_size) {
+        int i;
+        for (i = options.cache_size; i < in_pympfcache; ++i) {
+            mpfr_clear(pympfcache[i]->f);
+            PyObject_Del(pympfcache[i]);
+        }
+        in_pympfcache = options.cache_size;
+    }
+    pympfcache = PyMem_Realloc(pympfcache, sizeof(PympfObject)*options.cache_size);
 }
 
 static PympfObject *
@@ -632,49 +682,6 @@ Pympf_new(mpfr_prec_t bits)
 }
 
 static void
-Pympz_dealloc(PympzObject *self)
-{
-    TRACE("Pympz_dealloc\n");
-    if (in_pympzcache < options.cache_size &&
-        self->z->_mp_alloc <= options.cache_obsize) {
-        pympzcache[in_pympzcache++] = self;
-    }
-    else {
-        mpz_cloc(self->z);
-        PyObject_Del(self);
-    }
-}
-
-static void
-Pyxmpz_dealloc(PyxmpzObject *self)
-{
-    TRACE("Pyxmpz_dealloc\n");
-    if (in_pyxmpzcache < options.cache_size &&
-        self->z->_mp_alloc <= options.cache_obsize) {
-        pyxmpzcache[in_pyxmpzcache++] = self;
-    }
-    else {
-        mpz_cloc(self->z);
-        PyObject_Del(self);
-    }
-}
-
-static void
-Pympq_dealloc(PympqObject *self)
-{
-    TRACE("Pympq_dealloc\n");
-    if (in_pympqcache<options.cache_size &&
-        mpq_numref(self->q)->_mp_alloc <= options.cache_obsize &&
-        mpq_denref(self->q)->_mp_alloc <= options.cache_obsize) {
-        pympqcache[in_pympqcache++] = self;
-    }
-    else {
-        mpq_cloc(self->q);
-        PyObject_Del(self);
-    }
-}
-
-static void
 Pympf_dealloc(PympfObject *self)
 {
     size_t msize;
@@ -688,6 +695,75 @@ Pympf_dealloc(PympfObject *self)
     }
     else {
         mpfr_clear(self->f);
+        PyObject_Del(self);
+    }
+}
+
+/* Caching logic for Pympc. */
+
+static PympcObject **pympccache;
+static int in_pympccache;
+
+static void
+set_pympccache(void)
+{
+    TRACE("Entering set_pympccache\n");
+    if (in_pympccache > options.cache_size) {
+        int i;
+        for (i = options.cache_size; i < in_pympccache; ++i) {
+            mpc_clear(pympccache[i]->c);
+            PyObject_Del(pympccache[i]);
+        }
+        in_pympccache = options.cache_size;
+    }
+    pympccache = PyMem_Realloc(pympccache, sizeof(PympcObject)*options.cache_size);
+}
+
+static PympcObject *
+Pympc_new(mpfr_prec_t bits)
+{
+    PympcObject *self;
+
+    TRACE("Entering Pympc_new\n");
+    if (bits == 0)
+        bits = options.precision;
+    if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
+        VALUE_ERROR("invalid value for precision");
+        return NULL;
+    }
+    if (in_pympccache) {
+        TRACE("Pympc_new is reusing an old object\n");
+        self = pympccache[--in_pympccache];
+        /* Py_INCREF does not set the debugging pointers, so need to use
+           _Py_NewReference instead. */
+        _Py_NewReference((PyObject*)self);
+        mpc_set_prec(self->c, bits);
+    }
+    else {
+        TRACE("Pympc_new is creating a new object\n");
+        if (!(self = PyObject_New(PympcObject, &Pympc_Type)))
+            return NULL;
+        mpc_init2(self->c, bits);
+    }
+    self->hash_cache = -1;
+    return self;
+}
+
+static void
+Pympc_dealloc(PympcObject *self)
+{
+    size_t msize;
+
+    TRACE("Pympc_dealloc\n");
+    /* Calculate the number of limbs in the mantissa. */
+    msize = ((mpc_realref(self->c))->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
+    msize += ((mpc_imagref(self->c))->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
+    if (in_pympccache < options.cache_size &&
+        msize <= options.cache_obsize) {
+        pympccache[in_pympccache++] = self;
+    }
+    else {
+        mpc_clear(self->c);
         PyObject_Del(self);
     }
 }
@@ -765,7 +841,7 @@ Pympf2Pympf(PyObject *self, mpfr_prec_t bits)
     if (bits == 0)
         bits = mpfr_get_prec(Pympf_AS_MPF(self));
     if ((newob = Pympf_new(bits)))
-        gmpy_ternary = mpfr_set(newob->f, Pympf_AS_MPF(self), options.rounding);
+        mpfr_rc = mpfr_set(newob->f, Pympf_AS_MPF(self), options.rounding);
     return newob;
 }
 
@@ -810,7 +886,7 @@ PyInt2Pympf(PyObject *self, mpfr_prec_t bits)
 
     assert(PyInt_Check(self));
     if ((newob = Pympf_new(bits)))
-        gmpy_ternary = mpfr_set_si(newob->f, PyInt_AsLong(self), options.rounding);
+        mpfr_rc = mpfr_set_si(newob->f, PyInt_AsLong(self), options.rounding);
     return newob;
 }
 #endif
@@ -906,7 +982,7 @@ PyFloat2Pympf(PyObject *self, mpfr_prec_t bits)
         fprintf(stderr, "PyFloat2Pympf(%p,%ld)\n", self, (long) bits);
 #endif
     if ((newob = Pympf_new(bits)))
-        gmpy_ternary = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), bits);
+        mpfr_rc = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), bits);
     return newob;
 }
 
@@ -917,7 +993,7 @@ Pympz2Pympf(PyObject *self, mpfr_prec_t bits)
 
     assert(Pympz_Check(self));
     if ((newob = Pympf_new(bits)))
-        gmpy_ternary = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), options.rounding);
+        mpfr_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), options.rounding);
     return newob;
 }
 
@@ -928,7 +1004,7 @@ Pyxmpz2Pympf(PyObject *self, mpfr_prec_t bits)
 
     assert(Pyxmpz_Check(self));
     if ((newob = Pympf_new(bits)))
-        gmpy_ternary = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), options.rounding);
+        mpfr_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), options.rounding);
     return newob;
 }
 
@@ -949,7 +1025,7 @@ Pympf2Pympz(PyObject *self)
             VALUE_ERROR("gmpy2.mpz does not handle infinity");
             return NULL;
         }
-        gmpy_ternary = mpfr_get_z(newob->z, Pympf_AS_MPF(self), options.rounding);
+        mpfr_rc = mpfr_get_z(newob->z, Pympf_AS_MPF(self), options.rounding);
     }
     return newob;
 }
@@ -971,7 +1047,7 @@ Pympf2Pyxmpz(PyObject *self)
             VALUE_ERROR("gmpy2.xmpz does not handle infinity");
             return NULL;
         }
-        gmpy_ternary = mpfr_get_z(newob->z, Pympf_AS_MPF(self), options.rounding);
+        mpfr_rc = mpfr_get_z(newob->z, Pympf_AS_MPF(self), options.rounding);
     }
     return newob;
 }
@@ -1012,7 +1088,7 @@ Pympq2Pympf(PyObject *self, mpfr_prec_t bits)
     assert(Pympq_Check(self));
     if (!(newob = Pympf_new(bits)))
         return NULL;
-    gmpy_ternary = mpfr_set_q(newob->f, Pympq_AS_MPQ(self), options.rounding);
+    mpfr_rc = mpfr_set_q(newob->f, Pympq_AS_MPQ(self), options.rounding);
     return newob;
 }
 
@@ -1458,7 +1534,7 @@ PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits)
 
         /* mpf zero has a very compact (1-byte) binary encoding!-) */
         if (resuzero) {
-            gmpy_ternary = mpfr_set_ui(newob->f, 0, options.rounding);
+            mpfr_rc = mpfr_set_ui(newob->f, 0, options.rounding);
             return newob;
         }
 
@@ -3955,9 +4031,9 @@ static PyMethodDef Pygmpy_methods [] =
     { "get_emin_min", Pygmpy_get_emin_min, METH_NOARGS, doc_get_emin_min },
     { "get_max_precision", Pygmpy_get_max_precision, METH_NOARGS, doc_get_max_precision },
     { "get_mode", Pygmpy_get_mode, METH_NOARGS, doc_get_mode },
+    { "get_mpfr_rc", Pygmpy_get_mpfr_rc, METH_NOARGS, doc_get_mpfr_rc },
     { "get_precision", Pygmpy_get_precision, METH_NOARGS, doc_get_precision },
     { "get_rounding", Pygmpy_get_rounding, METH_NOARGS, doc_get_rounding },
-    { "get_ternary", Pygmpy_get_ternary, METH_NOARGS, doc_get_ternary },
     { "hamdist", Pympz_hamdist, METH_VARARGS, doc_hamdistg },
     { "hypot", Pympfr_hypot, METH_VARARGS, doc_gmpy_hypot },
     { "inf", Pygmpy_set_inf, METH_O, doc_set_inf },
@@ -4542,6 +4618,7 @@ static void _PyInitGMP(void)
     set_pympqcache();
     set_pyxmpzcache();
     set_pympfcache();
+    set_pympccache();
 }
 
 static char _gmpy_docs[] = "\

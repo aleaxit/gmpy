@@ -43,6 +43,7 @@ typedef unsigned long Py_uhash_t;
 #    pragma comment(lib,"gmp.lib")
 #  endif
 #  pragma comment(lib,"mpfr.lib")
+#  pragma comment(lib,"mpc.lib")
 #  define isnan _isnan
 #  define isinf !_finite
 #  define USE_ALLOCA 1
@@ -56,6 +57,7 @@ typedef unsigned long Py_uhash_t;
 #endif
 
 #include "mpfr.h"
+#include "mpc.h"
 
 #ifdef __GNUC__
 #define USE_ALLOCA 1
@@ -151,20 +153,32 @@ typedef struct {
 } PympfObject;
 typedef struct {
     mpob ob;
+    mpc_t c;
+    Py_hash_t hash_cache;
+} PympcObject;
+typedef struct {
+    mpob ob;
     mpz_t z;
 } PyxmpzObject;
 
 #define Pympz_AS_MPZ(obj) (((PympzObject *)(obj))->z)
 #define Pympq_AS_MPQ(obj) (((PympqObject *)(obj))->q)
 #define Pympf_AS_MPF(obj) (((PympfObject *)(obj))->f)
+#define Pympc_AS_MPC(obj) (((PympcObject *)(obj))->c)
 #define Pyxmpz_AS_MPZ(obj) (((PyxmpzObject *)(obj))->z)
 
 static PyTypeObject Pympz_Type;
 #define Pympz_Check(v) (((PyObject*)v)->ob_type == &Pympz_Type)
+
 static PyTypeObject Pympq_Type;
 #define Pympq_Check(v) (((PyObject*)v)->ob_type == &Pympq_Type)
+
 static PyTypeObject Pympf_Type;
 #define Pympf_Check(v) (((PyObject*)v)->ob_type == &Pympf_Type)
+
+static PyTypeObject Pympc_Type;
+#define Pympc_Check(v) (((PyObject*)v)->ob_type == &Pympc_Type)
+
 static PyTypeObject Pyxmpz_Type;
 #define Pyxmpz_Check(v) (((PyObject*)v)->ob_type == &Pyxmpz_Type)
 
