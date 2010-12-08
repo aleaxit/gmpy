@@ -392,7 +392,7 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
             Py_XDECREF((PyObject*)rf);
             return NULL;
         }
-        gmpy_ternary = mpfr_pow(rf->f, tempbf->f, tempef->f, options.rounding);
+        mpfr_rc = mpfr_pow(rf->f, tempbf->f, tempef->f, options.rounding);
         Py_DECREF((PyObject*)tempbf);
         Py_DECREF((PyObject*)tempef);
         return (PyObject*)rf;

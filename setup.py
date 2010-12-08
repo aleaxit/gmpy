@@ -37,17 +37,17 @@ if sys.version.find('MSC') == -1:
 gmpy2_ext = Extension('gmpy2', sources=['src/gmpy2.c'],
     include_dirs=incdirs,
     library_dirs=libdirs,
-    libraries=[mplib] + ["mpfr"])
+    libraries=[mplib] + ["mpfr", "mpc"])
 
 setup (name = "gmpy2",
-       version = "2.0.0a1",
+       version = "2.0.0a1+",
        maintainer = "Alex Martelli",
        maintainer_email = "aleaxit@gmail.com",
        url = "http://code.google.com/p/gmpy/",
        description = "GMP/MPIR interface to Python 2.6+ and 3.x",
 
        classifiers = [
-         'Development Status :: 5 - Production/Stable',
+         'Development Status :: 3 - Alpha',
          'Intended Audience :: Developers',
          'Intended Audience :: Science/Research',
          'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',

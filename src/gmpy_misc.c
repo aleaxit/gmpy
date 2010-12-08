@@ -143,6 +143,7 @@ Pygmpy_set_cache(PyObject *self, PyObject *args)
     set_pympqcache();
     set_pyxmpzcache();
     set_pympfcache();
+    set_pympccache();
     Py_RETURN_NONE;
 }
 
@@ -337,17 +338,17 @@ Pygmpy_is_erangeflag(PyObject *self, PyObject *args)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_get_ternary,
-"get_ternary() -> integer\n\n\
+PyDoc_STRVAR(doc_get_mpfr_rc,
+"get_mpfr_rc() -> integer\n\n\
 Return the ternary result code from the most recent MPFR operation.\n"
 "If the ternary value is 0, the result of the operation is exact.\n"
 "If the ternary value is > 0, the result of the operation is greater\n"
 "than the exact result. If the ternary value < 0, then the result\n"
 "of the operation is less than the exact result.");
 static PyObject *
-Pygmpy_get_ternary(PyObject *self, PyObject *args)
+Pygmpy_get_mpfr_rc(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("i", gmpy_ternary);
+    return Py_BuildValue("i", mpfr_rc);
 }
 
 PyDoc_STRVAR(doc_get_emin,

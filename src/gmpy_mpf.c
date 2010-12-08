@@ -499,7 +499,7 @@ Pympf_pow(PyObject *base, PyObject *exp, PyObject *m)
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    gmpy_ternary = mpfr_pow(result->f, tempb->f, tempe->f, options.rounding);
+    mpfr_rc = mpfr_pow(result->f, tempb->f, tempe->f, options.rounding);
     Py_DECREF((PyObject*)tempe);
     Py_DECREF((PyObject*)tempb);
     return (PyObject*)result;
@@ -515,7 +515,7 @@ Pygmpy_const_pi(PyObject *self, PyObject *args)
 
     if (!(result = Pympf_new(0)))
         return NULL;
-    gmpy_ternary = mpfr_const_pi(result->f, options.rounding);
+    mpfr_rc = mpfr_const_pi(result->f, options.rounding);
     return (PyObject*)result;
 }
 
@@ -529,7 +529,7 @@ Pygmpy_const_euler(PyObject *self, PyObject *args)
 
     if (!(result = Pympf_new(0)))
         return NULL;
-    gmpy_ternary = mpfr_const_euler(result->f, options.rounding);
+    mpfr_rc = mpfr_const_euler(result->f, options.rounding);
     return (PyObject*)result;
 }
 
@@ -543,7 +543,7 @@ Pygmpy_const_log2(PyObject *self, PyObject *args)
 
     if (!(result = Pympf_new(0)))
         return NULL;
-    gmpy_ternary = mpfr_const_log2(result->f, options.rounding);
+    mpfr_rc = mpfr_const_log2(result->f, options.rounding);
     return (PyObject*)result;
 }
 
@@ -557,7 +557,7 @@ Pygmpy_const_catalan(PyObject *self, PyObject *args)
 
     if (!(result = Pympf_new(0)))
         return NULL;
-    gmpy_ternary = mpfr_const_catalan(result->f, options.rounding);
+    mpfr_rc = mpfr_const_catalan(result->f, options.rounding);
     return (PyObject*)result;
 }
 
@@ -578,7 +578,7 @@ Pympf_sqrt(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        gmpy_ternary = mpfr_sqrt(result->f, Pympf_AS_MPF(self), options.rounding);
+        mpfr_rc = mpfr_sqrt(result->f, Pympf_AS_MPF(self), options.rounding);
     }
     else if (Pympf_Check(other)) {
         if (options.raise && mpfr_sgn(Pympf_AS_MPF(other)) < 0) {
@@ -586,7 +586,7 @@ Pympf_sqrt(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        gmpy_ternary = mpfr_sqrt(result->f, Pympf_AS_MPF(other), options.rounding);
+        mpfr_rc = mpfr_sqrt(result->f, Pympf_AS_MPF(other), options.rounding);
     }
     else {
         if (!(tempx = Pympf_From_Float(other, 0))) {
@@ -600,7 +600,7 @@ Pympf_sqrt(PyObject *self, PyObject *other)
                 Py_DECREF((PyObject*)result);
                 return NULL;
             }
-            gmpy_ternary = mpfr_sqrt(result->f, tempx->f, options.rounding);
+            mpfr_rc = mpfr_sqrt(result->f, tempx->f, options.rounding);
             Py_DECREF((PyObject*)tempx);
         }
     }
@@ -628,7 +628,7 @@ Pympf_rec_sqrt(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        gmpy_ternary = mpfr_rec_sqrt(result->f, Pympf_AS_MPF(self), options.rounding);
+        mpfr_rc = mpfr_rec_sqrt(result->f, Pympf_AS_MPF(self), options.rounding);
     }
     else if (Pympf_Check(other)) {
         if (options.raise && mpfr_zero_p(Pympf_AS_MPF(other))) {
@@ -636,7 +636,7 @@ Pympf_rec_sqrt(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        gmpy_ternary = mpfr_rec_sqrt(result->f, Pympf_AS_MPF(other), options.rounding);
+        mpfr_rc = mpfr_rec_sqrt(result->f, Pympf_AS_MPF(other), options.rounding);
     }
     else {
         if (!(tempx = Pympf_From_Float(other, 0))) {
@@ -650,7 +650,7 @@ Pympf_rec_sqrt(PyObject *self, PyObject *other)
                 Py_DECREF((PyObject*)result);
                 return NULL;
             }
-            gmpy_ternary = mpfr_rec_sqrt(result->f, tempx->f, options.rounding);
+            mpfr_rc = mpfr_rec_sqrt(result->f, tempx->f, options.rounding);
             Py_DECREF((PyObject*)tempx);
         }
     }
@@ -684,7 +684,7 @@ Pympf_root(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
-    gmpy_ternary = mpfr_root(result->f, Pympf_AS_MPF(self), n,
+    mpfr_rc = mpfr_root(result->f, Pympf_AS_MPF(self), n,
                             options.rounding);
     Py_DECREF(self);
     return (PyObject*)result;
@@ -712,7 +712,7 @@ Pympf_round(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
-    gmpy_ternary = mpfr_set(result->f, Pympf_AS_MPF(self), options.rounding);
+    mpfr_rc = mpfr_set(result->f, Pympf_AS_MPF(self), options.rounding);
     Py_DECREF(self);
     return (PyObject*)result;
 }
@@ -841,10 +841,10 @@ Pympf_##NAME(PyObject* self, PyObject *other) \
     PympfObject *result, *tempx; \
     if (!(result = Pympf_new(0))) return NULL; \
     if(self && Pympf_Check(self)) { \
-        gmpy_ternary = mpfr_##NAME(result->f, Pympf_AS_MPF(self), options.rounding); \
+        mpfr_rc = mpfr_##NAME(result->f, Pympf_AS_MPF(self), options.rounding); \
     } \
     else if (Pympf_Check(other)) { \
-        gmpy_ternary = mpfr_##NAME(result->f, Pympf_AS_MPF(other), options.rounding); \
+        mpfr_rc = mpfr_##NAME(result->f, Pympf_AS_MPF(other), options.rounding); \
     } \
     else { \
         if (!(tempx = Pympf_From_Float(other, 0))) { \
@@ -852,7 +852,7 @@ Pympf_##NAME(PyObject* self, PyObject *other) \
             return NULL; \
         } \
         else { \
-            gmpy_ternary = mpfr_##NAME(result->f, tempx->f, options.rounding); \
+            mpfr_rc = mpfr_##NAME(result->f, tempx->f, options.rounding); \
             Py_DECREF((PyObject*)tempx); \
         } \
     } \
@@ -1168,11 +1168,11 @@ Pympf_lgamma(PyObject* self, PyObject *other)
     }
 
     if (self && Pympf_Check(self)) {
-        gmpy_ternary = mpfr_lgamma(value->f, &signp, Pympf_AS_MPF(self),
+        mpfr_rc = mpfr_lgamma(value->f, &signp, Pympf_AS_MPF(self),
                                    options.rounding);
     }
     else if (Pympf_Check(other)) {
-        gmpy_ternary = mpfr_lgamma(value->f, &signp, Pympf_AS_MPF(other),
+        mpfr_rc = mpfr_lgamma(value->f, &signp, Pympf_AS_MPF(other),
                                    options.rounding);
     }
     else {
@@ -1181,7 +1181,7 @@ Pympf_lgamma(PyObject* self, PyObject *other)
             return NULL;
         }
         else {
-            gmpy_ternary = mpfr_lgamma(value->f, &signp, tempx->f,
+            mpfr_rc = mpfr_lgamma(value->f, &signp, tempx->f,
                                        options.rounding);
             Py_DECREF((PyObject*)tempx);
         }
@@ -1264,7 +1264,7 @@ Pympf_jn(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    gmpy_ternary = mpfr_jn(result->f, n, Pympf_AS_MPF(self),
+    mpfr_rc = mpfr_jn(result->f, n, Pympf_AS_MPF(self),
                            options.rounding);
     Py_DECREF(self);
     return (PyObject*)result;
@@ -1307,7 +1307,7 @@ Pympf_yn(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    gmpy_ternary = mpfr_yn(result->f, n, Pympf_AS_MPF(self),
+    mpfr_rc = mpfr_yn(result->f, n, Pympf_AS_MPF(self),
                            options.rounding);
     Py_DECREF(self);
     return (PyObject*)result;
@@ -1343,7 +1343,7 @@ Pympfr_add(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    gmpy_ternary = mpfr_add(result->f, Pympf_AS_MPF(self),
+    mpfr_rc = mpfr_add(result->f, Pympf_AS_MPF(self),
                             Pympf_AS_MPF(other), options.rounding);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1371,7 +1371,7 @@ Pympfr_sub(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    gmpy_ternary = mpfr_sub(result->f, Pympf_AS_MPF(self),
+    mpfr_rc = mpfr_sub(result->f, Pympf_AS_MPF(self),
                             Pympf_AS_MPF(other), options.rounding);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1399,7 +1399,7 @@ Pympfr_mul(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    gmpy_ternary = mpfr_mul(result->f, Pympf_AS_MPF(self),
+    mpfr_rc = mpfr_mul(result->f, Pympf_AS_MPF(self),
                             Pympf_AS_MPF(other), options.rounding);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1427,7 +1427,7 @@ Pympfr_div(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    gmpy_ternary = mpfr_div(result->f, Pympf_AS_MPF(self),
+    mpfr_rc = mpfr_div(result->f, Pympf_AS_MPF(self),
                             Pympf_AS_MPF(other), options.rounding);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1455,7 +1455,7 @@ Pympfr_pow(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    gmpy_ternary = mpfr_pow(result->f, Pympf_AS_MPF(self),
+    mpfr_rc = mpfr_pow(result->f, Pympf_AS_MPF(self),
                             Pympf_AS_MPF(other), options.rounding);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1483,7 +1483,7 @@ Pympfr_atan2(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    gmpy_ternary = mpfr_atan2(result->f, Pympf_AS_MPF(self),
+    mpfr_rc = mpfr_atan2(result->f, Pympf_AS_MPF(self),
                             Pympf_AS_MPF(other), options.rounding);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1511,7 +1511,7 @@ Pympfr_agm(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    gmpy_ternary = mpfr_agm(result->f, Pympf_AS_MPF(self),
+    mpfr_rc = mpfr_agm(result->f, Pympf_AS_MPF(self),
                             Pympf_AS_MPF(other), options.rounding);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1539,7 +1539,7 @@ Pympfr_hypot(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    gmpy_ternary = mpfr_hypot(result->f, Pympf_AS_MPF(self),
+    mpfr_rc = mpfr_hypot(result->f, Pympf_AS_MPF(self),
                             Pympf_AS_MPF(other), options.rounding);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1567,7 +1567,7 @@ Pympfr_max(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    gmpy_ternary = mpfr_max(result->f, Pympf_AS_MPF(self),
+    mpfr_rc = mpfr_max(result->f, Pympf_AS_MPF(self),
                             Pympf_AS_MPF(other), options.rounding);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1595,7 +1595,7 @@ Pympfr_min(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    gmpy_ternary = mpfr_min(result->f, Pympf_AS_MPF(self),
+    mpfr_rc = mpfr_min(result->f, Pympf_AS_MPF(self),
                             Pympf_AS_MPF(other), options.rounding);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1733,11 +1733,11 @@ Pympfr_sin_cos(PyObject *self, PyObject *other)
     }
 
     if(self && Pympf_Check(self)) {
-        gmpy_ternary = mpfr_sin_cos(s->f, c->f, Pympf_AS_MPF(self),
+        mpfr_rc = mpfr_sin_cos(s->f, c->f, Pympf_AS_MPF(self),
                                     options.rounding);
     }
     else if (Pympf_Check(other)) {
-        gmpy_ternary = mpfr_sin_cos(s->f, c->f, Pympf_AS_MPF(other),
+        mpfr_rc = mpfr_sin_cos(s->f, c->f, Pympf_AS_MPF(other),
                                     options.rounding);
     }
     else {
@@ -1749,7 +1749,7 @@ Pympfr_sin_cos(PyObject *self, PyObject *other)
             return NULL;
         }
         else {
-            gmpy_ternary = mpfr_sin_cos(s->f, c->f, tempx->f,
+            mpfr_rc = mpfr_sin_cos(s->f, c->f, tempx->f,
                                         options.rounding);
             Py_DECREF((PyObject*)tempx);
         }
@@ -1782,11 +1782,11 @@ Pympfr_sinh_cosh(PyObject *self, PyObject *other)
     }
 
     if(self && Pympf_Check(self)) {
-        gmpy_ternary = mpfr_sinh_cosh(s->f, c->f, Pympf_AS_MPF(self),
+        mpfr_rc = mpfr_sinh_cosh(s->f, c->f, Pympf_AS_MPF(self),
                                       options.rounding);
     }
     else if (Pympf_Check(other)) {
-        gmpy_ternary = mpfr_sinh_cosh(s->f, c->f, Pympf_AS_MPF(other),
+        mpfr_rc = mpfr_sinh_cosh(s->f, c->f, Pympf_AS_MPF(other),
                                       options.rounding);
     }
     else {
@@ -1798,7 +1798,7 @@ Pympfr_sinh_cosh(PyObject *self, PyObject *other)
             return NULL;
         }
         else {
-            gmpy_ternary = mpfr_sinh_cosh(s->f, c->f, tempx->f,
+            mpfr_rc = mpfr_sinh_cosh(s->f, c->f, tempx->f,
                                           options.rounding);
             Py_DECREF((PyObject*)tempx);
         }
@@ -1834,7 +1834,7 @@ Pygmpy_fma(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    gmpy_ternary = mpfr_fma(result->f, x->f, y->f, z->f, options.rounding);
+    mpfr_rc = mpfr_fma(result->f, x->f, y->f, z->f, options.rounding);
     Py_DECREF((PyObject*)x);
     Py_DECREF((PyObject*)y);
     Py_DECREF((PyObject*)z);
@@ -1867,7 +1867,7 @@ Pygmpy_fms(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    gmpy_ternary = mpfr_fms(result->f, x->f, y->f, z->f, options.rounding);
+    mpfr_rc = mpfr_fms(result->f, x->f, y->f, z->f, options.rounding);
     Py_DECREF((PyObject*)x);
     Py_DECREF((PyObject*)y);
     Py_DECREF((PyObject*)z);

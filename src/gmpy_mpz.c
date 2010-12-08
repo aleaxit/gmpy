@@ -2162,7 +2162,12 @@ Pyxmpz_subscript(PyxmpzObject* self, PyObject* item)
         Py_ssize_t start, stop, step, slicelength, cur, i;
         PyObject* result;
 
-        if (PySlice_GetIndicesEx((PySliceObject*)item, mpz_sizeinbase(self->z, 2),
+#if PY_VERSION_HEX > 0x030200A4
+        if (PySlice_GetIndicesEx(item,
+#else
+        if (PySlice_GetIndicesEx((PySliceObject*)item,
+#endif
+                         mpz_sizeinbase(self->z, 2),
                          &start, &stop, &step, &slicelength) < 0) {
             return NULL;
         }
@@ -2222,8 +2227,13 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
     else if (PySlice_Check(item)) {
         Py_ssize_t start, stop, step, slicelength;
 
-        if (PySlice_GetIndicesEx((PySliceObject*)item, mpz_sizeinbase(self->z, 2),
-                         &start, &stop, &step, &slicelength) < 0) {
+#if PY_VERSION_HEX > 0x030200A4
+        if (PySlice_GetIndicesEx(item,
+#else
+        if (PySlice_GetIndicesEx((PySliceObject*)item,
+#endif
+                        mpz_sizeinbase(self->z, 2),
+                        &start, &stop, &step, &slicelength) < 0) {
             return -1;
         }
 
@@ -2301,8 +2311,13 @@ Pympz_subscript(PyxmpzObject* self, PyObject* item)
         Py_ssize_t start, stop, step, slicelength, cur, i;
         PyObject* result;
 
-        if (PySlice_GetIndicesEx((PySliceObject*)item, mpz_sizeinbase(self->z, 2),
-                         &start, &stop, &step, &slicelength) < 0) {
+#if PY_VERSION_HEX > 0x030200A4
+        if (PySlice_GetIndicesEx(item,
+#else
+        if (PySlice_GetIndicesEx((PySliceObject*)item,
+#endif
+                        mpz_sizeinbase(self->z, 2),
+                        &start, &stop, &step, &slicelength) < 0) {
             return NULL;
         }
 
