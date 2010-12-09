@@ -145,7 +145,7 @@ static int isOne(PyObject* obj)
 #endif
     }
     else if (Pympf_Check(obj)) {
-        return mpfr_get_d(Pympf_AS_MPF(obj), options.rounding)==1.0;
+        return mpfr_get_d(Pympf_AS_MPF(obj), options.mpfr_round)==1.0;
     }
     else if (PyFloat_Check(obj)) {
         return PyFloat_AS_DOUBLE(obj)==1.0;
@@ -258,16 +258,6 @@ Py##NAME(PyObject *a, PyObject *b) \
   return (PyObject *) r; \
 }
 
-#define MPF_MONOP(NAME) \
-static PyObject * \
-Py##NAME(PympfObject *x) \
-{ \
-  PympfObject *r; \
-  if (!(r = Pympf_new(mpfr_get_prec(x->f)))) return NULL; \
-  NAME(r->f, x->f, options.rounding); \
-  return (PyObject *) r; \
-}
-
 #define MPQ_MONOP(NAME) \
 static PyObject * \
 Py##NAME(PympqObject *x) \
@@ -292,9 +282,6 @@ Pympq_abs(PympqObject *x)
     mpz_abs(mpq_numref(r->q),mpq_numref(r->q));
     return (PyObject *) r;
 }
-
-MPF_MONOP(mpfr_abs)
-MPF_MONOP(mpfr_neg)
 
 static PyObject *
 Pympq_pos(PympqObject *x)
@@ -392,7 +379,7 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
             Py_XDECREF((PyObject*)rf);
             return NULL;
         }
-        mpfr_rc = mpfr_pow(rf->f, tempbf->f, tempef->f, options.rounding);
+        mpfr_rc = mpfr_pow(rf->f, tempbf->f, tempef->f, options.mpfr_round);
         Py_DECREF((PyObject*)tempbf);
         Py_DECREF((PyObject*)tempef);
         return (PyObject*)rf;
