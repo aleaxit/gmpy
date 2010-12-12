@@ -145,7 +145,7 @@ static int isOne(PyObject* obj)
 #endif
     }
     else if (Pympf_Check(obj)) {
-        return mpfr_get_d(Pympf_AS_MPF(obj), options.mpfr_round)==1.0;
+        return mpfr_get_d(Pympf_AS_MPF(obj), global.mpf_round)==1.0;
     }
     else if (PyFloat_Check(obj)) {
         return PyFloat_AS_DOUBLE(obj)==1.0;
@@ -379,7 +379,7 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
             Py_XDECREF((PyObject*)rf);
             return NULL;
         }
-        mpfr_rc = mpfr_pow(rf->f, tempbf->f, tempef->f, options.mpfr_round);
+        global.mpf_rc = mpfr_pow(rf->f, tempbf->f, tempef->f, global.mpf_round);
         Py_DECREF((PyObject*)tempbf);
         Py_DECREF((PyObject*)tempef);
         return (PyObject*)rf;

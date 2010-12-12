@@ -110,7 +110,7 @@ per object (number of limbs) for all GMPY2 objects.");
 static PyObject *
 Pygmpy_get_cache(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("ii", options.cache_size, options.cache_obsize);
+    return Py_BuildValue("ii", global.cache_size, global.cache_obsize);
 }
 
 PyDoc_STRVAR(doc_set_cache,
@@ -135,8 +135,8 @@ Pygmpy_set_cache(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    options.cache_size = newcache;
-    options.cache_obsize = newsize;
+    global.cache_size = newcache;
+    global.cache_obsize = newsize;
     set_zcache();
     set_pympzcache();
     set_pympqcache();
@@ -156,8 +156,8 @@ static PyObject *
 Pygmpy_set_debug(PyObject *self, PyObject *args)
 {
 #ifdef DEBUG
-    int old = options.debug;
-    if (!PyArg_ParseTuple(args, "i", &options.debug))
+    int old = global.debug;
+    if (!PyArg_ParseTuple(args, "i", &global.debug))
         return NULL;
     return Py_BuildValue("i", old);
 #else
@@ -337,17 +337,17 @@ Pygmpy_is_erangeflag(PyObject *self, PyObject *args)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_get_mpfr_rc,
-"get_mpfr_rc() -> integer\n\n\
+PyDoc_STRVAR(doc_get_mpf_status,
+"get_mpf_status() -> integer\n\n\
 Return the ternary result code from the most recent MPFR operation.\n"
 "If the ternary value is 0, the result of the operation is exact.\n"
 "If the ternary value is > 0, the result of the operation is greater\n"
 "than the exact result. If the ternary value < 0, then the result\n"
 "of the operation is less than the exact result.");
 static PyObject *
-Pygmpy_get_mpfr_rc(PyObject *self, PyObject *args)
+Pygmpy_get_mpf_status(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("i", mpfr_rc);
+    return Py_BuildValue("i", global.mpf_rc);
 }
 
 PyDoc_STRVAR(doc_get_emin,
@@ -427,7 +427,7 @@ PyDoc_STRVAR(doc_get_mode,
 static PyObject *
 Pygmpy_get_mode(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("i", options.raise);
+    return Py_BuildValue("i", global.raise);
 }
 
 PyDoc_STRVAR(doc_set_mode,
@@ -442,9 +442,9 @@ Pygmpy_set_mode(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i", &mode))
         return NULL;
     if (mode == GMPY_MODE_PYTHON)
-        options.raise = GMPY_MODE_PYTHON;
+        global.raise = GMPY_MODE_PYTHON;
     else if (mode == GMPY_MODE_MPFR)
-        options.raise = GMPY_MODE_MPFR;
+        global.raise = GMPY_MODE_MPFR;
     else {
         VALUE_ERROR("invalid value for error handling mode");
         return NULL;
@@ -452,13 +452,13 @@ Pygmpy_set_mode(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_get_precision,
-"get_precision() -> integer\n\n"
-"Return the number of bits of precision used for calculations.");
+PyDoc_STRVAR(doc_get_mpf_precision,
+"get_mpf_precision() -> integer\n\n"
+"Return the number of bits of precision used for 'mpf' calculations.");
 static PyObject *
-Pygmpy_get_precision(PyObject *self, PyObject *args)
+Pygmpy_get_mpf_precision(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("n", options.precision);
+    return Py_BuildValue("n", global.mpf_prec);
 }
 
 PyDoc_STRVAR(doc_get_max_precision,
@@ -472,11 +472,11 @@ Pygmpy_get_max_precision(PyObject *self, PyObject *args)
     return Py_BuildValue("n", MPFR_PREC_MAX);
 }
 
-PyDoc_STRVAR(doc_set_precision,
-"set_precision(n)\n\n"
-"Set the number of bits of precision to use for calculations.");
+PyDoc_STRVAR(doc_set_mpf_precision,
+"set_mpf_precision(n)\n\n"
+"Set the number of bits of precision to use for 'mpf' calculations.");
 static PyObject *
-Pygmpy_set_precision(PyObject *self, PyObject *args)
+Pygmpy_set_mpf_precision(PyObject *self, PyObject *args)
 {
     int bits;
 
@@ -486,30 +486,30 @@ Pygmpy_set_precision(PyObject *self, PyObject *args)
         VALUE_ERROR("invalid value for precision");
         return NULL;
     }
-    options.precision = bits;
+    global.mpf_prec = bits;
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_get_mpfr_round,
-"get_mpfr_round() -> integer\n\n"
+PyDoc_STRVAR(doc_get_mpf_round,
+"get_mpf_round() -> integer\n\n"
 "Return the rounding mode for 'mpf' arithmetic. Rounding mode can"
 "be one of RoundToNearest, RoundToZero, RoundUp, RoundDown, or"
 "RoundAwayZero.");
 
 static PyObject *
-Pygmpy_get_mpfr_round(PyObject *self, PyObject *args)
+Pygmpy_get_mpf_round(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("i", options.mpfr_round);
+    return Py_BuildValue("i", global.mpf_round);
 }
 
-PyDoc_STRVAR(doc_set_mpfr_round,
-"set_mpfr_round(n)\n\n"
+PyDoc_STRVAR(doc_set_mpf_round,
+"set_mpf_round(n)\n\n"
 "Set the rounding mode for 'mpf' arithmetic. Valid rounding modes"
 "are RoundToNearest, RoundToZero, RoundUp, RoundDown, or"
 "RoundAwayZero.");
 
 static PyObject *
-Pygmpy_set_mpfr_round(PyObject *self, PyObject *args)
+Pygmpy_set_mpf_round(PyObject *self, PyObject *args)
 {
     int mode;
 
@@ -517,15 +517,15 @@ Pygmpy_set_mpfr_round(PyObject *self, PyObject *args)
         return NULL;
 
     if (mode == MPFR_RNDN)
-        options.mpfr_round = mode;
+        global.mpf_round = mode;
     else if (mode == MPFR_RNDZ)
-        options.mpfr_round = mode;
+        global.mpf_round = mode;
     else if (mode == MPFR_RNDU)
-        options.mpfr_round = mode;
+        global.mpf_round = mode;
     else if (mode == MPFR_RNDD)
-        options.mpfr_round = mode;
+        global.mpf_round = mode;
     else if (mode == MPFR_RNDA)
-        options.mpfr_round = mode;
+        global.mpf_round = mode;
     else {
         VALUE_ERROR("invalid rounding mode");
         return NULL;
@@ -544,8 +544,8 @@ static PyObject *
 Pygmpy_get_mpc_round(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("ii",
-                         MPC_RND_RE(options.mpc_round),
-                         MPC_RND_IM(options.mpc_round));
+                         MPC_RND_RE(global.mpc_round),
+                         MPC_RND_IM(global.mpc_round));
 }
 
 PyDoc_STRVAR(doc_set_mpc_round,
@@ -564,40 +564,40 @@ Pygmpy_set_mpc_round(PyObject *self, PyObject *args)
         return NULL;
 
     if (rmode == MPFR_RNDN && imode == MPFR_RNDN)
-        options.mpc_round = MPC_RNDNN;
+        global.mpc_round = MPC_RNDNN;
     else if (rmode == MPFR_RNDN && imode == MPFR_RNDZ)
-        options.mpc_round = MPC_RNDNZ;
+        global.mpc_round = MPC_RNDNZ;
     else if (rmode == MPFR_RNDN && imode == MPFR_RNDU)
-        options.mpc_round = MPC_RNDNU;
+        global.mpc_round = MPC_RNDNU;
     else if (rmode == MPFR_RNDN && imode == MPFR_RNDD)
-        options.mpc_round = MPC_RNDND;
+        global.mpc_round = MPC_RNDND;
 
     else if (rmode == MPFR_RNDZ && imode == MPFR_RNDN)
-        options.mpc_round = MPC_RNDZN;
+        global.mpc_round = MPC_RNDZN;
     else if (rmode == MPFR_RNDZ && imode == MPFR_RNDZ)
-        options.mpc_round = MPC_RNDZZ;
+        global.mpc_round = MPC_RNDZZ;
     else if (rmode == MPFR_RNDZ && imode == MPFR_RNDU)
-        options.mpc_round = MPC_RNDZU;
+        global.mpc_round = MPC_RNDZU;
     else if (rmode == MPFR_RNDZ && imode == MPFR_RNDD)
-        options.mpc_round = MPC_RNDZD;
+        global.mpc_round = MPC_RNDZD;
 
     else if (rmode == MPFR_RNDU && imode == MPFR_RNDN)
-        options.mpc_round = MPC_RNDUN;
+        global.mpc_round = MPC_RNDUN;
     else if (rmode == MPFR_RNDU && imode == MPFR_RNDZ)
-        options.mpc_round = MPC_RNDUZ;
+        global.mpc_round = MPC_RNDUZ;
     else if (rmode == MPFR_RNDU && imode == MPFR_RNDU)
-        options.mpc_round = MPC_RNDUU;
+        global.mpc_round = MPC_RNDUU;
     else if (rmode == MPFR_RNDU && imode == MPFR_RNDD)
-        options.mpc_round = MPC_RNDUD;
+        global.mpc_round = MPC_RNDUD;
 
     else if (rmode == MPFR_RNDD && imode == MPFR_RNDN)
-        options.mpc_round = MPC_RNDDN;
+        global.mpc_round = MPC_RNDDN;
     else if (rmode == MPFR_RNDD && imode == MPFR_RNDZ)
-        options.mpc_round = MPC_RNDDZ;
+        global.mpc_round = MPC_RNDDZ;
     else if (rmode == MPFR_RNDD && imode == MPFR_RNDU)
-        options.mpc_round = MPC_RNDDU;
+        global.mpc_round = MPC_RNDDU;
     else if (rmode == MPFR_RNDD && imode == MPFR_RNDD)
-        options.mpc_round = MPC_RNDDD;
+        global.mpc_round = MPC_RNDDD;
 
     else {
         VALUE_ERROR("invalid rounding mode");

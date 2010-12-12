@@ -73,9 +73,9 @@
  *   gmpy-level workaround for scan0/scan1 bugs (?) in GMP 3.1.1
  *   added qdiv; anynum->mpq substituted for all such conversions
  *       (also anynum->mpz and anynum->mpf by analogy, with care!)
- *   added options.fcoform for optional use of intermediate string in
+ *   added global.fcoform for optional use of intermediate string in
  *       float2mpf (used for any float->mpf conversion)
- *   added set_fcoform function for options.fcoform access
+ *   added set_fcoform function for global.fcoform access
  *   general cleanup of sources; added alloca for MSVC++;
  *       many sundry minor bugfixes & uniformization;
  *       a little useful refactoring (more would be good...)
@@ -151,7 +151,7 @@
  *   Python 2.5 support (Py_ssize_t, __index__) thanks to Chip Turner
  *   Pushed coverage to 93.3% (missing only "sanity check" level error
  *      tests [mostly for out-of-memory conditions], output to stderr
- *      conditioned by options.debug, & a couple of very obscure cases)
+ *      conditioned by global.debug, & a couple of very obscure cases)
  *
  *   1.03:
  *   Fixed the bug that caused crashes on gmpy.mpf(float('inf')) and
@@ -304,20 +304,17 @@ char _gmpy_cvs[] = "$Id$";
 
 static PyObject *gmpy_module = NULL;
 
-static struct gmpy_options {
+static struct gmpy_global {
     int debug;               /* != 0 if debug messages desired on stderr */
     int raise;               /* use Python vs. MPFR approach to errors */
-    mpfr_prec_t precision;   /* current precision in bits */
-    mpfr_rnd_t mpfr_round;   /* current rounding mode for float (MPFR) */
+    mpfr_prec_t mpf_prec;    /* current precision in bits */
+    mpfr_rnd_t mpf_round;    /* current rounding mode for float (MPFR) */
     mpc_rnd_t mpc_round;     /* current rounding mode for complex (MPC)*/
     int cache_size;          /* size of cache, for all caches */
     int cache_obsize;        /* maximum size of the objects that are cached */
-} options = { 0, GMPY_MODE_PYTHON, DBL_MANT_DIG, MPFR_RNDN, MPC_RNDNN, 100, 128 };
-
-/* Save the ternary result code from MPFR and MPC operations. */
-
-static int mpfr_rc = 0;
-static int mpc_rc = 0;
+    int mpf_rc;              /* result code from MPFR */
+    int mpc_rc;              /* result code from MPC */
+} global = { 0, GMPY_MODE_PYTHON, DBL_MANT_DIG, MPFR_RNDN, MPC_RNDNN, 100, 128, 0, 0 };
 
 /* forward declarations of type-objects and method-arrays for them */
 #ifdef _MSC_VER
@@ -362,13 +359,13 @@ static void
 set_zcache(void)
 {
     TRACE("Entering set_zcache\n");
-    if (in_zcache > options.cache_size) {
+    if (in_zcache > global.cache_size) {
         int i;
-        for(i = options.cache_size; i < in_zcache; ++i)
+        for(i = global.cache_size; i < in_zcache; ++i)
             mpz_clear(zcache[i]);
-        in_zcache = options.cache_size;
+        in_zcache = global.cache_size;
     }
-    zcache = PyMem_Realloc(zcache, sizeof(mpz_t) * options.cache_size);
+    zcache = PyMem_Realloc(zcache, sizeof(mpz_t) * global.cache_size);
 }
 
 static void
@@ -376,7 +373,7 @@ mpz_inoc(mpz_t newo)
 {
     if (in_zcache) {
 #ifdef DEBUG
-        if (options.debug)
+        if (global.debug)
             fprintf(stderr, "Getting %d from zcache\n", in_zcache);
 #endif
         newo[0] = (zcache[--in_zcache])[0];
@@ -390,18 +387,18 @@ mpz_inoc(mpz_t newo)
 static void
 mpz_cloc(mpz_t oldo)
 {
-    if (in_zcache<options.cache_size && oldo->_mp_alloc <= options.cache_obsize) {
+    if (in_zcache<global.cache_size && oldo->_mp_alloc <= global.cache_obsize) {
         (zcache[in_zcache++])[0] = oldo[0];
 #ifdef DEBUG
-        if (options.debug)
+        if (global.debug)
             fprintf(stderr, "Stashed %d to zcache\n", in_zcache);
 #endif
     }
     else {
 #ifdef DEBUG
-        if (options.debug)
+        if (global.debug)
             fprintf(stderr, "Not placing in full zcache(%d/%d)\n",
-                    in_zcache, options.cache_size);
+                    in_zcache, global.cache_size);
 #endif
         mpz_clear(oldo);
     }
@@ -416,15 +413,15 @@ static void
 set_pympzcache(void)
 {
     TRACE("Entering set_pympzcache\n");
-    if (in_pympzcache > options.cache_size) {
+    if (in_pympzcache > global.cache_size) {
         int i;
-        for (i = options.cache_size; i < in_pympzcache; ++i) {
+        for (i = global.cache_size; i < in_pympzcache; ++i) {
             mpz_cloc(pympzcache[i]->z);
             PyObject_Del(pympzcache[i]);
         }
-        in_pympzcache = options.cache_size;
+        in_pympzcache = global.cache_size;
     }
-    pympzcache = PyMem_Realloc(pympzcache, sizeof(PympzObject)*options.cache_size);
+    pympzcache = PyMem_Realloc(pympzcache, sizeof(PympzObject)*global.cache_size);
 }
 
 static PympzObject *
@@ -454,8 +451,8 @@ static void
 Pympz_dealloc(PympzObject *self)
 {
     TRACE("Pympz_dealloc\n");
-    if (in_pympzcache < options.cache_size &&
-        self->z->_mp_alloc <= options.cache_obsize) {
+    if (in_pympzcache < global.cache_size &&
+        self->z->_mp_alloc <= global.cache_obsize) {
         pympzcache[in_pympzcache++] = self;
     }
     else {
@@ -473,15 +470,15 @@ static void
 set_pyxmpzcache(void)
 {
     TRACE("Entering set_pyxmpzcache\n");
-    if (in_pyxmpzcache > options.cache_size) {
+    if (in_pyxmpzcache > global.cache_size) {
         int i;
-        for (i = options.cache_size; i < in_pyxmpzcache; ++i) {
+        for (i = global.cache_size; i < in_pyxmpzcache; ++i) {
             mpz_cloc(pyxmpzcache[i]->z);
             PyObject_Del(pyxmpzcache[i]);
         }
-        in_pyxmpzcache = options.cache_size;
+        in_pyxmpzcache = global.cache_size;
     }
-    pyxmpzcache = PyMem_Realloc(pyxmpzcache, sizeof(PyxmpzObject)*options.cache_size);
+    pyxmpzcache = PyMem_Realloc(pyxmpzcache, sizeof(PyxmpzObject)*global.cache_size);
 }
 
 static PyxmpzObject *
@@ -510,8 +507,8 @@ static void
 Pyxmpz_dealloc(PyxmpzObject *self)
 {
     TRACE("Pyxmpz_dealloc\n");
-    if (in_pyxmpzcache < options.cache_size &&
-        self->z->_mp_alloc <= options.cache_obsize) {
+    if (in_pyxmpzcache < global.cache_size &&
+        self->z->_mp_alloc <= global.cache_obsize) {
         pyxmpzcache[in_pyxmpzcache++] = self;
     }
     else {
@@ -529,15 +526,15 @@ static void
 set_pympqcache(void)
 {
     TRACE("Entering set_pympqcache\n");
-    if (in_pympqcache > options.cache_size) {
+    if (in_pympqcache > global.cache_size) {
         int i;
-        for (i = options.cache_size; i < in_pympqcache; ++i) {
+        for (i = global.cache_size; i < in_pympqcache; ++i) {
             mpq_clear(pympqcache[i]->q);
             PyObject_Del(pympqcache[i]);
         }
-        in_pympqcache = options.cache_size;
+        in_pympqcache = global.cache_size;
     }
-    pympqcache = PyMem_Realloc(pympqcache, sizeof(PympqObject)*options.cache_size);
+    pympqcache = PyMem_Realloc(pympqcache, sizeof(PympqObject)*global.cache_size);
 }
 
 static PympqObject *
@@ -567,9 +564,9 @@ static void
 Pympq_dealloc(PympqObject *self)
 {
     TRACE("Pympq_dealloc\n");
-    if (in_pympqcache<options.cache_size &&
-        mpq_numref(self->q)->_mp_alloc <= options.cache_obsize &&
-        mpq_denref(self->q)->_mp_alloc <= options.cache_obsize) {
+    if (in_pympqcache<global.cache_size &&
+        mpq_numref(self->q)->_mp_alloc <= global.cache_obsize &&
+        mpq_denref(self->q)->_mp_alloc <= global.cache_obsize) {
         pympqcache[in_pympqcache++] = self;
     }
     else {
@@ -587,15 +584,15 @@ static void
 set_pympfcache(void)
 {
     TRACE("Entering set_pympfcache\n");
-    if (in_pympfcache > options.cache_size) {
+    if (in_pympfcache > global.cache_size) {
         int i;
-        for (i = options.cache_size; i < in_pympfcache; ++i) {
+        for (i = global.cache_size; i < in_pympfcache; ++i) {
             mpfr_clear(pympfcache[i]->f);
             PyObject_Del(pympfcache[i]);
         }
-        in_pympfcache = options.cache_size;
+        in_pympfcache = global.cache_size;
     }
-    pympfcache = PyMem_Realloc(pympfcache, sizeof(PympfObject)*options.cache_size);
+    pympfcache = PyMem_Realloc(pympfcache, sizeof(PympfObject)*global.cache_size);
 }
 
 static PympfObject *
@@ -605,7 +602,7 @@ Pympf_new(mpfr_prec_t bits)
 
     TRACE("Entering Pympf_new\n");
     if (bits == 0)
-        bits = options.precision;
+        bits = global.mpf_prec;
     if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");
         return NULL;
@@ -636,8 +633,8 @@ Pympf_dealloc(PympfObject *self)
     TRACE("Pympf_dealloc\n");
     /* Calculate the number of limbs in the mantissa. */
     msize = (self->f->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
-    if (in_pympfcache < options.cache_size &&
-        msize <= options.cache_obsize) {
+    if (in_pympfcache < global.cache_size &&
+        msize <= global.cache_obsize) {
         pympfcache[in_pympfcache++] = self;
     }
     else {
@@ -655,15 +652,15 @@ static void
 set_pympccache(void)
 {
     TRACE("Entering set_pympccache\n");
-    if (in_pympccache > options.cache_size) {
+    if (in_pympccache > global.cache_size) {
         int i;
-        for (i = options.cache_size; i < in_pympccache; ++i) {
+        for (i = global.cache_size; i < in_pympccache; ++i) {
             mpc_clear(pympccache[i]->c);
             PyObject_Del(pympccache[i]);
         }
-        in_pympccache = options.cache_size;
+        in_pympccache = global.cache_size;
     }
-    pympccache = PyMem_Realloc(pympccache, sizeof(PympcObject)*options.cache_size);
+    pympccache = PyMem_Realloc(pympccache, sizeof(PympcObject)*global.cache_size);
 }
 
 static PympcObject *
@@ -673,7 +670,7 @@ Pympc_new(mpfr_prec_t bits)
 
     TRACE("Entering Pympc_new\n");
     if (bits == 0)
-        bits = options.precision;
+        bits = global.mpf_prec;
     if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");
         return NULL;
@@ -705,8 +702,8 @@ Pympc_dealloc(PympcObject *self)
     /* Calculate the number of limbs in the mantissa. */
     msize = ((mpc_realref(self->c))->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
     msize += ((mpc_imagref(self->c))->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
-    if (in_pympccache < options.cache_size &&
-        msize <= options.cache_obsize) {
+    if (in_pympccache < global.cache_size &&
+        msize <= global.cache_obsize) {
         pympccache[in_pympccache++] = self;
     }
     else {
@@ -788,7 +785,7 @@ Pympf2Pympf(PyObject *self, mpfr_prec_t bits)
     if (bits == 0)
         bits = mpfr_get_prec(Pympf_AS_MPF(self));
     if ((newob = Pympf_new(bits)))
-        mpfr_rc = mpfr_set(newob->f, Pympf_AS_MPF(self), options.mpfr_round);
+        global.mpf_rc = mpfr_set(newob->f, Pympf_AS_MPF(self), global.mpf_round);
     return newob;
 }
 
@@ -833,7 +830,7 @@ PyInt2Pympf(PyObject *self, mpfr_prec_t bits)
 
     assert(PyInt_Check(self));
     if ((newob = Pympf_new(bits)))
-        mpfr_rc = mpfr_set_si(newob->f, PyInt_AsLong(self), options.mpfr_round);
+        global.mpf_rc = mpfr_set_si(newob->f, PyInt_AsLong(self), global.mpf_round);
     return newob;
 }
 #endif
@@ -925,11 +922,11 @@ PyFloat2Pympf(PyObject *self, mpfr_prec_t bits)
     if (!bits)
         bits = DBL_MANT_DIG;
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr, "PyFloat2Pympf(%p,%ld)\n", self, (long) bits);
 #endif
     if ((newob = Pympf_new(bits)))
-        mpfr_rc = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), bits);
+        global.mpf_rc = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), bits);
     return newob;
 }
 
@@ -940,7 +937,7 @@ Pympz2Pympf(PyObject *self, mpfr_prec_t bits)
 
     assert(Pympz_Check(self));
     if ((newob = Pympf_new(bits)))
-        mpfr_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), options.mpfr_round);
+        global.mpf_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), global.mpf_round);
     return newob;
 }
 
@@ -951,7 +948,7 @@ Pyxmpz2Pympf(PyObject *self, mpfr_prec_t bits)
 
     assert(Pyxmpz_Check(self));
     if ((newob = Pympf_new(bits)))
-        mpfr_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), options.mpfr_round);
+        global.mpf_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), global.mpf_round);
     return newob;
 }
 
@@ -972,7 +969,7 @@ Pympf2Pympz(PyObject *self)
             VALUE_ERROR("gmpy2.mpz does not handle infinity");
             return NULL;
         }
-        mpfr_rc = mpfr_get_z(newob->z, Pympf_AS_MPF(self), options.mpfr_round);
+        global.mpf_rc = mpfr_get_z(newob->z, Pympf_AS_MPF(self), global.mpf_round);
     }
     return newob;
 }
@@ -994,7 +991,7 @@ Pympf2Pyxmpz(PyObject *self)
             VALUE_ERROR("gmpy2.xmpz does not handle infinity");
             return NULL;
         }
-        mpfr_rc = mpfr_get_z(newob->z, Pympf_AS_MPF(self), options.mpfr_round);
+        global.mpf_rc = mpfr_get_z(newob->z, Pympf_AS_MPF(self), global.mpf_round);
     }
     return newob;
 }
@@ -1035,7 +1032,7 @@ Pympq2Pympf(PyObject *self, mpfr_prec_t bits)
     assert(Pympq_Check(self));
     if (!(newob = Pympf_new(bits)))
         return NULL;
-    mpfr_rc = mpfr_set_q(newob->f, Pympq_AS_MPQ(self), options.mpfr_round);
+    global.mpf_rc = mpfr_set_q(newob->f, Pympq_AS_MPQ(self), global.mpf_round);
     return newob;
 }
 
@@ -1450,7 +1447,7 @@ PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits)
             }
         }
         else { /* true-string, never encoded, just default it */
-            prec = options.precision;
+            prec = global.mpf_prec;
         }
     }
     if (prec < MPFR_PREC_MIN)
@@ -1481,7 +1478,7 @@ PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits)
 
         /* mpf zero has a very compact (1-byte) binary encoding!-) */
         if (resuzero) {
-            mpfr_rc = mpfr_set_ui(newob->f, 0, options.mpfr_round);
+            global.mpf_rc = mpfr_set_ui(newob->f, 0, global.mpf_round);
             return newob;
         }
 
@@ -1500,23 +1497,23 @@ PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits)
         }
 
         /* reconstruct 'mantissa' (significand) */
-        mpfr_set_si(newob->f, 0, options.mpfr_round);
+        mpfr_set_si(newob->f, 0, global.mpf_round);
         mpfr_init2(digit, prec);
         for (i = 5 + precilen; i<len; i++) {
-            mpfr_set_ui(digit, cp[i], options.mpfr_round);
+            mpfr_set_ui(digit, cp[i], global.mpf_round);
             mpfr_div_2ui(digit, digit, (unsigned long)((i-4-precilen) * 8),
-                         options.mpfr_round);
-            mpfr_add(newob->f, newob->f, digit, options.mpfr_round);
+                         global.mpf_round);
+            mpfr_add(newob->f, newob->f, digit, global.mpf_round);
         }
         mpfr_clear(digit);
         /* apply exponent, with its appropriate sign */
         if (exposign)
-            mpfr_div_2ui(newob->f, newob->f, 8*expomag, options.mpfr_round);
+            mpfr_div_2ui(newob->f, newob->f, 8*expomag, global.mpf_round);
         else
-            mpfr_mul_2ui(newob->f, newob->f, 8*expomag, options.mpfr_round);
+            mpfr_mul_2ui(newob->f, newob->f, 8*expomag, global.mpf_round);
         /* apply significand-sign (sign of the overall number) */
         if (resusign)
-            mpfr_neg(newob->f, newob->f, options.mpfr_round);
+            mpfr_neg(newob->f, newob->f, global.mpf_round);
     }
     else {
         /* Don't allow NULL characters */
@@ -1529,7 +1526,7 @@ PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits)
             }
         }
         /* delegate the rest to MPFR */
-        if (-1 == mpfr_set_str(newob->f, (char*)cp, base, options.mpfr_round)) {
+        if (-1 == mpfr_set_str(newob->f, (char*)cp, base, global.mpf_round)) {
             VALUE_ERROR("invalid digits");
             Py_DECREF((PyObject*)newob);
             Py_XDECREF(ascii_str);
@@ -1653,7 +1650,7 @@ Pympz2PyFloat(PympzObject *self)
 static PyObject *
 Pympf2PyFloat(PympfObject *self)
 {
-    double res = mpfr_get_d(self->f, options.mpfr_round);
+    double res = mpfr_get_d(self->f, global.mpf_round);
 
     return PyFloat_FromDouble(res);
 }
@@ -1819,14 +1816,14 @@ Pympf2binary(PympfObject *self)
     }
     else if (sign < 0) {
         codebyte = 1;
-        mpfr_neg(self->f, self->f, options.mpfr_round);
+        mpfr_neg(self->f, self->f, global.mpf_round);
     }
     else {
         codebyte = 0;
     }
 
     /* get buffer of base-16 digits */
-    buffer  = mpfr_get_str(0, &the_exp, 16, 0, self->f, options.mpfr_round);
+    buffer  = mpfr_get_str(0, &the_exp, 16, 0, self->f, global.mpf_round);
 
     /* strip trailing zeros */
     hexdigs = strlen(buffer) - 1;
@@ -1838,7 +1835,7 @@ Pympf2binary(PympfObject *self)
      */
     /* restore correct sign to x->f if it was changed! */
     if (codebyte) {
-        mpfr_neg(self->f, self->f, options.mpfr_round);
+        mpfr_neg(self->f, self->f, global.mpf_round);
     }
     hexdigs = strlen(buffer);
     /* adjust exponent, & possibly set codebyte's expo-sign bit.
@@ -2285,7 +2282,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
     }
 
     /* obtain digits-string and exponent */
-    buffer = mpfr_get_str(0, &the_exp, base, digits, self->f, options.mpfr_round);
+    buffer = mpfr_get_str(0, &the_exp, base, digits, self->f, global.mpf_round);
     if (!*buffer) {
         SYSTEM_ERROR("Internal error in Pympf_ascii");
         return NULL;
@@ -2457,7 +2454,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
 static int isFloat(PyObject* obj)
 {
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr, "isFloat: object type is %s\n", Py_TYPE(obj)->tp_name);
 #endif
     if (Pympz_Check(obj)) {
@@ -2490,7 +2487,7 @@ static int isFloat(PyObject* obj)
 static int isRational(PyObject* obj)
 {
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr, "isRational: object type is %s\n", Py_TYPE(obj)->tp_name);
 #endif
     if (Pympz_Check(obj)) {
@@ -2514,7 +2511,7 @@ static int isRational(PyObject* obj)
 static int isInteger(PyObject* obj)
 {
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr, "isInteger: object type is %s\n", Py_TYPE(obj)->tp_name);
 #endif
     if (Pympz_Check(obj)) {
@@ -2602,7 +2599,7 @@ anynum2Pympq(PyObject* obj)
         }
     }
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr,"anynum2Pympq(%p)->%p\n", obj, newob);
 #endif
 
@@ -2642,7 +2639,7 @@ Pympq_From_Rational(PyObject* obj)
         }
     }
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr,"Pympq_From_Rational(%p)->%p\n", obj, newob);
 #endif
 
@@ -2695,7 +2692,7 @@ anynum2Pympz(PyObject* obj)
         }
     }
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr,"anynum2Pympz(%p)->%p\n", obj, newob);
 #endif
     return newob;
@@ -2747,7 +2744,7 @@ anynum2Pyxmpz(PyObject* obj)
         }
     }
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr,"anynum2Pympz(%p)->%p\n", obj, newob);
 #endif
     return newob;
@@ -2780,7 +2777,7 @@ Pympz_From_Integer(PyObject* obj)
         newob = Pyxmpz2Pympz(obj);
     }
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr,"Pympz_From_Integer(%p)->%p\n", obj, newob);
 #endif
     if (!newob)
@@ -2864,7 +2861,7 @@ ssize_t_From_Integer(PyObject *obj)
  * obj, then a new reference is created.
  *
  * For all other numerical types with bits = 0, the conversion is rounded to
- * options.precision.
+ * global.mpf_prec.
  */
 
 static PympfObject*
@@ -2923,7 +2920,7 @@ Pympf_From_Float(PyObject* obj, mpfr_prec_t bits)
         }
     }
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr, "Pympf_From_Float(%p,%ld)->%p (%ld)\n", obj,
                 (long)bits, newob, newob != 0 ? (long)mpfr_get_prec(newob->f) : -1);
 #endif
@@ -2938,7 +2935,7 @@ Pympz_convert_arg(PyObject *arg, PyObject **ptr)
 {
     PympzObject* newob = Pympz_From_Integer(arg);
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr, "mpz_conv_arg(%p)->%p\n", arg, newob);
 #endif
     if (newob) {
@@ -2960,7 +2957,7 @@ Pympq_convert_arg(PyObject *arg, PyObject **ptr)
 {
     PympqObject* newob = Pympq_From_Rational(arg);
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr, "mpq_conv_arg(%p)->%p\n", arg, newob);
 #endif
     if (newob) {
@@ -2985,7 +2982,7 @@ Pympf_convert_arg(PyObject *arg, PyObject **ptr)
     PympfObject* newob = Pympf_From_Float(arg, 0);
 
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr, "mpf_conv_arg(%p)->%p\n", arg, newob);
 #endif
     if (newob) {
@@ -3124,7 +3121,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
         }
     }
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr, "Pygmpy_mpz: created mpz = %ld\n",
                 mpz_get_si(newob->z));
 #endif
@@ -3201,7 +3198,7 @@ Pygmpy_xmpz(PyObject *self, PyObject *args)
         }
     }
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr, "Pygmpy_xmpz: created xmpz = %ld\n",
                 mpz_get_si(newob->z));
 #endif
@@ -3271,7 +3268,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
         }
     }
 #ifdef DEBUG
-    if (options.debug) {
+    if (global.debug) {
         fputs("Pygmpy_mpq: created mpq = ", stderr);
         mpq_out_str(stderr, 10, newob->q);
         putc('\n', stderr);
@@ -3386,9 +3383,9 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
         }
     }
 #ifdef DEBUG
-    if (options.debug) {
+    if (global.debug) {
         fputs("Pygmpy_mpf: created mpf = ", stderr);
-        mpfr_out_str(stderr, 10, 0, newob->f, options.mpfr_round);
+        mpfr_out_str(stderr, 10, 0, newob->f, global.mpf_round);
         fprintf(stderr," bits=%ld (%ld)\n",
                 (long)mpfr_get_prec(newob->f), (long)bits);
     }
@@ -3447,7 +3444,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     PyObject *tempa = 0, *tempb = 0, *result = 0;
 
 #ifdef DEBUG
-    if (options.debug) {
+    if (global.debug) {
         fprintf(stderr, "rich_compare: type(a) is %s\n", Py_TYPE(a)->tp_name);
         fprintf(stderr, "rich_compare: type(b) is %s\n", Py_TYPE(b)->tp_name);
     }
@@ -3979,9 +3976,9 @@ static PyMethodDef Pygmpy_methods [] =
     { "get_max_precision", Pygmpy_get_max_precision, METH_NOARGS, doc_get_max_precision },
     { "get_mode", Pygmpy_get_mode, METH_NOARGS, doc_get_mode },
     { "get_mpc_round", Pygmpy_get_mpc_round, METH_NOARGS, doc_get_mpc_round },
-    { "get_mpfr_rc", Pygmpy_get_mpfr_rc, METH_NOARGS, doc_get_mpfr_rc },
-    { "get_mpfr_round", Pygmpy_get_mpfr_round, METH_NOARGS, doc_get_mpfr_round },
-    { "get_precision", Pygmpy_get_precision, METH_NOARGS, doc_get_precision },
+    { "get_mpf_status", Pygmpy_get_mpf_status, METH_NOARGS, doc_get_mpf_status },
+    { "get_mpf_round", Pygmpy_get_mpf_round, METH_NOARGS, doc_get_mpf_round },
+    { "get_mpf_precision", Pygmpy_get_mpf_precision, METH_NOARGS, doc_get_mpf_precision },
     { "hamdist", Pympz_hamdist, METH_VARARGS, doc_hamdistg },
     { "hypot", Pympfr_hypot, METH_VARARGS, doc_gmpy_hypot },
     { "inf", Pygmpy_set_inf, METH_O, doc_set_inf },
@@ -4052,15 +4049,15 @@ static PyMethodDef Pygmpy_methods [] =
     { "set_debug", Pygmpy_set_debug, METH_VARARGS, doc_set_debug },
     { "set_emax", Pygmpy_set_emax, METH_VARARGS, doc_set_emax },
     { "set_emin", Pygmpy_set_emin, METH_VARARGS, doc_set_emin },
-    { "set_erangeflag", Pygmpy_set_erangeflag, METH_NOARGS, doc_set_erangeflag },
-    { "set_inexactflag", Pygmpy_set_inexflag, METH_NOARGS, doc_set_inexflag },
+    { "set_flag_erange", Pygmpy_set_erangeflag, METH_NOARGS, doc_set_erangeflag },
+    { "set_flag_inexact", Pygmpy_set_inexflag, METH_NOARGS, doc_set_inexflag },
+    { "set_flag_nan", Pygmpy_set_nanflag, METH_NOARGS, doc_set_nanflag },
+    { "set_flag_underflow", Pygmpy_set_underflow, METH_NOARGS, doc_set_underflow },
     { "set_mpc_round", Pygmpy_set_mpc_round, METH_VARARGS, doc_set_mpc_round },
     { "set_mode", Pygmpy_set_mode, METH_VARARGS, doc_set_mode },
-    { "set_mpfr_round", Pygmpy_set_mpfr_round, METH_VARARGS, doc_set_mpfr_round },
-    { "set_nanflag", Pygmpy_set_nanflag, METH_NOARGS, doc_set_nanflag },
+    { "set_mpf_round", Pygmpy_set_mpf_round, METH_VARARGS, doc_set_mpf_round },
+    { "set_mpf_precision", Pygmpy_set_mpf_precision, METH_VARARGS, doc_set_mpf_precision },
     { "set_overflow", Pygmpy_set_overflow, METH_NOARGS, doc_set_overflow },
-    { "set_precision", Pygmpy_set_precision, METH_VARARGS, doc_set_precision },
-    { "set_underflow", Pygmpy_set_underflow, METH_NOARGS, doc_set_underflow },
     { "sign", Pygmpy_sign, METH_O, doc_gmpy_sign },
     { "sin", Pympf_sin, METH_O, doc_fsing },
     { "sinh", Pympf_sinh, METH_O, doc_fsinhg },
@@ -4483,7 +4480,7 @@ gmpy_allocate(size_t size)
     if (usize < GMPY_ALLOC_MIN)
         usize = GMPY_ALLOC_MIN;
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr, "mp_allocate( %llu->%llu )\n",
             (unsigned long long)size, (unsigned long long)usize);
 #endif
@@ -4493,7 +4490,7 @@ gmpy_allocate(size_t size)
         Py_FatalError("mp_allocate failure");
     }
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr, "mp_allocate( %llu->%llu ) ->%8p\n",
             (unsigned long long)size, (unsigned long long)usize, res);
 #endif
@@ -4513,7 +4510,7 @@ gmpy_reallocate(void *ptr, size_t old_size, size_t new_size)
     if (unew < GMPY_ALLOC_MIN)
         unew = GMPY_ALLOC_MIN;
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr,
             "mp_reallocate: old address %8p, old size %llu(%llu), new %llu(%llu)\n",
             ptr, (unsigned long long)old_size, (unsigned long long)uold,
@@ -4521,7 +4518,7 @@ gmpy_reallocate(void *ptr, size_t old_size, size_t new_size)
 #endif
     if (uold==unew) {
 #ifdef DEBUG
-        if (options.debug)
+        if (global.debug)
             fprintf(stderr, "mp_reallocate: avoided realloc for %llu\n",
                 (unsigned long long)unew);
 #endif
@@ -4536,7 +4533,7 @@ gmpy_reallocate(void *ptr, size_t old_size, size_t new_size)
         Py_FatalError("mp_reallocate failure");
     }
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr, "mp_reallocate: newob address %8p, newob size %llu(%llu)\n",
         res, (unsigned long long)new_size, (unsigned long long)unew);
 #endif
@@ -4550,7 +4547,7 @@ gmpy_free( void *ptr, size_t size)
     if (usize < GMPY_ALLOC_MIN)
         usize = GMPY_ALLOC_MIN;
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr, "mp_free      : old address %8p, old size %llu(%llu)\n",
             ptr, (unsigned long long)size, (unsigned long long)usize);
 #endif
@@ -4560,7 +4557,7 @@ gmpy_free( void *ptr, size_t size)
 static void _PyInitGMP(void)
 {
     mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
-    options.precision = DBL_MANT_DIG;
+    global.mpf_prec = DBL_MANT_DIG;
     set_zcache();
     set_pympzcache();
     set_pympqcache();
@@ -4628,9 +4625,9 @@ PyMODINIT_FUNC initgmpy2(void)
         INITERROR;
 
     if (do_debug)
-        sscanf(do_debug, "%d", &options.debug);
+        sscanf(do_debug, "%d", &global.debug);
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fputs( "initgmpy2() called...\n", stderr );
 #endif
     _PyInitGMP();
@@ -4654,7 +4651,7 @@ PyMODINIT_FUNC initgmpy2(void)
     PyModule_AddIntConstant(gmpy_module, "ModePython", GMPY_MODE_PYTHON);
     PyModule_AddIntConstant(gmpy_module, "ModeMPFR", GMPY_MODE_MPFR);
 #ifdef DEBUG
-    if (options.debug)
+    if (global.debug)
         fprintf(stderr, "gmpy_module at %p\n", gmpy_module);
 #endif
     /* Add support for pickling. */
@@ -4672,7 +4669,7 @@ PyMODINIT_FUNC initgmpy2(void)
         PyObject* namespace = PyDict_New();
         PyObject* result = NULL;
 #ifdef DEBUG
-        if (options.debug)
+        if (global.debug)
             fprintf(stderr, "gmpy_module imported copyreg OK\n");
 #endif
         PyDict_SetItemString(namespace, "copyreg", copy_reg_module);
@@ -4682,13 +4679,13 @@ PyMODINIT_FUNC initgmpy2(void)
                               namespace, namespace);
         if (result) {
 #ifdef DEBUG
-            if (options.debug)
+            if (global.debug)
                 fprintf(stderr, "gmpy_module enable pickle OK\n");
 #endif
         }
         else {
 #ifdef DEBUG
-            if (options.debug)
+            if (global.debug)
                 fprintf(stderr, "gmpy_module could not enable pickle\n");
 #endif
             PyErr_Clear();
@@ -4699,7 +4696,7 @@ PyMODINIT_FUNC initgmpy2(void)
     else {
         PyErr_Clear();
 #ifdef DEBUG
-        if (options.debug)
+        if (global.debug)
             fprintf(stderr, "gmpy_module could not import copyreg\n");
 #endif
     }
@@ -4717,7 +4714,7 @@ PyMODINIT_FUNC initgmpy2(void)
         PyObject* namespace = PyDict_New();
         PyObject* result = NULL;
 #ifdef DEBUG
-        if (options.debug)
+        if (global.debug)
             fprintf(stderr, "gmpy_module imported copy_reg OK\n");
 #endif
         PyDict_SetItemString(namespace, "copy_reg", copy_reg_module);
@@ -4727,13 +4724,13 @@ PyMODINIT_FUNC initgmpy2(void)
                               namespace, namespace);
         if (result) {
 #ifdef DEBUG
-            if (options.debug)
+            if (global.debug)
                 fprintf(stderr, "gmpy_module enable pickle OK\n");
 #endif
         }
         else {
 #ifdef DEBUG
-            if (options.debug)
+            if (global.debug)
                 fprintf(stderr, "gmpy_module could not enable pickle\n");
 #endif
             PyErr_Clear();
@@ -4744,7 +4741,7 @@ PyMODINIT_FUNC initgmpy2(void)
     else {
         PyErr_Clear();
 #ifdef DEBUG
-        if (options.debug)
+        if (global.debug)
             fprintf(stderr, "gmpy_module could not import copy_reg\n");
 #endif
     }
