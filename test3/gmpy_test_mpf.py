@@ -153,7 +153,7 @@ Traceback (most recent call last):
   File "a.py", line 9, in _er
     raise ValueError, what
 ValueError: sqrt() of negative number
->>> save=_g.get_precision()
+>>> save=_g.get_mpf_precision()
 >>> _g.const_catalan()
 mpf('9.1596559417721901e-1')
 >>> _g.const_euler()
@@ -162,7 +162,7 @@ mpf('5.7721566490153287e-1')
 mpf('6.9314718055994529e-1')
 >>> _g.const_pi()
 mpf('3.1415926535897931e0')
->>> _g.set_precision(100)
+>>> _g.set_mpf_precision(100)
 >>> _g.const_catalan()
 mpf('9.1596559417721901505460351493252e-1',100)
 >>> _g.const_euler()
@@ -171,7 +171,7 @@ mpf('5.7721566490153286060651209008234e-1',100)
 mpf('6.9314718055994530941723212145798e-1',100)
 >>> _g.const_pi()
 mpf('3.1415926535897932384626433832793e0',100)
->>> _g.set_precision(save)
+>>> _g.set_mpf_precision(save)
 >>> del(save)
 >>> import pickle
 >>> flt = _g.mpf(1234.6789)
@@ -385,8 +385,8 @@ b'\t5\x00\x00\x00\x01\x00\x00\x00\x02'
 b'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
 >>> _g.mpf(_g.binary(_g.mpf(2.0)), 0, 256) == 2.0
 1
->>> prec=_g.get_precision()
->>> _g.set_precision(prec)
+>>> prec=_g.get_mpf_precision()
+>>> _g.set_mpf_precision(prec)
 >>> a.precision==prec
 1
 >>> b.precision==prec
