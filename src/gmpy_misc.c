@@ -140,7 +140,7 @@ Pygmpy_set_cache(PyObject *self, PyObject *args)
     set_zcache();
     set_pympzcache();
     set_pympqcache();
-    set_pympfcache();
+    set_pympfrcache();
     set_pympccache();
     set_pyxmpzcache();
     Py_RETURN_NONE;
@@ -167,121 +167,132 @@ Pygmpy_set_debug(PyObject *self, PyObject *args)
 #endif
 }
 
-PyDoc_STRVAR(doc_clear_underflow,
+PyDoc_STRVAR(doc_g_mpfr_clear_underflow,
 "clear_underflow()\n\n"
-"Clear the underflow flag.");
+"Clear the MPFR underflow flag.");
+
 static PyObject *
-Pygmpy_clear_underflow(PyObject *self, PyObject *args)
+Pympfr_clear_underflow(PyObject *self, PyObject *args)
 {
     mpfr_clear_underflow();
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_clear_overflow,
+PyDoc_STRVAR(doc_g_mpfr_clear_overflow,
 "clear_overflow()\n\n"
-"Clear the overflow flag.");
+"Clear the MPFR overflow flag.");
+
 static PyObject *
-Pygmpy_clear_overflow(PyObject *self, PyObject *args)
+Pympfr_clear_overflow(PyObject *self, PyObject *args)
 {
     mpfr_clear_overflow();
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_clear_nanflag,
+PyDoc_STRVAR(doc_g_mpfr_clear_nanflag,
 "clear_nanflag()\n\n"
-"Clear the Not A Number (nan) flag.");
+"Clear the MPFR Not-A-Number (nan) flag.");
+
 static PyObject *
-Pygmpy_clear_nanflag(PyObject *self, PyObject *args)
+Pympfr_clear_nanflag(PyObject *self, PyObject *args)
 {
     mpfr_clear_nanflag();
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_clear_inexflag,
+PyDoc_STRVAR(doc_g_mpfr_clear_inexflag,
 "clear_inexactflag()\n\n"
-"Clear the inexact flag.");
+"Clear the MPFR inexact flag.");
+
 static PyObject *
-Pygmpy_clear_inexflag(PyObject *self, PyObject *args)
+Pympfr_clear_inexflag(PyObject *self, PyObject *args)
 {
     mpfr_clear_inexflag();
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_clear_erangeflag,
+PyDoc_STRVAR(doc_g_mpfr_clear_erangeflag,
 "clear_erangeflag()\n\n"
-"Clear the range error flag.");
+"Clear the MPFR range error flag.");
+
 static PyObject *
-Pygmpy_clear_erangeflag(PyObject *self, PyObject *args)
+Pympfr_clear_erangeflag(PyObject *self, PyObject *args)
 {
     mpfr_clear_erangeflag();
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_clear_flags,
+PyDoc_STRVAR(doc_g_mpfr_clear_flags,
 "clear_flags()\n\n"
-"Clear all exception flags.");
+"Clear all MPFR exception flags.");
 static PyObject *
-Pygmpy_clear_flags(PyObject *self, PyObject *args)
+Pympfr_clear_flags(PyObject *self, PyObject *args)
 {
     mpfr_clear_flags();
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_set_underflow,
+PyDoc_STRVAR(doc_g_mpfr_set_underflow,
 "set_underflow()\n\n"
-"Set the underflow flag.");
+"Set the MPFR underflow flag.");
+
 static PyObject *
-Pygmpy_set_underflow(PyObject *self, PyObject *args)
+Pympfr_set_underflow(PyObject *self, PyObject *args)
 {
     mpfr_set_underflow();
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_set_overflow,
+PyDoc_STRVAR(doc_g_mpfr_set_overflow,
 "set_overflow()\n\n"
-"Set the overflow flag.");
+"Set the MPFR overflow flag.");
+
 static PyObject *
-Pygmpy_set_overflow(PyObject *self, PyObject *args)
+Pympfr_set_overflow(PyObject *self, PyObject *args)
 {
     mpfr_set_overflow();
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_set_nanflag,
+PyDoc_STRVAR(doc_g_mpfr_set_nanflag,
 "set_nanflag()\n\n"
-"Set the Not A Number (nan) flag.");
+"Set the MPFR Not-A-Number (nan) flag.");
+
 static PyObject *
-Pygmpy_set_nanflag(PyObject *self, PyObject *args)
+Pympfr_set_nanflag(PyObject *self, PyObject *args)
 {
     mpfr_set_nanflag();
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_set_inexflag,
+PyDoc_STRVAR(doc_g_mpfr_set_inexflag,
 "set_inexactflag()\n\n"
-"Set the inexact flag.");
+"Set the MPFR inexact flag.");
+
 static PyObject *
-Pygmpy_set_inexflag(PyObject *self, PyObject *args)
+Pympfr_set_inexflag(PyObject *self, PyObject *args)
 {
     mpfr_set_inexflag();
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_set_erangeflag,
+PyDoc_STRVAR(doc_g_mpfr_set_erangeflag,
 "set_erangeflag()\n\n"
-"Set the range error flag.");
+"Set the MPFR range error flag.");
+
 static PyObject *
-Pygmpy_set_erangeflag(PyObject *self, PyObject *args)
+Pympfr_set_erangeflag(PyObject *self, PyObject *args)
 {
     mpfr_set_erangeflag();
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_is_underflow,
+PyDoc_STRVAR(doc_g_mpfr_is_underflow,
 "is_underflow() -> boolean\n\n"
-"Return True if underflow flag is set.");
+"Return True if the MPFR underflow flag is set.");
+
 static PyObject *
-Pygmpy_is_underflow(PyObject *self, PyObject *args)
+Pympfr_is_underflow(PyObject *self, PyObject *args)
 {
     if (mpfr_underflow_p())
         Py_RETURN_TRUE;
@@ -289,11 +300,12 @@ Pygmpy_is_underflow(PyObject *self, PyObject *args)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_is_overflow,
+PyDoc_STRVAR(doc_g_mpfr_is_overflow,
 "is_overflow() -> boolean\n\n"
-"Return True if overflow flag is set.");
+"Return True if the MPFR overflow flag is set.");
+
 static PyObject *
-Pygmpy_is_overflow(PyObject *self, PyObject *args)
+Pympfr_is_overflow(PyObject *self, PyObject *args)
 {
     if (mpfr_overflow_p())
         Py_RETURN_TRUE;
@@ -301,11 +313,12 @@ Pygmpy_is_overflow(PyObject *self, PyObject *args)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_is_nanflag,
+PyDoc_STRVAR(doc_g_mpfr_is_nanflag,
 "is_nanflag() -> boolean\n\n"
-"Return True if Not A Number (nan) flag is set.");
+"Return True if the MPFR Not-A-Number (nan) flag is set.");
+
 static PyObject *
-Pygmpy_is_nanflag(PyObject *self, PyObject *args)
+Pympfr_is_nanflag(PyObject *self, PyObject *args)
 {
     if (mpfr_nanflag_p())
         Py_RETURN_TRUE;
@@ -313,11 +326,12 @@ Pygmpy_is_nanflag(PyObject *self, PyObject *args)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_is_inexflag,
+PyDoc_STRVAR(doc_g_mpfr_is_inexflag,
 "is_inexactflag() -> boolean\n\n"
-"Return True if inexact flag is set.");
+"Return True if the MPFR inexact flag is set.");
+
 static PyObject *
-Pygmpy_is_inexflag(PyObject *self, PyObject *args)
+Pympfr_is_inexflag(PyObject *self, PyObject *args)
 {
     if (mpfr_inexflag_p())
         Py_RETURN_TRUE;
@@ -325,11 +339,12 @@ Pygmpy_is_inexflag(PyObject *self, PyObject *args)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_is_erangeflag,
+PyDoc_STRVAR(doc_g_mpfr_is_erangeflag,
 "is_erangeflag() -> boolean\n\n"
-"Return True if range error flag is set.");
+"Return True if the MPFR range error flag is set.");
+
 static PyObject *
-Pygmpy_is_erangeflag(PyObject *self, PyObject *args)
+Pympfr_is_erangeflag(PyObject *self, PyObject *args)
 {
     if (mpfr_erangeflag_p())
         Py_RETURN_TRUE;
@@ -337,42 +352,46 @@ Pygmpy_is_erangeflag(PyObject *self, PyObject *args)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_get_mpf_status,
-"get_mpf_status() -> integer\n\n\
+PyDoc_STRVAR(doc_g_mpfr_get_mpfr_status,
+"get_mpfr_status() -> integer\n\n\
 Return the ternary result code from the most recent MPFR operation.\n"
 "If the ternary value is 0, the result of the operation is exact.\n"
 "If the ternary value is > 0, the result of the operation is greater\n"
 "than the exact result. If the ternary value < 0, then the result\n"
 "of the operation is less than the exact result.");
+
 static PyObject *
-Pygmpy_get_mpf_status(PyObject *self, PyObject *args)
+Pympfr_get_mpfr_status(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("i", global.mpf_rc);
+    return Py_BuildValue("i", global.mpfr_rc);
 }
 
-PyDoc_STRVAR(doc_get_emin,
+PyDoc_STRVAR(doc_g_mpfr_get_emin,
 "get_emin() -> integer\n\n"
-"Return the minimum exponent currently allowed.");
+"Return the minimum exponent currently allowed for 'mpfr'.");
+
 static PyObject *
-Pygmpy_get_emin(PyObject *self, PyObject *args)
+Pympfr_get_emin(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("n", (Py_ssize_t)mpfr_get_emin());
 }
 
-PyDoc_STRVAR(doc_get_emin_min,
+PyDoc_STRVAR(doc_g_mpfr_get_emin_min,
 "get_emin_min() -> integer\n\n"
-"Return the minimum possible exponent that can be set.");
+"Return the minimum possible exponent that can be set for 'mpfr'.");
+
 static PyObject *
-Pygmpy_get_emin_min(PyObject *self, PyObject *args)
+Pympfr_get_emin_min(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("n", (Py_ssize_t)mpfr_get_emin_min());
 }
 
-PyDoc_STRVAR(doc_set_emin,
-"set_min(n)\n\n"
-"Set the minimum allowed exponent.");
+PyDoc_STRVAR(doc_g_mpfr_set_emin,
+"set_emin(n)\n\n"
+"Set the minimum allowed exponent for 'mpfr'.");
+
 static PyObject *
-Pygmpy_set_emin(PyObject *self, PyObject *args)
+Pympfr_set_emin(PyObject *self, PyObject *args)
 {
     Py_ssize_t exp;
 
@@ -385,29 +404,32 @@ Pygmpy_set_emin(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_get_emax,
+PyDoc_STRVAR(doc_g_mpfr_get_emax,
 "get_emax() -> integer\n\n"
-"Return the maximum exponent currently allowed.");
+"Return the maximum exponent currently allowed for 'mpfr'.");
+
 static PyObject *
-Pygmpy_get_emax(PyObject *self, PyObject *args)
+Pympfr_get_emax(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("n", (Py_ssize_t)mpfr_get_emax());
 }
 
-PyDoc_STRVAR(doc_get_emax_max,
+PyDoc_STRVAR(doc_g_mpfr_get_emax_max,
 "get_emax_max() -> integer\n\n"
-"Return the maximum possible exponent that can be set.");
+"Return the maximum possible exponent that can be set for 'mpfr'.");
+
 static PyObject *
-Pygmpy_get_emax_max(PyObject *self, PyObject *args)
+Pympfr_get_emax_max(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("n", (Py_ssize_t)mpfr_get_emax_max());
 }
 
-PyDoc_STRVAR(doc_set_emax,
-"set_max(n)\n\n"
-"Set the maximum allowed exponent.");
+PyDoc_STRVAR(doc_g_mpfr_set_emax,
+"set_emax(n)\n\n"
+"Set the maximum allowed exponent for 'mpfr'.");
+
 static PyObject *
-Pygmpy_set_emax(PyObject *self, PyObject *args)
+Pympfr_set_emax(PyObject *self, PyObject *args)
 {
     Py_ssize_t exp;
 
@@ -423,7 +445,8 @@ Pygmpy_set_emax(PyObject *self, PyObject *args)
 PyDoc_STRVAR(doc_get_mode,
 "get_mode() -> integer\n\n"
 "Return the active mode for handling errors: ModePython raises\n"
-"exception, ModeMPFR returns 'nan'.");
+"exception, ModeMPFR returns 'nan' or 'inf'.");
+
 static PyObject *
 Pygmpy_get_mode(PyObject *self, PyObject *args)
 {
@@ -433,7 +456,8 @@ Pygmpy_get_mode(PyObject *self, PyObject *args)
 PyDoc_STRVAR(doc_set_mode,
 "set_mode(n)\n\n"
 "Set the active mode for handling errors: ModePython raises\n"
-"exception, ModeMPFR returns 'nan'.");
+"exception, ModeMPFR returns 'nan' or 'inf'.");
+
 static PyObject *
 Pygmpy_set_mode(PyObject *self, PyObject *args)
 {
@@ -452,31 +476,34 @@ Pygmpy_set_mode(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_get_mpf_precision,
-"get_mpf_precision() -> integer\n\n"
-"Return the number of bits of precision used for 'mpf' calculations.");
+PyDoc_STRVAR(doc_g_mpfr_get_mpfr_precision,
+"get_mpfr_precision() -> integer\n\n"
+"Return the number of bits of precision used for 'mpfr' calculations.");
+
 static PyObject *
-Pygmpy_get_mpf_precision(PyObject *self, PyObject *args)
+Pympfr_get_mpfr_precision(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("n", global.mpf_prec);
+    return Py_BuildValue("n", global.mpfr_prec);
 }
 
-PyDoc_STRVAR(doc_get_max_precision,
+PyDoc_STRVAR(doc_g_mpfr_get_max_precision,
 "get_max_precision() -> integer\n\n"
 "Return the maximum bits of precision that can be used for calculations.\n"
 "Note: to allow extra precision for intermediate calculations, avoid\n"
 "setting precision close the maximum precisicon");
+
 static PyObject *
-Pygmpy_get_max_precision(PyObject *self, PyObject *args)
+Pympfr_get_max_precision(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("n", MPFR_PREC_MAX);
 }
 
-PyDoc_STRVAR(doc_set_mpf_precision,
-"set_mpf_precision(n)\n\n"
-"Set the number of bits of precision to use for 'mpf' calculations.");
+PyDoc_STRVAR(doc_g_mpfr_set_mpfr_precision,
+"set_mpfr_precision(n)\n\n"
+"Set the number of bits of precision to use for 'mpfr' calculations.");
+
 static PyObject *
-Pygmpy_set_mpf_precision(PyObject *self, PyObject *args)
+Pympfr_set_mpfr_precision(PyObject *self, PyObject *args)
 {
     int bits;
 
@@ -486,30 +513,30 @@ Pygmpy_set_mpf_precision(PyObject *self, PyObject *args)
         VALUE_ERROR("invalid value for precision");
         return NULL;
     }
-    global.mpf_prec = bits;
+    global.mpfr_prec = bits;
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_get_mpf_round,
-"get_mpf_round() -> integer\n\n"
-"Return the rounding mode for 'mpf' arithmetic. Rounding mode can"
+PyDoc_STRVAR(doc_g_mpfr_get_mpfr_round,
+"get_mpfr_round() -> integer\n\n"
+"Return the rounding mode for 'mpfr' arithmetic. Rounding mode can"
 "be one of RoundToNearest, RoundToZero, RoundUp, RoundDown, or"
 "RoundAwayZero.");
 
 static PyObject *
-Pygmpy_get_mpf_round(PyObject *self, PyObject *args)
+Pympfr_get_mpfr_round(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("i", global.mpf_round);
+    return Py_BuildValue("i", global.mpfr_round);
 }
 
-PyDoc_STRVAR(doc_set_mpf_round,
-"set_mpf_round(n)\n\n"
-"Set the rounding mode for 'mpf' arithmetic. Valid rounding modes"
+PyDoc_STRVAR(doc_g_mpfr_set_mpfr_round,
+"set_mpfr_round(n)\n\n"
+"Set the rounding mode for 'mpfr' arithmetic. Valid rounding modes"
 "are RoundToNearest, RoundToZero, RoundUp, RoundDown, or"
 "RoundAwayZero.");
 
 static PyObject *
-Pygmpy_set_mpf_round(PyObject *self, PyObject *args)
+Pympfr_set_mpfr_round(PyObject *self, PyObject *args)
 {
     int mode;
 
@@ -517,15 +544,15 @@ Pygmpy_set_mpf_round(PyObject *self, PyObject *args)
         return NULL;
 
     if (mode == MPFR_RNDN)
-        global.mpf_round = mode;
+        global.mpfr_round = mode;
     else if (mode == MPFR_RNDZ)
-        global.mpf_round = mode;
+        global.mpfr_round = mode;
     else if (mode == MPFR_RNDU)
-        global.mpf_round = mode;
+        global.mpfr_round = mode;
     else if (mode == MPFR_RNDD)
-        global.mpf_round = mode;
+        global.mpfr_round = mode;
     else if (mode == MPFR_RNDA)
-        global.mpf_round = mode;
+        global.mpfr_round = mode;
     else {
         VALUE_ERROR("invalid rounding mode");
         return NULL;
@@ -533,7 +560,7 @@ Pygmpy_set_mpf_round(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_get_mpc_round,
+PyDoc_STRVAR(doc_g_mpc_get_mpc_round,
 "get_mpc_round() -> (integer, integer)\n\n"
 "Return the rounding mode for 'mpc' arithmetic. The first value is"
 "the rounding mode for the real portion. The second value is the"
@@ -541,14 +568,14 @@ PyDoc_STRVAR(doc_get_mpc_round,
 "RoundToNearest, RoundToZero, RoundUp, or RoundDown.");
 
 static PyObject *
-Pygmpy_get_mpc_round(PyObject *self, PyObject *args)
+Pympc_get_mpc_round(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("ii",
                          MPC_RND_RE(global.mpc_round),
                          MPC_RND_IM(global.mpc_round));
 }
 
-PyDoc_STRVAR(doc_set_mpc_round,
+PyDoc_STRVAR(doc_g_mpc_set_mpc_round,
 "set_mpc_round(n,n)\n\n"
 "Set the rounding mode for complex arithmetic. The first value is"
 "the rounding more for the real portion. The second value is the"
@@ -556,7 +583,7 @@ PyDoc_STRVAR(doc_set_mpc_round,
 "RoundToNearest, RoundToZero, RoundUp, or RoundDown.");
 
 static PyObject *
-Pygmpy_set_mpc_round(PyObject *self, PyObject *args)
+Pympc_set_mpc_round(PyObject *self, PyObject *args)
 {
     int rmode, imode;
 
@@ -622,16 +649,16 @@ Pympany_copy(PyObject *self, PyObject *other)
         return (PyObject*)Pyxmpz2Pyxmpz(self);
     else if (self && Pympq_Check(self))
         return (PyObject*)Pympq2Pympq(self);
-    else if (self && Pympf_Check(self))
-        return (PyObject*)Pympf2Pympf(self, 0);
+    else if (self && Pympfr_Check(self))
+        return (PyObject*)Pympfr2Pympfr(self, 0);
     else if (Pympz_Check(other))
         return (PyObject*)Pympz2Pympz(other);
     else if (Pyxmpz_Check(other))
         return (PyObject*)Pyxmpz2Pyxmpz(other);
     else if (Pympq_Check(other))
         return (PyObject*)Pympq2Pympq(other);
-    else if (Pympf_Check(other))
-        return (PyObject*)Pympf2Pympf(other, 0);
+    else if (Pympfr_Check(other))
+        return (PyObject*)Pympfr2Pympfr(other, 0);
     TYPE_ERROR("_copy() requires a gmpy2 object as argument");
     return NULL;
 }
@@ -659,16 +686,16 @@ Pympany_binary(PyObject *self, PyObject *other)
         return Pyxmpz2binary((PyxmpzObject*)self);
     else if(self && Pympq_Check(self))
         return Pympq2binary((PympqObject*)self);
-    else if(self && Pympf_Check(self))
-        return Pympf2binary((PympfObject*)self);
+    else if(self && Pympfr_Check(self))
+        return Pympfr2binary((PympfrObject*)self);
     else if(Pympz_Check(other))
         return Pympz2binary((PympzObject*)other);
     else if(Pyxmpz_Check(other))
         return Pyxmpz2binary((PyxmpzObject*)other);
     else if(Pympq_Check(other))
         return Pympq2binary((PympqObject*)other);
-    else if(Pympf_Check(other))
-        return Pympf2binary((PympfObject*)other);
+    else if(Pympfr_Check(other))
+        return Pympfr2binary((PympfrObject*)other);
     TYPE_ERROR("binary() requires a gmpy2 object as argument");
     return NULL;
 }

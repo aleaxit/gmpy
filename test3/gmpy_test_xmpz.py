@@ -33,11 +33,11 @@ mpz(56088)
 >>> a//b
 mpz(0)
 >>> a/b
-mpf('2.6973684210526316e-1')
+mpfr('2.6973684210526316e-1')
 >>> b//a
 mpz(3)
 >>> b/a
-mpf('3.7073170731707319e0')
+mpfr('3.7073170731707319e0')
 >>> a%b
 mpz(123)
 >>> 0%b
@@ -211,80 +211,80 @@ False
 >>> float('nan') <= a
 False
 >>> a + float('Inf')
-mpf('inf')
+mpfr('inf')
 >>> float('Inf') + a
-mpf('inf')
+mpfr('inf')
 >>> a + float('-Inf')
-mpf('-inf')
+mpfr('-inf')
 >>> float('-Inf') + a
-mpf('-inf')
+mpfr('-inf')
 >>> a + float('nan')
-mpf('nan')
+mpfr('nan')
 >>> float('nan') + a
-mpf('nan')
+mpfr('nan')
 >>> a - float('Inf')
-mpf('-inf')
+mpfr('-inf')
 >>> float('Inf') - a
-mpf('inf')
+mpfr('inf')
 >>> a - float('-Inf')
-mpf('inf')
+mpfr('inf')
 >>> float('-Inf') - a
-mpf('-inf')
+mpfr('-inf')
 >>> a - float('nan')
-mpf('nan')
+mpfr('nan')
 >>> float('nan') - a
-mpf('nan')
+mpfr('nan')
 >>> a * float('Inf')
-mpf('inf')
+mpfr('inf')
 >>> float('Inf') * a
-mpf('inf')
+mpfr('inf')
 >>> a * float('-Inf')
-mpf('-inf')
+mpfr('-inf')
 >>> float('-Inf') * a
-mpf('-inf')
+mpfr('-inf')
 >>> -a
 >>> a * float('Inf')
-mpf('-inf')
+mpfr('-inf')
 >>> float('Inf') * a
-mpf('-inf')
+mpfr('-inf')
 >>> a * float('-Inf')
-mpf('inf')
+mpfr('inf')
 >>> float('-Inf') * a
-mpf('inf')
+mpfr('inf')
 >>> -a
 >>> a * float('nan')
-mpf('nan')
+mpfr('nan')
 >>> float('nan') * a
-mpf('nan')
+mpfr('nan')
 >>> _g.xmpz(0) * float('Inf')
-mpf('nan')
+mpfr('nan')
 >>> _g.xmpz(0) * float('-Inf')
-mpf('nan')
+mpfr('nan')
 >>> float('Inf') * _g.xmpz(0)
-mpf('nan')
+mpfr('nan')
 >>> float('-Inf') * _g.xmpz(0)
-mpf('nan')
+mpfr('nan')
 >>> a / float('Inf')
-mpf('0.0e0')
+mpfr('0.0e0')
 >>> float('Inf') / a
-mpf('inf')
+mpfr('inf')
 >>> a / float('-Inf')
-mpf('-0.0e0')
+mpfr('-0.0e0')
 >>> float('-Inf') / a
-mpf('-inf')
+mpfr('-inf')
 >>> a / float('nan')
-mpf('nan')
+mpfr('nan')
 >>> float('nan') / a
-mpf('nan')
+mpfr('nan')
 >>> -a
 >>> a / float('Inf')
-mpf('-0.0e0')
+mpfr('-0.0e0')
 >>> float('Inf') / a
-mpf('-inf')
+mpfr('-inf')
 >>> a / float('-Inf')
-mpf('0.0e0')
+mpfr('0.0e0')
 >>> float('-Inf') / a
-mpf('inf')
+mpfr('inf')
 >>> -a
 '''
 

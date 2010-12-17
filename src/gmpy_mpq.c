@@ -144,8 +144,8 @@ static int isOne(PyObject* obj)
         return PyInt_AS_LONG(obj)==1;
 #endif
     }
-    else if (Pympf_Check(obj)) {
-        return mpfr_get_d(Pympf_AS_MPF(obj), global.mpf_round)==1.0;
+    else if (Pympfr_Check(obj)) {
+        return mpfr_get_d(Pympfr_AS_MPFR(obj), global.mpfr_round)==1.0;
     }
     else if (PyFloat_Check(obj)) {
         return PyFloat_AS_DOUBLE(obj)==1.0;
@@ -291,18 +291,11 @@ Pympq_pos(PympqObject *x)
 }
 
 static PyObject *
-Pympf_pos(PympfObject *x)
-{
-    Py_INCREF((PyObject*)x);
-    return (PyObject *) x;
-}
-
-static PyObject *
 Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
 {
     PympqObject *rq, *tempbq;
     PympzObject *tempez;
-    PympfObject *rf, *tempbf, *tempef;
+    PympfrObject *rf, *tempbf, *tempef;
     int esign, bsign;
     long tempexp;
 
@@ -369,9 +362,9 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
         return (PyObject*)rq;
     }
     else {
-        tempbf = Pympf_From_Float(base, 0);
-        tempef = Pympf_From_Float(exp, 0);
-        rf = Pympf_new(0);
+        tempbf = Pympfr_From_Float(base, 0);
+        tempef = Pympfr_From_Float(exp, 0);
+        rf = Pympfr_new(0);
         if (!tempbf || !tempef || !rf) {
             TYPE_ERROR("mpq.pow() unsupported operands");
             Py_XDECREF((PyObject*)tempbf);
@@ -379,7 +372,7 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
             Py_XDECREF((PyObject*)rf);
             return NULL;
         }
-        global.mpf_rc = mpfr_pow(rf->f, tempbf->f, tempef->f, global.mpf_round);
+        global.mpfr_rc = mpfr_pow(rf->f, tempbf->f, tempef->f, global.mpfr_round);
         Py_DECREF((PyObject*)tempbf);
         Py_DECREF((PyObject*)tempef);
         return (PyObject*)rf;
