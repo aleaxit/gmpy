@@ -11,8 +11,9 @@
   Version 1.04, June 2008 (no changes)
   Version 1.05, February 2009 (support MPIR)
   Version 1.20, January 2010 (remove obsolete MS hacks) casevh
-  Version 2.00, April 2010, (change to gmpy2) casevh
-                October 2010, (added Py_hash_t) casevh
+  Version 2.00, April 2010 (change to gmpy2) casevh
+                October 2010 (added Py_hash_t) casevh
+                December 2010 (added mpfr, mpc) casevh
  */
 
 #ifndef Py_GMPYMODULE_H
@@ -150,7 +151,7 @@ typedef struct {
     mpob ob;
     mpfr_t f;
     Py_hash_t hash_cache;
-} PympfObject;
+} PympfrObject;
 typedef struct {
     mpob ob;
     mpc_t c;
@@ -163,7 +164,7 @@ typedef struct {
 
 #define Pympz_AS_MPZ(obj) (((PympzObject *)(obj))->z)
 #define Pympq_AS_MPQ(obj) (((PympqObject *)(obj))->q)
-#define Pympf_AS_MPF(obj) (((PympfObject *)(obj))->f)
+#define Pympfr_AS_MPFR(obj) (((PympfrObject *)(obj))->f)
 #define Pympc_AS_MPC(obj) (((PympcObject *)(obj))->c)
 #define Pyxmpz_AS_MPZ(obj) (((PyxmpzObject *)(obj))->z)
 
@@ -173,8 +174,8 @@ static PyTypeObject Pympz_Type;
 static PyTypeObject Pympq_Type;
 #define Pympq_Check(v) (((PyObject*)v)->ob_type == &Pympq_Type)
 
-static PyTypeObject Pympf_Type;
-#define Pympf_Check(v) (((PyObject*)v)->ob_type == &Pympf_Type)
+static PyTypeObject Pympfr_Type;
+#define Pympfr_Check(v) (((PyObject*)v)->ob_type == &Pympfr_Type)
 
 static PyTypeObject Pympc_Type;
 #define Pympc_Check(v) (((PyObject*)v)->ob_type == &Pympc_Type)

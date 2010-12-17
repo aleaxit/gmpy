@@ -5,10 +5,10 @@
  * This file should be considered part of gmpy2.c
  */
 
-/* Implement the .precision attribute of an mpf. */
+/* Implement the .precision attribute of an mpfr. */
 
 static PyObject *
-Pympf_getprec2(PympfObject *self, void *closure)
+Pympfr_getprec_attrib(PympfrObject *self, void *closure)
 {
     return PyIntOrLong_FromSize_t((size_t)mpfr_get_prec(self->f));
 }
@@ -16,33 +16,35 @@ Pympf_getprec2(PympfObject *self, void *closure)
 /* Implement the nb_bool slot. */
 
 static int
-Pympf_nonzero(PympfObject *x)
+Pympfr_nonzero(PympfrObject *x)
 {
     return mpfr_sgn(x->f) != 0;
 }
 
-PyDoc_STRVAR(doc_set_nan,
-"nan() -> mpf\n\n"
-"Return an mpf inialized to nan.");
-static PyObject *
-Pygmpy_set_nan(PyObject *self, PyObject *other)
-{
-    PympfObject *result;
+PyDoc_STRVAR(doc_g_mpfr_set_nan,
+"nan() -> mpfr\n\n"
+"Return an 'mpfr' inialized to 'nan'.");
 
-    if (!(result = Pympf_new(0)))
+static PyObject *
+Pympfr_set_nan(PyObject *self, PyObject *other)
+{
+    PympfrObject *result;
+
+    if (!(result = Pympfr_new(0)))
         return NULL;
 
     mpfr_set_nan(result->f);
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_set_inf,
-"inf(n) -> mpf\n\n"
-"Return an mpf inialized to inf with the same sign as n.");
+PyDoc_STRVAR(doc_g_mpfr_set_inf,
+"inf(n) -> mpfr\n\n"
+"Return an 'mpfr' inialized to 'inf' with the same sign as n.");
+
 static PyObject *
-Pygmpy_set_inf(PyObject *self, PyObject *other)
+Pympfr_set_inf(PyObject *self, PyObject *other)
 {
-    PympfObject *result;
+    PympfrObject *result;
     long s = 0;
 
     s = clong_From_Integer(other);
@@ -51,20 +53,21 @@ Pygmpy_set_inf(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = Pympf_new(0)))
+    if (!(result = Pympfr_new(0)))
         return NULL;
 
     mpfr_set_inf(result->f, (int)s);
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_set_zero,
-"zero() -> mpf\n\n"
-"Return an mpf inialized to 0.0 with the same sign as n.");
+PyDoc_STRVAR(doc_g_mpfr_set_zero,
+"zero() -> mpfr\n\n"
+"Return an 'mpfr' inialized to 0.0 with the same sign as n.");
+
 static PyObject *
-Pygmpy_set_zero(PyObject *self, PyObject *other)
+Pympfr_set_zero(PyObject *self, PyObject *other)
 {
-    PympfObject *result;
+    PympfrObject *result;
     long s = 0;
 
     s = clong_From_Integer(other);
@@ -73,34 +76,36 @@ Pygmpy_set_zero(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = Pympf_new(0)))
+    if (!(result = Pympfr_new(0)))
         return NULL;
 
     mpfr_set_zero(result->f, (int)s);
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpf_is_nan,
+PyDoc_STRVAR(doc_mpfr_is_nan,
 "x.is_nan() -> boolean\n\n"
-"Return True if x is nan (Not A Number), False otherwise.");
-PyDoc_STRVAR(doc_gmpy_is_nan,
+"Return True if x is 'nan' (Not-A-Number), False otherwise.");
+
+PyDoc_STRVAR(doc_g_mpfr_is_nan,
 "is_nan(x) -> boolean\n\n"
-"Return True if x is nan (Not A Number), False otherwise.");
+"Return True if x is 'nan' (Not-A-Number), False otherwise.");
+
 static PyObject *
-Pympf_is_nan(PyObject *self, PyObject *other)
+Pympfr_is_nan(PyObject *self, PyObject *other)
 {
     int res;
-    PympfObject *tempx;
+    PympfrObject *tempx;
 
-    if (self && (Pympf_Check(self))) {
-        res = mpfr_nan_p(Pympf_AS_MPF(self));
+    if (self && (Pympfr_Check(self))) {
+        res = mpfr_nan_p(Pympfr_AS_MPFR(self));
     }
-    else if (Pympf_Check(other)) {
-        res = mpfr_nan_p(Pympf_AS_MPF(other));
+    else if (Pympfr_Check(other)) {
+        res = mpfr_nan_p(Pympfr_AS_MPFR(other));
     }
     else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("is_nan() requires 'mpf' argument");
+        if (!(tempx = Pympfr_From_Float(other, 0))) {
+            TYPE_ERROR("is_nan() requires 'mpfr' argument");
             return NULL;
         }
         else {
@@ -114,27 +119,29 @@ Pympf_is_nan(PyObject *self, PyObject *other)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_mpf_is_inf,
+PyDoc_STRVAR(doc_mpfr_is_inf,
 "x.is_inf() -> boolean\n\n"
 "Return True if x is +Infinity or -Infinity, False otherwise.");
-PyDoc_STRVAR(doc_gmpy_is_inf,
+
+PyDoc_STRVAR(doc_g_mpfr_is_inf,
 "is_inf(x) -> boolean\n\n"
 "Return True if x is +Infinity or -Infinity, False otherwise.");
+
 static PyObject *
-Pympf_is_inf(PyObject *self, PyObject *other)
+Pympfr_is_inf(PyObject *self, PyObject *other)
 {
     int res;
-    PympfObject *tempx;
+    PympfrObject *tempx;
 
-    if (self && (Pympf_Check(self))) {
-        res = mpfr_inf_p(Pympf_AS_MPF(self));
+    if (self && (Pympfr_Check(self))) {
+        res = mpfr_inf_p(Pympfr_AS_MPFR(self));
     }
-    else if (Pympf_Check(other)) {
-        res = mpfr_inf_p(Pympf_AS_MPF(other));
+    else if (Pympfr_Check(other)) {
+        res = mpfr_inf_p(Pympfr_AS_MPFR(other));
     }
     else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("is_inf() requires 'mpf' argument");
+        if (!(tempx = Pympfr_From_Float(other, 0))) {
+            TYPE_ERROR("is_inf() requires 'mpfr' argument");
             return NULL;
         }
         else {
@@ -148,29 +155,31 @@ Pympf_is_inf(PyObject *self, PyObject *other)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_mpf_is_number,
+PyDoc_STRVAR(doc_mpfr_is_number,
 "x.is_number() -> boolean\n\n"
 "Return True if x is an actual number (i.e. not NaN or Infinity),\n"
 "False otherwise.");
-PyDoc_STRVAR(doc_gmpy_is_number,
+
+PyDoc_STRVAR(doc_g_mpfr_is_number,
 "is_number(x) -> boolean\n\n"
 "Return True if x is an actual number (i.e. not NaN or Infinity),\n"
 "False otherwise.");
+
 static PyObject *
-Pympf_is_number(PyObject *self, PyObject *other)
+Pympfr_is_number(PyObject *self, PyObject *other)
 {
     int res;
-    PympfObject *tempx;
+    PympfrObject *tempx;
 
-    if (self && (Pympf_Check(self))) {
-        res = mpfr_number_p(Pympf_AS_MPF(self));
+    if (self && (Pympfr_Check(self))) {
+        res = mpfr_number_p(Pympfr_AS_MPFR(self));
     }
-    else if (Pympf_Check(other)) {
-        res = mpfr_number_p(Pympf_AS_MPF(other));
+    else if (Pympfr_Check(other)) {
+        res = mpfr_number_p(Pympfr_AS_MPFR(other));
     }
     else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("is_number() requires 'mpf' argument");
+        if (!(tempx = Pympfr_From_Float(other, 0))) {
+            TYPE_ERROR("is_number() requires 'mpfr' argument");
             return NULL;
         }
         else {
@@ -184,27 +193,29 @@ Pympf_is_number(PyObject *self, PyObject *other)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_mpf_is_zero,
+PyDoc_STRVAR(doc_mpfr_is_zero,
 "x.is_zero() -> boolean\n\n"
 "Return True if x is zero, False otherwise.");
-PyDoc_STRVAR(doc_gmpy_is_zero,
+
+PyDoc_STRVAR(doc_g_mpfr_is_zero,
 "is_zero(x) -> boolean\n\n"
 "Return True if x is zero, False otherwise.");
+
 static PyObject *
-Pympf_is_zero(PyObject *self, PyObject *other)
+Pympfr_is_zero(PyObject *self, PyObject *other)
 {
     int res;
-    PympfObject *tempx;
+    PympfrObject *tempx;
 
-    if (self && (Pympf_Check(self))) {
-        res = mpfr_zero_p(Pympf_AS_MPF(self));
+    if (self && (Pympfr_Check(self))) {
+        res = mpfr_zero_p(Pympfr_AS_MPFR(self));
     }
-    else if (Pympf_Check(other)) {
-        res = mpfr_zero_p(Pympf_AS_MPF(other));
+    else if (Pympfr_Check(other)) {
+        res = mpfr_zero_p(Pympfr_AS_MPFR(other));
     }
     else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("is_zero() requires 'mpf' argument");
+        if (!(tempx = Pympfr_From_Float(other, 0))) {
+            TYPE_ERROR("is_zero() requires 'mpfr' argument");
             return NULL;
         }
         else {
@@ -218,27 +229,29 @@ Pympf_is_zero(PyObject *self, PyObject *other)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_mpf_is_regular,
+PyDoc_STRVAR(doc_mpfr_is_regular,
 "x.is_regular() -> boolean\n\n"
 "Return True if x is not zero, NaN, or Infinity, False otherwise.");
-PyDoc_STRVAR(doc_gmpy_is_regular,
+
+PyDoc_STRVAR(doc_g_mpfr_is_regular,
 "is_regular(x) -> boolean\n\n"
 "Return True if x is not zero, NaN, or Infinity, False otherwise.");
+
 static PyObject *
-Pympf_is_regular(PyObject *self, PyObject *other)
+Pympfr_is_regular(PyObject *self, PyObject *other)
 {
     int res;
-    PympfObject *tempx;
+    PympfrObject *tempx;
 
-    if (self && (Pympf_Check(self))) {
-        res = mpfr_regular_p(Pympf_AS_MPF(self));
+    if (self && (Pympfr_Check(self))) {
+        res = mpfr_regular_p(Pympfr_AS_MPFR(self));
     }
-    else if (Pympf_Check(other)) {
-        res = mpfr_regular_p(Pympf_AS_MPF(other));
+    else if (Pympfr_Check(other)) {
+        res = mpfr_regular_p(Pympfr_AS_MPFR(other));
     }
     else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("is_regular() requires 'mpf' argument");
+        if (!(tempx = Pympfr_From_Float(other, 0))) {
+            TYPE_ERROR("is_regular() requires 'mpfr' argument");
             return NULL;
         }
         else {
@@ -252,9 +265,9 @@ Pympf_is_regular(PyObject *self, PyObject *other)
         Py_RETURN_FALSE;
 }
 
-/* produce string for an mpf with requested/defaulted parameters */
+/* produce string for an mpfr with requested/defaulted parameters */
 
-PyDoc_STRVAR(doc_fdigitsm,
+PyDoc_STRVAR(doc_mpfr_digits,
 "x.digits(base=10, prec=0) -> (mantissa, exponent, bits)\n\n"
 "Returns up to 'prec' digits in the given base. If 'prec' is 0, as many\n"
 "digits that are available are returned. No more digits than available\n"
@@ -263,100 +276,102 @@ PyDoc_STRVAR(doc_fdigitsm,
 "the exponent, and the number of bits of precision.");
 
 static PyObject *
-Pympf_digits(PyObject *self, PyObject *args)
+Pympfr_digits(PyObject *self, PyObject *args)
 {
     int base = 10;
     int prec = 0;
     PyObject *result;
 
-    if (self && Pympf_Check(self)) {
+    if (self && Pympfr_Check(self)) {
         if (!PyArg_ParseTuple(args, "|ii", &base, &prec))
             return NULL;
         Py_INCREF(self);
     }
     else {
-        if(!PyArg_ParseTuple(args, "O&|ii", Pympf_convert_arg, &self,
+        if(!PyArg_ParseTuple(args, "O&|ii", Pympfr_convert_arg, &self,
                             &base, &prec))
         return NULL;
     }
-    result = Pympf_ascii((PympfObject*)self, base, prec, 0, 0, 2);
+    result = Pympfr_ascii((PympfrObject*)self, base, prec, 0, 0, 2);
     Py_DECREF(self);
     return result;
 }
 
-static char doc_f2qm[]="\
-x.f2q([err]): returns the 'best' mpq approximating x to\n\
-within relative error err (default, x's precision); 'best'\n\
-rationals as per Stern-Brocot tree; mpz if denom is 1.\n\
-If err<0, error sought is 2.0 ** err.\n\
-";
-static char doc_f2qg[]="\
-f2q(x[,err]): returns the 'best' mpq approximating x to\n\
-within relative error err (default, x's precision); 'best'\n\
-rationals as per Stern-Brocot tree; mpz if denom is 1.\n\
-If err<0, error sought is 2.0 ** err.\n\
-";
+PyDoc_STRVAR(doc_mpfr_f2q,
+"x.f2q([err]) -> mpq\n\n"
+"Return the 'best' mpq approximating x to within relative error 'err'.\n"
+"Default is the precision of x. Uses Stern-Brocot tree to find the\n"
+"'best' approximation. An 'mpz' is returned if the the denominator\n"
+"is 1. If 'err'<0, error sought is 2.0 ** err.");
+
+PyDoc_STRVAR(doc_g_mpfr_f2q,
+"x.f2q([err]) -> mpq\n\n"
+"Return the 'best' mpq approximating x to within relative error 'err'.\n"
+"Default is the precision of x. Uses Stern-Brocot tree to find the\n"
+"'best' approximation. An 'mpz' is returned if the the denominator\n"
+"is 1. If 'err'<0, error sought is 2.0 ** err.");
+
 static PyObject *
-Pympf_f2q(PyObject *self, PyObject *args)
+Pympfr_f2q(PyObject *self, PyObject *args)
 {
-    PympfObject *err = 0;
-    PympfObject *fself;
+    PympfrObject *err = 0;
+    PympfrObject *fself;
 #ifdef DEBUG
     if (global.debug)
-        fprintf(stderr, "Pympf_f2q: %p, %p\n", self, args);
+        fprintf(stderr, "Pympfr_f2q: %p, %p\n", self, args);
 #endif
-    SELF_MPF_ONE_ARG_CONVERTED_OPT(&err);
-    assert(Pympf_Check(self));
-    fself = (PympfObject*)self;
+    SELF_MPFR_ONE_ARG_CONVERTED_OPT(&err);
+    assert(Pympfr_Check(self));
+    fself = (PympfrObject*)self;
 
     return f2q_internal(fself, err, mpfr_get_prec(fself->f), args!=0);
 }
 
 static PyObject *
-f2q_internal(PympfObject* self, PympfObject* err, unsigned int bits, int mayz)
+f2q_internal(PympfrObject* self, PympfrObject* err, unsigned int bits, int mayz)
 {
     PympqObject *res = 0;
     int i, negative, errsign;
     mpfr_t f, al, a, r1[3], r2[3], minerr, curerr, newerr, temp;
 
-    assert(!err || Pympf_Check(err));
+    assert(!err || Pympfr_Check(err));
     errsign = err ? mpfr_sgn(err->f) : 0;
     if (errsign == 0) {
         if (err) {
             Py_DECREF((PyObject*)err);
         }
-        if (!(err = Pympf_new(20))) {
+        if (!(err = Pympfr_new(20))) {
             Py_DECREF((PyObject*)self);
             return NULL;
         }
-        mpfr_set_si(err->f, 1, global.mpf_round);
-        mpfr_div_2ui(err->f, err->f, bits, global.mpf_round);
+        mpfr_set_si(err->f, 1, global.mpfr_round);
+        mpfr_div_2ui(err->f, err->f, bits, global.mpfr_round);
     }
     else if (errsign < 0) {
         int ubits;
         mpfr_floor(err->f, err->f);
-        ubits = (int)mpfr_get_d(err->f, global.mpf_round);
-        mpfr_set_si(err->f, 1, global.mpf_round);
-        mpfr_div_2si(err->f, err->f, -ubits, global.mpf_round);
+        ubits = (int)mpfr_get_d(err->f, global.mpfr_round);
+        mpfr_set_si(err->f, 1, global.mpfr_round);
+        mpfr_div_2si(err->f, err->f, -ubits, global.mpfr_round);
     }
     if (!(res = Pympq_new()))
         return NULL;
     mpfr_init2(minerr, 20);
-    mpfr_set(minerr, err->f, global.mpf_round);
+    mpfr_set(minerr, err->f, global.mpfr_round);
     Py_DECREF((PyObject*)err);
 
     mpfr_init2(f, bits);
     if (mpfr_sgn(self->f) < 0) {
         negative = 1;
-        mpfr_abs(f, self->f, global.mpf_round);
+        mpfr_abs(f, self->f, global.mpfr_round);
     }
     else {
         negative = 0;
-        mpfr_set(f, self->f, global.mpf_round);
+        mpfr_set(f, self->f, global.mpfr_round);
     }
     Py_DECREF((PyObject*)self);
     mpfr_init2(al, bits);
-    mpfr_set(al, f, global.mpf_round);
+    mpfr_set(al, f, global.mpfr_round);
     mpfr_init2(a, bits);
     mpfr_floor(a, al);
     mpfr_init2(temp, bits);
@@ -364,29 +379,29 @@ f2q_internal(PympfObject* self, PympfObject* err, unsigned int bits, int mayz)
         mpfr_init2(r1[i], bits);
         mpfr_init2(r2[i], bits);
     }
-    mpfr_set_si(r1[0], 0, global.mpf_round);
-    mpfr_set_si(r1[1], 0, global.mpf_round);
-    mpfr_set_si(r1[2], 1, global.mpf_round);
-    mpfr_set_si(r2[0], 0, global.mpf_round);
-    mpfr_set_si(r2[1], 1, global.mpf_round);
-    mpfr_set(r2[2], a, global.mpf_round);
+    mpfr_set_si(r1[0], 0, global.mpfr_round);
+    mpfr_set_si(r1[1], 0, global.mpfr_round);
+    mpfr_set_si(r1[2], 1, global.mpfr_round);
+    mpfr_set_si(r2[0], 0, global.mpfr_round);
+    mpfr_set_si(r2[1], 1, global.mpfr_round);
+    mpfr_set(r2[2], a, global.mpfr_round);
     mpfr_init2(curerr, 20);
     mpfr_init2(newerr, 20);
-    mpfr_reldiff(curerr, f, a, global.mpf_round);
+    mpfr_reldiff(curerr, f, a, global.mpfr_round);
     while (mpfr_cmp(curerr, minerr) > 0) {
-        mpfr_sub(temp, al, a, global.mpf_round);
-        mpfr_ui_div(al, 1, temp, global.mpf_round);
+        mpfr_sub(temp, al, a, global.mpfr_round);
+        mpfr_ui_div(al, 1, temp, global.mpfr_round);
         mpfr_floor(a, al);
         mpfr_swap(r1[0], r1[1]);
         mpfr_swap(r1[1], r1[2]);
-        mpfr_mul(r1[2], r1[1], a, global.mpf_round);
-        mpfr_add(r1[2], r1[2], r1[0], global.mpf_round);
+        mpfr_mul(r1[2], r1[1], a, global.mpfr_round);
+        mpfr_add(r1[2], r1[2], r1[0], global.mpfr_round);
         mpfr_swap(r2[0], r2[1]);
         mpfr_swap(r2[1], r2[2]);
-        mpfr_mul(r2[2], r2[1], a, global.mpf_round);
-        mpfr_add(r2[2], r2[2], r2[0], global.mpf_round);
-        mpfr_div(temp, r2[2], r1[2], global.mpf_round);
-        mpfr_reldiff(newerr, f, temp, global.mpf_round);
+        mpfr_mul(r2[2], r2[1], a, global.mpfr_round);
+        mpfr_add(r2[2], r2[2], r2[0], global.mpfr_round);
+        mpfr_div(temp, r2[2], r1[2], global.mpfr_round);
+        mpfr_reldiff(newerr, f, temp, global.mpfr_round);
         if (mpfr_cmp(curerr, newerr) <= 0) {
             mpfr_swap(r1[1],r1[2]);
             mpfr_swap(r2[1],r2[2]);
@@ -397,13 +412,13 @@ f2q_internal(PympfObject* self, PympfObject* err, unsigned int bits, int mayz)
     if (mayz && (mpfr_cmp_ui(r1[2],1)==0)) {
         Py_DECREF((PyObject*)res);
         res = (PympqObject*)Pympz_new();
-        mpfr_get_z(Pympz_AS_MPZ(res), r2[2], global.mpf_round);
+        mpfr_get_z(Pympz_AS_MPZ(res), r2[2], global.mpfr_round);
         if (negative)
             mpz_neg(Pympz_AS_MPZ(res),Pympz_AS_MPZ(res));
     }
     else {
-        mpfr_get_z(mpq_numref(res->q), r2[2], global.mpf_round);
-        mpfr_get_z(mpq_denref(res->q), r1[2], global.mpf_round);
+        mpfr_get_z(mpq_numref(res->q), r2[2], global.mpfr_round);
+        mpfr_get_z(mpq_denref(res->q), r1[2], global.mpfr_round);
         if (negative)
             mpz_neg(mpq_numref(res->q), mpq_numref(res->q));
     }
@@ -421,8 +436,15 @@ f2q_internal(PympfObject* self, PympfObject* err, unsigned int bits, int mayz)
     return (PyObject*)res;
 }
 
+static PyObject *
+Pympfr_pos(PympfrObject *x)
+{
+    Py_INCREF((PyObject*)x);
+    return (PyObject *) x;
+}
+
 static Py_hash_t
-Pympf_hash(PympfObject *self)
+Pympfr_hash(PympfrObject *self)
 {
 #ifdef _PyHASH_MODULUS
     Py_uhash_t hash = 0;
@@ -473,24 +495,24 @@ Pympf_hash(PympfObject *self)
     double temp;
     if (self->hash_cache != -1)
         return self->hash_cache;
-    temp = mpfr_get_d(self->f, global.mpf_round);
+    temp = mpfr_get_d(self->f, global.mpfr_round);
     return (self->hash_cache = _Py_HashDouble(temp));
 #endif
 }
 
 static PyObject *
-Pympf_pow(PyObject *base, PyObject *exp, PyObject *m)
+Pympfr2_pow(PyObject *base, PyObject *exp, PyObject *m)
 {
-    PympfObject *tempb, *tempe, *result;
+    PympfrObject *tempb, *tempe, *result;
 
     if ((PyObject*)m != Py_None) {
-        TYPE_ERROR("mpf.pow() no modulo allowed");
+        TYPE_ERROR("mpfr.pow() no modulo allowed");
         return NULL;
     }
 
-    tempb = Pympf_From_Float(base, 0);
-    tempe = Pympf_From_Float(exp, 0);
-    result = Pympf_new(0);
+    tempb = Pympfr_From_Float(base, 0);
+    tempe = Pympfr_From_Float(exp, 0);
+    result = Pympfr_new(0);
 
     if (!tempe || !tempb || !result) {
         Py_XDECREF((PyObject*)tempe);
@@ -499,274 +521,279 @@ Pympf_pow(PyObject *base, PyObject *exp, PyObject *m)
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    global.mpf_rc = mpfr_pow(result->f, tempb->f, tempe->f, global.mpf_round);
+    global.mpfr_rc = mpfr_pow(result->f, tempb->f, tempe->f, global.mpfr_round);
     Py_DECREF((PyObject*)tempe);
     Py_DECREF((PyObject*)tempb);
     return (PyObject*)result;
 }
 
-static char doc_const_pi[]="\
-const_pi(): returns the constant pi using default precision\n\
-";
-static PyObject *
-Pygmpy_const_pi(PyObject *self, PyObject *args)
-{
-    PympfObject *result;
+PyDoc_STRVAR(doc_mpfr_const_pi,
+"const_pi() -> mpfr\n\n"
+"Return the constant pi using the default precision.");
 
-    if (!(result = Pympf_new(0)))
+static PyObject *
+Pympfr_const_pi(PyObject *self, PyObject *args)
+{
+    PympfrObject *result;
+
+    if (!(result = Pympfr_new(0)))
         return NULL;
-    global.mpf_rc = mpfr_const_pi(result->f, global.mpf_round);
+    global.mpfr_rc = mpfr_const_pi(result->f, global.mpfr_round);
     return (PyObject*)result;
 }
 
-static char doc_const_euler[]="\
-const_euler(): returns the euler constant using default precision\n\
-";
-static PyObject *
-Pygmpy_const_euler(PyObject *self, PyObject *args)
-{
-    PympfObject *result;
+PyDoc_STRVAR(doc_mpfr_const_euler,
+"const_euler() -> mpfr\n\n"
+"Return the euler constant using the default precision.");
 
-    if (!(result = Pympf_new(0)))
+static PyObject *
+Pympfr_const_euler(PyObject *self, PyObject *args)
+{
+    PympfrObject *result;
+
+    if (!(result = Pympfr_new(0)))
         return NULL;
-    global.mpf_rc = mpfr_const_euler(result->f, global.mpf_round);
+    global.mpfr_rc = mpfr_const_euler(result->f, global.mpfr_round);
     return (PyObject*)result;
 }
 
-static char doc_const_log2[]="\
-const_log2(): returns the log2 constant using default precision\n\
-";
-static PyObject *
-Pygmpy_const_log2(PyObject *self, PyObject *args)
-{
-    PympfObject *result;
+PyDoc_STRVAR(doc_mpfr_const_log2,
+"const_log2() -> mpfr\n\n"
+"Return the log2 constant using the default precision.");
 
-    if (!(result = Pympf_new(0)))
+static PyObject *
+Pympfr_const_log2(PyObject *self, PyObject *args)
+{
+    PympfrObject *result;
+
+    if (!(result = Pympfr_new(0)))
         return NULL;
-    global.mpf_rc = mpfr_const_log2(result->f, global.mpf_round);
+    global.mpfr_rc = mpfr_const_log2(result->f, global.mpfr_round);
     return (PyObject*)result;
 }
 
-static char doc_const_catalan[]="\
-const_catalan(): returns the catalan constant using default precision\n\
-";
-static PyObject *
-Pygmpy_const_catalan(PyObject *self, PyObject *args)
-{
-    PympfObject *result;
+PyDoc_STRVAR(doc_mpfr_const_catalan,
+"const_catalan() -> mpfr\n\n"
+"Return the catalan constant using the default precision.");
 
-    if (!(result = Pympf_new(0)))
+static PyObject *
+Pympfr_const_catalan(PyObject *self, PyObject *args)
+{
+    PympfrObject *result;
+
+    if (!(result = Pympfr_new(0)))
         return NULL;
-    global.mpf_rc = mpfr_const_catalan(result->f, global.mpf_round);
+    global.mpfr_rc = mpfr_const_catalan(result->f, global.mpfr_round);
     return (PyObject*)result;
 }
 
-static char doc_fsqrtm[]="\
-x.sqrt(): returns the square root of x.  x must be >= 0.\n\
-";
-static PyObject *
-Pympf_sqrt(PyObject *self, PyObject *other)
-{
-    PympfObject *result, *tempx;
+PyDoc_STRVAR(doc_mpfr_sqrt,
+"x.sqrt() -> mpfr\n\n"
+"Return the square root of x.  x must be >= 0.");
 
-    if (!(result = Pympf_new(0)))
+static PyObject *
+Pympfr_sqrt(PyObject *self, PyObject *other)
+{
+    PympfrObject *result, *tempx;
+
+    if (!(result = Pympfr_new(0)))
         return NULL;
 
-    if(self && Pympf_Check(self)) {
-        if (global.raise && mpfr_sgn(Pympf_AS_MPF(self)) < 0) {
+    if(self && Pympfr_Check(self)) {
+        if (global.raise && mpfr_sgn(Pympfr_AS_MPFR(self)) < 0) {
             VALUE_ERROR("sqrt() of negative number");
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        global.mpf_rc = mpfr_sqrt(result->f, Pympf_AS_MPF(self), global.mpf_round);
+        global.mpfr_rc = mpfr_sqrt(result->f, Pympfr_AS_MPFR(self), global.mpfr_round);
     }
-    else if (Pympf_Check(other)) {
-        if (global.raise && mpfr_sgn(Pympf_AS_MPF(other)) < 0) {
+    else if (Pympfr_Check(other)) {
+        if (global.raise && mpfr_sgn(Pympfr_AS_MPFR(other)) < 0) {
             VALUE_ERROR("sqrt() of negative number");
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        global.mpf_rc = mpfr_sqrt(result->f, Pympf_AS_MPF(other), global.mpf_round);
+        global.mpfr_rc = mpfr_sqrt(result->f, Pympfr_AS_MPFR(other), global.mpfr_round);
     }
     else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("sqrt() requires 'mpf' argument");
+        if (!(tempx = Pympfr_From_Float(other, 0))) {
+            TYPE_ERROR("sqrt() requires 'mpfr' argument");
             return NULL;
         }
         else {
-            if (global.raise && mpfr_sgn(Pympf_AS_MPF(tempx)) < 0) {
+            if (global.raise && mpfr_sgn(Pympfr_AS_MPFR(tempx)) < 0) {
                 VALUE_ERROR("sqrt() of negative number");
                 Py_DECREF((PyObject*)tempx);
                 Py_DECREF((PyObject*)result);
                 return NULL;
             }
-            global.mpf_rc = mpfr_sqrt(result->f, tempx->f, global.mpf_round);
+            global.mpfr_rc = mpfr_sqrt(result->f, tempx->f, global.mpfr_round);
             Py_DECREF((PyObject*)tempx);
         }
     }
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpf_rec_sqrt,
-"x.rec_sqrt() -> mpf\n\n"
+PyDoc_STRVAR(doc_mpfr_rec_sqrt,
+"x.rec_sqrt() -> mpfr\n\n"
 "Return the reciprocal of the square root of x.");
-PyDoc_STRVAR(doc_gmpy_rec_sqrt,
-"rec_sqrt(x) -> mpf\n\n"
+
+PyDoc_STRVAR(doc_g_mpfr_rec_sqrt,
+"rec_sqrt(x) -> mpfr\n\n"
 "Return the reciprocal of the square root of x.");
 
 static PyObject *
-Pympf_rec_sqrt(PyObject *self, PyObject *other)
+Pympfr_rec_sqrt(PyObject *self, PyObject *other)
 {
-    PympfObject *result, *tempx;
+    PympfrObject *result, *tempx;
 
-    if (!(result = Pympf_new(0)))
+    if (!(result = Pympfr_new(0)))
         return NULL;
 
-    if(self && Pympf_Check(self)) {
-        if (global.raise && mpfr_zero_p(Pympf_AS_MPF(self))) {
+    if(self && Pympfr_Check(self)) {
+        if (global.raise && mpfr_zero_p(Pympfr_AS_MPFR(self))) {
             VALUE_ERROR("rec_sqrt() of zero");
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        global.mpf_rc = mpfr_rec_sqrt(result->f, Pympf_AS_MPF(self), global.mpf_round);
+        global.mpfr_rc = mpfr_rec_sqrt(result->f, Pympfr_AS_MPFR(self), global.mpfr_round);
     }
-    else if (Pympf_Check(other)) {
-        if (global.raise && mpfr_zero_p(Pympf_AS_MPF(other))) {
+    else if (Pympfr_Check(other)) {
+        if (global.raise && mpfr_zero_p(Pympfr_AS_MPFR(other))) {
             VALUE_ERROR("rec_sqrt() of zero");
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        global.mpf_rc = mpfr_rec_sqrt(result->f, Pympf_AS_MPF(other), global.mpf_round);
+        global.mpfr_rc = mpfr_rec_sqrt(result->f, Pympfr_AS_MPFR(other), global.mpfr_round);
     }
     else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("rec_sqrt() requires 'mpf' argument");
+        if (!(tempx = Pympfr_From_Float(other, 0))) {
+            TYPE_ERROR("rec_sqrt() requires 'mpfr' argument");
             return NULL;
         }
         else {
-            if (global.raise && mpfr_zero_p(Pympf_AS_MPF(tempx))) {
+            if (global.raise && mpfr_zero_p(Pympfr_AS_MPFR(tempx))) {
                 VALUE_ERROR("rec_sqrt() of zero");
                 Py_DECREF((PyObject*)tempx);
                 Py_DECREF((PyObject*)result);
                 return NULL;
             }
-            global.mpf_rc = mpfr_rec_sqrt(result->f, tempx->f, global.mpf_round);
+            global.mpfr_rc = mpfr_rec_sqrt(result->f, tempx->f, global.mpfr_round);
             Py_DECREF((PyObject*)tempx);
         }
     }
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpf_root,
-"x.root(n) -> mpf\n\n"
+PyDoc_STRVAR(doc_mpfr_root,
+"x.root(n) -> mpfr\n\n"
 "Return the n-th root of x.");
 static PyObject *
-Pympf_root(PyObject *self, PyObject *args)
+Pympfr_root(PyObject *self, PyObject *args)
 {
     long n;
-    PympfObject *result;
+    PympfrObject *result;
 
-    PARSE_ONE_MPF_REQ_CLONG(&n,
-                            "root() requires 'mpf','int' arguments");
+    PARSE_ONE_MPFR_REQ_CLONG(&n, "root() requires 'mpfr','int' arguments");
 
     if (n <= 0) {
         VALUE_ERROR("n must be > 0");
         Py_DECREF(self);
         return NULL;
     }
-    if (global.raise && !(n & 1) && mpfr_sgn(Pympf_AS_MPF(self))<0) {
+    if (global.raise && !(n & 1) && mpfr_sgn(Pympfr_AS_MPFR(self))<0) {
         VALUE_ERROR("root() of negative number");
         Py_DECREF(self);
         return NULL;
     }
 
-    if(!(result = Pympf_new(0))) {
+    if(!(result = Pympfr_new(0))) {
         Py_DECREF(self);
         return NULL;
     }
-    global.mpf_rc = mpfr_root(result->f, Pympf_AS_MPF(self), n,
-                            global.mpf_round);
+    global.mpfr_rc = mpfr_root(result->f, Pympfr_AS_MPFR(self), n,
+                            global.mpfr_round);
     Py_DECREF(self);
     return (PyObject*)result;
 }
 
 
-static char doc_mpf_roundm[] = "\
+static char doc_mpfr_round[] = "\
 x.round(n): returns x rounded to n bits. Uses default precision if\n\
 n is not specified.\n\
 ";
-static char doc_mpf_roundg[] = "\
+static char doc_g_mpfr_round[] = "\
 round(x, n): returns x rounded to n bits. Uses default precision\n\
 if n is not specified.\n\
 ";
 static PyObject *
-Pympf_round(PyObject *self, PyObject *args)
+Pympfr_round(PyObject *self, PyObject *args)
 {
-    mpfr_prec_t prec = global.mpf_prec;
-    PympfObject *result;
+    mpfr_prec_t prec = global.mpfr_prec;
+    PympfrObject *result;
 
-    PARSE_ONE_MPF_OPT_CLONG(&prec,
-            "round() requires 'mpf',['int'] arguments");
+    PARSE_ONE_MPFR_OPT_CLONG(&prec,
+            "round() requires 'mpfr',['int'] arguments");
 
-    if (!(result = Pympf_new(prec))) {
+    if (!(result = Pympfr_new(prec))) {
         Py_DECREF(self);
         return NULL;
     }
-    global.mpf_rc = mpfr_set(result->f, Pympf_AS_MPF(self), global.mpf_round);
+    global.mpfr_rc = mpfr_set(result->f, Pympfr_AS_MPFR(self), global.mpfr_round);
     Py_DECREF(self);
     return (PyObject*)result;
 }
 
-static char doc_reldiffm[] = "\
+static char doc_mpfr_reldiff[] = "\
 x.reldiff(y): returns the relative difference between x and y,\n\
-where y can be any number and gets coerced to an mpf; result is\n\
-an mpf roughly equal to abs(x-y)/x.\n\
+where y can be any number and gets coerced to an mpfr; result is\n\
+an mpfr roughly equal to abs(x-y)/x.\n\
 ";
-static char doc_reldiffg[] = "\
+static char doc_g_mpfr_reldiff[] = "\
 reldiff(x,y): returns the relative difference between x and y,\n\
-where x and y can be any numbers and get coerced to mpf; result is\n\
-an mpf roughly equal to abs(x-y)/x.\n\
+where x and y can be any numbers and get coerced to mpfr; result is\n\
+an mpfr roughly equal to abs(x-y)/x.\n\
 ";
 static PyObject *
-Pympf_doreldiff(PyObject *self, PyObject *args)
+Pympfr_reldiff(PyObject *self, PyObject *args)
 {
-    PympfObject *result;
+    PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPF(other, "reldiff() requires 'mpf,'mpf' arguments");
+    PARSE_TWO_MPFR(other, "reldiff() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = Pympf_new(0))) {
+    if (!(result = Pympfr_new(0))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
     }
 
-    mpfr_reldiff(result->f, Pympf_AS_MPF(self), Pympf_AS_MPF(other),
-                global.mpf_round);
+    mpfr_reldiff(result->f, Pympfr_AS_MPFR(self), Pympfr_AS_MPFR(other),
+                global.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
     return (PyObject*)result;
 }
 
-static char doc_fsignm[]="\
+static char doc_mpfr_sign[]="\
 x.sign(): returns -1, 0, or +1, if x is negative, 0, positive.\n\
 ";
 static PyObject *
-Pympf_sign(PyObject *self, PyObject *other)
+Pympfr_sign(PyObject *self, PyObject *other)
 {
     long sign;
 
-    PympfObject *tempx;
+    PympfrObject *tempx;
 
-    if (self && (Pympf_Check(self))) {
-        sign = mpfr_sgn(Pympf_AS_MPF(self));
+    if (self && (Pympfr_Check(self))) {
+        sign = mpfr_sgn(Pympfr_AS_MPFR(self));
     }
-    else if (Pympf_Check(other)) {
-        sign = mpfr_sgn(Pympf_AS_MPF(other));
+    else if (Pympfr_Check(other)) {
+        sign = mpfr_sgn(Pympfr_AS_MPFR(other));
     }
     else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("sign() requires 'mpf' argument");
+        if (!(tempx = Pympfr_From_Float(other, 0))) {
+            TYPE_ERROR("sign() requires 'mpfr' argument");
             return NULL;
         }
         else {
@@ -777,34 +804,34 @@ Pympf_sign(PyObject *self, PyObject *other)
     return PyIntOrLong_FromLong(sign);
 }
 
-#define MPF_MONOP(NAME) \
+#define MPFR_MONOP(NAME) \
 static PyObject * \
-Py##NAME(PympfObject *x) \
+Py##NAME(PympfrObject *x) \
 { \
-  PympfObject *r; \
-  if (!(r = Pympf_new(mpfr_get_prec(x->f)))) return NULL; \
-  NAME(r->f, x->f, global.mpf_round); \
+  PympfrObject *r; \
+  if (!(r = Pympfr_new(mpfr_get_prec(x->f)))) return NULL; \
+  NAME(r->f, x->f, global.mpfr_round); \
   return (PyObject *) r; \
 }
 
-MPF_MONOP(mpfr_abs)
-MPF_MONOP(mpfr_neg)
+MPFR_MONOP(mpfr_abs)
+MPFR_MONOP(mpfr_neg)
 
-#define MPF_UNIOP_NOROUND(NAME) \
+#define MPFR_UNIOP_NOROUND(NAME) \
 static PyObject * \
-Pympf_##NAME(PyObject* self, PyObject *other) \
+Pympfr_##NAME(PyObject* self, PyObject *other) \
 { \
-    PympfObject *result, *tempx; \
-    if (!(result = Pympf_new(0))) return NULL; \
-    if(self && Pympf_Check(self)) { \
-        mpfr_##NAME(result->f, Pympf_AS_MPF(self)); \
+    PympfrObject *result, *tempx; \
+    if (!(result = Pympfr_new(0))) return NULL; \
+    if(self && Pympfr_Check(self)) { \
+        mpfr_##NAME(result->f, Pympfr_AS_MPFR(self)); \
     } \
-    else if (Pympf_Check(other)) { \
-        mpfr_##NAME(result->f, Pympf_AS_MPF(other)); \
+    else if (Pympfr_Check(other)) { \
+        mpfr_##NAME(result->f, Pympfr_AS_MPFR(other)); \
     } \
     else { \
-        if (!(tempx = Pympf_From_Float(other, 0))) { \
-            TYPE_ERROR(#NAME "() requires 'mpf' argument"); \
+        if (!(tempx = Pympfr_From_Float(other, 0))) { \
+            TYPE_ERROR(#NAME "() requires 'mpfr' argument"); \
             return NULL; \
         } \
         else { \
@@ -815,364 +842,366 @@ Pympf_##NAME(PyObject* self, PyObject *other) \
     return (PyObject*)result; \
 }
 
-static char doc_ceilm[]="\
-x.ceil(): returns an mpf that is the smallest integer >= x\n\
+static char doc_mpfr_ceil[]="\
+x.ceil(): returns an mpfr that is the smallest integer >= x\n\
 ";
-static char doc_ceilg[]="\
-ceil(x): returns an mpf that is the smallest integer >= x\n\
-x must be an mpf, or else gets coerced to one.\n\
-";
-
-MPF_UNIOP_NOROUND(ceil)
-
-static char doc_floorm[]="\
-x.floor(): returns an mpf that is the smallest integer <= x\n\
-";
-static char doc_floorg[]="\
-floor(x): returns an mpf that is the smallest integer <= x\n\
-x must be an mpf, or else gets coerced to one.\n\
+static char doc_g_mpfr_ceil[]="\
+ceil(x): returns an mpfr that is the smallest integer >= x\n\
+x must be an mpfr, or else gets coerced to one.\n\
 ";
 
-MPF_UNIOP_NOROUND(floor);
+MPFR_UNIOP_NOROUND(ceil)
 
-static char doc_truncm[]="\
-x.trunc(): returns an mpf that is x truncated towards 0\n\
+static char doc_mpfr_floor[]="\
+x.floor(): returns an mpfr that is the smallest integer <= x\n\
+";
+static char doc_g_mpfr_floor[]="\
+floor(x): returns an mpfr that is the smallest integer <= x\n\
+x must be an mpfr, or else gets coerced to one.\n\
+";
+
+MPFR_UNIOP_NOROUND(floor);
+
+static char doc_mpfr_trunc[]="\
+x.trunc(): returns an mpfr that is x truncated towards 0\n\
 (same as x.floor() if x>=0, x.ceil() if x<0).\n\
 ";
-static char doc_truncg[]="\
-trunc(x): returns an mpf that is x truncated towards 0\n\
+static char doc_g_mpfr_trunc[]="\
+trunc(x): returns an mpfr that is x truncated towards 0\n\
 (same as x.floor() if x>=0, x.ceil() if x<0).\n\
-x must be an mpf, or else gets coerced to one.\n\
+x must be an mpfr, or else gets coerced to one.\n\
 ";
 
-MPF_UNIOP_NOROUND(trunc)
+MPFR_UNIOP_NOROUND(trunc)
 
-#define MPF_UNIOP(NAME) \
+#define MPFR_UNIOP(NAME) \
 static PyObject * \
-Pympf_##NAME(PyObject* self, PyObject *other) \
+Pympfr_##NAME(PyObject* self, PyObject *other) \
 { \
-    PympfObject *result, *tempx; \
-    if (!(result = Pympf_new(0))) return NULL; \
-    if(self && Pympf_Check(self)) { \
-        global.mpf_rc = mpfr_##NAME(result->f, Pympf_AS_MPF(self), global.mpf_round); \
+    PympfrObject *result, *tempx; \
+    if (!(result = Pympfr_new(0))) return NULL; \
+    if(self && Pympfr_Check(self)) { \
+        global.mpfr_rc = mpfr_##NAME(result->f, Pympfr_AS_MPFR(self), global.mpfr_round); \
     } \
-    else if (Pympf_Check(other)) { \
-        global.mpf_rc = mpfr_##NAME(result->f, Pympf_AS_MPF(other), global.mpf_round); \
+    else if (Pympfr_Check(other)) { \
+        global.mpfr_rc = mpfr_##NAME(result->f, Pympfr_AS_MPFR(other), global.mpfr_round); \
     } \
     else { \
-        if (!(tempx = Pympf_From_Float(other, 0))) { \
-            TYPE_ERROR(#NAME "() requires 'mpf' argument"); \
+        if (!(tempx = Pympfr_From_Float(other, 0))) { \
+            TYPE_ERROR(#NAME "() requires 'mpfr' argument"); \
             return NULL; \
         } \
         else { \
-            global.mpf_rc = mpfr_##NAME(result->f, tempx->f, global.mpf_round); \
+            global.mpfr_rc = mpfr_##NAME(result->f, tempx->f, global.mpfr_round); \
             Py_DECREF((PyObject*)tempx); \
         } \
     } \
     return (PyObject*)result; \
 }
 
-PyDoc_STRVAR(doc_mpf_sqr,
-"x.square() ->: mpf\n\n"
+PyDoc_STRVAR(doc_mpfr_sqr,
+"x.square() ->: mpfr\n\n"
 "Return x * x.");
 
-MPF_UNIOP(sqr)
+MPFR_UNIOP(sqr)
 
-PyDoc_STRVAR(doc_mpf_cbrt,
-"x.cbrt() -> mpf\n\n"
+PyDoc_STRVAR(doc_mpfr_cbrt,
+"x.cbrt() -> mpfr\n\n"
 "Return the cube root of x.");
-PyDoc_STRVAR(doc_gmpy_cbrt,
-"cbrt(x) -> mpf\n\n"
+PyDoc_STRVAR(doc_g_mpfr_cbrt,
+"cbrt(x) -> mpfr\n\n"
 "Return the cube root of x.");
 
-MPF_UNIOP(cbrt)
+MPFR_UNIOP(cbrt)
 
-static char doc_flogm[]="\
+static char doc_mpfr_log[]="\
 x.log(): returns natural logarithm of x.\n\
 ";
-static char doc_flogg[]="\
+static char doc_g_mpfr_log[]="\
 log(x): returns natural logarithm of x.\n\
 ";
 
-MPF_UNIOP(log)
+MPFR_UNIOP(log)
 
-static char doc_flog2m[]="\
+static char doc_mpfr_log2[]="\
 x.log2(): returns base-2 logarithm of x.\n\
 ";
-static char doc_flog2g[]="\
+static char doc_g_mpfr_log2[]="\
 log2(x): returns base-2 logarithm of x.\n\
 ";
 
-MPF_UNIOP(log2)
+MPFR_UNIOP(log2)
 
-static char doc_flog10m[]="\
+static char doc_mpfr_log10[]="\
 x.log10(): returns base-10 logarithm of x.\n\
 ";
-static char doc_flog10g[]="\
+static char doc_g_mpfr_log10[]="\
 log10(x): returns base-10 logarithm of x.\n\
 ";
 
-MPF_UNIOP(log10)
+MPFR_UNIOP(log10)
 
-static char doc_fexpm[]="\
-x.exp(): returns exponential x.\n\
+static char doc_mpfr_exp[]="\
+x.exp(): returns exponential of x.\n\
 ";
-static char doc_fexpg[]="\
+static char doc_g_mpfr_exp[]="\
 exp(x): returns exponential of x.\n\
 ";
 
-MPF_UNIOP(exp)
+MPFR_UNIOP(exp)
 
-static char doc_fexp2m[]="\
+static char doc_mpfr_exp2[]="\
 x.exp2(): returns 2**x.\n\
 ";
-static char doc_fexp2g[]="\
+static char doc_g_mpfr_exp2[]="\
 exp2(x): returns 2**x.\n\
 ";
 
-MPF_UNIOP(exp2)
+MPFR_UNIOP(exp2)
 
-static char doc_fexp10m[]="\
+static char doc_mpfr_exp10[]="\
 x.exp10(): returns 10**x.\n\
 ";
-static char doc_fexp10g[]="\
+static char doc_g_mpfr_exp10[]="\
 exp10(x): returns 10**x.\n\
 ";
 
-MPF_UNIOP(exp10)
+MPFR_UNIOP(exp10)
 
-static char doc_fsinm[]="\
+static char doc_mpfr_sin[]="\
 x.sin(): returns sine of x; x in radians.\n\
 ";
-static char doc_fsing[]="\
+static char doc_g_mpfr_sin[]="\
 sin(x): returns sine of x; x in radians.\n\
 ";
 
-MPF_UNIOP(sin)
+MPFR_UNIOP(sin)
 
-static char doc_fcosm[]="\
+static char doc_mpfr_cos[]="\
 x.cos(): returns cosine of x; x in radians.\n\
 ";
-static char doc_fcosg[]="\
+static char doc_g_mpfr_cos[]="\
 cos(x): returns cosine of x; x in radians.\n\
 ";
 
-MPF_UNIOP(cos)
+MPFR_UNIOP(cos)
 
-static char doc_ftanm[]="\
+static char doc_mpfr_tan[]="\
 x.tan(): returns tangent of x; x in radians.\n\
 ";
-static char doc_ftang[]="\
+static char doc_g_mpfr_tan[]="\
 tan(x): returns tangent of x; x in radians.\n\
 ";
 
-MPF_UNIOP(tan)
+MPFR_UNIOP(tan)
 
-static char doc_fsecm[]="\
+static char doc_mpfr_sec[]="\
 x.sec(): returns secant of x; x in radians.\n\
 ";
-static char doc_fsecg[]="\
+static char doc_g_mpfr_sec[]="\
 sec(x): returns secant of x; x in radians.\n\
 ";
 
-MPF_UNIOP(sec)
+MPFR_UNIOP(sec)
 
-static char doc_fcscm[]="\
+static char doc_mpfr_csc[]="\
 x.csc(): returns cosecant of x; x in radians.\n\
 ";
-static char doc_fcscg[]="\
+static char doc_g_mpfr_csc[]="\
 csc(x): returns cosecant of x; x in radians.\n\
 ";
 
-MPF_UNIOP(csc)
+MPFR_UNIOP(csc)
 
-static char doc_fcotm[]="\
+static char doc_mpfr_cot[]="\
 x.cot(): returns cotangent of x; x in radians.\n\
 ";
-static char doc_fcotg[]="\
+static char doc_g_mpfr_cot[]="\
 cot(x): returns cotangent of x; x in radians.\n\
 ";
 
-MPF_UNIOP(cot)
+MPFR_UNIOP(cot)
 
-static char doc_facosm[]="\
+static char doc_mpfr_acos[]="\
 x.acos(): returns arc-cosine of x; x in radians.\n\
 ";
-static char doc_facosg[]="\
+static char doc_g_mpfr_acos[]="\
 acos(x): returns arc-cosine of x; x in radians.\n\
 ";
 
-MPF_UNIOP(acos)
+MPFR_UNIOP(acos)
 
-static char doc_fasinm[]="\
+static char doc_mpfr_asin[]="\
 x.asin(): returns arc-sine of x; x in radians.\n\
 ";
-static char doc_fasing[]="\
+static char doc_g_mpfr_asin[]="\
 asin(x): returns arc-sine of x; x in radians.\n\
 ";
 
-MPF_UNIOP(asin)
+MPFR_UNIOP(asin)
 
-static char doc_fatanm[]="\
+static char doc_mpfr_atan[]="\
 x.atan(): returns arc-tangent of x; x in radians.\n\
 ";
-static char doc_fatang[]="\
+static char doc_g_mpfr_atan[]="\
 atan(x): returns arc-tangent of x; x in radians.\n\
 ";
 
-MPF_UNIOP(atan)
+MPFR_UNIOP(atan)
 
-static char doc_fcoshm[]="\
+static char doc_mpfr_cosh[]="\
 x.cosh(): returns hyperbolic cosine of x.\n\
 ";
-static char doc_fcoshg[]="\
+static char doc_g_mpfr_cosh[]="\
 cosh(x): returns hyperbolic cosine of x.\n\
 ";
 
-MPF_UNIOP(cosh)
+MPFR_UNIOP(cosh)
 
-static char doc_fsinhm[]="\
+static char doc_mpfr_sinh[]="\
 x.sinh(): returns hyperbolic sine of x.\n\
 ";
-static char doc_fsinhg[]="\
+static char doc_g_mpfr_sinh[]="\
 sinh(x): returns hyperbolic sine of x.\n\
 ";
 
-MPF_UNIOP(sinh)
+MPFR_UNIOP(sinh)
 
-static char doc_ftanhm[]="\
+static char doc_mpfr_tanh[]="\
 x.tanh(): returns hyperbolic tangent of x.\n\
 ";
-static char doc_ftanhg[]="\
+static char doc_g_mpfr_tanh[]="\
 tanh(x): returns hyperbolic tangent of x.\n\
 ";
 
-MPF_UNIOP(tanh)
+MPFR_UNIOP(tanh)
 
-static char doc_fsechm[]="\
+static char doc_mpfr_sech[]="\
 x.sech(): returns hyperbolic secant of x.\n\
 ";
-static char doc_fsechg[]="\
+static char doc_g_mpfr_sech[]="\
 sech(x): returns hyperbolic secant of x.\n\
 ";
 
-MPF_UNIOP(sech)
+MPFR_UNIOP(sech)
 
-static char doc_fcschm[]="\
+static char doc_mpfr_csch[]="\
 x.csch(): returns hyperbolic cosecant of x.\n\
 ";
-static char doc_fcschg[]="\
+static char doc_g_mpfr_csch[]="\
 csch(x): returns hyperbolic cosecant of x.\n\
 ";
 
-MPF_UNIOP(csch)
+MPFR_UNIOP(csch)
 
-static char doc_fcothm[]="\
+static char doc_mpfr_coth[]="\
 x.coth(): returns hyperbolic cotangent of x.\n\
 ";
-static char doc_fcothg[]="\
+static char doc_g_mpfr_coth[]="\
 coth(x): returns hyperbolic cotangent of x.\n\
 ";
 
-MPF_UNIOP(coth)
+MPFR_UNIOP(coth)
 
-static char doc_facoshm[]="\
+static char doc_mpfr_acosh[]="\
 x.acosh(): returns inverse hyperbolic cosine of x.\n\
 ";
-static char doc_facoshg[]="\
+static char doc_g_mpfr_acosh[]="\
 acosh(x): returns inverse hyperbolic cosine of x.\n\
 ";
 
-MPF_UNIOP(acosh)
+MPFR_UNIOP(acosh)
 
-static char doc_fasinhm[]="\
+static char doc_mpfr_asinh[]="\
 x.asinh(): returns inverse hyperbolic sine of x.\n\
 ";
-static char doc_fasinhg[]="\
+static char doc_g_mpfr_asinh[]="\
 asinh(x): returns inverse hyperbolic sine of x.\n\
 ";
 
-MPF_UNIOP(asinh)
+MPFR_UNIOP(asinh)
 
-static char doc_fatanhm[]="\
+static char doc_mpfr_atanh[]="\
 x.atanh(): returns inverse hyperbolic tangent of x.\n\
 ";
-static char doc_fatanhg[]="\
+static char doc_g_mpfr_atanh[]="\
 atanh(x): returns inverse hyperbolic tangent of x.\n\
 ";
 
-MPF_UNIOP(atanh)
+MPFR_UNIOP(atanh)
 
-static char doc_flog1pm[]="\
+static char doc_mpfr_log1p[]="\
 x.log1p(): returns logarithm of (1+x).\n\
 ";
-static char doc_flog1pg[]="\
+static char doc_g_mpfr_log1p[]="\
 log1p(x): returns logarithm of (1+x).\n\
 ";
 
-MPF_UNIOP(log1p)
+MPFR_UNIOP(log1p)
 
-static char doc_fexpm1m[]="\
+static char doc_mpfr_expm1[]="\
 x.expm1(): returns exponential(x) - 1.\n\
 ";
-static char doc_fexpm1g[]="\
+static char doc_g_mpfr_expm1[]="\
 expm1(x): returns exponential(x) - 1.\n\
 ";
 
-MPF_UNIOP(expm1)
+MPFR_UNIOP(expm1)
 
-static char doc_feintm[]="\
+static char doc_mpfr_eint[]="\
 x.eint(): returns exponential integral of x.\n\
 ";
-static char doc_feintg[]="\
+static char doc_g_mpfr_eint[]="\
 eint(x): returns exponential integral of x.\n\
 ";
 
-MPF_UNIOP(eint)
+MPFR_UNIOP(eint)
 
-static char doc_fli2m[]="\
+static char doc_mpfr_li2[]="\
 x.li2(): returns real part of dilogarithm of x.\n\
 ";
-static char doc_fli2g[]="\
+static char doc_g_mpfr_li2[]="\
 li2(x): returns real part of dilogarithm of x.\n\
 ";
 
-MPF_UNIOP(li2)
+MPFR_UNIOP(li2)
 
-static char doc_fgammam[]="\
+static char doc_mpfr_gamma[]="\
 x.gamma(): returns gamma of x.\n\
 ";
-static char doc_fgammag[]="\
+static char doc_g_mpfr_gamma[]="\
 gamma(x): returns gamma of x.\n\
 ";
 
-MPF_UNIOP(gamma)
+MPFR_UNIOP(gamma)
 
-static char doc_flngammam[]="\
+static char doc_mpfr_lngamma[]="\
 x.lngamma(): returns logarithm of gamma(x).\n\
 ";
-static char doc_flngammag[]="\
+static char doc_g_mpfr_lngamma[]="\
 lngamma(x): returns logarithm of gamma(x).\n\
 ";
 
-MPF_UNIOP(lngamma)
+MPFR_UNIOP(lngamma)
 
-PyDoc_STRVAR(doc_mpf_lgamma,
-"x.lgamma() -> (mpf, int)\n\n"
+PyDoc_STRVAR(doc_mpfr_lgamma,
+"x.lgamma() -> (mpfr, int)\n\n"
 "Return a 2-tuple containing the logarithm of the absolute value of\n"
 "gamma(x) and the sign of gamma(x)");
-PyDoc_STRVAR(doc_gmpy_lgamma,
-"lgamma(x) -> (mpf, int)\n\n"
+
+PyDoc_STRVAR(doc_g_mpfr_lgamma,
+"lgamma(x) -> (mpfr, int)\n\n"
 "Return a 2-tuple containing the logarithm of the absolute value of\n"
 "gamma(x) and the sign of gamma(x)");
+
 static PyObject *
-Pympf_lgamma(PyObject* self, PyObject *other)
+Pympfr_lgamma(PyObject* self, PyObject *other)
 {
     PyObject *result;
-    PympfObject *value, *tempx;
+    PympfrObject *value, *tempx;
     int signp = 0;
 
-    value = Pympf_new(0);
+    value = Pympfr_new(0);
     result = PyTuple_New(2);
     if (!value || !result) {
         Py_XDECREF(result);
@@ -1180,22 +1209,22 @@ Pympf_lgamma(PyObject* self, PyObject *other)
         return NULL;
     }
 
-    if (self && Pympf_Check(self)) {
-        global.mpf_rc = mpfr_lgamma(value->f, &signp, Pympf_AS_MPF(self),
-                                   global.mpf_round);
+    if (self && Pympfr_Check(self)) {
+        global.mpfr_rc = mpfr_lgamma(value->f, &signp, Pympfr_AS_MPFR(self),
+                                   global.mpfr_round);
     }
-    else if (Pympf_Check(other)) {
-        global.mpf_rc = mpfr_lgamma(value->f, &signp, Pympf_AS_MPF(other),
-                                   global.mpf_round);
+    else if (Pympfr_Check(other)) {
+        global.mpfr_rc = mpfr_lgamma(value->f, &signp, Pympfr_AS_MPFR(other),
+                                   global.mpfr_round);
     }
     else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("lgamma() requires 'mpf' argument");
+        if (!(tempx = Pympfr_From_Float(other, 0))) {
+            TYPE_ERROR("lgamma() requires 'mpfr' argument");
             return NULL;
         }
         else {
-            global.mpf_rc = mpfr_lgamma(value->f, &signp, tempx->f,
-                                       global.mpf_round);
+            global.mpfr_rc = mpfr_lgamma(value->f, &signp, tempx->f,
+                                       global.mpfr_round);
             Py_DECREF((PyObject*)tempx);
         }
     }
@@ -1204,478 +1233,496 @@ Pympf_lgamma(PyObject* self, PyObject *other)
     return result;
 }
 
-static char doc_fdigammam[]="\
+static char doc_mpfr_digamma[]="\
 x.digamma(): returns digamma of x.\n\
 ";
-static char doc_fdigammag[]="\
+static char doc_g_mpfr_digamma[]="\
 digamma(x): returns digamma of x.\n\
 ";
 
-MPF_UNIOP(digamma)
+MPFR_UNIOP(digamma)
 
-static char doc_fzetam[]="\
+static char doc_mpfr_zeta[]="\
 x.zeta(): returns Riemann zeta of x.\n\
 ";
-static char doc_fzetag[]="\
+static char doc_g_mpfr_zeta[]="\
 zeta(x): returns Riemann zeta of x.\n\
 ";
 
-MPF_UNIOP(zeta)
+MPFR_UNIOP(zeta)
 
-static char doc_ferfm[]="\
+static char doc_mpfr_erf[]="\
 x.erf(): returns error function of x.\n\
 ";
-static char doc_ferfg[]="\
+static char doc_g_mpfr_erf[]="\
 erf(x): returns error function of x.\n\
 ";
 
-MPF_UNIOP(erf)
+MPFR_UNIOP(erf)
 
-static char doc_ferfcm[]="\
+static char doc_mpfr_erfc[]="\
 x.erfc(): returns complementary error function of x.\n\
 ";
-static char doc_ferfcg[]="\
+static char doc_g_mpfr_erfc[]="\
 erfc(x): returns complementary error function of x.\n\
 ";
 
-MPF_UNIOP(erfc)
+MPFR_UNIOP(erfc)
 
-static char doc_fj0m[]="\
+static char doc_mpfr_j0[]="\
 x.j0(): returns first kind Bessel function of order 0 of x.\n\
 ";
-static char doc_fj0g[]="\
+static char doc_g_mpfr_j0[]="\
 j0(x): returns first kind Bessel function of order 0 of x.\n\
 ";
 
-MPF_UNIOP(j0)
+MPFR_UNIOP(j0)
 
-static char doc_fj1m[]="\
+static char doc_mpfr_j1[]="\
 x.j1(): returns first kind Bessel function of order 1 of x.\n\
 ";
-static char doc_fj1g[]="\
+static char doc_g_mpfr_j1[]="\
 j1(x): returns first kind Bessel function of order 1 of x.\n\
 ";
 
-MPF_UNIOP(j1)
+MPFR_UNIOP(j1)
 
-PyDoc_STRVAR(doc_gmpy_jn,
-"x.jn(n) -> mpf\n\n"
+PyDoc_STRVAR(doc_mpfr_jn,
+"x.jn(n) -> mpfr\n\n"
 "Return the first kind Bessel function of order n of x.");
-PyDoc_STRVAR(doc_mpf_jn,
-"jn(x,n) -> mpf\n\n"
+
+PyDoc_STRVAR(doc_g_mpfr_jn,
+"jn(x,n) -> mpfr\n\n"
 "Return the first kind Bessel function of order n of x.");
+
 static PyObject *
-Pympf_jn(PyObject *self, PyObject *args)
+Pympfr_jn(PyObject *self, PyObject *args)
 {
-    PympfObject *result;
+    PympfrObject *result;
     long n = 0;
 
-    PARSE_ONE_MPF_REQ_CLONG(&n, "jn() requires 'mpf,'int' arguments");
+    PARSE_ONE_MPFR_REQ_CLONG(&n, "jn() requires 'mpfr','int' arguments");
 
-    if (!(result = Pympf_new(0))) {
+    if (!(result = Pympfr_new(0))) {
         Py_DECREF(self);
         return NULL;
     }
 
-    global.mpf_rc = mpfr_jn(result->f, n, Pympf_AS_MPF(self),
-                           global.mpf_round);
+    global.mpfr_rc = mpfr_jn(result->f, n, Pympfr_AS_MPFR(self),
+                           global.mpfr_round);
     Py_DECREF(self);
     return (PyObject*)result;
 }
 
-static char doc_fy0m[]="\
+static char doc_mpfr_y0[]="\
 x.y0(): returns second kind Bessel function of order 0 of x.\n\
 ";
-static char doc_fy0g[]="\
+static char doc_g_mpfr_y0[]="\
 y0(x): returns second kind Bessel function of order 0 of x.\n\
 ";
 
-MPF_UNIOP(y0)
+MPFR_UNIOP(y0)
 
-static char doc_fy1m[]="\
-x.y1(): returns second kind Bessel function of order 1 of x.\n\
-";
-static char doc_fy1g[]="\
-y1(x): returns second kind Bessel function of order 1 of x.\n\
-";
+PyDoc_STRVAR(doc_mpfr_y1,
+"x.y1() -> mpfr\n\n"
+"Return second kind Bessel function of order 1 of x.");
 
-MPF_UNIOP(y1)
+PyDoc_STRVAR(doc_g_mpfr_y1,
+"y1(x) -> mpfr\n\n"
+"Return second kind Bessel function of order 1 of x.");
 
-PyDoc_STRVAR(doc_gmpy_yn,
-"x.yn(n) -> mpf\n\n"
+MPFR_UNIOP(y1)
+
+PyDoc_STRVAR(doc_mpfr_yn,
+"x.yn(n) -> mpfr\n\n"
 "Return the second kind Bessel function of order n of x.");
-PyDoc_STRVAR(doc_mpf_yn,
-"yn(x,n) -> mpf\n\n"
+
+PyDoc_STRVAR(doc_g_mpfr_yn,
+"yn(x,n) -> mpfr\n\n"
 "Return the second kind Bessel function of order n of x.");
+
 static PyObject *
-Pympf_yn(PyObject *self, PyObject *args)
+Pympfr_yn(PyObject *self, PyObject *args)
 {
-    PympfObject *result;
+    PympfrObject *result;
     long n = 0;
 
-    PARSE_ONE_MPF_REQ_CLONG(&n, "yn() requires 'mpf,'int' arguments");
+    PARSE_ONE_MPFR_REQ_CLONG(&n, "yn() requires 'mpfr','int' arguments");
 
-    if (!(result = Pympf_new(0))) {
+    if (!(result = Pympfr_new(0))) {
         Py_DECREF(self);
         return NULL;
     }
 
-    global.mpf_rc = mpfr_yn(result->f, n, Pympf_AS_MPF(self),
-                           global.mpf_round);
+    global.mpfr_rc = mpfr_yn(result->f, n, Pympfr_AS_MPFR(self),
+                           global.mpfr_round);
     Py_DECREF(self);
     return (PyObject*)result;
 }
 
-static char doc_faim[]="\
-x.ai(): returns Airy function of x.\n\
-";
-static char doc_faig[]="\
-ai(x): returns Airy function of x.\n\
-";
+PyDoc_STRVAR(doc_mpfr_ai,
+"x.ai() -> mpfr\n\n"
+"Return Airy function of x.");
 
-MPF_UNIOP(ai)
+PyDoc_STRVAR(doc_g_mpfr_ai,
+"ai(x) -> mpfr\n\n"
+"Return Airy function of x.");
 
-PyDoc_STRVAR(doc_mpf_add,
-"x.add(y) -> mpf\n\n"
+MPFR_UNIOP(ai)
+
+PyDoc_STRVAR(doc_mpfr_add,
+"x.add(y) -> mpfr\n\n"
 "Return x + y.");
-PyDoc_STRVAR(doc_gmpy_add,
-"add(x, y) -> mpf\n\n"
+
+PyDoc_STRVAR(doc_g_mpfr_add,
+"add(x, y) -> mpfr\n\n"
 "Return x + y.");
 
 static PyObject *
 Pympfr_add(PyObject *self, PyObject *args)
 {
-    PympfObject *result;
+    PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPF(other, "add() requires 'mpf,'mpf' arguments");
+    PARSE_TWO_MPFR(other, "add() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = Pympf_new(0))) {
+    if (!(result = Pympfr_new(0))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
     }
 
-    global.mpf_rc = mpfr_add(result->f, Pympf_AS_MPF(self),
-                            Pympf_AS_MPF(other), global.mpf_round);
+    global.mpfr_rc = mpfr_add(result->f, Pympfr_AS_MPFR(self),
+                            Pympfr_AS_MPFR(other), global.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpf_sub,
-"x.sub(y) -> mpf\n\n"
+PyDoc_STRVAR(doc_mpfr_sub,
+"x.sub(y) -> mpfr\n\n"
 "Return x - y.");
-PyDoc_STRVAR(doc_gmpy_sub,
-"sub(x, y) -> mpf\n\n"
+
+PyDoc_STRVAR(doc_g_mpfr_sub,
+"sub(x, y) -> mpfr\n\n"
 "Return x - y.");
 
 static PyObject *
 Pympfr_sub(PyObject *self, PyObject *args)
 {
-    PympfObject *result;
+    PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPF(other, "sub() requires 'mpf,'mpf' arguments");
+    PARSE_TWO_MPFR(other, "sub() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = Pympf_new(0))) {
+    if (!(result = Pympfr_new(0))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
     }
 
-    global.mpf_rc = mpfr_sub(result->f, Pympf_AS_MPF(self),
-                            Pympf_AS_MPF(other), global.mpf_round);
+    global.mpfr_rc = mpfr_sub(result->f, Pympfr_AS_MPFR(self),
+                            Pympfr_AS_MPFR(other), global.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpf_mul,
-"x.mul(y) -> mpf\n\n"
+PyDoc_STRVAR(doc_mpfr_mul,
+"x.mul(y) -> mpfr\n\n"
 "Return x * y.");
-PyDoc_STRVAR(doc_gmpy_mul,
-"mul(x, y) -> mpf\n\n"
+
+PyDoc_STRVAR(doc_g_mpfr_mul,
+"mul(x, y) -> mpfr\n\n"
 "Return x * y.");
 
 static PyObject *
 Pympfr_mul(PyObject *self, PyObject *args)
 {
-    PympfObject *result;
+    PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPF(other, "mul() requires 'mpf,'mpf' arguments");
+    PARSE_TWO_MPFR(other, "mul() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = Pympf_new(0))) {
+    if (!(result = Pympfr_new(0))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
     }
 
-    global.mpf_rc = mpfr_mul(result->f, Pympf_AS_MPF(self),
-                            Pympf_AS_MPF(other), global.mpf_round);
+    global.mpfr_rc = mpfr_mul(result->f, Pympfr_AS_MPFR(self),
+                            Pympfr_AS_MPFR(other), global.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpf_div,
-"x.div(y) -> mpf\n\n"
+PyDoc_STRVAR(doc_mpfr_div,
+"x.div(y) -> mpfr\n\n"
 "Return x / y.");
-PyDoc_STRVAR(doc_gmpy_div,
-"div(x, y) -> mpf\n\n"
+
+PyDoc_STRVAR(doc_g_mpfr_div,
+"div(x, y) -> mpfr\n\n"
 "Return x / y.");
 
 static PyObject *
 Pympfr_div(PyObject *self, PyObject *args)
 {
-    PympfObject *result;
+    PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPF(other, "div() requires 'mpf,'mpf' arguments");
+    PARSE_TWO_MPFR(other, "div() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = Pympf_new(0))) {
+    if (!(result = Pympfr_new(0))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
     }
 
-    global.mpf_rc = mpfr_div(result->f, Pympf_AS_MPF(self),
-                            Pympf_AS_MPF(other), global.mpf_round);
+    global.mpfr_rc = mpfr_div(result->f, Pympfr_AS_MPFR(self),
+                            Pympfr_AS_MPFR(other), global.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpf_pow,
-"x.pow(y) -> mpf\n\n"
+PyDoc_STRVAR(doc_mpfr_pow,
+"x.pow(y) -> mpfr\n\n"
 "Return x ** y.");
-PyDoc_STRVAR(doc_gmpy_pow,
-"pow(x, y) -> mpf\n\n"
+
+PyDoc_STRVAR(doc_g_mpfr_pow,
+"pow(x, y) -> mpfr\n\n"
 "Return x ** y.");
 
 static PyObject *
 Pympfr_pow(PyObject *self, PyObject *args)
 {
-    PympfObject *result;
+    PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPF(other, "pow() requires 'mpf,'mpf' arguments");
+    PARSE_TWO_MPFR(other, "pow() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = Pympf_new(0))) {
+    if (!(result = Pympfr_new(0))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
     }
 
-    global.mpf_rc = mpfr_pow(result->f, Pympf_AS_MPF(self),
-                            Pympf_AS_MPF(other), global.mpf_round);
+    global.mpfr_rc = mpfr_pow(result->f, Pympfr_AS_MPFR(self),
+                            Pympfr_AS_MPFR(other), global.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpf_atan2,
-"y.atan2(x) -> mpf\n\n"
+PyDoc_STRVAR(doc_mpfr_atan2,
+"y.atan2(x) -> mpfr\n\n"
 "Return arc-tangent of (y/x).");
-PyDoc_STRVAR(doc_gmpy_atan2,
-"atan2(y, x) -> mpf\n\n"
+
+PyDoc_STRVAR(doc_g_mpfr_atan2,
+"atan2(y, x) -> mpfr\n\n"
 "Return arc-tangent of (y/x).");
 
 static PyObject *
 Pympfr_atan2(PyObject *self, PyObject *args)
 {
-    PympfObject *result;
+    PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPF(other, "atan2() requires 'mpf,'mpf' arguments");
+    PARSE_TWO_MPFR(other, "atan2() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = Pympf_new(0))) {
+    if (!(result = Pympfr_new(0))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
     }
 
-    global.mpf_rc = mpfr_atan2(result->f, Pympf_AS_MPF(self),
-                            Pympf_AS_MPF(other), global.mpf_round);
+    global.mpfr_rc = mpfr_atan2(result->f, Pympfr_AS_MPFR(self),
+                            Pympfr_AS_MPFR(other), global.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpf_agm,
-"x.agm(y) -> mpf\n\n"
+PyDoc_STRVAR(doc_mpfr_agm,
+"x.agm(y) -> mpfr\n\n"
 "Return arithmetic-geometric mean of x and y.");
-PyDoc_STRVAR(doc_gmpy_agm,
-"agm(x, y) -> mpf\n\n"
+
+PyDoc_STRVAR(doc_g_mpfr_agm,
+"agm(x, y) -> mpfr\n\n"
 "Return arithmetic-geometric mean of x and y.");
 
 static PyObject *
 Pympfr_agm(PyObject *self, PyObject *args)
 {
-    PympfObject *result;
+    PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPF(other, "agm() requires 'mpf,'mpf' arguments");
+    PARSE_TWO_MPFR(other, "agm() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = Pympf_new(0))) {
+    if (!(result = Pympfr_new(0))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
     }
 
-    global.mpf_rc = mpfr_agm(result->f, Pympf_AS_MPF(self),
-                            Pympf_AS_MPF(other), global.mpf_round);
+    global.mpfr_rc = mpfr_agm(result->f, Pympfr_AS_MPFR(self),
+                            Pympfr_AS_MPFR(other), global.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpf_hypot,
-"y.hypot(x) -> mpf\n\n"
+PyDoc_STRVAR(doc_mpfr_hypot,
+"y.hypot(x) -> mpfr\n\n"
 "Return square root of (x**2 + y**2).");
-PyDoc_STRVAR(doc_gmpy_hypot,
-"hypot(y, x) -> mpf\n\n"
+
+PyDoc_STRVAR(doc_g_mpfr_hypot,
+"hypot(y, x) -> mpfr\n\n"
 "Return square root of (x**2 + y**2).");
 
 static PyObject *
 Pympfr_hypot(PyObject *self, PyObject *args)
 {
-    PympfObject *result;
+    PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPF(other, "hypot() requires 'mpf,'mpf' arguments");
+    PARSE_TWO_MPFR(other, "hypot() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = Pympf_new(0))) {
+    if (!(result = Pympfr_new(0))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
     }
 
-    global.mpf_rc = mpfr_hypot(result->f, Pympf_AS_MPF(self),
-                            Pympf_AS_MPF(other), global.mpf_round);
+    global.mpfr_rc = mpfr_hypot(result->f, Pympfr_AS_MPFR(self),
+                            Pympfr_AS_MPFR(other), global.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpf_max,
-"y.max(x) -> mpf\n\n"
+PyDoc_STRVAR(doc_mpfr_max,
+"y.max(x) -> mpfr\n\n"
 "Return maximum of x and y.");
-PyDoc_STRVAR(doc_gmpy_max,
-"max(y, x) -> mpf\n\n"
+
+PyDoc_STRVAR(doc_g_mpfr_max,
+"max(y, x) -> mpfr\n\n"
 "Return maximum of x and y.");
 
 static PyObject *
 Pympfr_max(PyObject *self, PyObject *args)
 {
-    PympfObject *result;
+    PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPF(other, "max() requires 'mpf,'mpf' arguments");
+    PARSE_TWO_MPFR(other, "max() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = Pympf_new(0))) {
+    if (!(result = Pympfr_new(0))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
     }
 
-    global.mpf_rc = mpfr_max(result->f, Pympf_AS_MPF(self),
-                            Pympf_AS_MPF(other), global.mpf_round);
+    global.mpfr_rc = mpfr_max(result->f, Pympfr_AS_MPFR(self),
+                            Pympfr_AS_MPFR(other), global.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpf_min,
-"y.min(x) -> mpf\n\n"
+PyDoc_STRVAR(doc_mpfr_min,
+"y.min(x) -> mpfr\n\n"
 "Return minimum of x and y.");
-PyDoc_STRVAR(doc_gmpy_min,
-"min(y, x) -> mpf\n\n"
+
+PyDoc_STRVAR(doc_g_mpfr_min,
+"min(y, x) -> mpfr\n\n"
 "Return minimum of x and y.");
 
 static PyObject *
 Pympfr_min(PyObject *self, PyObject *args)
 {
-    PympfObject *result;
+    PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPF(other, "min() requires 'mpf,'mpf' arguments");
+    PARSE_TWO_MPFR(other, "min() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = Pympf_new(0))) {
+    if (!(result = Pympfr_new(0))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
     }
 
-    global.mpf_rc = mpfr_min(result->f, Pympf_AS_MPF(self),
-                            Pympf_AS_MPF(other), global.mpf_round);
+    global.mpfr_rc = mpfr_min(result->f, Pympfr_AS_MPFR(self),
+                            Pympfr_AS_MPFR(other), global.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpf_nexttoward,
-"x.next_toward(y) -> mpf\n\n"
-"Return the next mpf from x in the direction of y.");
-PyDoc_STRVAR(doc_gmpy_nexttoward,
-"next_toward(y, x) -> mpf\n\n"
-"Return the next mpf from x in the direction of y.");
+PyDoc_STRVAR(doc_mpfr_nexttoward,
+"x.next_toward(y) -> mpfr\n\n"
+"Return the next mpfr from x in the direction of y.");
+
+PyDoc_STRVAR(doc_g_mpfr_nexttoward,
+"next_toward(y, x) -> mpfr\n\n"
+"Return the next mpfr from x in the direction of y.");
 
 static PyObject *
 Pympfr_nexttoward(PyObject *self, PyObject *args)
 {
-    PympfObject *result;
+    PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPF(other, "next_toward() requires 'mpf,'mpf' arguments");
+    PARSE_TWO_MPFR(other, "next_toward() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(self))))) {
+    if (!(result = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(self))))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
     }
 
-    mpfr_set(result->f, Pympf_AS_MPF(self), global.mpf_round);
-    mpfr_nexttoward(result->f, Pympf_AS_MPF(other));
+    mpfr_set(result->f, Pympfr_AS_MPFR(self), global.mpfr_round);
+    mpfr_nexttoward(result->f, Pympfr_AS_MPFR(other));
     Py_DECREF(self);
     Py_DECREF(other);
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpf_nextabove,
-"x.next_above() -> mpf\n\n"
-"Return the next mpf from x toward +Infinity.");
-PyDoc_STRVAR(doc_gmpy_nextabove,
-"next_above(x) -> mpf\n\n"
-"Return the next mpf from x toward +Infinity.");
+PyDoc_STRVAR(doc_mpfr_nextabove,
+"x.next_above() -> mpfr\n\n"
+"Return the next mpfr from x toward +Infinity.");
+
+PyDoc_STRVAR(doc_g_mpfr_nextabove,
+"next_above(x) -> mpfr\n\n"
+"Return the next mpfr from x toward +Infinity.");
 
 static PyObject *
 Pympfr_nextabove(PyObject *self, PyObject *other)
 {
-    PympfObject *result, *tempx;
+    PympfrObject *result, *tempx;
 
-    if(self && Pympf_Check(self)) {
-        if (!(result = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(self)))))
+    if(self && Pympfr_Check(self)) {
+        if (!(result = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(self)))))
             return NULL;
-        mpfr_set(result->f, Pympf_AS_MPF(self), global.mpf_round);
+        mpfr_set(result->f, Pympfr_AS_MPFR(self), global.mpfr_round);
         mpfr_nextabove(result->f);
     }
-    else if (Pympf_Check(other)) {
-        if (!(result = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(other)))))
+    else if (Pympfr_Check(other)) {
+        if (!(result = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(other)))))
             return NULL;
-        mpfr_set(result->f, Pympf_AS_MPF(other), global.mpf_round);
+        mpfr_set(result->f, Pympfr_AS_MPFR(other), global.mpfr_round);
         mpfr_nextabove(result->f);
     }
     else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("next_above() requires 'mpf' argument");
+        if (!(tempx = Pympfr_From_Float(other, 0))) {
+            TYPE_ERROR("next_above() requires 'mpfr' argument");
             return NULL;
         }
         else {
-            if (!(result = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(tempx)))))
+            if (!(result = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(tempx)))))
                 return NULL;
-            mpfr_set(result->f, Pympf_AS_MPF(tempx), global.mpf_round);
+            mpfr_set(result->f, Pympfr_AS_MPFR(tempx), global.mpfr_round);
             mpfr_nextabove(result->f);
             Py_DECREF((PyObject*)tempx);
         }
@@ -1683,39 +1730,40 @@ Pympfr_nextabove(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpf_nextbelow,
-"x.next_below() -> mpf\n\n"
-"Return the next mpf from x toward -Infinity.");
-PyDoc_STRVAR(doc_gmpy_nextbelow,
-"next_below(x) -> mpf\n\n"
-"Return the next mpf from x toward -Infinity.");
+PyDoc_STRVAR(doc_mpfr_nextbelow,
+"x.next_below() -> mpfr\n\n"
+"Return the next mpfr from x toward -Infinity.");
+
+PyDoc_STRVAR(doc_g_mpfr_nextbelow,
+"next_below(x) -> mpfr\n\n"
+"Return the next mpfr from x toward -Infinity.");
 
 static PyObject *
 Pympfr_nextbelow(PyObject *self, PyObject *other)
 {
-    PympfObject *result, *tempx;
+    PympfrObject *result, *tempx;
 
-    if(self && Pympf_Check(self)) {
-        if (!(result = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(self)))))
+    if(self && Pympfr_Check(self)) {
+        if (!(result = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(self)))))
             return NULL;
-        mpfr_set(result->f, Pympf_AS_MPF(self), global.mpf_round);
+        mpfr_set(result->f, Pympfr_AS_MPFR(self), global.mpfr_round);
         mpfr_nextbelow(result->f);
     }
-    else if (Pympf_Check(other)) {
-        if (!(result = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(other)))))
+    else if (Pympfr_Check(other)) {
+        if (!(result = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(other)))))
             return NULL;
-        mpfr_set(result->f, Pympf_AS_MPF(other), global.mpf_round);
+        mpfr_set(result->f, Pympfr_AS_MPFR(other), global.mpfr_round);
          mpfr_nextbelow(result->f);
     }
     else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("next_below() requires 'mpf' argument");
+        if (!(tempx = Pympfr_From_Float(other, 0))) {
+            TYPE_ERROR("next_below() requires 'mpfr' argument");
             return NULL;
         }
         else {
-            if (!(result = Pympf_new(mpfr_get_prec(Pympf_AS_MPF(tempx)))))
+            if (!(result = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(tempx)))))
                 return NULL;
-            mpfr_set(result->f, Pympf_AS_MPF(tempx), global.mpf_round);
+            mpfr_set(result->f, Pympfr_AS_MPFR(tempx), global.mpfr_round);
             mpfr_nextbelow(result->f);
             Py_DECREF((PyObject*)tempx);
         }
@@ -1723,20 +1771,22 @@ Pympfr_nextbelow(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpf_sin_cos,
-"x.sin_cos() -> (mpf, mpf)\n\n"
+PyDoc_STRVAR(doc_mpfr_sin_cos,
+"x.sin_cos() -> (mpfr, mpfr)\n\n"
 "Return a tuple containing the sine and cosine of x.");
-PyDoc_STRVAR(doc_gmpy_sin_cos,
-"sin_cos(x) -> (mpf, mpf)\n\n"
+
+PyDoc_STRVAR(doc_g_mpfr_sin_cos,
+"sin_cos(x) -> (mpfr, mpfr)\n\n"
 "Return a tuple containing the sine and cosine of x.");
+
 static PyObject *
 Pympfr_sin_cos(PyObject *self, PyObject *other)
 {
-    PympfObject *s, *c, *tempx;
+    PympfrObject *s, *c, *tempx;
     PyObject *result;
 
-    s = Pympf_new(0);
-    c = Pympf_new(0);
+    s = Pympfr_new(0);
+    c = Pympfr_new(0);
     result = PyTuple_New(2);
     if (!s || !c || !result) {
         Py_XDECREF((PyObject*)s);
@@ -1745,25 +1795,25 @@ Pympfr_sin_cos(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if(self && Pympf_Check(self)) {
-        global.mpf_rc = mpfr_sin_cos(s->f, c->f, Pympf_AS_MPF(self),
-                                    global.mpf_round);
+    if(self && Pympfr_Check(self)) {
+        global.mpfr_rc = mpfr_sin_cos(s->f, c->f, Pympfr_AS_MPFR(self),
+                                    global.mpfr_round);
     }
-    else if (Pympf_Check(other)) {
-        global.mpf_rc = mpfr_sin_cos(s->f, c->f, Pympf_AS_MPF(other),
-                                    global.mpf_round);
+    else if (Pympfr_Check(other)) {
+        global.mpfr_rc = mpfr_sin_cos(s->f, c->f, Pympfr_AS_MPFR(other),
+                                    global.mpfr_round);
     }
     else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("sin_cos() requires 'mpf' argument");
+        if (!(tempx = Pympfr_From_Float(other, 0))) {
+            TYPE_ERROR("sin_cos() requires 'mpfr' argument");
             Py_XDECREF((PyObject*)s);
             Py_XDECREF((PyObject*)c);
             Py_XDECREF(result);
             return NULL;
         }
         else {
-            global.mpf_rc = mpfr_sin_cos(s->f, c->f, tempx->f,
-                                        global.mpf_round);
+            global.mpfr_rc = mpfr_sin_cos(s->f, c->f, tempx->f,
+                                        global.mpfr_round);
             Py_DECREF((PyObject*)tempx);
         }
     }
@@ -1772,20 +1822,22 @@ Pympfr_sin_cos(PyObject *self, PyObject *other)
     return result;
 }
 
-PyDoc_STRVAR(doc_mpf_sinh_cosh,
-"x.sinh_cosh() -> (mpf, mpf)\n\n"
+PyDoc_STRVAR(doc_mpfr_sinh_cosh,
+"x.sinh_cosh() -> (mpfr, mpfr)\n\n"
 "Return a tuple containing the hyperbolic sine and cosine of x.");
-PyDoc_STRVAR(doc_gmpy_sinh_cosh,
-"sinh_cosh(x) -> (mpf, mpf)\n\n"
+
+PyDoc_STRVAR(doc_g_mpfr_sinh_cosh,
+"sinh_cosh(x) -> (mpfr, mpfr)\n\n"
 "Return a tuple containing the hyperbolic sine and cosine of x.");
+
 static PyObject *
 Pympfr_sinh_cosh(PyObject *self, PyObject *other)
 {
-    PympfObject *s, *c, *tempx;
+    PympfrObject *s, *c, *tempx;
     PyObject *result;
 
-    s = Pympf_new(0);
-    c = Pympf_new(0);
+    s = Pympfr_new(0);
+    c = Pympfr_new(0);
     result = PyTuple_New(2);
     if (!s || !c || !result) {
         Py_XDECREF((PyObject*)s);
@@ -1794,25 +1846,25 @@ Pympfr_sinh_cosh(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if(self && Pympf_Check(self)) {
-        global.mpf_rc = mpfr_sinh_cosh(s->f, c->f, Pympf_AS_MPF(self),
-                                      global.mpf_round);
+    if(self && Pympfr_Check(self)) {
+        global.mpfr_rc = mpfr_sinh_cosh(s->f, c->f, Pympfr_AS_MPFR(self),
+                                      global.mpfr_round);
     }
-    else if (Pympf_Check(other)) {
-        global.mpf_rc = mpfr_sinh_cosh(s->f, c->f, Pympf_AS_MPF(other),
-                                      global.mpf_round);
+    else if (Pympfr_Check(other)) {
+        global.mpfr_rc = mpfr_sinh_cosh(s->f, c->f, Pympfr_AS_MPFR(other),
+                                      global.mpfr_round);
     }
     else {
-        if (!(tempx = Pympf_From_Float(other, 0))) {
-            TYPE_ERROR("sinh_cosh() requires 'mpf' argument");
+        if (!(tempx = Pympfr_From_Float(other, 0))) {
+            TYPE_ERROR("sinh_cosh() requires 'mpfr' argument");
             Py_XDECREF((PyObject*)s);
             Py_XDECREF((PyObject*)c);
             Py_XDECREF(result);
             return NULL;
         }
         else {
-            global.mpf_rc = mpfr_sinh_cosh(s->f, c->f, tempx->f,
-                                          global.mpf_round);
+            global.mpfr_rc = mpfr_sinh_cosh(s->f, c->f, tempx->f,
+                                          global.mpfr_round);
             Py_DECREF((PyObject*)tempx);
         }
     }
@@ -1821,25 +1873,26 @@ Pympfr_sinh_cosh(PyObject *self, PyObject *other)
     return result;
 }
 
-PyDoc_STRVAR(doc_gmpy_fma,
-"fma(x,y,z) -> mpf\n\n"
+PyDoc_STRVAR(doc_g_mpfr_fma,
+"fma(x,y,z) -> mpfr\n\n"
 "Return correctly rounded result of (x * y) + z.");
+
 static PyObject *
-Pygmpy_fma(PyObject *self, PyObject *args)
+Pympfr_fma(PyObject *self, PyObject *args)
 {
-    PympfObject *result, *x, *y, *z;
+    PympfrObject *result, *x, *y, *z;
 
     if (PyTuple_GET_SIZE(args) != 3) {
-        TYPE_ERROR("fma() requires 'mpf','mpf','mpf' arguments.");
+        TYPE_ERROR("fma() requires 'mpfr','mpfr','mpfr' arguments.");
         return NULL;
     }
 
-    result = Pympf_new(0);
-    x = Pympf_From_Float(PyTuple_GET_ITEM(args, 0), 0);
-    y = Pympf_From_Float(PyTuple_GET_ITEM(args, 1), 0);
-    z = Pympf_From_Float(PyTuple_GET_ITEM(args, 2), 0);
+    result = Pympfr_new(0);
+    x = Pympfr_From_Float(PyTuple_GET_ITEM(args, 0), 0);
+    y = Pympfr_From_Float(PyTuple_GET_ITEM(args, 1), 0);
+    z = Pympfr_From_Float(PyTuple_GET_ITEM(args, 2), 0);
     if (!result || !x || !y || !z) {
-        TYPE_ERROR("fma() requires 'mpf','mpf','mpf' arguments.");
+        TYPE_ERROR("fma() requires 'mpfr','mpfr','mpfr' arguments.");
         Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)x);
         Py_XDECREF((PyObject*)y);
@@ -1847,32 +1900,33 @@ Pygmpy_fma(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    global.mpf_rc = mpfr_fma(result->f, x->f, y->f, z->f, global.mpf_round);
+    global.mpfr_rc = mpfr_fma(result->f, x->f, y->f, z->f, global.mpfr_round);
     Py_DECREF((PyObject*)x);
     Py_DECREF((PyObject*)y);
     Py_DECREF((PyObject*)z);
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_gmpy_fms,
-"fms(x,y,z) -> mpf\n\n"
+PyDoc_STRVAR(doc_g_mpfr_fms,
+"fms(x,y,z) -> mpfr\n\n"
 "Return correctly rounded result of (x * y) - z.");
+
 static PyObject *
-Pygmpy_fms(PyObject *self, PyObject *args)
+Pympfr_fms(PyObject *self, PyObject *args)
 {
-    PympfObject *result, *x, *y, *z;
+    PympfrObject *result, *x, *y, *z;
 
     if (PyTuple_GET_SIZE(args) != 3) {
-        TYPE_ERROR("fms() requires 'mpf','mpf','mpf' arguments.");
+        TYPE_ERROR("fms() requires 'mpfr','mpfr','mpfr' arguments.");
         return NULL;
     }
 
-    result = Pympf_new(0);
-    x = Pympf_From_Float(PyTuple_GET_ITEM(args, 0), 0);
-    y = Pympf_From_Float(PyTuple_GET_ITEM(args, 1), 0);
-    z = Pympf_From_Float(PyTuple_GET_ITEM(args, 2), 0);
+    result = Pympfr_new(0);
+    x = Pympfr_From_Float(PyTuple_GET_ITEM(args, 0), 0);
+    y = Pympfr_From_Float(PyTuple_GET_ITEM(args, 1), 0);
+    z = Pympfr_From_Float(PyTuple_GET_ITEM(args, 2), 0);
     if (!result || !x || !y || !z) {
-        TYPE_ERROR("fms() requires 'mpf','mpf','mpf' arguments.");
+        TYPE_ERROR("fms() requires 'mpfr','mpfr','mpfr' arguments.");
         Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)x);
         Py_XDECREF((PyObject*)y);
@@ -1880,21 +1934,22 @@ Pygmpy_fms(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    global.mpf_rc = mpfr_fms(result->f, x->f, y->f, z->f, global.mpf_round);
+    global.mpfr_rc = mpfr_fms(result->f, x->f, y->f, z->f, global.mpfr_round);
     Py_DECREF((PyObject*)x);
     Py_DECREF((PyObject*)y);
     Py_DECREF((PyObject*)z);
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_factorial,
-"factorial(n) -> mpf\n\n"
+PyDoc_STRVAR(doc_g_mpfr_factorial,
+"factorial(n) -> mpfr\n\n"
 "Return the floating-point approximation to the factorial of n.\n"
 "See fac(n) to get the exact integer result.");
+
 static PyObject *
-Pygmpy_factorial(PyObject *self, PyObject *other)
+Pympfr_factorial(PyObject *self, PyObject *other)
 {
-    PympfObject *result;
+    PympfrObject *result;
     long n;
 
     n = clong_From_Integer(other);
@@ -1907,30 +1962,32 @@ Pygmpy_factorial(PyObject *self, PyObject *other)
         return NULL;
     }
     else {
-        if (!(result = Pympf_new(0)))
+        if (!(result = Pympfr_new(0)))
             return NULL;
-        mpfr_fac_ui(result->f, n, global.mpf_round);
+        mpfr_fac_ui(result->f, n, global.mpfr_round);
     }
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_gmpy_lessgreater,
+PyDoc_STRVAR(doc_mpfr_is_lessgreater,
 "x.is_lessgreater(y) -> boolean\n\n"
 "Return True if x > y or x < y. Return False if x == y or either x\n"
 "and/or y is NaN.");
-PyDoc_STRVAR(doc_mpf_lessgreater,
+
+PyDoc_STRVAR(doc_g_mpfr_is_lessgreater,
 "is_lessgreater(x,y) -> boolean\n\n"
 "Return True if x > y or x < y. Return False if x == y or either x\n"
 "and/or y is NaN.");
+
 static PyObject *
-Pympf_lessgreater(PyObject *self, PyObject *args)
+Pympfr_is_lessgreater(PyObject *self, PyObject *args)
 {
     PyObject *other;
     int temp;
 
-    PARSE_TWO_MPF(other, "is_lessgreater() requires 'mpf,'mpf' arguments");
+    PARSE_TWO_MPFR(other, "is_lessgreater() requires 'mpfr','mpfr' arguments");
 
-    temp = mpfr_lessgreater_p(Pympf_AS_MPF(self), Pympf_AS_MPF(other));
+    temp = mpfr_lessgreater_p(Pympfr_AS_MPFR(self), Pympfr_AS_MPFR(other));
     Py_DECREF(self);
     Py_DECREF(other);
     if (temp)
@@ -1939,23 +1996,23 @@ Pympf_lessgreater(PyObject *self, PyObject *args)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_gmpy_unordered,
-"x.unordered(y) -> boolean\n\n"
-"Return True if x > y or x < y. Return False if x == y or either x\n"
-"and/or y is NaN.");
-PyDoc_STRVAR(doc_mpf_unordered,
-"unordered(x,y) -> boolean\n\n"
-"Return True if x > y or x < y. Return False if x == y or either x\n"
-"and/or y is NaN.");
+PyDoc_STRVAR(doc_mpfr_is_unordered,
+"x.is_unordered(y) -> boolean\n\n"
+"Return True if either x and/or y is NaN.");
+
+PyDoc_STRVAR(doc_g_mpfr_is_unordered,
+"is_unordered(x,y) -> boolean\n\n"
+"Return True if either x and/or y is NaN.");
+
 static PyObject *
-Pympf_unordered(PyObject *self, PyObject *args)
+Pympfr_is_unordered(PyObject *self, PyObject *args)
 {
     PyObject *other;
     int temp;
 
-    PARSE_TWO_MPF(other, "unordered() requires 'mpf,'mpf' arguments");
+    PARSE_TWO_MPFR(other, "unordered() requires 'mpfr','mpfr' arguments");
 
-    temp = mpfr_unordered_p(Pympf_AS_MPF(self), Pympf_AS_MPF(other));
+    temp = mpfr_unordered_p(Pympfr_AS_MPFR(self), Pympfr_AS_MPFR(other));
     Py_DECREF(self);
     Py_DECREF(other);
     if (temp)

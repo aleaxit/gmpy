@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> list(filter(lambda x: not x.startswith('_'), dir(_g)))
-['ModeMPFR', 'ModePython', 'RoundAwayZero', 'RoundDown', 'RoundToNearest', 'RoundToZero', 'RoundUp', 'acos', 'acosh', 'add', 'agm', 'ai', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'cbrt', 'cdiv', 'cdiv2exp', 'cdivmod', 'cdivmod2exp', 'ceil', 'clear_erangeflag', 'clear_flags', 'clear_inexactflag', 'clear_nanflag', 'clear_overflow', 'clear_underflow', 'cmod', 'cmod2exp', 'comb', 'const_catalan', 'const_euler', 'const_log2', 'const_pi', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'denom', 'digamma', 'digits', 'div', 'divexact', 'divm', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'fac', 'factorial', 'fdiv', 'fdiv2exp', 'fdivmod', 'fdivmod2exp', 'fib', 'fib2', 'floor', 'fma', 'fmod', 'fmod2exp', 'fms', 'gamma', 'gcd', 'gcdext', 'get_cache', 'get_emax', 'get_emax_max', 'get_emin', 'get_emin_min', 'get_max_precision', 'get_mode', 'get_mpc_round', 'get_mpf_precision', 'get_mpf_round', 'get_mpf_status', 'hamdist', 'hypot', 'inf', 'invert', 'is_erangeflag', 'is_even', 'is_inexactflag', 'is_inf', 'is_lessgreater', 'is_nan', 'is_nanflag', 'is_number', 'is_odd', 'is_overflow', 'is_power', 'is_prime', 'is_regular', 'is_square', 'is_underflow', 'is_unordered', 'is_zero', 'j0', 'j1', 'jacobi', 'jn', 'kronecker', 'lcm', 'legendre', 'lgamma', 'li2', 'license', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'lucas', 'lucas2', 'max', 'min', 'mp_limbsize', 'mp_version', 'mpf', 'mpfr_version', 'mpq', 'mpz', 'mul', 'nan', 'next_above', 'next_below', 'next_prime', 'next_toward', 'numdigits', 'numer', 'pack', 'popcount', 'pow', 'qdiv', 'rec_sqrt', 'reldiff', 'remove', 'root', 'rootrem', 'round', 'sec', 'sech', 'set_cache', 'set_debug', 'set_emax', 'set_emin', 'set_flag_erange', 'set_flag_inexact', 'set_flag_nan', 'set_flag_underflow', 'set_mode', 'set_mpc_round', 'set_mpf_precision', 'set_mpf_round', 'set_overflow', 'sign', 'sin', 'sin_cos', 'sinh', 'sinh_cosh', 'sqrt', 'sqrtrem', 'square', 'sub', 'tan', 'tanh', 'tdiv', 'tdiv2exp', 'tdivmod', 'tdivmod2exp', 'tmod', 'tmod2exp', 'trunc', 'unpack', 'version', 'xbit_mask', 'xmpz', 'y0', 'y1', 'yn', 'zero', 'zeta']
+['ModeMPFR', 'ModePython', 'RoundAwayZero', 'RoundDown', 'RoundToNearest', 'RoundToZero', 'RoundUp', 'acos', 'acosh', 'add', 'agm', 'ai', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'cbrt', 'cdiv', 'cdiv2exp', 'cdivmod', 'cdivmod2exp', 'ceil', 'clear_erangeflag', 'clear_flags', 'clear_inexactflag', 'clear_nanflag', 'clear_overflow', 'clear_underflow', 'cmod', 'cmod2exp', 'comb', 'const_catalan', 'const_euler', 'const_log2', 'const_pi', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'denom', 'digamma', 'digits', 'div', 'divexact', 'divm', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'fac', 'factorial', 'fdiv', 'fdiv2exp', 'fdivmod', 'fdivmod2exp', 'fib', 'fib2', 'floor', 'fma', 'fmod', 'fmod2exp', 'fms', 'gamma', 'gcd', 'gcdext', 'get_cache', 'get_emax', 'get_emax_max', 'get_emin', 'get_emin_min', 'get_max_precision', 'get_mode', 'get_mpc_round', 'get_mpfr_precision', 'get_mpfr_round', 'get_mpfr_status', 'hamdist', 'hypot', 'inf', 'invert', 'is_erangeflag', 'is_even', 'is_inexactflag', 'is_inf', 'is_lessgreater', 'is_nan', 'is_nanflag', 'is_number', 'is_odd', 'is_overflow', 'is_power', 'is_prime', 'is_regular', 'is_square', 'is_underflow', 'is_unordered', 'is_zero', 'j0', 'j1', 'jacobi', 'jn', 'kronecker', 'lcm', 'legendre', 'lgamma', 'li2', 'license', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'lucas', 'lucas2', 'max', 'min', 'mp_limbsize', 'mp_version', 'mpfr', 'mpfr_version', 'mpq', 'mpz', 'mul', 'nan', 'next_above', 'next_below', 'next_prime', 'next_toward', 'numdigits', 'numer', 'pack', 'popcount', 'pow', 'qdiv', 'rec_sqrt', 'reldiff', 'remove', 'root', 'rootrem', 'round', 'sec', 'sech', 'set_cache', 'set_debug', 'set_emax', 'set_emin', 'set_flag_erange', 'set_flag_inexact', 'set_flag_nan', 'set_flag_underflow', 'set_mode', 'set_mpc_round', 'set_mpfr_precision', 'set_mpfr_round', 'set_overflow', 'sign', 'sin', 'sin_cos', 'sinh', 'sinh_cosh', 'sqrt', 'sqrtrem', 'square', 'sub', 'tan', 'tanh', 'tdiv', 'tdiv2exp', 'tdivmod', 'tdivmod2exp', 'tmod', 'tmod2exp', 'trunc', 'unpack', 'version', 'xbit_mask', 'xmpz', 'y0', 'y1', 'yn', 'zero', 'zeta']
 >>> dir(a)
 ['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__iadd__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__', '__index__', '__init__', '__int__', '__invert__', '__ipow__', '__irshift__', '__isub__', '__le__', '__len__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', '_copy', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'cdiv', 'cdiv2exp', 'cmod', 'cmod2exp', 'comb', 'digits', 'divexact', 'fdiv', 'fdiv2exp', 'fmod', 'fmod2exp', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'sign', 'sqrt', 'sqrtrem', 'tdiv', 'tdiv2exp', 'tmod', 'tmod2exp']
 >>>
@@ -73,11 +73,11 @@ mpz(56088)
 >>> a//b
 mpz(0)
 >>> a/b
-mpf('2.6973684210526316e-1')
+mpfr('2.6973684210526316e-1')
 >>> b//a
 mpz(3)
 >>> b/a
-mpf('3.7073170731707319e0')
+mpfr('3.7073170731707319e0')
 >>> a%b
 mpz(123)
 >>> 0%b
@@ -242,111 +242,111 @@ False
 >>> float('nan') <= a
 False
 >>> a + float('Inf')
-mpf('inf')
+mpfr('inf')
 >>> float('Inf') + a
-mpf('inf')
+mpfr('inf')
 >>> a + float('-Inf')
-mpf('-inf')
+mpfr('-inf')
 >>> float('-Inf') + a
-mpf('-inf')
+mpfr('-inf')
 >>> a + float('nan')
-mpf('nan')
+mpfr('nan')
 >>> float('nan') + a
-mpf('nan')
+mpfr('nan')
 >>> a - float('Inf')
-mpf('-inf')
+mpfr('-inf')
 >>> float('Inf') - a
-mpf('inf')
+mpfr('inf')
 >>> a - float('-Inf')
-mpf('inf')
+mpfr('inf')
 >>> float('-Inf') - a
-mpf('-inf')
+mpfr('-inf')
 >>> a - float('nan')
-mpf('nan')
+mpfr('nan')
 >>> float('nan') - a
-mpf('nan')
+mpfr('nan')
 >>> a * float('Inf')
-mpf('inf')
+mpfr('inf')
 >>> float('Inf') * a
-mpf('inf')
+mpfr('inf')
 >>> a * float('-Inf')
-mpf('-inf')
+mpfr('-inf')
 >>> float('-Inf') * a
-mpf('-inf')
+mpfr('-inf')
 >>> -a * float('Inf')
-mpf('-inf')
+mpfr('-inf')
 >>> float('Inf') * -a
-mpf('-inf')
+mpfr('-inf')
 >>> -a * float('-Inf')
-mpf('inf')
+mpfr('inf')
 >>> float('-Inf') * -a
-mpf('inf')
+mpfr('inf')
 >>> a * float('nan')
-mpf('nan')
+mpfr('nan')
 >>> float('nan') * a
-mpf('nan')
+mpfr('nan')
 >>> _g.mpz(0) * float('Inf')
-mpf('nan')
+mpfr('nan')
 >>> _g.mpz(0) * float('-Inf')
-mpf('nan')
+mpfr('nan')
 >>> float('Inf') * _g.mpz(0)
-mpf('nan')
+mpfr('nan')
 >>> float('-Inf') * _g.mpz(0)
-mpf('nan')
+mpfr('nan')
 >>> a / float('Inf')
-mpf('0.0e0')
+mpfr('0.0e0')
 >>> -a / float('Inf')
-mpf('-0.0e0')
+mpfr('-0.0e0')
 >>> float('Inf') / a
-mpf('inf')
+mpfr('inf')
 >>> float('Inf') / -a
-mpf('-inf')
+mpfr('-inf')
 >>> a / float('-Inf')
-mpf('-0.0e0')
+mpfr('-0.0e0')
 >>> -a / float('-Inf')
-mpf('0.0e0')
+mpfr('0.0e0')
 >>> float('-Inf') / a
-mpf('-inf')
+mpfr('-inf')
 >>> float('-Inf') / -a
-mpf('inf')
+mpfr('inf')
 >>> a / float('nan')
-mpf('nan')
+mpfr('nan')
 >>> float('nan') / a
-mpf('nan')
+mpfr('nan')
 >>> float('nan') / _g.mpz(0)
 Traceback (most recent call last):
   ...
 ZeroDivisionError: mpf division by zero
 >>> divmod(a, float('Inf'))
-(mpf('0.0e0'), mpf('1.23e2'))
+(mpfr('0.0e0'), mpfr('1.23e2'))
 >>> divmod(a, float('-Inf'))
-(mpf('-1.0e0'), mpf('-inf'))
+(mpfr('-1.0e0'), mpfr('-inf'))
 >>> divmod(-a, float('Inf'))
-(mpf('-1.0e0'), mpf('inf'))
+(mpfr('-1.0e0'), mpfr('inf'))
 >>> divmod(-a, float('-Inf'))
-(mpf('0.0e0'), mpf('-1.23e2'))
+(mpfr('0.0e0'), mpfr('-1.23e2'))
 >>> divmod(a, float('nan'))
-(mpf('nan'), mpf('nan'))
+(mpfr('nan'), mpfr('nan'))
 >>> divmod(-a, float('nan'))
-(mpf('nan'), mpf('nan'))
+(mpfr('nan'), mpfr('nan'))
 >>> divmod(_g.mpz(0), float('Inf'))
-(mpf('0.0e0'), mpf('0.0e0'))
+(mpfr('0.0e0'), mpfr('0.0e0'))
 >>> divmod(_g.mpz(0), float('-Inf'))
-(mpf('-0.0e0'), mpf('-0.0e0'))
+(mpfr('-0.0e0'), mpfr('-0.0e0'))
 >>> divmod(_g.mpz(0), float('nan'))
-(mpf('nan'), mpf('nan'))
+(mpfr('nan'), mpfr('nan'))
 >>> divmod(float('Inf'), a)
-(mpf('nan'), mpf('nan'))
+(mpfr('nan'), mpfr('nan'))
 >>> divmod(float('-Inf'), a)
-(mpf('nan'), mpf('nan'))
+(mpfr('nan'), mpfr('nan'))
 >>> divmod(float('Inf'), -a)
-(mpf('nan'), mpf('nan'))
+(mpfr('nan'), mpfr('nan'))
 >>> divmod(float('-Inf'), -a)
-(mpf('nan'), mpf('nan'))
+(mpfr('nan'), mpfr('nan'))
 >>> divmod(float('nan'), a)
-(mpf('nan'), mpf('nan'))
+(mpfr('nan'), mpfr('nan'))
 >>> divmod(float('nan'), -a)
-(mpf('nan'), mpf('nan'))
+(mpfr('nan'), mpfr('nan'))
 >>> divmod(float('Inf'), _g.mpz(0))
 Traceback (most recent call last):
   ...

@@ -1,4 +1,4 @@
-# partial unit test for gmpy2 mpf functionality
+# partial unit test for gmpy2 mpfr functionality
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> dir(a)
@@ -9,28 +9,28 @@ import sys
 
 import gmpy2 as _g, doctest, sys
 __test__={}
-a=_g.mpf('123.456')
-b=_g.mpf('789.123')
+a=_g.mpfr('123.456')
+b=_g.mpfr('789.123')
 
 __test__['functions']=\
 r'''
 >>> _g.log(2)
-mpf('6.9314718055994529e-1')
+mpfr('6.9314718055994529e-1')
 >>> _g.log(10)
-mpf('2.3025850929940459e0')
+mpfr('2.3025850929940459e0')
 >>> _g.log('a')
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-TypeError: log() requires 'mpf' argument
+TypeError: log() requires 'mpfr' argument
 >>> _g.log(float('nan'))
-mpf('nan')
+mpfr('nan')
 >>> _g.log(float('inf'))
-mpf('inf')
+mpfr('inf')
 >>> _g.log(float('-inf'))
-mpf('nan')
->>> _g.mpf('12.3456').log()
-mpf('2.5132997242892183e0')
->>> _g.mpf('12.3456').log(7)
+mpfr('nan')
+>>> _g.mpfr('12.3456').log()
+mpfr('2.5132997242892183e0')
+>>> _g.mpfr('12.3456').log(7)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: log() takes no arguments (1 given)
@@ -58,14 +58,14 @@ r'''
 '-123.456'
 >>> str(abs(-a))
 '123.456'
->>> _g.mpf(2) + 3
-mpf('5.0e0')
->>> 3 + _g.mpf(2)
-mpf('5.0e0')
->>> _g.mpf(2) * 3
-mpf('6.0e0')
->>> 3 * _g.mpf(2)
-mpf('6.0e0')
+>>> _g.mpfr(2) + 3
+mpfr('5.0e0')
+>>> 3 + _g.mpfr(2)
+mpfr('5.0e0')
+>>> _g.mpfr(2) * 3
+mpfr('6.0e0')
+>>> 3 * _g.mpfr(2)
+mpfr('6.0e0')
 >>> _g.sign(b-a)
 1
 >>> _g.sign(b-b)
@@ -132,52 +132,52 @@ mpf('6.0e0')
 Traceback (innermost last):
   File "<pyshell#184>", line 1, in ?
     _g.reldiff(3.4)
-TypeError: reldiff() requires 'mpf,'mpf' arguments
+TypeError: reldiff() requires 'mpfr','mpfr' arguments
 >>> a.reldiff()
 Traceback (innermost last):
   File "<pyshell#184>", line 1, in ?
     _g.reldiff()
-TypeError: reldiff() requires 'mpf,'mpf' arguments
+TypeError: reldiff() requires 'mpfr','mpfr' arguments
 >>> a.reldiff(3, 4)
 Traceback (innermost last):
   File "<pyshell#184>", line 1, in ?
     _g.reldiff(3, 4)
-TypeError: reldiff() requires 'mpf,'mpf' arguments
+TypeError: reldiff() requires 'mpfr','mpfr' arguments
 >>> a.sqrt()
-mpf('1.1111075555498667e1')
+mpfr('1.1111075555498667e1')
 >>> _g.sqrt(a)
-mpf('1.1111075555498667e1')
+mpfr('1.1111075555498667e1')
 >>> _g.sqrt(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
   File "a.py", line 9, in _er
     raise ValueError, what
 ValueError: sqrt() of negative number
->>> save=_g.get_mpf_precision()
+>>> save=_g.get_mpfr_precision()
 >>> _g.const_catalan()
-mpf('9.1596559417721901e-1')
+mpfr('9.1596559417721901e-1')
 >>> _g.const_euler()
-mpf('5.7721566490153287e-1')
+mpfr('5.7721566490153287e-1')
 >>> _g.const_log2()
-mpf('6.9314718055994529e-1')
+mpfr('6.9314718055994529e-1')
 >>> _g.const_pi()
-mpf('3.1415926535897931e0')
->>> _g.set_mpf_precision(100)
+mpfr('3.1415926535897931e0')
+>>> _g.set_mpfr_precision(100)
 >>> _g.const_catalan()
-mpf('9.1596559417721901505460351493252e-1',100)
+mpfr('9.1596559417721901505460351493252e-1',100)
 >>> _g.const_euler()
-mpf('5.7721566490153286060651209008234e-1',100)
+mpfr('5.7721566490153286060651209008234e-1',100)
 >>> _g.const_log2()
-mpf('6.9314718055994530941723212145798e-1',100)
+mpfr('6.9314718055994530941723212145798e-1',100)
 >>> _g.const_pi()
-mpf('3.1415926535897932384626433832793e0',100)
->>> _g.set_mpf_precision(save)
+mpfr('3.1415926535897932384626433832793e0',100)
+>>> _g.set_mpfr_precision(save)
 >>> del(save)
 >>> import pickle
->>> flt = _g.mpf(1234.6789)
+>>> flt = _g.mpfr(1234.6789)
 >>> flt == pickle.loads(pickle.dumps(flt))
 True
->>> flt = _g.mpf('1.1')
+>>> flt = _g.mpfr('1.1')
 >>> flt == pickle.loads(pickle.dumps(flt))
 True
 '''
@@ -186,19 +186,19 @@ __test__['newdiv']=\
 r'''
 >>>
 >>> a/b
-mpf('1.5644709379906555e-1')
+mpfr('1.5644709379906555e-1')
 >>> a//b
-mpf('0.0e0')
+mpfr('0.0e0')
 >>> b/a
-mpf('6.3919372083981338e0')
+mpfr('6.3919372083981338e0')
 >>> b//a
-mpf('6.0e0')
+mpfr('6.0e0')
 >>>
 '''
 
 __test__['cmpr']=\
 r'''
->>> c=_g.mpf(a)
+>>> c=_g.mpfr(a)
 >>> c is a
 1
 >>> c==a
@@ -216,7 +216,7 @@ r'''
 0
 >>> a<b
 1
->>> not _g.mpf(0)
+>>> not _g.mpfr(0)
 1
 >>> not a
 0
@@ -236,28 +236,28 @@ mpq(15432,125)
 mpq(15432,125)
 >>> a.f2q()
 mpq(15432,125)
->>> print(_g.mpf(_g.mpz(1234)))
+>>> print(_g.mpfr(_g.mpz(1234)))
 1234.0
 >>> x=1000*1000*1000*1000
->>> _g.mpf(x)
-mpf('1.0e12')
->>> c=_g.mpf(a)
+>>> _g.mpfr(x)
+mpfr('1.0e12')
+>>> c=_g.mpfr(a)
 >>> a is c
 1
->>> c=_g.mpf(a,99)
+>>> c=_g.mpfr(a,99)
 >>> a is c
 0
 >>> a==c
 1
->>> _g.mpf('1.1') == _g.mpf('1.1') * _g.mpf(1)
+>>> _g.mpfr('1.1') == _g.mpfr('1.1') * _g.mpfr(1)
 True
->>> _g.mpf('1.1',64) == _g.mpf('1.1',128)
+>>> _g.mpfr('1.1',64) == _g.mpfr('1.1',128)
 False
->>> _g.mpf('1.1',64) == _g.mpf(_g.mpf('1.1',128),64)
+>>> _g.mpfr('1.1',64) == _g.mpfr(_g.mpfr('1.1',128),64)
 True
->>> a = _g.mpf('.123', 64)
->>> b = _g.mpf('.123', 128)
->>> c = _g.mpf('.123', 128) * _g.mpf(1, 128)
+>>> a = _g.mpfr('.123', 64)
+>>> b = _g.mpfr('.123', 128)
+>>> c = _g.mpfr('.123', 128) * _g.mpfr(1, 128)
 >>> a == b
 False
 >>> a == c
@@ -271,7 +271,7 @@ r'''
 >>> str(a)
 '123.456'
 >>> repr(a)
-"mpf('1.23456e2')"
+"mpfr('1.23456e2')"
 >>> a.digits(10,0)
 ('12345600000000000', 3, 53)
 >>> a.digits(10,1)
@@ -294,12 +294,12 @@ ValueError: digits must be 0 or >= 2
 ('12345600', 3, 53)
 >>> for i in range(11,99):
 ...     tempa=('%.16f' % (i/10.0)).replace('.','')
-...     tempb=_g.mpf(i/10.0).digits(10,17)[0]
+...     tempb=_g.mpfr(i/10.0).digits(10,17)[0]
 ...     assert tempb.startswith(tempa.rstrip('0')), (tempa, tempb)
 ...
->>> _g.mpf(3.4)
-mpf('3.3999999999999999e0')
->>> print(_g.mpf(3.4))
+>>> _g.mpfr(3.4)
+mpfr('3.3999999999999999e0')
+>>> print(_g.mpfr(3.4))
 3.3999999999999999
 >>> a.digits(1)
 Traceback (most recent call last):
@@ -314,12 +314,12 @@ ValueError: digits must be 0 or >= 2
 >>> saveprec=a.precision
 >>> newa = a.round(33)
 >>> newa
-mpf('1.23456e2',33)
+mpfr('1.23456e2',33)
 >>> newa = newa.round(saveprec)
 >>> newa.precision==saveprec
 1
 >>> del(newa)
->>> _g.digits(_g.mpf(23.45))
+>>> _g.digits(_g.mpfr(23.45))
 ('23449999999999999', 2, 53)
 >>> _g.binary('pep')
 Traceback (most recent call last):
@@ -330,9 +330,9 @@ TypeError: binary() requires a gmpy2 object as argument
 
 __test__['binio']=\
 r'''
->>> epsilon=_g.mpf(2)**-(a.precision)
+>>> epsilon=_g.mpfr(2)**-(a.precision)
 >>> ba=a.binary()
->>> a.reldiff(_g.mpf(ba,0,256)) <= epsilon
+>>> a.reldiff(_g.mpfr(ba,0,256)) <= epsilon
 1
 >>> len(ba)
 16
@@ -356,46 +356,46 @@ r'''
 249
 220
 >>> na=(-a).binary()
->>> (-a).reldiff(_g.mpf(na,0,256)) <= epsilon
+>>> (-a).reldiff(_g.mpfr(na,0,256)) <= epsilon
 1
 >>> na[0] == ba[0]|1
 1
 >>> for bd,nd in zip(ba[1:],na[1:]):
 ...    assert bd==nd
 >>> ia=(1/a).binary()
->>> (1/a).reldiff(_g.mpf(ia,0,256)) <= epsilon
+>>> (1/a).reldiff(_g.mpfr(ia,0,256)) <= epsilon
 1
->>> _g.binary(_g.mpf(0))
+>>> _g.binary(_g.mpfr(0))
 b'\x04'
->>> _g.mpf(_g.binary(_g.mpf(0)), 0, 256) == 0
+>>> _g.mpfr(_g.binary(_g.mpfr(0)), 0, 256) == 0
 1
->>> _g.binary(_g.mpf(0.5))
+>>> _g.binary(_g.mpfr(0.5))
 b'\x085\x00\x00\x00\x00\x00\x00\x00\x80'
->>> _g.mpf(_g.binary(_g.mpf(0.5)), 0, 256) == 0.5
+>>> _g.mpfr(_g.binary(_g.mpfr(0.5)), 0, 256) == 0.5
 1
->>> _g.binary(_g.mpf(-0.5))
+>>> _g.binary(_g.mpfr(-0.5))
 b'\t5\x00\x00\x00\x00\x00\x00\x00\x80'
->>> _g.mpf(_g.binary(_g.mpf(-0.5)), 0, 256) == -0.5
+>>> _g.mpfr(_g.binary(_g.mpfr(-0.5)), 0, 256) == -0.5
 1
->>> _g.binary(_g.mpf(-2.0))
+>>> _g.binary(_g.mpfr(-2.0))
 b'\t5\x00\x00\x00\x01\x00\x00\x00\x02'
->>> _g.mpf(_g.binary(_g.mpf(-2.0)), 0, 256) == -2.0
+>>> _g.mpfr(_g.binary(_g.mpfr(-2.0)), 0, 256) == -2.0
 1
->>> _g.binary(_g.mpf(2.0))
+>>> _g.binary(_g.mpfr(2.0))
 b'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
->>> _g.mpf(_g.binary(_g.mpf(2.0)), 0, 256) == 2.0
+>>> _g.mpfr(_g.binary(_g.mpfr(2.0)), 0, 256) == 2.0
 1
->>> prec=_g.get_mpf_precision()
->>> _g.set_mpf_precision(prec)
+>>> prec=_g.get_mpfr_precision()
+>>> _g.set_mpfr_precision(prec)
 >>> a.precision==prec
 1
 >>> b.precision==prec
 1
->>> _g.mpf(1.0).precision==prec
+>>> _g.mpfr(1.0).precision==prec
 1
->>> hash(_g.mpf(23.0))==hash(23)
+>>> hash(_g.mpfr(23.0))==hash(23)
 1
->>> print(_g.mpf('\004',0,256))
+>>> print(_g.mpfr('\004',0,256))
 0.0e0
 >>> int(a)
 123
@@ -406,7 +406,7 @@ b'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy2 (mpf functionality)")
+        print("Unit tests for gmpy2 (mpfr functionality)")
         print("    on Python %s" % sys.version)
         print("Testing gmpy2 {0}".format(_g.version()))
         print("  Mutliple-precision library:   {0}".format(_g.mp_version()))
@@ -433,7 +433,7 @@ def _test(chat=None):
 
     if chat:
         print()
-        print("Overall results for mpf:")
+        print("Overall results for mpfr:")
     return doctest.master.summarize(chat)
 
 if __name__=='__main__':

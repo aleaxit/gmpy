@@ -96,8 +96,8 @@
  * describes the required arguments. Replaces SELF_MPZ_NO_ARG.
  */
 
-#define PARSE_ONE_MPF(msg) \
-    if(self && Pympf_Check(self)) {\
+#define PARSE_ONE_MPFR(msg) \
+    if(self && Pympfr_Check(self)) {\
         if (PyTuple_GET_SIZE(args) != 0) {\
             PyErr_SetString(PyExc_TypeError, msg);\
             return NULL;\
@@ -109,10 +109,10 @@
             return NULL;\
         }\
         self = PyTuple_GET_ITEM(args, 0);\
-        if(Pympf_Check(self)) {\
+        if(Pympfr_Check(self)) {\
             Py_INCREF((PyObject*)self);\
         } else {\
-            self = (PyObject*)Pympf_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
+            self = (PyObject*)Pympfr_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
         }\
         if(!self) {\
             PyErr_SetString(PyExc_TypeError, msg);\
@@ -241,8 +241,8 @@
  * describes the required arguments. Replaces some uses of SELF_MPF_ONE_ARG.
  */
 
-#define PARSE_ONE_MPF_OPT_CLONG(var, msg) \
-    if(self && Pympf_Check(self)) {\
+#define PARSE_ONE_MPFR_OPT_CLONG(var, msg) \
+    if(self && Pympfr_Check(self)) {\
         if (PyTuple_GET_SIZE(args) == 1) {\
             *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             if(*var == -1 && PyErr_Occurred()) {\
@@ -262,17 +262,17 @@
                 return NULL;\
             }\
             self = PyTuple_GET_ITEM(args, 0);\
-            if(Pympf_Check(self)) {\
+            if(Pympfr_Check(self)) {\
                 Py_INCREF((PyObject*)self);\
             } else {\
-                self = (PyObject*)Pympf_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
+                self = (PyObject*)Pympfr_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
             }\
         } else if (PyTuple_GET_SIZE(args) == 1) {\
             self = PyTuple_GET_ITEM(args, 0);\
-            if(Pympf_Check(self)) {\
+            if(Pympfr_Check(self)) {\
                 Py_INCREF((PyObject*)self);\
             } else {\
-                self = (PyObject*)Pympf_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
+                self = (PyObject*)Pympfr_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
             }\
         } else {\
             PyErr_SetString(PyExc_TypeError, msg);\
@@ -295,8 +295,8 @@
  * SELF_MPF_ONE_ARG.
  */
 
-#define PARSE_ONE_MPF_OPT_SSIZE_T(var, msg) \
-    if(self && Pympf_Check(self)) {\
+#define PARSE_ONE_MPFR_OPT_SSIZE_T(var, msg) \
+    if(self && Pympfr_Check(self)) {\
         if (PyTuple_GET_SIZE(args) == 1) {\
             *var = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             if(*var == -1 && PyErr_Occurred()) {\
@@ -316,17 +316,17 @@
                 return NULL;\
             }\
             self = PyTuple_GET_ITEM(args, 0);\
-            if(Pympf_Check(self)) {\
+            if(Pympfr_Check(self)) {\
                 Py_INCREF((PyObject*)self);\
             } else {\
-                self = (PyObject*)Pympf_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
+                self = (PyObject*)Pympfr_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
             }\
         } else if (PyTuple_GET_SIZE(args) == 1) {\
             self = PyTuple_GET_ITEM(args, 0);\
-            if(Pympf_Check(self)) {\
+            if(Pympfr_Check(self)) {\
                 Py_INCREF((PyObject*)self);\
             } else {\
-                self = (PyObject*)Pympf_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
+                self = (PyObject*)Pympfr_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
             }\
         } else {\
             PyErr_SetString(PyExc_TypeError, msg);\
@@ -443,8 +443,8 @@
  * function name and describes the required arguments.
  */
 
-#define PARSE_ONE_MPF_REQ_CLONG(var, msg) \
-    if(self && Pympf_Check(self)) {\
+#define PARSE_ONE_MPFR_REQ_CLONG(var, msg) \
+    if(self && Pympfr_Check(self)) {\
         if (PyTuple_GET_SIZE(args) != 1) {\
             PyErr_SetString(PyExc_TypeError, msg);\
             return NULL;\
@@ -467,10 +467,10 @@
                 return NULL;\
             }\
             self = PyTuple_GET_ITEM(args, 0);\
-            if(Pympf_Check(self)) {\
+            if(Pympfr_Check(self)) {\
                 Py_INCREF((PyObject*)self);\
             } else {\
-                self = (PyObject*)Pympf_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
+                self = (PyObject*)Pympfr_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
             }\
         }\
         if(!self) {\
@@ -488,8 +488,8 @@
  * the function name and describes the required arguments.
  */
 
-#define PARSE_ONE_MPF_REQ_SSIZE_T(var, msg) \
-    if(self && Pympf_Check(self)) {\
+#define PARSE_ONE_MPFR_REQ_SSIZE_T(var, msg) \
+    if(self && Pympfr_Check(self)) {\
         if (PyTuple_GET_SIZE(args) != 1) {\
             PyErr_SetString(PyExc_TypeError, msg);\
             return NULL;\
@@ -512,10 +512,10 @@
                 return NULL;\
             }\
             self = PyTuple_GET_ITEM(args, 0);\
-            if(Pympf_Check(self)) {\
+            if(Pympfr_Check(self)) {\
                 Py_INCREF((PyObject*)self);\
             } else {\
-                self = (PyObject*)Pympf_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
+                self = (PyObject*)Pympfr_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
             }\
         }\
         if(!self) {\
@@ -572,13 +572,13 @@
  * SELF_MPF_ONE_ARG_CONVERTED(var).
  */
 
-#define PARSE_TWO_MPF(var, msg) \
-    if(self && Pympf_Check(self)) {\
+#define PARSE_TWO_MPFR(var, msg) \
+    if(self && Pympfr_Check(self)) {\
         if (PyTuple_GET_SIZE(args) != 1) {\
             PyErr_SetString(PyExc_TypeError, msg);\
             return NULL;\
         }\
-        var = (PyObject*)Pympf_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
+        var = (PyObject*)Pympfr_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
         if(!var) {\
             PyErr_SetString(PyExc_TypeError, msg);\
             return NULL;\
@@ -589,8 +589,8 @@
             PyErr_SetString(PyExc_TypeError, msg);\
             return NULL;\
         }\
-        self = (PyObject*)Pympf_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
-        var = (PyObject*)Pympf_From_Float(PyTuple_GET_ITEM(args, 1), 0);\
+        self = (PyObject*)Pympfr_From_Float(PyTuple_GET_ITEM(args, 0), 0);\
+        var = (PyObject*)Pympfr_From_Float(PyTuple_GET_ITEM(args, 1), 0);\
         if(!self || !var) {\
             PyErr_SetString(PyExc_TypeError, msg);\
             Py_XDECREF((PyObject*)self);\
@@ -612,13 +612,13 @@
             return NULL; \
     }
 
-#define SELF_MPF_NO_ARG \
-    if(self && Pympf_Check(self)) { \
+#define SELF_MPFR_NO_ARG \
+    if(self && Pympfr_Check(self)) { \
         if(!PyArg_ParseTuple(args, "")) \
             return NULL; \
         Py_INCREF(self); \
     } else { \
-        if(!PyArg_ParseTuple(args, "O&", Pympf_convert_arg, &self)) \
+        if(!PyArg_ParseTuple(args, "O&", Pympfr_convert_arg, &self)) \
             return NULL; \
     }
 
@@ -632,13 +632,13 @@
             return NULL; \
     }
 
-#define SELF_MPF_ONE_ARG(fm, var) \
-    if(self && Pympf_Check(self)) { \
+#define SELF_MPFR_ONE_ARG(fm, var) \
+    if(self && Pympfr_Check(self)) { \
         if(!PyArg_ParseTuple(args, fm, var)) \
             return NULL; \
         Py_INCREF(self); \
     } else { \
-        if(!PyArg_ParseTuple(args, "O&" fm, Pympf_convert_arg, &self, var)) \
+        if(!PyArg_ParseTuple(args, "O&" fm, Pympfr_convert_arg, &self, var)) \
             return NULL; \
     }
 
@@ -652,26 +652,26 @@
                 Pympq_convert_arg,var)) \
             return NULL; \
     }
-#define SELF_MPF_ONE_ARG_CONVERTED(var) \
-    if(self && Pympf_Check(self)) { \
-        if(args && !PyArg_ParseTuple(args, "O&", Pympf_convert_arg, var)) \
+#define SELF_MPFR_ONE_ARG_CONVERTED(var) \
+    if(self && Pympfr_Check(self)) { \
+        if(args && !PyArg_ParseTuple(args, "O&", Pympfr_convert_arg, var)) \
             return NULL; \
         Py_INCREF(self); \
     } else { \
-        if(!PyArg_ParseTuple(args, "O&O&", Pympf_convert_arg,&self, \
-                Pympf_convert_arg,var)) \
+        if(!PyArg_ParseTuple(args, "O&O&", Pympfr_convert_arg, &self, \
+                Pympfr_convert_arg,var)) \
             return NULL; \
     }
 
 
-#define SELF_MPF_ONE_ARG_CONVERTED_OPT(var) \
-    if(self && Pympf_Check(self)) { \
-        if(args && !PyArg_ParseTuple(args, "|O&", Pympf_convert_arg,var)) \
+#define SELF_MPFR_ONE_ARG_CONVERTED_OPT(var) \
+    if(self && Pympfr_Check(self)) { \
+        if(args && !PyArg_ParseTuple(args, "|O&", Pympfr_convert_arg,var)) \
             return NULL; \
         Py_INCREF(self); \
     } else { \
-        if(!PyArg_ParseTuple(args, "O&|O&", Pympf_convert_arg,&self, \
-                Pympf_convert_arg,var)) \
+        if(!PyArg_ParseTuple(args, "O&|O&", Pympfr_convert_arg,&self, \
+                Pympfr_convert_arg,var)) \
             return NULL; \
     }
 

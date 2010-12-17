@@ -10,7 +10,7 @@ except ImportError: _d = None
 
 import gmpy2 as _g, doctest, sys
 __test__={}
-f=_g.mpf('123.456')
+f=_g.mpfr('123.456')
 q=_g.mpq('789123/1000')
 z=_g.mpz('234')
 if _d:
@@ -48,7 +48,7 @@ True
 12
 >>> print(_g.mpq(d))
 617/50
->>> print(_g.mpf(d))
+>>> print(_g.mpfr(d))
 12.34
 >>> print(f+d)
 135.79599999999999
@@ -68,9 +68,9 @@ True
 12.0
 >>> print(_g.trunc(d))
 12.0
->>> _g.mpf(d).precision
+>>> _g.mpfr(d).precision
 53
->>> _g.sqrt(d)==_g.mpf(d).sqrt()
+>>> _g.sqrt(d)==_g.mpfr(d).sqrt()
 1
 >>>
 '''

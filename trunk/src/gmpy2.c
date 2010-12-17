@@ -225,6 +225,7 @@
  *   Debug messages only available if compiled with -DDEBUG (casevh)
  *   Removed fcoform float conversion modifier (casevh)
  *   Add support for MPC (casevh)
+ *   Renamed 'mpf' to 'mpfr' to reflect use of MPFR (casevh)
  */
 #include "Python.h"
 
@@ -307,12 +308,12 @@ static PyObject *gmpy_module = NULL;
 static struct gmpy_global {
     int debug;               /* != 0 if debug messages desired on stderr */
     int raise;               /* use Python vs. MPFR approach to errors */
-    mpfr_prec_t mpf_prec;    /* current precision in bits */
-    mpfr_rnd_t mpf_round;    /* current rounding mode for float (MPFR) */
+    mpfr_prec_t mpfr_prec;   /* current precision in bits */
+    mpfr_rnd_t mpfr_round;   /* current rounding mode for float (MPFR) */
     mpc_rnd_t mpc_round;     /* current rounding mode for complex (MPC)*/
     int cache_size;          /* size of cache, for all caches */
     int cache_obsize;        /* maximum size of the objects that are cached */
-    int mpf_rc;              /* result code from MPFR */
+    int mpfr_rc;             /* result code from MPFR */
     int mpc_rc;              /* result code from MPC */
 } global = { 0, GMPY_MODE_PYTHON, DBL_MANT_DIG, MPFR_RNDN, MPC_RNDNN, 100, 128, 0, 0 };
 
@@ -320,13 +321,13 @@ static struct gmpy_global {
 #ifdef _MSC_VER
 PyMethodDef Pympz_methods [];
 PyMethodDef Pympq_methods [];
-PyMethodDef Pympf_methods [];
+PyMethodDef Pympfr_methods [];
 PyMethodDef Pympc_methods [];
 PyMethodDef Pyxmpz_methods [];
 #else
 static PyMethodDef Pympz_methods [];
 static PyMethodDef Pympq_methods [];
-static PyMethodDef Pympf_methods [];
+static PyMethodDef Pympfr_methods [];
 static PyMethodDef Pympc_methods [];
 static PyMethodDef Pyxmpz_methods [];
 #endif
@@ -345,7 +346,7 @@ static PyMethodDef Pyxmpz_methods [];
  * Pympq_dealloc. The functions set_pympzcache and set_pympqcache are used
  * to change the size of the array used to the store the cached objects.
  *
- * Caching for PympfObject added later.
+ * Caching for PympfrObject added later.
  */
 
 /* Caching logic for gmp native types: mpz and mpq.
@@ -575,49 +576,49 @@ Pympq_dealloc(PympqObject *self)
     }
 }
 
-/* Caching logic for Pympf. */
+/* Caching logic for Pympfr. */
 
-static PympfObject **pympfcache;
-static int in_pympfcache;
+static PympfrObject **pympfrcache;
+static int in_pympfrcache;
 
 static void
-set_pympfcache(void)
+set_pympfrcache(void)
 {
-    TRACE("Entering set_pympfcache\n");
-    if (in_pympfcache > global.cache_size) {
+    TRACE("Entering set_pympfrcache\n");
+    if (in_pympfrcache > global.cache_size) {
         int i;
-        for (i = global.cache_size; i < in_pympfcache; ++i) {
-            mpfr_clear(pympfcache[i]->f);
-            PyObject_Del(pympfcache[i]);
+        for (i = global.cache_size; i < in_pympfrcache; ++i) {
+            mpfr_clear(pympfrcache[i]->f);
+            PyObject_Del(pympfrcache[i]);
         }
-        in_pympfcache = global.cache_size;
+        in_pympfrcache = global.cache_size;
     }
-    pympfcache = PyMem_Realloc(pympfcache, sizeof(PympfObject)*global.cache_size);
+    pympfrcache = PyMem_Realloc(pympfrcache, sizeof(PympfrObject)*global.cache_size);
 }
 
-static PympfObject *
-Pympf_new(mpfr_prec_t bits)
+static PympfrObject *
+Pympfr_new(mpfr_prec_t bits)
 {
-    PympfObject *self;
+    PympfrObject *self;
 
-    TRACE("Entering Pympf_new\n");
+    TRACE("Entering Pympfr_new\n");
     if (bits == 0)
-        bits = global.mpf_prec;
+        bits = global.mpfr_prec;
     if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");
         return NULL;
     }
-    if (in_pympfcache) {
-        TRACE("Pympf_new is reusing an old object\n");
-        self = pympfcache[--in_pympfcache];
+    if (in_pympfrcache) {
+        TRACE("Pympfr_new is reusing an old object\n");
+        self = pympfrcache[--in_pympfrcache];
         /* Py_INCREF does not set the debugging pointers, so need to use
            _Py_NewReference instead. */
         _Py_NewReference((PyObject*)self);
         mpfr_set_prec(self->f, bits);
     }
     else {
-        TRACE("Pympf_new is creating a new object\n");
-        if (!(self = PyObject_New(PympfObject, &Pympf_Type)))
+        TRACE("Pympfr_new is creating a new object\n");
+        if (!(self = PyObject_New(PympfrObject, &Pympfr_Type)))
             return NULL;
         mpfr_init2(self->f, bits);
     }
@@ -626,16 +627,16 @@ Pympf_new(mpfr_prec_t bits)
 }
 
 static void
-Pympf_dealloc(PympfObject *self)
+Pympfr_dealloc(PympfrObject *self)
 {
     size_t msize;
 
-    TRACE("Pympf_dealloc\n");
+    TRACE("Pympfr_dealloc\n");
     /* Calculate the number of limbs in the mantissa. */
     msize = (self->f->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
-    if (in_pympfcache < global.cache_size &&
+    if (in_pympfrcache < global.cache_size &&
         msize <= global.cache_obsize) {
-        pympfcache[in_pympfcache++] = self;
+        pympfrcache[in_pympfrcache++] = self;
     }
     else {
         mpfr_clear(self->f);
@@ -670,7 +671,7 @@ Pympc_new(mpfr_prec_t bits)
 
     TRACE("Entering Pympc_new\n");
     if (bits == 0)
-        bits = global.mpf_prec;
+        bits = global.mpfr_prec;
     if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");
         return NULL;
@@ -770,22 +771,22 @@ Pympq2Pympq(PyObject *self)
 }
 
 /*
-  Make a copy of an mpf object. If bits is 0, the new object will have
+  Make a copy of an mpfr object. If bits is 0, the new object will have
   the same precision as the original object. If the requested precision
   is less than the precision of the original object, the new object
   will be rounded to requested precision using the current rounding mode.
 */
 
-static PympfObject *
-Pympf2Pympf(PyObject *self, mpfr_prec_t bits)
+static PympfrObject *
+Pympfr2Pympfr(PyObject *self, mpfr_prec_t bits)
 {
-    PympfObject *newob;
+    PympfrObject *newob;
 
-    assert(Pympf_Check(self));
+    assert(Pympfr_Check(self));
     if (bits == 0)
-        bits = mpfr_get_prec(Pympf_AS_MPF(self));
-    if ((newob = Pympf_new(bits)))
-        global.mpf_rc = mpfr_set(newob->f, Pympf_AS_MPF(self), global.mpf_round);
+        bits = mpfr_get_prec(Pympfr_AS_MPFR(self));
+    if ((newob = Pympfr_new(bits)))
+        global.mpfr_rc = mpfr_set(newob->f, Pympfr_AS_MPFR(self), global.mpfr_round);
     return newob;
 }
 
@@ -823,14 +824,14 @@ PyInt2Pympq(PyObject *self)
     return newob;
 }
 
-static PympfObject *
-PyInt2Pympf(PyObject *self, mpfr_prec_t bits)
+static PympfrObject *
+PyInt2Pympfr(PyObject *self, mpfr_prec_t bits)
 {
-    PympfObject *newob;
+    PympfrObject *newob;
 
     assert(PyInt_Check(self));
-    if ((newob = Pympf_new(bits)))
-        global.mpf_rc = mpfr_set_si(newob->f, PyInt_AsLong(self), global.mpf_round);
+    if ((newob = Pympfr_new(bits)))
+        global.mpfr_rc = mpfr_set_si(newob->f, PyInt_AsLong(self), global.mpfr_round);
     return newob;
 }
 #endif
@@ -845,12 +846,12 @@ PyFloat2Pympz(PyObject *self)
         double d = PyFloat_AsDouble(self);
         if (Py_IS_NAN(d)) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("gmpy2.mpz does not handle nan");
+            VALUE_ERROR("gmpy2.mpz() does not handle nan");
             return NULL;
         }
         if (Py_IS_INFINITY(d)) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("gmpy2.mpz does not handle infinity");
+            VALUE_ERROR("gmpy2.mpz() does not handle infinity");
             return NULL;
         }
         mpz_set_d(newob->z, d);
@@ -868,12 +869,12 @@ PyFloat2Pyxmpz(PyObject *self)
         double d = PyFloat_AsDouble(self);
         if (Py_IS_NAN(d)) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("gmpy2.xmpz does not handle nan");
+            VALUE_ERROR("gmpy2.xmpz() does not handle nan");
             return NULL;
         }
         if (Py_IS_INFINITY(d)) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("gmpy2.xmpz does not handle infinity");
+            VALUE_ERROR("gmpy2.xmpz() does not handle infinity");
             return NULL;
         }
         mpz_set_d(newob->z, d);
@@ -882,10 +883,10 @@ PyFloat2Pyxmpz(PyObject *self)
 }
 
 /* forward...: */
-static PyObject *f2q_internal(PympfObject* self, PympfObject* err,
+static PyObject *f2q_internal(PympfrObject* self, PympfrObject* err,
         unsigned int bits, int mayz);
-static PyObject* Pympf_f2q(PyObject *self, PyObject *args);
-static PympfObject* Pympf_From_Float(PyObject* obj, mpfr_prec_t bits);
+static PyObject* Pympfr_f2q(PyObject *self, PyObject *args);
+static PympfrObject* Pympfr_From_Float(PyObject* obj, mpfr_prec_t bits);
 
 static PympqObject *
 PyFloat2Pympq(PyObject *self)
@@ -897,12 +898,12 @@ PyFloat2Pympq(PyObject *self)
         double d = PyFloat_AsDouble(self);
         if (Py_IS_NAN(d)) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("gmpy2.mpq does not handle nan");
+            VALUE_ERROR("gmpy2.mpq() does not handle nan");
             return NULL;
         }
         if (Py_IS_INFINITY(d)) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("gmpy2.mpq does not handle infinity");
+            VALUE_ERROR("gmpy2.mpq() does not handle infinity");
             return NULL;
         }
         mpq_set_d(newob->q, d);
@@ -911,87 +912,87 @@ PyFloat2Pympq(PyObject *self)
 }
 
 /* forward */
-static PympfObject *PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits);
+static PympfrObject *PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits);
 
-static PympfObject *
-PyFloat2Pympf(PyObject *self, mpfr_prec_t bits)
+static PympfrObject *
+PyFloat2Pympfr(PyObject *self, mpfr_prec_t bits)
 {
-    PympfObject *newob = 0;
+    PympfrObject *newob = 0;
 
     assert(PyFloat_Check(self));
     if (!bits)
         bits = DBL_MANT_DIG;
 #ifdef DEBUG
     if (global.debug)
-        fprintf(stderr, "PyFloat2Pympf(%p,%ld)\n", self, (long) bits);
+        fprintf(stderr, "PyFloat2Pympfr(%p,%ld)\n", self, (long) bits);
 #endif
-    if ((newob = Pympf_new(bits)))
-        global.mpf_rc = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), bits);
+    if ((newob = Pympfr_new(bits)))
+        global.mpfr_rc = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), bits);
     return newob;
 }
 
-static PympfObject *
-Pympz2Pympf(PyObject *self, mpfr_prec_t bits)
+static PympfrObject *
+Pympz2Pympfr(PyObject *self, mpfr_prec_t bits)
 {
-    PympfObject *newob;
+    PympfrObject *newob;
 
     assert(Pympz_Check(self));
-    if ((newob = Pympf_new(bits)))
-        global.mpf_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), global.mpf_round);
+    if ((newob = Pympfr_new(bits)))
+        global.mpfr_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), global.mpfr_round);
     return newob;
 }
 
-static PympfObject *
-Pyxmpz2Pympf(PyObject *self, mpfr_prec_t bits)
+static PympfrObject *
+Pyxmpz2Pympfr(PyObject *self, mpfr_prec_t bits)
 {
-    PympfObject *newob;
+    PympfrObject *newob;
 
     assert(Pyxmpz_Check(self));
-    if ((newob = Pympf_new(bits)))
-        global.mpf_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), global.mpf_round);
+    if ((newob = Pympfr_new(bits)))
+        global.mpfr_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), global.mpfr_round);
     return newob;
 }
 
 static PympzObject *
-Pympf2Pympz(PyObject *self)
+Pympfr2Pympz(PyObject *self)
 {
     PympzObject *newob;
 
-    assert(Pympf_Check(self));
+    assert(Pympfr_Check(self));
     if ((newob = Pympz_new())) {
-        if (mpfr_nan_p(Pympf_AS_MPF(self))) {
+        if (mpfr_nan_p(Pympfr_AS_MPFR(self))) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("gmpy2.mpz does not handle nan");
+            VALUE_ERROR("gmpy2.mpz() does not handle nan");
             return NULL;
         }
-        if (mpfr_inf_p(Pympf_AS_MPF(self))) {
+        if (mpfr_inf_p(Pympfr_AS_MPFR(self))) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("gmpy2.mpz does not handle infinity");
+            VALUE_ERROR("gmpy2.mpz() does not handle infinity");
             return NULL;
         }
-        global.mpf_rc = mpfr_get_z(newob->z, Pympf_AS_MPF(self), global.mpf_round);
+        global.mpfr_rc = mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), global.mpfr_round);
     }
     return newob;
 }
 
 static PyxmpzObject *
-Pympf2Pyxmpz(PyObject *self)
+Pympfr2Pyxmpz(PyObject *self)
 {
     PyxmpzObject *newob;
 
-    assert(Pympf_Check(self));
+    assert(Pympfr_Check(self));
     if ((newob = Pyxmpz_new())) {
-        if (mpfr_nan_p(Pympf_AS_MPF(self))) {
+        if (mpfr_nan_p(Pympfr_AS_MPFR(self))) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("gmpy2.xmpz does not handle nan");
+            VALUE_ERROR("gmpy2.xmpz() does not handle nan");
             return NULL;
         }
-        if (mpfr_inf_p(Pympf_AS_MPF(self))) {
+        if (mpfr_inf_p(Pympfr_AS_MPFR(self))) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("gmpy2.xmpz does not handle infinity");
+            VALUE_ERROR("gmpy2.xmpz() does not handle infinity");
             return NULL;
         }
-        global.mpf_rc = mpfr_get_z(newob->z, Pympf_AS_MPF(self), global.mpf_round);
+        global.mpfr_rc = mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), global.mpfr_round);
     }
     return newob;
 }
@@ -1019,20 +1020,20 @@ Pyxmpz2Pympq(PyObject * obj)
 }
 
 static PympqObject *
-Pympf2Pympq(PyObject *self)
+Pympfr2Pympq(PyObject *self)
 {
-    return (PympqObject*) Pympf_f2q(self, 0);
+    return (PympqObject*) Pympfr_f2q(self, 0);
 }
 
-static PympfObject *
-Pympq2Pympf(PyObject *self, mpfr_prec_t bits)
+static PympfrObject *
+Pympq2Pympfr(PyObject *self, mpfr_prec_t bits)
 {
-    PympfObject *newob;
+    PympfrObject *newob;
 
     assert(Pympq_Check(self));
-    if (!(newob = Pympf_new(bits)))
+    if (!(newob = Pympfr_new(bits)))
         return NULL;
-    global.mpf_rc = mpfr_set_q(newob->f, Pympq_AS_MPQ(self), global.mpf_round);
+    global.mpfr_rc = mpfr_set_q(newob->f, Pympq_AS_MPQ(self), global.mpfr_round);
     return newob;
 }
 
@@ -1082,18 +1083,18 @@ PyLong2Pyxmpz(PyObject * obj)
 }
 
 /*
- * long->mpf delegates via long->mpz->mpf to avoid duplicating
+ * long->mpfr delegates via long->mpz->mpfr to avoid duplicating
  * the above-seen dependencies; ditto long->mpq
  */
-static PympfObject *
-PyLong2Pympf(PyObject *self, mpfr_prec_t bits)
+static PympfrObject *
+PyLong2Pympfr(PyObject *self, mpfr_prec_t bits)
 {
-    PympfObject *newob;
+    PympfrObject *newob;
     PyObject *temp = (PyObject*)PyLong2Pympz(self);
 
     if (!temp)
         return NULL;
-    newob = Pympz2Pympf(temp, bits);
+    newob = Pympz2Pympfr(temp, bits);
     Py_DECREF(temp);
     return newob;
 }
@@ -1353,9 +1354,9 @@ PyStr2Pympq(PyObject *stringarg, long base)
             else {
                 wheredot = strchr((char*)cp, '.');
                 if (wheredot) {
-                    PympfObject* temp = PyStr2Pympf(stringarg, base, (mpfr_prec_t)len*4);
+                    PympfrObject* temp = PyStr2Pympfr(stringarg, base, (mpfr_prec_t)len*4);
                     if (temp) {
-                        newob = Pympf2Pympq((PyObject*)temp);
+                        newob = Pympfr2Pympq((PyObject*)temp);
                         Py_DECREF((PyObject*)temp);
                     }
                     return newob;
@@ -1395,14 +1396,14 @@ PyStr2Pympq(PyObject *stringarg, long base)
 }
 
 /*
- * mpf conversion from string includes from-binary (base-256, format is
+ * mpfr conversion from string includes from-binary (base-256, format is
  * explained later) and 'true' from-string (bases 2 to 62), where exponent
  * if any is denoted by 'e' if base<=10, else by '@', and is always decimal.
  */
-static PympfObject *
-PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits)
+static PympfrObject *
+PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
 {
-    PympfObject *newob;
+    PympfrObject *newob;
     unsigned char *cp;
     mpfr_prec_t prec;
     Py_ssize_t i, len;
@@ -1447,13 +1448,13 @@ PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits)
             }
         }
         else { /* true-string, never encoded, just default it */
-            prec = global.mpf_prec;
+            prec = global.mpfr_prec;
         }
     }
     if (prec < MPFR_PREC_MIN)
         prec = MPFR_PREC_MIN;
 
-    if (!(newob = Pympf_new(prec))) {
+    if (!(newob = Pympfr_new(prec))) {
         Py_XDECREF(ascii_str);
         return NULL;
     }
@@ -1476,9 +1477,9 @@ PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits)
         int precilen = (codebyte & 8)?4:0;
         unsigned int expomag = 0;
 
-        /* mpf zero has a very compact (1-byte) binary encoding!-) */
+        /* mpfr zero has a very compact (1-byte) binary encoding!-) */
         if (resuzero) {
-            global.mpf_rc = mpfr_set_ui(newob->f, 0, global.mpf_round);
+            global.mpfr_rc = mpfr_set_ui(newob->f, 0, global.mpfr_round);
             return newob;
         }
 
@@ -1486,7 +1487,7 @@ PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits)
          * bytes for the mantissa; check this string is 6+ bytes
          */
         if (len < 6 + precilen) {
-            VALUE_ERROR("string too short to be a gmpy2.mpf binary encoding");
+            VALUE_ERROR("string too short to be a gmpy2.mpfr binary encoding");
             Py_DECREF((PyObject*)newob);
             Py_XDECREF(ascii_str);
             return NULL;
@@ -1497,23 +1498,23 @@ PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits)
         }
 
         /* reconstruct 'mantissa' (significand) */
-        mpfr_set_si(newob->f, 0, global.mpf_round);
+        mpfr_set_si(newob->f, 0, global.mpfr_round);
         mpfr_init2(digit, prec);
         for (i = 5 + precilen; i<len; i++) {
-            mpfr_set_ui(digit, cp[i], global.mpf_round);
+            mpfr_set_ui(digit, cp[i], global.mpfr_round);
             mpfr_div_2ui(digit, digit, (unsigned long)((i-4-precilen) * 8),
-                         global.mpf_round);
-            mpfr_add(newob->f, newob->f, digit, global.mpf_round);
+                         global.mpfr_round);
+            mpfr_add(newob->f, newob->f, digit, global.mpfr_round);
         }
         mpfr_clear(digit);
         /* apply exponent, with its appropriate sign */
         if (exposign)
-            mpfr_div_2ui(newob->f, newob->f, 8*expomag, global.mpf_round);
+            mpfr_div_2ui(newob->f, newob->f, 8*expomag, global.mpfr_round);
         else
-            mpfr_mul_2ui(newob->f, newob->f, 8*expomag, global.mpf_round);
+            mpfr_mul_2ui(newob->f, newob->f, 8*expomag, global.mpfr_round);
         /* apply significand-sign (sign of the overall number) */
         if (resusign)
-            mpfr_neg(newob->f, newob->f, global.mpf_round);
+            mpfr_neg(newob->f, newob->f, global.mpfr_round);
     }
     else {
         /* Don't allow NULL characters */
@@ -1526,7 +1527,7 @@ PyStr2Pympf(PyObject *s, long base, mpfr_prec_t bits)
             }
         }
         /* delegate the rest to MPFR */
-        if (-1 == mpfr_set_str(newob->f, (char*)cp, base, global.mpf_round)) {
+        if (-1 == mpfr_set_str(newob->f, (char*)cp, base, global.mpfr_round)) {
             VALUE_ERROR("invalid digits");
             Py_DECREF((PyObject*)newob);
             Py_XDECREF(ascii_str);
@@ -1552,14 +1553,14 @@ Pyxmpz2PyLong(PyxmpzObject *self)
 }
 
 /*
- * mpf->long delegates via mpf->mpz->long to avoid duplicating
+ * mpfr->long delegates via mpfr->mpz->long to avoid duplicating
  * the above-seen thorny dependencies; ditto mpq->long
  */
 static PyObject *
-Pympf2PyLong(PympfObject *self)
+Pympfr2PyLong(PympfrObject *self)
 {
     PyObject* result;
-    PympzObject *temp = Pympf2Pympz((PyObject*)self);
+    PympzObject *temp = Pympfr2Pympz((PyObject*)self);
 
     if (!temp)
         return NULL;
@@ -1608,15 +1609,15 @@ Pyxmpz_To_Integer(PyxmpzObject *self)
 }
 
 /*
- * mpf->int delegates via mpf->mpz->int for convenience; ditto mpq->int
+ * mpfr->int delegates via mpfr->mpz->int for convenience; ditto mpq->int
  */
 
 #ifdef PY2
 static PyObject *
-Pympf2PyInt(PympfObject *self)
+Pympfr2PyInt(PympfrObject *self)
 {
     PyObject* result;
-    PympzObject *temp = Pympf2Pympz((PyObject*)self);
+    PympzObject *temp = Pympfr2Pympz((PyObject*)self);
 
     if (!temp)
         return NULL;
@@ -1648,9 +1649,9 @@ Pympz2PyFloat(PympzObject *self)
 }
 
 static PyObject *
-Pympf2PyFloat(PympfObject *self)
+Pympfr2PyFloat(PympfrObject *self)
 {
-    double res = mpfr_get_d(self->f, global.mpf_round);
+    double res = mpfr_get_d(self->f, global.mpfr_round);
 
     return PyFloat_FromDouble(res);
 }
@@ -1767,7 +1768,7 @@ Pympq2binary(PympqObject *self)
 }
 
 /*
- * helper functions for mpf->binary conversion
+ * helper functions for mpfr->binary conversion
  * hof: maps a hex-digit character into 0..15
  * di256: maps two hex-digits chars into 0..255
  */
@@ -1789,11 +1790,11 @@ di256(int di1, int di2)
 }
 
 /*
- * build binary representation of mpf (see format description above)
+ * build binary representation of mpfr (see format description above)
  */
 
 static PyObject *
-Pympf2binary(PympfObject *self)
+Pympfr2binary(PympfrObject *self)
 {
     size_t size, hexdigs, i, j;
     char *buffer, *aux;
@@ -1816,14 +1817,14 @@ Pympf2binary(PympfObject *self)
     }
     else if (sign < 0) {
         codebyte = 1;
-        mpfr_neg(self->f, self->f, global.mpf_round);
+        mpfr_neg(self->f, self->f, global.mpfr_round);
     }
     else {
         codebyte = 0;
     }
 
     /* get buffer of base-16 digits */
-    buffer  = mpfr_get_str(0, &the_exp, 16, 0, self->f, global.mpf_round);
+    buffer  = mpfr_get_str(0, &the_exp, 16, 0, self->f, global.mpfr_round);
 
     /* strip trailing zeros */
     hexdigs = strlen(buffer) - 1;
@@ -1835,7 +1836,7 @@ Pympf2binary(PympfObject *self)
      */
     /* restore correct sign to x->f if it was changed! */
     if (codebyte) {
-        mpfr_neg(self->f, self->f, global.mpf_round);
+        mpfr_neg(self->f, self->f, global.mpfr_round);
     }
     hexdigs = strlen(buffer);
     /* adjust exponent, & possibly set codebyte's expo-sign bit.
@@ -2183,9 +2184,9 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
 
 #define OP_TAG 1
 #define OP_RAW 2
-static char ftag[]="mpf('";
+static char ftag[]="mpfr('";
 /*
- * format mpf into any base (2 to 62)
+ * format mpfr into any base (2 to 62)
  * digits: number of digits to ask MPFR for (0=all of
  *     them) -- fewer will be given, if fewer significant
  * minexfi: format as mantissa-exponent if exp<minexfi
@@ -2197,7 +2198,7 @@ static char ftag[]="mpf('";
  *     is _always_ explicitly inserted by this function
  *     (except when bit OP_RAW is set in optionflags).
  * optionflags: bitmap of option-values; currently:
- *     OP_TAG (1): add the mpf('...') tag
+ *     OP_TAG (1): add the mpfr('...') tag
  *     OP_RAW (2): ignore minexfi/maxexfi/OP_TAG
  *         and return a 3-element tuple digits/exponent/rprec
  *         (as GMP gives them) for Python formatting;
@@ -2206,7 +2207,7 @@ static char ftag[]="mpf('";
  *     other bits are currently ignored
  */
 static PyObject *
-Pympf_ascii(PympfObject *self, int base, int digits,
+Pympfr_ascii(PympfrObject *self, int base, int digits,
     int minexfi, int maxexfi, int optionflags)
 {
     PyObject *result;
@@ -2218,7 +2219,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
     size_t buflen;
 
     /* check arguments are valid */
-    assert(Pympf_Check((PyObject*)self));
+    assert(Pympfr_Check((PyObject*)self));
     if (!((base >= 2) && (base <= 62))) {
         VALUE_ERROR("base must be in the interval 2 ... 62");
         return NULL;
@@ -2235,7 +2236,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
                 result = Py_BuildValue("(sii)", "nan", 0, 0);
             else
                 if (optionflags & OP_TAG)
-                    result = Py_BuildValue("s", "mpf('nan')");
+                    result = Py_BuildValue("s", "mpfr('nan')");
                 else
                     result = Py_BuildValue("s", "nan");
         }
@@ -2244,7 +2245,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
                 result = Py_BuildValue("(sii)", "inf", 0, 0);
             else
                 if (optionflags & OP_TAG)
-                    result = Py_BuildValue("s", "mpf('inf')");
+                    result = Py_BuildValue("s", "mpfr('inf')");
                 else
                     result = Py_BuildValue("s", "inf");
         }
@@ -2253,7 +2254,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
                 result = Py_BuildValue("(sii)", "-inf", 0, 0);
             else
                 if (optionflags & OP_TAG)
-                    result = Py_BuildValue("s", "mpf('-inf')");
+                    result = Py_BuildValue("s", "mpfr('-inf')");
                 else
                     result = Py_BuildValue("s", "-inf");
         }
@@ -2264,7 +2265,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
                                        mpfr_get_prec(self->f));
             else
                 if (optionflags & OP_TAG)
-                    result = Py_BuildValue("s", "mpf('-0.0e0')");
+                    result = Py_BuildValue("s", "mpfr('-0.0e0')");
                 else
                     result = Py_BuildValue("s", "-0.0e0");
         }
@@ -2274,7 +2275,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
                                        mpfr_get_prec(self->f));
             else
                 if (optionflags & OP_TAG)
-                    result = Py_BuildValue("s", "mpf('0.0e0')");
+                    result = Py_BuildValue("s", "mpfr('0.0e0')");
                 else
                     result = Py_BuildValue("s", "0.0e0");
         }
@@ -2282,9 +2283,9 @@ Pympf_ascii(PympfObject *self, int base, int digits,
     }
 
     /* obtain digits-string and exponent */
-    buffer = mpfr_get_str(0, &the_exp, base, digits, self->f, global.mpf_round);
+    buffer = mpfr_get_str(0, &the_exp, base, digits, self->f, global.mpfr_round);
     if (!*buffer) {
-        SYSTEM_ERROR("Internal error in Pympf_ascii");
+        SYSTEM_ERROR("Internal error in Pympfr_ascii");
         return NULL;
     }
 
@@ -2466,7 +2467,7 @@ static int isFloat(PyObject* obj)
     else if (Pympq_Check(obj)) {
         return 1;
     }
-    else if (Pympf_Check(obj)) {
+    else if (Pympfr_Check(obj)) {
         return 1;
     }
     else if (Pyxmpz_Check(obj)) {
@@ -2572,8 +2573,8 @@ anynum2Pympq(PyObject* obj)
         newob = PyInt2Pympq(obj);
 #endif
     }
-    else if (Pympf_Check(obj)) {
-        newob = Pympf2Pympq(obj);
+    else if (Pympfr_Check(obj)) {
+        newob = Pympfr2Pympq(obj);
     }
     else if (PyFloat_Check(obj)) {
         newob = PyFloat2Pympq(obj);
@@ -2667,8 +2668,8 @@ anynum2Pympz(PyObject* obj)
     else if (Pympq_Check(obj)) {
         newob = Pympq2Pympz(obj);
     }
-    else if (Pympf_Check(obj)) {
-        newob = Pympf2Pympz(obj);
+    else if (Pympfr_Check(obj)) {
+        newob = Pympfr2Pympz(obj);
     }
     else if (PyFloat_Check(obj)) {
         newob = PyFloat2Pympz(obj);
@@ -2718,8 +2719,8 @@ anynum2Pyxmpz(PyObject* obj)
     else if (Pympq_Check(obj)) {
         newob = Pympq2Pyxmpz(obj);
     }
-    else if (Pympf_Check(obj)) {
-        newob = Pympf2Pyxmpz(obj);
+    else if (Pympfr_Check(obj)) {
+        newob = Pympfr2Pyxmpz(obj);
     }
     else if (PyFloat_Check(obj)) {
         newob = PyFloat2Pyxmpz(obj);
@@ -2857,52 +2858,52 @@ ssize_t_From_Integer(PyObject *obj)
 
 /*
  * If obj is a PyFloat and bits is 0, then the conversion is done exactly.
- * If obj is a Pympf and bits is 0 or bits is the same as the precision of
+ * If obj is a Pympfr and bits is 0 or bits is the same as the precision of
  * obj, then a new reference is created.
  *
  * For all other numerical types with bits = 0, the conversion is rounded to
- * global.mpf_prec.
+ * global.mpfr_prec.
  */
 
-static PympfObject*
-Pympf_From_Float(PyObject* obj, mpfr_prec_t bits)
+static PympfrObject*
+Pympfr_From_Float(PyObject* obj, mpfr_prec_t bits)
 {
-    PympfObject* newob = 0;
+    PympfrObject* newob = 0;
     PympqObject* temp = 0;
 
-    if (Pympf_Check(obj)) {
-        newob = (PympfObject*) obj;
+    if (Pympfr_Check(obj)) {
+        newob = (PympfrObject*) obj;
         if (!bits || mpfr_get_prec(newob->f) == bits) {
             Py_INCREF(obj);
         }
         else {
-            newob = Pympf2Pympf((PyObject*)newob, bits);
+            newob = Pympfr2Pympfr((PyObject*)newob, bits);
         }
     }
     else if (PyFloat_Check(obj)) {
-        newob = PyFloat2Pympf(obj, bits);
+        newob = PyFloat2Pympfr(obj, bits);
 #ifdef PY2
     }
     else if (PyInt_Check(obj)) {
-        newob = PyInt2Pympf(obj, bits);
+        newob = PyInt2Pympfr(obj, bits);
 #endif
     }
     else if (Pympq_Check(obj)) {
-        newob = Pympq2Pympf(obj, bits);
+        newob = Pympq2Pympfr(obj, bits);
     }
     else if (Pympz_Check(obj)) {
-        newob = Pympz2Pympf(obj, bits);
+        newob = Pympz2Pympfr(obj, bits);
     }
     else if (PyLong_Check(obj)) {
-        newob = PyLong2Pympf(obj, bits);
+        newob = PyLong2Pympfr(obj, bits);
     }
     else if (Pyxmpz_Check(obj)) {
-        newob = Pyxmpz2Pympf(obj, bits);
+        newob = Pyxmpz2Pympfr(obj, bits);
     }
     else if (!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
         PyObject *s = PyObject_Str(obj);
         if (s) {
-            newob = PyStr2Pympf(s, 10, bits);
+            newob = PyStr2Pympfr(s, 10, bits);
             if (!newob) {
                 Py_DECREF(s);
                 return NULL;
@@ -2914,14 +2915,14 @@ Pympf_From_Float(PyObject* obj, mpfr_prec_t bits)
         PyObject *s = PyObject_Str(obj);
         if (s) {
             temp = PyStr2Pympq(s, 10);
-            newob = Pympq2Pympf((PyObject *)temp, bits);
+            newob = Pympq2Pympfr((PyObject *)temp, bits);
             Py_DECREF(s);
             Py_DECREF((PyObject*)temp);
         }
     }
 #ifdef DEBUG
     if (global.debug)
-        fprintf(stderr, "Pympf_From_Float(%p,%ld)->%p (%ld)\n", obj,
+        fprintf(stderr, "Pympfr_From_Float(%p,%ld)->%p (%ld)\n", obj,
                 (long)bits, newob, newob != 0 ? (long)mpfr_get_prec(newob->f) : -1);
 #endif
     return newob;
@@ -2977,20 +2978,20 @@ Pympq_convert_arg(PyObject *arg, PyObject **ptr)
  */
 
 int
-Pympf_convert_arg(PyObject *arg, PyObject **ptr)
+Pympfr_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympfObject* newob = Pympf_From_Float(arg, 0);
+    PympfrObject* newob = Pympfr_From_Float(arg, 0);
 
 #ifdef DEBUG
     if (global.debug)
-        fprintf(stderr, "mpf_conv_arg(%p)->%p\n", arg, newob);
+        fprintf(stderr, "mpfr_conv_arg(%p)->%p\n", arg, newob);
 #endif
     if (newob) {
         *ptr = (PyObject*)newob;
         return 1;
     }
     else {
-        TYPE_ERROR("argument can not be converted to mpf");
+        TYPE_ERROR("argument can not be converted to mpfr");
         return 0;
     }
 }
@@ -3042,17 +3043,17 @@ Pympq2repr(PympqObject *self)
 
 /* str and repr implementations for mpz */
 static PyObject *
-Pympf2str(PympfObject *self)
+Pympfr2str(PympfrObject *self)
 {
     /* base-10, FP for exp -2 to 8, no tag */
-    return Pympf_ascii(self, 10, 0, -2, 8, 0);
+    return Pympfr_ascii(self, 10, 0, -2, 8, 0);
 }
 
 static PyObject *
-Pympf2repr(PympfObject *self)
+Pympfr2repr(PympfrObject *self)
 {
     /* base-10, always mantissa+exp, with tag */
-    return Pympf_ascii(self, 10, 0, 0, -1, OP_TAG);
+    return Pympfr_ascii(self, 10, 0, 0, -1, OP_TAG);
 }
 
 
@@ -3060,7 +3061,7 @@ Pympf2repr(PympfObject *self)
 static char doc_mpz[] = "\
 mpz(n):\n\
       builds an mpz object with a numeric value n (truncating n\n\
-      to its integer part if it's a float or mpf)\n\
+      to its integer part if it's a float or mpfr)\n\
 mpz(s,base=0):\n\
       builds an mpz object from a string s made up of digits in the\n\
       given base.  If base=0, binary, octal, or hex Python strings\n\
@@ -3098,7 +3099,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
                 return NULL;
             }
             if ((base!=0) && (base!=256) && ((base<2)||(base>62))) {
-                VALUE_ERROR("base for gmpy2.mpz must be 0, 256, or in the "
+                VALUE_ERROR("base for gmpy2.mpz() must be 0, 256, or in the "
                             "interval 2 ... 62");
                 return NULL;
             }
@@ -3131,7 +3132,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
 static char doc_xmpz[] = "\
 xmpz(n):\n\
     builds an xmpz object from any number n (truncating n\n\
-    to its integer part if it's a float or mpf)\n\
+    to its integer part if it's a float or mpfr)\n\
 xmpz(s, base=0):\n\
     builds an xmpz object from a string s made up of digits in the\n\
     given base.  If base=0, binary, octal, and hex Python strings\n\
@@ -3295,40 +3296,40 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
     return (PyObject *) newob;
 }
 
-static char doc_mpf[] = "\
-mpf(n):\n\
-    builds an mpf object with a numeric value n (n may be any\n\
-    Python number, or an mpz, mpq, or mpf object) and a default\n\
+static char doc_mpfr[] = "\
+mpfr(n):\n\
+    builds an mpfr object with a numeric value n (n may be any\n\
+    Python number, or an mpz, mpq, or mpfr object) and a default\n\
     precision (in bits) depending on the nature of n\n\
-mpf(n,bits=0):\n\
+mpfr(n,bits=0):\n\
     as above, but with the specified number of bits (0\n\
     means to use default precision, as above)\n\
-mpf(s,bits=0,base=10):\n\
-    builds an mpf object from a string s made up of\n\
+mpfr(s,bits=0,base=10):\n\
+    builds an mpfr object from a string s made up of\n\
     digits in the given base, possibly with fraction-part (with\n\
     period as a separator) and/or exponent-part (with exponent\n\
     marker 'e' for base<=10, else '@'). If base=256, s must be\n\
-    a gmpy2.mpf portable binary representation as built by the\n\
-    function gmpy2.fbinary (and the .binary method of mpf objects).\n\
-    The resulting mpf object is built with a default precision (in\n\
+    a gmpy2.mpfr portable binary representation as built by the\n\
+    function gmpy2.binary (and the .binary method of mpfr objects).\n\
+    The resulting mpfr object is built with a default precision (in\n\
     bits) if bits is 0 or absent, else with the specified number\n\
     of bits.\n\
 ";
 static PyObject *
-Pygmpy_mpf(PyObject *self, PyObject *args)
+Pygmpy_mpfr(PyObject *self, PyObject *args)
 {
-    PympfObject *newob;
+    PympfrObject *newob;
     PyObject *obj;
     Py_ssize_t argc;
     mpfr_prec_t bits=0;
 
-    TRACE("Pygmpy_mpf() called...\n");
+    TRACE("Pygmpy_mpfr() called...\n");
 
     assert(PyTuple_Check(args));
 
     argc = PyTuple_Size(args);
     if ((argc < 1) || (argc > 3)) {
-        TYPE_ERROR("gmpy2.mpf() requires 1 to 3 arguments");
+        TYPE_ERROR("gmpy2.mpfr() requires 1 to 3 arguments");
         return NULL;
     }
 
@@ -3339,11 +3340,11 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
         PyObject *pbits = PyTuple_GetItem(args, 1);
         sbits = clong_From_Integer(pbits);
         if (sbits == -1 && PyErr_Occurred()) {
-            TYPE_ERROR("gmpy2.mpf(): bits must be an integer");
+            TYPE_ERROR("gmpy2.mpfr(): bits must be an integer");
             return NULL;
         }
         if (sbits<0) {
-            VALUE_ERROR("bits for gmpy2.mpf must be >= 0");
+            VALUE_ERROR("bits for gmpy2.mpfr() must be >= 0");
             return NULL;
         }
         bits = sbits;
@@ -3356,42 +3357,42 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
             PyObject *pbase = PyTuple_GetItem(args, 2);
             base = clong_From_Integer(pbase);
             if (base == -1 && PyErr_Occurred()) {
-                TYPE_ERROR("gmpy2.mpf(): base must be an integer");
+                TYPE_ERROR("gmpy2.mpfr(): base must be an integer");
                 return NULL;
             }
             if ((base!=0) && (base!=256) && ((base<2)||(base>62))) {
-                VALUE_ERROR("base for gmpy2.mpf must be 0, 256, or in the "
+                VALUE_ERROR("base for gmpy2.mpfr() must be 0, 256, or in the "
                             "interval 2 ... 62");
                 return NULL;
             }
         }
-        newob = PyStr2Pympf(obj, base, bits);
+        newob = PyStr2Pympfr(obj, base, bits);
         if (!newob) {
             return NULL;
         }
     }
     else {
         if (argc==3) {
-            TYPE_ERROR("gmpy2.mpf() with numeric 1st argument needs 1 or 2 arguments");
+            TYPE_ERROR("gmpy2.mpfr() with numeric 1st argument needs 1 or 2 arguments");
             return NULL;
         }
-        newob = Pympf_From_Float(obj, bits);
+        newob = Pympfr_From_Float(obj, bits);
         if (!newob) {
             if (!PyErr_Occurred())
-                TYPE_ERROR("gmpy2.mpf() requires numeric or string argument");
+                TYPE_ERROR("gmpy2.mpfr() requires numeric or string argument");
             return NULL;
         }
     }
 #ifdef DEBUG
     if (global.debug) {
-        fputs("Pygmpy_mpf: created mpf = ", stderr);
-        mpfr_out_str(stderr, 10, 0, newob->f, global.mpf_round);
+        fputs("Pygmpy_mpfr: created mpfr = ", stderr);
+        mpfr_out_str(stderr, 10, 0, newob->f, global.mpfr_round);
         fprintf(stderr," bits=%ld (%ld)\n",
                 (long)mpfr_get_prec(newob->f), (long)bits);
     }
 #endif
     return (PyObject *) newob;
-} /* Pygmpy_mpf() */
+} /* Pygmpy_mpfr() */
 
 /* Helper function for hashing for Python < 3.2 */
 #ifndef _PyHASH_MODULUS
@@ -3471,9 +3472,9 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         TRACE("compare (mpq,mpq)\n");
         return _cmp_to_object(mpq_cmp(Pympq_AS_MPQ(a), Pympq_AS_MPQ(b)), op);
     }
-    if (Pympf_Check(a) && Pympf_Check(b)) {
-        TRACE("compare (mpf,mpf)\n");
-        return _cmp_to_object(mpfr_cmp(Pympf_AS_MPF(a), Pympf_AS_MPF(b)), op);
+    if (Pympfr_Check(a) && Pympfr_Check(b)) {
+        TRACE("compare (mpfr,mpfr)\n");
+        return _cmp_to_object(mpfr_cmp(Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b)), op);
     }
     if (isInteger(a) && isInteger(b)) {
         TRACE("compare (mpz,int)\n");
@@ -3494,7 +3495,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         return _cmp_to_object(c, op);
     }
     if (isFloat(a) && isFloat(b)) {
-        TRACE("compare (mpf,float)\n");
+        TRACE("compare (mpfr,float)\n");
         /* Handle non-numbers separately. */
         if (PyFloat_Check(b)) {
             double d = PyFloat_AS_DOUBLE(b);
@@ -3512,9 +3513,9 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 }
             }
         }
-        tempa = (PyObject*)Pympf_From_Float(a,0);
-        tempb = (PyObject*)Pympf_From_Float(b,0);
-        c = mpfr_cmp(Pympf_AS_MPF(tempa), Pympf_AS_MPF(tempb));
+        tempa = (PyObject*)Pympfr_From_Float(a,0);
+        tempb = (PyObject*)Pympfr_From_Float(b,0);
+        c = mpfr_cmp(Pympfr_AS_MPFR(tempa), Pympfr_AS_MPFR(tempb));
         Py_DECREF(tempa);
         Py_DECREF(tempb);
         return _cmp_to_object(c, op);
@@ -3802,7 +3803,7 @@ static PyGetSetDef Pympq_getseters[] =
 };
 
 #ifdef PY3
-static PyNumberMethods mpf_number_methods =
+static PyNumberMethods mpfr_number_methods =
 {
     (binaryfunc) Pympany_add,            /* nb_add                  */
     (binaryfunc) Pympany_sub,            /* nb_subtract             */
@@ -3811,18 +3812,18 @@ static PyNumberMethods mpf_number_methods =
     (binaryfunc) Pympany_divmod,         /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
     (unaryfunc) Pympfr_neg,              /* nb_negative             */
-    (unaryfunc) Pympf_pos,               /* nb_positive             */
+    (unaryfunc) Pympfr_pos,              /* nb_positive             */
     (unaryfunc) Pympfr_abs,              /* nb_absolute             */
-    (inquiry) Pympf_nonzero,             /* nb_bool                 */
+    (inquiry) Pympfr_nonzero,            /* nb_bool                 */
         0,                               /* nb_invert               */
         0,                               /* nb_lshift               */
         0,                               /* nb_rshift               */
         0,                               /* nb_and                  */
         0,                               /* nb_xor                  */
         0,                               /* nb_or                   */
-    (unaryfunc) Pympf2PyLong,            /* nb_int                  */
+    (unaryfunc) Pympfr2PyLong,           /* nb_int                  */
         0,                               /* nb_reserved             */
-    (unaryfunc) Pympf2PyFloat,           /* nb_float                */
+    (unaryfunc) Pympfr2PyFloat,          /* nb_float                */
         0,                               /* nb_inplace_add          */
         0,                               /* nb_inplace_subtract     */
         0,                               /* nb_inplace_multiply     */
@@ -3840,7 +3841,7 @@ static PyNumberMethods mpf_number_methods =
         0,                               /* nb_index                */
 };
 #else
-static PyNumberMethods mpf_number_methods =
+static PyNumberMethods mpfr_number_methods =
 {
     (binaryfunc) Pympany_add,            /* nb_add                  */
     (binaryfunc) Pympany_sub,            /* nb_subtract             */
@@ -3850,9 +3851,9 @@ static PyNumberMethods mpf_number_methods =
     (binaryfunc) Pympany_divmod,         /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
     (unaryfunc) Pympfr_neg,              /* nb_negative             */
-    (unaryfunc) Pympf_pos,               /* nb_positive             */
+    (unaryfunc) Pympfr_pos,               /* nb_positive             */
     (unaryfunc) Pympfr_abs,              /* nb_absolute             */
-    (inquiry) Pympf_nonzero,             /* nb_bool                 */
+    (inquiry) Pympfr_nonzero,             /* nb_bool                 */
         0,                               /* nb_invert               */
         0,                               /* nb_lshift               */
         0,                               /* nb_rshift               */
@@ -3860,9 +3861,9 @@ static PyNumberMethods mpf_number_methods =
         0,                               /* nb_xor                  */
         0,                               /* nb_or                   */
         0,                               /* nb_coerce               */
-    (unaryfunc) Pympf2PyInt,             /* nb_int                  */
-    (unaryfunc) Pympf2PyLong,            /* nb_long                 */
-    (unaryfunc) Pympf2PyFloat,           /* nb_float                */
+    (unaryfunc) Pympfr2PyInt,            /* nb_int                  */
+    (unaryfunc) Pympfr2PyLong,           /* nb_long                 */
+    (unaryfunc) Pympfr2PyFloat,          /* nb_float                */
         0,                               /* nb_oct                  */
         0,                               /* nb_hex                  */
         0,                               /* nb_inplace_add          */
@@ -3883,9 +3884,9 @@ static PyNumberMethods mpf_number_methods =
 };
 #endif
 
-static PyGetSetDef Pympf_getseters[] =
+static PyGetSetDef Pympfr_getseters[] =
 {
-    { "precision", (getter)Pympf_getprec2, NULL, "precision in bits", NULL },
+    { "precision", (getter)Pympfr_getprec_attrib, NULL, "precision in bits", NULL },
     {NULL}
 };
 
@@ -3893,16 +3894,16 @@ static PyMethodDef Pygmpy_methods [] =
 {
     { "_cvsid", Pygmpy_get_cvsid, METH_NOARGS, doc_cvsid },
     { "_copy", Pympany_copy, METH_O, doc_copyg },
-    { "acos", Pympf_acos, METH_O, doc_facosg },
-    { "acosh", Pympf_acosh, METH_O, doc_facoshg },
-    { "add", Pympfr_add, METH_VARARGS, doc_gmpy_add },
-    { "ai", Pympf_ai, METH_O, doc_faig },
-    { "agm", Pympfr_agm, METH_VARARGS, doc_gmpy_agm },
-    { "asin", Pympf_asin, METH_O, doc_fasing },
-    { "asinh", Pympf_asinh, METH_O, doc_fasinhg },
-    { "atan", Pympf_atan, METH_O, doc_fatang },
-    { "atanh", Pympf_atanh, METH_O, doc_fatanhg },
-    { "atan2", Pympfr_atan2, METH_VARARGS, doc_gmpy_atan2 },
+    { "acos", Pympfr_acos, METH_O, doc_g_mpfr_acos },
+    { "acosh", Pympfr_acosh, METH_O, doc_g_mpfr_acosh },
+    { "add", Pympfr_add, METH_VARARGS, doc_g_mpfr_add },
+    { "ai", Pympfr_ai, METH_O, doc_g_mpfr_ai },
+    { "agm", Pympfr_agm, METH_VARARGS, doc_g_mpfr_agm },
+    { "asin", Pympfr_asin, METH_O, doc_g_mpfr_asin },
+    { "asinh", Pympfr_asinh, METH_O, doc_g_mpfr_asinh },
+    { "atan", Pympfr_atan, METH_O, doc_g_mpfr_atan },
+    { "atanh", Pympfr_atanh, METH_O, doc_g_mpfr_atanh },
+    { "atan2", Pympfr_atan2, METH_VARARGS, doc_g_mpfr_atan2 },
     { "bit_clear", Pygmpy_bit_clear, METH_VARARGS, doc_bit_clearg },
     { "bit_flip", Pygmpy_bit_flip, METH_VARARGS, doc_bit_flipg },
     { "bit_length", Pympz_bit_length, METH_O, doc_bit_lengthg },
@@ -3913,178 +3914,178 @@ static PyMethodDef Pygmpy_methods [] =
     { "bit_test", Pygmpy_bit_test, METH_VARARGS, doc_bit_testg },
     { "binary", Pympany_binary, METH_O, doc_binaryg },
     { "bincoef", Pympz_bincoef, METH_VARARGS, doc_bincoefg },
-    { "cbrt", Pympf_cbrt, METH_O, doc_gmpy_cbrt },
+    { "cbrt", Pympfr_cbrt, METH_O, doc_g_mpfr_cbrt },
     { "cdiv", Pygmpy_cdiv, METH_VARARGS, doc_cdivg },
     { "cdiv2exp", Pygmpy_cdiv2exp, METH_VARARGS, doc_cdiv2expg },
     { "cdivmod", Pygmpy_cdivmod, METH_VARARGS, doc_cdivmodg },
     { "cdivmod2exp", Pygmpy_cdivmod2exp, METH_VARARGS, doc_cdivmod2expg },
-    { "ceil", Pympf_ceil, METH_O, doc_ceilg },
-    { "clear_erangeflag", Pygmpy_clear_erangeflag, METH_NOARGS, doc_clear_erangeflag },
-    { "clear_flags", Pygmpy_clear_flags, METH_NOARGS, doc_clear_flags },
-    { "clear_inexactflag", Pygmpy_clear_inexflag, METH_NOARGS, doc_clear_inexflag },
-    { "clear_nanflag", Pygmpy_clear_nanflag, METH_NOARGS, doc_clear_nanflag },
-    { "clear_overflow", Pygmpy_clear_overflow, METH_NOARGS, doc_clear_overflow },
-    { "clear_underflow", Pygmpy_clear_underflow, METH_NOARGS, doc_clear_underflow },
+    { "ceil", Pympfr_ceil, METH_O, doc_g_mpfr_ceil },
+    { "clear_erangeflag", Pympfr_clear_erangeflag, METH_NOARGS, doc_g_mpfr_clear_erangeflag },
+    { "clear_flags", Pympfr_clear_flags, METH_NOARGS, doc_g_mpfr_clear_flags },
+    { "clear_inexactflag", Pympfr_clear_inexflag, METH_NOARGS, doc_g_mpfr_clear_inexflag },
+    { "clear_nanflag", Pympfr_clear_nanflag, METH_NOARGS, doc_g_mpfr_clear_nanflag },
+    { "clear_overflow", Pympfr_clear_overflow, METH_NOARGS, doc_g_mpfr_clear_overflow },
+    { "clear_underflow", Pympfr_clear_underflow, METH_NOARGS, doc_g_mpfr_clear_underflow },
     { "cmod", Pygmpy_cmod, METH_VARARGS, doc_cmodg },
     { "cmod2exp", Pygmpy_cmod2exp, METH_VARARGS, doc_cmod2expg },
     { "comb", Pympz_bincoef, METH_VARARGS, doc_combg },
-    { "const_catalan", Pygmpy_const_catalan, METH_NOARGS, doc_const_catalan },
-    { "const_euler", Pygmpy_const_euler, METH_NOARGS, doc_const_euler },
-    { "const_log2", Pygmpy_const_log2, METH_NOARGS, doc_const_log2 },
-    { "const_pi", Pygmpy_const_pi, METH_VARARGS, doc_const_pi },
-    { "cos", Pympf_cos, METH_O, doc_fcosg },
-    { "cosh", Pympf_cosh, METH_O, doc_fcoshg },
-    { "cot", Pympf_cot, METH_O, doc_fcotg },
-    { "coth", Pympf_coth, METH_O, doc_fcothg },
-    { "csc", Pympf_csc, METH_O, doc_fcscg },
-    { "csch", Pympf_csch, METH_O, doc_fcschg },
+    { "const_catalan", Pympfr_const_catalan, METH_NOARGS, doc_mpfr_const_catalan },
+    { "const_euler", Pympfr_const_euler, METH_NOARGS, doc_mpfr_const_euler },
+    { "const_log2", Pympfr_const_log2, METH_NOARGS, doc_mpfr_const_log2 },
+    { "const_pi", Pympfr_const_pi, METH_VARARGS, doc_mpfr_const_pi },
+    { "cos", Pympfr_cos, METH_O, doc_g_mpfr_cos },
+    { "cosh", Pympfr_cosh, METH_O, doc_g_mpfr_cosh },
+    { "cot", Pympfr_cot, METH_O, doc_g_mpfr_cot },
+    { "coth", Pympfr_coth, METH_O, doc_g_mpfr_coth },
+    { "csc", Pympfr_csc, METH_O, doc_g_mpfr_csc },
+    { "csch", Pympfr_csch, METH_O, doc_g_mpfr_csch },
     { "denom", Pympq_denom, METH_VARARGS, doc_denomg },
-    { "digamma", Pympf_digamma, METH_O, doc_fdigammag },
-    { "digits", Pygmpy_digits, METH_VARARGS, doc_gmpy_digits },
-    { "div", Pympfr_div, METH_VARARGS, doc_gmpy_div },
+    { "digamma", Pympfr_digamma, METH_O, doc_g_mpfr_digamma },
+    { "digits", Pympany_digits, METH_VARARGS, doc_g_mpany_digits },
+    { "div", Pympfr_div, METH_VARARGS, doc_g_mpfr_div },
     { "divexact", Pygmpy_divexact, METH_VARARGS, doc_divexactg },
     { "divm", Pygmpy_divm, METH_VARARGS, doc_divm },
-    { "eint", Pympf_eint, METH_O, doc_feintg },
-    { "erf", Pympf_erf, METH_O, doc_ferfg },
-    { "erfc", Pympf_erfc, METH_O, doc_ferfcg },
-    { "exp", Pympf_exp, METH_O, doc_fexpg },
-    { "expm1", Pympf_expm1, METH_O, doc_fexpm1g },
-    { "exp10", Pympf_exp10, METH_O, doc_fexp10g },
-    { "exp2", Pympf_exp2, METH_O, doc_fexp2g },
+    { "eint", Pympfr_eint, METH_O, doc_g_mpfr_eint },
+    { "erf", Pympfr_erf, METH_O, doc_g_mpfr_erf },
+    { "erfc", Pympfr_erfc, METH_O, doc_g_mpfr_erfc },
+    { "exp", Pympfr_exp, METH_O, doc_g_mpfr_exp },
+    { "expm1", Pympfr_expm1, METH_O, doc_g_mpfr_expm1 },
+    { "exp10", Pympfr_exp10, METH_O, doc_g_mpfr_exp10 },
+    { "exp2", Pympfr_exp2, METH_O, doc_g_mpfr_exp2 },
     { "fac", Pygmpy_fac, METH_O, doc_fac },
-    { "factorial", Pygmpy_factorial, METH_O, doc_factorial },
+    { "factorial", Pympfr_factorial, METH_O, doc_g_mpfr_factorial },
     { "fdiv", Pygmpy_fdiv, METH_VARARGS, doc_fdivg },
     { "fdiv2exp", Pygmpy_fdiv2exp, METH_VARARGS, doc_fdiv2expg },
     { "fdivmod", Pygmpy_fdivmod, METH_VARARGS, doc_fdivmodg },
     { "fdivmod2exp", Pygmpy_fdivmod2exp, METH_VARARGS, doc_fdivmod2expg },
     { "fib", Pygmpy_fib, METH_O, doc_fib },
     { "fib2", Pygmpy_fib2, METH_O, doc_fib2 },
-    { "floor", Pympf_floor, METH_O, doc_floorg },
-    { "fma", Pygmpy_fma, METH_VARARGS, doc_gmpy_fma },
-    { "fms", Pygmpy_fms, METH_VARARGS, doc_gmpy_fms },
+    { "floor", Pympfr_floor, METH_O, doc_g_mpfr_floor},
+    { "fma", Pympfr_fma, METH_VARARGS, doc_g_mpfr_fma },
+    { "fms", Pympfr_fms, METH_VARARGS, doc_g_mpfr_fms },
     { "fmod", Pygmpy_fmod, METH_VARARGS, doc_fmodg },
     { "fmod2exp", Pygmpy_fmod2exp, METH_VARARGS, doc_fmod2expg },
-    { "f2q", Pympf_f2q, METH_VARARGS, doc_f2qg },
-    { "gamma", Pympf_gamma, METH_O, doc_fgammag },
+    { "f2q", Pympfr_f2q, METH_VARARGS, doc_g_mpfr_f2q },
+    { "gamma", Pympfr_gamma, METH_O, doc_g_mpfr_gamma },
     { "gcd", Pygmpy_gcd, METH_VARARGS, doc_gcd },
     { "gcdext", Pygmpy_gcdext, METH_VARARGS, doc_gcdext },
     { "get_cache", Pygmpy_get_cache, METH_NOARGS, doc_get_cache },
-    { "get_emax", Pygmpy_get_emax, METH_NOARGS, doc_get_emax },
-    { "get_emax_max", Pygmpy_get_emax_max, METH_NOARGS, doc_get_emax_max },
-    { "get_emin", Pygmpy_get_emin, METH_NOARGS, doc_get_emin },
-    { "get_emin_min", Pygmpy_get_emin_min, METH_NOARGS, doc_get_emin_min },
-    { "get_max_precision", Pygmpy_get_max_precision, METH_NOARGS, doc_get_max_precision },
+    { "get_emax", Pympfr_get_emax, METH_NOARGS, doc_g_mpfr_get_emax },
+    { "get_emax_max", Pympfr_get_emax_max, METH_NOARGS, doc_g_mpfr_get_emax_max },
+    { "get_emin", Pympfr_get_emin, METH_NOARGS, doc_g_mpfr_get_emin },
+    { "get_emin_min", Pympfr_get_emin_min, METH_NOARGS, doc_g_mpfr_get_emin_min },
+    { "get_max_precision", Pympfr_get_max_precision, METH_NOARGS, doc_g_mpfr_get_max_precision },
     { "get_mode", Pygmpy_get_mode, METH_NOARGS, doc_get_mode },
-    { "get_mpc_round", Pygmpy_get_mpc_round, METH_NOARGS, doc_get_mpc_round },
-    { "get_mpf_status", Pygmpy_get_mpf_status, METH_NOARGS, doc_get_mpf_status },
-    { "get_mpf_round", Pygmpy_get_mpf_round, METH_NOARGS, doc_get_mpf_round },
-    { "get_mpf_precision", Pygmpy_get_mpf_precision, METH_NOARGS, doc_get_mpf_precision },
+    { "get_mpc_round", Pympc_get_mpc_round, METH_NOARGS, doc_g_mpc_get_mpc_round },
+    { "get_mpfr_status", Pympfr_get_mpfr_status, METH_NOARGS, doc_g_mpfr_get_mpfr_status },
+    { "get_mpfr_round", Pympfr_get_mpfr_round, METH_NOARGS, doc_g_mpfr_get_mpfr_round },
+    { "get_mpfr_precision", Pympfr_get_mpfr_precision, METH_NOARGS, doc_g_mpfr_get_mpfr_precision },
     { "hamdist", Pympz_hamdist, METH_VARARGS, doc_hamdistg },
-    { "hypot", Pympfr_hypot, METH_VARARGS, doc_gmpy_hypot },
-    { "inf", Pygmpy_set_inf, METH_O, doc_set_inf },
+    { "hypot", Pympfr_hypot, METH_VARARGS, doc_g_mpfr_hypot },
+    { "inf", Pympfr_set_inf, METH_O, doc_g_mpfr_set_inf },
     { "invert", Pygmpy_invert, METH_VARARGS, doc_invertg },
-    { "is_erangeflag", Pygmpy_is_erangeflag, METH_NOARGS, doc_is_erangeflag },
+    { "is_erangeflag", Pympfr_is_erangeflag, METH_NOARGS, doc_g_mpfr_is_erangeflag },
     { "is_even", Pympz_is_even, METH_O, doc_is_eveng },
-    { "is_inexactflag", Pygmpy_is_inexflag, METH_NOARGS, doc_is_inexflag },
-    { "is_inf", Pympf_is_inf, METH_O, doc_gmpy_is_inf },
-    { "is_lessgreater", Pympf_lessgreater, METH_VARARGS, doc_gmpy_lessgreater },
-    { "is_nan", Pympf_is_nan, METH_O, doc_gmpy_is_nan },
-    { "is_nanflag", Pygmpy_is_nanflag, METH_NOARGS, doc_is_nanflag },
-    { "is_number", Pympf_is_number, METH_O, doc_gmpy_is_number },
+    { "is_inexactflag", Pympfr_is_inexflag, METH_NOARGS, doc_g_mpfr_is_inexflag },
+    { "is_inf", Pympfr_is_inf, METH_O, doc_g_mpfr_is_inf },
+    { "is_lessgreater", Pympfr_is_lessgreater, METH_VARARGS, doc_g_mpfr_is_lessgreater },
+    { "is_nan", Pympfr_is_nan, METH_O, doc_g_mpfr_is_nan },
+    { "is_nanflag", Pympfr_is_nanflag, METH_NOARGS, doc_g_mpfr_is_nanflag },
+    { "is_number", Pympfr_is_number, METH_O, doc_g_mpfr_is_number },
     { "is_odd", Pympz_is_odd, METH_O, doc_is_oddg },
-    { "is_overflow", Pygmpy_is_overflow, METH_NOARGS, doc_is_overflow },
+    { "is_overflow", Pympfr_is_overflow, METH_NOARGS, doc_g_mpfr_is_overflow },
     { "is_power", Pympz_is_power, METH_O, doc_is_powerg },
     { "is_prime", Pympz_is_prime, METH_VARARGS, doc_is_primeg },
-    { "is_regular", Pympf_is_regular, METH_O, doc_gmpy_is_regular },
+    { "is_regular", Pympfr_is_regular, METH_O, doc_g_mpfr_is_regular },
     { "is_square", Pympz_is_square, METH_O, doc_is_squareg },
-    { "is_underflow", Pygmpy_is_underflow, METH_NOARGS, doc_is_underflow },
-    { "is_unordered", Pympf_unordered, METH_VARARGS, doc_gmpy_unordered },
-    { "is_zero", Pympf_is_zero, METH_O, doc_gmpy_is_zero },
+    { "is_underflow", Pympfr_is_underflow, METH_NOARGS, doc_g_mpfr_is_underflow },
+    { "is_unordered", Pympfr_is_unordered, METH_VARARGS, doc_g_mpfr_is_unordered },
+    { "is_zero", Pympfr_is_zero, METH_O, doc_g_mpfr_is_zero },
     { "jacobi", Pympz_jacobi, METH_VARARGS, doc_jacobig },
-    { "jn", Pympf_jn, METH_VARARGS, doc_gmpy_jn },
-    { "j0", Pympf_j0, METH_O, doc_fj0g },
-    { "j1", Pympf_j1, METH_O, doc_fj1g },
+    { "jn", Pympfr_jn, METH_VARARGS, doc_g_mpfr_jn },
+    { "j0", Pympfr_j0, METH_O, doc_g_mpfr_j0 },
+    { "j1", Pympfr_j1, METH_O, doc_g_mpfr_j1 },
     { "kronecker", Pympz_kronecker, METH_VARARGS, doc_kroneckerm },
     { "lcm", Pygmpy_lcm, METH_VARARGS, doc_lcm },
     { "legendre", Pympz_legendre, METH_VARARGS, doc_legendreg },
-    { "lgamma", Pympf_lgamma, METH_O, doc_gmpy_lgamma },
+    { "lgamma", Pympfr_lgamma, METH_O, doc_g_mpfr_lgamma },
     { "license", Pygmpy_get_license, METH_NOARGS, doc_license },
-    { "li2", Pympf_li2, METH_O, doc_fli2g },
-    { "lngamma", Pympf_lngamma, METH_O, doc_flngammag },
-    { "log", Pympf_log, METH_O, doc_flogg },
-    { "log1p", Pympf_log1p, METH_O, doc_flog1pg },
-    { "log10", Pympf_log10, METH_O, doc_flog10g },
-    { "log2", Pympf_log2, METH_O, doc_flog2g },
+    { "li2", Pympfr_li2, METH_O, doc_g_mpfr_li2 },
+    { "lngamma", Pympfr_lngamma, METH_O, doc_g_mpfr_lngamma },
+    { "log", Pympfr_log, METH_O, doc_g_mpfr_log },
+    { "log1p", Pympfr_log1p, METH_O, doc_g_mpfr_log1p },
+    { "log10", Pympfr_log10, METH_O, doc_g_mpfr_log10 },
+    { "log2", Pympfr_log2, METH_O, doc_g_mpfr_log2 },
     { "lucas", Pygmpy_lucas, METH_O, doc_lucas },
     { "lucas2", Pygmpy_lucas2, METH_O, doc_lucas2 },
-    { "max", Pympfr_max, METH_VARARGS, doc_gmpy_max },
-    { "min", Pympfr_min, METH_VARARGS, doc_gmpy_min },
-    { "mpf", Pygmpy_mpf, METH_VARARGS, doc_mpf },
+    { "max", Pympfr_max, METH_VARARGS, doc_g_mpfr_max },
+    { "min", Pympfr_min, METH_VARARGS, doc_g_mpfr_min },
+    { "mpfr", Pygmpy_mpfr, METH_VARARGS, doc_mpfr },
     { "mp_version", Pygmpy_get_mp_version, METH_NOARGS, doc_mp_version },
     { "mp_limbsize", Pygmpy_get_mp_limbsize, METH_NOARGS, doc_mp_limbsize },
     { "mpfr_version", Pygmpy_get_mpfr_version, METH_NOARGS, doc_mpfr_version },
     { "mpq", Pygmpy_mpq, METH_VARARGS, doc_mpq },
     { "mpz", Pygmpy_mpz, METH_VARARGS, doc_mpz },
-    { "mul", Pympfr_mul, METH_VARARGS, doc_gmpy_mul },
-    { "nan", Pygmpy_set_nan, METH_NOARGS, doc_set_nan },
-    { "next_above", Pympfr_nextabove, METH_O, doc_gmpy_nextabove },
-    { "next_below", Pympfr_nextbelow, METH_O, doc_gmpy_nextbelow },
+    { "mul", Pympfr_mul, METH_VARARGS, doc_g_mpfr_mul },
+    { "nan", Pympfr_set_nan, METH_NOARGS, doc_g_mpfr_set_nan },
+    { "next_above", Pympfr_nextabove, METH_O, doc_g_mpfr_nextabove },
+    { "next_below", Pympfr_nextbelow, METH_O, doc_g_mpfr_nextbelow },
     { "next_prime", Pympz_next_prime, METH_O, doc_next_primeg },
-    { "next_toward", Pympfr_nexttoward, METH_VARARGS, doc_gmpy_nexttoward },
+    { "next_toward", Pympfr_nexttoward, METH_VARARGS, doc_g_mpfr_nexttoward },
     { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsg },
     { "numer", Pympq_numer, METH_VARARGS, doc_numerg },
     { "pack", Pygmpy_pack, METH_VARARGS, doc_packg },
     { "popcount", Pympz_popcount, METH_O, doc_popcountg },
-    { "pow", Pympfr_pow, METH_VARARGS, doc_gmpy_pow },
+    { "pow", Pympfr_pow, METH_VARARGS, doc_g_mpfr_pow },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivg },
-    { "rec_sqrt", Pympf_rec_sqrt, METH_O, doc_gmpy_rec_sqrt },
-    { "reldiff", Pympf_doreldiff, METH_VARARGS, doc_reldiffg },
+    { "rec_sqrt", Pympfr_rec_sqrt, METH_O, doc_g_mpfr_rec_sqrt },
+    { "reldiff", Pympfr_reldiff, METH_VARARGS, doc_g_mpfr_reldiff },
     { "remove", Pympz_remove, METH_VARARGS, doc_removeg },
-    { "root", Pygmpy_root, METH_VARARGS, doc_gmpy_root },
+    { "root", Pympany_root, METH_VARARGS, doc_g_mpany_root },
     { "rootrem", Pympz_rootrem, METH_VARARGS, doc_rootremg },
-    { "round", Pympf_round, METH_VARARGS, doc_mpf_roundg },
-    { "sec", Pympf_sec, METH_O, doc_fsecg },
-    { "sech", Pympf_sech, METH_O, doc_fsechg },
+    { "round", Pympfr_round, METH_VARARGS, doc_g_mpfr_round },
+    { "sec", Pympfr_sec, METH_O, doc_g_mpfr_sec },
+    { "sech", Pympfr_sech, METH_O, doc_g_mpfr_sech },
     { "set_cache", Pygmpy_set_cache, METH_VARARGS, doc_set_cache },
     { "set_debug", Pygmpy_set_debug, METH_VARARGS, doc_set_debug },
-    { "set_emax", Pygmpy_set_emax, METH_VARARGS, doc_set_emax },
-    { "set_emin", Pygmpy_set_emin, METH_VARARGS, doc_set_emin },
-    { "set_flag_erange", Pygmpy_set_erangeflag, METH_NOARGS, doc_set_erangeflag },
-    { "set_flag_inexact", Pygmpy_set_inexflag, METH_NOARGS, doc_set_inexflag },
-    { "set_flag_nan", Pygmpy_set_nanflag, METH_NOARGS, doc_set_nanflag },
-    { "set_flag_underflow", Pygmpy_set_underflow, METH_NOARGS, doc_set_underflow },
-    { "set_mpc_round", Pygmpy_set_mpc_round, METH_VARARGS, doc_set_mpc_round },
+    { "set_emax", Pympfr_set_emax, METH_VARARGS, doc_g_mpfr_set_emax },
+    { "set_emin", Pympfr_set_emin, METH_VARARGS, doc_g_mpfr_set_emin },
+    { "set_flag_erange", Pympfr_set_erangeflag, METH_NOARGS, doc_g_mpfr_set_erangeflag },
+    { "set_flag_inexact", Pympfr_set_inexflag, METH_NOARGS, doc_g_mpfr_set_inexflag },
+    { "set_flag_nan", Pympfr_set_nanflag, METH_NOARGS, doc_g_mpfr_set_nanflag },
+    { "set_flag_underflow", Pympfr_set_underflow, METH_NOARGS, doc_g_mpfr_set_underflow },
+    { "set_mpc_round", Pympc_set_mpc_round, METH_VARARGS, doc_g_mpc_set_mpc_round },
     { "set_mode", Pygmpy_set_mode, METH_VARARGS, doc_set_mode },
-    { "set_mpf_round", Pygmpy_set_mpf_round, METH_VARARGS, doc_set_mpf_round },
-    { "set_mpf_precision", Pygmpy_set_mpf_precision, METH_VARARGS, doc_set_mpf_precision },
-    { "set_overflow", Pygmpy_set_overflow, METH_NOARGS, doc_set_overflow },
-    { "sign", Pygmpy_sign, METH_O, doc_gmpy_sign },
-    { "sin", Pympf_sin, METH_O, doc_fsing },
-    { "sinh", Pympf_sinh, METH_O, doc_fsinhg },
-    { "sinh_cosh", Pympfr_sinh_cosh, METH_O, doc_gmpy_sinh_cosh },
-    { "sin_cos", Pympfr_sin_cos, METH_O, doc_gmpy_sin_cos },
-    { "square", Pygmpy_square, METH_O, doc_gmpy_square },
-    { "sqrt", Pygmpy_sqrt, METH_O, doc_gmpy_sqrt },
+    { "set_mpfr_round", Pympfr_set_mpfr_round, METH_VARARGS, doc_g_mpfr_set_mpfr_round },
+    { "set_mpfr_precision", Pympfr_set_mpfr_precision, METH_VARARGS, doc_g_mpfr_set_mpfr_precision },
+    { "set_overflow", Pympfr_set_overflow, METH_NOARGS, doc_g_mpfr_set_overflow },
+    { "sign", Pympany_sign, METH_O, doc_g_mpany_sign },
+    { "sin", Pympfr_sin, METH_O, doc_g_mpfr_sin },
+    { "sinh", Pympfr_sinh, METH_O, doc_g_mpfr_sinh },
+    { "sinh_cosh", Pympfr_sinh_cosh, METH_O, doc_g_mpfr_sinh_cosh },
+    { "sin_cos", Pympfr_sin_cos, METH_O, doc_g_mpfr_sin_cos },
+    { "square", Pympany_square, METH_O, doc_g_mpany_square },
+    { "sqrt", Pympany_sqrt, METH_O, doc_g_mpany_sqrt },
     { "sqrtrem", Pympz_sqrtrem, METH_VARARGS, doc_sqrtremg },
-    { "sub", Pympfr_sub, METH_VARARGS, doc_gmpy_sub },
-    { "tan", Pympf_tan, METH_O, doc_ftang },
-    { "tanh", Pympf_tanh, METH_O, doc_ftanhg },
+    { "sub", Pympfr_sub, METH_VARARGS, doc_g_mpfr_sub },
+    { "tan", Pympfr_tan, METH_O, doc_g_mpfr_tan },
+    { "tanh", Pympfr_tanh, METH_O, doc_g_mpfr_tanh },
     { "tdiv", Pygmpy_tdiv, METH_VARARGS, doc_tdivg },
     { "tdiv2exp", Pygmpy_tdiv2exp, METH_VARARGS, doc_tdiv2expg },
     { "tdivmod", Pygmpy_tdivmod, METH_VARARGS, doc_tdivmodg },
     { "tdivmod2exp", Pygmpy_tdivmod2exp, METH_VARARGS, doc_tdivmod2expg },
     { "tmod", Pygmpy_tmod, METH_VARARGS, doc_tmodg },
     { "tmod2exp", Pygmpy_tmod2exp, METH_VARARGS, doc_tmod2expg },
-    { "trunc", Pympf_trunc, METH_O, doc_truncg },
+    { "trunc", Pympfr_trunc, METH_O, doc_g_mpfr_trunc },
     { "unpack", Pygmpy_unpack, METH_VARARGS, doc_unpackg },
     { "version", Pygmpy_get_version, METH_NOARGS, doc_version },
     { "xbit_mask", Pyxmpz_xbit_mask, METH_O, doc_xbit_maskg },
     { "xmpz", Pygmpy_xmpz, METH_VARARGS, doc_xmpz },
-    { "yn", Pympf_yn, METH_VARARGS, doc_gmpy_yn },
-    { "y0", Pympf_y0, METH_O, doc_fy0g },
-    { "y1", Pympf_y1, METH_O, doc_fy1g },
-    { "zero", Pygmpy_set_zero, METH_O, doc_set_zero },
-    { "zeta", Pympf_zeta, METH_O, doc_fzetag },
+    { "yn", Pympfr_yn, METH_VARARGS, doc_g_mpfr_yn },
+    { "y0", Pympfr_y0, METH_O, doc_g_mpfr_y0 },
+    { "y1", Pympfr_y1, METH_O, doc_g_mpfr_y1 },
+    { "zero", Pympfr_set_zero, METH_O, doc_g_mpfr_set_zero },
+    { "zeta", Pympfr_zeta, METH_O, doc_g_mpfr_zeta },
     { "_mpmath_normalize", Pympz_mpmath_normalize, METH_VARARGS, doc_mpmath_normalizeg },
     { "_mpmath_create", Pympz_mpmath_create, METH_VARARGS, doc_mpmath_createg },
     { NULL, NULL, 1}
@@ -4203,88 +4204,88 @@ static PyMethodDef Pympq_methods [] =
     { NULL, NULL, 1 }
 };
 
-static PyMethodDef Pympf_methods [] =
+static PyMethodDef Pympfr_methods [] =
 {
     { "_copy", Pympany_copy, METH_NOARGS, doc_copym },
-    { "acos", Pympf_acos, METH_NOARGS, doc_facosm },
-    { "acosh", Pympf_acosh, METH_NOARGS, doc_facoshm },
-    { "add", Pympfr_add, METH_VARARGS, doc_mpf_add },
-    { "agm", Pympfr_agm, METH_VARARGS, doc_mpf_agm },
-    { "ai", Pympf_ai, METH_NOARGS, doc_faim },
-    { "asin", Pympf_asin, METH_NOARGS, doc_fasinm },
-    { "asinh", Pympf_asinh, METH_NOARGS, doc_fasinhm },
-    { "atan", Pympf_atan, METH_NOARGS, doc_fatanm },
-    { "atanh", Pympf_atanh, METH_NOARGS, doc_fatanhm },
-    { "atan2", Pympfr_atan2, METH_VARARGS, doc_mpf_atan2 },
+    { "acos", Pympfr_acos, METH_NOARGS, doc_mpfr_acos },
+    { "acosh", Pympfr_acosh, METH_NOARGS, doc_mpfr_acosh },
+    { "add", Pympfr_add, METH_VARARGS, doc_mpfr_add },
+    { "agm", Pympfr_agm, METH_VARARGS, doc_mpfr_agm },
+    { "ai", Pympfr_ai, METH_NOARGS, doc_mpfr_ai },
+    { "asin", Pympfr_asin, METH_NOARGS, doc_mpfr_asin },
+    { "asinh", Pympfr_asinh, METH_NOARGS, doc_mpfr_asinh },
+    { "atan", Pympfr_atan, METH_NOARGS, doc_mpfr_atan },
+    { "atanh", Pympfr_atanh, METH_NOARGS, doc_mpfr_atanh },
+    { "atan2", Pympfr_atan2, METH_VARARGS, doc_mpfr_atan2 },
     { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
-    { "cbrt", Pympf_cbrt, METH_NOARGS, doc_mpf_cbrt },
-    { "ceil", Pympf_ceil, METH_NOARGS, doc_ceilm },
-    { "cos", Pympf_cos, METH_NOARGS, doc_fcosm },
-    { "cosh", Pympf_cosh, METH_NOARGS, doc_fcoshm },
-    { "cot", Pympf_cot, METH_NOARGS, doc_fcotm },
-    { "coth", Pympf_coth, METH_NOARGS, doc_fcothm },
-    { "csc", Pympf_csc, METH_NOARGS, doc_fcscm },
-    { "csch", Pympf_csch, METH_NOARGS, doc_fcschm },
-    { "digamma", Pympf_digamma, METH_NOARGS, doc_fdigammam },
-    { "digits", Pympf_digits, METH_VARARGS, doc_fdigitsm },
-    { "div", Pympfr_div, METH_VARARGS, doc_mpf_div },
-    { "eint", Pympf_eint, METH_NOARGS, doc_feintm },
-    { "erf", Pympf_erf, METH_NOARGS, doc_ferfm },
-    { "erfc", Pympf_erfc, METH_NOARGS, doc_ferfcm },
-    { "exp", Pympf_exp, METH_NOARGS, doc_fexpm },
-    { "expm1", Pympf_expm1, METH_NOARGS, doc_fexpm1m },
-    { "exp10", Pympf_exp10, METH_NOARGS, doc_fexp10m },
-    { "exp2", Pympf_exp2, METH_NOARGS, doc_fexp2m },
-    { "floor", Pympf_floor, METH_NOARGS, doc_floorm },
-    { "f2q", Pympf_f2q, METH_VARARGS, doc_f2qm },
-    { "gamma", Pympf_gamma, METH_NOARGS, doc_fgammam },
-    { "hypot", Pympfr_hypot, METH_VARARGS, doc_mpf_hypot },
-    { "is_inf", Pympf_is_inf, METH_NOARGS, doc_mpf_is_inf },
-    { "is_lessgreater", Pympf_lessgreater, METH_VARARGS, doc_mpf_lessgreater },
-    { "is_nan", Pympf_is_nan, METH_NOARGS, doc_mpf_is_nan },
-    { "is_number", Pympf_is_number, METH_NOARGS, doc_mpf_is_number },
-    { "is_regular", Pympf_is_regular, METH_NOARGS, doc_mpf_is_regular },
-    { "is_unordered", Pympf_unordered, METH_VARARGS, doc_mpf_unordered },
-    { "is_zero", Pympf_is_zero, METH_NOARGS, doc_mpf_is_zero },
-    { "jn", Pympf_jn, METH_VARARGS, doc_mpf_jn },
-    { "j0", Pympf_j0, METH_NOARGS, doc_fj0m },
-    { "j1", Pympf_j1, METH_NOARGS, doc_fj1m },
-    { "lgamma", Pympf_lgamma, METH_NOARGS, doc_mpf_lgamma },
-    { "li2", Pympf_li2, METH_NOARGS, doc_fli2m },
-    { "lngamma", Pympf_lngamma, METH_NOARGS, doc_flngammam },
-    { "log", Pympf_log, METH_NOARGS, doc_flogm },
-    { "log1p", Pympf_log1p, METH_NOARGS, doc_flog1pm },
-    { "log10", Pympf_log10, METH_NOARGS, doc_flog10m },
-    { "log2", Pympf_log2, METH_NOARGS, doc_flog2m },
-    { "max", Pympfr_max, METH_VARARGS, doc_mpf_max },
-    { "min", Pympfr_min, METH_VARARGS, doc_mpf_min },
-    { "mul", Pympfr_mul, METH_VARARGS, doc_mpf_mul },
-    { "next_above", Pympfr_nextabove, METH_NOARGS, doc_mpf_nextabove },
-    { "next_below", Pympfr_nextbelow, METH_NOARGS, doc_mpf_nextbelow },
-    { "next_toward", Pympfr_nexttoward, METH_VARARGS, doc_mpf_nexttoward },
-    { "pow", Pympfr_pow, METH_VARARGS, doc_mpf_pow },
+    { "cbrt", Pympfr_cbrt, METH_NOARGS, doc_mpfr_cbrt },
+    { "ceil", Pympfr_ceil, METH_NOARGS, doc_mpfr_ceil },
+    { "cos", Pympfr_cos, METH_NOARGS, doc_mpfr_cos },
+    { "cosh", Pympfr_cosh, METH_NOARGS, doc_mpfr_cosh },
+    { "cot", Pympfr_cot, METH_NOARGS, doc_mpfr_cot },
+    { "coth", Pympfr_coth, METH_NOARGS, doc_mpfr_coth },
+    { "csc", Pympfr_csc, METH_NOARGS, doc_mpfr_csc },
+    { "csch", Pympfr_csch, METH_NOARGS, doc_mpfr_csch },
+    { "digamma", Pympfr_digamma, METH_NOARGS, doc_mpfr_digamma },
+    { "digits", Pympfr_digits, METH_VARARGS, doc_mpfr_digits },
+    { "div", Pympfr_div, METH_VARARGS, doc_mpfr_div },
+    { "eint", Pympfr_eint, METH_NOARGS, doc_mpfr_eint },
+    { "erf", Pympfr_erf, METH_NOARGS, doc_mpfr_erf },
+    { "erfc", Pympfr_erfc, METH_NOARGS, doc_mpfr_erfc },
+    { "exp", Pympfr_exp, METH_NOARGS, doc_mpfr_exp },
+    { "expm1", Pympfr_expm1, METH_NOARGS, doc_mpfr_expm1 },
+    { "exp10", Pympfr_exp10, METH_NOARGS, doc_mpfr_exp10 },
+    { "exp2", Pympfr_exp2, METH_NOARGS, doc_mpfr_exp2 },
+    { "floor", Pympfr_floor, METH_NOARGS, doc_mpfr_floor },
+    { "f2q", Pympfr_f2q, METH_VARARGS, doc_mpfr_f2q },
+    { "gamma", Pympfr_gamma, METH_NOARGS, doc_mpfr_gamma },
+    { "hypot", Pympfr_hypot, METH_VARARGS, doc_mpfr_hypot },
+    { "is_inf", Pympfr_is_inf, METH_NOARGS, doc_mpfr_is_inf },
+    { "is_lessgreater", Pympfr_is_lessgreater, METH_VARARGS, doc_mpfr_is_lessgreater },
+    { "is_nan", Pympfr_is_nan, METH_NOARGS, doc_mpfr_is_nan },
+    { "is_number", Pympfr_is_number, METH_NOARGS, doc_mpfr_is_number },
+    { "is_regular", Pympfr_is_regular, METH_NOARGS, doc_mpfr_is_regular },
+    { "is_unordered", Pympfr_is_unordered, METH_VARARGS, doc_mpfr_is_unordered },
+    { "is_zero", Pympfr_is_zero, METH_NOARGS, doc_mpfr_is_zero },
+    { "jn", Pympfr_jn, METH_VARARGS, doc_mpfr_jn },
+    { "j0", Pympfr_j0, METH_NOARGS, doc_mpfr_j0 },
+    { "j1", Pympfr_j1, METH_NOARGS, doc_mpfr_j1 },
+    { "lgamma", Pympfr_lgamma, METH_NOARGS, doc_mpfr_lgamma },
+    { "li2", Pympfr_li2, METH_NOARGS, doc_mpfr_li2 },
+    { "lngamma", Pympfr_lngamma, METH_NOARGS, doc_mpfr_lngamma },
+    { "log", Pympfr_log, METH_NOARGS, doc_mpfr_log },
+    { "log1p", Pympfr_log1p, METH_NOARGS, doc_mpfr_log1p },
+    { "log10", Pympfr_log10, METH_NOARGS, doc_mpfr_log10 },
+    { "log2", Pympfr_log2, METH_NOARGS, doc_mpfr_log2 },
+    { "max", Pympfr_max, METH_VARARGS, doc_mpfr_max },
+    { "min", Pympfr_min, METH_VARARGS, doc_mpfr_min },
+    { "mul", Pympfr_mul, METH_VARARGS, doc_mpfr_mul },
+    { "next_above", Pympfr_nextabove, METH_NOARGS, doc_mpfr_nextabove },
+    { "next_below", Pympfr_nextbelow, METH_NOARGS, doc_mpfr_nextbelow },
+    { "next_toward", Pympfr_nexttoward, METH_VARARGS, doc_mpfr_nexttoward },
+    { "pow", Pympfr_pow, METH_VARARGS, doc_mpfr_pow },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivm },
-    { "rec_sqrt", Pympf_rec_sqrt, METH_NOARGS, doc_mpf_rec_sqrt },
-    { "reldiff", Pympf_doreldiff, METH_VARARGS, doc_reldiffm },
-    { "root", Pympf_root, METH_VARARGS, doc_mpf_root },
-    { "round", Pympf_round, METH_VARARGS, doc_mpf_roundm },
-    { "sec", Pympf_sec, METH_NOARGS, doc_fsecm },
-    { "sech", Pympf_sech, METH_NOARGS, doc_fsechm },
-    { "sign", Pympf_sign, METH_NOARGS, doc_fsignm },
-    { "sin", Pympf_sin, METH_NOARGS, doc_fsinm },
-    { "sin_cos", Pympfr_sin_cos, METH_NOARGS, doc_mpf_sin_cos },
-    { "sinh", Pympf_sinh, METH_NOARGS, doc_fsinhm },
-    { "sinh_cosh", Pympfr_sinh_cosh, METH_NOARGS, doc_mpf_sinh_cosh },
-    { "square", Pympf_sqr, METH_NOARGS, doc_mpf_sqr },
-    { "sqrt", Pympf_sqrt, METH_NOARGS, doc_fsqrtm },
-    { "sub", Pympfr_sub, METH_VARARGS, doc_mpf_sub },
-    { "tan", Pympf_tan, METH_NOARGS, doc_ftanm },
-    { "tanh", Pympf_tanh, METH_NOARGS, doc_ftanhm },
-    { "trunc", Pympf_trunc, METH_NOARGS, doc_truncm },
-    { "yn", Pympf_yn, METH_VARARGS, doc_mpf_yn },
-    { "y0", Pympf_y0, METH_NOARGS, doc_fy0m },
-    { "y1", Pympf_y1, METH_NOARGS, doc_fy1m },
-    { "zeta", Pympf_zeta, METH_NOARGS, doc_fzetam },
+    { "rec_sqrt", Pympfr_rec_sqrt, METH_NOARGS, doc_mpfr_rec_sqrt },
+    { "reldiff", Pympfr_reldiff, METH_VARARGS, doc_mpfr_reldiff },
+    { "root", Pympfr_root, METH_VARARGS, doc_mpfr_root },
+    { "round", Pympfr_round, METH_VARARGS, doc_mpfr_round },
+    { "sec", Pympfr_sec, METH_NOARGS, doc_mpfr_sec },
+    { "sech", Pympfr_sech, METH_NOARGS, doc_mpfr_sech },
+    { "sign", Pympfr_sign, METH_NOARGS, doc_mpfr_sign },
+    { "sin", Pympfr_sin, METH_NOARGS, doc_mpfr_sin },
+    { "sin_cos", Pympfr_sin_cos, METH_NOARGS, doc_mpfr_sin_cos },
+    { "sinh", Pympfr_sinh, METH_NOARGS, doc_mpfr_sinh },
+    { "sinh_cosh", Pympfr_sinh_cosh, METH_NOARGS, doc_mpfr_sinh_cosh },
+    { "square", Pympfr_sqr, METH_NOARGS, doc_mpfr_sqr },
+    { "sqrt", Pympfr_sqrt, METH_NOARGS, doc_mpfr_sqrt },
+    { "sub", Pympfr_sub, METH_VARARGS, doc_mpfr_sub },
+    { "tan", Pympfr_tan, METH_NOARGS, doc_mpfr_tan },
+    { "tanh", Pympfr_tanh, METH_NOARGS, doc_mpfr_tanh },
+    { "trunc", Pympfr_trunc, METH_NOARGS, doc_mpfr_trunc },
+    { "yn", Pympfr_yn, METH_VARARGS, doc_mpfr_yn },
+    { "y0", Pympfr_y0, METH_NOARGS, doc_mpfr_y0 },
+    { "y1", Pympfr_y1, METH_NOARGS, doc_mpfr_y1 },
+    { "zeta", Pympfr_zeta, METH_NOARGS, doc_mpfr_zeta },
     { NULL, NULL, 1 }
 };
 
@@ -4425,7 +4426,7 @@ static PyTypeObject Pympq_Type =
 };
 
 
-static PyTypeObject Pympf_Type =
+static PyTypeObject Pympfr_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
 #ifdef PY3
@@ -4434,22 +4435,22 @@ static PyTypeObject Pympf_Type =
     PyObject_HEAD_INIT(0)
     0,                                      /* ob_size          */
 #endif
-    "mpf",                                  /* tp_name          */
-    sizeof(PympfObject),                    /* tp_basicsize     */
+    "mpfr",                                 /* tp_name          */
+    sizeof(PympfrObject),                   /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
     /* methods */
-    (destructor) Pympf_dealloc,             /* tp_dealloc       */
+    (destructor) Pympfr_dealloc,            /* tp_dealloc       */
         0,                                  /* tp_print         */
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
-    (reprfunc) Pympf2repr,                  /* tp_repr          */
-    &mpf_number_methods,                    /* tp_as_number     */
+    (reprfunc) Pympfr2repr,                 /* tp_repr          */
+    &mpfr_number_methods,                   /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
         0,                                  /* tp_as_mapping    */
-    (hashfunc) Pympf_hash,                  /* tp_hash          */
+    (hashfunc) Pympfr_hash,                 /* tp_hash          */
         0,                                  /* tp_call          */
-    (reprfunc) Pympf2str,                   /* tp_str           */
+    (reprfunc) Pympfr2str,                  /* tp_str           */
     (getattrofunc) 0,                       /* tp_getattro      */
     (setattrofunc) 0,                       /* tp_setattro      */
         0,                                  /* tp_as_buffer     */
@@ -4465,9 +4466,9 @@ static PyTypeObject Pympf_Type =
         0,                                  /* tp_weaklistoffset*/
         0,                                  /* tp_iter          */
         0,                                  /* tp_iternext      */
-    Pympf_methods,                          /* tp_methods       */
+    Pympfr_methods,                          /* tp_methods       */
         0,                                  /* tp_members       */
-    Pympf_getseters,                        /* tp_getset        */
+    Pympfr_getseters,                        /* tp_getset        */
 };
 
 
@@ -4557,11 +4558,11 @@ gmpy_free( void *ptr, size_t size)
 static void _PyInitGMP(void)
 {
     mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
-    global.mpf_prec = DBL_MANT_DIG;
+    global.mpfr_prec = DBL_MANT_DIG;
     set_zcache();
     set_pympzcache();
     set_pympqcache();
-    set_pympfcache();
+    set_pympfrcache();
     set_pympccache();
     set_pyxmpzcache();
 }
@@ -4572,7 +4573,7 @@ exposes functionality from the GMP or MPIR library to Python 2.6\n\
 and later.\n\
 \n\
 Allows creation of multiprecision integer (mpz), mutable integers\n\
-(xmpz), float (mpf), and rational (mpq) numbers, conversion between\n\
+(xmpz), float (mpfr), and rational (mpq) numbers, conversion between\n\
 them and to/from Python numbers/strings, arithmetic, bitwise, and\n\
 some other higher-level mathematical operations.\n\
 \n\
@@ -4582,7 +4583,7 @@ and raising-to-power) and has many further useful and speedy\n\
 functions (prime testing and generation, factorial, fibonacci,\n\
 binary-coefficients, gcd, lcm, square and other roots, ...).\n\
 \n\
-mpf and mpq only offer basic arithmetic abilities, but they\n\
+mpfr and mpq only offer basic arithmetic abilities, but they\n\
 do add the ability to have floating-point numbers ensuring at\n\
 least a predefined number of bits' worth of precision (and with\n\
 potentially-huge or extremely-tiny magnitudes), as well as\n\
@@ -4619,7 +4620,7 @@ PyMODINIT_FUNC initgmpy2(void)
         INITERROR;
     if (PyType_Ready(&Pympq_Type) < 0)
         INITERROR;
-    if (PyType_Ready(&Pympf_Type) < 0)
+    if (PyType_Ready(&Pympfr_Type) < 0)
         INITERROR;
     if (PyType_Ready(&Pyxmpz_Type) < 0)
         INITERROR;
@@ -4661,10 +4662,10 @@ PyMODINIT_FUNC initgmpy2(void)
         char* enable_pickle =
             "def mpz_reducer(an_mpz): return (gmpy2.mpz, (an_mpz.binary(), 256))\n"
             "def mpq_reducer(an_mpq): return (gmpy2.mpq, (an_mpq.binary(), 256))\n"
-            "def mpf_reducer(an_mpf): return (gmpy2.mpf, (an_mpf.binary(), 0, 256))\n"
+            "def mpfr_reducer(an_mpfr): return (gmpy2.mpfr, (an_mpfr.binary(), 0, 256))\n"
             "copyreg.pickle(type(gmpy2.mpz(0)), mpz_reducer)\n"
             "copyreg.pickle(type(gmpy2.mpq(0)), mpq_reducer)\n"
-            "copyreg.pickle(type(gmpy2.mpf(0)), mpf_reducer)\n"
+            "copyreg.pickle(type(gmpy2.mpfr(0)), mpfr_reducer)\n"
         ;
         PyObject* namespace = PyDict_New();
         PyObject* result = NULL;
@@ -4706,10 +4707,10 @@ PyMODINIT_FUNC initgmpy2(void)
         char* enable_pickle =
             "def mpz_reducer(an_mpz): return (gmpy2.mpz, (an_mpz.binary(), 256))\n"
             "def mpq_reducer(an_mpq): return (gmpy2.mpq, (an_mpq.binary(), 256))\n"
-            "def mpf_reducer(an_mpf): return (gmpy2.mpf, (an_mpf.binary(), 0, 256))\n"
+            "def mpfr_reducer(an_mpfr): return (gmpy2.mpfr, (an_mpfr.binary(), 0, 256))\n"
             "copy_reg.pickle(type(gmpy2.mpz(0)), mpz_reducer)\n"
             "copy_reg.pickle(type(gmpy2.mpq(0)), mpq_reducer)\n"
-            "copy_reg.pickle(type(gmpy2.mpf(0)), mpf_reducer)\n"
+            "copy_reg.pickle(type(gmpy2.mpfr(0)), mpfr_reducer)\n"
         ;
         PyObject* namespace = PyDict_New();
         PyObject* result = NULL;

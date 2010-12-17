@@ -12,7 +12,7 @@ __test__={}
 
 __test__['misc_stuff']=\
 r'''
->>> print _g.mpf(3.0)
+>>> print _g.mpfr(3.0)
 3.0
 >>> _g.mp_limbsize() in (32, 64)
 True
@@ -20,8 +20,8 @@ True
 mpz(123)
 >>> _g.mpq(u"12/37")
 mpq(12,37)
->>> _g.mpf(u"123")
-mpf('1.23e2')
+>>> _g.mpfr(u"123")
+mpfr('1.23e2')
 '''
 
 try:
@@ -33,36 +33,36 @@ else:
 r'''
 >>> x = float('inf')
 >>> n = float('nan')
->>> _g.mpf(x)
-mpf('inf')
->>> _g.mpf(-x)
-mpf('-inf')
+>>> _g.mpfr(x)
+mpfr('inf')
+>>> _g.mpfr(-x)
+mpfr('-inf')
 >>> _g.mpq(x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy2.mpq does not handle infinity
+ValueError: gmpy2.mpq() does not handle infinity
 >>> _g.mpq(-x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy2.mpq does not handle infinity
+ValueError: gmpy2.mpq() does not handle infinity
 >>> _g.mpz(x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy2.mpz does not handle infinity
+ValueError: gmpy2.mpz() does not handle infinity
 >>> _g.mpz(-x)
 Traceback (most recent call last):
   ...
-ValueError: gmpy2.mpz does not handle infinity
->>> _g.mpf(n)
-mpf('nan')
+ValueError: gmpy2.mpz() does not handle infinity
+>>> _g.mpfr(n)
+mpfr('nan')
 >>> _g.mpq(n)
 Traceback (most recent call last):
   ...
-ValueError: gmpy2.mpq does not handle nan
+ValueError: gmpy2.mpq() does not handle nan
 >>> _g.mpz(n)
 Traceback (most recent call last):
   ...
-ValueError: gmpy2.mpz does not handle nan
+ValueError: gmpy2.mpz() does not handle nan
 '''
 
 __test__['user_errors']=\
@@ -103,7 +103,7 @@ ValueError: cache size must between 0 and 1000
 Traceback (most recent call last):
   ...
 ValueError: object size must between 0 and 16384
->>> _g.set_mpf_precision(-1)
+>>> _g.set_mpfr_precision(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: invalid value for precision
@@ -111,7 +111,7 @@ ValueError: invalid value for precision
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: string without NULL characters expected
->>> _g.mpf('12'+chr(0)+'34')
+>>> _g.mpfr('12'+chr(0)+'34')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: string without NULL characters expected
@@ -153,15 +153,15 @@ ValueError: invalid digits
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ZeroDivisionError: mpq: zero denominator
->>> _g.mpf([])
+>>> _g.mpfr([])
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: gmpy2.mpf() requires numeric or string argument
->>> _g.mpf('bo',0,256)
+TypeError: gmpy2.mpfr() requires numeric or string argument
+>>> _g.mpfr('bo',0,256)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: string too short to be a gmpy2.mpf binary encoding
->>> _g.mpf('bo')
+ValueError: string too short to be a gmpy2.mpfr binary encoding
+>>> _g.mpfr('bo')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: invalid digits
@@ -225,7 +225,7 @@ TypeError: digits() requires 'mpz',['int'] arguments
 Traceback (most recent call last):
   ...
 TypeError: digits() requires 'mpz',['int'] arguments
->>> _g.mpf(3).digits('bu')
+>>> _g.mpfr(3).digits('bu')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 TypeError: an integer is required
@@ -233,7 +233,7 @@ TypeError: an integer is required
 mpz(3)
 >>> _g.qdiv(3,_g.mpz(1))
 mpz(3)
->>> _g.qdiv(3,_g.mpf(1))
+>>> _g.qdiv(3,_g.mpfr(1))
 mpz(3)
 >>> _g.qdiv(3,1.0)
 mpz(3)
@@ -278,7 +278,7 @@ TypeError: gmpy2.mpz(): base must be an integer
 >>> _g.mpz('bi',99)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: base for gmpy2.mpz must be 0, 256, or in the interval 2 ... 62
+ValueError: base for gmpy2.mpz() must be 0, 256, or in the interval 2 ... 62
 >>> _g.mpz(1,2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -311,34 +311,34 @@ TypeError: argument can not be converted to mpq
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ZeroDivisionError: mpq: zero denominator
->>> _g.mpf()
+>>> _g.mpfr()
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: gmpy2.mpf() requires 1 to 3 arguments
->>> _g.mpf(1,'bo')
+TypeError: gmpy2.mpfr() requires 1 to 3 arguments
+>>> _g.mpfr(1,'bo')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: gmpy2.mpf(): bits must be an integer
->>> _g.mpf(1,-1)
+TypeError: gmpy2.mpfr(): bits must be an integer
+>>> _g.mpfr(1,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: bits for gmpy2.mpf must be >= 0
->>> _g.mpf('ba',0,'bu')
+ValueError: bits for gmpy2.mpfr() must be >= 0
+>>> _g.mpfr('ba',0,'bu')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: gmpy2.mpf(): base must be an integer
->>> _g.mpf('ba',0,99)
+TypeError: gmpy2.mpfr(): base must be an integer
+>>> _g.mpfr('ba',0,99)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: base for gmpy2.mpf must be 0, 256, or in the interval 2 ... 62
->>> _g.mpf(1,2,3)
+ValueError: base for gmpy2.mpfr() must be 0, 256, or in the interval 2 ... 62
+>>> _g.mpfr(1,2,3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: gmpy2.mpf() with numeric 1st argument needs 1 or 2 arguments
+TypeError: gmpy2.mpfr() with numeric 1st argument needs 1 or 2 arguments
 >>> +_g.mpz(1)
 mpz(1)
->>> +_g.mpf(1)
-mpf('1.0e0')
+>>> +_g.mpfr(1)
+mpfr('1.0e0')
 >>> +_g.mpq(1)
 mpq(1,1)
 >>> _g.mpz(2)**-2
@@ -365,53 +365,53 @@ Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: mpq.pow() outrageous exponent
 >>> _g.mpq(2)**_g.mpq(1,a)
-mpf('1.0e0')
+mpfr('1.0e0')
 >>> _g.mpq(2)**0
 mpq(1,1)
 >>> _g.mpq(2)**-1
 mpq(1,2)
 >>> _g.mpq(2)**_g.mpq(1,2)
-mpf('1.4142135623730951e0')
+mpfr('1.4142135623730951e0')
 >>> _g.mpq(-2)**_g.mpq(1,2)
-mpf('nan')
+mpfr('nan')
 >>> _g.mpq(0)**_g.mpq(1,2)
-mpf('0.0e0')
+mpfr('0.0e0')
 >>> _g.mpq(0)**-1
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ZeroDivisionError: mpq.pow() 0 base to negative exponent
 >>> _g.mpq(-1)**-1
 mpq(-1,1)
->>> _g.mpf(9,100)**2
-mpf('8.1e1')
->>> _g.mpf(9,100)**0.5
-mpf('3.0e0')
->>> _g.mpf(9,100)**_g.mpf(0.5)
-mpf('3.0e0')
->>> _g.mpf(0)**2
-mpf('0.0e0')
->>> pow(_g.mpf(2),3,-5)
+>>> _g.mpfr(9,100)**2
+mpfr('8.1e1')
+>>> _g.mpfr(9,100)**0.5
+mpfr('3.0e0')
+>>> _g.mpfr(9,100)**_g.mpfr(0.5)
+mpfr('3.0e0')
+>>> _g.mpfr(0)**2
+mpfr('0.0e0')
+>>> pow(_g.mpfr(2),3,-5)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: mpf.pow() no modulo allowed
+TypeError: mpfr.pow() no modulo allowed
 >>> _g.mpz(1)+'bu'
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 TypeError: unsupported operand type(s) for +: 'mpz' and 'str'
->>> _g.mpz(1)+_g.mpf(1)
-mpf('2.0e0')
+>>> _g.mpz(1)+_g.mpfr(1)
+mpfr('2.0e0')
 >>> _g.mpz(1)+_g.mpq(1)
 mpq(2,1)
 >>> _g.mpq(1)+'bu'
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 TypeError: unsupported operand type(s) for +: 'mpq' and 'str'
->>> _g.mpf(1)+'bu'
+>>> _g.mpfr(1)+'bu'
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: unsupported operand type(s) for +: 'mpf' and 'str'
->>> _g.mpf(1)+_g.mpq(2)
-mpf('3.0e0')
+TypeError: unsupported operand type(s) for +: 'mpfr' and 'str'
+>>> _g.mpfr(1)+_g.mpq(2)
+mpfr('3.0e0')
 >>> divmod(_g.mpz(3),0)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?

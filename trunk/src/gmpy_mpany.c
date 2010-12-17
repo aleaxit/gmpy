@@ -15,14 +15,14 @@
  * gmpy_square assumes mpX_square also use the METH_O/METH_NOARGS convention!
  */
 
-PyDoc_STRVAR(doc_gmpy_square,
+PyDoc_STRVAR(doc_g_mpany_square,
 "square(x) -> number\n\n"
 "Return x * x. If x is an integer, then the result is an 'mpz'.\n"
 "If x is a rational, then the result is an 'mpq'. If x is a float,\n"
 "then the result is an 'mpf'.");
 
 static PyObject *
-Pygmpy_square(PyObject *self, PyObject *other)
+Pympany_square(PyObject *self, PyObject *other)
 {
     if (isInteger(other)) {
         TYPE_ERROR("square() not supported for integers");
@@ -33,7 +33,7 @@ Pygmpy_square(PyObject *self, PyObject *other)
         return NULL;
     }
     else if (isFloat(other)) {
-        return Pympf_sqr(self, other);
+        return Pympfr_sqr(self, other);
     }
 
     TYPE_ERROR("square() not supported");
@@ -45,19 +45,19 @@ Pygmpy_square(PyObject *self, PyObject *other)
  * gmpy_sqrt assumes mpX_square also use the METH_O/METH_NOARGS convention!
  */
 
-PyDoc_STRVAR(doc_gmpy_sqrt,
+PyDoc_STRVAR(doc_g_mpany_sqrt,
 "sqrt(x) -> number\n\n"
 "Return square root of x. If x is an integer, then the result is the\n"
 "integer portion of the square root. If x is a rational or a float,\n"
 "then the result is an 'mpf'.");
 
 static PyObject *
-Pygmpy_sqrt(PyObject *self, PyObject *other)
+Pympany_sqrt(PyObject *self, PyObject *other)
 {
     if (isInteger(other))
         return Pympz_sqrt(self, other);
     else if (isRational(other) || isFloat(other)) {
-        return Pympf_sqrt(self, other);
+        return Pympfr_sqrt(self, other);
     }
 
     TYPE_ERROR("sqrt() not supported");
@@ -69,7 +69,7 @@ Pygmpy_sqrt(PyObject *self, PyObject *other)
  * gmpy_root assumes mpX_square also use the METH_VARARGS convention!
  */
 
-PyDoc_STRVAR(doc_gmpy_root,
+PyDoc_STRVAR(doc_g_mpany_root,
 "root(x,n) -> number\n\n"
 "Return n-th root of x. If x is an integer, then the result is a\n"
 "tuple containing the integer portion of the root and True if the\n"
@@ -77,7 +77,7 @@ PyDoc_STRVAR(doc_gmpy_root,
 "is an 'mpf'.");
 
 static PyObject *
-Pygmpy_root(PyObject *self, PyObject *args)
+Pympany_root(PyObject *self, PyObject *args)
 {
     PyObject *temp;
 
@@ -90,7 +90,7 @@ Pygmpy_root(PyObject *self, PyObject *args)
     if (isInteger(temp))
         return Pympz_root(self, args);
     else if (isRational(temp) || isFloat(temp)) {
-        return Pympf_root(self, args);
+        return Pympfr_root(self, args);
     }
 
     TYPE_ERROR("root() not supported");
@@ -102,13 +102,13 @@ Pygmpy_root(PyObject *self, PyObject *args)
  * gmpy_digits assumes mpX_digits also use the METH_VARARGS convention!
  */
 
-PyDoc_STRVAR(doc_gmpy_digits,
+PyDoc_STRVAR(doc_g_mpany_digits,
 "digits(x,[base,[prec]]) -> string\n\n"
 "Return string representing x. Calls mpz.digits, mpq.digits, or\n"
-"mpf.digits as appropriate.");
+"mpfr.digits as appropriate.");
 
 static PyObject *
-Pygmpy_digits(PyObject *self, PyObject *args)
+Pympany_digits(PyObject *self, PyObject *args)
 {
     PyObject *temp;
 
@@ -123,7 +123,7 @@ Pygmpy_digits(PyObject *self, PyObject *args)
     else if (isRational(temp))
         return Pympq_digits(self, args);
     else if (isFloat(temp))
-        return Pympf_digits(self, args);
+        return Pympfr_digits(self, args);
 
     TYPE_ERROR("digits() not supported");
     return NULL;
@@ -134,19 +134,19 @@ Pygmpy_digits(PyObject *self, PyObject *args)
  * gmpy_sign assumes mpX_sign also use the METH_O/METH_NOARGS convention!
  */
 
-PyDoc_STRVAR(doc_gmpy_sign,
+PyDoc_STRVAR(doc_g_mpany_sign,
 "sign(x) -> number\n\n"
 "Return -1 if x < 0, 0 if x == 0, or +1 if x >0.");
 
 static PyObject *
-Pygmpy_sign(PyObject *self, PyObject *other)
+Pympany_sign(PyObject *self, PyObject *other)
 {
     if (isInteger(other))
         return Pympz_sign(self, other);
     else if (isRational(other))
         return Pympq_sign(self, other);
     else if (isFloat(other))
-        return Pympf_sign(self, other);
+        return Pympfr_sign(self, other);
 
     TYPE_ERROR("sign() not supported");
     return NULL;
