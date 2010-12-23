@@ -2076,36 +2076,41 @@ Pympfr_ascii(PympfrObject *self, int base, int digits,
  * number, it must be properly converted by the routines below.
  */
 
+static int isComplex(PyObject* obj)
+{
+#ifdef DEBUG
+    if (global.debug)
+        fprintf(stderr, "isComplex: object type is %s\n", Py_TYPE(obj)->tp_name);
+#endif
+    if (Pympz_Check(obj))       return 1;
+    if (PyIntOrLong_Check(obj)) return 1;
+    if (Pympq_Check(obj))       return 1;
+    if (Pympfr_Check(obj))      return 1;
+    if (Pyxmpz_Check(obj))      return 1;
+    if (Pympc_Check(obj))       return 1;
+    if (PyFloat_Check(obj))     return 1;
+    if (PyComplex_Check(obj))   return 1;
+    if (!strcmp(Py_TYPE(obj)->tp_name, "Decimal"))  return 1;
+    if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) return 1;
+
+    return 0;
+}
+
 static int isFloat(PyObject* obj)
 {
 #ifdef DEBUG
     if (global.debug)
         fprintf(stderr, "isFloat: object type is %s\n", Py_TYPE(obj)->tp_name);
 #endif
-    if (Pympz_Check(obj)) {
-        return 1;
-    }
-    else if (PyIntOrLong_Check(obj)) {
-        return 1;
-    }
-    else if (Pympq_Check(obj)) {
-        return 1;
-    }
-    else if (Pympfr_Check(obj)) {
-        return 1;
-    }
-    else if (Pyxmpz_Check(obj)) {
-        return 1;
-    }
-    else if (PyFloat_Check(obj)) {
-        return 1;
-    }
-    else if (!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
-        return 1;
-    }
-    else if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
-        return 1;
-    }
+    if (Pympz_Check(obj))       return 1;
+    if (PyIntOrLong_Check(obj)) return 1;
+    if (Pympq_Check(obj))       return 1;
+    if (Pympfr_Check(obj))      return 1;
+    if (Pyxmpz_Check(obj))      return 1;
+    if (PyFloat_Check(obj))     return 1;
+    if (!strcmp(Py_TYPE(obj)->tp_name, "Decimal"))  return 1;
+    if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) return 1;
+
     return 0;
 }
 
@@ -2115,21 +2120,12 @@ static int isRational(PyObject* obj)
     if (global.debug)
         fprintf(stderr, "isRational: object type is %s\n", Py_TYPE(obj)->tp_name);
 #endif
-    if (Pympz_Check(obj)) {
-        return 1;
-    }
-    else if (PyIntOrLong_Check(obj)) {
-        return 1;
-    }
-    else if (Pympq_Check(obj)) {
-        return 1;
-    }
-    else if (Pyxmpz_Check(obj)) {
-        return 1;
-    }
-    else if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
-        return 1;
-    }
+    if (Pympz_Check(obj))       return 1;
+    if (PyIntOrLong_Check(obj)) return 1;
+    if (Pympq_Check(obj))       return 1;
+    if (Pyxmpz_Check(obj))      return 1;
+    if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) return 1;
+
     return 0;
 }
 
@@ -2139,15 +2135,10 @@ static int isInteger(PyObject* obj)
     if (global.debug)
         fprintf(stderr, "isInteger: object type is %s\n", Py_TYPE(obj)->tp_name);
 #endif
-    if (Pympz_Check(obj)) {
-        return 1;
-    }
-    else if (PyIntOrLong_Check(obj)) {
-        return 1;
-    }
-    else if (Pyxmpz_Check(obj)) {
-        return 1;
-    }
+    if (Pympz_Check(obj))       return 1;
+    if (PyIntOrLong_Check(obj)) return 1;
+    if (Pyxmpz_Check(obj))      return 1;
+
     return 0;
 }
 
