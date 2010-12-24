@@ -202,7 +202,7 @@ Pympany_add(PyObject *a, PyObject *b)
         return (PyObject*)rq;
     }
 
-    if (isFloat(a) && isFloat(b)) {
+    if (isReal(a) && isReal(b)) {
         TRACE("Adding (number,number)\n");
         paf = Pympfr_From_Float(a, 0);
         pbf = Pympfr_From_Float(b, 0);
@@ -412,7 +412,7 @@ Pympany_sub(PyObject *a, PyObject *b)
         return (PyObject*)rq;
     }
 
-    if (isFloat(a) && isFloat(b)) {
+    if (isReal(a) && isReal(b)) {
         TRACE("Subtracting (number,number)\n");
         paf = Pympfr_From_Float(a, 0);
         pbf = Pympfr_From_Float(b, 0);
@@ -615,7 +615,7 @@ Pympany_mul(PyObject *a, PyObject *b)
         return (PyObject*)rq;
     }
 
-    if (isFloat(a) && isFloat(b)) {
+    if (isReal(a) && isReal(b)) {
         TRACE("Multiplying (number,number)\n");
         paf = Pympfr_From_Float(a, 0);
         pbf = Pympfr_From_Float(b, 0);
@@ -848,7 +848,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         return (PyObject*)rz;
     }
 
-    if (isFloat(a) && isFloat(b)) {
+    if (isReal(a) && isReal(b)) {
         TRACE("Floor divide (number,number)\n");
         paf = Pympfr_From_Float(a, 0);
         pbf = Pympfr_From_Float(b, 0);
@@ -1035,7 +1035,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
         return (PyObject*) rq;
     }
 
-    if (isFloat(a) && isFloat(b)) {
+    if (isReal(a) && isReal(b)) {
         TRACE("True divide (number,number)\n");
         paf = Pympfr_From_Float(a, 0);
         pbf = Pympfr_From_Float(b, 0);
@@ -1170,7 +1170,7 @@ Pympany_div2(PyObject *a, PyObject *b)
 
     /* Use truediv for floating-point types. */
 
-    if (isFloat(a) && isFloat(b)) {
+    if (isReal(a) && isReal(b)) {
         TRACE("True divide (number,number)\n");
         paf = Pympfr_From_Float(a, 0);
         pbf = Pympfr_From_Float(b, 0);
@@ -1309,7 +1309,7 @@ Pympany_rem(PyObject *a, PyObject *b)
         return (PyObject*)rq;
     }
 
-    if (isFloat(a) && isFloat(b)) {
+    if (isReal(a) && isReal(b)) {
         TRACE("Modulo (number,number)\n");
         paf = Pympfr_From_Float(a, 0);
         pbf = Pympfr_From_Float(b, 0);
@@ -1525,7 +1525,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
         return r;
     }
 
-    if (isFloat(a) && isFloat(b)) {
+    if (isReal(a) && isReal(b)) {
         TRACE("Divmod (number,number)\n");
         paf = Pympfr_From_Float(a, 0);
         pbf = Pympfr_From_Float(b, 0);
@@ -1590,7 +1590,7 @@ Pympany_pow(PyObject *base, PyObject *exp, PyObject *mod)
         return Pympz_pow(base, exp, mod);
     else if (isRational(base) && isRational(exp))
         return Pympq_pow(base, exp, mod);
-    else if (isFloat(base) && isFloat(exp));
+    else if (isReal(base) && isReal(exp));
         return Pympfr2_pow(base, exp, mod);
 
     Py_RETURN_NOTIMPLEMENTED;
