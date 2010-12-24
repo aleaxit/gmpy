@@ -32,7 +32,7 @@ Pympany_square(PyObject *self, PyObject *other)
         TYPE_ERROR("square() not supported for rationals");
         return NULL;
     }
-    else if (isFloat(other)) {
+    else if (isReal(other)) {
         return Pympfr_sqr(self, other);
     }
 
@@ -56,7 +56,7 @@ Pympany_sqrt(PyObject *self, PyObject *other)
 {
     if (isInteger(other))
         return Pympz_sqrt(self, other);
-    else if (isRational(other) || isFloat(other)) {
+    else if (isRational(other) || isReal(other)) {
         return Pympfr_sqrt(self, other);
     }
 
@@ -89,7 +89,7 @@ Pympany_root(PyObject *self, PyObject *args)
     temp = PyTuple_GET_ITEM(args, 0);
     if (isInteger(temp))
         return Pympz_root(self, args);
-    else if (isRational(temp) || isFloat(temp)) {
+    else if (isRational(temp) || isReal(temp)) {
         return Pympfr_root(self, args);
     }
 
@@ -122,7 +122,7 @@ Pympany_digits(PyObject *self, PyObject *args)
         return Pympz_digits(self, args);
     else if (isRational(temp))
         return Pympq_digits(self, args);
-    else if (isFloat(temp))
+    else if (isReal(temp))
         return Pympfr_digits(self, args);
 
     TYPE_ERROR("digits() not supported");
@@ -145,7 +145,7 @@ Pympany_sign(PyObject *self, PyObject *other)
         return Pympz_sign(self, other);
     else if (isRational(other))
         return Pympq_sign(self, other);
-    else if (isFloat(other))
+    else if (isReal(other))
         return Pympfr_sign(self, other);
 
     TYPE_ERROR("sign() not supported");

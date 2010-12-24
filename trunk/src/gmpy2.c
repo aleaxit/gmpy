@@ -2096,11 +2096,11 @@ static int isComplex(PyObject* obj)
     return 0;
 }
 
-static int isFloat(PyObject* obj)
+static int isReal(PyObject* obj)
 {
 #ifdef DEBUG
     if (global.debug)
-        fprintf(stderr, "isFloat: object type is %s\n", Py_TYPE(obj)->tp_name);
+        fprintf(stderr, "isReal: object type is %s\n", Py_TYPE(obj)->tp_name);
 #endif
     if (Pympz_Check(obj))       return 1;
     if (PyIntOrLong_Check(obj)) return 1;
@@ -3110,7 +3110,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         Py_DECREF(tempb);
         return _cmp_to_object(c, op);
     }
-    if (isFloat(a) && isFloat(b)) {
+    if (isReal(a) && isReal(b)) {
         TRACE("compare (mpfr,float)\n");
         /* Handle non-numbers separately. */
         if (PyFloat_Check(b)) {
