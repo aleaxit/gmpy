@@ -308,15 +308,28 @@ static PyObject *gmpy_module = NULL;
 static struct gmpy_global {
     int debug;               /* != 0 if debug messages desired on stderr */
     int raise;               /* use Python vs. MPFR approach to errors */
-    mpfr_prec_t mpfr_prec;   /* current precision in bits, for MPFR and real MPC */
-    mpfr_prec_t mpc_iprec;   /* current precision in bits for imaginary MPC */
+    mpfr_prec_t mpfr_prec;   /* current precision in bits, for MPFR */
+    mpfr_prec_t mpc_rprec;   /* current precision in bits, for Re(MPC) */
+    mpfr_prec_t mpc_iprec;   /* current precision in bits, for Im(MPC) */
     mpfr_rnd_t mpfr_round;   /* current rounding mode for float (MPFR) */
     mpc_rnd_t mpc_round;     /* current rounding mode for complex (MPC)*/
     int cache_size;          /* size of cache, for all caches */
     int cache_obsize;        /* maximum size of the objects that are cached */
     int mpfr_rc;             /* result code from MPFR */
     int mpc_rc;              /* result code from MPC */
-} global = { 0, GMPY_MODE_PYTHON, DBL_MANT_DIG, 0, MPFR_RNDN, MPC_RNDNN, 100, 128, 0, 0 };
+} global = {
+    0,                       /* debug */
+    GMPY_MODE_PYTHON,        /* raise */
+    DBL_MANT_DIG,            /* mpfr_prec */
+    DBL_MANT_DIG,            /* mpc_rprec */
+    DBL_MANT_DIG,            /* mpc_iprec */
+    MPFR_RNDN,               /* mpfr_round */
+    MPC_RNDNN,               /* mpc_round */
+    100,                     /* cache_size */
+    128,                     /* cache_obsize */
+    0,                       /* mpfr_rc */
+    0                        /* mpc_rc */
+};
 
 /* forward declarations of type-objects and method-arrays for them */
 #ifdef _MSC_VER
@@ -3593,6 +3606,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "get_max_precision", Pympfr_get_max_precision, METH_NOARGS, doc_g_mpfr_get_max_precision },
     { "get_mode", Pygmpy_get_mode, METH_NOARGS, doc_get_mode },
     { "get_mpc_round", Pympc_get_mpc_round, METH_NOARGS, doc_g_mpc_get_mpc_round },
+    { "get_mpc_precision", Pympc_get_mpc_precision, METH_NOARGS, doc_g_mpc_get_mpc_precision },
     { "get_mpfr_status", Pympfr_get_mpfr_status, METH_NOARGS, doc_g_mpfr_get_mpfr_status },
     { "get_mpfr_round", Pympfr_get_mpfr_round, METH_NOARGS, doc_g_mpfr_get_mpfr_round },
     { "get_mpfr_precision", Pympfr_get_mpfr_precision, METH_NOARGS, doc_g_mpfr_get_mpfr_precision },
@@ -3670,8 +3684,9 @@ static PyMethodDef Pygmpy_methods [] =
     { "set_flag_inexact", Pympfr_set_inexflag, METH_NOARGS, doc_g_mpfr_set_inexflag },
     { "set_flag_nan", Pympfr_set_nanflag, METH_NOARGS, doc_g_mpfr_set_nanflag },
     { "set_flag_underflow", Pympfr_set_underflow, METH_NOARGS, doc_g_mpfr_set_underflow },
-    { "set_mpc_round", Pympc_set_mpc_round, METH_VARARGS, doc_g_mpc_set_mpc_round },
     { "set_mode", Pygmpy_set_mode, METH_VARARGS, doc_set_mode },
+    { "set_mpc_round", Pympc_set_mpc_round, METH_VARARGS, doc_g_mpc_set_mpc_round },
+    { "set_mpc_precision", Pympc_set_mpc_precision, METH_VARARGS, doc_g_mpc_set_mpc_precision },
     { "set_mpfr_round", Pympfr_set_mpfr_round, METH_VARARGS, doc_g_mpfr_set_mpfr_round },
     { "set_mpfr_precision", Pympfr_set_mpfr_precision, METH_VARARGS, doc_g_mpfr_set_mpfr_precision },
     { "set_overflow", Pympfr_set_overflow, METH_NOARGS, doc_g_mpfr_set_overflow },
