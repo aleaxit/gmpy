@@ -431,12 +431,10 @@ static PympcObject *
 Pympc2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *newob;
-    mpfr_prec_t temp_rprec = rprec;
-    mpfr_prec_t temp_iprec = iprec;
 
     assert(Pympc_Check(self));
     if (rprec == 0 || iprec == 0)
-        mpc_get_prec2(&temp_rprec, &temp_iprec, Pympc_AS_MPC(self));
+        mpc_get_prec2(&rprec, &iprec, Pympc_AS_MPC(self));
     if ((newob = Pympc_new(rprec, iprec)))
         global.mpc_rc = mpc_set(newob->c, Pympc_AS_MPC(self), global.mpc_round);
     return newob;
