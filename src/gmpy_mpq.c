@@ -362,8 +362,8 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
         return (PyObject*)rq;
     }
     else {
-        tempbf = Pympfr_From_Float(base, 0);
-        tempef = Pympfr_From_Float(exp, 0);
+        tempbf = Pympfr_From_Real(base, 0);
+        tempef = Pympfr_From_Real(exp, 0);
         rf = Pympfr_new(0);
         if (!tempbf || !tempef || !rf) {
             TYPE_ERROR("mpq.pow() unsupported operands");
