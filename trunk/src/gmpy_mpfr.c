@@ -463,7 +463,7 @@ Pympfr_is_nan(PyObject *self, PyObject *other)
         res = mpfr_nan_p(Pympfr_AS_MPFR(other));
     }
     else {
-        if (!(tempx = Pympfr_From_Float(other, 0))) {
+        if (!(tempx = Pympfr_From_Real(other, 0))) {
             TYPE_ERROR("is_nan() requires 'mpfr' argument");
             return NULL;
         }
@@ -499,7 +499,7 @@ Pympfr_is_inf(PyObject *self, PyObject *other)
         res = mpfr_inf_p(Pympfr_AS_MPFR(other));
     }
     else {
-        if (!(tempx = Pympfr_From_Float(other, 0))) {
+        if (!(tempx = Pympfr_From_Real(other, 0))) {
             TYPE_ERROR("is_inf() requires 'mpfr' argument");
             return NULL;
         }
@@ -537,7 +537,7 @@ Pympfr_is_number(PyObject *self, PyObject *other)
         res = mpfr_number_p(Pympfr_AS_MPFR(other));
     }
     else {
-        if (!(tempx = Pympfr_From_Float(other, 0))) {
+        if (!(tempx = Pympfr_From_Real(other, 0))) {
             TYPE_ERROR("is_number() requires 'mpfr' argument");
             return NULL;
         }
@@ -573,7 +573,7 @@ Pympfr_is_zero(PyObject *self, PyObject *other)
         res = mpfr_zero_p(Pympfr_AS_MPFR(other));
     }
     else {
-        if (!(tempx = Pympfr_From_Float(other, 0))) {
+        if (!(tempx = Pympfr_From_Real(other, 0))) {
             TYPE_ERROR("is_zero() requires 'mpfr' argument");
             return NULL;
         }
@@ -609,7 +609,7 @@ Pympfr_is_regular(PyObject *self, PyObject *other)
         res = mpfr_regular_p(Pympfr_AS_MPFR(other));
     }
     else {
-        if (!(tempx = Pympfr_From_Float(other, 0))) {
+        if (!(tempx = Pympfr_From_Real(other, 0))) {
             TYPE_ERROR("is_regular() requires 'mpfr' argument");
             return NULL;
         }
@@ -869,8 +869,8 @@ Pympfr2_pow(PyObject *base, PyObject *exp, PyObject *m)
         return NULL;
     }
 
-    tempb = Pympfr_From_Float(base, 0);
-    tempe = Pympfr_From_Float(exp, 0);
+    tempb = Pympfr_From_Real(base, 0);
+    tempe = Pympfr_From_Real(exp, 0);
     result = Pympfr_new(0);
 
     if (!tempe || !tempb || !result) {
@@ -975,7 +975,7 @@ Pympfr_sqrt(PyObject *self, PyObject *other)
         global.mpfr_rc = mpfr_sqrt(result->f, Pympfr_AS_MPFR(other), global.mpfr_round);
     }
     else {
-        if (!(tempx = Pympfr_From_Float(other, 0))) {
+        if (!(tempx = Pympfr_From_Real(other, 0))) {
             TYPE_ERROR("sqrt() requires 'mpfr' argument");
             return NULL;
         }
@@ -1026,7 +1026,7 @@ Pympfr_rec_sqrt(PyObject *self, PyObject *other)
         global.mpfr_rc = mpfr_rec_sqrt(result->f, Pympfr_AS_MPFR(other), global.mpfr_round);
     }
     else {
-        if (!(tempx = Pympfr_From_Float(other, 0))) {
+        if (!(tempx = Pympfr_From_Real(other, 0))) {
             TYPE_ERROR("rec_sqrt() requires 'mpfr' argument");
             return NULL;
         }
@@ -1151,7 +1151,7 @@ Pympfr_sign(PyObject *self, PyObject *other)
         sign = mpfr_sgn(Pympfr_AS_MPFR(other));
     }
     else {
-        if (!(tempx = Pympfr_From_Float(other, 0))) {
+        if (!(tempx = Pympfr_From_Real(other, 0))) {
             TYPE_ERROR("sign() requires 'mpfr' argument");
             return NULL;
         }
@@ -1189,7 +1189,7 @@ Pympfr_##NAME(PyObject* self, PyObject *other) \
         mpfr_##NAME(result->f, Pympfr_AS_MPFR(other)); \
     } \
     else { \
-        if (!(tempx = Pympfr_From_Float(other, 0))) { \
+        if (!(tempx = Pympfr_From_Real(other, 0))) { \
             TYPE_ERROR(#NAME "() requires 'mpfr' argument"); \
             return NULL; \
         } \
@@ -1246,7 +1246,7 @@ Pympfr_##NAME(PyObject* self, PyObject *other) \
         global.mpfr_rc = mpfr_##NAME(result->f, Pympfr_AS_MPFR(other), global.mpfr_round); \
     } \
     else { \
-        if (!(tempx = Pympfr_From_Float(other, 0))) { \
+        if (!(tempx = Pympfr_From_Real(other, 0))) { \
             TYPE_ERROR(#NAME "() requires 'mpfr' argument"); \
             return NULL; \
         } \
@@ -1577,7 +1577,7 @@ Pympfr_lgamma(PyObject* self, PyObject *other)
                                    global.mpfr_round);
     }
     else {
-        if (!(tempx = Pympfr_From_Float(other, 0))) {
+        if (!(tempx = Pympfr_From_Real(other, 0))) {
             TYPE_ERROR("lgamma() requires 'mpfr' argument");
             return NULL;
         }
@@ -2074,7 +2074,7 @@ Pympfr_nextabove(PyObject *self, PyObject *other)
         mpfr_nextabove(result->f);
     }
     else {
-        if (!(tempx = Pympfr_From_Float(other, 0))) {
+        if (!(tempx = Pympfr_From_Real(other, 0))) {
             TYPE_ERROR("next_above() requires 'mpfr' argument");
             return NULL;
         }
@@ -2115,7 +2115,7 @@ Pympfr_nextbelow(PyObject *self, PyObject *other)
          mpfr_nextbelow(result->f);
     }
     else {
-        if (!(tempx = Pympfr_From_Float(other, 0))) {
+        if (!(tempx = Pympfr_From_Real(other, 0))) {
             TYPE_ERROR("next_below() requires 'mpfr' argument");
             return NULL;
         }
@@ -2163,7 +2163,7 @@ Pympfr_sin_cos(PyObject *self, PyObject *other)
                                     global.mpfr_round);
     }
     else {
-        if (!(tempx = Pympfr_From_Float(other, 0))) {
+        if (!(tempx = Pympfr_From_Real(other, 0))) {
             TYPE_ERROR("sin_cos() requires 'mpfr' argument");
             Py_XDECREF((PyObject*)s);
             Py_XDECREF((PyObject*)c);
@@ -2214,7 +2214,7 @@ Pympfr_sinh_cosh(PyObject *self, PyObject *other)
                                       global.mpfr_round);
     }
     else {
-        if (!(tempx = Pympfr_From_Float(other, 0))) {
+        if (!(tempx = Pympfr_From_Real(other, 0))) {
             TYPE_ERROR("sinh_cosh() requires 'mpfr' argument");
             Py_XDECREF((PyObject*)s);
             Py_XDECREF((PyObject*)c);
@@ -2247,9 +2247,9 @@ Pympfr_fma(PyObject *self, PyObject *args)
     }
 
     result = Pympfr_new(0);
-    x = Pympfr_From_Float(PyTuple_GET_ITEM(args, 0), 0);
-    y = Pympfr_From_Float(PyTuple_GET_ITEM(args, 1), 0);
-    z = Pympfr_From_Float(PyTuple_GET_ITEM(args, 2), 0);
+    x = Pympfr_From_Real(PyTuple_GET_ITEM(args, 0), 0);
+    y = Pympfr_From_Real(PyTuple_GET_ITEM(args, 1), 0);
+    z = Pympfr_From_Real(PyTuple_GET_ITEM(args, 2), 0);
     if (!result || !x || !y || !z) {
         TYPE_ERROR("fma() requires 'mpfr','mpfr','mpfr' arguments.");
         Py_XDECREF((PyObject*)result);
@@ -2281,9 +2281,9 @@ Pympfr_fms(PyObject *self, PyObject *args)
     }
 
     result = Pympfr_new(0);
-    x = Pympfr_From_Float(PyTuple_GET_ITEM(args, 0), 0);
-    y = Pympfr_From_Float(PyTuple_GET_ITEM(args, 1), 0);
-    z = Pympfr_From_Float(PyTuple_GET_ITEM(args, 2), 0);
+    x = Pympfr_From_Real(PyTuple_GET_ITEM(args, 0), 0);
+    y = Pympfr_From_Real(PyTuple_GET_ITEM(args, 1), 0);
+    z = Pympfr_From_Real(PyTuple_GET_ITEM(args, 2), 0);
     if (!result || !x || !y || !z) {
         TYPE_ERROR("fms() requires 'mpfr','mpfr','mpfr' arguments.");
         Py_XDECREF((PyObject*)result);

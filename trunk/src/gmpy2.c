@@ -523,7 +523,7 @@ PyFloat2Pyxmpz(PyObject *self)
 static PyObject *f2q_internal(PympfrObject* self, PympfrObject* err,
         unsigned int bits, int mayz);
 static PyObject* Pympfr_f2q(PyObject *self, PyObject *args);
-static PympfrObject* Pympfr_From_Float(PyObject* obj, mpfr_prec_t bits);
+static PympfrObject* Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
 
 static PympqObject *
 PyFloat2Pympq(PyObject *self)
@@ -2494,7 +2494,7 @@ ssize_t_From_Integer(PyObject *obj)
  */
 
 static PympfrObject*
-Pympfr_From_Float(PyObject* obj, mpfr_prec_t bits)
+Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
 {
     PympfrObject* newob = 0;
     PympqObject* temp = 0;
@@ -2550,7 +2550,7 @@ Pympfr_From_Float(PyObject* obj, mpfr_prec_t bits)
     }
 #ifdef DEBUG
     if (global.debug)
-        fprintf(stderr, "Pympfr_From_Float(%p,%ld)->%p (%ld)\n", obj,
+        fprintf(stderr, "Pympfr_From_Real(%p,%ld)->%p (%ld)\n", obj,
                 (long)bits, newob, newob != 0 ? (long)mpfr_get_prec(newob->f) : -1);
 #endif
     return newob;
@@ -2608,7 +2608,7 @@ Pympq_convert_arg(PyObject *arg, PyObject **ptr)
 int
 Pympfr_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympfrObject* newob = Pympfr_From_Float(arg, 0);
+    PympfrObject* newob = Pympfr_From_Real(arg, 0);
 
 #ifdef DEBUG
     if (global.debug)
@@ -3004,7 +3004,7 @@ Pygmpy_mpfr(PyObject *self, PyObject *args)
             TYPE_ERROR("gmpy2.mpfr() with numeric 1st argument needs 1 or 2 arguments");
             return NULL;
         }
-        newob = Pympfr_From_Float(obj, bits);
+        newob = Pympfr_From_Real(obj, bits);
         if (!newob) {
             if (!PyErr_Occurred())
                 TYPE_ERROR("gmpy2.mpfr() requires numeric or string argument");
@@ -3142,8 +3142,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 }
             }
         }
-        tempa = (PyObject*)Pympfr_From_Float(a,0);
-        tempb = (PyObject*)Pympfr_From_Float(b,0);
+        tempa = (PyObject*)Pympfr_From_Real(a, 0);
+        tempb = (PyObject*)Pympfr_From_Real(b, 0);
         c = mpfr_cmp(Pympfr_AS_MPFR(tempa), Pympfr_AS_MPFR(tempb));
         Py_DECREF(tempa);
         Py_DECREF(tempb);
