@@ -427,6 +427,21 @@ Pympfr2Pympfr(PyObject *self, mpfr_prec_t bits)
     return newob;
 }
 
+static PympcObject *
+Pympc2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
+{
+    PympcObject *newob;
+    mpfr_prec_t temp_rprec = rprec;
+    mpfr_prec_t temp_iprec = iprec;
+
+    assert(Pympc_Check(self));
+    if (rprec == 0 || iprec == 0)
+        mpc_get_prec2(&temp_rprec, &temp_iprec, Pympc_AS_MPC(self));
+    if ((newob = Pympc_new(rprec, iprec)))
+        global.mpc_rc = mpc_set(newob->c, Pympc_AS_MPC(self), global.mpc_round);
+    return newob;
+}
+
 #ifdef PY2
 static PympzObject *
 PyInt2Pympz(PyObject *self)
@@ -4196,7 +4211,6 @@ static void _PyInitGMP(void)
     set_pympzcache();
     set_pympqcache();
     set_pympfrcache();
-    set_pympccache();
     set_pyxmpzcache();
 }
 
