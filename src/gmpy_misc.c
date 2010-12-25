@@ -7,30 +7,10 @@
 
 /* Return license information. */
 
-#ifdef __MPIR_VERSION
-#define MPIR_VER \
-__MPIR_VERSION * 10000 + \
-__MPIR_VERSION_MINOR * 100 + \
-__MPIR_VERSION_PATCHLEVEL
-
-#if ((MPIR_VER < 10300) && (MPIR_VER > 10399))
-static char gmpy_license[] = "\
-The GMPY2 source code is licensed under LGPL 2.1 or later. This version \n\
-of the MPIR library is licensed under LGPL 3 or later. Therefore, this \n\
-combined module is licensed under LGPL 3 or later.";
-#else
-static char gmpy_license[] = "\
-The GMPY2 source code is licensed under LGPL 2.1 or later. This version \n\
-of the MPIR library is licensed under LGPL 2.1 or later. Therefore, this \n\
-combined module is licensed under LGPL 2.1 or later.";
-#endif
-#else
 char gmpy_license[] = "\
-The GMPY2 source code is licensed under LGPL 2.1 or later. The GMP \n\
-library is licensed under LGPL 3 or later. Therefore, this combined \n\
-module is licensed under LGPL 3 or later.";
-#endif
-#undef MPIR_VER
+The GMPY2 source code is licensed under LGPL 2.1 or later. The GMP/MPIR, \n\
+MPFR, and MPC libraries are licensed under LGPL 3 or later. Therefore, this \n\
+combined module is licensed under LGPL 3 or later.";
 
 PyDoc_STRVAR(doc_license,
 "license() -> string\n\n"
@@ -86,6 +66,17 @@ Pygmpy_get_mpfr_version(PyObject *self, PyObject *args)
 {
     return PyUnicode_FromFormat("%s %s", "MPFR",
                                 MPFR_VERSION_STRING);
+}
+
+PyDoc_STRVAR(doc_mpc_version,
+"mpc_version() -> string\n\n"
+"Return string giving current MPC version.");
+
+static PyObject *
+Pygmpy_get_mpc_version(PyObject *self, PyObject *args)
+{
+    return PyUnicode_FromFormat("%s %s", "MPC",
+                                MPC_VERSION_STRING);
 }
 
 PyDoc_STRVAR(doc_mp_limbsize,

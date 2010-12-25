@@ -35,6 +35,7 @@ writeln("    on Python %s" % sys.version)
 writeln("Testing gmpy2 {0}".format(_g.version()))
 writeln("  Mutliple-precision library:   {0}".format(_g.mp_version()))
 writeln("  Floating-point library:       {0}".format(_g.mpfr_version()))
+writeln("  Complex library:              {0}".format(_g.mpc_version()))
 writeln("  Caching Values: (Number)      {0}".format(_g.get_cache()[0]))
 writeln("  Caching Values: (Size, limbs) {0}".format(_g.get_cache()[1]))
 

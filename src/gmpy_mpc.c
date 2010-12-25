@@ -108,3 +108,19 @@ Pympc_set_mpc_precision(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+PyDoc_STRVAR(doc_g_mpc_get_mpc_status,
+"get_mpc_status() -> (integer, integer)\n\n"
+"Return the ternary result code from the most recent MPC operation.\n"
+"The values are for the real and imaginary components, respectively.\n"
+"If the ternary value is 0, the result of the operation is exact.\n"
+"If the ternary value is > 0, the result of the operation is greater\n"
+"than the exact result. If the ternary value < 0, then the result\n"
+"of the operation is less than the exact result.");
+
+static PyObject *
+Pympc_get_mpc_status(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("(ii)",
+                         MPC_INEX_RE(global.mpc_rc),
+                         MPC_INEX_IM(global.mpc_rc));
+}

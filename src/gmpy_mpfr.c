@@ -207,8 +207,8 @@ Pympfr_is_erangeflag(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_g_mpfr_get_mpfr_status,
-"get_mpfr_status() -> integer\n\n\
-Return the ternary result code from the most recent MPFR operation.\n"
+"get_mpfr_status() -> integer\n\n"
+"Return the ternary result code from the most recent MPFR operation.\n"
 "If the ternary value is 0, the result of the operation is exact.\n"
 "If the ternary value is > 0, the result of the operation is greater\n"
 "than the exact result. If the ternary value < 0, then the result\n"
