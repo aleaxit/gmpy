@@ -8,13 +8,13 @@ PyDoc_STRVAR(doc_g_mpc_get_mpc_round,
 static PyObject *
 Pympc_get_mpc_round(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("ii",
+    return Py_BuildValue("(ii)",
                          MPC_RND_RE(global.mpc_round),
                          MPC_RND_IM(global.mpc_round));
 }
 
 PyDoc_STRVAR(doc_g_mpc_set_mpc_round,
-"set_mpc_round(n,n)\n\n"
+"set_mpc_round((n,n))\n\n"
 "Set the rounding mode for complex arithmetic. The first value is"
 "the rounding more for the real portion. The second value is the"
 "rounding mode for the imaginary portion. Valid rounding modes are"
@@ -25,7 +25,7 @@ Pympc_set_mpc_round(PyObject *self, PyObject *args)
 {
     int rmode, imode;
 
-    if(!PyArg_ParseTuple(args, "ii", &rmode, &imode))
+    if(!PyArg_ParseTuple(args, "(ii)", &rmode, &imode))
         return NULL;
 
     if (rmode == MPFR_RNDN && imode == MPFR_RNDN)
@@ -68,6 +68,43 @@ Pympc_set_mpc_round(PyObject *self, PyObject *args)
         VALUE_ERROR("invalid rounding mode");
         return NULL;
     }
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(doc_g_mpc_get_mpc_precision,
+"get_mpc_precision() -> (integer, integer)\n\n"
+"Return the precision for 'mpc' arithmetic. The first value is the"
+"precision for the real portion. The second value is the precision"
+"for the imaginary portion.");
+
+static PyObject *
+Pympc_get_mpc_precision(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("(nn)",
+                         (Py_ssize_t)(global.mpc_rprec),
+                         (Py_ssize_t)(global.mpc_iprec));
+}
+
+PyDoc_STRVAR(doc_g_mpc_set_mpc_precision,
+"set_mpc_precision((n,n))\n\n"
+"Set the precision for complex arithmetic. The first value is the"
+"precision for the real portion. The second value is the precision"
+"for the imaginary portion.");
+
+static PyObject *
+Pympc_set_mpc_precision(PyObject *self, PyObject *args)
+{
+    Py_ssize_t rprec, iprec;
+
+    if(!PyArg_ParseTuple(args, "(nn)", &rprec, &iprec))
+        return NULL;
+    if (rprec < MPFR_PREC_MIN || rprec > MPFR_PREC_MAX ||
+        iprec < MPFR_PREC_MIN || iprec > MPFR_PREC_MAX) {
+        VALUE_ERROR("invalid value for precision");
+        return NULL;
+    }
+    global.mpc_rprec = rprec;
+    global.mpc_iprec = iprec;
     Py_RETURN_NONE;
 }
 

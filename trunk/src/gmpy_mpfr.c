@@ -325,9 +325,9 @@ PyDoc_STRVAR(doc_g_mpfr_set_mpfr_precision,
 static PyObject *
 Pympfr_set_mpfr_precision(PyObject *self, PyObject *args)
 {
-    int bits;
+    Py_ssize_t bits;
 
-    if(!PyArg_ParseTuple(args, "i", &bits))
+    if(!PyArg_ParseTuple(args, "n", &bits))
         return NULL;
     if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");
