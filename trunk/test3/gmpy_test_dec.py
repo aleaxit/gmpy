@@ -82,6 +82,7 @@ def _test(chat=None):
         print("Testing gmpy2 {0}".format(_g.version()))
         print("  Mutliple-precision library:   {0}".format(_g.mp_version()))
         print("  Floating-point library:       {0}".format(_g.mpfr_version()))
+        print("  Complex library:              {0}".format(_g.mpc_version()))
         print("  Caching Values: (Number)      {0}".format(_g.get_cache()[0]))
         print("  Caching Values: (Size, limbs) {0}".format(_g.get_cache()[1]))
     if not _d:
