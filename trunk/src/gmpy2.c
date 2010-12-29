@@ -350,6 +350,10 @@ static PyMethodDef Pyxmpz_methods [];
 
 #include "gmpy_cache.c"
 
+/* Miscellaneous helper functions and simple methods are in gmpy_misc.c. */
+
+#include "gmpy_misc.c"
+
 /* CONVERSIONS AND COPIES */
 
 static PympzObject *
@@ -3035,7 +3039,89 @@ Pygmpy_mpfr(PyObject *self, PyObject *args)
     return (PyObject *) newob;
 } /* Pygmpy_mpfr() */
 
+PyDoc_STRVAR(doc_g_mpc,
+"mpc(n, [prec=(i,i) | rnd=(i,i]) -> mpc object\n\n"
+"Return an mpc object by converting a numeric value 'n' into a\n"
+"complex number. If 'prec' is omitted, then get_mpc_precision() is\n"
+"used. If 'rnd' is omitted, then get_mpc_round() is used.\n\n"
+"mpc(s, [base = 10 | prec=(i,i) | rnd=(i,i)]) -> mpc object\n\n"
+"Return an mpc object by converting a string 's' into a complex\n"
+"number. If 'base' is omitted, then a base 10 representation is\n"
+"assumed otherwise a base between 2 and 36 can be specified.\n"
+"If 'prec' is omitted, then get_mpc_precision() is used. If 'rnd'\n"
+"is omitted, then get_mpc_round() is used.");
+static PyObject *
+Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    PympcObject *result;
+    PyObject *arg0 = NULL, *prec_obj = NULL;
+    Py_ssize_t dummy, rprec, iprec;
+    int base, rmode;
+
+    dummy = 0;
+    base = 10;
+    rprec = global.mpc_rprec;
+    iprec = global.mpc_iprec;
+    rmode = global.mpc_round;
+
+    static char *kwlist[] = {"n", "base", "prec", "rnd", NULL};
+
+    if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "|OiOi", kwlist,
+                                      &arg0, &base, &prec_obj, &rmode)))
+        return NULL;
+
+    if (base < 2 || base > 36) {
+        VALUE_ERROR("base for gmpy2.mpc() must be in the interval 2..36.");
+        return NULL;
+    }
+
+    if (rmode != global.mpc_round && Pymisc_verify_mpc_round(rmode) == -1) {
+        VALUE_ERROR("invalid rounding mode for complex arithmetic.");
+        return NULL;
+    }
+
+    if (prec_obj && PyIntOrLong_Check(prec_obj)) {
+        rprec = PyLong_AsSsize_t(prec_obj);
+        iprec = rprec;
+
+        /* Also catches return value of -1. */
+        if (!Pymisc_verify_mpc_precision(rprec, iprec)) {
+            VALUE_ERROR("invalid precision for complex arithmetic");
+            return NULL;
+        }
+    }
+    else if (prec_obj && PyTuple_Check(prec_obj)) {
+        if (!(PyArg_ParseTuple(prec_obj,
+                    "nn;invalid precision for complex arithmetic.",
+                    &rprec, &iprec)))
+            return NULL;
+
+        if (!Pymisc_verify_mpc_precision(rprec, iprec)) {
+            VALUE_ERROR("invalid precision for complex arithmetic");
+            return NULL;
+        }
+    }
+    else {
+        VALUE_ERROR("invalid precision for complex arithmetic");
+        return NULL;
+    }
+
+    if (arg0 == NULL) {
+        if (!(result = Pympc_new(rprec, iprec)))
+            return NULL;
+        /* May want to return (NaN NaN) ?? */
+        mpc_set_ui(result->c, 0, rmode);
+        return (PyObject*)result;
+    }
+
+    Py_INCREF(arg0);
+    return Py_BuildValue("OiOi", arg0, base,
+                         Py_BuildValue("nn", rprec, iprec),
+                         rmode);
+}
+
 /* Helper function for hashing for Python < 3.2 */
+/* Currently only used for mpq. Should refactor the mpq code and remove. */
 #ifndef _PyHASH_MODULUS
 static long
 dohash(PyObject* tempPynum)
@@ -3050,7 +3136,6 @@ dohash(PyObject* tempPynum)
 
 /* ARITHMETIC */
 
-#include "gmpy_misc.c"
 #include "gmpy_mpz.c"
 #include "gmpy_mpz_divmod2exp.c"
 #include "gmpy_mpz_divmod.c"
@@ -3532,6 +3617,88 @@ static PyGetSetDef Pympfr_getseters[] =
     {NULL}
 };
 
+#ifdef PY3
+static PyNumberMethods mpc_number_methods =
+{
+    0,            /* nb_add                  */
+    0,            /* nb_subtract             */
+    0,            /* nb_multiply             */
+    0,            /* nb_remaider             */
+    0,         /* nb_divmod               */
+    0,           /* nb_power                */
+    0,              /* nb_negative             */
+    0,              /* nb_positive             */
+    0,              /* nb_absolute             */
+    0,            /* nb_bool                 */
+        0,                               /* nb_invert               */
+        0,                               /* nb_lshift               */
+        0,                               /* nb_rshift               */
+        0,                               /* nb_and                  */
+        0,                               /* nb_xor                  */
+        0,                               /* nb_or                   */
+    0,           /* nb_int                  */
+        0,                               /* nb_reserved             */
+    0,          /* nb_float                */
+        0,                               /* nb_inplace_add          */
+        0,                               /* nb_inplace_subtract     */
+        0,                               /* nb_inplace_multiply     */
+        0,                               /* nb_inplace_remainder    */
+        0,                               /* nb_inplace_power        */
+        0,                               /* nb_inplace_lshift       */
+        0,                               /* nb_inplace_rshift       */
+        0,                               /* nb_inplace_and          */
+        0,                               /* nb_inplace_xor          */
+        0,                               /* nb_inplace_or           */
+    0,       /* nb_floor_divide         */
+    0,        /* nb_true_divide          */
+        0,                               /* nb_inplace_floor_divide */
+        0,                               /* nb_inplace_true_divide  */
+        0,                               /* nb_index                */
+};
+#else
+static PyNumberMethods mpc_number_methods =
+{
+    0,            /* nb_add                  */
+    0,            /* nb_subtract             */
+    0,            /* nb_multiply             */
+    0,           /* nb_divide               */
+    0,            /* nb_remaider             */
+    0,         /* nb_divmod               */
+    0,           /* nb_power                */
+    0,              /* nb_negative             */
+    0,               /* nb_positive             */
+    0,              /* nb_absolute             */
+    0,             /* nb_bool                 */
+        0,                               /* nb_invert               */
+        0,                               /* nb_lshift               */
+        0,                               /* nb_rshift               */
+        0,                               /* nb_and                  */
+        0,                               /* nb_xor                  */
+        0,                               /* nb_or                   */
+        0,                               /* nb_coerce               */
+    0,            /* nb_int                  */
+    0,           /* nb_long                 */
+    0,          /* nb_float                */
+        0,                               /* nb_oct                  */
+        0,                               /* nb_hex                  */
+        0,                               /* nb_inplace_add          */
+        0,                               /* nb_inplace_subtract     */
+        0,                               /* nb_inplace_multiply     */
+        0,                               /* nb_inplace_divide       */
+        0,                               /* nb_inplace_remainder    */
+        0,                               /* nb_inplace_power        */
+        0,                               /* nb_inplace_lshift       */
+        0,                               /* nb_inplace_rshift       */
+        0,                               /* nb_inplace_and          */
+        0,                               /* nb_inplace_xor          */
+        0,                               /* nb_inplace_or           */
+    0,       /* nb_floor_divide         */
+    0,        /* nb_true_divide          */
+        0,                               /* nb_inplace_floor_divide */
+        0,                               /* nb_inplace_true_divide  */
+};
+#endif
+
 static PyMethodDef Pygmpy_methods [] =
 {
     { "_cvsid", Pygmpy_get_cvsid, METH_NOARGS, doc_cvsid },
@@ -3667,6 +3834,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "mpfr", Pygmpy_mpfr, METH_VARARGS, doc_mpfr },
     { "mp_version", Pygmpy_get_mp_version, METH_NOARGS, doc_mp_version },
     { "mp_limbsize", Pygmpy_get_mp_limbsize, METH_NOARGS, doc_mp_limbsize },
+    { "mpc", (PyCFunction)Pygmpy_mpc, METH_VARARGS | METH_KEYWORDS, doc_g_mpc },
     { "mpc_version", Pygmpy_get_mpc_version, METH_NOARGS, doc_mpc_version },
     { "mpfr_version", Pygmpy_get_mpfr_version, METH_NOARGS, doc_mpfr_version },
     { "mpq", Pygmpy_mpq, METH_VARARGS, doc_mpq },
@@ -3935,6 +4103,11 @@ static PyMethodDef Pympfr_methods [] =
     { NULL, NULL, 1 }
 };
 
+static PyMethodDef Pympc_methods[] =
+{
+    { NULL, NULL, 1 }
+};
+
 static PyTypeObject Pympz_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
@@ -4117,6 +4290,51 @@ static PyTypeObject Pympfr_Type =
     Pympfr_getseters,                        /* tp_getset        */
 };
 
+static PyTypeObject Pympc_Type =
+{
+    /* PyObject_HEAD_INIT(&PyType_Type) */
+#ifdef PY3
+    PyVarObject_HEAD_INIT(NULL, 0)
+#else
+    PyObject_HEAD_INIT(0)
+    0,                                      /* ob_size          */
+#endif
+    "mpc",                                  /* tp_name          */
+    sizeof(PympcObject),                    /* tp_basicsize     */
+        0,                                  /* tp_itemsize      */
+    /* methods */
+    (destructor) Pympc_dealloc,             /* tp_dealloc       */
+        0,                                  /* tp_print         */
+        0,                                  /* tp_getattr       */
+        0,                                  /* tp_setattr       */
+        0,                                  /* tp_reserved      */
+        0,                                  /* tp_repr          */
+    &mpc_number_methods,                    /* tp_as_number     */
+        0,                                  /* tp_as_sequence   */
+        0,                                  /* tp_as_mapping    */
+        0,                                  /* tp_hash          */
+        0,                                  /* tp_call          */
+    (reprfunc) 0,                           /* tp_str           */
+        0,                                  /* tp_getattro      */
+        0,                                  /* tp_setattro      */
+        0,                                  /* tp_as_buffer     */
+#ifdef PY3
+    Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
+#else
+    Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,  /* tp_flags */
+#endif
+    "MPC-based complex number",             /* tp_doc           */
+        0,                                  /* tp_traverse      */
+        0,                                  /* tp_clear         */
+        0,                                  /* tp_richcompare   */
+        0,                                  /* tp_weaklistoffset*/
+        0,                                  /* tp_iter          */
+        0,                                  /* tp_iternext      */
+    Pympc_methods,                          /* tp_methods       */
+        0,                                  /* tp_members       */
+        0,                                  /* tp_getset        */
+};
+
 
 static void *
 gmpy_allocate(size_t size)
@@ -4269,6 +4487,8 @@ PyMODINIT_FUNC initgmpy2(void)
         INITERROR;
     if (PyType_Ready(&Pyxmpz_Type) < 0)
         INITERROR;
+    if (PyType_Ready(&Pympc_Type) < 0)
+        INITERROR;
 
     if (do_debug)
         sscanf(do_debug, "%d", &global.debug);
@@ -4289,11 +4509,32 @@ PyMODINIT_FUNC initgmpy2(void)
 
     /* Add the constants for defining rounding modes. */
 
-    PyModule_AddIntConstant(gmpy_module, "RoundToNearest", MPFR_RNDN);
-    PyModule_AddIntConstant(gmpy_module, "RoundToZero", MPFR_RNDZ);
-    PyModule_AddIntConstant(gmpy_module, "RoundUp", MPFR_RNDU);
-    PyModule_AddIntConstant(gmpy_module, "RoundDown", MPFR_RNDD);
-    PyModule_AddIntConstant(gmpy_module, "RoundAwayZero", MPFR_RNDA);
+    PyModule_AddIntConstant(gmpy_module, "MPFR_RNDN", MPFR_RNDN);
+    PyModule_AddIntConstant(gmpy_module, "MPFR_RNDZ", MPFR_RNDZ);
+    PyModule_AddIntConstant(gmpy_module, "MPFR_RNDU", MPFR_RNDU);
+    PyModule_AddIntConstant(gmpy_module, "MPFR_RNDD", MPFR_RNDD);
+    PyModule_AddIntConstant(gmpy_module, "MPFR_RNDA", MPFR_RNDA);
+
+    PyModule_AddIntConstant(gmpy_module, "MPC_RNDNN", MPC_RNDNN);
+    PyModule_AddIntConstant(gmpy_module, "MPC_RNDNZ", MPC_RNDNZ);
+    PyModule_AddIntConstant(gmpy_module, "MPC_RNDNU", MPC_RNDNU);
+    PyModule_AddIntConstant(gmpy_module, "MPC_RNDND", MPC_RNDND);
+
+    PyModule_AddIntConstant(gmpy_module, "MPC_RNDZN", MPC_RNDZN);
+    PyModule_AddIntConstant(gmpy_module, "MPC_RNDZZ", MPC_RNDZZ);
+    PyModule_AddIntConstant(gmpy_module, "MPC_RNDZU", MPC_RNDZU);
+    PyModule_AddIntConstant(gmpy_module, "MPC_RNDZD", MPC_RNDZD);
+
+    PyModule_AddIntConstant(gmpy_module, "MPC_RNDUN", MPC_RNDUN);
+    PyModule_AddIntConstant(gmpy_module, "MPC_RNDUZ", MPC_RNDUZ);
+    PyModule_AddIntConstant(gmpy_module, "MPC_RNDUU", MPC_RNDUU);
+    PyModule_AddIntConstant(gmpy_module, "MPC_RNDUD", MPC_RNDUD);
+
+    PyModule_AddIntConstant(gmpy_module, "MPC_RNDDN", MPC_RNDDN);
+    PyModule_AddIntConstant(gmpy_module, "MPC_RNDDZ", MPC_RNDDZ);
+    PyModule_AddIntConstant(gmpy_module, "MPC_RNDDU", MPC_RNDDU);
+    PyModule_AddIntConstant(gmpy_module, "MPC_RNDDD", MPC_RNDDD);
+
     PyModule_AddIntConstant(gmpy_module, "ModePython", GMPY_MODE_PYTHON);
     PyModule_AddIntConstant(gmpy_module, "ModeMPFR", GMPY_MODE_MPFR);
 #ifdef DEBUG
