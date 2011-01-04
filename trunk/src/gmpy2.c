@@ -3057,6 +3057,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
     PyObject *arg0 = NULL, *prec_obj = NULL;
     Py_ssize_t dummy, rprec, iprec;
     int base, rmode;
+    static char *kwlist[] = {"n", "base", "prec", "rnd", NULL};
 
     dummy = 0;
     base = 10;
@@ -3064,7 +3065,6 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
     iprec = global.mpc_iprec;
     rmode = global.mpc_round;
 
-    static char *kwlist[] = {"n", "base", "prec", "rnd", NULL};
 
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "|OiOi", kwlist,
                                       &arg0, &base, &prec_obj, &rmode)))
