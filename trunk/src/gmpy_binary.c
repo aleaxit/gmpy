@@ -123,23 +123,23 @@ Pympfr_From_Binary(PyObject *s)
     }
 
     /* reconstruct 'mantissa' (significand) */
-    mpfr_set_si(newob->f, 0, global.mpfr_round);
+    mpfr_set_si(newob->f, 0, context.mpfr_round);
     mpfr_init2(digit, prec);
     for (i = 5 + precilen; i<len; i++) {
-        mpfr_set_ui(digit, cp[i], global.mpfr_round);
+        mpfr_set_ui(digit, cp[i], context.mpfr_round);
         mpfr_div_2ui(digit, digit, (unsigned long)((i-4-precilen) * 8),
-                     global.mpfr_round);
-        mpfr_add(newob->f, newob->f, digit, global.mpfr_round);
+                     context.mpfr_round);
+        mpfr_add(newob->f, newob->f, digit, context.mpfr_round);
     }
     mpfr_clear(digit);
     /* apply exponent, with its appropriate sign */
     if (exposign)
-        mpfr_div_2ui(newob->f, newob->f, 8*expomag, global.mpfr_round);
+        mpfr_div_2ui(newob->f, newob->f, 8*expomag, context.mpfr_round);
     else
-        mpfr_mul_2ui(newob->f, newob->f, 8*expomag, global.mpfr_round);
+        mpfr_mul_2ui(newob->f, newob->f, 8*expomag, context.mpfr_round);
     /* apply significand-sign (sign of the overall number) */
     if (resusign)
-        mpfr_neg(newob->f, newob->f, global.mpfr_round);
+        mpfr_neg(newob->f, newob->f, context.mpfr_round);
 
     Py_XDECREF(ascii_str);
     return newob;
