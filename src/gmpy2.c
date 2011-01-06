@@ -307,28 +307,38 @@ static PyObject *gmpy_module = NULL;
 
 static struct gmpy_global {
     int debug;               /* != 0 if debug messages desired on stderr */
+    int cache_size;          /* size of cache, for all caches */
+    int cache_obsize;        /* maximum size of the objects that are cached */
+} global = {
+    0,                       /* debug */
+    100,                     /* cache_size */
+    128                      /* cache_obsize */
+};
+
+/* The following structure should really be thread-specific. Until then, gmpy2
+ * is NOT thread-safe for mpfr and mpc calculations.
+ */
+
+static struct gmpy_context {
     int raise;               /* use Python vs. MPFR approach to errors */
+    int mpfr_rc;             /* result code from MPFR */
+    int mpc_rc;              /* result code from MPC */
+    int mpc_defaults_mpfr;   /* if 1, MPC precision and rounding defaults to MPFR */
     mpfr_prec_t mpfr_prec;   /* current precision in bits, for MPFR */
     mpfr_prec_t mpc_rprec;   /* current precision in bits, for Re(MPC) */
     mpfr_prec_t mpc_iprec;   /* current precision in bits, for Im(MPC) */
     mpfr_rnd_t mpfr_round;   /* current rounding mode for float (MPFR) */
     mpc_rnd_t mpc_round;     /* current rounding mode for complex (MPC)*/
-    int cache_size;          /* size of cache, for all caches */
-    int cache_obsize;        /* maximum size of the objects that are cached */
-    int mpfr_rc;             /* result code from MPFR */
-    int mpc_rc;              /* result code from MPC */
-} global = {
-    0,                       /* debug */
+} context = {
     GMPY_MODE_PYTHON,        /* raise */
-    DBL_MANT_DIG,            /* mpfr_prec */
-    DBL_MANT_DIG,            /* mpc_rprec */
-    DBL_MANT_DIG,            /* mpc_iprec */
-    MPFR_RNDN,               /* mpfr_round */
-    MPC_RNDNN,               /* mpc_round */
-    100,                     /* cache_size */
-    128,                     /* cache_obsize */
     0,                       /* mpfr_rc */
-    0                        /* mpc_rc */
+    0,                       /* mpc_rc */
+    1,                       /* mpc_defaults_mpfr */
+    DBL_MANT_DIG,            /* mpfr_prec */
+    -1,                      /* mpc_rprec */
+    -1,                      /* mpc_iprec */
+    MPFR_RNDN,               /* mpfr_round */
+    MPC_RNDNN                /* mpc_round */
 };
 
 /* forward declarations of type-objects and method-arrays for them */
@@ -427,7 +437,7 @@ Pympfr2Pympfr(PyObject *self, mpfr_prec_t bits)
     if (bits == 0)
         bits = mpfr_get_prec(Pympfr_AS_MPFR(self));
     if ((newob = Pympfr_new(bits)))
-        global.mpfr_rc = mpfr_set(newob->f, Pympfr_AS_MPFR(self), global.mpfr_round);
+        context.mpfr_rc = mpfr_set(newob->f, Pympfr_AS_MPFR(self), context.mpfr_round);
     return newob;
 }
 
@@ -440,7 +450,7 @@ Pympc2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
     if (rprec == 0 || iprec == 0)
         mpc_get_prec2(&rprec, &iprec, Pympc_AS_MPC(self));
     if ((newob = Pympc_new(rprec, iprec)))
-        global.mpc_rc = mpc_set(newob->c, Pympc_AS_MPC(self), global.mpc_round);
+        context.mpc_rc = mpc_set(newob->c, Pympc_AS_MPC(self), context.mpc_round);
     return newob;
 }
 
@@ -485,7 +495,7 @@ PyInt2Pympfr(PyObject *self, mpfr_prec_t bits)
 
     assert(PyInt_Check(self));
     if ((newob = Pympfr_new(bits)))
-        global.mpfr_rc = mpfr_set_si(newob->f, PyInt_AsLong(self), global.mpfr_round);
+        context.mpfr_rc = mpfr_set_si(newob->f, PyInt_AsLong(self), context.mpfr_round);
     return newob;
 }
 #endif
@@ -581,7 +591,7 @@ PyFloat2Pympfr(PyObject *self, mpfr_prec_t bits)
         fprintf(stderr, "PyFloat2Pympfr(%p,%ld)\n", self, (long) bits);
 #endif
     if ((newob = Pympfr_new(bits)))
-        global.mpfr_rc = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), bits);
+        context.mpfr_rc = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), bits);
     return newob;
 }
 
@@ -592,7 +602,7 @@ Pympz2Pympfr(PyObject *self, mpfr_prec_t bits)
 
     assert(Pympz_Check(self));
     if ((newob = Pympfr_new(bits)))
-        global.mpfr_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), global.mpfr_round);
+        context.mpfr_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), context.mpfr_round);
     return newob;
 }
 
@@ -603,7 +613,7 @@ Pyxmpz2Pympfr(PyObject *self, mpfr_prec_t bits)
 
     assert(Pyxmpz_Check(self));
     if ((newob = Pympfr_new(bits)))
-        global.mpfr_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), global.mpfr_round);
+        context.mpfr_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), context.mpfr_round);
     return newob;
 }
 
@@ -624,7 +634,7 @@ Pympfr2Pympz(PyObject *self)
             VALUE_ERROR("gmpy2.mpz() does not handle infinity");
             return NULL;
         }
-        global.mpfr_rc = mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), global.mpfr_round);
+        context.mpfr_rc = mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), context.mpfr_round);
     }
     return newob;
 }
@@ -646,7 +656,7 @@ Pympfr2Pyxmpz(PyObject *self)
             VALUE_ERROR("gmpy2.xmpz() does not handle infinity");
             return NULL;
         }
-        global.mpfr_rc = mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), global.mpfr_round);
+        context.mpfr_rc = mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), context.mpfr_round);
     }
     return newob;
 }
@@ -687,7 +697,7 @@ Pympq2Pympfr(PyObject *self, mpfr_prec_t bits)
     assert(Pympq_Check(self));
     if (!(newob = Pympfr_new(bits)))
         return NULL;
-    global.mpfr_rc = mpfr_set_q(newob->f, Pympq_AS_MPQ(self), global.mpfr_round);
+    context.mpfr_rc = mpfr_set_q(newob->f, Pympq_AS_MPQ(self), context.mpfr_round);
     return newob;
 }
 
@@ -1102,7 +1112,7 @@ PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
             }
         }
         else { /* true-string, never encoded, just default it */
-            prec = global.mpfr_prec;
+            prec = context.mpfr_prec;
         }
     }
     if (prec < MPFR_PREC_MIN)
@@ -1133,7 +1143,7 @@ PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
 
         /* mpfr zero has a very compact (1-byte) binary encoding!-) */
         if (resuzero) {
-            global.mpfr_rc = mpfr_set_ui(newob->f, 0, global.mpfr_round);
+            context.mpfr_rc = mpfr_set_ui(newob->f, 0, context.mpfr_round);
             return newob;
         }
 
@@ -1152,23 +1162,23 @@ PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
         }
 
         /* reconstruct 'mantissa' (significand) */
-        mpfr_set_si(newob->f, 0, global.mpfr_round);
+        mpfr_set_si(newob->f, 0, context.mpfr_round);
         mpfr_init2(digit, prec);
         for (i = 5 + precilen; i<len; i++) {
-            mpfr_set_ui(digit, cp[i], global.mpfr_round);
+            mpfr_set_ui(digit, cp[i], context.mpfr_round);
             mpfr_div_2ui(digit, digit, (unsigned long)((i-4-precilen) * 8),
-                         global.mpfr_round);
-            mpfr_add(newob->f, newob->f, digit, global.mpfr_round);
+                         context.mpfr_round);
+            mpfr_add(newob->f, newob->f, digit, context.mpfr_round);
         }
         mpfr_clear(digit);
         /* apply exponent, with its appropriate sign */
         if (exposign)
-            mpfr_div_2ui(newob->f, newob->f, 8*expomag, global.mpfr_round);
+            mpfr_div_2ui(newob->f, newob->f, 8*expomag, context.mpfr_round);
         else
-            mpfr_mul_2ui(newob->f, newob->f, 8*expomag, global.mpfr_round);
+            mpfr_mul_2ui(newob->f, newob->f, 8*expomag, context.mpfr_round);
         /* apply significand-sign (sign of the overall number) */
         if (resusign)
-            mpfr_neg(newob->f, newob->f, global.mpfr_round);
+            mpfr_neg(newob->f, newob->f, context.mpfr_round);
     }
     else {
         /* Don't allow NULL characters */
@@ -1181,7 +1191,7 @@ PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
             }
         }
         /* delegate the rest to MPFR */
-        if (-1 == mpfr_set_str(newob->f, (char*)cp, base, global.mpfr_round)) {
+        if (-1 == mpfr_set_str(newob->f, (char*)cp, base, context.mpfr_round)) {
             VALUE_ERROR("invalid digits");
             Py_DECREF((PyObject*)newob);
             Py_XDECREF(ascii_str);
@@ -1305,7 +1315,7 @@ Pympz2PyFloat(PympzObject *self)
 static PyObject *
 Pympfr2PyFloat(PympfrObject *self)
 {
-    double res = mpfr_get_d(self->f, global.mpfr_round);
+    double res = mpfr_get_d(self->f, context.mpfr_round);
 
     return PyFloat_FromDouble(res);
 }
@@ -1471,14 +1481,14 @@ Pympfr2binary(PympfrObject *self)
     }
     else if (sign < 0) {
         codebyte = 1;
-        mpfr_neg(self->f, self->f, global.mpfr_round);
+        mpfr_neg(self->f, self->f, context.mpfr_round);
     }
     else {
         codebyte = 0;
     }
 
     /* get buffer of base-16 digits */
-    buffer  = mpfr_get_str(0, &the_exp, 16, 0, self->f, global.mpfr_round);
+    buffer  = mpfr_get_str(0, &the_exp, 16, 0, self->f, context.mpfr_round);
 
     /* strip trailing zeros */
     hexdigs = strlen(buffer) - 1;
@@ -1490,7 +1500,7 @@ Pympfr2binary(PympfrObject *self)
      */
     /* restore correct sign to x->f if it was changed! */
     if (codebyte) {
-        mpfr_neg(self->f, self->f, global.mpfr_round);
+        mpfr_neg(self->f, self->f, context.mpfr_round);
     }
     hexdigs = strlen(buffer);
     /* adjust exponent, & possibly set codebyte's expo-sign bit.
@@ -1937,7 +1947,7 @@ Pympfr_ascii(PympfrObject *self, int base, int digits,
     }
 
     /* obtain digits-string and exponent */
-    buffer = mpfr_get_str(0, &the_exp, base, digits, self->f, global.mpfr_round);
+    buffer = mpfr_get_str(0, &the_exp, base, digits, self->f, context.mpfr_round);
     if (!*buffer) {
         SYSTEM_ERROR("Internal error in Pympfr_ascii");
         return NULL;
@@ -2507,7 +2517,7 @@ ssize_t_From_Integer(PyObject *obj)
  * obj, then a new reference is created.
  *
  * For all other numerical types with bits = 0, the conversion is rounded to
- * global.mpfr_prec.
+ * context.mpfr_prec.
  */
 
 static PympfrObject*
@@ -3031,7 +3041,7 @@ Pygmpy_mpfr(PyObject *self, PyObject *args)
 #ifdef DEBUG
     if (global.debug) {
         fputs("Pygmpy_mpfr: created mpfr = ", stderr);
-        mpfr_out_str(stderr, 10, 0, newob->f, global.mpfr_round);
+        mpfr_out_str(stderr, 10, 0, newob->f, context.mpfr_round);
         fprintf(stderr," bits=%ld (%ld)\n",
                 (long)mpfr_get_prec(newob->f), (long)bits);
     }
@@ -3061,10 +3071,9 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
 
     dummy = 0;
     base = 10;
-    rprec = global.mpc_rprec;
-    iprec = global.mpc_iprec;
-    rmode = global.mpc_round;
-
+    rprec = context.mpc_rprec;
+    iprec = context.mpc_iprec;
+    rmode = context.mpc_round;
 
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "|OiOi", kwlist,
                                       &arg0, &base, &prec_obj, &rmode)))
@@ -3075,7 +3084,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-    if (rmode != global.mpc_round && Pymisc_verify_mpc_round(rmode) == -1) {
+    if (rmode != context.mpc_round && Pymisc_verify_mpc_round(rmode) == -1) {
         VALUE_ERROR("invalid rounding mode for complex arithmetic.");
         return NULL;
     }
@@ -4422,7 +4431,7 @@ gmpy_free( void *ptr, size_t size)
 static void _PyInitGMP(void)
 {
     mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
-    global.mpfr_prec = DBL_MANT_DIG;
+    context.mpfr_prec = DBL_MANT_DIG;
     set_zcache();
     set_pympzcache();
     set_pympqcache();
