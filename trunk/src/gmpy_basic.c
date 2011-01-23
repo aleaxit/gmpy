@@ -639,8 +639,8 @@ Pympany_mul(PyObject *a, PyObject *b)
 }
 
 /* Pympany_floordiv follows the // semantics from Python 3.x. The result is
- * an mpz when the arguments are mpz or mpq, but the result is an mpf when
- * the arguments are mpf.
+ * an mpz when the arguments are mpz or mpq, but the result is an mpfr when
+ * the arguments are mpfr.
  */
 
 static PyObject *
@@ -716,7 +716,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         if (Pympfr_Check(b)) {
             TRACE("Floor divide (mpf,mpf)\n");
             if (context.raise && mpfr_zero_p(Pympfr_AS_MPFR(b))) {
-                ZERO_ERROR("mpf division by zero");
+                ZERO_ERROR("mpfr division by zero");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -733,7 +733,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
                 return NULL;
             }
             if (context.raise && (mpz_sgn(pbz->z) == 0)) {
-                ZERO_ERROR("mpf division by zero");
+                ZERO_ERROR("mpfr division by zero");
                 Py_DECREF((PyObject*)pbz);
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -751,7 +751,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
                 return NULL;
             }
             if (context.raise && (mpq_sgn(pbq->q) == 0)) {
-                ZERO_ERROR("mpf division by zero");
+                ZERO_ERROR("mpfr division by zero");
                 Py_DECREF((PyObject*)pbq);
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -764,7 +764,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         if (PyFloat_Check(b)) {
             TRACE("Floor divide (mpf,float)\n");
             if (context.raise && (PyFloat_AS_DOUBLE(b) == 0.0)) {
-                ZERO_ERROR("mpf division by zero");
+                ZERO_ERROR("mpfr division by zero");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -777,7 +777,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
 
     if (Pympfr_Check(b)) {
         if (mpfr_zero_p(Pympfr_AS_MPFR(b))) {
-            ZERO_ERROR("mpf division by zero");
+            ZERO_ERROR("mpfr division by zero");
             return NULL;
         }
         if (!(rf = Pympfr_new(0))) return NULL;
@@ -859,7 +859,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
             return NULL;
         }
         if (context.raise && mpfr_zero_p(pbf->f)) {
-            ZERO_ERROR("mpf division by zero");
+            ZERO_ERROR("mpfr division by zero");
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
@@ -881,9 +881,9 @@ Pympany_floordiv(PyObject *a, PyObject *b)
 
 /* Pympany_truediv follows the / semantics from Python 3.x. The result types
  * are:
- *   mpz / mpz -> mpf
- *   mpq / mpq -> mpq
- *   mpf / mpf -> mpf
+ *   mpz  / mpz  -> mpfr
+ *   mpq  / mpq  -> mpq
+ *   mpfr / mpfr -> mpf
  *
  * The behavior of mpq now mimics the behavior of fractions.Fraction.
  */
@@ -900,9 +900,9 @@ Pympany_truediv(PyObject *a, PyObject *b)
         if (!(rf = Pympfr_new(0)))
             return NULL;
         if (Pympfr_Check(b)) {
-            TRACE("True divide (mpf,mpf)\n");
+            TRACE("True divide (mpfr,mpfr)\n");
             if (context.raise && mpfr_zero_p(Pympfr_AS_MPFR(b))) {
-                ZERO_ERROR("mpf division by zero");
+                ZERO_ERROR("mpfr division by zero");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -911,14 +911,14 @@ Pympany_truediv(PyObject *a, PyObject *b)
             return (PyObject*)rf;
         }
         if (isInteger(b)) {
-            TRACE("True divide (mpf,mpz)\n");
+            TRACE("True divide (mpfr,mpz)\n");
             if (!(pbz = Pympz_From_Integer(b))) {
                 SYSTEM_ERROR("Can not convert number to mpz");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
             if (context.raise && (mpz_sgn(pbz->z) == 0)) {
-                ZERO_ERROR("mpf division by zero");
+                ZERO_ERROR("mpfr division by zero");
                 Py_DECREF((PyObject*)pbz);
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -929,14 +929,14 @@ Pympany_truediv(PyObject *a, PyObject *b)
             return (PyObject*)rf;
         }
         if (isRational(b)) {
-            TRACE("True divide (mpf,mpq)\n");
+            TRACE("True divide (mpfr,mpq)\n");
             if (!(pbq = Pympq_From_Rational(b))) {
                 SYSTEM_ERROR("Can not convert number to mpq");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
             if (context.raise && (mpq_sgn(pbq->q) == 0)) {
-                ZERO_ERROR("mpf division by zero");
+                ZERO_ERROR("mpfr division by zero");
                 Py_DECREF((PyObject*)pbq);
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -947,9 +947,9 @@ Pympany_truediv(PyObject *a, PyObject *b)
             return (PyObject*)rf;
         }
         if (PyFloat_Check(b)) {
-            TRACE("True divide (mpf,float)\n");
+            TRACE("True divide (mpfr,float)\n");
             if (context.raise && (PyFloat_AS_DOUBLE(b) == 0.0)) {
-                ZERO_ERROR("mpf division by zero");
+                ZERO_ERROR("mpfr division by zero");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -962,7 +962,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
 
     if (Pympfr_Check(b)) {
         if (context.raise && mpfr_zero_p(Pympfr_AS_MPFR(b))) {
-            ZERO_ERROR("mpf division by zero");
+            ZERO_ERROR("mpfr division by zero");
             return NULL;
         }
         if (!(rf = Pympfr_new(0)))
@@ -1040,13 +1040,13 @@ Pympany_truediv(PyObject *a, PyObject *b)
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
         if (!paf || !pbf) {
-            SYSTEM_ERROR("Can not convert float to mpf");
+            SYSTEM_ERROR("Can not convert float to mpfr");
             Py_XDECREF((PyObject*)paf);
             Py_XDECREF((PyObject*)pbf);
             return NULL;
         }
         if (context.raise && mpfr_zero_p(pbf->f)) {
-            ZERO_ERROR("mpf division by zero");
+            ZERO_ERROR("mpfr division by zero");
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
@@ -1067,9 +1067,9 @@ Pympany_truediv(PyObject *a, PyObject *b)
 #ifdef PY2
 /* Pympany_div2 follows the conversions rules for Python 2.x. The behavior is
  * a mix of floordiv and truediv. The type conversion behavior is:
- *   mpz / mpz -> mpz
- *   mpq / mpq -> mpq
- *   mpf / mpf -> mpf
+ *   mpz  / mpz  -> mpz
+ *   mpq  / mpq  -> mpq
+ *   mpfr / mpfr -> mpfr
  *
  * A division operator with these properties is not available with Python 3.x.
  */
@@ -1175,13 +1175,13 @@ Pympany_div2(PyObject *a, PyObject *b)
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
         if (!paf || !pbf) {
-            SYSTEM_ERROR("Can not convert number to mpf");
+            SYSTEM_ERROR("Can not convert number to mpfr");
             Py_XDECREF((PyObject*)paf);
             Py_XDECREF((PyObject*)pbf);
             return NULL;
         }
         if (context.raise && mpfr_zero_p(pbf->f)) {
-            ZERO_ERROR("mpf division by zero");
+            ZERO_ERROR("mpfr division by zero");
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
@@ -1202,9 +1202,9 @@ Pympany_div2(PyObject *a, PyObject *b)
 
 /* Pympany_rem follows the % semantics from Python 3.x. The result types
  * are:
- *   mpz % mpz -> mpz
- *   mpq % mpq -> mpq
- *   mpf % mpf -> mpf
+ *   mpz  % mpz  -> mpz
+ *   mpq  % mpq  -> mpq
+ *   mpfr % mpfr -> mpfr
  *
  * The behavior of mpq now mimics the behavior of fractions.Fraction.
  */
@@ -1314,13 +1314,13 @@ Pympany_rem(PyObject *a, PyObject *b)
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
         if (!paf || !pbf) {
-            SYSTEM_ERROR("Can not convert number to mpf");
+            SYSTEM_ERROR("Can not convert number to mpfr");
             Py_XDECREF((PyObject*)paf);
             Py_XDECREF((PyObject*)pbf);
             return NULL;
         }
         if (context.raise && mpfr_zero_p(pbf->f)) {
-            ZERO_ERROR("mpf modulo by zero");
+            ZERO_ERROR("mpfr modulo by zero");
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
@@ -1359,9 +1359,9 @@ Pympany_rem(PyObject *a, PyObject *b)
 
 /* Pympany_divmod follows the semantics from Python 3.x. The result types
  * are:
- *   divmod(mpz, mpz) -> (mpz, mpz)
- *   divmod(mpq, mpq) -> (mpz, mpq)
- *   divmod(mpf, mpf) -> (mpf, mpf)
+ *   divmod(mpz, mpz)   -> (mpz, mpz)
+ *   divmod(mpq, mpq)   -> (mpz, mpq)
+ *   divmod(mpfr, mpfr) -> (mpfr, mpfr)
  *
  * The behavior of mpq now mimics the behavior of fractions.Fraction.
  */
@@ -1530,13 +1530,13 @@ Pympany_divmod(PyObject *a, PyObject *b)
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
         if (!paf || !pbf) {
-            SYSTEM_ERROR("Can not convert number to mpf");
+            SYSTEM_ERROR("Can not convert number to mpfr");
             Py_XDECREF((PyObject*)paf);
             Py_XDECREF((PyObject*)pbf);
             return NULL;
         }
         if (context.raise && mpfr_zero_p(pbf->f)) {
-            ZERO_ERROR("mpf divmod by zero");
+            ZERO_ERROR("mpfr divmod by zero");
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
