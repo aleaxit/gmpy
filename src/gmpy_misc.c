@@ -180,10 +180,10 @@ Pygmpy_set_mode(PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "i", &mode))
         return NULL;
-    if (mode == GMPY_MODE_PYTHON)
-        context.raise = GMPY_MODE_PYTHON;
-    else if (mode == GMPY_MODE_MPFR)
-        context.raise = GMPY_MODE_MPFR;
+    if (mode == GMPY_MODE_RAISE)
+        context.raise = GMPY_MODE_RAISE;
+    else if (mode == GMPY_MODE_NONSTOP)
+        context.raise = GMPY_MODE_NONSTOP;
     else {
         VALUE_ERROR("invalid value for error handling mode");
         return NULL;

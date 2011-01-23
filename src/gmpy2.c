@@ -319,21 +319,11 @@ static struct gmpy_global {
  * is NOT thread-safe for mpfr and mpc calculations.
  */
 
-static struct gmpy_context {
-    int raise;               /* use Python vs. MPFR approach to errors */
-    int mpfr_rc;             /* result code from MPFR */
-    int mpc_rc;              /* result code from MPC */
-    int mpc_defaults_mpfr;   /* if 1, MPC precision and rounding defaults to MPFR */
-    mpfr_prec_t mpfr_prec;   /* current precision in bits, for MPFR */
-    mpfr_prec_t mpc_rprec;   /* current precision in bits, for Re(MPC) */
-    mpfr_prec_t mpc_iprec;   /* current precision in bits, for Im(MPC) */
-    mpfr_rnd_t mpfr_round;   /* current rounding mode for float (MPFR) */
-    mpc_rnd_t mpc_round;     /* current rounding mode for complex (MPC)*/
-} context = {
-    GMPY_MODE_PYTHON,        /* raise */
+static gmpy_context context = {
+    GMPY_MODE_NONSTOP,       /* raise */
     0,                       /* mpfr_rc */
     0,                       /* mpc_rc */
-    1,                       /* mpc_defaults_mpfr */
+    1,                       /* subnormalize */
     DBL_MANT_DIG,            /* mpfr_prec */
     -1,                      /* mpc_rprec */
     -1,                      /* mpc_iprec */
@@ -4518,34 +4508,16 @@ PyMODINIT_FUNC initgmpy2(void)
 
     /* Add the constants for defining rounding modes. */
 
-    PyModule_AddIntConstant(gmpy_module, "MPFR_RNDN", MPFR_RNDN);
-    PyModule_AddIntConstant(gmpy_module, "MPFR_RNDZ", MPFR_RNDZ);
-    PyModule_AddIntConstant(gmpy_module, "MPFR_RNDU", MPFR_RNDU);
-    PyModule_AddIntConstant(gmpy_module, "MPFR_RNDD", MPFR_RNDD);
-    PyModule_AddIntConstant(gmpy_module, "MPFR_RNDA", MPFR_RNDA);
+    PyModule_AddIntConstant(gmpy_module, "RoundToNearest", MPFR_RNDN);
+    PyModule_AddIntConstant(gmpy_module, "RoundToZero", MPFR_RNDZ);
+    PyModule_AddIntConstant(gmpy_module, "RoundUp", MPFR_RNDU);
+    PyModule_AddIntConstant(gmpy_module, "RoundDown", MPFR_RNDD);
+    PyModule_AddIntConstant(gmpy_module, "RoundAwayZero", MPFR_RNDA);
+    PyModule_AddIntConstant(gmpy_module, "RoundDefault", GMPY_RND_DEFAULT);
 
-    PyModule_AddIntConstant(gmpy_module, "MPC_RNDNN", MPC_RNDNN);
-    PyModule_AddIntConstant(gmpy_module, "MPC_RNDNZ", MPC_RNDNZ);
-    PyModule_AddIntConstant(gmpy_module, "MPC_RNDNU", MPC_RNDNU);
-    PyModule_AddIntConstant(gmpy_module, "MPC_RNDND", MPC_RNDND);
 
-    PyModule_AddIntConstant(gmpy_module, "MPC_RNDZN", MPC_RNDZN);
-    PyModule_AddIntConstant(gmpy_module, "MPC_RNDZZ", MPC_RNDZZ);
-    PyModule_AddIntConstant(gmpy_module, "MPC_RNDZU", MPC_RNDZU);
-    PyModule_AddIntConstant(gmpy_module, "MPC_RNDZD", MPC_RNDZD);
-
-    PyModule_AddIntConstant(gmpy_module, "MPC_RNDUN", MPC_RNDUN);
-    PyModule_AddIntConstant(gmpy_module, "MPC_RNDUZ", MPC_RNDUZ);
-    PyModule_AddIntConstant(gmpy_module, "MPC_RNDUU", MPC_RNDUU);
-    PyModule_AddIntConstant(gmpy_module, "MPC_RNDUD", MPC_RNDUD);
-
-    PyModule_AddIntConstant(gmpy_module, "MPC_RNDDN", MPC_RNDDN);
-    PyModule_AddIntConstant(gmpy_module, "MPC_RNDDZ", MPC_RNDDZ);
-    PyModule_AddIntConstant(gmpy_module, "MPC_RNDDU", MPC_RNDDU);
-    PyModule_AddIntConstant(gmpy_module, "MPC_RNDDD", MPC_RNDDD);
-
-    PyModule_AddIntConstant(gmpy_module, "ModePython", GMPY_MODE_PYTHON);
-    PyModule_AddIntConstant(gmpy_module, "ModeMPFR", GMPY_MODE_MPFR);
+    PyModule_AddIntConstant(gmpy_module, "ModeRaise", GMPY_MODE_RAISE);
+    PyModule_AddIntConstant(gmpy_module, "ModeNonStop", GMPY_MODE_NONSTOP);
 #ifdef DEBUG
     if (global.debug)
         fprintf(stderr, "gmpy_module at %p\n", gmpy_module);

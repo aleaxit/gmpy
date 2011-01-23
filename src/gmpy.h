@@ -95,8 +95,10 @@ typedef unsigned long Py_uhash_t;
 #define TRACE(msg)
 #endif
 
-#define GMPY_MODE_MPFR 0
-#define GMPY_MODE_PYTHON 1
+#define GMPY_MODE_NONSTOP 0
+#define GMPY_MODE_RAISE 1
+
+#define GMPY_RND_DEFAULT -1
 
 #ifdef USE_ALLOCA
 #define TEMP_ALLOC(B, S) \
@@ -137,26 +139,31 @@ typedef struct {
     /* PyObject* callable; */
     /* long flags; */
 } mpob;
+
 typedef struct {
     mpob ob;
     mpz_t z;
     Py_hash_t hash_cache;
 } PympzObject;
+
 typedef struct {
     mpob ob;
     mpq_t q;
     Py_hash_t  hash_cache;
 } PympqObject;
+
 typedef struct {
     mpob ob;
     mpfr_t f;
     Py_hash_t hash_cache;
 } PympfrObject;
+
 typedef struct {
     mpob ob;
     mpc_t c;
     Py_hash_t hash_cache;
 } PympcObject;
+
 typedef struct {
     mpob ob;
     mpz_t z;
@@ -184,6 +191,24 @@ static PyTypeObject Pyxmpz_Type;
 #define Pyxmpz_Check(v) (((PyObject*)v)->ob_type == &Pyxmpz_Type)
 
 #define CHECK_MPZANY(v) (Pympz_Check(v) || Pyxmpz_Check(v))
+
+typedef struct {
+    int raise;               /* use Python vs. MPFR approach to errors */
+    int mpfr_rc;             /* result code from MPFR */
+    int mpc_rc;              /* result code from MPC */
+    int subnormalize;        /* if 1, subnormalization is performed */
+    mpfr_prec_t mpfr_prec;   /* current precision in bits, for MPFR */
+    mpfr_prec_t mpc_rprec;   /* current precision in bits, for Re(MPC) */
+    mpfr_prec_t mpc_iprec;   /* current precision in bits, for Im(MPC) */
+    mpfr_rnd_t mpfr_round;   /* current rounding mode for float (MPFR) */
+    mpc_rnd_t mpc_round;     /* current rounding mode for complex (MPC)*/
+} gmpy_context;
+
+typedef struct {
+    PyObject_HEAD;
+    gmpy_context orig;       /* Original values, updated by __enter__ */
+    gmpy_context now;        /* The "new" values, used by __enter__ */
+} PycontextObject;
 
 #ifdef __cplusplus
 }
