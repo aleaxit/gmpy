@@ -4,7 +4,7 @@
 
   Created by Pearu Peterson <pearu@cens.ioc.ee>, November 2000.
   Edited by A. Martelli <aleaxit@yahoo.com>, December 2000.
-  Edited by Case Van Horsen <casevh@gmail.com>, 2009, 2010.
+  Edited by Case Van Horsen <casevh@gmail.com>, 2009, 2010, 2011.
 
   Version 1.02, February 2007.
   Version 1.03, June 2008
@@ -14,6 +14,7 @@
   Version 2.00, April 2010 (change to gmpy2) casevh
                 October 2010 (added Py_hash_t) casevh
                 December 2010 (added mpfr, mpc) casevh
+                January 2011 (add Pygmpy_context) casevh
  */
 
 #ifndef Py_GMPYMODULE_H
@@ -156,12 +157,14 @@ typedef struct {
     mpob ob;
     mpfr_t f;
     Py_hash_t hash_cache;
+    int rc;
 } PympfrObject;
 
 typedef struct {
     mpob ob;
     mpc_t c;
     Py_hash_t hash_cache;
+    int rc;
 } PympcObject;
 
 typedef struct {
@@ -194,14 +197,16 @@ static PyTypeObject Pyxmpz_Type;
 
 typedef struct {
     int raise;               /* use Python vs. MPFR approach to errors */
-    int mpfr_rc;             /* result code from MPFR */
-    int mpc_rc;              /* result code from MPC */
     int subnormalize;        /* if 1, subnormalization is performed */
     mpfr_prec_t mpfr_prec;   /* current precision in bits, for MPFR */
     mpfr_prec_t mpc_rprec;   /* current precision in bits, for Re(MPC) */
     mpfr_prec_t mpc_iprec;   /* current precision in bits, for Im(MPC) */
     mpfr_rnd_t mpfr_round;   /* current rounding mode for float (MPFR) */
+    mpfr_rnd_t mpc_rround;   /* current rounding mode for Re(MPC) */
+    mpfr_rnd_t mpc_iround;   /* current rounding mode for Im(MPC) */
     mpc_rnd_t mpc_round;     /* current rounding mode for complex (MPC)*/
+    mpfr_exp_t e_max;        /* maximum exponent */
+    mpfr_exp_t e_min;        /* minimum exponent */
 } gmpy_context;
 
 typedef struct {
@@ -209,6 +214,9 @@ typedef struct {
     gmpy_context orig;       /* Original values, updated by __enter__ */
     gmpy_context now;        /* The "new" values, used by __enter__ */
 } PycontextObject;
+
+static PyTypeObject Pycontext_Type;
+#define Pycontext_Check(v) (((PyObject*)v)->ob_type == &Pycontext_Type)
 
 #ifdef __cplusplus
 }

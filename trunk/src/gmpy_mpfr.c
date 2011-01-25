@@ -217,7 +217,7 @@ PyDoc_STRVAR(doc_g_mpfr_get_mpfr_status,
 static PyObject *
 Pympfr_get_mpfr_status(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("i", context.mpfr_rc);
+    return Py_BuildValue("i", global.mpfr_rc);
 }
 
 PyDoc_STRVAR(doc_g_mpfr_get_emin,
@@ -880,7 +880,7 @@ Pympfr2_pow(PyObject *base, PyObject *exp, PyObject *m)
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    context.mpfr_rc = mpfr_pow(result->f, tempb->f, tempe->f, context.mpfr_round);
+    global.mpfr_rc = mpfr_pow(result->f, tempb->f, tempe->f, context.mpfr_round);
     Py_DECREF((PyObject*)tempe);
     Py_DECREF((PyObject*)tempb);
     return (PyObject*)result;
@@ -897,7 +897,7 @@ Pympfr_const_pi(PyObject *self, PyObject *args)
 
     if (!(result = Pympfr_new(0)))
         return NULL;
-    context.mpfr_rc = mpfr_const_pi(result->f, context.mpfr_round);
+    global.mpfr_rc = mpfr_const_pi(result->f, context.mpfr_round);
     return (PyObject*)result;
 }
 
@@ -912,7 +912,7 @@ Pympfr_const_euler(PyObject *self, PyObject *args)
 
     if (!(result = Pympfr_new(0)))
         return NULL;
-    context.mpfr_rc = mpfr_const_euler(result->f, context.mpfr_round);
+    global.mpfr_rc = mpfr_const_euler(result->f, context.mpfr_round);
     return (PyObject*)result;
 }
 
@@ -927,7 +927,7 @@ Pympfr_const_log2(PyObject *self, PyObject *args)
 
     if (!(result = Pympfr_new(0)))
         return NULL;
-    context.mpfr_rc = mpfr_const_log2(result->f, context.mpfr_round);
+    global.mpfr_rc = mpfr_const_log2(result->f, context.mpfr_round);
     return (PyObject*)result;
 }
 
@@ -942,7 +942,7 @@ Pympfr_const_catalan(PyObject *self, PyObject *args)
 
     if (!(result = Pympfr_new(0)))
         return NULL;
-    context.mpfr_rc = mpfr_const_catalan(result->f, context.mpfr_round);
+    global.mpfr_rc = mpfr_const_catalan(result->f, context.mpfr_round);
     return (PyObject*)result;
 }
 
@@ -964,7 +964,7 @@ Pympfr_sqrt(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        context.mpfr_rc = mpfr_sqrt(result->f, Pympfr_AS_MPFR(self), context.mpfr_round);
+        global.mpfr_rc = mpfr_sqrt(result->f, Pympfr_AS_MPFR(self), context.mpfr_round);
     }
     else if (Pympfr_Check(other)) {
         if (context.raise && mpfr_sgn(Pympfr_AS_MPFR(other)) < 0) {
@@ -972,7 +972,7 @@ Pympfr_sqrt(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        context.mpfr_rc = mpfr_sqrt(result->f, Pympfr_AS_MPFR(other), context.mpfr_round);
+        global.mpfr_rc = mpfr_sqrt(result->f, Pympfr_AS_MPFR(other), context.mpfr_round);
     }
     else {
         if (!(tempx = Pympfr_From_Real(other, 0))) {
@@ -986,7 +986,7 @@ Pympfr_sqrt(PyObject *self, PyObject *other)
                 Py_DECREF((PyObject*)result);
                 return NULL;
             }
-            context.mpfr_rc = mpfr_sqrt(result->f, tempx->f, context.mpfr_round);
+            global.mpfr_rc = mpfr_sqrt(result->f, tempx->f, context.mpfr_round);
             Py_DECREF((PyObject*)tempx);
         }
     }
@@ -1015,7 +1015,7 @@ Pympfr_rec_sqrt(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        context.mpfr_rc = mpfr_rec_sqrt(result->f, Pympfr_AS_MPFR(self), context.mpfr_round);
+        global.mpfr_rc = mpfr_rec_sqrt(result->f, Pympfr_AS_MPFR(self), context.mpfr_round);
     }
     else if (Pympfr_Check(other)) {
         if (context.raise && mpfr_zero_p(Pympfr_AS_MPFR(other))) {
@@ -1023,7 +1023,7 @@ Pympfr_rec_sqrt(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        context.mpfr_rc = mpfr_rec_sqrt(result->f, Pympfr_AS_MPFR(other), context.mpfr_round);
+        global.mpfr_rc = mpfr_rec_sqrt(result->f, Pympfr_AS_MPFR(other), context.mpfr_round);
     }
     else {
         if (!(tempx = Pympfr_From_Real(other, 0))) {
@@ -1037,7 +1037,7 @@ Pympfr_rec_sqrt(PyObject *self, PyObject *other)
                 Py_DECREF((PyObject*)result);
                 return NULL;
             }
-            context.mpfr_rc = mpfr_rec_sqrt(result->f, tempx->f, context.mpfr_round);
+            global.mpfr_rc = mpfr_rec_sqrt(result->f, tempx->f, context.mpfr_round);
             Py_DECREF((PyObject*)tempx);
         }
     }
@@ -1070,7 +1070,7 @@ Pympfr_root(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
-    context.mpfr_rc = mpfr_root(result->f, Pympfr_AS_MPFR(self), n,
+    global.mpfr_rc = mpfr_root(result->f, Pympfr_AS_MPFR(self), n,
                             context.mpfr_round);
     Py_DECREF(self);
     return (PyObject*)result;
@@ -1098,7 +1098,7 @@ Pympfr_round(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
-    context.mpfr_rc = mpfr_set(result->f, Pympfr_AS_MPFR(self), context.mpfr_round);
+    global.mpfr_rc = mpfr_set(result->f, Pympfr_AS_MPFR(self), context.mpfr_round);
     Py_DECREF(self);
     return (PyObject*)result;
 }
@@ -1240,10 +1240,10 @@ Pympfr_##NAME(PyObject* self, PyObject *other) \
     PympfrObject *result, *tempx; \
     if (!(result = Pympfr_new(0))) return NULL; \
     if(self && Pympfr_Check(self)) { \
-        context.mpfr_rc = mpfr_##NAME(result->f, Pympfr_AS_MPFR(self), context.mpfr_round); \
+        global.mpfr_rc = mpfr_##NAME(result->f, Pympfr_AS_MPFR(self), context.mpfr_round); \
     } \
     else if (Pympfr_Check(other)) { \
-        context.mpfr_rc = mpfr_##NAME(result->f, Pympfr_AS_MPFR(other), context.mpfr_round); \
+        global.mpfr_rc = mpfr_##NAME(result->f, Pympfr_AS_MPFR(other), context.mpfr_round); \
     } \
     else { \
         if (!(tempx = Pympfr_From_Real(other, 0))) { \
@@ -1251,7 +1251,7 @@ Pympfr_##NAME(PyObject* self, PyObject *other) \
             return NULL; \
         } \
         else { \
-            context.mpfr_rc = mpfr_##NAME(result->f, tempx->f, context.mpfr_round); \
+            global.mpfr_rc = mpfr_##NAME(result->f, tempx->f, context.mpfr_round); \
             Py_DECREF((PyObject*)tempx); \
         } \
     } \
@@ -1569,11 +1569,11 @@ Pympfr_lgamma(PyObject* self, PyObject *other)
     }
 
     if (self && Pympfr_Check(self)) {
-        context.mpfr_rc = mpfr_lgamma(value->f, &signp, Pympfr_AS_MPFR(self),
+        global.mpfr_rc = mpfr_lgamma(value->f, &signp, Pympfr_AS_MPFR(self),
                                    context.mpfr_round);
     }
     else if (Pympfr_Check(other)) {
-        context.mpfr_rc = mpfr_lgamma(value->f, &signp, Pympfr_AS_MPFR(other),
+        global.mpfr_rc = mpfr_lgamma(value->f, &signp, Pympfr_AS_MPFR(other),
                                    context.mpfr_round);
     }
     else {
@@ -1582,7 +1582,7 @@ Pympfr_lgamma(PyObject* self, PyObject *other)
             return NULL;
         }
         else {
-            context.mpfr_rc = mpfr_lgamma(value->f, &signp, tempx->f,
+            global.mpfr_rc = mpfr_lgamma(value->f, &signp, tempx->f,
                                        context.mpfr_round);
             Py_DECREF((PyObject*)tempx);
         }
@@ -1667,7 +1667,7 @@ Pympfr_jn(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    context.mpfr_rc = mpfr_jn(result->f, n, Pympfr_AS_MPFR(self),
+    global.mpfr_rc = mpfr_jn(result->f, n, Pympfr_AS_MPFR(self),
                            context.mpfr_round);
     Py_DECREF(self);
     return (PyObject*)result;
@@ -1713,7 +1713,7 @@ Pympfr_yn(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    context.mpfr_rc = mpfr_yn(result->f, n, Pympfr_AS_MPFR(self),
+    global.mpfr_rc = mpfr_yn(result->f, n, Pympfr_AS_MPFR(self),
                            context.mpfr_round);
     Py_DECREF(self);
     return (PyObject*)result;
@@ -1751,7 +1751,7 @@ Pympfr_add(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    context.mpfr_rc = mpfr_add(result->f, Pympfr_AS_MPFR(self),
+    global.mpfr_rc = mpfr_add(result->f, Pympfr_AS_MPFR(self),
                             Pympfr_AS_MPFR(other), context.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1780,7 +1780,7 @@ Pympfr_sub(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    context.mpfr_rc = mpfr_sub(result->f, Pympfr_AS_MPFR(self),
+    global.mpfr_rc = mpfr_sub(result->f, Pympfr_AS_MPFR(self),
                             Pympfr_AS_MPFR(other), context.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1809,7 +1809,7 @@ Pympfr_mul(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    context.mpfr_rc = mpfr_mul(result->f, Pympfr_AS_MPFR(self),
+    global.mpfr_rc = mpfr_mul(result->f, Pympfr_AS_MPFR(self),
                             Pympfr_AS_MPFR(other), context.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1838,7 +1838,7 @@ Pympfr_div(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    context.mpfr_rc = mpfr_div(result->f, Pympfr_AS_MPFR(self),
+    global.mpfr_rc = mpfr_div(result->f, Pympfr_AS_MPFR(self),
                             Pympfr_AS_MPFR(other), context.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1867,7 +1867,7 @@ Pympfr_pow(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    context.mpfr_rc = mpfr_pow(result->f, Pympfr_AS_MPFR(self),
+    global.mpfr_rc = mpfr_pow(result->f, Pympfr_AS_MPFR(self),
                             Pympfr_AS_MPFR(other), context.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1896,7 +1896,7 @@ Pympfr_atan2(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    context.mpfr_rc = mpfr_atan2(result->f, Pympfr_AS_MPFR(self),
+    global.mpfr_rc = mpfr_atan2(result->f, Pympfr_AS_MPFR(self),
                             Pympfr_AS_MPFR(other), context.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1925,7 +1925,7 @@ Pympfr_agm(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    context.mpfr_rc = mpfr_agm(result->f, Pympfr_AS_MPFR(self),
+    global.mpfr_rc = mpfr_agm(result->f, Pympfr_AS_MPFR(self),
                             Pympfr_AS_MPFR(other), context.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1954,7 +1954,7 @@ Pympfr_hypot(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    context.mpfr_rc = mpfr_hypot(result->f, Pympfr_AS_MPFR(self),
+    global.mpfr_rc = mpfr_hypot(result->f, Pympfr_AS_MPFR(self),
                             Pympfr_AS_MPFR(other), context.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1983,7 +1983,7 @@ Pympfr_max(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    context.mpfr_rc = mpfr_max(result->f, Pympfr_AS_MPFR(self),
+    global.mpfr_rc = mpfr_max(result->f, Pympfr_AS_MPFR(self),
                             Pympfr_AS_MPFR(other), context.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -2012,7 +2012,7 @@ Pympfr_min(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    context.mpfr_rc = mpfr_min(result->f, Pympfr_AS_MPFR(self),
+    global.mpfr_rc = mpfr_min(result->f, Pympfr_AS_MPFR(self),
                             Pympfr_AS_MPFR(other), context.mpfr_round);
     Py_DECREF(self);
     Py_DECREF(other);
@@ -2155,11 +2155,11 @@ Pympfr_sin_cos(PyObject *self, PyObject *other)
     }
 
     if(self && Pympfr_Check(self)) {
-        context.mpfr_rc = mpfr_sin_cos(s->f, c->f, Pympfr_AS_MPFR(self),
+        global.mpfr_rc = mpfr_sin_cos(s->f, c->f, Pympfr_AS_MPFR(self),
                                     context.mpfr_round);
     }
     else if (Pympfr_Check(other)) {
-        context.mpfr_rc = mpfr_sin_cos(s->f, c->f, Pympfr_AS_MPFR(other),
+        global.mpfr_rc = mpfr_sin_cos(s->f, c->f, Pympfr_AS_MPFR(other),
                                     context.mpfr_round);
     }
     else {
@@ -2171,7 +2171,7 @@ Pympfr_sin_cos(PyObject *self, PyObject *other)
             return NULL;
         }
         else {
-            context.mpfr_rc = mpfr_sin_cos(s->f, c->f, tempx->f,
+            global.mpfr_rc = mpfr_sin_cos(s->f, c->f, tempx->f,
                                         context.mpfr_round);
             Py_DECREF((PyObject*)tempx);
         }
@@ -2206,11 +2206,11 @@ Pympfr_sinh_cosh(PyObject *self, PyObject *other)
     }
 
     if(self && Pympfr_Check(self)) {
-        context.mpfr_rc = mpfr_sinh_cosh(s->f, c->f, Pympfr_AS_MPFR(self),
+        global.mpfr_rc = mpfr_sinh_cosh(s->f, c->f, Pympfr_AS_MPFR(self),
                                       context.mpfr_round);
     }
     else if (Pympfr_Check(other)) {
-        context.mpfr_rc = mpfr_sinh_cosh(s->f, c->f, Pympfr_AS_MPFR(other),
+        global.mpfr_rc = mpfr_sinh_cosh(s->f, c->f, Pympfr_AS_MPFR(other),
                                       context.mpfr_round);
     }
     else {
@@ -2222,7 +2222,7 @@ Pympfr_sinh_cosh(PyObject *self, PyObject *other)
             return NULL;
         }
         else {
-            context.mpfr_rc = mpfr_sinh_cosh(s->f, c->f, tempx->f,
+            global.mpfr_rc = mpfr_sinh_cosh(s->f, c->f, tempx->f,
                                           context.mpfr_round);
             Py_DECREF((PyObject*)tempx);
         }
@@ -2259,7 +2259,7 @@ Pympfr_fma(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    context.mpfr_rc = mpfr_fma(result->f, x->f, y->f, z->f, context.mpfr_round);
+    global.mpfr_rc = mpfr_fma(result->f, x->f, y->f, z->f, context.mpfr_round);
     Py_DECREF((PyObject*)x);
     Py_DECREF((PyObject*)y);
     Py_DECREF((PyObject*)z);
@@ -2293,7 +2293,7 @@ Pympfr_fms(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    context.mpfr_rc = mpfr_fms(result->f, x->f, y->f, z->f, context.mpfr_round);
+    global.mpfr_rc = mpfr_fms(result->f, x->f, y->f, z->f, context.mpfr_round);
     Py_DECREF((PyObject*)x);
     Py_DECREF((PyObject*)y);
     Py_DECREF((PyObject*)z);
