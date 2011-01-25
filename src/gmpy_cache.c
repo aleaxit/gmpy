@@ -269,7 +269,7 @@ Pympfr_new(mpfr_prec_t bits)
 
     TRACE("Entering Pympfr_new\n");
     if (bits == 0)
-        bits = context.mpfr_prec;
+        bits = context->now.mpfr_prec;
     if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");
         return NULL;
@@ -324,9 +324,9 @@ Pympc_new(mpfr_prec_t rprec, mpfr_prec_t iprec)
     TRACE("Entering Pympc_new\n");
 
     if (rprec == 0)
-        rprec = context.mpc_rprec;
+        rprec = context->now.mpc_rprec;
     if (iprec == 0)
-        iprec = context.mpc_iprec;
+        iprec = context->now.mpc_iprec;
     if (rprec < MPFR_PREC_MIN || rprec > MPFR_PREC_MAX ||
         iprec < MPFR_PREC_MIN || iprec > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");

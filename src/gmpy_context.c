@@ -52,8 +52,24 @@ Pycontext_new(void)
 
     if (!(self = PyObject_New(PycontextObject, &Pycontext_Type)))
         return NULL;
-    self->orig = context;
-    self->now = context;
+    if (!context) {
+        self->orig.nonstop = 0;
+        self->orig.subnormalize = 0;
+        self->orig.mpfr_prec = DBL_MANT_DIG;
+        self->orig.mpc_rprec = -1;
+        self->orig.mpc_iprec = -1;
+        self->orig.mpfr_round = MPFR_RNDN;
+        self->orig.mpc_rround = -1;
+        self->orig.mpc_iround = -1;
+        self->orig.mpc_round = MPC_RNDNN;
+        self->orig.e_max = 0;
+        self->orig.e_min = 0;
+        self->now = self->orig;
+    }
+    else {
+        self->orig = context->now;
+        self->now = context->now;
+    }
     return self;
 };
 
@@ -68,25 +84,21 @@ Pycontext_repr(PycontextObject *self)
 {
     PyObject *format;
     PyObject *tuple;
-    PyObject *result;
+    PyObject *result = NULL;
 
-    tuple = PyTuple_New(1);
+    tuple = PyTuple_New(2);
     if (!tuple) return NULL;
 
-    format = Py2or3String_FromString("context(nonstop=%s)");
+    format = Py2or3String_FromString("context(nonstop=%s, subnormalize=%s)");
     if (!format) return NULL;
 
-    PyTuple_SET_ITEM(tuple, 0, (PyObject*)PyBool_FromLong(self->now.raise));
+    PyTuple_SET_ITEM(tuple, 0, (PyObject*)PyBool_FromLong(self->now.nonstop));
+    PyTuple_SET_ITEM(tuple, 1, (PyObject*)PyBool_FromLong(self->now.subnormalize));
 
-    if (PyErr_Occurred()) {
-        result = NULL;
-        goto cleanup;
-    };
+    if (!PyErr_Occurred())
+        result = Py2or3String_Format(format, tuple);
 
-    result = Py2or3String_Format(format, tuple);
-
-  cleanup:
-    Py_XDECREF(PyTuple_GET_ITEM(tuple,0));
+    Py_DECREF(format);
     Py_DECREF(tuple);
     return result;
 };
@@ -94,8 +106,65 @@ Pycontext_repr(PycontextObject *self)
 static PycontextObject *
 Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    return Pycontext_new();
+    PycontextObject *result;
+
+    result = context;
+    Py_INCREF((PyObject*)context);
+    return result;
 }
+
+/* Define the get/set functions. */
+
+static PyObject *
+Pycontext_get_nonstop(PycontextObject *self, void *closure)
+{
+    return PyBool_FromLong(self->now.nonstop);
+}
+
+static int
+Pycontext_set_nonstop(PycontextObject *self, PyObject *value, void *closure)
+{
+    if (!(PyBool_Check(value))) {
+        TYPE_ERROR("nonstop must be True or False");
+        return -1;
+    }
+    if (value == Py_True)
+        self->now.nonstop = 1;
+    else
+        self->now.nonstop = 0;
+    return 0;
+}
+
+static PyObject *
+Pycontext_get_subnormalize(PycontextObject *self, void *closure)
+{
+    return PyBool_FromLong(self->now.nonstop);
+}
+
+static int
+Pycontext_set_subnormalize(PycontextObject *self, PyObject *value, void *closure)
+{
+    if (!(PyBool_Check(value))) {
+        TYPE_ERROR("subnormalize must be True or False");
+        return -1;
+    }
+    if (value == Py_True)
+        self->now.subnormalize = 1;
+    else
+        self->now.subnormalize = 0;
+    return 0;
+}
+
+
+static PyGetSetDef Pycontext_getseters[] = {
+    {"nonstop",
+        (getter)Pycontext_get_nonstop,
+        (setter)Pycontext_set_nonstop, NULL, NULL},
+    {"subnormalize",
+        (getter)Pycontext_get_subnormalize,
+        (setter)Pycontext_set_subnormalize, NULL, NULL},
+    {NULL}
+};
 
 static PyTypeObject Pycontext_Type =
 {
@@ -132,4 +201,6 @@ static PyTypeObject Pycontext_Type =
         0,                                  /* tp_iter          */
         0,                                  /* tp_iternext      */
         0,                                  /* tp_methods       */
+        0,                                  /* tp_members       */
+    Pycontext_getseters,                    /* tp_getset        */
 };

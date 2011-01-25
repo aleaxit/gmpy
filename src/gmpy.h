@@ -196,7 +196,7 @@ static PyTypeObject Pyxmpz_Type;
 #define CHECK_MPZANY(v) (Pympz_Check(v) || Pyxmpz_Check(v))
 
 typedef struct {
-    int raise;               /* use Python vs. MPFR approach to errors */
+    int nonstop;             /* use Python vs. MPFR approach to errors */
     int subnormalize;        /* if 1, subnormalization is performed */
     mpfr_prec_t mpfr_prec;   /* current precision in bits, for MPFR */
     mpfr_prec_t mpc_rprec;   /* current precision in bits, for Re(MPC) */
@@ -211,7 +211,7 @@ typedef struct {
 
 typedef struct {
     PyObject_HEAD;
-    gmpy_context orig;       /* Original values, updated by __enter__ */
+    gmpy_context orig;       /* Original values, restored by __exit__*/
     gmpy_context now;        /* The "new" values, used by __enter__ */
 } PycontextObject;
 
