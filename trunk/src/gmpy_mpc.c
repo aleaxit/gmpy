@@ -12,7 +12,7 @@ PyDoc_STRVAR(doc_g_mpc_get_mpc_round,
 static PyObject *
 Pympc_get_mpc_round(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("i", context.mpc_round);
+    return Py_BuildValue("i", context->now.mpc_round);
 }
 
 PyDoc_STRVAR(doc_g_mpc_set_mpc_round,
@@ -29,7 +29,7 @@ PyDoc_STRVAR(doc_g_mpc_set_mpc_round,
 static PyObject *
 Pympc_set_mpc_round(PyObject *self, PyObject *args)
 {
-    int temp = context.mpc_round;
+    int temp = context->now.mpc_round;
 
     if (!PyArg_ParseTuple(args, "i", &temp))
         return NULL;
@@ -39,7 +39,7 @@ Pympc_set_mpc_round(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    context.mpc_round = temp;
+    context->now.mpc_round = temp;
     Py_RETURN_NONE;
 }
 
@@ -53,8 +53,8 @@ static PyObject *
 Pympc_get_mpc_precision(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("(nn)",
-                         (Py_ssize_t)(context.mpc_rprec),
-                         (Py_ssize_t)(context.mpc_iprec));
+                         (Py_ssize_t)(context->now.mpc_rprec),
+                         (Py_ssize_t)(context->now.mpc_iprec));
 }
 
 PyDoc_STRVAR(doc_g_mpc_set_mpc_precision,
@@ -76,8 +76,8 @@ Pympc_set_mpc_precision(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    context.mpc_rprec = rprec;
-    context.mpc_iprec = iprec;
+    context->now.mpc_rprec = rprec;
+    context->now.mpc_iprec = iprec;
     Py_RETURN_NONE;
 }
 

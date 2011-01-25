@@ -157,40 +157,6 @@ Pygmpy_set_debug(PyObject *self, PyObject *args)
 #endif
 }
 
-PyDoc_STRVAR(doc_get_mode,
-"get_mode() -> integer\n\n"
-"Return the active mode for handling errors: ModePython raises\n"
-"exception, ModeMPFR returns 'nan' or 'inf'.");
-
-static PyObject *
-Pygmpy_get_mode(PyObject *self, PyObject *args)
-{
-    return Py_BuildValue("i", context.raise);
-}
-
-PyDoc_STRVAR(doc_set_mode,
-"set_mode(n)\n\n"
-"Set the active mode for handling errors: ModePython raises\n"
-"exception, ModeMPFR returns 'nan' or 'inf'.");
-
-static PyObject *
-Pygmpy_set_mode(PyObject *self, PyObject *args)
-{
-    int mode;
-
-    if (!PyArg_ParseTuple(args, "i", &mode))
-        return NULL;
-    if (mode == GMPY_MODE_RAISE)
-        context.raise = GMPY_MODE_RAISE;
-    else if (mode == GMPY_MODE_NONSTOP)
-        context.raise = GMPY_MODE_NONSTOP;
-    else {
-        VALUE_ERROR("invalid value for error handling mode");
-        return NULL;
-    }
-    Py_RETURN_NONE;
-}
-
 /*
  * Helper functions.
  */
