@@ -94,6 +94,6 @@ static PyObject *
 Pympc_get_mpc_status(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("(ii)",
-                         MPC_INEX_RE(context.mpc_rc),
-                         MPC_INEX_IM(context.mpc_rc));
+                         MPC_INEX_RE(global.mpc_rc),
+                         MPC_INEX_IM(global.mpc_rc));
 }

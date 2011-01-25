@@ -372,7 +372,7 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
             Py_XDECREF((PyObject*)rf);
             return NULL;
         }
-        context.mpfr_rc = mpfr_pow(rf->f, tempbf->f, tempef->f, context.mpfr_round);
+        global.mpfr_rc = mpfr_pow(rf->f, tempbf->f, tempef->f, context.mpfr_round);
         Py_DECREF((PyObject*)tempbf);
         Py_DECREF((PyObject*)tempef);
         return (PyObject*)rf;

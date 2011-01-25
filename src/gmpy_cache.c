@@ -289,6 +289,7 @@ Pympfr_new(mpfr_prec_t bits)
         mpfr_init2(self->f, bits);
     }
     self->hash_cache = -1;
+    self->rc = 0;
     return self;
 }
 
@@ -335,6 +336,7 @@ Pympc_new(mpfr_prec_t rprec, mpfr_prec_t iprec)
         return NULL;
     mpc_init3(self->c, rprec, iprec);
     self->hash_cache = -1;
+    self->rc = 0;
     return self;
 }
 

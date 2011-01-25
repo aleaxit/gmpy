@@ -309,10 +309,14 @@ static struct gmpy_global {
     int debug;               /* != 0 if debug messages desired on stderr */
     int cache_size;          /* size of cache, for all caches */
     int cache_obsize;        /* maximum size of the objects that are cached */
+    int mpfr_rc;             /* result code from MPFR */
+    int mpc_rc;              /* result code from MPC */
 } global = {
     0,                       /* debug */
     100,                     /* cache_size */
-    128                      /* cache_obsize */
+    128,                     /* cache_obsize */
+    0,                       /* mpfr_rc */
+    0                        /* mpc_rc */
 };
 
 /* The following structure should really be thread-specific. Until then, gmpy2
@@ -321,14 +325,16 @@ static struct gmpy_global {
 
 static gmpy_context context = {
     GMPY_MODE_NONSTOP,       /* raise */
-    0,                       /* mpfr_rc */
-    0,                       /* mpc_rc */
     1,                       /* subnormalize */
     DBL_MANT_DIG,            /* mpfr_prec */
     -1,                      /* mpc_rprec */
     -1,                      /* mpc_iprec */
     MPFR_RNDN,               /* mpfr_round */
-    MPC_RNDNN                /* mpc_round */
+    -1,                      /* mpc_rround */
+    -1,                      /* mpc_iround */
+    MPC_RNDNN,               /* mpc_round */
+    0,                       /* e_max */
+    0                        /* e_min */
 };
 
 /* forward declarations of type-objects and method-arrays for them */
@@ -353,6 +359,10 @@ static PyMethodDef Pyxmpz_methods [];
 /* Miscellaneous helper functions and simple methods are in gmpy_misc.c. */
 
 #include "gmpy_misc.c"
+
+/* Support for context manager */
+
+#include "gmpy_context.c"
 
 /* CONVERSIONS AND COPIES */
 
@@ -427,7 +437,7 @@ Pympfr2Pympfr(PyObject *self, mpfr_prec_t bits)
     if (bits == 0)
         bits = mpfr_get_prec(Pympfr_AS_MPFR(self));
     if ((newob = Pympfr_new(bits)))
-        context.mpfr_rc = mpfr_set(newob->f, Pympfr_AS_MPFR(self), context.mpfr_round);
+        global.mpfr_rc = mpfr_set(newob->f, Pympfr_AS_MPFR(self), context.mpfr_round);
     return newob;
 }
 
@@ -440,7 +450,7 @@ Pympc2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
     if (rprec == 0 || iprec == 0)
         mpc_get_prec2(&rprec, &iprec, Pympc_AS_MPC(self));
     if ((newob = Pympc_new(rprec, iprec)))
-        context.mpc_rc = mpc_set(newob->c, Pympc_AS_MPC(self), context.mpc_round);
+        global.mpc_rc = mpc_set(newob->c, Pympc_AS_MPC(self), context.mpc_round);
     return newob;
 }
 
@@ -485,7 +495,7 @@ PyInt2Pympfr(PyObject *self, mpfr_prec_t bits)
 
     assert(PyInt_Check(self));
     if ((newob = Pympfr_new(bits)))
-        context.mpfr_rc = mpfr_set_si(newob->f, PyInt_AsLong(self), context.mpfr_round);
+        global.mpfr_rc = mpfr_set_si(newob->f, PyInt_AsLong(self), context.mpfr_round);
     return newob;
 }
 #endif
@@ -581,7 +591,7 @@ PyFloat2Pympfr(PyObject *self, mpfr_prec_t bits)
         fprintf(stderr, "PyFloat2Pympfr(%p,%ld)\n", self, (long) bits);
 #endif
     if ((newob = Pympfr_new(bits)))
-        context.mpfr_rc = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), bits);
+        global.mpfr_rc = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), bits);
     return newob;
 }
 
@@ -592,7 +602,7 @@ Pympz2Pympfr(PyObject *self, mpfr_prec_t bits)
 
     assert(Pympz_Check(self));
     if ((newob = Pympfr_new(bits)))
-        context.mpfr_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), context.mpfr_round);
+        global.mpfr_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), context.mpfr_round);
     return newob;
 }
 
@@ -603,7 +613,7 @@ Pyxmpz2Pympfr(PyObject *self, mpfr_prec_t bits)
 
     assert(Pyxmpz_Check(self));
     if ((newob = Pympfr_new(bits)))
-        context.mpfr_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), context.mpfr_round);
+        global.mpfr_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), context.mpfr_round);
     return newob;
 }
 
@@ -624,7 +634,7 @@ Pympfr2Pympz(PyObject *self)
             VALUE_ERROR("gmpy2.mpz() does not handle infinity");
             return NULL;
         }
-        context.mpfr_rc = mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), context.mpfr_round);
+        global.mpfr_rc = mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), context.mpfr_round);
     }
     return newob;
 }
@@ -646,7 +656,7 @@ Pympfr2Pyxmpz(PyObject *self)
             VALUE_ERROR("gmpy2.xmpz() does not handle infinity");
             return NULL;
         }
-        context.mpfr_rc = mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), context.mpfr_round);
+        global.mpfr_rc = mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), context.mpfr_round);
     }
     return newob;
 }
@@ -687,7 +697,7 @@ Pympq2Pympfr(PyObject *self, mpfr_prec_t bits)
     assert(Pympq_Check(self));
     if (!(newob = Pympfr_new(bits)))
         return NULL;
-    context.mpfr_rc = mpfr_set_q(newob->f, Pympq_AS_MPQ(self), context.mpfr_round);
+    global.mpfr_rc = mpfr_set_q(newob->f, Pympq_AS_MPQ(self), context.mpfr_round);
     return newob;
 }
 
@@ -1133,7 +1143,7 @@ PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
 
         /* mpfr zero has a very compact (1-byte) binary encoding!-) */
         if (resuzero) {
-            context.mpfr_rc = mpfr_set_ui(newob->f, 0, context.mpfr_round);
+            global.mpfr_rc = mpfr_set_ui(newob->f, 0, context.mpfr_round);
             return newob;
         }
 
@@ -3741,6 +3751,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "const_euler", Pympfr_const_euler, METH_NOARGS, doc_mpfr_const_euler },
     { "const_log2", Pympfr_const_log2, METH_NOARGS, doc_mpfr_const_log2 },
     { "const_pi", Pympfr_const_pi, METH_VARARGS, doc_mpfr_const_pi },
+    { "context", (PyCFunction)Pygmpy_context, METH_VARARGS | METH_KEYWORDS, doc_context },
     { "cos", Pympfr_cos, METH_O, doc_g_mpfr_cos },
     { "cosh", Pympfr_cosh, METH_O, doc_g_mpfr_cosh },
     { "cot", Pympfr_cot, METH_O, doc_g_mpfr_cot },
@@ -4418,10 +4429,10 @@ gmpy_free( void *ptr, size_t size)
     PyMem_Free(ptr);
 } /* mp_free() */
 
-static void _PyInitGMP(void)
+static void
+_PyInitGMP(void)
 {
     mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
-    context.mpfr_prec = DBL_MANT_DIG;
     set_zcache();
     set_pympzcache();
     set_pympqcache();
@@ -4487,6 +4498,8 @@ PyMODINIT_FUNC initgmpy2(void)
     if (PyType_Ready(&Pyxmpz_Type) < 0)
         INITERROR;
     if (PyType_Ready(&Pympc_Type) < 0)
+        INITERROR;
+    if (PyType_Ready(&Pycontext_Type) < 0)
         INITERROR;
 
     if (do_debug)
