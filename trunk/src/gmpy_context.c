@@ -24,22 +24,23 @@
 
 /* Create a context manager type. */
 
-PyDoc_STRVAR(doc_context,
-"context()\n\n"
-"Context manager controlling MPFR and MPC arithmetic.\n\n"
+PyDoc_STRVAR(doc_current,
+"current()\n\n"
+"Access attributes in the current context manager controlling\n"
+"MPFR and MPC arithmetic.\n\n"
 "    nonstop:      if True, return nan or inf\n"
 "                  if False, raise exception\n"
 "    subnormalize: if True, subnormalized results can be returned\n"
 "    mpfr_prec:    precision, in bits, of an MPFR result\n"
 "    mpc_rprec:    precision, in bits, of Re(MPC)\n"
-"                  -1 implies use mpfr_prec\n"
+"                    -1 implies use mpfr_prec\n"
 "    mpc_iprec:    precision, in bits, of Im(MPC)\n"
-"                  -1 implies use mpc_rprec\n"
+"                    -1 implies use mpc_rprec\n"
 "    mpfr_round:   rounding mode for MPFR\n"
 "    mpc_rround:   rounding mdoe for Re(MPC)\n"
-"                  -1 implies use mpfr_round\n"
+"                    -1 implies use mpfr_round\n"
 "    mpc_iround:   rounding mode for Im(MPC)\n"
-"                  -1 implies use mpc_rround\n"
+"                    -1 implies use mpc_rround\n"
 "    e_max:        maximum allowed exponent\n"
 "    e_min:        minimum allowed exponent\n");
 
@@ -79,6 +80,20 @@ Pycontext_dealloc(PycontextObject *self)
     PyObject_Del(self);
 };
 
+/* Helper value to convert to convert a rounding mode to a string. */
+
+static PyObject *
+_round_to_name(int val)
+{
+    if (val == MPFR_RNDN) return Py2or3String_FromString("RoundToNearest");
+    if (val == MPFR_RNDZ) return Py2or3String_FromString("RoundToZero");
+    if (val == MPFR_RNDU) return Py2or3String_FromString("RoundUp");
+    if (val == MPFR_RNDD) return Py2or3String_FromString("RoundDown");
+    if (val == MPFR_RNDA) return Py2or3String_FromString("RoundAwayZero");
+    if (val == GMPY_RND_DEFAULT) return Py2or3String_FromString("RoundDefault");
+    return NULL;
+};
+
 static PyObject *
 Pycontext_repr(PycontextObject *self)
 {
@@ -86,14 +101,33 @@ Pycontext_repr(PycontextObject *self)
     PyObject *tuple;
     PyObject *result = NULL;
 
-    tuple = PyTuple_New(2);
+    tuple = PyTuple_New(10);
     if (!tuple) return NULL;
 
-    format = Py2or3String_FromString("context(nonstop=%s, subnormalize=%s)");
+    format = Py2or3String_FromString(
+            "context(nonstop=%s,\n"
+            "        subnormalize=%s,\n"
+            "        mpfr_prec=%s,\n"
+            "        mpc_rprec=%s,\n"
+            "        mpc_iprec=%s,\n"
+            "        mpfr_round=%s,\n"
+            "        mpc_rround=%s,\n"
+            "        mpc_iround=%s,\n"
+            "        e_max=%s,\n"
+            "        e_min=%s)"
+            );
     if (!format) return NULL;
 
-    PyTuple_SET_ITEM(tuple, 0, (PyObject*)PyBool_FromLong(self->now.nonstop));
-    PyTuple_SET_ITEM(tuple, 1, (PyObject*)PyBool_FromLong(self->now.subnormalize));
+    PyTuple_SET_ITEM(tuple, 0, PyBool_FromLong(self->now.nonstop));
+    PyTuple_SET_ITEM(tuple, 1, PyBool_FromLong(self->now.subnormalize));
+    PyTuple_SET_ITEM(tuple, 2, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpfr_prec)));
+    PyTuple_SET_ITEM(tuple, 3, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpc_rprec)));
+    PyTuple_SET_ITEM(tuple, 4, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpc_iprec)));
+    PyTuple_SET_ITEM(tuple, 5, _round_to_name(self->now.mpfr_round));
+    PyTuple_SET_ITEM(tuple, 6, _round_to_name(self->now.mpc_rround));
+    PyTuple_SET_ITEM(tuple, 7, _round_to_name(self->now.mpc_iround));
+    PyTuple_SET_ITEM(tuple, 8, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.e_max)));
+    PyTuple_SET_ITEM(tuple, 9, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.e_min)));
 
     if (!PyErr_Occurred())
         result = Py2or3String_Format(format, tuple);
