@@ -280,6 +280,7 @@
 #define PyIntOrLong_FromLong        PyLong_FromLong
 #define PyIntOrLong_Check(op)       PyLong_Check(op)
 #define PyIntOrLong_FromSize_t      PyLong_FromSize_t
+#define PyIntOrLong_FromSsize_t     PyLong_FromSsize_t
 #else
 #define PY2
 #define Py2or3String_FromString     PyString_FromString
@@ -290,6 +291,7 @@
 #define PyIntOrLong_FromLong        PyInt_FromLong
 #define PyIntOrLong_Check(op)       (PyInt_Check(op) || PyLong_Check(op))
 #define PyIntOrLong_FromSize_t      PyInt_FromSize_t
+#define PyIntOrLong_FromSsize_t     PyInt_FromSsize_t
 #endif
 
 /* Include fast mpz to/from PyLong conversion from sage. */
@@ -3739,13 +3741,13 @@ static PyMethodDef Pygmpy_methods [] =
     { "const_euler", Pympfr_const_euler, METH_NOARGS, doc_mpfr_const_euler },
     { "const_log2", Pympfr_const_log2, METH_NOARGS, doc_mpfr_const_log2 },
     { "const_pi", Pympfr_const_pi, METH_VARARGS, doc_mpfr_const_pi },
-    { "context", (PyCFunction)Pygmpy_context, METH_VARARGS | METH_KEYWORDS, doc_context },
     { "cos", Pympfr_cos, METH_O, doc_g_mpfr_cos },
     { "cosh", Pympfr_cosh, METH_O, doc_g_mpfr_cosh },
     { "cot", Pympfr_cot, METH_O, doc_g_mpfr_cot },
     { "coth", Pympfr_coth, METH_O, doc_g_mpfr_coth },
     { "csc", Pympfr_csc, METH_O, doc_g_mpfr_csc },
     { "csch", Pympfr_csch, METH_O, doc_g_mpfr_csch },
+    { "current", (PyCFunction)Pygmpy_context, METH_VARARGS | METH_KEYWORDS, doc_current },
     { "denom", Pympq_denom, METH_VARARGS, doc_denomg },
     { "digamma", Pympfr_digamma, METH_O, doc_g_mpfr_digamma },
     { "digits", Pympany_digits, METH_VARARGS, doc_g_mpany_digits },
@@ -4515,9 +4517,6 @@ PyMODINIT_FUNC initgmpy2(void)
     PyModule_AddIntConstant(gmpy_module, "RoundAwayZero", MPFR_RNDA);
     PyModule_AddIntConstant(gmpy_module, "RoundDefault", GMPY_RND_DEFAULT);
 
-
-    PyModule_AddIntConstant(gmpy_module, "ModeRaise", GMPY_MODE_RAISE);
-    PyModule_AddIntConstant(gmpy_module, "ModeNonStop", GMPY_MODE_NONSTOP);
 #ifdef DEBUG
     if (global.debug)
         fprintf(stderr, "gmpy_module at %p\n", gmpy_module);
