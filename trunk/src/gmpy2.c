@@ -311,13 +311,11 @@ static struct gmpy_global {
     int debug;               /* != 0 if debug messages desired on stderr */
     int cache_size;          /* size of cache, for all caches */
     int cache_obsize;        /* maximum size of the objects that are cached */
-    int mpfr_rc;             /* result code from MPFR */
     int mpc_rc;              /* result code from MPC */
 } global = {
     0,                       /* debug */
     100,                     /* cache_size */
     128,                     /* cache_obsize */
-    0,                       /* mpfr_rc */
     0                        /* mpc_rc */
 };
 
@@ -427,7 +425,7 @@ Pympfr2Pympfr(PyObject *self, mpfr_prec_t bits)
     if (bits == 0)
         bits = mpfr_get_prec(Pympfr_AS_MPFR(self));
     if ((newob = Pympfr_new(bits)))
-        global.mpfr_rc = mpfr_set(newob->f, Pympfr_AS_MPFR(self), context->now.mpfr_round);
+        newob->rc = mpfr_set(newob->f, Pympfr_AS_MPFR(self), context->now.mpfr_round);
     return newob;
 }
 
@@ -485,7 +483,7 @@ PyInt2Pympfr(PyObject *self, mpfr_prec_t bits)
 
     assert(PyInt_Check(self));
     if ((newob = Pympfr_new(bits)))
-        global.mpfr_rc = mpfr_set_si(newob->f, PyInt_AsLong(self), context->now.mpfr_round);
+        newob->rc = mpfr_set_si(newob->f, PyInt_AsLong(self), context->now.mpfr_round);
     return newob;
 }
 #endif
@@ -581,7 +579,7 @@ PyFloat2Pympfr(PyObject *self, mpfr_prec_t bits)
         fprintf(stderr, "PyFloat2Pympfr(%p,%ld)\n", self, (long) bits);
 #endif
     if ((newob = Pympfr_new(bits)))
-        global.mpfr_rc = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), bits);
+        newob->rc = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), context->now.mpfr_round);
     return newob;
 }
 
@@ -592,7 +590,7 @@ Pympz2Pympfr(PyObject *self, mpfr_prec_t bits)
 
     assert(Pympz_Check(self));
     if ((newob = Pympfr_new(bits)))
-        global.mpfr_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), context->now.mpfr_round);
+        newob->rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), context->now.mpfr_round);
     return newob;
 }
 
@@ -603,7 +601,7 @@ Pyxmpz2Pympfr(PyObject *self, mpfr_prec_t bits)
 
     assert(Pyxmpz_Check(self));
     if ((newob = Pympfr_new(bits)))
-        global.mpfr_rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), context->now.mpfr_round);
+        newob->rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), context->now.mpfr_round);
     return newob;
 }
 
@@ -624,7 +622,8 @@ Pympfr2Pympz(PyObject *self)
             VALUE_ERROR("gmpy2.mpz() does not handle infinity");
             return NULL;
         }
-        global.mpfr_rc = mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), context->now.mpfr_round);
+        /* return code is ignored */
+        mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), context->now.mpfr_round);
     }
     return newob;
 }
@@ -646,7 +645,8 @@ Pympfr2Pyxmpz(PyObject *self)
             VALUE_ERROR("gmpy2.xmpz() does not handle infinity");
             return NULL;
         }
-        global.mpfr_rc = mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), context->now.mpfr_round);
+        /* return code is ignored */
+        mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), context->now.mpfr_round);
     }
     return newob;
 }
@@ -687,7 +687,7 @@ Pympq2Pympfr(PyObject *self, mpfr_prec_t bits)
     assert(Pympq_Check(self));
     if (!(newob = Pympfr_new(bits)))
         return NULL;
-    global.mpfr_rc = mpfr_set_q(newob->f, Pympq_AS_MPQ(self), context->now.mpfr_round);
+    newob->rc = mpfr_set_q(newob->f, Pympq_AS_MPQ(self), context->now.mpfr_round);
     return newob;
 }
 
@@ -1133,7 +1133,7 @@ PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
 
         /* mpfr zero has a very compact (1-byte) binary encoding!-) */
         if (resuzero) {
-            global.mpfr_rc = mpfr_set_ui(newob->f, 0, context->now.mpfr_round);
+            newob->rc = mpfr_set_ui(newob->f, 0, context->now.mpfr_round);
             return newob;
         }
 
@@ -3612,7 +3612,8 @@ static PyNumberMethods mpfr_number_methods =
 
 static PyGetSetDef Pympfr_getseters[] =
 {
-    { "precision", (getter)Pympfr_getprec_attrib, NULL, "precision in bits", NULL },
+    {"precision", (getter)Pympfr_getprec_attrib, NULL, "precision in bits", NULL},
+    {"rc", (getter)Pympfr_getrc_attrib, NULL, "return code", NULL},
     {NULL}
 };
 
@@ -3787,7 +3788,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "get_mpc_status", Pympc_get_mpc_status, METH_NOARGS, doc_g_mpc_get_mpc_status },
     { "get_mpc_round", Pympc_get_mpc_round, METH_NOARGS, doc_g_mpc_get_mpc_round },
     { "get_mpc_precision", Pympc_get_mpc_precision, METH_NOARGS, doc_g_mpc_get_mpc_precision },
-    { "get_mpfr_status", Pympfr_get_mpfr_status, METH_NOARGS, doc_g_mpfr_get_mpfr_status },
     { "get_mpfr_round", Pympfr_get_mpfr_round, METH_NOARGS, doc_g_mpfr_get_mpfr_round },
     { "get_mpfr_precision", Pympfr_get_mpfr_precision, METH_NOARGS, doc_g_mpfr_get_mpfr_precision },
     { "hamdist", Pympz_hamdist, METH_VARARGS, doc_hamdistg },
