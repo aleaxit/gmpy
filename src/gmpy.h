@@ -158,6 +158,7 @@ typedef struct {
     mpfr_t f;
     Py_hash_t hash_cache;
     int rc;
+    int round_mode;
 } PympfrObject;
 
 typedef struct {
@@ -165,6 +166,7 @@ typedef struct {
     mpc_t c;
     Py_hash_t hash_cache;
     int rc;
+    int round_mode;
 } PympcObject;
 
 typedef struct {
