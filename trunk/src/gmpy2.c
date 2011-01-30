@@ -281,6 +281,8 @@
 #define PyIntOrLong_Check(op)       PyLong_Check(op)
 #define PyIntOrLong_FromSize_t      PyLong_FromSize_t
 #define PyIntOrLong_FromSsize_t     PyLong_FromSsize_t
+#define PyIntOrLong_AsSsize_t       PyLong_AsSsize_t
+#define PyIntOrLong_AsLong          PyLong_AsLong
 #else
 #define PY2
 #define Py2or3String_FromString     PyString_FromString
@@ -292,6 +294,8 @@
 #define PyIntOrLong_Check(op)       (PyInt_Check(op) || PyLong_Check(op))
 #define PyIntOrLong_FromSize_t      PyInt_FromSize_t
 #define PyIntOrLong_FromSsize_t     PyInt_FromSsize_t
+#define PyIntOrLong_AsSsize_t       PyInt_AsSsize_t
+#define PyIntOrLong_AsLong          PyInt_AsLong
 #endif
 
 /* Include fast mpz to/from PyLong conversion from sage. */
@@ -3748,7 +3752,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "coth", Pympfr_coth, METH_O, doc_g_mpfr_coth },
     { "csc", Pympfr_csc, METH_O, doc_g_mpfr_csc },
     { "csch", Pympfr_csch, METH_O, doc_g_mpfr_csch },
-    { "current", (PyCFunction)Pygmpy_context, METH_VARARGS | METH_KEYWORDS, doc_current },
+    { "current", (PyCFunction)Pygmpy_current, METH_VARARGS | METH_KEYWORDS, doc_current },
     { "denom", Pympq_denom, METH_VARARGS, doc_denomg },
     { "digamma", Pympfr_digamma, METH_O, doc_g_mpfr_digamma },
     { "digits", Pympany_digits, METH_VARARGS, doc_g_mpany_digits },
@@ -3780,16 +3784,9 @@ static PyMethodDef Pygmpy_methods [] =
     { "gcd", Pygmpy_gcd, METH_VARARGS, doc_gcd },
     { "gcdext", Pygmpy_gcdext, METH_VARARGS, doc_gcdext },
     { "get_cache", Pygmpy_get_cache, METH_NOARGS, doc_get_cache },
-    { "get_emax", Pympfr_get_emax, METH_NOARGS, doc_g_mpfr_get_emax },
     { "get_emax_max", Pympfr_get_emax_max, METH_NOARGS, doc_g_mpfr_get_emax_max },
-    { "get_emin", Pympfr_get_emin, METH_NOARGS, doc_g_mpfr_get_emin },
     { "get_emin_min", Pympfr_get_emin_min, METH_NOARGS, doc_g_mpfr_get_emin_min },
     { "get_max_precision", Pympfr_get_max_precision, METH_NOARGS, doc_g_mpfr_get_max_precision },
-    { "get_mpc_status", Pympc_get_mpc_status, METH_NOARGS, doc_g_mpc_get_mpc_status },
-    { "get_mpc_round", Pympc_get_mpc_round, METH_NOARGS, doc_g_mpc_get_mpc_round },
-    { "get_mpc_precision", Pympc_get_mpc_precision, METH_NOARGS, doc_g_mpc_get_mpc_precision },
-    { "get_mpfr_round", Pympfr_get_mpfr_round, METH_NOARGS, doc_g_mpfr_get_mpfr_round },
-    { "get_mpfr_precision", Pympfr_get_mpfr_precision, METH_NOARGS, doc_g_mpfr_get_mpfr_precision },
     { "hamdist", Pympz_hamdist, METH_VARARGS, doc_hamdistg },
     { "hypot", Pympfr_hypot, METH_VARARGS, doc_g_mpfr_hypot },
     { "inf", Pympfr_set_inf, METH_O, doc_g_mpfr_set_inf },
@@ -3860,16 +3857,10 @@ static PyMethodDef Pygmpy_methods [] =
     { "sech", Pympfr_sech, METH_O, doc_g_mpfr_sech },
     { "set_cache", Pygmpy_set_cache, METH_VARARGS, doc_set_cache },
     { "set_debug", Pygmpy_set_debug, METH_VARARGS, doc_set_debug },
-    { "set_emax", Pympfr_set_emax, METH_VARARGS, doc_g_mpfr_set_emax },
-    { "set_emin", Pympfr_set_emin, METH_VARARGS, doc_g_mpfr_set_emin },
     { "set_flag_erange", Pympfr_set_erangeflag, METH_NOARGS, doc_g_mpfr_set_erangeflag },
     { "set_flag_inexact", Pympfr_set_inexflag, METH_NOARGS, doc_g_mpfr_set_inexflag },
     { "set_flag_nan", Pympfr_set_nanflag, METH_NOARGS, doc_g_mpfr_set_nanflag },
     { "set_flag_underflow", Pympfr_set_underflow, METH_NOARGS, doc_g_mpfr_set_underflow },
-    { "set_mpc_round", Pympc_set_mpc_round, METH_VARARGS, doc_g_mpc_set_mpc_round },
-    { "set_mpc_precision", Pympc_set_mpc_precision, METH_VARARGS, doc_g_mpc_set_mpc_precision },
-    { "set_mpfr_round", Pympfr_set_mpfr_round, METH_VARARGS, doc_g_mpfr_set_mpfr_round },
-    { "set_mpfr_precision", Pympfr_set_mpfr_precision, METH_VARARGS, doc_g_mpfr_set_mpfr_precision },
     { "set_overflow", Pympfr_set_overflow, METH_NOARGS, doc_g_mpfr_set_overflow },
     { "sign", Pympany_sign, METH_O, doc_g_mpany_sign },
     { "sin", Pympfr_sin, METH_O, doc_g_mpfr_sin },
@@ -4515,7 +4506,7 @@ PyMODINIT_FUNC initgmpy2(void)
     PyModule_AddIntConstant(gmpy_module, "RoundUp", MPFR_RNDU);
     PyModule_AddIntConstant(gmpy_module, "RoundDown", MPFR_RNDD);
     PyModule_AddIntConstant(gmpy_module, "RoundAwayZero", MPFR_RNDA);
-    PyModule_AddIntConstant(gmpy_module, "RoundDefault", GMPY_RND_DEFAULT);
+    PyModule_AddIntConstant(gmpy_module, "Default", GMPY_DEFAULT);
 
 #ifdef DEBUG
     if (global.debug)

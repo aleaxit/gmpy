@@ -44,6 +44,13 @@ PyDoc_STRVAR(doc_current,
 "    e_max:        maximum allowed exponent\n"
 "    e_min:        minimum allowed exponent\n");
 
+#define GET_MPC_RPREC(c) ((c->now.mpc_rprec==GMPY_DEFAULT)?c->now.mpfr_prec:c->now.mpc_rprec)
+#define GET_MPC_IPREC(c) ((c->now.mpc_iprec==GMPY_DEFAULT)?GET_MPC_RPREC(c):c->now.mpc_iprec)
+
+#define GET_MPC_RROUND(c) ((c->now.mpc_rround==GMPY_DEFAULT)?c->now.mpfr_round:c->now.mpc_rround)
+#define GET_MPC_IROUND(c) ((c->now.mpc_iround==GMPY_DEFAULT)?GET_MPC_RROUND(c):c->now.mpc_iround)
+#define GET_MPC_ROUND(c) (RNDC(GET_MPC_RROUND(c), GET_MPC_IROUND(c)))
+
 static PycontextObject *
 Pycontext_new(void)
 {
@@ -63,8 +70,8 @@ Pycontext_new(void)
         self->orig.mpc_rround = -1;
         self->orig.mpc_iround = -1;
         self->orig.mpc_round = MPC_RNDNN;
-        self->orig.e_max = 0;
-        self->orig.e_min = 0;
+        self->orig.emax = mpfr_get_emax();
+        self->orig.emin = mpfr_get_emin();
         self->now = self->orig;
     }
     else {
@@ -90,7 +97,7 @@ _round_to_name(int val)
     if (val == MPFR_RNDU) return Py2or3String_FromString("RoundUp");
     if (val == MPFR_RNDD) return Py2or3String_FromString("RoundDown");
     if (val == MPFR_RNDA) return Py2or3String_FromString("RoundAwayZero");
-    if (val == GMPY_RND_DEFAULT) return Py2or3String_FromString("RoundDefault");
+    if (val == GMPY_DEFAULT) return Py2or3String_FromString("Default");
     return NULL;
 };
 
@@ -107,38 +114,51 @@ Pycontext_repr(PycontextObject *self)
     format = Py2or3String_FromString(
             "context(nonstop=%s,\n"
             "        subnormalize=%s,\n"
-            "        mpfr_prec=%s,\n"
+            "        precision=%s,\n"
             "        mpc_rprec=%s,\n"
             "        mpc_iprec=%s,\n"
-            "        mpfr_round=%s,\n"
+            "        round=%s,\n"
             "        mpc_rround=%s,\n"
             "        mpc_iround=%s,\n"
-            "        e_max=%s,\n"
-            "        e_min=%s)"
+            "        emax=%s,\n"
+            "        emin=%s)"
             );
     if (!format) return NULL;
 
     PyTuple_SET_ITEM(tuple, 0, PyBool_FromLong(self->now.nonstop));
     PyTuple_SET_ITEM(tuple, 1, PyBool_FromLong(self->now.subnormalize));
     PyTuple_SET_ITEM(tuple, 2, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpfr_prec)));
-    PyTuple_SET_ITEM(tuple, 3, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpc_rprec)));
-    PyTuple_SET_ITEM(tuple, 4, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpc_iprec)));
+
+    if (self->now.mpc_rprec == GMPY_DEFAULT)
+        PyTuple_SET_ITEM(tuple, 3, Py2or3String_FromString("Default"));
+    else
+        PyTuple_SET_ITEM(tuple, 3, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpc_rprec)));
+
+    if (self->now.mpc_iprec == GMPY_DEFAULT)
+        PyTuple_SET_ITEM(tuple, 4, Py2or3String_FromString("Default"));
+    else
+        PyTuple_SET_ITEM(tuple, 4, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpc_iprec)));
+
     PyTuple_SET_ITEM(tuple, 5, _round_to_name(self->now.mpfr_round));
     PyTuple_SET_ITEM(tuple, 6, _round_to_name(self->now.mpc_rround));
     PyTuple_SET_ITEM(tuple, 7, _round_to_name(self->now.mpc_iround));
-    PyTuple_SET_ITEM(tuple, 8, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.e_max)));
-    PyTuple_SET_ITEM(tuple, 9, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.e_min)));
+    PyTuple_SET_ITEM(tuple, 8, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emax)));
+    PyTuple_SET_ITEM(tuple, 9, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emin)));
 
     if (!PyErr_Occurred())
         result = Py2or3String_Format(format, tuple);
+    else
+        SYSTEM_ERROR("internal error in Pycontext_repr");
 
     Py_DECREF(format);
     Py_DECREF(tuple);
     return result;
 };
 
+/* Return a reference to the current context. */
+
 static PycontextObject *
-Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
+Pygmpy_current(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     PycontextObject *result;
 
@@ -189,6 +209,261 @@ Pycontext_set_subnormalize(PycontextObject *self, PyObject *value, void *closure
     return 0;
 }
 
+static PyObject *
+Pycontext_get_mpfr_prec(PycontextObject *self, void *closure)
+{
+    return PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpfr_prec));
+}
+
+static int
+Pycontext_set_mpfr_prec(PycontextObject *self, PyObject *value, void *closure)
+{
+    Py_ssize_t temp;
+
+    if (!(PyIntOrLong_Check(value))) {
+        TYPE_ERROR("precision must be Python integer");
+        return -1;
+    }
+    temp = PyIntOrLong_AsSsize_t(value);
+    if (temp < MPFR_PREC_MIN || temp > MPFR_PREC_MAX || PyErr_Occurred()) {
+        VALUE_ERROR("invalid value for precision");
+        return -1;
+    }
+    self->now.mpfr_prec = (mpfr_prec_t)temp;
+    return 0;
+}
+
+static PyObject *
+Pycontext_get_mpc_rprec(PycontextObject *self, void *closure)
+{
+    return PyIntOrLong_FromSsize_t((Py_ssize_t)(GET_MPC_RPREC(self)));
+}
+
+static int
+Pycontext_set_mpc_rprec(PycontextObject *self, PyObject *value, void *closure)
+{
+    Py_ssize_t temp;
+
+    if (!(PyIntOrLong_Check(value))) {
+        TYPE_ERROR("mpc_rprec must be Python integer");
+        return -1;
+    }
+    temp = PyIntOrLong_AsSsize_t(value);
+    if (temp == -1) {
+        if (PyErr_Occurred()) {
+            VALUE_ERROR("invalid value for mpc_rprec");
+            return -1;
+        }
+    }
+    else if (temp < MPFR_PREC_MIN || temp > MPFR_PREC_MAX) {
+        VALUE_ERROR("invalid value for mpc_rprec");
+        return -1;
+    }
+    self->now.mpc_rprec = (mpfr_prec_t)temp;
+    return 0;
+}
+
+static PyObject *
+Pycontext_get_mpc_iprec(PycontextObject *self, void *closure)
+{
+    return PyIntOrLong_FromSsize_t((Py_ssize_t)(GET_MPC_IPREC(self)));
+}
+
+static int
+Pycontext_set_mpc_iprec(PycontextObject *self, PyObject *value, void *closure)
+{
+    Py_ssize_t temp;
+
+    if (!(PyIntOrLong_Check(value))) {
+        TYPE_ERROR("mpc_iprec must be Python integer");
+        return -1;
+    }
+    temp = PyIntOrLong_AsSsize_t(value);
+    if (temp == -1) {
+        if (PyErr_Occurred()) {
+            VALUE_ERROR("invalid value for mpc_iprec");
+            return -1;
+        }
+    }
+    else if (temp < MPFR_PREC_MIN || temp > MPFR_PREC_MAX) {
+        VALUE_ERROR("invalid value for mpc_iprec");
+        return -1;
+    }
+    self->now.mpc_iprec = (mpfr_prec_t)temp;
+    return 0;
+}
+
+static PyObject *
+Pycontext_get_mpfr_round(PycontextObject *self, void *closure)
+{
+    return PyIntOrLong_FromLong((long)(self->now.mpfr_round));
+}
+
+static int
+Pycontext_set_mpfr_round(PycontextObject *self, PyObject *value, void *closure)
+{
+    long temp;
+
+    if (!(PyIntOrLong_Check(value))) {
+        TYPE_ERROR("round mode must be Python integer");
+        return -1;
+    }
+    temp = PyIntOrLong_AsLong(value);
+    if (temp == -1 && PyErr_Occurred()) {
+        VALUE_ERROR("invalid value for round mode");
+        return -1;
+    }
+    if (temp == MPFR_RNDN)
+        self->now.mpfr_round = temp;
+    else if (temp == MPFR_RNDZ)
+        self->now.mpfr_round = temp;
+    else if (temp == MPFR_RNDU)
+        self->now.mpfr_round = temp;
+    else if (temp == MPFR_RNDD)
+        self->now.mpfr_round = temp;
+    else if (temp == MPFR_RNDA) {
+        self->now.mpfr_round = temp;
+        /* Since RNDA is not supported for MPC, set the MPC rounding modes
+           to MPFR_RNDN. */
+        self->now.mpc_rround = MPFR_RNDN;
+        self->now.mpc_iround = MPFR_RNDN;
+    }
+    else {
+        VALUE_ERROR("invalid value for round mode");
+        return -1;
+    }
+    return 0;
+}
+
+static PyObject *
+Pycontext_get_mpc_rround(PycontextObject *self, void *closure)
+{
+    return PyIntOrLong_FromLong((long)GET_MPC_RROUND(self));
+}
+
+static int
+Pycontext_set_mpc_rround(PycontextObject *self, PyObject *value, void *closure)
+{
+    long temp;
+
+    if (!(PyIntOrLong_Check(value))) {
+        TYPE_ERROR("round mode must be Python integer");
+        return -1;
+    }
+    temp = PyIntOrLong_AsLong(value);
+    if (temp == -1 && PyErr_Occurred()) {
+        VALUE_ERROR("invalid value for round mode");
+        return -1;
+    }
+    if (temp == GMPY_DEFAULT)
+        self->now.mpc_rround = temp;
+    else if (temp == MPFR_RNDN)
+        self->now.mpc_rround = temp;
+    else if (temp == MPFR_RNDZ)
+        self->now.mpc_rround = temp;
+    else if (temp == MPFR_RNDU)
+        self->now.mpc_rround = temp;
+    else if (temp == MPFR_RNDD)
+        self->now.mpc_rround = temp;
+    else {
+        VALUE_ERROR("invalid value for round mode");
+        return -1;
+    }
+    return 0;
+}
+
+static PyObject *
+Pycontext_get_mpc_iround(PycontextObject *self, void *closure)
+{
+    return PyIntOrLong_FromLong((long)GET_MPC_IROUND(self));
+}
+
+static int
+Pycontext_set_mpc_iround(PycontextObject *self, PyObject *value, void *closure)
+{
+    long temp;
+
+    if (!(PyIntOrLong_Check(value))) {
+        TYPE_ERROR("round mode must be Python integer");
+        return -1;
+    }
+    temp = PyIntOrLong_AsLong(value);
+    if (temp == -1 && PyErr_Occurred()) {
+        VALUE_ERROR("invalid value for round mode");
+        return -1;
+    }
+    if (temp == GMPY_DEFAULT)
+        self->now.mpc_iround = temp;
+    else if (temp == MPFR_RNDN)
+        self->now.mpc_iround = temp;
+    else if (temp == MPFR_RNDZ)
+        self->now.mpc_iround = temp;
+    else if (temp == MPFR_RNDU)
+        self->now.mpc_iround = temp;
+    else if (temp == MPFR_RNDD)
+        self->now.mpc_iround = temp;
+    else {
+        VALUE_ERROR("invalid value for round mode");
+        return -1;
+    }
+    return 0;
+}
+
+static PyObject *
+Pycontext_get_emin(PycontextObject *self, void *closure)
+{
+    return PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emin));
+}
+
+static int
+Pycontext_set_emin(PycontextObject *self, PyObject *value, void *closure)
+{
+    Py_ssize_t exp;
+
+    if (!(PyIntOrLong_Check(value))) {
+        TYPE_ERROR("emin must be Python integer");
+        return -1;
+    }
+    exp = PyIntOrLong_AsSsize_t(value);
+    if (exp == -1 && PyErr_Occurred()) {
+        VALUE_ERROR("requested minimum exponent is invalid");
+        return -1;
+    }
+    if (mpfr_set_emin((mpfr_prec_t)exp)) {
+        VALUE_ERROR("requested minimum exponent is invalid");
+        return -1;
+    }
+    self->now.emin = exp;
+    return 0;
+}
+
+static PyObject *
+Pycontext_get_emax(PycontextObject *self, void *closure)
+{
+    return PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emax));
+}
+
+static int
+Pycontext_set_emax(PycontextObject *self, PyObject *value, void *closure)
+{
+    Py_ssize_t exp;
+
+    if (!(PyIntOrLong_Check(value))) {
+        TYPE_ERROR("emax must be Python integer");
+        return -1;
+    }
+    exp = PyIntOrLong_AsSsize_t(value);
+    if (exp == -1 && PyErr_Occurred()) {
+        VALUE_ERROR("requested maximum exponent is invalid");
+        return -1;
+    }
+    if (mpfr_set_emax((mpfr_prec_t)exp)) {
+        VALUE_ERROR("requested maximum exponent is invalid");
+        return -1;
+    }
+    self->now.emax = exp;
+    return 0;
+}
 
 static PyGetSetDef Pycontext_getseters[] = {
     {"nonstop",
@@ -197,6 +472,30 @@ static PyGetSetDef Pycontext_getseters[] = {
     {"subnormalize",
         (getter)Pycontext_get_subnormalize,
         (setter)Pycontext_set_subnormalize, NULL, NULL},
+    {"precision",
+        (getter)Pycontext_get_mpfr_prec,
+        (setter)Pycontext_set_mpfr_prec, NULL, NULL},
+    {"mpc_rprec",
+        (getter)Pycontext_get_mpc_rprec,
+        (setter)Pycontext_set_mpc_rprec, NULL, NULL},
+    {"mpc_iprec",
+        (getter)Pycontext_get_mpc_iprec,
+        (setter)Pycontext_set_mpc_iprec, NULL, NULL},
+    {"round",
+        (getter)Pycontext_get_mpfr_round,
+        (setter)Pycontext_set_mpfr_round, NULL, NULL},
+    {"mpc_rround",
+        (getter)Pycontext_get_mpc_rround,
+        (setter)Pycontext_set_mpc_rround, NULL, NULL},
+    {"mpc_iround",
+        (getter)Pycontext_get_mpc_iround,
+        (setter)Pycontext_set_mpc_iround, NULL, NULL},
+    {"emax",
+        (getter)Pycontext_get_emax,
+        (setter)Pycontext_set_emax, NULL, NULL},
+    {"emin",
+        (getter)Pycontext_get_emin,
+        (setter)Pycontext_set_emin, NULL, NULL},
     {NULL}
 };
 

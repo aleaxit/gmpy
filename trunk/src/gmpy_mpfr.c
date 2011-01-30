@@ -214,16 +214,6 @@ Pympfr_is_erangeflag(PyObject *self, PyObject *args)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_get_emin,
-"get_emin() -> integer\n\n"
-"Return the minimum exponent currently allowed for 'mpfr'.");
-
-static PyObject *
-Pympfr_get_emin(PyObject *self, PyObject *args)
-{
-    return Py_BuildValue("n", (Py_ssize_t)mpfr_get_emin());
-}
-
 PyDoc_STRVAR(doc_g_mpfr_get_emin_min,
 "get_emin_min() -> integer\n\n"
 "Return the minimum possible exponent that can be set for 'mpfr'.");
@@ -232,34 +222,6 @@ static PyObject *
 Pympfr_get_emin_min(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("n", (Py_ssize_t)mpfr_get_emin_min());
-}
-
-PyDoc_STRVAR(doc_g_mpfr_set_emin,
-"set_emin(n)\n\n"
-"Set the minimum allowed exponent for 'mpfr'.");
-
-static PyObject *
-Pympfr_set_emin(PyObject *self, PyObject *args)
-{
-    Py_ssize_t exp;
-
-    if (!PyArg_ParseTuple(args, "n", &exp))
-        return NULL;
-    if (mpfr_set_emin((mpfr_prec_t)exp)) {
-        VALUE_ERROR("requested minimum exponent is invalid");
-        return NULL;
-    }
-    Py_RETURN_NONE;
-}
-
-PyDoc_STRVAR(doc_g_mpfr_get_emax,
-"get_emax() -> integer\n\n"
-"Return the maximum exponent currently allowed for 'mpfr'.");
-
-static PyObject *
-Pympfr_get_emax(PyObject *self, PyObject *args)
-{
-    return Py_BuildValue("n", (Py_ssize_t)mpfr_get_emax());
 }
 
 PyDoc_STRVAR(doc_g_mpfr_get_emax_max,
@@ -272,34 +234,6 @@ Pympfr_get_emax_max(PyObject *self, PyObject *args)
     return Py_BuildValue("n", (Py_ssize_t)mpfr_get_emax_max());
 }
 
-PyDoc_STRVAR(doc_g_mpfr_set_emax,
-"set_emax(n)\n\n"
-"Set the maximum allowed exponent for 'mpfr'.");
-
-static PyObject *
-Pympfr_set_emax(PyObject *self, PyObject *args)
-{
-    Py_ssize_t exp;
-
-    if (!PyArg_ParseTuple(args, "n", &exp))
-        return NULL;
-    if (mpfr_set_emax((mpfr_prec_t)exp)) {
-        VALUE_ERROR("requested maximum exponent is invalid");
-        return NULL;
-    }
-    Py_RETURN_NONE;
-}
-
-PyDoc_STRVAR(doc_g_mpfr_get_mpfr_precision,
-"get_mpfr_precision() -> integer\n\n"
-"Return the number of bits of precision used for 'mpfr' calculations.");
-
-static PyObject *
-Pympfr_get_mpfr_precision(PyObject *self, PyObject *args)
-{
-    return Py_BuildValue("n", context->now.mpfr_prec);
-}
-
 PyDoc_STRVAR(doc_g_mpfr_get_max_precision,
 "get_max_precision() -> integer\n\n"
 "Return the maximum bits of precision that can be used for calculations.\n"
@@ -310,68 +244,6 @@ static PyObject *
 Pympfr_get_max_precision(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("n", MPFR_PREC_MAX);
-}
-
-PyDoc_STRVAR(doc_g_mpfr_set_mpfr_precision,
-"set_mpfr_precision(n)\n\n"
-"Set the number of bits of precision to use for 'mpfr' calculations.");
-
-static PyObject *
-Pympfr_set_mpfr_precision(PyObject *self, PyObject *args)
-{
-    Py_ssize_t bits;
-
-    if(!PyArg_ParseTuple(args, "n", &bits))
-        return NULL;
-    if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
-        VALUE_ERROR("invalid value for precision");
-        return NULL;
-    }
-    context->now.mpfr_prec = bits;
-    Py_RETURN_NONE;
-}
-
-PyDoc_STRVAR(doc_g_mpfr_get_mpfr_round,
-"get_mpfr_round() -> integer\n\n"
-"Return the rounding mode for 'mpfr' arithmetic. Rounding mode can"
-"be one of RoundToNearest, RoundToZero, RoundUp, RoundDown, or"
-"RoundAwayZero.");
-
-static PyObject *
-Pympfr_get_mpfr_round(PyObject *self, PyObject *args)
-{
-    return Py_BuildValue("i", context->now.mpfr_round);
-}
-
-PyDoc_STRVAR(doc_g_mpfr_set_mpfr_round,
-"set_mpfr_round(n)\n\n"
-"Set the rounding mode for 'mpfr' arithmetic. Valid rounding modes"
-"are RoundToNearest, RoundToZero, RoundUp, RoundDown, or"
-"RoundAwayZero.");
-
-static PyObject *
-Pympfr_set_mpfr_round(PyObject *self, PyObject *args)
-{
-    int mode;
-
-    if(!PyArg_ParseTuple(args, "i", &mode))
-        return NULL;
-
-    if (mode == MPFR_RNDN)
-        context->now.mpfr_round = mode;
-    else if (mode == MPFR_RNDZ)
-        context->now.mpfr_round = mode;
-    else if (mode == MPFR_RNDU)
-        context->now.mpfr_round = mode;
-    else if (mode == MPFR_RNDD)
-        context->now.mpfr_round = mode;
-    else if (mode == MPFR_RNDA)
-        context->now.mpfr_round = mode;
-    else {
-        VALUE_ERROR("invalid rounding mode");
-        return NULL;
-    }
-    Py_RETURN_NONE;
 }
 
 PyDoc_STRVAR(doc_g_mpfr_set_nan,
