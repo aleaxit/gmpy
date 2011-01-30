@@ -103,7 +103,7 @@ ValueError: cache size must between 0 and 1000
 Traceback (most recent call last):
   ...
 ValueError: object size must between 0 and 16384
->>> _g.set_mpfr_precision(-1)
+>>> _g.current().precision = -1
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: invalid value for precision

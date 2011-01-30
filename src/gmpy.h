@@ -96,10 +96,7 @@ typedef unsigned long Py_uhash_t;
 #define TRACE(msg)
 #endif
 
-#define GMPY_MODE_NONSTOP 0
-#define GMPY_MODE_RAISE 1
-
-#define GMPY_RND_DEFAULT -1
+#define GMPY_DEFAULT -1
 
 #ifdef USE_ALLOCA
 #define TEMP_ALLOC(B, S) \
@@ -207,8 +204,8 @@ typedef struct {
     mpfr_rnd_t mpc_rround;   /* current rounding mode for Re(MPC) */
     mpfr_rnd_t mpc_iround;   /* current rounding mode for Im(MPC) */
     mpc_rnd_t mpc_round;     /* current rounding mode for complex (MPC)*/
-    mpfr_exp_t e_max;        /* maximum exponent */
-    mpfr_exp_t e_min;        /* minimum exponent */
+    mpfr_exp_t emax;         /* maximum exponent */
+    mpfr_exp_t emin;         /* minimum exponent */
 } gmpy_context;
 
 typedef struct {
