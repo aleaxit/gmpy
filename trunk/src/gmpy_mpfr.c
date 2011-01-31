@@ -2263,3 +2263,43 @@ Pympfr_is_unordered(PyObject *self, PyObject *args)
     else
         Py_RETURN_FALSE;
 }
+
+PyDoc_STRVAR(doc_mpfr_check_range,
+"x.check_range() -> mpfr\n\n"
+"Return a new 'mpfr' with exponent that lies within the current range\n"
+"of emin and emax.");
+
+PyDoc_STRVAR(doc_g_mpfr_check_range,
+"check_range(x) -> mpfr\n\n"
+"Return a new 'mpfr' with exponent that lies within the current range\n"
+"of emin and emax.");
+
+static PyObject *
+Pympfr_check_range(PyObject *self, PyObject *other)
+{
+    PympfrObject *result = NULL;
+
+    if (self && Pympfr_Check(self)) {
+        if ((result = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(self))))) {
+            mpfr_set(result->f, Pympfr_AS_MPFR(self), context->now.mpfr_round);
+            result->round_mode = ((PympfrObject*)self)->round_mode;
+            result->rc = ((PympfrObject*)self)->rc;
+            result->rc = mpfr_check_range(result->f, result->rc,
+                                          result->round_mode);
+        }
+    }
+    else if (Pympfr_Check(other)) {
+        if ((result = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(other))))) {
+            mpfr_set(result->f, Pympfr_AS_MPFR(other), context->now.mpfr_round);
+            result->round_mode = ((PympfrObject*)other)->round_mode;
+            result->rc = ((PympfrObject*)other)->rc;
+            result->rc = mpfr_check_range(result->f, result->rc,
+                                          result->round_mode);
+        }
+    }
+    else {
+        TYPE_ERROR("check_range() requires 'mpfr' argument");
+    }
+    return (PyObject*)result;
+}
+
