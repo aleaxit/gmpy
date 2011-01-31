@@ -507,7 +507,7 @@ static PyTypeObject Pycontext_Type =
     PyObject_HEAD_INIT(0)
         0,                                  /* ob_size          */
 #endif
-    "context",                              /* tp_name          */
+    "gmpy2 context",                        /* tp_name          */
     sizeof(PycontextObject),                /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
     (destructor) Pycontext_dealloc,         /* tp_dealloc       */
