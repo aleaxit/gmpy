@@ -82,10 +82,10 @@ Pympany_add(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)rz);
     }
 
-    if (Pympfr_Check(a)) {
+    if (Pympfr_CheckAndExp(a)) {
         if (!(rf = Pympfr_new(0)))
             return NULL;
-        if (Pympfr_Check(b)) {
+        if (Pympfr_CheckAndExp(b)) {
             TRACE("Adding (mpf,mpf)\n");
             rf->rc = mpfr_add(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
                               context->now.mpfr_round);
@@ -124,7 +124,7 @@ Pympany_add(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)rf);
     }
 
-    if (Pympfr_Check(b)) {
+    if (Pympfr_CheckAndExp(b)) {
         if (!(rf = Pympfr_new(0)))
             return NULL;
         if (isInteger(a)) {
@@ -292,10 +292,10 @@ Pympany_sub(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)rz);
     }
 
-    if (Pympfr_Check(a)) {
+    if (Pympfr_CheckAndExp(a)) {
         if (!(rf = Pympfr_new(0)))
             return NULL;
-        if (Pympfr_Check(b)) {
+        if (Pympfr_CheckAndExp(b)) {
             TRACE("Subtracting (mpf,mpf)\n");
             rf->rc = mpfr_sub(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
                               context->now.mpfr_round);
@@ -334,7 +334,7 @@ Pympany_sub(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)rf);
     }
 
-    if (Pympfr_Check(b)) {
+    if (Pympfr_CheckAndExp(b)) {
         if (!(rf = Pympfr_new(0)))
             return NULL;
         if (isInteger(a)) {
@@ -495,10 +495,10 @@ Pympany_mul(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)rz);
     }
 
-    if (Pympfr_Check(a)) {
+    if (Pympfr_CheckAndExp(a)) {
         if (!(rf = Pympfr_new(0)))
             return NULL;
-        if (Pympfr_Check(b)) {
+        if (Pympfr_CheckAndExp(b)) {
             TRACE("Multiplying (mpf,mpf)\n");
             rf->rc = mpfr_mul(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
                               context->now.mpfr_round);
@@ -537,7 +537,7 @@ Pympany_mul(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)rf);
     }
 
-    if (Pympfr_Check(b)) {
+    if (Pympfr_CheckAndExp(b)) {
         if (!(rf = Pympfr_new(0)))
             return NULL;
         if (isInteger(a)) {
@@ -803,7 +803,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
  * are:
  *   mpz  / mpz  -> mpfr
  *   mpq  / mpq  -> mpq
- *   mpfr / mpfr -> mpf
+ *   mpfr / mpfr -> mpfr
  *
  * The behavior of mpq now mimics the behavior of fractions.Fraction.
  */

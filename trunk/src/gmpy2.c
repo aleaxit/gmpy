@@ -542,7 +542,6 @@ PyFloat2Pyxmpz(PyObject *self)
 static PyObject *f2q_internal(PympfrObject* self, PympfrObject* err,
         unsigned int bits, int mayz);
 static PyObject* Pympfr_f2q(PyObject *self, PyObject *args);
-static PympfrObject* Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
 
 static PympqObject *
 PyFloat2Pympq(PyObject *self)
@@ -2520,13 +2519,25 @@ Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
     PympfrObject* newob = 0;
     PympqObject* temp = 0;
 
-    if (Pympfr_Check(obj)) {
-        newob = (PympfrObject*) obj;
-        if (!bits || mpfr_get_prec(newob->f) == bits) {
+    if (Pympfr_CheckAndExp(obj)) {
+        /* Handle the likely case where the exponent of the mpfr is still
+         * valid in the current context. */
+        if (!bits || mpfr_get_prec(Pympfr_AS_MPFR(obj)) == bits) {
+            newob = (PympfrObject*) obj;
             Py_INCREF(obj);
         }
         else {
-            newob = Pympfr2Pympfr((PyObject*)newob, bits);
+            newob = Pympfr2Pympfr((PyObject*)obj, bits);
+        }
+    }
+    else if (Pympfr_Check(obj)) {
+        /* Handle the unlikely case where the exponent is no longer valid
+         * and mpfr_check_range needs to be called. */
+        if ((newob = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(obj))))) {
+            mpfr_set(newob->f, Pympfr_AS_MPFR(obj), context->now.mpfr_round);
+            newob->round_mode = ((PympfrObject*)obj)->round_mode;
+            newob->rc = ((PympfrObject*)obj)->rc;
+            newob->rc = mpfr_check_range(newob->f, newob->rc, newob->round_mode);
         }
     }
     else if (PyFloat_Check(obj)) {
@@ -3753,7 +3764,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "coth", Pympfr_coth, METH_O, doc_g_mpfr_coth },
     { "csc", Pympfr_csc, METH_O, doc_g_mpfr_csc },
     { "csch", Pympfr_csch, METH_O, doc_g_mpfr_csch },
-    { "current", (PyCFunction)Pygmpy_current, METH_VARARGS | METH_KEYWORDS, doc_current },
+    { "context", (PyCFunction)Pygmpy_context, METH_VARARGS | METH_KEYWORDS, doc_context },
     { "denom", Pympq_denom, METH_VARARGS, doc_denomg },
     { "digamma", Pympfr_digamma, METH_O, doc_g_mpfr_digamma },
     { "digits", Pympany_digits, METH_VARARGS, doc_g_mpany_digits },
