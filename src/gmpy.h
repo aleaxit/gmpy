@@ -185,6 +185,10 @@ static PyTypeObject Pympq_Type;
 
 static PyTypeObject Pympfr_Type;
 #define Pympfr_Check(v) (((PyObject*)v)->ob_type == &Pympfr_Type)
+#define Pympfr_CheckAndExp(v) (Pympfr_Check(v) && \
+mpfr_regular_p(Pympfr_AS_MPFR(v)) && \
+(Pympfr_AS_MPFR(v)->_mpfr_exp >= context->now.emin) && \
+(Pympfr_AS_MPFR(v)->_mpfr_exp <= context->now.emax))
 
 static PyTypeObject Pympc_Type;
 #define Pympc_Check(v) (((PyObject*)v)->ob_type == &Pympc_Type)

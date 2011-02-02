@@ -500,6 +500,8 @@ PyDoc_STRVAR(doc_mpfr_digits,
 "inclusive. The result is a three element tuple containig the mantissa,\n"
 "the exponent, and the number of bits of precision.");
 
+/* TODO: support keyword arguments. */
+
 static PyObject *
 Pympfr_digits(PyObject *self, PyObject *args)
 {
@@ -530,11 +532,13 @@ PyDoc_STRVAR(doc_mpfr_f2q,
 "is 1. If 'err'<0, error sought is 2.0 ** err.");
 
 PyDoc_STRVAR(doc_g_mpfr_f2q,
-"x.f2q([err]) -> mpq\n\n"
+"f2q(x,[err]) -> mpq\n\n"
 "Return the 'best' mpq approximating x to within relative error 'err'.\n"
 "Default is the precision of x. Uses Stern-Brocot tree to find the\n"
 "'best' approximation. An 'mpz' is returned if the the denominator\n"
 "is 1. If 'err'<0, error sought is 2.0 ** err.");
+
+/* TODO: Redo f2q. Ref-counting looks strange. */
 
 static PyObject *
 Pympfr_f2q(PyObject *self, PyObject *args)
@@ -546,9 +550,8 @@ Pympfr_f2q(PyObject *self, PyObject *args)
         fprintf(stderr, "Pympfr_f2q: %p, %p\n", self, args);
 #endif
     SELF_MPFR_ONE_ARG_CONVERTED_OPT(&err);
-    assert(Pympfr_Check(self));
-    fself = (PympfrObject*)self;
 
+    fself = (PympfrObject*)self;
     return f2q_internal(fself, err, mpfr_get_prec(fself->f), args!=0);
 }
 
@@ -824,7 +827,7 @@ Pympfr_sqrt(PyObject *self, PyObject *other)
     if (!(result = Pympfr_new(0)))
         return NULL;
 
-    if(self && Pympfr_Check(self)) {
+    if(self && Pympfr_CheckAndExp(self)) {
         if (!(context->now.nonstop) && mpfr_sgn(Pympfr_AS_MPFR(self)) < 0) {
             VALUE_ERROR("sqrt() of negative number");
             Py_DECREF((PyObject*)result);
@@ -832,7 +835,7 @@ Pympfr_sqrt(PyObject *self, PyObject *other)
         }
         result->rc = mpfr_sqrt(result->f, Pympfr_AS_MPFR(self), context->now.mpfr_round);
     }
-    else if (Pympfr_Check(other)) {
+    else if (Pympfr_CheckAndExp(other)) {
         if (!(context->now.nonstop) && mpfr_sgn(Pympfr_AS_MPFR(other)) < 0) {
             VALUE_ERROR("sqrt() of negative number");
             Py_DECREF((PyObject*)result);
@@ -875,7 +878,7 @@ Pympfr_rec_sqrt(PyObject *self, PyObject *other)
     if (!(result = Pympfr_new(0)))
         return NULL;
 
-    if(self && Pympfr_Check(self)) {
+    if(self && Pympfr_CheckAndExp(self)) {
         if (!(context->now.nonstop) && mpfr_zero_p(Pympfr_AS_MPFR(self))) {
             VALUE_ERROR("rec_sqrt() of zero");
             Py_DECREF((PyObject*)result);
@@ -883,7 +886,7 @@ Pympfr_rec_sqrt(PyObject *self, PyObject *other)
         }
         result->rc = mpfr_rec_sqrt(result->f, Pympfr_AS_MPFR(self), context->now.mpfr_round);
     }
-    else if (Pympfr_Check(other)) {
+    else if (Pympfr_CheckAndExp(other)) {
         if (!(context->now.nonstop) && mpfr_zero_p(Pympfr_AS_MPFR(other))) {
             VALUE_ERROR("rec_sqrt() of zero");
             Py_DECREF((PyObject*)result);
@@ -937,7 +940,7 @@ Pympfr_root(PyObject *self, PyObject *args)
         return NULL;
     }
     result->rc = mpfr_root(result->f, Pympfr_AS_MPFR(self), n,
-                            context->now.mpfr_round);
+                           context->now.mpfr_round);
     Py_DECREF(self);
     return (PyObject*)result;
 }
@@ -994,7 +997,7 @@ Pympfr_reldiff(PyObject *self, PyObject *args)
     }
 
     mpfr_reldiff(result->f, Pympfr_AS_MPFR(self), Pympfr_AS_MPFR(other),
-                context->now.mpfr_round);
+                 context->now.mpfr_round);
     result->rc = 0;
     Py_DECREF(self);
     Py_DECREF(other);
@@ -1034,10 +1037,20 @@ Pympfr_sign(PyObject *self, PyObject *other)
 static PyObject * \
 Py##NAME(PympfrObject *x) \
 { \
-  PympfrObject *r; \
-  if (!(r = Pympfr_new(mpfr_get_prec(x->f)))) return NULL; \
-  r->rc = NAME(r->f, x->f, context->now.mpfr_round); \
-  return (PyObject *) r; \
+    PympfrObject *r; \
+    if (!(r = Pympfr_new(mpfr_get_prec(x->f)))) \
+        return NULL; \
+    if (Pympfr_CheckAndExp(x)) { \
+        r->rc = NAME(r->f, x->f, context->now.mpfr_round); \
+    } \
+    else { \
+        mpfr_set(r->f, x->f, context->now.mpfr_round); \
+        r->round_mode = x->round_mode; \
+        r->rc = x->rc; \
+        mpfr_check_range(r->f, r->rc, r->round_mode); \
+        r->rc = NAME(r->f, r->f, context->now.mpfr_round); \
+    } \
+    return (PyObject *) r; \
 }
 
 MPFR_MONOP(mpfr_abs)
@@ -1049,10 +1062,10 @@ Pympfr_##NAME(PyObject* self, PyObject *other) \
 { \
     PympfrObject *result, *tempx; \
     if (!(result = Pympfr_new(0))) return NULL; \
-    if(self && Pympfr_Check(self)) { \
+    if(self && Pympfr_CheckAndExp(self)) { \
         result->rc = mpfr_##NAME(result->f, Pympfr_AS_MPFR(self)); \
     } \
-    else if (Pympfr_Check(other)) { \
+    else if (Pympfr_CheckAndExp(other)) { \
         mpfr_##NAME(result->f, Pympfr_AS_MPFR(other)); \
     } \
     else { \
@@ -1106,10 +1119,10 @@ Pympfr_##NAME(PyObject* self, PyObject *other) \
 { \
     PympfrObject *result, *tempx; \
     if (!(result = Pympfr_new(0))) return NULL; \
-    if(self && Pympfr_Check(self)) { \
+    if(self && Pympfr_CheckAndExp(self)) { \
         result->rc = mpfr_##NAME(result->f, Pympfr_AS_MPFR(self), context->now.mpfr_round); \
     } \
-    else if (Pympfr_Check(other)) { \
+    else if (Pympfr_CheckAndExp(other)) { \
         result->rc = mpfr_##NAME(result->f, Pympfr_AS_MPFR(other), context->now.mpfr_round); \
     } \
     else { \
@@ -1435,11 +1448,11 @@ Pympfr_lgamma(PyObject* self, PyObject *other)
         return NULL;
     }
 
-    if (self && Pympfr_Check(self)) {
+    if (self && Pympfr_CheckAndExp(self)) {
         value->rc = mpfr_lgamma(value->f, &signp, Pympfr_AS_MPFR(self),
                                 context->now.mpfr_round);
     }
-    else if (Pympfr_Check(other)) {
+    else if (Pympfr_CheckAndExp(other)) {
         value->rc = mpfr_lgamma(value->f, &signp, Pympfr_AS_MPFR(other),
                                 context->now.mpfr_round);
     }
@@ -1929,14 +1942,14 @@ Pympfr_nextabove(PyObject *self, PyObject *other)
 {
     PympfrObject *result, *tempx;
 
-    if(self && Pympfr_Check(self)) {
+    if(self && Pympfr_CheckAndExp(self)) {
         if (!(result = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(self)))))
             return NULL;
         mpfr_set(result->f, Pympfr_AS_MPFR(self), context->now.mpfr_round);
         mpfr_nextabove(result->f);
         result->rc = 0;
     }
-    else if (Pympfr_Check(other)) {
+    else if (Pympfr_CheckAndExp(other)) {
         if (!(result = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(other)))))
             return NULL;
         mpfr_set(result->f, Pympfr_AS_MPFR(other), context->now.mpfr_round);
@@ -1973,14 +1986,14 @@ Pympfr_nextbelow(PyObject *self, PyObject *other)
 {
     PympfrObject *result, *tempx;
 
-    if(self && Pympfr_Check(self)) {
+    if(self && Pympfr_CheckAndExp(self)) {
         if (!(result = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(self)))))
             return NULL;
         mpfr_set(result->f, Pympfr_AS_MPFR(self), context->now.mpfr_round);
         mpfr_nextbelow(result->f);
         result->rc = 0;
     }
-    else if (Pympfr_Check(other)) {
+    else if (Pympfr_CheckAndExp(other)) {
         if (!(result = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(other)))))
             return NULL;
         mpfr_set(result->f, Pympfr_AS_MPFR(other), context->now.mpfr_round);
@@ -2029,11 +2042,11 @@ Pympfr_sin_cos(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if(self && Pympfr_Check(self)) {
+    if(self && Pympfr_CheckAndExp(self)) {
         code = mpfr_sin_cos(s->f, c->f, Pympfr_AS_MPFR(self),
                             context->now.mpfr_round);
     }
-    else if (Pympfr_Check(other)) {
+    else if (Pympfr_CheckAndExp(other)) {
         code = mpfr_sin_cos(s->f, c->f, Pympfr_AS_MPFR(other),
                             context->now.mpfr_round);
     }
@@ -2085,11 +2098,11 @@ Pympfr_sinh_cosh(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if(self && Pympfr_Check(self)) {
+    if (self && Pympfr_CheckAndExp(self)) {
         code = mpfr_sinh_cosh(s->f, c->f, Pympfr_AS_MPFR(self),
                               context->now.mpfr_round);
     }
-    else if (Pympfr_Check(other)) {
+    else if (Pympfr_CheckAndExp(other)) {
         code = mpfr_sinh_cosh(s->f, c->f, Pympfr_AS_MPFR(other),
                               context->now.mpfr_round);
     }

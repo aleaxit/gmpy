@@ -24,9 +24,9 @@
 
 /* Create a context manager type. */
 
-PyDoc_STRVAR(doc_current,
-"current()\n\n"
-"Access attributes in the current context manager controlling\n"
+PyDoc_STRVAR(doc_context,
+"context()\n\n"
+"Return a copy of the current context manager controlling\n"
 "MPFR and MPC arithmetic.\n\n"
 "    nonstop:      if True, return nan or inf\n"
 "                  if False, raise exception\n"
@@ -158,7 +158,7 @@ Pycontext_repr(PycontextObject *self)
 /* Return a reference to the current context. */
 
 static PycontextObject *
-Pygmpy_current(PyObject *self, PyObject *args, PyObject *kwargs)
+Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     PycontextObject *result;
 
