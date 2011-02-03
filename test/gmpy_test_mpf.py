@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(a))
-['_copy', 'acos', 'acosh', 'add', 'agm', 'ai', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'binary', 'cbrt', 'ceil', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'digamma', 'digits', 'div', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'floor', 'gamma', 'hypot', 'is_inf', 'is_lessgreater', 'is_nan', 'is_number', 'is_regular', 'is_unordered', 'is_zero', 'j0', 'j1', 'jn', 'lgamma', 'li2', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'max', 'min', 'mul', 'next_above', 'next_below', 'next_toward', 'pow', 'precision', 'qdiv', 'rc', 'rec_sqrt', 'reldiff', 'root', 'round', 'sec', 'sech', 'sign', 'sin', 'sin_cos', 'sinh', 'sinh_cosh', 'sqrt', 'square', 'sub', 'tan', 'tanh', 'trunc', 'y0', 'y1', 'yn', 'zeta']
+['_copy', 'acos', 'acosh', 'add', 'agm', 'ai', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'binary', 'cbrt', 'ceil', 'check_range', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'digamma', 'digits', 'div', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'floor', 'gamma', 'hypot', 'is_inf', 'is_lessgreater', 'is_nan', 'is_number', 'is_regular', 'is_unordered', 'is_zero', 'j0', 'j1', 'jn', 'lgamma', 'li2', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'max', 'min', 'mul', 'next_above', 'next_below', 'next_toward', 'pow', 'precision', 'qdiv', 'rc', 'rec_sqrt', 'reldiff', 'root', 'round', 'sec', 'sech', 'sign', 'sin', 'sin_cos', 'sinh', 'sinh_cosh', 'sqrt', 'square', 'sub', 'tan', 'tanh', 'trunc', 'y0', 'y1', 'yn', 'zeta']
 >>>
 '''
 import sys
@@ -153,7 +153,7 @@ Traceback (most recent call last):
   File "a.py", line 9, in _er
     raise ValueError, what
 ValueError: sqrt() of negative number
->>> save=_g.current().precision
+>>> save=_g.context().precision
 >>> _g.const_catalan()
 mpfr('9.1596559417721901e-1')
 >>> _g.const_euler()
@@ -162,7 +162,7 @@ mpfr('5.7721566490153287e-1')
 mpfr('6.9314718055994529e-1')
 >>> _g.const_pi()
 mpfr('3.1415926535897931e0')
->>> _g.current().precision = 100
+>>> _g.context().precision = 100
 >>> _g.const_catalan()
 mpfr('9.1596559417721901505460351493252e-1',100)
 >>> _g.const_euler()
@@ -171,7 +171,7 @@ mpfr('5.7721566490153286060651209008234e-1',100)
 mpfr('6.9314718055994530941723212145798e-1',100)
 >>> _g.const_pi()
 mpfr('3.1415926535897932384626433832793e0',100)
->>> _g.current().precision = save
+>>> _g.context().precision = save
 >>> del(save)
 >>> import pickle
 >>> flt = _g.mpfr(1234.6789)
@@ -388,11 +388,11 @@ r'''
 '\x085\x00\x00\x00\x01\x00\x00\x00\x02'
 >>> _g.mpfr(_g.binary(_g.mpfr(2.0)), 0, 256) == 2.0
 1
->>> _g.current().precision = 0
+>>> _g.context().precision = 0
 Traceback (most recent call last):
   ...
 ValueError: invalid value for precision
->>> _g.current().precision = 53
+>>> _g.context().precision = 53
 >>> hash(_g.mpfr(23.0))==hash(23)
 1
 >>> print _g.mpfr('\004',0,256)
