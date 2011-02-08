@@ -24,26 +24,6 @@
 
 /* Create a context manager type. */
 
-PyDoc_STRVAR(doc_context,
-"context()\n\n"
-"Return a copy of the current context manager controlling\n"
-"MPFR and MPC arithmetic.\n\n"
-"    nonstop:      if True, return nan or inf\n"
-"                  if False, raise exception\n"
-"    subnormalize: if True, subnormalized results can be returned\n"
-"    mpfr_prec:    precision, in bits, of an MPFR result\n"
-"    mpc_rprec:    precision, in bits, of Re(MPC)\n"
-"                    -1 implies use mpfr_prec\n"
-"    mpc_iprec:    precision, in bits, of Im(MPC)\n"
-"                    -1 implies use mpc_rprec\n"
-"    mpfr_round:   rounding mode for MPFR\n"
-"    mpc_rround:   rounding mdoe for Re(MPC)\n"
-"                    -1 implies use mpfr_round\n"
-"    mpc_iround:   rounding mode for Im(MPC)\n"
-"                    -1 implies use mpc_rround\n"
-"    e_max:        maximum allowed exponent\n"
-"    e_min:        minimum allowed exponent\n");
-
 #define GET_MPC_RPREC(c) ((c->now.mpc_rprec==GMPY_DEFAULT)?c->now.mpfr_prec:c->now.mpc_rprec)
 #define GET_MPC_IPREC(c) ((c->now.mpc_iprec==GMPY_DEFAULT)?GET_MPC_RPREC(c):c->now.mpc_iprec)
 
@@ -183,6 +163,26 @@ GMPyContext_repr(GMPyContextObject *self)
 
 /* Return a reference to the current context. */
 
+PyDoc_STRVAR(doc_context,
+"context()\n\n"
+"Return a reference to the current context manager controlling\n"
+"MPFR and MPC arithmetic.\n\n"
+"    nonstop:      if True, return nan or inf\n"
+"                  if False, raise exception\n"
+"    subnormalize: if True, subnormalized results can be returned\n"
+"    mpfr_prec:    precision, in bits, of an MPFR result\n"
+"    mpc_rprec:    precision, in bits, of Re(MPC)\n"
+"                    -1 implies use mpfr_prec\n"
+"    mpc_iprec:    precision, in bits, of Im(MPC)\n"
+"                    -1 implies use mpc_rprec\n"
+"    mpfr_round:   rounding mode for MPFR\n"
+"    mpc_rround:   rounding mdoe for Re(MPC)\n"
+"                    -1 implies use mpfr_round\n"
+"    mpc_iround:   rounding mode for Im(MPC)\n"
+"                    -1 implies use mpc_rround\n"
+"    e_max:        maximum allowed exponent\n"
+"    e_min:        minimum allowed exponent\n");
+
 static GMPyContextObject *
 Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
@@ -191,6 +191,76 @@ Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
     result = context;
     Py_INCREF((PyObject*)context);
     return result;
+}
+
+PyDoc_STRVAR(doc_new_context,
+"new_context() -> context\n\n"
+"Return a copy of the current context manager controlling\n"
+"MPFR and MPC arithmetic.\n\n"
+"    nonstop:      if True, return nan or inf\n"
+"                  if False, raise exception\n"
+"    subnormalize: if True, subnormalized results can be returned\n"
+"    mpfr_prec:    precision, in bits, of an MPFR result\n"
+"    mpc_rprec:    precision, in bits, of Re(MPC)\n"
+"                    -1 implies use mpfr_prec\n"
+"    mpc_iprec:    precision, in bits, of Im(MPC)\n"
+"                    -1 implies use mpc_rprec\n"
+"    mpfr_round:   rounding mode for MPFR\n"
+"    mpc_rround:   rounding mdoe for Re(MPC)\n"
+"                    -1 implies use mpfr_round\n"
+"    mpc_iround:   rounding mode for Im(MPC)\n"
+"                    -1 implies use mpc_rround\n"
+"    e_max:        maximum allowed exponent\n"
+"    e_min:        minimum allowed exponent\n");
+
+static GMPyContextObject *
+Pygmpy_new_context(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    GMPyContextObject *result;
+
+    if ((result = GMPyContext_new())) {
+        result->now = context->now;
+        result->orig = context->now;
+    }
+    return result;
+}
+
+PyDoc_STRVAR(doc_set_context,
+"set_context(context)\n\n"
+"Activate a context manager controlling MPFR and MPC arithmetic.\n");
+
+static PyObject *
+Pygmpy_set_context(PyObject *self, PyObject *other)
+{
+    if (GMPyContext_Check(other)) {
+        Py_INCREF((PyObject*)other);
+        Py_DECREF((PyObject*)context);
+        context = (GMPyContextObject*)other;
+        Py_RETURN_NONE;
+    }
+    else {
+        VALUE_ERROR("set_context() requires a context argument");
+        return NULL;
+    }
+}
+
+static PyObject *
+GMPyContext_enter(PyObject *self, PyObject *args)
+{
+    assert(GMPyContext_Check(self));
+
+    ((GMPyContextObject*)self)->orig = ((GMPyContextObject*)context)->now;
+    ((GMPyContextObject*)context)->now = ((GMPyContextObject*)self)->now;
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+GMPyContext_exit(PyObject *self, PyObject *args)
+{
+    assert(GMPyContext_Check(self));
+
+    ((GMPyContextObject*)context)->now = ((GMPyContextObject*)self)->orig;
+    Py_RETURN_NONE;
 }
 
 /* Define the get/set functions. */
@@ -514,6 +584,12 @@ static PyGetSetDef GMPyContext_getseters[] = {
     {NULL}
 };
 
+static PyMethodDef GMPyContext_methods[] =
+{
+    { "__enter__", GMPyContext_enter, METH_NOARGS, NULL },
+    { "__exit__", GMPyContext_exit, METH_VARARGS, NULL }
+};
+
 static PyTypeObject GMPyContext_Type =
 {
 #ifdef PY3
@@ -548,7 +624,7 @@ static PyTypeObject GMPyContext_Type =
         0,                                  /* tp_weaklistoffset*/
         0,                                  /* tp_iter          */
         0,                                  /* tp_iternext      */
-        0,                                  /* tp_methods       */
+    GMPyContext_methods,                    /* tp_methods       */
         0,                                  /* tp_members       */
     GMPyContext_getseters,                  /* tp_getset        */
 };
