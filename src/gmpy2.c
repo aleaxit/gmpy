@@ -298,9 +298,6 @@
 #define PyIntOrLong_AsLong          PyInt_AsLong
 #endif
 
-/* Include fast mpz to/from PyLong conversion from sage. */
-#include "mpz_pylong.c"
-
 char gmpy_version[] = "2.0.0a1+";
 
 char _gmpy_cvs[] = "$Id$";
@@ -327,7 +324,18 @@ static struct gmpy_global {
  * is NOT thread-safe for mpfr and mpc calculations.
  */
 
-static PycontextObject *context = NULL;
+static GMPyContextObject *context = NULL;
+
+/* Define gmpy2 specific errors for mpfr and mpc data types. No change will
+ * be made the exceptions raised by mpz, xmpz, and mpq.
+ */
+
+static PyObject *GMPyExc_DivZero = NULL;
+static PyObject *GMPyExc_Inexact = NULL;
+static PyObject *GMPyExc_Invalid = NULL;
+static PyObject *GMPyExc_Overflow = NULL;
+static PyObject *GMPyExc_Underflow = NULL;
+static PyObject *GMPyExc_Erange = NULL;
 
 /* forward declarations of type-objects and method-arrays for them */
 #ifdef _MSC_VER
@@ -343,6 +351,9 @@ static PyMethodDef Pympfr_methods [];
 static PyMethodDef Pympc_methods [];
 static PyMethodDef Pyxmpz_methods [];
 #endif
+
+/* Include fast mpz to/from PyLong conversion from sage. */
+#include "mpz_pylong.c"
 
 /* The code for object creation, deletion, and caching is in gmpy_cache.c. */
 
@@ -4430,7 +4441,13 @@ _PyInitGMP(void)
     set_pympqcache();
     set_pympfrcache();
     set_pyxmpzcache();
-    context = Pycontext_new();
+    context = GMPyContext_new();
+    GMPyExc_DivZero = PyErr_NewException("gmpy2.DivisionByZero", NULL, NULL);
+    GMPyExc_Inexact = PyErr_NewException("gmpy2.Inexact", NULL, NULL);
+    GMPyExc_Invalid = PyErr_NewException("gmpy2.InvalidOperation", NULL, NULL);
+    GMPyExc_Overflow = PyErr_NewException("gmpy2.Overflow", NULL, NULL);
+    GMPyExc_Underflow = PyErr_NewException("gmpy2.Underflow", NULL, NULL);
+    GMPyExc_Erange = PyErr_NewException("gmpy2.RangeError", NULL, NULL);
 }
 
 static char _gmpy_docs[] = "\
@@ -4492,7 +4509,7 @@ PyMODINIT_FUNC initgmpy2(void)
         INITERROR;
     if (PyType_Ready(&Pympc_Type) < 0)
         INITERROR;
-    if (PyType_Ready(&Pycontext_Type) < 0)
+    if (PyType_Ready(&GMPyContext_Type) < 0)
         INITERROR;
 
     if (do_debug)
