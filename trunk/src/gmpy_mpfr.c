@@ -1712,14 +1712,24 @@ Pympfr_div(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPFR(other, "div() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = Pympfr_new(0))) {
-        Py_DECREF(self);
-        Py_DECREF(other);
-        return NULL;
+    if (!(result = Pympfr_new(0)))
+        goto done;
+
+    if (mpfr_zero_p(Pympfr_AS_MPFR(other))) {
+        context->now.divzero = 1;
+        if (context->now.raise_divzero) {
+            GMPY_DIVZERO("'mpfr' division by zero");
+            Py_DECREF((PyObject*)result);
+            result = NULL;
+            goto done;
+        }
     }
 
+    mpfr_clear_flags();
     result->rc = mpfr_div(result->f, Pympfr_AS_MPFR(self),
                           Pympfr_AS_MPFR(other), context->now.mpfr_round);
+    MERGE_FLAGS;
+  done:
     Py_DECREF(self);
     Py_DECREF(other);
     return (PyObject*)result;

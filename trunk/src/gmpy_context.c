@@ -51,14 +51,14 @@ PyDoc_STRVAR(doc_context,
 #define GET_MPC_IROUND(c) ((c->now.mpc_iround==GMPY_DEFAULT)?GET_MPC_RROUND(c):c->now.mpc_iround)
 #define GET_MPC_ROUND(c) (RNDC(GET_MPC_RROUND(c), GET_MPC_IROUND(c)))
 
-static PycontextObject *
-Pycontext_new(void)
+static GMPyContextObject *
+GMPyContext_new(void)
 {
-    PycontextObject *self;
+    GMPyContextObject *self;
 
-    TRACE("Entering Pycontext_new\n");
+    TRACE("Entering GMPyContext_new\n");
 
-    if (!(self = PyObject_New(PycontextObject, &Pycontext_Type)))
+    if (!(self = PyObject_New(GMPyContextObject, &GMPyContext_Type)))
         return NULL;
     if (!context) {
         self->orig.nonstop = 0;
@@ -72,6 +72,18 @@ Pycontext_new(void)
         self->orig.mpc_round = MPC_RNDNN;
         self->orig.emax = mpfr_get_emax();
         self->orig.emin = mpfr_get_emin();
+        self->orig.underflow = 0;
+        self->orig.overflow = 0;
+        self->orig.inexact = 0;
+        self->orig.invalid = 0;
+        self->orig.erange = 0;
+        self->orig.divzero = 0;
+        self->orig.raise_underflow = 0;
+        self->orig.raise_overflow = 0;
+        self->orig.raise_inexact = 0;
+        self->orig.raise_invalid = 0;
+        self->orig.raise_erange = 0;
+        self->orig.raise_divzero = 0;
         self->now = self->orig;
     }
     else {
@@ -82,7 +94,7 @@ Pycontext_new(void)
 };
 
 static void
-Pycontext_dealloc(PycontextObject *self)
+GMPyContext_dealloc(GMPyContextObject *self)
 {
     PyObject_Del(self);
 };
@@ -102,26 +114,27 @@ _round_to_name(int val)
 };
 
 static PyObject *
-Pycontext_repr(PycontextObject *self)
+GMPyContext_repr(GMPyContextObject *self)
 {
     PyObject *format;
     PyObject *tuple;
     PyObject *result = NULL;
 
-    tuple = PyTuple_New(10);
+    tuple = PyTuple_New(22);
     if (!tuple) return NULL;
 
     format = Py2or3String_FromString(
             "context(nonstop=%s,\n"
             "        subnormalize=%s,\n"
-            "        precision=%s,\n"
-            "        mpc_rprec=%s,\n"
-            "        mpc_iprec=%s,\n"
-            "        round=%s,\n"
-            "        mpc_rround=%s,\n"
-            "        mpc_iround=%s,\n"
-            "        emax=%s,\n"
-            "        emin=%s)"
+            "        precision=%s, mpc_rprec=%s, mpc_iprec=%s,\n"
+            "        round=%s, mpc_rround=%s, mpc_iround=%s,\n"
+            "        emax=%s, emin=%s,\n"
+            "        raise_underflow=%s, underflow=%s,\n"
+            "        raise_overflow=%s, overflow=%s,\n"
+            "        raise_inexact=%s, inexact=%s,\n"
+            "        raise_invalid=%s, invalid=%s,\n"
+            "        raise_erange=%s, erange=%s,\n"
+            "        raise_divzero=%s, divzero=%s)"
             );
     if (!format) return NULL;
 
@@ -145,10 +158,23 @@ Pycontext_repr(PycontextObject *self)
     PyTuple_SET_ITEM(tuple, 8, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emax)));
     PyTuple_SET_ITEM(tuple, 9, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emin)));
 
+    PyTuple_SET_ITEM(tuple, 10, PyBool_FromLong(self->now.raise_underflow));
+    PyTuple_SET_ITEM(tuple, 11, PyBool_FromLong(self->now.underflow));
+    PyTuple_SET_ITEM(tuple, 12, PyBool_FromLong(self->now.raise_overflow));
+    PyTuple_SET_ITEM(tuple, 13, PyBool_FromLong(self->now.overflow));
+    PyTuple_SET_ITEM(tuple, 14, PyBool_FromLong(self->now.raise_inexact));
+    PyTuple_SET_ITEM(tuple, 15, PyBool_FromLong(self->now.inexact));
+    PyTuple_SET_ITEM(tuple, 16, PyBool_FromLong(self->now.raise_invalid));
+    PyTuple_SET_ITEM(tuple, 17, PyBool_FromLong(self->now.invalid));
+    PyTuple_SET_ITEM(tuple, 18, PyBool_FromLong(self->now.raise_erange));
+    PyTuple_SET_ITEM(tuple, 19, PyBool_FromLong(self->now.erange));
+    PyTuple_SET_ITEM(tuple, 20, PyBool_FromLong(self->now.raise_divzero));
+    PyTuple_SET_ITEM(tuple, 21, PyBool_FromLong(self->now.divzero));
+
     if (!PyErr_Occurred())
         result = Py2or3String_Format(format, tuple);
     else
-        SYSTEM_ERROR("internal error in Pycontext_repr");
+        SYSTEM_ERROR("internal error in GMPyContext_repr");
 
     Py_DECREF(format);
     Py_DECREF(tuple);
@@ -157,10 +183,10 @@ Pycontext_repr(PycontextObject *self)
 
 /* Return a reference to the current context. */
 
-static PycontextObject *
+static GMPyContextObject *
 Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    PycontextObject *result;
+    GMPyContextObject *result;
 
     result = context;
     Py_INCREF((PyObject*)context);
@@ -169,54 +195,46 @@ Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
 
 /* Define the get/set functions. */
 
-static PyObject *
-Pycontext_get_nonstop(PycontextObject *self, void *closure)
-{
-    return PyBool_FromLong(self->now.nonstop);
+#define GETSET_BOOLEAN(NAME) \
+static PyObject * \
+GMPyContext_get_##NAME(GMPyContextObject *self, void *closure) \
+{ \
+    return PyBool_FromLong(self->now.NAME); \
+}; \
+static int \
+GMPyContext_set_##NAME(GMPyContextObject *self, PyObject *value, void *closure) \
+{ \
+    if (!(PyBool_Check(value))) { \
+        TYPE_ERROR(#NAME " must be True or False"); \
+        return -1; \
+    } \
+    self->now.NAME = (value == Py_True) ? 1 : 0; \
+    return 0; \
 }
 
-static int
-Pycontext_set_nonstop(PycontextObject *self, PyObject *value, void *closure)
-{
-    if (!(PyBool_Check(value))) {
-        TYPE_ERROR("nonstop must be True or False");
-        return -1;
-    }
-    if (value == Py_True)
-        self->now.nonstop = 1;
-    else
-        self->now.nonstop = 0;
-    return 0;
-}
-
-static PyObject *
-Pycontext_get_subnormalize(PycontextObject *self, void *closure)
-{
-    return PyBool_FromLong(self->now.nonstop);
-}
-
-static int
-Pycontext_set_subnormalize(PycontextObject *self, PyObject *value, void *closure)
-{
-    if (!(PyBool_Check(value))) {
-        TYPE_ERROR("subnormalize must be True or False");
-        return -1;
-    }
-    if (value == Py_True)
-        self->now.subnormalize = 1;
-    else
-        self->now.subnormalize = 0;
-    return 0;
-}
+GETSET_BOOLEAN(nonstop);
+GETSET_BOOLEAN(subnormalize);
+GETSET_BOOLEAN(underflow);
+GETSET_BOOLEAN(overflow);
+GETSET_BOOLEAN(inexact);
+GETSET_BOOLEAN(invalid);
+GETSET_BOOLEAN(erange);
+GETSET_BOOLEAN(divzero);
+GETSET_BOOLEAN(raise_underflow);
+GETSET_BOOLEAN(raise_overflow);
+GETSET_BOOLEAN(raise_inexact);
+GETSET_BOOLEAN(raise_invalid);
+GETSET_BOOLEAN(raise_erange);
+GETSET_BOOLEAN(raise_divzero);
 
 static PyObject *
-Pycontext_get_mpfr_prec(PycontextObject *self, void *closure)
+GMPyContext_get_precision(GMPyContextObject *self, void *closure)
 {
     return PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpfr_prec));
 }
 
 static int
-Pycontext_set_mpfr_prec(PycontextObject *self, PyObject *value, void *closure)
+GMPyContext_set_precision(GMPyContextObject *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
@@ -234,13 +252,13 @@ Pycontext_set_mpfr_prec(PycontextObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-Pycontext_get_mpc_rprec(PycontextObject *self, void *closure)
+GMPyContext_get_mpc_rprec(GMPyContextObject *self, void *closure)
 {
     return PyIntOrLong_FromSsize_t((Py_ssize_t)(GET_MPC_RPREC(self)));
 }
 
 static int
-Pycontext_set_mpc_rprec(PycontextObject *self, PyObject *value, void *closure)
+GMPyContext_set_mpc_rprec(GMPyContextObject *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
@@ -264,13 +282,13 @@ Pycontext_set_mpc_rprec(PycontextObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-Pycontext_get_mpc_iprec(PycontextObject *self, void *closure)
+GMPyContext_get_mpc_iprec(GMPyContextObject *self, void *closure)
 {
     return PyIntOrLong_FromSsize_t((Py_ssize_t)(GET_MPC_IPREC(self)));
 }
 
 static int
-Pycontext_set_mpc_iprec(PycontextObject *self, PyObject *value, void *closure)
+GMPyContext_set_mpc_iprec(GMPyContextObject *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
@@ -294,13 +312,13 @@ Pycontext_set_mpc_iprec(PycontextObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-Pycontext_get_mpfr_round(PycontextObject *self, void *closure)
+GMPyContext_get_round(GMPyContextObject *self, void *closure)
 {
     return PyIntOrLong_FromLong((long)(self->now.mpfr_round));
 }
 
 static int
-Pycontext_set_mpfr_round(PycontextObject *self, PyObject *value, void *closure)
+GMPyContext_set_round(GMPyContextObject *self, PyObject *value, void *closure)
 {
     long temp;
 
@@ -336,13 +354,13 @@ Pycontext_set_mpfr_round(PycontextObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-Pycontext_get_mpc_rround(PycontextObject *self, void *closure)
+GMPyContext_get_mpc_rround(GMPyContextObject *self, void *closure)
 {
     return PyIntOrLong_FromLong((long)GET_MPC_RROUND(self));
 }
 
 static int
-Pycontext_set_mpc_rround(PycontextObject *self, PyObject *value, void *closure)
+GMPyContext_set_mpc_rround(GMPyContextObject *self, PyObject *value, void *closure)
 {
     long temp;
 
@@ -373,13 +391,13 @@ Pycontext_set_mpc_rround(PycontextObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-Pycontext_get_mpc_iround(PycontextObject *self, void *closure)
+GMPyContext_get_mpc_iround(GMPyContextObject *self, void *closure)
 {
     return PyIntOrLong_FromLong((long)GET_MPC_IROUND(self));
 }
 
 static int
-Pycontext_set_mpc_iround(PycontextObject *self, PyObject *value, void *closure)
+GMPyContext_set_mpc_iround(GMPyContextObject *self, PyObject *value, void *closure)
 {
     long temp;
 
@@ -410,13 +428,13 @@ Pycontext_set_mpc_iround(PycontextObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-Pycontext_get_emin(PycontextObject *self, void *closure)
+GMPyContext_get_emin(GMPyContextObject *self, void *closure)
 {
     return PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emin));
 }
 
 static int
-Pycontext_set_emin(PycontextObject *self, PyObject *value, void *closure)
+GMPyContext_set_emin(GMPyContextObject *self, PyObject *value, void *closure)
 {
     Py_ssize_t exp;
 
@@ -438,13 +456,13 @@ Pycontext_set_emin(PycontextObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-Pycontext_get_emax(PycontextObject *self, void *closure)
+GMPyContext_get_emax(GMPyContextObject *self, void *closure)
 {
     return PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emax));
 }
 
 static int
-Pycontext_set_emax(PycontextObject *self, PyObject *value, void *closure)
+GMPyContext_set_emax(GMPyContextObject *self, PyObject *value, void *closure)
 {
     Py_ssize_t exp;
 
@@ -465,41 +483,38 @@ Pycontext_set_emax(PycontextObject *self, PyObject *value, void *closure)
     return 0;
 }
 
-static PyGetSetDef Pycontext_getseters[] = {
-    {"nonstop",
-        (getter)Pycontext_get_nonstop,
-        (setter)Pycontext_set_nonstop, NULL, NULL},
-    {"subnormalize",
-        (getter)Pycontext_get_subnormalize,
-        (setter)Pycontext_set_subnormalize, NULL, NULL},
-    {"precision",
-        (getter)Pycontext_get_mpfr_prec,
-        (setter)Pycontext_set_mpfr_prec, NULL, NULL},
-    {"mpc_rprec",
-        (getter)Pycontext_get_mpc_rprec,
-        (setter)Pycontext_set_mpc_rprec, NULL, NULL},
-    {"mpc_iprec",
-        (getter)Pycontext_get_mpc_iprec,
-        (setter)Pycontext_set_mpc_iprec, NULL, NULL},
-    {"round",
-        (getter)Pycontext_get_mpfr_round,
-        (setter)Pycontext_set_mpfr_round, NULL, NULL},
-    {"mpc_rround",
-        (getter)Pycontext_get_mpc_rround,
-        (setter)Pycontext_set_mpc_rround, NULL, NULL},
-    {"mpc_iround",
-        (getter)Pycontext_get_mpc_iround,
-        (setter)Pycontext_set_mpc_iround, NULL, NULL},
-    {"emax",
-        (getter)Pycontext_get_emax,
-        (setter)Pycontext_set_emax, NULL, NULL},
-    {"emin",
-        (getter)Pycontext_get_emin,
-        (setter)Pycontext_set_emin, NULL, NULL},
+#define ADD_GETSET(NAME) \
+    {#NAME, \
+        (getter)GMPyContext_get_##NAME, \
+        (setter)GMPyContext_set_##NAME, NULL, NULL}
+
+static PyGetSetDef GMPyContext_getseters[] = {
+    ADD_GETSET(nonstop),
+    ADD_GETSET(subnormalize),
+    ADD_GETSET(precision),
+    ADD_GETSET(mpc_rprec),
+    ADD_GETSET(mpc_iprec),
+    ADD_GETSET(round),
+    ADD_GETSET(mpc_rround),
+    ADD_GETSET(mpc_iround),
+    ADD_GETSET(emax),
+    ADD_GETSET(emin),
+    ADD_GETSET(underflow),
+    ADD_GETSET(overflow),
+    ADD_GETSET(inexact),
+    ADD_GETSET(invalid),
+    ADD_GETSET(erange),
+    ADD_GETSET(divzero),
+    ADD_GETSET(raise_underflow),
+    ADD_GETSET(raise_overflow),
+    ADD_GETSET(raise_inexact),
+    ADD_GETSET(raise_invalid),
+    ADD_GETSET(raise_erange),
+    ADD_GETSET(raise_divzero),
     {NULL}
 };
 
-static PyTypeObject Pycontext_Type =
+static PyTypeObject GMPyContext_Type =
 {
 #ifdef PY3
     PyVarObject_HEAD_INIT(0, 0)
@@ -508,14 +523,14 @@ static PyTypeObject Pycontext_Type =
         0,                                  /* ob_size          */
 #endif
     "gmpy2 context",                        /* tp_name          */
-    sizeof(PycontextObject),                /* tp_basicsize     */
+    sizeof(GMPyContextObject),              /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
-    (destructor) Pycontext_dealloc,         /* tp_dealloc       */
+    (destructor) GMPyContext_dealloc,       /* tp_dealloc       */
         0,                                  /* tp_print         */
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
-    (reprfunc) Pycontext_repr,              /* tp_repr          */
+    (reprfunc) GMPyContext_repr,            /* tp_repr          */
         0,                                  /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
         0,                                  /* tp_as_mapping    */
@@ -535,5 +550,5 @@ static PyTypeObject Pycontext_Type =
         0,                                  /* tp_iternext      */
         0,                                  /* tp_methods       */
         0,                                  /* tp_members       */
-    Pycontext_getseters,                    /* tp_getset        */
+    GMPyContext_getseters,                  /* tp_getset        */
 };

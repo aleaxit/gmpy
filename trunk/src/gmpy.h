@@ -90,6 +90,20 @@ typedef unsigned long Py_uhash_t;
 #define SYSTEM_ERROR(msg) PyErr_SetString(PyExc_SystemError, msg)
 #define OVERFLOW_ERROR(msg) PyErr_SetString(PyExc_OverflowError, msg)
 
+#define GMPY_DIVZERO(msg) PyErr_SetString(GMPyExc_DivZero, msg)
+#define GMPY_INEXACT(msg) PyErr_SetString(GMPyExc_Inexact, msg)
+#define GMPY_INVALID(msg) PyErr_SetString(GMPyExc_Invalid, msg)
+#define GMPY_OVERFLOW(msg) PyErr_SetString(GMPyExc_Overflow, msg)
+#define GMPY_UNDERFLOW(msg) PyErr_SetString(GMPyExc_Underflow, msg)
+#define GMPY_ERANGE(msg) PyErr_SetString(GMPyExc_Erange, msg)
+
+#define MERGE_FLAGS \
+    context->now.underflow |= mpfr_underflow_p(); \
+    context->now.overflow |= mpfr_overflow_p(); \
+    context->now.invalid |= mpfr_nanflag_p(); \
+    context->now.inexact |= mpfr_inexflag_p(); \
+    context->now.erange |= mpfr_erangeflag_p();
+
 #ifdef DEBUG
 #define TRACE(msg) if(options.debug) fprintf(stderr, msg)
 #else
@@ -210,16 +224,29 @@ typedef struct {
     mpc_rnd_t mpc_round;     /* current rounding mode for complex (MPC)*/
     mpfr_exp_t emax;         /* maximum exponent */
     mpfr_exp_t emin;         /* minimum exponent */
+    int underflow;           /* did an underflow occur? */
+    int overflow;            /* did an overflow occur? */
+    int inexact;             /* was the result inexact? */
+    int invalid;             /* invalid operation (i.e. NaN)? */
+    int erange;              /* did a range error occur? */
+    int divzero;             /* divided by zero? */
+    int raise_underflow;     /* if 1, raise exception for underflow */
+    int raise_overflow;      /* if 1, raise exception for overflow */
+    int raise_inexact;       /* if 1, raise exception for inexact */
+    int raise_invalid;       /* if 1, raise exception for invalid (NaN) */
+    int raise_erange;        /* if 1, raise exception for range error */
+    int raise_divzero;       /* if 1, raise exception for divide by zero */
+
 } gmpy_context;
 
 typedef struct {
     PyObject_HEAD;
     gmpy_context orig;       /* Original values, restored by __exit__*/
     gmpy_context now;        /* The "new" values, used by __enter__ */
-} PycontextObject;
+} GMPyContextObject;
 
-static PyTypeObject Pycontext_Type;
-#define Pycontext_Check(v) (((PyObject*)v)->ob_type == &Pycontext_Type)
+static PyTypeObject GMPyContext_Type;
+#define GMPyContext_Check(v) (((PyObject*)v)->ob_type == &GMPyContext_Type)
 
 #ifdef __cplusplus
 }
