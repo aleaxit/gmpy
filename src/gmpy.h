@@ -236,13 +236,12 @@ typedef struct {
     int raise_invalid;       /* if 1, raise exception for invalid (NaN) */
     int raise_erange;        /* if 1, raise exception for range error */
     int raise_divzero;       /* if 1, raise exception for divide by zero */
-
 } gmpy_context;
 
 typedef struct {
     PyObject_HEAD;
-    gmpy_context orig;       /* Original values, restored by __exit__*/
     gmpy_context now;        /* The "new" values, used by __enter__ */
+    PyObject *orig;          /* Original context, restored by __exit__*/
 } GMPyContextObject;
 
 static PyTypeObject GMPyContext_Type;
