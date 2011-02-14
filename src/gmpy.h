@@ -230,12 +230,12 @@ typedef struct {
     int invalid;             /* invalid operation (i.e. NaN)? */
     int erange;              /* did a range error occur? */
     int divzero;             /* divided by zero? */
-    int raise_underflow;     /* if 1, raise exception for underflow */
-    int raise_overflow;      /* if 1, raise exception for overflow */
-    int raise_inexact;       /* if 1, raise exception for inexact */
-    int raise_invalid;       /* if 1, raise exception for invalid (NaN) */
-    int raise_erange;        /* if 1, raise exception for range error */
-    int raise_divzero;       /* if 1, raise exception for divide by zero */
+    int trap_underflow;      /* if 1, raise exception for underflow */
+    int trap_overflow;       /* if 1, raise exception for overflow */
+    int trap_inexact;        /* if 1, raise exception for inexact */
+    int trap_invalid;        /* if 1, raise exception for invalid (NaN) */
+    int trap_erange;         /* if 1, raise exception for range error */
+    int trap_divzero;        /* if 1, raise exception for divide by zero */
 } gmpy_context;
 
 typedef struct {

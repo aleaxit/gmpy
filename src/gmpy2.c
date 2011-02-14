@@ -226,6 +226,44 @@
  *   Removed fcoform float conversion modifier (casevh)
  *   Add support for MPC (casevh)
  *   Renamed 'mpf' to 'mpfr' to reflect use of MPFR (casevh)
+ *   Added context manager (casevh)
+ *
+ ************************************************************************
+ *
+ * Discussion on sizes of C integer types.
+ *
+ * GMP, MPIR, MPFR, and MPC use typedef to create integer objects with
+ * different sizes. It can become confusing to map the different types
+ * onto the standard C types used by Python's C API. Below are external
+ * types and how the map to C types. The assumptions are verified when
+ * the module is initialized.
+ *
+ * mp_limb_t: This is usually an 'unsigned long' but is an 'unsigned
+ *     long long' on MPIR/64-bit Windows.
+ *
+ * mp_bitcnt_t: This is usually an 'unsigned long' but is an 'unsigned
+ *     long long' on MPIR/64-bit Windows. 'size_t' is probably the best
+ *     match since that is the return type of mpz_sizeinbase().
+ *
+ * mp_size_t: This is a 'long'.
+ *
+ * mp_exp_t: This is defined by GMP to be a 'long'.
+ *
+ * mpfr_rnd_t: This is an 'int' ???
+ *
+ * mpfr_prec_t: This can be 'short', 'int', or 'long'. GMPY assumes it
+ *     will be a 'long'.
+ *
+ * mpfr_sign_t: This is an 'int'.
+ *
+ * mpfr_exp_t: This is currently the same as mp_exp_t but will change
+ *     to a signed 64-bit integer in the future.
+ *
+ * mpc_rnd_t: This is an 'int'.
+ *
+ * mpc_prec_t: See mpfr_exp_t.
+ *
+ ************************************************************************
  */
 #include "Python.h"
 
@@ -3769,13 +3807,13 @@ static PyMethodDef Pygmpy_methods [] =
     { "const_euler", Pympfr_const_euler, METH_NOARGS, doc_mpfr_const_euler },
     { "const_log2", Pympfr_const_log2, METH_NOARGS, doc_mpfr_const_log2 },
     { "const_pi", Pympfr_const_pi, METH_VARARGS, doc_mpfr_const_pi },
+    { "context", Pygmpy_context, METH_NOARGS, doc_context },
     { "cos", Pympfr_cos, METH_O, doc_g_mpfr_cos },
     { "cosh", Pympfr_cosh, METH_O, doc_g_mpfr_cosh },
     { "cot", Pympfr_cot, METH_O, doc_g_mpfr_cot },
     { "coth", Pympfr_coth, METH_O, doc_g_mpfr_coth },
     { "csc", Pympfr_csc, METH_O, doc_g_mpfr_csc },
     { "csch", Pympfr_csch, METH_O, doc_g_mpfr_csch },
-    { "current", Pygmpy_current, METH_NOARGS, doc_current },
     { "denom", Pympq_denom, METH_VARARGS, doc_denomg },
     { "digamma", Pympfr_digamma, METH_O, doc_g_mpfr_digamma },
     { "digits", Pympany_digits, METH_VARARGS, doc_g_mpany_digits },
@@ -3807,7 +3845,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "gcd", Pygmpy_gcd, METH_VARARGS, doc_gcd },
     { "gcdext", Pygmpy_gcdext, METH_VARARGS, doc_gcdext },
     { "get_cache", Pygmpy_get_cache, METH_NOARGS, doc_get_cache },
-    { "get_context", (PyCFunction)Pygmpy_get_context, METH_VARARGS | METH_KEYWORDS, doc_get_context },
     { "get_emax_max", Pympfr_get_emax_max, METH_NOARGS, doc_g_mpfr_get_emax_max },
     { "get_emin_min", Pympfr_get_emin_min, METH_NOARGS, doc_g_mpfr_get_emin_min },
     { "get_max_precision", Pympfr_get_max_precision, METH_NOARGS, doc_g_mpfr_get_max_precision },
@@ -3861,6 +3898,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "mpz", Pygmpy_mpz, METH_VARARGS, doc_mpz },
     { "mul", Pympfr_mul, METH_VARARGS, doc_g_mpfr_mul },
     { "nan", Pympfr_set_nan, METH_NOARGS, doc_g_mpfr_set_nan },
+    { "new_context", (PyCFunction)Pygmpy_new_context, METH_VARARGS | METH_KEYWORDS, doc_new_context },
     { "next_above", Pympfr_nextabove, METH_O, doc_g_mpfr_nextabove },
     { "next_below", Pympfr_nextbelow, METH_O, doc_g_mpfr_nextbelow },
     { "next_prime", Pympz_next_prime, METH_O, doc_next_primeg },
