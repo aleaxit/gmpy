@@ -1717,7 +1717,7 @@ Pympfr_div(PyObject *self, PyObject *args)
 
     if (mpfr_zero_p(Pympfr_AS_MPFR(other))) {
         context->now.divzero = 1;
-        if (context->now.raise_divzero) {
+        if (context->now.trap_divzero) {
             GMPY_DIVZERO("'mpfr' division by zero");
             Py_DECREF((PyObject*)result);
             result = NULL;

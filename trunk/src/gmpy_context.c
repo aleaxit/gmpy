@@ -54,12 +54,12 @@ GMPyContext_new(void)
         self->now.invalid = 0;
         self->now.erange = 0;
         self->now.divzero = 0;
-        self->now.raise_underflow = 0;
-        self->now.raise_overflow = 0;
-        self->now.raise_inexact = 0;
-        self->now.raise_invalid = 0;
-        self->now.raise_erange = 0;
-        self->now.raise_divzero = 0;
+        self->now.trap_underflow = 0;
+        self->now.trap_overflow = 0;
+        self->now.trap_inexact = 0;
+        self->now.trap_invalid = 0;
+        self->now.trap_erange = 0;
+        self->now.trap_divzero = 0;
         self->orig = NULL;
     }
     return self;
@@ -102,12 +102,12 @@ GMPyContext_repr(GMPyContextObject *self)
             "        precision=%s, mpc_rprec=%s, mpc_iprec=%s,\n"
             "        round=%s, mpc_rround=%s, mpc_iround=%s,\n"
             "        emax=%s, emin=%s,\n"
-            "        raise_underflow=%s, underflow=%s,\n"
-            "        raise_overflow=%s, overflow=%s,\n"
-            "        raise_inexact=%s, inexact=%s,\n"
-            "        raise_invalid=%s, invalid=%s,\n"
-            "        raise_erange=%s, erange=%s,\n"
-            "        raise_divzero=%s, divzero=%s)"
+            "        trap_underflow=%s, underflow=%s,\n"
+            "        trap_overflow=%s, overflow=%s,\n"
+            "        trap_inexact=%s, inexact=%s,\n"
+            "        trap_invalid=%s, invalid=%s,\n"
+            "        trap_erange=%s, erange=%s,\n"
+            "        trap_divzero=%s, divzero=%s)"
             );
     if (!format) return NULL;
 
@@ -130,18 +130,17 @@ GMPyContext_repr(GMPyContextObject *self)
     PyTuple_SET_ITEM(tuple, 7, _round_to_name(self->now.mpc_iround));
     PyTuple_SET_ITEM(tuple, 8, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emax)));
     PyTuple_SET_ITEM(tuple, 9, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emin)));
-
-    PyTuple_SET_ITEM(tuple, 10, PyBool_FromLong(self->now.raise_underflow));
+    PyTuple_SET_ITEM(tuple, 10, PyBool_FromLong(self->now.trap_underflow));
     PyTuple_SET_ITEM(tuple, 11, PyBool_FromLong(self->now.underflow));
-    PyTuple_SET_ITEM(tuple, 12, PyBool_FromLong(self->now.raise_overflow));
+    PyTuple_SET_ITEM(tuple, 12, PyBool_FromLong(self->now.trap_overflow));
     PyTuple_SET_ITEM(tuple, 13, PyBool_FromLong(self->now.overflow));
-    PyTuple_SET_ITEM(tuple, 14, PyBool_FromLong(self->now.raise_inexact));
+    PyTuple_SET_ITEM(tuple, 14, PyBool_FromLong(self->now.trap_inexact));
     PyTuple_SET_ITEM(tuple, 15, PyBool_FromLong(self->now.inexact));
-    PyTuple_SET_ITEM(tuple, 16, PyBool_FromLong(self->now.raise_invalid));
+    PyTuple_SET_ITEM(tuple, 16, PyBool_FromLong(self->now.trap_invalid));
     PyTuple_SET_ITEM(tuple, 17, PyBool_FromLong(self->now.invalid));
-    PyTuple_SET_ITEM(tuple, 18, PyBool_FromLong(self->now.raise_erange));
+    PyTuple_SET_ITEM(tuple, 18, PyBool_FromLong(self->now.trap_erange));
     PyTuple_SET_ITEM(tuple, 19, PyBool_FromLong(self->now.erange));
-    PyTuple_SET_ITEM(tuple, 20, PyBool_FromLong(self->now.raise_divzero));
+    PyTuple_SET_ITEM(tuple, 20, PyBool_FromLong(self->now.trap_divzero));
     PyTuple_SET_ITEM(tuple, 21, PyBool_FromLong(self->now.divzero));
 
     if (!PyErr_Occurred())
@@ -156,15 +155,15 @@ GMPyContext_repr(GMPyContextObject *self)
 
 /* Return a reference to the current context. */
 
-PyDoc_STRVAR(doc_current,
-"current() -> context\n\n"
+PyDoc_STRVAR(doc_context,
+"context() -> context\n\n"
 "Return a reference to the current context manager controlling\n"
 "MPFR and MPC arithmetic. The returned object no longer refers to\n"
-"the current context after a new context is loaded using \n"
+"the current context after a new context is loaded using\n"
 "set_context() or with ...\n");
 
 static PyObject *
-Pygmpy_current(PyObject *self, PyObject *args)
+Pygmpy_context(PyObject *self, PyObject *args)
 {
     GMPyContextObject *result;
 
@@ -173,10 +172,10 @@ Pygmpy_current(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_get_context,
-"get_context() -> context\n\n"
-"Return a copy of the current context manager controlling\n"
-"MPFR and MPC arithmetic.\n\n"
+PyDoc_STRVAR(doc_new_context,
+"new_context() -> context\n\n"
+"Return a new context manager controlling MPFR and MPC\n"
+"arithmetic.\n\n"
 "    nonstop:      if True, return nan or inf\n"
 "                  if False, raise exception\n"
 "    subnormalize: if True, subnormalized results can be returned\n"
@@ -194,14 +193,40 @@ PyDoc_STRVAR(doc_get_context,
 "    e_min:        minimum allowed exponent\n");
 
 static PyObject *
-Pygmpy_get_context(PyObject *self, PyObject *args, PyObject *kwargs)
+Pygmpy_new_context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     GMPyContextObject *result;
 
-    if ((result = GMPyContext_new())) {
-        result->now = context->now;
-        result->orig = NULL;
+    static char *kwlist[] = {
+        "subnormalize", "precision", "round", "e_max", "e_min",
+        "trap_underflow", "trap_overflow", "trap_inexact",
+        "trap_invalid", "trap_erange", "trap_divzero", NULL };
+
+    if (PyTuple_GET_SIZE(args)) {
+        VALUE_ERROR("new_context() only supports keyword arguments");
+        return NULL;
     }
+
+    if (!(result = GMPyContext_new()))
+        return NULL;
+
+    if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
+            "|ililliiiiii", kwlist,
+            &result->now.subnormalize,
+            &result->now.mpfr_prec,
+            &result->now.mpfr_round,
+            &result->now.emax,
+            &result->now.emin,
+            &result->now.trap_underflow,
+            &result->now.trap_overflow,
+            &result->now.trap_inexact,
+            &result->now.trap_invalid,
+            &result->now.trap_erange,
+            &result->now.trap_divzero))) {
+        VALUE_ERROR("invalid keyword arguments in new_context()");
+        return NULL;
+    }
+
     return (PyObject*)result;
 }
 
@@ -289,12 +314,12 @@ GETSET_BOOLEAN(inexact);
 GETSET_BOOLEAN(invalid);
 GETSET_BOOLEAN(erange);
 GETSET_BOOLEAN(divzero);
-GETSET_BOOLEAN(raise_underflow);
-GETSET_BOOLEAN(raise_overflow);
-GETSET_BOOLEAN(raise_inexact);
-GETSET_BOOLEAN(raise_invalid);
-GETSET_BOOLEAN(raise_erange);
-GETSET_BOOLEAN(raise_divzero);
+GETSET_BOOLEAN(trap_underflow);
+GETSET_BOOLEAN(trap_overflow);
+GETSET_BOOLEAN(trap_inexact);
+GETSET_BOOLEAN(trap_invalid);
+GETSET_BOOLEAN(trap_erange);
+GETSET_BOOLEAN(trap_divzero);
 
 static PyObject *
 GMPyContext_get_precision(GMPyContextObject *self, void *closure)
@@ -574,12 +599,12 @@ static PyGetSetDef GMPyContext_getseters[] = {
     ADD_GETSET(invalid),
     ADD_GETSET(erange),
     ADD_GETSET(divzero),
-    ADD_GETSET(raise_underflow),
-    ADD_GETSET(raise_overflow),
-    ADD_GETSET(raise_inexact),
-    ADD_GETSET(raise_invalid),
-    ADD_GETSET(raise_erange),
-    ADD_GETSET(raise_divzero),
+    ADD_GETSET(trap_underflow),
+    ADD_GETSET(trap_overflow),
+    ADD_GETSET(trap_inexact),
+    ADD_GETSET(trap_invalid),
+    ADD_GETSET(trap_erange),
+    ADD_GETSET(trap_divzero),
     {NULL}
 };
 
