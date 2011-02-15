@@ -97,6 +97,32 @@ typedef unsigned long Py_uhash_t;
 #define GMPY_UNDERFLOW(msg) PyErr_SetString(GMPyExc_Underflow, msg)
 #define GMPY_ERANGE(msg) PyErr_SetString(GMPyExc_Erange, msg)
 
+#define CHECK_UNDERFLOW(msg) \
+    if (mpfr_underflow_p() && context->now.trap_underflow) { \
+        GMPY_UNDERFLOW(msg); \
+        goto done; \
+    }
+#define CHECK_OVERFLOW(msg) \
+    if (mpfr_overflow_p() && context->now.trap_overflow) { \
+        GMPY_OVERFLOW(msg); \
+        goto done; \
+    }
+#define CHECK_INVALID(msg) \
+    if (mpfr_nanflag_p() && context->now.trap_invalid) { \
+        GMPY_INVALID(msg); \
+        goto done; \
+    }
+#define CHECK_INEXACT(msg) \
+    if (mpfr_inexflag_p() && context->now.trap_inexact) { \
+        GMPY_INEXACT(msg); \
+        goto done; \
+    }
+#define CHECK_ERANGE(msg) \
+    if (mpfr_erangeflag_p() && context->now.trap_erange) { \
+        GMPY_ERANGE(msg); \
+        goto done; \
+    }
+
 #define MERGE_FLAGS \
     context->now.underflow |= mpfr_underflow_p(); \
     context->now.overflow |= mpfr_overflow_p(); \

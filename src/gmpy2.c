@@ -4466,11 +4466,11 @@ _PyInitGMP(void)
     set_pympfrcache();
     set_pyxmpzcache();
     context = GMPyContext_new();
-    GMPyExc_DivZero = PyErr_NewException("gmpy2.DivisionByZero", NULL, NULL);
-    GMPyExc_Inexact = PyErr_NewException("gmpy2.Inexact", NULL, NULL);
-    GMPyExc_Invalid = PyErr_NewException("gmpy2.InvalidOperation", NULL, NULL);
-    GMPyExc_Overflow = PyErr_NewException("gmpy2.Overflow", NULL, NULL);
-    GMPyExc_Underflow = PyErr_NewException("gmpy2.Underflow", NULL, NULL);
+    GMPyExc_DivZero = PyErr_NewException("gmpy2.DivisionByZeroError", NULL, NULL);
+    GMPyExc_Inexact = PyErr_NewException("gmpy2.InexactError", NULL, NULL);
+    GMPyExc_Invalid = PyErr_NewException("gmpy2.InvalidOperationError", NULL, NULL);
+    GMPyExc_Overflow = PyErr_NewException("gmpy2.OverflowError", NULL, NULL);
+    GMPyExc_Underflow = PyErr_NewException("gmpy2.UnderflowError", NULL, NULL);
     GMPyExc_Erange = PyErr_NewException("gmpy2.RangeError", NULL, NULL);
 }
 

@@ -1534,8 +1534,6 @@ Pympfr_div(PyObject *self, PyObject *args)
         context->now.divzero = 1;
         if (context->now.trap_divzero) {
             GMPY_DIVZERO("'mpfr' division by zero");
-            Py_DECREF((PyObject*)result);
-            result = NULL;
             goto done;
         }
     }
@@ -1544,9 +1542,18 @@ Pympfr_div(PyObject *self, PyObject *args)
     result->rc = mpfr_div(result->f, Pympfr_AS_MPFR(self),
                           Pympfr_AS_MPFR(other), context->now.mpfr_round);
     MERGE_FLAGS;
+    CHECK_UNDERFLOW("underflow in 'mpfr' division");
+    CHECK_OVERFLOW("overflow in 'mpfr' division");
+    CHECK_INVALID("invalid operation in 'mpfr' division");
+    CHECK_INEXACT("inexact result in 'mpfr' division");
+    CHECK_ERANGE("range error in 'mpfr' division");
   done:
     Py_DECREF(self);
     Py_DECREF(other);
+    if (PyErr_Occurred()) {
+        Py_DECREF((PyObject*)result);
+        result = NULL;
+    }
     return (PyObject*)result;
 }
 
