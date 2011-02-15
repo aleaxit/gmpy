@@ -287,6 +287,21 @@ GMPyContext_exit(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+PyDoc_STRVAR(doc_context_clear_flags,
+"clear_flags()\n\n"
+"Clear all MPFR exception flags.");
+static PyObject *
+GMPyContext_clear_flags(PyObject *self, PyObject *args)
+{
+    ((GMPyContextObject*)self)->now.underflow = 0;
+    ((GMPyContextObject*)self)->now.overflow = 0;
+    ((GMPyContextObject*)self)->now.inexact = 0;
+    ((GMPyContextObject*)self)->now.invalid = 0;
+    ((GMPyContextObject*)self)->now.erange = 0;
+    ((GMPyContextObject*)self)->now.divzero = 0;
+    Py_RETURN_NONE;
+}
+
 /* Define the get/set functions. */
 
 #define GETSET_BOOLEAN(NAME) \
@@ -612,6 +627,8 @@ static PyMethodDef GMPyContext_methods[] =
 {
     { "__enter__", GMPyContext_enter, METH_NOARGS, NULL },
     { "__exit__", GMPyContext_exit, METH_VARARGS, NULL },
+    { "clear_flags", GMPyContext_clear_flags, METH_NOARGS,
+            doc_context_clear_flags },
     { NULL, NULL, 1 }
 };
 
