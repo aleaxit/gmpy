@@ -1,6 +1,6 @@
-/* gmpy_mpf.c
+/* gmpy_mpfr.c
  *
- * Functions that operate strictly on mpf.
+ * Functions that operate strictly on mpfr.
  *
  * This file should be considered part of gmpy2.c
  */
@@ -10,7 +10,7 @@
 static PyObject *
 Pympfr_getprec_attrib(PympfrObject *self, void *closure)
 {
-    return PyIntOrLong_FromSize_t((size_t)mpfr_get_prec(self->f));
+    return PyIntOrLong_FromSsize_t((Py_ssize_t)mpfr_get_prec(self->f));
 }
 
 /* Implement the .rc attribute of an mpfr. */
@@ -36,7 +36,7 @@ PyDoc_STRVAR(doc_g_mpfr_get_emin_min,
 static PyObject *
 Pympfr_get_emin_min(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("n", (Py_ssize_t)mpfr_get_emin_min());
+    return PyIntOrLong_FromSsize_t((Py_ssize_t)mpfr_get_emin_min());
 }
 
 PyDoc_STRVAR(doc_g_mpfr_get_emax_max,
@@ -46,7 +46,7 @@ PyDoc_STRVAR(doc_g_mpfr_get_emax_max,
 static PyObject *
 Pympfr_get_emax_max(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("n", (Py_ssize_t)mpfr_get_emax_max());
+    return PyIntOrLong_FromSsize_t((Py_ssize_t)mpfr_get_emax_max());
 }
 
 PyDoc_STRVAR(doc_g_mpfr_get_max_precision,
@@ -58,7 +58,7 @@ PyDoc_STRVAR(doc_g_mpfr_get_max_precision,
 static PyObject *
 Pympfr_get_max_precision(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("n", MPFR_PREC_MAX);
+    return PyIntOrLong_FromSsize_t((Py_ssize_t)MPFR_PREC_MAX);
 }
 
 PyDoc_STRVAR(doc_g_mpfr_set_nan,
@@ -70,10 +70,8 @@ Pympfr_set_nan(PyObject *self, PyObject *other)
 {
     PympfrObject *result;
 
-    if (!(result = Pympfr_new(0)))
-        return NULL;
-
-    mpfr_set_nan(result->f);
+    if ((result = Pympfr_new(0)))
+        mpfr_set_nan(result->f);
     return (PyObject*)result;
 }
 
@@ -85,18 +83,15 @@ static PyObject *
 Pympfr_set_inf(PyObject *self, PyObject *other)
 {
     PympfrObject *result;
-    long s = 0;
+    long s = clong_From_Integer(other);
 
-    s = clong_From_Integer(other);
     if (s == -1 && PyErr_Occurred()) {
         TYPE_ERROR("inf() requires 'int' argument");
         return NULL;
     }
 
-    if (!(result = Pympfr_new(0)))
-        return NULL;
-
-    mpfr_set_inf(result->f, (int)s);
+    if ((result = Pympfr_new(0)))
+        mpfr_set_inf(result->f, s<0?-1:1);
     return (PyObject*)result;
 }
 
@@ -108,18 +103,15 @@ static PyObject *
 Pympfr_set_zero(PyObject *self, PyObject *other)
 {
     PympfrObject *result;
-    long s = 0;
+    long s = clong_From_Integer(other);
 
-    s = clong_From_Integer(other);
     if (s == -1 && PyErr_Occurred()) {
         TYPE_ERROR("zero() requires 'int' argument");
         return NULL;
     }
 
-    if (!(result = Pympfr_new(0)))
-        return NULL;
-
-    mpfr_set_zero(result->f, (int)s);
+    if ((result = Pympfr_new(0)))
+        mpfr_set_zero(result->f, s<0?-1:1);
     return (PyObject*)result;
 }
 
@@ -135,24 +127,12 @@ static PyObject *
 Pympfr_is_nan(PyObject *self, PyObject *other)
 {
     int res;
-    PympfrObject *tempx;
 
-    if (self && (Pympfr_Check(self))) {
-        res = mpfr_nan_p(Pympfr_AS_MPFR(self));
-    }
-    else if (Pympfr_Check(other)) {
-        res = mpfr_nan_p(Pympfr_AS_MPFR(other));
-    }
-    else {
-        if (!(tempx = Pympfr_From_Real(other, 0))) {
-            TYPE_ERROR("is_nan() requires 'mpfr' argument");
-            return NULL;
-        }
-        else {
-            res = mpfr_nan_p(tempx->f);
-            Py_DECREF((PyObject*)tempx);
-        }
-    }
+    PARSE_ONE_MPFR_OTHER("is_nan() requires 'mpfr' argument");
+
+    res = mpfr_nan_p(Pympfr_AS_MPFR(self));
+    Py_DECREF(self);
+
     if (res)
         Py_RETURN_TRUE;
     else
@@ -171,24 +151,12 @@ static PyObject *
 Pympfr_is_inf(PyObject *self, PyObject *other)
 {
     int res;
-    PympfrObject *tempx;
 
-    if (self && (Pympfr_Check(self))) {
-        res = mpfr_inf_p(Pympfr_AS_MPFR(self));
-    }
-    else if (Pympfr_Check(other)) {
-        res = mpfr_inf_p(Pympfr_AS_MPFR(other));
-    }
-    else {
-        if (!(tempx = Pympfr_From_Real(other, 0))) {
-            TYPE_ERROR("is_inf() requires 'mpfr' argument");
-            return NULL;
-        }
-        else {
-            res = mpfr_nan_p(tempx->f);
-            Py_DECREF((PyObject*)tempx);
-        }
-    }
+    PARSE_ONE_MPFR_OTHER("is_inf() requires 'mpfr' argument");
+
+    res = mpfr_inf_p(Pympfr_AS_MPFR(self));
+    Py_DECREF(self);
+
     if (res)
         Py_RETURN_TRUE;
     else
@@ -209,24 +177,12 @@ static PyObject *
 Pympfr_is_number(PyObject *self, PyObject *other)
 {
     int res;
-    PympfrObject *tempx;
 
-    if (self && (Pympfr_Check(self))) {
-        res = mpfr_number_p(Pympfr_AS_MPFR(self));
-    }
-    else if (Pympfr_Check(other)) {
-        res = mpfr_number_p(Pympfr_AS_MPFR(other));
-    }
-    else {
-        if (!(tempx = Pympfr_From_Real(other, 0))) {
-            TYPE_ERROR("is_number() requires 'mpfr' argument");
-            return NULL;
-        }
-        else {
-            res = mpfr_number_p(tempx->f);
-            Py_DECREF((PyObject*)tempx);
-        }
-    }
+    PARSE_ONE_MPFR_OTHER("is_number() requires 'mpfr' argument");
+
+    res = mpfr_number_p(Pympfr_AS_MPFR(self));
+    Py_DECREF(self);
+
     if (res)
         Py_RETURN_TRUE;
     else
@@ -245,24 +201,12 @@ static PyObject *
 Pympfr_is_zero(PyObject *self, PyObject *other)
 {
     int res;
-    PympfrObject *tempx;
 
-    if (self && (Pympfr_Check(self))) {
-        res = mpfr_zero_p(Pympfr_AS_MPFR(self));
-    }
-    else if (Pympfr_Check(other)) {
-        res = mpfr_zero_p(Pympfr_AS_MPFR(other));
-    }
-    else {
-        if (!(tempx = Pympfr_From_Real(other, 0))) {
-            TYPE_ERROR("is_zero() requires 'mpfr' argument");
-            return NULL;
-        }
-        else {
-            res = mpfr_zero_p(tempx->f);
-            Py_DECREF((PyObject*)tempx);
-        }
-    }
+    PARSE_ONE_MPFR_OTHER("is_zero() requires 'mpfr' argument");
+
+    res = mpfr_zero_p(Pympfr_AS_MPFR(self));
+    Py_DECREF(self);
+
     if (res)
         Py_RETURN_TRUE;
     else
@@ -281,24 +225,12 @@ static PyObject *
 Pympfr_is_regular(PyObject *self, PyObject *other)
 {
     int res;
-    PympfrObject *tempx;
 
-    if (self && (Pympfr_Check(self))) {
-        res = mpfr_regular_p(Pympfr_AS_MPFR(self));
-    }
-    else if (Pympfr_Check(other)) {
-        res = mpfr_regular_p(Pympfr_AS_MPFR(other));
-    }
-    else {
-        if (!(tempx = Pympfr_From_Real(other, 0))) {
-            TYPE_ERROR("is_regular() requires 'mpfr' argument");
-            return NULL;
-        }
-        else {
-            res = mpfr_regular_p(tempx->f);
-            Py_DECREF((PyObject*)tempx);
-        }
-    }
+    PARSE_ONE_MPFR_OTHER("is_regular() requires 'mpfr' argument");
+
+    res = mpfr_regular_p(Pympfr_AS_MPFR(self));
+    Py_DECREF(self);
+
     if (res)
         Py_RETURN_TRUE;
     else
@@ -483,7 +415,7 @@ static PyObject *
 Pympfr_pos(PympfrObject *x)
 {
     Py_INCREF((PyObject*)x);
-    return (PyObject *) x;
+    return (PyObject*) x;
 }
 
 static Py_hash_t
@@ -1542,11 +1474,11 @@ Pympfr_div(PyObject *self, PyObject *args)
     result->rc = mpfr_div(result->f, Pympfr_AS_MPFR(self),
                           Pympfr_AS_MPFR(other), context->now.mpfr_round);
     MERGE_FLAGS;
+    CHECK_INVALID("invalid operation in 'mpfr' division");
+    CHECK_ERANGE("range error in 'mpfr' division");
     CHECK_UNDERFLOW("underflow in 'mpfr' division");
     CHECK_OVERFLOW("overflow in 'mpfr' division");
-    CHECK_INVALID("invalid operation in 'mpfr' division");
     CHECK_INEXACT("inexact result in 'mpfr' division");
-    CHECK_ERANGE("range error in 'mpfr' division");
   done:
     Py_DECREF(self);
     Py_DECREF(other);
