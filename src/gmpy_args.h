@@ -90,13 +90,11 @@
 
 /*
  * Parses one, and only one, argument into "self" and converts it to an
- * mpf. Is faster, but not as generic, as using PyArg_ParseTuple. It
+ * mpfr. Is faster, but not as generic, as using PyArg_ParseTuple. It
  * supports either gmpy.fname(z) or z.fname(). "self" must be decref'ed.
  * "msg" should be an error message that includes the function name and
- * describes the required arguments. Replaces SELF_MPZ_NO_ARG.
+ * describes the required arguments. Replaces SELF_MPFR_NO_ARG.
  */
-
-/* TODO: possibly remove, not used anymore. */
 
 #define PARSE_ONE_MPFR(msg) \
     if(self && Pympfr_CheckAndExp(self)) {\
@@ -120,6 +118,31 @@
             PyErr_SetString(PyExc_TypeError, msg);\
             return NULL;\
         }\
+    }
+
+/*
+ * Parses one, and only one, argument into "self" and converts it to an
+ * mpfr. Is faster, but not as generic, as using PyArg_ParseTuple. It
+ * supports either gmpy.fname(z) or z.fname(). "self" must be decref'ed.
+ * "msg" should be an error message that includes the function name and
+ * describes the required arguments. It assumes the functions is declared
+ * as either METH_O or METH_NOARGS. It is faster than PARSE_ONE_MPFR and
+ * passing a tuple as args. Does not use Pympfr_CheckAndExp since that
+ * is not needed for is_nan() and friends. If "self" will be used in a
+ * computation - Do Not Use This Macro!
+ */
+
+#define PARSE_ONE_MPFR_OTHER(msg) \
+    if(self && Pympfr_Check(self)) {\
+        Py_INCREF(self);\
+    }\
+    else if(Pympfr_Check(other)) {\
+        self = other;\
+        Py_INCREF((PyObject*)self);\
+    }\
+    else if (!(self = (PyObject*)Pympfr_From_Real(other, 0))) {\
+        PyErr_SetString(PyExc_TypeError, msg);\
+        return NULL;\
     }
 
 /*
