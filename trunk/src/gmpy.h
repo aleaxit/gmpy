@@ -130,6 +130,36 @@ typedef unsigned long Py_uhash_t;
     context->now.inexact |= mpfr_inexflag_p(); \
     context->now.erange |= mpfr_erangeflag_p();
 
+#define MPFR_CLEANUP_SELF(NAME) \
+    MERGE_FLAGS; \
+    CHECK_INVALID("invalid operation in 'mpfr' "NAME); \
+    CHECK_UNDERFLOW("underflow in 'mpfr' "NAME); \
+    CHECK_OVERFLOW("overflow in 'mpfr' "NAME); \
+    CHECK_INEXACT("inexact result in 'mpfr' "NAME); \
+  done: \
+    Py_DECREF(self); \
+    if (PyErr_Occurred()) { \
+        Py_XDECREF((PyObject*)result); \
+        result = NULL; \
+    } \
+    return (PyObject*)result;
+
+#define MPFR_CLEANUP_SELF_OTHER(NAME) \
+    MERGE_FLAGS; \
+    CHECK_INVALID("invalid operation in 'mpfr' "NAME); \
+    CHECK_UNDERFLOW("underflow in 'mpfr' "NAME); \
+    CHECK_OVERFLOW("overflow in 'mpfr' "NAME); \
+    CHECK_INEXACT("inexact result in 'mpfr' "NAME); \
+  done: \
+    Py_DECREF(self); \
+    Py_DECREF(other); \
+    if (PyErr_Occurred()) { \
+        Py_XDECREF((PyObject*)result); \
+        result = NULL; \
+    } \
+    return (PyObject*)result;
+
+
 #ifdef DEBUG
 #define TRACE(msg) if(options.debug) fprintf(stderr, msg)
 #else
@@ -226,9 +256,10 @@ static PyTypeObject Pympq_Type;
 static PyTypeObject Pympfr_Type;
 #define Pympfr_Check(v) (((PyObject*)v)->ob_type == &Pympfr_Type)
 #define Pympfr_CheckAndExp(v) (Pympfr_Check(v) && \
-mpfr_regular_p(Pympfr_AS_MPFR(v)) && \
+(mpfr_zero_p(Pympfr_AS_MPFR(v)) || \
+(mpfr_regular_p(Pympfr_AS_MPFR(v)) && \
 (Pympfr_AS_MPFR(v)->_mpfr_exp >= context->now.emin) && \
-(Pympfr_AS_MPFR(v)->_mpfr_exp <= context->now.emax))
+(Pympfr_AS_MPFR(v)->_mpfr_exp <= context->now.emax))))
 
 static PyTypeObject Pympc_Type;
 #define Pympc_Check(v) (((PyObject*)v)->ob_type == &Pympc_Type)

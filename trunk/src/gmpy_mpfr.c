@@ -24,9 +24,43 @@ Pympfr_getrc_attrib(PympfrObject *self, void *closure)
 /* Implement the nb_bool slot. */
 
 static int
-Pympfr_nonzero(PympfrObject *x)
+Pympfr_nonzero(PympfrObject *self)
 {
-    return mpfr_sgn(x->f) != 0;
+    return mpfr_sgn(self->f) != 0;
+}
+
+/* Implement the nb_positive slot. */
+
+static PyObject *
+Pympfr_pos(PympfrObject *self)
+{
+    PympfrObject *result;
+
+    if (!(result = Pympfr_new(mpfr_get_prec(self->f))))
+        return NULL;
+
+    mpfr_clear_flags();
+
+    /* Since result has the same precision as self, no rounding occurs. */
+    mpfr_set(result->f, self->f, context->now.mpfr_round);
+    result->round_mode = self->round_mode;
+    result->rc = self->rc;
+    /* Force the exponents to be valid. */
+    result->rc = mpfr_check_range(result->f, result->rc, result->round_mode);
+    /* Now round result to the current precision. */
+    result->rc = mpfr_prec_round(result->f, context->now.mpfr_prec,
+                                 context->now.mpfr_round);
+
+    MERGE_FLAGS;
+    CHECK_UNDERFLOW("underflow in 'mpfr' pos");
+    CHECK_OVERFLOW("overflow in 'mpfr' pos");
+    CHECK_INEXACT("inexact result in 'mpfr' pos");
+  done:
+    if (PyErr_Occurred()) {
+        Py_XDECREF((PyObject*)result);
+        result = NULL;
+    }
+    return (PyObject*)result;
 }
 
 PyDoc_STRVAR(doc_g_mpfr_get_emin_min,
@@ -115,6 +149,30 @@ Pympfr_set_zero(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
+#define MPFR_TEST_OTHER(NAME, msg) \
+static PyObject * \
+Pympfr_is_##NAME(PyObject *self, PyObject *other)\
+{\
+    int res;\
+    if(self && Pympfr_Check(self)) {\
+        Py_INCREF(self);\
+    }\
+    else if(Pympfr_Check(other)) {\
+        self = other;\
+        Py_INCREF((PyObject*)self);\
+    }\
+    else if (!(self = (PyObject*)Pympfr_From_Real(other, 0))) {\
+        PyErr_SetString(PyExc_TypeError, msg);\
+        return NULL;\
+    }\
+    res = mpfr_##NAME##_p(Pympfr_AS_MPFR(self));\
+    Py_DECREF(self);\
+    if (res)\
+        Py_RETURN_TRUE;\
+    else\
+        Py_RETURN_FALSE;\
+}
+
 PyDoc_STRVAR(doc_mpfr_is_nan,
 "x.is_nan() -> boolean\n\n"
 "Return True if x is 'nan' (Not-A-Number), False otherwise.");
@@ -123,21 +181,7 @@ PyDoc_STRVAR(doc_g_mpfr_is_nan,
 "is_nan(x) -> boolean\n\n"
 "Return True if x is 'nan' (Not-A-Number), False otherwise.");
 
-static PyObject *
-Pympfr_is_nan(PyObject *self, PyObject *other)
-{
-    int res;
-
-    PARSE_ONE_MPFR_OTHER("is_nan() requires 'mpfr' argument");
-
-    res = mpfr_nan_p(Pympfr_AS_MPFR(self));
-    Py_DECREF(self);
-
-    if (res)
-        Py_RETURN_TRUE;
-    else
-        Py_RETURN_FALSE;
-}
+MPFR_TEST_OTHER(nan, "is_nan() requires 'mpfr' argument");
 
 PyDoc_STRVAR(doc_mpfr_is_inf,
 "x.is_inf() -> boolean\n\n"
@@ -147,21 +191,7 @@ PyDoc_STRVAR(doc_g_mpfr_is_inf,
 "is_inf(x) -> boolean\n\n"
 "Return True if x is +Infinity or -Infinity, False otherwise.");
 
-static PyObject *
-Pympfr_is_inf(PyObject *self, PyObject *other)
-{
-    int res;
-
-    PARSE_ONE_MPFR_OTHER("is_inf() requires 'mpfr' argument");
-
-    res = mpfr_inf_p(Pympfr_AS_MPFR(self));
-    Py_DECREF(self);
-
-    if (res)
-        Py_RETURN_TRUE;
-    else
-        Py_RETURN_FALSE;
-}
+MPFR_TEST_OTHER(inf, "is_inf() requires 'mpfr' argument");
 
 PyDoc_STRVAR(doc_mpfr_is_number,
 "x.is_number() -> boolean\n\n"
@@ -173,21 +203,7 @@ PyDoc_STRVAR(doc_g_mpfr_is_number,
 "Return True if x is an actual number (i.e. not NaN or Infinity),\n"
 "False otherwise.");
 
-static PyObject *
-Pympfr_is_number(PyObject *self, PyObject *other)
-{
-    int res;
-
-    PARSE_ONE_MPFR_OTHER("is_number() requires 'mpfr' argument");
-
-    res = mpfr_number_p(Pympfr_AS_MPFR(self));
-    Py_DECREF(self);
-
-    if (res)
-        Py_RETURN_TRUE;
-    else
-        Py_RETURN_FALSE;
-}
+MPFR_TEST_OTHER(number, "is_number() requires 'mpfr' argument");
 
 PyDoc_STRVAR(doc_mpfr_is_zero,
 "x.is_zero() -> boolean\n\n"
@@ -197,21 +213,7 @@ PyDoc_STRVAR(doc_g_mpfr_is_zero,
 "is_zero(x) -> boolean\n\n"
 "Return True if x is zero, False otherwise.");
 
-static PyObject *
-Pympfr_is_zero(PyObject *self, PyObject *other)
-{
-    int res;
-
-    PARSE_ONE_MPFR_OTHER("is_zero() requires 'mpfr' argument");
-
-    res = mpfr_zero_p(Pympfr_AS_MPFR(self));
-    Py_DECREF(self);
-
-    if (res)
-        Py_RETURN_TRUE;
-    else
-        Py_RETURN_FALSE;
-}
+MPFR_TEST_OTHER(zero, "is_zero() requires 'mpfr' argument");
 
 PyDoc_STRVAR(doc_mpfr_is_regular,
 "x.is_regular() -> boolean\n\n"
@@ -221,21 +223,7 @@ PyDoc_STRVAR(doc_g_mpfr_is_regular,
 "is_regular(x) -> boolean\n\n"
 "Return True if x is not zero, NaN, or Infinity, False otherwise.");
 
-static PyObject *
-Pympfr_is_regular(PyObject *self, PyObject *other)
-{
-    int res;
-
-    PARSE_ONE_MPFR_OTHER("is_regular() requires 'mpfr' argument");
-
-    res = mpfr_regular_p(Pympfr_AS_MPFR(self));
-    Py_DECREF(self);
-
-    if (res)
-        Py_RETURN_TRUE;
-    else
-        Py_RETURN_FALSE;
-}
+MPFR_TEST_OTHER(regular, "is_regular() requires 'mpfr' argument");
 
 /* produce string for an mpfr with requested/defaulted parameters */
 
@@ -411,13 +399,6 @@ f2q_internal(PympfrObject* self, PympfrObject* err, unsigned int bits, int mayz)
     return (PyObject*)res;
 }
 
-static PyObject *
-Pympfr_pos(PympfrObject *x)
-{
-    Py_INCREF((PyObject*)x);
-    return (PyObject*) x;
-}
-
 static Py_hash_t
 Pympfr_hash(PympfrObject *self)
 {
@@ -475,6 +456,8 @@ Pympfr_hash(PympfrObject *self)
 #endif
 }
 
+/* This function is used in gmpy_basic. */
+
 static PyObject *
 Pympfr2_pow(PyObject *base, PyObject *exp, PyObject *m)
 {
@@ -496,9 +479,33 @@ Pympfr2_pow(PyObject *base, PyObject *exp, PyObject *m)
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    result->rc = mpfr_pow(result->f, tempb->f, tempe->f, context->now.mpfr_round);
+    if (mpfr_zero_p(tempb->f) && (mpfr_sgn(tempe->f) < 0)) {
+        context->now.divzero = 1;
+        if (context->now.trap_divzero) {
+            GMPY_DIVZERO("zero cannot be raised to a negative power");
+            goto done;
+        }
+    }
+
+    mpfr_clear_flags();
+    result->rc = mpfr_pow(result->f, tempb->f, tempe->f,
+                          context->now.mpfr_round);
+    if (context->now.subnormalize)
+        result->rc = mpfr_subnormalize(result->f, result->rc,
+                                       context->now.mpfr_round);
+
+    MERGE_FLAGS;
+    CHECK_INVALID("invalid operation in 'mpfr' pow");
+    CHECK_UNDERFLOW("underflow in 'mpfr' pow");
+    CHECK_OVERFLOW("overflow in 'mpfr' pow");
+    CHECK_INEXACT("inexact result in 'mpfr' pow");
+  done:
     Py_DECREF((PyObject*)tempe);
     Py_DECREF((PyObject*)tempb);
+    if (PyErr_Occurred()) {
+        Py_XDECREF((PyObject*)result);
+        result = NULL;
+    }
     return (PyObject*)result;
 }
 
@@ -569,44 +576,18 @@ PyDoc_STRVAR(doc_mpfr_sqrt,
 static PyObject *
 Pympfr_sqrt(PyObject *self, PyObject *other)
 {
-    PympfrObject *result, *tempx;
+    PympfrObject *result;
+
+    PARSE_ONE_MPFR_OTHER("sqrt() requires 'mpfr' argument");
 
     if (!(result = Pympfr_new(0)))
-        return NULL;
+        goto done;
 
-    if(self && Pympfr_CheckAndExp(self)) {
-        if (!(context->now.nonstop) && mpfr_sgn(Pympfr_AS_MPFR(self)) < 0) {
-            VALUE_ERROR("sqrt() of negative number");
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        result->rc = mpfr_sqrt(result->f, Pympfr_AS_MPFR(self), context->now.mpfr_round);
-    }
-    else if (Pympfr_CheckAndExp(other)) {
-        if (!(context->now.nonstop) && mpfr_sgn(Pympfr_AS_MPFR(other)) < 0) {
-            VALUE_ERROR("sqrt() of negative number");
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        result->rc = mpfr_sqrt(result->f, Pympfr_AS_MPFR(other), context->now.mpfr_round);
-    }
-    else {
-        if (!(tempx = Pympfr_From_Real(other, 0))) {
-            TYPE_ERROR("sqrt() requires 'mpfr' argument");
-            return NULL;
-        }
-        else {
-            if (!(context->now.nonstop) && mpfr_sgn(Pympfr_AS_MPFR(tempx)) < 0) {
-                VALUE_ERROR("sqrt() of negative number");
-                Py_DECREF((PyObject*)tempx);
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-            result->rc = mpfr_sqrt(result->f, tempx->f, context->now.mpfr_round);
-            Py_DECREF((PyObject*)tempx);
-        }
-    }
-    return (PyObject*)result;
+    mpfr_clear_flags();
+    result->rc = mpfr_sqrt(result->f, Pympfr_AS_MPFR(self),
+                           context->now.mpfr_round);
+
+    MPFR_CLEANUP_SELF("sqrt()");
 }
 
 PyDoc_STRVAR(doc_mpfr_rec_sqrt,
@@ -620,44 +601,26 @@ PyDoc_STRVAR(doc_g_mpfr_rec_sqrt,
 static PyObject *
 Pympfr_rec_sqrt(PyObject *self, PyObject *other)
 {
-    PympfrObject *result, *tempx;
+    PympfrObject *result;
+
+    PARSE_ONE_MPFR_OTHER("rec_sqrt() requires 'mpfr' argument");
 
     if (!(result = Pympfr_new(0)))
-        return NULL;
+        goto done;
 
-    if(self && Pympfr_CheckAndExp(self)) {
-        if (!(context->now.nonstop) && mpfr_zero_p(Pympfr_AS_MPFR(self))) {
-            VALUE_ERROR("rec_sqrt() of zero");
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        result->rc = mpfr_rec_sqrt(result->f, Pympfr_AS_MPFR(self), context->now.mpfr_round);
-    }
-    else if (Pympfr_CheckAndExp(other)) {
-        if (!(context->now.nonstop) && mpfr_zero_p(Pympfr_AS_MPFR(other))) {
-            VALUE_ERROR("rec_sqrt() of zero");
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        result->rc = mpfr_rec_sqrt(result->f, Pympfr_AS_MPFR(other), context->now.mpfr_round);
-    }
-    else {
-        if (!(tempx = Pympfr_From_Real(other, 0))) {
-            TYPE_ERROR("rec_sqrt() requires 'mpfr' argument");
-            return NULL;
-        }
-        else {
-            if (!(context->now.nonstop) && mpfr_zero_p(Pympfr_AS_MPFR(tempx))) {
-                VALUE_ERROR("rec_sqrt() of zero");
-                Py_DECREF((PyObject*)tempx);
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-            result->rc = mpfr_rec_sqrt(result->f, tempx->f, context->now.mpfr_round);
-            Py_DECREF((PyObject*)tempx);
+    if (mpfr_zero_p(Pympfr_AS_MPFR(self))) {
+        context->now.divzero = 1;
+        if (context->now.trap_divzero) {
+            GMPY_DIVZERO("division by zero in 'mpfr' reciprocal square root");
+            goto done;
         }
     }
-    return (PyObject*)result;
+
+    mpfr_clear_flags();
+    result->rc = mpfr_rec_sqrt(result->f, Pympfr_AS_MPFR(self),
+                               context->now.mpfr_round);
+
+    MPFR_CLEANUP_SELF("rec_sqrt()");
 }
 
 PyDoc_STRVAR(doc_mpfr_root,
@@ -671,25 +634,19 @@ Pympfr_root(PyObject *self, PyObject *args)
 
     PARSE_ONE_MPFR_REQ_CLONG(&n, "root() requires 'mpfr','int' arguments");
 
+    if (!(result = Pympfr_new(0)))
+        goto done;
+
     if (n <= 0) {
         VALUE_ERROR("n must be > 0");
-        Py_DECREF(self);
-        return NULL;
-    }
-    if (!(context->now.nonstop) && !(n & 1) && mpfr_sgn(Pympfr_AS_MPFR(self))<0) {
-        VALUE_ERROR("root() of negative number");
-        Py_DECREF(self);
-        return NULL;
+        goto done;
     }
 
-    if(!(result = Pympfr_new(0))) {
-        Py_DECREF(self);
-        return NULL;
-    }
+    mpfr_clear_flags();
     result->rc = mpfr_root(result->f, Pympfr_AS_MPFR(self), n,
                            context->now.mpfr_round);
-    Py_DECREF(self);
-    return (PyObject*)result;
+
+    MPFR_CLEANUP_SELF("root()");
 }
 
 
@@ -710,13 +667,19 @@ Pympfr_round(PyObject *self, PyObject *args)
     PARSE_ONE_MPFR_OPT_CLONG(&prec,
             "round() requires 'mpfr',['int'] arguments");
 
-    if (!(result = Pympfr_new(prec))) {
-        Py_DECREF(self);
-        return NULL;
+    if (!(result = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(self))))) {
+        goto done;
     }
-    result->rc = mpfr_set(result->f, Pympfr_AS_MPFR(self), context->now.mpfr_round);
-    Py_DECREF(self);
-    return (PyObject*)result;
+
+    mpfr_clear_flags();
+    /* Duplicate the code from Pympfr_pos. */
+    mpfr_set(result->f, Pympfr_AS_MPFR(self), context->now.mpfr_round);
+    result->round_mode = ((PympfrObject*)self)->round_mode;
+    result->rc = ((PympfrObject*)self)->rc;
+    result->rc = mpfr_check_range(result->f, result->rc, result->round_mode);
+    result->rc = mpfr_prec_round(result->f, prec, context->now.mpfr_round);
+
+    MPFR_CLEANUP_SELF("round()");
 }
 
 static char doc_mpfr_reldiff[] = "\
@@ -743,6 +706,9 @@ Pympfr_reldiff(PyObject *self, PyObject *args)
         return NULL;
     }
 
+    /* mpfr_reldiff doesn't guarantee correct rounding and doesn't appear
+     * to set any exceptions.
+     */
     mpfr_reldiff(result->f, Pympfr_AS_MPFR(self), Pympfr_AS_MPFR(other),
                  context->now.mpfr_round);
     result->rc = 0;
@@ -752,32 +718,27 @@ Pympfr_reldiff(PyObject *self, PyObject *args)
 }
 
 static char doc_mpfr_sign[]="\
-x.sign(): returns -1, 0, or +1, if x is negative, 0, positive.\n\
+x.sign(): returns -1, 0, or +1, if x is negative, 0, or positive.\n\
 ";
 static PyObject *
 Pympfr_sign(PyObject *self, PyObject *other)
 {
     long sign;
 
-    PympfrObject *tempx;
+    PARSE_ONE_MPFR_OTHER("sign() requires 'mpfr' argument");
 
-    if (self && (Pympfr_Check(self))) {
-        sign = mpfr_sgn(Pympfr_AS_MPFR(self));
-    }
-    else if (Pympfr_Check(other)) {
-        sign = mpfr_sgn(Pympfr_AS_MPFR(other));
-    }
-    else {
-        if (!(tempx = Pympfr_From_Real(other, 0))) {
-            TYPE_ERROR("sign() requires 'mpfr' argument");
-            return NULL;
-        }
-        else {
-            sign = mpfr_sgn(tempx->f);
-            Py_DECREF((PyObject*)tempx);
-        }
-    }
-    return PyIntOrLong_FromLong(sign);
+    mpfr_clear_flags();
+    sign = mpfr_sgn(Pympfr_AS_MPFR(self));
+
+    MERGE_FLAGS;
+    CHECK_ERANGE("range error in 'mpfr' sign(), NaN argument");
+
+  done:
+    Py_DECREF((PyObject*)self);
+    if (PyErr_Occurred())
+        return NULL;
+    else
+        return PyIntOrLong_FromLong(sign);
 }
 
 #define MPFR_MONOP(NAME) \
@@ -1473,9 +1434,11 @@ Pympfr_div(PyObject *self, PyObject *args)
     mpfr_clear_flags();
     result->rc = mpfr_div(result->f, Pympfr_AS_MPFR(self),
                           Pympfr_AS_MPFR(other), context->now.mpfr_round);
+    if (context->now.subnormalize)
+        result->rc = mpfr_subnormalize(result->f, result->rc,
+                                       context->now.mpfr_round);
     MERGE_FLAGS;
     CHECK_INVALID("invalid operation in 'mpfr' division");
-    CHECK_ERANGE("range error in 'mpfr' division");
     CHECK_UNDERFLOW("underflow in 'mpfr' division");
     CHECK_OVERFLOW("overflow in 'mpfr' division");
     CHECK_INEXACT("inexact result in 'mpfr' division");
@@ -1483,7 +1446,7 @@ Pympfr_div(PyObject *self, PyObject *args)
     Py_DECREF(self);
     Py_DECREF(other);
     if (PyErr_Occurred()) {
-        Py_DECREF((PyObject*)result);
+        Py_XDECREF((PyObject*)result);
         result = NULL;
     }
     return (PyObject*)result;
@@ -1511,10 +1474,34 @@ Pympfr_pow(PyObject *self, PyObject *args)
         return NULL;
     }
 
+    if ((mpfr_zero_p(Pympfr_AS_MPFR(self))) &&
+        (mpfr_sgn(Pympfr_AS_MPFR(other)) < 0)) {
+        context->now.divzero = 1;
+        if (context->now.trap_divzero) {
+            GMPY_DIVZERO("zero cannot be raised to a negative power");
+            goto done;
+        }
+    }
+
+    mpfr_clear_flags();
     result->rc = mpfr_pow(result->f, Pympfr_AS_MPFR(self),
                           Pympfr_AS_MPFR(other), context->now.mpfr_round);
+
+    if (context->now.subnormalize)
+        result->rc = mpfr_subnormalize(result->f, result->rc,
+                                       context->now.mpfr_round);
+    MERGE_FLAGS;
+    CHECK_INVALID("invalid operation in 'mpfr' pow");
+    CHECK_UNDERFLOW("underflow in 'mpfr' pow");
+    CHECK_OVERFLOW("overflow in 'mpfr' pow");
+    CHECK_INEXACT("inexact result in 'mpfr' pow");
+  done:
     Py_DECREF(self);
     Py_DECREF(other);
+    if (PyErr_Occurred()) {
+        Py_XDECREF((PyObject*)result);
+        result = NULL;
+    }
     return (PyObject*)result;
 }
 
