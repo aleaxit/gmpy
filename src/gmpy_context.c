@@ -198,7 +198,7 @@ Pygmpy_new_context(PyObject *self, PyObject *args, PyObject *kwargs)
     GMPyContextObject *result;
 
     static char *kwlist[] = {
-        "subnormalize", "precision", "round", "e_max", "e_min",
+        "subnormalize", "precision", "round", "emax", "emin",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero", NULL };
 
@@ -241,6 +241,8 @@ Pygmpy_set_context(PyObject *self, PyObject *other)
         Py_INCREF((PyObject*)other);
         Py_DECREF((PyObject*)context);
         context = (GMPyContextObject*)other;
+        mpfr_set_emin(context->now.emin);
+        mpfr_set_emax(context->now.emax);
         Py_RETURN_NONE;
     }
     else {
@@ -267,6 +269,8 @@ GMPyContext_enter(PyObject *self, PyObject *args)
     ((GMPyContextObject*)self)->orig = (PyObject*)save;
     Py_DECREF((PyObject*)context);
     context = (GMPyContextObject*)self;
+    mpfr_set_emin(context->now.emin);
+    mpfr_set_emax(context->now.emax);
     Py_INCREF((PyObject*)context);
     result = context;
     Py_INCREF((PyObject*)result);
@@ -283,6 +287,8 @@ GMPyContext_exit(PyObject *self, PyObject *args)
 
     Py_DECREF((PyObject*)context);
     context = (GMPyContextObject*)(((GMPyContextObject*)self)->orig);
+    mpfr_set_emin(context->now.emin);
+    mpfr_set_emax(context->now.emax);
     ((GMPyContextObject*)self)->orig = NULL;
     Py_RETURN_NONE;
 }
@@ -561,6 +567,7 @@ GMPyContext_set_emin(GMPyContextObject *self, PyObject *value, void *closure)
         return -1;
     }
     self->now.emin = exp;
+    mpfr_set_emin(exp);
     return 0;
 }
 
@@ -589,6 +596,7 @@ GMPyContext_set_emax(GMPyContextObject *self, PyObject *value, void *closure)
         return -1;
     }
     self->now.emax = exp;
+    mpfr_set_emax(exp);
     return 0;
 }
 
