@@ -130,7 +130,19 @@ typedef unsigned long Py_uhash_t;
     context->now.inexact |= mpfr_inexflag_p(); \
     context->now.erange |= mpfr_erangeflag_p();
 
+#define CHECK_FLAGS(NAME) \
+    CHECK_INVALID("invalid operation in 'mpfr' "NAME); \
+    CHECK_UNDERFLOW("underflow in 'mpfr' "NAME); \
+    CHECK_OVERFLOW("overflow in 'mpfr' "NAME); \
+    CHECK_INEXACT("inexact result in 'mpfr' "NAME); \
+
+#define SUBNORMALIZE(NAME) \
+    if (context->now.subnormalize) \
+        NAME->rc = mpfr_subnormalize(NAME->f, NAME->rc, context->now.mpfr_round);
+
+
 #define MPFR_CLEANUP_SELF(NAME) \
+    SUBNORMALIZE(result); \
     MERGE_FLAGS; \
     CHECK_INVALID("invalid operation in 'mpfr' "NAME); \
     CHECK_UNDERFLOW("underflow in 'mpfr' "NAME); \
@@ -145,6 +157,7 @@ typedef unsigned long Py_uhash_t;
     return (PyObject*)result;
 
 #define MPFR_CLEANUP_SELF_OTHER(NAME) \
+    SUBNORMALIZE(result); \
     MERGE_FLAGS; \
     CHECK_INVALID("invalid operation in 'mpfr' "NAME); \
     CHECK_UNDERFLOW("underflow in 'mpfr' "NAME); \
