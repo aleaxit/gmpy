@@ -224,6 +224,16 @@ PyDoc_STRVAR(doc_g_mpfr_is_regular,
 
 MPFR_TEST_OTHER(regular, "is_regular() requires 'mpfr' argument");
 
+PyDoc_STRVAR(doc_mpfr_is_integer,
+"x.is_integer() -> boolean\n\n"
+"Return True if x is an integer, False otherwise.");
+
+PyDoc_STRVAR(doc_g_mpfr_is_integer,
+"is_integer(x) -> boolean\n\n"
+"Return True if x is an integer, False otherwise.");
+
+MPFR_TEST_OTHER(integer, "is_integer() requires 'mpfr' argument");
+
 /* produce string for an mpfr with requested/defaulted parameters */
 
 PyDoc_STRVAR(doc_mpfr_digits,
@@ -624,12 +634,11 @@ Pympfr_root(PyObject *self, PyObject *args)
 
 static char doc_mpfr_round[] = "\
 x.round(n): returns x rounded to n bits. Uses default precision if\n\
-n is not specified.\n\
-";
+n is not specified. See round2() to access the mpfr_round() function.";
 static char doc_g_mpfr_round[] = "\
 round(x, n): returns x rounded to n bits. Uses default precision\n\
-if n is not specified.\n\
-";
+if n is not specified. See round2() to access the mpfr_round()\n\
+function.";
 static PyObject *
 Pympfr_round(PyObject *self, PyObject *args)
 {
@@ -784,6 +793,26 @@ x must be an mpfr, or else gets coerced to one.\n\
 
 MPFR_UNIOP_NOROUND(trunc)
 
+static char doc_mpfr_round2[]="\
+x.round2(): returns an mpfr that is x rounded to the nearest\n\
+integer, with ties rounded away from 0.";
+static char doc_g_mpfr_round2[]="\
+round2(x): returns an mpfr that is x rounded to the nearest integer,\n\
+with ties rounded away from 0.";
+
+static PyObject *
+Pympfr_round2(PyObject* self, PyObject *other)
+{
+    PympfrObject *result;
+
+    PARSE_ONE_MPFR_OTHER("round2() requires 'mpfr' argument");
+    if (!(result = Pympfr_new(0)))
+        goto done;
+    mpfr_clear_flags();
+    result->rc = mpfr_round(result->f, Pympfr_AS_MPFR(self));
+    MPFR_CLEANUP_SELF("round2()");
+}
+
 #define MPFR_UNIOP(NAME) \
 static PyObject * \
 Pympfr_##NAME(PyObject* self, PyObject *other) \
@@ -794,6 +823,128 @@ Pympfr_##NAME(PyObject* self, PyObject *other) \
     mpfr_clear_flags(); \
     result->rc = mpfr_##NAME(result->f, Pympfr_AS_MPFR(self), context->now.mpfr_round); \
     MPFR_CLEANUP_SELF(#NAME "()"); \
+}
+
+PyDoc_STRVAR(doc_mpfr_rint,
+"x.rint() -> mpfr\n\n"
+"Return x rounded to the nearest integer using the current rounding\n"
+"mode.");
+PyDoc_STRVAR(doc_g_mpfr_rint,
+"rint(x) -> mpfr\n\n"
+"Return x rounded to the nearest integer using the current rounding\n"
+"mode.");
+
+MPFR_UNIOP(rint)
+
+PyDoc_STRVAR(doc_mpfr_rint_ceil,
+"x.rint_ceil() -> mpfr\n\n"
+"Return x rounded to the nearest integer by first rounding to the next\n"
+"higher or equal integer and then, if needed, using the current\n"
+"rounding mode.");
+PyDoc_STRVAR(doc_g_mpfr_rint_ceil,
+"rint_ceil(x) -> mpfr\n\n"
+"Return x rounded to the nearest integer by first rounding to the next\n"
+"higher or equal integer and then, if needed, using the current\n"
+"rounding mode.");
+
+MPFR_UNIOP(rint_ceil)
+
+PyDoc_STRVAR(doc_mpfr_rint_floor,
+"x.rint_floor() -> mpfr\n\n"
+"Return x rounded to the nearest integer by first rounding to the next\n"
+"lower or equal integer and then, if needed, using the current\n"
+"rounding mode.");
+PyDoc_STRVAR(doc_g_mpfr_rint_floor,
+"rint_floor(x) -> mpfr\n\n"
+"Return x rounded to the nearest integer by first rounding to the next\n"
+"lower or equal integer and then, if needed, using the current\n"
+"rounding mode.");
+
+MPFR_UNIOP(rint_floor)
+
+PyDoc_STRVAR(doc_mpfr_rint_round,
+"x.rint_round() -> mpfr\n\n"
+"Return x rounded to the nearest integer by first rounding to the\n"
+"nearest integer (ties away from 0) and then, if needed, using\n"
+"the current rounding mode.");
+PyDoc_STRVAR(doc_g_mpfr_rint_round,
+"rint_round(x) -> mpfr\n\n"
+"Return x rounded to the nearest integer by first rounding to the\n"
+"nearest integer (ties away from 0) and then, if needed, using\n"
+"the current rounding mode.");
+
+MPFR_UNIOP(rint_round)
+
+PyDoc_STRVAR(doc_mpfr_rint_trunc,
+"x.rint_trunc() -> mpfr\n\n"
+"Return x rounded to the nearest integer by first rounding towards\n"
+"zero and then, if needed, using the current rounding mode.");
+PyDoc_STRVAR(doc_g_mpfr_rint_trunc,
+"rint_trunc(x) -> mpfr\n\n"
+"Return x rounded to the nearest integer by first rounding towards\n"
+"zero and then, if needed, using the current rounding mode.");
+
+MPFR_UNIOP(rint_trunc)
+
+PyDoc_STRVAR(doc_mpfr_frac,
+"x.frac() -> mpfr\n\n"
+"Return fractional part of x.");
+PyDoc_STRVAR(doc_g_mpfr_frac,
+"frac(x) -> mpfr\n\n"
+"Return fractional part of x.");
+
+MPFR_UNIOP(frac)
+
+PyDoc_STRVAR(doc_mpfr_modf,
+"x.modf() -> (mpfr, mpfr)\n\n"
+"Return a tuple containing the integer and fractional portions\n"
+"of x.");
+
+PyDoc_STRVAR(doc_g_mpfr_modf,
+"modf(x) -> (mpfr, mpfr)\n\n"
+"Return a tuple containing the integer and fractional portions\n"
+"of x.");
+
+static PyObject *
+Pympfr_modf(PyObject *self, PyObject *other)
+{
+    PympfrObject *s, *c;
+    PyObject *result;
+    int code;
+
+    PARSE_ONE_MPFR_OTHER("modf() requires 'mpfr' argument");
+
+    s = Pympfr_new(0);
+    c = Pympfr_new(0);
+    result = PyTuple_New(2);
+    if (!s || !c || !result)
+        goto done;
+
+    mpfr_clear_flags();
+    code = mpfr_modf(s->f, c->f, Pympfr_AS_MPFR(self),
+                     context->now.mpfr_round);
+    s->rc = code & 0x03;
+    c->rc = code >> 2;
+    if (s->rc == 2) s->rc = -1;
+    if (c->rc == 2) c->rc = -1;
+    SUBNORMALIZE(s);
+    SUBNORMALIZE(c);
+    MERGE_FLAGS;
+    CHECK_FLAGS("modf()");
+
+  done:
+    Py_DECREF(self);
+    if (PyErr_Occurred()) {
+        Py_XDECREF((PyObject*)s);
+        Py_XDECREF((PyObject*)c);
+        Py_XDECREF(result);
+        result = NULL;
+    }
+    else {
+        PyTuple_SET_ITEM(result, 0, (PyObject*)s);
+        PyTuple_SET_ITEM(result, 1, (PyObject*)c);
+    }
+    return result;
 }
 
 PyDoc_STRVAR(doc_mpfr_sqr,
@@ -1365,6 +1516,120 @@ Pympfr_div(PyObject *self, PyObject *args)
     result->rc = mpfr_div(result->f, Pympfr_AS_MPFR(self),
                           Pympfr_AS_MPFR(other), context->now.mpfr_round);
     MPFR_CLEANUP_SELF_OTHER("div()");
+}
+
+PyDoc_STRVAR(doc_mpfr_fmod2,
+"x.fmod2(y) -> mpfr\n\n"
+"Return x - n * y where n is the integer quotient of x/y, rounded to 0.");
+
+PyDoc_STRVAR(doc_g_mpfr_fmod2,
+"fmod2(x, y) -> mpfr\n\n"
+"Return x - n * y where n is the integer quotient of x/y, rounded to 0.");
+
+static PyObject *
+Pympfr_fmod2(PyObject *self, PyObject *args)
+{
+    PympfrObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPFR(other, "fmod2() requires 'mpfr','mpfr' arguments");
+
+    if (!(result = Pympfr_new(0)))
+        goto done;
+
+    if (mpfr_zero_p(Pympfr_AS_MPFR(other))) {
+        context->now.divzero = 1;
+        if (context->now.trap_divzero) {
+            GMPY_DIVZERO("'mpfr' division by zero");
+            goto done;
+        }
+    }
+
+    mpfr_clear_flags();
+    result->rc = mpfr_fmod(result->f, Pympfr_AS_MPFR(self),
+                           Pympfr_AS_MPFR(other), context->now.mpfr_round);
+    MPFR_CLEANUP_SELF_OTHER("fmod2()");
+}
+
+PyDoc_STRVAR(doc_mpfr_remainder,
+"x.remainder(y) -> mpfr\n\n"
+"Return x - n * y where n is the integer quotient of x/y, rounded to\n"
+"the nearest integer and ties rounded to even.");
+
+PyDoc_STRVAR(doc_g_mpfr_remainder,
+"remainder(x, y) -> mpfr\n\n"
+"Return x - n * y where n is the integer quotient of x/y, rounded to\n"
+"the nearest integer and ties rounded to even.");
+
+static PyObject *
+Pympfr_remainder(PyObject *self, PyObject *args)
+{
+    PympfrObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPFR(other, "remainder() requires 'mpfr','mpfr' arguments");
+
+    if (!(result = Pympfr_new(0)))
+        goto done;
+
+    if (mpfr_zero_p(Pympfr_AS_MPFR(other))) {
+        context->now.divzero = 1;
+        if (context->now.trap_divzero) {
+            GMPY_DIVZERO("'mpfr' remainder by zero");
+            goto done;
+        }
+    }
+
+    mpfr_clear_flags();
+    result->rc = mpfr_remainder(result->f, Pympfr_AS_MPFR(self),
+                                Pympfr_AS_MPFR(other), context->now.mpfr_round);
+    MPFR_CLEANUP_SELF_OTHER("remainder()");
+}
+
+PyDoc_STRVAR(doc_mpfr_remquo,
+"x.remquo() -> (mpfr, int)\n\n"
+"Return a 2-tuple containing the remainder(x,y) and the low bits of the\n"
+"quotient.");
+
+PyDoc_STRVAR(doc_g_mpfr_remquo,
+"remquo(x) -> (mpfr, int)\n\n"
+"Return a 2-tuple containing the remainder(x,y) and the low bits of the\n"
+"quotient.");
+
+static PyObject *
+Pympfr_remquo(PyObject* self, PyObject *args)
+{
+    PyObject *result, *other;
+    PympfrObject *value;
+    long quobits = 0;
+
+    PARSE_TWO_MPFR(other, "remquo() requires 'mpfr', 'mpfr' argument");
+
+    value = Pympfr_new(0);
+    result = PyTuple_New(2);
+    if (!value || !result)
+        goto done;
+
+    mpfr_clear_flags();
+    value->rc = mpfr_remquo(value->f, &quobits, Pympfr_AS_MPFR(self),
+                            Pympfr_AS_MPFR(other), context->now.mpfr_round);
+    SUBNORMALIZE(value);
+    MERGE_FLAGS;
+    CHECK_FLAGS("remquo()");
+
+  done:
+    Py_DECREF(self);
+    Py_DECREF(other);
+    if (PyErr_Occurred()) {
+        Py_XDECREF(result);
+        Py_XDECREF((PyObject*)value);
+        result = NULL;
+    }
+    else {
+        PyTuple_SET_ITEM(result, 0, (PyObject*)value);
+        PyTuple_SET_ITEM(result, 1, PyIntOrLong_FromLong(quobits));
+    }
+    return result;
 }
 
 PyDoc_STRVAR(doc_mpfr_pow,
