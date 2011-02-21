@@ -379,7 +379,8 @@ Pygmpy_fdiv(PyObject *self, PyObject *args)
 
 static char doc_fmodg[]="\
 fmod(x,y): returns the remainder of x divided by y. The remainder will\n\
-have the same sign as y. x and y must be integers.\n\
+have the same sign as y. x and y must be integers. See fmod2() to \n\
+access mpfr_fmod().\
 ";
 
 static PyObject *
