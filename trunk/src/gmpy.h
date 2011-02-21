@@ -172,6 +172,26 @@ typedef unsigned long Py_uhash_t;
     } \
     return (PyObject*)result;
 
+#define MPFR_CLEANUP_RF(NAME) \
+    SUBNORMALIZE(rf); \
+    MERGE_FLAGS; \
+    if (mpfr_underflow_p() && context->now.trap_underflow) { \
+        GMPY_UNDERFLOW("underflow in 'mpfr' " #NAME); \
+        Py_DECREF((PyObject*)rf); \
+        return NULL; \
+    } \
+    if (mpfr_overflow_p() && context->now.trap_overflow) { \
+        GMPY_OVERFLOW("overflow in 'mpfr' " #NAME); \
+        Py_DECREF((PyObject*)rf); \
+        return NULL; \
+    } \
+    if (mpfr_inexflag_p() && context->now.trap_inexact) { \
+        GMPY_INEXACT("inexact result in 'mpfr' " #NAME); \
+        Py_DECREF((PyObject*)rf); \
+        return NULL; \
+    } \
+    return (PyObject*)rf;
+
 
 #ifdef DEBUG
 #define TRACE(msg) if(options.debug) fprintf(stderr, msg)
@@ -283,7 +303,6 @@ static PyTypeObject Pyxmpz_Type;
 #define CHECK_MPZANY(v) (Pympz_Check(v) || Pyxmpz_Check(v))
 
 typedef struct {
-    int nonstop;             /* use Python vs. MPFR approach to errors */
     int subnormalize;        /* if 1, subnormalization is performed */
     mpfr_prec_t mpfr_prec;   /* current precision in bits, for MPFR */
     mpfr_prec_t mpc_rprec;   /* current precision in bits, for Re(MPC) */
