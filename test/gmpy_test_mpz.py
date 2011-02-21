@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('_'), dir(_g))
-['Default', 'RoundAwayZero', 'RoundDown', 'RoundToNearest', 'RoundToZero', 'RoundUp', 'acos', 'acosh', 'add', 'agm', 'ai', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'cbrt', 'cdiv', 'cdiv2exp', 'cdivmod', 'cdivmod2exp', 'ceil', 'check_range', 'cmod', 'cmod2exp', 'comb', 'const_catalan', 'const_euler', 'const_log2', 'const_pi', 'context', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'denom', 'digamma', 'digits', 'div', 'divexact', 'divm', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'fac', 'factorial', 'fdiv', 'fdiv2exp', 'fdivmod', 'fdivmod2exp', 'fib', 'fib2', 'floor', 'fma', 'fmod', 'fmod2exp', 'fms', 'gamma', 'gcd', 'gcdext', 'get_cache', 'get_emax_max', 'get_emin_min', 'get_max_precision', 'hamdist', 'hypot', 'inf', 'invert', 'is_even', 'is_inf', 'is_lessgreater', 'is_nan', 'is_number', 'is_odd', 'is_power', 'is_prime', 'is_regular', 'is_square', 'is_unordered', 'is_zero', 'j0', 'j1', 'jacobi', 'jn', 'kronecker', 'lcm', 'legendre', 'lgamma', 'li2', 'license', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'lucas', 'lucas2', 'max', 'min', 'mp_limbsize', 'mp_version', 'mpc', 'mpc_version', 'mpfr', 'mpfr_version', 'mpq', 'mpz', 'mul', 'nan', 'new_context', 'next_above', 'next_below', 'next_prime', 'next_toward', 'numdigits', 'numer', 'pack', 'popcount', 'pow', 'qdiv', 'rec_sqrt', 'reldiff', 'remove', 'root', 'rootrem', 'round', 'sec', 'sech', 'set_cache', 'set_context', 'set_debug', 'sign', 'sin', 'sin_cos', 'sinh', 'sinh_cosh', 'sqrt', 'sqrtrem', 'square', 'sub', 'tan', 'tanh', 'tdiv', 'tdiv2exp', 'tdivmod', 'tdivmod2exp', 'tmod', 'tmod2exp', 'trunc', 'unpack', 'version', 'xbit_mask', 'xmpz', 'y0', 'y1', 'yn', 'zero', 'zeta']
+['Default', 'DivisionByZeroError', 'InexactError', 'InvalidOperationError', 'OverflowError', 'RangeError', 'RoundAwayZero', 'RoundDown', 'RoundToNearest', 'RoundToZero', 'RoundUp', 'UnderflowError', 'acos', 'acosh', 'add', 'agm', 'ai', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'cbrt', 'cdiv', 'cdiv2exp', 'cdivmod', 'cdivmod2exp', 'ceil', 'check_range', 'cmod', 'cmod2exp', 'comb', 'const_catalan', 'const_euler', 'const_log2', 'const_pi', 'context', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'denom', 'digamma', 'digits', 'div', 'divexact', 'divm', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'fac', 'factorial', 'fdiv', 'fdiv2exp', 'fdivmod', 'fdivmod2exp', 'fib', 'fib2', 'floor', 'fma', 'fmod', 'fmod2exp', 'fms', 'gamma', 'gcd', 'gcdext', 'get_cache', 'get_emax_max', 'get_emin_min', 'get_max_precision', 'hamdist', 'hypot', 'inf', 'invert', 'is_even', 'is_inf', 'is_lessgreater', 'is_nan', 'is_number', 'is_odd', 'is_power', 'is_prime', 'is_regular', 'is_square', 'is_unordered', 'is_zero', 'j0', 'j1', 'jacobi', 'jn', 'kronecker', 'lcm', 'legendre', 'lgamma', 'li2', 'license', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'lucas', 'lucas2', 'max', 'min', 'mp_limbsize', 'mp_version', 'mpc', 'mpc_version', 'mpfr', 'mpfr_version', 'mpq', 'mpz', 'mul', 'nan', 'new_context', 'next_above', 'next_below', 'next_prime', 'next_toward', 'numdigits', 'numer', 'pack', 'popcount', 'pow', 'qdiv', 'rec_sqrt', 'reldiff', 'remove', 'root', 'rootrem', 'round', 'sec', 'sech', 'set_cache', 'set_context', 'set_debug', 'sign', 'sin', 'sin_cos', 'sinh', 'sinh_cosh', 'sqrt', 'sqrtrem', 'square', 'sub', 'tan', 'tanh', 'tdiv', 'tdiv2exp', 'tdivmod', 'tdivmod2exp', 'tmod', 'tmod2exp', 'trunc', 'unpack', 'version', 'xbit_mask', 'xmpz', 'y0', 'y1', 'yn', 'zero', 'zeta']
 >>> filter(lambda x: not x.startswith('__'), dir(a))
 ['_copy', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'cdiv', 'cdiv2exp', 'cmod', 'cmod2exp', 'comb', 'digits', 'divexact', 'fdiv', 'fdiv2exp', 'fmod', 'fmod2exp', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'sign', 'sqrt', 'sqrtrem', 'tdiv', 'tdiv2exp', 'tmod', 'tmod2exp']
 >>>
@@ -281,7 +281,7 @@ mpz(1000000000000000000000L)
 
 __test__['special'] = \
 r'''
->>> _g.context().nonstop == False
+>>> _g.context().trap_divzero == False
 True
 >>> a == float('Inf')
 False
@@ -427,12 +427,12 @@ mpfr('inf')
 mpfr('nan')
 >>> float('nan') / a
 mpfr('nan')
->>> _g.context().nonstop = False
+>>> _g.context().trap_divzero = True
 >>> float('nan') / _g.mpz(0)
 Traceback (most recent call last):
   ...
-ZeroDivisionError: mpfr division by zero
->>> _g.context().nonstop = True
+DivisionByZeroError: 'mpfr' division by zero
+>>> _g.context().trap_divzero = False
 >>> float('nan') / _g.mpz(0)
 mpfr('nan')
 >>> divmod(a, float('Inf'))
@@ -489,7 +489,7 @@ ZeroDivisionError: mpz modulo by zero
 Traceback (most recent call last):
   ...
 ZeroDivisionError: mpz modulo by zero
->>> _g.context().nonstop = False
+>>> _g.context().trap_divzero = False
 '''
 
 __test__['bitops']=\

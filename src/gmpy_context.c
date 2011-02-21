@@ -37,7 +37,6 @@ GMPyContext_new(void)
     GMPyContextObject *self;
 
     if ((self = PyObject_New(GMPyContextObject, &GMPyContext_Type))) {
-        self->now.nonstop = 0;
         self->now.subnormalize = 0;
         self->now.mpfr_prec = DBL_MANT_DIG;
         self->now.mpc_rprec = -1;
@@ -93,12 +92,11 @@ GMPyContext_repr(GMPyContextObject *self)
     PyObject *tuple;
     PyObject *result = NULL;
 
-    tuple = PyTuple_New(22);
+    tuple = PyTuple_New(21);
     if (!tuple) return NULL;
 
     format = Py2or3String_FromString(
-            "context(nonstop=%s,\n"
-            "        subnormalize=%s,\n"
+            "context(subnormalize=%s,\n"
             "        precision=%s, mpc_rprec=%s, mpc_iprec=%s,\n"
             "        round=%s, mpc_rround=%s, mpc_iround=%s,\n"
             "        emax=%s, emin=%s,\n"
@@ -111,37 +109,36 @@ GMPyContext_repr(GMPyContextObject *self)
             );
     if (!format) return NULL;
 
-    PyTuple_SET_ITEM(tuple, 0, PyBool_FromLong(self->now.nonstop));
-    PyTuple_SET_ITEM(tuple, 1, PyBool_FromLong(self->now.subnormalize));
-    PyTuple_SET_ITEM(tuple, 2, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpfr_prec)));
+    PyTuple_SET_ITEM(tuple, 0, PyBool_FromLong(self->now.subnormalize));
+    PyTuple_SET_ITEM(tuple, 1, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpfr_prec)));
 
     if (self->now.mpc_rprec == GMPY_DEFAULT)
-        PyTuple_SET_ITEM(tuple, 3, Py2or3String_FromString("Default"));
+        PyTuple_SET_ITEM(tuple, 2, Py2or3String_FromString("Default"));
     else
-        PyTuple_SET_ITEM(tuple, 3, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpc_rprec)));
+        PyTuple_SET_ITEM(tuple, 2, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpc_rprec)));
 
     if (self->now.mpc_iprec == GMPY_DEFAULT)
-        PyTuple_SET_ITEM(tuple, 4, Py2or3String_FromString("Default"));
+        PyTuple_SET_ITEM(tuple, 3, Py2or3String_FromString("Default"));
     else
-        PyTuple_SET_ITEM(tuple, 4, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpc_iprec)));
+        PyTuple_SET_ITEM(tuple, 3, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpc_iprec)));
 
-    PyTuple_SET_ITEM(tuple, 5, _round_to_name(self->now.mpfr_round));
-    PyTuple_SET_ITEM(tuple, 6, _round_to_name(self->now.mpc_rround));
-    PyTuple_SET_ITEM(tuple, 7, _round_to_name(self->now.mpc_iround));
-    PyTuple_SET_ITEM(tuple, 8, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emax)));
-    PyTuple_SET_ITEM(tuple, 9, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emin)));
-    PyTuple_SET_ITEM(tuple, 10, PyBool_FromLong(self->now.trap_underflow));
-    PyTuple_SET_ITEM(tuple, 11, PyBool_FromLong(self->now.underflow));
-    PyTuple_SET_ITEM(tuple, 12, PyBool_FromLong(self->now.trap_overflow));
-    PyTuple_SET_ITEM(tuple, 13, PyBool_FromLong(self->now.overflow));
-    PyTuple_SET_ITEM(tuple, 14, PyBool_FromLong(self->now.trap_inexact));
-    PyTuple_SET_ITEM(tuple, 15, PyBool_FromLong(self->now.inexact));
-    PyTuple_SET_ITEM(tuple, 16, PyBool_FromLong(self->now.trap_invalid));
-    PyTuple_SET_ITEM(tuple, 17, PyBool_FromLong(self->now.invalid));
-    PyTuple_SET_ITEM(tuple, 18, PyBool_FromLong(self->now.trap_erange));
-    PyTuple_SET_ITEM(tuple, 19, PyBool_FromLong(self->now.erange));
-    PyTuple_SET_ITEM(tuple, 20, PyBool_FromLong(self->now.trap_divzero));
-    PyTuple_SET_ITEM(tuple, 21, PyBool_FromLong(self->now.divzero));
+    PyTuple_SET_ITEM(tuple, 4, _round_to_name(self->now.mpfr_round));
+    PyTuple_SET_ITEM(tuple, 5, _round_to_name(self->now.mpc_rround));
+    PyTuple_SET_ITEM(tuple, 6, _round_to_name(self->now.mpc_iround));
+    PyTuple_SET_ITEM(tuple, 7, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emax)));
+    PyTuple_SET_ITEM(tuple, 8, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emin)));
+    PyTuple_SET_ITEM(tuple, 9, PyBool_FromLong(self->now.trap_underflow));
+    PyTuple_SET_ITEM(tuple, 10, PyBool_FromLong(self->now.underflow));
+    PyTuple_SET_ITEM(tuple, 11, PyBool_FromLong(self->now.trap_overflow));
+    PyTuple_SET_ITEM(tuple, 12, PyBool_FromLong(self->now.overflow));
+    PyTuple_SET_ITEM(tuple, 13, PyBool_FromLong(self->now.trap_inexact));
+    PyTuple_SET_ITEM(tuple, 14, PyBool_FromLong(self->now.inexact));
+    PyTuple_SET_ITEM(tuple, 15, PyBool_FromLong(self->now.trap_invalid));
+    PyTuple_SET_ITEM(tuple, 16, PyBool_FromLong(self->now.invalid));
+    PyTuple_SET_ITEM(tuple, 17, PyBool_FromLong(self->now.trap_erange));
+    PyTuple_SET_ITEM(tuple, 18, PyBool_FromLong(self->now.erange));
+    PyTuple_SET_ITEM(tuple, 19, PyBool_FromLong(self->now.trap_divzero));
+    PyTuple_SET_ITEM(tuple, 20, PyBool_FromLong(self->now.divzero));
 
     if (!PyErr_Occurred())
         result = Py2or3String_Format(format, tuple);
@@ -176,8 +173,6 @@ PyDoc_STRVAR(doc_new_context,
 "new_context() -> context\n\n"
 "Return a new context manager controlling MPFR and MPC\n"
 "arithmetic.\n\n"
-"    nonstop:      if True, return nan or inf\n"
-"                  if False, raise exception\n"
 "    subnormalize: if True, subnormalized results can be returned\n"
 "    precision:    precision, in bits, of an MPFR result\n"
 "    mpc_rprec:    precision, in bits, of Re(MPC)\n"
@@ -327,7 +322,6 @@ GMPyContext_set_##NAME(GMPyContextObject *self, PyObject *value, void *closure) 
     return 0; \
 }
 
-GETSET_BOOLEAN(nonstop);
 GETSET_BOOLEAN(subnormalize);
 GETSET_BOOLEAN(underflow);
 GETSET_BOOLEAN(overflow);
@@ -606,7 +600,6 @@ GMPyContext_set_emax(GMPyContextObject *self, PyObject *value, void *closure)
         (setter)GMPyContext_set_##NAME, NULL, NULL}
 
 static PyGetSetDef GMPyContext_getseters[] = {
-    ADD_GETSET(nonstop),
     ADD_GETSET(subnormalize),
     ADD_GETSET(precision),
     ADD_GETSET(mpc_rprec),

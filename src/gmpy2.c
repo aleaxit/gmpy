@@ -4561,6 +4561,18 @@ PyMODINIT_FUNC initgmpy2(void)
     PyModule_AddIntConstant(gmpy_module, "RoundDown", MPFR_RNDD);
     PyModule_AddIntConstant(gmpy_module, "RoundAwayZero", MPFR_RNDA);
     PyModule_AddIntConstant(gmpy_module, "Default", GMPY_DEFAULT);
+    Py_INCREF(GMPyExc_DivZero);
+    PyModule_AddObject(gmpy_module, "DivisionByZeroError", GMPyExc_DivZero);
+    Py_INCREF(GMPyExc_Inexact);
+    PyModule_AddObject(gmpy_module, "InexactError", GMPyExc_Inexact);
+    Py_INCREF(GMPyExc_Invalid);
+    PyModule_AddObject(gmpy_module, "InvalidOperationError", GMPyExc_Invalid);
+    Py_INCREF(GMPyExc_Overflow);
+    PyModule_AddObject(gmpy_module, "OverflowError", GMPyExc_Overflow);
+    Py_INCREF(GMPyExc_Underflow);
+    PyModule_AddObject(gmpy_module, "UnderflowError", GMPyExc_Underflow);
+    Py_INCREF(GMPyExc_Erange);
+    PyModule_AddObject(gmpy_module, "RangeError", GMPyExc_Erange);
 
 #ifdef DEBUG
     if (global.debug)
