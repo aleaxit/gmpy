@@ -2,9 +2,9 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> list(filter(lambda x: not x.startswith('_'), dir(_g)))
-['Default', 'DivisionByZeroError', 'InexactError', 'InvalidOperationError', 'OverflowError', 'RangeError', 'RoundAwayZero', 'RoundDown', 'RoundToNearest', 'RoundToZero', 'RoundUp', 'UnderflowError', 'acos', 'acosh', 'add', 'agm', 'ai', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'cbrt', 'cdiv', 'cdiv2exp', 'cdivmod', 'cdivmod2exp', 'ceil', 'check_range', 'cmod', 'cmod2exp', 'comb', 'const_catalan', 'const_euler', 'const_log2', 'const_pi', 'context', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'denom', 'digamma', 'digits', 'div', 'divexact', 'divm', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'fac', 'factorial', 'fdiv', 'fdiv2exp', 'fdivmod', 'fdivmod2exp', 'fib', 'fib2', 'floor', 'fma', 'fmod', 'fmod2', 'fmod2exp', 'fms', 'frac', 'gamma', 'gcd', 'gcdext', 'get_cache', 'get_emax_max', 'get_emin_min', 'get_max_precision', 'hamdist', 'hypot', 'inf', 'invert', 'is_even', 'is_inf', 'is_integer', 'is_lessgreater', 'is_nan', 'is_number', 'is_odd', 'is_power', 'is_prime', 'is_regular', 'is_square', 'is_unordered', 'is_zero', 'j0', 'j1', 'jacobi', 'jn', 'kronecker', 'lcm', 'legendre', 'lgamma', 'li2', 'license', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'lucas', 'lucas2', 'max', 'min', 'modf', 'mp_limbsize', 'mp_version', 'mpc', 'mpc_version', 'mpfr', 'mpfr_version', 'mpq', 'mpz', 'mul', 'nan', 'new_context', 'next_above', 'next_below', 'next_prime', 'next_toward', 'numdigits', 'numer', 'pack', 'popcount', 'pow', 'qdiv', 'rec_sqrt', 'reldiff', 'remainder', 'remove', 'remquo', 'rint', 'rint_ceil', 'rint_floor', 'rint_round', 'rint_trunc', 'root', 'rootrem', 'round', 'round2', 'sec', 'sech', 'set_cache', 'set_context', 'set_debug', 'sign', 'sin', 'sin_cos', 'sinh', 'sinh_cosh', 'sqrt', 'sqrtrem', 'square', 'sub', 'tan', 'tanh', 'tdiv', 'tdiv2exp', 'tdivmod', 'tdivmod2exp', 'tmod', 'tmod2exp', 'trunc', 'unpack', 'version', 'xbit_mask', 'xmpz', 'y0', 'y1', 'yn', 'zero', 'zeta']
+['Default', 'DivisionByZeroError', 'InexactError', 'InvalidOperationError', 'OverflowError', 'RangeError', 'RoundAwayZero', 'RoundDown', 'RoundToNearest', 'RoundToZero', 'RoundUp', 'UnderflowError', 'acos', 'acosh', 'add', 'agm', 'ai', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'c_div', 'c_div_2exp', 'c_divmod', 'c_divmod_2exp', 'c_mod', 'c_mod_2exp', 'cbrt', 'ceil', 'check_range', 'comb', 'const_catalan', 'const_euler', 'const_log2', 'const_pi', 'context', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'denom', 'digamma', 'digits', 'div', 'divexact', 'divm', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'f_div', 'f_div_2exp', 'f_divmod', 'f_divmod_2exp', 'f_mod', 'f_mod_2exp', 'fac', 'factorial', 'fib', 'fib2', 'floor', 'fma', 'fmod', 'fms', 'frac', 'gamma', 'gcd', 'gcdext', 'get_cache', 'get_emax_max', 'get_emin_min', 'get_max_precision', 'hamdist', 'hypot', 'inf', 'invert', 'is_even', 'is_inf', 'is_integer', 'is_lessgreater', 'is_nan', 'is_number', 'is_odd', 'is_power', 'is_prime', 'is_regular', 'is_square', 'is_unordered', 'is_zero', 'j0', 'j1', 'jacobi', 'jn', 'kronecker', 'lcm', 'legendre', 'lgamma', 'li2', 'license', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'lucas', 'lucas2', 'max', 'min', 'modf', 'mp_limbsize', 'mp_version', 'mpc', 'mpc_version', 'mpfr', 'mpfr_version', 'mpq', 'mpz', 'mul', 'nan', 'new_context', 'next_above', 'next_below', 'next_prime', 'next_toward', 'numdigits', 'numer', 'pack', 'popcount', 'pow', 'qdiv', 'rec_sqrt', 'reldiff', 'remainder', 'remove', 'remquo', 'rint', 'rint_ceil', 'rint_floor', 'rint_round', 'rint_trunc', 'root', 'rootrem', 'round', 'round2', 'sec', 'sech', 'set_cache', 'set_context', 'set_debug', 'sign', 'sin', 'sin_cos', 'sinh', 'sinh_cosh', 'sqrt', 'sqrtrem', 'square', 'sub', 't_div', 't_div_2exp', 't_divmod', 't_divmod_2exp', 't_mod', 't_mod_2exp', 'tan', 'tanh', 'trunc', 'unpack', 'version', 'xbit_mask', 'xmpz', 'y0', 'y1', 'yn', 'zero', 'zeta']
 >>> dir(a)
-['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__iadd__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__', '__index__', '__init__', '__int__', '__invert__', '__ipow__', '__irshift__', '__isub__', '__le__', '__len__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', '_copy', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'cdiv', 'cdiv2exp', 'cmod', 'cmod2exp', 'comb', 'digits', 'divexact', 'fdiv', 'fdiv2exp', 'fmod', 'fmod2exp', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'sign', 'sqrt', 'sqrtrem', 'tdiv', 'tdiv2exp', 'tmod', 'tmod2exp']
+['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__iadd__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__', '__index__', '__init__', '__int__', '__invert__', '__ipow__', '__irshift__', '__isub__', '__le__', '__len__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', '_copy', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'c_div', 'c_div_2exp', 'c_mod', 'c_mod_2exp', 'comb', 'digits', 'divexact', 'f_div', 'f_div_2exp', 'f_mod', 'f_mod_2exp', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'sign', 'sqrt', 'sqrtrem', 't_div', 't_div_2exp', 't_mod', 't_mod_2exp']
 >>>
 '''
 import gmpy2 as _g, doctest, sys, operator, gc
@@ -390,29 +390,29 @@ mpz(789789789789789789789789)
 
 __test__['divmod']=\
 r'''
->>> _g.cdivmod(17,5)
+>>> _g.c_divmod(17,5)
 (mpz(4), mpz(-3))
->>> _g.cdivmod(-17,5)
+>>> _g.c_divmod(-17,5)
 (mpz(-3), mpz(-2))
->>> _g.cdivmod(17,-5)
+>>> _g.c_divmod(17,-5)
 (mpz(-3), mpz(2))
->>> _g.cdivmod(-17,-5)
+>>> _g.c_divmod(-17,-5)
 (mpz(4), mpz(3))
->>> _g.fdivmod(17,5)
+>>> _g.f_divmod(17,5)
 (mpz(3), mpz(2))
->>> _g.fdivmod(-17,5)
+>>> _g.f_divmod(-17,5)
 (mpz(-4), mpz(3))
->>> _g.fdivmod(17,-5)
+>>> _g.f_divmod(17,-5)
 (mpz(-4), mpz(-3))
->>> _g.fdivmod(-17,-5)
+>>> _g.f_divmod(-17,-5)
 (mpz(3), mpz(-2))
->>> _g.tdivmod(17,5)
+>>> _g.t_divmod(17,5)
 (mpz(3), mpz(2))
->>> _g.tdivmod(-17,5)
+>>> _g.t_divmod(-17,5)
 (mpz(-3), mpz(-2))
->>> _g.tdivmod(17,-5)
+>>> _g.t_divmod(17,-5)
 (mpz(-3), mpz(2))
->>> _g.tdivmod(-17,-5)
+>>> _g.t_divmod(-17,-5)
 (mpz(3), mpz(-2))
 '''
 
@@ -545,13 +545,13 @@ TypeError: hamdist() requires 'mpz','mpz' arguments
 Traceback (innermost last):
   ...
 TypeError: hamdist() requires 'mpz','mpz' arguments
->>> a.fmod2exp(5)
+>>> a.f_mod_2exp(5)
 mpz(27)
->>> b.fmod2exp(5)
+>>> b.f_mod_2exp(5)
 mpz(8)
->>> b.fmod2exp(5)==(b%32)
+>>> b.f_mod_2exp(5)==(b%32)
 1
->>> a.fmod2exp(5)==(a%32)
+>>> a.f_mod_2exp(5)==(a%32)
 1
 >>> a.bit_set(20)
 mpz(1048699)

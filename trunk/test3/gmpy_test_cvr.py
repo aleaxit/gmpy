@@ -165,10 +165,10 @@ ValueError: starting bit must be >= 0
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: starting bit must be >= 0
->>> _g.fmod2exp(12,-1)
+>>> _g.f_mod_2exp(12,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: fmod2exp() requires n > 0
+ValueError: f_mod_2exp() requires n > 0
 >>> _g.bit_test(12,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
