@@ -1518,21 +1518,21 @@ Pympfr_div(PyObject *self, PyObject *args)
     MPFR_CLEANUP_SELF_OTHER("div()");
 }
 
-PyDoc_STRVAR(doc_mpfr_fmod2,
-"x.fmod2(y) -> mpfr\n\n"
+PyDoc_STRVAR(doc_mpfr_fmod,
+"x.fmod(y) -> mpfr\n\n"
 "Return x - n * y where n is the integer quotient of x/y, rounded to 0.");
 
-PyDoc_STRVAR(doc_g_mpfr_fmod2,
-"fmod2(x, y) -> mpfr\n\n"
+PyDoc_STRVAR(doc_g_mpfr_fmod,
+"fmod(x, y) -> mpfr\n\n"
 "Return x - n * y where n is the integer quotient of x/y, rounded to 0.");
 
 static PyObject *
-Pympfr_fmod2(PyObject *self, PyObject *args)
+Pympfr_fmod(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPFR(other, "fmod2() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR(other, "fmod() requires 'mpfr','mpfr' arguments");
 
     if (!(result = Pympfr_new(0)))
         goto done;
@@ -1548,7 +1548,7 @@ Pympfr_fmod2(PyObject *self, PyObject *args)
     mpfr_clear_flags();
     result->rc = mpfr_fmod(result->f, Pympfr_AS_MPFR(self),
                            Pympfr_AS_MPFR(other), context->now.mpfr_round);
-    MPFR_CLEANUP_SELF_OTHER("fmod2()");
+    MPFR_CLEANUP_SELF_OTHER("fmod()");
 }
 
 PyDoc_STRVAR(doc_mpfr_remainder,

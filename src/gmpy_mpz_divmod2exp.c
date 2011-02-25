@@ -13,31 +13,30 @@
  **************************************************************************
  */
 
-static char doc_cdivmod2expg[]="\
-cdivmod2exp(x,n): returns the quotient and remainder of x divided\n\
-by 2**n. The quotient is rounded towards +Inf and the remainder\n\
-will be negative. x must be an integer. n must be > 0.\n\
-";
-
+PyDoc_STRVAR(doc_gmpy_c_divmod_2exp,
+"c_divmod_2exp(x,n): returns the quotient and remainder of x\n"
+"divided by 2**n. The quotient is rounded towards +Inf (ceiling\n"
+"rounding) and the remainder will be negative. x must be an\n"
+"integer. n must be > 0.");
 static PyObject *
-Pygmpy_cdivmod2exp(PyObject *self, PyObject *args)
+Pygmpy_c_divmod_2exp(PyObject *self, PyObject *args)
 {
     long nbits;
     PyObject *x, *result;
     PympzObject *q, *r, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("cdivmod2exp() requires 'mpz','int' arguments");
+        TYPE_ERROR("c_divmod_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
 
     nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("cdivmod2exp() requires 'mpz','int' arguments");
+        TYPE_ERROR("c_divmod_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
     if (nbits <= 0) {
-        VALUE_ERROR("cdivmod2exp() requires n > 0");
+        VALUE_ERROR("c_divmod_2exp() requires n > 0");
         return NULL;
     }
 
@@ -50,7 +49,7 @@ Pygmpy_cdivmod2exp(PyObject *self, PyObject *args)
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
-            TYPE_ERROR("cdivmod2exp() requires 'mpz','int' arguments");
+            TYPE_ERROR("c_divmod_2exp() requires 'mpz','int' arguments");
             Py_DECREF((PyObject*)q);
             Py_DECREF((PyObject*)r);
             Py_DECREF(result);
@@ -65,31 +64,29 @@ Pygmpy_cdivmod2exp(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_cdiv2expg[]="\
-cdiv2exp(x,n): returns the quotient of x divided by 2**n. The\n\
-quotient is rounded towards +inf. x must be an integer. n must\n\
-be > 0.\n\
-";
-
+PyDoc_STRVAR(doc_gmpy_c_div_2exp,
+"c_div_2exp(x,n): returns the quotient of x divided by 2**n. The\n"
+"quotient is rounded towards +Inf (ceiling rounding). x must be an\n"
+"integer. n must be > 0.");
 static PyObject *
-Pygmpy_cdiv2exp(PyObject *self, PyObject *args)
+Pygmpy_c_div_2exp(PyObject *self, PyObject *args)
 {
     long nbits;
     PyObject *x;
     PympzObject *result, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("cdiv2exp() requires 'mpz','int' arguments");
+        TYPE_ERROR("c_div_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
 
     nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("cdiv2exp() requires 'mpz','int' arguments");
+        TYPE_ERROR("c_div_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
     if (nbits <= 0) {
-        VALUE_ERROR("cdiv2exp() requires n > 0");
+        VALUE_ERROR("c_div_2exp() requires n > 0");
         return NULL;
     }
 
@@ -102,7 +99,7 @@ Pygmpy_cdiv2exp(PyObject *self, PyObject *args)
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
-            TYPE_ERROR("cdiv2exp() requires 'mpz','int' arguments");
+            TYPE_ERROR("c_div_2exp() requires 'mpz','int' arguments");
             Py_DECREF((PyObject*)result);
             return NULL;
         }
@@ -112,30 +109,28 @@ Pygmpy_cdiv2exp(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_cmod2expg[]="\
-cmod2exp(x,n): returns the remainder of x divided by 2**n. The\n\
-remainder will be negative. x must be an integer. n must be > 0.\n\
-";
-
+PyDoc_STRVAR(doc_gmpy_c_mod_2exp,
+"c_mod_2exp(x,n): returns the remainder of x divided by 2**n. The\n"
+"remainder will be negative. x must be an integer. n must be > 0.");
 static PyObject *
-Pygmpy_cmod2exp(PyObject *self, PyObject *args)
+Pygmpy_c_mod_2exp(PyObject *self, PyObject *args)
 {
     long nbits;
     PyObject *x;
     PympzObject *result, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("cmod2exp() requires 'mpz','int' arguments");
+        TYPE_ERROR("c_mod_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
 
     nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("cmod2exp() requires 'mpz','int' arguments");
+        TYPE_ERROR("c_mod_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
     if (nbits <= 0) {
-        VALUE_ERROR("cmod2exp() requires n > 0");
+        VALUE_ERROR("c_mod_2exp() requires n > 0");
         return NULL;
     }
 
@@ -148,7 +143,7 @@ Pygmpy_cmod2exp(PyObject *self, PyObject *args)
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
-            TYPE_ERROR("cmod2exp() requires expects 'mpz','int' arguments");
+            TYPE_ERROR("c_mod_2exp() requires expects 'mpz','int' arguments");
             Py_DECREF((PyObject*)result);
             return NULL;
         }
@@ -158,25 +153,23 @@ Pygmpy_cmod2exp(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_cdiv2expm[]="\
-x.cdiv2exp(n): returns the quotient of x divided by 2**n. The\n\
-quotient is rounded towards +Inf. x must be an integer. n must\n\
-be > 0.\n\
-";
-
+PyDoc_STRVAR(doc_mpz_c_div_2exp,
+"x.c_div_2exp(n): returns the quotient of x divided by 2**n. The\n"
+"quotient is rounded towards +Inf (truncation). x must be an integer.\n"
+"n must be > 0.");
 static PyObject *
-Pympz_cdiv2exp(PyObject *self, PyObject *other)
+Pympz_c_div_2exp(PyObject *self, PyObject *other)
 {
     long nbits;
     PympzObject *result;
 
     nbits = clong_From_Integer(other);
     if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("cdiv2exp() requires 'int' argument");
+        TYPE_ERROR("c_div_2exp() requires 'int' argument");
         return NULL;
     }
     if (nbits <= 0) {
-        VALUE_ERROR("cdiv2exp() requires n > 0");
+        VALUE_ERROR("c_div_2exp() requires n > 0");
         return NULL;
     }
 
@@ -186,24 +179,22 @@ Pympz_cdiv2exp(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_cmod2expm[]="\
-x.cmod2exp(n): returns the remainder of x divided by 2**n. The\n\
-remainder will be negative. x must be an integer. n must be > 0.\n\
-";
-
+PyDoc_STRVAR(doc_mpz_c_mod_2exp,
+"x.c_mod_2exp(n): returns the remainder of x divided by 2**n. The\n"
+"remainder will be negative. x must be an integer. n must be > 0.");
 static PyObject *
-Pympz_cmod2exp(PyObject *self, PyObject *other)
+Pympz_c_mod_2exp(PyObject *self, PyObject *other)
 {
     long nbits;
     PympzObject *result;
 
     nbits = clong_From_Integer(other);
     if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("cmod2exp() requires 'int' argument");
+        TYPE_ERROR("c_mod_2exp() requires 'int' argument");
         return NULL;
     }
     if (nbits <= 0) {
-        VALUE_ERROR("cmod2exp() requires n > 0");
+        VALUE_ERROR("c_mod_2exp() requires n > 0");
         return NULL;
     }
 
@@ -219,31 +210,30 @@ Pympz_cmod2exp(PyObject *self, PyObject *other)
  **************************************************************************
  */
 
-static char doc_fdivmod2expg[]="\
-fdivmod2exp(x,n): returns quotient and remainder after dividing x by\n\
-2**n. The quotient is rounded towards -Inf and the remainder will be\n\
-positive. x must be an integer. n must be > 0.\n\
-";
-
+PyDoc_STRVAR(doc_gmpy_f_divmod_2exp,
+"f_divmod_2exp(x,n): returns quotient and remainder after dividing\n"
+"x by 2**n. The quotient is rounded towards -Inf (floor rounding)\n"
+"and the remainder will be positive. x must be an integer. n must\n"
+"be > 0.");
 static PyObject *
-Pygmpy_fdivmod2exp(PyObject *self, PyObject *args)
+Pygmpy_f_divmod_2exp(PyObject *self, PyObject *args)
 {
     long nbits;
     PyObject *x, *result;
     PympzObject *q, *r, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("fdivmod2exp() requires 'mpz','int' arguments");
+        TYPE_ERROR("f_divmod_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
 
     nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("fdivmod2exp() requires 'mpz','int' arguments");
+        TYPE_ERROR("f_divmod_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
     if (nbits <= 0) {
-        VALUE_ERROR("fdivmod2exp() requires n > 0");
+        VALUE_ERROR("f_divmod_2exp() requires n > 0");
         return NULL;
     }
 
@@ -256,7 +246,7 @@ Pygmpy_fdivmod2exp(PyObject *self, PyObject *args)
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
-            TYPE_ERROR("fdivmod2exp() requires 'mpz','int' arguments");
+            TYPE_ERROR("f_divmod_2exp() requires 'mpz','int' arguments");
             Py_DECREF((PyObject*)q);
             Py_DECREF((PyObject*)r);
             Py_DECREF(result);
@@ -271,30 +261,29 @@ Pygmpy_fdivmod2exp(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_fdiv2expg[]="\
-fdiv2exp(x,n): returns the quotient of x divided by 2**n. The quotient\n\
-is rounded towards -Inf. x must be an integer. n must be > 0.\n\
-";
-
+PyDoc_STRVAR(doc_gmpy_f_div_2exp,
+"f_div_2exp(x,n): returns the quotient of x divided by 2**n. The\n"
+"quotient is rounded towards -Inf (floor rounding). x must be an\n"
+"integer. n must be > 0.");
 static PyObject *
-Pygmpy_fdiv2exp(PyObject *self, PyObject *args)
+Pygmpy_f_div_2exp(PyObject *self, PyObject *args)
 {
     long nbits;
     PyObject *x;
     PympzObject *result, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("fdiv2exp() requires 'mpz','int' arguments");
+        TYPE_ERROR("f_div_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
 
     nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("fdiv2exp() requires 'mpz','int' arguments");
+        TYPE_ERROR("f_div_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
     if (nbits <= 0) {
-        VALUE_ERROR("fdiv2exp() requires n > 0");
+        VALUE_ERROR("f_div_2exp() requires n > 0");
         return NULL;
     }
 
@@ -307,7 +296,7 @@ Pygmpy_fdiv2exp(PyObject *self, PyObject *args)
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
-            TYPE_ERROR("fdiv2exp() requires 'mpz','int' arguments");
+            TYPE_ERROR("f_div_2exp() requires 'mpz','int' arguments");
             Py_DECREF((PyObject*)result);
             return NULL;
         }
@@ -317,30 +306,29 @@ Pygmpy_fdiv2exp(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_fmod2expg[]="\
-fmod2exp(x,n): returns remainder of x divided by 2**n. The remainder\n\
-will be positive. x must be an integer. n must be greater than 0.\n\
-";
-
+PyDoc_STRVAR(doc_gmpy_f_mod_2exp,
+"f_mod_2exp(x,n): returns remainder of x divided by 2**n. The\n"
+"remainder will be positive. x must be an integer. n must be\n"
+"greater than 0.");
 static PyObject *
-Pygmpy_fmod2exp(PyObject *self, PyObject *args)
+Pygmpy_f_mod_2exp(PyObject *self, PyObject *args)
 {
     long nbits;
     PyObject *x;
     PympzObject *result, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("fmod2exp() requires 'mpz','int' arguments");
+        TYPE_ERROR("f_mod_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
 
     nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("fmod2exp() requires 'mpz','int' arguments");
+        TYPE_ERROR("f_mod_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
     if (nbits <= 0) {
-        VALUE_ERROR("fmod2exp() requires n > 0");
+        VALUE_ERROR("f_mod_2exp() requires n > 0");
         return NULL;
     }
 
@@ -353,7 +341,7 @@ Pygmpy_fmod2exp(PyObject *self, PyObject *args)
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
-            TYPE_ERROR("fmod2exp() requires 'mpz','int' arguments");
+            TYPE_ERROR("f_mod_2exp() requires 'mpz','int' arguments");
             Py_DECREF((PyObject*)result);
             return NULL;
         }
@@ -363,24 +351,23 @@ Pygmpy_fmod2exp(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_fdiv2expm[]="\
-x.fdiv2exp(n): returns the quotient of x divided by 2**n. The quotient\n\
-is rounded towards -Inf. x must be an integer. n must be > 0.\n\
-";
-
+PyDoc_STRVAR(doc_mpz_f_div_2exp,
+"x.f_div_2exp(n): returns the quotient of x divided by 2**n. The\n"
+"quotient is rounded towards -Inf (floor rounding). x must be an\n"
+"integer. n must be > 0.");
 static PyObject *
-Pympz_fdiv2exp(PyObject *self, PyObject *other)
+Pympz_f_div_2exp(PyObject *self, PyObject *other)
 {
     long nbits;
     PympzObject *result;
 
     nbits = clong_From_Integer(other);
     if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("fdiv2exp() requires 'int' argument");
+        TYPE_ERROR("f_div_2exp() requires 'int' argument");
         return NULL;
     }
     if (nbits <= 0) {
-        VALUE_ERROR("fdiv2exp() requires n > 0");
+        VALUE_ERROR("f_div_2exp() requires n > 0");
         return NULL;
     }
 
@@ -390,24 +377,22 @@ Pympz_fdiv2exp(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_fmod2expm[]="\
-x.fmod2exp(n): returns the remainder of x divided by 2**n. The remainder\n\
-will be positive. x must be an integer. n must be > 0.\n\
-";
-
+PyDoc_STRVAR(doc_mpz_f_mod_2exp,
+"x.f_mod_2exp(n): returns the remainder of x divided by 2**n. The\n"
+"remainder will be positive. x must be an integer. n must be > 0.");
 static PyObject *
-Pympz_fmod2exp(PyObject *self, PyObject *other)
+Pympz_f_mod_2exp(PyObject *self, PyObject *other)
 {
     long nbits;
     PympzObject *result;
 
     nbits = clong_From_Integer(other);
     if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("fmod2exp() requires 'int' argument");
+        TYPE_ERROR("f_mod_2exp() requires 'int' argument");
         return NULL;
     }
     if (nbits <= 0) {
-        VALUE_ERROR("fmod2exp() requires n > 0");
+        VALUE_ERROR("f_mod_2exp() requires n > 0");
         return NULL;
     }
 
@@ -424,31 +409,30 @@ Pympz_fmod2exp(PyObject *self, PyObject *other)
  **************************************************************************
  */
 
-static char doc_tdivmod2expg[]="\
-tdivmod2exp(x,n): returns the quotient and remainder of x divided by\n\
-2**n. The quotient is rounded towards zero and the remainder will have\n\
-the same sign as x. x must be an integer. n must be > 0.\n\
-";
-
+PyDoc_STRVAR(doc_gmpy_t_divmod_2exp,
+"t_divmod_2exp(x,n): returns the quotient and remainder of x divided\n"
+"by 2**n. The quotient is rounded towards zero (truncation) and the\n"
+"remainder will have the same sign as x. x must be an integer. n must\n"
+"be > 0.");
 static PyObject *
-Pygmpy_tdivmod2exp(PyObject *self, PyObject *args)
+Pygmpy_t_divmod_2exp(PyObject *self, PyObject *args)
 {
     long nbits;
     PyObject *x, *result;
     PympzObject *q, *r, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("tdivmod2exp() requires 'mpz','int' arguments");
+        TYPE_ERROR("t_divmod_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
 
     nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("tdivmod2exp() requires 'mpz','int' arguments");
+        TYPE_ERROR("t_divmod_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
     if (nbits <= 0) {
-        VALUE_ERROR("tdivmod2exp() requires n > 0");
+        VALUE_ERROR("t_divmod_2exp() requires n > 0");
         return NULL;
     }
 
@@ -461,7 +445,7 @@ Pygmpy_tdivmod2exp(PyObject *self, PyObject *args)
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
-            TYPE_ERROR("tdivmod2exp() requires 'mpz','int' arguments");
+            TYPE_ERROR("t_divmod_2exp() requires 'mpz','int' arguments");
             Py_DECREF((PyObject*)q);
             Py_DECREF((PyObject*)r);
             Py_DECREF(result);
@@ -476,30 +460,28 @@ Pygmpy_tdivmod2exp(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_tdiv2expg[]="\
-tdiv2exp(x,n): returns the quotient of x divided by 2**n. Uses 'truncate'\n\
-rounding. Will mutate x if it is an 'xmpz'. n must be > 0.\n\
-";
-
+PyDoc_STRVAR(doc_gmpy_t_div_2exp,
+"t_div_2exp(x,n): returns the quotient of x divided by 2**n. The\n"
+"quotient is rounded towards zero (truncation). n must be > 0.");
 static PyObject *
-Pygmpy_tdiv2exp(PyObject *self, PyObject *args)
+Pygmpy_t_div_2exp(PyObject *self, PyObject *args)
 {
     long nbits;
     PyObject *x;
     PympzObject *result, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("tdiv2exp() requires 'mpz','int' arguments");
+        TYPE_ERROR("t_div_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
 
     nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("tdiv2exp() requires 'mpz','int' arguments");
+        TYPE_ERROR("t_div_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
     if (nbits <= 0) {
-        VALUE_ERROR("tdiv2exp() requires n > 0");
+        VALUE_ERROR("t_div_2exp() requires n > 0");
         return NULL;
     }
 
@@ -511,7 +493,7 @@ Pygmpy_tdiv2exp(PyObject *self, PyObject *args)
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
-            TYPE_ERROR("tdiv2exp() requires 'mpz','int' arguments");
+            TYPE_ERROR("t_div_2exp() requires 'mpz','int' arguments");
             Py_DECREF((PyObject*)result);
             return NULL;
         }
@@ -521,30 +503,29 @@ Pygmpy_tdiv2exp(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_tmod2expg[]="\
-tmod2exp(x,n): returns the remainder of x divided by 2**n. The remainder\n\
-will have the same sign as x. x must be an integer. n must be > 0.\n\
-";
-
+PyDoc_STRVAR(doc_gmpy_t_mod_2exp,
+"t_mod_2exp(x,n): returns the remainder of x divided by 2**n. The\n"
+"remainder will have the same sign as x. x must be an integer. n\n"
+"must be > 0.");
 static PyObject *
-Pygmpy_tmod2exp(PyObject *self, PyObject *args)
+Pygmpy_t_mod_2exp(PyObject *self, PyObject *args)
 {
     long nbits;
     PyObject *x;
     PympzObject *result, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("tmod2exp() requires 'mpz','int' arguments");
+        TYPE_ERROR("t_mod_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
 
     nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("tmod2exp() requires expects 'mpz','int' arguments");
+        TYPE_ERROR("t_mod_2exp() requires expects 'mpz','int' arguments");
         return NULL;
     }
     if (nbits <= 0) {
-        VALUE_ERROR("tmod2exp() requires n > 0");
+        VALUE_ERROR("t_mod_2exp() requires n > 0");
         return NULL;
     }
 
@@ -557,7 +538,7 @@ Pygmpy_tmod2exp(PyObject *self, PyObject *args)
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
-            TYPE_ERROR("tmod2exp() requires 'mpz','int' arguments");
+            TYPE_ERROR("t_mod_2exp() requires 'mpz','int' arguments");
             Py_DECREF((PyObject*)result);
             return NULL;
         }
@@ -567,24 +548,22 @@ Pygmpy_tmod2exp(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_tdiv2expm[]="\
-x.tdiv2exp(n): returns the quotient of x divided by 2**n. The quotient\n\
-is rounded towards 0. x must be an integer. n must be > 0.\n\
-";
-
+PyDoc_STRVAR(doc_mpz_t_div_2exp,
+"x.t_div_2exp(n): returns the quotient of x divided by 2**n. The\n"
+"quotient is rounded towards 0. x must be an integer. n must be > 0.");
 static PyObject *
-Pympz_tdiv2exp(PyObject *self, PyObject *other)
+Pympz_t_div_2exp(PyObject *self, PyObject *other)
 {
     long nbits;
     PympzObject *result;
 
     nbits = clong_From_Integer(other);
     if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("tdiv2exp() requires expects 'int' argument");
+        TYPE_ERROR("t_div_2exp() requires expects 'int' argument");
         return NULL;
     }
     if (nbits <= 0) {
-        VALUE_ERROR("tdiv2exp() requires n > 0");
+        VALUE_ERROR("t_div_2exp() requires n > 0");
         return NULL;
     }
 
@@ -595,25 +574,23 @@ Pympz_tdiv2exp(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_tmod2expm[]="\
-x.tmod2exp(n): returns the remainder of x divided by 2**n. The remainder\n\
-will have the same sign as x. x must be an integer. n must be > 0. Will\n\
-mutate x if it is an 'xmpz'.\n\
-";
-
+PyDoc_STRVAR(doc_mpz_t_mod_2exp,
+"x.t_mod_2exp(n): returns the remainder of x divided by 2**n. The\n"
+"remainder will have the same sign as x. x must be an integer. n\n"
+"must be > 0.");
 static PyObject *
-Pympz_tmod2exp(PyObject *self, PyObject *other)
+Pympz_t_mod_2exp(PyObject *self, PyObject *other)
 {
     long nbits;
     PympzObject *result;
 
     nbits = clong_From_Integer(other);
     if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("tmod2exp() requires expects 'int' argument");
+        TYPE_ERROR("t_mod_2exp() requires expects 'int' argument");
         return NULL;
     }
     if (nbits <= 0) {
-        VALUE_ERROR("tmod2exp() requires n > 0");
+        VALUE_ERROR("t_mod_2exp() requires n > 0");
         return NULL;
     }
 
@@ -636,12 +613,11 @@ Pympz_tmod2exp(PyObject *self, PyObject *other)
  **************************************************************************
  */
 
-static char doc_packg[]="\
-pack(l,n): packs a list of integers 'l' into a single 'mpz' by\n\
-concatenating each integer after padding to length n bits. Raises an\n\
-error if any integer is negative or greater than n bits in length.\n\
-";
-
+PyDoc_STRVAR(doc_gmpy_pack,
+"pack(l,n): packs a list of integers 'l' into a single 'mpz' by\n"
+"concatenating each integer after padding to length n bits. Raises\n"
+"an error if any integer is negative or greater than n bits in\n"
+"length.");
 static PyObject *
 Pygmpy_pack(PyObject *self, PyObject *args)
 {
@@ -724,11 +700,9 @@ Pygmpy_pack(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_unpackg[]="\
-unpack(x,n): unpacks an integer 'x' into a list of n-bit values. Raises\n\
-error if 'x' is negative.\n\
-";
-
+PyDoc_STRVAR(doc_gmpy_unpack,
+"unpack(x,n): unpacks an integer 'x' into a list of n-bit values.\n"
+"Raises error if 'x' is negative.");
 static PyObject *
 Pygmpy_unpack(PyObject *self, PyObject *args)
 {

@@ -13,20 +13,18 @@
  **************************************************************************
  */
 
-static char doc_cdivmodg[]="\
-cdivmod(x,y): returns the quotient and remainder of x divided by\n\
-y. The quotient is rounded towards +Inf and the remainder will\n\
-have the opposite sign of y. x and y must be integers.\n\
-";
-
+PyDoc_STRVAR(doc_gmpy_c_divmod,
+"c_divmod(x,y): returns the quotient and remainder of x divided by\n"
+"y. The quotient is rounded towards +Inf (ceiling rounding) and the\n"
+"remainder will have the opposite sign of y. x and y must be integers.");
 static PyObject *
-Pygmpy_cdivmod(PyObject *self, PyObject *args)
+Pygmpy_c_divmod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y, *result;
     PympzObject *q, *r, *tempx, *tempy;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("cdivmod() requires 'mpz','mpz' arguments");
+        TYPE_ERROR("c_divmod() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
@@ -36,7 +34,7 @@ Pygmpy_cdivmod(PyObject *self, PyObject *args)
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
         if(mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
-            ZERO_ERROR("cdivmod() division by 0");
+            ZERO_ERROR("c_divmod() division by 0");
             Py_DECREF((PyObject*)q);
             Py_DECREF((PyObject*)r);
             Py_DECREF(result);
@@ -48,7 +46,7 @@ Pygmpy_cdivmod(PyObject *self, PyObject *args)
         tempx = Pympz_From_Integer(x);
         tempy = Pympz_From_Integer(y);
         if (!tempx || !tempy) {
-            TYPE_ERROR("cdivmod() requires 'mpz','mpz' arguments");
+            TYPE_ERROR("c_divmod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)q);
@@ -57,7 +55,7 @@ Pygmpy_cdivmod(PyObject *self, PyObject *args)
             return NULL;
         }
         if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
-            ZERO_ERROR("cdivmod() division by 0");
+            ZERO_ERROR("c_divmod() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)q);
@@ -74,19 +72,17 @@ Pygmpy_cdivmod(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_cdivg[]="\
-cdiv(x,y): returns the quotient of x divided by y. The quotient\n\
-is rounded towards +Inf. x and y must be integers.\n\
-";
-
+PyDoc_STRVAR(doc_gmpy_c_div,
+"c_div(x,y): returns the quotient of x divided by y. The quotient\n"
+"is rounded towards +Inf (ceiling rounding). x and y must be integers.");
 static PyObject *
-Pygmpy_cdiv(PyObject *self, PyObject *args)
+Pygmpy_c_div(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
     PympzObject *q, *tempx, *tempy;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("cdiv() requires 'mpz','mpz' arguments");
+        TYPE_ERROR("c_div() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
@@ -97,7 +93,7 @@ Pygmpy_cdiv(PyObject *self, PyObject *args)
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
         if (mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
-            ZERO_ERROR("cdiv() division by 0");
+            ZERO_ERROR("c_div() division by 0");
             Py_DECREF((PyObject*)q);
             return NULL;
         }
@@ -107,14 +103,14 @@ Pygmpy_cdiv(PyObject *self, PyObject *args)
         tempx = Pympz_From_Integer(x);
         tempy = Pympz_From_Integer(y);
         if (!tempx || !tempy) {
-            TYPE_ERROR("cdiv() requires 'mpz','mpz' arguments");
+            TYPE_ERROR("c_div() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)q);
             return NULL;
         }
         if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
-            ZERO_ERROR("cdiv() division by 0");
+            ZERO_ERROR("c_div() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)q);
@@ -127,19 +123,17 @@ Pygmpy_cdiv(PyObject *self, PyObject *args)
     return (PyObject*)q;
 }
 
-static char doc_cmodg[]="\
-cmod(x,y): returns the remainder of x divided by y. The remainder\n\
-will have the opposite sign of y. x and y must be integers.\n\
-";
-
+PyDoc_STRVAR(doc_gmpy_c_mod,
+"c_mod(x,y): returns the remainder of x divided by y. The remainder\n"
+"will have the opposite sign of y. x and y must be integers.");
 static PyObject *
-Pygmpy_cmod(PyObject *self, PyObject *args)
+Pygmpy_c_mod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
     PympzObject *r, *tempx, *tempy;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("cmod() requires 'mpz','mpz' arguments");
+        TYPE_ERROR("c_mod() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
@@ -150,7 +144,7 @@ Pygmpy_cmod(PyObject *self, PyObject *args)
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
         if(mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
-            ZERO_ERROR("cmod() division by 0");
+            ZERO_ERROR("c_mod() division by 0");
             Py_DECREF((PyObject*)r);
             return NULL;
         }
@@ -160,14 +154,14 @@ Pygmpy_cmod(PyObject *self, PyObject *args)
         tempx = Pympz_From_Integer(x);
         tempy = Pympz_From_Integer(y);
         if (!tempx || !tempy) {
-            TYPE_ERROR("cmod() requires 'mpz','mpz' arguments");
+            TYPE_ERROR("c_mod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)r);
             return NULL;
         }
         if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
-            ZERO_ERROR("cmod() division by 0");
+            ZERO_ERROR("c_mod() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)r);
@@ -180,19 +174,17 @@ Pygmpy_cmod(PyObject *self, PyObject *args)
     return (PyObject*)r;
 }
 
-static char doc_cdivm[]="\
-x.cdiv(y): returns the quotient of x divided by y. The quotient is\n\
-rounded towards +Inf. x and y must be integers.\n\
-";
-
+PyDoc_STRVAR(doc_mpz_c_div,
+"x.c_div(y): returns the quotient of x divided by y. The quotient is\n"
+"rounded towards +Inf. x and y must be integers.");
 static PyObject *
-Pympz_cdiv(PyObject *self, PyObject *other)
+Pympz_c_div(PyObject *self, PyObject *other)
 {
     PympzObject *result, *tempx;
 
     if (CHECK_MPZANY(other)) {
         if (mpz_sgn(Pympz_AS_MPZ(other)) == 0) {
-            ZERO_ERROR("cdiv() division by 0");
+            ZERO_ERROR("c_div() division by 0");
             return NULL;
         }
         if (!(result = Pympz_new()))
@@ -201,11 +193,11 @@ Pympz_cdiv(PyObject *self, PyObject *other)
     }
     else {
         if (!(tempx = Pympz_From_Integer(other))) {
-            TYPE_ERROR("cdiv() requires 'mpz','mpz' arguments");
+            TYPE_ERROR("c_div() requires 'mpz','mpz' arguments");
             return NULL;
         }
         if (mpz_sgn(Pympz_AS_MPZ(tempx)) == 0) {
-            ZERO_ERROR("cdiv() division by 0");
+            ZERO_ERROR("c_div() division by 0");
             Py_DECREF((PyObject*)tempx);
             return NULL;
         }
@@ -219,19 +211,17 @@ Pympz_cdiv(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_cmodm[]="\
-x.cmod(y): returns the remainder of x divided by y. The remainder will\n\
-have the opposite sign of y. x and y must be integers.\n\
-";
-
+PyDoc_STRVAR(doc_mpz_c_mod,
+"x.c_mod(y): returns the remainder of x divided by y. The remainder\n"
+"will have the opposite sign of y. x and y must be integers.");
 static PyObject *
-Pympz_cmod(PyObject *self, PyObject *other)
+Pympz_c_mod(PyObject *self, PyObject *other)
 {
     PympzObject *result, *tempx;
 
     if (CHECK_MPZANY(other)) {
         if (mpz_sgn(Pympz_AS_MPZ(other)) == 0) {
-            ZERO_ERROR("cmod() division by 0");
+            ZERO_ERROR("c_mod() division by 0");
             return NULL;
         }
         if (!(result = Pympz_new()))
@@ -240,11 +230,11 @@ Pympz_cmod(PyObject *self, PyObject *other)
     }
     else {
         if (!(tempx = Pympz_From_Integer(other))) {
-            TYPE_ERROR("cmod() requires 'mpz','mpz' arguments");
+            TYPE_ERROR("c_mod() requires 'mpz','mpz' arguments");
             return NULL;
         }
         if (mpz_sgn(Pympz_AS_MPZ(tempx)) == 0) {
-            ZERO_ERROR("cmod() division by 0");
+            ZERO_ERROR("c_mod() division by 0");
             Py_DECREF((PyObject*)tempx);
             return NULL;
         }
@@ -264,19 +254,19 @@ Pympz_cmod(PyObject *self, PyObject *other)
  **************************************************************************
  */
 
-static char doc_fdivmodg[]="\
-fdivmod(x,y): returns the quotient and remainder of x divided by y. The\n\
-quotient is rounded towards -Inf and the remainder will have the same\n\
-sign as y. x and y must be integers.\n\
-";
+PyDoc_STRVAR(doc_gmpy_f_divmod,
+"f_divmod(x,y): returns the quotient and remainder of x divided by\n"
+"y. The quotient is rounded towards -Inf (floor rounding) and the\n"
+"remainder will have the same sign as y. x and y must be integers.");
+
 static PyObject *
-Pygmpy_fdivmod(PyObject *self, PyObject *args)
+Pygmpy_f_divmod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y, *result;
     PympzObject *q, *r, *tempx, *tempy;
 
     if(PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("fdivmod() requires 'mpz','mpz' arguments");
+        TYPE_ERROR("f_divmod() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
@@ -286,7 +276,7 @@ Pygmpy_fdivmod(PyObject *self, PyObject *args)
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
         if (mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
-            ZERO_ERROR("fdivmod() division by 0");
+            ZERO_ERROR("f_divmod() division by 0");
             Py_DECREF((PyObject*)q);
             Py_DECREF((PyObject*)r);
             Py_DECREF(result);
@@ -298,7 +288,7 @@ Pygmpy_fdivmod(PyObject *self, PyObject *args)
         tempx = Pympz_From_Integer(x);
         tempy = Pympz_From_Integer(y);
         if (!tempx || !tempy) {
-            TYPE_ERROR("fdivmod() requires 'mpz','mpz' arguments");
+            TYPE_ERROR("f_divmod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)q);
@@ -307,7 +297,7 @@ Pygmpy_fdivmod(PyObject *self, PyObject *args)
             return NULL;
         }
         if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
-            ZERO_ERROR("fdivmod() division by 0");
+            ZERO_ERROR("f_divmod() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)q);
@@ -324,19 +314,17 @@ Pygmpy_fdivmod(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_fdivg[]="\
-fdiv(x,y): returns the quotient of x divided by y. The quotient is\n\
-rounded towards -Inf. x and y must be integers.\n\
-";
-
+PyDoc_STRVAR(doc_gmpy_f_div,
+"f_div(x,y): returns the quotient of x divided by y. The quotient\n"
+"is rounded towards -Inf (floor rounding). x and y must be integers.");
 static PyObject *
-Pygmpy_fdiv(PyObject *self, PyObject *args)
+Pygmpy_f_div(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
     PympzObject *q, *tempx, *tempy;
 
     if(PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("fdiv() requires 'mpz','mpz' arguments");
+        TYPE_ERROR("f_div() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
@@ -347,7 +335,7 @@ Pygmpy_fdiv(PyObject *self, PyObject *args)
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
         if (mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
-            ZERO_ERROR("fdiv() division by 0");
+            ZERO_ERROR("f_div() division by 0");
             Py_DECREF((PyObject*)q);
             return NULL;
         }
@@ -357,14 +345,14 @@ Pygmpy_fdiv(PyObject *self, PyObject *args)
         tempx = Pympz_From_Integer(x);
         tempy = Pympz_From_Integer(y);
         if (!tempx || !tempy) {
-            TYPE_ERROR("fdiv() requires 'mpz','mpz' arguments");
+            TYPE_ERROR("f_div() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)q);
             return NULL;
         }
         if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
-            ZERO_ERROR("fdiv() division by 0");
+            ZERO_ERROR("f_div() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)q);
@@ -377,20 +365,17 @@ Pygmpy_fdiv(PyObject *self, PyObject *args)
     return (PyObject*)q;
 }
 
-static char doc_fmodg[]="\
-fmod(x,y): returns the remainder of x divided by y. The remainder will\n\
-have the same sign as y. x and y must be integers. See fmod2() to \n\
-access mpfr_fmod().\
-";
-
+PyDoc_STRVAR(doc_gmpy_f_mod,
+"f_mod(x,y): returns the remainder of x divided by y. The remainder\n"
+"will have the same sign as y. x and y must be integers.");
 static PyObject *
-Pygmpy_fmod(PyObject *self, PyObject *args)
+Pygmpy_f_mod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
     PympzObject *r, *tempx, *tempy;
 
     if(PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("fmod() requires 'mpz','mpz' arguments");
+        TYPE_ERROR("f_mod() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
@@ -401,7 +386,7 @@ Pygmpy_fmod(PyObject *self, PyObject *args)
 
     if(CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
         if (mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
-            ZERO_ERROR("fmod() division by 0");
+            ZERO_ERROR("f_mod() division by 0");
             Py_DECREF((PyObject*)r);
             return NULL;
         }
@@ -411,14 +396,14 @@ Pygmpy_fmod(PyObject *self, PyObject *args)
         tempx = Pympz_From_Integer(x);
         tempy = Pympz_From_Integer(y);
         if (!tempx || !tempy) {
-            TYPE_ERROR("fmod() requires 'mpz','mpz' arguments");
+            TYPE_ERROR("f_mod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)r);
             return NULL;
         }
         if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
-            ZERO_ERROR("fmod() division by 0");
+            ZERO_ERROR("f_mod() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)r);
@@ -431,19 +416,17 @@ Pygmpy_fmod(PyObject *self, PyObject *args)
     return (PyObject*)r;
 }
 
-static char doc_fdivm[]="\
-x.fdiv(y): returns the quotient of x divided by y. The quotient is rounded\n\
-towards -Inf. x and y must be integers.\n\
-";
-
+PyDoc_STRVAR(doc_mpz_f_div,
+"x.f_div(y): returns the quotient of x divided by y. The quotient\n"
+"is rounded towards -Inf (floor rounding). x and y must be integers.");
 static PyObject *
-Pympz_fdiv(PyObject *self, PyObject *other)
+Pympz_f_div(PyObject *self, PyObject *other)
 {
     PympzObject *result, *tempx;
 
     if (CHECK_MPZANY(other)) {
         if (mpz_sgn(Pympz_AS_MPZ(other)) == 0) {
-            ZERO_ERROR("fdiv() division by 0");
+            ZERO_ERROR("f_div() division by 0");
             return NULL;
         }
         if (!(result = Pympz_new()))
@@ -452,11 +435,11 @@ Pympz_fdiv(PyObject *self, PyObject *other)
     }
     else {
         if (!(tempx = Pympz_From_Integer(other))) {
-            TYPE_ERROR("fdiv() requires 'mpz','mpz' arguments");
+            TYPE_ERROR("f_div() requires 'mpz','mpz' arguments");
             return NULL;
         }
         if (mpz_sgn(Pympz_AS_MPZ(tempx)) == 0) {
-            ZERO_ERROR("fdiv() division by 0");
+            ZERO_ERROR("f_div() division by 0");
             Py_DECREF((PyObject*)tempx);
             return NULL;
         }
@@ -470,20 +453,17 @@ Pympz_fdiv(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_fmodm[]="\
-x.fmod(y): returns the remainder of x divided by y. The remainder will\n\
-have the same sign as y. x and y must be integers. Will mutate x if it\n\
-is an 'xmpz'.\n\
-";
-
+PyDoc_STRVAR(doc_mpz_f_mod,
+"x.f_mod(y): returns the remainder of x divided by y. The remainder\n"
+"will have the same sign as y. x and y must be integers.");
 static PyObject *
-Pympz_fmod(PyObject *self, PyObject *other)
+Pympz_f_mod(PyObject *self, PyObject *other)
 {
     PympzObject *result, *tempx;
 
     if (CHECK_MPZANY(other)) {
         if (mpz_sgn(Pympz_AS_MPZ(other)) == 0) {
-            ZERO_ERROR("fmod() division by 0");
+            ZERO_ERROR("f_mod() division by 0");
             return NULL;
         }
         if(!(result = Pympz_new()))
@@ -492,11 +472,11 @@ Pympz_fmod(PyObject *self, PyObject *other)
     }
     else {
         if (!(tempx = Pympz_From_Integer(other))) {
-            TYPE_ERROR("fmod() requires 'mpz','mpz' arguments");
+            TYPE_ERROR("f_mod() requires 'mpz','mpz' arguments");
             return NULL;
         }
         if (mpz_sgn(Pympz_AS_MPZ(tempx)) == 0) {
-            ZERO_ERROR("fmod() division by 0");
+            ZERO_ERROR("f_mod() division by 0");
             Py_DECREF((PyObject*)tempx);
             return NULL;
         }
@@ -516,19 +496,18 @@ Pympz_fmod(PyObject *self, PyObject *other)
  **************************************************************************
  */
 
-static char doc_tdivmodg[]="\
-tdivmod(x,y): returns the quotient and remainder of x divided by y. The\n\
-quotient is rounded towards zero and the remainder will have the same\n\
-sign as x. x and y must be integers.\n\
-";
+PyDoc_STRVAR(doc_gmpy_t_divmod,
+"t_divmod(x,y): returns the quotient and remainder of x divided by\n"
+"y. The quotient is rounded towards zero (truncation) and the\n"
+"remainder will have the same sign as x. x and y must be integers.");
 static PyObject *
-Pygmpy_tdivmod(PyObject *self, PyObject *args)
+Pygmpy_t_divmod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y, *result;
     PympzObject *q, *r, *tempx, *tempy;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("tdivmod() requires 'mpz','mpz' arguments");
+        TYPE_ERROR("t_divmod() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
@@ -538,7 +517,7 @@ Pygmpy_tdivmod(PyObject *self, PyObject *args)
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
         if (mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
-            ZERO_ERROR("tdivmod() division by 0");
+            ZERO_ERROR("t_divmod() division by 0");
             Py_DECREF((PyObject*)q);
             Py_DECREF((PyObject*)r);
             Py_DECREF(result);
@@ -550,7 +529,7 @@ Pygmpy_tdivmod(PyObject *self, PyObject *args)
         tempx = Pympz_From_Integer(x);
         tempy = Pympz_From_Integer(y);
         if (!tempx || !tempy) {
-            TYPE_ERROR("tdivmod() requires 'mpz','mpz' arguments");
+            TYPE_ERROR("t_divmod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)q);
@@ -559,7 +538,7 @@ Pygmpy_tdivmod(PyObject *self, PyObject *args)
             return NULL;
         }
         if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
-            ZERO_ERROR("tdivmod() division by 0");
+            ZERO_ERROR("t_divmod() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)q);
@@ -576,19 +555,17 @@ Pygmpy_tdivmod(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_tdivg[]="\
-tdiv(x,y): returns the quotient of x divided by y. The quotient is \n\
-rounded towards 0. x and y must be integers.\n\
-";
-
+PyDoc_STRVAR(doc_gmpy_t_div,
+"t_div(x,y): returns the quotient of x divided by y. The quotient\n"
+"is rounded towards 0. x and y must be integers.");
 static PyObject *
-Pygmpy_tdiv(PyObject *self, PyObject *args)
+Pygmpy_t_div(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
     PympzObject *q, *tempx, *tempy;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("tdiv() requires 'mpz','mpz' arguments");
+        TYPE_ERROR("t_div() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
@@ -599,7 +576,7 @@ Pygmpy_tdiv(PyObject *self, PyObject *args)
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
         if (mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
-            ZERO_ERROR("tdiv() division by 0");
+            ZERO_ERROR("t_div() division by 0");
             Py_DECREF((PyObject*)q);
             return NULL;
         }
@@ -609,14 +586,14 @@ Pygmpy_tdiv(PyObject *self, PyObject *args)
         tempx = Pympz_From_Integer(x);
         tempy = Pympz_From_Integer(y);
         if (!tempx || !tempy) {
-            TYPE_ERROR("tdiv() requires 'mpz','mpz' arguments");
+            TYPE_ERROR("t_div() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)q);
             return NULL;
         }
         if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
-            ZERO_ERROR("tdiv() division by 0");
+            ZERO_ERROR("t_div() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)q);
@@ -629,19 +606,17 @@ Pygmpy_tdiv(PyObject *self, PyObject *args)
     return (PyObject*)q;
 }
 
-static char doc_tmodg[]="\
-tmod(x,y): returns the remainder of x divided by y. The remainder will\n\
-have the same sign as x. x and y must be integers..\n\
-";
-
+PyDoc_STRVAR(doc_gmpy_t_mod,
+"t_mod(x,y): returns the remainder of x divided by y. The remainder\n"
+"will have the same sign as x. x and y must be integers.");
 static PyObject *
-Pygmpy_tmod(PyObject *self, PyObject *args)
+Pygmpy_t_mod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
     PympzObject *r, *tempx, *tempy;
 
     if(PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("tmod() requires 'mpz','mpz' arguments");
+        TYPE_ERROR("t_mod() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
@@ -652,7 +627,7 @@ Pygmpy_tmod(PyObject *self, PyObject *args)
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
         if (mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
-            ZERO_ERROR("tmod() division by 0");
+            ZERO_ERROR("t_mod() division by 0");
             Py_DECREF((PyObject*)r);
             return NULL;
         }
@@ -662,14 +637,14 @@ Pygmpy_tmod(PyObject *self, PyObject *args)
         tempx = Pympz_From_Integer(x);
         tempy = Pympz_From_Integer(y);
         if (!tempx || !tempy) {
-            TYPE_ERROR("tmod() requires 'mpz','mpz' arguments");
+            TYPE_ERROR("t_mod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)r);
             return NULL;
         }
         if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
-            ZERO_ERROR("tmod() division by 0");
+            ZERO_ERROR("t_mod() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)r);
@@ -682,19 +657,17 @@ Pygmpy_tmod(PyObject *self, PyObject *args)
     return (PyObject*)r;
 }
 
-static char doc_tdivm[]="\
-x.tdiv(y): returns the quotient of x divided by y. The quotient is rounded\n\
-towards 0. x and y must be integers.\n\
-";
-
+PyDoc_STRVAR(doc_mpz_t_div,
+"x.t_div(y): returns the quotient of x divided by y. The quotient\n"
+"is rounded towards 0 (truncation). x and y must be integers.");
 static PyObject *
-Pympz_tdiv(PyObject *self, PyObject *other)
+Pympz_t_div(PyObject *self, PyObject *other)
 {
     PympzObject *result, *tempx;
 
     if (CHECK_MPZANY(other)) {
         if (mpz_sgn(Pympz_AS_MPZ(other)) == 0) {
-            ZERO_ERROR("tdiv() division by 0");
+            ZERO_ERROR("t_div() division by 0");
             return NULL;
         }
         if(!(result = Pympz_new()))
@@ -703,11 +676,11 @@ Pympz_tdiv(PyObject *self, PyObject *other)
     }
     else {
         if (!(tempx = Pympz_From_Integer(other))) {
-            TYPE_ERROR("tdiv() requires 'mpz','mpz' arguments");
+            TYPE_ERROR("t_div() requires 'mpz','mpz' arguments");
             return NULL;
         }
         if (mpz_sgn(Pympz_AS_MPZ(tempx)) == 0) {
-            ZERO_ERROR("tdiv() division by 0");
+            ZERO_ERROR("t_div() division by 0");
             Py_DECREF((PyObject*)tempx);
             return NULL;
         }
@@ -721,19 +694,17 @@ Pympz_tdiv(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_tmodm[]="\
-x.tmod(y): returns the remainder of x divided by y. The remainder will\n\
-have the same sign as x. x and y must be integers.\n\
-";
-
+PyDoc_STRVAR(doc_mpz_t_mod,
+"x.t_mod(y): returns the remainder of x divided by y. The remainder\n"
+"will have the same sign as x. x and y must be integers.");
 static PyObject *
-Pympz_tmod(PyObject *self, PyObject *other)
+Pympz_t_mod(PyObject *self, PyObject *other)
 {
     PympzObject *result, *tempx;
 
     if (CHECK_MPZANY(other)) {
         if (mpz_sgn(Pympz_AS_MPZ(other)) == 0) {
-            ZERO_ERROR("tmod() division by 0");
+            ZERO_ERROR("t_mod() division by 0");
             return NULL;
         }
         if (!(result = Pympz_new()))
@@ -742,11 +713,11 @@ Pympz_tmod(PyObject *self, PyObject *other)
     }
     else {
         if (!(tempx = Pympz_From_Integer(other))) {
-            TYPE_ERROR("tmod() requires 'mpz','mpz' arguments");
+            TYPE_ERROR("t_mod() requires 'mpz','mpz' arguments");
             return NULL;
         }
         if (mpz_sgn(Pympz_AS_MPZ(tempx)) == 0) {
-            ZERO_ERROR("tmod() division by 0");
+            ZERO_ERROR("t_mod() division by 0");
             Py_DECREF((PyObject*)tempx);
             return NULL;
         }
