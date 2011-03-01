@@ -26,7 +26,7 @@ Pympfr_getrc_attrib(PympfrObject *self, void *closure)
 static int
 Pympfr_nonzero(PympfrObject *self)
 {
-    return mpfr_sgn(self->f) != 0;
+    return !mpfr_zero_p(self->f);
 }
 
 /* Implement the nb_positive slot. */
