@@ -3264,7 +3264,14 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     }
     if (Pympfr_Check(a) && Pympfr_Check(b)) {
         TRACE("compare (mpfr,mpfr)\n");
-        return _cmp_to_object(mpfr_cmp(Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b)), op);
+        if (mpfr_unordered_p(Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b))) {
+            result = (op == Py_NE) ? Py_True : Py_False;
+            Py_INCREF(result);
+            return result;
+        }
+        else {
+            return _cmp_to_object(mpfr_cmp(Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b)), op);
+        }
     }
     if (isInteger(a) && isInteger(b)) {
         TRACE("compare (mpz,int)\n");
@@ -3305,7 +3312,14 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         }
         tempa = (PyObject*)Pympfr_From_Real(a, 0);
         tempb = (PyObject*)Pympfr_From_Real(b, 0);
-        c = mpfr_cmp(Pympfr_AS_MPFR(tempa), Pympfr_AS_MPFR(tempb));
+        if (mpfr_unordered_p(Pympfr_AS_MPFR(tempa), Pympfr_AS_MPFR(tempb))) {
+            result = (op == Py_NE) ? Py_True : Py_False;
+            Py_INCREF(result);
+            return result;
+        }
+        else {
+            c = mpfr_cmp(Pympfr_AS_MPFR(tempa), Pympfr_AS_MPFR(tempb));
+        }
         Py_DECREF(tempa);
         Py_DECREF(tempb);
         return _cmp_to_object(c, op);
