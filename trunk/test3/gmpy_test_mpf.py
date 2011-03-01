@@ -264,6 +264,17 @@ False
 False
 >>> b == c
 False
+>>> f=_g.mpfr
+>>> bool(float('nan')) == bool(f('nan'))
+True
+>>> (float('nan') == float('nan')) == (float('nan') == f('nan')) == (f('nan') == float('nan')) == (f('nan') == f('nan'))
+True
+>>> (float('nan') != float('nan')) == (float('nan') != f('nan')) == (f('nan') != float('nan')) == (f('nan') != f('nan'))
+True
+>>> bool(float('inf')) == bool(f('inf'))
+True
+>>> bool(float('-inf')) == bool(f('-inf'))
+True
 '''
 
 __test__['format']=\
