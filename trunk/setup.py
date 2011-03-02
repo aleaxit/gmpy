@@ -7,29 +7,73 @@ if sys.version[:3] < '2.6':
     sys.stdout.write("Please use GMPY 1.x for earlier versions of Python.\n")
     sys.exit()
 
-# Check if MPIR or GMP should be used.
+# Check for build options:
+#   -DMPIR  -> use MPIR instead of GMP
 mplib='gmp'
 for token in sys.argv:
-    if token.startswith('-D') and 'MPIR' in token:
+    if token.upper().startswith('-DMPIR'):
         mplib='mpir'
-        break
+        
+use_mpc = True
+use_mpfr = True
 
 # determine include and library dirs
-incdirs = libdirs = ()
 if sys.version.find('MSC') == -1:
     # Unix-like build (including MacOSX)
     incdirs = ['./src']
-    dirord = ['/opt/local', '/usr/local']
+    dirord = ['/opt/local', '/opt', '/usr/local']
     for adir in dirord:
         lookin = '%s/include' % adir
         if os.path.isfile(lookin + '/' + mplib + '.h'):
-            incdirs.append(lookin)
+            incdirs = [lookin]
+            # Verify that MPFR and MPC exist in the same directory
+            if not os.path.isfile(lookin + '/mpfr.h'):
+                use_mpfr = False
+            if not os.path.isfile(lookin + '/mpc.h'):
+                use_mpc = False
             break
     for adir in dirord:
         lookin = '%s/lib' % adir
         if os.path.isfile(lookin + '/lib' + mplib + '.a'):
             libdirs = [lookin]
+            # Verify that MPFR and MPC exist in the same directory
+            if not os.path.isfile(lookin + '/libmpfr.a'):
+                use_mpfr = False
+            if not os.path.isfile(lookin + '/libmpc.a'):
+                use_mpc = False
             break
+            
+# Use options to prevent use of MPFR and MPC even if found.
+#   -DNOMPC  -> build without MPC library
+#   -DNOMPFR  -> build without MPFR library
+for token in sys.argv:
+    if token == '-DNOMPC':
+        use_mpc = False
+    if token == '-DNOMPFR':
+        use_mpfr = False
+
+if not use_mpfr:
+    use_mpc = False
+
+# Configure the defines...
+defines = []
+if mplib == 'mpir':
+    defines.append( ('MPIR', 1) )
+if use_mpfr:
+    defines.append( ('WITHMPFR', 1) )
+else:
+    defines.append( ('NOMPFR', 1) )
+if use_mpc:
+    defines.append( ('WITHMPC', 1) )
+else:
+    defines.append( ('NOMPC', 1) )
+    
+# Build list of the required libraries...
+libs = [mplib]
+if use_mpfr:
+    libs.append('mpfr')
+if use_mpc:
+    libs.append('mpc')
 
 # decomment next line (w/gcc, only!) to support gcov
 #   os.environ['CFLAGS'] = '-fprofile-arcs -ftest-coverage -O0'
@@ -37,7 +81,8 @@ if sys.version.find('MSC') == -1:
 gmpy2_ext = Extension('gmpy2', sources=['src/gmpy2.c'],
     include_dirs=incdirs,
     library_dirs=libdirs,
-    libraries=[mplib] + ["mpfr", "mpc"])
+    libraries=[mplib] + ["mpfr", "mpc"],
+    define_macros = defines)
 
 setup (name = "gmpy2",
        version = "2.0.0a1+",
