@@ -350,12 +350,10 @@ static struct gmpy_global {
     int debug;               /* != 0 if debug messages desired on stderr */
     int cache_size;          /* size of cache, for all caches */
     int cache_obsize;        /* maximum size of the objects that are cached */
-    int mpc_rc;              /* result code from MPC */
 } global = {
     0,                       /* debug */
     100,                     /* cache_size */
     128,                     /* cache_obsize */
-    0                        /* mpc_rc */
 };
 
 /* The context manager should really be thread-specific. Until then, gmpy2
@@ -376,19 +374,19 @@ static PyObject *GMPyExc_Underflow = NULL;
 static PyObject *GMPyExc_Erange = NULL;
 
 /* forward declarations of type-objects and method-arrays for them */
-#ifdef _MSC_VER
-PyMethodDef Pympz_methods [];
-PyMethodDef Pympq_methods [];
-PyMethodDef Pympfr_methods [];
-PyMethodDef Pympc_methods [];
-PyMethodDef Pyxmpz_methods [];
-#else
-static PyMethodDef Pympz_methods [];
-static PyMethodDef Pympq_methods [];
-static PyMethodDef Pympfr_methods [];
-static PyMethodDef Pympc_methods [];
-static PyMethodDef Pyxmpz_methods [];
-#endif
+//~ #ifdef _MSC_VER
+//~ PyMethodDef Pympz_methods [];
+//~ PyMethodDef Pympq_methods [];
+//~ PyMethodDef Pympfr_methods [];
+//~ PyMethodDef Pympc_methods [];
+//~ PyMethodDef Pyxmpz_methods [];
+//~ #else
+//~ static PyMethodDef Pympz_methods [];
+//~ static PyMethodDef Pympq_methods [];
+//~ static PyMethodDef Pympfr_methods [];
+//~ static PyMethodDef Pympc_methods [];
+//~ static PyMethodDef Pyxmpz_methods [];
+//~ #endif
 
 /* Include fast mpz to/from PyLong conversion from sage. */
 #include "mpz_pylong.c"
@@ -479,19 +477,6 @@ Pympfr2Pympfr(PyObject *self, mpfr_prec_t bits)
         bits = mpfr_get_prec(Pympfr_AS_MPFR(self));
     if ((newob = Pympfr_new(bits)))
         newob->rc = mpfr_set(newob->f, Pympfr_AS_MPFR(self), context->now.mpfr_round);
-    return newob;
-}
-
-static PympcObject *
-Pympc2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
-{
-    PympcObject *newob;
-
-    assert(Pympc_Check(self));
-    if (rprec == 0 || iprec == 0)
-        mpc_get_prec2(&rprec, &iprec, Pympc_AS_MPC(self));
-    if ((newob = Pympc_new(rprec, iprec)))
-        global.mpc_rc = mpc_set(newob->c, Pympc_AS_MPC(self), context->now.mpc_round);
     return newob;
 }
 
@@ -2154,6 +2139,7 @@ Pympfr_ascii(PympfrObject *self, int base, int digits,
     }
 }
 
+#ifdef WITHMPC
 /* Classify an object as a type of number. If an object is recognized as a
  * number, it must be properly converted by the routines below.
  */
@@ -2177,7 +2163,9 @@ static int isComplex(PyObject* obj)
 
     return 0;
 }
+#endif
 
+#ifdef WITHMPFR
 static int isReal(PyObject* obj)
 {
 #ifdef DEBUG
@@ -2195,6 +2183,7 @@ static int isReal(PyObject* obj)
 
     return 0;
 }
+#endif
 
 static int isRational(PyObject* obj)
 {
@@ -3103,85 +3092,6 @@ Pygmpy_mpfr(PyObject *self, PyObject *args)
     return (PyObject *) newob;
 } /* Pygmpy_mpfr() */
 
-PyDoc_STRVAR(doc_g_mpc,
-"mpc(n, [prec=(i,i) | rnd=(i,i]) -> mpc object\n\n"
-"Return an mpc object by converting a numeric value 'n' into a\n"
-"complex number. If 'prec' is omitted, then get_mpc_precision() is\n"
-"used. If 'rnd' is omitted, then get_mpc_round() is used.\n\n"
-"mpc(s, [base = 10 | prec=(i,i) | rnd=(i,i)]) -> mpc object\n\n"
-"Return an mpc object by converting a string 's' into a complex\n"
-"number. If 'base' is omitted, then a base 10 representation is\n"
-"assumed otherwise a base between 2 and 36 can be specified.\n"
-"If 'prec' is omitted, then get_mpc_precision() is used. If 'rnd'\n"
-"is omitted, then get_mpc_round() is used.");
-static PyObject *
-Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
-{
-    PympcObject *result;
-    PyObject *arg0 = NULL, *prec_obj = NULL;
-    Py_ssize_t dummy, rprec, iprec;
-    int base, rmode;
-    static char *kwlist[] = {"n", "base", "prec", "rnd", NULL};
-
-    dummy = 0;
-    base = 10;
-    rprec = context->now.mpc_rprec;
-    iprec = context->now.mpc_iprec;
-    rmode = context->now.mpc_round;
-
-    if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "|OiOi", kwlist,
-                                      &arg0, &base, &prec_obj, &rmode)))
-        return NULL;
-
-    if (base < 2 || base > 36) {
-        VALUE_ERROR("base for gmpy2.mpc() must be in the interval 2..36.");
-        return NULL;
-    }
-
-    if (rmode != context->now.mpc_round && Pymisc_verify_mpc_round(rmode) == -1) {
-        VALUE_ERROR("invalid rounding mode for complex arithmetic.");
-        return NULL;
-    }
-
-    if (prec_obj && PyIntOrLong_Check(prec_obj)) {
-        rprec = PyLong_AsSsize_t(prec_obj);
-        iprec = rprec;
-
-        /* Also catches return value of -1. */
-        if (!Pymisc_verify_mpc_precision(rprec, iprec)) {
-            VALUE_ERROR("invalid precision for complex arithmetic");
-            return NULL;
-        }
-    }
-    else if (prec_obj && PyTuple_Check(prec_obj)) {
-        if (!(PyArg_ParseTuple(prec_obj,
-                    "nn;invalid precision for complex arithmetic.",
-                    &rprec, &iprec)))
-            return NULL;
-
-        if (!Pymisc_verify_mpc_precision(rprec, iprec)) {
-            VALUE_ERROR("invalid precision for complex arithmetic");
-            return NULL;
-        }
-    }
-    else {
-        VALUE_ERROR("invalid precision for complex arithmetic");
-        return NULL;
-    }
-
-    if (arg0 == NULL) {
-        if (!(result = Pympc_new(rprec, iprec)))
-            return NULL;
-        /* May want to return (NaN NaN) ?? */
-        mpc_set_ui(result->c, 0, rmode);
-        return (PyObject*)result;
-    }
-
-    Py_INCREF(arg0);
-    return Py_BuildValue("OiOi", arg0, base,
-                         Py_BuildValue("nn", rprec, iprec),
-                         rmode);
-}
 
 /* Helper function for hashing for Python < 3.2 */
 /* Currently only used for mpq. Should refactor the mpq code and remove. */
@@ -3202,12 +3112,19 @@ dohash(PyObject* tempPynum)
 #include "gmpy_mpz.c"
 #include "gmpy_mpz_divmod2exp.c"
 #include "gmpy_mpz_divmod.c"
-#include "gmpy_mpq.c"
-#include "gmpy_mpfr.c"
-#include "gmpy_mpc.c"
-#include "gmpy_basic.c"
 #include "gmpy_mpz_inplace.c"
 #include "gmpy_xmpz_inplace.c"
+#include "gmpy_mpq.c"
+
+#ifdef WITHMPFR
+#include "gmpy_mpfr.c"
+#endif
+
+#ifdef WITHMPC
+#include "gmpy_mpc.c"
+#endif
+
+#include "gmpy_basic.c"
 
 /* COMPARING */
 
@@ -3262,6 +3179,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         TRACE("compare (mpq,mpq)\n");
         return _cmp_to_object(mpq_cmp(Pympq_AS_MPQ(a), Pympq_AS_MPQ(b)), op);
     }
+#ifdef WITHMPFR
     if (Pympfr_Check(a) && Pympfr_Check(b)) {
         TRACE("compare (mpfr,mpfr)\n");
         if (mpfr_unordered_p(Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b))) {
@@ -3273,6 +3191,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(mpfr_cmp(Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b)), op);
         }
     }
+#endif
     if (isInteger(a) && isInteger(b)) {
         TRACE("compare (mpz,int)\n");
         tempa = (PyObject*)Pympz_From_Integer(a);
@@ -3291,6 +3210,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         Py_DECREF(tempb);
         return _cmp_to_object(c, op);
     }
+#ifdef WITHMPFR
     if (isReal(a) && isReal(b)) {
         TRACE("compare (mpfr,float)\n");
         /* Handle non-numbers separately. */
@@ -3326,6 +3246,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     }
     Py_RETURN_NOTIMPLEMENTED;
 }
+#endif
 
 /* Include the module-level methods that call the type-specific methods. */
 
@@ -3695,102 +3616,10 @@ static PyGetSetDef Pympfr_getseters[] =
     {NULL}
 };
 
-#ifdef PY3
-static PyNumberMethods mpc_number_methods =
-{
-    0,            /* nb_add                  */
-    0,            /* nb_subtract             */
-    0,            /* nb_multiply             */
-    0,            /* nb_remaider             */
-    0,         /* nb_divmod               */
-    0,           /* nb_power                */
-    0,              /* nb_negative             */
-    0,              /* nb_positive             */
-    0,              /* nb_absolute             */
-    0,            /* nb_bool                 */
-        0,                               /* nb_invert               */
-        0,                               /* nb_lshift               */
-        0,                               /* nb_rshift               */
-        0,                               /* nb_and                  */
-        0,                               /* nb_xor                  */
-        0,                               /* nb_or                   */
-    0,           /* nb_int                  */
-        0,                               /* nb_reserved             */
-    0,          /* nb_float                */
-        0,                               /* nb_inplace_add          */
-        0,                               /* nb_inplace_subtract     */
-        0,                               /* nb_inplace_multiply     */
-        0,                               /* nb_inplace_remainder    */
-        0,                               /* nb_inplace_power        */
-        0,                               /* nb_inplace_lshift       */
-        0,                               /* nb_inplace_rshift       */
-        0,                               /* nb_inplace_and          */
-        0,                               /* nb_inplace_xor          */
-        0,                               /* nb_inplace_or           */
-    0,       /* nb_floor_divide         */
-    0,        /* nb_true_divide          */
-        0,                               /* nb_inplace_floor_divide */
-        0,                               /* nb_inplace_true_divide  */
-        0,                               /* nb_index                */
-};
-#else
-static PyNumberMethods mpc_number_methods =
-{
-    0,            /* nb_add                  */
-    0,            /* nb_subtract             */
-    0,            /* nb_multiply             */
-    0,           /* nb_divide               */
-    0,            /* nb_remaider             */
-    0,         /* nb_divmod               */
-    0,           /* nb_power                */
-    0,              /* nb_negative             */
-    0,               /* nb_positive             */
-    0,              /* nb_absolute             */
-    0,             /* nb_bool                 */
-        0,                               /* nb_invert               */
-        0,                               /* nb_lshift               */
-        0,                               /* nb_rshift               */
-        0,                               /* nb_and                  */
-        0,                               /* nb_xor                  */
-        0,                               /* nb_or                   */
-        0,                               /* nb_coerce               */
-    0,            /* nb_int                  */
-    0,           /* nb_long                 */
-    0,          /* nb_float                */
-        0,                               /* nb_oct                  */
-        0,                               /* nb_hex                  */
-        0,                               /* nb_inplace_add          */
-        0,                               /* nb_inplace_subtract     */
-        0,                               /* nb_inplace_multiply     */
-        0,                               /* nb_inplace_divide       */
-        0,                               /* nb_inplace_remainder    */
-        0,                               /* nb_inplace_power        */
-        0,                               /* nb_inplace_lshift       */
-        0,                               /* nb_inplace_rshift       */
-        0,                               /* nb_inplace_and          */
-        0,                               /* nb_inplace_xor          */
-        0,                               /* nb_inplace_or           */
-    0,       /* nb_floor_divide         */
-    0,        /* nb_true_divide          */
-        0,                               /* nb_inplace_floor_divide */
-        0,                               /* nb_inplace_true_divide  */
-};
-#endif
-
 static PyMethodDef Pygmpy_methods [] =
 {
     { "_cvsid", Pygmpy_get_cvsid, METH_NOARGS, doc_cvsid },
     { "_copy", Pympany_copy, METH_O, doc_copyg },
-    { "acos", Pympfr_acos, METH_O, doc_g_mpfr_acos },
-    { "acosh", Pympfr_acosh, METH_O, doc_g_mpfr_acosh },
-    { "add", Pympfr_add, METH_VARARGS, doc_g_mpfr_add },
-    { "ai", Pympfr_ai, METH_O, doc_g_mpfr_ai },
-    { "agm", Pympfr_agm, METH_VARARGS, doc_g_mpfr_agm },
-    { "asin", Pympfr_asin, METH_O, doc_g_mpfr_asin },
-    { "asinh", Pympfr_asinh, METH_O, doc_g_mpfr_asinh },
-    { "atan", Pympfr_atan, METH_O, doc_g_mpfr_atan },
-    { "atanh", Pympfr_atanh, METH_O, doc_g_mpfr_atanh },
-    { "atan2", Pympfr_atan2, METH_VARARGS, doc_g_mpfr_atan2 },
     { "bit_clear", Pygmpy_bit_clear, METH_VARARGS, doc_bit_clearg },
     { "bit_flip", Pygmpy_bit_flip, METH_VARARGS, doc_bit_flipg },
     { "bit_length", Pympz_bit_length, METH_O, doc_bit_lengthg },
@@ -3801,10 +3630,88 @@ static PyMethodDef Pygmpy_methods [] =
     { "bit_test", Pygmpy_bit_test, METH_VARARGS, doc_bit_testg },
     { "binary", Pympany_binary, METH_O, doc_binaryg },
     { "bincoef", Pympz_bincoef, METH_VARARGS, doc_bincoefg },
+    { "comb", Pympz_bincoef, METH_VARARGS, doc_combg },
+    { "c_div", Pygmpy_c_div, METH_VARARGS, doc_gmpy_c_div },
+    { "c_div_2exp", Pygmpy_c_div_2exp, METH_VARARGS, doc_gmpy_c_div_2exp },
+    { "c_divmod", Pygmpy_c_divmod, METH_VARARGS, doc_gmpy_c_divmod },
+    { "c_divmod_2exp", Pygmpy_c_divmod_2exp, METH_VARARGS, doc_gmpy_c_divmod_2exp },
+    { "c_mod", Pygmpy_c_mod, METH_VARARGS, doc_gmpy_c_mod },
+    { "c_mod_2exp", Pygmpy_c_mod_2exp, METH_VARARGS, doc_gmpy_c_mod_2exp },
+    { "denom", Pympq_denom, METH_VARARGS, doc_denomg },
+    { "digits", Pympany_digits, METH_VARARGS, doc_g_mpany_digits },
+    { "divexact", Pygmpy_divexact, METH_VARARGS, doc_divexactg },
+    { "divm", Pygmpy_divm, METH_VARARGS, doc_divm },
+    { "fac", Pygmpy_fac, METH_O, doc_fac },
+    { "fib", Pygmpy_fib, METH_O, doc_fib },
+    { "fib2", Pygmpy_fib2, METH_O, doc_fib2 },
+    { "f_div", Pygmpy_f_div, METH_VARARGS, doc_gmpy_f_div },
+    { "f_div_2exp", Pygmpy_f_div_2exp, METH_VARARGS, doc_gmpy_f_div_2exp },
+    { "f_divmod", Pygmpy_f_divmod, METH_VARARGS, doc_gmpy_f_divmod },
+    { "f_divmod_2exp", Pygmpy_f_divmod_2exp, METH_VARARGS, doc_gmpy_f_divmod_2exp },
+    { "f_mod", Pygmpy_f_mod, METH_VARARGS, doc_gmpy_f_mod },
+    { "f_mod_2exp", Pygmpy_f_mod_2exp, METH_VARARGS, doc_gmpy_f_mod_2exp },
+    { "gcd", Pygmpy_gcd, METH_VARARGS, doc_gcd },
+    { "gcdext", Pygmpy_gcdext, METH_VARARGS, doc_gcdext },
+    { "get_cache", Pygmpy_get_cache, METH_NOARGS, doc_get_cache },
+    { "hamdist", Pympz_hamdist, METH_VARARGS, doc_hamdistg },
+    { "invert", Pygmpy_invert, METH_VARARGS, doc_invertg },
+    { "is_even", Pympz_is_even, METH_O, doc_is_eveng },
+    { "is_odd", Pympz_is_odd, METH_O, doc_is_oddg },
+    { "is_power", Pympz_is_power, METH_O, doc_is_powerg },
+    { "is_prime", Pympz_is_prime, METH_VARARGS, doc_is_primeg },
+    { "is_square", Pympz_is_square, METH_O, doc_is_squareg },
+    { "jacobi", Pympz_jacobi, METH_VARARGS, doc_jacobig },
+    { "kronecker", Pympz_kronecker, METH_VARARGS, doc_kroneckerm },
+    { "lcm", Pygmpy_lcm, METH_VARARGS, doc_lcm },
+    { "legendre", Pympz_legendre, METH_VARARGS, doc_legendreg },
+    { "license", Pygmpy_get_license, METH_NOARGS, doc_license },
+    { "lucas", Pygmpy_lucas, METH_O, doc_lucas },
+    { "lucas2", Pygmpy_lucas2, METH_O, doc_lucas2 },
+    { "mp_version", Pygmpy_get_mp_version, METH_NOARGS, doc_mp_version },
+    { "mp_limbsize", Pygmpy_get_mp_limbsize, METH_NOARGS, doc_mp_limbsize },
+    { "mpq", Pygmpy_mpq, METH_VARARGS, doc_mpq },
+    { "mpz", Pygmpy_mpz, METH_VARARGS, doc_mpz },
+    { "next_prime", Pympz_next_prime, METH_O, doc_next_primeg },
+    { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsg },
+    { "numer", Pympq_numer, METH_VARARGS, doc_numerg },
+    { "pack", Pygmpy_pack, METH_VARARGS, doc_gmpy_pack },
+    { "popcount", Pympz_popcount, METH_O, doc_popcountg },
+    { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivg },
+    { "remove", Pympz_remove, METH_VARARGS, doc_removeg },
+    { "root", Pympany_root, METH_VARARGS, doc_g_mpany_root },
+    { "rootrem", Pympz_rootrem, METH_VARARGS, doc_rootremg },
+    { "set_cache", Pygmpy_set_cache, METH_VARARGS, doc_set_cache },
+    { "set_context", Pygmpy_set_context, METH_O, doc_set_context },
+    { "set_debug", Pygmpy_set_debug, METH_VARARGS, doc_set_debug },
+    { "sign", Pympany_sign, METH_O, doc_g_mpany_sign },
+    { "square", Pympany_square, METH_O, doc_g_mpany_square },
+    { "sqrt", Pympany_sqrt, METH_O, doc_g_mpany_sqrt },
+    { "t_div", Pygmpy_t_div, METH_VARARGS, doc_gmpy_t_div },
+    { "t_div_2exp", Pygmpy_t_div_2exp, METH_VARARGS, doc_gmpy_t_div_2exp },
+    { "t_divmod", Pygmpy_t_divmod, METH_VARARGS, doc_gmpy_t_divmod },
+    { "t_divmod_2exp", Pygmpy_t_divmod_2exp, METH_VARARGS, doc_gmpy_t_divmod_2exp },
+    { "t_mod", Pygmpy_t_mod, METH_VARARGS, doc_gmpy_t_mod },
+    { "t_mod_2exp", Pygmpy_t_mod_2exp, METH_VARARGS, doc_gmpy_t_mod_2exp },
+    { "unpack", Pygmpy_unpack, METH_VARARGS, doc_gmpy_unpack },
+    { "version", Pygmpy_get_version, METH_NOARGS, doc_version },
+    { "xbit_mask", Pyxmpz_xbit_mask, METH_O, doc_xbit_maskg },
+    { "xmpz", Pygmpy_xmpz, METH_VARARGS, doc_xmpz },
+    { "_mpmath_normalize", Pympz_mpmath_normalize, METH_VARARGS, doc_mpmath_normalizeg },
+    { "_mpmath_create", Pympz_mpmath_create, METH_VARARGS, doc_mpmath_createg },
+#ifdef WITHMPFR
+    { "acos", Pympfr_acos, METH_O, doc_g_mpfr_acos },
+    { "acosh", Pympfr_acosh, METH_O, doc_g_mpfr_acosh },
+    { "add", Pympfr_add, METH_VARARGS, doc_g_mpfr_add },
+    { "ai", Pympfr_ai, METH_O, doc_g_mpfr_ai },
+    { "agm", Pympfr_agm, METH_VARARGS, doc_g_mpfr_agm },
+    { "asin", Pympfr_asin, METH_O, doc_g_mpfr_asin },
+    { "asinh", Pympfr_asinh, METH_O, doc_g_mpfr_asinh },
+    { "atan", Pympfr_atan, METH_O, doc_g_mpfr_atan },
+    { "atanh", Pympfr_atanh, METH_O, doc_g_mpfr_atanh },
+    { "atan2", Pympfr_atan2, METH_VARARGS, doc_g_mpfr_atan2 },
     { "cbrt", Pympfr_cbrt, METH_O, doc_g_mpfr_cbrt },
     { "ceil", Pympfr_ceil, METH_O, doc_g_mpfr_ceil },
     { "check_range", Pympfr_check_range, METH_O, doc_g_mpfr_check_range },
-    { "comb", Pympz_bincoef, METH_VARARGS, doc_combg },
     { "const_catalan", Pympfr_const_catalan, METH_NOARGS, doc_mpfr_const_catalan },
     { "const_euler", Pympfr_const_euler, METH_NOARGS, doc_mpfr_const_euler },
     { "const_log2", Pympfr_const_log2, METH_NOARGS, doc_mpfr_const_log2 },
@@ -3816,18 +3723,8 @@ static PyMethodDef Pygmpy_methods [] =
     { "coth", Pympfr_coth, METH_O, doc_g_mpfr_coth },
     { "csc", Pympfr_csc, METH_O, doc_g_mpfr_csc },
     { "csch", Pympfr_csch, METH_O, doc_g_mpfr_csch },
-    { "c_div", Pygmpy_c_div, METH_VARARGS, doc_gmpy_c_div },
-    { "c_div_2exp", Pygmpy_c_div_2exp, METH_VARARGS, doc_gmpy_c_div_2exp },
-    { "c_divmod", Pygmpy_c_divmod, METH_VARARGS, doc_gmpy_c_divmod },
-    { "c_divmod_2exp", Pygmpy_c_divmod_2exp, METH_VARARGS, doc_gmpy_c_divmod_2exp },
-    { "c_mod", Pygmpy_c_mod, METH_VARARGS, doc_gmpy_c_mod },
-    { "c_mod_2exp", Pygmpy_c_mod_2exp, METH_VARARGS, doc_gmpy_c_mod_2exp },
-    { "denom", Pympq_denom, METH_VARARGS, doc_denomg },
     { "digamma", Pympfr_digamma, METH_O, doc_g_mpfr_digamma },
-    { "digits", Pympany_digits, METH_VARARGS, doc_g_mpany_digits },
     { "div", Pympfr_div, METH_VARARGS, doc_g_mpfr_div },
-    { "divexact", Pygmpy_divexact, METH_VARARGS, doc_divexactg },
-    { "divm", Pygmpy_divm, METH_VARARGS, doc_divm },
     { "eint", Pympfr_eint, METH_O, doc_g_mpfr_eint },
     { "erf", Pympfr_erf, METH_O, doc_g_mpfr_erf },
     { "erfc", Pympfr_erfc, METH_O, doc_g_mpfr_erfc },
@@ -3835,135 +3732,82 @@ static PyMethodDef Pygmpy_methods [] =
     { "expm1", Pympfr_expm1, METH_O, doc_g_mpfr_expm1 },
     { "exp10", Pympfr_exp10, METH_O, doc_g_mpfr_exp10 },
     { "exp2", Pympfr_exp2, METH_O, doc_g_mpfr_exp2 },
-    { "fac", Pygmpy_fac, METH_O, doc_fac },
     { "factorial", Pympfr_factorial, METH_O, doc_g_mpfr_factorial },
-    { "fib", Pygmpy_fib, METH_O, doc_fib },
-    { "fib2", Pygmpy_fib2, METH_O, doc_fib2 },
     { "floor", Pympfr_floor, METH_O, doc_g_mpfr_floor},
     { "fma", Pympfr_fma, METH_VARARGS, doc_g_mpfr_fma },
     { "fms", Pympfr_fms, METH_VARARGS, doc_g_mpfr_fms },
     { "fmod", Pympfr_fmod, METH_VARARGS, doc_g_mpfr_fmod },
     { "frac", Pympfr_frac, METH_O, doc_g_mpfr_frac },
     { "f2q", Pympfr_f2q, METH_VARARGS, doc_g_mpfr_f2q },
-    { "f_div", Pygmpy_f_div, METH_VARARGS, doc_gmpy_f_div },
-    { "f_div_2exp", Pygmpy_f_div_2exp, METH_VARARGS, doc_gmpy_f_div_2exp },
-    { "f_divmod", Pygmpy_f_divmod, METH_VARARGS, doc_gmpy_f_divmod },
-    { "f_divmod_2exp", Pygmpy_f_divmod_2exp, METH_VARARGS, doc_gmpy_f_divmod_2exp },
-    { "f_mod", Pygmpy_f_mod, METH_VARARGS, doc_gmpy_f_mod },
-    { "f_mod_2exp", Pygmpy_f_mod_2exp, METH_VARARGS, doc_gmpy_f_mod_2exp },
     { "gamma", Pympfr_gamma, METH_O, doc_g_mpfr_gamma },
-    { "gcd", Pygmpy_gcd, METH_VARARGS, doc_gcd },
-    { "gcdext", Pygmpy_gcdext, METH_VARARGS, doc_gcdext },
-    { "get_cache", Pygmpy_get_cache, METH_NOARGS, doc_get_cache },
     { "get_emax_max", Pympfr_get_emax_max, METH_NOARGS, doc_g_mpfr_get_emax_max },
     { "get_emin_min", Pympfr_get_emin_min, METH_NOARGS, doc_g_mpfr_get_emin_min },
     { "get_max_precision", Pympfr_get_max_precision, METH_NOARGS, doc_g_mpfr_get_max_precision },
-    { "hamdist", Pympz_hamdist, METH_VARARGS, doc_hamdistg },
     { "hypot", Pympfr_hypot, METH_VARARGS, doc_g_mpfr_hypot },
     { "inf", Pympfr_set_inf, METH_O, doc_g_mpfr_set_inf },
-    { "invert", Pygmpy_invert, METH_VARARGS, doc_invertg },
-    { "is_even", Pympz_is_even, METH_O, doc_is_eveng },
     { "is_inf", Pympfr_is_inf, METH_O, doc_g_mpfr_is_inf },
     { "is_integer", Pympfr_is_integer, METH_O, doc_g_mpfr_is_integer },
     { "is_lessgreater", Pympfr_is_lessgreater, METH_VARARGS, doc_g_mpfr_is_lessgreater },
     { "is_nan", Pympfr_is_nan, METH_O, doc_g_mpfr_is_nan },
     { "is_number", Pympfr_is_number, METH_O, doc_g_mpfr_is_number },
-    { "is_odd", Pympz_is_odd, METH_O, doc_is_oddg },
-    { "is_power", Pympz_is_power, METH_O, doc_is_powerg },
-    { "is_prime", Pympz_is_prime, METH_VARARGS, doc_is_primeg },
     { "is_regular", Pympfr_is_regular, METH_O, doc_g_mpfr_is_regular },
-    { "is_square", Pympz_is_square, METH_O, doc_is_squareg },
     { "is_unordered", Pympfr_is_unordered, METH_VARARGS, doc_g_mpfr_is_unordered },
     { "is_zero", Pympfr_is_zero, METH_O, doc_g_mpfr_is_zero },
-    { "jacobi", Pympz_jacobi, METH_VARARGS, doc_jacobig },
     { "jn", Pympfr_jn, METH_VARARGS, doc_g_mpfr_jn },
     { "j0", Pympfr_j0, METH_O, doc_g_mpfr_j0 },
     { "j1", Pympfr_j1, METH_O, doc_g_mpfr_j1 },
-    { "kronecker", Pympz_kronecker, METH_VARARGS, doc_kroneckerm },
-    { "lcm", Pygmpy_lcm, METH_VARARGS, doc_lcm },
-    { "legendre", Pympz_legendre, METH_VARARGS, doc_legendreg },
     { "lgamma", Pympfr_lgamma, METH_O, doc_g_mpfr_lgamma },
-    { "license", Pygmpy_get_license, METH_NOARGS, doc_license },
     { "li2", Pympfr_li2, METH_O, doc_g_mpfr_li2 },
     { "lngamma", Pympfr_lngamma, METH_O, doc_g_mpfr_lngamma },
     { "log", Pympfr_log, METH_O, doc_g_mpfr_log },
     { "log1p", Pympfr_log1p, METH_O, doc_g_mpfr_log1p },
     { "log10", Pympfr_log10, METH_O, doc_g_mpfr_log10 },
     { "log2", Pympfr_log2, METH_O, doc_g_mpfr_log2 },
-    { "lucas", Pygmpy_lucas, METH_O, doc_lucas },
-    { "lucas2", Pygmpy_lucas2, METH_O, doc_lucas2 },
     { "max", Pympfr_max, METH_VARARGS, doc_g_mpfr_max },
     { "min", Pympfr_min, METH_VARARGS, doc_g_mpfr_min },
     { "modf", Pympfr_modf, METH_O, doc_g_mpfr_modf },
     { "mpfr", Pygmpy_mpfr, METH_VARARGS, doc_mpfr },
-    { "mp_version", Pygmpy_get_mp_version, METH_NOARGS, doc_mp_version },
-    { "mp_limbsize", Pygmpy_get_mp_limbsize, METH_NOARGS, doc_mp_limbsize },
-    { "mpc", (PyCFunction)Pygmpy_mpc, METH_VARARGS | METH_KEYWORDS, doc_g_mpc },
-    { "mpc_version", Pygmpy_get_mpc_version, METH_NOARGS, doc_mpc_version },
     { "mpfr_version", Pygmpy_get_mpfr_version, METH_NOARGS, doc_mpfr_version },
-    { "mpq", Pygmpy_mpq, METH_VARARGS, doc_mpq },
-    { "mpz", Pygmpy_mpz, METH_VARARGS, doc_mpz },
     { "mul", Pympfr_mul, METH_VARARGS, doc_g_mpfr_mul },
     { "nan", Pympfr_set_nan, METH_NOARGS, doc_g_mpfr_set_nan },
     { "new_context", (PyCFunction)Pygmpy_new_context, METH_VARARGS | METH_KEYWORDS, doc_new_context },
     { "next_above", Pympfr_nextabove, METH_O, doc_g_mpfr_nextabove },
     { "next_below", Pympfr_nextbelow, METH_O, doc_g_mpfr_nextbelow },
-    { "next_prime", Pympz_next_prime, METH_O, doc_next_primeg },
     { "next_toward", Pympfr_nexttoward, METH_VARARGS, doc_g_mpfr_nexttoward },
-    { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsg },
-    { "numer", Pympq_numer, METH_VARARGS, doc_numerg },
-    { "pack", Pygmpy_pack, METH_VARARGS, doc_gmpy_pack },
-    { "popcount", Pympz_popcount, METH_O, doc_popcountg },
     { "pow", Pympfr_pow, METH_VARARGS, doc_g_mpfr_pow },
-    { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivg },
     { "rec_sqrt", Pympfr_rec_sqrt, METH_O, doc_g_mpfr_rec_sqrt },
     { "reldiff", Pympfr_reldiff, METH_VARARGS, doc_g_mpfr_reldiff },
     { "remainder", Pympfr_remainder, METH_VARARGS, doc_g_mpfr_remainder },
-    { "remove", Pympz_remove, METH_VARARGS, doc_removeg },
     { "remquo", Pympfr_remquo, METH_VARARGS, doc_g_mpfr_remquo },
     { "rint", Pympfr_rint, METH_O, doc_g_mpfr_rint },
     { "rint_ceil", Pympfr_rint_ceil, METH_O, doc_g_mpfr_rint_ceil },
     { "rint_floor", Pympfr_rint_floor, METH_O, doc_g_mpfr_rint_floor },
     { "rint_round", Pympfr_rint_round, METH_O, doc_g_mpfr_rint_round },
     { "rint_trunc", Pympfr_rint_trunc, METH_O, doc_g_mpfr_rint_trunc },
-    { "root", Pympany_root, METH_VARARGS, doc_g_mpany_root },
-    { "rootrem", Pympz_rootrem, METH_VARARGS, doc_rootremg },
     { "round", Pympfr_round, METH_VARARGS, doc_g_mpfr_round },
     { "round2", Pympfr_round2, METH_O, doc_g_mpfr_round2 },
     { "sec", Pympfr_sec, METH_O, doc_g_mpfr_sec },
     { "sech", Pympfr_sech, METH_O, doc_g_mpfr_sech },
-    { "set_cache", Pygmpy_set_cache, METH_VARARGS, doc_set_cache },
-    { "set_context", Pygmpy_set_context, METH_O, doc_set_context },
-    { "set_debug", Pygmpy_set_debug, METH_VARARGS, doc_set_debug },
-    { "sign", Pympany_sign, METH_O, doc_g_mpany_sign },
     { "sin", Pympfr_sin, METH_O, doc_g_mpfr_sin },
     { "sinh", Pympfr_sinh, METH_O, doc_g_mpfr_sinh },
     { "sinh_cosh", Pympfr_sinh_cosh, METH_O, doc_g_mpfr_sinh_cosh },
     { "sin_cos", Pympfr_sin_cos, METH_O, doc_g_mpfr_sin_cos },
-    { "square", Pympany_square, METH_O, doc_g_mpany_square },
-    { "sqrt", Pympany_sqrt, METH_O, doc_g_mpany_sqrt },
     { "sqrtrem", Pympz_sqrtrem, METH_VARARGS, doc_sqrtremg },
     { "sub", Pympfr_sub, METH_VARARGS, doc_g_mpfr_sub },
     { "tan", Pympfr_tan, METH_O, doc_g_mpfr_tan },
     { "tanh", Pympfr_tanh, METH_O, doc_g_mpfr_tanh },
-    { "t_div", Pygmpy_t_div, METH_VARARGS, doc_gmpy_t_div },
-    { "t_div_2exp", Pygmpy_t_div_2exp, METH_VARARGS, doc_gmpy_t_div_2exp },
-    { "t_divmod", Pygmpy_t_divmod, METH_VARARGS, doc_gmpy_t_divmod },
-    { "t_divmod_2exp", Pygmpy_t_divmod_2exp, METH_VARARGS, doc_gmpy_t_divmod_2exp },
-    { "t_mod", Pygmpy_t_mod, METH_VARARGS, doc_gmpy_t_mod },
-    { "t_mod_2exp", Pygmpy_t_mod_2exp, METH_VARARGS, doc_gmpy_t_mod_2exp },
     { "trunc", Pympfr_trunc, METH_O, doc_g_mpfr_trunc },
-    { "unpack", Pygmpy_unpack, METH_VARARGS, doc_gmpy_unpack },
-    { "version", Pygmpy_get_version, METH_NOARGS, doc_version },
-    { "xbit_mask", Pyxmpz_xbit_mask, METH_O, doc_xbit_maskg },
-    { "xmpz", Pygmpy_xmpz, METH_VARARGS, doc_xmpz },
     { "yn", Pympfr_yn, METH_VARARGS, doc_g_mpfr_yn },
     { "y0", Pympfr_y0, METH_O, doc_g_mpfr_y0 },
     { "y1", Pympfr_y1, METH_O, doc_g_mpfr_y1 },
     { "zero", Pympfr_set_zero, METH_O, doc_g_mpfr_set_zero },
     { "zeta", Pympfr_zeta, METH_O, doc_g_mpfr_zeta },
-    { "_mpmath_normalize", Pympz_mpmath_normalize, METH_VARARGS, doc_mpmath_normalizeg },
-    { "_mpmath_create", Pympz_mpmath_create, METH_VARARGS, doc_mpmath_createg },
+#endif
+
+#ifdef WITHMPC
+    { "mpc", (PyCFunction)Pygmpy_mpc, METH_VARARGS | METH_KEYWORDS, doc_g_mpc },
+    { "mpc_version", Pygmpy_get_mpc_version, METH_NOARGS, doc_mpc_version },
+#endif
     { NULL, NULL, 1}
 };
 
@@ -4080,6 +3924,7 @@ static PyMethodDef Pympq_methods [] =
     { NULL, NULL, 1 }
 };
 
+#ifdef WITHMPFR
 static PyMethodDef Pympfr_methods [] =
 {
     { "_copy", Pympany_copy, METH_NOARGS, doc_copym },
@@ -4177,11 +4022,7 @@ static PyMethodDef Pympfr_methods [] =
     { "zeta", Pympfr_zeta, METH_NOARGS, doc_mpfr_zeta },
     { NULL, NULL, 1 }
 };
-
-static PyMethodDef Pympc_methods[] =
-{
-    { NULL, NULL, 1 }
-};
+#endif
 
 static PyTypeObject Pympz_Type =
 {
@@ -4365,52 +4206,6 @@ static PyTypeObject Pympfr_Type =
     Pympfr_getseters,                        /* tp_getset        */
 };
 
-static PyTypeObject Pympc_Type =
-{
-    /* PyObject_HEAD_INIT(&PyType_Type) */
-#ifdef PY3
-    PyVarObject_HEAD_INIT(NULL, 0)
-#else
-    PyObject_HEAD_INIT(0)
-    0,                                      /* ob_size          */
-#endif
-    "mpc",                                  /* tp_name          */
-    sizeof(PympcObject),                    /* tp_basicsize     */
-        0,                                  /* tp_itemsize      */
-    /* methods */
-    (destructor) Pympc_dealloc,             /* tp_dealloc       */
-        0,                                  /* tp_print         */
-        0,                                  /* tp_getattr       */
-        0,                                  /* tp_setattr       */
-        0,                                  /* tp_reserved      */
-        0,                                  /* tp_repr          */
-    &mpc_number_methods,                    /* tp_as_number     */
-        0,                                  /* tp_as_sequence   */
-        0,                                  /* tp_as_mapping    */
-        0,                                  /* tp_hash          */
-        0,                                  /* tp_call          */
-    (reprfunc) 0,                           /* tp_str           */
-        0,                                  /* tp_getattro      */
-        0,                                  /* tp_setattro      */
-        0,                                  /* tp_as_buffer     */
-#ifdef PY3
-    Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
-#else
-    Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,  /* tp_flags */
-#endif
-    "MPC-based complex number",             /* tp_doc           */
-        0,                                  /* tp_traverse      */
-        0,                                  /* tp_clear         */
-        0,                                  /* tp_richcompare   */
-        0,                                  /* tp_weaklistoffset*/
-        0,                                  /* tp_iter          */
-        0,                                  /* tp_iternext      */
-    Pympc_methods,                          /* tp_methods       */
-        0,                                  /* tp_members       */
-        0,                                  /* tp_getset        */
-};
-
-
 static void *
 gmpy_allocate(size_t size)
 {
@@ -4501,8 +4296,9 @@ _PyInitGMP(void)
     set_zcache();
     set_pympzcache();
     set_pympqcache();
-    set_pympfrcache();
     set_pyxmpzcache();
+#ifdef WITHMPFR
+    set_pympfrcache();
     context = GMPyContext_new();
     GMPyExc_DivZero = PyErr_NewException("gmpy2.DivisionByZeroError", NULL, NULL);
     GMPyExc_Inexact = PyErr_NewException("gmpy2.InexactError", NULL, NULL);
@@ -4510,6 +4306,7 @@ _PyInitGMP(void)
     GMPyExc_Overflow = PyErr_NewException("gmpy2.OverflowError", NULL, NULL);
     GMPyExc_Underflow = PyErr_NewException("gmpy2.UnderflowError", NULL, NULL);
     GMPyExc_Erange = PyErr_NewException("gmpy2.RangeError", NULL, NULL);
+#endif
 }
 
 static char _gmpy_docs[] = "\

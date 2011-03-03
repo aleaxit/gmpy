@@ -68,17 +68,6 @@ Pygmpy_get_mpfr_version(PyObject *self, PyObject *args)
                                 MPFR_VERSION_STRING);
 }
 
-PyDoc_STRVAR(doc_mpc_version,
-"mpc_version() -> string\n\n"
-"Return string giving current MPC version.");
-
-static PyObject *
-Pygmpy_get_mpc_version(PyObject *self, PyObject *args)
-{
-    return PyUnicode_FromFormat("%s %s", "MPC",
-                                MPC_VERSION_STRING);
-}
-
 PyDoc_STRVAR(doc_mp_limbsize,
 "mp_limbsize() -> integer\n\n\
 Return the number of bits per limb.");
@@ -156,42 +145,3 @@ Pygmpy_set_debug(PyObject *self, PyObject *args)
     return NULL;
 #endif
 }
-
-/*
- * Helper functions.
- */
-
-/* Verify that a valid rounding mode is specified for complex arithmetic.
- * Returns 0 (false) if the rounding mode is not valid else returns 1 (true).
- */
-
-static int
-Pymisc_verify_mpc_round(int rmode)
-{
-    if ( rmode == MPC_RNDNN || rmode == MPC_RNDNZ ||
-         rmode == MPC_RNDNU || rmode == MPC_RNDND ||
-         rmode == MPC_RNDZN || rmode == MPC_RNDZZ ||
-         rmode == MPC_RNDZU || rmode == MPC_RNDZD ||
-         rmode == MPC_RNDUN || rmode == MPC_RNDUZ ||
-         rmode == MPC_RNDUU || rmode == MPC_RNDUD ||
-         rmode == MPC_RNDDN || rmode == MPC_RNDDZ ||
-         rmode == MPC_RNDDU || rmode == MPC_RNDDD )
-        return 1;
-    else
-        return 0;
-}
-
-/* Verify that valid precisions are requested for complex arithmetic.
- * Returns 0 if the precisions are not valid else returns 1.
- */
-
-static int
-Pymisc_verify_mpc_precision(Py_ssize_t rprec, Py_ssize_t iprec)
-{
-    if ( rprec < MPFR_PREC_MIN || rprec > MPFR_PREC_MAX ||
-         iprec < MPFR_PREC_MIN || iprec > MPFR_PREC_MAX )
-        return 0;
-    else
-        return 1;
-}
-

@@ -242,6 +242,7 @@ Pympq_dealloc(PympqObject *self)
     }
 }
 
+#ifdef WITHMPFR
 /* Caching logic for Pympfr. */
 
 static PympfrObject **pympfrcache;
@@ -311,7 +312,9 @@ Pympfr_dealloc(PympfrObject *self)
         PyObject_Del(self);
     }
 }
+#endif
 
+#ifdef WITHMPC
 /* Caching logic for Pympc.
    No caching is done for Pympc since support for setting real and imaginary
    precision independantly forces a new memory allocation.
@@ -348,4 +351,5 @@ Pympc_dealloc(PympcObject *self)
     mpc_clear(self->c);
     PyObject_Del(self);
 }
+#endif
 
