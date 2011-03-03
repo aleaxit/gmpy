@@ -328,7 +328,7 @@ typedef struct {
 } gmpy_context;
 
 typedef struct {
-    PyObject_HEAD;
+    PyObject_HEAD
     gmpy_context now;        /* The "new" values, used by __enter__ */
     PyObject *orig;          /* Original context, restored by __exit__*/
 } GMPyContextObject;
