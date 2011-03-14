@@ -403,6 +403,10 @@ static PyObject *GMPyExc_Erange = NULL;
 
 #include "gmpy_context.c"
 
+/* Support for conversion to/from binary representation. */
+
+#include "gmpy_binary.c"
+
 /* CONVERSIONS AND COPIES */
 
 static PympzObject *
@@ -803,7 +807,8 @@ PyLong2Pympq(PyObject *self)
     return newob;
 }
 
-/*
+/* TODO: remove binary support!
+ *
  * mpz conversion from string includes from-binary (base-256 LSB string
  * of bytes) and 'true' from-string (bases 2 to 62; bases 8 and 16 are
  * special -- decorations of leading 0/0x are allowed (not required).
@@ -2764,9 +2769,7 @@ mpz(s,base=0):\n\
       builds an mpz object from a string s made up of digits in the\n\
       given base.  If base=0, binary, octal, or hex Python strings\n\
       are recognized by leading 0b, 0o, or 0x characters, otherwise\n\
-      the string is assumed to be decimal. If base=256, s must be a\n\
-      gmpy2.mpz portable binary representation as built by the function\n\
-      gmpy2.binary (and the .binary method of mpz objects).\n\
+      the string is assumed to be decimal.\n\
 ";
 static PyObject *
 Pygmpy_mpz(PyObject *self, PyObject *args)
@@ -2796,8 +2799,8 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
                 TYPE_ERROR("gmpy2.mpz(): base must be an integer");
                 return NULL;
             }
-            if ((base!=0) && (base!=256) && ((base<2)||(base>62))) {
-                VALUE_ERROR("base for gmpy2.mpz() must be 0, 256, or in the "
+            if ((base!=0) && ((base<2)||(base>62))) {
+                VALUE_ERROR("base for gmpy2.mpz() must be 0 or in the "
                             "interval 2 ... 62");
                 return NULL;
             }
@@ -2870,8 +2873,8 @@ Pygmpy_xmpz(PyObject *self, PyObject *args)
             TYPE_ERROR("gmpy2.xmpz(): base must be an integer");
             return NULL;
         }
-        if ((base!=0) && (base!=256) && ((base<2)||(base>62))) {
-            VALUE_ERROR("gmpy2.xmpz(): base must be 0, 256, or in the "
+        if ((base!=0) && ((base<2)||(base>62))) {
+            VALUE_ERROR("gmpy2.xmpz(): base must be 0 or in the "
                         "interval 2 ... 62");
             return NULL;
         }
@@ -3671,6 +3674,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "mp_limbsize", Pygmpy_get_mp_limbsize, METH_NOARGS, doc_mp_limbsize },
     { "mpq", Pygmpy_mpq, METH_VARARGS, doc_mpq },
     { "mpz", Pygmpy_mpz, METH_VARARGS, doc_mpz },
+    { "mpz_from_old_binary", Pympz_From_Old_Binary, METH_O, doc_g_mpz_from_old_binary },
     { "next_prime", Pympz_next_prime, METH_O, doc_next_primeg },
     { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsg },
     { "numer", Pympq_numer, METH_VARARGS, doc_numerg },
@@ -4418,7 +4422,7 @@ PyMODINIT_FUNC initgmpy2(void)
     copy_reg_module = PyImport_ImportModule("copyreg");
     if (copy_reg_module) {
         char* enable_pickle =
-            "def mpz_reducer(an_mpz): return (gmpy2.mpz, (an_mpz.binary(), 256))\n"
+            "def mpz_reducer(an_mpz): return (gmpy2.mpz_from_old_binary, (an_mpz.binary(),))\n"
             "def mpq_reducer(an_mpq): return (gmpy2.mpq, (an_mpq.binary(), 256))\n"
             "def mpfr_reducer(an_mpfr): return (gmpy2.mpfr, (an_mpfr.binary(), 0, 256))\n"
             "copyreg.pickle(type(gmpy2.mpz(0)), mpz_reducer)\n"
@@ -4463,7 +4467,7 @@ PyMODINIT_FUNC initgmpy2(void)
     copy_reg_module = PyImport_ImportModule("copy_reg");
     if (copy_reg_module) {
         char* enable_pickle =
-            "def mpz_reducer(an_mpz): return (gmpy2.mpz, (an_mpz.binary(), 256))\n"
+            "def mpz_reducer(an_mpz): return (gmpy2.mpz_from_old_binary, (an_mpz.binary(),))\n"
             "def mpq_reducer(an_mpq): return (gmpy2.mpq, (an_mpq.binary(), 256))\n"
             "def mpfr_reducer(an_mpfr): return (gmpy2.mpfr, (an_mpfr.binary(), 0, 256))\n"
             "copy_reg.pickle(type(gmpy2.mpz(0)), mpz_reducer)\n"
