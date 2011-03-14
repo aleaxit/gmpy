@@ -507,13 +507,9 @@ Pympz_bit_set(PyObject *self, PyObject *other)
 }
 
 static char doc_bit_flipm[]="\
-x.bit_flip(n): complements the n-th bit of x. If x is an xmpz,\n\
-x is modified in-place. If x is an mpz, a new object is returned.\n\
-";
+x.bit_flip(n): complements the n-th bit of x.";
 static char doc_bit_flipg[]="\
-bit_flip(x,n): complements the n-th bit of x. A new object is \n\
-always returned.\n\
-";
+bit_flip(x,n): complements the n-th bit of x.";
 
 static PyObject *
 Pygmpy_bit_flip(PyObject *self, PyObject *args)
