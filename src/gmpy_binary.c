@@ -5,12 +5,47 @@
  * constructors.
  */
 
-/*
- * Conversion routines between GMPY2 objects and a compact, portable
+
+/* Conversion routines between GMPY2 objects and a compact, portable
  * binary representation. The binary format of GMPY2 is not compatible
  * with GMPY 1.x.
  */
 
+/* Provide functions to access the old binary formats. */
+PyDoc_STRVAR(doc_g_mpz_from_old_binary,
+"mpz_from_old_binary(string) -> mpz\n\n"
+"Return an mpz from a GMPY 1.x binary format.");
+static PyObject *
+Pympz_From_Old_Binary(PyObject *self, PyObject *other)
+{
+    unsigned char *cp;
+    Py_ssize_t len;
+    int negative = 0;
+    PympzObject *result;
+
+    if (!(PyBytes_Check(other))) {
+        TYPE_ERROR("mpz_from_old_binary() requires bytes argument");
+        return NULL;
+    }
+
+    if (!(result = Pympz_new()))
+        return NULL;
+
+    len = PyBytes_Size(other);
+    cp = (unsigned char*)PyBytes_AsString(other);
+
+    if (cp[len-1] == 0xFF) {
+        negative = 1;
+        --len;
+    }
+    mpz_import(result->z, len, -1, sizeof(char), 0, 0, cp);
+    if (negative)
+        mpz_neg(result->z, result->z);
+    return (PyObject*)result;
+}
+
+
+#if 0
 /* Format of binary representation of an mpfr.
  *
  * bytes[0..3]         "mpfr"
@@ -144,4 +179,4 @@ Pympfr_From_Binary(PyObject *s)
     Py_XDECREF(ascii_str);
     return newob;
 }
-
+#endif

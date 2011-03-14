@@ -623,13 +623,13 @@ r'''
 >>> ba=a.binary()
 >>> ba
 b'{'
->>> _g.xmpz(ba,256)
+>>> _g.xmpz(_g.mpz_from_old_binary(ba))
 xmpz(123)
->>> _g.xmpz(ba,256)==a
+>>> _g.xmpz(_g.mpz_from_old_binary(ba))==a
 1
 >>> _g.binary(_g.xmpz(123))
 b'{'
->>> z=_g.xmpz('melancholy',256)
+>>> z=_g.xmpz(_g.mpz_from_old_binary(b'melancholy'))
 >>> z
 xmpz(573406620562849222387053)
 >>> int(z)
@@ -682,7 +682,7 @@ xmpz(573406620562849222387053)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
 ValueError: base must be either 0 or in the interval 2 ... 62
->>> _g.xmpz(_g.binary(_g.xmpz(-123)),256)
+>>> _g.xmpz(_g.mpz_from_old_binary(_g.binary(_g.xmpz(-123))))
 xmpz(-123)
 >>> int(_g.xmpz(-3))
 -3
