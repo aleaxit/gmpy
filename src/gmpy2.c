@@ -366,6 +366,7 @@ static GMPyContextObject *context = NULL;
  * be made the exceptions raised by mpz, xmpz, and mpq.
  */
 
+static PyObject *GMPyExc_GmpyError = NULL;
 static PyObject *GMPyExc_DivZero = NULL;
 static PyObject *GMPyExc_Inexact = NULL;
 static PyObject *GMPyExc_Invalid = NULL;
@@ -4296,6 +4297,8 @@ gmpy_free( void *ptr, size_t size)
 static void
 _PyInitGMP(void)
 {
+    PyObject *temp = NULL;
+
     mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
     set_zcache();
     set_pympzcache();
@@ -4304,12 +4307,24 @@ _PyInitGMP(void)
 #ifdef WITHMPFR
     set_pympfrcache();
     context = GMPyContext_new();
-    GMPyExc_DivZero = PyErr_NewException("gmpy2.DivisionByZeroError", NULL, NULL);
-    GMPyExc_Inexact = PyErr_NewException("gmpy2.InexactError", NULL, NULL);
-    GMPyExc_Invalid = PyErr_NewException("gmpy2.InvalidOperationError", NULL, NULL);
-    GMPyExc_Overflow = PyErr_NewException("gmpy2.OverflowError", NULL, NULL);
-    GMPyExc_Underflow = PyErr_NewException("gmpy2.UnderflowError", NULL, NULL);
-    GMPyExc_Erange = PyErr_NewException("gmpy2.RangeError", NULL, NULL);
+    GMPyExc_GmpyError = PyErr_NewException("gmpy2.GmpyError",
+                                           PyExc_ArithmeticError, NULL);
+    GMPyExc_Erange = PyErr_NewException("gmpy2.RangeError",
+                                        GMPyExc_GmpyError, NULL);
+    GMPyExc_Invalid = PyErr_NewException("gmpy2.InvalidOperationError",
+                                         GMPyExc_GmpyError, NULL);
+    GMPyExc_Inexact = PyErr_NewException("gmpy2.InexactError",
+                                         GMPyExc_GmpyError, NULL);
+    GMPyExc_Overflow = PyErr_NewException("gmpy2.OverflowError",
+                                          GMPyExc_Inexact, NULL);
+    GMPyExc_Underflow = PyErr_NewException("gmpy2.UnderflowError",
+                                           GMPyExc_Inexact, NULL);
+
+    temp = PyTuple_Pack(2, GMPyExc_GmpyError, PyExc_ZeroDivisionError);
+    GMPyExc_DivZero = PyErr_NewException("gmpy2.DivisionByZeroError",
+                                         temp, NULL);
+    Py_XDECREF(temp);
+
 #endif
 }
 
