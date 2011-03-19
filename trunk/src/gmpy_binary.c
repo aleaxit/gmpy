@@ -12,6 +12,7 @@
  */
 
 /* Provide functions to access the old binary formats. */
+
 PyDoc_STRVAR(doc_g_mpz_from_old_binary,
 "mpz_from_old_binary(string) -> mpz\n\n"
 "Return an mpz from a GMPY 1.x binary format.");
@@ -41,6 +42,59 @@ Pympz_From_Old_Binary(PyObject *self, PyObject *other)
     mpz_import(result->z, len, -1, sizeof(char), 0, 0, cp);
     if (negative)
         mpz_neg(result->z, result->z);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_g_mpq_from_old_binary,
+"mpq_from_old_binary(string) -> mpq\n\n"
+"Return an mpq from a GMPY 1.x binary format.");
+static PyObject *
+Pympq_From_Old_Binary(PyObject *self, PyObject *other)
+{
+    unsigned char *cp;
+    Py_ssize_t len;
+    int topper, negative, numlen;
+    mpz_t numerator, denominator;
+    PympqObject *result;
+
+    if (!(PyBytes_Check(other))) {
+        TYPE_ERROR("mpq_from_old_binary() requires bytes argument");
+        return NULL;
+    }
+
+    if (!(result = Pympq_new()))
+        return NULL;
+
+    len = PyBytes_Size(other);
+    cp = (unsigned char*)PyBytes_AsString(other);
+
+    if (len < 6) {
+        VALUE_ERROR("invalid mpq binary (too short)");
+        Py_DECREF((PyObject*)result);
+        return NULL;
+    }
+
+    topper = cp[3] & 0x7f;
+    negative = cp[3] & 0x80;
+    numlen = cp[0] + 256 * (cp[1] + 256 * (cp[2] + 256 * topper));
+    if (len < (4 + numlen + 1)) {
+        VALUE_ERROR("invalid mpq binary (num len)");
+        Py_DECREF((PyObject*)result);
+        return NULL;
+    }
+
+    mpz_inoc(numerator);
+    mpz_inoc(denominator);
+    mpz_import(numerator, numlen, -1, sizeof(char), 0, 0, cp+4);
+    mpz_import(denominator, len-4-numlen, -1, sizeof(char), 0, 0, cp+4+numlen);
+    if (negative)
+        mpz_neg(numerator, numerator);
+
+    mpq_set_num(result->q, numerator);
+    mpq_set_den(result->q, denominator);
+    mpq_canonicalize(result->q);
+    mpz_cloc(numerator);
+    mpz_cloc(denominator);
     return (PyObject*)result;
 }
 
