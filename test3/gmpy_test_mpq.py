@@ -257,7 +257,7 @@ r'''
 0
 41
 152
->>> _g.mpq(ba,256)==a
+>>> _g.mpq_from_old_binary(ba)==a
 1
 >>> ba == _g.binary(a)
 1
@@ -273,7 +273,7 @@ r'''
 128
 41
 152
->>> _g.mpq(ba,256)==-a
+>>> _g.mpq_from_old_binary(ba)==-a
 1
 >>>
 '''

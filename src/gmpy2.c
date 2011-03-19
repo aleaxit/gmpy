@@ -970,122 +970,59 @@ PyStr2Pympq(PyObject *stringarg, long base)
         cp = (unsigned char*)PyBytes_AsString(ascii_str);
     }
 
-    if (256 == base) {
-        /* TODO: better factoring of str2mpz (for speed) */
-        int topper, isnega, numlen;
-        PyObject *s;
-        PympzObject *numerator, *denominator;
-
-        if (len < 6) {
-            VALUE_ERROR("invalid mpq binary (too short)");
+    /* Don't allow NULL characters */
+    for (i=0; i<len; i++) {
+        if (cp[i] == '\0') {
+            VALUE_ERROR("string without NULL characters expected");
             Py_DECREF((PyObject*)newob);
             Py_XDECREF(ascii_str);
-            return 0;
+            return NULL;
         }
-        topper = cp[3] & 0x7f;
-        isnega = cp[3] & 0x80;
-        numlen = cp[0] + 256 * (cp[1] + 256 * (cp[2] + 256 * topper));
-        if (len < (4 + numlen + 1)) {
-            VALUE_ERROR("invalid mpq binary (num len)");
-            Py_DECREF((PyObject*)newob);
-            Py_XDECREF(ascii_str);
-            return 0;
-        }
-        s = PyBytes_FromStringAndSize((char*)cp + 4, numlen);
-        numerator = PyStr2Pympz(s, 256);
-        Py_DECREF(s);
-        if (!numerator) {
-            Py_DECREF((PyObject*)newob);
-            Py_XDECREF(ascii_str);
-            return 0;
-        }
-        if (mpz_sgn(numerator->z) < 0) {
-            VALUE_ERROR("invalid mpq binary (num sgn)");
-            Py_DECREF((PyObject*)newob);
-            Py_DECREF((PyObject*)numerator);
-            Py_XDECREF(ascii_str);
-            return 0;
-        }
-        if (isnega)
-            mpz_neg(numerator->z, numerator->z);
-        s = PyBytes_FromStringAndSize((char*)cp+4+numlen, len-4-numlen);
-        denominator = PyStr2Pympz(s,256);
-        Py_DECREF(s);
-        if (!denominator) {
-            Py_DECREF((PyObject*)newob);
-            Py_DECREF((PyObject*)numerator);
-            Py_XDECREF(ascii_str);
-            return 0;
-        }
-        if (mpz_sgn(denominator->z) != 1) {
-            VALUE_ERROR("invalid mpq binary (den sgn)");
-            Py_DECREF((PyObject*)newob);
-            Py_DECREF((PyObject*)numerator);
-            Py_DECREF((PyObject*)denominator);
-            Py_XDECREF(ascii_str);
-            return 0;
-        }
-        mpq_set_num(newob->q, numerator->z);
-        mpq_set_den(newob->q, denominator->z);
-        mpq_canonicalize(newob->q);
-        Py_DECREF((PyObject*)numerator);
-        Py_DECREF((PyObject*)denominator);
     }
-    else {
-        /* Don't allow NULL characters */
-        for (i=0; i<len; i++) {
-            if (cp[i] == '\0') {
-                VALUE_ERROR("string without NULL characters expected");
-                Py_DECREF((PyObject*)newob);
-                Py_XDECREF(ascii_str);
-                return NULL;
+    /* trickily delegate the rest to GMP avoiding allocations/copies */
+    {
+        char* whereslash = strchr((char*)cp,'/');
+        char* wheredot = 0;
+        if (whereslash) {
+            *whereslash = 0;
+        }
+        else {
+            wheredot = strchr((char*)cp, '.');
+            if (wheredot) {
+                PympfrObject* temp = PyStr2Pympfr(stringarg, base, (mpfr_prec_t)len*4);
+                if (temp) {
+                    newob = Pympfr2Pympq((PyObject*)temp);
+                    Py_DECREF((PyObject*)temp);
+                }
+                return newob;
             }
         }
-        /* trickily delegate the rest to GMP avoiding allocations/copies */
-        {
-            char* whereslash = strchr((char*)cp,'/');
-            char* wheredot = 0;
-            if (whereslash) {
-                *whereslash = 0;
-            }
-            else {
-                wheredot = strchr((char*)cp, '.');
-                if (wheredot) {
-                    PympfrObject* temp = PyStr2Pympfr(stringarg, base, (mpfr_prec_t)len*4);
-                    if (temp) {
-                        newob = Pympfr2Pympq((PyObject*)temp);
-                        Py_DECREF((PyObject*)temp);
-                    }
-                    return newob;
-                }
-            }
-            if (-1 == mpz_set_str(mpq_numref(newob->q), (char*)cp, base)) {
-                if (whereslash)
-                    *whereslash = '/';
+        if (-1 == mpz_set_str(mpq_numref(newob->q), (char*)cp, base)) {
+            if (whereslash)
+                *whereslash = '/';
+            VALUE_ERROR("invalid digits");
+            Py_DECREF((PyObject*)newob);
+            Py_XDECREF(ascii_str);
+            return NULL;
+        }
+        if (whereslash) {
+            *whereslash = '/';
+            if (-1==mpz_set_str(mpq_denref(newob->q), whereslash+1, base)) {
                 VALUE_ERROR("invalid digits");
                 Py_DECREF((PyObject*)newob);
                 Py_XDECREF(ascii_str);
                 return NULL;
             }
-            if (whereslash) {
-                *whereslash = '/';
-                if (-1==mpz_set_str(mpq_denref(newob->q), whereslash+1, base)) {
-                    VALUE_ERROR("invalid digits");
-                    Py_DECREF((PyObject*)newob);
-                    Py_XDECREF(ascii_str);
-                    return NULL;
-                }
-                if (0==mpz_sgn(mpq_denref(newob->q))) {
-                    Py_DECREF((PyObject*)newob);
-                    Py_XDECREF(ascii_str);
-                    ZERO_ERROR("mpq: zero denominator");
-                    return NULL;
-                }
-                mpq_canonicalize(newob->q);
+            if (0==mpz_sgn(mpq_denref(newob->q))) {
+                Py_DECREF((PyObject*)newob);
+                Py_XDECREF(ascii_str);
+                ZERO_ERROR("mpq: zero denominator");
+                return NULL;
             }
-            else {
-                mpz_set_ui(mpq_denref (newob->q), 1);
-            }
+            mpq_canonicalize(newob->q);
+        }
+        else {
+            mpz_set_ui(mpq_denref (newob->q), 1);
         }
     }
     Py_XDECREF(ascii_str);
@@ -2775,13 +2712,11 @@ mpz(s,base=0):\n\
 static PyObject *
 Pygmpy_mpz(PyObject *self, PyObject *args)
 {
-    PympzObject *newob;
+    PympzObject *result;
     PyObject *obj;
     Py_ssize_t argc;
 
     TRACE("Pygmpy_mpz() called...\n");
-
-    assert(PyTuple_Check(args));
 
     argc = PyTuple_Size(args);
     if ((argc < 1) || (argc > 2)) {
@@ -2806,8 +2741,8 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
                 return NULL;
             }
         }
-        newob = PyStr2Pympz(obj, base);
-        if (!newob) {
+        result = PyStr2Pympz(obj, base);
+        if (!result) {
             return NULL;
         }
     }
@@ -2816,8 +2751,8 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
             TYPE_ERROR("gmpy2.mpz() with numeric argument needs exactly 1 argument");
             return NULL;
         }
-        newob = anynum2Pympz(obj);
-        if (!newob) {
+        result = anynum2Pympz(obj);
+        if (!result) {
             if (!PyErr_Occurred())
                 TYPE_ERROR("gmpy2.mpz() requires numeric or string argument");
             return NULL;
@@ -2826,9 +2761,9 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
 #ifdef DEBUG
     if (global.debug)
         fprintf(stderr, "Pygmpy_mpz: created mpz = %ld\n",
-                mpz_get_si(newob->z));
+                mpz_get_si(result->z));
 #endif
-    return (PyObject *) newob;
+    return (PyObject*)result;
 }
 
 static char doc_xmpz[] = "\
@@ -2836,12 +2771,10 @@ xmpz(n):\n\
     builds an xmpz object from any number n (truncating n\n\
     to its integer part if it's a float or mpfr)\n\
 xmpz(s, base=0):\n\
-    builds an xmpz object from a string s made up of digits in the\n\
-    given base.  If base=0, binary, octal, and hex Python strings\n\
-    are recognized by leading 0b, 0o, or 0x characters, otherwise\n\
-    the string is assumed to be decimal. If base=256, s must be a\n\
-    gmpy2.xmpz portable binary representation as built by the function\n\
-    gmpy2.binary (and the .binary method of xmpz objects).\n\
+      builds an xmpz object from a string s made up of digits in the\n\
+      given base.  If base=0, binary, octal, or hex Python strings\n\
+      are recognized by leading 0b, 0o, or 0x characters, otherwise\n\
+      the string is assumed to be decimal.\n\
 ";
 static PyObject *
 Pygmpy_xmpz(PyObject *self, PyObject *args)
@@ -2916,9 +2849,7 @@ mpq(n,m):\n\
 mpq(s,base=10):\n\
     builds an mpq object from a string s made up of digits in the\n\
     given base.  s may be made up of two numbers in the same base\n\
-    separated by a '/' character.  If base=256, s must be a\n\
-    gmpy2.mpq portable binary representation as built by the\n\
-    gmpy2.qbinary (or the .binary method of mpq objects).\n\
+    separated by a '/' character.\n\
 ";
 static PyObject *
 Pygmpy_mpq(PyObject *self, PyObject *args)
@@ -2950,8 +2881,8 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
                 TYPE_ERROR("gmpy2.mpq(): base must be an integer");
                 return NULL;
             }
-            if ((base!=0) && (base!=256) && ((base<2)||(base>62))) {
-                VALUE_ERROR("base for gmpy2.mpq() must be 0, 256, or in the "
+            if ((base!=0) && ((base<2)||(base>62))) {
+                VALUE_ERROR("base for gmpy2.mpq() must be 0, or in the "
                             "interval 2 ... 62");
                 return NULL;
             }
@@ -3674,6 +3605,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "mp_version", Pygmpy_get_mp_version, METH_NOARGS, doc_mp_version },
     { "mp_limbsize", Pygmpy_get_mp_limbsize, METH_NOARGS, doc_mp_limbsize },
     { "mpq", Pygmpy_mpq, METH_VARARGS, doc_mpq },
+    { "mpq_from_old_binary", Pympq_From_Old_Binary, METH_O, doc_g_mpq_from_old_binary },
     { "mpz", Pygmpy_mpz, METH_VARARGS, doc_mpz },
     { "mpz_from_old_binary", Pympz_From_Old_Binary, METH_O, doc_g_mpz_from_old_binary },
     { "next_prime", Pympz_next_prime, METH_O, doc_next_primeg },
@@ -4438,7 +4370,7 @@ PyMODINIT_FUNC initgmpy2(void)
     if (copy_reg_module) {
         char* enable_pickle =
             "def mpz_reducer(an_mpz): return (gmpy2.mpz_from_old_binary, (an_mpz.binary(),))\n"
-            "def mpq_reducer(an_mpq): return (gmpy2.mpq, (an_mpq.binary(), 256))\n"
+            "def mpq_reducer(an_mpq): return (gmpy2.mpq_from_old_binary, (an_mpq.binary(),))\n"
             "def mpfr_reducer(an_mpfr): return (gmpy2.mpfr, (an_mpfr.binary(), 0, 256))\n"
             "copyreg.pickle(type(gmpy2.mpz(0)), mpz_reducer)\n"
             "copyreg.pickle(type(gmpy2.mpq(0)), mpq_reducer)\n"
@@ -4483,7 +4415,7 @@ PyMODINIT_FUNC initgmpy2(void)
     if (copy_reg_module) {
         char* enable_pickle =
             "def mpz_reducer(an_mpz): return (gmpy2.mpz_from_old_binary, (an_mpz.binary(),))\n"
-            "def mpq_reducer(an_mpq): return (gmpy2.mpq, (an_mpq.binary(), 256))\n"
+            "def mpq_reducer(an_mpq): return (gmpy2.mpq_from_old_binary, (an_mpq.binary(),))\n"
             "def mpfr_reducer(an_mpfr): return (gmpy2.mpfr, (an_mpfr.binary(), 0, 256))\n"
             "copy_reg.pickle(type(gmpy2.mpz(0)), mpz_reducer)\n"
             "copy_reg.pickle(type(gmpy2.mpq(0)), mpq_reducer)\n"

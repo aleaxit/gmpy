@@ -109,24 +109,16 @@ ValueError: string without NULL characters expected
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: string without NULL characters expected
->>> _g.mpq('bo',256)
+>>> _g.mpq_from_old_binary(b'bo')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: invalid mpq binary (too short)
->>> _g.mpq('bologna',256)
+>>> _g.mpq_from_old_binary(b'bologna')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: invalid mpq binary (num len)
->>> _g.mpq(b'\001\000\000\000\003\002',256)
+>>> _g.mpq_from_old_binary(b'\001\000\000\000\003\002')
 mpq(3,2)
->>> _g.mpq(b'\002\000\000\000\003\377\002',256)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: invalid mpq binary (num sgn)
->>> _g.mpq(b'\001\000\000\000\003\002\377',256)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: invalid mpq binary (den sgn)
 >>> _g.mpq('ba/bo')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -284,7 +276,7 @@ TypeError: gmpy2.mpq(): base must be an integer
 >>> _g.mpq('bi',99)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: base for gmpy2.mpq() must be 0, 256, or in the interval 2 ... 62
+ValueError: base for gmpy2.mpq() must be 0, or in the interval 2 ... 62
 >>> _g.mpq(None)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
