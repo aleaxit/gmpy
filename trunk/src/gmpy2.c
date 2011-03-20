@@ -808,9 +808,7 @@ PyLong2Pympq(PyObject *self)
     return newob;
 }
 
-/* TODO: remove binary support!
- *
- * mpz conversion from string includes from-binary (base-256 LSB string
+/* mpz conversion from string includes from-binary (base-256 LSB string
  * of bytes) and 'true' from-string (bases 2 to 62; bases 8 and 16 are
  * special -- decorations of leading 0/0x are allowed (not required).
  *
@@ -845,56 +843,41 @@ mpz_set_PyStr(mpz_ptr z, PyObject *s, long base)
         cp = (unsigned char*)PyBytes_AsString(ascii_str);
     }
 
-    if (256 == base) {
-        /* Least significant octet first */
-        int negative = 0;
-
-        if (cp[len-1] == 0xFF) {
-            negative = 1;
-            --len;
+    /* Don't allow NULL characters */
+    for (i=0; i<len; i++) {
+        if (cp[i] == '\0') {
+            VALUE_ERROR("string without NULL characters expected");
+            Py_XDECREF(ascii_str);
+            return -1;
         }
-        mpz_set_si(z, 0);
-        mpz_import(z, len, -1, sizeof(char), 0, 0, cp);
-        if (negative)
-            mpz_neg(z, z);
     }
-    else {
-        /* Don't allow NULL characters */
-        for (i=0; i<len; i++) {
-            if (cp[i] == '\0') {
-                VALUE_ERROR("string without NULL characters expected");
-                Py_XDECREF(ascii_str);
-                return -1;
+    /* delegate rest to GMP's _set_str function */
+    if (base==0) {
+        if (cp[0]=='0') {
+            if (cp[1]=='b') {
+                base = 2;
+                cp+=2;
             }
-        }
-        /* delegate rest to GMP's _set_str function */
-        if (base==0) {
-            if (cp[0]=='0') {
-                if (cp[1]=='b') {
-                    base = 2;
-                    cp+=2;
-                }
-                else if (cp[1]=='o') {
-                    base = 8;
-                    cp+=2;
-                }
-                else if (cp[1]=='x') {
-                    base = 16;
-                    cp+=2;
-                }
-                else {
-                    base = 10;
-                }
+            else if (cp[1]=='o') {
+                base = 8;
+                cp+=2;
+            }
+            else if (cp[1]=='x') {
+                base = 16;
+                cp+=2;
             }
             else {
                 base = 10;
             }
         }
-        if (-1 == mpz_set_str(z, (char*)cp, base)) {
-            VALUE_ERROR("invalid digits");
-            Py_XDECREF(ascii_str);
-            return -1;
+        else {
+            base = 10;
         }
+    }
+    if (-1 == mpz_set_str(z, (char*)cp, base)) {
+        VALUE_ERROR("invalid digits");
+        Py_XDECREF(ascii_str);
+        return -1;
     }
     Py_XDECREF(ascii_str);
     return 1;
