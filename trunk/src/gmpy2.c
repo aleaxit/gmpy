@@ -964,22 +964,46 @@ PyStr2Pympq(PyObject *stringarg, long base)
     }
     /* trickily delegate the rest to GMP avoiding allocations/copies */
     {
-        char* whereslash = strchr((char*)cp,'/');
-        char* wheredot = 0;
-        if (whereslash) {
-            *whereslash = 0;
+        char *whereslash = strchr((char*)cp, '/');
+        char *wheredot = strchr((char*)cp, '.');
+        if (whereslash && wheredot) {
+            VALUE_ERROR("illegal string for mpq(): both . and / found");
+            Py_DECREF((PyObject*)newob);
+            Py_XDECREF(ascii_str);
+            return NULL;
         }
-        else {
-            wheredot = strchr((char*)cp, '.');
-            if (wheredot) {
-                PympfrObject* temp = PyStr2Pympfr(stringarg, base, (mpfr_prec_t)len*4);
-                if (temp) {
-                    newob = Pympfr2Pympq((PyObject*)temp);
-                    Py_DECREF((PyObject*)temp);
-                }
-                return newob;
+
+        if (wheredot) {
+            if (base != 10) {
+                VALUE_ERROR("illegal string for mpq(): embedded . requires base=10");
+                Py_DECREF((PyObject*)newob);
+                Py_XDECREF(ascii_str);
+                return NULL;
             }
+
+            char *counter = wheredot;
+            unsigned long digits = 0;
+            *wheredot = ' ';
+            while (*++counter != '\0') {
+                if (isdigit(*counter))
+                    digits++;
+            }
+            if (-1 == mpz_set_str(mpq_numref(newob->q), (char*)cp, base)) {
+                if (wheredot)
+                    *wheredot = '.';
+                VALUE_ERROR("invalid digits");
+                Py_DECREF((PyObject*)newob);
+                Py_XDECREF(ascii_str);
+                return NULL;
+            }
+            mpz_ui_pow_ui(mpq_denref(newob->q), 10, digits);
+            mpq_canonicalize(newob->q);
+            *wheredot = '.';
+            return (PympqObject*)newob;
         }
+
+        if (whereslash)
+            *whereslash = 0;
         if (-1 == mpz_set_str(mpq_numref(newob->q), (char*)cp, base)) {
             if (whereslash)
                 *whereslash = '/';
