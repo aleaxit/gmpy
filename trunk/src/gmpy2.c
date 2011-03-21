@@ -1041,33 +1041,12 @@ PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
         len = PyBytes_Size(ascii_str);
         cp = (unsigned char*)PyBytes_AsString(ascii_str);
     }
-    //~ if ((!bits) && (base ==256)) {
-        //~ prec = 8 * (len - 5);
-        //~ if ((len >= 5) && (cp[0] & 8)) {
-            //~ bits = 0;
-            //~ for(i=4; i>0; --i) {
-                //~ bits = (bits<<8) | cp[i];
-            //~ }
-        //~ }
-    //~ }
 
-    if (bits > 0) {
+    if (bits > 0)
         prec = bits;
-    }
-    else { /* precision to be defaulted or fetched */
-        if (base == 256) {  /* it may be encoded for fetching */
-            prec = (mpfr_prec_t)(8 * (len - 5));      /* default precision */
-            if ((len>=5) && (cp[0]&8)) { /* precision must be fetched */
-                prec = 0;
-                for (i=4; i>0; --i) {
-                    prec = (prec << 8) | cp[i];
-                }
-            }
-        }
-        else { /* true-string, never encoded, just default it */
-            prec = context->now.mpfr_prec;
-        }
-    }
+    else
+        prec = context->now.mpfr_prec;
+
     if (prec < MPFR_PREC_MIN)
         prec = MPFR_PREC_MIN;
 
@@ -1076,80 +1055,21 @@ PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
         return NULL;
     }
 
-    if (256 == base) {
-        /*
-         * binary format for MP floats: first, a code-byte, then, a LSB
-         * 4-byte unsigned int (exponent magnitude), then the "mantissa"
-         * (actually, "significand", but "mantissa" is the usual term...)
-         * in MSB form.
-         *
-         * The codebyte encodes both the signs, exponent and result, or
-         * also the zeroness of the result (in which case, nothing more).
-         */
-        mpfr_t digit;
-        int codebyte = cp[0];
-        int resusign = codebyte & 1;
-        int exposign = codebyte & 2;
-        int resuzero = codebyte & 4;
-        int precilen = (codebyte & 8)?4:0;
-        unsigned int expomag = 0;
-
-        /* mpfr zero has a very compact (1-byte) binary encoding!-) */
-        if (resuzero) {
-            newob->rc = mpfr_set_ui(newob->f, 0, context->now.mpfr_round);
-            return newob;
-        }
-
-        /* all other numbers are 6+ bytes: codebyte, 4-byte exp, 1+
-         * bytes for the mantissa; check this string is 6+ bytes
-         */
-        if (len < 6 + precilen) {
-            VALUE_ERROR("string too short to be a gmpy2.mpfr binary encoding");
+    /* Don't allow NULL characters */
+    for (i=0; i<len; i++) {
+        if (cp[i] == '\0') {
+            VALUE_ERROR("string without NULL characters expected");
             Py_DECREF((PyObject*)newob);
             Py_XDECREF(ascii_str);
             return NULL;
         }
-        /* reconstruct exponent */
-        for (i = 4 + precilen; i > precilen; --i) {
-            expomag = (expomag<<8) | cp[i];
-        }
-
-        /* reconstruct 'mantissa' (significand) */
-        mpfr_set_si(newob->f, 0, context->now.mpfr_round);
-        mpfr_init2(digit, prec);
-        for (i = 5 + precilen; i<len; i++) {
-            mpfr_set_ui(digit, cp[i], context->now.mpfr_round);
-            mpfr_div_2ui(digit, digit, (unsigned long)((i-4-precilen) * 8),
-                         context->now.mpfr_round);
-            mpfr_add(newob->f, newob->f, digit, context->now.mpfr_round);
-        }
-        mpfr_clear(digit);
-        /* apply exponent, with its appropriate sign */
-        if (exposign)
-            mpfr_div_2ui(newob->f, newob->f, 8*expomag, context->now.mpfr_round);
-        else
-            mpfr_mul_2ui(newob->f, newob->f, 8*expomag, context->now.mpfr_round);
-        /* apply significand-sign (sign of the overall number) */
-        if (resusign)
-            mpfr_neg(newob->f, newob->f, context->now.mpfr_round);
     }
-    else {
-        /* Don't allow NULL characters */
-        for (i=0; i<len; i++) {
-            if (cp[i] == '\0') {
-                VALUE_ERROR("string without NULL characters expected");
-                Py_DECREF((PyObject*)newob);
-                Py_XDECREF(ascii_str);
-                return NULL;
-            }
-        }
-        /* delegate the rest to MPFR */
-        if (-1 == mpfr_set_str(newob->f, (char*)cp, base, context->now.mpfr_round)) {
-            VALUE_ERROR("invalid digits");
-            Py_DECREF((PyObject*)newob);
-            Py_XDECREF(ascii_str);
-            return NULL;
-        }
+    /* delegate the rest to MPFR */
+    if (-1 == mpfr_set_str(newob->f, (char*)cp, base, context->now.mpfr_round)) {
+        VALUE_ERROR("invalid digits");
+        Py_DECREF((PyObject*)newob);
+        Py_XDECREF(ascii_str);
+        return NULL;
     }
     Py_XDECREF(ascii_str);
     return newob;
@@ -2865,7 +2785,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
                 return NULL;
             }
             if ((base!=0) && ((base<2)||(base>62))) {
-                VALUE_ERROR("base for gmpy2.mpq() must be 0, or in the "
+                VALUE_ERROR("base for gmpy2.mpq() must be 0 or in the "
                             "interval 2 ... 62");
                 return NULL;
             }
@@ -2976,8 +2896,8 @@ Pygmpy_mpfr(PyObject *self, PyObject *args)
                 TYPE_ERROR("gmpy2.mpfr(): base must be an integer");
                 return NULL;
             }
-            if ((base!=0) && (base!=256) && ((base<2)||(base>62))) {
-                VALUE_ERROR("base for gmpy2.mpfr() must be 0, 256, or in the "
+            if ((base!=0) && ((base<2)||(base>62))) {
+                VALUE_ERROR("base for gmpy2.mpfr() must be 0 or in the "
                             "interval 2 ... 62");
                 return NULL;
             }
@@ -3494,9 +3414,9 @@ static PyNumberMethods mpfr_number_methods =
     (binaryfunc) Pympany_divmod,         /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
     (unaryfunc) Pympfr_neg,              /* nb_negative             */
-    (unaryfunc) Pympfr_pos,               /* nb_positive             */
+    (unaryfunc) Pympfr_pos,              /* nb_positive             */
     (unaryfunc) Pympfr_abs,              /* nb_absolute             */
-    (inquiry) Pympfr_nonzero,             /* nb_bool                 */
+    (inquiry) Pympfr_nonzero,            /* nb_bool                 */
         0,                               /* nb_invert               */
         0,                               /* nb_lshift               */
         0,                               /* nb_rshift               */
@@ -3687,6 +3607,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "min", Pympfr_min, METH_VARARGS, doc_g_mpfr_min },
     { "modf", Pympfr_modf, METH_O, doc_g_mpfr_modf },
     { "mpfr", Pygmpy_mpfr, METH_VARARGS, doc_mpfr },
+    { "mpfr_from_old_binary", Pympfr_From_Old_Binary, METH_O, doc_g_mpfr_from_old_binary },
     { "mpfr_version", Pygmpy_get_mpfr_version, METH_NOARGS, doc_mpfr_version },
     { "mul", Pympfr_mul, METH_VARARGS, doc_g_mpfr_mul },
     { "nan", Pympfr_set_nan, METH_NOARGS, doc_g_mpfr_set_nan },
@@ -4354,7 +4275,7 @@ PyMODINIT_FUNC initgmpy2(void)
         char* enable_pickle =
             "def mpz_reducer(an_mpz): return (gmpy2.mpz_from_old_binary, (an_mpz.binary(),))\n"
             "def mpq_reducer(an_mpq): return (gmpy2.mpq_from_old_binary, (an_mpq.binary(),))\n"
-            "def mpfr_reducer(an_mpfr): return (gmpy2.mpfr, (an_mpfr.binary(), 0, 256))\n"
+            "def mpfr_reducer(an_mpfr): return (gmpy2.mpfr_from_old_binary, (an_mpfr.binary(),))\n"
             "copyreg.pickle(type(gmpy2.mpz(0)), mpz_reducer)\n"
             "copyreg.pickle(type(gmpy2.mpq(0)), mpq_reducer)\n"
             "copyreg.pickle(type(gmpy2.mpfr(0)), mpfr_reducer)\n"
@@ -4399,7 +4320,7 @@ PyMODINIT_FUNC initgmpy2(void)
         char* enable_pickle =
             "def mpz_reducer(an_mpz): return (gmpy2.mpz_from_old_binary, (an_mpz.binary(),))\n"
             "def mpq_reducer(an_mpq): return (gmpy2.mpq_from_old_binary, (an_mpq.binary(),))\n"
-            "def mpfr_reducer(an_mpfr): return (gmpy2.mpfr, (an_mpfr.binary(), 0, 256))\n"
+            "def mpfr_reducer(an_mpfr): return (gmpy2.mpfr_from_old_binary, (an_mpfr.binary(),))\n"
             "copy_reg.pickle(type(gmpy2.mpz(0)), mpz_reducer)\n"
             "copy_reg.pickle(type(gmpy2.mpq(0)), mpq_reducer)\n"
             "copy_reg.pickle(type(gmpy2.mpfr(0)), mpfr_reducer)\n"

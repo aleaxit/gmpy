@@ -98,6 +98,102 @@ Pympq_From_Old_Binary(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
+PyDoc_STRVAR(doc_g_mpfr_from_old_binary,
+"mpfr_from_old_binary(string) -> mpfr\n\n"
+"Return an mpfr from a GMPY 1.x binary mpf format.");
+static PyObject *
+Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
+{
+    unsigned char *cp;
+    Py_ssize_t len;
+    PympfrObject *result;
+    mpfr_t digit;
+    mpfr_prec_t prec;
+    int i, codebyte, resusign, exposign, resuzero, precilen;
+    unsigned int expomag = 0;
+
+    if (!(PyBytes_Check(other))) {
+        TYPE_ERROR("mpfr_from_old_binary() requires bytes argument");
+        return NULL;
+    }
+
+    len = PyBytes_Size(other);
+    cp = (unsigned char*)PyBytes_AsString(other);
+
+    if (len == 1) {
+        prec = 0;
+    }
+    else {
+        prec = (mpfr_prec_t)(8 * (len - 5));
+        if ((len>=5) && (cp[0]&8)) {
+            prec = 0;
+            for (i=4; i>0; --i) {
+                prec = (prec << 8) | cp[i];
+            }
+        }
+    }
+
+    /*
+     * binary format for MP floats: first, a code-byte, then, a LSB
+     * 4-byte unsigned int (exponent magnitude), then the "mantissa"
+     * (actually, "significand", but "mantissa" is the usual term...)
+     * in MSB form.
+     *
+     * The codebyte encodes both the signs, exponent and result, or
+     * also the zeroness of the result (in which case, nothing more).
+     */
+    codebyte = cp[0];
+    resusign = codebyte & 1;
+    exposign = codebyte & 2;
+    resuzero = codebyte & 4;
+    precilen = (codebyte & 8)?4:0;
+
+    /* mpfr zero has a very compact (1-byte) binary encoding!-) */
+    if (resuzero) {
+        if (!(result = Pympfr_new(prec)))
+            return NULL;
+        result->rc = mpfr_set_ui(result->f, 0, context->now.mpfr_round);
+        return (PyObject*)result;
+    }
+
+    /* all other numbers are 6+ bytes: codebyte, 4-byte exp, 1+
+     * bytes for the mantissa; check this string is 6+ bytes
+     */
+    if (len < 6 + precilen) {
+        VALUE_ERROR("invalid mpf binary encoding (too short)");
+        return NULL;
+    }
+
+    if (!(result = Pympfr_new(prec)))
+        return NULL;
+
+    /* reconstruct exponent */
+    for (i = 4 + precilen; i > precilen; --i) {
+        expomag = (expomag<<8) | cp[i];
+    }
+
+    /* reconstruct 'mantissa' (significand) */
+    mpfr_set_si(result->f, 0, context->now.mpfr_round);
+    mpfr_init2(digit, prec);
+    for (i = 5 + precilen; i<len; i++) {
+        mpfr_set_ui(digit, cp[i], context->now.mpfr_round);
+        mpfr_div_2ui(digit, digit, (unsigned long)((i-4-precilen) * 8),
+                     context->now.mpfr_round);
+        mpfr_add(result->f, result->f, digit, context->now.mpfr_round);
+    }
+    mpfr_clear(digit);
+    /* apply exponent, with its appropriate sign */
+    if (exposign)
+        mpfr_div_2ui(result->f, result->f, 8*expomag, context->now.mpfr_round);
+    else
+        mpfr_mul_2ui(result->f, result->f, 8*expomag, context->now.mpfr_round);
+    /* apply significand-sign (sign of the overall number) */
+    if (resusign)
+        mpfr_neg(result->f, result->f, context->now.mpfr_round);
+
+    return (PyObject*)result;
+}
+
 
 #if 0
 /* Format of binary representation of an mpfr.

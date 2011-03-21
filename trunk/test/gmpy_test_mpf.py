@@ -349,7 +349,7 @@ __test__['binio']=\
 r'''
 >>> epsilon=_g.mpfr(2)**-(a.precision)
 >>> ba=a.binary()
->>> a.reldiff(_g.mpfr(ba,0,256)) <= epsilon
+>>> a.reldiff(_g.mpfr_from_old_binary(ba)) <= epsilon
 1
 >>> len(ba)
 16
@@ -359,34 +359,34 @@ r'''
 ...
 8 53 0 0 0 1 0 0 0 123 116 188 106 126 249 220
 >>> na=(-a).binary()
->>> (-a).reldiff(_g.mpfr(na,0,256)) <= epsilon
+>>> (-a).reldiff(_g.mpfr_from_old_binary(na)) <= epsilon
 1
 >>> na[0] == chr(ord(ba[0])|1)
 1
 >>> for bd,nd in zip(ba[1:],na[1:]):
 ...    assert bd==nd
 >>> ia=(1/a).binary()
->>> (1/a).reldiff(_g.mpfr(ia,0,256)) <= epsilon
+>>> (1/a).reldiff(_g.mpfr_from_old_binary(ia)) <= epsilon
 1
 >>> _g.binary(_g.mpfr(0))
 '\x04'
->>> _g.mpfr(_g.binary(_g.mpfr(0)), 0, 256) == 0
+>>> _g.mpfr_from_old_binary(_g.binary(_g.mpfr(0))) == 0
 1
 >>> _g.binary(_g.mpfr(0.5))
 '\x085\x00\x00\x00\x00\x00\x00\x00\x80'
->>> _g.mpfr(_g.binary(_g.mpfr(0.5)), 0, 256) == 0.5
+>>> _g.mpfr_from_old_binary(_g.binary(_g.mpfr(0.5))) == 0.5
 1
 >>> _g.binary(_g.mpfr(-0.5))
 '\t5\x00\x00\x00\x00\x00\x00\x00\x80'
->>> _g.mpfr(_g.binary(_g.mpfr(-0.5)), 0, 256) == -0.5
+>>> _g.mpfr_from_old_binary(_g.binary(_g.mpfr(-0.5))) == -0.5
 1
 >>> _g.binary(_g.mpfr(-2.0))
 '\t5\x00\x00\x00\x01\x00\x00\x00\x02'
->>> _g.mpfr(_g.binary(_g.mpfr(-2.0)), 0, 256) == -2.0
+>>> _g.mpfr_from_old_binary(_g.binary(_g.mpfr(-2.0))) == -2.0
 1
 >>> _g.binary(_g.mpfr(2.0))
 '\x085\x00\x00\x00\x01\x00\x00\x00\x02'
->>> _g.mpfr(_g.binary(_g.mpfr(2.0)), 0, 256) == 2.0
+>>> _g.mpfr_from_old_binary(_g.binary(_g.mpfr(2.0))) == 2.0
 1
 >>> _g.context().precision = 0
 Traceback (most recent call last):
@@ -395,7 +395,7 @@ ValueError: invalid value for precision
 >>> _g.context().precision = 53
 >>> hash(_g.mpfr(23.0))==hash(23)
 1
->>> print _g.mpfr('\004',0,256)
+>>> print _g.mpfr_from_old_binary('\004')
 0.0e0
 >>> long(a)
 123L
