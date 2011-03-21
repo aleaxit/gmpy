@@ -139,10 +139,10 @@ ZeroDivisionError: mpq: zero denominator
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 TypeError: gmpy2.mpfr() requires numeric or string argument
->>> _g.mpfr('bo',0,256)
+>>> _g.mpfr_from_old_binary(b'bo')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: string too short to be a gmpy2.mpfr binary encoding
+ValueError: invalid mpf binary encoding (too short)
 >>> _g.mpfr('bo')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -276,7 +276,7 @@ TypeError: gmpy2.mpq(): base must be an integer
 >>> _g.mpq('bi',99)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: base for gmpy2.mpq() must be 0, or in the interval 2 ... 62
+ValueError: base for gmpy2.mpq() must be 0 or in the interval 2 ... 62
 >>> _g.mpq(None)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -308,7 +308,7 @@ TypeError: gmpy2.mpfr(): base must be an integer
 >>> _g.mpfr('ba',0,99)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: base for gmpy2.mpfr() must be 0, 256, or in the interval 2 ... 62
+ValueError: base for gmpy2.mpfr() must be 0 or in the interval 2 ... 62
 >>> _g.mpfr(1,2,3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
