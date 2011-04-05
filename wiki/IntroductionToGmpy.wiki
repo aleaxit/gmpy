@@ -1,0 +1,29 @@
+#summary Introduction to gmpy.
+#labels Phase-Support
+
+= Introduction =
+
+*gmpy* is a Python module that provides access to the GNU Multiple Precision (GMP) libary. GMP provides very fast and highly optimised routines for working with arbitrary precision integers (MPZ), rationals (MPQ), and floating point numbers (MPF). The GMP types are exposed to Python as *gmpy.mpz*, *gmpy.mpq*, and *gmpy.mpf*.
+
+*gmpy* supports Python 3.  Due to differences between Python 2 and 3, a small number of behavioral changes were introduced in version 1.10 and later relative to previous releases (version 1.04 and earlier). To allow more extensive changes without silently breaking applications, the development version has been renamed to *gmpy2*. *gmpy2* is still in alpha status and the API, especially for new features, is subject to change. To import *gmpy2*, you must use `import gmpy2`.
+
+= Enhancements in gmpy2 =
+
+ * Floating point support is provided by the MPFR library instead of using the MPF type from GMP. MPFR provides correctly rounded floating point arithmetic and a wide variety of transcendental functions. MPFR is exposed to Python as *gmpy2.mpfr*. The old *mpf* type no longer exists in *gmpy2*. Partial support was introduced in Alpha1. Improved support (context manager, subnormals, etc.) will be included in Alpha2.
+ * Arbitrary precision complex numbers will be provided by the MPC library. MPC support will be introduced in Alpha3.
+ * A mutable integer type is available as *gmpy2.xmpz*. In addition to slightly faster performance for in-place operations, the *xmpz* allows slices to be used for setting and clearing individual bits.
+ * A large number of minor changes were made:
+   * Wrapped rootrem, fib2, lucas, and lucas2.
+   * Wrapped is_even and is_odd.
+   * Cached hash values to improve performance.
+   * Temporarily removed support for old (GMP 3.x) random numbers. Random numbers will be added in the future.
+   * Added "slice" access to the bits of an *mpz* and *xmpz*. Bit manipulations work in-place on *xmpz*.
+   * Renamed the bit manipulation methods; i.e. *gmpy.scan1* is now *gmpy2.bit_scan1*.
+
+= Which version to use? =
+
+If you need faster integer or rational arithmetic, use *gmpy*. The performance difference for integer arithmetic arithmetic is negligible.
+
+For improved bit manipulation, use *gmpy2* and mutable integers. The support for slicing should be stable.
+
+To access the improved floating point arithmetic from the MPFR library, you will need to use *gmpy2*. Note: the API for *gmpy2.mpfr* is not stable and will change in the next alpha release.
