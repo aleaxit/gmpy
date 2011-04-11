@@ -32,9 +32,11 @@ Pympany_square(PyObject *self, PyObject *other)
         TYPE_ERROR("square() not supported for rationals");
         return NULL;
     }
+#ifdef WITHMPFR
     else if (isReal(other)) {
         return Pympfr_sqr(self, other);
     }
+#endif
 
     TYPE_ERROR("square() not supported");
     return NULL;
@@ -56,9 +58,10 @@ Pympany_sqrt(PyObject *self, PyObject *other)
 {
     if (isInteger(other))
         return Pympz_sqrt(self, other);
-    else if (isRational(other) || isReal(other)) {
+#ifdef WITHMPFR
+    else if (isRational(other) || isReal(other))
         return Pympfr_sqrt(self, other);
-    }
+#endif
 
     TYPE_ERROR("sqrt() not supported");
     return NULL;
@@ -89,9 +92,10 @@ Pympany_root(PyObject *self, PyObject *args)
     temp = PyTuple_GET_ITEM(args, 0);
     if (isInteger(temp))
         return Pympz_root(self, args);
-    else if (isRational(temp) || isReal(temp)) {
+#ifdef WITHMPFR
+    else if (isRational(temp) || isReal(temp))
         return Pympfr_root(self, args);
-    }
+#endif
 
     TYPE_ERROR("root() not supported");
     return NULL;
@@ -122,8 +126,10 @@ Pympany_digits(PyObject *self, PyObject *args)
         return Pympz_digits(self, args);
     else if (isRational(temp))
         return Pympq_digits(self, args);
+#ifdef WITHMPFR
     else if (isReal(temp))
         return Pympfr_digits(self, args);
+#endif
 
     TYPE_ERROR("digits() not supported");
     return NULL;
@@ -145,8 +151,10 @@ Pympany_sign(PyObject *self, PyObject *other)
         return Pympz_sign(self, other);
     else if (isRational(other))
         return Pympq_sign(self, other);
+#ifdef WITHMPFR
     else if (isReal(other))
         return Pympfr_sign(self, other);
+#endif
 
     TYPE_ERROR("sign() not supported");
     return NULL;
@@ -168,16 +176,20 @@ Pympany_copy(PyObject *self, PyObject *other)
         return (PyObject*)Pyxmpz2Pyxmpz(self);
     else if (self && Pympq_Check(self))
         return (PyObject*)Pympq2Pympq(self);
+#ifdef WITHMPFR
     else if (self && Pympfr_Check(self))
         return (PyObject*)Pympfr2Pympfr(self, 0);
+#endif
     else if (Pympz_Check(other))
         return (PyObject*)Pympz2Pympz(other);
     else if (Pyxmpz_Check(other))
         return (PyObject*)Pyxmpz2Pyxmpz(other);
     else if (Pympq_Check(other))
         return (PyObject*)Pympq2Pympq(other);
+#ifdef WITHMPFR
     else if (Pympfr_Check(other))
         return (PyObject*)Pympfr2Pympfr(other, 0);
+#endif
     TYPE_ERROR("_copy() requires a gmpy2 object as argument");
     return NULL;
 }
@@ -205,18 +217,58 @@ Pympany_binary(PyObject *self, PyObject *other)
         return Pyxmpz2binary((PyxmpzObject*)self);
     else if(self && Pympq_Check(self))
         return Pympq2binary((PympqObject*)self);
+#ifdef WITHMPFR
     else if(self && Pympfr_Check(self))
         return Pympfr2binary((PympfrObject*)self);
+#endif
     else if(Pympz_Check(other))
         return Pympz2binary((PympzObject*)other);
     else if(Pyxmpz_Check(other))
         return Pyxmpz2binary((PyxmpzObject*)other);
     else if(Pympq_Check(other))
         return Pympq2binary((PympqObject*)other);
+#ifdef WITHMPFR
     else if(Pympfr_Check(other))
         return Pympfr2binary((PympfrObject*)other);
+#endif
     TYPE_ERROR("binary() requires a gmpy2 object as argument");
     return NULL;
 }
 
+static PyObject *
+Pympany_pow(PyObject *base, PyObject *exp, PyObject *mod)
+{
+#ifndef WITHMPFR
+    PyObject *result = 0, *temp;
+#endif
+
+    if (isInteger(base) && isInteger(exp))
+        return Pympz_pow(base, exp, mod);
+    else if (isRational(base) && isRational(exp))
+        return Pympq_pow(base, exp, mod);
+#ifdef WITHMPFR
+    else if (isReal(base) && isReal(exp));
+        return Pympfr2_pow(base, exp, mod);
+#else
+    /* Support mpz**float and float**mpz. */
+    if (CHECK_MPZANY(base) && PyFloat_Check(exp)) {
+        temp = PyFloat_FromDouble(mpz_get_d(Pympz_AS_MPZ(base)));
+        if (temp) {
+            result = PyNumber_Power(temp, exp, mod);
+            Py_DECREF(temp);
+        }
+        return result;
+    }
+    if (CHECK_MPZANY(exp) && PyFloat_Check(base)) {
+        temp = PyFloat_FromDouble(mpz_get_d(Pympz_AS_MPZ(exp)));
+        if (temp) {
+            result = PyNumber_Power(base, temp, mod);
+            Py_DECREF(temp);
+        }
+        return result;
+    }
+#endif
+
+    Py_RETURN_NOTIMPLEMENTED;
+}
 

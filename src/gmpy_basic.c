@@ -27,7 +27,11 @@ Pympany_add(PyObject *a, PyObject *b)
     mpz_t tempz;
     PympzObject *rz = 0, *paz = 0, *pbz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
+#ifdef WITHMPFR
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
+#else
+    double tempdouble;
+#endif
     long temp;
     int overflow;
 
@@ -82,6 +86,7 @@ Pympany_add(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)rz);
     }
 
+#ifdef WITHMPFR
     if (Pympfr_CheckAndExp(a)) {
         if (!(rf = Pympfr_new(0)))
             return NULL;
@@ -167,6 +172,7 @@ Pympany_add(PyObject *a, PyObject *b)
         }
         Py_DECREF((PyObject*)rf);
     }
+#endif
 
     if (isInteger(a) && isInteger(b)) {
         TRACE("Adding (integer,integer)\n");
@@ -210,6 +216,7 @@ Pympany_add(PyObject *a, PyObject *b)
         return (PyObject*)rq;
     }
 
+#ifdef WITHMPFR
     if (isReal(a) && isReal(b)) {
         TRACE("Adding (number,number)\n");
         paf = Pympfr_From_Real(a, 0);
@@ -231,6 +238,20 @@ Pympany_add(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF("addition");
     }
+#else
+    /* Support mpz+float and float+mpz. */
+    if (CHECK_MPZANY(a) && PyFloat_Check(b)) {
+        tempdouble = mpz_get_d(Pympz_AS_MPZ(a));
+        tempdouble = tempdouble+PyFloat_AsDouble(b);
+        return PyFloat_FromDouble(tempdouble);
+    }
+    if (CHECK_MPZANY(b) && PyFloat_Check(a)) {
+        tempdouble = mpz_get_d(Pympz_AS_MPZ(b));
+        tempdouble = PyFloat_AsDouble(a)+tempdouble;
+        return PyFloat_FromDouble(tempdouble);
+    }
+#endif
+
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -245,7 +266,11 @@ Pympany_sub(PyObject *a, PyObject *b)
     mpz_t tempz;
     PympzObject *rz = 0, *paz = 0, *pbz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
+#ifdef WITHMPFR
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
+#else
+    double tempdouble;
+#endif
     long temp;
     int overflow;
 
@@ -301,6 +326,7 @@ Pympany_sub(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)rz);
     }
 
+#ifdef WITHMPFR
     if (Pympfr_CheckAndExp(a)) {
         if (!(rf = Pympfr_new(0)))
             return NULL;
@@ -385,6 +411,7 @@ Pympany_sub(PyObject *a, PyObject *b)
         }
         Py_DECREF((PyObject*)rf);
     }
+#endif
 
     if (isInteger(a) && isInteger(b)) {
         TRACE("Subtracting (integer,integer)\n");
@@ -428,6 +455,7 @@ Pympany_sub(PyObject *a, PyObject *b)
         return (PyObject*)rq;
     }
 
+#ifdef WITHMPFR
     if (isReal(a) && isReal(b)) {
         TRACE("Subtracting (number,number)\n");
         paf = Pympfr_From_Real(a, 0);
@@ -449,6 +477,20 @@ Pympany_sub(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF("subtraction");
     }
+#else
+    /* Support mpz-float and float-mpz. */
+    if (CHECK_MPZANY(a) && PyFloat_Check(b)) {
+        tempdouble = mpz_get_d(Pympz_AS_MPZ(a));
+        tempdouble = tempdouble-PyFloat_AsDouble(b);
+        return PyFloat_FromDouble(tempdouble);
+    }
+    if (CHECK_MPZANY(b) && PyFloat_Check(a)) {
+        tempdouble = mpz_get_d(Pympz_AS_MPZ(b));
+        tempdouble = PyFloat_AsDouble(a)-tempdouble;
+        return PyFloat_FromDouble(tempdouble);
+    }
+#endif
+
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -463,7 +505,11 @@ Pympany_mul(PyObject *a, PyObject *b)
     mpz_t tempz;
     PympzObject *rz = 0, *paz = 0, *pbz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
+#ifdef WITHMPFR
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
+#else
+    double tempdouble;
+#endif
     long temp;
     int overflow;
 
@@ -512,6 +558,7 @@ Pympany_mul(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)rz);
     }
 
+#ifdef WITHMPFR
     if (Pympfr_CheckAndExp(a)) {
         if (!(rf = Pympfr_new(0)))
             return NULL;
@@ -596,6 +643,7 @@ Pympany_mul(PyObject *a, PyObject *b)
         }
         Py_DECREF((PyObject*)rf);
     }
+#endif
 
     if (isInteger(a) && isInteger(b)) {
         TRACE("Multiplying (integer,integer)\n");
@@ -639,6 +687,7 @@ Pympany_mul(PyObject *a, PyObject *b)
         return (PyObject*)rq;
     }
 
+#ifdef WITHMPFR
     if (isReal(a) && isReal(b)) {
         TRACE("Multiplying (number,number)\n");
         paf = Pympfr_From_Real(a, 0);
@@ -660,6 +709,20 @@ Pympany_mul(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF("multiplication");
     }
+#else
+    /* Support mpz*float and float*mpz. */
+    if (CHECK_MPZANY(a) && PyFloat_Check(b)) {
+        tempdouble = mpz_get_d(Pympz_AS_MPZ(a));
+        tempdouble = tempdouble*PyFloat_AsDouble(b);
+        return PyFloat_FromDouble(tempdouble);
+    }
+    if (CHECK_MPZANY(b) && PyFloat_Check(a)) {
+        tempdouble = mpz_get_d(Pympz_AS_MPZ(b));
+        tempdouble = PyFloat_AsDouble(a)*tempdouble;
+        return PyFloat_FromDouble(tempdouble);
+    }
+#endif
+
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -674,7 +737,9 @@ Pympany_floordiv(PyObject *a, PyObject *b)
     mpz_t tempz;
     PympzObject *rz = 0, *paz = 0, *pbz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
+#ifdef WITHMPFR
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
+#endif
     long temp;
     int overflow;
 
@@ -793,6 +858,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         return (PyObject*)rz;
     }
 
+#ifdef WITHMPFR
     if (isReal(a) && isReal(b)) {
         TRACE("Floor divide (number,number)\n");
         paf = Pympfr_From_Real(a, 0);
@@ -825,6 +891,8 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF("division");
     }
+#endif
+
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -842,9 +910,14 @@ Pympany_truediv(PyObject *a, PyObject *b)
 {
     PympzObject *paz = 0, *pbz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
+#ifdef WITHMPFR
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
+#else
+    double tempdouble;
+#endif
     mpq_t tempq;
 
+#ifdef WITHMPFR
     if (Pympfr_CheckAndExp(a) && Pympfr_CheckAndExp(b)) {
         if (mpfr_zero_p(Pympfr_AS_MPFR(b))) {
             context->now.divzero = 1;
@@ -861,6 +934,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
                           context->now.mpfr_round);
         MPFR_CLEANUP_RF("division");
     }
+#endif
 
     if (isInteger(a) && isInteger(b)) {
         TRACE("True divide (integer,integer)\n");
@@ -878,21 +952,31 @@ Pympany_truediv(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbz);
             return NULL;
         }
+#ifdef WITHMPFR
         if (!(rf = Pympfr_new(0))) {
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
         }
+#endif
         mpq_init(tempq);
         mpq_set_num(tempq, paz->z);
         mpq_set_den(tempq, pbz->z);
         mpq_canonicalize(tempq);
+#ifdef WITHMPFR
         mpfr_clear_flags();
         rf->rc = mpfr_set_q(rf->f, tempq, context->now.mpfr_round);
+#else
+        tempdouble = mpq_get_d(tempq);
+#endif
         mpq_clear(tempq);
         Py_DECREF((PyObject*)paz);
         Py_DECREF((PyObject*)pbz);
+#ifdef WITHMPFR
         MPFR_CLEANUP_RF("division");
+#else
+        return PyFloat_FromDouble(tempdouble);
+#endif
     }
 
     if (isRational(a) && isRational(b)) {
@@ -922,6 +1006,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
         return (PyObject*) rq;
     }
 
+#ifdef WITHMPFR
     if (isReal(a) && isReal(b)) {
         TRACE("True divide (number,number)\n");
         paf = Pympfr_From_Real(a, 0);
@@ -952,6 +1037,20 @@ Pympany_truediv(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF("division");
     }
+#else
+    /* Support mpz/float and float/mpz. */
+    if (CHECK_MPZANY(a) && PyFloat_Check(b)) {
+        tempdouble = mpz_get_d(Pympz_AS_MPZ(a));
+        tempdouble = tempdouble/PyFloat_AsDouble(b);
+        return PyFloat_FromDouble(tempdouble);
+    }
+    if (CHECK_MPZANY(b) && PyFloat_Check(a)) {
+        tempdouble = mpz_get_d(Pympz_AS_MPZ(b));
+        tempdouble = PyFloat_AsDouble(a)/tempdouble;
+        return PyFloat_FromDouble(tempdouble);
+    }
+#endif
+
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -971,7 +1070,9 @@ Pympany_div2(PyObject *a, PyObject *b)
     mpz_t tempz;
     PympzObject *rz = 0, *paz = 0, *pbz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
+#ifdef WITHMPFR
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
+#endif
     long temp;
     int overflow;
 
@@ -1072,6 +1173,7 @@ Pympany_div2(PyObject *a, PyObject *b)
 
     /* Use truediv for floating-point types. */
 
+#ifdef WITHMPFR
     if (isReal(a) && isReal(b)) {
         TRACE("True divide (number,number)\n");
         paf = Pympfr_From_Real(a, 0);
@@ -1102,6 +1204,8 @@ Pympany_div2(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF("division");
     }
+#endif
+
     Py_RETURN_NOTIMPLEMENTED;
 }
 #endif
@@ -1121,7 +1225,9 @@ Pympany_rem(PyObject *a, PyObject *b)
     mpz_t tempz;
     PympzObject *rz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
+#ifdef WITHMPFR
     PympfrObject *qf = 0, *rf = 0, *paf = 0, *pbf = 0;
+#endif
     long temp;
     int overflow;
 
@@ -1215,6 +1321,7 @@ Pympany_rem(PyObject *a, PyObject *b)
         return (PyObject*)rq;
     }
 
+#ifdef WITHMPFR
     if (isReal(a) && isReal(b)) {
         TRACE("Modulo (number,number)\n");
         paf = Pympfr_From_Real(a, 0);
@@ -1284,6 +1391,8 @@ Pympany_rem(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF("rem");
     }
+#endif
+
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -1303,7 +1412,9 @@ Pympany_divmod(PyObject *a, PyObject *b)
     mpz_t tempz;
     PympzObject *qz = 0, *rz = 0, *paz = 0, *pbz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
+#ifdef WITHMPFR
     PympfrObject *qf = 0, *rf = 0, *paf = 0, *pbf = 0;
+#endif
     long temp;
     int overflow;
 
@@ -1455,6 +1566,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
         return r;
     }
 
+#ifdef WITHMPFR
     if (isReal(a) && isReal(b)) {
         TRACE("Divmod (number,number)\n");
         paf = Pympfr_From_Real(a, 0);
@@ -1561,19 +1673,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
         PyTuple_SET_ITEM(r, 1, (PyObject*)rf);
         return r;
     }
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-static PyObject *
-Pympany_pow(PyObject *base, PyObject *exp, PyObject *mod)
-{
-
-    if (isInteger(base) && isInteger(exp))
-        return Pympz_pow(base, exp, mod);
-    else if (isRational(base) && isRational(exp))
-        return Pympq_pow(base, exp, mod);
-    else if (isReal(base) && isReal(exp));
-        return Pympfr2_pow(base, exp, mod);
+#endif
 
     Py_RETURN_NOTIMPLEMENTED;
 }

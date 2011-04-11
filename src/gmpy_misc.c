@@ -64,8 +64,12 @@ PyDoc_STRVAR(doc_mpfr_version,
 static PyObject *
 Pygmpy_get_mpfr_version(PyObject *self, PyObject *args)
 {
+#ifdef WITHMPFR
     return PyUnicode_FromFormat("%s %s", "MPFR",
                                 MPFR_VERSION_STRING);
+#else
+    Py_RETURN_NONE;
+#endif
 }
 
 PyDoc_STRVAR(doc_mp_limbsize,
@@ -102,7 +106,7 @@ per object (number of limbs). Raises ValueError if cache size exceeds\n\
 static PyObject *
 Pygmpy_set_cache(PyObject *self, PyObject *args)
 {
-    int newcache, newsize;
+    int newcache = -1, newsize = -1;
 
     if (!PyArg_ParseTuple(args, "ii", &newcache, &newsize))
         return NULL;
@@ -120,8 +124,10 @@ Pygmpy_set_cache(PyObject *self, PyObject *args)
     set_zcache();
     set_pympzcache();
     set_pympqcache();
-    set_pympfrcache();
     set_pyxmpzcache();
+#ifdef WITHMPFR
+    set_pympfrcache();
+#endif
     Py_RETURN_NONE;
 }
 

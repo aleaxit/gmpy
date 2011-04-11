@@ -13,7 +13,7 @@ mplib='gmp'
 for token in sys.argv:
     if token.upper().startswith('-DMPIR'):
         mplib='mpir'
-        
+
 use_mpc = True
 use_mpfr = True
 
@@ -42,7 +42,7 @@ if sys.version.find('MSC') == -1:
             if not os.path.isfile(lookin + '/libmpc.a'):
                 use_mpc = False
             break
-            
+
 # Use options to prevent use of MPFR and MPC even if found.
 #   -DNOMPC  -> build without MPC library
 #   -DNOMPFR  -> build without MPFR library
@@ -67,7 +67,7 @@ if use_mpc:
     defines.append( ('WITHMPC', 1) )
 else:
     defines.append( ('NOMPC', 1) )
-    
+
 # Build list of the required libraries...
 libs = [mplib]
 if use_mpfr:
@@ -81,7 +81,7 @@ if use_mpc:
 gmpy2_ext = Extension('gmpy2', sources=['src/gmpy2.c'],
     include_dirs=incdirs,
     library_dirs=libdirs,
-    libraries=[mplib] + ["mpfr", "mpc"],
+    libraries=libs,
     define_macros = defines)
 
 setup (name = "gmpy2",
