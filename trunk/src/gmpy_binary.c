@@ -98,6 +98,7 @@ Pympq_From_Old_Binary(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
+#ifdef WITHMPFR
 PyDoc_STRVAR(doc_g_mpfr_from_old_binary,
 "mpfr_from_old_binary(string) -> mpfr\n\n"
 "Return an mpfr from a GMPY 1.x binary mpf format.");
@@ -193,6 +194,7 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
 
     return (PyObject*)result;
 }
+#endif
 
 
 #if 0

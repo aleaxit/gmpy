@@ -5,6 +5,841 @@
  * This file should be considered part of gmpy2.c
  */
 
+/*
+  Make a copy of an mpfr object. If bits is 0, the new object will have
+  the same precision as the original object. If the requested precision
+  is less than the precision of the original object, the new object
+  will be rounded to requested precision using the current rounding mode.
+*/
+
+static PympfrObject *
+Pympfr2Pympfr(PyObject *self, mpfr_prec_t bits)
+{
+    PympfrObject *newob;
+
+    assert(Pympfr_Check(self));
+    if (bits == 0)
+        bits = mpfr_get_prec(Pympfr_AS_MPFR(self));
+    if ((newob = Pympfr_new(bits)))
+        newob->rc = mpfr_set(newob->f, Pympfr_AS_MPFR(self), context->now.mpfr_round);
+    return newob;
+}
+
+static PympfrObject *
+PyFloat2Pympfr(PyObject *self, mpfr_prec_t bits)
+{
+    PympfrObject *newob = 0;
+
+    assert(PyFloat_Check(self));
+    if (!bits)
+        bits = DBL_MANT_DIG;
+#ifdef DEBUG
+    if (global.debug)
+        fprintf(stderr, "PyFloat2Pympfr(%p,%ld)\n", self, (long) bits);
+#endif
+    if ((newob = Pympfr_new(bits)))
+        newob->rc = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), context->now.mpfr_round);
+    return newob;
+}
+
+static PympfrObject *
+Pympz2Pympfr(PyObject *self, mpfr_prec_t bits)
+{
+    PympfrObject *newob;
+
+    assert(Pympz_Check(self));
+    if ((newob = Pympfr_new(bits)))
+        newob->rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), context->now.mpfr_round);
+    return newob;
+}
+
+static PympfrObject *
+Pyxmpz2Pympfr(PyObject *self, mpfr_prec_t bits)
+{
+    PympfrObject *newob;
+
+    assert(Pyxmpz_Check(self));
+    if ((newob = Pympfr_new(bits)))
+        newob->rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), context->now.mpfr_round);
+    return newob;
+}
+
+static PympzObject *
+Pympfr2Pympz(PyObject *self)
+{
+    PympzObject *newob;
+
+    assert(Pympfr_Check(self));
+    if ((newob = Pympz_new())) {
+        if (mpfr_nan_p(Pympfr_AS_MPFR(self))) {
+            Py_DECREF((PyObject*)newob);
+            VALUE_ERROR("gmpy2.mpz() does not handle nan");
+            return NULL;
+        }
+        if (mpfr_inf_p(Pympfr_AS_MPFR(self))) {
+            Py_DECREF((PyObject*)newob);
+            VALUE_ERROR("gmpy2.mpz() does not handle infinity");
+            return NULL;
+        }
+        /* return code is ignored */
+        mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), context->now.mpfr_round);
+    }
+    return newob;
+}
+
+static PyxmpzObject *
+Pympfr2Pyxmpz(PyObject *self)
+{
+    PyxmpzObject *newob;
+
+    assert(Pympfr_Check(self));
+    if ((newob = Pyxmpz_new())) {
+        if (mpfr_nan_p(Pympfr_AS_MPFR(self))) {
+            Py_DECREF((PyObject*)newob);
+            VALUE_ERROR("gmpy2.xmpz() does not handle nan");
+            return NULL;
+        }
+        if (mpfr_inf_p(Pympfr_AS_MPFR(self))) {
+            Py_DECREF((PyObject*)newob);
+            VALUE_ERROR("gmpy2.xmpz() does not handle infinity");
+            return NULL;
+        }
+        /* return code is ignored */
+        mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), context->now.mpfr_round);
+    }
+    return newob;
+}
+
+static PympqObject *
+Pympfr2Pympq(PyObject *self)
+{
+    return (PympqObject*) Pympfr_f2q(self, 0);
+}
+
+static PympfrObject *
+Pympq2Pympfr(PyObject *self, mpfr_prec_t bits)
+{
+    PympfrObject *newob;
+
+    assert(Pympq_Check(self));
+    if (!(newob = Pympfr_new(bits)))
+        return NULL;
+    newob->rc = mpfr_set_q(newob->f, Pympq_AS_MPQ(self), context->now.mpfr_round);
+    return newob;
+}
+
+static PympfrObject *
+PyLong2Pympfr(PyObject *self, mpfr_prec_t bits)
+{
+    PympfrObject *newob;
+    PyObject *temp = (PyObject*)PyLong2Pympz(self);
+
+    if (!temp)
+        return NULL;
+    newob = Pympz2Pympfr(temp, bits);
+    Py_DECREF(temp);
+    return newob;
+}
+
+/*
+ * mpfr conversion from string includes from-binary (base-256, format is
+ * explained later) and 'true' from-string (bases 2 to 62), where exponent
+ * if any is denoted by 'e' if base<=10, else by '@', and is always decimal.
+ */
+static PympfrObject *
+PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
+{
+    PympfrObject *newob;
+    unsigned char *cp;
+    mpfr_prec_t prec;
+    Py_ssize_t i, len;
+    PyObject *ascii_str = NULL;
+
+    assert(PyStrOrUnicode_Check(s));
+
+    if (PyBytes_Check(s)) {
+        len = PyBytes_Size(s);
+        cp = (unsigned char*)PyBytes_AsString(s);
+    }
+    else {
+        ascii_str = PyUnicode_AsASCIIString(s);
+        if (!ascii_str) {
+            VALUE_ERROR("string contains non-ASCII characters");
+            return NULL;
+        }
+        len = PyBytes_Size(ascii_str);
+        cp = (unsigned char*)PyBytes_AsString(ascii_str);
+    }
+
+    if (bits > 0)
+        prec = bits;
+    else
+        prec = context->now.mpfr_prec;
+
+    if (prec < MPFR_PREC_MIN)
+        prec = MPFR_PREC_MIN;
+
+    if (!(newob = Pympfr_new(prec))) {
+        Py_XDECREF(ascii_str);
+        return NULL;
+    }
+
+    /* Don't allow NULL characters */
+    for (i=0; i<len; i++) {
+        if (cp[i] == '\0') {
+            VALUE_ERROR("string without NULL characters expected");
+            Py_DECREF((PyObject*)newob);
+            Py_XDECREF(ascii_str);
+            return NULL;
+        }
+    }
+    /* delegate the rest to MPFR */
+    if (-1 == mpfr_set_str(newob->f, (char*)cp, base, context->now.mpfr_round)) {
+        VALUE_ERROR("invalid digits");
+        Py_DECREF((PyObject*)newob);
+        Py_XDECREF(ascii_str);
+        return NULL;
+    }
+    Py_XDECREF(ascii_str);
+    return newob;
+}
+
+static PyObject *
+Pympfr2PyLong(PympfrObject *self)
+{
+    PyObject* result;
+    PympzObject *temp = Pympfr2Pympz((PyObject*)self);
+
+    if (!temp)
+        return NULL;
+    result = Pympz2PyLong(temp);
+    Py_DECREF((PyObject*)temp);
+    return result;
+}
+
+static PyObject *
+Pympfr2PyFloat(PympfrObject *self)
+{
+    double res = mpfr_get_d(self->f, context->now.mpfr_round);
+
+    return PyFloat_FromDouble(res);
+}
+
+/*
+ * helper functions for mpfr->binary conversion
+ * hof: maps a hex-digit character into 0..15
+ * di256: maps two hex-digits chars into 0..255
+ */
+
+static int
+hof(int hedi)
+{
+    static char table[] = "0123456789abcdef";
+    char* p = strchr(table, tolower(hedi));
+
+    assert(hedi && p);
+    return (int)(p-table);
+}
+
+static char
+di256(int di1, int di2)
+{
+    return (char)(hof(di2)+16*hof(di1));
+}
+
+/*
+ * Build old-version binary string. This will be removed when the new
+ * binary format is implemented.
+ */
+
+static PyObject *
+Pympfr2binary(PympfrObject *self)
+{
+    size_t size, hexdigs, i, j;
+    char *buffer, *aux;
+    PyObject *result;
+    int sign, codebyte;
+    mpfr_exp_t the_exp;
+    long lexp, lprec;
+    int lexpodd, extrabyte;
+
+    /* prepare codebyte */
+    sign = mpfr_sgn(self->f);
+    if (sign == 0) {
+        /* 0 -> single codebyte with 'zerovalue' bit set */
+#ifdef PY3
+        return Py_BuildValue("y", "\004");
+#else
+        return Py_BuildValue("s", "\004");
+#endif
+        /* codebyte = 0; */
+    }
+    else if (sign < 0) {
+        codebyte = 1;
+        mpfr_neg(self->f, self->f, context->now.mpfr_round);
+    }
+    else {
+        codebyte = 0;
+    }
+
+    /* get buffer of base-16 digits */
+    buffer  = mpfr_get_str(0, &the_exp, 16, 0, self->f, context->now.mpfr_round);
+
+    /* strip trailing zeros */
+    hexdigs = strlen(buffer) - 1;
+    while ((hexdigs >= 1) && (buffer[hexdigs] == '0'))
+        buffer[hexdigs--] = 0x00;
+
+    /* no need to worry about null-buffer as x->f==0.0 was
+     * already handled above (see first test on 'sign').
+     */
+    /* restore correct sign to x->f if it was changed! */
+    if (codebyte) {
+        mpfr_neg(self->f, self->f, context->now.mpfr_round);
+    }
+    hexdigs = strlen(buffer);
+    /* adjust exponent, & possibly set codebyte's expo-sign bit.
+     * note the_exp is base-16 exp, while we need to have it in
+     * base-256 -- so it's basically halved (but, with care...!).
+     */
+    if (the_exp<0) {
+        codebyte |= 2;
+        the_exp = -the_exp;
+    }
+    lexp = the_exp;
+    lexpodd = lexp & 1;
+    lexp = lexp/2 + lexpodd;
+    if (lexpodd && (codebyte&2))
+        --lexp;
+    /* remember we also store precision explicitly */
+    codebyte |= 8;
+
+    /* allocate suitably-sized, uninitialized Python string */
+    size = (hexdigs + 1) / 2;
+    /* allocate an extra byte if lexpodd and hexdigs is even */
+    extrabyte = lexpodd & ~hexdigs;
+    result = PyBytes_FromStringAndSize(0, 1+4+size+4+extrabyte);
+    if (!result)
+        return NULL;
+    /* set the data to the new Python string's buffer */
+    aux = PyBytes_AS_STRING(result);
+    /* codebyte first */
+    aux[0] = (char)codebyte;
+    /* then precision */
+    lprec = mpfr_get_prec(self->f);
+    for (i=0; i<4; ++i) {
+        aux[i+1] = (char)(lprec & 0xFF);
+        lprec >>= 8;
+    }
+    /* then exponent */
+    for (i=0; i<4; ++i) {
+        aux[4+i+1] = (char)(lexp & 0xFF);
+        lexp >>= 8;
+    }
+    /* then mantissa, grouping 2 hex digits per base-256 digits;
+     * with some care for the first & last ones...
+     */
+    j=0; i=0;
+    if (lexpodd) {
+        aux[i+9] = di256('0',buffer[0]);
+        j=1; i=1;
+    }
+    for (; i<size+extrabyte; ++i) {
+        int secdig = (j+1)<hexdigs? buffer[j+1] : '0';
+        aux[i+9] = di256(buffer[j], secdig);
+        j += 2;
+    }
+
+    PyMem_Free(buffer);
+    return result;
+}
+
+#define OP_TAG 1
+#define OP_RAW 2
+static char ftag[]="mpfr('";
+/*
+ * format mpfr into any base (2 to 62)
+ * digits: number of digits to ask MPFR for (0=all of
+ *     them) -- fewer will be given, if fewer significant
+ * minexfi: format as mantissa-exponent if exp<minexfi
+ * maxexfi: format as mantissa-exponent if exp>maxexfi
+ *     note that, e.g., minexfi=0, maxexfi=-1, means
+ *     "always format as mantissa-exponent".  If not
+ *     mantissa-exponent, the number will be formatted
+ *     as "fixed point" (FP).  Note the decimal point
+ *     is _always_ explicitly inserted by this function
+ *     (except when bit OP_RAW is set in optionflags).
+ * optionflags: bitmap of option-values; currently:
+ *     OP_TAG (1): add the mpfr('...') tag
+ *     OP_RAW (2): ignore minexfi/maxexfi/OP_TAG
+ *         and return a 3-element tuple digits/exponent/rprec
+ *         (as GMP gives them) for Python formatting;
+ *         'digits' may include a '-' sign, but no decimal
+ *         point, nor tag, nor any exponent-indicator.
+ *     other bits are currently ignored
+ */
+static PyObject *
+Pympfr_ascii(PympfrObject *self, int base, int digits,
+    int minexfi, int maxexfi, int optionflags)
+{
+    PyObject *result;
+#ifdef PY3
+    PyObject *temp;
+#endif
+    char *buffer;
+    mpfr_exp_t the_exp;
+    size_t buflen;
+
+    /* check arguments are valid */
+    assert(Pympfr_Check((PyObject*)self));
+    if (!((base >= 2) && (base <= 62))) {
+        VALUE_ERROR("base must be in the interval 2 ... 62");
+        return NULL;
+    }
+    if ((digits < 0) || (digits == 1)) {
+        VALUE_ERROR("digits must be 0 or >= 2");
+        return NULL;
+    }
+
+    /* Process special cases first */
+    if (!(mpfr_regular_p(self->f))) {
+        if (mpfr_nan_p(self->f)) {
+            if (optionflags & OP_RAW)
+                result = Py_BuildValue("(sii)", "nan", 0, 0);
+            else
+                if (optionflags & OP_TAG)
+                    result = Py_BuildValue("s", "mpfr('nan')");
+                else
+                    result = Py_BuildValue("s", "nan");
+        }
+        else if (mpfr_inf_p(self->f) && !mpfr_signbit(self->f)) {
+            if (optionflags & OP_RAW)
+                result = Py_BuildValue("(sii)", "inf", 0, 0);
+            else
+                if (optionflags & OP_TAG)
+                    result = Py_BuildValue("s", "mpfr('inf')");
+                else
+                    result = Py_BuildValue("s", "inf");
+        }
+        else if (mpfr_inf_p(self->f) && mpfr_signbit(self->f)) {
+            if (optionflags & OP_RAW)
+                result = Py_BuildValue("(sii)", "-inf", 0, 0);
+            else
+                if (optionflags & OP_TAG)
+                    result = Py_BuildValue("s", "mpfr('-inf')");
+                else
+                    result = Py_BuildValue("s", "-inf");
+        }
+        /* 0 is not considered a 'regular" number */
+        else if (mpfr_signbit(self->f)) {
+            if (optionflags & OP_RAW)
+                result = Py_BuildValue("(sii)", "-0", 0,
+                                       mpfr_get_prec(self->f));
+            else
+                if (optionflags & OP_TAG)
+                    result = Py_BuildValue("s", "mpfr('-0.0e0')");
+                else
+                    result = Py_BuildValue("s", "-0.0e0");
+        }
+        else {
+            if (optionflags & OP_RAW)
+                result = Py_BuildValue("(sii)", "0", 0,
+                                       mpfr_get_prec(self->f));
+            else
+                if (optionflags & OP_TAG)
+                    result = Py_BuildValue("s", "mpfr('0.0e0')");
+                else
+                    result = Py_BuildValue("s", "0.0e0");
+        }
+        return result;
+    }
+
+    /* obtain digits-string and exponent */
+    buffer = mpfr_get_str(0, &the_exp, base, digits, self->f, context->now.mpfr_round);
+    if (!*buffer) {
+        SYSTEM_ERROR("Internal error in Pympfr_ascii");
+        return NULL;
+    }
+
+    if (optionflags & OP_RAW) {
+        result = Py_BuildValue("(sii)", buffer, the_exp, mpfr_get_prec(self->f));
+        PyMem_Free(buffer);
+        return result;
+    }
+    else {
+        char expobuf[24];
+        char auprebuf[24];
+        int isfp = 1;   /* flag: fixed-point format (FP)? */
+        int isnegative = 0;
+        size_t size;
+
+        /* check if it is negative */
+        if (buffer[0]==0x2d)
+            isnegative = 1;
+
+        /* strip trailing zeros */
+        buflen = strlen(buffer) - 1;
+        while ((buflen >= (2 + isnegative)) && (buffer[buflen] == '0'))
+            buffer[buflen--] = 0x00;
+
+        /* insert formatting elements (decimal-point, leading or
+           trailing 0's, other indication of exponent...) */
+        buflen = strlen(buffer);
+
+        /* account for the decimal point that is always inserted */
+        size = buflen + 1;
+
+        /* compute size of needed Python string */
+        if (optionflags & OP_TAG) {
+            size += strlen(ftag) + 2;
+            if (mpfr_get_prec(self->f) != DBL_MANT_DIG) {
+                sprintf(auprebuf, ",%ld", (long)mpfr_get_prec(self->f));
+                size += strlen(auprebuf);
+            }
+        }
+
+        /* exponential format */
+        if (the_exp < minexfi || the_exp > maxexfi) {
+            /* add exponent-length + 1 for '@' or 'e' marker */
+            sprintf(expobuf, "%ld", the_exp - 1);
+            size += strlen(expobuf) + 1;
+            isfp = 0;
+        }
+        /* 'fixed-point' format */
+        else {
+            /* add number of leading or trailing 0's */
+            if (the_exp <= 0) {
+                /* add leading 0's */
+                size += abs(the_exp) + 1;
+            }
+            else {
+                /* add trailing 0's if needed */
+                if (the_exp >= (buflen - isnegative))
+                    size += (the_exp - (buflen - isnegative)) + 1;
+            }
+        }
+
+        /* allocate the string itself (uninitialized, as yet) */
+        result = PyBytes_FromStringAndSize(0, size);
+
+        {
+            /* proceed with building the string-buffer value */
+            char* pd = PyBytes_AS_STRING(result);
+            char* ps = buffer;
+
+            /* insert leading tag if requested */
+            if (optionflags & OP_TAG) {
+                char* pt = ftag;
+                while(*pt) *pd++ = *pt++;
+            }
+
+            /* copy sign if it's there */
+            if (*ps == '-') {
+                *pd++ = *ps++;
+            }
+
+            /* insert a leading-0 if needed for non-positive-exp FP,
+             * else just copy the leading digit (goes before '.')
+             */
+            if (isfp && the_exp<=0)
+                *pd++ = '0';
+            else if (*ps)
+                *pd++ = *ps++;
+            else
+                *pd++ = '0';
+
+            /* insert what else goes before '.' for FP */
+            if (isfp && the_exp > 1) {
+                /* number of digits-to-copy before the '.' */
+                int dtc = the_exp - 1;
+                /* copy requested # of digits as long as there
+                 * are still digits to copy in the buffer
+                 */
+                while (dtc && *ps) {
+                    *pd++ = *ps++;
+                    --dtc;
+                }
+                /* insert trailing 0's before the '.' if
+                 * needed to make up the total # digits
+                 * that go before the '.' in FP/large exp
+                 */
+                while (dtc > 0) {
+                    *pd++ = '0';
+                    --dtc;
+                }
+            }
+
+            /* the decimal-point is _always_ explicitly there */
+            *pd++ = '.';
+
+            /* as is at least 1 trailing-digit after it, if FP,
+             * so put a 0 if no more digits to copy
+             */
+            if (isfp && !*ps)
+                *pd++ = '0';
+
+            /* in FP with negative exp, we have more leading 0's
+             * after the decimal-point before copying the digits
+             * from the buffer
+             */
+            if (isfp && the_exp<0) {
+                int dtc = abs(the_exp);
+                while (dtc>0) {
+                    *pd++ = '0';
+                    --dtc;
+                }
+            }
+
+            /* copy all remaining digits from buffer, if any */
+            while(*ps) *pd++ = *ps++;
+
+            /* insert marker-and-exponent if _not_ FP */
+            if (!isfp) {
+                char* pe = expobuf;
+                *pd++ = (base<=10)?'e':'@';
+                while(*pe) *pd++ = *pe++;
+            }
+
+            /* insert trailing-part of the tag if needed */
+            if (optionflags & OP_TAG) {
+                char* pe = auprebuf;
+                *pd++ = '\'';
+                if (mpfr_get_prec(self->f) != DBL_MANT_DIG)
+                    while(*pe) *pd++ = *pe++;
+                *pd++ = ')';
+            }
+        }
+        PyMem_Free(buffer);
+#ifdef PY3
+        temp = PyUnicode_FromString(PyBytes_AS_STRING(result));
+        Py_DECREF(result);
+        return temp;
+#else
+        return result;
+#endif
+    }
+}
+
+/*
+ * If obj is a PyFloat and bits is 0, then the conversion is done exactly.
+ * If obj is a Pympfr and bits is 0 or bits is the same as the precision of
+ * obj, then a new reference is created.
+ *
+ * For all other numerical types with bits = 0, the conversion is rounded to
+ * context->now.mpfr_prec.
+ */
+
+static PympfrObject*
+Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
+{
+    PympfrObject* newob = 0;
+    PympqObject* temp = 0;
+
+    if (Pympfr_CheckAndExp(obj)) {
+        /* Handle the likely case where the exponent of the mpfr is still
+         * valid in the current context. */
+        if (!bits || mpfr_get_prec(Pympfr_AS_MPFR(obj)) == bits) {
+            newob = (PympfrObject*) obj;
+            Py_INCREF(obj);
+        }
+        else {
+            newob = Pympfr2Pympfr((PyObject*)obj, bits);
+        }
+    }
+    else if (Pympfr_Check(obj)) {
+        /* Handle the unlikely case where the exponent is no longer valid
+         * and mpfr_check_range needs to be called. */
+        if ((newob = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(obj))))) {
+            mpfr_set(newob->f, Pympfr_AS_MPFR(obj), context->now.mpfr_round);
+            newob->round_mode = ((PympfrObject*)obj)->round_mode;
+            newob->rc = ((PympfrObject*)obj)->rc;
+            newob->rc = mpfr_check_range(newob->f, newob->rc, newob->round_mode);
+        }
+    }
+    else if (PyFloat_Check(obj)) {
+        newob = PyFloat2Pympfr(obj, bits);
+#ifdef PY2
+    }
+    else if (PyInt_Check(obj)) {
+        newob = PyInt2Pympfr(obj, bits);
+#endif
+    }
+    else if (Pympq_Check(obj)) {
+        newob = Pympq2Pympfr(obj, bits);
+    }
+    else if (Pympz_Check(obj)) {
+        newob = Pympz2Pympfr(obj, bits);
+    }
+    else if (PyLong_Check(obj)) {
+        newob = PyLong2Pympfr(obj, bits);
+    }
+    else if (Pyxmpz_Check(obj)) {
+        newob = Pyxmpz2Pympfr(obj, bits);
+    }
+    else if (!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
+        PyObject *s = PyObject_Str(obj);
+        if (s) {
+            newob = PyStr2Pympfr(s, 10, bits);
+            if (!newob) {
+                Py_DECREF(s);
+                return NULL;
+            }
+            Py_DECREF(s);
+        }
+    }
+    else if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
+        PyObject *s = PyObject_Str(obj);
+        if (s) {
+            temp = PyStr2Pympq(s, 10);
+            newob = Pympq2Pympfr((PyObject *)temp, bits);
+            Py_DECREF(s);
+            Py_DECREF((PyObject*)temp);
+        }
+    }
+#ifdef DEBUG
+    if (global.debug)
+        fprintf(stderr, "Pympfr_From_Real(%p,%ld)->%p (%ld)\n", obj,
+                (long)bits, newob, newob != 0 ? (long)mpfr_get_prec(newob->f) : -1);
+#endif
+    return newob;
+}
+
+/*
+ * coerce any number to a mpf
+ */
+
+int
+Pympfr_convert_arg(PyObject *arg, PyObject **ptr)
+{
+    PympfrObject* newob = Pympfr_From_Real(arg, 0);
+
+#ifdef DEBUG
+    if (global.debug)
+        fprintf(stderr, "mpfr_conv_arg(%p)->%p\n", arg, newob);
+#endif
+    if (newob) {
+        *ptr = (PyObject*)newob;
+        return 1;
+    }
+    else {
+        TYPE_ERROR("argument can not be converted to mpfr");
+        return 0;
+    }
+}
+
+/* str and repr implementations for mpz */
+static PyObject *
+Pympfr2str(PympfrObject *self)
+{
+    /* base-10, FP for exp -2 to 8, no tag */
+    return Pympfr_ascii(self, 10, 0, -2, 8, 0);
+}
+
+static PyObject *
+Pympfr2repr(PympfrObject *self)
+{
+    /* base-10, always mantissa+exp, with tag */
+    return Pympfr_ascii(self, 10, 0, 0, -1, OP_TAG);
+}
+
+static char doc_mpfr[] = "\
+mpfr(n):\n\
+    builds an mpfr object with a numeric value n (n may be any\n\
+    Python number, or an mpz, mpq, or mpfr object) and a default\n\
+    precision (in bits) depending on the nature of n\n\
+mpfr(n,bits=0):\n\
+    as above, but with the specified number of bits (0\n\
+    means to use default precision, as above)\n\
+mpfr(s,bits=0,base=10):\n\
+    builds an mpfr object from a string s made up of\n\
+    digits in the given base, possibly with fraction-part (with\n\
+    period as a separator) and/or exponent-part (with exponent\n\
+    marker 'e' for base<=10, else '@'). If base=256, s must be\n\
+    a gmpy2.mpfr portable binary representation as built by the\n\
+    function gmpy2.binary (and the .binary method of mpfr objects).\n\
+    The resulting mpfr object is built with a default precision (in\n\
+    bits) if bits is 0 or absent, else with the specified number\n\
+    of bits.\n\
+";
+static PyObject *
+Pygmpy_mpfr(PyObject *self, PyObject *args)
+{
+    PympfrObject *newob;
+    PyObject *obj;
+    Py_ssize_t argc;
+    mpfr_prec_t bits=0;
+
+    TRACE("Pygmpy_mpfr() called...\n");
+
+    assert(PyTuple_Check(args));
+
+    argc = PyTuple_Size(args);
+    if ((argc < 1) || (argc > 3)) {
+        TYPE_ERROR("gmpy2.mpfr() requires 1 to 3 arguments");
+        return NULL;
+    }
+
+    obj = PyTuple_GetItem(args, 0);
+
+    if (2 <= argc) {
+        long sbits;
+        PyObject *pbits = PyTuple_GetItem(args, 1);
+        sbits = clong_From_Integer(pbits);
+        if (sbits == -1 && PyErr_Occurred()) {
+            TYPE_ERROR("gmpy2.mpfr(): bits must be an integer");
+            return NULL;
+        }
+        if (sbits<0) {
+            VALUE_ERROR("bits for gmpy2.mpfr() must be >= 0");
+            return NULL;
+        }
+        bits = sbits;
+    }
+
+    if (PyStrOrUnicode_Check(obj) || PyUnicode_Check(obj)) {
+        /* build-from-string (ascii or binary) */
+        long base=10;
+        if (3 == argc) {
+            PyObject *pbase = PyTuple_GetItem(args, 2);
+            base = clong_From_Integer(pbase);
+            if (base == -1 && PyErr_Occurred()) {
+                TYPE_ERROR("gmpy2.mpfr(): base must be an integer");
+                return NULL;
+            }
+            if ((base!=0) && ((base<2)||(base>62))) {
+                VALUE_ERROR("base for gmpy2.mpfr() must be 0 or in the "
+                            "interval 2 ... 62");
+                return NULL;
+            }
+        }
+        newob = PyStr2Pympfr(obj, base, bits);
+        if (!newob) {
+            return NULL;
+        }
+    }
+    else {
+        if (argc==3) {
+            TYPE_ERROR("gmpy2.mpfr() with numeric 1st argument needs 1 or 2 arguments");
+            return NULL;
+        }
+        newob = Pympfr_From_Real(obj, bits);
+        if (!newob) {
+            if (!PyErr_Occurred())
+                TYPE_ERROR("gmpy2.mpfr() requires numeric or string argument");
+            return NULL;
+        }
+    }
+#ifdef DEBUG
+    if (global.debug) {
+        fputs("Pygmpy_mpfr: created mpfr = ", stderr);
+        mpfr_out_str(stderr, 10, 0, newob->f, context->now.mpfr_round);
+        fprintf(stderr," bits=%ld (%ld)\n",
+                (long)mpfr_get_prec(newob->f), (long)bits);
+    }
+#endif
+    return (PyObject *) newob;
+} /* Pygmpy_mpfr() */
+
 /* Implement the .precision attribute of an mpfr. */
 
 static PyObject *
