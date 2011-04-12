@@ -39,12 +39,16 @@ GMPyContext_new(void)
     if ((self = PyObject_New(GMPyContextObject, &GMPyContext_Type))) {
         self->now.subnormalize = 0;
         self->now.mpfr_prec = DBL_MANT_DIG;
+#ifdef WITHMPC
         self->now.mpc_rprec = -1;
         self->now.mpc_iprec = -1;
+#endif
         self->now.mpfr_round = MPFR_RNDN;
+#ifdef WITHMPC
         self->now.mpc_rround = -1;
         self->now.mpc_iround = -1;
         self->now.mpc_round = MPC_RNDNN;
+#endif
         self->now.emax = mpfr_get_emax();
         self->now.emin = mpfr_get_emin();
         self->now.underflow = 0;
@@ -91,10 +95,16 @@ GMPyContext_repr(GMPyContextObject *self)
     PyObject *format;
     PyObject *tuple;
     PyObject *result = NULL;
+    int i = 0;
 
+#ifdef WITHMPC
     tuple = PyTuple_New(21);
+#else
+    tuple = PyTuple_New(17);
+#endif
     if (!tuple) return NULL;
 
+#ifdef WITHMPC
     format = Py2or3String_FromString(
             "context(subnormalize=%s,\n"
             "        precision=%s, mpc_rprec=%s, mpc_iprec=%s,\n"
@@ -107,38 +117,53 @@ GMPyContext_repr(GMPyContextObject *self)
             "        trap_erange=%s, erange=%s,\n"
             "        trap_divzero=%s, divzero=%s)"
             );
+#else
+    format = Py2or3String_FromString(
+            "context(subnormalize=%s,\n"
+            "        precision=%,\n"
+            "        round=%s,\n"
+            "        emax=%s, emin=%s,\n"
+            "        trap_underflow=%s, underflow=%s,\n"
+            "        trap_overflow=%s, overflow=%s,\n"
+            "        trap_inexact=%s, inexact=%s,\n"
+            "        trap_invalid=%s, invalid=%s,\n"
+            "        trap_erange=%s, erange=%s,\n"
+            "        trap_divzero=%s, divzero=%s)"
+            );
+#endif
     if (!format) return NULL;
 
-    PyTuple_SET_ITEM(tuple, 0, PyBool_FromLong(self->now.subnormalize));
-    PyTuple_SET_ITEM(tuple, 1, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpfr_prec)));
-
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.subnormalize));
+    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpfr_prec)));
+#ifdef WITHMPC
     if (self->now.mpc_rprec == GMPY_DEFAULT)
-        PyTuple_SET_ITEM(tuple, 2, Py2or3String_FromString("Default"));
+        PyTuple_SET_ITEM(tuple, i++, Py2or3String_FromString("Default"));
     else
-        PyTuple_SET_ITEM(tuple, 2, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpc_rprec)));
-
+        PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpc_rprec)));
     if (self->now.mpc_iprec == GMPY_DEFAULT)
-        PyTuple_SET_ITEM(tuple, 3, Py2or3String_FromString("Default"));
+        PyTuple_SET_ITEM(tuple, i++, Py2or3String_FromString("Default"));
     else
-        PyTuple_SET_ITEM(tuple, 3, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpc_iprec)));
-
-    PyTuple_SET_ITEM(tuple, 4, _round_to_name(self->now.mpfr_round));
-    PyTuple_SET_ITEM(tuple, 5, _round_to_name(self->now.mpc_rround));
-    PyTuple_SET_ITEM(tuple, 6, _round_to_name(self->now.mpc_iround));
-    PyTuple_SET_ITEM(tuple, 7, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emax)));
-    PyTuple_SET_ITEM(tuple, 8, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emin)));
-    PyTuple_SET_ITEM(tuple, 9, PyBool_FromLong(self->now.trap_underflow));
-    PyTuple_SET_ITEM(tuple, 10, PyBool_FromLong(self->now.underflow));
-    PyTuple_SET_ITEM(tuple, 11, PyBool_FromLong(self->now.trap_overflow));
-    PyTuple_SET_ITEM(tuple, 12, PyBool_FromLong(self->now.overflow));
-    PyTuple_SET_ITEM(tuple, 13, PyBool_FromLong(self->now.trap_inexact));
-    PyTuple_SET_ITEM(tuple, 14, PyBool_FromLong(self->now.inexact));
-    PyTuple_SET_ITEM(tuple, 15, PyBool_FromLong(self->now.trap_invalid));
-    PyTuple_SET_ITEM(tuple, 16, PyBool_FromLong(self->now.invalid));
-    PyTuple_SET_ITEM(tuple, 17, PyBool_FromLong(self->now.trap_erange));
-    PyTuple_SET_ITEM(tuple, 18, PyBool_FromLong(self->now.erange));
-    PyTuple_SET_ITEM(tuple, 19, PyBool_FromLong(self->now.trap_divzero));
-    PyTuple_SET_ITEM(tuple, 20, PyBool_FromLong(self->now.divzero));
+        PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpc_iprec)));
+#endif
+    PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->now.mpfr_round));
+#ifdef WITHMPC
+    PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->now.mpc_rround));
+    PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->now.mpc_iround));
+#endif
+    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emax)));
+    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emin)));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_underflow));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.underflow));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_overflow));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.overflow));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_inexact));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.inexact));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_invalid));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.invalid));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_erange));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.erange));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_divzero));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.divzero));
 
     if (!PyErr_Occurred())
         result = Py2or3String_Format(format, tuple);
@@ -173,29 +198,53 @@ PyDoc_STRVAR(doc_new_context,
 "new_context() -> context\n\n"
 "Return a new context manager controlling MPFR and MPC\n"
 "arithmetic.\n\n"
-"    subnormalize: if True, subnormalized results can be returned\n"
-"    precision:    precision, in bits, of an MPFR result\n"
-"    mpc_rprec:    precision, in bits, of Re(MPC)\n"
-"                    -1 implies use mpfr_prec\n"
-"    mpc_iprec:    precision, in bits, of Im(MPC)\n"
-"                    -1 implies use mpc_rprec\n"
-"    round:        rounding mode for MPFR\n"
-"    mpc_rround:   rounding mode for Re(MPC)\n"
-"                    -1 implies use mpfr_round\n"
-"    mpc_iround:   rounding mode for Im(MPC)\n"
-"                    -1 implies use mpc_rround\n"
-"    e_max:        maximum allowed exponent\n"
-"    e_min:        minimum allowed exponent\n");
+"    subnormalize:   if True, subnormalized results can be returned\n"
+"    precision:      precision, in bits, of an MPFR result\n"
+#ifdef WITHMPC
+"    mpc_rprec:      precision, in bits, of Re(MPC)\n"
+"                      -1 implies use mpfr_prec\n"
+"    mpc_iprec:      precision, in bits, of Im(MPC)\n"
+"                      -1 implies use mpc_rprec\n"
+#endif
+"    round:          rounding mode for MPFR\n"
+#ifdef WITHMPC
+"    mpc_rround:     rounding mode for Re(MPC)\n"
+"                      -1 implies use mpfr_round\n"
+"    mpc_iround:     rounding mode for Im(MPC)\n"
+"                      -1 implies use mpc_rround\n"
+#endif
+"    e_max:          maximum allowed exponent\n"
+"    e_min:          minimum allowed exponent\n"
+"    trap_underflow: if True, raise exception for underflow\n"
+"                    if False, set underflow flag\n"
+"    trap_overflow:  if True, raise exception for overflow\n"
+"                    if False, set overflow flag and return Inf or -Inf\n"
+"    trap_inexact:   if True, raise exception for inexact result\n"
+"                    if False, set inexact flag\n"
+"    trap_invalid:   if True, raise exception for invalid operation\n"
+"                    if False, set invalid flag and return NaN\n"
+"    trap_erange:    if True, raise exception for range error\n"
+"                    if False, set erange flag\n"
+"    trap_divzero:   if True, raise exception for division by zero\n"
+"                    if False, set divzero flag and return Inf or -Inf\n");
 
 static PyObject *
 Pygmpy_new_context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     GMPyContextObject *result;
 
+#ifdef WITHMPC
+    static char *kwlist[] = {
+        "subnormalize", "precision", "mpc_rprec", "mpc_iprec",
+        "round", "mpc_rround", "mpc_iround", "emax", "emin",
+        "trap_underflow", "trap_overflow", "trap_inexact",
+        "trap_invalid", "trap_erange", "trap_divzero", NULL };
+#else
     static char *kwlist[] = {
         "subnormalize", "precision", "round", "emax", "emin",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero", NULL };
+#endif
 
     if (PyTuple_GET_SIZE(args)) {
         VALUE_ERROR("new_context() only supports keyword arguments");
@@ -204,12 +253,23 @@ Pygmpy_new_context(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (!(result = GMPyContext_new()))
         return NULL;
-
+#ifdef WITHMPC
+    if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
+            "|illliiilliiiiii", kwlist,
+            &result->now.subnormalize,
+            &result->now.mpfr_prec,
+            &result->now.mpc_rprec,
+            &result->now.mpc_iprec,
+            &result->now.mpfr_round,
+            &result->now.mpc_rround,
+            &result->now.mpc_iround,
+#else
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
             "|ililliiiiii", kwlist,
             &result->now.subnormalize,
             &result->now.mpfr_prec,
             &result->now.mpfr_round,
+#endif
             &result->now.emax,
             &result->now.emin,
             &result->now.trap_underflow,
@@ -360,6 +420,7 @@ GMPyContext_set_precision(GMPyContextObject *self, PyObject *value, void *closur
     return 0;
 }
 
+#ifdef WITHMPC
 static PyObject *
 GMPyContext_get_mpc_rprec(GMPyContextObject *self, void *closure)
 {
@@ -419,6 +480,7 @@ GMPyContext_set_mpc_iprec(GMPyContextObject *self, PyObject *value, void *closur
     self->now.mpc_iprec = (mpfr_prec_t)temp;
     return 0;
 }
+#endif
 
 static PyObject *
 GMPyContext_get_round(GMPyContextObject *self, void *closure)
@@ -450,10 +512,12 @@ GMPyContext_set_round(GMPyContextObject *self, PyObject *value, void *closure)
         self->now.mpfr_round = temp;
     else if (temp == MPFR_RNDA) {
         self->now.mpfr_round = temp;
+#ifdef WITHMPC
         /* Since RNDA is not supported for MPC, set the MPC rounding modes
            to MPFR_RNDN. */
         self->now.mpc_rround = MPFR_RNDN;
         self->now.mpc_iround = MPFR_RNDN;
+#endif
     }
     else {
         VALUE_ERROR("invalid value for round mode");
@@ -462,6 +526,7 @@ GMPyContext_set_round(GMPyContextObject *self, PyObject *value, void *closure)
     return 0;
 }
 
+#ifdef WITHMPC
 static PyObject *
 GMPyContext_get_mpc_rround(GMPyContextObject *self, void *closure)
 {
@@ -535,6 +600,7 @@ GMPyContext_set_mpc_iround(GMPyContextObject *self, PyObject *value, void *closu
     }
     return 0;
 }
+#endif
 
 static PyObject *
 GMPyContext_get_emin(GMPyContextObject *self, void *closure)
@@ -602,11 +668,15 @@ GMPyContext_set_emax(GMPyContextObject *self, PyObject *value, void *closure)
 static PyGetSetDef GMPyContext_getseters[] = {
     ADD_GETSET(subnormalize),
     ADD_GETSET(precision),
+#ifdef WITHMPC
     ADD_GETSET(mpc_rprec),
     ADD_GETSET(mpc_iprec),
+#endif
     ADD_GETSET(round),
+#ifdef WITHMPC
     ADD_GETSET(mpc_rround),
     ADD_GETSET(mpc_iround),
+#endif
     ADD_GETSET(emax),
     ADD_GETSET(emin),
     ADD_GETSET(underflow),
@@ -642,7 +712,7 @@ static PyTypeObject GMPyContext_Type =
         0,                                  /* ob_size          */
 #endif
     "gmpy2 context",                        /* tp_name          */
-    sizeof(GMPyContextObject),              /* tp_basicsize     */
+    sizeof(GMPyContextObject),             /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
     (destructor) GMPyContext_dealloc,       /* tp_dealloc       */
         0,                                  /* tp_print         */

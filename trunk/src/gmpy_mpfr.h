@@ -17,6 +17,14 @@
 #  pragma comment(lib,"mpfr.lib")
 #endif
 
+typedef struct {
+    mpob ob;
+    mpfr_t f;
+    Py_hash_t hash_cache;
+    int rc;
+    int round_mode;
+} PympfrObject;
+
 #define GMPY_DIVZERO(msg) PyErr_SetString(GMPyExc_DivZero, msg)
 #define GMPY_INEXACT(msg) PyErr_SetString(GMPyExc_Inexact, msg)
 #define GMPY_INVALID(msg) PyErr_SetString(GMPyExc_Invalid, msg)
@@ -118,14 +126,6 @@
     } \
     return (PyObject*)rf;
 
-typedef struct {
-    mpob ob;
-    mpfr_t f;
-    Py_hash_t hash_cache;
-    int rc;
-    int round_mode;
-} PympfrObject;
-
 static PyTypeObject Pympfr_Type;
 #define Pympfr_AS_MPFR(obj) (((PympfrObject *)(obj))->f)
 #define Pympfr_Check(v) (((PyObject*)v)->ob_type == &Pympfr_Type)
@@ -136,10 +136,13 @@ static PyTypeObject Pympfr_Type;
 (Pympfr_AS_MPFR(v)->_mpfr_exp <= context->now.emax))))
 
 /* Forward declarations begin here. */
-static PyObject *f2q_internal(PympfrObject* self, PympfrObject* err,
-                               unsigned int bits, int mayz);
+static PyObject *f2q_internal(PympfrObject* self, PympfrObject* err, unsigned int bits, int mayz);
 static PyObject *Pympfr_f2q(PyObject *self, PyObject *args);
 static PympfrObject *PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits);
+static PympzObject *Pympfr2Pympz(PyObject *self);
+static PyxmpzObject *Pympfr2Pyxmpz(PyObject *self);
+static PympqObject *Pympfr2Pympq(PyObject *self);
+static PympfrObject *Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
 
 
 
