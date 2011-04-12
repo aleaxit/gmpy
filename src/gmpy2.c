@@ -2705,6 +2705,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "lucas2", Pygmpy_lucas2, METH_O, doc_lucas2 },
     { "mp_version", Pygmpy_get_mp_version, METH_NOARGS, doc_mp_version },
     { "mp_limbsize", Pygmpy_get_mp_limbsize, METH_NOARGS, doc_mp_limbsize },
+    { "mpc_version", Pygmpy_get_mpc_version, METH_NOARGS, doc_mpc_version },
     { "mpfr_version", Pygmpy_get_mpfr_version, METH_NOARGS, doc_mpfr_version },
     { "mpq", Pygmpy_mpq, METH_VARARGS, doc_mpq },
     { "mpq_from_old_binary", Pympq_From_Old_Binary, METH_O, doc_g_mpq_from_old_binary },
@@ -2845,7 +2846,6 @@ static PyMethodDef Pygmpy_methods [] =
 
 #ifdef WITHMPC
     { "mpc", (PyCFunction)Pygmpy_mpc, METH_VARARGS | METH_KEYWORDS, doc_g_mpc },
-    { "mpc_version", Pygmpy_get_mpc_version, METH_NOARGS, doc_mpc_version },
 #endif
     { NULL, NULL, 1}
 };

@@ -72,6 +72,21 @@ Pygmpy_get_mpfr_version(PyObject *self, PyObject *args)
 #endif
 }
 
+PyDoc_STRVAR(doc_mpc_version,
+"mpc_version() -> string\n\n"
+"Return string giving current MPC version.");
+
+static PyObject *
+Pygmpy_get_mpc_version(PyObject *self, PyObject *args)
+{
+#ifdef WITHMPC
+    return PyUnicode_FromFormat("%s %s", "MPC",
+                                MPC_VERSION_STRING);
+#else
+    Py_RETURN_NONE;
+#endif
+}
+
 PyDoc_STRVAR(doc_mp_limbsize,
 "mp_limbsize() -> integer\n\n\
 Return the number of bits per limb.");

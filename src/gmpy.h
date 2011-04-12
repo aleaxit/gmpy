@@ -54,6 +54,30 @@ typedef unsigned long Py_uhash_t;
 #  include "gmp.h"
 #endif
 
+/* Header file for gmpy2 */
+typedef struct {
+    PyObject_HEAD
+    /* PyObject* callable; */
+    /* long flags; */
+} mpob;
+
+typedef struct {
+    mpob ob;
+    mpz_t z;
+    Py_hash_t hash_cache;
+} PympzObject;
+
+typedef struct {
+    mpob ob;
+    mpq_t q;
+    Py_hash_t  hash_cache;
+} PympqObject;
+
+typedef struct {
+    mpob ob;
+    mpz_t z;
+} PyxmpzObject;
+
 #ifdef WITHMPFR
 #  include "mpfr.h"
 #  include "gmpy_mpfr.h"
@@ -133,30 +157,6 @@ typedef unsigned long Py_uhash_t;
 #ifndef Py_TYPE
 #define Py_TYPE(ob)     (((PyObject*)(ob))->ob_type)
 #endif
-
-/* Header file for gmpy2 */
-typedef struct {
-    PyObject_HEAD
-    /* PyObject* callable; */
-    /* long flags; */
-} mpob;
-
-typedef struct {
-    mpob ob;
-    mpz_t z;
-    Py_hash_t hash_cache;
-} PympzObject;
-
-typedef struct {
-    mpob ob;
-    mpq_t q;
-    Py_hash_t  hash_cache;
-} PympqObject;
-
-typedef struct {
-    mpob ob;
-    mpz_t z;
-} PyxmpzObject;
 
 #define Pympz_AS_MPZ(obj) (((PympzObject *)(obj))->z)
 #define Pympq_AS_MPQ(obj) (((PympqObject *)(obj))->q)

@@ -22,18 +22,6 @@
  * 02110-1301  USA                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-
-PyDoc_STRVAR(doc_mpc_version,
-"mpc_version() -> string\n\n"
-"Return string giving current MPC version.");
-
-static PyObject *
-Pygmpy_get_mpc_version(PyObject *self, PyObject *args)
-{
-    return PyUnicode_FromFormat("%s %s", "MPC",
-                                MPC_VERSION_STRING);
-}
-
 /* Verify that a valid rounding mode is specified for complex arithmetic.
  * Returns 0 (false) if the rounding mode is not valid else returns 1 (true).
  */
