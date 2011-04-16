@@ -153,57 +153,6 @@ Pygmpy_c_mod_2exp(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpz_c_div_2exp,
-"x.c_div_2exp(n): returns the quotient of x divided by 2**n. The\n"
-"quotient is rounded towards +Inf (truncation). x must be an integer.\n"
-"n must be > 0.");
-static PyObject *
-Pympz_c_div_2exp(PyObject *self, PyObject *other)
-{
-    long nbits;
-    PympzObject *result;
-
-    nbits = clong_From_Integer(other);
-    if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("c_div_2exp() requires 'int' argument");
-        return NULL;
-    }
-    if (nbits <= 0) {
-        VALUE_ERROR("c_div_2exp() requires n > 0");
-        return NULL;
-    }
-
-    if(!(result = Pympz_new()))
-        return NULL;
-    mpz_cdiv_q_2exp(result->z, Pympz_AS_MPZ(self), nbits);
-    return (PyObject*)result;
-}
-
-PyDoc_STRVAR(doc_mpz_c_mod_2exp,
-"x.c_mod_2exp(n): returns the remainder of x divided by 2**n. The\n"
-"remainder will be negative. x must be an integer. n must be > 0.");
-static PyObject *
-Pympz_c_mod_2exp(PyObject *self, PyObject *other)
-{
-    long nbits;
-    PympzObject *result;
-
-    nbits = clong_From_Integer(other);
-    if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("c_mod_2exp() requires 'int' argument");
-        return NULL;
-    }
-    if (nbits <= 0) {
-        VALUE_ERROR("c_mod_2exp() requires n > 0");
-        return NULL;
-    }
-
-    if(!(result = Pympz_new()))
-        return NULL;
-    mpz_cdiv_r_2exp(result->z, Pympz_AS_MPZ(self), nbits);
-    return (PyObject*)result;
-}
-
 /*
  **************************************************************************
  * Floor division and remainder by power of two.
@@ -351,58 +300,6 @@ Pygmpy_f_mod_2exp(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpz_f_div_2exp,
-"x.f_div_2exp(n): returns the quotient of x divided by 2**n. The\n"
-"quotient is rounded towards -Inf (floor rounding). x must be an\n"
-"integer. n must be > 0.");
-static PyObject *
-Pympz_f_div_2exp(PyObject *self, PyObject *other)
-{
-    long nbits;
-    PympzObject *result;
-
-    nbits = clong_From_Integer(other);
-    if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("f_div_2exp() requires 'int' argument");
-        return NULL;
-    }
-    if (nbits <= 0) {
-        VALUE_ERROR("f_div_2exp() requires n > 0");
-        return NULL;
-    }
-
-    if(!(result = Pympz_new()))
-        return NULL;
-    mpz_fdiv_q_2exp(result->z, Pympz_AS_MPZ(self), nbits);
-    return (PyObject*)result;
-}
-
-PyDoc_STRVAR(doc_mpz_f_mod_2exp,
-"x.f_mod_2exp(n): returns the remainder of x divided by 2**n. The\n"
-"remainder will be positive. x must be an integer. n must be > 0.");
-static PyObject *
-Pympz_f_mod_2exp(PyObject *self, PyObject *other)
-{
-    long nbits;
-    PympzObject *result;
-
-    nbits = clong_From_Integer(other);
-    if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("f_mod_2exp() requires 'int' argument");
-        return NULL;
-    }
-    if (nbits <= 0) {
-        VALUE_ERROR("f_mod_2exp() requires n > 0");
-        return NULL;
-    }
-
-    if(!(result = Pympz_new())) {
-        return NULL;
-    }
-    mpz_fdiv_r_2exp(result->z, Pympz_AS_MPZ(self), nbits);
-    return (PyObject*)result;
-}
-
 /*
  **************************************************************************
  * Truncating division and remainder by power of two.
@@ -545,59 +442,6 @@ Pygmpy_t_mod_2exp(PyObject *self, PyObject *args)
         mpz_tdiv_r_2exp(result->z, tempx->z, nbits);
         Py_DECREF((PyObject*)tempx);
     }
-    return (PyObject*)result;
-}
-
-PyDoc_STRVAR(doc_mpz_t_div_2exp,
-"x.t_div_2exp(n): returns the quotient of x divided by 2**n. The\n"
-"quotient is rounded towards 0. x must be an integer. n must be > 0.");
-static PyObject *
-Pympz_t_div_2exp(PyObject *self, PyObject *other)
-{
-    long nbits;
-    PympzObject *result;
-
-    nbits = clong_From_Integer(other);
-    if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("t_div_2exp() requires expects 'int' argument");
-        return NULL;
-    }
-    if (nbits <= 0) {
-        VALUE_ERROR("t_div_2exp() requires n > 0");
-        return NULL;
-    }
-
-    if(!(result = Pympz_new())) {
-        return NULL;
-    }
-    mpz_tdiv_q_2exp(result->z, Pympz_AS_MPZ(self), nbits);
-    return (PyObject*)result;
-}
-
-PyDoc_STRVAR(doc_mpz_t_mod_2exp,
-"x.t_mod_2exp(n): returns the remainder of x divided by 2**n. The\n"
-"remainder will have the same sign as x. x must be an integer. n\n"
-"must be > 0.");
-static PyObject *
-Pympz_t_mod_2exp(PyObject *self, PyObject *other)
-{
-    long nbits;
-    PympzObject *result;
-
-    nbits = clong_From_Integer(other);
-    if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("t_mod_2exp() requires expects 'int' argument");
-        return NULL;
-    }
-    if (nbits <= 0) {
-        VALUE_ERROR("t_mod_2exp() requires n > 0");
-        return NULL;
-    }
-
-    if(!(result = Pympz_new())) {
-        return NULL;
-    }
-    mpz_tdiv_r_2exp(result->z, Pympz_AS_MPZ(self), nbits);
     return (PyObject*)result;
 }
 

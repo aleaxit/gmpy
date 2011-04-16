@@ -261,10 +261,6 @@ Pympz_bit_scan1(PyObject *self, PyObject *args)
 }
 
 /* return population-count (# of 1-bits) for an mpz */
-static char doc_popcountm[]="\
-x.popcount(): returns the number of 1-bits set in x; note that\n\
-this is 'infinite' if x<0, and in that case, -1 is returned.\n\
-";
 static char doc_popcountg[]="\
 popcount(x): returns the number of 1-bits set in x; note that\n\
 this is 'infinite' if x<0, and in that case, -1 is returned.\n\
@@ -576,10 +572,6 @@ Pympz_bit_flip(PyObject *self, PyObject *other)
 }
 
 /* return nth-root of an mpz (in a 2-el tuple: 2nd is int, non-0 iff exact) */
-PyDoc_STRVAR(doc_mpz_root,
-"x.root(n) -> (mpz, boolean)\n\n"
-"Return a tuple containing the integer portion of the root and True\n"
-"if the root is exact.");
 static PyObject *
 Pympz_root(PyObject *self, PyObject *args)
 {
@@ -616,11 +608,6 @@ Pympz_root(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_rootremm[]="\
-x.rootrem(n): returns a 2-element tuple (y,r), such that y is the\n\
-(possibly truncated) n-th root of x; r is the remainder. n must be an\n\
-ordinary Python int, >=0.\n\
-";
 static char doc_rootremg[]="\
 rootrem(x,n): returns a 2-element tuple (y,r), such that y is the\n\
 (possibly truncated) n-th root of x; r is the remainder. n must be an\n\
@@ -665,9 +652,6 @@ Pympz_rootrem(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_signm[]="\
-x.sign(): returns -1, 0, or +1, if x is negative, 0, positive.\n\
-";
 static PyObject *
 Pympz_sign(PyObject *self, PyObject *other)
 {
@@ -1423,18 +1407,10 @@ Pygmpy_lucas2(PyObject *self, PyObject *other)
     return result;
 }
 
-static char doc_bincoefm[]="\
-x.bincoef(n): returns the 'binomial coefficient' that is 'x\n\
-over n'; n is an ordinary Python int, >=0.\n\
-";
 static char doc_bincoefg[]="\
 bincoef(x,n): returns the 'binomial coefficient' that is 'x\n\
 over n'; n is an ordinary Python int, >=0; x must be an mpz,\n\
 or else gets converted to one.\n\
-";
-static char doc_combm[]="\
-x.comb(n): returns the 'number of combinations' of 'x things,\n\
-taken n at a time'; n is an ordinary Python int, >=0.\n\
 ";
 static char doc_combg[]="\
 comb(x,n): returns the 'number of combinations' of 'x things,\n\
@@ -1465,10 +1441,6 @@ Pympz_bincoef(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_sqrtm[]="\
-x.sqrt(): returns the integer, truncated square root of x, i.e. the\n\
-largest y such that x>=y*y. x must be >= 0.\n\
-";
 static PyObject *
 Pympz_sqrt(PyObject *self, PyObject *other)
 {
@@ -1507,10 +1479,6 @@ Pympz_sqrt(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_sqrtremm[]="\
-x.sqrtrem(): returns a 2-element tuple (s,t), such that\n\
-s==x.sqrt() and x==s*s+t. x must be >= 0.\n\
-";
 static char doc_sqrtremg[]="\
 sqrtrem(x): returns a 2-element tuple (s,t), such that\n\
 s==sqrt(x) and x==s*s+t. x must be an mpz, or else gets\n\
@@ -1548,13 +1516,6 @@ Pympz_sqrtrem(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_removem[]="\
-x.remove(f): returns a 2-element tuple (y,m) such that\n\
-x==y*(f**m), and y%f==0; i.e., y is x with any factor f\n\
-removed, and m (an ordinary Python int) is the multiplicity\n\
-of the factor f in x (m=0, and y=x, unless x%f==0). f must\n\
-be > 0.\n\
-";
 static char doc_removeg[]="\
 remove(x,f): returns a 2-element tuple (y,m) such that\n\
 x==y*(f**m), and y%f==0; i.e., y is x with any factor f\n\
@@ -1589,11 +1550,6 @@ Pympz_remove(PyObject *self, PyObject *args)
     return Py_BuildValue("(Nk)", result, multiplicity);
 }
 
-static char doc_invertm[]="\
-x.invert(m): returns the inverse of x modulo m, i.e., that y\n\
-such that x*y==1 modulo m, or 0 if no such y exists.\n\
-m must be an ordinary Python int, !=0.\n\
-";
 static char doc_invertg[]="\
 invert(x,m): returns the inverse of x modulo m, i.e., that y\n\
 such that x*y==1 modulo m, or 0 if no such y exists.\n\
@@ -1653,46 +1609,6 @@ Pygmpy_invert(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static PyObject *
-Pympz_invert(PyObject *self, PyObject *other)
-{
-    PympzObject *result;
-    int success;
-
-    if (CHECK_MPZANY(other)) {
-        if (mpz_sgn(Pympz_AS_MPZ(other)) == 0) {
-            ZERO_ERROR("invert() division by 0");
-            return NULL;
-        }
-        if (!(result = Pympz_new()))
-            return NULL;
-        success = mpz_invert(result->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
-        if (!success)
-            mpz_set_ui(Pympz_AS_MPZ(result), 0);
-        return (PyObject*)result;
-    }
-    else {
-        if (!(result = Pympz_From_Integer(other))) {
-            TYPE_ERROR("invert() requires 'mpz','mpz' arguments");
-            return NULL;
-        }
-        if (mpz_sgn(result->z) == 0) {
-            ZERO_ERROR("invert() division by 0");
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        success = mpz_invert(result->z, Pympz_AS_MPZ(self), result->z);
-        if (!success)
-            mpz_set_ui(result->z, 0);
-        return (PyObject*)result;
-    }
-}
-
-static char doc_hamdistm[]="\
-x.hamdist(y): returns the Hamming distance (number of bit-positions\n\
-where the bits differ) between x and y.  y must be an mpz, or else\n\
-gets coerced to one.\n\
-";
 static char doc_hamdistg[]="\
 hamdist(x,y): returns the Hamming distance (number of bit-positions\n\
 where the bits differ) between x and y.  x and y must be mpz, or else\n\
@@ -1712,11 +1628,6 @@ Pympz_hamdist(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_divexactm[]="\
-x.divexact(y): returns the quotient of x divided by y. Faster than\n\
-standard division but requires the remainder is zero!  y must be an\n\
-mpz, or else gets coerced to one.\n\
-";
 static char doc_divexactg[]="\
 divexact(x,y): returns the quotient of x divided by y. Faster than\n\
 standard division but requires the remainder is zero!  x and y must\n\
@@ -1768,37 +1679,6 @@ Pygmpy_divexact(PyObject *self, PyObject *args)
         Py_DECREF((PyObject*)tempy);
     }
     return (PyObject*)result;
-}
-
-static PyObject *
-Pympz_divexact(PyObject *self, PyObject *other)
-{
-    PympzObject *result;
-
-    if (CHECK_MPZANY(other)) {
-        if (mpz_sgn(Pympz_AS_MPZ(other)) == 0) {
-            ZERO_ERROR("divexact() division by 0");
-            return NULL;
-        }
-        if(!(result = Pympz_new())) {
-            return NULL;
-        }
-        mpz_divexact(result->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
-        return (PyObject*)result;
-    }
-    else {
-        if (!(result = Pympz_From_Integer(other))) {
-            TYPE_ERROR("divexact() requires 'mpz','mpz' arguments");
-            return NULL;
-        }
-        if (mpz_sgn(Pympz_AS_MPZ(result)) == 0) {
-            ZERO_ERROR("divexact() division by 0");
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        mpz_divexact(result->z, Pympz_AS_MPZ(self), result->z);
-        return (PyObject*)result;
-    }
 }
 
 static char doc_is_squarem[]="\
@@ -1907,12 +1787,6 @@ Pympz_is_prime(PyObject *self, PyObject *args)
         Py_RETURN_FALSE;
 }
 
-static char doc_next_primem[]="\
-x.next_prime(): returns the smallest prime number > x.  Note that\n\
-GMP may use a probabilistic definition of 'prime', and also that\n\
-if x<0 GMP considers x 'prime' iff -x is prime; gmpy reflects these\n\
-GMP design choices.\n\
-";
 static char doc_next_primeg[]="\
 next_prime(x): returns the smallest prime number > x.  Note that\n\
 GMP may use a probabilistic definition of 'prime', and also that\n\
@@ -1946,10 +1820,6 @@ Pympz_next_prime(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_jacobim[]="\
-x.jacobi(y): returns the Jacobi symbol (x|y) (y should be odd\n\
-and must be positive).\n\
-";
 static char doc_jacobig[]="\
 jacobi(x,y): returns the Jacobi symbol (x|y) (y should be odd and\n\
 must be positive); x and y must be mpz, or else get coerced to mpz.\n\
@@ -1974,10 +1844,6 @@ Pympz_jacobi(PyObject *self, PyObject *args)
     return PyIntOrLong_FromLong(i);
 }
 
-static char doc_legendrem[]="\
-x.legendre(y): returns the Legendre symbol (x|y) (y should be odd\n\
-and must be positive).\n\
-";
 static char doc_legendreg[]="\
 legendre(x,y): returns the Legendre symbol (x|y) (y should be odd\n\
 and must be positive); x must be an mpz, or else gets coerced to one.\n\
@@ -2002,10 +1868,6 @@ Pympz_legendre(PyObject *self, PyObject *args)
     return PyIntOrLong_FromLong(i);
 }
 
-static char doc_kroneckerm[]="\
-x.kronecker(y): returns the Kronecker-Jacobi symbol (x|y).\n\
-(At least one of x and y must fit in a plain int).\n\
-";
 static char doc_kroneckerg[]="\
 kronecker(x,y): returns the Kronecker-Jacobi symbol (x|y).\n\
 x and y must be mpz, or else get coerced to mpz (at least\n\
