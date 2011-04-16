@@ -161,9 +161,6 @@ Pympany_sign(PyObject *self, PyObject *other)
 }
 
 /* create a copy of a gmpy2 object */
-PyDoc_STRVAR(doc_copym,
-"x._copy() -> gmpy2_object\n\n"
-"Return a copy of x.\n");
 PyDoc_STRVAR(doc_copyg,
 "_copy(x): -> gmpy2_object\n\n"
 "Return a copy of x. Raises TypeError if x is not a gmpy2 object.");

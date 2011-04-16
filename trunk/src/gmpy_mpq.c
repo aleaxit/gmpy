@@ -24,9 +24,6 @@ Pympq_digits(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_qsignm[]="\
-x.sign(): returns -1, 0, or +1, if x is negative, 0, positive.\n\
-";
 static PyObject *
 Pympq_sign(PyObject *self, PyObject *other)
 {
@@ -52,9 +49,6 @@ Pympq_sign(PyObject *self, PyObject *other)
     return PyIntOrLong_FromLong(res);
 }
 
-static char doc_numerm[]="\
-x.numer(): returns numerator of x.\n\
-";
 static char doc_numerg[]="\
 numer(x): returns numerator of x;\n\
 x must be an mpq, or else gets coerced to one.\n\
@@ -84,9 +78,6 @@ Pympq_getnumer(PympqObject *self, void *closure)
     return (PyObject*)result;
 }
 
-static char doc_denomm[]="\
-x.denom(): returns denominator of x.\n\
-";
 static char doc_denomg[]="\
 denom(x): returns denominator of x;\n\
 x must be an mpq, or else gets coerced to one.\n\
@@ -116,10 +107,6 @@ Pympq_getdenom(PympqObject *self, void *closure)
     return (PyObject*)result;
 }
 
-static char doc_qdivm[]="\
-x.qdiv(y=1): returns x/y as mpz if possible, or as mpq\n\
-if x is not exactly divisible by y.\n\
-";
 static char doc_qdivg[]="\
 qdiv(x,y=1): returns x/y as mpz if possible, or as mpq\n\
 if x is not exactly divisible by y.\n\
