@@ -1,14 +1,33 @@
-/* gmpy_xmpz_inplace.c
- *
- * Provides inplace mutating operations for xmpz
- *
- * This file should be considered part of gmpy.c
- */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * gmpy_xmpz_inplace.c                                                     *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
+ * libraries.                                                              *
+ *      Copyright 2000 - 2009 Alex Martelli                                *
+ *      Copyright 2008 - 2011 Case Van Horsen                              *
+ *                                                                         *
+ * This library is free software; you can redistribute it and/or modify it *
+ * under the terms of the GNU Lesser General Public License as published   *
+ * by the Free Software Foundation; either version 2.1 of the License, or  *
+ * (at your option) any later version.                                     *
+ *                                                                         *
+ * This library is distributed in the hope that it will be useful,         *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * Lesser General Public License for more details.                         *
+ *                                                                         *
+ * You should have received a copy of the GNU Lesser General Public        *
+ * License along with this library; if not, write to the Free Software     *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA           *
+ * 02110-1301  USA                                                         *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/* Provides inplace mutating operations for xmpz. */
 
 #include <math.h>
 
-/* Inplace xmpz addition.
- */
+/* Inplace xmpz addition. */
 
 static PyObject *
 Pyxmpz_inplace_add(PyObject *a, PyObject *b)

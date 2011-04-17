@@ -1,22 +1,40 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * gmpy_cache.c                                                            *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
+ * libraries.                                                              *
+ *      Copyright 2000 - 2009 Alex Martelli                                *
+ *      Copyright 2008 - 2011 Case Van Horsen                              *
+ *                                                                         *
+ * This library is free software; you can redistribute it and/or modify it *
+ * under the terms of the GNU Lesser General Public License as published   *
+ * by the Free Software Foundation; either version 2.1 of the License, or  *
+ * (at your option) any later version.                                     *
+ *                                                                         *
+ * This library is distributed in the hope that it will be useful,         *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * Lesser General Public License for more details.                         *
+ *                                                                         *
+ * You should have received a copy of the GNU Lesser General Public        *
+ * License along with this library; if not, write to the Free Software     *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA           *
+ * 02110-1301  USA                                                         *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
 /* gmpy2 caches objects so they can be reused quickly without involving a new
  * memory allocation or object construction. There are two different types of
  * object caches used in gmpy2.
  *
- * "zcache" and "qcache" are used to cache mpz_t and mpq_t objects. The cache
- * is accessed via the functions mpz_inoc/mpz_cloc and mpq_inoc/mpq_cloc. The
- * functions set_zcache and set_qcache are used to change the size of the
- * array used to store the cached objects.
+ * "zcache" is used to cache mpz_t objects. The cache is accessed via the
+ * functions mpz_inoc/mpz_cloc. The function set_zcache is used to change
+ * the size of the array used to store the cached objects.
  *
- * "pympzcache" and "pympqcache" are used to cache Pympz and Pympq objects.
- * The cache is accessed via Pympz_new/Pympz_dealloc and Pympq_new/
- * Pympq_dealloc. The functions set_pympzcache and set_pympqcache are used
- * to change the size of the array used to the store the cached objects.
- *
- * Caching for PympfrObject added later.
- */
-
-/* Caching logic for gmp native types: mpz and mpq.
- * Caching for mpq will probable be removed in the future.
+ * The "py???cache" is used to cache Py??? objects. The cache is accessed
+ * via Py???_new/Py???_dealloc. The functions set_py???cache and
+ * set_py???cache are used to change the size of the array used to the store
+ * the cached objects.
  */
 
 static mpz_t* zcache;
