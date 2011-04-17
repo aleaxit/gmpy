@@ -2901,6 +2901,7 @@ static PyMethodDef Pympq_methods [] =
 #ifdef WITHMPFR
 static PyMethodDef Pympfr_methods [] =
 {
+    { "__trunc__", Pympfr_trunc, METH_NOARGS, doc_mpfr_trunc },
     { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
     { "digits", Pympfr_digits, METH_VARARGS, doc_mpfr_digits },
     { "is_inf", Pympfr_is_inf, METH_NOARGS, doc_mpfr_is_inf },
