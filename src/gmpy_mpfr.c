@@ -141,6 +141,32 @@ PyLong2Pympfr(PyObject *self, mpfr_prec_t bits)
     return newob;
 }
 
+#ifdef PY2
+static PympfrObject *
+PyInt2Pympfr(PyObject *self, mpfr_prec_t bits)
+{
+    PympfrObject *newob;
+
+    assert(PyInt_Check(self));
+    if ((newob = Pympfr_new(bits)))
+        newob->rc = mpfr_set_si(newob->f, PyInt_AsLong(self), context->now.mpfr_round);
+    return newob;
+}
+
+static PyObject *
+Pympfr2PyInt(PympfrObject *self)
+{
+    PyObject* result;
+    PympzObject *temp = Pympfr2Pympz((PyObject*)self);
+
+    if (!temp)
+        return NULL;
+    result = Pympz_To_Integer(temp);
+    Py_DECREF((PyObject*)temp);
+    return result;
+}
+#endif
+
 /*
  * mpfr conversion from string includes from-binary (base-256, format is
  * explained later) and 'true' from-string (bases 2 to 62), where exponent
