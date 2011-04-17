@@ -104,13 +104,13 @@ mpz(99)
 0
 >>> _g.sign(a-b)
 -1
->>> a.sign()
+>>> _g.sign(a)
 1
 >>> -a
->>> a.sign()
+>>> _g.sign(a)
 -1
 >>> a=_g.xmpz(123)
->>> z=b-b; z.sign()
+>>> z=b-b; _g.sign(z)
 0
 >>> s='12345678901234567890123456789'
 >>> int(s) == _g.xmpz(s)
@@ -339,7 +339,7 @@ r'''
 0
 >>> c<a
 0
->>> d=a._copy()
+>>> d=_g._copy(a)
 >>> a is d
 0
 >>> a == d
@@ -439,28 +439,6 @@ ValueError: negative shift count
 mpz(123)
 >>> a>>0
 mpz(123)
->>> a.popcount()
-6
->>> _g.popcount(b)
-4
->>> _g.popcount(-7)
--1
->>> _g.popcount(0)
-0
->>> a.hamdist(b)
-6
->>> _g.hamdist(3)
-Traceback (innermost last):
-  ...
-TypeError: hamdist() requires 'mpz','mpz' arguments
->>> a.hamdist()
-Traceback (innermost last):
-  ...
-TypeError: hamdist() requires 'mpz','mpz' arguments
->>> a.hamdist(3, 4)
-Traceback (innermost last):
-  ...
-TypeError: hamdist() requires 'mpz','mpz' arguments
 >>> a.bit_set(20)
 mpz(1048699)
 >>> a=_g.xmpz(123)
@@ -692,38 +670,6 @@ __test__['number']=\
 r'''
 >>> a=_g.xmpz(123)
 >>> b=_g.xmpz(456)
->>> a.rootrem(2)
-(mpz(11), mpz(2))
->>> a.rootrem(3)
-(mpz(4), mpz(59))
->>> _g.rootrem(a*a)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-TypeError: rootrem() requires 'mpz','int' arguments
->>> _g.rootrem(a*a,2)
-(mpz(123), mpz(0))
->>> a.sqrt()
-mpz(11)
->>> b.sqrt()
-mpz(21)
->>> a=_g.xmpz(123)
->>> b=_g.xmpz(456)
->>> print(a.sqrtrem())
-(mpz(11), mpz(2))
->>> print(b.sqrtrem())
-(mpz(21), mpz(15))
->>> for i in range(5):
-...    a=_g.xmpz(123)
-...    b=_g.xmpz(456)
-...    print(a.root(i+1),b.root(i+1))
-...
-(mpz(123), True) (mpz(456), True)
-(mpz(11), False) (mpz(21), False)
-(mpz(4), False) (mpz(7), False)
-(mpz(3), False) (mpz(4), False)
-(mpz(2), False) (mpz(3), False)
->>> a=_g.xmpz(123)
->>> b=_g.xmpz(456)
 >>> a.is_square()
 0
 >>> a.is_power()
@@ -774,116 +720,6 @@ ZeroDivisionError: not invertible
 mpz(4)
 >>> _g.divm(0,1,2)
 mpz(0)
->>> a.invert(100)
-mpz(87)
->>> b.invert(100)
-mpz(0)
->>> _g.invert(3)
-Traceback (innermost last):
-  ...
-TypeError: invert() requires 'mpz','mpz' arguments
->>> a.invert()
-Traceback (innermost last):
-  ...
-TypeError: invert() takes exactly one argument (0 given)
->>> a.invert(3, 4)
-Traceback (innermost last):
-  ...
-TypeError: invert() takes exactly one argument (2 given)
->>> _g.comb(3,-1)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: binomial coefficient with negative k
->>> _g.sqrt(-1)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: sqrt() of negative number
->>> _g.sqrtrem(-1)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: sqrtrem() of negative number
->>> _g.remove(3,-1)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: factor must be > 0
->>> _g.remove(3)
-Traceback (innermost last):
-  ...
-TypeError: remove() requires 'mpz','mpz' arguments
->>> a.remove()
-Traceback (innermost last):
-  ...
-TypeError: remove() requires 'mpz','mpz' arguments
->>> a.remove(3, 4)
-Traceback (innermost last):
-  ...
-TypeError: remove() requires 'mpz','mpz' arguments
->>> _g.is_prime(3,-3)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: repetition count for is_prime must be positive
->>> _g.jacobi(10,3)
-1
->>> _g.jacobi(10,-3)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: jacobi's y must be odd prime > 0
->>> _g.jacobi(3)
-Traceback (innermost last):
-  ...
-TypeError: jacobi() requires 'mpz','mpz' arguments
->>> a.jacobi()
-Traceback (innermost last):
-  ...
-TypeError: jacobi() requires 'mpz','mpz' arguments
->>> a.jacobi(3, 4)
-Traceback (innermost last):
-  ...
-TypeError: jacobi() requires 'mpz','mpz' arguments
->>> _g.legendre(10,3)
-1
->>> _g.legendre(10,-3)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: legendre's y must be odd and > 0
->>> _g.legendre(3)
-Traceback (innermost last):
-  ...
-TypeError: legendre() requires 'mpz','mpz' arguments
->>> a.legendre()
-Traceback (innermost last):
-  ...
-TypeError: legendre() requires 'mpz','mpz' arguments
->>> a.legendre(3, 4)
-Traceback (innermost last):
-  ...
-TypeError: legendre() requires 'mpz','mpz' arguments
->>> _g.kronecker(10,3)
-1
->>> _g.kronecker(10,-3)
-1
->>> _g.kronecker(3)
-Traceback (innermost last):
-  ...
-TypeError: kronecker() requires 'mpz','mpz' arguments
->>> a.kronecker()
-Traceback (innermost last):
-  ...
-TypeError: kronecker() requires 'mpz','mpz' arguments
->>> a.kronecker(3, 4)
-Traceback (innermost last):
-  ...
-TypeError: kronecker() requires 'mpz','mpz' arguments
->>> a=10**20
->>> b=a+39
->>> _g.jacobi(a,b)
-1
->>> _g.legendre(a,b)
-1
->>> _g.kronecker(a,b)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: Either arg in Kronecker must fit in an int
 '''
 
 def _test(chat=None):

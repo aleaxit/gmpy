@@ -4,7 +4,7 @@ r'''
 >>> list(filter(lambda x: not x.startswith('_'), dir(_g)))
 ['Default', 'DivisionByZeroError', 'InexactError', 'InvalidOperationError', 'OverflowError', 'RangeError', 'RoundAwayZero', 'RoundDown', 'RoundToNearest', 'RoundToZero', 'RoundUp', 'UnderflowError', 'acos', 'acosh', 'add', 'agm', 'ai', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'c_div', 'c_div_2exp', 'c_divmod', 'c_divmod_2exp', 'c_mod', 'c_mod_2exp', 'cbrt', 'ceil', 'check_range', 'comb', 'const_catalan', 'const_euler', 'const_log2', 'const_pi', 'context', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'denom', 'digamma', 'digits', 'div', 'divexact', 'divm', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'f_div', 'f_div_2exp', 'f_divmod', 'f_divmod_2exp', 'f_mod', 'f_mod_2exp', 'fac', 'factorial', 'fib', 'fib2', 'floor', 'fma', 'fmod', 'fms', 'frac', 'gamma', 'gcd', 'gcdext', 'get_cache', 'get_emax_max', 'get_emin_min', 'get_max_precision', 'hamdist', 'hypot', 'inf', 'invert', 'is_even', 'is_inf', 'is_integer', 'is_lessgreater', 'is_nan', 'is_number', 'is_odd', 'is_power', 'is_prime', 'is_regular', 'is_square', 'is_unordered', 'is_zero', 'j0', 'j1', 'jacobi', 'jn', 'kronecker', 'lcm', 'legendre', 'lgamma', 'li2', 'license', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'lucas', 'lucas2', 'max', 'min', 'modf', 'mp_limbsize', 'mp_version', 'mpc', 'mpc_version', 'mpfr', 'mpfr_from_old_binary', 'mpfr_version', 'mpq', 'mpq_from_old_binary', 'mpz', 'mpz_from_old_binary', 'mul', 'nan', 'new_context', 'next_above', 'next_below', 'next_prime', 'next_toward', 'numdigits', 'numer', 'pack', 'popcount', 'pow', 'qdiv', 'rec_sqrt', 'reldiff', 'remainder', 'remove', 'remquo', 'rint', 'rint_ceil', 'rint_floor', 'rint_round', 'rint_trunc', 'root', 'rootrem', 'round', 'round2', 'sec', 'sech', 'set_cache', 'set_context', 'set_debug', 'sign', 'sin', 'sin_cos', 'sinh', 'sinh_cosh', 'sqrt', 'sqrtrem', 'square', 'sub', 't_div', 't_div_2exp', 't_divmod', 't_divmod_2exp', 't_mod', 't_mod_2exp', 'tan', 'tanh', 'trunc', 'unpack', 'version', 'xbit_mask', 'xmpz', 'y0', 'y1', 'yn', 'zero', 'zeta']
 >>> dir(a)
-['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__iadd__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__', '__index__', '__init__', '__int__', '__invert__', '__ipow__', '__irshift__', '__isub__', '__le__', '__len__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', '_copy', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'c_div', 'c_div_2exp', 'c_mod', 'c_mod_2exp', 'comb', 'digits', 'divexact', 'f_div', 'f_div_2exp', 'f_mod', 'f_mod_2exp', 'hamdist', 'invert', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'jacobi', 'kronecker', 'legendre', 'next_prime', 'numdigits', 'popcount', 'qdiv', 'remove', 'root', 'rootrem', 'sign', 'sqrt', 'sqrtrem', 't_div', 't_div_2exp', 't_mod', 't_mod_2exp']
+['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__iadd__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__', '__index__', '__init__', '__int__', '__invert__', '__ipow__', '__irshift__', '__isub__', '__le__', '__len__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', 'binary', 'bit_clear', 'bit_flip', 'bit_length', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'digits', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'numdigits']
 >>>
 '''
 import gmpy2 as _g, doctest, sys, operator, gc
@@ -41,7 +41,7 @@ def factorize(x):
     x=_g.mpz(x)
     factors=[]
     while x>=prime:
-        newx,mult=x.remove(prime)
+        newx,mult=_g.remove(x,prime)
         if mult:
             factors.extend([int(prime)]*mult)
             x=newx
@@ -134,11 +134,11 @@ mpz(99)
 0
 >>> _g.sign(a-b)
 -1
->>> a.sign()
+>>> _g.sign(a)
 1
->>> (-a).sign()
+>>> _g.sign(-a)
 -1
->>> z=b-b; z.sign()
+>>> z=b-b; _g.sign(z)
 0
 >>> import pickle
 >>> pickle.loads(pickle.dumps(_g.mpz(12346789)))
@@ -427,7 +427,7 @@ r'''
 0
 >>> c<a
 0
->>> d=a._copy()
+>>> d=_g._copy(a)
 >>> a is d
 0
 >>> a == d
@@ -523,7 +523,7 @@ ValueError: negative shift count
 mpz(123)
 >>> a>>0
 mpz(123)
->>> a.popcount()
+>>> _g.popcount(a)
 6
 >>> _g.popcount(b)
 4
@@ -531,27 +531,27 @@ mpz(123)
 -1
 >>> _g.popcount(0)
 0
->>> a.hamdist(b)
+>>> _g.hamdist(a,b)
 6
 >>> _g.hamdist(3)
 Traceback (innermost last):
   ...
 TypeError: hamdist() requires 'mpz','mpz' arguments
->>> a.hamdist()
+>>> _g.hamdist(a)
 Traceback (innermost last):
   ...
 TypeError: hamdist() requires 'mpz','mpz' arguments
->>> a.hamdist(3, 4)
+>>> _g.hamdist(a, 3, 4)
 Traceback (innermost last):
   ...
 TypeError: hamdist() requires 'mpz','mpz' arguments
->>> a.f_mod_2exp(5)
+>>> _g.f_mod_2exp(a,5)
 mpz(27)
->>> b.f_mod_2exp(5)
+>>> _g.f_mod_2exp(b,5)
 mpz(8)
->>> b.f_mod_2exp(5)==(b%32)
+>>> _g.f_mod_2exp(b,5)==(b%32)
 1
->>> a.f_mod_2exp(5)==(a%32)
+>>> _g.f_mod_2exp(a,5)==(a%32)
 1
 >>> a.bit_set(20)
 mpz(1048699)
@@ -778,9 +778,9 @@ mpz(-123)
 
 __test__['number']=\
 r'''
->>> a.rootrem(2)
+>>> _g.rootrem(a,2)
 (mpz(11), mpz(2))
->>> a.rootrem(3)
+>>> _g.rootrem(a,3)
 (mpz(4), mpz(59))
 >>> _g.rootrem(a*a)
 Traceback (most recent call last):
@@ -788,16 +788,16 @@ Traceback (most recent call last):
 TypeError: rootrem() requires 'mpz','int' arguments
 >>> _g.rootrem(a*a,2)
 (mpz(123), mpz(0))
->>> print(a.sqrt())
+>>> print(_g.sqrt(a))
 11
->>> print(b.sqrt())
+>>> print(_g.sqrt(b))
 21
->>> print(a.sqrtrem())
+>>> print(_g.sqrtrem(a))
 (mpz(11), mpz(2))
->>> print(b.sqrtrem())
+>>> print(_g.sqrtrem(b))
 (mpz(21), mpz(15))
 >>> for i in range(5):
-...    print(a.root(i+1),b.root(i+1))
+...    print(_g.root(a,i+1),_g.root(b,i+1))
 ...
 (mpz(123), True) (mpz(456), True)
 (mpz(11), False) (mpz(21), False)
@@ -874,22 +874,18 @@ mpz(4)
 >>> __ = gc.collect()
 >>> (_memsize()-_siz) <= 32
 True
->>> a.invert(100)
+>>> _g.invert(a,100)
 mpz(87)
->>> b.invert(100)
+>>> _g.invert(b,100)
 mpz(0)
 >>> _g.invert(3)
 Traceback (innermost last):
   ...
 TypeError: invert() requires 'mpz','mpz' arguments
->>> a.invert()
+>>> _g.invert()
 Traceback (innermost last):
   ...
-TypeError: invert() takes exactly one argument (0 given)
->>> a.invert(3, 4)
-Traceback (innermost last):
-  ...
-TypeError: invert() takes exactly one argument (2 given)
+TypeError: invert() requires 'mpz','mpz' arguments
 >>> _g.comb(3,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -910,11 +906,7 @@ ValueError: factor must be > 0
 Traceback (innermost last):
   ...
 TypeError: remove() requires 'mpz','mpz' arguments
->>> a.remove()
-Traceback (innermost last):
-  ...
-TypeError: remove() requires 'mpz','mpz' arguments
->>> a.remove(3, 4)
+>>> _g.remove()
 Traceback (innermost last):
   ...
 TypeError: remove() requires 'mpz','mpz' arguments
@@ -932,11 +924,7 @@ ValueError: jacobi's y must be odd prime > 0
 Traceback (innermost last):
   ...
 TypeError: jacobi() requires 'mpz','mpz' arguments
->>> a.jacobi()
-Traceback (innermost last):
-  ...
-TypeError: jacobi() requires 'mpz','mpz' arguments
->>> a.jacobi(3, 4)
+>>> _g.jacobi()
 Traceback (innermost last):
   ...
 TypeError: jacobi() requires 'mpz','mpz' arguments
@@ -950,11 +938,7 @@ ValueError: legendre's y must be odd and > 0
 Traceback (innermost last):
   ...
 TypeError: legendre() requires 'mpz','mpz' arguments
->>> a.legendre()
-Traceback (innermost last):
-  ...
-TypeError: legendre() requires 'mpz','mpz' arguments
->>> a.legendre(3, 4)
+>>> _g.legendre()
 Traceback (innermost last):
   ...
 TypeError: legendre() requires 'mpz','mpz' arguments
@@ -966,11 +950,7 @@ TypeError: legendre() requires 'mpz','mpz' arguments
 Traceback (innermost last):
   ...
 TypeError: kronecker() requires 'mpz','mpz' arguments
->>> a.kronecker()
-Traceback (innermost last):
-  ...
-TypeError: kronecker() requires 'mpz','mpz' arguments
->>> a.kronecker(3, 4)
+>>> _g.kronecker()
 Traceback (innermost last):
   ...
 TypeError: kronecker() requires 'mpz','mpz' arguments
