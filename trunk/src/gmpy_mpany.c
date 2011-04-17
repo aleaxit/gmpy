@@ -1,13 +1,34 @@
-/* gmpy_mpany.c
- *
- * Generic module-level methods for gmpy types.
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * gmpy_mpany.c                                                            *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
+ * libraries.                                                              *
+ *      Copyright 2000 - 2009 Alex Martelli                                *
+ *      Copyright 2008 - 2011 Case Van Horsen                              *
+ *                                                                         *
+ * This library is free software; you can redistribute it and/or modify it *
+ * under the terms of the GNU Lesser General Public License as published   *
+ * by the Free Software Foundation; either version 2.1 of the License, or  *
+ * (at your option) any later version.                                     *
+ *                                                                         *
+ * This library is distributed in the hope that it will be useful,         *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * Lesser General Public License for more details.                         *
+ *                                                                         *
+ * You should have received a copy of the GNU Lesser General Public        *
+ * License along with this library; if not, write to the Free Software     *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA           *
+ * 02110-1301  USA                                                         *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/* Generic module-level methods for gmpy types.
  *
  * These methods are designed to accept any number type as input and call
  * the appropriate type-specific method. For example, gmpy2.digits(n) will
  * call gmpy2.mpz(n).digits() if n is an integer, gmpy2.mpq(n).digits() if
  * n is a rational, or gmpy2.mpf(n).digits() is n is a float.
- *
- * This file should be considered part of gmpy2.c
  */
 
 /* gmpy_square is only intended to be used at the module level!

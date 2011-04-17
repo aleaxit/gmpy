@@ -1,16 +1,35 @@
-/* gmpy_mpfr.c
- *
- * Functions that operate strictly on mpfr.
- *
- * This file should be considered part of gmpy2.c
- */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * gmpy_mpfr.c                                                             *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
+ * libraries.                                                              *
+ *      Copyright 2000 - 2009 Alex Martelli                                *
+ *      Copyright 2008 - 2011 Case Van Horsen                              *
+ *                                                                         *
+ * This library is free software; you can redistribute it and/or modify it *
+ * under the terms of the GNU Lesser General Public License as published   *
+ * by the Free Software Foundation; either version 2.1 of the License, or  *
+ * (at your option) any later version.                                     *
+ *                                                                         *
+ * This library is distributed in the hope that it will be useful,         *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * Lesser General Public License for more details.                         *
+ *                                                                         *
+ * You should have received a copy of the GNU Lesser General Public        *
+ * License along with this library; if not, write to the Free Software     *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA           *
+ * 02110-1301  USA                                                         *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/*
-  Make a copy of an mpfr object. If bits is 0, the new object will have
-  the same precision as the original object. If the requested precision
-  is less than the precision of the original object, the new object
-  will be rounded to requested precision using the current rounding mode.
-*/
+
+/* Functions that operate strictly on mpfr. */
+
+/* Make a copy of an mpfr object. If bits is 0, the new object will have
+ * the same precision as the original object. If the requested precision
+ * is less than the precision of the original object, the new object
+ * will be rounded to requested precision using the current rounding mode.
+ */
 
 static PympfrObject *
 Pympfr2Pympfr(PyObject *self, mpfr_prec_t bits)
@@ -21,7 +40,8 @@ Pympfr2Pympfr(PyObject *self, mpfr_prec_t bits)
     if (bits == 0)
         bits = mpfr_get_prec(Pympfr_AS_MPFR(self));
     if ((newob = Pympfr_new(bits)))
-        newob->rc = mpfr_set(newob->f, Pympfr_AS_MPFR(self), context->now.mpfr_round);
+        newob->rc = mpfr_set(newob->f, Pympfr_AS_MPFR(self),
+                             context->now.mpfr_round);
     return newob;
 }
 
@@ -38,7 +58,8 @@ PyFloat2Pympfr(PyObject *self, mpfr_prec_t bits)
         fprintf(stderr, "PyFloat2Pympfr(%p,%ld)\n", self, (long) bits);
 #endif
     if ((newob = Pympfr_new(bits)))
-        newob->rc = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self), context->now.mpfr_round);
+        newob->rc = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self),
+                               context->now.mpfr_round);
     return newob;
 }
 
@@ -49,7 +70,8 @@ Pympz2Pympfr(PyObject *self, mpfr_prec_t bits)
 
     assert(Pympz_Check(self));
     if ((newob = Pympfr_new(bits)))
-        newob->rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), context->now.mpfr_round);
+        newob->rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self),
+                               context->now.mpfr_round);
     return newob;
 }
 
@@ -60,7 +82,8 @@ Pyxmpz2Pympfr(PyObject *self, mpfr_prec_t bits)
 
     assert(Pyxmpz_Check(self));
     if ((newob = Pympfr_new(bits)))
-        newob->rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self), context->now.mpfr_round);
+        newob->rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self),
+                               context->now.mpfr_round);
     return newob;
 }
 
@@ -124,7 +147,8 @@ Pympq2Pympfr(PyObject *self, mpfr_prec_t bits)
     assert(Pympq_Check(self));
     if (!(newob = Pympfr_new(bits)))
         return NULL;
-    newob->rc = mpfr_set_q(newob->f, Pympq_AS_MPQ(self), context->now.mpfr_round);
+    newob->rc = mpfr_set_q(newob->f, Pympq_AS_MPQ(self),
+                           context->now.mpfr_round);
     return newob;
 }
 
@@ -149,7 +173,8 @@ PyInt2Pympfr(PyObject *self, mpfr_prec_t bits)
 
     assert(PyInt_Check(self));
     if ((newob = Pympfr_new(bits)))
-        newob->rc = mpfr_set_si(newob->f, PyInt_AsLong(self), context->now.mpfr_round);
+        newob->rc = mpfr_set_si(newob->f, PyInt_AsLong(self),
+                                context->now.mpfr_round);
     return newob;
 }
 
@@ -167,8 +192,7 @@ Pympfr2PyInt(PympfrObject *self)
 }
 #endif
 
-/*
- * mpfr conversion from string includes from-binary (base-256, format is
+/* mpfr conversion from string includes from-binary (base-256, format is
  * explained later) and 'true' from-string (bases 2 to 62), where exponent
  * if any is denoted by 'e' if base<=10, else by '@', and is always decimal.
  */
@@ -220,7 +244,8 @@ PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
         }
     }
     /* delegate the rest to MPFR */
-    if (-1 == mpfr_set_str(newob->f, (char*)cp, base, context->now.mpfr_round)) {
+    if (-1 == mpfr_set_str(newob->f, (char*)cp, base,
+                           context->now.mpfr_round)) {
         VALUE_ERROR("invalid digits");
         Py_DECREF((PyObject*)newob);
         Py_XDECREF(ascii_str);
@@ -309,7 +334,8 @@ Pympfr2binary(PympfrObject *self)
     }
 
     /* get buffer of base-16 digits */
-    buffer  = mpfr_get_str(0, &the_exp, 16, 0, self->f, context->now.mpfr_round);
+    buffer = mpfr_get_str(0, &the_exp, 16, 0, self->f,
+                          context->now.mpfr_round);
 
     /* strip trailing zeros */
     hexdigs = strlen(buffer) - 1;

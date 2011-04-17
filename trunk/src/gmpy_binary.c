@@ -1,14 +1,30 @@
-/*
- * The contents of this file are currently not used. This file will be used
- * to support gmpy2.to_binary() and gmpy2.from_binary(). When those two
- * functions are implemented, binary support will be removed from the object
- * constructors.
- */
-
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * gmpy_binary.c                                                           *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
+ * libraries.                                                              *
+ *      Copyright 2000 - 2009 Alex Martelli                                *
+ *      Copyright 2008 - 2011 Case Van Horsen                              *
+ *                                                                         *
+ * This library is free software; you can redistribute it and/or modify it *
+ * under the terms of the GNU Lesser General Public License as published   *
+ * by the Free Software Foundation; either version 2.1 of the License, or  *
+ * (at your option) any later version.                                     *
+ *                                                                         *
+ * This library is distributed in the hope that it will be useful,         *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * Lesser General Public License for more details.                         *
+ *                                                                         *
+ * You should have received a copy of the GNU Lesser General Public        *
+ * License along with this library; if not, write to the Free Software     *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA           *
+ * 02110-1301  USA                                                         *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* Conversion routines between GMPY2 objects and a compact, portable
  * binary representation. The binary format of GMPY2 is not compatible
- * with GMPY 1.x.
+ * with GMPY 1.x. Methods to read the old format are provided.
  */
 
 /* Provide functions to access the old binary formats. */

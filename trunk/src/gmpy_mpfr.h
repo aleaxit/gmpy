@@ -1,12 +1,36 @@
-/*
-  gmpy_mpfr C API extension header file.
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * gmpy_mpfr.h                                                             *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
+ * libraries.                                                              *
+ *      Copyright 2000 - 2009 Alex Martelli                                *
+ *      Copyright 2008 - 2011 Case Van Horsen                              *
+ *                                                                         *
+ * This library is free software; you can redistribute it and/or modify it *
+ * under the terms of the GNU Lesser General Public License as published   *
+ * by the Free Software Foundation; either version 2.1 of the License, or  *
+ * (at your option) any later version.                                     *
+ *                                                                         *
+ * This library is distributed in the hope that it will be useful,         *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * Lesser General Public License for more details.                         *
+ *                                                                         *
+ * You should have received a copy of the GNU Lesser General Public        *
+ * License along with this library; if not, write to the Free Software     *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA           *
+ * 02110-1301  USA                                                         *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-  Provide interface to the MPFR (Multiple Precision Floating-point with
-  Rounding) library.
 
-  Version 2.00, April 2011 (created) casevh
-
-  This file is expected to be included from gmpy.h
+/* gmpy_mpfr C API extension header file.
+ *
+ * Provide interface to the MPFR (Multiple Precision Floating-point with
+ * Rounding) library.
+ *
+ * Version 2.00, April 2011 (created) casevh
+ *
+ * This file is expected to be included from gmpy.h
  */
 
 #if !defined(FLT_RADIX) || (FLT_RADIX!=2)
