@@ -237,10 +237,6 @@ mpz(3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 TypeError: second argument can not be converted to mpq
->>> _g.mpq(2).qdiv(3,4)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: function takes at most 1 argument (2 given)
 >>> _g.qdiv(3,4,5)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
