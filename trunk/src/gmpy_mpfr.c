@@ -1566,6 +1566,9 @@ Pympfr_##NAME(PyObject* self, PyObject *other) \
     MPFR_CLEANUP_SELF(#NAME "()"); \
 }
 
+static char doc_mpfr_ceil[]="\
+x.__ceil__(): returns an mpfr that is the smallest integer >= x\n\
+";
 static char doc_g_mpfr_ceil[]="\
 ceil(x): returns an mpfr that is the smallest integer >= x\n\
 x must be an mpfr, or else gets coerced to one.\n\
@@ -1573,6 +1576,9 @@ x must be an mpfr, or else gets coerced to one.\n\
 
 MPFR_UNIOP_NOROUND(ceil)
 
+static char doc_mpfr_floor[]="\
+x.__floor__(): returns an mpfr that is the smallest integer <= x\n\
+";
 static char doc_g_mpfr_floor[]="\
 floor(x): returns an mpfr that is the smallest integer <= x\n\
 x must be an mpfr, or else gets coerced to one.\n\
@@ -1581,7 +1587,7 @@ x must be an mpfr, or else gets coerced to one.\n\
 MPFR_UNIOP_NOROUND(floor);
 
 static char doc_mpfr_trunc[]="\
-mpfr.__trunc__(): returns an mpfr that is truncated towards 0\n\
+x.__trunc__(): returns an mpfr that is truncated towards 0\n\
 (same as x.floor() if x>=0, x.ceil() if x<0).\n\
 ";
 static char doc_g_mpfr_trunc[]="\
