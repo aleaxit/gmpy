@@ -227,6 +227,10 @@
  *   Add support for MPC (casevh)
  *   Renamed 'mpf' to 'mpfr' to reflect use of MPFR (casevh)
  *   Added context manager (casevh)
+ *   Allow building with just GMP/MPIR if MPFR not available (casevh)
+ *   Allow building with GMP/MPIR and MPFR if MPC not available (casevh)
+ *   Removed most instance methods in favor of gmpy2.method (casevh)
+ *   Added __ceil__, __floor__, and __trunc__ methods (casevh)
  *
  ************************************************************************
  *
@@ -2901,6 +2905,8 @@ static PyMethodDef Pympq_methods [] =
 #ifdef WITHMPFR
 static PyMethodDef Pympfr_methods [] =
 {
+    { "__ceil__", Pympfr_ceil, METH_NOARGS, doc_mpfr_ceil },
+    { "__floor__", Pympfr_floor, METH_NOARGS, doc_mpfr_floor},
     { "__trunc__", Pympfr_trunc, METH_NOARGS, doc_mpfr_trunc },
     { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
     { "digits", Pympfr_digits, METH_VARARGS, doc_mpfr_digits },
