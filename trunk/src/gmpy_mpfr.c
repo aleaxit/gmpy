@@ -1580,6 +1580,10 @@ x must be an mpfr, or else gets coerced to one.\n\
 
 MPFR_UNIOP_NOROUND(floor);
 
+static char doc_mpfr_trunc[]="\
+mpfr.__trunc__(): returns an mpfr that is truncated towards 0\n\
+(same as x.floor() if x>=0, x.ceil() if x<0).\n\
+";
 static char doc_g_mpfr_trunc[]="\
 trunc(x): returns an mpfr that is x truncated towards 0\n\
 (same as x.floor() if x>=0, x.ceil() if x<0).\n\
