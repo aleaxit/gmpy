@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(f))
-['_copy', 'acos', 'acosh', 'add', 'agm', 'ai', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'binary', 'cbrt', 'ceil', 'check_range', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'digamma', 'digits', 'div', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'floor', 'fmod', 'frac', 'gamma', 'hypot', 'is_inf', 'is_integer', 'is_lessgreater', 'is_nan', 'is_number', 'is_regular', 'is_unordered', 'is_zero', 'j0', 'j1', 'jn', 'lgamma', 'li2', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'max', 'min', 'modf', 'mul', 'next_above', 'next_below', 'next_toward', 'pow', 'precision', 'qdiv', 'rc', 'rec_sqrt', 'reldiff', 'remainder', 'remquo', 'rint', 'rint_ceil', 'rint_floor', 'rint_round', 'rint_trunc', 'root', 'round', 'round2', 'sec', 'sech', 'sign', 'sin', 'sin_cos', 'sinh', 'sinh_cosh', 'sqrt', 'square', 'sub', 'tan', 'tanh', 'trunc', 'y0', 'y1', 'yn', 'zeta']
+['binary', 'digits', 'is_inf', 'is_integer', 'is_lessgreater', 'is_nan', 'is_number', 'is_regular', 'is_unordered', 'is_zero', 'precision', 'rc']
 >>>
 '''
 try: import decimal as _d
@@ -45,8 +45,6 @@ True
 12.0
 >>> _g.mpfr(d).precision
 53
->>> _g.sqrt(d)==_g.mpfr(d).sqrt()
-1
 >>>
 '''
 

@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(a))
-['_copy', 'acos', 'acosh', 'add', 'agm', 'ai', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'binary', 'cbrt', 'ceil', 'check_range', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'digamma', 'digits', 'div', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'floor', 'fmod', 'frac', 'gamma', 'hypot', 'is_inf', 'is_integer', 'is_lessgreater', 'is_nan', 'is_number', 'is_regular', 'is_unordered', 'is_zero', 'j0', 'j1', 'jn', 'lgamma', 'li2', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'max', 'min', 'modf', 'mul', 'next_above', 'next_below', 'next_toward', 'pow', 'precision', 'qdiv', 'rc', 'rec_sqrt', 'reldiff', 'remainder', 'remquo', 'rint', 'rint_ceil', 'rint_floor', 'rint_round', 'rint_trunc', 'root', 'round', 'round2', 'sec', 'sech', 'sign', 'sin', 'sin_cos', 'sinh', 'sinh_cosh', 'sqrt', 'square', 'sub', 'tan', 'tanh', 'trunc', 'y0', 'y1', 'yn', 'zeta']
+['binary', 'digits', 'is_inf', 'is_integer', 'is_lessgreater', 'is_nan', 'is_number', 'is_regular', 'is_unordered', 'is_zero', 'precision', 'rc']
 >>>
 '''
 import sys
@@ -28,12 +28,12 @@ mpfr('nan')
 mpfr('inf')
 >>> _g.log(float('-inf'))
 mpfr('nan')
->>> _g.mpfr('12.3456').log()
+>>> _g.log(_g.mpfr('12.3456'))
 mpfr('2.5132997242892183e0')
->>> _g.mpfr('12.3456').log(7)
+>>> _g.log(_g.mpfr('12.3456'),7)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-TypeError: log() takes no arguments (1 given)
+TypeError: log() takes exactly one argument (2 given)
 '''
 
 __test__['elemop']=\
@@ -72,43 +72,43 @@ mpfr('6.0e0')
 0
 >>> _g.sign(a-b)
 -1
->>> a.sign()
+>>> _g.sign(a)
 1
->>> (-a).sign()
+>>> _g.sign(-a)
 -1
->>> z=b-b; z.sign()
+>>> z=b-b; _g.sign(z)
 0
 >>> import math
 >>> math.ceil(a)
 124.0
->>> str(a.ceil())
+>>> str(a.__ceil__())
 '124.0'
 >>> str(_g.ceil(a))
 '124.0'
 >>> math.floor(a)
 123.0
->>> str(a.floor())
+>>> str(a.__floor__())
 '123.0'
 >>> str(_g.floor(a))
 '123.0'
->>> str(a.trunc())
+>>> str(a.__trunc__())
 '123.0'
 >>> str(_g.trunc(a))
 '123.0'
 >>> x=-a
 >>> math.floor(x)
 -124.0
->>> str(x.floor())
+>>> str(x.__floor__())
 '-124.0'
 >>> str(_g.floor(x))
 '-124.0'
->>> str(x.ceil())
+>>> str(x.__ceil__())
 '-123.0'
 >>> math.ceil(x)
 -123.0
 >>> str(_g.ceil(x))
 '-123.0'
->>> str(x.trunc())
+>>> str(x.__trunc__())
 '-123.0'
 >>> str(_g.trunc(x))
 '-123.0'
@@ -120,31 +120,19 @@ mpfr('6.0e0')
 1
 >>> _g.floor(-12.3)==math.floor(-12.3)
 1
->>> (a**2).reldiff(float(a)**2) < 1.03 * (2.0**-(a.precision-1))
+>>> _g.reldiff(a**2,float(a)**2) < 1.03 * (2.0**-(a.precision-1))
 1
->>> (a**2).reldiff(a*a) < (2.0**-(a.precision-1))
+>>> _g.reldiff(a**2,a*a) < (2.0**-(a.precision-1))
 1
->>> (b**2).reldiff(float(b)**2) < 1.03 * (2.0**-(b.precision-1))
+>>> _g.reldiff(b**2,float(b)**2) < 1.03 * (2.0**-(b.precision-1))
 1
->>> (b**2).reldiff(b*b) < (2.0**-(b.precision-1))
+>>> _g.reldiff(b**2,b*b) < (2.0**-(b.precision-1))
 1
 >>> _g.reldiff(3.4)
 Traceback (innermost last):
   File "<pyshell#184>", line 1, in ?
     _g.reldiff(3.4)
 TypeError: reldiff() requires 'mpfr','mpfr' arguments
->>> a.reldiff()
-Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    _g.reldiff()
-TypeError: reldiff() requires 'mpfr','mpfr' arguments
->>> a.reldiff(3, 4)
-Traceback (innermost last):
-  File "<pyshell#184>", line 1, in ?
-    _g.reldiff(3, 4)
-TypeError: reldiff() requires 'mpfr','mpfr' arguments
->>> a.sqrt()
-mpfr('1.1111075555498667e1')
 >>> _g.sqrt(a)
 mpfr('1.1111075555498667e1')
 >>> _g.sqrt(-1)
@@ -213,7 +201,7 @@ r'''
 0
 >>> c<a
 0
->>> d=a._copy()
+>>> d=_g._copy(a)
 >>> a is d
 0
 >>> a == d
@@ -230,21 +218,21 @@ r'''
 1
 >>> not a
 0
->>> a.f2q(0.1)
+>>> _g.f2q(a,0.1)
 mpz(123)
->>> a.f2q(0.01)
+>>> _g.f2q(a,0.01)
 mpz(123)
->>> a.f2q(0.001)
+>>> _g.f2q(a,0.001)
 mpq(247,2)
->>> a.f2q(0.0001)
+>>> _g.f2q(a,0.0001)
 mpq(1358,11)
->>> a.f2q(0.00001)
+>>> _g.f2q(a,0.00001)
 mpq(7037,57)
->>> a.f2q(0.000001)
+>>> _g.f2q(a,0.000001)
 mpq(15432,125)
->>> a.f2q(0.0000001)
+>>> _g.f2q(a,0.0000001)
 mpq(15432,125)
->>> a.f2q()
+>>> _g.f2q(a)
 mpq(15432,125)
 >>> print _g.mpfr(_g.mpz(1234))
 1234.0
@@ -274,15 +262,13 @@ False
 False
 >>> b == c
 False
->>> a == b.round(64)
+>>> a == _g.round(b,64)
 True
->>> a == _g.round(b, 64)
-True
->>> _g.mpfr('ffffffffffffffffe8000000000000000', 256, 16).round(64).digits(16)
+>>> _g.round(_g.mpfr('ffffffffffffffffe8000000000000000', 256, 16),64).digits(16)
 ('10000000000000000', 34, 64)
->>> _g.mpfr('fffffffffffffffff8000000000000000', 256, 16).round(64).digits(16)
+>>> _g.round(_g.mpfr('fffffffffffffffff8000000000000000', 256, 16),64).digits(16)
 ('10000000000000000', 34, 64)
->>> b.round(64)
+>>> _g.round(b,64)
 mpfr('1.22999999999999999999e-1',64)
 '''
 
@@ -329,10 +315,10 @@ Traceback (most recent call last):
   ...
 TypeError: function takes at most 2 arguments (5 given)
 >>> saveprec=a.precision
->>> newa = a.round(33)
+>>> newa = _g.round(a,33)
 >>> newa
 mpfr('1.23456e2',33)
->>> newa = newa.round(saveprec)
+>>> newa = _g.round(newa,saveprec)
 >>> newa.precision==saveprec
 1
 >>> del(newa)
@@ -349,7 +335,7 @@ __test__['binio']=\
 r'''
 >>> epsilon=_g.mpfr(2)**-(a.precision)
 >>> ba=a.binary()
->>> a.reldiff(_g.mpfr_from_old_binary(ba)) <= epsilon
+>>> _g.reldiff(a,_g.mpfr_from_old_binary(ba)) <= epsilon
 1
 >>> len(ba)
 16
@@ -359,14 +345,14 @@ r'''
 ...
 8 53 0 0 0 1 0 0 0 123 116 188 106 126 249 220
 >>> na=(-a).binary()
->>> (-a).reldiff(_g.mpfr_from_old_binary(na)) <= epsilon
+>>> _g.reldiff(-a,_g.mpfr_from_old_binary(na)) <= epsilon
 1
 >>> na[0] == chr(ord(ba[0])|1)
 1
 >>> for bd,nd in zip(ba[1:],na[1:]):
 ...    assert bd==nd
 >>> ia=(1/a).binary()
->>> (1/a).reldiff(_g.mpfr_from_old_binary(ia)) <= epsilon
+>>> _g.reldiff(1/a,_g.mpfr_from_old_binary(ia)) <= epsilon
 1
 >>> _g.binary(_g.mpfr(0))
 '\x04'
