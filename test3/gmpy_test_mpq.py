@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> dir(a)
-['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'denom', 'denominator', 'digits', 'numer', 'numerator', 'qdiv', 'sign']
+['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', 'binary', 'denominator', 'digits', 'numerator']
 >>>
 '''
 
@@ -110,23 +110,23 @@ mpq(41,152)
 0
 >>> _g.sign(a-b)
 -1
->>> a.sign()
+>>> _g.sign(a)
 1
->>> (-a).sign()
+>>> _g.sign(-a)
 -1
->>> z=b-b; z.sign()
+>>> z=b-b; _g.sign(z)
 0
->>> a.numer() == a.numerator
+>>> _g.numer(a) == a.numerator
 True
->>> a.denom() == a.denominator
+>>> _g.denom(a) == a.denominator
 True
->>> an=a.numer(); ad=a.denom();
+>>> an=_g.numer(a); ad=_g.denom(a);
 >>> an==0 or 1==a*_g.mpq(ad,an)
 1
->>> bn=b.numer(); bd=b.denom();
+>>> bn=_g.numer(b); bd=_g.denom(b);
 >>> bn==0 or 1==b*_g.mpq(bd,bn)
 1
->>> zn=z.numer(); zd=z.denom();
+>>> zn=_g.numer(z); zd=_g.denom(z);
 >>> zn==0 or 1==z*_g.mpq(zd,zn)
 1
 >>> (a+b) == _g.mpq(an*bd+ad*bn,ad*bd)
@@ -152,7 +152,7 @@ r'''
 0
 >>> c<a
 0
->>> d=a._copy()
+>>> d=_g._copy(a)
 >>> a is d
 0
 >>> a == d
@@ -202,7 +202,7 @@ r'''
 ...    for j in range(3,10):
 ...       if _g.mpq(i,j) != _g.mpq("%d/%d"%(i,j)):
 ...          print('er1:',i,j); break
-...       aa=_g.mpq(i,j); ai=aa.numer(); aj=aa.denom()
+...       aa=_g.mpq(i,j); ai=_g.numer(aa); aj=_g.denom(aa)
 ...       if aj!=1 and str(aa) != ("%d/%d"%(ai,aj)):
 ...          print('er2:',i,j,str(aa),("%d/%d"%(ai,aj))); break
 ...       if aj==1 and str(aa) != ("%d"%ai):
@@ -211,12 +211,12 @@ r'''
 ...          print('er4:',i,j,repr(aa),("mpq(%d,%d)"%(ai,aj))); break
 ...       if aj==1 and repr(aa) != ("mpq(%d,%d)"%(ai,aj)):
 ...          print('er5:',i,j,repr(aa),"mpq(%d,%d)"%(ai,aj)); break
->>> fmo='_g.mpq('+a.numer().digits(16)+','+a.denom().digits(16)+')'
+>>> fmo='_g.mpq('+_g.numer(a).digits(16)+','+_g.denom(a).digits(16)+')'
 >>> fmo
 '_g.mpq(0x29,0x98)'
 >>> eval(fmo)==a
 1
->>> fmo='_g.mpq("'+a.numer().digits(30)+'/'+a.denom().digits(30)+'",30)'
+>>> fmo='_g.mpq("'+_g.numer(a).digits(30)+'/'+_g.denom(a).digits(30)+'",30)'
 >>> fmo
 '_g.mpq("1b/52",30)'
 >>> eval(fmo)==a
@@ -303,13 +303,13 @@ r'''
 mpz(6)
 >>> _g.qdiv(12,5)
 mpq(12,5)
->>> a is a.qdiv()
+>>> a is _g.qdiv(a)
 1
->>> a is a.qdiv(1)
+>>> a is _g.qdiv(a,1)
 1
->>> a is a.qdiv(2)
+>>> a is _g.qdiv(a,2)
 0
->>> x=a.numer()
+>>> x=_g.numer(a)
 >>> x is _g.qdiv(x)
 1
 >>> x is _g.qdiv(x,1)
@@ -317,9 +317,9 @@ mpq(12,5)
 >>> x is _g.qdiv(x,2)
 0
 >>> y=_g.mpq(4,1)
->>> y is y.qdiv()
+>>> y is _g.qdiv(y)
 0
->>> y == y.qdiv()
+>>> y == _g.qdiv(y)
 1
 >>>
 '''
