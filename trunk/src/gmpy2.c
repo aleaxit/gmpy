@@ -506,17 +506,6 @@ PyInt2Pympq(PyObject *self)
         mpq_set_si(newob->q, PyInt_AsLong(self), 1);
     return newob;
 }
-
-static PympfrObject *
-PyInt2Pympfr(PyObject *self, mpfr_prec_t bits)
-{
-    PympfrObject *newob;
-
-    assert(PyInt_Check(self));
-    if ((newob = Pympfr_new(bits)))
-        newob->rc = mpfr_set_si(newob->f, PyInt_AsLong(self), context->now.mpfr_round);
-    return newob;
-}
 #endif
 
 static PympzObject *
@@ -632,10 +621,6 @@ PyLong2Pyxmpz(PyObject * obj)
     return newob;
 }
 
-/*
- * long->mpfr delegates via long->mpz->mpfr to avoid duplicating
- * the above-seen dependencies; ditto long->mpq
- */
 static PympqObject *
 PyLong2Pympq(PyObject *self)
 {
@@ -914,10 +899,6 @@ Pyxmpz2PyLong(PyxmpzObject *self)
     return mpz_get_PyLong(Pyxmpz_AS_MPZ(self));
 }
 
-/*
- * mpfr->long delegates via mpfr->mpz->long to avoid duplicating
- * the above-seen thorny dependencies; ditto mpq->long
- */
 static PyObject *
 Pympq2PyLong(PympqObject *self)
 {
@@ -957,24 +938,7 @@ Pyxmpz_To_Integer(PyxmpzObject *self)
 #endif
 }
 
-/*
- * mpfr->int delegates via mpfr->mpz->int for convenience; ditto mpq->int
- */
-
 #ifdef PY2
-static PyObject *
-Pympfr2PyInt(PympfrObject *self)
-{
-    PyObject* result;
-    PympzObject *temp = Pympfr2Pympz((PyObject*)self);
-
-    if (!temp)
-        return NULL;
-    result = Pympz_To_Integer(temp);
-    Py_DECREF((PyObject*)temp);
-    return result;
-}
-
 static PyObject *
 Pympq2PyInt(PympqObject *self)
 {
@@ -2224,6 +2188,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return result;
         }
         else {
+            /* TODO: possibly need to check for erange errors. */
             return _cmp_to_object(mpfr_cmp(Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b)), op);
         }
     }
@@ -2274,6 +2239,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return result;
         }
         else {
+            /* TODO: may need to check erange status. */
             c = mpfr_cmp(Pympfr_AS_MPFR(tempa), Pympfr_AS_MPFR(tempb));
         }
         Py_DECREF(tempa);
@@ -3099,9 +3065,9 @@ static PyTypeObject Pympfr_Type =
         0,                                  /* tp_weaklistoffset*/
         0,                                  /* tp_iter          */
         0,                                  /* tp_iternext      */
-    Pympfr_methods,                          /* tp_methods       */
+    Pympfr_methods,                         /* tp_methods       */
         0,                                  /* tp_members       */
-    Pympfr_getseters,                        /* tp_getset        */
+    Pympfr_getseters,                       /* tp_getset        */
 };
 #endif
 
