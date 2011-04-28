@@ -2186,12 +2186,17 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     if (Pympfr_Check(a) && Pympfr_Check(b)) {
         TRACE("compare (mpfr,mpfr)\n");
         if (mpfr_unordered_p(Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b))) {
+            /* Set erange and check if an exception should be raised. */
+            context->now.erange |= 1;
+            if (context->now.trap_erange) {
+                GMPY_ERANGE("comparison with NaN");
+                return NULL;
+            }
             result = (op == Py_NE) ? Py_True : Py_False;
             Py_INCREF(result);
             return result;
         }
         else {
-            /* TODO: possibly need to check for erange errors. */
             return _cmp_to_object(mpfr_cmp(Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b)), op);
         }
     }
@@ -2221,6 +2226,11 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         if (PyFloat_Check(b)) {
             double d = PyFloat_AS_DOUBLE(b);
             if (Py_IS_NAN(d)) {
+                context->now.erange |= 1;
+                if (context->now.trap_erange) {
+                    GMPY_ERANGE("comparison with NaN");
+                    return NULL;
+                }
                 result = (op == Py_NE) ? Py_True : Py_False;
                 Py_INCREF(result);
                 return result;
@@ -2237,12 +2247,16 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         tempa = (PyObject*)Pympfr_From_Real(a, 0);
         tempb = (PyObject*)Pympfr_From_Real(b, 0);
         if (mpfr_unordered_p(Pympfr_AS_MPFR(tempa), Pympfr_AS_MPFR(tempb))) {
+            context->now.erange |= 1;
+            if (context->now.trap_erange) {
+                GMPY_ERANGE("comparison with NaN");
+                return NULL;
+            }
             result = (op == Py_NE) ? Py_True : Py_False;
             Py_INCREF(result);
             return result;
         }
         else {
-            /* TODO: may need to check erange status. */
             c = mpfr_cmp(Pympfr_AS_MPFR(tempa), Pympfr_AS_MPFR(tempb));
         }
         Py_DECREF(tempa);
