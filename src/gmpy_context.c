@@ -194,25 +194,23 @@ Pygmpy_context(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+#ifdef WITHMPC
+
 PyDoc_STRVAR(doc_new_context,
 "new_context() -> context\n\n"
 "Return a new context manager controlling MPFR and MPC\n"
 "arithmetic.\n\n"
 "    subnormalize:   if True, subnormalized results can be returned\n"
 "    precision:      precision, in bits, of an MPFR result\n"
-#ifdef WITHMPC
 "    mpc_rprec:      precision, in bits, of Re(MPC)\n"
 "                      -1 implies use mpfr_prec\n"
 "    mpc_iprec:      precision, in bits, of Im(MPC)\n"
 "                      -1 implies use mpc_rprec\n"
-#endif
 "    round:          rounding mode for MPFR\n"
-#ifdef WITHMPC
 "    mpc_rround:     rounding mode for Re(MPC)\n"
 "                      -1 implies use mpfr_round\n"
 "    mpc_iround:     rounding mode for Im(MPC)\n"
 "                      -1 implies use mpc_rround\n"
-#endif
 "    e_max:          maximum allowed exponent\n"
 "    e_min:          minimum allowed exponent\n"
 "    trap_underflow: if True, raise exception for underflow\n"
@@ -227,6 +225,32 @@ PyDoc_STRVAR(doc_new_context,
 "                    if False, set erange flag\n"
 "    trap_divzero:   if True, raise exception for division by zero\n"
 "                    if False, set divzero flag and return Inf or -Inf\n");
+
+#else
+
+PyDoc_STRVAR(doc_new_context,
+"new_context() -> context\n\n"
+"Return a new context manager controlling MPFR and MPC\n"
+"arithmetic.\n\n"
+"    subnormalize:   if True, subnormalized results can be returned\n"
+"    precision:      precision, in bits, of an MPFR result\n"
+"    round:          rounding mode for MPFR\n"
+"    e_max:          maximum allowed exponent\n"
+"    e_min:          minimum allowed exponent\n"
+"    trap_underflow: if True, raise exception for underflow\n"
+"                    if False, set underflow flag\n"
+"    trap_overflow:  if True, raise exception for overflow\n"
+"                    if False, set overflow flag and return Inf or -Inf\n"
+"    trap_inexact:   if True, raise exception for inexact result\n"
+"                    if False, set inexact flag\n"
+"    trap_invalid:   if True, raise exception for invalid operation\n"
+"                    if False, set invalid flag and return NaN\n"
+"    trap_erange:    if True, raise exception for range error\n"
+"                    if False, set erange flag\n"
+"    trap_divzero:   if True, raise exception for division by zero\n"
+"                    if False, set divzero flag and return Inf or -Inf\n");
+
+#endif
 
 static PyObject *
 Pygmpy_new_context(PyObject *self, PyObject *args, PyObject *kwargs)

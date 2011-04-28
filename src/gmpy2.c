@@ -826,6 +826,8 @@ PyStr2Pympq(PyObject *stringarg, long base)
         }
 
         if (wheredot) {
+            char *counter;
+            unsigned long digits = 0;
             if (base != 10) {
                 VALUE_ERROR("illegal string for mpq(): embedded . requires base=10");
                 Py_DECREF((PyObject*)newob);
@@ -833,8 +835,8 @@ PyStr2Pympq(PyObject *stringarg, long base)
                 return NULL;
             }
 
-            char *counter = wheredot;
-            unsigned long digits = 0;
+            counter = wheredot;
+            digits = 0;
             *wheredot = ' ';
             while (*++counter != '\0') {
                 if (isdigit(*counter))
