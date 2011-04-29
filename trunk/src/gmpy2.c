@@ -2637,6 +2637,8 @@ static PyGetSetDef Pympfr_getseters[] =
 {
     {"precision", (getter)Pympfr_getprec_attrib, NULL, "precision in bits", NULL},
     {"rc", (getter)Pympfr_getrc_attrib, NULL, "return code", NULL},
+    {"imag", (getter)Pympfr_getimag_attrib, NULL, "imaginary component", NULL},
+    {"real", (getter)Pympfr_getreal_attrib, NULL, "real component", NULL},
     {NULL}
 };
 #endif
@@ -2894,6 +2896,7 @@ static PyMethodDef Pympfr_methods [] =
     { "__floor__", Pympfr_floor, METH_NOARGS, doc_mpfr_floor},
     { "__trunc__", Pympfr_trunc, METH_NOARGS, doc_mpfr_trunc },
     { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
+    { "conjugate", Pympfr_conjugate, METH_NOARGS, doc_mpfr_conjugate },
     { "digits", Pympfr_digits, METH_VARARGS, doc_mpfr_digits },
     { "is_inf", Pympfr_is_inf, METH_NOARGS, doc_mpfr_is_inf },
     { "is_integer", Pympfr_is_integer, METH_NOARGS, doc_mpfr_is_integer },

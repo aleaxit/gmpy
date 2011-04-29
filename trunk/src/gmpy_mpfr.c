@@ -48,7 +48,7 @@ Pympfr2Pympfr(PyObject *self, mpfr_prec_t bits)
 static PympfrObject *
 PyFloat2Pympfr(PyObject *self, mpfr_prec_t bits)
 {
-    PympfrObject *newob = 0;
+    PympfrObject *newob;
 
     assert(PyFloat_Check(self));
     if (!bits)
@@ -145,10 +145,9 @@ Pympq2Pympfr(PyObject *self, mpfr_prec_t bits)
     PympfrObject *newob;
 
     assert(Pympq_Check(self));
-    if (!(newob = Pympfr_new(bits)))
-        return NULL;
-    newob->rc = mpfr_set_q(newob->f, Pympq_AS_MPQ(self),
-                           context->now.mpfr_round);
+    if ((newob = Pympfr_new(bits)))
+        newob->rc = mpfr_set_q(newob->f, Pympq_AS_MPQ(self),
+                               context->now.mpfr_round);
     return newob;
 }
 
@@ -181,7 +180,7 @@ PyInt2Pympfr(PyObject *self, mpfr_prec_t bits)
 static PyObject *
 Pympfr2PyInt(PympfrObject *self)
 {
-    PyObject* result;
+    PyObject *result;
     PympzObject *temp = Pympfr2Pympz((PyObject*)self);
 
     if (!temp)
@@ -192,10 +191,6 @@ Pympfr2PyInt(PympfrObject *self)
 }
 #endif
 
-/* mpfr conversion from string includes from-binary (base-256, format is
- * explained later) and 'true' from-string (bases 2 to 62), where exponent
- * if any is denoted by 'e' if base<=10, else by '@', and is always decimal.
- */
 static PympfrObject *
 PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
 {
@@ -258,7 +253,7 @@ PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
 static PyObject *
 Pympfr2PyLong(PympfrObject *self)
 {
-    PyObject* result;
+    PyObject *result;
     PympzObject *temp = Pympfr2Pympz((PyObject*)self);
 
     if (!temp)
@@ -806,12 +801,9 @@ mpfr(s,bits=0,base=10):\n\
     builds an mpfr object from a string s made up of\n\
     digits in the given base, possibly with fraction-part (with\n\
     period as a separator) and/or exponent-part (with exponent\n\
-    marker 'e' for base<=10, else '@'). If base=256, s must be\n\
-    a gmpy2.mpfr portable binary representation as built by the\n\
-    function gmpy2.binary (and the .binary method of mpfr objects).\n\
-    The resulting mpfr object is built with a default precision (in\n\
-    bits) if bits is 0 or absent, else with the specified number\n\
-    of bits.\n\
+    marker 'e' for base<=10, else '@'). The resulting mpfr object\n\
+    is built with a default precision (in bits) if bits is 0 or\n\
+    absent, else with the specified number of bits.\n\
 ";
 static PyObject *
 Pygmpy_mpfr(PyObject *self, PyObject *args)
@@ -908,12 +900,47 @@ Pympfr_getrc_attrib(PympfrObject *self, void *closure)
     return PyIntOrLong_FromLong((long)self->rc);
 }
 
+/* Implement the .imag attribute of an mpfr. */
+
+static PyObject *
+Pympfr_getimag_attrib(PympfrObject *self, void *closure)
+{
+    PympfrObject *result;
+
+    if ((result = Pympfr_new(0)))
+        mpfr_set_zero(result->f, 1);
+    return (PyObject*)result;
+}
+
+/* Implement the .real attribute of an mpfr. */
+
+static PyObject *
+Pympfr_getreal_attrib(PympfrObject *self, void *closure)
+{
+    return (PyObject*)Pympfr2Pympfr((PyObject*)self, 0);
+}
+
 /* Implement the nb_bool slot. */
 
 static int
 Pympfr_nonzero(PympfrObject *self)
 {
     return !mpfr_zero_p(self->f);
+}
+
+/* Implement the conjugate() method. */
+
+PyDoc_STRVAR(doc_mpfr_conjugate,
+"x.conjugate() -> mpfr\n\n"
+"Returns the conjugate of x (which is just a copy of x since x is\n"
+"an mpfr).");
+
+/* TODO: support keyword arguments. */
+
+static PyObject *
+Pympfr_conjugate(PyObject *self, PyObject *args)
+{
+    return (PyObject*)Pympfr2Pympfr(self, 0);
 }
 
 /* Implement the nb_positive slot. */
@@ -1128,7 +1155,7 @@ PyDoc_STRVAR(doc_mpfr_digits,
 "Returns up to 'prec' digits in the given base. If 'prec' is 0, as many\n"
 "digits that are available are returned. No more digits than available\n"
 "given x's precision are returned. 'base' must be between 2 and 62,\n"
-"inclusive. The result is a three element tuple containig the mantissa,\n"
+"inclusive. The result is a three element tuple containing the mantissa,\n"
 "the exponent, and the number of bits of precision.");
 
 /* TODO: support keyword arguments. */
