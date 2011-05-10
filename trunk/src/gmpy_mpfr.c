@@ -935,8 +935,6 @@ PyDoc_STRVAR(doc_mpfr_conjugate,
 "Returns the conjugate of x (which is just a copy of x since x is\n"
 "an mpfr).");
 
-/* TODO: support keyword arguments. */
-
 static PyObject *
 Pympfr_conjugate(PyObject *self, PyObject *args)
 {
@@ -1006,6 +1004,76 @@ static PyObject *
 Pympfr_get_max_precision(PyObject *self, PyObject *args)
 {
     return PyIntOrLong_FromSsize_t((Py_ssize_t)MPFR_PREC_MAX);
+}
+
+PyDoc_STRVAR(doc_g_mpfr_get_exp,
+"get_exp() -> integer\n\n"
+"Return the exponent of an mpfr. Returns 0 for NaN or Inf, sets the\n"
+"erange flag and will raise an exception if trap_erange is set.");
+
+static PyObject *
+Pympfr_get_exp(PyObject *self, PyObject *other)
+{
+    PyObject *result = 0;
+    Py_ssize_t exp;
+
+    PARSE_ONE_MPFR_OTHER("get_exp() requires mpfr argument");
+
+    if (mpfr_regular_p(Pympfr_AS_MPFR(self))) {
+        exp = (Py_ssize_t)mpfr_get_exp(Pympfr_AS_MPFR(self));
+        result = PyIntOrLong_FromSsize_t((Py_ssize_t)exp);
+    }
+    else if (mpfr_zero_p(Pympfr_AS_MPFR(self))) {
+        Py_DECREF(self);
+        result = PyIntOrLong_FromSsize_t(0);
+    }
+    else {
+        context->now.erange = 1;
+        if (context->now.trap_erange) {
+            GMPY_ERANGE("Can not get exponent from NaN or Inf.");
+        }
+        else {
+            result = PyIntOrLong_FromSsize_t(0);
+        }
+    }
+    Py_DECREF(self);
+    return result;
+}
+
+PyDoc_STRVAR(doc_g_mpfr_set_exp,
+"set_exp(mpfr, n) -> mpfr\n\n"
+"Set the exponent of an mpfr to n. If n is outside the range of\n"
+"valid exponents, set_exp() will set the erange flag and either\n"
+"return the original value or raise an exception if trap_erange\n"
+"is set.");
+
+static PyObject *
+Pympfr_set_exp(PyObject *self, PyObject *args)
+{
+    PympfrObject *result = 0;
+    Py_ssize_t exp = 0;
+
+    if (!PyArg_ParseTuple(args, "O&n", Pympfr_convert_arg, &self, &exp)) {
+        TYPE_ERROR("set_exp() requires mpfr argument");
+        return NULL;
+    }
+
+    if (!(result = Pympfr2Pympfr(self, 0)))
+        return NULL;
+    Py_DECREF(self);
+
+    result->rc = mpfr_set_exp(Pympfr_AS_MPFR(result), exp);
+
+    if (result->rc) {
+        context->now.erange = 1;
+        if (context->now.trap_erange) {
+            GMPY_ERANGE("New exponent is out-of-bounds.");
+            Py_DECREF(result);
+            return NULL;
+        }
+    }
+
+    return (PyObject*)result;
 }
 
 PyDoc_STRVAR(doc_g_mpfr_set_nan,
