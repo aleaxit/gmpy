@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(a))
-['binary', 'conjugate', 'digits', 'imag', 'is_inf', 'is_integer', 'is_lessgreater', 'is_nan', 'is_number', 'is_regular', 'is_unordered', 'is_zero', 'precision', 'rc', 'real']
+['binary', 'conjugate', 'digits', 'imag', 'is_inf', 'is_integer', 'is_lessgreater', 'is_nan', 'is_number', 'is_regular', 'is_signed', 'is_unordered', 'is_zero', 'precision', 'rc', 'real']
 >>>
 '''
 import sys
