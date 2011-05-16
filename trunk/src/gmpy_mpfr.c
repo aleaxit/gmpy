@@ -1007,7 +1007,7 @@ Pympfr_get_max_precision(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_g_mpfr_get_exp,
-"get_exp() -> integer\n\n"
+"get_exp(mpfr) -> integer\n\n"
 "Return the exponent of an mpfr. Returns 0 for NaN or Inf, sets the\n"
 "erange flag and will raise an exception if trap_erange is set.");
 
@@ -1054,7 +1054,7 @@ Pympfr_set_exp(PyObject *self, PyObject *args)
     Py_ssize_t exp = 0;
 
     if (!PyArg_ParseTuple(args, "O&n", Pympfr_convert_arg, &self, &exp)) {
-        TYPE_ERROR("set_exp() requires mpfr argument");
+        TYPE_ERROR("set_exp() requires 'mpfr', 'integer' arguments");
         return NULL;
     }
 
@@ -1074,6 +1074,122 @@ Pympfr_set_exp(PyObject *self, PyObject *args)
     }
 
     return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_g_mpfr_set_sign,
+"set_sign(mpfr, bool) -> mpfr\n\n"
+"If 'bool' is True, then return an 'mpfr' with the sign bit set.");
+
+static PyObject *
+Pympfr_set_sign(PyObject *self, PyObject *args)
+{
+    PympfrObject *result = 0;
+    PyObject *boolean = 0;
+    int s;
+
+    if (!PyArg_ParseTuple(args, "O&O", Pympfr_convert_arg, &self, &boolean)) {
+        TYPE_ERROR("set_sign() requires 'mpfr', 'boolean' arguments");
+        return NULL;
+    }
+
+    if (!(result = Pympfr_new(0)))
+        return NULL;
+
+    s = PyObject_IsTrue(boolean);
+    if (s == -1) {
+        TYPE_ERROR("set_sign() requires 'mpfr', 'boolean' arguments");
+        Py_DECREF(self);
+        Py_DECREF(boolean);
+        Py_DECREF(result);
+        return NULL;
+    }
+
+    result->rc = mpfr_setsign(Pympfr_AS_MPFR(result), Pympfr_AS_MPFR(self),
+                              s, context->now.mpfr_round);
+
+    Py_DECREF(self);
+    Py_DECREF(boolean);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_g_mpfr_copy_sign,
+"copy_sign(mpfr, mpfr) -> mpfr\n\n"
+"Return an 'mpfr' composed of the first argument with the sign of the\n"
+"second argument.");
+
+static PyObject *
+Pympfr_copy_sign(PyObject *self, PyObject *args)
+{
+    PympfrObject *result = 0;
+    PyObject *other = 0;
+
+    if (!PyArg_ParseTuple(args, "O&O&", Pympfr_convert_arg, &self,
+                          Pympfr_convert_arg, &other)) {
+        TYPE_ERROR("copy_sign() requires 'mpfr', 'mpfr' arguments");
+        return NULL;
+    }
+
+    if (!(result = Pympfr_new(0)))
+        return NULL;
+
+    result->rc = mpfr_copysign(Pympfr_AS_MPFR(result), Pympfr_AS_MPFR(self),
+                              Pympfr_AS_MPFR(other), context->now.mpfr_round);
+
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_g_mpfr_div_2exp,
+"div_2exp(mpfr, n) -> mpfr\n\n"
+"Return 'mpfr' divided by 2**n.");
+
+static PyObject *
+Pympfr_div_2exp(PyObject *self, PyObject *args)
+{
+    PympfrObject *result = 0;
+    long exp = 0;
+
+    if (!PyArg_ParseTuple(args, "O&l", Pympfr_convert_arg, &self, &exp)) {
+        TYPE_ERROR("div_2exp() requires 'mpfr', 'integer' arguments");
+        return NULL;
+    }
+
+    if (!(result = Pympfr_new(0)))
+        return NULL;
+
+    mpfr_clear_flags();
+
+    result->rc = mpfr_div_2si(Pympfr_AS_MPFR(result), Pympfr_AS_MPFR(self),
+                              exp, context->now.mpfr_round);
+
+    MPFR_CLEANUP_SELF("div_2exp");
+}
+
+PyDoc_STRVAR(doc_g_mpfr_mul_2exp,
+"mul_2exp(mpfr, n) -> mpfr\n\n"
+"Return 'mpfr' multiplied by 2**n.");
+
+static PyObject *
+Pympfr_mul_2exp(PyObject *self, PyObject *args)
+{
+    PympfrObject *result = 0;
+    long exp = 0;
+
+    if (!PyArg_ParseTuple(args, "O&l", Pympfr_convert_arg, &self, &exp)) {
+        TYPE_ERROR("mul_2exp() requires 'mpfr', 'integer' arguments");
+        return NULL;
+    }
+
+    if (!(result = Pympfr_new(0)))
+        return NULL;
+
+    mpfr_clear_flags();
+
+    result->rc = mpfr_mul_2si(Pympfr_AS_MPFR(result), Pympfr_AS_MPFR(self),
+                              exp, context->now.mpfr_round);
+
+    MPFR_CLEANUP_SELF("mul_2exp");
 }
 
 PyDoc_STRVAR(doc_g_mpfr_set_nan,
@@ -1111,7 +1227,7 @@ Pympfr_set_inf(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(doc_g_mpfr_set_zero,
-"zero() -> mpfr\n\n"
+"zero(n) -> mpfr\n\n"
 "Return an 'mpfr' inialized to 0.0 with the same sign as n.");
 
 static PyObject *
@@ -1128,6 +1244,37 @@ Pympfr_set_zero(PyObject *self, PyObject *other)
     if ((result = Pympfr_new(0)))
         mpfr_set_zero(result->f, s<0?-1:1);
     return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpfr_is_signed,
+"x.is_signed() -> boolean\n\n"
+"Return True if the sign bit of x is set.");
+
+PyDoc_STRVAR(doc_g_mpfr_is_signed,
+"is_nan(x) -> boolean\n\n"
+"Return True if the sign bit of x is set.");
+
+static PyObject *
+Pympfr_is_signed(PyObject *self, PyObject *other)
+{
+    int res;
+    if(self && Pympfr_Check(self)) {
+        Py_INCREF(self);
+    }
+    else if(Pympfr_Check(other)) {
+        self = other;
+        Py_INCREF((PyObject*)self);
+    }
+    else if (!(self = (PyObject*)Pympfr_From_Real(other, 0))) {
+        TYPE_ERROR("is_signed() requires 'mpfr' argument");
+        return NULL;
+    }
+    res = mpfr_signbit(Pympfr_AS_MPFR(self));
+    Py_DECREF(self);
+    if (res)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
 }
 
 #define MPFR_TEST_OTHER(NAME, msg) \
