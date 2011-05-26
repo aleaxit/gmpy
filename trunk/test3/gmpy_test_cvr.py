@@ -108,7 +108,7 @@ ValueError: string without NULL characters expected
 >>> _g.mpq('12'+chr(0)+'34')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: string without NULL characters expected
+ValueError: gmpy2.mpq() string without NULL characters expected
 >>> _g.mpq_from_old_binary(b'bo')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -122,19 +122,19 @@ mpq(3,2)
 >>> _g.mpq('ba/bo')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: invalid digits
+ValueError: gmpy2.mpq() invalid digits
 >>> print('ba/bo')
 ba/bo
 >>> _g.mpq('1/bo')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: invalid digits
+ValueError: gmpy2.mpq() invalid digits
 >>> print('1/bo')
 1/bo
 >>> _g.mpq('1/0')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ZeroDivisionError: mpq: zero denominator
+ZeroDivisionError: gmpy2.mpq() zero denominator
 >>> _g.mpfr([])
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -244,11 +244,11 @@ mpz(-1)
 >>> _g.mpz(1,2,3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: gmpy2.mpz() requires 1 or 2 arguments
+TypeError: function takes at most 2 arguments (3 given)
 >>> _g.mpz('bi','bo')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: gmpy2.mpz(): base must be an integer
+TypeError: an integer is required
 >>> _g.mpz('bi',99)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -256,7 +256,7 @@ ValueError: base for gmpy2.mpz() must be 0 or in the interval 2 ... 62
 >>> _g.mpz(1,2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: gmpy2.mpz() with numeric argument needs exactly 1 argument
+TypeError: gmpy2.mpz() with non-string argument needs exactly 1 argument
 >>> _g.mpz(None)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -268,7 +268,7 @@ TypeError: gmpy2.mpq() requires 1 or 2 arguments
 >>> _g.mpq('bi','bo')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: gmpy2.mpq(): base must be an integer
+TypeError: an integer is required
 >>> _g.mpq('bi',99)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -280,11 +280,11 @@ TypeError: gmpy2.mpq() requires numeric or string argument
 >>> _g.mpq(1,None)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: argument can not be converted to mpq
+TypeError: gmpy2.mpq() requires numeric or string argument
 >>> _g.mpq(1,0)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ZeroDivisionError: mpq: zero denominator
+ZeroDivisionError: gmpy2.mpq() zero denominator
 >>> _g.mpfr()
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?

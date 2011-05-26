@@ -272,6 +272,7 @@
  *
  ************************************************************************
  */
+#define PY_SSIZE_T_CLEAN
 #include "Python.h"
 
 /*
@@ -797,7 +798,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
     else {
         ascii_str = PyUnicode_AsASCIIString(stringarg);
         if (!ascii_str) {
-            VALUE_ERROR("string contains non-ASCII characters");
+            VALUE_ERROR("gmpy2.mpq() string contains non-ASCII characters");
             Py_DECREF((PyObject*)newob);
             return NULL;
         }
@@ -808,7 +809,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
     /* Don't allow NULL characters */
     for (i=0; i<len; i++) {
         if (cp[i] == '\0') {
-            VALUE_ERROR("string without NULL characters expected");
+            VALUE_ERROR("gmpy2.mpq() string without NULL characters expected");
             Py_DECREF((PyObject*)newob);
             Py_XDECREF(ascii_str);
             return NULL;
@@ -819,7 +820,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
         char *whereslash = strchr((char*)cp, '/');
         char *wheredot = strchr((char*)cp, '.');
         if (whereslash && wheredot) {
-            VALUE_ERROR("illegal string for mpq(): both . and / found");
+            VALUE_ERROR("gmpy2.mpq() illegal string, both . and / found");
             Py_DECREF((PyObject*)newob);
             Py_XDECREF(ascii_str);
             return NULL;
@@ -829,7 +830,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
             char *counter;
             unsigned long digits = 0;
             if (base != 10) {
-                VALUE_ERROR("illegal string for mpq(): embedded . requires base=10");
+                VALUE_ERROR("gmpy2.mpq() illegal string, embedded . requires base=10");
                 Py_DECREF((PyObject*)newob);
                 Py_XDECREF(ascii_str);
                 return NULL;
@@ -845,7 +846,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
             if (-1 == mpz_set_str(mpq_numref(newob->q), (char*)cp, base)) {
                 if (wheredot)
                     *wheredot = '.';
-                VALUE_ERROR("invalid digits");
+                VALUE_ERROR("gmpy2.mpq() invalid digits");
                 Py_DECREF((PyObject*)newob);
                 Py_XDECREF(ascii_str);
                 return NULL;
@@ -861,7 +862,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
         if (-1 == mpz_set_str(mpq_numref(newob->q), (char*)cp, base)) {
             if (whereslash)
                 *whereslash = '/';
-            VALUE_ERROR("invalid digits");
+            VALUE_ERROR("gmpy2.mpq() invalid digits");
             Py_DECREF((PyObject*)newob);
             Py_XDECREF(ascii_str);
             return NULL;
@@ -869,7 +870,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
         if (whereslash) {
             *whereslash = '/';
             if (-1==mpz_set_str(mpq_denref(newob->q), whereslash+1, base)) {
-                VALUE_ERROR("invalid digits");
+                VALUE_ERROR("gmpy2.mpq() invalid digits");
                 Py_DECREF((PyObject*)newob);
                 Py_XDECREF(ascii_str);
                 return NULL;
@@ -877,7 +878,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
             if (0==mpz_sgn(mpq_denref(newob->q))) {
                 Py_DECREF((PyObject*)newob);
                 Py_XDECREF(ascii_str);
-                ZERO_ERROR("mpq: zero denominator");
+                ZERO_ERROR("gmpy2.mpq() zero denominator");
                 return NULL;
             }
             mpq_canonicalize(newob->q);
@@ -1875,59 +1876,52 @@ mpz(s,base=0):\n\
       the string is assumed to be decimal.\n\
 ";
 static PyObject *
-Pygmpy_mpz(PyObject *self, PyObject *args)
+Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
 {
-    PympzObject *result;
-    PyObject *obj;
+    PympzObject *result = 0;
+    PyObject *n = 0;
+    long base = 0;
     Py_ssize_t argc;
+    static char *kwlist[] = {"n", "base", NULL };
 
     TRACE("Pygmpy_mpz() called...\n");
 
+    /* Optimize the most common use case */
     argc = PyTuple_Size(args);
-    if ((argc < 1) || (argc > 2)) {
-        TYPE_ERROR("gmpy2.mpz() requires 1 or 2 arguments");
+    if (argc == 1) {
+        n = PyTuple_GetItem(args, 0);
+        if (isReal(n) && !keywds) {
+            result = anynum2Pympz(n);
+            if (!result && !PyErr_Occurred())
+                TYPE_ERROR("gmpy2.mpz() requires numeric or string argument");
+            return (PyObject*)result;
+        }
+    }
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist,
+                                     &n, &base))
+        return NULL;
+
+    if ((base!=0) && ((base<2)||(base>62))) {
+        VALUE_ERROR("base for gmpy2.mpz() must be 0 or in the "
+                    "interval 2 ... 62");
         return NULL;
     }
 
-    obj = PyTuple_GetItem(args, 0);
-    if (PyStrOrUnicode_Check(obj)) {
-        /* build-from-string (ascii or binary) */
-        long base=0;
-        if (argc == 2) {
-            PyObject *pbase = PyTuple_GetItem(args, 1);
-            base = clong_From_Integer(pbase);
-            if (base == -1 && PyErr_Occurred()) {
-                TYPE_ERROR("gmpy2.mpz(): base must be an integer");
-                return NULL;
-            }
-            if ((base!=0) && ((base<2)||(base>62))) {
-                VALUE_ERROR("base for gmpy2.mpz() must be 0 or in the "
-                            "interval 2 ... 62");
-                return NULL;
-            }
-        }
-        result = PyStr2Pympz(obj, base);
-        if (!result) {
-            return NULL;
-        }
+    if (PyStrOrUnicode_Check(n)) {
+        /* build-from-string (ascii or unicode) */
+        result = PyStr2Pympz(n, base);
     }
     else {
-        if (argc==2) {
-            TYPE_ERROR("gmpy2.mpz() with numeric argument needs exactly 1 argument");
-            return NULL;
-        }
-        result = anynum2Pympz(obj);
-        if (!result) {
-            if (!PyErr_Occurred())
+        if (argc==2 || (argc == 1 && keywds))
+            TYPE_ERROR("gmpy2.mpz() with non-string argument needs exactly "
+                       "1 argument");
+        else {
+            result = anynum2Pympz(n);
+            if (!result && !PyErr_Occurred())
                 TYPE_ERROR("gmpy2.mpz() requires numeric or string argument");
-            return NULL;
         }
     }
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr, "Pygmpy_mpz: created mpz = %ld\n",
-                mpz_get_si(result->z));
-#endif
     return (PyObject*)result;
 }
 
@@ -1942,68 +1936,53 @@ xmpz(s, base=0):\n\
       the string is assumed to be decimal.\n\
 ";
 static PyObject *
-Pygmpy_xmpz(PyObject *self, PyObject *args)
+Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
 {
-    PyxmpzObject *newob;
-    PyObject *obj, *obj1;
-    Py_ssize_t argc;
+    PyxmpzObject *result = 0;
+    PyObject *n = 0;
     long base = 0;
+    Py_ssize_t argc;
+    static char *kwlist[] = {"n", "base", NULL };
 
     TRACE("Pygmpy_xmpz() called...\n");
 
-    assert(PyTuple_Check(args));
-
+    /* Optimize the most common use case */
     argc = PyTuple_Size(args);
-    if ((argc < 1) || (argc > 2)) {
-        TYPE_ERROR("gmpy2.xmpz() requires 1 or 2 arguments");
+    if (argc == 1) {
+        n = PyTuple_GetItem(args, 0);
+        if (isReal(n) && !keywds) {
+            result = anynum2Pyxmpz(n);
+            if (!result && !PyErr_Occurred())
+                TYPE_ERROR("gmpy2.xmpz() requires numeric or string argument");
+            return (PyObject*)result;
+        }
+    }
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist,
+                                     &n, &base))
+        return NULL;
+
+    if ((base!=0) && ((base<2)||(base>62))) {
+        VALUE_ERROR("base for gmpy2.xmpz() must be 0 or in the "
+                    "interval 2 ... 62");
         return NULL;
     }
 
-    obj = PyTuple_GetItem(args, 0);
-
-    if (argc == 2) {
-        if (!PyStrOrUnicode_Check(obj)) {
-            TYPE_ERROR("gmpy2.xmpz() with numeric argument accepts only 1 argument");
-            return NULL;
-        }
-        obj1 = PyTuple_GetItem(args, 1);
-        base = clong_From_Integer(obj1);
-        if (base == -1 && PyErr_Occurred()) {
-            TYPE_ERROR("gmpy2.xmpz(): base must be an integer");
-            return NULL;
-        }
-        if ((base!=0) && ((base<2)||(base>62))) {
-            VALUE_ERROR("gmpy2.xmpz(): base must be 0 or in the "
-                        "interval 2 ... 62");
-            return NULL;
-        }
-    }
-
-    if (PyStrOrUnicode_Check(obj)) {
-        /* build-from-string (ascii or binary) */
-        newob = PyStr2Pyxmpz(obj, base);
-        if (!newob) {
-            if (!PyErr_Occurred()) {
-                VALUE_ERROR("gmpy2.xmpz(): invalid string");
-            }
-            return NULL;
-        }
+    if (PyStrOrUnicode_Check(n)) {
+        /* build-from-string (ascii or unicode) */
+        result = PyStr2Pyxmpz(n, base);
     }
     else {
-        newob = anynum2Pyxmpz(obj);
-        if (!newob) {
-            if (!PyErr_Occurred()) {
-                TYPE_ERROR("gmpy2.xmpz() requires integer or string argument");
-            }
-            return NULL;
+        if (argc==2 || (argc == 1 && keywds))
+            TYPE_ERROR("gmpy2.xmpz() with non-string argument needs exactly "
+                       "1 argument");
+        else {
+            result = anynum2Pyxmpz(n);
+            if (!result && !PyErr_Occurred())
+                TYPE_ERROR("gmpy2.xmpz() requires numeric or string argument");
         }
     }
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr, "Pygmpy_xmpz: created xmpz = %ld\n",
-                mpz_get_si(newob->z));
-#endif
-    return (PyObject *) newob;
+    return (PyObject*)result;
 }
 
 static char doc_mpq[] = "\
@@ -2017,83 +1996,69 @@ mpq(s,base=10):\n\
     separated by a '/' character.\n\
 ";
 static PyObject *
-Pygmpy_mpq(PyObject *self, PyObject *args)
+Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
 {
-    PympqObject *newob;
-    PyObject *obj;
-    int wasnumeric;
+    PympqObject *result = 0, *temp;
+    PyObject *n = 0, *m = 0;
+    long base = 10;
     Py_ssize_t argc;
+    static char *kwlist[] = {"s", "base", NULL };
 
     TRACE("Pygmpy_mpq() called...\n");
 
-    assert(PyTuple_Check(args));
-
     argc = PyTuple_Size(args);
-    if ((argc < 1) || (argc > 2)) {
+    if (argc < 1 || argc > 2) {
         TYPE_ERROR("gmpy2.mpq() requires 1 or 2 arguments");
         return NULL;
     }
 
-    obj = PyTuple_GetItem(args, 0);
-    if (PyStrOrUnicode_Check(obj)) {
-        /* build-from-string (ascii or binary) */
-        long base=10;
-        wasnumeric=0;
-        if (argc == 2) {
-            PyObject *pbase = PyTuple_GetItem(args, 1);
-            base = clong_From_Integer(pbase);
-            if (base == -1 && PyErr_Occurred()) {
-                TYPE_ERROR("gmpy2.mpq(): base must be an integer");
-                return NULL;
-            }
+    n = PyTuple_GetItem(args, 0);
+    if (PyStrOrUnicode_Check(n)) {
+        /* keyword base is legal */
+        if (PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist, &n, &base)) {
             if ((base!=0) && ((base<2)||(base>62))) {
                 VALUE_ERROR("base for gmpy2.mpq() must be 0 or in the "
                             "interval 2 ... 62");
-                return NULL;
+            }
+            else {
+                result = PyStr2Pympq(n, base);
             }
         }
-        newob = PyStr2Pympq(obj, base);
-        if (!newob) {
-            return NULL;
-        }
-    }
-    else {
-        wasnumeric=1;
-        newob = anynum2Pympq(obj);
-        if (!newob) {
-            if (!PyErr_Occurred())
-                TYPE_ERROR("gmpy2.mpq() requires numeric or string argument");
-            return NULL;
-        }
-    }
-#ifdef DEBUG
-    if (global.debug) {
-        fputs("Pygmpy_mpq: created mpq = ", stderr);
-        mpq_out_str(stderr, 10, newob->q);
-        putc('\n', stderr);
-    }
-#endif
-    if (wasnumeric && argc==2) {
-        PympqObject *denominator;
-        denominator = anynum2Pympq(PyTuple_GET_ITEM(args, 1));
-        if (!denominator) {
-            TYPE_ERROR("argument can not be converted to mpq");
-            Py_DECREF((PyObject*)newob);
-            return NULL;
-        }
-        if (0==mpq_sgn(Pympq_AS_MPQ(denominator))) {
-            ZERO_ERROR("mpq: zero denominator");
-            Py_DECREF((PyObject*) newob);
-            Py_DECREF((PyObject*)denominator);
-            return NULL;
-        }
-        mpq_div(newob->q, newob->q, denominator->q);
-        Py_DECREF((PyObject*)denominator);
+        return (PyObject*)result;
     }
 
-    return (PyObject *) newob;
+    if (argc == 2)
+        m = PyTuple_GetItem(args, 1);
+
+    if (!isReal(n) || (m && !isReal(m))) {
+        TYPE_ERROR("gmpy2.mpq() requires numeric or string argument");
+        return NULL;
+    }
+
+    /* should now have one or two numeric values */
+    result = anynum2Pympq(n);
+    if (!result && !PyErr_Occurred()) {
+        TYPE_ERROR("gmpy2.mpq() requires numeric or string argument");
+        return NULL;
+    }
+    if (m) {
+        temp = anynum2Pympq(m);
+        if (!temp && !PyErr_Occurred()) {
+            TYPE_ERROR("gmpy2.mpq() requires numeric or string argument");
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+        if (mpq_sgn(temp->q) == 0) {
+            ZERO_ERROR("gmpy2.mpq() zero denominator");
+            Py_DECREF((PyObject*)result);
+            Py_DECREF((PyObject*)temp);
+            return NULL;
+        }
+        mpq_div(result->q, result->q, temp->q);
+        Py_DECREF((PyObject*)temp);
+    }
+    return (PyObject*)result;
 }
-
 
 /* Helper function for hashing for Python < 3.2 */
 /* Currently only used for mpq. Should refactor the mpq code and remove. */
@@ -2698,9 +2663,9 @@ static PyMethodDef Pygmpy_methods [] =
     { "mp_limbsize", Pygmpy_get_mp_limbsize, METH_NOARGS, doc_mp_limbsize },
     { "mpc_version", Pygmpy_get_mpc_version, METH_NOARGS, doc_mpc_version },
     { "mpfr_version", Pygmpy_get_mpfr_version, METH_NOARGS, doc_mpfr_version },
-    { "mpq", Pygmpy_mpq, METH_VARARGS, doc_mpq },
+    { "mpq", (PyCFunction)Pygmpy_mpq, METH_VARARGS | METH_KEYWORDS, doc_mpq },
     { "mpq_from_old_binary", Pympq_From_Old_Binary, METH_O, doc_g_mpq_from_old_binary },
-    { "mpz", Pygmpy_mpz, METH_VARARGS, doc_mpz },
+    { "mpz", (PyCFunction)Pygmpy_mpz, METH_VARARGS | METH_KEYWORDS, doc_mpz },
     { "mpz_from_old_binary", Pympz_From_Old_Binary, METH_O, doc_g_mpz_from_old_binary },
     { "next_prime", Pympz_next_prime, METH_O, doc_next_primeg },
     { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsg },
@@ -2726,7 +2691,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "unpack", Pygmpy_unpack, METH_VARARGS, doc_gmpy_unpack },
     { "version", Pygmpy_get_version, METH_NOARGS, doc_version },
     { "xbit_mask", Pyxmpz_xbit_mask, METH_O, doc_xbit_maskg },
-    { "xmpz", Pygmpy_xmpz, METH_VARARGS, doc_xmpz },
+    { "xmpz", (PyCFunction)Pygmpy_xmpz, METH_VARARGS | METH_KEYWORDS, doc_xmpz },
     { "_mpmath_normalize", Pympz_mpmath_normalize, METH_VARARGS, doc_mpmath_normalizeg },
     { "_mpmath_create", Pympz_mpmath_create, METH_VARARGS, doc_mpmath_createg },
 #ifdef WITHMPFR
