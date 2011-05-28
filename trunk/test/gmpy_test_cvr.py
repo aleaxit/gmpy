@@ -306,7 +306,7 @@ TypeError: gmpy2.mpfr() requires 1 to 3 arguments
 >>> _g.mpfr(1,'bo')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: gmpy2.mpfr(): bits must be an integer
+TypeError: an integer is required
 >>> _g.mpfr(1,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -314,7 +314,7 @@ ValueError: bits for gmpy2.mpfr() must be >= 0
 >>> _g.mpfr('ba',0,'bu')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: gmpy2.mpfr(): base must be an integer
+TypeError: an integer is required
 >>> _g.mpfr('ba',0,99)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -322,7 +322,7 @@ ValueError: base for gmpy2.mpfr() must be 0 or in the interval 2 ... 62
 >>> _g.mpfr(1,2,3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: gmpy2.mpfr() with numeric 1st argument needs 1 or 2 arguments
+TypeError: function takes at most 2 arguments (3 given)
 >>> +_g.mpz(1)
 mpz(1)
 >>> +_g.mpfr(1)

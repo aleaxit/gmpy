@@ -2766,7 +2766,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "max", Pympfr_max, METH_VARARGS, doc_g_mpfr_max },
     { "min", Pympfr_min, METH_VARARGS, doc_g_mpfr_min },
     { "modf", Pympfr_modf, METH_O, doc_g_mpfr_modf },
-    { "mpfr", Pygmpy_mpfr, METH_VARARGS, doc_mpfr },
+    { "mpfr", (PyCFunction)Pygmpy_mpfr, METH_VARARGS | METH_KEYWORDS, doc_mpfr },
     { "mpfr_from_old_binary", Pympfr_From_Old_Binary, METH_O, doc_g_mpfr_from_old_binary },
     { "mul", Pympfr_mul, METH_VARARGS, doc_g_mpfr_mul },
     { "mul_2exp", Pympfr_mul_2exp, METH_VARARGS, doc_g_mpfr_mul_2exp },

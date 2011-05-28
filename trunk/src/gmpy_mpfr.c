@@ -806,16 +806,18 @@ mpfr(s,bits=0,base=10):\n\
     absent, else with the specified number of bits.\n\
 ";
 static PyObject *
-Pygmpy_mpfr(PyObject *self, PyObject *args)
+Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
 {
-    PympfrObject *newob;
-    PyObject *obj;
+    PympfrObject *result = 0;
+    PyObject *n;
+    long base = 0;
     Py_ssize_t argc;
-    mpfr_prec_t bits=0;
+    /* Assumes mpfr_prec_t is the same as a long. */
+    mpfr_prec_t bits = 0;
+    static char *kwlist_s[] = {"s", "bits", "base", NULL};
+    static char *kwlist_n[] = {"s", "bits", NULL};
 
     TRACE("Pygmpy_mpfr() called...\n");
-
-    assert(PyTuple_Check(args));
 
     argc = PyTuple_Size(args);
     if ((argc < 1) || (argc > 3)) {
@@ -823,66 +825,44 @@ Pygmpy_mpfr(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    obj = PyTuple_GetItem(args, 0);
-
-    if (2 <= argc) {
-        long sbits;
-        PyObject *pbits = PyTuple_GetItem(args, 1);
-        sbits = clong_From_Integer(pbits);
-        if (sbits == -1 && PyErr_Occurred()) {
-            TYPE_ERROR("gmpy2.mpfr(): bits must be an integer");
-            return NULL;
-        }
-        if (sbits<0) {
-            VALUE_ERROR("bits for gmpy2.mpfr() must be >= 0");
-            return NULL;
-        }
-        bits = sbits;
-    }
-
-    if (PyStrOrUnicode_Check(obj) || PyUnicode_Check(obj)) {
-        /* build-from-string (ascii or binary) */
-        long base=10;
-        if (3 == argc) {
-            PyObject *pbase = PyTuple_GetItem(args, 2);
-            base = clong_From_Integer(pbase);
-            if (base == -1 && PyErr_Occurred()) {
-                TYPE_ERROR("gmpy2.mpfr(): base must be an integer");
-                return NULL;
-            }
+    n = PyTuple_GetItem(args, 0);
+    if (PyStrOrUnicode_Check(n)) {
+        /* Can have both bits and/or base as keyword arguments. */
+        if (PyArg_ParseTupleAndKeywords(args, keywds, "O|ll", kwlist_s,
+                                        &n, &bits, &base)) {
             if ((base!=0) && ((base<2)||(base>62))) {
                 VALUE_ERROR("base for gmpy2.mpfr() must be 0 or in the "
                             "interval 2 ... 62");
-                return NULL;
+            }
+            else if (bits < 0) {
+                VALUE_ERROR("bits for gmpy2.mpfr() must be >= 0");
+            }
+            else {
+                result = PyStr2Pympfr(n, base, bits);
             }
         }
-        newob = PyStr2Pympfr(obj, base, bits);
-        if (!newob) {
-            return NULL;
-        }
+        return (PyObject*)result;
     }
-    else {
-        if (argc==3) {
-            TYPE_ERROR("gmpy2.mpfr() with numeric 1st argument needs 1 or 2 arguments");
-            return NULL;
+
+    /* Optimize the common case */
+    if (isReal(n) && argc == 1 && !keywds) {
+        result = Pympfr_From_Real(n, bits);
+        return (PyObject*)result;
+    }
+
+    /* Can only have bits as keyword argument. */
+    if (PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist_n, &n, &bits)) {
+        if (bits < 0) {
+            VALUE_ERROR("bits for gmpy2.mpfr() must be >= 0");
         }
-        newob = Pympfr_From_Real(obj, bits);
-        if (!newob) {
-            if (!PyErr_Occurred())
+        else {
+            result = Pympfr_From_Real(n, bits);
+            if (!result && !PyErr_Occurred())
                 TYPE_ERROR("gmpy2.mpfr() requires numeric or string argument");
-            return NULL;
         }
     }
-#ifdef DEBUG
-    if (global.debug) {
-        fputs("Pygmpy_mpfr: created mpfr = ", stderr);
-        mpfr_out_str(stderr, 10, 0, newob->f, context->now.mpfr_round);
-        fprintf(stderr," bits=%ld (%ld)\n",
-                (long)mpfr_get_prec(newob->f), (long)bits);
-    }
-#endif
-    return (PyObject *) newob;
-} /* Pygmpy_mpfr() */
+    return (PyObject*)result;
+}
 
 /* Implement the .precision attribute of an mpfr. */
 
