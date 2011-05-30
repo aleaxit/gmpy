@@ -285,6 +285,7 @@
 #include <math.h>
 #include <float.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #define GMPY_MODULE
 #include "gmpy.h"
@@ -2672,6 +2673,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "numer", Pympq_numer, METH_VARARGS, doc_numerg },
     { "pack", Pygmpy_pack, METH_VARARGS, doc_gmpy_pack },
     { "popcount", Pympz_popcount, METH_O, doc_popcountg },
+    { "printf", Pympany_printf, METH_VARARGS, doc_printf },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivg },
     { "remove", Pympz_remove, METH_VARARGS, doc_removeg },
     { "root", Pympany_root, METH_VARARGS, doc_g_mpany_root },
@@ -2865,7 +2867,8 @@ static PyMethodDef Pympq_methods [] =
 static PyMethodDef Pympfr_methods [] =
 {
     { "__ceil__", Pympfr_ceil, METH_NOARGS, doc_mpfr_ceil },
-    { "__floor__", Pympfr_floor, METH_NOARGS, doc_mpfr_floor},
+    { "__floor__", Pympfr_floor, METH_NOARGS, doc_mpfr_floor },
+    { "__format__", Pympfr_format, METH_VARARGS, doc_mpfr_format },
     { "__trunc__", Pympfr_trunc, METH_NOARGS, doc_mpfr_trunc },
     { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
     { "conjugate", Pympfr_conjugate, METH_NOARGS, doc_mpfr_conjugate },
