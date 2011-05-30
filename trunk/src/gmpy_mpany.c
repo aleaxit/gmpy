@@ -229,7 +229,7 @@ PyDoc_STRVAR(doc_binaryg,
 static PyObject *
 Pympany_binary(PyObject *self, PyObject *other)
 {
-    if(self && Pympz_Check(self))
+    if (self && Pympz_Check(self))
         return Pympz2binary((PympzObject*)self);
     else if(self && Pyxmpz_Check(self))
         return Pyxmpz2binary((PyxmpzObject*)self);
@@ -288,5 +288,47 @@ Pympany_pow(PyObject *base, PyObject *exp, PyObject *mod)
 #endif
 
     Py_RETURN_NOTIMPLEMENTED;
+}
+
+PyDoc_STRVAR(doc_printf,
+"printf(fmt, x) -> string\n\n"
+"Return a Python string by formatting 'x' using the format string\n"
+"'fmt'. Note: invalid format strings will cause a crash. Please\n"
+"see the GMP/MPFR/MPC manuals for details on the format code.");
+
+static PyObject *
+Pympany_printf(PyObject *self, PyObject *args)
+{
+    PyObject *result = 0, *x = 0;
+    char *buffer = 0, *fmtcode = 0;
+    int buflen;
+    void *generic;
+
+    if (!PyArg_ParseTuple(args, "sO", &fmtcode, &x))
+        return NULL;
+
+    if (CHECK_MPZANY(x) || Pympq_Check(x)) {
+        if (CHECK_MPZANY(x))
+            generic = Pympz_AS_MPZ(x);
+        else
+            generic = Pympq_AS_MPQ(x);
+        buflen = gmp_asprintf(&buffer, fmtcode, generic);
+        result = Py_BuildValue("s", buffer);
+        PyMem_Free(buffer);
+        return result;
+    }
+#ifdef WITHMPFR
+    else if(Pympfr_Check(x)) {
+        generic = Pympfr_AS_MPFR(x);
+        buflen = mpfr_asprintf(&buffer, fmtcode, generic);
+        result = Py_BuildValue("s", buffer);
+        PyMem_Free(buffer);
+        return result;
+    }
+#endif
+    else {
+        TYPE_ERROR("printf() requires a gmpy2 object as argument");
+        return NULL;
+    }
 }
 
