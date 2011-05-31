@@ -2221,3 +2221,147 @@ Pympz_subscript(PyxmpzObject* self, PyObject* item)
     }
 }
 
+PyDoc_STRVAR(doc_mpz_format,
+"x.__format__(fmt) -> string\n\n"
+"Return a Python string by formatting 'x' using the format string\n"
+"'fmt'. A valid format string consists of:\n"
+"     optional alignment code:\n"
+"        '<' -> left shifted in field\n"
+"        '>' -> right shifted in field\n"
+"        '^' -> centered in field\n"
+"     optional leading sign code:\n"
+"        '+' -> always display leading sign\n"
+"        '-' -> only display minus sign\n"
+"        ' ' -> minus for negative values, space for positive values\n"
+"     optional base indicator\n"
+"        '#' -> precede binary, octal, or hex with 0b, 0o or 0x\n"
+"     optional width\n"
+"     optional conversion code:\n"
+"        'd' -> decimal format\n"
+"        'b' -> binary format\n"
+"        'o' -> octal format\n"
+"        'x' -> hex format\n"
+"The default format is 'd'.");
+
+/* Formatting occurs in two phases. Pympz_ascii() is used to create a string
+ * with the appropriate binary/octal/decimal/hex formatting, including the
+ * leading sign character (+ , -, or space) and base encoding (0b, 0o, or 0x).
+ * Left/right/centering using the specified width is done by creating a
+ * format string and calling the __format__() method of the string object
+ * returned by Pympz_ascii().
+ */
+
+static PyObject *
+Pympz_format(PyObject *self, PyObject *args)
+{
+    PyObject *result = 0, *mpzstr = 0;
+    char *fmtcode = 0, *p1, *p2;
+    char fmt[30];
+    int base = 10, option = 0;
+    int seensign = 0, seenindicator = 0, seenalign = 0, seendigits = 0;
+
+    if (!CHECK_MPZANY(self)) {
+        TYPE_ERROR("requires mpz type");
+        return NULL;
+    }
+
+    if (!PyArg_ParseTuple(args, "s", &fmtcode))
+        return NULL;
+
+    p2 = fmt;
+    for (p1 = fmtcode; *p1 != '\00'; p1++) {
+        if (*p1 == '<' || *p1 == '>' || *p1 == '^') {
+            if (seenalign || seensign || seenindicator || seendigits) {
+                VALUE_ERROR("Invalid conversion specification");
+                return NULL;
+            }
+            else {
+                *(p2++) = *p1;
+                seenalign = 1;
+                continue;
+            }
+        }
+        if (*p1 == '+') {
+            if (seensign || seenindicator || seendigits) {
+                VALUE_ERROR("Invalid conversion specification");
+                return NULL;
+            }
+            else {
+                option |= 2;
+                seensign = 1;
+                continue;
+            }
+        }
+        if (*p1 == '-') {
+            if (seensign || seenindicator || seendigits) {
+                VALUE_ERROR("Invalid conversion specification");
+                return NULL;
+            }
+            else {
+                seensign = 1;
+                continue;
+            }
+        }
+        if (*p1 == ' ') {
+            if (seensign || seenindicator || seendigits) {
+                VALUE_ERROR("Invalid conversion specification");
+                return NULL;
+            }
+            else {
+                option |= 4;
+                seensign = 1;
+                continue;
+            }
+        }
+        if (*p1 == '#') {
+            if (seenindicator || seendigits) {
+                VALUE_ERROR("Invalid conversion specification");
+                return NULL;
+            }
+            else {
+                option |= 8;
+                seensign = 1;
+                continue;
+            }
+        }
+        if (isdigit(*p1)) {
+            if (!seenalign) {
+                *(p2++) = '>';
+                seenalign = 1;
+            }
+            *(p2++) = *p1;
+            seendigits = 1;
+            continue;
+        }
+        if (*p1 == 'b') {
+            base = 2;
+            break;
+        }
+        if (*p1 == 'o') {
+            base = 8;
+            break;
+        }
+        if (*p1 == 'x') {
+            base = 16;
+            break;
+        }
+        if (*p1 == 'X') {
+            base = -16;
+            break;
+        }
+        VALUE_ERROR("Invalid conversion specification");
+        return NULL;
+    }
+    *(p2++) = '\00';
+
+    mpzstr = mpz_ascii(Pympz_AS_MPZ(self), base, option);
+    if (!mpzstr)
+        return NULL;
+    result = PyObject_CallMethod(mpzstr, "__format__", "(s)", fmt);
+    if (!result) {
+        Py_DECREF(mpzstr);
+        return NULL;
+    }
+    Py_DECREF(mpzstr);
+    return result;
+}
