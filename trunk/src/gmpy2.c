@@ -1079,19 +1079,30 @@ Pympq2binary(PympqObject *self)
     return result;
 }
 
-/*
- * format mpz into any base (2 to 62)
+/* Format an mpz into any base (2 to 62). Bits in the option parameter
+ * control various behaviors:
+ *   bit 0: if set, output is wrapped with 'mpz(...)'
+ *   bit 1: if set, a '+' is included for positive numbers
+ *   bit 2: if set, a ' ' is included for positive nubmers
+ *   bit 3: if set, a '0b', '0o', or '0x' is included for binary, octal, hex
+ *   bit 4: if set, no prefix is included for binary, octal, hex
+ *
+ * Note: if neither bit 3 or 4 is set, prefixes that match the platform default
+ * are included.
+ *
+ * If base < 0, capital letters are used
  */
 static char* ztag = "mpz(";
 static PyObject *
-mpz_ascii(mpz_t z, int base, int with_tag)
+mpz_ascii(mpz_t z, int base, int option)
 {
     PyObject *result;
     char *buffer, *p;
     int negative = 0;
     size_t size;
 
-    if ((base != 0) && ((base < 2) || (base > 62))) {
+    if (!((base == 0) || ((base >= -36) && (base <= -2)) ||
+        ((base >= 2) && (base <= 62)) )) {
         VALUE_ERROR("base must be either 0 or in the interval 2 ... 62");
         return NULL;
     }
@@ -1114,39 +1125,72 @@ mpz_ascii(mpz_t z, int base, int with_tag)
     }
 
     p = buffer;
-    if (with_tag) {
+    if (option & 1) {
        strcpy(p, ztag);
        p += strlen(p);
     }
+
     if (negative)
         *(p++) = '-';
-#ifdef PY2
-    if (base == 8) {
-        *(p++) = '0';
-#else
-    if (base == 2) {
-        *(p++) = '0';
-        *(p++) = 'b';
+    else if (option & 2)
+        *(p++) = '+';
+    else if (option & 4)
+        *(p++) = ' ';
+
+    if (option & 8) {
+        if (base == 2) {
+            *(p++) = '0';
+            *(p++) = 'b';
+        }
+        else if (base == 8) {
+            *(p++) = '0';
+            *(p++) = 'o';
+        }
+        else if (base == 16) {
+            *(p++) = '0';
+            *(p++) = 'x';
+        }
+        else if (base == -16) {
+            *(p++) = '0';
+            *(p++) = 'X';
+        }
     }
-    else if (base == 8) {
-        *(p++) = '0';
-        *(p++) = 'o';
-#endif
-    }
-    else if (base == 16) {
-        *(p++) = '0';
-        *(p++) = 'x';
+    else if (!(option & 24)) {
+    #ifdef PY2
+        if (base == 8) {
+            *(p++) = '0';
+        }
+    #else
+        if (base == 2) {
+            *(p++) = '0';
+            *(p++) = 'b';
+        }
+        else if (base == 8) {
+            *(p++) = '0';
+            *(p++) = 'o';
+        }
+    #endif
+        else if (base == 16) {
+            *(p++) = '0';
+            *(p++) = 'x';
+        }
+        else if (base == -16) {
+            *(p++) = '0';
+            *(p++) = 'X';
+        }
     }
 
     mpz_get_str(p, base, z);     /* Doesn't return number of characters */
     p = buffer + strlen(buffer); /* Address of NULL byte */
 #ifdef PY2
-    if (with_tag && !mpz_fits_slong_p(z))
+    if ((option & 1) && !mpz_fits_slong_p(z))
         *(p++) = 'L';
 #endif
-    if (with_tag)
+    if (option & 1)
         *(p++) = ')';
-    result = PyBytes_FromStringAndSize(buffer, p - buffer);
+    *(p++) = '\00';
+
+    result = Py_BuildValue("s", buffer);
     if (negative == 1) {
         mpz_neg(z, z);
     }
@@ -1154,19 +1198,22 @@ mpz_ascii(mpz_t z, int base, int with_tag)
     return result;
 }
 
-/*
- * format xmpz into any base (2 to 62)
+/* Format an xmpz into any base (2 to 62). If with_tag != 0, the the output
+ * is wrapped with 'xmpz(...)'. If with_sign > 0, a plus or minus leading
+ * sign is always included. If with_sign < 0, a space is included instead of
+ * a plus sign.
  */
 static char* xztag = "xmpz(";
 static PyObject *
-xmpz_ascii(mpz_t z, int base, int with_tag)
+xmpz_ascii(mpz_t z, int base, int option)
 {
     PyObject *result;
     char *buffer, *p;
     int negative = 0;
     size_t size;
 
-    if ((base != 0) && ((base < 2) || (base > 62))) {
+    if (!((base == 0) || ((base >= -36) && (base <= -2)) ||
+        ((base >= 2) && (base <= 62)) )) {
         VALUE_ERROR("base must be either 0 or in the interval 2 ... 62");
         return NULL;
     }
@@ -1189,39 +1236,72 @@ xmpz_ascii(mpz_t z, int base, int with_tag)
     }
 
     p = buffer;
-    if (with_tag) {
+    if (option & 1) {
        strcpy(p, xztag);
        p += strlen(p);
     }
+
     if (negative)
         *(p++) = '-';
-#ifdef PY2
-    if (base == 8) {
-        *(p++) = '0';
-#else
-    if (base == 2) {
-        *(p++) = '0';
-        *(p++) = 'b';
+    else if (option & 2)
+        *(p++) = '+';
+    else if (option & 4)
+        *(p++) = ' ';
+
+    if (option & 8) {
+        if (base == 2) {
+            *(p++) = '0';
+            *(p++) = 'b';
+        }
+        else if (base == 8) {
+            *(p++) = '0';
+            *(p++) = 'o';
+        }
+        else if (base == 16) {
+            *(p++) = '0';
+            *(p++) = 'x';
+        }
+        else if (base == -16) {
+            *(p++) = '0';
+            *(p++) = 'X';
+        }
     }
-    else if (base == 8) {
-        *(p++) = '0';
-        *(p++) = 'o';
-#endif
-    }
-    else if (base == 16) {
-        *(p++) = '0';
-        *(p++) = 'x';
+    else if (!(option & 24)) {
+    #ifdef PY2
+        if (base == 8) {
+            *(p++) = '0';
+        }
+    #else
+        if (base == 2) {
+            *(p++) = '0';
+            *(p++) = 'b';
+        }
+        else if (base == 8) {
+            *(p++) = '0';
+            *(p++) = 'o';
+        }
+    #endif
+        else if (base == 16) {
+            *(p++) = '0';
+            *(p++) = 'x';
+        }
+        else if (base == -16) {
+            *(p++) = '0';
+            *(p++) = 'X';
+        }
     }
 
     mpz_get_str(p, base, z);     /* Doesn't return number of characters */
     p = buffer + strlen(buffer); /* Address of NULL byte */
 #ifdef PY2
-    if (with_tag && !mpz_fits_slong_p(z))
+    if ((option & 1) && !mpz_fits_slong_p(z))
         *(p++) = 'L';
 #endif
-    if (with_tag)
+    if (option & 1)
         *(p++) = ')';
-    result = PyBytes_FromStringAndSize(buffer, p - buffer);
+    *(p++) = '\00';
+
+    result = Py_BuildValue("s", buffer);
     if (negative == 1) {
         mpz_neg(z, z);
     }
@@ -1230,140 +1310,87 @@ xmpz_ascii(mpz_t z, int base, int with_tag)
 }
 
 static PyObject *
-Pympz_ascii(PympzObject *self, int base, int with_tag)
+Pympz_ascii(PympzObject *self, int base, int option)
 {
-#ifdef PY3
-    PyObject *result, *temp;
-
-    assert(Pympz_Check((PyObject*)self));
-    temp = mpz_ascii(self->z, base, with_tag);
-    if (!temp)
-        return NULL;
-    result = PyUnicode_FromString(PyBytes_AS_STRING(temp));
-    Py_DECREF(temp);
-    return result;
-#else
-    assert(Pympz_Check((PyObject*)self));
-    return mpz_ascii(self->z, base, with_tag);
-#endif
+    return mpz_ascii(self->z, base, option);
 }
 
 static PyObject *
-Pyxmpz_ascii(PyxmpzObject *self, int base, int with_tag)
+Pyxmpz_ascii(PyxmpzObject *self, int base, int option)
 {
-#ifdef PY3
-    PyObject *result, *temp;
-
-    assert(Pyxmpz_Check((PyObject*)self));
-    temp = xmpz_ascii(self->z, base, with_tag);
-    if (!temp)
-        return NULL;
-    result = PyUnicode_FromString(PyBytes_AS_STRING(temp));
-    Py_DECREF(temp);
-    return result;
-#else
-    assert(Pyxmpz_Check((PyObject*)self));
-    return xmpz_ascii(self->z, base, with_tag);
-#endif
+    return xmpz_ascii(self->z, base, option);
 }
 
-static char* qtag = "mpq(";
 static int qden_1(mpq_t q)
 {
     return 0 == mpz_cmp_ui(mpq_denref(q),1);
 }
 
 static PyObject *
-Pympq_ascii(PympqObject *self, int base, int with_tag)
+Pympq_ascii(PympqObject *self, int base, int option)
 {
-    PyObject *result = 0;
-    PyObject *numstr = mpz_ascii(mpq_numref(self->q), base, 0);
-    PyObject *denstr = 0;
-    PyObject *temp = 0;
+    PyObject *result = 0, *numstr = 0, *denstr = 0;
+    char buffer[50], *p;
 
+    numstr = mpz_ascii(mpq_numref(self->q), base, 0);
     if (!numstr)
         return NULL;
 
-    if (with_tag || !qden_1(self->q)) {
-        denstr = mpz_ascii(mpq_denref(self->q), base, 0);
-        if (!denstr) {
-            Py_DECREF(numstr);
-            return NULL;
-        }
+    /* Check if denominator is 1 and no tag is requested. If so, just
+     * return the numerator.
+     */
+    if (!(option & 1) && qden_1(self->q))
+        return numstr;
+
+    denstr = mpz_ascii(mpq_denref(self->q), base, 0);
+    if (!denstr) {
+        Py_DECREF(numstr);
+        return NULL;
     }
 
-    if (with_tag) {
-        result = PyBytes_FromString(qtag);
-        if (!result) {
-            Py_XDECREF(numstr);
-            Py_XDECREF(denstr);
-            return NULL;
-        }
-        PyBytes_ConcatAndDel(&result, numstr);
+    /* Build the format string. */
+    p = buffer;
+    if (option & 1) {
+        *(p++) = 'm';
+        *(p++) = 'p';
+        *(p++) = 'q';
+        *(p++) = '(';
+    }
 #ifdef PY2
-        if (!mpz_fits_slong_p(mpq_numref(self->q))) {
-            temp = PyBytes_FromString("L");
-            if (!temp) {
-                Py_XDECREF(denstr);
-                Py_XDECREF(result);
-                return NULL;
-            }
-            PyBytes_ConcatAndDel(&result, temp);
-            if (!result) {
-                Py_XDECREF(denstr);
-                return NULL;
-            }
-        }
-#endif
-    }
-    else {
-        result = numstr;
-        numstr = 0;
-    }
-    if (denstr) {
-        char* separator = with_tag?",":"/";
-        temp = PyBytes_FromString(separator);
-        if (!temp) {
-            Py_XDECREF(denstr);
-            Py_XDECREF(result);
-            return NULL;
-        }
-        PyBytes_ConcatAndDel(&result, temp);
-        if (!result) {
-            Py_DECREF(denstr);
-            return NULL;
-        }
-        PyBytes_ConcatAndDel(&result, denstr);
-#ifdef PY2
-        if (with_tag && !mpz_fits_slong_p(mpq_denref(self->q))) {
-            temp = PyBytes_FromString("L");
-            if (!temp) {
-                Py_XDECREF(result);
-                return NULL;
-            }
-            PyBytes_ConcatAndDel(&result, temp);
-            if (!result)
-                return NULL;
-        }
-#endif
-    }
-    if (with_tag && result) {
-        temp = PyBytes_FromString(")");
-        if (!temp) {
-            Py_XDECREF(result);
-            return NULL;
-        }
-        PyBytes_ConcatAndDel(&result, temp);
-        if (!result)
-            return NULL;
-    }
-#ifdef PY3
-    temp = PyUnicode_FromString(PyBytes_AS_STRING(result));
-    Py_DECREF(result);
-    return temp;
+    *(p++) = '%';
+    *(p++) = 's';
+    if (!mpz_fits_slong_p(mpq_numref(self->q)))
+        *(p++) = 'L';
+    if (option & 1)
+        *(p++) = ',';
+    else
+        *(p++) = '/';
+    *(p++) = '%';
+    *(p++) = 's';
+    if (!mpz_fits_slong_p(mpq_denref(self->q)))
+        *(p++) = 'L';
+    if (option & 1)
+        *(p++) = ')';
+    *(p++) = '\00';
+    result = PyString_FromFormat(buffer, PyString_AS_STRING(numstr),
+                                 PyString_AS_STRING(denstr));
 #else
-    return result;
+    *(p++) = '%';
+    *(p++) = 'U';
+    if (option & 1)
+        *(p++) = ',';
+    else
+        *(p++) = '/';
+    *(p++) = '%';
+    *(p++) = 'U';
+    if (option & 1)
+        *(p++) = ')';
+    *(p++) = '\00';
+    result = PyUnicode_FromFormat(buffer, numstr, denstr);
 #endif
+    Py_DECREF(numstr);
+    Py_DECREF(denstr);
+    return result;
 }
 
 #ifdef WITHMPC
@@ -2817,6 +2844,7 @@ static PyMethodDef Pygmpy_methods [] =
 
 static PyMethodDef Pympz_methods [] =
 {
+    { "__format__", Pympz_format, METH_VARARGS, doc_mpz_format },
     { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
     { "bit_clear", Pympz_bit_clear, METH_O, doc_bit_clearm },
     { "bit_flip", Pympz_bit_flip, METH_O, doc_bit_flipm },
@@ -2837,6 +2865,7 @@ static PyMethodDef Pympz_methods [] =
 
 static PyMethodDef Pyxmpz_methods [] =
 {
+    { "__format__", Pympz_format, METH_VARARGS, doc_mpz_format },
     { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
     { "bit_clear", Pympz_bit_clear, METH_O, doc_bit_clearm },
     { "bit_flip", Pympz_bit_flip, METH_O, doc_bit_flipm },

@@ -3012,6 +3012,10 @@ PyDoc_STRVAR(doc_mpfr_format,
 "x.__format__(fmt) -> string\n\n"
 "Return a Python string by formatting 'x' using the format string\n"
 "'fmt'. A valid format string consists of:\n"
+"     optional alignment code:\n"
+"        '<' -> left shifted in field\n"
+"        '>' -> right shifted in field\n"
+"        '^' -> centered in field\n"
 "     optional leading sign code\n"
 "        '+' -> always display leading sign\n"
 "        '-' -> only display minus for negative values\n"
@@ -3035,12 +3039,12 @@ PyDoc_STRVAR(doc_mpfr_format,
 static PyObject *
 Pympfr_format(PyObject *self, PyObject *args)
 {
-    PyObject *result = 0;
-    char *buffer = 0, *fmtcode = 0;
-    char newfmt[100];
-    int buflen, i = -1, j = 1;
-    int havedecimal = 0, havedigits = 0, haveround = 0, haveconv = 0;
-    void *generic;
+    PyObject *result = 0, *mpfrstr = 0;
+    char *buffer = 0, *fmtcode = 0, *p1, *p2, *p3;
+    char mpfrfmt[100], fmt[30];
+    int buflen;
+    int seensign = 0, seenalign = 0, seendecimal = 0, seendigits = 0;
+    int seenround = 0, seenconv = 0;
 
     if (!Pympfr_Check(self)) {
         TYPE_ERROR("requires mpfr type");
@@ -3050,93 +3054,115 @@ Pympfr_format(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "s", &fmtcode))
         return NULL;
 
-    newfmt[0] = '%';
-    while (1) {
-        i++;
-        if (fmtcode[i] == '\00') {
-            newfmt[j] = '\00';
+    p2 = mpfrfmt;
+    p3 = fmt;
+    *(p2++) = '%';
+
+    for (p1 = fmtcode; *p1 != '\00'; p1++) {
+        if (*p1 == '<' || *p1 == '>' || *p1 == '^') {
+            if (seenalign || seensign || seendecimal || seendigits || seenround) {
+                VALUE_ERROR("Invalid conversion specification");
+                return NULL;
+            }
+            else {
+                *(p3++) = *p1;
+                seenalign = 1;
+                continue;
+            }
+        }
+        if (*p1 == '+' || *p1 == ' ') {
+            if (seensign || seendecimal || seendigits || seenround) {
+                VALUE_ERROR("Invalid conversion specification");
+                return NULL;
+            }
+            else {
+                *(p2++) = *p1;
+                seensign = 1;
+                continue;
+            }
+        }
+        if (*p1 == '-') {
+            if (seensign || seendecimal || seendigits || seenround) {
+                VALUE_ERROR("Invalid conversion specification");
+                return NULL;
+            }
+            else {
+                seensign = 1;
+                continue;
+            }
+        }
+        if (*p1 == '.') {
+            if (seendecimal || seendigits || seenround) {
+                VALUE_ERROR("Invalid conversion specification");
+                return NULL;
+            }
+            else {
+                *(p2++) = *p1;
+                seendecimal = 1;
+                continue;
+            }
+        }
+        if (isdigit(*p1)) {
+            if (seendigits || seenround) {
+                VALUE_ERROR("Invalid conversion specification");
+                return NULL;
+            }
+            else if (seendecimal) {
+                *(p2++) = *p1;
+                continue;
+            }
+            else {
+                if (p3 == fmt) {
+                    *(p3++) = '>';
+                    seenalign = 1;
+                }
+                *(p3++) = *p1;
+                continue;
+            }
+        }
+        if (!seendigits) {
+            seendigits = 1;
+            *(p2++) = 'R';
+        }
+        if (*p1 == 'U' || *p1 == 'D' || *p1 == 'Y' || *p1 == 'Z' ||
+            *p1 == 'N' ) {
+            if (seenround) {
+                VALUE_ERROR("Invalid conversion specification");
+                return NULL;
+            }
+            else {
+                *(p2++) = *p1;
+                seenround = 1;
+                continue;
+            }
+        }
+        if (*p1 == 'a' || *p1 == 'A' || *p1 == 'b' || *p1 == 'e' ||
+            *p1 == 'E' || *p1 == 'f' || *p1 == 'F' || *p1 == 'g' ||
+            *p1 == 'G' ) {
+            *(p2++) = *p1;
+            seenconv = 1;
             break;
         }
-        if (fmtcode[i] == '+' || fmtcode[i] == '-' || fmtcode[i] == ' ') {
-            if (j == 1) {
-                newfmt[j++] = fmtcode[i];
-                continue;
-            }
-            else {
-                VALUE_ERROR("Invalid conversion specification");
-                return NULL;
-            }
-        }
-        if (fmtcode[i] == '.') {
-            if (!havedecimal) {
-                newfmt[j++] = fmtcode[i];
-                havedecimal = 1;
-                continue;
-            }
-            else {
-                VALUE_ERROR("Invalid conversion specification");
-                return NULL;
-            }
-        }
-        if (isdigit(fmtcode[i])) {
-            if (!havedigits) {
-                newfmt[j++] = fmtcode[i];
-                continue;
-            }
-            else {
-                VALUE_ERROR("Invalid conversion specification");
-                return NULL;
-            }
-        }
-        if (!havedigits) {
-            havedigits = 1;
-            newfmt[j++] = 'R';
-        }
-        if (fmtcode[i] == 'U' || fmtcode[i] == 'D' || fmtcode[i] == 'Y' ||
-            fmtcode[i] == 'Z' || fmtcode[i] == 'N' ) {
-            if (!havedigits) {
-                newfmt[j++] = 'R';
-                havedigits = 1;
-            }
-            if (!haveround) {
-                newfmt[j++] = fmtcode[i];
-                haveround = 1;
-                continue;
-            }
-            else {
-                VALUE_ERROR("Invalid conversion specification");
-                return NULL;
-            }
-        }
-        if (fmtcode[i] == 'a' || fmtcode[i] == 'A' || fmtcode[i] == 'b' ||
-            fmtcode[i] == 'e' || fmtcode[i] == 'E' || fmtcode[i] == 'f' ||
-            fmtcode[i] == 'F' || fmtcode[i] == 'g' || fmtcode[i] == 'G' ) {
-            if (!havedigits) {
-                newfmt[j++] = 'R';
-                havedigits = 1;
-            }
-            newfmt[j++] = fmtcode[i];
-            haveconv = 1;
-            break;
-        }
-        if (i == 98) {
-             VALUE_ERROR("Invalid conversion specification");
-            return NULL;
-        }
+        VALUE_ERROR("Invalid conversion specification");
+        return NULL;
     }
 
-    if (!havedigits) {
-        newfmt[j++] = 'R';
-        newfmt[j] = '\00';
-    }
+    if (!seendigits)
+        *(p2++) = 'R';
+    if (!seenconv)
+        *(p2++) = 'f';
 
-    if (!haveconv) {
-        newfmt[j++] = 'f';
-        newfmt[j] = '\00';
+    *(p2++) = '\00';
+    *(p3++) = '\00';
+
+    buflen = mpfr_asprintf(&buffer, mpfrfmt, Pympfr_AS_MPFR(self));
+    mpfrstr = Py_BuildValue("s", buffer);
+    if (!mpfrstr) {
+        PyMem_Free(buffer);
+        return NULL;
     }
-    generic = Pympfr_AS_MPFR(self);
-    buflen = mpfr_asprintf(&buffer, newfmt, generic);
-    result = Py_BuildValue("s", buffer);
+    result = PyObject_CallMethod(mpfrstr, "__format__", "(s)", fmt);
+    Py_DECREF(mpfrstr);
     PyMem_Free(buffer);
     return result;
 }
