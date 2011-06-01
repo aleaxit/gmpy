@@ -1,5 +1,5 @@
+#summary Installing gmpy2 on Linux.
 #labels Phase-Deploy
-# summary Installing gmpy2 on Linux.
 
 *Note: These instructions assume source revision r509 or later is used. They do NOT apply to the 2.0.0a1 source release.*
 
