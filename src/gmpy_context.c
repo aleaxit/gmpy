@@ -120,7 +120,7 @@ GMPyContext_repr(GMPyContextObject *self)
 #else
     format = Py2or3String_FromString(
             "context(subnormalize=%s,\n"
-            "        precision=%,\n"
+            "        precision=%s,\n"
             "        round=%s,\n"
             "        emax=%s, emin=%s,\n"
             "        trap_underflow=%s, underflow=%s,\n"
