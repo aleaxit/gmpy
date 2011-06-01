@@ -10,9 +10,15 @@ if sys.version[:3] < '2.6':
 # Check for build options:
 #   -DMPIR  -> use MPIR instead of GMP
 mplib='gmp'
+local_dir = None
 for token in sys.argv:
     if token.upper().startswith('-DMPIR'):
         mplib='mpir'
+    if token.upper().startswith('-DDIR'):
+        try:
+            local_dir = token.split('=')[1]
+        except:
+            pass
 
 use_mpc = True
 use_mpfr = True
@@ -22,6 +28,9 @@ if sys.version.find('MSC') == -1:
     # Unix-like build (including MacOSX)
     incdirs = ['./src']
     dirord = ['/opt/local', '/opt', '/usr/local']
+    libdirs = None
+    if local_dir:
+        dirord = [local_dir] + dirord
     for adir in dirord:
         lookin = '%s/include' % adir
         if os.path.isfile(lookin + '/' + mplib + '.h'):
@@ -36,6 +45,10 @@ if sys.version.find('MSC') == -1:
         lookin = '%s/lib' % adir
         if os.path.isfile(lookin + '/lib' + mplib + '.a'):
             libdirs = [lookin]
+            if lookin.startswith(local_dir):
+                rundirs = [lookin]
+            else:
+                rundirs = None
             # Verify that MPFR and MPC exist in the same directory
             if not os.path.isfile(lookin + '/libmpfr.a'):
                 use_mpfr = False
@@ -74,7 +87,12 @@ if use_mpfr:
     libs.append('mpfr')
 if use_mpc:
     libs.append('mpc')
-
+    
+# Error message if libraries can not be found...
+if not libdirs:
+    sys.stdout.write("GMPY2 can not find the requires libraries.\n")
+    sys.exit()
+    
 # decomment next line (w/gcc, only!) to support gcov
 #   os.environ['CFLAGS'] = '-fprofile-arcs -ftest-coverage -O0'
 # prepare the extension for building
@@ -82,6 +100,7 @@ gmpy2_ext = Extension('gmpy2', sources=['src/gmpy2.c'],
     include_dirs=incdirs,
     library_dirs=libdirs,
     libraries=libs,
+    runtime_library_dirs=rundirs,
     define_macros = defines)
 
 setup (name = "gmpy2",
