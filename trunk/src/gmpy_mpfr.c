@@ -1653,6 +1653,12 @@ PyDoc_STRVAR(doc_mpfr_const_catalan,
 
 MPFR_CONST(const_catalan)
 
+PyDoc_STRVAR(doc_mpfr_sqrt,
+"sqrt(x) -> number\n\n"
+"Return square root of x. If x is an integer, then the result is the\n"
+"integer portion of the square root. If x is a rational or a float,\n"
+"then the result is an 'mpf'.");
+
 static PyObject *
 Pympfr_sqrt(PyObject *self, PyObject *other)
 {
@@ -1698,6 +1704,10 @@ Pympfr_rec_sqrt(PyObject *self, PyObject *other)
 
     MPFR_CLEANUP_SELF("rec_sqrt()");
 }
+
+PyDoc_STRVAR(doc_mpfr_root,
+"root(x,n) -> number\n\n"
+"Return n-th root of x. The result always an 'mpf'.");
 
 static PyObject *
 Pympfr_root(PyObject *self, PyObject *args)

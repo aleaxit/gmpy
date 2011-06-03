@@ -185,10 +185,10 @@ ValueError: n must be > 0
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: n must be > 0
->>> _g.root(-12,2)
+>>> _g.iroot(-12,2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: root() of negative number
+ValueError: iroot() of negative number
 >>> _g.digits(3,'peep')
 Traceback (most recent call last):
   ...
@@ -414,18 +414,14 @@ ValueError: Fibonacci of negative number
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: binomial coefficient with negative k
->>> _g.sqrt(-1)
+>>> _g.isqrt_rem(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: sqrt() of negative number
->>> _g.sqrtrem(-1)
+ValueError: isqrt_rem() of negative number
+>>> _g.isqrt(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: sqrtrem() of negative number
->>> _g.sqrt(-1)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: sqrt() of negative number
+ValueError: isqrt() of negative number
 >>> _g.jacobi(23, -34)
 Traceback (most recent call last):
   ...

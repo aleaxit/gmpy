@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> list(filter(lambda x: not x.startswith('_'), dir(_g)))
-['Default', 'DivisionByZeroError', 'InexactError', 'InvalidOperationError', 'OverflowError', 'RangeError', 'RoundAwayZero', 'RoundDown', 'RoundToNearest', 'RoundToZero', 'RoundUp', 'UnderflowError', 'acos', 'acosh', 'add', 'agm', 'ai', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'c_div', 'c_div_2exp', 'c_divmod', 'c_divmod_2exp', 'c_mod', 'c_mod_2exp', 'cbrt', 'ceil', 'check_range', 'comb', 'const_catalan', 'const_euler', 'const_log2', 'const_pi', 'context', 'copy_sign', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'denom', 'digamma', 'digits', 'div', 'div_2exp', 'divexact', 'divm', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'f_div', 'f_div_2exp', 'f_divmod', 'f_divmod_2exp', 'f_mod', 'f_mod_2exp', 'fac', 'factorial', 'fib', 'fib2', 'floor', 'fma', 'fmod', 'fms', 'frac', 'gamma', 'gcd', 'gcdext', 'get_cache', 'get_emax_max', 'get_emin_min', 'get_exp', 'get_max_precision', 'hamdist', 'hypot', 'inf', 'invert', 'is_even', 'is_inf', 'is_integer', 'is_lessgreater', 'is_nan', 'is_number', 'is_odd', 'is_power', 'is_prime', 'is_regular', 'is_signed', 'is_square', 'is_unordered', 'is_zero', 'j0', 'j1', 'jacobi', 'jn', 'kronecker', 'lcm', 'legendre', 'lgamma', 'li2', 'license', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'lucas', 'lucas2', 'max', 'min', 'modf', 'mp_limbsize', 'mp_version', 'mpc', 'mpc_version', 'mpfr', 'mpfr_from_old_binary', 'mpfr_version', 'mpq', 'mpq_from_old_binary', 'mpz', 'mpz_from_old_binary', 'mul', 'mul_2exp', 'nan', 'new_context', 'next_above', 'next_below', 'next_prime', 'next_toward', 'numdigits', 'numer', 'pack', 'popcount', 'pow', 'printf', 'qdiv', 'rec_sqrt', 'reldiff', 'remainder', 'remove', 'remquo', 'rint', 'rint_ceil', 'rint_floor', 'rint_round', 'rint_trunc', 'root', 'rootrem', 'round', 'round2', 'sec', 'sech', 'set_cache', 'set_context', 'set_debug', 'set_exp', 'set_sign', 'sign', 'sin', 'sin_cos', 'sinh', 'sinh_cosh', 'sqrt', 'sqrtrem', 'square', 'sub', 't_div', 't_div_2exp', 't_divmod', 't_divmod_2exp', 't_mod', 't_mod_2exp', 'tan', 'tanh', 'trunc', 'unpack', 'version', 'xbit_mask', 'xmpz', 'y0', 'y1', 'yn', 'zero', 'zeta']
+['Default', 'DivisionByZeroError', 'InexactError', 'InvalidOperationError', 'OverflowError', 'RangeError', 'RoundAwayZero', 'RoundDown', 'RoundToNearest', 'RoundToZero', 'RoundUp', 'UnderflowError', 'acos', 'acosh', 'add', 'agm', 'ai', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'c_div', 'c_div_2exp', 'c_divmod', 'c_divmod_2exp', 'c_mod', 'c_mod_2exp', 'cbrt', 'ceil', 'check_range', 'comb', 'const_catalan', 'const_euler', 'const_log2', 'const_pi', 'context', 'copy_sign', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'denom', 'digamma', 'digits', 'div', 'div_2exp', 'divexact', 'divm', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'f_div', 'f_div_2exp', 'f_divmod', 'f_divmod_2exp', 'f_mod', 'f_mod_2exp', 'fac', 'factorial', 'fib', 'fib2', 'floor', 'fma', 'fmod', 'fms', 'frac', 'gamma', 'gcd', 'gcdext', 'get_cache', 'get_emax_max', 'get_emin_min', 'get_exp', 'get_max_precision', 'hamdist', 'hypot', 'inf', 'invert', 'iroot', 'iroot_rem', 'is_even', 'is_inf', 'is_integer', 'is_lessgreater', 'is_nan', 'is_number', 'is_odd', 'is_power', 'is_prime', 'is_regular', 'is_signed', 'is_square', 'is_unordered', 'is_zero', 'isqrt', 'isqrt_rem', 'j0', 'j1', 'jacobi', 'jn', 'kronecker', 'lcm', 'legendre', 'lgamma', 'li2', 'license', 'lngamma', 'log', 'log10', 'log1p', 'log2', 'lucas', 'lucas2', 'max', 'min', 'modf', 'mp_limbsize', 'mp_version', 'mpc', 'mpc_version', 'mpfr', 'mpfr_from_old_binary', 'mpfr_version', 'mpq', 'mpq_from_old_binary', 'mpz', 'mpz_from_old_binary', 'mul', 'mul_2exp', 'nan', 'new_context', 'next_above', 'next_below', 'next_prime', 'next_toward', 'numdigits', 'numer', 'pack', 'popcount', 'pow', 'printf', 'qdiv', 'rec_sqrt', 'reldiff', 'remainder', 'remove', 'remquo', 'rint', 'rint_ceil', 'rint_floor', 'rint_round', 'rint_trunc', 'root', 'round', 'round2', 'sec', 'sech', 'set_cache', 'set_context', 'set_debug', 'set_exp', 'set_sign', 'sign', 'sin', 'sin_cos', 'sinh', 'sinh_cosh', 'sqrt', 'square', 'sub', 't_div', 't_div_2exp', 't_divmod', 't_divmod_2exp', 't_mod', 't_mod_2exp', 'tan', 'tanh', 'trunc', 'unpack', 'version', 'xbit_mask', 'xmpz', 'y0', 'y1', 'yn', 'zero', 'zeta']
 >>> dir(a)
 ['__abs__', '__add__', '__and__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__iadd__', '__ifloordiv__', '__ilshift__', '__imod__', '__imul__', '__index__', '__init__', '__int__', '__invert__', '__ipow__', '__irshift__', '__isub__', '__le__', '__len__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__xor__', 'binary', 'bit_clear', 'bit_flip', 'bit_length', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'digits', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'numdigits']
 >>>
@@ -778,26 +778,26 @@ mpz(-123)
 
 __test__['number']=\
 r'''
->>> _g.rootrem(a,2)
+>>> _g.iroot_rem(a,2)
 (mpz(11), mpz(2))
->>> _g.rootrem(a,3)
+>>> _g.iroot_rem(a,3)
 (mpz(4), mpz(59))
->>> _g.rootrem(a*a)
+>>> _g.iroot_rem(a*a)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-TypeError: rootrem() requires 'mpz','int' arguments
->>> _g.rootrem(a*a,2)
+TypeError: iroot_rem() requires 'mpz','int' arguments
+>>> _g.iroot_rem(a*a,2)
 (mpz(123), mpz(0))
->>> print(_g.sqrt(a))
+>>> print(_g.isqrt(a))
 11
->>> print(_g.sqrt(b))
+>>> print(_g.isqrt(b))
 21
->>> print(_g.sqrtrem(a))
+>>> print(_g.isqrt_rem(a))
 (mpz(11), mpz(2))
->>> print(_g.sqrtrem(b))
+>>> print(_g.isqrt_rem(b))
 (mpz(21), mpz(15))
 >>> for i in range(5):
-...    print(_g.root(a,i+1),_g.root(b,i+1))
+...    print(_g.iroot(a,i+1),_g.iroot(b,i+1))
 ...
 (mpz(123), True) (mpz(456), True)
 (mpz(11), False) (mpz(21), False)
@@ -890,14 +890,14 @@ TypeError: invert() requires 'mpz','mpz' arguments
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: binomial coefficient with negative k
->>> _g.sqrt(-1)
+>>> _g.isqrt(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: sqrt() of negative number
->>> _g.sqrtrem(-1)
+ValueError: isqrt() of negative number
+>>> _g.isqrt_rem(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: sqrtrem() of negative number
+ValueError: isqrt_rem() of negative number
 >>> _g.remove(3,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
