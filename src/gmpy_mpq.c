@@ -300,6 +300,33 @@ Pympq_pos(PympqObject *x)
 }
 
 static PyObject *
+Pympq_square(PyObject *self, PyObject *other)
+{
+    PympqObject *tempx, *result;
+
+    if (!(result = Pympq_new()))
+        return NULL;
+
+    if (self && (Pympq_Check(self))) {
+        mpq_mul(result->q, Pympq_AS_MPQ(self), Pympq_AS_MPQ(self));
+    }
+    else if (Pympq_Check(other)) {
+        mpq_mul(result->q, Pympq_AS_MPQ(other), Pympq_AS_MPQ(other));
+    }
+    else {
+        if (!(tempx = Pympq_From_Rational(other))) {
+            TYPE_ERROR("square() requires 'mpq' argument");
+            return NULL;
+        }
+        else {
+            mpq_mul(result->q, Pympq_AS_MPQ(tempx), Pympq_AS_MPQ(tempx));
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    return (PyObject*)result;
+}
+
+static PyObject *
 Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
 {
     PympqObject *rq, *tempbq;

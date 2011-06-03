@@ -187,18 +187,18 @@ TypeError: bit_set() takes exactly one argument (4 given)
 Traceback (most recent call last):
   ...
 TypeError: bit_set() requires 'mpz','int' arguments
->>> _g.root(12,-1)
+>>> _g.iroot(12,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: n must be > 0
->>> _g.root(12,0)
+>>> _g.iroot(12,0)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: n must be > 0
->>> _g.root(-12,2)
+>>> _g.iroot(-12,2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: root() of negative number
+ValueError: iroot() of negative number
 >>> _g.digits(3.14)
 ('31400000000000001', 1, 53)
 >>> _g.digits(3,'peep')
@@ -428,18 +428,14 @@ ValueError: Fibonacci of negative number
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: binomial coefficient with negative k
->>> _g.sqrt(-1)
+>>> _g.isqrt(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: sqrt() of negative number
->>> _g.sqrtrem(-1)
+ValueError: isqrt() of negative number
+>>> _g.isqrt_rem(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: sqrtrem() of negative number
->>> _g.sqrt(-1)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: sqrt() of negative number
+ValueError: isqrt_rem() of negative number
 >>> _g.jacobi(23, -34)
 Traceback (most recent call last):
   ...

@@ -591,9 +591,13 @@ Pympz_bit_flip(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-/* return nth-root of an mpz (in a 2-el tuple: 2nd is int, non-0 iff exact) */
+PyDoc_STRVAR(doc_mpz_iroot,
+"iroot(x,n) -> (number, boolean)\n\n"
+"Return the integer n-th root of x and boolean value that is True\n"
+"iff the root is exact. x must be a non-negative integer.");
+
 static PyObject *
-Pympz_root(PyObject *self, PyObject *args)
+Pympz_iroot(PyObject *self, PyObject *args)
 {
     long n;
     int exact;
@@ -601,7 +605,7 @@ Pympz_root(PyObject *self, PyObject *args)
     PyObject *result = 0;
 
     PARSE_ONE_MPZ_REQ_CLONG(&n,
-                            "root() requires 'mpz','int' arguments");
+                            "iroot() requires 'mpz','int' arguments");
 
     if (n <= 0) {
         VALUE_ERROR("n must be > 0");
@@ -610,7 +614,7 @@ Pympz_root(PyObject *self, PyObject *args)
     }
     else if (n>1) {
         if (mpz_sgn(Pympz_AS_MPZ(self))<0) {
-            VALUE_ERROR("root() of negative number");
+            VALUE_ERROR("iroot() of negative number");
             Py_DECREF(self);
             return NULL;
         }
@@ -628,20 +632,21 @@ Pympz_root(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_rootremg[]="\
-rootrem(x,n): returns a 2-element tuple (y,r), such that y is the\n\
-(possibly truncated) n-th root of x; r is the remainder. n must be an\n\
-ordinary Python int, >=0. x must be an mpz, or else gets coerced to one.\n\
-";
+PyDoc_STRVAR(doc_mpz_iroot_rem,
+"iroot_rem(x,n) -> (number, number)\n\n"
+"Return a 2-element tuple (y,r), such that y is the integer n-th\n"
+"root of x and x=y**n + r. x must be a non-negative integer. n must\n"
+"be a positive integer.");
+
 static PyObject *
-Pympz_rootrem(PyObject *self, PyObject *args)
+Pympz_iroot_rem(PyObject *self, PyObject *args)
 {
     long n;
     PympzObject *r = 0, *y = 0;
     PyObject *result = 0;
 
     PARSE_ONE_MPZ_REQ_CLONG(&n,
-            "rootrem() requires 'mpz','int' arguments");
+            "iroot_rem() requires 'mpz','int' arguments");
 
     if (n <= 0) {
         VALUE_ERROR("n must be > 0");
@@ -650,7 +655,7 @@ Pympz_rootrem(PyObject *self, PyObject *args)
     }
     else if (n>1) {
         if (mpz_sgn(Pympz_AS_MPZ(self))<0) {
-            VALUE_ERROR("root of negative number");
+            VALUE_ERROR("iroot_rem() of negative number");
             Py_DECREF(self);
             return NULL;
         }
@@ -744,6 +749,33 @@ static PyObject *
 Pyxmpz_pos(PyxmpzObject *x)
 {
     Py_RETURN_NONE;
+}
+
+static PyObject *
+Pympz_square(PyObject *self, PyObject *other)
+{
+    PympzObject *tempx, *result;
+
+    if (!(result = Pympz_new()))
+        return NULL;
+
+    if (self && (CHECK_MPZANY(self))) {
+        mpz_mul(result->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(self));
+    }
+    else if (CHECK_MPZANY(other)) {
+        mpz_mul(result->z, Pympz_AS_MPZ(other), Pympz_AS_MPZ(other));
+    }
+    else {
+        if (!(tempx = Pympz_From_Integer(other))) {
+            TYPE_ERROR("square() requires 'mpz' argument");
+            return NULL;
+        }
+        else {
+            mpz_mul(result->z, Pympz_AS_MPZ(tempx), Pympz_AS_MPZ(tempx));
+            Py_DECREF((PyObject*)tempx);
+        }
+    }
+    return (PyObject*)result;
 }
 
 /* Pympz_pow is called by Pympany_pow after verifying that all the
@@ -1461,14 +1493,19 @@ Pympz_bincoef(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+PyDoc_STRVAR(doc_mpz_isqrt,
+"isqrt(x) -> number\n\n"
+"Return the integer square root of x; x must be a non-\n"
+"negative integer.");
+
 static PyObject *
-Pympz_sqrt(PyObject *self, PyObject *other)
+Pympz_isqrt(PyObject *self, PyObject *other)
 {
     PympzObject *result;
 
     if (self && (CHECK_MPZANY(self))) {
         if (mpz_sgn(Pympz_AS_MPZ(self)) < 0) {
-            VALUE_ERROR("sqrt() of negative number");
+            VALUE_ERROR("isqrt() of negative number");
             return NULL;
         }
         if (!(result = Pympz_new()))
@@ -1477,7 +1514,7 @@ Pympz_sqrt(PyObject *self, PyObject *other)
     }
     else if (CHECK_MPZANY(other)) {
         if (mpz_sgn(Pympz_AS_MPZ(other)) < 0) {
-            VALUE_ERROR("sqrt() of negative number");
+            VALUE_ERROR("isqrt() of negative number");
             return NULL;
         }
         if (!(result = Pympz_new()))
@@ -1486,11 +1523,11 @@ Pympz_sqrt(PyObject *self, PyObject *other)
     }
     else {
         if (!(result = Pympz_From_Integer(other))) {
-            TYPE_ERROR("sqrt() requires 'mpz' argument");
+            TYPE_ERROR("isqrt() requires 'mpz' argument");
             return NULL;
         }
         if (mpz_sgn(result->z) < 0) {
-            VALUE_ERROR("sqrt() of negative number");
+            VALUE_ERROR("isqrt() of negative number");
             Py_DECREF((PyObject*)result);
             return NULL;
         }
@@ -1499,21 +1536,21 @@ Pympz_sqrt(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_sqrtremg[]="\
-sqrtrem(x): returns a 2-element tuple (s,t), such that\n\
-s==sqrt(x) and x==s*s+t. x must be an mpz, or else gets\n\
-coerced to one; further, x must be >= 0.\n\
-";
+PyDoc_STRVAR(doc_mpz_isqrt_rem,
+"isqrt_rem(x) -> (square_root, remainder)\n\n"
+"Return a 2-element tuple (s,t), such that s=isqrt(x) and x=s*s+t.\n"
+"x must be a non-negative integer.");
+
 static PyObject *
-Pympz_sqrtrem(PyObject *self, PyObject *args)
+Pympz_isqrt_rem(PyObject *self, PyObject *args)
 {
     PympzObject *root = 0, *rem = 0;
     PyObject *result = 0;
 
-    PARSE_ONE_MPZ("sqrtrem() requires 'mpz' argument");
+    PARSE_ONE_MPZ("isqrt_rem() requires 'mpz' argument");
 
     if (mpz_sgn(Pympz_AS_MPZ(self)) < 0) {
-        VALUE_ERROR("sqrtrem() of negative number");
+        VALUE_ERROR("isqrt_rem() of negative number");
         Py_DECREF(self);
         return NULL;
     }

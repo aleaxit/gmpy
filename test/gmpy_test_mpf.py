@@ -135,12 +135,8 @@ Traceback (innermost last):
 TypeError: reldiff() requires 'mpfr','mpfr' arguments
 >>> _g.sqrt(a)
 mpfr('1.1111075555498667e1')
->>> _g.sqrt(-1)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-  File "a.py", line 9, in _er
-    raise ValueError, what
-ValueError: sqrt() of negative number
+>>> _g.sqrt(-1.0)
+mpfr('nan')
 >>> save=_g.context().precision
 >>> _g.const_catalan()
 mpfr('9.1596559417721901e-1')
