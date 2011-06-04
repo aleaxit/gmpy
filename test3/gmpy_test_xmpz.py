@@ -33,11 +33,11 @@ mpz(56088)
 >>> a//b
 mpz(0)
 >>> a/b
-mpfr('2.6973684210526316e-1')
+mpfr('0.26973684210526316')
 >>> b//a
 mpz(3)
 >>> b/a
-mpfr('3.7073170731707319e0')
+mpfr('3.7073170731707319')
 >>> a%b
 mpz(123)
 >>> 0%b
@@ -265,11 +265,11 @@ mpfr('nan')
 >>> float('-Inf') * _g.xmpz(0)
 mpfr('nan')
 >>> a / float('Inf')
-mpfr('0.0e0')
+mpfr('0.0')
 >>> float('Inf') / a
 mpfr('inf')
 >>> a / float('-Inf')
-mpfr('-0.0e0')
+mpfr('-0.0')
 >>> float('-Inf') / a
 mpfr('-inf')
 >>> a / float('nan')
@@ -278,11 +278,11 @@ mpfr('nan')
 mpfr('nan')
 >>> -a
 >>> a / float('Inf')
-mpfr('-0.0e0')
+mpfr('-0.0')
 >>> float('Inf') / a
 mpfr('-inf')
 >>> a / float('-Inf')
-mpfr('0.0e0')
+mpfr('0.0')
 >>> float('-Inf') / a
 mpfr('inf')
 >>> -a

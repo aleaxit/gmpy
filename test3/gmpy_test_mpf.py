@@ -15,9 +15,9 @@ b=_g.mpfr('789.123')
 __test__['functions']=\
 r'''
 >>> _g.log(2)
-mpfr('6.9314718055994529e-1')
+mpfr('0.69314718055994529')
 >>> _g.log(10)
-mpfr('2.3025850929940459e0')
+mpfr('2.3025850929940459')
 >>> _g.log('a')
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -29,7 +29,7 @@ mpfr('inf')
 >>> _g.log(float('-inf'))
 mpfr('nan')
 >>> _g.log(_g.mpfr('12.3456'))
-mpfr('2.5132997242892183e0')
+mpfr('2.5132997242892183')
 '''
 
 __test__['elemop']=\
@@ -55,13 +55,13 @@ r'''
 >>> str(abs(-a))
 '123.456'
 >>> _g.mpfr(2) + 3
-mpfr('5.0e0')
+mpfr('5.0')
 >>> 3 + _g.mpfr(2)
-mpfr('5.0e0')
+mpfr('5.0')
 >>> _g.mpfr(2) * 3
-mpfr('6.0e0')
+mpfr('6.0')
 >>> 3 * _g.mpfr(2)
-mpfr('6.0e0')
+mpfr('6.0')
 >>> _g.sign(b-a)
 1
 >>> _g.sign(b-b)
@@ -76,38 +76,38 @@ mpfr('6.0e0')
 0
 >>> import math
 >>> math.ceil(a)
-mpfr('1.24e2')
+mpfr('124.0')
 >>> str(a.__ceil__())
 '124.0'
 >>> str(_g.ceil(a))
 '124.0'
 >>> math.floor(a)
-mpfr('1.23e2')
+mpfr('123.0')
 >>> str(a.__floor__())
 '123.0'
 >>> str(_g.floor(a))
 '123.0'
 >>> math.trunc(a)
-mpfr('1.23e2')
+mpfr('123.0')
 >>> str(a.__trunc__())
 '123.0'
 >>> str(_g.trunc(a))
 '123.0'
 >>> x=-a
 >>> math.floor(x)
-mpfr('-1.24e2')
+mpfr('-124.0')
 >>> str(x.__floor__())
 '-124.0'
 >>> str(_g.floor(x))
 '-124.0'
 >>> math.ceil(x)
-mpfr('-1.23e2')
+mpfr('-123.0')
 >>> str(x.__ceil__())
 '-123.0'
 >>> str(_g.ceil(x))
 '-123.0'
 >>> math.trunc(x)
-mpfr('-1.23e2')
+mpfr('-123.0')
 >>> str(x.__trunc__())
 '-123.0'
 >>> str(_g.trunc(x))
@@ -134,27 +134,27 @@ Traceback (innermost last):
     _g.reldiff(3.4)
 TypeError: reldiff() requires 'mpfr','mpfr' arguments
 >>> _g.sqrt(a)
-mpfr('1.1111075555498667e1')
+mpfr('11.111075555498667')
 >>> _g.sqrt(-1)
 mpfr('nan')
 >>> save=_g.context().precision
 >>> _g.const_catalan()
-mpfr('9.1596559417721901e-1')
+mpfr('0.91596559417721901')
 >>> _g.const_euler()
-mpfr('5.7721566490153287e-1')
+mpfr('0.57721566490153287')
 >>> _g.const_log2()
-mpfr('6.9314718055994529e-1')
+mpfr('0.69314718055994529')
 >>> _g.const_pi()
-mpfr('3.1415926535897931e0')
+mpfr('3.1415926535897931')
 >>> _g.context().precision = 100
 >>> _g.const_catalan()
-mpfr('9.1596559417721901505460351493252e-1',100)
+mpfr('0.91596559417721901505460351493252',100)
 >>> _g.const_euler()
-mpfr('5.7721566490153286060651209008234e-1',100)
+mpfr('0.57721566490153286060651209008234',100)
 >>> _g.const_log2()
-mpfr('6.9314718055994530941723212145798e-1',100)
+mpfr('0.69314718055994530941723212145798',100)
 >>> _g.const_pi()
-mpfr('3.1415926535897932384626433832793e0',100)
+mpfr('3.1415926535897932384626433832793',100)
 >>> _g.context().precision = save
 >>> del(save)
 >>> import pickle
@@ -170,13 +170,13 @@ __test__['newdiv']=\
 r'''
 >>>
 >>> a/b
-mpfr('1.5644709379906555e-1')
+mpfr('0.15644709379906555')
 >>> a//b
-mpfr('0.0e0')
+mpfr('0.0')
 >>> b/a
-mpfr('6.3919372083981338e0')
+mpfr('6.3919372083981338')
 >>> b//a
-mpfr('6.0e0')
+mpfr('6.0')
 >>>
 '''
 
@@ -224,7 +224,7 @@ mpq(15432,125)
 1234.0
 >>> x=1000*1000*1000*1000
 >>> _g.mpfr(x)
-mpfr('1.0e12')
+mpfr('1000000000000.0')
 >>> c=_g.mpfr(a)
 >>> a is c
 1
@@ -266,7 +266,7 @@ r'''
 >>> str(a)
 '123.456'
 >>> repr(a)
-"mpfr('1.23456e2')"
+"mpfr('123.456')"
 >>> a.digits(10,0)
 ('12345600000000000', 3, 53)
 >>> a.digits(10,1)
@@ -293,7 +293,7 @@ ValueError: digits must be 0 or >= 2
 ...     assert tempb.startswith(tempa.rstrip('0')), (tempa, tempb)
 ...
 >>> _g.mpfr(3.4)
-mpfr('3.3999999999999999e0')
+mpfr('3.3999999999999999')
 >>> print(_g.mpfr(3.4))
 3.3999999999999999
 >>> a.digits(1)
@@ -309,7 +309,7 @@ ValueError: digits must be 0 or >= 2
 >>> saveprec=a.precision
 >>> newa = _g.round(a,33)
 >>> newa
-mpfr('1.23456e2',33)
+mpfr('123.456',33)
 >>> newa = _g.round(newa,saveprec)
 >>> newa.precision==saveprec
 1
@@ -391,7 +391,7 @@ b'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
 >>> hash(_g.mpfr(23.0))==hash(23)
 1
 >>> print(_g.mpfr_from_old_binary(b'\004'))
-0.0e0
+0.0
 >>> int(a)
 123
 >>> int(-a)
