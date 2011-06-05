@@ -568,7 +568,7 @@ Pympfr2str(PympfrObject *self)
 
     precision = (long)(log10(2) * (double)mpfr_get_prec(Pympfr_AS_MPFR(self))) + 2;
 
-    sprintf(fmtstr, "{:.%ldg}", precision);
+    sprintf(fmtstr, "{0:.%ldg}", precision);
 
     temp = Py_BuildValue("s", fmtstr);
     if (!temp)
@@ -589,9 +589,9 @@ Pympfr2repr(PympfrObject *self)
     precision = (long)(log10(2) * (double)bits) + 2;
 
     if (mpfr_number_p(Pympfr_AS_MPFR(self)) && bits != DBL_MANT_DIG)
-        sprintf(fmtstr, "mpfr('{:.%ldg}',%ld)", precision, bits);
+        sprintf(fmtstr, "mpfr('{0:.%ldg}',%ld)", precision, bits);
     else
-        sprintf(fmtstr, "mpfr('{:.%ldg}')", precision);
+        sprintf(fmtstr, "mpfr('{0:.%ldg}')", precision);
 
     temp = Py_BuildValue("s", fmtstr);
     if (!temp)

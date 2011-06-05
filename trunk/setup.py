@@ -60,13 +60,16 @@ if sys.version.find('MSC') == -1:
 #   -DNOMPC  -> build without MPC library
 #   -DNOMPFR  -> build without MPFR library
 for token in sys.argv:
-    if token == '-DNOMPC':
+    if token.upper() == '-DNOMPC':
         use_mpc = False
-    if token == '-DNOMPFR':
+    if token.upper() == '-DNOMPFR':
         use_mpfr = False
 
 if not use_mpfr:
     use_mpc = False
+
+# Disable MPC explicitely for the a2 release.
+use_mpc = False
 
 # Configure the defines...
 defines = []
@@ -87,12 +90,12 @@ if use_mpfr:
     libs.append('mpfr')
 if use_mpc:
     libs.append('mpc')
-    
+
 # Error message if libraries can not be found...
 if not libdirs:
     sys.stdout.write("GMPY2 can not find the requires libraries.\n")
     sys.exit()
-    
+
 # decomment next line (w/gcc, only!) to support gcov
 #   os.environ['CFLAGS'] = '-fprofile-arcs -ftest-coverage -O0'
 # prepare the extension for building
@@ -104,7 +107,7 @@ gmpy2_ext = Extension('gmpy2', sources=['src/gmpy2.c'],
     define_macros = defines)
 
 setup (name = "gmpy2",
-       version = "2.0.0a1+",
+       version = "2.0.0a2",
        maintainer = "Alex Martelli",
        maintainer_email = "aleaxit@gmail.com",
        url = "http://code.google.com/p/gmpy/",
