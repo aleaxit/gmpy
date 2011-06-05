@@ -345,7 +345,7 @@
 #define PyIntOrLong_AsLong          PyInt_AsLong
 #endif
 
-char gmpy_version[] = "2.0.0a1+";
+char gmpy_version[] = "2.0.0a2";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -1918,7 +1918,11 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
     argc = PyTuple_Size(args);
     if (argc == 1) {
         n = PyTuple_GetItem(args, 0);
+#ifdef WITHMPFR
         if (isReal(n) && !keywds) {
+#else
+        if (isRational(n) && !keywds) {
+#endif
             result = anynum2Pympz(n);
             if (!result && !PyErr_Occurred())
                 TYPE_ERROR("gmpy2.mpz() requires numeric or string argument");
@@ -1978,7 +1982,11 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
     argc = PyTuple_Size(args);
     if (argc == 1) {
         n = PyTuple_GetItem(args, 0);
+#ifdef WITHMPFR
         if (isReal(n) && !keywds) {
+#else
+        if (isRational(n) && !keywds) {
+#endif
             result = anynum2Pyxmpz(n);
             if (!result && !PyErr_Occurred())
                 TYPE_ERROR("gmpy2.xmpz() requires numeric or string argument");
@@ -2058,7 +2066,11 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
     if (argc == 2)
         m = PyTuple_GetItem(args, 1);
 
+#ifdef WITHMPFR
     if (!isReal(n) || (m && !isReal(m))) {
+#else
+    if (!isRational(n) || (m && !isRational(m))) {
+#endif
         TYPE_ERROR("gmpy2.mpq() requires numeric or string argument");
         return NULL;
     }
