@@ -45,7 +45,7 @@ if sys.version.find('MSC') == -1:
         lookin = '%s/lib' % adir
         if os.path.isfile(lookin + '/lib' + mplib + '.a'):
             libdirs = [lookin]
-            if lookin.startswith(local_dir):
+            if local_dir and lookin.startswith(local_dir):
                 rundirs = [lookin]
             else:
                 rundirs = None
