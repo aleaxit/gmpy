@@ -66,7 +66,6 @@ typedef unsigned long Py_uhash_t;
 #  else
 #    pragma comment(lib,"gmp.lib")
 #  endif
-#  pragma comment(lib,"mpc.lib")
 #  define isnan _isnan
 #  define isinf !_finite
 #  define USE_ALLOCA 1

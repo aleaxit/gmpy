@@ -220,7 +220,7 @@ Pympz_bit_scan0(PyObject *self, PyObject *args)
         return NULL;
     }
     maxbit = mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
-    if (starting_bit > maxbit) {
+    if ((size_t)starting_bit > maxbit) {
         if (mpz_sgn(Pympz_AS_MPZ(self))<0) {
             Py_DECREF(self);
             Py_RETURN_NONE;

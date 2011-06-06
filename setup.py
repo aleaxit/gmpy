@@ -9,11 +9,22 @@ if sys.version[:3] < '2.6':
 
 # Check for build options:
 #   -DMPIR  -> use MPIR instead of GMP
-mplib='gmp'
+#   -DGMP   -> use GMP instead of MPIR
+# Windows build defaults to MPIR.
+if sys.version.find('MSC') == -1:
+    mplib='gmp'
+else:
+    mplib='mpir'
+
 local_dir = None
+running_build = False
 for token in sys.argv:
     if token.upper().startswith('-DMPIR'):
         mplib='mpir'
+    if token.upper().startswith('-DGMP'):
+        mplib='gmp'
+    if token.upper().startswith('BUILD'):
+        running_build = True
     if token.upper().startswith('-DDIR'):
         try:
             local_dir = token.split('=')[1]
@@ -23,12 +34,14 @@ for token in sys.argv:
 use_mpc = True
 use_mpfr = True
 
+incdirs = None
+libdirs = None
+rundirs = None
 # determine include and library dirs
-if sys.version.find('MSC') == -1:
+if running_build and sys.version.find('MSC') == -1:
     # Unix-like build (including MacOSX)
     incdirs = ['./src']
     dirord = ['/opt/local', '/opt', '/usr/local']
-    libdirs = None
     if local_dir:
         dirord = [local_dir] + dirord
     for adir in dirord:
@@ -47,14 +60,34 @@ if sys.version.find('MSC') == -1:
             libdirs = [lookin]
             if local_dir and lookin.startswith(local_dir):
                 rundirs = [lookin]
-            else:
-                rundirs = None
             # Verify that MPFR and MPC exist in the same directory
             if not os.path.isfile(lookin + '/libmpfr.a'):
                 use_mpfr = False
             if not os.path.isfile(lookin + '/libmpc.a'):
                 use_mpc = False
             break
+
+# Validate include and library directories on Windows
+if running_build and sys.version.find('MSC') != -1:
+    rundirs = None
+    if not local_dir:
+        sys.stdout.write("Please specify parent directory of include and lib\n")
+        sys.stdout.write("directories using -Ddir=<path>.");
+        sys.exit()
+    testpath = local_dir + '\\include'
+    if os.path.isfile(testpath + '\\' + mplib + '.h'):
+        incdirs = [testpath]
+        if not os.path.isfile(testpath + '\\mpfr.h'):
+            use_mpfr = False
+        if not os.path.isfile(testpath + '\\mpc.h'):
+            use_mpc = False
+    testpath = local_dir + '\\lib'
+    if os.path.isfile(testpath + '\\' + mplib + '.lib'):
+        libdirs = [testpath]
+        if not os.path.isfile(testpath + '\\mpfr.lib'):
+            use_mpfr = False
+        if not os.path.isfile(testpath + '\\mpc.lib'):
+            use_mpc = False
 
 # Use options to prevent use of MPFR and MPC even if found.
 #   -DNOMPC  -> build without MPC library
@@ -92,7 +125,7 @@ if use_mpc:
     libs.append('mpc')
 
 # Error message if libraries can not be found...
-if not libdirs:
+if running_build and not libdirs:
     sys.stdout.write("GMPY2 can not find the requires libraries.\n")
     sys.exit()
 
