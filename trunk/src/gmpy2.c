@@ -1921,7 +1921,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
 #ifdef WITHMPFR
         if (isReal(n) && !keywds) {
 #else
-        if (isRational(n) && !keywds) {
+        if ((isRational(n) || PyFloat_Check(n)) && !keywds) {
 #endif
             result = anynum2Pympz(n);
             if (!result && !PyErr_Occurred())
@@ -1985,7 +1985,7 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
 #ifdef WITHMPFR
         if (isReal(n) && !keywds) {
 #else
-        if (isRational(n) && !keywds) {
+        if ((isRational(n) || PyFloat_Check(n)) && !keywds) {
 #endif
             result = anynum2Pyxmpz(n);
             if (!result && !PyErr_Occurred())
@@ -2069,7 +2069,8 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
 #ifdef WITHMPFR
     if (!isReal(n) || (m && !isReal(m))) {
 #else
-    if (!isRational(n) || (m && !isRational(m))) {
+    if (!(isRational(n) || PyFloat_Check(n)) ||
+        (m && !(isRational(m) || PyFloat_Check(m)))) {
 #endif
         TYPE_ERROR("gmpy2.mpq() requires numeric or string argument");
         return NULL;
