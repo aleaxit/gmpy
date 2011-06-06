@@ -322,7 +322,7 @@ Pympfr_dealloc(PympfrObject *self)
     /* Calculate the number of limbs in the mantissa. */
     msize = (self->f->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
     if (in_pympfrcache < global.cache_size &&
-        msize <= global.cache_obsize) {
+        msize <= (size_t)global.cache_obsize) {
         pympfrcache[in_pympfrcache++] = self;
     }
     else {
