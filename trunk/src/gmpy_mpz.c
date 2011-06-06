@@ -230,7 +230,7 @@ Pympz_bit_scan0(PyObject *self, PyObject *args)
         }
     }
     else {
-        result = PyIntOrLong_FromLong(mpz_scan0(Pympz_AS_MPZ(self), starting_bit));
+        result = PyIntOrLong_FromSize_t(mpz_scan0(Pympz_AS_MPZ(self), starting_bit));
     }
     Py_DECREF(self);
     return result;
@@ -252,7 +252,7 @@ static PyObject *
 Pympz_bit_scan1(PyObject *self, PyObject *args)
 {
     long starting_bit = 0;
-    long maxbit;
+    size_t maxbit;
     PyObject *result;
 
     PARSE_ONE_MPZ_OPT_CLONG(&starting_bit,
@@ -274,7 +274,7 @@ Pympz_bit_scan1(PyObject *self, PyObject *args)
         }
     }
     else {
-        result = PyIntOrLong_FromLong(mpz_scan1(Pympz_AS_MPZ(self), starting_bit));
+        result = PyIntOrLong_FromSize_t(mpz_scan1(Pympz_AS_MPZ(self), starting_bit));
     }
     Py_DECREF(self);
     return result;
@@ -289,13 +289,13 @@ x must be an mpz, or else gets coerced to one.\n\
 static PyObject *
 Pympz_popcount(PyObject *self, PyObject *other)
 {
-    long temp;
+    size_t temp;
     PympzObject *tempx;
 
     if (self && (CHECK_MPZANY(self)))
-        return PyIntOrLong_FromLong(mpz_popcount(Pympz_AS_MPZ(self)));
+        return PyIntOrLong_FromSize_t(mpz_popcount(Pympz_AS_MPZ(self)));
     else if(CHECK_MPZANY(other))
-        return PyIntOrLong_FromLong(mpz_popcount(Pympz_AS_MPZ(other)));
+        return PyIntOrLong_FromSize_t(mpz_popcount(Pympz_AS_MPZ(other)));
     else {
         if ((tempx = Pympz_From_Integer(other))) {
             temp = mpz_popcount(tempx->z);
@@ -1585,7 +1585,7 @@ Pympz_remove(PyObject *self, PyObject *args)
 {
     PympzObject *result;
     PyObject *factor;
-    unsigned long multiplicity;
+    size_t multiplicity;
 
     PARSE_TWO_MPZ(factor, "remove() requires 'mpz','mpz' arguments");
 
@@ -1678,7 +1678,7 @@ Pympz_hamdist(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPZ(other, "hamdist() requires 'mpz','mpz' arguments");
 
-    result = PyIntOrLong_FromLong(
+    result = PyIntOrLong_FromSize_t(
             mpz_hamdist(Pympz_AS_MPZ(self),Pympz_AS_MPZ(other)));
     Py_DECREF(self);
     Py_DECREF(other);
