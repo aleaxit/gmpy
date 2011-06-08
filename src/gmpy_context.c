@@ -134,24 +134,24 @@ GMPyContext_repr(GMPyContextObject *self)
     if (!format) return NULL;
 
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.subnormalize));
-    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpfr_prec)));
+    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->now.mpfr_prec));
 #ifdef WITHMPC
     if (self->now.mpc_rprec == GMPY_DEFAULT)
         PyTuple_SET_ITEM(tuple, i++, Py2or3String_FromString("Default"));
     else
-        PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpc_rprec)));
+        PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->now.mpc_rprec));
     if (self->now.mpc_iprec == GMPY_DEFAULT)
         PyTuple_SET_ITEM(tuple, i++, Py2or3String_FromString("Default"));
     else
-        PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpc_iprec)));
+        PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->now.mpc_iprec));
 #endif
     PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->now.mpfr_round));
 #ifdef WITHMPC
     PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->now.mpc_rround));
     PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->now.mpc_iround));
 #endif
-    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emax)));
-    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emin)));
+    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->now.emax));
+    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->now.emin));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_underflow));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.underflow));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_overflow));
@@ -629,19 +629,19 @@ GMPyContext_set_mpc_iround(GMPyContextObject *self, PyObject *value, void *closu
 static PyObject *
 GMPyContext_get_emin(GMPyContextObject *self, void *closure)
 {
-    return PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emin));
+    return PyIntOrLong_FromLong(self->now.emin);
 }
 
 static int
 GMPyContext_set_emin(GMPyContextObject *self, PyObject *value, void *closure)
 {
-    Py_ssize_t exp;
+    long exp;
 
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("emin must be Python integer");
         return -1;
     }
-    exp = PyIntOrLong_AsSsize_t(value);
+    exp = PyIntOrLong_AsLong(value);
     if (exp == -1 && PyErr_Occurred()) {
         VALUE_ERROR("requested minimum exponent is invalid");
         return -1;
@@ -658,19 +658,19 @@ GMPyContext_set_emin(GMPyContextObject *self, PyObject *value, void *closure)
 static PyObject *
 GMPyContext_get_emax(GMPyContextObject *self, void *closure)
 {
-    return PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.emax));
+    return PyIntOrLong_FromLong(self->now.emax);
 }
 
 static int
 GMPyContext_set_emax(GMPyContextObject *self, PyObject *value, void *closure)
 {
-    Py_ssize_t exp;
+    long exp;
 
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("emax must be Python integer");
         return -1;
     }
-    exp = PyIntOrLong_AsSsize_t(value);
+    exp = PyIntOrLong_AsLong(value);
     if (exp == -1 && PyErr_Occurred()) {
         VALUE_ERROR("requested maximum exponent is invalid");
         return -1;

@@ -37,6 +37,8 @@ use_mpfr = True
 incdirs = None
 libdirs = None
 rundirs = None
+my_extra_link_args = None
+
 # determine include and library dirs
 if running_build and sys.version.find('MSC') == -1:
     # Unix-like build (including MacOSX)
@@ -70,6 +72,7 @@ if running_build and sys.version.find('MSC') == -1:
 # Validate include and library directories on Windows
 if running_build and sys.version.find('MSC') != -1:
     rundirs = None
+    my_extra_link_args = ["/MANIFEST"]
     if not local_dir:
         sys.stdout.write("Please specify parent directory of include and lib\n")
         sys.stdout.write("directories using -Ddir=<path>.");
@@ -91,7 +94,7 @@ if running_build and sys.version.find('MSC') != -1:
 
 # Use options to prevent use of MPFR and MPC even if found.
 #   -DNOMPC  -> build without MPC library
-#   -DNOMPFR  -> build without MPFR library
+#   -DNOMPFR -> build without MPFR library
 for token in sys.argv:
     if token.upper() == '-DNOMPC':
         use_mpc = False
@@ -137,7 +140,8 @@ gmpy2_ext = Extension('gmpy2', sources=['src/gmpy2.c'],
     library_dirs=libdirs,
     libraries=libs,
     runtime_library_dirs=rundirs,
-    define_macros = defines)
+    define_macros = defines,
+    extra_link_args = my_extra_link_args)
 
 setup (name = "gmpy2",
        version = "2.0.0a2",
