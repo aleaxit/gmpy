@@ -843,9 +843,9 @@ static PyObject *
 Pympfr_set_exp(PyObject *self, PyObject *args)
 {
     PympfrObject *result = 0;
-    Py_ssize_t exp = 0;
+    long exp = 0;
 
-    if (!PyArg_ParseTuple(args, "O&n", Pympfr_convert_arg, &self, &exp)) {
+    if (!PyArg_ParseTuple(args, "O&l", Pympfr_convert_arg, &self, &exp)) {
         TYPE_ERROR("set_exp() requires 'mpfr', 'integer' arguments");
         return NULL;
     }
