@@ -1,7 +1,5 @@
 #summary Using gmpy2 and mpfr.
 
-*Note: These instructions assume source revision r509 or later is used. They do NOT apply to the 2.0.0a1 source release.*
-
 =Using gmpy2 and mpfr=
 
 ==Overview==
