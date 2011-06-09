@@ -1,8 +1,6 @@
 #summary Installing gmpy2 on Windows and Linux.
 #labels Phase-Deploy
 
-*Note: These instructions assume source revision r509 or later is used. They do NOT apply to the 2.0.0a1 source release.*
-
 =Installing gmpy2 on Windows=
 
 Pre-compiled versions of *gmpy2* are available on the [http://code.google.com/p/gmpy/downloads/list Downloads] page. Please select the installer that corresponds to the version of Python you have installed on your computer. Note that either a 32 or 64-bit version of Python can be installed on a 64-bit version of Windows. If you get an error message stating that Windows could not be found in the registry, you have the wrong version of the installer.
