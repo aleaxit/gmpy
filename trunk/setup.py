@@ -104,9 +104,6 @@ for token in sys.argv:
 if not use_mpfr:
     use_mpc = False
 
-# Disable MPC explicitely for the a2 release.
-use_mpc = False
-
 # Configure the defines...
 defines = []
 if mplib == 'mpir':
