@@ -185,13 +185,57 @@ PyDoc_STRVAR(doc_context,
 "set_context() or with ...\n");
 
 static PyObject *
-Pygmpy_context(PyObject *self, PyObject *args)
+Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    GMPyContextObject *result;
+#ifdef WITHMPC
+    static char *kwlist[] = {
+        "subnormalize", "precision", "mpc_rprec", "mpc_iprec",
+        "round", "mpc_rround", "mpc_iround", "emax", "emin",
+        "trap_underflow", "trap_overflow", "trap_inexact",
+        "trap_invalid", "trap_erange", "trap_divzero", NULL };
+#else
+    static char *kwlist[] = {
+        "subnormalize", "precision", "round", "emax", "emin",
+        "trap_underflow", "trap_overflow", "trap_inexact",
+        "trap_invalid", "trap_erange", "trap_divzero", NULL };
+#endif
+
+    if (PyTuple_GET_SIZE(args)) {
+        VALUE_ERROR("context() only supports keyword arguments");
+        return NULL;
+    }
+
+#ifdef WITHMPC
+    if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
+            "|illliiilliiiiii", kwlist,
+            &context->now.subnormalize,
+            &context->now.mpfr_prec,
+            &context->now.mpc_rprec,
+            &context->now.mpc_iprec,
+            &context->now.mpfr_round,
+            &context->now.mpc_rround,
+            &context->now.mpc_iround,
+#else
+    if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
+            "|ililliiiiii", kwlist,
+            &context->now.subnormalize,
+            &context->now.mpfr_prec,
+            &context->now.mpfr_round,
+#endif
+            &context->now.emax,
+            &context->now.emin,
+            &context->now.trap_underflow,
+            &context->now.trap_overflow,
+            &context->now.trap_inexact,
+            &context->now.trap_invalid,
+            &context->now.trap_erange,
+            &context->now.trap_divzero))) {
+        VALUE_ERROR("invalid keyword arguments in context()");
+        return NULL;
+    }
 
     Py_INCREF((PyObject*)context);
-    result = context;
-    return (PyObject*)result;
+    return (PyObject*)context;
 }
 
 #ifdef WITHMPC
@@ -305,7 +349,12 @@ Pygmpy_new_context(PyObject *self, PyObject *args, PyObject *kwargs)
         VALUE_ERROR("invalid keyword arguments in new_context()");
         return NULL;
     }
-
+    result->now.underflow = 0;
+    result->now.overflow = 0;
+    result->now.inexact = 0;
+    result->now.invalid = 0;
+    result->now.erange = 0;
+    result->now.divzero = 0;
     return (PyObject*)result;
 }
 
