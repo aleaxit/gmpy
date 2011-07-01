@@ -385,20 +385,11 @@ static PyObject *GMPyExc_Underflow = NULL;
 static PyObject *GMPyExc_Erange = NULL;
 #endif
 
-/* forward declarations of type-objects and method-arrays for them */
-//~ #ifdef _MSC_VER
-//~ PyMethodDef Pympz_methods [];
-//~ PyMethodDef Pympq_methods [];
-//~ PyMethodDef Pympfr_methods [];
-//~ PyMethodDef Pympc_methods [];
-//~ PyMethodDef Pyxmpz_methods [];
-//~ #else
-//~ static PyMethodDef Pympz_methods [];
-//~ static PyMethodDef Pympq_methods [];
-//~ static PyMethodDef Pympfr_methods [];
-//~ static PyMethodDef Pympc_methods [];
-//~ static PyMethodDef Pyxmpz_methods [];
-//~ #endif
+/* Support for context manager */
+
+#ifdef WITHMPFR
+#  include "gmpy_context.c"
+#endif
 
 /* Include fast mpz to/from PyLong conversion from sage. */
 #include "mpz_pylong.c"
@@ -410,12 +401,6 @@ static PyObject *GMPyExc_Erange = NULL;
 /* Miscellaneous helper functions and simple methods are in gmpy_misc.c. */
 
 #include "gmpy_misc.c"
-
-/* Support for context manager */
-
-#ifdef WITHMPFR
-#  include "gmpy_context.c"
-#endif
 
 /* Support for conversion to/from binary representation. */
 
@@ -2754,7 +2739,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "const_euler", Pympfr_const_euler, METH_NOARGS, doc_mpfr_const_euler },
     { "const_log2", Pympfr_const_log2, METH_NOARGS, doc_mpfr_const_log2 },
     { "const_pi", Pympfr_const_pi, METH_VARARGS, doc_mpfr_const_pi },
-    { "context", Pygmpy_context, METH_NOARGS, doc_context },
+    { "context", (PyCFunction)Pygmpy_context, METH_VARARGS | METH_KEYWORDS, doc_context },
     { "copy_sign", Pympfr_copy_sign, METH_VARARGS, doc_g_mpfr_copy_sign },
     { "cos", Pympfr_cos, METH_O, doc_g_mpfr_cos },
     { "cosh", Pympfr_cosh, METH_O, doc_g_mpfr_cosh },

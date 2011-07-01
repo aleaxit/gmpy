@@ -558,7 +558,7 @@ Pympfr_convert_arg(PyObject *arg, PyObject **ptr)
     }
 }
 
-/* str and repr implementations for mpz */
+/* str and repr implementations for mpfr */
 static PyObject *
 Pympfr2str(PympfrObject *self)
 {
@@ -2861,7 +2861,7 @@ static PyObject *
 Pympfr_format(PyObject *self, PyObject *args)
 {
     PyObject *result = 0, *mpfrstr = 0;
-    char *buffer = 0, *newbuff = 0, *fmtcode = 0, *p1, *p2, *p3;
+    char *buffer = 0, *newbuf = 0, *fmtcode = 0, *p1, *p2, *p3;
     char mpfrfmt[100], fmt[30];
     int buflen;
     int seensign = 0, seenalign = 0, seendecimal = 0, seendigits = 0;
@@ -2982,26 +2982,26 @@ Pympfr_format(PyObject *self, PyObject *args)
      * only consists of digtis, then append .0 */
     if (strlen(buffer) < 50 &&
         strlen(buffer) == strspn(buffer, "+- 0123456789")) {
-        newbuff = PyMem_Realloc(buffer, buflen + 2);
-        if (!newbuff) {
-            Py_DECREF(mpfrstr);
-            PyErr_NoMemory();
-            return NULL;
+        newbuf = PyMem_Malloc(buflen + 2);
+        if (!newbuf) {
+            mpfr_free_str(buffer);
+            return PyErr_NoMemory();
         }
-        strcat(newbuff, ".0");
+        strcat(newbuf, buffer);
+        strcat(newbuf, ".0");
+        mpfr_free_str(buffer);
+        mpfrstr = Py_BuildValue("s", newbuf);
+        PyMem_Free(newbuf);
     }
     else {
-        newbuff = buffer;
+        mpfrstr = Py_BuildValue("s", buffer);
+        mpfr_free_str(buffer);
     }
-
-    mpfrstr = Py_BuildValue("s", newbuff);
     if (!mpfrstr) {
-        PyMem_Free(buffer);
         return NULL;
     }
 
     result = PyObject_CallMethod(mpfrstr, "__format__", "(s)", fmt);
     Py_DECREF(mpfrstr);
-    PyMem_Free(newbuff);
     return result;
 }
