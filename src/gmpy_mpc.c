@@ -71,16 +71,11 @@ Pympc2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 
 /* Conversion to/from MPC
  * Python's string representation of a complex number differs from the format
- * used by MPC. Python concatenates the real and imaginary components and adds
- * a 'j' character to the end of string. MPC surrounds the complex number with
- * parentheses, requires a space between the real and imaginary components,
- * and does not tolerate the trailing 'j'. PyStr2Pympc tries to work around
- * the differences as follows:
- *
- *  1) If the first non-whitespace character is a '(', the MPC format is
- *     assumed.
- *  2) Otherwise, two MPFR-compatible numbers are read from the string and
- *     stored into the real and imaginary components respectively.
+ * used by MPC. Both MPC and Python surround the complex number with '(' and
+ * ')' but Python adds a 'j' after the imaginary component and MPC requires a
+ * space between the real and imaginery components. PyStr2Pympc tries to work
+ * around the differences as follows reading two MPFR-compatible numbers from
+ * the string and storing into the real and imaginary components respectively.
  */
 
 static PympcObject *
@@ -89,7 +84,8 @@ PyStr2Pympc(PyObject *s, long base)
     PympcObject *newob;
     PyObject *ascii_str = NULL;
     Py_ssize_t len;
-    char *cp, *tempchar, *lastchar;
+    char *cp, *unwind, *tempchar, *lastchar;
+    int firstp = 0, lastp = 0;
 
     if (PyBytes_Check(s)) {
         len = PyBytes_Size(s);
@@ -129,34 +125,61 @@ PyStr2Pympc(PyObject *s, long base)
     while (isspace(*lastchar))
         lastchar--;
 
+    /* Skip trailing ). */
+    if (*lastchar == ')') {
+        lastp = 1;
+        lastchar--;
+    }
+
+    /* Skip trailing j. */
+    if (*lastchar == 'j')
+        lastchar--;
+
     /* Skip leading whitespace. */
     while (isspace(*cp))
         cp++;
 
+    /* Skip a leading (. */
     if (*cp == '(') {
-        newob->rc = mpc_set_str(newob->c, cp, base,
-                                GET_MPC_ROUND(context));
-        if (newob->rc == -1) goto invalid_string;
+        firstp = 1;
+        cp++;
+    }
+
+    if (firstp != lastp) goto invalid_string;
+
+    /* Read the real component first. */
+    unwind = cp;
+    mpfr_strtofr(mpc_realref(newob->c), cp, &tempchar, base,
+                 GET_MPC_RROUND(context));
+    /* Verify that at least one valid character was read. */
+    if (cp == tempchar) goto invalid_string;
+    /* If the next character is a j, then the real component is 0 and
+     * we just read the imaginary componenet.
+     */
+    if (*tempchar == 'j') {
+        mpfr_set_zero(mpc_realref(newob->c), +1);
+        cp = unwind;
     }
     else {
-        /* Read the read component first. */
-        mpfr_strtofr(mpc_realref(newob->c), cp, &tempchar, base,
-                     GET_MPC_RROUND(context));
-        /* Verify that at least one valid character was read. */
-        if (cp == tempchar) goto invalid_string;
         /* Read the imaginary component next. */
         cp = tempchar;
-        mpfr_strtofr(mpc_imagref(newob->c), cp, &tempchar, base,
-                     GET_MPC_IROUND(context));
-        /* For a valid string, either nothing must be read and we consumed
-         * the string or there must be a trailing j optionally followed by
-         * whitespace.
-         */
-        if (!((cp == tempchar && *tempchar == '\00') ||
-              (*tempchar == 'j' && tempchar == lastchar))) {
-            goto invalid_string;
-        }
     }
+    mpfr_strtofr(mpc_imagref(newob->c), cp, &tempchar, base,
+                 GET_MPC_IROUND(context));
+    fprintf(stderr, "%lluX: %c\n", (unsigned long long)cp, *cp);
+    fprintf(stderr, "%lluX: %c\n", (unsigned long long)tempchar, *tempchar);
+    fprintf(stderr, "%lluX: %c\n", (unsigned long long)lastchar, *lastchar);
+
+    if (cp == tempchar && tempchar > lastchar)
+        goto valid_string;
+
+    if (*tempchar != 'j' && *cp != ' ')
+        goto invalid_string;
+
+    if (tempchar <= lastchar)
+        goto invalid_string;
+
+  valid_string:
     Py_XDECREF(ascii_str);
     return newob;
 
@@ -442,8 +465,8 @@ Pympc_format(PyObject *self, PyObject *args)
         return PyErr_NoMemory();
     }
     tempbuf[0] = '\00';
-    if (mpcstyle)
-        strcat(tempbuf, "(");
+    //~ if (mpcstyle)
+    strcat(tempbuf, "(");
     strcat(tempbuf, realbuf);
 
     /* If there isn't a decimal point in the output and the output
@@ -464,7 +487,7 @@ Pympc_format(PyObject *self, PyObject *args)
     if (mpcstyle)
         strcat(tempbuf, ")");
     else
-        strcat(tempbuf, "j");
+        strcat(tempbuf, "j)");
 
     mpfr_free_str(realbuf);
     mpfr_free_str(imagbuf);
