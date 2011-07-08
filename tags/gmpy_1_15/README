@@ -1,0 +1,33 @@
+General MultiPrecision arithmetic for Python -- i.e., Python 2.4+ and 3.0+
+interface module for library GMP 4 -- release 1.10 (July 2009).
+
+Note: There is a bug in GMP 4.2.3 that causes a segmentation fault when
+running gmpy_test.py. There are patches available at the GMP website or use
+GMP 4.2.4.
+
+The gmpy project has moved (since quite a while ago!-) to Google Code:
+    http://code.google.com/p/gmpy/
+Please check that site for better-updated sources, docs, etc.
+
+Detailed documentation is in subdirectory doc.
+
+To install gmpy 1.10 from sources (you need to have Python 2.4 or better, and
+GMP 4 or MPIR, previously installed): at a shell prompt, python setup.py install
+
+Beginning with gmpy 1.10, MPIR is supported as an alternative library to GMP.
+To install gmpy 1.10 with MPIR support, use the following command:
+python setup.py build_ext -DMPIR install
+
+Note that, on Windows, you may use the distributed binary release, rather
+than having to rebuild from source. To build GMP and GMPY from source, see the
+file "windows_build.txt".
+
+Binary installations are also available for MacOSX (and for many Linux
+distributions, but those are not distributed by the gmpy project).
+
+To test your installation: cd test, then python gmpy_test.py
+
+For any support request, mail Alex Martelli, aleaxit@gmail.com (or, better, use
+the issues and wiki entries of the Google Code URL previously given).
+
+
