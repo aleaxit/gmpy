@@ -1,4 +1,4 @@
-Instructions for compiling GMPY for 32-bit Windows.
+Instructions for compiling GMPY 1.12 for 32-bit Windows.
 
 GMPY 32-bit binaries can be compiled for the Windows operating systems
 using the free MinGW toolkit. The MinGW toolkit provides a Minimalist
@@ -32,8 +32,11 @@ procedure for MPIR is indentical.
    gmp-5.0.1.tar.bz2 is used in this example. The GMP source is also
    available at http://gmpy.googlecode.com/files/gmp-5.0.1.tar.bz2.
 
-6) Download the GMPY source code and save it in C:\src. For this example,
-   I used gmpy-1.12.tar.gz.
+   ( Or download the MPIR source code from www.mpir.org and save it in
+     C:\src. The MPIR source code is also available at
+     http://gmpy.googlecode.com/files/mpir-2.1.1.tar.gz. )
+
+6) Download the GMPY source code and save it in C:\src.
 
 7) Using MSYS, uncompress GMP, and then compile GMP. The resulting files
    are installed in C:\src.
@@ -48,7 +51,7 @@ procedure for MPIR is indentical.
    $ make install
 
 8) Using the Windows command line, compile GMPY. The instructions assume the
-   GMPY source code is in C:\src\gmpy-1.12.
+   GMPY source code is uncompressed into C:\src\gmpy-1.12.
 
    > cd C:\src\gmpy-1.12
    > python setup.py build_ext -cmingw32 -Ic:\src\include -Lc:\src\lib install

@@ -1,12 +1,13 @@
-# partial unit test for gmpy2 mpq functionality
+# partial unit test for gmpy mpq functionality
 # relies on Tim Peters' "doctest.py" test-driver
+
 r'''
 >>> dir(a)
-['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', 'binary', 'denominator', 'digits', 'numerator']
+['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'denom', 'denominator', 'digits', 'numer', 'numerator', 'qdiv', 'sign']
 >>>
 '''
 
-import gmpy2 as _g, doctest,sys
+import gmpy as _g, doctest,sys
 import fractions
 F=fractions.Fraction
 
@@ -104,29 +105,29 @@ mpq(263,76)
 mpq(-41,152)
 >>> abs(-a)
 mpq(41,152)
->>> _g.sign(b-a)
+>>> _g.qsign(b-a)
 1
->>> _g.sign(b-b)
+>>> _g.qsign(b-b)
 0
->>> _g.sign(a-b)
+>>> _g.qsign(a-b)
 -1
->>> _g.sign(a)
+>>> a.sign()
 1
->>> _g.sign(-a)
+>>> (-a).sign()
 -1
->>> z=b-b; _g.sign(z)
+>>> z=b-b; z.sign()
 0
->>> _g.numer(a) == a.numerator
+>>> a.numer() == a.numerator
 True
->>> _g.denom(a) == a.denominator
+>>> a.denom() == a.denominator
 True
->>> an=_g.numer(a); ad=_g.denom(a);
+>>> an=a.numer(); ad=a.denom();
 >>> an==0 or 1==a*_g.mpq(ad,an)
 1
->>> bn=_g.numer(b); bd=_g.denom(b);
+>>> bn=b.numer(); bd=b.denom();
 >>> bn==0 or 1==b*_g.mpq(bd,bn)
 1
->>> zn=_g.numer(z); zd=_g.denom(z);
+>>> zn=z.numer(); zd=z.denom();
 >>> zn==0 or 1==z*_g.mpq(zd,zn)
 1
 >>> (a+b) == _g.mpq(an*bd+ad*bn,ad*bd)
@@ -152,7 +153,7 @@ r'''
 0
 >>> c<a
 0
->>> d=_g._copy(a)
+>>> d=a._copy()
 >>> a is d
 0
 >>> a == d
@@ -198,11 +199,19 @@ r'''
 'mpq(-41,152)'
 >>> (-a)==eval(repr(-a),_g.__dict__)
 1
+>>> _g.set_tagoff(0)
+1
+>>> a
+gmpy.mpq(41,152)
+>>> _g.mpq('12.34')
+gmpy.mpq(617,50)
+>>> _g.set_tagoff(1)
+0
 >>> for i in range(1,7):
 ...    for j in range(3,10):
 ...       if _g.mpq(i,j) != _g.mpq("%d/%d"%(i,j)):
 ...          print('er1:',i,j); break
-...       aa=_g.mpq(i,j); ai=_g.numer(aa); aj=_g.denom(aa)
+...       aa=_g.mpq(i,j); ai=aa.numer(); aj=aa.denom()
 ...       if aj!=1 and str(aa) != ("%d/%d"%(ai,aj)):
 ...          print('er2:',i,j,str(aa),("%d/%d"%(ai,aj))); break
 ...       if aj==1 and str(aa) != ("%d"%ai):
@@ -211,17 +220,17 @@ r'''
 ...          print('er4:',i,j,repr(aa),("mpq(%d,%d)"%(ai,aj))); break
 ...       if aj==1 and repr(aa) != ("mpq(%d,%d)"%(ai,aj)):
 ...          print('er5:',i,j,repr(aa),"mpq(%d,%d)"%(ai,aj)); break
->>> fmo='_g.mpq('+_g.numer(a).digits(16)+','+_g.denom(a).digits(16)+')'
+>>> fmo='_g.mpq('+a.numer().digits(16)+','+a.denom().digits(16)+')'
 >>> fmo
 '_g.mpq(0x29,0x98)'
 >>> eval(fmo)==a
 1
->>> fmo='_g.mpq("'+_g.numer(a).digits(30)+'/'+_g.denom(a).digits(30)+'",30)'
+>>> fmo='_g.mpq("'+a.numer().digits(30)+'/'+a.denom().digits(30)+'",30)'
 >>> fmo
 '_g.mpq("1b/52",30)'
 >>> eval(fmo)==a
 1
->>> _g.digits(a,30)
+>>> _g.qdigits(a,30)
 '1b/52'
 >>> a.digits(30)
 '1b/52'
@@ -231,10 +240,10 @@ mpq(1000000000000000000000,23)
 mpq(23,1000000000000000000000)
 >>> _g.mpq(23**15,1000**7)
 mpq(266635235464391245607,1000000000000000000000)
->>> _g.binary('pep')
+>>> _g.qbinary('pep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: binary() requires a gmpy2 object as argument
+TypeError: argument can not be converted to mpq
 >>> x=_g.mpq('234/567')
 >>> del x
 >>> _g.mpq('7788')
@@ -257,9 +266,9 @@ r'''
 0
 41
 152
->>> _g.mpq_from_old_binary(ba)==a
+>>> _g.mpq(ba,256)==a
 1
->>> ba == _g.binary(a)
+>>> ba == _g.qbinary(a)
 1
 >>> ba=(-a).binary()
 >>> len(ba)
@@ -273,7 +282,7 @@ r'''
 128
 41
 152
->>> _g.mpq_from_old_binary(ba)==-a
+>>> _g.mpq(ba,256)==-a
 1
 >>>
 '''
@@ -283,11 +292,15 @@ r'''
 >>> _g.mpq(2,3)**3
 mpq(8,27)
 >>> _g.mpq(8,27)**_g.mpq('2/3')
-mpfr('0.44444444444444448')
+mpq(4,9)
 >>> _g.mpq(2,3)**-3
 mpq(27,8)
 >>> _g.mpq(8,27)**_g.mpq('-2/3')
-mpfr('2.25')
+mpq(9,4)
+>>> print(float(_g.mpf('0.2')**2))
+0.04
+>>> print(float(_g.mpf('0.2')**-2))
+25.0
 >>> _g.mpq(3)**3 == _g.mpz(3)**3
 True
 >>> (a**-7) == 1/(a**7)
@@ -303,13 +316,13 @@ r'''
 mpz(6)
 >>> _g.qdiv(12,5)
 mpq(12,5)
->>> a is _g.qdiv(a)
+>>> a is a.qdiv()
 1
->>> a is _g.qdiv(a,1)
+>>> a is a.qdiv(1)
 1
->>> a is _g.qdiv(a,2)
+>>> a is a.qdiv(2)
 0
->>> x=_g.numer(a)
+>>> x=a.numer()
 >>> x is _g.qdiv(x)
 1
 >>> x is _g.qdiv(x,1)
@@ -317,23 +330,26 @@ mpq(12,5)
 >>> x is _g.qdiv(x,2)
 0
 >>> y=_g.mpq(4,1)
->>> y is _g.qdiv(y)
+>>> y is y.qdiv()
 0
->>> y == _g.qdiv(y)
+>>> y == y.qdiv()
 1
 >>>
 '''
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy2 (mpq functionality)")
-        print("    on Python %s" % sys.version)
-        print("Testing gmpy2 {0}".format(_g.version()))
-        print("  Mutliple-precision library:   {0}".format(_g.mp_version()))
-        print("  Floating-point library:       {0}".format(_g.mpfr_version()))
-        print("  Complex library:              {0}".format(_g.mpc_version()))
-        print("  Caching Values: (Number)      {0}".format(_g.get_cache()[0]))
-        print("  Caching Values: (Size, limbs) {0}".format(_g.get_cache()[1]))
+        print("Unit tests for gmpy 1.14 (mpq functionality)")
+        print("    running on Python",sys.version)
+        print()
+        if _g.gmp_version():
+            print("Testing gmpy %s (GMP %s), default caching (%s, %s)" % (
+                (_g.version(), _g.gmp_version(), _g.get_cache()[0],
+                _g.get_cache()[1])))
+        else:
+            print("Testing gmpy %s (MPIR %s), default caching (%s, %s)" % (
+                (_g.version(), _g.mpir_version(), _g.get_cache()[0],
+                _g.get_cache()[1])))
 
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)

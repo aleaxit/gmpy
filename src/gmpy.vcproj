@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="gmpy2.python26"
-	ProjectGUID="{4A305DD3-5FE9-4B76-AB1F-8C0C2263BEF8}"
-	RootNamespace="gmpy2python26"
+	Name="gmpy"
+	ProjectGUID="{CA80B30F-7C98-4A7C-A412-9E0012C5E27E}"
+	RootNamespace="gmpy"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -24,7 +24,7 @@
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets=".\gmpy2.python26.vsprops"
+			InheritedPropertySheets=".\mp_lib.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -45,14 +45,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\Program Files (x86)\$(python_version)\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;GMPY2PYTHON26_EXPORTS"
+				AdditionalIncludeDirectories="C:\Python26\include;&quot;..\..\$(mp_lib)&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR;FAST"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				CompileAs="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -65,7 +66,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="&quot;C:\Program Files (x86)\$(python_version)\libs\$(python_version).lib&quot;"
+				AdditionalDependencies="..\..\$(mp_lib)\build.vc9\lib\$(IntDir)\$(mp_lib).lib C:\Python26\libs\python26.lib"
 				OutputFile="$(OutDir)\$(ProjectName).pyd"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -99,7 +100,7 @@
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets=".\gmpy2.python26.vsprops"
+			InheritedPropertySheets=".\mp_lib.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -121,14 +122,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\Program Files\$(python_version)\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;GMPY2PYTHON26_EXPORTS"
+				AdditionalIncludeDirectories="C:\Python31\include;&quot;..\..\$(mp_lib)&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR;FAST"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				CompileAs="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -141,9 +143,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="&quot;C:\Program Files\$(python_version)\libs\$(python_version).lib&quot;"
+				AdditionalDependencies="..\..\$(mp_lib)\build.vc9\lib\$(IntDir)\$(mp_lib).lib C:\Python31\libs\python31.lib"
 				OutputFile="$(OutDir)\$(ProjectName).pyd"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="C:\Python25\libs"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="17"
@@ -175,7 +178,7 @@
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets=".\gmpy2.python26.vsprops"
+			InheritedPropertySheets=".\mp_lib.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -198,13 +201,14 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="C:\Program Files (x86)\$(python_version)\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GMPY2PYTHON26_EXPORTS"
+				AdditionalIncludeDirectories="C:\Python26\include;&quot;..\..\$(mp_lib)&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR;FAST"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				CompileAs="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -217,7 +221,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="&quot;C:\Program Files (x86)\$(python_version)\libs\$(python_version).lib&quot;"
+				AdditionalDependencies="..\..\$(mp_lib)\build.vc9\lib\$(IntDir)\$(mp_lib).lib C:\Python26\libs\python26.lib"
 				OutputFile="$(OutDir)\$(ProjectName).pyd"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
@@ -253,7 +257,7 @@
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets=".\gmpy2.python26.vsprops"
+			InheritedPropertySheets=".\mp_lib.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -277,13 +281,14 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="C:\Program Files\$(python_version)\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GMPY2PYTHON26_EXPORTS"
+				AdditionalIncludeDirectories="C:\Python31\include;&quot;..\..\$(mp_lib)&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GMPY_EXPORTS;MPIR;FAST"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				CompileAs="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -296,7 +301,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="&quot;C:\Program Files\$(python_version)\libs\$(python_version).lib&quot;"
+				AdditionalDependencies="..\..\$(mp_lib)\build.vc9\lib\$(IntDir)\$(mp_lib).lib C:\Python31\libs\python31.lib"
 				OutputFile="$(OutDir)\$(ProjectName).pyd"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
@@ -337,7 +342,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\src\gmpy2.c"
+				RelativePath=".\gmpy.c"
+				>
+			</File>
+			<File
+				RelativePath=".\pysymbolicext.c"
 				>
 			</File>
 		</Filter>
@@ -347,7 +356,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\src\gmpy.h"
+				RelativePath=".\gmpy.h"
+				>
+			</File>
+			<File
+				RelativePath=".\pymemcompat.h"
 				>
 			</File>
 		</Filter>

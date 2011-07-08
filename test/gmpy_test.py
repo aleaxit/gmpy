@@ -1,12 +1,12 @@
 r'''
->>> gmpy2.version()
-'2.0.0a1'
+>>> gmpy.version()
+'1.14'
 >>>
 '''
 
 import sys
 import doctest
-import gmpy2
+import gmpy
 
 def writeln(s):
     sys.stdout.write(s+'\n')
@@ -19,25 +19,28 @@ if sys.argv[-1] == 'debug':
     gmpy.set_debug(1)
 
 import gmpy_test_cvr
-#~ import gmpy_test_rnd
+import gmpy_test_rnd
 import gmpy_test_mpf
 import gmpy_test_mpq
 import gmpy_test_mpz
 import gmpy_test_dec
 
 
-test_modules = (gmpy_test_cvr, gmpy_test_mpf,
+test_modules = (gmpy_test_cvr, gmpy_test_rnd, gmpy_test_mpf,
     gmpy_test_mpq, gmpy_test_mpz, gmpy_test_dec)
 
-_g = gmpy2
-writeln("Unit tests for gmpy2")
+_g = gmpy
+writeln("Unit tests for gmpy 1.14")
 writeln("    on Python %s" % sys.version)
-writeln("Testing gmpy2 {0}".format(_g.version()))
-writeln("  Mutliple-precision library:   {0}".format(_g.mp_version()))
-writeln("  Floating-point library:       {0}".format(_g.mpfr_version()))
-writeln("  Complex library:              {0}".format(_g.mpc_version()))
-writeln("  Caching Values: (Number)      {0}".format(_g.get_cache()[0]))
-writeln("  Caching Values: (Size, limbs) {0}".format(_g.get_cache()[1]))
+if _g.gmp_version():
+    writeln("Testing gmpy %s (GMP %s), default caching (%s, %s)" % (
+            (_g.version(), _g.gmp_version(), _g.get_cache()[0],
+            _g.get_cache()[1])))
+else:
+    writeln("Testing gmpy %s (MPIR %s), default caching (%s, %s)" % (
+            (_g.version(), _g.mpir_version(), _g.get_cache()[0],
+            _g.get_cache()[1])))
+
 
 pf, pt = 0, 0
 for x in test_modules:
