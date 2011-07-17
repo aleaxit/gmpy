@@ -602,20 +602,20 @@ Pympfr2repr(PympfrObject *self)
 }
 
 static char doc_mpfr[] = "\
-mpfr(n):\n\
-    builds an mpfr object with a numeric value n (n may be any\n\
-    Python number, or an mpz, mpq, or mpfr object) and a default\n\
-    precision (in bits) depending on the nature of n\n\
-mpfr(n,bits=0):\n\
-    as above, but with the specified number of bits (0\n\
-    means to use default precision, as above)\n\
-mpfr(s,bits=0,base=10):\n\
-    builds an mpfr object from a string s made up of\n\
+mpfr(n,[bits=0]):\n\
+    Return an 'mpfr' object after converting a numeric value. If\n\
+    no precision, or a precision of 0, is specified; the precison\n\
+    is taken from the current context.\n\
+mpfr(s,[bits=0],[base=0]):\n\
+    Return 'mpfr' object after converting a string 's' made up of\n\
     digits in the given base, possibly with fraction-part (with\n\
     period as a separator) and/or exponent-part (with exponent\n\
-    marker 'e' for base<=10, else '@'). The resulting mpfr object\n\
-    is built with a default precision (in bits) if bits is 0 or\n\
-    absent, else with the specified number of bits.\n\
+    marker 'e' for base<=10, else '@'). If no precision, or a\n\
+    precision of 0, is specified; the precison is taken from the\n\
+    current context. The base of the string representation must\n\
+    be 0 or in the interval 2 ... 62. If the base is 0, the leading\n\
+    digits of the string are used to identify the base: 0b implies\n\
+    base=2, 0x implies base=16, otherwise base=10 is assumed.\n\
 ";
 static PyObject *
 Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
@@ -627,7 +627,7 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
     /* Assumes mpfr_prec_t is the same as a long. */
     mpfr_prec_t bits = 0;
     static char *kwlist_s[] = {"s", "bits", "base", NULL};
-    static char *kwlist_n[] = {"s", "bits", NULL};
+    static char *kwlist_n[] = {"n", "bits", NULL};
 
     TRACE("Pygmpy_mpfr() called...\n");
 
@@ -2979,7 +2979,7 @@ Pympfr_format(PyObject *self, PyObject *args)
     buflen = mpfr_asprintf(&buffer, mpfrfmt, Pympfr_AS_MPFR(self));
 
     /* If there isn't a decimal point in the output and the output
-     * only consists of digtis, then append .0 */
+     * only consists of digits, then append .0 */
     if (strlen(buffer) < 50 &&
         strlen(buffer) == strspn(buffer, "+- 0123456789")) {
         newbuf = PyMem_Malloc(buflen + 2);
@@ -2987,6 +2987,7 @@ Pympfr_format(PyObject *self, PyObject *args)
             mpfr_free_str(buffer);
             return PyErr_NoMemory();
         }
+        *newbuf = '\0';
         strcat(newbuf, buffer);
         strcat(newbuf, ".0");
         mpfr_free_str(buffer);
