@@ -296,7 +296,7 @@ TypeError: an integer is required
 >>> _g.mpfr(1,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: bits for gmpy2.mpfr() must be >= 0
+ValueError: precision for gmpy2.mpfr() must be >= 0
 >>> _g.mpfr('ba',0,'bu')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?

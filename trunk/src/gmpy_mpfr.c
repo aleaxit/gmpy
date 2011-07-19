@@ -602,11 +602,11 @@ Pympfr2repr(PympfrObject *self)
 }
 
 static char doc_mpfr[] = "\
-mpfr(n,[bits=0]):\n\
+mpfr(n,[precison=0]):\n\
     Return an 'mpfr' object after converting a numeric value. If\n\
     no precision, or a precision of 0, is specified; the precison\n\
     is taken from the current context.\n\
-mpfr(s,[bits=0],[base=0]):\n\
+mpfr(s,[precision=0],[base=0]):\n\
     Return 'mpfr' object after converting a string 's' made up of\n\
     digits in the given base, possibly with fraction-part (with\n\
     period as a separator) and/or exponent-part (with exponent\n\
@@ -621,13 +621,13 @@ static PyObject *
 Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
 {
     PympfrObject *result = 0;
-    PyObject *n;
+    PyObject *arg0;
     long base = 0;
     Py_ssize_t argc;
     /* Assumes mpfr_prec_t is the same as a long. */
     mpfr_prec_t bits = 0;
-    static char *kwlist_s[] = {"s", "bits", "base", NULL};
-    static char *kwlist_n[] = {"n", "bits", NULL};
+    static char *kwlist_s[] = {"s", "precision", "base", NULL};
+    static char *kwlist_n[] = {"n", "precision", NULL};
 
     TRACE("Pygmpy_mpfr() called...\n");
 
@@ -637,38 +637,38 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
         return NULL;
     }
 
-    n = PyTuple_GetItem(args, 0);
-    if (PyStrOrUnicode_Check(n)) {
-        /* Can have both bits and/or base as keyword arguments. */
+    arg0 = PyTuple_GetItem(args, 0);
+    if (PyStrOrUnicode_Check(arg0)) {
+        /* Can have both precision and/or base as keyword arguments. */
         if (PyArg_ParseTupleAndKeywords(args, keywds, "O|ll", kwlist_s,
-                                        &n, &bits, &base)) {
+                                        &arg0, &bits, &base)) {
             if ((base!=0) && ((base<2)||(base>62))) {
                 VALUE_ERROR("base for gmpy2.mpfr() must be 0 or in the "
                             "interval 2 ... 62");
             }
             else if (bits < 0) {
-                VALUE_ERROR("bits for gmpy2.mpfr() must be >= 0");
+                VALUE_ERROR("precision for gmpy2.mpfr() must be >= 0");
             }
             else {
-                result = PyStr2Pympfr(n, base, bits);
+                result = PyStr2Pympfr(arg0, base, bits);
             }
         }
         return (PyObject*)result;
     }
 
     /* Optimize the common case */
-    if (isReal(n) && argc == 1 && !keywds) {
-        result = Pympfr_From_Real(n, bits);
+    if (isReal(arg0) && argc == 1 && !keywds) {
+        result = Pympfr_From_Real(arg0, bits);
         return (PyObject*)result;
     }
 
-    /* Can only have bits as keyword argument. */
-    if (PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist_n, &n, &bits)) {
+    /* Can only have precision as keyword argument. */
+    if (PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist_n, &arg0, &bits)) {
         if (bits < 0) {
-            VALUE_ERROR("bits for gmpy2.mpfr() must be >= 0");
+            VALUE_ERROR("precision for gmpy2.mpfr() must be >= 0");
         }
         else {
-            result = Pympfr_From_Real(n, bits);
+            result = Pympfr_From_Real(arg0, bits);
             if (!result && !PyErr_Occurred())
                 TYPE_ERROR("gmpy2.mpfr() requires numeric or string argument");
         }
