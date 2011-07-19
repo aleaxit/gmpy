@@ -47,3 +47,19 @@ typedef struct {
 static PyTypeObject Pympc_Type;
 #define Pympc_AS_MPC(obj) (((PympcObject *)(obj))->c)
 #define Pympc_Check(v) (((PyObject*)v)->ob_type == &Pympc_Type)
+/* Verify that an object is an mpc and that both components have valid exp */
+#define Pympc_CheckAndExp(v) \
+    (Pympc_Check(v) && \
+        (mpfr_zero_p(mpc_realref(Pympc_AS_MPC(v))) || \
+            (mpfr_regular_p(mpc_realref(Pympc_AS_MPC(v))) && \
+                (mpc_realref(Pympc_AS_MPC(v)->_mpfr_exp >= context->now.emin)) && \
+                (mpc_realref(Pympc_AS_MPC(v)->_mpfr_exp <= context->now.emax)) \
+            ) \
+        ) && \
+        (mpfr_zero_p(mpc_imagref(Pympc_AS_MPC(v))) || \
+            (mpfr_regular_p(mpc_imagref(Pympc_AS_MPC(v))) && \
+                (mpc_imagref(Pympc_AS_MPC(v)->_mpfr_exp >= context->now.emin)) && \
+                (mpc_imagref(Pympc_AS_MPC(v)->_mpfr_exp <= context->now.emax)) \
+            ) \
+        ) \
+    )
