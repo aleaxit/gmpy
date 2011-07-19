@@ -153,11 +153,16 @@ typedef struct {
 static PyTypeObject Pympfr_Type;
 #define Pympfr_AS_MPFR(obj) (((PympfrObject *)(obj))->f)
 #define Pympfr_Check(v) (((PyObject*)v)->ob_type == &Pympfr_Type)
-#define Pympfr_CheckAndExp(v) (Pympfr_Check(v) && \
-(mpfr_zero_p(Pympfr_AS_MPFR(v)) || \
-(mpfr_regular_p(Pympfr_AS_MPFR(v)) && \
-(Pympfr_AS_MPFR(v)->_mpfr_exp >= context->now.emin) && \
-(Pympfr_AS_MPFR(v)->_mpfr_exp <= context->now.emax))))
+/* Verify that an object is an mpfr and the exponent is valid */
+#define Pympfr_CheckAndExp(v) \
+    (Pympfr_Check(v) && \
+        (mpfr_zero_p(Pympfr_AS_MPFR(v)) || \
+            (mpfr_regular_p(Pympfr_AS_MPFR(v)) && \
+                (Pympfr_AS_MPFR(v)->_mpfr_exp >= context->now.emin) && \
+                (Pympfr_AS_MPFR(v)->_mpfr_exp <= context->now.emax) \
+            ) \
+        ) \
+    )
 
 /* Forward declarations begin here. */
 static PyObject *f2q_internal(PympfrObject* self, PympfrObject* err, unsigned int bits, int mayz);
