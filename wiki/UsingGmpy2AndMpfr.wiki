@@ -21,7 +21,7 @@ mpfr('0.47942553860420301')
 >>> 
 }}}
 
-`help(gmpy2)` will display all the online documentation. Help for individual function can also be displayed.
+`help(gmpy2)` will display all the online documentation. Help for an individual function can also be displayed.
 
 {{{
 >>> help(gmpy2.sin)
@@ -33,7 +33,7 @@ sin(...)
 >>>
 }}}
 
-*gmpy2* uses a context manager to control the precision and exponent range, rounding mode, track the occurance of any "exceptions", and to optionally raise a Python exception. 
+*gmpy2* uses a context manager to control the precision and exponent range, rounding mode, track the occurrence of any "exceptions", and to optionally raise a Python exception. 
 
 {{{
 >>> gmpy2.context()
@@ -71,23 +71,6 @@ context(subnormalize=False,
 }}}
 
 In the previous example, the precision was increased to 100 bits and then the sqrt(3.2) was calculated. Since sqrt(3.2) can not be calculated exactly, the inexact flag is set. The flags accumulate all the exceptional conditions that occur during a sequence of calculations. To clear all the flags, use `gmpy2.context().clear_flags()`. To clear an individual flag, use `gmpy2.context().inexact = False`.
-
-{{{
->>> gmpy2.context()
-context(subnormalize=False,
-        precision=100,
-        round=RoundToNearest,
-        emax=1073741823, emin=-1073741823,
-        trap_underflow=False, underflow=False,
-        trap_overflow=False, overflow=False,
-        trap_inexact=False, inexact=True,
-        trap_invalid=False, invalid=False,
-        trap_erange=False, erange=False,
-        trap_divzero=False, divzero=False)
->>>
-}}}
-
-In the previous example, the precision was increased to 100 bits and then the sqrt(3.2) was calculated. Since sqrt(3.2) can not be calculated exactly, the inexact flag is set. The flags accumulate all the exceptional conditions that occur during a sequence of calculations. To clear all the flags, use `gmpy2.context().clear_flags()`. To clear an individual flag, use `gmpy2.context().underflow = False`.
 
 When exceptional conditions are encountered, MPFR returns "nan", "inf", or "-inf" and sets the appropriate exception flag. This is the default behavior in *gmpy2*. Exceptions can be enabled by setting the corresponding trap attribute of the context.
 
@@ -134,7 +117,7 @@ Traceback (most recent call last):
 gmpy2.RangeError: comparison with NaN
 }}}
 
-Setting `trap_underflow` will generate an excpetion if a calculation underflows to 0. Setting `trap_overflow` will generate an exception if the result of a calculation exceeds the exponent range. Setting `trap_invalid` will generate an exception if an invalid operation, say `gmpy2.asin(34)`, is attempted.
+Setting `trap_underflow` will generate an exception if a calculation underflows to 0. Setting `trap_overflow` will generate an exception if the result of a calculation exceeds the exponent range. Setting `trap_invalid` will generate an exception if an invalid operation, say `gmpy2.asin(34)`, is attempted.
 
 `context()` always refers to the current context. A new context object can be created with `new_context()`. To activate a context object, use `set_context(new_context())`. The "with ..." statement can also be used.
 
@@ -161,7 +144,7 @@ mpfr('4.0000000000000000000079999999986',100)
 >>>
 }}}
 
-The last examples illustrate that MPFR uses a binary, or power of 2, representation. Just like 1/3 = 0.3333... can not be represented exactly with decimal number, most decimal numbers can be represented exactly in binary format. If you have a need for exact decimal math, financial calculation, for example, you should look at the Decimal module included with Python.
+The last examples illustrate that MPFR uses a binary, or power of 2, representation. Just like 1/3 = 0.3333... can not be represented exactly with decimal number, most decimal numbers can not be represented exactly in binary format. If you have a need for exact decimal math, financial calculation, for example, you should look at the Decimal module included with Python.
 
 Values can be displayed to a specific number of digits.
 
