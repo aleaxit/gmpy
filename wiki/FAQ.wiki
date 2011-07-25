@@ -1,5 +1,5 @@
 #summary Frequently Asked Questions
-#labels Phase-Support
+#labels Documentation
 
 = Frequently Asked Questions =
 
@@ -36,4 +36,3 @@ Python dictionaries assume the value of an object never changes so _xmpz_ object
 If you have a program that performs a sequence of in-place operations, then using _xmpz_ may be slightly faster (~10%). Certain operations, such as adding or subtracting a small value from a very large number, may be much faster. _xmpz_ only have performance advantages for in-place operations.
 
 (Historical note: In theory, _xmpz_ should provide a more substantial performance improvement since new objects do not need to be created. However, *gmpy2* and recent versions of *gmpy* include object caching that eliminate much of the penalty for creating new objects.)
-
