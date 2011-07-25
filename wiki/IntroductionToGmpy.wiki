@@ -1,5 +1,5 @@
 #summary Introduction to gmpy.
-#labels Phase-Support
+#labels Documentation
 
 = Introduction =
 
