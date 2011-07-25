@@ -1,5 +1,5 @@
 #summary Installing gmpy2 on Windows and Linux.
-#labels Phase-Deploy
+#labels Documentation
 
 =Installing gmpy2 on Windows=
 
