@@ -34,147 +34,126 @@
 static PympfrObject *
 Pympfr2Pympfr(PyObject *self, mpfr_prec_t bits)
 {
-    PympfrObject *newob;
+    PympfrObject *result;
 
-    assert(Pympfr_Check(self));
     if (bits == 0)
         bits = mpfr_get_prec(Pympfr_AS_MPFR(self));
-    if ((newob = Pympfr_new(bits)))
-        newob->rc = mpfr_set(newob->f, Pympfr_AS_MPFR(self),
-                             context->now.mpfr_round);
-    return newob;
+    if ((result = Pympfr_new(bits)))
+        result->rc = mpfr_set(result->f, Pympfr_AS_MPFR(self),
+                              context->now.mpfr_round);
+    return result;
 }
 
 static PympfrObject *
 PyFloat2Pympfr(PyObject *self, mpfr_prec_t bits)
 {
-    PympfrObject *newob;
+    PympfrObject *result;
 
-    assert(PyFloat_Check(self));
     if (!bits)
         bits = DBL_MANT_DIG;
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr, "PyFloat2Pympfr(%p,%ld)\n", self, (long) bits);
-#endif
-    if ((newob = Pympfr_new(bits)))
-        newob->rc = mpfr_set_d(newob->f, PyFloat_AS_DOUBLE(self),
-                               context->now.mpfr_round);
-    return newob;
+    if ((result = Pympfr_new(bits)))
+        result->rc = mpfr_set_d(result->f, PyFloat_AS_DOUBLE(self),
+                                context->now.mpfr_round);
+    return result;
 }
 
 static PympfrObject *
 Pympz2Pympfr(PyObject *self, mpfr_prec_t bits)
 {
-    PympfrObject *newob;
+    PympfrObject *result;
 
-    assert(Pympz_Check(self));
-    if ((newob = Pympfr_new(bits)))
-        newob->rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self),
-                               context->now.mpfr_round);
-    return newob;
+    if ((result = Pympfr_new(bits)))
+        result->rc = mpfr_set_z(result->f, Pympz_AS_MPZ(self),
+                                context->now.mpfr_round);
+    return result;
 }
 
-static PympfrObject *
-Pyxmpz2Pympfr(PyObject *self, mpfr_prec_t bits)
-{
-    PympfrObject *newob;
-
-    assert(Pyxmpz_Check(self));
-    if ((newob = Pympfr_new(bits)))
-        newob->rc = mpfr_set_z(newob->f, Pympz_AS_MPZ(self),
-                               context->now.mpfr_round);
-    return newob;
-}
+#define Pyxmpz2Pympfr Pympz2Pympfr
 
 static PympzObject *
 Pympfr2Pympz(PyObject *self)
 {
-    PympzObject *newob;
+    PympzObject *result;
 
-    assert(Pympfr_Check(self));
-    if ((newob = Pympz_new())) {
+    if ((result = Pympz_new())) {
         if (mpfr_nan_p(Pympfr_AS_MPFR(self))) {
-            Py_DECREF((PyObject*)newob);
+            Py_DECREF((PyObject*)result);
             VALUE_ERROR("gmpy2.mpz() does not handle nan");
             return NULL;
         }
         if (mpfr_inf_p(Pympfr_AS_MPFR(self))) {
-            Py_DECREF((PyObject*)newob);
+            Py_DECREF((PyObject*)result);
             VALUE_ERROR("gmpy2.mpz() does not handle infinity");
             return NULL;
         }
         /* return code is ignored */
-        mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), context->now.mpfr_round);
+        mpfr_get_z(result->z, Pympfr_AS_MPFR(self), context->now.mpfr_round);
     }
-    return newob;
+    return result;
 }
 
 static PyxmpzObject *
 Pympfr2Pyxmpz(PyObject *self)
 {
-    PyxmpzObject *newob;
+    PyxmpzObject *result;
 
-    assert(Pympfr_Check(self));
-    if ((newob = Pyxmpz_new())) {
+    if ((result = Pyxmpz_new())) {
         if (mpfr_nan_p(Pympfr_AS_MPFR(self))) {
-            Py_DECREF((PyObject*)newob);
+            Py_DECREF((PyObject*)result);
             VALUE_ERROR("gmpy2.xmpz() does not handle nan");
             return NULL;
         }
         if (mpfr_inf_p(Pympfr_AS_MPFR(self))) {
-            Py_DECREF((PyObject*)newob);
+            Py_DECREF((PyObject*)result);
             VALUE_ERROR("gmpy2.xmpz() does not handle infinity");
             return NULL;
         }
         /* return code is ignored */
-        mpfr_get_z(newob->z, Pympfr_AS_MPFR(self), context->now.mpfr_round);
+        mpfr_get_z(result->z, Pympfr_AS_MPFR(self), context->now.mpfr_round);
     }
-    return newob;
+    return result;
 }
 
 static PympqObject *
 Pympfr2Pympq(PyObject *self)
 {
-    return (PympqObject*) Pympfr_f2q(self, 0);
+    return (PympqObject*)Pympfr_f2q(self, 0);
 }
 
 static PympfrObject *
 Pympq2Pympfr(PyObject *self, mpfr_prec_t bits)
 {
-    PympfrObject *newob;
+    PympfrObject *result;
 
-    assert(Pympq_Check(self));
-    if ((newob = Pympfr_new(bits)))
-        newob->rc = mpfr_set_q(newob->f, Pympq_AS_MPQ(self),
-                               context->now.mpfr_round);
-    return newob;
+    if ((result = Pympfr_new(bits)))
+        result->rc = mpfr_set_q(result->f, Pympq_AS_MPQ(self),
+                                context->now.mpfr_round);
+    return result;
 }
 
 static PympfrObject *
 PyLong2Pympfr(PyObject *self, mpfr_prec_t bits)
 {
-    PympfrObject *newob;
+    PympfrObject *result;
     PyObject *temp = (PyObject*)PyLong2Pympz(self);
 
     if (!temp)
         return NULL;
-    newob = Pympz2Pympfr(temp, bits);
+    result = Pympz2Pympfr(temp, bits);
     Py_DECREF(temp);
-    return newob;
+    return result;
 }
 
 #ifdef PY2
 static PympfrObject *
 PyInt2Pympfr(PyObject *self, mpfr_prec_t bits)
 {
-    PympfrObject *newob;
+    PympfrObject *result;
 
-    assert(PyInt_Check(self));
-    if ((newob = Pympfr_new(bits)))
-        newob->rc = mpfr_set_si(newob->f, PyInt_AsLong(self),
-                                context->now.mpfr_round);
-    return newob;
+    if ((result = Pympfr_new(bits)))
+        result->rc = mpfr_set_si(result->f, PyInt_AsLong(self),
+                                 context->now.mpfr_round);
+    return result;
 }
 
 static PyObject *
@@ -194,13 +173,11 @@ Pympfr2PyInt(PympfrObject *self)
 static PympfrObject *
 PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
 {
-    PympfrObject *newob;
+    PympfrObject *result;
     unsigned char *cp;
     mpfr_prec_t prec;
     Py_ssize_t i, len;
     PyObject *ascii_str = NULL;
-
-    assert(PyStrOrUnicode_Check(s));
 
     if (PyBytes_Check(s)) {
         len = PyBytes_Size(s);
@@ -221,10 +198,10 @@ PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
     else
         prec = context->now.mpfr_prec;
 
-    if (prec < MPFR_PREC_MIN)
-        prec = MPFR_PREC_MIN;
+    //~ if (prec < MPFR_PREC_MIN)
+        //~ prec = MPFR_PREC_MIN;
 
-    if (!(newob = Pympfr_new(prec))) {
+    if (!(result = Pympfr_new(prec))) {
         Py_XDECREF(ascii_str);
         return NULL;
     }
@@ -233,21 +210,21 @@ PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
     for (i=0; i<len; i++) {
         if (cp[i] == '\0') {
             VALUE_ERROR("string without NULL characters expected");
-            Py_DECREF((PyObject*)newob);
+            Py_DECREF((PyObject*)result);
             Py_XDECREF(ascii_str);
             return NULL;
         }
     }
     /* delegate the rest to MPFR */
-    if (-1 == mpfr_set_str(newob->f, (char*)cp, base,
+    if (-1 == mpfr_set_str(result->f, (char*)cp, base,
                            context->now.mpfr_round)) {
         VALUE_ERROR("invalid digits");
-        Py_DECREF((PyObject*)newob);
+        Py_DECREF((PyObject*)result);
         Py_XDECREF(ascii_str);
         return NULL;
     }
     Py_XDECREF(ascii_str);
-    return newob;
+    return result;
 }
 
 static PyObject *

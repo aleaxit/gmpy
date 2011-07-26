@@ -59,30 +59,150 @@ Pymisc_verify_mpc_precision(Py_ssize_t rprec, Py_ssize_t iprec)
 static PympcObject *
 Pympc2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
-    PympcObject *newob;
+    PympcObject *result;
 
     if (rprec == 0 || iprec == 0)
         mpc_get_prec2(&rprec, &iprec, Pympc_AS_MPC(self));
-    if ((newob = Pympc_new(rprec, iprec)))
-        mpc_set(newob->c, Pympc_AS_MPC(self), context->now.mpc_round);
-    return newob;
+    if ((result = Pympc_new(rprec, iprec)))
+        mpc_set(result->c, Pympc_AS_MPC(self), context->now.mpc_round);
+    return result;
 }
 
 static PympcObject *
 PyComplex2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
-    PympcObject *newob;
+    PympcObject *result;
 
-    if (rprec == 0)
-        rprec = GET_MPC_RPREC(context);
-    if (iprec == 0)
-        iprec = GET_MPC_IPREC(context);
-
-    if ((newob = Pympc_new(rprec, iprec)))
-        mpc_set_d_d(newob->c, PyComplex_RealAsDouble(self),
+    if ((result = Pympc_new(rprec, iprec)))
+        mpc_set_d_d(result->c, PyComplex_RealAsDouble(self),
                     PyComplex_ImagAsDouble(self), context->now.mpc_round);
-    return newob;
+    return result;
 }
+
+static PympcObject *
+Pympfr2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
+{
+    PympcObject *result;
+
+    if (!rprec)
+        rprec = mpfr_get_prec(Pympfr_AS_MPFR(self));
+    if ((result = Pympc_new(rprec, iprec)))
+        result->rc = mpc_set_fr(result->c, Pympfr_AS_MPFR(self),
+                                context->now.mpc_round);
+    return result;
+}
+
+static PympfrObject *
+Pympc2Pympfr(PyObject *self)
+{
+    TYPE_ERROR("can not covert 'mpc' to 'mpfr'");
+    return NULL;
+}
+
+static PyObject *
+PyFloat2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
+{
+    PympcObject *result;
+
+    if (!rprec)
+        rprec = DBL_MANT_DIG;
+    if ((result = Pympc_new(rprec, iprec)))
+        result->rc = mpc_set_d(result->c, PyFloat_AS_DOUBLE(self),
+                               context->now.mpc_round);
+    return result;
+}
+
+static PyObject *
+Pympc2PyFloat(PyObject *self)
+{
+    TYPE_ERROR("can not covert 'mpc' to 'float'");
+    return NULL;
+}
+
+static PympcObject *
+Pympz2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
+{
+    PympcObject *result;
+
+    if ((result = Pympc_new(rprec, iprec)))
+        result->rc = mpfr_set_z(result->c, Pympz_AS_MPZ(self),
+                                context->now.mpc_round);
+    return result;
+}
+
+static PyObject *
+Pympc2Pympz(PyObject *self)
+{
+    TYPE_ERROR("can not covert 'mpc' to 'mpz'");
+    return NULL;
+}
+
+#define Pyxmpz2Pympc Pympz2Pympc
+
+static PyObject *
+Pympc2Pyxmpz(PyObject *self)
+{
+    TYPE_ERROR("can not covert 'mpc' to 'xmpz'");
+    return NULL;
+}
+
+static PympcObject *
+Pympq2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
+{
+    PympcObject *result;
+
+    if ((result = Pympc_new(rprec, iprec)))
+        result->rc = mpc_set_q(result->c, Pympq_AS_MPQ(self),
+                               context->now.mpc_round);
+    return result;
+}
+
+static PyObject *
+Pympc2Pympq(PyObject *self)
+{
+    TYPE_ERROR("can not covert 'mpc' to 'mpq'");
+    return NULL;
+}
+
+static PympcObject *
+PyLong2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
+{
+    PympcObject *result;
+    PyObject *temp = (PyObject*)PyLong2Pympz(self);
+
+    if (!temp)
+        return NULL;
+    result = Pympz2Pympc(temp, rprec, iprec);
+    Py_DECREF(temp);
+    return result;
+}
+
+static PyObject *
+Pympc2PyLong(PyObject *self)
+{
+    TYPE_ERROR("can not covert 'mpc' to 'long'");
+    return NULL;
+}
+
+#ifdef PY2
+static PympcObject *
+PyInt2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
+{
+    PympcObject *result;
+
+    if ((result = Pympc_new(rprec, iprec)))
+        result->rc = mpc_set_si(result->c, PyInt_AsLong(self),
+                                context->now.mpc_round);
+    return result;
+}
+static PyObject *
+Pympc2PyInt(PyObject *self)
+{
+    TYPE_ERROR("can not covert 'mpc' to 'int'");
+    return NULL;
+}
+
+#endif
 
 /* Conversion to/from MPC
  * Python's string representation of a complex number differs from the format
@@ -180,9 +300,6 @@ PyStr2Pympc(PyObject *s, long base, mpfr_prec_t rbits, mpfr_prec_t ibits)
     }
     mpfr_strtofr(mpc_imagref(newob->c), cp, &tempchar, base,
                  GET_MPC_IROUND(context));
-    //~ fprintf(stderr, "%lluX: %c\n", (unsigned long long)cp, *cp);
-    //~ fprintf(stderr, "%lluX: %c\n", (unsigned long long)tempchar, *tempchar);
-    //~ fprintf(stderr, "%lluX: %c\n", (unsigned long long)lastchar, *lastchar);
 
     if (cp == tempchar && tempchar > lastchar)
         goto valid_string;
