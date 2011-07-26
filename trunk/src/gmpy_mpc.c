@@ -99,7 +99,7 @@ Pympc2Pympfr(PyObject *self)
     return NULL;
 }
 
-static PyObject *
+static PympcObject *
 PyFloat2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *result;
@@ -125,7 +125,7 @@ Pympz2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
     PympcObject *result;
 
     if ((result = Pympc_new(rprec, iprec)))
-        result->rc = mpfr_set_z(result->c, Pympz_AS_MPZ(self),
+        result->rc = mpc_set_z(result->c, Pympz_AS_MPZ(self),
                                 context->now.mpc_round);
     return result;
 }
@@ -201,7 +201,6 @@ Pympc2PyInt(PyObject *self)
     TYPE_ERROR("can not covert 'mpc' to 'int'");
     return NULL;
 }
-
 #endif
 
 /* Conversion to/from MPC
@@ -319,6 +318,222 @@ PyStr2Pympc(PyObject *s, long base, mpfr_prec_t rbits, mpfr_prec_t ibits)
     Py_DECREF((PyObject*)newob);
     Py_XDECREF(ascii_str);
     return NULL;
+}
+
+static PyObject *
+raw_mpfr_ascii(mpfr_t self, int base, int digits, int round)
+{
+    PyObject *result;
+    char *buffer;
+    mpfr_exp_t the_exp;
+
+    /* Process special cases first */
+    if (!(mpfr_regular_p(self))) {
+        if (mpfr_nan_p(self)) {
+            return Py_BuildValue("(sii)", "nan", 0, 0);
+        }
+        else if (mpfr_inf_p(self) && !mpfr_signbit(self)) {
+            return Py_BuildValue("(sii)", "inf", 0, 0);
+        }
+        else if (mpfr_inf_p(self) && mpfr_signbit(self)) {
+            return Py_BuildValue("(sii)", "-inf", 0, 0);
+        }
+        /* 0 is not considered a 'regular" number */
+        else if (mpfr_signbit(self)) {
+            return Py_BuildValue("(sii)", "-0", 0, mpfr_get_prec(self));
+        }
+        else {
+            return Py_BuildValue("(sii)", "0", 0, mpfr_get_prec(self));
+        }
+    }
+
+    /* obtain digits-string and exponent */
+    buffer = mpfr_get_str(0, &the_exp, base, digits, self, round);
+    if (!*buffer) {
+        SYSTEM_ERROR("Internal error in raw_mpfr_ascii");
+        return NULL;
+    }
+
+    result = Py_BuildValue("(sii)", buffer, the_exp, mpfr_get_prec(self));
+    mpfr_free_str(buffer);
+    return result;
+}
+
+static PyObject *
+Pympc_ascii(PympcObject *self, int base, int digits)
+{
+    PyObject *tempreal = 0, *tempimag = 0;
+
+    if (!((base >= 2) && (base <= 62))) {
+        VALUE_ERROR("base must be in the interval 2 ... 62");
+        return NULL;
+    }
+    if ((digits < 0) || (digits == 1)) {
+        VALUE_ERROR("digits must be 0 or >= 2");
+        return NULL;
+    }
+
+    tempreal = raw_mpfr_ascii(mpc_realref(self->c), base, digits,
+                            MPC_RND_RE(GET_MPC_ROUND(context)));
+    tempimag = raw_mpfr_ascii(mpc_imagref(self->c), base, digits,
+                            MPC_RND_IM(GET_MPC_ROUND(context)));
+
+    if (!tempreal || !tempimag) {
+        Py_XDECREF(tempreal);
+        Py_XDECREF(tempimag);
+        return NULL;
+    }
+
+    return Py_BuildValue("(OO)", tempreal, tempimag);
+}
+
+/*
+ * If obj is a Pympc and rprec/iprec are 0/0 or the same as the precision of
+ * obj, then a new reference is created.
+ *
+ * For all other numerical types with bits = 0, the conversion is rounded
+ * according to the context.
+ */
+
+static PympcObject *
+Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
+{
+    PympcObject* newob = 0;
+    PympqObject* temp = 0;
+    mpfr_prec_t pr = 0, pi = 0;
+    int rr, ri, dr, di;
+
+    if (Pympc_CheckAndExp(obj)) {
+        /* Handle the likely case where the exponent of the mpc is still
+         * valid in the current context. */
+        mpc_get_prec2(&pr, &pi, Pympc_AS_MPC(obj));
+        if ((!rprec && !iprec) || (rprec == pr && iprec == pi)) {
+            newob = (PympcObject*) obj;
+            Py_INCREF(obj);
+        }
+        else {
+            newob = Pympc2Pympc((PyObject*)obj, rprec, iprec);
+        }
+    }
+    else if (Pympc_Check(obj)) {
+        /* Handle the unlikely case where the exponent is no longer
+         * valid and mpfr_check_range needs to be called. */
+
+        /* Get the real and imaginary precisions. */
+        mpc_get_prec2(&pr, &pi, Pympc_AS_MPC(obj));
+
+        /* Get the real and imaginary inexact codes. */
+        rr = MPC_INEX_RE( ((PympcObject*)obj)->rc );
+        ri = MPC_INEX_IM( ((PympcObject*)obj)->rc );
+
+        /* Get the real and imaginary rounding modes. */
+        dr = MPC_RND_RE( ((PympcObject*)obj)->round_mode );
+        di = MPC_RND_IM( ((PympcObject*)obj)->round_mode );
+
+        if ((newob = Pympc_new(pr, pi))) {
+            mpc_set(newob->c, Pympc_AS_MPC(obj), GET_MPC_ROUND(context));
+            newob->round_mode = ((PympcObject*)obj)->round_mode;
+            rr = mpfr_check_range(mpc_realref(newob->c), rr, dr);
+            ri = mpfr_check_range(mpc_imagref(newob->c), ri, di);
+            newob->rc = MPC_INEX(rr, ri);
+        }
+    }
+    else if (Pympfr_Check(obj)) {
+            newob = Pympfr2Pympc((PyObject*)obj, rprec, iprec);
+    }
+    else if (PyFloat_Check(obj)) {
+        newob = PyFloat2Pympc(obj, rprec, iprec);
+#ifdef PY2
+    }
+    else if (PyInt_Check(obj)) {
+        newob = PyInt2Pympc(obj, rprec, iprec);
+#endif
+    }
+    else if (Pympq_Check(obj)) {
+        newob = Pympq2Pympc(obj, rprec, iprec);
+    }
+    else if (Pympz_Check(obj)) {
+        newob = Pympz2Pympc(obj, rprec, iprec);
+    }
+    else if (PyLong_Check(obj)) {
+        newob = PyLong2Pympc(obj, rprec, iprec);
+    }
+    else if (Pyxmpz_Check(obj)) {
+        newob = Pyxmpz2Pympc(obj, rprec, iprec);
+    }
+    else if (!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
+        PyObject *s = PyObject_Str(obj);
+        if (s) {
+            newob = PyStr2Pympc(s, 10, rprec, iprec);
+            if (!newob) {
+                Py_DECREF(s);
+                return NULL;
+            }
+            Py_DECREF(s);
+        }
+    }
+    else if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
+        PyObject *s = PyObject_Str(obj);
+        if (s) {
+            temp = PyStr2Pympq(s, 10);
+            newob = Pympq2Pympc((PyObject *)temp, rprec, iprec);
+            Py_DECREF(s);
+            Py_DECREF((PyObject*)temp);
+        }
+    }
+    return newob;
+}
+
+/*
+ * coerce any number to a mpc
+ */
+
+int
+Pympc_convert_arg(PyObject *arg, PyObject **ptr)
+{
+    PympcObject* newob = Pympc_From_Complex(arg, 0, 0);
+
+    if (newob) {
+        *ptr = (PyObject*)newob;
+        return 1;
+    }
+    else {
+        TYPE_ERROR("argument can not be converted to mpc");
+        return 0;
+    }
+}
+
+PyDoc_STRVAR(doc_mpc_digits,
+"c.digits(base=10, prec=0) -> ((mant, exp, prec), (mant, exp, prec))\n\n"
+"Returns up to 'prec' digits in the given base. If 'prec' is 0, as many\n"
+"digits that are available are returned. No more digits than available\n"
+"given c's precision are returned. 'base' must be between 2 and 62,\n"
+"inclusive. The result consists of 2 three-element tuples containing the\n"
+"mantissa, exponent, and number of bits of precision of the real and\n"
+"imaginary components.");
+
+/* TODO: support keyword arguments. */
+
+static PyObject *
+Pympc_digits(PyObject *self, PyObject *args)
+{
+    int base = 10;
+    int prec = 0;
+    PyObject *result;
+
+    if (self && Pympc_Check(self)) {
+        if (!PyArg_ParseTuple(args, "|ii", &base, &prec))
+            return NULL;
+        Py_INCREF(self);
+    }
+    else {
+        if(!PyArg_ParseTuple(args, "O&|ii", Pympc_convert_arg, &self,
+                            &base, &prec))
+        return NULL;
+    }
+    result = Pympc_ascii((PympcObject*)self, base, prec);
+    Py_DECREF(self);
+    return result;
 }
 
 PyDoc_STRVAR(doc_g_mpc,
