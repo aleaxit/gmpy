@@ -374,7 +374,7 @@ Pympfr2binary(PympfrObject *self)
         j += 2;
     }
 
-    PyMem_Free(buffer);
+    mpfr_free_str(buffer);
     return result;
 }
 
@@ -424,7 +424,7 @@ Pympfr_ascii(PympfrObject *self, int base, int digits)
     }
 
     result = Py_BuildValue("(sii)", buffer, the_exp, mpfr_get_prec(self->f));
-    PyMem_Free(buffer);
+    mpfr_free_str(buffer);
     return result;
 }
 
