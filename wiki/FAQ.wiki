@@ -11,6 +11,7 @@ The following code example shows the behavior of immutable and mutable integers:
 
 {{{
 >>> import gmpy2
+>>> gmpy2.mpz(1)
 >>> a=1
 >>> b=a
 >>> a+=1
@@ -57,3 +58,7 @@ Both _mpz_ and _xmpz_ support slice notation for accessing the individual bits o
 }}}
 
 (Historical note: In theory, _xmpz_ should provide a more substantial performance improvement since new objects do not need to be created. However, *gmpy2* and recent versions of *gmpy* include object caching that eliminate much of the penalty for creating new objects.)
+
+*3. Why do I get inaccurate results after converting a number to an _mpfr_ object; even after increasing the precision?*
+
+Python first converts floating point numbers into their standard internal representation which only provides 53 bits of precision. To convert a number to a high-precision value, convert it to a string first. 
