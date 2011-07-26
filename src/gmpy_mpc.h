@@ -52,14 +52,14 @@ static PyTypeObject Pympc_Type;
     (Pympc_Check(v) && \
         (mpfr_zero_p(mpc_realref(Pympc_AS_MPC(v))) || \
             (mpfr_regular_p(mpc_realref(Pympc_AS_MPC(v))) && \
-                (mpc_realref(Pympc_AS_MPC(v)->_mpfr_exp >= context->now.emin)) && \
-                (mpc_realref(Pympc_AS_MPC(v)->_mpfr_exp <= context->now.emax)) \
+                ((mpc_realref(Pympc_AS_MPC(v))->_mpfr_exp >= context->now.emin)) && \
+                ((mpc_realref(Pympc_AS_MPC(v))->_mpfr_exp <= context->now.emax)) \
             ) \
         ) && \
         (mpfr_zero_p(mpc_imagref(Pympc_AS_MPC(v))) || \
             (mpfr_regular_p(mpc_imagref(Pympc_AS_MPC(v))) && \
-                (mpc_imagref(Pympc_AS_MPC(v)->_mpfr_exp >= context->now.emin)) && \
-                (mpc_imagref(Pympc_AS_MPC(v)->_mpfr_exp <= context->now.emax)) \
+                ((mpc_imagref(Pympc_AS_MPC(v))->_mpfr_exp >= context->now.emin)) && \
+                ((mpc_imagref(Pympc_AS_MPC(v))->_mpfr_exp <= context->now.emax)) \
             ) \
         ) \
     )

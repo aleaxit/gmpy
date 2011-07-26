@@ -50,7 +50,7 @@ PyFloat2Pympfr(PyObject *self, mpfr_prec_t bits)
     PympfrObject *result;
 
     if (!bits)
-        bits = DBL_MANT_DIG;
+        bits = context->now.mpfr_prec;
     if ((result = Pympfr_new(bits)))
         result->rc = mpfr_set_d(result->f, PyFloat_AS_DOUBLE(self),
                                 context->now.mpfr_round);
@@ -429,7 +429,6 @@ Pympfr_ascii(PympfrObject *self, int base, int digits)
 }
 
 /*
- * If obj is a PyFloat and bits is 0, then the conversion is done exactly.
  * If obj is a Pympfr and bits is 0 or bits is the same as the precision of
  * obj, then a new reference is created.
  *
