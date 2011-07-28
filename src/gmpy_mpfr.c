@@ -629,12 +629,14 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
                 result = PyStr2Pympfr(arg0, base, bits);
             }
         }
+        SUBNORMALIZE(result);
         return (PyObject*)result;
     }
 
     /* Optimize the common case */
     if (isReal(arg0) && argc == 1 && !keywds) {
         result = Pympfr_From_Real(arg0, bits);
+        SUBNORMALIZE(result);
         return (PyObject*)result;
     }
 
