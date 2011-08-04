@@ -63,3 +63,66 @@ static PyTypeObject Pympc_Type;
             ) \
         ) \
     )
+
+#define MPC_CHECK_OVERFLOW(mpct, msg) \
+    if ((mpfr_inf_p(mpc_realref(mpct->c)) || mpfr_inf_p(mpc_imagref(mpct->c))) \
+        && context->now.trap_overflow) { \
+        GMPY_OVERFLOW(msg); \
+        goto done; \
+    }
+
+#define MPC_CHECK_INVALID(mpct, msg) \
+    if ((mpfr_nan_p(mpc_realref(mpct->c)) || mpfr_nan_p(mpc_imagref(mpct->c))) \
+        && context->now.trap_invalid) { \
+        GMPY_INVALID(msg); \
+        goto done; \
+    }
+
+#define MPC_CHECK_FLAGS(mpct, NAME) \
+    MPC_CHECK_INVALID(mpct, "invalid operation in 'mpc' "NAME); \
+    MPC_CHECK_OVERFLOW("overflow in 'mpc' "NAME); \
+
+#define MPC_SUBNORMALIZE(NAME) \
+    if (context->now.subnormalize) { \
+        int rcr, rci; \
+        rcr = MPC_INEX_RE(NAME->rc); \
+        rci = MPC_INEX_IM(NAME->rc); \
+        rcr = mpfr_subnormalize(mpc_realref(NAME->c), rcr, GET_MPC_RROUND(context)); \
+        rci = mpfr_subnormalize(mpc_imagref(NAME->c), rci, GET_MPC_IROUND(context)); \
+        NAME->rc = MPC_INEX(rcr, rci); \
+    } \
+
+#define MPC_CLEANUP_SELF(NAME) \
+    MPC_SUBNORMALIZE(result); \
+    MPC_CHECK_INVALID("invalid operation in 'mpc' "NAME); \
+    MPC_CHECK_OVERFLOW("overflow in 'mpc' "NAME); \
+  done: \
+    Py_DECREF(self); \
+    if (PyErr_Occurred()) { \
+        Py_XDECREF((PyObject*)result); \
+        result = NULL; \
+    } \
+    return (PyObject*)result;
+
+#define MPC_CLEANUP_SELF_OTHER(NAME) \
+    MPC_SUBNORMALIZE(result); \
+    MPC_CHECK_INVALID("invalid operation in 'mpc' "NAME); \
+    MPC_CHECK_OVERFLOW("overflow in 'mpc' "NAME); \
+  done: \
+    Py_DECREF(self); \
+    Py_DECREF(other); \
+    if (PyErr_Occurred()) { \
+        Py_XDECREF((PyObject*)result); \
+        result = NULL; \
+    } \
+    return (PyObject*)result;
+
+#define MPC_CLEANUP_RC(NAME) \
+    MPC_SUBNORMALIZE(rc); \
+    if ((mpfr_inf_p(mpc_realref(rc->c)) || mpfr_inf_p(mpc_imagref(rc->c))) \
+        && context->now.trap_overflow) { \
+        GMPY_OVERFLOW("overflow in 'mpc' " #NAME); \
+        return NULL; \
+    } \
+    return (PyObject*)rc;
+
