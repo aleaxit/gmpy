@@ -199,7 +199,6 @@ static PyTypeObject Pyxmpz_Type;
 
 #ifdef WITHMPFR
 typedef struct {
-    int subnormalize;        /* if 1, subnormalization is performed */
     mpfr_prec_t mpfr_prec;   /* current precision in bits, for MPFR */
 #ifdef WITHMPC
     mpfr_prec_t mpc_rprec;   /* current precision in bits, for Re(MPC) */
@@ -213,6 +212,7 @@ typedef struct {
 #endif
     mpfr_exp_t emax;         /* maximum exponent */
     mpfr_exp_t emin;         /* minimum exponent */
+    int subnormalize;        /* if 1, subnormalization is performed */
     int underflow;           /* did an underflow occur? */
     int overflow;            /* did an overflow occur? */
     int inexact;             /* was the result inexact? */
@@ -225,6 +225,9 @@ typedef struct {
     int trap_invalid;        /* if 1, raise exception for invalid (NaN) */
     int trap_erange;         /* if 1, raise exception for range error */
     int trap_divzero;        /* if 1, raise exception for divide by zero */
+#ifdef WITHMPC
+    int trap_complex;        /* if 1, raise exception for promotion to mpc */
+#endif
 } gmpy_context;
 
 typedef struct {

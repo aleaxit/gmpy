@@ -37,7 +37,6 @@ GMPyContext_new(void)
     GMPyContextObject *self;
 
     if ((self = PyObject_New(GMPyContextObject, &GMPyContext_Type))) {
-        self->now.subnormalize = 0;
         self->now.mpfr_prec = DBL_MANT_DIG;
 #ifdef WITHMPC
         self->now.mpc_rprec = -1;
@@ -51,6 +50,7 @@ GMPyContext_new(void)
 #endif
         self->now.emax = mpfr_get_emax();
         self->now.emin = mpfr_get_emin();
+        self->now.subnormalize = 0;
         self->now.underflow = 0;
         self->now.overflow = 0;
         self->now.inexact = 0;
@@ -63,6 +63,9 @@ GMPyContext_new(void)
         self->now.trap_invalid = 0;
         self->now.trap_erange = 0;
         self->now.trap_divzero = 0;
+#ifdef WITHMPC
+        self->now.trap_complex = 1;
+#endif
         self->orig = NULL;
     }
     return self;
@@ -98,7 +101,7 @@ GMPyContext_repr(GMPyContextObject *self)
     int i = 0;
 
 #ifdef WITHMPC
-    tuple = PyTuple_New(21);
+    tuple = PyTuple_New(22);
 #else
     tuple = PyTuple_New(17);
 #endif
@@ -106,23 +109,24 @@ GMPyContext_repr(GMPyContextObject *self)
 
 #ifdef WITHMPC
     format = Py2or3String_FromString(
-            "context(subnormalize=%s,\n"
-            "        precision=%s, mpc_rprec=%s, mpc_iprec=%s,\n"
+            "context(precision=%s, mpc_rprec=%s, mpc_iprec=%s,\n"
             "        round=%s, mpc_rround=%s, mpc_iround=%s,\n"
             "        emax=%s, emin=%s,\n"
+            "        subnormalize=%s,\n"
             "        trap_underflow=%s, underflow=%s,\n"
             "        trap_overflow=%s, overflow=%s,\n"
             "        trap_inexact=%s, inexact=%s,\n"
             "        trap_invalid=%s, invalid=%s,\n"
             "        trap_erange=%s, erange=%s,\n"
-            "        trap_divzero=%s, divzero=%s)"
+            "        trap_divzero=%s, divzero=%s,\n"
+            "        trap_complex=%s)"
             );
 #else
     format = Py2or3String_FromString(
-            "context(subnormalize=%s,\n"
-            "        precision=%s,\n"
+            "context(precision=%s,\n"
             "        round=%s,\n"
             "        emax=%s, emin=%s,\n"
+            "        subnormalize=%s,\n"
             "        trap_underflow=%s, underflow=%s,\n"
             "        trap_overflow=%s, overflow=%s,\n"
             "        trap_inexact=%s, inexact=%s,\n"
@@ -133,7 +137,6 @@ GMPyContext_repr(GMPyContextObject *self)
 #endif
     if (!format) return NULL;
 
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.subnormalize));
     PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->now.mpfr_prec));
 #ifdef WITHMPC
     if (self->now.mpc_rprec == GMPY_DEFAULT)
@@ -152,6 +155,7 @@ GMPyContext_repr(GMPyContextObject *self)
 #endif
     PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->now.emax));
     PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->now.emin));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.subnormalize));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_underflow));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.underflow));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_overflow));
@@ -164,6 +168,9 @@ GMPyContext_repr(GMPyContextObject *self)
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.erange));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_divzero));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.divzero));
+#ifdef WITHMPC
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_complex));
+#endif
 
     if (!PyErr_Occurred())
         result = Py2or3String_Format(format, tuple);
@@ -189,13 +196,14 @@ Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
 #ifdef WITHMPC
     static char *kwlist[] = {
-        "subnormalize", "precision", "mpc_rprec", "mpc_iprec",
-        "round", "mpc_rround", "mpc_iround", "emax", "emin",
+        "precision", "mpc_rprec", "mpc_iprec", "round",
+        "mpc_rround", "mpc_iround", "emax", "emin","subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
-        "trap_invalid", "trap_erange", "trap_divzero", NULL };
+        "trap_invalid", "trap_erange", "trap_divzero",
+        "trap_complex", NULL };
 #else
     static char *kwlist[] = {
-        "subnormalize", "precision", "round", "emax", "emin",
+        "precision", "round", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero", NULL };
 #endif
@@ -207,8 +215,7 @@ Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
 
 #ifdef WITHMPC
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|illliiilliiiiii", kwlist,
-            &context->now.subnormalize,
+            "|llliiilliiiiiiii", kwlist,
             &context->now.mpfr_prec,
             &context->now.mpc_rprec,
             &context->now.mpc_iprec,
@@ -217,19 +224,24 @@ Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
             &context->now.mpc_iround,
 #else
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|ililliiiiii", kwlist,
-            &context->now.subnormalize,
+            "|lilliiiiiii", kwlist,
             &context->now.mpfr_prec,
             &context->now.mpfr_round,
 #endif
             &context->now.emax,
             &context->now.emin,
+            &context->now.subnormalize,
             &context->now.trap_underflow,
             &context->now.trap_overflow,
             &context->now.trap_inexact,
             &context->now.trap_invalid,
             &context->now.trap_erange,
+#ifdef WITHMPC
+            &context->now.trap_divzero,
+            &context->now.trap_complex))) {
+#else
             &context->now.trap_divzero))) {
+#endif
         VALUE_ERROR("invalid keyword arguments in context()");
         return NULL;
     }
@@ -244,7 +256,6 @@ PyDoc_STRVAR(doc_new_context,
 "new_context() -> context\n\n"
 "Return a new context manager controlling MPFR and MPC\n"
 "arithmetic.\n\n"
-"    subnormalize:   if True, subnormalized results can be returned\n"
 "    precision:      precision, in bits, of an MPFR result\n"
 "    mpc_rprec:      precision, in bits, of Re(MPC)\n"
 "                      -1 implies use mpfr_prec\n"
@@ -257,6 +268,7 @@ PyDoc_STRVAR(doc_new_context,
 "                      -1 implies use mpc_rround\n"
 "    e_max:          maximum allowed exponent\n"
 "    e_min:          minimum allowed exponent\n"
+"    subnormalize:   if True, subnormalized results can be returned\n"
 "    trap_underflow: if True, raise exception for underflow\n"
 "                    if False, set underflow flag\n"
 "    trap_overflow:  if True, raise exception for overflow\n"
@@ -268,7 +280,9 @@ PyDoc_STRVAR(doc_new_context,
 "    trap_erange:    if True, raise exception for range error\n"
 "                    if False, set erange flag\n"
 "    trap_divzero:   if True, raise exception for division by zero\n"
-"                    if False, set divzero flag and return Inf or -Inf\n");
+"                    if False, set divzero flag and return Inf or -Inf\n"
+"    trap_complex:   if True, raise exception when promoting mpfr -> mpc\n"
+"                    if False, allow promotion of mpfr -> mpc\n");
 
 #else
 
@@ -276,11 +290,11 @@ PyDoc_STRVAR(doc_new_context,
 "new_context() -> context\n\n"
 "Return a new context manager controlling MPFR and MPC\n"
 "arithmetic.\n\n"
-"    subnormalize:   if True, subnormalized results can be returned\n"
 "    precision:      precision, in bits, of an MPFR result\n"
 "    round:          rounding mode for MPFR\n"
 "    e_max:          maximum allowed exponent\n"
 "    e_min:          minimum allowed exponent\n"
+"    subnormalize:   if True, subnormalized results can be returned\n"
 "    trap_underflow: if True, raise exception for underflow\n"
 "                    if False, set underflow flag\n"
 "    trap_overflow:  if True, raise exception for overflow\n"
@@ -303,13 +317,14 @@ Pygmpy_new_context(PyObject *self, PyObject *args, PyObject *kwargs)
 
 #ifdef WITHMPC
     static char *kwlist[] = {
-        "subnormalize", "precision", "mpc_rprec", "mpc_iprec",
-        "round", "mpc_rround", "mpc_iround", "emax", "emin",
+        "precision", "mpc_rprec", "mpc_iprec", "round",
+        "mpc_rround", "mpc_iround", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
-        "trap_invalid", "trap_erange", "trap_divzero", NULL };
+        "trap_invalid", "trap_erange", "trap_divzero",
+        "trap_complex", NULL };
 #else
     static char *kwlist[] = {
-        "subnormalize", "precision", "round", "emax", "emin",
+        "precision", "round", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero", NULL };
 #endif
@@ -323,8 +338,7 @@ Pygmpy_new_context(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
 #ifdef WITHMPC
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|illliiilliiiiii", kwlist,
-            &result->now.subnormalize,
+            "|llliiilliiiiiii", kwlist,
             &result->now.mpfr_prec,
             &result->now.mpc_rprec,
             &result->now.mpc_iprec,
@@ -333,13 +347,13 @@ Pygmpy_new_context(PyObject *self, PyObject *args, PyObject *kwargs)
             &result->now.mpc_iround,
 #else
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|ililliiiiii", kwlist,
-            &result->now.subnormalize,
+            "|lilliiiiiii", kwlist,
             &result->now.mpfr_prec,
             &result->now.mpfr_round,
 #endif
             &result->now.emax,
             &result->now.emin,
+            &result->now.subnormalize,
             &result->now.trap_underflow,
             &result->now.trap_overflow,
             &result->now.trap_inexact,
@@ -468,6 +482,9 @@ GETSET_BOOLEAN(trap_inexact);
 GETSET_BOOLEAN(trap_invalid);
 GETSET_BOOLEAN(trap_erange);
 GETSET_BOOLEAN(trap_divzero);
+#ifdef WITHMPC
+GETSET_BOOLEAN(trap_complex)
+#endif
 
 static PyObject *
 GMPyContext_get_precision(GMPyContextObject *self, void *closure)
@@ -739,7 +756,6 @@ GMPyContext_set_emax(GMPyContextObject *self, PyObject *value, void *closure)
         (setter)GMPyContext_set_##NAME, NULL, NULL}
 
 static PyGetSetDef GMPyContext_getseters[] = {
-    ADD_GETSET(subnormalize),
     ADD_GETSET(precision),
 #ifdef WITHMPC
     ADD_GETSET(mpc_rprec),
@@ -752,6 +768,7 @@ static PyGetSetDef GMPyContext_getseters[] = {
 #endif
     ADD_GETSET(emax),
     ADD_GETSET(emin),
+    ADD_GETSET(subnormalize),
     ADD_GETSET(underflow),
     ADD_GETSET(overflow),
     ADD_GETSET(inexact),
@@ -764,6 +781,9 @@ static PyGetSetDef GMPyContext_getseters[] = {
     ADD_GETSET(trap_invalid),
     ADD_GETSET(trap_erange),
     ADD_GETSET(trap_divzero),
+#ifdef WITHMPC
+    ADD_GETSET(trap_complex),
+#endif
     {NULL}
 };
 
@@ -785,7 +805,7 @@ static PyTypeObject GMPyContext_Type =
         0,                                  /* ob_size          */
 #endif
     "gmpy2 context",                        /* tp_name          */
-    sizeof(GMPyContextObject),             /* tp_basicsize     */
+    sizeof(GMPyContextObject),              /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
     (destructor) GMPyContext_dealloc,       /* tp_dealloc       */
         0,                                  /* tp_print         */
