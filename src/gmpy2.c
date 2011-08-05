@@ -2634,6 +2634,90 @@ static PyGetSetDef Pympfr_getseters[] =
 };
 #endif
 
+#ifdef WITHMPC
+#ifdef PY3
+static PyNumberMethods mpc_number_methods =
+{
+    (binaryfunc) Pympany_add,            /* nb_add                  */
+    (binaryfunc) Pympany_sub,            /* nb_subtract             */
+    (binaryfunc) Pympany_mul,            /* nb_multiply             */
+    (binaryfunc) Pympany_rem,            /* nb_remaider             */
+    (binaryfunc) Pympany_divmod,         /* nb_divmod               */
+    (ternaryfunc) Pympany_pow,           /* nb_power                */
+        0,                               /* nb_negative             */
+        0,                               /* nb_positive             */
+        0,                               /* nb_absolute             */
+        0,                               /* nb_bool                 */
+        0,                               /* nb_invert               */
+        0,                               /* nb_lshift               */
+        0,                               /* nb_rshift               */
+        0,                               /* nb_and                  */
+        0,                               /* nb_xor                  */
+        0,                               /* nb_or                   */
+        0,                               /* nb_int                  */
+        0,                               /* nb_reserved             */
+        0,                               /* nb_float                */
+        0,                               /* nb_inplace_add          */
+        0,                               /* nb_inplace_subtract     */
+        0,                               /* nb_inplace_multiply     */
+        0,                               /* nb_inplace_remainder    */
+        0,                               /* nb_inplace_power        */
+        0,                               /* nb_inplace_lshift       */
+        0,                               /* nb_inplace_rshift       */
+        0,                               /* nb_inplace_and          */
+        0,                               /* nb_inplace_xor          */
+        0,                               /* nb_inplace_or           */
+        0,                               /* nb_floor_divide         */
+        0,                               /* nb_true_divide          */
+        0,                               /* nb_inplace_floor_divide */
+        0,                               /* nb_inplace_true_divide  */
+        0,                               /* nb_index                */
+};
+#else
+static PyNumberMethods mpc_number_methods =
+{
+    (binaryfunc) Pympany_add,            /* nb_add                  */
+    (binaryfunc) Pympany_sub,            /* nb_subtract             */
+    (binaryfunc) Pympany_mul,            /* nb_multiply             */
+    (binaryfunc) Pympany_div2,           /* nb_divide               */
+    (binaryfunc) Pympany_rem,            /* nb_remaider             */
+    (binaryfunc) Pympany_divmod,         /* nb_divmod               */
+        0,                               /* nb_power                */
+        0,                               /* nb_negative             */
+        0,                               /* nb_positive             */
+        0,                               /* nb_absolute             */
+        0,                               /* nb_bool                 */
+        0,                               /* nb_invert               */
+        0,                               /* nb_lshift               */
+        0,                               /* nb_rshift               */
+        0,                               /* nb_and                  */
+        0,                               /* nb_xor                  */
+        0,                               /* nb_or                   */
+        0,                               /* nb_coerce               */
+        0,                               /* nb_int                  */
+        0,                               /* nb_long                 */
+        0,                               /* nb_float                */
+        0,                               /* nb_oct                  */
+        0,                               /* nb_hex                  */
+        0,                               /* nb_inplace_add          */
+        0,                               /* nb_inplace_subtract     */
+        0,                               /* nb_inplace_multiply     */
+        0,                               /* nb_inplace_divide       */
+        0,                               /* nb_inplace_remainder    */
+        0,                               /* nb_inplace_power        */
+        0,                               /* nb_inplace_lshift       */
+        0,                               /* nb_inplace_rshift       */
+        0,                               /* nb_inplace_and          */
+        0,                               /* nb_inplace_xor          */
+        0,                               /* nb_inplace_or           */
+        0,                               /* nb_floor_divide         */
+        0,                               /* nb_true_divide          */
+        0,                               /* nb_inplace_floor_divide */
+        0,                               /* nb_inplace_true_divide  */
+};
+#endif
+#endif
+
 static PyMethodDef Pygmpy_methods [] =
 {
     { "_cvsid", Pygmpy_get_cvsid, METH_NOARGS, doc_cvsid },
@@ -2915,6 +2999,15 @@ static PyMethodDef Pympfr_methods [] =
 };
 #endif
 
+#ifdef WITHMPC
+static PyMethodDef Pympc_methods[] =
+{
+    { "__format__", Pympc_format, METH_VARARGS, doc_mpc_format },
+    { "digits", Pympc_digits, METH_VARARGS, doc_mpc_digits },
+    { NULL, NULL, 1 }
+};
+#endif
+
 static PyTypeObject Pympz_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
@@ -3095,6 +3188,53 @@ static PyTypeObject Pympfr_Type =
     Pympfr_methods,                         /* tp_methods       */
         0,                                  /* tp_members       */
     Pympfr_getseters,                       /* tp_getset        */
+};
+#endif
+
+#ifdef WITHMPC
+static PyTypeObject Pympc_Type =
+{
+    /* PyObject_HEAD_INIT(&PyType_Type) */
+#ifdef PY3
+    PyVarObject_HEAD_INIT(NULL, 0)
+#else
+    PyObject_HEAD_INIT(0)
+    0,                                      /* ob_size          */
+#endif
+    "mpc",                                  /* tp_name          */
+    sizeof(PympcObject),                    /* tp_basicsize     */
+        0,                                  /* tp_itemsize      */
+    /* methods */
+    (destructor) Pympc_dealloc,             /* tp_dealloc       */
+        0,                                  /* tp_print         */
+        0,                                  /* tp_getattr       */
+        0,                                  /* tp_setattr       */
+        0,                                  /* tp_reserved      */
+    (reprfunc) Pympc2repr,                  /* tp_repr          */
+    &mpc_number_methods,                    /* tp_as_number     */
+        0,                                  /* tp_as_sequence   */
+        0,                                  /* tp_as_mapping    */
+        0,                                  /* tp_hash          */
+        0,                                  /* tp_call          */
+    (reprfunc) Pympc2str,                   /* tp_str           */
+        0,                                  /* tp_getattro      */
+        0,                                  /* tp_setattro      */
+        0,                                  /* tp_as_buffer     */
+#ifdef PY3
+    Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
+#else
+    Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,  /* tp_flags */
+#endif
+    "MPC-based complex number",             /* tp_doc           */
+        0,                                  /* tp_traverse      */
+        0,                                  /* tp_clear         */
+        0,                                  /* tp_richcompare   */
+        0,                                  /* tp_weaklistoffset*/
+        0,                                  /* tp_iter          */
+        0,                                  /* tp_iternext      */
+    Pympc_methods,                          /* tp_methods       */
+        0,                                  /* tp_members       */
+        0,                                  /* tp_getset        */
 };
 #endif
 

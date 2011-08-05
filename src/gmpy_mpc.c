@@ -922,8 +922,8 @@ Pympc_format(PyObject *self, PyObject *args)
         return PyErr_NoMemory();
     }
     tempbuf[0] = '\00';
-    //~ if (mpcstyle)
-    strcat(tempbuf, "(");
+    if (mpcstyle)
+        strcat(tempbuf, "(");
     strcat(tempbuf, realbuf);
 
     /* If there isn't a decimal point in the output and the output
@@ -944,7 +944,7 @@ Pympc_format(PyObject *self, PyObject *args)
     if (mpcstyle)
         strcat(tempbuf, ")");
     else
-        strcat(tempbuf, "j)");
+        strcat(tempbuf, "j");
 
     mpfr_free_str(realbuf);
     mpfr_free_str(imagbuf);
@@ -996,7 +996,7 @@ Pympc2repr(PympcObject *self)
     rprec = (long)(log10(2) * (double)rbits) + 2;
     iprec = (long)(log10(2) * (double)ibits) + 2;
 
-    if (rbits != DBL_MANT_DIG && ibits !=DBL_MANT_DIG)
+    if (rbits != DBL_MANT_DIG || ibits !=DBL_MANT_DIG)
         sprintf(fmtstr, "mpc('{0:.%ld.%ldg}',(%ld,%ld))",
                 rprec, iprec, rbits, ibits);
     else
@@ -1009,138 +1009,5 @@ Pympc2repr(PympcObject *self)
     Py_DECREF(temp);
     return result;
 }
-
-#ifdef PY3
-static PyNumberMethods mpc_number_methods =
-{
-        0,                               /* nb_add                  */
-        0,                               /* nb_subtract             */
-        0,                               /* nb_multiply             */
-        0,                               /* nb_remaider             */
-        0,                               /* nb_divmod               */
-        0,                               /* nb_power                */
-        0,                               /* nb_negative             */
-        0,                               /* nb_positive             */
-        0,                               /* nb_absolute             */
-        0,                               /* nb_bool                 */
-        0,                               /* nb_invert               */
-        0,                               /* nb_lshift               */
-        0,                               /* nb_rshift               */
-        0,                               /* nb_and                  */
-        0,                               /* nb_xor                  */
-        0,                               /* nb_or                   */
-        0,                               /* nb_int                  */
-        0,                               /* nb_reserved             */
-        0,                               /* nb_float                */
-        0,                               /* nb_inplace_add          */
-        0,                               /* nb_inplace_subtract     */
-        0,                               /* nb_inplace_multiply     */
-        0,                               /* nb_inplace_remainder    */
-        0,                               /* nb_inplace_power        */
-        0,                               /* nb_inplace_lshift       */
-        0,                               /* nb_inplace_rshift       */
-        0,                               /* nb_inplace_and          */
-        0,                               /* nb_inplace_xor          */
-        0,                               /* nb_inplace_or           */
-        0,                               /* nb_floor_divide         */
-        0,                               /* nb_true_divide          */
-        0,                               /* nb_inplace_floor_divide */
-        0,                               /* nb_inplace_true_divide  */
-        0,                               /* nb_index                */
-};
-#else
-static PyNumberMethods mpc_number_methods =
-{
-        0,                               /* nb_add                  */
-        0,                               /* nb_subtract             */
-        0,                               /* nb_multiply             */
-        0,                               /* nb_divide               */
-        0,                               /* nb_remaider             */
-        0,                               /* nb_divmod               */
-        0,                               /* nb_power                */
-        0,                               /* nb_negative             */
-        0,                               /* nb_positive             */
-        0,                               /* nb_absolute             */
-        0,                               /* nb_bool                 */
-        0,                               /* nb_invert               */
-        0,                               /* nb_lshift               */
-        0,                               /* nb_rshift               */
-        0,                               /* nb_and                  */
-        0,                               /* nb_xor                  */
-        0,                               /* nb_or                   */
-        0,                               /* nb_coerce               */
-        0,                               /* nb_int                  */
-        0,                               /* nb_long                 */
-        0,                               /* nb_float                */
-        0,                               /* nb_oct                  */
-        0,                               /* nb_hex                  */
-        0,                               /* nb_inplace_add          */
-        0,                               /* nb_inplace_subtract     */
-        0,                               /* nb_inplace_multiply     */
-        0,                               /* nb_inplace_divide       */
-        0,                               /* nb_inplace_remainder    */
-        0,                               /* nb_inplace_power        */
-        0,                               /* nb_inplace_lshift       */
-        0,                               /* nb_inplace_rshift       */
-        0,                               /* nb_inplace_and          */
-        0,                               /* nb_inplace_xor          */
-        0,                               /* nb_inplace_or           */
-        0,                               /* nb_floor_divide         */
-        0,                               /* nb_true_divide          */
-        0,                               /* nb_inplace_floor_divide */
-        0,                               /* nb_inplace_true_divide  */
-};
-#endif
-
-static PyMethodDef Pympc_methods[] =
-{
-    { "__format__", Pympc_format, METH_VARARGS, doc_mpc_format },
-    { NULL, NULL, 1 }
-};
-
-static PyTypeObject Pympc_Type =
-{
-    /* PyObject_HEAD_INIT(&PyType_Type) */
-#ifdef PY3
-    PyVarObject_HEAD_INIT(NULL, 0)
-#else
-    PyObject_HEAD_INIT(0)
-    0,                                      /* ob_size          */
-#endif
-    "mpc",                                  /* tp_name          */
-    sizeof(PympcObject),                    /* tp_basicsize     */
-        0,                                  /* tp_itemsize      */
-    /* methods */
-    (destructor) Pympc_dealloc,             /* tp_dealloc       */
-        0,                                  /* tp_print         */
-        0,                                  /* tp_getattr       */
-        0,                                  /* tp_setattr       */
-        0,                                  /* tp_reserved      */
-    (reprfunc) Pympc2repr,                  /* tp_repr          */
-    &mpc_number_methods,                    /* tp_as_number     */
-        0,                                  /* tp_as_sequence   */
-        0,                                  /* tp_as_mapping    */
-        0,                                  /* tp_hash          */
-        0,                                  /* tp_call          */
-    (reprfunc) Pympc2str,                   /* tp_str           */
-        0,                                  /* tp_getattro      */
-        0,                                  /* tp_setattro      */
-        0,                                  /* tp_as_buffer     */
-#ifdef PY3
-    Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
-#else
-    Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,  /* tp_flags */
-#endif
-    "MPC-based complex number",             /* tp_doc           */
-        0,                                  /* tp_traverse      */
-        0,                                  /* tp_clear         */
-        0,                                  /* tp_richcompare   */
-        0,                                  /* tp_weaklistoffset*/
-        0,                                  /* tp_iter          */
-        0,                                  /* tp_iternext      */
-    Pympc_methods,                          /* tp_methods       */
-        0,                                  /* tp_members       */
-        0,                                  /* tp_getset        */
-};
 
 
