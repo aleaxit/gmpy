@@ -38,6 +38,7 @@
  *  3) 'mpz' combined with a floating-point type returns an 'mpf'
  *  4) 'mpq' combined with an integer or rational type returns an 'mpq'
  *  5) 'mpq' combines with a floating-point type returns an 'mpf'
+ *  6) Any type combines with 'mpc' returns an 'mpc.
  *
  * The most common inputs are processed as efficiently as possible.
  */
@@ -52,6 +53,9 @@ Pympany_add(PyObject *a, PyObject *b)
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
 #else
     double tempdouble;
+#endif
+#ifdef WITHMPC
+    PympcObject *rc = 0, *pac = 0, *pbc = 0;
 #endif
     long temp;
     int overflow;
@@ -273,6 +277,29 @@ Pympany_add(PyObject *a, PyObject *b)
     }
 #endif
 
+#ifdef WITHMPC
+    if (isComplex(a) && isComplex(b)) {
+        TRACE("Adding (number,number)\n");
+        pac = Pympc_From_Complex(a, 0, 0);
+        pbc = Pympc_From_Complex(b, 0, 0);
+        if (!pac || !pbc) {
+            SYSTEM_ERROR("Can not convert number to mpc");
+            Py_XDECREF((PyObject*)pac);
+            Py_XDECREF((PyObject*)pbc);
+            return NULL;
+        }
+        if (!(rc = Pympc_new(0, 0))) {
+            Py_DECREF((PyObject*)pac);
+            Py_DECREF((PyObject*)pbc);
+            return NULL;
+        }
+        rc->rc = mpc_add(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
+        Py_DECREF((PyObject*)pac);
+        Py_DECREF((PyObject*)pbc);
+        MPC_CLEANUP_RC("addition");
+    }
+#endif
+
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -291,6 +318,9 @@ Pympany_sub(PyObject *a, PyObject *b)
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
 #else
     double tempdouble;
+#endif
+#ifdef WITHMPC
+    PympcObject *rc = 0, *pac = 0, *pbc = 0;
 #endif
     long temp;
     int overflow;
@@ -512,6 +542,29 @@ Pympany_sub(PyObject *a, PyObject *b)
     }
 #endif
 
+#ifdef WITHMPC
+    if (isComplex(a) && isComplex(b)) {
+        TRACE("subtracting (number,number)\n");
+        pac = Pympc_From_Complex(a, 0, 0);
+        pbc = Pympc_From_Complex(b, 0, 0);
+        if (!pac || !pbc) {
+            SYSTEM_ERROR("Can not convert number to mpc");
+            Py_XDECREF((PyObject*)pac);
+            Py_XDECREF((PyObject*)pbc);
+            return NULL;
+        }
+        if (!(rc = Pympc_new(0, 0))) {
+            Py_DECREF((PyObject*)pac);
+            Py_DECREF((PyObject*)pbc);
+            return NULL;
+        }
+        rc->rc = mpc_sub(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
+        Py_DECREF((PyObject*)pac);
+        Py_DECREF((PyObject*)pbc);
+        MPC_CLEANUP_RC("subtraction");
+    }
+#endif
+
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -530,6 +583,9 @@ Pympany_mul(PyObject *a, PyObject *b)
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
 #else
     double tempdouble;
+#endif
+#ifdef WITHMPC
+    PympcObject *rc = 0, *pac = 0, *pbc = 0;
 #endif
     long temp;
     int overflow;
@@ -744,6 +800,29 @@ Pympany_mul(PyObject *a, PyObject *b)
     }
 #endif
 
+#ifdef WITHMPC
+    if (isComplex(a) && isComplex(b)) {
+        TRACE("multiplying (number,number)\n");
+        pac = Pympc_From_Complex(a, 0, 0);
+        pbc = Pympc_From_Complex(b, 0, 0);
+        if (!pac || !pbc) {
+            SYSTEM_ERROR("Can not convert number to mpc");
+            Py_XDECREF((PyObject*)pac);
+            Py_XDECREF((PyObject*)pbc);
+            return NULL;
+        }
+        if (!(rc = Pympc_new(0, 0))) {
+            Py_DECREF((PyObject*)pac);
+            Py_DECREF((PyObject*)pbc);
+            return NULL;
+        }
+        rc->rc = mpc_mul(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
+        Py_DECREF((PyObject*)pac);
+        Py_DECREF((PyObject*)pbc);
+        MPC_CLEANUP_RC("multiplication");
+    }
+#endif
+
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -914,6 +993,13 @@ Pympany_floordiv(PyObject *a, PyObject *b)
     }
 #endif
 
+#ifdef WITHMPC
+    if (isComplex(a) && isComplex(b)) {
+        TYPE_ERROR("can't take floor of complex number.");
+        return NULL;
+    }
+#endif
+
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -935,6 +1021,9 @@ Pympany_truediv(PyObject *a, PyObject *b)
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
 #else
     double tempdouble;
+#endif
+#ifdef WITHMPC
+    PympcObject *rc = 0, *pac = 0, *pbc = 0;
 #endif
     mpq_t tempq;
 
@@ -1072,6 +1161,29 @@ Pympany_truediv(PyObject *a, PyObject *b)
     }
 #endif
 
+#ifdef WITHMPC
+    if (isComplex(a) && isComplex(b)) {
+        TRACE("dividing (number,number)\n");
+        pac = Pympc_From_Complex(a, 0, 0);
+        pbc = Pympc_From_Complex(b, 0, 0);
+        if (!pac || !pbc) {
+            SYSTEM_ERROR("Can not convert number to mpc");
+            Py_XDECREF((PyObject*)pac);
+            Py_XDECREF((PyObject*)pbc);
+            return NULL;
+        }
+        if (!(rc = Pympc_new(0, 0))) {
+            Py_DECREF((PyObject*)pac);
+            Py_DECREF((PyObject*)pbc);
+            return NULL;
+        }
+        rc->rc = mpc_div(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
+        Py_DECREF((PyObject*)pac);
+        Py_DECREF((PyObject*)pbc);
+        MPC_CLEANUP_RC("division");
+    }
+#endif
+
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -1093,6 +1205,9 @@ Pympany_div2(PyObject *a, PyObject *b)
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
 #ifdef WITHMPFR
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
+#endif
+#ifdef WITHMPC
+    PympcObject *rc = 0, *pac = 0, *pbc = 0;
 #endif
     long temp;
     int overflow;
@@ -1224,6 +1339,38 @@ Pympany_div2(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF("division");
+    }
+#endif
+
+#ifdef WITHMPC
+    if (isComplex(a) && isComplex(b)) {
+        TRACE("dividing (number,number)\n");
+        pac = Pympc_From_Complex(a, 0, 0);
+        pbc = Pympc_From_Complex(b, 0, 0);
+        if (!pac || !pbc) {
+            SYSTEM_ERROR("Can not convert number to mpc");
+            Py_XDECREF((PyObject*)pac);
+            Py_XDECREF((PyObject*)pbc);
+            return NULL;
+        }
+        if (mpfr_zero_p(mpc_realref(pbc->c)) && mpfr_zero_p(mpc_imagref(pbc->c))) {
+            context->now.divzero = 1;
+            if (context->now.trap_divzero) {
+                GMPY_DIVZERO("'mpc' division by zero");
+                Py_DECREF((PyObject*)pac);
+                Py_DECREF((PyObject*)pbc);
+                return NULL;
+            }
+        }
+        if (!(rc = Pympc_new(0, 0))) {
+            Py_DECREF((PyObject*)pac);
+            Py_DECREF((PyObject*)pbc);
+            return NULL;
+        }
+        rc->rc = mpc_div(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
+        Py_DECREF((PyObject*)pac);
+        Py_DECREF((PyObject*)pbc);
+        MPC_CLEANUP_RC("division");
     }
 #endif
 
@@ -1411,6 +1558,13 @@ Pympany_rem(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF("rem");
+    }
+#endif
+
+#ifdef WITHMPC
+    if (isComplex(a) && isComplex(b)) {
+        TYPE_ERROR("can't mod complex numbers.");
+        return NULL;
     }
 #endif
 
@@ -1693,6 +1847,13 @@ Pympany_divmod(PyObject *a, PyObject *b)
         PyTuple_SET_ITEM(r, 0, (PyObject*)qf);
         PyTuple_SET_ITEM(r, 1, (PyObject*)rf);
         return r;
+    }
+#endif
+
+#ifdef WITHMPC
+    if (isComplex(a) && isComplex(b)) {
+        TYPE_ERROR("can't take floor or mod of complex number.");
+        return NULL;
     }
 #endif
 
