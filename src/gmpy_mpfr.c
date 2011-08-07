@@ -1606,7 +1606,7 @@ static PyObject * \
 Py##NAME(PympfrObject *x) \
 { \
     PympfrObject *r; \
-    if (!(r = Pympfr_new(mpfr_get_prec(x->f)))) \
+    if (!(r = Pympfr_new(0))) \
         return NULL; \
     if (Pympfr_CheckAndExp(x)) { \
         r->rc = NAME(r->f, x->f, context->now.mpfr_round); \
@@ -2960,7 +2960,7 @@ Pympfr_format(PyObject *self, PyObject *args)
      * only consists of digits, then append .0 */
     if (strlen(buffer) < 50 &&
         strlen(buffer) == strspn(buffer, "+- 0123456789")) {
-        newbuf = PyMem_Malloc(buflen + 2);
+        newbuf = PyMem_Malloc(buflen + 3);
         if (!newbuf) {
             mpfr_free_str(buffer);
             return PyErr_NoMemory();
