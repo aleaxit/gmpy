@@ -120,7 +120,7 @@ Pympany_add(PyObject *a, PyObject *b)
             mpfr_clear_flags();
             rf->rc = mpfr_add(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
                               context->now.mpfr_round);
-            MPFR_CLEANUP_RF("addition");
+            MPFR_CLEANUP_RF(addition);
         }
         if (isInteger(b)) {
             TRACE("Adding (mpf,mpz)\n");
@@ -133,7 +133,7 @@ Pympany_add(PyObject *a, PyObject *b)
             rf->rc = mpfr_add_z(rf->f, Pympfr_AS_MPFR(a), pbz->z,
                                 context->now.mpfr_round);
             Py_DECREF((PyObject*)pbz);
-            MPFR_CLEANUP_RF("addition");
+            MPFR_CLEANUP_RF(addition);
         }
         if (isRational(b)) {
             TRACE("Adding (mpf,mpq)\n");
@@ -146,7 +146,7 @@ Pympany_add(PyObject *a, PyObject *b)
             rf->rc = mpfr_add_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
                                 context->now.mpfr_round);
             Py_DECREF((PyObject*)pbq);
-            MPFR_CLEANUP_RF("addition");
+            MPFR_CLEANUP_RF(addition);
         }
         if (PyFloat_Check(b)) {
             TRACE("Adding (mpf,float)\n");
@@ -154,7 +154,7 @@ Pympany_add(PyObject *a, PyObject *b)
             rf->rc = mpfr_add_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
                                 context->now.mpfr_round);
             Py_DECREF((PyObject*)pbq);
-            MPFR_CLEANUP_RF("addition");
+            MPFR_CLEANUP_RF(addition);
         }
         Py_DECREF((PyObject*)rf);
     }
@@ -173,7 +173,7 @@ Pympany_add(PyObject *a, PyObject *b)
             rf->rc = mpfr_add_z(rf->f, Pympfr_AS_MPFR(b), paz->z,
                                 context->now.mpfr_round);
             Py_DECREF((PyObject*)paz);
-            MPFR_CLEANUP_RF("addition");
+            MPFR_CLEANUP_RF(addition);
         }
         if (isRational(a)) {
             TRACE("Adding (mpq,mpf)\n");
@@ -186,14 +186,14 @@ Pympany_add(PyObject *a, PyObject *b)
             rf->rc = mpfr_add_q(rf->f, Pympfr_AS_MPFR(b), paq->q,
                                 context->now.mpfr_round);
             Py_DECREF((PyObject*)paq);
-            MPFR_CLEANUP_RF("addition");
+            MPFR_CLEANUP_RF(addition);
         }
         if (PyFloat_Check(a)) {
             TRACE("Adding (float,mpf)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_add_d(rf->f, Pympfr_AS_MPFR(b), PyFloat_AS_DOUBLE(a),
                                 context->now.mpfr_round);
-            MPFR_CLEANUP_RF("addition");
+            MPFR_CLEANUP_RF(addition);
         }
         Py_DECREF((PyObject*)rf);
     }
@@ -261,7 +261,7 @@ Pympany_add(PyObject *a, PyObject *b)
         rf->rc = mpfr_add(rf->f, paf->f, pbf->f, context->now.mpfr_round);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        MPFR_CLEANUP_RF("addition");
+        MPFR_CLEANUP_RF(addition);
     }
 #else
     /* Support mpz+float and float+mpz. */
@@ -296,7 +296,7 @@ Pympany_add(PyObject *a, PyObject *b)
         rc->rc = mpc_add(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)pac);
         Py_DECREF((PyObject*)pbc);
-        MPC_CLEANUP_RC("addition");
+        MPC_CLEANUP_RC(addition);
     }
 #endif
 
@@ -386,7 +386,7 @@ Pympany_sub(PyObject *a, PyObject *b)
             mpfr_clear_flags();
             rf->rc = mpfr_sub(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
                               context->now.mpfr_round);
-            MPFR_CLEANUP_RF("subtraction");
+            MPFR_CLEANUP_RF(subtraction);
         }
         if (isInteger(b)) {
             TRACE("Subtracting (mpf,mpz)\n");
@@ -399,7 +399,7 @@ Pympany_sub(PyObject *a, PyObject *b)
             rf->rc = mpfr_sub_z(rf->f, Pympfr_AS_MPFR(a), pbz->z,
                                 context->now.mpfr_round);
             Py_DECREF((PyObject*)pbz);
-            MPFR_CLEANUP_RF("subtraction");
+            MPFR_CLEANUP_RF(subtraction);
         }
         if (isRational(b)) {
             TRACE("Subtracting (mpf,mpq)\n");
@@ -412,14 +412,14 @@ Pympany_sub(PyObject *a, PyObject *b)
             rf->rc = mpfr_sub_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
                                 context->now.mpfr_round);
             Py_DECREF((PyObject*)pbq);
-            MPFR_CLEANUP_RF("subtraction");
+            MPFR_CLEANUP_RF(subtraction);
         }
         if (PyFloat_Check(b)) {
             TRACE("Subtracting (mpf,float)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_sub_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
                                 context->now.mpfr_round);
-            MPFR_CLEANUP_RF("subtraction");
+            MPFR_CLEANUP_RF(subtraction);
         }
         Py_DECREF((PyObject*)rf);
     }
@@ -438,7 +438,7 @@ Pympany_sub(PyObject *a, PyObject *b)
             rf->rc = mpfr_sub_z(rf->f, Pympfr_AS_MPFR(b), paz->z, context->now.mpfr_round);
             mpfr_neg(rf->f, rf->f, context->now.mpfr_round);
             Py_DECREF((PyObject*)paz);
-            MPFR_CLEANUP_RF("subtraction");
+            MPFR_CLEANUP_RF(subtraction);
         }
         if (isRational(a)) {
             TRACE("Subtracting (mpq,mpf)\n");
@@ -451,14 +451,14 @@ Pympany_sub(PyObject *a, PyObject *b)
             rf->rc = mpfr_add_q(rf->f, Pympfr_AS_MPFR(b), paq->q, context->now.mpfr_round);
             mpfr_neg(rf->f, rf->f, context->now.mpfr_round);
             Py_DECREF((PyObject*)paq);
-            MPFR_CLEANUP_RF("subtraction");
+            MPFR_CLEANUP_RF(subtraction);
         }
         if (PyFloat_Check(a)) {
             TRACE("Subtracting (float,mpf)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_sub_d(rf->f, Pympfr_AS_MPFR(b), PyFloat_AS_DOUBLE(a), context->now.mpfr_round);
             mpfr_neg(rf->f, rf->f, context->now.mpfr_round);
-            MPFR_CLEANUP_RF("subtraction");
+            MPFR_CLEANUP_RF(subtraction);
         }
         Py_DECREF((PyObject*)rf);
     }
@@ -526,7 +526,7 @@ Pympany_sub(PyObject *a, PyObject *b)
         rf->rc = mpfr_sub(rf->f, paf->f, pbf->f, context->now.mpfr_round);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        MPFR_CLEANUP_RF("subtraction");
+        MPFR_CLEANUP_RF(subtraction);
     }
 #else
     /* Support mpz-float and float-mpz. */
@@ -561,7 +561,7 @@ Pympany_sub(PyObject *a, PyObject *b)
         rc->rc = mpc_sub(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)pac);
         Py_DECREF((PyObject*)pbc);
-        MPC_CLEANUP_RC("subtraction");
+        MPC_CLEANUP_RC(subtraction);
     }
 #endif
 
@@ -644,7 +644,7 @@ Pympany_mul(PyObject *a, PyObject *b)
             mpfr_clear_flags();
             rf->rc = mpfr_mul(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
                               context->now.mpfr_round);
-            MPFR_CLEANUP_RF("multiplication");
+            MPFR_CLEANUP_RF(multiplication);
         }
         if (isInteger(b)) {
             TRACE("Multiplying (mpf,mpz)\n");
@@ -657,7 +657,7 @@ Pympany_mul(PyObject *a, PyObject *b)
             rf->rc = mpfr_mul_z(rf->f, Pympfr_AS_MPFR(a), pbz->z,
                                 context->now.mpfr_round);
             Py_DECREF((PyObject*)pbz);
-            MPFR_CLEANUP_RF("multiplication");
+            MPFR_CLEANUP_RF(multiplication);
         }
         if (isRational(b)) {
             TRACE("Multiplying (mpf,mpq)\n");
@@ -670,14 +670,14 @@ Pympany_mul(PyObject *a, PyObject *b)
             rf->rc = mpfr_mul_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
                                 context->now.mpfr_round);
             Py_DECREF((PyObject*)pbq);
-            MPFR_CLEANUP_RF("multiplication");
+            MPFR_CLEANUP_RF(multiplication);
         }
         if (PyFloat_Check(b)) {
             TRACE("Multiplying (mpf,float)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_mul_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
                                 context->now.mpfr_round);
-            MPFR_CLEANUP_RF("multiplication");
+            MPFR_CLEANUP_RF(multiplication);
         }
         Py_DECREF((PyObject*)rf);
     }
@@ -696,7 +696,7 @@ Pympany_mul(PyObject *a, PyObject *b)
             rf->rc = mpfr_mul_z(rf->f, Pympfr_AS_MPFR(b), paz->z,
                                 context->now.mpfr_round);
             Py_DECREF((PyObject*)paz);
-            MPFR_CLEANUP_RF("multiplication");
+            MPFR_CLEANUP_RF(multiplication);
         }
         if (isRational(a)) {
             TRACE("Multiplying (mpq,mpf)\n");
@@ -709,14 +709,14 @@ Pympany_mul(PyObject *a, PyObject *b)
             rf->rc = mpfr_mul_q(rf->f, Pympfr_AS_MPFR(b), paq->q,
                                 context->now.mpfr_round);
             Py_DECREF((PyObject*)paq);
-            MPFR_CLEANUP_RF("multiplication");
+            MPFR_CLEANUP_RF(multiplication);
         }
         if (PyFloat_Check(a)) {
             TRACE("Multiplying (float,mpf)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_mul_d(rf->f, Pympfr_AS_MPFR(b), PyFloat_AS_DOUBLE(a),
                                 context->now.mpfr_round);
-            MPFR_CLEANUP_RF("multiplication");
+            MPFR_CLEANUP_RF(multiplication);
         }
         Py_DECREF((PyObject*)rf);
     }
@@ -784,7 +784,7 @@ Pympany_mul(PyObject *a, PyObject *b)
         rf->rc = mpfr_mul(rf->f, paf->f, pbf->f, context->now.mpfr_round);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        MPFR_CLEANUP_RF("multiplication");
+        MPFR_CLEANUP_RF(multiplication);
     }
 #else
     /* Support mpz*float and float*mpz. */
@@ -819,7 +819,7 @@ Pympany_mul(PyObject *a, PyObject *b)
         rc->rc = mpc_mul(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)pac);
         Py_DECREF((PyObject*)pbc);
-        MPC_CLEANUP_RC("multiplication");
+        MPC_CLEANUP_RC(multiplication);
     }
 #endif
 
@@ -989,7 +989,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
         rf->rc = mpfr_floor(rf->f, rf->f);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        MPFR_CLEANUP_RF("division");
+        MPFR_CLEANUP_RF(division);
     }
 #endif
 
@@ -1042,7 +1042,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
         mpfr_clear_flags();
         rf->rc = mpfr_div(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
                           context->now.mpfr_round);
-        MPFR_CLEANUP_RF("division");
+        MPFR_CLEANUP_RF(division);
     }
 #endif
 
@@ -1083,7 +1083,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)paz);
         Py_DECREF((PyObject*)pbz);
 #ifdef WITHMPFR
-        MPFR_CLEANUP_RF("division");
+        MPFR_CLEANUP_RF(division);
 #else
         return PyFloat_FromDouble(tempdouble);
 #endif
@@ -1145,7 +1145,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
         rf->rc = mpfr_div(rf->f, paf->f, pbf->f, context->now.mpfr_round);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        MPFR_CLEANUP_RF("division");
+        MPFR_CLEANUP_RF(division);
     }
 #else
     /* Support mpz/float and float/mpz. */
@@ -1180,7 +1180,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
         rc->rc = mpc_div(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)pac);
         Py_DECREF((PyObject*)pbc);
-        MPC_CLEANUP_RC("division");
+        MPC_CLEANUP_RC(division);
     }
 #endif
 
@@ -1338,7 +1338,7 @@ Pympany_div2(PyObject *a, PyObject *b)
         rf->rc = mpfr_div(rf->f, paf->f, pbf->f, context->now.mpfr_round);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        MPFR_CLEANUP_RF("division");
+        MPFR_CLEANUP_RF(division);
     }
 #endif
 
@@ -1370,7 +1370,7 @@ Pympany_div2(PyObject *a, PyObject *b)
         rc->rc = mpc_div(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)pac);
         Py_DECREF((PyObject*)pbc);
-        MPC_CLEANUP_RC("division");
+        MPC_CLEANUP_RC(division);
     }
 #endif
 
@@ -1557,7 +1557,7 @@ Pympany_rem(PyObject *a, PyObject *b)
         Py_XDECREF((PyObject*)qf);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        MPFR_CLEANUP_RF("rem");
+        MPFR_CLEANUP_RF(rem);
     }
 #endif
 

@@ -95,7 +95,7 @@ Pympfr2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 static PympfrObject *
 Pympc2Pympfr(PyObject *self)
 {
-    TYPE_ERROR("can not covert 'mpc' to 'mpfr'");
+    TYPE_ERROR("can't covert 'mpc' to 'mpfr'");
     return NULL;
 }
 
@@ -115,7 +115,7 @@ PyFloat2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 static PyObject *
 Pympc2PyFloat(PyObject *self)
 {
-    TYPE_ERROR("can not covert 'mpc' to 'float'");
+    TYPE_ERROR("can't covert 'mpc' to 'float'");
     return NULL;
 }
 
@@ -133,7 +133,7 @@ Pympz2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 static PyObject *
 Pympc2Pympz(PyObject *self)
 {
-    TYPE_ERROR("can not covert 'mpc' to 'mpz'");
+    TYPE_ERROR("can't covert 'mpc' to 'mpz'");
     return NULL;
 }
 
@@ -142,7 +142,7 @@ Pympc2Pympz(PyObject *self)
 static PyObject *
 Pympc2Pyxmpz(PyObject *self)
 {
-    TYPE_ERROR("can not covert 'mpc' to 'xmpz'");
+    TYPE_ERROR("can't covert 'mpc' to 'xmpz'");
     return NULL;
 }
 
@@ -160,7 +160,7 @@ Pympq2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 static PyObject *
 Pympc2Pympq(PyObject *self)
 {
-    TYPE_ERROR("can not covert 'mpc' to 'mpq'");
+    TYPE_ERROR("can't covert 'mpc' to 'mpq'");
     return NULL;
 }
 
@@ -180,7 +180,7 @@ PyLong2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 static PyObject *
 Pympc2PyLong(PyObject *self)
 {
-    TYPE_ERROR("can not covert 'mpc' to 'long'");
+    TYPE_ERROR("can't covert 'mpc' to 'long'");
     return NULL;
 }
 
@@ -198,7 +198,7 @@ PyInt2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 static PyObject *
 Pympc2PyInt(PyObject *self)
 {
-    TYPE_ERROR("can not covert 'mpc' to 'int'");
+    TYPE_ERROR("can't covert 'mpc' to 'int'");
     return NULL;
 }
 #endif
@@ -498,7 +498,7 @@ Pympc_convert_arg(PyObject *arg, PyObject **ptr)
         return 1;
     }
     else {
-        TYPE_ERROR("argument can not be converted to mpc");
+        TYPE_ERROR("can't convert argument 'mpc'");
         return 0;
     }
 }
@@ -1009,5 +1009,81 @@ Pympc2repr(PympcObject *self)
     Py_DECREF(temp);
     return result;
 }
+
+static PyObject *
+Pympc_abs(PyObject *x)
+{
+    PympcObject *tempx = 0;
+    PympfrObject *result = 0;
+
+    result = Pympfr_new(0);
+    tempx = Pympc_From_Complex(x, 0, 0);
+    if (!tempx || !result) {
+        SYSTEM_ERROR("Can't convert argument to 'mpc'.");
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)result);
+        return NULL;
+    }
+
+    result->rc = mpc_abs(result->f, tempx->c, GET_MPC_ROUND(context));
+    SUBNORMALIZE(result);
+    if (mpfr_nan_p(result->f) && context->now.trap_invalid) {
+        GMPY_INVALID("invalid operation in 'mpc' abs");
+        Py_DECREF((PyObject*)result);
+        result = NULL;
+        goto done;
+    }
+    if (mpfr_inf_p(result->f) && context->now.trap_overflow) {
+        GMPY_OVERFLOW("overflow in 'mpc' abs");
+        Py_DECREF((PyObject*)result);
+        result = NULL;
+        goto done;
+    }
+
+  done:
+    Py_DECREF((PyObject*)tempx);
+    return (PyObject*)result;
+}
+
+static PyObject *
+Pympc_neg(PyObject *x)
+{
+    PympcObject *tempx = 0;
+    PympcObject *rc = 0;
+
+    rc = Pympc_new(0, 0);
+    tempx = Pympc_From_Complex(x, 0, 0);
+    if (!tempx || !rc) {
+        SYSTEM_ERROR("Can't convert argument to 'mpc'.");
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)rc);
+        return NULL;
+    }
+
+    rc->rc = mpc_neg(rc->c, tempx->c, GET_MPC_ROUND(context));
+    MPC_SUBNORMALIZE(rc);
+    /* check invalid */
+    if ((mpfr_nan_p(mpc_realref(rc->c)) || mpfr_nan_p(mpc_imagref(rc->c))) &&
+            context->now.trap_invalid) {
+        GMPY_INVALID("invalid operation in 'mpc' neg");
+        Py_DECREF((PyObject*)rc);
+        rc = NULL;
+        goto done;
+    }
+    /* check overflow */
+    if ((mpfr_inf_p(mpc_realref(rc->c)) || mpfr_inf_p(mpc_imagref(rc->c))) &&
+            context->now.trap_overflow) {
+        GMPY_OVERFLOW("overflow in 'mpc' neg");
+        Py_DECREF((PyObject*)rc);
+        rc = NULL;
+        goto done;
+    }
+
+  done:
+    Py_DECREF((PyObject*)tempx);
+    return (PyObject*)rc;
+}
+
+
 
 
