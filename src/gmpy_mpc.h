@@ -126,3 +126,21 @@ static PyTypeObject Pympc_Type;
     } \
     return (PyObject*)rc;
 
+#define MPC_CLEANUP_RESULT(NAME) \
+    MPC_SUBNORMALIZE(result); \
+    if ((mpfr_nan_p(mpc_realref(result->c)) || \
+         mpfr_nan_p(mpc_imagref(result->c))) && \
+        context->now.trap_invalid) { \
+        GMPY_INVALID("invalid operation in 'mpc' "NAME); \
+        Py_DECREF((PyObject*)result); \
+        result = NULL; \
+        goto done; \
+    } \
+    if ((mpfr_inf_p(mpc_realref(result->c)) || \
+         mpfr_inf_p(mpc_imagref(result->c))) && \
+        context->now.trap_overflow) { \
+        GMPY_OVERFLOW("overflow in 'mpc' "NAME); \
+        Py_DECREF((PyObject*)result); \
+        result = NULL; \
+        goto done; \
+    }

@@ -702,15 +702,14 @@ PyDoc_STRVAR(doc_mpc_format,
 "        '+' -> always display leading sign\n"
 "        '-' -> only display minus for negative values\n"
 "        ' ' -> minus for negative values, space for positive values\n"
-"     optional width.precision\n"
+"     optional width.real_precision.imag_precision\n"
 "     optional rounding mode:\n"
 "        'U' -> round toward plus infinity\n"
 "        'D' -> round toward minus infinity\n"
-"        'Y' -> round away from zero\n"
 "        'Z' -> round toward zero\n"
 "        'N' -> round to nearest\n"
 "     optional output style:\n"
-"        'P' -> Python style, 1+2j\n"
+"        'P' -> Python style, 1+2j, (default)\n"
 "        'M' -> MPC style, (1 2)\n"
 "     optional conversion code:\n"
 "        'a','A' -> hex format\n"
@@ -935,6 +934,14 @@ Pympc_format(PyObject *self, PyObject *args)
 
     if (mpcstyle)
         strcat(tempbuf, " ");
+    else {
+        /* Need to insert + if imag is nan or +inf. */
+        if (mpfr_nan_p(mpc_imagref(Pympc_AS_MPC(self))) ||
+            (mpfr_inf_p(mpc_imagref(Pympc_AS_MPC(self))) &&
+             mpfr_sgn(mpc_imagref(Pympc_AS_MPC(self))) > 0)) {
+            strcat(tempbuf, "+");
+        }
+    }
     strcat(tempbuf, imagbuf);
     if (strlen(imagbuf) < 50 &&
         strlen(imagbuf) == strspn(imagbuf, "+- 0123456789")) {
@@ -1028,13 +1035,13 @@ Pympc_abs(PyObject *x)
     result->rc = mpc_abs(result->f, tempx->c, GET_MPC_ROUND(context));
     SUBNORMALIZE(result);
     if (mpfr_nan_p(result->f) && context->now.trap_invalid) {
-        GMPY_INVALID("invalid operation in 'mpc' abs");
+        GMPY_INVALID("invalid operation in 'mpc' __abs__");
         Py_DECREF((PyObject*)result);
         result = NULL;
         goto done;
     }
     if (mpfr_inf_p(result->f) && context->now.trap_overflow) {
-        GMPY_OVERFLOW("overflow in 'mpc' abs");
+        GMPY_OVERFLOW("overflow in 'mpc' __abs__");
         Py_DECREF((PyObject*)result);
         result = NULL;
         goto done;
@@ -1049,40 +1056,25 @@ static PyObject *
 Pympc_neg(PyObject *x)
 {
     PympcObject *tempx = 0;
-    PympcObject *rc = 0;
+    PympcObject *result = 0;
 
-    rc = Pympc_new(0, 0);
+    result = Pympc_new(0, 0);
     tempx = Pympc_From_Complex(x, 0, 0);
-    if (!tempx || !rc) {
+    if (!tempx || !result) {
         SYSTEM_ERROR("Can't convert argument to 'mpc'.");
         Py_XDECREF((PyObject*)tempx);
-        Py_XDECREF((PyObject*)rc);
+        Py_XDECREF((PyObject*)result);
         return NULL;
     }
 
-    rc->rc = mpc_neg(rc->c, tempx->c, GET_MPC_ROUND(context));
-    MPC_SUBNORMALIZE(rc);
-    /* check invalid */
-    if ((mpfr_nan_p(mpc_realref(rc->c)) || mpfr_nan_p(mpc_imagref(rc->c))) &&
-            context->now.trap_invalid) {
-        GMPY_INVALID("invalid operation in 'mpc' neg");
-        Py_DECREF((PyObject*)rc);
-        rc = NULL;
-        goto done;
-    }
-    /* check overflow */
-    if ((mpfr_inf_p(mpc_realref(rc->c)) || mpfr_inf_p(mpc_imagref(rc->c))) &&
-            context->now.trap_overflow) {
-        GMPY_OVERFLOW("overflow in 'mpc' neg");
-        Py_DECREF((PyObject*)rc);
-        rc = NULL;
-        goto done;
-    }
+    result->rc = mpc_neg(result->c, tempx->c, GET_MPC_ROUND(context));
+    MPC_CLEANUP_RESULT("__neg__");
 
   done:
     Py_DECREF((PyObject*)tempx);
-    return (PyObject*)rc;
+    return (PyObject*)result;
 }
+
 
 
 
