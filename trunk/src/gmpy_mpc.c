@@ -1018,13 +1018,13 @@ Pympc2repr(PympcObject *self)
 }
 
 static PyObject *
-Pympc_abs(PyObject *x)
+Pympc_abs(PyObject *self)
 {
     PympcObject *tempx = 0;
     PympfrObject *result = 0;
 
     result = Pympfr_new(0);
-    tempx = Pympc_From_Complex(x, 0, 0);
+    tempx = Pympc_From_Complex(self, 0, 0);
     if (!tempx || !result) {
         SYSTEM_ERROR("Can't convert argument to 'mpc'.");
         Py_XDECREF((PyObject*)tempx);
@@ -1053,13 +1053,13 @@ Pympc_abs(PyObject *x)
 }
 
 static PyObject *
-Pympc_neg(PyObject *x)
+Pympc_neg(PympcObject *self)
 {
     PympcObject *tempx = 0;
     PympcObject *result = 0;
 
     result = Pympc_new(0, 0);
-    tempx = Pympc_From_Complex(x, 0, 0);
+    tempx = Pympc_From_Complex((PyObject*)self, 0, 0);
     if (!tempx || !result) {
         SYSTEM_ERROR("Can't convert argument to 'mpc'.");
         Py_XDECREF((PyObject*)tempx);
@@ -1073,6 +1073,28 @@ Pympc_neg(PyObject *x)
   done:
     Py_DECREF((PyObject*)tempx);
     return (PyObject*)result;
+}
+
+static PyObject *
+Pympc_pos(PympcObject *self)
+{
+    PympcObject *result = 0;
+
+    result = Pympc_From_Complex((PyObject*)self, 0, 0);
+    MPC_CLEANUP_RESULT("__pos__");
+  done:
+    return (PyObject*)result;
+}
+
+static int
+Pympc_nonzero(PympcObject *self)
+{
+    if (mpfr_nan_p(mpc_realref(self->c)) || mpfr_nan_p(mpc_imagref(self->c)))
+        return 1;
+    else if (mpc_cmp_si_si(self->c, 0, 0))
+        return 1;
+    else
+        return 0;
 }
 
 

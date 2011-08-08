@@ -2645,9 +2645,9 @@ static PyNumberMethods mpc_number_methods =
     (binaryfunc) Pympany_divmod,         /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
     (unaryfunc) Pympc_neg,               /* nb_negative             */
-    0,               /* nb_positive             */
+    (unaryfunc) Pympc_pos,               /* nb_positive             */
     (unaryfunc) Pympc_abs,               /* nb_absolute             */
-    0,             /* nb_bool                 */
+    (inquiry) Pympc_nonzero,             /* nb_bool                 */
         0,                               /* nb_invert               */
         0,                               /* nb_lshift               */
         0,                               /* nb_rshift               */
@@ -2684,9 +2684,9 @@ static PyNumberMethods mpc_number_methods =
     (binaryfunc) Pympany_divmod,         /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
     (unaryfunc) Pympc_neg,               /* nb_negative             */
-    0,               /* nb_positive             */
+    (unaryfunc) Pympc_pos,               /* nb_positive             */
     (unaryfunc) Pympc_abs,               /* nb_absolute             */
-    0,             /* nb_bool                 */
+    (inquiry) Pympc_nonzero,             /* nb_bool                 */
         0,                               /* nb_invert               */
         0,                               /* nb_lshift               */
         0,                               /* nb_rshift               */

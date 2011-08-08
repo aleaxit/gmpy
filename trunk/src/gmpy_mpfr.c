@@ -713,6 +713,8 @@ Pympfr_conjugate(PyObject *self, PyObject *args)
 
 /* Implement the nb_positive slot. */
 
+/* TODO: can probably just call Pympfr_From_Real. */
+
 static PyObject *
 Pympfr_pos(PympfrObject *self)
 {
@@ -735,7 +737,7 @@ Pympfr_pos(PympfrObject *self)
 
     SUBNORMALIZE(result);
     MERGE_FLAGS;
-    CHECK_FLAGS("pos");
+    CHECK_FLAGS("__pos__");
   done:
     if (PyErr_Occurred()) {
         Py_XDECREF((PyObject*)result);
