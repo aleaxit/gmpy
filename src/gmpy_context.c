@@ -194,10 +194,11 @@ PyDoc_STRVAR(doc_context,
 static PyObject *
 Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
+    gmpy_context old;
 #ifdef WITHMPC
     static char *kwlist[] = {
         "precision", "mpc_rprec", "mpc_iprec", "round",
-        "mpc_rround", "mpc_iround", "emax", "emin","subnormalize",
+        "mpc_rround", "mpc_iround", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero",
         "trap_complex", NULL };
@@ -212,6 +213,8 @@ Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
         VALUE_ERROR("context() only supports keyword arguments");
         return NULL;
     }
+
+    old = context->now;
 
 #ifdef WITHMPC
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
@@ -243,6 +246,85 @@ Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
             &context->now.trap_divzero))) {
 #endif
         VALUE_ERROR("invalid keyword arguments in context()");
+        return NULL;
+    }
+
+    /* Sanity check for values. */
+    if (context->now.mpfr_prec < MPFR_PREC_MIN ||
+        context->now.mpfr_prec > MPFR_PREC_MAX) {
+        context->now = old;
+        VALUE_ERROR("invalid value for precision");
+        return NULL;
+    }
+
+#ifdef WITHMPC
+    if (!(context->now.mpc_rprec == GMPY_DEFAULT ||
+        (context->now.mpc_rprec >= MPFR_PREC_MIN &&
+        context->now.mpc_rprec <= MPFR_PREC_MAX))) {
+        context->now = old;
+        VALUE_ERROR("invalid value for mpc_rprec");
+        return NULL;
+    }
+    if (!(context->now.mpc_iprec == GMPY_DEFAULT ||
+        (context->now.mpc_iprec >= MPFR_PREC_MIN &&
+        context->now.mpc_iprec <= MPFR_PREC_MAX))) {
+        context->now = old;
+        VALUE_ERROR("invalid value for mpc_iprec");
+        return NULL;
+    }
+#endif
+
+    if (!(context->now.mpfr_round == MPFR_RNDN ||
+        context->now.mpfr_round == MPFR_RNDZ ||
+        context->now.mpfr_round == MPFR_RNDU ||
+        context->now.mpfr_round == MPFR_RNDD ||
+        context->now.mpfr_round == MPFR_RNDA)) {
+        context->now = old;
+        VALUE_ERROR("invalid value for mpfr_round");
+        return NULL;
+    }
+
+#ifdef WITHMPC
+    if (context->now.mpfr_round == MPFR_RNDA) {
+        /* Since RNDA is not supported for MPC, set the MPC rounding modes
+           to MPFR_RNDN. */
+        context->now.mpc_rround = MPFR_RNDN;
+        context->now.mpc_iround = MPFR_RNDN;
+    }
+    if (!(context->now.mpc_rround == MPFR_RNDN ||
+        context->now.mpc_rround == MPFR_RNDZ ||
+        context->now.mpc_rround == MPFR_RNDU ||
+        context->now.mpc_rround == MPFR_RNDD ||
+        context->now.mpc_rround == GMPY_DEFAULT)) {
+        context->now = old;
+        VALUE_ERROR("invalid value for mpc_rround");
+        return NULL;
+    }
+    if (!(context->now.mpc_iround == MPFR_RNDN ||
+        context->now.mpc_iround == MPFR_RNDZ ||
+        context->now.mpc_iround == MPFR_RNDU ||
+        context->now.mpc_iround == MPFR_RNDD ||
+        context->now.mpc_iround == GMPY_DEFAULT)) {
+        context->now = old;
+        VALUE_ERROR("invalid value for mpc_iround");
+        return NULL;
+    }
+#endif
+
+    if (!(context->now.emin < 0 && context->now.emax > 0)) {
+        VALUE_ERROR("invalid values for emin and/or emax");
+        context->now = old;
+        return NULL;
+    }
+
+    if (mpfr_set_emin(context->now.emin)) {
+        VALUE_ERROR("invalid value for emin");
+        context->now = old;
+        return NULL;
+    }
+    if (mpfr_set_emax(context->now.emax)) {
+        VALUE_ERROR("invalid value for emax");
+        context->now = old;
         return NULL;
     }
 
@@ -314,6 +396,7 @@ static PyObject *
 Pygmpy_new_context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     GMPyContextObject *result;
+    gmpy_context old;
 
 #ifdef WITHMPC
     static char *kwlist[] = {
@@ -336,6 +419,9 @@ Pygmpy_new_context(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (!(result = GMPyContext_new()))
         return NULL;
+
+    old = result->now;
+
 #ifdef WITHMPC
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
             "|llliiilliiiiiii", kwlist,
@@ -363,6 +449,86 @@ Pygmpy_new_context(PyObject *self, PyObject *args, PyObject *kwargs)
         VALUE_ERROR("invalid keyword arguments in new_context()");
         return NULL;
     }
+
+    /* Sanity check for values. */
+    if (result->now.mpfr_prec < MPFR_PREC_MIN ||
+        result->now.mpfr_prec > MPFR_PREC_MAX) {
+        result->now = old;
+        VALUE_ERROR("invalid value for precision");
+        return NULL;
+    }
+
+#ifdef WITHMPC
+    if (!(result->now.mpc_rprec == GMPY_DEFAULT ||
+        (result->now.mpc_rprec >= MPFR_PREC_MIN &&
+        result->now.mpc_rprec <= MPFR_PREC_MAX))) {
+        result->now = old;
+        VALUE_ERROR("invalid value for mpc_rprec");
+        return NULL;
+    }
+    if (!(result->now.mpc_iprec == GMPY_DEFAULT ||
+        (result->now.mpc_iprec >= MPFR_PREC_MIN &&
+        result->now.mpc_iprec <= MPFR_PREC_MAX))) {
+        result->now = old;
+        VALUE_ERROR("invalid value for mpc_iprec");
+        return NULL;
+    }
+#endif
+
+    if (!(result->now.mpfr_round == MPFR_RNDN ||
+        result->now.mpfr_round == MPFR_RNDZ ||
+        result->now.mpfr_round == MPFR_RNDU ||
+        result->now.mpfr_round == MPFR_RNDD ||
+        result->now.mpfr_round == MPFR_RNDA)) {
+        result->now = old;
+        VALUE_ERROR("invalid value for mpfr_round");
+        return NULL;
+    }
+
+#ifdef WITHMPC
+    if (result->now.mpfr_round == MPFR_RNDA) {
+        /* Since RNDA is not supported for MPC, set the MPC rounding modes
+           to MPFR_RNDN. */
+        result->now.mpc_rround = MPFR_RNDN;
+        result->now.mpc_iround = MPFR_RNDN;
+    }
+    if (!(result->now.mpc_rround == MPFR_RNDN ||
+        result->now.mpc_rround == MPFR_RNDZ ||
+        result->now.mpc_rround == MPFR_RNDU ||
+        result->now.mpc_rround == MPFR_RNDD ||
+        result->now.mpc_rround == GMPY_DEFAULT)) {
+        result->now = old;
+        VALUE_ERROR("invalid value for mpc_rround");
+        return NULL;
+    }
+    if (!(result->now.mpc_iround == MPFR_RNDN ||
+        result->now.mpc_iround == MPFR_RNDZ ||
+        result->now.mpc_iround == MPFR_RNDU ||
+        result->now.mpc_iround == MPFR_RNDD ||
+        result->now.mpc_iround == GMPY_DEFAULT)) {
+        result->now = old;
+        VALUE_ERROR("invalid value for mpc_iround");
+        return NULL;
+    }
+#endif
+
+    if (!(result->now.emin < 0 && result->now.emax > 0)) {
+        VALUE_ERROR("invalid values for emin and/or emax");
+        result->now = old;
+        return NULL;
+    }
+
+    if (mpfr_set_emin(result->now.emin)) {
+        VALUE_ERROR("invalid value for emin");
+        result->now = old;
+        return NULL;
+    }
+    if (mpfr_set_emax(result->now.emax)) {
+        VALUE_ERROR("invalid value for emax");
+        result->now = old;
+        return NULL;
+    }
+
     result->now.underflow = 0;
     result->now.overflow = 0;
     result->now.inexact = 0;
