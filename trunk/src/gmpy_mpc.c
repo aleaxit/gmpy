@@ -1097,6 +1097,85 @@ Pympc_nonzero(PympcObject *self)
         return 0;
 }
 
+/* Support Pympany_square */
+
+static PyObject *
+Pympc_sqr(PyObject* self, PyObject *other)
+{
+    PympcObject *result;
+
+    PARSE_ONE_MPC_OTHER("square() requires 'mpc' argument");
+
+    if (!(result = Pympc_new(0, 0)))
+        goto done;
+    result->rc = mpc_mul(result->c, Pympc_AS_MPC(self),
+                         Pympc_AS_MPC(self), GET_MPC_ROUND(context));
+    MPC_CLEANUP_SELF("square()"); \
+}
+
+static PyObject *
+Pympc_pow(PyObject *base, PyObject *exp, PyObject *m)
+{
+    PympcObject *tempb, *tempe, *result;
+
+    if ((PyObject*)m != Py_None) {
+        TYPE_ERROR("mpc.pow() no modulo allowed");
+        return NULL;
+    }
+
+    tempb = Pympc_From_Complex(base, 0, 0);
+    tempe = Pympc_From_Complex(exp, 0, 0);
+    result = Pympc_new(0, 0);
+
+    if (!tempe || !tempb || !result) {
+        Py_XDECREF((PyObject*)tempe);
+        Py_XDECREF((PyObject*)tempb);
+        Py_XDECREF((PyObject*)result);
+        Py_RETURN_NOTIMPLEMENTED;
+    }
+
+    if (mpfr_zero_p(mpc_realref(tempb->c)) &&
+        mpfr_zero_p(mpc_imagref(tempb->c)) &&
+        (!mpfr_zero_p(mpc_imagref(tempe->c)) ||
+         mpfr_sgn(mpc_realref(tempe->c)) < 0)) {
+
+        context->now.divzero = 1;
+        if (context->now.trap_divzero) {
+            GMPY_DIVZERO("zero cannot be raised to a negative or complex power");
+            goto done;
+        }
+    }
+
+    result->rc = mpc_pow(result->c, tempb->c, tempe->c,
+                         GET_MPC_ROUND(context));
+    MPC_SUBNORMALIZE(result)
+    MPC_CHECK_FLAGS(result, "pow()")
+  done:
+    Py_DECREF((PyObject*)tempe);
+    Py_DECREF((PyObject*)tempb);
+    if (PyErr_Occurred()) {
+        Py_DECREF((PyObject*)result);
+        result = NULL;
+    }
+    return (PyObject*)result;
+}
+
+
+
+
+
+
+#define MPC_UNIOP(NAME) \
+static PyObject * \
+Pympc_##NAME(PyObject* self, PyObject *other) \
+{ \
+    PympcObject *result; \
+    PARSE_ONE_MPC_OTHER(#NAME "() requires 'mpc' argument"); \
+    if (!(result = Pympc_new(0, 0))) goto done; \
+    result->rc = mpc_##NAME(result->f, Pympfr_AS_MPFR(self), context->now.mpfr_round); \
+    MPC_CLEANUP_SELF(#NAME "()"); \
+}
+
 
 
 

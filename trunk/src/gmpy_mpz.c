@@ -2048,6 +2048,14 @@ Pyxmpz_make_mpz(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
+static char doc_xmpz_copy[]="x.copy(): returns a copy of x.\n";
+
+static PyObject *
+Pyxmpz_copy(PyObject *self, PyObject *other)
+{
+    return (PyObject*)Pyxmpz2Pyxmpz(self);
+}
+
 /*
  * Add mapping support to xmpz objects.
  */

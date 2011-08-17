@@ -80,22 +80,22 @@ static PyTypeObject Pympc_Type;
 
 #define MPC_CHECK_FLAGS(mpct, NAME) \
     MPC_CHECK_INVALID(mpct, "invalid operation in 'mpc' "NAME); \
-    MPC_CHECK_OVERFLOW("overflow in 'mpc' "NAME); \
+    MPC_CHECK_OVERFLOW(mpct, "overflow in 'mpc' "NAME); \
 
-#define MPC_SUBNORMALIZE(NAME) \
+#define MPC_SUBNORMALIZE(mpct) \
     if (context->now.subnormalize) { \
         int rcr, rci; \
-        rcr = MPC_INEX_RE(NAME->rc); \
-        rci = MPC_INEX_IM(NAME->rc); \
-        rcr = mpfr_subnormalize(mpc_realref(NAME->c), rcr, GET_MPC_RROUND(context)); \
-        rci = mpfr_subnormalize(mpc_imagref(NAME->c), rci, GET_MPC_IROUND(context)); \
-        NAME->rc = MPC_INEX(rcr, rci); \
+        rcr = MPC_INEX_RE(mpct->rc); \
+        rci = MPC_INEX_IM(mpct->rc); \
+        rcr = mpfr_subnormalize(mpc_realref(mpct->c), rcr, GET_MPC_RROUND(context)); \
+        rci = mpfr_subnormalize(mpc_imagref(mpct->c), rci, GET_MPC_IROUND(context)); \
+        mpct->rc = MPC_INEX(rcr, rci); \
     } \
 
 #define MPC_CLEANUP_SELF(NAME) \
     MPC_SUBNORMALIZE(result); \
-    MPC_CHECK_INVALID("invalid operation in 'mpc' "NAME); \
-    MPC_CHECK_OVERFLOW("overflow in 'mpc' "NAME); \
+    MPC_CHECK_INVALID(result, "invalid operation in 'mpc' "NAME); \
+    MPC_CHECK_OVERFLOW(result, "overflow in 'mpc' "NAME); \
   done: \
     Py_DECREF(self); \
     if (PyErr_Occurred()) { \
@@ -106,8 +106,8 @@ static PyTypeObject Pympc_Type;
 
 #define MPC_CLEANUP_SELF_OTHER(NAME) \
     MPC_SUBNORMALIZE(result); \
-    MPC_CHECK_INVALID("invalid operation in 'mpc' "NAME); \
-    MPC_CHECK_OVERFLOW("overflow in 'mpc' "NAME); \
+    MPC_CHECK_INVALID(result, "invalid operation in 'mpc' "NAME); \
+    MPC_CHECK_OVERFLOW(result, "overflow in 'mpc' "NAME); \
   done: \
     Py_DECREF(self); \
     Py_DECREF(other); \
@@ -144,3 +144,60 @@ static PyTypeObject Pympc_Type;
         result = NULL; \
         goto done; \
     }
+
+/*
+ * Parses one, and only one, argument into "self" and converts it to an
+ * mpc. Is faster, but not as generic, as using PyArg_ParseTuple. It
+ * supports either gmpy.fname(z) or z.fname(). "self" must be decref'ed.
+ * "msg" should be an error message that includes the function name and
+ * describes the required arguments.
+ */
+
+#define PARSE_ONE_MPC(msg) \
+    if(self && Pympc_CheckAndExp(self)) {\
+        if (PyTuple_GET_SIZE(args) != 0) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        Py_INCREF(self);\
+    } else {\
+        if (PyTuple_GET_SIZE(args) != 1) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        self = PyTuple_GET_ITEM(args, 0);\
+        if(Pympc_CheckAndExp(self)) {\
+            Py_INCREF((PyObject*)self);\
+        } else {\
+            self = (PyObject*)Pympc_From_Complex(PyTuple_GET_ITEM(args, 0, 0), 0);\
+        }\
+        if(!self) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+    }
+
+/*
+ * Parses one, and only one, argument into "self" and converts it to an
+ * mpc. Is faster, but not as generic, as using PyArg_ParseTuple. It
+ * supports either gmpy.fname(z) or z.fname(). "self" must be decref'ed.
+ * "msg" should be an error message that includes the function name and
+ * describes the required arguments. It assumes the functions is declared
+ * as either METH_O or METH_NOARGS. It is faster than PARSE_ONE_MPFR and
+ * passing a tuple as args.
+ */
+
+#define PARSE_ONE_MPC_OTHER(msg) \
+    if(self && Pympc_CheckAndExp(self)) {\
+        Py_INCREF(self);\
+    }\
+    else if(Pympc_CheckAndExp(other)) {\
+        self = other;\
+        Py_INCREF((PyObject*)self);\
+    }\
+    else if (!(self = (PyObject*)Pympc_From_Complex(other, 0, 0))) {\
+        PyErr_SetString(PyExc_TypeError, msg);\
+        return NULL;\
+    }
+
+
