@@ -234,6 +234,8 @@
  *   Allow building with GMP/MPIR and MPFR if MPC not available (casevh)
  *   Removed most instance methods in favor of gmpy2.method (casevh)
  *   Added __ceil__, __floor__, and __trunc__ methods (casevh)
+ *   Removed gmpy2.pow to avoid conflicts (casevh)
+ *   Removed gmpy2._copy and added xmpz.copy (casevh)
  *
  ************************************************************************
  *
@@ -2721,7 +2723,6 @@ static PyNumberMethods mpc_number_methods =
 static PyMethodDef Pygmpy_methods [] =
 {
     { "_cvsid", Pygmpy_get_cvsid, METH_NOARGS, doc_cvsid },
-    { "_copy", Pympany_copy, METH_O, doc_copyg },
     { "bit_clear", Pygmpy_bit_clear, METH_VARARGS, doc_bit_clearg },
     { "bit_flip", Pygmpy_bit_flip, METH_VARARGS, doc_bit_flipg },
     { "bit_length", Pympz_bit_length, METH_O, doc_bit_lengthg },
@@ -2886,7 +2887,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "next_above", Pympfr_nextabove, METH_O, doc_g_mpfr_nextabove },
     { "next_below", Pympfr_nextbelow, METH_O, doc_g_mpfr_nextbelow },
     { "next_toward", Pympfr_nexttoward, METH_VARARGS, doc_g_mpfr_nexttoward },
-    { "pow", Pympfr_pow, METH_VARARGS, doc_g_mpfr_pow },
     { "rec_sqrt", Pympfr_rec_sqrt, METH_O, doc_g_mpfr_rec_sqrt },
     { "reldiff", Pympfr_reldiff, METH_VARARGS, doc_g_mpfr_reldiff },
     { "remainder", Pympfr_remainder, METH_VARARGS, doc_g_mpfr_remainder },
@@ -2958,6 +2958,7 @@ static PyMethodDef Pyxmpz_methods [] =
     { "bit_scan1", Pympz_bit_scan1, METH_VARARGS, doc_bit_scan1m },
     { "bit_set", Pympz_bit_set, METH_O, doc_bit_setm },
     { "bit_test", Pympz_bit_test, METH_O, doc_bit_testm },
+    { "copy", Pyxmpz_copy, METH_NOARGS, doc_xmpz_copy },
     { "digits", Pyxmpz_digits, METH_VARARGS, doc_mpz_digits },
     { "is_even", Pympz_is_even, METH_NOARGS, doc_is_evenm },
     { "is_odd", Pympz_is_odd, METH_NOARGS, doc_is_oddm },
@@ -3238,6 +3239,7 @@ static PyTypeObject Pympc_Type =
 };
 #endif
 
+#ifdef USE_PYMEM
 static void *
 gmpy_allocate(size_t size)
 {
@@ -3293,10 +3295,12 @@ gmpy_reallocate(void *ptr, size_t old_size, size_t new_size)
     }
 
     if (!(res = PyMem_Realloc(ptr, unew))) {
+#ifdef DEBUG
         fprintf(stderr,
             "mp_reallocate: old address %8p, old size %llu(%llu), new %llu(%llu)\n",
             ptr, (unsigned long long)old_size, (unsigned long long)uold,
             (unsigned long long)new_size, (unsigned long long)unew);
+#endif
         Py_FatalError("mp_reallocate failure");
     }
 #ifdef DEBUG
@@ -3320,6 +3324,7 @@ gmpy_free( void *ptr, size_t size)
 #endif
     PyMem_Free(ptr);
 } /* mp_free() */
+#endif /* USE_PYMEM */
 
 static void
 _PyInitGMP(void)
@@ -3328,7 +3333,9 @@ _PyInitGMP(void)
     PyObject *temp = NULL;
 #endif
 
+#ifdef USE_PYMEM
     mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
+#endif
     set_zcache();
     set_pympzcache();
     set_pympqcache();

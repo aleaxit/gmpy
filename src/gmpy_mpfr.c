@@ -1362,12 +1362,12 @@ Pympfr_hash(PympfrObject *self)
 /* This function is used in gmpy_basic. */
 
 static PyObject *
-Pympfr2_pow(PyObject *base, PyObject *exp, PyObject *m)
+Pympfr_pow(PyObject *base, PyObject *exp, PyObject *m)
 {
     PympfrObject *tempb, *tempe, *result;
 
     if ((PyObject*)m != Py_None) {
-        TYPE_ERROR("mpfr.pow() no modulo allowed");
+        TYPE_ERROR("pow() 3rd argument not allowed unless all arguments are integers");
         return NULL;
     }
 
@@ -1385,7 +1385,7 @@ Pympfr2_pow(PyObject *base, PyObject *exp, PyObject *m)
     if (mpfr_zero_p(tempb->f) && (mpfr_sgn(tempe->f) < 0)) {
         context->now.divzero = 1;
         if (context->now.trap_divzero) {
-            GMPY_DIVZERO("zero cannot be raised to a negative power");
+            GMPY_DIVZERO("0.0 cannot be raised to a negative power");
             goto done;
         }
     }
@@ -2312,35 +2312,35 @@ Pympfr_remquo(PyObject* self, PyObject *args)
     return result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_pow,
-"pow(x, y) -> mpfr\n\n"
-"Return x ** y.");
+//~ PyDoc_STRVAR(doc_g_mpfr_pow,
+//~ "pow(x, y) -> mpfr\n\n"
+//~ "Return x ** y.");
 
-static PyObject *
-Pympfr_pow(PyObject *self, PyObject *args)
-{
-    PympfrObject *result;
-    PyObject *other;
+//~ static PyObject *
+//~ Pympfr_pow(PyObject *self, PyObject *args)
+//~ {
+    //~ PympfrObject *result;
+    //~ PyObject *other;
 
-    PARSE_TWO_MPFR(other, "pow() requires 'mpfr','mpfr' arguments");
+    //~ PARSE_TWO_MPFR(other, "pow() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = Pympfr_new(0)))
-        goto done;
+    //~ if (!(result = Pympfr_new(0)))
+        //~ goto done;
 
-    if ((mpfr_zero_p(Pympfr_AS_MPFR(self))) &&
-        (mpfr_sgn(Pympfr_AS_MPFR(other)) < 0)) {
-        context->now.divzero = 1;
-        if (context->now.trap_divzero) {
-            GMPY_DIVZERO("zero cannot be raised to a negative power");
-            goto done;
-        }
-    }
+    //~ if ((mpfr_zero_p(Pympfr_AS_MPFR(self))) &&
+        //~ (mpfr_sgn(Pympfr_AS_MPFR(other)) < 0)) {
+        //~ context->now.divzero = 1;
+        //~ if (context->now.trap_divzero) {
+            //~ GMPY_DIVZERO("zero cannot be raised to a negative power");
+            //~ goto done;
+        //~ }
+    //~ }
 
-    mpfr_clear_flags();
-    result->rc = mpfr_pow(result->f, Pympfr_AS_MPFR(self),
-                          Pympfr_AS_MPFR(other), context->now.mpfr_round);
-    MPFR_CLEANUP_SELF_OTHER("pow()");
-}
+    //~ mpfr_clear_flags();
+    //~ result->rc = mpfr_pow(result->f, Pympfr_AS_MPFR(self),
+                          //~ Pympfr_AS_MPFR(other), context->now.mpfr_round);
+    //~ MPFR_CLEANUP_SELF_OTHER("pow()");
+//~ }
 
 PyDoc_STRVAR(doc_g_mpfr_atan2,
 "atan2(y, x) -> mpfr\n\n"

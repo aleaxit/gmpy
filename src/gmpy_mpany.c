@@ -40,21 +40,23 @@ PyDoc_STRVAR(doc_mpany_square,
 "square(x) -> number\n\n"
 "Return x * x. If x is an integer, then the result is an 'mpz'.\n"
 "If x is a rational, then the result is an 'mpq'. If x is a float,\n"
-"then the result is an 'mpf'.");
+"then the result is an 'mpf'. If x is a comples number, then the\n"
+"result is an 'mpc'.");
 
 static PyObject *
 Pympany_square(PyObject *self, PyObject *other)
 {
-    if (isInteger(other)) {
+    if (isInteger(other))
         return Pympz_square(self, other);
-    }
-    else if (isRational(other)) {
+    else if (isRational(other))
         return Pympq_square(self, other);
-    }
 #ifdef WITHMPFR
-    else if (isReal(other)) {
+    else if (isReal(other))
         return Pympfr_sqr(self, other);
-    }
+#endif
+#ifdef WITHMPC
+    else if (isComplex(other))
+        return Pympc_sqr(self, other);
 #endif
 
     TYPE_ERROR("square() not supported");
@@ -68,8 +70,8 @@ Pympany_square(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(doc_g_mpany_digits,
 "digits(x,[base,[prec]]) -> string\n\n"
-"Return string representing x. Calls mpz.digits, mpq.digits, or\n"
-"mpfr.digits as appropriate.");
+"Return string representing x. Calls mpz.digits, mpq.digits,\n"
+"mpfr.digits, or mpc.digits as appropriate.");
 
 static PyObject *
 Pympany_digits(PyObject *self, PyObject *args)
@@ -89,6 +91,10 @@ Pympany_digits(PyObject *self, PyObject *args)
 #ifdef WITHMPFR
     else if (isReal(temp))
         return Pympfr_digits(self, args);
+#endif
+#ifdef WITHMPC
+    else if (isComplex(temp))
+        return Pympc_digits(self, args);
 #endif
 
     TYPE_ERROR("digits() not supported");
@@ -117,37 +123,6 @@ Pympany_sign(PyObject *self, PyObject *other)
 #endif
 
     TYPE_ERROR("sign() not supported");
-    return NULL;
-}
-
-/* create a copy of a gmpy2 object */
-PyDoc_STRVAR(doc_copyg,
-"_copy(x): -> gmpy2_object\n\n"
-"Return a copy of x. Raises TypeError if x is not a gmpy2 object.");
-static PyObject *
-Pympany_copy(PyObject *self, PyObject *other)
-{
-    if (self && Pympz_Check(self))
-        return (PyObject*)Pympz2Pympz(self);
-    else if (self && Pyxmpz_Check(self))
-        return (PyObject*)Pyxmpz2Pyxmpz(self);
-    else if (self && Pympq_Check(self))
-        return (PyObject*)Pympq2Pympq(self);
-#ifdef WITHMPFR
-    else if (self && Pympfr_Check(self))
-        return (PyObject*)Pympfr2Pympfr(self, 0);
-#endif
-    else if (Pympz_Check(other))
-        return (PyObject*)Pympz2Pympz(other);
-    else if (Pyxmpz_Check(other))
-        return (PyObject*)Pyxmpz2Pyxmpz(other);
-    else if (Pympq_Check(other))
-        return (PyObject*)Pympq2Pympq(other);
-#ifdef WITHMPFR
-    else if (Pympfr_Check(other))
-        return (PyObject*)Pympfr2Pympfr(other, 0);
-#endif
-    TYPE_ERROR("_copy() requires a gmpy2 object as argument");
     return NULL;
 }
 
@@ -204,8 +179,8 @@ Pympany_pow(PyObject *base, PyObject *exp, PyObject *mod)
     else if (isRational(base) && isRational(exp))
         return Pympq_pow(base, exp, mod);
 #ifdef WITHMPFR
-    else if (isReal(base) && isReal(exp));
-        return Pympfr2_pow(base, exp, mod);
+    else if (isReal(base) && isReal(exp))
+        return Pympfr_pow(base, exp, mod);
 #else
     /* Support mpz**float and float**mpz. */
     if (CHECK_MPZANY(base) && PyFloat_Check(exp)) {
@@ -225,6 +200,10 @@ Pympany_pow(PyObject *base, PyObject *exp, PyObject *mod)
         return result;
     }
 #endif
+#ifdef WITHMPC
+    else if (isComplex(base) && isComplex(exp))
+        return Pympc_pow(base, exp, mod);
+#endif
 
     Py_RETURN_NOTIMPLEMENTED;
 }
@@ -233,7 +212,8 @@ PyDoc_STRVAR(doc_printf,
 "printf(fmt, x) -> string\n\n"
 "Return a Python string by formatting 'x' using the format string\n"
 "'fmt'. Note: invalid format strings will cause a crash. Please\n"
-"see the GMP/MPFR/MPC manuals for details on the format code.");
+"see the GMP and MPFR manuals for details on the format code. 'mpc'\n"
+"objects are not supported.");
 
 static PyObject *
 Pympany_printf(PyObject *self, PyObject *args)
@@ -253,16 +233,27 @@ Pympany_printf(PyObject *self, PyObject *args)
             generic = Pympq_AS_MPQ(x);
         buflen = gmp_asprintf(&buffer, fmtcode, generic);
         result = Py_BuildValue("s", buffer);
-        PyMem_Free(buffer);
+        GMPY_FREE(buffer);
         return result;
     }
 #ifdef WITHMPFR
     else if(Pympfr_Check(x)) {
         generic = Pympfr_AS_MPFR(x);
         buflen = mpfr_asprintf(&buffer, fmtcode, generic);
-        result = Py_BuildValue("s", buffer);
-        PyMem_Free(buffer);
+        if (buflen < 0) {
+            VALUE_ERROR("printf() could not format the 'mpfr' object");
+        }
+        else {
+            result = Py_BuildValue("s", buffer);
+            mpfr_free_str(buffer);
+        }
         return result;
+    }
+#endif
+#ifdef WITHMPC
+    else if(Pympc_Check(x)) {
+        TYPE_ERROR("printf() does not support 'mpc'");
+        return NULL;
     }
 #endif
     else {

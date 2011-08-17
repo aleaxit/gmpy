@@ -240,6 +240,14 @@ static PyTypeObject GMPyContext_Type;
 #define GMPyContext_Check(v) (((PyObject*)v)->ob_type == &GMPyContext_Type)
 #endif
 
+/* Choose which memory manager is used: Python or C */
+#define USE_PYMEM 1
+#ifdef USE_PYMEM
+#define GMPY_FREE(NAME) PyMem_Free(NAME)
+#else
+#define GMPY_FREE(NAME) free(NAME)
+#endif
+
 #ifdef __cplusplus
 }
 #endif
