@@ -1108,8 +1108,8 @@ Pympc_sqr(PyObject* self, PyObject *other)
 
     if (!(result = Pympc_new(0, 0)))
         goto done;
-    result->rc = mpc_mul(result->c, Pympc_AS_MPC(self),
-                         Pympc_AS_MPC(self), GET_MPC_ROUND(context));
+    result->rc = mpc_sqr(result->c, Pympc_AS_MPC(self),
+                         GET_MPC_ROUND(context));
     MPC_CLEANUP_SELF("square()"); \
 }
 
