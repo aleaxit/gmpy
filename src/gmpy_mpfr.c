@@ -1023,7 +1023,7 @@ PyDoc_STRVAR(doc_mpfr_is_signed,
 "Return True if the sign bit of x is set.");
 
 PyDoc_STRVAR(doc_g_mpfr_is_signed,
-"is_nan(x) -> boolean\n\n"
+"is_signed(x) -> boolean\n\n"
 "Return True if the sign bit of x is set.");
 
 static PyObject *
