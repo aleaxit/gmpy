@@ -1359,14 +1359,17 @@ Pympfr_hash(PympfrObject *self)
 #endif
 }
 
-/* This function is used in gmpy_basic. */
+/* This function is used in gmpy_mpany. */
 
 static PyObject *
 Pympfr_pow(PyObject *base, PyObject *exp, PyObject *m)
 {
     PympfrObject *tempb, *tempe, *result;
+#ifdef WITHMPC
+    PympcObject *mpc_result;
+#endif
 
-    if ((PyObject*)m != Py_None) {
+    if (m != Py_None) {
         TYPE_ERROR("pow() 3rd argument not allowed unless all arguments are integers");
         return NULL;
     }
@@ -1385,14 +1388,33 @@ Pympfr_pow(PyObject *base, PyObject *exp, PyObject *m)
     if (mpfr_zero_p(tempb->f) && (mpfr_sgn(tempe->f) < 0)) {
         context->now.divzero = 1;
         if (context->now.trap_divzero) {
-            GMPY_DIVZERO("0.0 cannot be raised to a negative power");
+            GMPY_DIVZERO("zero cannot be raised to a negative power");
             goto done;
         }
     }
 
     mpfr_clear_flags();
-    result->rc = mpfr_pow(result->f, tempb->f, tempe->f,
-                          context->now.mpfr_round);
+    result->rc = mpfr_pow(result->f, tempb->f,
+                          tempe->f, context->now.mpfr_round);
+#ifdef WITHMPC
+    if (result && mpfr_nanflag_p() && context->now.allow_complex) {
+        /* If we don't get a valid result, or the result is a nan, then just
+         * return the original mpfr value. */
+        if (!(mpc_result = (PympcObject*)Pympc_pow(base, exp, m)) ||
+            MPC_IS_NAN_P(mpc_result->c)) {
+
+            Py_XDECREF((PyObject*)mpc_result);
+            context->now.invalid = 1;
+            GMPY_INVALID("invalid operation in 'mpfr' pow()");
+            goto done;
+        }
+        /* return a valid complex result */
+        Py_DECREF(result);
+        result = (PympfrObject*)mpc_result;
+        goto done;
+    }
+#endif
+
     SUBNORMALIZE(result)
     MERGE_FLAGS
     CHECK_FLAGS("pow()")

@@ -367,7 +367,7 @@ mpfr('0.0')
 >>> pow(_g.mpfr(2),3,-5)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: mpfr.pow() no modulo allowed
+TypeError: pow() 3rd argument not allowed unless all arguments are integers
 >>> _g.mpz(1)+'bu'
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?

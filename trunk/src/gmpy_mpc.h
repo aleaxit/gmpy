@@ -200,4 +200,22 @@ static PyTypeObject Pympc_Type;
         return NULL;\
     }
 
+/*
+ * Define macros for comparing with zero, checking if either component is
+ * 'nan' or 'inf', etc.
+ */
+
+#define MPC_IS_ZERO_P(x) \
+    (mpfr_zero_p(mpc_realref(x)) && mpfr_zero_p(mpc_imagref(x)))
+
+#define MPC_IS_NAN_P(x) \
+    (mpfr_nan_p(mpc_realref(x)) || mpfr_nan_p(mpc_imagref(x)))
+
+#define MPC_IS_INF_P(x) \
+    (mpfr_inf_p(mpc_realref(x)) || mpfr_inf_p(mpc_imagref(x)))
+
+/* Forward declarations begin here. */
+static PyObject *Pympc_pow(PyObject *base, PyObject *exp, PyObject *m);
+
+
 
