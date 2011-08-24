@@ -226,7 +226,7 @@ typedef struct {
     int trap_erange;         /* if 1, raise exception for range error */
     int trap_divzero;        /* if 1, raise exception for divide by zero */
 #ifdef WITHMPC
-    int trap_complex;        /* if 1, raise exception for promotion to mpc */
+    int allow_complex;       /* if 1, allow mpfr functions to return an mpc */
 #endif
 } gmpy_context;
 

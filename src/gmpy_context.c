@@ -64,7 +64,7 @@ GMPyContext_new(void)
         self->now.trap_erange = 0;
         self->now.trap_divzero = 0;
 #ifdef WITHMPC
-        self->now.trap_complex = 1;
+        self->now.allow_complex = 0;
 #endif
         self->orig = NULL;
     }
@@ -119,7 +119,7 @@ GMPyContext_repr(GMPyContextObject *self)
             "        trap_invalid=%s, invalid=%s,\n"
             "        trap_erange=%s, erange=%s,\n"
             "        trap_divzero=%s, divzero=%s,\n"
-            "        trap_complex=%s)"
+            "        allow_complex=%s)"
             );
 #else
     format = Py2or3String_FromString(
@@ -169,7 +169,7 @@ GMPyContext_repr(GMPyContextObject *self)
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_divzero));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.divzero));
 #ifdef WITHMPC
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_complex));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.allow_complex));
 #endif
 
     if (!PyErr_Occurred())
@@ -201,7 +201,7 @@ Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
         "mpc_rround", "mpc_iround", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero",
-        "trap_complex", NULL };
+        "allow_complex", NULL };
 #else
     static char *kwlist[] = {
         "precision", "round", "emax", "emin", "subnormalize",
@@ -241,7 +241,7 @@ Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
             &context->now.trap_erange,
 #ifdef WITHMPC
             &context->now.trap_divzero,
-            &context->now.trap_complex))) {
+            &context->now.allow_complex))) {
 #else
             &context->now.trap_divzero))) {
 #endif
@@ -363,8 +363,8 @@ PyDoc_STRVAR(doc_new_context,
 "                    if False, set erange flag\n"
 "    trap_divzero:   if True, raise exception for division by zero\n"
 "                    if False, set divzero flag and return Inf or -Inf\n"
-"    trap_complex:   if True, raise exception when promoting mpfr -> mpc\n"
-"                    if False, allow promotion of mpfr -> mpc\n");
+"    allow_complex:  if True, allow mpfr functions to return mpc\n"
+"                    if False, mpfr functions cannot return an mpc\n");
 
 #else
 
@@ -404,7 +404,7 @@ Pygmpy_new_context(PyObject *self, PyObject *args, PyObject *kwargs)
         "mpc_rround", "mpc_iround", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero",
-        "trap_complex", NULL };
+        "allow_complex", NULL };
 #else
     static char *kwlist[] = {
         "precision", "round", "emax", "emin", "subnormalize",
@@ -649,7 +649,7 @@ GETSET_BOOLEAN(trap_invalid);
 GETSET_BOOLEAN(trap_erange);
 GETSET_BOOLEAN(trap_divzero);
 #ifdef WITHMPC
-GETSET_BOOLEAN(trap_complex)
+GETSET_BOOLEAN(allow_complex)
 #endif
 
 static PyObject *
@@ -948,7 +948,7 @@ static PyGetSetDef GMPyContext_getseters[] = {
     ADD_GETSET(trap_erange),
     ADD_GETSET(trap_divzero),
 #ifdef WITHMPC
-    ADD_GETSET(trap_complex),
+    ADD_GETSET(allow_complex),
 #endif
     {NULL}
 };

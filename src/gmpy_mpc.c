@@ -1118,8 +1118,8 @@ Pympc_pow(PyObject *base, PyObject *exp, PyObject *m)
 {
     PympcObject *tempb, *tempe, *result;
 
-    if ((PyObject*)m != Py_None) {
-        TYPE_ERROR("mpc.pow() no modulo allowed");
+    if (m != Py_None) {
+        TYPE_ERROR("pow() 3rd argument not allowed unless all arguments are integers");
         return NULL;
     }
 
@@ -1134,8 +1134,7 @@ Pympc_pow(PyObject *base, PyObject *exp, PyObject *m)
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    if (mpfr_zero_p(mpc_realref(tempb->c)) &&
-        mpfr_zero_p(mpc_imagref(tempb->c)) &&
+    if (MPC_IS_ZERO_P(Pympc_AS_MPC(tempb)) &&
         (!mpfr_zero_p(mpc_imagref(tempe->c)) ||
          mpfr_sgn(mpc_realref(tempe->c)) < 0)) {
 
@@ -1146,15 +1145,15 @@ Pympc_pow(PyObject *base, PyObject *exp, PyObject *m)
         }
     }
 
-    result->rc = mpc_pow(result->c, tempb->c, tempe->c,
-                         GET_MPC_ROUND(context));
+    result->rc = mpc_pow(result->c, tempb->c,
+                         tempe->c, GET_MPC_ROUND(context));
     MPC_SUBNORMALIZE(result)
     MPC_CHECK_FLAGS(result, "pow()")
   done:
     Py_DECREF((PyObject*)tempe);
     Py_DECREF((PyObject*)tempb);
     if (PyErr_Occurred()) {
-        Py_DECREF((PyObject*)result);
+        Py_XDECREF((PyObject*)result);
         result = NULL;
     }
     return (PyObject*)result;
