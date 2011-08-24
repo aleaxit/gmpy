@@ -1086,17 +1086,6 @@ Pympc_pos(PympcObject *self)
     return (PyObject*)result;
 }
 
-static int
-Pympc_nonzero(PympcObject *self)
-{
-    if (mpfr_nan_p(mpc_realref(self->c)) || mpfr_nan_p(mpc_imagref(self->c)))
-        return 1;
-    else if (mpc_cmp_si_si(self->c, 0, 0))
-        return 1;
-    else
-        return 0;
-}
-
 /* Support Pympany_square */
 
 static PyObject *
@@ -1157,6 +1146,74 @@ Pympc_pow(PyObject *base, PyObject *exp, PyObject *m)
         result = NULL;
     }
     return (PyObject*)result;
+}
+
+/* Implement the conjugate() method. */
+
+PyDoc_STRVAR(doc_mpc_conjugate,
+"x.conjugate() -> mpc\n\n"
+"Returns the conjugate of x.");
+
+static PyObject *
+Pympc_conjugate(PyObject *self, PyObject *args)
+{
+    PympcObject *result;
+
+    if ((result = Pympc_new(0,0))) {
+        result->rc = mpc_conj(result->c, Pympc_AS_MPC(self), GET_MPC_ROUND(context));
+    }
+    return (PyObject*)result;
+}
+
+/* Implement the .precision attribute of an mpfr. */
+
+static PyObject *
+Pympc_getprec_attrib(PympcObject *self, void *closure)
+{
+    mpfr_prec_t rprec = 0, iprec = 0;
+
+    mpc_get_prec2(&rprec, &iprec, self->c);
+    return Py_BuildValue("nn", rprec, iprec);
+}
+
+/* Implement the .rc attribute of an mpfr. */
+
+static PyObject *
+Pympc_getrc_attrib(PympcObject *self, void *closure)
+{
+    return PyIntOrLong_FromLong((long)self->rc);
+}
+
+/* Implement the .imag attribute of an mpfr. */
+
+static PyObject *
+Pympc_getimag_attrib(PympcObject *self, void *closure)
+{
+    PympfrObject *result;
+
+    if ((result = Pympfr_new(0)))
+        mpc_imag(result->f, self->c, context->now.mpfr_round);
+    return (PyObject*)result;
+}
+
+/* Implement the .real attribute of an mpfr. */
+
+static PyObject *
+Pympc_getreal_attrib(PympcObject *self, void *closure)
+{
+    PympfrObject *result;
+
+    if ((result = Pympfr_new(0)))
+        mpc_real(result->f, self->c, context->now.mpfr_round);
+    return (PyObject*)result;
+}
+
+/* Implement the nb_bool slot. */
+
+static int
+Pympc_nonzero(PympcObject *self)
+{
+    return !MPC_IS_ZERO_P(self->c);
 }
 
 

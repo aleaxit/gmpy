@@ -2718,6 +2718,15 @@ static PyNumberMethods mpc_number_methods =
         0,                               /* nb_inplace_true_divide  */
 };
 #endif
+
+static PyGetSetDef Pympc_getseters[] =
+{
+    {"precision", (getter)Pympc_getprec_attrib, NULL, "precision in bits", NULL},
+    {"rc", (getter)Pympc_getrc_attrib, NULL, "return code", NULL},
+    {"imag", (getter)Pympc_getimag_attrib, NULL, "imaginary component", NULL},
+    {"real", (getter)Pympc_getreal_attrib, NULL, "real component", NULL},
+    {NULL}
+};
 #endif
 
 static PyMethodDef Pygmpy_methods [] =
@@ -3004,6 +3013,7 @@ static PyMethodDef Pympfr_methods [] =
 static PyMethodDef Pympc_methods[] =
 {
     { "__format__", Pympc_format, METH_VARARGS, doc_mpc_format },
+    { "conjugate", Pympc_conjugate, METH_NOARGS, doc_mpc_conjugate },
     { "digits", Pympc_digits, METH_VARARGS, doc_mpc_digits },
     { NULL, NULL, 1 }
 };
@@ -3235,7 +3245,7 @@ static PyTypeObject Pympc_Type =
         0,                                  /* tp_iternext      */
     Pympc_methods,                          /* tp_methods       */
         0,                                  /* tp_members       */
-        0,                                  /* tp_getset        */
+    Pympc_getseters,                        /* tp_getset        */
 };
 #endif
 
