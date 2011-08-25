@@ -1216,6 +1216,51 @@ Pympc_nonzero(PympcObject *self)
     return !MPC_IS_ZERO_P(self->c);
 }
 
+/* To work with the MPC_IS_ macros, NAN, INF, and ZERO are all upper-case. */
+
+#define MPC_TEST_OTHER(NAME, msg) \
+static PyObject * \
+Pympc_is_##NAME(PyObject *self, PyObject *other)\
+{\
+    int res;\
+    if(self && Pympc_Check(self)) {\
+        Py_INCREF(self);\
+    }\
+    else if(Pympc_Check(other)) {\
+        self = other;\
+        Py_INCREF((PyObject*)self);\
+    }\
+    else if (!(self = (PyObject*)Pympc_From_Complex(other, 0, 0))) {\
+        PyErr_SetString(PyExc_TypeError, msg);\
+        return NULL;\
+    }\
+    res = MPC_IS_##NAME##_P(Pympc_AS_MPC(self));\
+    Py_DECREF(self);\
+    if (res)\
+        Py_RETURN_TRUE;\
+    else\
+        Py_RETURN_FALSE;\
+}
+
+PyDoc_STRVAR(doc_mpc_is_nan,
+"x.is_nan() -> boolean\n\n"
+"Return True if either x.real or x.imag is 'Not-A-Number'.");
+
+MPC_TEST_OTHER(NAN, "is_nan() requires 'mpc' argument");
+
+PyDoc_STRVAR(doc_mpc_is_inf,
+"x.is_inf() -> boolean\n\n"
+"Return True if either x.real or x.imag is +Infinity or -Infinity.");
+
+MPC_TEST_OTHER(INF, "is_inf() requires 'mpc' argument");
+
+PyDoc_STRVAR(doc_mpc_is_zero,
+"x.is_zero() -> boolean\n\n"
+"Return True if both x.real and x.imag are zero.");
+
+MPC_TEST_OTHER(ZERO, "is_zero() requires 'mpc' argument");
+
+
 
 
 

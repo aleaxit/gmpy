@@ -1077,18 +1077,10 @@ PyDoc_STRVAR(doc_mpfr_is_nan,
 "x.is_nan() -> boolean\n\n"
 "Return True if x is 'nan' (Not-A-Number), False otherwise.");
 
-PyDoc_STRVAR(doc_g_mpfr_is_nan,
-"is_nan(x) -> boolean\n\n"
-"Return True if x is 'nan' (Not-A-Number), False otherwise.");
-
 MPFR_TEST_OTHER(nan, "is_nan() requires 'mpfr' argument");
 
 PyDoc_STRVAR(doc_mpfr_is_inf,
 "x.is_inf() -> boolean\n\n"
-"Return True if x is +Infinity or -Infinity, False otherwise.");
-
-PyDoc_STRVAR(doc_g_mpfr_is_inf,
-"is_inf(x) -> boolean\n\n"
 "Return True if x is +Infinity or -Infinity, False otherwise.");
 
 MPFR_TEST_OTHER(inf, "is_inf() requires 'mpfr' argument");
@@ -1107,10 +1099,6 @@ MPFR_TEST_OTHER(number, "is_number() requires 'mpfr' argument");
 
 PyDoc_STRVAR(doc_mpfr_is_zero,
 "x.is_zero() -> boolean\n\n"
-"Return True if x is zero, False otherwise.");
-
-PyDoc_STRVAR(doc_g_mpfr_is_zero,
-"is_zero(x) -> boolean\n\n"
 "Return True if x is zero, False otherwise.");
 
 MPFR_TEST_OTHER(zero, "is_zero() requires 'mpfr' argument");

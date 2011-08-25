@@ -2865,15 +2865,15 @@ static PyMethodDef Pygmpy_methods [] =
     { "get_max_precision", Pympfr_get_max_precision, METH_NOARGS, doc_g_mpfr_get_max_precision },
     { "hypot", Pympfr_hypot, METH_VARARGS, doc_g_mpfr_hypot },
     { "inf", Pympfr_set_inf, METH_O, doc_g_mpfr_set_inf },
-    { "is_inf", Pympfr_is_inf, METH_O, doc_g_mpfr_is_inf },
+    { "is_inf", Pympany_is_inf, METH_O, doc_g_mpany_is_inf },
     { "is_integer", Pympfr_is_integer, METH_O, doc_g_mpfr_is_integer },
     { "is_lessgreater", Pympfr_is_lessgreater, METH_VARARGS, doc_g_mpfr_is_lessgreater },
-    { "is_nan", Pympfr_is_nan, METH_O, doc_g_mpfr_is_nan },
+    { "is_nan", Pympany_is_nan, METH_O, doc_g_mpany_is_nan },
     { "is_number", Pympfr_is_number, METH_O, doc_g_mpfr_is_number },
     { "is_regular", Pympfr_is_regular, METH_O, doc_g_mpfr_is_regular },
     { "is_signed", Pympfr_is_signed, METH_O, doc_g_mpfr_is_signed },
     { "is_unordered", Pympfr_is_unordered, METH_VARARGS, doc_g_mpfr_is_unordered },
-    { "is_zero", Pympfr_is_zero, METH_O, doc_g_mpfr_is_zero },
+    { "is_zero", Pympany_is_zero, METH_O, doc_g_mpany_is_zero },
     { "jn", Pympfr_jn, METH_VARARGS, doc_g_mpfr_jn },
     { "j0", Pympfr_j0, METH_O, doc_g_mpfr_j0 },
     { "j1", Pympfr_j1, METH_O, doc_g_mpfr_j1 },
@@ -3015,6 +3015,9 @@ static PyMethodDef Pympc_methods[] =
     { "__format__", Pympc_format, METH_VARARGS, doc_mpc_format },
     { "conjugate", Pympc_conjugate, METH_NOARGS, doc_mpc_conjugate },
     { "digits", Pympc_digits, METH_VARARGS, doc_mpc_digits },
+    { "is_inf", Pympc_is_INF, METH_NOARGS, doc_mpc_is_inf },
+    { "is_nan", Pympc_is_NAN, METH_NOARGS, doc_mpc_is_nan },
+    { "is_zero", Pympc_is_ZERO, METH_NOARGS, doc_mpc_is_zero },
     { NULL, NULL, 1 }
 };
 #endif

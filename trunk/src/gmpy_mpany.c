@@ -126,6 +126,71 @@ Pympany_sign(PyObject *self, PyObject *other)
     return NULL;
 }
 
+/* gmpy_is_xxx is only intended to be used at the module level!
+ * gmpy_is_xxx uses the METH_O calling convention!
+ * gmpy_is_xxx assumes PympX_is_xxx also uses the METH_O convention!
+ */
+
+#ifdef WITHMPFR
+PyDoc_STRVAR(doc_g_mpany_is_nan,
+"is_nan(x) -> boolean\n\n"
+"Return True if x is 'nan' (Not-A-Number). Calls mpfr.is_nan or\n"
+"mpc.is_nan as appropriate.");
+
+static PyObject *
+Pympany_is_nan(PyObject *self, PyObject *other)
+{
+    if (isReal(other))
+        return Pympc_is_NAN(self, other);
+#ifdef WITHMPC
+    else if (isComplex(other))
+        return Pympc_is_NAN(self, other);
+#endif
+    TYPE_ERROR("is_nan() not supported");
+    return NULL;
+}
+#endif
+
+#ifdef WITHMPFR
+PyDoc_STRVAR(doc_g_mpany_is_inf,
+"is_inf(x) -> boolean\n\n"
+"Return True if x is '+Infinity' or '-Infinity'. Calls mpfr.is_inf\n"
+"or mpc.is_inf as appropriate.");
+
+static PyObject *
+Pympany_is_inf(PyObject *self, PyObject *other)
+{
+    if (isReal(other))
+        return Pympc_is_INF(self, other);
+#ifdef WITHMPC
+    else if (isComplex(other))
+        return Pympc_is_INF(self, other);
+#endif
+    TYPE_ERROR("is_inf() not supported");
+    return NULL;
+}
+#endif
+
+#ifdef WITHMPFR
+PyDoc_STRVAR(doc_g_mpany_is_zero,
+"is_zero(x) -> boolean\n\n"
+"Return True if x is zero. Calls mpfr.is_zero or mpc.is_zero as\n"
+"appropriate.");
+
+static PyObject *
+Pympany_is_zero(PyObject *self, PyObject *other)
+{
+    if (isReal(other))
+        return Pympc_is_ZERO(self, other);
+#ifdef WITHMPC
+    else if (isComplex(other))
+        return Pympc_is_ZERO(self, other);
+#endif
+    TYPE_ERROR("is_zero() not supported");
+    return NULL;
+}
+#endif
+
 PyDoc_STRVAR(doc_binarym,
 "x.binary() -> binary string\n\n"
 "Return a Python string (or bytes for Python 3+) that is a portable\n"
