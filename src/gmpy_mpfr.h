@@ -61,21 +61,61 @@ typedef struct {
         GMPY_UNDERFLOW(msg); \
         goto done; \
     }
+
+#define MPFR_CHECK_UNDERFLOW(mpfrt, msg) \
+    if (mpfr_zero_p(mpfrt->f) && mpfrt->rc) { \
+        context->now.underflow = 1; \
+        if (context->now.trap_underflow) { \
+            GMPY_UNDERFLOW(msg); \
+            goto done; \
+        } \
+    }
+
 #define CHECK_OVERFLOW(msg) \
     if (mpfr_overflow_p() && context->now.trap_overflow) { \
         GMPY_OVERFLOW(msg); \
         goto done; \
     }
-#define CHECK_INVALID(msg) \
-    if (mpfr_nanflag_p() && context->now.trap_invalid) { \
-        GMPY_INVALID(msg); \
-        goto done; \
+
+#define MPFR_CHECK_OVERFLOW(mpfrt, msg) \
+    if (mpfr_inf_p(mpfrt->f)) { \
+        context->now.overflow = 1; \
+        if (context->now.trap_overflow) { \
+            GMPY_OVERFLOW(msg); \
+            goto done; \
+        } \
     }
+
 #define CHECK_INEXACT(msg) \
     if (mpfr_inexflag_p() && context->now.trap_inexact) { \
         GMPY_INEXACT(msg); \
         goto done; \
     }
+
+#define MPFR_CHECK_INEXACT(mpfrt, msg) \
+    if (mpfrt->rc)  { \
+        context->now.inexact = 1; \
+        if (context->now.trap_inexact) { \
+            GMPY_INEXACT(msg); \
+            goto done; \
+        } \
+    }
+
+#define CHECK_INVALID(msg) \
+    if (mpfr_nanflag_p() && context->now.trap_invalid) { \
+        GMPY_INVALID(msg); \
+        goto done; \
+    }
+
+#define MPFR_CHECK_INVALID(mpfrt, msg) \
+    if (mpfr_nan_p(mpfrt->f)) { \
+        context->now.invalid = 1; \
+        if (context->now.trap_invalid) { \
+            GMPY_INVALID(msg); \
+            goto done; \
+        } \
+    }
+
 #define CHECK_ERANGE(msg) \
     if (mpfr_erangeflag_p() && context->now.trap_erange) { \
         GMPY_ERANGE(msg); \
@@ -95,9 +135,19 @@ typedef struct {
     CHECK_OVERFLOW("overflow in 'mpfr' "NAME); \
     CHECK_INEXACT("inexact result in 'mpfr' "NAME); \
 
+#define MPFR_CHECK_FLAGS(mpfrt, NAME) \
+    CHECK_INVALID(mpfrt, "invalid operation in 'mpfr' "NAME); \
+    CHECK_UNDERFLOW(mpfrt, "underflow in 'mpfr' "NAME); \
+    CHECK_OVERFLOW(mpfrt, "overflow in 'mpfr' "NAME); \
+    CHECK_INEXACT(mpfrt, "inexact result in 'mpfr' "NAME); \
+
 #define SUBNORMALIZE(NAME) \
     if (context->now.subnormalize) \
         NAME->rc = mpfr_subnormalize(NAME->f, NAME->rc, context->now.mpfr_round);
+
+#define MPFR_SUBNORMALIZE(mpfrt) \
+    if (context->now.subnormalize) \
+        mpfrt->rc = mpfr_subnormalize(mpfrt->f, mpfrt->rc, context->now.mpfr_round);
 
 #define MPFR_CLEANUP_SELF(NAME) \
     SUBNORMALIZE(result); \

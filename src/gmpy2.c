@@ -2931,6 +2931,8 @@ static PyMethodDef Pygmpy_methods [] =
 
 #ifdef WITHMPC
     { "mpc", (PyCFunction)Pygmpy_mpc, METH_VARARGS | METH_KEYWORDS, doc_g_mpc },
+    { "phase", Pympc_phase, METH_O, doc_mpc_phase },
+    { "proj", Pympc_proj, METH_O, doc_mpc_proj },
 #endif
     { NULL, NULL, 1}
 };

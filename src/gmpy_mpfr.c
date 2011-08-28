@@ -1389,7 +1389,7 @@ Pympfr_pow(PyObject *base, PyObject *exp, PyObject *m)
         /* If we don't get a valid result, or the result is a nan, then just
          * return the original mpfr value. */
         if (!(mpc_result = (PympcObject*)Pympc_pow(base, exp, m)) ||
-            MPC_IS_NAN_P(mpc_result->c)) {
+            MPC_IS_NAN_P(mpc_result)) {
 
             Py_XDECREF((PyObject*)mpc_result);
             context->now.invalid = 1;

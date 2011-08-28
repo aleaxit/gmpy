@@ -443,6 +443,9 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
     }
     else if (PyFloat_Check(obj)) {
         newob = PyFloat2Pympc(obj, rprec, iprec);
+    }
+    else if (PyComplex_Check(obj)) {
+            newob = PyComplex2Pympc(obj, rprec, iprec);
 #ifdef PY2
     }
     else if (PyInt_Check(obj)) {
@@ -1020,8 +1023,8 @@ Pympc2repr(PympcObject *self)
 static PyObject *
 Pympc_abs(PyObject *self)
 {
-    PympcObject *tempx = 0;
     PympfrObject *result = 0;
+    PympcObject *tempx = 0;
 
     result = Pympfr_new(0);
     tempx = Pympc_From_Complex(self, 0, 0);
@@ -1033,46 +1036,38 @@ Pympc_abs(PyObject *self)
     }
 
     result->rc = mpc_abs(result->f, tempx->c, GET_MPC_ROUND(context));
-    SUBNORMALIZE(result);
-    if (mpfr_nan_p(result->f) && context->now.trap_invalid) {
-        GMPY_INVALID("invalid operation in 'mpc' __abs__");
-        Py_DECREF((PyObject*)result);
-        result = NULL;
-        goto done;
-    }
-    if (mpfr_inf_p(result->f) && context->now.trap_overflow) {
-        GMPY_OVERFLOW("overflow in 'mpc' __abs__");
-        Py_DECREF((PyObject*)result);
-        result = NULL;
-        goto done;
-    }
-
-  done:
     Py_DECREF((PyObject*)tempx);
+
+    MPFR_SUBNORMALIZE(result);
+    MPFR_CHECK_INVALID(result, "invalid operation in 'mpc' __abs__");
+    MPFR_CHECK_UNDERFLOW(result, "underflow in 'mpc' __abs__");
+    MPFR_CHECK_OVERFLOW(result, "overflow in 'mpc' __abs__");
+    MPFR_CHECK_INEXACT(result, "inexact result in 'mpc' __abs__");
+  done:
+    if (PyErr_Occurred()) {
+        Py_DECREF((PyObject*)result);
+        result = NULL;
+    }
     return (PyObject*)result;
 }
 
 static PyObject *
 Pympc_neg(PympcObject *self)
 {
-    PympcObject *tempx = 0;
     PympcObject *result = 0;
 
-    result = Pympc_new(0, 0);
-    tempx = Pympc_From_Complex((PyObject*)self, 0, 0);
-    if (!tempx || !result) {
-        SYSTEM_ERROR("Can't convert argument to 'mpc'.");
-        Py_XDECREF((PyObject*)tempx);
-        Py_XDECREF((PyObject*)result);
+    if (!(result = Pympc_new(0, 0)))
+        return NULL;
+
+    if (!(self = Pympc_From_Complex((PyObject*)self, 0, 0))) {
+        SYSTEM_ERROR("__neg__() requires 'mpc' argument");
+        Py_DECREF(result);
         return NULL;
     }
 
-    result->rc = mpc_neg(result->c, tempx->c, GET_MPC_ROUND(context));
-    MPC_CLEANUP_RESULT("__neg__");
+    result->rc = mpc_neg(result->c, self->c, GET_MPC_ROUND(context));
 
-  done:
-    Py_DECREF((PyObject*)tempx);
-    return (PyObject*)result;
+    MPC_CLEANUP(result, "__neg__");
 }
 
 static PyObject *
@@ -1080,10 +1075,12 @@ Pympc_pos(PympcObject *self)
 {
     PympcObject *result = 0;
 
-    result = Pympc_From_Complex((PyObject*)self, 0, 0);
-    MPC_CLEANUP_RESULT("__pos__");
-  done:
-    return (PyObject*)result;
+    if (!(result = Pympc_From_Complex((PyObject*)self, 0, 0))) {
+        SYSTEM_ERROR("__pos__ requires 'mpc' argument");
+        return NULL;
+    }
+
+    MPC_CLEANUP(result, "__pos__");
 }
 
 /* Support Pympany_square */
@@ -1095,11 +1092,15 @@ Pympc_sqr(PyObject* self, PyObject *other)
 
     PARSE_ONE_MPC_OTHER("square() requires 'mpc' argument");
 
-    if (!(result = Pympc_new(0, 0)))
-        goto done;
+    if (!(result = Pympc_new(0, 0))) {
+        Py_DECREF(self);
+        return NULL;
+    }
+
     result->rc = mpc_sqr(result->c, Pympc_AS_MPC(self),
                          GET_MPC_ROUND(context));
-    MPC_CLEANUP_SELF("square()"); \
+
+    MPC_CLEANUP(result, "square()");
 }
 
 static PyObject *
@@ -1123,29 +1124,26 @@ Pympc_pow(PyObject *base, PyObject *exp, PyObject *m)
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    if (MPC_IS_ZERO_P(Pympc_AS_MPC(tempb)) &&
+    if (MPC_IS_ZERO_P(tempb) &&
         (!mpfr_zero_p(mpc_imagref(tempe->c)) ||
          mpfr_sgn(mpc_realref(tempe->c)) < 0)) {
 
         context->now.divzero = 1;
         if (context->now.trap_divzero) {
             GMPY_DIVZERO("zero cannot be raised to a negative or complex power");
-            goto done;
+            Py_DECREF((PyObject*)tempe);
+            Py_DECREF((PyObject*)tempb);
+            Py_DECREF((PyObject*)result);
+            return NULL;
         }
     }
 
     result->rc = mpc_pow(result->c, tempb->c,
                          tempe->c, GET_MPC_ROUND(context));
-    MPC_SUBNORMALIZE(result)
-    MPC_CHECK_FLAGS(result, "pow()")
-  done:
     Py_DECREF((PyObject*)tempe);
     Py_DECREF((PyObject*)tempb);
-    if (PyErr_Occurred()) {
-        Py_XDECREF((PyObject*)result);
-        result = NULL;
-    }
-    return (PyObject*)result;
+
+    MPC_CLEANUP(result, "pow()");
 }
 
 /* Implement the conjugate() method. */
@@ -1159,10 +1157,16 @@ Pympc_conjugate(PyObject *self, PyObject *args)
 {
     PympcObject *result;
 
-    if ((result = Pympc_new(0,0))) {
-        result->rc = mpc_conj(result->c, Pympc_AS_MPC(self), GET_MPC_ROUND(context));
+    PARSE_ONE_MPC_ARGS("conjugate() requires 'mpc' argument");
+
+    if (!(result = Pympc_new(0,0))) {
+        Py_DECREF(self);
+        return NULL;
     }
-    return (PyObject*)result;
+
+    result->rc = mpc_conj(result->c, Pympc_AS_MPC(self),
+                          GET_MPC_ROUND(context));
+    MPC_CLEANUP(result, "conjugate()");
 }
 
 /* Implement the .precision attribute of an mpfr. */
@@ -1260,11 +1264,61 @@ PyDoc_STRVAR(doc_mpc_is_zero,
 
 MPC_TEST_OTHER(ZERO, "is_zero() requires 'mpc' argument");
 
+PyDoc_STRVAR(doc_mpc_phase,
+"phase(x) -> mpfr\n\n"
+"Returns the phase angle, also known as argument, of a complex x.");
 
+static PyObject *
+Pympc_phase(PyObject *self, PyObject *other)
+{
+    PympfrObject *result;
 
+    PARSE_ONE_MPC_OTHER("phase() requires 'mpc' argument");
 
+    if (!(result = Pympfr_new(0))) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
+    result->rc = mpc_arg(result->f, Pympc_AS_MPC(self),
+                         context->now.mpfr_round);
+    Py_DECREF((PyObject*)self);
 
+    MPFR_SUBNORMALIZE(result);
+    MPFR_CHECK_OVERFLOW(result, "overflow in 'mpc' phase()");
+    MPFR_CHECK_INVALID(result, "invalid operation 'mpc' phase()");
+    MPFR_CHECK_UNDERFLOW(result, "underflow in 'mpc' phase()");
+    MPFR_CHECK_INEXACT(result, "inexact operation in 'mpc' phase()");
+  done:
+    if (PyErr_Occurred()) {
+        Py_DECREF((PyObject*)result);
+        result = NULL;
+    }
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpc_proj,
+"proj(x) -> mpc\n\n"
+"Returns the projection of a complex x on to the Riemann sphere.");
+
+static PyObject *
+Pympc_proj(PyObject *self, PyObject *other)
+{
+    PympcObject *result;
+
+    PARSE_ONE_MPC_OTHER("proj() requires 'mpc' argument");
+
+    if (!(result = Pympc_new(0, 0))) {
+        Py_DECREF(self);
+        return NULL;
+    }
+
+    result->rc = mpc_proj(result->c, Pympc_AS_MPC(self),
+                          GET_MPC_ROUND(context));
+    Py_DECREF(self);
+
+    MPC_CLEANUP(result, "proj()");
+}
 
 #define MPC_UNIOP(NAME) \
 static PyObject * \

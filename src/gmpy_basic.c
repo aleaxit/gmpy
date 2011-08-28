@@ -296,7 +296,7 @@ Pympany_add(PyObject *a, PyObject *b)
         rc->rc = mpc_add(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)pac);
         Py_DECREF((PyObject*)pbc);
-        MPC_CLEANUP_RC(addition);
+        MPC_CLEANUP(rc, "addition");
     }
 #endif
 
@@ -561,7 +561,7 @@ Pympany_sub(PyObject *a, PyObject *b)
         rc->rc = mpc_sub(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)pac);
         Py_DECREF((PyObject*)pbc);
-        MPC_CLEANUP_RC(subtraction);
+        MPC_CLEANUP(rc, "subtraction");
     }
 #endif
 
@@ -819,7 +819,7 @@ Pympany_mul(PyObject *a, PyObject *b)
         rc->rc = mpc_mul(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)pac);
         Py_DECREF((PyObject*)pbc);
-        MPC_CLEANUP_RC(multiplication);
+        MPC_CLEANUP(rc, "multiplication");
     }
 #endif
 
@@ -1172,6 +1172,15 @@ Pympany_truediv(PyObject *a, PyObject *b)
             Py_XDECREF((PyObject*)pbc);
             return NULL;
         }
+        if (MPC_IS_ZERO_P(pbc)) {
+            context->now.divzero = 1;
+            if (context->now.trap_divzero) {
+                GMPY_DIVZERO("'mpc' division by zero");
+                Py_DECREF((PyObject*)pac);
+                Py_DECREF((PyObject*)pbc);
+                return NULL;
+            }
+        }
         if (!(rc = Pympc_new(0, 0))) {
             Py_DECREF((PyObject*)pac);
             Py_DECREF((PyObject*)pbc);
@@ -1180,7 +1189,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
         rc->rc = mpc_div(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)pac);
         Py_DECREF((PyObject*)pbc);
-        MPC_CLEANUP_RC(division);
+        MPC_CLEANUP(rc, "division");
     }
 #endif
 
@@ -1353,7 +1362,7 @@ Pympany_div2(PyObject *a, PyObject *b)
             Py_XDECREF((PyObject*)pbc);
             return NULL;
         }
-        if (mpfr_zero_p(mpc_realref(pbc->c)) && mpfr_zero_p(mpc_imagref(pbc->c))) {
+        if (MPC_IS_ZERO_P(pbc)) {
             context->now.divzero = 1;
             if (context->now.trap_divzero) {
                 GMPY_DIVZERO("'mpc' division by zero");

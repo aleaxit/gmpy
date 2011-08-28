@@ -47,6 +47,24 @@ typedef struct {
 static PyTypeObject Pympc_Type;
 #define Pympc_AS_MPC(obj) (((PympcObject *)(obj))->c)
 #define Pympc_Check(v) (((PyObject*)v)->ob_type == &Pympc_Type)
+
+/*
+ * Define macros for comparing with zero, checking if either component is
+ * 'nan' or 'inf', etc.
+ */
+
+#define MPC_IS_ZERO_P(x) \
+    (mpfr_zero_p(mpc_realref(Pympc_AS_MPC(x))) && \
+     mpfr_zero_p(mpc_imagref(Pympc_AS_MPC(x))))
+
+#define MPC_IS_NAN_P(x) \
+    (mpfr_nan_p(mpc_realref(Pympc_AS_MPC(x))) || \
+     mpfr_nan_p(mpc_imagref(Pympc_AS_MPC(x))))
+
+#define MPC_IS_INF_P(x) \
+    (mpfr_inf_p(mpc_realref(Pympc_AS_MPC(x))) || \
+     mpfr_inf_p(mpc_imagref(Pympc_AS_MPC(x))))
+
 /* Verify that an object is an mpc and that both components have valid exp */
 #define Pympc_CheckAndExp(v) \
     (Pympc_Check(v) && \
@@ -64,23 +82,47 @@ static PyTypeObject Pympc_Type;
         ) \
     )
 
+#define MPC_CHECK_UNDERFLOW(mpct, msg) \
+    if (MPC_IS_ZERO_P(mpct) && mpct->rc) { \
+        context->now.underflow = 1; \
+        if (context->now.trap_underflow) { \
+            GMPY_UNDERFLOW(msg); \
+            goto done; \
+        } \
+    }
+
 #define MPC_CHECK_OVERFLOW(mpct, msg) \
-    if ((mpfr_inf_p(mpc_realref(mpct->c)) || mpfr_inf_p(mpc_imagref(mpct->c))) \
-        && context->now.trap_overflow) { \
-        GMPY_OVERFLOW(msg); \
-        goto done; \
+    if (MPC_IS_INF_P(mpct)) { \
+        context->now.overflow = 1; \
+        if (context->now.trap_overflow) { \
+            GMPY_OVERFLOW(msg); \
+            goto done; \
+        } \
     }
 
 #define MPC_CHECK_INVALID(mpct, msg) \
-    if ((mpfr_nan_p(mpc_realref(mpct->c)) || mpfr_nan_p(mpc_imagref(mpct->c))) \
-        && context->now.trap_invalid) { \
-        GMPY_INVALID(msg); \
-        goto done; \
+    if (MPC_IS_NAN_P(mpct)) { \
+        context->now.invalid = 1; \
+        if (context->now.trap_invalid) { \
+            GMPY_INVALID(msg); \
+            goto done; \
+        } \
+    }
+
+#define MPC_CHECK_INEXACT(mpct, msg) \
+    if (mpct->rc) { \
+        context->now.inexact = 1; \
+        if (context->now.trap_inexact) { \
+            GMPY_INEXACT(msg); \
+            goto done; \
+        } \
     }
 
 #define MPC_CHECK_FLAGS(mpct, NAME) \
     MPC_CHECK_INVALID(mpct, "invalid operation in 'mpc' "NAME); \
+    MPC_CHECK_UNDERFLOW(mpct, "underflow in 'mpc' "NAME); \
     MPC_CHECK_OVERFLOW(mpct, "overflow in 'mpc' "NAME); \
+    MPC_CHECK_INEXACT(mpct, "inexact result in 'mpc' "NAME);
 
 #define MPC_SUBNORMALIZE(mpct) \
     if (context->now.subnormalize) { \
@@ -92,58 +134,15 @@ static PyTypeObject Pympc_Type;
         mpct->rc = MPC_INEX(rcr, rci); \
     } \
 
-#define MPC_CLEANUP_SELF(NAME) \
-    MPC_SUBNORMALIZE(result); \
-    MPC_CHECK_INVALID(result, "invalid operation in 'mpc' "NAME); \
-    MPC_CHECK_OVERFLOW(result, "overflow in 'mpc' "NAME); \
-  done: \
-    Py_DECREF(self); \
+#define MPC_CLEANUP(mpct, NAME) \
+    MPC_SUBNORMALIZE(mpct); \
+    MPC_CHECK_FLAGS(mpct, NAME); \
+  done:\
     if (PyErr_Occurred()) { \
-        Py_XDECREF((PyObject*)result); \
-        result = NULL; \
+        Py_DECREF((PyObject*)mpct); \
+        mpct = NULL; \
     } \
-    return (PyObject*)result;
-
-#define MPC_CLEANUP_SELF_OTHER(NAME) \
-    MPC_SUBNORMALIZE(result); \
-    MPC_CHECK_INVALID(result, "invalid operation in 'mpc' "NAME); \
-    MPC_CHECK_OVERFLOW(result, "overflow in 'mpc' "NAME); \
-  done: \
-    Py_DECREF(self); \
-    Py_DECREF(other); \
-    if (PyErr_Occurred()) { \
-        Py_XDECREF((PyObject*)result); \
-        result = NULL; \
-    } \
-    return (PyObject*)result;
-
-#define MPC_CLEANUP_RC(NAME) \
-    MPC_SUBNORMALIZE(rc); \
-    if ((mpfr_inf_p(mpc_realref(rc->c)) || mpfr_inf_p(mpc_imagref(rc->c))) \
-        && context->now.trap_overflow) { \
-        GMPY_OVERFLOW("overflow in 'mpc' " #NAME); \
-        return NULL; \
-    } \
-    return (PyObject*)rc;
-
-#define MPC_CLEANUP_RESULT(NAME) \
-    MPC_SUBNORMALIZE(result); \
-    if ((mpfr_nan_p(mpc_realref(result->c)) || \
-         mpfr_nan_p(mpc_imagref(result->c))) && \
-        context->now.trap_invalid) { \
-        GMPY_INVALID("invalid operation in 'mpc' "NAME); \
-        Py_DECREF((PyObject*)result); \
-        result = NULL; \
-        goto done; \
-    } \
-    if ((mpfr_inf_p(mpc_realref(result->c)) || \
-         mpfr_inf_p(mpc_imagref(result->c))) && \
-        context->now.trap_overflow) { \
-        GMPY_OVERFLOW("overflow in 'mpc' "NAME); \
-        Py_DECREF((PyObject*)result); \
-        result = NULL; \
-        goto done; \
-    }
+    return (PyObject*)mpct;
 
 /*
  * Parses one, and only one, argument into "self" and converts it to an
@@ -153,28 +152,49 @@ static PyTypeObject Pympc_Type;
  * describes the required arguments.
  */
 
-#define PARSE_ONE_MPC(msg) \
-    if(self && Pympc_CheckAndExp(self)) {\
-        if (PyTuple_GET_SIZE(args) != 0) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        Py_INCREF(self);\
-    } else {\
-        if (PyTuple_GET_SIZE(args) != 1) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
+#define PARSE_ONE_MPC_ARGS(msg) \
+    if(self && Pympc_Check(self)) { \
+        if (PyTuple_GET_SIZE(args) != 0) { \
+            TYPE_ERROR(msg); \
+            return NULL; \
+        } \
+        if (Pympc_CheckAndExp(self)) { \
+            Py_INCREF(self); \
+        } \
+        else { \
+            if (context->now.trap_erange) { \
+                GMPY_ERANGE("exponent range error"); \
+                return NULL; \
+            } \
+            else { \
+                if (!(self = (PyObject*)Pympc_From_Complex(self, 0, 0))) { \
+                    TYPE_ERROR(msg); \
+                    return NULL; \
+                } \
+            } \
+        } \
+    } \
+    else { \
+        if (PyTuple_GET_SIZE(args) != 1) { \
+            TYPE_ERROR(msg); \
+            return NULL; \
+        } \
         self = PyTuple_GET_ITEM(args, 0);\
-        if(Pympc_CheckAndExp(self)) {\
-            Py_INCREF((PyObject*)self);\
-        } else {\
-            self = (PyObject*)Pympc_From_Complex(PyTuple_GET_ITEM(args, 0, 0), 0);\
-        }\
-        if(!self) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
+        if (Pympc_CheckAndExp(self)) { \
+            Py_INCREF(self); \
+        } \
+        else { \
+            if (context->now.trap_erange) { \
+                GMPY_ERANGE("exponent range error"); \
+                return NULL; \
+            } \
+            else { \
+                if (!(self = (PyObject*)Pympc_From_Complex(self, 0, 0))) { \
+                    TYPE_ERROR(msg); \
+                    return NULL; \
+                } \
+            } \
+        } \
     }
 
 /*
@@ -188,31 +208,41 @@ static PyTypeObject Pympc_Type;
  */
 
 #define PARSE_ONE_MPC_OTHER(msg) \
-    if(self && Pympc_CheckAndExp(self)) {\
-        Py_INCREF(self);\
-    }\
-    else if(Pympc_CheckAndExp(other)) {\
-        self = other;\
-        Py_INCREF((PyObject*)self);\
-    }\
-    else if (!(self = (PyObject*)Pympc_From_Complex(other, 0, 0))) {\
-        PyErr_SetString(PyExc_TypeError, msg);\
-        return NULL;\
+    if(self && Pympc_Check(self)) { \
+        if (Pympc_CheckAndExp(self)) { \
+            Py_INCREF(self); \
+        } \
+        else { \
+            if (context->now.trap_erange) { \
+                GMPY_ERANGE("exponent range error"); \
+                return NULL; \
+            } \
+            else { \
+                if (!(self = (PyObject*)Pympc_From_Complex(self, 0, 0))) { \
+                    TYPE_ERROR(msg); \
+                    return NULL; \
+                } \
+            } \
+        } \
+    } \
+    else { \
+        if (Pympc_CheckAndExp(other)) { \
+            self = other; \
+            Py_INCREF(self); \
+        } \
+        else { \
+            if (context->now.trap_erange) { \
+                GMPY_ERANGE("exponent range error"); \
+                return NULL; \
+            } \
+            else { \
+                if (!(self = (PyObject*)Pympc_From_Complex(other, 0, 0))) { \
+                    TYPE_ERROR(msg); \
+                    return NULL; \
+                } \
+            } \
+        } \
     }
-
-/*
- * Define macros for comparing with zero, checking if either component is
- * 'nan' or 'inf', etc.
- */
-
-#define MPC_IS_ZERO_P(x) \
-    (mpfr_zero_p(mpc_realref(x)) && mpfr_zero_p(mpc_imagref(x)))
-
-#define MPC_IS_NAN_P(x) \
-    (mpfr_nan_p(mpc_realref(x)) || mpfr_nan_p(mpc_imagref(x)))
-
-#define MPC_IS_INF_P(x) \
-    (mpfr_inf_p(mpc_realref(x)) || mpfr_inf_p(mpc_imagref(x)))
 
 /* Forward declarations begin here. */
 static PyObject *Pympc_pow(PyObject *base, PyObject *exp, PyObject *m);
