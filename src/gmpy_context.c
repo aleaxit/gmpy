@@ -46,7 +46,6 @@ GMPyContext_new(void)
 #ifdef WITHMPC
         self->now.mpc_rround = -1;
         self->now.mpc_iround = -1;
-        self->now.mpc_round = MPC_RNDNN;
 #endif
         self->now.emax = mpfr_get_emax();
         self->now.emin = mpfr_get_emin();
@@ -102,9 +101,9 @@ GMPyContext_repr(GMPyContextObject *self)
     int i = 0;
 
 #ifdef WITHMPC
-    tuple = PyTuple_New(22);
+    tuple = PyTuple_New(23);
 #else
-    tuple = PyTuple_New(17);
+    tuple = PyTuple_New(18);
 #endif
     if (!tuple) return NULL;
 
@@ -193,7 +192,8 @@ PyDoc_STRVAR(doc_context,
 "Return a reference to the current context manager controlling\n"
 "MPFR and MPC arithmetic. The returned object no longer refers to\n"
 "the current context after a new context is loaded using\n"
-"set_context() or with ...\n");
+"set_context() or 'with <context>'. See 'new_context()' for a\n"
+"description of options for a context.");
 
 static PyObject *
 Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
@@ -230,12 +230,6 @@ Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
             &context->now.mpfr_round,
             &context->now.mpc_rround,
             &context->now.mpc_iround,
-#else
-    if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|lilliiiiiiii", kwlist,
-            &context->now.mpfr_prec,
-            &context->now.mpfr_round,
-#endif
             &context->now.emax,
             &context->now.emin,
             &context->now.subnormalize,
@@ -244,11 +238,24 @@ Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
             &context->now.trap_inexact,
             &context->now.trap_invalid,
             &context->now.trap_erange,
-#ifdef WITHMPC
             &context->now.trap_divzero,
+            &context->now.trap_expbound,
             &context->now.allow_complex))) {
 #else
-            &context->now.trap_divzero))) {
+    if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
+            "|lilliiiiiiii", kwlist,
+            &context->now.mpfr_prec,
+            &context->now.mpfr_round,
+            &context->now.emax,
+            &context->now.emin,
+            &context->now.subnormalize,
+            &context->now.trap_underflow,
+            &context->now.trap_overflow,
+            &context->now.trap_inexact,
+            &context->now.trap_invalid,
+            &context->now.trap_erange,
+            &context->now.trap_divzero,
+            &context->now.trap_expbound))) {
 #endif
         VALUE_ERROR("invalid keyword arguments in context()");
         return NULL;
@@ -437,28 +444,40 @@ Pygmpy_new_context(PyObject *self, PyObject *args, PyObject *kwargs)
 
 #ifdef WITHMPC
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|llliiilliiiiiiii", kwlist,
-            &result->now.mpfr_prec,
-            &result->now.mpc_rprec,
-            &result->now.mpc_iprec,
-            &result->now.mpfr_round,
-            &result->now.mpc_rround,
-            &result->now.mpc_iround,
+            "|llliiilliiiiiiiii", kwlist,
+            &context->now.mpfr_prec,
+            &context->now.mpc_rprec,
+            &context->now.mpc_iprec,
+            &context->now.mpfr_round,
+            &context->now.mpc_rround,
+            &context->now.mpc_iround,
+            &context->now.emax,
+            &context->now.emin,
+            &context->now.subnormalize,
+            &context->now.trap_underflow,
+            &context->now.trap_overflow,
+            &context->now.trap_inexact,
+            &context->now.trap_invalid,
+            &context->now.trap_erange,
+            &context->now.trap_divzero,
+            &context->now.trap_expbound,
+            &context->now.allow_complex))) {
 #else
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
             "|lilliiiiiiii", kwlist,
-            &result->now.mpfr_prec,
-            &result->now.mpfr_round,
+            &context->now.mpfr_prec,
+            &context->now.mpfr_round,
+            &context->now.emax,
+            &context->now.emin,
+            &context->now.subnormalize,
+            &context->now.trap_underflow,
+            &context->now.trap_overflow,
+            &context->now.trap_inexact,
+            &context->now.trap_invalid,
+            &context->now.trap_erange,
+            &context->now.trap_divzero,
+            &context->now.trap_expbound))) {
 #endif
-            &result->now.emax,
-            &result->now.emin,
-            &result->now.subnormalize,
-            &result->now.trap_underflow,
-            &result->now.trap_overflow,
-            &result->now.trap_inexact,
-            &result->now.trap_invalid,
-            &result->now.trap_erange,
-            &result->now.trap_divzero))) {
         VALUE_ERROR("invalid keyword arguments in new_context()");
         return NULL;
     }

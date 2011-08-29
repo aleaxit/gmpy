@@ -21,7 +21,7 @@ mpfr('2.3025850929940459')
 >>> _g.log('a')
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-TypeError: log() requires 'mpfr' argument
+TypeError: log() requires 'mpfr' or 'mpc' argument
 >>> _g.log(float('nan'))
 mpfr('nan')
 >>> _g.log(float('inf'))
