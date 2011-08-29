@@ -385,6 +385,7 @@ static PyObject *GMPyExc_Invalid = NULL;
 static PyObject *GMPyExc_Overflow = NULL;
 static PyObject *GMPyExc_Underflow = NULL;
 static PyObject *GMPyExc_Erange = NULL;
+static PyObject *GMPyExc_ExpBound = NULL;
 #endif
 
 /* Support for context manager */
@@ -2931,8 +2932,11 @@ static PyMethodDef Pygmpy_methods [] =
 
 #ifdef WITHMPC
     { "mpc", (PyCFunction)Pygmpy_mpc, METH_VARARGS | METH_KEYWORDS, doc_g_mpc },
+    { "norm", Pympc_norm, METH_O, doc_mpc_norm },
+    { "polar", Pympc_polar, METH_O, doc_mpc_polar },
     { "phase", Pympc_phase, METH_O, doc_mpc_phase },
     { "proj", Pympc_proj, METH_O, doc_mpc_proj },
+    { "rect", Pympc_rect, METH_VARARGS, doc_mpc_rect },
 #endif
     { NULL, NULL, 1}
 };
@@ -3370,6 +3374,8 @@ _PyInitGMP(void)
                                           GMPyExc_Inexact, NULL);
     GMPyExc_Underflow = PyErr_NewException("gmpy2.UnderflowError",
                                            GMPyExc_Inexact, NULL);
+    GMPyExc_ExpBound = PyErr_NewException("gmpy2.ExponentOutOfBoundsError",
+                                          GMPyExc_ExpBound, NULL);
 
     temp = PyTuple_Pack(2, GMPyExc_GmpyError, PyExc_ZeroDivisionError);
     GMPyExc_DivZero = PyErr_NewException("gmpy2.DivisionByZeroError",
@@ -3487,6 +3493,8 @@ PyMODINIT_FUNC initgmpy2(void)
     PyModule_AddObject(gmpy_module, "UnderflowError", GMPyExc_Underflow);
     Py_INCREF(GMPyExc_Erange);
     PyModule_AddObject(gmpy_module, "RangeError", GMPyExc_Erange);
+    Py_INCREF(GMPyExc_ExpBound);
+    PyModule_AddObject(gmpy_module, "ExponentOutOfBoundsError", GMPyExc_Erange);
 #endif
 
 #ifdef DEBUG

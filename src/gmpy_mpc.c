@@ -406,19 +406,28 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
     if (Pympc_CheckAndExp(obj)) {
         /* Handle the likely case where the exponent of the mpc is still
          * valid in the current context. */
-        mpc_get_prec2(&pr, &pi, Pympc_AS_MPC(obj));
-        if ((!rprec && !iprec) || (rprec == pr && iprec == pi)) {
-            newob = (PympcObject*) obj;
+        if (!rprec && !iprec) {
             Py_INCREF(obj);
+            newob = (PympcObject*)obj;
         }
         else {
-            newob = Pympc2Pympc((PyObject*)obj, rprec, iprec);
+            mpc_get_prec2(&pr, &pi, Pympc_AS_MPC(obj));
+            if (rprec == pr && iprec == pi) {
+                Py_INCREF(obj);
+                newob = (PympcObject*)obj;
+            }
+            else {
+                newob = Pympc2Pympc((PyObject*)obj, rprec, iprec);
+            }
         }
     }
     else if (Pympc_Check(obj)) {
         /* Handle the unlikely case where the exponent is no longer
          * valid and mpfr_check_range needs to be called. */
-
+        if (context->now.trap_expbound) {
+            GMPY_EXPBOUND("exponent of existing 'mpc' incompatible with current context");
+            return NULL;
+        }
         /* Get the real and imaginary precisions. */
         mpc_get_prec2(&pr, &pi, Pympc_AS_MPC(obj));
 
@@ -1099,6 +1108,7 @@ Pympc_sqr(PyObject* self, PyObject *other)
 
     result->rc = mpc_sqr(result->c, Pympc_AS_MPC(self),
                          GET_MPC_ROUND(context));
+    Py_DECREF(self);
 
     MPC_CLEANUP(result, "square()");
 }
@@ -1166,6 +1176,8 @@ Pympc_conjugate(PyObject *self, PyObject *args)
 
     result->rc = mpc_conj(result->c, Pympc_AS_MPC(self),
                           GET_MPC_ROUND(context));
+    Py_DECREF(self);
+
     MPC_CLEANUP(result, "conjugate()");
 }
 
@@ -1266,7 +1278,7 @@ MPC_TEST_OTHER(ZERO, "is_zero() requires 'mpc' argument");
 
 PyDoc_STRVAR(doc_mpc_phase,
 "phase(x) -> mpfr\n\n"
-"Returns the phase angle, also known as argument, of a complex x.");
+"Return the phase angle, also known as argument, of a complex x.");
 
 static PyObject *
 Pympc_phase(PyObject *self, PyObject *other)
@@ -1295,6 +1307,100 @@ Pympc_phase(PyObject *self, PyObject *other)
         result = NULL;
     }
     return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpc_norm,
+"norm(x) -> mpfr\n\n"
+"Return the norm of a complex x. The norm(x) is defined as\n"
+"x.real**2 + x.imag**2. abs(x) is the square root of norm(x).\n");
+
+static PyObject *
+Pympc_norm(PyObject *self, PyObject *other)
+{
+    PympfrObject *result;
+
+    PARSE_ONE_MPC_OTHER("norm() requires 'mpc' argument");
+
+    if (!(result = Pympfr_new(0))) {
+        Py_DECREF(self);
+        return NULL;
+    }
+
+    result->rc = mpc_norm(result->f, Pympc_AS_MPC(self),
+                          context->now.mpfr_round);
+    Py_DECREF((PyObject*)self);
+
+    MPFR_SUBNORMALIZE(result);
+    MPFR_CHECK_OVERFLOW(result, "overflow in 'mpc' norm()");
+    MPFR_CHECK_INVALID(result, "invalid operation 'mpc' norm()");
+    MPFR_CHECK_UNDERFLOW(result, "underflow in 'mpc' norm()");
+    MPFR_CHECK_INEXACT(result, "inexact operation in 'mpc' norm()");
+  done:
+    if (PyErr_Occurred()) {
+        Py_DECREF((PyObject*)result);
+        result = NULL;
+    }
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpc_polar,
+"polar(x) -> (abs(x), phase(x))\n\n"
+"Return the polar coordinate form of a complex x that is in\n"
+"rectangular form.");
+
+static PyObject *
+Pympc_polar(PyObject *self, PyObject *other)
+{
+    PyObject *abs, *phase;
+
+    PARSE_ONE_MPC_OTHER("norm() requires 'mpc' argument");
+
+    if (!(abs = Pympc_abs(self))) {
+        Py_DECREF(self);
+        return NULL;
+    }
+    if (!(phase = Pympc_phase(self, other))) {
+        Py_DECREF(abs);
+        Py_DECREF(self);
+        return NULL;
+    }
+
+    return Py_BuildValue("OO", abs, phase);
+}
+
+PyDoc_STRVAR(doc_mpc_rect,
+"rect(x) -> mpc\n\n"
+"Return the polar coordinate form of a complex x that is in\n"
+"rectangular form.");
+
+/* Note: does not properly check for inexact or underflow */
+
+static PyObject *
+Pympc_rect(PyObject *self, PyObject *args)
+{
+    PyObject *other;
+    PympcObject *result;
+
+    PARSE_TWO_MPFR_ARGS(other, "rect() requires 'mpfr','mpfr' arguments");
+
+    if (!(result = Pympc_new(0, 0))) {
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    mpfr_cos(mpc_realref(result->c), Pympfr_AS_MPFR(other),
+             GET_MPC_RROUND(context));
+    mpfr_mul(mpc_realref(result->c), mpc_realref(result->c),
+             Pympfr_AS_MPFR(self), GET_MPC_RROUND(context));
+    mpfr_sin(mpc_imagref(result->c), Pympfr_AS_MPFR(other),
+             GET_MPC_IROUND(context));
+    mpfr_mul(mpc_imagref(result->c), mpc_imagref(result->c),
+             Pympfr_AS_MPFR(self), GET_MPC_IROUND(context));
+    Py_DECREF(self);
+    Py_DECREF(other);
+
+    MPC_CLEANUP(result, "rect()");
 }
 
 PyDoc_STRVAR(doc_mpc_proj,

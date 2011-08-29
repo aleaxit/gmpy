@@ -55,6 +55,7 @@ typedef struct {
 #define GMPY_OVERFLOW(msg) PyErr_SetString(GMPyExc_Overflow, msg)
 #define GMPY_UNDERFLOW(msg) PyErr_SetString(GMPyExc_Underflow, msg)
 #define GMPY_ERANGE(msg) PyErr_SetString(GMPyExc_Erange, msg)
+#define GMPY_EXPBOUND(msg) PyErr_SetString(GMPyExc_ExpBound, msg)
 
 #define CHECK_UNDERFLOW(msg) \
     if (mpfr_underflow_p() && context->now.trap_underflow) { \
