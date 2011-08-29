@@ -63,6 +63,7 @@ GMPyContext_new(void)
         self->now.trap_invalid = 0;
         self->now.trap_erange = 0;
         self->now.trap_divzero = 0;
+        self->now.trap_expbound = 0;
 #ifdef WITHMPC
         self->now.allow_complex = 0;
 #endif
@@ -119,6 +120,7 @@ GMPyContext_repr(GMPyContextObject *self)
             "        trap_invalid=%s, invalid=%s,\n"
             "        trap_erange=%s, erange=%s,\n"
             "        trap_divzero=%s, divzero=%s,\n"
+            "        trap_expbound=%s,\n"
             "        allow_complex=%s)"
             );
 #else
@@ -132,7 +134,8 @@ GMPyContext_repr(GMPyContextObject *self)
             "        trap_inexact=%s, inexact=%s,\n"
             "        trap_invalid=%s, invalid=%s,\n"
             "        trap_erange=%s, erange=%s,\n"
-            "        trap_divzero=%s, divzero=%s)"
+            "        trap_divzero=%s, divzero=%s,\n"
+            "        trap_expbound=%s)"
             );
 #endif
     if (!format) return NULL;
@@ -168,6 +171,7 @@ GMPyContext_repr(GMPyContextObject *self)
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.erange));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_divzero));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.divzero));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_expbound));
 #ifdef WITHMPC
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.allow_complex));
 #endif
@@ -201,12 +205,13 @@ Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
         "mpc_rround", "mpc_iround", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero",
-        "allow_complex", NULL };
+        "trap_expbound", "allow_complex", NULL };
 #else
     static char *kwlist[] = {
         "precision", "round", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
-        "trap_invalid", "trap_erange", "trap_divzero", NULL };
+        "trap_invalid", "trap_erange", "trap_divzero", "trap_expbound",
+        NULL };
 #endif
 
     if (PyTuple_GET_SIZE(args)) {
@@ -218,7 +223,7 @@ Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
 
 #ifdef WITHMPC
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|llliiilliiiiiiii", kwlist,
+            "|llliiilliiiiiiiii", kwlist,
             &context->now.mpfr_prec,
             &context->now.mpc_rprec,
             &context->now.mpc_iprec,
@@ -227,7 +232,7 @@ Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
             &context->now.mpc_iround,
 #else
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|lilliiiiiii", kwlist,
+            "|lilliiiiiiii", kwlist,
             &context->now.mpfr_prec,
             &context->now.mpfr_round,
 #endif
@@ -363,6 +368,10 @@ PyDoc_STRVAR(doc_new_context,
 "                    if False, set erange flag\n"
 "    trap_divzero:   if True, raise exception for division by zero\n"
 "                    if False, set divzero flag and return Inf or -Inf\n"
+"    trap_expbound:  if True, raise exception when mpfr/mpc exponent\n"
+"                        no longer valid in current context|n"
+"                    if False, mpfr/mpc with exponent out-of-bounds will\n"
+"                        coerced to either 0 or Infinity\n"
 "    allow_complex:  if True, allow mpfr functions to return mpc\n"
 "                    if False, mpfr functions cannot return an mpc\n");
 
@@ -388,7 +397,11 @@ PyDoc_STRVAR(doc_new_context,
 "    trap_erange:    if True, raise exception for range error\n"
 "                    if False, set erange flag\n"
 "    trap_divzero:   if True, raise exception for division by zero\n"
-"                    if False, set divzero flag and return Inf or -Inf\n");
+"                    if False, set divzero flag and return Inf or -Inf\n"
+"    trap_expbound:  if True, raise exception when mpfr/mpc exponent\n"
+"                        no longer valid in current context|n"
+"                    if False, mpfr/mpc with exponent out-of-bounds will\n"
+"                        coerced to either 0 or Infinity\n");
 
 #endif
 
@@ -424,7 +437,7 @@ Pygmpy_new_context(PyObject *self, PyObject *args, PyObject *kwargs)
 
 #ifdef WITHMPC
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|llliiilliiiiiii", kwlist,
+            "|llliiilliiiiiiii", kwlist,
             &result->now.mpfr_prec,
             &result->now.mpc_rprec,
             &result->now.mpc_iprec,
@@ -433,7 +446,7 @@ Pygmpy_new_context(PyObject *self, PyObject *args, PyObject *kwargs)
             &result->now.mpc_iround,
 #else
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|lilliiiiiii", kwlist,
+            "|lilliiiiiiii", kwlist,
             &result->now.mpfr_prec,
             &result->now.mpfr_round,
 #endif
@@ -648,6 +661,7 @@ GETSET_BOOLEAN(trap_inexact);
 GETSET_BOOLEAN(trap_invalid);
 GETSET_BOOLEAN(trap_erange);
 GETSET_BOOLEAN(trap_divzero);
+GETSET_BOOLEAN(trap_expbound);
 #ifdef WITHMPC
 GETSET_BOOLEAN(allow_complex)
 #endif
@@ -947,6 +961,7 @@ static PyGetSetDef GMPyContext_getseters[] = {
     ADD_GETSET(trap_invalid),
     ADD_GETSET(trap_erange),
     ADD_GETSET(trap_divzero),
+    ADD_GETSET(trap_expbound),
 #ifdef WITHMPC
     ADD_GETSET(allow_complex),
 #endif

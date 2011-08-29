@@ -162,15 +162,9 @@ static PyTypeObject Pympc_Type;
             Py_INCREF(self); \
         } \
         else { \
-            if (context->now.trap_erange) { \
-                GMPY_ERANGE("exponent range error"); \
+            if (!(self = (PyObject*)Pympc_From_Complex(self, 0, 0))) { \
+                TYPE_ERROR(msg); \
                 return NULL; \
-            } \
-            else { \
-                if (!(self = (PyObject*)Pympc_From_Complex(self, 0, 0))) { \
-                    TYPE_ERROR(msg); \
-                    return NULL; \
-                } \
             } \
         } \
     } \
@@ -184,15 +178,9 @@ static PyTypeObject Pympc_Type;
             Py_INCREF(self); \
         } \
         else { \
-            if (context->now.trap_erange) { \
-                GMPY_ERANGE("exponent range error"); \
+            if (!(self = (PyObject*)Pympc_From_Complex(self, 0, 0))) { \
+                TYPE_ERROR(msg); \
                 return NULL; \
-            } \
-            else { \
-                if (!(self = (PyObject*)Pympc_From_Complex(self, 0, 0))) { \
-                    TYPE_ERROR(msg); \
-                    return NULL; \
-                } \
             } \
         } \
     }
@@ -213,15 +201,9 @@ static PyTypeObject Pympc_Type;
             Py_INCREF(self); \
         } \
         else { \
-            if (context->now.trap_erange) { \
-                GMPY_ERANGE("exponent range error"); \
+            if (!(self = (PyObject*)Pympc_From_Complex(self, 0, 0))) { \
+                TYPE_ERROR(msg); \
                 return NULL; \
-            } \
-            else { \
-                if (!(self = (PyObject*)Pympc_From_Complex(self, 0, 0))) { \
-                    TYPE_ERROR(msg); \
-                    return NULL; \
-                } \
             } \
         } \
     } \
@@ -231,17 +213,44 @@ static PyTypeObject Pympc_Type;
             Py_INCREF(self); \
         } \
         else { \
-            if (context->now.trap_erange) { \
-                GMPY_ERANGE("exponent range error"); \
+            if (!(self = (PyObject*)Pympc_From_Complex(other, 0, 0))) { \
+                TYPE_ERROR(msg); \
                 return NULL; \
             } \
-            else { \
-                if (!(self = (PyObject*)Pympc_From_Complex(other, 0, 0))) { \
-                    TYPE_ERROR(msg); \
-                    return NULL; \
-                } \
-            } \
         } \
+    }
+
+/*
+ * Parses two, and only two, arguments into "self" and "var" and converts
+ * them both to mpC. Is faster, but not as generic, as using PyArg_ParseTuple.
+ * It supports either gmpy.fname(f,f) or f.fname(f). "self" & "var" must be
+ * decref'ed after use. "msg" should be an error message that includes the
+ * function name and describes the required arguments. Replaces
+ * SELF_MPF_ONE_ARG_CONVERTED(var).
+ */
+
+#define PARSE_TWO_MPC_ARGS(var, msg) \
+    if(self && Pympc_Check(self)) { \
+        if (PyTuple_GET_SIZE(args) != 1) { \
+            TYPE_ERROR(msg); \
+            return NULL; \
+        } \
+        self = (PyObject*)Pympc_From_Complex(self, 0, 0); \
+        var = (PyObject*)Pympc_From_Complex(PyTuple_GET_ITEM(args, 0), 0, 0); \
+    } \
+    else { \
+        if (PyTuple_GET_SIZE(args) != 2) { \
+            TYPE_ERROR(msg); \
+            return NULL; \
+        } \
+        self = (PyObject*)Pympc_From_Complex(PyTuple_GET_ITEM(args, 0), 0, 0); \
+        var = (PyObject*)Pympc_From_Complex(PyTuple_GET_ITEM(args, 1), 0, 0); \
+    } \
+    if (!self || !var) { \
+        TYPE_ERROR(msg); \
+        Py_XDECREF((PyObject*)var); \
+        Py_XDECREF((PyObject*)self); \
+        return NULL; \
     }
 
 /* Forward declarations begin here. */

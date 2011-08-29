@@ -225,6 +225,8 @@ typedef struct {
     int trap_invalid;        /* if 1, raise exception for invalid (NaN) */
     int trap_erange;         /* if 1, raise exception for range error */
     int trap_divzero;        /* if 1, raise exception for divide by zero */
+    int trap_expbound;       /* if 1, raise exception if mpfr/mpc exponents */
+                             /*       are out of bounds */
 #ifdef WITHMPC
     int allow_complex;       /* if 1, allow mpfr functions to return an mpc */
 #endif

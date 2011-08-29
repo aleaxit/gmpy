@@ -1379,7 +1379,7 @@ Pympany_div2(PyObject *a, PyObject *b)
         rc->rc = mpc_div(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)pac);
         Py_DECREF((PyObject*)pbc);
-        MPC_CLEANUP_RC(division);
+        MPC_CLEANUP(rc, "division");
     }
 #endif
 

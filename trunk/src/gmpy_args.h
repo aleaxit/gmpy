@@ -615,39 +615,37 @@
 
 /*
  * Parses two, and only two, arguments into "self" and "var" and converts
- * them both to mpf. Is faster, but not as generic, as using PyArg_ParseTuple.
+ * them both to mpfR. Is faster, but not as generic, as using PyArg_ParseTuple.
  * It supports either gmpy.fname(f,f) or f.fname(f). "self" & "var" must be
  * decref'ed after use. "msg" should be an error message that includes the
  * function name and describes the required arguments. Replaces
  * SELF_MPF_ONE_ARG_CONVERTED(var).
  */
 
-#define PARSE_TWO_MPFR(var, msg) \
-    if(self && Pympfr_CheckAndExp(self)) {\
-        if (PyTuple_GET_SIZE(args) != 1) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        var = (PyObject*)Pympfr_From_Real(PyTuple_GET_ITEM(args, 0), 0);\
-        if(!var) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        Py_INCREF(self);\
-    } else {\
-        if (PyTuple_GET_SIZE(args) != 2) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        self = (PyObject*)Pympfr_From_Real(PyTuple_GET_ITEM(args, 0), 0);\
-        var = (PyObject*)Pympfr_From_Real(PyTuple_GET_ITEM(args, 1), 0);\
-        if(!self || !var) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            Py_XDECREF((PyObject*)self);\
-            Py_XDECREF((PyObject*)var);\
-            return NULL;\
-        }\
+#define PARSE_TWO_MPFR_ARGS(var, msg) \
+    if(self && Pympfr_Check(self)) { \
+        if (PyTuple_GET_SIZE(args) != 1) { \
+            TYPE_ERROR(msg); \
+            return NULL; \
+        } \
+        self = (PyObject*)Pympfr_From_Real(self, 0); \
+        var = (PyObject*)Pympfr_From_Real(PyTuple_GET_ITEM(args, 0), 0); \
+    } \
+    else { \
+        if (PyTuple_GET_SIZE(args) != 2) { \
+            TYPE_ERROR(msg); \
+            return NULL; \
+        } \
+        self = (PyObject*)Pympfr_From_Real(PyTuple_GET_ITEM(args, 0), 0); \
+        var = (PyObject*)Pympfr_From_Real(PyTuple_GET_ITEM(args, 1), 0); \
+    } \
+    if (!self || !var) { \
+        TYPE_ERROR(msg); \
+        Py_XDECREF((PyObject*)var); \
+        Py_XDECREF((PyObject*)self); \
+        return NULL; \
     }
+
 /* Define three different versions of the SELF_NO_ARG macro. Under Python
    2.x, self is NULL when a function is called via gmpy.fname(..). But
    under Python 3.x, self is a module. */

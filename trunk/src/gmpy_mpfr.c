@@ -456,6 +456,10 @@ Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
     else if (Pympfr_Check(obj)) {
         /* Handle the unlikely case where the exponent is no longer valid
          * and mpfr_check_range needs to be called. */
+        if (context->now.trap_expbound) {
+            GMPY_EXPBOUND("exponent of existing 'mpfr' incompatible with current context");
+            return NULL;
+        }
         if ((newob = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(obj))))) {
             mpfr_set(newob->f, Pympfr_AS_MPFR(obj), context->now.mpfr_round);
             newob->round_mode = ((PympfrObject*)obj)->round_mode;
@@ -1573,7 +1577,7 @@ Pympfr_reldiff(PyObject *self, PyObject *args)
     PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPFR(other, "reldiff() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR_ARGS(other, "reldiff() requires 'mpfr','mpfr' arguments");
 
     if (!(result = Pympfr_new(0))) {
         Py_DECREF(self);
@@ -2140,7 +2144,7 @@ Pympfr_add(PyObject *self, PyObject *args)
     PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPFR(other, "add() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR_ARGS(other, "add() requires 'mpfr','mpfr' arguments");
 
     if (!(result = Pympfr_new(0)))
         goto done;
@@ -2161,7 +2165,7 @@ Pympfr_sub(PyObject *self, PyObject *args)
     PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPFR(other, "sub() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR_ARGS(other, "sub() requires 'mpfr','mpfr' arguments");
 
     if (!(result = Pympfr_new(0)))
         goto done;
@@ -2182,7 +2186,7 @@ Pympfr_mul(PyObject *self, PyObject *args)
     PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPFR(other, "mul() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR_ARGS(other, "mul() requires 'mpfr','mpfr' arguments");
 
     if (!(result = Pympfr_new(0)))
         goto done;
@@ -2203,7 +2207,7 @@ Pympfr_div(PyObject *self, PyObject *args)
     PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPFR(other, "div() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR_ARGS(other, "div() requires 'mpfr','mpfr' arguments");
 
     if (!(result = Pympfr_new(0)))
         goto done;
@@ -2232,7 +2236,7 @@ Pympfr_fmod(PyObject *self, PyObject *args)
     PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPFR(other, "fmod() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR_ARGS(other, "fmod() requires 'mpfr','mpfr' arguments");
 
     if (!(result = Pympfr_new(0)))
         goto done;
@@ -2262,7 +2266,7 @@ Pympfr_remainder(PyObject *self, PyObject *args)
     PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPFR(other, "remainder() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR_ARGS(other, "remainder() requires 'mpfr','mpfr' arguments");
 
     if (!(result = Pympfr_new(0)))
         goto done;
@@ -2293,7 +2297,7 @@ Pympfr_remquo(PyObject* self, PyObject *args)
     PympfrObject *value;
     long quobits = 0;
 
-    PARSE_TWO_MPFR(other, "remquo() requires 'mpfr', 'mpfr' argument");
+    PARSE_TWO_MPFR_ARGS(other, "remquo() requires 'mpfr', 'mpfr' argument");
 
     value = Pympfr_new(0);
     result = PyTuple_New(2);
@@ -2332,7 +2336,7 @@ Pympfr_remquo(PyObject* self, PyObject *args)
     //~ PympfrObject *result;
     //~ PyObject *other;
 
-    //~ PARSE_TWO_MPFR(other, "pow() requires 'mpfr','mpfr' arguments");
+    //~ PARSE_TWO_MPFR_ARGS(other, "pow() requires 'mpfr','mpfr' arguments");
 
     //~ if (!(result = Pympfr_new(0)))
         //~ goto done;
@@ -2362,7 +2366,7 @@ Pympfr_atan2(PyObject *self, PyObject *args)
     PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPFR(other, "atan2() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR_ARGS(other, "atan2() requires 'mpfr','mpfr' arguments");
 
     if (!(result = Pympfr_new(0)))
         goto done;
@@ -2383,7 +2387,7 @@ Pympfr_agm(PyObject *self, PyObject *args)
     PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPFR(other, "agm() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR_ARGS(other, "agm() requires 'mpfr','mpfr' arguments");
 
     if (!(result = Pympfr_new(0)))
         goto done;
@@ -2404,7 +2408,7 @@ Pympfr_hypot(PyObject *self, PyObject *args)
     PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPFR(other, "hypot() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR_ARGS(other, "hypot() requires 'mpfr','mpfr' arguments");
 
     if (!(result = Pympfr_new(0)))
         goto done;
@@ -2425,7 +2429,7 @@ Pympfr_max(PyObject *self, PyObject *args)
     PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPFR(other, "max() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR_ARGS(other, "max() requires 'mpfr','mpfr' arguments");
 
     if (!(result = Pympfr_new(0)))
         goto done;
@@ -2446,7 +2450,7 @@ Pympfr_min(PyObject *self, PyObject *args)
     PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPFR(other, "min() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR_ARGS(other, "min() requires 'mpfr','mpfr' arguments");
 
     if (!(result = Pympfr_new(0)))
         goto done;
@@ -2467,7 +2471,7 @@ Pympfr_nexttoward(PyObject *self, PyObject *args)
     PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPFR(other, "next_toward() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR_ARGS(other, "next_toward() requires 'mpfr','mpfr' arguments");
 
     if (!(result = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(self)))))
         goto done;
@@ -2745,7 +2749,7 @@ Pympfr_is_lessgreater(PyObject *self, PyObject *args)
     PyObject *other;
     int temp;
 
-    PARSE_TWO_MPFR(other, "is_lessgreater() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR_ARGS(other, "is_lessgreater() requires 'mpfr','mpfr' arguments");
 
     temp = mpfr_lessgreater_p(Pympfr_AS_MPFR(self), Pympfr_AS_MPFR(other));
     Py_DECREF(self);
@@ -2770,7 +2774,7 @@ Pympfr_is_unordered(PyObject *self, PyObject *args)
     PyObject *other;
     int temp;
 
-    PARSE_TWO_MPFR(other, "unordered() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR_ARGS(other, "unordered() requires 'mpfr','mpfr' arguments");
 
     temp = mpfr_unordered_p(Pympfr_AS_MPFR(self), Pympfr_AS_MPFR(other));
     Py_DECREF(self);
