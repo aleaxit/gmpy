@@ -208,7 +208,6 @@ typedef struct {
 #ifdef WITHMPC
     mpfr_rnd_t mpc_rround;   /* current rounding mode for Re(MPC) */
     mpfr_rnd_t mpc_iround;   /* current rounding mode for Im(MPC) */
-    mpc_rnd_t mpc_round;     /* current rounding mode for complex (MPC)*/
 #endif
     mpfr_exp_t emax;         /* maximum exponent */
     mpfr_exp_t emin;         /* minimum exponent */

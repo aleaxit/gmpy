@@ -126,71 +126,6 @@ Pympany_sign(PyObject *self, PyObject *other)
     return NULL;
 }
 
-/* gmpy_is_xxx is only intended to be used at the module level!
- * gmpy_is_xxx uses the METH_O calling convention!
- * gmpy_is_xxx assumes PympX_is_xxx also uses the METH_O convention!
- */
-
-#ifdef WITHMPFR
-PyDoc_STRVAR(doc_g_mpany_is_nan,
-"is_nan(x) -> boolean\n\n"
-"Return True if x is 'nan' (Not-A-Number). Calls mpfr.is_nan or\n"
-"mpc.is_nan as appropriate.");
-
-static PyObject *
-Pympany_is_nan(PyObject *self, PyObject *other)
-{
-    if (isReal(other))
-        return Pympc_is_NAN(self, other);
-#ifdef WITHMPC
-    else if (isComplex(other))
-        return Pympc_is_NAN(self, other);
-#endif
-    TYPE_ERROR("is_nan() not supported");
-    return NULL;
-}
-#endif
-
-#ifdef WITHMPFR
-PyDoc_STRVAR(doc_g_mpany_is_inf,
-"is_inf(x) -> boolean\n\n"
-"Return True if x is '+Infinity' or '-Infinity'. Calls mpfr.is_inf\n"
-"or mpc.is_inf as appropriate.");
-
-static PyObject *
-Pympany_is_inf(PyObject *self, PyObject *other)
-{
-    if (isReal(other))
-        return Pympc_is_INF(self, other);
-#ifdef WITHMPC
-    else if (isComplex(other))
-        return Pympc_is_INF(self, other);
-#endif
-    TYPE_ERROR("is_inf() not supported");
-    return NULL;
-}
-#endif
-
-#ifdef WITHMPFR
-PyDoc_STRVAR(doc_g_mpany_is_zero,
-"is_zero(x) -> boolean\n\n"
-"Return True if x is zero. Calls mpfr.is_zero or mpc.is_zero as\n"
-"appropriate.");
-
-static PyObject *
-Pympany_is_zero(PyObject *self, PyObject *other)
-{
-    if (isReal(other))
-        return Pympc_is_ZERO(self, other);
-#ifdef WITHMPC
-    else if (isComplex(other))
-        return Pympc_is_ZERO(self, other);
-#endif
-    TYPE_ERROR("is_zero() not supported");
-    return NULL;
-}
-#endif
-
 PyDoc_STRVAR(doc_binarym,
 "x.binary() -> binary string\n\n"
 "Return a Python string (or bytes for Python 3+) that is a portable\n"
@@ -327,3 +262,193 @@ Pympany_printf(PyObject *self, PyObject *args)
     }
 }
 
+#ifdef WITHMPC
+#define MPANY_MPFR_MPC(NAME) \
+static PyObject * \
+Pympany_##NAME(PyObject *self, PyObject *other) \
+{ \
+    if (isReal(other)) \
+        return Pympfr_##NAME(self, other); \
+    else if (isComplex(other)) \
+        return Pympc_##NAME(self, other); \
+    TYPE_ERROR(#NAME"() requires 'mpfr' or 'mpc' argument"); \
+    return NULL; \
+}
+#else
+#define MPANY_MPFR_MPC(NAME) \
+static PyObject * \
+Pympany_##NAME(PyObject *self, PyObject *other) \
+{ \
+    if (isReal(other)) \
+        return Pympfr_##NAME(self, other); \
+    TYPE_ERROR(#NAME"() requires 'mpfr' or 'mpc' argument"); \
+    return NULL; \
+}
+#endif
+
+#ifdef WITHMPFR
+PyDoc_STRVAR(doc_mpany_is_nan,
+"is_nan(x) -> boolean\n\n"
+"Return True if x is 'nan' (Not-A-Number). Calls mpfr.is_nan or\n"
+"mpc.is_nan as appropriate.");
+
+static PyObject *
+Pympany_is_nan(PyObject *self, PyObject *other)
+{
+    if (isReal(other))
+        return Pympfr_is_nan(self, other);
+#ifdef WITHMPC
+    else if (isComplex(other))
+        return Pympc_is_NAN(self, other);
+#endif
+    TYPE_ERROR("is_nan() not supported");
+    return NULL;
+}
+
+PyDoc_STRVAR(doc_mpany_is_inf,
+"is_inf(x) -> boolean\n\n"
+"Return True if x is '+Infinity' or '-Infinity'. Calls mpfr.is_inf\n"
+"or mpc.is_inf as appropriate.");
+
+static PyObject *
+Pympany_is_inf(PyObject *self, PyObject *other)
+{
+    if (isReal(other))
+        return Pympfr_is_inf(self, other);
+#ifdef WITHMPC
+    else if (isComplex(other))
+        return Pympc_is_INF(self, other);
+#endif
+    TYPE_ERROR("is_inf() not supported");
+    return NULL;
+}
+
+PyDoc_STRVAR(doc_mpany_is_zero,
+"is_zero(x) -> boolean\n\n"
+"Return True if x is zero. Calls mpfr.is_zero or mpc.is_zero as\n"
+"appropriate.");
+
+static PyObject *
+Pympany_is_zero(PyObject *self, PyObject *other)
+{
+    if (isReal(other))
+        return Pympfr_is_zero(self, other);
+#ifdef WITHMPC
+    else if (isComplex(other))
+        return Pympc_is_ZERO(self, other);
+#endif
+    TYPE_ERROR("is_zero() not supported");
+    return NULL;
+}
+
+PyDoc_STRVAR(doc_mpany_log,
+"log(x) -> number\n\n"
+"Return the natural logarithm of x.\n");
+
+MPANY_MPFR_MPC(log)
+
+PyDoc_STRVAR(doc_mpany_exp,
+"exp(x) -> number\n\n"
+"Return the exponential of x.\n");
+
+MPANY_MPFR_MPC(exp)
+
+PyDoc_STRVAR(doc_mpany_cos,
+"cos(x) -> number\n\n"
+"Return the cosine of x; x in radians.\n");
+
+MPANY_MPFR_MPC(cos)
+
+PyDoc_STRVAR(doc_mpany_sin,
+"sin(x) -> number\n\n"
+"Return the sine of x; x in radians.\n");
+
+MPANY_MPFR_MPC(sin)
+
+PyDoc_STRVAR(doc_mpany_tan,
+"tan(x) -> number\n\n"
+"Return the tangent of x; x in radians.\n");
+
+MPANY_MPFR_MPC(tan)
+
+PyDoc_STRVAR(doc_mpany_acos,
+"acos(x) -> number\n\n"
+"Return the arc-cosine of x; x in radians.\n");
+
+MPANY_MPFR_MPC(acos)
+
+PyDoc_STRVAR(doc_mpany_asin,
+"asin(x) -> number\n\n"
+"Return the arc-sine of x; x in radians.\n");
+
+MPANY_MPFR_MPC(asin)
+
+PyDoc_STRVAR(doc_mpany_atan,
+"atan(x) -> number\n\n"
+"Return the arc-tangent of x; x in radians.\n");
+
+MPANY_MPFR_MPC(atan)
+
+PyDoc_STRVAR(doc_mpany_cosh,
+"cosh(x) -> number\n\n"
+"Return the hyperbolic cosine of x.\n");
+
+MPANY_MPFR_MPC(cosh)
+
+PyDoc_STRVAR(doc_mpany_sinh,
+"sinh(x) -> number\n\n"
+"Return the hyberbolic sine of x.\n");
+
+MPANY_MPFR_MPC(sinh)
+
+PyDoc_STRVAR(doc_mpany_tanh,
+"tanh(x) -> number\n\n"
+"Return the hyperbolic tangent of x.\n");
+
+MPANY_MPFR_MPC(tanh)
+
+PyDoc_STRVAR(doc_mpany_acosh,
+"acosh(x) -> number\n\n"
+"Return the inverse hyperbolic cosine of x.\n");
+
+MPANY_MPFR_MPC(acosh)
+
+PyDoc_STRVAR(doc_mpany_asinh,
+"asinh(x) -> number\n\n"
+"Return the inverse hyperbolic sine of x.\n");
+
+MPANY_MPFR_MPC(asinh)
+
+PyDoc_STRVAR(doc_mpany_atanh,
+"atanh(x) -> number\n\n"
+"Return the inverse hyperbolci tangent of x.\n");
+
+MPANY_MPFR_MPC(atanh)
+
+PyDoc_STRVAR(doc_mpany_sqrt,
+"sqrt(x) -> number\n\n"
+"Return the square root of x. If x is integer, rational, or real,\n"
+"then an 'mpf' will be returned. If x is complex, then an 'mpc' will\n"
+"be returned. If context.allow_complex is True, negative values of x\n"
+"will return an 'mpc'.\n");
+
+MPANY_MPFR_MPC(sqrt)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#endif

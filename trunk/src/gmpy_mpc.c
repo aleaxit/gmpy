@@ -26,36 +26,6 @@
  * Returns 0 (false) if the rounding mode is not valid else returns 1 (true).
  */
 
-static int
-Pymisc_verify_mpc_round(int rmode)
-{
-    if ( rmode == MPC_RNDNN || rmode == MPC_RNDNZ ||
-         rmode == MPC_RNDNU || rmode == MPC_RNDND ||
-         rmode == MPC_RNDZN || rmode == MPC_RNDZZ ||
-         rmode == MPC_RNDZU || rmode == MPC_RNDZD ||
-         rmode == MPC_RNDUN || rmode == MPC_RNDUZ ||
-         rmode == MPC_RNDUU || rmode == MPC_RNDUD ||
-         rmode == MPC_RNDDN || rmode == MPC_RNDDZ ||
-         rmode == MPC_RNDDU || rmode == MPC_RNDDD )
-        return 1;
-    else
-        return 0;
-}
-
-/* Verify that valid precisions are requested for complex arithmetic.
- * Returns 0 if the precisions are not valid else returns 1.
- */
-
-static int
-Pymisc_verify_mpc_precision(Py_ssize_t rprec, Py_ssize_t iprec)
-{
-    if ( rprec < MPFR_PREC_MIN || rprec > MPFR_PREC_MAX ||
-         iprec < MPFR_PREC_MIN || iprec > MPFR_PREC_MAX )
-        return 0;
-    else
-        return 1;
-}
-
 static PympcObject *
 Pympc2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
@@ -64,7 +34,7 @@ Pympc2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
     if (rprec == 0 || iprec == 0)
         mpc_get_prec2(&rprec, &iprec, Pympc_AS_MPC(self));
     if ((result = Pympc_new(rprec, iprec)))
-        mpc_set(result->c, Pympc_AS_MPC(self), context->now.mpc_round);
+        mpc_set(result->c, Pympc_AS_MPC(self), GET_MPC_ROUND(context));
     return result;
 }
 
@@ -75,7 +45,7 @@ PyComplex2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 
     if ((result = Pympc_new(rprec, iprec)))
         mpc_set_d_d(result->c, PyComplex_RealAsDouble(self),
-                    PyComplex_ImagAsDouble(self), context->now.mpc_round);
+                    PyComplex_ImagAsDouble(self), GET_MPC_ROUND(context));
     return result;
 }
 
@@ -88,7 +58,7 @@ Pympfr2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
         rprec = mpfr_get_prec(Pympfr_AS_MPFR(self));
     if ((result = Pympc_new(rprec, iprec)))
         result->rc = mpc_set_fr(result->c, Pympfr_AS_MPFR(self),
-                                context->now.mpc_round);
+                                GET_MPC_ROUND(context));
     return result;
 }
 
@@ -108,7 +78,7 @@ PyFloat2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
         rprec = DBL_MANT_DIG;
     if ((result = Pympc_new(rprec, iprec)))
         result->rc = mpc_set_d(result->c, PyFloat_AS_DOUBLE(self),
-                               context->now.mpc_round);
+                               GET_MPC_ROUND(context));
     return result;
 }
 
@@ -126,7 +96,7 @@ Pympz2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 
     if ((result = Pympc_new(rprec, iprec)))
         result->rc = mpc_set_z(result->c, Pympz_AS_MPZ(self),
-                                context->now.mpc_round);
+                                GET_MPC_ROUND(context));
     return result;
 }
 
@@ -153,7 +123,7 @@ Pympq2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 
     if ((result = Pympc_new(rprec, iprec)))
         result->rc = mpc_set_q(result->c, Pympq_AS_MPQ(self),
-                               context->now.mpc_round);
+                               GET_MPC_ROUND(context));
     return result;
 }
 
@@ -192,7 +162,7 @@ PyInt2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 
     if ((result = Pympc_new(rprec, iprec)))
         result->rc = mpc_set_si(result->c, PyInt_AsLong(self),
-                                context->now.mpc_round);
+                                GET_MPC_ROUND(context));
     return result;
 }
 static PyObject *
@@ -1432,10 +1402,44 @@ Pympc_##NAME(PyObject* self, PyObject *other) \
 { \
     PympcObject *result; \
     PARSE_ONE_MPC_OTHER(#NAME "() requires 'mpc' argument"); \
-    if (!(result = Pympc_new(0, 0))) goto done; \
-    result->rc = mpc_##NAME(result->f, Pympfr_AS_MPFR(self), context->now.mpfr_round); \
-    MPC_CLEANUP_SELF(#NAME "()"); \
+    if (!(result = Pympc_new(0, 0))) { \
+        Py_DECREF(self); \
+        return NULL; \
+    } \
+    result->rc = mpc_##NAME(result->c, Pympc_AS_MPC(self), GET_MPC_ROUND(context)); \
+    Py_DECREF(self); \
+    MPC_CLEANUP(result, #NAME"()"); \
 }
+
+MPC_UNIOP(log)
+
+MPC_UNIOP(exp)
+
+MPC_UNIOP(sin)
+
+MPC_UNIOP(cos)
+
+MPC_UNIOP(tan)
+
+MPC_UNIOP(sinh)
+
+MPC_UNIOP(cosh)
+
+MPC_UNIOP(tanh)
+
+MPC_UNIOP(asin)
+
+MPC_UNIOP(acos)
+
+MPC_UNIOP(atan)
+
+MPC_UNIOP(asinh)
+
+MPC_UNIOP(acosh)
+
+MPC_UNIOP(atanh)
+
+MPC_UNIOP(sqrt)
 
 
 

@@ -1459,12 +1459,6 @@ PyDoc_STRVAR(doc_mpfr_const_catalan,
 
 MPFR_CONST(const_catalan)
 
-PyDoc_STRVAR(doc_mpfr_sqrt,
-"sqrt(x) -> number\n\n"
-"Return square root of x. If x is an integer, then the result is the\n"
-"integer portion of the square root. If x is a rational or a float,\n"
-"then the result is an 'mpf'.");
-
 static PyObject *
 Pympfr_sqrt(PyObject *self, PyObject *other)
 {
@@ -1472,8 +1466,17 @@ Pympfr_sqrt(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPFR_OTHER("sqrt() requires 'mpfr' argument");
 
-    if (!(result = Pympfr_new(0)))
-        goto done;
+#ifdef WITHMPC
+    if (mpfr_sgn(Pympfr_AS_MPFR(self)) < 0 && context->now.allow_complex) {
+        Py_DECREF(self);
+        return Pympc_sqrt(self, other);
+    }
+#endif
+
+    if (!(result = Pympfr_new(0))) {
+        Py_DECREF(self);
+        return NULL;
+    }
 
     mpfr_clear_flags();
     result->rc = mpfr_sqrt(result->f, Pympfr_AS_MPFR(self),
@@ -1818,9 +1821,7 @@ PyDoc_STRVAR(doc_g_mpfr_cbrt,
 
 MPFR_UNIOP(cbrt)
 
-static char doc_g_mpfr_log[]="\
-log(x): returns natural logarithm of x.\n\
-";
+/* Called via gmpy_mpany so doc-string is there. */
 
 MPFR_UNIOP(log)
 
@@ -1836,9 +1837,7 @@ log10(x): returns base-10 logarithm of x.\n\
 
 MPFR_UNIOP(log10)
 
-static char doc_g_mpfr_exp[]="\
-exp(x): returns exponential of x.\n\
-";
+/* Called via gmpy_mpany so doc-string is there. */
 
 MPFR_UNIOP(exp)
 
@@ -1854,21 +1853,9 @@ exp10(x): returns 10**x.\n\
 
 MPFR_UNIOP(exp10)
 
-static char doc_g_mpfr_sin[]="\
-sin(x): returns sine of x; x in radians.\n\
-";
-
 MPFR_UNIOP(sin)
 
-static char doc_g_mpfr_cos[]="\
-cos(x): returns cosine of x; x in radians.\n\
-";
-
 MPFR_UNIOP(cos)
-
-static char doc_g_mpfr_tan[]="\
-tan(x): returns tangent of x; x in radians.\n\
-";
 
 MPFR_UNIOP(tan)
 
@@ -1890,39 +1877,15 @@ cot(x): returns cotangent of x; x in radians.\n\
 
 MPFR_UNIOP(cot)
 
-static char doc_g_mpfr_acos[]="\
-acos(x): returns arc-cosine of x; x in radians.\n\
-";
-
 MPFR_UNIOP(acos)
-
-static char doc_g_mpfr_asin[]="\
-asin(x): returns arc-sine of x; x in radians.\n\
-";
 
 MPFR_UNIOP(asin)
 
-static char doc_g_mpfr_atan[]="\
-atan(x): returns arc-tangent of x; x in radians.\n\
-";
-
 MPFR_UNIOP(atan)
-
-static char doc_g_mpfr_cosh[]="\
-cosh(x): returns hyperbolic cosine of x.\n\
-";
 
 MPFR_UNIOP(cosh)
 
-static char doc_g_mpfr_sinh[]="\
-sinh(x): returns hyperbolic sine of x.\n\
-";
-
 MPFR_UNIOP(sinh)
-
-static char doc_g_mpfr_tanh[]="\
-tanh(x): returns hyperbolic tangent of x.\n\
-";
 
 MPFR_UNIOP(tanh)
 
@@ -1944,21 +1907,9 @@ coth(x): returns hyperbolic cotangent of x.\n\
 
 MPFR_UNIOP(coth)
 
-static char doc_g_mpfr_acosh[]="\
-acosh(x): returns inverse hyperbolic cosine of x.\n\
-";
-
 MPFR_UNIOP(acosh)
 
-static char doc_g_mpfr_asinh[]="\
-asinh(x): returns inverse hyperbolic sine of x.\n\
-";
-
 MPFR_UNIOP(asinh)
-
-static char doc_g_mpfr_atanh[]="\
-atanh(x): returns inverse hyperbolic tangent of x.\n\
-";
 
 MPFR_UNIOP(atanh)
 
@@ -2325,36 +2276,6 @@ Pympfr_remquo(PyObject* self, PyObject *args)
     }
     return result;
 }
-
-//~ PyDoc_STRVAR(doc_g_mpfr_pow,
-//~ "pow(x, y) -> mpfr\n\n"
-//~ "Return x ** y.");
-
-//~ static PyObject *
-//~ Pympfr_pow(PyObject *self, PyObject *args)
-//~ {
-    //~ PympfrObject *result;
-    //~ PyObject *other;
-
-    //~ PARSE_TWO_MPFR_ARGS(other, "pow() requires 'mpfr','mpfr' arguments");
-
-    //~ if (!(result = Pympfr_new(0)))
-        //~ goto done;
-
-    //~ if ((mpfr_zero_p(Pympfr_AS_MPFR(self))) &&
-        //~ (mpfr_sgn(Pympfr_AS_MPFR(other)) < 0)) {
-        //~ context->now.divzero = 1;
-        //~ if (context->now.trap_divzero) {
-            //~ GMPY_DIVZERO("zero cannot be raised to a negative power");
-            //~ goto done;
-        //~ }
-    //~ }
-
-    //~ mpfr_clear_flags();
-    //~ result->rc = mpfr_pow(result->f, Pympfr_AS_MPFR(self),
-                          //~ Pympfr_AS_MPFR(other), context->now.mpfr_round);
-    //~ MPFR_CLEANUP_SELF_OTHER("pow()");
-//~ }
 
 PyDoc_STRVAR(doc_g_mpfr_atan2,
 "atan2(y, x) -> mpfr\n\n"
