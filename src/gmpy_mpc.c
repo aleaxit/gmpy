@@ -1482,6 +1482,76 @@ Pympc_sin_cos(PyObject *self, PyObject *other)
     return result;
 }
 
+static PyObject *
+Pympc_fma(PyObject *self, PyObject *args)
+{
+    PympcObject *result, *x, *y, *z;
+
+    if (PyTuple_GET_SIZE(args) != 3) {
+        TYPE_ERROR("fma() requires 'mpc','mpc','mpc' arguments.");
+        return NULL;
+    }
+
+    result = Pympc_new(0, 0);
+    x = Pympc_From_Complex(PyTuple_GET_ITEM(args, 0), 0, 0);
+    y = Pympc_From_Complex(PyTuple_GET_ITEM(args, 1), 0, 0);
+    z = Pympc_From_Complex(PyTuple_GET_ITEM(args, 2), 0, 0);
+    if (!result || !x || !y || !z) {
+        TYPE_ERROR("fma() requires 'mpc','mpc','mpc' arguments.");
+        goto done;
+    }
+
+    result->rc = mpc_fma(result->c, x->c, y->c, z->c,
+                         context->now.mpfr_round);
+    MPC_SUBNORMALIZE(result);
+    MPC_CHECK_FLAGS(result, "fma()");
+
+  done:
+    Py_XDECREF((PyObject*)x);
+    Py_XDECREF((PyObject*)y);
+    Py_XDECREF((PyObject*)z);
+    if (PyErr_Occurred()) {
+        Py_XDECREF(result);
+        result = NULL;
+    }
+    return (PyObject*)result;
+}
+
+static PyObject *
+Pympc_fms(PyObject *self, PyObject *args)
+{
+    PympcObject *result, *x, *y, *z;
+
+    if (PyTuple_GET_SIZE(args) != 3) {
+        TYPE_ERROR("fms() requires 'mpc','mpc','mpc' arguments.");
+        return NULL;
+    }
+
+    result = Pympc_new(0, 0);
+    x = Pympc_From_Complex(PyTuple_GET_ITEM(args, 0), 0, 0);
+    y = Pympc_From_Complex(PyTuple_GET_ITEM(args, 1), 0, 0);
+    z = Pympc_From_Complex(PyTuple_GET_ITEM(args, 2), 0, 0);
+    if (!result || !x || !y || !z) {
+        TYPE_ERROR("fms() requires 'mpc','mpc','mpc' arguments.");
+        goto done;
+    }
+
+    mpc_neg(z->c, z->c, GET_MPC_ROUND(context));
+    result->rc = mpc_fma(result->c, x->c, y->c, z->c,
+                         context->now.mpfr_round);
+    MPC_SUBNORMALIZE(result);
+    MPC_CHECK_FLAGS(result, "fms()");
+
+  done:
+    Py_XDECREF((PyObject*)x);
+    Py_XDECREF((PyObject*)y);
+    Py_XDECREF((PyObject*)z);
+    if (PyErr_Occurred()) {
+        Py_XDECREF(result);
+        result = NULL;
+    }
+    return (PyObject*)result;
+}
 
 
 
