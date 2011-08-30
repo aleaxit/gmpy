@@ -256,6 +256,9 @@ static PyTypeObject Pympc_Type;
 /* Forward declarations begin here. */
 static PyObject *Pympc_pow(PyObject *base, PyObject *exp, PyObject *m);
 static PyObject *Pympc_sqrt(PyObject *self, PyObject *other);
+static PyObject *Pympc_acos(PyObject *self, PyObject *other);
+static PyObject *Pympc_asin(PyObject *self, PyObject *other);
+static PyObject *Pympc_atanh(PyObject *self, PyObject *other);
 
 
 
