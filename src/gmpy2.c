@@ -2917,7 +2917,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "sin", Pympany_sin, METH_O, doc_mpany_sin },
     { "sinh", Pympany_sinh, METH_O, doc_mpany_sinh },
     { "sinh_cosh", Pympfr_sinh_cosh, METH_O, doc_g_mpfr_sinh_cosh },
-    { "sin_cos", Pympfr_sin_cos, METH_O, doc_g_mpfr_sin_cos },
+    { "sin_cos", Pympany_sin_cos, METH_O, doc_mpany_sin_cos },
     { "sqrt", Pympany_sqrt, METH_O, doc_mpany_sqrt },
     { "sub", Pympfr_sub, METH_VARARGS, doc_g_mpfr_sub },
     { "tan", Pympany_tan, METH_O, doc_mpany_tan },

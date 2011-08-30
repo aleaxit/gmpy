@@ -1877,9 +1877,59 @@ cot(x): returns cotangent of x; x in radians.\n\
 
 MPFR_UNIOP(cot)
 
-MPFR_UNIOP(acos)
+static PyObject *
+Pympfr_acos(PyObject* self, PyObject *other)
+{
+    PympfrObject *result;
 
-MPFR_UNIOP(asin)
+    PARSE_ONE_MPFR_OTHER("acos() requires 'mpfr' argument");
+
+#ifdef WITHMPC
+    if (!mpfr_nan_p(Pympfr_AS_MPFR(self)) &&
+            (mpfr_cmp_si(Pympfr_AS_MPFR(self), 1) > 0 ||
+            mpfr_cmp_si(Pympfr_AS_MPFR(self), -1) < 0) &&
+            context->now.allow_complex) {
+        Py_DECREF(self);
+        return Pympc_acos(self, other);
+    }
+#endif
+
+    if (!(result = Pympfr_new(0))) {
+        Py_DECREF(self);
+        return NULL;
+    }
+    mpfr_clear_flags();
+    result->rc = mpfr_acos(result->f, Pympfr_AS_MPFR(self),
+                           context->now.mpfr_round);
+    MPFR_CLEANUP_SELF("acos()");
+}
+
+static PyObject *
+Pympfr_asin(PyObject* self, PyObject *other)
+{
+    PympfrObject *result;
+
+    PARSE_ONE_MPFR_OTHER("asin() requires 'mpfr' argument");
+
+#ifdef WITHMPC
+    if (!mpfr_nan_p(Pympfr_AS_MPFR(self)) &&
+            (mpfr_cmp_si(Pympfr_AS_MPFR(self), 1) > 0 ||
+            mpfr_cmp_si(Pympfr_AS_MPFR(self), -1) < 0) &&
+            context->now.allow_complex) {
+        Py_DECREF(self);
+        return Pympc_asin(self, other);
+    }
+#endif
+
+    if (!(result = Pympfr_new(0))) {
+        Py_DECREF(self);
+        return NULL;
+    }
+    mpfr_clear_flags();
+    result->rc = mpfr_asin(result->f, Pympfr_AS_MPFR(self),
+                           context->now.mpfr_round);
+    MPFR_CLEANUP_SELF("asin()");
+}
 
 MPFR_UNIOP(atan)
 
@@ -1911,7 +1961,33 @@ MPFR_UNIOP(acosh)
 
 MPFR_UNIOP(asinh)
 
-MPFR_UNIOP(atanh)
+static PyObject *
+Pympfr_atanh(PyObject* self, PyObject *other)
+{
+    PympfrObject *result;
+
+    PARSE_ONE_MPFR_OTHER("atanh() requires 'mpfr' argument");
+
+#ifdef WITHMPC
+    if (!mpfr_nan_p(Pympfr_AS_MPFR(self)) &&
+            (mpfr_cmp_si(Pympfr_AS_MPFR(self), 1) > 0 ||
+            mpfr_cmp_si(Pympfr_AS_MPFR(self), -1) < 0) &&
+            context->now.allow_complex) {
+        Py_DECREF(self);
+        return Pympc_atanh(self, other);
+    }
+#endif
+
+    if (!(result = Pympfr_new(0))) {
+        Py_DECREF(self);
+        return NULL;
+    }
+    mpfr_clear_flags();
+    result->rc = mpfr_asin(result->f, Pympfr_AS_MPFR(self),
+                           context->now.mpfr_round);
+    MPFR_CLEANUP_SELF("atanh()");
+}
+
 
 static char doc_g_mpfr_log1p[]="\
 log1p(x): returns logarithm of (1+x).\n\
@@ -2445,10 +2521,6 @@ Pympfr_nextbelow(PyObject *self, PyObject *other)
     result->rc = 0;
     MPFR_CLEANUP_SELF("next_below()");
 }
-
-PyDoc_STRVAR(doc_g_mpfr_sin_cos,
-"sin_cos(x) -> (mpfr, mpfr)\n\n"
-"Return a tuple containing the sine and cosine of x.");
 
 static PyObject *
 Pympfr_sin_cos(PyObject *self, PyObject *other)

@@ -421,7 +421,7 @@ MPANY_MPFR_MPC(asinh)
 
 PyDoc_STRVAR(doc_mpany_atanh,
 "atanh(x) -> number\n\n"
-"Return the inverse hyperbolci tangent of x.\n");
+"Return the inverse hyperbolic tangent of x.\n");
 
 MPANY_MPFR_MPC(atanh)
 
@@ -433,6 +433,12 @@ PyDoc_STRVAR(doc_mpany_sqrt,
 "will return an 'mpc'.\n");
 
 MPANY_MPFR_MPC(sqrt)
+
+PyDoc_STRVAR(doc_mpany_sin_cos,
+"sin_cos(x) -> (number, number)\n\n"
+"Return a tuple containing the sine and cosine of x; x in radians.\n");
+
+MPANY_MPFR_MPC(sin_cos)
 
 
 
