@@ -59,7 +59,7 @@ Pympany_square(PyObject *self, PyObject *other)
         return Pympc_sqr(self, other);
 #endif
 
-    TYPE_ERROR("square() not supported");
+    TYPE_ERROR("square() argument type not supported");
     return NULL;
 }
 
@@ -97,7 +97,7 @@ Pympany_digits(PyObject *self, PyObject *args)
         return Pympc_digits(self, args);
 #endif
 
-    TYPE_ERROR("digits() not supported");
+    TYPE_ERROR("digits() argument type not supported");
     return NULL;
 }
 
@@ -122,7 +122,7 @@ Pympany_sign(PyObject *self, PyObject *other)
         return Pympfr_sign(self, other);
 #endif
 
-    TYPE_ERROR("sign() not supported");
+    TYPE_ERROR("sign() argument type not supported");
     return NULL;
 }
 
@@ -163,7 +163,7 @@ Pympany_binary(PyObject *self, PyObject *other)
     else if(Pympfr_Check(other))
         return Pympfr2binary((PympfrObject*)other);
 #endif
-    TYPE_ERROR("binary() requires a gmpy2 object as argument");
+    TYPE_ERROR("binary() argument type not supported");
     return NULL;
 }
 
@@ -257,7 +257,7 @@ Pympany_printf(PyObject *self, PyObject *args)
     }
 #endif
     else {
-        TYPE_ERROR("printf() requires a gmpy2 object as argument");
+        TYPE_ERROR("printf() argument type not supported");
         return NULL;
     }
 }
@@ -271,7 +271,7 @@ Pympany_##NAME(PyObject *self, PyObject *other) \
         return Pympfr_##NAME(self, other); \
     else if (isComplex(other)) \
         return Pympc_##NAME(self, other); \
-    TYPE_ERROR(#NAME"() requires 'mpfr' or 'mpc' argument"); \
+    TYPE_ERROR(#NAME"() argument type not supported"); \
     return NULL; \
 }
 #else
@@ -281,7 +281,7 @@ Pympany_##NAME(PyObject *self, PyObject *other) \
 { \
     if (isReal(other)) \
         return Pympfr_##NAME(self, other); \
-    TYPE_ERROR(#NAME"() requires 'mpfr' or 'mpc' argument"); \
+    TYPE_ERROR(#NAME"() argument type not supported"); \
     return NULL; \
 }
 #endif
@@ -301,7 +301,7 @@ Pympany_is_nan(PyObject *self, PyObject *other)
     else if (isComplex(other))
         return Pympc_is_NAN(self, other);
 #endif
-    TYPE_ERROR("is_nan() not supported");
+    TYPE_ERROR("is_nan() argument type not supported");
     return NULL;
 }
 
@@ -319,7 +319,7 @@ Pympany_is_inf(PyObject *self, PyObject *other)
     else if (isComplex(other))
         return Pympc_is_INF(self, other);
 #endif
-    TYPE_ERROR("is_inf() not supported");
+    TYPE_ERROR("is_inf() argument type not supported");
     return NULL;
 }
 
@@ -337,7 +337,7 @@ Pympany_is_zero(PyObject *self, PyObject *other)
     else if (isComplex(other))
         return Pympc_is_ZERO(self, other);
 #endif
-    TYPE_ERROR("is_zero() not supported");
+    TYPE_ERROR("is_zero() argument type not supported");
     return NULL;
 }
 
@@ -439,6 +439,58 @@ PyDoc_STRVAR(doc_mpany_sin_cos,
 "Return a tuple containing the sine and cosine of x; x in radians.\n");
 
 MPANY_MPFR_MPC(sin_cos)
+
+PyDoc_STRVAR(doc_mpany_fma,
+"fma(x,y,z) -> number\n\n"
+"Return correctly rounded result of (x * y) + z.");
+
+static PyObject *
+Pympany_fma(PyObject *self, PyObject *args)
+{
+    if (PyTuple_GET_SIZE(args) != 3) {
+        TYPE_ERROR("fma() requires 3 arguments.");
+        return NULL;
+    }
+
+    if (isReal(PyTuple_GET_ITEM(args, 0)) &&
+        isReal(PyTuple_GET_ITEM(args, 1)) &&
+        isReal(PyTuple_GET_ITEM(args, 2)))
+        return Pympfr_fma(self, args);
+#ifdef WITHMPC
+    if (isComplex(PyTuple_GET_ITEM(args, 0)) &&
+        isComplex(PyTuple_GET_ITEM(args, 1)) &&
+        isComplex(PyTuple_GET_ITEM(args, 2)))
+        return Pympc_fma(self, args);
+#endif
+    TYPE_ERROR("fma() argument types not supported");
+    return NULL;
+}
+
+PyDoc_STRVAR(doc_mpany_fms,
+"fms(x,y,z) -> number\n\n"
+"Return correctly rounded result of (x * y) - z.");
+
+static PyObject *
+Pympany_fms(PyObject *self, PyObject *args)
+{
+    if (PyTuple_GET_SIZE(args) != 3) {
+        TYPE_ERROR("fms() requires 3 arguments.");
+        return NULL;
+    }
+
+    if (isReal(PyTuple_GET_ITEM(args, 0)) &&
+        isReal(PyTuple_GET_ITEM(args, 1)) &&
+        isReal(PyTuple_GET_ITEM(args, 2)))
+        return Pympfr_fms(self, args);
+#ifdef WITHMPC
+    if (isComplex(PyTuple_GET_ITEM(args, 0)) &&
+        isComplex(PyTuple_GET_ITEM(args, 1)) &&
+        isComplex(PyTuple_GET_ITEM(args, 2)))
+        return Pympc_fms(self, args);
+#endif
+    TYPE_ERROR("fms() argument types not supported");
+    return NULL;
+}
 
 
 

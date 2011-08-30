@@ -2610,10 +2610,6 @@ Pympfr_sinh_cosh(PyObject *self, PyObject *other)
     return result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_fma,
-"fma(x,y,z) -> mpfr\n\n"
-"Return correctly rounded result of (x * y) + z.");
-
 static PyObject *
 Pympfr_fma(PyObject *self, PyObject *args)
 {
@@ -2650,10 +2646,6 @@ Pympfr_fma(PyObject *self, PyObject *args)
     }
     return (PyObject*)result;
 }
-
-PyDoc_STRVAR(doc_g_mpfr_fms,
-"fms(x,y,z) -> mpfr\n\n"
-"Return correctly rounded result of (x * y) - z.");
 
 static PyObject *
 Pympfr_fms(PyObject *self, PyObject *args)
