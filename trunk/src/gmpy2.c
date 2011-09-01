@@ -3321,7 +3321,7 @@ static PyTypeObject Pympc_Type =
     &mpc_number_methods,                    /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
         0,                                  /* tp_as_mapping    */
-        0,                                  /* tp_hash          */
+    (hashfunc) Pympc_hash,                  /* tp_hash          */
         0,                                  /* tp_call          */
     (reprfunc) Pympc2str,                   /* tp_str           */
         0,                                  /* tp_getattro      */

@@ -1287,7 +1287,7 @@ f2q_internal(PympfrObject* self, PympfrObject* err, unsigned int bits, int mayz)
 }
 
 static Py_hash_t
-Pympfr_hash(PympfrObject *self)
+_mpfr_hash(mpfr_t f)
 {
 #ifdef _PyHASH_MODULUS
     Py_uhash_t hash = 0;
@@ -1295,52 +1295,55 @@ Pympfr_hash(PympfrObject *self)
     size_t msize;
     int sign;
 
-    if (self->hash_cache != -1)
-        return self->hash_cache;
-
     /* Handle special cases first */
-    if (!mpfr_number_p(self->f)) {
-        if (mpfr_inf_p(self->f))
-            if (mpfr_sgn(self->f) > 0)
-                return (self->hash_cache = _PyHASH_INF);
+    if (!mpfr_number_p(f)) {
+        if (mpfr_inf_p(f))
+            if (mpfr_sgn(f) > 0)
+                return _PyHASH_INF;
             else
-                return (self->hash_cache = -_PyHASH_INF);
+                return -_PyHASH_INF;
         else
-            return (self->hash_cache = _PyHASH_NAN);
+            return _PyHASH_NAN;
     }
 
     /* Calculate the number of limbs in the mantissa. */
-    msize = (self->f->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
+    msize = (f->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
 
     /* Calculate the hash of the mantissa. */
-    if (mpfr_sgn(self->f) > 0) {
-        hash = mpn_mod_1(self->f->_mpfr_d, msize, _PyHASH_MODULUS);
+    if (mpfr_sgn(f) > 0) {
+        hash = mpn_mod_1(f->_mpfr_d, msize, _PyHASH_MODULUS);
         sign = 1;
     }
-    else if (mpfr_sgn(self->f) < 0) {
-        hash = mpn_mod_1(self->f->_mpfr_d, msize, _PyHASH_MODULUS);
+    else if (mpfr_sgn(f) < 0) {
+        hash = mpn_mod_1(f->_mpfr_d, msize, _PyHASH_MODULUS);
         sign = -1;
     }
     else {
-        return (self->hash_cache = 0);
+        return 0;
     }
 
     /* Calculate the final hash. */
-    exp = self->f->_mpfr_exp - (msize * mp_bits_per_limb);
+    exp = f->_mpfr_exp - (msize * mp_bits_per_limb);
     exp = exp >= 0 ? exp % _PyHASH_BITS : _PyHASH_BITS-1-((-1-exp) % _PyHASH_BITS);
     hash = ((hash << exp) & _PyHASH_MODULUS) | hash >> (_PyHASH_BITS - exp);
 
     hash *= sign;
     if (hash == (Py_uhash_t)-1)
         hash = (Py_uhash_t)-2;
-    return (self->hash_cache = (Py_hash_t)hash);
+    return (Py_hash_t)hash;
 #else
     double temp;
-    if (self->hash_cache != -1)
-        return self->hash_cache;
-    temp = mpfr_get_d(self->f, context->now.mpfr_round);
-    return (self->hash_cache = _Py_HashDouble(temp));
+    temp = mpfr_get_d(f, context->now.mpfr_round);
+    return _Py_HashDouble(temp);
 #endif
+}
+
+static Py_hash_t
+Pympfr_hash(PympfrObject *self)
+{
+    if (self->hash_cache == -1)
+        self->hash_cache = _mpfr_hash(self->f);
+    return self->hash_cache;
 }
 
 /* This function is used in gmpy_mpany. */
