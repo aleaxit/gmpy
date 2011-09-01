@@ -1599,6 +1599,27 @@ Pympc_mul_2exp(PyObject *self, PyObject *args)
     MPC_CLEANUP(result, "mul_2exp()");
 }
 
+static Py_hash_t
+Pympc_hash(PympcObject *self)
+{
+    Py_uhash_t hashreal, hashimag, combined;
+
+    if (self->hash_cache != -1)
+        return self->hash_cache;
+
+    hashreal = (Py_uhash_t)_mpfr_hash(mpc_realref(self->c));
+    if (hashreal == (Py_uhash_t)-1)
+        return -1;
+    hashimag = (Py_uhash_t)_mpfr_hash(mpc_imagref(self->c));
+    if (hashimag == (Py_uhash_t)-1)
+        return -1;
+    combined = hashreal + _PyHASH_IMAG * hashimag;
+    if (combined == (Py_uhash_t)-1)
+        combined = (Py_uhash_t)-2;
+    self->hash_cache = combined;
+    return (Py_hash_t)combined;
+}
+
 
 
 

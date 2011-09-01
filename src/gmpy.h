@@ -57,6 +57,7 @@ extern "C" {
 #if PY_VERSION_HEX < 0x030200A4
 typedef long Py_hash_t;
 typedef unsigned long Py_uhash_t;
+#define _PyHASH_IMAG 1000003
 #endif
 
 #if defined(MS_WIN32) && defined(_MSC_VER)
