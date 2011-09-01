@@ -916,17 +916,13 @@ Pympfr_copy_sign(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_div_2exp,
-"div_2exp(mpfr, n) -> mpfr\n\n"
-"Return 'mpfr' divided by 2**n.");
-
 static PyObject *
 Pympfr_div_2exp(PyObject *self, PyObject *args)
 {
     PympfrObject *result = 0;
-    long exp = 0;
+    unsigned long exp = 0;
 
-    if (!PyArg_ParseTuple(args, "O&l", Pympfr_convert_arg, &self, &exp)) {
+    if (!PyArg_ParseTuple(args, "O&k", Pympfr_convert_arg, &self, &exp)) {
         TYPE_ERROR("div_2exp() requires 'mpfr', 'integer' arguments");
         return NULL;
     }
@@ -936,23 +932,19 @@ Pympfr_div_2exp(PyObject *self, PyObject *args)
 
     mpfr_clear_flags();
 
-    result->rc = mpfr_div_2si(Pympfr_AS_MPFR(result), Pympfr_AS_MPFR(self),
+    result->rc = mpfr_div_2ui(Pympfr_AS_MPFR(result), Pympfr_AS_MPFR(self),
                               exp, context->now.mpfr_round);
 
-    MPFR_CLEANUP_SELF("div_2exp");
+    MPFR_CLEANUP_SELF("div_2exp()");
 }
-
-PyDoc_STRVAR(doc_g_mpfr_mul_2exp,
-"mul_2exp(mpfr, n) -> mpfr\n\n"
-"Return 'mpfr' multiplied by 2**n.");
 
 static PyObject *
 Pympfr_mul_2exp(PyObject *self, PyObject *args)
 {
     PympfrObject *result = 0;
-    long exp = 0;
+    unsigned long exp = 0;
 
-    if (!PyArg_ParseTuple(args, "O&l", Pympfr_convert_arg, &self, &exp)) {
+    if (!PyArg_ParseTuple(args, "O&k", Pympfr_convert_arg, &self, &exp)) {
         TYPE_ERROR("mul_2exp() requires 'mpfr', 'integer' arguments");
         return NULL;
     }
@@ -962,10 +954,10 @@ Pympfr_mul_2exp(PyObject *self, PyObject *args)
 
     mpfr_clear_flags();
 
-    result->rc = mpfr_mul_2si(Pympfr_AS_MPFR(result), Pympfr_AS_MPFR(self),
+    result->rc = mpfr_mul_2ui(Pympfr_AS_MPFR(result), Pympfr_AS_MPFR(self),
                               exp, context->now.mpfr_round);
 
-    MPFR_CLEANUP_SELF("mul_2exp");
+    MPFR_CLEANUP_SELF("mul_2exp()");
 }
 
 PyDoc_STRVAR(doc_g_mpfr_set_nan,

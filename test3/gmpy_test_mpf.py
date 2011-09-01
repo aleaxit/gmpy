@@ -21,7 +21,7 @@ mpfr('2.3025850929940459')
 >>> _g.log('a')
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-TypeError: log() requires 'mpfr' or 'mpc' argument
+TypeError: log() argument type not supported
 >>> _g.log(float('nan'))
 mpfr('nan')
 >>> _g.log(float('inf'))
@@ -314,7 +314,7 @@ mpfr('123.456',33)
 >>> _g.binary('pep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: binary() requires a gmpy2 object as argument
+TypeError: binary() argument type not supported
 >>>
 '''
 

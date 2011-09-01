@@ -1553,6 +1553,52 @@ Pympc_fms(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+static PyObject *
+Pympc_div_2exp(PyObject *self, PyObject *args)
+{
+    PympcObject *result = 0;
+    mp_bitcnt_t exp = 0;
+
+    if (!PyArg_ParseTuple(args, "O&k", Pympc_convert_arg, &self, &exp)) {
+        TYPE_ERROR("div_2exp() requires 'mpc', 'int' arguments");
+        return NULL;
+    }
+
+    if (!(result = Pympc_new(0, 0))) {
+        Py_DECREF(self);
+        return NULL;
+    }
+
+    result->rc = mpc_div_2exp(Pympc_AS_MPC(result), Pympc_AS_MPC(self),
+                              exp, GET_MPC_ROUND(context));
+    Py_DECREF(self);
+
+    MPC_CLEANUP(result, "div_2exp()");
+}
+
+static PyObject *
+Pympc_mul_2exp(PyObject *self, PyObject *args)
+{
+    PympcObject *result = 0;
+    mp_bitcnt_t exp = 0;
+
+    if (!PyArg_ParseTuple(args, "O&k", Pympc_convert_arg, &self, &exp)) {
+        TYPE_ERROR("mul_2exp() requires 'mpc', 'int' arguments");
+        return NULL;
+    }
+
+    if (!(result = Pympc_new(0, 0))) {
+        Py_DECREF(self);
+        return NULL;
+    }
+
+    result->rc = mpc_mul_2exp(Pympc_AS_MPC(result), Pympc_AS_MPC(self),
+                             exp, GET_MPC_ROUND(context));
+    Py_DECREF(self);
+
+    MPC_CLEANUP(result, "mul_2exp()");
+}
+
 
 
 

@@ -41,7 +41,7 @@ PyDoc_STRVAR(doc_gmpy_c_divmod_2exp,
 static PyObject *
 Pygmpy_c_divmod_2exp(PyObject *self, PyObject *args)
 {
-    long nbits;
+    mp_bitcnt_t nbits;
     PyObject *x, *result;
     PympzObject *q, *r, *tempx;
 
@@ -50,13 +50,9 @@ Pygmpy_c_divmod_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("c_divmod_2exp() requires 'mpz','int' arguments");
-        return NULL;
-    }
-    if (nbits <= 0) {
-        VALUE_ERROR("c_divmod_2exp() requires n > 0");
+    nbits = MP_BITCNT_FROM_INTEGER(PyTuple_GET_ITEM(args, 1));
+    if (nbits == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
+        //~ TYPE_ERROR("c_divmod_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
 
@@ -91,7 +87,7 @@ PyDoc_STRVAR(doc_gmpy_c_div_2exp,
 static PyObject *
 Pygmpy_c_div_2exp(PyObject *self, PyObject *args)
 {
-    long nbits;
+    mp_bitcnt_t nbits;
     PyObject *x;
     PympzObject *result, *tempx;
 
@@ -100,13 +96,9 @@ Pygmpy_c_div_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("c_div_2exp() requires 'mpz','int' arguments");
-        return NULL;
-    }
-    if (nbits <= 0) {
-        VALUE_ERROR("c_div_2exp() requires n > 0");
+    nbits = MP_BITCNT_FROM_INTEGER(PyTuple_GET_ITEM(args, 1));
+    if (nbits == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
+        //~ TYPE_ERROR("c_div_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
 
@@ -135,7 +127,7 @@ PyDoc_STRVAR(doc_gmpy_c_mod_2exp,
 static PyObject *
 Pygmpy_c_mod_2exp(PyObject *self, PyObject *args)
 {
-    long nbits;
+    mp_bitcnt_t nbits;
     PyObject *x;
     PympzObject *result, *tempx;
 
@@ -144,13 +136,9 @@ Pygmpy_c_mod_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("c_mod_2exp() requires 'mpz','int' arguments");
-        return NULL;
-    }
-    if (nbits <= 0) {
-        VALUE_ERROR("c_mod_2exp() requires n > 0");
+    nbits = MP_BITCNT_FROM_INTEGER(PyTuple_GET_ITEM(args, 1));
+    if (nbits == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
+        //~ TYPE_ERROR("c_mod_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
 
@@ -187,7 +175,7 @@ PyDoc_STRVAR(doc_gmpy_f_divmod_2exp,
 static PyObject *
 Pygmpy_f_divmod_2exp(PyObject *self, PyObject *args)
 {
-    long nbits;
+    mp_bitcnt_t nbits;
     PyObject *x, *result;
     PympzObject *q, *r, *tempx;
 
@@ -196,13 +184,9 @@ Pygmpy_f_divmod_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("f_divmod_2exp() requires 'mpz','int' arguments");
-        return NULL;
-    }
-    if (nbits <= 0) {
-        VALUE_ERROR("f_divmod_2exp() requires n > 0");
+    nbits = MP_BITCNT_FROM_INTEGER(PyTuple_GET_ITEM(args, 1));
+    if (nbits == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
+        //~ TYPE_ERROR("f_divmod_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
 
@@ -237,7 +221,7 @@ PyDoc_STRVAR(doc_gmpy_f_div_2exp,
 static PyObject *
 Pygmpy_f_div_2exp(PyObject *self, PyObject *args)
 {
-    long nbits;
+    mp_bitcnt_t nbits;
     PyObject *x;
     PympzObject *result, *tempx;
 
@@ -246,13 +230,9 @@ Pygmpy_f_div_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("f_div_2exp() requires 'mpz','int' arguments");
-        return NULL;
-    }
-    if (nbits <= 0) {
-        VALUE_ERROR("f_div_2exp() requires n > 0");
+    nbits = MP_BITCNT_FROM_INTEGER(PyTuple_GET_ITEM(args, 1));
+    if (nbits == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
+        //~ TYPE_ERROR("f_div_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
 
@@ -282,7 +262,7 @@ PyDoc_STRVAR(doc_gmpy_f_mod_2exp,
 static PyObject *
 Pygmpy_f_mod_2exp(PyObject *self, PyObject *args)
 {
-    long nbits;
+    mp_bitcnt_t nbits;
     PyObject *x;
     PympzObject *result, *tempx;
 
@@ -291,13 +271,9 @@ Pygmpy_f_mod_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("f_mod_2exp() requires 'mpz','int' arguments");
-        return NULL;
-    }
-    if (nbits <= 0) {
-        VALUE_ERROR("f_mod_2exp() requires n > 0");
+    nbits = MP_BITCNT_FROM_INTEGER(PyTuple_GET_ITEM(args, 1));
+    if (nbits == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
+        //~ TYPE_ERROR("f_mod_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
 
@@ -334,7 +310,7 @@ PyDoc_STRVAR(doc_gmpy_t_divmod_2exp,
 static PyObject *
 Pygmpy_t_divmod_2exp(PyObject *self, PyObject *args)
 {
-    long nbits;
+    mp_bitcnt_t nbits;
     PyObject *x, *result;
     PympzObject *q, *r, *tempx;
 
@@ -343,13 +319,9 @@ Pygmpy_t_divmod_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("t_divmod_2exp() requires 'mpz','int' arguments");
-        return NULL;
-    }
-    if (nbits <= 0) {
-        VALUE_ERROR("t_divmod_2exp() requires n > 0");
+    nbits = MP_BITCNT_FROM_INTEGER(PyTuple_GET_ITEM(args, 1));
+    if (nbits == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
+        //~ TYPE_ERROR("t_divmod_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
 
@@ -383,7 +355,7 @@ PyDoc_STRVAR(doc_gmpy_t_div_2exp,
 static PyObject *
 Pygmpy_t_div_2exp(PyObject *self, PyObject *args)
 {
-    long nbits;
+    mp_bitcnt_t nbits;
     PyObject *x;
     PympzObject *result, *tempx;
 
@@ -392,13 +364,9 @@ Pygmpy_t_div_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("t_div_2exp() requires 'mpz','int' arguments");
-        return NULL;
-    }
-    if (nbits <= 0) {
-        VALUE_ERROR("t_div_2exp() requires n > 0");
+    nbits = MP_BITCNT_FROM_INTEGER(PyTuple_GET_ITEM(args, 1));
+    if (nbits == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
+        //~ TYPE_ERROR("t_div_2exp() requires 'mpz','int' arguments");
         return NULL;
     }
 
@@ -427,7 +395,7 @@ PyDoc_STRVAR(doc_gmpy_t_mod_2exp,
 static PyObject *
 Pygmpy_t_mod_2exp(PyObject *self, PyObject *args)
 {
-    long nbits;
+    mp_bitcnt_t nbits;
     PyObject *x;
     PympzObject *result, *tempx;
 
@@ -436,13 +404,9 @@ Pygmpy_t_mod_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("t_mod_2exp() requires expects 'mpz','int' arguments");
-        return NULL;
-    }
-    if (nbits <= 0) {
-        VALUE_ERROR("t_mod_2exp() requires n > 0");
+    nbits = MP_BITCNT_FROM_INTEGER(PyTuple_GET_ITEM(args, 1));
+    if (nbits == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
+        //~ TYPE_ERROR("t_mod_2exp() requires expects 'mpz','int' arguments");
         return NULL;
     }
 
