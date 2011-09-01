@@ -204,7 +204,7 @@ mpq(266635235464391245607L,1000000000000000000000L)
 >>> _g.binary('pep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: binary() requires a gmpy2 object as argument
+TypeError: binary() argument type not supported
 >>> x=_g.mpq('234/567')
 >>> del x
 >>> _g.mpq('7788')

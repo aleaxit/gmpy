@@ -1727,25 +1727,112 @@ Pympz_From_Integer(PyObject* obj)
  * Integer-like object.
  */
 
+#ifndef WIN64
 static long
 clong_From_Integer(PyObject *obj)
 {
-    if (PyLong_Check(obj)) {
+    if (PyIntOrLong_Check(obj)) {
         return PyLong_AsLong(obj);
     }
-#ifdef PY2
-    else if (PyInt_Check(obj)) {
-        return PyInt_AS_LONG(obj);
-    }
-#endif
     else if (CHECK_MPZANY(obj)) {
         if (mpz_fits_slong_p(Pympz_AS_MPZ(obj))) {
             return mpz_get_si(Pympz_AS_MPZ(obj));
+        }
+        else {
+            OVERFLOW_ERROR("overflow in clong_From_Integer");
+            return -1;
         }
     }
     TYPE_ERROR("conversion error in clong_From_Integer");
     return -1;
 }
+
+static unsigned long
+culong_From_Integer(PyObject *obj)
+{
+    if (PyIntOrLong_Check(obj)) {
+        return PyLong_AsUnsignedLong(obj);
+    }
+    else if (CHECK_MPZANY(obj)) {
+        if (mpz_fits_ulong_p(Pympz_AS_MPZ(obj))) {
+            return mpz_get_ui(Pympz_AS_MPZ(obj));
+        }
+        else {
+            OVERFLOW_ERROR("overflow in culong_From_Integer");
+            return (unsigned long)-1;
+        }
+    }
+    TYPE_ERROR("conversion error in culong_From_Integer");
+    return (unsigned long)-1;
+}
+
+#define MP_BITCNT_FROM_INTEGER(obj) culong_From_Integer(obj)
+
+#else
+static long long
+clonglong_From_Integer(PyObject *obj)
+{
+    long long val;
+    PyObject* temp;
+
+    if (PyIntOrLong_Check(obj)) {
+        return PyLong_AsLongLong(obj);
+    }
+    else if (CHECK_MPZANY(obj)) {
+        if (mpz_fits_slong_p(Pympz_AS_MPZ(obj))) {
+            return (long long)mpz_get_si(Pympz_AS_MPZ(obj));
+        }
+        else {
+            /* This section should only be called on Win64. */
+            temp = mpz_get_PyLong(Pympz_AS_MPZ(obj));
+            if (!temp) {
+                TYPE_ERROR("conversion error in clonglong_From_Integer");
+                return -1;
+            }
+            else {
+                val = PyLong_AsLongLong(temp);
+                Py_DECREF(temp);
+                return val;
+            }
+        }
+    }
+    TYPE_ERROR("conversion error in clonglong_From_Integer");
+    return -1;
+}
+
+static unsigned long long
+culonglong_From_Integer(PyObject *obj)
+{
+    unsigned long long val;
+    PyObject* temp;
+
+    if (PyIntOrLong_Check(obj)) {
+        return PyLong_AsUnsignedLongLong(obj);
+    }
+    else if (CHECK_MPZANY(obj)) {
+        if (mpz_fits_slong_p(Pympz_AS_MPZ(obj))) {
+            return (unsigned long long)mpz_get_si(Pympz_AS_MPZ(obj));
+        }
+        else {
+            /* This section should only be called on Win64. */
+            temp = mpz_get_PyLong(Pympz_AS_MPZ(obj));
+            if (!temp) {
+                TYPE_ERROR("conversion error in culonglong_From_Integer");
+                return -1;
+            }
+            else {
+                val = PyLong_AsUnsignedLongLong(temp);
+                Py_DECREF(temp);
+                return val;
+            }
+        }
+    }
+    TYPE_ERROR("conversion error in culonglong_From_Integer");
+    return -1;
+}
+
+#define MP_BITCNT_FROM_INTEGER(obj) culonglong_From_Integer(obj)
+#endif
 
 /*
  * Convert an Integer-like object (as determined by isInteger) to
@@ -2844,7 +2931,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "csch", Pympfr_csch, METH_O, doc_g_mpfr_csch },
     { "digamma", Pympfr_digamma, METH_O, doc_g_mpfr_digamma },
     { "div", Pympfr_div, METH_VARARGS, doc_g_mpfr_div },
-    { "div_2exp", Pympfr_div_2exp, METH_VARARGS, doc_g_mpfr_div_2exp },
+    { "div_2exp", Pympany_div_2exp, METH_VARARGS, doc_mpany_div_2exp },
     { "eint", Pympfr_eint, METH_O, doc_g_mpfr_eint },
     { "erf", Pympfr_erf, METH_O, doc_g_mpfr_erf },
     { "erfc", Pympfr_erfc, METH_O, doc_g_mpfr_erfc },
@@ -2891,7 +2978,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "mpfr", (PyCFunction)Pygmpy_mpfr, METH_VARARGS | METH_KEYWORDS, doc_mpfr },
     { "mpfr_from_old_binary", Pympfr_From_Old_Binary, METH_O, doc_g_mpfr_from_old_binary },
     { "mul", Pympfr_mul, METH_VARARGS, doc_g_mpfr_mul },
-    { "mul_2exp", Pympfr_mul_2exp, METH_VARARGS, doc_g_mpfr_mul_2exp },
+    { "mul_2exp", Pympany_mul_2exp, METH_VARARGS, doc_mpany_mul_2exp },
     { "nan", Pympfr_set_nan, METH_NOARGS, doc_g_mpfr_set_nan },
     { "new_context", (PyCFunction)Pygmpy_new_context, METH_VARARGS | METH_KEYWORDS, doc_new_context },
     { "next_above", Pympfr_nextabove, METH_O, doc_g_mpfr_nextabove },
