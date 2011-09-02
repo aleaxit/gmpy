@@ -126,6 +126,150 @@ Pympany_sign(PyObject *self, PyObject *other)
     return NULL;
 }
 
+PyDoc_STRVAR(doc_mpany_add,
+"add(x, y) -> number\n\n"
+"Return x + y.");
+
+static PyObject *
+Pympany_add(PyObject *self, PyObject *args)
+{
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("add() requires 2 arguments.");
+        return NULL;
+    }
+
+    if (isInteger(PyTuple_GET_ITEM(args, 0)) &&
+        isInteger(PyTuple_GET_ITEM(args, 1)))
+        return Pympz_add(self, args);
+
+    if (isRational(PyTuple_GET_ITEM(args, 0)) &&
+        isRational(PyTuple_GET_ITEM(args, 1)))
+        return Pympq_add(self, args);
+
+#ifdef WITHMPFR
+    if (isReal(PyTuple_GET_ITEM(args, 0)) &&
+        isReal(PyTuple_GET_ITEM(args, 1)))
+        return Pympfr_add(self, args);
+
+#endif
+#ifdef WITHMPC
+    if (isComplex(PyTuple_GET_ITEM(args, 0)) &&
+        isComplex(PyTuple_GET_ITEM(args, 1)))
+        return Pympc_add(self, args);
+
+#endif
+    TYPE_ERROR("add() argument types not supported");
+    return NULL;
+}
+
+PyDoc_STRVAR(doc_mpany_sub,
+"sub(x, y) -> number\n\n"
+"Return x - y.");
+
+static PyObject *
+Pympany_sub(PyObject *self, PyObject *args)
+{
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("sub() requires 2 arguments.");
+        return NULL;
+    }
+
+    if (isInteger(PyTuple_GET_ITEM(args, 0)) &&
+        isInteger(PyTuple_GET_ITEM(args, 1)))
+        return Pympz_sub(self, args);
+
+    if (isRational(PyTuple_GET_ITEM(args, 0)) &&
+        isRational(PyTuple_GET_ITEM(args, 1)))
+        return Pympq_sub(self, args);
+
+#ifdef WITHMPFR
+    if (isReal(PyTuple_GET_ITEM(args, 0)) &&
+        isReal(PyTuple_GET_ITEM(args, 1)))
+        return Pympfr_sub(self, args);
+
+#endif
+#ifdef WITHMPC
+    if (isComplex(PyTuple_GET_ITEM(args, 0)) &&
+        isComplex(PyTuple_GET_ITEM(args, 1)))
+        return Pympc_sub(self, args);
+
+#endif
+    TYPE_ERROR("sub() argument types not supported");
+    return NULL;
+}
+
+PyDoc_STRVAR(doc_mpany_mul,
+"mul(x, y) -> number\n\n"
+"Return x * y.");
+
+static PyObject *
+Pympany_mul(PyObject *self, PyObject *args)
+{
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("mul() requires 2 arguments.");
+        return NULL;
+    }
+
+    if (isInteger(PyTuple_GET_ITEM(args, 0)) &&
+        isInteger(PyTuple_GET_ITEM(args, 1)))
+        return Pympz_mul(self, args);
+
+    if (isRational(PyTuple_GET_ITEM(args, 0)) &&
+        isRational(PyTuple_GET_ITEM(args, 1)))
+        return Pympq_mul(self, args);
+
+#ifdef WITHMPFR
+    if (isReal(PyTuple_GET_ITEM(args, 0)) &&
+        isReal(PyTuple_GET_ITEM(args, 1)))
+        return Pympfr_mul(self, args);
+
+#endif
+#ifdef WITHMPC
+    if (isComplex(PyTuple_GET_ITEM(args, 0)) &&
+        isComplex(PyTuple_GET_ITEM(args, 1)))
+        return Pympc_mul(self, args);
+
+#endif
+    TYPE_ERROR("mul() argument types not supported");
+    return NULL;
+}
+
+PyDoc_STRVAR(doc_mpany_div,
+"div(x, y) -> number\n\n"
+"Return x / y.");
+
+static PyObject *
+Pympany_div(PyObject *self, PyObject *args)
+{
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("div() requires 2 arguments.");
+        return NULL;
+    }
+
+    if (isInteger(PyTuple_GET_ITEM(args, 0)) &&
+        isInteger(PyTuple_GET_ITEM(args, 1)))
+        return Pympz_div(self, args);
+
+    if (isRational(PyTuple_GET_ITEM(args, 0)) &&
+        isRational(PyTuple_GET_ITEM(args, 1)))
+        return Pympq_div(self, args);
+
+#ifdef WITHMPFR
+    if (isReal(PyTuple_GET_ITEM(args, 0)) &&
+        isReal(PyTuple_GET_ITEM(args, 1)))
+        return Pympfr_div(self, args);
+
+#endif
+#ifdef WITHMPC
+    if (isComplex(PyTuple_GET_ITEM(args, 0)) &&
+        isComplex(PyTuple_GET_ITEM(args, 1)))
+        return Pympc_div(self, args);
+
+#endif
+    TYPE_ERROR("div() argument types not supported");
+    return NULL;
+}
+
 PyDoc_STRVAR(doc_binarym,
 "x.binary() -> binary string\n\n"
 "Return a Python string (or bytes for Python 3+) that is a portable\n"
@@ -535,17 +679,5 @@ Pympany_mul_2exp(PyObject *self, PyObject *args)
     TYPE_ERROR("mul_2exp() argument types not supported");
     return NULL;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif

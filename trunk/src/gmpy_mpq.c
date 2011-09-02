@@ -478,3 +478,75 @@ Pympq_hash(PympqObject *self)
 #endif
 }
 
+static PyObject *
+Pympq_add(PyObject *self, PyObject *args)
+{
+    PympqObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPQ(other, "add() requires 'mpq','mpq' arguments");
+
+    if ((result = Pympq_new()))
+        mpq_add(result->q, Pympq_AS_MPQ(self), Pympq_AS_MPQ(other));
+
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+static PyObject *
+Pympq_sub(PyObject *self, PyObject *args)
+{
+    PympqObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPQ(other, "sub() requires 'mpq','mpq' arguments");
+
+    if ((result = Pympq_new()))
+        mpq_sub(result->q, Pympq_AS_MPQ(self), Pympq_AS_MPQ(other));
+
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+static PyObject *
+Pympq_mul(PyObject *self, PyObject *args)
+{
+    PympqObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPQ(other, "mul() requires 'mpq','mpq' arguments");
+
+    if ((result = Pympq_new()))
+        mpq_mul(result->q, Pympq_AS_MPQ(self), Pympq_AS_MPQ(other));
+
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+static PyObject *
+Pympq_div(PyObject *self, PyObject *args)
+{
+    PympqObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPQ(other, "div() requires 'mpq','mpq' arguments");
+
+    if ((result = Pympq_new())) {
+        if (mpq_sgn(Pympq_AS_MPQ(other)) == 0) {
+            ZERO_ERROR("mpq division by zero");
+            Py_DECREF((PyObject*)result);
+            result = 0;
+        }
+        else {
+            mpq_div(result->q, Pympq_AS_MPQ(self), Pympq_AS_MPQ(other));
+        }
+    }
+
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+

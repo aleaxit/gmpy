@@ -1620,6 +1620,100 @@ Pympc_hash(PympcObject *self)
     return (Py_hash_t)combined;
 }
 
+static PyObject *
+Pympc_add(PyObject *self, PyObject *args)
+{
+    PympcObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPC_ARGS(other, "add() requires 'mpc','mpc' arguments");
+
+    if (!(result = Pympc_new(0, 0))) {
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    result->rc = mpc_add(result->c, Pympc_AS_MPC(self),
+                         Pympc_AS_MPC(other), GET_MPC_ROUND(context));
+    Py_DECREF(self);
+    Py_DECREF(other);
+    MPC_CLEANUP(result, "add()");
+}
+
+static PyObject *
+Pympc_sub(PyObject *self, PyObject *args)
+{
+    PympcObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPC_ARGS(other, "sub() requires 'mpc','mpc' arguments");
+
+    if (!(result = Pympc_new(0, 0))) {
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    result->rc = mpc_sub(result->c, Pympc_AS_MPC(self),
+                         Pympc_AS_MPC(other), GET_MPC_ROUND(context));
+    Py_DECREF(self);
+    Py_DECREF(other);
+    MPC_CLEANUP(result, "sub()");
+}
+
+static PyObject *
+Pympc_mul(PyObject *self, PyObject *args)
+{
+    PympcObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPC_ARGS(other, "mul() requires 'mpc','mpc' arguments");
+
+    if (!(result = Pympc_new(0, 0))) {
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    result->rc = mpc_mul(result->c, Pympc_AS_MPC(self),
+                         Pympc_AS_MPC(other), GET_MPC_ROUND(context));
+    Py_DECREF(self);
+    Py_DECREF(other);
+    MPC_CLEANUP(result, "mul()");
+}
+
+static PyObject *
+Pympc_div(PyObject *self, PyObject *args)
+{
+    PympcObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPC_ARGS(other, "div() requires 'mpc','mpc' arguments");
+
+    if (!(result = Pympc_new(0, 0))) {
+        Py_DECREF(self);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    if (MPC_IS_ZERO_P(Pympc_AS_MPC(other))) {
+        context->now.divzero = 1;
+        if (context->now.trap_divzero) {
+            GMPY_DIVZERO("'mpc' division by zero");
+            Py_DECREF(self);
+            Py_DECREF(other);
+            return NULL;
+        }
+    }
+
+    result->rc = mpc_div(result->c, Pympc_AS_MPC(self),
+                         Pympc_AS_MPC(other), GET_MPC_ROUND(context));
+    Py_DECREF(self);
+    Py_DECREF(other);
+    MPC_CLEANUP(result, "div()");
+}
+
 
 
 
