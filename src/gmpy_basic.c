@@ -44,7 +44,7 @@
  */
 
 static PyObject *
-Pympany_add(PyObject *a, PyObject *b)
+Pybasic_add(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
     PympzObject *rz = 0, *paz = 0, *pbz = 0;
@@ -309,7 +309,7 @@ Pympany_add(PyObject *a, PyObject *b)
  */
 
 static PyObject *
-Pympany_sub(PyObject *a, PyObject *b)
+Pybasic_sub(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
     PympzObject *rz = 0, *paz = 0, *pbz = 0;
@@ -574,7 +574,7 @@ Pympany_sub(PyObject *a, PyObject *b)
  */
 
 static PyObject *
-Pympany_mul(PyObject *a, PyObject *b)
+Pybasic_mul(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
     PympzObject *rz = 0, *paz = 0, *pbz = 0;
@@ -832,7 +832,7 @@ Pympany_mul(PyObject *a, PyObject *b)
  */
 
 static PyObject *
-Pympany_floordiv(PyObject *a, PyObject *b)
+Pybasic_floordiv(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
     PympzObject *rz = 0, *paz = 0, *pbz = 0;
@@ -1013,7 +1013,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
  */
 
 static PyObject *
-Pympany_truediv(PyObject *a, PyObject *b)
+Pybasic_truediv(PyObject *a, PyObject *b)
 {
     PympzObject *paz = 0, *pbz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
@@ -1207,7 +1207,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
  */
 
 static PyObject *
-Pympany_div2(PyObject *a, PyObject *b)
+Pybasic_div2(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
     PympzObject *rz = 0, *paz = 0, *pbz = 0;
@@ -1397,7 +1397,7 @@ Pympany_div2(PyObject *a, PyObject *b)
  */
 
 static PyObject *
-Pympany_rem(PyObject *a, PyObject *b)
+Pybasic_rem(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
     PympzObject *rz = 0;
@@ -1590,7 +1590,7 @@ Pympany_rem(PyObject *a, PyObject *b)
  */
 
 static PyObject *
-Pympany_divmod(PyObject *a, PyObject *b)
+Pybasic_divmod(PyObject *a, PyObject *b)
 {
     PyObject *r = 0;
     mpz_t tempz;

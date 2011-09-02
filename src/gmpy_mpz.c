@@ -2408,3 +2408,78 @@ Pympz_format(PyObject *self, PyObject *args)
     Py_DECREF(mpzstr);
     return result;
 }
+
+static PyObject *
+Pympz_add(PyObject *self, PyObject *args)
+{
+    PympzObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPZ(other, "add() requires 'mpz','mpz' arguments");
+
+    if ((result = Pympz_new()))
+        mpz_add(result->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
+
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+static PyObject *
+Pympz_sub(PyObject *self, PyObject *args)
+{
+    PympzObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPZ(other, "sub() requires 'mpz','mpz' arguments");
+
+    if ((result = Pympz_new()))
+        mpz_sub(result->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
+
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+static PyObject *
+Pympz_mul(PyObject *self, PyObject *args)
+{
+    PympzObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPZ(other, "mul() requires 'mpz','mpz' arguments");
+
+    if ((result = Pympz_new()))
+        mpz_mul(result->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
+
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+static PyObject *
+Pympz_div(PyObject *self, PyObject *args)
+{
+    PympzObject *result;
+    PyObject *other;
+
+    PARSE_TWO_MPZ(other, "div() requires 'mpz','mpz' arguments");
+
+    if ((result = Pympz_new())) {
+        if (mpz_sgn(Pympz_AS_MPZ(other)) == 0) {
+            ZERO_ERROR("mpz division by zero");
+            Py_DECREF((PyObject*)result);
+            result = 0;
+        }
+        else {
+            mpz_div(result->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
+        }
+    }
+
+    Py_DECREF(self);
+    Py_DECREF(other);
+    return (PyObject*)result;
+}
+
+
+

@@ -2156,10 +2156,6 @@ PyDoc_STRVAR(doc_g_mpfr_ai,
 
 MPFR_UNIOP(ai)
 
-PyDoc_STRVAR(doc_g_mpfr_add,
-"add(x, y) -> mpfr\n\n"
-"Return x + y.");
-
 static PyObject *
 Pympfr_add(PyObject *self, PyObject *args)
 {
@@ -2176,10 +2172,6 @@ Pympfr_add(PyObject *self, PyObject *args)
                           Pympfr_AS_MPFR(other), context->now.mpfr_round);
     MPFR_CLEANUP_SELF_OTHER("add()");
 }
-
-PyDoc_STRVAR(doc_g_mpfr_sub,
-"sub(x, y) -> mpfr\n\n"
-"Return x - y.");
 
 static PyObject *
 Pympfr_sub(PyObject *self, PyObject *args)
@@ -2198,10 +2190,6 @@ Pympfr_sub(PyObject *self, PyObject *args)
     MPFR_CLEANUP_SELF_OTHER("sub()");
 }
 
-PyDoc_STRVAR(doc_g_mpfr_mul,
-"mul(x, y) -> mpfr\n\n"
-"Return x * y.");
-
 static PyObject *
 Pympfr_mul(PyObject *self, PyObject *args)
 {
@@ -2218,10 +2206,6 @@ Pympfr_mul(PyObject *self, PyObject *args)
                           Pympfr_AS_MPFR(other), context->now.mpfr_round);
     MPFR_CLEANUP_SELF_OTHER("mul()");
 }
-
-PyDoc_STRVAR(doc_g_mpfr_div,
-"div(x, y) -> mpfr\n\n"
-"Return x / y.");
 
 static PyObject *
 Pympfr_div(PyObject *self, PyObject *args)

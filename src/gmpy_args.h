@@ -612,6 +612,33 @@
         }\
     }
 
+#define PARSE_TWO_MPQ(var, msg) \
+    if(self && Pympq_Check(self)) {\
+        if (PyTuple_GET_SIZE(args) != 1) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        var = (PyObject*)Pympq_From_Rational(PyTuple_GET_ITEM(args, 0));\
+        if(!var) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        Py_INCREF(self);\
+    } else {\
+        if (PyTuple_GET_SIZE(args) != 2) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            return NULL;\
+        }\
+        self = (PyObject*)Pympq_From_Rational(PyTuple_GET_ITEM(args, 0));\
+        var = (PyObject*)Pympq_From_Rational(PyTuple_GET_ITEM(args, 1));\
+        if(!self || !var) {\
+            PyErr_SetString(PyExc_TypeError, msg);\
+            Py_XDECREF((PyObject*)self);\
+            Py_XDECREF((PyObject*)var);\
+            return NULL;\
+        }\
+    }
+
 
 /*
  * Parses two, and only two, arguments into "self" and "var" and converts
