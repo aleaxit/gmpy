@@ -236,6 +236,9 @@
  *   Added __ceil__, __floor__, and __trunc__ methods (casevh)
  *   Removed gmpy2.pow to avoid conflicts (casevh)
  *   Removed gmpy2._copy and added xmpz.copy (casevh)
+ *   Added support for __format__ (casevh)
+ *   Completed support for MPC (casevh)
+ *   Added as_integer_ratio, as_mantissa_exp, as_simple_fraction (casevh)
  *
  ************************************************************************
  *
@@ -2941,13 +2944,13 @@ static PyMethodDef Pygmpy_methods [] =
     { "expm1", Pympfr_expm1, METH_O, doc_g_mpfr_expm1 },
     { "exp10", Pympfr_exp10, METH_O, doc_g_mpfr_exp10 },
     { "exp2", Pympfr_exp2, METH_O, doc_g_mpfr_exp2 },
+    { "f2q", Pympfr_f2q, METH_VARARGS, doc_g_mpfr_f2q },
     { "factorial", Pympfr_factorial, METH_O, doc_g_mpfr_factorial },
     { "floor", Pympfr_floor, METH_O, doc_g_mpfr_floor},
     { "fma", Pympany_fma, METH_VARARGS, doc_mpany_fma },
     { "fms", Pympany_fms, METH_VARARGS, doc_mpany_fms },
     { "fmod", Pympfr_fmod, METH_VARARGS, doc_g_mpfr_fmod },
     { "frac", Pympfr_frac, METH_O, doc_g_mpfr_frac },
-    { "f2q", Pympfr_f2q, METH_VARARGS, doc_g_mpfr_f2q },
     { "gamma", Pympfr_gamma, METH_O, doc_g_mpfr_gamma },
     { "get_emax_max", Pympfr_get_emax_max, METH_NOARGS, doc_g_mpfr_get_emax_max },
     { "get_emin_min", Pympfr_get_emin_min, METH_NOARGS, doc_g_mpfr_get_emin_min },
@@ -3086,6 +3089,9 @@ static PyMethodDef Pympfr_methods [] =
     { "__floor__", Pympfr_floor, METH_NOARGS, doc_mpfr_floor },
     { "__format__", Pympfr_format, METH_VARARGS, doc_mpfr_format },
     { "__trunc__", Pympfr_trunc, METH_NOARGS, doc_mpfr_trunc },
+    { "as_integer_ratio", Pympfr_integer_ratio, METH_NOARGS, doc_mpfr_integer_ratio },
+    { "as_mantissa_exp", Pympfr_mantissa_exp, METH_NOARGS, doc_mpfr_mantissa_exp },
+    { "as_simple_fraction", (PyCFunction)Pympfr_simple_fraction, METH_VARARGS | METH_KEYWORDS, doc_mpfr_simple_fraction },
     { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
     { "conjugate", Pympfr_conjugate, METH_NOARGS, doc_mpfr_conjugate },
     { "digits", Pympfr_digits, METH_VARARGS, doc_mpfr_digits },

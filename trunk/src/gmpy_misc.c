@@ -128,7 +128,7 @@ per object (number of limbs) for all GMPY2 objects.");
 static PyObject *
 Pygmpy_get_cache(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("ii", global.cache_size, global.cache_obsize);
+    return Py_BuildValue("(ii)", global.cache_size, global.cache_obsize);
 }
 
 PyDoc_STRVAR(doc_set_cache,
