@@ -114,10 +114,183 @@ Pympfr2Pyxmpz(PyObject *self)
     return result;
 }
 
+/*
+ * coerce any number to a mpf
+ */
+
+int
+Pympfr_convert_arg(PyObject *arg, PyObject **ptr)
+{
+    PympfrObject* newob = Pympfr_From_Real(arg, 0);
+
+    if (newob) {
+        *ptr = (PyObject*)newob;
+        return 1;
+    }
+    else {
+        TYPE_ERROR("argument can not be converted to mpfr");
+        return 0;
+    }
+}
+
+/* Return the simpliest rational number that approximates 'self' to the
+ * requested precision 'err'. If 'err' is negative, then the requested
+ * precision is -2**abs(int(err)). If 'err' is NULL, then the requested
+ * precision is -2**prec. If 'prec' is 0, then the requested precision is
+ * the precision of 'self'.
+ */
+
+static PympqObject *
+stern_brocot(PympfrObject* self, PympfrObject *err, mpfr_prec_t prec, int mayz)
+{
+    PympqObject *result = 0;
+    int i, negative, errsign;
+    mpfr_t f, al, a, r1[3], r2[3], minerr, curerr, newerr, temp;
+#define F2Q_PREC 20
+
+    if (mpfr_nan_p(self->f)) {
+        VALUE_ERROR("Cannot convert NaN to a number.");
+        return NULL;
+    }
+
+    if (mpfr_inf_p(self->f)) {
+        OVERFLOW_ERROR("Cannot convert infinity to a number.");
+        return NULL;
+    }
+
+    if (prec == 0)
+        prec = mpfr_get_prec(self->f);
+
+    errsign = err ? mpfr_sgn(err->f) : 0;
+    if (errsign < 0)
+        prec = (mpfr_prec_t)(-mpfr_get_si(err->f, context->now.mpfr_round));
+
+    if (errsign <= 0 && (prec < 2 || prec > mpfr_get_prec(self->f))) {
+        VALUE_ERROR("Requested precision out-of-bounds.");
+        return NULL;
+    }
+
+    if (!(result = Pympq_new()))
+        return NULL;
+
+    mpfr_init2(minerr, F2Q_PREC);
+    if (errsign <= 0) {
+        mpfr_set_ui(minerr, 1, context->now.mpfr_round);
+        mpfr_div_2si(minerr, minerr, prec, context->now.mpfr_round);
+    }
+    else {
+        mpfr_set(minerr, err->f, context->now.mpfr_round);
+    }
+
+    mpfr_init2(f, prec);
+    if (mpfr_sgn(self->f) < 0) {
+        negative = 1;
+        mpfr_abs(f, self->f, context->now.mpfr_round);
+    }
+    else {
+        negative = 0;
+        mpfr_set(f, self->f, context->now.mpfr_round);
+    }
+
+    mpfr_init2(al, prec);
+    mpfr_set(al, f, context->now.mpfr_round);
+    mpfr_init2(a, prec);
+    mpfr_floor(a, al);
+    mpfr_init2(temp, prec);
+    for (i=0; i<3; ++i) {
+        mpfr_init2(r1[i], prec);
+        mpfr_init2(r2[i], prec);
+    }
+    mpfr_set_si(r1[0], 0, context->now.mpfr_round);
+    mpfr_set_si(r1[1], 0, context->now.mpfr_round);
+    mpfr_set_si(r1[2], 1, context->now.mpfr_round);
+    mpfr_set_si(r2[0], 0, context->now.mpfr_round);
+    mpfr_set_si(r2[1], 1, context->now.mpfr_round);
+    mpfr_set(r2[2], a, context->now.mpfr_round);
+    mpfr_init2(curerr, F2Q_PREC);
+    mpfr_init2(newerr, F2Q_PREC);
+    mpfr_reldiff(curerr, f, a, context->now.mpfr_round);
+    while (mpfr_cmp(curerr, minerr) > 0) {
+        mpfr_sub(temp, al, a, context->now.mpfr_round);
+        mpfr_ui_div(al, 1, temp, context->now.mpfr_round);
+        mpfr_floor(a, al);
+        mpfr_swap(r1[0], r1[1]);
+        mpfr_swap(r1[1], r1[2]);
+        mpfr_mul(r1[2], r1[1], a, context->now.mpfr_round);
+        mpfr_add(r1[2], r1[2], r1[0], context->now.mpfr_round);
+        mpfr_swap(r2[0], r2[1]);
+        mpfr_swap(r2[1], r2[2]);
+        mpfr_mul(r2[2], r2[1], a, context->now.mpfr_round);
+        mpfr_add(r2[2], r2[2], r2[0], context->now.mpfr_round);
+        mpfr_div(temp, r2[2], r1[2], context->now.mpfr_round);
+        mpfr_reldiff(newerr, f, temp, context->now.mpfr_round);
+        if (mpfr_cmp(curerr, newerr) <= 0) {
+            mpfr_swap(r1[1],r1[2]);
+            mpfr_swap(r2[1],r2[2]);
+            break;
+        }
+        mpfr_swap(curerr, newerr);
+    }
+
+    if (mayz && (mpfr_cmp_ui(r1[2],1) == 0)) {
+        Py_DECREF((PyObject*)result);
+        result = (PympqObject*)Pympz_new();
+        mpfr_get_z(Pympz_AS_MPZ(result), r2[2], context->now.mpfr_round);
+        if (negative)
+            mpz_neg(Pympz_AS_MPZ(result), Pympz_AS_MPZ(result));
+    }
+    else {
+        mpfr_get_z(mpq_numref(result->q), r2[2], context->now.mpfr_round);
+        mpfr_get_z(mpq_denref(result->q), r1[2], context->now.mpfr_round);
+        if (negative)
+            mpz_neg(mpq_numref(result->q), mpq_numref(result->q));
+    }
+
+    mpfr_clear(minerr);
+    mpfr_clear(al);
+    mpfr_clear(a);
+    mpfr_clear(f);
+    for (i=0; i<3; ++i) {
+        mpfr_clear(r1[i]);
+        mpfr_clear(r2[i]);
+    }
+    mpfr_clear(curerr);
+    mpfr_clear(newerr);
+    mpfr_clear(temp);
+    return result;
+}
+
 static PympqObject *
 Pympfr2Pympq(PyObject *self)
 {
-    return (PympqObject*)Pympfr_f2q(self, 0);
+    return stern_brocot((PympfrObject*)self, 0, 0, 0);
+}
+
+PyDoc_STRVAR(doc_g_mpfr_f2q,
+"f2q(x,[err]) -> mpq\n\n"
+"Return the 'best' mpq approximating x to within relative error 'err'.\n"
+"Default is the precision of x. Uses Stern-Brocot tree to find the\n"
+"'best' approximation. An 'mpz' is returned if the the denominator\n"
+"is 1. If 'err'<0, error sought is 2.0 ** err.");
+
+/* TODO: Redo f2q. Ref-counting looks strange. */
+
+static PyObject *
+Pympfr_f2q(PyObject *self, PyObject *args)
+{
+    PympfrObject *err = 0;
+    PyObject *result;
+
+    if (!PyArg_ParseTuple(args, "O&|O&", Pympfr_convert_arg, &self,
+                          Pympfr_convert_arg, &err)) {
+        TYPE_ERROR("f2q() requires 'mpfr', ['mpfr'] arguments");
+        return NULL;
+    }
+
+    result = (PyObject*)stern_brocot((PympfrObject*)self, err, 0, 1);
+    Py_DECREF(self);
+    Py_XDECREF((PyObject*)err);
+    return result;
 }
 
 static PympfrObject *
@@ -515,29 +688,6 @@ Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
     return newob;
 }
 
-/*
- * coerce any number to a mpf
- */
-
-int
-Pympfr_convert_arg(PyObject *arg, PyObject **ptr)
-{
-    PympfrObject* newob = Pympfr_From_Real(arg, 0);
-
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr, "mpfr_conv_arg(%p)->%p\n", arg, newob);
-#endif
-    if (newob) {
-        *ptr = (PyObject*)newob;
-        return 1;
-    }
-    else {
-        TYPE_ERROR("argument can not be converted to mpfr");
-        return 0;
-    }
-}
-
 /* str and repr implementations for mpfr */
 static PyObject *
 Pympfr2str(PympfrObject *self)
@@ -706,8 +856,8 @@ Pympfr_nonzero(PympfrObject *self)
 
 PyDoc_STRVAR(doc_mpfr_conjugate,
 "x.conjugate() -> mpfr\n\n"
-"Returns the conjugate of x (which is just a copy of x since x is\n"
-"an mpfr).");
+"Return the conjugate of x (which is just a copy of x since x is\n"
+"not a complex number).");
 
 static PyObject *
 Pympfr_conjugate(PyObject *self, PyObject *args)
@@ -1153,137 +1303,110 @@ Pympfr_digits(PyObject *self, PyObject *args)
     return result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_f2q,
-"f2q(x,[err]) -> mpq\n\n"
-"Return the 'best' mpq approximating x to within relative error 'err'.\n"
-"Default is the precision of x. Uses Stern-Brocot tree to find the\n"
-"'best' approximation. An 'mpz' is returned if the the denominator\n"
-"is 1. If 'err'<0, error sought is 2.0 ** err.");
-
-/* TODO: Redo f2q. Ref-counting looks strange. */
+PyDoc_STRVAR(doc_mpfr_integer_ratio,
+"x.as_integer_ratio() -> (num,den)\n\n"
+"Return the exact rational equivalent of an mpfr. Value is a tuple\n"
+"for compatibility with Python's float.as_integer_ratio().");
 
 static PyObject *
-Pympfr_f2q(PyObject *self, PyObject *args)
+Pympfr_integer_ratio(PyObject *self, PyObject *args)
 {
-    PympfrObject *err = 0;
-    PympfrObject *fself;
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr, "Pympfr_f2q: %p, %p\n", self, args);
-#endif
-    SELF_MPFR_ONE_ARG_CONVERTED_OPT(&err);
+    PympzObject *num = 0, *den = 0;
+    mpfr_exp_t temp, twocount;
 
-    fself = (PympfrObject*)self;
-    return f2q_internal(fself, err, mpfr_get_prec(fself->f), args!=0);
+    if (mpfr_nan_p(Pympfr_AS_MPFR(self))) {
+        VALUE_ERROR("Cannot pass NaN to mpfr.as_integer_ratio.");
+        return NULL;
+    }
+
+    if (mpfr_inf_p(Pympfr_AS_MPFR(self))) {
+        OVERFLOW_ERROR("Cannot pass infinity to mpfr.as_integer_ratio.");
+        return NULL;
+    }
+
+    num = Pympz_new();
+    den = Pympz_new();
+    if (!num || !den) {
+        Py_XDECREF((PyObject*)num);
+        Py_XDECREF((PyObject*)den);
+        return NULL;
+    }
+
+    if (mpfr_zero_p(Pympfr_AS_MPFR(self))) {
+        mpz_set_ui(num->z, 0);
+        mpz_set_ui(den->z, 1);
+    }
+    else {
+        temp = mpfr_get_z_2exp(num->z, Pympfr_AS_MPFR(self));
+        twocount = (mpfr_exp_t)mpz_scan1(num->z, 0);
+        if (twocount) {
+            temp += twocount;
+            mpz_div_2exp(num->z, num->z, twocount);
+        }
+        mpz_set_ui(den->z, 1);
+        if (temp > 0)
+            mpz_mul_2exp(num->z, num->z, temp);
+        else if (temp < 0)
+            mpz_mul_2exp(den->z, den->z, -temp);
+    }
+    return Py_BuildValue("(NN)", (PyObject*)num, (PyObject*)den);
 }
 
+PyDoc_STRVAR(doc_mpfr_mantissa_exp,
+"x.as_mantissa_exp() -> (mantissa,exponent)\n\n"
+"Return the mantissa and exponent of an mpfr.");
+
 static PyObject *
-f2q_internal(PympfrObject* self, PympfrObject* err, unsigned int bits, int mayz)
+Pympfr_mantissa_exp(PyObject *self, PyObject *args)
 {
-    PympqObject *res = 0;
-    int i, negative, errsign;
-    mpfr_t f, al, a, r1[3], r2[3], minerr, curerr, newerr, temp;
+    PympzObject *mantissa = 0, *exponent = 0;
+    mpfr_exp_t temp;
 
-    assert(!err || Pympfr_Check(err));
-    errsign = err ? mpfr_sgn(err->f) : 0;
-    if (errsign == 0) {
-        if (err) {
-            Py_DECREF((PyObject*)err);
-        }
-        if (!(err = Pympfr_new(20))) {
-            Py_DECREF((PyObject*)self);
-            return NULL;
-        }
-        mpfr_set_si(err->f, 1, context->now.mpfr_round);
-        mpfr_div_2ui(err->f, err->f, bits, context->now.mpfr_round);
-    }
-    else if (errsign < 0) {
-        int ubits;
-        mpfr_floor(err->f, err->f);
-        ubits = (int)mpfr_get_d(err->f, context->now.mpfr_round);
-        mpfr_set_si(err->f, 1, context->now.mpfr_round);
-        mpfr_div_2si(err->f, err->f, -ubits, context->now.mpfr_round);
-    }
-    if (!(res = Pympq_new()))
+    if (mpfr_nan_p(Pympfr_AS_MPFR(self))) {
+        VALUE_ERROR("Cannot pass NaN to mpfr.as_mantissa_exp.");
         return NULL;
-    mpfr_init2(minerr, 20);
-    mpfr_set(minerr, err->f, context->now.mpfr_round);
-    Py_DECREF((PyObject*)err);
+    }
 
-    mpfr_init2(f, bits);
-    if (mpfr_sgn(self->f) < 0) {
-        negative = 1;
-        mpfr_abs(f, self->f, context->now.mpfr_round);
+    if (mpfr_inf_p(Pympfr_AS_MPFR(self))) {
+        OVERFLOW_ERROR("Cannot pass infinity to mpfr.as_mantissa_exp.");
+        return NULL;
+    }
+
+    mantissa = Pympz_new();
+    exponent = Pympz_new();
+    if (!mantissa || !exponent) {
+        Py_XDECREF((PyObject*)mantissa);
+        Py_XDECREF((PyObject*)exponent);
+        return NULL;
+    }
+
+    if (mpfr_zero_p(Pympfr_AS_MPFR(self))) {
+        mpz_set_ui(mantissa->z, 0);
+        mpz_set_ui(exponent->z, 1);
     }
     else {
-        negative = 0;
-        mpfr_set(f, self->f, context->now.mpfr_round);
+        temp = mpfr_get_z_2exp(mantissa->z, Pympfr_AS_MPFR(self));
+        mpz_set_si(exponent->z, temp);
     }
-    Py_DECREF((PyObject*)self);
-    mpfr_init2(al, bits);
-    mpfr_set(al, f, context->now.mpfr_round);
-    mpfr_init2(a, bits);
-    mpfr_floor(a, al);
-    mpfr_init2(temp, bits);
-    for (i=0; i<3; ++i) {
-        mpfr_init2(r1[i], bits);
-        mpfr_init2(r2[i], bits);
-    }
-    mpfr_set_si(r1[0], 0, context->now.mpfr_round);
-    mpfr_set_si(r1[1], 0, context->now.mpfr_round);
-    mpfr_set_si(r1[2], 1, context->now.mpfr_round);
-    mpfr_set_si(r2[0], 0, context->now.mpfr_round);
-    mpfr_set_si(r2[1], 1, context->now.mpfr_round);
-    mpfr_set(r2[2], a, context->now.mpfr_round);
-    mpfr_init2(curerr, 20);
-    mpfr_init2(newerr, 20);
-    mpfr_reldiff(curerr, f, a, context->now.mpfr_round);
-    while (mpfr_cmp(curerr, minerr) > 0) {
-        mpfr_sub(temp, al, a, context->now.mpfr_round);
-        mpfr_ui_div(al, 1, temp, context->now.mpfr_round);
-        mpfr_floor(a, al);
-        mpfr_swap(r1[0], r1[1]);
-        mpfr_swap(r1[1], r1[2]);
-        mpfr_mul(r1[2], r1[1], a, context->now.mpfr_round);
-        mpfr_add(r1[2], r1[2], r1[0], context->now.mpfr_round);
-        mpfr_swap(r2[0], r2[1]);
-        mpfr_swap(r2[1], r2[2]);
-        mpfr_mul(r2[2], r2[1], a, context->now.mpfr_round);
-        mpfr_add(r2[2], r2[2], r2[0], context->now.mpfr_round);
-        mpfr_div(temp, r2[2], r1[2], context->now.mpfr_round);
-        mpfr_reldiff(newerr, f, temp, context->now.mpfr_round);
-        if (mpfr_cmp(curerr, newerr) <= 0) {
-            mpfr_swap(r1[1],r1[2]);
-            mpfr_swap(r2[1],r2[2]);
-            break;
-        }
-        mpfr_swap(curerr, newerr);
-    }
-    if (mayz && (mpfr_cmp_ui(r1[2],1)==0)) {
-        Py_DECREF((PyObject*)res);
-        res = (PympqObject*)Pympz_new();
-        mpfr_get_z(Pympz_AS_MPZ(res), r2[2], context->now.mpfr_round);
-        if (negative)
-            mpz_neg(Pympz_AS_MPZ(res),Pympz_AS_MPZ(res));
-    }
-    else {
-        mpfr_get_z(mpq_numref(res->q), r2[2], context->now.mpfr_round);
-        mpfr_get_z(mpq_denref(res->q), r1[2], context->now.mpfr_round);
-        if (negative)
-            mpz_neg(mpq_numref(res->q), mpq_numref(res->q));
-    }
-    mpfr_clear(minerr);
-    mpfr_clear(al);
-    mpfr_clear(a);
-    mpfr_clear(f);
-    for (i=0; i<3; ++i) {
-        mpfr_clear(r1[i]);
-        mpfr_clear(r2[i]);
-    }
-    mpfr_clear(curerr);
-    mpfr_clear(newerr);
-    mpfr_clear(temp);
-    return (PyObject*)res;
+    return Py_BuildValue("(NN)", (PyObject*)mantissa, (PyObject*)exponent);
+}
+
+PyDoc_STRVAR(doc_mpfr_simple_fraction,
+"x.as_simple_fraction(precision=0) -> mpq\n\n"
+"Return a simple rational approximation to x. The result will be\n"
+"accurate to 'precision' bits. If 'precision' is 0, the precision\n"
+"of 'x' will be used.");
+
+static PyObject *
+Pympfr_simple_fraction(PyObject *self, PyObject *args, PyObject *keywds)
+{
+    mpfr_prec_t prec = 0;
+    static char *kwlist[] = {"precision", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|l", kwlist, &prec))
+        return NULL;
+
+    return (PyObject*)stern_brocot((PympfrObject*)self, 0, prec, 0);
 }
 
 static Py_hash_t

@@ -216,8 +216,6 @@ static PyTypeObject Pympfr_Type;
     )
 
 /* Forward declarations begin here. */
-static PyObject *f2q_internal(PympfrObject* self, PympfrObject* err, unsigned int bits, int mayz);
-static PyObject *Pympfr_f2q(PyObject *self, PyObject *args);
 static PympfrObject *PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits);
 static PympzObject *Pympfr2Pympz(PyObject *self);
 static PyxmpzObject *Pympfr2Pyxmpz(PyObject *self);

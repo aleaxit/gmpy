@@ -354,7 +354,7 @@ Pympc_ascii(PympcObject *self, int base, int digits)
         return NULL;
     }
 
-    return Py_BuildValue("(OO)", tempreal, tempimag);
+    return Py_BuildValue("(NN)", tempreal, tempimag);
 }
 
 /*
@@ -1159,7 +1159,7 @@ Pympc_getprec_attrib(PympcObject *self, void *closure)
     mpfr_prec_t rprec = 0, iprec = 0;
 
     mpc_get_prec2(&rprec, &iprec, self->c);
-    return Py_BuildValue("nn", rprec, iprec);
+    return Py_BuildValue("(nn)", rprec, iprec);
 }
 
 /* Implement the .rc attribute of an mpfr. */
@@ -1335,7 +1335,7 @@ Pympc_polar(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    return Py_BuildValue("OO", abs, phase);
+    return Py_BuildValue("(NN)", abs, phase);
 }
 
 PyDoc_STRVAR(doc_mpc_rect,
