@@ -1390,12 +1390,22 @@ Pympq_ascii(PympqObject *self, int base, int option)
  * number, it must be properly converted by the routines below.
  */
 
+static int isFraction(PyObject* obj)
+{
+    if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) return 1;
+
+    return 0;
+}
+
+static int isDecimal(PyObject* obj)
+{
+    if (!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) return 1;
+
+    return 0;
+}
+
 static int isComplex(PyObject* obj)
 {
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr, "isComplex: object type is %s\n", Py_TYPE(obj)->tp_name);
-#endif
     if (Pympz_Check(obj))       return 1;
     if (PyIntOrLong_Check(obj)) return 1;
     if (Pympq_Check(obj))       return 1;
@@ -1404,8 +1414,8 @@ static int isComplex(PyObject* obj)
     if (Pympc_Check(obj))       return 1;
     if (PyFloat_Check(obj))     return 1;
     if (PyComplex_Check(obj))   return 1;
-    if (!strcmp(Py_TYPE(obj)->tp_name, "Decimal"))  return 1;
-    if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) return 1;
+    if (isDecimal(obj))         return 1;
+    if (isFraction(obj))        return 1;
 
     return 0;
 }
@@ -1414,18 +1424,14 @@ static int isComplex(PyObject* obj)
 #ifdef WITHMPFR
 static int isReal(PyObject* obj)
 {
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr, "isReal: object type is %s\n", Py_TYPE(obj)->tp_name);
-#endif
     if (Pympz_Check(obj))       return 1;
     if (PyIntOrLong_Check(obj)) return 1;
     if (Pympq_Check(obj))       return 1;
     if (Pympfr_Check(obj))      return 1;
     if (Pyxmpz_Check(obj))      return 1;
     if (PyFloat_Check(obj))     return 1;
-    if (!strcmp(Py_TYPE(obj)->tp_name, "Decimal"))  return 1;
-    if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) return 1;
+    if (isDecimal(obj))         return 1;
+    if (isFraction(obj))        return 1;
 
     return 0;
 }
@@ -1433,25 +1439,17 @@ static int isReal(PyObject* obj)
 
 static int isRational(PyObject* obj)
 {
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr, "isRational: object type is %s\n", Py_TYPE(obj)->tp_name);
-#endif
     if (Pympz_Check(obj))       return 1;
     if (PyIntOrLong_Check(obj)) return 1;
     if (Pympq_Check(obj))       return 1;
     if (Pyxmpz_Check(obj))      return 1;
-    if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) return 1;
+    if (isFraction(obj))        return 1;
 
     return 0;
 }
 
 static int isInteger(PyObject* obj)
 {
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr, "isInteger: object type is %s\n", Py_TYPE(obj)->tp_name);
-#endif
     if (Pympz_Check(obj))       return 1;
     if (PyIntOrLong_Check(obj)) return 1;
     if (Pyxmpz_Check(obj))      return 1;
@@ -1500,32 +1498,48 @@ static PympqObject*
 Pympq_From_Decimal(PyObject* obj)
 {
     PympqObject *result;
-    PyObject *tuple, *tempobj;
-    Py_ssize_t i, ndigits;
+    PyObject *d_exp, *d_int, *d_sign, *d_is_special;
     long exp;
     mpz_t temp;
     const char *string;
-
-    if (!(tuple = PyObject_CallMethod(obj, "as_tuple", NULL))) {
-        SYSTEM_ERROR("Decimal object does not have as_tuple attribute");
-        return NULL;
-    }
 
     if (!(result = Pympq_new()))
         return NULL;
     mpq_set_si(result->q, 0, 1);
 
-    if (Py2or3String_Check(PyTuple_GetItem(tuple, 2)) &&
-        (string = Py2or3String_AsString(PyTuple_GetItem(tuple, 2)))) {
+    d_exp = PyObject_GetAttrString(obj, "_exp");
+    d_int = PyObject_GetAttrString(obj, "_int");
+    d_sign = PyObject_GetAttrString(obj, "_sign");
+    d_is_special = PyObject_GetAttrString(obj, "_is_special");
+    if (!d_exp || !d_int || !d_sign || !d_is_special) {
+        SYSTEM_ERROR("Object does not appear to be Decimal");
+        Py_XDECREF(d_exp);
+        Py_XDECREF(d_int);
+        Py_XDECREF(d_sign);
+        Py_XDECREF(d_is_special);
+        Py_DECREF((PyObject*)result);
+        return NULL;
+    }
+
+    if (PyObject_IsTrue(d_is_special)) {
+        string = Py2or3String_AsString(d_exp);
         if (string[0] == 'N' || string[0] == 'n') {
             mpz_set_si(mpq_denref(result->q), 0);
+            Py_DECREF(d_exp);
+            Py_DECREF(d_int);
+            Py_DECREF(d_sign);
+            Py_DECREF(d_is_special);
             return result;
         }
         if (string[0] == 'F') {
-            if (PyIntOrLong_AsLong(PyTuple_GetItem(tuple, 0)))
+            if (PyObject_IsTrue(d_sign))
                 mpq_set_si(result->q, -1, 0);
             else
                 mpq_set_si(result->q, 1, 0);
+            Py_DECREF(d_exp);
+            Py_DECREF(d_int);
+            Py_DECREF(d_sign);
+            Py_DECREF(d_is_special);
             return result;
         }
         SYSTEM_ERROR("Cannot convert Decimal to mpq");
@@ -1533,27 +1547,19 @@ Pympq_From_Decimal(PyObject* obj)
         return NULL;
     }
 
-    if (!(tempobj = PyTuple_GetItem(tuple, 1))) {
-        SYSTEM_ERROR("Decimal.as_tuple object not valid");
-        Py_DECREF((PyObject*)result);
-        return NULL;
-    }
+    mpz_set_PyStr(mpq_numref(result->q), d_int, 10);
 
-    ndigits = PyTuple_Size(tempobj);
-
-    for (i = 0; i < ndigits; i++) {
-        mpz_mul_si(mpq_numref(result->q), mpq_numref(result->q), 10);
-        mpz_add_ui(mpq_numref(result->q), mpq_numref(result->q),
-                   (unsigned long)PyIntOrLong_AsLong(PyTuple_GetItem(tempobj, i)));
-    }
-
-    if (PyIntOrLong_AsLong(PyTuple_GetItem(tuple, 0)))
+    if (PyObject_IsTrue(d_sign))
         mpz_mul_si(mpq_numref(result->q), mpq_numref(result->q), -1);
 
-    exp = PyIntOrLong_AsLong(PyTuple_GetItem(tuple, 2));
+    exp = PyIntOrLong_AsLong(d_exp);
     if (exp == -1 && PyErr_Occurred()) {
-        SYSTEM_ERROR("Decimal.as_tuple object not valid");
+        SYSTEM_ERROR("Decimal _exp is not valid or overflow occurred");
         Py_DECREF((PyObject*)result);
+        Py_DECREF(d_exp);
+        Py_DECREF(d_int);
+        Py_DECREF(d_sign);
+        Py_DECREF(d_is_special);
         return NULL;
     }
 
@@ -1568,13 +1574,16 @@ Pympq_From_Decimal(PyObject* obj)
     }
 
     mpq_canonicalize(result->q);
-    Py_DECREF(tuple);
+    Py_DECREF(d_exp);
+    Py_DECREF(d_int);
+    Py_DECREF(d_sign);
+    Py_DECREF(d_is_special);
 
     return result;
 }
 
 static PympqObject*
-anynum2Pympq(PyObject* obj)
+Pympq_From_Real(PyObject* obj)
 {
     PympqObject* newob = 0;
 
@@ -1604,14 +1613,24 @@ anynum2Pympq(PyObject* obj)
     else if (Pyxmpz_Check(obj)) {
         newob = Pyxmpz2Pympq(obj);
     }
-    else if (!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
-        PyObject *s = PyObject_Str(obj);
-        if (s) {
-            newob = PyStr2Pympq(s, 10);
-            Py_DECREF(s);
+    else if (isDecimal(obj)) {
+        if ((newob = Pympq_From_Decimal(obj))) {
+            if (!mpz_cmp_si(mpq_denref(newob->q), 0)) {
+                if (mpz_get_si(mpq_numref(newob->q)) == 0)
+                    VALUE_ERROR("gmpy2.mpq() does not handle nan");
+                else
+                    VALUE_ERROR("gmpy2.mpq() does not handle infinity");
+                Py_DECREF((PyObject*)newob);
+                newob = NULL;
+            }
         }
+        //~ PyObject *s = PyObject_Str(obj);
+        //~ if (s) {
+            //~ newob = PyStr2Pympq(s, 10);
+            //~ Py_DECREF(s);
+        //~ }
     }
-    else if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
+    else if (isFraction(obj)) {
         PyObject *s = PyObject_Str(obj);
         if (s) {
             newob = PyStr2Pympq(s, 10);
@@ -1620,7 +1639,7 @@ anynum2Pympq(PyObject* obj)
     }
 #ifdef DEBUG
     if (global.debug)
-        fprintf(stderr,"anynum2Pympq(%p)->%p\n", obj, newob);
+        fprintf(stderr,"Pympq_From_Real(%p)->%p\n", obj, newob);
 #endif
 
     return newob;
@@ -1651,7 +1670,7 @@ Pympq_From_Rational(PyObject* obj)
     else if (Pyxmpz_Check(obj)) {
         newob = Pyxmpz2Pympq(obj);
     }
-    else if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
+    else if (isFraction(obj)) {
         PyObject *s = PyObject_Str(obj);
         if (s) {
             newob = PyStr2Pympq(s, 10);
@@ -1698,19 +1717,20 @@ anynum2Pympz(PyObject* obj)
     else if (Pyxmpz_Check(obj)) {
         newob = Pyxmpz2Pympz(obj);
     }
-    else if (PyNumber_Check(obj) && !strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
+    else if (isDecimal(obj)) {
         PyObject *s = PyNumber_Long(obj);
         if (s) {
             newob = PyLong2Pympz(s);
             Py_DECREF(s);
         }
     }
-    else if (PyNumber_Check(obj) && !strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
+    else if (isFraction(obj)) {
         PyObject *s = PyObject_Str(obj);
         if (s) {
             temp = PyStr2Pympq(s, 10);
             newob = Pympq2Pympz((PyObject *)temp);
-            Py_DECREF(s); Py_DECREF((PyObject*)temp);
+            Py_DECREF(s);
+            Py_DECREF((PyObject*)temp);
         }
     }
 #ifdef DEBUG
@@ -1751,14 +1771,14 @@ anynum2Pyxmpz(PyObject* obj)
     else if (Pyxmpz_Check(obj)) {
         newob = Pyxmpz2Pyxmpz(obj);
     }
-    else if (PyNumber_Check(obj) && !strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
+    else if (isDecimal(obj)) {
         PyObject *s = PyNumber_Long(obj);
         if (s) {
             newob = PyLong2Pyxmpz(s);
             Py_DECREF(s);
         }
     }
-    else if (PyNumber_Check(obj) && !strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
+    else if (isFraction(obj)) {
         PyObject *s = PyObject_Str(obj);
         if (s) {
             temp = PyStr2Pympq(s, 10);
@@ -2227,6 +2247,19 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
         return (PyObject*)result;
     }
 
+    if (isDecimal(n)) {
+        result = Pympq_From_Decimal(n);
+        if (!mpz_cmp_si(mpq_denref(result->q), 0)) {
+            if (mpz_get_si(mpq_numref(result->q)) == 0)
+                VALUE_ERROR("gmpy2.mpq() does not handle nan");
+            else
+                VALUE_ERROR("gmpy2.mpq() does not handle infinity");
+            Py_DECREF((PyObject*)result);
+            result = NULL;
+        }
+        return (PyObject*)result;
+    }
+
     if (argc == 2)
         m = PyTuple_GetItem(args, 1);
 
@@ -2241,13 +2274,13 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
     }
 
     /* should now have one or two numeric values */
-    result = anynum2Pympq(n);
+    result = Pympq_From_Real(n);
     if (!result && !PyErr_Occurred()) {
         TYPE_ERROR("gmpy2.mpq() requires numeric or string argument");
         return NULL;
     }
     if (m) {
-        temp = anynum2Pympq(m);
+        temp = Pympq_From_Real(m);
         if (!temp && !PyErr_Occurred()) {
             TYPE_ERROR("gmpy2.mpq() requires numeric or string argument");
             Py_DECREF((PyObject*)result);
@@ -2396,7 +2429,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 return _cmp_to_object(mpz_cmp_d(Pympz_AS_MPZ(a), d), op);
             }
         }
-        if (!strcmp(Py_TYPE(b)->tp_name, "Decimal")) {
+        if (isDecimal(b)) {
             tempa = (PyObject*)Pympq_From_Rational(a);
             tempb = (PyObject*)Pympq_From_Decimal(b);
             if (!tempa || !tempb) {
@@ -2404,8 +2437,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 Py_XDECREF(b);
                 return NULL;
             }
-            if (mpz_get_si(mpq_denref(Pympq_AS_MPQ(tempb))) == 0) {
-                if (mpz_get_si(mpq_numref(Pympq_AS_MPQ(tempb))) == 0) {
+            if (!mpz_cmp_si(mpq_denref(Pympq_AS_MPQ(tempb)), 0)) {
+                if (!mpz_cmp_si(mpq_numref(Pympq_AS_MPQ(tempb)), 0)) {
                     context->now.erange = 1;
                     if (context->now.trap_erange) {
                         GMPY_ERANGE("comparison with NaN");
@@ -2417,7 +2450,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                     Py_INCREF(result);
                     return result;
                 }
-                else if (mpz_get_si(mpq_numref(Pympq_AS_MPQ(tempb))) < 0) {
+                else if (mpz_cmp_si(mpq_numref(Pympq_AS_MPQ(tempb)), 0) < 0) {
                     Py_DECREF(tempa);
                     Py_DECREF(tempb);
                     return _cmp_to_object(1, op);
@@ -2476,11 +2509,11 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 return _cmp_to_object(c, op);
             }
         }
-        if (!strcmp(Py_TYPE(b)->tp_name, "Decimal")) {
+        if (isDecimal(b)) {
             if (!(tempb = (PyObject*)Pympq_From_Decimal(b)))
                 return NULL;
-            if (mpz_get_si(mpq_denref(Pympq_AS_MPQ(tempb))) == 0) {
-                if (mpz_get_si(mpq_numref(Pympq_AS_MPQ(tempb))) == 0) {
+            if (!mpz_cmp_si(mpq_denref(Pympq_AS_MPQ(tempb)), 0)) {
+                if (!mpz_cmp_si(mpq_numref(Pympq_AS_MPQ(tempb)), 0)) {
                     context->now.erange = 1;
                     if (context->now.trap_erange) {
                         GMPY_ERANGE("comparison with NaN");
@@ -2491,7 +2524,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                     Py_INCREF(result);
                     return result;
                 }
-                else if (mpz_get_si(mpq_numref(Pympq_AS_MPQ(tempb))) < 0) {
+                else if (mpz_cmp_si(mpq_numref(Pympq_AS_MPQ(tempb)), 0) < 0) {
                     Py_DECREF(tempb);
                     return _cmp_to_object(1, op);
                 }
@@ -2592,6 +2625,52 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
             else {
                 return _cmp_to_object(c, op);
+            }
+        }
+        if (isDecimal(b)) {
+            TRACE("compare (mpfr,decimal)\n");
+            tempb = (PyObject*)Pympq_From_Decimal(b);
+            if (!tempb)
+                return NULL;
+            if (!mpz_cmp_si(mpq_denref(Pympq_AS_MPQ(tempb)), 0)) {
+                if (!mpz_cmp_si(mpq_numref(Pympq_AS_MPQ(tempb)), 0)) {
+                    context->now.erange = 1;
+                    if (context->now.trap_erange) {
+                        GMPY_ERANGE("comparison with NaN");
+                        return NULL;
+                    }
+                    result = (op == Py_NE) ? Py_True : Py_False;
+                    Py_DECREF(tempb);
+                    Py_INCREF(result);
+                    return result;
+                }
+                else if (mpz_cmp_si(mpq_numref(Pympq_AS_MPQ(tempb)), 0) < 0) {
+                    Py_DECREF(tempb);
+                    return _cmp_to_object(1, op);
+                }
+                else {
+                    Py_DECREF(tempb);
+                    return _cmp_to_object(-1, op);
+                }
+            }
+            else {
+                mpfr_clear_flags();
+                c = mpfr_cmp_q(Pympfr_AS_MPFR(a), Pympq_AS_MPQ(tempb));
+                Py_DECREF(tempb);
+                if (mpfr_erangeflag_p()) {
+                    /* Set erange and check if an exception should be raised. */
+                    context->now.erange = 1;
+                    if (context->now.trap_erange) {
+                        GMPY_ERANGE("comparison with NaN");
+                        return NULL;
+                    }
+                    result = (op == Py_NE) ? Py_True : Py_False;
+                    Py_INCREF(result);
+                    return result;
+                }
+                else {
+                    return _cmp_to_object(c, op);
+                }
             }
         }
         if (isReal(b)) {

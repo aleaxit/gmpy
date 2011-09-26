@@ -660,22 +660,44 @@ Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
     else if (Pyxmpz_Check(obj)) {
         newob = Pyxmpz2Pympfr(obj, bits);
     }
-    else if (!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
-        PyObject *s = PyObject_Str(obj);
-        if (s) {
-            newob = PyStr2Pympfr(s, 10, bits);
-            if (!newob) {
-                Py_DECREF(s);
-                return NULL;
+    else if (isDecimal(obj)) {
+        PympqObject *temp = Pympq_From_Decimal(obj);
+        if (temp) {
+            if (!mpz_cmp_si(mpq_denref(temp->q), 0)) {
+                if (mpz_get_si(mpq_numref(temp->q)) == 0) {
+                    if ((newob = Pympfr_new(0)))
+                        mpfr_set_nan(newob->f);
+                }
+                else if (mpz_get_si(mpq_numref(temp->q)) < 0) {
+                    if ((newob = Pympfr_new(0)))
+                        mpfr_set_inf(newob->f, -1);
+                }
+                else {
+                    if ((newob = Pympfr_new(0)))
+                        mpfr_set_inf(newob->f, 1);
+                }
             }
-            Py_DECREF(s);
+            else
+                newob = Pympq2Pympfr((PyObject*)temp, bits);
+            Py_DECREF((PyObject*)temp);
         }
     }
-    else if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
+    //~ else if (!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
+        //~ PyObject *s = PyObject_Str(obj);
+        //~ if (s) {
+            //~ newob = PyStr2Pympfr(s, 10, bits);
+            //~ if (!newob) {
+                //~ Py_DECREF(s);
+                //~ return NULL;
+            //~ }
+            //~ Py_DECREF(s);
+        //~ }
+    //~ }
+    else if (isFraction(obj)) {
         PyObject *s = PyObject_Str(obj);
         if (s) {
             temp = PyStr2Pympq(s, 10);
-            newob = Pympq2Pympfr((PyObject *)temp, bits);
+            newob = Pympq2Pympfr((PyObject*)temp, bits);
             Py_DECREF(s);
             Py_DECREF((PyObject*)temp);
         }
