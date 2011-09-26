@@ -1624,11 +1624,6 @@ Pympq_From_Real(PyObject* obj)
                 newob = NULL;
             }
         }
-        //~ PyObject *s = PyObject_Str(obj);
-        //~ if (s) {
-            //~ newob = PyStr2Pympq(s, 10);
-            //~ Py_DECREF(s);
-        //~ }
     }
     else if (isFraction(obj)) {
         PyObject *s = PyObject_Str(obj);
@@ -2355,9 +2350,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     long temp;
     mpz_t tempz;
     PyObject *tempa = 0, *tempb = 0;
-#ifdef WITHMPFR
     PyObject *result = 0;
-#endif
 
 #ifdef DEBUG
     if (global.debug) {
@@ -2695,6 +2688,82 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             else {
                 return _cmp_to_object(c, op);
             }
+        }
+    }
+#endif
+
+#ifdef WITHMPC
+    if (Pympc_Check(a)) {
+        if (!(op == Py_EQ || op == Py_NE)) {
+            TYPE_ERROR("no ordering relation is defined for complex numbers");
+            return NULL;
+        }
+        if (Pympc_Check(b)) {
+            TRACE("compare (mpc,mpc)\n");
+            mpfr_clear_flags();
+            c = mpc_cmp(Pympc_AS_MPC(a), Pympc_AS_MPC(b));
+            if (mpfr_erangeflag_p()) {
+                /* Set erange and check if an exception should be raised. */
+                context->now.erange = 1;
+                if (context->now.trap_erange) {
+                    GMPY_ERANGE("comparison with NaN");
+                    return NULL;
+                }
+                result = (op == Py_NE) ? Py_True : Py_False;
+                Py_INCREF(result);
+                return result;
+            }
+            else {
+                return _cmp_to_object(c, op);
+            }
+        }
+        if (PyComplex_Check(b)) {
+            PympcObject *tempmpc;
+
+            if (!(tempmpc = PyComplex2Pympc(b, 53, 53)))
+                return NULL;
+            mpfr_clear_flags();
+            c = mpc_cmp(Pympc_AS_MPC(a), Pympc_AS_MPC(tempmpc));
+            Py_DECREF((PyObject*)tempmpc);
+            if (mpfr_erangeflag_p()) {
+                /* Set erange and check if an exception should be raised. */
+                context->now.erange = 1;
+                if (context->now.trap_erange) {
+                    GMPY_ERANGE("comparison with NaN");
+                    return NULL;
+                }
+                result = (op == Py_NE) ? Py_True : Py_False;
+                Py_INCREF(result);
+                return result;
+            }
+            else {
+                return _cmp_to_object(c, op);
+            }
+        }
+        /* a.imag must be 0 or else all further comparisons will be NE */
+        if (!mpfr_zero_p(mpc_imagref(Pympc_AS_MPC(a)))) {
+            /* if a.real is NaN, possibly raise exception */
+            if (mpfr_nan_p(mpc_realref(Pympc_AS_MPC(a)))) {
+                context->now.erange = 1;
+                if (context->now.trap_erange) {
+                    GMPY_ERANGE("comparison with NaN");
+                    return NULL;
+                }
+            }
+            result = (op == Py_NE) ? Py_True : Py_False;
+            Py_INCREF(result);
+            return result;
+        }
+        else {
+            PympfrObject *tempmpfr;
+
+            tempmpfr = Pympfr_new(mpfr_get_prec(mpc_realref(Pympc_AS_MPC(a))));
+            if (!tempmpfr)
+                return NULL;
+            mpc_real(tempmpfr->f, Pympc_AS_MPC(a), context->now.mpfr_round);
+            result = mpany_richcompare((PyObject*)tempmpfr, b, op);
+            Py_DECREF((PyObject*)tempmpfr);
+            return result;
         }
     }
 #endif
@@ -3689,7 +3758,7 @@ static PyTypeObject Pympc_Type =
     "MPC-based complex number",             /* tp_doc           */
         0,                                  /* tp_traverse      */
         0,                                  /* tp_clear         */
-        0,                                  /* tp_richcompare   */
+    (richcmpfunc)&mpany_richcompare,        /* tp_richcompare   */
         0,                                  /* tp_weaklistoffset*/
         0,                                  /* tp_iter          */
         0,                                  /* tp_iternext      */
