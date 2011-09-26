@@ -22,9 +22,9 @@ if _d:
 __test__['compat']=\
 r'''
 >>> f == fd
-True
+False
 >>> fd == f
-True
+False
 >>> q == qd
 True
 >>> qd == q
