@@ -682,17 +682,6 @@ Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
             Py_DECREF((PyObject*)temp);
         }
     }
-    //~ else if (!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
-        //~ PyObject *s = PyObject_Str(obj);
-        //~ if (s) {
-            //~ newob = PyStr2Pympfr(s, 10, bits);
-            //~ if (!newob) {
-                //~ Py_DECREF(s);
-                //~ return NULL;
-            //~ }
-            //~ Py_DECREF(s);
-        //~ }
-    //~ }
     else if (isFraction(obj)) {
         PyObject *s = PyObject_Str(obj);
         if (s) {
