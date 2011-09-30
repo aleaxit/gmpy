@@ -119,10 +119,10 @@ static PyTypeObject Pympc_Type;
     }
 
 #define MPC_CHECK_FLAGS(mpct, NAME) \
-    MPC_CHECK_INVALID(mpct, "invalid operation in 'mpc' "NAME); \
-    MPC_CHECK_UNDERFLOW(mpct, "underflow in 'mpc' "NAME); \
-    MPC_CHECK_OVERFLOW(mpct, "overflow in 'mpc' "NAME); \
-    MPC_CHECK_INEXACT(mpct, "inexact result in 'mpc' "NAME);
+    MPC_CHECK_INVALID(mpct, "'mpc' invalid operation in "NAME); \
+    MPC_CHECK_UNDERFLOW(mpct, "'mpc' underflow in "NAME); \
+    MPC_CHECK_OVERFLOW(mpct, "'mpc' overflow in "NAME); \
+    MPC_CHECK_INEXACT(mpct, "'mpc' inexact result in "NAME);
 
 #define MPC_SUBNORMALIZE(mpct) \
     if (context->now.subnormalize) { \
