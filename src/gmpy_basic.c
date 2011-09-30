@@ -125,7 +125,7 @@ Pybasic_add(PyObject *a, PyObject *b)
         if (isInteger(b)) {
             TRACE("Adding (mpf,mpz)\n");
             if (!(pbz = Pympz_From_Integer(b))) {
-                SYSTEM_ERROR("Can not convert number to mpz");
+                SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -138,7 +138,7 @@ Pybasic_add(PyObject *a, PyObject *b)
         if (isRational(b)) {
             TRACE("Adding (mpf,mpq)\n");
             if (!(pbq = Pympq_From_Rational(b))) {
-                SYSTEM_ERROR("Can not convert number to mpq");
+                SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -165,7 +165,7 @@ Pybasic_add(PyObject *a, PyObject *b)
         if (isInteger(a)) {
             TRACE("Adding (mpz,mpf)\n");
             if (!(paz = Pympz_From_Integer(a))) {
-                SYSTEM_ERROR("Can not convert number to mpz");
+                SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -178,7 +178,7 @@ Pybasic_add(PyObject *a, PyObject *b)
         if (isRational(a)) {
             TRACE("Adding (mpq,mpf)\n");
             if (!(paq = Pympq_From_Rational(a))) {
-                SYSTEM_ERROR("Can not convert number to mpq");
+                SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -204,7 +204,7 @@ Pybasic_add(PyObject *a, PyObject *b)
         paz = Pympz_From_Integer(a);
         pbz = Pympz_From_Integer(b);
         if (!paz || !pbz) {
-            SYSTEM_ERROR("Can not convert integer to mpz");
+            SYSTEM_ERROR("Can not convert Integer to 'mpz'");
             Py_XDECREF((PyObject*)paz);
             Py_XDECREF((PyObject*)pbz);
             return NULL;
@@ -225,7 +225,7 @@ Pybasic_add(PyObject *a, PyObject *b)
         paq = Pympq_From_Rational(a);
         pbq = Pympq_From_Rational(b);
         if (!paq || !pbq) {
-            SYSTEM_ERROR("Can not convert rational to mpq");
+            SYSTEM_ERROR("Can not convert Rational to 'mpq'");
             Py_XDECREF((PyObject*)paq);
             Py_XDECREF((PyObject*)pbq);
             return NULL;
@@ -247,7 +247,7 @@ Pybasic_add(PyObject *a, PyObject *b)
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
         if (!paf || !pbf) {
-            SYSTEM_ERROR("Can not convert number to mpf");
+            SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             Py_XDECREF((PyObject*)paf);
             Py_XDECREF((PyObject*)pbf);
             return NULL;
@@ -283,7 +283,7 @@ Pybasic_add(PyObject *a, PyObject *b)
         pac = Pympc_From_Complex(a, 0, 0);
         pbc = Pympc_From_Complex(b, 0, 0);
         if (!pac || !pbc) {
-            SYSTEM_ERROR("Can not convert number to mpc");
+            SYSTEM_ERROR("Can not convert Complex to 'mpc'");
             Py_XDECREF((PyObject*)pac);
             Py_XDECREF((PyObject*)pbc);
             return NULL;
@@ -391,7 +391,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
         if (isInteger(b)) {
             TRACE("Subtracting (mpf,mpz)\n");
             if (!(pbz = Pympz_From_Integer(b))) {
-                SYSTEM_ERROR("Can not convert number to mpz");
+                SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -404,7 +404,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
         if (isRational(b)) {
             TRACE("Subtracting (mpf,mpq)\n");
             if (!(pbq = Pympq_From_Rational(b))) {
-                SYSTEM_ERROR("Can not convert number to mpq");
+                SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -430,7 +430,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
         if (isInteger(a)) {
             TRACE("Subtracting (mpz,mpf)\n");
             if (!(paz = Pympz_From_Integer(a))) {
-                SYSTEM_ERROR("Can not convert number to mpz");
+                SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -443,7 +443,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
         if (isRational(a)) {
             TRACE("Subtracting (mpq,mpf)\n");
             if (!(paq = Pympq_From_Rational(a))) {
-                SYSTEM_ERROR("Can not convert number to mpq");
+                SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -469,7 +469,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
         paz = Pympz_From_Integer(a);
         pbz = Pympz_From_Integer(b);
         if (!paz || !pbz) {
-            SYSTEM_ERROR("Can not convert integer to mpz");
+            SYSTEM_ERROR("Can not convert Integer to 'mpz'");
             Py_XDECREF((PyObject*)paz);
             Py_XDECREF((PyObject*)pbz);
             return NULL;
@@ -490,7 +490,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
         paq = Pympq_From_Rational(a);
         pbq = Pympq_From_Rational(b);
         if (!paq || !pbq) {
-            SYSTEM_ERROR("Can not convert rational to mpq");
+            SYSTEM_ERROR("Can not convert Rational to 'mpq'");
             Py_XDECREF((PyObject*)paq);
             Py_XDECREF((PyObject*)pbq);
             return NULL;
@@ -512,7 +512,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
         if (!paf || !pbf) {
-            SYSTEM_ERROR("Can not convert number to mpf");
+            SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             Py_XDECREF((PyObject*)paf);
             Py_XDECREF((PyObject*)pbf);
             return NULL;
@@ -548,7 +548,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
         pac = Pympc_From_Complex(a, 0, 0);
         pbc = Pympc_From_Complex(b, 0, 0);
         if (!pac || !pbc) {
-            SYSTEM_ERROR("Can not convert number to mpc");
+            SYSTEM_ERROR("Can not convert Complex to 'mpc'");
             Py_XDECREF((PyObject*)pac);
             Py_XDECREF((PyObject*)pbc);
             return NULL;
@@ -649,7 +649,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
         if (isInteger(b)) {
             TRACE("Multiplying (mpf,mpz)\n");
             if (!(pbz = Pympz_From_Integer(b))) {
-                SYSTEM_ERROR("Can not convert number to mpz");
+                SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -662,7 +662,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
         if (isRational(b)) {
             TRACE("Multiplying (mpf,mpq)\n");
             if (!(pbq = Pympq_From_Rational(b))) {
-                SYSTEM_ERROR("Can not convert number to mpq");
+                SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -688,7 +688,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
         if (isInteger(a)) {
             TRACE("Multiplying (mpz,mpf)\n");
             if (!(paz = Pympz_From_Integer(a))) {
-                SYSTEM_ERROR("Can not convert number to mpz");
+                SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -701,7 +701,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
         if (isRational(a)) {
             TRACE("Multiplying (mpq,mpf)\n");
             if (!(paq = Pympq_From_Rational(a))) {
-                SYSTEM_ERROR("Can not convert number to mpq");
+                SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -727,7 +727,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
         paz = Pympz_From_Integer(a);
         pbz = Pympz_From_Integer(b);
         if (!paz || !pbz) {
-            SYSTEM_ERROR("Can not convert integer to mpz");
+            SYSTEM_ERROR("Can not convert Integer to 'mpz'");
             Py_XDECREF((PyObject*)paz);
             Py_XDECREF((PyObject*)pbz);
             return NULL;
@@ -748,7 +748,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
         paq = Pympq_From_Rational(a);
         pbq = Pympq_From_Rational(b);
         if (!paq || !pbq) {
-            SYSTEM_ERROR("Can not convert rational to mpq");
+            SYSTEM_ERROR("Can not convert Rational to 'mpq'");
             Py_XDECREF((PyObject*)paq);
             Py_XDECREF((PyObject*)pbq);
             return NULL;
@@ -770,7 +770,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
         if (!paf || !pbf) {
-            SYSTEM_ERROR("Can not convert number to mpf");
+            SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             Py_XDECREF((PyObject*)paf);
             Py_XDECREF((PyObject*)pbf);
             return NULL;
@@ -806,7 +806,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
         pac = Pympc_From_Complex(a, 0, 0);
         pbc = Pympc_From_Complex(b, 0, 0);
         if (!pac || !pbc) {
-            SYSTEM_ERROR("Can not convert number to mpc");
+            SYSTEM_ERROR("Can not convert Complex to 'mpc'");
             Py_XDECREF((PyObject*)pac);
             Py_XDECREF((PyObject*)pbc);
             return NULL;
@@ -856,7 +856,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
                 mpz_cloc(tempz);
             }
             else if (temp == 0) {
-                ZERO_ERROR("mpz division by zero");
+                GMPY_DIVZERO("'mpz' division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
             }
@@ -872,7 +872,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
         if (CHECK_MPZANY(b)) {
             TRACE("Floor divide (mpz,mpz)\n");
             if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
-                ZERO_ERROR("mpz division by zero");
+                GMPY_DIVZERO("'mpz' division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
             }
@@ -884,7 +884,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
 
     if (CHECK_MPZANY(b)) {
         if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
-            ZERO_ERROR("mpz division by zero");
+            GMPY_DIVZERO("'mpz' division or modulo by zero");
             return NULL;
         }
         if (!(rz = Pympz_new()))
@@ -905,13 +905,13 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
         paz = Pympz_From_Integer(a);
         pbz = Pympz_From_Integer(b);
         if (!paz || !pbz) {
-            SYSTEM_ERROR("Can not convert integer to mpz");
+            SYSTEM_ERROR("Can not convert Integer to 'mpz'");
             Py_XDECREF((PyObject*)paz);
             Py_XDECREF((PyObject*)pbz);
             return NULL;
         }
         if (mpz_sgn(pbz->z)==0) {
-            ZERO_ERROR("mpz division by zero");
+            GMPY_DIVZERO("'mpz' division or modulo by zero");
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
@@ -932,13 +932,13 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
         paq = Pympq_From_Rational(a);
         pbq = Pympq_From_Rational(b);
         if (!paq || !pbq) {
-            SYSTEM_ERROR("Can not convert rational to mpq");
+            SYSTEM_ERROR("Can not convert Rational to 'mpq'");
             Py_XDECREF((PyObject*)paq);
             Py_XDECREF((PyObject*)pbq);
             return NULL;
         }
         if (mpq_sgn(pbq->q)==0) {
-            ZERO_ERROR("mpq division by zero");
+            GMPY_DIVZERO("'mpq' division or modulo by zero");
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
             return NULL;
@@ -964,19 +964,10 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
         if (!paf || !pbf) {
-            SYSTEM_ERROR("Can not convert number to mpf");
+            SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             Py_XDECREF((PyObject*)paf);
             Py_XDECREF((PyObject*)pbf);
             return NULL;
-        }
-        if (mpfr_zero_p(pbf->f)) {
-            context->now.divzero = 1;
-            if (context->now.trap_divzero) {
-                GMPY_DIVZERO("'mpfr' division by zero");
-                Py_DECREF((PyObject*)paf);
-                Py_DECREF((PyObject*)pbf);
-                return NULL;
-            }
         }
         if (!(rf = Pympfr_new(0))) {
             Py_XDECREF((PyObject*)rf);
@@ -1029,13 +1020,6 @@ Pybasic_truediv(PyObject *a, PyObject *b)
 
 #ifdef WITHMPFR
     if (Pympfr_CheckAndExp(a) && Pympfr_CheckAndExp(b)) {
-        if (mpfr_zero_p(Pympfr_AS_MPFR(b))) {
-            context->now.divzero = 1;
-            if (context->now.trap_divzero) {
-                GMPY_DIVZERO("'mpfr' division by zero");
-                return NULL;
-            }
-        }
         if (!(rf = Pympfr_new(0))) {
             return NULL;
         }
@@ -1051,13 +1035,13 @@ Pybasic_truediv(PyObject *a, PyObject *b)
         paz = Pympz_From_Integer(a);
         pbz = Pympz_From_Integer(b);
         if (!paz || !pbz) {
-            SYSTEM_ERROR("Can not convert number to mpz");
+            SYSTEM_ERROR("Can not convert Integer to 'mpz'");
             Py_XDECREF((PyObject*)paz);
             Py_XDECREF((PyObject*)pbz);
             return NULL;
         }
         if (mpz_sgn(pbz->z) == 0) {
-            ZERO_ERROR("mpz division by zero");
+            GMPY_DIVZERO("'mpz' division or modulo by zero");
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
@@ -1094,13 +1078,13 @@ Pybasic_truediv(PyObject *a, PyObject *b)
         paq = Pympq_From_Rational(a);
         pbq = Pympq_From_Rational(b);
         if (!paq || !pbq) {
-            SYSTEM_ERROR("Can not convert rational to mpq");
+            SYSTEM_ERROR("Can not convert Rational to 'mpq'");
             Py_XDECREF((PyObject*)paq);
             Py_XDECREF((PyObject*)pbq);
             return NULL;
         }
         if (mpq_sgn(pbq->q)==0) {
-            ZERO_ERROR("mpq division by zero");
+            GMPY_DIVZERO("'mpq' division or modulo by zero");
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
             return NULL;
@@ -1122,19 +1106,10 @@ Pybasic_truediv(PyObject *a, PyObject *b)
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
         if (!paf || !pbf) {
-            SYSTEM_ERROR("Can not convert float to mpfr");
+            SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             Py_XDECREF((PyObject*)paf);
             Py_XDECREF((PyObject*)pbf);
             return NULL;
-        }
-        if (mpfr_zero_p(pbf->f)) {
-            context->now.divzero = 1;
-            if (context->now.trap_divzero) {
-                GMPY_DIVZERO("'mpfr' division by zero");
-                Py_DECREF((PyObject*)paf);
-                Py_DECREF((PyObject*)pbf);
-                return NULL;
-            }
         }
         if (!(rf = Pympfr_new(0))) {
             Py_DECREF((PyObject*)paf);
@@ -1167,7 +1142,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
         pac = Pympc_From_Complex(a, 0, 0);
         pbc = Pympc_From_Complex(b, 0, 0);
         if (!pac || !pbc) {
-            SYSTEM_ERROR("Can not convert number to mpc");
+            SYSTEM_ERROR("Can not convert Complex to 'mpc'");
             Py_XDECREF((PyObject*)pac);
             Py_XDECREF((PyObject*)pbc);
             return NULL;
@@ -1236,7 +1211,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
                 mpz_cloc(tempz);
             }
             else if (temp == 0) {
-                ZERO_ERROR("mpz division by zero");
+                GMPY_DIVZERO("'mpz' division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
             }
@@ -1252,7 +1227,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
         if (CHECK_MPZANY(b)) {
             TRACE("Floor divide (mpz,mpz)\n");
             if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
-                ZERO_ERROR("mpz division by zero");
+                GMPY_DIVZERO("'mpz' division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
             }
@@ -1267,13 +1242,13 @@ Pybasic_div2(PyObject *a, PyObject *b)
         paz = Pympz_From_Integer(a);
         pbz = Pympz_From_Integer(b);
         if (!paz || !pbz) {
-            SYSTEM_ERROR("Can not convert integer to mpz");
+            SYSTEM_ERROR("Can not convert Integer to 'mpz'");
             Py_XDECREF((PyObject*)paz);
             Py_XDECREF((PyObject*)pbz);
             return NULL;
         }
         if (mpz_sgn(pbz->z)==0) {
-            ZERO_ERROR("mpz division by zero");
+            GMPY_DIVZERO("'mpz' division or modulo by zero");
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
@@ -1294,13 +1269,13 @@ Pybasic_div2(PyObject *a, PyObject *b)
         paq = Pympq_From_Rational(a);
         pbq = Pympq_From_Rational(b);
         if (!paq || !pbq) {
-            SYSTEM_ERROR("Can not convert rational to mpq");
+            SYSTEM_ERROR("Can not convert Rational to 'mpq'");
             Py_XDECREF((PyObject*)paq);
             Py_XDECREF((PyObject*)pbq);
             return NULL;
         }
         if (mpq_sgn(pbq->q)==0) {
-            ZERO_ERROR("mpq division by zero");
+            GMPY_DIVZERO("'mpq' division or modulo by zero");
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
             return NULL;
@@ -1324,19 +1299,10 @@ Pybasic_div2(PyObject *a, PyObject *b)
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
         if (!paf || !pbf) {
-            SYSTEM_ERROR("Can not convert number to mpfr");
+            SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             Py_XDECREF((PyObject*)paf);
             Py_XDECREF((PyObject*)pbf);
             return NULL;
-        }
-        if (mpfr_zero_p(pbf->f)) {
-            context->now.divzero = 1;
-            if (context->now.trap_divzero) {
-                GMPY_DIVZERO("'mpfr' division by zero");
-                Py_DECREF((PyObject*)paf);
-                Py_DECREF((PyObject*)pbf);
-                return NULL;
-            }
         }
         if (!(rf = Pympfr_new(0))) {
             Py_DECREF((PyObject*)paf);
@@ -1357,7 +1323,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
         pac = Pympc_From_Complex(a, 0, 0);
         pbc = Pympc_From_Complex(b, 0, 0);
         if (!pac || !pbc) {
-            SYSTEM_ERROR("Can not convert number to mpc");
+            SYSTEM_ERROR("Can not convert Complex to 'mpc'");
             Py_XDECREF((PyObject*)pac);
             Py_XDECREF((PyObject*)pbc);
             return NULL;
@@ -1424,7 +1390,7 @@ Pybasic_rem(PyObject *a, PyObject *b)
                 mpz_fdiv_r_ui(rz->z, Pympz_AS_MPZ(a), temp);
             }
             else if (temp == 0) {
-                ZERO_ERROR("mpz modulo by zero");
+                GMPY_DIVZERO("'mpz' division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
             }
@@ -1436,7 +1402,7 @@ Pybasic_rem(PyObject *a, PyObject *b)
         if (CHECK_MPZANY(b)) {
             TRACE("Modulo (integer,integer)\n");
             if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
-                ZERO_ERROR("mpz modulo by zero");
+                GMPY_DIVZERO("'mpz' division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
             }
@@ -1448,7 +1414,7 @@ Pybasic_rem(PyObject *a, PyObject *b)
 
     if (CHECK_MPZANY(b)) {
         if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
-            ZERO_ERROR("mpz division by zero");
+            GMPY_DIVZERO("'mpz' division or modulo by zero");
             return NULL;
         }
         if (!(rz = Pympz_new())) return NULL;
@@ -1468,13 +1434,13 @@ Pybasic_rem(PyObject *a, PyObject *b)
         paq = Pympq_From_Rational(a);
         pbq = Pympq_From_Rational(b);
         if (!paq || !pbq) {
-            SYSTEM_ERROR("Can not convert rational to mpq");
+            SYSTEM_ERROR("Can not convert Rational to 'mpq'");
             Py_XDECREF((PyObject*)paq);
             Py_XDECREF((PyObject*)pbq);
             return NULL;
         }
         if (mpq_sgn(pbq->q)==0) {
-            ZERO_ERROR("mpq modulo by zero");
+            GMPY_DIVZERO("'mpq' modulo by zero");
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
             return NULL;
@@ -1504,7 +1470,7 @@ Pybasic_rem(PyObject *a, PyObject *b)
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
         if (!paf || !pbf) {
-            SYSTEM_ERROR("Can not convert number to mpfr");
+            SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             Py_XDECREF((PyObject*)paf);
             Py_XDECREF((PyObject*)pbf);
             return NULL;
@@ -1512,7 +1478,7 @@ Pybasic_rem(PyObject *a, PyObject *b)
         if (mpfr_zero_p(pbf->f)) {
             context->now.divzero = 1;
             if (context->now.trap_divzero) {
-                GMPY_DIVZERO("'mpfr' division by zero");
+                GMPY_DIVZERO("'mpfr' division by zero in modulo");
                 Py_DECREF((PyObject*)paf);
                 Py_DECREF((PyObject*)pbf);
                 return NULL;
@@ -1529,7 +1495,7 @@ Pybasic_rem(PyObject *a, PyObject *b)
         if (mpfr_nan_p(paf->f) || mpfr_nan_p(pbf->f) || mpfr_inf_p(paf->f)) {
             context->now.invalid = 1;
             if (context->now.trap_invalid) {
-                GMPY_INVALID("invalid operation in 'mpfr' rem");
+                GMPY_INVALID("'mpfr' invalid operation in modulo");
                 Py_DECREF((PyObject*)rf);
                 Py_DECREF((PyObject*)qf);
                 Py_DECREF((PyObject*)paf);
@@ -1543,7 +1509,7 @@ Pybasic_rem(PyObject *a, PyObject *b)
         else if (mpfr_inf_p(pbf->f)) {
             context->now.invalid = 1;
             if (context->now.trap_invalid) {
-                GMPY_INVALID("invalid operation in 'mpfr' rem");
+                GMPY_INVALID("'mpfr' invalid operation in modulo");
                 Py_DECREF((PyObject*)rf);
                 Py_DECREF((PyObject*)qf);
                 Py_DECREF((PyObject*)paf);
@@ -1572,7 +1538,7 @@ Pybasic_rem(PyObject *a, PyObject *b)
 
 #ifdef WITHMPC
     if (isComplex(a) && isComplex(b)) {
-        TYPE_ERROR("can't mod complex numbers.");
+        TYPE_ERROR("can't mod complex numbers");
         return NULL;
     }
 #endif
@@ -1622,7 +1588,7 @@ Pybasic_divmod(PyObject *a, PyObject *b)
                 mpz_fdiv_qr_ui(qz->z, rz->z, Pympz_AS_MPZ(a), temp);
             }
             else if (temp == 0) {
-                ZERO_ERROR("mpz divmod by zero");
+                GMPY_DIVZERO("'mpz' division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 Py_DECREF((PyObject*)qz);
                 Py_DECREF(r);
@@ -1639,7 +1605,7 @@ Pybasic_divmod(PyObject *a, PyObject *b)
         if (CHECK_MPZANY(b)) {
             TRACE("divmod (mpz,mpz)\n");
             if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
-                ZERO_ERROR("mpz divmod by zero");
+                GMPY_DIVZERO("'mpz' division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 Py_DECREF((PyObject*)qz);
                 Py_DECREF(r);
@@ -1657,7 +1623,7 @@ Pybasic_divmod(PyObject *a, PyObject *b)
 
     if (CHECK_MPZANY(b)) {
         if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
-            ZERO_ERROR("mpz modulo by zero");
+            GMPY_DIVZERO("'mpz' division or modulo by zero");
             return NULL;
         }
         if (!(r=PyTuple_New(2)) || !(rz=Pympz_new()) || !(qz=Pympz_new())) {
@@ -1686,13 +1652,13 @@ Pybasic_divmod(PyObject *a, PyObject *b)
         paz = Pympz_From_Integer(a);
         pbz = Pympz_From_Integer(b);
         if (!paz || !pbz) {
-            SYSTEM_ERROR("Can not convert integer to mpz");
+            SYSTEM_ERROR("Can not convert Integer to 'mpz'");
             Py_XDECREF((PyObject*)paz);
             Py_XDECREF((PyObject*)pbz);
             return NULL;
         }
         if (mpz_sgn(pbz->z) == 0) {
-            ZERO_ERROR("mpz divmod by zero");
+            GMPY_DIVZERO("'mpz' division or modulo by zero");
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
@@ -1718,13 +1684,13 @@ Pybasic_divmod(PyObject *a, PyObject *b)
         paq = Pympq_From_Rational(a);
         pbq = Pympq_From_Rational(b);
         if (!paq || !pbq) {
-            SYSTEM_ERROR("Can not convert rational to mpq");
+            SYSTEM_ERROR("Can not convert Rational to mpq");
             Py_XDECREF((PyObject*)paq);
             Py_XDECREF((PyObject*)pbq);
             return NULL;
         }
         if (mpq_sgn(pbq->q)==0) {
-            ZERO_ERROR("mpq divmod by zero");
+            ZERO_ERROR("'mpq' division or modulo by zero");
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
             return NULL;
@@ -1756,7 +1722,7 @@ Pybasic_divmod(PyObject *a, PyObject *b)
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
         if (!paf || !pbf) {
-            SYSTEM_ERROR("Can not convert number to mpfr");
+            SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             Py_XDECREF((PyObject*)paf);
             Py_XDECREF((PyObject*)pbf);
             return NULL;
@@ -1764,7 +1730,7 @@ Pybasic_divmod(PyObject *a, PyObject *b)
         if (mpfr_zero_p(pbf->f)) {
             context->now.divzero = 1;
             if (context->now.trap_divzero) {
-                GMPY_DIVZERO("'mpfr' divmod by zero");
+                GMPY_DIVZERO("'mpfr' division by zero in divmod");
                 Py_DECREF((PyObject*)paf);
                 Py_DECREF((PyObject*)pbf);
                 return NULL;
@@ -1782,7 +1748,7 @@ Pybasic_divmod(PyObject *a, PyObject *b)
         if (mpfr_nan_p(paf->f) || mpfr_nan_p(pbf->f) || mpfr_inf_p(paf->f)) {
             context->now.invalid = 1;
             if (context->now.trap_invalid) {
-                GMPY_INVALID("invalid operation in 'mpfr' divmod");
+                GMPY_INVALID("'mpfr' invalid operation in divmod");
                 Py_DECREF(r);
                 Py_DECREF((PyObject*)qf);
                 Py_DECREF((PyObject*)rf);
@@ -1798,7 +1764,7 @@ Pybasic_divmod(PyObject *a, PyObject *b)
         else if (mpfr_inf_p(pbf->f)) {
             context->now.invalid = 1;
             if (context->now.trap_invalid) {
-                GMPY_INVALID("invalid operation in 'mpfr' divmod");
+                GMPY_INVALID("'mpfr' invalid operation in divmod");
                 Py_DECREF(r);
                 Py_DECREF((PyObject*)qf);
                 Py_DECREF((PyObject*)rf);
@@ -1833,21 +1799,21 @@ Pybasic_divmod(PyObject *a, PyObject *b)
         SUBNORMALIZE(qf);
         MERGE_FLAGS;
         if (mpfr_underflow_p() && context->now.trap_underflow) {
-            GMPY_UNDERFLOW("underflow in 'mpfr' divmod");
+            GMPY_UNDERFLOW("'mpfr' underflow in divmod");
             Py_DECREF((PyObject*)rf);
             Py_DECREF((PyObject*)qf);
             Py_DECREF(r);
             return NULL;
         }
         if (mpfr_overflow_p() && context->now.trap_overflow) {
-            GMPY_OVERFLOW("overflow in 'mpfr' divmod");
+            GMPY_OVERFLOW("'mpfr' overflow in divmod");
             Py_DECREF((PyObject*)rf);
             Py_DECREF((PyObject*)qf);
             Py_DECREF(r);
             return NULL;
         }
         if (mpfr_inexflag_p() && context->now.trap_inexact) {
-            GMPY_INEXACT("inexact result in 'mpfr' divmod");
+            GMPY_INEXACT("'mpfr' inexact result in divmod");
             Py_DECREF((PyObject*)rf);
             Py_DECREF((PyObject*)qf);
             Py_DECREF(r);

@@ -57,7 +57,7 @@ extern "C" {
 #if PY_VERSION_HEX < 0x030200A4
 typedef long Py_hash_t;
 typedef unsigned long Py_uhash_t;
-#define _PyHASH_IMAG 1000003
+#  define _PyHASH_IMAG 1000003
 #endif
 
 #if defined(MS_WIN32) && defined(_MSC_VER)
@@ -106,15 +106,22 @@ typedef struct {
 #ifdef WITHMPFR
 #  include "mpfr.h"
 #  include "gmpy_mpfr.h"
+#  if MPFR_VERSION < 0x030100
+#    error gmpy2 requires MPFR 3.1.0 or later
+#  endif
 #endif
+
 
 #ifdef WITHMPC
 #  include "mpc.h"
 #  include "gmpy_mpc.h"
+#  if MPC_VERSION < 0x000900
+#    error gmpy2 requires MPC 0.9.0 or later
+#  endif
 #endif
 
 #ifdef __GNUC__
-#define USE_ALLOCA 1
+#  define USE_ALLOCA 1
 #endif
 
 #ifndef alloca
@@ -245,9 +252,9 @@ static PyTypeObject GMPyContext_Type;
 /* Choose which memory manager is used: Python or C */
 #define USE_PYMEM 1
 #ifdef USE_PYMEM
-#define GMPY_FREE(NAME) PyMem_Free(NAME)
+#  define GMPY_FREE(NAME) PyMem_Free(NAME)
 #else
-#define GMPY_FREE(NAME) free(NAME)
+#  define GMPY_FREE(NAME) free(NAME)
 #endif
 
 #ifdef __cplusplus

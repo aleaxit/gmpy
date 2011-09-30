@@ -123,24 +123,33 @@ typedef struct {
         goto done; \
     }
 
+#define CHECK_DIVBY0(msg) \
+    if (mpfr_divby0_p() && context->now.trap_erange) { \
+        GMPY_DIVZERO(msg); \
+        goto done; \
+    }
+
 #define MERGE_FLAGS \
     context->now.underflow |= mpfr_underflow_p(); \
     context->now.overflow |= mpfr_overflow_p(); \
     context->now.invalid |= mpfr_nanflag_p(); \
     context->now.inexact |= mpfr_inexflag_p(); \
-    context->now.erange |= mpfr_erangeflag_p();
+    context->now.erange |= mpfr_erangeflag_p(); \
+    context->now.divzero |= mpfr_divby0_p();
 
 #define CHECK_FLAGS(NAME) \
-    CHECK_INVALID("invalid operation in 'mpfr' "NAME); \
-    CHECK_UNDERFLOW("underflow in 'mpfr' "NAME); \
-    CHECK_OVERFLOW("overflow in 'mpfr' "NAME); \
-    CHECK_INEXACT("inexact result in 'mpfr' "NAME); \
+    CHECK_DIVBY0("'mpfr' division by zero in "NAME); \
+    CHECK_INVALID("'mpfr' invalid operation in "NAME); \
+    CHECK_UNDERFLOW("'mpfr' underflow in "NAME); \
+    CHECK_OVERFLOW("'mpfr' overflow in "NAME); \
+    CHECK_INEXACT("'mpfr' inexact result in "NAME); \
 
 #define MPFR_CHECK_FLAGS(mpfrt, NAME) \
-    CHECK_INVALID(mpfrt, "invalid operation in 'mpfr' "NAME); \
-    CHECK_UNDERFLOW(mpfrt, "underflow in 'mpfr' "NAME); \
-    CHECK_OVERFLOW(mpfrt, "overflow in 'mpfr' "NAME); \
-    CHECK_INEXACT(mpfrt, "inexact result in 'mpfr' "NAME); \
+    CHECK_DIVBY0(mpfrt, "'mpfr' division by zero in "NAME); \
+    CHECK_INVALID(mpfrt, "'mpfr' invalid operation in "NAME); \
+    CHECK_UNDERFLOW(mpfrt, "'mpfr' underflow in "NAME); \
+    CHECK_OVERFLOW(mpfrt, "'mpfr' overflow in "NAME); \
+    CHECK_INEXACT(mpfrt, "'mpfr' inexact result in "NAME); \
 
 #define SUBNORMALIZE(NAME) \
     if (context->now.subnormalize) \
@@ -153,10 +162,11 @@ typedef struct {
 #define MPFR_CLEANUP_SELF(NAME) \
     SUBNORMALIZE(result); \
     MERGE_FLAGS; \
-    CHECK_INVALID("invalid operation in 'mpfr' "NAME); \
-    CHECK_UNDERFLOW("underflow in 'mpfr' "NAME); \
-    CHECK_OVERFLOW("overflow in 'mpfr' "NAME); \
-    CHECK_INEXACT("inexact result in 'mpfr' "NAME); \
+    CHECK_DIVBY0("'mpfr' division by zero in "NAME); \
+    CHECK_INVALID("'mpfr' invalid operation in "NAME); \
+    CHECK_UNDERFLOW("'mpfr' underflow in "NAME); \
+    CHECK_OVERFLOW("'mpfr' overflow in "NAME); \
+    CHECK_INEXACT("'mpfr' inexact result in "NAME); \
   done: \
     Py_DECREF(self); \
     if (PyErr_Occurred()) { \
@@ -168,10 +178,11 @@ typedef struct {
 #define MPFR_CLEANUP_SELF_OTHER(NAME) \
     SUBNORMALIZE(result); \
     MERGE_FLAGS; \
-    CHECK_INVALID("invalid operation in 'mpfr' "NAME); \
-    CHECK_UNDERFLOW("underflow in 'mpfr' "NAME); \
-    CHECK_OVERFLOW("overflow in 'mpfr' "NAME); \
-    CHECK_INEXACT("inexact result in 'mpfr' "NAME); \
+    CHECK_DIVBY0("'mpfr' division by zero in "NAME); \
+    CHECK_INVALID("'mpfr' invalid operation in "NAME); \
+    CHECK_UNDERFLOW("'mpfr' underflow in "NAME); \
+    CHECK_OVERFLOW("'mpfr' overflow in "NAME); \
+    CHECK_INEXACT("'mpfr' inexact result in "NAME); \
   done: \
     Py_DECREF(self); \
     Py_DECREF(other); \
@@ -184,18 +195,23 @@ typedef struct {
 #define MPFR_CLEANUP_RF(NAME) \
     SUBNORMALIZE(rf); \
     MERGE_FLAGS; \
+    if (mpfr_divby0_p() && context->now.trap_divzero) { \
+        GMPY_DIVZERO("'mpfr' division by zero in " #NAME); \
+        Py_DECREF((PyObject*)rf); \
+        return NULL; \
+    } \
     if (mpfr_underflow_p() && context->now.trap_underflow) { \
-        GMPY_UNDERFLOW("underflow in 'mpfr' " #NAME); \
+        GMPY_UNDERFLOW("'mpfr' underflow in " #NAME); \
         Py_DECREF((PyObject*)rf); \
         return NULL; \
     } \
     if (mpfr_overflow_p() && context->now.trap_overflow) { \
-        GMPY_OVERFLOW("overflow in 'mpfr' " #NAME); \
+        GMPY_OVERFLOW("'mpfr' overflow in " #NAME); \
         Py_DECREF((PyObject*)rf); \
         return NULL; \
     } \
     if (mpfr_inexflag_p() && context->now.trap_inexact) { \
-        GMPY_INEXACT("inexact result in 'mpfr' " #NAME); \
+        GMPY_INEXACT("'mpfr' inexact result in " #NAME); \
         Py_DECREF((PyObject*)rf); \
         return NULL; \
     } \
