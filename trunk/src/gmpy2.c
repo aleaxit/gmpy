@@ -240,6 +240,7 @@
  *   Completed support for MPC (casevh)
  *   Added as_integer_ratio, as_mantissa_exp, as_simple_fraction (casevh)
  *   Update rich_compare (casevh)
+ *   Require MPFR 3.1.0+ to get divby0 support (casevh)
  *
  ************************************************************************
  *
@@ -515,12 +516,12 @@ PyFloat2Pympz(PyObject *self)
         double d = PyFloat_AsDouble(self);
         if (Py_IS_NAN(d)) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("gmpy2.mpz() does not handle nan");
+            VALUE_ERROR("'mpz' does not support NaN");
             return NULL;
         }
         if (Py_IS_INFINITY(d)) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("gmpy2.mpz() does not handle infinity");
+            VALUE_ERROR("'mpz' does not support Infinity");
             return NULL;
         }
         mpz_set_d(newob->z, d);
@@ -538,12 +539,12 @@ PyFloat2Pyxmpz(PyObject *self)
         double d = PyFloat_AsDouble(self);
         if (Py_IS_NAN(d)) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("gmpy2.xmpz() does not handle nan");
+            VALUE_ERROR("'xmpz' does not support NaN");
             return NULL;
         }
         if (Py_IS_INFINITY(d)) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("gmpy2.xmpz() does not handle infinity");
+            VALUE_ERROR("'xmpz' does not support Infinity");
             return NULL;
         }
         mpz_set_d(newob->z, d);
@@ -641,12 +642,12 @@ PyFloat2Pympq(PyObject *self)
         double d = PyFloat_AsDouble(self);
         if (Py_IS_NAN(d)) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("gmpy2.mpq() does not handle nan");
+            VALUE_ERROR("'mpq' does not support NaN");
             return NULL;
         }
         if (Py_IS_INFINITY(d)) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("gmpy2.mpq() does not handle infinity");
+            VALUE_ERROR("'mpq' does not support Infinity");
             return NULL;
         }
         mpq_set_d(newob->q, d);
@@ -791,7 +792,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
     else {
         ascii_str = PyUnicode_AsASCIIString(stringarg);
         if (!ascii_str) {
-            VALUE_ERROR("gmpy2.mpq() string contains non-ASCII characters");
+            VALUE_ERROR("string contains non-ASCII characters");
             Py_DECREF((PyObject*)newob);
             return NULL;
         }
@@ -802,7 +803,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
     /* Don't allow NULL characters */
     for (i=0; i<len; i++) {
         if (cp[i] == '\0') {
-            VALUE_ERROR("gmpy2.mpq() string without NULL characters expected");
+            VALUE_ERROR("string contains NULL characters");
             Py_DECREF((PyObject*)newob);
             Py_XDECREF(ascii_str);
             return NULL;
@@ -813,7 +814,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
         char *whereslash = strchr((char*)cp, '/');
         char *wheredot = strchr((char*)cp, '.');
         if (whereslash && wheredot) {
-            VALUE_ERROR("gmpy2.mpq() illegal string, both . and / found");
+            VALUE_ERROR("illegal string: both . and / found");
             Py_DECREF((PyObject*)newob);
             Py_XDECREF(ascii_str);
             return NULL;
@@ -823,7 +824,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
             char *counter;
             unsigned long digits = 0;
             if (base != 10) {
-                VALUE_ERROR("gmpy2.mpq() illegal string, embedded . requires base=10");
+                VALUE_ERROR("illegal string: embedded . requires base=10");
                 Py_DECREF((PyObject*)newob);
                 Py_XDECREF(ascii_str);
                 return NULL;
@@ -839,7 +840,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
             if (-1 == mpz_set_str(mpq_numref(newob->q), (char*)cp, base)) {
                 if (wheredot)
                     *wheredot = '.';
-                VALUE_ERROR("gmpy2.mpq() invalid digits");
+                VALUE_ERROR("invalid digits");
                 Py_DECREF((PyObject*)newob);
                 Py_XDECREF(ascii_str);
                 return NULL;
@@ -855,7 +856,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
         if (-1 == mpz_set_str(mpq_numref(newob->q), (char*)cp, base)) {
             if (whereslash)
                 *whereslash = '/';
-            VALUE_ERROR("gmpy2.mpq() invalid digits");
+            VALUE_ERROR("invalid digits");
             Py_DECREF((PyObject*)newob);
             Py_XDECREF(ascii_str);
             return NULL;
@@ -863,7 +864,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
         if (whereslash) {
             *whereslash = '/';
             if (-1==mpz_set_str(mpq_denref(newob->q), whereslash+1, base)) {
-                VALUE_ERROR("gmpy2.mpq() invalid digits");
+                VALUE_ERROR("invalid digits");
                 Py_DECREF((PyObject*)newob);
                 Py_XDECREF(ascii_str);
                 return NULL;
@@ -871,7 +872,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
             if (0==mpz_sgn(mpq_denref(newob->q))) {
                 Py_DECREF((PyObject*)newob);
                 Py_XDECREF(ascii_str);
-                ZERO_ERROR("gmpy2.mpq() zero denominator");
+                GMPY_DIVZERO("zero denominator in 'mpq'");
                 return NULL;
             }
             mpq_canonicalize(newob->q);
@@ -1617,9 +1618,9 @@ Pympq_From_Real(PyObject* obj)
         if ((newob = Pympq_From_Decimal(obj))) {
             if (!mpz_cmp_si(mpq_denref(newob->q), 0)) {
                 if (mpz_get_si(mpq_numref(newob->q)) == 0)
-                    VALUE_ERROR("gmpy2.mpq() does not handle nan");
+                    VALUE_ERROR("'mpq' does not support NaN");
                 else
-                    VALUE_ERROR("gmpy2.mpq() does not handle infinity");
+                    VALUE_ERROR("'mpq' does not support Infinity");
                 Py_DECREF((PyObject*)newob);
                 newob = NULL;
             }
@@ -1997,7 +1998,7 @@ Pympz_convert_arg(PyObject *arg, PyObject **ptr)
         return 1;
     }
     else {
-        TYPE_ERROR("argument can not be converted to mpz");
+        TYPE_ERROR("argument can not be converted to 'mpz'");
         return 0;
     }
 }
@@ -2020,7 +2021,7 @@ Pympq_convert_arg(PyObject *arg, PyObject **ptr)
     }
     else {
         if (!PyErr_Occurred()) {
-            TYPE_ERROR("argument can not be converted to mpq");
+            TYPE_ERROR("argument can not be converted to 'mpq'");
         }
         return 0;
     }
@@ -2074,10 +2075,11 @@ Pympq2repr(PympqObject *self)
 /* CONSTRUCTORS */
 static char doc_mpz[] = "\
 mpz(n):\n\
-      builds an mpz object with a numeric value n (truncating n\n\
-      to its integer part if it's a float or mpfr)\n\
+      builds an 'mpz' object with a numeric value n (truncating n\n\
+      to its integer part if it's a Fraction, 'mpq', Decimal, float\n\
+      or 'mpfr')\n\
 mpz(s,base=0):\n\
-      builds an mpz object from a string s made up of digits in the\n\
+      builds an 'mpz' object from a string s made up of digits in the\n\
       given base.  If base=0, binary, octal, or hex Python strings\n\
       are recognized by leading 0b, 0o, or 0x characters, otherwise\n\
       the string is assumed to be decimal.\n\
@@ -2104,7 +2106,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
 #endif
             result = anynum2Pympz(n);
             if (!result && !PyErr_Occurred())
-                TYPE_ERROR("gmpy2.mpz() requires numeric or string argument");
+                TYPE_ERROR("mpz() requires numeric or string argument");
             return (PyObject*)result;
         }
     }
@@ -2114,7 +2116,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
         return NULL;
 
     if ((base!=0) && ((base<2)||(base>62))) {
-        VALUE_ERROR("base for gmpy2.mpz() must be 0 or in the "
+        VALUE_ERROR("base for mpz() must be 0 or in the "
                     "interval 2 ... 62");
         return NULL;
     }
@@ -2125,12 +2127,12 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
     }
     else {
         if (argc==2 || (argc == 1 && keywds))
-            TYPE_ERROR("gmpy2.mpz() with non-string argument needs exactly "
+            TYPE_ERROR("mpz() with non-string argument needs exactly "
                        "1 argument");
         else {
             result = anynum2Pympz(n);
             if (!result && !PyErr_Occurred())
-                TYPE_ERROR("gmpy2.mpz() requires numeric or string argument");
+                TYPE_ERROR("mpz() requires numeric or string argument");
         }
     }
     return (PyObject*)result;
@@ -2138,10 +2140,11 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
 
 static char doc_xmpz[] = "\
 xmpz(n):\n\
-    builds an xmpz object from any number n (truncating n\n\
-    to its integer part if it's a float or mpfr)\n\
-xmpz(s, base=0):\n\
-      builds an xmpz object from a string s made up of digits in the\n\
+      builds an 'xmpz' object with a numeric value n (truncating n\n\
+      to its integer part if it's a Fraction, 'mpq', Decimal, float\n\
+      or 'mpfr')\n\
+xmpz(s,base=0):\n\
+      builds an 'xmpz' object from a string s made up of digits in the\n\
       given base.  If base=0, binary, octal, or hex Python strings\n\
       are recognized by leading 0b, 0o, or 0x characters, otherwise\n\
       the string is assumed to be decimal.\n\
@@ -2168,7 +2171,7 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
 #endif
             result = anynum2Pyxmpz(n);
             if (!result && !PyErr_Occurred())
-                TYPE_ERROR("gmpy2.xmpz() requires numeric or string argument");
+                TYPE_ERROR("xmpz() requires numeric or string argument");
             return (PyObject*)result;
         }
     }
@@ -2178,7 +2181,7 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
         return NULL;
 
     if ((base!=0) && ((base<2)||(base>62))) {
-        VALUE_ERROR("base for gmpy2.xmpz() must be 0 or in the "
+        VALUE_ERROR("base for xmpz() must be 0 or in the "
                     "interval 2 ... 62");
         return NULL;
     }
@@ -2189,12 +2192,12 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
     }
     else {
         if (argc==2 || (argc == 1 && keywds))
-            TYPE_ERROR("gmpy2.xmpz() with non-string argument needs exactly "
+            TYPE_ERROR("xmpz() with non-string argument needs exactly "
                        "1 argument");
         else {
             result = anynum2Pyxmpz(n);
             if (!result && !PyErr_Occurred())
-                TYPE_ERROR("gmpy2.xmpz() requires numeric or string argument");
+                TYPE_ERROR("xmpz() requires numeric or string argument");
         }
     }
     return (PyObject*)result;
@@ -2202,13 +2205,14 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
 
 static char doc_mpq[] = "\
 mpq(n):\n\
-    builds an mpq object with a numeric value n\n\
+      builds an 'mpq' object with a numeric value n. Decimal and\n\
+      Fraction values are converted exactly.\n\
 mpq(n,m):\n\
-    builds an mpq object with a numeric value n/m\n\
+      builds an 'mpq' object with a numeric value n/m.\n\
 mpq(s,base=10):\n\
-    builds an mpq object from a string s made up of digits in the\n\
-    given base.  s may be made up of two numbers in the same base\n\
-    separated by a '/' character.\n\
+      builds an 'mpq' object from a string s made up of digits in the\n\
+      given base.  s may be made up of two numbers in the same base\n\
+      separated by a '/' character.\n\
 ";
 static PyObject *
 Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
@@ -2223,7 +2227,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
 
     argc = PyTuple_Size(args);
     if (argc < 1 || argc > 2) {
-        TYPE_ERROR("gmpy2.mpq() requires 1 or 2 arguments");
+        TYPE_ERROR("mpq() requires 1 or 2 arguments");
         return NULL;
     }
 
@@ -2232,7 +2236,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
         /* keyword base is legal */
         if (PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist, &n, &base)) {
             if ((base!=0) && ((base<2)||(base>62))) {
-                VALUE_ERROR("base for gmpy2.mpq() must be 0 or in the "
+                VALUE_ERROR("base for mpq() must be 0 or in the "
                             "interval 2 ... 62");
             }
             else {
@@ -2246,9 +2250,9 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
         result = Pympq_From_Decimal(n);
         if (!mpz_cmp_si(mpq_denref(result->q), 0)) {
             if (mpz_get_si(mpq_numref(result->q)) == 0)
-                VALUE_ERROR("gmpy2.mpq() does not handle nan");
+                VALUE_ERROR("'mpq' does not support NaN");
             else
-                VALUE_ERROR("gmpy2.mpq() does not handle infinity");
+                VALUE_ERROR("'mpq' does not support Infinity");
             Py_DECREF((PyObject*)result);
             result = NULL;
         }
@@ -2264,25 +2268,25 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
     if (!(isRational(n) || PyFloat_Check(n)) ||
         (m && !(isRational(m) || PyFloat_Check(m)))) {
 #endif
-        TYPE_ERROR("gmpy2.mpq() requires numeric or string argument");
+        TYPE_ERROR("mpq() requires numeric or string argument");
         return NULL;
     }
 
     /* should now have one or two numeric values */
     result = Pympq_From_Real(n);
     if (!result && !PyErr_Occurred()) {
-        TYPE_ERROR("gmpy2.mpq() requires numeric or string argument");
+        TYPE_ERROR("mpq() requires numeric or string argument");
         return NULL;
     }
     if (m) {
         temp = Pympq_From_Real(m);
         if (!temp && !PyErr_Occurred()) {
-            TYPE_ERROR("gmpy2.mpq() requires numeric or string argument");
+            TYPE_ERROR("mpq() requires numeric or string argument");
             Py_DECREF((PyObject*)result);
             return NULL;
         }
         if (mpq_sgn(temp->q) == 0) {
-            ZERO_ERROR("gmpy2.mpq() zero denominator");
+            GMPY_DIVZERO("zero denominator in 'mpq'");
             Py_DECREF((PyObject*)result);
             Py_DECREF((PyObject*)temp);
             return NULL;
@@ -3896,31 +3900,27 @@ _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] = "\
-gmpy2 2.0.0a1 - General Multiprecision arithmetic for Python:\n\
-exposes functionality from the GMP or MPIR library to Python 2.6\n\
-and later.\n\
+gmpy2 2.0.0a3 - General Multiple-precision arithmetic for Python\n\
 \n\
-If available, the MPFR and MPC libraries are used to to support\n\
-multiprecision floating-point and complex numbers.\n\
+Exposes functionality from the GMP or MPIR library to Python 2.6\n\
+and later. If available, the MPFR and MPC libraries are used to\n\
+support multiple-precision floating-point and complex numbers.\n\
 \n\
-Allows creation of multiprecision integer (mpz), mutable integers\n\
-(xmpz), rational (mpq), floating-point (mpfr), and complex (mpc)\n\
-numbers. Supported operations include conversion between them\n\
-and to/from Python numbers/strings, arithmetic, bitwise, and some\n\
-other higher-level mathematical operations.\n\
+Allows creation of multiple-precision integer (mpz), mutable\n\
+integers (xmpz), rational (mpq), floating-point (mpfr), and complex\n\
+(mpc) numbers. Supported operations include conversion between them\n\
+and to/from Python numbers/strings, arithmetic, bitwise, and higher-\n\
+level mathematical operations.\n\
 \n\
-mpz has comparable functionality to Python's builtin longs, but\n\
+'mpz' has comparable functionality to Python's builtin longs, but\n\
 can be faster for some operations (particularly multiplication\n\
 and raising-to-power) and has many further useful and speedy\n\
 functions (prime testing and generation, factorial, fibonacci,\n\
 binary-coefficients, gcd, lcm, square and other roots, ...).\n\
 \n\
-mpfr and mpq only offer basic arithmetic abilities, but they\n\
-do add the ability to have floating-point numbers ensuring at\n\
-least a predefined number of bits' worth of precision (and with\n\
-potentially-huge or extremely-tiny magnitudes), as well as\n\
-unlimited-precision rationals, with reasonably-fast operations,\n\
-which are not built-in features of Python.\n\
+'mpfr' and 'mpc' provide multiple-precision real and complex numbers\n\
+with user-definable precision, rounding, and exponent range. All the\n\
+advanced functions from the MPFR and MPC libraries are available.\n\
 ";
 
 /* Notes on Python 3.x support: Full support for PEP-3121 has not been

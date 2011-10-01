@@ -31,7 +31,7 @@
 
 PyDoc_STRVAR(doc_g_mpz_from_old_binary,
 "mpz_from_old_binary(string) -> mpz\n\n"
-"Return an mpz from a GMPY 1.x binary format.");
+"Return an 'mpz' from a GMPY 1.x binary format.");
 static PyObject *
 Pympz_From_Old_Binary(PyObject *self, PyObject *other)
 {
@@ -63,7 +63,7 @@ Pympz_From_Old_Binary(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(doc_g_mpq_from_old_binary,
 "mpq_from_old_binary(string) -> mpq\n\n"
-"Return an mpq from a GMPY 1.x binary format.");
+"Return an 'mpq' from a GMPY 1.x binary format.");
 static PyObject *
 Pympq_From_Old_Binary(PyObject *self, PyObject *other)
 {
@@ -117,7 +117,7 @@ Pympq_From_Old_Binary(PyObject *self, PyObject *other)
 #ifdef WITHMPFR
 PyDoc_STRVAR(doc_g_mpfr_from_old_binary,
 "mpfr_from_old_binary(string) -> mpfr\n\n"
-"Return an mpfr from a GMPY 1.x binary mpf format.");
+"Return an 'mpfr' from a GMPY 1.x binary mpf format.");
 static PyObject *
 Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
 {
