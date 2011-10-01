@@ -40,7 +40,7 @@ PyDoc_STRVAR(doc_mpany_square,
 "square(x) -> number\n\n"
 "Return x * x. If x is an integer, then the result is an 'mpz'.\n"
 "If x is a rational, then the result is an 'mpq'. If x is a float,\n"
-"then the result is an 'mpf'. If x is a comples number, then the\n"
+"then the result is an 'mpf'. If x is a complex number, then the\n"
 "result is an 'mpc'.");
 
 static PyObject *
@@ -433,8 +433,7 @@ Pympany_##NAME(PyObject *self, PyObject *other) \
 #ifdef WITHMPFR
 PyDoc_STRVAR(doc_mpany_is_nan,
 "is_nan(x) -> boolean\n\n"
-"Return True if x is 'nan' (Not-A-Number). Calls mpfr.is_nan or\n"
-"mpc.is_nan as appropriate.");
+"Return True if x is NaN (Not-A-Number).");
 
 static PyObject *
 Pympany_is_nan(PyObject *self, PyObject *other)
@@ -451,8 +450,7 @@ Pympany_is_nan(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(doc_mpany_is_inf,
 "is_inf(x) -> boolean\n\n"
-"Return True if x is '+Infinity' or '-Infinity'. Calls mpfr.is_inf\n"
-"or mpc.is_inf as appropriate.");
+"Return True if x is +Infinity or -Infinity.");
 
 static PyObject *
 Pympany_is_inf(PyObject *self, PyObject *other)
@@ -469,8 +467,7 @@ Pympany_is_inf(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(doc_mpany_is_zero,
 "is_zero(x) -> boolean\n\n"
-"Return True if x is zero. Calls mpfr.is_zero or mpc.is_zero as\n"
-"appropriate.");
+"Return True if x is zero.");
 
 static PyObject *
 Pympany_is_zero(PyObject *self, PyObject *other)
@@ -572,7 +569,7 @@ MPANY_MPFR_MPC(atanh)
 PyDoc_STRVAR(doc_mpany_sqrt,
 "sqrt(x) -> number\n\n"
 "Return the square root of x. If x is integer, rational, or real,\n"
-"then an 'mpf' will be returned. If x is complex, then an 'mpc' will\n"
+"then an 'mpfr' will be returned. If x is complex, then an 'mpc' will\n"
 "be returned. If context.allow_complex is True, negative values of x\n"
 "will return an 'mpc'.\n");
 
@@ -638,7 +635,7 @@ Pympany_fms(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_mpany_div_2exp,
 "div_2exp(x, n) -> number\n\n"
-"Return 'mpfr' (or 'mpc') divided by 2**n.");
+"Return 'mpfr' or 'mpc' divided by 2**n.");
 
 static PyObject *
 Pympany_div_2exp(PyObject *self, PyObject *args)
@@ -660,7 +657,7 @@ Pympany_div_2exp(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_mpany_mul_2exp,
 "mul_2exp(x, n) -> number\n\n"
-"Return 'mpfr' (or 'mpc') multiplied by 2**n.");
+"Return 'mpfr' or 'mpc' multiplied by 2**n.");
 
 static PyObject *
 Pympany_mul_2exp(PyObject *self, PyObject *args)

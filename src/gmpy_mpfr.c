@@ -78,12 +78,12 @@ Pympfr2Pympz(PyObject *self)
     if ((result = Pympz_new())) {
         if (mpfr_nan_p(Pympfr_AS_MPFR(self))) {
             Py_DECREF((PyObject*)result);
-            VALUE_ERROR("gmpy2.mpz() does not handle nan");
+            VALUE_ERROR("'mpz' does not support NaN");
             return NULL;
         }
         if (mpfr_inf_p(Pympfr_AS_MPFR(self))) {
             Py_DECREF((PyObject*)result);
-            VALUE_ERROR("gmpy2.mpz() does not handle infinity");
+            VALUE_ERROR("'mpz' does not support Infinity");
             return NULL;
         }
         /* return code is ignored */
@@ -100,12 +100,12 @@ Pympfr2Pyxmpz(PyObject *self)
     if ((result = Pyxmpz_new())) {
         if (mpfr_nan_p(Pympfr_AS_MPFR(self))) {
             Py_DECREF((PyObject*)result);
-            VALUE_ERROR("gmpy2.xmpz() does not handle nan");
+            VALUE_ERROR("'xmpz' does not support NaN");
             return NULL;
         }
         if (mpfr_inf_p(Pympfr_AS_MPFR(self))) {
             Py_DECREF((PyObject*)result);
-            VALUE_ERROR("gmpy2.xmpz() does not handle infinity");
+            VALUE_ERROR("'xmpz' does not support Infinity");
             return NULL;
         }
         /* return code is ignored */
@@ -128,7 +128,7 @@ Pympfr_convert_arg(PyObject *arg, PyObject **ptr)
         return 1;
     }
     else {
-        TYPE_ERROR("argument can not be converted to mpfr");
+        TYPE_ERROR("argument can not be converted to 'mpfr'");
         return 0;
     }
 }
@@ -154,7 +154,7 @@ stern_brocot(PympfrObject* self, PympfrObject *err, mpfr_prec_t prec, int mayz)
     }
 
     if (mpfr_inf_p(self->f)) {
-        OVERFLOW_ERROR("Cannot convert infinity to a number.");
+        OVERFLOW_ERROR("Cannot convert Infinity to a number.");
         return NULL;
     }
 
@@ -382,7 +382,7 @@ PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
     /* Don't allow NULL characters */
     for (i=0; i<len; i++) {
         if (cp[i] == '\0') {
-            VALUE_ERROR("string without NULL characters expected");
+            VALUE_ERROR("string contains NULL characters");
             Py_DECREF((PyObject*)result);
             Py_XDECREF(ascii_str);
             return NULL;
@@ -744,19 +744,19 @@ Pympfr2repr(PympfrObject *self)
 
 static char doc_mpfr[] = "\
 mpfr(n,[precison=0]):\n\
-    Return an 'mpfr' object after converting a numeric value. If\n\
-    no precision, or a precision of 0, is specified; the precison\n\
-    is taken from the current context.\n\
+      Return an 'mpfr' object after converting a numeric value. If\n\
+      no precision, or a precision of 0, is specified; the precison\n\
+      is taken from the current context.\n\
 mpfr(s,[precision=0],[base=0]):\n\
-    Return 'mpfr' object after converting a string 's' made up of\n\
-    digits in the given base, possibly with fraction-part (with\n\
-    period as a separator) and/or exponent-part (with exponent\n\
-    marker 'e' for base<=10, else '@'). If no precision, or a\n\
-    precision of 0, is specified; the precison is taken from the\n\
-    current context. The base of the string representation must\n\
-    be 0 or in the interval 2 ... 62. If the base is 0, the leading\n\
-    digits of the string are used to identify the base: 0b implies\n\
-    base=2, 0x implies base=16, otherwise base=10 is assumed.\n\
+      Return 'mpfr' object after converting a string 's' made up of\n\
+      digits in the given base, possibly with fraction-part (with\n\
+      period as a separator) and/or exponent-part (with exponent\n\
+      marker 'e' for base<=10, else '@'). If no precision, or a\n\
+      precision of 0, is specified; the precison is taken from the\n\
+      current context. The base of the string representation must\n\
+      be 0 or in the interval 2 ... 62. If the base is 0, the leading\n\
+      digits of the string are used to identify the base: 0b implies\n\
+      base=2, 0x implies base=16, otherwise base=10 is assumed.\n\
 ";
 static PyObject *
 Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
@@ -774,7 +774,7 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
 
     argc = PyTuple_Size(args);
     if ((argc < 1) || (argc > 3)) {
-        TYPE_ERROR("gmpy2.mpfr() requires 1 to 3 arguments");
+        TYPE_ERROR("mpfr() requires 1 to 3 arguments");
         return NULL;
     }
 
@@ -784,11 +784,11 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
         if (PyArg_ParseTupleAndKeywords(args, keywds, "O|ll", kwlist_s,
                                         &arg0, &bits, &base)) {
             if ((base!=0) && ((base<2)||(base>62))) {
-                VALUE_ERROR("base for gmpy2.mpfr() must be 0 or in the "
+                VALUE_ERROR("base for mpfr() must be 0 or in the "
                             "interval 2 ... 62");
             }
             else if (bits < 0) {
-                VALUE_ERROR("precision for gmpy2.mpfr() must be >= 0");
+                VALUE_ERROR("precision for mpfr() must be >= 0");
             }
             else {
                 result = PyStr2Pympfr(arg0, base, bits);
@@ -808,12 +808,12 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
     /* Can only have precision as keyword argument. */
     if (PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist_n, &arg0, &bits)) {
         if (bits < 0) {
-            VALUE_ERROR("precision for gmpy2.mpfr() must be >= 0");
+            VALUE_ERROR("precision for mpfr() must be >= 0");
         }
         else {
             result = Pympfr_From_Real(arg0, bits);
             if (!result && !PyErr_Occurred())
-                TYPE_ERROR("gmpy2.mpfr() requires numeric or string argument");
+                TYPE_ERROR("mpfr() requires numeric or string argument");
         }
     }
     return (PyObject*)result;
@@ -945,8 +945,8 @@ Pympfr_get_max_precision(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_g_mpfr_get_exp,
 "get_exp(mpfr) -> integer\n\n"
-"Return the exponent of an mpfr. Returns 0 for NaN or Inf, sets the\n"
-"erange flag and will raise an exception if trap_erange is set.");
+"Return the exponent of an mpfr. Returns 0 for NaN or Infinity, sets\n"
+"the erange flag and will raise an exception if trap_erange is set.");
 
 static PyObject *
 Pympfr_get_exp(PyObject *self, PyObject *other)
@@ -954,7 +954,7 @@ Pympfr_get_exp(PyObject *self, PyObject *other)
     PyObject *result = 0;
     Py_ssize_t exp;
 
-    PARSE_ONE_MPFR_OTHER("get_exp() requires mpfr argument");
+    PARSE_ONE_MPFR_OTHER("get_exp() requires 'mpfr. argument");
 
     if (mpfr_regular_p(Pympfr_AS_MPFR(self))) {
         exp = (Py_ssize_t)mpfr_get_exp(Pympfr_AS_MPFR(self));
@@ -967,7 +967,7 @@ Pympfr_get_exp(PyObject *self, PyObject *other)
     else {
         context->now.erange = 1;
         if (context->now.trap_erange) {
-            GMPY_ERANGE("Can not get exponent from NaN or Inf.");
+            GMPY_ERANGE("Can not get exponent from NaN or Infinity.");
         }
         else {
             result = PyIntOrLong_FromSsize_t(0);
@@ -1123,7 +1123,7 @@ Pympfr_mul_2exp(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_g_mpfr_set_nan,
 "nan() -> mpfr\n\n"
-"Return an 'mpfr' inialized to 'nan'.");
+"Return an 'mpfr' initialized to NaN (Not-A-Number).");
 
 static PyObject *
 Pympfr_set_nan(PyObject *self, PyObject *other)
@@ -1137,7 +1137,7 @@ Pympfr_set_nan(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(doc_g_mpfr_set_inf,
 "inf(n) -> mpfr\n\n"
-"Return an 'mpfr' inialized to 'inf' with the same sign as n.");
+"Return an 'mpfr' initialized to Infinity with the same sign as n.");
 
 static PyObject *
 Pympfr_set_inf(PyObject *self, PyObject *other)
@@ -1232,24 +1232,24 @@ Pympfr_is_##NAME(PyObject *self, PyObject *other)\
 
 PyDoc_STRVAR(doc_mpfr_is_nan,
 "x.is_nan() -> boolean\n\n"
-"Return True if x is 'nan' (Not-A-Number), False otherwise.");
+"Return True if x is 'nan' (Not-A-Number); False otherwise.");
 
 MPFR_TEST_OTHER(nan, "is_nan() requires 'mpfr' argument");
 
 PyDoc_STRVAR(doc_mpfr_is_inf,
 "x.is_inf() -> boolean\n\n"
-"Return True if x is +Infinity or -Infinity, False otherwise.");
+"Return True if x is +Infinity or -Infinity; False otherwise.");
 
 MPFR_TEST_OTHER(inf, "is_inf() requires 'mpfr' argument");
 
 PyDoc_STRVAR(doc_mpfr_is_number,
 "x.is_number() -> boolean\n\n"
-"Return True if x is an actual number (i.e. not NaN or Infinity),\n"
+"Return True if x is an actual number (i.e. not NaN or Infinity);\n"
 "False otherwise.");
 
 PyDoc_STRVAR(doc_g_mpfr_is_number,
 "is_number(x) -> boolean\n\n"
-"Return True if x is an actual number (i.e. not NaN or Infinity),\n"
+"Return True if x is an actual number (i.e. not NaN or Infinity);\n"
 "False otherwise.");
 
 MPFR_TEST_OTHER(number, "is_number() requires 'mpfr' argument");
@@ -1262,21 +1262,21 @@ MPFR_TEST_OTHER(zero, "is_zero() requires 'mpfr' argument");
 
 PyDoc_STRVAR(doc_mpfr_is_regular,
 "x.is_regular() -> boolean\n\n"
-"Return True if x is not zero, NaN, or Infinity, False otherwise.");
+"Return True if x is not zero, NaN, or Infinity; False otherwise.");
 
 PyDoc_STRVAR(doc_g_mpfr_is_regular,
 "is_regular(x) -> boolean\n\n"
-"Return True if x is not zero, NaN, or Infinity, False otherwise.");
+"Return True if x is not zero, NaN, or Infinity; False otherwise.");
 
 MPFR_TEST_OTHER(regular, "is_regular() requires 'mpfr' argument");
 
 PyDoc_STRVAR(doc_mpfr_is_integer,
 "x.is_integer() -> boolean\n\n"
-"Return True if x is an integer, False otherwise.");
+"Return True if x is an integer; False otherwise.");
 
 PyDoc_STRVAR(doc_g_mpfr_is_integer,
 "is_integer(x) -> boolean\n\n"
-"Return True if x is an integer, False otherwise.");
+"Return True if x is an integer; False otherwise.");
 
 MPFR_TEST_OTHER(integer, "is_integer() requires 'mpfr' argument");
 
@@ -1331,7 +1331,7 @@ Pympfr_integer_ratio(PyObject *self, PyObject *args)
     }
 
     if (mpfr_inf_p(Pympfr_AS_MPFR(self))) {
-        OVERFLOW_ERROR("Cannot pass infinity to mpfr.as_integer_ratio.");
+        OVERFLOW_ERROR("Cannot pass Infinity to mpfr.as_integer_ratio.");
         return NULL;
     }
 
@@ -1379,7 +1379,7 @@ Pympfr_mantissa_exp(PyObject *self, PyObject *args)
     }
 
     if (mpfr_inf_p(Pympfr_AS_MPFR(self))) {
-        OVERFLOW_ERROR("Cannot pass infinity to mpfr.as_mantissa_exp.");
+        OVERFLOW_ERROR("Cannot pass Infinity to mpfr.as_mantissa_exp.");
         return NULL;
     }
 
@@ -1645,7 +1645,7 @@ Pympfr_rec_sqrt(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(doc_mpfr_root,
 "root(x,n) -> number\n\n"
-"Return n-th root of x. The result always an 'mpf'.");
+"Return n-th root of x. The result always an 'mpfr'.");
 
 static PyObject *
 Pympfr_root(PyObject *self, PyObject *args)
@@ -1789,40 +1789,40 @@ Pympfr_##NAME(PyObject* self, PyObject *other) \
 }
 
 static char doc_mpfr_ceil[]="\
-x.__ceil__(): returns an mpfr that is the smallest integer >= x\n\
+x.__ceil__(): returns an 'mpfr' that is the smallest integer >= x\n\
 ";
 static char doc_g_mpfr_ceil[]="\
-ceil(x): returns an mpfr that is the smallest integer >= x\n\
-x must be an mpfr, or else gets coerced to one.\n\
+ceil(x): returns an 'mpfr' that is the smallest integer >= x\n\
+x must be an 'mpfr', or else gets coerced to one.\n\
 ";
 
 MPFR_UNIOP_NOROUND(ceil)
 
 static char doc_mpfr_floor[]="\
-x.__floor__(): returns an mpfr that is the smallest integer <= x\n\
+x.__floor__(): returns an 'mpfr' that is the smallest integer <= x\n\
 ";
 static char doc_g_mpfr_floor[]="\
-floor(x): returns an mpfr that is the smallest integer <= x\n\
-x must be an mpfr, or else gets coerced to one.\n\
+floor(x): returns an 'mpfr' that is the smallest integer <= x\n\
+x must be an 'mpfr', or else gets coerced to one.\n\
 ";
 
 MPFR_UNIOP_NOROUND(floor);
 
 static char doc_mpfr_trunc[]="\
-x.__trunc__(): returns an mpfr that is truncated towards 0\n\
+x.__trunc__(): returns an 'mpf'r that is truncated towards 0\n\
 (same as x.floor() if x>=0, x.ceil() if x<0).\n\
 ";
 static char doc_g_mpfr_trunc[]="\
-trunc(x): returns an mpfr that is x truncated towards 0\n\
-(same as x.floor() if x>=0, x.ceil() if x<0).\n\
-x must be an mpfr, or else gets coerced to one.\n\
+trunc(x): returns an 'mpfr' that is x truncated towards 0\n\
+(same as x.floor() if x>=0, x.ceil() if x<0). x must be an\n\
+'mpfr', or else gets coerced to one.\n\
 ";
 
 MPFR_UNIOP_NOROUND(trunc)
 
 static char doc_g_mpfr_round2[]="\
-round2(x): returns an mpfr that is x rounded to the nearest integer,\n\
-with ties rounded away from 0.";
+round2(x): returns an 'mpfr' that is x rounded to the nearest\n\
+integer, with ties rounded away from 0.";
 
 static PyObject *
 Pympfr_round2(PyObject* self, PyObject *other)
@@ -1858,16 +1858,16 @@ MPFR_UNIOP(rint)
 
 PyDoc_STRVAR(doc_g_mpfr_rint_ceil,
 "rint_ceil(x) -> mpfr\n\n"
-"Return x rounded to the nearest integer by first rounding to the next\n"
-"higher or equal integer and then, if needed, using the current\n"
+"Return x rounded to the nearest integer by first rounding to the\n"
+"next higher or equal integer and then, if needed, using the current\n"
 "rounding mode.");
 
 MPFR_UNIOP(rint_ceil)
 
 PyDoc_STRVAR(doc_g_mpfr_rint_floor,
 "rint_floor(x) -> mpfr\n\n"
-"Return x rounded to the nearest integer by first rounding to the next\n"
-"lower or equal integer and then, if needed, using the current\n"
+"Return x rounded to the nearest integer by first rounding to the\n"
+"next lower or equal integer and then, if needed, using the current\n"
 "rounding mode.");
 
 MPFR_UNIOP(rint_floor)
@@ -2156,7 +2156,7 @@ MPFR_UNIOP(lngamma)
 
 PyDoc_STRVAR(doc_g_mpfr_lgamma,
 "lgamma(x) -> (mpfr, int)\n\n"
-"Return a 2-tuple containing the logarithm of the absolute value of\n"
+"Return a tuple containing the logarithm of the absolute value of\n"
 "gamma(x) and the sign of gamma(x)");
 
 static PyObject *
@@ -2355,7 +2355,7 @@ Pympfr_div(PyObject *self, PyObject *args)
     if (mpfr_zero_p(Pympfr_AS_MPFR(other))) {
         context->now.divzero = 1;
         if (context->now.trap_divzero) {
-            GMPY_DIVZERO("'mpfr' division by zero");
+            GMPY_DIVZERO("division by zero in 'mpfr' div()");
             goto done;
         }
     }
@@ -2427,7 +2427,7 @@ Pympfr_remainder(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_g_mpfr_remquo,
 "remquo(x) -> (mpfr, int)\n\n"
-"Return a 2-tuple containing the remainder(x,y) and the low bits of the\n"
+"Return a tuple containing the remainder(x,y) and the low bits of the\n"
 "quotient.");
 
 static PyObject *
@@ -2573,7 +2573,7 @@ Pympfr_min(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_g_mpfr_nexttoward,
 "next_toward(y, x) -> mpfr\n\n"
-"Return the next mpfr from x in the direction of y.");
+"Return the next 'mpfr' from x in the direction of y.");
 
 static PyObject *
 Pympfr_nexttoward(PyObject *self, PyObject *args)
@@ -2595,7 +2595,7 @@ Pympfr_nexttoward(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_g_mpfr_nextabove,
 "next_above(x) -> mpfr\n\n"
-"Return the next mpfr from x toward +Infinity.");
+"Return the next 'mpfr' from x toward +Infinity.");
 
 static PyObject *
 Pympfr_nextabove(PyObject *self, PyObject *other)
@@ -2616,7 +2616,7 @@ Pympfr_nextabove(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(doc_g_mpfr_nextbelow,
 "next_below(x) -> mpfr\n\n"
-"Return the next mpfr from x toward -Infinity.");
+"Return the next 'mpfr' from x toward -Infinity.");
 
 static PyObject *
 Pympfr_nextbelow(PyObject *self, PyObject *other)
@@ -2936,8 +2936,8 @@ PyDoc_STRVAR(doc_mpfr_format,
 "        ' ' -> minus for negative values, space for positive values\n"
 "     optional width.precision\n"
 "     optional rounding mode:\n"
-"        'U' -> round toward plus infinity\n"
-"        'D' -> round toward minus infinity\n"
+"        'U' -> round toward plus Infinity\n"
+"        'D' -> round toward minus Infinity\n"
 "        'Y' -> round away from zero\n"
 "        'Z' -> round toward zero\n"
 "        'N' -> round to nearest\n"

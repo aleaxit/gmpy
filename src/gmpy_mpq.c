@@ -71,7 +71,7 @@ Pympq_sign(PyObject *self, PyObject *other)
 
 static char doc_numerg[]="\
 numer(x): returns numerator of x;\n\
-x must be an mpq, or else gets coerced to one.\n\
+x must be an 'mpq', or else gets coerced to one.\n\
 ";
 static PyObject *
 Pympq_numer(PyObject *self, PyObject *args)
@@ -100,7 +100,7 @@ Pympq_getnumer(PympqObject *self, void *closure)
 
 static char doc_denomg[]="\
 denom(x): returns denominator of x;\n\
-x must be an mpq, or else gets coerced to one.\n\
+x must be an 'mpq', or else gets coerced to one.\n\
 ";
 static PyObject *
 Pympq_denom(PyObject *self, PyObject *args)
@@ -128,7 +128,7 @@ Pympq_getdenom(PympqObject *self, void *closure)
 }
 
 static char doc_qdivg[]="\
-qdiv(x,y=1): returns x/y as mpz if possible, or as mpq\n\
+qdiv(x,y=1): returns x/y as 'mpz' if possible, or as 'mpq'\n\
 if x is not exactly divisible by y.\n\
 ";
 static int isOne(PyObject* obj)
@@ -203,7 +203,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
     self = (PyObject*)Pympq_From_Rational(self);
     if (!self) {
         if (!PyErr_Occurred())
-            TYPE_ERROR("first argument can not be converted to mpq");
+            TYPE_ERROR("first argument can not be converted to 'mpq'");
         return NULL;
     }
     if (wasone) { /* self was mpf, float, int, long... */
@@ -214,7 +214,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
         if (!other) {
             Py_DECREF(self);
             if (!PyErr_Occurred())
-                TYPE_ERROR("second argument can not be converted to mpq");
+                TYPE_ERROR("second argument can not be converted to 'mpq'");
             return NULL;
         }
         if (mpq_sgn(Pympq_AS_MPQ(other))==0) {
@@ -536,7 +536,7 @@ Pympq_div(PyObject *self, PyObject *args)
 
     if ((result = Pympq_new())) {
         if (mpq_sgn(Pympq_AS_MPQ(other)) == 0) {
-            ZERO_ERROR("mpq division by zero");
+            ZERO_ERROR("'mpq' division by zero");
             Py_DECREF((PyObject*)result);
             result = 0;
         }

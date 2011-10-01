@@ -284,7 +284,7 @@ PyStr2Pympc(PyObject *s, long base, mpfr_prec_t rbits, mpfr_prec_t ibits)
     return newob;
 
   invalid_string:
-    VALUE_ERROR("invalid string in gmpy2.mpc()");
+    VALUE_ERROR("invalid string in mpc()");
     Py_DECREF((PyObject*)newob);
     Py_XDECREF(ascii_str);
     return NULL;
@@ -443,7 +443,7 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
     else if (Pyxmpz_Check(obj)) {
         newob = Pyxmpz2Pympc(obj, rprec, iprec);
     }
-    else if (!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
+    else if (isDecimal(obj)) {
         PyObject *s = PyObject_Str(obj);
         if (s) {
             newob = PyStr2Pympc(s, 10, rprec, iprec);
@@ -454,7 +454,7 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
             Py_DECREF(s);
         }
     }
-    else if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
+    else if (isFraction(obj)) {
         PyObject *s = PyObject_Str(obj);
         if (s) {
             temp = PyStr2Pympq(s, 10);
@@ -519,23 +519,25 @@ Pympc_digits(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_g_mpc,
-"mpc(c, [precision=0]) -> mpc object\n"
-"    Return a new mpc object from an existing complex number (either\n"
-"    a Python complex object or another mpc object). If the precision\n"
-"    is not specified, then the precision is taken from the current\n"
-"    context. The rounding mode is always taken from the current\n"
-"    context.\n\n"
-"mpc(r, [i=0], [precision=0]) -> mpc object\n"
-"    Return a new mpc object by converting two non-complex numbers into\n"
-"    the real and imaginary components of an mpc object. If the prec-\n"
-"    ision is not specified, then the precision is taken from the cur-\n"
-"    rent context. The rounding mode is always taken from the current\n"
-"    context.\n\n"
-"mpc(s, [precision=0], [base=10]) -> mpc object\n"
-"    Return a new mpc object by converting a string 's' into a complex\n"
-"    number. If 'base' is omitted, then a base 10 representation is\n"
-"    assumed otherwise a base between 2 and 36 can be specified. The\n"
-"    precision and rounding modes are taken from the current context.\n\n"
+"mpc(c, [precision=0]) -> mpc\n"
+"      Return a new 'mpc' object from an existing complex number\n"
+"      (either a Python complex object or another 'mpc' object). If\n"
+"      the precision is not specified, then the precision is taken\n"
+"      from the current context. The rounding mode is always taken\n"
+"      from the current context.\n\n"
+"mpc(r, [i=0], [precision=0]) -> mpc\n"
+"      Return a new 'mpc' object by converting two non-complex numbers\n"
+"      into the real and imaginary components of an 'mpc' object. If\n"
+"      the precision is not specified, then the precision is taken from\n"
+"      the current context. The rounding mode is always taken from the\n"
+"      current context.\n\n"
+"mpc(s, [precision=0], [base=10]) -> mpc\n"
+"      Return a new 'mpc' object by converting a string s into a complex\n"
+"      number. If base is omitted, then a base-10 representation is\n"
+"      assumed otherwise a base between 2 and 36 can be specified. If\n"
+"      the precision is not specified, then the precision is taken from\n"
+"      the current context. The rounding mode is always taken from the\n"
+"      current context.\n\n"
 "Note: The precision can be specified either a single number that\n"
 "      is used for both the real and imaginary components, or as a\n"
 "      tuple that can specify different precisions for the real\n"
@@ -556,7 +558,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
 
     argc = PyTuple_Size(args);
     if (argc < 1) {
-        TYPE_ERROR("gmpy2.mpc() requires at least 1 non-keyword argument");
+        TYPE_ERROR("mpc() requires at least 1 non-keyword argument");
         return NULL;
     }
 
@@ -583,7 +585,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
         }
 
         if (base < 2 || base > 36) {
-            VALUE_ERROR("base for gmpy2.mpc() must be in the interval 2..36.");
+            VALUE_ERROR("base for mpc() must be in the interval 2..36.");
             return NULL;
         }
 
@@ -604,7 +606,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
                 rbits = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GetItem(prec, 0));
                 ibits = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GetItem(prec, 1));
                 if (PyErr_Occurred()) {
-                    VALUE_ERROR("invalid value for precision in gmpy2.mpc().");
+                    VALUE_ERROR("invalid value for precision in mpc().");
                     return NULL;
                 }
             }
@@ -632,7 +634,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
                 rbits = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GetItem(prec, 0));
                 ibits = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GetItem(prec, 1));
                 if (PyErr_Occurred()) {
-                    VALUE_ERROR("invalid value for precision in gmpy2.mpc().");
+                    VALUE_ERROR("invalid value for precision in mpc().");
                     return NULL;
                 }
             }
@@ -656,7 +658,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
             Py_XDECREF(tempreal);
             Py_XDECREF(tempimag);
             Py_XDECREF(result);
-            TYPE_ERROR("gmpy2.mpc() require string or numeric argument.");
+            TYPE_ERROR("mpc() require string or numeric argument.");
             return NULL;
         }
 
@@ -666,7 +668,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
         Py_DECREF(tempimag);
     }
     else {
-        TYPE_ERROR("gmpy2.mpc() requires numeric or string argument");
+        TYPE_ERROR("mpc() requires numeric or string argument");
     }
 
     return (PyObject*)result;
@@ -713,7 +715,7 @@ Pympc_format(PyObject *self, PyObject *args)
     int seenround = 0, seenconv = 0, seenstyle = 0, mpcstyle = 0;
 
     if (!Pympc_Check(self)) {
-        TYPE_ERROR("requires mpc type");
+        TYPE_ERROR("requires 'mpc' object");
         return NULL;
     }
 
