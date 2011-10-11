@@ -693,7 +693,7 @@ mpz_set_PyStr(mpz_ptr z, PyObject *s, long base)
     /* Don't allow NULL characters */
     for (i=0; i<len; i++) {
         if (cp[i] == '\0') {
-            VALUE_ERROR("string without NULL characters expected");
+            VALUE_ERROR("string contains NULL characters");
             Py_XDECREF(ascii_str);
             return -1;
         }
@@ -872,7 +872,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
             if (0==mpz_sgn(mpq_denref(newob->q))) {
                 Py_DECREF((PyObject*)newob);
                 Py_XDECREF(ascii_str);
-                GMPY_DIVZERO("zero denominator in 'mpq'");
+                ZERO_ERROR("zero denominator in 'mpq'");
                 return NULL;
             }
             mpq_canonicalize(newob->q);
@@ -2286,7 +2286,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
             return NULL;
         }
         if (mpq_sgn(temp->q) == 0) {
-            GMPY_DIVZERO("zero denominator in 'mpq'");
+            ZERO_ERROR("zero denominator in 'mpq'");
             Py_DECREF((PyObject*)result);
             Py_DECREF((PyObject*)temp);
             return NULL;

@@ -1628,14 +1628,6 @@ Pympfr_rec_sqrt(PyObject *self, PyObject *other)
     if (!(result = Pympfr_new(0)))
         goto done;
 
-    if (mpfr_zero_p(Pympfr_AS_MPFR(self))) {
-        context->now.divzero = 1;
-        if (context->now.trap_divzero) {
-            GMPY_DIVZERO("division by zero in 'mpfr' reciprocal square root");
-            goto done;
-        }
-    }
-
     mpfr_clear_flags();
     result->rc = mpfr_rec_sqrt(result->f, Pympfr_AS_MPFR(self),
                                context->now.mpfr_round);
@@ -2352,14 +2344,6 @@ Pympfr_div(PyObject *self, PyObject *args)
     if (!(result = Pympfr_new(0)))
         goto done;
 
-    if (mpfr_zero_p(Pympfr_AS_MPFR(other))) {
-        context->now.divzero = 1;
-        if (context->now.trap_divzero) {
-            GMPY_DIVZERO("division by zero in 'mpfr' div()");
-            goto done;
-        }
-    }
-
     mpfr_clear_flags();
     result->rc = mpfr_div(result->f, Pympfr_AS_MPFR(self),
                           Pympfr_AS_MPFR(other), context->now.mpfr_round);
@@ -2381,13 +2365,13 @@ Pympfr_fmod(PyObject *self, PyObject *args)
     if (!(result = Pympfr_new(0)))
         goto done;
 
-    if (mpfr_zero_p(Pympfr_AS_MPFR(other))) {
-        context->now.divzero = 1;
-        if (context->now.trap_divzero) {
-            GMPY_DIVZERO("'mpfr' division by zero");
-            goto done;
-        }
-    }
+    //~ if (mpfr_zero_p(Pympfr_AS_MPFR(other))) {
+        //~ context->now.divzero = 1;
+        //~ if (context->now.trap_divzero) {
+            //~ GMPY_DIVZERO("'mpfr' division by zero");
+            //~ goto done;
+        //~ }
+    //~ }
 
     mpfr_clear_flags();
     result->rc = mpfr_fmod(result->f, Pympfr_AS_MPFR(self),
@@ -2411,13 +2395,13 @@ Pympfr_remainder(PyObject *self, PyObject *args)
     if (!(result = Pympfr_new(0)))
         goto done;
 
-    if (mpfr_zero_p(Pympfr_AS_MPFR(other))) {
-        context->now.divzero = 1;
-        if (context->now.trap_divzero) {
-            GMPY_DIVZERO("'mpfr' remainder by zero");
-            goto done;
-        }
-    }
+    //~ if (mpfr_zero_p(Pympfr_AS_MPFR(other))) {
+        //~ context->now.divzero = 1;
+        //~ if (context->now.trap_divzero) {
+            //~ GMPY_DIVZERO("'mpfr' remainder by zero");
+            //~ goto done;
+        //~ }
+    //~ }
 
     mpfr_clear_flags();
     result->rc = mpfr_remainder(result->f, Pympfr_AS_MPFR(self),

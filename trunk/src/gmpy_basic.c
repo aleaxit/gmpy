@@ -116,14 +116,14 @@ Pybasic_add(PyObject *a, PyObject *b)
         if (!(rf = Pympfr_new(0)))
             return NULL;
         if (Pympfr_CheckAndExp(b)) {
-            TRACE("Adding (mpf,mpf)\n");
+            TRACE("Adding (mpfr,mpfr)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_add(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
                               context->now.mpfr_round);
             MPFR_CLEANUP_RF(addition);
         }
         if (isInteger(b)) {
-            TRACE("Adding (mpf,mpz)\n");
+            TRACE("Adding (mpfr,mpz)\n");
             if (!(pbz = Pympz_From_Integer(b))) {
                 SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
@@ -136,7 +136,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(addition);
         }
         if (isRational(b)) {
-            TRACE("Adding (mpf,mpq)\n");
+            TRACE("Adding (mpfr,mpq)\n");
             if (!(pbq = Pympq_From_Rational(b))) {
                 SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
@@ -148,8 +148,21 @@ Pybasic_add(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbq);
             MPFR_CLEANUP_RF(addition);
         }
+        if (isDecimal(b)) {
+            TRACE("Adding (mpfr,decimal)\n");
+            if (!(pbq = Pympq_From_Decimal(b))) {
+                SYSTEM_ERROR("Can not convert Decimal to 'mpq'");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            rf->rc = mpfr_add_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
+                                context->now.mpfr_round);
+            Py_DECREF((PyObject*)pbq);
+            MPFR_CLEANUP_RF(addition);
+        }
         if (PyFloat_Check(b)) {
-            TRACE("Adding (mpf,float)\n");
+            TRACE("Adding (mpfr,float)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_add_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
                                 context->now.mpfr_round);
@@ -163,7 +176,7 @@ Pybasic_add(PyObject *a, PyObject *b)
         if (!(rf = Pympfr_new(0)))
             return NULL;
         if (isInteger(a)) {
-            TRACE("Adding (mpz,mpf)\n");
+            TRACE("Adding (mpz,mpfr)\n");
             if (!(paz = Pympz_From_Integer(a))) {
                 SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
@@ -176,9 +189,22 @@ Pybasic_add(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(addition);
         }
         if (isRational(a)) {
-            TRACE("Adding (mpq,mpf)\n");
+            TRACE("Adding (mpq,mpfr)\n");
             if (!(paq = Pympq_From_Rational(a))) {
                 SYSTEM_ERROR("Can not convert Rational to 'mpq'");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            rf->rc = mpfr_add_q(rf->f, Pympfr_AS_MPFR(b), paq->q,
+                                context->now.mpfr_round);
+            Py_DECREF((PyObject*)paq);
+            MPFR_CLEANUP_RF(addition);
+        }
+        if (isDecimal(a)) {
+            TRACE("Adding (decimal,mpfr)\n");
+            if (!(paq = Pympq_From_Decimal(a))) {
+                SYSTEM_ERROR("Can not convert Decimal to 'mpq'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -267,12 +293,12 @@ Pybasic_add(PyObject *a, PyObject *b)
     /* Support mpz+float and float+mpz. */
     if (CHECK_MPZANY(a) && PyFloat_Check(b)) {
         tempdouble = mpz_get_d(Pympz_AS_MPZ(a));
-        tempdouble = tempdouble+PyFloat_AsDouble(b);
+        tempdouble = tempdouble + PyFloat_AsDouble(b);
         return PyFloat_FromDouble(tempdouble);
     }
     if (CHECK_MPZANY(b) && PyFloat_Check(a)) {
         tempdouble = mpz_get_d(Pympz_AS_MPZ(b));
-        tempdouble = PyFloat_AsDouble(a)+tempdouble;
+        tempdouble = PyFloat_AsDouble(a) + tempdouble;
         return PyFloat_FromDouble(tempdouble);
     }
 #endif
@@ -382,14 +408,14 @@ Pybasic_sub(PyObject *a, PyObject *b)
         if (!(rf = Pympfr_new(0)))
             return NULL;
         if (Pympfr_CheckAndExp(b)) {
-            TRACE("Subtracting (mpf,mpf)\n");
+            TRACE("Subtracting (mpfr,mpfr)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_sub(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
                               context->now.mpfr_round);
             MPFR_CLEANUP_RF(subtraction);
         }
         if (isInteger(b)) {
-            TRACE("Subtracting (mpf,mpz)\n");
+            TRACE("Subtracting (mpfr,mpz)\n");
             if (!(pbz = Pympz_From_Integer(b))) {
                 SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
@@ -402,7 +428,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(subtraction);
         }
         if (isRational(b)) {
-            TRACE("Subtracting (mpf,mpq)\n");
+            TRACE("Subtracting (mpfr,mpq)\n");
             if (!(pbq = Pympq_From_Rational(b))) {
                 SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
@@ -414,8 +440,21 @@ Pybasic_sub(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbq);
             MPFR_CLEANUP_RF(subtraction);
         }
+        if (isDecimal(b)) {
+            TRACE("Subtracting (mpfr,decimal)\n");
+            if (!(pbq = Pympq_From_Decimal(b))) {
+                SYSTEM_ERROR("Can not convert Decimal to 'mpq'");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            rf->rc = mpfr_sub_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
+                                context->now.mpfr_round);
+            Py_DECREF((PyObject*)pbq);
+            MPFR_CLEANUP_RF(subtraction);
+        }
         if (PyFloat_Check(b)) {
-            TRACE("Subtracting (mpf,float)\n");
+            TRACE("Subtracting (mpfr,float)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_sub_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
                                 context->now.mpfr_round);
@@ -428,7 +467,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
         if (!(rf = Pympfr_new(0)))
             return NULL;
         if (isInteger(a)) {
-            TRACE("Subtracting (mpz,mpf)\n");
+            TRACE("Subtracting (mpz,mpfr)\n");
             if (!(paz = Pympz_From_Integer(a))) {
                 SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
@@ -441,7 +480,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(subtraction);
         }
         if (isRational(a)) {
-            TRACE("Subtracting (mpq,mpf)\n");
+            TRACE("Subtracting (mpq,mpfr)\n");
             if (!(paq = Pympq_From_Rational(a))) {
                 SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
@@ -453,8 +492,21 @@ Pybasic_sub(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)paq);
             MPFR_CLEANUP_RF(subtraction);
         }
+        if (isDecimal(a)) {
+            TRACE("Subtracting (decimal,mpfr)\n");
+            if (!(paq = Pympq_From_Decimal(a))) {
+                SYSTEM_ERROR("Can not convert Decimal to 'mpq'");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            rf->rc = mpfr_add_q(rf->f, Pympfr_AS_MPFR(b), paq->q, context->now.mpfr_round);
+            mpfr_neg(rf->f, rf->f, context->now.mpfr_round);
+            Py_DECREF((PyObject*)paq);
+            MPFR_CLEANUP_RF(subtraction);
+        }
         if (PyFloat_Check(a)) {
-            TRACE("Subtracting (float,mpf)\n");
+            TRACE("Subtracting (float,mpfr)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_sub_d(rf->f, Pympfr_AS_MPFR(b), PyFloat_AS_DOUBLE(a), context->now.mpfr_round);
             mpfr_neg(rf->f, rf->f, context->now.mpfr_round);
@@ -640,14 +692,14 @@ Pybasic_mul(PyObject *a, PyObject *b)
         if (!(rf = Pympfr_new(0)))
             return NULL;
         if (Pympfr_CheckAndExp(b)) {
-            TRACE("Multiplying (mpf,mpf)\n");
+            TRACE("Multiplying (mpfr,mpfr)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_mul(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
                               context->now.mpfr_round);
             MPFR_CLEANUP_RF(multiplication);
         }
         if (isInteger(b)) {
-            TRACE("Multiplying (mpf,mpz)\n");
+            TRACE("Multiplying (mpfr,mpz)\n");
             if (!(pbz = Pympz_From_Integer(b))) {
                 SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
@@ -660,7 +712,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(multiplication);
         }
         if (isRational(b)) {
-            TRACE("Multiplying (mpf,mpq)\n");
+            TRACE("Multiplying (mpfr,mpq)\n");
             if (!(pbq = Pympq_From_Rational(b))) {
                 SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
@@ -672,8 +724,21 @@ Pybasic_mul(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbq);
             MPFR_CLEANUP_RF(multiplication);
         }
+        if (isDecimal(b)) {
+            TRACE("Multiplying (mpfr,decimal)\n");
+            if (!(pbq = Pympq_From_Decimal(b))) {
+                SYSTEM_ERROR("Can not convert Decimal to 'mpq'");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            rf->rc = mpfr_mul_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
+                                context->now.mpfr_round);
+            Py_DECREF((PyObject*)pbq);
+            MPFR_CLEANUP_RF(multiplication);
+        }
         if (PyFloat_Check(b)) {
-            TRACE("Multiplying (mpf,float)\n");
+            TRACE("Multiplying (mpfr,float)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_mul_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
                                 context->now.mpfr_round);
@@ -686,7 +751,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
         if (!(rf = Pympfr_new(0)))
             return NULL;
         if (isInteger(a)) {
-            TRACE("Multiplying (mpz,mpf)\n");
+            TRACE("Multiplying (mpz,mpfr)\n");
             if (!(paz = Pympz_From_Integer(a))) {
                 SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
@@ -699,7 +764,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(multiplication);
         }
         if (isRational(a)) {
-            TRACE("Multiplying (mpq,mpf)\n");
+            TRACE("Multiplying (mpq,mpfr)\n");
             if (!(paq = Pympq_From_Rational(a))) {
                 SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
@@ -711,8 +776,21 @@ Pybasic_mul(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)paq);
             MPFR_CLEANUP_RF(multiplication);
         }
+        if (isDecimal(a)) {
+            TRACE("Multiplying (decimal,mpfr)\n");
+            if (!(paq = Pympq_From_Decimal(a))) {
+                SYSTEM_ERROR("Can not convert Decimal to 'mpq'");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            rf->rc = mpfr_mul_q(rf->f, Pympfr_AS_MPFR(b), paq->q,
+                                context->now.mpfr_round);
+            Py_DECREF((PyObject*)paq);
+            MPFR_CLEANUP_RF(multiplication);
+        }
         if (PyFloat_Check(a)) {
-            TRACE("Multiplying (float,mpf)\n");
+            TRACE("Multiplying (float,mpfr)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_mul_d(rf->f, Pympfr_AS_MPFR(b), PyFloat_AS_DOUBLE(a),
                                 context->now.mpfr_round);
@@ -856,7 +934,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
                 mpz_cloc(tempz);
             }
             else if (temp == 0) {
-                GMPY_DIVZERO("'mpz' division or modulo by zero");
+                ZERO_ERROR("division or modulo by zero in floor division");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
             }
@@ -872,7 +950,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
         if (CHECK_MPZANY(b)) {
             TRACE("Floor divide (mpz,mpz)\n");
             if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
-                GMPY_DIVZERO("'mpz' division or modulo by zero");
+                ZERO_ERROR("division or modulo by zero in floor division");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
             }
@@ -884,7 +962,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
 
     if (CHECK_MPZANY(b)) {
         if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
-            GMPY_DIVZERO("'mpz' division or modulo by zero");
+            ZERO_ERROR("division or modulo by zero in floor division");
             return NULL;
         }
         if (!(rz = Pympz_new()))
@@ -900,6 +978,92 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)rz);
     }
 
+#ifdef WITHMPFR
+    if (Pympfr_CheckAndExp(a)) {
+        if (!(rf = Pympfr_new(0)))
+            return NULL;
+        if (Pympfr_CheckAndExp(b)) {
+            TRACE("Floor divide (mpfr,mpfr)\n");
+            mpfr_clear_flags();
+            rf->rc = mpfr_div(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
+                              MPFR_RNDD);
+            rf->rc = mpfr_floor(rf->f, rf->f);
+            MPFR_CLEANUP_RF(division);
+        }
+        if (isInteger(b)) {
+            TRACE("FLoor divide (mpfr,mpz)\n");
+            if (!(pbz = Pympz_From_Integer(b))) {
+                SYSTEM_ERROR("Can not convert Integer to 'mpz'");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            rf->rc = mpfr_div_z(rf->f, Pympfr_AS_MPFR(a), pbz->z,
+                                MPFR_RNDD);
+            rf->rc = mpfr_floor(rf->f, rf->f);
+            Py_DECREF((PyObject*)pbz);
+            MPFR_CLEANUP_RF(division);
+        }
+        if (isRational(b)) {
+            TRACE("Floor divide (mpfr,mpq)\n");
+            if (!(pbq = Pympq_From_Rational(b))) {
+                SYSTEM_ERROR("Can not convert Rational to 'mpq'");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            rf->rc = mpfr_div_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
+                                MPFR_RNDD);
+            rf->rc = mpfr_floor(rf->f, rf->f);
+            Py_DECREF((PyObject*)pbq);
+            MPFR_CLEANUP_RF(division);
+        }
+        if (isDecimal(b)) {
+            TRACE("Floor divide (mpfr,decimal)\n");
+            if (!(pbq = Pympq_From_Decimal(b))) {
+                SYSTEM_ERROR("Can not convert Decimal to 'mpq'");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            rf->rc = mpfr_div_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
+                                MPFR_RNDD);
+            rf->rc = mpfr_floor(rf->f, rf->f);
+            Py_DECREF((PyObject*)pbq);
+            MPFR_CLEANUP_RF(division);
+        }
+        if (PyFloat_Check(b)) {
+            TRACE("Floor divide (mpfr,float)\n");
+            mpfr_clear_flags();
+            rf->rc = mpfr_div_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
+                                MPFR_RNDD);
+            rf->rc = mpfr_floor(rf->f, rf->f);
+            MPFR_CLEANUP_RF(division);
+        }
+        Py_DECREF((PyObject*)rf);
+    }
+
+    if (Pympfr_CheckAndExp(b)) {
+        if (!(rf = Pympfr_new(0)))
+            return NULL;
+
+        /* Need an mpfr_z_div() to provide optimal support for isInteger(), and
+         * need an mpfr_q_div() to provide optimal support for isRational() and
+         * isDecimal().
+         */
+
+        if (PyFloat_Check(a)) {
+            TRACE("Floor divide (float,mpfr)\n");
+            mpfr_clear_flags();
+            rf->rc = mpfr_d_div(rf->f, PyFloat_AS_DOUBLE(a), Pympfr_AS_MPFR(b),
+                                MPFR_RNDD);
+            rf->rc = mpfr_floor(rf->f, rf->f);
+            MPFR_CLEANUP_RF(division);
+        }
+        Py_DECREF((PyObject*)rf);
+    }
+#endif
+
     if (isInteger(a) && isInteger(b)) {
         TRACE("Floor divide (integer,integer)\n");
         paz = Pympz_From_Integer(a);
@@ -911,7 +1075,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
             return NULL;
         }
         if (mpz_sgn(pbz->z)==0) {
-            GMPY_DIVZERO("'mpz' division or modulo by zero");
+            ZERO_ERROR("division or modulo by zero in floor division");
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
@@ -938,7 +1102,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
             return NULL;
         }
         if (mpq_sgn(pbq->q)==0) {
-            GMPY_DIVZERO("'mpq' division or modulo by zero");
+            ZERO_ERROR("division or modulo by zero in floor division");
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
             return NULL;
@@ -1019,14 +1183,82 @@ Pybasic_truediv(PyObject *a, PyObject *b)
     mpq_t tempq;
 
 #ifdef WITHMPFR
-    if (Pympfr_CheckAndExp(a) && Pympfr_CheckAndExp(b)) {
-        if (!(rf = Pympfr_new(0))) {
+    if (Pympfr_CheckAndExp(a)) {
+        if (!(rf = Pympfr_new(0)))
             return NULL;
+        if (Pympfr_CheckAndExp(b)) {
+            TRACE("True divide (mpfr,mpfr)\n");
+            mpfr_clear_flags();
+            rf->rc = mpfr_div(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
+                              context->now.mpfr_round);
+            MPFR_CLEANUP_RF(division);
         }
-        mpfr_clear_flags();
-        rf->rc = mpfr_div(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
-                          context->now.mpfr_round);
-        MPFR_CLEANUP_RF(division);
+        if (isInteger(b)) {
+            TRACE("True divide (mpfr,mpz)\n");
+            if (!(pbz = Pympz_From_Integer(b))) {
+                SYSTEM_ERROR("Can not convert Integer to 'mpz'");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            rf->rc = mpfr_div_z(rf->f, Pympfr_AS_MPFR(a), pbz->z,
+                                context->now.mpfr_round);
+            Py_DECREF((PyObject*)pbz);
+            MPFR_CLEANUP_RF(division);
+        }
+        if (isRational(b)) {
+            TRACE("True divide (mpfr,mpq)\n");
+            if (!(pbq = Pympq_From_Rational(b))) {
+                SYSTEM_ERROR("Can not convert Rational to 'mpq'");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            rf->rc = mpfr_div_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
+                                context->now.mpfr_round);
+            Py_DECREF((PyObject*)pbq);
+            MPFR_CLEANUP_RF(division);
+        }
+        if (isDecimal(b)) {
+            TRACE("True divide (mpfr,decimal)\n");
+            if (!(pbq = Pympq_From_Decimal(b))) {
+                SYSTEM_ERROR("Can not convert Decimal to 'mpq'");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            rf->rc = mpfr_div_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
+                                context->now.mpfr_round);
+            Py_DECREF((PyObject*)pbq);
+            MPFR_CLEANUP_RF(division);
+        }
+        if (PyFloat_Check(b)) {
+            TRACE("True divide (mpfr,float)\n");
+            mpfr_clear_flags();
+            rf->rc = mpfr_div_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
+                                context->now.mpfr_round);
+            MPFR_CLEANUP_RF(division);
+        }
+        Py_DECREF((PyObject*)rf);
+    }
+
+    if (Pympfr_CheckAndExp(b)) {
+        if (!(rf = Pympfr_new(0)))
+            return NULL;
+
+        /* Need an mpfr_z_div() to provide optimal support for isInteger(), and
+         * need an mpfr_q_div() to provide optimal support for isRational() and
+         * isDecimal().
+         */
+
+        if (PyFloat_Check(a)) {
+            TRACE("True divide (float,mpfr)\n");
+            mpfr_clear_flags();
+            rf->rc = mpfr_d_div(rf->f, PyFloat_AS_DOUBLE(a), Pympfr_AS_MPFR(b),
+                                context->now.mpfr_round);
+            MPFR_CLEANUP_RF(division);
+        }
+        Py_DECREF((PyObject*)rf);
     }
 #endif
 
@@ -1041,7 +1273,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             return NULL;
         }
         if (mpz_sgn(pbz->z) == 0) {
-            GMPY_DIVZERO("'mpz' division or modulo by zero");
+            ZERO_ERROR("division or modulo by zero in floor division");
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
@@ -1084,7 +1316,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             return NULL;
         }
         if (mpq_sgn(pbq->q)==0) {
-            GMPY_DIVZERO("'mpq' division or modulo by zero");
+            ZERO_ERROR("division or modulo by zero in floor division");
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
             return NULL;
@@ -1211,7 +1443,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
                 mpz_cloc(tempz);
             }
             else if (temp == 0) {
-                GMPY_DIVZERO("'mpz' division or modulo by zero");
+                ZERO_ERROR("division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
             }
@@ -1227,7 +1459,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
         if (CHECK_MPZANY(b)) {
             TRACE("Floor divide (mpz,mpz)\n");
             if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
-                GMPY_DIVZERO("'mpz' division or modulo by zero");
+                ZERO_ERROR("division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
             }
@@ -1248,7 +1480,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
             return NULL;
         }
         if (mpz_sgn(pbz->z)==0) {
-            GMPY_DIVZERO("'mpz' division or modulo by zero");
+            ZERO_ERROR("division or modulo by zero");
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
@@ -1275,7 +1507,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
             return NULL;
         }
         if (mpq_sgn(pbq->q)==0) {
-            GMPY_DIVZERO("'mpq' division or modulo by zero");
+            ZERO_ERROR("division or modulo by zero");
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
             return NULL;
@@ -1294,6 +1526,84 @@ Pybasic_div2(PyObject *a, PyObject *b)
     /* Use truediv for floating-point types. */
 
 #ifdef WITHMPFR
+    if (Pympfr_CheckAndExp(a)) {
+        if (!(rf = Pympfr_new(0)))
+            return NULL;
+        if (Pympfr_CheckAndExp(b)) {
+            TRACE("True divide (mpfr,mpfr)\n");
+            mpfr_clear_flags();
+            rf->rc = mpfr_div(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
+                              context->now.mpfr_round);
+            MPFR_CLEANUP_RF(division);
+        }
+        if (isInteger(b)) {
+            TRACE("True divide (mpfr,mpz)\n");
+            if (!(pbz = Pympz_From_Integer(b))) {
+                SYSTEM_ERROR("Can not convert Integer to 'mpz'");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            rf->rc = mpfr_div_z(rf->f, Pympfr_AS_MPFR(a), pbz->z,
+                                context->now.mpfr_round);
+            Py_DECREF((PyObject*)pbz);
+            MPFR_CLEANUP_RF(division);
+        }
+        if (isRational(b)) {
+            TRACE("True divide (mpfr,mpq)\n");
+            if (!(pbq = Pympq_From_Rational(b))) {
+                SYSTEM_ERROR("Can not convert Rational to 'mpq'");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            rf->rc = mpfr_div_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
+                                context->now.mpfr_round);
+            Py_DECREF((PyObject*)pbq);
+            MPFR_CLEANUP_RF(division);
+        }
+        if (isDecimal(b)) {
+            TRACE("True divide (mpfr,decimal)\n");
+            if (!(pbq = Pympq_From_Decimal(b))) {
+                SYSTEM_ERROR("Can not convert Decimal to 'mpq'");
+                Py_DECREF((PyObject*)rf);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            rf->rc = mpfr_div_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
+                                context->now.mpfr_round);
+            Py_DECREF((PyObject*)pbq);
+            MPFR_CLEANUP_RF(division);
+        }
+        if (PyFloat_Check(b)) {
+            TRACE("True divide (mpfr,float)\n");
+            mpfr_clear_flags();
+            rf->rc = mpfr_div_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
+                                context->now.mpfr_round);
+            MPFR_CLEANUP_RF(division);
+        }
+        Py_DECREF((PyObject*)rf);
+    }
+
+    if (Pympfr_CheckAndExp(b)) {
+        if (!(rf = Pympfr_new(0)))
+            return NULL;
+
+        /* Need an mpfr_z_div() to provide optimal support for isInteger(), and
+         * need an mpfr_q_div() to provide optimal support for isRational() and
+         * isDecimal().
+         */
+
+        if (PyFloat_Check(a)) {
+            TRACE("True divide (float,mpfr)\n");
+            mpfr_clear_flags();
+            rf->rc = mpfr_d_div(rf->f, PyFloat_AS_DOUBLE(a), Pympfr_AS_MPFR(b),
+                                context->now.mpfr_round);
+            MPFR_CLEANUP_RF(division);
+        }
+        Py_DECREF((PyObject*)rf);
+    }
+
     if (isReal(a) && isReal(b)) {
         TRACE("True divide (number,number)\n");
         paf = Pympfr_From_Real(a, 0);
@@ -1390,7 +1700,7 @@ Pybasic_rem(PyObject *a, PyObject *b)
                 mpz_fdiv_r_ui(rz->z, Pympz_AS_MPZ(a), temp);
             }
             else if (temp == 0) {
-                GMPY_DIVZERO("'mpz' division or modulo by zero");
+                ZERO_ERROR("division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
             }
@@ -1402,7 +1712,7 @@ Pybasic_rem(PyObject *a, PyObject *b)
         if (CHECK_MPZANY(b)) {
             TRACE("Modulo (integer,integer)\n");
             if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
-                GMPY_DIVZERO("'mpz' division or modulo by zero");
+                ZERO_ERROR("division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
             }
@@ -1414,7 +1724,7 @@ Pybasic_rem(PyObject *a, PyObject *b)
 
     if (CHECK_MPZANY(b)) {
         if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
-            GMPY_DIVZERO("'mpz' division or modulo by zero");
+            ZERO_ERROR("division or modulo by zero");
             return NULL;
         }
         if (!(rz = Pympz_new())) return NULL;
@@ -1440,7 +1750,7 @@ Pybasic_rem(PyObject *a, PyObject *b)
             return NULL;
         }
         if (mpq_sgn(pbq->q)==0) {
-            GMPY_DIVZERO("'mpq' modulo by zero");
+            ZERO_ERROR("division or modulo by zero");
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
             return NULL;
@@ -1588,7 +1898,7 @@ Pybasic_divmod(PyObject *a, PyObject *b)
                 mpz_fdiv_qr_ui(qz->z, rz->z, Pympz_AS_MPZ(a), temp);
             }
             else if (temp == 0) {
-                GMPY_DIVZERO("'mpz' division or modulo by zero");
+                ZERO_ERROR("division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 Py_DECREF((PyObject*)qz);
                 Py_DECREF(r);
@@ -1605,7 +1915,7 @@ Pybasic_divmod(PyObject *a, PyObject *b)
         if (CHECK_MPZANY(b)) {
             TRACE("divmod (mpz,mpz)\n");
             if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
-                GMPY_DIVZERO("'mpz' division or modulo by zero");
+                ZERO_ERROR("division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 Py_DECREF((PyObject*)qz);
                 Py_DECREF(r);
@@ -1621,9 +1931,9 @@ Pybasic_divmod(PyObject *a, PyObject *b)
         Py_DECREF(r);
     }
 
-    if (CHECK_MPZANY(b)) {
+    if (CHECK_MPZANY(b) && PyIntOrLong_Check(a)) {
         if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
-            GMPY_DIVZERO("'mpz' division or modulo by zero");
+            ZERO_ERROR("division or modulo by zero");
             return NULL;
         }
         if (!(r=PyTuple_New(2)) || !(rz=Pympz_new()) || !(qz=Pympz_new())) {
@@ -1632,19 +1942,15 @@ Pybasic_divmod(PyObject *a, PyObject *b)
             Py_XDECREF(r);
             return NULL;
         }
-        if (PyIntOrLong_Check(a)) {
-            TRACE("divmod (integer,mpz)\n");
-            mpz_inoc(tempz);
-            mpz_set_PyLong(tempz, a);
-            mpz_fdiv_qr(qz->z, rz->z, tempz, Pympz_AS_MPZ(b));
-            mpz_cloc(tempz);
-            PyTuple_SET_ITEM(r, 0, (PyObject*)qz);
-            PyTuple_SET_ITEM(r, 1, (PyObject*)rz);
-            return r;
-        }
-        Py_DECREF((PyObject*)rz);
-        Py_DECREF((PyObject*)qz);
-        Py_DECREF(r);
+
+        TRACE("divmod (integer,mpz)\n");
+        mpz_inoc(tempz);
+        mpz_set_PyLong(tempz, a);
+        mpz_fdiv_qr(qz->z, rz->z, tempz, Pympz_AS_MPZ(b));
+        mpz_cloc(tempz);
+        PyTuple_SET_ITEM(r, 0, (PyObject*)qz);
+        PyTuple_SET_ITEM(r, 1, (PyObject*)rz);
+        return r;
     }
 
     if (isInteger(a) && isInteger(b)) {
@@ -1658,7 +1964,7 @@ Pybasic_divmod(PyObject *a, PyObject *b)
             return NULL;
         }
         if (mpz_sgn(pbz->z) == 0) {
-            GMPY_DIVZERO("'mpz' division or modulo by zero");
+            ZERO_ERROR("division or modulo by zero");
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
