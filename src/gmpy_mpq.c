@@ -203,7 +203,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
     self = (PyObject*)Pympq_From_Rational(self);
     if (!self) {
         if (!PyErr_Occurred())
-            TYPE_ERROR("first argument can not be converted to 'mpq'");
+            TYPE_ERROR("first argument cannot be converted to 'mpq'");
         return NULL;
     }
     if (wasone) { /* self was mpf, float, int, long... */
@@ -214,12 +214,12 @@ Pympq_qdiv(PyObject *self, PyObject *args)
         if (!other) {
             Py_DECREF(self);
             if (!PyErr_Occurred())
-                TYPE_ERROR("second argument can not be converted to 'mpq'");
+                TYPE_ERROR("second argument cannot be converted to 'mpq'");
             return NULL;
         }
         if (mpq_sgn(Pympq_AS_MPQ(other))==0) {
             PyObject* result = 0;
-            ZERO_ERROR("qdiv: zero divisor");
+            ZERO_ERROR("division or modulo by zero in qdiv");
             Py_DECREF(self);
             Py_DECREF(other);
             return result;

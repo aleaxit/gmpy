@@ -124,7 +124,7 @@ typedef struct {
     }
 
 #define CHECK_DIVBY0(msg) \
-    if (mpfr_divby0_p() && context->now.trap_erange) { \
+    if (mpfr_divby0_p() && context->now.trap_divzero) { \
         GMPY_DIVZERO(msg); \
         goto done; \
     }

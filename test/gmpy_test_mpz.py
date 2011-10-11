@@ -422,12 +422,8 @@ mpfr('inf')
 mpfr('nan')
 >>> float('nan') / a
 mpfr('nan')
->>> _g.context().trap_divzero = True
 >>> float('nan') / _g.mpz(0)
-Traceback (most recent call last):
-  ...
-DivisionByZeroError: 'mpfr' division by zero
->>> _g.context().trap_divzero = False
+mpfr('nan')
 >>> float('nan') / _g.mpz(0)
 mpfr('nan')
 >>> divmod(a, float('Inf'))
@@ -461,30 +457,17 @@ mpfr('nan')
 >>> divmod(float('nan'), -a)
 (mpfr('nan'), mpfr('nan'))
 >>> divmod(float('Inf'), _g.mpz(0))
-Traceback (most recent call last):
-  ...
-ZeroDivisionError: mpz modulo by zero
+(mpfr('nan'), mpfr('nan'))
 >>> divmod(float('-Inf'), _g.mpz(0))
-Traceback (most recent call last):
-  ...
-ZeroDivisionError: mpz modulo by zero
+(mpfr('nan'), mpfr('nan'))
 >>> divmod(float('nan'), _g.mpz(0))
-Traceback (most recent call last):
-  ...
-ZeroDivisionError: mpz modulo by zero
+(mpfr('nan'), mpfr('nan'))
 >>> divmod(_g.mpfr('Inf'), _g.mpz(0))
-Traceback (most recent call last):
-  ...
-ZeroDivisionError: mpz modulo by zero
+(mpfr('nan'), mpfr('nan'))
 >>> divmod(_g.mpfr('-Inf'), _g.mpz(0))
-Traceback (most recent call last):
-  ...
-ZeroDivisionError: mpz modulo by zero
+(mpfr('nan'), mpfr('nan'))
 >>> divmod(_g.mpfr('nan'), _g.mpz(0))
-Traceback (most recent call last):
-  ...
-ZeroDivisionError: mpz modulo by zero
->>> _g.context().trap_divzero = False
+(mpfr('nan'), mpfr('nan'))
 '''
 
 __test__['bitops']=\
