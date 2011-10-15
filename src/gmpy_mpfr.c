@@ -2365,14 +2365,6 @@ Pympfr_fmod(PyObject *self, PyObject *args)
     if (!(result = Pympfr_new(0)))
         goto done;
 
-    //~ if (mpfr_zero_p(Pympfr_AS_MPFR(other))) {
-        //~ context->now.divzero = 1;
-        //~ if (context->now.trap_divzero) {
-            //~ GMPY_DIVZERO("'mpfr' division by zero");
-            //~ goto done;
-        //~ }
-    //~ }
-
     mpfr_clear_flags();
     result->rc = mpfr_fmod(result->f, Pympfr_AS_MPFR(self),
                            Pympfr_AS_MPFR(other), context->now.mpfr_round);
@@ -2395,14 +2387,6 @@ Pympfr_remainder(PyObject *self, PyObject *args)
     if (!(result = Pympfr_new(0)))
         goto done;
 
-    //~ if (mpfr_zero_p(Pympfr_AS_MPFR(other))) {
-        //~ context->now.divzero = 1;
-        //~ if (context->now.trap_divzero) {
-            //~ GMPY_DIVZERO("'mpfr' remainder by zero");
-            //~ goto done;
-        //~ }
-    //~ }
-
     mpfr_clear_flags();
     result->rc = mpfr_remainder(result->f, Pympfr_AS_MPFR(self),
                                 Pympfr_AS_MPFR(other), context->now.mpfr_round);
@@ -2410,7 +2394,7 @@ Pympfr_remainder(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_g_mpfr_remquo,
-"remquo(x) -> (mpfr, int)\n\n"
+"remquo(x, y) -> (mpfr, int)\n\n"
 "Return a tuple containing the remainder(x,y) and the low bits of the\n"
 "quotient.");
 
@@ -2446,6 +2430,45 @@ Pympfr_remquo(PyObject* self, PyObject *args)
     else {
         PyTuple_SET_ITEM(result, 0, (PyObject*)value);
         PyTuple_SET_ITEM(result, 1, PyIntOrLong_FromLong(quobits));
+    }
+    return result;
+}
+
+PyDoc_STRVAR(doc_g_mpfr_frexp,
+"frexp(x) -> (int, mpfr)\n\n"
+"Return a tuple containing the exponent and mantissa of x quotient.");
+
+static PyObject *
+Pympfr_frexp(PyObject *self, PyObject *other)
+{
+    PyObject *result;
+    PympfrObject *value;
+    mpfr_exp_t exp = 0;
+
+    PARSE_ONE_MPFR_OTHER("frexp() requires 'mpfr' argument");
+
+    value = Pympfr_new(0);
+    result = PyTuple_New(2);
+    if (!value || !result)
+        goto done;
+
+    mpfr_clear_flags();
+    value->rc = mpfr_frexp(&exp, value->f, Pympfr_AS_MPFR(self),
+                           context->now.mpfr_round);
+    MERGE_FLAGS;
+    CHECK_FLAGS("frexp()");
+
+  done:
+    Py_DECREF(self);
+    Py_DECREF(other);
+    if (PyErr_Occurred()) {
+        Py_XDECREF(result);
+        Py_XDECREF((PyObject*)value);
+        result = NULL;
+    }
+    else {
+        PyTuple_SET_ITEM(result, 0, PyIntOrLong_FromSsize_t((Py_ssize_t)exp));
+        PyTuple_SET_ITEM(result, 1, (PyObject*)value);
     }
     return result;
 }
