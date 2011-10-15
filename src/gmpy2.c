@@ -1386,11 +1386,6 @@ Pympq_ascii(PympqObject *self, int base, int option)
     return result;
 }
 
-#ifdef WITHMPC
-/* Classify an object as a type of number. If an object is recognized as a
- * number, it must be properly converted by the routines below.
- */
-
 static int isFraction(PyObject* obj)
 {
     if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) return 1;
@@ -1404,6 +1399,11 @@ static int isDecimal(PyObject* obj)
 
     return 0;
 }
+
+#ifdef WITHMPC
+/* Classify an object as a type of number. If an object is recognized as a
+ * number, it must be properly converted by the routines below.
+ */
 
 static int isComplex(PyObject* obj)
 {
@@ -2407,11 +2407,6 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         if (PyFloat_Check(b)) {
             double d = PyFloat_AS_DOUBLE(b);
             if (Py_IS_NAN(d)) {
-                context->now.erange = 1;
-                if (context->now.trap_erange) {
-                    GMPY_ERANGE("comparison with NaN");
-                    return NULL;
-                }
                 result = (op == Py_NE) ? Py_True : Py_False;
                 Py_INCREF(result);
                 return result;
@@ -2436,11 +2431,6 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
             if (!mpz_cmp_si(mpq_denref(Pympq_AS_MPQ(tempb)), 0)) {
                 if (!mpz_cmp_si(mpq_numref(Pympq_AS_MPQ(tempb)), 0)) {
-                    context->now.erange = 1;
-                    if (context->now.trap_erange) {
-                        GMPY_ERANGE("comparison with NaN");
-                        return NULL;
-                    }
                     result = (op == Py_NE) ? Py_True : Py_False;
                     Py_DECREF(tempa);
                     Py_DECREF(tempb);
@@ -2481,11 +2471,6 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         if (PyFloat_Check(b)) {
             double d = PyFloat_AS_DOUBLE(b);
             if (Py_IS_NAN(d)) {
-                context->now.erange = 1;
-                if (context->now.trap_erange) {
-                    GMPY_ERANGE("comparison with NaN");
-                    return NULL;
-                }
                 result = (op == Py_NE) ? Py_True : Py_False;
                 Py_INCREF(result);
                 return result;
@@ -2511,11 +2496,6 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 return NULL;
             if (!mpz_cmp_si(mpq_denref(Pympq_AS_MPQ(tempb)), 0)) {
                 if (!mpz_cmp_si(mpq_numref(Pympq_AS_MPQ(tempb)), 0)) {
-                    context->now.erange = 1;
-                    if (context->now.trap_erange) {
-                        GMPY_ERANGE("comparison with NaN");
-                        return NULL;
-                    }
                     result = (op == Py_NE) ? Py_True : Py_False;
                     Py_DECREF(tempb);
                     Py_INCREF(result);
