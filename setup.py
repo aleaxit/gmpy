@@ -142,10 +142,10 @@ gmpy2_ext = Extension('gmpy2', sources=['src/gmpy2.c'],
 
 setup (name = "gmpy2",
        version = "2.0.0a3",
-       maintainer = "Alex Martelli",
-       maintainer_email = "aleaxit@gmail.com",
+       maintainer = "Case Van Horsen",
+       maintainer_email = "casevh@gmail.com",
        url = "http://code.google.com/p/gmpy/",
-       description = "GMP/MPIR interface to Python 2.6+ and 3.x",
+       description = "GMP/MPIR, MPFR, and MPC interface to Python 2.6+ and 3.x",
 
        classifiers = [
          'Development Status :: 3 - Alpha',

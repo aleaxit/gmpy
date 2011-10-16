@@ -352,7 +352,7 @@
 #define PyIntOrLong_AsLong          PyInt_AsLong
 #endif
 
-char gmpy_version[] = "2.0.0a2";
+char gmpy_version[] = "2.0.0a3";
 
 char _gmpy_cvs[] = "$Id$";
 
