@@ -1633,10 +1633,6 @@ Pympq_From_Real(PyObject* obj)
             Py_DECREF(s);
         }
     }
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr,"Pympq_From_Real(%p)->%p\n", obj, newob);
-#endif
 
     return newob;
 }
@@ -1673,10 +1669,6 @@ Pympq_From_Rational(PyObject* obj)
             Py_DECREF(s);
         }
     }
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr,"Pympq_From_Rational(%p)->%p\n", obj, newob);
-#endif
 
     return newob;
 }
@@ -1729,10 +1721,7 @@ anynum2Pympz(PyObject* obj)
             Py_DECREF((PyObject*)temp);
         }
     }
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr,"anynum2Pympz(%p)->%p\n", obj, newob);
-#endif
+
     return newob;
 }
 
@@ -1783,10 +1772,7 @@ anynum2Pyxmpz(PyObject* obj)
             Py_DECREF((PyObject*)temp);
         }
     }
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr,"anynum2Pympz(%p)->%p\n", obj, newob);
-#endif
+
     return newob;
 }
 
@@ -1816,10 +1802,6 @@ Pympz_From_Integer(PyObject* obj)
     else if (Pyxmpz_Check(obj)) {
         newob = Pyxmpz2Pympz(obj);
     }
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr,"Pympz_From_Integer(%p)->%p\n", obj, newob);
-#endif
     if (!newob)
         TYPE_ERROR("conversion error in Pympz_From_Integer");
     return newob;
@@ -1989,10 +1971,6 @@ int
 Pympz_convert_arg(PyObject *arg, PyObject **ptr)
 {
     PympzObject* newob = Pympz_From_Integer(arg);
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr, "mpz_conv_arg(%p)->%p\n", arg, newob);
-#endif
     if (newob) {
         *ptr = (PyObject*)newob;
         return 1;
@@ -2011,10 +1989,6 @@ int
 Pympq_convert_arg(PyObject *arg, PyObject **ptr)
 {
     PympqObject* newob = Pympq_From_Rational(arg);
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr, "mpq_conv_arg(%p)->%p\n", arg, newob);
-#endif
     if (newob) {
         *ptr = (PyObject*)newob;
         return 1;
@@ -2356,12 +2330,6 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     PyObject *tempa = 0, *tempb = 0;
     PyObject *result = 0;
 
-#ifdef DEBUG
-    if (global.debug) {
-        fprintf(stderr, "rich_compare: type(a) is %s\n", Py_TYPE(a)->tp_name);
-        fprintf(stderr, "rich_compare: type(b) is %s\n", Py_TYPE(b)->tp_name);
-    }
-#endif
     if (CHECK_MPZANY(a)) {
         if (PyIntOrLong_Check(b)) {
             TRACE("compare (mpz,int)\n");
@@ -3762,24 +3730,12 @@ gmpy_allocate(size_t size)
 
     if (usize < GMPY_ALLOC_MIN)
         usize = GMPY_ALLOC_MIN;
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr, "mp_allocate( %llu->%llu )\n",
-            (unsigned long long)size, (unsigned long long)usize);
-#endif
-    if (!(res = PyMem_Malloc(usize))) {
-        fprintf(stderr, "mp_allocate( %llu->%llu )\n",
-            (unsigned long long)size, (unsigned long long)usize);
-        Py_FatalError("mp_allocate failure");
-    }
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr, "mp_allocate( %llu->%llu ) ->%8p\n",
-            (unsigned long long)size, (unsigned long long)usize, res);
-#endif
-    return res;
-} /* mp_allocate() */
 
+    if (!(res = PyObject_Malloc(usize)))
+        Py_FatalError("mp_allocate failure");
+
+    return res;
+}
 
 static void *
 gmpy_reallocate(void *ptr, size_t old_size, size_t new_size)
@@ -3792,52 +3748,26 @@ gmpy_reallocate(void *ptr, size_t old_size, size_t new_size)
         uold = GMPY_ALLOC_MIN;
     if (unew < GMPY_ALLOC_MIN)
         unew = GMPY_ALLOC_MIN;
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr,
-            "mp_reallocate: old address %8p, old size %llu(%llu), new %llu(%llu)\n",
-            ptr, (unsigned long long)old_size, (unsigned long long)uold,
-            (unsigned long long)new_size, (unsigned long long)unew);
-#endif
-    if (uold==unew) {
-#ifdef DEBUG
-        if (global.debug)
-            fprintf(stderr, "mp_reallocate: avoided realloc for %llu\n",
-                (unsigned long long)unew);
-#endif
-        return ptr;
-    }
 
-    if (!(res = PyMem_Realloc(ptr, unew))) {
-#ifdef DEBUG
-        fprintf(stderr,
-            "mp_reallocate: old address %8p, old size %llu(%llu), new %llu(%llu)\n",
-            ptr, (unsigned long long)old_size, (unsigned long long)uold,
-            (unsigned long long)new_size, (unsigned long long)unew);
-#endif
+    if (uold == unew)
+        return ptr;
+
+    if (!(res = PyObject_Realloc(ptr, unew)))
         Py_FatalError("mp_reallocate failure");
-    }
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr, "mp_reallocate: newob address %8p, newob size %llu(%llu)\n",
-        res, (unsigned long long)new_size, (unsigned long long)unew);
-#endif
+
     return res;
-} /* mp_reallocate() */
+}
 
 static void
 gmpy_free( void *ptr, size_t size)
 {
     size_t usize=size;
+
     if (usize < GMPY_ALLOC_MIN)
         usize = GMPY_ALLOC_MIN;
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr, "mp_free      : old address %8p, old size %llu(%llu)\n",
-            ptr, (unsigned long long)size, (unsigned long long)usize);
-#endif
-    PyMem_Free(ptr);
-} /* mp_free() */
+
+    PyObject_Free(ptr);
+}
 #endif /* USE_PYMEM */
 
 static void
@@ -3928,7 +3858,29 @@ PyMODINIT_FUNC initgmpy2(void)
 #endif
 {
     PyObject* copy_reg_module = NULL;
-    char *do_debug = getenv("GMPY_DEBUG");
+
+    /* Validate the sizes of the various typedef'ed integer types. */
+    if (sizeof(mp_limb_t) != sizeof(size_t)) {
+        SYSTEM_ERROR("Size of mp_limb_t and size_t not compatible");
+        INITERROR;
+    }
+    if (sizeof(mp_bitcnt_t) != sizeof(size_t)) {
+        SYSTEM_ERROR("Size of mp_bitcnt_t and size_t not compatible");
+        INITERROR;
+    }
+    if (sizeof(mp_size_t) != sizeof(long)) {
+        SYSTEM_ERROR("Size of mp_size_t and long not compatible");
+        INITERROR;
+    }
+    if (sizeof(mpfr_prec_t) != sizeof(long)) {
+        SYSTEM_ERROR("Size of mpfr_prec_t and long not compatible");
+        INITERROR;
+    }
+    if (sizeof(mpfr_exp_t) != sizeof(long)) {
+        SYSTEM_ERROR("Size of mpfr_exp_t and long not compatible");
+        INITERROR;
+    }
+
     if (PyType_Ready(&Pympz_Type) < 0)
         INITERROR;
     if (PyType_Ready(&Pympq_Type) < 0)
@@ -3946,12 +3898,6 @@ PyMODINIT_FUNC initgmpy2(void)
         INITERROR;
 #endif
 
-    if (do_debug)
-        sscanf(do_debug, "%d", &global.debug);
-#ifdef DEBUG
-    if (global.debug)
-        fputs( "initgmpy2() called...\n", stderr );
-#endif
     _PyInitGMP();
 
 #ifdef PY3
@@ -3988,10 +3934,6 @@ PyMODINIT_FUNC initgmpy2(void)
     PyModule_AddObject(gmpy_module, "ExponentOutOfBoundsError", GMPyExc_Erange);
 #endif
 
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr, "gmpy_module at %p\n", gmpy_module);
-#endif
     /* Add support for pickling. */
 #ifdef PY3
     copy_reg_module = PyImport_ImportModule("copyreg");
@@ -4008,26 +3950,14 @@ PyMODINIT_FUNC initgmpy2(void)
         ;
         PyObject* namespace = PyDict_New();
         PyObject* result = NULL;
-#ifdef DEBUG
-        if (global.debug)
-            fprintf(stderr, "gmpy_module imported copyreg OK\n");
-#endif
         PyDict_SetItemString(namespace, "copyreg", copy_reg_module);
         PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
         PyDict_SetItemString(namespace, "type", (PyObject*)&PyType_Type);
         result = PyRun_String(enable_pickle, Py_file_input,
                               namespace, namespace);
         if (result) {
-#ifdef DEBUG
-            if (global.debug)
-                fprintf(stderr, "gmpy_module enable pickle OK\n");
-#endif
         }
         else {
-#ifdef DEBUG
-            if (global.debug)
-                fprintf(stderr, "gmpy_module could not enable pickle\n");
-#endif
             PyErr_Clear();
         }
         Py_DECREF(namespace);
@@ -4035,10 +3965,6 @@ PyMODINIT_FUNC initgmpy2(void)
     }
     else {
         PyErr_Clear();
-#ifdef DEBUG
-        if (global.debug)
-            fprintf(stderr, "gmpy_module could not import copyreg\n");
-#endif
     }
 #else
     copy_reg_module = PyImport_ImportModule("copy_reg");
@@ -4055,37 +3981,19 @@ PyMODINIT_FUNC initgmpy2(void)
         ;
         PyObject* namespace = PyDict_New();
         PyObject* result = NULL;
-#ifdef DEBUG
-        if (global.debug)
-            fprintf(stderr, "gmpy_module imported copy_reg OK\n");
-#endif
+
         PyDict_SetItemString(namespace, "copy_reg", copy_reg_module);
         PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
         PyDict_SetItemString(namespace, "type", (PyObject*)&PyType_Type);
         result = PyRun_String(enable_pickle, Py_file_input,
                               namespace, namespace);
-        if (result) {
-#ifdef DEBUG
-            if (global.debug)
-                fprintf(stderr, "gmpy_module enable pickle OK\n");
-#endif
-        }
-        else {
-#ifdef DEBUG
-            if (global.debug)
-                fprintf(stderr, "gmpy_module could not enable pickle\n");
-#endif
+        if (!result)
             PyErr_Clear();
-        }
         Py_DECREF(namespace);
         Py_XDECREF(result);
     }
     else {
         PyErr_Clear();
-#ifdef DEBUG
-        if (global.debug)
-            fprintf(stderr, "gmpy_module could not import copy_reg\n");
-#endif
     }
 #endif
 
