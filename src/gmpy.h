@@ -252,7 +252,7 @@ static PyTypeObject GMPyContext_Type;
 /* Choose which memory manager is used: Python or C */
 #define USE_PYMEM 1
 #ifdef USE_PYMEM
-#  define GMPY_FREE(NAME) PyMem_Free(NAME)
+#  define GMPY_FREE(NAME) PyObject_Free(NAME)
 #else
 #  define GMPY_FREE(NAME) free(NAME)
 #endif
