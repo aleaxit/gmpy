@@ -1137,17 +1137,21 @@ Pympfr_set_nan(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(doc_g_mpfr_set_inf,
 "inf(n) -> mpfr\n\n"
-"Return an 'mpfr' initialized to Infinity with the same sign as n.");
+"Return an 'mpfr' initialized to Infinity with the same sign as n. If n is\n"
+"not given, +Infinity is returned.");
 
 static PyObject *
-Pympfr_set_inf(PyObject *self, PyObject *other)
+Pympfr_set_inf(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
-    long s = clong_From_Integer(other);
+    long s = 1;
 
-    if (s == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("inf() requires 'int' argument");
-        return NULL;
+    if (PyTuple_Size(args) == 1) {
+        s = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
+        if (s == -1 && PyErr_Occurred()) {
+            TYPE_ERROR("inf() requires 'int' argument");
+            return NULL;
+        }
     }
 
     if ((result = Pympfr_new(0)))
@@ -1157,17 +1161,21 @@ Pympfr_set_inf(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(doc_g_mpfr_set_zero,
 "zero(n) -> mpfr\n\n"
-"Return an 'mpfr' inialized to 0.0 with the same sign as n.");
+"Return an 'mpfr' inialized to 0.0 with the same sign as n. If n is not\n"
+"given, +0.0 is returned.");
 
 static PyObject *
-Pympfr_set_zero(PyObject *self, PyObject *other)
+Pympfr_set_zero(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
-    long s = clong_From_Integer(other);
+    long s = 1;
 
-    if (s == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("zero() requires 'int' argument");
-        return NULL;
+    if (PyTuple_Size(args) == 1) {
+        s = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
+        if (s == -1 && PyErr_Occurred()) {
+            TYPE_ERROR("zero() requires 'int' argument");
+            return NULL;
+        }
     }
 
     if ((result = Pympfr_new(0)))
