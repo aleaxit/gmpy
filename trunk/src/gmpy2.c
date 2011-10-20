@@ -3327,7 +3327,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "get_exp", Pympfr_get_exp, METH_O, doc_g_mpfr_get_exp },
     { "get_max_precision", Pympfr_get_max_precision, METH_NOARGS, doc_g_mpfr_get_max_precision },
     { "hypot", Pympfr_hypot, METH_VARARGS, doc_g_mpfr_hypot },
-    { "inf", Pympfr_set_inf, METH_O, doc_g_mpfr_set_inf },
+    { "inf", Pympfr_set_inf, METH_VARARGS, doc_g_mpfr_set_inf },
     { "is_inf", Pympany_is_inf, METH_O, doc_mpany_is_inf },
     { "is_integer", Pympfr_is_integer, METH_O, doc_g_mpfr_is_integer },
     { "is_lessgreater", Pympfr_is_lessgreater, METH_VARARGS, doc_g_mpfr_is_lessgreater },
@@ -3386,7 +3386,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "yn", Pympfr_yn, METH_VARARGS, doc_g_mpfr_yn },
     { "y0", Pympfr_y0, METH_O, doc_g_mpfr_y0 },
     { "y1", Pympfr_y1, METH_O, doc_g_mpfr_y1 },
-    { "zero", Pympfr_set_zero, METH_O, doc_g_mpfr_set_zero },
+    { "zero", Pympfr_set_zero, METH_VARARGS, doc_g_mpfr_set_zero },
     { "zeta", Pympfr_zeta, METH_O, doc_g_mpfr_zeta },
 #endif
 
