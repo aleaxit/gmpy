@@ -487,7 +487,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
                 return NULL;
             }
             mpfr_clear_flags();
-            rf->rc = mpfr_add_q(rf->f, Pympfr_AS_MPFR(b), paq->q, context->now.mpfr_round);
+            rf->rc = mpfr_sub_q(rf->f, Pympfr_AS_MPFR(b), paq->q, context->now.mpfr_round);
             mpfr_neg(rf->f, rf->f, context->now.mpfr_round);
             Py_DECREF((PyObject*)paq);
             MPFR_CLEANUP_RF(subtraction);
@@ -500,7 +500,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
                 return NULL;
             }
             mpfr_clear_flags();
-            rf->rc = mpfr_add_q(rf->f, Pympfr_AS_MPFR(b), paq->q, context->now.mpfr_round);
+            rf->rc = mpfr_sub_q(rf->f, Pympfr_AS_MPFR(b), paq->q, context->now.mpfr_round);
             mpfr_neg(rf->f, rf->f, context->now.mpfr_round);
             Py_DECREF((PyObject*)paq);
             MPFR_CLEANUP_RF(subtraction);
