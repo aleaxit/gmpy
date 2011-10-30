@@ -1,0 +1,122 @@
+Interoperability with Decimal
+=============================
+
+    >>> import gmpy2 as G
+    >>> from gmpy2 import mpz, mpq, mpfr
+    >>> from decimal import Decimal
+
+Test comparisons
+----------------
+
+Non-trivial comparions between mpfr and Decimal instances are only equal
+when the fractional can be written at 1/2**n.
+
+    >>> mpfr('123.456') == Decimal('123.456')
+    False
+    >>> mpfr('123.5') == Decimal('123.5')
+    True
+    >>> mpq(123456,1000) == Decimal('123.456')
+    True
+    >>> mpz(123) == Decimal(123)
+    True
+    >>> mpfr('123.456') > Decimal('123.456')
+    True
+    >>> mpfr('123.456') < Decimal('123.456')
+    False
+    >>> Decimal('123.456') > mpfr('123.456')
+    False
+    >>> Decimal('123.456') < mpfr('123.456')
+    True
+
+Test elementary operations
+--------------------------
+
+    >>> mpz(23) == Decimal(23)
+    True
+    >>> mpz(Decimal('123.456'))
+    mpz(123)
+    >>> mpq(Decimal('123.456'))
+    mpq(15432,125)
+    >>> mpfr(Decimal('123.456'))
+    mpfr('123.456')
+
+    >>> f = mpfr('123.456')
+    >>> q = mpq('789123/1000')
+    >>> z = mpz('234')
+    >>> dd = Decimal('12.34')
+    >>> fd = Decimal('123.456')
+    >>> qd = Decimal('789.123')
+    >>> zd = Decimal('234')
+
+    >>> f+dd
+    mpfr('135.79599999999999')
+    >>> dd+f
+    mpfr('135.79599999999999')
+    >>> q+dd
+    mpfr('801.46300000000008')
+    >>> dd+q
+    mpfr('801.46300000000008')
+    >>> z+dd
+    mpfr('246.34')
+    >>> dd+z
+    mpfr('246.34')
+    >>> f-dd
+    mpfr('111.116')
+    >>> dd-f
+    mpfr('-111.116')
+    >>> q-dd
+    mpfr('776.78300000000002')
+    >>> dd-q
+    mpfr('-776.78300000000002')
+    >>> z-dd
+    mpfr('221.66')
+    >>> dd-z
+    mpfr('-221.66')
+    >>> f*dd
+    mpfr('1523.44704')
+    >>> dd*f
+    mpfr('1523.44704')
+    >>> q*dd
+    mpfr('9737.7778200000012')
+    >>> dd*q
+    mpfr('9737.7778200000012')
+    >>> z*dd
+    mpfr('2887.5599999999999')
+    >>> dd*z
+    mpfr('2887.5599999999999')
+    >>> f/dd
+    mpfr('10.00453808752026')
+    >>> dd/f
+    mpfr('0.099954639709694135')
+    >>> q/dd
+    mpfr('63.948379254457052')
+    >>> dd/q
+    mpfr('0.015637612894314319')
+    >>> z/dd
+    mpfr('18.962722852512155')
+    >>> dd/z
+    mpfr('0.052735042735042738')
+
+    >>> G.ceil(dd)
+    mpfr('13.0')
+    >>> G.floor(dd)
+    mpfr('12.0')
+    >>> G.trunc(dd)
+    mpfr('12.0')
+    >>> mpfr(dd).precision
+    53
+
+    >>> G.sin(Decimal("123.456"))
+    mpfr('-0.80393736857282394')
+    >>> G.sqrt(Decimal("123.456"))
+    mpfr('11.111075555498667')
+    >>> G.is_nan(Decimal("123.456"))
+    False
+    >>> G.is_nan(Decimal("NaN"))
+    True
+    >>> G.is_nan(Decimal("Inf"))
+    False
+    >>> G.is_inf(Decimal("Inf"))
+    True
+    >>> G.is_inf(Decimal("-Inf"))
+    True
