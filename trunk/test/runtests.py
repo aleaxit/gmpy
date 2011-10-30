@@ -13,16 +13,29 @@ print("  Caching Values: (Number)      {0}".format(gmpy2.get_cache()[0]))
 print("  Caching Values: (Size, limbs) {0}".format(gmpy2.get_cache()[1]))
 print()
 
-doctests = ["test_misc.txt"]
+# The following tests should pass on all supported versions of Python.
+all_doctests = ["test_misc.txt", "test_dec.txt"]
+
+# The following tests will only pass on Python 3.2+.
+py32_doctests = ["test_hash.txt"]
+
 failed = 0
 attempted = 0
 
-for test in doctests:
+for test in all_doctests:
     print("Running test: {0}".format(test))
     result = doctest.testfile(test)
     print("  Results - Attempted: {1:4d} Failed: {0:4d}".format(*result))
     failed += result[0]
     attempted += result[1]
+
+if sys.version_info >= (3,2):
+    for test in py32_doctests:
+        print("Running test: {0}".format(test))
+        result = doctest.testfile(test)
+        print("  Results - Attempted: {1:4d} Failed: {0:4d}".format(*result))
+        failed += result[0]
+        attempted += result[1]
 
 print()
 print("Summary of all tests")
