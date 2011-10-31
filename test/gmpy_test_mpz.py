@@ -783,7 +783,7 @@ ValueError: sqrt of negative number
 >>> _g.remove(3,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: factor must be > 0
+ValueError: factor must be > 1
 >>> _g.remove(3)
 Traceback (innermost last):
   ...
