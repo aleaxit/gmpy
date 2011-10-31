@@ -5569,8 +5569,8 @@ Pympz_remove(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPZ(factor, "remove() expects 'mpz','mpz' arguments");
 
-    if(mpz_sgn(Pympz_AS_MPZ(factor)) <= 0) {
-        PyErr_SetString(PyExc_ValueError, "factor must be > 0");
+    if(mpz_cmp_si(Pympz_AS_MPZ(factor), 1) < 0) {
+        PyErr_SetString(PyExc_ValueError, "factor must be > 1");
         Py_DECREF(self);
         Py_DECREF(factor);
         return NULL;
