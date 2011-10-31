@@ -1,6 +1,6 @@
 r'''
 >>> gmpy.version()
-'1.14'
+'1.15'
 >>>
 '''
 
@@ -23,7 +23,7 @@ test_modules = (gmpy_test_cvr, gmpy_test_rnd, gmpy_test_mpf,
     gmpy_test_mpq, gmpy_test_mpz, gmpy_test_dec)
 
 _g = gmpy
-print("Unit tests for gmpy 1.14")
+print("Unit tests for gmpy 1.15")
 print("    on Python %s" % sys.version)
 if _g.gmp_version():
     print("Testing gmpy %s (GMP %s), default caching (%s, %s)" % (

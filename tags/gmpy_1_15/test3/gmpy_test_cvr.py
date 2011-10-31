@@ -7,7 +7,7 @@ True
 >>> _g.mpir_version()[:3] in ('0.9', '1.0', '1.1', '1.2', '1.3', '2.0', '2.1', '')
 True
 >>> _g.version()
-'1.14'
+'1.15'
 >>> int('gmpy.c' in _g._cvsid())
 1
 '''
@@ -516,7 +516,7 @@ True
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy 1.14 (extra cover)")
+        print("Unit tests for gmpy 1.15 (extra cover)")
         print("    running on Python", sys.version)
         print()
         if _g.gmp_version():
