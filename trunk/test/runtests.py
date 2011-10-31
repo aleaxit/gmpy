@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import print_function, division
 
 import sys
 import doctest
@@ -14,7 +14,7 @@ print("  Caching Values: (Size, limbs) {0}".format(gmpy2.get_cache()[1]))
 print()
 
 # The following tests should pass on all supported versions of Python.
-all_doctests = ["test_misc.txt", "test_dec.txt"]
+all_doctests = ["test_misc.txt", "test_dec.txt", "test_mpz.txt"]
 
 # The following tests will only pass on Python 3.2+.
 py32_doctests = ["test_hash.txt"]
