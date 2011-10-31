@@ -1551,6 +1551,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
                 PyErr_SetString(PyExc_ZeroDivisionError, "mpz divmod by zero");
                 Py_DECREF((PyObject*)rz);
                 Py_DECREF((PyObject*)qz);
+                Py_DECREF(r);
                 return NULL;
             } else {
                 mpz_cdiv_qr_ui(qz->z, rz->z, Pympz_AS_MPZ(a), -temp);
@@ -1624,17 +1625,21 @@ Pympany_divmod(PyObject *a, PyObject *b)
         pbq = anyrational2Pympq(b);
         if(!paq || !pbq) {
             PyErr_SetString(PyExc_SystemError, "Can not convert rational to mpq");
-            Py_XDECREF((PyObject*)paq); Py_XDECREF((PyObject*)pbq);
+            Py_XDECREF((PyObject*)paq);
+            Py_XDECREF((PyObject*)pbq);
             return NULL;
         }
         if(mpq_sgn(pbq->q)==0) {
             PyErr_SetString(PyExc_ZeroDivisionError, "mpq divmod by zero");
-            Py_DECREF((PyObject*)paq); Py_DECREF((PyObject*)pbq);
+            Py_DECREF((PyObject*)paq);
+            Py_DECREF((PyObject*)pbq);
             return NULL;
         }
         if (!(rq = Pympq_new()) || !(qz = Pympz_new())) {
-            Py_XDECREF((PyObject*)rq); Py_XDECREF((PyObject*)qz);
-            Py_DECREF((PyObject*)paq); Py_DECREF((PyObject*)pbq);
+            Py_XDECREF((PyObject*)rq);
+            Py_XDECREF((PyObject*)qz);
+            Py_DECREF((PyObject*)paq);
+            Py_DECREF((PyObject*)pbq);
             return NULL;
         }
         mpq_div(rq->q, paq->q, pbq->q);

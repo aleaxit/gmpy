@@ -218,6 +218,9 @@
  *   Fixed incorrect type declaration for options.debug (casevh)
  *   Support wide hash result on Win64, new for Python 3.2 (casevh)
  *   Fix repr(mpq) formatting when denominator was 1 (casevh)
+ *
+ *   1.15
+ *   Fix ref-count bug in divmod(x,0) (casevh)
  */
 #include "Python.h"
 
@@ -373,7 +376,7 @@ Therefore, this combined module is licensed under LGPL 2.1 or later.\
 #endif
 #undef GNU_MP_VER
 
-char gmpy_version[] = "1.14";
+char gmpy_version[] = "1.15";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -5056,7 +5059,6 @@ Pympf_hash(PympfObject *self)
     Py_uhash_t hash = 0;
     Py_ssize_t exp = 0;
     size_t mbits = 0;
-    double notneeded;
     mpz_t hack;
     int sign;
 
@@ -5077,7 +5079,7 @@ Pympf_hash(PympfObject *self)
     mbits = mpz_sizeinbase(hack, 2);
 
     /* Get the exponent as a power of 2. */
-    notneeded = mpf_get_d_2exp(&exp, self->f);
+    mpf_get_d_2exp(&exp, self->f);
 
     /* Calculate the final hash. */
     exp -= (Py_ssize_t)mbits;
@@ -6979,7 +6981,7 @@ static void _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] = "\
-gmpy 1.12 - General Multiprecision arithmetic for Python:\n\
+gmpy 1.15 - General Multiprecision arithmetic for Python:\n\
 exposes functionality from the GMP or MPIR library to Python 2.4+\n\
 and  3.1+.\n\
 \n\
