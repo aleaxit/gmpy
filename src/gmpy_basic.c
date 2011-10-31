@@ -934,7 +934,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
                 mpz_cloc(tempz);
             }
             else if (temp == 0) {
-                ZERO_ERROR("division or modulo by zero in floor division");
+                ZERO_ERROR("division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
             }
@@ -950,7 +950,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
         if (CHECK_MPZANY(b)) {
             TRACE("Floor divide (mpz,mpz)\n");
             if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
-                ZERO_ERROR("division or modulo by zero in floor division");
+                ZERO_ERROR("division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
             }
@@ -962,7 +962,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
 
     if (CHECK_MPZANY(b)) {
         if (mpz_sgn(Pympz_AS_MPZ(b)) == 0) {
-            ZERO_ERROR("division or modulo by zero in floor division");
+            ZERO_ERROR("division or modulo by zero");
             return NULL;
         }
         if (!(rz = Pympz_new()))
@@ -1075,7 +1075,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
             return NULL;
         }
         if (mpz_sgn(pbz->z)==0) {
-            ZERO_ERROR("division or modulo by zero in floor division");
+            ZERO_ERROR("division or modulo by zero");
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
@@ -1102,7 +1102,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
             return NULL;
         }
         if (mpq_sgn(pbq->q)==0) {
-            ZERO_ERROR("division or modulo by zero in floor division");
+            ZERO_ERROR("division or modulo by zero");
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
             return NULL;
@@ -1273,7 +1273,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             return NULL;
         }
         if (mpz_sgn(pbz->z) == 0) {
-            ZERO_ERROR("division or modulo by zero in floor division");
+            ZERO_ERROR("division or modulo by zero");
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
@@ -1316,7 +1316,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             return NULL;
         }
         if (mpq_sgn(pbq->q)==0) {
-            ZERO_ERROR("division or modulo by zero in floor division");
+            ZERO_ERROR("division or modulo by zero");
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
             return NULL;
