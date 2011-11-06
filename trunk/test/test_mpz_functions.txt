@@ -124,8 +124,8 @@ Test gmpy2.divexact
     >>> aa=G.mpz('1234567912345678912345679')
     >>> bb=G.mpz('789789789789789789789789')
     >>> cc=aa*bb
-    >>> G.divexact(cc,aa)
-    mpz(789789789789789789789789)
+    >>> print(G.divexact(cc,aa))
+    789789789789789789789789
     >>> del aa,bb,cc
 
 Test gmpy2.divm
@@ -362,16 +362,17 @@ Test gmpy2.kronecker
     Traceback (innermost last):
       ...
     TypeError: kronecker() requires 'mpz','mpz' arguments
-    >>> a=10**20
-    >>> b=a+39
-    >>> G.jacobi(a,b)
+    >>> aaa = 10**20
+    >>> bbb = aaa+39
+    >>> G.jacobi(aaa,bbb)
     1
-    >>> G.legendre(a,b)
+    >>> G.legendre(aaa,bbb)
     1
-    >>> G.kronecker(a,b)
+    >>> G.kronecker(aaa,bbb)
     Traceback (most recent call last):
       ...
     ValueError: Either arg in Kronecker must fit in an int
+    >>> del aaa,bbb
 
 Test gmpy2.lcm
 --------------
