@@ -39,7 +39,7 @@ Pympz_digits(PyObject *self, PyObject *args)
 
     PARSE_ONE_MPZ_OPT_CLONG(&base,
             "digits() requires 'mpz',['int'] arguments");
-    result = Pympz_ascii((PympzObject*)self, base, 0);
+    result = Pympz_ascii((PympzObject*)self, base, 16);
     Py_DECREF(self);
     return result;
 }
