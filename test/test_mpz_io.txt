@@ -30,17 +30,18 @@ Test format
     'mpz(123)'
     >>> hex(a)
     '0x7b'
-    >>> temp = '0o173' if sys.version[0] == 3 else '0173'
+    >>> temp = '0o173' if sys.version_info[0] == 3 else '0173'
     >>> temp == oct(a)
     True
     >>> G.mpz('123')
     mpz(123)
     >>> G.mpz('1001001011',2)
     mpz(587)
-    >>> temp = '0b1001001011' if sys.version[0] == 3 else '1001001011'
-    >>> temp == G.mpz('1001001011',2).digits(2)
-    True
+    >>> bin(G.mpz('1001001011',2))
+    '0b1001001011'
     >>> del temp
+    >>> '1001001011' == G.mpz('1001001011',2).digits(2)
+    True
     >>> for i in range(2,63):
     ...     print(a.digits(i))
     ...
@@ -128,14 +129,14 @@ Test binary i/o
 ---------------
 
     >>> ba=a.binary()
-    >>> print(ba)
-    {
+    >>> b"{" == ba
+    True
     >>> G.mpz_from_old_binary(ba)
     mpz(123)
     >>> G.mpz_from_old_binary(ba)==a
     1
-    >>> print(G.binary(G.mpz(123)))
-    {
+    >>> b"{" == G.binary(G.mpz(123))
+    True
     >>> z=G.mpz_from_old_binary(b'melancholy')
     >>> print(z)
     573406620562849222387053
