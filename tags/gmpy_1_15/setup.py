@@ -20,11 +20,12 @@ incdirs = libdirs = ()
 if sys.version.find('MSC') == -1:
     # Unix-like build (including MacOSX)
     incdirs = ['./src']
-    dirord = ['/opt/local', '/usr/local']
+    dirord = ['/usr', '/opt/local', '/usr/local']
     for adir in dirord:
         lookin = '%s/include' % adir
         if os.path.isfile(lookin + '/' + mplib + '.h'):
             incdirs.append(lookin)
+            dirord = [adir]
             break
     for adir in dirord:
         lookin = '%s/lib' % adir
