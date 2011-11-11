@@ -193,7 +193,7 @@
  *   Added % and divmod support to mpq and mpf (casevh)
  *   Changed memory allocation functions to use PyMem (casevh)
  *   Removed small number interning (casevh)
- *   Added tdivmod, cdivmod, and fdivmoc (casevh)
+ *   Added tdivmod, cdivmod, and fdivmod (casevh)
  *   Added more helper functions for mpmath (casevh)
  *   Faster mpz<>PyLong conversion (casevh)
  *   Faster hash(mpz) (casevh)
@@ -221,6 +221,9 @@
  *
  *   1.15
  *   Fix ref-count bug in divmod(x,0) (casevh)
+ *   Fix crash in remove(n,1) (casevh)
+ *   Discontinue use of custom memory allocator & PyMem (casevh)
+ *   Modified directory search logic in setup.py (casevh)
  */
 #include "Python.h"
 
@@ -237,11 +240,6 @@
 
 #define GMPY_MODULE
 #include "gmpy.h"
-
-/* Define the minimum memory amount allocated. 8 has historically been
- * used, but 16 might be better for some applications or 64-bit systems.
- */
-#define GMPY_ALLOC_MIN (2 * (GMP_NUMB_BITS >> 3))
 
 /* To prevent excessive memory usage, we don't want to save very large
  * numbers in the cache. The default value specified in the options
@@ -387,19 +385,19 @@ char _gmpy_cvs[] = "$Id$";
     if(S < ALLOC_THRESHOLD) { \
         B = alloca(S); \
     } else { \
-        if(!(B = PyMem_Malloc(S))) { \
+        if(!(B = malloc(S))) { \
             PyErr_NoMemory(); \
             return NULL; \
         } \
     }
-#define TEMP_FREE(B, S) if(S >= ALLOC_THRESHOLD) PyMem_Free(B)
+#define TEMP_FREE(B, S) if(S >= ALLOC_THRESHOLD) free(B)
 #else
 #define TEMP_ALLOC(B, S) \
-    if(!(B = PyMem_Malloc(S)))  { \
+    if(!(B = malloc(S)))  { \
         PyErr_NoMemory(); \
         return NULL; \
     }
-#define TEMP_FREE(B, S) PyMem_Free(B)
+#define TEMP_FREE(B, S) free(B)
 #endif
 
 /*
@@ -434,7 +432,7 @@ static void set_Xcache(void) \
             mpX_clear(Xcache[i]); \
         in_Xcache = options.cache_size; \
     } \
-    Xcache = PyMem_Realloc(Xcache, sizeof(mpX_t)*options.cache_size); \
+    Xcache = realloc(Xcache, sizeof(mpX_t)*options.cache_size); \
 }
 
 DEFCACHE(mpz_t,zcache,in_zcache,set_zcache,mpz_clear)
@@ -558,7 +556,7 @@ set_pympzcache(void)
         }
         in_pympzcache = options.cache_size;
     }
-    pympzcache = PyMem_Realloc(pympzcache, sizeof(PympzObject)*options.cache_size);
+    pympzcache = realloc(pympzcache, sizeof(PympzObject)*options.cache_size);
 }
 
 /* Cache Pympq objects directly */
@@ -579,7 +577,7 @@ set_pympqcache(void)
         }
         in_pympqcache = options.cache_size;
     }
-    pympqcache = PyMem_Realloc(pympqcache, sizeof(PympqObject)*options.cache_size);
+    pympqcache = realloc(pympqcache, sizeof(PympqObject)*options.cache_size);
 }
 /* forward declarations of type-objects and method-arrays for them */
 #ifdef _MSC_VER
@@ -2047,7 +2045,7 @@ Pympf2binary(PympfObject *x)
         j += 2;
     }
 
-    PyMem_Free(buffer);
+    free(buffer);
     return s;
 }
 
@@ -2268,15 +2266,15 @@ Pympf_ascii(PympfObject *self, int base, int digits,
     buffer = mpf_get_str(0, &the_exp, base, digits, self->f);
     if(!*buffer) {
         /* need to use malloc here for uniformity with mpf_get_str */
-        PyMem_Free(buffer);
-        buffer = PyMem_Malloc(2);
+        free(buffer);
+        buffer = malloc(2);
         strcpy(buffer, "0");
         the_exp = 1;
     }
 
     if(optionflags & OP_RAW) {
         res = Py_BuildValue("(sii)", buffer, the_exp, self->rebits);
-        PyMem_Free(buffer);
+        free(buffer);
         return res;
     } else {
         /* insert formatting elements (decimal-point, leading or
@@ -2406,7 +2404,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
                 *pd++ = ')';
             }
         }
-        PyMem_Free(buffer);
+        free(buffer);
 #if PY_MAJOR_VERSION >= 3
         temp = PyUnicode_FromString(PyBytes_AS_STRING(res));
         Py_DECREF(res);
@@ -5569,7 +5567,7 @@ Pympz_remove(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPZ(factor, "remove() expects 'mpz','mpz' arguments");
 
-    if(mpz_cmp_si(Pympz_AS_MPZ(factor), 1) < 0) {
+    if(mpz_cmp_si(Pympz_AS_MPZ(factor), 2) < 0) {
         PyErr_SetString(PyExc_ValueError, "factor must be > 1");
         Py_DECREF(self);
         Py_DECREF(factor);
@@ -6884,70 +6882,6 @@ static PyTypeObject Pympf_Type =
     Pympf_methods,                          /* tp_methods       */
 };
 
-
-static void *
-gmpy_allocate(size_t size)
-{
-    void *res;
-    size_t usize=size;
-    if(usize<GMPY_ALLOC_MIN) usize=GMPY_ALLOC_MIN;
-
-    if(options.debug)
-        fprintf(stderr, "mp_allocate( %d->%d )\n", (int)size, (int)usize);
-    if(!(res = PyMem_Malloc(usize)))
-        Py_FatalError("mp_allocate failure");
-
-    if(options.debug)
-        fprintf(stderr, "mp_allocate( %d->%d ) ->%8p\n", (int)size, (int)usize, res);
-
-    return res;
-} /* mp_allocate() */
-
-
-static void *
-gmpy_reallocate(void *ptr, size_t old_size, size_t new_size)
-{
-    void *res;
-    size_t uold=old_size;
-    size_t unew=new_size;
-    if(uold<GMPY_ALLOC_MIN) uold=GMPY_ALLOC_MIN;
-    if(unew<GMPY_ALLOC_MIN) unew=GMPY_ALLOC_MIN;
-
-    if(options.debug)
-        fprintf(stderr,
-            "mp_reallocate: old address %8p, old size %d(%d), new %d(%d)\n",
-            ptr, (int)old_size, (int)uold, (int)new_size, (int)unew);
-
-    if(uold==unew) {
-        if(options.debug)
-            fprintf(stderr, "mp_reallocate: avoided realloc for %d\n", (int)unew);
-        return ptr;
-    }
-
-    if(!(res = PyMem_Realloc(ptr, unew)))
-        Py_FatalError("mp_reallocate failure");
-
-    if(options.debug)
-        fprintf(stderr, "mp_reallocate: newob address %8p, newob size %d(%d)\n",
-        res, (int)new_size, (int)unew);
-
-    return res;
-} /* mp_reallocate() */
-
-static void
-gmpy_free( void *ptr, size_t size)
-{
-    size_t usize=size;
-    if(usize<GMPY_ALLOC_MIN) usize=GMPY_ALLOC_MIN;
-
-    if(options.debug)
-        fprintf(stderr, "mp_free      : old address %8p, old size %d(%d)\n",
-            ptr, (int)size, (int)usize);
-
-    PyMem_Free(ptr);
-} /* mp_free() */
-
-
 /* Find out how many bits are significant in a double */
 static unsigned get_precision(void)
 {
@@ -6970,7 +6904,6 @@ static unsigned get_precision(void)
 
 static void _PyInitGMP(void)
 {
-    mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
     double_mantissa = get_precision();
     options.minprec = double_mantissa;
     set_zcache();
