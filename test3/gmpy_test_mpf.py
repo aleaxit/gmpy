@@ -290,7 +290,7 @@ mpf('3.39999999999999999998e0')
 >>> a.digits(1)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
-ValueError: base must be either 0 or in the interval 2 ... 36
+ValueError: base must be either 0 or in the interval 2 ... 62
 >>> a.digits(2,-1)
 Traceback (most recent call last):
   File "<string>", line 1, in ?

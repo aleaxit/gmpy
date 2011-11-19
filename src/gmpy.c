@@ -224,6 +224,7 @@
  *   Fix crash in remove(n,1) (casevh)
  *   Discontinue use of custom memory allocator & PyMem (casevh)
  *   Modified directory search logic in setup.py (casevh)
+ *   Allow base-62 conversion for mpz and mpf (casevh)
  */
 #include "Python.h"
 
@@ -1317,7 +1318,7 @@ PyLong2Pympq(PyObject * obj)
 
 /*
  * mpz conversion from string includes from-binary (base-256 LSB string
- * of bytes) and 'true' from-string (bases 2 to 36; bases 8 and 16 are
+ * of bytes) and 'true' from-string (bases 2 to 62; bases 8 and 16 are
  * special -- decorations of leading 0/0x are allowed (not required).
  *
  * Binary form was previously (0.6) limited to >=0 values; now (0.7)
@@ -1591,7 +1592,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
 
 /*
  * mpf conversion from string includes from-binary (base-256, format is
- * explained later) and 'true' from-string (bases 2 to 36), where exponent
+ * explained later) and 'true' from-string (bases 2 to 62), where exponent
  * if any is denoted by 'e' if base<=10, else by '@', and is always decimal.
  */
 static PympfObject *
@@ -2050,23 +2051,23 @@ Pympf2binary(PympfObject *x)
 }
 
 /*
- * format mpz into any base (2 to 36), optionally with
+ * format mpz into any base (2 to 62), optionally with
  * a "gmpy.mpz(...)" tag around it so it can be recovered
  * through a Python eval of the resulting string
  * Note: tag can be just mpz() if options.tagoff=5
  */
 static char* ztag = "gmpy.mpz(";
 static PyObject *
-mpz_ascii(mpz_t z, int base, int with_tag)
+mpz_ascii(mpz_t z, int base, int with_tag, int no_prefix)
 {
     PyObject *s;
     char *buffer, *p;
     mpz_t temp;
     int minus, size;
 
-    if((base != 0) && ((base < 2) || (base > 36))) {
+    if((base != 0) && ((base < 2) || (base > 62))) {
         PyErr_SetString(PyExc_ValueError,
-            "base must be either 0 or in the interval 2 ... 36");
+            "base must be either 0 or in the interval 2 ... 62");
         return NULL;
     }
 
@@ -2098,17 +2099,19 @@ mpz_ascii(mpz_t z, int base, int with_tag)
     }
     if(minus)
         *(p++) = '-';
-    if(base == 8)
-        *(p++) = '0';
-    else if(base == 16) {
-        *(p++) = '0';
-        *(p++) = 'x';
+    if (!no_prefix) {
+        if(base == 8)
+            *(p++) = '0';
+        else if(base == 16) {
+            *(p++) = '0';
+            *(p++) = 'x';
+        }
     }
 
     mpz_get_str(p, base, temp); /* Doesn't return number of characters */
     p = buffer + strlen(buffer); /* Address of NULL byte */
 #if PY_MAJOR_VERSION < 3
-    if(with_tag && !mpz_fits_slong_p(temp))
+    if(with_tag && !no_prefix && !mpz_fits_slong_p(temp))
         *(p++) = 'L';
 #endif
     if(with_tag)
@@ -2120,19 +2123,19 @@ mpz_ascii(mpz_t z, int base, int with_tag)
 }
 
 static PyObject *
-Pympz_ascii(PympzObject *self, int base, int with_tag)
+Pympz_ascii(PympzObject *self, int base, int with_tag, int no_prefix)
 {
 #if PY_MAJOR_VERSION >= 3
     PyObject *s, *t;
     assert(Pympz_Check( (PyObject *) self));
-    t = mpz_ascii(self->z, base, with_tag);
+    t = mpz_ascii(self->z, base, with_tag, no_prefix);
     if(!t) return NULL;
     s = PyUnicode_FromString(PyBytes_AS_STRING(t));
     Py_DECREF(t);
     return s;
 #else
     assert(Pympz_Check( (PyObject *) self));
-    return mpz_ascii(self->z, base, with_tag);
+    return mpz_ascii(self->z, base, with_tag, no_prefix);
 #endif
 }
 
@@ -2145,14 +2148,14 @@ static PyObject *
 Pympq_ascii(PympqObject *self, int base, int with_tag)
 {
     PyObject *result = 0;
-    PyObject *numstr = mpz_ascii(mpq_numref(self->q), base, 0);
+    PyObject *numstr = mpz_ascii(mpq_numref(self->q), base, 0, 0);
     PyObject *denstr = 0;
     PyObject *temp = 0;
 
     if(!numstr) return 0;
 
     if(with_tag || !qden_1(self->q)) {
-        denstr = mpz_ascii(mpq_denref(self->q), base, 0);
+        denstr = mpz_ascii(mpq_denref(self->q), base, 0, 0);
         if(!denstr) {
             Py_DECREF(numstr);
             return 0;
@@ -2216,7 +2219,7 @@ Pympq_ascii(PympqObject *self, int base, int with_tag)
 #define OP_RAW 2
 static char ftag[]="gmpy.mpf('";
 /*
- * format mpf into any base (2 to 36), optionally with
+ * format mpf into any base (2 to 62), optionally with
  * a "gmpy.mpf('...')" tag around it so it can be recovered
  * through a Python eval of the resulting string.
  * Note: tag can be just mpf() if options.tagoff=5
@@ -2252,9 +2255,9 @@ Pympf_ascii(PympfObject *self, int base, int digits,
 
     /* check arguments are valid */
     assert(Pympf_Check((PyObject*)self));
-    if(! ( (base==0) || ((base >= 2) && (base <= 36))))    {
+    if(! ( (base==0) || ((base >= 2) && (base <= 62))))    {
         PyErr_SetString(PyExc_ValueError,
-            "base must be either 0 or in the interval 2 ... 36");
+            "base must be either 0 or in the interval 2 ... 62");
         return NULL;
     }
     if(digits < 0) {
@@ -2795,13 +2798,13 @@ static PyObject *
 Pympz2str(PympzObject *self)
 {
     /* base-10, no tag */
-    return Pympz_ascii(self, 10, 0);
+    return Pympz_ascii(self, 10, 0, 0);
 }
 static PyObject *
 Pympz2repr(PympzObject *self)
 {
     /* base-10, with tag */
-    return Pympz_ascii(self, 10, 1);
+    return Pympz_ascii(self, 10, 1, 0);
 }
 
 /* str and repr implementations for mpq */
@@ -3012,12 +3015,12 @@ Pympf_binary(PyObject *self, PyObject *args)
 /* produce digits for an mpz in requested base, default 10 */
 static char doc_digitsm[]="\
 x.digits([base]): returns Python string representing x in the\n\
-given base (2 to 36, default 10 if omitted or 0); leading '-'\n\
+given base (2 to 62, default 10 if omitted or 0); leading '-'\n\
 is present if x<0, but no leading '+' if x>=0.\n\
 ";
 static char doc_digitsg[]="\
 digits(x[,base]): returns Python string representing x in the\n\
-given base (2 to 36, default 10 if omitted or 0); leading '-'\n\
+given base (2 to 62, default 10 if omitted or 0); leading '-'\n\
 present if x<0, but no leading '+' if x>=0. x must be an mpz,\n\
 or else gets coerced into one.\n\
 ";
@@ -3029,7 +3032,7 @@ Pympz_digits(PyObject *self, PyObject *args)
 
     PARSE_ONE_MPZ_OPT_CLONG(&base, "digits() expects 'mpz',['int'] arguments");
     assert(Pympz_Check(self));
-    s = Pympz_ascii((PympzObject*)self, base, 0);
+    s = Pympz_ascii((PympzObject*)self, base, 0, 1);
     Py_DECREF(self);
     return s;
 }
@@ -3037,14 +3040,14 @@ Pympz_digits(PyObject *self, PyObject *args)
 /* return number-of-digits for an mpz in requested base, default 10 */
 static char doc_numdigitsm[]="\
 x.numdigits([base]): returns length of string representing x in\n\
-the given base (2 to 36, default 10 if omitted or 0); the value\n\
+the given base (2 to 62, default 10 if omitted or 0); the value\n\
 returned may sometimes be 1 more than necessary; no provision\n\
 for any 'sign' character, nor leading '0' or '0x' decoration,\n\
 is made in the returned length.\n\
 ";
 static char doc_numdigitsg[]="\
 numdigits(x[,base]): returns length of string representing x in\n\
-the given base (2 to 36, default 10 if omitted or 0); the value\n\
+the given base (2 to 62, default 10 if omitted or 0); the value\n\
 returned may sometimes be 1 more than necessary; no provision\n\
 for any 'sign' character, nor leading '0' or '0x' decoration,\n\
 is made in the returned length.  x must be an mpz, or else gets\n\
@@ -3059,9 +3062,9 @@ Pympz_numdigits(PyObject *self, PyObject *args)
     PARSE_ONE_MPZ_OPT_CLONG(&base, "numdigits expects 'mpz',[base] arguments");
     assert(Pympz_Check(self));
     if(base==0) base=10;
-    if((base < 2) || (base > 36)) {
+    if((base < 2) || (base > 62)) {
         PyErr_SetString(PyExc_ValueError,
-            "base must be either 0 or in the interval 2 ... 36");
+            "base must be either 0 or in the interval 2 ... 62");
         Py_DECREF(self);
         return NULL;
     }
@@ -3889,10 +3892,10 @@ Pygmpy_mpz(PyObject *self, PyObject *args)
                         "gmpy.mpz(): base must be an integer");
                 return NULL;
             }
-            if((base!=0) && (base!=256) && ((base<2)||(base>36))) {
+            if((base!=0) && (base!=256) && ((base<2)||(base>62))) {
                 PyErr_SetString(PyExc_ValueError,
                         "base for gmpy.mpz must be 0, 256, or in the "
-                        "interval 2 ... 36 .");
+                        "interval 2 ... 62 .");
                 return NULL;
             }
         }
@@ -4088,10 +4091,10 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
                         "gmpy.mpf(): base must be an integer");
                 return NULL;
             }
-            if((base!=0) && (base!=256) && ((base<2)||(base>36))) {
+            if((base!=0) && (base!=256) && ((base<2)||(base>62))) {
                 PyErr_SetString(PyExc_ValueError,
                         "base for gmpy.mpf must be 0, 256, or in the "
-                        "interval 2 ... 36 .");
+                        "interval 2 ... 62 .");
                 return NULL;
             }
         }
@@ -5014,12 +5017,12 @@ Pympz_lshift(PyObject *a, PyObject *b)
 static PyObject *
 Pympz_oct(PympzObject *self)
 {
-    return Pympz_ascii(self, 8, 0);
+    return Pympz_ascii(self, 8, 0, 0);
 }
 static PyObject *
 Pympz_hex(PympzObject *self)
 {
-    return Pympz_ascii(self, 16, 0);
+    return Pympz_ascii(self, 16, 0, 0);
 }
 #endif
 

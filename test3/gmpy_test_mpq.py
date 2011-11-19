@@ -220,7 +220,7 @@ gmpy.mpq(617,50)
 ...          print('er4:',i,j,repr(aa),("mpq(%d,%d)"%(ai,aj))); break
 ...       if aj==1 and repr(aa) != ("mpq(%d,%d)"%(ai,aj)):
 ...          print('er5:',i,j,repr(aa),"mpq(%d,%d)"%(ai,aj)); break
->>> fmo='_g.mpq('+a.numer().digits(16)+','+a.denom().digits(16)+')'
+>>> fmo='_g.mpq('+hex(a.numer())+','+hex(a.denom())+')'
 >>> fmo
 '_g.mpq(0x29,0x98)'
 >>> eval(fmo)==a

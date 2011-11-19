@@ -2,9 +2,9 @@
 # relies on Tim Peters' "doctest.py" test-driver
 
 r'''
->>> print int(_g.gmp_version()[:3] in ('5.0', '4.3', '4.2', '4.1', '4.0', ''))
+>>> print int(_g.gmp_version()[:3] in ('5.0', '4.3', ''))
 1
->>> print int(_g.mpir_version()[:3] in ('', '0.9', '1.0', '1.1', '1.2', '1.3', '2.0', '2.1'))
+>>> print int(_g.mpir_version()[:3] in ('2.3', '2.4', ''))
 1
 >>> _g.version()
 '1.15'
@@ -322,7 +322,7 @@ TypeError: gmpy.mpz(): base must be an integer
 >>> _g.mpz('bi',99)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: base for gmpy.mpz must be 0, 256, or in the interval 2 ... 36 .
+ValueError: base for gmpy.mpz must be 0, 256, or in the interval 2 ... 62 .
 >>> _g.mpz(1,2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -374,7 +374,7 @@ TypeError: gmpy.mpf(): base must be an integer
 >>> _g.mpf('ba',0,99)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: base for gmpy.mpf must be 0, 256, or in the interval 2 ... 36 .
+ValueError: base for gmpy.mpf must be 0, 256, or in the interval 2 ... 62 .
 >>> _g.mpf(1,2,3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
