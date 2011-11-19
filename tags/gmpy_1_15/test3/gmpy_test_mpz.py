@@ -599,7 +599,7 @@ mpz(123)
 mpz(587)
 >>> _g.mpz('1001001011',2).digits(2)
 '1001001011'
->>> for i in range(2,37):
+>>> for i in range(2,63):
 ...     print(a.digits(i))
 ...
 1111011
@@ -608,7 +608,7 @@ mpz(587)
 443
 323
 234
-0173
+173
 146
 123
 102
@@ -616,7 +616,7 @@ a3
 96
 8b
 83
-0x7b
+7b
 74
 6f
 69
@@ -637,11 +637,37 @@ a3
 3l
 3i
 3f
->>> print(a.digits(37))
+3C
+39
+36
+33
+30
+2d
+2b
+2Z
+2X
+2V
+2T
+2R
+2P
+2N
+2L
+2J
+2H
+2F
+2D
+2B
+29
+27
+25
+23
+21
+1z
+>>> print(a.digits(63))
 Traceback (innermost last):
   File "<stdin>", line 1, in ?
-    print(a.digits(37))
-ValueError: base must be either 0 or in the interval 2 ... 36
+    print(a.digits(63))
+ValueError: base must be either 0 or in the interval 2 ... 62
 >>> _g.set_tagoff(0)
 1
 >>> a
@@ -684,7 +710,7 @@ mpz(573406620562849222387053)
 573406620562849222387053
 >>> divmod(z,a)
 (mpz(4661842443600400182008), mpz(69))
->>> for i in range(2,37):
+>>> for i in range(2,63):
 ...    print(i,z.numdigits(i))
 ...
 2 79
@@ -722,6 +748,32 @@ mpz(573406620562849222387053)
 34 16
 35 16
 36 16
+37 16
+38 16
+39 15
+40 15
+41 15
+42 15
+43 15
+44 15
+45 15
+46 15
+47 15
+48 15
+49 15
+50 14
+51 14
+52 14
+53 14
+54 14
+55 14
+56 14
+57 14
+58 14
+59 14
+60 14
+61 14
+62 14
 >>> _g.numdigits(23)
 2
 >>> _g.numdigits(23,2)
@@ -729,7 +781,7 @@ mpz(573406620562849222387053)
 >>> _g.numdigits(23,99)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
-ValueError: base must be either 0 or in the interval 2 ... 36
+ValueError: base must be either 0 or in the interval 2 ... 62
 >>> hash(a)
 123
 >>> hash(b)

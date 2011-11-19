@@ -42,12 +42,11 @@ gmpy_ext = Extension('gmpy', sources=['src/gmpy.c'],
     libraries=[mplib])
 
 setup (name = "gmpy",
-       version = "1.15",
-       maintainer = "Alex Martelli",
-       maintainer_email = "aleaxit@gmail.com",
+       version = "1.15rc1",
+       maintainer = "Case Van Horsen",
+       maintainer_email = "casevh@gmail.com",
        url = "http://code.google.com/p/gmpy/",
        description = "MPIR/GMP interface to Python 2.4+ and 3.x",
-       # download_url = "http://http://prdownloads.sourceforge.net/gmpy/gmpy-sources-101.zip?download",
 
        classifiers = [
          'Development Status :: 5 - Production/Stable',
