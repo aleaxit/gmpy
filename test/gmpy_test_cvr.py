@@ -4,7 +4,7 @@
 r'''
 >>> print int(_g.gmp_version()[:3] in ('5.0', '4.3', ''))
 1
->>> print int(_g.mpir_version()[:3] in ('2.3', '2.4', ''))
+>>> print int(_g.mpir_version()[:3] in ('2.3', '2.4', '2.5', ''))
 1
 >>> _g.version()
 '1.15'

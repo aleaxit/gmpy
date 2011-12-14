@@ -33,7 +33,7 @@ Pympany_add(PyObject *a, PyObject *b)
 #if PY_MAJOR_VERSION == 3
     int overflow;
 #endif
-    unsigned int bits;
+    size_t bits;
 
     /* Try to make mpz + small_int faster */
 
@@ -225,7 +225,7 @@ Pympany_sub(PyObject *a, PyObject *b)
 #if PY_MAJOR_VERSION == 3
     int overflow;
 #endif
-    unsigned int bits;
+    size_t bits;
 
     if(Pympz_Check(a)) {
         if(!(rz = Pympz_new()))
@@ -417,7 +417,7 @@ Pympany_mul(PyObject *a, PyObject *b)
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
     PympfObject *rf = 0, *paf = 0, *pbf = 0;
     long temp;
-    unsigned int bits;
+    size_t bits;
 #if PY_MAJOR_VERSION == 3
     int overflow;
 #endif
@@ -621,7 +621,7 @@ Pympany_floordiv(PyObject *a, PyObject *b)
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
     PympfObject *rf = 0, *paf = 0, *pbf = 0;
     long temp;
-    unsigned int bits;
+    size_t bits;
 #if PY_MAJOR_VERSION == 3
     int overflow;
 #endif
@@ -853,7 +853,7 @@ Pympany_truediv(PyObject *a, PyObject *b)
     PyObject *r = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
     PympfObject *rf = 0, *paf = 0, *pbf = 0;
-    unsigned int bits;
+    size_t bits;
 
     if(Pympz_Check(b) && (mpz_sgn(Pympz_AS_MPZ(b)) == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "mpz division by zero");
@@ -1018,7 +1018,7 @@ Pympany_div2(PyObject *a, PyObject *b)
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
     PympfObject *rf = 0, *paf = 0, *pbf = 0;
     long temp;
-    unsigned int bits;
+    size_t bits;
 #if PY_MAJOR_VERSION == 3
     int overflow;
 #endif
@@ -1254,7 +1254,7 @@ Pympany_rem(PyObject *a, PyObject *b)
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
     PympfObject *rf = 0, *paf = 0, *pbf = 0;
     long temp;
-    unsigned int bits;
+    size_t bits, tempbits;
 #if PY_MAJOR_VERSION == 3
     int overflow;
 #endif
@@ -1455,11 +1455,11 @@ Pympany_rem(PyObject *a, PyObject *b)
         bits = paf->rebits;
         if(pbf->rebits<bits) bits=pbf->rebits;
         /* To prevent rounding errors, the working precision is increased. */
-        temp = (paf->f->_mp_exp - pbf->f->_mp_exp) * GMP_NUMB_BITS + bits;
+        tempbits = (paf->f->_mp_exp - pbf->f->_mp_exp) * GMP_NUMB_BITS + bits;
         if(options.debug) {
-            fprintf(stderr, "Working precision %ld\n", temp);
+            fprintf(stderr, "Working precision %ld\n", tempbits);
         }
-        if (!(rf = Pympf_new(temp))) {
+        if (!(rf = Pympf_new(tempbits))) {
             Py_DECREF((PyObject*)paf); Py_DECREF((PyObject*)pbf);
             return NULL;
         }
@@ -1497,7 +1497,7 @@ Pympany_divmod(PyObject *a, PyObject *b)
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
     PympfObject *qf = 0, *rf = 0, *paf = 0, *pbf = 0;
     long temp;
-    unsigned int bits;
+    size_t bits, tempbits;
 #if PY_MAJOR_VERSION == 3
     int overflow;
 #endif
@@ -1765,11 +1765,11 @@ Pympany_divmod(PyObject *a, PyObject *b)
         bits = paf->rebits;
         if(pbf->rebits<bits) bits=pbf->rebits;
         /* To prevent rounding errors, the working precision is increased. */
-        temp = (paf->f->_mp_exp - pbf->f->_mp_exp) * GMP_NUMB_BITS + bits;
+        tempbits = (paf->f->_mp_exp - pbf->f->_mp_exp) * GMP_NUMB_BITS + bits;
         if(options.debug) {
-            fprintf(stderr, "Working precision %ld\n", temp);
+            fprintf(stderr, "Working precision %ld\n", tempbits);
         }
-        if (!(qf = Pympf_new(temp)) || !(rf = Pympf_new(temp))) {
+        if (!(qf = Pympf_new(tempbits)) || !(rf = Pympf_new(tempbits))) {
             Py_XDECREF((PyObject*)qf); Py_XDECREF((PyObject*)rf);
             Py_DECREF((PyObject*)paf); Py_DECREF((PyObject*)pbf);
             return NULL;

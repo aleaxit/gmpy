@@ -2,9 +2,9 @@
 # relies on Tim Peters' "doctest.py" test-driver
 
 r'''
->>> _g.gmp_version()[:3] in ('5.0', '4.3', '4.2', '4.1', '4.0', '3.1', '')
+>>> _g.gmp_version()[:3] in ('5.0', '4.3', '')
 True
->>> _g.mpir_version()[:3] in ('0.9', '1.0', '1.1', '1.2', '1.3', '2.0', '2.1', '')
+>>> _g.mpir_version()[:3] in ( '2.3', '2.4', '2.5', '')
 True
 >>> _g.version()
 '1.15'
