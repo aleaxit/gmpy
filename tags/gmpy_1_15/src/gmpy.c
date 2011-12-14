@@ -407,11 +407,11 @@ char _gmpy_cvs[] = "$Id$";
 static PyObject *gmpy_module = NULL;
 
 static struct gmpy_options {
-    int debug;     /* != 0 if debug messages desired on stderr */
-    unsigned long minprec;   /* min #of bits' precision on new mpf's built */
+    int debug;          /* != 0 if debug messages desired on stderr */
+    long minprec;       /* min #of bits' precision on new mpf's built */
     int tagoff;         /* 0 for full tags 'gmpy.mpz()', else 5 for 'mpz()' */
-    int cache_size;    /* size of cache, for all caches */
-    int cache_obsize;  /* maximum size of the objects that are cached */
+    int cache_size;     /* size of cache, for all caches */
+    int cache_obsize;   /* maximum size of the objects that are cached */
     PyObject* fcoform;  /* if non-NULL, format for float->mpf (via string) */
 } options = { 0, 0, 5, 100, 128, 0 };
 
@@ -896,7 +896,7 @@ Pympq_new(void)
 }
 
 static PympfObject *
-Pympf_new(unsigned int bits)
+Pympf_new(size_t bits)
 {
     PympfObject * self;
 
@@ -956,7 +956,7 @@ Pympf_dealloc(PympfObject *self)
 
 static void Pympf_normalize(PympfObject *i)
 {
-    long size, prec, toclear, temp;
+    Py_ssize_t temp, toclear, size, prec;
     mp_limb_t bit1, rem, carry;
 
     prec = mpf_get_prec(i->f);
@@ -1019,7 +1019,7 @@ Pympq2Pympq(PympqObject *q)
 }
 
 static PympfObject *
-Pympf2Pympf(PympfObject *f, unsigned int bits)
+Pympf2Pympf(PympfObject *f, size_t bits)
 {
     PympfObject *newob;
 
@@ -1060,7 +1060,7 @@ PyInt2Pympq(PyObject *i)
 }
 
 static PympfObject *
-PyInt2Pympf(PyObject *i, unsigned int bits)
+PyInt2Pympf(PyObject *i, size_t bits)
 {
     PympfObject *newob;
     long li;
@@ -1114,9 +1114,9 @@ PyFloat2Pympz(PyObject *f)
 
 /* forward...: */
 static PyObject *f2q_internal(PympfObject* self, PympfObject* err,
-        unsigned int bits, int mayz);
+        size_t bits, int mayz);
 static PyObject* Pympf_f2q(PyObject *self, PyObject *args);
-static PympfObject* anynum2Pympf(PyObject* obj, unsigned int bits);
+static PympfObject* anynum2Pympf(PyObject* obj, size_t bits);
 
 static PympqObject *
 PyFloat2Pympq(PyObject *f)
@@ -1142,10 +1142,10 @@ PyFloat2Pympq(PyObject *f)
 }
 
 /* forward */
-static PympfObject *PyStr2Pympf(PyObject *s, long base, unsigned int bits);
+static PympfObject *PyStr2Pympf(PyObject *s, long base, size_t bits);
 
 static PympfObject *
-PyFloat2Pympf(PyObject *f, unsigned int bits)
+PyFloat2Pympf(PyObject *f, size_t bits)
 {
     PympfObject *newob = 0;
 
@@ -1199,7 +1199,7 @@ PyFloat2Pympf(PyObject *f, unsigned int bits)
 }
 
 static PympfObject *
-Pympz2Pympf(PyObject * obj, unsigned int bits)
+Pympz2Pympf(PyObject * obj, size_t bits)
 {
     PympfObject *newob;
 
@@ -1248,7 +1248,7 @@ Pympf2Pympq(PyObject * obj)
 }
 
 static PympfObject *
-Pympq2Pympf(PyObject * obj, unsigned int bits)
+Pympq2Pympf(PyObject * obj, size_t bits)
 {
     PympfObject *newob;
 
@@ -1294,7 +1294,7 @@ PyLong2Pympz(PyObject * obj)
  * the above-seen dependencies; ditto long->mpq
  */
 static PympfObject *
-PyLong2Pympf(PyObject * obj, unsigned int bits)
+PyLong2Pympf(PyObject * obj, size_t bits)
 {
     PympfObject *newob;
     PyObject *intermediate = (PyObject*)PyLong2Pympz(obj);
@@ -1596,12 +1596,11 @@ PyStr2Pympq(PyObject *stringarg, long base)
  * if any is denoted by 'e' if base<=10, else by '@', and is always decimal.
  */
 static PympfObject *
-PyStr2Pympf(PyObject *s, long base, unsigned int bits)
+PyStr2Pympf(PyObject *s, long base, size_t bits)
 {
     PympfObject *newob;
     unsigned char *cp;
-    Py_ssize_t len;
-    int precision, i;
+    Py_ssize_t len, precision, i;
     PyObject *ascii_str = NULL;
 
 #if PY_MAJOR_VERSION >= 3
@@ -1639,7 +1638,7 @@ PyStr2Pympf(PyObject *s, long base, unsigned int bits)
         cp = (unsigned char*)PyString_AsString(ascii_str);
     }
 #endif
-    if(bits>0) {
+    if(bits != 0) {
         precision = bits;
     } else { /* precision to be defaulted or fetched */
         if(base == 256) {  /* it may be encoded for fetching */
@@ -1892,10 +1891,10 @@ Pympz2binary(PympzObject *x)
 static PyObject *
 Pympq2binary(PympqObject *x)
 {
-    int sizenum, sizeden, size, sizetemp;
+    size_t sizenum, sizeden, size, sizetemp;
     int negative=0;
     char *buffer;
-    int i;
+    size_t i;
     PyObject *s;
 
     assert(Pympq_Check( (PyObject *) x));
@@ -1944,7 +1943,7 @@ static int hof(int hedi)
     static char table[] = "0123456789abcdef";
     char* p = strchr(table, tolower(hedi));
     assert(hedi && p);
-    return p-table;
+    return (int) (p-table);
 }
 static char di256(int di1, int di2)
 {
@@ -1957,13 +1956,13 @@ static char di256(int di1, int di2)
 static PyObject *
 Pympf2binary(PympfObject *x)
 {
-    int size, hexdigs;
+    size_t size, hexdigs, lprec;
     char *buffer, *aux;
-    int i, j;
+    size_t i, j;
     PyObject *s;
     int sign, codebyte;
     mp_exp_t the_exp;
-    long lexp, lprec;
+    long lexp;
     int lexpodd, extrabyte;
 
     assert(Pympf_Check( (PyObject *) x));
@@ -2063,7 +2062,8 @@ mpz_ascii(mpz_t z, int base, int with_tag, int no_prefix)
     PyObject *s;
     char *buffer, *p;
     mpz_t temp;
-    int minus, size;
+    size_t size;
+    int minus;
 
     if((base != 0) && ((base < 2) || (base > 62))) {
         PyErr_SetString(PyExc_ValueError,
@@ -2283,9 +2283,9 @@ Pympf_ascii(PympfObject *self, int base, int digits,
         /* insert formatting elements (decimal-point, leading or
          * trailing 0's, other indication of exponent...)
          */
-        int buflen = strlen(buffer);
+        size_t buflen = strlen(buffer);
         /* account for the decimal point that is always inserted */
-        int size = buflen+1;
+        size_t size = buflen+1;
         char expobuf[24];
         char auprebuf[24];
         int isfp=1;   /* flag: fixed-point format (FP)? */
@@ -2681,7 +2681,7 @@ clong_From_Integer(PyObject *obj)
 }
 
 static PympfObject*
-anynum2Pympf(PyObject* obj, unsigned int bits)
+anynum2Pympf(PyObject* obj, size_t bits)
 {
     PympfObject* newob = 0;
     PympqObject* temp = 0;
@@ -2889,8 +2889,8 @@ static PyObject *
 Pympf_copy(PyObject *self, PyObject *args)
 {
     PyObject *s;
-    unsigned int bits=0;
-    SELF_MPF_ONE_ARG("|I",&bits);
+    size_t bits=0;
+    SELF_MPF_ONE_ARG("|n",&bits);
 
     assert(Pympf_Check(self));
     if(!bits) bits = ((PympfObject*)self)->rebits;
@@ -3337,7 +3337,7 @@ Pympz_setbit(PyObject *self, PyObject *args)
 {
     long bit_index;
     long bit_value=1;
-    int argc;
+    Py_ssize_t argc;
     PympzObject *s;
 
     argc = PyTuple_GET_SIZE(args);
@@ -3760,7 +3760,7 @@ Pympf_f2q(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-f2q_internal(PympfObject* self, PympfObject* err, unsigned int bits, int mayz)
+f2q_internal(PympfObject* self, PympfObject* err, size_t bits, int mayz)
 {
     PympqObject *res = 0;
     int i, negative, errsign;
@@ -3777,9 +3777,9 @@ f2q_internal(PympfObject* self, PympfObject* err, unsigned int bits, int mayz)
         mpf_set_si(err->f, 1);
         mpf_div_2exp(err->f, err->f, bits);
     } else if(errsign < 0) {
-        int ubits;
+        long ubits;
         mpf_floor(err->f, err->f);
-        ubits = (int)mpf_get_d(err->f);
+        ubits = mpf_get_d(err->f);
         mpf_set_si(err->f, 1);
         mpf_div_2exp(err->f, err->f, -ubits);
     }
@@ -3942,7 +3942,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args)
     PympqObject *newob;
     PyObject *obj;
     int wasnumeric;
-    int argc;
+    Py_ssize_t argc;
 
     if(options.debug)
         fputs("Pygmpy_mpq() called...\n", stderr);
@@ -4042,8 +4042,8 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
 {
     PympfObject *newob;
     PyObject *obj;
-    int argc;
-    unsigned int bits=0;
+    Py_ssize_t argc;
+    size_t bits=0;
 
     if(options.debug)
         fputs("Pygmpy_mpf() called...\n", stderr);
@@ -4179,7 +4179,7 @@ Py##NAME(PyObject *a, PyObject *b) \
 static PyObject * \
 Py##NAME(PyObject *a, PyObject *b) \
 { \
-  unsigned int bits, bbits; \
+  size_t bits, bbits; \
   PympfObject *r; \
   PympfObject *pa = 0; \
   PympfObject *pb = 0; \
@@ -4549,7 +4549,7 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
 {
     PympqObject *qb, *qe;
     PyObject *r;
-    unsigned int bits;
+    size_t bits;
     int iexpo;
     PympfObject *b = 0, *e = 0;
 
@@ -6201,8 +6201,8 @@ static int randinit(int size)
 }
 static PyObject *random_shuffle(PyObject* seq)
 {
-    int i, j;
-    int len = PySequence_Length(seq);
+    Py_ssize_t i, j;
+    Py_ssize_t len = PySequence_Length(seq);
     PyObject* result;
     mpz_t temp1, temp2;
     mpz_inoc(temp1);

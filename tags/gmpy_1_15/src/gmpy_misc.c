@@ -161,9 +161,9 @@ static PyObject *
 Pygmpy_set_minprec(PyObject *self, PyObject *args)
 {
     long old = options.minprec;
-    int i;
+    long i;
 
-    ONE_ARG("set_minprec", "i", &i);
+    ONE_ARG("set_minprec", "l", &i);
     if(i<0) {
         PyErr_SetString(PyExc_ValueError,
             "minimum precision must be >= 0");

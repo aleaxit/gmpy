@@ -34,8 +34,7 @@ mpz_set_PyInt(mpz_t rop, PyObject *obj)
 static void
 mpf_normalize(mpf_t op)
 {
-    long size, prec, toclear, temp;
-    int i;
+    Py_ssize_t size, prec, toclear, temp, i;
     mp_limb_t bit1, rem, carry;
 
     prec = mpf_get_prec(op);

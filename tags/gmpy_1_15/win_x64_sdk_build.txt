@@ -37,9 +37,9 @@ familiarity with the command line.
     mkdir c:\src
 
 7)  Download the GMPY and MPIR source code. This example uses
-    gmpy-1.15.zip and mpir-2.4.0.tar.gz. They should be unzipped
+    gmpy-1.15.zip and mpir-2.5.0.tar.gz. They should be unzipped
     (or untarred) into c:\src. There should be c:\src\gmpy-1.15
-    and c:\src\mpir-2.4.0 directories in c:\src.
+    and c:\src\mpir-2.5.0 directories in c:\src.
 
 8)  The file "yasm.rules" must be copied from
 
@@ -71,11 +71,11 @@ familiarity with the command line.
     rem Copy the required to a convenient location for gmpy.
     rem The files are located in "lib\Win32\release" for 32-bit
     rem build.
-    cd c:\src\mpir-2.4.0
+    cd c:\src\mpir-2.5.0
     mkdir c:\src\lib
     mkdir c:\src\include
-    xcopy /Y *.h c:\src\include\*.*
-    xcopy /Y win\*.??b c:\src\lib\*.*
+    xcopy /Y mpir.h c:\src\include\*.*
+    xcopy /Y win\mpir.lib c:\src\lib\*.*
 
     rem Done with mpir, now build gmpy.
     cd c:\src\gmpy-1.15
@@ -90,5 +90,5 @@ familiarity with the command line.
     rem Run the test suite
     python test\gmpy_test.py
 
-    rem (Optional) Build an installer, located in c:\src\gmpy-1.12\dist.
+    rem (Optional) Build an installer, located in c:\src\gmpy-1.15\dist.
     python setup.py bdist_wininst
