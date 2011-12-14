@@ -297,7 +297,7 @@ mpq(4,9)
 mpq(27,8)
 >>> _g.mpq(8,27)**_g.mpq('-2/3')
 mpq(9,4)
->>> print(float(_g.mpf('0.2')**2))
+>>> print(float("%.14f" % _g.mpf('0.2')**2))
 0.04
 >>> print(float(_g.mpf('0.2')**-2))
 25.0
