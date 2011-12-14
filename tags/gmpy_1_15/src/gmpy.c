@@ -1152,7 +1152,7 @@ PyFloat2Pympf(PyObject *f, size_t bits)
     assert(PyFloat_Check(f));
     if(!bits) bits=double_mantissa;
     if(options.debug)
-        fprintf(stderr, "PyFloat2Pympf(%p,%d)\n", f, bits);
+        fprintf(stderr, "PyFloat2Pympf(%p,%zd)\n", f, bits);
 
     if(options.fcoform) {
         /* 2-step float->mpf conversion process: first, get a
@@ -2296,7 +2296,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
         if(optionflags & OP_TAG) {
             size += strlen(ftag+options.tagoff) + 2;
             if(self->rebits != double_mantissa) {
-                sprintf(auprebuf,",%d",self->rebits);
+                sprintf(auprebuf,",%zd",self->rebits);
                 size += strlen(auprebuf);
             }
         }
@@ -2725,7 +2725,7 @@ anynum2Pympf(PyObject* obj, size_t bits)
     }
 
     if(options.debug)
-        fprintf(stderr, "anynum2Pympf(%p,%d)->%p (%d)\n", obj,
+        fprintf(stderr, "anynum2Pympf(%p,%zd)->%p (%zd)\n", obj,
                 bits, newob, newob != 0 ? newob->rebits : -1);
 
     return newob;
@@ -4119,7 +4119,7 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
     if(options.debug) {
         fputs("Pygmpy_mpf: created mpf = ", stderr);
         mpf_out_str(stderr, 10, 0, newob->f);
-        fprintf(stderr," bits=%d (%d)\n", newob->rebits, bits);
+        fprintf(stderr," bits=%zd (%zd)\n", newob->rebits, bits);
     }
 
     return (PyObject *) newob;
@@ -4584,7 +4584,7 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
     if(bits > e->rebits)
         bits = e->rebits;
     if(options.debug)
-        fprintf(stderr, "Pympf_pow(%d): %p, %p, %p\n", bits, b, e, m);
+        fprintf(stderr, "Pympf_pow(%zd): %p, %p, %p\n", bits, b, e, m);
 
     iexpo = (int)mpf_get_d(e->f);
     if(iexpo>0 && 0==mpf_cmp_si(e->f, iexpo)) {

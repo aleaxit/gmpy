@@ -51,7 +51,7 @@ mpf_normalize(mpf_t op)
         fprintf(stderr, "prec %ld size %ld toclear %ld carry %ld\n",
                prec, size, toclear, carry);
         for(i=0; i<size; i++)
-            fprintf(stderr,"[%d]=%lx\n", i, op->_mp_d[i]);
+            fprintf(stderr,"[%zd]=%lx\n", i, op->_mp_d[i]);
     }
     temp = toclear;
     if(temp>0) {
@@ -72,7 +72,7 @@ mpf_normalize(mpf_t op)
     }
     if(options.debug) {
         for(i=0; i<size; i++)
-            fprintf(stderr,"[%d]=%lx\n", i, op->_mp_d[i]);
+            fprintf(stderr,"[%zd]=%lx\n", i, op->_mp_d[i]);
     }
 }
 
