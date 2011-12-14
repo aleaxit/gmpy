@@ -74,9 +74,9 @@ lpourtekn
 enukotlpr
 >>> r('seed',sav)
 >>> for i in range(3):
-...     print(float(r('floa')))
+...     print("%.12f" % float(r('floa')))
 ...
-0.44833278656
+0.448332786560
 0.547296524048
 0.895370483398
 >>> r('seed',sav)
