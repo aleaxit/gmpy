@@ -12,10 +12,10 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>MPIR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(PythonDir)$(PythonVersion)\include;..\..\..\$(MpirDir);..\..\..\mpfr\src;..\..\..\mpc\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PythonDir)$(PythonVersion)\include;..\..\..\$(MpirDir)lib\$(IntDir);..\..\..\mpfr\src;..\..\..\mpc\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(PythonDir)$(PythonVersion)\libs\$(PythonVersion).lib;..\..\..\$(MpirDir)build.vc10\lib\$(IntDir)$(MpirLib);..\..\..\mpfr\build.vc10\lib\$(IntDir)mpfr.lib;..\..\..\mpc\build.vc10\lib\$(IntDir)mpc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(PythonDir)$(PythonVersion)\libs\$(PythonVersion).lib;..\..\..\$(MpirDir)lib\$(IntDir)$(MpirLib);..\..\..\mpfr\lib\$(IntDir)mpfr.lib;..\..\..\mpc\lib\$(IntDir)mpc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
