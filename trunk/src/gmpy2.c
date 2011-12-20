@@ -3868,10 +3868,12 @@ PyMODINIT_FUNC initgmpy2(void)
         SYSTEM_ERROR("Size of mp_bitcnt_t and size_t not compatible");
         INITERROR;
     }
+#if 0
     if (sizeof(mp_size_t) != sizeof(long)) {
         SYSTEM_ERROR("Size of mp_size_t and long not compatible");
         INITERROR;
     }
+#endif
     if (sizeof(mpfr_prec_t) != sizeof(long)) {
         SYSTEM_ERROR("Size of mpfr_prec_t and long not compatible");
         INITERROR;
