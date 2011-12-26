@@ -3089,7 +3089,7 @@ Pympfr_format(PyObject *self, PyObject *args)
      * only consists of digits, then append .0 */
     if (strlen(buffer) < 50 &&
         strlen(buffer) == strspn(buffer, "+- 0123456789")) {
-        newbuf = PyMem_Malloc(buflen + 3);
+        newbuf = GMPY_MALLOC(buflen + 3);
         if (!newbuf) {
             mpfr_free_str(buffer);
             return PyErr_NoMemory();
@@ -3099,7 +3099,7 @@ Pympfr_format(PyObject *self, PyObject *args)
         strcat(newbuf, ".0");
         mpfr_free_str(buffer);
         mpfrstr = Py_BuildValue("s", newbuf);
-        PyMem_Free(newbuf);
+        GMPY_FREE(newbuf);
     }
     else {
         mpfrstr = Py_BuildValue("s", buffer);

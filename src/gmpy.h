@@ -157,24 +157,40 @@ typedef struct {
 
 #define GMPY_DEFAULT -1
 
+/* Choose which memory manager is used: Python or C.
+ * NOTE: The use of PyMem is not compatible with Sage, therefore it is
+ * disabled by default.
+ */
+ 
+#define USE_PYMEM 0
+#ifdef USE_PYMEM
+#  define GMPY_FREE(NAME) PyMem_Free(NAME)
+#  define GMPY_MALLOC(NAME) PyMem_Malloc(NAME)
+#  define GMPY_REALLOC(NAME, SIZE) PyMem_Realloc(NAME, SIZE)
+#else
+#  define GMPY_FREE(NAME) free(NAME)
+#  define GMPY_MALLOC(NAME) malloc(NAME)
+#  define GMPY_REALLOC(NAME, SIZE) realloc(NAME, SIZE)
+#endif
+
 #ifdef USE_ALLOCA
 #  define TEMP_ALLOC(B, S) \
     if(S < ALLOC_THRESHOLD) { \
         B = alloca(S); \
     } else { \
-        if(!(B = PyMem_Malloc(S))) { \
+        if(!(B = GMPY_MALLOC(S))) { \
             PyErr_NoMemory(); \
             return NULL; \
         } \
     }
-#  define TEMP_FREE(B, S) if(S >= ALLOC_THRESHOLD) PyMem_Free(B)
+#  define TEMP_FREE(B, S) if(S >= ALLOC_THRESHOLD) GMPY_FREE(B)
 #else
 #  define TEMP_ALLOC(B, S) \
-    if(!(B = PyMem_Malloc(S)))  { \
+    if(!(B = GMPY_MALLOC(S)))  { \
         PyErr_NoMemory(); \
         return NULL; \
     }
-#  define TEMP_FREE(B, S) PyMem_Free(B)
+#  define TEMP_FREE(B, S) GMPY_FREE(B)
 #endif
 
 /* Various defs to mask differences between Python versions. */
@@ -247,14 +263,6 @@ typedef struct {
 
 static PyTypeObject GMPyContext_Type;
 #define GMPyContext_Check(v) (((PyObject*)v)->ob_type == &GMPyContext_Type)
-#endif
-
-/* Choose which memory manager is used: Python or C */
-#define USE_PYMEM 1
-#ifdef USE_PYMEM
-#  define GMPY_FREE(NAME) PyObject_Free(NAME)
-#else
-#  define GMPY_FREE(NAME) free(NAME)
 #endif
 
 #ifdef __cplusplus

@@ -3721,7 +3721,10 @@ static PyTypeObject Pympc_Type =
 };
 #endif
 
-#ifdef USE_PYMEM
+/* The custom memory allocation routines either use PyMem_* or the standard
+ * libraries. See gmpy.h for defines.
+ */
+ 
 static void *
 gmpy_allocate(size_t size)
 {
@@ -3731,7 +3734,7 @@ gmpy_allocate(size_t size)
     if (usize < GMPY_ALLOC_MIN)
         usize = GMPY_ALLOC_MIN;
 
-    if (!(res = PyObject_Malloc(usize)))
+    if (!(res = GMPY_MALLOC(usize)))
         Py_FatalError("mp_allocate failure");
 
     return res;
@@ -3752,7 +3755,7 @@ gmpy_reallocate(void *ptr, size_t old_size, size_t new_size)
     if (uold == unew)
         return ptr;
 
-    if (!(res = PyObject_Realloc(ptr, unew)))
+    if (!(res = GMPY_REALLOC(ptr, unew)))
         Py_FatalError("mp_reallocate failure");
 
     return res;
@@ -3766,9 +3769,8 @@ gmpy_free( void *ptr, size_t size)
     if (usize < GMPY_ALLOC_MIN)
         usize = GMPY_ALLOC_MIN;
 
-    PyObject_Free(ptr);
+    GMPY_FREE(ptr);
 }
-#endif /* USE_PYMEM */
 
 static void
 _PyInitGMP(void)
@@ -3777,9 +3779,8 @@ _PyInitGMP(void)
     PyObject *temp = NULL;
 #endif
 
-#ifdef USE_PYMEM
     mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
-#endif
+
     set_zcache();
     set_pympzcache();
     set_pympqcache();
