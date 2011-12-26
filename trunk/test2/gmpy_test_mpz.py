@@ -572,8 +572,8 @@ mpz(587)
 ...     if i%6==0: print
 ...
 1111011 11120 1323 443 323
-234 0173 146 123 102 a3
-96 8b 83 0x7b 74 6f
+234 173 146 123 102 a3
+96 8b 83 7b 74 6f
 69 63 5i 5d 58 53
 4n 4j 4f 4b 47 43
 3u 3r 3o 3l 3i 3f
@@ -770,7 +770,7 @@ ValueError: isqrt_rem() of negative number
 >>> _g.remove(3,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: factor must be > 0
+ValueError: factor must be > 1
 >>> _g.remove(3)
 Traceback (innermost last):
   ...
