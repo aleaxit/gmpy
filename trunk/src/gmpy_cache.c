@@ -50,7 +50,7 @@ set_zcache(void)
             mpz_clear(zcache[i]);
         in_zcache = global.cache_size;
     }
-    zcache = PyMem_Realloc(zcache, sizeof(mpz_t) * global.cache_size);
+    zcache = GMPY_REALLOC(zcache, sizeof(mpz_t) * global.cache_size);
 }
 
 static void
@@ -106,7 +106,7 @@ set_pympzcache(void)
         }
         in_pympzcache = global.cache_size;
     }
-    pympzcache = PyMem_Realloc(pympzcache, sizeof(PympzObject)*global.cache_size);
+    pympzcache = GMPY_REALLOC(pympzcache, sizeof(PympzObject)*global.cache_size);
 }
 
 static PympzObject *
@@ -163,7 +163,7 @@ set_pyxmpzcache(void)
         }
         in_pyxmpzcache = global.cache_size;
     }
-    pyxmpzcache = PyMem_Realloc(pyxmpzcache, sizeof(PyxmpzObject)*global.cache_size);
+    pyxmpzcache = GMPY_REALLOC(pyxmpzcache, sizeof(PyxmpzObject)*global.cache_size);
 }
 
 static PyxmpzObject *
@@ -219,7 +219,7 @@ set_pympqcache(void)
         }
         in_pympqcache = global.cache_size;
     }
-    pympqcache = PyMem_Realloc(pympqcache, sizeof(PympqObject)*global.cache_size);
+    pympqcache = GMPY_REALLOC(pympqcache, sizeof(PympqObject)*global.cache_size);
 }
 
 static PympqObject *
@@ -278,7 +278,7 @@ set_pympfrcache(void)
         }
         in_pympfrcache = global.cache_size;
     }
-    pympfrcache = PyMem_Realloc(pympfrcache, sizeof(PympfrObject)*global.cache_size);
+    pympfrcache = GMPY_REALLOC(pympfrcache, sizeof(PympfrObject)*global.cache_size);
 }
 
 static PympfrObject *
