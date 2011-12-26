@@ -591,17 +591,17 @@ mpz(123)
 >>> _g.mpz('1001001011',2)
 mpz(587)
 >>> _g.mpz('1001001011',2).digits(2)
-'0b1001001011'
+'1001001011'
 >>> for i in range(2,63):
 ...     print(a.digits(i))
 ...
-0b1111011
+1111011
 11120
 1323
 443
 323
 234
-0o173
+173
 146
 123
 102
@@ -609,7 +609,7 @@ a3
 96
 8b
 83
-0x7b
+7b
 74
 6f
 69
@@ -879,7 +879,7 @@ ValueError: isqrt_rem() of negative number
 >>> _g.remove(3,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: factor must be > 0
+ValueError: factor must be > 1
 >>> _g.remove(3)
 Traceback (innermost last):
   ...

@@ -206,7 +206,7 @@ r'''
 ...          print('er4:',i,j,repr(aa),("mpq(%d,%d)"%(ai,aj))); break
 ...       if aj==1 and repr(aa) != ("mpq(%d,%d)"%(ai,aj)):
 ...          print('er5:',i,j,repr(aa),"mpq(%d,%d)"%(ai,aj)); break
->>> fmo='_g.mpq('+_g.numer(a).digits(16)+','+_g.denom(a).digits(16)+')'
+>>> fmo='_g.mpq('+hex(a.numerator)+','+hex(a.denominator)+')'
 >>> fmo
 '_g.mpq(0x29,0x98)'
 >>> eval(fmo)==a
