@@ -364,8 +364,8 @@ Pympany_printf(PyObject *self, PyObject *args)
 {
     PyObject *result = 0, *x = 0;
     char *buffer = 0, *fmtcode = 0;
-    int buflen;
     void *generic;
+    int buflen;
 
     if (!PyArg_ParseTuple(args, "sO", &fmtcode, &x))
         return NULL;
@@ -376,21 +376,19 @@ Pympany_printf(PyObject *self, PyObject *args)
         else
             generic = Pympq_AS_MPQ(x);
         buflen = gmp_asprintf(&buffer, fmtcode, generic);
-        result = Py_BuildValue("s", buffer);
-        GMPY_FREE(buffer);
+        if (buflen < 0) {
+            VALUE_ERROR("printf() could not format the 'mpfr' object");
+        }
+        else {
+            result = Py_BuildValue("s", buffer);
+            GMPY_FREE(buffer);
+        }
         return result;
     }
 #ifdef WITHMPFR
     else if(Pympfr_Check(x)) {
         generic = Pympfr_AS_MPFR(x);
         buflen = mpfr_asprintf(&buffer, fmtcode, generic);
-        if (buflen < 0) {
-            VALUE_ERROR("printf() could not format the 'mpfr' object");
-        }
-        else {
-            result = Py_BuildValue("s", buffer);
-            mpfr_free_str(buffer);
-        }
         return result;
     }
 #endif

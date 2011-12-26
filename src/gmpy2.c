@@ -3873,6 +3873,7 @@ PyMODINIT_FUNC initgmpy2(void)
         SYSTEM_ERROR("Size of mp_size_t and long not compatible");
         INITERROR;
     }
+#ifdef WITHMPFR
     if (sizeof(mpfr_prec_t) != sizeof(long)) {
         SYSTEM_ERROR("Size of mpfr_prec_t and long not compatible");
         INITERROR;
@@ -3881,6 +3882,7 @@ PyMODINIT_FUNC initgmpy2(void)
         SYSTEM_ERROR("Size of mpfr_exp_t and long not compatible");
         INITERROR;
     }
+#endif
 
     if (PyType_Ready(&Pympz_Type) < 0)
         INITERROR;
