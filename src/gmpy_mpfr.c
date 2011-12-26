@@ -114,25 +114,6 @@ Pympfr2Pyxmpz(PyObject *self)
     return result;
 }
 
-/*
- * coerce any number to a mpf
- */
-
-int
-Pympfr_convert_arg(PyObject *arg, PyObject **ptr)
-{
-    PympfrObject* newob = Pympfr_From_Real(arg, 0);
-
-    if (newob) {
-        *ptr = (PyObject*)newob;
-        return 1;
-    }
-    else {
-        TYPE_ERROR("argument can not be converted to 'mpfr'");
-        return 0;
-    }
-}
-
 /* Return the simpliest rational number that approximates 'self' to the
  * requested precision 'err'. If 'err' is negative, then the requested
  * precision is -2**abs(int(err)). If 'err' is NULL, then the requested
@@ -264,33 +245,6 @@ static PympqObject *
 Pympfr2Pympq(PyObject *self)
 {
     return stern_brocot((PympfrObject*)self, 0, 0, 0);
-}
-
-PyDoc_STRVAR(doc_g_mpfr_f2q,
-"f2q(x,[err]) -> mpq\n\n"
-"Return the 'best' mpq approximating x to within relative error 'err'.\n"
-"Default is the precision of x. Uses Stern-Brocot tree to find the\n"
-"'best' approximation. An 'mpz' is returned if the the denominator\n"
-"is 1. If 'err'<0, error sought is 2.0 ** err.");
-
-/* TODO: Redo f2q. Ref-counting looks strange. */
-
-static PyObject *
-Pympfr_f2q(PyObject *self, PyObject *args)
-{
-    PympfrObject *err = 0;
-    PyObject *result;
-
-    if (!PyArg_ParseTuple(args, "O&|O&", Pympfr_convert_arg, &self,
-                          Pympfr_convert_arg, &err)) {
-        TYPE_ERROR("f2q() requires 'mpfr', ['mpfr'] arguments");
-        return NULL;
-    }
-
-    result = (PyObject*)stern_brocot((PympfrObject*)self, err, 0, 1);
-    Py_DECREF(self);
-    Py_XDECREF((PyObject*)err);
-    return result;
 }
 
 static PympfrObject *
@@ -693,10 +647,59 @@ Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
     }
 #ifdef DEBUG
     if (global.debug)
-        fprintf(stderr, "Pympfr_From_Real(%p,%ld)->%p (%ld)\n", obj,
-                (long)bits, newob, newob != 0 ? (long)mpfr_get_prec(newob->f) : -1);
+        fprintf(stderr, "Pympfr_From_Real(%p,%ld)->%p (%ld)\n", (void *)obj,
+                (long)bits, (void *)newob, 
+                newob != 0 ? (long)mpfr_get_prec(newob->f) : -1);
 #endif
+    if (!newob)
+        TYPE_ERROR("object could not be converted to 'mpfr'");
     return newob;
+}
+
+/*
+ * coerce any number to a mpf
+ */
+
+int
+Pympfr_convert_arg(PyObject *arg, PyObject **ptr)
+{
+    PympfrObject* newob = Pympfr_From_Real(arg, 0);
+
+    if (newob) {
+        *ptr = (PyObject*)newob;
+        return 1;
+    }
+    else {
+        TYPE_ERROR("argument can not be converted to 'mpfr'");
+        return 0;
+    }
+}
+
+PyDoc_STRVAR(doc_g_mpfr_f2q,
+"f2q(x,[err]) -> mpq\n\n"
+"Return the 'best' mpq approximating x to within relative error 'err'.\n"
+"Default is the precision of x. Uses Stern-Brocot tree to find the\n"
+"'best' approximation. An 'mpz' is returned if the the denominator\n"
+"is 1. If 'err'<0, error sought is 2.0 ** err.");
+
+/* TODO: Redo f2q. Ref-counting looks strange. */
+
+static PyObject *
+Pympfr_f2q(PyObject *self, PyObject *args)
+{
+    PympfrObject *err = 0;
+    PyObject *result;
+
+    if (!PyArg_ParseTuple(args, "O&|O&", Pympfr_convert_arg, &self,
+                          Pympfr_convert_arg, &err)) {
+        TYPE_ERROR("f2q() requires 'mpfr', ['mpfr'] arguments");
+        return NULL;
+    }
+
+    result = (PyObject*)stern_brocot((PympfrObject*)self, err, 0, 1);
+    Py_DECREF(self);
+    Py_XDECREF((PyObject*)err);
+    return result;
 }
 
 /* str and repr implementations for mpfr */
@@ -812,7 +815,7 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
         }
         else {
             result = Pympfr_From_Real(arg0, bits);
-            if (!result && !PyErr_Occurred())
+            if (!result)
                 TYPE_ERROR("mpfr() requires numeric or string argument");
         }
     }
@@ -2934,6 +2937,67 @@ Pympfr_check_range(PyObject *self, PyObject *other)
     MERGE_FLAGS;
     CHECK_FLAGS("check_range()");
   done:
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_g_mpfr_fsum,
+"fsum(iterable) -> mpfr\n\n"
+"Return an accurate sum of the values in the iterable.");
+
+static PyObject *
+Pympfr_fsum(PyObject *self, PyObject *other)
+{
+    PympfrObject *temp, *result;
+    mpfr_ptr *tab;
+    int errcode;
+    Py_ssize_t i, seq_length = 0;
+    
+    if (!(result = Pympfr_new(0)))
+        return NULL;
+        
+    if (!(other = PySequence_List(other))) {
+        Py_DECREF((PyObject*)result);
+        TYPE_ERROR("argument must be an iterable");
+        return NULL;
+    }
+        
+    /* other contains a new list containing all the values from the
+     * iterable. Now make sure each item in the list is an mpfr.
+     */
+     
+    seq_length = PyList_GET_SIZE(other);
+    for (i=0; i < seq_length; i++) {
+        if (!(temp = Pympfr_From_Real(PyList_GET_ITEM(other, i), 0))) {
+            Py_DECREF(other);
+            Py_DECREF((PyObject*)result);
+            TYPE_ERROR("all items in iterable must be real numbers");
+            return NULL;
+        }
+      
+        errcode = PyList_SetItem(other, i,(PyObject*)temp);
+        if (errcode < 0) {
+            Py_DECREF(other);
+            Py_DECREF((PyObject*)result);
+            TYPE_ERROR("all items in iterable must be real numbers");
+            return NULL;
+        }
+    }
+    
+    /* create an array of pointers to the mpfr_t field of a Pympfr object */
+    
+    if (!(tab = (mpfr_ptr *)GMPY_MALLOC((sizeof(mpfr_srcptr) * seq_length)))) {
+        Py_DECREF(other);
+        Py_DECREF((PyObject*)result);
+        return PyErr_NoMemory();
+    }
+    for (i=0; i < seq_length; i++) {
+        temp = (PympfrObject*)PyList_GET_ITEM(other, i);
+        tab[i] = temp->f;
+    }
+    result->rc = mpfr_sum(result->f, tab, seq_length, context->now.mpfr_round);
+    Py_DECREF(other);
+    GMPY_FREE(tab);
+
     return (PyObject*)result;
 }
 
