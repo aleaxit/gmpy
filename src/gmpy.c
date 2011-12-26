@@ -588,7 +588,8 @@ PyTypeObject Pympf_Type;
 PyMethodDef Pympz_methods [];
 PyMethodDef Pympq_methods [];
 PyMethodDef Pympf_methods [];
-#else
+#endif
+#ifdef ignore_me
 static PyTypeObject Pympz_Type;
 static PyTypeObject Pympq_Type;
 static PyTypeObject Pympf_Type;
@@ -913,7 +914,7 @@ static void
 Pympz_dealloc(PympzObject *self)
 {
     if(options.debug)
-        fprintf(stderr, "Pympz_dealloc: %p\n", self);
+        fprintf(stderr, "Pympz_dealloc: %p\n", (void *)self);
     if(in_pympzcache<options.cache_size && self->z->_mp_alloc<=options.cache_obsize) {
         (pympzcache[in_pympzcache++]) = self;
     } else {
@@ -926,7 +927,7 @@ static void
 Pympq_dealloc(PympqObject *self)
 {
     if(options.debug)
-        fprintf(stderr, "Pympq_dealloc: %p\n", self);
+        fprintf(stderr, "Pympq_dealloc: %p\n", (void *)self);
     if(in_pympqcache<options.cache_size
             && mpq_numref(self->q)->_mp_alloc <= options.cache_obsize
             && mpq_denref(self->q)->_mp_alloc <= options.cache_obsize) {
@@ -941,7 +942,7 @@ static void
 Pympf_dealloc(PympfObject *self)
 {
     if(options.debug)
-        fprintf(stderr, "Pympf_dealloc: %p\n", self);
+        fprintf(stderr, "Pympf_dealloc: %p\n", (void *)self);
     mpf_clear(self->f);
     PyObject_Del(self);
 } /* Pympf_dealloc */
@@ -1152,7 +1153,7 @@ PyFloat2Pympf(PyObject *f, size_t bits)
     assert(PyFloat_Check(f));
     if(!bits) bits=double_mantissa;
     if(options.debug)
-        fprintf(stderr, "PyFloat2Pympf(%p,%zd)\n", f, bits);
+        fprintf(stderr, "PyFloat2Pympf(%p,%zd)\n", (void *)f, bits);
 
     if(options.fcoform) {
         /* 2-step float->mpf conversion process: first, get a
@@ -2546,7 +2547,7 @@ anynum2Pympq(PyObject* obj)
     }
 
     if(options.debug)
-        fprintf(stderr,"anynum2Pympq(%p)->%p\n", obj, newob);
+        fprintf(stderr,"anynum2Pympq(%p)->%p\n", (void *)obj, (void *)newob);
 
     return newob;
 }
@@ -2578,7 +2579,7 @@ anyrational2Pympq(PyObject* obj)
     }
 
     if(options.debug)
-        fprintf(stderr,"anyrational2Pympq(%p)->%p\n", obj, newob);
+        fprintf(stderr,"anyrational2Pympq(%p)->%p\n", (void *)obj, (void *)newob);
 
     return newob;
 }
@@ -2619,7 +2620,7 @@ anynum2Pympz(PyObject* obj)
         }
     }
     if(options.debug)
-        fprintf(stderr,"anynum2Pympz(%p)->%p\n", obj, newob);
+        fprintf(stderr,"anynum2Pympz(%p)->%p\n", (void *)obj, (void *)newob);
 
     return newob;
 }
@@ -2646,7 +2647,7 @@ Pympz_From_Integer(PyObject* obj)
         newob = PyLong2Pympz(obj);
     }
     if(options.debug)
-        fprintf(stderr,"Pympz_From_Integer(%p)->%p\n", obj, newob);
+        fprintf(stderr,"Pympz_From_Integer(%p)->%p\n", (void *)obj, (void *)newob);
     if(!newob) {
         PyErr_SetString(PyExc_TypeError,
             "conversion error in Pympz_From_Integer");
@@ -2725,8 +2726,8 @@ anynum2Pympf(PyObject* obj, size_t bits)
     }
 
     if(options.debug)
-        fprintf(stderr, "anynum2Pympf(%p,%zd)->%p (%zd)\n", obj,
-                bits, newob, newob != 0 ? newob->rebits : -1);
+        fprintf(stderr, "anynum2Pympf(%p,%zd)->%p (%zd)\n", (void *)obj,
+                bits, (void *)newob, newob != 0 ? newob->rebits : -1);
 
     return newob;
 }
@@ -2739,7 +2740,7 @@ Pympz_convert_arg(PyObject *arg, PyObject **ptr)
 {
     PympzObject* newob = Pympz_From_Integer(arg);
     if(options.debug)
-        fprintf(stderr, "mpz_conv_arg(%p)->%p\n", arg, newob);
+        fprintf(stderr, "mpz_conv_arg(%p)->%p\n", (void *)arg, (void *)newob);
 
     if(newob) {
         *ptr = (PyObject*)newob;
@@ -2759,7 +2760,7 @@ Pympq_convert_arg(PyObject *arg, PyObject **ptr)
 {
     PympqObject* newob = anyrational2Pympq(arg);
     if(options.debug)
-        fprintf(stderr, "mpq_conv_arg(%p)->%p\n", arg, newob);
+        fprintf(stderr, "mpq_conv_arg(%p)->%p\n", (void *)arg, (void *)newob);
 
     if(newob) {
         *ptr = (PyObject*)newob;
@@ -2781,7 +2782,7 @@ Pympf_convert_arg(PyObject *arg, PyObject **ptr)
 {
     PympfObject* newob = anynum2Pympf(arg,0);
     if(options.debug)
-        fprintf(stderr, "mpf_conv_arg(%p)->%p\n", arg, newob);
+        fprintf(stderr, "mpf_conv_arg(%p)->%p\n", (void *)arg, (void *)newob);
 
     if(newob) {
         *ptr = (PyObject*)newob;
@@ -3750,7 +3751,7 @@ Pympf_f2q(PyObject *self, PyObject *args)
     PympfObject *fself;
 
     if(options.debug)
-        fprintf(stderr, "Pympf_f2q: %p, %p\n", self, args);
+        fprintf(stderr, "Pympf_f2q: %p, %p\n", (void *)self, (void *)args);
 
     SELF_MPF_ONE_ARG_CONVERTED_OPT(&err);
     assert(Pympf_Check(self));
@@ -4162,7 +4163,7 @@ Py##NAME(PyObject *a, PyObject *b) \
     Py_XDECREF((PyObject*)pb); \
     Py_RETURN_NOTIMPLEMENTED; \
   } \
-  if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p\n", pa, pb); \
+  if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p\n", (void *)pa, (void *)pb); \
   if (!(r = Pympz_new())) { \
     Py_DECREF((PyObject*)pa); \
     Py_DECREF((PyObject*)pb); \
@@ -4171,7 +4172,7 @@ Py##NAME(PyObject *a, PyObject *b) \
   NAME(r->z, pa->z, pb->z); \
   Py_DECREF((PyObject*)pa); \
   Py_DECREF((PyObject*)pb); \
-  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
+  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", (void *)r); \
   return (PyObject *) r; \
 }
 
@@ -4191,7 +4192,7 @@ Py##NAME(PyObject *a, PyObject *b) \
       return NULL; \
     } \
     NAME(r->f, ((PympfObject*)a)->f, ((PympfObject*)b)->f); \
-    if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", r); \
+    if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", (void *)r); \
     Pympf_normalize(r); \
     return (PyObject *) r; \
   } else { \
@@ -4209,7 +4210,7 @@ Py##NAME(PyObject *a, PyObject *b) \
       Py_INCREF(r); \
       return r; \
     } \
-    if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p", pa, pb); \
+    if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p", (void *)pa, (void *)pb); \
     if (!(r = Pympf_new(bits))) { \
       Py_DECREF((PyObject*)pa); \
       Py_DECREF((PyObject*)pb); \
@@ -4218,7 +4219,7 @@ Py##NAME(PyObject *a, PyObject *b) \
     NAME(r->f, pa->f, pb->f); \
     Py_DECREF((PyObject*)pa); \
     Py_DECREF((PyObject*)pb); \
-    if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", r); \
+    if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", (void *)r); \
     Pympf_normalize(r); \
     return (PyObject *) r; \
   } \
@@ -4240,7 +4241,7 @@ Py##NAME(PyObject *a, PyObject *b) \
     Py_INCREF((PyObject*)r); \
     return r; \
   } \
-  if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p", pa, pb); \
+  if (options.debug) fprintf(stderr, "Py" #NAME ": %p, %p", (void *)pa, (void *)pb); \
   if (!(r = Pympq_new())) { \
     Py_DECREF((PyObject*)pa); \
     Py_DECREF((PyObject*)pb); \
@@ -4249,7 +4250,7 @@ Py##NAME(PyObject *a, PyObject *b) \
   NAME(r->q, pa->q, pb->q); \
   Py_DECREF((PyObject*)pa); \
   Py_DECREF((PyObject*)pb); \
-  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", r); \
+  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p", (void *)r); \
   return (PyObject *) r; \
 }
 
@@ -4260,10 +4261,10 @@ static PyObject * \
 Py##NAME(PympzObject *x) \
 { \
   PympzObject *r; \
-  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", x); \
+  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", (void *)x); \
   if (!(r = Pympz_new())) return NULL; \
   NAME(r->z, x->z); \
-  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
+  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", (void *)r); \
   return (PyObject *) r; \
 }
 
@@ -4272,10 +4273,10 @@ static PyObject * \
 Py##NAME(PympfObject *x) \
 { \
   PympfObject *r; \
-  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", x); \
+  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", (void *)x); \
   if (!(r = Pympf_new(x->rebits))) return NULL; \
   NAME(r->f, x->f); \
-  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
+  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", (void *)r); \
   return (PyObject *) r; \
 }
 
@@ -4284,10 +4285,10 @@ static PyObject * \
 Py##NAME(PympqObject *x) \
 { \
   PympqObject *r; \
-  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", x); \
+  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", (void *)x); \
   if (!(r = Pympq_new())) return NULL; \
   NAME(r->q, x->q); \
-  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
+  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", (void *)r); \
   return (PyObject *) r; \
 }
 
@@ -4302,11 +4303,11 @@ static PyObject *
 Pympq_abs(PympqObject *x)
 {
     PympqObject *r;
-    if (options.debug) fprintf(stderr, "Pympq_abs: %p\n", x);
+    if (options.debug) fprintf(stderr, "Pympq_abs: %p\n", (void *)x);
     if (!(r = Pympq_new())) return NULL;
     mpq_set(r->q, x->q);
     mpz_abs(mpq_numref(r->q),mpq_numref(r->q));
-    if (options.debug) fprintf(stderr, "Pympq_abs-> %p\n", r);
+    if (options.debug) fprintf(stderr, "Pympq_abs-> %p\n", (void *)r);
     return (PyObject *) r;
 }
 
@@ -4361,7 +4362,7 @@ Pympz_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
     }
 
     if(options.debug)
-        fprintf(stderr, "Pympz_pow: %p, %p, %p\n", b, e, m);
+        fprintf(stderr, "Pympz_pow: %p, %p, %p\n", (void *)b, (void *)e, (void *)m);
 
     if(mpz_sgn(e->z) < 0) {
         PyErr_SetString(PyExc_ValueError, "mpz.pow with negative power");
@@ -4390,7 +4391,7 @@ Pympz_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
         }
         mpz_pow_ui(r->z, b->z, el);
         if(options.debug)
-            fprintf(stderr, "Pympz_pow (ui) -> %p\n", r);
+            fprintf(stderr, "Pympz_pow (ui) -> %p\n", (void *)r);
     } else { /* Modulo exponentiation */
         int sign;
         mpz_t mm;
@@ -4421,7 +4422,7 @@ Pympz_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
             mpz_add(r->z, r->z, m->z);
         }
         if(options.debug)
-            fprintf(stderr, "Pympz_pow -> %p\n", r);
+            fprintf(stderr, "Pympz_pow -> %p\n", (void *)r);
     }
     Py_XDECREF((PyObject*)b);
     Py_XDECREF((PyObject*)e);
@@ -4452,7 +4453,7 @@ Pympq_pow(PyObject *in_b, PyObject *in_e, PyObject *m)
     }
 
     if(options.debug)
-        fprintf(stderr, "Pympq_pow: %p, %p, %p\n", b, e, m);
+        fprintf(stderr, "Pympq_pow: %p, %p, %p\n", (void *)b, (void *)e, (void *)m);
 
     if((PyObject*)m != Py_None) {
         PyErr_SetString(PyExc_ValueError, "mpq.pow no modulo allowed");
@@ -4481,7 +4482,7 @@ Pympq_pow(PyObject *in_b, PyObject *in_e, PyObject *m)
     esign = mpq_sgn(e->q);
     if(esign == 0) {
         if(options.debug)
-            fprintf(stderr, "Pympq_pow (ui,0) -> %p\n", r);
+            fprintf(stderr, "Pympq_pow (ui,0) -> %p\n", (void *)r);
         mpq_set_si(r->q, 1, 1);
         Py_DECREF((PyObject*)b);
         Py_DECREF((PyObject*)e);
@@ -4538,7 +4539,7 @@ Pympq_pow(PyObject *in_b, PyObject *in_e, PyObject *m)
         }
     }
     if(options.debug)
-        fprintf(stderr, "Pympq_pow (ui) -> %p\n", r);
+        fprintf(stderr, "Pympq_pow (ui) -> %p\n", (void *)r);
     Py_DECREF((PyObject*)b);
     Py_DECREF((PyObject*)e);
     return (PyObject*)r;
@@ -4584,7 +4585,8 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
     if(bits > e->rebits)
         bits = e->rebits;
     if(options.debug)
-        fprintf(stderr, "Pympf_pow(%zd): %p, %p, %p\n", bits, b, e, m);
+        fprintf(stderr, "Pympf_pow(%zd): %p, %p, %p\n", bits, (void *)b, 
+                (void *)e, (void *)m);
 
     iexpo = (int)mpf_get_d(e->f);
     if(iexpo>0 && 0==mpf_cmp_si(e->f, iexpo)) {
@@ -4814,10 +4816,10 @@ Py##NAME(PyObject* self, PyObject *args) \
       if(!PyArg_ParseTuple(args, "O&", Pympf_convert_arg, &self)) return NULL; \
   } \
   assert(Pympf_Check(self)); \
-  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", self); \
+  if (options.debug) fprintf(stderr, "Py" #NAME ": %p\n", (void *)self); \
   if (!(r = Pympf_new(((PympfObject*)self)->rebits))) return NULL; \
   NAME(r->f, Pympf_AS_MPF(self)); \
-  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", r); \
+  if (options.debug) fprintf(stderr, "Py" #NAME "-> %p\n", (void *)r); \
   Py_DECREF(self); \
   Pympf_normalize(r); \
   return (PyObject *) r; \
@@ -6999,7 +7001,7 @@ initgmpy(void)
 #endif
 
     if (options.debug)
-        fprintf(stderr, "gmpy_module at %p\n", gmpy_module);
+        fprintf(stderr, "gmpy_module at %p\n", (void *)gmpy_module);
 
     /* Add support for pickling. */
 #if PY_MAJOR_VERSION >= 3
