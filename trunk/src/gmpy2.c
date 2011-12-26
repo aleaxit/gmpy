@@ -3321,6 +3321,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "fmod", Pympfr_fmod, METH_VARARGS, doc_g_mpfr_fmod },
     { "frac", Pympfr_frac, METH_O, doc_g_mpfr_frac },
     { "frexp", Pympfr_frexp, METH_O, doc_g_mpfr_frexp },
+    { "fsum", Pympfr_fsum, METH_O, doc_g_mpfr_fsum },
     { "gamma", Pympfr_gamma, METH_O, doc_g_mpfr_gamma },
     { "get_emax_max", Pympfr_get_emax_max, METH_NOARGS, doc_g_mpfr_get_emax_max },
     { "get_emin_min", Pympfr_get_emin_min, METH_NOARGS, doc_g_mpfr_get_emin_min },
