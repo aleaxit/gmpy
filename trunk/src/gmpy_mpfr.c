@@ -325,9 +325,6 @@ PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
     else
         prec = context->now.mpfr_prec;
 
-    //~ if (prec < MPFR_PREC_MIN)
-        //~ prec = MPFR_PREC_MIN;
-
     if (!(result = Pympfr_new(prec))) {
         Py_XDECREF(ascii_str);
         return NULL;
@@ -2999,6 +2996,62 @@ Pympfr_fsum(PyObject *self, PyObject *other)
     GMPY_FREE(tab);
 
     return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_g_mpfr_degrees,
+"degrees(x) -> mpfr\n\n"
+"Convert angle x from radians to degrees.");
+
+static PyObject *
+Pympfr_degrees(PyObject *self, PyObject *other)
+{
+    PympfrObject *result, *temp;
+
+    PARSE_ONE_MPFR_OTHER("degrees() requires 'mpfr' argument");
+
+    result = Pympfr_new(0);
+    temp = Pympfr_new(context->now.mpfr_prec + 20);
+    if (!result || !temp) {
+        Py_XDECREF((PyObject*)temp);
+        Py_XDECREF((PyObject*)result);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    mpfr_clear_flags();
+    mpfr_const_pi(temp->f, MPFR_RNDN);
+    mpfr_ui_div(temp->f, 180, temp->f, MPFR_RNDN);
+    mpfr_mul(result->f, temp->f, Pympfr_AS_MPFR(self), MPFR_RNDN);
+    Py_DECREF((PyObject*)temp);
+    MPFR_CLEANUP_SELF("degrees()");
+}
+
+PyDoc_STRVAR(doc_g_mpfr_radians,
+"radians(x) -> mpfr\n\n"
+"Convert angle x from degrees to radians.");
+
+static PyObject *
+Pympfr_radians(PyObject *self, PyObject *other)
+{
+    PympfrObject *result, *temp;
+
+    PARSE_ONE_MPFR_OTHER("radians() requires 'mpfr' argument");
+
+    result = Pympfr_new(0);
+    temp = Pympfr_new(context->now.mpfr_prec + 20);
+    if (!result || !temp) {
+        Py_XDECREF((PyObject*)temp);
+        Py_XDECREF((PyObject*)result);
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    mpfr_clear_flags();
+    mpfr_const_pi(temp->f, MPFR_RNDN);
+    mpfr_div_ui(temp->f, temp->f, 180, MPFR_RNDN);
+    mpfr_mul(result->f, Pympfr_AS_MPFR(self), temp->f, MPFR_RNDN);
+    Py_DECREF((PyObject*)temp);
+    MPFR_CLEANUP_SELF("radians()");
 }
 
 PyDoc_STRVAR(doc_mpfr_format,
