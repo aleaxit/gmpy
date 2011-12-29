@@ -241,6 +241,9 @@
  *   Added as_integer_ratio, as_mantissa_exp, as_simple_fraction (casevh)
  *   Update rich_compare (casevh)
  *   Require MPFR 3.1.0+ to get divby0 support (casevh)
+ *   Added fsum(), degrees(), radians() (casevh)
+ *   Renamed context() -> local_context(), new_context() -> context() (casevh)
+ *   Added get_context() (casevh)
  *
  ************************************************************************
  *
@@ -3324,6 +3327,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "frexp", Pympfr_frexp, METH_O, doc_g_mpfr_frexp },
     { "fsum", Pympfr_fsum, METH_O, doc_g_mpfr_fsum },
     { "gamma", Pympfr_gamma, METH_O, doc_g_mpfr_gamma },
+    { "get_context", Pygmpy_get_context, METH_NOARGS, doc_get_context },
     { "get_emax_max", Pympfr_get_emax_max, METH_NOARGS, doc_g_mpfr_get_emax_max },
     { "get_emin_min", Pympfr_get_emin_min, METH_NOARGS, doc_g_mpfr_get_emin_min },
     { "get_exp", Pympfr_get_exp, METH_O, doc_g_mpfr_get_exp },
@@ -3345,6 +3349,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "lgamma", Pympfr_lgamma, METH_O, doc_g_mpfr_lgamma },
     { "li2", Pympfr_li2, METH_O, doc_g_mpfr_li2 },
     { "lngamma", Pympfr_lngamma, METH_O, doc_g_mpfr_lngamma },
+    { "local_context", (PyCFunction)Pygmpy_local_context, METH_VARARGS | METH_KEYWORDS, doc_local_context },
     { "log", Pympany_log, METH_O, doc_mpany_log },
     { "log1p", Pympfr_log1p, METH_O, doc_g_mpfr_log1p },
     { "log10", Pympfr_log10, METH_O, doc_g_mpfr_log10 },
@@ -3356,7 +3361,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "mpfr_from_old_binary", Pympfr_From_Old_Binary, METH_O, doc_g_mpfr_from_old_binary },
     { "mul_2exp", Pympany_mul_2exp, METH_VARARGS, doc_mpany_mul_2exp },
     { "nan", Pympfr_set_nan, METH_NOARGS, doc_g_mpfr_set_nan },
-    { "new_context", (PyCFunction)Pygmpy_new_context, METH_VARARGS | METH_KEYWORDS, doc_new_context },
     { "next_above", Pympfr_nextabove, METH_O, doc_g_mpfr_nextabove },
     { "next_below", Pympfr_nextbelow, METH_O, doc_g_mpfr_nextbelow },
     { "next_toward", Pympfr_nexttoward, METH_VARARGS, doc_g_mpfr_nexttoward },
