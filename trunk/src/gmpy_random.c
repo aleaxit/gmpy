@@ -4,7 +4,7 @@
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
  *      Copyright 2000 - 2009 Alex Martelli                                *
- *      Copyright 2008 - 2011 Case Van Horsen                              *
+ *      Copyright 2008, 2009, 2010, 2011, 2012 Case Van Horsen             *
  *                                                                         *
  * This library is free software; you can redistribute it and/or modify it *
  * under the terms of the GNU Lesser General Public License as published   *
