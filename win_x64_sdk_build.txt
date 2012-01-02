@@ -43,7 +43,7 @@ familiarity with the command line.
 
 8)  The file "yasm.rules" must be copied from
 
-    c:\src\mpir-2.4.0\yasm\Mkfiles\vc9
+    c:\src\mpir-2.5.0\yasm\Mkfiles\vc9
 
     to
 
@@ -59,7 +59,7 @@ familiarity with the command line.
     set YASMPATH=C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin
 
     rem Build mpir first.
-    cd C:\src\mpir-2.4.0\win
+    cd C:\src\mpir-2.5.0\win
 
     rem Check contents of configure.bat to see allowed options. Verify that
     rem all tests pass.
