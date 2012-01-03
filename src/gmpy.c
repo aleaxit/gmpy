@@ -1154,7 +1154,8 @@ PyFloat2Pympf(PyObject *f, size_t bits)
     assert(PyFloat_Check(f));
     if(!bits) bits=double_mantissa;
     if(options.debug)
-        fprintf(stderr, "PyFloat2Pympf(%p,%zd)\n", (void *)f, bits);
+        fprintf(stderr, "PyFloat2Pympf(%p,%"PY_FORMAT_SIZE_T"d)\n",
+                (void *)f, bits);
 
     if(options.fcoform) {
         /* 2-step float->mpf conversion process: first, get a
@@ -2298,7 +2299,7 @@ Pympf_ascii(PympfObject *self, int base, int digits,
         if(optionflags & OP_TAG) {
             size += strlen(ftag+options.tagoff) + 2;
             if(self->rebits != double_mantissa) {
-                sprintf(auprebuf,",%zd",self->rebits);
+                sprintf(auprebuf,",%"PY_FORMAT_SIZE_T"d",self->rebits);
                 size += strlen(auprebuf);
             }
         }
@@ -2727,8 +2728,8 @@ anynum2Pympf(PyObject* obj, size_t bits)
     }
 
     if(options.debug)
-        fprintf(stderr, "anynum2Pympf(%p,%zd)->%p (%zd)\n", (void *)obj,
-                bits, (void *)newob, newob != 0 ? newob->rebits : -1);
+        fprintf(stderr, "anynum2Pympf(%p,%"PY_FORMAT_SIZE_T"d)->%p (%"PY_FORMAT_SIZE_T"d)\n",
+                (void *)obj, bits, (void *)newob, newob != 0 ? newob->rebits : -1);
 
     return newob;
 }
@@ -4121,7 +4122,8 @@ Pygmpy_mpf(PyObject *self, PyObject *args)
     if(options.debug) {
         fputs("Pygmpy_mpf: created mpf = ", stderr);
         mpf_out_str(stderr, 10, 0, newob->f);
-        fprintf(stderr," bits=%zd (%zd)\n", newob->rebits, bits);
+        fprintf(stderr," bits=%"PY_FORMAT_SIZE_T"d (%"PY_FORMAT_SIZE_T"d)\n",
+                newob->rebits, bits);
     }
 
     return (PyObject *) newob;
@@ -4586,8 +4588,8 @@ Pympf_pow(PyObject *xb, PyObject *xe, PyObject *m)
     if(bits > e->rebits)
         bits = e->rebits;
     if(options.debug)
-        fprintf(stderr, "Pympf_pow(%zd): %p, %p, %p\n", bits, (void *)b, 
-                (void *)e, (void *)m);
+        fprintf(stderr, "Pympf_pow(%"PY_FORMAT_SIZE_T"d): %p, %p, %p\n",
+                bits, (void *)b, (void *)e, (void *)m);
 
     iexpo = (int)mpf_get_d(e->f);
     if(iexpo>0 && 0==mpf_cmp_si(e->f, iexpo)) {
