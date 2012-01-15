@@ -353,11 +353,12 @@ Pympany_pow(PyObject *base, PyObject *exp, PyObject *mod)
 }
 
 PyDoc_STRVAR(doc_printf,
-"printf(fmt, x) -> string\n\n"
+"_printf(fmt, x) -> string\n\n"
 "Return a Python string by formatting 'x' using the format string\n"
-"'fmt'. Note: invalid format strings will cause a crash. Please\n"
-"see the GMP and MPFR manuals for details on the format code. 'mpc'\n"
-"objects are not supported.");
+"'fmt'.\n\n"
+"WARNING: Invalid format strings will cause a crash. Please see the\n"
+"         GMP and MPFR manuals for details on the format code. 'mpc'\n"
+"         objects are not supported.");
 
 static PyObject *
 Pympany_printf(PyObject *self, PyObject *args)
@@ -377,7 +378,7 @@ Pympany_printf(PyObject *self, PyObject *args)
             generic = Pympq_AS_MPQ(x);
         buflen = gmp_asprintf(&buffer, fmtcode, generic);
         if (buflen < 0) {
-            VALUE_ERROR("printf() could not format the 'mpfr' object");
+            VALUE_ERROR("printf() could not format the 'mpz' or 'mpq' object");
         }
         else {
             result = Py_BuildValue("s", buffer);
@@ -389,6 +390,13 @@ Pympany_printf(PyObject *self, PyObject *args)
     else if(Pympfr_Check(x)) {
         generic = Pympfr_AS_MPFR(x);
         buflen = mpfr_asprintf(&buffer, fmtcode, generic);
+        if (buflen < 0) {
+            VALUE_ERROR("printf() could not format the 'mpfr' object");
+        }
+        else {
+            result = Py_BuildValue("s", buffer);
+            GMPY_FREE(buffer);
+        }
         return result;
     }
 #endif

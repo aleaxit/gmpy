@@ -3204,8 +3204,7 @@ Pympfr_format(PyObject *self, PyObject *args)
 
     /* If there isn't a decimal point in the output and the output
      * only consists of digits, then append .0 */
-    if (strlen(buffer) < 50 &&
-        strlen(buffer) == strspn(buffer, "+- 0123456789")) {
+    if (strlen(buffer) == strspn(buffer, "+- 0123456789")) {
         newbuf = GMPY_MALLOC(buflen + 3);
         if (!newbuf) {
             mpfr_free_str(buffer);

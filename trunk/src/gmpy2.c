@@ -3195,6 +3195,7 @@ static PyGetSetDef Pympc_getseters[] =
 static PyMethodDef Pygmpy_methods [] =
 {
     { "_cvsid", Pygmpy_get_cvsid, METH_NOARGS, doc_cvsid },
+    { "_printf", Pympany_printf, METH_VARARGS, doc_printf },
     { "add", Pympany_add, METH_VARARGS, doc_mpany_add },
     { "bit_clear", Pygmpy_bit_clear, METH_VARARGS, doc_bit_clearg },
     { "bit_flip", Pygmpy_bit_flip, METH_VARARGS, doc_bit_flipg },
@@ -3260,7 +3261,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "numer", Pympq_numer, METH_VARARGS, doc_numerg },
     { "pack", Pygmpy_pack, METH_VARARGS, doc_gmpy_pack },
     { "popcount", Pympz_popcount, METH_O, doc_popcountg },
-    { "printf", Pympany_printf, METH_VARARGS, doc_printf },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivg },
     { "remove", Pympz_remove, METH_VARARGS, doc_removeg },
     { "iroot", Pympz_iroot, METH_VARARGS, doc_mpz_iroot },
