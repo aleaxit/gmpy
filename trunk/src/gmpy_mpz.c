@@ -2790,5 +2790,139 @@ static PyMappingMethods xmpz_mapping_methods = {
     (objobjargproc)Pyxmpz_assign_subscript
 };
 
+static PyMethodDef Pympz_methods [] =
+{
+    { "__format__", Pympz_format, METH_VARARGS, doc_mpz_format },
+    { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
+    { "bit_clear", Pympz_bit_clear, METH_O, doc_bit_clearm },
+    { "bit_flip", Pympz_bit_flip, METH_O, doc_bit_flipm },
+    { "bit_length", Pympz_bit_length, METH_NOARGS, doc_bit_lengthm },
+    { "bit_scan0", Pympz_bit_scan0, METH_VARARGS, doc_bit_scan0m },
+    { "bit_scan1", Pympz_bit_scan1, METH_VARARGS, doc_bit_scan1m },
+    { "bit_set", Pympz_bit_set, METH_O, doc_bit_setm },
+    { "bit_test", Pympz_bit_test, METH_O, doc_bit_testm },
+    { "digits", Pympz_digits, METH_VARARGS, doc_mpz_digits },
+    { "is_even", Pympz_is_even, METH_NOARGS, doc_is_evenm },
+    { "is_odd", Pympz_is_odd, METH_NOARGS, doc_is_oddm },
+    { "is_square", Pympz_is_square, METH_NOARGS, doc_is_squarem },
+    { "is_power", Pympz_is_power, METH_NOARGS, doc_is_powerm },
+    { "is_prime", Pympz_is_prime, METH_VARARGS, doc_is_primem },
+    { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsm },
+    { NULL, NULL, 1 }
+};
+
+static PyMethodDef Pyxmpz_methods [] =
+{
+    { "__format__", Pympz_format, METH_VARARGS, doc_mpz_format },
+    { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
+    { "bit_clear", Pympz_bit_clear, METH_O, doc_bit_clearm },
+    { "bit_flip", Pympz_bit_flip, METH_O, doc_bit_flipm },
+    { "bit_length", Pympz_bit_length, METH_NOARGS, doc_bit_lengthm },
+    { "bit_scan0", Pympz_bit_scan0, METH_VARARGS, doc_bit_scan0m },
+    { "bit_scan1", Pympz_bit_scan1, METH_VARARGS, doc_bit_scan1m },
+    { "bit_set", Pympz_bit_set, METH_O, doc_bit_setm },
+    { "bit_test", Pympz_bit_test, METH_O, doc_bit_testm },
+    { "copy", Pyxmpz_copy, METH_NOARGS, doc_xmpz_copy },
+    { "digits", Pyxmpz_digits, METH_VARARGS, doc_mpz_digits },
+    { "is_even", Pympz_is_even, METH_NOARGS, doc_is_evenm },
+    { "is_odd", Pympz_is_odd, METH_NOARGS, doc_is_oddm },
+    { "is_square", Pympz_is_square, METH_VARARGS, doc_is_squarem },
+    { "is_power", Pympz_is_power, METH_VARARGS, doc_is_powerm },
+    { "is_prime", Pympz_is_prime, METH_VARARGS, doc_is_primem },
+    { "make_mpz", Pyxmpz_make_mpz, METH_NOARGS, doc_make_mpzm },
+    { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsm },
+    { NULL, NULL, 1 }
+};
+
+static PyTypeObject Pympz_Type =
+{
+    /* PyObject_HEAD_INIT(&PyType_Type) */
+#ifdef PY3
+    PyVarObject_HEAD_INIT(0, 0)
+#else
+    PyObject_HEAD_INIT(0)
+        0,                                  /* ob_size          */
+#endif
+    "mpz",                                  /* tp_name          */
+    sizeof(PympzObject),                    /* tp_basicsize     */
+        0,                                  /* tp_itemsize      */
+    /* methods */
+    (destructor) Pympz_dealloc,             /* tp_dealloc       */
+        0,                                  /* tp_print         */
+        0,                                  /* tp_getattr       */
+        0,                                  /* tp_setattr       */
+        0,                                  /* tp_reserved      */
+    (reprfunc) Pympz2repr,                  /* tp_repr          */
+    &mpz_number_methods,                    /* tp_as_number     */
+        0,                                  /* tp_as_sequence   */
+    &mpz_mapping_methods,                   /* tp_as_mapping    */
+    (hashfunc) Pympz_hash,                  /* tp_hash          */
+        0,                                  /* tp_call          */
+    (reprfunc) Pympz2str,                   /* tp_str           */
+        0,                                  /* tp_getattro      */
+        0,                                  /* tp_setattro      */
+        0,                                  /* tp_as_buffer     */
+#ifdef PY3
+    Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
+#else
+    Py_TPFLAGS_HAVE_INDEX|Py_TPFLAGS_HAVE_RICHCOMPARE| \
+    Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_CLASS| \
+    Py_TPFLAGS_HAVE_INPLACEOPS,
+#endif
+    "GNU Multi Precision signed integer",   /* tp_doc           */
+        0,                                  /* tp_traverse      */
+        0,                                  /* tp_clear         */
+    (richcmpfunc)&mpany_richcompare,        /* tp_richcompare   */
+        0,                                  /* tp_weaklistoffset*/
+        0,                                  /* tp_iter          */
+        0,                                  /* tp_iternext      */
+    Pympz_methods,                          /* tp_methods       */
+};
+
+static PyTypeObject Pyxmpz_Type =
+{
+    /* PyObject_HEAD_INIT(&PyType_Type) */
+#ifdef PY3
+    PyVarObject_HEAD_INIT(0, 0)
+#else
+    PyObject_HEAD_INIT(0)
+        0,                                  /* ob_size          */
+#endif
+    "xmpz",                                 /* tp_name          */
+    sizeof(PyxmpzObject),                   /* tp_basicsize     */
+        0,                                  /* tp_itemsize      */
+    /* methods */
+    (destructor) Pyxmpz_dealloc,            /* tp_dealloc       */
+        0,                                  /* tp_print         */
+        0,                                  /* tp_getattr       */
+        0,                                  /* tp_setattr       */
+        0,                                  /* tp_reserved      */
+    (reprfunc) Pyxmpz2repr,                 /* tp_repr          */
+    &xmpz_number_methods,                   /* tp_as_number     */
+        0,                                  /* tp_as_sequence   */
+    &xmpz_mapping_methods,                  /* tp_as_mapping    */
+        0,                                  /* tp_hash          */
+        0,                                  /* tp_call          */
+    (reprfunc) Pyxmpz2str,                  /* tp_str           */
+        0,                                  /* tp_getattro      */
+        0,                                  /* tp_setattro      */
+        0,                                  /* tp_as_buffer     */
+#ifdef PY3
+    Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
+#else
+    Py_TPFLAGS_HAVE_INDEX|Py_TPFLAGS_HAVE_RICHCOMPARE| \
+    Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_CLASS| \
+    Py_TPFLAGS_HAVE_INPLACEOPS,
+#endif
+    "GNU Multi Precision signed integer",   /* tp_doc           */
+        0,                                  /* tp_traverse      */
+        0,                                  /* tp_clear         */
+    (richcmpfunc)&mpany_richcompare,        /* tp_richcompare   */
+        0,                                  /* tp_weaklistoffset*/
+        0,                                  /* tp_iter          */
+        0,                                  /* tp_iternext      */
+    Pyxmpz_methods,                         /* tp_methods       */
+};
+
 
 

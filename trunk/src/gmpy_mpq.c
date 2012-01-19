@@ -657,3 +657,145 @@ Pympq_div(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+#ifdef PY3
+static PyNumberMethods mpq_number_methods =
+{
+    (binaryfunc) Pybasic_add,            /* nb_add                  */
+    (binaryfunc) Pybasic_sub,            /* nb_subtract             */
+    (binaryfunc) Pybasic_mul,            /* nb_multiply             */
+    (binaryfunc) Pybasic_rem,            /* nb_remainder            */
+    (binaryfunc) Pybasic_divmod,         /* nb_divmod               */
+    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (unaryfunc) Pympq_neg,               /* nb_negative             */
+    (unaryfunc) Pympq_pos,               /* nb_positive             */
+    (unaryfunc) Pympq_abs,               /* nb_absolute             */
+    (inquiry) Pympq_nonzero,             /* nb_bool                 */
+        0,                               /* nb_invert               */
+        0,                               /* nb_lshift               */
+        0,                               /* nb_rshift               */
+        0,                               /* nb_and                  */
+        0,                               /* nb_xor                  */
+        0,                               /* nb_or                   */
+    (unaryfunc) Pympq2PyLong,            /* nb_int                  */
+        0,                               /* nb_reserved             */
+    (unaryfunc) Pympq2PyFloat,           /* nb_float                */
+        0,                               /* nb_inplace_add          */
+        0,                               /* nb_inplace_subtract     */
+        0,                               /* nb_inplace_multiply     */
+        0,                               /* nb_inplace_remainder    */
+        0,                               /* nb_inplace_power        */
+        0,                               /* nb_inplace_lshift       */
+        0,                               /* nb_inplace_rshift       */
+        0,                               /* nb_inplace_and          */
+        0,                               /* nb_inplace_xor          */
+        0,                               /* nb_inplace_or           */
+    (binaryfunc) Pybasic_floordiv,       /* nb_floor_divide         */
+    (binaryfunc) Pybasic_truediv,        /* nb_true_divide          */
+        0,                               /* nb_inplace_floor_divide */
+        0,                               /* nb_inplace_true_divide  */
+        0,                               /* nb_index                */
+};
+#else
+static PyNumberMethods mpq_number_methods =
+{
+    (binaryfunc) Pybasic_add,            /* nb_add                  */
+    (binaryfunc) Pybasic_sub,            /* nb_subtract             */
+    (binaryfunc) Pybasic_mul,            /* nb_multiply             */
+    (binaryfunc) Pybasic_div2,           /* nb_divide               */
+    (binaryfunc) Pybasic_rem,            /* nb_remainder            */
+    (binaryfunc) Pybasic_divmod,         /* nb_divmod               */
+    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (unaryfunc) Pympq_neg,               /* nb_negative             */
+    (unaryfunc) Pympq_pos,               /* nb_positive             */
+    (unaryfunc) Pympq_abs,               /* nb_absolute             */
+    (inquiry) Pympq_nonzero,             /* nb_bool                 */
+        0,                               /* nb_invert               */
+        0,                               /* nb_lshift               */
+        0,                               /* nb_rshift               */
+        0,                               /* nb_and                  */
+        0,                               /* nb_xor                  */
+        0,                               /* nb_or                   */
+        0,                               /* nb_coerce               */
+    (unaryfunc) Pympq2PyInt,             /* nb_int                  */
+    (unaryfunc) Pympq2PyLong,            /* nb_long                 */
+    (unaryfunc) Pympq2PyFloat,           /* nb_float                */
+        0,                               /* nb_oct                  */
+        0,                               /* nb_hex                  */
+        0,                               /* nb_inplace_add;         */
+        0,                               /* nb_inplace_subtract     */
+        0,                               /* nb_inplace_multiply     */
+        0,                               /* nb_inplace_divide       */
+        0,                               /* nb_inplace_remainder    */
+        0,                               /* nb_inplace_power        */
+        0,                               /* nb_inplace_lshift       */
+        0,                               /* nb_inplace_rshift       */
+        0,                               /* nb_inplace_and          */
+        0,                               /* nb_inplace_xor          */
+        0,                               /* nb_inplace_or           */
+    (binaryfunc) Pybasic_floordiv,       /* nb_floor_divide         */
+    (binaryfunc) Pybasic_truediv,        /* nb_true_divide          */
+        0,                               /* nb_inplace_floor_divide */
+        0,                               /* nb_inplace_true_divide  */
+};
+#endif
+
+static PyGetSetDef Pympq_getseters[] =
+{
+    { "numerator", (getter)Pympq_getnumer, NULL, "numerator", NULL },
+    { "denominator", (getter)Pympq_getdenom, NULL, "denominator", NULL },
+    {NULL}
+};
+
+static PyMethodDef Pympq_methods [] =
+{
+    { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
+    { "digits", Pympq_digits, METH_VARARGS, doc_qdigitsm },
+    { NULL, NULL, 1 }
+};
+
+static PyTypeObject Pympq_Type =
+{
+    /* PyObject_HEAD_INIT(&PyType_Type) */
+#ifdef PY3
+    PyVarObject_HEAD_INIT(NULL, 0)
+#else
+    PyObject_HEAD_INIT(0)
+        0,                                  /* ob_size          */
+#endif
+    "mpq",                                  /* tp_name          */
+    sizeof(PympqObject),                    /* tp_basicsize     */
+        0,                                  /* tp_itemsize      */
+    /* methods */
+    (destructor) Pympq_dealloc,             /* tp_dealloc       */
+        0,                                  /* tp_print         */
+        0,                                  /* tp_getattr       */
+        0,                                  /* tp_setattr       */
+        0,                                  /* tp_reserved      */
+    (reprfunc) Pympq2repr,                  /* tp_repr          */
+    &mpq_number_methods,                    /* tp_as_number     */
+        0,                                  /* tp_as_sequence   */
+        0,                                  /* tp_as_mapping    */
+    (hashfunc) Pympq_hash,                  /* tp_hash          */
+        0,                                  /* tp_call          */
+    (reprfunc) Pympq2str,                   /* tp_str           */
+    (getattrofunc) 0,                       /* tp_getattro      */
+    (setattrofunc) 0,                       /* tp_setattro      */
+        0,                                  /* tp_as_buffer     */
+#ifdef PY3
+    Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
+#else
+    Py_TPFLAGS_HAVE_RICHCOMPARE |
+        Py_TPFLAGS_CHECKTYPES,              /* tp_flags         */
+#endif
+    "GNU Multi Precision rational number",  /* tp_doc           */
+        0,                                  /* tp_traverse      */
+        0,                                  /* tp_clear         */
+    (richcmpfunc)&mpany_richcompare,        /* tp_richcompare   */
+        0,                                  /* tp_weaklistoffset*/
+        0,                                  /* tp_iter          */
+        0,                                  /* tp_iternext      */
+    Pympq_methods,                          /* tp_methods       */
+        0,                                  /* tp_members       */
+    Pympq_getseters,                        /* tp_getset        */
+};
+
