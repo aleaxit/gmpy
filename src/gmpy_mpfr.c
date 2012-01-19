@@ -22,6 +22,19 @@
  * 02110-1301  USA                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+static int isReal(PyObject* obj)
+{
+    if (Pympz_Check(obj))       return 1;
+    if (PyIntOrLong_Check(obj)) return 1;
+    if (Pympq_Check(obj))       return 1;
+    if (Pympfr_Check(obj))      return 1;
+    if (Pyxmpz_Check(obj))      return 1;
+    if (PyFloat_Check(obj))     return 1;
+    if (isDecimal(obj))         return 1;
+    if (isFraction(obj))        return 1;
+
+    return 0;
+}
 
 /* Functions that operate strictly on mpfr. */
 

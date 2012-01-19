@@ -684,3 +684,423 @@ Pympany_mul_2exp(PyObject *self, PyObject *args)
 }
 
 #endif
+
+/* COMPARING */
+
+static PyObject *_cmp_to_object(int c, int op)
+{
+    PyObject *result;
+    switch (op) {
+    case Py_LT: c = c <  0; break;
+    case Py_LE: c = c <= 0; break;
+    case Py_EQ: c = c == 0; break;
+    case Py_NE: c = c != 0; break;
+    case Py_GT: c = c >  0; break;
+    case Py_GE: c = c >= 0; break;
+    }
+    result = c ? Py_True : Py_False;
+    Py_INCREF(result);
+    return result;
+}
+static PyObject *
+mpany_richcompare(PyObject *a, PyObject *b, int op)
+{
+    int c, overflow;
+    long temp;
+    mpz_t tempz;
+    PyObject *tempa = 0, *tempb = 0;
+    PyObject *result = 0;
+
+    if (CHECK_MPZANY(a)) {
+        if (PyIntOrLong_Check(b)) {
+            TRACE("compare (mpz,int)\n");
+            temp = PyLong_AsLongAndOverflow(b, &overflow);
+            if (overflow) {
+                mpz_inoc(tempz);
+                mpz_set_PyLong(tempz, b);
+                c = mpz_cmp(Pympz_AS_MPZ(a), tempz);
+                mpz_cloc(tempz);
+            }
+            else {
+                c = mpz_cmp_si(Pympz_AS_MPZ(a), temp);
+            }
+            return _cmp_to_object(c, op);
+        }
+        if (CHECK_MPZANY(b)) {
+            TRACE("compare (mpz,mpz)\n");
+            return _cmp_to_object(mpz_cmp(Pympz_AS_MPZ(a), Pympz_AS_MPZ(b)), op);
+        }
+        if (isInteger(b)) {
+            TRACE("compare (mpz,integer)\n");
+            tempb = (PyObject*)Pympz_From_Integer(b);
+            if (!tempb)
+                return NULL;
+            c = mpz_cmp(Pympz_AS_MPZ(a), Pympz_AS_MPZ(tempb));
+            Py_DECREF(tempb);
+            return _cmp_to_object(c, op);
+        }
+        if (isRational(b)) {
+            TRACE("compare (mpz,rational)\n");
+            tempa = (PyObject*)Pympq_From_Rational(a);
+            tempb = (PyObject*)Pympq_From_Rational(b);
+            if (!tempa || !tempb) {
+                Py_XDECREF(a);
+                Py_XDECREF(b);
+                return NULL;
+            }
+            c = mpq_cmp(Pympq_AS_MPQ(a), Pympq_AS_MPQ(tempb));
+            Py_DECREF(tempa);
+            Py_DECREF(tempb);
+            return _cmp_to_object(c, op);
+        }
+        if (PyFloat_Check(b)) {
+            double d = PyFloat_AS_DOUBLE(b);
+            if (Py_IS_NAN(d)) {
+                result = (op == Py_NE) ? Py_True : Py_False;
+                Py_INCREF(result);
+                return result;
+            }
+            else if (Py_IS_INFINITY(d)) {
+                if (d < 0.0)
+                    return _cmp_to_object(1, op);
+                else
+                    return _cmp_to_object(-1, op);
+            }
+            else {
+                return _cmp_to_object(mpz_cmp_d(Pympz_AS_MPZ(a), d), op);
+            }
+        }
+        if (isDecimal(b)) {
+            tempa = (PyObject*)Pympq_From_Rational(a);
+            tempb = (PyObject*)Pympq_From_Decimal(b);
+            if (!tempa || !tempb) {
+                Py_XDECREF(a);
+                Py_XDECREF(b);
+                return NULL;
+            }
+            if (!mpz_cmp_si(mpq_denref(Pympq_AS_MPQ(tempb)), 0)) {
+                if (!mpz_cmp_si(mpq_numref(Pympq_AS_MPQ(tempb)), 0)) {
+                    result = (op == Py_NE) ? Py_True : Py_False;
+                    Py_DECREF(tempa);
+                    Py_DECREF(tempb);
+                    Py_INCREF(result);
+                    return result;
+                }
+                else if (mpz_cmp_si(mpq_numref(Pympq_AS_MPQ(tempb)), 0) < 0) {
+                    Py_DECREF(tempa);
+                    Py_DECREF(tempb);
+                    return _cmp_to_object(1, op);
+                }
+                else {
+                    Py_DECREF(tempa);
+                    Py_DECREF(tempb);
+                    return _cmp_to_object(-1, op);
+                }
+            }
+            else {
+                c = mpq_cmp(Pympq_AS_MPQ(tempa), Pympq_AS_MPQ(tempb));
+                Py_DECREF(tempa);
+                Py_DECREF(tempb);
+                return _cmp_to_object(c, op);
+            }
+        }
+    }
+    if (Pympq_Check(a)) {
+        if (Pympq_Check(b)) {
+            TRACE("compare (mpq,mpq)\n");
+            return _cmp_to_object(mpq_cmp(Pympq_AS_MPQ(a), Pympq_AS_MPQ(b)), op);
+        }
+        if (isRational(b)) {
+            TRACE("compare (mpq,rational)\n");
+            tempb = (PyObject*)Pympq_From_Rational(b);
+            c = mpq_cmp(Pympq_AS_MPQ(a), Pympq_AS_MPQ(tempb));
+            Py_DECREF(tempb);
+            return _cmp_to_object(c, op);
+        }
+        if (PyFloat_Check(b)) {
+            double d = PyFloat_AS_DOUBLE(b);
+            if (Py_IS_NAN(d)) {
+                result = (op == Py_NE) ? Py_True : Py_False;
+                Py_INCREF(result);
+                return result;
+            }
+            else if (Py_IS_INFINITY(d)) {
+                if (d < 0.0)
+                    return _cmp_to_object(1, op);
+                else
+                    return _cmp_to_object(-1, op);
+            }
+            else {
+                tempb = (PyObject*)Pympq_new();
+                if (!tempb)
+                    return NULL;
+                mpq_set_d(Pympq_AS_MPQ(tempb), d);
+                c = mpq_cmp(Pympq_AS_MPQ(a), Pympq_AS_MPQ(tempb));
+                Py_DECREF(tempb);
+                return _cmp_to_object(c, op);
+            }
+        }
+        if (isDecimal(b)) {
+            if (!(tempb = (PyObject*)Pympq_From_Decimal(b)))
+                return NULL;
+            if (!mpz_cmp_si(mpq_denref(Pympq_AS_MPQ(tempb)), 0)) {
+                if (!mpz_cmp_si(mpq_numref(Pympq_AS_MPQ(tempb)), 0)) {
+                    result = (op == Py_NE) ? Py_True : Py_False;
+                    Py_DECREF(tempb);
+                    Py_INCREF(result);
+                    return result;
+                }
+                else if (mpz_cmp_si(mpq_numref(Pympq_AS_MPQ(tempb)), 0) < 0) {
+                    Py_DECREF(tempb);
+                    return _cmp_to_object(1, op);
+                }
+                else {
+                    Py_DECREF(tempb);
+                    return _cmp_to_object(-1, op);
+                }
+            }
+            else {
+                c = mpq_cmp(Pympq_AS_MPQ(a), Pympq_AS_MPQ(tempb));
+                Py_DECREF(tempb);
+                return _cmp_to_object(c, op);
+            }
+        }
+    }
+#ifdef WITHMPFR
+    if (Pympfr_Check(a)) {
+        if (Pympfr_Check(b)) {
+            TRACE("compare (mpfr,mpfr)\n");
+            mpfr_clear_flags();
+            c = mpfr_cmp(Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b));
+            if (mpfr_erangeflag_p()) {
+                /* Set erange and check if an exception should be raised. */
+                context->now.erange = 1;
+                if (context->now.trap_erange) {
+                    GMPY_ERANGE("comparison with NaN");
+                    return NULL;
+                }
+                result = (op == Py_NE) ? Py_True : Py_False;
+                Py_INCREF(result);
+                return result;
+            }
+            else {
+                return _cmp_to_object(c, op);
+            }
+        }
+        if (PyFloat_Check(b)) {
+            double d = PyFloat_AS_DOUBLE(b);
+            TRACE("compare (mpfr,float)\n");
+            mpfr_clear_flags();
+            c = mpfr_cmp_d(Pympfr_AS_MPFR(a), d);
+            if (mpfr_erangeflag_p()) {
+                /* Set erange and check if an exception should be raised. */
+                context->now.erange = 1;
+                if (context->now.trap_erange) {
+                    GMPY_ERANGE("comparison with NaN");
+                    return NULL;
+                }
+                result = (op == Py_NE) ? Py_True : Py_False;
+                Py_INCREF(result);
+                return result;
+            }
+            else {
+                return _cmp_to_object(c, op);
+            }
+        }
+        if (isInteger(b)) {
+            TRACE("compare (mpfr,integer)\n");
+            tempb = (PyObject*)Pympz_From_Integer(b);
+            if (!tempb)
+                return NULL;
+            mpfr_clear_flags();
+            c = mpfr_cmp_z(Pympfr_AS_MPFR(a), Pympz_AS_MPZ(tempb));
+            Py_DECREF(tempb);
+            if (mpfr_erangeflag_p()) {
+                /* Set erange and check if an exception should be raised. */
+                context->now.erange = 1;
+                if (context->now.trap_erange) {
+                    GMPY_ERANGE("comparison with NaN");
+                    return NULL;
+                }
+                result = (op == Py_NE) ? Py_True : Py_False;
+                Py_INCREF(result);
+                return result;
+            }
+            else {
+                return _cmp_to_object(c, op);
+            }
+        }
+        if (isRational(b)) {
+            TRACE("compare (mpfr,rational)\n");
+            tempb = (PyObject*)Pympq_From_Rational(b);
+            if (!tempb)
+                return NULL;
+            mpfr_clear_flags();
+            c = mpfr_cmp_q(Pympfr_AS_MPFR(a), Pympq_AS_MPQ(tempb));
+            Py_DECREF(tempb);
+            if (mpfr_erangeflag_p()) {
+                /* Set erange and check if an exception should be raised. */
+                context->now.erange = 1;
+                if (context->now.trap_erange) {
+                    GMPY_ERANGE("comparison with NaN");
+                    return NULL;
+                }
+                result = (op == Py_NE) ? Py_True : Py_False;
+                Py_INCREF(result);
+                return result;
+            }
+            else {
+                return _cmp_to_object(c, op);
+            }
+        }
+        if (isDecimal(b)) {
+            TRACE("compare (mpfr,decimal)\n");
+            tempb = (PyObject*)Pympq_From_Decimal(b);
+            if (!tempb)
+                return NULL;
+            if (!mpz_cmp_si(mpq_denref(Pympq_AS_MPQ(tempb)), 0)) {
+                if (!mpz_cmp_si(mpq_numref(Pympq_AS_MPQ(tempb)), 0)) {
+                    context->now.erange = 1;
+                    if (context->now.trap_erange) {
+                        GMPY_ERANGE("comparison with NaN");
+                        return NULL;
+                    }
+                    result = (op == Py_NE) ? Py_True : Py_False;
+                    Py_DECREF(tempb);
+                    Py_INCREF(result);
+                    return result;
+                }
+                else if (mpz_cmp_si(mpq_numref(Pympq_AS_MPQ(tempb)), 0) < 0) {
+                    Py_DECREF(tempb);
+                    return _cmp_to_object(1, op);
+                }
+                else {
+                    Py_DECREF(tempb);
+                    return _cmp_to_object(-1, op);
+                }
+            }
+            else {
+                mpfr_clear_flags();
+                c = mpfr_cmp_q(Pympfr_AS_MPFR(a), Pympq_AS_MPQ(tempb));
+                Py_DECREF(tempb);
+                if (mpfr_erangeflag_p()) {
+                    /* Set erange and check if an exception should be raised. */
+                    context->now.erange = 1;
+                    if (context->now.trap_erange) {
+                        GMPY_ERANGE("comparison with NaN");
+                        return NULL;
+                    }
+                    result = (op == Py_NE) ? Py_True : Py_False;
+                    Py_INCREF(result);
+                    return result;
+                }
+                else {
+                    return _cmp_to_object(c, op);
+                }
+            }
+        }
+        if (isReal(b)) {
+            TRACE("compare (mpfr,real)\n");
+            tempb = (PyObject*)Pympfr_From_Real(b, 0);
+            if (!tempb)
+                return NULL;
+            mpfr_clear_flags();
+            c = mpfr_cmp(Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(tempb));
+            Py_DECREF(tempb);
+            if (mpfr_erangeflag_p()) {
+                /* Set erange and check if an exception should be raised. */
+                context->now.erange = 1;
+                if (context->now.trap_erange) {
+                    GMPY_ERANGE("comparison with NaN");
+                    return NULL;
+                }
+                result = (op == Py_NE) ? Py_True : Py_False;
+                Py_INCREF(result);
+                return result;
+            }
+            else {
+                return _cmp_to_object(c, op);
+            }
+        }
+    }
+#endif
+
+#ifdef WITHMPC
+    if (Pympc_Check(a)) {
+        if (!(op == Py_EQ || op == Py_NE)) {
+            TYPE_ERROR("no ordering relation is defined for complex numbers");
+            return NULL;
+        }
+        if (Pympc_Check(b)) {
+            TRACE("compare (mpc,mpc)\n");
+            mpfr_clear_flags();
+            c = mpc_cmp(Pympc_AS_MPC(a), Pympc_AS_MPC(b));
+            if (mpfr_erangeflag_p()) {
+                /* Set erange and check if an exception should be raised. */
+                context->now.erange = 1;
+                if (context->now.trap_erange) {
+                    GMPY_ERANGE("comparison with NaN");
+                    return NULL;
+                }
+                result = (op == Py_NE) ? Py_True : Py_False;
+                Py_INCREF(result);
+                return result;
+            }
+            else {
+                return _cmp_to_object(c, op);
+            }
+        }
+        if (PyComplex_Check(b)) {
+            PympcObject *tempmpc;
+
+            if (!(tempmpc = PyComplex2Pympc(b, 53, 53)))
+                return NULL;
+            mpfr_clear_flags();
+            c = mpc_cmp(Pympc_AS_MPC(a), Pympc_AS_MPC(tempmpc));
+            Py_DECREF((PyObject*)tempmpc);
+            if (mpfr_erangeflag_p()) {
+                /* Set erange and check if an exception should be raised. */
+                context->now.erange = 1;
+                if (context->now.trap_erange) {
+                    GMPY_ERANGE("comparison with NaN");
+                    return NULL;
+                }
+                result = (op == Py_NE) ? Py_True : Py_False;
+                Py_INCREF(result);
+                return result;
+            }
+            else {
+                return _cmp_to_object(c, op);
+            }
+        }
+        /* a.imag must be 0 or else all further comparisons will be NE */
+        if (!mpfr_zero_p(mpc_imagref(Pympc_AS_MPC(a)))) {
+            /* if a.real is NaN, possibly raise exception */
+            if (mpfr_nan_p(mpc_realref(Pympc_AS_MPC(a)))) {
+                context->now.erange = 1;
+                if (context->now.trap_erange) {
+                    GMPY_ERANGE("comparison with NaN");
+                    return NULL;
+                }
+            }
+            result = (op == Py_NE) ? Py_True : Py_False;
+            Py_INCREF(result);
+            return result;
+        }
+        else {
+            PympfrObject *tempmpfr;
+
+            tempmpfr = Pympfr_new(mpfr_get_prec(mpc_realref(Pympc_AS_MPC(a))));
+            if (!tempmpfr)
+                return NULL;
+            mpc_real(tempmpfr->f, Pympc_AS_MPC(a), context->now.mpfr_round);
+            result = mpany_richcompare((PyObject*)tempmpfr, b, op);
+            Py_DECREF((PyObject*)tempmpfr);
+            return result;
+        }
+    }
+#endif
+
+    Py_RETURN_NOTIMPLEMENTED;
+}
+

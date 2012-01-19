@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy.h                                                                  *
+ * gmpy_context.h                                                          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -21,6 +21,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA           *
  * 02110-1301  USA                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+#ifndef GMPY_CONTEXT_H
+#define GMPY_CONTEXT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct {
     mpfr_prec_t mpfr_prec;   /* current precision in bits, for MPFR */
@@ -62,4 +69,30 @@ typedef struct {
 } GMPyContextObject;
 
 static PyTypeObject GMPyContext_Type;
+
 #define GMPyContext_Check(v) (((PyObject*)v)->ob_type == &GMPyContext_Type)
+
+#define GET_MPFR_PREC(c) (c->now.mpfr_prec)
+#define GET_MPC_RPREC(c) ((c->now.mpc_rprec==GMPY_DEFAULT)?GET_MPFR_PREC(c):c->now.mpc_rprec)
+#define GET_MPC_IPREC(c) ((c->now.mpc_iprec==GMPY_DEFAULT)?GET_MPC_RPREC(c):c->now.mpc_iprec)
+#define GET_MPFR_ROUND(c) (c->now.mpfr_round)
+#define GET_MPC_RROUND(c) ((c->now.mpc_rround==GMPY_DEFAULT)?GET_MPFR_ROUND(c):c->now.mpc_rround)
+#define GET_MPC_IROUND(c) ((c->now.mpc_iround==GMPY_DEFAULT)?GET_MPC_RROUND(c):c->now.mpc_iround)
+#define GET_MPC_ROUND(c) (RNDC(GET_MPC_RROUND(c), GET_MPC_IROUND(c)))
+
+static GMPyContextObject * GMPyContext_new(void);
+static void GMPyContext_dealloc(GMPyContextObject *self);
+static PyObject * GMPyContext_repr(GMPyContextObject *self);
+static PyObject * Pygmpy_get_context(PyObject *self, PyObject *args);
+static PyObject * Pygmpy_local_context(PyObject *self, PyObject *args, PyObject *kwargs);
+static PyObject * Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs);
+static PyObject * Pygmpy_set_context(PyObject *self, PyObject *other);
+static PyObject * GMPyContext_enter(PyObject *self, PyObject *args);
+static PyObject * GMPyContext_exit(PyObject *self, PyObject *args);
+static PyObject * GMPyContext_clear_flags(PyObject *self, PyObject *args);
+
+#ifdef __cplusplus
+}
+#endif
+#endif
+

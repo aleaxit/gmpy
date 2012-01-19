@@ -22,6 +22,13 @@
  * 02110-1301  USA                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+#ifndef GMPY_MPC_H
+#define GMPY_MPC_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 /* gmpy_mpc C API extension header file.
  *
@@ -37,7 +44,7 @@
 #endif
 
 typedef struct {
-    mpob ob;
+    PyObject_HEAD
     mpc_t c;
     Py_hash_t hash_cache;
     int rc;
@@ -254,11 +261,76 @@ static PyTypeObject Pympc_Type;
     }
 
 /* Forward declarations begin here. */
-static PyObject *Pympc_pow(PyObject *base, PyObject *exp, PyObject *m);
-static PyObject *Pympc_sqrt(PyObject *self, PyObject *other);
-static PyObject *Pympc_acos(PyObject *self, PyObject *other);
-static PyObject *Pympc_asin(PyObject *self, PyObject *other);
-static PyObject *Pympc_atanh(PyObject *self, PyObject *other);
+static int isComplex(PyObject* obj);
+static PympcObject * Pympc2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
+static PympcObject * PyComplex2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
+static PympcObject * Pympfr2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
+static PympcObject * PyFloat2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
+static PyObject * Pympc2PyFloat(PyObject *self);
+static PympcObject * Pympz2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
+static PympcObject * Pympq2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
+static PympcObject * PyLong2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
+static PyObject * Pympc2PyLong(PyObject *self);
+#ifdef PY2
+static PympcObject * PyInt2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
+static PyObject * Pympc2PyInt(PyObject *self);
+#endif
+static PympcObject * PyStr2Pympc(PyObject *s, long base, mpfr_prec_t rbits, mpfr_prec_t ibits);
+static PyObject * raw_mpfr_ascii(mpfr_t self, int base, int digits, int round);
+static PyObject * Pympc_ascii(PympcObject *self, int base, int digits);
+static PympcObject * Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec);
+int Pympc_convert_arg(PyObject *arg, PyObject **ptr);
+static PyObject * Pympc_digits(PyObject *self, PyObject *args);
+static PyObject * Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs);
+static PyObject * Pympc_format(PyObject *self, PyObject *args);
+static PyObject * Pympc2str(PympcObject *self);
+static PyObject * Pympc2repr(PympcObject *self);
+static PyObject * Pympc_abs(PyObject *self);
+static PyObject * Pympc_neg(PympcObject *self);
+static PyObject * Pympc_pos(PympcObject *self);
+static PyObject * Pympc_sqr(PyObject* self, PyObject *other);
+static PyObject * Pympc_pow(PyObject *base, PyObject *exp, PyObject *m);
+static PyObject * Pympc_conjugate(PyObject *self, PyObject *args);
+static PyObject * Pympc_getprec_attrib(PympcObject *self, void *closure);
+static PyObject * Pympc_getrc_attrib(PympcObject *self, void *closure);
+static PyObject * Pympc_getimag_attrib(PympcObject *self, void *closure);
+static PyObject * Pympc_getreal_attrib(PympcObject *self, void *closure);
+static int Pympc_nonzero(PympcObject *self);
+static PyObject * Pympc_is_NAN(PyObject *self, PyObject *other);
+static PyObject * Pympc_is_ZERO(PyObject *self, PyObject *other);
+static PyObject * Pympc_is_INF(PyObject *self, PyObject *other);
+static PyObject * Pympc_phase(PyObject *self, PyObject *other);
+static PyObject * Pympc_norm(PyObject *self, PyObject *other);
+static PyObject * Pympc_polar(PyObject *self, PyObject *other);
+static PyObject * Pympc_rect(PyObject *self, PyObject *args);
+static PyObject * Pympc_proj(PyObject *self, PyObject *other);
+static PyObject * Pympc_log(PyObject *self, PyObject *other);
+static PyObject * Pympc_exp(PyObject *self, PyObject *other);
+static PyObject * Pympc_sin(PyObject *self, PyObject *other);
+static PyObject * Pympc_cos(PyObject *self, PyObject *other);
+static PyObject * Pympc_tan(PyObject *self, PyObject *other);
+static PyObject * Pympc_sinh(PyObject *self, PyObject *other);
+static PyObject * Pympc_cosh(PyObject *self, PyObject *other);
+static PyObject * Pympc_tanh(PyObject *self, PyObject *other);
+static PyObject * Pympc_asin(PyObject *self, PyObject *other);
+static PyObject * Pympc_acos(PyObject *self, PyObject *other);
+static PyObject * Pympc_atan(PyObject *self, PyObject *other);
+static PyObject * Pympc_asinh(PyObject *self, PyObject *other);
+static PyObject * Pympc_acosh(PyObject *self, PyObject *other);
+static PyObject * Pympc_atanh(PyObject *self, PyObject *other);
+static PyObject * Pympc_sqrt(PyObject *self, PyObject *other);
+static PyObject * Pympc_sin_cos(PyObject *self, PyObject *other);
+static PyObject * Pympc_fma(PyObject *self, PyObject *args);
+static PyObject * Pympc_fms(PyObject *self, PyObject *args);
+static PyObject * Pympc_div_2exp(PyObject *self, PyObject *args);
+static PyObject * Pympc_mul_2exp(PyObject *self, PyObject *args);
+static Py_hash_t Pympc_hash(PympcObject *self);
+static PyObject * Pympc_add(PyObject *self, PyObject *args);
+static PyObject * Pympc_sub(PyObject *self, PyObject *args);
+static PyObject * Pympc_mul(PyObject *self, PyObject *args);
+static PyObject * Pympc_div(PyObject *self, PyObject *args);
 
-
-
+#ifdef __cplusplus
+}
+#endif
+#endif
