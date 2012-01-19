@@ -24,6 +24,13 @@
 
 /* Various macros for parsing arguments. */
 
+#ifndef GMPY_ARG_H
+#define GMPY_ARG_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Create two 'mpz' and a 2-tuple.
  */
@@ -754,3 +761,7 @@
     if(!PyArg_ParseTuple(args, "O&O&", converter,var1, converter,var2)) \
         return NULL;
 
+#ifdef __cplusplus
+}
+#endif
+#endif /* !defined(Py_GMPYMODULE_H */

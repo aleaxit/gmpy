@@ -29,9 +29,15 @@
  * Rounding) library.
  *
  * Version 2.00, April 2011 (created) casevh
- *
- * This file is expected to be included from gmpy.h
  */
+ 
+#ifndef GMPY_MPFR_H
+#define GMPY_MPFR_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 #if !defined(FLT_RADIX) || (FLT_RADIX!=2)
 #   error "FLT_RADIX undefined or != 2, GMPY2 is confused. :("
@@ -42,7 +48,7 @@
 #endif
 
 typedef struct {
-    mpob ob;
+    PyObject_HEAD
     mpfr_t f;
     Py_hash_t hash_cache;
     int rc;
@@ -232,13 +238,159 @@ static PyTypeObject Pympfr_Type;
     )
 
 /* Forward declarations begin here. */
-static PympfrObject *PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits);
-static PympzObject *Pympfr2Pympz(PyObject *self);
-static PyxmpzObject *Pympfr2Pyxmpz(PyObject *self);
-static PympqObject *Pympfr2Pympq(PyObject *self);
-static PympfrObject *Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
+static PympfrObject * Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
+static int isReal(PyObject* obj);
+static PympfrObject * Pympfr2Pympfr(PyObject *self, mpfr_prec_t bits);
+static PympfrObject * PyFloat2Pympfr(PyObject *self, mpfr_prec_t bits);
+static PympfrObject * Pympz2Pympfr(PyObject *self, mpfr_prec_t bits);
+static PympzObject * Pympfr2Pympz(PyObject *self);
+static PyxmpzObject * Pympfr2Pyxmpz(PyObject *self);
+static PympqObject * stern_brocot(PympfrObject* self, PympfrObject *err, mpfr_prec_t prec, int mayz);
+static PympqObject * Pympfr2Pympq(PyObject *self);
+static PympfrObject * Pympq2Pympfr(PyObject *self, mpfr_prec_t bits);
+static PympfrObject * PyLong2Pympfr(PyObject *self, mpfr_prec_t bits);
+#ifdef PY2
+static PympfrObject * PyInt2Pympfr(PyObject *self, mpfr_prec_t bits);
+static PyObject * Pympfr2PyInt(PympfrObject *self);
+#endif
+static PympfrObject * PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits);
+static PyObject * Pympfr2PyLong(PympfrObject *self);
+static PyObject * Pympfr2PyFloat(PympfrObject *self);
+static PyObject * Pympfr2binary(PympfrObject *self);
+static PyObject* Pympfr_ascii(PympfrObject *self, int base, int digits);
+static PympfrObject * Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
+static int Pympfr_convert_arg(PyObject *arg, PyObject **ptr);
+static PyObject * Pympfr_f2q(PyObject *self, PyObject *args);
+static PyObject * Pympfr2str(PympfrObject *self);
+static PyObject * Pympfr2repr(PympfrObject *self);
+static PyObject * Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds);
+static PyObject * Pympfr_getprec_attrib(PympfrObject *self, void *closure);
+static PyObject * Pympfr_getrc_attrib(PympfrObject *self, void *closure);
+static PyObject * Pympfr_getimag_attrib(PympfrObject *self, void *closure);
+static PyObject * Pympfr_getreal_attrib(PympfrObject *self, void *closure);
+static int Pympfr_nonzero(PympfrObject *self);
+static PyObject * Pympfr_conjugate(PyObject *self, PyObject *args);
+static PyObject * Pympfr_pos(PympfrObject *self);
+static PyObject * Pympfr_get_emin_min(PyObject *self, PyObject *args);
+static PyObject * Pympfr_get_emax_max(PyObject *self, PyObject *args);
+static PyObject * Pympfr_get_max_precision(PyObject *self, PyObject *args);
+static PyObject * Pympfr_get_exp(PyObject *self, PyObject *other);
+static PyObject * Pympfr_set_exp(PyObject *self, PyObject *args);
+static PyObject * Pympfr_set_sign(PyObject *self, PyObject *args);
+static PyObject * Pympfr_copy_sign(PyObject *self, PyObject *args);
+static PyObject * Pympfr_div_2exp(PyObject *self, PyObject *args);
+static PyObject * Pympfr_mul_2exp(PyObject *self, PyObject *args);
+static PyObject * Pympfr_set_nan(PyObject *self, PyObject *other);
+static PyObject * Pympfr_set_inf(PyObject *self, PyObject *args);
+static PyObject * Pympfr_set_zero(PyObject *self, PyObject *args);
+static PyObject * Pympfr_is_signed(PyObject *self, PyObject *other);
+static PyObject * Pympfr_is_nan(PyObject *self, PyObject *other);
+static PyObject * Pympfr_is_inf(PyObject *self, PyObject *other);
+static PyObject * Pympfr_is_zero(PyObject *self, PyObject *other);
+static PyObject * Pympfr_is_regular(PyObject *self, PyObject *other);
+static PyObject * Pympfr_is_integer(PyObject *self, PyObject *other);
+static PyObject * Pympfr_digits(PyObject *self, PyObject *args);
+static PyObject * Pympfr_integer_ratio(PyObject *self, PyObject *args);
+static PyObject * Pympfr_mantissa_exp(PyObject *self, PyObject *args);
+static PyObject * Pympfr_simple_fraction(PyObject *self, PyObject *args, PyObject *keywds);
+static Py_hash_t Pympfr_hash(PympfrObject *self);
+static PyObject * Pympfr_pow(PyObject *base, PyObject *exp, PyObject *m);
+static PyObject * Pympfr_const_pi(PyObject *self, PyObject *args);
+static PyObject * Pympfr_const_euler(PyObject *self, PyObject *args);
+static PyObject * Pympfr_const_log2(PyObject *self, PyObject *args);
+static PyObject * Pympfr_const_catalan(PyObject *self, PyObject *args);
+static PyObject * Pympfr_sqrt(PyObject *self, PyObject *other);
+static PyObject * Pympfr_rec_sqrt(PyObject *self, PyObject *other);
+static PyObject * Pympfr_root(PyObject *self, PyObject *args);
+static PyObject * Pympfr_round(PyObject *self, PyObject *args);
+static PyObject * Pympfr_reldiff(PyObject *self, PyObject *args);
+static PyObject * Pympfr_sign(PyObject *self, PyObject *other);
+static PyObject * Pympfr_abs(PympfrObject *x);
+static PyObject * Pympfr_neg(PympfrObject *x);
+static PyObject * Pympfr_ceil(PyObject *self, PyObject *other);
+static PyObject * Pympfr_floor(PyObject *self, PyObject *other);
+static PyObject * Pympfr_trunc(PyObject *self, PyObject *other);
+static PyObject * Pympfr_round2(PyObject* self, PyObject *other);
+static PyObject * Pympfr_rint(PyObject* self, PyObject *other);
+static PyObject * Pympfr_rint_ceil(PyObject* self, PyObject *other);
+static PyObject * Pympfr_rint_floor(PyObject* self, PyObject *other);
+static PyObject * Pympfr_rint_trunc(PyObject* self, PyObject *other);
+static PyObject * Pympfr_frac(PyObject* self, PyObject *other);
+static PyObject * Pympfr_modf(PyObject* self, PyObject *other);
+static PyObject * Pympfr_sqr(PyObject* self, PyObject *other);
+static PyObject * Pympfr_cbrt(PyObject* self, PyObject *other);
+static PyObject * Pympfr_log(PyObject* self, PyObject *other);
+static PyObject * Pympfr_log2(PyObject* self, PyObject *other);
+static PyObject * Pympfr_log10(PyObject* self, PyObject *other);
+static PyObject * Pympfr_exp(PyObject* self, PyObject *other);
+static PyObject * Pympfr_exp2(PyObject* self, PyObject *other);
+static PyObject * Pympfr_exp10(PyObject* self, PyObject *other);
+static PyObject * Pympfr_sin(PyObject* self, PyObject *other);
+static PyObject * Pympfr_cos(PyObject* self, PyObject *other);
+static PyObject * Pympfr_tan(PyObject* self, PyObject *other);
+static PyObject * Pympfr_sec(PyObject* self, PyObject *other);
+static PyObject * Pympfr_csc(PyObject* self, PyObject *other);
+static PyObject * Pympfr_cot(PyObject* self, PyObject *other);
+static PyObject * Pympfr_acos(PyObject* self, PyObject *other);
+static PyObject * Pympfr_asin(PyObject* self, PyObject *other);
+static PyObject * Pympfr_atan(PyObject* self, PyObject *other);
+static PyObject * Pympfr_cosh(PyObject* self, PyObject *other);
+static PyObject * Pympfr_sinh(PyObject* self, PyObject *other);
+static PyObject * Pympfr_tanh(PyObject* self, PyObject *other);
+static PyObject * Pympfr_sech(PyObject* self, PyObject *other);
+static PyObject * Pympfr_csch(PyObject* self, PyObject *other);
+static PyObject * Pympfr_coth(PyObject* self, PyObject *other);
+static PyObject * Pympfr_acosh(PyObject* self, PyObject *other);
+static PyObject * Pympfr_asinh(PyObject* self, PyObject *other);
+static PyObject * Pympfr_atanh(PyObject* self, PyObject *other);
+static PyObject * Pympfr_log1p(PyObject* self, PyObject *other);
+static PyObject * Pympfr_expm1(PyObject* self, PyObject *other);
+static PyObject * Pympfr_eint(PyObject* self, PyObject *other);
+static PyObject * Pympfr_li2(PyObject* self, PyObject *other);
+static PyObject * Pympfr_gamma(PyObject* self, PyObject *other);
+static PyObject * Pympfr_lngamma(PyObject* self, PyObject *other);
+static PyObject * Pympfr_lgamma(PyObject* self, PyObject *other);
+static PyObject * Pympfr_digamma(PyObject* self, PyObject *other);
+static PyObject * Pympfr_zeta(PyObject* self, PyObject *other);
+static PyObject * Pympfr_erf(PyObject* self, PyObject *other);
+static PyObject * Pympfr_erfc(PyObject* self, PyObject *other);
+static PyObject * Pympfr_j0(PyObject* self, PyObject *other);
+static PyObject * Pympfr_j1(PyObject* self, PyObject *other);
+static PyObject * Pympfr_jn(PyObject* self, PyObject *other);
+static PyObject * Pympfr_y0(PyObject* self, PyObject *other);
+static PyObject * Pympfr_y1(PyObject* self, PyObject *other);
+static PyObject * Pympfr_yn(PyObject* self, PyObject *other);
+static PyObject * Pympfr_ai(PyObject* self, PyObject *other);
+static PyObject * Pympfr_add(PyObject* self, PyObject *other);
+static PyObject * Pympfr_sub(PyObject* self, PyObject *other);
+static PyObject * Pympfr_mul(PyObject *self, PyObject *args);
+static PyObject * Pympfr_div(PyObject *self, PyObject *args);
+static PyObject * Pympfr_fmod(PyObject *self, PyObject *args);
+static PyObject * Pympfr_remainder(PyObject *self, PyObject *args);
+static PyObject * Pympfr_remquo(PyObject* self, PyObject *args);
+static PyObject * Pympfr_frexp(PyObject *self, PyObject *other);
+static PyObject * Pympfr_atan2(PyObject *self, PyObject *args);
+static PyObject * Pympfr_agm(PyObject *self, PyObject *args);
+static PyObject * Pympfr_hypot(PyObject *self, PyObject *args);
+static PyObject * Pympfr_max(PyObject *self, PyObject *args);
+static PyObject * Pympfr_min(PyObject *self, PyObject *args);
+static PyObject * Pympfr_nexttoward(PyObject *self, PyObject *args);
+static PyObject * Pympfr_nextabove(PyObject *self, PyObject *other);
+static PyObject * Pympfr_nextbelow(PyObject *self, PyObject *other);
+static PyObject * Pympfr_sin_cos(PyObject *self, PyObject *other);
+static PyObject * Pympfr_sinh_cosh(PyObject *self, PyObject *other);
+static PyObject * Pympfr_fma(PyObject *self, PyObject *args);
+static PyObject * Pympfr_fms(PyObject *self, PyObject *args);
+static PyObject * Pympfr_factorial(PyObject *self, PyObject *other);
+static PyObject * Pympfr_is_lessgreater(PyObject *self, PyObject *args);
+static PyObject * Pympfr_is_unordered(PyObject *self, PyObject *args);
+static PyObject * Pympfr_check_range(PyObject *self, PyObject *other);
+static PyObject * Pympfr_fsum(PyObject *self, PyObject *other);
+static PyObject * Pympfr_degrees(PyObject *self, PyObject *other);
+static PyObject * Pympfr_radians(PyObject *self, PyObject *other);
+static PyObject * Pympfr_format(PyObject *self, PyObject *args);
 
-
-
-
-
+#ifdef __cplusplus
+}
+#endif
+#endif

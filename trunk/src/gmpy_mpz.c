@@ -22,6 +22,135 @@
  * 02110-1301  USA                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+static char doc_mpz[] = "\
+mpz(n):\n\
+      builds an 'mpz' object with a numeric value n (truncating n\n\
+      to its integer part if it's a Fraction, 'mpq', Decimal, float\n\
+      or 'mpfr')\n\
+mpz(s,base=0):\n\
+      builds an 'mpz' object from a string s made up of digits in the\n\
+      given base.  If base=0, binary, octal, or hex Python strings\n\
+      are recognized by leading 0b, 0o, or 0x characters, otherwise\n\
+      the string is assumed to be decimal.\n\
+";
+static PyObject *
+Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
+{
+    PympzObject *result = 0;
+    PyObject *n = 0;
+    long base = 0;
+    Py_ssize_t argc;
+    static char *kwlist[] = {"n", "base", NULL };
+
+    TRACE("Pygmpy_mpz() called...\n");
+
+    /* Optimize the most common use case */
+    argc = PyTuple_Size(args);
+    if (argc == 1) {
+        n = PyTuple_GetItem(args, 0);
+#ifdef WITHMPFR
+        if (isReal(n) && !keywds) {
+#else
+        if ((isRational(n) || PyFloat_Check(n)) && !keywds) {
+#endif
+            result = anynum2Pympz(n);
+            if (!result && !PyErr_Occurred())
+                TYPE_ERROR("mpz() requires numeric or string argument");
+            return (PyObject*)result;
+        }
+    }
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist,
+                                     &n, &base))
+        return NULL;
+
+    if ((base!=0) && ((base<2)||(base>62))) {
+        VALUE_ERROR("base for mpz() must be 0 or in the "
+                    "interval 2 ... 62");
+        return NULL;
+    }
+
+    if (PyStrOrUnicode_Check(n)) {
+        /* build-from-string (ascii or unicode) */
+        result = PyStr2Pympz(n, base);
+    }
+    else {
+        if (argc==2 || (argc == 1 && keywds))
+            TYPE_ERROR("mpz() with non-string argument needs exactly "
+                       "1 argument");
+        else {
+            result = anynum2Pympz(n);
+            if (!result && !PyErr_Occurred())
+                TYPE_ERROR("mpz() requires numeric or string argument");
+        }
+    }
+    return (PyObject*)result;
+}
+
+static char doc_xmpz[] = "\
+xmpz(n):\n\
+      builds an 'xmpz' object with a numeric value n (truncating n\n\
+      to its integer part if it's a Fraction, 'mpq', Decimal, float\n\
+      or 'mpfr')\n\
+xmpz(s,base=0):\n\
+      builds an 'xmpz' object from a string s made up of digits in the\n\
+      given base.  If base=0, binary, octal, or hex Python strings\n\
+      are recognized by leading 0b, 0o, or 0x characters, otherwise\n\
+      the string is assumed to be decimal.\n\
+";
+static PyObject *
+Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
+{
+    PyxmpzObject *result = 0;
+    PyObject *n = 0;
+    long base = 0;
+    Py_ssize_t argc;
+    static char *kwlist[] = {"n", "base", NULL };
+
+    TRACE("Pygmpy_xmpz() called...\n");
+
+    /* Optimize the most common use case */
+    argc = PyTuple_Size(args);
+    if (argc == 1) {
+        n = PyTuple_GetItem(args, 0);
+#ifdef WITHMPFR
+        if (isReal(n) && !keywds) {
+#else
+        if ((isRational(n) || PyFloat_Check(n)) && !keywds) {
+#endif
+            result = anynum2Pyxmpz(n);
+            if (!result && !PyErr_Occurred())
+                TYPE_ERROR("xmpz() requires numeric or string argument");
+            return (PyObject*)result;
+        }
+    }
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist,
+                                     &n, &base))
+        return NULL;
+
+    if ((base!=0) && ((base<2)||(base>62))) {
+        VALUE_ERROR("base for xmpz() must be 0 or in the "
+                    "interval 2 ... 62");
+        return NULL;
+    }
+
+    if (PyStrOrUnicode_Check(n)) {
+        /* build-from-string (ascii or unicode) */
+        result = PyStr2Pyxmpz(n, base);
+    }
+    else {
+        if (argc==2 || (argc == 1 && keywds))
+            TYPE_ERROR("xmpz() with non-string argument needs exactly "
+                       "1 argument");
+        else {
+            result = anynum2Pyxmpz(n);
+            if (!result && !PyErr_Occurred())
+                TYPE_ERROR("xmpz() requires numeric or string argument");
+        }
+    }
+    return (PyObject*)result;
+}
 
 /* Functions that operate strictly on mpz or xmpz. */
 
@@ -2480,6 +2609,186 @@ Pympz_div(PyObject *self, PyObject *args)
     Py_DECREF(other);
     return (PyObject*)result;
 }
+
+#ifdef PY3
+static PyNumberMethods mpz_number_methods =
+{
+    (binaryfunc) Pybasic_add,            /* nb_add                  */
+    (binaryfunc) Pybasic_sub,            /* nb_subtract             */
+    (binaryfunc) Pybasic_mul,            /* nb_multiply             */
+    (binaryfunc) Pybasic_rem,            /* nb_remainder            */
+    (binaryfunc) Pybasic_divmod,         /* nb_divmod               */
+    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (unaryfunc) Pympz_neg,               /* nb_negative             */
+    (unaryfunc) Pympz_pos,               /* nb_positive             */
+    (unaryfunc) Pympz_abs,               /* nb_absolute             */
+    (inquiry) Pympz_nonzero,             /* nb_bool                 */
+    (unaryfunc) Pympz_com,               /* nb_invert               */
+    (binaryfunc) Pympz_lshift,           /* nb_lshift               */
+    (binaryfunc) Pympz_rshift,           /* nb_rshift               */
+    (binaryfunc) Pympz_and,              /* nb_and                  */
+    (binaryfunc) Pympz_xor,              /* nb_xor                  */
+    (binaryfunc) Pympz_ior,              /* nb_or                   */
+    (unaryfunc) Pympz2PyLong,            /* nb_int                  */
+        0,                               /* nb_reserved             */
+    (unaryfunc) Pympz2PyFloat,           /* nb_float                */
+    (binaryfunc) Pympz_inplace_add,      /* nb_inplace_add          */
+    (binaryfunc) Pympz_inplace_sub,      /* nb_inplace_subtract     */
+    (binaryfunc) Pympz_inplace_mul,      /* nb_inplace_multiply     */
+    (binaryfunc) Pympz_inplace_rem,      /* nb_inplace_remainder    */
+    (ternaryfunc) Pympz_inplace_pow,     /* nb_inplace_power        */
+    (binaryfunc) Pympz_inplace_lshift,   /* nb_inplace_lshift       */
+    (binaryfunc) Pympz_inplace_rshift,   /* nb_inplace_rshift       */
+        0,                               /* nb_inplace_and          */
+        0,                               /* nb_inplace_xor          */
+        0,                               /* nb_inplace_or           */
+    (binaryfunc) Pybasic_floordiv,       /* nb_floor_divide         */
+    (binaryfunc) Pybasic_truediv,        /* nb_true_divide          */
+    (binaryfunc) Pympz_inplace_floordiv, /* nb_inplace_floor_divide */
+        0,                               /* nb_inplace_true_divide  */
+    (unaryfunc)  Pympz_To_Integer,       /* nb_index                */
+};
+
+#else
+static PyNumberMethods mpz_number_methods =
+{
+    (binaryfunc) Pybasic_add,            /* nb_add                  */
+    (binaryfunc) Pybasic_sub,            /* nb_subtract             */
+    (binaryfunc) Pybasic_mul,            /* nb_multiply             */
+    (binaryfunc) Pybasic_div2,           /* nb_divide               */
+    (binaryfunc) Pybasic_rem,            /* nb_remainder            */
+    (binaryfunc) Pybasic_divmod,         /* nb_divmod               */
+    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (unaryfunc) Pympz_neg,               /* nb_negative             */
+    (unaryfunc) Pympz_pos,               /* nb_positive             */
+    (unaryfunc) Pympz_abs,               /* nb_absolute             */
+    (inquiry) Pympz_nonzero,             /* nb_bool                 */
+    (unaryfunc) Pympz_com,               /* nb_invert               */
+    (binaryfunc) Pympz_lshift,           /* nb_lshift               */
+    (binaryfunc) Pympz_rshift,           /* nb_rshift               */
+    (binaryfunc) Pympz_and,              /* nb_and                  */
+    (binaryfunc) Pympz_xor,              /* nb_xor                  */
+    (binaryfunc) Pympz_ior,              /* nb_or                   */
+        0,                               /* nb_coerce               */
+    (unaryfunc) Pympz_To_Integer,        /* nb_int                  */
+    (unaryfunc) Pympz2PyLong,            /* nb_long                 */
+    (unaryfunc) Pympz2PyFloat,           /* nb_float                */
+    (unaryfunc) Pympz_oct,               /* nb_oct                  */
+    (unaryfunc) Pympz_hex,               /* nb_hex                  */
+    (binaryfunc) Pympz_inplace_add,      /* nb_inplace_add          */
+    (binaryfunc) Pympz_inplace_sub,      /* nb_inplace_subtract     */
+    (binaryfunc) Pympz_inplace_mul,      /* nb_inplace_multiply     */
+        0,                               /* nb_inplace_divide       */
+    (binaryfunc) Pympz_inplace_rem,      /* nb_inplace_remainder    */
+    (ternaryfunc) Pympz_inplace_pow,     /* nb_inplace_power        */
+    (binaryfunc) Pympz_inplace_lshift,   /* nb_inplace_lshift       */
+    (binaryfunc) Pympz_inplace_rshift,   /* nb_inplace_rshift       */
+        0,                               /* nb_inplace_and          */
+        0,                               /* nb_inplace_xor          */
+        0,                               /* nb_inplace_or           */
+    (binaryfunc) Pybasic_floordiv,       /* nb_floor_divide         */
+    (binaryfunc) Pybasic_truediv,        /* nb_true_divide          */
+    (binaryfunc) Pympz_inplace_floordiv, /* nb_inplace_floor_divide */
+        0,                               /* nb_inplace_true_divide  */
+    (unaryfunc) Pympz_To_Integer,        /* nb_index                */
+};
+#endif
+
+static PyMappingMethods mpz_mapping_methods = {
+    (lenfunc)Pympz_nbits,
+    (binaryfunc)Pympz_subscript,
+    NULL
+};
+
+#ifdef PY3
+static PyNumberMethods xmpz_number_methods =
+{
+    (binaryfunc) Pybasic_add,            /* nb_add                  */
+    (binaryfunc) Pybasic_sub,            /* nb_subtract             */
+    (binaryfunc) Pybasic_mul,            /* nb_multiply             */
+    (binaryfunc) Pybasic_rem,            /* nb_remainder            */
+    (binaryfunc) Pybasic_divmod,         /* nb_divmod               */
+    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (unaryfunc) Pyxmpz_neg,              /* nb_negative             */
+    (unaryfunc) Pyxmpz_pos,              /* nb_positive             */
+    (unaryfunc) Pyxmpz_abs,              /* nb_absolute             */
+    (inquiry) Pyxmpz_nonzero,            /* nb_bool                 */
+    (unaryfunc) Pyxmpz_com,              /* nb_invert               */
+    (binaryfunc) Pympz_lshift,           /* nb_lshift               */
+    (binaryfunc) Pympz_rshift,           /* nb_rshift               */
+    (binaryfunc) Pympz_and,              /* nb_and                  */
+    (binaryfunc) Pympz_xor,              /* nb_xor                  */
+    (binaryfunc) Pympz_ior,              /* nb_or                   */
+    (unaryfunc) Pympz2PyLong,            /* nb_int                  */
+        0,                               /* nb_reserved             */
+    (unaryfunc) Pympz2PyFloat,           /* nb_float                */
+    (binaryfunc) Pyxmpz_inplace_add,     /* nb_inplace_add          */
+    (binaryfunc) Pyxmpz_inplace_sub,     /* nb_inplace_subtract     */
+    (binaryfunc) Pyxmpz_inplace_mul,     /* nb_inplace_multiply     */
+    (binaryfunc) Pyxmpz_inplace_rem,     /* nb_inplace_remainder    */
+    (ternaryfunc) Pyxmpz_inplace_pow,    /* nb_inplace_power        */
+    (binaryfunc) Pyxmpz_inplace_lshift,  /* nb_inplace_lshift       */
+    (binaryfunc) Pyxmpz_inplace_rshift,  /* nb_inplace_rshift       */
+    (binaryfunc) Pyxmpz_inplace_and,     /* nb_inplace_and          */
+    (binaryfunc) Pyxmpz_inplace_xor,     /* nb_inplace_xor          */
+    (binaryfunc) Pyxmpz_inplace_ior,     /* nb_inplace_or           */
+    (binaryfunc) Pybasic_floordiv,       /* nb_floor_divide         */
+    (binaryfunc) Pybasic_truediv,        /* nb_true_divide          */
+    (binaryfunc) Pyxmpz_inplace_floordiv,/* nb_inplace_floor_divide */
+        0,                               /* nb_inplace_true_divide  */
+    (unaryfunc)  Pyxmpz_To_Integer,      /* nb_index                */
+};
+
+#else
+static PyNumberMethods xmpz_number_methods =
+{
+    (binaryfunc) Pybasic_add,            /* nb_add                  */
+    (binaryfunc) Pybasic_sub,            /* nb_subtract             */
+    (binaryfunc) Pybasic_mul,            /* nb_multiply             */
+    (binaryfunc) Pybasic_div2,           /* nb_divide               */
+    (binaryfunc) Pybasic_rem,            /* nb_remainder            */
+    (binaryfunc) Pybasic_divmod,         /* nb_divmod               */
+    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (unaryfunc) Pyxmpz_neg,              /* nb_negative             */
+    (unaryfunc) Pyxmpz_pos,              /* nb_positive             */
+    (unaryfunc) Pyxmpz_abs,              /* nb_absolute             */
+    (inquiry) Pyxmpz_nonzero,            /* nb_bool                 */
+    (unaryfunc) Pyxmpz_com,              /* nb_invert               */
+    (binaryfunc) Pympz_lshift,           /* nb_lshift               */
+    (binaryfunc) Pympz_rshift,           /* nb_rshift               */
+    (binaryfunc) Pympz_and,              /* nb_and                  */
+    (binaryfunc) Pympz_xor,              /* nb_xor                  */
+    (binaryfunc) Pympz_ior,              /* nb_or                   */
+        0,                               /* nb_coerce               */
+    (unaryfunc) Pympz_To_Integer,        /* nb_int                  */
+    (unaryfunc) Pympz2PyLong,            /* nb_long                 */
+    (unaryfunc) Pympz2PyFloat,           /* nb_float                */
+    (unaryfunc) Pyxmpz_oct,              /* nb_oct                  */
+    (unaryfunc) Pyxmpz_hex,              /* nb_hex                  */
+    (binaryfunc) Pyxmpz_inplace_add,     /* nb_inplace_add          */
+    (binaryfunc) Pyxmpz_inplace_sub,     /* nb_inplace_subtract     */
+    (binaryfunc) Pyxmpz_inplace_mul,     /* nb_inplace_multiply     */
+        0,                               /* nb_inplace_divide       */
+    (binaryfunc) Pyxmpz_inplace_rem,     /* nb_inplace_remainder    */
+    (ternaryfunc) Pyxmpz_inplace_pow,    /* nb_inplace_power        */
+    (binaryfunc) Pyxmpz_inplace_lshift,  /* nb_inplace_lshift       */
+    (binaryfunc) Pyxmpz_inplace_rshift,  /* nb_inplace_rshift       */
+    (binaryfunc) Pyxmpz_inplace_and,     /* nb_inplace_and          */
+    (binaryfunc) Pyxmpz_inplace_xor,     /* nb_inplace_xor          */
+    (binaryfunc) Pyxmpz_inplace_ior,     /* nb_inplace_or           */
+    (binaryfunc) Pybasic_floordiv,       /* nb_floor_divide         */
+    (binaryfunc) Pybasic_truediv,        /* nb_true_divide          */
+    (binaryfunc) Pyxmpz_inplace_floordiv,/* nb_inplace_floor_divide */
+        0,                               /* nb_inplace_true_divide  */
+    (unaryfunc) Pyxmpz_To_Integer,       /* nb_index                */
+};
+#endif
+
+static PyMappingMethods xmpz_mapping_methods = {
+    (lenfunc)Pyxmpz_nbits,
+    (binaryfunc)Pyxmpz_subscript,
+    (objobjargproc)Pyxmpz_assign_subscript
+};
 
 
 

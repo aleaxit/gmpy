@@ -22,6 +22,113 @@
  * 02110-1301  USA                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+static char doc_mpq[] = "\
+mpq(n):\n\
+      builds an 'mpq' object with a numeric value n. Decimal and\n\
+      Fraction values are converted exactly.\n\
+mpq(n,m):\n\
+      builds an 'mpq' object with a numeric value n/m.\n\
+mpq(s,base=10):\n\
+      builds an 'mpq' object from a string s made up of digits in the\n\
+      given base.  s may be made up of two numbers in the same base\n\
+      separated by a '/' character.\n\
+";
+static PyObject *
+Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
+{
+    PympqObject *result = 0, *temp;
+    PyObject *n = 0, *m = 0;
+    long base = 10;
+    Py_ssize_t argc;
+    static char *kwlist[] = {"s", "base", NULL };
+
+    TRACE("Pygmpy_mpq() called...\n");
+
+    argc = PyTuple_Size(args);
+    if (argc < 1 || argc > 2) {
+        TYPE_ERROR("mpq() requires 1 or 2 arguments");
+        return NULL;
+    }
+
+    n = PyTuple_GetItem(args, 0);
+    if (PyStrOrUnicode_Check(n)) {
+        /* keyword base is legal */
+        if (PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist, &n, &base)) {
+            if ((base!=0) && ((base<2)||(base>62))) {
+                VALUE_ERROR("base for mpq() must be 0 or in the "
+                            "interval 2 ... 62");
+            }
+            else {
+                result = PyStr2Pympq(n, base);
+            }
+        }
+        return (PyObject*)result;
+    }
+
+    if (isDecimal(n)) {
+        result = Pympq_From_Decimal(n);
+        if (!mpz_cmp_si(mpq_denref(result->q), 0)) {
+            if (mpz_get_si(mpq_numref(result->q)) == 0)
+                VALUE_ERROR("'mpq' does not support NaN");
+            else
+                VALUE_ERROR("'mpq' does not support Infinity");
+            Py_DECREF((PyObject*)result);
+            result = NULL;
+        }
+        return (PyObject*)result;
+    }
+
+    if (argc == 2)
+        m = PyTuple_GetItem(args, 1);
+
+#ifdef WITHMPFR
+    if (!isReal(n) || (m && !isReal(m))) {
+#else
+    if (!(isRational(n) || PyFloat_Check(n)) ||
+        (m && !(isRational(m) || PyFloat_Check(m)))) {
+#endif
+        TYPE_ERROR("mpq() requires numeric or string argument");
+        return NULL;
+    }
+
+    /* should now have one or two numeric values */
+    result = Pympq_From_Real(n);
+    if (!result && !PyErr_Occurred()) {
+        TYPE_ERROR("mpq() requires numeric or string argument");
+        return NULL;
+    }
+    if (m) {
+        temp = Pympq_From_Real(m);
+        if (!temp && !PyErr_Occurred()) {
+            TYPE_ERROR("mpq() requires numeric or string argument");
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+        if (mpq_sgn(temp->q) == 0) {
+            ZERO_ERROR("zero denominator in 'mpq'");
+            Py_DECREF((PyObject*)result);
+            Py_DECREF((PyObject*)temp);
+            return NULL;
+        }
+        mpq_div(result->q, result->q, temp->q);
+        Py_DECREF((PyObject*)temp);
+    }
+    return (PyObject*)result;
+}
+
+/* Helper function for hashing for Python < 3.2 */
+/* Currently only used for mpq. Should refactor the mpq code and remove. */
+#ifndef _PyHASH_MODULUS
+static long
+dohash(PyObject* tempPynum)
+{
+    long hash;
+    if (!tempPynum) return -1;
+    hash = PyObject_Hash(tempPynum);
+    Py_DECREF(tempPynum);
+    return hash;
+}
+#endif
 
 /* Functions that operate strictly on mpq. */
 

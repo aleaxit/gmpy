@@ -33,15 +33,6 @@
  *          future version.
  */
 
-#define GET_MPFR_PREC(c) (c->now.mpfr_prec)
-#define GET_MPC_RPREC(c) ((c->now.mpc_rprec==GMPY_DEFAULT)?GET_MPFR_PREC(c):c->now.mpc_rprec)
-#define GET_MPC_IPREC(c) ((c->now.mpc_iprec==GMPY_DEFAULT)?GET_MPC_RPREC(c):c->now.mpc_iprec)
-
-#define GET_MPFR_ROUND(c) (c->now.mpfr_round)
-#define GET_MPC_RROUND(c) ((c->now.mpc_rround==GMPY_DEFAULT)?GET_MPFR_ROUND(c):c->now.mpc_rround)
-#define GET_MPC_IROUND(c) ((c->now.mpc_iround==GMPY_DEFAULT)?GET_MPC_RROUND(c):c->now.mpc_iround)
-#define GET_MPC_ROUND(c) (RNDC(GET_MPC_RROUND(c), GET_MPC_IROUND(c)))
-
 static GMPyContextObject *
 GMPyContext_new(void)
 {
