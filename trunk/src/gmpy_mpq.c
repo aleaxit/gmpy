@@ -116,20 +116,6 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
     return (PyObject*)result;
 }
 
-/* Helper function for hashing for Python < 3.2 */
-/* Currently only used for mpq. Should refactor the mpq code and remove. */
-#ifndef _PyHASH_MODULUS
-static long
-dohash(PyObject* tempPynum)
-{
-    long hash;
-    if (!tempPynum) return -1;
-    hash = PyObject_Hash(tempPynum);
-    Py_DECREF(tempPynum);
-    return hash;
-}
-#endif
-
 /* Functions that operate strictly on mpq. */
 
 /* produce digits for an mpq in requested base, default 10 */
@@ -579,9 +565,18 @@ Pympq_hash(PympqObject *self)
     self->hash_cache = hash;
     return hash;
 #else
+    PyObject *temp;
+    
     if (self->hash_cache != -1)
         return self->hash_cache;
-    return (self->hash_cache = dohash(Pympq2PyFloat(self)));
+    
+    if (!(temp = Pympq2PyFloat(self))) {
+        SYSTEM_ERROR("Could not convert 'mpq' to float.");
+        return -1;
+    }
+    self->hash_cache = PyObject_Hash(temp);
+    Py_DECREF(temp);
+    return self->hash_cache;
 #endif
 }
 
