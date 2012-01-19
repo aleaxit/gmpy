@@ -24,13 +24,6 @@
 
 /* Miscellaneous module-level functions and helper functions. */
 
-/* Return license information. */
-
-char gmpy_license[] = "\
-The GMPY2 source code is licensed under LGPL 2.1 or later. The GMP/MPIR, \n\
-MPFR, and MPC libraries are licensed under LGPL 3 or later. Therefore, this \n\
-combined module is licensed under LGPL 3 or later.";
-
 PyDoc_STRVAR(doc_license,
 "license() -> string\n\n"
 "Return string giving license information.");
