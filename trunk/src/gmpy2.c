@@ -312,12 +312,27 @@
  * NOTE: Because of these global declarations, GMPY2 is not thread-safe!   *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+/* The following global strings are used by gmpy_misc.c. */
+
 char gmpy_version[] = "2.0.0a3";
 
 char _gmpy_cvs[] = "$Id$";
 
+char gmpy_license[] = "\
+The GMPY2 source code is licensed under LGPL 2.1 or later. The GMP/MPIR, \n\
+MPFR, and MPC libraries are licensed under LGPL 3 or later. Therefore, this \n\
+combined module is licensed under LGPL 3 or later.";
+
+/* Remember a reference to this module. Used by initialization code further
+ * on in this file.
+ */
+ 
 static PyObject *gmpy_module = NULL;
 
+/* The following global structures are used by gmpy_cache.c. 
+ * Note: the debug option will likely be removed.
+ */
+ 
 static struct gmpy_global {
     int debug;               /* != 0 if debug messages desired on stderr */
     int cache_size;          /* size of cache, for all caches */
@@ -327,6 +342,21 @@ static struct gmpy_global {
     100,                     /* cache_size */
     128,                     /* cache_obsize */
 };
+
+static mpz_t* zcache;
+static int in_zcache;
+
+static PympzObject **pympzcache;
+static int in_pympzcache;
+
+static PyxmpzObject **pyxmpzcache;
+static int in_pyxmpzcache;
+
+static PympqObject **pympqcache;
+static int in_pympqcache;
+
+static PympfrObject **pympfrcache;
+static int in_pympfrcache;
 
 #ifdef WITHMPFR
 /* Support for context manager. */

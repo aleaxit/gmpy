@@ -37,9 +37,6 @@
  * the cached objects.
  */
 
-static mpz_t* zcache;
-static int in_zcache;
-
 static void
 set_zcache(void)
 {
@@ -90,9 +87,6 @@ mpz_cloc(mpz_t oldo)
 }
 
 /* Caching logic for Pympz. */
-
-static PympzObject **pympzcache;
-static int in_pympzcache;
 
 static void
 set_pympzcache(void)
@@ -148,9 +142,6 @@ Pympz_dealloc(PympzObject *self)
 
 /* Caching logic for Pyxmpz. */
 
-static PyxmpzObject **pyxmpzcache;
-static int in_pyxmpzcache;
-
 static void
 set_pyxmpzcache(void)
 {
@@ -203,9 +194,6 @@ Pyxmpz_dealloc(PyxmpzObject *self)
 }
 
 /* Caching logic for Pympq. */
-
-static PympqObject **pympqcache;
-static int in_pympqcache;
 
 static void
 set_pympqcache(void)
@@ -262,9 +250,6 @@ Pympq_dealloc(PympqObject *self)
 
 #ifdef WITHMPFR
 /* Caching logic for Pympfr. */
-
-static PympfrObject **pympfrcache;
-static int in_pympfrcache;
 
 static void
 set_pympfrcache(void)
