@@ -355,10 +355,10 @@ static int in_pyxmpzcache;
 static PympqObject **pympqcache;
 static int in_pympqcache;
 
+#ifdef WITHMPFR
 static PympfrObject **pympfrcache;
 static int in_pympfrcache;
 
-#ifdef WITHMPFR
 /* Support for context manager. */
 
 static GMPyContextObject *context = NULL;
