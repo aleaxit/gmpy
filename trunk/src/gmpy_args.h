@@ -158,6 +158,59 @@ extern "C" {
         }\
     }
 
+/* Parses one argument into "self" and an optional second argument into
+ * "var". The second argument is converted into a gmp_si. If there is not a
+ * second argument, "var" is unchanged. It supports either gmpy.fname(z,l) or
+ * z.fname(l). "self" must be decref'ed. "var" must be a pointer to a gmp_si.
+ * "msg" should be an error message that includes the function name and
+ * describes the required arguments. Replaces some uses of SELF_MPZ_ONE_ARG.
+ *
+ * Also considers an 'xmpz' to be equivalent to an 'mpz'.
+ */
+
+#define PARSE_ONE_MPZ_OPT_GMP_SI(var, msg) \
+    if(self && CHECK_MPZANY(self)) { \
+        if (PyTuple_GET_SIZE(args) == 1) { \
+            *var = gmp_si_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            if(*var == -1 && PyErr_Occurred()) { \
+                PyErr_SetString(PyExc_TypeError, msg); \
+                return NULL; \
+            } \
+        } else if (PyTuple_GET_SIZE(args) > 1) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        Py_INCREF(self); \
+    } else { \
+        if (PyTuple_GET_SIZE(args) == 2) { \
+            *var = gmp_si_From_Integer(PyTuple_GET_ITEM(args, 1)); \
+            if(*var == -1 && PyErr_Occurred()) { \
+                PyErr_SetString(PyExc_TypeError, msg); \
+                return NULL; \
+            } \
+            self = PyTuple_GET_ITEM(args, 0); \
+            if(CHECK_MPZANY(self)) { \
+                Py_INCREF((PyObject*)self); \
+            } else { \
+                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            } \
+        } else if (PyTuple_GET_SIZE(args) == 1) { \
+            self = PyTuple_GET_ITEM(args, 0); \
+            if(CHECK_MPZANY(self)) { \
+                Py_INCREF((PyObject*)self); \
+            } else { \
+                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            } \
+        } else { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        if(!self) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+    }
+
 /*
  * Parses one argument into "self" and an optional second argument into "var".
  * The second argument is converted into a Py_ssize_t. If there is not a
@@ -317,6 +370,52 @@ extern "C" {
             PyErr_SetString(PyExc_TypeError, msg);\
             return NULL;\
         }\
+    }
+
+/* Parses one argument into "self" and a required second argument into
+ * "var". The second argument is converted into a gmp_si. It supports either
+ * gmpy.fname(z,l) or z.fname(l). "self" must be decref'ed. "var" must be a
+ * pointer to a gmp_si. "msg" should be an error message that includes the
+ * function name and describes the required arguments. Replaces some uses of
+ * SELF_MPZ_ONE_ARG.
+ *
+ * Also considers an 'xmpz' to be equivalent to an 'mpz'.
+ */
+
+#define PARSE_ONE_MPZ_REQ_GMP_SI(var, msg) \
+    if(self && CHECK_MPZANY(self)) { \
+        if (PyTuple_GET_SIZE(args) != 1) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } else { \
+            *var = gmp_si_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            if(*var == -1 && PyErr_Occurred()) { \
+                PyErr_SetString(PyExc_TypeError, msg); \
+                return NULL; \
+            } \
+        } \
+        Py_INCREF(self); \
+    } else { \
+        if (PyTuple_GET_SIZE(args) != 2) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } else { \
+            *var = gmp_si_From_Integer(PyTuple_GET_ITEM(args, 1)); \
+            if(*var == -1 && PyErr_Occurred()) { \
+                PyErr_SetString(PyExc_TypeError, msg); \
+                return NULL; \
+            } \
+            self = PyTuple_GET_ITEM(args, 0); \
+            if(CHECK_MPZANY(self)) { \
+                Py_INCREF((PyObject*)self); \
+            } else { \
+                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            } \
+        } \
+        if(!self) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
     }
 
 /*

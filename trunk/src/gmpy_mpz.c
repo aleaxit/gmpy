@@ -508,7 +508,7 @@ Pympz_bit_test(PyObject *self, PyObject *other)
 }
 
 static char doc_bit_clearm[]="\
-x.bit_clear(n): clear the n-th bit of x. \n\
+x.bit_clear(n): clear the n-th bit of x.\n\
 ";
 static char doc_bit_clearg[]="\
 bit_clear(x,n): clear the n-th bit of x.\n\
@@ -726,12 +726,12 @@ PyDoc_STRVAR(doc_mpz_iroot,
 static PyObject *
 Pympz_iroot(PyObject *self, PyObject *args)
 {
-    long n;
+    gmp_si n;
     int exact;
     PympzObject *s = 0;
     PyObject *result = 0;
 
-    PARSE_ONE_MPZ_REQ_CLONG(&n,
+    PARSE_ONE_MPZ_REQ_GMP_SI(&n,
                             "iroot() requires 'mpz','int' arguments");
 
     if (n <= 0) {
@@ -746,7 +746,7 @@ Pympz_iroot(PyObject *self, PyObject *args)
             return NULL;
         }
     }
-    if(!(s = Pympz_new()) || !(result = PyTuple_New(2))) {
+    if (!(s = Pympz_new()) || !(result = PyTuple_New(2))) {
         Py_DECREF(self);
         Py_XDECREF((PyObject*)s);
         Py_XDECREF(result);
@@ -768,11 +768,11 @@ PyDoc_STRVAR(doc_mpz_iroot_rem,
 static PyObject *
 Pympz_iroot_rem(PyObject *self, PyObject *args)
 {
-    long n;
+    gmp_si n;
     PympzObject *r = 0, *y = 0;
     PyObject *result = 0;
 
-    PARSE_ONE_MPZ_REQ_CLONG(&n,
+    PARSE_ONE_MPZ_REQ_GMP_SI(&n,
             "iroot_rem() requires 'mpz','int' arguments");
 
     if (n <= 0) {
@@ -931,15 +931,15 @@ Pympz_pow(PyObject *b, PyObject *e, PyObject *m)
     }
 
     if (m == Py_None) {
-        /* When no modulo is present, the exponent must fit in C ulong
+        /* When no modulo is present, the exponent must fit in gmp_ui
          * the exponent must be positive.
          */
-        unsigned long el;
+        gmp_ui el;
         if (mpz_sgn(tempe->z) < 0) {
             VALUE_ERROR("pow() exponent cannot be negative");
             goto err;
         }
-        if (!mpz_fits_ulong_p(tempe->z)) {
+        if (!mpz_fits_ui(tempe->z)) {
             VALUE_ERROR("pow() outrageous exponent");
             goto err;
         }
@@ -1074,7 +1074,7 @@ MPZ_BINOP(mpz_xor)
 static PyObject *
 Pympz_rshift(PyObject *a, PyObject *b)
 {
-    long count;
+    gmp_si count_si;
     int overflow;
     PympzObject *result, *tempa, *tempb;
 
@@ -1084,14 +1084,14 @@ Pympz_rshift(PyObject *a, PyObject *b)
     /* Try to make mpz >> Python int/long as fast as possible. */
     if (CHECK_MPZANY(a)) {
         if (PyIntOrLong_Check(b)) {
-            count = PyLong_AsLongAndOverflow(b, &overflow);
+            count_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
             if (overflow) {
                 VALUE_ERROR("outrageous shift count");
                 Py_DECREF((PyObject*)result);
                 return NULL;
             }
-            else if (count >= 0) {
-                mpz_fdiv_q_2exp(result->z, Pympz_AS_MPZ(a), count);
+            else if (count_si >= 0) {
+                mpz_fdiv_q_2exp(result->z, Pympz_AS_MPZ(a), count_si);
                 return (PyObject*)result;
             }
             else {
@@ -1112,12 +1112,12 @@ Pympz_rshift(PyObject *a, PyObject *b)
         VALUE_ERROR("negative shift count");
         goto err;
     }
-    if(!mpz_fits_slong_p(Pympz_AS_MPZ(tempb))) {
+    if(!mpz_fits_si(Pympz_AS_MPZ(tempb))) {
         PyErr_SetString(PyExc_OverflowError, "outrageous shift count");
         goto err;
     }
-    count = mpz_get_si(tempb->z);
-    mpz_fdiv_q_2exp(result->z, tempa->z, count);
+    count_si = mpz_get_si(tempb->z);
+    mpz_fdiv_q_2exp(result->z, tempa->z, count_si);
     Py_DECREF((PyObject*)tempa);
     Py_DECREF((PyObject*)tempb);
     return (PyObject*)result;
@@ -1132,7 +1132,7 @@ Pympz_rshift(PyObject *a, PyObject *b)
 static PyObject *
 Pympz_lshift(PyObject *a, PyObject *b)
 {
-    long count;
+    gmp_si count_si;
     int overflow;
     PympzObject *result, *tempa, *tempb;
 
@@ -1142,14 +1142,14 @@ Pympz_lshift(PyObject *a, PyObject *b)
     /* Try to make mpz >> Python int/long as fast as possible. */
     if (CHECK_MPZANY(a)) {
         if (PyIntOrLong_Check(b)) {
-            count = PyLong_AsLongAndOverflow(b, &overflow);
+            count_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
             if (overflow) {
                 VALUE_ERROR("outrageous shift count");
                 Py_DECREF((PyObject*)result);
                 return NULL;
             }
-            else if (count >= 0) {
-                mpz_mul_2exp(result->z, Pympz_AS_MPZ(a), count);
+            else if (count_si >= 0) {
+                mpz_mul_2exp(result->z, Pympz_AS_MPZ(a), count_si);
                 return (PyObject*)result;
             }
             else {
@@ -1170,12 +1170,12 @@ Pympz_lshift(PyObject *a, PyObject *b)
         VALUE_ERROR("negative shift count");
         goto err;
     }
-    if(!mpz_fits_slong_p(Pympz_AS_MPZ(tempb))) {
+    if(!mpz_fits_si(Pympz_AS_MPZ(tempb))) {
         PyErr_SetString(PyExc_OverflowError, "outrageous shift count");
         goto err;
     }
-    count = mpz_get_si(tempb->z);
-    mpz_mul_2exp(result->z, tempa->z, count);
+    count_si = mpz_get_si(tempb->z);
+    mpz_mul_2exp(result->z, tempa->z, count_si);
     Py_DECREF((PyObject*)tempa);
     Py_DECREF((PyObject*)tempb);
     return (PyObject*)result;
@@ -1455,9 +1455,9 @@ static PyObject *
 Pygmpy_fac(PyObject *self, PyObject *other)
 {
     PympzObject *result;
-    long n;
+    gmp_si n;
 
-    n = clong_From_Integer(other);
+    n = gmp_si_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("fac() requires 'int' argument");
         return NULL;
@@ -1482,9 +1482,9 @@ static PyObject *
 Pygmpy_fib(PyObject *self, PyObject *other)
 {
     PympzObject *result;
-    long n;
+    gmp_si n;
 
-    n = clong_From_Integer(other);
+    n = gmp_si_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("fib() requires 'int' argument");
         return NULL;
@@ -1510,9 +1510,9 @@ Pygmpy_fib2(PyObject *self, PyObject *other)
 {
     PyObject *result;
     PympzObject *fib1 = 0, *fib2 = 0;
-    long n;
+    gmp_si n;
 
-    n = clong_From_Integer(other);
+    n = gmp_si_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("fib2() requires 'int' argument");
         return NULL;
@@ -1538,9 +1538,9 @@ static PyObject *
 Pygmpy_lucas(PyObject *self, PyObject *other)
 {
     PympzObject *result;
-    long n;
+    gmp_si n;
 
-    n = clong_From_Integer(other);
+    n = gmp_si_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("luc() requires 'int' argument");
         return NULL;
@@ -1566,9 +1566,9 @@ Pygmpy_lucas2(PyObject *self, PyObject *other)
 {
     PyObject *result;
     PympzObject *luc1, *luc2;
-    long n;
+    gmp_si n;
 
-    n = clong_From_Integer(other);
+    n = gmp_si_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("luc2() requires 'int' argument");
         return NULL;
@@ -1600,9 +1600,9 @@ static PyObject *
 Pympz_bincoef(PyObject *self, PyObject *args)
 {
     PympzObject *result;
-    long k;
+    gmp_si k;
 
-    PARSE_ONE_MPZ_REQ_CLONG(&k,
+    PARSE_ONE_MPZ_REQ_GMP_SI(&k,
                             "bincoef() requires 'mpz','int' arguments");
 
     if (k < 0) {
@@ -2054,8 +2054,6 @@ Pympz_legendre(PyObject *self, PyObject *args)
 
 static char doc_kroneckerg[]="\
 kronecker(x,y): returns the Kronecker-Jacobi symbol (x|y).\n\
-x and y must be mpz, or else get coerced to mpz (at least\n\
-one of x and y, however, must also fit in a plain int).\n\
 ";
 static PyObject *
 Pympz_kronecker(PyObject *self, PyObject *args)
@@ -2065,28 +2063,8 @@ Pympz_kronecker(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPZ(other, "kronecker() requires 'mpz','mpz' arguments");
 
-    if (mpz_fits_ulong_p(Pympz_AS_MPZ(self))) {
-        ires = mpz_ui_kronecker(
-                mpz_get_ui(Pympz_AS_MPZ(self)),Pympz_AS_MPZ(other));
-    }
-    else if (mpz_fits_ulong_p(Pympz_AS_MPZ(other))) {
-        ires = mpz_kronecker_ui(
-                Pympz_AS_MPZ(self),mpz_get_ui(Pympz_AS_MPZ(other)));
-    }
-    else if (mpz_fits_slong_p(Pympz_AS_MPZ(self))) {
-        ires = mpz_si_kronecker(
-                mpz_get_si(Pympz_AS_MPZ(self)),Pympz_AS_MPZ(other));
-    }
-    else if (mpz_fits_slong_p(Pympz_AS_MPZ(other))) {
-        ires = mpz_kronecker_si(
-                Pympz_AS_MPZ(self),mpz_get_si(Pympz_AS_MPZ(other)));
-    }
-    else {
-        VALUE_ERROR("Either arg in Kronecker must fit in an int");
-        Py_DECREF(self);
-        Py_DECREF(other);
-        return NULL;
-    }
+    ires = mpz_kronecker(Pympz_AS_MPZ(self), (Pympz_AS_MPZ(other)));
+
     Py_DECREF(self);
     Py_DECREF(other);
     return PyIntOrLong_FromLong(ires);

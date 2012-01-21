@@ -939,9 +939,7 @@ TypeError: kronecker() requires 'mpz','mpz' arguments
 >>> _g.legendre(a,b)
 1
 >>> _g.kronecker(a,b)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ValueError: Either arg in Kronecker must fit in an int
+1
 '''
 
 def _test(chat=None):

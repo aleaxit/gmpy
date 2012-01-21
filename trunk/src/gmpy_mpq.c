@@ -428,7 +428,7 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
     PympfrObject *rf, *tempbf, *tempef;
 #endif
     int esign, bsign;
-    long tempexp;
+    gmp_si tempexp;
 
     if ((PyObject*)m != Py_None) {
         TYPE_ERROR("mpq.pow() no modulo allowed");
