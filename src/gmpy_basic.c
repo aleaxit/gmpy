@@ -57,7 +57,7 @@ Pybasic_add(PyObject *a, PyObject *b)
 #ifdef WITHMPC
     PympcObject *rc = 0, *pac = 0, *pbc = 0;
 #endif
-    long temp;
+    gmp_si temp_si;
     int overflow;
 
     if (CHECK_MPZANY(a)) {
@@ -65,18 +65,18 @@ Pybasic_add(PyObject *a, PyObject *b)
             return NULL;
         if (PyIntOrLong_Check(b)) {
             TRACE("Adding (mpz,integer)\n");
-            temp = PyLong_AsLongAndOverflow(b, &overflow);
+            temp_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_add(rz->z, Pympz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
             }
-            else if (temp >= 0) {
-                mpz_add_ui(rz->z, Pympz_AS_MPZ(a), temp);
+            else if (temp_si >= 0) {
+                mpz_add_ui(rz->z, Pympz_AS_MPZ(a), temp_si);
             }
             else {
-                mpz_sub_ui(rz->z, Pympz_AS_MPZ(a), -temp);
+                mpz_sub_ui(rz->z, Pympz_AS_MPZ(a), -temp_si);
             }
             return (PyObject*)rz;
         }
@@ -93,18 +93,18 @@ Pybasic_add(PyObject *a, PyObject *b)
             return NULL;
         if (PyIntOrLong_Check(a)) {
             TRACE("Adding (long,mpz)\n");
-            temp = PyLong_AsLongAndOverflow(a, &overflow);
+            temp_si = PyLong_AsGmp_siAndOverflow(a, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, a);
                 mpz_add(rz->z, Pympz_AS_MPZ(b), tempz);
                 mpz_cloc(tempz);
             }
-            else if (temp >=0) {
-                mpz_add_ui(rz->z, Pympz_AS_MPZ(b), temp);
+            else if (temp_si >0) {
+                mpz_add_ui(rz->z, Pympz_AS_MPZ(b), temp_si);
             }
             else {
-                mpz_sub_ui(rz->z, Pympz_AS_MPZ(b), -temp);
+                mpz_sub_ui(rz->z, Pympz_AS_MPZ(b), -temp_si);
             }
             return (PyObject*)rz;
         }
@@ -348,7 +348,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
 #ifdef WITHMPC
     PympcObject *rc = 0, *pac = 0, *pbc = 0;
 #endif
-    long temp;
+    gmp_si temp_si;
     int overflow;
 
     if (CHECK_MPZANY(a)) {
@@ -356,18 +356,18 @@ Pybasic_sub(PyObject *a, PyObject *b)
             return NULL;
         if (PyIntOrLong_Check(b)) {
             TRACE("Subtracting (mpz,long)\n");
-            temp = PyLong_AsLongAndOverflow(b, &overflow);
+            temp_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_sub(rz->z, Pympz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
             }
-            else if (temp >= 0) {
-                mpz_sub_ui(rz->z, Pympz_AS_MPZ(a), temp);
+            else if (temp_si >= 0) {
+                mpz_sub_ui(rz->z, Pympz_AS_MPZ(a), temp_si);
             }
             else {
-                mpz_add_ui(rz->z, Pympz_AS_MPZ(a), -temp);
+                mpz_add_ui(rz->z, Pympz_AS_MPZ(a), -temp_si);
             }
             return (PyObject*)rz;
         }
@@ -384,18 +384,18 @@ Pybasic_sub(PyObject *a, PyObject *b)
             return NULL;
         if (PyIntOrLong_Check(a)) {
             TRACE("Subtracting (long,mpz)\n");
-            temp = PyLong_AsLongAndOverflow(a, &overflow);
+            temp_si = PyLong_AsGmp_siAndOverflow(a, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, a);
                 mpz_sub(rz->z, tempz, Pympz_AS_MPZ(b));
                 mpz_cloc(tempz);
             }
-            else if (temp >= 0) {
-                mpz_ui_sub(rz->z, temp, Pympz_AS_MPZ(b));
+            else if (temp_si >= 0) {
+                mpz_ui_sub(rz->z, temp_si, Pympz_AS_MPZ(b));
             }
             else {
-                mpz_add_ui(rz->z, Pympz_AS_MPZ(b), -temp);
+                mpz_add_ui(rz->z, Pympz_AS_MPZ(b), -temp_si);
                 mpz_neg(rz->z, rz->z);
             }
             return (PyObject*)rz;
@@ -639,7 +639,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
 #ifdef WITHMPC
     PympcObject *rc = 0, *pac = 0, *pbc = 0;
 #endif
-    long temp;
+    gmp_si temp_si;
     int overflow;
 
     if (CHECK_MPZANY(a)) {
@@ -647,7 +647,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             return NULL;
         if (PyIntOrLong_Check(b)) {
             TRACE("Multiplying (mpz,long)\n");
-            temp = PyLong_AsLongAndOverflow(b, &overflow);
+            temp_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
@@ -655,7 +655,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
                 mpz_cloc(tempz);
             }
             else {
-                mpz_mul_si(rz->z, Pympz_AS_MPZ(a), temp);
+                mpz_mul_si(rz->z, Pympz_AS_MPZ(a), temp_si);
             }
             return (PyObject*)rz;
         }
@@ -672,7 +672,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             return NULL;
         if (PyIntOrLong_Check(a)) {
             TRACE("Multiplying (long,mpz)\n");
-            temp = PyLong_AsLongAndOverflow(a, &overflow);
+            temp_si = PyLong_AsGmp_siAndOverflow(a, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, a);
@@ -680,7 +680,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
                 mpz_cloc(tempz);
             }
             else {
-                mpz_mul_si(rz->z, Pympz_AS_MPZ(b), temp);
+                mpz_mul_si(rz->z, Pympz_AS_MPZ(b), temp_si);
             }
             return (PyObject*)rz;
         }
@@ -918,7 +918,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
 #ifdef WITHMPFR
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
 #endif
-    long temp;
+    gmp_si temp_si;
     int overflow;
 
     if (CHECK_MPZANY(a)) {
@@ -926,23 +926,23 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
             return NULL;
         if (PyIntOrLong_Check(b)) {
             TRACE("Floor divide (mpz,long)\n");
-            temp = PyLong_AsLongAndOverflow(b, &overflow);
+            temp_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_fdiv_q(rz->z, Pympz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
             }
-            else if (temp == 0) {
+            else if (temp_si == 0) {
                 ZERO_ERROR("division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
             }
-            else if (temp > 0) {
-                mpz_fdiv_q_ui(rz->z, Pympz_AS_MPZ(a), temp);
+            else if (temp_si > 0) {
+                mpz_fdiv_q_ui(rz->z, Pympz_AS_MPZ(a), temp_si);
             }
             else {
-                mpz_cdiv_q_ui(rz->z, Pympz_AS_MPZ(a), -temp);
+                mpz_cdiv_q_ui(rz->z, Pympz_AS_MPZ(a), -temp_si);
                 mpz_neg(rz->z, rz->z);
             }
             return (PyObject*)rz;
@@ -1425,7 +1425,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
 #ifdef WITHMPC
     PympcObject *rc = 0, *pac = 0, *pbc = 0;
 #endif
-    long temp;
+    gmp_si temp_si;
     int overflow;
 
     /* Use floordiv for integer types. */
@@ -1435,23 +1435,23 @@ Pybasic_div2(PyObject *a, PyObject *b)
             return NULL;
         if (PyIntOrLong_Check(b)) {
             TRACE("Floor divide (mpz,long)\n");
-            temp = PyLong_AsLongAndOverflow(b, &overflow);
+            temp_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_fdiv_q(rz->z, Pympz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
             }
-            else if (temp == 0) {
+            else if (temp_si == 0) {
                 ZERO_ERROR("division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
             }
-            else if (temp > 0) {
-                mpz_fdiv_q_ui(rz->z, Pympz_AS_MPZ(a), temp);
+            else if (temp_si > 0) {
+                mpz_fdiv_q_ui(rz->z, Pympz_AS_MPZ(a), temp_si);
             }
             else {
-                mpz_cdiv_q_ui(rz->z, Pympz_AS_MPZ(a), -temp);
+                mpz_cdiv_q_ui(rz->z, Pympz_AS_MPZ(a), -temp_si);
                 mpz_neg(rz->z, rz->z);
             }
             return (PyObject*)rz;
@@ -1681,7 +1681,7 @@ Pybasic_rem(PyObject *a, PyObject *b)
 #ifdef WITHMPFR
     PympfrObject *qf = 0, *rf = 0, *paf = 0, *pbf = 0;
 #endif
-    long temp;
+    gmp_si temp_si;
     int overflow;
 
     if (CHECK_MPZANY(a)) {
@@ -1689,23 +1689,23 @@ Pybasic_rem(PyObject *a, PyObject *b)
             return NULL;
         if (PyIntOrLong_Check(b)) {
             TRACE("Modulo (mpz,integer)\n");
-            temp = PyLong_AsLongAndOverflow(b, &overflow);
+            temp_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_fdiv_r(rz->z, Pympz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
             }
-            else if (temp > 0) {
-                mpz_fdiv_r_ui(rz->z, Pympz_AS_MPZ(a), temp);
+            else if (temp_si > 0) {
+                mpz_fdiv_r_ui(rz->z, Pympz_AS_MPZ(a), temp_si);
             }
-            else if (temp == 0) {
+            else if (temp_si == 0) {
                 ZERO_ERROR("division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 return NULL;
             }
             else {
-                mpz_cdiv_r_ui(rz->z, Pympz_AS_MPZ(a), -temp);
+                mpz_cdiv_r_ui(rz->z, Pympz_AS_MPZ(a), -temp_si);
             }
             return (PyObject*)rz;
         }
@@ -1875,7 +1875,7 @@ Pybasic_divmod(PyObject *a, PyObject *b)
 #ifdef WITHMPFR
     PympfrObject *qf = 0, *rf = 0, *paf = 0, *pbf = 0;
 #endif
-    long temp;
+    gmp_si temp_si;
     int overflow;
 
     if (CHECK_MPZANY(a)) {
@@ -1887,17 +1887,17 @@ Pybasic_divmod(PyObject *a, PyObject *b)
         }
         if (PyIntOrLong_Check(b)) {
             TRACE("divmod (mpz,integer)\n");
-            temp = PyLong_AsLongAndOverflow(b, &overflow);
+            temp_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
                 mpz_fdiv_qr(qz->z, rz->z, Pympz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
             }
-            else if (temp > 0) {
-                mpz_fdiv_qr_ui(qz->z, rz->z, Pympz_AS_MPZ(a), temp);
+            else if (temp_si > 0) {
+                mpz_fdiv_qr_ui(qz->z, rz->z, Pympz_AS_MPZ(a), temp_si);
             }
-            else if (temp == 0) {
+            else if (temp_si == 0) {
                 ZERO_ERROR("division or modulo by zero");
                 Py_DECREF((PyObject*)rz);
                 Py_DECREF((PyObject*)qz);
@@ -1905,7 +1905,7 @@ Pybasic_divmod(PyObject *a, PyObject *b)
                 return NULL;
             }
             else {
-                mpz_cdiv_qr_ui(qz->z, rz->z, Pympz_AS_MPZ(a), -temp);
+                mpz_cdiv_qr_ui(qz->z, rz->z, Pympz_AS_MPZ(a), -temp_si);
                 mpz_neg(qz->z, qz->z);
             }
             PyTuple_SET_ITEM(r, 0, (PyObject*)qz);

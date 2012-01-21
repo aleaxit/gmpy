@@ -760,8 +760,7 @@ anynum2Pyxmpz(PyObject* obj)
     return newob;
 }
 
-/*
- * Convert an Integer-like object (as determined by isInteger) to
+/* Convert an Integer-like object (as determined by isInteger) to
  * a Pympz. Returns NULL and raises a TypeError if obj is not an
  * Integer-like object.
  */
@@ -791,14 +790,10 @@ Pympz_From_Integer(PyObject* obj)
     return newob;
 }
 
-/*
- * Convert an Integer-like object (as determined by isInteger) to
- * a C long. Returns -1 and raises OverflowError if the the number is
- * too large. Returns -1 and raises TypeError if obj was not an
- * Integer-like object.
+/* Convert an Integer-like object (as determined by isInteger) to a 
+ * C long or C unsigned long.
  */
 
-#ifndef WIN64
 static long
 clong_From_Integer(PyObject *obj)
 {
@@ -818,8 +813,41 @@ clong_From_Integer(PyObject *obj)
     return -1;
 }
 
-static unsigned long
-culong_From_Integer(PyObject *obj)
+/*
+ * Convert an Integer-like object (as determined by isInteger) to
+ * a gmp_si. On all platforms except 64-bit Windows, gmp_si is the same
+ * as a C long. Returns -1 and raises OverflowError if the the number is
+ * too large. Returns -1 and raises TypeError if obj was not an
+ * Integer-like object.
+ */
+
+#ifndef _WIN64
+
+/* Working with C long. */
+
+static gmp_si
+gmp_si_From_Integer(PyObject *obj)
+{
+    if (PyIntOrLong_Check(obj)) {
+        return PyLong_AsLong(obj);
+    }
+    else if (CHECK_MPZANY(obj)) {
+        if (mpz_fits_slong_p(Pympz_AS_MPZ(obj))) {
+            return mpz_get_si(Pympz_AS_MPZ(obj));
+        }
+        else {
+            OVERFLOW_ERROR("overflow in gmp_si_From_Integer");
+            return -1;
+        }
+    }
+    TYPE_ERROR("conversion error in gmp_si_From_Integer");
+    return -1;
+}
+
+/* Working with C unsigned long. */
+
+static gmp_ui
+gmp_ui_From_Integer(PyObject *obj)
 {
     if (PyIntOrLong_Check(obj)) {
         return PyLong_AsUnsignedLong(obj);
@@ -829,80 +857,66 @@ culong_From_Integer(PyObject *obj)
             return mpz_get_ui(Pympz_AS_MPZ(obj));
         }
         else {
-            OVERFLOW_ERROR("overflow in culong_From_Integer");
-            return (unsigned long)-1;
+            OVERFLOW_ERROR("overflow in gmp_ui_From_Integer");
+            return (gmp_ui)-1;
         }
     }
-    TYPE_ERROR("conversion error in culong_From_Integer");
-    return (unsigned long)-1;
+    TYPE_ERROR("conversion error in gmp_ui_From_Integer");
+    return (gmp_ui)-1;
 }
 
-#define MP_BITCNT_FROM_INTEGER(obj) culong_From_Integer(obj)
+#define MP_BITCNT_FROM_INTEGER(obj) gmp_ui_From_Integer(obj)
+#define PyLong_AsGmp_siAndOverflow(a,b) PyLong_AsLongAndOverflow(a,b)
 
 #else
-static long long
-clonglong_From_Integer(PyObject *obj)
+
+/* Working with C long long. Can also assume using > MPIR 2.5. */
+
+static gmp_si
+gmp_si_From_Integer(PyObject *obj)
 {
-    long long val;
     PyObject* temp;
 
     if (PyIntOrLong_Check(obj)) {
         return PyLong_AsLongLong(obj);
     }
     else if (CHECK_MPZANY(obj)) {
-        if (mpz_fits_slong_p(Pympz_AS_MPZ(obj))) {
-            return (long long)mpz_get_si(Pympz_AS_MPZ(obj));
+        if (mpz_fits_si(Pympz_AS_MPZ(obj))) {
+            return mpz_get_si(Pympz_AS_MPZ(obj));
         }
         else {
-            /* This section should only be called on Win64. */
-            temp = mpz_get_PyLong(Pympz_AS_MPZ(obj));
-            if (!temp) {
-                TYPE_ERROR("conversion error in clonglong_From_Integer");
-                return -1;
-            }
-            else {
-                val = PyLong_AsLongLong(temp);
-                Py_DECREF(temp);
-                return val;
-            }
+            OVERFLOW_ERROR("overflow in gmp_si_From_Integer");
+            return -1;
         }
     }
-    TYPE_ERROR("conversion error in clonglong_From_Integer");
+    TYPE_ERROR("conversion error in gmp_si_From_Integer");
     return -1;
 }
 
-static unsigned long long
-culonglong_From_Integer(PyObject *obj)
+static gmp_ui
+gmp_ui_From_Integer(PyObject *obj)
 {
-    unsigned long long val;
     PyObject* temp;
 
     if (PyIntOrLong_Check(obj)) {
         return PyLong_AsUnsignedLongLong(obj);
     }
     else if (CHECK_MPZANY(obj)) {
-        if (mpz_fits_slong_p(Pympz_AS_MPZ(obj))) {
-            return (unsigned long long)mpz_get_si(Pympz_AS_MPZ(obj));
+        if (mpz_fits_ui(Pympz_AS_MPZ(obj))) {
+            return mpz_get_ui(Pympz_AS_MPZ(obj));
         }
         else {
-            /* This section should only be called on Win64. */
-            temp = mpz_get_PyLong(Pympz_AS_MPZ(obj));
-            if (!temp) {
-                TYPE_ERROR("conversion error in culonglong_From_Integer");
-                return -1;
-            }
-            else {
-                val = PyLong_AsUnsignedLongLong(temp);
-                Py_DECREF(temp);
-                return val;
-            }
+            OVERFLOW_ERROR("overflow in gmp_ui_From_Integer");
+            return (gmp_ui)-1;
         }
     }
-    TYPE_ERROR("conversion error in culonglong_From_Integer");
+    TYPE_ERROR("conversion error in gmp_ui_From_Integer");
     return -1;
 }
 
-#define MP_BITCNT_FROM_INTEGER(obj) culonglong_From_Integer(obj)
+#define MP_BITCNT_FROM_INTEGER(obj) gmp_ui_From_Integer(obj)
+#define PyLong_AsGmp_siAndOverflow(a,b) PyLong_AsLongLongAndOverflow(a,b)
+
 #endif
 
 /*

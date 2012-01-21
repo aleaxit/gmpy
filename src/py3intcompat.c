@@ -176,6 +176,7 @@ PyLong_AsLongAndOverflow(PyObject *vv, int *overflow)
 }
 #endif   /* if (PY_VERSION_HEX < 0x02070000) */
 
+#ifdef _WIN64
 #if HAVE_LONG_LONG
 #if (PY_VERSION_HEX < 0x02070000)
 #define PY_ABS_LLONG_MIN    (0-(unsigned PY_LONG_LONG)PY_LLONG_MIN)
@@ -365,3 +366,4 @@ PyLong_AsLongLongAndOverflow(PyObject *vv, int *overflow)
 #endif   /* if (PY_VERSION_HEX < 0x03020000) */
 
 #endif   /* if HAVE_LONG_LONG */
+#endif   /* ifdef _WIN64 */

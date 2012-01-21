@@ -421,7 +421,7 @@ Pympq_From_Decimal(PyObject* obj)
 {
     PympqObject *result;
     PyObject *d_exp, *d_int, *d_sign, *d_is_special;
-    long exp;
+    gmp_si exp;
     mpz_t temp;
     const char *string;
 
@@ -474,7 +474,7 @@ Pympq_From_Decimal(PyObject* obj)
     if (PyObject_IsTrue(d_sign))
         mpz_mul_si(mpq_numref(result->q), mpq_numref(result->q), -1);
 
-    exp = PyIntOrLong_AsLong(d_exp);
+    exp = PyIntOrLong_AsGmp_si(d_exp);
     if (exp == -1 && PyErr_Occurred()) {
         SYSTEM_ERROR("Decimal _exp is not valid or overflow occurred");
         Py_DECREF((PyObject*)result);
@@ -487,10 +487,10 @@ Pympq_From_Decimal(PyObject* obj)
 
     mpz_inoc(temp);
     if (exp <= 0)
-        mpz_ui_pow_ui(mpq_denref(result->q), 10, (unsigned long)(-exp));
+        mpz_ui_pow_ui(mpq_denref(result->q), 10, (gmp_ui)(-exp));
     else {
         mpz_inoc(temp);
-        mpz_ui_pow_ui(temp, 10, (unsigned long)(exp));
+        mpz_ui_pow_ui(temp, 10, (gmp_si)(exp));
         mpz_mul(mpq_numref(result->q), mpq_numref(result->q), temp);
         mpz_cloc(temp);
     }
