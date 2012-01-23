@@ -939,7 +939,7 @@ Pympz_pow(PyObject *b, PyObject *e, PyObject *m)
             VALUE_ERROR("pow() exponent cannot be negative");
             goto err;
         }
-        if (!mpz_fits_ui(tempe->z)) {
+        if (!mpz_fits_ui_p(tempe->z)) {
             VALUE_ERROR("pow() outrageous exponent");
             goto err;
         }
@@ -1112,7 +1112,7 @@ Pympz_rshift(PyObject *a, PyObject *b)
         VALUE_ERROR("negative shift count");
         goto err;
     }
-    if(!mpz_fits_si(Pympz_AS_MPZ(tempb))) {
+    if(!mpz_fits_si_p(Pympz_AS_MPZ(tempb))) {
         PyErr_SetString(PyExc_OverflowError, "outrageous shift count");
         goto err;
     }
@@ -1170,7 +1170,7 @@ Pympz_lshift(PyObject *a, PyObject *b)
         VALUE_ERROR("negative shift count");
         goto err;
     }
-    if(!mpz_fits_si(Pympz_AS_MPZ(tempb))) {
+    if(!mpz_fits_si_p(Pympz_AS_MPZ(tempb))) {
         PyErr_SetString(PyExc_OverflowError, "outrageous shift count");
         goto err;
     }

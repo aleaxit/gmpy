@@ -300,7 +300,7 @@
 /* Include functions missing from the Python 2.6 C-API that are include
  * in later versions of Python.
  */
- 
+
 #if PY_VERSION_HEX < 0x02070000
 #include "py3intcompat.c"
 #endif
@@ -326,13 +326,13 @@ combined module is licensed under LGPL 3 or later.";
 /* Remember a reference to this module. Used by initialization code further
  * on in this file.
  */
- 
+
 static PyObject *gmpy_module = NULL;
 
-/* The following global structures are used by gmpy_cache.c. 
+/* The following global structures are used by gmpy_cache.c.
  * Note: the debug option will likely be removed.
  */
- 
+
 static struct gmpy_global {
     int debug;               /* != 0 if debug messages desired on stderr */
     int cache_size;          /* size of cache, for all caches */
@@ -652,7 +652,7 @@ static PyMethodDef Pygmpy_methods [] =
 /* The custom memory allocation routines either use PyMem_* or the standard
  * libraries. See gmpy.h for defines.
  */
- 
+
 static void *
 gmpy_allocate(size_t size)
 {
@@ -789,16 +789,16 @@ PyMODINIT_FUNC initgmpy2(void)
     PyObject* copy_reg_module = NULL;
 
     /* Validate the sizes of the various typedef'ed integer types. */
-    if (sizeof(mp_limb_t) != sizeof(size_t)) {
-        SYSTEM_ERROR("Size of mp_limb_t and size_t not compatible");
+    if (sizeof(mp_limb_t) != sizeof(gmp_si)) {
+        SYSTEM_ERROR("Size of mp_limb_t and gmp_si not compatible");
         INITERROR;
     }
     if (sizeof(mp_bitcnt_t) != sizeof(size_t)) {
         SYSTEM_ERROR("Size of mp_bitcnt_t and size_t not compatible");
         INITERROR;
     }
-    if (sizeof(mp_size_t) != sizeof(long)) {
-        SYSTEM_ERROR("Size of mp_size_t and long not compatible");
+    if (sizeof(mp_size_t) != sizeof(size_t)) {
+        SYSTEM_ERROR("Size of mp_size_t and size_t not compatible");
         INITERROR;
     }
 #ifdef WITHMPFR

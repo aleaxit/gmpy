@@ -288,7 +288,8 @@ Pympz_To_Integer(PympzObject *self)
     return Pympz2PyLong(self);
 #else
     if (mpz_fits_slong_p(self->z))
-        return PyInt_FromLong(mpz_get_si(self->z));
+        /* cast is safe since we know if first in a signed long */
+        return PyInt_FromLong((long)mpz_get_si(self->z));
     else
         return Pympz2PyLong(self);
 #endif
@@ -301,7 +302,8 @@ Pyxmpz_To_Integer(PyxmpzObject *self)
     return Pyxmpz2PyLong(self);
 #else
     if (mpz_fits_slong_p(self->z))
-        return PyInt_FromLong(mpz_get_si(self->z));
+        /* cast is safe since we know if first in a signed long */
+        return PyInt_FromLong((long)mpz_get_si(self->z));
     else
         return Pyxmpz2PyLong(self);
 #endif
@@ -790,7 +792,7 @@ Pympz_From_Integer(PyObject* obj)
     return newob;
 }
 
-/* Convert an Integer-like object (as determined by isInteger) to a 
+/* Convert an Integer-like object (as determined by isInteger) to a
  * C long or C unsigned long.
  */
 
@@ -802,7 +804,7 @@ clong_From_Integer(PyObject *obj)
     }
     else if (CHECK_MPZANY(obj)) {
         if (mpz_fits_slong_p(Pympz_AS_MPZ(obj))) {
-            return mpz_get_si(Pympz_AS_MPZ(obj));
+            return (long)mpz_get_si(Pympz_AS_MPZ(obj));
         }
         else {
             OVERFLOW_ERROR("overflow in clong_From_Integer");
@@ -875,13 +877,11 @@ gmp_ui_From_Integer(PyObject *obj)
 static gmp_si
 gmp_si_From_Integer(PyObject *obj)
 {
-    PyObject* temp;
-
     if (PyIntOrLong_Check(obj)) {
         return PyLong_AsLongLong(obj);
     }
     else if (CHECK_MPZANY(obj)) {
-        if (mpz_fits_si(Pympz_AS_MPZ(obj))) {
+        if (mpz_fits_si_p(Pympz_AS_MPZ(obj))) {
             return mpz_get_si(Pympz_AS_MPZ(obj));
         }
         else {
@@ -896,13 +896,11 @@ gmp_si_From_Integer(PyObject *obj)
 static gmp_ui
 gmp_ui_From_Integer(PyObject *obj)
 {
-    PyObject* temp;
-
     if (PyIntOrLong_Check(obj)) {
         return PyLong_AsUnsignedLongLong(obj);
     }
     else if (CHECK_MPZANY(obj)) {
-        if (mpz_fits_ui(Pympz_AS_MPZ(obj))) {
+        if (mpz_fits_ui_p(Pympz_AS_MPZ(obj))) {
             return mpz_get_ui(Pympz_AS_MPZ(obj));
         }
         else {

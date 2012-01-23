@@ -188,7 +188,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     if ((zbits = mpz_scan1(upper, 0)))
         mpz_tdiv_q_2exp(upper, upper, zbits);
 
-    if (!(tmp = PyIntOrLong_FromLong(zbits))) {
+    if (!(tmp = PyIntOrLong_FromGmp_si(zbits))) {
         mpz_cloc(upper);
         mpz_cloc(lower);
         Py_DECREF(newexp);
@@ -239,7 +239,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
             prec = gmp_si_From_Integer(PyTuple_GET_ITEM(args, 2));
             if (prec == -1 && PyErr_Occurred())
                 return NULL;
-            prec = abs(prec);
+            prec = ABS(prec);
         case 2:
             exp = PyTuple_GET_ITEM(args, 1);
         case 1:
@@ -318,7 +318,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                 if (carry)
                     mpz_add_ui(upper->z, upper->z, 1);
         }
-        if (!(tmp = PyIntOrLong_FromLong(shift))) {
+        if (!(tmp = PyIntOrLong_FromGmp_si(shift))) {
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;

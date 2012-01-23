@@ -253,7 +253,7 @@ Pympz_inplace_rshift(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)rz);
             return NULL;
         }
-        if (!mpz_fits_si(Pympz_AS_MPZ(other))) {
+        if (!mpz_fits_si_p(Pympz_AS_MPZ(other))) {
             OVERFLOW_ERROR("outrageous shift count");
             Py_DECREF((PyObject*)rz);
             return NULL;
@@ -302,7 +302,7 @@ Pympz_inplace_lshift(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)rz);
             return NULL;
         }
-        if (!mpz_fits_si(Pympz_AS_MPZ(other))) {
+        if (!mpz_fits_si_p(Pympz_AS_MPZ(other))) {
             OVERFLOW_ERROR("outrageous shift count");
             Py_DECREF((PyObject*)rz);
             return NULL;
@@ -356,7 +356,7 @@ Pympz_inplace_pow(PyObject *self, PyObject *other, PyObject *mod)
         Py_DECREF((PyObject*)e);
         Py_RETURN_NOTIMPLEMENTED;
     }
-    if (!mpz_fits_ui(e->z)) {
+    if (!mpz_fits_ui_p(e->z)) {
         PyErr_Clear();
         Py_DECREF((PyObject*)e);
         Py_RETURN_NOTIMPLEMENTED;
