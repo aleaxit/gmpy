@@ -35,15 +35,15 @@ extern "C" {
  * Create two 'mpz' and a 2-tuple.
  */
 
-#define CREATE_TWO_MPZ_TUPLE(q, r, t)\
-    q = Pympz_new();\
-    r = Pympz_new();\
-    t = PyTuple_New(2);\
-    if(!q || !r || !t) {\
-        Py_XDECREF(t);\
-        Py_XDECREF((PyObject*)q);\
-        Py_XDECREF((PyObject*)r);\
-        return NULL;\
+#define CREATE_TWO_MPZ_TUPLE(q, r, t) \
+    q = Pympz_new(); \
+    r = Pympz_new(); \
+    t = PyTuple_New(2); \
+    if (!q || !r || !t) { \
+        Py_XDECREF(t); \
+        Py_XDECREF((PyObject*)q); \
+        Py_XDECREF((PyObject*)r); \
+        return NULL; \
     }
 
 /*
@@ -57,27 +57,27 @@ extern "C" {
  */
 
 #define PARSE_ONE_MPZ(msg) \
-    if(self && CHECK_MPZANY(self)) {\
-        if (PyTuple_GET_SIZE(args) != 0) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        Py_INCREF(self);\
-    } else {\
-        if (PyTuple_GET_SIZE(args) != 1) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        self = PyTuple_GET_ITEM(args, 0);\
-        if(CHECK_MPZANY(self)) {\
-            Py_INCREF((PyObject*)self);\
-        } else {\
-            self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-        }\
-        if(!self) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
+    if (self && CHECK_MPZANY(self)) { \
+        if (PyTuple_GET_SIZE(args) != 0) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        Py_INCREF(self); \
+    } else { \
+        if (PyTuple_GET_SIZE(args) != 1) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        self = PyTuple_GET_ITEM(args, 0); \
+        if(CHECK_MPZANY(self)) { \
+            Py_INCREF((PyObject*)self); \
+        } else { \
+            self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+        } \
+        if (!self) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
     }
 
 /*
@@ -91,16 +91,16 @@ extern "C" {
  */
 
 #define PARSE_ONE_MPFR_OTHER(msg) \
-    if(self && Pympfr_CheckAndExp(self)) {\
-        Py_INCREF(self);\
-    }\
-    else if(Pympfr_CheckAndExp(other)) {\
-        self = other;\
-        Py_INCREF((PyObject*)self);\
-    }\
-    else if (!(self = (PyObject*)Pympfr_From_Real(other, 0))) {\
-        PyErr_SetString(PyExc_TypeError, msg);\
-        return NULL;\
+    if (self && Pympfr_CheckAndExp(self)) { \
+        Py_INCREF(self); \
+    } \
+    else if (Pympfr_CheckAndExp(other)) { \
+        self = other; \
+        Py_INCREF((PyObject*)self); \
+    } \
+    else if (!(self = (PyObject*)Pympfr_From_Real(other, 0))) { \
+        PyErr_SetString(PyExc_TypeError, msg); \
+        return NULL; \
     }
 
 /*
@@ -116,46 +116,52 @@ extern "C" {
  */
 
 #define PARSE_ONE_MPZ_OPT_CLONG(var, msg) \
-    if(self && CHECK_MPZANY(self)) {\
-        if (PyTuple_GET_SIZE(args) == 1) {\
+    if (self && CHECK_MPZANY(self)) { \
+        if (PyTuple_GET_SIZE(args) == 1) { \
             *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            if(*var == -1 && PyErr_Occurred()) {\
-                PyErr_SetString(PyExc_TypeError, msg);\
-                return NULL;\
-            }\
-        } else if (PyTuple_GET_SIZE(args) > 1) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        Py_INCREF(self);\
-    } else {\
-        if (PyTuple_GET_SIZE(args) == 2) {\
+            if (*var == -1 && PyErr_Occurred()) { \
+                PyErr_SetString(PyExc_TypeError, msg); \
+                return NULL; \
+            } \
+        } \
+        else if (PyTuple_GET_SIZE(args) > 1) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        Py_INCREF(self); \
+    } \
+    else { \
+        if (PyTuple_GET_SIZE(args) == 2) { \
             *var = clong_From_Integer(PyTuple_GET_ITEM(args, 1)); \
-            if(*var == -1 && PyErr_Occurred()) {\
-                PyErr_SetString(PyExc_TypeError, msg);\
-                return NULL;\
-            }\
-            self = PyTuple_GET_ITEM(args, 0);\
-            if(CHECK_MPZANY(self)) {\
-                Py_INCREF((PyObject*)self);\
-            } else {\
-                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-            }\
-        } else if (PyTuple_GET_SIZE(args) == 1) {\
-            self = PyTuple_GET_ITEM(args, 0);\
-            if(CHECK_MPZANY(self)) {\
-                Py_INCREF((PyObject*)self);\
-            } else {\
-                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-            }\
-        } else {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        if(!self) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
+            if (*var == -1 && PyErr_Occurred()) { \
+                PyErr_SetString(PyExc_TypeError, msg); \
+                return NULL; \
+            } \
+            self = PyTuple_GET_ITEM(args, 0); \
+            if (CHECK_MPZANY(self)) { \
+                Py_INCREF((PyObject*)self); \
+            } \
+            else { \
+                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            } \
+        } \
+        else if (PyTuple_GET_SIZE(args) == 1) { \
+            self = PyTuple_GET_ITEM(args, 0); \
+            if (CHECK_MPZANY(self)) { \
+                Py_INCREF((PyObject*)self); \
+            } \
+            else { \
+                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            } \
+        } \
+        else { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        if (!self) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
     }
 
 /* Parses one argument into "self" and an optional second argument into
@@ -169,43 +175,49 @@ extern "C" {
  */
 
 #define PARSE_ONE_MPZ_OPT_GMP_SI(var, msg) \
-    if(self && CHECK_MPZANY(self)) { \
+    if (self && CHECK_MPZANY(self)) { \
         if (PyTuple_GET_SIZE(args) == 1) { \
             *var = gmp_si_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            if(*var == -1 && PyErr_Occurred()) { \
+            if (*var == -1 && PyErr_Occurred()) { \
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \
             } \
-        } else if (PyTuple_GET_SIZE(args) > 1) { \
+        } \
+        else if (PyTuple_GET_SIZE(args) > 1) { \
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
         } \
         Py_INCREF(self); \
-    } else { \
+    } \
+    else { \
         if (PyTuple_GET_SIZE(args) == 2) { \
             *var = gmp_si_From_Integer(PyTuple_GET_ITEM(args, 1)); \
-            if(*var == -1 && PyErr_Occurred()) { \
+            if (*var == -1 && PyErr_Occurred()) { \
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \
             } \
             self = PyTuple_GET_ITEM(args, 0); \
-            if(CHECK_MPZANY(self)) { \
+            if (CHECK_MPZANY(self)) { \
                 Py_INCREF((PyObject*)self); \
-            } else { \
+            } \
+            else { \
                 self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             } \
-        } else if (PyTuple_GET_SIZE(args) == 1) { \
+        } \
+        else if (PyTuple_GET_SIZE(args) == 1) { \
             self = PyTuple_GET_ITEM(args, 0); \
-            if(CHECK_MPZANY(self)) { \
+            if (CHECK_MPZANY(self)) { \
                 Py_INCREF((PyObject*)self); \
-            } else { \
+            } \
+            else { \
                 self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             } \
-        } else { \
+        } \
+        else { \
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
         } \
-        if(!self) { \
+        if (!self) { \
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
         } \
@@ -225,46 +237,52 @@ extern "C" {
  */
 
 #define PARSE_ONE_MPZ_OPT_SSIZE_T(var, msg) \
-    if(self && CHECK_MPZANY(self)) {\
-        if (PyTuple_GET_SIZE(args) == 1) {\
+    if (self && CHECK_MPZANY(self)) { \
+        if (PyTuple_GET_SIZE(args) == 1) { \
             *var = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            if(*var == -1 && PyErr_Occurred()) {\
-                PyErr_SetString(PyExc_TypeError, msg);\
-                return NULL;\
-            }\
-        } else if (PyTuple_GET_SIZE(args) > 1) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        Py_INCREF(self);\
-    } else {\
-        if (PyTuple_GET_SIZE(args) == 2) {\
+            if(*var == -1 && PyErr_Occurred()) { \
+                PyErr_SetString(PyExc_TypeError, msg); \
+                return NULL; \
+            } \
+        } \
+        else if (PyTuple_GET_SIZE(args) > 1) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        Py_INCREF(self); \
+    } \
+    else { \
+        if (PyTuple_GET_SIZE(args) == 2) { \
             *var = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 1)); \
-            if(*var == -1 && PyErr_Occurred()) {\
-                PyErr_SetString(PyExc_TypeError, msg);\
-                return NULL;\
-            }\
-            self = PyTuple_GET_ITEM(args, 0);\
-            if(CHECK_MPZANY(self)) {\
-                Py_INCREF((PyObject*)self);\
-            } else {\
-                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-            }\
-        } else if (PyTuple_GET_SIZE(args) == 1) {\
-            self = PyTuple_GET_ITEM(args, 0);\
-            if(CHECK_MPZANY(self)) {\
-                Py_INCREF((PyObject*)self);\
-            } else {\
-                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-            }\
-        } else {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        if(!self) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
+            if (*var == -1 && PyErr_Occurred()) { \
+                PyErr_SetString(PyExc_TypeError, msg); \
+                return NULL; \
+            } \
+            self = PyTuple_GET_ITEM(args, 0); \
+            if (CHECK_MPZANY(self)) { \
+                Py_INCREF((PyObject*)self); \
+            } \
+            else { \
+                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            } \
+        } \
+        else if (PyTuple_GET_SIZE(args) == 1) { \
+            self = PyTuple_GET_ITEM(args, 0); \
+            if (CHECK_MPZANY(self)) { \
+                Py_INCREF((PyObject*)self); \
+            } \
+            else { \
+                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            } \
+        } \
+        else { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        if (!self) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
     }
 
 /*
@@ -278,50 +296,56 @@ extern "C" {
  */
 
 #define PARSE_ONE_MPFR_OPT_CLONG(var, msg) \
-    if(self && Pympfr_CheckAndExp(self)) {\
-        if (PyTuple_GET_SIZE(args) == 1) {\
+    if (self && Pympfr_CheckAndExp(self)) { \
+        if (PyTuple_GET_SIZE(args) == 1) { \
             *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            if(*var == -1 && PyErr_Occurred()) {\
-                PyErr_SetString(PyExc_TypeError, msg);\
-                return NULL;\
-            }\
-        } else if (PyTuple_GET_SIZE(args) > 1) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        Py_INCREF(self);\
-    } else {\
-        if (PyTuple_GET_SIZE(args) == 2) {\
+            if (*var == -1 && PyErr_Occurred()) { \
+                PyErr_SetString(PyExc_TypeError, msg); \
+                return NULL; \
+            } \
+        } \
+        else if (PyTuple_GET_SIZE(args) > 1) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        Py_INCREF(self); \
+    } \
+    else { \
+        if (PyTuple_GET_SIZE(args) == 2) { \
             *var = clong_From_Integer(PyTuple_GET_ITEM(args, 1)); \
-            if(*var == -1 && PyErr_Occurred()) {\
-                PyErr_SetString(PyExc_TypeError, msg);\
-                return NULL;\
-            }\
-            self = PyTuple_GET_ITEM(args, 0);\
-            if(Pympfr_CheckAndExp(self)) {\
-                Py_INCREF((PyObject*)self);\
-            } else {\
-                self = (PyObject*)Pympfr_From_Real(PyTuple_GET_ITEM(args, 0), 0);\
-            }\
-        } else if (PyTuple_GET_SIZE(args) == 1) {\
+            if (*var == -1 && PyErr_Occurred()) { \
+                PyErr_SetString(PyExc_TypeError, msg); \
+                return NULL; \
+            } \
+            self = PyTuple_GET_ITEM(args, 0); \
+            if (Pympfr_CheckAndExp(self)) { \
+                Py_INCREF((PyObject*)self); \
+            } \
+            else { \
+                self = (PyObject*)Pympfr_From_Real(PyTuple_GET_ITEM(args, 0), 0); \
+            } \
+        } \
+        else if (PyTuple_GET_SIZE(args) == 1) { \
             *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            if(*var == -1 && PyErr_Occurred()) {\
-                PyErr_SetString(PyExc_TypeError, msg);\
-                return NULL;\
-            }\
-            if(Pympfr_CheckAndExp(self)) {\
-                Py_INCREF((PyObject*)self);\
-            } else {\
-                self = (PyObject*)Pympfr_From_Real(self, 0);\
-            }\
-        } else {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        if(!self) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
+            if (*var == -1 && PyErr_Occurred()) { \
+                PyErr_SetString(PyExc_TypeError, msg); \
+                return NULL; \
+            } \
+            if(Pympfr_CheckAndExp(self)) { \
+                Py_INCREF((PyObject*)self); \
+            } \
+            else { \
+                self = (PyObject*)Pympfr_From_Real(self, 0); \
+            } \
+        } \
+        else { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        if (!self) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
     }
 
 /*
@@ -337,39 +361,43 @@ extern "C" {
  */
 
 #define PARSE_ONE_MPZ_REQ_CLONG(var, msg) \
-    if(self && CHECK_MPZANY(self)) {\
-        if (PyTuple_GET_SIZE(args) != 1) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        } else {\
+    if (self && CHECK_MPZANY(self)) { \
+        if (PyTuple_GET_SIZE(args) != 1) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        else { \
             *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            if(*var == -1 && PyErr_Occurred()) {\
-                PyErr_SetString(PyExc_TypeError, msg);\
-                return NULL;\
-            }\
-        }\
-        Py_INCREF(self);\
-    } else {\
-        if (PyTuple_GET_SIZE(args) != 2) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        } else {\
+            if (*var == -1 && PyErr_Occurred()) { \
+                PyErr_SetString(PyExc_TypeError, msg); \
+                return NULL; \
+            } \
+        } \
+        Py_INCREF(self); \
+    } \
+    else { \
+        if (PyTuple_GET_SIZE(args) != 2) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        else {\
             *var = clong_From_Integer(PyTuple_GET_ITEM(args, 1)); \
-            if(*var == -1 && PyErr_Occurred()) {\
-                PyErr_SetString(PyExc_TypeError, msg);\
-                return NULL;\
-            }\
-            self = PyTuple_GET_ITEM(args, 0);\
-            if(CHECK_MPZANY(self)) {\
-                Py_INCREF((PyObject*)self);\
-            } else {\
-                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-            }\
-        }\
-        if(!self) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
+            if (*var == -1 && PyErr_Occurred()) { \
+                PyErr_SetString(PyExc_TypeError, msg); \
+                return NULL; \
+            } \
+            self = PyTuple_GET_ITEM(args, 0); \
+            if (CHECK_MPZANY(self)) { \
+                Py_INCREF((PyObject*)self); \
+            } \
+            else { \
+                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            } \
+        } \
+        if (!self) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
     }
 
 /* Parses one argument into "self" and a required second argument into
@@ -383,36 +411,40 @@ extern "C" {
  */
 
 #define PARSE_ONE_MPZ_REQ_GMP_SI(var, msg) \
-    if(self && CHECK_MPZANY(self)) { \
+    if (self && CHECK_MPZANY(self)) { \
         if (PyTuple_GET_SIZE(args) != 1) { \
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
-        } else { \
+        } \
+        else { \
             *var = gmp_si_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            if(*var == -1 && PyErr_Occurred()) { \
+            if (*var == -1 && PyErr_Occurred()) { \
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \
             } \
         } \
         Py_INCREF(self); \
-    } else { \
+    } \
+    else { \
         if (PyTuple_GET_SIZE(args) != 2) { \
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
-        } else { \
+        } \
+        else { \
             *var = gmp_si_From_Integer(PyTuple_GET_ITEM(args, 1)); \
-            if(*var == -1 && PyErr_Occurred()) { \
+            if (*var == -1 && PyErr_Occurred()) { \
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \
             } \
             self = PyTuple_GET_ITEM(args, 0); \
-            if(CHECK_MPZANY(self)) { \
+            if (CHECK_MPZANY(self)) { \
                 Py_INCREF((PyObject*)self); \
-            } else { \
+            } \
+            else { \
                 self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             } \
         } \
-        if(!self) { \
+        if (!self) { \
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
         } \
@@ -428,39 +460,43 @@ extern "C" {
  */
 
 #define PARSE_ONE_MPFR_REQ_CLONG(var, msg) \
-    if(self && Pympfr_CheckAndExp(self)) {\
-        if (PyTuple_GET_SIZE(args) != 1) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        } else {\
+    if (self && Pympfr_CheckAndExp(self)) { \
+        if (PyTuple_GET_SIZE(args) != 1) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        else {\
             *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            if(*var == -1 && PyErr_Occurred()) {\
-                PyErr_SetString(PyExc_TypeError, msg);\
-                return NULL;\
-            }\
-        }\
-        Py_INCREF(self);\
-    } else {\
-        if (PyTuple_GET_SIZE(args) != 2) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        } else {\
+            if (*var == -1 && PyErr_Occurred()) { \
+                PyErr_SetString(PyExc_TypeError, msg); \
+                return NULL; \
+            } \
+        } \
+        Py_INCREF(self); \
+    } \
+    else { \
+        if (PyTuple_GET_SIZE(args) != 2) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        else { \
             *var = clong_From_Integer(PyTuple_GET_ITEM(args, 1)); \
-            if(*var == -1 && PyErr_Occurred()) {\
-                PyErr_SetString(PyExc_TypeError, msg);\
-                return NULL;\
-            }\
-            self = PyTuple_GET_ITEM(args, 0);\
-            if(Pympfr_CheckAndExp(self)) {\
-                Py_INCREF((PyObject*)self);\
-            } else {\
-                self = (PyObject*)Pympfr_From_Real(PyTuple_GET_ITEM(args, 0), 0);\
-            }\
-        }\
-        if(!self) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
+            if (*var == -1 && PyErr_Occurred()) { \
+                PyErr_SetString(PyExc_TypeError, msg); \
+                return NULL; \
+            } \
+            self = PyTuple_GET_ITEM(args, 0); \
+            if (Pympfr_CheckAndExp(self)) { \
+                Py_INCREF((PyObject*)self); \
+            } \
+            else { \
+                self = (PyObject*)Pympfr_From_Real(PyTuple_GET_ITEM(args, 0), 0); \
+            } \
+        } \
+        if (!self) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
     }
 
 /*
@@ -475,57 +511,59 @@ extern "C" {
  */
 
 #define PARSE_TWO_MPZ(var, msg) \
-    if(self && CHECK_MPZANY(self)) {\
-        if (PyTuple_GET_SIZE(args) != 1) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        var = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-        if(!var) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        Py_INCREF(self);\
-    } else {\
-        if (PyTuple_GET_SIZE(args) != 2) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));\
-        var = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));\
-        if(!self || !var) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            Py_XDECREF((PyObject*)self);\
-            Py_XDECREF((PyObject*)var);\
-            return NULL;\
-        }\
+    if (self && CHECK_MPZANY(self)) { \
+        if (PyTuple_GET_SIZE(args) != 1) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        var = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+        if (!var) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        Py_INCREF(self); \
+    } \
+    else { \
+        if (PyTuple_GET_SIZE(args) != 2) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+        var = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 1)); \
+        if (!self || !var) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            Py_XDECREF((PyObject*)self); \
+            Py_XDECREF((PyObject*)var); \
+            return NULL; \
+        } \
     }
 
 #define PARSE_TWO_MPQ(var, msg) \
-    if(self && Pympq_Check(self)) {\
-        if (PyTuple_GET_SIZE(args) != 1) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        var = (PyObject*)Pympq_From_Rational(PyTuple_GET_ITEM(args, 0));\
-        if(!var) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        Py_INCREF(self);\
-    } else {\
-        if (PyTuple_GET_SIZE(args) != 2) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            return NULL;\
-        }\
-        self = (PyObject*)Pympq_From_Rational(PyTuple_GET_ITEM(args, 0));\
-        var = (PyObject*)Pympq_From_Rational(PyTuple_GET_ITEM(args, 1));\
-        if(!self || !var) {\
-            PyErr_SetString(PyExc_TypeError, msg);\
-            Py_XDECREF((PyObject*)self);\
-            Py_XDECREF((PyObject*)var);\
-            return NULL;\
-        }\
+    if (self && Pympq_Check(self)) { \
+        if (PyTuple_GET_SIZE(args) != 1) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        var = (PyObject*)Pympq_From_Rational(PyTuple_GET_ITEM(args, 0)); \
+        if (!var) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        Py_INCREF(self); \
+    } \
+    else { \
+        if (PyTuple_GET_SIZE(args) != 2) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
+        self = (PyObject*)Pympq_From_Rational(PyTuple_GET_ITEM(args, 0)); \
+        var = (PyObject*)Pympq_From_Rational(PyTuple_GET_ITEM(args, 1)); \
+        if (!self || !var) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            Py_XDECREF((PyObject*)self); \
+            Py_XDECREF((PyObject*)var); \
+            return NULL; \
+        } \
     }
 
 
@@ -539,7 +577,7 @@ extern "C" {
  */
 
 #define PARSE_TWO_MPFR_ARGS(var, msg) \
-    if(self && Pympfr_Check(self)) { \
+    if (self && Pympfr_Check(self)) { \
         if (PyTuple_GET_SIZE(args) != 1) { \
             TYPE_ERROR(msg); \
             return NULL; \
@@ -567,22 +605,24 @@ extern "C" {
    under Python 3.x, self is a module. */
 
 #define SELF_MPQ_NO_ARG \
-    if(self && Pympq_Check(self)) { \
+    if (self && Pympq_Check(self)) { \
         if(!PyArg_ParseTuple(args, "")) \
             return NULL; \
         Py_INCREF(self); \
-    } else { \
+    } \
+    else { \
         if(!PyArg_ParseTuple(args, "O&", Pympq_convert_arg, &self)) \
             return NULL; \
     }
 
 #define SELF_MPQ_ONE_ARG(fm, var) \
-    if(self && Pympq_Check(self)) { \
-        if(!PyArg_ParseTuple(args, fm, var)) \
+    if (self && Pympq_Check(self)) { \
+        if (!PyArg_ParseTuple(args, fm, var)) \
             return NULL; \
         Py_INCREF(self); \
-    } else { \
-        if(!PyArg_ParseTuple(args, "O&" fm, Pympq_convert_arg, &self, var)) \
+    } \
+    else { \
+        if (!PyArg_ParseTuple(args, "O&" fm, Pympq_convert_arg, &self, var)) \
             return NULL; \
     }
 
