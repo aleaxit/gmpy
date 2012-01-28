@@ -126,8 +126,8 @@ typedef unsigned long Py_uhash_t;
 typedef unsigned long       gmp_ui;
 typedef long                gmp_si;
 typedef unsigned long       mp_bitcnt_t;
-#define mpz_fits_si         mpz_fits_slong_p
-#define mpz_fits_ui         mpz_fits_ulong_p
+#define mpz_fits_si_p       mpz_fits_slong_p
+#define mpz_fits_ui_p       mpz_fits_ulong_p
 #endif
 
 #ifdef _WIN64
