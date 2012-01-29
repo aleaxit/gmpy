@@ -33,13 +33,18 @@
 
 typedef struct {
     PyObject_HEAD
-    gmp_randstate_t state
-} GMPYRandomState;
+    gmp_randstate_t state;
+} GMPYRandomStateObject;
 
 static PyTypeObject GMPYRandomState_Type;
-#define PyObj_AS_STATE(obj) (((GMPYRandomState *)(obj))->state)
-#define GMPYRandomState_Check(v) (((PyObject*)v)->ob_type == &GMPYRandomState_Type_Type)
+#define PyObj_AS_STATE(obj) (((GMPYRandomStateObject *)(obj))->state)
+#define GMPYRandomState_Check(v) (((PyObject*)v)->ob_type == &GMPYRandomState_Type)
 
-
-
+static GMPYRandomStateObject * GMPYRandomState_New(void);
+static void GMPYRandomState_Dealloc(GMPYRandomStateObject *self);
+static PyObject * GMPYRandomState_Repr(GMPYRandomStateObject *self);
+static PyObject * GMPY_random_state(PyObject *self, PyObject *args);
+static PyObject * GMPY_mpz_urandomb(PyObject *self, PyObject *args);
+static PyObject * GMPY_mpz_rrandomb(PyObject *self, PyObject *args);
+static PyObject * GMPY_mpz_random(PyObject *self, PyObject *args);
 
