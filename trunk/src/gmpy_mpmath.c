@@ -26,7 +26,7 @@
 /* Internal helper function for mpmath. */
 
 static PyObject *
-mpmath_build_mpf(long sign, PympzObject *man, PyObject *exp, gmp_si bc)
+mpmath_build_mpf(long sign, PympzObject *man, PyObject *exp, mpir_si bc)
 {
     PyObject *tup, *tsign, *tbc;
     if (!(tup = PyTuple_New(4))) {
@@ -40,7 +40,7 @@ mpmath_build_mpf(long sign, PympzObject *man, PyObject *exp, gmp_si bc)
         Py_DECREF(tup);
         return NULL;
     }
-    if (!(tbc=PyIntOrLong_FromGmp_si(bc))) {
+    if (!(tbc=PyIntOrLong_FromSI(bc))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
@@ -72,7 +72,7 @@ static PyObject *
 Pympz_mpmath_normalize(PyObject *self, PyObject *args)
 {
     long sign = 0;
-    gmp_si bc = 0, prec = 0, shift, zbits, carry = 0;
+    mpir_si bc = 0, prec = 0, shift, zbits, carry = 0;
     PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0;
     PympzObject *man = 0;
     mpz_t upper, lower;
@@ -84,8 +84,8 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         sign = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
         man = (PympzObject *)PyTuple_GET_ITEM(args, 1);
         exp = PyTuple_GET_ITEM(args, 2);
-        bc = gmp_si_From_Integer(PyTuple_GET_ITEM(args, 3));
-        prec = gmp_si_From_Integer(PyTuple_GET_ITEM(args, 4));
+        bc = SI_From_Integer(PyTuple_GET_ITEM(args, 3));
+        prec = SI_From_Integer(PyTuple_GET_ITEM(args, 4));
         rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 5))[0];
         if(PyErr_Occurred()){
             PyErr_SetString(PyExc_TypeError, "arguments long, PympzObject*,"
@@ -164,7 +164,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
                 if (carry)
                     mpz_add_ui(upper, upper, 1);
         }
-        if (!(tmp = PyIntOrLong_FromGmp_si(shift))) {
+        if (!(tmp = PyIntOrLong_FromSI(shift))) {
             mpz_cloc(upper);
             mpz_cloc(lower);
             return NULL;
@@ -188,7 +188,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     if ((zbits = mpz_scan1(upper, 0)))
         mpz_tdiv_q_2exp(upper, upper, zbits);
 
-    if (!(tmp = PyIntOrLong_FromGmp_si(zbits))) {
+    if (!(tmp = PyIntOrLong_FromSI(zbits))) {
         mpz_cloc(upper);
         mpz_cloc(lower);
         Py_DECREF(newexp);
@@ -220,7 +220,7 @@ static PyObject *
 Pympz_mpmath_create(PyObject *self, PyObject *args)
 {
     long sign;
-    gmp_si bc, shift, zbits, carry = 0, prec = 0;
+    mpir_si bc, shift, zbits, carry = 0, prec = 0;
     PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0;
     PympzObject *man = 0, *upper = 0, *lower = 0;
 
@@ -236,7 +236,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
         case 4:
             rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 3));
         case 3:
-            prec = gmp_si_From_Integer(PyTuple_GET_ITEM(args, 2));
+            prec = SI_From_Integer(PyTuple_GET_ITEM(args, 2));
             if (prec == -1 && PyErr_Occurred())
                 return NULL;
             prec = ABS(prec);
@@ -318,7 +318,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                 if (carry)
                     mpz_add_ui(upper->z, upper->z, 1);
         }
-        if (!(tmp = PyIntOrLong_FromGmp_si(shift))) {
+        if (!(tmp = PyIntOrLong_FromSI(shift))) {
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
@@ -342,7 +342,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     if ((zbits = mpz_scan1(upper->z, 0)))
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
-    if (!(tmp = PyIntOrLong_FromGmp_si(zbits))) {
+    if (!(tmp = PyIntOrLong_FromSI(zbits))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);

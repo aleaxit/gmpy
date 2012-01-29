@@ -113,29 +113,29 @@ typedef unsigned long Py_uhash_t;
 #  define inline __inline
 #endif
 
-/* MPIR 2.6 introduce new data types - GMP_UI and GMP_SI - that correspond
+/* MPIR 2.6 introduce new data types - MPIR_UI and MPIR_SI - that correspond
  * to the "optimal" integer type for pass values to GMP/MPIR. On almost all
- * systems, these types correspond to "unsigned long" and "long". But on 
+ * systems, these types correspond to "unsigned long" and "long". But on
  * 64-bit Windows, these types correspond to "unsigned long long" and
- * "long long". 
+ * "long long".
  */
- 
+
 #ifndef BITS_PER_UI
 /* Assume we are NOT using MPIR > 2.5. */
 #define BITS_PER_UI         BITS_PER_ULONG
-typedef unsigned long       gmp_ui;
-typedef long                gmp_si;
+typedef unsigned long       mpir_ui;
+typedef long                mpir_si;
 typedef unsigned long       mp_bitcnt_t;
 #define mpz_fits_si_p       mpz_fits_slong_p
 #define mpz_fits_ui_p       mpz_fits_ulong_p
 #endif
 
 #ifdef _WIN64
-#define PyIntOrLong_FromGmp_si        PyLong_FromLongLong
-#define PyIntOrLong_AsGmp_si          PyLong_AsLongLong
+#define PyIntOrLong_FromSI        PyLong_FromLongLong
+#define PyIntOrLong_AsSI          PyLong_AsLongLong
 #else
-#define PyIntOrLong_FromGmp_si        PyLong_FromLong
-#define PyIntOrLong_AsGmp_si          PyLong_AsLong
+#define PyIntOrLong_FromSI        PyLong_FromLong
+#define PyIntOrLong_AsSI          PyLong_AsLong
 #endif
 
 #ifdef __GNUC__
@@ -195,7 +195,7 @@ typedef unsigned long       mp_bitcnt_t;
  * NOTE: The use of PyMem is not compatible with Sage, therefore it is
  * disabled by default.
  */
- 
+
 #define USE_PYMEM 0
 #ifdef USE_PYMEM
 #  define GMPY_FREE(NAME) PyMem_Free(NAME)

@@ -706,7 +706,7 @@ static PyObject *
 mpany_richcompare(PyObject *a, PyObject *b, int op)
 {
     int c, overflow;
-    gmp_si temp_si;
+    mpir_si temp_si;
     mpz_t tempz;
     PyObject *tempa = 0, *tempb = 0;
     PyObject *result = 0;
@@ -714,7 +714,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     if (CHECK_MPZANY(a)) {
         if (PyIntOrLong_Check(b)) {
             TRACE("compare (mpz,int)\n");
-            temp_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
+            temp_si = PyLong_AsSIAndOverflow(b, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyLong(tempz, b);
