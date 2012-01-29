@@ -292,6 +292,9 @@ typedef unsigned long       mp_bitcnt_t;
 
 #include "gmpy_binary.h"
 
+/* Support random number generators. */
+
+#include "gmpy_random.h"
 
 #ifdef __cplusplus
 }

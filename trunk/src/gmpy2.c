@@ -405,11 +405,17 @@ static PyObject *GMPyExc_ExpBound = NULL;
 
 #include "gmpy_mpq_conv.c"
 
+/* Support primitive arithmetic operations. */
+
 #include "gmpy_basic.c"
 
 /* Include the module-level methods that call the type-specific methods. */
 
 #include "gmpy_mpany.c"
+
+/* Support for random numbers. */
+
+#include "gmpy_random.c"
 
 /* Include helper functions for mpmath. */
 
@@ -496,6 +502,9 @@ static PyMethodDef Pygmpy_methods [] =
     { "mpq_from_old_binary", Pympq_From_Old_Binary, METH_O, doc_g_mpq_from_old_binary },
     { "mpz", (PyCFunction)Pygmpy_mpz, METH_VARARGS | METH_KEYWORDS, doc_mpz },
     { "mpz_from_old_binary", Pympz_From_Old_Binary, METH_O, doc_g_mpz_from_old_binary },
+    { "mpz_random", GMPY_mpz_random, METH_VARARGS, doc_mpz_random },
+    { "mpz_rrandomb", GMPY_mpz_rrandomb, METH_VARARGS, doc_mpz_rrandomb },
+    { "mpz_urandomb", GMPY_mpz_urandomb, METH_VARARGS, doc_mpz_urandomb },
     { "mul", Pympany_mul, METH_VARARGS, doc_mpany_mul },
     { "next_prime", Pympz_next_prime, METH_O, doc_next_primeg },
     { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsg },
@@ -506,6 +515,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "remove", Pympz_remove, METH_VARARGS, doc_removeg },
     { "iroot", Pympz_iroot, METH_VARARGS, doc_mpz_iroot },
     { "iroot_rem", Pympz_iroot_rem, METH_VARARGS, doc_mpz_iroot_rem },
+    { "random_state", GMPY_random_state, METH_VARARGS, doc_random_state },
     { "set_cache", Pygmpy_set_cache, METH_VARARGS, doc_set_cache },
     { "set_debug", Pygmpy_set_debug, METH_VARARGS, doc_set_debug },
     { "sign", Pympany_sign, METH_O, doc_g_mpany_sign },
@@ -600,6 +610,8 @@ static PyMethodDef Pygmpy_methods [] =
     { "modf", Pympfr_modf, METH_O, doc_g_mpfr_modf },
     { "mpfr", (PyCFunction)Pygmpy_mpfr, METH_VARARGS | METH_KEYWORDS, doc_mpfr },
     { "mpfr_from_old_binary", Pympfr_From_Old_Binary, METH_O, doc_g_mpfr_from_old_binary },
+    { "mpfr_random", GMPY_mpfr_random, METH_VARARGS, doc_mpfr_random },
+    { "mpfr_grandom", GMPY_mpfr_grandom, METH_VARARGS, doc_mpfr_grandom },
     { "mul_2exp", Pympany_mul_2exp, METH_VARARGS, doc_mpany_mul_2exp },
     { "nan", Pympfr_set_nan, METH_NOARGS, doc_g_mpfr_set_nan },
     { "next_above", Pympfr_nextabove, METH_O, doc_g_mpfr_nextabove },
@@ -640,6 +652,7 @@ static PyMethodDef Pygmpy_methods [] =
 
 #ifdef WITHMPC
     { "mpc", (PyCFunction)Pygmpy_mpc, METH_VARARGS | METH_KEYWORDS, doc_g_mpc },
+    { "mpc_random", GMPY_mpc_random, METH_VARARGS, doc_mpc_random },
     { "norm", Pympc_norm, METH_O, doc_mpc_norm },
     { "polar", Pympc_polar, METH_O, doc_mpc_polar },
     { "phase", Pympc_phase, METH_O, doc_mpc_phase },
