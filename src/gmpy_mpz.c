@@ -726,13 +726,13 @@ PyDoc_STRVAR(doc_mpz_iroot,
 static PyObject *
 Pympz_iroot(PyObject *self, PyObject *args)
 {
-    gmp_si n;
+    mpir_si n;
     int exact;
     PympzObject *s = 0;
     PyObject *result = 0;
 
-    PARSE_ONE_MPZ_REQ_GMP_SI(&n,
-                            "iroot() requires 'mpz','int' arguments");
+    PARSE_ONE_MPZ_REQ_SI(&n,
+                         "iroot() requires 'mpz','int' arguments");
 
     if (n <= 0) {
         VALUE_ERROR("n must be > 0");
@@ -768,11 +768,11 @@ PyDoc_STRVAR(doc_mpz_iroot_rem,
 static PyObject *
 Pympz_iroot_rem(PyObject *self, PyObject *args)
 {
-    gmp_si n;
+    mpir_si n;
     PympzObject *r = 0, *y = 0;
     PyObject *result = 0;
 
-    PARSE_ONE_MPZ_REQ_GMP_SI(&n,
+    PARSE_ONE_MPZ_REQ_SI(&n,
             "iroot_rem() requires 'mpz','int' arguments");
 
     if (n <= 0) {
@@ -931,10 +931,10 @@ Pympz_pow(PyObject *b, PyObject *e, PyObject *m)
     }
 
     if (m == Py_None) {
-        /* When no modulo is present, the exponent must fit in gmp_ui
+        /* When no modulo is present, the exponent must fit in mpir_ui
          * the exponent must be positive.
          */
-        gmp_ui el;
+        mpir_ui el;
         if (mpz_sgn(tempe->z) < 0) {
             VALUE_ERROR("pow() exponent cannot be negative");
             goto err;
@@ -1074,7 +1074,7 @@ MPZ_BINOP(mpz_xor)
 static PyObject *
 Pympz_rshift(PyObject *a, PyObject *b)
 {
-    gmp_si count_si;
+    mpir_si count_si;
     int overflow;
     PympzObject *result, *tempa, *tempb;
 
@@ -1084,7 +1084,7 @@ Pympz_rshift(PyObject *a, PyObject *b)
     /* Try to make mpz >> Python int/long as fast as possible. */
     if (CHECK_MPZANY(a)) {
         if (PyIntOrLong_Check(b)) {
-            count_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
+            count_si = PyLong_AsSIAndOverflow(b, &overflow);
             if (overflow) {
                 VALUE_ERROR("outrageous shift count");
                 Py_DECREF((PyObject*)result);
@@ -1132,7 +1132,7 @@ Pympz_rshift(PyObject *a, PyObject *b)
 static PyObject *
 Pympz_lshift(PyObject *a, PyObject *b)
 {
-    gmp_si count_si;
+    mpir_si count_si;
     int overflow;
     PympzObject *result, *tempa, *tempb;
 
@@ -1142,7 +1142,7 @@ Pympz_lshift(PyObject *a, PyObject *b)
     /* Try to make mpz >> Python int/long as fast as possible. */
     if (CHECK_MPZANY(a)) {
         if (PyIntOrLong_Check(b)) {
-            count_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
+            count_si = PyLong_AsSIAndOverflow(b, &overflow);
             if (overflow) {
                 VALUE_ERROR("outrageous shift count");
                 Py_DECREF((PyObject*)result);
@@ -1455,9 +1455,9 @@ static PyObject *
 Pygmpy_fac(PyObject *self, PyObject *other)
 {
     PympzObject *result;
-    gmp_si n;
+    mpir_si n;
 
-    n = gmp_si_From_Integer(other);
+    n = SI_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("fac() requires 'int' argument");
         return NULL;
@@ -1482,9 +1482,9 @@ static PyObject *
 Pygmpy_fib(PyObject *self, PyObject *other)
 {
     PympzObject *result;
-    gmp_si n;
+    mpir_si n;
 
-    n = gmp_si_From_Integer(other);
+    n = SI_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("fib() requires 'int' argument");
         return NULL;
@@ -1510,9 +1510,9 @@ Pygmpy_fib2(PyObject *self, PyObject *other)
 {
     PyObject *result;
     PympzObject *fib1 = 0, *fib2 = 0;
-    gmp_si n;
+    mpir_si n;
 
-    n = gmp_si_From_Integer(other);
+    n = SI_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("fib2() requires 'int' argument");
         return NULL;
@@ -1538,9 +1538,9 @@ static PyObject *
 Pygmpy_lucas(PyObject *self, PyObject *other)
 {
     PympzObject *result;
-    gmp_si n;
+    mpir_si n;
 
-    n = gmp_si_From_Integer(other);
+    n = SI_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("luc() requires 'int' argument");
         return NULL;
@@ -1566,9 +1566,9 @@ Pygmpy_lucas2(PyObject *self, PyObject *other)
 {
     PyObject *result;
     PympzObject *luc1, *luc2;
-    gmp_si n;
+    mpir_si n;
 
-    n = gmp_si_From_Integer(other);
+    n = SI_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("luc2() requires 'int' argument");
         return NULL;
@@ -1600,9 +1600,9 @@ static PyObject *
 Pympz_bincoef(PyObject *self, PyObject *args)
 {
     PympzObject *result;
-    gmp_si k;
+    mpir_si k;
 
-    PARSE_ONE_MPZ_REQ_GMP_SI(&k,
+    PARSE_ONE_MPZ_REQ_SI(&k,
                             "bincoef() requires 'mpz','int' arguments");
 
     if (k < 0) {

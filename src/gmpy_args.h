@@ -165,19 +165,19 @@ extern "C" {
     }
 
 /* Parses one argument into "self" and an optional second argument into
- * "var". The second argument is converted into a gmp_si. If there is not a
+ * "var". The second argument is converted into an mpir_si. If there is not a
  * second argument, "var" is unchanged. It supports either gmpy.fname(z,l) or
- * z.fname(l). "self" must be decref'ed. "var" must be a pointer to a gmp_si.
+ * z.fname(l). "self" must be decref'ed. "var" must be a pointer to an mpir_si.
  * "msg" should be an error message that includes the function name and
  * describes the required arguments. Replaces some uses of SELF_MPZ_ONE_ARG.
  *
  * Also considers an 'xmpz' to be equivalent to an 'mpz'.
  */
 
-#define PARSE_ONE_MPZ_OPT_GMP_SI(var, msg) \
+#define PARSE_ONE_MPZ_OPT_SI(var, msg) \
     if (self && CHECK_MPZANY(self)) { \
         if (PyTuple_GET_SIZE(args) == 1) { \
-            *var = gmp_si_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            *var = SI_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             if (*var == -1 && PyErr_Occurred()) { \
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \
@@ -191,7 +191,7 @@ extern "C" {
     } \
     else { \
         if (PyTuple_GET_SIZE(args) == 2) { \
-            *var = gmp_si_From_Integer(PyTuple_GET_ITEM(args, 1)); \
+            *var = SI_From_Integer(PyTuple_GET_ITEM(args, 1)); \
             if (*var == -1 && PyErr_Occurred()) { \
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \
@@ -401,23 +401,23 @@ extern "C" {
     }
 
 /* Parses one argument into "self" and a required second argument into
- * "var". The second argument is converted into a gmp_si. It supports either
+ * "var". The second argument is converted into an mpir_si. It supports either
  * gmpy.fname(z,l) or z.fname(l). "self" must be decref'ed. "var" must be a
- * pointer to a gmp_si. "msg" should be an error message that includes the
+ * pointer to an mpir_si. "msg" should be an error message that includes the
  * function name and describes the required arguments. Replaces some uses of
  * SELF_MPZ_ONE_ARG.
  *
  * Also considers an 'xmpz' to be equivalent to an 'mpz'.
  */
 
-#define PARSE_ONE_MPZ_REQ_GMP_SI(var, msg) \
+#define PARSE_ONE_MPZ_REQ_SI(var, msg) \
     if (self && CHECK_MPZANY(self)) { \
         if (PyTuple_GET_SIZE(args) != 1) { \
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
         } \
         else { \
-            *var = gmp_si_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            *var = SI_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             if (*var == -1 && PyErr_Occurred()) { \
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \
@@ -431,7 +431,7 @@ extern "C" {
             return NULL; \
         } \
         else { \
-            *var = gmp_si_From_Integer(PyTuple_GET_ITEM(args, 1)); \
+            *var = SI_From_Integer(PyTuple_GET_ITEM(args, 1)); \
             if (*var == -1 && PyErr_Occurred()) { \
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \

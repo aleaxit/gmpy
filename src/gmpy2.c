@@ -802,8 +802,8 @@ PyMODINIT_FUNC initgmpy2(void)
     PyObject* copy_reg_module = NULL;
 
     /* Validate the sizes of the various typedef'ed integer types. */
-    if (sizeof(mp_limb_t) != sizeof(gmp_si)) {
-        SYSTEM_ERROR("Size of mp_limb_t and gmp_si not compatible");
+    if (sizeof(mp_limb_t) != sizeof(mpir_si)) {
+        SYSTEM_ERROR("Size of mp_limb_t and mpir_si not compatible");
         INITERROR;
     }
     if (sizeof(mp_bitcnt_t) != sizeof(size_t)) {

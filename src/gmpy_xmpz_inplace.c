@@ -33,13 +33,13 @@ static PyObject *
 Pyxmpz_inplace_add(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
-    gmp_si temp_si;
+    mpir_si temp_si;
     int overflow;
 
     /* Try to make mpz + small_int faster */
     if (PyIntOrLong_Check(b)) {
         TRACE("Adding (xmpz,long)\n");
-        temp_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
+        temp_si = PyLong_AsSIAndOverflow(b, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, b);
@@ -73,12 +73,12 @@ static PyObject *
 Pyxmpz_inplace_sub(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
-    gmp_si temp_si;
+    mpir_si temp_si;
     int overflow;
 
     if (PyIntOrLong_Check(b)) {
         TRACE("Subtracting (xmpz,long)\n");
-        temp_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
+        temp_si = PyLong_AsSIAndOverflow(b, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, b);
@@ -112,12 +112,12 @@ static PyObject *
 Pyxmpz_inplace_mul(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
-    gmp_si temp_si;
+    mpir_si temp_si;
     int overflow;
 
     if (PyIntOrLong_Check(b)) {
         TRACE("Multiplying (xmpz,long)\n");
-        temp_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
+        temp_si = PyLong_AsSIAndOverflow(b, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, b);
@@ -150,12 +150,12 @@ static PyObject *
 Pyxmpz_inplace_floordiv(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
-    gmp_si temp_si;
+    mpir_si temp_si;
     int overflow;
 
     if (PyIntOrLong_Check(b)) {
         TRACE("Floor divide (xmpz,long)\n");
-        temp_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
+        temp_si = PyLong_AsSIAndOverflow(b, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, b);
@@ -198,12 +198,12 @@ static PyObject *
 Pyxmpz_inplace_rem(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
-    gmp_si temp_si;
+    mpir_si temp_si;
     int overflow;
 
     if (PyIntOrLong_Check(b)) {
         TRACE("Modulo (xmpz,long)\n");
-        temp_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
+        temp_si = PyLong_AsSIAndOverflow(b, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, b);
@@ -245,12 +245,12 @@ Pyxmpz_inplace_rem(PyObject *a, PyObject *b)
 static PyObject *
 Pyxmpz_inplace_rshift(PyObject *a, PyObject *b)
 {
-    gmp_si temp_si;
+    mpir_si temp_si;
     int overflow;
 
     if (PyIntOrLong_Check(b)) {
         TRACE("right shift\n");
-        temp_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
+        temp_si = PyLong_AsSIAndOverflow(b, &overflow);
         if (overflow) {
             OVERFLOW_ERROR("outrageous shift count");
             return NULL;
@@ -291,12 +291,12 @@ Pyxmpz_inplace_rshift(PyObject *a, PyObject *b)
 static PyObject *
 Pyxmpz_inplace_lshift(PyObject *a, PyObject *b)
 {
-    gmp_si temp_si;
+    mpir_si temp_si;
     int overflow;
 
     if (PyIntOrLong_Check(b)) {
         TRACE("left shift\n");
-        temp_si = PyLong_AsGmp_siAndOverflow(b, &overflow);
+        temp_si = PyLong_AsSIAndOverflow(b, &overflow);
         if (overflow) {
             OVERFLOW_ERROR("outrageous shift count");
             return NULL;
@@ -336,7 +336,7 @@ static PyObject *
 Pyxmpz_inplace_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
 {
     PympzObject *e = 0;
-    gmp_ui el;
+    mpir_ui el;
 
     TRACE("Pyxmpz_inplace_pow\n");
 

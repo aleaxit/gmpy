@@ -428,7 +428,7 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
     PympfrObject *rf, *tempbf, *tempef;
 #endif
     int esign, bsign;
-    gmp_si tempexp;
+    mpir_si tempexp;
 
     if ((PyObject*)m != Py_None) {
         TYPE_ERROR("mpq.pow() no modulo allowed");
@@ -566,10 +566,10 @@ Pympq_hash(PympqObject *self)
     return hash;
 #else
     PyObject *temp;
-    
+
     if (self->hash_cache != -1)
         return self->hash_cache;
-    
+
     if (!(temp = Pympq2PyFloat(self))) {
         SYSTEM_ERROR("Could not convert 'mpq' to float.");
         return -1;

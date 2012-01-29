@@ -59,8 +59,8 @@ int Pympz_convert_arg(PyObject *arg, PyObject **ptr);
 static long clong_From_Integer(PyObject *obj);
 
 /* Should be used by all MPIR/GMP related code. */
-static gmp_si gmp_si_From_Integer(PyObject *obj);
-static gmp_ui gmp_ui_From_Integer(PyObject *obj);
+static mpir_si SI_From_Integer(PyObject *obj);
+static mpir_ui UI_From_Integer(PyObject *obj);
 
 static Py_ssize_t ssize_t_From_Integer(PyObject *obj);
 

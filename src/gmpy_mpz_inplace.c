@@ -32,7 +32,7 @@ Pympz_inplace_add(PyObject *self, PyObject *other)
 {
     PympzObject *rz;
     mpz_t tempz;
-    gmp_si temp_si;
+    mpir_si temp_si;
     int overflow;
 
     if (!(rz = Pympz_new()))
@@ -45,7 +45,7 @@ Pympz_inplace_add(PyObject *self, PyObject *other)
 
     if (PyIntOrLong_Check(other)) {
         TRACE("Adding (mpz,long)\n");
-        temp_si = PyLong_AsGmp_siAndOverflow(other, &overflow);
+        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, other);
@@ -70,7 +70,7 @@ Pympz_inplace_sub(PyObject *self, PyObject *other)
 {
     PympzObject *rz;
     mpz_t tempz;
-    gmp_si temp_si;
+    mpir_si temp_si;
     int overflow;
 
     if (!(rz = Pympz_new()))
@@ -83,7 +83,7 @@ Pympz_inplace_sub(PyObject *self, PyObject *other)
 
     if (PyIntOrLong_Check(other)) {
         TRACE("Subtracting (mpz,long)\n");
-        temp_si = PyLong_AsGmp_siAndOverflow(other, &overflow);
+        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, other);
@@ -108,7 +108,7 @@ Pympz_inplace_mul(PyObject *self, PyObject *other)
 {
     PympzObject *rz;
     mpz_t tempz;
-    gmp_si temp_si;
+    mpir_si temp_si;
     int overflow;
 
     if (!(rz = Pympz_new()))
@@ -121,7 +121,7 @@ Pympz_inplace_mul(PyObject *self, PyObject *other)
 
     if (PyIntOrLong_Check(other)) {
         TRACE("Multiplying (mpz,long)\n");
-        temp_si = PyLong_AsGmp_siAndOverflow(other, &overflow);
+        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, other);
@@ -148,7 +148,7 @@ Pympz_inplace_floordiv(PyObject *self, PyObject *other)
 {
     PympzObject *rz;
     mpz_t tempz;
-    gmp_si temp_si;
+    mpir_si temp_si;
     int overflow;
 
     if (!(rz = Pympz_new()))
@@ -165,7 +165,7 @@ Pympz_inplace_floordiv(PyObject *self, PyObject *other)
 
     if (PyIntOrLong_Check(other)) {
         TRACE("Floor divide (mpz,long)\n");
-        temp_si = PyLong_AsGmp_siAndOverflow(other, &overflow);
+        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, other);
@@ -195,7 +195,7 @@ Pympz_inplace_rem(PyObject *self, PyObject *other)
 {
     PympzObject *rz;
     mpz_t tempz;
-    gmp_si temp_si;
+    mpir_si temp_si;
     int overflow;
 
     if (!(rz = Pympz_new()))
@@ -213,7 +213,7 @@ Pympz_inplace_rem(PyObject *self, PyObject *other)
 
    if (PyIntOrLong_Check(other)) {
         TRACE("Modulo (mpz,long)\n");
-        temp_si = PyLong_AsGmp_siAndOverflow(other, &overflow);
+        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, other);
@@ -241,7 +241,7 @@ static PyObject *
 Pympz_inplace_rshift(PyObject *self, PyObject *other)
 {
     PympzObject *rz;
-    gmp_si temp_si;
+    mpir_si temp_si;
     int overflow;
 
     if (!(rz = Pympz_new()))
@@ -265,7 +265,7 @@ Pympz_inplace_rshift(PyObject *self, PyObject *other)
 
     if (PyIntOrLong_Check(other)) {
         TRACE("right shift\n");
-        temp_si = PyLong_AsGmp_siAndOverflow(other, &overflow);
+        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             VALUE_ERROR("outrageous shift count");
             Py_DECREF((PyObject*)rz);
@@ -290,7 +290,7 @@ static PyObject *
 Pympz_inplace_lshift(PyObject *self, PyObject *other)
 {
     PympzObject *rz;
-    gmp_si temp_si;
+    mpir_si temp_si;
     int overflow;
 
     if (!(rz = Pympz_new()))
@@ -314,7 +314,7 @@ Pympz_inplace_lshift(PyObject *self, PyObject *other)
 
     if (PyIntOrLong_Check(other)) {
         TRACE("left shift\n");
-        temp_si = PyLong_AsGmp_siAndOverflow(other, &overflow);
+        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             VALUE_ERROR("outrageous shift count");
             Py_DECREF((PyObject*)rz);
@@ -339,7 +339,7 @@ static PyObject *
 Pympz_inplace_pow(PyObject *self, PyObject *other, PyObject *mod)
 {
     PympzObject *r, *e = 0;
-    gmp_ui el;
+    mpir_ui el;
 
     TRACE("Pympz_inplace_pow\n");
 
