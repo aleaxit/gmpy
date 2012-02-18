@@ -20,22 +20,23 @@
 
 ::  Modified by Case Van Horsen to optimize build for gmpy2.
 
+
 if "%1" == "clean" goto :clean
 
 if not exist config.params.bat (
-	echo run configure first
+	echo run configure2 first
 	exit /b 1
 )
 call config.params.bat
 if "%1" == "" goto :make
 if "%1" == "check" goto :check
-if "%1" == "tune" goto :tune
-if "%1" == "speed" goto :speed
-echo Usage: make [clean^|check^|tune^|speed]
+if "%1" == "install" goto :install
+
+echo Usage: make [clean^|check^|install]
 exit /b 1
 
 :make
-
+cd ..\mpir\win
 md mpn fft mpz mpq mpf printf scanf cxx > nul 2>&1
 
 copy ..\build.vc10\gen_mpir_h.bat .
@@ -90,7 +91,7 @@ for %%X in ( %MPNPATH% ) do (
 	for %%i in ( ..\..\mpn\%%X\*.asm ) do (
 		%YASMEXE% %YASMFLAG% -I ..\..\mpn\%LOCALDIR% -f %LOCALABI% %%i
 		if errorlevel 1 goto :err
-		echo assemblin %%i
+		echo assembling %%i
 	)
 )
 :: dont know what the asm version have so delete them
@@ -176,16 +177,12 @@ if %LIBTYPE% == lib (
 	lib /nologo cxx/*.obj /out:mpirxx.%LIBTYPE%
 	if errorlevel 1 goto :err
 )
+cd ..\..\batch
 exit /b 0
 
 
-
-
-
-
-
-
 :check
+cd ..\mpir\win
 
 md tests
 cd tests
@@ -345,85 +342,34 @@ if errorlevel 1 goto :err
 cd ..
 
 cd ..
-
+cd ..\..\batch
 exit /b 0
 
 
 :err
+cd C:\src\batch
 echo ERROR
 exit /b 1
 
-
-
-
-
 :clean
+cd ..\mpir\win
 
 del *.obj ..\mpir.h ..\config.h ..\gmp-mparam.h mpir.lib *.idb *.pdb > nul 2>&1
 rmdir /S/Q mpn fft mpz mpq mpf scanf printf tests cxx tune speed > nul 2>&1
 del gen_mpir_h.bat out_copy_rename.bat gen_config_h.bat cfg.h > nul 2>&1
 del getopt.h getrusage.h gettimeofday.h unistd.h win_timing.h > nul 2>&1
-del config.guess.* config.params.bat mpir.dll mpir.dll.manifest mpir.exp > nul 2>&1
+del mpir.dll mpir.dll.manifest mpir.exp > nul 2>&1
 del mpirxx.lib mpirxx.dll mpirxx.exp mpirxx.dll.manifest > nul 2>&1
+cd ..\..\batch
+del config.guess.bat config.guess.exe config.guess.obj config.params.bat > nul 2>&1
 exit /b 0
 
-
-
-
-:speed
-
-md speed
-
-set OPT=%FLAGS% %FLAGS1%
-set MPIRLIB=
-if %LIBTYPE% == lib (set MPIRLIB=mpir.lib)
-
-copy ..\build.vc10\unistd.h .
-copy ..\build.vc10\getopt.h .
-copy ..\build.vc10\win_timing.h .
-copy ..\build.vc10\getrusage.h .
-copy ..\build.vc10\gettimeofday.h .
-
-cd speed
-cl %OPT% /c ..\..\tests\misc.c /I..\..
-cl %OPT% /c ..\..\tests\memory.c /I..\..
-cl %OPT% /c ..\..\tests\refmpn.c /I..\..
-cl %OPT% /c ..\..\build.vc10\win_timing.c
-cl %OPT% /c ..\..\build.vc10\getopt.c /I..\..
-for %%X in (        ..\..\tune\common.c        ..\..\tune\mod_1_div.c        ..\..\tune\set_strb.c ..\..\tune\divrem1div.c    ..\..\tune\gcd_bin.c   ..\..\tune\mod_1_inv.c       ..\..\tune\divrem1inv.c    ..\..\tune\gcdextod.c  ..\..\tune\modlinv.c          ..\..\tune\set_strs.c ..\..\tune\divrem2div.c    ..\..\tune\gcdextos.c  ..\..\tune\noop.c             ..\..\tune\divrem2inv.c    ..\..\tune\jacbase1.c  ..\..\tune\powm_mod.c       ..\..\tune\fac_ui_large.c  ..\..\tune\jacbase2.c  ..\..\tune\powm_redc.c    ..\..\tune\fac_ui_small.c  ..\..\tune\jacbase3.c  ..\..\tune\preinv_divrem_1.c  ) do (
-	cl -c %OPT% /I..\.. /I..\..\tests /I.. %%X
-)
-cl %OPT% /I..\.. /I.. /I..\..\tests ..\..\tune\speed.c *.obj ..\%MPIRLIB% advapi32.lib psapi.lib
-cd ..
-
+:install
+mkdir ..\lib > nul 2>&1
+mkdir ..\include > nul 2>&1
+xcopy /y ..\mpir\mpir.h ..\include > nul 2>&1
+xcopy /y ..\mpir\gmp.h ..\include > nul 2>&1
+xcopy /y ..\mpir\gmp-mparam.h ..\include > nul 2>&1
+xcopy /y ..\mpir\gmp-impl.h ..\include > nul 2>&1
+xcopy /y ..\mpir\win\mpir.lib ..\lib > nul 2>&1
 exit /b 0
-
-
-
-:tune
-
-md tune
-
-set OPT=%FLAGS% %FLAGS1%
-set MPIRLIB=
-if %LIBTYPE% == lib (set MPIRLIB=mpir.lib)
-
-copy ..\build.vc10\unistd.h .
-copy ..\build.vc10\getopt.h .
-copy ..\build.vc10\win_timing.h .
-
-cd tune
-cl %OPT% /c ..\..\tests\misc.c /I..\..
-cl %OPT% /c ..\..\tests\memory.c /I..\..
-cl %OPT% /c ..\..\tests\refmpn.c /I..\..
-cl %OPT% /c ..\..\build.vc10\win_timing.c
-cl %OPT% /c ..\..\build.vc10\getopt.c /I..\..
-for %%X in (  ..\..\tune\set_strp.c      ..\..\tune\common.c        ..\..\tune\mod_1_div.c        ..\..\tune\set_strb.c ..\..\tune\divrem1div.c    ..\..\tune\gcd_bin.c   ..\..\tune\mod_1_inv.c       ..\..\tune\divrem1inv.c    ..\..\tune\gcdextod.c  ..\..\tune\modlinv.c          ..\..\tune\set_strs.c ..\..\tune\divrem2div.c    ..\..\tune\gcdextos.c  ..\..\tune\noop.c             ..\..\tune\divrem2inv.c    ..\..\tune\jacbase1.c  ..\..\tune\powm_mod.c       ..\..\tune\fac_ui_large.c  ..\..\tune\jacbase2.c  ..\..\tune\powm_redc.c    ..\..\tune\fac_ui_small.c  ..\..\tune\jacbase3.c  ..\..\tune\preinv_divrem_1.c  ..\..\build.vc10\tune\*.c) do (
-	cl -c %OPT% /I..\.. /I..\..\tests /I.. %%X
-)
-cl %OPT% /I..\.. /I.. /I..\..\tests ..\..\tune\tuneup.c *.obj ..\%MPIRLIB% advapi32.lib psapi.lib
-cd ..
-
-exit /b 0
-
-
