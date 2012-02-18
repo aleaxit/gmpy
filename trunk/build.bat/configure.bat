@@ -19,6 +19,20 @@
 ::  Boston, MA 02110-1301, USA.
 
 ::  Modified by Case Van Horsen to optimize build for gmpy2.
+::
+::  * * * * * * * NOTE * * * * * * *
+::
+:: The following directory structure is assumed:
+:: C:\src\mpir
+::       \mpfr
+::       \mpc
+::       \gmpy2
+::       \batch
+::
+:: The contents of gmpy2\build.bat should be copied to C:\src\batch.
+::
+:: The batch files should be run from the "C:\src\batch" directory.
+:: For example, C:\src\batch>configure2.bat
 
 :: set default lib type as static
 set LIBTYPE=lib
@@ -82,7 +96,9 @@ if %ARCH% == 32 (
 :: CC is empty, then look for VS 2010 or VS 2008, in that order.
 
 :: Check if a compiler is already present....
-copy ..\build.vc10\config.guess.c . > nul 2>&1
+:: Copy config.guess.c and cpuid.c to batch directory and modify config.guess.c to
+:: change hard-coded include of cpuid.c.
+copy /y ..\mpir\cpuid.c . > null 2>&1
 cl /nologo config.guess.c > nul 2>&1
 if errorlevel 1 goto :findcc
 
@@ -99,7 +115,9 @@ if %GBITS% == %ABI% goto :gotcc
 if %ABI% == ? (set ABI=%ARCH%)
 
 if %CC% == SDK70 (
-    :: echo Looking for SDK 7.0. %ARCH% %ABI%
+    set YASMPATH=C:\Program Files (x86^)\Microsoft Visual Studio 9.0\VC\bin
+    set MSSdk=1
+    set DISTUTILS_USE_SDK=1
     if %ARCH% == 64 (
         if %ABI% == 32 (
             if exist "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat" (
@@ -131,7 +149,9 @@ if %CC% == SDK70 (
 )
 
 if %CC% == SDK71 (
-    echo Looking for SDK 7.1.
+    set YASMPATH=C:\Program Files (x86^)\Microsoft Visual Studio 10.0\VC\bin
+    set MSSdk=1
+    set DISTUTILS_USE_SDK=1
     if %ABI% == 32 (
         if exist "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" (
             :: Fix cl.exe fails with mspdb100.dll error.
@@ -153,7 +173,6 @@ if %CC% == SDK71 (
 )
 
 if %CC% == VS2008 (
-    echo Looking for VS 2008.
     if exist "%VS90COMNTOOLS%\..\..\VC\vcvarsall.bat" (
 	    call "%VS90COMNTOOLS%\..\..\VC\vcvarsall.bat" %VCTARGET%
 	    goto :checkcc
@@ -161,7 +180,6 @@ if %CC% == VS2008 (
 )
 
 if %CC% == VS2010 (
-    echo Looking for VS 2010.
     if exist "%VS100COMNTOOLS%\..\..\VC\vcvarsall.bat" (
 	    call "%VS100COMNTOOLS%\..\..\VC\vcvarsall.bat" %VCTARGET%
 	    goto :checkcc
@@ -204,6 +222,7 @@ if not errorlevel 1 goto :gotyasm
 set YASMEXE=vsyasm.exe
 vsyasm.exe --version > nul 2>&1
 if not errorlevel 1 goto :gotyasm
+echo testing %YASMPATH%
 if exist "%YASMPATH%\yasm.exe" (
 	set YASMEXE="%YASMPATH%\yasm.exe"
 	goto :gotyasm
