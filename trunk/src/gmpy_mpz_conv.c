@@ -830,9 +830,14 @@ clong_From_Integer(PyObject *obj)
 static mpir_si
 SI_From_Integer(PyObject *obj)
 {
-    if (PyIntOrLong_Check(obj)) {
+    if (PyLong_Check(obj)) {
         return PyLong_AsLong(obj);
     }
+#ifdef PY2
+    else if (PyInt_Check(obj)) {
+        return PyInt_AsLong(obj);
+    }
+#endif
     else if (CHECK_MPZANY(obj)) {
         if (mpz_fits_slong_p(Pympz_AS_MPZ(obj))) {
             return mpz_get_si(Pympz_AS_MPZ(obj));
@@ -851,9 +856,19 @@ SI_From_Integer(PyObject *obj)
 static mpir_ui
 UI_From_Integer(PyObject *obj)
 {
-    if (PyIntOrLong_Check(obj)) {
+    if (PyLong_Check(obj)) {
         return PyLong_AsUnsignedLong(obj);
     }
+#ifdef PY2
+        temp = PyInt_AsLong(obj);
+        /* Create a TypeError for negative values. */
+        if (temp < 0) {
+            TYPE_ERROR("can't convert negative int to unsigned");
+            return (mpir_ui)-1;
+        }
+        return temp;
+    }
+#endif
     else if (CHECK_MPZANY(obj)) {
         if (mpz_fits_ulong_p(Pympz_AS_MPZ(obj))) {
             return mpz_get_ui(Pympz_AS_MPZ(obj));
@@ -877,9 +892,14 @@ UI_From_Integer(PyObject *obj)
 static mpir_si
 SI_From_Integer(PyObject *obj)
 {
-    if (PyIntOrLong_Check(obj)) {
+    if (PyLong_Check(obj)) {
         return PyLong_AsLongLong(obj);
     }
+#ifdef PY2
+    else if (PyInt_Check(obj)) {
+        return (mpir_si)PyInt_AsLong(obj);
+    }
+#endif
     else if (CHECK_MPZANY(obj)) {
         if (mpz_fits_si_p(Pympz_AS_MPZ(obj))) {
             return mpz_get_si(Pympz_AS_MPZ(obj));
@@ -896,9 +916,23 @@ SI_From_Integer(PyObject *obj)
 static mpir_ui
 UI_From_Integer(PyObject *obj)
 {
-    if (PyIntOrLong_Check(obj)) {
+    long temp;
+
+    if (PyLong_Check(obj)) {
+        /* Returns a TypeError for negative values. */
         return PyLong_AsUnsignedLongLong(obj);
     }
+#ifdef PY2
+    else if (PyInt_Check(obj)) {
+        temp = PyInt_AsLong(obj);
+        /* Create a TypeError for negative values. */
+        if (temp < 0) {
+            TYPE_ERROR("can't convert negative int to unsigned");
+            return (mpir_ui)-1;
+        }
+        return (mpir_ui)temp;
+    }
+#endif
     else if (CHECK_MPZANY(obj)) {
         if (mpz_fits_ui_p(Pympz_AS_MPZ(obj))) {
             return mpz_get_ui(Pympz_AS_MPZ(obj));
@@ -909,7 +943,7 @@ UI_From_Integer(PyObject *obj)
         }
     }
     TYPE_ERROR("conversion error in UI_From_Integer");
-    return -1;
+    return (mpir_ui)-1;
 }
 
 #define MP_BITCNT_FROM_INTEGER(obj) UI_From_Integer(obj)
