@@ -856,10 +856,13 @@ SI_From_Integer(PyObject *obj)
 static mpir_ui
 UI_From_Integer(PyObject *obj)
 {
+    long temp;
+    
     if (PyLong_Check(obj)) {
         return PyLong_AsUnsignedLong(obj);
     }
 #ifdef PY2
+    if (PyInt_Check(obj)) {
         temp = PyInt_AsLong(obj);
         /* Create a TypeError for negative values. */
         if (temp < 0) {
