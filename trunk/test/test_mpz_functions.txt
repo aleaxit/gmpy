@@ -369,9 +369,7 @@ Test gmpy2.kronecker
     >>> G.legendre(aaa,bbb)
     1
     >>> G.kronecker(aaa,bbb)
-    Traceback (most recent call last):
-      ...
-    ValueError: Either arg in Kronecker must fit in an int
+    1
     >>> del aaa,bbb
 
 Test gmpy2.lcm
