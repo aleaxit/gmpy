@@ -5,7 +5,7 @@
  * contribute them back to sage by posting to sage-devel@googlegroups.com
  * or by sending an email to the original author.
  *
- * Integration with gmpy by Case Van Horsen <casevh@gmail.com>.
+ * Integration with gmpy2 by Case Van Horsen <casevh@gmail.com>.
  *
  * License: LGPL v2 or later
  *
