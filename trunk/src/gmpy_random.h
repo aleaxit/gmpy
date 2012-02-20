@@ -25,6 +25,13 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+#ifndef GMPY_RANDOM_H
+#define GMPY_RANDOM_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* gmpy_random C API extension header file.
  *
  * Provide support random number state.
@@ -51,3 +58,7 @@ static PyObject * GMPY_mpz_urandomb(PyObject *self, PyObject *args);
 static PyObject * GMPY_mpz_rrandomb(PyObject *self, PyObject *args);
 static PyObject * GMPY_mpz_random(PyObject *self, PyObject *args);
 
+#ifdef __cplusplus
+}
+#endif
+#endif
