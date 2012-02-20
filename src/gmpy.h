@@ -303,6 +303,10 @@ typedef unsigned long       mp_bitcnt_t;
 
 #include "gmpy_mpz_lucas.h"
 
+/* Support probable-prime tests. */
+
+#include "gmpy_mpz_prp.h"
+
 #ifdef __cplusplus
 }
 #endif
