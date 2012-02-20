@@ -378,7 +378,7 @@ GMPY_mpz_lucasv(PyObject *self, PyObject *args)
     mpz_t vl, vh, ql, qh, tmp;
 
     if (PyTuple_Size(args) != 3) {
-        TYPE_ERROR("lucasu() requires 3 integer arguments");
+        TYPE_ERROR("lucasv() requires 3 integer arguments");
         return NULL;
     }
     

@@ -251,6 +251,8 @@
  *   Changed license to LGPL 3+ (casevh)
  *   Added lucasu, lucasu_mod, lucasv, and lucasv_mod (casevh)
  *      (Based on code contributed by David Cleaver.)
+ *   Added probable-prime tests (casevh)
+ *      (Based on code contributed by David Cleaver.)
  *
  ************************************************************************
  *
@@ -428,6 +430,10 @@ static PyObject *GMPyExc_ExpBound = NULL;
 
 #include "gmpy_mpz_lucas.c"
 
+/* Support for probable-prime tests. */
+
+#include "gmpy_mpz_prp.c"
+
 /* Include helper functions for mpmath. */
 
 #include "gmpy_mpmath.c"
@@ -494,10 +500,14 @@ static PyMethodDef Pygmpy_methods [] =
     { "isqrt", Pympz_isqrt, METH_O, doc_mpz_isqrt },
     { "isqrt_rem", Pympz_isqrt_rem, METH_VARARGS, doc_mpz_isqrt_rem },
     { "is_even", Pympz_is_even, METH_O, doc_is_eveng },
+    { "is_euler_prp", GMPY_mpz_is_euler_prp, METH_VARARGS, doc_mpz_is_euler_prp },
+    { "is_fermat_prp", GMPY_mpz_is_fermat_prp, METH_VARARGS, doc_mpz_is_fermat_prp },
+    { "is_fibonacci_prp", GMPY_mpz_is_fibonacci_prp, METH_VARARGS, doc_mpz_is_fibonacci_prp },
     { "is_odd", Pympz_is_odd, METH_O, doc_is_oddg },
     { "is_power", Pympz_is_power, METH_O, doc_is_powerg },
     { "is_prime", Pympz_is_prime, METH_VARARGS, doc_is_primeg },
     { "is_square", Pympz_is_square, METH_O, doc_is_squareg },
+    { "is_strong_prp", GMPY_mpz_is_strong_prp, METH_VARARGS, doc_mpz_is_strong_prp },
     { "jacobi", Pympz_jacobi, METH_VARARGS, doc_jacobig },
     { "kronecker", Pympz_kronecker, METH_VARARGS, doc_kroneckerg },
     { "lcm", Pygmpy_lcm, METH_VARARGS, doc_lcm },
