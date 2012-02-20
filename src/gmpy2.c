@@ -249,6 +249,8 @@
  *   Added get_context() (casevh)
  *   Added random number generation support (casevh)
  *   Changed license to LGPL 3+ (casevh)
+ *   Added lucasu, lucasu_mod, lucasv, and lucasv_mod (casevh)
+ *      (Based on code contributed by David Cleaver.)
  *
  ************************************************************************
  *
@@ -422,6 +424,10 @@ static PyObject *GMPyExc_ExpBound = NULL;
 
 #include "gmpy_random.c"
 
+/* Support for Lucas sequences. */
+
+#include "gmpy_mpz_lucas.c"
+
 /* Include helper functions for mpmath. */
 
 #include "gmpy_mpmath.c"
@@ -498,6 +504,10 @@ static PyMethodDef Pygmpy_methods [] =
     { "legendre", Pympz_legendre, METH_VARARGS, doc_legendreg },
     { "license", Pygmpy_get_license, METH_NOARGS, doc_license },
     { "lucas", Pygmpy_lucas, METH_O, doc_lucas },
+    { "lucasu", GMPY_mpz_lucasu, METH_VARARGS, doc_mpz_lucasu },
+    { "lucasu_mod", GMPY_mpz_lucasu_mod, METH_VARARGS, doc_mpz_lucasu_mod },
+    { "lucasv", GMPY_mpz_lucasv, METH_VARARGS, doc_mpz_lucasv },
+    { "lucasv_mod", GMPY_mpz_lucasv_mod, METH_VARARGS, doc_mpz_lucasv_mod },
     { "lucas2", Pygmpy_lucas2, METH_O, doc_lucas2 },
     { "mp_version", Pygmpy_get_mp_version, METH_NOARGS, doc_mp_version },
     { "mp_limbsize", Pygmpy_get_mp_limbsize, METH_NOARGS, doc_mp_limbsize },

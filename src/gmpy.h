@@ -299,6 +299,10 @@ typedef unsigned long       mp_bitcnt_t;
 
 #include "gmpy_random.h"
 
+/* Support Lucas sequences. */
+
+#include "gmpy_mpz_lucas.h"
+
 #ifdef __cplusplus
 }
 #endif

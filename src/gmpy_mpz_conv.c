@@ -859,14 +859,12 @@ SI_From_Integer(PyObject *obj)
 static mpir_ui
 UI_From_Integer(PyObject *obj)
 {
-    long temp;
-    
     if (PyLong_Check(obj)) {
         return PyLong_AsUnsignedLong(obj);
     }
 #ifdef PY2
     if (PyInt_Check(obj)) {
-        temp = PyInt_AsLong(obj);
+        long temp = PyInt_AsLong(obj);
         /* Create a TypeError for negative values. */
         if (temp < 0) {
             TYPE_ERROR("can't convert negative int to unsigned");
@@ -922,15 +920,13 @@ SI_From_Integer(PyObject *obj)
 static mpir_ui
 UI_From_Integer(PyObject *obj)
 {
-    long temp;
-
     if (PyLong_Check(obj)) {
         /* Returns a TypeError for negative values. */
         return PyLong_AsUnsignedLongLong(obj);
     }
 #ifdef PY2
     else if (PyInt_Check(obj)) {
-        temp = PyInt_AsLong(obj);
+        long temp = PyInt_AsLong(obj);
         /* Create a TypeError for negative values. */
         if (temp < 0) {
             TYPE_ERROR("can't convert negative int to unsigned");
