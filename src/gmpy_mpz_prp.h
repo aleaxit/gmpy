@@ -40,6 +40,9 @@ static PyObject * GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args);
 static PyObject * GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args);
 static PyObject * GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args);
 static PyObject * GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args);
+static PyObject * GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args);
+static PyObject * GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args);
+static PyObject * GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
 }
