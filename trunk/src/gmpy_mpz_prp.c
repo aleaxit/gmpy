@@ -37,7 +37,11 @@
  
 PyDoc_STRVAR(doc_mpz_is_fermat_prp,
 "is_fermat_prp(n,a) -> boolean\n\n"
-"Return True if 'n' is a Fermat pseudoprime to the base 'a'.");
+"Return True if n is a Fermat pseudoprime to the base a.\n"
+"Assuming:\n"
+"    gcd(n,a) == 1\n"
+"Then a Fermat pseudoprime requires:\n"
+"    a**(n-1) == 1 (mod n)");
 
 static PyObject *
 GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args)
@@ -83,6 +87,7 @@ GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args)
     }
 
     /* Handle n even. */
+    /* Should n even raise an exception? */
     if (mpz_divisible_ui_p(n->z, 2)) {
         if (mpz_cmp_ui(n->z, 2) == 0)
             result = Py_True;
@@ -124,8 +129,13 @@ GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args)
  
 PyDoc_STRVAR(doc_mpz_is_euler_prp,
 "is_euler_prp(n,a) -> boolean\n\n"
-"Return True if 'n' is an Euler (also known as Solovay-Strassen)\n"
-"pseudoprime to the base 'a'.");
+"Return True if n is an Euler (also known as Solovay-Strassen)\n"
+"pseudoprime to the base a.\n"
+"Assuming:\n"
+"    gcd(n,a) == 1\n"
+"    n is odd\n"
+"Then an Euler pseudoprime requires:\n"
+"    a**((n-1)/2) == 1 (mod n)");
 
 static PyObject *
 GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
@@ -223,8 +233,16 @@ GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
  
 PyDoc_STRVAR(doc_mpz_is_strong_prp,
 "is_strong_prp(n,a) -> boolean\n\n"
-"Return True if 'n' is an strong (also known as Miller-Rabin)\n"
-"pseudoprime to the base 'a'.");
+"Return True if n is an strong (also known as Miller-Rabin)\n"
+"pseudoprime to the base a.\n"
+"Assuming:\n"
+"    gcd(n,a) == 1\n"
+"    n is odd\n"
+"    n = s*(2**r) + 1, with s odd\n"
+"Then a strong pseudoprime requires one of the following is true:\n"
+"    a**s == 1 (mod n)\n"
+"    or\n"
+"    a**(s*(2**t)) == -1 (mod n) for some t, 0 <= t < r.");
 
 static PyObject *
 GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args)
@@ -333,8 +351,13 @@ GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args)
  
 PyDoc_STRVAR(doc_mpz_is_fibonacci_prp,
 "is_fibonacci_prp(n,p,q) -> boolean\n\n"
-"Return True if 'n' is an Fibonacci pseudoprime with parameters (p,q).\n"
-"p > 0; q = +/-1; True if lucasv(p,q,n) = p (mod n).");
+"Return True if n is an Fibonacci pseudoprime with parameters (p,q).\n"
+"Assuming:\n"
+"    n is odd\n"
+"    p > 0, q = +/-1\n"
+"    p*p - 4*q != 0\n"
+"Then a Fibonacci pseudoprime requires:\n"
+"    lucasv(p,q,n) == p (mod n).");
 
 static PyObject *
 GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
@@ -364,7 +387,7 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
     
     n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
-    p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
+    q = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
     if (!n || !p || !q) {
         TYPE_ERROR("is_fibonacci_prp() requires 3 integer arguments");
         goto cleanup;
@@ -408,7 +431,7 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
         goto cleanup;
     }
 
-    mpz_set_ui(zP, p->z);
+    mpz_set(zP, p->z);
     mpz_mod(pmodn, zP, n->z);
 
     /* mpz_lucasvmod(res, p, q, n, n); */
@@ -422,7 +445,7 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
     for (j = mpz_sizeinbase(n->z,2)-1; j >= s+1; j--) {
         /* ql = ql*qh (mod n) */
         mpz_mul(ql, ql, qh);
-        mpz_mod(ql, ql, n);
+        mpz_mod(ql, ql, n->z);
         if (mpz_tstbit(n->z,j) == 1) {
             /* qh = ql*q */
             mpz_mul(qh, ql, q->z);
@@ -506,176 +529,218 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
 }
 
 
-#if 0
 /* *******************************************************************************
  * mpz_lucas_prp:
  * A "Lucas pseudoprime" with parameters (P,Q) is a composite n with D=P^2-4Q,
  * (n,2QD)=1 such that U_(n-(D/n)) == 0 mod n [(D/n) is the Jacobi symbol]
  * *******************************************************************************/
-int mpz_lucas_prp(mpz_t n, long int p, long int q)
+ 
+PyDoc_STRVAR(doc_mpz_is_lucas_prp,
+"is_lucas_prp(n,p,q) -> boolean\n\n"
+"Return True if n is a Lucas pseudoprime with parameters (p,q).\n"
+"Assuming:\n"
+"    n is odd\n"
+"    D = p*p - 4*q, D != 0\n"
+"    gcd(n, 2*q*D) == 1\n"
+"Then a Lucas pseudoprime requires:\n"
+"    lucasu(p,q,n - Jacobi(D,n)) == 0 (mod n)");
+
+static PyObject *
+GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args)
 {
-  mpz_t zD;
-  mpz_t res;
-  mpz_t index;
-  mpz_t uh, vl, vh, ql, qh, tmp; /* used for calculating the Lucas U sequence */
-  int s = 0, j = 0;
-  int ret = 0;
-  long int d = p*p - 4*q;
+    PympzObject *n, *p, *q;
+    PyObject *result = 0;
+    mpz_t zD, res, index;
+    /* used for calculating the Lucas U sequence */
+    mpz_t uh, vl, vh, ql, qh, tmp;
+    size_t s = 0, j = 0;
+    int ret;
 
-  if (d == 0) /* Does not produce a proper Lucas sequence */
-    return PRP_ERROR;
+    if (PyTuple_Size(args) != 3) {
+        TYPE_ERROR("is_lucas_prp() requires 3 integer arguments");
+        return NULL;
+    }
+    
+    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
+     * avoid memory allocations. */
+    
+    mpz_inoc(zD);
+    mpz_inoc(res);
+    mpz_inoc(index);
+    mpz_inoc(uh);
+    mpz_inoc(vl);        
+    mpz_inoc(vh);
+    mpz_inoc(ql);
+    mpz_inoc(qh);
+    mpz_inoc(tmp);
+    
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
+    q = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
+    if (!n || !p || !q) {
+        TYPE_ERROR("is_lucas_prp() requires 3 integer arguments");
+        goto cleanup;
+    }
+    
+    /* Check if p*p - 4*q == 0. */
+    mpz_mul(zD, p->z, p->z);
+    mpz_mul_ui(tmp, q->z, 4);
+    mpz_sub(zD, zD, tmp);
+    if (mpz_sgn(zD) == 0) {
+        VALUE_ERROR("invalid values for p,q in is_lucas_prp()");
+        goto cleanup;
+    }
 
-  if (mpz_cmp_ui(n, 2) < 0)
-    return PRP_COMPOSITE;
+    /* Require n > 0. */
+    if (mpz_sgn(n->z) <= 0) {
+        VALUE_ERROR("is_lucas_prp() requires 'n' be greater than 0");
+        goto cleanup;
+    }
+    
+    /* Check for n == 1 */
+    if (mpz_cmp_ui(n->z, 1) == 0) {
+        result = Py_False;
+        goto cleanup;
+    }
 
-  if (mpz_divisible_ui_p(n, 2))
-  {
-    if (mpz_cmp_ui(n, 2) == 0)
-      return PRP_PRIME;
+    /* Handle n even. */
+    if (mpz_divisible_ui_p(n->z, 2)) {
+        if (mpz_cmp_ui(n->z, 2) == 0)
+            result = Py_True;
+        else
+            result = Py_False;
+        goto cleanup;
+    }
+
+    /* Check GCD */
+    mpz_mul(res, zD, q->z);
+    mpz_mul_ui(res, res, 2);
+    mpz_gcd(res, res, n->z);
+    if ((mpz_cmp(res, n->z) != 0) && (mpz_cmp_ui(res, 1) > 0)) {
+        VALUE_ERROR("is_lucas_prp() requires gcd(n,2*q*D) == 1");
+        goto cleanup;
+    }
+
+    /* index = n-(D/n), where (D/n) is the Jacobi symbol */
+    mpz_set(index, n->z);
+    ret = mpz_jacobi(zD, n->z);
+    if (ret == -1)
+        mpz_add_ui(index, index, 1);
+    else if (ret == 1)
+        mpz_sub_ui(index, index, 1);
+
+    /* mpz_lucasumod(res, p, q, index, n); */
+    mpz_set_si(uh, 1);
+    mpz_set_si(vl, 2);
+    mpz_set(vh, p->z);
+    mpz_set_si(ql, 1);
+    mpz_set_si(qh, 1);
+    mpz_set_si(tmp,0);
+
+    s = mpz_scan1(index, 0);
+    for (j = mpz_sizeinbase(index,2)-1; j >= s+1; j--) {
+        /* ql = ql*qh (mod n) */
+        mpz_mul(ql, ql, qh);
+        mpz_mod(ql, ql, n->z);
+        if (mpz_tstbit(index,j) == 1) {
+            /* qh = ql*q */
+            mpz_mul(qh, ql, q->z);
+
+            /* uh = uh*vh (mod n) */
+            mpz_mul(uh, uh, vh);
+            mpz_mod(uh, uh, n->z);
+
+            /* vl = vh*vl - p*ql (mod n) */
+            mpz_mul(vl, vh, vl);
+            mpz_mul(tmp, ql, p->z);
+            mpz_sub(vl, vl, tmp);
+            mpz_mod(vl, vl, n->z);
+
+            /* vh = vh*vh - 2*qh (mod n) */
+            mpz_mul(vh, vh, vh);
+            mpz_mul_si(tmp, qh, 2);
+            mpz_sub(vh, vh, tmp);
+            mpz_mod(vh, vh, n->z);
+        }
+        else {
+            /* qh = ql */
+            mpz_set(qh, ql);
+
+            /* uh = uh*vl - ql (mod n) */
+            mpz_mul(uh, uh, vl);
+            mpz_sub(uh, uh, ql);
+            mpz_mod(uh, uh, n->z);
+
+            /* vh = vh*vl - p*ql (mod n) */
+            mpz_mul(vh, vh, vl);
+            mpz_mul(tmp, ql, p->z);
+            mpz_sub(vh, vh, tmp);
+            mpz_mod(vh, vh, n->z);
+
+            /* vl = vl*vl - 2*ql (mod n) */
+            mpz_mul(vl, vl, vl);
+            mpz_mul_si(tmp, ql, 2);
+            mpz_sub(vl, vl, tmp);
+            mpz_mod(vl, vl, n->z);
+        }
+    }
+    /* ql = ql*qh */
+    mpz_mul(ql, ql, qh);
+
+    /* qh = ql*q */
+    mpz_mul(qh, ql, q->z);
+
+    /* uh = uh*vl - ql */
+    mpz_mul(uh, uh, vl);
+    mpz_sub(uh, uh, ql);
+
+    /* vl = vh*vl - p*ql */
+    mpz_mul(vl, vh, vl);
+    mpz_mul(tmp, ql, p->z);
+    mpz_sub(vl, vl, tmp);
+
+    /* ql = ql*qh */
+    mpz_mul(ql, ql, qh);
+
+    for (j = 1; j <= s; j++) {
+        /* uh = uh*vl (mod n) */
+        mpz_mul(uh, uh, vl);
+        mpz_mod(uh, uh, n->z);
+
+        /* vl = vl*vl - 2*ql (mod n) */
+        mpz_mul(vl, vl, vl);
+        mpz_mul_si(tmp, ql, 2);
+        mpz_sub(vl, vl, tmp);
+        mpz_mod(vl, vl, n->z);
+
+        /* ql = ql*ql (mod n) */
+        mpz_mul(ql, ql, ql);
+        mpz_mod(ql, ql, n->z);
+    }
+    
+    /* uh contains our return value */
+    mpz_mod(res, uh, n->z); 
+    if (mpz_cmp_ui(res, 0) == 0)
+        result = Py_True;
     else
-      return PRP_COMPOSITE;
-  }
-
-  mpz_init(index);
-  mpz_init_set_si(zD, d);
-  mpz_init(res);
-
-  mpz_mul_si(res, zD, q);
-  mpz_mul_ui(res, res, 2);
-  mpz_gcd(res, res, n);
-  if ((mpz_cmp(res, n) != 0) && (mpz_cmp_ui(res, 1) > 0))
-  {
+        result = Py_False;
+        
+  cleanup:
+    Py_XINCREF(result);
     mpz_clear(zD);
     mpz_clear(res);
     mpz_clear(index);
-    return PRP_COMPOSITE;
-  }
-
-  /* index = n-(D/n), where (D/n) is the Jacobi symbol */
-  mpz_set(index, n);
-  ret = mpz_jacobi(zD, n);
-  if (ret == -1)
-    mpz_add_ui(index, index, 1);
-  else if (ret == 1)
-    mpz_sub_ui(index, index, 1);
-
-  /* mpz_lucasumod(res, p, q, index, n); */
-  mpz_init_set_si(uh, 1);
-  mpz_init_set_si(vl, 2);
-  mpz_init_set_si(vh, p);
-  mpz_init_set_si(ql, 1);
-  mpz_init_set_si(qh, 1);
-  mpz_init_set_si(tmp,0);
-
-  s = mpz_scan1(index, 0);
-  for (j = mpz_sizeinbase(index,2)-1; j >= s+1; j--)
-  {
-    /* ql = ql*qh (mod n) */
-    mpz_mul(ql, ql, qh);
-    mpz_mod(ql, ql, n);
-    if (mpz_tstbit(index,j) == 1)
-    {
-      /* qh = ql*q */
-      mpz_mul_si(qh, ql, q);
-
-      /* uh = uh*vh (mod n) */
-      mpz_mul(uh, uh, vh);
-      mpz_mod(uh, uh, n);
-
-      /* vl = vh*vl - p*ql (mod n) */
-      mpz_mul(vl, vh, vl);
-      mpz_mul_si(tmp, ql, p);
-      mpz_sub(vl, vl, tmp);
-      mpz_mod(vl, vl, n);
-
-      /* vh = vh*vh - 2*qh (mod n) */
-      mpz_mul(vh, vh, vh);
-      mpz_mul_si(tmp, qh, 2);
-      mpz_sub(vh, vh, tmp);
-      mpz_mod(vh, vh, n);
-    }
-    else
-    {
-      /* qh = ql */
-      mpz_set(qh, ql);
-
-      /* uh = uh*vl - ql (mod n) */
-      mpz_mul(uh, uh, vl);
-      mpz_sub(uh, uh, ql);
-      mpz_mod(uh, uh, n);
-
-      /* vh = vh*vl - p*ql (mod n) */
-      mpz_mul(vh, vh, vl);
-      mpz_mul_si(tmp, ql, p);
-      mpz_sub(vh, vh, tmp);
-      mpz_mod(vh, vh, n);
-
-      /* vl = vl*vl - 2*ql (mod n) */
-      mpz_mul(vl, vl, vl);
-      mpz_mul_si(tmp, ql, 2);
-      mpz_sub(vl, vl, tmp);
-      mpz_mod(vl, vl, n);
-    }
-  }
-  /* ql = ql*qh */
-  mpz_mul(ql, ql, qh);
-
-  /* qh = ql*q */
-  mpz_mul_si(qh, ql, q);
-
-  /* uh = uh*vl - ql */
-  mpz_mul(uh, uh, vl);
-  mpz_sub(uh, uh, ql);
-
-  /* vl = vh*vl - p*ql */
-  mpz_mul(vl, vh, vl);
-  mpz_mul_si(tmp, ql, p);
-  mpz_sub(vl, vl, tmp);
-
-  /* ql = ql*qh */
-  mpz_mul(ql, ql, qh);
-
-  for (j = 1; j <= s; j++)
-  {
-    /* uh = uh*vl (mod n) */
-    mpz_mul(uh, uh, vl);
-    mpz_mod(uh, uh, n);
-
-    /* vl = vl*vl - 2*ql (mod n) */
-    mpz_mul(vl, vl, vl);
-    mpz_mul_si(tmp, ql, 2);
-    mpz_sub(vl, vl, tmp);
-    mpz_mod(vl, vl, n);
-
-    /* ql = ql*ql (mod n) */
-    mpz_mul(ql, ql, ql);
-    mpz_mod(ql, ql, n);
-  }
-
-  mpz_mod(res, uh, n); /* uh contains our return value */
-
-  mpz_clear(zD);
-  mpz_clear(index);
-  mpz_clear(uh);
-  mpz_clear(vl);
-  mpz_clear(vh);
-  mpz_clear(ql);
-  mpz_clear(qh);
-  mpz_clear(tmp);
-
-  if (mpz_cmp_ui(res, 0) == 0)
-  {
-    mpz_clear(res);
-    return PRP_PRP;
-  }
-  else
-  {
-    mpz_clear(res);
-    return PRP_COMPOSITE;
-  }
-
-}/* method mpz_lucas_prp */
-
+    mpz_clear(uh);
+    mpz_clear(vl);
+    mpz_clear(vh);
+    mpz_clear(ql);
+    mpz_clear(qh);
+    mpz_clear(tmp);
+    Py_XDECREF((PyObject*)p);
+    Py_XDECREF((PyObject*)q);
+    Py_XDECREF((PyObject*)n);
+    return result;
+}
 
 /* *********************************************************************************************
  * mpz_stronglucas_prp:
@@ -683,140 +748,210 @@ int mpz_lucas_prp(mpz_t n, long int p, long int q)
  * s is odd, D=P^2-4Q, and (n,2QD)=1 such that either U_s == 0 mod n or V_((2^t)*s) == 0 mod n
  * for some t, 0 <= t < r. [(D/n) is the Jacobi symbol]
  * *********************************************************************************************/
-int mpz_stronglucas_prp(mpz_t n, long int p, long int q)
+ 
+PyDoc_STRVAR(doc_mpz_is_stronglucas_prp,
+"is_stronglucas_prp(n,p,q) -> boolean\n\n"
+"Return True if n is a strong Lucas pseudoprime with parameters (p,q).\n"
+"Assuming:\n"
+"    n is odd\n"
+"    D = p*p - 4*q, D != 0\n"
+"    gcd(n, 2*q*D) == 1\n"
+"    n = s*(2**r) + Jacobi(D,n), s odd\n"
+"Then a strong Lucas pseudoprime requires:\n"
+"    lucasu(p,q,s) == 0 (mod n)\n"
+"    or\n"
+"    lucasv(p,q,s*(2**t)) == 0 (mod n) for some t, 0 <= t < r");
+
+static PyObject *
+GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
 {
-  mpz_t zD;
-  mpz_t s;
-  mpz_t nmj; /* n minus jacobi(D/n) */
-  mpz_t res;
-  mpz_t uh, vl, vh, ql, qh, tmp; /* these are needed for the LucasU and LucasV part of this function */
-  long int d = p*p - 4*q;
-  unsigned long int r = 0;
-  int ret = 0;
-  int j = 0;
+    PympzObject *n, *p, *q;
+    PyObject *result = 0;
+    mpz_t zD, s, nmj, res;
+    /* these are needed for the LucasU and LucasV part of this function */
+    mpz_t uh, vl, vh, ql, qh, tmp;
+    unsigned long int r = 0;
+    int ret = 0;
+    int j = 0;
 
-  if (d == 0) /* Does not produce a proper Lucas sequence */
-    return PRP_ERROR;
+    if (PyTuple_Size(args) != 3) {
+        TYPE_ERROR("is_stronglucas_prp() requires 3 integer arguments");
+        return NULL;
+    }
+    
+    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
+     * avoid memory allocations. */
+    
+    mpz_inoc(zD);
+    mpz_inoc(s);
+    mpz_inoc(nmj);
+    mpz_inoc(res);
+    mpz_inoc(uh);
+    mpz_inoc(vl);        
+    mpz_inoc(vh);
+    mpz_inoc(ql);
+    mpz_inoc(qh);
+    mpz_inoc(tmp);
+    
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
+    q = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
+    if (!n || !p || !q) {
+        TYPE_ERROR("is_stronglucas_prp() requires 3 integer arguments");
+        goto cleanup;
+    }
+    
+    /* Check if p*p - 4*q == 0. */
+    mpz_mul(zD, p->z, p->z);
+    mpz_mul_ui(tmp, q->z, 4);
+    mpz_sub(zD, zD, tmp);
+    if (mpz_sgn(zD) == 0) {
+        VALUE_ERROR("invalid values for p,q in is_stronglucas_prp()");
+        goto cleanup;
+    }
 
-  if (mpz_cmp_ui(n, 2) < 0)
-    return PRP_COMPOSITE;
+    /* Require n > 0. */
+    if (mpz_sgn(n->z) <= 0) {
+        VALUE_ERROR("is_stronglucas_prp() requires 'n' be greater than 0");
+        goto cleanup;
+    }
+    
+    /* Check for n == 1 */
+    if (mpz_cmp_ui(n->z, 1) == 0) {
+        result = Py_False;
+        goto cleanup;
+    }
 
-  if (mpz_divisible_ui_p(n, 2))
-  {
-    if (mpz_cmp_ui(n, 2) == 0)
-      return PRP_PRIME;
-    else
-      return PRP_COMPOSITE;
-  }
+    /* Handle n even. */
+    if (mpz_divisible_ui_p(n->z, 2)) {
+        if (mpz_cmp_ui(n->z, 2) == 0)
+            result = Py_True;
+        else
+            result = Py_False;
+        goto cleanup;
+    }
 
-  mpz_init_set_si(zD, d);
-  mpz_init(res);
+    /* Check GCD */
+    mpz_mul(res, zD, q->z);
+    mpz_mul_ui(res, res, 2);
+    mpz_gcd(res, res, n->z);
+    if ((mpz_cmp(res, n->z) != 0) && (mpz_cmp_ui(res, 1) > 0)) {
+        VALUE_ERROR("is_stronglucas_prp() requires gcd(n,2*q*D) == 1");
+        goto cleanup;
+    }
 
-  mpz_mul_si(res, zD, q);
-  mpz_mul_ui(res, res, 2);
-  mpz_gcd(res, res, n);
-  if ((mpz_cmp(res, n) != 0) && (mpz_cmp_ui(res, 1) > 0))
-  {
-    mpz_clear(zD);
-    mpz_clear(res);
-    return PRP_COMPOSITE;
-  }
+    /* nmj = n - (D/n), where (D/n) is the Jacobi symbol */
+    mpz_set(nmj, n->z);
+    ret = mpz_jacobi(zD, n->z);
+    if (ret == -1)
+        mpz_add_ui(nmj, nmj, 1);
+    else if (ret == 1)
+        mpz_sub_ui(nmj, nmj, 1);
 
-  mpz_init(s);
-  mpz_init(nmj);
+    r = mpz_scan1(nmj, 0);
+    mpz_fdiv_q_2exp(s, nmj, r);
 
-  /* nmj = n - (D/n), where (D/n) is the Jacobi symbol */
-  mpz_set(nmj, n);
-  ret = mpz_jacobi(zD, n);
-  if (ret == -1)
-    mpz_add_ui(nmj, nmj, 1);
-  else if (ret == 1)
-    mpz_sub_ui(nmj, nmj, 1);
+    /* make sure U_s == 0 mod n or V_((2^t)*s) == 0 mod n, for some t, 0 <= t < r */
+    mpz_set_si(uh, 1);
+    mpz_set_si(vl, 2);
+    mpz_set(vh, p->z);
+    mpz_set_si(ql, 1);
+    mpz_set_si(qh, 1);
+    mpz_set_si(tmp,0);
 
-  r = mpz_scan1(nmj, 0);
-  mpz_fdiv_q_2exp(s, nmj, r);
+    for (j = mpz_sizeinbase(s,2)-1; j >= 1; j--) {
+        /* ql = ql*qh (mod n) */
+        mpz_mul(ql, ql, qh);
+        mpz_mod(ql, ql, n->z);
+        if (mpz_tstbit(s,j) == 1) {
+            /* qh = ql*q */
+            mpz_mul(qh, ql, q->z);
 
-  /* make sure U_s == 0 mod n or V_((2^t)*s) == 0 mod n, for some t, 0 <= t < r */
-  mpz_init_set_si(uh, 1);
-  mpz_init_set_si(vl, 2);
-  mpz_init_set_si(vh, p);
-  mpz_init_set_si(ql, 1);
-  mpz_init_set_si(qh, 1);
-  mpz_init_set_si(tmp,0);
+            /* uh = uh*vh (mod n) */
+            mpz_mul(uh, uh, vh);
+            mpz_mod(uh, uh, n->z);
 
-  for (j = mpz_sizeinbase(s,2)-1; j >= 1; j--)
-  {
-    /* ql = ql*qh (mod n) */
+            /* vl = vh*vl - p*ql (mod n) */
+            mpz_mul(vl, vh, vl);
+            mpz_mul(tmp, ql, p->z);
+            mpz_sub(vl, vl, tmp);
+            mpz_mod(vl, vl, n->z);
+
+            /* vh = vh*vh - 2*qh (mod n) */
+            mpz_mul(vh, vh, vh);
+            mpz_mul_si(tmp, qh, 2);
+            mpz_sub(vh, vh, tmp);
+            mpz_mod(vh, vh, n->z);
+        }
+        else {
+            /* qh = ql */
+            mpz_set(qh, ql);
+
+            /* uh = uh*vl - ql (mod n) */
+            mpz_mul(uh, uh, vl);
+            mpz_sub(uh, uh, ql);
+            mpz_mod(uh, uh, n->z);
+
+            /* vh = vh*vl - p*ql (mod n) */
+            mpz_mul(vh, vh, vl);
+            mpz_mul(tmp, ql, p->z);
+            mpz_sub(vh, vh, tmp);
+            mpz_mod(vh, vh, n->z);
+
+            /* vl = vl*vl - 2*ql (mod n) */
+            mpz_mul(vl, vl, vl);
+            mpz_mul_si(tmp, ql, 2);
+            mpz_sub(vl, vl, tmp);
+            mpz_mod(vl, vl, n->z);
+        }
+    }
+    /* ql = ql*qh */
     mpz_mul(ql, ql, qh);
-    mpz_mod(ql, ql, n);
-    if (mpz_tstbit(s,j) == 1)
-    {
-      /* qh = ql*q */
-      mpz_mul_si(qh, ql, q);
 
-      /* uh = uh*vh (mod n) */
-      mpz_mul(uh, uh, vh);
-      mpz_mod(uh, uh, n);
+    /* qh = ql*q */
+    mpz_mul(qh, ql, q->z);
 
-      /* vl = vh*vl - p*ql (mod n) */
-      mpz_mul(vl, vh, vl);
-      mpz_mul_si(tmp, ql, p);
-      mpz_sub(vl, vl, tmp);
-      mpz_mod(vl, vl, n);
+    /* uh = uh*vl - ql */
+    mpz_mul(uh, uh, vl);
+    mpz_sub(uh, uh, ql);
 
-      /* vh = vh*vh - 2*qh (mod n) */
-      mpz_mul(vh, vh, vh);
-      mpz_mul_si(tmp, qh, 2);
-      mpz_sub(vh, vh, tmp);
-      mpz_mod(vh, vh, n);
+    /* vl = vh*vl - p*ql */
+    mpz_mul(vl, vh, vl);
+    mpz_mul(tmp, ql, p->z);
+    mpz_sub(vl, vl, tmp);
+
+    /* ql = ql*qh */
+    mpz_mul(ql, ql, qh);
+
+    mpz_mod(uh, uh, n->z);
+    mpz_mod(vl, vl, n->z);
+
+    /* uh contains LucasU_s and vl contains LucasV_s */
+    if ((mpz_cmp_ui(uh, 0) == 0) || (mpz_cmp_ui(vl, 0) == 0)) {
+        result = Py_True;
+        goto cleanup;
     }
-    else
-    {
-      /* qh = ql */
-      mpz_set(qh, ql);
 
-      /* uh = uh*vl - ql (mod n) */
-      mpz_mul(uh, uh, vl);
-      mpz_sub(uh, uh, ql);
-      mpz_mod(uh, uh, n);
+    for (j = 1; j < r; j++) {
+        /* vl = vl*vl - 2*ql (mod n) */
+        mpz_mul(vl, vl, vl);
+        mpz_mul_si(tmp, ql, 2);
+        mpz_sub(vl, vl, tmp);
+        mpz_mod(vl, vl, n->z);
 
-      /* vh = vh*vl - p*ql (mod n) */
-      mpz_mul(vh, vh, vl);
-      mpz_mul_si(tmp, ql, p);
-      mpz_sub(vh, vh, tmp);
-      mpz_mod(vh, vh, n);
+        /* ql = ql*ql (mod n) */
+        mpz_mul(ql, ql, ql);
+        mpz_mod(ql, ql, n->z);
 
-      /* vl = vl*vl - 2*ql (mod n) */
-      mpz_mul(vl, vl, vl);
-      mpz_mul_si(tmp, ql, 2);
-      mpz_sub(vl, vl, tmp);
-      mpz_mod(vl, vl, n);
+        if (mpz_cmp_ui(vl, 0) == 0) {
+            result = Py_True;
+            goto cleanup;
+        }
     }
-  }
-  /* ql = ql*qh */
-  mpz_mul(ql, ql, qh);
-
-  /* qh = ql*q */
-  mpz_mul_si(qh, ql, q);
-
-  /* uh = uh*vl - ql */
-  mpz_mul(uh, uh, vl);
-  mpz_sub(uh, uh, ql);
-
-  /* vl = vh*vl - p*ql */
-  mpz_mul(vl, vh, vl);
-  mpz_mul_si(tmp, ql, p);
-  mpz_sub(vl, vl, tmp);
-
-  /* ql = ql*qh */
-  mpz_mul(ql, ql, qh);
-
-  mpz_mod(uh, uh, n);
-  mpz_mod(vl, vl, n);
-
-  /* uh contains LucasU_s and vl contains LucasV_s */
-  if ((mpz_cmp_ui(uh, 0) == 0) || (mpz_cmp_ui(vl, 0) == 0))
-  {
+    
+    result = Py_False;
+  cleanup:
+    Py_XINCREF(result);
     mpz_clear(zD);
     mpz_clear(s);
     mpz_clear(nmj);
@@ -827,51 +962,11 @@ int mpz_stronglucas_prp(mpz_t n, long int p, long int q)
     mpz_clear(ql);
     mpz_clear(qh);
     mpz_clear(tmp);
-    return PRP_PRP;
-  }
-
-  for (j = 1; j < r; j++)
-  {
-    /* vl = vl*vl - 2*ql (mod n) */
-    mpz_mul(vl, vl, vl);
-    mpz_mul_si(tmp, ql, 2);
-    mpz_sub(vl, vl, tmp);
-    mpz_mod(vl, vl, n);
-
-    /* ql = ql*ql (mod n) */
-    mpz_mul(ql, ql, ql);
-    mpz_mod(ql, ql, n);
-
-    if (mpz_cmp_ui(vl, 0) == 0)
-    {
-      mpz_clear(zD);
-      mpz_clear(s);
-      mpz_clear(nmj);
-      mpz_clear(res);
-      mpz_clear(uh);
-      mpz_clear(vl);
-      mpz_clear(vh);
-      mpz_clear(ql);
-      mpz_clear(qh);
-      mpz_clear(tmp);
-      return PRP_PRP;
-    }
-  }
-
-  mpz_clear(zD);
-  mpz_clear(s);
-  mpz_clear(nmj);
-  mpz_clear(res);
-  mpz_clear(uh);
-  mpz_clear(vl);
-  mpz_clear(vh);
-  mpz_clear(ql);
-  mpz_clear(qh);
-  mpz_clear(tmp);
-  return PRP_COMPOSITE;
-
-}/* method mpz_stronglucas_prp */
-
+    Py_XDECREF((PyObject*)p);
+    Py_XDECREF((PyObject*)q);
+    Py_XDECREF((PyObject*)n);
+    return result;
+}
 
 /* *******************************************************************************************
  * mpz_extrastronglucas_prp:
@@ -880,145 +975,220 @@ int mpz_stronglucas_prp(mpz_t n, long int p, long int q)
  * s is odd and (n,2D)=1, such that either U_s == 0 mod n or V_s == +/-2 mod n, or
  * V_((2^t)*s) == 0 mod n for some t with 0 <= t < r-1 [(D/n) is the Jacobi symbol]
  * *******************************************************************************************/
-int mpz_extrastronglucas_prp(mpz_t n, long int p)
+ 
+PyDoc_STRVAR(doc_mpz_is_extrastronglucas_prp,
+"is_stronglucas_prp(n,p) -> boolean\n\n"
+"Return True if n is an extra strong Lucas pseudoprime with parameters\n"
+"(p,q). Assuming:\n"
+"    n is odd\n"
+"    D = p*p - 4, D != 0\n"
+"    gcd(n, 2*D) == 1\n"
+"    n = s*(2**r) + Jacobi(D,n), s odd\n"
+"Then an extra strong Lucas pseudoprime requires:\n"
+"    lucasu(p,1,s) == 0 (mod n)\n"
+"    or\n"
+"    lucasv(p,1,s) == +/-2 (mod n)\n"
+"    or\n"
+"    lucasv(p,1,s*(2**t)) == 0 (mod n) for some t, 0 <= t < r");
+
+static PyObject *
+GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
 {
-  mpz_t zD;
-  mpz_t s;
-  mpz_t nmj; /* n minus jacobi(D/n) */
-  mpz_t res;
-  mpz_t uh, vl, vh, ql, qh, tmp; /* these are needed for the LucasU and LucasV part of this function */
-  long int d = p*p - 4;
-  long int q = 1;
-  unsigned long int r = 0;
-  int ret = 0;
-  int j = 0;
+    PympzObject *n, *p;
+    PyObject *result = 0;
+    mpz_t zD, s, nmj, nm2, res;
+    /* these are needed for the LucasU and LucasV part of this function */
+    mpz_t uh, vl, vh, ql, qh, tmp;
+    long int q = 1;
+    unsigned long int r = 0;
+    int ret = 0;
+    int j = 0;
 
-  if (d == 0) /* Does not produce a proper Lucas sequence */
-    return PRP_ERROR;
+    if (PyTuple_Size(args) != 2) {
+        TYPE_ERROR("is_extrastronglucas_prp() requires 2 integer arguments");
+        return NULL;
+    }
+    
+    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
+     * avoid memory allocations. */
+    
+    mpz_inoc(zD);
+    mpz_inoc(s);
+    mpz_inoc(nmj);
+    mpz_inoc(nm2);
+    mpz_inoc(res);
+    mpz_inoc(uh);
+    mpz_inoc(vl);        
+    mpz_inoc(vh);
+    mpz_inoc(ql);
+    mpz_inoc(qh);
+    mpz_inoc(tmp);
+    
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
+    if (!n || !p) {
+        TYPE_ERROR("is_extrastronglucas_prp() requires 2 integer arguments");
+        goto cleanup;
+    }
+    
+    /* Check if p*p - 4 == 0. */
+    mpz_mul(zD, p->z, p->z);
+    mpz_sub_ui(zD, zD, 4);
+    if (mpz_sgn(zD) == 0) {
+        VALUE_ERROR("invalid value for p in is_extrastronglucas_prp()");
+        goto cleanup;
+    }
 
-  if (mpz_cmp_ui(n, 2) < 0)
-    return PRP_COMPOSITE;
+    /* Require n > 0. */
+    if (mpz_sgn(n->z) <= 0) {
+        VALUE_ERROR("is_extrastronglucas_prp() requires 'n' be greater than 0");
+        goto cleanup;
+    }
+    
+    /* Check for n == 1 */
+    if (mpz_cmp_ui(n->z, 1) == 0) {
+        result = Py_False;
+        goto cleanup;
+    }
 
-  if (mpz_divisible_ui_p(n, 2))
-  {
-    if (mpz_cmp_ui(n, 2) == 0)
-      return PRP_PRIME;
-    else
-      return PRP_COMPOSITE;
-  }
+    /* Handle n even. */
+    if (mpz_divisible_ui_p(n->z, 2)) {
+        if (mpz_cmp_ui(n->z, 2) == 0)
+            result = Py_True;
+        else
+            result = Py_False;
+        goto cleanup;
+    }
 
-  mpz_init_set_si(zD, d);
-  mpz_init(res);
+    /* Check GCD */
+    mpz_mul_ui(res, zD, 2);
+    mpz_gcd(res, res, n->z);
+    if ((mpz_cmp(res, n->z) != 0) && (mpz_cmp_ui(res, 1) > 0)) {
+        VALUE_ERROR("is_extrastronglucas_prp() requires gcd(n,2*D) == 1");
+        goto cleanup;
+    }
 
-  mpz_mul_ui(res, zD, 2);
-  mpz_gcd(res, res, n);
-  if ((mpz_cmp(res, n) != 0) && (mpz_cmp_ui(res, 1) > 0))
-  {
-    mpz_clear(zD);
-    mpz_clear(res);
-    return PRP_COMPOSITE;
-  }
+    /* nmj = n - (D/n), where (D/n) is the Jacobi symbol */
+    mpz_set(nmj, n->z);
+    ret = mpz_jacobi(zD, n->z);
+    if (ret == -1)
+        mpz_add_ui(nmj, nmj, 1);
+    else if (ret == 1)
+        mpz_sub_ui(nmj, nmj, 1);
 
-  mpz_init(s);
-  mpz_init(nmj);
+    r = mpz_scan1(nmj, 0);
+    mpz_fdiv_q_2exp(s, nmj, r);
+    
+    mpz_set(nm2, n->z);
+    mpz_sub_ui(nm2, nm2, 2);
 
-  /* nmj = n - (D/n), where (D/n) is the Jacobi symbol */
-  mpz_set(nmj, n);
-  ret = mpz_jacobi(zD, n);
-  if (ret == -1)
-    mpz_add_ui(nmj, nmj, 1);
-  else if (ret == 1)
-    mpz_sub_ui(nmj, nmj, 1);
+    /* make sure that either U_s == 0 mod n or V_s == +/-2 mod n, or */
+    /* V_((2^t)*s) == 0 mod n for some t with 0 <= t < r-1           */
+    mpz_set_si(uh, 1);
+    mpz_set_si(vl, 2);
+    mpz_set(vh, p->z);
+    mpz_set_si(ql, 1);
+    mpz_set_si(qh, 1);
+    mpz_set_si(tmp,0);
 
-  r = mpz_scan1(nmj, 0);
-  mpz_fdiv_q_2exp(s, nmj, r);
+    for (j = mpz_sizeinbase(s,2)-1; j >= 1; j--) {
+        /* ql = ql*qh (mod n) */
+        mpz_mul(ql, ql, qh);
+        mpz_mod(ql, ql, n->z);
+        if (mpz_tstbit(s,j) == 1) {
+            /* qh = ql*q */
+            mpz_set(qh, ql);
 
-  /* make sure that either U_s == 0 mod n or V_s == +/-2 mod n, or */
-  /* V_((2^t)*s) == 0 mod n for some t with 0 <= t < r-1           */
-  mpz_init_set_si(uh, 1);
-  mpz_init_set_si(vl, 2);
-  mpz_init_set_si(vh, p);
-  mpz_init_set_si(ql, 1);
-  mpz_init_set_si(qh, 1);
-  mpz_init_set_si(tmp,0);
+            /* uh = uh*vh (mod n) */
+            mpz_mul(uh, uh, vh);
+            mpz_mod(uh, uh, n->z);
 
-  for (j = mpz_sizeinbase(s,2)-1; j >= 1; j--)
-  {
-    /* ql = ql*qh (mod n) */
+            /* vl = vh*vl - p*ql (mod n) */
+            mpz_mul(vl, vh, vl);
+            mpz_mul(tmp, ql, p->z);
+            mpz_sub(vl, vl, tmp);
+            mpz_mod(vl, vl, n->z);
+
+            /* vh = vh*vh - 2*qh (mod n) */
+            mpz_mul(vh, vh, vh);
+            mpz_mul_si(tmp, qh, 2);
+            mpz_sub(vh, vh, tmp);
+            mpz_mod(vh, vh, n->z);
+        }
+        else {
+            /* qh = ql */
+            mpz_set(qh, ql);
+
+            /* uh = uh*vl - ql (mod n) */
+            mpz_mul(uh, uh, vl);
+            mpz_sub(uh, uh, ql);
+            mpz_mod(uh, uh, n->z);
+
+            /* vh = vh*vl - p*ql (mod n) */
+            mpz_mul(vh, vh, vl);
+            mpz_mul(tmp, ql, p->z);
+            mpz_sub(vh, vh, tmp);
+            mpz_mod(vh, vh, n->z);
+
+            /* vl = vl*vl - 2*ql (mod n) */
+            mpz_mul(vl, vl, vl);
+            mpz_mul_si(tmp, ql, 2);
+            mpz_sub(vl, vl, tmp);
+            mpz_mod(vl, vl, n->z);
+        }
+    }
+    /* ql = ql*qh */
     mpz_mul(ql, ql, qh);
-    mpz_mod(ql, ql, n);
-    if (mpz_tstbit(s,j) == 1)
-    {
-      /* qh = ql*q */
-      mpz_mul_si(qh, ql, q);
 
-      /* uh = uh*vh (mod n) */
-      mpz_mul(uh, uh, vh);
-      mpz_mod(uh, uh, n);
+    /* qh = ql*q */
+    mpz_set(qh, ql);
 
-      /* vl = vh*vl - p*ql (mod n) */
-      mpz_mul(vl, vh, vl);
-      mpz_mul_si(tmp, ql, p);
-      mpz_sub(vl, vl, tmp);
-      mpz_mod(vl, vl, n);
+    /* uh = uh*vl - ql */
+    mpz_mul(uh, uh, vl);
+    mpz_sub(uh, uh, ql);
 
-      /* vh = vh*vh - 2*qh (mod n) */
-      mpz_mul(vh, vh, vh);
-      mpz_mul_si(tmp, qh, 2);
-      mpz_sub(vh, vh, tmp);
-      mpz_mod(vh, vh, n);
+    /* vl = vh*vl - p*ql */
+    mpz_mul(vl, vh, vl);
+    mpz_mul(tmp, ql, p->z);
+    mpz_sub(vl, vl, tmp);
+
+    /* ql = ql*qh */
+    mpz_mul(ql, ql, qh);
+
+    mpz_mod(uh, uh, n->z);
+    mpz_mod(vl, vl, n->z);
+
+    /* uh contains LucasU_s and vl contains LucasV_s */
+    if ((mpz_cmp_ui(uh, 0) == 0) || (mpz_cmp_ui(vl, 0) == 0) ||
+        (mpz_cmp(vl, nm2) == 0) || (mpz_cmp_si(vl, 2) == 0)) {
+        result = Py_True;
+        goto cleanup;
     }
-    else
-    {
-      /* qh = ql */
-      mpz_set(qh, ql);
 
-      /* uh = uh*vl - ql (mod n) */
-      mpz_mul(uh, uh, vl);
-      mpz_sub(uh, uh, ql);
-      mpz_mod(uh, uh, n);
+    for (j = 1; j < r-1; j++) {
+        /* vl = vl*vl - 2*ql (mod n) */
+        mpz_mul(vl, vl, vl);
+        mpz_mul_si(tmp, ql, 2);
+        mpz_sub(vl, vl, tmp);
+        mpz_mod(vl, vl, n->z);
 
-      /* vh = vh*vl - p*ql (mod n) */
-      mpz_mul(vh, vh, vl);
-      mpz_mul_si(tmp, ql, p);
-      mpz_sub(vh, vh, tmp);
-      mpz_mod(vh, vh, n);
+        /* ql = ql*ql (mod n) */
+        mpz_mul(ql, ql, ql);
+        mpz_mod(ql, ql, n->z);
 
-      /* vl = vl*vl - 2*ql (mod n) */
-      mpz_mul(vl, vl, vl);
-      mpz_mul_si(tmp, ql, 2);
-      mpz_sub(vl, vl, tmp);
-      mpz_mod(vl, vl, n);
+        if (mpz_cmp_ui(vl, 0) == 0) {
+            result = Py_True;
+            goto cleanup;
+        }
     }
-  }
-  /* ql = ql*qh */
-  mpz_mul(ql, ql, qh);
 
-  /* qh = ql*q */
-  mpz_mul_si(qh, ql, q);
-
-  /* uh = uh*vl - ql */
-  mpz_mul(uh, uh, vl);
-  mpz_sub(uh, uh, ql);
-
-  /* vl = vh*vl - p*ql */
-  mpz_mul(vl, vh, vl);
-  mpz_mul_si(tmp, ql, p);
-  mpz_sub(vl, vl, tmp);
-
-  /* ql = ql*qh */
-  mpz_mul(ql, ql, qh);
-
-  mpz_mod(uh, uh, n);
-  mpz_mod(vl, vl, n);
-
-  /* uh contains LucasU_s and vl contains LucasV_s */
-  if (   (mpz_cmp_ui(uh, 0) == 0) || (mpz_cmp_ui(vl, 0) == 0)
-      || (mpz_cmp_si(vl, -2) == 0) || (mpz_cmp_si(vl, 2) == 0))
-  {
+    result = Py_False;
+  cleanup:
+    Py_XINCREF(result);
     mpz_clear(zD);
     mpz_clear(s);
     mpz_clear(nmj);
+    mpz_clear(nm2);
     mpz_clear(res);
     mpz_clear(uh);
     mpz_clear(vl);
@@ -1026,52 +1196,13 @@ int mpz_extrastronglucas_prp(mpz_t n, long int p)
     mpz_clear(ql);
     mpz_clear(qh);
     mpz_clear(tmp);
-    return PRP_PRP;
-  }
+    Py_XDECREF((PyObject*)p);
+    Py_XDECREF((PyObject*)q);
+    Py_XDECREF((PyObject*)n);
+    return result;
+}
 
-  for (j = 1; j < r-1; j++)
-  {
-    /* vl = vl*vl - 2*ql (mod n) */
-    mpz_mul(vl, vl, vl);
-    mpz_mul_si(tmp, ql, 2);
-    mpz_sub(vl, vl, tmp);
-    mpz_mod(vl, vl, n);
-
-    /* ql = ql*ql (mod n) */
-    mpz_mul(ql, ql, ql);
-    mpz_mod(ql, ql, n);
-
-    if (mpz_cmp_ui(vl, 0) == 0)
-    {
-      mpz_clear(zD);
-      mpz_clear(s);
-      mpz_clear(nmj);
-      mpz_clear(res);
-      mpz_clear(uh);
-      mpz_clear(vl);
-      mpz_clear(vh);
-      mpz_clear(ql);
-      mpz_clear(qh);
-      mpz_clear(tmp);
-      return PRP_PRP;
-    }
-  }
-
-  mpz_clear(zD);
-  mpz_clear(s);
-  mpz_clear(nmj);
-  mpz_clear(res);
-  mpz_clear(uh);
-  mpz_clear(vl);
-  mpz_clear(vh);
-  mpz_clear(ql);
-  mpz_clear(qh);
-  mpz_clear(tmp);
-  return PRP_COMPOSITE;
-
-}/* method mpz_extrastronglucas_prp */
-
-
+#if 0
 /* ***********************************************************************************************
  * mpz_selfridge_prp:
  * A "Lucas-Selfridge pseudoprime" n is a "Lucas pseudoprime" using Selfridge parameters of:
