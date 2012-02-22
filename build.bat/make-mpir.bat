@@ -24,7 +24,7 @@
 if "%1" == "clean" goto :clean
 
 if not exist config.params.bat (
-	echo run configure2 first
+	echo run configure first
 	exit /b 1
 )
 call config.params.bat
