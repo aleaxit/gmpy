@@ -98,7 +98,7 @@ if %ARCH% == 32 (
 :: Check if a compiler is already present....
 :: Copy config.guess.c and cpuid.c to batch directory and modify config.guess.c to
 :: change hard-coded include of cpuid.c.
-copy /y ..\mpir\cpuid.c . > null 2>&1
+copy /y ..\mpir\cpuid.c . > nul 2>&1
 cl /nologo config.guess.c > nul 2>&1
 if errorlevel 1 goto :findcc
 
