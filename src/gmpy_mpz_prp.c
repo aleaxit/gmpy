@@ -750,7 +750,7 @@ GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args)
  * *********************************************************************************************/
  
 PyDoc_STRVAR(doc_mpz_is_stronglucas_prp,
-"is_stronglucas_prp(n,p,q) -> boolean\n\n"
+"is_strong_lucas_prp(n,p,q) -> boolean\n\n"
 "Return True if n is a strong Lucas pseudoprime with parameters (p,q).\n"
 "Assuming:\n"
 "    n is odd\n"
@@ -977,7 +977,7 @@ GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
  * *******************************************************************************************/
  
 PyDoc_STRVAR(doc_mpz_is_extrastronglucas_prp,
-"is_stronglucas_prp(n,p) -> boolean\n\n"
+"is_extra_strong_lucas_prp(n,p) -> boolean\n\n"
 "Return True if n is an extra strong Lucas pseudoprime with parameters\n"
 "(p,q). Assuming:\n"
 "    n is odd\n"
@@ -1202,7 +1202,6 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     return result;
 }
 
-#if 0
 /* ***********************************************************************************************
  * mpz_selfridge_prp:
  * A "Lucas-Selfridge pseudoprime" n is a "Lucas pseudoprime" using Selfridge parameters of:
@@ -1210,86 +1209,125 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
  * Then use P=1 and Q=(1-D)/4 in the Lucas pseudoprime test.
  * Make sure n is not a perfect square, otherwise the search for D will only stop when D=n.
  * ***********************************************************************************************/
-int mpz_selfridge_prp(mpz_t n)
+ 
+PyDoc_STRVAR(doc_mpz_is_selfridge_prp,
+"is_selfridge_prp(n) -> boolean\n\n"
+"Return True if n is a Lucas pseudoprime with Selfidge parameters\n"
+"(p,q). The Selfridge parameters are chosen by finding the first\n"
+"element D in the sequence {5, -7, 9, -11, 13, ...} such that\n"
+"Jacobi(D,n) == -1. Then let p=1 and q = (1-D)/4. Then perform\n"
+"a Lucas pseudoprime test.");
+
+static PyObject *
+GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args)
 {
-  long int d = 5, p = 1, q = 0;
-  int max_d = 1000000;
-  int jacobi = 0;
-  mpz_t zD;
+    PympzObject *n;
+    PyObject *result = 0, *temp = 0;
+    long d = 5, p = 1, q = 0, max_d = 1000000;
+    int jacobi = 0;
+    mpz_t zD;
 
-  if (mpz_cmp_ui(n, 2) < 0)
-    return PRP_COMPOSITE;
-
-  if (mpz_divisible_ui_p(n, 2))
-  {
-    if (mpz_cmp_ui(n, 2) == 0)
-      return PRP_PRIME;
-    else
-      return PRP_COMPOSITE;
-  }
-
-  mpz_init_set_ui(zD, d);
-
-  while (1)
-  {
-    jacobi = mpz_jacobi(zD, n);
-
-    /* if jacobi == 0, d is a factor of n, therefore n is composite... */
-    /* if d == n, then either n is either prime or 9... */
-    if (jacobi == 0)
-    {
-      if ((mpz_cmpabs(zD, n) == 0) && (mpz_cmp_ui(zD, 9) != 0))
-      {
-        mpz_clear(zD);
-        return PRP_PRIME;
-      }
-      else
-      {
-        mpz_clear(zD);
-        return PRP_COMPOSITE;
-      }
+    if (PyTuple_Size(args) != 1) {
+        TYPE_ERROR("is_selfridge_prp() requires 1 integer argument");
+        return NULL;
     }
-    if (jacobi == -1)
-      break;
-
-    /* if we get to the 5th d, make sure we aren't dealing with a square... */
-    if (d == 13)
-    {
-      if (mpz_perfect_square_p(n))
-      {
-        mpz_clear(zD);
-        return PRP_COMPOSITE;
-      }
+    
+    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
+     * avoid memory allocations. */
+    
+    mpz_inoc(zD);
+    
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    if (!n) {
+        TYPE_ERROR("is_selfridge_prp() requires 1 integer argument");
+        goto cleanup;
+    }
+    
+    /* Require n > 0. */
+    if (mpz_sgn(n->z) <= 0) {
+        VALUE_ERROR("is_selfridge_prp() requires 'n' be greater than 0");
+        goto cleanup;
+    }
+    
+    /* Check for n == 1 */
+    if (mpz_cmp_ui(n->z, 1) == 0) {
+        result = Py_False;
+        goto cleanup;
     }
 
-    if (d < 0)
-    {
-      d *= -1;
-      d += 2;
-    }
-    else
-    {
-      d += 2;
-      d *= -1;
+    /* Handle n even. */
+    if (mpz_divisible_ui_p(n->z, 2)) {
+        if (mpz_cmp_ui(n->z, 2) == 0)
+            result = Py_True;
+        else
+            result = Py_False;
+        goto cleanup;
     }
 
-    /* make sure we don't search forever */
-    if (d >= max_d)
-    {
-      mpz_clear(zD);
-      return PRP_ERROR;
+
+    mpz_set_ui(zD, d);
+
+    while (1) {
+        jacobi = mpz_jacobi(zD, n->z);
+
+        /* if jacobi == 0, d is a factor of n, therefore n is composite... */
+        /* if d == n, then either n is either prime or 9... */
+        if (jacobi == 0) {
+            if ((mpz_cmpabs(zD, n->z) == 0) && (mpz_cmp_ui(zD, 9) != 0)) {
+                result = Py_True;
+                goto cleanup;
+            }
+            else {
+                result = Py_False;
+                goto cleanup;
+            }
+        }
+        if (jacobi == -1)
+            break;
+
+        /* if we get to the 5th d, make sure we aren't dealing with a square... */
+        if (d == 13) {
+            if (mpz_perfect_square_p(n->z)) {
+                result = Py_False;
+                goto cleanup;
+            }
+        }
+
+        if (d < 0) {
+            d *= -1;
+            d += 2;
+        }
+        else {
+            d += 2;
+            d *= -1;
+        }
+
+        /* make sure we don't search forever */
+        if (d >= max_d) {
+            VALUE_ERROR("appropriate value for D cannot be found in is_selfridge_prp()");
+            goto cleanup;
+        }
+
+        mpz_set_si(zD, d);
     }
-
-    mpz_set_si(zD, d);
-  }
-  mpz_clear(zD);
-
-  q = (1-d)/4;
-
-  return mpz_lucas_prp(n, p, q);
-
-}/* method mpz_selfridge_prp */
-
+    
+    q = (1-d)/4;
+    
+    /* Since "O" is used, the refcount for n is incremented so deleting
+     * temp will not delete n.
+     */
+    temp = Py_BuildValue("Oll", n, p, q);
+    if (!temp) 
+        goto cleanup;
+    result = GMPY_mpz_is_lucas_prp(NULL, temp);
+    Py_DECREF(temp);
+    
+  cleanup:
+    mpz_cloc(zD);
+    Py_XINCREF(result);
+    Py_DECREF((PyObject*)n);
+    return result;
+}
 
 /* *********************************************************************************************************
  * mpz_strongselfridge_prp:
@@ -1298,86 +1336,125 @@ int mpz_selfridge_prp(mpz_t n)
  * Then use P=1 and Q=(1-D)/4 in the strong Lucase pseudoprime test.
  * Make sure n is not a perfect square, otherwise the search for D will only stop when D=n.
  * **********************************************************************************************************/
-int mpz_strongselfridge_prp(mpz_t n)
+ 
+PyDoc_STRVAR(doc_mpz_is_strongselfridge_prp,
+"is_strong_selfridge_prp(n) -> boolean\n\n"
+"Return True if n is a strong Lucas pseudoprime with Selfidge\n"
+"parameters (p,q). The Selfridge parameters are chosen by finding\n"
+"the first element D in the sequence {5, -7, 9, -11, 13, ...} such\n"
+"that Jacobi(D,n) == -1. Then let p=1 and q = (1-D)/4. Then perform\n"
+"a strong Lucas pseudoprime test.");
+
+static PyObject *
+GMPY_mpz_is_strongselfridge_prp(PyObject *self, PyObject *args)
 {
-  long int d = 5, p = 1, q = 0;
-  int max_d = 1000000;
-  int jacobi = 0;
-  mpz_t zD;
+    PympzObject *n;
+    PyObject *result = 0, *temp = 0;
+    long d = 5, p = 1, q = 0, max_d = 1000000;
+    int jacobi = 0;
+    mpz_t zD;
 
-  if (mpz_cmp_ui(n, 2) < 0)
-    return PRP_COMPOSITE;
-
-  if (mpz_divisible_ui_p(n, 2))
-  {
-    if (mpz_cmp_ui(n, 2) == 0)
-      return PRP_PRIME;
-    else
-      return PRP_COMPOSITE;
-  }
-
-  mpz_init_set_ui(zD, d);
-
-  while (1)
-  {
-    jacobi = mpz_jacobi(zD, n);
-
-    /* if jacobi == 0, d is a factor of n, therefore n is composite... */
-    /* if d == n, then either n is either prime or 9... */
-    if (jacobi == 0)
-    {
-      if ((mpz_cmpabs(zD, n) == 0) && (mpz_cmp_ui(zD, 9) != 0))
-      {
-        mpz_clear(zD);
-        return PRP_PRIME;
-      }
-      else
-      {
-        mpz_clear(zD);
-        return PRP_COMPOSITE;
-      }
+    if (PyTuple_Size(args) != 1) {
+        TYPE_ERROR("is_strongselfridge_prp() requires 1 integer argument");
+        return NULL;
     }
-    if (jacobi == -1)
-      break;
-
-    /* if we get to the 5th d, make sure we aren't dealing with a square... */
-    if (d == 13)
-    {
-      if (mpz_perfect_square_p(n))
-      {
-        mpz_clear(zD);
-        return PRP_COMPOSITE;
-      }
+    
+    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
+     * avoid memory allocations. */
+    
+    mpz_inoc(zD);
+    
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    if (!n) {
+        TYPE_ERROR("is_strongselfridge_prp() requires 1 integer argument");
+        goto cleanup;
+    }
+    
+    /* Require n > 0. */
+    if (mpz_sgn(n->z) <= 0) {
+        VALUE_ERROR("is_strongselfridge_prp() requires 'n' be greater than 0");
+        goto cleanup;
+    }
+    
+    /* Check for n == 1 */
+    if (mpz_cmp_ui(n->z, 1) == 0) {
+        result = Py_False;
+        goto cleanup;
     }
 
-    if (d < 0)
-    {
-      d *= -1;
-      d += 2;
-    }
-    else
-    {
-      d += 2;
-      d *= -1;
+    /* Handle n even. */
+    if (mpz_divisible_ui_p(n->z, 2)) {
+        if (mpz_cmp_ui(n->z, 2) == 0)
+            result = Py_True;
+        else
+            result = Py_False;
+        goto cleanup;
     }
 
-    /* make sure we don't search forever */
-    if (d >= max_d)
-    {
-      mpz_clear(zD);
-      return PRP_ERROR;
+
+    mpz_set_ui(zD, d);
+
+    while (1) {
+        jacobi = mpz_jacobi(zD, n->z);
+
+        /* if jacobi == 0, d is a factor of n, therefore n is composite... */
+        /* if d == n, then either n is either prime or 9... */
+        if (jacobi == 0) {
+            if ((mpz_cmpabs(zD, n->z) == 0) && (mpz_cmp_ui(zD, 9) != 0)) {
+                result = Py_True;
+                goto cleanup;
+            }
+            else {
+                result = Py_False;
+                goto cleanup;
+            }
+        }
+        if (jacobi == -1)
+            break;
+
+        /* if we get to the 5th d, make sure we aren't dealing with a square... */
+        if (d == 13) {
+            if (mpz_perfect_square_p(n->z)) {
+                result = Py_False;
+                goto cleanup;
+            }
+        }
+
+        if (d < 0) {
+            d *= -1;
+            d += 2;
+        }
+        else {
+            d += 2;
+            d *= -1;
+        }
+
+        /* make sure we don't search forever */
+        if (d >= max_d) {
+            VALUE_ERROR("appropriate value for D cannot be found in is_strongselfridge_prp()");
+            goto cleanup;
+        }
+
+        mpz_set_si(zD, d);
     }
-
-    mpz_set_si(zD, d);
-  }
-  mpz_clear(zD);
-
-  q = (1-d)/4;
-
-  return mpz_stronglucas_prp(n, p, q);
-
-}/* method mpz_strongselfridge_prp */
-
+    
+    q = (1-d)/4;
+    
+    /* Since "O" is used, the refcount for n is incremented so deleting
+     * temp will not delete n.
+     */
+    temp = Py_BuildValue("Oll", n, p, q);
+    if (!temp) 
+        goto cleanup;
+    result = GMPY_mpz_is_stronglucas_prp(NULL, temp);
+    Py_DECREF(temp);
+    
+  cleanup:
+    mpz_cloc(zD);
+    Py_XINCREF(result);
+    Py_DECREF((PyObject*)n);
+    return result;
+}
 
 /* **********************************************************************************
  * mpz_bpsw_prp:
@@ -1385,24 +1462,75 @@ int mpz_strongselfridge_prp(mpz_t n)
  * n is a strong pseudoprime to the base 2 and
  * n is a Lucas pseudoprime using the Selfridge parameters.
  * **********************************************************************************/
-int mpz_bpsw_prp(mpz_t n)
+ 
+PyDoc_STRVAR(doc_mpz_is_bpsw_prp,
+"is_bpsw_prp(n) -> boolean\n\n"
+"Return True if n is a Baillie-Pomerance-Selfridge-Wagstaff pseudo-\n"
+"prime. A BPSW pseudoprime passes the is_strong_prp() test with base\n"
+"2 and the is_selfridge_prp() test.\n");
+
+static PyObject *
+GMPY_mpz_is_bpsw_prp(PyObject *self, PyObject *args)
 {
-  int ret = 0;
-  mpz_t two;
+    PympzObject *n;
+    PyObject *result = 0, *temp = 0;
+    
+    if (PyTuple_Size(args) != 1) {
+        TYPE_ERROR("is_bpsw_prp() requires 1 integer argument");
+        return NULL;
+    }
+    
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    if (!n) {
+        TYPE_ERROR("is_bpsw_prp() requires 1 integer argument");
+        goto cleanup;
+    }
+    
+    /* Require n > 0. */
+    if (mpz_sgn(n->z) <= 0) {
+        VALUE_ERROR("is_bpsw_prp() requires 'n' be greater than 0");
+        goto cleanup;
+    }
+    
+    /* Check for n == 1 */
+    if (mpz_cmp_ui(n->z, 1) == 0) {
+        result = Py_False;
+        goto cleanup;
+    }
 
-  mpz_init_set_ui(two, 2);
-
-  ret = mpz_sprp(n, two);
-  mpz_clear(two);
-
-  /* with a base of 2, mpz_sprp, won't return PRP_ERROR */
-  /* so, only check for PRP_COMPOSITE or PRP_PRIME here */
-  if ((ret == PRP_COMPOSITE) || (ret == PRP_PRIME))
-    return ret;
-
-  return mpz_selfridge_prp(n);
-
-}/* method mpz_bpsw_prp */
+    /* Handle n even. */
+    if (mpz_divisible_ui_p(n->z, 2)) {
+        if (mpz_cmp_ui(n->z, 2) == 0)
+            result = Py_True;
+        else
+            result = Py_False;
+        goto cleanup;
+    }
+    
+    /* "O" is used to increment the reference to n so deleting temp won't
+     * delete n.
+     */
+    temp = Py_BuildValue("Oi", n, 2);
+    if (!temp)
+        goto cleanup;
+    result = GMPY_mpz_is_strong_prp(NULL, temp);
+    Py_DECREF(temp);
+    if (result == Py_False)
+        goto cleanup;
+    /* Remember to ignore the preceding result */
+    Py_DECREF(result);
+    
+    temp = Py_BuildValue("O", n);
+    if (!temp)
+        goto cleanup;
+    result = GMPY_mpz_is_selfridge_prp(NULL, temp);
+    Py_DECREF(temp);
+    
+  cleanup:
+    Py_XINCREF(result);
+    Py_DECREF((PyObject*)n);
+    return result;
+}
 
 
 /* ****************************************************************************************
@@ -1411,23 +1539,73 @@ int mpz_bpsw_prp(mpz_t n)
  * n is a strong pseudoprime to the base 2 and
  * n is a strong Lucas pseudoprime using the Selfridge parameters.
  * ****************************************************************************************/
-int mpz_strongbpsw_prp(mpz_t n)
+ 
+PyDoc_STRVAR(doc_mpz_is_strongbpsw_prp,
+"is_strong_bpsw_prp(n) -> boolean\n\n"
+"Return True if n is a strong Baillie-Pomerance-Selfridge-Wagstaff\n"
+"pseudoprime. A strong BPSW pseudoprime passes the is_strong_prp()\n"
+"test with base and the is_strongselfridge_prp() test.\n");
+
+static PyObject *
+GMPY_mpz_is_strongbpsw_prp(PyObject *self, PyObject *args)
 {
-  int ret = 0;
-  mpz_t two;
+    PympzObject *n;
+    PyObject *result = 0, *temp = 0;
+    
+    if (PyTuple_Size(args) != 1) {
+        TYPE_ERROR("is_strongbpsw_prp() requires 1 integer argument");
+        return NULL;
+    }
+    
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    if (!n) {
+        TYPE_ERROR("is_strongbpsw_prp() requires 1 integer argument");
+        goto cleanup;
+    }
+    
+    /* Require n > 0. */
+    if (mpz_sgn(n->z) <= 0) {
+        VALUE_ERROR("is_strongbpsw_prp() requires 'n' be greater than 0");
+        goto cleanup;
+    }
+    
+    /* Check for n == 1 */
+    if (mpz_cmp_ui(n->z, 1) == 0) {
+        result = Py_False;
+        goto cleanup;
+    }
 
-  mpz_init_set_ui(two, 2);
+    /* Handle n even. */
+    if (mpz_divisible_ui_p(n->z, 2)) {
+        if (mpz_cmp_ui(n->z, 2) == 0)
+            result = Py_True;
+        else
+            result = Py_False;
+        goto cleanup;
+    }
+    
+    /* "O" is used to increment the reference to n so deleting temp won't
+     * delete n.
+     */
+    temp = Py_BuildValue("Oi", n, 2);
+    if (!temp)
+        goto cleanup;
+    result = GMPY_mpz_is_strong_prp(NULL, temp);
+    Py_DECREF(temp);
+    if (result == Py_False)
+        goto cleanup;
+    /* Remember to ignore the preceding result */
+    Py_DECREF(result);
+    
+    temp = Py_BuildValue("O", n);
+    if (!temp)
+        goto cleanup;
+    result = GMPY_mpz_is_selfridge_prp(NULL, temp);
+    Py_DECREF(temp);
+    
+  cleanup:
+    Py_XINCREF(result);
+    Py_DECREF((PyObject*)n);
+    return result;
+}
 
-  ret = mpz_sprp(n, two);
-  mpz_clear(two);
-
-  /* with a base of 2, mpz_sprp, won't return PRP_ERROR */
-  /* so, only check for PRP_COMPOSITE or PRP_PRIME here */
-  if ((ret == PRP_COMPOSITE) || (ret == PRP_PRIME))
-    return ret;
-
-  return mpz_strongselfridge_prp(n);
-
-}/* method mpz_strongbpsw_prp */
-
-#endif
