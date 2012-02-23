@@ -453,13 +453,14 @@ Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
         "precision", "mpc_rprec", "mpc_iprec", "round",
         "mpc_rround", "mpc_iround", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
-        "trap_invalid", "trap_erange", "trap_divzero",
+        "trap_invalid", "trap_erange", "trap_divzero", "trap_expbound",
         "allow_complex", NULL };
 #else
     static char *kwlist[] = {
         "precision", "round", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
-        "trap_invalid", "trap_erange", "trap_divzero", NULL };
+        "trap_invalid", "trap_erange", "trap_divzero", 
+        "trap_expbound", NULL };
 #endif
 
     if (PyTuple_GET_SIZE(args)) {
