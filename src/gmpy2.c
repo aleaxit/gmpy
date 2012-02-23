@@ -761,12 +761,15 @@ _PyInitGMP(void)
 #ifdef WITHMPFR
     set_pympfrcache();
     context = GMPyContext_new();
-    GMPyExc_GmpyError = PyErr_NewException("gmpy2.GmpyError",
+    GMPyExc_GmpyError = PyErr_NewException("gmpy2.gmpyError",
                                            PyExc_ArithmeticError, NULL);
     GMPyExc_Erange = PyErr_NewException("gmpy2.RangeError",
                                         GMPyExc_GmpyError, NULL);
+    temp = PyTuple_Pack(2, GMPyExc_GmpyError, PyExc_ValueError);
     GMPyExc_Invalid = PyErr_NewException("gmpy2.InvalidOperationError",
-                                         GMPyExc_GmpyError, NULL);
+                                         temp, NULL);
+    Py_XDECREF(temp);
+    
     GMPyExc_Inexact = PyErr_NewException("gmpy2.InexactError",
                                          GMPyExc_GmpyError, NULL);
     GMPyExc_Overflow = PyErr_NewException("gmpy2.OverflowError",
