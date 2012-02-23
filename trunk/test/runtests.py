@@ -4,6 +4,7 @@ import sys
 import doctest
 import gmpy2
 
+
 print()
 print("Unit tests for gmpy2 {0} with Python {1}".format(gmpy2.version(), sys.version.split()[0]))
 print("  Mutliple-precision library:   {0}".format(gmpy2.mp_version()))
@@ -13,10 +14,18 @@ print("  Caching Values: (Number)      {0}".format(gmpy2.get_cache()[0]))
 print("  Caching Values: (Size, limbs) {0}".format(gmpy2.get_cache()[1]))
 print()
 
-# The following tests should pass on all supported versions of Python.
-all_doctests = ["test_misc.txt", "test_dec.txt", "test_mpz.txt",
+# The following tests should pass on all builds.
+mpz_doctests = ["test_mpz.txt", "test_xmpz.txt", "test_misc.txt",
                 "test_mpz_comp.txt", "test_mpz_functions.txt",
                 "test_mpz_io.txt"]
+
+# The following tests require MPFR support.
+mpfr_doctests = ["test_mpfr.txt", "test_dec.txt", "test_mpfr_comp.txt",
+                 "test_mpfr_functions.txt"]
+
+# The following tests require MPC support.
+mpc_doctests = ["test_mpc.txt", "test_mpc_comp.txt", 
+                "test_mpc_functions.txt"]
 
 # The following tests will only pass on Python 3.2+.
 py32_doctests = ["test_hash.txt"]
@@ -24,8 +33,9 @@ py32_doctests = ["test_hash.txt"]
 failed = 0
 attempted = 0
 
+
 for test in all_doctests:
-    print("Running test: {0}".format(test))
+    print("Running test: {0:>16}".format(split(test,".")[0])
     result = doctest.testfile(test, globs=globals())
     print("  Results - Attempted: {1:4d} Failed: {0:4d}".format(*result))
     failed += result[0]
