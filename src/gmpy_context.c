@@ -379,8 +379,7 @@ Pygmpy_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
 PyDoc_STRVAR(doc_context,
 "context() -> context manager\n\n"
 "Return a new context manager controlling MPFR and MPC arithmetic. Options\n"
-"can only be specified as keyword arguments. Options are also available as\n"
-"instance attributes.\n\n"
+"can only be specified as keyword arguments. \n\n"
 "    precision:      precision, in bits, of an MPFR result\n"
 "    mpc_rprec:      precision, in bits, of Re(MPC)\n"
 "                      -1 implies use mpfr_prec\n"
