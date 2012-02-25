@@ -702,13 +702,9 @@ static void *
 gmpy_allocate(size_t size)
 {
     void *res;
-    size_t usize = size;
 
-    if (usize < GMPY_ALLOC_MIN)
-        usize = GMPY_ALLOC_MIN;
-
-    if (!(res = GMPY_MALLOC(usize)))
-        Py_FatalError("mp_allocate failure");
+    if (!(res = GMPY_MALLOC(size)))
+        Py_FatalError("Insufficient memory");
 
     return res;
 }
@@ -717,19 +713,9 @@ static void *
 gmpy_reallocate(void *ptr, size_t old_size, size_t new_size)
 {
     void *res;
-    size_t uold = old_size;
-    size_t unew = new_size;
 
-    if (uold < GMPY_ALLOC_MIN)
-        uold = GMPY_ALLOC_MIN;
-    if (unew < GMPY_ALLOC_MIN)
-        unew = GMPY_ALLOC_MIN;
-
-    if (uold == unew)
-        return ptr;
-
-    if (!(res = GMPY_REALLOC(ptr, unew)))
-        Py_FatalError("mp_reallocate failure");
+    if (!(res = GMPY_REALLOC(ptr, new_size)))
+        Py_FatalError("Insufficient memory");
 
     return res;
 }
@@ -737,11 +723,6 @@ gmpy_reallocate(void *ptr, size_t old_size, size_t new_size)
 static void
 gmpy_free( void *ptr, size_t size)
 {
-    size_t usize=size;
-
-    if (usize < GMPY_ALLOC_MIN)
-        usize = GMPY_ALLOC_MIN;
-
     GMPY_FREE(ptr);
 }
 
@@ -769,7 +750,7 @@ _PyInitGMP(void)
     GMPyExc_Invalid = PyErr_NewException("gmpy2.InvalidOperationError",
                                          temp, NULL);
     Py_XDECREF(temp);
-    
+
     GMPyExc_Inexact = PyErr_NewException("gmpy2.InexactError",
                                          GMPyExc_GmpyError, NULL);
     GMPyExc_Overflow = PyErr_NewException("gmpy2.OverflowError",
