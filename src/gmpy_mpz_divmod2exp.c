@@ -556,6 +556,11 @@ Pygmpy_unpack(PyObject *self, PyObject *args)
         return NULL;
     }
 
+    if (mpz_sgn(tempx->z) < 0) {
+        VALUE_ERROR("unpack() requires x >= 0");
+        return NULL;
+    }
+
     total_bits = mpz_sizeinbase(tempx->z, 2) * mpz_sgn(tempx->z);
     lst_count = total_bits / nbits;
     if ((total_bits % nbits) || !lst_count)
@@ -592,7 +597,7 @@ Pygmpy_unpack(PyObject *self, PyObject *args)
         }
         mpz_clrbit(temp, guard_bit);
         mpz_mul_2exp(temp, temp, extra_bits);
-        if (mpz_sgn(temp) == 0) {
+        if (mpz_sgn(temp) == 0 && extra != 0) {
             mpz_set_ui(temp, 1);
             temp->_mp_d[0] = extra;
         }
