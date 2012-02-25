@@ -314,6 +314,11 @@ Pympany_binary(PyObject *self, PyObject *other)
     return NULL;
 }
 
+PyDoc_STRVAR(doc_mpany_pow,
+"pow(b,e[,m]) -> number\n\n"
+"With two arguments, returns b**e. With three arguments, and if all\n"
+"three are integers, returns (b**e) % m.");
+
 static PyObject *
 Pympany_pow(PyObject *base, PyObject *exp, PyObject *mod)
 {
