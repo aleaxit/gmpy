@@ -543,6 +543,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "numer", Pympq_numer, METH_VARARGS, doc_numerg },
     { "pack", Pygmpy_pack, METH_VARARGS, doc_gmpy_pack },
     { "popcount", Pympz_popcount, METH_O, doc_popcountg },
+    { "pow", Pympany_pow, METH_VARARGS, doc_mpany_pow },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivg },
     { "remove", Pympz_remove, METH_VARARGS, doc_removeg },
     { "iroot", Pympz_iroot, METH_VARARGS, doc_mpz_iroot },
