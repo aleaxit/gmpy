@@ -178,11 +178,6 @@ typedef unsigned long       mp_bitcnt_t;
 
 #define GMPY_DEFAULT -1
 
-/* Define the minimum memory amount allocated. 8 has historically been
- * used, but 16 might be better for some applications or 64-bit systems.
- */
-#define GMPY_ALLOC_MIN (2 * (GMP_NUMB_BITS >> 3))
-
 /* To prevent excessive memory usage, we don't want to save very large
  * numbers in the cache. The default value specified in the options
  * structure is 128 words (512 bytes on 32-bit platforms, 1024 bytes on
@@ -197,11 +192,11 @@ typedef unsigned long       mp_bitcnt_t;
 /* Choose which memory manager is used: Python or C.
  * NOTE: The use of PyMem is not compatible with Sage, therefore it is
  * disabled by default.
+ * Use -DUSE_PYMEM to enable.
  */
 
-#define USE_PYMEM 0
 #ifdef USE_PYMEM
-#  define GMPY_FREE(NAME) PyMem_Free(NAME)
+#  define GMPY_FREE(NAME) PyMem_FR(NAME)
 #  define GMPY_MALLOC(NAME) PyMem_Malloc(NAME)
 #  define GMPY_REALLOC(NAME, SIZE) PyMem_Realloc(NAME, SIZE)
 #else
