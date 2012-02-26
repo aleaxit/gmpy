@@ -659,7 +659,7 @@ a3
 >>> print(a.digits(63))
 Traceback (innermost last):
   ...
-ValueError: base must be either 0 or in the interval 2 ... 62
+ValueError: base must be in the interval 2 ... 62
 >>> _g.mpz('43')
 mpz(43)
 >>> _g.mpz('043')
@@ -741,7 +741,7 @@ mpz(573406620562849222387053)
 >>> _g.numdigits(23,99)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
-ValueError: base must be either 0 or in the interval 2 ... 62
+ValueError: base must be in the interval 2 ... 62
 >>> hash(a)
 123
 >>> hash(b)
@@ -897,7 +897,7 @@ ValueError: repetition count for is_prime must be positive
 >>> _g.jacobi(10,-3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: jacobi's y must be odd prime > 0
+ValueError: y must be odd and >0
 >>> _g.jacobi(3)
 Traceback (innermost last):
   ...
@@ -911,7 +911,7 @@ TypeError: jacobi() requires 'mpz','mpz' arguments
 >>> _g.legendre(10,-3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: legendre's y must be odd and > 0
+ValueError: y must be odd and >0
 >>> _g.legendre(3)
 Traceback (innermost last):
   ...

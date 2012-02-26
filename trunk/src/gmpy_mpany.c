@@ -320,6 +320,25 @@ PyDoc_STRVAR(doc_mpany_pow,
 "three are integers, returns (b**e) % m.");
 
 static PyObject *
+Pympany_pow2(PyObject *self, PyObject *args)
+{
+    if (PyTuple_Size(args) == 2) {
+        return Pympany_pow(PyTuple_GET_ITEM(args,0),
+                           PyTuple_GET_ITEM(args,1),
+                           Py_None);
+    }
+    else if (PyTuple_Size(args) == 3) {
+        return Pympany_pow(PyTuple_GET_ITEM(args,0),
+                           PyTuple_GET_ITEM(args,1),
+                           PyTuple_GET_ITEM(args,2));
+    }
+    else {
+        TYPE_ERROR("pow() requires 2 or 3 arguments");
+        return NULL;
+    }
+}
+
+static PyObject *
 Pympany_pow(PyObject *base, PyObject *exp, PyObject *mod)
 {
 #ifndef WITHMPFR
