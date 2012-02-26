@@ -323,7 +323,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.0.0a3";
+char gmpy_version[] = "2.0.0b1";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -543,7 +543,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "numer", Pympq_numer, METH_VARARGS, doc_numerg },
     { "pack", Pygmpy_pack, METH_VARARGS, doc_gmpy_pack },
     { "popcount", Pympz_popcount, METH_O, doc_popcountg },
-    { "pow", Pympany_pow, METH_VARARGS, doc_mpany_pow },
+    { "pow", Pympany_pow2, METH_VARARGS, doc_mpany_pow },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivg },
     { "remove", Pympz_remove, METH_VARARGS, doc_removeg },
     { "iroot", Pympz_iroot, METH_VARARGS, doc_mpz_iroot },
@@ -769,28 +769,31 @@ _PyInitGMP(void)
 #endif
 }
 
-static char _gmpy_docs[] = "\
-gmpy2 2.0.0a3 - General Multiple-precision arithmetic for Python\n\
-\n\
-Exposes functionality from the GMP or MPIR library to Python 2.6\n\
-and later. If available, the MPFR and MPC libraries are used to\n\
-support multiple-precision floating-point and complex numbers.\n\
-\n\
-Allows creation of multiple-precision integer (mpz), mutable\n\
-integers (xmpz), rational (mpq), floating-point (mpfr), and complex\n\
-(mpc) numbers. Supported operations include conversion between them\n\
-and to/from Python numbers/strings, arithmetic, bitwise, and higher-\n\
-level mathematical operations.\n\
-\n\
-'mpz' has comparable functionality to Python's builtin longs, but\n\
-can be faster for some operations (particularly multiplication\n\
-and raising-to-power) and has many further useful and speedy\n\
-functions (prime testing and generation, factorial, fibonacci,\n\
-binary-coefficients, gcd, lcm, square and other roots, ...).\n\
-\n\
-'mpfr' and 'mpc' provide multiple-precision real and complex numbers\n\
-with user-definable precision, rounding, and exponent range. All the\n\
-advanced functions from the MPFR and MPC libraries are available.\n\
+static char _gmpy_docs[] =
+"gmpy2 2.0.0b1 - General Multiple-precision arithmetic for Python\n"
+"\n"
+"gmpy2 supports several multiple-precision libraries. Integer and\n"
+"rational arithmetic is provided by either the GMP or MPIR\n"
+"libraries. Real floating-point arithmetic is provided by the\n"
+"MPFR library. Complex floating-point arithmetic is provided by the\n"
+"MPC libary.\n"
+"\n"
+"The integer type 'mpz' has comparable functionality to Python's\n"
+"builtin integers, but is faster for operations on large numbers.\n"
+"A wide variety of additional functions are provided:\n"
+"      - bit manipulations\n"
+"      - GCD, Extended GCD, LCM\n"
+"      - Fibonacci and Lucas sequences\n"
+"      - primality testing\n"
+"      - powers and integer Nth roots\n"
+"\n"
+"The rational type 'mpq' is equivalent to Python's fractions\n"
+"module, but is faster.\n"
+"\n"
+"The real type 'mpfr' and complex type 'mpc' provide multiple-\n"
+"precision real and complex numbers with user-definable precision,\n"
+"rounding, and exponent range. All the advanced functions from the\n"
+"MPFR and MPC libraries are available.\n\
 ";
 
 /* Notes on Python 3.x support: Full support for PEP-3121 has not been

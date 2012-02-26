@@ -25,17 +25,18 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-static char doc_mpz[] = "\
-mpz(n):\n\
-      builds an 'mpz' object with a numeric value n (truncating n\n\
-      to its integer part if it's a Fraction, 'mpq', Decimal, float\n\
-      or 'mpfr')\n\
-mpz(s,base=0):\n\
-      builds an 'mpz' object from a string s made up of digits in the\n\
-      given base.  If base=0, binary, octal, or hex Python strings\n\
-      are recognized by leading 0b, 0o, or 0x characters, otherwise\n\
-      the string is assumed to be decimal.\n\
-";
+PyDoc_STRVAR(doc_mpz,
+"mpz(n) -> mpz\n\n"
+"     Return an 'mpz' object with a numeric value 'n' (truncating n\n"
+"     to its integer part if it's a Fraction, 'mpq', Decimal, float\n"
+"     or 'mpfr').\n\n"
+"mpz(s[, base=0]):\n\n"
+"     Return an 'mpz' object from a string 's' made of digits in the\n"
+"     given base.  If base=0, binary, octal, or hex Python strings\n"
+"     are recognized by leading 0b, 0o, or 0x characters, otherwise\n"
+"     the string is assumed to be decimal. Values for base can range\n"
+"     between 2 and 62.");
+
 static PyObject *
 Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
 {
@@ -90,17 +91,22 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
     return (PyObject*)result;
 }
 
-static char doc_xmpz[] = "\
-xmpz(n):\n\
-      builds an 'xmpz' object with a numeric value n (truncating n\n\
-      to its integer part if it's a Fraction, 'mpq', Decimal, float\n\
-      or 'mpfr')\n\
-xmpz(s,base=0):\n\
-      builds an 'xmpz' object from a string s made up of digits in the\n\
-      given base.  If base=0, binary, octal, or hex Python strings\n\
-      are recognized by leading 0b, 0o, or 0x characters, otherwise\n\
-      the string is assumed to be decimal.\n\
-";
+PyDoc_STRVAR(doc_xmpz,
+"xmpz(n) -> xmpz\n\n"
+"     Return an 'xmpz' object with a numeric value 'n' (truncating n\n"
+"     to its integer part if it's a Fraction, 'mpq', Decimal, float\n"
+"     or 'mpfr').\n\n"
+"xmpz(s[, base=0]):\n\n"
+"     Return an 'xmpz' object from a string 's' made of digits in the\n"
+"     given base.  If base=0, binary, octal, or hex Python strings\n"
+"     are recognized by leading 0b, 0o, or 0x characters, otherwise\n"
+"     the string is assumed to be decimal. Values for base can range\n"
+"     between 2 and 62.\n\n"
+"     Note: 'xmpz' is a mutable integer. It can be faster for when\n"
+"     used for augmented assignment (+=, *=, etc.). 'xmpz' objects\n"
+"     cannot be used as dictionary keys. The use of 'mpz' objects is\n"
+"     recommended in most cases.");
+
 static PyObject *
 Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
 {
@@ -159,10 +165,11 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
 
 /* produce digits for an mpz in requested base, default 10 */
 PyDoc_STRVAR(doc_mpz_digits,
-"x.digits([base]) -> string\n\n"
-"Return Python string representing x in the given base (2 to 62,\n"
-"default 10 if omitted or 0); leading '-' is present if x<0, but\n"
-"no leading '+' if x>=0.");
+"x.digits([base=10]) -> string\n\n"
+"Return Python string representing x in the given base. Values for\n"
+"base can range between 2 to 62. A leading '-' is present if x<0\n"
+"but no leading '+' is present if x>=0.");
+
 static PyObject *
 Pympz_digits(PyObject *self, PyObject *args)
 {
@@ -170,7 +177,7 @@ Pympz_digits(PyObject *self, PyObject *args)
     PyObject *result;
 
     PARSE_ONE_MPZ_OPT_CLONG(&base,
-            "digits() requires 'mpz',['int'] arguments");
+            "digits() requires 'int' argument for base");
     result = Pympz_ascii((PympzObject*)self, base, 16);
     Py_DECREF(self);
     return result;
@@ -183,7 +190,7 @@ Pyxmpz_digits(PyObject *self, PyObject *args)
     PyObject *result;
 
     PARSE_ONE_MPZ_OPT_CLONG(&base,
-            "digits() requires 'xmpz',['int'] arguments");
+            "digits() requires 'int' argument for base");
     result = Pyxmpz_ascii((PyxmpzObject*)self, base, 0);
     Py_DECREF(self);
     return result;
@@ -191,18 +198,17 @@ Pyxmpz_digits(PyObject *self, PyObject *args)
 
 /* return number-of-digits for an mpz in requested base, default 10 */
 PyDoc_STRVAR(doc_numdigitsm,
-"x.numdigits([base]) -> int\n\n"
-"Return length of string representing x in the given base (2 to 62,\n"
-"default 10 if omitted or 0); the value returned may sometimes be 1\n"
-"more than necessary; no provision for any 'sign' character, nor\n"
-"leading '0' or '0x' decoration, is made in the returned length.");
+"x.numdigits([base=10]) -> int\n\n"
+"Return length of string representing the absolute value of x in\n"
+"the given base. Values  for base can range between 2 and 62. The\n"
+"value returned may be 1 too large.");
 
 PyDoc_STRVAR(doc_numdigitsg,
-"numdigits(x[,base]) -> int\n\n"
-"Return length of string representing x in the given base (2 to 62,\n"
-"default 10 if omitted or 0); the value returned may sometimes be 1\n"
-"more than necessary; no provision for any 'sign' character, nor\n"
-"leading '0' or '0x' decoration, is made in the returned length.");
+"numdigits(x[, base=10]) -> int\n\n"
+"Return length of string representing the absolute value of x in\n"
+"the given base. Values  for base can range between 2 and 62. The\n"
+"value returned may be 1 too large.");
+
 static PyObject *
 Pympz_numdigits(PyObject *self, PyObject *args)
 {
@@ -211,10 +217,8 @@ Pympz_numdigits(PyObject *self, PyObject *args)
 
     PARSE_ONE_MPZ_OPT_CLONG(&base,
             "numdigits() requires 'mpz',['int'] arguments");
-    if (base == 0)
-        base = 10;
     if ((base < 2) || (base > 62)) {
-        VALUE_ERROR("base must be either 0 or in the interval 2 ... 62");
+        VALUE_ERROR("base must be in the interval 2 ... 62");
         Py_DECREF(self);
         return NULL;
     }
@@ -224,14 +228,16 @@ Pympz_numdigits(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_bit_lengthm[]="\
-x.bit_length(): returns the number of significant bits in the\n\
-radix-2 representation of x. Note: bit_length(0) returns 0.\n\
-";
-static char doc_bit_lengthg[]="\
-bit_length(x): returns the number of significant bits in the\n\
-radix-2 representation of x. Note: bit_length(0) returns 0.\n\
-";
+PyDoc_STRVAR(doc_bit_lengthm,
+"x.bit_length() -> int\n\n"
+"Return the number of significant bits in the radix-2\n"
+"representation of x. Note: bit_length(0) returns 0.");
+
+PyDoc_STRVAR(doc_bit_lengthg,
+"x.bit_length() -> int\n\n"
+"Return the number of significant bits in the radix-2\n"
+"representation of x. Note: mpz(0).bit_length() returns 0.");
+
 static PyObject *
 Pympz_bit_length(PyObject *self, PyObject *other)
 {
@@ -260,10 +266,10 @@ Pympz_bit_length(PyObject *self, PyObject *other)
     return PyIntOrLong_FromSize_t(i);
 }
 
-static char doc_bit_maskg[]="\
-bit_mask(n): create an 'mpz' exactly n bits in length with\n\
-all bits set.\n\
-";
+PyDoc_STRVAR(doc_bit_maskg,
+"bit_mask(n) -> mpz\n\n"
+"Return an 'mpz' exactly n bits in length with all bits set.\n");
+
 static PyObject *
 Pympz_bit_mask(PyObject *self, PyObject *other)
 {
@@ -292,10 +298,10 @@ Pympz_bit_mask(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_xbit_maskg[]="\
-xbit_mask(n): create an 'xmpz' exactly n bits in length with\n\
-all bits set.\n\
-";
+PyDoc_STRVAR(doc_xbit_maskg,
+"xbit_mask(n) -> xmpz\n\n"
+"Return an 'xmpz' exactly n bits in length with all bits set.\n");
+
 static PyObject *
 Pyxmpz_xbit_mask(PyObject *self, PyObject *other)
 {
@@ -324,18 +330,20 @@ Pyxmpz_xbit_mask(PyObject *self, PyObject *other)
 }
 
 /* return scan0/scan1 for an mpz */
-static char doc_bit_scan0m[]="\
-x.bit_scan0(n=0): returns the index of the first 0-bit of x that\n\
-is >= n. n must be >= 0.  If no more 0-bits are in x at or above\n\
-index n (which can only happen for x<0, notionally extended with\n\
-infinite 1-bits), None is returned.\n\
-";
-static char doc_bit_scan0g[]="\
-bit_scan0(x, n=0): returns the index of the first 0-bit of x that\n\
-is >= n. n must be >= 0.  If no more 0-bits are in x at or above\n\
-index n (which can only happen for x<0, notionally extended with\n\
-infinite 1-bits), None is returned.\n\
-";
+PyDoc_STRVAR(doc_bit_scan0m,
+"x.bit_scan0(n=0) -> int\n\n"
+"Return the index of the first 0-bit of x with index >= n. n >= 0.\n"
+"If there are no more 0-bits in x at or above index n (which can\n"
+"only happen for x<0, assuming an infinitely long 2's complement\n"
+"format), then None is returned.");
+
+PyDoc_STRVAR(doc_bit_scan0g,
+"bit_scan0(x, n=0) -> int\n\n"
+"Return the index of the first 0-bit of x with index >= n. n >= 0.\n"
+"If there are no more 0-bits in x at or above index n (which can\n"
+"only happen for x<0, assuming an infinitely long 2's complement\n"
+"format), then None is returned.");
+
 static PyObject *
 Pympz_bit_scan0(PyObject *self, PyObject *args)
 {
@@ -367,18 +375,20 @@ Pympz_bit_scan0(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_bit_scan1m[]="\
-x.bit_scan1(n=0): returns the index of the first 1-bit of x that\n\
-is >= n. n must be >= 0.  If no more 1-bits are in x at or above\n\
-index n (which can only happen for x>=0, notionally extended with\n\
-infinite 0-bits), None is returned.\n\
-";
-static char doc_bit_scan1g[]="\
-bit_scan1(x, n=0): returns the index of the first 1-bit of x that\n\
-is >= n. n must be >= 0.  If no more 1-bits are in x at or above\n\
-index n (which can only happen for x>=0, notionally extended with\n\
-infinite 0-bits), None is returned.\n\
-";
+PyDoc_STRVAR(doc_bit_scan1m,
+"x.bit_scan1(n=0) -> int\n\n"
+"Return the index of the first 1-bit of x with index >= n. n >= 0.\n"
+"If there are no more 1-bits in x at or above index n (which can\n"
+"only happen for x>=0, assuming an infinitely long 2's complement\n"
+"format), then None is returned.");
+
+PyDoc_STRVAR(doc_bit_scan1g,
+"bit_scan1(x, n=0) -> int\n\n"
+"Return the index of the first 1-bit of x with index >= n. n >= 0.\n"
+"If there are no more 1-bits in x at or above index n (which can\n"
+"only happen for x>=0, assuming an infinitely long 2's complement\n"
+"format), then None is returned.");
+
 static PyObject *
 Pympz_bit_scan1(PyObject *self, PyObject *args)
 {
@@ -411,11 +421,12 @@ Pympz_bit_scan1(PyObject *self, PyObject *args)
 }
 
 /* return population-count (# of 1-bits) for an mpz */
-static char doc_popcountg[]="\
-popcount(x): returns the number of 1-bits set in x; note that\n\
-this is 'infinite' if x<0, and in that case, -1 is returned.\n\
-x must be an mpz, or else gets coerced to one.\n\
-";
+
+PyDoc_STRVAR(doc_popcountg,
+"popcount(x) -> int\n\n"
+"Return the number of 1-bits set in x. If x<0, the number of\n"
+"1-bits is infinite so -1 is returned in that case.");
+
 static PyObject *
 Pympz_popcount(PyObject *self, PyObject *other)
 {
@@ -440,12 +451,10 @@ Pympz_popcount(PyObject *self, PyObject *other)
 }
 
 /* get & return one bit from an mpz */
-static char doc_bit_testm[]="\
-x.bit_test(n): return the value of the n-th bit of x.\n\
-";
-static char doc_bit_testg[]="\
-bit_test(x,n): return the value of the n-th bit of x.\n\
-";
+PyDoc_STRVAR(doc_bit_testg,
+"bit_test(x, n) -> bool\n\n"
+"Return the value of the n-th bit of x.");
+
 static PyObject *
 Pygmpy_bit_test(PyObject *self, PyObject *args)
 {
@@ -488,6 +497,10 @@ Pygmpy_bit_test(PyObject *self, PyObject *args)
         Py_RETURN_FALSE;
 }
 
+PyDoc_STRVAR(doc_bit_testm,
+"x.bit_test(n) -> bool\n\n"
+"Return the value of the n-th bit of x.");
+
 static PyObject *
 Pympz_bit_test(PyObject *self, PyObject *other)
 {
@@ -510,12 +523,9 @@ Pympz_bit_test(PyObject *self, PyObject *other)
         Py_RETURN_FALSE;
 }
 
-static char doc_bit_clearm[]="\
-x.bit_clear(n): clear the n-th bit of x.\n\
-";
-static char doc_bit_clearg[]="\
-bit_clear(x,n): clear the n-th bit of x.\n\
-";
+PyDoc_STRVAR(doc_bit_clearg,
+"bit_clear(x, n) -> mpz\n\n"
+"Return a copy of x with the n-th bit cleared.");
 
 static PyObject *
 Pygmpy_bit_clear(PyObject *self, PyObject *args)
@@ -557,6 +567,10 @@ Pygmpy_bit_clear(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+PyDoc_STRVAR(doc_bit_clearm,
+"x.bit_clear(n) -> mpz\n\n"
+"Return a copy of x with the n-th bit cleared.");
+
 static PyObject *
 Pympz_bit_clear(PyObject *self, PyObject *other)
 {
@@ -581,12 +595,9 @@ Pympz_bit_clear(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_bit_setm[]="\
-x.bit_set(n): set the n-th bit of x. \n\
-";
-static char doc_bit_setg[]="\
-bit_set(x,n): set the n-th bit of x.\n\
-";
+PyDoc_STRVAR(doc_bit_setg,
+"bit_set(x, n) -> mpz\n\n"
+"Return a copy of x with the n-th bit set.");
 
 static PyObject *
 Pygmpy_bit_set(PyObject *self, PyObject *args)
@@ -628,6 +639,10 @@ Pygmpy_bit_set(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+PyDoc_STRVAR(doc_bit_setm,
+"x.bit_set(n) -> mpz\n\n"
+"Return a copy of x with the n-th bit set.");
+
 static PyObject *
 Pympz_bit_set(PyObject *self, PyObject *other)
 {
@@ -652,10 +667,9 @@ Pympz_bit_set(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_bit_flipm[]="\
-x.bit_flip(n): complements the n-th bit of x.";
-static char doc_bit_flipg[]="\
-bit_flip(x,n): complements the n-th bit of x.";
+PyDoc_STRVAR(doc_bit_flipg,
+"bit_flip(x, n) -> mpz\n\n"
+"Return a copy of x with the n-th bit inverted.");
 
 static PyObject *
 Pygmpy_bit_flip(PyObject *self, PyObject *args)
@@ -697,6 +711,10 @@ Pygmpy_bit_flip(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+PyDoc_STRVAR(doc_bit_flipm,
+"x.bit_flip(n) -> mpz\n\n"
+"Return a copy of x with the n-th bit inverted.");
+
 static PyObject *
 Pympz_bit_flip(PyObject *self, PyObject *other)
 {
@@ -724,7 +742,7 @@ Pympz_bit_flip(PyObject *self, PyObject *other)
 PyDoc_STRVAR(doc_mpz_iroot,
 "iroot(x,n) -> (number, boolean)\n\n"
 "Return the integer n-th root of x and boolean value that is True\n"
-"iff the root is exact. x must be a non-negative integer.");
+"iff the root is exact. x >= 0. n > 0.");
 
 static PyObject *
 Pympz_iroot(PyObject *self, PyObject *args)
@@ -765,8 +783,7 @@ Pympz_iroot(PyObject *self, PyObject *args)
 PyDoc_STRVAR(doc_mpz_iroot_rem,
 "iroot_rem(x,n) -> (number, number)\n\n"
 "Return a 2-element tuple (y,r), such that y is the integer n-th\n"
-"root of x and x=y**n + r. x must be a non-negative integer. n must\n"
-"be a positive integer.");
+"root of x and x=y**n + r. x >= 0. n > 0.");
 
 static PyObject *
 Pympz_iroot_rem(PyObject *self, PyObject *args)
@@ -1015,7 +1032,7 @@ Pyxmpz_nonzero(PyxmpzObject *x)
     return mpz_sgn(x->z) != 0;
 }
 
-/* BIT OPERATIONS (mpz-only) */
+/* BIT OPERATIONS */
 
 static PyObject *
 Pympz_com(PympzObject *x)
@@ -1116,7 +1133,7 @@ Pympz_rshift(PyObject *a, PyObject *b)
         goto err;
     }
     if(!mpz_fits_si_p(Pympz_AS_MPZ(tempb))) {
-        PyErr_SetString(PyExc_OverflowError, "outrageous shift count");
+        OVERFLOW_ERROR("outrageous shift count");
         goto err;
     }
     count_si = mpz_get_si(tempb->z);
@@ -1174,7 +1191,7 @@ Pympz_lshift(PyObject *a, PyObject *b)
         goto err;
     }
     if(!mpz_fits_si_p(Pympz_AS_MPZ(tempb))) {
-        PyErr_SetString(PyExc_OverflowError, "outrageous shift count");
+        OVERFLOW_ERROR("outrageous shift count");
         goto err;
     }
     count_si = mpz_get_si(tempb->z);
@@ -1241,10 +1258,10 @@ Pympz_hash(PympzObject *self)
 }
 
 /* Miscellaneous gmpy functions */
-static char doc_gcd[]="\
-gcd(a,b): returns the greatest common denominator of numbers a and b\n\
-(which must be mpz objects, or else get coerced to mpz)\n\
-";
+PyDoc_STRVAR(doc_gcd,
+"gcd(a, b) -> mpz\n\n"
+"Return the greatest common denominator of integers a and b.");
+
 static PyObject *
 Pygmpy_gcd(PyObject *self, PyObject *args)
 {
@@ -1282,10 +1299,10 @@ Pygmpy_gcd(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_lcm[]="\
-lcm(a,b): returns the lowest common multiple of numbers a and b\n\
-(which must be mpz objects, or else get coerced to mpz)\n\
-";
+PyDoc_STRVAR(doc_lcm,
+"lcm(a, b) -> mpz\n\n"
+"Return the lowest common multiple of integers a and b.");
+
 static PyObject *
 Pygmpy_lcm(PyObject *self, PyObject *args)
 {
@@ -1323,11 +1340,11 @@ Pygmpy_lcm(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_gcdext[]="\
-gcdext(a,b): returns a 3-element tuple (g,s,t) such that\n\
-    g==gcd(a,b) and g == a*s + b*t\n\
-(a and b must be mpz objects, or else get coerced to mpz)\n\
-";
+PyDoc_STRVAR(doc_gcdext,
+"gcdext(a, b) - > tuple\n\n"
+"Return a 3-element tuple (g,s,t) such that\n"
+"    g == gcd(a,b) and g == a*s + b*t");
+
 static PyObject *
 Pygmpy_gcdext(PyObject *self, PyObject *args)
 {
@@ -1380,15 +1397,14 @@ Pygmpy_gcdext(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_divm[]="\
-divm(a,b,m): returns x such that b*x==a modulo m, or else raises\n\
-a ZeroDivisionError exception if no such value x exists\n\
-(a, b and m must be mpz objects, or else get coerced to mpz)\n\
-";
+PyDoc_STRVAR(doc_divm,
+"divm(a, b, m) -> mpz\n\n"
+"Return x such that b*x==a modulo m. Raises a ZeroDivisionError\n"
+"exception if no such value x exists.");
+
 static PyObject *
 Pygmpy_divm(PyObject *self, PyObject *args)
 {
-    PyObject *a, *b, *m;
     PympzObject *result, *num, *den, *mod;
     mpz_t gcdz;
     int ok;
@@ -1398,16 +1414,12 @@ Pygmpy_divm(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    a = PyTuple_GET_ITEM(args, 0);
-    b = PyTuple_GET_ITEM(args, 1);
-    m = PyTuple_GET_ITEM(args, 2);
-
     if (!(result = Pympz_new()))
         return NULL;
 
-    num = Pympz_From_Integer(a);
-    den = Pympz_From_Integer(b);
-    mod = Pympz_From_Integer(m);
+    num = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    den = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
+    mod = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
     if(!num || !den || !mod) {
         TYPE_ERROR("divm() requires 'mpz','mpz','mpz' arguments");
         Py_XDECREF((PyObject*)num);
@@ -1452,8 +1464,9 @@ Pygmpy_divm(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_fac,
 "fac(n) -> mpz\n\n"
-"Return the exact factorial of n.\n"
+"Return the exact factorial of n.\n\n"
 "See factorial(n) to get the floating-point approximation.");
+
 static PyObject *
 Pygmpy_fac(PyObject *self, PyObject *other)
 {
@@ -1477,10 +1490,10 @@ Pygmpy_fac(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_fib[]="\
-fib(n): returns the n-th Fibonacci number; takes O(n) time; n must be\n\
-an ordinary Python int, >=0.\n\
-";
+PyDoc_STRVAR(doc_fib,
+"fib(n) -> mpz\n\n"
+"Return the n-th Fibonacci number.");
+
 static PyObject *
 Pygmpy_fib(PyObject *self, PyObject *other)
 {
@@ -1504,10 +1517,10 @@ Pygmpy_fib(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_fib2[]="\
-fib2(n): returns the n-th and n+1-th Fibonacci numbers; takes O(n) time;\n\
-n must be an ordinary Python int, >=0.\n\
-";
+PyDoc_STRVAR(doc_fib2,
+"fib2(n) -> tuple\n\n"
+"Return a 2-tuple with the (n-1)-th and n-th Fibonacci numbers.");
+
 static PyObject *
 Pygmpy_fib2(PyObject *self, PyObject *other)
 {
@@ -1532,11 +1545,10 @@ Pygmpy_fib2(PyObject *self, PyObject *other)
     PyTuple_SET_ITEM(result, 1, (PyObject*)fib2);
     return result;
 }
+PyDoc_STRVAR(doc_lucas,
+"lucas(n) -> mpz\n\n"
+"Return the n-th Lucas number.");
 
-static char doc_lucas[]="\
-lucas(n): returns the n-th Lucas number; takes O(n) time; n must be\n\
-an ordinary Python int, >=0.\n\
-";
 static PyObject *
 Pygmpy_lucas(PyObject *self, PyObject *other)
 {
@@ -1560,10 +1572,10 @@ Pygmpy_lucas(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_lucas2[]="\
-lucas2(n): returns the n-1 and n-th Lucas number; takes O(n) time;\n\
-n must be an ordinary Python int, >=0.\n\
-";
+PyDoc_STRVAR(doc_lucas2,
+"lucas2(n) -> tuple\n\n"
+"Return a 2-tuple with the (n-1)-th and n-th Lucas numbers.");
+
 static PyObject *
 Pygmpy_lucas2(PyObject *self, PyObject *other)
 {
@@ -1589,24 +1601,22 @@ Pygmpy_lucas2(PyObject *self, PyObject *other)
     return result;
 }
 
-static char doc_bincoefg[]="\
-bincoef(x,n): returns the 'binomial coefficient' that is 'x\n\
-over n'; n is an ordinary Python int, >=0; x must be an mpz,\n\
-or else gets converted to one.\n\
-";
-static char doc_combg[]="\
-comb(x,n): returns the 'number of combinations' of 'x things,\n\
-taken n at a time'; n is an ordinary Python int, >=0; x must be\n\
-an mpz, or else gets converted to one.\n\
-";
+PyDoc_STRVAR(doc_bincoefg,
+"bincoef(x, n) -> mpz\n\n"
+"Return the binomial coefficient ('x over n'). n >= 0.");
+
+PyDoc_STRVAR(doc_combg,
+"comb(x, n) -> mpz\n\n"
+"Return the number of combinations of 'x things, taking n at a\n"
+"time'. n >= 0.");
+
 static PyObject *
 Pympz_bincoef(PyObject *self, PyObject *args)
 {
     PympzObject *result;
     mpir_si k;
 
-    PARSE_ONE_MPZ_REQ_SI(&k,
-                            "bincoef() requires 'mpz','int' arguments");
+    PARSE_ONE_MPZ_REQ_SI(&k, "bincoef() requires 'mpz','int' arguments");
 
     if (k < 0) {
         VALUE_ERROR("binomial coefficient with negative k");
@@ -1624,9 +1634,8 @@ Pympz_bincoef(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_mpz_isqrt,
-"isqrt(x) -> number\n\n"
-"Return the integer square root of x; x must be a non-\n"
-"negative integer.");
+"isqrt(x) -> mpz\n\n"
+"Return the integer square root of an integer x. x >= 0.");
 
 static PyObject *
 Pympz_isqrt(PyObject *self, PyObject *other)
@@ -1667,9 +1676,9 @@ Pympz_isqrt(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(doc_mpz_isqrt_rem,
-"isqrt_rem(x) -> (square_root, remainder)\n\n"
-"Return a 2-element tuple (s,t), such that s=isqrt(x) and x=s*s+t.\n"
-"x must be a non-negative integer.");
+"isqrt_rem(x) -> tuple\n\n"
+"Return a 2-element tuple (s,t) such that s=isqrt(x) and t=x-s*s.\n"
+"x >=0.");
 
 static PyObject *
 Pympz_isqrt_rem(PyObject *self, PyObject *args)
@@ -1703,13 +1712,12 @@ Pympz_isqrt_rem(PyObject *self, PyObject *args)
     return result;
 }
 
-static char doc_removeg[]="\
-remove(x,f): returns a 2-element tuple (y,m) such that\n\
-x==y*(f**m), and y%f==0; i.e., y is x with any factor f\n\
-removed, and m (an ordinary Python int) is the multiplicity\n\
-of the factor f in x (m=0, and y=x, unless x%f==0). x must\n\
-be an mpz, or else gets coerced to one; f must be > 0.\n\
-";
+PyDoc_STRVAR(doc_removeg,
+"remove(x, f) -> tuple\n\n"
+"Return a 2-element tuple (y,m) such that x=y*(f**m) and f does\n"
+"not divide y. Remove the factor f from x as many times as\n"
+"possible. m is the multiplicity f in x. f > 1.");
+
 static PyObject *
 Pympz_remove(PyObject *self, PyObject *args)
 {
@@ -1737,12 +1745,10 @@ Pympz_remove(PyObject *self, PyObject *args)
     return Py_BuildValue("(Nk)", result, multiplicity);
 }
 
-static char doc_invertg[]="\
-invert(x,m): returns the inverse of x modulo m, i.e., that y\n\
-such that x*y==1 modulo m, or 0 if no such y exists.\n\
-m must be an ordinary Python int, !=0; x must be an mpz,\n\
-or else gets converted to one.\n\
-";
+PyDoc_STRVAR(doc_invertg,
+"invert(x, m) -> mpz\n\n"
+"Return the y such that x*y==1 modulo m, or 0 if no such y exists.");
+
 static PyObject *
 Pygmpy_invert(PyObject *self, PyObject *args)
 {
@@ -1796,11 +1802,11 @@ Pygmpy_invert(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_hamdistg[]="\
-hamdist(x,y): returns the Hamming distance (number of bit-positions\n\
-where the bits differ) between x and y.  x and y must be mpz, or else\n\
-get coerced to mpz.\n\
-";
+PyDoc_STRVAR(doc_hamdistg,
+"hamdist(x, y) -> int\n\n"
+"Return the Hamming distance (number of bit-positions where the\n"
+"bits differ) between integers x and y.");
+
 static PyObject *
 Pympz_hamdist(PyObject *self, PyObject *args)
 {
@@ -1815,11 +1821,11 @@ Pympz_hamdist(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_divexactg[]="\
-divexact(x,y): returns the quotient of x divided by y. Faster than\n\
-standard division but requires the remainder is zero!  x and y must\n\
-be mpz, or else get coerced to mpz.\n\
-";
+PyDoc_STRVAR(doc_divexactg,
+"divexact(x, y) -> mpz\n\n"
+"Return the quotient of x divided by y. Faster than standard\n"
+"division but requires the remainder is zero!");
+
 static PyObject *
 Pygmpy_divexact(PyObject *self, PyObject *args)
 {
@@ -1868,13 +1874,14 @@ Pygmpy_divexact(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static char doc_is_squarem[]="\
-x.is_square(): returns 1 if x is a perfect square, else 0.\n\
-";
-static char doc_is_squareg[]="\
-is_square(x): returns 1 if x is a perfect square, else 0.\n\
-x must be an mpz, or else gets coerced to one.\n\
-";
+PyDoc_STRVAR(doc_is_squarem,
+"x.is_square() -> bool\n\n"
+"Returns True if x is a perfect square, else return False.");
+
+PyDoc_STRVAR(doc_is_squareg,
+"is_square(x) -> bool\n\n"
+"Returns True if x is a perfect square, else return False.");
+
 static PyObject *
 Pympz_is_square(PyObject *self, PyObject *other)
 {
@@ -1903,15 +1910,16 @@ Pympz_is_square(PyObject *self, PyObject *other)
         Py_RETURN_FALSE;
 }
 
-static char doc_is_powerm[]="\
-x.is_power(): returns 1 if x is a perfect power, i.e., there exist\n\
-y, and n>1, such that x==y**n; else, 0.\n\
-";
-static char doc_is_powerg[]="\
-is_power(x): returns 1 if x is a perfect power, i.e., there exist\n\
-y, and n>1, such that x==y**n; else, 0. x must be an mpz, or else\n\
-gets coerced to one.\n\
-";
+PyDoc_STRVAR(doc_is_powerm,
+"x.is_power() -> bool\n\n"
+"Return True if x is a perfect power (there exists a y and an\n"
+"n > 1, such that x=y**n), else return False.");
+
+PyDoc_STRVAR(doc_is_powerg,
+"is_power(x) -> bool\n\n"
+"Return True if x is a perfect power (there exists a y and an\n"
+"n > 1, such that x=y**n), else return False.");
+
 static PyObject *
 Pympz_is_power(PyObject *self, PyObject *other)
 {
@@ -1940,23 +1948,22 @@ Pympz_is_power(PyObject *self, PyObject *other)
         Py_RETURN_FALSE;
 }
 
-static char doc_is_primem[]="\
-x.is_prime(n=25): returns 2 if x is _certainly_ prime, 1 if x is\n\
-_probably_ prime (probability > 1 - 1/2**n), 0 if x is composite.\n\
-If x<0, GMP considers x 'prime' iff -x is prime; gmpy reflects this\n\
-GMP design choice.\n\
-";
-static char doc_is_primeg[]="\
-is_prime(x,n=25): returns 2 if x is _certainly_ prime, 1 if x is\n\
-_probably_ prime (probability > 1 - 1/2**n), 0 if x is composite.\n\
-If x<0, GMP considers x 'prime' iff -x is prime; gmpy reflects this\n\
-GMP design choice. x must be an mpz, or else gets coerced to one.\n\
-";
+PyDoc_STRVAR(doc_is_primem,
+"x.is_prime([n=25]) -> bool\n\n"
+"Return True if x is _probably_ prime, else False if x is\n"
+"definately composite. x is checked for small divisors and up\n"
+"to n Miller-Rabin tests are performed.");
+
+PyDoc_STRVAR(doc_is_primeg,
+"is_prime(x[, n=25]) -> bool\n\n"
+"Return True if x is _probably_ prime, else False if x is\n"
+"definately composite. x is checked for small divisors and up\n"
+"to n Miller-Rabin tests are performed.");
+
 static PyObject *
 Pympz_is_prime(PyObject *self, PyObject *args)
 {
-    long i;
-    int reps = 25;
+    int i, reps = 25;
 
     PARSE_ONE_MPZ_OPT_CLONG(&reps,
             "is_prime() requires 'mpz',['int'] arguments");
@@ -1966,7 +1973,7 @@ Pympz_is_prime(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
-    i = (long) mpz_probab_prime_p(Pympz_AS_MPZ(self), reps);
+    i = mpz_probab_prime_p(Pympz_AS_MPZ(self), reps);
     Py_DECREF(self);
     if (i)
         Py_RETURN_TRUE;
@@ -1974,12 +1981,10 @@ Pympz_is_prime(PyObject *self, PyObject *args)
         Py_RETURN_FALSE;
 }
 
-static char doc_next_primeg[]="\
-next_prime(x): returns the smallest prime number > x.  Note that\n\
-GMP may use a probabilistic definition of 'prime', and also that\n\
-if x<0 GMP considers x 'prime' iff -x is prime; gmpy reflects these\n\
-GMP design choices. x must be an mpz, or else gets coerced to one.\n\
-";
+PyDoc_STRVAR(doc_next_primeg,
+"next_prime(x) -> mpz\n\n"
+"Return the next _probable_ prime number > x.");
+
 static PyObject *
 Pympz_next_prime(PyObject *self, PyObject *other)
 {
@@ -2007,10 +2012,10 @@ Pympz_next_prime(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_jacobig[]="\
-jacobi(x,y): returns the Jacobi symbol (x|y) (y should be odd and\n\
-must be positive); x and y must be mpz, or else get coerced to mpz.\n\
-";
+PyDoc_STRVAR(doc_jacobig,
+"jacobi(x, y) -> mpz\n\n"
+"Return the Jacobi symbol (x|y). y must be odd and >0.");
+
 static PyObject *
 Pympz_jacobi(PyObject *self, PyObject *args)
 {
@@ -2019,8 +2024,9 @@ Pympz_jacobi(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPZ(other, "jacobi() requires 'mpz','mpz' arguments");
 
-    if (mpz_sgn(Pympz_AS_MPZ(other)) <= 0) {
-        VALUE_ERROR("jacobi's y must be odd prime > 0");
+    if (mpz_sgn(Pympz_AS_MPZ(other)) <= 0 ||
+        mpz_even_p(Pympz_AS_MPZ(other))) {
+        VALUE_ERROR("y must be odd and >0");
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
@@ -2031,10 +2037,10 @@ Pympz_jacobi(PyObject *self, PyObject *args)
     return PyIntOrLong_FromLong(i);
 }
 
-static char doc_legendreg[]="\
-legendre(x,y): returns the Legendre symbol (x|y) (y should be odd\n\
-and must be positive); x must be an mpz, or else gets coerced to one.\n\
-";
+PyDoc_STRVAR(doc_legendreg,
+"legendre(x, y) -> mpz\n\n"
+"Return the Legendre symbol (x|y). y is assumed to be an odd prime.");
+
 static PyObject *
 Pympz_legendre(PyObject *self, PyObject *args)
 {
@@ -2043,8 +2049,9 @@ Pympz_legendre(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPZ(other, "legendre() requires 'mpz','mpz' arguments");
 
-    if (mpz_sgn(Pympz_AS_MPZ(other)) <= 0) {
-        VALUE_ERROR("legendre's y must be odd and > 0");
+    if (mpz_sgn(Pympz_AS_MPZ(other)) <= 0 ||
+        mpz_even_p(Pympz_AS_MPZ(other))) {
+        VALUE_ERROR("y must be odd and >0");
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
@@ -2055,30 +2062,33 @@ Pympz_legendre(PyObject *self, PyObject *args)
     return PyIntOrLong_FromLong(i);
 }
 
-static char doc_kroneckerg[]="\
-kronecker(x,y): returns the Kronecker-Jacobi symbol (x|y).\n\
-";
+PyDoc_STRVAR(doc_kroneckerg,
+"kronecker(x, y) -> mpz\n\n"
+"Return the Kronecker-Jacobi symbol (x|y).");
+
 static PyObject *
 Pympz_kronecker(PyObject *self, PyObject *args)
 {
     PyObject *other;
-    int ires;
+    long ires;
 
     PARSE_TWO_MPZ(other, "kronecker() requires 'mpz','mpz' arguments");
 
-    ires = mpz_kronecker(Pympz_AS_MPZ(self), (Pympz_AS_MPZ(other)));
+    ires = (long) mpz_kronecker(Pympz_AS_MPZ(self), (Pympz_AS_MPZ(other)));
 
     Py_DECREF(self);
     Py_DECREF(other);
     return PyIntOrLong_FromLong(ires);
 }
 
-static char doc_is_evenm[]="\
-x.is_even(): returns True if x is even, False otherwise.\n\
-";
-static char doc_is_eveng[]="\
-is_even(x): returns True if x is even, False otherwise.\n\
-";
+PyDoc_STRVAR(doc_is_evenm,
+"x.is_even() -> bool\n\n"
+"Return True if x is even, False otherwise.");
+
+PyDoc_STRVAR(doc_is_eveng,
+"is_even(x) -> bool\n\n"
+"Return True if x is even, False otherwise.");
+
 static PyObject *
 Pympz_is_even(PyObject *self, PyObject *other)
 {
@@ -2101,18 +2111,20 @@ Pympz_is_even(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)tempx);
         }
     }
-    if(res)
+    if (res)
         Py_RETURN_TRUE;
     else
         Py_RETURN_FALSE;
 }
 
-static char doc_is_oddm[]="\
-x.is_odd(): returns True if x is odd, False otherwise.\n\
-";
-static char doc_is_oddg[]="\
-is_odd(x): returns True if x is odd, False otherwise.\n\
-";
+PyDoc_STRVAR(doc_is_oddm,
+"x.is_odd() -> bool\n\n"
+"Return True if x is odd, False otherwise.");
+
+PyDoc_STRVAR(doc_is_oddg,
+"is_odd(x) -> bool\n\n"
+"Return True if x is odd, False otherwise.");
+
 static PyObject *
 Pympz_is_odd(PyObject *self, PyObject *other)
 {
@@ -2135,16 +2147,17 @@ Pympz_is_odd(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)tempx);
         }
     }
-    if(res)
+    if (res)
         Py_RETURN_TRUE;
     else
         Py_RETURN_FALSE;
 }
 
-static char doc_make_mpzm[]="\
-x.make_mpz(): returns x converted to an 'mpz'.\n\
-NOTE: Optimized for speed so x is set to 0!.\n\
-";
+PyDoc_STRVAR(doc_make_mpzm,
+"xmpz.make_mpz() -> mpz\n\n"
+"Return an mpz by converting an 'xmpz' to an 'mpz' as quickly as\n"
+"possible.\n\n"
+"NOTE: Optimized for speed so the original xmpz is set to 0!.");
 
 static PyObject *
 Pyxmpz_make_mpz(PyObject *self, PyObject *other)
@@ -2158,7 +2171,9 @@ Pyxmpz_make_mpz(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static char doc_xmpz_copy[]="x.copy(): returns a copy of x.\n";
+PyDoc_STRVAR(doc_xmpz_copy,
+"xmpz.copy() -> xmpz\n\n"
+"Return a copy of an xmpz.");
 
 static PyObject *
 Pyxmpz_copy(PyObject *self, PyObject *other)
@@ -2376,7 +2391,7 @@ Pympz_subscript(PyxmpzObject* self, PyObject* item)
 
 PyDoc_STRVAR(doc_mpz_format,
 "x.__format__(fmt) -> string\n\n"
-"Return a Python string by formatting 'x' using the format string\n"
+"Return a Python string by formatting mpz 'x' using the format string\n"
 "'fmt'. A valid format string consists of:\n"
 "     optional alignment code:\n"
 "        '<' -> left shifted in field\n"
@@ -2850,7 +2865,7 @@ static PyTypeObject Pympz_Type =
     Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_CLASS| \
     Py_TPFLAGS_HAVE_INPLACEOPS,
 #endif
-    "GNU Multi Precision signed integer",   /* tp_doc           */
+    "Multiple precision integer",           /* tp_doc           */
         0,                                  /* tp_traverse      */
         0,                                  /* tp_clear         */
     (richcmpfunc)&mpany_richcompare,        /* tp_richcompare   */
@@ -2895,7 +2910,7 @@ static PyTypeObject Pyxmpz_Type =
     Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_CLASS| \
     Py_TPFLAGS_HAVE_INPLACEOPS,
 #endif
-    "GNU Multi Precision signed integer",   /* tp_doc           */
+    "Multiple precision integer",           /* tp_doc           */
         0,                                  /* tp_traverse      */
         0,                                  /* tp_clear         */
     (richcmpfunc)&mpany_richcompare,        /* tp_richcompare   */

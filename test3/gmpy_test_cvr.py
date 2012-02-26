@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> _g.version()
-'2.0.0a3'
+'2.0.0b1'
 >>> int('gmpy2.c' in _g._cvsid())
 1
 '''
@@ -192,17 +192,13 @@ ValueError: iroot() of negative number
 >>> _g.digits(3,'peep')
 Traceback (most recent call last):
   ...
-TypeError: digits() requires 'mpz',['int'] arguments
+TypeError: digits() requires 'int' argument for base
 >>> _g.digits(3.14)
 ('31400000000000001', 1, 53)
->>> _g.digits(3,'peep')
-Traceback (most recent call last):
-  ...
-TypeError: digits() requires 'mpz',['int'] arguments
 >>> _g.mpz(3).digits('bu')
 Traceback (most recent call last):
   ...
-TypeError: digits() requires 'mpz',['int'] arguments
+TypeError: digits() requires 'int' argument for base
 >>> _g.mpfr(3).digits('bu')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -425,11 +421,11 @@ ValueError: isqrt() of negative number
 >>> _g.jacobi(23, -34)
 Traceback (most recent call last):
   ...
-ValueError: jacobi's y must be odd prime > 0
+ValueError: y must be odd and >0
 >>> _g.legendre(23, -34)
 Traceback (most recent call last):
   ...
-ValueError: legendre's y must be odd and > 0
+ValueError: y must be odd and >0
 >>> # guard against conversion error on 64-bit systems
 >>> _g.mpz(2**32) != _g.mpz(0)
 True

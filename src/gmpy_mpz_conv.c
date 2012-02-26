@@ -398,7 +398,7 @@ mpz_ascii(mpz_t z, int base, int option)
 
     if (!((base == 0) || ((base >= -36) && (base <= -2)) ||
         ((base >= 2) && (base <= 62)) )) {
-        VALUE_ERROR("base must be either 0 or in the interval 2 ... 62");
+        VALUE_ERROR("base must be in the interval 2 ... 62");
         return NULL;
     }
 
@@ -509,7 +509,7 @@ xmpz_ascii(mpz_t z, int base, int option)
 
     if (!((base == 0) || ((base >= -36) && (base <= -2)) ||
         ((base >= 2) && (base <= 62)) )) {
-        VALUE_ERROR("base must be either 0 or in the interval 2 ... 62");
+        VALUE_ERROR("base must be in the interval 2 ... 62");
         return NULL;
     }
 

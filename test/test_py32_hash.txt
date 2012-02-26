@@ -3,9 +3,10 @@ Test hash() behavior
 
 This test is only applicable for Python 3.2 and later.
 
-    >>> import gmpy2 as G
+    >>> import gmpy2
     >>> from gmpy2 import mpz, mpq, mpfr
     >>> from decimal import Decimal
+    >>> gmpy2.set_context(gmpy2.context())
 
 
     >>> hash(mpfr('123.456')) == hash(float('123.456'))

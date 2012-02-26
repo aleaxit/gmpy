@@ -575,7 +575,7 @@ a3
 >>> print(a.digits(63))
 Traceback (innermost last):
   ...
-ValueError: base must be either 0 or in the interval 2 ... 62
+ValueError: base must be in the interval 2 ... 62
 >>> _g.xmpz('43')
 xmpz(43)
 >>> _g.xmpz('043')
@@ -659,7 +659,7 @@ xmpz(573406620562849222387053)
 >>> _g.numdigits(23,99)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
-ValueError: base must be either 0 or in the interval 2 ... 62
+ValueError: base must be in the interval 2 ... 62
 >>> _g.xmpz(_g.mpz_from_old_binary(_g.binary(_g.xmpz(-123))))
 xmpz(-123)
 >>> int(_g.xmpz(-3))
