@@ -483,11 +483,10 @@ Pympc_convert_arg(PyObject *arg, PyObject **ptr)
 PyDoc_STRVAR(doc_mpc_digits,
 "c.digits(base=10, prec=0) -> ((mant, exp, prec), (mant, exp, prec))\n\n"
 "Returns up to 'prec' digits in the given base. If 'prec' is 0, as many\n"
-"digits that are available are returned. No more digits than available\n"
-"given c's precision are returned. 'base' must be between 2 and 62,\n"
-"inclusive. The result consists of 2 three-element tuples containing the\n"
-"mantissa, exponent, and number of bits of precision of the real and\n"
-"imaginary components.");
+"digits that are available given c's precision are returned. 'base' must\n"
+"be between 2 and 62. The result consists of 2 three-element tuples that\n"
+"contain the mantissa, exponent, and number of bits of precision of the\n"
+"real and imaginary components.");
 
 /* TODO: support keyword arguments. */
 
@@ -514,19 +513,19 @@ Pympc_digits(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_g_mpc,
-"mpc(c, [precision=0]) -> mpc\n"
+"mpc(c[, precision=0]) -> mpc\n\n"
 "      Return a new 'mpc' object from an existing complex number\n"
 "      (either a Python complex object or another 'mpc' object). If\n"
 "      the precision is not specified, then the precision is taken\n"
 "      from the current context. The rounding mode is always taken\n"
 "      from the current context.\n\n"
-"mpc(r, [i=0], [precision=0]) -> mpc\n"
+"mpc(r[, i=0[, precision=0]]) -> mpc\n\n"
 "      Return a new 'mpc' object by converting two non-complex numbers\n"
 "      into the real and imaginary components of an 'mpc' object. If\n"
 "      the precision is not specified, then the precision is taken from\n"
 "      the current context. The rounding mode is always taken from the\n"
 "      current context.\n\n"
-"mpc(s, [precision=0], [base=10]) -> mpc\n"
+"mpc(s[, [precision=0[, base=10]]) -> mpc\m\n"
 "      Return a new 'mpc' object by converting a string s into a complex\n"
 "      number. If base is omitted, then a base-10 representation is\n"
 "      assumed otherwise a base between 2 and 36 can be specified. If\n"
@@ -580,7 +579,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
         }
 
         if (base < 2 || base > 36) {
-            VALUE_ERROR("base for mpc() must be in the interval 2..36.");
+            VALUE_ERROR("base for mpc() must be in the interval 2 ... 36.");
             return NULL;
         }
 

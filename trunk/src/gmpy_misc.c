@@ -74,7 +74,7 @@ Pygmpy_get_mp_version(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_mpfr_version,
 "mpfr_version() -> string\n\n"
-"Return string giving current MPFR version. Return None if MPFR"
+"Return string giving current MPFR version. Return None if MPFR\n"
 "support is not available.");
 
 static PyObject *
@@ -90,7 +90,7 @@ Pygmpy_get_mpfr_version(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_mpc_version,
 "mpc_version() -> string\n\n"
-"Return string giving current MPC version. Return None if MPC"
+"Return string giving current MPC version. Return None if MPC\n"
 "support is not available.");
 
 static PyObject *

@@ -25,17 +25,17 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-static char doc_mpq[] = "\
-mpq(n):\n\
-      builds an 'mpq' object with a numeric value n. Decimal and\n\
-      Fraction values are converted exactly.\n\
-mpq(n,m):\n\
-      builds an 'mpq' object with a numeric value n/m.\n\
-mpq(s,base=10):\n\
-      builds an 'mpq' object from a string s made up of digits in the\n\
-      given base.  s may be made up of two numbers in the same base\n\
-      separated by a '/' character.\n\
-";
+PyDoc_STRVAR(doc_mpq,
+"mpq(n) -> mpq\n\n"
+"     Return an 'mpq' object with a numeric value n. Decimal and\n"
+"     Fraction values are converted exactly.\n\n"
+"mpq(n,m) -> mpq\n\n"
+"     Return an 'mpq' object with a numeric value n/m.\n\n"
+"mpq(s[, base=10]) -> mpq\n\n"
+"     Return an 'mpq' object from a string s made up of digits in\n"
+"     the given base. s may be made up of two numbers in the same\n"
+"     base separated by a '/' character.\n");
+
 static PyObject *
 Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
 {
@@ -122,11 +122,12 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
 /* Functions that operate strictly on mpq. */
 
 /* produce digits for an mpq in requested base, default 10 */
-static char doc_qdigitsm[]="\
-x.digits([base]): returns Python string representing x in the\n\
-given base (2 to 62, default 10 if omitted or 0); leading '-'\n\
-is present if x<0, but no leading '+' if x>=0.\n\
-";
+PyDoc_STRVAR(doc_qdigitsm,
+"x.digits([base=10]) -> string\n\n"
+"Return a Python string representing x in the given base (2 to 62,\n"
+"default is 10). A leading '-' is present if x<0, but no leading '+'\n"
+"is present if x>=0.\n");
+
 static PyObject *
 Pympq_digits(PyObject *self, PyObject *args)
 {
@@ -165,10 +166,10 @@ Pympq_sign(PyObject *self, PyObject *other)
     return PyIntOrLong_FromLong(res);
 }
 
-static char doc_numerg[]="\
-numer(x): returns numerator of x;\n\
-x must be an 'mpq', or else gets coerced to one.\n\
-";
+PyDoc_STRVAR(doc_numerg,
+"numer(x) -> mpz\n\n"
+"Return the numerator of x.");
+
 static PyObject *
 Pympq_numer(PyObject *self, PyObject *args)
 {
@@ -194,10 +195,10 @@ Pympq_getnumer(PympqObject *self, void *closure)
     return (PyObject*)result;
 }
 
-static char doc_denomg[]="\
-denom(x): returns denominator of x;\n\
-x must be an 'mpq', or else gets coerced to one.\n\
-";
+PyDoc_STRVAR(doc_denomg,
+"denom(x) -> mpz\n\n"
+"Return the denominator of x.");
+
 static PyObject *
 Pympq_denom(PyObject *self, PyObject *args)
 {
@@ -223,10 +224,11 @@ Pympq_getdenom(PympqObject *self, void *closure)
     return (PyObject*)result;
 }
 
-static char doc_qdivg[]="\
-qdiv(x,y=1): returns x/y as 'mpz' if possible, or as 'mpq'\n\
-if x is not exactly divisible by y.\n\
-";
+PyDoc_STRVAR(doc_qdivg,
+"qdiv(x[, y=1]) -> number\n\n"
+"Return x/y as 'mpz' if possible, or as 'mpq' if x is not exactly\n"
+"divisible by y.");
+
 static int isOne(PyObject* obj)
 {
     if (!obj)
@@ -785,7 +787,7 @@ static PyTypeObject Pympq_Type =
     Py_TPFLAGS_HAVE_RICHCOMPARE |
         Py_TPFLAGS_CHECKTYPES,              /* tp_flags         */
 #endif
-    "GNU Multi Precision rational number",  /* tp_doc           */
+    "Multiple precision rational",          /* tp_doc           */
         0,                                  /* tp_traverse      */
         0,                                  /* tp_clear         */
     (richcmpfunc)&mpany_richcompare,        /* tp_richcompare   */
