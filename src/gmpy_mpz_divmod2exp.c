@@ -37,10 +37,11 @@
  */
 
 PyDoc_STRVAR(doc_gmpy_c_divmod_2exp,
-"c_divmod_2exp(x,n): returns the quotient and remainder of x\n"
-"divided by 2**n. The quotient is rounded towards +Inf (ceiling\n"
-"rounding) and the remainder will be negative. x must be an\n"
-"integer. n must be > 0.");
+"c_divmod_2exp(x ,n) -> (quotient, remainder)\n\n"
+"Return the quotient and remainder of x divided by 2**n. The quotient\n"
+"is rounded towards +Inf (ceiling rounding) and the remainder will\n"
+"be negative. x must be an integer. n must be >0.");
+
 static PyObject *
 Pygmpy_c_divmod_2exp(PyObject *self, PyObject *args)
 {
@@ -83,9 +84,10 @@ Pygmpy_c_divmod_2exp(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_gmpy_c_div_2exp,
-"c_div_2exp(x,n): returns the quotient of x divided by 2**n. The\n"
-"quotient is rounded towards +Inf (ceiling rounding). x must be an\n"
-"integer. n must be > 0.");
+"c_div_2exp(x, n) -> quotient\n\n"
+"Returns the quotient of x divided by 2**n. The quotient is rounded\n"
+"towards +Inf (ceiling rounding). x must be an integer. n must be >0.");
+
 static PyObject *
 Pygmpy_c_div_2exp(PyObject *self, PyObject *args)
 {
@@ -123,8 +125,10 @@ Pygmpy_c_div_2exp(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_gmpy_c_mod_2exp,
-"c_mod_2exp(x,n): returns the remainder of x divided by 2**n. The\n"
-"remainder will be negative. x must be an integer. n must be > 0.");
+"c_mod_2exp(x, n) -> remainder\n\n"
+"Return the remainder of x divided by 2**n. The remainder will be\n"
+"negative. x must be an integer. n must be >0.");
+
 static PyObject *
 Pygmpy_c_mod_2exp(PyObject *self, PyObject *args)
 {
@@ -168,10 +172,11 @@ Pygmpy_c_mod_2exp(PyObject *self, PyObject *args)
  */
 
 PyDoc_STRVAR(doc_gmpy_f_divmod_2exp,
-"f_divmod_2exp(x,n): returns quotient and remainder after dividing\n"
-"x by 2**n. The quotient is rounded towards -Inf (floor rounding)\n"
-"and the remainder will be positive. x must be an integer. n must\n"
-"be > 0.");
+"f_divmod_2exp(x, n) -> (quotient, remainder)\n\n"
+"Return quotient and remainder after dividing x by 2**n. The quotient\n"
+"is rounded towards -Inf (floor rounding) and the remainder will be\n"
+"positive. x must be an integer. n must be >0.");
+
 static PyObject *
 Pygmpy_f_divmod_2exp(PyObject *self, PyObject *args)
 {
@@ -214,9 +219,10 @@ Pygmpy_f_divmod_2exp(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_gmpy_f_div_2exp,
-"f_div_2exp(x,n): returns the quotient of x divided by 2**n. The\n"
-"quotient is rounded towards -Inf (floor rounding). x must be an\n"
-"integer. n must be > 0.");
+"f_div_2exp(x, n) -? quotient\n\n"
+"Return the quotient of x divided by 2**n. The quotient is rounded\n"
+"towards -Inf (floor rounding). x must be an integer. n must be >0.");
+
 static PyObject *
 Pygmpy_f_div_2exp(PyObject *self, PyObject *args)
 {
@@ -254,9 +260,10 @@ Pygmpy_f_div_2exp(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_gmpy_f_mod_2exp,
-"f_mod_2exp(x,n): returns remainder of x divided by 2**n. The\n"
-"remainder will be positive. x must be an integer. n must be\n"
-"greater than 0.");
+"f_mod_2exp(x, n) -> remainder\n\n"
+"Return remainder of x divided by 2**n. The remainder will be\n"
+"positive. x must be an integer. n must be >0.");
+
 static PyObject *
 Pygmpy_f_mod_2exp(PyObject *self, PyObject *args)
 {
@@ -300,10 +307,11 @@ Pygmpy_f_mod_2exp(PyObject *self, PyObject *args)
  */
 
 PyDoc_STRVAR(doc_gmpy_t_divmod_2exp,
-"t_divmod_2exp(x,n): returns the quotient and remainder of x divided\n"
-"by 2**n. The quotient is rounded towards zero (truncation) and the\n"
-"remainder will have the same sign as x. x must be an integer. n must\n"
-"be > 0.");
+"t_divmod_2exp(x, n) -> (quotient, remaidner)\n\n"
+"Return the quotient and remainder of x divided by 2**n. The quotient\n"
+"is rounded towards zero (truncation) and the remainder will have the\n"
+"same sign as x. x must be an integer. n must be >0.");
+
 static PyObject *
 Pygmpy_t_divmod_2exp(PyObject *self, PyObject *args)
 {
@@ -346,8 +354,10 @@ Pygmpy_t_divmod_2exp(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_gmpy_t_div_2exp,
-"t_div_2exp(x,n): returns the quotient of x divided by 2**n. The\n"
-"quotient is rounded towards zero (truncation). n must be > 0.");
+"t_div_2exp(x, n) -> quotient\n\n"
+"Return the quotient of x divided by 2**n. The quotient is rounded\n"
+"towards zero (truncation). n must be >0.");
+
 static PyObject *
 Pygmpy_t_div_2exp(PyObject *self, PyObject *args)
 {
@@ -384,9 +394,10 @@ Pygmpy_t_div_2exp(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_gmpy_t_mod_2exp,
-"t_mod_2exp(x,n): returns the remainder of x divided by 2**n. The\n"
-"remainder will have the same sign as x. x must be an integer. n\n"
-"must be > 0.");
+"t_mod_2exp(x, n) -> remainder\n\n"
+"Return the remainder of x divided by 2**n. The remainder will have\n"
+"the same sign as x. x must be an integer. n must be >0.");
+
 static PyObject *
 Pygmpy_t_mod_2exp(PyObject *self, PyObject *args)
 {
@@ -436,10 +447,12 @@ Pygmpy_t_mod_2exp(PyObject *self, PyObject *args)
  */
 
 PyDoc_STRVAR(doc_gmpy_pack,
-"pack(l,n): packs a list of integers 'l' into a single 'mpz' by\n"
-"concatenating each integer after padding to length n bits. Raises\n"
+"pack(lst, n) -> mpz\n\n"
+"Pack a list of integers 'lst' into a single 'mpz' by concatenating\n"
+"each integer element of 'lst' after padding to length n bits. Raises\n"
 "an error if any integer is negative or greater than n bits in\n"
 "length.");
+
 static PyObject *
 Pygmpy_pack(PyObject *self, PyObject *args)
 {
@@ -523,8 +536,10 @@ Pygmpy_pack(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_gmpy_unpack,
-"unpack(x,n): unpacks an integer 'x' into a list of n-bit values.\n"
-"Raises error if 'x' is negative.");
+"unpack(x, n) -> list\n\n"
+"Unpack an integer 'x' into a list of n-bit values. Equivalent to\n"
+"repeated division by 2**n. Raises error if 'x' is negative.");
+
 static PyObject *
 Pygmpy_unpack(PyObject *self, PyObject *args)
 {

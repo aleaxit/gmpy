@@ -27,11 +27,11 @@
 
 /* A GMPyContextObject contains an instance of the C struct gmpy_context
  * and a PyObject* used to reference the enclosing instance when used as a
- * context manager in Python. 
- * 
- * gmpy2 uses a global pointer "context" to refer to the active 
+ * context manager in Python.
+ *
+ * gmpy2 uses a global pointer "context" to refer to the active
  * GMPyContextObject.
- * 
+ *
  * WARNING: The context manager is not thread-safe. This may be fixed in a
  *          future version.
  */
@@ -243,7 +243,7 @@ Pygmpy_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
     /* Temporarily save the options of the global context manager in case
      * there is an error while processing the arguments.
      */
-     
+
     old = context->now;
 
 #ifdef WITHMPC
@@ -369,7 +369,7 @@ Pygmpy_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
     /* The values in the global context manager have been changed. Also return
      * another reference to that context manager.
      */
-     
+
     Py_INCREF((PyObject*)context);
     return (PyObject*)context;
 }
@@ -378,8 +378,8 @@ Pygmpy_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
 
 PyDoc_STRVAR(doc_context,
 "context() -> context manager\n\n"
-"Return a new context manager controlling MPFR and MPC arithmetic. Options\n"
-"can only be specified as keyword arguments. \n\n"
+"Return a new context manager controlling MPFR and MPC arithmetic.\n"
+"Options can only be specified as keyword arguments. \n\n"
 "    precision:      precision, in bits, of an MPFR result\n"
 "    mpc_rprec:      precision, in bits, of Re(MPC)\n"
 "                      -1 implies use mpfr_prec\n"
@@ -407,8 +407,8 @@ PyDoc_STRVAR(doc_context,
 "                    if False, set divzero flag and return Inf or -Inf\n"
 "    trap_expbound:  if True, raise exception when mpfr/mpc exponent\n"
 "                        no longer valid in current context\n"
-"                    if False, mpfr/mpc with exponent out-of-bounds will\n"
-"                        coerced to either 0 or Infinity\n"
+"                    if False, mpfr/mpc with exponent out-of-bounds\n"
+"                        will be coerced to either 0 or Infinity\n"
 "    allow_complex:  if True, allow mpfr functions to return mpc\n"
 "                    if False, mpfr functions cannot return an mpc\n");
 
@@ -459,7 +459,7 @@ Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
     static char *kwlist[] = {
         "precision", "round", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
-        "trap_invalid", "trap_erange", "trap_divzero", 
+        "trap_invalid", "trap_erange", "trap_divzero",
         "trap_expbound", NULL };
 #endif
 
@@ -638,7 +638,7 @@ GMPyContext_enter(PyObject *self, PyObject *args)
         SYSTEM_ERROR("Internal error in GMPyContext_enter");
         return NULL;
     }
-        
+
 
     ((GMPyContextObject*)self)->orig = (PyObject*)save;
     Py_DECREF((PyObject*)context);

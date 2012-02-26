@@ -68,9 +68,9 @@ Pympz_FROM_MPZ(mpz_t z)
     return self;
 }
 
-static char doc_mpmath_normalizeg[]="\
-_mpmath_normalize(...): helper function for mpmath.\n\
-";
+PyDoc_STRVAR(doc_mpmath_normalizeg,
+"_mpmath_normalize(...): helper function for mpmath.");
+
 static PyObject *
 Pympz_mpmath_normalize(PyObject *self, PyObject *args)
 {
@@ -216,9 +216,9 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     return mpmath_build_mpf(sign, Pympz_FROM_MPZ(upper), newexp2, bc);
 }
 
-static char doc_mpmath_createg[]="\
-_mpmath_create(...): helper function for mpmath.\n\
-";
+PyDoc_STRVAR(doc_mpmath_createg,
+"_mpmath_create(...): helper function for mpmath.");
+
 static PyObject *
 Pympz_mpmath_create(PyObject *self, PyObject *args)
 {

@@ -661,7 +661,7 @@ Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
 #ifdef DEBUG
     if (global.debug)
         fprintf(stderr, "Pympfr_From_Real(%p,%ld)->%p (%ld)\n", (void *)obj,
-                (long)bits, (void *)newob, 
+                (long)bits, (void *)newob,
                 newob != 0 ? (long)mpfr_get_prec(newob->f) : -1);
 #endif
     if (!newob)
@@ -694,8 +694,6 @@ PyDoc_STRVAR(doc_g_mpfr_f2q,
 "Default is the precision of x. Uses Stern-Brocot tree to find the\n"
 "'best' approximation. An 'mpz' is returned if the the denominator\n"
 "is 1. If 'err'<0, error sought is 2.0 ** err.");
-
-/* TODO: Redo f2q. Ref-counting looks strange. */
 
 static PyObject *
 Pympfr_f2q(PyObject *self, PyObject *args)
@@ -758,22 +756,22 @@ Pympfr2repr(PympfrObject *self)
     return result;
 }
 
-static char doc_mpfr[] = "\
-mpfr(n,[precison=0]):\n\
-      Return an 'mpfr' object after converting a numeric value. If\n\
-      no precision, or a precision of 0, is specified; the precison\n\
-      is taken from the current context.\n\
-mpfr(s,[precision=0],[base=0]):\n\
-      Return 'mpfr' object after converting a string 's' made up of\n\
-      digits in the given base, possibly with fraction-part (with\n\
-      period as a separator) and/or exponent-part (with exponent\n\
-      marker 'e' for base<=10, else '@'). If no precision, or a\n\
-      precision of 0, is specified; the precison is taken from the\n\
-      current context. The base of the string representation must\n\
-      be 0 or in the interval 2 ... 62. If the base is 0, the leading\n\
-      digits of the string are used to identify the base: 0b implies\n\
-      base=2, 0x implies base=16, otherwise base=10 is assumed.\n\
-";
+PyDoc_STRVAR(doc_mpfr,
+"mpfr(n[, precison=0]) -> mpfr\n\n"
+"     Return an 'mpfr' object after converting a numeric value. If\n"
+"     no precision, or a precision of 0, is specified; the precison\n"
+"     is taken from the current context.\n\n"
+"mpfr(s[, precision=0[, [base=0]]) -> mpfr\n\n"
+"     Return 'mpfr' object after converting a string 's' made up of\n"
+"     digits in the given base, possibly with fraction-part (with\n"
+"     period as a separator) and/or exponent-part (with exponent\n"
+"     marker 'e' for base<=10, else '@'). If no precision, or a\n"
+"     precision of 0, is specified; the precison is taken from the\n"
+"     current context. The base of the string representation must\n"
+"     be 0 or in the interval 2 ... 62. If the base is 0, the leading\n"
+"     digits of the string are used to identify the base: 0b implies\n"
+"     base=2, 0x implies base=16, otherwise base=10 is assumed.\n");
+
 static PyObject *
 Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
 {
@@ -951,7 +949,7 @@ PyDoc_STRVAR(doc_g_mpfr_get_max_precision,
 "get_max_precision() -> integer\n\n"
 "Return the maximum bits of precision that can be used for calculations.\n"
 "Note: to allow extra precision for intermediate calculations, avoid\n"
-"setting precision close the maximum precisicon.");
+"setting precision close the maximum precision.");
 
 static PyObject *
 Pympfr_get_max_precision(PyObject *self, PyObject *args)
@@ -961,8 +959,9 @@ Pympfr_get_max_precision(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_g_mpfr_get_exp,
 "get_exp(mpfr) -> integer\n\n"
-"Return the exponent of an mpfr. Returns 0 for NaN or Infinity, sets\n"
-"the erange flag and will raise an exception if trap_erange is set.");
+"Return the exponent of an mpfr. Returns 0 for NaN or Infinity and\n"
+"sets the erange flag and will raise an exception if trap_erange\n"
+"is set.");
 
 static PyObject *
 Pympfr_get_exp(PyObject *self, PyObject *other)
@@ -970,7 +969,7 @@ Pympfr_get_exp(PyObject *self, PyObject *other)
     PyObject *result = 0;
     Py_ssize_t exp;
 
-    PARSE_ONE_MPFR_OTHER("get_exp() requires 'mpfr. argument");
+    PARSE_ONE_MPFR_OTHER("get_exp() requires 'mpfr' argument");
 
     if (mpfr_regular_p(Pympfr_AS_MPFR(self))) {
         exp = (Py_ssize_t)mpfr_get_exp(Pympfr_AS_MPFR(self));
@@ -1153,8 +1152,8 @@ Pympfr_set_nan(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(doc_g_mpfr_set_inf,
 "inf(n) -> mpfr\n\n"
-"Return an 'mpfr' initialized to Infinity with the same sign as n. If n is\n"
-"not given, +Infinity is returned.");
+"Return an 'mpfr' initialized to Infinity with the same sign as n.\n"
+"If n is not given, +Infinity is returned.");
 
 static PyObject *
 Pympfr_set_inf(PyObject *self, PyObject *args)
@@ -1177,8 +1176,8 @@ Pympfr_set_inf(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_g_mpfr_set_zero,
 "zero(n) -> mpfr\n\n"
-"Return an 'mpfr' inialized to 0.0 with the same sign as n. If n is not\n"
-"given, +0.0 is returned.");
+"Return an 'mpfr' inialized to 0.0 with the same sign as n.\n"
+"If n is not given, +0.0 is returned.");
 
 static PyObject *
 Pympfr_set_zero(PyObject *self, PyObject *args)
@@ -1307,7 +1306,7 @@ MPFR_TEST_OTHER(integer, "is_integer() requires 'mpfr' argument");
 /* produce string for an mpfr with requested/defaulted parameters */
 
 PyDoc_STRVAR(doc_mpfr_digits,
-"x.digits(base=10, prec=0) -> (mantissa, exponent, bits)\n\n"
+"x.digits([base=10[, prec=0]]) -> (mantissa, exponent, bits)\n\n"
 "Returns up to 'prec' digits in the given base. If 'prec' is 0, as many\n"
 "digits that are available are returned. No more digits than available\n"
 "given x's precision are returned. 'base' must be between 2 and 62,\n"
@@ -1339,7 +1338,7 @@ Pympfr_digits(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_mpfr_integer_ratio,
-"x.as_integer_ratio() -> (num,den)\n\n"
+"x.as_integer_ratio() -> (num, den)\n\n"
 "Return the exact rational equivalent of an mpfr. Value is a tuple\n"
 "for compatibility with Python's float.as_integer_ratio().");
 
@@ -1427,7 +1426,7 @@ Pympfr_mantissa_exp(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_mpfr_simple_fraction,
-"x.as_simple_fraction(precision=0) -> mpq\n\n"
+"x.as_simple_fraction([precision=0]) -> mpq\n\n"
 "Return a simple rational approximation to x. The result will be\n"
 "accurate to 'precision' bits. If 'precision' is 0, the precision\n"
 "of 'x' will be used.");
@@ -1660,7 +1659,7 @@ Pympfr_rec_sqrt(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(doc_mpfr_root,
-"root(x,n) -> number\n\n"
+"root(x, n) -> mpfr\n\n"
 "Return n-th root of x. The result always an 'mpfr'.");
 
 static PyObject *
@@ -1686,10 +1685,11 @@ Pympfr_root(PyObject *self, PyObject *args)
     MPFR_CLEANUP_SELF("root()");
 }
 
-static char doc_g_mpfr_round[] = "\
-round(x, n): returns x rounded to n bits. Uses default precision\n\
-if n is not specified. See round2() to access the mpfr_round()\n\
-function.";
+PyDoc_STRVAR(doc_g_mpfr_round,
+"round(x[, n]) -> mpfr\n\n"
+"Return x rounded to n bits. Uses default precision if n is not\n"
+"specified. See round2() to access the mpfr_round() function.");
+
 static PyObject *
 Pympfr_round(PyObject *self, PyObject *args)
 {
@@ -1714,11 +1714,11 @@ Pympfr_round(PyObject *self, PyObject *args)
     MPFR_CLEANUP_SELF("round()");
 }
 
-static char doc_g_mpfr_reldiff[] = "\
-reldiff(x,y): returns the relative difference between x and y,\n\
-where x and y can be any numbers and get coerced to mpfr; result is\n\
-an mpfr roughly equal to abs(x-y)/x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_reldiff,
+"reldiff(x, y) -> mpfr\n\n"
+"Return the relative difference between x and y. Result is equal to\n"
+"abs(x-y)/x.");
+
 static PyObject *
 Pympfr_reldiff(PyObject *self, PyObject *args)
 {
@@ -1804,41 +1804,42 @@ Pympfr_##NAME(PyObject* self, PyObject *other) \
     MPFR_CLEANUP_SELF(#NAME "()"); \
 }
 
-static char doc_mpfr_ceil[]="\
-x.__ceil__(): returns an 'mpfr' that is the smallest integer >= x\n\
-";
-static char doc_g_mpfr_ceil[]="\
-ceil(x): returns an 'mpfr' that is the smallest integer >= x\n\
-x must be an 'mpfr', or else gets coerced to one.\n\
-";
+PyDoc_STRVAR(doc_mpfr_ceil,
+"x.__ceil__() -> mpfr\n\n"
+"Return an 'mpfr' that is the smallest integer >= x.");
+
+PyDoc_STRVAR(doc_g_mpfr_ceil,
+"ceil(x) ->mpfr\n\n"
+"Return an 'mpfr' that is the smallest integer >= x.");
 
 MPFR_UNIOP_NOROUND(ceil)
 
-static char doc_mpfr_floor[]="\
-x.__floor__(): returns an 'mpfr' that is the smallest integer <= x\n\
-";
-static char doc_g_mpfr_floor[]="\
-floor(x): returns an 'mpfr' that is the smallest integer <= x\n\
-x must be an 'mpfr', or else gets coerced to one.\n\
-";
+PyDoc_STRVAR(doc_mpfr_floor,
+"x.__floor__() -> mpfr\n\n"
+"Return an 'mpfr' that is the smallest integer <= x.");
+
+PyDoc_STRVAR(doc_g_mpfr_floor,
+"floor(x) -> mpfr\n\n"
+"Return an 'mpfr' that is the smallest integer <= x.");
 
 MPFR_UNIOP_NOROUND(floor);
 
-static char doc_mpfr_trunc[]="\
-x.__trunc__(): returns an 'mpf'r that is truncated towards 0\n\
-(same as x.floor() if x>=0, x.ceil() if x<0).\n\
-";
-static char doc_g_mpfr_trunc[]="\
-trunc(x): returns an 'mpfr' that is x truncated towards 0\n\
-(same as x.floor() if x>=0, x.ceil() if x<0). x must be an\n\
-'mpfr', or else gets coerced to one.\n\
-";
+PyDoc_STRVAR(doc_mpfr_trunc,
+"x.__trunc__() -> mpfr\n\n"
+"Return an 'mpfr' that is truncated towards 0. Same as\n"
+"x.floor() if x>=0 or x.ceil() if x<0.");
+
+PyDoc_STRVAR(doc_g_mpfr_trunc,
+"trunc(x) -> mpfr\n\n"
+"Return an 'mpfr' that is x truncated towards 0. Same as\n"
+"x.floor() if x>=0 or x.ceil() if x<0.");
 
 MPFR_UNIOP_NOROUND(trunc)
 
-static char doc_g_mpfr_round2[]="\
-round2(x): returns an 'mpfr' that is x rounded to the nearest\n\
-integer, with ties rounded away from 0.";
+PyDoc_STRVAR(doc_g_mpfr_round2,
+"round2(x) -> mpfr\n\n"
+"Return an 'mpfr' that is x rounded to the nearest integer,\n"
+"with ties rounded away from 0.");
 
 static PyObject *
 Pympfr_round2(PyObject* self, PyObject *other)
@@ -1970,15 +1971,15 @@ MPFR_UNIOP(cbrt)
 
 MPFR_UNIOP(log)
 
-static char doc_g_mpfr_log2[]="\
-log2(x): returns base-2 logarithm of x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_log2,
+"log2(x) -> mpfr\n\n"
+"Return base-2 logarithm of x.");
 
 MPFR_UNIOP(log2)
 
-static char doc_g_mpfr_log10[]="\
-log10(x): returns base-10 logarithm of x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_log10,
+"log10(x) -> mpfr\n\n"
+"Return base-10 logarithm of x.");
 
 MPFR_UNIOP(log10)
 
@@ -1986,15 +1987,15 @@ MPFR_UNIOP(log10)
 
 MPFR_UNIOP(exp)
 
-static char doc_g_mpfr_exp2[]="\
-exp2(x): returns 2**x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_exp2,
+"exp2(x) -> mpfr\n\n"
+"Return 2**x.");
 
 MPFR_UNIOP(exp2)
 
-static char doc_g_mpfr_exp10[]="\
-exp10(x): returns 10**x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_exp10,
+"exp10(x) -> mpfr\n\n"
+"Return 10**x.");
 
 MPFR_UNIOP(exp10)
 
@@ -2004,21 +2005,21 @@ MPFR_UNIOP(cos)
 
 MPFR_UNIOP(tan)
 
-static char doc_g_mpfr_sec[]="\
-sec(x): returns secant of x; x in radians.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_sec,
+"sec(x) -> mpfr\n\n"
+"Return secant of x; x in radians.");
 
 MPFR_UNIOP(sec)
 
-static char doc_g_mpfr_csc[]="\
-csc(x): returns cosecant of x; x in radians.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_csc,
+"csc(x) -> mpfr\n\n"
+"Return cosecant of x; x in radians.");
 
 MPFR_UNIOP(csc)
 
-static char doc_g_mpfr_cot[]="\
-cot(x): returns cotangent of x; x in radians.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_cot,
+"cot(x) -> mpfr\n\n"
+"Return cotangent of x; x in radians.");
 
 MPFR_UNIOP(cot)
 
@@ -2084,21 +2085,21 @@ MPFR_UNIOP(sinh)
 
 MPFR_UNIOP(tanh)
 
-static char doc_g_mpfr_sech[]="\
-sech(x): returns hyperbolic secant of x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_sech,
+"sech(x) -> mpfr\n\n"
+"Returns hyperbolic secant of x.");
 
 MPFR_UNIOP(sech)
 
-static char doc_g_mpfr_csch[]="\
-csch(x): returns hyperbolic cosecant of x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_csch,
+"csch(x) -> mpfr\n\n"
+"Return hyperbolic cosecant of x.");
 
 MPFR_UNIOP(csch)
 
-static char doc_g_mpfr_coth[]="\
-coth(x): returns hyperbolic cotangent of x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_coth,
+"coth(x) -> mpfr\n\n"
+"Return hyperbolic cotangent of x.");
 
 MPFR_UNIOP(coth)
 
@@ -2134,39 +2135,39 @@ Pympfr_atanh(PyObject* self, PyObject *other)
 }
 
 
-static char doc_g_mpfr_log1p[]="\
-log1p(x): returns logarithm of (1+x).\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_log1p,
+"log1p(x) -> mpfr\n\n"
+"Return logarithm of (1+x).");
 
 MPFR_UNIOP(log1p)
 
-static char doc_g_mpfr_expm1[]="\
-expm1(x): returns exponential(x) - 1.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_expm1,
+"expm1(x) -> mpfr\n\n"
+"Return exponential(x) - 1.");
 
 MPFR_UNIOP(expm1)
 
-static char doc_g_mpfr_eint[]="\
-eint(x): returns exponential integral of x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_eint,
+"eint(x) -> mpfr\n\n"
+"Return exponential integral of x.");
 
 MPFR_UNIOP(eint)
 
-static char doc_g_mpfr_li2[]="\
-li2(x): returns real part of dilogarithm of x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_li2,
+"li2(x) -> mpfr\n\n"
+"Return real part of dilogarithm of x.");
 
 MPFR_UNIOP(li2)
 
-static char doc_g_mpfr_gamma[]="\
-gamma(x): returns gamma of x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_gamma,
+"gamma(x) -> mpfr\n\n"
+"Return gamma of x.");
 
 MPFR_UNIOP(gamma)
 
-static char doc_g_mpfr_lngamma[]="\
-lngamma(x): returns logarithm of gamma(x).\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_lngamma,
+"lngamma(x) -> mpfr\n\n"
+"Return logarithm of gamma(x).");
 
 MPFR_UNIOP(lngamma)
 
@@ -2210,39 +2211,39 @@ Pympfr_lgamma(PyObject* self, PyObject *other)
     return result;
 }
 
-static char doc_g_mpfr_digamma[]="\
-digamma(x): returns digamma of x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_digamma,
+"digamma(x) -> mpfr\n\n"
+"Return digamma of x.");
 
 MPFR_UNIOP(digamma)
 
-static char doc_g_mpfr_zeta[]="\
-zeta(x): returns Riemann zeta of x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_zeta,
+"zeta(x) -> mpfr\n\n"
+"Return Riemann zeta of x.");
 
 MPFR_UNIOP(zeta)
 
-static char doc_g_mpfr_erf[]="\
-erf(x): returns error function of x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_erf,
+"erf(x) -> mpfr\n\n"
+"Return error function of x.");
 
 MPFR_UNIOP(erf)
 
-static char doc_g_mpfr_erfc[]="\
-erfc(x): returns complementary error function of x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_erfc,
+"erfc(x) -> mpfr\n\n"
+"Return complementary error function of x.");
 
 MPFR_UNIOP(erfc)
 
-static char doc_g_mpfr_j0[]="\
-j0(x): returns first kind Bessel function of order 0 of x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_j0,
+"j0(x) -> mpfr\n\n"
+"Return first kind Bessel function of order 0 of x.");
 
 MPFR_UNIOP(j0)
 
-static char doc_g_mpfr_j1[]="\
-j1(x): returns first kind Bessel function of order 1 of x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_j1,
+"j1(x) -> mpfr\n\n"
+"Return first kind Bessel function of order 1 of x.");
 
 MPFR_UNIOP(j1)
 
@@ -2267,9 +2268,9 @@ Pympfr_jn(PyObject *self, PyObject *args)
     MPFR_CLEANUP_SELF("jn()");
 }
 
-static char doc_g_mpfr_y0[]="\
-y0(x): returns second kind Bessel function of order 0 of x.\n\
-";
+PyDoc_STRVAR(doc_g_mpfr_y0,
+"y0(x) -> mpfr\n\n"
+"Return second kind Bessel function of order 0 of x.");
 
 MPFR_UNIOP(y0)
 
@@ -2376,7 +2377,7 @@ Pympfr_div(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_g_mpfr_fmod,
 "fmod(x, y) -> mpfr\n\n"
-"Return x - n * y where n is the integer quotient of x/y, rounded to 0.");
+"Return x - n*y where n is the integer quotient of x/y, rounded to 0.");
 
 static PyObject *
 Pympfr_fmod(PyObject *self, PyObject *args)
@@ -2397,7 +2398,7 @@ Pympfr_fmod(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_g_mpfr_remainder,
 "remainder(x, y) -> mpfr\n\n"
-"Return x - n * y where n is the integer quotient of x/y, rounded to\n"
+"Return x - n*y where n is the integer quotient of x/y, rounded to\n"
 "the nearest integer and ties rounded to even.");
 
 static PyObject *
@@ -2460,7 +2461,7 @@ Pympfr_remquo(PyObject* self, PyObject *args)
 
 PyDoc_STRVAR(doc_g_mpfr_frexp,
 "frexp(x) -> (int, mpfr)\n\n"
-"Return a tuple containing the exponent and mantissa of x quotient.");
+"Return a tuple containing the exponent and mantissa of x.");
 
 static PyObject *
 Pympfr_frexp(PyObject *self, PyObject *other)
@@ -2830,7 +2831,7 @@ Pympfr_fms(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_g_mpfr_factorial,
 "factorial(n) -> mpfr\n\n"
-"Return the floating-point approximation to the factorial of n.\n"
+"Return the floating-point approximation to the factorial of n.\n\n"
 "See fac(n) to get the exact integer result.");
 
 static PyObject *
@@ -2964,20 +2965,20 @@ Pympfr_fsum(PyObject *self, PyObject *other)
     mpfr_ptr *tab;
     int errcode;
     Py_ssize_t i, seq_length = 0;
-    
+
     if (!(result = Pympfr_new(0)))
         return NULL;
-        
+
     if (!(other = PySequence_List(other))) {
         Py_DECREF((PyObject*)result);
         TYPE_ERROR("argument must be an iterable");
         return NULL;
     }
-        
+
     /* other contains a new list containing all the values from the
      * iterable. Now make sure each item in the list is an mpfr.
      */
-     
+
     seq_length = PyList_GET_SIZE(other);
     for (i=0; i < seq_length; i++) {
         if (!(temp = Pympfr_From_Real(PyList_GET_ITEM(other, i), 0))) {
@@ -2986,7 +2987,7 @@ Pympfr_fsum(PyObject *self, PyObject *other)
             TYPE_ERROR("all items in iterable must be real numbers");
             return NULL;
         }
-      
+
         errcode = PyList_SetItem(other, i,(PyObject*)temp);
         if (errcode < 0) {
             Py_DECREF(other);
@@ -2995,9 +2996,9 @@ Pympfr_fsum(PyObject *self, PyObject *other)
             return NULL;
         }
     }
-    
+
     /* create an array of pointers to the mpfr_t field of a Pympfr object */
-    
+
     if (!(tab = (mpfr_ptr *)GMPY_MALLOC((sizeof(mpfr_srcptr) * seq_length)))) {
         Py_DECREF(other);
         Py_DECREF((PyObject*)result);
@@ -3394,7 +3395,7 @@ static PyTypeObject Pympfr_Type =
 #else
     Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,  /* tp_flags */
 #endif
-    "GNU Multi Precision floating point",   /* tp_doc           */
+    "Multiple precision real",              /* tp_doc           */
         0,                                  /* tp_traverse      */
         0,                                  /* tp_clear         */
     (richcmpfunc)&mpany_richcompare,        /* tp_richcompare   */

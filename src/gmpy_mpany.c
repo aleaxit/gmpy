@@ -72,7 +72,7 @@ Pympany_square(PyObject *self, PyObject *other)
  */
 
 PyDoc_STRVAR(doc_g_mpany_digits,
-"digits(x,[base,[prec]]) -> string\n\n"
+"digits(x[, base[, prec]]) -> string\n\n"
 "Return string representing x. Calls mpz.digits, mpq.digits,\n"
 "mpfr.digits, or mpc.digits as appropriate.");
 
@@ -315,7 +315,7 @@ Pympany_binary(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(doc_mpany_pow,
-"pow(b,e[,m]) -> number\n\n"
+"pow(b, e[, m]) -> number\n\n"
 "With two arguments, returns b**e. With three arguments, and if all\n"
 "three are integers, returns (b**e) % m.");
 
@@ -615,7 +615,7 @@ PyDoc_STRVAR(doc_mpany_sin_cos,
 MPANY_MPFR_MPC(sin_cos)
 
 PyDoc_STRVAR(doc_mpany_fma,
-"fma(x,y,z) -> number\n\n"
+"fma(x, y, z) -> number\n\n"
 "Return correctly rounded result of (x * y) + z.");
 
 static PyObject *
@@ -641,7 +641,7 @@ Pympany_fma(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_mpany_fms,
-"fms(x,y,z) -> number\n\n"
+"fms(x, y, z) -> number\n\n"
 "Return correctly rounded result of (x * y) - z.");
 
 static PyObject *

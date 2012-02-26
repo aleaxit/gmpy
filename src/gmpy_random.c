@@ -60,7 +60,7 @@ GMPY_random_state(PyObject *self, PyObject *args)
 {
     GMPYRandomStateObject *result;
     PympzObject *temp;
-    
+
     if (!(result = GMPYRandomState_New()))
         return NULL;
 
@@ -86,24 +86,25 @@ GMPY_random_state(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_mpz_urandomb,
 "mpz_urandomb(random_state, bit_count) -> mpz\n\n"
-"Return uniformly distributed random integer between 0 and 2**bit_count-1.");
+"Return uniformly distributed random integer between 0 and\n"
+"2**bit_count-1.");
 
 static PyObject *
 GMPY_mpz_urandomb(PyObject *self, PyObject *args)
 {
     PympzObject *result;
     mp_bitcnt_t len;
-    
+
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("mpz_urandomb() requires 2 arguments");
         return NULL;
     }
-    
+
     if (!GMPYRandomState_Check(PyTuple_GET_ITEM(args, 0))) {
         TYPE_ERROR("mpz_urandomb() requires 'random_state' and 'bit_count' arguments");
         return NULL;
     }
-    
+
     len = MP_BITCNT_FROM_INTEGER(PyTuple_GET_ITEM(args, 1));
     if (len == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
         TYPE_ERROR("mpz_urandomb() requires 'random_state' and 'bit_count' arguments");
@@ -111,35 +112,35 @@ GMPY_mpz_urandomb(PyObject *self, PyObject *args)
     }
 
     if ((result = Pympz_new())) {
-        mpz_urandomb(Pympz_AS_MPZ(result), 
+        mpz_urandomb(Pympz_AS_MPZ(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                      len);
     }
-        
+
     return (PyObject*)result;
 }
 
 PyDoc_STRVAR(doc_mpz_rrandomb,
 "mpz_rrandomb(random_state, bit_count) -> mpz\n\n"
-"Return a random integer between 0 and 2**bit_count-1 with long strings\n"
-"of zeros and one in its binary representation.");
+"Return a random integer between 0 and 2**bit_count-1 with long\n"
+"sequences of zeros and one in its binary representation.");
 
 static PyObject *
 GMPY_mpz_rrandomb(PyObject *self, PyObject *args)
 {
     PympzObject *result;
     mp_bitcnt_t len;
-    
+
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("mpz_rrandomb() requires 2 arguments");
         return NULL;
     }
-    
+
     if (!GMPYRandomState_Check(PyTuple_GET_ITEM(args, 0))) {
         TYPE_ERROR("mpz_rrandomb() requires 'random_state' and 'bit_count' arguments");
         return NULL;
     }
-    
+
     len = MP_BITCNT_FROM_INTEGER(PyTuple_GET_ITEM(args, 1));
     if (len == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
         TYPE_ERROR("mpz_rrandomb() requires 'random_state' and 'bit_count' arguments");
@@ -147,11 +148,11 @@ GMPY_mpz_rrandomb(PyObject *self, PyObject *args)
     }
 
     if ((result = Pympz_new())) {
-        mpz_rrandomb(Pympz_AS_MPZ(result), 
+        mpz_rrandomb(Pympz_AS_MPZ(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                      len);
     }
-        
+
     return (PyObject*)result;
 }
 
@@ -163,28 +164,28 @@ static PyObject *
 GMPY_mpz_random(PyObject *self, PyObject *args)
 {
     PympzObject *result, *temp;
-    
+
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("mpz_random() requires 2 arguments");
         return NULL;
     }
-    
+
     if (!GMPYRandomState_Check(PyTuple_GET_ITEM(args, 0))) {
         TYPE_ERROR("mpz_random() requires 'random_state' and 'int' arguments");
         return NULL;
     }
-    
+
     if (!(temp = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1)))) {
         TYPE_ERROR("mpz_random() requires 'random_state' and 'int' arguments");
         return NULL;
     }
 
     if ((result = Pympz_new())) {
-        mpz_urandomm(Pympz_AS_MPZ(result), 
+        mpz_urandomm(Pympz_AS_MPZ(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                      Pympz_AS_MPZ(temp));
     }
-    
+
     Py_DECREF((PyObject*)temp);
     return (PyObject*)result;
 }
@@ -198,23 +199,23 @@ static PyObject *
 GMPY_mpfr_random(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
-    
+
     if (PyTuple_GET_SIZE(args) != 1) {
         TYPE_ERROR("mpfr_random() requires 1 argument");
         return NULL;
     }
-    
+
     if (!GMPYRandomState_Check(PyTuple_GET_ITEM(args, 0))) {
         TYPE_ERROR("mpfr_random() requires 'random_state' argument");
         return NULL;
     }
-    
+
     if ((result = Pympfr_new(0))) {
-        mpfr_urandom(Pympfr_AS_MPFR(result), 
+        mpfr_urandom(Pympfr_AS_MPFR(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                      context->now.mpfr_round);
     }
-    
+
     return (PyObject*)result;
 }
 
@@ -226,17 +227,17 @@ static PyObject *
 GMPY_mpfr_grandom(PyObject *self, PyObject *args)
 {
     PympfrObject *result1, *result2;
-    
+
     if (PyTuple_GET_SIZE(args) != 1) {
         TYPE_ERROR("mpfr_grandom() requires 1 argument");
         return NULL;
     }
-    
+
     if (!GMPYRandomState_Check(PyTuple_GET_ITEM(args, 0))) {
         TYPE_ERROR("mpfr_grandom() requires 'random_state' argument");
         return NULL;
     }
-    
+
     result1 = Pympfr_new(0);
     result2 = Pympfr_new(0);
     if (!result1 || !result2) {
@@ -244,11 +245,11 @@ GMPY_mpfr_grandom(PyObject *self, PyObject *args)
         Py_XDECREF((PyObject*)result2);
         return NULL;
     }
-        
-    mpfr_grandom(Pympfr_AS_MPFR(result1), Pympfr_AS_MPFR(result2), 
+
+    mpfr_grandom(Pympfr_AS_MPFR(result1), Pympfr_AS_MPFR(result2),
                  PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                  context->now.mpfr_round);
-    
+
     return Py_BuildValue("(NN)", (PyObject*)result1, (PyObject*)result2);
 }
 #endif
@@ -262,22 +263,22 @@ static PyObject *
 GMPY_mpc_random(PyObject *self, PyObject *args)
 {
     PympcObject *result;
-    
+
     if (PyTuple_GET_SIZE(args) != 1) {
         TYPE_ERROR("mpfc_random() requires 1 argument");
         return NULL;
     }
-    
+
     if (!GMPYRandomState_Check(PyTuple_GET_ITEM(args, 0))) {
         TYPE_ERROR("mpc_random() requires 'random_state' argument");
         return NULL;
     }
-    
+
     if ((result = Pympc_new(0,0))) {
-        mpc_urandom(Pympc_AS_MPC(result), 
+        mpc_urandom(Pympc_AS_MPC(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)));
     }
-    
+
     return (PyObject*)result;
 }
 #endif

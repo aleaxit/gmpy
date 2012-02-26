@@ -35,9 +35,11 @@
  */
 
 PyDoc_STRVAR(doc_gmpy_c_divmod,
-"c_divmod(x,y): returns the quotient and remainder of x divided by\n"
-"y. The quotient is rounded towards +Inf (ceiling rounding) and the\n"
-"remainder will have the opposite sign of y. x and y must be integers.");
+"c_divmod(x, y) -> (quotient, remainder)\n\n"
+"Return the quotient and remainder of x divided by y. The quotient\n"
+"is rounded towards +Inf (ceiling rounding) and the remainder will\n"
+"have the opposite sign of y. x and y must be integers.");
+
 static PyObject *
 Pygmpy_c_divmod(PyObject *self, PyObject *args)
 {
@@ -94,8 +96,10 @@ Pygmpy_c_divmod(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_gmpy_c_div,
-"c_div(x,y): returns the quotient of x divided by y. The quotient\n"
-"is rounded towards +Inf (ceiling rounding). x and y must be integers.");
+"c_div(x, y) -> quotient\n\n"
+"Return the quotient of x divided by y. The quotient is rounded\n"
+"towards +Inf (ceiling rounding). x and y must be integers.");
+
 static PyObject *
 Pygmpy_c_div(PyObject *self, PyObject *args)
 {
@@ -145,8 +149,10 @@ Pygmpy_c_div(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_gmpy_c_mod,
-"c_mod(x,y): returns the remainder of x divided by y. The remainder\n"
-"will have the opposite sign of y. x and y must be integers.");
+"c_mod(x, y) -> remainder\n\n"
+"Return the remainder of x divided by y. The remainder will have\n"
+"the opposite sign of y. x and y must be integers.");
+
 static PyObject *
 Pygmpy_c_mod(PyObject *self, PyObject *args)
 {
@@ -202,9 +208,10 @@ Pygmpy_c_mod(PyObject *self, PyObject *args)
  */
 
 PyDoc_STRVAR(doc_gmpy_f_divmod,
-"f_divmod(x,y): returns the quotient and remainder of x divided by\n"
-"y. The quotient is rounded towards -Inf (floor rounding) and the\n"
-"remainder will have the same sign as y. x and y must be integers.");
+"f_divmod(x, y) -> (quotient, remainder)\n\n"
+"Return the quotient and remainder of x divided by y. The quotient\n"
+"is rounded towards -Inf (floor rounding) and the remainder will\n"
+"have the same sign as y. x and y must be integers.");
 
 static PyObject *
 Pygmpy_f_divmod(PyObject *self, PyObject *args)
@@ -262,8 +269,10 @@ Pygmpy_f_divmod(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_gmpy_f_div,
-"f_div(x,y): returns the quotient of x divided by y. The quotient\n"
-"is rounded towards -Inf (floor rounding). x and y must be integers.");
+"f_div(x, y) -> quotient\n\n"
+"Return the quotient of x divided by y. The quotient is rounded\n"
+"towards -Inf (floor rounding). x and y must be integers.");
+
 static PyObject *
 Pygmpy_f_div(PyObject *self, PyObject *args)
 {
@@ -313,8 +322,10 @@ Pygmpy_f_div(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_gmpy_f_mod,
-"f_mod(x,y): returns the remainder of x divided by y. The remainder\n"
-"will have the same sign as y. x and y must be integers.");
+"f_mod(x, y) -> remainder\n\n"
+"Return the remainder of x divided by y. The remainder will have\n"
+"the same sign as y. x and y must be integers.");
+
 static PyObject *
 Pygmpy_f_mod(PyObject *self, PyObject *args)
 {
@@ -370,9 +381,11 @@ Pygmpy_f_mod(PyObject *self, PyObject *args)
  */
 
 PyDoc_STRVAR(doc_gmpy_t_divmod,
-"t_divmod(x,y): returns the quotient and remainder of x divided by\n"
-"y. The quotient is rounded towards zero (truncation) and the\n"
-"remainder will have the same sign as x. x and y must be integers.");
+"t_divmod(x, y) -> (quotient, remainder)\n\n"
+"Return the quotient and remainder of x divided by y. The quotient\n"
+"is rounded towards zero (truncation) and the remainder will have\n"
+"the same sign as x. x and y must be integers.");
+
 static PyObject *
 Pygmpy_t_divmod(PyObject *self, PyObject *args)
 {
@@ -429,8 +442,10 @@ Pygmpy_t_divmod(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_gmpy_t_div,
-"t_div(x,y): returns the quotient of x divided by y. The quotient\n"
-"is rounded towards 0. x and y must be integers.");
+"t_div(x, y) -> quotient\n\n"
+"Return the quotient of x divided by y. The quotient is rounded\n"
+"towards 0. x and y must be integers.");
+
 static PyObject *
 Pygmpy_t_div(PyObject *self, PyObject *args)
 {
@@ -480,8 +495,10 @@ Pygmpy_t_div(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_gmpy_t_mod,
-"t_mod(x,y): returns the remainder of x divided by y. The remainder\n"
-"will have the same sign as x. x and y must be integers.");
+"t_mod(x, y) -> remainder\n\n"
+"Return the remainder of x divided by y. The remainder will have\n"
+"the same sign as x. x and y must be integers.");
+
 static PyObject *
 Pygmpy_t_mod(PyObject *self, PyObject *args)
 {
