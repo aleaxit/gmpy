@@ -33,7 +33,7 @@
  *
  * Version 2.00, April 2011 (created) casevh
  */
- 
+
 #ifndef GMPY_MPFR_H
 #define GMPY_MPFR_H
 
@@ -259,7 +259,6 @@ static PyObject * Pympfr2PyInt(PympfrObject *self);
 static PympfrObject * PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits);
 static PyObject * Pympfr2PyLong(PympfrObject *self);
 static PyObject * Pympfr2PyFloat(PympfrObject *self);
-static PyObject * Pympfr2binary(PympfrObject *self);
 static PyObject* Pympfr_ascii(PympfrObject *self, int base, int digits);
 static PympfrObject * Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
 static int Pympfr_convert_arg(PyObject *arg, PyObject **ptr);

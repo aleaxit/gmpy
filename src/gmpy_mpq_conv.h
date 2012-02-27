@@ -45,7 +45,6 @@ static PympqObject * PyInt2Pympq(PyObject *self);
 static PyObject * Pympq2PyInt(PympqObject *self);
 #endif
 static PyObject * Pympq2PyFloat(PympqObject *self);
-static PyObject * Pympq2binary(PympqObject *self);
 static PyObject * Pympq_ascii(PympqObject *self, int base, int option);
 
 static int isRational(PyObject* obj);

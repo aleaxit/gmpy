@@ -748,7 +748,6 @@ static PyGetSetDef Pympq_getseters[] =
 
 static PyMethodDef Pympq_methods [] =
 {
-    { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
     { "digits", Pympq_digits, METH_VARARGS, doc_qdigitsm },
     { NULL, NULL, 1 }
 };

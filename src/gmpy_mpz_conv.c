@@ -165,15 +165,6 @@ PyLong2Pyxmpz(PyObject * obj)
     return newob;
 }
 
-/* mpz conversion from string includes from-binary (base-256 LSB string
- * of bytes) and 'true' from-string (bases 2 to 62; bases 8 and 16 are
- * special -- decorations of leading 0/0x are allowed (not required).
- *
- * Binary form was previously (0.6) limited to >=0 values; now (0.7)
- * extended to <0 values, by adding one last sign-byte, 0xFF for <0,
- * 0x00 for >0 (the latter only if the #bits is exact multiple of 8).
- */
-
 /* mpz_set_PyStr returns -1 on error, 1 if successful. */
 
 static int
@@ -181,7 +172,7 @@ mpz_set_PyStr(mpz_ptr z, PyObject *s, long base)
 {
     unsigned char *cp;
     Py_ssize_t len;
-    int i;
+    size_t i;
     PyObject *ascii_str = NULL;
 
     assert(PyStrOrUnicode_Check(s));
@@ -318,60 +309,6 @@ Pympz2PyFloat(PympzObject *self)
     double res = mpz_get_d(self->z);
 
     return PyFloat_FromDouble(res);
-}
-
-/*
- *  build binary representation of mpz (base-256 little-endian)
- *  Note: design limitation used to forbid binary repr of <0 mpz;
- *  this has now been remedied, but at the price of full compatibility
- *  with files saved in gmpy releases 0.6 and earlier.
- */
-static PyObject *
-mpz2binary(mpz_ptr z)
-{
-    size_t size, usize;
-    int negative, needtrail;
-    char *buffer;
-    PyObject *s;
-
-    if (mpz_sgn(z) < 0) {
-        negative = 1;
-        mpz_neg(z, z); /* Change the sign temporarily! */
-    }
-    else {
-        negative = 0;
-    }
-
-    size = mpz_sizeinbase(z, 2);
-    needtrail = (size%8)==0;
-    usize = size = (size + 7) / 8;
-    if (negative || needtrail)
-        ++size;
-
-    TEMP_ALLOC(buffer, size);
-    buffer[0] = 0x00;
-    mpz_export(buffer, NULL, -1, sizeof(char), 0, 0, z);
-    if (usize < size) {
-        buffer[usize] = negative?0xff:0x00;
-    }
-    if (negative) {
-        mpz_neg(z, z);
-    }
-    s = PyBytes_FromStringAndSize(buffer, size);
-    TEMP_FREE(buffer, size);
-    return s;
-}
-
-static PyObject *
-Pympz2binary(PympzObject *self)
-{
-    return mpz2binary(self->z);
-}
-
-static PyObject *
-Pyxmpz2binary(PyxmpzObject *self)
-{
-    return mpz2binary(self->z);
 }
 
 /* Format an mpz into any base (2 to 62). Bits in the option parameter
