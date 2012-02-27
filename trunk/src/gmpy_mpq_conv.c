@@ -279,55 +279,6 @@ Pympq2PyFloat(PympqObject *self)
     return PyFloat_FromDouble(res);
 }
 
-/*
- *  build binary representation of mpq (base-256 little-endian
- *  for num, then den; before those, 4 bytes for _length_ of
- *  numerator, which also encode sign as the single top bit).
- */
-
-static PyObject *
-Pympq2binary(PympqObject *self)
-{
-    size_t sizenum, sizeden, size, sizetemp;
-    int negative = 0;
-    char *buffer;
-    int i;
-    PyObject *result;
-
-    if (mpq_sgn(self->q) < 0) {
-        negative = 1;
-        mpz_abs(mpq_numref(self->q), mpq_numref(self->q));
-    }
-    else {
-        negative = 0;
-    }
-    assert(mpz_sgn(mpq_denref(self->q)) > 0);
-
-    sizenum = (mpz_sizeinbase(mpq_numref(self->q), 2) + 7) / 8;
-    sizeden = (mpz_sizeinbase(mpq_denref(self->q), 2) + 7) / 8;
-    size = sizenum + sizeden + 4;
-
-    TEMP_ALLOC(buffer, size);
-
-    sizetemp = sizenum;
-    for (i=0; i<4; i++) {
-        buffer[i] = (char)(sizetemp & 0xff);
-        sizetemp >>= 8;
-    }
-    if (negative)
-        buffer[3] |= 0x80;
-    buffer[4] = 0x00;
-
-    mpz_export(buffer+4, NULL, -1, sizeof(char), 0, 0, mpq_numref(self->q));
-    mpz_export(buffer+sizenum+4, NULL, -1, sizeof(char), 0, 0, mpq_denref(self->q));
-    if (negative) {
-        mpz_neg( mpq_numref(self->q), mpq_numref(self->q));
-    }
-    result = PyBytes_FromStringAndSize(buffer, size);
-    TEMP_FREE(buffer, size);
-    return result;
-}
-
 static int qden_1(mpq_t q)
 {
     return 0 == mpz_cmp_ui(mpq_denref(q),1);

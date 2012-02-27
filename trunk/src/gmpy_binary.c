@@ -215,22 +215,561 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
 }
 #endif
 
-
-#if 0
-/* Format of binary representation of an mpfr.
+/* Format of the binary representation of an mpz/xmpz.
  *
- * bytes[0..3]         "mpfr"
- * byte[4.0]           if set, mantissa is negative
- * byte[4.1]           if set, exponent is negative
- * byte[4.2]           if set, value is 0, see [20.0] for sign
- * byte[4.3]           if set, value is Infinity, see [20.0] for sign
- * byte[4.4]           if set, value is NaN
- * byte[4.5...7]       # of bytes - 1 in precision and exponent
- * bytes[5...]         precision
- * bytes[5+plen...]    absolute value of exponent
- * bytes[5+2*plen...]  mantissa
+ * byte[0]:     1 => mpz
+ *              2 => xmpz
+ *              3 => mpq  (see Pympq_As_Binary)
+ *              4 => mpfr (see Pympfr_As_Binary)
+ *              5 => mpc  (see Pympc_As_Binary)
+ * byte[1:0-1]: 0 => value is 0
+ *              1 => value is > 0
+ *              2 => value is < 0
+ *              3 => unassigned
+ * byte[2]+: value
  */
 
+static PyObject *
+Pympz_As_Binary(PympzObject *self)
+{
+    size_t size = 2;
+    int sgn;
+    char *buffer;
+    PyObject *result;
+
+    sgn = mpz_sgn(self->z);
+    if (sgn == 0) {
+        TEMP_ALLOC(buffer, size);
+        buffer[0] = 0x01;
+        buffer[1] = 0x00;
+        goto done;
+    }
+
+    size = ((mpz_sizeinbase(self->z, 2) + 7) / 8) + 2;
+
+    TEMP_ALLOC(buffer, size);
+    buffer[0] = 0x01;
+    if (sgn > 0)
+        buffer[1] = 0x01;
+    else
+        buffer[1] = 0x02;
+    mpz_export(buffer+2, NULL, -1, sizeof(char), 0, 0, self->z);
+
+  done:
+    result = PyBytes_FromStringAndSize(buffer, size);
+    TEMP_FREE(buffer, size);
+    return result;
+}
+
+static PyObject *
+Pyxmpz_As_Binary(PyxmpzObject *self)
+{
+    size_t size = 2;
+    int sgn;
+    char *buffer;
+    PyObject *result;
+
+    sgn = mpz_sgn(self->z);
+    if (sgn == 0) {
+        TEMP_ALLOC(buffer, size);
+        buffer[0] = 0x02;
+        buffer[1] = 0x00;
+        goto done;
+    }
+
+    size = ((mpz_sizeinbase(self->z, 2) + 7) / 8) + 2;
+
+    TEMP_ALLOC(buffer, size);
+    buffer[0] = 0x02;
+    if (sgn > 0)
+        buffer[1] = 0x01;
+    else
+        buffer[1] = 0x02;
+    mpz_export(buffer+2, NULL, -1, sizeof(char), 0, 0, self->z);
+
+  done:
+    result = PyBytes_FromStringAndSize(buffer, size);
+    TEMP_FREE(buffer, size);
+    return result;
+}
+
+/* Format of the binary representation of an mpq.
+ *
+ * byte[0]:     1 => mpz  (see Pympz_As_Binary)
+ *              2 => xmpz (see Pyxmpz_As_Binary)
+ *              3 => mpq
+ *              4 => mpfr (see Pympfr_As_Binary)
+ *              5 => mpc  (see Pympc_As_Binary)
+ * byte[1:0-1]: 0 => value is 0
+ *              1 => value is > 0
+ *              2 => value is < 0
+ *              3 => unassigned
+ * byte[1:2-2]: 0 => 32-bit length (n=4)
+ *              1 => 64-bit length (n=8)
+ * byte[2+]:    numerator length, using either 4 or 8 bytes
+ * byte[2+n]+:  numerator, followed by denominator
+ */
+
+static PyObject *
+Pympq_As_Binary(PympqObject *self)
+{
+    size_t sizenum, sizeden, sizesize = 4, size = 2, sizetemp, i;
+    size_t count = 0;
+    int sgn;
+    char *buffer, large = 0x00;
+    PyObject *result = 0;
+
+    sgn = mpq_sgn(self->q);
+    if (sgn == 0) {
+        TEMP_ALLOC(buffer, size);
+        buffer[0] = 0x03;
+        buffer[1] = 0x00;
+        goto done;
+    }
+
+    sizenum = (mpz_sizeinbase(mpq_numref(self->q), 2) + 7) / 8;
+    sizeden = (mpz_sizeinbase(mpq_denref(self->q), 2) + 7) / 8;
+    size = sizenum + sizeden + 2;
+
+    /* Check if sizenum larger than 32 bits. */
+    if (sizenum >> 32) {
+        large = 0x04;
+        sizesize = 8;
+    }
+    size += sizesize;
+
+    TEMP_ALLOC(buffer, size);
+    buffer[0] = 0x03;
+    if (sgn > 0)
+        buffer[1] = 0x01 | large;
+    else
+        buffer[1] = 0x02 | large;
+
+    /* Copy sizenum to the buffer. */
+    sizetemp = sizenum;
+    for (i=0; i<sizesize; i++) {
+        buffer[i+2] = (char)(sizetemp & 0xff);
+        sizetemp >>= 8;
+    }
+
+    mpz_export(buffer+sizesize+2, &count, -1,
+               sizeof(char), 0, 0, mpq_numref(self->q));
+    if (count != sizenum) {
+        SYSTEM_ERROR("internal error in Pympq_As_Binary");
+        TEMP_FREE(buffer, size);
+        return NULL;
+    }
+    count = 0;
+    mpz_export(buffer+sizenum+sizesize+2, &count, -1,
+               sizeof(char), 0, 0, mpq_denref(self->q));
+    if (count != sizeden) {
+        SYSTEM_ERROR("internal error in Pympq_As_Binary");
+        TEMP_FREE(buffer, size);
+        return NULL;
+    }
+
+
+  done:
+    result = PyBytes_FromStringAndSize(buffer, size);
+    TEMP_FREE(buffer, size);
+    return result;
+}
+
+/* Format of the binary representation of an mpfr.
+ *
+ * byte[0]:      1 => mpz  (see Pympz_As_Binary)
+ *               2 => xmpz (see Pyxmpz_As_Binary)
+ *               3 => mpq  (see Pympq_As_Binary)
+ *               4 => mpfr
+ *               5 => mpc  (see Pympc_As_Binary)
+ * byte[1:0]:    0 => value is "special"
+ *               1 => value is an actual number
+ * byte[1:1]:    0 => signbit is clear
+ *               1 => signbit is set
+ * byte[1:2-2]:  0 => 32-bit lengths (n=4)
+ *               1 => 64-bit lengths (n=8)
+ * byte[1:3-4]:  0 => 0 (see signbit)
+ *               1 => value is NaN
+ *               2 => value is Inf (see signbit)
+ *               3 => unassigned
+ * byte[1:5]:    0 => exponent is positive
+ *               1 => exponent is negative
+ * byte[1:6]:    0 => 4 byte limbs
+ *               1 => 8 byte limbs
+ * byte[2]:      0 => rc = 0
+ *               1 => rc > 0
+ *               2 => rc < 0
+ * byte[3]:      mpfr.round_mode
+ * byte[4]+:     precision, saved in 4 or 8 bytes
+ * byte[4+n]+:   exponent, saved in 4 or 8 bytes
+ * byte[4+2n]+:  mantissa
+ */
+
+static PyObject *
+Pympfr_As_Binary(PympfrObject *self)
+{
+    size_t sizemant = 0, sizesize = 4, size = 4, sizetemp, i;
+    mp_limb_t templimb;
+    mpfr_prec_t precision;
+    mpfr_exp_t exponent = 0;
+    int sgn;
+    char *buffer, *cp, large = 0x00, expsgn = 0x00;
+    PyObject *result = 0;
+
+    /* Check if the precision, exponent and mantissa length can fit in
+     * 32 bits.
+     */
+
+    sgn = mpfr_signbit(self->f);
+    precision = mpfr_get_prec(self->f);
+
+    /* Exponent and mantiss are only valid for regular numbers
+     * (not 0, Nan, Inf, -Inf).
+     */
+    if (mpfr_regular_p(self->f)) {
+        exponent = self->f->_mpfr_exp;
+        if (exponent < 0) {
+            exponent = -exponent;
+            expsgn = 0x20;
+        }
+        /* Calculate the size of mantissa in limbs */
+        sizemant = (self->f->_mpfr_prec + mp_bits_per_limb - 1)/mp_bits_per_limb;
+    }
+    if ((exponent >> 32) || (precision >> 32) || (sizemant >> 32)) {
+        sizesize = 8;
+        large = 0x04;
+    }
+
+    if (!mpfr_regular_p(self->f)) {
+        /* Only need to save the precision. */
+        size += sizesize;
+        TEMP_ALLOC(buffer, size);
+        buffer[0] = 0x04;
+
+        /* Set to all 0 since we are special. */
+        buffer[1] = 0x00;
+
+        /* Set the sign bit. */
+        if (sgn) buffer[1] |= 0x02;
+
+        /* 4 or 8 byte values. */
+        buffer[1] |= large;
+
+        /* Check if NaN. */
+        if (mpfr_nan_p(self->f)) buffer[1] |= 0x08;
+
+        /* Check if Infinity. */
+        if (mpfr_inf_p(self->f)) buffer[1] |= 0x10;
+
+        /* Save the result code */
+        if (self->rc == 0)     buffer[2] = 0x00;
+        else if (self->rc > 0) buffer[2] = 0x01;
+        else                   buffer[2] = 0x02;
+
+        /* Save the rounding mode active when the mpfr was created. */
+        buffer[3] = (char)(self->round_mode);
+
+        /* Save the precision */
+        sizetemp = precision;
+        for (i=0; i<sizesize; i++) {
+            buffer[i+4] = (char)(sizetemp & 0xff);
+            sizetemp >>= 8;
+        }
+        goto done;
+    }
+
+    /* Now process all actual numbers. */
+    size += (2 * sizesize) + (sizemant * (mp_bits_per_limb >> 3));
+    TEMP_ALLOC(buffer, size);
+    buffer[0] = 0x04;
+
+    /* Set bit 0 to 1 since we are an actual number. */
+    buffer[1] = 0x01;
+
+    /* Save the sign bit. */
+    if (sgn) buffer[1] |= 0x02;
+
+    /* Save the size of the values. */
+    buffer[1] |= large;
+
+    /* Save the exponent sign. */
+    buffer[1] |= expsgn;
+
+    /* Save the limb size. */
+    if ((mp_bits_per_limb >> 3) == 8)
+        buffer[1] |= 0x40;
+    else if ((mp_bits_per_limb >> 3) != 4) {
+        SYSTEM_ERROR("cannot support current limb size");
+        TEMP_FREE(buffer, size);
+        return NULL;
+    }
+
+    /* Save the result code. */
+    if (self->rc == 0)     buffer[2] = 0x00;
+    else if (self->rc > 0) buffer[2] = 0x01;
+    else                   buffer[2] = 0x02;
+
+    /* Save the original rounding mode. */
+    buffer[3] = (char)(self->round_mode);
+
+    /* Save the precision */
+    cp = buffer + 4;
+    sizetemp = precision;
+    for (i=0; i<sizesize; i++) {
+        cp[i] = (char)(sizetemp & 0xff);
+        sizetemp >>= 8;
+    }
+
+    /* Save the exponenet */
+    cp += sizesize;
+    sizetemp = exponent;
+    for (i=0; i<sizesize; i++) {
+        cp[i] = (char)(sizetemp & 0xff);
+        sizetemp >>= 8;
+    }
+
+    /* Save the actual mantissa */
+    cp += sizesize;
+    for (i=0; i<sizemant; i++) {
+        templimb = self->f->_mpfr_d[i];
+#if GMP_LIMB_BITS == 64
+        cp[0] = (char)(templimb & 0xff);
+        templimb >>= 8;
+        cp[1] = (char)(templimb & 0xff);
+        templimb >>= 8;
+        cp[2] = (char)(templimb & 0xff);
+        templimb >>= 8;
+        cp[3] = (char)(templimb & 0xff);
+        templimb >>= 8;
+        cp[4] = (char)(templimb & 0xff);
+        templimb >>= 8;
+        cp[5] = (char)(templimb & 0xff);
+        templimb >>= 8;
+        cp[6] = (char)(templimb & 0xff);
+        templimb >>= 8;
+        cp[7] = (char)(templimb & 0xff);
+        cp += 8;
+#endif
+#if GMP_LIMB_BITS == 32
+        cp[0] = (char)(templimb & 0xff);
+        templimb >>= 8;
+        cp[1] = (char)(templimb & 0xff);
+        templimb >>= 8;
+        cp[2] = (char)(templimb & 0xff);
+        templimb >>= 8;
+        cp[3] = (char)(templimb & 0xff);
+        cp += 4;
+#endif
+}
+
+  done:
+    result = PyBytes_FromStringAndSize(buffer, size);
+    TEMP_FREE(buffer, size);
+    return result;
+}
+
+
+PyDoc_STRVAR(doc_from_binary,
+"from_binary(bytes) -> gmpy2 object\n"
+"Return a Python object from a byte sequence created by\n"
+"gmpy2.to_binary().");
+
+
+static PyObject *
+Pympany_From_Binary(PyObject *self, PyObject *other)
+{
+    unsigned char *buffer, *cp;
+    Py_ssize_t len;
+
+    if (!(PyBytes_Check(other))) {
+        TYPE_ERROR("from_binary() requires bytes argument");
+        return NULL;
+    }
+
+    len = PyBytes_Size(other);
+    if (len < 2) {
+        TYPE_ERROR("byte sequence too short for from_binary()");
+        return NULL;
+    }
+    buffer = (unsigned char*)PyBytes_AsString(other);
+    cp = buffer;
+
+    switch (cp[0]) {
+        case 0x01: {
+            PympzObject *result;
+
+            if (!(result = Pympz_new()))
+                return NULL;
+            if (cp[1] == 0x00) {
+                mpz_set_ui(result->z, 0);
+                return (PyObject*)result;
+            }
+            mpz_import(result->z, len-2, -1, sizeof(char), 0, 0, cp+2);
+            if (cp[1] == 0x02)
+                mpz_neg(result->z, result->z);
+            return (PyObject*)result;
+            break;
+        }
+        case 0x02: {
+            PyxmpzObject *result;
+
+            if (!(result = Pyxmpz_new()))
+                return NULL;
+            if (cp[1] == 0x00) {
+                mpz_set_ui(result->z, 0);
+                return (PyObject*)result;
+            }
+            mpz_import(result->z, len-2, -1, sizeof(char), 0, 0, cp+2);
+            if (cp[1] == 0x02)
+                mpz_neg(result->z, result->z);
+            return (PyObject*)result;
+            break;
+        }
+        case 0x03: {
+            PympqObject *result;
+            size_t numlen = 0, sizesize = 4, i;
+            mpz_t num, den;
+
+            if (!(result = Pympq_new()))
+                return NULL;
+            if (cp[1] == 0x00) {
+                mpq_set_ui(result->q, 0, 1);
+                return (PyObject*)result;
+            }
+            if (cp[1] & 0x04)
+                sizesize = 8;
+
+            for (i=sizesize; i>0; --i) {
+                numlen = (numlen << 8) + cp[i+1];
+            }
+
+            mpz_inoc(num);
+            mpz_inoc(den);
+            mpz_import(num, numlen, -1,
+                       sizeof(char), 0, 0, cp+sizesize+2);
+            mpz_import(den, len-numlen-sizesize, -1,
+                       sizeof(char), 0, 0, cp+sizesize+numlen+2);
+            mpq_set_num(result->q, num);
+            mpq_set_den(result->q, den);
+            mpq_canonicalize(result->q);
+            mpz_cloc(num);
+            mpz_cloc(den);
+
+            if (cp[1] == 0x02)
+                mpq_neg(result->q, result->q);
+            return (PyObject*)result;
+            break;
+        }
+        case 0x04: {
+            PympfrObject *result;
+            size_t sizemant = 0, sizesize = 4, i, newmant;
+            mpfr_prec_t precision = 0;
+            mpfr_exp_t exponent = 0;
+            mp_limb_t templimb;
+            int sgn = 1, expsgn = 1, limbsize = 4;
+
+            /* Get size of values. */
+            if (cp[1] & 0x04) sizesize = 8;
+
+            /* Get the original precision. */
+            for (i=sizesize; i>0; --i) {
+                precision = (precision << 8) + cp[i+3];
+            }
+
+            /* Get the original sign bit. */
+            if (cp[1] & 0x02) sgn = -1;
+
+            /* Get the original exponent sign. */
+            if (cp[1] & 0x20) expsgn = -1;
+
+            /* Get the limb size of the originating system. */
+            if (cp[1] & 0x40) limbsize = 8;
+
+
+            if (!(result = Pympfr_new(precision)))
+                return NULL;
+
+            /* Restore the original result code and rounding mode. */
+
+            /* Get the original result code. */
+            if (cp[2] == 0)      result->rc = 0;
+            else if (cp[2] == 1) result->rc = 1;
+            else                 result->rc = -1;
+
+            /* Get the original rounding mode. */
+            result->round_mode = cp[3];
+
+            if (!(cp[1] & 0x01)) {
+                /* Process special numbers. */
+                if ((cp[1] & 0x18) == 0x00)
+                    mpfr_set_zero(result->f, sgn);
+                else if ((cp[1] & 0x18) == 0x08)
+                    mpfr_set_nan(result->f);
+                else
+                    mpfr_set_inf(result->f, sgn);
+                return (PyObject*)result;
+            }
+            else {
+                /* Process actual numbers. */
+
+                /* Calculate the number of limbs on the original system. */
+                if (limbsize == 8) sizemant = ((precision + 63) / 64);
+                else               sizemant = ((precision + 31) / 32);
+
+                /* Calculate the number of limbs on the current system. */
+                newmant = (precision + mp_bits_per_limb - 1) / mp_bits_per_limb;
+
+                /* Get the original exponent. */
+                cp = buffer + 4 + sizesize - 1;
+                for (i=sizesize; i>0; --i) {
+                    exponent = (exponent << 8) + cp[i];
+                }
+
+                /* Check if the limb sizes are the same */
+                if (limbsize == (mp_bits_per_limb >> 3)) {
+                    mpfr_set_ui(result->f, 1, MPFR_RNDN);
+                    cp = buffer + 4 + (2 * sizesize);
+                    for (i=0; i<sizemant; i++) {
+#if GMP_LIMB_BITS == 64
+                        templimb = cp[7];
+                        templimb = (templimb << 8) + cp[6];
+                        templimb = (templimb << 8) + cp[5];
+                        templimb = (templimb << 8) + cp[4];
+                        templimb = (templimb << 8) + cp[3];
+                        templimb = (templimb << 8) + cp[2];
+                        templimb = (templimb << 8) + cp[1];
+                        templimb = (templimb << 8) + cp[0];
+#endif
+#if GMP_LIMB_BITS == 32
+                        templimb = cp[3];
+                        templimb = (templimb << 8) + cp[2];
+                        templimb = (templimb << 8) + cp[1];
+                        templimb = (templimb << 8) + cp[0];
+#endif
+                        result->f->_mpfr_d[i] = templimb;
+                        cp += limbsize;
+                    }
+                    result->f->_mpfr_exp = expsgn * exponent;
+                    if (sgn == -1)
+                        mpfr_neg(result->f, result->f, MPFR_RNDN);
+                    return (PyObject*)result;
+                }
+                else {
+                    TYPE_ERROR("different limb sizes not yet supported");
+                    Py_DECREF(result);
+                    return NULL;
+                }
+            }
+        }
+        case 0x05:
+        default: {
+            TYPE_ERROR("from_binary() argument type not supported");
+            return NULL;
+        }
+    }
+}
+
+#if 0
 static PympfrObject *
 Pympfr_From_Binary(PyObject *s)
 {

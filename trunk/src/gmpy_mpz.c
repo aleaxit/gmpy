@@ -2789,7 +2789,6 @@ static PyMappingMethods xmpz_mapping_methods = {
 static PyMethodDef Pympz_methods [] =
 {
     { "__format__", Pympz_format, METH_VARARGS, doc_mpz_format },
-    { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
     { "bit_clear", Pympz_bit_clear, METH_O, doc_bit_clearm },
     { "bit_flip", Pympz_bit_flip, METH_O, doc_bit_flipm },
     { "bit_length", Pympz_bit_length, METH_NOARGS, doc_bit_lengthm },
@@ -2810,7 +2809,6 @@ static PyMethodDef Pympz_methods [] =
 static PyMethodDef Pyxmpz_methods [] =
 {
     { "__format__", Pympz_format, METH_VARARGS, doc_mpz_format },
-    { "binary", Pympany_binary, METH_NOARGS, doc_binarym },
     { "bit_clear", Pympz_bit_clear, METH_O, doc_bit_clearm },
     { "bit_flip", Pympz_bit_flip, METH_O, doc_bit_flipm },
     { "bit_length", Pympz_bit_length, METH_NOARGS, doc_bit_lengthm },

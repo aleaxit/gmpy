@@ -525,7 +525,7 @@ PyDoc_STRVAR(doc_g_mpc,
 "      the precision is not specified, then the precision is taken from\n"
 "      the current context. The rounding mode is always taken from the\n"
 "      current context.\n\n"
-"mpc(s[, [precision=0[, base=10]]) -> mpc\m\n"
+"mpc(s[, [precision=0[, base=10]]) -> mpc\n\n"
 "      Return a new 'mpc' object by converting a string s into a complex\n"
 "      number. If base is omitted, then a base-10 representation is\n"
 "      assumed otherwise a base between 2 and 36 can be specified. If\n"

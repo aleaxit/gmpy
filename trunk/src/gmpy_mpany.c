@@ -273,44 +273,28 @@ Pympany_div(PyObject *self, PyObject *args)
     return NULL;
 }
 
-PyDoc_STRVAR(doc_binarym,
-"x.binary() -> binary string\n\n"
-"Return a Python string (or bytes for Python 3+) that is a portable\n"
-"binary representation of a gmpy2 object x. The binary string can\n"
-"later be passed to the appropriate constructor function to obtain\n"
-"an exact copy of x's value.");
-PyDoc_STRVAR(doc_binaryg,
-"binary(x) -> binary string\n\n"
-"Return a Python string (or bytes for Python 3+) that is a portable\n"
-"binary representation of a gmpy2 object x. The binary string can\n"
-"later be passed to the appropriate constructor function to obtain\n"
-"an exact copy of x's value. Raises TypeError if x is not a gmpy2\n"
-"object.");
+PyDoc_STRVAR(doc_to_binary,
+"to_binary(x) -> bytes\n"
+"Return a Python byte sequence that is a portable binary\n"
+"representation of a gmpy2 object x. The byte sequence can\n"
+"be passed to gmpy2.from_binary() to obtain an exact copy of\n"
+"x's value. Works with mpz, xmpz, mpq, mpfr, and mpc types. \n"
+"Raises TypeError if x is not a gmpy2 object.");
 
 static PyObject *
-Pympany_binary(PyObject *self, PyObject *other)
+Pympany_to_binary(PyObject *self, PyObject *other)
 {
-    if (self && Pympz_Check(self))
-        return Pympz2binary((PympzObject*)self);
-    else if(self && Pyxmpz_Check(self))
-        return Pyxmpz2binary((PyxmpzObject*)self);
-    else if(self && Pympq_Check(self))
-        return Pympq2binary((PympqObject*)self);
-#ifdef WITHMPFR
-    else if(self && Pympfr_Check(self))
-        return Pympfr2binary((PympfrObject*)self);
-#endif
-    else if(Pympz_Check(other))
-        return Pympz2binary((PympzObject*)other);
+    if(Pympz_Check(other))
+        return Pympz_As_Binary((PympzObject*)other);
     else if(Pyxmpz_Check(other))
-        return Pyxmpz2binary((PyxmpzObject*)other);
+        return Pyxmpz_As_Binary((PyxmpzObject*)other);
     else if(Pympq_Check(other))
-        return Pympq2binary((PympqObject*)other);
+        return Pympq_As_Binary((PympqObject*)other);
 #ifdef WITHMPFR
     else if(Pympfr_Check(other))
-        return Pympfr2binary((PympfrObject*)other);
+        return Pympfr_As_Binary((PympfrObject*)other);
 #endif
-    TYPE_ERROR("binary() argument type not supported");
+    TYPE_ERROR("to_binary() argument type not supported");
     return NULL;
 }
 
