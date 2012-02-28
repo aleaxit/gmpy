@@ -197,26 +197,26 @@ Pyxmpz_digits(PyObject *self, PyObject *args)
 }
 
 /* return number-of-digits for an mpz in requested base, default 10 */
-PyDoc_STRVAR(doc_numdigitsm,
-"x.numdigits([base=10]) -> int\n\n"
+PyDoc_STRVAR(doc_num_digitsm,
+"x.num_digits([base=10]) -> int\n\n"
 "Return length of string representing the absolute value of x in\n"
 "the given base. Values  for base can range between 2 and 62. The\n"
 "value returned may be 1 too large.");
 
-PyDoc_STRVAR(doc_numdigitsg,
-"numdigits(x[, base=10]) -> int\n\n"
+PyDoc_STRVAR(doc_num_digitsg,
+"num_digits(x[, base=10]) -> int\n\n"
 "Return length of string representing the absolute value of x in\n"
 "the given base. Values  for base can range between 2 and 62. The\n"
 "value returned may be 1 too large.");
 
 static PyObject *
-Pympz_numdigits(PyObject *self, PyObject *args)
+Pympz_num_digits(PyObject *self, PyObject *args)
 {
     long base = 10;
     PyObject *result;
 
     PARSE_ONE_MPZ_OPT_CLONG(&base,
-            "numdigits() requires 'mpz',['int'] arguments");
+            "num_digits() requires 'mpz',['int'] arguments");
     if ((base < 2) || (base > 62)) {
         VALUE_ERROR("base must be in the interval 2 ... 62");
         Py_DECREF(self);
@@ -2802,7 +2802,7 @@ static PyMethodDef Pympz_methods [] =
     { "is_square", Pympz_is_square, METH_NOARGS, doc_is_squarem },
     { "is_power", Pympz_is_power, METH_NOARGS, doc_is_powerm },
     { "is_prime", Pympz_is_prime, METH_VARARGS, doc_is_primem },
-    { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsm },
+    { "num_digits", Pympz_num_digits, METH_VARARGS, doc_num_digitsm },
     { NULL, NULL, 1 }
 };
 
@@ -2824,7 +2824,7 @@ static PyMethodDef Pyxmpz_methods [] =
     { "is_power", Pympz_is_power, METH_VARARGS, doc_is_powerm },
     { "is_prime", Pympz_is_prime, METH_VARARGS, doc_is_primem },
     { "make_mpz", Pyxmpz_make_mpz, METH_NOARGS, doc_make_mpzm },
-    { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsm },
+    { "num_digits", Pympz_num_digits, METH_VARARGS, doc_num_digitsm },
     { NULL, NULL, 1 }
 };
 

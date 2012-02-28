@@ -253,6 +253,8 @@
  *      (Based on code contributed by David Cleaver.)
  *   Added probable-prime tests (casevh)
  *      (Based on code contributed by David Cleaver.)
+ *   Added to_binary()/from_binary (casevh)
+ *   Renamed numdigits() to num_digits() (casevh)
  *
  ************************************************************************
  *
@@ -539,8 +541,8 @@ static PyMethodDef Pygmpy_methods [] =
     { "mpz_urandomb", GMPY_mpz_urandomb, METH_VARARGS, doc_mpz_urandomb },
     { "mul", Pympany_mul, METH_VARARGS, doc_mpany_mul },
     { "next_prime", Pympz_next_prime, METH_O, doc_next_primeg },
-    { "numdigits", Pympz_numdigits, METH_VARARGS, doc_numdigitsg },
     { "numer", Pympq_numer, METH_VARARGS, doc_numerg },
+    { "num_digits", Pympz_num_digits, METH_VARARGS, doc_num_digitsg },
     { "pack", Pygmpy_pack, METH_VARARGS, doc_gmpy_pack },
     { "popcount", Pympz_popcount, METH_O, doc_popcountg },
     { "pow", Pympany_pow2, METH_VARARGS, doc_mpany_pow },

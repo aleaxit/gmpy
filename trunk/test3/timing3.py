@@ -17,11 +17,11 @@ for i in (10000,100000,1000000):
     x=_g.fac(i)
     stend=time.time()
     print("Factorial of %d took %s (%d digits)" % (
-        i, stend-start, x.numdigits()))
+        i, stend-start, x.num_digits()))
 
     start=time.time()
     x=_g.fib(i)
     stend=time.time()
     print("Fibonacci of %d took %s (%d digits)" % (
-        i, stend-start, x.numdigits()))
+        i, stend-start, x.num_digits()))
 

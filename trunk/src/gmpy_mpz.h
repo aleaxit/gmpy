@@ -61,7 +61,7 @@ static PyObject * Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject * Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject * Pympz_digits(PyObject *self, PyObject *args);
 static PyObject * Pyxmpz_digits(PyObject *self, PyObject *args);
-static PyObject * Pympz_numdigits(PyObject *self, PyObject *args);
+static PyObject * Pympz_num_digits(PyObject *self, PyObject *args);
 static PyObject * Pympz_bit_length(PyObject *self, PyObject *other);
 static PyObject * Pympz_bit_mask(PyObject *self, PyObject *other);
 static PyObject * Pyxmpz_xbit_mask(PyObject *self, PyObject *other);

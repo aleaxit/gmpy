@@ -2,9 +2,9 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('_'), dir(_g))
-['Default', 'DivisionByZeroError', 'ExponentOutOfBoundsError', 'InexactError', 'InvalidOperationError', 'OverflowError', 'RangeError', 'RoundAwayZero', 'RoundDown', 'RoundToNearest', 'RoundToZero', 'RoundUp', 'UnderflowError', 'acos', 'acosh', 'add', 'agm', 'ai', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'c_div', 'c_div_2exp', 'c_divmod', 'c_divmod_2exp', 'c_mod', 'c_mod_2exp', 'cbrt', 'ceil', 'check_range', 'comb', 'const_catalan', 'const_euler', 'const_log2', 'const_pi', 'context', 'copy_sign', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'degrees', 'denom', 'digamma', 'digits', 'div', 'div_2exp', 'divexact', 'divm', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'f_div', 'f_div_2exp', 'f_divmod', 'f_divmod_2exp', 'f_mod', 'f_mod_2exp', 'fac', 'factorial', 'fib', 'fib2', 'floor', 'fma', 'fmod', 'fms', 'frac', 'frexp', 'from_binary', 'fsum', 'gamma', 'gcd', 'gcdext', 'get_cache', 'get_context', 'get_emax_max', 'get_emin_min', 'get_exp', 'get_max_precision', 'hamdist', 'hypot', 'inf', 'invert', 'iroot', 'iroot_rem', 'is_bpsw_prp', 'is_euler_prp', 'is_even', 'is_extra_strong_lucas_prp', 'is_fermat_prp', 'is_fibonacci_prp', 'is_inf', 'is_integer', 'is_lessgreater', 'is_lucas_prp', 'is_nan', 'is_number', 'is_odd', 'is_power', 'is_prime', 'is_regular', 'is_selfridge_prp', 'is_signed', 'is_square', 'is_strong_bpsw_prp', 'is_strong_lucas_prp', 'is_strong_prp', 'is_strong_selfridge_prp', 'is_unordered', 'is_zero', 'isqrt', 'isqrt_rem', 'j0', 'j1', 'jacobi', 'jn', 'kronecker', 'lcm', 'legendre', 'lgamma', 'li2', 'license', 'lngamma', 'local_context', 'log', 'log10', 'log1p', 'log2', 'lucas', 'lucas2', 'lucasu', 'lucasu_mod', 'lucasv', 'lucasv_mod', 'max', 'min', 'modf', 'mp_limbsize', 'mp_version', 'mpc', 'mpc_random', 'mpc_version', 'mpfr', 'mpfr_from_old_binary', 'mpfr_grandom', 'mpfr_random', 'mpfr_version', 'mpq', 'mpq_from_old_binary', 'mpz', 'mpz_from_old_binary', 'mpz_random', 'mpz_rrandomb', 'mpz_urandomb', 'mul', 'mul_2exp', 'nan', 'next_above', 'next_below', 'next_prime', 'next_toward', 'norm', 'numdigits', 'numer', 'pack', 'phase', 'polar', 'popcount', 'pow', 'proj', 'qdiv', 'radians', 'random_state', 'rec_sqrt', 'rect', 'reldiff', 'remainder', 'remove', 'remquo', 'rint', 'rint_ceil', 'rint_floor', 'rint_round', 'rint_trunc', 'root', 'round', 'round2', 'sec', 'sech', 'set_cache', 'set_context', 'set_debug', 'set_exp', 'set_sign', 'sign', 'sin', 'sin_cos', 'sinh', 'sinh_cosh', 'sqrt', 'square', 'sub', 't_div', 't_div_2exp', 't_divmod', 't_divmod_2exp', 't_mod', 't_mod_2exp', 'tan', 'tanh', 'to_binary', 'trunc', 'unpack', 'version', 'xbit_mask', 'xmpz', 'y0', 'y1', 'yn', 'zero', 'zeta']
+['Default', 'DivisionByZeroError', 'ExponentOutOfBoundsError', 'InexactError', 'InvalidOperationError', 'OverflowError', 'RangeError', 'RoundAwayZero', 'RoundDown', 'RoundToNearest', 'RoundToZero', 'RoundUp', 'UnderflowError', 'acos', 'acosh', 'add', 'agm', 'ai', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'c_div', 'c_div_2exp', 'c_divmod', 'c_divmod_2exp', 'c_mod', 'c_mod_2exp', 'cbrt', 'ceil', 'check_range', 'comb', 'const_catalan', 'const_euler', 'const_log2', 'const_pi', 'context', 'copy_sign', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'degrees', 'denom', 'digamma', 'digits', 'div', 'div_2exp', 'divexact', 'divm', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'f_div', 'f_div_2exp', 'f_divmod', 'f_divmod_2exp', 'f_mod', 'f_mod_2exp', 'fac', 'factorial', 'fib', 'fib2', 'floor', 'fma', 'fmod', 'fms', 'frac', 'frexp', 'from_binary', 'fsum', 'gamma', 'gcd', 'gcdext', 'get_cache', 'get_context', 'get_emax_max', 'get_emin_min', 'get_exp', 'get_max_precision', 'hamdist', 'hypot', 'inf', 'invert', 'iroot', 'iroot_rem', 'is_bpsw_prp', 'is_euler_prp', 'is_even', 'is_extra_strong_lucas_prp', 'is_fermat_prp', 'is_fibonacci_prp', 'is_inf', 'is_integer', 'is_lessgreater', 'is_lucas_prp', 'is_nan', 'is_number', 'is_odd', 'is_power', 'is_prime', 'is_regular', 'is_selfridge_prp', 'is_signed', 'is_square', 'is_strong_bpsw_prp', 'is_strong_lucas_prp', 'is_strong_prp', 'is_strong_selfridge_prp', 'is_unordered', 'is_zero', 'isqrt', 'isqrt_rem', 'j0', 'j1', 'jacobi', 'jn', 'kronecker', 'lcm', 'legendre', 'lgamma', 'li2', 'license', 'lngamma', 'local_context', 'log', 'log10', 'log1p', 'log2', 'lucas', 'lucas2', 'lucasu', 'lucasu_mod', 'lucasv', 'lucasv_mod', 'max', 'min', 'modf', 'mp_limbsize', 'mp_version', 'mpc', 'mpc_random', 'mpc_version', 'mpfr', 'mpfr_from_old_binary', 'mpfr_grandom', 'mpfr_random', 'mpfr_version', 'mpq', 'mpq_from_old_binary', 'mpz', 'mpz_from_old_binary', 'mpz_random', 'mpz_rrandomb', 'mpz_urandomb', 'mul', 'mul_2exp', 'nan', 'next_above', 'next_below', 'next_prime', 'next_toward', 'norm', 'num_digits', 'numer', 'pack', 'phase', 'polar', 'popcount', 'pow', 'proj', 'qdiv', 'radians', 'random_state', 'rec_sqrt', 'rect', 'reldiff', 'remainder', 'remove', 'remquo', 'rint', 'rint_ceil', 'rint_floor', 'rint_round', 'rint_trunc', 'root', 'round', 'round2', 'sec', 'sech', 'set_cache', 'set_context', 'set_debug', 'set_exp', 'set_sign', 'sign', 'sin', 'sin_cos', 'sinh', 'sinh_cosh', 'sqrt', 'square', 'sub', 't_div', 't_div_2exp', 't_divmod', 't_divmod_2exp', 't_mod', 't_mod_2exp', 'tan', 'tanh', 'to_binary', 'trunc', 'unpack', 'version', 'xbit_mask', 'xmpz', 'y0', 'y1', 'yn', 'zero', 'zeta']
 >>> filter(lambda x: not x.startswith('__'), dir(a))
-['bit_clear', 'bit_flip', 'bit_length', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'digits', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'numdigits']
+['bit_clear', 'bit_flip', 'bit_length', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'digits', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'num_digits']
 >>>
 '''
 import gmpy2 as _g, doctest, sys, operator, gc
@@ -614,7 +614,7 @@ True
 >>> divmod(z,a)
 (mpz(4661842443600400182008L), mpz(69))
 >>> for i in range(2,37):
-...    print i,z.numdigits(i),
+...    print i,z.num_digits(i),
 ...    if i%6==0: print
 ...
 2 79 3 50 4 40 5 35 6 31
@@ -623,11 +623,11 @@ True
 19 19 20 19 21 18 22 18 23 18 24 18
 25 18 26 17 27 17 28 17 29 17 30 17
 31 16 32 16 33 16 34 16 35 16 36 16
->>> _g.numdigits(23)
+>>> _g.num_digits(23)
 2
->>> _g.numdigits(23,2)
+>>> _g.num_digits(23,2)
 5
->>> _g.numdigits(23,99)
+>>> _g.num_digits(23,99)
 Traceback (most recent call last):
   File "<string>", line 1, in ?
 ValueError: base must be in the interval 2 ... 62
