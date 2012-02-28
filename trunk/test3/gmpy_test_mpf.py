@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> dir(a)
-['__abs__', '__add__', '__bool__', '__ceil__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floor__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__trunc__', 'as_integer_ratio', 'as_mantissa_exp', 'as_simple_fraction', 'binary', 'conjugate', 'digits', 'imag', 'is_inf', 'is_integer', 'is_lessgreater', 'is_nan', 'is_number', 'is_regular', 'is_signed', 'is_unordered', 'is_zero', 'precision', 'rc', 'real']
+['__abs__', '__add__', '__bool__', '__ceil__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floor__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__trunc__', 'as_integer_ratio', 'as_mantissa_exp', 'as_simple_fraction', 'conjugate', 'digits', 'imag', 'is_inf', 'is_integer', 'is_lessgreater', 'is_nan', 'is_number', 'is_regular', 'is_signed', 'is_unordered', 'is_zero', 'precision', 'rc', 'real']
 >>>
 '''
 import sys
@@ -311,82 +311,35 @@ mpfr('123.456',33)
 >>> del(newa)
 >>> _g.digits(_g.mpfr(23.45))
 ('23449999999999999', 2, 53)
->>> _g.binary('pep')
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: binary() argument type not supported
 >>>
 '''
 
 __test__['binio']=\
 r'''
->>> epsilon=_g.mpfr(2)**-(a.precision)
->>> ba=a.binary()
->>> _g.reldiff(a,_g.mpfr_from_old_binary(ba)) <= epsilon
-1
->>> len(ba)
-16
->>> for i in range(len(ba)):
-...     print(ba[i])
-...
-8
-53
-0
-0
-0
-1
-0
-0
-0
-123
-116
-188
-106
-126
-249
-220
->>> na=(-a).binary()
->>> _g.reldiff(-a,_g.mpfr_from_old_binary(na)) <= epsilon
-1
->>> na[0] == ba[0]|1
-1
->>> for bd,nd in zip(ba[1:],na[1:]):
-...    assert bd==nd
->>> ia=(1/a).binary()
->>> _g.reldiff(1/a,_g.mpfr_from_old_binary(ia)) <= epsilon
-1
->>> _g.binary(_g.mpfr(0))
-b'\x04'
->>> _g.mpfr_from_old_binary(_g.binary(_g.mpfr(0))) == 0
-1
->>> _g.binary(_g.mpfr(0.5))
-b'\x085\x00\x00\x00\x00\x00\x00\x00\x80'
->>> _g.mpfr_from_old_binary(_g.binary(_g.mpfr(0.5))) == 0.5
-1
->>> _g.binary(_g.mpfr(-0.5))
-b'\t5\x00\x00\x00\x00\x00\x00\x00\x80'
->>> _g.mpfr_from_old_binary(_g.binary(_g.mpfr(-0.5))) == -0.5
-1
->>> _g.binary(_g.mpfr(-2.0))
-b'\t5\x00\x00\x00\x01\x00\x00\x00\x02'
->>> _g.mpfr_from_old_binary(_g.binary(_g.mpfr(-2.0))) == -2.0
-1
->>> _g.binary(_g.mpfr(2.0))
-b'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
->>> _g.mpfr_from_old_binary(_g.binary(_g.mpfr(2.0))) == 2.0
-1
->>> prec=_g.context().precision
->>> _g.context().precision = prec
->>> a.precision==prec
-1
->>> b.precision==prec
-1
->>> _g.mpfr(1.0).precision==prec
-1
+>>> _g.from_binary('pep')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in ?
+TypeError: from_binary() requires bytes argument
+>>> a == _g.from_binary(_g.to_binary(a))
+True
+>>> -a == _g.from_binary(_g.to_binary(-a))
+True
+>>> 1/a == _g.from_binary(_g.to_binary(1/a))
+True
+>>> _g.to_binary(_g.mpfr(0))
+b'\x04\x00\x00\x005\x00\x00\x00'
+>>> 0 == _g.from_binary(_g.to_binary(_g.mpfr(0)))
+True
+>>> 0.5 == _g.from_binary(_g.to_binary(_g.mpfr(0.5)))
+True
+>>> -0.5 == _g.from_binary(_g.to_binary(_g.mpfr(-0.5)))
+True
+>>> -2.0 == _g.from_binary(_g.to_binary(_g.mpfr(-2.0)))
+True
+>>> 2.0 == _g.from_binary(_g.to_binary(_g.mpfr(2.0)))
+True
 >>> hash(_g.mpfr(23.0))==hash(23)
-1
->>> print(_g.mpfr_from_old_binary(b'\004'))
-0.0
+True
 >>> int(a)
 123
 >>> int(-a)

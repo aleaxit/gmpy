@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(a))
-['binary', 'denominator', 'digits', 'numerator']
+['denominator', 'digits', 'numerator']
 >>>
 '''
 
@@ -201,10 +201,6 @@ mpq(1000000000000000000000L,23)
 mpq(23,1000000000000000000000L)
 >>> _g.mpq(23L**15L,1000L**7L)
 mpq(266635235464391245607L,1000000000000000000000L)
->>> _g.binary('pep')
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: binary() argument type not supported
 >>> x=_g.mpq('234/567')
 >>> del x
 >>> _g.mpq('7788')
@@ -215,29 +211,10 @@ mpq(617,50)
 
 __test__['binio']=\
 r'''
->>> ba=a.binary()
->>> len(ba)
-6
->>> for i in range(len(ba)):
-...     print ord(ba[i]),
-...     if i==len(ba)-1: print
-...
-1 0 0 0 41 152
->>> _g.mpq_from_old_binary(ba)==a
-1
->>> ba == _g.binary(a)
-1
->>> ba=(-a).binary()
->>> len(ba)
-6
->>> for i in range(len(ba)):
-...     print ord(ba[i]),
-...     if i==len(ba)-1: print
-...
-1 0 0 128 41 152
->>> _g.mpq_from_old_binary(ba)==-a
-1
->>>
+>>> a == _g.from_binary(_g.to_binary(a))
+True
+>>> -a == _g.from_binary(_g.to_binary(-a))
+True
 '''
 
 __test__['power']=\

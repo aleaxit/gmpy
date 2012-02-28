@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> dir(a)
-['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', 'binary', 'denominator', 'digits', 'numerator']
+['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', 'denominator', 'digits', 'numerator']
 >>>
 '''
 
@@ -226,10 +226,6 @@ mpq(1000000000000000000000,23)
 mpq(23,1000000000000000000000)
 >>> _g.mpq(23**15,1000**7)
 mpq(266635235464391245607,1000000000000000000000)
->>> _g.binary('pep')
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: binary() argument type not supported
 >>> x=_g.mpq('234/567')
 >>> del x
 >>> _g.mpq('7788')
@@ -240,37 +236,10 @@ mpq(617,50)
 
 __test__['binio']=\
 r'''
->>> ba=a.binary()
->>> len(ba)
-6
->>> for i in range(len(ba)):
-...     print(ba[i])
-...
-1
-0
-0
-0
-41
-152
->>> _g.mpq_from_old_binary(ba)==a
-1
->>> ba == _g.binary(a)
-1
->>> ba=(-a).binary()
->>> len(ba)
-6
->>> for i in range(len(ba)):
-...     print(ba[i])
-...
-1
-0
-0
-128
-41
-152
->>> _g.mpq_from_old_binary(ba)==-a
-1
->>>
+>>> a == _g.from_binary(_g.to_binary(a))
+True
+>>> -a == _g.from_binary(_g.to_binary(-a))
+True
 '''
 
 __test__['power']=\

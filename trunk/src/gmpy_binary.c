@@ -568,7 +568,6 @@ Pympfr_As_Binary(PympfrObject *self)
     return result;
 }
 
-
 PyDoc_STRVAR(doc_from_binary,
 "from_binary(bytes) -> gmpy2 object\n"
 "Return a Python object from a byte sequence created by\n"
@@ -588,7 +587,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
 
     len = PyBytes_Size(other);
     if (len < 2) {
-        TYPE_ERROR("byte sequence too short for from_binary()");
+        VALUE_ERROR("byte sequence too short for from_binary()");
         return NULL;
     }
     buffer = (unsigned char*)PyBytes_AsString(other);
@@ -639,15 +638,25 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             if (cp[1] & 0x04)
                 sizesize = 8;
 
+            if (len < 2 + sizesize) {
+                VALUE_ERROR("byte sequence too short for from_binary()");
+                return NULL;
+            }
+
             for (i=sizesize; i>0; --i) {
                 numlen = (numlen << 8) + cp[i+1];
+            }
+
+            if (len < 2 + sizesize + numlen + 1) {
+                VALUE_ERROR("byte sequence too short for from_binary()");
+                return NULL;
             }
 
             mpz_inoc(num);
             mpz_inoc(den);
             mpz_import(num, numlen, -1,
                        sizeof(char), 0, 0, cp+sizesize+2);
-            mpz_import(den, len-numlen-sizesize, -1,
+            mpz_import(den, len-numlen-sizesize-2, -1,
                        sizeof(char), 0, 0, cp+sizesize+numlen+2);
             mpq_set_num(result->q, num);
             mpq_set_den(result->q, den);
@@ -667,6 +676,12 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             mpfr_exp_t exponent = 0;
             mp_limb_t templimb;
             int sgn = 1, expsgn = 1, limbsize = 4;
+            int newlimbsize = (mp_bits_per_limb >> 3);
+
+            if (len < 4) {
+                VALUE_ERROR("byte sequence too short for from_binary()");
+                return NULL;
+            }
 
             /* Get size of values. */
             if (cp[1] & 0x04) sizesize = 8;
@@ -709,56 +724,119 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
                     mpfr_set_inf(result->f, sgn);
                 return (PyObject*)result;
             }
-            else {
-                /* Process actual numbers. */
+            /* Process actual numbers. */
 
-                /* Calculate the number of limbs on the original system. */
-                if (limbsize == 8) sizemant = ((precision + 63) / 64);
-                else               sizemant = ((precision + 31) / 32);
+            /* Calculate the number of limbs on the original system. */
+            if (limbsize == 8) sizemant = ((precision + 63) / 64);
+            else               sizemant = ((precision + 31) / 32);
 
-                /* Calculate the number of limbs on the current system. */
-                newmant = (precision + mp_bits_per_limb - 1) / mp_bits_per_limb;
+            /* Calculate the number of limbs on the current system. */
+            newmant = (precision + mp_bits_per_limb - 1) / mp_bits_per_limb;
 
-                /* Get the original exponent. */
-                cp = buffer + 4 + sizesize - 1;
-                for (i=sizesize; i>0; --i) {
-                    exponent = (exponent << 8) + cp[i];
-                }
+            /* Get the original exponent. */
+            cp = buffer + 4 + sizesize - 1;
+            for (i=sizesize; i>0; --i) {
+                exponent = (exponent << 8) + cp[i];
+            }
 
-                /* Check if the limb sizes are the same */
-                if (limbsize == (mp_bits_per_limb >> 3)) {
-                    mpfr_set_ui(result->f, 1, MPFR_RNDN);
-                    cp = buffer + 4 + (2 * sizesize);
-                    for (i=0; i<sizemant; i++) {
+            if (len < 2 + sizesize) {
+                VALUE_ERROR("byte sequence too short for from_binary()");
+                return NULL;
+            }
+
+            /* Check if the mantissa occupies the same number of bytes
+             * on both the source and target system. */
+            if (limbsize * sizemant == newmant * newlimbsize) {
+                mpfr_set_ui(result->f, 1, MPFR_RNDN);
+                cp = buffer + 4 + (2 * sizesize);
+                for (i=0; i<newmant; i++) {
 #if GMP_LIMB_BITS == 64
-                        templimb = cp[7];
-                        templimb = (templimb << 8) + cp[6];
-                        templimb = (templimb << 8) + cp[5];
-                        templimb = (templimb << 8) + cp[4];
-                        templimb = (templimb << 8) + cp[3];
-                        templimb = (templimb << 8) + cp[2];
-                        templimb = (templimb << 8) + cp[1];
-                        templimb = (templimb << 8) + cp[0];
+                    templimb = cp[7];
+                    templimb = (templimb << 8) + cp[6];
+                    templimb = (templimb << 8) + cp[5];
+                    templimb = (templimb << 8) + cp[4];
+                    templimb = (templimb << 8) + cp[3];
+                    templimb = (templimb << 8) + cp[2];
+                    templimb = (templimb << 8) + cp[1];
+                    templimb = (templimb << 8) + cp[0];
 #endif
 #if GMP_LIMB_BITS == 32
-                        templimb = cp[3];
-                        templimb = (templimb << 8) + cp[2];
-                        templimb = (templimb << 8) + cp[1];
-                        templimb = (templimb << 8) + cp[0];
+                    templimb = cp[3];
+                    templimb = (templimb << 8) + cp[2];
+                    templimb = (templimb << 8) + cp[1];
+                    templimb = (templimb << 8) + cp[0];
 #endif
-                        result->f->_mpfr_d[i] = templimb;
-                        cp += limbsize;
-                    }
-                    result->f->_mpfr_exp = expsgn * exponent;
-                    if (sgn == -1)
-                        mpfr_neg(result->f, result->f, MPFR_RNDN);
-                    return (PyObject*)result;
+                    result->f->_mpfr_d[i] = templimb;
+                    cp += newlimbsize;
                 }
-                else {
-                    TYPE_ERROR("different limb sizes not yet supported");
-                    Py_DECREF(result);
+                result->f->_mpfr_exp = expsgn * exponent;
+                if (sgn == -1)
+                    mpfr_neg(result->f, result->f, MPFR_RNDN);
+                return (PyObject*)result;
+            }
+            else if (limbsize * sizemant > newmant * newlimbsize) {
+                /* Since the amount of saved data is greater than the amount of
+                 * data needed on the new system, we skip the first 32 bits
+                 * since they must be 0.
+                 */
+
+                /* Verify we are on a 32-bit system and the source was 64-bit. */
+                if ((limbsize == 8) && (newlimbsize == 4)) {
+                    VALUE_ERROR("byte sequence invalid for from_binary()");
                     return NULL;
                 }
+
+                mpfr_set_ui(result->f, 1, MPFR_RNDN);
+                cp = buffer + 4 + (2 * sizesize) + 4;
+                for (i=0; i<newmant; i++) {
+                    templimb = cp[3];
+                    templimb = (templimb << 8) + cp[2];
+                    templimb = (templimb << 8) + cp[1];
+                    templimb = (templimb << 8) + cp[0];
+                    result->f->_mpfr_d[i] = templimb;
+                    cp += newlimbsize;
+                }
+                result->f->_mpfr_exp = expsgn * exponent;
+                if (sgn == -1)
+                    mpfr_neg(result->f, result->f, MPFR_RNDN);
+                return (PyObject*)result;
+            }
+            else {
+                /* Since the amount of saved data is less than the amount of
+                 * data needed on the new system, we must "add" 32 0-bits at
+                 * the low end.
+                 */
+
+                /* Verify we are on a 64-bit system and the source was 32-bit. */
+                if ((limbsize == 4) && (newlimbsize == 8)) {
+                    VALUE_ERROR("byte sequence invalid for from_binary()");
+                    return NULL;
+                }
+
+                mpfr_set_ui(result->f, 1, MPFR_RNDN);
+                cp = buffer + 4 + (2 * sizesize);
+                templimb = cp[3];
+                templimb = (templimb << 8) + cp[2];
+                templimb = (templimb << 8) + cp[1];
+                templimb = (templimb << 8) + cp[0];
+                result->f->_mpfr_d[i] = (templimb << 32);
+                cp += 4;
+                for (i=0; i<newmant-1; i++) {
+                    templimb = cp[7];
+                    templimb = (templimb << 8) + cp[6];
+                    templimb = (templimb << 8) + cp[5];
+                    templimb = (templimb << 8) + cp[4];
+                    templimb = (templimb << 8) + cp[3];
+                    templimb = (templimb << 8) + cp[2];
+                    templimb = (templimb << 8) + cp[1];
+                    templimb = (templimb << 8) + cp[0];
+                    result->f->_mpfr_d[i] = templimb;
+                    cp += newlimbsize;
+                }
+                result->f->_mpfr_exp = expsgn * exponent;
+                if (sgn == -1)
+                    mpfr_neg(result->f, result->f, MPFR_RNDN);
+                return (PyObject*)result;
             }
         }
         case 0x05:
@@ -769,124 +847,3 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
     }
 }
 
-#if 0
-static PympfrObject *
-Pympfr_From_Binary(PyObject *s)
-{
-    PympfrObject *newob;
-    unsigned char *cp;
-    mpfr_prec_t prec;
-    mpfr_exp_t expt;
-    Py_ssize_t i, len;
-    PyObject *ascii_str = NULL;
-    int codebyte, msgn, esgn, plen;
-
-    /* Accept either a sequence of bytes or Unicode string. */
-    if (PyBytes_Check(s)) {
-        len = PyBytes_Size(s);
-        cp = (unsigned char*)PyBytes_AsString(s);
-    }
-    else {
-        ascii_str = PyUnicode_AsASCIIString(s);
-        if (!ascii_str) {
-            VALUE_ERROR("string contains non-ASCII characters");
-            return NULL;
-        }
-        len = PyBytes_Size(ascii_str);
-        cp = (unsigned char*)PyBytes_AsString(ascii_str);
-    }
-
-    /* Verify this is really an mpfr binary string. */
-    if (!(strcmp("mpfr", cp)) {
-        VALUE_ERROR("invalid byte sequence");
-        Py_XDECREF(ascii_str);
-        return NULL;
-    }
-
-    if (!(newob = Pympfr_new(0))) {
-        Py_XDECREF(ascii_str);
-        return NULL;
-    }
-
-    codebyte = cp[4];
-    msgn = codebyte & 1;
-    esgn = codebyte & 2;
-    plen = ((codebyte & 224) >> 5) + 1;
-
-    if (codebyte & 4) {
-        if (msgn)
-            mpfr_set_zero(Pympfr_AS_MPFR(newob), -1);
-        else
-            mpfr_set_zero(Pympfr_AS_MPFR(newob), 1);
-        Py_XDECREF(ascii_str);
-        return newob;
-    }
-
-    if (codebyte & 8) {
-        if (msgn)
-            mpfr_set_inf(Pympfr_AS_MPFR(newob), -1);
-        else
-            mpfr_set_inf(Pympfr_AS_MPFR(newob), 1);
-        Py_XDECREF(ascii_str);
-        return newob;
-    }
-
-    if (codebyte & 16) {
-        mpfr_set_nan(Pympfr_AS_MPFR(newob));
-        Py_XDECREF(ascii_str);
-        return newob;
-    }
-
-    /* Check for correct string length. */
-    if (len < 22) {
-        VALUE_ERROR("string too short to be a gmpy2.mpfr binary encoding");
-        Py_DECREF((PyObject*)newob);
-        Py_XDECREF(ascii_str);
-        return NULL;
-    }
-
-    /* Read the next 8 bytes for the precision. */
-    prec = 0;
-    for (i = 5; i < 13; ++i) {
-        prec = (prec << 8) | cp[i];
-    }
-
-    /* Read the next 8 bytes for the exponent. */
-    expt = 0;
-    for (i = 13; i < 21; ++i) {
-        expt = (expt << 8) | cp[i];
-    }
-
-    /* Set the precision. */
-    if (prec > MPFR_PREC_MIN && prec < MPFR_PREC_MAX)
-        mpfr_set_prec(Pympfr_AS_MPFR(newob), prec);
-    else {
-        VALUE_ERROR("value for precision is too large");
-        Py_DECREF((PyObject*)newob);
-        Py_XDECREF(ascii_str);
-        return NULL;
-    }
-
-    /* reconstruct 'mantissa' (significand) */
-    mpfr_set_si(newob->f, 0, context.mpfr_round);
-    mpfr_init2(digit, prec);
-    for (i = 5 + precilen; i<len; i++) {
-        mpfr_set_ui(digit, cp[i], context.mpfr_round);
-        mpfr_div_2ui(digit, digit, (unsigned long)((i-4-precilen) * 8),
-                     context.mpfr_round);
-        mpfr_add(newob->f, newob->f, digit, context.mpfr_round);
-    }
-    mpfr_clear(digit);
-    /* apply exponent, with its appropriate sign */
-    if (exposign)
-        mpfr_div_2ui(newob->f, newob->f, 8*expomag, context.mpfr_round);
-    else
-        mpfr_mul_2ui(newob->f, newob->f, 8*expomag, context.mpfr_round);
-    /* apply significand-sign (sign of the overall number) */
-    if (resusign)
-        mpfr_neg(newob->f, newob->f, context.mpfr_round);
-
-    Py_XDECREF(ascii_str);
-    return newob;
-}
-#endif
