@@ -2,9 +2,9 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('_'), dir(_g))
-['Default', 'DivisionByZeroError', 'ExponentOutOfBoundsError', 'InexactError', 'InvalidOperationError', 'OverflowError', 'RangeError', 'RoundAwayZero', 'RoundDown', 'RoundToNearest', 'RoundToZero', 'RoundUp', 'UnderflowError', 'acos', 'acosh', 'add', 'agm', 'ai', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'binary', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'c_div', 'c_div_2exp', 'c_divmod', 'c_divmod_2exp', 'c_mod', 'c_mod_2exp', 'cbrt', 'ceil', 'check_range', 'comb', 'const_catalan', 'const_euler', 'const_log2', 'const_pi', 'context', 'copy_sign', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'degrees', 'denom', 'digamma', 'digits', 'div', 'div_2exp', 'divexact', 'divm', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'f_div', 'f_div_2exp', 'f_divmod', 'f_divmod_2exp', 'f_mod', 'f_mod_2exp', 'fac', 'factorial', 'fib', 'fib2', 'floor', 'fma', 'fmod', 'fms', 'frac', 'frexp', 'fsum', 'gamma', 'gcd', 'gcdext', 'get_cache', 'get_context', 'get_emax_max', 'get_emin_min', 'get_exp', 'get_max_precision', 'hamdist', 'hypot', 'inf', 'invert', 'iroot', 'iroot_rem', 'is_bpsw_prp', 'is_euler_prp', 'is_even', 'is_extra_strong_lucas_prp', 'is_fermat_prp', 'is_fibonacci_prp', 'is_inf', 'is_integer', 'is_lessgreater', 'is_lucas_prp', 'is_nan', 'is_number', 'is_odd', 'is_power', 'is_prime', 'is_regular', 'is_selfridge_prp', 'is_signed', 'is_square', 'is_strong_bpsw_prp', 'is_strong_lucas_prp', 'is_strong_prp', 'is_strong_selfridge_prp', 'is_unordered', 'is_zero', 'isqrt', 'isqrt_rem', 'j0', 'j1', 'jacobi', 'jn', 'kronecker', 'lcm', 'legendre', 'lgamma', 'li2', 'license', 'lngamma', 'local_context', 'log', 'log10', 'log1p', 'log2', 'lucas', 'lucas2', 'lucasu', 'lucasu_mod', 'lucasv', 'lucasv_mod', 'max', 'min', 'modf', 'mp_limbsize', 'mp_version', 'mpc', 'mpc_random', 'mpc_version', 'mpfr', 'mpfr_from_old_binary', 'mpfr_grandom', 'mpfr_random', 'mpfr_version', 'mpq', 'mpq_from_old_binary', 'mpz', 'mpz_from_old_binary', 'mpz_random', 'mpz_rrandomb', 'mpz_urandomb', 'mul', 'mul_2exp', 'nan', 'next_above', 'next_below', 'next_prime', 'next_toward', 'norm', 'numdigits', 'numer', 'pack', 'phase', 'polar', 'popcount', 'pow', 'proj', 'qdiv', 'radians', 'random_state', 'rec_sqrt', 'rect', 'reldiff', 'remainder', 'remove', 'remquo', 'rint', 'rint_ceil', 'rint_floor', 'rint_round', 'rint_trunc', 'root', 'round', 'round2', 'sec', 'sech', 'set_cache', 'set_context', 'set_debug', 'set_exp', 'set_sign', 'sign', 'sin', 'sin_cos', 'sinh', 'sinh_cosh', 'sqrt', 'square', 'sub', 't_div', 't_div_2exp', 't_divmod', 't_divmod_2exp', 't_mod', 't_mod_2exp', 'tan', 'tanh', 'trunc', 'unpack', 'version', 'xbit_mask', 'xmpz', 'y0', 'y1', 'yn', 'zero', 'zeta']
+['Default', 'DivisionByZeroError', 'ExponentOutOfBoundsError', 'InexactError', 'InvalidOperationError', 'OverflowError', 'RangeError', 'RoundAwayZero', 'RoundDown', 'RoundToNearest', 'RoundToZero', 'RoundUp', 'UnderflowError', 'acos', 'acosh', 'add', 'agm', 'ai', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'bincoef', 'bit_clear', 'bit_flip', 'bit_length', 'bit_mask', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'c_div', 'c_div_2exp', 'c_divmod', 'c_divmod_2exp', 'c_mod', 'c_mod_2exp', 'cbrt', 'ceil', 'check_range', 'comb', 'const_catalan', 'const_euler', 'const_log2', 'const_pi', 'context', 'copy_sign', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'degrees', 'denom', 'digamma', 'digits', 'div', 'div_2exp', 'divexact', 'divm', 'eint', 'erf', 'erfc', 'exp', 'exp10', 'exp2', 'expm1', 'f2q', 'f_div', 'f_div_2exp', 'f_divmod', 'f_divmod_2exp', 'f_mod', 'f_mod_2exp', 'fac', 'factorial', 'fib', 'fib2', 'floor', 'fma', 'fmod', 'fms', 'frac', 'frexp', 'from_binary', 'fsum', 'gamma', 'gcd', 'gcdext', 'get_cache', 'get_context', 'get_emax_max', 'get_emin_min', 'get_exp', 'get_max_precision', 'hamdist', 'hypot', 'inf', 'invert', 'iroot', 'iroot_rem', 'is_bpsw_prp', 'is_euler_prp', 'is_even', 'is_extra_strong_lucas_prp', 'is_fermat_prp', 'is_fibonacci_prp', 'is_inf', 'is_integer', 'is_lessgreater', 'is_lucas_prp', 'is_nan', 'is_number', 'is_odd', 'is_power', 'is_prime', 'is_regular', 'is_selfridge_prp', 'is_signed', 'is_square', 'is_strong_bpsw_prp', 'is_strong_lucas_prp', 'is_strong_prp', 'is_strong_selfridge_prp', 'is_unordered', 'is_zero', 'isqrt', 'isqrt_rem', 'j0', 'j1', 'jacobi', 'jn', 'kronecker', 'lcm', 'legendre', 'lgamma', 'li2', 'license', 'lngamma', 'local_context', 'log', 'log10', 'log1p', 'log2', 'lucas', 'lucas2', 'lucasu', 'lucasu_mod', 'lucasv', 'lucasv_mod', 'max', 'min', 'modf', 'mp_limbsize', 'mp_version', 'mpc', 'mpc_random', 'mpc_version', 'mpfr', 'mpfr_from_old_binary', 'mpfr_grandom', 'mpfr_random', 'mpfr_version', 'mpq', 'mpq_from_old_binary', 'mpz', 'mpz_from_old_binary', 'mpz_random', 'mpz_rrandomb', 'mpz_urandomb', 'mul', 'mul_2exp', 'nan', 'next_above', 'next_below', 'next_prime', 'next_toward', 'norm', 'numdigits', 'numer', 'pack', 'phase', 'polar', 'popcount', 'pow', 'proj', 'qdiv', 'radians', 'random_state', 'rec_sqrt', 'rect', 'reldiff', 'remainder', 'remove', 'remquo', 'rint', 'rint_ceil', 'rint_floor', 'rint_round', 'rint_trunc', 'root', 'round', 'round2', 'sec', 'sech', 'set_cache', 'set_context', 'set_debug', 'set_exp', 'set_sign', 'sign', 'sin', 'sin_cos', 'sinh', 'sinh_cosh', 'sqrt', 'square', 'sub', 't_div', 't_div_2exp', 't_divmod', 't_divmod_2exp', 't_mod', 't_mod_2exp', 'tan', 'tanh', 'to_binary', 'trunc', 'unpack', 'version', 'xbit_mask', 'xmpz', 'y0', 'y1', 'yn', 'zero', 'zeta']
 >>> filter(lambda x: not x.startswith('__'), dir(a))
-['binary', 'bit_clear', 'bit_flip', 'bit_length', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'digits', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'numdigits']
+['bit_clear', 'bit_flip', 'bit_length', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'digits', 'is_even', 'is_odd', 'is_power', 'is_prime', 'is_square', 'numdigits']
 >>>
 '''
 import gmpy2 as _g, doctest, sys, operator, gc
@@ -606,20 +606,11 @@ ValueError: invalid digits
 
 __test__['binio']=\
 r'''
->>> ba=a.binary()
->>> ba
-'{'
->>> _g.mpz_from_old_binary(ba)
-mpz(123)
->>> _g.mpz_from_old_binary(ba)==a
-1
->>> _g.binary(_g.mpz(123))
-'{'
->>> z=_g.mpz_from_old_binary('melancholy')
->>> z
-mpz(573406620562849222387053L)
->>> long(z)
-573406620562849222387053L
+>>> a== _g.from_binary(_g.to_binary(a))
+True
+>>> -a== _g.from_binary(_g.to_binary(-a))
+True
+>>> z=_g.mpz(573406620562849222387053L)
 >>> divmod(z,a)
 (mpz(4661842443600400182008L), mpz(69))
 >>> for i in range(2,37):
@@ -646,8 +637,6 @@ ValueError: base must be in the interval 2 ... 62
 456
 >>> hash(z) == hash(long(z))
 True
->>> _g.mpz_from_old_binary(_g.binary(_g.mpz(-123)))
-mpz(-123)
 >>> long(_g.mpz(-3))
 -3L
 >>>

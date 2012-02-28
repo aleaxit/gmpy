@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> filter(lambda x: not x.startswith('__'), dir(a))
-['as_integer_ratio', 'as_mantissa_exp', 'as_simple_fraction', 'binary', 'conjugate', 'digits', 'imag', 'is_inf', 'is_integer', 'is_lessgreater', 'is_nan', 'is_number', 'is_regular', 'is_signed', 'is_unordered', 'is_zero', 'precision', 'rc', 'real']
+['as_integer_ratio', 'as_mantissa_exp', 'as_simple_fraction', 'conjugate', 'digits', 'imag', 'is_inf', 'is_integer', 'is_lessgreater', 'is_nan', 'is_number', 'is_regular', 'is_signed', 'is_unordered', 'is_zero', 'precision', 'rc', 'real']
 >>>
 '''
 import sys
@@ -315,65 +315,35 @@ mpfr('123.456',33)
 >>> del(newa)
 >>> _g.digits(_g.mpfr(23.45))
 ('23449999999999999', 2, 53)
->>> _g.binary('pep')
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: binary() argument type not supported
 >>>
 '''
 
 __test__['binio']=\
 r'''
->>> epsilon=_g.mpfr(2)**-(a.precision)
->>> ba=a.binary()
->>> _g.reldiff(a,_g.mpfr_from_old_binary(ba)) <= epsilon
-1
->>> len(ba)
-16
->>> for i in range(len(ba)):
-...     print ord(ba[i]),
-...     if i==len(ba)-1: print
-...
-8 53 0 0 0 1 0 0 0 123 116 188 106 126 249 220
->>> na=(-a).binary()
->>> _g.reldiff(-a,_g.mpfr_from_old_binary(na)) <= epsilon
-1
->>> na[0] == chr(ord(ba[0])|1)
-1
->>> for bd,nd in zip(ba[1:],na[1:]):
-...    assert bd==nd
->>> ia=(1/a).binary()
->>> _g.reldiff(1/a,_g.mpfr_from_old_binary(ia)) <= epsilon
-1
->>> _g.binary(_g.mpfr(0))
-'\x04'
->>> _g.mpfr_from_old_binary(_g.binary(_g.mpfr(0))) == 0
-1
->>> _g.binary(_g.mpfr(0.5))
-'\x085\x00\x00\x00\x00\x00\x00\x00\x80'
->>> _g.mpfr_from_old_binary(_g.binary(_g.mpfr(0.5))) == 0.5
-1
->>> _g.binary(_g.mpfr(-0.5))
-'\t5\x00\x00\x00\x00\x00\x00\x00\x80'
->>> _g.mpfr_from_old_binary(_g.binary(_g.mpfr(-0.5))) == -0.5
-1
->>> _g.binary(_g.mpfr(-2.0))
-'\t5\x00\x00\x00\x01\x00\x00\x00\x02'
->>> _g.mpfr_from_old_binary(_g.binary(_g.mpfr(-2.0))) == -2.0
-1
->>> _g.binary(_g.mpfr(2.0))
-'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
->>> _g.mpfr_from_old_binary(_g.binary(_g.mpfr(2.0))) == 2.0
-1
->>> _g.context().precision = 0
+>>> _g.from_binary('pep')
 Traceback (most recent call last):
-  ...
-ValueError: invalid value for precision
->>> _g.context().precision = 53
+  File "<stdin>", line 1, in ?
+TypeError: from_binary() argument type not supported
+>>> a == _g.from_binary(_g.to_binary(a))
+True
+>>> -a == _g.from_binary(_g.to_binary(-a))
+True
+>>> 1/a == _g.from_binary(_g.to_binary(1/a))
+True
+>>> _g.to_binary(_g.mpfr(0))
+'\x04\x00\x00\x005\x00\x00\x00'
+>>> 0 == _g.from_binary(_g.to_binary(_g.mpfr(0)))
+True
+>>> 0.5 == _g.from_binary(_g.to_binary(_g.mpfr(0.5)))
+True
+>>> -0.5 == _g.from_binary(_g.to_binary(_g.mpfr(-0.5)))
+True
+>>> -2.0 == _g.from_binary(_g.to_binary(_g.mpfr(-2.0)))
+True
+>>> 2.0 == _g.from_binary(_g.to_binary(_g.mpfr(2.0)))
+True
 >>> hash(_g.mpfr(23.0))==hash(23)
-1
->>> print _g.mpfr_from_old_binary('\004')
-0.0
+True
 >>> long(a)
 123L
 >>> long(-a)

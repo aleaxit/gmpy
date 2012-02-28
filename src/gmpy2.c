@@ -904,12 +904,14 @@ PyMODINIT_FUNC initgmpy2(void)
     copy_reg_module = PyImport_ImportModule("copyreg");
     if (copy_reg_module) {
         char* enable_pickle =
-            "def mpz_reducer(an_mpz): return (gmpy2.mpz_from_old_binary, (an_mpz.binary(),))\n"
-            "def mpq_reducer(an_mpq): return (gmpy2.mpq_from_old_binary, (an_mpq.binary(),))\n"
+            "def mpz_reducer(an_mpz): return (gmpy2.from_binary, (gmpy2.to_binary(an_mpz),))\n"
+            "def xmpz_reducer(an_xmpz): return (gmpy2.from_binary, (gmpy2.to_binary(an_xmpz),))\n"
+            "def mpq_reducer(an_mpq): return (gmpy2.from_binary, (gmpy2.to_binary(an_mpq),))\n"
             "copyreg.pickle(type(gmpy2.mpz(0)), mpz_reducer)\n"
+            "copyreg.pickle(type(gmpy2.xmpz(0)), xmpz_reducer)\n"
             "copyreg.pickle(type(gmpy2.mpq(0)), mpq_reducer)\n"
 #ifdef WITHMPFR
-            "def mpfr_reducer(an_mpfr): return (gmpy2.mpfr_from_old_binary, (an_mpfr.binary(),))\n"
+            "def mpfr_reducer(an_mpfr): return (gmpy2.from_binary, (gmpy2.to_binary(an_mpfr),))\n"
             "copyreg.pickle(type(gmpy2.mpfr(0)), mpfr_reducer)\n"
 #endif
         ;
@@ -935,12 +937,14 @@ PyMODINIT_FUNC initgmpy2(void)
     copy_reg_module = PyImport_ImportModule("copy_reg");
     if (copy_reg_module) {
         char* enable_pickle =
-            "def mpz_reducer(an_mpz): return (gmpy2.mpz_from_old_binary, (an_mpz.binary(),))\n"
-            "def mpq_reducer(an_mpq): return (gmpy2.mpq_from_old_binary, (an_mpq.binary(),))\n"
+            "def mpz_reducer(an_mpz): return (gmpy2.from_binary, (gmpy2.to_binary(an_mpz),))\n"
+            "def xmpz_reducer(an_xmpz): return (gmpy2.from_binary, (gmpy2.to_binary(an_xmpz),))\n"
+            "def mpq_reducer(an_mpq): return (gmpy2.from_binary, (gmpy2.to_binary(an_mpq),))\n"
             "copy_reg.pickle(type(gmpy2.mpz(0)), mpz_reducer)\n"
+            "copy_reg.pickle(type(gmpy2.xmpz(0)), xmpz_reducer)\n"
             "copy_reg.pickle(type(gmpy2.mpq(0)), mpq_reducer)\n"
 #ifdef WITHMPFR
-            "def mpfr_reducer(an_mpfr): return (gmpy2.mpfr_from_old_binary, (an_mpfr.binary(),))\n"
+            "def mpfr_reducer(an_mpfr): return (gmpy2.from_binary, (gmpy2.to_binary(an_mpfr),))\n"
             "copy_reg.pickle(type(gmpy2.mpfr(0)), mpfr_reducer)\n"
 #endif
         ;
