@@ -141,14 +141,14 @@ gmpy2_ext = Extension('gmpy2', sources=['src/gmpy2.c'],
     extra_link_args = my_extra_link_args)
 
 setup (name = "gmpy2",
-       version = "2.0.0a3",
+       version = "2.0.0b1",
        maintainer = "Case Van Horsen",
        maintainer_email = "casevh@gmail.com",
        url = "http://code.google.com/p/gmpy/",
        description = "GMP/MPIR, MPFR, and MPC interface to Python 2.6+ and 3.x",
 
        classifiers = [
-         'Development Status :: 3 - Alpha',
+         'Development Status :: 4 - Beta',
          'Intended Audience :: Developers',
          'Intended Audience :: Science/Research',
          'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
