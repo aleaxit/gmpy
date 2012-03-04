@@ -41,10 +41,14 @@ static PyObject * Pympz_From_Old_Binary(PyObject *self, PyObject *other);
 static PyObject * Pympq_From_Old_Binary(PyObject *self, PyObject *other);
 #ifdef WITHMPFR
 static PyObject * Pympfr_From_Old_Binary(PyObject *self, PyObject *other);
+static PyObject * Pympfr_As_Binary(PympfrObject *self);
 #endif
 static PyObject * Pympz_As_Binary(PympzObject *self);
 static PyObject * Pyxmpz_As_Binary(PyxmpzObject *self);
 static PyObject * Pympq_As_Binary(PympqObject *self);
+#ifdef WITHMPC
+static PyObject * Pympc_As_Binary(PympcObject *self);
+#endif
 static PyObject * Pympany_From_Binary(PyObject *self, PyObject *other);
 
 #ifdef __cplusplus

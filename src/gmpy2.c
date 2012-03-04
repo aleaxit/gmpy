@@ -906,15 +906,15 @@ PyMODINIT_FUNC initgmpy2(void)
     copy_reg_module = PyImport_ImportModule("copyreg");
     if (copy_reg_module) {
         char* enable_pickle =
-            "def mpz_reducer(an_mpz): return (gmpy2.from_binary, (gmpy2.to_binary(an_mpz),))\n"
-            "def xmpz_reducer(an_xmpz): return (gmpy2.from_binary, (gmpy2.to_binary(an_xmpz),))\n"
-            "def mpq_reducer(an_mpq): return (gmpy2.from_binary, (gmpy2.to_binary(an_mpq),))\n"
-            "copyreg.pickle(type(gmpy2.mpz(0)), mpz_reducer)\n"
-            "copyreg.pickle(type(gmpy2.xmpz(0)), xmpz_reducer)\n"
-            "copyreg.pickle(type(gmpy2.mpq(0)), mpq_reducer)\n"
+            "def gmpy2_reducer(x): return (gmpy2.from_binary, (gmpy2.to_binary(x),))\n"
+            "copyreg.pickle(type(gmpy2.mpz(0)), gmpy2_reducer)\n"
+            "copyreg.pickle(type(gmpy2.xmpz(0)), gmpy2_reducer)\n"
+            "copyreg.pickle(type(gmpy2.mpq(0)), gmpy2_reducer)\n"
 #ifdef WITHMPFR
-            "def mpfr_reducer(an_mpfr): return (gmpy2.from_binary, (gmpy2.to_binary(an_mpfr),))\n"
-            "copyreg.pickle(type(gmpy2.mpfr(0)), mpfr_reducer)\n"
+            "copyreg.pickle(type(gmpy2.mpfr(0)), gmpy2_reducer)\n"
+#endif
+#ifdef WITHMPC
+            "copyreg.pickle(type(gmpy2.mpc(0,0)), gmpy2_reducer)\n"
 #endif
         ;
         PyObject* namespace = PyDict_New();
@@ -939,15 +939,15 @@ PyMODINIT_FUNC initgmpy2(void)
     copy_reg_module = PyImport_ImportModule("copy_reg");
     if (copy_reg_module) {
         char* enable_pickle =
-            "def mpz_reducer(an_mpz): return (gmpy2.from_binary, (gmpy2.to_binary(an_mpz),))\n"
-            "def xmpz_reducer(an_xmpz): return (gmpy2.from_binary, (gmpy2.to_binary(an_xmpz),))\n"
-            "def mpq_reducer(an_mpq): return (gmpy2.from_binary, (gmpy2.to_binary(an_mpq),))\n"
-            "copy_reg.pickle(type(gmpy2.mpz(0)), mpz_reducer)\n"
-            "copy_reg.pickle(type(gmpy2.xmpz(0)), xmpz_reducer)\n"
-            "copy_reg.pickle(type(gmpy2.mpq(0)), mpq_reducer)\n"
+            "def gmpy2_reducer(x): return (gmpy2.from_binary, (gmpy2.to_binary(x),))\n"
+            "copy_reg.pickle(type(gmpy2.mpz(0)), gmpy2_reducer)\n"
+            "copy_reg.pickle(type(gmpy2.xmpz(0)), gmpy2_reducer)\n"
+            "copy_reg.pickle(type(gmpy2.mpq(0)), gmpy2_reducer)\n"
 #ifdef WITHMPFR
-            "def mpfr_reducer(an_mpfr): return (gmpy2.from_binary, (gmpy2.to_binary(an_mpfr),))\n"
-            "copy_reg.pickle(type(gmpy2.mpfr(0)), mpfr_reducer)\n"
+            "copy_reg.pickle(type(gmpy2.mpfr(0)), gmpy2_reducer)\n"
+#endif
+#ifdef WITHMPFR
+            "copy_reg.pickle(type(gmpy2.mpc(0,0)), gmpy2_reducer)\n"
 #endif
         ;
         PyObject* namespace = PyDict_New();
