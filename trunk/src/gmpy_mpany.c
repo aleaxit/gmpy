@@ -294,6 +294,10 @@ Pympany_to_binary(PyObject *self, PyObject *other)
     else if(Pympfr_Check(other))
         return Pympfr_As_Binary((PympfrObject*)other);
 #endif
+#ifdef WITHMPC
+    else if(Pympc_Check(other))
+        return Pympc_As_Binary((PympcObject*)other);
+#endif
     TYPE_ERROR("to_binary() argument type not supported");
     return NULL;
 }

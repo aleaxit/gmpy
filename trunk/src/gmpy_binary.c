@@ -375,6 +375,7 @@ Pympq_As_Binary(PympqObject *self)
     return result;
 }
 
+#ifdef WITHMPFR
 /* Format of the binary representation of an mpfr.
  *
  * byte[0]:      1 => mpz  (see Pympz_As_Binary)
@@ -567,6 +568,54 @@ Pympfr_As_Binary(PympfrObject *self)
     TEMP_FREE(buffer, size);
     return result;
 }
+#endif
+
+#ifdef WITHMPC
+/* Format of the binary representation of an mpc.
+ *
+ * The format consists of the concatenation of mpfrs (real and imaginary)
+ * converted to binary format. The 0x04 leading byte of each binary string
+ * is replaced by 0x05.
+ */
+
+static PyObject *
+Pympc_As_Binary(PympcObject *self)
+{
+    PympfrObject *real = 0, *imag = 0;
+    PyObject *result = 0, *temp = 0;
+    mpfr_prec_t rprec = 0, cprec = 0;
+
+    mpc_get_prec2(&rprec, &cprec, self->c);
+    real = Pympfr_new(rprec);
+    imag = Pympfr_new(cprec);
+    if (!real || !imag) {
+        Py_XDECREF((PyObject*)real);
+        Py_XDECREF((PyObject*)imag);
+        return NULL;
+    }
+
+    mpfr_set(real->f, mpc_realref(self->c), MPFR_RNDN);
+    mpfr_set(imag->f, mpc_imagref(self->c), MPFR_RNDN);
+    real->rc = self->rc;
+    real->round_mode = self->round_mode;
+
+    result = Pympfr_As_Binary(real);
+    temp = Pympfr_As_Binary(imag);
+    Py_DECREF((PyObject*)real);
+    Py_DECREF((PyObject*)imag);
+    if (!result || !temp) {
+        Py_XDECREF((PyObject*)result);
+        Py_XDECREF((PyObject*)temp);
+        return NULL;
+    }
+
+    PyBytes_AS_STRING(result)[0] = 0x05;
+    PyBytes_AS_STRING(temp)[0] = 0x05;
+
+    PyBytes_ConcatAndDel(&result, temp);
+    return result;
+}
+#endif
 
 PyDoc_STRVAR(doc_from_binary,
 "from_binary(bytes) -> gmpy2 object\n"
@@ -670,6 +719,10 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             break;
         }
         case 0x04: {
+#ifndef WITHMPFR
+            VALUE_ERROR("creating 'mpfr' object not supported");
+            return NULL;
+#else
             PympfrObject *result;
             size_t sizemant = 0, sizesize = 4, i, newmant;
             mpfr_prec_t precision = 0;
@@ -839,7 +892,273 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
                 return (PyObject*)result;
             }
         }
-        case 0x05:
+#endif
+        case 0x05: {
+#ifndef WITHMPC
+            VALUE_ERROR("creating 'mpc' object not supported");
+            return NULL;
+#else
+            PympcObject *result;
+            PympfrObject *real = 0, *imag = 0;
+            size_t sizemant = 0, sizesize = 4, i, newmant;
+            mpfr_prec_t precision = 0;
+            mpfr_exp_t exponent = 0;
+            mp_limb_t templimb;
+            int sgn = 1, expsgn = 1, limbsize = 4;
+            int newlimbsize = (mp_bits_per_limb >> 3);
+            unsigned char *tempbuf;
+
+            if (len < 4) {
+                VALUE_ERROR("byte sequence too short for from_binary()");
+                return NULL;
+            }
+            /* read the real part first */
+            if (cp[1] & 0x04) sizesize = 8;
+            for (i=sizesize; i>0; --i) {
+                precision = (precision << 8) + cp[i+3];
+            }
+            if (cp[1] & 0x02) sgn = -1;
+            if (cp[1] & 0x20) expsgn = -1;
+            if (cp[1] & 0x40) limbsize = 8;
+            if (!(real = Pympfr_new(precision)))
+                return NULL;
+            if (cp[2] == 0)      real->rc = 0;
+            else if (cp[2] == 1) real->rc = 1;
+            else                 real->rc = -1;
+            real->round_mode = cp[3];
+            if (!(cp[1] & 0x01)) {
+                if ((cp[1] & 0x18) == 0x00)
+                    mpfr_set_zero(real->f, sgn);
+                else if ((cp[1] & 0x18) == 0x08)
+                    mpfr_set_nan(real->f);
+                else
+                    mpfr_set_inf(real->f, sgn);
+                cp += 4 + sizesize;
+                goto readimag;
+            }
+            if (limbsize == 8) sizemant = ((precision + 63) / 64);
+            else               sizemant = ((precision + 31) / 32);
+            newmant = (precision + mp_bits_per_limb - 1) / mp_bits_per_limb;
+            cp = buffer + 4 + sizesize - 1;
+            for (i=sizesize; i>0; --i) {
+                exponent = (exponent << 8) + cp[i];
+            }
+            if (limbsize * sizemant == newmant * newlimbsize) {
+                mpfr_set_ui(real->f, 1, MPFR_RNDN);
+                cp = buffer + 4 + (2 * sizesize);
+                for (i=0; i<newmant; i++) {
+#if GMP_LIMB_BITS == 64
+                    templimb = cp[7];
+                    templimb = (templimb << 8) + cp[6];
+                    templimb = (templimb << 8) + cp[5];
+                    templimb = (templimb << 8) + cp[4];
+                    templimb = (templimb << 8) + cp[3];
+                    templimb = (templimb << 8) + cp[2];
+                    templimb = (templimb << 8) + cp[1];
+                    templimb = (templimb << 8) + cp[0];
+#endif
+#if GMP_LIMB_BITS == 32
+                    templimb = cp[3];
+                    templimb = (templimb << 8) + cp[2];
+                    templimb = (templimb << 8) + cp[1];
+                    templimb = (templimb << 8) + cp[0];
+#endif
+                    real->f->_mpfr_d[i] = templimb;
+                    cp += newlimbsize;
+                }
+                real->f->_mpfr_exp = expsgn * exponent;
+                if (sgn == -1)
+                    mpfr_neg(real->f, real->f, MPFR_RNDN);
+            }
+            else if (limbsize * sizemant > newmant * newlimbsize) {
+                if ((limbsize == 8) && (newlimbsize == 4)) {
+                    VALUE_ERROR("byte sequence invalid for from_binary()");
+                    Py_DECREF((PyObject*)real);
+                    return NULL;
+                }
+                mpfr_set_ui(real->f, 1, MPFR_RNDN);
+                cp = buffer + 4 + (2 * sizesize) + 4;
+                for (i=0; i<newmant; i++) {
+                    templimb = cp[3];
+                    templimb = (templimb << 8) + cp[2];
+                    templimb = (templimb << 8) + cp[1];
+                    templimb = (templimb << 8) + cp[0];
+                    real->f->_mpfr_d[i] = templimb;
+                    cp += newlimbsize;
+                }
+                real->f->_mpfr_exp = expsgn * exponent;
+                if (sgn == -1)
+                    mpfr_neg(real->f, real->f, MPFR_RNDN);
+            }
+            else {
+                if ((limbsize == 4) && (newlimbsize == 8)) {
+                    VALUE_ERROR("byte sequence invalid for from_binary()");
+                    Py_DECREF((PyObject*)real);
+                    return NULL;
+                }
+                mpfr_set_ui(real->f, 1, MPFR_RNDN);
+                cp = buffer + 4 + (2 * sizesize);
+                templimb = cp[3];
+                templimb = (templimb << 8) + cp[2];
+                templimb = (templimb << 8) + cp[1];
+                templimb = (templimb << 8) + cp[0];
+                real->f->_mpfr_d[i] = (templimb << 32);
+                cp += 4;
+                for (i=0; i<newmant-1; i++) {
+                    templimb = cp[7];
+                    templimb = (templimb << 8) + cp[6];
+                    templimb = (templimb << 8) + cp[5];
+                    templimb = (templimb << 8) + cp[4];
+                    templimb = (templimb << 8) + cp[3];
+                    templimb = (templimb << 8) + cp[2];
+                    templimb = (templimb << 8) + cp[1];
+                    templimb = (templimb << 8) + cp[0];
+                    real->f->_mpfr_d[i] = templimb;
+                    cp += newlimbsize;
+                }
+                real->f->_mpfr_exp = expsgn * exponent;
+                if (sgn == -1)
+                    mpfr_neg(real->f, real->f, MPFR_RNDN);
+            }
+  readimag:
+            /* Set all the variables back to default. */
+            tempbuf = cp;
+
+            sizemant = 0;
+            sizesize = 4;
+            precision = 0;
+            exponent = 0;
+            sgn = 1;
+            expsgn = 1;
+            limbsize = 4;
+
+            /* Done reading the real part. The next byte should be 0x05. */
+            if (!(cp[0] == 0x05)) {
+                VALUE_ERROR("byte sequence invalid for from_binary()");
+                Py_DECREF((PyObject*)real);
+                return NULL;
+            }
+            if (cp[1] & 0x04) sizesize = 8;
+            for (i=sizesize; i>0; --i) {
+                precision = (precision << 8) + cp[i+3];
+            }
+            if (cp[1] & 0x02) sgn = -1;
+            if (cp[1] & 0x20) expsgn = -1;
+            if (cp[1] & 0x40) limbsize = 8;
+            if (!(imag = Pympfr_new(precision)))
+                return NULL;
+            if (cp[2] == 0)      imag->rc = 0;
+            else if (cp[2] == 1) imag->rc = 1;
+            else                 imag->rc = -1;
+            imag->round_mode = cp[3];
+            if (!(cp[1] & 0x01)) {
+                if ((cp[1] & 0x18) == 0x00)
+                    mpfr_set_zero(imag->f, sgn);
+                else if ((cp[1] & 0x18) == 0x08)
+                    mpfr_set_nan(imag->f);
+                else
+                    mpfr_set_inf(imag->f, sgn);
+                goto alldone;
+            }
+            if (limbsize == 8) sizemant = ((precision + 63) / 64);
+            else               sizemant = ((precision + 31) / 32);
+            newmant = (precision + mp_bits_per_limb - 1) / mp_bits_per_limb;
+            cp = tempbuf + 4 + sizesize - 1;
+            for (i=sizesize; i>0; --i) {
+                exponent = (exponent << 8) + cp[i];
+            }
+            if (limbsize * sizemant == newmant * newlimbsize) {
+                mpfr_set_ui(imag->f, 1, MPFR_RNDN);
+                cp = tempbuf + 4 + (2 * sizesize);
+                for (i=0; i<newmant; i++) {
+#if GMP_LIMB_BITS == 64
+                    templimb = cp[7];
+                    templimb = (templimb << 8) + cp[6];
+                    templimb = (templimb << 8) + cp[5];
+                    templimb = (templimb << 8) + cp[4];
+                    templimb = (templimb << 8) + cp[3];
+                    templimb = (templimb << 8) + cp[2];
+                    templimb = (templimb << 8) + cp[1];
+                    templimb = (templimb << 8) + cp[0];
+#endif
+#if GMP_LIMB_BITS == 32
+                    templimb = cp[3];
+                    templimb = (templimb << 8) + cp[2];
+                    templimb = (templimb << 8) + cp[1];
+                    templimb = (templimb << 8) + cp[0];
+#endif
+                    imag->f->_mpfr_d[i] = templimb;
+                    cp += newlimbsize;
+                }
+                imag->f->_mpfr_exp = expsgn * exponent;
+                if (sgn == -1)
+                    mpfr_neg(imag->f, imag->f, MPFR_RNDN);
+            }
+            else if (limbsize * sizemant > newmant * newlimbsize) {
+                if ((limbsize == 8) && (newlimbsize == 4)) {
+                    VALUE_ERROR("byte sequence invalid for from_binary()");
+                    Py_DECREF((PyObject*)real);
+                    Py_DECREF((PyObject*)imag);
+                    return NULL;
+                }
+                mpfr_set_ui(imag->f, 1, MPFR_RNDN);
+                cp = tempbuf + 4 + (2 * sizesize) + 4;
+                for (i=0; i<newmant; i++) {
+                    templimb = cp[3];
+                    templimb = (templimb << 8) + cp[2];
+                    templimb = (templimb << 8) + cp[1];
+                    templimb = (templimb << 8) + cp[0];
+                    imag->f->_mpfr_d[i] = templimb;
+                    cp += newlimbsize;
+                }
+                imag->f->_mpfr_exp = expsgn * exponent;
+                if (sgn == -1)
+                    mpfr_neg(imag->f, imag->f, MPFR_RNDN);
+            }
+            else {
+                if ((limbsize == 4) && (newlimbsize == 8)) {
+                    VALUE_ERROR("byte sequence invalid for from_binary()");
+                    Py_DECREF((PyObject*)real);
+                    Py_DECREF((PyObject*)imag);
+                    return NULL;
+                }
+                mpfr_set_ui(imag->f, 1, MPFR_RNDN);
+                cp = tempbuf + 4 + (2 * sizesize);
+                templimb = cp[3];
+                templimb = (templimb << 8) + cp[2];
+                templimb = (templimb << 8) + cp[1];
+                templimb = (templimb << 8) + cp[0];
+                imag->f->_mpfr_d[i] = (templimb << 32);
+                cp += 4;
+                for (i=0; i<newmant-1; i++) {
+                    templimb = cp[7];
+                    templimb = (templimb << 8) + cp[6];
+                    templimb = (templimb << 8) + cp[5];
+                    templimb = (templimb << 8) + cp[4];
+                    templimb = (templimb << 8) + cp[3];
+                    templimb = (templimb << 8) + cp[2];
+                    templimb = (templimb << 8) + cp[1];
+                    templimb = (templimb << 8) + cp[0];
+                    imag->f->_mpfr_d[i] = templimb;
+                    cp += newlimbsize;
+                }
+                imag->f->_mpfr_exp = expsgn * exponent;
+                if (sgn == -1)
+                    mpfr_neg(imag->f, imag->f, MPFR_RNDN);
+            }
+  alldone:
+            if (!(result = Pympc_new(0,0))) {
+                Py_DECREF((PyObject*)real);
+                Py_DECREF((PyObject*)imag);
+                return NULL;
+            }
+            mpfr_swap(mpc_realref(result->c), real->f);
+            mpfr_swap(mpc_imagref(result->c), imag->f);
+            Py_DECREF((PyObject*)real);
+            Py_DECREF((PyObject*)imag);
+            return (PyObject*)result;
+        }
+#endif
         default: {
             TYPE_ERROR("from_binary() argument type not supported");
             return NULL;
