@@ -1444,10 +1444,13 @@ Pympfr_pow(PyObject *base, PyObject *exp, PyObject *m)
 
 #define MPFR_CONST(NAME) \
 static PyObject * \
-Pympfr_##NAME(PyObject *self, PyObject *args) \
+Pympfr_##NAME(PyObject *self, PyObject *args, PyObject *keywds) \
 { \
     PympfrObject *result; \
-    if ((result = Pympfr_new(0))) { \
+    mpfr_prec_t bits = 0; \
+    static char *kwlist[] = {"precision", NULL}; \
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|l", kwlist, &bits)) return NULL; \
+    if ((result = Pympfr_new(bits))) { \
         mpfr_clear_flags(); \
         result->rc = mpfr_##NAME(result->f, context->now.mpfr_round); \
         MERGE_FLAGS \
@@ -1458,26 +1461,30 @@ Pympfr_##NAME(PyObject *self, PyObject *args) \
 }
 
 PyDoc_STRVAR(doc_mpfr_const_pi,
-"const_pi() -> mpfr\n\n"
-"Return the constant pi using the default precision.");
+"const_pi([precision=0]) -> mpfr\n\n"
+"Return the constant pi using the specified precision. If no\n"
+"precision is specified, the default precision is used.");
 
 MPFR_CONST(const_pi)
 
 PyDoc_STRVAR(doc_mpfr_const_euler,
-"const_euler() -> mpfr\n\n"
-"Return the euler constant using the default precision.");
+"const_euler([precision=0]) -> mpfr\n\n"
+"Return the euler constant using the specified precision. If no\n"
+"precision is specified, the default precision is used.");
 
 MPFR_CONST(const_euler)
 
 PyDoc_STRVAR(doc_mpfr_const_log2,
-"const_log2() -> mpfr\n\n"
-"Return the log2 constant using the default precision.");
+"const_log2([precision=0]) -> mpfr\n\n"
+"Return the log2 constant  using the specified precision. If no\n"
+"precision is specified, the default precision is used.");
 
 MPFR_CONST(const_log2)
 
 PyDoc_STRVAR(doc_mpfr_const_catalan,
-"const_catalan() -> mpfr\n\n"
-"Return the catalan constant using the default precision.");
+"const_catalan([precision=0]) -> mpfr\n\n"
+"Return the catalan constant  using the specified precision. If no\n"
+"precision is specified, the default precision is used.");
 
 MPFR_CONST(const_catalan)
 

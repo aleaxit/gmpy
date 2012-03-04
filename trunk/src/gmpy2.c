@@ -255,6 +255,7 @@
  *      (Based on code contributed by David Cleaver.)
  *   Added to_binary()/from_binary (casevh)
  *   Renamed numdigits() to num_digits() (casevh)
+ *   Added keyword precision to constants (casevh)
  *
  ************************************************************************
  *
@@ -582,10 +583,10 @@ static PyMethodDef Pygmpy_methods [] =
     { "cbrt", Pympfr_cbrt, METH_O, doc_g_mpfr_cbrt },
     { "ceil", Pympfr_ceil, METH_O, doc_g_mpfr_ceil },
     { "check_range", Pympfr_check_range, METH_O, doc_g_mpfr_check_range },
-    { "const_catalan", Pympfr_const_catalan, METH_NOARGS, doc_mpfr_const_catalan },
-    { "const_euler", Pympfr_const_euler, METH_NOARGS, doc_mpfr_const_euler },
-    { "const_log2", Pympfr_const_log2, METH_NOARGS, doc_mpfr_const_log2 },
-    { "const_pi", Pympfr_const_pi, METH_VARARGS, doc_mpfr_const_pi },
+    { "const_catalan", (PyCFunction)Pympfr_const_catalan, METH_VARARGS | METH_KEYWORDS, doc_mpfr_const_catalan },
+    { "const_euler", (PyCFunction)Pympfr_const_euler, METH_VARARGS | METH_KEYWORDS, doc_mpfr_const_euler },
+    { "const_log2", (PyCFunction)Pympfr_const_log2, METH_VARARGS | METH_KEYWORDS, doc_mpfr_const_log2 },
+    { "const_pi", (PyCFunction)Pympfr_const_pi, METH_VARARGS | METH_KEYWORDS, doc_mpfr_const_pi },
     { "context", (PyCFunction)Pygmpy_context, METH_VARARGS | METH_KEYWORDS, doc_context },
     { "copy_sign", Pympfr_copy_sign, METH_VARARGS, doc_g_mpfr_copy_sign },
     { "cos", Pympany_cos, METH_O, doc_mpany_cos },
