@@ -34,15 +34,7 @@ extern "C" {
 
 typedef struct {
     mpfr_prec_t mpfr_prec;   /* current precision in bits, for MPFR */
-#ifdef WITHMPC
-    mpfr_prec_t mpc_rprec;   /* current precision in bits, for Re(MPC) */
-    mpfr_prec_t mpc_iprec;   /* current precision in bits, for Im(MPC) */
-#endif
     mpfr_rnd_t mpfr_round;   /* current rounding mode for float (MPFR) */
-#ifdef WITHMPC
-    mpfr_rnd_t mpc_rround;   /* current rounding mode for Re(MPC) */
-    mpfr_rnd_t mpc_iround;   /* current rounding mode for Im(MPC) */
-#endif
     mpfr_exp_t emax;         /* maximum exponent */
     mpfr_exp_t emin;         /* minimum exponent */
     int subnormalize;        /* if 1, subnormalization is performed */
@@ -61,37 +53,55 @@ typedef struct {
     int trap_expbound;       /* if 1, raise exception if mpfr/mpc exponents */
                              /*       are out of bounds */
 #ifdef WITHMPC
+    mpfr_prec_t mpc_rprec;   /* current precision in bits, for Re(MPC) */
+    mpfr_prec_t mpc_iprec;   /* current precision in bits, for Im(MPC) */
+    mpfr_rnd_t mpc_rround;   /* current rounding mode for Re(MPC) */
+    mpfr_rnd_t mpc_iround;   /* current rounding mode for Im(MPC) */
     int allow_complex;       /* if 1, allow mpfr functions to return an mpc */
 #endif
 } gmpy_context;
 
 typedef struct {
     PyObject_HEAD
-    gmpy_context now;        /* The "new" values, used by __enter__ */
-    PyObject *orig;          /* Original context, restored by __exit__*/
+    gmpy_context ctx;
 } GMPyContextObject;
 
+typedef struct {
+    PyObject_HEAD
+    gmpy_context new_ctx;    /* Context that will be returned when __enter__
+                              * is called. */
+    gmpy_context old_ctx;    /* Context that will restored when __exit__ is
+                              * is called. */
+} GMPyContextManagerObject;
+
+
 static PyTypeObject GMPyContext_Type;
+static PyTypeObject GMPyContextManager_Type;
 
 #define GMPyContext_Check(v) (((PyObject*)v)->ob_type == &GMPyContext_Type)
+#define GMPyContextManager_Check(v) (((PyObject*)v)->ob_type == &GMPyContextManager_Type)
 
-#define GET_MPFR_PREC(c) (c->now.mpfr_prec)
-#define GET_MPC_RPREC(c) ((c->now.mpc_rprec==GMPY_DEFAULT)?GET_MPFR_PREC(c):c->now.mpc_rprec)
-#define GET_MPC_IPREC(c) ((c->now.mpc_iprec==GMPY_DEFAULT)?GET_MPC_RPREC(c):c->now.mpc_iprec)
-#define GET_MPFR_ROUND(c) (c->now.mpfr_round)
-#define GET_MPC_RROUND(c) ((c->now.mpc_rround==GMPY_DEFAULT)?GET_MPFR_ROUND(c):c->now.mpc_rround)
-#define GET_MPC_IROUND(c) ((c->now.mpc_iround==GMPY_DEFAULT)?GET_MPC_RROUND(c):c->now.mpc_iround)
+#define GET_MPFR_PREC(c) (c->ctx.mpfr_prec)
+#define GET_MPC_RPREC(c) ((c->ctx.mpc_rprec==GMPY_DEFAULT)?GET_MPFR_PREC(c):c->ctx.mpc_rprec)
+#define GET_MPC_IPREC(c) ((c->ctx.mpc_iprec==GMPY_DEFAULT)?GET_MPC_RPREC(c):c->ctx.mpc_iprec)
+#define GET_MPFR_ROUND(c) (c->ctx.mpfr_round)
+#define GET_MPC_RROUND(c) ((c->ctx.mpc_rround==GMPY_DEFAULT)?GET_MPFR_ROUND(c):c->ctx.mpc_rround)
+#define GET_MPC_IROUND(c) ((c->ctx.mpc_iround==GMPY_DEFAULT)?GET_MPC_RROUND(c):c->ctx.mpc_iround)
 #define GET_MPC_ROUND(c) (RNDC(GET_MPC_RROUND(c), GET_MPC_IROUND(c)))
+
+static GMPyContextManagerObject * GMPyContextManager_new(void);
+static void GMPyContextManager_dealloc(GMPyContextManagerObject *self);
+static PyObject * GMPyContextManager_repr(GMPyContextManagerObject *self);
+static PyObject * GMPyContextManager_enter(PyObject *self, PyObject *args);
+static PyObject * GMPyContextManager_exit(PyObject *self, PyObject *args);
 
 static GMPyContextObject * GMPyContext_new(void);
 static void GMPyContext_dealloc(GMPyContextObject *self);
 static PyObject * GMPyContext_repr(GMPyContextObject *self);
-static PyObject * Pygmpy_get_context(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_local_context(PyObject *self, PyObject *args, PyObject *kwargs);
-static PyObject * Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs);
-static PyObject * Pygmpy_set_context(PyObject *self, PyObject *other);
-static PyObject * GMPyContext_enter(PyObject *self, PyObject *args);
-static PyObject * GMPyContext_exit(PyObject *self, PyObject *args);
+static PyObject * GMPyContext_get_context(PyObject *self, PyObject *args, PyObject *kwargs);
+static PyObject * GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs);
+static PyObject * GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs);
+static PyObject * GMPyContext_set_context(PyObject *self, PyObject *other);
 static PyObject * GMPyContext_clear_flags(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus

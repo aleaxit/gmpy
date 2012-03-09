@@ -137,7 +137,7 @@ TypeError: reldiff() requires 'mpfr','mpfr' arguments
 mpfr('11.111075555498667')
 >>> _g.sqrt(-1)
 mpfr('nan')
->>> save=_g.local_context().precision
+>>> save=_g.get_context().precision
 >>> _g.const_catalan()
 mpfr('0.91596559417721901')
 >>> _g.const_euler()
@@ -146,7 +146,7 @@ mpfr('0.57721566490153287')
 mpfr('0.69314718055994529')
 >>> _g.const_pi()
 mpfr('3.1415926535897931')
->>> _g.local_context().precision = 100
+>>> _g.get_context().precision = 100
 >>> _g.const_catalan()
 mpfr('0.91596559417721901505460351493252',100)
 >>> _g.const_euler()
@@ -155,7 +155,7 @@ mpfr('0.57721566490153286060651209008234',100)
 mpfr('0.69314718055994530941723212145798',100)
 >>> _g.const_pi()
 mpfr('3.1415926535897932384626433832793',100)
->>> _g.local_context().precision = save
+>>> _g.get_context().precision = save
 >>> del(save)
 >>> import pickle
 >>> flt = _g.mpfr(1234.6789)

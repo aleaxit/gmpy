@@ -389,7 +389,7 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
     else if (Pympc_Check(obj)) {
         /* Handle the unlikely case where the exponent is no longer
          * valid and mpfr_check_range needs to be called. */
-        if (context->now.trap_expbound) {
+        if (context->ctx.trap_expbound) {
             GMPY_EXPBOUND("exponent of existing 'mpc' incompatible with current context");
             return NULL;
         }
@@ -639,12 +639,12 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
 
         if (!tempreal) {
             if ((tempreal = Pympfr_new(rbits)))
-                mpfr_set_ui(Pympfr_AS_MPFR(tempreal), 0, context->now.mpfr_round);
+                mpfr_set_ui(Pympfr_AS_MPFR(tempreal), 0, context->ctx.mpfr_round);
         }
 
         if (!tempimag) {
             if ((tempimag = Pympfr_new(ibits)))
-                mpfr_set_ui(Pympfr_AS_MPFR(tempimag), 0, context->now.mpfr_round);
+                mpfr_set_ui(Pympfr_AS_MPFR(tempimag), 0, context->ctx.mpfr_round);
         }
 
         result = Pympc_new(rbits, ibits);
@@ -1104,8 +1104,8 @@ Pympc_pow(PyObject *base, PyObject *exp, PyObject *m)
         (!mpfr_zero_p(mpc_imagref(tempe->c)) ||
          mpfr_sgn(mpc_realref(tempe->c)) < 0)) {
 
-        context->now.divzero = 1;
-        if (context->now.trap_divzero) {
+        context->ctx.divzero = 1;
+        if (context->ctx.trap_divzero) {
             GMPY_DIVZERO("zero cannot be raised to a negative or complex power");
             Py_DECREF((PyObject*)tempe);
             Py_DECREF((PyObject*)tempb);
@@ -1174,7 +1174,7 @@ Pympc_getimag_attrib(PympcObject *self, void *closure)
     PympfrObject *result;
 
     if ((result = Pympfr_new(0)))
-        mpc_imag(result->f, self->c, context->now.mpfr_round);
+        mpc_imag(result->f, self->c, context->ctx.mpfr_round);
     return (PyObject*)result;
 }
 
@@ -1186,7 +1186,7 @@ Pympc_getreal_attrib(PympcObject *self, void *closure)
     PympfrObject *result;
 
     if ((result = Pympfr_new(0)))
-        mpc_real(result->f, self->c, context->now.mpfr_round);
+        mpc_real(result->f, self->c, context->ctx.mpfr_round);
     return (PyObject*)result;
 }
 
@@ -1259,7 +1259,7 @@ Pympc_phase(PyObject *self, PyObject *other)
     }
 
     result->rc = mpc_arg(result->f, Pympc_AS_MPC(self),
-                         context->now.mpfr_round);
+                         context->ctx.mpfr_round);
     Py_DECREF((PyObject*)self);
 
     MPFR_SUBNORMALIZE(result);
@@ -1293,7 +1293,7 @@ Pympc_norm(PyObject *self, PyObject *other)
     }
 
     result->rc = mpc_norm(result->f, Pympc_AS_MPC(self),
-                          context->now.mpfr_round);
+                          context->ctx.mpfr_round);
     Py_DECREF((PyObject*)self);
 
     MPFR_SUBNORMALIZE(result);
@@ -1498,7 +1498,7 @@ Pympc_fma(PyObject *self, PyObject *args)
     }
 
     result->rc = mpc_fma(result->c, x->c, y->c, z->c,
-                         context->now.mpfr_round);
+                         context->ctx.mpfr_round);
     MPC_SUBNORMALIZE(result);
     MPC_CHECK_FLAGS(result, "fma()");
 
@@ -1534,7 +1534,7 @@ Pympc_fms(PyObject *self, PyObject *args)
 
     mpc_neg(z->c, z->c, GET_MPC_ROUND(context));
     result->rc = mpc_fma(result->c, x->c, y->c, z->c,
-                         context->now.mpfr_round);
+                         context->ctx.mpfr_round);
     MPC_SUBNORMALIZE(result);
     MPC_CHECK_FLAGS(result, "fms()");
 
@@ -1694,8 +1694,8 @@ Pympc_div(PyObject *self, PyObject *args)
     }
 
     if (MPC_IS_ZERO_P(Pympc_AS_MPC(other))) {
-        context->now.divzero = 1;
-        if (context->now.trap_divzero) {
+        context->ctx.divzero = 1;
+        if (context->ctx.trap_divzero) {
             GMPY_DIVZERO("'mpc' division by zero");
             Py_DECREF(self);
             Py_DECREF(other);

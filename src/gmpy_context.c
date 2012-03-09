@@ -36,42 +36,40 @@
  *          future version.
  */
 
+/* Create and delete Context objects. */
+
 static GMPyContextObject *
 GMPyContext_new(void)
 {
     GMPyContextObject *result;
 
     if ((result = PyObject_New(GMPyContextObject, &GMPyContext_Type))) {
-        result->now.mpfr_prec = DBL_MANT_DIG;
+        result->ctx.mpfr_prec = DBL_MANT_DIG;
+        result->ctx.mpfr_round = MPFR_RNDN;
+        result->ctx.emax = mpfr_get_emax();
+        result->ctx.emin = mpfr_get_emin();
+        result->ctx.subnormalize = 0;
+        result->ctx.underflow = 0;
+        result->ctx.overflow = 0;
+        result->ctx.inexact = 0;
+        result->ctx.invalid = 0;
+        result->ctx.erange = 0;
+        result->ctx.divzero = 0;
+        result->ctx.trap_underflow = 0;
+        result->ctx.trap_overflow = 0;
+        result->ctx.trap_inexact = 0;
+        result->ctx.trap_invalid = 0;
+        result->ctx.trap_erange = 0;
+        result->ctx.trap_divzero = 0;
+        result->ctx.trap_expbound = 0;
+
 #ifdef WITHMPC
-        result->now.mpc_rprec = -1;
-        result->now.mpc_iprec = -1;
+        result->ctx.mpc_rprec = -1;
+        result->ctx.mpc_iprec = -1;
+        result->ctx.mpc_rround = -1;
+        result->ctx.mpc_iround = -1;
+        result->ctx.allow_complex = 0;
 #endif
-        result->now.mpfr_round = MPFR_RNDN;
-#ifdef WITHMPC
-        result->now.mpc_rround = -1;
-        result->now.mpc_iround = -1;
-#endif
-        result->now.emax = mpfr_get_emax();
-        result->now.emin = mpfr_get_emin();
-        result->now.subnormalize = 0;
-        result->now.underflow = 0;
-        result->now.overflow = 0;
-        result->now.inexact = 0;
-        result->now.invalid = 0;
-        result->now.erange = 0;
-        result->now.divzero = 0;
-        result->now.trap_underflow = 0;
-        result->now.trap_overflow = 0;
-        result->now.trap_inexact = 0;
-        result->now.trap_invalid = 0;
-        result->now.trap_erange = 0;
-        result->now.trap_divzero = 0;
-        result->now.trap_expbound = 0;
-#ifdef WITHMPC
-        result->now.allow_complex = 0;
-#endif
-        result->orig = NULL;
     }
     return result;
 };
@@ -79,7 +77,21 @@ GMPyContext_new(void)
 static void
 GMPyContext_dealloc(GMPyContextObject *self)
 {
-    Py_XDECREF((PyObject*)self->orig);
+    PyObject_Del(self);
+};
+
+/* Create and delete ContextManager objects. */
+
+static GMPyContextManagerObject *
+GMPyContextManager_new(void)
+{
+    return (GMPyContextManagerObject*)PyObject_New(GMPyContextManagerObject,
+                                                   &GMPyContextManager_Type);
+};
+
+static void
+GMPyContextManager_dealloc(GMPyContextManagerObject *self)
+{
     PyObject_Del(self);
 };
 
@@ -147,40 +159,40 @@ GMPyContext_repr(GMPyContextObject *self)
         return NULL;
     }
 
-    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->now.mpfr_prec));
+    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.mpfr_prec));
 #ifdef WITHMPC
-    if (self->now.mpc_rprec == GMPY_DEFAULT)
+    if (self->ctx.mpc_rprec == GMPY_DEFAULT)
         PyTuple_SET_ITEM(tuple, i++, Py2or3String_FromString("Default"));
     else
-        PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->now.mpc_rprec));
-    if (self->now.mpc_iprec == GMPY_DEFAULT)
+        PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.mpc_rprec));
+    if (self->ctx.mpc_iprec == GMPY_DEFAULT)
         PyTuple_SET_ITEM(tuple, i++, Py2or3String_FromString("Default"));
     else
-        PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->now.mpc_iprec));
+        PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.mpc_iprec));
 #endif
-    PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->now.mpfr_round));
+    PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->ctx.mpfr_round));
 #ifdef WITHMPC
-    PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->now.mpc_rround));
-    PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->now.mpc_iround));
+    PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->ctx.mpc_rround));
+    PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->ctx.mpc_iround));
 #endif
-    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->now.emax));
-    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->now.emin));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.subnormalize));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_underflow));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.underflow));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_overflow));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.overflow));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_inexact));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.inexact));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_invalid));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.invalid));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_erange));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.erange));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_divzero));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.divzero));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.trap_expbound));
+    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.emax));
+    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.emin));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.subnormalize));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.trap_underflow));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.underflow));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.trap_overflow));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.overflow));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.trap_inexact));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.inexact));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.trap_invalid));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.invalid));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.trap_erange));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.erange));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.trap_divzero));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.divzero));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.trap_expbound));
 #ifdef WITHMPC
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->now.allow_complex));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.allow_complex));
 #endif
 
     if (!PyErr_Occurred())
@@ -193,33 +205,188 @@ GMPyContext_repr(GMPyContextObject *self)
     return result;
 };
 
+static PyObject *
+GMPyContextManager_repr(GMPyContextManagerObject *self)
+{
+    return Py_BuildValue("s", "<gmpy2.ContextManagerObject>");
+}
+
 PyDoc_STRVAR(doc_get_context,
-"get_context() -> context manager\n\n"
-"Return a copy of the current context manager.");
+"get_context() -> gmpy2 context\n\n"
+"Return a copy of the current context.");
+
+/* Should parse keyword arguments. */
 
 static PyObject *
-Pygmpy_get_context(PyObject *self, PyObject *args)
+GMPyContext_get_context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    GMPyContextObject *result;
+    gmpy_context old;
 
-    if ((result = GMPyContext_new()))
-        result->now = context->now;
+#ifdef WITHMPC
+    static char *kwlist[] = {
+        "precision", "mpc_rprec", "mpc_iprec", "round",
+        "mpc_rround", "mpc_iround", "emax", "emin", "subnormalize",
+        "trap_underflow", "trap_overflow", "trap_inexact",
+        "trap_invalid", "trap_erange", "trap_divzero",
+        "trap_expbound", "allow_complex", NULL };
+#else
+    static char *kwlist[] = {
+        "precision", "round", "emax", "emin", "subnormalize",
+        "trap_underflow", "trap_overflow", "trap_inexact",
+        "trap_invalid", "trap_erange", "trap_divzero", "trap_expbound",
+        NULL };
+#endif
 
-    return (PyObject*)result;
+    if (PyTuple_GET_SIZE(args)) {
+        VALUE_ERROR("get_context() only supports keyword arguments");
+        return NULL;
+    }
+
+    /* Temporarily save the options of the global context manager in case
+     * there is an error while processing the arguments.
+     */
+
+    old = context->ctx;
+
+#ifdef WITHMPC
+    if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
+            "|llliiilliiiiiiiii", kwlist,
+            &context->ctx.mpfr_prec,
+            &context->ctx.mpc_rprec,
+            &context->ctx.mpc_iprec,
+            &context->ctx.mpfr_round,
+            &context->ctx.mpc_rround,
+            &context->ctx.mpc_iround,
+            &context->ctx.emax,
+            &context->ctx.emin,
+            &context->ctx.subnormalize,
+            &context->ctx.trap_underflow,
+            &context->ctx.trap_overflow,
+            &context->ctx.trap_inexact,
+            &context->ctx.trap_invalid,
+            &context->ctx.trap_erange,
+            &context->ctx.trap_divzero,
+            &context->ctx.trap_expbound,
+            &context->ctx.allow_complex))) {
+#else
+    if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
+            "|lilliiiiiiii", kwlist,
+            &context->ctx.mpfr_prec,
+            &context->ctx.mpfr_round,
+            &context->ctx.emax,
+            &context->ctx.emin,
+            &context->ctx.subnormalize,
+            &context->ctx.trap_underflow,
+            &context->ctx.trap_overflow,
+            &context->ctx.trap_inexact,
+            &context->ctx.trap_invalid,
+            &context->ctx.trap_erange,
+            &context->ctx.trap_divzero,
+            &context->ctx.trap_expbound))) {
+#endif
+        VALUE_ERROR("invalid keyword arguments in get_context()");
+        return NULL;
+    }
+
+    /* Sanity check for values. */
+    if (context->ctx.mpfr_prec < MPFR_PREC_MIN ||
+        context->ctx.mpfr_prec > MPFR_PREC_MAX) {
+        context->ctx = old;
+        VALUE_ERROR("invalid value for precision");
+        return NULL;
+    }
+
+#ifdef WITHMPC
+    if (!(context->ctx.mpc_rprec == GMPY_DEFAULT ||
+        (context->ctx.mpc_rprec >= MPFR_PREC_MIN &&
+        context->ctx.mpc_rprec <= MPFR_PREC_MAX))) {
+        context->ctx = old;
+        VALUE_ERROR("invalid value for mpc_rprec");
+        return NULL;
+    }
+    if (!(context->ctx.mpc_iprec == GMPY_DEFAULT ||
+        (context->ctx.mpc_iprec >= MPFR_PREC_MIN &&
+        context->ctx.mpc_iprec <= MPFR_PREC_MAX))) {
+        context->ctx = old;
+        VALUE_ERROR("invalid value for mpc_iprec");
+        return NULL;
+    }
+#endif
+
+    if (!(context->ctx.mpfr_round == MPFR_RNDN ||
+        context->ctx.mpfr_round == MPFR_RNDZ ||
+        context->ctx.mpfr_round == MPFR_RNDU ||
+        context->ctx.mpfr_round == MPFR_RNDD ||
+        context->ctx.mpfr_round == MPFR_RNDA)) {
+        context->ctx = old;
+        VALUE_ERROR("invalid value for mpfr_round");
+        return NULL;
+    }
+
+#ifdef WITHMPC
+    if (context->ctx.mpfr_round == MPFR_RNDA) {
+        /* Since RNDA is not supported for MPC, set the MPC rounding modes
+         * to MPFR_RNDN.
+         */
+        context->ctx.mpc_rround = MPFR_RNDN;
+        context->ctx.mpc_iround = MPFR_RNDN;
+    }
+    if (!(context->ctx.mpc_rround == MPFR_RNDN ||
+        context->ctx.mpc_rround == MPFR_RNDZ ||
+        context->ctx.mpc_rround == MPFR_RNDU ||
+        context->ctx.mpc_rround == MPFR_RNDD ||
+        context->ctx.mpc_rround == GMPY_DEFAULT)) {
+        context->ctx = old;
+        VALUE_ERROR("invalid value for mpc_rround");
+        return NULL;
+    }
+    if (!(context->ctx.mpc_iround == MPFR_RNDN ||
+        context->ctx.mpc_iround == MPFR_RNDZ ||
+        context->ctx.mpc_iround == MPFR_RNDU ||
+        context->ctx.mpc_iround == MPFR_RNDD ||
+        context->ctx.mpc_iround == GMPY_DEFAULT)) {
+        context->ctx = old;
+        VALUE_ERROR("invalid value for mpc_iround");
+        return NULL;
+    }
+#endif
+
+    if (!(context->ctx.emin < 0 && context->ctx.emax > 0)) {
+        VALUE_ERROR("invalid values for emin and/or emax");
+        context->ctx = old;
+        return NULL;
+    }
+
+    if (mpfr_set_emin(context->ctx.emin)) {
+        VALUE_ERROR("invalid value for emin");
+        context->ctx = old;
+        return NULL;
+    }
+    if (mpfr_set_emax(context->ctx.emax)) {
+        VALUE_ERROR("invalid value for emax");
+        context->ctx = old;
+        return NULL;
+    }
+
+    /* The values in the global context manager have been changed. Also return
+     * another reference to that context manager.
+     */
+
+    Py_INCREF((PyObject*)context);
+    return (PyObject*)context;
 }
 
 PyDoc_STRVAR(doc_local_context,
-"local_context() -> context manager\n\n"
-"Return a reference to the current context manager controlling\n"
-"MPFR and MPC arithmetic. The returned object no longer refers to\n"
-"the current context after a new context is loaded using\n"
-"set_context() or 'with <context>'. See 'context()' for the\n"
-"description of context options.");
+"local_context(...) -> context manager\n\n"
+"Create a context manager object that will restore the previous\n"
+"context when the 'with ...' block terminates. Keyword arguments are\n"
+"supported and will modify the new context.");
 
 static PyObject *
-Pygmpy_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
+GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    gmpy_context old;
+    GMPyContextManagerObject *result;
+
 #ifdef WITHMPC
     static char *kwlist[] = {
         "precision", "mpc_rprec", "mpc_iprec", "round",
@@ -240,138 +407,129 @@ Pygmpy_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-    /* Temporarily save the options of the global context manager in case
-     * there is an error while processing the arguments.
-     */
+    if (!(result = GMPyContextManager_new()))
+        return NULL;
 
-    old = context->now;
+
+    result->old_ctx = context->ctx;
+    result->new_ctx = context->ctx;
 
 #ifdef WITHMPC
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
             "|llliiilliiiiiiiii", kwlist,
-            &context->now.mpfr_prec,
-            &context->now.mpc_rprec,
-            &context->now.mpc_iprec,
-            &context->now.mpfr_round,
-            &context->now.mpc_rround,
-            &context->now.mpc_iround,
-            &context->now.emax,
-            &context->now.emin,
-            &context->now.subnormalize,
-            &context->now.trap_underflow,
-            &context->now.trap_overflow,
-            &context->now.trap_inexact,
-            &context->now.trap_invalid,
-            &context->now.trap_erange,
-            &context->now.trap_divzero,
-            &context->now.trap_expbound,
-            &context->now.allow_complex))) {
+            &result->new_ctx.mpfr_prec,
+            &result->new_ctx.mpc_rprec,
+            &result->new_ctx.mpc_iprec,
+            &result->new_ctx.mpfr_round,
+            &result->new_ctx.mpc_rround,
+            &result->new_ctx.mpc_iround,
+            &result->new_ctx.emax,
+            &result->new_ctx.emin,
+            &result->new_ctx.subnormalize,
+            &result->new_ctx.trap_underflow,
+            &result->new_ctx.trap_overflow,
+            &result->new_ctx.trap_inexact,
+            &result->new_ctx.trap_invalid,
+            &result->new_ctx.trap_erange,
+            &result->new_ctx.trap_divzero,
+            &result->new_ctx.trap_expbound,
+            &result->new_ctx.allow_complex))) {
 #else
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
             "|lilliiiiiiii", kwlist,
-            &context->now.mpfr_prec,
-            &context->now.mpfr_round,
-            &context->now.emax,
-            &context->now.emin,
-            &context->now.subnormalize,
-            &context->now.trap_underflow,
-            &context->now.trap_overflow,
-            &context->now.trap_inexact,
-            &context->now.trap_invalid,
-            &context->now.trap_erange,
-            &context->now.trap_divzero,
-            &context->now.trap_expbound))) {
+            &result->new_ctx.mpfr_prec,
+            &result->new_ctx.mpfr_round,
+            &result->new_ctx.emax,
+            &result->new_ctx.emin,
+            &result->new_ctx.subnormalize,
+            &result->new_ctx.trap_underflow,
+            &result->new_ctx.trap_overflow,
+            &result->new_ctx.trap_inexact,
+            &result->new_ctx.trap_invalid,
+            &result->new_ctx.trap_erange,
+            &result->new_ctx.trap_divzero,
+            &result->new_ctx.trap_expbound))) {
 #endif
         VALUE_ERROR("invalid keyword arguments in local_context()");
-        return NULL;
+        goto error;
     }
 
     /* Sanity check for values. */
-    if (context->now.mpfr_prec < MPFR_PREC_MIN ||
-        context->now.mpfr_prec > MPFR_PREC_MAX) {
-        context->now = old;
+    if (result->new_ctx.mpfr_prec < MPFR_PREC_MIN ||
+        result->new_ctx.mpfr_prec > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");
-        return NULL;
+        goto error;
     }
 
 #ifdef WITHMPC
-    if (!(context->now.mpc_rprec == GMPY_DEFAULT ||
-        (context->now.mpc_rprec >= MPFR_PREC_MIN &&
-        context->now.mpc_rprec <= MPFR_PREC_MAX))) {
-        context->now = old;
+    if (!(result->new_ctx.mpc_rprec == GMPY_DEFAULT ||
+        (result->new_ctx.mpc_rprec >= MPFR_PREC_MIN &&
+        result->new_ctx.mpc_rprec <= MPFR_PREC_MAX))) {
         VALUE_ERROR("invalid value for mpc_rprec");
-        return NULL;
+        goto error;
     }
-    if (!(context->now.mpc_iprec == GMPY_DEFAULT ||
-        (context->now.mpc_iprec >= MPFR_PREC_MIN &&
-        context->now.mpc_iprec <= MPFR_PREC_MAX))) {
-        context->now = old;
+    if (!(result->new_ctx.mpc_iprec == GMPY_DEFAULT ||
+        (result->new_ctx.mpc_iprec >= MPFR_PREC_MIN &&
+        result->new_ctx.mpc_iprec <= MPFR_PREC_MAX))) {
         VALUE_ERROR("invalid value for mpc_iprec");
-        return NULL;
+        goto error;
     }
 #endif
 
-    if (!(context->now.mpfr_round == MPFR_RNDN ||
-        context->now.mpfr_round == MPFR_RNDZ ||
-        context->now.mpfr_round == MPFR_RNDU ||
-        context->now.mpfr_round == MPFR_RNDD ||
-        context->now.mpfr_round == MPFR_RNDA)) {
-        context->now = old;
+    if (!(result->new_ctx.mpfr_round == MPFR_RNDN ||
+        result->new_ctx.mpfr_round == MPFR_RNDZ ||
+        result->new_ctx.mpfr_round == MPFR_RNDU ||
+        result->new_ctx.mpfr_round == MPFR_RNDD ||
+        result->new_ctx.mpfr_round == MPFR_RNDA)) {
         VALUE_ERROR("invalid value for mpfr_round");
-        return NULL;
+        goto error;
     }
 
 #ifdef WITHMPC
-    if (context->now.mpfr_round == MPFR_RNDA) {
+    if (result->new_ctx.mpfr_round == MPFR_RNDA) {
         /* Since RNDA is not supported for MPC, set the MPC rounding modes
          * to MPFR_RNDN.
          */
-        context->now.mpc_rround = MPFR_RNDN;
-        context->now.mpc_iround = MPFR_RNDN;
+        result->new_ctx.mpc_rround = MPFR_RNDN;
+        result->new_ctx.mpc_iround = MPFR_RNDN;
     }
-    if (!(context->now.mpc_rround == MPFR_RNDN ||
-        context->now.mpc_rround == MPFR_RNDZ ||
-        context->now.mpc_rround == MPFR_RNDU ||
-        context->now.mpc_rround == MPFR_RNDD ||
-        context->now.mpc_rround == GMPY_DEFAULT)) {
-        context->now = old;
+    if (!(result->new_ctx.mpc_rround == MPFR_RNDN ||
+        result->new_ctx.mpc_rround == MPFR_RNDZ ||
+        result->new_ctx.mpc_rround == MPFR_RNDU ||
+        result->new_ctx.mpc_rround == MPFR_RNDD ||
+        result->new_ctx.mpc_rround == GMPY_DEFAULT)) {
         VALUE_ERROR("invalid value for mpc_rround");
-        return NULL;
+        goto error;
     }
-    if (!(context->now.mpc_iround == MPFR_RNDN ||
-        context->now.mpc_iround == MPFR_RNDZ ||
-        context->now.mpc_iround == MPFR_RNDU ||
-        context->now.mpc_iround == MPFR_RNDD ||
-        context->now.mpc_iround == GMPY_DEFAULT)) {
-        context->now = old;
+    if (!(result->new_ctx.mpc_iround == MPFR_RNDN ||
+        result->new_ctx.mpc_iround == MPFR_RNDZ ||
+        result->new_ctx.mpc_iround == MPFR_RNDU ||
+        result->new_ctx.mpc_iround == MPFR_RNDD ||
+        result->new_ctx.mpc_iround == GMPY_DEFAULT)) {
         VALUE_ERROR("invalid value for mpc_iround");
-        return NULL;
+        goto error;
     }
 #endif
 
-    if (!(context->now.emin < 0 && context->now.emax > 0)) {
+    if (!(result->new_ctx.emin < 0 && result->new_ctx.emax > 0)) {
         VALUE_ERROR("invalid values for emin and/or emax");
-        context->now = old;
-        return NULL;
+        goto error;
     }
 
-    if (mpfr_set_emin(context->now.emin)) {
+    if (mpfr_set_emin(result->new_ctx.emin)) {
         VALUE_ERROR("invalid value for emin");
-        context->now = old;
-        return NULL;
+        goto error;
     }
-    if (mpfr_set_emax(context->now.emax)) {
+    if (mpfr_set_emax(result->new_ctx.emax)) {
         VALUE_ERROR("invalid value for emax");
-        context->now = old;
-        return NULL;
+        goto error;
     }
 
-    /* The values in the global context manager have been changed. Also return
-     * another reference to that context manager.
-     */
+    return (PyObject*)result;
 
-    Py_INCREF((PyObject*)context);
-    return (PyObject*)context;
+  error:
+    Py_DECREF((PyObject*)result);
+    return NULL;
 }
 
 #ifdef WITHMPC
@@ -444,7 +602,7 @@ PyDoc_STRVAR(doc_context,
 #endif
 
 static PyObject *
-Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
+GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     GMPyContextObject *result;
 
@@ -474,144 +632,144 @@ Pygmpy_context(PyObject *self, PyObject *args, PyObject *kwargs)
 #ifdef WITHMPC
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
             "|llliiilliiiiiiiii", kwlist,
-            &result->now.mpfr_prec,
-            &result->now.mpc_rprec,
-            &result->now.mpc_iprec,
-            &result->now.mpfr_round,
-            &result->now.mpc_rround,
-            &result->now.mpc_iround,
-            &result->now.emax,
-            &result->now.emin,
-            &result->now.subnormalize,
-            &result->now.trap_underflow,
-            &result->now.trap_overflow,
-            &result->now.trap_inexact,
-            &result->now.trap_invalid,
-            &result->now.trap_erange,
-            &result->now.trap_divzero,
-            &result->now.trap_expbound,
-            &result->now.allow_complex))) {
+            &result->ctx.mpfr_prec,
+            &result->ctx.mpc_rprec,
+            &result->ctx.mpc_iprec,
+            &result->ctx.mpfr_round,
+            &result->ctx.mpc_rround,
+            &result->ctx.mpc_iround,
+            &result->ctx.emax,
+            &result->ctx.emin,
+            &result->ctx.subnormalize,
+            &result->ctx.trap_underflow,
+            &result->ctx.trap_overflow,
+            &result->ctx.trap_inexact,
+            &result->ctx.trap_invalid,
+            &result->ctx.trap_erange,
+            &result->ctx.trap_divzero,
+            &result->ctx.trap_expbound,
+            &result->ctx.allow_complex))) {
 #else
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
             "|lilliiiiiiii", kwlist,
-            &result->now.mpfr_prec,
-            &result->now.mpfr_round,
-            &result->now.emax,
-            &result->now.emin,
-            &result->now.subnormalize,
-            &result->now.trap_underflow,
-            &result->now.trap_overflow,
-            &result->now.trap_inexact,
-            &result->now.trap_invalid,
-            &result->now.trap_erange,
-            &result->now.trap_divzero,
-            &result->now.trap_expbound))) {
+            &result->ctx.mpfr_prec,
+            &result->ctx.mpfr_round,
+            &result->ctx.emax,
+            &result->ctx.emin,
+            &result->ctx.subnormalize,
+            &result->ctx.trap_underflow,
+            &result->ctx.trap_overflow,
+            &result->ctx.trap_inexact,
+            &result->ctx.trap_invalid,
+            &result->ctx.trap_erange,
+            &result->ctx.trap_divzero,
+            &result->ctx.trap_expbound))) {
 #endif
         VALUE_ERROR("invalid keyword arguments in context()");
         return NULL;
     }
 
     /* Sanity check for values. */
-    if (result->now.mpfr_prec < MPFR_PREC_MIN ||
-        result->now.mpfr_prec > MPFR_PREC_MAX) {
+    if (result->ctx.mpfr_prec < MPFR_PREC_MIN ||
+        result->ctx.mpfr_prec > MPFR_PREC_MAX) {
         Py_DECREF((PyObject*)result);
         VALUE_ERROR("invalid value for precision");
         return NULL;
     }
 
 #ifdef WITHMPC
-    if (!(result->now.mpc_rprec == GMPY_DEFAULT ||
-        (result->now.mpc_rprec >= MPFR_PREC_MIN &&
-        result->now.mpc_rprec <= MPFR_PREC_MAX))) {
+    if (!(result->ctx.mpc_rprec == GMPY_DEFAULT ||
+        (result->ctx.mpc_rprec >= MPFR_PREC_MIN &&
+        result->ctx.mpc_rprec <= MPFR_PREC_MAX))) {
         Py_DECREF((PyObject*)result);
         VALUE_ERROR("invalid value for mpc_rprec");
         return NULL;
     }
-    if (!(result->now.mpc_iprec == GMPY_DEFAULT ||
-        (result->now.mpc_iprec >= MPFR_PREC_MIN &&
-        result->now.mpc_iprec <= MPFR_PREC_MAX))) {
+    if (!(result->ctx.mpc_iprec == GMPY_DEFAULT ||
+        (result->ctx.mpc_iprec >= MPFR_PREC_MIN &&
+        result->ctx.mpc_iprec <= MPFR_PREC_MAX))) {
         Py_DECREF((PyObject*)result);
         VALUE_ERROR("invalid value for mpc_iprec");
         return NULL;
     }
 #endif
 
-    if (!(result->now.mpfr_round == MPFR_RNDN ||
-        result->now.mpfr_round == MPFR_RNDZ ||
-        result->now.mpfr_round == MPFR_RNDU ||
-        result->now.mpfr_round == MPFR_RNDD ||
-        result->now.mpfr_round == MPFR_RNDA)) {
+    if (!(result->ctx.mpfr_round == MPFR_RNDN ||
+        result->ctx.mpfr_round == MPFR_RNDZ ||
+        result->ctx.mpfr_round == MPFR_RNDU ||
+        result->ctx.mpfr_round == MPFR_RNDD ||
+        result->ctx.mpfr_round == MPFR_RNDA)) {
         Py_DECREF((PyObject*)result);
         VALUE_ERROR("invalid value for mpfr_round");
         return NULL;
     }
 
 #ifdef WITHMPC
-    if (result->now.mpfr_round == MPFR_RNDA) {
+    if (result->ctx.mpfr_round == MPFR_RNDA) {
         /* Since RNDA is not supported for MPC, set the MPC rounding modes
            to MPFR_RNDN. */
-        result->now.mpc_rround = MPFR_RNDN;
-        result->now.mpc_iround = MPFR_RNDN;
+        result->ctx.mpc_rround = MPFR_RNDN;
+        result->ctx.mpc_iround = MPFR_RNDN;
     }
-    if (!(result->now.mpc_rround == MPFR_RNDN ||
-        result->now.mpc_rround == MPFR_RNDZ ||
-        result->now.mpc_rround == MPFR_RNDU ||
-        result->now.mpc_rround == MPFR_RNDD ||
-        result->now.mpc_rround == GMPY_DEFAULT)) {
+    if (!(result->ctx.mpc_rround == MPFR_RNDN ||
+        result->ctx.mpc_rround == MPFR_RNDZ ||
+        result->ctx.mpc_rround == MPFR_RNDU ||
+        result->ctx.mpc_rround == MPFR_RNDD ||
+        result->ctx.mpc_rround == GMPY_DEFAULT)) {
         Py_DECREF((PyObject*)result);
         VALUE_ERROR("invalid value for mpc_rround");
         return NULL;
     }
-    if (!(result->now.mpc_iround == MPFR_RNDN ||
-        result->now.mpc_iround == MPFR_RNDZ ||
-        result->now.mpc_iround == MPFR_RNDU ||
-        result->now.mpc_iround == MPFR_RNDD ||
-        result->now.mpc_iround == GMPY_DEFAULT)) {
+    if (!(result->ctx.mpc_iround == MPFR_RNDN ||
+        result->ctx.mpc_iround == MPFR_RNDZ ||
+        result->ctx.mpc_iround == MPFR_RNDU ||
+        result->ctx.mpc_iround == MPFR_RNDD ||
+        result->ctx.mpc_iround == GMPY_DEFAULT)) {
         Py_DECREF((PyObject*)result);
         VALUE_ERROR("invalid value for mpc_iround");
         return NULL;
     }
 #endif
 
-    if (!(result->now.emin < 0 && result->now.emax > 0)) {
+    if (!(result->ctx.emin < 0 && result->ctx.emax > 0)) {
         VALUE_ERROR("invalid values for emin and/or emax");
         Py_DECREF((PyObject*)result);
         return NULL;
     }
 
-    if (mpfr_set_emin(result->now.emin)) {
+    if (mpfr_set_emin(result->ctx.emin)) {
         VALUE_ERROR("invalid value for emin");
         Py_DECREF((PyObject*)result);
         return NULL;
     }
-    if (mpfr_set_emax(result->now.emax)) {
+    if (mpfr_set_emax(result->ctx.emax)) {
         VALUE_ERROR("invalid value for emax");
         Py_DECREF((PyObject*)result);
         return NULL;
     }
 
-    result->now.underflow = 0;
-    result->now.overflow = 0;
-    result->now.inexact = 0;
-    result->now.invalid = 0;
-    result->now.erange = 0;
-    result->now.divzero = 0;
+    result->ctx.underflow = 0;
+    result->ctx.overflow = 0;
+    result->ctx.inexact = 0;
+    result->ctx.invalid = 0;
+    result->ctx.erange = 0;
+    result->ctx.divzero = 0;
     return (PyObject*)result;
 }
 
 PyDoc_STRVAR(doc_set_context,
 "set_context(context)\n\n"
-"Activate a context manager controlling MPFR and MPC arithmetic.\n");
+"Activate a context object controlling MPFR and MPC arithmetic.\n");
 
 static PyObject *
-Pygmpy_set_context(PyObject *self, PyObject *other)
+GMPyContext_set_context(PyObject *self, PyObject *other)
 {
     if (GMPyContext_Check(other)) {
         Py_INCREF((PyObject*)other);
         Py_DECREF((PyObject*)context);
         context = (GMPyContextObject*)other;
-        mpfr_set_emin(context->now.emin);
-        mpfr_set_emax(context->now.emax);
+        mpfr_set_emin(context->ctx.emin);
+        mpfr_set_emax(context->ctx.emax);
         Py_RETURN_NONE;
     }
     else {
@@ -621,49 +779,35 @@ Pygmpy_set_context(PyObject *self, PyObject *other)
 }
 
 static PyObject *
-GMPyContext_enter(PyObject *self, PyObject *args)
+GMPyContextManager_enter(PyObject *self, PyObject *args)
 {
-    GMPyContextObject *result, *save;
+    GMPyContextObject *result;
 
-    if (((GMPyContextObject*)self)->orig != NULL) {
-        SYSTEM_ERROR("Internal error in GMPyContext_enter");
+    if (!(result = GMPyContext_new()))
         return NULL;
-    }
 
-    if ((save = GMPyContext_new())) {
-        save->now = context->now;
-        save->orig = NULL;
-    }
-    else {
-        SYSTEM_ERROR("Internal error in GMPyContext_enter");
-        return NULL;
-    }
-
-
-    ((GMPyContextObject*)self)->orig = (PyObject*)save;
+    result->ctx = ((GMPyContextManagerObject*)self)->new_ctx;
     Py_DECREF((PyObject*)context);
-    context = (GMPyContextObject*)self;
-    mpfr_set_emin(context->now.emin);
-    mpfr_set_emax(context->now.emax);
+    context = (GMPyContextObject*)result;
     Py_INCREF((PyObject*)context);
-    result = context;
-    Py_INCREF((PyObject*)result);
+    mpfr_set_emin(context->ctx.emin);
+    mpfr_set_emax(context->ctx.emax);
     return (PyObject*)result;
 }
 
 static PyObject *
-GMPyContext_exit(PyObject *self, PyObject *args)
+GMPyContextManager_exit(PyObject *self, PyObject *args)
 {
-    if (((GMPyContextObject*)self)->orig == NULL) {
-        SYSTEM_ERROR("Internal error in GMPyContext_exit");
-        return NULL;
-    }
+    GMPyContextObject *result;
 
+    if (!(result = GMPyContext_new()))
+        return NULL;
+
+    result->ctx = ((GMPyContextManagerObject*)self)->old_ctx;
     Py_DECREF((PyObject*)context);
-    context = (GMPyContextObject*)(((GMPyContextObject*)self)->orig);
-    mpfr_set_emin(context->now.emin);
-    mpfr_set_emax(context->now.emax);
-    ((GMPyContextObject*)self)->orig = NULL;
+    context = (GMPyContextObject*)result;
+    mpfr_set_emin(context->ctx.emin);
+    mpfr_set_emax(context->ctx.emax);
     Py_RETURN_NONE;
 }
 
@@ -673,12 +817,12 @@ PyDoc_STRVAR(doc_context_clear_flags,
 static PyObject *
 GMPyContext_clear_flags(PyObject *self, PyObject *args)
 {
-    ((GMPyContextObject*)self)->now.underflow = 0;
-    ((GMPyContextObject*)self)->now.overflow = 0;
-    ((GMPyContextObject*)self)->now.inexact = 0;
-    ((GMPyContextObject*)self)->now.invalid = 0;
-    ((GMPyContextObject*)self)->now.erange = 0;
-    ((GMPyContextObject*)self)->now.divzero = 0;
+    ((GMPyContextObject*)self)->ctx.underflow = 0;
+    ((GMPyContextObject*)self)->ctx.overflow = 0;
+    ((GMPyContextObject*)self)->ctx.inexact = 0;
+    ((GMPyContextObject*)self)->ctx.invalid = 0;
+    ((GMPyContextObject*)self)->ctx.erange = 0;
+    ((GMPyContextObject*)self)->ctx.divzero = 0;
     Py_RETURN_NONE;
 }
 
@@ -688,7 +832,7 @@ GMPyContext_clear_flags(PyObject *self, PyObject *args)
 static PyObject * \
 GMPyContext_get_##NAME(GMPyContextObject *self, void *closure) \
 { \
-    return PyBool_FromLong(self->now.NAME); \
+    return PyBool_FromLong(self->ctx.NAME); \
 }; \
 static int \
 GMPyContext_set_##NAME(GMPyContextObject *self, PyObject *value, void *closure) \
@@ -697,7 +841,7 @@ GMPyContext_set_##NAME(GMPyContextObject *self, PyObject *value, void *closure) 
         TYPE_ERROR(#NAME " must be True or False"); \
         return -1; \
     } \
-    self->now.NAME = (value == Py_True) ? 1 : 0; \
+    self->ctx.NAME = (value == Py_True) ? 1 : 0; \
     return 0; \
 }
 
@@ -722,7 +866,7 @@ GETSET_BOOLEAN(allow_complex)
 static PyObject *
 GMPyContext_get_precision(GMPyContextObject *self, void *closure)
 {
-    return PyIntOrLong_FromSsize_t((Py_ssize_t)(self->now.mpfr_prec));
+    return PyIntOrLong_FromSsize_t((Py_ssize_t)(self->ctx.mpfr_prec));
 }
 
 static int
@@ -739,7 +883,7 @@ GMPyContext_set_precision(GMPyContextObject *self, PyObject *value, void *closur
         VALUE_ERROR("invalid value for precision");
         return -1;
     }
-    self->now.mpfr_prec = (mpfr_prec_t)temp;
+    self->ctx.mpfr_prec = (mpfr_prec_t)temp;
     return 0;
 }
 
@@ -770,7 +914,7 @@ GMPyContext_set_mpc_rprec(GMPyContextObject *self, PyObject *value, void *closur
         VALUE_ERROR("invalid value for mpc_rprec");
         return -1;
     }
-    self->now.mpc_rprec = (mpfr_prec_t)temp;
+    self->ctx.mpc_rprec = (mpfr_prec_t)temp;
     return 0;
 }
 
@@ -800,7 +944,7 @@ GMPyContext_set_mpc_iprec(GMPyContextObject *self, PyObject *value, void *closur
         VALUE_ERROR("invalid value for mpc_iprec");
         return -1;
     }
-    self->now.mpc_iprec = (mpfr_prec_t)temp;
+    self->ctx.mpc_iprec = (mpfr_prec_t)temp;
     return 0;
 }
 #endif
@@ -808,7 +952,7 @@ GMPyContext_set_mpc_iprec(GMPyContextObject *self, PyObject *value, void *closur
 static PyObject *
 GMPyContext_get_round(GMPyContextObject *self, void *closure)
 {
-    return PyIntOrLong_FromLong((long)(self->now.mpfr_round));
+    return PyIntOrLong_FromLong((long)(self->ctx.mpfr_round));
 }
 
 static int
@@ -826,20 +970,20 @@ GMPyContext_set_round(GMPyContextObject *self, PyObject *value, void *closure)
         return -1;
     }
     if (temp == MPFR_RNDN)
-        self->now.mpfr_round = temp;
+        self->ctx.mpfr_round = temp;
     else if (temp == MPFR_RNDZ)
-        self->now.mpfr_round = temp;
+        self->ctx.mpfr_round = temp;
     else if (temp == MPFR_RNDU)
-        self->now.mpfr_round = temp;
+        self->ctx.mpfr_round = temp;
     else if (temp == MPFR_RNDD)
-        self->now.mpfr_round = temp;
+        self->ctx.mpfr_round = temp;
     else if (temp == MPFR_RNDA) {
-        self->now.mpfr_round = temp;
+        self->ctx.mpfr_round = temp;
 #ifdef WITHMPC
         /* Since RNDA is not supported for MPC, set the MPC rounding modes
            to MPFR_RNDN. */
-        self->now.mpc_rround = MPFR_RNDN;
-        self->now.mpc_iround = MPFR_RNDN;
+        self->ctx.mpc_rround = MPFR_RNDN;
+        self->ctx.mpc_iround = MPFR_RNDN;
 #endif
     }
     else {
@@ -871,15 +1015,15 @@ GMPyContext_set_mpc_rround(GMPyContextObject *self, PyObject *value, void *closu
         return -1;
     }
     if (temp == GMPY_DEFAULT)
-        self->now.mpc_rround = temp;
+        self->ctx.mpc_rround = temp;
     else if (temp == MPFR_RNDN)
-        self->now.mpc_rround = temp;
+        self->ctx.mpc_rround = temp;
     else if (temp == MPFR_RNDZ)
-        self->now.mpc_rround = temp;
+        self->ctx.mpc_rround = temp;
     else if (temp == MPFR_RNDU)
-        self->now.mpc_rround = temp;
+        self->ctx.mpc_rround = temp;
     else if (temp == MPFR_RNDD)
-        self->now.mpc_rround = temp;
+        self->ctx.mpc_rround = temp;
     else {
         VALUE_ERROR("invalid value for round mode");
         return -1;
@@ -908,15 +1052,15 @@ GMPyContext_set_mpc_iround(GMPyContextObject *self, PyObject *value, void *closu
         return -1;
     }
     if (temp == GMPY_DEFAULT)
-        self->now.mpc_iround = temp;
+        self->ctx.mpc_iround = temp;
     else if (temp == MPFR_RNDN)
-        self->now.mpc_iround = temp;
+        self->ctx.mpc_iround = temp;
     else if (temp == MPFR_RNDZ)
-        self->now.mpc_iround = temp;
+        self->ctx.mpc_iround = temp;
     else if (temp == MPFR_RNDU)
-        self->now.mpc_iround = temp;
+        self->ctx.mpc_iround = temp;
     else if (temp == MPFR_RNDD)
-        self->now.mpc_iround = temp;
+        self->ctx.mpc_iround = temp;
     else {
         VALUE_ERROR("invalid value for round mode");
         return -1;
@@ -928,7 +1072,7 @@ GMPyContext_set_mpc_iround(GMPyContextObject *self, PyObject *value, void *closu
 static PyObject *
 GMPyContext_get_emin(GMPyContextObject *self, void *closure)
 {
-    return PyIntOrLong_FromLong(self->now.emin);
+    return PyIntOrLong_FromLong(self->ctx.emin);
 }
 
 static int
@@ -949,7 +1093,7 @@ GMPyContext_set_emin(GMPyContextObject *self, PyObject *value, void *closure)
         VALUE_ERROR("requested minimum exponent is invalid");
         return -1;
     }
-    self->now.emin = exp;
+    self->ctx.emin = exp;
     mpfr_set_emin(exp);
     return 0;
 }
@@ -957,7 +1101,7 @@ GMPyContext_set_emin(GMPyContextObject *self, PyObject *value, void *closure)
 static PyObject *
 GMPyContext_get_emax(GMPyContextObject *self, void *closure)
 {
-    return PyIntOrLong_FromLong(self->now.emax);
+    return PyIntOrLong_FromLong(self->ctx.emax);
 }
 
 static int
@@ -978,7 +1122,7 @@ GMPyContext_set_emax(GMPyContextObject *self, PyObject *value, void *closure)
         VALUE_ERROR("requested maximum exponent is invalid");
         return -1;
     }
-    self->now.emax = exp;
+    self->ctx.emax = exp;
     mpfr_set_emax(exp);
     return 0;
 }
@@ -1023,8 +1167,6 @@ static PyGetSetDef GMPyContext_getseters[] = {
 
 static PyMethodDef GMPyContext_methods[] =
 {
-    { "__enter__", GMPyContext_enter, METH_NOARGS, NULL },
-    { "__exit__", GMPyContext_exit, METH_VARARGS, NULL },
     { "clear_flags", GMPyContext_clear_flags, METH_NOARGS,
             doc_context_clear_flags },
     { NULL, NULL, 1 }
@@ -1057,7 +1199,7 @@ static PyTypeObject GMPyContext_Type =
         0,                                  /* tp_setattro      */
         0,                                  /* tp_as_buffer     */
     Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
-    "GMPY2 Context manager",                /* tp_doc           */
+    "GMPY2 Context Object",                 /* tp_doc           */
         0,                                  /* tp_traverse      */
         0,                                  /* tp_clear         */
         0,                                  /* tp_richcompare   */
@@ -1067,4 +1209,50 @@ static PyTypeObject GMPyContext_Type =
     GMPyContext_methods,                    /* tp_methods       */
         0,                                  /* tp_members       */
     GMPyContext_getseters,                  /* tp_getset        */
+};
+
+static PyMethodDef GMPyContextManager_methods[] =
+{
+    { "__enter__", GMPyContextManager_enter, METH_NOARGS, NULL },
+    { "__exit__", GMPyContextManager_exit, METH_VARARGS, NULL },
+    { NULL, NULL, 1 }
+};
+
+static PyTypeObject GMPyContextManager_Type =
+{
+#ifdef PY3
+    PyVarObject_HEAD_INIT(0, 0)
+#else
+    PyObject_HEAD_INIT(0)
+        0,                                   /* ob_size          */
+#endif
+    "gmpy2 context",                         /* tp_name          */
+    sizeof(GMPyContextManagerObject),        /* tp_basicsize     */
+        0,                                   /* tp_itemsize      */
+    (destructor) GMPyContextManager_dealloc, /* tp_dealloc       */
+        0,                                   /* tp_print         */
+        0,                                   /* tp_getattr       */
+        0,                                   /* tp_setattr       */
+        0,                                   /* tp_reserved      */
+    (reprfunc) GMPyContextManager_repr,      /* tp_repr          */
+        0,                                   /* tp_as_number     */
+        0,                                   /* tp_as_sequence   */
+        0,                                   /* tp_as_mapping    */
+        0,                                   /* tp_hash          */
+        0,                                   /* tp_call          */
+        0,                                   /* tp_str           */
+        0,                                   /* tp_getattro      */
+        0,                                   /* tp_setattro      */
+        0,                                   /* tp_as_buffer     */
+    Py_TPFLAGS_DEFAULT,                      /* tp_flags         */
+    "GMPY2 Context manager",                 /* tp_doc           */
+        0,                                   /* tp_traverse      */
+        0,                                   /* tp_clear         */
+        0,                                   /* tp_richcompare   */
+        0,                                   /* tp_weaklistoffset*/
+        0,                                   /* tp_iter          */
+        0,                                   /* tp_iternext      */
+    GMPyContextManager_methods,              /* tp_methods       */
+        0,                                   /* tp_members       */
+        0,                                   /* tp_getset        */
 };

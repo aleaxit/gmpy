@@ -122,7 +122,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             TRACE("Adding (mpfr,mpfr)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_add(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
-                              context->now.mpfr_round);
+                              context->ctx.mpfr_round);
             MPFR_CLEANUP_RF(addition);
         }
         if (isInteger(b)) {
@@ -134,7 +134,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_add_z(rf->f, Pympfr_AS_MPFR(a), pbz->z,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbz);
             MPFR_CLEANUP_RF(addition);
         }
@@ -147,7 +147,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_add_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
             MPFR_CLEANUP_RF(addition);
         }
@@ -160,7 +160,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_add_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
             MPFR_CLEANUP_RF(addition);
         }
@@ -168,7 +168,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             TRACE("Adding (mpfr,float)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_add_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
             MPFR_CLEANUP_RF(addition);
         }
@@ -187,7 +187,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_add_z(rf->f, Pympfr_AS_MPFR(b), paz->z,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)paz);
             MPFR_CLEANUP_RF(addition);
         }
@@ -200,7 +200,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_add_q(rf->f, Pympfr_AS_MPFR(b), paq->q,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)paq);
             MPFR_CLEANUP_RF(addition);
         }
@@ -213,7 +213,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_add_q(rf->f, Pympfr_AS_MPFR(b), paq->q,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)paq);
             MPFR_CLEANUP_RF(addition);
         }
@@ -221,7 +221,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             TRACE("Adding (float,mpf)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_add_d(rf->f, Pympfr_AS_MPFR(b), PyFloat_AS_DOUBLE(a),
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             MPFR_CLEANUP_RF(addition);
         }
         Py_DECREF((PyObject*)rf);
@@ -287,7 +287,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             return NULL;
         }
         mpfr_clear_flags();
-        rf->rc = mpfr_add(rf->f, paf->f, pbf->f, context->now.mpfr_round);
+        rf->rc = mpfr_add(rf->f, paf->f, pbf->f, context->ctx.mpfr_round);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF(addition);
@@ -414,7 +414,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             TRACE("Subtracting (mpfr,mpfr)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_sub(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
-                              context->now.mpfr_round);
+                              context->ctx.mpfr_round);
             MPFR_CLEANUP_RF(subtraction);
         }
         if (isInteger(b)) {
@@ -426,7 +426,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_sub_z(rf->f, Pympfr_AS_MPFR(a), pbz->z,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbz);
             MPFR_CLEANUP_RF(subtraction);
         }
@@ -439,7 +439,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_sub_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
             MPFR_CLEANUP_RF(subtraction);
         }
@@ -452,7 +452,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_sub_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
             MPFR_CLEANUP_RF(subtraction);
         }
@@ -460,7 +460,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             TRACE("Subtracting (mpfr,float)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_sub_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             MPFR_CLEANUP_RF(subtraction);
         }
         Py_DECREF((PyObject*)rf);
@@ -477,8 +477,8 @@ Pybasic_sub(PyObject *a, PyObject *b)
                 return NULL;
             }
             mpfr_clear_flags();
-            rf->rc = mpfr_sub_z(rf->f, Pympfr_AS_MPFR(b), paz->z, context->now.mpfr_round);
-            mpfr_neg(rf->f, rf->f, context->now.mpfr_round);
+            rf->rc = mpfr_sub_z(rf->f, Pympfr_AS_MPFR(b), paz->z, context->ctx.mpfr_round);
+            mpfr_neg(rf->f, rf->f, context->ctx.mpfr_round);
             Py_DECREF((PyObject*)paz);
             MPFR_CLEANUP_RF(subtraction);
         }
@@ -490,8 +490,8 @@ Pybasic_sub(PyObject *a, PyObject *b)
                 return NULL;
             }
             mpfr_clear_flags();
-            rf->rc = mpfr_sub_q(rf->f, Pympfr_AS_MPFR(b), paq->q, context->now.mpfr_round);
-            mpfr_neg(rf->f, rf->f, context->now.mpfr_round);
+            rf->rc = mpfr_sub_q(rf->f, Pympfr_AS_MPFR(b), paq->q, context->ctx.mpfr_round);
+            mpfr_neg(rf->f, rf->f, context->ctx.mpfr_round);
             Py_DECREF((PyObject*)paq);
             MPFR_CLEANUP_RF(subtraction);
         }
@@ -503,16 +503,16 @@ Pybasic_sub(PyObject *a, PyObject *b)
                 return NULL;
             }
             mpfr_clear_flags();
-            rf->rc = mpfr_sub_q(rf->f, Pympfr_AS_MPFR(b), paq->q, context->now.mpfr_round);
-            mpfr_neg(rf->f, rf->f, context->now.mpfr_round);
+            rf->rc = mpfr_sub_q(rf->f, Pympfr_AS_MPFR(b), paq->q, context->ctx.mpfr_round);
+            mpfr_neg(rf->f, rf->f, context->ctx.mpfr_round);
             Py_DECREF((PyObject*)paq);
             MPFR_CLEANUP_RF(subtraction);
         }
         if (PyFloat_Check(a)) {
             TRACE("Subtracting (float,mpfr)\n");
             mpfr_clear_flags();
-            rf->rc = mpfr_sub_d(rf->f, Pympfr_AS_MPFR(b), PyFloat_AS_DOUBLE(a), context->now.mpfr_round);
-            mpfr_neg(rf->f, rf->f, context->now.mpfr_round);
+            rf->rc = mpfr_sub_d(rf->f, Pympfr_AS_MPFR(b), PyFloat_AS_DOUBLE(a), context->ctx.mpfr_round);
+            mpfr_neg(rf->f, rf->f, context->ctx.mpfr_round);
             MPFR_CLEANUP_RF(subtraction);
         }
         Py_DECREF((PyObject*)rf);
@@ -578,7 +578,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             return NULL;
         }
         mpfr_clear_flags();
-        rf->rc = mpfr_sub(rf->f, paf->f, pbf->f, context->now.mpfr_round);
+        rf->rc = mpfr_sub(rf->f, paf->f, pbf->f, context->ctx.mpfr_round);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF(subtraction);
@@ -698,7 +698,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             TRACE("Multiplying (mpfr,mpfr)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_mul(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
-                              context->now.mpfr_round);
+                              context->ctx.mpfr_round);
             MPFR_CLEANUP_RF(multiplication);
         }
         if (isInteger(b)) {
@@ -710,7 +710,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_mul_z(rf->f, Pympfr_AS_MPFR(a), pbz->z,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbz);
             MPFR_CLEANUP_RF(multiplication);
         }
@@ -723,7 +723,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_mul_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
             MPFR_CLEANUP_RF(multiplication);
         }
@@ -736,7 +736,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_mul_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
             MPFR_CLEANUP_RF(multiplication);
         }
@@ -744,7 +744,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             TRACE("Multiplying (mpfr,float)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_mul_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             MPFR_CLEANUP_RF(multiplication);
         }
         Py_DECREF((PyObject*)rf);
@@ -762,7 +762,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_mul_z(rf->f, Pympfr_AS_MPFR(b), paz->z,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)paz);
             MPFR_CLEANUP_RF(multiplication);
         }
@@ -775,7 +775,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_mul_q(rf->f, Pympfr_AS_MPFR(b), paq->q,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)paq);
             MPFR_CLEANUP_RF(multiplication);
         }
@@ -788,7 +788,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_mul_q(rf->f, Pympfr_AS_MPFR(b), paq->q,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)paq);
             MPFR_CLEANUP_RF(multiplication);
         }
@@ -796,7 +796,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             TRACE("Multiplying (float,mpfr)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_mul_d(rf->f, Pympfr_AS_MPFR(b), PyFloat_AS_DOUBLE(a),
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             MPFR_CLEANUP_RF(multiplication);
         }
         Py_DECREF((PyObject*)rf);
@@ -862,7 +862,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             return NULL;
         }
         mpfr_clear_flags();
-        rf->rc = mpfr_mul(rf->f, paf->f, pbf->f, context->now.mpfr_round);
+        rf->rc = mpfr_mul(rf->f, paf->f, pbf->f, context->ctx.mpfr_round);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF(multiplication);
@@ -1193,7 +1193,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             TRACE("True divide (mpfr,mpfr)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_div(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
-                              context->now.mpfr_round);
+                              context->ctx.mpfr_round);
             MPFR_CLEANUP_RF(division);
         }
         if (isInteger(b)) {
@@ -1205,7 +1205,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_div_z(rf->f, Pympfr_AS_MPFR(a), pbz->z,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbz);
             MPFR_CLEANUP_RF(division);
         }
@@ -1218,7 +1218,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_div_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
             MPFR_CLEANUP_RF(division);
         }
@@ -1231,7 +1231,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_div_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
             MPFR_CLEANUP_RF(division);
         }
@@ -1239,7 +1239,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             TRACE("True divide (mpfr,float)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_div_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             MPFR_CLEANUP_RF(division);
         }
         Py_DECREF((PyObject*)rf);
@@ -1258,7 +1258,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             TRACE("True divide (float,mpfr)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_d_div(rf->f, PyFloat_AS_DOUBLE(a), Pympfr_AS_MPFR(b),
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             MPFR_CLEANUP_RF(division);
         }
         Py_DECREF((PyObject*)rf);
@@ -1294,7 +1294,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
         mpq_canonicalize(tempq);
 #ifdef WITHMPFR
         mpfr_clear_flags();
-        rf->rc = mpfr_set_q(rf->f, tempq, context->now.mpfr_round);
+        rf->rc = mpfr_set_q(rf->f, tempq, context->ctx.mpfr_round);
 #else
         tempdouble = mpq_get_d(tempq);
 #endif
@@ -1352,7 +1352,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             return NULL;
         }
         mpfr_clear_flags();
-        rf->rc = mpfr_div(rf->f, paf->f, pbf->f, context->now.mpfr_round);
+        rf->rc = mpfr_div(rf->f, paf->f, pbf->f, context->ctx.mpfr_round);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF(division);
@@ -1383,8 +1383,8 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             return NULL;
         }
         if (MPC_IS_ZERO_P(pbc)) {
-            context->now.divzero = 1;
-            if (context->now.trap_divzero) {
+            context->ctx.divzero = 1;
+            if (context->ctx.trap_divzero) {
                 GMPY_DIVZERO("'mpc' division by zero");
                 Py_DECREF((PyObject*)pac);
                 Py_DECREF((PyObject*)pbc);
@@ -1536,7 +1536,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
             TRACE("True divide (mpfr,mpfr)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_div(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
-                              context->now.mpfr_round);
+                              context->ctx.mpfr_round);
             MPFR_CLEANUP_RF(division);
         }
         if (isInteger(b)) {
@@ -1548,7 +1548,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_div_z(rf->f, Pympfr_AS_MPFR(a), pbz->z,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbz);
             MPFR_CLEANUP_RF(division);
         }
@@ -1561,7 +1561,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_div_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
             MPFR_CLEANUP_RF(division);
         }
@@ -1574,7 +1574,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
             }
             mpfr_clear_flags();
             rf->rc = mpfr_div_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
             MPFR_CLEANUP_RF(division);
         }
@@ -1582,7 +1582,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
             TRACE("True divide (mpfr,float)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_div_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             MPFR_CLEANUP_RF(division);
         }
         Py_DECREF((PyObject*)rf);
@@ -1601,7 +1601,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
             TRACE("True divide (float,mpfr)\n");
             mpfr_clear_flags();
             rf->rc = mpfr_d_div(rf->f, PyFloat_AS_DOUBLE(a), Pympfr_AS_MPFR(b),
-                                context->now.mpfr_round);
+                                context->ctx.mpfr_round);
             MPFR_CLEANUP_RF(division);
         }
         Py_DECREF((PyObject*)rf);
@@ -1623,7 +1623,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
             return NULL;
         }
         mpfr_clear_flags();
-        rf->rc = mpfr_div(rf->f, paf->f, pbf->f, context->now.mpfr_round);
+        rf->rc = mpfr_div(rf->f, paf->f, pbf->f, context->ctx.mpfr_round);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF(division);
@@ -1642,8 +1642,8 @@ Pybasic_div2(PyObject *a, PyObject *b)
             return NULL;
         }
         if (MPC_IS_ZERO_P(pbc)) {
-            context->now.divzero = 1;
-            if (context->now.trap_divzero) {
+            context->ctx.divzero = 1;
+            if (context->ctx.trap_divzero) {
                 GMPY_DIVZERO("'mpc' division by zero");
                 Py_DECREF((PyObject*)pac);
                 Py_DECREF((PyObject*)pbc);
@@ -1789,8 +1789,8 @@ Pybasic_rem(PyObject *a, PyObject *b)
             return NULL;
         }
         if (mpfr_zero_p(pbf->f)) {
-            context->now.divzero = 1;
-            if (context->now.trap_divzero) {
+            context->ctx.divzero = 1;
+            if (context->ctx.trap_divzero) {
                 GMPY_DIVZERO("'mpfr' division by zero in modulo");
                 Py_DECREF((PyObject*)paf);
                 Py_DECREF((PyObject*)pbf);
@@ -1806,8 +1806,8 @@ Pybasic_rem(PyObject *a, PyObject *b)
         }
         mpfr_clear_flags();
         if (mpfr_nan_p(paf->f) || mpfr_nan_p(pbf->f) || mpfr_inf_p(paf->f)) {
-            context->now.invalid = 1;
-            if (context->now.trap_invalid) {
+            context->ctx.invalid = 1;
+            if (context->ctx.trap_invalid) {
                 GMPY_INVALID("'mpfr' invalid operation in modulo");
                 Py_DECREF((PyObject*)rf);
                 Py_DECREF((PyObject*)qf);
@@ -1820,8 +1820,8 @@ Pybasic_rem(PyObject *a, PyObject *b)
             }
         }
         else if (mpfr_inf_p(pbf->f)) {
-            context->now.invalid = 1;
-            if (context->now.trap_invalid) {
+            context->ctx.invalid = 1;
+            if (context->ctx.trap_invalid) {
                 GMPY_INVALID("'mpfr' invalid operation in modulo");
                 Py_DECREF((PyObject*)rf);
                 Py_DECREF((PyObject*)qf);
@@ -1833,14 +1833,14 @@ Pybasic_rem(PyObject *a, PyObject *b)
                 mpfr_set_inf(rf->f, -1);
             }
             else {
-                rf->rc = mpfr_set(rf->f, paf->f, context->now.mpfr_round);
+                rf->rc = mpfr_set(rf->f, paf->f, context->ctx.mpfr_round);
             }
         }
         else {
             mpfr_div(qf->f, paf->f, pbf->f, MPFR_RNDD);
             mpfr_floor(qf->f, qf->f);
-            rf->rc = mpfr_fms(rf->f, qf->f, pbf->f, paf->f, context->now.mpfr_round);
-            mpfr_neg(rf->f, rf->f, context->now.mpfr_round);
+            rf->rc = mpfr_fms(rf->f, qf->f, pbf->f, paf->f, context->ctx.mpfr_round);
+            mpfr_neg(rf->f, rf->f, context->ctx.mpfr_round);
         }
         Py_XDECREF((PyObject*)qf);
         Py_DECREF((PyObject*)paf);
@@ -2037,8 +2037,8 @@ Pybasic_divmod(PyObject *a, PyObject *b)
             return NULL;
         }
         if (mpfr_zero_p(pbf->f)) {
-            context->now.divzero = 1;
-            if (context->now.trap_divzero) {
+            context->ctx.divzero = 1;
+            if (context->ctx.trap_divzero) {
                 GMPY_DIVZERO("'mpfr' division by zero in divmod");
                 Py_DECREF((PyObject*)paf);
                 Py_DECREF((PyObject*)pbf);
@@ -2055,8 +2055,8 @@ Pybasic_divmod(PyObject *a, PyObject *b)
         }
         mpfr_clear_flags();
         if (mpfr_nan_p(paf->f) || mpfr_nan_p(pbf->f) || mpfr_inf_p(paf->f)) {
-            context->now.invalid = 1;
-            if (context->now.trap_invalid) {
+            context->ctx.invalid = 1;
+            if (context->ctx.trap_invalid) {
                 GMPY_INVALID("'mpfr' invalid operation in divmod");
                 Py_DECREF(r);
                 Py_DECREF((PyObject*)qf);
@@ -2071,8 +2071,8 @@ Pybasic_divmod(PyObject *a, PyObject *b)
             }
         }
         else if (mpfr_inf_p(pbf->f)) {
-            context->now.invalid = 1;
-            if (context->now.trap_invalid) {
+            context->ctx.invalid = 1;
+            if (context->ctx.trap_invalid) {
                 GMPY_INVALID("'mpfr' invalid operation in divmod");
                 Py_DECREF(r);
                 Py_DECREF((PyObject*)qf);
@@ -2087,41 +2087,41 @@ Pybasic_divmod(PyObject *a, PyObject *b)
                     mpfr_set_zero(rf->f, mpfr_sgn(pbf->f));
                 }
                 else if ((mpfr_signbit(paf->f)) != (mpfr_signbit(pbf->f))) {
-                    mpfr_set_si(qf->f, -1, context->now.mpfr_round);
+                    mpfr_set_si(qf->f, -1, context->ctx.mpfr_round);
                     mpfr_set_inf(rf->f, mpfr_sgn(pbf->f));
                 }
                 else {
-                    mpfr_set_si(qf->f, 0, context->now.mpfr_round);
-                    rf->rc = mpfr_set(rf->f, paf->f, context->now.mpfr_round);
+                    mpfr_set_si(qf->f, 0, context->ctx.mpfr_round);
+                    rf->rc = mpfr_set(rf->f, paf->f, context->ctx.mpfr_round);
                 }
             }
         }
         else {
             mpfr_div(qf->f, paf->f, pbf->f, MPFR_RNDD);
             mpfr_floor(qf->f, qf->f);
-            rf->rc = mpfr_fms(rf->f, qf->f, pbf->f, paf->f, context->now.mpfr_round);
-            mpfr_neg(rf->f, rf->f, context->now.mpfr_round);
+            rf->rc = mpfr_fms(rf->f, qf->f, pbf->f, paf->f, context->ctx.mpfr_round);
+            mpfr_neg(rf->f, rf->f, context->ctx.mpfr_round);
         }
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
         SUBNORMALIZE(rf);
         SUBNORMALIZE(qf);
         MERGE_FLAGS;
-        if (mpfr_underflow_p() && context->now.trap_underflow) {
+        if (mpfr_underflow_p() && context->ctx.trap_underflow) {
             GMPY_UNDERFLOW("'mpfr' underflow in divmod");
             Py_DECREF((PyObject*)rf);
             Py_DECREF((PyObject*)qf);
             Py_DECREF(r);
             return NULL;
         }
-        if (mpfr_overflow_p() && context->now.trap_overflow) {
+        if (mpfr_overflow_p() && context->ctx.trap_overflow) {
             GMPY_OVERFLOW("'mpfr' overflow in divmod");
             Py_DECREF((PyObject*)rf);
             Py_DECREF((PyObject*)qf);
             Py_DECREF(r);
             return NULL;
         }
-        if (mpfr_inexflag_p() && context->now.trap_inexact) {
+        if (mpfr_inexflag_p() && context->ctx.trap_inexact) {
             GMPY_INEXACT("'mpfr' inexact result in divmod");
             Py_DECREF((PyObject*)rf);
             Py_DECREF((PyObject*)qf);

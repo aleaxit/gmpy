@@ -172,7 +172,7 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
     if (resuzero) {
         if (!(result = Pympfr_new(prec)))
             return NULL;
-        result->rc = mpfr_set_ui(result->f, 0, context->now.mpfr_round);
+        result->rc = mpfr_set_ui(result->f, 0, context->ctx.mpfr_round);
         return (PyObject*)result;
     }
 
@@ -193,23 +193,23 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
     }
 
     /* reconstruct 'mantissa' (significand) */
-    mpfr_set_si(result->f, 0, context->now.mpfr_round);
+    mpfr_set_si(result->f, 0, context->ctx.mpfr_round);
     mpfr_init2(digit, prec);
     for (i = 5 + precilen; i<len; i++) {
-        mpfr_set_ui(digit, cp[i], context->now.mpfr_round);
+        mpfr_set_ui(digit, cp[i], context->ctx.mpfr_round);
         mpfr_div_2ui(digit, digit, (unsigned long)((i-4-precilen) * 8),
-                     context->now.mpfr_round);
-        mpfr_add(result->f, result->f, digit, context->now.mpfr_round);
+                     context->ctx.mpfr_round);
+        mpfr_add(result->f, result->f, digit, context->ctx.mpfr_round);
     }
     mpfr_clear(digit);
     /* apply exponent, with its appropriate sign */
     if (exposign)
-        mpfr_div_2ui(result->f, result->f, 8*expomag, context->now.mpfr_round);
+        mpfr_div_2ui(result->f, result->f, 8*expomag, context->ctx.mpfr_round);
     else
-        mpfr_mul_2ui(result->f, result->f, 8*expomag, context->now.mpfr_round);
+        mpfr_mul_2ui(result->f, result->f, 8*expomag, context->ctx.mpfr_round);
     /* apply significand-sign (sign of the overall number) */
     if (resusign)
-        mpfr_neg(result->f, result->f, context->now.mpfr_round);
+        mpfr_neg(result->f, result->f, context->ctx.mpfr_round);
 
     return (PyObject*)result;
 }

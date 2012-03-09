@@ -8,8 +8,8 @@ MPFR Functionality
     >>> from decimal import Decimal as D
     >>> def _cmp(x,y):
     ...   return x.as_integer_ratio() == y.as_integer_ratio()
-    ... 
-    
+    ...
+
 Test trigonometric operations
 =============================
 
@@ -59,7 +59,7 @@ Test acos
     >>> gmpy2.acos(mpfr("nan"))
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-    InvalidOperationError: 'mpfr' invalid operation in acos()
+    gmpy2.InvalidOperationError: 'mpfr' invalid operation in acos()
     >>> gmpy2.acos(mpfr("inf"))
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
@@ -279,7 +279,7 @@ Test cos
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
     gmpy2.InvalidOperationError: 'mpfr' invalid operation in cos()
-    >>> gmpy2.cos(mpfr("-inf"))L
+    >>> gmpy2.cos(mpfr("-inf"))
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
     gmpy2.InvalidOperationError: 'mpfr' invalid operation in cos()

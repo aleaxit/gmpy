@@ -10,11 +10,17 @@ try:
     debug = True
 except AttributeError:
     debug = False
-    
+
 # Change repeat to the number of times to repeat each test. Combined with a
 # debug build, this can help identify memory leaks.
-repeat = 1
-    
+if debug:
+    try:
+        repeat = abs(int(sys.argv[1]))
+    except:
+        repeat = 1
+else:
+    repeat = 1
+
 print()
 print("Unit tests for gmpy2 {0} with Python {1}".format(gmpy2.version(), sys.version.split()[0]))
 print("  Mutliple-precision library:     {0}".format(gmpy2.mp_version()))
