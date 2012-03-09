@@ -3,7 +3,7 @@ Miscellaneous Functions
 
     >>> import gmpy2 as G
     >>> G.version()
-    '2.0.0a3'
+    '2.0.0b1'
     >>> G.mp_limbsize() in (32,64)
     True
     >>> G.mp_version().split()[0] in ['GMP', 'MPIR']

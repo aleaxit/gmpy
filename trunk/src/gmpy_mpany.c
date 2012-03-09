@@ -889,8 +889,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             c = mpfr_cmp(Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b));
             if (mpfr_erangeflag_p()) {
                 /* Set erange and check if an exception should be raised. */
-                context->now.erange = 1;
-                if (context->now.trap_erange) {
+                context->ctx.erange = 1;
+                if (context->ctx.trap_erange) {
                     GMPY_ERANGE("comparison with NaN");
                     return NULL;
                 }
@@ -909,8 +909,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             c = mpfr_cmp_d(Pympfr_AS_MPFR(a), d);
             if (mpfr_erangeflag_p()) {
                 /* Set erange and check if an exception should be raised. */
-                context->now.erange = 1;
-                if (context->now.trap_erange) {
+                context->ctx.erange = 1;
+                if (context->ctx.trap_erange) {
                     GMPY_ERANGE("comparison with NaN");
                     return NULL;
                 }
@@ -932,8 +932,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             Py_DECREF(tempb);
             if (mpfr_erangeflag_p()) {
                 /* Set erange and check if an exception should be raised. */
-                context->now.erange = 1;
-                if (context->now.trap_erange) {
+                context->ctx.erange = 1;
+                if (context->ctx.trap_erange) {
                     GMPY_ERANGE("comparison with NaN");
                     return NULL;
                 }
@@ -955,8 +955,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             Py_DECREF(tempb);
             if (mpfr_erangeflag_p()) {
                 /* Set erange and check if an exception should be raised. */
-                context->now.erange = 1;
-                if (context->now.trap_erange) {
+                context->ctx.erange = 1;
+                if (context->ctx.trap_erange) {
                     GMPY_ERANGE("comparison with NaN");
                     return NULL;
                 }
@@ -975,8 +975,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 return NULL;
             if (!mpz_cmp_si(mpq_denref(Pympq_AS_MPQ(tempb)), 0)) {
                 if (!mpz_cmp_si(mpq_numref(Pympq_AS_MPQ(tempb)), 0)) {
-                    context->now.erange = 1;
-                    if (context->now.trap_erange) {
+                    context->ctx.erange = 1;
+                    if (context->ctx.trap_erange) {
                         GMPY_ERANGE("comparison with NaN");
                         return NULL;
                     }
@@ -1000,8 +1000,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 Py_DECREF(tempb);
                 if (mpfr_erangeflag_p()) {
                     /* Set erange and check if an exception should be raised. */
-                    context->now.erange = 1;
-                    if (context->now.trap_erange) {
+                    context->ctx.erange = 1;
+                    if (context->ctx.trap_erange) {
                         GMPY_ERANGE("comparison with NaN");
                         return NULL;
                     }
@@ -1024,8 +1024,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             Py_DECREF(tempb);
             if (mpfr_erangeflag_p()) {
                 /* Set erange and check if an exception should be raised. */
-                context->now.erange = 1;
-                if (context->now.trap_erange) {
+                context->ctx.erange = 1;
+                if (context->ctx.trap_erange) {
                     GMPY_ERANGE("comparison with NaN");
                     return NULL;
                 }
@@ -1052,8 +1052,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             c = mpc_cmp(Pympc_AS_MPC(a), Pympc_AS_MPC(b));
             if (mpfr_erangeflag_p()) {
                 /* Set erange and check if an exception should be raised. */
-                context->now.erange = 1;
-                if (context->now.trap_erange) {
+                context->ctx.erange = 1;
+                if (context->ctx.trap_erange) {
                     GMPY_ERANGE("comparison with NaN");
                     return NULL;
                 }
@@ -1075,8 +1075,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             Py_DECREF((PyObject*)tempmpc);
             if (mpfr_erangeflag_p()) {
                 /* Set erange and check if an exception should be raised. */
-                context->now.erange = 1;
-                if (context->now.trap_erange) {
+                context->ctx.erange = 1;
+                if (context->ctx.trap_erange) {
                     GMPY_ERANGE("comparison with NaN");
                     return NULL;
                 }
@@ -1092,8 +1092,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         if (!mpfr_zero_p(mpc_imagref(Pympc_AS_MPC(a)))) {
             /* if a.real is NaN, possibly raise exception */
             if (mpfr_nan_p(mpc_realref(Pympc_AS_MPC(a)))) {
-                context->now.erange = 1;
-                if (context->now.trap_erange) {
+                context->ctx.erange = 1;
+                if (context->ctx.trap_erange) {
                     GMPY_ERANGE("comparison with NaN");
                     return NULL;
                 }
@@ -1108,7 +1108,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             tempmpfr = Pympfr_new(mpfr_get_prec(mpc_realref(Pympc_AS_MPC(a))));
             if (!tempmpfr)
                 return NULL;
-            mpc_real(tempmpfr->f, Pympc_AS_MPC(a), context->now.mpfr_round);
+            mpc_real(tempmpfr->f, Pympc_AS_MPC(a), context->ctx.mpfr_round);
             result = mpany_richcompare((PyObject*)tempmpfr, b, op);
             Py_DECREF((PyObject*)tempmpfr);
             return result;

@@ -213,7 +213,7 @@ GMPY_mpfr_random(PyObject *self, PyObject *args)
     if ((result = Pympfr_new(0))) {
         mpfr_urandom(Pympfr_AS_MPFR(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
-                     context->now.mpfr_round);
+                     context->ctx.mpfr_round);
     }
 
     return (PyObject*)result;
@@ -248,7 +248,7 @@ GMPY_mpfr_grandom(PyObject *self, PyObject *args)
 
     mpfr_grandom(Pympfr_AS_MPFR(result1), Pympfr_AS_MPFR(result2),
                  PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
-                 context->now.mpfr_round);
+                 context->ctx.mpfr_round);
 
     return Py_BuildValue("(NN)", (PyObject*)result1, (PyObject*)result2);
 }

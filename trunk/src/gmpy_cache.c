@@ -276,7 +276,7 @@ Pympfr_new(mpfr_prec_t bits)
 
     TRACE("Entering Pympfr_new\n");
     if (bits == 0)
-        bits = context->now.mpfr_prec;
+        bits = context->ctx.mpfr_prec;
     if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");
         return NULL;
@@ -297,7 +297,7 @@ Pympfr_new(mpfr_prec_t bits)
     }
     self->hash_cache = -1;
     self->rc = 0;
-    self->round_mode = context->now.mpfr_round;
+    self->round_mode = context->ctx.mpfr_round;
     return self;
 }
 

@@ -80,22 +80,22 @@ static PyTypeObject Pympc_Type;
     (Pympc_Check(v) && \
         (mpfr_zero_p(mpc_realref(Pympc_AS_MPC(v))) || \
             (mpfr_regular_p(mpc_realref(Pympc_AS_MPC(v))) && \
-                ((mpc_realref(Pympc_AS_MPC(v))->_mpfr_exp >= context->now.emin)) && \
-                ((mpc_realref(Pympc_AS_MPC(v))->_mpfr_exp <= context->now.emax)) \
+                ((mpc_realref(Pympc_AS_MPC(v))->_mpfr_exp >= context->ctx.emin)) && \
+                ((mpc_realref(Pympc_AS_MPC(v))->_mpfr_exp <= context->ctx.emax)) \
             ) \
         ) && \
         (mpfr_zero_p(mpc_imagref(Pympc_AS_MPC(v))) || \
             (mpfr_regular_p(mpc_imagref(Pympc_AS_MPC(v))) && \
-                ((mpc_imagref(Pympc_AS_MPC(v))->_mpfr_exp >= context->now.emin)) && \
-                ((mpc_imagref(Pympc_AS_MPC(v))->_mpfr_exp <= context->now.emax)) \
+                ((mpc_imagref(Pympc_AS_MPC(v))->_mpfr_exp >= context->ctx.emin)) && \
+                ((mpc_imagref(Pympc_AS_MPC(v))->_mpfr_exp <= context->ctx.emax)) \
             ) \
         ) \
     )
 
 #define MPC_CHECK_UNDERFLOW(mpct, msg) \
     if (MPC_IS_ZERO_P(mpct) && mpct->rc) { \
-        context->now.underflow = 1; \
-        if (context->now.trap_underflow) { \
+        context->ctx.underflow = 1; \
+        if (context->ctx.trap_underflow) { \
             GMPY_UNDERFLOW(msg); \
             goto done; \
         } \
@@ -103,8 +103,8 @@ static PyTypeObject Pympc_Type;
 
 #define MPC_CHECK_OVERFLOW(mpct, msg) \
     if (MPC_IS_INF_P(mpct)) { \
-        context->now.overflow = 1; \
-        if (context->now.trap_overflow) { \
+        context->ctx.overflow = 1; \
+        if (context->ctx.trap_overflow) { \
             GMPY_OVERFLOW(msg); \
             goto done; \
         } \
@@ -112,8 +112,8 @@ static PyTypeObject Pympc_Type;
 
 #define MPC_CHECK_INVALID(mpct, msg) \
     if (MPC_IS_NAN_P(mpct)) { \
-        context->now.invalid = 1; \
-        if (context->now.trap_invalid) { \
+        context->ctx.invalid = 1; \
+        if (context->ctx.trap_invalid) { \
             GMPY_INVALID(msg); \
             goto done; \
         } \
@@ -121,8 +121,8 @@ static PyTypeObject Pympc_Type;
 
 #define MPC_CHECK_INEXACT(mpct, msg) \
     if (mpct->rc) { \
-        context->now.inexact = 1; \
-        if (context->now.trap_inexact) { \
+        context->ctx.inexact = 1; \
+        if (context->ctx.trap_inexact) { \
             GMPY_INEXACT(msg); \
             goto done; \
         } \
@@ -135,7 +135,7 @@ static PyTypeObject Pympc_Type;
     MPC_CHECK_INEXACT(mpct, "'mpc' inexact result in "NAME);
 
 #define MPC_SUBNORMALIZE(mpct) \
-    if (context->now.subnormalize) { \
+    if (context->ctx.subnormalize) { \
         int rcr, rci; \
         rcr = MPC_INEX_RE(mpct->rc); \
         rci = MPC_INEX_IM(mpct->rc); \
