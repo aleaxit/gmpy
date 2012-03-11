@@ -1091,13 +1091,26 @@ Pympc_pow(PyObject *base, PyObject *exp, PyObject *m)
 
     tempb = Pympc_From_Complex(base, 0, 0);
     tempe = Pympc_From_Complex(exp, 0, 0);
-    result = Pympc_new(0, 0);
 
-    if (!tempe || !tempb || !result) {
+    if (!tempe || !tempb) {
         Py_XDECREF((PyObject*)tempe);
         Py_XDECREF((PyObject*)tempb);
-        Py_XDECREF((PyObject*)result);
         Py_RETURN_NOTIMPLEMENTED;
+    }
+
+    result = Pympc_new(0, 0);
+
+    if (!result) {
+        Py_DECREF((PyObject*)tempe);
+        Py_DECREF((PyObject*)tempb);
+        return NULL;
+    }
+
+    if (MPC_IS_ZERO_P(tempb) && MPC_IS_ZERO_P(tempe)) {
+        mpc_set_ui(result->c, 1, GET_MPC_ROUND(context));
+        Py_DECREF((PyObject*)tempe);
+        Py_DECREF((PyObject*)tempb);
+        return (PyObject*)result;
     }
 
     if (MPC_IS_ZERO_P(tempb) &&

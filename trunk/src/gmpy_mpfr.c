@@ -1390,13 +1390,19 @@ Pympfr_pow(PyObject *base, PyObject *exp, PyObject *m)
 
     tempb = Pympfr_From_Real(base, 0);
     tempe = Pympfr_From_Real(exp, 0);
-    result = Pympfr_new(0);
 
-    if (!tempe || !tempb || !result) {
+    if (!tempe || !tempb) {
         Py_XDECREF((PyObject*)tempe);
         Py_XDECREF((PyObject*)tempb);
-        Py_XDECREF((PyObject*)result);
         Py_RETURN_NOTIMPLEMENTED;
+    }
+
+    result = Pympfr_new(0);
+
+    if (!result) {
+        Py_DECREF((PyObject*)tempe);
+        Py_DECREF((PyObject*)tempb);
+        return NULL;
     }
 
     if (mpfr_zero_p(tempb->f) && (mpfr_sgn(tempe->f) < 0)) {
