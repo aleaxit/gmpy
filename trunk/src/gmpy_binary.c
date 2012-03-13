@@ -722,6 +722,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
 #ifndef WITHMPFR
             VALUE_ERROR("creating 'mpfr' object not supported");
             return NULL;
+        }
 #else
             PympfrObject *result;
             size_t sizemant = 0, sizesize = 4, i, newmant;
@@ -897,6 +898,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
 #ifndef WITHMPC
             VALUE_ERROR("creating 'mpc' object not supported");
             return NULL;
+        }
 #else
             PympcObject *result;
             PympfrObject *real = 0, *imag = 0;
