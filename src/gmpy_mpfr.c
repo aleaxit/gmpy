@@ -3232,15 +3232,7 @@ static PyMethodDef Pympfr_methods [] =
     { "as_simple_fraction", (PyCFunction)Pympfr_simple_fraction, METH_VARARGS | METH_KEYWORDS, doc_mpfr_simple_fraction },
     { "conjugate", Pympfr_conjugate, METH_NOARGS, doc_mpfr_conjugate },
     { "digits", Pympfr_digits, METH_VARARGS, doc_mpfr_digits },
-    { "is_inf", Pympfr_is_inf, METH_NOARGS, doc_mpfr_is_inf },
     { "is_integer", Pympfr_is_integer, METH_NOARGS, doc_mpfr_is_integer },
-    { "is_lessgreater", Pympfr_is_lessgreater, METH_VARARGS, doc_mpfr_is_lessgreater },
-    { "is_nan", Pympfr_is_nan, METH_NOARGS, doc_mpfr_is_nan },
-    { "is_number", Pympfr_is_number, METH_NOARGS, doc_mpfr_is_number },
-    { "is_regular", Pympfr_is_regular, METH_NOARGS, doc_mpfr_is_regular },
-    { "is_signed", Pympfr_is_signed, METH_NOARGS, doc_mpfr_is_signed },
-    { "is_unordered", Pympfr_is_unordered, METH_VARARGS, doc_mpfr_is_unordered },
-    { "is_zero", Pympfr_is_zero, METH_NOARGS, doc_mpfr_is_zero },
     { NULL, NULL, 1 }
 };
 

@@ -1874,10 +1874,6 @@ Pygmpy_divexact(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_is_squarem,
-"x.is_square() -> bool\n\n"
-"Returns True if x is a perfect square, else return False.");
-
 PyDoc_STRVAR(doc_is_squareg,
 "is_square(x) -> bool\n\n"
 "Returns True if x is a perfect square, else return False.");
@@ -1888,10 +1884,7 @@ Pympz_is_square(PyObject *self, PyObject *other)
     int res;
     PympzObject *tempx;
 
-    if (self && (CHECK_MPZANY(self))) {
-        res = mpz_perfect_square_p(Pympz_AS_MPZ(self));
-    }
-    else if (CHECK_MPZANY(other)) {
+    if (CHECK_MPZANY(other)) {
         res = mpz_perfect_square_p(Pympz_AS_MPZ(other));
     }
     else {
@@ -1910,11 +1903,6 @@ Pympz_is_square(PyObject *self, PyObject *other)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_is_powerm,
-"x.is_power() -> bool\n\n"
-"Return True if x is a perfect power (there exists a y and an\n"
-"n > 1, such that x=y**n), else return False.");
-
 PyDoc_STRVAR(doc_is_powerg,
 "is_power(x) -> bool\n\n"
 "Return True if x is a perfect power (there exists a y and an\n"
@@ -1926,10 +1914,7 @@ Pympz_is_power(PyObject *self, PyObject *other)
     int res;
     PympzObject* tempx;
 
-    if (self && (CHECK_MPZANY(self))) {
-        res = mpz_perfect_power_p(Pympz_AS_MPZ(self));
-    }
-    else if (CHECK_MPZANY(other)) {
+    if (CHECK_MPZANY(other)) {
         res = mpz_perfect_power_p(Pympz_AS_MPZ(other));
     }
     else {
@@ -1948,12 +1933,6 @@ Pympz_is_power(PyObject *self, PyObject *other)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_is_primem,
-"x.is_prime([n=25]) -> bool\n\n"
-"Return True if x is _probably_ prime, else False if x is\n"
-"definately composite. x is checked for small divisors and up\n"
-"to n Miller-Rabin tests are performed.");
-
 PyDoc_STRVAR(doc_is_primeg,
 "is_prime(x[, n=25]) -> bool\n\n"
 "Return True if x is _probably_ prime, else False if x is\n"
@@ -1966,10 +1945,10 @@ Pympz_is_prime(PyObject *self, PyObject *args)
     int i, reps = 25;
 
     PARSE_ONE_MPZ_OPT_CLONG(&reps,
-            "is_prime() requires 'mpz',['int'] arguments");
+            "is_prime() requires 'mpz'[,'int'] arguments");
 
     if (reps <= 0) {
-        VALUE_ERROR("repetition count for is_prime must be positive");
+        VALUE_ERROR("repetition count for is_prime() must be positive");
         Py_DECREF(self);
         return NULL;
     }
@@ -1990,12 +1969,7 @@ Pympz_next_prime(PyObject *self, PyObject *other)
 {
     PympzObject *result;
 
-    if(self && Pympz_Check(self)) {
-        if(!(result = Pympz_new()))
-            return NULL;
-        mpz_nextprime(result->z, Pympz_AS_MPZ(self));
-    }
-    else if(CHECK_MPZANY(other)) {
+    if(CHECK_MPZANY(other)) {
         if(!(result = Pympz_new()))
             return NULL;
         mpz_nextprime(result->z, Pympz_AS_MPZ(other));
@@ -2081,10 +2055,6 @@ Pympz_kronecker(PyObject *self, PyObject *args)
     return PyIntOrLong_FromLong(ires);
 }
 
-PyDoc_STRVAR(doc_is_evenm,
-"x.is_even() -> bool\n\n"
-"Return True if x is even, False otherwise.");
-
 PyDoc_STRVAR(doc_is_eveng,
 "is_even(x) -> bool\n\n"
 "Return True if x is even, False otherwise.");
@@ -2095,10 +2065,7 @@ Pympz_is_even(PyObject *self, PyObject *other)
     int res;
     PympzObject *tempx;
 
-    if (self && (CHECK_MPZANY(self))) {
-        res = mpz_even_p(Pympz_AS_MPZ(self));
-    }
-    else if (CHECK_MPZANY(other)) {
+    if (CHECK_MPZANY(other)) {
         res = mpz_even_p(Pympz_AS_MPZ(other));
     }
     else {
@@ -2117,10 +2084,6 @@ Pympz_is_even(PyObject *self, PyObject *other)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_is_oddm,
-"x.is_odd() -> bool\n\n"
-"Return True if x is odd, False otherwise.");
-
 PyDoc_STRVAR(doc_is_oddg,
 "is_odd(x) -> bool\n\n"
 "Return True if x is odd, False otherwise.");
@@ -2131,10 +2094,7 @@ Pympz_is_odd(PyObject *self, PyObject *other)
     int res;
     PympzObject *tempx;
 
-    if (self && (CHECK_MPZANY(self))) {
-        res = mpz_odd_p(Pympz_AS_MPZ(self));
-    }
-    else if (CHECK_MPZANY(other)) {
+    if (CHECK_MPZANY(other)) {
         res = mpz_odd_p(Pympz_AS_MPZ(other));
     }
     else {
@@ -2797,11 +2757,6 @@ static PyMethodDef Pympz_methods [] =
     { "bit_set", Pympz_bit_set, METH_O, doc_bit_setm },
     { "bit_test", Pympz_bit_test, METH_O, doc_bit_testm },
     { "digits", Pympz_digits, METH_VARARGS, doc_mpz_digits },
-    { "is_even", Pympz_is_even, METH_NOARGS, doc_is_evenm },
-    { "is_odd", Pympz_is_odd, METH_NOARGS, doc_is_oddm },
-    { "is_square", Pympz_is_square, METH_NOARGS, doc_is_squarem },
-    { "is_power", Pympz_is_power, METH_NOARGS, doc_is_powerm },
-    { "is_prime", Pympz_is_prime, METH_VARARGS, doc_is_primem },
     { "num_digits", Pympz_num_digits, METH_VARARGS, doc_num_digitsm },
     { NULL, NULL, 1 }
 };
@@ -2818,11 +2773,6 @@ static PyMethodDef Pyxmpz_methods [] =
     { "bit_test", Pympz_bit_test, METH_O, doc_bit_testm },
     { "copy", Pyxmpz_copy, METH_NOARGS, doc_xmpz_copy },
     { "digits", Pyxmpz_digits, METH_VARARGS, doc_mpz_digits },
-    { "is_even", Pympz_is_even, METH_NOARGS, doc_is_evenm },
-    { "is_odd", Pympz_is_odd, METH_NOARGS, doc_is_oddm },
-    { "is_square", Pympz_is_square, METH_VARARGS, doc_is_squarem },
-    { "is_power", Pympz_is_power, METH_VARARGS, doc_is_powerm },
-    { "is_prime", Pympz_is_prime, METH_VARARGS, doc_is_primem },
     { "make_mpz", Pyxmpz_make_mpz, METH_NOARGS, doc_make_mpzm },
     { "num_digits", Pympz_num_digits, METH_VARARGS, doc_num_digitsm },
     { NULL, NULL, 1 }

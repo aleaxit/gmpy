@@ -1728,9 +1728,6 @@ static PyMethodDef Pympc_methods[] =
     { "__format__", Pympc_format, METH_VARARGS, doc_mpc_format },
     { "conjugate", Pympc_conjugate, METH_NOARGS, doc_mpc_conjugate },
     { "digits", Pympc_digits, METH_VARARGS, doc_mpc_digits },
-    { "is_inf", Pympc_is_INF, METH_NOARGS, doc_mpc_is_inf },
-    { "is_nan", Pympc_is_NAN, METH_NOARGS, doc_mpc_is_nan },
-    { "is_zero", Pympc_is_ZERO, METH_NOARGS, doc_mpc_is_zero },
     { NULL, NULL, 1 }
 };
 
