@@ -126,10 +126,6 @@ True
 True
 >>> _g.is_odd(b)
 False
->>> a.is_odd()
-True
->>> a.is_even()
-False
 >>> _g.is_even(2)
 True
 '''
@@ -598,9 +594,9 @@ __test__['number']=\
 r'''
 >>> a=_g.xmpz(123)
 >>> b=_g.xmpz(456)
->>> a.is_square()
+>>> _g.is_square(a)
 0
->>> a.is_power()
+>>> _g.is_power(a)
 0
 >>> _g.is_square(99*99)
 1
