@@ -1,0 +1,213 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Introduction to gmpy2 &mdash; gmpy2 v2.0.0b1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.0.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="gmpy2 v2.0.0b1 documentation" href="index.html" />
+    <link rel="next" title="Multiple-precision Integers" href="mpz.html" />
+    <link rel="prev" title="Welcome to gmpy2’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mpz.html" title="Multiple-precision Integers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to gmpy2’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">gmpy2 v2.0.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="introduction-to-gmpy2">
+<h1>Introduction to gmpy2<a class="headerlink" href="#introduction-to-gmpy2" title="Permalink to this headline">¶</a></h1>
+<p>gmpy2 is a C-coded Python extension module that supports several
+multiple-precision arithmetic libaries. The following libraries are supported:</p>
+<ul>
+<li><p class="first">GMP for integer and rational arithmetic</p>
+<p>Home page: <a class="reference external" href="http://gmplib.org">http://gmplib.org</a></p>
+</li>
+<li><p class="first">MPIR is based on the GMP library but adds support for Microsoft&#8217;s Visual
+Studio compiler.</p>
+<p>Home page: <a class="reference external" href="http://www.mpir.org">http://www.mpir.org</a></p>
+</li>
+<li><p class="first">MPFR for correctly rounded real floating-point arithmetic</p>
+<p>Home page: <a class="reference external" href="http://www.mpfr.org">http://www.mpfr.org</a></p>
+</li>
+<li><p class="first">MPC for correctly rounded complex floating-point arithmetic</p>
+<p>Home page: <a class="reference external" href="http://mpc.multiprecision.org">http://mpc.multiprecision.org</a></p>
+</li>
+</ul>
+<div class="section" id="installing-gmpy2-on-windows">
+<h2>Installing gmpy2 on Windows<a class="headerlink" href="#installing-gmpy2-on-windows" title="Permalink to this headline">¶</a></h2>
+<p>Pre-compiled versions of gmpy2 are available at <a class="reference external" href="http://http://code.google.com/p/gmpy/downloads/list">Downloads</a> . Please
+select the installer that corresponds to the version of Python installed on
+your computer. Note that either a 32 or 64-bit version of Python can be
+installed on a 64-bit version of Windows. If you get an error message
+stating that Windows could not be found in the registry, you have the wrong
+version of the gmpy2 installer.</p>
+</div>
+<div class="section" id="installing-gmpy2-on-unix-linux">
+<h2>Installing gmpy2 on Unix/Linux<a class="headerlink" href="#installing-gmpy2-on-unix-linux" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="requirements">
+<h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h3>
+<p>gmpy2 has only been tested with the most recent versions of GMP, MPFR and MPC.
+Specifically, for integer and rational support, gmpy2 requires GMP 5.0.x or
+later. To support multiple-precision floating point arithmetic, MPFR 3.1.x or
+later is required. MPC 0.9 or later is required for complex arithmetic.</p>
+<p>The MPC and MPFR libraries are optional. If the MPC library is not available,
+gmpy2 will still support integer, rational, and real floating-point arithmetic.
+If the MPFR library is not available, gmpy2 will only support integer and
+rational arithmetic. The mpf type included with GMP is no longer supported.</p>
+</div>
+<div class="section" id="short-instructions">
+<h3>Short Instructions<a class="headerlink" href="#short-instructions" title="Permalink to this headline">¶</a></h3>
+<p>If your system includes sufficiently recent versions of GMP, MPFR and MPC, and
+you have the development libraries installed, compiling should be as simple as:</p>
+<div class="highlight-python"><pre>cd &lt;gmpy2 source directory&gt;
+python setup.py install</pre>
+</div>
+<p>If this fails, read on.</p>
+</div>
+<div class="section" id="detailed-instructions">
+<h3>Detailed Instructions<a class="headerlink" href="#detailed-instructions" title="Permalink to this headline">¶</a></h3>
+<p>If your Linux distribution does not support recent versions of GMP, MPCR and
+MPC, you will need to compile your own versions. To avoid any possible conflict
+with existing libraries on your system, the following instructions install GMP,
+MPFR and MPC in a separate directory. The examples use /opt/local but you can
+use another directory if you choose.</p>
+<p>Create the desired destination directory for GMP, MPFR, and MPC.</p>
+<div class="highlight-python"><pre>$ mkdir /opt/local</pre>
+</div>
+<p>Download and un-tar the GMP source code. Change to GMP source directory and
+compile GMP.</p>
+<div class="highlight-python"><pre>$ cd /opt/local/src/gmp-5.0.2
+$ ./configure --prefix=/opt/local
+$ make
+$ make check
+$ make install</pre>
+</div>
+<p>Download and un-tar the MPFR source code. Change to MPFR source directory
+and compile MPFR.</p>
+<div class="highlight-python"><pre>$ cd /opt/local/mpfr-3.1.0
+$ ./configure --prefix=/opt/local --with-gmp=/opt/local
+$ make
+$ make check
+$ make install</pre>
+</div>
+<p>Download and un-tar the MPC source code. Change to MPC source directory
+and compile MPC.</p>
+<div class="highlight-python"><pre>$ cd /opt/local/mpc-0.9
+$ ./configure --prefix=/opt/local --with-gmp=/opt/local --with-mpfr=/opt/local
+$ make
+$ make check
+$ make install</pre>
+</div>
+<p>Compile gmpy2 and specify the location of GMP, MPFR and MPC.</p>
+<div class="highlight-python"><pre>$ python setup.py build_ext -Ddir=/opt/local install</pre>
+</div>
+<p>If you get a &#8220;permission denied&#8221; error message, you may need to use:</p>
+<div class="highlight-python"><pre>$ sudo python setup.py build_ext -Ddir=/home/opt/local install</pre>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction to gmpy2</a><ul>
+<li><a class="reference internal" href="#installing-gmpy2-on-windows">Installing gmpy2 on Windows</a></li>
+<li><a class="reference internal" href="#installing-gmpy2-on-unix-linux">Installing gmpy2 on Unix/Linux</a><ul>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+<li><a class="reference internal" href="#short-instructions">Short Instructions</a></li>
+<li><a class="reference internal" href="#detailed-instructions">Detailed Instructions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to gmpy2&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mpz.html"
+                        title="next chapter">Multiple-precision Integers</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/intro.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mpz.html" title="Multiple-precision Integers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to gmpy2’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">gmpy2 v2.0.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Case Van Horsen.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
