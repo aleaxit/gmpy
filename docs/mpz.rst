@@ -68,6 +68,14 @@ mpz Methods
 mpz Functions
 -------------
 
+**add(...)**
+    add(x, y) will return *x* + *y*. The result type depends on the input
+    types.
+
+**addmul(...)**
+    addmul(x, y, z) will return *x* + (*y* + *z*). All arguments must be
+    integers.
+
 **bincoef(...)**
     bincoef(x, n) will return the binomial coefficient. *n* must be >= 0.
 
@@ -300,6 +308,14 @@ mpz Functions
     and return a 2-tuple (*y*, *m*) where *y* = *x* // (*f* ** *m*). *f* does
     not divide *y*. *m* is the multiplicity of the factor *f* in *x*. *f* must
     be > 1.
+
+**sub(...)**
+    sub(x, y) will return *x* - *y*. The result type depends on the input
+    types.
+
+**submul(...)**
+    submul(x, y, z) will return *x* - (*y* + *z*). All arguments must be
+    integers.
 
 **t_div(...)**
     t_div(x, y) will return the quotient of *x* divided by *y*. The quotient

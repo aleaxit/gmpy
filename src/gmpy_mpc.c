@@ -1237,21 +1237,9 @@ Pympc_is_##NAME(PyObject *self, PyObject *other)\
         Py_RETURN_FALSE;\
 }
 
-PyDoc_STRVAR(doc_mpc_is_nan,
-"x.is_nan() -> boolean\n\n"
-"Return True if either x.real or x.imag is 'Not-A-Number'.");
-
 MPC_TEST_OTHER(NAN, "is_nan() requires 'mpc' argument");
 
-PyDoc_STRVAR(doc_mpc_is_inf,
-"x.is_inf() -> boolean\n\n"
-"Return True if either x.real or x.imag is +Infinity or -Infinity.");
-
 MPC_TEST_OTHER(INF, "is_inf() requires 'mpc' argument");
-
-PyDoc_STRVAR(doc_mpc_is_zero,
-"x.is_zero() -> boolean\n\n"
-"Return True if both x.real and x.imag are zero.");
 
 MPC_TEST_OTHER(ZERO, "is_zero() requires 'mpc' argument");
 

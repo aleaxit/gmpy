@@ -6,7 +6,7 @@ The xmpz type
 
 gmpy2 also provides access to an experimental integer type called *xmpz*. The
 *xmpz* type is a mutable integer type. Instances of *xmpz* cannot be used as
-dictionary keys. In-place operations (+=, *=, etc.) modify the orignal object
+dictionary keys. In-place operations (+=, //=, etc.) modify the orignal object
 and do not create a new object. The ability to change an *xmpz* object in-place
 allows for efficient rapid bit manipulation.
 

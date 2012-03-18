@@ -2566,6 +2566,86 @@ Pympz_div(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+PyDoc_STRVAR(doc_mpz_addmul,
+"addmul(x, y, z) -> mpz\n\n"
+"Return x + (y * z).");
+
+static PyObject *
+Pympz_addmul(PyObject *self, PyObject *args)
+{
+    PympzObject *result, *x, *y, *z;
+
+    if (PyTuple_GET_SIZE(args) != 3) {
+        goto typeerror;
+    }
+
+    if (!(result = Pympz_new()))
+        return NULL;
+
+    x = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    y = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
+    z = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
+
+    if (!x || !y || !z) {
+        Py_XDECREF((PyObject*)x);
+        Py_XDECREF((PyObject*)y);
+        Py_XDECREF((PyObject*)z);
+        goto typeerror;
+    }
+
+    mpz_set(result->z, x->z);
+    mpz_addmul(result->z, y->z, z->z);
+
+    Py_XDECREF((PyObject*)x);
+    Py_XDECREF((PyObject*)y);
+    Py_XDECREF((PyObject*)z);
+    return (PyObject*)result;
+
+  typeerror:
+    TYPE_ERROR("addmul() requires 'mpz','mpz','mpz' arguments");
+    return NULL;
+}
+
+PyDoc_STRVAR(doc_mpz_submul,
+"submul(x, y, z) -> mpz\n\n"
+"Return x - (y * z).");
+
+static PyObject *
+Pympz_submul(PyObject *self, PyObject *args)
+{
+    PympzObject *result, *x, *y, *z;
+
+    if (PyTuple_GET_SIZE(args) != 3) {
+        goto typeerror;
+    }
+
+    if (!(result = Pympz_new()))
+        return NULL;
+
+    x = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    y = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
+    z = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
+
+    if (!x || !y || !z) {
+        Py_XDECREF((PyObject*)x);
+        Py_XDECREF((PyObject*)y);
+        Py_XDECREF((PyObject*)z);
+        goto typeerror;
+    }
+
+    mpz_set(result->z, x->z);
+    mpz_submul(result->z, y->z, z->z);
+
+    Py_XDECREF((PyObject*)x);
+    Py_XDECREF((PyObject*)y);
+    Py_XDECREF((PyObject*)z);
+    return (PyObject*)result;
+
+  typeerror:
+    TYPE_ERROR("submul() requires 'mpz','mpz','mpz' arguments");
+    return NULL;
+}
+
 #ifdef PY3
 static PyNumberMethods mpz_number_methods =
 {
