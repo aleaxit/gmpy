@@ -1068,10 +1068,6 @@ Pympfr_set_zero(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpfr_is_signed,
-"x.is_signed() -> boolean\n\n"
-"Return True if the sign bit of x is set.");
-
 PyDoc_STRVAR(doc_g_mpfr_is_signed,
 "is_signed(x) -> boolean\n\n"
 "Return True if the sign bit of x is set.");
@@ -1123,22 +1119,9 @@ Pympfr_is_##NAME(PyObject *self, PyObject *other)\
         Py_RETURN_FALSE;\
 }
 
-PyDoc_STRVAR(doc_mpfr_is_nan,
-"x.is_nan() -> boolean\n\n"
-"Return True if x is 'nan' (Not-A-Number); False otherwise.");
-
 MPFR_TEST_OTHER(nan, "is_nan() requires 'mpfr' argument");
 
-PyDoc_STRVAR(doc_mpfr_is_inf,
-"x.is_inf() -> boolean\n\n"
-"Return True if x is +Infinity or -Infinity; False otherwise.");
-
 MPFR_TEST_OTHER(inf, "is_inf() requires 'mpfr' argument");
-
-PyDoc_STRVAR(doc_mpfr_is_number,
-"x.is_number() -> boolean\n\n"
-"Return True if x is an actual number (i.e. not NaN or Infinity);\n"
-"False otherwise.");
 
 PyDoc_STRVAR(doc_g_mpfr_is_number,
 "is_number(x) -> boolean\n\n"
@@ -1147,15 +1130,7 @@ PyDoc_STRVAR(doc_g_mpfr_is_number,
 
 MPFR_TEST_OTHER(number, "is_number() requires 'mpfr' argument");
 
-PyDoc_STRVAR(doc_mpfr_is_zero,
-"x.is_zero() -> boolean\n\n"
-"Return True if x is zero, False otherwise.");
-
 MPFR_TEST_OTHER(zero, "is_zero() requires 'mpfr' argument");
-
-PyDoc_STRVAR(doc_mpfr_is_regular,
-"x.is_regular() -> boolean\n\n"
-"Return True if x is not zero, NaN, or Infinity; False otherwise.");
 
 PyDoc_STRVAR(doc_g_mpfr_is_regular,
 "is_regular(x) -> boolean\n\n"
@@ -2746,11 +2721,6 @@ Pympfr_factorial(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpfr_is_lessgreater,
-"x.is_lessgreater(y) -> boolean\n\n"
-"Return True if x > y or x < y. Return False if x == y or either x\n"
-"and/or y is NaN.");
-
 PyDoc_STRVAR(doc_g_mpfr_is_lessgreater,
 "is_lessgreater(x,y) -> boolean\n\n"
 "Return True if x > y or x < y. Return False if x == y or either x\n"
@@ -2772,10 +2742,6 @@ Pympfr_is_lessgreater(PyObject *self, PyObject *args)
     else
         Py_RETURN_FALSE;
 }
-
-PyDoc_STRVAR(doc_mpfr_is_unordered,
-"x.is_unordered(y) -> boolean\n\n"
-"Return True if either x and/or y is NaN.");
 
 PyDoc_STRVAR(doc_g_mpfr_is_unordered,
 "is_unordered(x,y) -> boolean\n\n"

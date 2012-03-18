@@ -256,6 +256,7 @@
  *   Added to_binary()/from_binary (casevh)
  *   Renamed numdigits() to num_digits() (casevh)
  *   Added keyword precision to constants (casevh)
+ *   Added addmul() and submul() (casevh)
  *
  ************************************************************************
  *
@@ -464,6 +465,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "_cvsid", Pygmpy_get_cvsid, METH_NOARGS, doc_cvsid },
     { "_printf", Pympany_printf, METH_VARARGS, doc_printf },
     { "add", Pympany_add, METH_VARARGS, doc_mpany_add },
+    { "addmul", Pympz_addmul, METH_VARARGS, doc_mpz_addmul },
     { "bit_clear", Pygmpy_bit_clear, METH_VARARGS, doc_bit_clearg },
     { "bit_flip", Pygmpy_bit_flip, METH_VARARGS, doc_bit_flipg },
     { "bit_length", Pympz_bit_length, METH_O, doc_bit_lengthg },
@@ -557,6 +559,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "sign", Pympany_sign, METH_O, doc_g_mpany_sign },
     { "square", Pympany_square, METH_O, doc_mpany_square },
     { "sub", Pympany_sub, METH_VARARGS, doc_mpany_sub },
+    { "submul", Pympz_submul, METH_VARARGS, doc_mpz_submul },
     { "to_binary", Pympany_to_binary, METH_O, doc_to_binary },
     { "t_div", Pygmpy_t_div, METH_VARARGS, doc_gmpy_t_div },
     { "t_div_2exp", Pygmpy_t_div_2exp, METH_VARARGS, doc_gmpy_t_div_2exp },

@@ -109,6 +109,12 @@ but may be 1 too large. <em>base</em> can range between 2 and 62, inclusive.</dd
 <div class="section" id="mpz-functions">
 <h2>mpz Functions<a class="headerlink" href="#mpz-functions" title="Permalink to this headline">¶</a></h2>
 <dl class="docutils">
+<dt><strong>add(...)</strong></dt>
+<dd>add(x, y) will return <em>x</em> + <em>y</em>. The result type depends on the input
+types.</dd>
+<dt><strong>addmul(...)</strong></dt>
+<dd>addmul(x, y, z) will return <em>x</em> + (<em>y</em> + <em>z</em>). All arguments must be
+integers.</dd>
 <dt><strong>bincoef(...)</strong></dt>
 <dd>bincoef(x, n) will return the binomial coefficient. <em>n</em> must be &gt;= 0.</dd>
 <dt><strong>bit_clear(...)</strong></dt>
@@ -287,6 +293,12 @@ the number of bits with value 1 is infinite so -1 is returned in that case.</dd>
 and return a 2-tuple (<em>y</em>, <em>m</em>) where <em>y</em> = <em>x</em> // (<em>f</em> ** <em>m</em>). <em>f</em> does
 not divide <em>y</em>. <em>m</em> is the multiplicity of the factor <em>f</em> in <em>x</em>. <em>f</em> must
 be &gt; 1.</dd>
+<dt><strong>sub(...)</strong></dt>
+<dd>sub(x, y) will return <em>x</em> - <em>y</em>. The result type depends on the input
+types.</dd>
+<dt><strong>submul(...)</strong></dt>
+<dd>submul(x, y, z) will return <em>x</em> - (<em>y</em> + <em>z</em>). All arguments must be
+integers.</dd>
 <dt><strong>t_div(...)</strong></dt>
 <dd>t_div(x, y) will return the quotient of <em>x</em> divided by <em>y</em>. The quotient
 is rounded towards zero (truncation). <em>x</em> and <em>y</em> must be integers.</dd>

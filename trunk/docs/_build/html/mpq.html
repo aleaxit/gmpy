@@ -50,12 +50,49 @@
             
   <div class="section" id="multiple-precision-rationals">
 <h1>Multiple-precision Rationals<a class="headerlink" href="#multiple-precision-rationals" title="Permalink to this headline">¶</a></h1>
-<p>GMPY2 is the second generation of the General Multiprecision PYthon library.
-GMPY2 is a C-coded Python extension module that supports an extensive set of
-multiple-precision arithmetic libaries. The following libraries are supported:</p>
-<div class="highlight-python"><pre>* GMP/MPIR for integer and rational arithmetic
-* MPFR for correctly rounded real floating-point arithmetic
-* MPC for correctly rounded complex floating-point arithmetic</pre>
+<p>gmpy2 provides a rational type call <em>mpq</em>. It should be a replacement for
+Python&#8217;s fractions.Fraction module.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">gmpy2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gmpy2</span> <span class="kn">import</span> <span class="n">mpq</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mpq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span>
+<span class="go">mpq(1,7)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mpq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span> <span class="o">*</span> <span class="mi">11</span>
+<span class="go">mpq(11,7)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mpq</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span><span class="o">/</span><span class="mi">13</span>
+<span class="go">mpq(11,91)</span>
+</pre></div>
+</div>
+<div class="section" id="mpq-methods">
+<h2>mpq Methods<a class="headerlink" href="#mpq-methods" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>digits(...)</strong></dt>
+<dd>x.digits([base=10]) will return a Python string representing <em>x</em> in the
+given base (2 to 62, default is 10). A leading &#8216;-&#8216; is present if <em>x</em> &lt; 0,
+but no leading &#8216;+&#8217; is present if <em>x</em> &gt;= 0.</dd>
+</dl>
+</div>
+<div class="section" id="mpq-functions">
+<h2>mpq Functions<a class="headerlink" href="#mpq-functions" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>f2q(...)</strong></dt>
+<dd>f2q(x[, err]) will return the best <em>mpq</em> approximating <em>x</em> to within
+relative error <em>err</em>&#8216;. Default is the precision of <em>x</em>. If <em>x</em> is not an
+<em>mpfr</em>, it is converted to an <em>mpfr</em>. Uses Stern-Brocot tree to find the
+best approximation. An <em>mpz</em> is returned if the the denominator is 1. If
+<em>err</em> &lt; 0, then the relative error sought is 2.0 ** <em>err</em>.</dd>
+<dt><strong>mpq(...)</strong></dt>
+<dd><p class="first">mpq(n) will return an <em>mpq</em> object with a numeric value <em>n</em>. Decimal and
+Fraction values are converted exactly.</p>
+<p>mpq(n, m) will return an <em>mpq</em> object with a numeric value <em>n</em> / <em>m</em>.</p>
+<p class="last">mpq(s[, base=10]) will return an <em>mpq</em> object from a string <em>s</em> made up of
+digits in the given base. <em>s</em> may be made up of two numbers in the same
+base separated by a &#8216;/&#8217; character. If <em>base</em> == 10, then an embedded &#8216;.&#8217;
+indicates a number with a decimal fractional part.</p>
+</dd>
+<dt><strong>qdiv(...)</strong></dt>
+<dd>qdiv(x[, y=1]) will return <em>x/y</em> as <em>mpz</em> if possible, or as <em>mpq</em> if <em>x</em>
+is not exactly divisible by <em>y</em>.</dd>
+</dl>
 </div>
 </div>
 
@@ -65,6 +102,15 @@ multiple-precision arithmetic libaries. The following libraries are supported:</
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Multiple-precision Rationals</a><ul>
+<li><a class="reference internal" href="#mpq-methods">mpq Methods</a></li>
+<li><a class="reference internal" href="#mpq-functions">mpq Functions</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="advmpz.html"
                         title="previous chapter">Multiple-precision Integers (Advanced topics)</a></p>
