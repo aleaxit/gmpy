@@ -30,7 +30,7 @@ mpq Functions
 
 **f2q(...)**
     f2q(x[, err]) will return the best *mpq* approximating *x* to within
-    relative error *err*'. Default is the precision of *x*. If *x* is not an
+    relative error *err*. Default is the precision of *x*. If *x* is not an
     *mpfr*, it is converted to an *mpfr*. Uses Stern-Brocot tree to find the
     best approximation. An *mpz* is returned if the the denominator is 1. If
     *err* < 0, then the relative error sought is 2.0 ** *err*.
