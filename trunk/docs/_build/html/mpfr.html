@@ -50,12 +50,82 @@
             
   <div class="section" id="multiple-precision-reals">
 <h1>Multiple-precision Reals<a class="headerlink" href="#multiple-precision-reals" title="Permalink to this headline">¶</a></h1>
-<p>GMPY2 is the second generation of the General Multiprecision PYthon library.
-GMPY2 is a C-coded Python extension module that supports an extensive set of
-multiple-precision arithmetic libaries. The following libraries are supported:</p>
-<div class="highlight-python"><pre>* GMP/MPIR for integer and rational arithmetic
-* MPFR for correctly rounded real floating-point arithmetic
-* MPC for correctly rounded complex floating-point arithmetic</pre>
+<p>gmpy2 replaces the <em>mpf</em> type from gmpy 1.x with a new <em>mpfr</em> type based on
+the MPFR library. The new <em>mpfr</em> type supports correct rounding, selectable
+rounding modes, and many trigonometric, exponential, and special functions. A
+<em>context manager</em> is used to control precision, rounding modes, and the
+behavior of exceptions.</p>
+<p>The default precision of an <em>mpfr</em> is 53 bits - the same precision as Python&#8217;s
+<em>float</em> type. If the precison is changed, then <tt class="docutils literal"><span class="pre">mpfr(float('1.2'))</span></tt> differs
+from <tt class="docutils literal"><span class="pre">mpfr('1.2')</span></tt>. To take advantage of the higher precision provided by
+the <em>mpfr</em> type, always pass constants as stringsl</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">gmpy2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gmpy2</span> <span class="kn">import</span> <span class="n">mpfr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mpfr</span><span class="p">(</span><span class="s">&#39;1.2&#39;</span><span class="p">)</span>
+<span class="go">mpfr(&#39;1.2&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mpfr</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s">&#39;1.2&#39;</span><span class="p">))</span>
+<span class="go">mpfr(&#39;1.2&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">precision</span><span class="o">=</span><span class="mi">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mpfr</span><span class="p">(</span><span class="s">&#39;1.2&#39;</span><span class="p">)</span>
+<span class="go">mpfr(&#39;1.2000000000000000000000000000006&#39;,100)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mpfr</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s">&#39;1.2&#39;</span><span class="p">))</span>
+<span class="go">mpfr(&#39;1.1999999999999999555910790149937&#39;,100)</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<div class="section" id="contexts">
+<h2>Contexts<a class="headerlink" href="#contexts" title="Permalink to this headline">¶</a></h2>
+<p>A <em>context</em> is used to control the behavior of <em>mpfr</em> (and <em>mpc</em>) arithmetic.
+In addition to controlling the precision, the rounding mode can be specified,
+minimum and maximum exponent values can be changed, various exceptions can be
+raised or ignored, gradual underflow can be enabled, and returning complex
+results can be enabled.</p>
+<p><tt class="docutils literal"><span class="pre">gmpy2.context()</span></tt> creates a new context with all options set to default.
+<tt class="docutils literal"><span class="pre">gmpy2.set_context(*ctx*)</span></tt> will set the active context to <em>ctx</em>.
+<tt class="docutils literal"><span class="pre">gmpy2.get_context()</span></tt> will return a reference to the active context. Note
+that contexts are mutable: modifying the reference returned by get_context()
+will modify the active context until a new context is enabled with
+set_context().</p>
+<p>The following example just modifies the precision. The remaining options will
+be discussed later.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">set_context</span><span class="p">(</span><span class="n">gmpy2</span><span class="o">.</span><span class="n">context</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span>
+<span class="go">context(precision=53, mpc_rprec=Default, mpc_iprec=Default,</span>
+<span class="go">        round=RoundToNearest, mpc_rround=Default, mpc_iround=Default,</span>
+<span class="go">        emax=1073741823, emin=-1073741823,</span>
+<span class="go">        subnormalize=False,</span>
+<span class="go">        trap_underflow=False, underflow=False,</span>
+<span class="go">        trap_overflow=False, overflow=False,</span>
+<span class="go">        trap_inexact=False, inexact=False,</span>
+<span class="go">        trap_invalid=False, invalid=False,</span>
+<span class="go">        trap_erange=False, erange=False,</span>
+<span class="go">        trap_divzero=False, divzero=False,</span>
+<span class="go">        trap_expbound=False,</span>
+<span class="go">        allow_complex=False)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">mpfr(&#39;2.2360679774997898&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">precision</span><span class="o">=</span><span class="mi">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">mpfr(&#39;2.2360679774997896964091736687316&#39;,100)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">precision</span><span class="o">+=</span><span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">mpfr(&#39;2.2360679774997896964091736687312762351&#39;,120)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span><span class="o">=</span><span class="n">gmpy2</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span><span class="o">.</span><span class="n">precision</span><span class="o">+=</span><span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">mpfr(&#39;2.2360679774997896964091736687312762354406182&#39;,140)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">set_context</span><span class="p">(</span><span class="n">gmpy2</span><span class="o">.</span><span class="n">context</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">mpfr(&#39;2.2360679774997898&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ctx</span><span class="o">.</span><span class="n">precision</span><span class="o">+=</span><span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">mpfr(&#39;2.2360679774997898&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">set_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">mpfr(&#39;2.2360679774997896964091736687312762354406183596116&#39;,160)</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -65,6 +135,14 @@ multiple-precision arithmetic libaries. The following libraries are supported:</
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Multiple-precision Reals</a><ul>
+<li><a class="reference internal" href="#contexts">Contexts</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="mpq.html"
                         title="previous chapter">Multiple-precision Rationals</a></p>

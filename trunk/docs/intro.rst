@@ -22,11 +22,11 @@ Installing gmpy2 on Windows
 ---------------------------
 
 Pre-compiled versions of gmpy2 are available at `Downloads
-<http://http://code.google.com/p/gmpy/downloads/list>`_ . Please
+<http://code.google.com/p/gmpy/downloads/list>`_ . Please
 select the installer that corresponds to the version of Python installed on
 your computer. Note that either a 32 or 64-bit version of Python can be
 installed on a 64-bit version of Windows. If you get an error message
-stating that Windows could not be found in the registry, you have the wrong
+stating that Python could not be found in the registry, you have the wrong
 version of the gmpy2 installer.
 
 Installing gmpy2 on Unix/Linux
@@ -61,7 +61,7 @@ If this fails, read on.
 Detailed Instructions
 ^^^^^^^^^^^^^^^^^^^^^
 
-If your Linux distribution does not support recent versions of GMP, MPCR and
+If your Linux distribution does not support recent versions of GMP, MPFR and
 MPC, you will need to compile your own versions. To avoid any possible conflict
 with existing libraries on your system, the following instructions install GMP,
 MPFR and MPC in a separate directory. The examples use /opt/local but you can

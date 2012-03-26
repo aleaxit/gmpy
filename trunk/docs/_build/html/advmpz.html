@@ -52,11 +52,11 @@
 <h1>Multiple-precision Integers (Advanced topics)<a class="headerlink" href="#multiple-precision-integers-advanced-topics" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="the-xmpz-type">
 <h2>The xmpz type<a class="headerlink" href="#the-xmpz-type" title="Permalink to this headline">¶</a></h2>
-<p>gmpy2 also provides access to an experimental integer type called <em>xmpz</em>. The
+<p>gmpy2 provides access to an experimental integer type called <em>xmpz</em>. The
 <em>xmpz</em> type is a mutable integer type. Instances of <em>xmpz</em> cannot be used as
 dictionary keys. In-place operations (+=, //=, etc.) modify the orignal object
 and do not create a new object. The ability to change an <em>xmpz</em> object in-place
-allows for efficient rapid bit manipulation.</p>
+allows for efficient and rapid bit manipulation.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">gmpy2</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gmpy2</span> <span class="kn">import</span> <span class="n">xmpz</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">xmpz</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
