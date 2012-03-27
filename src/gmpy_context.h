@@ -53,10 +53,10 @@ typedef struct {
     int trap_expbound;       /* if 1, raise exception if mpfr/mpc exponents */
                              /*       are out of bounds */
 #ifdef WITHMPC
-    mpfr_prec_t mpc_rprec;   /* current precision in bits, for Re(MPC) */
-    mpfr_prec_t mpc_iprec;   /* current precision in bits, for Im(MPC) */
-    mpfr_rnd_t mpc_rround;   /* current rounding mode for Re(MPC) */
-    mpfr_rnd_t mpc_iround;   /* current rounding mode for Im(MPC) */
+    mpfr_prec_t real_prec;   /* current precision in bits, for Re(MPC) */
+    mpfr_prec_t imag_prec;   /* current precision in bits, for Im(MPC) */
+    mpfr_rnd_t real_round;   /* current rounding mode for Re(MPC) */
+    mpfr_rnd_t imag_round;   /* current rounding mode for Im(MPC) */
     int allow_complex;       /* if 1, allow mpfr functions to return an mpc */
 #endif
 } gmpy_context;
@@ -82,12 +82,12 @@ static PyTypeObject GMPyContextManager_Type;
 #define GMPyContextManager_Check(v) (((PyObject*)v)->ob_type == &GMPyContextManager_Type)
 
 #define GET_MPFR_PREC(c) (c->ctx.mpfr_prec)
-#define GET_MPC_RPREC(c) ((c->ctx.mpc_rprec==GMPY_DEFAULT)?GET_MPFR_PREC(c):c->ctx.mpc_rprec)
-#define GET_MPC_IPREC(c) ((c->ctx.mpc_iprec==GMPY_DEFAULT)?GET_MPC_RPREC(c):c->ctx.mpc_iprec)
+#define GET_REAL_PREC(c) ((c->ctx.real_prec==GMPY_DEFAULT)?GET_MPFR_PREC(c):c->ctx.real_prec)
+#define GET_IMAG_PREC(c) ((c->ctx.imag_prec==GMPY_DEFAULT)?GET_REAL_PREC(c):c->ctx.imag_prec)
 #define GET_MPFR_ROUND(c) (c->ctx.mpfr_round)
-#define GET_MPC_RROUND(c) ((c->ctx.mpc_rround==GMPY_DEFAULT)?GET_MPFR_ROUND(c):c->ctx.mpc_rround)
-#define GET_MPC_IROUND(c) ((c->ctx.mpc_iround==GMPY_DEFAULT)?GET_MPC_RROUND(c):c->ctx.mpc_iround)
-#define GET_MPC_ROUND(c) (RNDC(GET_MPC_RROUND(c), GET_MPC_IROUND(c)))
+#define GET_REAL_ROUND(c) ((c->ctx.real_round==GMPY_DEFAULT)?GET_MPFR_ROUND(c):c->ctx.real_round)
+#define GET_IMAG_ROUND(c) ((c->ctx.imag_round==GMPY_DEFAULT)?GET_REAL_ROUND(c):c->ctx.imag_round)
+#define GET_MPC_ROUND(c) (RNDC(GET_REAL_ROUND(c), GET_IMAG_ROUND(c)))
 
 static GMPyContextManagerObject * GMPyContextManager_new(void);
 static void GMPyContextManager_dealloc(GMPyContextManagerObject *self);

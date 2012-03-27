@@ -139,8 +139,8 @@ static PyTypeObject Pympc_Type;
         int rcr, rci; \
         rcr = MPC_INEX_RE(mpct->rc); \
         rci = MPC_INEX_IM(mpct->rc); \
-        rcr = mpfr_subnormalize(mpc_realref(mpct->c), rcr, GET_MPC_RROUND(context)); \
-        rci = mpfr_subnormalize(mpc_imagref(mpct->c), rci, GET_MPC_IROUND(context)); \
+        rcr = mpfr_subnormalize(mpc_realref(mpct->c), rcr, GET_REAL_ROUND(context)); \
+        rci = mpfr_subnormalize(mpc_imagref(mpct->c), rci, GET_IMAG_ROUND(context)); \
         mpct->rc = MPC_INEX(rcr, rci); \
     } \
 

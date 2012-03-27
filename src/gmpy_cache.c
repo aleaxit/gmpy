@@ -334,9 +334,9 @@ Pympc_new(mpfr_prec_t rprec, mpfr_prec_t iprec)
     TRACE("Entering Pympc_new\n");
 
     if (rprec == 0)
-        rprec = GET_MPC_RPREC(context);
+        rprec = GET_REAL_PREC(context);
     if (iprec == 0)
-        iprec = GET_MPC_IPREC(context);
+        iprec = GET_IMAG_PREC(context);
     if (rprec < MPFR_PREC_MIN || rprec > MPFR_PREC_MAX ||
         iprec < MPFR_PREC_MIN || iprec > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");
