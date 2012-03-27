@@ -248,7 +248,7 @@ PyStr2Pympc(PyObject *s, long base, mpfr_prec_t rbits, mpfr_prec_t ibits)
     /* Read the real component first. */
     unwind = cp;
     mpfr_strtofr(mpc_realref(newob->c), cp, &tempchar, base,
-                 GET_MPC_RROUND(context));
+                 GET_REAL_ROUND(context));
     /* Verify that at least one valid character was read. */
     if (cp == tempchar) goto invalid_string;
     /* If the next character is a j, then the real component is 0 and
@@ -263,7 +263,7 @@ PyStr2Pympc(PyObject *s, long base, mpfr_prec_t rbits, mpfr_prec_t ibits)
         cp = tempchar;
     }
     mpfr_strtofr(mpc_imagref(newob->c), cp, &tempchar, base,
-                 GET_MPC_IROUND(context));
+                 GET_IMAG_ROUND(context));
 
     if (cp == tempchar && tempchar > lastchar)
         goto valid_string;
@@ -1357,13 +1357,13 @@ Pympc_rect(PyObject *self, PyObject *args)
     }
 
     mpfr_cos(mpc_realref(result->c), Pympfr_AS_MPFR(other),
-             GET_MPC_RROUND(context));
+             GET_REAL_ROUND(context));
     mpfr_mul(mpc_realref(result->c), mpc_realref(result->c),
-             Pympfr_AS_MPFR(self), GET_MPC_RROUND(context));
+             Pympfr_AS_MPFR(self), GET_REAL_ROUND(context));
     mpfr_sin(mpc_imagref(result->c), Pympfr_AS_MPFR(other),
-             GET_MPC_IROUND(context));
+             GET_IMAG_ROUND(context));
     mpfr_mul(mpc_imagref(result->c), mpc_imagref(result->c),
-             Pympfr_AS_MPFR(self), GET_MPC_IROUND(context));
+             Pympfr_AS_MPFR(self), GET_IMAG_ROUND(context));
     Py_DECREF(self);
     Py_DECREF(other);
 

@@ -64,10 +64,10 @@ GMPyContext_new(void)
         result->ctx.trap_expbound = 0;
 
 #ifdef WITHMPC
-        result->ctx.mpc_rprec = -1;
-        result->ctx.mpc_iprec = -1;
-        result->ctx.mpc_rround = -1;
-        result->ctx.mpc_iround = -1;
+        result->ctx.real_prec = -1;
+        result->ctx.imag_prec = -1;
+        result->ctx.real_round = -1;
+        result->ctx.imag_round = -1;
         result->ctx.allow_complex = 0;
 #endif
     }
@@ -126,8 +126,8 @@ GMPyContext_repr(GMPyContextObject *self)
 
 #ifdef WITHMPC
     format = Py2or3String_FromString(
-            "context(precision=%s, mpc_rprec=%s, mpc_iprec=%s,\n"
-            "        round=%s, mpc_rround=%s, mpc_iround=%s,\n"
+            "context(precision=%s, real_prec=%s, imag_prec=%s,\n"
+            "        round=%s, real_round=%s, imag_round=%s,\n"
             "        emax=%s, emin=%s,\n"
             "        subnormalize=%s,\n"
             "        trap_underflow=%s, underflow=%s,\n"
@@ -161,19 +161,19 @@ GMPyContext_repr(GMPyContextObject *self)
 
     PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.mpfr_prec));
 #ifdef WITHMPC
-    if (self->ctx.mpc_rprec == GMPY_DEFAULT)
+    if (self->ctx.real_prec == GMPY_DEFAULT)
         PyTuple_SET_ITEM(tuple, i++, Py2or3String_FromString("Default"));
     else
-        PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.mpc_rprec));
-    if (self->ctx.mpc_iprec == GMPY_DEFAULT)
+        PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.real_prec));
+    if (self->ctx.imag_prec == GMPY_DEFAULT)
         PyTuple_SET_ITEM(tuple, i++, Py2or3String_FromString("Default"));
     else
-        PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.mpc_iprec));
+        PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.imag_prec));
 #endif
     PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->ctx.mpfr_round));
 #ifdef WITHMPC
-    PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->ctx.mpc_rround));
-    PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->ctx.mpc_iround));
+    PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->ctx.real_round));
+    PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->ctx.imag_round));
 #endif
     PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.emax));
     PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.emin));
@@ -224,8 +224,8 @@ GMPyContext_get_context(PyObject *self, PyObject *args, PyObject *kwargs)
 
 #ifdef WITHMPC
     static char *kwlist[] = {
-        "precision", "mpc_rprec", "mpc_iprec", "round",
-        "mpc_rround", "mpc_iround", "emax", "emin", "subnormalize",
+        "precision", "real_prec", "imag_prec", "round",
+        "real_round", "imag_round", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero",
         "trap_expbound", "allow_complex", NULL };
@@ -252,11 +252,11 @@ GMPyContext_get_context(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
             "|llliiilliiiiiiiii", kwlist,
             &context->ctx.mpfr_prec,
-            &context->ctx.mpc_rprec,
-            &context->ctx.mpc_iprec,
+            &context->ctx.real_prec,
+            &context->ctx.imag_prec,
             &context->ctx.mpfr_round,
-            &context->ctx.mpc_rround,
-            &context->ctx.mpc_iround,
+            &context->ctx.real_round,
+            &context->ctx.imag_round,
             &context->ctx.emax,
             &context->ctx.emin,
             &context->ctx.subnormalize,
@@ -297,18 +297,18 @@ GMPyContext_get_context(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
 #ifdef WITHMPC
-    if (!(context->ctx.mpc_rprec == GMPY_DEFAULT ||
-        (context->ctx.mpc_rprec >= MPFR_PREC_MIN &&
-        context->ctx.mpc_rprec <= MPFR_PREC_MAX))) {
+    if (!(context->ctx.real_prec == GMPY_DEFAULT ||
+        (context->ctx.real_prec >= MPFR_PREC_MIN &&
+        context->ctx.real_prec <= MPFR_PREC_MAX))) {
         context->ctx = old;
-        VALUE_ERROR("invalid value for mpc_rprec");
+        VALUE_ERROR("invalid value for real_prec");
         return NULL;
     }
-    if (!(context->ctx.mpc_iprec == GMPY_DEFAULT ||
-        (context->ctx.mpc_iprec >= MPFR_PREC_MIN &&
-        context->ctx.mpc_iprec <= MPFR_PREC_MAX))) {
+    if (!(context->ctx.imag_prec == GMPY_DEFAULT ||
+        (context->ctx.imag_prec >= MPFR_PREC_MIN &&
+        context->ctx.imag_prec <= MPFR_PREC_MAX))) {
         context->ctx = old;
-        VALUE_ERROR("invalid value for mpc_iprec");
+        VALUE_ERROR("invalid value for imag_prec");
         return NULL;
     }
 #endif
@@ -319,7 +319,7 @@ GMPyContext_get_context(PyObject *self, PyObject *args, PyObject *kwargs)
         context->ctx.mpfr_round == MPFR_RNDD ||
         context->ctx.mpfr_round == MPFR_RNDA)) {
         context->ctx = old;
-        VALUE_ERROR("invalid value for mpfr_round");
+        VALUE_ERROR("invalid value for round");
         return NULL;
     }
 
@@ -328,25 +328,25 @@ GMPyContext_get_context(PyObject *self, PyObject *args, PyObject *kwargs)
         /* Since RNDA is not supported for MPC, set the MPC rounding modes
          * to MPFR_RNDN.
          */
-        context->ctx.mpc_rround = MPFR_RNDN;
-        context->ctx.mpc_iround = MPFR_RNDN;
+        context->ctx.real_round = MPFR_RNDN;
+        context->ctx.imag_round = MPFR_RNDN;
     }
-    if (!(context->ctx.mpc_rround == MPFR_RNDN ||
-        context->ctx.mpc_rround == MPFR_RNDZ ||
-        context->ctx.mpc_rround == MPFR_RNDU ||
-        context->ctx.mpc_rround == MPFR_RNDD ||
-        context->ctx.mpc_rround == GMPY_DEFAULT)) {
+    if (!(context->ctx.real_round == MPFR_RNDN ||
+        context->ctx.real_round == MPFR_RNDZ ||
+        context->ctx.real_round == MPFR_RNDU ||
+        context->ctx.real_round == MPFR_RNDD ||
+        context->ctx.real_round == GMPY_DEFAULT)) {
         context->ctx = old;
-        VALUE_ERROR("invalid value for mpc_rround");
+        VALUE_ERROR("invalid value for real_round");
         return NULL;
     }
-    if (!(context->ctx.mpc_iround == MPFR_RNDN ||
-        context->ctx.mpc_iround == MPFR_RNDZ ||
-        context->ctx.mpc_iround == MPFR_RNDU ||
-        context->ctx.mpc_iround == MPFR_RNDD ||
-        context->ctx.mpc_iround == GMPY_DEFAULT)) {
+    if (!(context->ctx.imag_round == MPFR_RNDN ||
+        context->ctx.imag_round == MPFR_RNDZ ||
+        context->ctx.imag_round == MPFR_RNDU ||
+        context->ctx.imag_round == MPFR_RNDD ||
+        context->ctx.imag_round == GMPY_DEFAULT)) {
         context->ctx = old;
-        VALUE_ERROR("invalid value for mpc_iround");
+        VALUE_ERROR("invalid value for imag_round");
         return NULL;
     }
 #endif
@@ -389,8 +389,8 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
 
 #ifdef WITHMPC
     static char *kwlist[] = {
-        "precision", "mpc_rprec", "mpc_iprec", "round",
-        "mpc_rround", "mpc_iround", "emax", "emin", "subnormalize",
+        "precision", "real_prec", "imag_prec", "round",
+        "real_round", "imag_round", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero",
         "trap_expbound", "allow_complex", NULL };
@@ -418,11 +418,11 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
             "|llliiilliiiiiiiii", kwlist,
             &result->new_ctx.mpfr_prec,
-            &result->new_ctx.mpc_rprec,
-            &result->new_ctx.mpc_iprec,
+            &result->new_ctx.real_prec,
+            &result->new_ctx.imag_prec,
             &result->new_ctx.mpfr_round,
-            &result->new_ctx.mpc_rround,
-            &result->new_ctx.mpc_iround,
+            &result->new_ctx.real_round,
+            &result->new_ctx.imag_round,
             &result->new_ctx.emax,
             &result->new_ctx.emin,
             &result->new_ctx.subnormalize,
@@ -462,16 +462,16 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
 #ifdef WITHMPC
-    if (!(result->new_ctx.mpc_rprec == GMPY_DEFAULT ||
-        (result->new_ctx.mpc_rprec >= MPFR_PREC_MIN &&
-        result->new_ctx.mpc_rprec <= MPFR_PREC_MAX))) {
-        VALUE_ERROR("invalid value for mpc_rprec");
+    if (!(result->new_ctx.real_prec == GMPY_DEFAULT ||
+        (result->new_ctx.real_prec >= MPFR_PREC_MIN &&
+        result->new_ctx.real_prec <= MPFR_PREC_MAX))) {
+        VALUE_ERROR("invalid value for real_prec");
         goto error;
     }
-    if (!(result->new_ctx.mpc_iprec == GMPY_DEFAULT ||
-        (result->new_ctx.mpc_iprec >= MPFR_PREC_MIN &&
-        result->new_ctx.mpc_iprec <= MPFR_PREC_MAX))) {
-        VALUE_ERROR("invalid value for mpc_iprec");
+    if (!(result->new_ctx.imag_prec == GMPY_DEFAULT ||
+        (result->new_ctx.imag_prec >= MPFR_PREC_MIN &&
+        result->new_ctx.imag_prec <= MPFR_PREC_MAX))) {
+        VALUE_ERROR("invalid value for imag_prec");
         goto error;
     }
 #endif
@@ -481,7 +481,7 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
         result->new_ctx.mpfr_round == MPFR_RNDU ||
         result->new_ctx.mpfr_round == MPFR_RNDD ||
         result->new_ctx.mpfr_round == MPFR_RNDA)) {
-        VALUE_ERROR("invalid value for mpfr_round");
+        VALUE_ERROR("invalid value for round");
         goto error;
     }
 
@@ -490,23 +490,23 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
         /* Since RNDA is not supported for MPC, set the MPC rounding modes
          * to MPFR_RNDN.
          */
-        result->new_ctx.mpc_rround = MPFR_RNDN;
-        result->new_ctx.mpc_iround = MPFR_RNDN;
+        result->new_ctx.real_round = MPFR_RNDN;
+        result->new_ctx.imag_round = MPFR_RNDN;
     }
-    if (!(result->new_ctx.mpc_rround == MPFR_RNDN ||
-        result->new_ctx.mpc_rround == MPFR_RNDZ ||
-        result->new_ctx.mpc_rround == MPFR_RNDU ||
-        result->new_ctx.mpc_rround == MPFR_RNDD ||
-        result->new_ctx.mpc_rround == GMPY_DEFAULT)) {
-        VALUE_ERROR("invalid value for mpc_rround");
+    if (!(result->new_ctx.real_round == MPFR_RNDN ||
+        result->new_ctx.real_round == MPFR_RNDZ ||
+        result->new_ctx.real_round == MPFR_RNDU ||
+        result->new_ctx.real_round == MPFR_RNDD ||
+        result->new_ctx.real_round == GMPY_DEFAULT)) {
+        VALUE_ERROR("invalid value for real_round");
         goto error;
     }
-    if (!(result->new_ctx.mpc_iround == MPFR_RNDN ||
-        result->new_ctx.mpc_iround == MPFR_RNDZ ||
-        result->new_ctx.mpc_iround == MPFR_RNDU ||
-        result->new_ctx.mpc_iround == MPFR_RNDD ||
-        result->new_ctx.mpc_iround == GMPY_DEFAULT)) {
-        VALUE_ERROR("invalid value for mpc_iround");
+    if (!(result->new_ctx.imag_round == MPFR_RNDN ||
+        result->new_ctx.imag_round == MPFR_RNDZ ||
+        result->new_ctx.imag_round == MPFR_RNDU ||
+        result->new_ctx.imag_round == MPFR_RNDD ||
+        result->new_ctx.imag_round == GMPY_DEFAULT)) {
+        VALUE_ERROR("invalid value for imag_round");
         goto error;
     }
 #endif
@@ -539,15 +539,15 @@ PyDoc_STRVAR(doc_context,
 "Return a new context manager controlling MPFR and MPC arithmetic.\n"
 "Options can only be specified as keyword arguments. \n\n"
 "    precision:      precision, in bits, of an MPFR result\n"
-"    mpc_rprec:      precision, in bits, of Re(MPC)\n"
+"    real_prec:      precision, in bits, of Re(MPC)\n"
 "                      -1 implies use mpfr_prec\n"
-"    mpc_iprec:      precision, in bits, of Im(MPC)\n"
-"                      -1 implies use mpc_rprec\n"
+"    imag_prec:      precision, in bits, of Im(MPC)\n"
+"                      -1 implies use real_prec\n"
 "    round:          rounding mode for MPFR\n"
-"    mpc_rround:     rounding mode for Re(MPC)\n"
+"    real_round:     rounding mode for Re(MPC)\n"
 "                      -1 implies use mpfr_round\n"
-"    mpc_iround:     rounding mode for Im(MPC)\n"
-"                      -1 implies use mpc_rround\n"
+"    imag_round:     rounding mode for Im(MPC)\n"
+"                      -1 implies use real_round\n"
 "    e_max:          maximum allowed exponent\n"
 "    e_min:          minimum allowed exponent\n"
 "    subnormalize:   if True, subnormalized results can be returned\n"
@@ -608,8 +608,8 @@ GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
 
 #ifdef WITHMPC
     static char *kwlist[] = {
-        "precision", "mpc_rprec", "mpc_iprec", "round",
-        "mpc_rround", "mpc_iround", "emax", "emin", "subnormalize",
+        "precision", "real_prec", "imag_prec", "round",
+        "real_round", "imag_round", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero", "trap_expbound",
         "allow_complex", NULL };
@@ -633,11 +633,11 @@ GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
             "|llliiilliiiiiiiii", kwlist,
             &result->ctx.mpfr_prec,
-            &result->ctx.mpc_rprec,
-            &result->ctx.mpc_iprec,
+            &result->ctx.real_prec,
+            &result->ctx.imag_prec,
             &result->ctx.mpfr_round,
-            &result->ctx.mpc_rround,
-            &result->ctx.mpc_iround,
+            &result->ctx.real_round,
+            &result->ctx.imag_round,
             &result->ctx.emax,
             &result->ctx.emin,
             &result->ctx.subnormalize,
@@ -678,18 +678,18 @@ GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
 #ifdef WITHMPC
-    if (!(result->ctx.mpc_rprec == GMPY_DEFAULT ||
-        (result->ctx.mpc_rprec >= MPFR_PREC_MIN &&
-        result->ctx.mpc_rprec <= MPFR_PREC_MAX))) {
+    if (!(result->ctx.real_prec == GMPY_DEFAULT ||
+        (result->ctx.real_prec >= MPFR_PREC_MIN &&
+        result->ctx.real_prec <= MPFR_PREC_MAX))) {
         Py_DECREF((PyObject*)result);
-        VALUE_ERROR("invalid value for mpc_rprec");
+        VALUE_ERROR("invalid value for real_prec");
         return NULL;
     }
-    if (!(result->ctx.mpc_iprec == GMPY_DEFAULT ||
-        (result->ctx.mpc_iprec >= MPFR_PREC_MIN &&
-        result->ctx.mpc_iprec <= MPFR_PREC_MAX))) {
+    if (!(result->ctx.imag_prec == GMPY_DEFAULT ||
+        (result->ctx.imag_prec >= MPFR_PREC_MIN &&
+        result->ctx.imag_prec <= MPFR_PREC_MAX))) {
         Py_DECREF((PyObject*)result);
-        VALUE_ERROR("invalid value for mpc_iprec");
+        VALUE_ERROR("invalid value for imag_prec");
         return NULL;
     }
 #endif
@@ -700,7 +700,7 @@ GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
         result->ctx.mpfr_round == MPFR_RNDD ||
         result->ctx.mpfr_round == MPFR_RNDA)) {
         Py_DECREF((PyObject*)result);
-        VALUE_ERROR("invalid value for mpfr_round");
+        VALUE_ERROR("invalid value for round");
         return NULL;
     }
 
@@ -708,25 +708,25 @@ GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
     if (result->ctx.mpfr_round == MPFR_RNDA) {
         /* Since RNDA is not supported for MPC, set the MPC rounding modes
            to MPFR_RNDN. */
-        result->ctx.mpc_rround = MPFR_RNDN;
-        result->ctx.mpc_iround = MPFR_RNDN;
+        result->ctx.real_round = MPFR_RNDN;
+        result->ctx.imag_round = MPFR_RNDN;
     }
-    if (!(result->ctx.mpc_rround == MPFR_RNDN ||
-        result->ctx.mpc_rround == MPFR_RNDZ ||
-        result->ctx.mpc_rround == MPFR_RNDU ||
-        result->ctx.mpc_rround == MPFR_RNDD ||
-        result->ctx.mpc_rround == GMPY_DEFAULT)) {
+    if (!(result->ctx.real_round == MPFR_RNDN ||
+        result->ctx.real_round == MPFR_RNDZ ||
+        result->ctx.real_round == MPFR_RNDU ||
+        result->ctx.real_round == MPFR_RNDD ||
+        result->ctx.real_round == GMPY_DEFAULT)) {
         Py_DECREF((PyObject*)result);
-        VALUE_ERROR("invalid value for mpc_rround");
+        VALUE_ERROR("invalid value for real_round");
         return NULL;
     }
-    if (!(result->ctx.mpc_iround == MPFR_RNDN ||
-        result->ctx.mpc_iround == MPFR_RNDZ ||
-        result->ctx.mpc_iround == MPFR_RNDU ||
-        result->ctx.mpc_iround == MPFR_RNDD ||
-        result->ctx.mpc_iround == GMPY_DEFAULT)) {
+    if (!(result->ctx.imag_round == MPFR_RNDN ||
+        result->ctx.imag_round == MPFR_RNDZ ||
+        result->ctx.imag_round == MPFR_RNDU ||
+        result->ctx.imag_round == MPFR_RNDD ||
+        result->ctx.imag_round == GMPY_DEFAULT)) {
         Py_DECREF((PyObject*)result);
-        VALUE_ERROR("invalid value for mpc_iround");
+        VALUE_ERROR("invalid value for imag_round");
         return NULL;
     }
 #endif
@@ -889,62 +889,62 @@ GMPyContext_set_precision(GMPyContextObject *self, PyObject *value, void *closur
 
 #ifdef WITHMPC
 static PyObject *
-GMPyContext_get_mpc_rprec(GMPyContextObject *self, void *closure)
+GMPyContext_get_real_prec(GMPyContextObject *self, void *closure)
 {
-    return PyIntOrLong_FromSsize_t((Py_ssize_t)(GET_MPC_RPREC(self)));
+    return PyIntOrLong_FromSsize_t((Py_ssize_t)(GET_REAL_PREC(self)));
 }
 
 static int
-GMPyContext_set_mpc_rprec(GMPyContextObject *self, PyObject *value, void *closure)
+GMPyContext_set_real_prec(GMPyContextObject *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
     if (!(PyIntOrLong_Check(value))) {
-        TYPE_ERROR("mpc_rprec must be Python integer");
+        TYPE_ERROR("real_prec must be Python integer");
         return -1;
     }
     temp = PyIntOrLong_AsSsize_t(value);
     if (temp == -1) {
         if (PyErr_Occurred()) {
-            VALUE_ERROR("invalid value for mpc_rprec");
+            VALUE_ERROR("invalid value for real_prec");
             return -1;
         }
     }
     else if (temp < MPFR_PREC_MIN || temp > MPFR_PREC_MAX) {
-        VALUE_ERROR("invalid value for mpc_rprec");
+        VALUE_ERROR("invalid value for real_prec");
         return -1;
     }
-    self->ctx.mpc_rprec = (mpfr_prec_t)temp;
+    self->ctx.real_prec = (mpfr_prec_t)temp;
     return 0;
 }
 
 static PyObject *
-GMPyContext_get_mpc_iprec(GMPyContextObject *self, void *closure)
+GMPyContext_get_imag_prec(GMPyContextObject *self, void *closure)
 {
-    return PyIntOrLong_FromSsize_t((Py_ssize_t)(GET_MPC_IPREC(self)));
+    return PyIntOrLong_FromSsize_t((Py_ssize_t)(GET_IMAG_PREC(self)));
 }
 
 static int
-GMPyContext_set_mpc_iprec(GMPyContextObject *self, PyObject *value, void *closure)
+GMPyContext_set_imag_prec(GMPyContextObject *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
     if (!(PyIntOrLong_Check(value))) {
-        TYPE_ERROR("mpc_iprec must be Python integer");
+        TYPE_ERROR("imag_prec must be Python integer");
         return -1;
     }
     temp = PyIntOrLong_AsSsize_t(value);
     if (temp == -1) {
         if (PyErr_Occurred()) {
-            VALUE_ERROR("invalid value for mpc_iprec");
+            VALUE_ERROR("invalid value for imag_prec");
             return -1;
         }
     }
     else if (temp < MPFR_PREC_MIN || temp > MPFR_PREC_MAX) {
-        VALUE_ERROR("invalid value for mpc_iprec");
+        VALUE_ERROR("invalid value for imag_prec");
         return -1;
     }
-    self->ctx.mpc_iprec = (mpfr_prec_t)temp;
+    self->ctx.imag_prec = (mpfr_prec_t)temp;
     return 0;
 }
 #endif
@@ -982,8 +982,8 @@ GMPyContext_set_round(GMPyContextObject *self, PyObject *value, void *closure)
 #ifdef WITHMPC
         /* Since RNDA is not supported for MPC, set the MPC rounding modes
            to MPFR_RNDN. */
-        self->ctx.mpc_rround = MPFR_RNDN;
-        self->ctx.mpc_iround = MPFR_RNDN;
+        self->ctx.real_round = MPFR_RNDN;
+        self->ctx.imag_round = MPFR_RNDN;
 #endif
     }
     else {
@@ -995,13 +995,13 @@ GMPyContext_set_round(GMPyContextObject *self, PyObject *value, void *closure)
 
 #ifdef WITHMPC
 static PyObject *
-GMPyContext_get_mpc_rround(GMPyContextObject *self, void *closure)
+GMPyContext_get_real_round(GMPyContextObject *self, void *closure)
 {
-    return PyIntOrLong_FromLong((long)GET_MPC_RROUND(self));
+    return PyIntOrLong_FromLong((long)GET_REAL_ROUND(self));
 }
 
 static int
-GMPyContext_set_mpc_rround(GMPyContextObject *self, PyObject *value, void *closure)
+GMPyContext_set_real_round(GMPyContextObject *self, PyObject *value, void *closure)
 {
     long temp;
 
@@ -1015,15 +1015,15 @@ GMPyContext_set_mpc_rround(GMPyContextObject *self, PyObject *value, void *closu
         return -1;
     }
     if (temp == GMPY_DEFAULT)
-        self->ctx.mpc_rround = temp;
+        self->ctx.real_round = temp;
     else if (temp == MPFR_RNDN)
-        self->ctx.mpc_rround = temp;
+        self->ctx.real_round = temp;
     else if (temp == MPFR_RNDZ)
-        self->ctx.mpc_rround = temp;
+        self->ctx.real_round = temp;
     else if (temp == MPFR_RNDU)
-        self->ctx.mpc_rround = temp;
+        self->ctx.real_round = temp;
     else if (temp == MPFR_RNDD)
-        self->ctx.mpc_rround = temp;
+        self->ctx.real_round = temp;
     else {
         VALUE_ERROR("invalid value for round mode");
         return -1;
@@ -1032,13 +1032,13 @@ GMPyContext_set_mpc_rround(GMPyContextObject *self, PyObject *value, void *closu
 }
 
 static PyObject *
-GMPyContext_get_mpc_iround(GMPyContextObject *self, void *closure)
+GMPyContext_get_imag_round(GMPyContextObject *self, void *closure)
 {
-    return PyIntOrLong_FromLong((long)GET_MPC_IROUND(self));
+    return PyIntOrLong_FromLong((long)GET_IMAG_ROUND(self));
 }
 
 static int
-GMPyContext_set_mpc_iround(GMPyContextObject *self, PyObject *value, void *closure)
+GMPyContext_set_imag_round(GMPyContextObject *self, PyObject *value, void *closure)
 {
     long temp;
 
@@ -1052,15 +1052,15 @@ GMPyContext_set_mpc_iround(GMPyContextObject *self, PyObject *value, void *closu
         return -1;
     }
     if (temp == GMPY_DEFAULT)
-        self->ctx.mpc_iround = temp;
+        self->ctx.imag_round = temp;
     else if (temp == MPFR_RNDN)
-        self->ctx.mpc_iround = temp;
+        self->ctx.imag_round = temp;
     else if (temp == MPFR_RNDZ)
-        self->ctx.mpc_iround = temp;
+        self->ctx.imag_round = temp;
     else if (temp == MPFR_RNDU)
-        self->ctx.mpc_iround = temp;
+        self->ctx.imag_round = temp;
     else if (temp == MPFR_RNDD)
-        self->ctx.mpc_iround = temp;
+        self->ctx.imag_round = temp;
     else {
         VALUE_ERROR("invalid value for round mode");
         return -1;
@@ -1135,13 +1135,13 @@ GMPyContext_set_emax(GMPyContextObject *self, PyObject *value, void *closure)
 static PyGetSetDef GMPyContext_getseters[] = {
     ADD_GETSET(precision),
 #ifdef WITHMPC
-    ADD_GETSET(mpc_rprec),
-    ADD_GETSET(mpc_iprec),
+    ADD_GETSET(real_prec),
+    ADD_GETSET(imag_prec),
 #endif
     ADD_GETSET(round),
 #ifdef WITHMPC
-    ADD_GETSET(mpc_rround),
-    ADD_GETSET(mpc_iround),
+    ADD_GETSET(real_round),
+    ADD_GETSET(imag_round),
 #endif
     ADD_GETSET(emax),
     ADD_GETSET(emin),
