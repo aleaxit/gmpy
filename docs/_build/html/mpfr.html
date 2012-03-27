@@ -58,7 +58,7 @@ behavior of exceptions.</p>
 <p>The default precision of an <em>mpfr</em> is 53 bits - the same precision as Python&#8217;s
 <em>float</em> type. If the precison is changed, then <tt class="docutils literal"><span class="pre">mpfr(float('1.2'))</span></tt> differs
 from <tt class="docutils literal"><span class="pre">mpfr('1.2')</span></tt>. To take advantage of the higher precision provided by
-the <em>mpfr</em> type, always pass constants as stringsl</p>
+the <em>mpfr</em> type, always pass constants as strings.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">gmpy2</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gmpy2</span> <span class="kn">import</span> <span class="n">mpfr</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mpfr</span><span class="p">(</span><span class="s">&#39;1.2&#39;</span><span class="p">)</span>
@@ -81,7 +81,7 @@ minimum and maximum exponent values can be changed, various exceptions can be
 raised or ignored, gradual underflow can be enabled, and returning complex
 results can be enabled.</p>
 <p><tt class="docutils literal"><span class="pre">gmpy2.context()</span></tt> creates a new context with all options set to default.
-<tt class="docutils literal"><span class="pre">gmpy2.set_context(*ctx*)</span></tt> will set the active context to <em>ctx</em>.
+<tt class="docutils literal"><span class="pre">gmpy2.set_context(ctx)</span></tt> will set the active context to <em>ctx</em>.
 <tt class="docutils literal"><span class="pre">gmpy2.get_context()</span></tt> will return a reference to the active context. Note
 that contexts are mutable: modifying the reference returned by get_context()
 will modify the active context until a new context is enabled with
@@ -90,8 +90,8 @@ set_context().</p>
 be discussed later.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">set_context</span><span class="p">(</span><span class="n">gmpy2</span><span class="o">.</span><span class="n">context</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span>
-<span class="go">context(precision=53, mpc_rprec=Default, mpc_iprec=Default,</span>
-<span class="go">        round=RoundToNearest, mpc_rround=Default, mpc_iround=Default,</span>
+<span class="go">context(precision=53, real_prec=Default, imag_prec=Default,</span>
+<span class="go">        round=RoundToNearest, real_round=Default, imag_round=Default,</span>
 <span class="go">        emax=1073741823, emin=-1073741823,</span>
 <span class="go">        subnormalize=False,</span>
 <span class="go">        trap_underflow=False, underflow=False,</span>
@@ -127,6 +127,151 @@ be discussed later.</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="context-attributes">
+<h2>Context Attributes<a class="headerlink" href="#context-attributes" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>precision</strong></dt>
+<dd>This attribute controls the precision of an <em>mpfr</em> result. The precision
+is specified in bits, not decimal digits. The maximum precision that can
+be specified is platform dependent and can be retrieved with
+<strong>get_max_precision()</strong>.</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Specifying a value for precision that is too close to the maximum precision
+will cause the MPFR library to fail.</p>
+</div>
+<dl class="docutils">
+<dt><strong>real_prec</strong></dt>
+<dd>This attribute controls the precision of the real part of an <em>mpc</em> result.
+If the value is <tt class="docutils literal"><span class="pre">Default</span></tt>, then the value of the precision attribute is
+used.</dd>
+<dt><strong>imag_prec</strong></dt>
+<dd>This attribute controls the precision of the imaginary part of an <em>mpc</em>
+result. If the value <tt class="docutils literal"><span class="pre">Default</span></tt>, then the value of real_prec is used.</dd>
+<dt><strong>round</strong></dt>
+<dd><p class="first">There are five rounding modes availble to <em>mpfr</em> types:</p>
+<dl class="last docutils">
+<dt><tt class="docutils literal"><span class="pre">RoundAwayZero</span></tt></dt>
+<dd>The result is rounded away from 0.0.</dd>
+<dt><tt class="docutils literal"><span class="pre">RoundDown</span></tt></dt>
+<dd>The result is rounded towards -Infinity.</dd>
+<dt><tt class="docutils literal"><span class="pre">RoundToNearest</span></tt></dt>
+<dd>Round to the nearest value; ties are rounded to an even value.</dd>
+<dt><tt class="docutils literal"><span class="pre">RoundToZero</span></tt></dt>
+<dd>The result is rounded towards 0.0.</dd>
+<dt><tt class="docutils literal"><span class="pre">RoundUp</span></tt></dt>
+<dd>The result is rounded towards +Infinity.</dd>
+</dl>
+</dd>
+<dt><strong>real_round</strong></dt>
+<dd>This attribute controls the rounding mode for the real part of an <em>mpc</em>
+result. If the value is <tt class="docutils literal"><span class="pre">Default</span></tt>, then the value of the round attribute
+is used. Note: <tt class="docutils literal"><span class="pre">RoundAwayZero</span></tt> is not a valid rounding mode for <em>mpc</em>.</dd>
+<dt><strong>imag_round</strong></dt>
+<dd>This attribute controls the rounding mode for the imaginary part of an
+<em>mpc</em> result. If the value is <tt class="docutils literal"><span class="pre">Default</span></tt>, then the value of the real_round
+attribute is used. Note: <tt class="docutils literal"><span class="pre">RoundAwayZero</span></tt> is not a valid rounding mode for
+<em>mpc</em>.</dd>
+<dt><strong>emax</strong></dt>
+<dd>This attribute controls the maximum allowed exponent of an <em>mpfr</em> result.
+The maximum exponent is platform dependent and can be retrieved with
+<strong>get_emax_max()</strong>.</dd>
+<dt><strong>emin</strong></dt>
+<dd>This attribute controls the minimum allowed exponent of an <em>mpfr</em> result.
+The minimum exponent is platform dependent and can be retrieved with
+<strong>get_emin_min()</strong>.</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">It is possible to change the values of emin/emax such that previous <em>mpfr</em>
+values are no longer valid numbers but should either underflow to +/-0.0 or
+overflow to +/-Infinity. To raise an exception if this occures, see
+<strong>trap_expbound</strong>.</p>
+</div>
+<dl class="docutils">
+<dt><strong>subnormalize</strong></dt>
+<dd>The usual IEEE-754 floating point representation supports gradual underflow
+when the minimum exponent is reached. The MFPR library does not enable
+gradual underflow by default but it can be enabled to precisely mimic the
+results of IEEE-754 floating point operations.</dd>
+<dt><strong>trap_underflow</strong></dt>
+<dd>If set to <tt class="xref docutils literal"><span class="pre">False</span></tt>, a result that is smaller than the smallest possible
+<em>mpfr</em> given the current exponent range will be replaced by +/-0.0. If set
+to <tt class="xref docutils literal"><span class="pre">True</span></tt>, an <tt class="docutils literal"><span class="pre">UnderflowError</span></tt> exception is raised.</dd>
+<dt><strong>underflow</strong></dt>
+<dd>This flag is not user controllable. It is automatically set if a result
+underflowed to +/-0.0 and trap_underflow is <tt class="xref docutils literal"><span class="pre">False</span></tt>.</dd>
+<dt><strong>trap_overflow</strong></dt>
+<dd>If set to <tt class="xref docutils literal"><span class="pre">False</span></tt>, a result that is larger than the largest possible
+<em>mpfr</em> given the current exponent range will be replaced by +/-Infinity. If
+set to <tt class="xref docutils literal"><span class="pre">True</span></tt>, an <tt class="docutils literal"><span class="pre">OverflowError</span></tt> exception is raised.</dd>
+<dt><strong>overflow</strong></dt>
+<dd>This flag is not user controllable. It is automatically set if a result
+overflowed to +/-Infinity and trap_overflow is <tt class="xref docutils literal"><span class="pre">False</span></tt>.</dd>
+<dt><strong>trap_inexact</strong></dt>
+<dd>This attribute controls whether or not an <tt class="docutils literal"><span class="pre">InexactError</span></tt> exception is
+raised if an inexact result is returned. To check if the result is greater
+or less than the exact result, check the <strong>rc</strong> attribute of the <em>mpfr</em>
+result.</dd>
+<dt><strong>inexact</strong></dt>
+<dd>This flag is not user controllable. It is automatically set if an inexact
+result is returned.</dd>
+<dt><strong>trap_invalid</strong></dt>
+<dd><p class="first">This attribute controls whether or not an <tt class="docutils literal"><span class="pre">InvalidOperationError</span></tt>
+exception is raised if a numerical result is not defined. A special
+NaN (Not-A-Number) value will be returned if an exception is not raised.
+The <tt class="docutils literal"><span class="pre">InvalidOperationError</span></tt> is a sub-class of Python&#8217;s <tt class="docutils literal"><span class="pre">ValueError</span></tt>.</p>
+<p class="last">For example, <tt class="docutils literal"><span class="pre">gmpy2.sqrt(-2)</span></tt> will normally return <em>mpfr(&#8216;nan&#8217;)</em>.
+However, if <strong>allow_complex</strong> is set to <tt class="xref docutils literal"><span class="pre">True</span></tt>, then an <em>mpc</em> result will
+be returned.</p>
+</dd>
+<dt><strong>invalid</strong></dt>
+<dd>This flag is not user controllable. It is automatically set if an invalid
+(Not-A-Number) result is returned.</dd>
+<dt><strong>trap_erange</strong></dt>
+<dd><p class="first">This attribute controls whether or not a <tt class="docutils literal"><span class="pre">RangeError</span></tt> exception is raised
+when certain operations are performed on NaN and/or Infinity values.
+Setting trap_erange to <tt class="xref docutils literal"><span class="pre">True</span></tt> can be used to raise an exception if
+comparisons are attempted with a NaN.</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">set_context</span><span class="p">(</span><span class="n">gmpy2</span><span class="o">.</span><span class="n">get_context</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mpfr</span><span class="p">(</span><span class="s">&#39;nan&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">mpfr</span><span class="p">(</span><span class="s">&#39;nan&#39;</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">trap_erange</span><span class="o">=</span><span class="bp">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mpfr</span><span class="p">(</span><span class="s">&#39;nan&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">mpfr</span><span class="p">(</span><span class="s">&#39;nan&#39;</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;stdin&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">gmpy2.RangeError</span>: <span class="n">comparison with NaN</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+</dd>
+<dt><strong>erange</strong></dt>
+<dd>This flage is not user controllable. It is automatically set if an erange
+error occurred.</dd>
+<dt><strong>trap_divzero</strong></dt>
+<dd>This attribute controls whether or not a <tt class="docutils literal"><span class="pre">DivisionByZeroError</span></tt> exception
+is raised if division by 0 occurs. The <tt class="docutils literal"><span class="pre">DivisionByZeroError</span></tt> is a
+sub-class of Python&#8217;s <tt class="docutils literal"><span class="pre">ZeroDivisionError</span></tt>.</dd>
+<dt><strong>divzero</strong></dt>
+<dd>This flag is not user controllable. It is automatically set if a division
+by zero occurred and NaN result was returned.</dd>
+<dt><strong>trap_expbound</strong></dt>
+<dd>This attribute controls whether or not an <tt class="docutils literal"><span class="pre">ExponentOutOfBoundsError</span></tt>
+exception is raised if exponents in an operand are outside the current
+emin/emax limits.</dd>
+<dt><strong>allow_complex</strong></dt>
+<dd>This attribute controls whether or not an <em>mpc</em> result can be returned if
+an <em>mpfr</em> result would normally not be possible.</dd>
+</dl>
+</div>
+<div class="section" id="context-methods">
+<h2>Context Methods<a class="headerlink" href="#context-methods" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>clear_flags()</strong></dt>
+<dd>Clear the underflow, overflow, inexact, invalid, erange, and divzero flags.</dd>
+</dl>
+</div>
 </div>
 
 
@@ -139,6 +284,8 @@ be discussed later.</p>
   <ul>
 <li><a class="reference internal" href="#">Multiple-precision Reals</a><ul>
 <li><a class="reference internal" href="#contexts">Contexts</a></li>
+<li><a class="reference internal" href="#context-attributes">Context Attributes</a></li>
+<li><a class="reference internal" href="#context-methods">Context Methods</a></li>
 </ul>
 </li>
 </ul>

@@ -22,7 +22,7 @@ Examples
 
 .. note::
     The use of ``from gmpy2 import *`` is not recommended. There are name
-    conflicts that may interfere with other programs.
+    conflicts that may interfere with other modules or variable names.
 
 mpz Methods
 -----------
