@@ -904,7 +904,7 @@ PyMODINIT_FUNC initgmpy2(void)
     Py_INCREF(GMPyExc_Erange);
     PyModule_AddObject(gmpy_module, "RangeError", GMPyExc_Erange);
     Py_INCREF(GMPyExc_ExpBound);
-    PyModule_AddObject(gmpy_module, "ExponentOutOfBoundsError", GMPyExc_Erange);
+    PyModule_AddObject(gmpy_module, "ExponentOutOfBoundsError", GMPyExc_ExpBound);
 #endif
 
     /* Add support for pickling. */
