@@ -317,14 +317,14 @@ static PympfrObject *
 PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
 {
     PympfrObject *result;
-    unsigned char *cp;
+    char *cp, *endptr;
     mpfr_prec_t prec;
-    Py_ssize_t i, len;
+    Py_ssize_t len;
     PyObject *ascii_str = NULL;
 
     if (PyBytes_Check(s)) {
         len = PyBytes_Size(s);
-        cp = (unsigned char*)PyBytes_AsString(s);
+        cp = PyBytes_AsString(s);
     }
     else {
         ascii_str = PyUnicode_AsASCIIString(s);
@@ -333,7 +333,7 @@ PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
             return NULL;
         }
         len = PyBytes_Size(ascii_str);
-        cp = (unsigned char*)PyBytes_AsString(ascii_str);
+        cp = PyBytes_AsString(ascii_str);
     }
 
     if (bits > 0)
@@ -346,18 +346,11 @@ PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits)
         return NULL;
     }
 
-    /* Don't allow NULL characters */
-    for (i=0; i<len; i++) {
-        if (cp[i] == '\0') {
-            VALUE_ERROR("string contains NULL characters");
-            Py_DECREF((PyObject*)result);
-            Py_XDECREF(ascii_str);
-            return NULL;
-        }
-    }
     /* delegate the rest to MPFR */
-    if (-1 == mpfr_set_str(result->f, (char*)cp, base,
-                           context->ctx.mpfr_round)) {
+    result->rc = mpfr_strtofr(result->f, cp, &endptr, base,
+                              context->ctx.mpfr_round);
+
+    if (len != (Py_ssize_t)(endptr - cp)) {
         VALUE_ERROR("invalid digits");
         Py_DECREF((PyObject*)result);
         Py_XDECREF(ascii_str);
