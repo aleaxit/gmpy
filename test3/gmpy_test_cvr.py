@@ -104,7 +104,7 @@ ValueError: string contains NULL characters
 >>> _g.mpfr('12'+chr(0)+'34')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: string contains NULL characters
+ValueError: invalid digits
 >>> _g.mpq('12'+chr(0)+'34')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?

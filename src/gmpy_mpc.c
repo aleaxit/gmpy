@@ -184,7 +184,7 @@ PyStr2Pympc(PyObject *s, long base, mpfr_prec_t rbits, mpfr_prec_t ibits)
     PyObject *ascii_str = NULL;
     Py_ssize_t len;
     char *cp, *unwind, *tempchar, *lastchar;
-    int firstp = 0, lastp = 0;
+    int firstp = 0, lastp = 0, real_rc = 0, imag_rc = 0;
 
     if (PyBytes_Check(s)) {
         len = PyBytes_Size(s);
@@ -247,8 +247,8 @@ PyStr2Pympc(PyObject *s, long base, mpfr_prec_t rbits, mpfr_prec_t ibits)
 
     /* Read the real component first. */
     unwind = cp;
-    mpfr_strtofr(mpc_realref(newob->c), cp, &tempchar, base,
-                 GET_REAL_ROUND(context));
+    real_rc = mpfr_strtofr(mpc_realref(newob->c), cp, &tempchar, base,
+                           GET_REAL_ROUND(context));
     /* Verify that at least one valid character was read. */
     if (cp == tempchar) goto invalid_string;
     /* If the next character is a j, then the real component is 0 and
@@ -262,8 +262,8 @@ PyStr2Pympc(PyObject *s, long base, mpfr_prec_t rbits, mpfr_prec_t ibits)
         /* Read the imaginary component next. */
         cp = tempchar;
     }
-    mpfr_strtofr(mpc_imagref(newob->c), cp, &tempchar, base,
-                 GET_IMAG_ROUND(context));
+    imag_rc = mpfr_strtofr(mpc_imagref(newob->c), cp, &tempchar, base,
+                           GET_IMAG_ROUND(context));
 
     if (cp == tempchar && tempchar > lastchar)
         goto valid_string;
@@ -276,6 +276,7 @@ PyStr2Pympc(PyObject *s, long base, mpfr_prec_t rbits, mpfr_prec_t ibits)
 
   valid_string:
     Py_XDECREF(ascii_str);
+    newob->rc = MPC_INEX(real_rc, imag_rc);
     return newob;
 
   invalid_string:
@@ -1176,7 +1177,7 @@ Pympc_getprec_attrib(PympcObject *self, void *closure)
 static PyObject *
 Pympc_getrc_attrib(PympcObject *self, void *closure)
 {
-    return PyIntOrLong_FromLong((long)self->rc);
+    return Py_BuildValue("(ii)", MPC_INEX_RE(self->rc), MPC_INEX_IM(self->rc));
 }
 
 /* Implement the .imag attribute of an mpfr. */
