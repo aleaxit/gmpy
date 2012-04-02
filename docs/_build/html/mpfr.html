@@ -148,7 +148,7 @@ If the value is <tt class="docutils literal"><span class="pre">Default</span></t
 used.</dd>
 <dt><strong>imag_prec</strong></dt>
 <dd>This attribute controls the precision of the imaginary part of an <em>mpc</em>
-result. If the value <tt class="docutils literal"><span class="pre">Default</span></tt>, then the value of real_prec is used.</dd>
+result. If the value is <tt class="docutils literal"><span class="pre">Default</span></tt>, then the value of real_prec is used.</dd>
 <dt><strong>round</strong></dt>
 <dd><p class="first">There are five rounding modes availble to <em>mpfr</em> types:</p>
 <dl class="last docutils">
@@ -186,7 +186,7 @@ The minimum exponent is platform dependent and can be retrieved with
 <p class="first admonition-title">Note</p>
 <p class="last">It is possible to change the values of emin/emax such that previous <em>mpfr</em>
 values are no longer valid numbers but should either underflow to +/-0.0 or
-overflow to +/-Infinity. To raise an exception if this occures, see
+overflow to +/-Infinity. To raise an exception if this occurs, see
 <strong>trap_expbound</strong>.</p>
 </div>
 <dl class="docutils">
@@ -223,7 +223,7 @@ exception is raised if a numerical result is not defined. A special
 NaN (Not-A-Number) value will be returned if an exception is not raised.
 The <tt class="docutils literal"><span class="pre">InvalidOperationError</span></tt> is a sub-class of Python&#8217;s <tt class="docutils literal"><span class="pre">ValueError</span></tt>.</p>
 <p class="last">For example, <tt class="docutils literal"><span class="pre">gmpy2.sqrt(-2)</span></tt> will normally return <em>mpfr(&#8216;nan&#8217;)</em>.
-However, if <strong>allow_complex</strong> is set to <tt class="xref docutils literal"><span class="pre">True</span></tt>, then an <em>mpc</em> result will
+However, if allow_complex is set to <tt class="xref docutils literal"><span class="pre">True</span></tt>, then an <em>mpc</em> result will
 be returned.</p>
 </dd>
 <dt><strong>invalid</strong></dt>
@@ -272,6 +272,327 @@ an <em>mpfr</em> result would normally not be possible.</dd>
 <dd>Clear the underflow, overflow, inexact, invalid, erange, and divzero flags.</dd>
 </dl>
 </div>
+<div class="section" id="mpfr-methods">
+<h2>mpfr Methods<a class="headerlink" href="#mpfr-methods" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>as_integer_ratio()</strong></dt>
+<dd>Returns a 2-tuple containing the numerator and denominator after converting
+the <em>mpfr</em> object into the exact rational equivalent. The return 2-tuple
+is equivalent to Python&#8217;s as_integer_ratio() method of built-in float
+objects.</dd>
+</dl>
+<p><strong>as_mantissa_exp()</strong></p>
+<dl class="docutils">
+<dt><strong>as_simple_fraction()</strong></dt>
+<dd>Returns an <em>mpq</em> containing the simpliest rational value that approximates
+the <em>mpfr</em> value with an error less than 1/(2**precision).</dd>
+<dt><strong>digits()</strong></dt>
+<dd>Returns a 3-tuple containing the mantissa, the exponent, and the number
+of bits of precision. The mantissa is represented as a string in the
+specified base with up to &#8216;prec&#8217; digits. If &#8216;prec&#8217; is 0, as many digits
+that are available are returned. No more digits than available given x&#8217;s
+precision are returned. &#8216;base&#8217; must be between 2 and 62, inclusive.</dd>
+<dt><strong>is_integer()</strong></dt>
+<dd>Returns True if the <em>mpfr</em> object is an integer.</dd>
+<dt><strong>precision</strong></dt>
+<dd>Returns the precision of the <em>mpfr</em> object.</dd>
+<dt><strong>rc</strong></dt>
+<dd>The result code (also known as ternary value in the MPFR documentation)
+is 0 if the value of the <em>mpfr</em> object is exactly equal to the exact,
+infinite precision value. If the result code is 1, then the value of the
+<em>mpfr</em> object is greater than the exact value. If the result code is -1,
+then the value of the <em>mpfr</em> object is less than the exact, infinite
+precision value.</dd>
+</dl>
+</div>
+<div class="section" id="mpfr-functions">
+<h2>mpfr Functions<a class="headerlink" href="#mpfr-functions" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>acos(...)</strong></dt>
+<dd>acos(x) returns the arc-cosine of x. x is measured in radians.</dd>
+<dt><strong>acosh(...)</strong></dt>
+<dd>acosh(x) returns the inverse hyperbolic cosine of x.</dd>
+<dt><strong>add(...)</strong></dt>
+<dd>add(x, y) returns x + y. The type of the result is based on the types of
+the arguments.</dd>
+<dt><strong>agm(...)</strong></dt>
+<dd>agm(x, y) returns the arithmetic-geometric mean of x and y.</dd>
+<dt><strong>ai(...)</strong></dt>
+<dd>ai(x) returns the Airy function of x.</dd>
+<dt><strong>asin(...)</strong></dt>
+<dd>asin(x) returns the arc-sine of x. x is measured in radians.</dd>
+<dt><strong>asinh(...)</strong></dt>
+<dd>asinh(x) return the inverse hyperbolic sine of x.</dd>
+<dt><strong>atan(...)</strong></dt>
+<dd>atan(x) returns the arc-tangent of x. x is measured in radians.</dd>
+<dt><strong>atan2(...)</strong></dt>
+<dd>atan2(y, x) returns the arc-tangent of (y/x).</dd>
+<dt><strong>atanh(...)</strong></dt>
+<dd>atanh(x) returns the inverse hyperbolic tangent of x.</dd>
+<dt><strong>cbrt(...)</strong></dt>
+<dd>cbrt(x) returns the cube root of x.</dd>
+<dt><strong>ceil(...)</strong></dt>
+<dd>ceil(x) returns the &#8216;mpfr&#8217; that is the smallest integer &gt;= x.</dd>
+<dt><strong>check_range(...)</strong></dt>
+<dd>check_range(x) return a new &#8216;mpfr&#8217; with exponent that lies within the
+current range of emin and emax.</dd>
+<dt><strong>const_catalan(...)</strong></dt>
+<dd>const_catalan([precision=0]) returns the catalan constant using the
+specified precision. If no precision is specified, the default precision
+is used.</dd>
+<dt><strong>const_euler(...)</strong></dt>
+<dd>const_euler([precision=0]) returns the euler constant using the specified
+precision. If no precision is specified, the default precision is used.</dd>
+<dt><strong>const_log2(...)</strong></dt>
+<dd>const_log2([precision=0]) returns the log2 constant using the specified
+precision. If no precision is specified, the default precision is used.</dd>
+<dt><strong>const_pi(...)</strong></dt>
+<dd>const_pi([precision=0]) returns the constant pi using the specified
+precision. If no precision is specified, the default precision is used.</dd>
+<dt><strong>context(...)</strong></dt>
+<dd>context() returns a new context manager controlling MPFR and MPC
+arithmetic.</dd>
+<dt><strong>cos(...)</strong></dt>
+<dd>cos(x) seturns the cosine of x. x is measured in radians.</dd>
+<dt><strong>cosh(...)</strong></dt>
+<dd>cosh(x) returns the hyperbolic cosine of x.</dd>
+<dt><strong>cot(...)</strong></dt>
+<dd>cot(x) returns the cotangent of x. x is measured in radians.</dd>
+<dt><strong>coth(...)</strong></dt>
+<dd>coth(x) returns the hyperbolic cotangent of x.</dd>
+<dt><strong>csc(...)</strong></dt>
+<dd>csc(x) returns the cosecant of x. x is measured in radians.</dd>
+<dt><strong>csch(...)</strong></dt>
+<dd>csch(x) returns the hyperbolic cosecant of x.</dd>
+<dt><strong>degrees(...)</strong></dt>
+<dd>degrees(x) converts an angle measurement x from radians to degrees.</dd>
+<dt><strong>digamma(...)</strong></dt>
+<dd>digamma(x) returns the digamma of x.</dd>
+<dt><strong>div(...)</strong></dt>
+<dd>div(x, y) returns x / y. The type of the result is based on the types of
+the arguments.</dd>
+<dt><strong>div_2exp(...)</strong></dt>
+<dd>div_2exp(x, n) returns an &#8216;mpfr&#8217; or &#8216;mpc&#8217; divided by 2**n.</dd>
+<dt><strong>eint(...)</strong></dt>
+<dd>eint(x) returns the exponential integral of x.</dd>
+<dt><strong>erf(...)</strong></dt>
+<dd>erf(x) returns the error function of x.</dd>
+<dt><strong>erfc(...)</strong></dt>
+<dd>erfc(x) returns the complementary error function of x.</dd>
+<dt><strong>exp(...)</strong></dt>
+<dd>exp(x) returns e**x.</dd>
+<dt><strong>exp10(...)</strong></dt>
+<dd>exp10(x) returns 10**x.</dd>
+<dt><strong>exp2(...)</strong></dt>
+<dd>exp2(x) returns 2**x.</dd>
+<dt><strong>expm1(...)</strong></dt>
+<dd>expm1(x) returns e**x - 1. expm1() is more accurate than exp(x) - 1 when
+x is small.</dd>
+<dt><strong>f2q(...)</strong></dt>
+<dd>f2q(x[,err]) returns the simplest <em>mpq</em> approximating x to within relative
+error err. Default is the precision of x. Uses Stern-Brocot tree to find
+the simplist approximation. An <em>mpz</em> is returned if the the denominator
+is 1. If err&lt;0, error sought is 2.0 ** err.</dd>
+<dt><strong>factorial(...)</strong></dt>
+<dd><p class="first">factorial(n) returns the floating-point approximation to the factorial
+of n.</p>
+<p class="last">See fac(n) to get the exact integer result.</p>
+</dd>
+<dt><strong>floor(...)</strong></dt>
+<dd>floor(x) returns the &#8216;mpfr&#8217; that is the smallest integer &lt;= x.</dd>
+<dt><strong>fma(...)</strong></dt>
+<dd>fma(x, y, z) returns correctly rounded result of (x * y) + z.</dd>
+<dt><strong>fmod(...)</strong></dt>
+<dd>fmod(x, y) returns x - n*y where n is the integer quotient of x/y, rounded
+to 0.</dd>
+<dt><strong>fms(...)</strong></dt>
+<dd>fms(x, y, z) returns correctly rounded result of (x * y) - z.</dd>
+<dt><strong>frac(...)</strong></dt>
+<dd>frac(x) returns the fractional part of x.</dd>
+<dt><strong>frexp(...)</strong></dt>
+<dd>frexp(x) returns a tuple containing the exponent and mantissa of x.</dd>
+<dt><strong>fsum(...)</strong></dt>
+<dd>fsum(iterable) returns the accurate sum of the values in the iterable.</dd>
+<dt><strong>gamma(...)</strong></dt>
+<dd>gamma(x) returns the gamma of x.</dd>
+<dt><strong>get_exp(...)</strong></dt>
+<dd>get_exp(mpfr) returns the exponent of an <em>mpfr</em>. Returns 0 for NaN or Infinity and
+sets the erange flag and will raise an exception if trap_erange
+is set.</dd>
+<dt><strong>hypot(...)</strong></dt>
+<dd>hypot(y, x) returns square root of (x**2 + y**2).</dd>
+<dt><strong>inf(...)</strong></dt>
+<dd>inf(n) returns an <em>mpfr</em> initialized to Infinity with the same sign as n.
+If n is not given, +Infinity is returned.</dd>
+<dt><strong>is_nan(...)</strong></dt>
+<dd>is_nan(x) returns True if x is NaN (Not-A-Number).</dd>
+<dt><strong>is_number(...)</strong></dt>
+<dd>is_number(x) returns True if x is an actual number (i.e. not NaN or
+Infinity).</dd>
+<dt><strong>is_regular(...)</strong></dt>
+<dd>is_regular(x) returns True if x is not zero, NaN, or Infinity.</dd>
+<dt><strong>is_signed(...)</strong></dt>
+<dd>is_signed(x) returns True if the sign bit of x is set.</dd>
+<dt><strong>is_unordered(...)</strong></dt>
+<dd>is_unordered(x,y) returns True if either x and/or y is NaN.</dd>
+<dt><strong>is_zero(...)</strong></dt>
+<dd>is_zero(x) returns True if x is zero.</dd>
+<dt><strong>j0(...)</strong></dt>
+<dd>j0(x) returns the Bessel function of the first kind of order 0 of x.</dd>
+<dt><strong>j1(...)</strong></dt>
+<dd>j1(x) returns the Bessel function of the first kind of order 1 of x.</dd>
+<dt><strong>jn(...)</strong></dt>
+<dd>jn(x,n) returns the Bessel function of the first kind of order n of x.</dd>
+<dt><strong>lgamma(...)</strong></dt>
+<dd>lgamma(x) returns a tuple containing the logarithm of the absolute value of
+gamma(x) and the sign of gamma(x)</dd>
+<dt><strong>li2(...)</strong></dt>
+<dd>li2(x) returns the real part of dilogarithm of x.</dd>
+<dt><strong>lngamma(...)</strong></dt>
+<dd>lngamma(x) returns the logarithm of gamma(x).</dd>
+<dt><strong>log(...)</strong></dt>
+<dd>log(x) returns the natural logarithm of x.</dd>
+<dt><strong>log10(...)</strong></dt>
+<dd>log10(x) returns the base-10 logarithm of x.</dd>
+<dt><strong>log1p(...)</strong></dt>
+<dd>log1p(x) returns the natural logarithm of (1+x).</dd>
+<dt><strong>log2(...)</strong></dt>
+<dd>log2(x) returns the base-2 logarithm of x.</dd>
+<dt><strong>max(...)</strong></dt>
+<dd>max(y, x) returns the maximum of x and y.</dd>
+<dt><strong>min(...)</strong></dt>
+<dd>min(y, x) returns the minimum of x and y.</dd>
+<dt><strong>modf(...)</strong></dt>
+<dd>modf(x) returns a tuple containing the integer and fractional portions
+of x.</dd>
+<dt><strong>mpfr(...)</strong></dt>
+<dd><p class="first">mpfr(n[, precison=0]) returns an <em>mpfr</em> object after converting a numeric
+value n. If no precision, or a precision of 0, is specified; the precision
+is taken from the current context.</p>
+<p class="last">mpfr(s[, precision=0[, [base=0]]) returns an <em>mpfr</em> object after converting
+a string &#8216;s&#8217; made up of digits in the given base, possibly with fractional
+part (with period as a separator) and/or exponent (with exponent marker
+&#8216;e&#8217; for base&lt;=10, else &#8216;&#64;&#8217;). If no precision, or a precision of 0, is
+specified; the precison is taken from the current context. The base of the
+string representation must be 0 or in the interval 2 ... 62. If the base
+is 0, the leading digits of the string are used to identify the base: 0b
+implies base=2, 0x implies base=16, otherwise base=10 is assumed.</p>
+</dd>
+<dt><strong>mpfr_from_old_binary(...)</strong></dt>
+<dd>mpfr_from_old_binary(string) returns an <em>mpfr</em> from a GMPY 1.x binary mpf
+format. Please use to_binary()/from_binary() to convert GMPY2 objects to or
+from a binary format.</dd>
+<dt><strong>mpfr_grandom(...)</strong></dt>
+<dd>mpfr_grandom(random_state) returns two random numbers with gaussian
+distribution. The parameter <em>random_state</em> must be created by random_state()
+first.</dd>
+<dt><strong>mpfr_random(...)</strong></dt>
+<dd>mpfr_random(random_state) returns a uniformly distributed number between
+[0,1]. The parameter <em>random_state</em> must be created by random_state() first.</dd>
+<dt><strong>mul(...)</strong></dt>
+<dd>mul(x, y) returns x * y. The type of the result is based on the types of
+the arguments.</dd>
+<dt><strong>mul_2exp(...)</strong></dt>
+<dd>mul_2exp(x, n) returns &#8216;mpfr&#8217; or &#8216;mpc&#8217; multiplied by 2**n.</dd>
+<dt><strong>nan(...)</strong></dt>
+<dd>nan() returns an &#8216;mpfr&#8217; initialized to NaN (Not-A-Number).</dd>
+<dt><strong>next_above(...)</strong></dt>
+<dd>next_above(x) returns the next &#8216;mpfr&#8217; from x toward +Infinity.</dd>
+<dt><strong>next_below(...)</strong></dt>
+<dd>next_below(x) returns the next &#8216;mpfr&#8217; from x toward -Infinity.</dd>
+<dt><strong>radians(...)</strong></dt>
+<dd>radians(x) converts an angle measurement x from degrees to radians.</dd>
+<dt><strong>rec_sqrt(...)</strong></dt>
+<dd>rec_sqrt(x) returns the reciprocal of the square root of x.</dd>
+<dt><strong>reldiff(...)</strong></dt>
+<dd>reldiff(x, y) returns the relative difference between x and y. Result is
+equal to abs(x-y)/x.</dd>
+<dt><strong>remainder(...)</strong></dt>
+<dd>remainder(x, y) returns x - n*y where n is the integer quotient of x/y,
+rounded to the nearest integer and ties rounded to even.</dd>
+<dt><strong>remquo(...)</strong></dt>
+<dd>remquo(x, y) returns a tuple containing the remainder(x,y) and the low bits
+of the quotient.</dd>
+<dt><strong>rint(...)</strong></dt>
+<dd>rint(x) returns x rounded to the nearest integer using the current rounding
+mode.</dd>
+<dt><strong>rint_ceil(...)</strong></dt>
+<dd>rint_ceil(x) returns x rounded to the nearest integer by first rounding to
+the next higher or equal integer and then, if needed, using the current
+rounding mode.</dd>
+<dt><strong>rint_floor(...)</strong></dt>
+<dd>rint_floor(x) returns x rounded to the nearest integer by first rounding to
+the next lower or equal integer and then, if needed, using the current
+rounding mode.</dd>
+<dt><strong>rint_round(...)</strong></dt>
+<dd>rint_round(x) returns x rounded to the nearest integer by first rounding to
+the nearest integer (ties away from 0) and then, if needed, using the
+current rounding mode.</dd>
+<dt><strong>rint_trunc(...)</strong></dt>
+<dd>rint_trunc(x) returns x rounded to the nearest integer by first rounding
+towards zero and then, if needed, using the current rounding mode.</dd>
+<dt><strong>root(...)</strong></dt>
+<dd>root(x, n) returns n-th root of x. The result always an <em>mpfr</em>.</dd>
+<dt><strong>round(...)</strong></dt>
+<dd>round(x[, n]) returns x rounded to n bits. Uses default precision if n is
+not specified. See round2() to access the mpfr_round() function.</dd>
+<dt><strong>round2(...)</strong></dt>
+<dd>round2(x) returns an <em>mpfr</em> by rounding x the nearest integer, with ties
+rounded away from 0.</dd>
+<dt><strong>sec(...)</strong></dt>
+<dd>sec(x) returns the secant of x. x is measured in radians.</dd>
+<dt><strong>sech(...)</strong></dt>
+<dd>sech(x) returns the hyperbolic secant of x.</dd>
+<dt><strong>set_exp(...)</strong></dt>
+<dd>set_exp(x, n) sets the exponent of a given <em>mpfr</em> to n. If n is outside the
+range of valid exponents, set_exp() will set the erange flag and either
+return the original value or raise an exception if trap_erange is set.</dd>
+<dt><strong>set_sign(...)</strong></dt>
+<dd>set_sign(x, bool) returns a copy of x with it&#8217;s sign bit set if <em>bool</em>
+evaluates to True.</dd>
+<dt><strong>sign(...)</strong></dt>
+<dd>sign(x) returns -1 if x &lt; 0, 0 if x == 0, or +1 if x &gt;0.</dd>
+<dt><strong>sin(...)</strong></dt>
+<dd>sin(x) returns the sine of x. x is measured in radians.</dd>
+<dt><strong>sin_cos(...)</strong></dt>
+<dd>sin_cos(x) returns a tuple containing the sine and cosine of x. x is
+measured in radians.</dd>
+<dt><strong>sinh(...)</strong></dt>
+<dd>sinh(x) returns the hyberbolic sine of x.</dd>
+<dt><strong>sinh_cosh(...)</strong></dt>
+<dd>sinh_cosh(x) returns a tuple containing the hyperbolic sine and cosine of
+x.</dd>
+<dt><strong>sqrt(...)</strong></dt>
+<dd>sqrt(x) returns the square root of x. If x is integer, rational, or real,
+then an <em>mpfr</em> will be returned. If x is complex, then an <em>mpc</em> will
+be returned. If context.allow_complex is True, negative values of x
+will return an <em>mpc</em>.</dd>
+<dt><strong>square(...)</strong></dt>
+<dd>square(x) returns x * x. The type of the result is based on the types of
+the arguments.</dd>
+<dt><strong>sub(...)</strong></dt>
+<dd>sub(x, y) returns x - y. The type of the result is based on the types of
+the arguments.</dd>
+<dt><strong>tan(...)</strong></dt>
+<dd>tan(x) returns the tangent of x. x is measured in radians.</dd>
+<dt><strong>tanh(...)</strong></dt>
+<dd>tanh(x) returns the hyperbolic tangent of x.</dd>
+<dt><strong>trunc(...)</strong></dt>
+<dd>trunc(x) returns an &#8216;mpfr&#8217; that is x truncated towards 0. Same as
+x.floor() if x&gt;=0 or x.ceil() if x&lt;0.</dd>
+<dt><strong>y0(...)</strong></dt>
+<dd>y0(x) returns the Bessel function of the second kind of order 0 of x.</dd>
+<dt><strong>y1(...)</strong></dt>
+<dd>y1(x) returns the Bessel function of the second kind of order 1 of x.</dd>
+<dt><strong>yn(...)</strong></dt>
+<dd>yn(x,n) returns the Bessel function of the second kind of order n of x.</dd>
+<dt><strong>zero(...)</strong></dt>
+<dd>zero(n) returns an &#8216;mpfr&#8217; inialized to 0.0 with the same sign as n.
+If n is not given, +0.0 is returned.</dd>
+<dt><strong>zeta(...)</strong></dt>
+<dd>zeta(x) returns the Riemann zeta of x.</dd>
+</dl>
+</div>
 </div>
 
 
@@ -286,6 +607,8 @@ an <em>mpfr</em> result would normally not be possible.</dd>
 <li><a class="reference internal" href="#contexts">Contexts</a></li>
 <li><a class="reference internal" href="#context-attributes">Context Attributes</a></li>
 <li><a class="reference internal" href="#context-methods">Context Methods</a></li>
+<li><a class="reference internal" href="#mpfr-methods">mpfr Methods</a></li>
+<li><a class="reference internal" href="#mpfr-functions">mpfr Functions</a></li>
 </ul>
 </li>
 </ul>

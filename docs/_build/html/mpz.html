@@ -76,32 +76,32 @@ conflicts that may interfere with other modules or variable names.</p>
 <h2>mpz Methods<a class="headerlink" href="#mpz-methods" title="Permalink to this headline">¶</a></h2>
 <dl class="docutils">
 <dt><strong>bit_clear(...)</strong></dt>
-<dd>x.bit_clear(n) will return a copy of <em>x</em> with bit <em>n</em> set to 0.</dd>
+<dd>x.bit_clear(n) returns a copy of <em>x</em> with bit <em>n</em> set to 0.</dd>
 <dt><strong>bit_flip(...)</strong></dt>
-<dd>x.bit_flip(n) will return a copy of <em>x</em> with bit <em>n</em> inverted.</dd>
+<dd>x.bit_flip(n) returns a copy of <em>x</em> with bit <em>n</em> inverted.</dd>
 <dt><strong>bit_length(...)</strong></dt>
-<dd>x.bit_length() will return the number of significant bits in the radix-2
+<dd>x.bit_length() returns the number of significant bits in the radix-2
 representation of <em>x</em>. For compatibility with Python, mpz(0).bit_length()
 returns 0.</dd>
 <dt><strong>bit_scan0(...)</strong></dt>
-<dd>x.bit_scan0(n) will return the index of the first 0-bit of <em>x</em> with
+<dd>x.bit_scan0(n) returns the index of the first 0-bit of <em>x</em> with
 index &gt;= <em>n</em>. If there are no more 0-bits in <em>x</em> at or above index <em>n</em>
 (which can only happen for <em>x</em> &lt; 0, assuming an infinitely long 2&#8217;s
 complement format), then None is returned. <em>n</em> must be &gt;= 0.</dd>
 <dt><strong>bit_scan1(...)</strong></dt>
-<dd>x.bit_scan1(n) will return the index of the first 1-bit of <em>x</em> with
+<dd>x.bit_scan1(n) returns the index of the first 1-bit of <em>x</em> with
 index &gt;= <em>n</em>. If there are no more 1-bits in <em>x</em> at or above index <em>n</em>
 (which can only happen for <em>x</em> &gt;= 0, assuming an infinitely long 2&#8217;s
 complement format), then None is returned. <em>n</em> must be &gt;= 0.</dd>
 <dt><strong>bit_set(...)</strong></dt>
-<dd>x.bit_set(n) will return a copy of <em>x</em> with bit <em>n</em> set to 0.</dd>
+<dd>x.bit_set(n) returns a copy of <em>x</em> with bit <em>n</em> set to 0.</dd>
 <dt><strong>bit_test(...)</strong></dt>
-<dd>x.bit_test(n) will return True if bit <em>n</em> of <em>x</em> is set, and False if it
+<dd>x.bit_test(n) returns True if bit <em>n</em> of <em>x</em> is set, and False if it
 is not set.</dd>
 <dt><strong>digits(...)</strong></dt>
-<dd>x.digits([base=10]) will return a string representing <em>x</em> in radix <em>base</em>.</dd>
+<dd>x.digits([base=10]) returns a string representing <em>x</em> in radix <em>base</em>.</dd>
 <dt><strong>num_digits(...)</strong></dt>
-<dd>x.num_digits([base=10]) will return the length of the string representing
+<dd>x.num_digits([base=10]) returns the length of the string representing
 the absolute value of <em>x</em> in radix <em>base</em>. The result is usually correct
 but may be 1 too large. <em>base</em> can range between 2 and 62, inclusive.</dd>
 </dl>
@@ -110,183 +110,183 @@ but may be 1 too large. <em>base</em> can range between 2 and 62, inclusive.</dd
 <h2>mpz Functions<a class="headerlink" href="#mpz-functions" title="Permalink to this headline">¶</a></h2>
 <dl class="docutils">
 <dt><strong>add(...)</strong></dt>
-<dd>add(x, y) will return <em>x</em> + <em>y</em>. The result type depends on the input
+<dd>add(x, y) returns <em>x</em> + <em>y</em>. The result type depends on the input
 types.</dd>
 <dt><strong>addmul(...)</strong></dt>
-<dd>addmul(x, y, z) will return <em>x</em> + (<em>y</em> + <em>z</em>). All arguments must be
+<dd>addmul(x, y, z) returns <em>x</em> + (<em>y</em> + <em>z</em>). All arguments must be
 integers.</dd>
 <dt><strong>bincoef(...)</strong></dt>
-<dd>bincoef(x, n) will return the binomial coefficient. <em>n</em> must be &gt;= 0.</dd>
+<dd>bincoef(x, n) returns the binomial coefficient. <em>n</em> must be &gt;= 0.</dd>
 <dt><strong>bit_clear(...)</strong></dt>
-<dd>bit_clear(x, n) will return a copy of <em>x</em> with bit <em>n</em> set to 0.</dd>
+<dd>bit_clear(x, n) returns a copy of <em>x</em> with bit <em>n</em> set to 0.</dd>
 <dt><strong>bit_flip(...)</strong></dt>
-<dd>bit_flip(x, n) will return a copy of <em>x</em> with bit <em>n</em> inverted.</dd>
+<dd>bit_flip(x, n) returns a copy of <em>x</em> with bit <em>n</em> inverted.</dd>
 <dt><strong>bit_length(...)</strong></dt>
-<dd>bit_length(x) will return the number of significant bits in the radix-2
+<dd>bit_length(x) returns the number of significant bits in the radix-2
 representation of <em>x</em>. For compatibility with Python, mpz(0).bit_length()
-returns 0. mpz(0).num_digits(2) will return 1.</dd>
+returns 0 while mpz(0).num_digits(2) returns 1.</dd>
 <dt><strong>bit_mask(...)</strong></dt>
-<dd>bit_mask(n) will return an <em>mpz</em> object exactly <em>n</em> bits in length with all
+<dd>bit_mask(n) returns an <em>mpz</em> object exactly <em>n</em> bits in length with all
 bits set.</dd>
 <dt><strong>bit_scan0(...)</strong></dt>
-<dd>bit_scan0(x, n) will return the index of the first 0-bit of <em>x</em> with
+<dd>bit_scan0(x, n) returns the index of the first 0-bit of <em>x</em> with
 index &gt;= <em>n</em>. If there are no more 0-bits in <em>x</em> at or above index <em>n</em>
 (which can only happen for <em>x</em> &lt; 0, assuming an infinitely long 2&#8217;s
 complement format), then None is returned. <em>n</em> must be &gt;= 0.</dd>
 <dt><strong>bit_scan1(...)</strong></dt>
-<dd>bit_scan1(x, n) will return the index of the first 1-bit of <em>x</em> with
+<dd>bit_scan1(x, n) returns the index of the first 1-bit of <em>x</em> with
 index &gt;= <em>n</em>. If there are no more 1-bits in <em>x</em> at or above index <em>n</em>
 (which can only happen for <em>x</em> &gt;= 0, assuming an infinitely long 2&#8217;s
 complement format), then None is returned. <em>n</em> must be &gt;= 0.</dd>
 <dt><strong>bit_set(...)</strong></dt>
-<dd>bit_set(x, n) will return a copy of <em>x</em> with bit <em>n</em> set to 0.</dd>
+<dd>bit_set(x, n) returns a copy of <em>x</em> with bit <em>n</em> set to 0.</dd>
 <dt><strong>bit_test(...)</strong></dt>
-<dd>bit_test(x, n) will return True if bit <em>n</em> of <em>x</em> is set, and False if it
+<dd>bit_test(x, n) returns True if bit <em>n</em> of <em>x</em> is set, and False if it
 is not set.</dd>
 <dt><strong>c_div(...)</strong></dt>
-<dd>c_div(x, y) will return the quotient of <em>x</em> divided by <em>y</em>. The quotient is
+<dd>c_div(x, y) returns the quotient of <em>x</em> divided by <em>y</em>. The quotient is
 rounded towards +Inf (ceiling rounding). <em>x</em> and <em>y</em> must be integers.</dd>
 <dt><strong>c_div_2exp(...)</strong></dt>
-<dd>c_div_2exp(x, n) will return the quotient of <em>x</em> divided by 2**n. The
+<dd>c_div_2exp(x, n) returns the quotient of <em>x</em> divided by 2**n. The
 quotient is rounded towards +Inf (ceiling rounding). <em>x</em> must be an integer
 and <em>n</em> must be &gt; 0.</dd>
 <dt><strong>c_divmod(...)</strong></dt>
-<dd>c_divmod(x, y) will return the quotient and remainder of <em>x</em> divided by
+<dd>c_divmod(x, y) returns the quotient and remainder of <em>x</em> divided by
 <em>y</em>. The quotient is rounded towards +Inf (ceiling rounding) and the
 remainder will have the opposite sign of <em>y</em>. <em>x</em> and <em>y</em> must be integers.</dd>
 <dt><strong>c_divmod_2exp(...)</strong></dt>
-<dd>c_divmod_2exp(x ,n) will return the quotient and remainder of <em>x</em> divided
+<dd>c_divmod_2exp(x ,n) returns the quotient and remainder of <em>x</em> divided
 by 2**n. The quotient is rounded towards +Inf (ceiling rounding) and the
 remainder will be negative or zero. <em>x</em> must be an integer and <em>n</em> must
 be &gt; 0.</dd>
 <dt><strong>c_mod(...)</strong></dt>
-<dd>c_mod(x, y) will return the remainder of <em>x</em> divided by <em>y</em>. The remainder
+<dd>c_mod(x, y) returns the remainder of <em>x</em> divided by <em>y</em>. The remainder
 will have the opposite sign of <em>y</em>. <em>x</em> and <em>y</em> must be integers.</dd>
 <dt><strong>c_mod_2exp(...)</strong></dt>
-<dd>c_mod_2exp(x, n) will return the remainder of <em>x</em> divided by 2**n. The
+<dd>c_mod_2exp(x, n) returns the remainder of <em>x</em> divided by 2**n. The
 remainder will be negative. <em>x</em> must be an integer and <em>n</em> must be &gt; 0.</dd>
 <dt><strong>comb(...)</strong></dt>
-<dd>comb(x, n) will return the number of combinations of <em>x</em> things, taking <em>n</em>
+<dd>comb(x, n) returns the number of combinations of <em>x</em> things, taking <em>n</em>
 at a time. <em>n</em> must be &gt;= 0.</dd>
 <dt><strong>digits(...)</strong></dt>
-<dd>digits(x[, base=10]) will return a string representing <em>x</em> in radix <em>base</em>.</dd>
+<dd>digits(x[, base=10]) returns a string representing <em>x</em> in radix <em>base</em>.</dd>
 <dt><strong>divexact(...)</strong></dt>
-<dd>divexact(x, y) will return the quotient of <em>x</em> divided by <em>y</em>. Faster than
+<dd>divexact(x, y) returns the quotient of <em>x</em> divided by <em>y</em>. Faster than
 standard division but requires the remainder is zero!</dd>
 <dt><strong>divm(...)</strong></dt>
-<dd>divm(a, b, m) will return <em>x</em> such that <em>b</em> * <em>x</em> == <em>a</em> modulo <em>m</em>. Raises
+<dd>divm(a, b, m) returns <em>x</em> such that <em>b</em> * <em>x</em> == <em>a</em> modulo <em>m</em>. Raises
 a ZeroDivisionError exception if no such value <em>x</em> exists.</dd>
 <dt><strong>f_div(...)</strong></dt>
-<dd>f_div(x, y) will return the quotient of <em>x</em> divided by <em>y</em>. The quotient
+<dd>f_div(x, y) returns the quotient of <em>x</em> divided by <em>y</em>. The quotient
 is rounded towards -Inf (floor rounding). <em>x</em> and <em>y</em> must be integers.</dd>
 <dt><strong>f_div_2exp(...)</strong></dt>
-<dd>f_div_2exp(x, n) will return the quotient of <em>x</em> divided by 2**n. The
+<dd>f_div_2exp(x, n) returns the quotient of <em>x</em> divided by 2**n. The
 quotient is rounded towards -Inf (floor rounding). <em>x</em> must be an integer
 and <em>n</em> must be &gt; 0.</dd>
 <dt><strong>f_divmod(...)</strong></dt>
-<dd>f_divmod(x, y) will return the quotient and remainder of <em>x</em> divided by
+<dd>f_divmod(x, y) returns the quotient and remainder of <em>x</em> divided by
 <em>y</em>. The quotient is rounded towards -Inf (floor rounding) and the
 remainder will have the same sign as <em>y</em>. <em>x</em> and <em>y</em> must be integers.</dd>
 <dt><strong>f_divmod_2exp(...)</strong></dt>
-<dd>f_divmod_2exp(x, n) will return quotient and remainder after dividing <em>x</em>
+<dd>f_divmod_2exp(x, n) returns quotient and remainder after dividing <em>x</em>
 by 2**n. The quotient is rounded towards -Inf (floor rounding) and the
 remainder will be positive. <em>x</em> must be an integer and <em>n</em> must be &gt; 0.</dd>
 <dt><strong>f_mod(...)</strong></dt>
-<dd>f_mod(x, y) will return the remainder of <em>x</em> divided by <em>y</em>. The remainder
+<dd>f_mod(x, y) returns the remainder of <em>x</em> divided by <em>y</em>. The remainder
 will have the same sign as <em>y</em>. <em>x</em> and <em>y</em> must be integers.</dd>
 <dt><strong>f_mod_2exp(...)</strong></dt>
-<dd>f_mod_2exp(x, n) will return remainder of <em>x</em> divided by 2**n. The
+<dd>f_mod_2exp(x, n) returns remainder of <em>x</em> divided by 2**n. The
 remainder will be positive. <em>x</em> must be an integer and <em>n</em> must be &gt; 0.</dd>
 <dt><strong>fac(...)</strong></dt>
-<dd>fac(n) will return the exact factorial of <em>n</em>. Use factorial() to get the
+<dd>fac(n) returns the exact factorial of <em>n</em>. Use factorial() to get the
 floating-point approximation.</dd>
 <dt><strong>fib(...)</strong></dt>
-<dd>fib(n) will return the <em>n</em>-th Fibonacci number.</dd>
+<dd>fib(n) returns the <em>n</em>-th Fibonacci number.</dd>
 <dt><strong>fib2(...)</strong></dt>
-<dd>fib2(n) will return a 2-tuple with the (<em>n</em>-1)-th and <em>n</em>-th Fibonacci
+<dd>fib2(n) returns a 2-tuple with the (<em>n</em>-1)-th and <em>n</em>-th Fibonacci
 numbers.</dd>
 <dt><strong>gcd(...)</strong></dt>
-<dd>gcd(a, b) will return the greatest common denominator of integers <em>a</em> and
+<dd>gcd(a, b) returns the greatest common denominator of integers <em>a</em> and
 <em>b</em>.</dd>
 <dt><strong>gcdext(...)</strong></dt>
-<dd><p class="first">gcdext(a, b) will return a 3-element tuple (<em>g</em>, <em>s</em>, <em>t</em>) such that</p>
+<dd><p class="first">gcdext(a, b) returns a 3-element tuple (<em>g</em>, <em>s</em>, <em>t</em>) such that</p>
 <p class="last"><em>g</em> == gcd(<em>a</em>, <em>b</em>) and <em>g</em> == <em>a</em> * <em>s</em>  + <em>b</em> * <em>t</em></p>
 </dd>
 <dt><strong>hamdist(...)</strong></dt>
-<dd>hamdist(x, y) will return the Hamming distance (number of bit-positions
+<dd>hamdist(x, y) returns the Hamming distance (number of bit-positions
 where the bits differ) between integers <em>x</em> and <em>y</em>.</dd>
 <dt><strong>invert(...)</strong></dt>
-<dd>invert(x, m) will return <em>y</em> such that <em>x</em> * <em>y</em> == 1 modulo <em>m</em>, or 0
+<dd>invert(x, m) returns <em>y</em> such that <em>x</em> * <em>y</em> == 1 modulo <em>m</em>, or 0
 if no such <em>y</em> exists.</dd>
 <dt><strong>iroot(...)</strong></dt>
-<dd>iroot(x,n) will return the integer <em>n</em>-th root of <em>x</em> and boolean value
+<dd>iroot(x,n) returns the integer <em>n</em>-th root of <em>x</em> and boolean value
 that is True if the root is exact. <em>x</em> must be &gt;= 0 and <em>n</em> must be &gt; 0.</dd>
 <dt><strong>iroot_rem(...)</strong></dt>
-<dd>iroot_rem(x,n) will return a 2-element tuple (<em>y</em>, <em>r</em>) such that <em>y</em> is
+<dd>iroot_rem(x,n) returns a 2-element tuple (<em>y</em>, <em>r</em>) such that <em>y</em> is
 the integer <em>n</em>-th root of <em>x</em> and <em>x</em> = y**n + <em>r</em>. <em>x</em> must be &gt;= 0 and
 <em>n</em> must be &gt; 0.</dd>
 <dt><strong>is_even(...)</strong></dt>
-<dd>is_even(x) will return True if <em>x</em> is even, False otherwise.</dd>
+<dd>is_even(x) returns True if <em>x</em> is even, False otherwise.</dd>
 <dt><strong>is_odd(...)</strong></dt>
-<dd>is_odd(x) will return True if <em>x</em> is odd, False otherwise.</dd>
+<dd>is_odd(x) returns True if <em>x</em> is odd, False otherwise.</dd>
 <dt><strong>is_power(...)</strong></dt>
-<dd>is_power(x) will return True if <em>x</em> is a perfect power, False otherwise.</dd>
+<dd>is_power(x) returns True if <em>x</em> is a perfect power, False otherwise.</dd>
 <dt><strong>is_prime(...)</strong></dt>
-<dd>is_prime(x[, n=25]) will return True if <em>x</em> is <strong>probably</strong> prime. False
+<dd>is_prime(x[, n=25]) returns True if <em>x</em> is <strong>probably</strong> prime. False
 is returned if <em>x</em> is definately composite. <em>x</em> is checked for small
 divisors and up to <em>n</em> Miller-Rabin tests are performed. The actual checks
 performed may vary based on version of GMP or MPIR used.</dd>
 <dt><strong>is_square(...)</strong></dt>
-<dd>is_square(x) will returns True if <em>x</em> is a perfect square, False otherwise.</dd>
+<dd>is_square(x) returns True if <em>x</em> is a perfect square, False otherwise.</dd>
 <dt><strong>isqrt(...)</strong></dt>
-<dd>isqrt(x) will return the integer square root of an integer <em>x</em>. <em>x</em> must be
+<dd>isqrt(x) returns the integer square root of an integer <em>x</em>. <em>x</em> must be
 &gt;= 0.</dd>
 <dt><strong>isqrt_rem(...)</strong></dt>
-<dd>isqrt_rem(x) will return a 2-tuple (<em>s</em>, <em>t</em>) such that <em>s</em> = isqrt(<em>x</em>)
+<dd>isqrt_rem(x) returns a 2-tuple (<em>s</em>, <em>t</em>) such that <em>s</em> = isqrt(<em>x</em>)
 and <em>t</em> = <em>x</em> - <em>s</em> * <em>s</em>. <em>x</em> must be &gt;= 0.</dd>
 <dt><strong>jacobi(...)</strong></dt>
-<dd>jacobi(x, y) will return the Jacobi symbol (<em>x</em> | <em>y</em>). <em>y</em> must be odd and
+<dd>jacobi(x, y) returns the Jacobi symbol (<em>x</em> | <em>y</em>). <em>y</em> must be odd and
 &gt; 0.</dd>
 <dt><strong>kronecker(...)</strong></dt>
-<dd>kronecker(x, y) will return the Kronecker-Jacobi symbol (<em>x</em> | <em>y</em>).</dd>
+<dd>kronecker(x, y) returns the Kronecker-Jacobi symbol (<em>x</em> | <em>y</em>).</dd>
 <dt><strong>lcm(...)</strong></dt>
-<dd>lcm(a, b) will return the lowest common multiple of integers <em>a</em> and <em>b</em>.</dd>
+<dd>lcm(a, b) returns the lowest common multiple of integers <em>a</em> and <em>b</em>.</dd>
 <dt><strong>legendre(...)</strong></dt>
-<dd>legendre(x, y) will return the Legendre symbol (<em>x</em> | <em>y</em>). <em>y</em> is assumed
+<dd>legendre(x, y) returns the Legendre symbol (<em>x</em> | <em>y</em>). <em>y</em> is assumed
 to be an odd prime.</dd>
 <dt><strong>lucas(...)</strong></dt>
-<dd>lucas(n) will return the <em>n</em>-th Lucas number.</dd>
+<dd>lucas(n) returns the <em>n</em>-th Lucas number.</dd>
 <dt><strong>lucas2(...)</strong></dt>
-<dd>lucas2(n) will return a 2-tuple with the (<em>n</em>-1)-th and <em>n</em>-th Lucas
+<dd>lucas2(n) returns a 2-tuple with the (<em>n</em>-1)-th and <em>n</em>-th Lucas
 numbers.</dd>
 <dt><strong>mpz(...)</strong></dt>
-<dd><p class="first">mpz(n) will return a new <em>mpz</em> object from a numeric value <em>n</em>. If <em>n</em> is
+<dd><p class="first">mpz(n) returns a new <em>mpz</em> object from a numeric value <em>n</em>. If <em>n</em> is
 not an integer, it will be truncated to an integer.</p>
-<p class="last">mpz(s[, base=0]) will return a new <em>mpz</em> object from a string <em>s</em> made of
+<p class="last">mpz(s[, base=0]) returns a new <em>mpz</em> object from a string <em>s</em> made of
 digits in the given base. If base = 0, binary, octal, or hex Python strings
 are recognized by leading 0b, 0o, or 0x characters. Otherwise the string is
 assumed to be decimal. Values for base can range between 2 and 62.</p>
 </dd>
 <dt><strong>mpz_random(...)</strong></dt>
-<dd>mpz_random(random_state, n) will return a uniformly distributed random
+<dd>mpz_random(random_state, n) returns a uniformly distributed random
 integer between 0 and <em>n</em>-1. The parameter <em>random_state</em> must be created
 by random_state() first.</dd>
 <dt><strong>mpz_rrandomb(...)</strong></dt>
-<dd>mpz_rrandomb(random_state, b) will return a random integer between 0 and
+<dd>mpz_rrandomb(random_state, b) returns a random integer between 0 and
 2**b - 1 with long sequences of zeros and one in its binary representation.
 The parameter <em>random_state</em> must be created by random_state() first.</dd>
 <dt><strong>mpz_urandomb(...)</strong></dt>
-<dd>mpz_urandomb(random_state, b) will return a uniformly distributed random
+<dd>mpz_urandomb(random_state, b) returns a uniformly distributed random
 integer between 0 and 2**b - 1. The parameter <em>random_state</em> must be
 created by random_state() first.</dd>
 <dt><strong>next_prime(...)</strong></dt>
-<dd>next_prime(x) will return the next <strong>probable</strong> prime number &gt; <em>x</em>.</dd>
+<dd>next_prime(x) returns the next <strong>probable</strong> prime number &gt; <em>x</em>.</dd>
 <dt><strong>num_digits(...)</strong></dt>
-<dd>num_digits(x[, base=10]) will return the length of the string representing
+<dd>num_digits(x[, base=10]) returns the length of the string representing
 the absolute value of <em>x</em> in radix <em>base</em>. The result is usually correct
 but may be 1 too large. <em>base</em> can range between 2 and 62, inclusive.</dd>
 <dt><strong>popcount(...)</strong></dt>
-<dd>popcount(x) will return the number of bits with value 1 in <em>x</em>. If <em>x</em> &lt; 0,
+<dd>popcount(x) returns the number of bits with value 1 in <em>x</em>. If <em>x</em> &lt; 0,
 the number of bits with value 1 is infinite so -1 is returned in that case.</dd>
 <dt><strong>remove(...)</strong></dt>
 <dd>remove(x, f) will remove the factor <em>f</em> from <em>x</em> as many times as possible
@@ -294,31 +294,31 @@ and return a 2-tuple (<em>y</em>, <em>m</em>) where <em>y</em> = <em>x</em> // (
 not divide <em>y</em>. <em>m</em> is the multiplicity of the factor <em>f</em> in <em>x</em>. <em>f</em> must
 be &gt; 1.</dd>
 <dt><strong>sub(...)</strong></dt>
-<dd>sub(x, y) will return <em>x</em> - <em>y</em>. The result type depends on the input
+<dd>sub(x, y) returns <em>x</em> - <em>y</em>. The result type depends on the input
 types.</dd>
 <dt><strong>submul(...)</strong></dt>
-<dd>submul(x, y, z) will return <em>x</em> - (<em>y</em> + <em>z</em>). All arguments must be
+<dd>submul(x, y, z) returns <em>x</em> - (<em>y</em> + <em>z</em>). All arguments must be
 integers.</dd>
 <dt><strong>t_div(...)</strong></dt>
-<dd>t_div(x, y) will return the quotient of <em>x</em> divided by <em>y</em>. The quotient
+<dd>t_div(x, y) returns the quotient of <em>x</em> divided by <em>y</em>. The quotient
 is rounded towards zero (truncation). <em>x</em> and <em>y</em> must be integers.</dd>
 <dt><strong>t_div_2exp(...)</strong></dt>
-<dd>t_div_2exp(x, n) will return the quotient of <em>x</em> divided by 2**n. The
+<dd>t_div_2exp(x, n) returns the quotient of <em>x</em> divided by 2**n. The
 quotient is rounded towards zero (truncation). <em>n</em> must be &gt; 0.</dd>
 <dt><strong>t_divmod(...)</strong></dt>
-<dd>t_divmod(x, y) will return the quotient and remainder of <em>x</em> divided by
+<dd>t_divmod(x, y) returns the quotient and remainder of <em>x</em> divided by
 <em>y</em>. The quotient is rounded towards zero (truncation) and the remainder
 will have the same sign as <em>x</em>. <em>x</em> and <em>y</em> must be integers.</dd>
 <dt><strong>t_divmod_2exp(...)</strong></dt>
-<dd>t_divmod_2exp(x, n) will return the quotient and remainder of <em>x</em> divided
+<dd>t_divmod_2exp(x, n) returns the quotient and remainder of <em>x</em> divided
 by 2**n. The quotient is rounded towards zero (truncation) and the
 remainder will have the same sign as <em>x</em>. <em>x</em> must be an integer and <em>n</em>
 must be &gt; 0.</dd>
 <dt><strong>t_mod(...)</strong></dt>
-<dd>t_mod(x, y) will return the remainder of <em>x</em> divided by <em>y</em>. The remainder
+<dd>t_mod(x, y) returns the remainder of <em>x</em> divided by <em>y</em>. The remainder
 will have the same sign as <em>x</em>. <em>x</em> and <em>y</em> must be integers.</dd>
 <dt><strong>t_mod_2exp(...)</strong></dt>
-<dd>t_mod_2exp(x, n) will return the remainder of <em>x</em> divided by 2**n. The
+<dd>t_mod_2exp(x, n) returns the remainder of <em>x</em> divided by 2**n. The
 remainder will have the same sign as <em>x</em>. <em>x</em> must be an integer and <em>n</em>
 must be &gt; 0.</dd>
 </dl>
