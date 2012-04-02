@@ -28,40 +28,40 @@ mpz Methods
 -----------
 
 **bit_clear(...)**
-    x.bit_clear(n) will return a copy of *x* with bit *n* set to 0.
+    x.bit_clear(n) returns a copy of *x* with bit *n* set to 0.
 
 **bit_flip(...)**
-    x.bit_flip(n) will return a copy of *x* with bit *n* inverted.
+    x.bit_flip(n) returns a copy of *x* with bit *n* inverted.
 
 **bit_length(...)**
-    x.bit_length() will return the number of significant bits in the radix-2
+    x.bit_length() returns the number of significant bits in the radix-2
     representation of *x*. For compatibility with Python, mpz(0).bit_length()
     returns 0.
 
 **bit_scan0(...)**
-    x.bit_scan0(n) will return the index of the first 0-bit of *x* with
+    x.bit_scan0(n) returns the index of the first 0-bit of *x* with
     index >= *n*. If there are no more 0-bits in *x* at or above index *n*
     (which can only happen for *x* < 0, assuming an infinitely long 2's
     complement format), then None is returned. *n* must be >= 0.
 
 **bit_scan1(...)**
-    x.bit_scan1(n) will return the index of the first 1-bit of *x* with
+    x.bit_scan1(n) returns the index of the first 1-bit of *x* with
     index >= *n*. If there are no more 1-bits in *x* at or above index *n*
     (which can only happen for *x* >= 0, assuming an infinitely long 2's
     complement format), then None is returned. *n* must be >= 0.
 
 **bit_set(...)**
-    x.bit_set(n) will return a copy of *x* with bit *n* set to 0.
+    x.bit_set(n) returns a copy of *x* with bit *n* set to 0.
 
 **bit_test(...)**
-    x.bit_test(n) will return True if bit *n* of *x* is set, and False if it
+    x.bit_test(n) returns True if bit *n* of *x* is set, and False if it
     is not set.
 
 **digits(...)**
-    x.digits([base=10]) will return a string representing *x* in radix *base*.
+    x.digits([base=10]) returns a string representing *x* in radix *base*.
 
 **num_digits(...)**
-    x.num_digits([base=10]) will return the length of the string representing
+    x.num_digits([base=10]) returns the length of the string representing
     the absolute value of *x* in radix *base*. The result is usually correct
     but may be 1 too large. *base* can range between 2 and 62, inclusive.
 
@@ -69,238 +69,238 @@ mpz Functions
 -------------
 
 **add(...)**
-    add(x, y) will return *x* + *y*. The result type depends on the input
+    add(x, y) returns *x* + *y*. The result type depends on the input
     types.
 
 **addmul(...)**
-    addmul(x, y, z) will return *x* + (*y* + *z*). All arguments must be
+    addmul(x, y, z) returns *x* + (*y* + *z*). All arguments must be
     integers.
 
 **bincoef(...)**
-    bincoef(x, n) will return the binomial coefficient. *n* must be >= 0.
+    bincoef(x, n) returns the binomial coefficient. *n* must be >= 0.
 
 **bit_clear(...)**
-    bit_clear(x, n) will return a copy of *x* with bit *n* set to 0.
+    bit_clear(x, n) returns a copy of *x* with bit *n* set to 0.
 
 **bit_flip(...)**
-    bit_flip(x, n) will return a copy of *x* with bit *n* inverted.
+    bit_flip(x, n) returns a copy of *x* with bit *n* inverted.
 
 **bit_length(...)**
-    bit_length(x) will return the number of significant bits in the radix-2
+    bit_length(x) returns the number of significant bits in the radix-2
     representation of *x*. For compatibility with Python, mpz(0).bit_length()
-    returns 0. mpz(0).num_digits(2) will return 1.
+    returns 0 while mpz(0).num_digits(2) returns 1.
 
 **bit_mask(...)**
-    bit_mask(n) will return an *mpz* object exactly *n* bits in length with all
+    bit_mask(n) returns an *mpz* object exactly *n* bits in length with all
     bits set.
 
 **bit_scan0(...)**
-    bit_scan0(x, n) will return the index of the first 0-bit of *x* with
+    bit_scan0(x, n) returns the index of the first 0-bit of *x* with
     index >= *n*. If there are no more 0-bits in *x* at or above index *n*
     (which can only happen for *x* < 0, assuming an infinitely long 2's
     complement format), then None is returned. *n* must be >= 0.
 
 **bit_scan1(...)**
-    bit_scan1(x, n) will return the index of the first 1-bit of *x* with
+    bit_scan1(x, n) returns the index of the first 1-bit of *x* with
     index >= *n*. If there are no more 1-bits in *x* at or above index *n*
     (which can only happen for *x* >= 0, assuming an infinitely long 2's
     complement format), then None is returned. *n* must be >= 0.
 
 **bit_set(...)**
-    bit_set(x, n) will return a copy of *x* with bit *n* set to 0.
+    bit_set(x, n) returns a copy of *x* with bit *n* set to 0.
 
 **bit_test(...)**
-    bit_test(x, n) will return True if bit *n* of *x* is set, and False if it
+    bit_test(x, n) returns True if bit *n* of *x* is set, and False if it
     is not set.
 
 **c_div(...)**
-    c_div(x, y) will return the quotient of *x* divided by *y*. The quotient is
+    c_div(x, y) returns the quotient of *x* divided by *y*. The quotient is
     rounded towards +Inf (ceiling rounding). *x* and *y* must be integers.
 
 **c_div_2exp(...)**
-    c_div_2exp(x, n) will return the quotient of *x* divided by 2**n. The
+    c_div_2exp(x, n) returns the quotient of *x* divided by 2**n. The
     quotient is rounded towards +Inf (ceiling rounding). *x* must be an integer
     and *n* must be > 0.
 
 **c_divmod(...)**
-    c_divmod(x, y) will return the quotient and remainder of *x* divided by
+    c_divmod(x, y) returns the quotient and remainder of *x* divided by
     *y*. The quotient is rounded towards +Inf (ceiling rounding) and the
     remainder will have the opposite sign of *y*. *x* and *y* must be integers.
 
 **c_divmod_2exp(...)**
-    c_divmod_2exp(x ,n) will return the quotient and remainder of *x* divided
+    c_divmod_2exp(x ,n) returns the quotient and remainder of *x* divided
     by 2**n. The quotient is rounded towards +Inf (ceiling rounding) and the
     remainder will be negative or zero. *x* must be an integer and *n* must
     be > 0.
 
 **c_mod(...)**
-    c_mod(x, y) will return the remainder of *x* divided by *y*. The remainder
+    c_mod(x, y) returns the remainder of *x* divided by *y*. The remainder
     will have the opposite sign of *y*. *x* and *y* must be integers.
 
 **c_mod_2exp(...)**
-    c_mod_2exp(x, n) will return the remainder of *x* divided by 2**n. The
+    c_mod_2exp(x, n) returns the remainder of *x* divided by 2**n. The
     remainder will be negative. *x* must be an integer and *n* must be > 0.
 
 **comb(...)**
-    comb(x, n) will return the number of combinations of *x* things, taking *n*
+    comb(x, n) returns the number of combinations of *x* things, taking *n*
     at a time. *n* must be >= 0.
 
 **digits(...)**
-    digits(x[, base=10]) will return a string representing *x* in radix *base*.
+    digits(x[, base=10]) returns a string representing *x* in radix *base*.
 
 **divexact(...)**
-    divexact(x, y) will return the quotient of *x* divided by *y*. Faster than
+    divexact(x, y) returns the quotient of *x* divided by *y*. Faster than
     standard division but requires the remainder is zero!
 
 **divm(...)**
-    divm(a, b, m) will return *x* such that *b* * *x* == *a* modulo *m*. Raises
+    divm(a, b, m) returns *x* such that *b* * *x* == *a* modulo *m*. Raises
     a ZeroDivisionError exception if no such value *x* exists.
 
 **f_div(...)**
-    f_div(x, y) will return the quotient of *x* divided by *y*. The quotient
+    f_div(x, y) returns the quotient of *x* divided by *y*. The quotient
     is rounded towards -Inf (floor rounding). *x* and *y* must be integers.
 
 **f_div_2exp(...)**
-    f_div_2exp(x, n) will return the quotient of *x* divided by 2**n. The
+    f_div_2exp(x, n) returns the quotient of *x* divided by 2**n. The
     quotient is rounded towards -Inf (floor rounding). *x* must be an integer
     and *n* must be > 0.
 
 **f_divmod(...)**
-    f_divmod(x, y) will return the quotient and remainder of *x* divided by
+    f_divmod(x, y) returns the quotient and remainder of *x* divided by
     *y*. The quotient is rounded towards -Inf (floor rounding) and the
     remainder will have the same sign as *y*. *x* and *y* must be integers.
 
 **f_divmod_2exp(...)**
-    f_divmod_2exp(x, n) will return quotient and remainder after dividing *x*
+    f_divmod_2exp(x, n) returns quotient and remainder after dividing *x*
     by 2**n. The quotient is rounded towards -Inf (floor rounding) and the
     remainder will be positive. *x* must be an integer and *n* must be > 0.
 
 **f_mod(...)**
-    f_mod(x, y) will return the remainder of *x* divided by *y*. The remainder
+    f_mod(x, y) returns the remainder of *x* divided by *y*. The remainder
     will have the same sign as *y*. *x* and *y* must be integers.
 
 **f_mod_2exp(...)**
-    f_mod_2exp(x, n) will return remainder of *x* divided by 2**n. The
+    f_mod_2exp(x, n) returns remainder of *x* divided by 2**n. The
     remainder will be positive. *x* must be an integer and *n* must be > 0.
 
 **fac(...)**
-    fac(n) will return the exact factorial of *n*. Use factorial() to get the
+    fac(n) returns the exact factorial of *n*. Use factorial() to get the
     floating-point approximation.
 
 **fib(...)**
-    fib(n) will return the *n*-th Fibonacci number.
+    fib(n) returns the *n*-th Fibonacci number.
 
 **fib2(...)**
-    fib2(n) will return a 2-tuple with the (*n*-1)-th and *n*-th Fibonacci
+    fib2(n) returns a 2-tuple with the (*n*-1)-th and *n*-th Fibonacci
     numbers.
 
 **gcd(...)**
-    gcd(a, b) will return the greatest common denominator of integers *a* and
+    gcd(a, b) returns the greatest common denominator of integers *a* and
     *b*.
 
 **gcdext(...)**
-    gcdext(a, b) will return a 3-element tuple (*g*, *s*, *t*) such that
+    gcdext(a, b) returns a 3-element tuple (*g*, *s*, *t*) such that
 
     *g* == gcd(*a*, *b*) and *g* == *a* * *s*  + *b* * *t*
 
 **hamdist(...)**
-    hamdist(x, y) will return the Hamming distance (number of bit-positions
+    hamdist(x, y) returns the Hamming distance (number of bit-positions
     where the bits differ) between integers *x* and *y*.
 
 **invert(...)**
-    invert(x, m) will return *y* such that *x* * *y* == 1 modulo *m*, or 0
+    invert(x, m) returns *y* such that *x* * *y* == 1 modulo *m*, or 0
     if no such *y* exists.
 
 **iroot(...)**
-    iroot(x,n) will return the integer *n*-th root of *x* and boolean value
+    iroot(x,n) returns the integer *n*-th root of *x* and boolean value
     that is True if the root is exact. *x* must be >= 0 and *n* must be > 0.
 
 **iroot_rem(...)**
-    iroot_rem(x,n) will return a 2-element tuple (*y*, *r*) such that *y* is
+    iroot_rem(x,n) returns a 2-element tuple (*y*, *r*) such that *y* is
     the integer *n*-th root of *x* and *x* = y**n + *r*. *x* must be >= 0 and
     *n* must be > 0.
 
 **is_even(...)**
-    is_even(x) will return True if *x* is even, False otherwise.
+    is_even(x) returns True if *x* is even, False otherwise.
 
 **is_odd(...)**
-    is_odd(x) will return True if *x* is odd, False otherwise.
+    is_odd(x) returns True if *x* is odd, False otherwise.
 
 **is_power(...)**
-    is_power(x) will return True if *x* is a perfect power, False otherwise.
+    is_power(x) returns True if *x* is a perfect power, False otherwise.
 
 **is_prime(...)**
-    is_prime(x[, n=25]) will return True if *x* is **probably** prime. False
+    is_prime(x[, n=25]) returns True if *x* is **probably** prime. False
     is returned if *x* is definately composite. *x* is checked for small
     divisors and up to *n* Miller-Rabin tests are performed. The actual checks
     performed may vary based on version of GMP or MPIR used.
 
 **is_square(...)**
-    is_square(x) will returns True if *x* is a perfect square, False otherwise.
+    is_square(x) returns True if *x* is a perfect square, False otherwise.
 
 **isqrt(...)**
-    isqrt(x) will return the integer square root of an integer *x*. *x* must be
+    isqrt(x) returns the integer square root of an integer *x*. *x* must be
     >= 0.
 
 **isqrt_rem(...)**
-    isqrt_rem(x) will return a 2-tuple (*s*, *t*) such that *s* = isqrt(*x*)
+    isqrt_rem(x) returns a 2-tuple (*s*, *t*) such that *s* = isqrt(*x*)
     and *t* = *x* - *s* * *s*. *x* must be >= 0.
 
 **jacobi(...)**
-    jacobi(x, y) will return the Jacobi symbol (*x* | *y*). *y* must be odd and
+    jacobi(x, y) returns the Jacobi symbol (*x* | *y*). *y* must be odd and
     > 0.
 
 **kronecker(...)**
-    kronecker(x, y) will return the Kronecker-Jacobi symbol (*x* | *y*).
+    kronecker(x, y) returns the Kronecker-Jacobi symbol (*x* | *y*).
 
 **lcm(...)**
-    lcm(a, b) will return the lowest common multiple of integers *a* and *b*.
+    lcm(a, b) returns the lowest common multiple of integers *a* and *b*.
 
 **legendre(...)**
-    legendre(x, y) will return the Legendre symbol (*x* | *y*). *y* is assumed
+    legendre(x, y) returns the Legendre symbol (*x* | *y*). *y* is assumed
     to be an odd prime.
 
 **lucas(...)**
-    lucas(n) will return the *n*-th Lucas number.
+    lucas(n) returns the *n*-th Lucas number.
 
 **lucas2(...)**
-    lucas2(n) will return a 2-tuple with the (*n*-1)-th and *n*-th Lucas
+    lucas2(n) returns a 2-tuple with the (*n*-1)-th and *n*-th Lucas
     numbers.
 
 **mpz(...)**
-    mpz(n) will return a new *mpz* object from a numeric value *n*. If *n* is
+    mpz(n) returns a new *mpz* object from a numeric value *n*. If *n* is
     not an integer, it will be truncated to an integer.
 
-    mpz(s[, base=0]) will return a new *mpz* object from a string *s* made of
+    mpz(s[, base=0]) returns a new *mpz* object from a string *s* made of
     digits in the given base. If base = 0, binary, octal, or hex Python strings
     are recognized by leading 0b, 0o, or 0x characters. Otherwise the string is
     assumed to be decimal. Values for base can range between 2 and 62.
 
 **mpz_random(...)**
-    mpz_random(random_state, n) will return a uniformly distributed random
+    mpz_random(random_state, n) returns a uniformly distributed random
     integer between 0 and *n*-1. The parameter *random_state* must be created
     by random_state() first.
 
 **mpz_rrandomb(...)**
-    mpz_rrandomb(random_state, b) will return a random integer between 0 and
+    mpz_rrandomb(random_state, b) returns a random integer between 0 and
     2**b - 1 with long sequences of zeros and one in its binary representation.
     The parameter *random_state* must be created by random_state() first.
 
 **mpz_urandomb(...)**
-    mpz_urandomb(random_state, b) will return a uniformly distributed random
+    mpz_urandomb(random_state, b) returns a uniformly distributed random
     integer between 0 and 2**b - 1. The parameter *random_state* must be
     created by random_state() first.
 
 **next_prime(...)**
-    next_prime(x) will return the next **probable** prime number > *x*.
+    next_prime(x) returns the next **probable** prime number > *x*.
 
 **num_digits(...)**
-    num_digits(x[, base=10]) will return the length of the string representing
+    num_digits(x[, base=10]) returns the length of the string representing
     the absolute value of *x* in radix *base*. The result is usually correct
     but may be 1 too large. *base* can range between 2 and 62, inclusive.
 
 **popcount(...)**
-    popcount(x) will return the number of bits with value 1 in *x*. If *x* < 0,
+    popcount(x) returns the number of bits with value 1 in *x*. If *x* < 0,
     the number of bits with value 1 is infinite so -1 is returned in that case.
 
 **remove(...)**
@@ -310,38 +310,38 @@ mpz Functions
     be > 1.
 
 **sub(...)**
-    sub(x, y) will return *x* - *y*. The result type depends on the input
+    sub(x, y) returns *x* - *y*. The result type depends on the input
     types.
 
 **submul(...)**
-    submul(x, y, z) will return *x* - (*y* + *z*). All arguments must be
+    submul(x, y, z) returns *x* - (*y* + *z*). All arguments must be
     integers.
 
 **t_div(...)**
-    t_div(x, y) will return the quotient of *x* divided by *y*. The quotient
+    t_div(x, y) returns the quotient of *x* divided by *y*. The quotient
     is rounded towards zero (truncation). *x* and *y* must be integers.
 
 **t_div_2exp(...)**
-    t_div_2exp(x, n) will return the quotient of *x* divided by 2**n. The
+    t_div_2exp(x, n) returns the quotient of *x* divided by 2**n. The
     quotient is rounded towards zero (truncation). *n* must be > 0.
 
 **t_divmod(...)**
-    t_divmod(x, y) will return the quotient and remainder of *x* divided by
+    t_divmod(x, y) returns the quotient and remainder of *x* divided by
     *y*. The quotient is rounded towards zero (truncation) and the remainder
     will have the same sign as *x*. *x* and *y* must be integers.
 
 **t_divmod_2exp(...)**
-    t_divmod_2exp(x, n) will return the quotient and remainder of *x* divided
+    t_divmod_2exp(x, n) returns the quotient and remainder of *x* divided
     by 2**n. The quotient is rounded towards zero (truncation) and the
     remainder will have the same sign as *x*. *x* must be an integer and *n*
     must be > 0.
 
 **t_mod(...)**
-    t_mod(x, y) will return the remainder of *x* divided by *y*. The remainder
+    t_mod(x, y) returns the remainder of *x* divided by *y*. The remainder
     will have the same sign as *x*. *x* and *y* must be integers.
 
 **t_mod_2exp(...)**
-    t_mod_2exp(x, n) will return the remainder of *x* divided by 2**n. The
+    t_mod_2exp(x, n) returns the remainder of *x* divided by 2**n. The
     remainder will have the same sign as *x*. *x* must be an integer and *n*
     must be > 0.
 
