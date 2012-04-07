@@ -328,11 +328,7 @@ extern "C" {
             } \
         } \
         else if (PyTuple_GET_SIZE(args) == 1) { \
-            *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            if (*var == -1 && PyErr_Occurred()) { \
-                PyErr_SetString(PyExc_TypeError, msg); \
-                return NULL; \
-            } \
+            self = PyTuple_GET_ITEM(args, 0); \
             if(Pympfr_CheckAndExp(self)) { \
                 Py_INCREF((PyObject*)self); \
             } \

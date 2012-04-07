@@ -253,13 +253,13 @@ False
 False
 >>> b == c
 False
->>> a == _g.round(b,64)
+>>> a == _g.round2(b,64)
 True
->>> _g.round(_g.mpfr('ffffffffffffffffe8000000000000000', 256, 16),64).digits(16)
+>>> _g.round2(_g.mpfr('ffffffffffffffffe8000000000000000', 256, 16),64).digits(16)
 ('10000000000000000', 34, 64)
->>> _g.round(_g.mpfr('fffffffffffffffff8000000000000000', 256, 16),64).digits(16)
+>>> _g.round2(_g.mpfr('fffffffffffffffff8000000000000000', 256, 16),64).digits(16)
 ('10000000000000000', 34, 64)
->>> _g.round(b,64)
+>>> _g.round2(b,64)
 mpfr('0.122999999999999999999',64)
 '''
 
@@ -306,10 +306,10 @@ Traceback (most recent call last):
   ...
 TypeError: function takes at most 2 arguments (5 given)
 >>> saveprec=a.precision
->>> newa = _g.round(a,33)
+>>> newa = _g.round2(a,33)
 >>> newa
 mpfr('123.456',33)
->>> newa = _g.round(newa,saveprec)
+>>> newa = _g.round2(newa,saveprec)
 >>> newa.precision==saveprec
 1
 >>> del(newa)
