@@ -42,7 +42,6 @@ static PyObject * Pympany_sub(PyObject *self, PyObject *args);
 static PyObject * Pympany_mul(PyObject *self, PyObject *args);
 static PyObject * Pympany_div(PyObject *self, PyObject *args);
 static PyObject * Pympany_to_binary(PyObject *self, PyObject *other);
-static PyObject * Pympany_pow2(PyObject *self, PyObject *args);
 static PyObject * Pympany_pow(PyObject *base, PyObject *exp, PyObject *mod);
 static PyObject * Pympany_printf(PyObject *self, PyObject *args);
 #ifdef WITHMPFR

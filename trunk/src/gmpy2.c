@@ -258,7 +258,8 @@
  *   Added keyword precision to constants (casevh)
  *   Added addmul() and submul() (casevh)
  *   Added __round__(), round2(), round_away() for mpfr (casevh)
- *   round() is no longer a module level functions (casevh)
+ *   round() is no longer a module level function (casevh)
+ *   pow() is no longer a module level function (casevh)
  *   Renamed module functions min()/max() to min2()/max2() (casevh)
  *       No longer conflicts with builtin min() and max()
  *
@@ -552,7 +553,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "num_digits", Pympz_num_digits, METH_VARARGS, doc_num_digitsg },
     { "pack", Pygmpy_pack, METH_VARARGS, doc_gmpy_pack },
     { "popcount", Pympz_popcount, METH_O, doc_popcountg },
-    { "pow", Pympany_pow2, METH_VARARGS, doc_mpany_pow },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivg },
     { "remove", Pympz_remove, METH_VARARGS, doc_removeg },
     { "iroot", Pympz_iroot, METH_VARARGS, doc_mpz_iroot },
@@ -758,19 +758,19 @@ _PyInitGMP(void)
                                            PyExc_ArithmeticError, NULL);
     GMPyExc_Erange = PyErr_NewException("gmpy2.RangeError",
                                         GMPyExc_GmpyError, NULL);
+    GMPyExc_Inexact = PyErr_NewException("gmpy2.InexactResultError",
+                                         GMPyExc_GmpyError, NULL);
+    GMPyExc_Overflow = PyErr_NewException("gmpy2.OverflowResultError",
+                                          GMPyExc_Inexact, NULL);
+    GMPyExc_Underflow = PyErr_NewException("gmpy2.UnderflowResultError",
+                                           GMPyExc_Inexact, NULL);
+    GMPyExc_ExpBound = PyErr_NewException("gmpy2.ExponentOutOfBoundsError",
+                                          GMPyExc_GmpyError, NULL);
+
     temp = PyTuple_Pack(2, GMPyExc_GmpyError, PyExc_ValueError);
     GMPyExc_Invalid = PyErr_NewException("gmpy2.InvalidOperationError",
                                          temp, NULL);
     Py_XDECREF(temp);
-
-    GMPyExc_Inexact = PyErr_NewException("gmpy2.InexactError",
-                                         GMPyExc_GmpyError, NULL);
-    GMPyExc_Overflow = PyErr_NewException("gmpy2.OverflowError",
-                                          GMPyExc_Inexact, NULL);
-    GMPyExc_Underflow = PyErr_NewException("gmpy2.UnderflowError",
-                                           GMPyExc_Inexact, NULL);
-    GMPyExc_ExpBound = PyErr_NewException("gmpy2.ExponentOutOfBoundsError",
-                                          GMPyExc_ExpBound, NULL);
 
     temp = PyTuple_Pack(2, GMPyExc_GmpyError, PyExc_ZeroDivisionError);
     GMPyExc_DivZero = PyErr_NewException("gmpy2.DivisionByZeroError",
@@ -784,10 +784,9 @@ static char _gmpy_docs[] =
 "gmpy2 2.0.0b1 - General Multiple-precision arithmetic for Python\n"
 "\n"
 "gmpy2 supports several multiple-precision libraries. Integer and\n"
-"rational arithmetic is provided by either the GMP or MPIR\n"
-"libraries. Real floating-point arithmetic is provided by the\n"
-"MPFR library. Complex floating-point arithmetic is provided by the\n"
-"MPC libary.\n"
+"rational arithmetic is provided by either the GMP or MPIR libraries.\n"
+"Real floating-point arithmetic is provided by the MPFR library.\n"
+"Complex floating-point arithmetic is provided by the MPC library.\n"
 "\n"
 "The integer type 'mpz' has comparable functionality to Python's\n"
 "builtin integers, but is faster for operations on large numbers.\n"
@@ -898,13 +897,13 @@ PyMODINIT_FUNC initgmpy2(void)
     Py_INCREF(GMPyExc_DivZero);
     PyModule_AddObject(gmpy_module, "DivisionByZeroError", GMPyExc_DivZero);
     Py_INCREF(GMPyExc_Inexact);
-    PyModule_AddObject(gmpy_module, "InexactError", GMPyExc_Inexact);
+    PyModule_AddObject(gmpy_module, "InexactResultError", GMPyExc_Inexact);
     Py_INCREF(GMPyExc_Invalid);
     PyModule_AddObject(gmpy_module, "InvalidOperationError", GMPyExc_Invalid);
     Py_INCREF(GMPyExc_Overflow);
-    PyModule_AddObject(gmpy_module, "OverflowError", GMPyExc_Overflow);
+    PyModule_AddObject(gmpy_module, "OverflowResultError", GMPyExc_Overflow);
     Py_INCREF(GMPyExc_Underflow);
-    PyModule_AddObject(gmpy_module, "UnderflowError", GMPyExc_Underflow);
+    PyModule_AddObject(gmpy_module, "UnderflowResultError", GMPyExc_Underflow);
     Py_INCREF(GMPyExc_Erange);
     PyModule_AddObject(gmpy_module, "RangeError", GMPyExc_Erange);
     Py_INCREF(GMPyExc_ExpBound);
