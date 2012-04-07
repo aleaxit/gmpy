@@ -257,6 +257,10 @@
  *   Renamed numdigits() to num_digits() (casevh)
  *   Added keyword precision to constants (casevh)
  *   Added addmul() and submul() (casevh)
+ *   Added __round__(), round2(), round_away() for mpfr (casevh)
+ *   round() is no longer a module level functions (casevh)
+ *   Renamed module functions min()/max() to min2()/max2() (casevh)
+ *       No longer conflicts with builtin min() and max()
  *
  ************************************************************************
  *
@@ -584,7 +588,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "atanh", Pympany_atanh, METH_O, doc_mpany_atanh },
     { "atan2", Pympfr_atan2, METH_VARARGS, doc_g_mpfr_atan2 },
     { "cbrt", Pympfr_cbrt, METH_O, doc_g_mpfr_cbrt },
-    { "ceil", Pympfr_ceil, METH_O, doc_g_mpfr_ceil },
+    { "ceil", Pympfr_ceil, METH_O, doc_g_mpfr_ceil},
     { "check_range", Pympfr_check_range, METH_O, doc_g_mpfr_check_range },
     { "const_catalan", (PyCFunction)Pympfr_const_catalan, METH_VARARGS | METH_KEYWORDS, doc_mpfr_const_catalan },
     { "const_euler", (PyCFunction)Pympfr_const_euler, METH_VARARGS | METH_KEYWORDS, doc_mpfr_const_euler },
@@ -645,8 +649,8 @@ static PyMethodDef Pygmpy_methods [] =
     { "log1p", Pympfr_log1p, METH_O, doc_g_mpfr_log1p },
     { "log10", Pympfr_log10, METH_O, doc_g_mpfr_log10 },
     { "log2", Pympfr_log2, METH_O, doc_g_mpfr_log2 },
-    { "max", Pympfr_max, METH_VARARGS, doc_g_mpfr_max },
-    { "min", Pympfr_min, METH_VARARGS, doc_g_mpfr_min },
+    { "max2", Pympfr_max2, METH_VARARGS, doc_g_mpfr_max2 },
+    { "min2", Pympfr_min2, METH_VARARGS, doc_g_mpfr_min2 },
     { "modf", Pympfr_modf, METH_O, doc_g_mpfr_modf },
     { "mpfr", (PyCFunction)Pygmpy_mpfr, METH_VARARGS | METH_KEYWORDS, doc_mpfr },
     { "mpfr_from_old_binary", Pympfr_From_Old_Binary, METH_O, doc_g_mpfr_from_old_binary },
@@ -668,8 +672,8 @@ static PyMethodDef Pygmpy_methods [] =
     { "rint_round", Pympfr_rint_round, METH_O, doc_g_mpfr_rint_round },
     { "rint_trunc", Pympfr_rint_trunc, METH_O, doc_g_mpfr_rint_trunc },
     { "root", Pympfr_root, METH_VARARGS, doc_mpfr_root },
-    { "round", Pympfr_round, METH_VARARGS, doc_g_mpfr_round },
-    { "round2", Pympfr_round2, METH_O, doc_g_mpfr_round2 },
+    { "round_away", Pympfr_round_away, METH_O, doc_g_mpfr_round_away },
+    { "round2", Pympfr_round2, METH_VARARGS, doc_g_mpfr_round2 },
     { "sec", Pympfr_sec, METH_O, doc_g_mpfr_sec },
     { "sech", Pympfr_sech, METH_O, doc_g_mpfr_sech },
     { "set_context", GMPyContext_set_context, METH_O, doc_set_context },
@@ -682,7 +686,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "sqrt", Pympany_sqrt, METH_O, doc_mpany_sqrt },
     { "tan", Pympany_tan, METH_O, doc_mpany_tan },
     { "tanh", Pympany_tanh, METH_O, doc_mpany_tanh },
-    { "trunc", Pympfr_trunc, METH_O, doc_g_mpfr_trunc },
+    { "trunc", Pympfr_trunc, METH_O, doc_g_mpfr_trunc},
     { "yn", Pympfr_yn, METH_VARARGS, doc_g_mpfr_yn },
     { "y0", Pympfr_y0, METH_O, doc_g_mpfr_y0 },
     { "y1", Pympfr_y1, METH_O, doc_g_mpfr_y1 },

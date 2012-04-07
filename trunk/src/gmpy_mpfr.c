@@ -1536,19 +1536,24 @@ Pympfr_root(PyObject *self, PyObject *args)
     MPFR_CLEANUP_SELF("root()");
 }
 
-PyDoc_STRVAR(doc_g_mpfr_round,
-"round(x[, n]) -> mpfr\n\n"
+PyDoc_STRVAR(doc_g_mpfr_round2,
+"round2(x[, n]) -> mpfr\n\n"
 "Return x rounded to n bits. Uses default precision if n is not\n"
-"specified. See round2() to access the mpfr_round() function.");
+"specified. See round_away() to access the mpfr_round() function.");
 
 static PyObject *
-Pympfr_round(PyObject *self, PyObject *args)
+Pympfr_round2(PyObject *self, PyObject *args)
 {
     mpfr_prec_t prec = context->ctx.mpfr_prec;
-    PympfrObject *result;
+    PympfrObject *result = 0;
 
     PARSE_ONE_MPFR_OPT_CLONG(&prec,
-            "round() requires 'mpfr',['int'] arguments");
+            "round2() requires 'mpfr',['int'] arguments");
+
+    if (prec < MPFR_PREC_MIN || prec > MPFR_PREC_MAX) {
+        VALUE_ERROR("invalid precision");
+        goto done;
+    }
 
     if (!(result = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(self))))) {
         goto done;
@@ -1562,7 +1567,49 @@ Pympfr_round(PyObject *self, PyObject *args)
     result->rc = mpfr_check_range(result->f, result->rc, result->round_mode);
     result->rc = mpfr_prec_round(result->f, prec, context->ctx.mpfr_round);
 
-    MPFR_CLEANUP_SELF("round()");
+    MPFR_CLEANUP_SELF("round2()");
+}
+
+PyDoc_STRVAR(doc_g_mpfr_round10,
+"__round__(x[, n = 0]) -> mpfr\n\n"
+"Return x rounded to n decimal digits before (n < 0) or after (n > 0)\n"
+"the decimal point. Rounds to an integer if n is not specified.");
+
+static PyObject *
+Pympfr_round10(PyObject *self, PyObject *args)
+{
+    long digits = 0;
+    PympfrObject *result = 0, *temp = 0;
+
+    PARSE_ONE_MPFR_OPT_CLONG(&digits,
+            "__round__() requires 'mpfr',['int'] arguments");
+
+    if (!mpfr_regular_p(Pympfr_AS_MPFR(self))) {
+        /* Don't do anything for Inf, NaN, or 0.
+         * The refcount for self is incremented by PARSE_....
+         */
+        return self;
+    }
+
+    result = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(self))+20);
+    temp = Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(self))+20);
+    if (!result || !temp) {
+        Py_XDECREF((PyObject*)result);
+        Py_XDECREF((PyObject*)temp);
+        Py_DECREF(self);
+        return NULL;
+    }
+
+    mpfr_set_si(temp->f, digits, MPFR_RNDN);
+    mpfr_exp10(temp->f, temp->f, MPFR_RNDN);
+    mpfr_mul(result->f, Pympfr_AS_MPFR(self), temp->f, MPFR_RNDN);
+    mpfr_rint(result->f, result->f, MPFR_RNDN);
+    mpfr_div(result->f, result->f, temp->f, MPFR_RNDN);
+    mpfr_prec_round(result->f, mpfr_get_prec(Pympfr_AS_MPFR(self)), MPFR_RNDN);
+
+    Py_DECREF((PyObject*)temp);
+    Py_DECREF(self);
+    return((PyObject*)result);
 }
 
 PyDoc_STRVAR(doc_g_mpfr_reldiff,
@@ -1687,22 +1734,22 @@ PyDoc_STRVAR(doc_g_mpfr_trunc,
 
 MPFR_UNIOP_NOROUND(trunc)
 
-PyDoc_STRVAR(doc_g_mpfr_round2,
-"round2(x) -> mpfr\n\n"
+PyDoc_STRVAR(doc_g_mpfr_round_away,
+"round_away(x) -> mpfr\n\n"
 "Return an 'mpfr' that is x rounded to the nearest integer,\n"
 "with ties rounded away from 0.");
 
 static PyObject *
-Pympfr_round2(PyObject* self, PyObject *other)
+Pympfr_round_away(PyObject* self, PyObject *other)
 {
     PympfrObject *result;
 
-    PARSE_ONE_MPFR_OTHER("round2() requires 'mpfr' argument");
+    PARSE_ONE_MPFR_OTHER("round_away() requires 'mpfr' argument");
     if (!(result = Pympfr_new(0)))
         goto done;
     mpfr_clear_flags();
     result->rc = mpfr_round(result->f, Pympfr_AS_MPFR(self));
-    MPFR_CLEANUP_SELF("round2()");
+    MPFR_CLEANUP_SELF("round_away()");
 }
 
 #define MPFR_UNIOP(NAME) \
@@ -2412,17 +2459,19 @@ Pympfr_hypot(PyObject *self, PyObject *args)
     MPFR_CLEANUP_SELF_OTHER("hypot()");
 }
 
-PyDoc_STRVAR(doc_g_mpfr_max,
-"max(y, x) -> mpfr\n\n"
-"Return maximum of x and y.");
+PyDoc_STRVAR(doc_g_mpfr_max2,
+"max2(y, x) -> mpfr\n\n"
+"Return the maximum of x and y. If x and y are not 'mpfr', they are\n"
+"converted to 'mpfr'. The result is rounded to match the current\n"
+"context.");
 
 static PyObject *
-Pympfr_max(PyObject *self, PyObject *args)
+Pympfr_max2(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPFR_ARGS(other, "max() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR_ARGS(other, "max2() requires 'mpfr','mpfr' arguments");
 
     if (!(result = Pympfr_new(0)))
         goto done;
@@ -2430,20 +2479,22 @@ Pympfr_max(PyObject *self, PyObject *args)
     mpfr_clear_flags();
     result->rc = mpfr_max(result->f, Pympfr_AS_MPFR(self),
                           Pympfr_AS_MPFR(other), context->ctx.mpfr_round);
-    MPFR_CLEANUP_SELF_OTHER("max()");
+    MPFR_CLEANUP_SELF_OTHER("max2()");
 }
 
-PyDoc_STRVAR(doc_g_mpfr_min,
-"min(y, x) -> mpfr\n\n"
-"Return minimum of x and y.");
+PyDoc_STRVAR(doc_g_mpfr_min2,
+"min2(y, x) -> mpfr\n\n"
+"Return the minimum of x and y. If x and y are not 'mpfr', they are\n"
+"converted to 'mpfr'. The result is rounded to match the current\n"
+"context.");
 
 static PyObject *
-Pympfr_min(PyObject *self, PyObject *args)
+Pympfr_min2(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     PyObject *other;
 
-    PARSE_TWO_MPFR_ARGS(other, "min() requires 'mpfr','mpfr' arguments");
+    PARSE_TWO_MPFR_ARGS(other, "min2() requires 'mpfr','mpfr' arguments");
 
     if (!(result = Pympfr_new(0)))
         goto done;
@@ -2451,7 +2502,7 @@ Pympfr_min(PyObject *self, PyObject *args)
     mpfr_clear_flags();
     result->rc = mpfr_min(result->f, Pympfr_AS_MPFR(self),
                           Pympfr_AS_MPFR(other), context->ctx.mpfr_round);
-    MPFR_CLEANUP_SELF_OTHER("min()");
+    MPFR_CLEANUP_SELF_OTHER("min2()");
 }
 
 PyDoc_STRVAR(doc_g_mpfr_nexttoward,
@@ -3185,6 +3236,7 @@ static PyMethodDef Pympfr_methods [] =
     { "__ceil__", Pympfr_ceil, METH_NOARGS, doc_mpfr_ceil },
     { "__floor__", Pympfr_floor, METH_NOARGS, doc_mpfr_floor },
     { "__format__", Pympfr_format, METH_VARARGS, doc_mpfr_format },
+    { "__round__", Pympfr_round10, METH_VARARGS, doc_g_mpfr_round10 },
     { "__trunc__", Pympfr_trunc, METH_NOARGS, doc_mpfr_trunc },
     { "as_integer_ratio", Pympfr_integer_ratio, METH_NOARGS, doc_mpfr_integer_ratio },
     { "as_mantissa_exp", Pympfr_mantissa_exp, METH_NOARGS, doc_mpfr_mantissa_exp },
