@@ -50,10 +50,11 @@
             
   <div class="section" id="multiple-precision-integers">
 <h1>Multiple-precision Integers<a class="headerlink" href="#multiple-precision-integers" title="Permalink to this headline">¶</a></h1>
-<p>The gmpy2 <em>mpz</em> type support arbitrary precision integers. It should be drop-in
-replacement for Python&#8217;s <em>long</em> type. Depending on the platform, it will be
-faster than Python&#8217;s <em>long</em> once the precision exceeds 20 to 50 digits. All the
-special integer functions in GMP are supported.</p>
+<p>The gmpy2 <em>mpz</em> type supports arbitrary precision integers. It should be a
+drop-in replacement for Python&#8217;s <em>long</em> type. Depending on the platform and the
+specific operation, an <em>mpz</em> will be faster than Python&#8217;s <em>long</em> once the
+precision exceeds 20 to 50 digits. All the special integer functions in GMP are
+supported.</p>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">gmpy2</span>
@@ -68,8 +69,9 @@ special integer functions in GMP are supported.</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The use of <tt class="docutils literal"><span class="pre">from</span> <span class="pre">gmpy2</span> <span class="pre">import</span> <span class="pre">*</span></tt> is not recommended. There are name
-conflicts that may interfere with other modules or variable names.</p>
+<p class="last">The use of <tt class="docutils literal"><span class="pre">from</span> <span class="pre">gmpy2</span> <span class="pre">import</span> <span class="pre">*</span></tt> is not recommended. The names in gmpy2
+have been chosen to avoid conflict with Python&#8217;s builtin names but gmpy2
+does use names that may conflict with other modules or variable names.</p>
 </div>
 </div>
 <div class="section" id="mpz-methods">
@@ -102,8 +104,9 @@ is not set.</dd>
 <dd>x.digits([base=10]) returns a string representing <em>x</em> in radix <em>base</em>.</dd>
 <dt><strong>num_digits(...)</strong></dt>
 <dd>x.num_digits([base=10]) returns the length of the string representing
-the absolute value of <em>x</em> in radix <em>base</em>. The result is usually correct
-but may be 1 too large. <em>base</em> can range between 2 and 62, inclusive.</dd>
+the absolute value of <em>x</em> in radix <em>base</em>. The result is correct if base is
+a power of 2. For other other bases, the result is usually correct but may
+be 1 too large. <em>base</em> can range between 2 and 62, inclusive.</dd>
 </dl>
 </div>
 <div class="section" id="mpz-functions">
@@ -113,7 +116,7 @@ but may be 1 too large. <em>base</em> can range between 2 and 62, inclusive.</dd
 <dd>add(x, y) returns <em>x</em> + <em>y</em>. The result type depends on the input
 types.</dd>
 <dt><strong>addmul(...)</strong></dt>
-<dd>addmul(x, y, z) returns <em>x</em> + (<em>y</em> + <em>z</em>). All arguments must be
+<dd>addmul(x, y, z) returns <em>x</em> + (<em>y</em> * <em>z</em>). All arguments must be
 integers.</dd>
 <dt><strong>bincoef(...)</strong></dt>
 <dd>bincoef(x, n) returns the binomial coefficient. <em>n</em> must be &gt;= 0.</dd>
@@ -170,6 +173,9 @@ remainder will be negative. <em>x</em> must be an integer and <em>n</em> must be
 at a time. <em>n</em> must be &gt;= 0.</dd>
 <dt><strong>digits(...)</strong></dt>
 <dd>digits(x[, base=10]) returns a string representing <em>x</em> in radix <em>base</em>.</dd>
+<dt><strong>div(...)</strong></dt>
+<dd>div(x, y) returns <em>x</em> / <em>y</em>. The result type depends on the input
+types.</dd>
 <dt><strong>divexact(...)</strong></dt>
 <dd>divexact(x, y) returns the quotient of <em>x</em> divided by <em>y</em>. Faster than
 standard division but requires the remainder is zero!</dd>
@@ -219,8 +225,9 @@ where the bits differ) between integers <em>x</em> and <em>y</em>.</dd>
 <dd>invert(x, m) returns <em>y</em> such that <em>x</em> * <em>y</em> == 1 modulo <em>m</em>, or 0
 if no such <em>y</em> exists.</dd>
 <dt><strong>iroot(...)</strong></dt>
-<dd>iroot(x,n) returns the integer <em>n</em>-th root of <em>x</em> and boolean value
-that is True if the root is exact. <em>x</em> must be &gt;= 0 and <em>n</em> must be &gt; 0.</dd>
+<dd>iroot(x,n) returns a 2-element tuple (<em>y</em>, <em>b</em>) such that <em>y</em> is the integer
+<em>n</em>-th root of <em>x</em> and <em>b</em> is True if the root is exact. <em>x</em> must be &gt;= 0
+and <em>n</em> must be &gt; 0.</dd>
 <dt><strong>iroot_rem(...)</strong></dt>
 <dd>iroot_rem(x,n) returns a 2-element tuple (<em>y</em>, <em>r</em>) such that <em>y</em> is
 the integer <em>n</em>-th root of <em>x</em> and <em>x</em> = y**n + <em>r</em>. <em>x</em> must be &gt;= 0 and
@@ -263,9 +270,9 @@ numbers.</dd>
 <dd><p class="first">mpz(n) returns a new <em>mpz</em> object from a numeric value <em>n</em>. If <em>n</em> is
 not an integer, it will be truncated to an integer.</p>
 <p class="last">mpz(s[, base=0]) returns a new <em>mpz</em> object from a string <em>s</em> made of
-digits in the given base. If base = 0, binary, octal, or hex Python strings
-are recognized by leading 0b, 0o, or 0x characters. Otherwise the string is
-assumed to be decimal. Values for base can range between 2 and 62.</p>
+digits in the given base. If base = 0, thn binary, octal, or hex Python
+strings are recognized by leading 0b, 0o, or 0x characters. Otherwise the
+string is assumed to be decimal. Values for base can range between 2 and 62.</p>
 </dd>
 <dt><strong>mpz_random(...)</strong></dt>
 <dd>mpz_random(random_state, n) returns a uniformly distributed random
@@ -279,12 +286,16 @@ The parameter <em>random_state</em> must be created by random_state() first.</dd
 <dd>mpz_urandomb(random_state, b) returns a uniformly distributed random
 integer between 0 and 2**b - 1. The parameter <em>random_state</em> must be
 created by random_state() first.</dd>
+<dt><strong>mul(...)</strong></dt>
+<dd>mul(x, y) returns <em>x</em> * <em>y</em>. The result type depends on the input
+types.</dd>
 <dt><strong>next_prime(...)</strong></dt>
 <dd>next_prime(x) returns the next <strong>probable</strong> prime number &gt; <em>x</em>.</dd>
 <dt><strong>num_digits(...)</strong></dt>
 <dd>num_digits(x[, base=10]) returns the length of the string representing
-the absolute value of <em>x</em> in radix <em>base</em>. The result is usually correct
-but may be 1 too large. <em>base</em> can range between 2 and 62, inclusive.</dd>
+the absolute value of <em>x</em> in radix <em>base</em>. The result is correct if base is
+a power of 2. For other other bases, the result is usually correct but may
+be 1 too large. <em>base</em> can range between 2 and 62, inclusive.</dd>
 <dt><strong>popcount(...)</strong></dt>
 <dd>popcount(x) returns the number of bits with value 1 in <em>x</em>. If <em>x</em> &lt; 0,
 the number of bits with value 1 is infinite so -1 is returned in that case.</dd>
@@ -297,7 +308,7 @@ be &gt; 1.</dd>
 <dd>sub(x, y) returns <em>x</em> - <em>y</em>. The result type depends on the input
 types.</dd>
 <dt><strong>submul(...)</strong></dt>
-<dd>submul(x, y, z) returns <em>x</em> - (<em>y</em> + <em>z</em>). All arguments must be
+<dd>submul(x, y, z) returns <em>x</em> - (<em>y</em> * <em>z</em>). All arguments must be
 integers.</dd>
 <dt><strong>t_div(...)</strong></dt>
 <dd>t_div(x, y) returns the quotient of <em>x</em> divided by <em>y</em>. The quotient

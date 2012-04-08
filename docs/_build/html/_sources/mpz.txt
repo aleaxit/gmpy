@@ -1,10 +1,11 @@
 Multiple-precision Integers
 ===========================
 
-The gmpy2 *mpz* type support arbitrary precision integers. It should be drop-in
-replacement for Python's *long* type. Depending on the platform, it will be
-faster than Python's *long* once the precision exceeds 20 to 50 digits. All the
-special integer functions in GMP are supported.
+The gmpy2 *mpz* type supports arbitrary precision integers. It should be a
+drop-in replacement for Python's *long* type. Depending on the platform and the
+specific operation, an *mpz* will be faster than Python's *long* once the
+precision exceeds 20 to 50 digits. All the special integer functions in GMP are
+supported.
 
 Examples
 --------
@@ -21,8 +22,9 @@ Examples
     True
 
 .. note::
-    The use of ``from gmpy2 import *`` is not recommended. There are name
-    conflicts that may interfere with other modules or variable names.
+    The use of ``from gmpy2 import *`` is not recommended. The names in gmpy2
+    have been chosen to avoid conflict with Python's builtin names but gmpy2
+    does use names that may conflict with other modules or variable names.
 
 mpz Methods
 -----------
@@ -62,8 +64,9 @@ mpz Methods
 
 **num_digits(...)**
     x.num_digits([base=10]) returns the length of the string representing
-    the absolute value of *x* in radix *base*. The result is usually correct
-    but may be 1 too large. *base* can range between 2 and 62, inclusive.
+    the absolute value of *x* in radix *base*. The result is correct if base is
+    a power of 2. For other other bases, the result is usually correct but may
+    be 1 too large. *base* can range between 2 and 62, inclusive.
 
 mpz Functions
 -------------
@@ -73,7 +76,7 @@ mpz Functions
     types.
 
 **addmul(...)**
-    addmul(x, y, z) returns *x* + (*y* + *z*). All arguments must be
+    addmul(x, y, z) returns *x* + (*y* \* *z*). All arguments must be
     integers.
 
 **bincoef(...)**
@@ -148,6 +151,10 @@ mpz Functions
 **digits(...)**
     digits(x[, base=10]) returns a string representing *x* in radix *base*.
 
+**div(...)**
+    div(x, y) returns *x* / *y*. The result type depends on the input
+    types.
+
 **divexact(...)**
     divexact(x, y) returns the quotient of *x* divided by *y*. Faster than
     standard division but requires the remainder is zero!
@@ -212,8 +219,9 @@ mpz Functions
     if no such *y* exists.
 
 **iroot(...)**
-    iroot(x,n) returns the integer *n*-th root of *x* and boolean value
-    that is True if the root is exact. *x* must be >= 0 and *n* must be > 0.
+    iroot(x,n) returns a 2-element tuple (*y*, *b*) such that *y* is the integer
+    *n*-th root of *x* and *b* is True if the root is exact. *x* must be >= 0
+    and *n* must be > 0.
 
 **iroot_rem(...)**
     iroot_rem(x,n) returns a 2-element tuple (*y*, *r*) such that *y* is
@@ -272,9 +280,9 @@ mpz Functions
     not an integer, it will be truncated to an integer.
 
     mpz(s[, base=0]) returns a new *mpz* object from a string *s* made of
-    digits in the given base. If base = 0, binary, octal, or hex Python strings
-    are recognized by leading 0b, 0o, or 0x characters. Otherwise the string is
-    assumed to be decimal. Values for base can range between 2 and 62.
+    digits in the given base. If base = 0, thn binary, octal, or hex Python
+    strings are recognized by leading 0b, 0o, or 0x characters. Otherwise the
+    string is assumed to be decimal. Values for base can range between 2 and 62.
 
 **mpz_random(...)**
     mpz_random(random_state, n) returns a uniformly distributed random
@@ -291,13 +299,18 @@ mpz Functions
     integer between 0 and 2**b - 1. The parameter *random_state* must be
     created by random_state() first.
 
+**mul(...)**
+    mul(x, y) returns *x* \* *y*. The result type depends on the input
+    types.
+
 **next_prime(...)**
     next_prime(x) returns the next **probable** prime number > *x*.
 
 **num_digits(...)**
     num_digits(x[, base=10]) returns the length of the string representing
-    the absolute value of *x* in radix *base*. The result is usually correct
-    but may be 1 too large. *base* can range between 2 and 62, inclusive.
+    the absolute value of *x* in radix *base*. The result is correct if base is
+    a power of 2. For other other bases, the result is usually correct but may
+    be 1 too large. *base* can range between 2 and 62, inclusive.
 
 **popcount(...)**
     popcount(x) returns the number of bits with value 1 in *x*. If *x* < 0,
@@ -314,7 +327,7 @@ mpz Functions
     types.
 
 **submul(...)**
-    submul(x, y, z) returns *x* - (*y* + *z*). All arguments must be
+    submul(x, y, z) returns *x* - (*y* \* *z*). All arguments must be
     integers.
 
 **t_div(...)**

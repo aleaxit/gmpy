@@ -1,14 +1,21 @@
 Introduction to gmpy2
 =====================
 
-gmpy2 is a C-coded Python extension module that supports several
-multiple-precision arithmetic libaries. The following libraries are supported:
+gmpy2 is a C-coded Python extension module that supports multiple-precision
+arithmetic. gmpy2 is the successor to the original gmpy module. The gmpy module
+only supported the GMP multiple-precision library. gmpy2 adds support for the
+MPFR (correctly rounded real floating-point arithmetic) and MPC (correctly
+rounded complex floating-point arithmetic) libraries. gmpy2 also updates the
+API and naming conventions to be more consistent and support the additional
+functionality.
+
+The following libraries are supported:
 
 * GMP for integer and rational arithmetic
 
   Home page: http://gmplib.org
 * MPIR is based on the GMP library but adds support for Microsoft's Visual
-  Studio compiler.
+  Studio compiler. It is used to create the Windows binaries.
 
   Home page: http://www.mpir.org
 * MPFR for correctly rounded real floating-point arithmetic
@@ -17,6 +24,12 @@ multiple-precision arithmetic libaries. The following libraries are supported:
 * MPC for correctly rounded complex floating-point arithmetic
 
   Home page: http://mpc.multiprecision.org
+* Generalized Lucas sequences and primality tests are based on the following
+  code:
+
+  mpz_lucas: http://sourceforge.net/projects/mpzlucas/
+
+  mpz_prp: http://sourceforge.net/projects/mpzprp/
 
 Installing gmpy2 on Windows
 ---------------------------
@@ -111,3 +124,57 @@ If you get a "permission denied" error message, you may need to use::
 
     $ sudo python setup.py build_ext -Ddir=/home/opt/local install
 
+Miscellaneous gmpy2 Functions
+-----------------------------
+
+**from_binary(...)**
+    from_binary(bytes) returns a gmpy2 object from a byte sequence created by
+    to_binary().
+
+**get_cache(...)**
+    get_cache() returns the current cache size (number of objects) and the
+    maximum size per object (number of limbs).
+
+    gmpy2 maintains an internal list of freed *mpz*, *xmpz*, *mpq*, and *mpfr*
+    objects for reuse. The cache significantly improves performance but does
+    increase the memory footprint.
+
+**license(...)**
+    license() returns the gmpy2 license information.
+
+**mp_limbsize(...)**
+    mp_limbsize() returns the number of bits per limb used by the GMP or MPIR
+    libarary.
+
+**mp_version(...)**
+    mp_version() returns the version of the GMP or MPIR library.
+
+**mpc_version(...)**
+    mpc_version() returns the version of the MPC library.
+
+**mpfr_version(...)**
+    mpfr_version() returns the version of the MPFR library.
+
+**random_state(...)**
+    random_state([seed]) returns a new object containing state information for
+    the random number generator. An optional integer argument can be specified
+    as the seed value. Only the Mersenne Twister random number generator is
+    supported.
+
+**set_cache(...)**
+    set_cache(number, size) updates the maximum number of freed objects of each
+    type that are cached and the maximum size (in limbs) of each object. The
+    maximum number of objects of each type that can be cached is 1000. The
+    maximum size of an object is 16384. The maximum size of an object is
+    approximately 64K on 32-bit systems and 128K on 64-bit systems.
+
+    .. note::
+    The caching options are global to gmpy2. Changes are not thread-safe. A
+    change in one thread will impact all threads.
+
+**to_binary(...)**
+    to_binary(x) returns a byte sequence from a gmpy2 object. All object types
+    are supported.
+
+**version(...)**
+    version() returns the version of gmpy2.

@@ -75,7 +75,12 @@ the <em>mpfr</em> type, always pass constants as strings.</p>
 </div>
 <div class="section" id="contexts">
 <h2>Contexts<a class="headerlink" href="#contexts" title="Permalink to this headline">¶</a></h2>
-<p>A <em>context</em> is used to control the behavior of <em>mpfr</em> (and <em>mpc</em>) arithmetic.
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Contexts and context managers are not thread-safe! Modifying the context
+in one thread will impact all other threads.</p>
+</div>
+<p>A <em>context</em> is used to control the behavior of <em>mpfr</em> and <em>mpc</em> arithmetic.
 In addition to controlling the precision, the rounding mode can be specified,
 minimum and maximum exponent values can be changed, various exceptions can be
 raised or ignored, gradual underflow can be enabled, and returning complex
@@ -198,22 +203,22 @@ results of IEEE-754 floating point operations.</dd>
 <dt><strong>trap_underflow</strong></dt>
 <dd>If set to <tt class="xref docutils literal"><span class="pre">False</span></tt>, a result that is smaller than the smallest possible
 <em>mpfr</em> given the current exponent range will be replaced by +/-0.0. If set
-to <tt class="xref docutils literal"><span class="pre">True</span></tt>, an <tt class="docutils literal"><span class="pre">UnderflowError</span></tt> exception is raised.</dd>
+to <tt class="xref docutils literal"><span class="pre">True</span></tt>, an <tt class="docutils literal"><span class="pre">UnderflowResultError</span></tt> exception is raised.</dd>
 <dt><strong>underflow</strong></dt>
 <dd>This flag is not user controllable. It is automatically set if a result
 underflowed to +/-0.0 and trap_underflow is <tt class="xref docutils literal"><span class="pre">False</span></tt>.</dd>
 <dt><strong>trap_overflow</strong></dt>
 <dd>If set to <tt class="xref docutils literal"><span class="pre">False</span></tt>, a result that is larger than the largest possible
 <em>mpfr</em> given the current exponent range will be replaced by +/-Infinity. If
-set to <tt class="xref docutils literal"><span class="pre">True</span></tt>, an <tt class="docutils literal"><span class="pre">OverflowError</span></tt> exception is raised.</dd>
+set to <tt class="xref docutils literal"><span class="pre">True</span></tt>, an <tt class="docutils literal"><span class="pre">OverflowResultError</span></tt> exception is raised.</dd>
 <dt><strong>overflow</strong></dt>
 <dd>This flag is not user controllable. It is automatically set if a result
 overflowed to +/-Infinity and trap_overflow is <tt class="xref docutils literal"><span class="pre">False</span></tt>.</dd>
 <dt><strong>trap_inexact</strong></dt>
-<dd>This attribute controls whether or not an <tt class="docutils literal"><span class="pre">InexactError</span></tt> exception is
-raised if an inexact result is returned. To check if the result is greater
-or less than the exact result, check the <strong>rc</strong> attribute of the <em>mpfr</em>
-result.</dd>
+<dd>This attribute controls whether or not an <tt class="docutils literal"><span class="pre">InexactResultError</span></tt> exception
+is raised if an inexact result is returned. To check if the result is
+greater or less than the exact result, check the <strong>rc</strong> attribute of the
+<em>mpfr</em> result.</dd>
 <dt><strong>inexact</strong></dt>
 <dd>This flag is not user controllable. It is automatically set if an inexact
 result is returned.</dd>
@@ -280,12 +285,14 @@ an <em>mpfr</em> result would normally not be possible.</dd>
 the <em>mpfr</em> object into the exact rational equivalent. The return 2-tuple
 is equivalent to Python&#8217;s as_integer_ratio() method of built-in float
 objects.</dd>
-</dl>
-<p><strong>as_mantissa_exp()</strong></p>
-<dl class="docutils">
+<dt><strong>as_mantissa_exp()</strong></dt>
+<dd>Returns a 2-tuple containing the mantissa and exponent.</dd>
 <dt><strong>as_simple_fraction()</strong></dt>
 <dd>Returns an <em>mpq</em> containing the simpliest rational value that approximates
 the <em>mpfr</em> value with an error less than 1/(2**precision).</dd>
+<dt><strong>conjugate()</strong></dt>
+<dd>Returns the complex conjugate. For <em>mpfr</em> objects, returns a copy of the
+original object.</dd>
 <dt><strong>digits()</strong></dt>
 <dd>Returns a 3-tuple containing the mantissa, the exponent, and the number
 of bits of precision. The mantissa is represented as a string in the
@@ -294,6 +301,13 @@ that are available are returned. No more digits than available given x&#8217;s
 precision are returned. &#8216;base&#8217; must be between 2 and 62, inclusive.</dd>
 <dt><strong>is_integer()</strong></dt>
 <dd>Returns True if the <em>mpfr</em> object is an integer.</dd>
+</dl>
+</div>
+<div class="section" id="mpfr-attributes">
+<h2>mpfr Attributes<a class="headerlink" href="#mpfr-attributes" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>imag</strong></dt>
+<dd>Returns the imaginary component. For <em>mpfr</em> objects, returns 0.</dd>
 <dt><strong>precision</strong></dt>
 <dd>Returns the precision of the <em>mpfr</em> object.</dd>
 <dt><strong>rc</strong></dt>
@@ -303,13 +317,18 @@ infinite precision value. If the result code is 1, then the value of the
 <em>mpfr</em> object is greater than the exact value. If the result code is -1,
 then the value of the <em>mpfr</em> object is less than the exact, infinite
 precision value.</dd>
+<dt><strong>real</strong></dt>
+<dd>Returns the real component. For <em>mpfr</em> objects, returns a copy of the
+original object.</dd>
 </dl>
 </div>
 <div class="section" id="mpfr-functions">
 <h2>mpfr Functions<a class="headerlink" href="#mpfr-functions" title="Permalink to this headline">¶</a></h2>
 <dl class="docutils">
 <dt><strong>acos(...)</strong></dt>
-<dd>acos(x) returns the arc-cosine of x. x is measured in radians.</dd>
+<dd>acos(x) returns the arc-cosine of x. x is measured in radians. If
+context.allow_complex is True, then an <em>mpc</em> result will be returned for
+abs(x) &gt; 1.</dd>
 <dt><strong>acosh(...)</strong></dt>
 <dd>acosh(x) returns the inverse hyperbolic cosine of x.</dd>
 <dt><strong>add(...)</strong></dt>
@@ -320,7 +339,9 @@ the arguments.</dd>
 <dt><strong>ai(...)</strong></dt>
 <dd>ai(x) returns the Airy function of x.</dd>
 <dt><strong>asin(...)</strong></dt>
-<dd>asin(x) returns the arc-sine of x. x is measured in radians.</dd>
+<dd>asin(x) returns the arc-sine of x. x is measured in radians. If
+context.allow_complex is True, then an <em>mpc</em> result will be returned for
+abs(x) &gt; 1.</dd>
 <dt><strong>asinh(...)</strong></dt>
 <dd>asinh(x) return the inverse hyperbolic sine of x.</dd>
 <dt><strong>atan(...)</strong></dt>
@@ -328,7 +349,9 @@ the arguments.</dd>
 <dt><strong>atan2(...)</strong></dt>
 <dd>atan2(y, x) returns the arc-tangent of (y/x).</dd>
 <dt><strong>atanh(...)</strong></dt>
-<dd>atanh(x) returns the inverse hyperbolic tangent of x.</dd>
+<dd>atanh(x) returns the inverse hyperbolic tangent of x. If
+context.allow_complex is True, then an <em>mpc</em> result will be returned for
+abs(x) &gt; 1.</dd>
 <dt><strong>cbrt(...)</strong></dt>
 <dd>cbrt(x) returns the cube root of x.</dd>
 <dt><strong>ceil(...)</strong></dt>
@@ -424,6 +447,8 @@ is set.</dd>
 <dt><strong>inf(...)</strong></dt>
 <dd>inf(n) returns an <em>mpfr</em> initialized to Infinity with the same sign as n.
 If n is not given, +Infinity is returned.</dd>
+<dt><strong>is_inf(...)</strong></dt>
+<dd>is_inf(x) returns True if x is Infinity or - Infinity.</dd>
 <dt><strong>is_nan(...)</strong></dt>
 <dd>is_nan(x) returns True if x is NaN (Not-A-Number).</dd>
 <dt><strong>is_number(...)</strong></dt>
@@ -458,10 +483,14 @@ gamma(x) and the sign of gamma(x)</dd>
 <dd>log1p(x) returns the natural logarithm of (1+x).</dd>
 <dt><strong>log2(...)</strong></dt>
 <dd>log2(x) returns the base-2 logarithm of x.</dd>
-<dt><strong>max(...)</strong></dt>
-<dd>max(y, x) returns the maximum of x and y.</dd>
-<dt><strong>min(...)</strong></dt>
-<dd>min(y, x) returns the minimum of x and y.</dd>
+<dt><strong>max2(...)</strong></dt>
+<dd>max2(x, y) returns the maximum of x and y. The result may be rounded to
+match the current context. Use the builtin max() to get an exact copy of
+the largest object without any rounding.</dd>
+<dt><strong>min2(...)</strong></dt>
+<dd>min2(x, y) returns the minimum of x and y. The result may be rounded to
+match the current context. Use the builtin min() to get an exact copy of
+the smallest object without any rounding.</dd>
 <dt><strong>modf(...)</strong></dt>
 <dd>modf(x) returns a tuple containing the integer and fractional portions
 of x.</dd>
@@ -533,12 +562,13 @@ current rounding mode.</dd>
 towards zero and then, if needed, using the current rounding mode.</dd>
 <dt><strong>root(...)</strong></dt>
 <dd>root(x, n) returns n-th root of x. The result always an <em>mpfr</em>.</dd>
-<dt><strong>round(...)</strong></dt>
-<dd>round(x[, n]) returns x rounded to n bits. Uses default precision if n is
-not specified. See round2() to access the mpfr_round() function.</dd>
 <dt><strong>round2(...)</strong></dt>
-<dd>round2(x) returns an <em>mpfr</em> by rounding x the nearest integer, with ties
-rounded away from 0.</dd>
+<dd>round2(x[, n]) returns x rounded to n bits. Uses default precision if n is
+not specified. See round_away() to access the mpfr_round() function. Use
+the builtin round() to round x to n decimal digits.</dd>
+<dt><strong>round_away(...)</strong></dt>
+<dd>round_away(x) returns an <em>mpfr</em> by rounding x the nearest integer, with
+ties rounded away from 0.</dd>
 <dt><strong>sec(...)</strong></dt>
 <dd>sec(x) returns the secant of x. x is measured in radians.</dd>
 <dt><strong>sech(...)</strong></dt>
@@ -587,11 +617,72 @@ x.floor() if x&gt;=0 or x.ceil() if x&lt;0.</dd>
 <dt><strong>yn(...)</strong></dt>
 <dd>yn(x,n) returns the Bessel function of the second kind of order n of x.</dd>
 <dt><strong>zero(...)</strong></dt>
-<dd>zero(n) returns an &#8216;mpfr&#8217; inialized to 0.0 with the same sign as n.
+<dd>zero(n) returns an <em>mpfr</em> inialized to 0.0 with the same sign as n.
 If n is not given, +0.0 is returned.</dd>
 <dt><strong>zeta(...)</strong></dt>
 <dd>zeta(x) returns the Riemann zeta of x.</dd>
 </dl>
+</div>
+<div class="section" id="mpfr-formatting">
+<h2>mpfr Formatting<a class="headerlink" href="#mpfr-formatting" title="Permalink to this headline">¶</a></h2>
+<p>The <em>mpfr</em> type supports the __format__() special method to allow custom output
+formatting.</p>
+<dl class="docutils">
+<dt><strong>__format__(...)</strong></dt>
+<dd><p class="first">x.__format__(fmt) returns a Python string by formatting &#8216;x&#8217; using the
+format string &#8216;fmt&#8217;. A valid format string consists of:</p>
+<div class="line-block">
+<div class="line">optional alignment code:</div>
+<div class="line-block">
+<div class="line">&#8216;&lt;&#8217; -&gt; left shifted in field</div>
+<div class="line">&#8216;&gt;&#8217; -&gt; right shifted in field</div>
+<div class="line">&#8216;^&#8217; -&gt; centered in field</div>
+</div>
+<div class="line">optional leading sign code</div>
+<div class="line-block">
+<div class="line">&#8216;+&#8217; -&gt; always display leading sign</div>
+<div class="line">&#8216;-&#8216; -&gt; only display minus for negative values</div>
+<div class="line">&#8216; &#8216; -&gt; minus for negative values, space for positive values</div>
+</div>
+<div class="line">optional width.precision</div>
+<div class="line">optional rounding mode:</div>
+<div class="line-block">
+<div class="line">&#8216;U&#8217; -&gt; round toward plus infinity</div>
+<div class="line">&#8216;D&#8217; -&gt; round toward minus infinity</div>
+<div class="line">&#8216;Y&#8217; -&gt; round away from zero</div>
+<div class="line">&#8216;Z&#8217; -&gt; round toward zero</div>
+<div class="line">&#8216;N&#8217; -&gt; round to nearest</div>
+</div>
+<div class="line">optional conversion code:</div>
+<div class="line-block">
+<div class="line">&#8216;a&#8217;,&#8217;A&#8217; -&gt; hex format</div>
+<div class="line">&#8216;b&#8217;     -&gt; binary format</div>
+<div class="line">&#8216;e&#8217;,&#8217;E&#8217; -&gt; scientific format</div>
+<div class="line">&#8216;f&#8217;,&#8217;F&#8217; -&gt; fixed point format</div>
+<div class="line">&#8216;g&#8217;,&#8217;G&#8217; -&gt; fixed or scientific format</div>
+</div>
+</div>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The formatting codes must be specified in the order shown above.</p>
+</div>
+</dd>
+</dl>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">gmpy2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gmpy2</span> <span class="kn">import</span> <span class="n">mpfr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">=</span><span class="n">mpfr</span><span class="p">(</span><span class="s">&quot;1.23456&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">&quot;{0:15.3f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">&#39;          1.235&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">&quot;{0:15.3Uf}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">&#39;          1.235&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">&quot;{0:15.3Df}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">&#39;          1.234&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">&quot;{0:.3Df}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">&#39;1.234&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">&quot;{0:+.3Df}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">&#39;+1.234&#39;</span>
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -608,7 +699,9 @@ If n is not given, +0.0 is returned.</dd>
 <li><a class="reference internal" href="#context-attributes">Context Attributes</a></li>
 <li><a class="reference internal" href="#context-methods">Context Methods</a></li>
 <li><a class="reference internal" href="#mpfr-methods">mpfr Methods</a></li>
+<li><a class="reference internal" href="#mpfr-attributes">mpfr Attributes</a></li>
 <li><a class="reference internal" href="#mpfr-functions">mpfr Functions</a></li>
+<li><a class="reference internal" href="#mpfr-formatting">mpfr Formatting</a></li>
 </ul>
 </li>
 </ul>

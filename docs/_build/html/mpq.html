@@ -66,32 +66,53 @@ Python&#8217;s fractions.Fraction module.</p>
 <h2>mpq Methods<a class="headerlink" href="#mpq-methods" title="Permalink to this headline">¶</a></h2>
 <dl class="docutils">
 <dt><strong>digits(...)</strong></dt>
-<dd>x.digits([base=10]) will return a Python string representing <em>x</em> in the
+<dd>x.digits([base=10]) returns a Python string representing <em>x</em> in the
 given base (2 to 62, default is 10). A leading &#8216;-&#8216; is present if <em>x</em> &lt; 0,
 but no leading &#8216;+&#8217; is present if <em>x</em> &gt;= 0.</dd>
+</dl>
+</div>
+<div class="section" id="mpq-attributes">
+<h2>mpq Attributes<a class="headerlink" href="#mpq-attributes" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>denominator</strong></dt>
+<dd>x.denomintor returns the denominator of <em>x</em>.</dd>
+<dt><strong>numerator</strong></dt>
+<dd>x.numerator returns the numerator of <em>x</em>.</dd>
 </dl>
 </div>
 <div class="section" id="mpq-functions">
 <h2>mpq Functions<a class="headerlink" href="#mpq-functions" title="Permalink to this headline">¶</a></h2>
 <dl class="docutils">
+<dt><strong>add(...)</strong></dt>
+<dd>add(x, y) returns <em>x</em> + <em>y</em>. The result type depends on the input
+types.</dd>
+<dt><strong>div(...)</strong></dt>
+<dd>div(x, y) returns <em>x</em> / <em>y</em>. The result type depends on the input
+types.</dd>
 <dt><strong>f2q(...)</strong></dt>
-<dd>f2q(x[, err]) will return the best <em>mpq</em> approximating <em>x</em> to within
+<dd>f2q(x[, err]) returns the best <em>mpq</em> approximating <em>x</em> to within
 relative error <em>err</em>. Default is the precision of <em>x</em>. If <em>x</em> is not an
 <em>mpfr</em>, it is converted to an <em>mpfr</em>. Uses Stern-Brocot tree to find the
 best approximation. An <em>mpz</em> is returned if the the denominator is 1. If
 <em>err</em> &lt; 0, then the relative error sought is 2.0 ** <em>err</em>.</dd>
 <dt><strong>mpq(...)</strong></dt>
-<dd><p class="first">mpq(n) will return an <em>mpq</em> object with a numeric value <em>n</em>. Decimal and
+<dd><p class="first">mpq(n) returns an <em>mpq</em> object with a numeric value <em>n</em>. Decimal and
 Fraction values are converted exactly.</p>
-<p>mpq(n, m) will return an <em>mpq</em> object with a numeric value <em>n</em> / <em>m</em>.</p>
-<p class="last">mpq(s[, base=10]) will return an <em>mpq</em> object from a string <em>s</em> made up of
+<p>mpq(n, m) returns an <em>mpq</em> object with a numeric value <em>n</em> / <em>m</em>.</p>
+<p class="last">mpq(s[, base=10]) returns an <em>mpq</em> object from a string <em>s</em> made up of
 digits in the given base. <em>s</em> may be made up of two numbers in the same
 base separated by a &#8216;/&#8217; character. If <em>base</em> == 10, then an embedded &#8216;.&#8217;
 indicates a number with a decimal fractional part.</p>
 </dd>
+<dt><strong>mul(...)</strong></dt>
+<dd>mul(x, y) returns <em>x</em> * <em>y</em>. The result type depends on the input
+types.</dd>
 <dt><strong>qdiv(...)</strong></dt>
-<dd>qdiv(x[, y=1]) will return <em>x/y</em> as <em>mpz</em> if possible, or as <em>mpq</em> if <em>x</em>
+<dd>qdiv(x[, y=1]) returns <em>x/y</em> as <em>mpz</em> if possible, or as <em>mpq</em> if <em>x</em>
 is not exactly divisible by <em>y</em>.</dd>
+<dt><strong>sub(...)</strong></dt>
+<dd>sub(x, y) returns <em>x</em> - <em>y</em>. The result type depends on the input
+types.</dd>
 </dl>
 </div>
 </div>
@@ -106,6 +127,7 @@ is not exactly divisible by <em>y</em>.</dd>
   <ul>
 <li><a class="reference internal" href="#">Multiple-precision Rationals</a><ul>
 <li><a class="reference internal" href="#mpq-methods">mpq Methods</a></li>
+<li><a class="reference internal" href="#mpq-attributes">mpq Attributes</a></li>
 <li><a class="reference internal" href="#mpq-functions">mpq Functions</a></li>
 </ul>
 </li>
