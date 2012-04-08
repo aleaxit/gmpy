@@ -704,7 +704,6 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
 
     if (CHECK_MPZANY(a)) {
         if (PyIntOrLong_Check(b)) {
-            TRACE("compare (mpz,int)\n");
             temp_si = PyLong_AsSIAndOverflow(b, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
@@ -718,11 +717,9 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(c, op);
         }
         if (CHECK_MPZANY(b)) {
-            TRACE("compare (mpz,mpz)\n");
             return _cmp_to_object(mpz_cmp(Pympz_AS_MPZ(a), Pympz_AS_MPZ(b)), op);
         }
         if (isInteger(b)) {
-            TRACE("compare (mpz,integer)\n");
             tempb = (PyObject*)Pympz_From_Integer(b);
             if (!tempb)
                 return NULL;
@@ -731,7 +728,6 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(c, op);
         }
         if (isRational(b)) {
-            TRACE("compare (mpz,rational)\n");
             tempa = (PyObject*)Pympq_From_Rational(a);
             tempb = (PyObject*)Pympq_From_Rational(b);
             if (!tempa || !tempb) {
@@ -798,11 +794,9 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     }
     if (Pympq_Check(a)) {
         if (Pympq_Check(b)) {
-            TRACE("compare (mpq,mpq)\n");
             return _cmp_to_object(mpq_cmp(Pympq_AS_MPQ(a), Pympq_AS_MPQ(b)), op);
         }
         if (isRational(b)) {
-            TRACE("compare (mpq,rational)\n");
             tempb = (PyObject*)Pympq_From_Rational(b);
             c = mpq_cmp(Pympq_AS_MPQ(a), Pympq_AS_MPQ(tempb));
             Py_DECREF(tempb);
@@ -860,7 +854,6 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
 #ifdef WITHMPFR
     if (Pympfr_Check(a)) {
         if (Pympfr_Check(b)) {
-            TRACE("compare (mpfr,mpfr)\n");
             mpfr_clear_flags();
             c = mpfr_cmp(Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b));
             if (mpfr_erangeflag_p()) {
@@ -880,7 +873,6 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         }
         if (PyFloat_Check(b)) {
             double d = PyFloat_AS_DOUBLE(b);
-            TRACE("compare (mpfr,float)\n");
             mpfr_clear_flags();
             c = mpfr_cmp_d(Pympfr_AS_MPFR(a), d);
             if (mpfr_erangeflag_p()) {
@@ -899,7 +891,6 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (isInteger(b)) {
-            TRACE("compare (mpfr,integer)\n");
             tempb = (PyObject*)Pympz_From_Integer(b);
             if (!tempb)
                 return NULL;
@@ -922,7 +913,6 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (isRational(b)) {
-            TRACE("compare (mpfr,rational)\n");
             tempb = (PyObject*)Pympq_From_Rational(b);
             if (!tempb)
                 return NULL;
@@ -945,7 +935,6 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (isDecimal(b)) {
-            TRACE("compare (mpfr,decimal)\n");
             tempb = (PyObject*)Pympq_From_Decimal(b);
             if (!tempb)
                 return NULL;
@@ -991,7 +980,6 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (isReal(b)) {
-            TRACE("compare (mpfr,real)\n");
             tempb = (PyObject*)Pympfr_From_Real(b, 0);
             if (!tempb)
                 return NULL;
@@ -1023,7 +1011,6 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return NULL;
         }
         if (Pympc_Check(b)) {
-            TRACE("compare (mpc,mpc)\n");
             mpfr_clear_flags();
             c = mpc_cmp(Pympc_AS_MPC(a), Pympc_AS_MPC(b));
             if (mpfr_erangeflag_p()) {

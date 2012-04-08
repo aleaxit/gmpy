@@ -128,7 +128,6 @@ typedef unsigned long Py_uhash_t;
 #define BITS_PER_UI         BITS_PER_ULONG
 typedef unsigned long       mpir_ui;
 typedef long                mpir_si;
-typedef unsigned long       mp_bitcnt_t;
 #define mpz_fits_si_p       mpz_fits_slong_p
 #define mpz_fits_ui_p       mpz_fits_ulong_p
 #endif
@@ -163,12 +162,6 @@ typedef unsigned long       mp_bitcnt_t;
 #endif
 
 #define ALLOC_THRESHOLD 8192
-
-#ifdef DEBUG
-#  define TRACE(msg) if(options.debug) fprintf(stderr, msg)
-#else
-#  define TRACE(msg)
-#endif
 
 #define TYPE_ERROR(msg) PyErr_SetString(PyExc_TypeError, msg)
 #define VALUE_ERROR(msg) PyErr_SetString(PyExc_ValueError, msg)

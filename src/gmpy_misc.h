@@ -41,7 +41,6 @@ static PyObject * Pygmpy_get_mpc_version(PyObject *self, PyObject *args);
 static PyObject * Pygmpy_get_mp_limbsize(PyObject *self, PyObject *args);
 static PyObject * Pygmpy_get_cache(PyObject *self, PyObject *args);
 static PyObject * Pygmpy_set_cache(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_set_debug(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
 }

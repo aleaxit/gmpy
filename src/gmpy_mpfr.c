@@ -521,12 +521,6 @@ Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
             Py_DECREF((PyObject*)temp);
         }
     }
-#ifdef DEBUG
-    if (global.debug)
-        fprintf(stderr, "Pympfr_From_Real(%p,%ld)->%p (%ld)\n", (void *)obj,
-                (long)bits, (void *)newob,
-                newob != 0 ? (long)mpfr_get_prec(newob->f) : -1);
-#endif
     if (!newob)
         TYPE_ERROR("object could not be converted to 'mpfr'");
     return newob;
@@ -646,8 +640,6 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
     mpfr_prec_t bits = 0;
     static char *kwlist_s[] = {"s", "precision", "base", NULL};
     static char *kwlist_n[] = {"n", "precision", NULL};
-
-    TRACE("Pygmpy_mpfr() called...\n");
 
     argc = PyTuple_Size(args);
     if ((argc < 1) || (argc > 3)) {

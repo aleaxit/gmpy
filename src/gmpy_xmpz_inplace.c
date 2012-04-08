@@ -41,7 +41,6 @@ Pyxmpz_inplace_add(PyObject *a, PyObject *b)
 
     /* Try to make mpz + small_int faster */
     if (PyIntOrLong_Check(b)) {
-        TRACE("Adding (xmpz,long)\n");
         temp_si = PyLong_AsSIAndOverflow(b, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
@@ -65,7 +64,6 @@ Pyxmpz_inplace_add(PyObject *a, PyObject *b)
         return a;
     }
 
-    TRACE("Pyxmpz_inplace_add returned NotImplemented\n");
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -80,7 +78,6 @@ Pyxmpz_inplace_sub(PyObject *a, PyObject *b)
     int overflow;
 
     if (PyIntOrLong_Check(b)) {
-        TRACE("Subtracting (xmpz,long)\n");
         temp_si = PyLong_AsSIAndOverflow(b, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
@@ -104,7 +101,6 @@ Pyxmpz_inplace_sub(PyObject *a, PyObject *b)
         return a;
     }
 
-    TRACE("Pyxmpz_inplace_sub returned NotImplemented\n");
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -119,7 +115,6 @@ Pyxmpz_inplace_mul(PyObject *a, PyObject *b)
     int overflow;
 
     if (PyIntOrLong_Check(b)) {
-        TRACE("Multiplying (xmpz,long)\n");
         temp_si = PyLong_AsSIAndOverflow(b, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
@@ -140,7 +135,6 @@ Pyxmpz_inplace_mul(PyObject *a, PyObject *b)
         return a;
     }
 
-    TRACE("Pyxmpz_inplace_mul returned NotImplemented\n");
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -157,7 +151,6 @@ Pyxmpz_inplace_floordiv(PyObject *a, PyObject *b)
     int overflow;
 
     if (PyIntOrLong_Check(b)) {
-        TRACE("Floor divide (xmpz,long)\n");
         temp_si = PyLong_AsSIAndOverflow(b, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
@@ -190,7 +183,6 @@ Pyxmpz_inplace_floordiv(PyObject *a, PyObject *b)
         return a;
     }
 
-    TRACE("Pyxmpz_inplace_floordiv returned NotImplemented\n");
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -205,7 +197,6 @@ Pyxmpz_inplace_rem(PyObject *a, PyObject *b)
     int overflow;
 
     if (PyIntOrLong_Check(b)) {
-        TRACE("Modulo (xmpz,long)\n");
         temp_si = PyLong_AsSIAndOverflow(b, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
@@ -228,7 +219,6 @@ Pyxmpz_inplace_rem(PyObject *a, PyObject *b)
     }
 
     if (CHECK_MPZANY(b)) {
-        TRACE("Modulo (integer,integer)\n");
         if(mpz_sgn(Pyxmpz_AS_MPZ(b)) == 0) {
             ZERO_ERROR("xmpz modulo by zero");
             return NULL;
@@ -238,7 +228,6 @@ Pyxmpz_inplace_rem(PyObject *a, PyObject *b)
         return a;
     }
 
-    TRACE("Pyxmpz_inplace_rem returned NotImplemented\n");
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -252,7 +241,6 @@ Pyxmpz_inplace_rshift(PyObject *a, PyObject *b)
     int overflow;
 
     if (PyIntOrLong_Check(b)) {
-        TRACE("right shift\n");
         temp_si = PyLong_AsSIAndOverflow(b, &overflow);
         if (overflow) {
             OVERFLOW_ERROR("outrageous shift count");
@@ -284,7 +272,6 @@ Pyxmpz_inplace_rshift(PyObject *a, PyObject *b)
         return a;
     }
 
-    TRACE("Pyxmpz_inplace_rshift returned NotImplemented\n");
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -298,7 +285,6 @@ Pyxmpz_inplace_lshift(PyObject *a, PyObject *b)
     int overflow;
 
     if (PyIntOrLong_Check(b)) {
-        TRACE("left shift\n");
         temp_si = PyLong_AsSIAndOverflow(b, &overflow);
         if (overflow) {
             OVERFLOW_ERROR("outrageous shift count");
@@ -328,7 +314,6 @@ Pyxmpz_inplace_lshift(PyObject *a, PyObject *b)
         return a;
     }
 
-    TRACE("Pyxmpz_inplace_lshift returned NotImplemented\n");
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -340,8 +325,6 @@ Pyxmpz_inplace_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
 {
     PympzObject *e = 0;
     mpir_ui el;
-
-    TRACE("Pyxmpz_inplace_pow\n");
 
     if (!Pyxmpz_Check(in_b)) {
         PyErr_SetString(PyExc_TypeError, "base must be an Integer");
@@ -396,7 +379,6 @@ Pyxmpz_inplace_and(PyObject *self, PyObject *other)
         return self;
     }
 
-    TRACE("Pyxmpz_inplace_and returned NotImplemented\n");
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -423,7 +405,6 @@ Pyxmpz_inplace_xor(PyObject *self, PyObject *other)
         return self;
     }
 
-    TRACE("Pyxmpz_inplace_xor returned NotImplemented\n");
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -450,7 +431,6 @@ Pyxmpz_inplace_ior(PyObject *self, PyObject *other)
         return self;
     }
 
-    TRACE("Pyxmpz_inplace_ior returned NotImplemented\n");
     Py_RETURN_NOTIMPLEMENTED;
 }
 

@@ -47,7 +47,6 @@ Pympz_inplace_add(PyObject *self, PyObject *other)
     }
 
     if (PyIntOrLong_Check(other)) {
-        TRACE("Adding (mpz,long)\n");
         temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
@@ -64,7 +63,6 @@ Pympz_inplace_add(PyObject *self, PyObject *other)
         return (PyObject*)rz;
     }
 
-    TRACE("Pympz_inplace_add returned NotImplemented\n");
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -85,7 +83,6 @@ Pympz_inplace_sub(PyObject *self, PyObject *other)
     }
 
     if (PyIntOrLong_Check(other)) {
-        TRACE("Subtracting (mpz,long)\n");
         temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
@@ -102,7 +99,6 @@ Pympz_inplace_sub(PyObject *self, PyObject *other)
         return (PyObject*)rz;
     }
 
-    TRACE("Pympz_inplace_sub returned NotImplemented\n");
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -123,7 +119,6 @@ Pympz_inplace_mul(PyObject *self, PyObject *other)
     }
 
     if (PyIntOrLong_Check(other)) {
-        TRACE("Multiplying (mpz,long)\n");
         temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
@@ -137,7 +132,6 @@ Pympz_inplace_mul(PyObject *self, PyObject *other)
         return (PyObject*)rz;
     }
 
-    TRACE("Pympz_inplace_mul returned NotImplemented\n");
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -167,7 +161,6 @@ Pympz_inplace_floordiv(PyObject *self, PyObject *other)
     }
 
     if (PyIntOrLong_Check(other)) {
-        TRACE("Floor divide (mpz,long)\n");
         temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
@@ -189,7 +182,6 @@ Pympz_inplace_floordiv(PyObject *self, PyObject *other)
         return (PyObject*)rz;
     }
 
-    TRACE("Pympz_inplace_floordiv returned NotImplemented\n");
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -205,7 +197,6 @@ Pympz_inplace_rem(PyObject *self, PyObject *other)
         return NULL;
 
      if (CHECK_MPZANY(other)) {
-        TRACE("Modulo (integer,integer)\n");
         if (mpz_sgn(Pympz_AS_MPZ(other)) == 0) {
             ZERO_ERROR("mpz modulo by zero");
             return NULL;
@@ -215,7 +206,6 @@ Pympz_inplace_rem(PyObject *self, PyObject *other)
     }
 
    if (PyIntOrLong_Check(other)) {
-        TRACE("Modulo (mpz,long)\n");
         temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
@@ -236,7 +226,6 @@ Pympz_inplace_rem(PyObject *self, PyObject *other)
         return (PyObject*)rz;
     }
 
-    TRACE("Pympz_inplace_rem returned NotImplemented\n");
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -267,7 +256,6 @@ Pympz_inplace_rshift(PyObject *self, PyObject *other)
     }
 
     if (PyIntOrLong_Check(other)) {
-        TRACE("right shift\n");
         temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             VALUE_ERROR("outrageous shift count");
@@ -285,7 +273,6 @@ Pympz_inplace_rshift(PyObject *self, PyObject *other)
         }
     }
 
-    TRACE("Pympz_inplace_rshift returned NotImplemented\n");
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -316,7 +303,6 @@ Pympz_inplace_lshift(PyObject *self, PyObject *other)
     }
 
     if (PyIntOrLong_Check(other)) {
-        TRACE("left shift\n");
         temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             VALUE_ERROR("outrageous shift count");
@@ -334,7 +320,6 @@ Pympz_inplace_lshift(PyObject *self, PyObject *other)
         }
     }
 
-    TRACE("Pympz_inplace_lshift returned NotImplemented\n");
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -343,8 +328,6 @@ Pympz_inplace_pow(PyObject *self, PyObject *other, PyObject *mod)
 {
     PympzObject *r, *e = 0;
     mpir_ui el;
-
-    TRACE("Pympz_inplace_pow\n");
 
     if (mod != Py_None) {
         Py_RETURN_NOTIMPLEMENTED;

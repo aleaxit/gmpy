@@ -262,6 +262,7 @@
  *   pow() is no longer a module level function (casevh)
  *   Renamed module functions min()/max() to min2()/max2() (casevh)
  *       No longer conflicts with builtin min() and max()
+ *   Removed set_debug() and related functionality (casevh)
  *
  ************************************************************************
  *
@@ -348,15 +349,12 @@ combined module is licensed under LGPL 3 or later.";
 static PyObject *gmpy_module = NULL;
 
 /* The following global structures are used by gmpy_cache.c.
- * Note: the debug option will likely be removed.
  */
 
 static struct gmpy_global {
-    int debug;               /* != 0 if debug messages desired on stderr */
     int cache_size;          /* size of cache, for all caches */
     int cache_obsize;        /* maximum size of the objects that are cached */
 } global = {
-    0,                       /* debug */
     100,                     /* cache_size */
     128,                     /* cache_obsize */
 };
@@ -559,7 +557,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "iroot_rem", Pympz_iroot_rem, METH_VARARGS, doc_mpz_iroot_rem },
     { "random_state", GMPY_random_state, METH_VARARGS, doc_random_state },
     { "set_cache", Pygmpy_set_cache, METH_VARARGS, doc_set_cache },
-    { "set_debug", Pygmpy_set_debug, METH_VARARGS, doc_set_debug },
     { "sign", Pympany_sign, METH_O, doc_g_mpany_sign },
     { "square", Pympany_square, METH_O, doc_mpany_square },
     { "sub", Pympany_sub, METH_VARARGS, doc_mpany_sub },
