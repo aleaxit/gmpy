@@ -30,7 +30,11 @@ the *mpfr* type, always pass constants as strings.
 Contexts
 --------
 
-A *context* is used to control the behavior of *mpfr* (and *mpc*) arithmetic.
+.. warning::
+    Contexts and context managers are not thread-safe! Modifying the context
+    in one thread will impact all other threads.
+
+A *context* is used to control the behavior of *mpfr* and *mpc* arithmetic.
 In addition to controlling the precision, the rounding mode can be specified,
 minimum and maximum exponent values can be changed, various exceptions can be
 raised or ignored, gradual underflow can be enabled, and returning complex
@@ -161,7 +165,7 @@ Context Attributes
 **trap_underflow**
     If set to ``False``, a result that is smaller than the smallest possible
     *mpfr* given the current exponent range will be replaced by +/-0.0. If set
-    to ``True``, an ``UnderflowError`` exception is raised.
+    to ``True``, an ``UnderflowResultError`` exception is raised.
 
 **underflow**
     This flag is not user controllable. It is automatically set if a result
@@ -170,17 +174,17 @@ Context Attributes
 **trap_overflow**
     If set to ``False``, a result that is larger than the largest possible
     *mpfr* given the current exponent range will be replaced by +/-Infinity. If
-    set to ``True``, an ``OverflowError`` exception is raised.
+    set to ``True``, an ``OverflowResultError`` exception is raised.
 
 **overflow**
     This flag is not user controllable. It is automatically set if a result
     overflowed to +/-Infinity and trap_overflow is ``False``.
 
 **trap_inexact**
-    This attribute controls whether or not an ``InexactError`` exception is
-    raised if an inexact result is returned. To check if the result is greater
-    or less than the exact result, check the **rc** attribute of the *mpfr*
-    result.
+    This attribute controls whether or not an ``InexactResultError`` exception
+    is raised if an inexact result is returned. To check if the result is
+    greater or less than the exact result, check the **rc** attribute of the
+    *mpfr* result.
 
 **inexact**
     This flag is not user controllable. It is automatically set if an inexact
@@ -257,10 +261,15 @@ mpfr Methods
     objects.
 
 **as_mantissa_exp()**
+    Returns a 2-tuple containing the mantissa and exponent.
 
 **as_simple_fraction()**
     Returns an *mpq* containing the simpliest rational value that approximates
     the *mpfr* value with an error less than 1/(2**precision).
+
+**conjugate()**
+    Returns the complex conjugate. For *mpfr* objects, returns a copy of the
+    original object.
 
 **digits()**
     Returns a 3-tuple containing the mantissa, the exponent, and the number
@@ -271,6 +280,12 @@ mpfr Methods
 
 **is_integer()**
     Returns True if the *mpfr* object is an integer.
+
+mpfr Attributes
+---------------
+
+**imag**
+    Returns the imaginary component. For *mpfr* objects, returns 0.
 
 **precision**
     Returns the precision of the *mpfr* object.
@@ -283,11 +298,17 @@ mpfr Methods
     then the value of the *mpfr* object is less than the exact, infinite
     precision value.
 
+**real**
+    Returns the real component. For *mpfr* objects, returns a copy of the
+    original object.
+
 mpfr Functions
 --------------
 
 **acos(...)**
-    acos(x) returns the arc-cosine of x. x is measured in radians.
+    acos(x) returns the arc-cosine of x. x is measured in radians. If
+    context.allow_complex is True, then an *mpc* result will be returned for
+    abs(x) > 1.
 
 **acosh(...)**
     acosh(x) returns the inverse hyperbolic cosine of x.
@@ -303,7 +324,9 @@ mpfr Functions
     ai(x) returns the Airy function of x.
 
 **asin(...)**
-    asin(x) returns the arc-sine of x. x is measured in radians.
+    asin(x) returns the arc-sine of x. x is measured in radians. If
+    context.allow_complex is True, then an *mpc* result will be returned for
+    abs(x) > 1.
 
 **asinh(...)**
     asinh(x) return the inverse hyperbolic sine of x.
@@ -315,7 +338,9 @@ mpfr Functions
     atan2(y, x) returns the arc-tangent of (y/x).
 
 **atanh(...)**
-    atanh(x) returns the inverse hyperbolic tangent of x.
+    atanh(x) returns the inverse hyperbolic tangent of x. If
+    context.allow_complex is True, then an *mpc* result will be returned for
+    abs(x) > 1.
 
 **cbrt(...)**
     cbrt(x) returns the cube root of x.
@@ -450,6 +475,9 @@ mpfr Functions
     inf(n) returns an *mpfr* initialized to Infinity with the same sign as n.
     If n is not given, +Infinity is returned.
 
+**is_inf(...)**
+    is_inf(x) returns True if x is Infinity or - Infinity.
+
 **is_nan(...)**
     is_nan(x) returns True if x is NaN (Not-A-Number).
 
@@ -500,11 +528,15 @@ mpfr Functions
 **log2(...)**
     log2(x) returns the base-2 logarithm of x.
 
-**max(...)**
-    max(y, x) returns the maximum of x and y.
+**max2(...)**
+    max2(x, y) returns the maximum of x and y. The result may be rounded to
+    match the current context. Use the builtin max() to get an exact copy of
+    the largest object without any rounding.
 
-**min(...)**
-    min(y, x) returns the minimum of x and y.
+**min2(...)**
+    min2(x, y) returns the minimum of x and y. The result may be rounded to
+    match the current context. Use the builtin min() to get an exact copy of
+    the smallest object without any rounding.
 
 **modf(...)**
     modf(x) returns a tuple containing the integer and fractional portions
@@ -598,13 +630,14 @@ mpfr Functions
 **root(...)**
     root(x, n) returns n-th root of x. The result always an *mpfr*.
 
-**round(...)**
-    round(x[, n]) returns x rounded to n bits. Uses default precision if n is
-    not specified. See round2() to access the mpfr_round() function.
-
 **round2(...)**
-    round2(x) returns an *mpfr* by rounding x the nearest integer, with ties
-    rounded away from 0.
+    round2(x[, n]) returns x rounded to n bits. Uses default precision if n is
+    not specified. See round_away() to access the mpfr_round() function. Use
+    the builtin round() to round x to n decimal digits.
+
+**round_away(...)**
+    round_away(x) returns an *mpfr* by rounding x the nearest integer, with
+    ties rounded away from 0.
 
 **sec(...)**
     sec(x) returns the secant of x. x is measured in radians.
@@ -678,7 +711,56 @@ mpfr Functions
 **zeta(...)**
     zeta(x) returns the Riemann zeta of x.
 
+mpfr Formatting
+---------------
 
+The *mpfr* type supports the __format__() special method to allow custom output
+formatting.
+
+**__format__(...)**
+    x.__format__(fmt) returns a Python string by formatting 'x' using the
+    format string 'fmt'. A valid format string consists of:
+
+    |     optional alignment code:
+    |        '<' -> left shifted in field
+    |        '>' -> right shifted in field
+    |        '^' -> centered in field
+    |     optional leading sign code
+    |        '+' -> always display leading sign
+    |        '-' -> only display minus for negative values
+    |        ' ' -> minus for negative values, space for positive values
+    |     optional width.precision
+    |     optional rounding mode:
+    |        'U' -> round toward plus infinity
+    |        'D' -> round toward minus infinity
+    |        'Y' -> round away from zero
+    |        'Z' -> round toward zero
+    |        'N' -> round to nearest
+    |     optional conversion code:
+    |        'a','A' -> hex format
+    |        'b'     -> binary format
+    |        'e','E' -> scientific format
+    |        'f','F' -> fixed point format
+    |        'g','G' -> fixed or scientific format
+
+    .. note::
+        The formatting codes must be specified in the order shown above.
+
+::
+
+    >>> import gmpy2
+    >>> from gmpy2 import mpfr
+    >>> a=mpfr("1.23456")
+    >>> "{0:15.3f}".format(a)
+    '          1.235'
+    >>> "{0:15.3Uf}".format(a)
+    '          1.235'
+    >>> "{0:15.3Df}".format(a)
+    '          1.234'
+    >>> "{0:.3Df}".format(a)
+    '1.234'
+    >>> "{0:+.3Df}".format(a)
+    '+1.234'
 
 
 

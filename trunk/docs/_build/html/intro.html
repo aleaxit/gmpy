@@ -50,14 +50,20 @@
             
   <div class="section" id="introduction-to-gmpy2">
 <h1>Introduction to gmpy2<a class="headerlink" href="#introduction-to-gmpy2" title="Permalink to this headline">¶</a></h1>
-<p>gmpy2 is a C-coded Python extension module that supports several
-multiple-precision arithmetic libaries. The following libraries are supported:</p>
+<p>gmpy2 is a C-coded Python extension module that supports multiple-precision
+arithmetic. gmpy2 is the successor to the original gmpy module. The gmpy module
+only supported the GMP multiple-precision library. gmpy2 adds support for the
+MPFR (correctly rounded real floating-point arithmetic) and MPC (correctly
+rounded complex floating-point arithmetic) libraries. gmpy2 also updates the
+API and naming conventions to be more consistent and support the additional
+functionality.</p>
+<p>The following libraries are supported:</p>
 <ul>
 <li><p class="first">GMP for integer and rational arithmetic</p>
 <p>Home page: <a class="reference external" href="http://gmplib.org">http://gmplib.org</a></p>
 </li>
 <li><p class="first">MPIR is based on the GMP library but adds support for Microsoft&#8217;s Visual
-Studio compiler.</p>
+Studio compiler. It is used to create the Windows binaries.</p>
 <p>Home page: <a class="reference external" href="http://www.mpir.org">http://www.mpir.org</a></p>
 </li>
 <li><p class="first">MPFR for correctly rounded real floating-point arithmetic</p>
@@ -65,6 +71,11 @@ Studio compiler.</p>
 </li>
 <li><p class="first">MPC for correctly rounded complex floating-point arithmetic</p>
 <p>Home page: <a class="reference external" href="http://mpc.multiprecision.org">http://mpc.multiprecision.org</a></p>
+</li>
+<li><p class="first">Generalized Lucas sequences and primality tests are based on the following
+code:</p>
+<p>mpz_lucas: <a class="reference external" href="http://sourceforge.net/projects/mpzlucas/">http://sourceforge.net/projects/mpzlucas/</a></p>
+<p>mpz_prp: <a class="reference external" href="http://sourceforge.net/projects/mpzprp/">http://sourceforge.net/projects/mpzprp/</a></p>
 </li>
 </ul>
 <div class="section" id="installing-gmpy2-on-windows">
@@ -140,6 +151,51 @@ $ make install</pre>
 </div>
 </div>
 </div>
+<div class="section" id="miscellaneous-gmpy2-functions">
+<h2>Miscellaneous gmpy2 Functions<a class="headerlink" href="#miscellaneous-gmpy2-functions" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>from_binary(...)</strong></dt>
+<dd>from_binary(bytes) returns a gmpy2 object from a byte sequence created by
+to_binary().</dd>
+<dt><strong>get_cache(...)</strong></dt>
+<dd><p class="first">get_cache() returns the current cache size (number of objects) and the
+maximum size per object (number of limbs).</p>
+<p class="last">gmpy2 maintains an internal list of freed <em>mpz</em>, <em>xmpz</em>, <em>mpq</em>, and <em>mpfr</em>
+objects for reuse. The cache significantly improves performance but does
+increase the memory footprint.</p>
+</dd>
+<dt><strong>license(...)</strong></dt>
+<dd>license() returns the gmpy2 license information.</dd>
+<dt><strong>mp_limbsize(...)</strong></dt>
+<dd>mp_limbsize() returns the number of bits per limb used by the GMP or MPIR
+libarary.</dd>
+<dt><strong>mp_version(...)</strong></dt>
+<dd>mp_version() returns the version of the GMP or MPIR library.</dd>
+<dt><strong>mpc_version(...)</strong></dt>
+<dd>mpc_version() returns the version of the MPC library.</dd>
+<dt><strong>mpfr_version(...)</strong></dt>
+<dd>mpfr_version() returns the version of the MPFR library.</dd>
+<dt><strong>random_state(...)</strong></dt>
+<dd>random_state([seed]) returns a new object containing state information for
+the random number generator. An optional integer argument can be specified
+as the seed value. Only the Mersenne Twister random number generator is
+supported.</dd>
+<dt><strong>set_cache(...)</strong></dt>
+<dd><p class="first">set_cache(number, size) updates the maximum number of freed objects of each
+type that are cached and the maximum size (in limbs) of each object. The
+maximum number of objects of each type that can be cached is 1000. The
+maximum size of an object is 16384. The maximum size of an object is
+approximately 64K on 32-bit systems and 128K on 64-bit systems.</p>
+<p class="last">The caching options are global to gmpy2. Changes are not thread-safe. A
+change in one thread will impact all threads.</p>
+</dd>
+<dt><strong>to_binary(...)</strong></dt>
+<dd>to_binary(x) returns a byte sequence from a gmpy2 object. All object types
+are supported.</dd>
+<dt><strong>version(...)</strong></dt>
+<dd>version() returns the version of gmpy2.</dd>
+</dl>
+</div>
 </div>
 
 
@@ -158,6 +214,7 @@ $ make install</pre>
 <li><a class="reference internal" href="#detailed-instructions">Detailed Instructions</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#miscellaneous-gmpy2-functions">Miscellaneous gmpy2 Functions</a></li>
 </ul>
 </li>
 </ul>
