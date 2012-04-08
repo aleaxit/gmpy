@@ -43,7 +43,6 @@
 static void
 set_zcache(void)
 {
-    TRACE("Entering set_zcache\n");
     if (in_zcache > global.cache_size) {
         int i;
         for(i = global.cache_size; i < in_zcache; ++i)
@@ -57,14 +56,9 @@ static void
 mpz_inoc(mpz_t newo)
 {
     if (in_zcache) {
-#ifdef DEBUG
-        if (global.debug)
-            fprintf(stderr, "Getting %d from zcache\n", in_zcache);
-#endif
         newo[0] = (zcache[--in_zcache])[0];
     }
     else {
-        TRACE("Initing new not in zcache\n");
         mpz_init(newo);
     }
 }
@@ -74,17 +68,8 @@ mpz_cloc(mpz_t oldo)
 {
     if (in_zcache<global.cache_size && oldo->_mp_alloc <= global.cache_obsize) {
         (zcache[in_zcache++])[0] = oldo[0];
-#ifdef DEBUG
-        if (global.debug)
-            fprintf(stderr, "Stashed %d to zcache\n", in_zcache);
-#endif
     }
     else {
-#ifdef DEBUG
-        if (global.debug)
-            fprintf(stderr, "Not placing in full zcache(%d/%d)\n",
-                    in_zcache, global.cache_size);
-#endif
         mpz_clear(oldo);
     }
 }
@@ -94,7 +79,6 @@ mpz_cloc(mpz_t oldo)
 static void
 set_pympzcache(void)
 {
-    TRACE("Entering set_pympzcache\n");
     if (in_pympzcache > global.cache_size) {
         int i;
         for (i = global.cache_size; i < in_pympzcache; ++i) {
@@ -111,16 +95,13 @@ Pympz_new(void)
 {
     PympzObject *self;
 
-    TRACE("Entering Pympz_new\n");
     if (in_pympzcache) {
-        TRACE("Pympz_new is reusing an old object\n");
         self = pympzcache[--in_pympzcache];
         /* Py_INCREF does not set the debugging pointers, so need to use
          * _Py_NewReference instead. */
         _Py_NewReference((PyObject*)self);
     }
     else {
-        TRACE("Pympz_new is creating a new object\n");
         if (!(self = PyObject_New(PympzObject, &Pympz_Type)))
             return NULL;
         mpz_inoc(self->z);
@@ -132,7 +113,6 @@ Pympz_new(void)
 static void
 Pympz_dealloc(PympzObject *self)
 {
-    TRACE("Pympz_dealloc\n");
     if (in_pympzcache < global.cache_size &&
         self->z->_mp_alloc <= global.cache_obsize) {
         pympzcache[in_pympzcache++] = self;
@@ -148,7 +128,6 @@ Pympz_dealloc(PympzObject *self)
 static void
 set_pyxmpzcache(void)
 {
-    TRACE("Entering set_pyxmpzcache\n");
     if (in_pyxmpzcache > global.cache_size) {
         int i;
         for (i = global.cache_size; i < in_pyxmpzcache; ++i) {
@@ -165,16 +144,13 @@ Pyxmpz_new(void)
 {
     PyxmpzObject *self;
 
-    TRACE("Entering Pyxmpz_new\n");
     if (in_pyxmpzcache) {
-        TRACE("Pyxmpz_new is reusing an old object\n");
         self = pyxmpzcache[--in_pyxmpzcache];
         /* Py_INCREF does not set the debugging pointers, so need to use
          * _Py_NewReference instead. */
         _Py_NewReference((PyObject*)self);
     }
     else {
-        TRACE("Pyxmpz_new is creating a new object\n");
         if (!(self = PyObject_New(PyxmpzObject, &Pyxmpz_Type)))
             return NULL;
         mpz_inoc(self->z);
@@ -185,7 +161,6 @@ Pyxmpz_new(void)
 static void
 Pyxmpz_dealloc(PyxmpzObject *self)
 {
-    TRACE("Pyxmpz_dealloc\n");
     if (in_pyxmpzcache < global.cache_size &&
         self->z->_mp_alloc <= global.cache_obsize) {
         pyxmpzcache[in_pyxmpzcache++] = self;
@@ -201,7 +176,6 @@ Pyxmpz_dealloc(PyxmpzObject *self)
 static void
 set_pympqcache(void)
 {
-    TRACE("Entering set_pympqcache\n");
     if (in_pympqcache > global.cache_size) {
         int i;
         for (i = global.cache_size; i < in_pympqcache; ++i) {
@@ -218,16 +192,13 @@ Pympq_new(void)
 {
     PympqObject *self;
 
-    TRACE("Entering Pympq_new\n");
     if (in_pympqcache) {
-        TRACE("Pympq_new is reusing an old object\n");
         self = pympqcache[--in_pympqcache];
         /* Py_INCREF does not set the debugging pointers, so need to use
            _Py_NewReference instead. */
         _Py_NewReference((PyObject*)self);
     }
     else {
-        TRACE("Pympq_new is creating a new object\n");
         if (!(self = PyObject_New(PympqObject, &Pympq_Type)))
             return NULL;
         mpq_init(self->q);
@@ -239,7 +210,6 @@ Pympq_new(void)
 static void
 Pympq_dealloc(PympqObject *self)
 {
-    TRACE("Pympq_dealloc\n");
     if (in_pympqcache<global.cache_size &&
         mpq_numref(self->q)->_mp_alloc <= global.cache_obsize &&
         mpq_denref(self->q)->_mp_alloc <= global.cache_obsize) {
@@ -257,7 +227,6 @@ Pympq_dealloc(PympqObject *self)
 static void
 set_pympfrcache(void)
 {
-    TRACE("Entering set_pympfrcache\n");
     if (in_pympfrcache > global.cache_size) {
         int i;
         for (i = global.cache_size; i < in_pympfrcache; ++i) {
@@ -274,7 +243,6 @@ Pympfr_new(mpfr_prec_t bits)
 {
     PympfrObject *self;
 
-    TRACE("Entering Pympfr_new\n");
     if (bits == 0)
         bits = context->ctx.mpfr_prec;
     if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
@@ -282,7 +250,6 @@ Pympfr_new(mpfr_prec_t bits)
         return NULL;
     }
     if (in_pympfrcache) {
-        TRACE("Pympfr_new is reusing an old object\n");
         self = pympfrcache[--in_pympfrcache];
         /* Py_INCREF does not set the debugging pointers, so need to use
            _Py_NewReference instead. */
@@ -290,7 +257,6 @@ Pympfr_new(mpfr_prec_t bits)
         mpfr_set_prec(self->f, bits);
     }
     else {
-        TRACE("Pympfr_new is creating a new object\n");
         if (!(self = PyObject_New(PympfrObject, &Pympfr_Type)))
             return NULL;
         mpfr_init2(self->f, bits);
@@ -306,7 +272,6 @@ Pympfr_dealloc(PympfrObject *self)
 {
     size_t msize;
 
-    TRACE("Pympfr_dealloc\n");
     /* Calculate the number of limbs in the mantissa. */
     msize = (self->f->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
     if (in_pympfrcache < global.cache_size &&
@@ -330,8 +295,6 @@ static PympcObject *
 Pympc_new(mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *self;
-
-    TRACE("Entering Pympc_new\n");
 
     if (rprec == 0)
         rprec = GET_REAL_PREC(context);

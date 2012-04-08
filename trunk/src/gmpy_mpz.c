@@ -46,8 +46,6 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
     Py_ssize_t argc;
     static char *kwlist[] = {"n", "base", NULL };
 
-    TRACE("Pygmpy_mpz() called...\n");
-
     /* Optimize the most common use case */
     argc = PyTuple_Size(args);
     if (argc == 1) {
@@ -115,8 +113,6 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
     long base = 0;
     Py_ssize_t argc;
     static char *kwlist[] = {"n", "base", NULL };
-
-    TRACE("Pygmpy_xmpz() called...\n");
 
     /* Optimize the most common use case */
     argc = PyTuple_Size(args);

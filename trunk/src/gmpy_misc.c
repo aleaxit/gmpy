@@ -162,24 +162,3 @@ Pygmpy_set_cache(PyObject *self, PyObject *args)
 #endif
     Py_RETURN_NONE;
 }
-
-PyDoc_STRVAR(doc_set_debug,
-"set_debug(boolean) -> boolean\n\n\
-Set (if True) or clear (if False) the module level 'debug' setting\n\
-and returns the previous value. If set, diagnostic information is\n\
-sent to stderr. Note: only useful to debug GMPY2's own internals!");
-
-static PyObject *
-Pygmpy_set_debug(PyObject *self, PyObject *args)
-{
-#ifdef DEBUG
-    int old = global.debug;
-    if (!PyArg_ParseTuple(args, "i", &global.debug))
-        return NULL;
-    return Py_BuildValue("i", old);
-#else
-    PyErr_SetString(PyExc_NotImplementedError,
-                    "gmpy2 was compiled without debug support.");
-    return NULL;
-#endif
-}

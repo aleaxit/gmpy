@@ -45,8 +45,6 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
     Py_ssize_t argc;
     static char *kwlist[] = {"s", "base", NULL };
 
-    TRACE("Pygmpy_mpq() called...\n");
-
     argc = PyTuple_Size(args);
     if (argc < 1 || argc > 2) {
         TYPE_ERROR("mpq() requires 1 or 2 arguments");
