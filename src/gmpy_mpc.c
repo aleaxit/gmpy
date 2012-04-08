@@ -869,7 +869,7 @@ Pympc_format(PyObject *self, PyObject *args)
      * or ' ' sign indicator to '+'. */
 
     if (!mpcstyle) {
-        if (ifmt[1] == ' ' || ifmt[1] == '-') {
+        if (ifmt[1] == ' ' || ifmt[1] == '-' || ifmt[1] == '+') {
             ifmt[1] = '+';
         }
         else {
