@@ -213,7 +213,9 @@ GMPyContextManager_repr(GMPyContextManagerObject *self)
 
 PyDoc_STRVAR(doc_get_context,
 "get_context() -> gmpy2 context\n\n"
-"Return a copy of the current context.");
+"Return a reference to the current context. Keyword arguments will\n"
+"modify the current context. Changing attributes will modify the\n"
+"current context unless another context is activated by set_context().");
 
 /* Should parse keyword arguments. */
 
@@ -536,8 +538,9 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
 
 PyDoc_STRVAR(doc_context,
 "context() -> context manager\n\n"
-"Return a new context manager controlling MPFR and MPC arithmetic.\n"
-"Options can only be specified as keyword arguments. \n\n"
+"Return a new context for controlling MPFR and MPC arithmetic. To load\n"
+"the new context, use set_context(). Options can only be specified as\n"
+"keyword arguments. \n\n"
 "    precision:      precision, in bits, of an MPFR result\n"
 "    real_prec:      precision, in bits, of Re(MPC)\n"
 "                      -1 implies use mpfr_prec\n"
@@ -574,9 +577,9 @@ PyDoc_STRVAR(doc_context,
 
 PyDoc_STRVAR(doc_context,
 "context() -> context\n\n"
-"Return a new context manager controlling MPFR arithmetic. Options can\n"
-"only be specified as keyword arguments. Options are also available as\n"
-"instance attributes.\n\n"
+"Return a new context for controlling MPFR arithmetic. To load the\n"
+"new context, use set_context(). Options can only be specified as\n"
+"keyword arguments. \n\n"
 "    precision:      precision, in bits, of an MPFR result\n"
 "    round:          rounding mode for MPFR\n"
 "    e_max:          maximum allowed exponent\n"
