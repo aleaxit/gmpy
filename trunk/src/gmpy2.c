@@ -211,7 +211,7 @@
  *
  ************************************************************************
  *
- *   2.00:
+ *   2.0.0:
  *   Added caching for mpq (casevh)
  *   Added rootrem, fib2, lucas, lucas2 (casevh)
  *   Removed mpf.setprec(), use mpf.round() (casevh)
@@ -263,6 +263,10 @@
  *   Renamed module functions min()/max() to min2()/max2() (casevh)
  *       No longer conflicts with builtin min() and max()
  *   Removed set_debug() and related functionality (casevh)
+ *   Released as 2.0.0b1
+ *   Allow xmpz slice assignment to increase length of xmpz instance by
+ *      specifying a value for stop (casevh)
+ *
  *
  ************************************************************************
  *

@@ -2227,14 +2227,25 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
         }
     }
     else if (PySlice_Check(item)) {
-        Py_ssize_t start, stop, step, slicelength;
+        Py_ssize_t cur, i, seq_len, start, stop, step, slicelength, temp;
+
+        seq_len = mpz_sizeinbase(self->z, 2);
+        if (((PySliceObject*)item)->stop != Py_None) {
+            /* If a fixed endpoint is specified, and the endpoint is greater
+             * than the length of the xmpz object, allow the underlying xmpz
+             * object to be made larger.
+             */
+            temp = PyLong_AsSsize_t(((PySliceObject*)item)->stop);
+            if (temp > seq_len)
+                seq_len = temp;
+        }
 
 #if PY_VERSION_HEX > 0x030200A4
         if (PySlice_GetIndicesEx(item,
 #else
         if (PySlice_GetIndicesEx((PySliceObject*)item,
 #endif
-                        mpz_sizeinbase(self->z, 2),
+                        seq_len,
                         &start, &stop, &step, &slicelength) < 0) {
             return -1;
         }
@@ -2247,8 +2258,20 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
             TYPE_ERROR("deleting bits not supported");
             return -1;
         }
+        else if (value == Py_True) {
+            /* Set the last bit to 1 to avoid memory resizing. */
+            if (slicelength)
+                mpz_setbit(self->z, start + (slicelength-1) * step);
+            for (cur = start, i = 0; i < slicelength; cur += step, i++) {
+                mpz_setbit(self->z, cur);
+            }
+        }
+        else if (value == Py_False) {
+            for (cur = start, i = 0; i < slicelength; cur += step, i++) {
+                mpz_clrbit(self->z, cur);
+            }
+        }
         else {
-            Py_ssize_t cur, i;
             int bit;
             PympzObject *tempx;
 
@@ -2276,8 +2299,8 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
                 }
             }
             Py_DECREF((PyObject*)tempx);
-            return 0;
         }
+        return 0;
     }
     else {
         TYPE_ERROR("bit positions must be integers");
