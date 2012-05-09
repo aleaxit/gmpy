@@ -2,8 +2,8 @@
 # relies on Tim Peters' "doctest.py" test-driver
 
 r'''
->>> dir(a)
-['__abs__', '__add__', '__bool__', '__class__', '__delattr__', '__divmod__', '__doc__', '__eq__', '__float__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__int__', '__le__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__pos__', '__pow__', '__radd__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rmod__', '__rmul__', '__rpow__', '__rsub__', '__rtruediv__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
+>>> filter(lambda x: not x.startswith('__'), dir(a))
+['_copy', 'binary', 'ceil', 'digits', 'f2q', 'floor', 'getprec', 'getrprec', 'qdiv', 'reldiff', 'round', 'setprec', 'sign', 'sqrt', 'trunc']
 >>>
 '''
 import warnings
@@ -36,8 +36,6 @@ r'''
 '6.39193720839813374807'
 >>> str(-a)
 '-123.456'
->>> str(abs(-a))
-'123.456'
 >>> _g.mpf(2,200) + 3
 mpf('5.e0',200)
 >>> 3 + _g.mpf(2,200)
@@ -46,6 +44,8 @@ mpf('5.e0',200)
 mpf('6.e0',200)
 >>> 3 * _g.mpf(2,200)
 mpf('6.e0',200)
+>>> str(abs(-a))
+'123.456'
 >>> _g.fsign(b-a)
 1
 >>> _g.fsign(b-b)
@@ -60,13 +60,13 @@ mpf('6.e0',200)
 0
 >>> import math
 >>> math.ceil(a)
-124
+124.0
 >>> str(a.ceil())
 '124.0'
 >>> str(_g.ceil(a))
 '124.0'
 >>> math.floor(a)
-123
+123.0
 >>> str(a.floor())
 '123.0'
 >>> str(_g.floor(a))
@@ -77,7 +77,7 @@ mpf('6.e0',200)
 '123.0'
 >>> x=-a
 >>> math.floor(x)
--124
+-124.0
 >>> str(x.floor())
 '-124.0'
 >>> str(_g.floor(x))
@@ -85,7 +85,7 @@ mpf('6.e0',200)
 >>> str(x.ceil())
 '-123.0'
 >>> math.ceil(x)
--123
+-123.0
 >>> str(_g.ceil(x))
 '-123.0'
 >>> str(x.trunc())
@@ -144,6 +144,8 @@ True
 True
 '''
 
+
+from gmpy_truediv import truediv
 __test__['newdiv']=\
 r'''
 >>>
@@ -151,10 +153,14 @@ r'''
 mpf('1.56447093799065544915e-1')
 >>> a//b
 mpf('0.e0')
+>>> truediv(a,b)
+mpf('1.56447093799065544915e-1')
 >>> b/a
 mpf('6.39193720839813374807e0')
 >>> b//a
 mpf('6.e0')
+>>> truediv(b,a)
+mpf('6.39193720839813374807e0')
 >>>
 '''
 
@@ -174,6 +180,10 @@ r'''
 0
 >>> a == d
 1
+>>> cmp(a,c)
+0
+>>> cmp(a,b)
+-1
 >>> a>b
 0
 >>> a<b
@@ -198,9 +208,9 @@ mpq(15432,125)
 mpq(15432,125)
 >>> a.f2q()
 mpq(15432,125)
->>> print(_g.mpf(_g.mpz(1234)))
+>>> print _g.mpf(_g.mpz(1234))
 1234.0
->>> x=1000*1000*1000*1000
+>>> x=1000*1000*1000*1000L
 >>> _g.mpf(x)
 mpf('1.e12')
 >>> c=_g.mpf(a)
@@ -236,7 +246,6 @@ True
 '1.@33'
 >>> b.round(64)
 mpf('1.23e-1',64)
->>>
 '''
 
 __test__['format']=\
@@ -283,7 +292,7 @@ gmpy.mpf('1.23456e2')
 '%.14e'
 >>> _g.mpf(3.4)
 mpf('3.39999999999999999998e0')
->>> print(_g.mpf(3.4))
+>>> print _g.mpf(3.4)
 3.39999999999999999998
 >>> _g.set_fcoform(junk)
 '%.14e'
@@ -328,30 +337,14 @@ r'''
 >>> len(ba)
 18
 >>> for i in range(len(ba)):
-...     print(ba[i])
+...     print ord(ba[i]),
+...     if i==len(ba)-1: print
 ...
-8
-53
-0
-0
-0
-1
-0
-0
-0
-123
-116
-188
-106
-126
-249
-219
-34
-209
+8 53 0 0 0 1 0 0 0 123 116 188 106 126 249 219 34 209
 >>> na=(-a).binary()
 >>> (-a).reldiff(_g.mpf(na,0,256)) <= epsilon
 1
->>> na[0] == ba[0]|1
+>>> na[0] == chr(ord(ba[0])|1)
 1
 >>> for bd,nd in zip(ba[1:],na[1:]):
 ...    assert bd==nd
@@ -359,23 +352,23 @@ r'''
 >>> (1/a).reldiff(_g.mpf(ia,0,256)) <= epsilon
 1
 >>> _g.fbinary(0)
-b'\x04'
+'\x04'
 >>> _g.mpf(_g.fbinary(0), 0, 256) == 0
 1
 >>> _g.fbinary(0.5)
-b'\x085\x00\x00\x00\x00\x00\x00\x00\x80'
+'\x085\x00\x00\x00\x00\x00\x00\x00\x80'
 >>> _g.mpf(_g.fbinary(0.5), 0, 256) == 0.5
 1
 >>> _g.fbinary(-0.5)
-b'\t5\x00\x00\x00\x00\x00\x00\x00\x80'
+'\t5\x00\x00\x00\x00\x00\x00\x00\x80'
 >>> _g.mpf(_g.fbinary(-0.5), 0, 256) == -0.5
 1
 >>> _g.fbinary(-2.0)
-b'\t5\x00\x00\x00\x01\x00\x00\x00\x02'
+'\t5\x00\x00\x00\x01\x00\x00\x00\x02'
 >>> _g.mpf(_g.fbinary(-2.0), 0, 256) == -2.0
 1
 >>> _g.fbinary(2.0)
-b'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
+'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
 >>> _g.mpf(_g.fbinary(2.0), 0, 256) == 2.0
 1
 >>> prec=_g.set_minprec(0)
@@ -388,8 +381,12 @@ b'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
 1
 >>> hash(_g.mpf(23.0))==hash(23)
 1
->>> print(_g.mpf('\004',0,256))
+>>> print _g.mpf('\004',0,256)
 0.0
+>>> long(a)
+123L
+>>> long(-a)
+-123L
 >>> int(a)
 123
 >>> int(-a)
@@ -399,27 +396,26 @@ b'\x085\x00\x00\x00\x01\x00\x00\x00\x02'
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy 1.15 (mpf functionality)")
-        print("    running on Python %s" % sys.version)
-        print()
+        print "Unit tests for gmpy 1.15 (mpf functionality)"
+        print "    running on Python %s" % sys.version
+        print
         if _g.gmp_version():
-            print("Testing gmpy %s (GMP %s), default caching (%s, %s)" % (
+            print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.gmp_version(), _g.get_cache()[0],
-                _g.get_cache()[1])))
+                _g.get_cache()[1]))
         else:
-            print("Testing gmpy %s (MPIR %s), default caching (%s, %s)" % (
+            print "Testing gmpy %s (MPIR %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.mpir_version(), _g.get_cache()[0],
-                _g.get_cache()[1])))
+                _g.get_cache()[1]))
 
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
-    if chat: print("Repeating tests, with caching disabled")
+    if chat: print "Repeating tests, with caching disabled"
     _g.set_cache(0,128)
 
     sav = sys.stdout
     class _Dummy:
-        encoding=None
         def write(self,*whatever):
             pass
     try:
@@ -429,8 +425,8 @@ def _test(chat=None):
         sys.stdout = sav
 
     if chat:
-        print()
-        print("Overall results for mpf:")
+        print
+        print "Overall results for mpf:"
     return doctest.master.summarize(chat)
 
 if __name__=='__main__':

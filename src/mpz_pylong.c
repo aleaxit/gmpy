@@ -5,7 +5,7 @@
  * contribute them back to sage by posting to sage-devel@googlegroups.com
  * or by sending an email to the original author.
  *
- * Integration with gmpy2 by Case Van Horsen <casevh@gmail.com>.
+ * Integration with gmpy by Case Van Horsen <casevh@gmail.com>.
  *
  * License: LGPL v2 or later
  *
@@ -278,14 +278,6 @@ mpz_set_PyLong(mpz_ptr z, PyObject * lsrc)
   register PyLongObject * lptr = (PyLongObject *) lsrc;
   ssize_t size;
 
-
-#ifdef PY2
-  if (PyInt_Check(lsrc)) {
-    mpz_set_si(z, PyInt_AS_LONG(lsrc));
-    return 1;
-  }
-#endif
-
   if (lptr==NULL || !PyLong_Check(lptr)) {
     PyErr_BadInternalCall();
     return -1;
@@ -301,5 +293,4 @@ mpz_set_PyLong(mpz_ptr z, PyObject * lsrc)
 
   return (int)size;
 }
-
 
