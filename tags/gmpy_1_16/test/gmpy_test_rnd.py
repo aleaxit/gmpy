@@ -124,7 +124,7 @@ if sys.version<'2.4':
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.15 (rnd functionality)"
+        print "Unit tests for gmpy 1.16 (rnd functionality)"
         print "    running on Python %s" % sys.version
         print
         if _g.gmp_version():

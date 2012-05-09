@@ -396,7 +396,7 @@ r'''
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.15 (mpf functionality)"
+        print "Unit tests for gmpy 1.16 (mpf functionality)"
         print "    running on Python %s" % sys.version
         print
         if _g.gmp_version():

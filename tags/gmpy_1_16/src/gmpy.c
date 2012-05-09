@@ -226,6 +226,9 @@
  *   Discontinue use of custom memory allocator & PyMem (casevh)
  *   Modified directory search logic in setup.py (casevh)
  *   Allow base-62 conversion for mpz and mpf (casevh)
+ *
+ *   1.16
+ *   Fix compatibility with Python 2.4 (casevh)
  */
 #include "Python.h"
 
@@ -376,7 +379,7 @@ Therefore, this combined module is licensed under LGPL 2.1 or later.\
 #endif
 #undef GNU_MP_VER
 
-char gmpy_version[] = "1.15";
+char gmpy_version[] = "1.16";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -6922,7 +6925,7 @@ static void _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] = "\
-gmpy 1.15 - General Multiprecision arithmetic for Python:\n\
+gmpy 1.16 - General Multiprecision arithmetic for Python:\n\
 exposes functionality from the GMP or MPIR library to Python 2.4+\n\
 and  3.1+.\n\
 \n\

@@ -33,6 +33,7 @@ extern "C" {
 /* ensure 2.5 compatibility */
 #if PY_VERSION_HEX < 0x02050000
 typedef int Py_ssize_t;
+#define PY_FORMAT_SIZE_T ""
 #endif
 #ifndef Py_TPFLAGS_HAVE_INDEX
 #define Py_TPFLAGS_HAVE_INDEX 0
