@@ -1,0 +1,63 @@
+Instructions for compiling GMPY 1.12 for 32-bit Windows.
+
+GMPY 32-bit binaries can be compiled for the Windows operating systems
+using the free MinGW toolkit. The MinGW toolkit provides a Minimalist
+GNU for Windows environment. If you are trying to build a 64-bit version
+of GMPY, please refer to "win_x64_sdk_build.txt".
+
+GMPY can use either the GMP or MPIR multiple-precision library. The
+procedure for MPIR is indentical.
+
+1) Download and install MinGW-5.1.6.exe. Choose the "current" release.
+
+2) Download and install MSYS-1.0.11.exe.
+
+3) The following instructions assume that both Python and gcc (part of
+   MinGW) exist on the operating system PATH. On Windows XP, this can be
+   done using Settings -> Control Panel -> System -> Environment Variables.
+
+   If not already present, add c:\python26 and c:\mingw\bin to the PATH.
+   The entries should be separated by a semi-colon. Note: Python 2.6 is
+   used in this example.
+
+4) A icon entitled "MSYS" should be created on the desktop. It provides
+   a GNU-compatible command line interface. Start MSYS and create a
+   directory that will contain the MPIR and GMPY source code. C:\src will
+   be used for this build. Note that /c/src is the MSYS equivalent of
+   C:\src.
+
+   $ mkdir /c/src
+
+5) Download the GMP source code from www.gmplib.org and save it in C:\src.
+   gmp-5.0.1.tar.bz2 is used in this example. The GMP source is also
+   available at http://gmpy.googlecode.com/files/gmp-5.0.1.tar.bz2.
+
+   ( Or download the MPIR source code from www.mpir.org and save it in
+     C:\src. The MPIR source code is also available at
+     http://gmpy.googlecode.com/files/mpir-2.1.1.tar.gz. )
+
+6) Download the GMPY source code and save it in C:\src.
+
+7) Using MSYS, uncompress GMP, and then compile GMP. The resulting files
+   are installed in C:\src.
+
+   $ cd /c/src
+   $ bunzip2 gmp.5.0.1.tar.bz2
+   $ tar -xf gmp-5.0.1.tar
+   $ cd gmp-5.0.1
+   $ ./configure --prefix=/c/src --enable-fat
+   $ make
+   $ make check
+   $ make install
+
+8) Using the Windows command line, compile GMPY. The instructions assume the
+   GMPY source code is uncompressed into C:\src\gmpy-1.12.
+
+   > cd C:\src\gmpy-1.12
+   > python setup.py build_ext -cmingw32 -Ic:\src\include -Lc:\src\lib install
+   > python test\gmpy_test.py
+
+Miscellaneous notes on compiling GMPY
+
+If you are using MPIR, you will need to include -DMPIR after build_ext.
+
