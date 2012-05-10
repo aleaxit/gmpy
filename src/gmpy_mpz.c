@@ -2235,7 +2235,9 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
              * than the length of the xmpz object, allow the underlying xmpz
              * object to be made larger.
              */
-            temp = PyLong_AsSsize_t(((PySliceObject*)item)->stop);
+            temp = PyIntOrLong_AsSsize_t(((PySliceObject*)item)->stop);
+            if (temp == -1  && PyErr_Occurred())
+                return 0;
             if (temp > seq_len)
                 seq_len = temp;
         }
@@ -2258,11 +2260,10 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
             TYPE_ERROR("deleting bits not supported");
             return -1;
         }
-        else if (value == Py_True) {
-            /* Set the last bit to 1 to avoid memory resizing. */
-            if (slicelength)
-                mpz_setbit(self->z, start + (slicelength-1) * step);
-            for (cur = start, i = 0; i < slicelength; cur += step, i++) {
+        /* else if (value == Py_True) {
+            for (cur = start + (slicelength-1) * step, i = 0;
+                 i < slicelength;
+                 cur -= step, i++) {
                 mpz_setbit(self->z, cur);
             }
         }
@@ -2270,7 +2271,7 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
             for (cur = start, i = 0; i < slicelength; cur += step, i++) {
                 mpz_clrbit(self->z, cur);
             }
-        }
+        } */
         else {
             int bit;
             PympzObject *tempx;
@@ -2285,7 +2286,9 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
                 }
             }
             else if (!(mpz_cmp_si(tempx->z, -1))) {
-                for (cur = start, i = 0; i < slicelength; cur += step, i++) {
+                for (cur = start + (slicelength-1) * step, i = 0;
+                     i < slicelength;
+                     cur -= step, i++) {
                     mpz_setbit(self->z, cur);
                 }
             }
