@@ -34,7 +34,7 @@
  * A "pseudoprime" to the base a is a composite number n such that,
  * (a,n)=1 and a^(n-1) = 1 mod n
  * ******************************************************************/
- 
+
 PyDoc_STRVAR(doc_mpz_is_fermat_prp,
 "is_fermat_prp(n,a) -> boolean\n\n"
 "Return True if n is a Fermat pseudoprime to the base a.\n"
@@ -54,32 +54,32 @@ GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args)
         TYPE_ERROR("is_fermat_prp() requires 2 integer arguments");
         return NULL;
     }
-    
+
     n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     a = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (!a || !n) {
         TYPE_ERROR("is_fermat_prp() requires 2 integer arguments");
         goto cleanup;
     }
-    
+
     /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
      * avoid memory allocations. */
-     
+
     mpz_inoc(res);
     mpz_inoc(nm1);
-           
+
     /* Require a >= 2. */
     if (mpz_cmp_ui(a->z, 2) < 0) {
         VALUE_ERROR("is_fermat_prp() requires 'a' greater than or equal to 2");
         goto cleanup;
     }
-    
+
     /* Require n > 0. */
     if (mpz_sgn(n->z) <= 0) {
         VALUE_ERROR("is_fermat_prp() requires 'n' be greater than 0");
         goto cleanup;
     }
-    
+
     /* Check for n == 1 */
     if (mpz_cmp_ui(n->z, 1) == 0) {
         result = Py_False;
@@ -111,7 +111,7 @@ GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args)
         result = Py_True;
     else
         result = Py_False;
-        
+
   cleanup:
     Py_XINCREF(result);
     mpz_cloc(res);
@@ -126,7 +126,7 @@ GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args)
  * An "Euler pseudoprime" to the base a is an odd composite number n with,
  * (a,n)=1 such that a^((n-1)/2)=(a/n) mod n [(a/n) is the Jacobi symbol]
  * *************************************************************************/
- 
+
 PyDoc_STRVAR(doc_mpz_is_euler_prp,
 "is_euler_prp(n,a) -> boolean\n\n"
 "Return True if n is an Euler (also known as Solovay-Strassen)\n"
@@ -149,32 +149,32 @@ GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
         TYPE_ERROR("is_euler_prp() requires 2 integer arguments");
         return NULL;
     }
-    
+
     n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     a = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (!a || !n) {
         TYPE_ERROR("is_euler_prp() requires 2 integer arguments");
         goto cleanup;
     }
-    
+
     /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
      * avoid memory allocations. */
-     
+
     mpz_inoc(res);
     mpz_inoc(exp);
-           
+
     /* Require a >= 2. */
     if (mpz_cmp_ui(a->z, 2) < 0) {
         VALUE_ERROR("is_euler_prp() requires 'a' greater than or equal to 2");
         goto cleanup;
     }
-    
+
     /* Require n > 0. */
     if (mpz_sgn(n->z) <= 0) {
         VALUE_ERROR("is_euler_prp() requires 'n' be greater than 0");
         goto cleanup;
     }
-    
+
     /* Check for n == 1 */
     if (mpz_cmp_ui(n->z, 1) == 0) {
         result = Py_False;
@@ -215,7 +215,7 @@ GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
         result = Py_True;
     else
         result = Py_False;
-        
+
   cleanup:
     Py_XINCREF(result);
     mpz_cloc(res);
@@ -230,7 +230,7 @@ GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
  * A "strong pseudoprime" to the base a is an odd composite n = (2^r)*s+1 with s odd such that
  * either a^s == 1 mod n, or a^((2^t)*s) == -1 mod n, for some integer t, with 0 <= t < r.
  * *********************************************************************************************/
- 
+
 PyDoc_STRVAR(doc_mpz_is_strong_prp,
 "is_strong_prp(n,a) -> boolean\n\n"
 "Return True if n is an strong (also known as Miller-Rabin)\n"
@@ -256,33 +256,33 @@ GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args)
         TYPE_ERROR("is_strong_prp() requires 2 integer arguments");
         return NULL;
     }
-    
+
     n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     a = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (!a || !n) {
         TYPE_ERROR("is_strong_prp() requires 2 integer arguments");
         goto cleanup;
     }
-    
+
     /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
      * avoid memory allocations. */
-     
+
     mpz_inoc(s);
     mpz_inoc(nm1);
     mpz_inoc(mpz_test);
-           
+
     /* Require a >= 2. */
     if (mpz_cmp_ui(a->z, 2) < 0) {
         VALUE_ERROR("is_strong_prp() requires 'a' greater than or equal to 2");
         goto cleanup;
     }
-    
+
     /* Require n > 0. */
     if (mpz_sgn(n->z) <= 0) {
         VALUE_ERROR("is_strong_prp() requires 'n' be greater than 0");
         goto cleanup;
     }
-    
+
     /* Check for n == 1 */
     if (mpz_cmp_ui(n->z, 1) == 0) {
         result = Py_False;
@@ -304,7 +304,7 @@ GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args)
         VALUE_ERROR("is_strong_prp() requires gcd(n,a) == 1");
         goto cleanup;
     }
-    
+
     mpz_set(nm1, n->z);
     mpz_sub_ui(nm1, nm1, 1);
 
@@ -348,7 +348,7 @@ GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args)
  * composite n for which V_n == P mod n
  * [V is the Lucas V sequence with parameters P,Q]
  * *************************************************************************/
- 
+
 PyDoc_STRVAR(doc_mpz_is_fibonacci_prp,
 "is_fibonacci_prp(n,p,q) -> boolean\n\n"
 "Return True if n is an Fibonacci pseudoprime with parameters (p,q).\n"
@@ -368,23 +368,23 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
     /* used for calculating the Lucas V sequence */
     mpz_t vl, vh, ql, qh, tmp;
     size_t s = 0, j = 0;
-    
+
     if (PyTuple_Size(args) != 3) {
         TYPE_ERROR("is_fibonacci_prp() requires 3 integer arguments");
         return NULL;
     }
-    
+
     /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
      * avoid memory allocations. */
-    
+
     mpz_inoc(pmodn);
     mpz_inoc(zP);
-    mpz_inoc(vl);        
+    mpz_inoc(vl);
     mpz_inoc(vh);
     mpz_inoc(ql);
     mpz_inoc(qh);
     mpz_inoc(tmp);
-    
+
     n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
     q = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
@@ -392,9 +392,9 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
         TYPE_ERROR("is_fibonacci_prp() requires 3 integer arguments");
         goto cleanup;
     }
-    
+
     /* Check if p*p - 4*q == 0. */
-    
+
     mpz_mul(tmp, p->z, p->z);
     mpz_mul_ui(qh, q->z, 4);
     mpz_sub(tmp, tmp, qh);
@@ -404,7 +404,7 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
     }
 
     /* Verify q = +/-1 */
-    
+
     if ((mpz_cmp_si(q->z, 1) && mpz_cmp_si(q->z, -1)) || (mpz_sgn(p->z) <= 0)) {
         VALUE_ERROR("invalid values for p,q in is_fibonacci_prp()");
         goto cleanup;
@@ -415,7 +415,7 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
         VALUE_ERROR("is_fibonacci_prp() requires 'n' be greater than 0");
         goto cleanup;
     }
-    
+
     /* Check for n == 1 */
     if (mpz_cmp_ui(n->z, 1) == 0) {
         result = Py_False;
@@ -504,11 +504,11 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
         mpz_mul(ql, ql, ql);
         mpz_mod(ql, ql, n->z);
     }
-    
-    /* vl contains our return value */
-    mpz_mod(vl, vl, n->z); 
 
-    if (mpz_cmp(vl, pmodn) == 0) 
+    /* vl contains our return value */
+    mpz_mod(vl, vl, n->z);
+
+    if (mpz_cmp(vl, pmodn) == 0)
         result = Py_True;
     else
         result = Py_False;
@@ -517,7 +517,7 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
     Py_XINCREF(result);
     mpz_cloc(pmodn);
     mpz_cloc(zP);
-    mpz_cloc(vl);        
+    mpz_cloc(vl);
     mpz_cloc(vh);
     mpz_cloc(ql);
     mpz_cloc(qh);
@@ -534,7 +534,7 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
  * A "Lucas pseudoprime" with parameters (P,Q) is a composite n with D=P^2-4Q,
  * (n,2QD)=1 such that U_(n-(D/n)) == 0 mod n [(D/n) is the Jacobi symbol]
  * *******************************************************************************/
- 
+
 PyDoc_STRVAR(doc_mpz_is_lucas_prp,
 "is_lucas_prp(n,p,q) -> boolean\n\n"
 "Return True if n is a Lucas pseudoprime with parameters (p,q).\n"
@@ -560,20 +560,20 @@ GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args)
         TYPE_ERROR("is_lucas_prp() requires 3 integer arguments");
         return NULL;
     }
-    
+
     /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
      * avoid memory allocations. */
-    
+
     mpz_inoc(zD);
     mpz_inoc(res);
     mpz_inoc(index);
     mpz_inoc(uh);
-    mpz_inoc(vl);        
+    mpz_inoc(vl);
     mpz_inoc(vh);
     mpz_inoc(ql);
     mpz_inoc(qh);
     mpz_inoc(tmp);
-    
+
     n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
     q = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
@@ -581,7 +581,7 @@ GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args)
         TYPE_ERROR("is_lucas_prp() requires 3 integer arguments");
         goto cleanup;
     }
-    
+
     /* Check if p*p - 4*q == 0. */
     mpz_mul(zD, p->z, p->z);
     mpz_mul_ui(tmp, q->z, 4);
@@ -596,7 +596,7 @@ GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args)
         VALUE_ERROR("is_lucas_prp() requires 'n' be greater than 0");
         goto cleanup;
     }
-    
+
     /* Check for n == 1 */
     if (mpz_cmp_ui(n->z, 1) == 0) {
         result = Py_False;
@@ -717,14 +717,14 @@ GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args)
         mpz_mul(ql, ql, ql);
         mpz_mod(ql, ql, n->z);
     }
-    
+
     /* uh contains our return value */
-    mpz_mod(res, uh, n->z); 
+    mpz_mod(res, uh, n->z);
     if (mpz_cmp_ui(res, 0) == 0)
         result = Py_True;
     else
         result = Py_False;
-        
+
   cleanup:
     Py_XINCREF(result);
     mpz_clear(zD);
@@ -748,7 +748,7 @@ GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args)
  * s is odd, D=P^2-4Q, and (n,2QD)=1 such that either U_s == 0 mod n or V_((2^t)*s) == 0 mod n
  * for some t, 0 <= t < r. [(D/n) is the Jacobi symbol]
  * *********************************************************************************************/
- 
+
 PyDoc_STRVAR(doc_mpz_is_stronglucas_prp,
 "is_strong_lucas_prp(n,p,q) -> boolean\n\n"
 "Return True if n is a strong Lucas pseudoprime with parameters (p,q).\n"
@@ -775,47 +775,47 @@ GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
     int j = 0;
 
     if (PyTuple_Size(args) != 3) {
-        TYPE_ERROR("is_stronglucas_prp() requires 3 integer arguments");
+        TYPE_ERROR("is_strong_lucas_prp() requires 3 integer arguments");
         return NULL;
     }
-    
+
     /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
      * avoid memory allocations. */
-    
+
     mpz_inoc(zD);
     mpz_inoc(s);
     mpz_inoc(nmj);
     mpz_inoc(res);
     mpz_inoc(uh);
-    mpz_inoc(vl);        
+    mpz_inoc(vl);
     mpz_inoc(vh);
     mpz_inoc(ql);
     mpz_inoc(qh);
     mpz_inoc(tmp);
-    
+
     n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
     q = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
     if (!n || !p || !q) {
-        TYPE_ERROR("is_stronglucas_prp() requires 3 integer arguments");
+        TYPE_ERROR("is_strong_lucas_prp() requires 3 integer arguments");
         goto cleanup;
     }
-    
+
     /* Check if p*p - 4*q == 0. */
     mpz_mul(zD, p->z, p->z);
     mpz_mul_ui(tmp, q->z, 4);
     mpz_sub(zD, zD, tmp);
     if (mpz_sgn(zD) == 0) {
-        VALUE_ERROR("invalid values for p,q in is_stronglucas_prp()");
+        VALUE_ERROR("invalid values for p,q in is_strong_lucas_prp()");
         goto cleanup;
     }
 
     /* Require n > 0. */
     if (mpz_sgn(n->z) <= 0) {
-        VALUE_ERROR("is_stronglucas_prp() requires 'n' be greater than 0");
+        VALUE_ERROR("is_strong_lucas_prp() requires 'n' be greater than 0");
         goto cleanup;
     }
-    
+
     /* Check for n == 1 */
     if (mpz_cmp_ui(n->z, 1) == 0) {
         result = Py_False;
@@ -836,7 +836,7 @@ GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
     mpz_mul_ui(res, res, 2);
     mpz_gcd(res, res, n->z);
     if ((mpz_cmp(res, n->z) != 0) && (mpz_cmp_ui(res, 1) > 0)) {
-        VALUE_ERROR("is_stronglucas_prp() requires gcd(n,2*q*D) == 1");
+        VALUE_ERROR("is_strong_lucas_prp() requires gcd(n,2*q*D) == 1");
         goto cleanup;
     }
 
@@ -948,7 +948,7 @@ GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
             goto cleanup;
         }
     }
-    
+
     result = Py_False;
   cleanup:
     Py_XINCREF(result);
@@ -975,7 +975,7 @@ GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
  * s is odd and (n,2D)=1, such that either U_s == 0 mod n or V_s == +/-2 mod n, or
  * V_((2^t)*s) == 0 mod n for some t with 0 <= t < r-1 [(D/n) is the Jacobi symbol]
  * *******************************************************************************************/
- 
+
 PyDoc_STRVAR(doc_mpz_is_extrastronglucas_prp,
 "is_extra_strong_lucas_prp(n,p) -> boolean\n\n"
 "Return True if n is an extra strong Lucas pseudoprime with parameters\n"
@@ -1005,46 +1005,46 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     int j = 0;
 
     if (PyTuple_Size(args) != 2) {
-        TYPE_ERROR("is_extrastronglucas_prp() requires 2 integer arguments");
+        TYPE_ERROR("is_extra_strong_lucas_prp() requires 2 integer arguments");
         return NULL;
     }
-    
+
     /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
      * avoid memory allocations. */
-    
+
     mpz_inoc(zD);
     mpz_inoc(s);
     mpz_inoc(nmj);
     mpz_inoc(nm2);
     mpz_inoc(res);
     mpz_inoc(uh);
-    mpz_inoc(vl);        
+    mpz_inoc(vl);
     mpz_inoc(vh);
     mpz_inoc(ql);
     mpz_inoc(qh);
     mpz_inoc(tmp);
-    
+
     n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (!n || !p) {
-        TYPE_ERROR("is_extrastronglucas_prp() requires 2 integer arguments");
+        TYPE_ERROR("is_extra_strong_lucas_prp() requires 2 integer arguments");
         goto cleanup;
     }
-    
+
     /* Check if p*p - 4 == 0. */
     mpz_mul(zD, p->z, p->z);
     mpz_sub_ui(zD, zD, 4);
     if (mpz_sgn(zD) == 0) {
-        VALUE_ERROR("invalid value for p in is_extrastronglucas_prp()");
+        VALUE_ERROR("invalid value for p in is_extra_strong_lucas_prp()");
         goto cleanup;
     }
 
     /* Require n > 0. */
     if (mpz_sgn(n->z) <= 0) {
-        VALUE_ERROR("is_extrastronglucas_prp() requires 'n' be greater than 0");
+        VALUE_ERROR("is_extra_strong_lucas_prp() requires 'n' be greater than 0");
         goto cleanup;
     }
-    
+
     /* Check for n == 1 */
     if (mpz_cmp_ui(n->z, 1) == 0) {
         result = Py_False;
@@ -1064,7 +1064,7 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     mpz_mul_ui(res, zD, 2);
     mpz_gcd(res, res, n->z);
     if ((mpz_cmp(res, n->z) != 0) && (mpz_cmp_ui(res, 1) > 0)) {
-        VALUE_ERROR("is_extrastronglucas_prp() requires gcd(n,2*D) == 1");
+        VALUE_ERROR("is_extra_strong_lucas_prp() requires gcd(n,2*D) == 1");
         goto cleanup;
     }
 
@@ -1078,7 +1078,7 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
 
     r = mpz_scan1(nmj, 0);
     mpz_fdiv_q_2exp(s, nmj, r);
-    
+
     mpz_set(nm2, n->z);
     mpz_sub_ui(nm2, nm2, 2);
 
@@ -1209,7 +1209,7 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
  * Then use P=1 and Q=(1-D)/4 in the Lucas pseudoprime test.
  * Make sure n is not a perfect square, otherwise the search for D will only stop when D=n.
  * ***********************************************************************************************/
- 
+
 PyDoc_STRVAR(doc_mpz_is_selfridge_prp,
 "is_selfridge_prp(n) -> boolean\n\n"
 "Return True if n is a Lucas pseudoprime with Selfidge parameters\n"
@@ -1231,24 +1231,24 @@ GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args)
         TYPE_ERROR("is_selfridge_prp() requires 1 integer argument");
         return NULL;
     }
-    
+
     /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
      * avoid memory allocations. */
-    
+
     mpz_inoc(zD);
-    
+
     n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     if (!n) {
         TYPE_ERROR("is_selfridge_prp() requires 1 integer argument");
         goto cleanup;
     }
-    
+
     /* Require n > 0. */
     if (mpz_sgn(n->z) <= 0) {
         VALUE_ERROR("is_selfridge_prp() requires 'n' be greater than 0");
         goto cleanup;
     }
-    
+
     /* Check for n == 1 */
     if (mpz_cmp_ui(n->z, 1) == 0) {
         result = Py_False;
@@ -1310,21 +1310,23 @@ GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args)
 
         mpz_set_si(zD, d);
     }
-    
+
     q = (1-d)/4;
-    
+
     /* Since "O" is used, the refcount for n is incremented so deleting
      * temp will not delete n.
      */
     temp = Py_BuildValue("Oll", n, p, q);
-    if (!temp) 
+    if (!temp)
         goto cleanup;
     result = GMPY_mpz_is_lucas_prp(NULL, temp);
     Py_DECREF(temp);
-    
+    goto return_result;
+
   cleanup:
-    mpz_cloc(zD);
     Py_XINCREF(result);
+  return_result:
+    mpz_cloc(zD);
     Py_DECREF((PyObject*)n);
     return result;
 }
@@ -1336,7 +1338,7 @@ GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args)
  * Then use P=1 and Q=(1-D)/4 in the strong Lucase pseudoprime test.
  * Make sure n is not a perfect square, otherwise the search for D will only stop when D=n.
  * **********************************************************************************************************/
- 
+
 PyDoc_STRVAR(doc_mpz_is_strongselfridge_prp,
 "is_strong_selfridge_prp(n) -> boolean\n\n"
 "Return True if n is a strong Lucas pseudoprime with Selfidge\n"
@@ -1355,27 +1357,27 @@ GMPY_mpz_is_strongselfridge_prp(PyObject *self, PyObject *args)
     mpz_t zD;
 
     if (PyTuple_Size(args) != 1) {
-        TYPE_ERROR("is_strongselfridge_prp() requires 1 integer argument");
+        TYPE_ERROR("is_strong_selfridge_prp() requires 1 integer argument");
         return NULL;
     }
-    
+
     /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
      * avoid memory allocations. */
-    
+
     mpz_inoc(zD);
-    
+
     n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     if (!n) {
-        TYPE_ERROR("is_strongselfridge_prp() requires 1 integer argument");
+        TYPE_ERROR("is_strong_selfridge_prp() requires 1 integer argument");
         goto cleanup;
     }
-    
+
     /* Require n > 0. */
     if (mpz_sgn(n->z) <= 0) {
-        VALUE_ERROR("is_strongselfridge_prp() requires 'n' be greater than 0");
+        VALUE_ERROR("is_strong_selfridge_prp() requires 'n' be greater than 0");
         goto cleanup;
     }
-    
+
     /* Check for n == 1 */
     if (mpz_cmp_ui(n->z, 1) == 0) {
         result = Py_False;
@@ -1431,27 +1433,29 @@ GMPY_mpz_is_strongselfridge_prp(PyObject *self, PyObject *args)
 
         /* make sure we don't search forever */
         if (d >= max_d) {
-            VALUE_ERROR("appropriate value for D cannot be found in is_strongselfridge_prp()");
+            VALUE_ERROR("appropriate value for D cannot be found in is_strong_selfridge_prp()");
             goto cleanup;
         }
 
         mpz_set_si(zD, d);
     }
-    
+
     q = (1-d)/4;
-    
+
     /* Since "O" is used, the refcount for n is incremented so deleting
      * temp will not delete n.
      */
     temp = Py_BuildValue("Oll", n, p, q);
-    if (!temp) 
+    if (!temp)
         goto cleanup;
     result = GMPY_mpz_is_stronglucas_prp(NULL, temp);
     Py_DECREF(temp);
-    
+    goto return_result;
+
   cleanup:
-    mpz_cloc(zD);
     Py_XINCREF(result);
+  return_result:
+    mpz_cloc(zD);
     Py_DECREF((PyObject*)n);
     return result;
 }
@@ -1462,7 +1466,7 @@ GMPY_mpz_is_strongselfridge_prp(PyObject *self, PyObject *args)
  * n is a strong pseudoprime to the base 2 and
  * n is a Lucas pseudoprime using the Selfridge parameters.
  * **********************************************************************************/
- 
+
 PyDoc_STRVAR(doc_mpz_is_bpsw_prp,
 "is_bpsw_prp(n) -> boolean\n\n"
 "Return True if n is a Baillie-Pomerance-Selfridge-Wagstaff pseudo-\n"
@@ -1474,24 +1478,24 @@ GMPY_mpz_is_bpsw_prp(PyObject *self, PyObject *args)
 {
     PympzObject *n;
     PyObject *result = 0, *temp = 0;
-    
+
     if (PyTuple_Size(args) != 1) {
         TYPE_ERROR("is_bpsw_prp() requires 1 integer argument");
         return NULL;
     }
-    
+
     n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     if (!n) {
         TYPE_ERROR("is_bpsw_prp() requires 1 integer argument");
         goto cleanup;
     }
-    
+
     /* Require n > 0. */
     if (mpz_sgn(n->z) <= 0) {
         VALUE_ERROR("is_bpsw_prp() requires 'n' be greater than 0");
         goto cleanup;
     }
-    
+
     /* Check for n == 1 */
     if (mpz_cmp_ui(n->z, 1) == 0) {
         result = Py_False;
@@ -1506,7 +1510,7 @@ GMPY_mpz_is_bpsw_prp(PyObject *self, PyObject *args)
             result = Py_False;
         goto cleanup;
     }
-    
+
     /* "O" is used to increment the reference to n so deleting temp won't
      * delete n.
      */
@@ -1516,18 +1520,20 @@ GMPY_mpz_is_bpsw_prp(PyObject *self, PyObject *args)
     result = GMPY_mpz_is_strong_prp(NULL, temp);
     Py_DECREF(temp);
     if (result == Py_False)
-        goto cleanup;
+        goto return_result;
     /* Remember to ignore the preceding result */
     Py_DECREF(result);
-    
+
     temp = Py_BuildValue("O", n);
     if (!temp)
         goto cleanup;
     result = GMPY_mpz_is_selfridge_prp(NULL, temp);
     Py_DECREF(temp);
-    
+    goto return_result;
+
   cleanup:
     Py_XINCREF(result);
+  return_result:
     Py_DECREF((PyObject*)n);
     return result;
 }
@@ -1539,36 +1545,36 @@ GMPY_mpz_is_bpsw_prp(PyObject *self, PyObject *args)
  * n is a strong pseudoprime to the base 2 and
  * n is a strong Lucas pseudoprime using the Selfridge parameters.
  * ****************************************************************************************/
- 
+
 PyDoc_STRVAR(doc_mpz_is_strongbpsw_prp,
 "is_strong_bpsw_prp(n) -> boolean\n\n"
 "Return True if n is a strong Baillie-Pomerance-Selfridge-Wagstaff\n"
 "pseudoprime. A strong BPSW pseudoprime passes the is_strong_prp()\n"
-"test with base and the is_strongselfridge_prp() test.\n");
+"test with base and the is_strong_selfridge_prp() test.\n");
 
 static PyObject *
 GMPY_mpz_is_strongbpsw_prp(PyObject *self, PyObject *args)
 {
     PympzObject *n;
     PyObject *result = 0, *temp = 0;
-    
+
     if (PyTuple_Size(args) != 1) {
-        TYPE_ERROR("is_strongbpsw_prp() requires 1 integer argument");
+        TYPE_ERROR("is_strong_bpsw_prp() requires 1 integer argument");
         return NULL;
     }
-    
+
     n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     if (!n) {
-        TYPE_ERROR("is_strongbpsw_prp() requires 1 integer argument");
+        TYPE_ERROR("is_strong_bpsw_prp() requires 1 integer argument");
         goto cleanup;
     }
-    
+
     /* Require n > 0. */
     if (mpz_sgn(n->z) <= 0) {
-        VALUE_ERROR("is_strongbpsw_prp() requires 'n' be greater than 0");
+        VALUE_ERROR("is_strong_bpsw_prp() requires 'n' be greater than 0");
         goto cleanup;
     }
-    
+
     /* Check for n == 1 */
     if (mpz_cmp_ui(n->z, 1) == 0) {
         result = Py_False;
@@ -1583,7 +1589,7 @@ GMPY_mpz_is_strongbpsw_prp(PyObject *self, PyObject *args)
             result = Py_False;
         goto cleanup;
     }
-    
+
     /* "O" is used to increment the reference to n so deleting temp won't
      * delete n.
      */
@@ -1593,18 +1599,20 @@ GMPY_mpz_is_strongbpsw_prp(PyObject *self, PyObject *args)
     result = GMPY_mpz_is_strong_prp(NULL, temp);
     Py_DECREF(temp);
     if (result == Py_False)
-        goto cleanup;
+        goto return_result;
     /* Remember to ignore the preceding result */
     Py_DECREF(result);
-    
+
     temp = Py_BuildValue("O", n);
     if (!temp)
         goto cleanup;
     result = GMPY_mpz_is_selfridge_prp(NULL, temp);
     Py_DECREF(temp);
-    
+    goto return_result;
+
   cleanup:
     Py_XINCREF(result);
+  return_result:
     Py_DECREF((PyObject*)n);
     return result;
 }

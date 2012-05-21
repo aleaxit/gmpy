@@ -264,9 +264,10 @@
  *       No longer conflicts with builtin min() and max()
  *   Removed set_debug() and related functionality (casevh)
  *   Released as 2.0.0b1
+ *
  *   Allow xmpz slice assignment to increase length of xmpz instance by
  *      specifying a value for stop (casevh)
- *
+ *   Fixed ref-count bug in several is_xxx_prp tests (casevh)
  *
  ************************************************************************
  *
