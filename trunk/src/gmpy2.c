@@ -347,12 +347,6 @@ The GMPY2 source code is licensed under LGPL 2.1 or later. The GMP/MPIR, \n\
 MPFR, and MPC libraries are licensed under LGPL 3 or later. Therefore, this \n\
 combined module is licensed under LGPL 3 or later.";
 
-/* Remember a reference to this module. Used by initialization code further
- * on in this file.
- */
-
-static PyObject *gmpy_module = NULL;
-
 /* The following global structures are used by gmpy_cache.c.
  */
 
@@ -831,6 +825,7 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
 PyMODINIT_FUNC initgmpy2(void)
 #endif
 {
+    PyObject* gmpy_module = NULL;
     PyObject* copy_reg_module = NULL;
 
     /* Validate the sizes of the various typedef'ed integer types. */
@@ -935,12 +930,10 @@ PyMODINIT_FUNC initgmpy2(void)
         PyDict_SetItemString(namespace, "type", (PyObject*)&PyType_Type);
         result = PyRun_String(enable_pickle, Py_file_input,
                               namespace, namespace);
-        if (result) {
-        }
-        else {
+        if (!result)
             PyErr_Clear();
-        }
         Py_DECREF(namespace);
+        Py_DECREF(copy_reg_module);
         Py_XDECREF(result);
     }
     else {
@@ -972,6 +965,7 @@ PyMODINIT_FUNC initgmpy2(void)
         if (!result)
             PyErr_Clear();
         Py_DECREF(namespace);
+        Py_DECREF(copy_reg_module);
         Py_XDECREF(result);
     }
     else {
