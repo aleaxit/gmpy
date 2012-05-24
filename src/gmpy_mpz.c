@@ -2260,7 +2260,7 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
             TYPE_ERROR("deleting bits not supported");
             return -1;
         }
-        /* else if (value == Py_True) {
+        else if (value == Py_True) {
             for (cur = start + (slicelength-1) * step, i = 0;
                  i < slicelength;
                  cur -= step, i++) {
@@ -2271,7 +2271,7 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
             for (cur = start, i = 0; i < slicelength; cur += step, i++) {
                 mpz_clrbit(self->z, cur);
             }
-        } */
+        }
         else {
             int bit;
             PympzObject *tempx;
