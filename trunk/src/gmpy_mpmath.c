@@ -32,17 +32,20 @@ static PyObject *
 mpmath_build_mpf(long sign, PympzObject *man, PyObject *exp, mpir_si bc)
 {
     PyObject *tup, *tsign, *tbc;
+
     if (!(tup = PyTuple_New(4))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         return NULL;
     }
+
     if (!(tsign = PyIntOrLong_FromLong(sign))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
         return NULL;
     }
+
     if (!(tbc = PyIntOrLong_FromSI(bc))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
@@ -50,22 +53,12 @@ mpmath_build_mpf(long sign, PympzObject *man, PyObject *exp, mpir_si bc)
         Py_DECREF(tsign);
         return NULL;
     }
+
     PyTuple_SET_ITEM(tup, 0, tsign);
     PyTuple_SET_ITEM(tup, 1, (PyObject*)man);
     PyTuple_SET_ITEM(tup, 2, (exp)?exp:PyIntOrLong_FromLong(0));
     PyTuple_SET_ITEM(tup, 3, tbc);
     return tup;
-}
-
-static PympzObject *
-Pympz_FROM_MPZ(mpz_t z)
-{
-    PympzObject *self;
-
-    if(!(self = PyObject_New(PympzObject, &Pympz_Type)))
-        return NULL;
-    self->z[0] = z[0];
-    return self;
 }
 
 PyDoc_STRVAR(doc_mpmath_normalizeg,
@@ -77,8 +70,8 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     long sign = 0;
     mpir_si bc = 0, prec = 0, shift, zbits, carry = 0;
     PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0;
-    PympzObject *man = 0;
-    mpz_t upper, lower;
+    PympzObject *man = 0, *upper = 0, *lower = 0;
+    /* mpz_t upper, lower; */
     char rnd = 0;
 
     if (PyTuple_GET_SIZE(args) == 6) {
@@ -90,18 +83,18 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         bc = SI_From_Integer(PyTuple_GET_ITEM(args, 3));
         prec = SI_From_Integer(PyTuple_GET_ITEM(args, 4));
         rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 5))[0];
-        if(PyErr_Occurred()){
-            PyErr_SetString(PyExc_TypeError, "arguments long, PympzObject*,"
-                "PyObject*, long, long, char needed");
+        if (PyErr_Occurred()) {
+            TYPE_ERROR("arguments long, PympzObject*, PyObject*, long, long, char needed");
             return NULL;
         }
     }
     else {
-        PyErr_SetString(PyExc_TypeError, "6 arguments required");
+        TYPE_ERROR("6 arguments required");
         return NULL;
     }
+
     if (!Pympz_Check(man)) {
-        PyErr_SetString(PyExc_TypeError, "argument is not an mpz");
+        TYPE_ERROR("argument is not an mpz");
         return NULL;
     }
 
@@ -118,45 +111,48 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         return mpmath_build_mpf(sign, man, exp, bc);
     }
 
-    mpz_inoc(upper);
-    mpz_inoc(lower);
+    if (!(upper = (PympzObject*)Pympz_new()) ||
+        !(lower = (PympzObject*)Pympz_new())) {
+        Py_XDECREF((PyObject*)upper);
+        Py_XDECREF((PyObject*)lower);
+    }
 
     shift = bc - prec;
     if (shift>0) {
         switch (rnd) {
             case 'f':
                 if(sign) {
-                    mpz_cdiv_q_2exp(upper, man->z, shift);
+                    mpz_cdiv_q_2exp(upper->z, man->z, shift);
                 }
                 else {
-                    mpz_fdiv_q_2exp(upper, man->z, shift);
+                    mpz_fdiv_q_2exp(upper->z, man->z, shift);
                 }
                 break;
             case 'c':
                 if(sign) {
-                    mpz_fdiv_q_2exp(upper, man->z, shift);
+                    mpz_fdiv_q_2exp(upper->z, man->z, shift);
                 }
                 else {
-                    mpz_cdiv_q_2exp(upper, man->z, shift);
+                    mpz_cdiv_q_2exp(upper->z, man->z, shift);
                 }
                 break;
             case 'd':
-                mpz_fdiv_q_2exp(upper, man->z, shift);
+                mpz_fdiv_q_2exp(upper->z, man->z, shift);
                 break;
             case 'u':
-                mpz_cdiv_q_2exp(upper, man->z, shift);
+                mpz_cdiv_q_2exp(upper->z, man->z, shift);
                 break;
             case 'n':
             default:
-                mpz_tdiv_r_2exp(lower, man->z, shift);
-                mpz_tdiv_q_2exp(upper, man->z, shift);
-                if (mpz_sgn(lower)) {
+                mpz_tdiv_r_2exp(lower->z, man->z, shift);
+                mpz_tdiv_q_2exp(upper->z, man->z, shift);
+                if (mpz_sgn(lower->z)) {
                     /* lower is not 0 so it must have at least 1 bit set */
-                    if (mpz_sizeinbase(lower, 2)==shift) {
+                    if (mpz_sizeinbase(lower->z, 2) == shift) {
                         /* lower is >= 1/2 */
-                        if (mpz_scan1(lower, 0)==shift-1) {
+                        if (mpz_scan1(lower->z, 0) == shift-1) {
                             /* lower is exactly 1/2 */
-                            if (mpz_odd_p(upper))
+                            if (mpz_odd_p(upper->z))
                                 carry = 1;
                         }
                         else {
@@ -165,16 +161,18 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
                     }
                 }
                 if (carry)
-                    mpz_add_ui(upper, upper, 1);
+                    mpz_add_ui(upper->z, upper->z, 1);
         }
+
         if (!(tmp = PyIntOrLong_FromSI(shift))) {
-            mpz_cloc(upper);
-            mpz_cloc(lower);
+            Py_DECREF((PyObject*)upper);
+            Py_DECREF((PyObject*)lower);
             return NULL;
         }
+
         if (!(newexp = PyNumber_Add(exp, tmp))) {
-            mpz_cloc(upper);
-            mpz_cloc(lower);
+            Py_DECREF((PyObject*)upper);
+            Py_DECREF((PyObject*)lower);
             Py_DECREF(tmp);
             return NULL;
         }
@@ -182,24 +180,24 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         bc = prec;
     }
     else {
-        mpz_set(upper, man->z);
+        mpz_set(upper->z, man->z);
         newexp = exp;
         Py_INCREF(newexp);
     }
 
     /* Strip trailing 0 bits. */
-    if ((zbits = mpz_scan1(upper, 0)))
-        mpz_tdiv_q_2exp(upper, upper, zbits);
+    if ((zbits = mpz_scan1(upper->z, 0)))
+        mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
     if (!(tmp = PyIntOrLong_FromSI(zbits))) {
-        mpz_cloc(upper);
-        mpz_cloc(lower);
+        Py_DECREF((PyObject*)upper);
+        Py_DECREF((PyObject*)lower);
         Py_DECREF(newexp);
         return NULL;
     }
     if (!(newexp2 = PyNumber_Add(newexp, tmp))) {
-        mpz_cloc(upper);
-        mpz_cloc(lower);
+        Py_DECREF((PyObject*)upper);
+        Py_DECREF((PyObject*)lower);
         Py_DECREF(tmp);
         Py_DECREF(newexp);
         return NULL;
@@ -209,11 +207,11 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
 
     bc -= zbits;
     /* Check if one less than a power of 2 was rounded up. */
-    if (!mpz_cmp_ui(upper, 1))
+    if (!mpz_cmp_ui(upper->z, 1))
         bc = 1;
 
-    mpz_cloc(lower);
-    return mpmath_build_mpf(sign, Pympz_FROM_MPZ(upper), newexp2, bc);
+    Py_DECREF((PyObject*)lower);
+    return mpmath_build_mpf(sign, upper, newexp2, bc);
 }
 
 PyDoc_STRVAR(doc_mpmath_createg,
@@ -230,8 +228,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     const char *rnd = "f";
 
     if (PyTuple_GET_SIZE(args) < 2) {
-        PyErr_SetString(PyExc_TypeError,
-                "mpmath_create() expects 'mpz','int'[,'int','str'] arguments");
+        TYPE_ERROR("mpmath_create() expects 'mpz','int'[,'int','str'] arguments");
         return NULL;
     }
 
@@ -248,8 +245,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
         case 1:
             man = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
             if (!man) {
-                PyErr_SetString(PyExc_TypeError,
-                        "mpmath_create() expects 'mpz','int'[,'int','str'] arguments");
+                TYPE_ERROR("mpmath_create() expects 'mpz','int'[,'int','str'] arguments");
                 return NULL;
             }
     }
@@ -276,7 +272,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     if (!prec) prec = bc;
 
     shift = bc - prec;
-    if (shift>0) {
+    if (shift > 0) {
         switch (rnd[0]) {
             case 'f':
                 if(sign) {
