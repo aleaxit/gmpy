@@ -64,7 +64,7 @@ Pybasic_add(PyObject *a, PyObject *b)
     int overflow;
 
     if (CHECK_MPZANY(a)) {
-        if (!(rz = Pympz_new()))
+        if (!(rz = (PympzObject*)Pympz_new()))
             return NULL;
         if (PyIntOrLong_Check(b)) {
             temp_si = PyLong_AsSIAndOverflow(b, &overflow);
@@ -90,7 +90,7 @@ Pybasic_add(PyObject *a, PyObject *b)
     }
 
     if (CHECK_MPZANY(b)) {
-        if (!(rz = Pympz_new()))
+        if (!(rz = (PympzObject*)Pympz_new()))
             return NULL;
         if (PyIntOrLong_Check(a)) {
             temp_si = PyLong_AsSIAndOverflow(a, &overflow);
@@ -113,7 +113,7 @@ Pybasic_add(PyObject *a, PyObject *b)
 
 #ifdef WITHMPFR
     if (Pympfr_CheckAndExp(a)) {
-        if (!(rf = Pympfr_new(0)))
+        if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
         if (Pympfr_CheckAndExp(b)) {
             mpfr_clear_flags();
@@ -168,7 +168,7 @@ Pybasic_add(PyObject *a, PyObject *b)
     }
 
     if (Pympfr_CheckAndExp(b)) {
-        if (!(rf = Pympfr_new(0)))
+        if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
         if (isInteger(a)) {
             if (!(paz = Pympz_From_Integer(a))) {
@@ -225,7 +225,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             Py_XDECREF((PyObject*)pbz);
             return NULL;
         }
-        if (!(rz = Pympz_new())) {
+        if (!(rz = (PympzObject*)Pympz_new())) {
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
@@ -245,7 +245,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             Py_XDECREF((PyObject*)pbq);
             return NULL;
         }
-        if (!(rq = Pympq_new())) {
+        if (!(rq = (PympqObject*)Pympq_new())) {
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
             return NULL;
@@ -266,7 +266,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             Py_XDECREF((PyObject*)pbf);
             return NULL;
         }
-        if (!(rf = Pympfr_new(0))) {
+        if (!(rf = (PympfrObject*)Pympfr_new(0))) {
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
@@ -301,7 +301,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             Py_XDECREF((PyObject*)pbc);
             return NULL;
         }
-        if (!(rc = Pympc_new(0, 0))) {
+        if (!(rc = (PympcObject*)Pympc_new(0, 0))) {
             Py_DECREF((PyObject*)pac);
             Py_DECREF((PyObject*)pbc);
             return NULL;
@@ -339,7 +339,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
     int overflow;
 
     if (CHECK_MPZANY(a)) {
-        if (!(rz = Pympz_new()))
+        if (!(rz = (PympzObject*)Pympz_new()))
             return NULL;
         if (PyIntOrLong_Check(b)) {
             temp_si = PyLong_AsSIAndOverflow(b, &overflow);
@@ -365,7 +365,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
     }
 
     if (CHECK_MPZANY(b)) {
-        if (!(rz = Pympz_new()))
+        if (!(rz = (PympzObject*)Pympz_new()))
             return NULL;
         if (PyIntOrLong_Check(a)) {
             temp_si = PyLong_AsSIAndOverflow(a, &overflow);
@@ -389,7 +389,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
 
 #ifdef WITHMPFR
     if (Pympfr_CheckAndExp(a)) {
-        if (!(rf = Pympfr_new(0)))
+        if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
         if (Pympfr_CheckAndExp(b)) {
             mpfr_clear_flags();
@@ -443,7 +443,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
     }
 
     if (Pympfr_CheckAndExp(b)) {
-        if (!(rf = Pympfr_new(0)))
+        if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
         if (isInteger(a)) {
             if (!(paz = Pympz_From_Integer(a))) {
@@ -500,7 +500,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             Py_XDECREF((PyObject*)pbz);
             return NULL;
         }
-        if (!(rz = Pympz_new())) {
+        if (!(rz = (PympzObject*)Pympz_new())) {
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
@@ -520,7 +520,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             Py_XDECREF((PyObject*)pbq);
             return NULL;
         }
-        if (!(rq = Pympq_new())) {
+        if (!(rq = (PympqObject*)Pympq_new())) {
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
             return NULL;
@@ -541,7 +541,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             Py_XDECREF((PyObject*)pbf);
             return NULL;
         }
-        if (!(rf = Pympfr_new(0))) {
+        if (!(rf = (PympfrObject*)Pympfr_new(0))) {
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
@@ -576,7 +576,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             Py_XDECREF((PyObject*)pbc);
             return NULL;
         }
-        if (!(rc = Pympc_new(0, 0))) {
+        if (!(rc = (PympcObject*)Pympc_new(0, 0))) {
             Py_DECREF((PyObject*)pac);
             Py_DECREF((PyObject*)pbc);
             return NULL;
@@ -614,7 +614,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
     int overflow;
 
     if (CHECK_MPZANY(a)) {
-        if (!(rz = Pympz_new()))
+        if (!(rz = (PympzObject*)Pympz_new()))
             return NULL;
         if (PyIntOrLong_Check(b)) {
             temp_si = PyLong_AsSIAndOverflow(b, &overflow);
@@ -637,7 +637,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
     }
 
     if (CHECK_MPZANY(b)) {
-        if (!(rz = Pympz_new()))
+        if (!(rz = (PympzObject*)Pympz_new()))
             return NULL;
         if (PyIntOrLong_Check(a)) {
             temp_si = PyLong_AsSIAndOverflow(a, &overflow);
@@ -657,7 +657,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
 
 #ifdef WITHMPFR
     if (Pympfr_CheckAndExp(a)) {
-        if (!(rf = Pympfr_new(0)))
+        if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
         if (Pympfr_CheckAndExp(b)) {
             mpfr_clear_flags();
@@ -711,7 +711,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
     }
 
     if (Pympfr_CheckAndExp(b)) {
-        if (!(rf = Pympfr_new(0)))
+        if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
         if (isInteger(a)) {
             if (!(paz = Pympz_From_Integer(a))) {
@@ -768,7 +768,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             Py_XDECREF((PyObject*)pbz);
             return NULL;
         }
-        if (!(rz = Pympz_new())) {
+        if (!(rz = (PympzObject*)Pympz_new())) {
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
@@ -788,7 +788,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             Py_XDECREF((PyObject*)pbq);
             return NULL;
         }
-        if (!(rq = Pympq_new())) {
+        if (!(rq = (PympqObject*)Pympq_new())) {
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
             return NULL;
@@ -809,7 +809,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             Py_XDECREF((PyObject*)pbf);
             return NULL;
         }
-        if (!(rf = Pympfr_new(0))) {
+        if (!(rf = (PympfrObject*)Pympfr_new(0))) {
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
@@ -844,7 +844,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             Py_XDECREF((PyObject*)pbc);
             return NULL;
         }
-        if (!(rc = Pympc_new(0, 0))) {
+        if (!(rc = (PympcObject*)Pympc_new(0, 0))) {
             Py_DECREF((PyObject*)pac);
             Py_DECREF((PyObject*)pbc);
             return NULL;
@@ -877,7 +877,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
     int overflow;
 
     if (CHECK_MPZANY(a)) {
-        if (!(rz = Pympz_new()))
+        if (!(rz = (PympzObject*)Pympz_new()))
             return NULL;
         if (PyIntOrLong_Check(b)) {
             temp_si = PyLong_AsSIAndOverflow(b, &overflow);
@@ -918,7 +918,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
             ZERO_ERROR("division or modulo by zero");
             return NULL;
         }
-        if (!(rz = Pympz_new()))
+        if (!(rz = (PympzObject*)Pympz_new()))
             return NULL;
         if (PyIntOrLong_Check(a)) {
             mpz_inoc(tempz);
@@ -932,7 +932,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
 
 #ifdef WITHMPFR
     if (Pympfr_CheckAndExp(a)) {
-        if (!(rf = Pympfr_new(0)))
+        if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
         if (Pympfr_CheckAndExp(b)) {
             mpfr_clear_flags();
@@ -991,7 +991,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
     }
 
     if (Pympfr_CheckAndExp(b)) {
-        if (!(rf = Pympfr_new(0)))
+        if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
 
         /* Need an mpfr_z_div() to provide optimal support for isInteger(), and
@@ -1025,7 +1025,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbz);
             return NULL;
         }
-        if (!(rz = Pympz_new())) {
+        if (!(rz = (PympzObject*)Pympz_new())) {
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
@@ -1051,7 +1051,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbq);
             return NULL;
         }
-        if (!(rq = Pympq_new()) || !(rz = Pympz_new())) {
+        if (!(rq = (PympqObject*)Pympq_new()) || !(rz = (PympzObject*)Pympz_new())) {
             Py_XDECREF((PyObject*)rq);
             Py_XDECREF((PyObject*)rz);
             Py_DECREF((PyObject*)paq);
@@ -1076,7 +1076,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
             Py_XDECREF((PyObject*)pbf);
             return NULL;
         }
-        if (!(rf = Pympfr_new(0))) {
+        if (!(rf = (PympfrObject*)Pympfr_new(0))) {
             Py_XDECREF((PyObject*)rf);
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
@@ -1127,7 +1127,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
 
 #ifdef WITHMPFR
     if (Pympfr_CheckAndExp(a)) {
-        if (!(rf = Pympfr_new(0)))
+        if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
         if (Pympfr_CheckAndExp(b)) {
             mpfr_clear_flags();
@@ -1181,7 +1181,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
     }
 
     if (Pympfr_CheckAndExp(b)) {
-        if (!(rf = Pympfr_new(0)))
+        if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
 
         /* Need an mpfr_z_div() to provide optimal support for isInteger(), and
@@ -1215,7 +1215,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             return NULL;
         }
 #ifdef WITHMPFR
-        if (!(rf = Pympfr_new(0))) {
+        if (!(rf = (PympfrObject*)Pympfr_new(0))) {
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
@@ -1256,7 +1256,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbq);
             return NULL;
         }
-        if (!(rq = Pympq_new())) {
+        if (!(rq = (PympqObject*)Pympq_new())) {
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
             return NULL;
@@ -1277,7 +1277,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             Py_XDECREF((PyObject*)pbf);
             return NULL;
         }
-        if (!(rf = Pympfr_new(0))) {
+        if (!(rf = (PympfrObject*)Pympfr_new(0))) {
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
@@ -1321,7 +1321,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
                 return NULL;
             }
         }
-        if (!(rc = Pympc_new(0, 0))) {
+        if (!(rc = (PympcObject*)Pympc_new(0, 0))) {
             Py_DECREF((PyObject*)pac);
             Py_DECREF((PyObject*)pbc);
             return NULL;
@@ -1364,7 +1364,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
     /* Use floordiv for integer types. */
 
     if (CHECK_MPZANY(a)) {
-        if (!(rz = Pympz_new()))
+        if (!(rz = (PympzObject*)Pympz_new()))
             return NULL;
         if (PyIntOrLong_Check(b)) {
             temp_si = PyLong_AsSIAndOverflow(b, &overflow);
@@ -1415,7 +1415,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbz);
             return NULL;
         }
-        if (!(rz = Pympz_new())) {
+        if (!(rz = (PympzObject*)Pympz_new())) {
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
@@ -1441,7 +1441,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbq);
             return NULL;
         }
-        if (!(rq = Pympq_new())) {
+        if (!(rq = (PympqObject*)Pympq_new())) {
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
             return NULL;
@@ -1456,7 +1456,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
 
 #ifdef WITHMPFR
     if (Pympfr_CheckAndExp(a)) {
-        if (!(rf = Pympfr_new(0)))
+        if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
         if (Pympfr_CheckAndExp(b)) {
             mpfr_clear_flags();
@@ -1510,7 +1510,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
     }
 
     if (Pympfr_CheckAndExp(b)) {
-        if (!(rf = Pympfr_new(0)))
+        if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
 
         /* Need an mpfr_z_div() to provide optimal support for isInteger(), and
@@ -1536,7 +1536,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
             Py_XDECREF((PyObject*)pbf);
             return NULL;
         }
-        if (!(rf = Pympfr_new(0))) {
+        if (!(rf = (PympfrObject*)Pympfr_new(0))) {
             Py_DECREF((PyObject*)paf);
             Py_DECREF((PyObject*)pbf);
             return NULL;
@@ -1568,7 +1568,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
                 return NULL;
             }
         }
-        if (!(rc = Pympc_new(0, 0))) {
+        if (!(rc = (PympcObject*)Pympc_new(0, 0))) {
             Py_DECREF((PyObject*)pac);
             Py_DECREF((PyObject*)pbc);
             return NULL;
@@ -1606,7 +1606,7 @@ Pybasic_rem(PyObject *a, PyObject *b)
     int overflow;
 
     if (CHECK_MPZANY(a)) {
-        if (!(rz = Pympz_new()))
+        if (!(rz = (PympzObject*)Pympz_new()))
             return NULL;
         if (PyIntOrLong_Check(b)) {
             temp_si = PyLong_AsSIAndOverflow(b, &overflow);
@@ -1646,7 +1646,7 @@ Pybasic_rem(PyObject *a, PyObject *b)
             ZERO_ERROR("division or modulo by zero");
             return NULL;
         }
-        if (!(rz = Pympz_new())) return NULL;
+        if (!(rz = (PympzObject*)Pympz_new())) return NULL;
         if (PyIntOrLong_Check(a)) {
             mpz_inoc(tempz);
             mpz_set_PyLong(tempz, a);
@@ -1672,7 +1672,7 @@ Pybasic_rem(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbq);
             return NULL;
         }
-        if (!(rq = Pympq_new())) {
+        if (!(rq = (PympqObject*)Pympq_new())) {
             Py_XDECREF((PyObject*)rq);
             Py_DECREF((PyObject*)paq);
             Py_DECREF((PyObject*)pbq);
@@ -1710,7 +1710,8 @@ Pybasic_rem(PyObject *a, PyObject *b)
                 return NULL;
             }
         }
-        if (!(rf = Pympfr_new(0)) || !(qf = Pympfr_new(0))) {
+        if (!(rf = (PympfrObject*)Pympfr_new(0)) ||
+            !(qf = (PympfrObject*)Pympfr_new(0))) {
             Py_XDECREF((PyObject*)rf);
             Py_XDECREF((PyObject*)qf);
             Py_DECREF((PyObject*)paf);
@@ -1795,7 +1796,9 @@ Pybasic_divmod(PyObject *a, PyObject *b)
     int overflow;
 
     if (CHECK_MPZANY(a)) {
-        if (!(r=PyTuple_New(2)) || !(rz=Pympz_new()) || !(qz=Pympz_new())) {
+        if (!( r= PyTuple_New(2)) ||
+            !(rz = (PympzObject*)Pympz_new()) ||
+            !(qz = (PympzObject*)Pympz_new())) {
             Py_XDECREF((PyObject*)rz);
             Py_XDECREF((PyObject*)qz);
             Py_XDECREF(r);
@@ -1850,7 +1853,9 @@ Pybasic_divmod(PyObject *a, PyObject *b)
             ZERO_ERROR("division or modulo by zero");
             return NULL;
         }
-        if (!(r=PyTuple_New(2)) || !(rz=Pympz_new()) || !(qz=Pympz_new())) {
+        if (!(r = PyTuple_New(2)) ||
+            !(rz = (PympzObject*)Pympz_new()) ||
+            !(qz = (PympzObject*)Pympz_new())) {
             Py_XDECREF((PyObject*)rz);
             Py_XDECREF((PyObject*)qz);
             Py_XDECREF(r);
@@ -1881,7 +1886,9 @@ Pybasic_divmod(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbz);
             return NULL;
         }
-        if (!(r = PyTuple_New(2)) || !(rz = Pympz_new()) || !(qz = Pympz_new())) {
+        if (!(r = PyTuple_New(2)) ||
+            !(rz = (PympzObject*)Pympz_new()) ||
+            !(qz = (PympzObject*)Pympz_new())) {
             Py_XDECREF((PyObject*)r);
             Py_XDECREF((PyObject*)rz);
             Py_XDECREF((PyObject*)qz);
@@ -1912,7 +1919,9 @@ Pybasic_divmod(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbq);
             return NULL;
         }
-        if (!(r = PyTuple_New(2)) || !(rq = Pympq_new()) || !(qz = Pympz_new())) {
+        if (!(r = PyTuple_New(2)) ||
+            !(rq = (PympqObject*)Pympq_new()) ||
+            !(qz = (PympzObject*)Pympz_new())) {
             Py_XDECREF((PyObject*)r);
             Py_XDECREF((PyObject*)rq);
             Py_XDECREF((PyObject*)qz);
@@ -1952,7 +1961,9 @@ Pybasic_divmod(PyObject *a, PyObject *b)
                 return NULL;
             }
         }
-        if (!(r = PyTuple_New(2)) || !(qf = Pympfr_new(0)) || !(rf = Pympfr_new(0))) {
+        if (!(r = PyTuple_New(2)) ||
+            !(qf = (PympfrObject*)Pympfr_new(0)) ||
+            !(rf = (PympfrObject*)Pympfr_new(0))) {
             Py_XDECREF(r);
             Py_XDECREF((PyObject*)qf);
             Py_XDECREF((PyObject*)rf);

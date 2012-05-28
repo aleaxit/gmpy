@@ -32,7 +32,7 @@ PyInt2Pympq(PyObject *self)
     PympqObject *newob;
 
     assert(PyInt_Check(self));
-    if ((newob = Pympq_new()))
+    if ((newob = (PympqObject*)Pympq_new()))
         mpq_set_si(newob->q, PyInt_AsLong(self), 1);
     return newob;
 }
@@ -44,7 +44,7 @@ Pympz2Pympq(PyObject *self)
     PympqObject *newob;
 
     assert(Pympz_Check(self));
-    if ((newob = Pympq_new()))
+    if ((newob = (PympqObject*)Pympq_new()))
         mpq_set_z(newob->q, Pympz_AS_MPZ(self));
     return newob;
 }
@@ -55,7 +55,7 @@ Pyxmpz2Pympq(PyObject * obj)
     PympqObject *newob;
 
     assert(Pyxmpz_Check(obj));
-    if ((newob = Pympq_new()))
+    if ((newob = (PympqObject*)Pympq_new()))
         mpq_set_z(newob->q, Pyxmpz_AS_MPZ(obj));
     return newob;
 }
@@ -66,7 +66,7 @@ Pympq2Pympz(PyObject *self)
     PympzObject *newob;
 
     assert(Pympq_Check(self));
-    if ((newob = Pympz_new()))
+    if ((newob = (PympzObject*)Pympz_new()))
         mpz_set_q(newob->z, Pympq_AS_MPQ(self));
     return newob;
 }
@@ -77,7 +77,7 @@ Pympq2Pyxmpz(PyObject *self)
     PyxmpzObject *newob;
 
     assert(Pympq_Check(self));
-    if ((newob = Pyxmpz_new()))
+    if ((newob = (PyxmpzObject*)Pyxmpz_new()))
         mpz_set_q(newob->z, Pympq_AS_MPQ(self));
     return newob;
 }
@@ -101,7 +101,7 @@ PyFloat2Pympq(PyObject *self)
     PympqObject *newob;
 
     assert(PyFloat_Check(self));
-    if ((newob = Pympq_new())) {
+    if ((newob = (PympqObject*)Pympq_new())) {
         double d = PyFloat_AsDouble(self);
         if (Py_IS_NAN(d)) {
             Py_DECREF((PyObject*)newob);
@@ -141,7 +141,7 @@ PyStr2Pympq(PyObject *stringarg, long base)
     PyObject *ascii_str = NULL;
 
     assert(PyStrOrUnicode_Check(stringarg));
-    if (!(newob = Pympq_new()))
+    if (!(newob = (PympqObject*)Pympq_new()))
         return NULL;
     if (PyBytes_Check(stringarg)) {
         len = PyBytes_Size(stringarg);
@@ -379,7 +379,7 @@ Pympq_From_Decimal(PyObject* obj)
     mpz_t temp;
     const char *string;
 
-    if (!(result = Pympq_new()))
+    if (!(result = (PympqObject*)Pympq_new()))
         return NULL;
     mpq_set_si(result->q, 0, 1);
 

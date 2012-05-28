@@ -106,7 +106,7 @@ Pygmpy_c_div_2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    if (!(result = Pympz_new()))
+    if (!(result = (PympzObject*)Pympz_new()))
         return NULL;
 
     if (CHECK_MPZANY(x)) {
@@ -147,7 +147,7 @@ Pygmpy_c_mod_2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    if (!(result = Pympz_new()))
+    if (!(result = (PympzObject*)Pympz_new()))
         return NULL;
 
     if (CHECK_MPZANY(x)) {
@@ -241,7 +241,7 @@ Pygmpy_f_div_2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    if (!(result = Pympz_new()))
+    if (!(result = (PympzObject*)Pympz_new()))
         return NULL;
 
     if (CHECK_MPZANY(x)) {
@@ -282,7 +282,7 @@ Pygmpy_f_mod_2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    if (!(result = Pympz_new()))
+    if (!(result = (PympzObject*)Pympz_new()))
         return NULL;
 
     if (CHECK_MPZANY(x)) {
@@ -376,7 +376,7 @@ Pygmpy_t_div_2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    if (!(result = Pympz_new()))
+    if (!(result = (PympzObject*)Pympz_new()))
         return NULL;
     if (CHECK_MPZANY(x)) {
         mpz_tdiv_q_2exp(result->z, Pympz_AS_MPZ(x), nbits);
@@ -416,7 +416,7 @@ Pygmpy_t_mod_2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    if (!(result = Pympz_new()))
+    if (!(result = (PympzObject*)Pympz_new()))
         return NULL;
 
     if (CHECK_MPZANY(x)) {
@@ -482,7 +482,7 @@ Pygmpy_pack(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(result = Pympz_new()))
+    if (!(result = (PympzObject*)Pympz_new()))
         return NULL;
 
     lst = PyTuple_GET_ITEM(args, 0);
@@ -587,7 +587,7 @@ Pygmpy_unpack(PyObject *self, PyObject *args)
     }
 
     if (mpz_sgn(tempx->z) == 0) {
-        if (!(item = Pympz_new())) {
+        if (!(item = (PympzObject*)Pympz_new())) {
             Py_DECREF((PyObject*)tempx);
             Py_DECREF(result);
             return NULL;
@@ -622,7 +622,7 @@ Pygmpy_unpack(PyObject *self, PyObject *args)
         temp_bits += extra_bits;
 
         while ((lst_ptr < lst_count) && (temp_bits >= nbits)) {
-            if(!(item = Pympz_new())) {
+            if(!(item = (PympzObject*)Pympz_new())) {
                 mpz_cloc(temp);
                 Py_DECREF((PyObject*)tempx);
                 Py_DECREF(result);

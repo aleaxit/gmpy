@@ -37,13 +37,13 @@ mpmath_build_mpf(long sign, PympzObject *man, PyObject *exp, mpir_si bc)
         Py_DECREF(exp);
         return NULL;
     }
-    if (!(tsign=PyIntOrLong_FromLong(sign))) {
+    if (!(tsign = PyIntOrLong_FromLong(sign))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
         return NULL;
     }
-    if (!(tbc=PyIntOrLong_FromSI(bc))) {
+    if (!(tbc = PyIntOrLong_FromSI(bc))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
@@ -259,9 +259,9 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
         return mpmath_build_mpf(0, man, 0, 0);
     }
 
-    upper = Pympz_new();
-    lower = Pympz_new();
-    if (!upper||!lower) {
+    upper = (PympzObject*)Pympz_new();
+    lower = (PympzObject*)Pympz_new();
+    if (!upper || !lower) {
         Py_DECREF((PyObject*)man);
         Py_XDECREF((PyObject*)upper);
         Py_XDECREF((PyObject*)lower);

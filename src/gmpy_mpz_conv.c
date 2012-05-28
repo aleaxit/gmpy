@@ -45,7 +45,7 @@ Pyxmpz2Pyxmpz(PyObject *self)
     PyxmpzObject *newob;
 
     assert(Pyxmpz_Check(self));
-    if ((newob = Pyxmpz_new()))
+    if ((newob = (PyxmpzObject*)Pyxmpz_new()))
         mpz_set(newob->z, Pyxmpz_AS_MPZ(self));
     return newob;
 }
@@ -56,7 +56,7 @@ Pyxmpz2Pympz(PyObject *self)
     PympzObject *newob;
 
     assert(Pyxmpz_Check(self));
-    if ((newob = Pympz_new()))
+    if ((newob = (PympzObject*)Pympz_new()))
         mpz_set(newob->z, Pyxmpz_AS_MPZ(self));
     return newob;
 }
@@ -67,7 +67,7 @@ Pympz2Pyxmpz(PyObject *self)
     PyxmpzObject *newob;
 
     assert(Pympz_Check(self));
-    if ((newob = Pyxmpz_new()))
+    if ((newob = (PyxmpzObject*)Pyxmpz_new()))
         mpz_set(newob->z, Pyxmpz_AS_MPZ(self));
     return newob;
 }
@@ -79,7 +79,7 @@ PyInt2Pympz(PyObject *self)
     PympzObject *newob;
 
     assert(PyInt_Check(self));
-    if ((newob = Pympz_new()))
+    if ((newob = (PympzObject*)Pympz_new()))
         mpz_set_si(newob->z, PyInt_AS_LONG(self));
     return newob;
 }
@@ -90,7 +90,7 @@ PyInt2Pyxmpz(PyObject *self)
     PyxmpzObject *newob;
 
     assert(PyInt_Check(self));
-    if ((newob = Pyxmpz_new()))
+    if ((newob = (PyxmpzObject*)Pyxmpz_new()))
         mpz_set_si(newob->z, PyInt_AsLong(self));
     return newob;
 }
@@ -102,7 +102,7 @@ PyFloat2Pympz(PyObject *self)
     PympzObject *newob;
 
     assert(PyFloat_Check(self));
-    if ((newob = Pympz_new())) {
+    if ((newob = (PympzObject*)Pympz_new())) {
         double d = PyFloat_AsDouble(self);
         if (Py_IS_NAN(d)) {
             Py_DECREF((PyObject*)newob);
@@ -125,7 +125,7 @@ PyFloat2Pyxmpz(PyObject *self)
     PyxmpzObject *newob;
 
     assert(PyFloat_Check(self));
-    if ((newob = Pyxmpz_new())) {
+    if ((newob = (PyxmpzObject*)Pyxmpz_new())) {
         double d = PyFloat_AsDouble(self);
         if (Py_IS_NAN(d)) {
             Py_DECREF((PyObject*)newob);
@@ -149,9 +149,9 @@ static PympzObject *
 PyLong2Pympz(PyObject * obj)
 {
     PympzObject *newob;
-    if (!(newob = Pympz_new()))
+    if (!(newob = (PympzObject*)Pympz_new()))
         return NULL;
-    mpz_set_PyLong(Pympz_AS_MPZ(newob), obj);
+    mpz_set_PyLong(newob->z, obj);
     return newob;
 }
 
@@ -159,9 +159,9 @@ static PyxmpzObject *
 PyLong2Pyxmpz(PyObject * obj)
 {
     PyxmpzObject *newob;
-    if (!(newob = Pyxmpz_new()))
+    if (!(newob = (PyxmpzObject*)Pyxmpz_new()))
         return NULL;
-    mpz_set_PyLong(Pyxmpz_AS_MPZ(newob), obj);
+    mpz_set_PyLong(newob->z, obj);
     return newob;
 }
 
@@ -237,7 +237,7 @@ PyStr2Pympz(PyObject *s, long base)
     PympzObject *newob;
 
     assert(PyStrOrUnicode_Check(s));
-    if (!(newob = Pympz_new()))
+    if (!(newob = (PympzObject*)Pympz_new()))
         return NULL;
     if (mpz_set_PyStr(newob->z, s, base) == -1) {
         Py_DECREF((PyObject*)newob);
@@ -252,7 +252,7 @@ PyStr2Pyxmpz(PyObject *s, long base)
     PyxmpzObject *newob;
 
     assert(PyStrOrUnicode_Check(s));
-    if (!(newob = Pyxmpz_new()))
+    if (!(newob = (PyxmpzObject*)Pyxmpz_new()))
         return NULL;
     if (mpz_set_PyStr(newob->z, s, base) == -1) {
         Py_DECREF((PyObject*)newob);

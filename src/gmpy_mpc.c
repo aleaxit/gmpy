@@ -56,7 +56,7 @@ Pympc2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 
     if (rprec == 0 || iprec == 0)
         mpc_get_prec2(&rprec, &iprec, Pympc_AS_MPC(self));
-    if ((result = Pympc_new(rprec, iprec)))
+    if ((result = (PympcObject*)Pympc_new(rprec, iprec)))
         mpc_set(result->c, Pympc_AS_MPC(self), GET_MPC_ROUND(context));
     return result;
 }
@@ -66,7 +66,7 @@ PyComplex2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *result;
 
-    if ((result = Pympc_new(rprec, iprec)))
+    if ((result = (PympcObject*)Pympc_new(rprec, iprec)))
         mpc_set_d_d(result->c, PyComplex_RealAsDouble(self),
                     PyComplex_ImagAsDouble(self), GET_MPC_ROUND(context));
     return result;
@@ -79,7 +79,7 @@ Pympfr2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 
     if (!rprec)
         rprec = mpfr_get_prec(Pympfr_AS_MPFR(self));
-    if ((result = Pympc_new(rprec, iprec)))
+    if ((result = (PympcObject*)Pympc_new(rprec, iprec)))
         result->rc = mpc_set_fr(result->c, Pympfr_AS_MPFR(self),
                                 GET_MPC_ROUND(context));
     return result;
@@ -92,7 +92,7 @@ PyFloat2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 
     if (!rprec)
         rprec = DBL_MANT_DIG;
-    if ((result = Pympc_new(rprec, iprec)))
+    if ((result = (PympcObject*)Pympc_new(rprec, iprec)))
         result->rc = mpc_set_d(result->c, PyFloat_AS_DOUBLE(self),
                                GET_MPC_ROUND(context));
     return result;
@@ -110,7 +110,7 @@ Pympz2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *result;
 
-    if ((result = Pympc_new(rprec, iprec)))
+    if ((result = (PympcObject*)Pympc_new(rprec, iprec)))
         result->rc = mpc_set_z(result->c, Pympz_AS_MPZ(self),
                                 GET_MPC_ROUND(context));
     return result;
@@ -123,7 +123,7 @@ Pympq2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *result;
 
-    if ((result = Pympc_new(rprec, iprec)))
+    if ((result = (PympcObject*)Pympc_new(rprec, iprec)))
         result->rc = mpc_set_q(result->c, Pympq_AS_MPQ(self),
                                GET_MPC_ROUND(context));
     return result;
@@ -155,7 +155,7 @@ PyInt2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *result;
 
-    if ((result = Pympc_new(rprec, iprec)))
+    if ((result = (PympcObject*)Pympc_new(rprec, iprec)))
         result->rc = mpc_set_si(result->c, PyInt_AsLong(self),
                                 GET_MPC_ROUND(context));
     return result;
@@ -204,7 +204,7 @@ PyStr2Pympc(PyObject *s, long base, mpfr_prec_t rbits, mpfr_prec_t ibits)
         return NULL;
     }
 
-    if (!(newob = Pympc_new(rbits, ibits))) {
+    if (!(newob = (PympcObject*)Pympc_new(rbits, ibits))) {
         Py_XDECREF(ascii_str);
         return NULL;
     }
@@ -405,7 +405,7 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
         dr = MPC_RND_RE( ((PympcObject*)obj)->round_mode );
         di = MPC_RND_IM( ((PympcObject*)obj)->round_mode );
 
-        if ((newob = Pympc_new(pr, pi))) {
+        if ((newob = (PympcObject*)Pympc_new(pr, pi))) {
             mpc_set(newob->c, Pympc_AS_MPC(obj), GET_MPC_ROUND(context));
             newob->round_mode = ((PympcObject*)obj)->round_mode;
             rr = mpfr_check_range(mpc_realref(newob->c), rr, dr);
@@ -639,16 +639,16 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
         if (arg1) tempimag = Pympfr_From_Real(arg1, ibits);
 
         if (!tempreal) {
-            if ((tempreal = Pympfr_new(rbits)))
+            if ((tempreal = (PympfrObject*)Pympfr_new(rbits)))
                 mpfr_set_ui(Pympfr_AS_MPFR(tempreal), 0, context->ctx.mpfr_round);
         }
 
         if (!tempimag) {
-            if ((tempimag = Pympfr_new(ibits)))
+            if ((tempimag = (PympfrObject*)Pympfr_new(ibits)))
                 mpfr_set_ui(Pympfr_AS_MPFR(tempimag), 0, context->ctx.mpfr_round);
         }
 
-        result = Pympc_new(rbits, ibits);
+        result = (PympcObject*)Pympc_new(rbits, ibits);
         if (!tempreal || !tempimag || !result) {
             Py_XDECREF(tempreal);
             Py_XDECREF(tempimag);
@@ -1002,7 +1002,7 @@ Pympc_abs(PyObject *self)
     PympfrObject *result = 0;
     PympcObject *tempx = 0;
 
-    result = Pympfr_new(0);
+    result = (PympfrObject*)Pympfr_new(0);
     tempx = Pympc_From_Complex(self, 0, 0);
     if (!tempx || !result) {
         SYSTEM_ERROR("Can't convert argument to 'mpc'.");
@@ -1032,7 +1032,7 @@ Pympc_neg(PympcObject *self)
 {
     PympcObject *result = 0;
 
-    if (!(result = Pympc_new(0, 0)))
+    if (!(result = (PympcObject*)Pympc_new(0, 0)))
         return NULL;
 
     if (!(self = Pympc_From_Complex((PyObject*)self, 0, 0))) {
@@ -1068,7 +1068,7 @@ Pympc_sqr(PyObject* self, PyObject *other)
 
     PARSE_ONE_MPC_OTHER("square() requires 'mpc' argument");
 
-    if (!(result = Pympc_new(0, 0))) {
+    if (!(result = (PympcObject*)Pympc_new(0, 0))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -1099,7 +1099,7 @@ Pympc_pow(PyObject *base, PyObject *exp, PyObject *m)
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    result = Pympc_new(0, 0);
+    result = (PympcObject*)Pympc_new(0, 0);
 
     if (!result) {
         Py_DECREF((PyObject*)tempe);
@@ -1149,7 +1149,7 @@ Pympc_conjugate(PyObject *self, PyObject *args)
 
     PARSE_ONE_MPC_ARGS("conjugate() requires 'mpc' argument");
 
-    if (!(result = Pympc_new(0,0))) {
+    if (!(result = (PympcObject*)Pympc_new(0,0))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -1187,7 +1187,7 @@ Pympc_getimag_attrib(PympcObject *self, void *closure)
 {
     PympfrObject *result;
 
-    if ((result = Pympfr_new(0)))
+    if ((result = (PympfrObject*)Pympfr_new(0)))
         mpc_imag(result->f, self->c, context->ctx.mpfr_round);
     return (PyObject*)result;
 }
@@ -1199,7 +1199,7 @@ Pympc_getreal_attrib(PympcObject *self, void *closure)
 {
     PympfrObject *result;
 
-    if ((result = Pympfr_new(0)))
+    if ((result = (PympfrObject*)Pympfr_new(0)))
         mpc_real(result->f, self->c, context->ctx.mpfr_round);
     return (PyObject*)result;
 }
@@ -1255,7 +1255,7 @@ Pympc_phase(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPC_OTHER("phase() requires 'mpc' argument");
 
-    if (!(result = Pympfr_new(0))) {
+    if (!(result = (PympfrObject*)Pympfr_new(0))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -1289,7 +1289,7 @@ Pympc_norm(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPC_OTHER("norm() requires 'mpc' argument");
 
-    if (!(result = Pympfr_new(0))) {
+    if (!(result = (PympfrObject*)Pympfr_new(0))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -1351,7 +1351,7 @@ Pympc_rect(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPFR_ARGS(other, "rect() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = Pympc_new(0, 0))) {
+    if (!(result = (PympcObject*)Pympc_new(0, 0))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
@@ -1382,7 +1382,7 @@ Pympc_proj(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPC_OTHER("proj() requires 'mpc' argument");
 
-    if (!(result = Pympc_new(0, 0))) {
+    if (!(result = (PympcObject*)Pympc_new(0, 0))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -1400,7 +1400,7 @@ Pympc_##NAME(PyObject* self, PyObject *other) \
 { \
     PympcObject *result; \
     PARSE_ONE_MPC_OTHER(#NAME "() requires 'mpc' argument"); \
-    if (!(result = Pympc_new(0, 0))) { \
+    if (!(result = (PympcObject*)Pympc_new(0, 0))) { \
         Py_DECREF(self); \
         return NULL; \
     } \
@@ -1448,8 +1448,8 @@ Pympc_sin_cos(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPC_OTHER("sin_cos() requires 'mpc' argument");
 
-    s = Pympc_new(0, 0);
-    c = Pympc_new(0, 0);
+    s = (PympcObject*)Pympc_new(0, 0);
+    c = (PympcObject*)Pympc_new(0, 0);
     result = PyTuple_New(2);
     if (!s || !c || !result) {
         Py_DECREF(self);
@@ -1490,7 +1490,7 @@ Pympc_fma(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    result = Pympc_new(0, 0);
+    result = (PympcObject*)Pympc_new(0, 0);
     x = Pympc_From_Complex(PyTuple_GET_ITEM(args, 0), 0, 0);
     y = Pympc_From_Complex(PyTuple_GET_ITEM(args, 1), 0, 0);
     z = Pympc_From_Complex(PyTuple_GET_ITEM(args, 2), 0, 0);
@@ -1525,7 +1525,7 @@ Pympc_fms(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    result = Pympc_new(0, 0);
+    result = (PympcObject*)Pympc_new(0, 0);
     x = Pympc_From_Complex(PyTuple_GET_ITEM(args, 0), 0, 0);
     y = Pympc_From_Complex(PyTuple_GET_ITEM(args, 1), 0, 0);
     z = Pympc_From_Complex(PyTuple_GET_ITEM(args, 2), 0, 0);
@@ -1562,7 +1562,7 @@ Pympc_div_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(result = Pympc_new(0, 0))) {
+    if (!(result = (PympcObject*)Pympc_new(0, 0))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -1585,7 +1585,7 @@ Pympc_mul_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(result = Pympc_new(0, 0))) {
+    if (!(result = (PympcObject*)Pympc_new(0, 0))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -1626,7 +1626,7 @@ Pympc_add(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPC_ARGS(other, "add() requires 'mpc','mpc' arguments");
 
-    if (!(result = Pympc_new(0, 0))) {
+    if (!(result = (PympcObject*)Pympc_new(0, 0))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
@@ -1647,7 +1647,7 @@ Pympc_sub(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPC_ARGS(other, "sub() requires 'mpc','mpc' arguments");
 
-    if (!(result = Pympc_new(0, 0))) {
+    if (!(result = (PympcObject*)Pympc_new(0, 0))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
@@ -1668,7 +1668,7 @@ Pympc_mul(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPC_ARGS(other, "mul() requires 'mpc','mpc' arguments");
 
-    if (!(result = Pympc_new(0, 0))) {
+    if (!(result = (PympcObject*)Pympc_new(0, 0))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
@@ -1689,7 +1689,7 @@ Pympc_div(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPC_ARGS(other, "div() requires 'mpc','mpc' arguments");
 
-    if (!(result = Pympc_new(0, 0))) {
+    if (!(result = (PympcObject*)Pympc_new(0, 0))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;

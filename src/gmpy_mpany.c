@@ -1066,14 +1066,15 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return result;
         }
         else {
-            PympfrObject *tempmpfr;
+            PyObject *tempmpfr;
 
             tempmpfr = Pympfr_new(mpfr_get_prec(mpc_realref(Pympc_AS_MPC(a))));
             if (!tempmpfr)
                 return NULL;
-            mpc_real(tempmpfr->f, Pympc_AS_MPC(a), context->ctx.mpfr_round);
-            result = mpany_richcompare((PyObject*)tempmpfr, b, op);
-            Py_DECREF((PyObject*)tempmpfr);
+            mpc_real(Pympfr_AS_MPFR(tempmpfr), Pympc_AS_MPC(a),
+                     context->ctx.mpfr_round);
+            result = mpany_richcompare(tempmpfr, b, op);
+            Py_DECREF(tempmpfr);
             return result;
         }
     }
