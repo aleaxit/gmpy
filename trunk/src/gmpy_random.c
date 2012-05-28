@@ -111,7 +111,7 @@ GMPY_mpz_urandomb(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if ((result = Pympz_new())) {
+    if ((result = (PympzObject*)Pympz_new())) {
         mpz_urandomb(Pympz_AS_MPZ(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                      len);
@@ -147,7 +147,7 @@ GMPY_mpz_rrandomb(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if ((result = Pympz_new())) {
+    if ((result = (PympzObject*)Pympz_new())) {
         mpz_rrandomb(Pympz_AS_MPZ(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                      len);
@@ -180,7 +180,7 @@ GMPY_mpz_random(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if ((result = Pympz_new())) {
+    if ((result = (PympzObject*)Pympz_new())) {
         mpz_urandomm(Pympz_AS_MPZ(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                      Pympz_AS_MPZ(temp));
@@ -210,7 +210,7 @@ GMPY_mpfr_random(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if ((result = Pympfr_new(0))) {
+    if ((result = (PympfrObject*)Pympfr_new(0))) {
         mpfr_urandom(Pympfr_AS_MPFR(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                      context->ctx.mpfr_round);
@@ -238,8 +238,8 @@ GMPY_mpfr_grandom(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    result1 = Pympfr_new(0);
-    result2 = Pympfr_new(0);
+    result1 = (PympfrObject*)Pympfr_new(0);
+    result2 = (PympfrObject*)Pympfr_new(0);
     if (!result1 || !result2) {
         Py_XDECREF((PyObject*)result1);
         Py_XDECREF((PyObject*)result2);
@@ -274,7 +274,7 @@ GMPY_mpc_random(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if ((result = Pympc_new(0,0))) {
+    if ((result = (PympcObject*)Pympc_new(0,0))) {
         mpc_urandom(Pympc_AS_MPC(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)));
     }
@@ -282,8 +282,6 @@ GMPY_mpc_random(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 #endif
-
-
 
 static PyTypeObject GMPYRandomState_Type =
 {

@@ -173,7 +173,7 @@ Pympq_numer(PyObject *self, PyObject *args)
 {
     PympzObject *result;
 
-    if (!(result = Pympz_new()))
+    if (!(result = (PympzObject*)Pympz_new()))
         return NULL;
 
     SELF_MPQ_NO_ARG;
@@ -188,7 +188,7 @@ Pympq_getnumer(PympqObject *self, void *closure)
 {
     PympzObject *result;
 
-    if ((result = Pympz_new()))
+    if ((result = (PympzObject*)Pympz_new()))
         mpz_set(result->z, mpq_numref(Pympq_AS_MPQ(self)));
     return (PyObject*)result;
 }
@@ -202,7 +202,7 @@ Pympq_denom(PyObject *self, PyObject *args)
 {
     PympzObject *result;
 
-    if (!(result = Pympz_new()))
+    if (!(result = (PympzObject*)Pympz_new()))
         return NULL;
 
     SELF_MPQ_NO_ARG;
@@ -217,7 +217,7 @@ Pympq_getdenom(PympqObject *self, void *closure)
 {
     PympzObject *result;
 
-    if ((result = Pympz_new()))
+    if ((result = (PympzObject*)Pympz_new()))
         mpz_set(result->z, mpq_denref(Pympq_AS_MPQ(self)));
     return (PyObject*)result;
 }
@@ -285,7 +285,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
         }
         else {
             /* denominator is 1, optimize returning an mpz */
-            s = (PyObject*)Pympz_new();
+            s = Pympz_new();
             mpz_set(Pympz_AS_MPZ(s), mpq_numref(Pympq_AS_MPQ(self)));
             return s;
         }
@@ -320,7 +320,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
             Py_DECREF(other);
             return result;
         }
-        s = (PyObject*)Pympq_new();
+        s = Pympq_new();
         mpq_div(Pympq_AS_MPQ(s), Pympq_AS_MPQ(self), Pympq_AS_MPQ(other));
         Py_DECREF(self);
         Py_DECREF(other);
@@ -330,7 +330,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
     }
     else {
         /* denominator is 1, return an mpz */
-        PyObject* ss = (PyObject*)Pympz_new();
+        PyObject* ss = Pympz_new();
         if (ss)
             mpz_set(Pympz_AS_MPZ(ss), mpq_numref(Pympq_AS_MPQ(s)));
         Py_DECREF(s);
@@ -352,7 +352,7 @@ Py##NAME(PyObject *a, PyObject *b) \
     Py_XDECREF((PyObject*)pb); \
     Py_RETURN_NOTIMPLEMENTED; \
   } \
-  if (!(r = Pympq_new())) { \
+  if (!(r = (PympqObject*)Pympq_new())) { \
     Py_DECREF((PyObject*)pa); \
     Py_DECREF((PyObject*)pb); \
     return NULL; \
@@ -368,7 +368,7 @@ static PyObject * \
 Py##NAME(PympqObject *x) \
 { \
   PympqObject *r; \
-  if (!(r = Pympq_new())) return NULL; \
+  if (!(r = (PympqObject*)Pympq_new())) return NULL; \
   NAME(r->q, x->q); \
   return (PyObject *) r; \
 }
@@ -381,7 +381,7 @@ static PyObject *
 Pympq_abs(PympqObject *x)
 {
     PympqObject *r;
-    if (!(r = Pympq_new()))
+    if (!(r = (PympqObject*)Pympq_new()))
         return NULL;
     mpq_set(r->q, x->q);
     mpz_abs(mpq_numref(r->q),mpq_numref(r->q));
@@ -400,7 +400,7 @@ Pympq_square(PyObject *self, PyObject *other)
 {
     PympqObject *tempx, *result;
 
-    if (!(result = Pympq_new()))
+    if (!(result = (PympqObject*)Pympq_new()))
         return NULL;
 
     if (self && (Pympq_Check(self))) {
@@ -453,7 +453,7 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
             Py_DECREF((PyObject*)tempez);
             return NULL;
         }
-        if (!(rq = Pympq_new())) {
+        if (!(rq = (PympqObject*)Pympq_new())) {
             Py_DECREF((PyObject*)tempbq);
             Py_DECREF((PyObject*)tempez);
             return NULL;
@@ -499,7 +499,7 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
 #ifdef WITHMPFR
         tempbf = Pympfr_From_Real(base, 0);
         tempef = Pympfr_From_Real(exp, 0);
-        rf = Pympfr_new(0);
+        rf = (PympfrObject*)Pympfr_new(0);
         if (!tempbf || !tempef || !rf) {
             TYPE_ERROR("mpq.pow() unsupported operands");
             Py_XDECREF((PyObject*)tempbf);
@@ -591,7 +591,7 @@ Pympq_add(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPQ(other, "add() requires 'mpq','mpq' arguments");
 
-    if ((result = Pympq_new()))
+    if ((result = (PympqObject*)Pympq_new()))
         mpq_add(result->q, Pympq_AS_MPQ(self), Pympq_AS_MPQ(other));
 
     Py_DECREF(self);
@@ -607,7 +607,7 @@ Pympq_sub(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPQ(other, "sub() requires 'mpq','mpq' arguments");
 
-    if ((result = Pympq_new()))
+    if ((result = (PympqObject*)Pympq_new()))
         mpq_sub(result->q, Pympq_AS_MPQ(self), Pympq_AS_MPQ(other));
 
     Py_DECREF(self);
@@ -623,7 +623,7 @@ Pympq_mul(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPQ(other, "mul() requires 'mpq','mpq' arguments");
 
-    if ((result = Pympq_new()))
+    if ((result = (PympqObject*)Pympq_new()))
         mpq_mul(result->q, Pympq_AS_MPQ(self), Pympq_AS_MPQ(other));
 
     Py_DECREF(self);
@@ -639,7 +639,7 @@ Pympq_div(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPQ(other, "div() requires 'mpq','mpq' arguments");
 
-    if ((result = Pympq_new())) {
+    if ((result = (PympqObject*)Pympq_new())) {
         if (mpq_sgn(Pympq_AS_MPQ(other)) == 0) {
             ZERO_ERROR("'mpq' division by zero");
             Py_DECREF((PyObject*)result);

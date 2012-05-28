@@ -90,7 +90,7 @@ set_pympzcache(void)
     pympzcache = GMPY_REALLOC(pympzcache, sizeof(PympzObject)*global.cache_size);
 }
 
-static PympzObject *
+static PyObject *
 Pympz_new(void)
 {
     PympzObject *self;
@@ -107,7 +107,7 @@ Pympz_new(void)
         mpz_inoc(self->z);
     }
     self->hash_cache = -1;
-    return self;
+    return (PyObject*)self;
 }
 
 static void
@@ -139,7 +139,7 @@ set_pyxmpzcache(void)
     pyxmpzcache = GMPY_REALLOC(pyxmpzcache, sizeof(PyxmpzObject)*global.cache_size);
 }
 
-static PyxmpzObject *
+static PyObject *
 Pyxmpz_new(void)
 {
     PyxmpzObject *self;
@@ -155,7 +155,7 @@ Pyxmpz_new(void)
             return NULL;
         mpz_inoc(self->z);
     }
-    return self;
+    return (PyObject*)self;
 }
 
 static void
@@ -187,7 +187,7 @@ set_pympqcache(void)
     pympqcache = GMPY_REALLOC(pympqcache, sizeof(PympqObject)*global.cache_size);
 }
 
-static PympqObject *
+static PyObject *
 Pympq_new(void)
 {
     PympqObject *self;
@@ -204,7 +204,7 @@ Pympq_new(void)
         mpq_init(self->q);
     }
     self->hash_cache = -1;
-    return self;
+    return (PyObject*)self;
 }
 
 static void
@@ -238,7 +238,7 @@ set_pympfrcache(void)
     pympfrcache = GMPY_REALLOC(pympfrcache, sizeof(PympfrObject)*global.cache_size);
 }
 
-static PympfrObject *
+static PyObject *
 Pympfr_new(mpfr_prec_t bits)
 {
     PympfrObject *self;
@@ -264,7 +264,7 @@ Pympfr_new(mpfr_prec_t bits)
     self->hash_cache = -1;
     self->rc = 0;
     self->round_mode = context->ctx.mpfr_round;
-    return self;
+    return (PyObject*)self;
 }
 
 static void
@@ -291,7 +291,7 @@ Pympfr_dealloc(PympfrObject *self)
    precision independantly forces a new memory allocation.
 */
 
-static PympcObject *
+static PyObject *
 Pympc_new(mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *self;
@@ -311,7 +311,7 @@ Pympc_new(mpfr_prec_t rprec, mpfr_prec_t iprec)
     self->hash_cache = -1;
     self->rc = 0;
     self->round_mode = GET_MPC_ROUND(context);
-    return self;
+    return (PyObject*)self;
 }
 
 static void
