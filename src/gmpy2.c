@@ -749,7 +749,7 @@ _PyInitGMP(void)
     set_pyxmpzcache();
 #ifdef WITHMPFR
     set_pympfrcache();
-    context = GMPyContext_new();
+    context = (GMPyContextObject*)GMPyContext_new();
     GMPyExc_GmpyError = PyErr_NewException("gmpy2.gmpyError",
                                            PyExc_ArithmeticError, NULL);
     GMPyExc_Erange = PyErr_NewException("gmpy2.RangeError",

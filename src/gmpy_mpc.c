@@ -328,7 +328,7 @@ raw_mpfr_ascii(mpfr_t self, int base, int digits, int round)
 static PyObject *
 Pympc_ascii(PympcObject *self, int base, int digits)
 {
-    PyObject *tempreal = 0, *tempimag = 0;
+    PyObject *tempreal = 0, *tempimag = 0, *result;
 
     if (!((base >= 2) && (base <= 62))) {
         VALUE_ERROR("base must be in the interval 2 ... 62");
@@ -350,7 +350,12 @@ Pympc_ascii(PympcObject *self, int base, int digits)
         return NULL;
     }
 
-    return Py_BuildValue("(NN)", tempreal, tempimag);
+    result = Py_BuildValue("(NN)", tempreal, tempimag);
+    if (!result) {
+        Py_DECREF(tempreal);
+        Py_DECREF(tempimag);
+    }
+    return result;
 }
 
 /*
@@ -1319,7 +1324,7 @@ PyDoc_STRVAR(doc_mpc_polar,
 static PyObject *
 Pympc_polar(PyObject *self, PyObject *other)
 {
-    PyObject *abs, *phase;
+    PyObject *abs, *phase, *result;
 
     PARSE_ONE_MPC_OTHER("norm() requires 'mpc' argument");
 
@@ -1333,7 +1338,13 @@ Pympc_polar(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    return Py_BuildValue("(NN)", abs, phase);
+    result = Py_BuildValue("(NN)", abs, phase);
+    if (!result) {
+        Py_DECREF(abs);
+        Py_DECREF(phase);
+    }
+    Py_DECREF(self);
+    return result;
 }
 
 PyDoc_STRVAR(doc_mpc_rect,

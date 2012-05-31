@@ -412,6 +412,7 @@ Pympq_square(PyObject *self, PyObject *other)
     else {
         if (!(tempx = Pympq_From_Rational(other))) {
             TYPE_ERROR("square() requires 'mpq' argument");
+            Py_DECREF((PyObject*)result);
             return NULL;
         }
         else {
