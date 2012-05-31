@@ -1177,6 +1177,7 @@ Pympfr_integer_ratio(PyObject *self, PyObject *args)
 {
     PympzObject *num = 0, *den = 0;
     mpfr_exp_t temp, twocount;
+    PyObject *result;
 
     if (mpfr_nan_p(Pympfr_AS_MPFR(self))) {
         VALUE_ERROR("Cannot pass NaN to mpfr.as_integer_ratio.");
@@ -1213,7 +1214,12 @@ Pympfr_integer_ratio(PyObject *self, PyObject *args)
         else if (temp < 0)
             mpz_mul_2exp(den->z, den->z, -temp);
     }
-    return Py_BuildValue("(NN)", (PyObject*)num, (PyObject*)den);
+    result = Py_BuildValue("(NN)", (PyObject*)num, (PyObject*)den);
+    if (!result) {
+        Py_DECREF((PyObject*)num);
+        Py_DECREF((PyObject*)den);
+    }
+    return result;
 }
 
 PyDoc_STRVAR(doc_mpfr_mantissa_exp,
@@ -1225,6 +1231,7 @@ Pympfr_mantissa_exp(PyObject *self, PyObject *args)
 {
     PympzObject *mantissa = 0, *exponent = 0;
     mpfr_exp_t temp;
+    PyObject *result;
 
     if (mpfr_nan_p(Pympfr_AS_MPFR(self))) {
         VALUE_ERROR("Cannot pass NaN to mpfr.as_mantissa_exp.");
@@ -1252,7 +1259,12 @@ Pympfr_mantissa_exp(PyObject *self, PyObject *args)
         temp = mpfr_get_z_2exp(mantissa->z, Pympfr_AS_MPFR(self));
         mpz_set_si(exponent->z, temp);
     }
-    return Py_BuildValue("(NN)", (PyObject*)mantissa, (PyObject*)exponent);
+    result = Py_BuildValue("(NN)", (PyObject*)mantissa, (PyObject*)exponent);
+    if (!result) {
+        Py_DECREF((PyObject*)mantissa);
+        Py_DECREF((PyObject*)exponent);
+    }
+    return result;
 }
 
 PyDoc_STRVAR(doc_mpfr_simple_fraction,

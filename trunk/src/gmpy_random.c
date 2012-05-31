@@ -227,6 +227,7 @@ static PyObject *
 GMPY_mpfr_grandom(PyObject *self, PyObject *args)
 {
     PympfrObject *result1, *result2;
+    PyObject *result;
 
     if (PyTuple_GET_SIZE(args) != 1) {
         TYPE_ERROR("mpfr_grandom() requires 1 argument");
@@ -250,7 +251,12 @@ GMPY_mpfr_grandom(PyObject *self, PyObject *args)
                  PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                  context->ctx.mpfr_round);
 
-    return Py_BuildValue("(NN)", (PyObject*)result1, (PyObject*)result2);
+    result = Py_BuildValue("(NN)", (PyObject*)result1, (PyObject*)result2);
+    if (!result) {
+        Py_DECREF((PyObject*)result1);
+        Py_DECREF((PyObject*)result2);
+    }
+    return result;
 }
 #endif
 

@@ -38,7 +38,7 @@
 
 /* Create and delete Context objects. */
 
-static GMPyContextObject *
+static PyObject *
 GMPyContext_new(void)
 {
     GMPyContextObject *result;
@@ -71,7 +71,7 @@ GMPyContext_new(void)
         result->ctx.allow_complex = 0;
 #endif
     }
-    return result;
+    return (PyObject*)result;
 };
 
 static void
@@ -82,11 +82,11 @@ GMPyContext_dealloc(GMPyContextObject *self)
 
 /* Create and delete ContextManager objects. */
 
-static GMPyContextManagerObject *
+static PyObject *
 GMPyContextManager_new(void)
 {
-    return (GMPyContextManagerObject*)PyObject_New(GMPyContextManagerObject,
-                                                   &GMPyContextManager_Type);
+    return (PyObject*)PyObject_New(GMPyContextManagerObject,
+                                   &GMPyContextManager_Type);
 };
 
 static void
@@ -409,7 +409,7 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-    if (!(result = GMPyContextManager_new()))
+    if (!(result = (GMPyContextManagerObject*)GMPyContextManager_new()))
         return NULL;
 
 
@@ -629,7 +629,7 @@ GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-    if (!(result = GMPyContext_new()))
+    if (!(result = (GMPyContextObject*)GMPyContext_new()))
         return NULL;
 
 #ifdef WITHMPC
@@ -786,7 +786,7 @@ GMPyContextManager_enter(PyObject *self, PyObject *args)
 {
     GMPyContextObject *result;
 
-    if (!(result = GMPyContext_new()))
+    if (!(result = (GMPyContextObject*)GMPyContext_new()))
         return NULL;
 
     result->ctx = ((GMPyContextManagerObject*)self)->new_ctx;
@@ -803,7 +803,7 @@ GMPyContextManager_exit(PyObject *self, PyObject *args)
 {
     GMPyContextObject *result;
 
-    if (!(result = GMPyContext_new()))
+    if (!(result = (GMPyContextObject*)GMPyContext_new()))
         return NULL;
 
     result->ctx = ((GMPyContextManagerObject*)self)->old_ctx;

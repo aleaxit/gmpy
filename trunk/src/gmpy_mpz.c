@@ -911,6 +911,7 @@ Pympz_square(PyObject *self, PyObject *other)
     else {
         if (!(tempx = Pympz_From_Integer(other))) {
             TYPE_ERROR("square() requires 'mpz' argument");
+            Py_DECREF((PyObject*)result);
             return NULL;
         }
         else {
