@@ -2261,7 +2261,12 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
             TYPE_ERROR("deleting bits not supported");
             return -1;
         }
-        else if (value == Py_True) {
+
+        /* Special recognition of True/False for setting /clearing a slice of
+         * bits has been removed. To clear a slice of bits, just use 0. To set
+         * a slice of bits, use either ~0 or -1.
+
+         else if (value == Py_True) {
             for (cur = start + (slicelength-1) * step, i = 0;
                  i < slicelength;
                  cur -= step, i++) {
@@ -2272,7 +2277,8 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
             for (cur = start, i = 0; i < slicelength; cur += step, i++) {
                 mpz_clrbit(self->z, cur);
             }
-        }
+        } */
+
         else {
             int bit;
             PympzObject *tempx;
