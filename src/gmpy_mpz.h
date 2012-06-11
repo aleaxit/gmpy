@@ -38,33 +38,17 @@ typedef struct {
     Py_hash_t hash_cache;
 } PympzObject;
 
-typedef struct {
-    PyObject_HEAD
-    mpz_t z;
-} PyxmpzObject;
-
 #define Pympz_AS_MPZ(obj) (((PympzObject *)(obj))->z)
-
-#define Pyxmpz_AS_MPZ(obj) (((PyxmpzObject *)(obj))->z)
 
 static PyTypeObject Pympz_Type;
 
 #define Pympz_Check(v) (((PyObject*)v)->ob_type == &Pympz_Type)
 
-static PyTypeObject Pyxmpz_Type;
-
-#define Pyxmpz_Check(v) (((PyObject*)v)->ob_type == &Pyxmpz_Type)
-
-#define CHECK_MPZANY(v) (Pympz_Check(v) || Pyxmpz_Check(v))
-
 static PyObject * Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds);
-static PyObject * Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject * Pympz_digits(PyObject *self, PyObject *args);
-static PyObject * Pyxmpz_digits(PyObject *self, PyObject *args);
 static PyObject * Pympz_num_digits(PyObject *self, PyObject *args);
 static PyObject * Pympz_bit_length(PyObject *self, PyObject *other);
 static PyObject * Pympz_bit_mask(PyObject *self, PyObject *other);
-static PyObject * Pyxmpz_xbit_mask(PyObject *self, PyObject *other);
 static PyObject * Pympz_bit_scan0(PyObject *self, PyObject *args);
 static PyObject * Pympz_bit_scan1(PyObject *self, PyObject *args);
 static PyObject * Pympz_popcount(PyObject *self, PyObject *other);
@@ -80,17 +64,12 @@ static PyObject * Pympz_iroot(PyObject *self, PyObject *args);
 static PyObject * Pympz_iroot_rem(PyObject *self, PyObject *args);
 static PyObject * Pympz_sign(PyObject *self, PyObject *other);
 static PyObject * Pympz_abs(PympzObject *x);
-static PyObject * Pyxmpz_abs(PyxmpzObject *x);
 static PyObject * Pympz_neg(PympzObject *x);
-static PyObject * Pyxmpz_neg(PyxmpzObject *x);
 static PyObject * Pympz_pos(PympzObject *x);
-static PyObject * Pyxmpz_pos(PyxmpzObject *x);
 static PyObject * Pympz_square(PyObject *self, PyObject *other);
 static PyObject * Pympz_pow(PyObject *b, PyObject *e, PyObject *m);
 static int Pympz_nonzero(PympzObject *x);
-static int Pyxmpz_nonzero(PyxmpzObject *x);
 static PyObject * Pympz_com(PympzObject *x);
-static PyObject * Pyxmpz_com(PyxmpzObject *x);
 static PyObject * Pympz_and(PyObject *a, PyObject *b);
 static PyObject * Pympz_ior(PyObject *a, PyObject *b);
 static PyObject * Pympz_xor(PyObject *a, PyObject *b);
@@ -99,9 +78,7 @@ static PyObject * Pympz_lshift(PyObject *a, PyObject *b);
 #if PY_MAJOR_VERSION < 3
 /* hex/oct formatting (mpz-only) */
 static PyObject * Pympz_oct(PympzObject *self);
-static PyObject * Pyxmpz_oct(PyxmpzObject *self);
 static PyObject * Pympz_hex(PympzObject *self);
-static PyObject * Pyxmpz_hex(PyxmpzObject *self);
 #endif
 static Py_hash_t Pympz_hash(PympzObject *self);
 static PyObject * Pygmpy_gcd(PyObject *self, PyObject *args);
@@ -129,13 +106,8 @@ static PyObject * Pympz_legendre(PyObject *self, PyObject *args);
 static PyObject * Pympz_kronecker(PyObject *self, PyObject *args);
 static PyObject * Pympz_is_even(PyObject *self, PyObject *other);
 static PyObject * Pympz_is_odd(PyObject *self, PyObject *other);
-static PyObject * Pyxmpz_make_mpz(PyObject *self, PyObject *other);
-static PyObject * Pyxmpz_copy(PyObject *self, PyObject *other);
-static Py_ssize_t Pyxmpz_nbits(PyxmpzObject *obj);
-static PyObject * Pyxmpz_subscript(PyxmpzObject* self, PyObject* item);
-static int Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value);
-static Py_ssize_t Pympz_nbits(PyxmpzObject *obj);
-static PyObject * Pympz_subscript(PyxmpzObject* self, PyObject* item);
+static Py_ssize_t Pympz_nbits(PympzObject *obj);
+static PyObject * Pympz_subscript(PympzObject* self, PyObject* item);
 static PyObject * Pympz_format(PyObject *self, PyObject *args);
 static PyObject * Pympz_add(PyObject *self, PyObject *args);
 static PyObject * Pympz_sub(PyObject *self, PyObject *args);

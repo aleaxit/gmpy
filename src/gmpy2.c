@@ -450,6 +450,7 @@ static PyObject *GMPyExc_ExpBound = NULL;
 #include "gmpy_mpz_divmod.c"
 
 #include "gmpy_mpz.c"
+#include "gmpy_xmpz.c"
 
 #include "gmpy_mpq.c"
 
