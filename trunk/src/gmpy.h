@@ -237,6 +237,8 @@ typedef long                mpir_si;
 #include "gmpy_args.h"
 
 #include "gmpy_mpz.h"
+#include "gmpy_xmpz.h"
+
 #include "gmpy_mpz_conv.h"
 #include "gmpy_mpz_divmod.h"
 #include "gmpy_mpz_divmod2exp.h"
