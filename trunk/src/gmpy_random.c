@@ -47,7 +47,7 @@ GMPYRandomState_Dealloc(GMPYRandomStateObject *self)
 static PyObject *
 GMPYRandomState_Repr(GMPYRandomStateObject *self)
 {
-    return Py_BuildValue("s", "<random number state>");
+    return Py_BuildValue("s", "<gmpy2.RandomState>");
 };
 
 PyDoc_STRVAR(doc_random_state,

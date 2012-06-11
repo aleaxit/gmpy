@@ -343,9 +343,9 @@ char gmpy_version[] = "2.0.0b1";
 char _gmpy_cvs[] = "$Id$";
 
 char gmpy_license[] = "\
-The GMPY2 source code is licensed under LGPL 2.1 or later. The GMP/MPIR, \n\
-MPFR, and MPC libraries are licensed under LGPL 3 or later. Therefore, this \n\
-combined module is licensed under LGPL 3 or later.";
+The GMPY2 source code is licensed under LGPL 3 or later. The supported \
+versions of the GMP/MPIR, MPFR, and MPC libraries are also licensed under \
+LGPL 3 or later.";
 
 /* The following global structures are used by gmpy_cache.c.
  */
