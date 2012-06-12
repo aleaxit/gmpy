@@ -7,8 +7,7 @@ The xmpz type
 gmpy2 provides access to an experimental integer type called *xmpz*. The
 *xmpz* type is a mutable integer type. Instances of *xmpz* cannot be used as
 dictionary keys. In-place operations (+=, //=, etc.) modify the orignal object
-and do not create a new object. The ability to change an *xmpz* object in-place
-allows for efficient and rapid bit manipulation.
+and do not create a new object.
 
 ::
 
@@ -22,11 +21,33 @@ allows for efficient and rapid bit manipulation.
     >>> b
     xmpz(124)
 
+The ability to change an *xmpz* object in-place allows for efficient and rapid
+bit manipulation.
+
 Individual bits can be set or cleared::
 
     >>> a[10]=1
     >>> a
     xmpz(1148)
+
+To clear a range of bits, use a source value of 0. In 2s-complement format, 0
+is represented by an arbitrary number of 0-bits. To set a range of bits, use
+a source value of ~0 (which is equivalent to -1). In 2s-complement format, -1
+is represented by an arbitrary number of 1-bits.
+
+If a value for *stop* is specified in a slice assignment and the actual
+bit-length of the *xmpz* is less than *stop*, then the destination *xmpz* is
+logically padded with 0-bits to length *stop*.
+
+::
+
+    >>> a=xmpz(0)
+    >>> a[8:16] = ~0
+    >>> bin(a)
+    '0b1111111100000000'
+    >>> a[4:12] = ~a[4:12]
+    >>> bin(a)
+    '0b1111000011110000'
 
 Bits can be reversed::
 
@@ -35,6 +56,46 @@ Bits can be reversed::
     >>> a[::] = a[::-1]
     >>> bin(a)
     '0b111110001'
+
+The following program uses the Sieve of Eratosthenes to generate a list of
+prime numbers.
+
+::
+
+    from __future__ import print_function
+    import time
+    import gmpy2
+
+    def prime_numbers(limit):
+        '''Prime number generator. Yields the series
+        2, 3, 5, 7, 11, 13, 17, 19, 23, 29 ...
+        using Sieve of Eratosthenes.
+        '''
+
+        sieve_limit = gmpy2.isqrt(limit)
+        sieve = gmpy2.xmpz(3)
+        _bit_scan0 = sieve.bit_scan0
+
+        prime = 2
+        yield prime
+        sieve[prime*prime:limit:prime] = True
+
+        prime = 3
+        while prime <= sieve_limit:
+            yield prime
+            sieve[prime*prime:limit:prime+prime] = True
+            prime = _bit_scan0(prime+1)
+
+        while prime < limit:
+            yield prime
+            prime = _bit_scan0(prime+1)
+
+    if __name__ == "__main__":
+        start = time.time()
+        result = list(prime_numbers(1000000))
+        print(time.time() - start)
+        print(len(result))
+
 
 Advanced Number Theory Functions
 --------------------------------
@@ -47,7 +108,7 @@ http://www.pseudoprime.com/pseudo.html
 
 **is_bpsw_prp(...)**
     is_bpsw_prp(n) will return True if *n* is a Baillie-Pomerance-Selfridge-Wagstaff
-    pseudo-prime. A BPSW pseudoprime passes the is_strong_prp() test with base
+    pseudo-prime. A BPSW pseudo-prime passes the is_strong_prp() test with base
     2 and the is_selfridge_prp() test.
 
 **is_euler_prp(...)**
@@ -63,7 +124,7 @@ http://www.pseudoprime.com/pseudo.html
 
 **is_extra_strong_lucas_prp(...)**
     is_extra_strong_lucas_prp(n,p) will return True if *n* is an extra strong
-    Lucas pseudo-prime with parameters (p,q).
+    Lucas pseudo-prime with parameters (p,1).
 
     | Assuming:
     |     n is odd
