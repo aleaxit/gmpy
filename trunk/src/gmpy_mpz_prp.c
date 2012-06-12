@@ -979,7 +979,7 @@ GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
 PyDoc_STRVAR(doc_mpz_is_extrastronglucas_prp,
 "is_extra_strong_lucas_prp(n,p) -> boolean\n\n"
 "Return True if n is an extra strong Lucas pseudoprime with parameters\n"
-"(p,q). Assuming:\n"
+"(p,1). Assuming:\n"
 "    n is odd\n"
 "    D = p*p - 4, D != 0\n"
 "    gcd(n, 2*D) == 1\n"
@@ -999,7 +999,6 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     mpz_t zD, s, nmj, nm2, res;
     /* these are needed for the LucasU and LucasV part of this function */
     mpz_t uh, vl, vh, ql, qh, tmp;
-    long int q = 1;
     unsigned long int r = 0;
     int ret = 0;
     int j = 0;
@@ -1197,7 +1196,6 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     mpz_clear(qh);
     mpz_clear(tmp);
     Py_XDECREF((PyObject*)p);
-    Py_XDECREF((PyObject*)q);
     Py_XDECREF((PyObject*)n);
     return result;
 }

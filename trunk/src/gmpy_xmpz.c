@@ -258,7 +258,7 @@ Pyxmpz_subscript(PyxmpzObject* self, PyObject* item)
             (step > 0 && start > stop))
             stop = start;
 
-        if (!(result = (PyObject*)Pyxmpz_new()))
+        if (!(result = (PyObject*)Pympz_new()))
             return NULL;
         mpz_set_ui(Pympz_AS_MPZ(result), 0);
         if (slicelength > 0) {
