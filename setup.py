@@ -141,7 +141,7 @@ gmpy2_ext = Extension('gmpy2', sources=['src/gmpy2.c'],
     extra_link_args = my_extra_link_args)
 
 setup (name = "gmpy2",
-       version = "2.0.0b1",
+       version = "2.0.0b2",
        maintainer = "Case Van Horsen",
        maintainer_email = "casevh@gmail.com",
        url = "http://code.google.com/p/gmpy/",
