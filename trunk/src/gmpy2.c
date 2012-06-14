@@ -268,6 +268,7 @@
  *   Allow xmpz slice assignment to increase length of xmpz instance by
  *      specifying a value for stop (casevh)
  *   Fixed ref-count bug in several is_xxx_prp tests (casevh)
+ *   Released as 2.0.0b2
  *
  ************************************************************************
  *
@@ -338,7 +339,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.0.0b1";
+char gmpy_version[] = "2.0.0b2";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -778,7 +779,7 @@ _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] =
-"gmpy2 2.0.0b1 - General Multiple-precision arithmetic for Python\n"
+"gmpy2 2.0.0b2 - General Multiple-precision arithmetic for Python\n"
 "\n"
 "gmpy2 supports several multiple-precision libraries. Integer and\n"
 "rational arithmetic is provided by either the GMP or MPIR libraries.\n"
