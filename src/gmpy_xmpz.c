@@ -398,6 +398,102 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
     return -1;
 }
 
+/* Implement a multi-purpose iterator object that iterates over the bits in
+ * an xmpz. Three different iterators can be created:
+ *   1) xmpz.iter_bits(start=0, stop=-1) will return True/False for each bit
+ *      position in the xmpz, beginning with bit 'start'. If stop is specified,
+ *      the xmpz will be padded with 0-bits (False) until stop is reached.
+ *   2) xmpz.iter_set(start=0, stop=-1, scale=1, offset=0) will return
+ *      (scale*bit_position + offset) when bit_position is set, beginning at
+ *      'start', ending at 'stop'.
+ *   3) xmpz.iter_clear(start=0, stop=-1, scale=1, offset=0) will return
+ *      (scale*bit_position + offset) when bit_position is clear, beginning at
+ *      'start', ending at 'stop'.
+ *
+ */
+
+static GMPYIterObject *
+GMPYIter_New(void)
+{
+    GMPYIterObject *result;
+
+    if ((result = PyObject_New(GMPYIterObject,
+                               &GMPYIter_Type))) {
+        result->bitmap = NULL;
+        result->start = 0;
+        result->stop = -1;
+        result->iter_type = 1;
+        result->scale = NULL;
+        result->offset = NULL;
+    }
+    return result;
+};
+
+static void
+GMPYIter_Dealloc(GMPYIterObject *self)
+{
+    Py_XDECREF((PyObject*)self->bitmap);
+    Py_XDECREF((PyObject*)self->scale);
+    Py_XDECREF((PyObject*)self->offset);
+    PyObject_Del(self);
+};
+
+static PyObject *
+GMPYIter_Repr(GMPYIterObject *self)
+{
+    return Py_BuildValue("s", "<gmpy2.Iterator>");
+};
+
+PyDoc_STRVAR(doc_xmpz_iter_bits,
+"xmpz.iter_bits(start=0, stop=-1) -> iterator\n\n"
+"Return True or False for each bit position in 'xmpz' beginning at\n"
+"'start'. If a positive value is specified for 'stop', iteration is\n"
+"continued until 'stop' is reached. If a negative value is speci-\n"
+"fied, iteration is continued until the last 1-bit. Note: the value\n"
+"of the underlying xmpz object can change during iteration.");
+
+static PyObject *
+Pyxmpz_iter_bits(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    return (PyObject*)GMPYIter_New();
+}
+
+static PyTypeObject GMPYIter_Type =
+{
+#ifdef PY3
+    PyVarObject_HEAD_INIT(0, 0)
+#else
+    PyObject_HEAD_INIT(0)
+        0,                                  /* ob_size          */
+#endif
+    "gmpy2 iterator",                       /* tp_name          */
+    sizeof(GMPYIterObject),                 /* tp_basicsize     */
+        0,                                  /* tp_itemsize      */
+    (destructor) GMPYIter_Dealloc,          /* tp_dealloc       */
+        0,                                  /* tp_print         */
+        0,                                  /* tp_getattr       */
+        0,                                  /* tp_setattr       */
+        0,                                  /* tp_reserved      */
+    (reprfunc) GMPYIter_Repr,               /* tp_repr          */
+        0,                                  /* tp_as_number     */
+        0,                                  /* tp_as_sequence   */
+        0,                                  /* tp_as_mapping    */
+        0,                                  /* tp_hash          */
+        0,                                  /* tp_call          */
+        0,                                  /* tp_str           */
+        0,                                  /* tp_getattro      */
+        0,                                  /* tp_setattro      */
+        0,                                  /* tp_as_buffer     */
+    Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
+    "GMPY2 Iterator Object",                /* tp_doc           */
+        0,                                  /* tp_traverse      */
+        0,                                  /* tp_clear         */
+        0,                                  /* tp_richcompare   */
+        0,                                  /* tp_weaklistoffset*/
+        0,                                  /* tp_iter          */
+        0,                                  /* tp_iternext      */
+};
+
 #ifdef PY3
 static PyNumberMethods xmpz_number_methods =
 {
@@ -500,6 +596,8 @@ static PyMethodDef Pyxmpz_methods [] =
     { "bit_test", Pympz_bit_test, METH_O, doc_bit_testm },
     { "copy", Pyxmpz_copy, METH_NOARGS, doc_xmpz_copy },
     { "digits", Pyxmpz_digits, METH_VARARGS, doc_mpz_digits },
+    { "iter_bits", (PyCFunction)Pyxmpz_iter_bits, METH_VARARGS | METH_KEYWORDS,
+                   doc_xmpz_iter_bits },
     { "make_mpz", Pyxmpz_make_mpz, METH_NOARGS, doc_make_mpzm },
     { "num_digits", Pympz_num_digits, METH_VARARGS, doc_num_digitsm },
     { NULL, NULL, 1 }

@@ -860,6 +860,8 @@ PyMODINIT_FUNC initgmpy2(void)
         INITERROR;
     if (PyType_Ready(&Pyxmpz_Type) < 0)
         INITERROR;
+    if (PyType_Ready(&GMPYIter_Type) < 0)
+        INITERROR;
 #ifdef WITHMPFR
     if (PyType_Ready(&Pympfr_Type) < 0)
         INITERROR;
