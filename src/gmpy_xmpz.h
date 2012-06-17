@@ -50,7 +50,6 @@ typedef struct {
     PyxmpzObject *bitmap;
     Py_ssize_t start, stop;
     int iter_type;
-    PympzObject *scale, *offset;
 } GMPYIterObject;
 
 static PyTypeObject GMPYIter_Type;
