@@ -423,8 +423,6 @@ GMPYIter_New(void)
         result->start = 0;
         result->stop = -1;
         result->iter_type = 1;
-        result->scale = NULL;
-        result->offset = NULL;
     }
     return result;
 };
@@ -433,8 +431,6 @@ static void
 GMPYIter_Dealloc(GMPYIterObject *self)
 {
     Py_XDECREF((PyObject*)self->bitmap);
-    Py_XDECREF((PyObject*)self->scale);
-    Py_XDECREF((PyObject*)self->offset);
     PyObject_Del(self);
 };
 
@@ -532,14 +528,14 @@ Pyxmpz_iter_bits(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 PyDoc_STRVAR(doc_xmpz_iter_set,
-"xmpz.iter_set(start=0, stop=-1, scale=1, offset=0) -> iterator\n\n"
-"Return (scale*bit_position + offset) for every bit position that\n"
+"xmpz.iter_set(start=0, stop=-1) -> iterator\n\n"
+"Return an iterator yielding the bit position for every bit that\n"
 "is set in 'xmpz', beginning at 'start'. If a positive value is\n"
 "specified for 'stop', iteration is continued until 'stop' is\n"
-"reached. If a negative value is specified, iteration is continued\n"
-"until the last 1-bit. 'scale' and 'offset' can be used to create\n"
-"a segmented bitmap or sieve. Note: the value of the underlying\n"
-"xmpz object can change during iteration.");
+"reached. To match the behavior of slicing, 'stop' is not included.\n"
+"If a negative value is specified, iteration is continued until\n"
+"the last 1-bit. Note: the value of the underlying xmpz object can\n"
+"change during iteration.");
 
 static PyObject *
 Pyxmpz_iter_set(PyObject *self, PyObject *args, PyObject *kwargs)
@@ -547,17 +543,13 @@ Pyxmpz_iter_set(PyObject *self, PyObject *args, PyObject *kwargs)
     GMPYIterObject *result;
     Py_ssize_t start = 0, stop = -1;
 
-    static char *kwlist[] = {"start", "stop", "scale", "offset", NULL };
+    static char *kwlist[] = {"start", "stop", NULL };
 
     if (!(result = GMPYIter_New()))
         return NULL;
 
-    if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "|nnO&O&", kwlist,
-                                      &start, &stop,
-                                      Pympz_convert_arg, &result->scale,
-                                      Pympz_convert_arg, &result->offset))) {
-        Py_XDECREF((PyObject*)result->scale);
-        Py_XDECREF((PyObject*)result->offset);
+    if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "|nn", kwlist,
+                                      &start, &stop))) {
         Py_XDECREF((PyObject*)result);
         return NULL;
     }
@@ -586,17 +578,13 @@ Pyxmpz_iter_clear(PyObject *self, PyObject *args, PyObject *kwargs)
     GMPYIterObject *result;
     Py_ssize_t start = 0, stop = -1;
 
-    static char *kwlist[] = {"start", "stop", "scale", "offset", NULL };
+    static char *kwlist[] = {"start", "stop", NULL };
 
     if (!(result = GMPYIter_New()))
         return NULL;
 
-    if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "|nnO&O&", kwlist,
-                                      &start, &stop,
-                                      Pympz_convert_arg, &result->scale,
-                                      Pympz_convert_arg, &result->offset))) {
-        Py_XDECREF((PyObject*)result->scale);
-        Py_XDECREF((PyObject*)result->offset);
+    if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "|nn", kwlist,
+                                      &start, &stop))) {
         Py_XDECREF((PyObject*)result);
         return NULL;
     }
