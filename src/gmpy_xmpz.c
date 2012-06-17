@@ -439,6 +439,60 @@ GMPYIter_Dealloc(GMPYIterObject *self)
 };
 
 static PyObject *
+GMPYIter_Next(GMPYIterObject *self) {
+    PyObject *result = 0;
+    int temp;
+    Py_ssize_t current_stop;
+
+    if (self->stop < 0)
+        current_stop = mpz_sizeinbase(self->bitmap->z, 2);
+    else
+        current_stop = self->stop;
+
+    switch (self->iter_type) {
+        case 1:
+            if (self->start >= current_stop)
+                PyErr_SetNone(PyExc_StopIteration);
+            else {
+                temp = mpz_tstbit(self->bitmap->z, self->start);
+                self->start += 1;
+                result = temp ? Py_True : Py_False;
+            }
+            break;
+        case 2:
+            if (self->start >= current_stop)
+                PyErr_SetNone(PyExc_StopIteration);
+            else {
+                temp = mpz_scan1(self->bitmap->z, self->start);
+                if (temp < 0)
+                    PyErr_SetNone(PyExc_StopIteration);
+                else {
+                    self->start = temp + 1;
+                    result = PyIntOrLong_FromSsize_t(temp);
+                }
+            }
+            break;
+        case 3:
+            if (self->start >= current_stop)
+                PyErr_SetNone(PyExc_StopIteration);
+            else {
+                temp = mpz_scan0(self->bitmap->z, self->start);
+                if (temp >= current_stop)
+                    PyErr_SetNone(PyExc_StopIteration);
+                else {
+                    self->start = temp + 1;
+                    result = PyIntOrLong_FromSsize_t(temp);
+                }
+            }
+            break;
+        default:
+            SYSTEM_ERROR("Illegal iter_type in gmpy2.Iterator.");
+    }
+    Py_XINCREF(result);
+    return result;
+}
+
+static PyObject *
 GMPYIter_Repr(GMPYIterObject *self)
 {
     return Py_BuildValue("s", "<gmpy2.Iterator>");
@@ -455,7 +509,104 @@ PyDoc_STRVAR(doc_xmpz_iter_bits,
 static PyObject *
 Pyxmpz_iter_bits(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    return (PyObject*)GMPYIter_New();
+    GMPYIterObject *result;
+    Py_ssize_t start = 0, stop = -1;
+
+    static char *kwlist[] = {"start", "stop", NULL };
+
+    if (!(result = GMPYIter_New()))
+        return NULL;
+
+    if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "|nn", kwlist,
+                                      &start, &stop))) {
+        Py_XDECREF((PyObject*)result);
+        return NULL;
+    }
+
+    result->iter_type = 1;
+    result->bitmap = (PyxmpzObject*)self;
+    Py_INCREF(self);
+    result->start = start;
+    result->stop = stop;
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_xmpz_iter_set,
+"xmpz.iter_set(start=0, stop=-1, scale=1, offset=0) -> iterator\n\n"
+"Return (scale*bit_position + offset) for every bit position that\n"
+"is set in 'xmpz', beginning at 'start'. If a positive value is\n"
+"specified for 'stop', iteration is continued until 'stop' is\n"
+"reached. If a negative value is specified, iteration is continued\n"
+"until the last 1-bit. 'scale' and 'offset' can be used to create\n"
+"a segmented bitmap or sieve. Note: the value of the underlying\n"
+"xmpz object can change during iteration.");
+
+static PyObject *
+Pyxmpz_iter_set(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    GMPYIterObject *result;
+    Py_ssize_t start = 0, stop = -1;
+
+    static char *kwlist[] = {"start", "stop", "scale", "offset", NULL };
+
+    if (!(result = GMPYIter_New()))
+        return NULL;
+
+    if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "|nnO&O&", kwlist,
+                                      &start, &stop,
+                                      Pympz_convert_arg, &result->scale,
+                                      Pympz_convert_arg, &result->offset))) {
+        Py_XDECREF((PyObject*)result->scale);
+        Py_XDECREF((PyObject*)result->offset);
+        Py_XDECREF((PyObject*)result);
+        return NULL;
+    }
+
+    result->iter_type = 2;
+    result->bitmap = (PyxmpzObject*)self;
+    Py_INCREF(self);
+    result->start = start;
+    result->stop = stop;
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_xmpz_iter_clear,
+"xmpz.iter_clear(start=0, stop=-1, scale=1, offset=0) -> iterator\n\n"
+"Return (scale*bit_position + offset) for every bit position that\n"
+"is clear in 'xmpz', beginning at 'start'. If a positive value is\n"
+"specified for 'stop', iteration is continued until 'stop' is\n"
+"reached. If a negative value is specified, iteration is continued\n"
+"until the last 1-bit. 'scale' and 'offset' can be used to create\n"
+"a segmented bitmap or sieve. Note: the value of the underlying\n"
+"xmpz object can change during iteration.");
+
+static PyObject *
+Pyxmpz_iter_clear(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    GMPYIterObject *result;
+    Py_ssize_t start = 0, stop = -1;
+
+    static char *kwlist[] = {"start", "stop", "scale", "offset", NULL };
+
+    if (!(result = GMPYIter_New()))
+        return NULL;
+
+    if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "|nnO&O&", kwlist,
+                                      &start, &stop,
+                                      Pympz_convert_arg, &result->scale,
+                                      Pympz_convert_arg, &result->offset))) {
+        Py_XDECREF((PyObject*)result->scale);
+        Py_XDECREF((PyObject*)result->offset);
+        Py_XDECREF((PyObject*)result);
+        return NULL;
+    }
+
+    result->iter_type = 3;
+    result->bitmap = (PyxmpzObject*)self;
+    Py_INCREF(self);
+    result->start = start;
+    result->stop = stop;
+    return (PyObject*)result;
 }
 
 static PyTypeObject GMPYIter_Type =
@@ -490,8 +641,8 @@ static PyTypeObject GMPYIter_Type =
         0,                                  /* tp_clear         */
         0,                                  /* tp_richcompare   */
         0,                                  /* tp_weaklistoffset*/
-        0,                                  /* tp_iter          */
-        0,                                  /* tp_iternext      */
+    PyObject_SelfIter,                      /* tp_iter          */
+    (iternextfunc)GMPYIter_Next,            /* tp_iternext      */
 };
 
 #ifdef PY3
@@ -598,6 +749,10 @@ static PyMethodDef Pyxmpz_methods [] =
     { "digits", Pyxmpz_digits, METH_VARARGS, doc_mpz_digits },
     { "iter_bits", (PyCFunction)Pyxmpz_iter_bits, METH_VARARGS | METH_KEYWORDS,
                    doc_xmpz_iter_bits },
+    { "iter_clear", (PyCFunction)Pyxmpz_iter_clear, METH_VARARGS | METH_KEYWORDS,
+                   doc_xmpz_iter_clear },
+    { "iter_set", (PyCFunction)Pyxmpz_iter_set, METH_VARARGS | METH_KEYWORDS,
+                   doc_xmpz_iter_set },
     { "make_mpz", Pyxmpz_make_mpz, METH_NOARGS, doc_make_mpzm },
     { "num_digits", Pympz_num_digits, METH_VARARGS, doc_num_digitsm },
     { NULL, NULL, 1 }
