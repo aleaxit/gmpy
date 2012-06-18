@@ -453,6 +453,7 @@ GMPYIter_Next(GMPYIterObject *self) {
                 temp = mpz_tstbit(self->bitmap->z, self->start);
                 self->start += 1;
                 result = temp ? Py_True : Py_False;
+                Py_INCREF(result);
             }
             break;
         case 2:
@@ -484,7 +485,6 @@ GMPYIter_Next(GMPYIterObject *self) {
         default:
             SYSTEM_ERROR("Illegal iter_type in gmpy2.Iterator.");
     }
-    Py_XINCREF(result);
     return result;
 }
 
