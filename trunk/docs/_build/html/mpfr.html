@@ -3,17 +3,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Multiple-precision Reals &mdash; gmpy2 v2.0.0b1 documentation</title>
+    <title>Multiple-precision Reals &mdash; gmpy2 2.0.0b2 documentation</title>
+    
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '2.0.0b1',
+        VERSION:     '2.0.0b2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="gmpy2 v2.0.0b1 documentation" href="index.html" />
+    <link rel="top" title="gmpy2 2.0.0b2 documentation" href="index.html" />
     <link rel="next" title="Multiple-precision Complex" href="mpc.html" />
     <link rel="prev" title="Multiple-precision Rationals" href="mpq.html" /> 
   </head>
@@ -39,7 +42,7 @@
         <li class="right" >
           <a href="mpq.html" title="Multiple-precision Rationals"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">gmpy2 v2.0.0b1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">gmpy2 2.0.0b2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -201,19 +204,19 @@ when the minimum exponent is reached. The MFPR library does not enable
 gradual underflow by default but it can be enabled to precisely mimic the
 results of IEEE-754 floating point operations.</dd>
 <dt><strong>trap_underflow</strong></dt>
-<dd>If set to <tt class="xref docutils literal"><span class="pre">False</span></tt>, a result that is smaller than the smallest possible
+<dd>If set to <tt class="docutils literal"><span class="pre">False</span></tt>, a result that is smaller than the smallest possible
 <em>mpfr</em> given the current exponent range will be replaced by +/-0.0. If set
-to <tt class="xref docutils literal"><span class="pre">True</span></tt>, an <tt class="docutils literal"><span class="pre">UnderflowResultError</span></tt> exception is raised.</dd>
+to <tt class="docutils literal"><span class="pre">True</span></tt>, an <tt class="docutils literal"><span class="pre">UnderflowResultError</span></tt> exception is raised.</dd>
 <dt><strong>underflow</strong></dt>
 <dd>This flag is not user controllable. It is automatically set if a result
-underflowed to +/-0.0 and trap_underflow is <tt class="xref docutils literal"><span class="pre">False</span></tt>.</dd>
+underflowed to +/-0.0 and trap_underflow is <tt class="docutils literal"><span class="pre">False</span></tt>.</dd>
 <dt><strong>trap_overflow</strong></dt>
-<dd>If set to <tt class="xref docutils literal"><span class="pre">False</span></tt>, a result that is larger than the largest possible
+<dd>If set to <tt class="docutils literal"><span class="pre">False</span></tt>, a result that is larger than the largest possible
 <em>mpfr</em> given the current exponent range will be replaced by +/-Infinity. If
-set to <tt class="xref docutils literal"><span class="pre">True</span></tt>, an <tt class="docutils literal"><span class="pre">OverflowResultError</span></tt> exception is raised.</dd>
+set to <tt class="docutils literal"><span class="pre">True</span></tt>, an <tt class="docutils literal"><span class="pre">OverflowResultError</span></tt> exception is raised.</dd>
 <dt><strong>overflow</strong></dt>
 <dd>This flag is not user controllable. It is automatically set if a result
-overflowed to +/-Infinity and trap_overflow is <tt class="xref docutils literal"><span class="pre">False</span></tt>.</dd>
+overflowed to +/-Infinity and trap_overflow is <tt class="docutils literal"><span class="pre">False</span></tt>.</dd>
 <dt><strong>trap_inexact</strong></dt>
 <dd>This attribute controls whether or not an <tt class="docutils literal"><span class="pre">InexactResultError</span></tt> exception
 is raised if an inexact result is returned. To check if the result is
@@ -228,7 +231,7 @@ exception is raised if a numerical result is not defined. A special
 NaN (Not-A-Number) value will be returned if an exception is not raised.
 The <tt class="docutils literal"><span class="pre">InvalidOperationError</span></tt> is a sub-class of Python&#8217;s <tt class="docutils literal"><span class="pre">ValueError</span></tt>.</p>
 <p class="last">For example, <tt class="docutils literal"><span class="pre">gmpy2.sqrt(-2)</span></tt> will normally return <em>mpfr(&#8216;nan&#8217;)</em>.
-However, if allow_complex is set to <tt class="xref docutils literal"><span class="pre">True</span></tt>, then an <em>mpc</em> result will
+However, if allow_complex is set to <tt class="docutils literal"><span class="pre">True</span></tt>, then an <em>mpc</em> result will
 be returned.</p>
 </dd>
 <dt><strong>invalid</strong></dt>
@@ -237,7 +240,7 @@ be returned.</p>
 <dt><strong>trap_erange</strong></dt>
 <dd><p class="first">This attribute controls whether or not a <tt class="docutils literal"><span class="pre">RangeError</span></tt> exception is raised
 when certain operations are performed on NaN and/or Infinity values.
-Setting trap_erange to <tt class="xref docutils literal"><span class="pre">True</span></tt> can be used to raise an exception if
+Setting trap_erange to <tt class="docutils literal"><span class="pre">True</span></tt> can be used to raise an exception if
 comparisons are attempted with a NaN.</p>
 <div class="last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">set_context</span><span class="p">(</span><span class="n">gmpy2</span><span class="o">.</span><span class="n">get_context</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mpfr</span><span class="p">(</span><span class="s">&#39;nan&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">mpfr</span><span class="p">(</span><span class="s">&#39;nan&#39;</span><span class="p">)</span>
@@ -720,7 +723,7 @@ format string &#8216;fmt&#8217;. A valid format string consists of:</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -746,12 +749,12 @@ format string &#8216;fmt&#8217;. A valid format string consists of:</p>
         <li class="right" >
           <a href="mpq.html" title="Multiple-precision Rationals"
              >previous</a> |</li>
-        <li><a href="index.html">gmpy2 v2.0.0b1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">gmpy2 2.0.0b2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2012, Case Van Horsen.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

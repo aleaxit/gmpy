@@ -3,17 +3,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Multiple-precision Integers (Advanced topics) &mdash; gmpy2 v2.0.0b1 documentation</title>
+    <title>Multiple-precision Integers (Advanced topics) &mdash; gmpy2 2.0.0b2 documentation</title>
+    
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '2.0.0b1',
+        VERSION:     '2.0.0b2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="gmpy2 v2.0.0b1 documentation" href="index.html" />
+    <link rel="top" title="gmpy2 2.0.0b2 documentation" href="index.html" />
     <link rel="next" title="Multiple-precision Rationals" href="mpq.html" />
     <link rel="prev" title="Multiple-precision Integers" href="mpz.html" /> 
   </head>
@@ -39,7 +42,7 @@
         <li class="right" >
           <a href="mpz.html" title="Multiple-precision Integers"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">gmpy2 v2.0.0b1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">gmpy2 2.0.0b2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -53,10 +56,9 @@
 <div class="section" id="the-xmpz-type">
 <h2>The xmpz type<a class="headerlink" href="#the-xmpz-type" title="Permalink to this headline">¶</a></h2>
 <p>gmpy2 provides access to an experimental integer type called <em>xmpz</em>. The
-<em>xmpz</em> type is a mutable integer type. Instances of <em>xmpz</em> cannot be used as
-dictionary keys. In-place operations (+=, //=, etc.) modify the orignal object
-and do not create a new object. The ability to change an <em>xmpz</em> object in-place
-allows for efficient and rapid bit manipulation.</p>
+<em>xmpz</em> type is a mutable integer type. In-place operations (+=, //=, etc.)
+modify the orignal object and do not create a new object. Instances of
+<em>xmpz</em> cannot be used as dictionary keys.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">gmpy2</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gmpy2</span> <span class="kn">import</span> <span class="n">xmpz</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">xmpz</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
@@ -68,10 +70,30 @@ allows for efficient and rapid bit manipulation.</p>
 <span class="go">xmpz(124)</span>
 </pre></div>
 </div>
+<p>The ability to change an <em>xmpz</em> object in-place allows for efficient and rapid
+bit manipulation.</p>
 <p>Individual bits can be set or cleared:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
 <span class="go">xmpz(1148)</span>
+</pre></div>
+</div>
+<p>Slice notation is supported. The bits referenced by a slice can be either &#8216;read
+from&#8217; or &#8216;written to&#8217;. To clear a slice of bits, use a source value of 0. In
+2s-complement format, 0 is represented by an arbitrary number of 0-bits. To set
+a slice of bits, use a source value of ~0. The <em>tilde</em> operator inverts, or
+complements the bits in an integer. (~0 is -1 so you can also use -1.) In
+2s-complement format, -1 is represented by an arbitrary number of 1-bits.</p>
+<p>If a value for <em>stop</em> is specified in a slice assignment and the actual
+bit-length of the <em>xmpz</em> is less than <em>stop</em>, then the destination <em>xmpz</em> is
+logically padded with 0-bits to length <em>stop</em>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">=</span><span class="n">xmpz</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="mi">8</span><span class="p">:</span><span class="mi">16</span><span class="p">]</span> <span class="o">=</span> <span class="o">~</span><span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">bin</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">&#39;0b1111111100000000&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">12</span><span class="p">]</span> <span class="o">=</span> <span class="o">~</span><span class="n">a</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">12</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">bin</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">&#39;0b1111000011110000&#39;</span>
 </pre></div>
 </div>
 <p>Bits can be reversed:</p>
@@ -80,6 +102,60 @@ allows for efficient and rapid bit manipulation.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[::]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">bin</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 <span class="go">&#39;0b111110001&#39;</span>
+</pre></div>
+</div>
+<p>The methods <em>iter_bits()</em>, <em>iter_clear</em>, and <em>iter_set</em> return generators
+that return True/False for each bit position, or the bit positions that
+are 1 or 0. The methods support arguments <em>start</em> and <em>stop</em> that define the
+beginning and ending bit positions that are used. To mimic the behavior of
+slices. the bit positions checked include <em>start</em> but the last position
+checked is <em>stop</em> - 1.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">=</span><span class="n">xmpz</span><span class="p">(</span><span class="mi">117</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">bin</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">&#39;0b1110101&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">iter_bits</span><span class="p">())</span>
+<span class="go">[True, False, True, False, True, True, True]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">iter_clear</span><span class="p">())</span>
+<span class="go">[1, 3]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">iter_set</span><span class="p">())</span>
+<span class="go">[0, 2, 4, 5, 6]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">iter_bits</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="mi">12</span><span class="p">))</span>
+<span class="go">[True, False, True, False, True, True, True, False, False, False, False, False]</span>
+</pre></div>
+</div>
+<p>The following program uses the Sieve of Eratosthenes to generate a list of
+prime numbers.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">gmpy2</span>
+
+<span class="k">def</span> <span class="nf">sieve</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">1000000</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Returns a generator that yields the prime numbers up to limit.&#39;&#39;&#39;</span>
+
+    <span class="c"># Increment by 1 to account for the fact that slices  do not include</span>
+    <span class="c"># the last index value but we do want to include the last value for</span>
+    <span class="c"># calculating a list of primes.</span>
+    <span class="n">sieve_limit</span> <span class="o">=</span> <span class="n">gmpy2</span><span class="o">.</span><span class="n">isqrt</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">limit</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c"># Mark bit positions 0 and 1 as not prime.</span>
+    <span class="n">bitmap</span> <span class="o">=</span> <span class="n">gmpy2</span><span class="o">.</span><span class="n">xmpz</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="c"># Process 2 separately. This allows us to use p+p for the step size</span>
+    <span class="c"># when sieving the remaining primes.</span>
+    <span class="n">bitmap</span><span class="p">[</span><span class="mi">4</span> <span class="p">:</span> <span class="n">limit</span> <span class="p">:</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="c"># Sieve the remaining primes.</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">bitmap</span><span class="o">.</span><span class="n">iter_clear</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">sieve_limit</span><span class="p">):</span>
+        <span class="n">bitmap</span><span class="p">[</span><span class="n">p</span><span class="o">*</span><span class="n">p</span> <span class="p">:</span> <span class="n">limit</span> <span class="p">:</span> <span class="n">p</span><span class="o">+</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">bitmap</span><span class="o">.</span><span class="n">iter_clear</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">limit</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sieve</span><span class="p">())</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -92,7 +168,7 @@ Cleaver.</p>
 <dl class="docutils">
 <dt><strong>is_bpsw_prp(...)</strong></dt>
 <dd>is_bpsw_prp(n) will return True if <em>n</em> is a Baillie-Pomerance-Selfridge-Wagstaff
-pseudo-prime. A BPSW pseudoprime passes the is_strong_prp() test with base
+pseudo-prime. A BPSW pseudo-prime passes the is_strong_prp() test with base
 2 and the is_selfridge_prp() test.</dd>
 <dt><strong>is_euler_prp(...)</strong></dt>
 <dd><p class="first">is_euler_prp(n,a) will return True if <em>n</em> is an Euler (also known as
@@ -112,7 +188,7 @@ Solovay-Strassen) pseudo-prime to the base <em>a</em>.</p>
 </dd>
 <dt><strong>is_extra_strong_lucas_prp(...)</strong></dt>
 <dd><p class="first">is_extra_strong_lucas_prp(n,p) will return True if <em>n</em> is an extra strong
-Lucas pseudo-prime with parameters (p,q).</p>
+Lucas pseudo-prime with parameters (p,1).</p>
 <div class="last line-block">
 <div class="line">Assuming:</div>
 <div class="line-block">
@@ -293,7 +369,7 @@ greater than or equal to 0; n must be greater than 0.</dd>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -319,12 +395,12 @@ greater than or equal to 0; n must be greater than 0.</dd>
         <li class="right" >
           <a href="mpz.html" title="Multiple-precision Integers"
              >previous</a> |</li>
-        <li><a href="index.html">gmpy2 v2.0.0b1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">gmpy2 2.0.0b2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2012, Case Van Horsen.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>
