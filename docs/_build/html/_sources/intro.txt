@@ -169,8 +169,8 @@ Miscellaneous gmpy2 Functions
     approximately 64K on 32-bit systems and 128K on 64-bit systems.
 
     .. note::
-    The caching options are global to gmpy2. Changes are not thread-safe. A
-    change in one thread will impact all threads.
+        The caching options are global to gmpy2. Changes are not thread-safe. A
+        change in one thread will impact all threads.
 
 **to_binary(...)**
     to_binary(x) returns a byte sequence from a gmpy2 object. All object types
