@@ -30,17 +30,17 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* ******************************************************************
- * mpz_prp: (also called a Fermat pseudoprime)
- * A "pseudoprime" to the base a is a composite number n such that,
+ * mpz_prp: (also called a Fermat probable prime)
+ * A "probable prime" to the base a is a number n such that,
  * (a,n)=1 and a^(n-1) = 1 mod n
  * ******************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_fermat_prp,
 "is_fermat_prp(n,a) -> boolean\n\n"
-"Return True if n is a Fermat pseudoprime to the base a.\n"
+"Return True if n is a Fermat probable prime to the base a.\n"
 "Assuming:\n"
 "    gcd(n,a) == 1\n"
-"Then a Fermat pseudoprime requires:\n"
+"Then a Fermat probable prime requires:\n"
 "    a**(n-1) == 1 (mod n)");
 
 static PyObject *
@@ -122,19 +122,19 @@ GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args)
 }
 
 /* *************************************************************************
- * mpz_euler_prp: (also called a Solovay-Strassen pseudoprime)
- * An "Euler pseudoprime" to the base a is an odd composite number n with,
+ * mpz_euler_prp: (also called a Solovay-Strassen probable prime)
+ * An "Euler probable prime" to the base a is an odd composite number n with,
  * (a,n)=1 such that a^((n-1)/2)=(a/n) mod n [(a/n) is the Jacobi symbol]
  * *************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_euler_prp,
 "is_euler_prp(n,a) -> boolean\n\n"
 "Return True if n is an Euler (also known as Solovay-Strassen)\n"
-"pseudoprime to the base a.\n"
+"probable prime to the base a.\n"
 "Assuming:\n"
 "    gcd(n,a) == 1\n"
 "    n is odd\n"
-"Then an Euler pseudoprime requires:\n"
+"Then an Euler probable prime requires:\n"
 "    a**((n-1)/2) == 1 (mod n)");
 
 static PyObject *
@@ -226,20 +226,20 @@ GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
 }
 
 /* *********************************************************************************************
- * mpz_sprp: (also called a Miller-Rabin pseudoprime)
- * A "strong pseudoprime" to the base a is an odd composite n = (2^r)*s+1 with s odd such that
+ * mpz_sprp: (also called a Miller-Rabin probable prime)
+ * A "strong probable prime" to the base a is an odd composite n = (2^r)*s+1 with s odd such that
  * either a^s == 1 mod n, or a^((2^t)*s) == -1 mod n, for some integer t, with 0 <= t < r.
  * *********************************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_strong_prp,
 "is_strong_prp(n,a) -> boolean\n\n"
 "Return True if n is an strong (also known as Miller-Rabin)\n"
-"pseudoprime to the base a.\n"
+"probable prime to the base a.\n"
 "Assuming:\n"
 "    gcd(n,a) == 1\n"
 "    n is odd\n"
 "    n = s*(2**r) + 1, with s odd\n"
-"Then a strong pseudoprime requires one of the following is true:\n"
+"Then a strong probable prime requires one of the following is true:\n"
 "    a**s == 1 (mod n)\n"
 "    or\n"
 "    a**(s*(2**t)) == -1 (mod n) for some t, 0 <= t < r.");
@@ -344,19 +344,19 @@ GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args)
 
 /* *************************************************************************
  * mpz_fibonacci_prp:
- * A "Fibonacci pseudoprime" with parameters (P,Q), P > 0, Q=+/-1, is a
+ * A "Fibonacci probable prime" with parameters (P,Q), P > 0, Q=+/-1, is a
  * composite n for which V_n == P mod n
  * [V is the Lucas V sequence with parameters P,Q]
  * *************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_fibonacci_prp,
 "is_fibonacci_prp(n,p,q) -> boolean\n\n"
-"Return True if n is an Fibonacci pseudoprime with parameters (p,q).\n"
+"Return True if n is an Fibonacci probable prime with parameters (p,q).\n"
 "Assuming:\n"
 "    n is odd\n"
 "    p > 0, q = +/-1\n"
 "    p*p - 4*q != 0\n"
-"Then a Fibonacci pseudoprime requires:\n"
+"Then a Fibonacci probable prime requires:\n"
 "    lucasv(p,q,n) == p (mod n).");
 
 static PyObject *
@@ -531,18 +531,18 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
 
 /* *******************************************************************************
  * mpz_lucas_prp:
- * A "Lucas pseudoprime" with parameters (P,Q) is a composite n with D=P^2-4Q,
+ * A "Lucas probable prime" with parameters (P,Q) is a composite n with D=P^2-4Q,
  * (n,2QD)=1 such that U_(n-(D/n)) == 0 mod n [(D/n) is the Jacobi symbol]
  * *******************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_lucas_prp,
 "is_lucas_prp(n,p,q) -> boolean\n\n"
-"Return True if n is a Lucas pseudoprime with parameters (p,q).\n"
+"Return True if n is a Lucas probable prime with parameters (p,q).\n"
 "Assuming:\n"
 "    n is odd\n"
 "    D = p*p - 4*q, D != 0\n"
 "    gcd(n, 2*q*D) == 1\n"
-"Then a Lucas pseudoprime requires:\n"
+"Then a Lucas probable prime requires:\n"
 "    lucasu(p,q,n - Jacobi(D,n)) == 0 (mod n)");
 
 static PyObject *
@@ -744,20 +744,20 @@ GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args)
 
 /* *********************************************************************************************
  * mpz_stronglucas_prp:
- * A "strong Lucas pseudoprime" with parameters (P,Q) is a composite n = (2^r)*s+(D/n), where
+ * A "strong Lucas probable prime" with parameters (P,Q) is a composite n = (2^r)*s+(D/n), where
  * s is odd, D=P^2-4Q, and (n,2QD)=1 such that either U_s == 0 mod n or V_((2^t)*s) == 0 mod n
  * for some t, 0 <= t < r. [(D/n) is the Jacobi symbol]
  * *********************************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_stronglucas_prp,
 "is_strong_lucas_prp(n,p,q) -> boolean\n\n"
-"Return True if n is a strong Lucas pseudoprime with parameters (p,q).\n"
+"Return True if n is a strong Lucas probable prime with parameters (p,q).\n"
 "Assuming:\n"
 "    n is odd\n"
 "    D = p*p - 4*q, D != 0\n"
 "    gcd(n, 2*q*D) == 1\n"
 "    n = s*(2**r) + Jacobi(D,n), s odd\n"
-"Then a strong Lucas pseudoprime requires:\n"
+"Then a strong Lucas probable prime requires:\n"
 "    lucasu(p,q,s) == 0 (mod n)\n"
 "    or\n"
 "    lucasv(p,q,s*(2**t)) == 0 (mod n) for some t, 0 <= t < r");
@@ -971,20 +971,20 @@ GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
 /* *******************************************************************************************
  * mpz_extrastronglucas_prp:
  * Let U_n = LucasU(p,1), V_n = LucasV(p,1), and D=p^2-4.
- * An "extra strong Lucas pseudoprime" to the base p is a composite n = (2^r)*s+(D/n), where
+ * An "extra strong Lucas probable prime" to the base p is a composite n = (2^r)*s+(D/n), where
  * s is odd and (n,2D)=1, such that either U_s == 0 mod n or V_s == +/-2 mod n, or
  * V_((2^t)*s) == 0 mod n for some t with 0 <= t < r-1 [(D/n) is the Jacobi symbol]
  * *******************************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_extrastronglucas_prp,
 "is_extra_strong_lucas_prp(n,p) -> boolean\n\n"
-"Return True if n is an extra strong Lucas pseudoprime with parameters\n"
+"Return True if n is an extra strong Lucas probable prime with parameters\n"
 "(p,1). Assuming:\n"
 "    n is odd\n"
 "    D = p*p - 4, D != 0\n"
 "    gcd(n, 2*D) == 1\n"
 "    n = s*(2**r) + Jacobi(D,n), s odd\n"
-"Then an extra strong Lucas pseudoprime requires:\n"
+"Then an extra strong Lucas probable prime requires:\n"
 "    lucasu(p,1,s) == 0 (mod n)\n"
 "    or\n"
 "    lucasv(p,1,s) == +/-2 (mod n)\n"
@@ -1202,19 +1202,19 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
 
 /* ***********************************************************************************************
  * mpz_selfridge_prp:
- * A "Lucas-Selfridge pseudoprime" n is a "Lucas pseudoprime" using Selfridge parameters of:
+ * A "Lucas-Selfridge probable prime" n is a "Lucas probable prime" using Selfridge parameters of:
  * Find the first element D in the sequence {5, -7, 9, -11, 13, ...} such that Jacobi(D,n) = -1
- * Then use P=1 and Q=(1-D)/4 in the Lucas pseudoprime test.
+ * Then use P=1 and Q=(1-D)/4 in the Lucas probable prime test.
  * Make sure n is not a perfect square, otherwise the search for D will only stop when D=n.
  * ***********************************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_selfridge_prp,
 "is_selfridge_prp(n) -> boolean\n\n"
-"Return True if n is a Lucas pseudoprime with Selfidge parameters\n"
+"Return True if n is a Lucas probable prime with Selfidge parameters\n"
 "(p,q). The Selfridge parameters are chosen by finding the first\n"
 "element D in the sequence {5, -7, 9, -11, 13, ...} such that\n"
 "Jacobi(D,n) == -1. Then let p=1 and q = (1-D)/4. Then perform\n"
-"a Lucas pseudoprime test.");
+"a Lucas probable prime test.");
 
 static PyObject *
 GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args)
@@ -1331,19 +1331,19 @@ GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args)
 
 /* *********************************************************************************************************
  * mpz_strongselfridge_prp:
- * A "strong Lucas-Selfridge pseudoprime" n is a "strong Lucas pseudoprime" using Selfridge parameters of:
+ * A "strong Lucas-Selfridge probable prime" n is a "strong Lucas probable prime" using Selfridge parameters of:
  * Find the first element D in the sequence {5, -7, 9, -11, 13, ...} such that Jacobi(D,n) = -1
- * Then use P=1 and Q=(1-D)/4 in the strong Lucase pseudoprime test.
+ * Then use P=1 and Q=(1-D)/4 in the strong Lucase probable prime test.
  * Make sure n is not a perfect square, otherwise the search for D will only stop when D=n.
  * **********************************************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_strongselfridge_prp,
 "is_strong_selfridge_prp(n) -> boolean\n\n"
-"Return True if n is a strong Lucas pseudoprime with Selfidge\n"
+"Return True if n is a strong Lucas probable prime with Selfidge\n"
 "parameters (p,q). The Selfridge parameters are chosen by finding\n"
 "the first element D in the sequence {5, -7, 9, -11, 13, ...} such\n"
 "that Jacobi(D,n) == -1. Then let p=1 and q = (1-D)/4. Then perform\n"
-"a strong Lucas pseudoprime test.");
+"a strong Lucas probable prime test.");
 
 static PyObject *
 GMPY_mpz_is_strongselfridge_prp(PyObject *self, PyObject *args)
@@ -1460,15 +1460,15 @@ GMPY_mpz_is_strongselfridge_prp(PyObject *self, PyObject *args)
 
 /* **********************************************************************************
  * mpz_bpsw_prp:
- * A "Baillie-Pomerance-Selfridge-Wagstaff pseudoprime" is a composite n such that
- * n is a strong pseudoprime to the base 2 and
- * n is a Lucas pseudoprime using the Selfridge parameters.
+ * A "Baillie-Pomerance-Selfridge-Wagstaff probable prime" is a composite n such that
+ * n is a strong probable prime to the base 2 and
+ * n is a Lucas probable prime using the Selfridge parameters.
  * **********************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_bpsw_prp,
 "is_bpsw_prp(n) -> boolean\n\n"
-"Return True if n is a Baillie-Pomerance-Selfridge-Wagstaff pseudo-\n"
-"prime. A BPSW pseudoprime passes the is_strong_prp() test with base\n"
+"Return True if n is a Baillie-Pomerance-Selfridge-Wagstaff probable \n"
+"prime. A BPSW probable prime passes the is_strong_prp() test with base\n"
 "2 and the is_selfridge_prp() test.\n");
 
 static PyObject *
@@ -1539,15 +1539,15 @@ GMPY_mpz_is_bpsw_prp(PyObject *self, PyObject *args)
 
 /* ****************************************************************************************
  * mpz_strongbpsw_prp:
- * A "strong Baillie-Pomerance-Selfridge-Wagstaff pseudoprime" is a composite n such that
- * n is a strong pseudoprime to the base 2 and
- * n is a strong Lucas pseudoprime using the Selfridge parameters.
+ * A "strong Baillie-Pomerance-Selfridge-Wagstaff probable prime" is a composite n such that
+ * n is a strong probable prime to the base 2 and
+ * n is a strong Lucas probable prime using the Selfridge parameters.
  * ****************************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_strongbpsw_prp,
 "is_strong_bpsw_prp(n) -> boolean\n\n"
 "Return True if n is a strong Baillie-Pomerance-Selfridge-Wagstaff\n"
-"pseudoprime. A strong BPSW pseudoprime passes the is_strong_prp()\n"
+"probable prime. A strong BPSW probable prime passes the is_strong_prp()\n"
 "test with base and the is_strong_selfridge_prp() test.\n");
 
 static PyObject *
