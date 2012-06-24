@@ -885,6 +885,32 @@ Pympz_pow(PyObject *b, PyObject *e, PyObject *m)
     return NULL;
 }
 
+PyDoc_STRVAR(doc_gmpy_powm,
+"powm(x,y,m) -> mpz\n\n"
+"Return (x**y) mod m. Same as the three argument version of Python's\n"
+"built-in pow(), but converts all three arguments to mpz.");
+
+static PyObject *
+Pympz_powm(PyObject *self, PyObject *args)
+{
+    PyObject *x, *y, *m;
+
+    if (PyTuple_GET_SIZE(args) != 3) {
+        TYPE_ERROR("powm() requires 3 arguments.");
+        return NULL;
+    }
+
+    x = PyTuple_GET_ITEM(args, 0);
+    y = PyTuple_GET_ITEM(args, 1);
+    m = PyTuple_GET_ITEM(args, 2);
+
+    if (isInteger(x) && isInteger(y) && isInteger(m))
+        return Pympz_pow(x, y, m);
+
+    TYPE_ERROR("powm() argument types not supported");
+    return NULL;
+}
+
 static int
 Pympz_nonzero(PympzObject *x)
 {
@@ -1237,9 +1263,150 @@ Pygmpy_gcdext(PyObject *self, PyObject *args)
     return result;
 }
 
+PyDoc_STRVAR(doc_mpz_addm,
+"addm(a, b, m) -> mpz\n\n"
+"Return (a + b) mod m.");
+
+static PyObject *
+Pympz_addm(PyObject *self, PyObject *args)
+{
+    PympzObject *result = 0, *a = 0, *b = 0, *m = 0;
+
+    if (PyTuple_GET_SIZE(args) != 3) {
+        TYPE_ERROR("addm() requires 'mpz','mpz','mpz' arguments");
+        goto error;
+    }
+
+    if (!(result = (PympzObject*)Pympz_new()))
+        return NULL;
+
+    a = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    b = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
+    m = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
+
+    if (!a || !b || !m) {
+        TYPE_ERROR("addm() requires 'mpz','mpz','mpz' arguments");
+        goto error;
+    }
+
+    if (mpz_sgn(m->z) < 1) {
+        VALUE_ERROR("addm() requires modulus >= 1");
+        goto error;
+    }
+
+    mpz_add(result->z, a->z, b->z);
+    mpz_fdiv_r(result->z, result->z, m->z);
+
+    Py_DECREF((PyObject*)a);
+    Py_DECREF((PyObject*)b);
+    Py_DECREF((PyObject*)m);
+    return (PyObject*)result;
+
+  error:
+    Py_XDECREF((PyObject*)a);
+    Py_XDECREF((PyObject*)b);
+    Py_XDECREF((PyObject*)m);
+    Py_XDECREF((PyObject*)result);
+    return NULL;
+}
+
+PyDoc_STRVAR(doc_mpz_subm,
+"subm(a, b, m) -> mpz\n\n"
+"Return (a - b) mod m.");
+
+static PyObject *
+Pympz_subm(PyObject *self, PyObject *args)
+{
+    PympzObject *result = 0, *a = 0, *b = 0, *m = 0;
+
+    if (PyTuple_GET_SIZE(args) != 3) {
+        TYPE_ERROR("subm() requires 'mpz','mpz','mpz' arguments");
+        goto error;
+    }
+
+    if (!(result = (PympzObject*)Pympz_new()))
+        return NULL;
+
+    a = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    b = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
+    m = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
+
+    if (!a || !b || !m) {
+        TYPE_ERROR("subm() requires 'mpz','mpz','mpz' arguments");
+        goto error;
+    }
+
+    if (mpz_sgn(m->z) < 1) {
+        VALUE_ERROR("subm() requires modulus >= 1");
+        goto error;
+    }
+
+    mpz_sub(result->z, a->z, b->z);
+    mpz_fdiv_r(result->z, result->z, m->z);
+
+    Py_DECREF((PyObject*)a);
+    Py_DECREF((PyObject*)b);
+    Py_DECREF((PyObject*)m);
+    return (PyObject*)result;
+
+  error:
+    Py_XDECREF((PyObject*)a);
+    Py_XDECREF((PyObject*)b);
+    Py_XDECREF((PyObject*)m);
+    Py_XDECREF((PyObject*)result);
+    return NULL;
+}
+
+PyDoc_STRVAR(doc_mpz_mulm,
+"mulm(a, b, m) -> mpz\n\n"
+"Return (a * b) mod m.");
+
+static PyObject *
+Pympz_mulm(PyObject *self, PyObject *args)
+{
+    PympzObject *result = 0, *a = 0, *b = 0, *m = 0;
+
+    if (PyTuple_GET_SIZE(args) != 3) {
+        TYPE_ERROR("mulm() requires 'mpz','mpz','mpz' arguments");
+        goto error;
+    }
+
+    if (!(result = (PympzObject*)Pympz_new()))
+        return NULL;
+
+    a = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    b = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
+    m = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
+
+    if (!a || !b || !m) {
+        TYPE_ERROR("mulm() requires 'mpz','mpz','mpz' arguments");
+        goto error;
+    }
+
+    if (mpz_sgn(m->z) < 1) {
+        VALUE_ERROR("mulm() requires modulus >= 1");
+        goto error;
+    }
+
+    mpz_mul(result->z, a->z, b->z);
+    mpz_fdiv_r(result->z, result->z, m->z);
+
+    Py_DECREF((PyObject*)a);
+    Py_DECREF((PyObject*)b);
+    Py_DECREF((PyObject*)m);
+    return (PyObject*)result;
+
+  error:
+    Py_XDECREF((PyObject*)a);
+    Py_XDECREF((PyObject*)b);
+    Py_XDECREF((PyObject*)m);
+    Py_XDECREF((PyObject*)result);
+    return NULL;
+}
+
 PyDoc_STRVAR(doc_divm,
 "divm(a, b, m) -> mpz\n\n"
-"Return x such that b*x==a modulo m. Raises a ZeroDivisionError\n"
+"Return x such that b*x==a mod m. Raises a ZeroDivisionError\n"
 "exception if no such value x exists.");
 
 static PyObject *
@@ -1260,6 +1427,7 @@ Pygmpy_divm(PyObject *self, PyObject *args)
     num = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     den = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
     mod = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
+
     if(!num || !den || !mod) {
         TYPE_ERROR("divm() requires 'mpz','mpz','mpz' arguments");
         Py_XDECREF((PyObject*)num);
@@ -2253,6 +2421,7 @@ Pympz_addmul(PyObject *self, PyObject *args)
         Py_XDECREF((PyObject*)x);
         Py_XDECREF((PyObject*)y);
         Py_XDECREF((PyObject*)z);
+        Py_DECREF((PyObject*)result);
         goto typeerror;
     }
 
@@ -2293,6 +2462,7 @@ Pympz_submul(PyObject *self, PyObject *args)
         Py_XDECREF((PyObject*)x);
         Py_XDECREF((PyObject*)y);
         Py_XDECREF((PyObject*)z);
+        Py_DECREF((PyObject*)result);
         goto typeerror;
     }
 
