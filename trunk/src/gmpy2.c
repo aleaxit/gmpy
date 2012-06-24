@@ -261,7 +261,7 @@
  *   round() is no longer a module level function (casevh)
  *   pow() is no longer a module level function (casevh)
  *   Renamed module functions min()/max() to min2()/max2() (casevh)
- *       No longer conflicts with builtin min() and max()
+ *      No longer conflicts with builtin min() and max()
  *   Removed set_debug() and related functionality (casevh)
  *   Released as 2.0.0b1
  *
@@ -270,7 +270,8 @@
  *   Fixed ref-count bug in several is_xxx_prp tests (casevh)
  *   Added iter_bits, iter_clear, iter_set methods to xmpz (casevh)
  *   Added powm() for easy access to three argument pow() (casevh)
- *   Added addm(), subm(), mulm() for modulo arithmetic (casevh)
+ *   Removed addmul() and submul() since they are slower than (casevh)
+ *      just using Python code
  *   Released as 2.0.0b2
  *
  ************************************************************************
@@ -472,8 +473,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "_cvsid", Pygmpy_get_cvsid, METH_NOARGS, doc_cvsid },
     { "_printf", Pympany_printf, METH_VARARGS, doc_printf },
     { "add", Pympany_add, METH_VARARGS, doc_mpany_add },
-    { "addm", Pympz_addm, METH_VARARGS, doc_mpz_addm },
-    { "addmul", Pympz_addmul, METH_VARARGS, doc_mpz_addmul },
     { "bit_clear", Pygmpy_bit_clear, METH_VARARGS, doc_bit_clearg },
     { "bit_flip", Pygmpy_bit_flip, METH_VARARGS, doc_bit_flipg },
     { "bit_length", Pympz_bit_length, METH_O, doc_bit_lengthg },
@@ -551,7 +550,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "mpz_rrandomb", GMPY_mpz_rrandomb, METH_VARARGS, doc_mpz_rrandomb },
     { "mpz_urandomb", GMPY_mpz_urandomb, METH_VARARGS, doc_mpz_urandomb },
     { "mul", Pympany_mul, METH_VARARGS, doc_mpany_mul },
-    { "mulm", Pympz_mulm, METH_VARARGS, doc_mpz_mulm },
     { "next_prime", Pympz_next_prime, METH_O, doc_next_primeg },
     { "numer", Pympq_numer, METH_VARARGS, doc_numerg },
     { "num_digits", Pympz_num_digits, METH_VARARGS, doc_num_digitsg },
@@ -567,8 +565,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "sign", Pympany_sign, METH_O, doc_g_mpany_sign },
     { "square", Pympany_square, METH_O, doc_mpany_square },
     { "sub", Pympany_sub, METH_VARARGS, doc_mpany_sub },
-    { "subm", Pympz_subm, METH_VARARGS, doc_mpz_subm },
-    { "submul", Pympz_submul, METH_VARARGS, doc_mpz_submul },
     { "to_binary", Pympany_to_binary, METH_O, doc_to_binary },
     { "t_div", Pygmpy_t_div, METH_VARARGS, doc_gmpy_t_div },
     { "t_div_2exp", Pygmpy_t_div_2exp, METH_VARARGS, doc_gmpy_t_div_2exp },
