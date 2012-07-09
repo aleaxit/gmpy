@@ -485,6 +485,12 @@ PyDoc_STRVAR(doc_mpany_log,
 
 MPANY_MPFR_MPC(log)
 
+PyDoc_STRVAR(doc_mpany_log10,
+"log10(x) -> number\n\n"
+"Return base-10 logarithm of x.");
+
+MPANY_MPFR_MPC(log10)
+
 PyDoc_STRVAR(doc_mpany_exp,
 "exp(x) -> number\n\n"
 "Return the exponential of x.\n");

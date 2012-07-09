@@ -212,7 +212,7 @@ Context Attributes
 
     ::
 
-        >>> gmpy2.set_context(gmpy2.get_context())
+        >>> gmpy2.set_context(gmpy2.context())
         >>> mpfr('nan') == mpfr('nan')
         False
         >>> gmpy2.get_context().trap_erange=True

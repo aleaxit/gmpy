@@ -151,6 +151,9 @@ mpc Functions
 
 **log(...)**
     log(x) returns the natural logarithm of x.
+    
+**log10(...)**
+    log10(x) returns the base-10 logarithm of x.
 
 **mpc(...)**
     mpc(c[, precision=0]) returns a new 'mpc' object from an existing complex

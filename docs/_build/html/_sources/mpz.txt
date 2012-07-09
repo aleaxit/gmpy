@@ -75,10 +75,6 @@ mpz Functions
     add(x, y) returns *x* + *y*. The result type depends on the input
     types.
 
-**addmul(...)**
-    addmul(x, y, z) returns *x* + (*y* \* *z*). All arguments must be
-    integers.
-
 **bincoef(...)**
     bincoef(x, n) returns the binomial coefficient. *n* must be >= 0.
 
@@ -240,7 +236,7 @@ mpz Functions
 **is_prime(...)**
     is_prime(x[, n=25]) returns True if *x* is **probably** prime. False
     is returned if *x* is definately composite. *x* is checked for small
-    divisors and up to *n* Miller-Rabin tests are performed. The actual checks
+    divisors and up to *n* Miller-Rabin tests are performed. The actual tests
     performed may vary based on version of GMP or MPIR used.
 
 **is_square(...)**
@@ -315,6 +311,11 @@ mpz Functions
 **popcount(...)**
     popcount(x) returns the number of bits with value 1 in *x*. If *x* < 0,
     the number of bits with value 1 is infinite so -1 is returned in that case.
+    
+**powm(...)**
+    powm(x, y, m) returns (*x* ** *y*) mod *m*. The exponenent *y* can be
+    negative, and the correct result will be returned if the inverse of *x*
+    mod *m* exists. Otherwise, a ValueError is raised.
 
 **remove(...)**
     remove(x, f) will remove the factor *f* from *x* as many times as possible
@@ -325,10 +326,6 @@ mpz Functions
 **sub(...)**
     sub(x, y) returns *x* - *y*. The result type depends on the input
     types.
-
-**submul(...)**
-    submul(x, y, z) returns *x* - (*y* \* *z*). All arguments must be
-    integers.
 
 **t_div(...)**
     t_div(x, y) returns the quotient of *x* divided by *y*. The quotient
