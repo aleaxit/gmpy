@@ -51,7 +51,7 @@ Requirements
 gmpy2 has only been tested with the most recent versions of GMP, MPFR and MPC.
 Specifically, for integer and rational support, gmpy2 requires GMP 5.0.x or
 later. To support multiple-precision floating point arithmetic, MPFR 3.1.x or
-later is required. MPC 0.9 or later is required for complex arithmetic.
+later is required. MPC 1.0 or later is required for complex arithmetic.
 
 The MPC and MPFR libraries are optional. If the MPC library is not available,
 gmpy2 will still support integer, rational, and real floating-point arithmetic.
@@ -99,7 +99,7 @@ Download and un-tar the MPFR source code. Change to MPFR source directory
 and compile MPFR.
 ::
 
-    $ cd /opt/local/mpfr-3.1.0
+    $ cd /opt/local/mpfr-3.1.1
     $ ./configure --prefix=/opt/local --with-gmp=/opt/local
     $ make
     $ make check
@@ -109,7 +109,7 @@ Download and un-tar the MPC source code. Change to MPC source directory
 and compile MPC.
 ::
 
-    $ cd /opt/local/mpc-0.9
+    $ cd /opt/local/mpc-1.0
     $ ./configure --prefix=/opt/local --with-gmp=/opt/local --with-mpfr=/opt/local
     $ make
     $ make check

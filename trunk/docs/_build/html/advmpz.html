@@ -163,16 +163,16 @@ prime numbers.</p>
 <h2>Advanced Number Theory Functions<a class="headerlink" href="#advanced-number-theory-functions" title="Permalink to this headline">¶</a></h2>
 <p>The following functions are based on mpz_lucas.c and mpz_prp.c by David
 Cleaver.</p>
-<p>A good reference for pseudo-prime testing is
+<p>A good reference for probable prime testing is
 <a class="reference external" href="http://www.pseudoprime.com/pseudo.html">http://www.pseudoprime.com/pseudo.html</a></p>
 <dl class="docutils">
 <dt><strong>is_bpsw_prp(...)</strong></dt>
 <dd>is_bpsw_prp(n) will return True if <em>n</em> is a Baillie-Pomerance-Selfridge-Wagstaff
-pseudo-prime. A BPSW pseudo-prime passes the is_strong_prp() test with base
+probable prime. A BPSW probable prime passes the is_strong_prp() test with base
 2 and the is_selfridge_prp() test.</dd>
 <dt><strong>is_euler_prp(...)</strong></dt>
 <dd><p class="first">is_euler_prp(n,a) will return True if <em>n</em> is an Euler (also known as
-Solovay-Strassen) pseudo-prime to the base <em>a</em>.</p>
+Solovay-Strassen) probable prime to the base <em>a</em>.</p>
 <div class="last line-block">
 <div class="line">Assuming:</div>
 <div class="line-block">
@@ -180,7 +180,7 @@ Solovay-Strassen) pseudo-prime to the base <em>a</em>.</p>
 <div class="line">n is odd</div>
 <div class="line"><br /></div>
 </div>
-<div class="line">Then an Euler pseudo-prime requires:</div>
+<div class="line">Then an Euler probable prime requires:</div>
 <div class="line-block">
 <div class="line">a**((n-1)/2) == 1 (mod n)</div>
 </div>
@@ -188,7 +188,7 @@ Solovay-Strassen) pseudo-prime to the base <em>a</em>.</p>
 </dd>
 <dt><strong>is_extra_strong_lucas_prp(...)</strong></dt>
 <dd><p class="first">is_extra_strong_lucas_prp(n,p) will return True if <em>n</em> is an extra strong
-Lucas pseudo-prime with parameters (p,1).</p>
+Lucas probable prime with parameters (p,1).</p>
 <div class="last line-block">
 <div class="line">Assuming:</div>
 <div class="line-block">
@@ -198,7 +198,7 @@ Lucas pseudo-prime with parameters (p,1).</p>
 <div class="line">n = s*(2**r) + Jacobi(D,n), s odd</div>
 <div class="line"><br /></div>
 </div>
-<div class="line">Then an extra strong Lucas pseudoprime requires:</div>
+<div class="line">Then an extra strong Lucas probable prime requires:</div>
 <div class="line-block">
 <div class="line">lucasu(p,1,s) == 0 (mod n)</div>
 <div class="line-block">
@@ -213,7 +213,7 @@ Lucas pseudo-prime with parameters (p,1).</p>
 </div>
 </dd>
 <dt><strong>is_fermat_prp(...)</strong></dt>
-<dd><p class="first">is_fermat_prp(n,a) will return True if <em>n</em> is a Fermat pseudo-prime to the
+<dd><p class="first">is_fermat_prp(n,a) will return True if <em>n</em> is a Fermat probable prime to the
 base a.</p>
 <div class="last line-block">
 <div class="line">Assuming:</div>
@@ -221,7 +221,7 @@ base a.</p>
 <div class="line">gcd(n,a) == 1</div>
 <div class="line"><br /></div>
 </div>
-<div class="line">Then a Fermat pseudoprime requires:</div>
+<div class="line">Then a Fermat probable prime requires:</div>
 <div class="line-block">
 <div class="line">a**(n-1) == 1 (mod n)</div>
 </div>
@@ -229,7 +229,7 @@ base a.</p>
 </dd>
 <dt><strong>is_fibonacci_prp(...)</strong></dt>
 <dd><p class="first">is_fibonacci_prp(n,p,q) will return True if <em>n</em> is an Fibonacci
-pseudo-prime with parameters (p,q).</p>
+probable prime with parameters (p,q).</p>
 <div class="last line-block">
 <div class="line">Assuming:</div>
 <div class="line-block">
@@ -238,14 +238,14 @@ pseudo-prime with parameters (p,q).</p>
 <div class="line">p*p - 4*q != 0</div>
 <div class="line"><br /></div>
 </div>
-<div class="line">Then a Fibonacci pseudo-prime requires:</div>
+<div class="line">Then a Fibonacci probable prime requires:</div>
 <div class="line-block">
 <div class="line">lucasv(p,q,n) == p (mod n).</div>
 </div>
 </div>
 </dd>
 <dt><strong>is_lucas_prp(...)</strong></dt>
-<dd><p class="first">is_lucas_prp(n,p,q) will return True if <em>n</em> is a Lucas pseudo-prime with
+<dd><p class="first">is_lucas_prp(n,p,q) will return True if <em>n</em> is a Lucas probable prime with
 parameters (p,q).</p>
 <div class="last line-block">
 <div class="line">Assuming:</div>
@@ -255,26 +255,26 @@ parameters (p,q).</p>
 <div class="line">gcd(n, 2*q*D) == 1</div>
 <div class="line"><br /></div>
 </div>
-<div class="line">Then a Lucas pseudo-prime requires:</div>
+<div class="line">Then a Lucas probable prime requires:</div>
 <div class="line-block">
 <div class="line">lucasu(p,q,n - Jacobi(D,n)) == 0 (mod n)</div>
 </div>
 </div>
 </dd>
 <dt><strong>is_selfridge_prp(...)</strong></dt>
-<dd>is_selfridge_prp(n) will return True if <em>n</em> is a Lucas pseudo-prime with
+<dd>is_selfridge_prp(n) will return True if <em>n</em> is a Lucas probable prime with
 Selfidge parameters (p,q). The Selfridge parameters are chosen by finding
 the first element D in the sequence {5, -7, 9, -11, 13, ...} such that
 Jacobi(D,n) == -1. Let p=1 and q = (1-D)/4 and then perform a Lucas
-pseudo-prime test.</dd>
+probable prime test.</dd>
 <dt><strong>is_strong_bpsw_prp(...)</strong></dt>
 <dd>is_strong_bpsw_prp(n) will return True if <em>n</em> is a strong
-Baillie-Pomerance-Selfridge-Wagstaff pseudo-prime. A strong BPSW
-pseudo-prime passes the is_strong_prp() test with base 2 and the
+Baillie-Pomerance-Selfridge-Wagstaff probable prime. A strong BPSW
+probable prime passes the is_strong_prp() test with base 2 and the
 is_strongselfridge_prp() test.</dd>
 <dt><strong>is_strong_lucas_prp(...)</strong></dt>
 <dd><p class="first">is_strong_lucas_prp(n,p,q) will return True if <em>n</em> is a strong Lucas
-pseudo-prime with parameters (p,q).</p>
+probable prime with parameters (p,q).</p>
 <div class="last line-block">
 <div class="line">Assuming:</div>
 <div class="line-block">
@@ -284,7 +284,7 @@ pseudo-prime with parameters (p,q).</p>
 <div class="line">n = s*(2**r) + Jacobi(D,n), s odd</div>
 <div class="line"><br /></div>
 </div>
-<div class="line">Then a strong Lucas pseudoprime requires:</div>
+<div class="line">Then a strong Lucas probable prime requires:</div>
 <div class="line-block">
 <div class="line">lucasu(p,q,s) == 0 (mod n)</div>
 <div class="line-block">
@@ -296,7 +296,7 @@ pseudo-prime with parameters (p,q).</p>
 </dd>
 <dt><strong>is_strong_prp(...)</strong></dt>
 <dd><p class="first">is_strong_prp(n,a) will return True if <em>n</em> is an strong (also known as
-Miller-Rabin) pseudo-prime to the base a.</p>
+Miller-Rabin) probable prime to the base a.</p>
 <div class="last line-block">
 <div class="line">Assuming:</div>
 <div class="line-block">
@@ -305,7 +305,7 @@ Miller-Rabin) pseudo-prime to the base a.</p>
 <div class="line">n = s*(2**r) + 1, with s odd</div>
 <div class="line"><br /></div>
 </div>
-<div class="line">Then a strong pseudoprime requires one of the following is true:</div>
+<div class="line">Then a strong probable prime requires one of the following is true:</div>
 <div class="line-block">
 <div class="line">a**s == 1 (mod n)</div>
 <div class="line-block">
@@ -317,10 +317,10 @@ Miller-Rabin) pseudo-prime to the base a.</p>
 </dd>
 <dt><strong>is_strong_selfridge_prp(...)</strong></dt>
 <dd>is_strong_selfridge_prp(n) will return True if <em>n</em> is a strong Lucas
-pseudo-prime with Selfidge parameters (p,q). The Selfridge parameters are
+probable prime with Selfidge parameters (p,q). The Selfridge parameters are
 chosen by finding the first element D in the sequence
 {5, -7, 9, -11, 13, ...} such that Jacobi(D,n) == -1. Let p=1 and
-q = (1-D)/4 and then perform a strong Lucas pseudo-prime test.</dd>
+q = (1-D)/4 and then perform a strong Lucas probable prime test.</dd>
 <dt><strong>lucasu(...)</strong></dt>
 <dd>lucasu(p,q,k) will return the k-th element of the Lucas U sequence defined
 by p,q. p*p - 4*q must not equal 0; k must be greater than or equal to 0.</dd>

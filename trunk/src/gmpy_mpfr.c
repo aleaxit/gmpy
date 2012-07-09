@@ -1879,9 +1879,7 @@ PyDoc_STRVAR(doc_g_mpfr_log2,
 
 MPFR_UNIOP(log2)
 
-PyDoc_STRVAR(doc_g_mpfr_log10,
-"log10(x) -> mpfr\n\n"
-"Return base-10 logarithm of x.");
+/* Called via gmpy_mpany so doc-string is there. */
 
 MPFR_UNIOP(log10)
 

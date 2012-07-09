@@ -242,7 +242,7 @@ be returned.</p>
 when certain operations are performed on NaN and/or Infinity values.
 Setting trap_erange to <tt class="docutils literal"><span class="pre">True</span></tt> can be used to raise an exception if
 comparisons are attempted with a NaN.</p>
-<div class="last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">set_context</span><span class="p">(</span><span class="n">gmpy2</span><span class="o">.</span><span class="n">get_context</span><span class="p">())</span>
+<div class="last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">set_context</span><span class="p">(</span><span class="n">gmpy2</span><span class="o">.</span><span class="n">context</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mpfr</span><span class="p">(</span><span class="s">&#39;nan&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">mpfr</span><span class="p">(</span><span class="s">&#39;nan&#39;</span><span class="p">)</span>
 <span class="go">False</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">trap_erange</span><span class="o">=</span><span class="bp">True</span>

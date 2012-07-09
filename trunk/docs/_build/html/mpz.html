@@ -118,9 +118,6 @@ be 1 too large. <em>base</em> can range between 2 and 62, inclusive.</dd>
 <dt><strong>add(...)</strong></dt>
 <dd>add(x, y) returns <em>x</em> + <em>y</em>. The result type depends on the input
 types.</dd>
-<dt><strong>addmul(...)</strong></dt>
-<dd>addmul(x, y, z) returns <em>x</em> + (<em>y</em> * <em>z</em>). All arguments must be
-integers.</dd>
 <dt><strong>bincoef(...)</strong></dt>
 <dd>bincoef(x, n) returns the binomial coefficient. <em>n</em> must be &gt;= 0.</dd>
 <dt><strong>bit_clear(...)</strong></dt>
@@ -244,7 +241,7 @@ the integer <em>n</em>-th root of <em>x</em> and <em>x</em> = y**n + <em>r</em>.
 <dt><strong>is_prime(...)</strong></dt>
 <dd>is_prime(x[, n=25]) returns True if <em>x</em> is <strong>probably</strong> prime. False
 is returned if <em>x</em> is definately composite. <em>x</em> is checked for small
-divisors and up to <em>n</em> Miller-Rabin tests are performed. The actual checks
+divisors and up to <em>n</em> Miller-Rabin tests are performed. The actual tests
 performed may vary based on version of GMP or MPIR used.</dd>
 <dt><strong>is_square(...)</strong></dt>
 <dd>is_square(x) returns True if <em>x</em> is a perfect square, False otherwise.</dd>
@@ -302,6 +299,10 @@ be 1 too large. <em>base</em> can range between 2 and 62, inclusive.</dd>
 <dt><strong>popcount(...)</strong></dt>
 <dd>popcount(x) returns the number of bits with value 1 in <em>x</em>. If <em>x</em> &lt; 0,
 the number of bits with value 1 is infinite so -1 is returned in that case.</dd>
+<dt><strong>powm(...)</strong></dt>
+<dd>powm(x, y, m) returns (<em>x</em> ** <em>y</em>) mod <em>m</em>. The exponenent <em>y</em> can be
+negative, and the correct result will be returned if the inverse of <em>x</em>
+mod <em>m</em> exists. Otherwise, a ValueError is raised.</dd>
 <dt><strong>remove(...)</strong></dt>
 <dd>remove(x, f) will remove the factor <em>f</em> from <em>x</em> as many times as possible
 and return a 2-tuple (<em>y</em>, <em>m</em>) where <em>y</em> = <em>x</em> // (<em>f</em> ** <em>m</em>). <em>f</em> does
@@ -310,9 +311,6 @@ be &gt; 1.</dd>
 <dt><strong>sub(...)</strong></dt>
 <dd>sub(x, y) returns <em>x</em> - <em>y</em>. The result type depends on the input
 types.</dd>
-<dt><strong>submul(...)</strong></dt>
-<dd>submul(x, y, z) returns <em>x</em> - (<em>y</em> * <em>z</em>). All arguments must be
-integers.</dd>
 <dt><strong>t_div(...)</strong></dt>
 <dd>t_div(x, y) returns the quotient of <em>x</em> divided by <em>y</em>. The quotient
 is rounded towards zero (truncation). <em>x</em> and <em>y</em> must be integers.</dd>

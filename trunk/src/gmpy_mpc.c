@@ -1422,6 +1422,8 @@ Pympc_##NAME(PyObject* self, PyObject *other) \
 
 MPC_UNIOP(log)
 
+MPC_UNIOP(log10)
+
 MPC_UNIOP(exp)
 
 MPC_UNIOP(sin)
@@ -1578,7 +1580,7 @@ Pympc_div_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    result->rc = mpc_div_2exp(Pympc_AS_MPC(result), Pympc_AS_MPC(self),
+    result->rc = mpc_div_2ui(Pympc_AS_MPC(result), Pympc_AS_MPC(self),
                               exp, GET_MPC_ROUND(context));
     Py_DECREF(self);
 
@@ -1601,7 +1603,7 @@ Pympc_mul_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    result->rc = mpc_mul_2exp(Pympc_AS_MPC(result), Pympc_AS_MPC(self),
+    result->rc = mpc_mul_2ui(Pympc_AS_MPC(result), Pympc_AS_MPC(self),
                              exp, GET_MPC_ROUND(context));
     Py_DECREF(self);
 

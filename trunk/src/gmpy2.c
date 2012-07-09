@@ -648,7 +648,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "local_context", (PyCFunction)GMPyContext_local_context, METH_VARARGS | METH_KEYWORDS, doc_local_context },
     { "log", Pympany_log, METH_O, doc_mpany_log },
     { "log1p", Pympfr_log1p, METH_O, doc_g_mpfr_log1p },
-    { "log10", Pympfr_log10, METH_O, doc_g_mpfr_log10 },
+    { "log10", Pympany_log10, METH_O, doc_mpany_log10 },
     { "log2", Pympfr_log2, METH_O, doc_g_mpfr_log2 },
     { "max2", Pympfr_max2, METH_VARARGS, doc_g_mpfr_max2 },
     { "min2", Pympfr_min2, METH_VARARGS, doc_g_mpfr_min2 },
