@@ -265,14 +265,15 @@
  *   Removed set_debug() and related functionality (casevh)
  *   Released as 2.0.0b1
  *
+ *   Bug fixes in 2.0.0b2
  *   Allow xmpz slice assignment to increase length of xmpz instance by
  *      specifying a value for stop (casevh)
  *   Fixed ref-count bug in several is_xxx_prp tests (casevh)
  *   Added iter_bits, iter_clear, iter_set methods to xmpz (casevh)
- *   Added powm() for easy access to three argument pow() (casevh)
+ *   Added powmod() for easy access to three argument pow() (casevh)
  *   Removed addmul() and submul() since they are slower than (casevh)
  *      just using Python code
- *   Released as 2.0.0b2
+ *   Bug fix in gcd_ext when both arguments are not mpz (casevh)
  *
  ************************************************************************
  *
@@ -555,7 +556,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "num_digits", Pympz_num_digits, METH_VARARGS, doc_num_digitsg },
     { "pack", Pygmpy_pack, METH_VARARGS, doc_gmpy_pack },
     { "popcount", Pympz_popcount, METH_O, doc_popcountg },
-    { "powm", Pympz_powm, METH_VARARGS, doc_gmpy_powm },
+    { "powmod", Pympz_powmod, METH_VARARGS, doc_gmpy_powmod },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivg },
     { "remove", Pympz_remove, METH_VARARGS, doc_removeg },
     { "iroot", Pympz_iroot, METH_VARARGS, doc_mpz_iroot },

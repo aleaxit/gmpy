@@ -312,8 +312,8 @@ mpz Functions
     popcount(x) returns the number of bits with value 1 in *x*. If *x* < 0,
     the number of bits with value 1 is infinite so -1 is returned in that case.
     
-**powm(...)**
-    powm(x, y, m) returns (*x* ** *y*) mod *m*. The exponenent *y* can be
+**powmod(...)**
+    powmod(x, y, m) returns (*x* ** *y*) mod *m*. The exponenent *y* can be
     negative, and the correct result will be returned if the inverse of *x*
     mod *m* exists. Otherwise, a ValueError is raised.
 
