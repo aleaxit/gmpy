@@ -885,18 +885,18 @@ Pympz_pow(PyObject *b, PyObject *e, PyObject *m)
     return NULL;
 }
 
-PyDoc_STRVAR(doc_gmpy_powm,
-"powm(x,y,m) -> mpz\n\n"
+PyDoc_STRVAR(doc_gmpy_powmod,
+"powmod(x,y,m) -> mpz\n\n"
 "Return (x**y) mod m. Same as the three argument version of Python's\n"
 "built-in pow(), but converts all three arguments to mpz.");
 
 static PyObject *
-Pympz_powm(PyObject *self, PyObject *args)
+Pympz_powmod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y, *m;
 
     if (PyTuple_GET_SIZE(args) != 3) {
-        TYPE_ERROR("powm() requires 3 arguments.");
+        TYPE_ERROR("powmod() requires 3 arguments.");
         return NULL;
     }
 
@@ -907,7 +907,7 @@ Pympz_powm(PyObject *self, PyObject *args)
     if (isInteger(x) && isInteger(y) && isInteger(m))
         return Pympz_pow(x, y, m);
 
-    TYPE_ERROR("powm() argument types not supported");
+    TYPE_ERROR("powmod() argument types not supported");
     return NULL;
 }
 
@@ -1253,7 +1253,7 @@ Pygmpy_gcdext(PyObject *self, PyObject *args)
             Py_DECREF(result);
             return NULL;
         }
-        mpz_gcdext(g->z, s->z, t->z, Pympz_AS_MPZ(a), Pympz_AS_MPZ(b));
+        mpz_gcdext(g->z, s->z, t->z, tempa->z, tempb->z);
         Py_DECREF((PyObject*)tempa);
         Py_DECREF((PyObject*)tempb);
     }
