@@ -59,21 +59,21 @@ Test acos
     >>> gmpy2.acos(mpfr("nan"))
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-    gmpy2.InvalidOperationError: 'mpfr' invalid operation in acos()
+    InvalidOperationError: 'mpfr' invalid operation in acos()
     >>> gmpy2.acos(mpfr("inf"))
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-    gmpy2.InvalidOperationError: 'mpfr' invalid operation in acos()
+    InvalidOperationError: 'mpfr' invalid operation in acos()
     >>> gmpy2.acos(mpfr("-inf"))
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-    gmpy2.InvalidOperationError: 'mpfr' invalid operation in acos()
+    InvalidOperationError: 'mpfr' invalid operation in acos()
     >>> gmpy2.set_context(gmpy2.context(precision=100))
     >>> gmpy2.acos(mpfr("0.2"))
     mpfr('1.3694384060045658277761961394221',100)
-    >>> gmpy2.local_context()
-    context(precision=100, mpc_rprec=Default, mpc_iprec=Default,
-            round=RoundToNearest, mpc_rround=Default, mpc_iround=Default,
+    >>> gmpy2.get_context()
+    context(precision=100, real_prec=Default, imag_prec=Default,
+            round=RoundToNearest, real_round=Default, imag_round=Default,
             emax=1073741823, emin=-1073741823,
             subnormalize=False,
             trap_underflow=False, underflow=False,
@@ -122,21 +122,21 @@ Test asin
     >>> gmpy2.asin(mpfr("nan"))
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-    gmpy2.InvalidOperationError: 'mpfr' invalid operation in asin()
+    InvalidOperationError: 'mpfr' invalid operation in asin()
     >>> gmpy2.asin(mpfr("inf"))
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-    gmpy2.InvalidOperationError: 'mpfr' invalid operation in asin()
+    InvalidOperationError: 'mpfr' invalid operation in asin()
     >>> gmpy2.asin(mpfr("-inf"))
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-    gmpy2.InvalidOperationError: 'mpfr' invalid operation in asin()
+    InvalidOperationError: 'mpfr' invalid operation in asin()
     >>> gmpy2.set_context(gmpy2.context(precision=100))
     >>> gmpy2.asin(mpfr("0.2"))
     mpfr('0.20135792079033079145512555221757',100)
-    >>> gmpy2.local_context()
-    context(precision=100, mpc_rprec=Default, mpc_iprec=Default,
-            round=RoundToNearest, mpc_rround=Default, mpc_iround=Default,
+    >>> gmpy2.get_context()
+    context(precision=100, real_prec=Default, imag_prec=Default,
+            round=RoundToNearest, real_round=Default, imag_round=Default,
             emax=1073741823, emin=-1073741823,
             subnormalize=False,
             trap_underflow=False, underflow=False,
@@ -187,13 +187,13 @@ Test atan
     >>> gmpy2.atan(mpfr("nan"))
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-    gmpy2.InvalidOperationError: 'mpfr' invalid operation in atan()
+    InvalidOperationError: 'mpfr' invalid operation in atan()
     >>> gmpy2.set_context(gmpy2.context(precision=100))
     >>> gmpy2.atan(mpfr("0.2"))
     mpfr('0.19739555984988075837004976519484',100)
-    >>> gmpy2.local_context()
-    context(precision=100, mpc_rprec=Default, mpc_iprec=Default,
-            round=RoundToNearest, mpc_rround=Default, mpc_iround=Default,
+    >>> gmpy2.get_context()
+    context(precision=100, real_prec=Default, imag_prec=Default,
+            round=RoundToNearest, real_round=Default, imag_round=Default,
             emax=1073741823, emin=-1073741823,
             subnormalize=False,
             trap_underflow=False, underflow=False,
@@ -274,21 +274,21 @@ Test cos
     >>> gmpy2.cos(mpfr("nan"))
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-    gmpy2.InvalidOperationError: 'mpfr' invalid operation in cos()
+    InvalidOperationError: 'mpfr' invalid operation in cos()
     >>> gmpy2.cos(mpfr("inf"))
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-    gmpy2.InvalidOperationError: 'mpfr' invalid operation in cos()
+    InvalidOperationError: 'mpfr' invalid operation in cos()
     >>> gmpy2.cos(mpfr("-inf"))
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-    gmpy2.InvalidOperationError: 'mpfr' invalid operation in cos()
+    InvalidOperationError: 'mpfr' invalid operation in cos()
     >>> gmpy2.set_context(gmpy2.context(precision=100))
     >>> gmpy2.cos(mpfr("0.2"))
     mpfr('0.98006657784124163112419651674809',100)
-    >>> gmpy2.local_context()
-    context(precision=100, mpc_rprec=Default, mpc_iprec=Default,
-            round=RoundToNearest, mpc_rround=Default, mpc_iround=Default,
+    >>> gmpy2.get_context()
+    context(precision=100, real_prec=Default, imag_prec=Default,
+            round=RoundToNearest, real_round=Default, imag_round=Default,
             emax=1073741823, emin=-1073741823,
             subnormalize=False,
             trap_underflow=False, underflow=False,
