@@ -867,6 +867,34 @@ GMPyContextManager_exit(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+GMPyContext_enter(PyObject *self, PyObject *args)
+{
+    GMPyContextObject *result;
+
+    if (!(result = (GMPyContextObject*)GMPyContext_new()))
+        return NULL;
+
+    result->ctx = ((GMPyContextObject*)self)->ctx;
+    Py_DECREF((PyObject*)context);
+    context = (GMPyContextObject*)result;
+    Py_INCREF((PyObject*)context);
+    mpfr_set_emin(context->ctx.emin);
+    mpfr_set_emax(context->ctx.emax);
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPyContext_exit(PyObject *self, PyObject *args)
+{
+    Py_DECREF((PyObject*)context);
+    context = (GMPyContextObject*)self;
+    Py_INCREF((PyObject*)context);
+    mpfr_set_emin(context->ctx.emin);
+    mpfr_set_emax(context->ctx.emax);
+    Py_RETURN_NONE;
+}
+
 PyDoc_STRVAR(doc_context_clear_flags,
 "clear_flags()\n\n"
 "Clear all MPFR exception flags.");
@@ -1070,16 +1098,10 @@ GMPyContext_set_real_round(GMPyContextObject *self, PyObject *value, void *closu
         VALUE_ERROR("invalid value for round mode");
         return -1;
     }
-    if (temp == GMPY_DEFAULT)
+    if (temp == GMPY_DEFAULT || temp == MPFR_RNDN || temp == MPFR_RNDZ ||
+        temp == MPFR_RNDU || temp == MPFR_RNDD) {
         self->ctx.real_round = temp;
-    else if (temp == MPFR_RNDN)
-        self->ctx.real_round = temp;
-    else if (temp == MPFR_RNDZ)
-        self->ctx.real_round = temp;
-    else if (temp == MPFR_RNDU)
-        self->ctx.real_round = temp;
-    else if (temp == MPFR_RNDD)
-        self->ctx.real_round = temp;
+    }
     else {
         VALUE_ERROR("invalid value for round mode");
         return -1;
@@ -1107,16 +1129,10 @@ GMPyContext_set_imag_round(GMPyContextObject *self, PyObject *value, void *closu
         VALUE_ERROR("invalid value for round mode");
         return -1;
     }
-    if (temp == GMPY_DEFAULT)
+    if (temp == GMPY_DEFAULT || temp == MPFR_RNDN || temp == MPFR_RNDZ ||
+        temp == MPFR_RNDU || temp == MPFR_RNDD) {
         self->ctx.imag_round = temp;
-    else if (temp == MPFR_RNDN)
-        self->ctx.imag_round = temp;
-    else if (temp == MPFR_RNDZ)
-        self->ctx.imag_round = temp;
-    else if (temp == MPFR_RNDU)
-        self->ctx.imag_round = temp;
-    else if (temp == MPFR_RNDD)
-        self->ctx.imag_round = temp;
+    }
     else {
         VALUE_ERROR("invalid value for round mode");
         return -1;
@@ -1225,6 +1241,8 @@ static PyMethodDef GMPyContext_methods[] =
 {
     { "clear_flags", GMPyContext_clear_flags, METH_NOARGS,
             doc_context_clear_flags },
+    { "__enter__", GMPyContext_enter, METH_NOARGS, NULL },
+    { "__exit__", GMPyContext_exit, METH_VARARGS, NULL },
     { NULL, NULL, 1 }
 };
 

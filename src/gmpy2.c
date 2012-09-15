@@ -277,6 +277,8 @@
  *   Added ieee() to create contexts for 32, 64, or 128 bit floats (casevh)
  *   Bug fix in context() not setting emax/emin correctly if they (casevh)
  *      had been changed earlier
+ *   Contexts can be directly used in with statement without (casevh)
+ *      requiring set_context()/local_context() sequence
  *
  ************************************************************************
  *
