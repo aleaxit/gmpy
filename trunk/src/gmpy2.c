@@ -275,6 +275,8 @@
  *      just using Python code
  *   Bug fix in gcd_ext when both arguments are not mpz (casevh)
  *   Added ieee() to create contexts for 32, 64, or 128 bit floats (casevh)
+ *   Bug fix in context() not setting emax/emin correctly if they (casevh)
+ *      had been changed earlier
  *
  ************************************************************************
  *

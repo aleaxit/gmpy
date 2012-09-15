@@ -46,8 +46,8 @@ GMPyContext_new(void)
     if ((result = PyObject_New(GMPyContextObject, &GMPyContext_Type))) {
         result->ctx.mpfr_prec = DBL_MANT_DIG;
         result->ctx.mpfr_round = MPFR_RNDN;
-        result->ctx.emax = mpfr_get_emax();
-        result->ctx.emin = mpfr_get_emin();
+        result->ctx.emax = MPFR_EMAX_DEFAULT;
+        result->ctx.emin = MPFR_EMIN_DEFAULT;
         result->ctx.subnormalize = 0;
         result->ctx.underflow = 0;
         result->ctx.overflow = 0;
