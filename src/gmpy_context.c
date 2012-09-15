@@ -80,6 +80,59 @@ GMPyContext_dealloc(GMPyContextObject *self)
     PyObject_Del(self);
 };
 
+PyDoc_STRVAR(doc_context_ieee,
+"ieee(bitwidth) -> context\n\n"
+"Return a new context corresponding to a standard IEEE floating point\n"
+"format. The currently supported precisions are 32, 64, and 128 bits.");
+
+static PyObject *
+GMPyContext_ieee(PyObject *self, PyObject *other)
+{
+    long bitwidth;
+    GMPyContextObject *result;
+
+    bitwidth = PyIntOrLong_AsLong(other);
+    if (bitwidth == -1 && PyErr_Occurred()) {
+        TYPE_ERROR("ieee() requires 'int' argument");
+        return NULL;
+    }
+
+    if (bitwidth == 32) {
+        result = (GMPyContextObject*)GMPyContext_new();
+        if (result) {
+            result->ctx.subnormalize = 1;
+            result->ctx.mpfr_prec = 24;
+            result->ctx.emax = 128;
+            result->ctx.emin = -148;
+        }
+        return (PyObject*)result;
+    }
+    else if (bitwidth == 64) {
+        result = (GMPyContextObject*)GMPyContext_new();
+        if (result) {
+            result->ctx.subnormalize = 1;
+            result->ctx.mpfr_prec = 53;
+            result->ctx.emax = 1024;
+            result->ctx.emin = -1073;
+        }
+        return (PyObject*)result;
+    }
+    else if (bitwidth == 128) {
+        result = (GMPyContextObject*)GMPyContext_new();
+        if (result) {
+            result->ctx.subnormalize = 1;
+            result->ctx.mpfr_prec = 113;
+            result->ctx.emax = 16384;
+            result->ctx.emin = -16493;
+        }
+        return (PyObject*)result;
+    }
+    else {
+        VALUE_ERROR("bitwidth must be 32, 64, or 128");
+        return NULL;
+    }
+}
+
 /* Create and delete ContextManager objects. */
 
 static PyObject *

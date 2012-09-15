@@ -265,7 +265,7 @@
  *   Removed set_debug() and related functionality (casevh)
  *   Released as 2.0.0b1
  *
- *   Bug fixes in 2.0.0b2
+ *   2.0.0b2
  *   Allow xmpz slice assignment to increase length of xmpz instance by
  *      specifying a value for stop (casevh)
  *   Fixed ref-count bug in several is_xxx_prp tests (casevh)
@@ -274,6 +274,7 @@
  *   Removed addmul() and submul() since they are slower than (casevh)
  *      just using Python code
  *   Bug fix in gcd_ext when both arguments are not mpz (casevh)
+ *   Added ieee() to create contexts for 32, 64, or 128 bit floats (casevh)
  *
  ************************************************************************
  *
@@ -396,6 +397,7 @@ static PyObject *GMPyExc_Overflow = NULL;
 static PyObject *GMPyExc_Underflow = NULL;
 static PyObject *GMPyExc_Erange = NULL;
 static PyObject *GMPyExc_ExpBound = NULL;
+
 #endif
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -630,6 +632,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "get_exp", Pympfr_get_exp, METH_O, doc_g_mpfr_get_exp },
     { "get_max_precision", Pympfr_get_max_precision, METH_NOARGS, doc_g_mpfr_get_max_precision },
     { "hypot", Pympfr_hypot, METH_VARARGS, doc_g_mpfr_hypot },
+    { "ieee", GMPyContext_ieee, METH_O, doc_context_ieee },
     { "inf", Pympfr_set_inf, METH_VARARGS, doc_g_mpfr_set_inf },
     { "is_inf", Pympany_is_inf, METH_O, doc_mpany_is_inf },
     { "is_integer", Pympfr_is_integer, METH_O, doc_g_mpfr_is_integer },
@@ -890,9 +893,11 @@ PyMODINIT_FUNC initgmpy2(void)
     if (gmpy_module == NULL)
         INITERROR;
 
-    /* Add the constants for defining rounding modes. */
 
 #ifdef WITHMPFR
+
+    /* Add the constants for defining rounding modes. */
+
     PyModule_AddIntConstant(gmpy_module, "RoundToNearest", MPFR_RNDN);
     PyModule_AddIntConstant(gmpy_module, "RoundToZero", MPFR_RNDZ);
     PyModule_AddIntConstant(gmpy_module, "RoundUp", MPFR_RNDU);
@@ -913,6 +918,7 @@ PyMODINIT_FUNC initgmpy2(void)
     PyModule_AddObject(gmpy_module, "RangeError", GMPyExc_Erange);
     Py_INCREF(GMPyExc_ExpBound);
     PyModule_AddObject(gmpy_module, "ExponentOutOfBoundsError", GMPyExc_ExpBound);
+
 #endif
 
     /* Add support for pickling. */
