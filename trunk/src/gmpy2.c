@@ -279,6 +279,7 @@
  *      had been changed earlier
  *   Contexts can be directly used in with statement without (casevh)
  *      requiring set_context()/local_context() sequence
+ *   local_context() now accepts an optional context (casevh)
  *
  ************************************************************************
  *
