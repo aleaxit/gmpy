@@ -265,7 +265,7 @@ GMPyContextManager_repr(GMPyContextManagerObject *self)
 }
 
 PyDoc_STRVAR(doc_get_context,
-"get_context() -> gmpy2 context\n\n"
+"get_context([keywords]) -> gmpy2 context\n\n"
 "Return a reference to the current context. Keyword arguments will\n"
 "modify the current context. Changing attributes will modify the\n"
 "current context unless another context is activated by set_context().\n"
@@ -436,15 +436,18 @@ GMPyContext_get_context(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 PyDoc_STRVAR(doc_local_context,
-"local_context(...) -> context manager\n\n"
-"Create a context manager object that will restore the previous context\n"
-"when the 'with ...' block terminates. Keyword arguments are supported\n"
-"and will modify the new context.");
+"local_context([context[,keywords]]) -> context manager\n\n"
+"Create a context manager object that will restore either the context\n"
+"that is passed as an argument, or the context that is active when\n"
+"called when the 'with ...' block terminates. Keyword arguments are\n"
+"supported and will modify the new context.");
 
 static PyObject *
 GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     GMPyContextManagerObject *result;
+    PyObject *local_args = args;
+    int arg_context = 0;
 
 #ifdef WITHMPC
     static char *kwlist[] = {
@@ -461,20 +464,29 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
         NULL };
 #endif
 
-    if (PyTuple_GET_SIZE(args)) {
-        VALUE_ERROR("local_context() only supports keyword arguments");
+    if (PyTuple_GET_SIZE(args) == 1 && GMPyContext_Check(PyTuple_GET_ITEM(args, 0))) {
+        arg_context = 1;
+        if (!(local_args = PyTuple_New(0)))
+            return NULL;
+    }
+    else if (PyTuple_GET_SIZE(args)) {
+        VALUE_ERROR("local_context() only supports [context[,keyword]] arguments");
         return NULL;
     }
 
     if (!(result = (GMPyContextManagerObject*)GMPyContextManager_new()))
         return NULL;
 
-
+    if (arg_context) {
+        result->new_ctx = ((GMPyContextObject*)PyTuple_GET_ITEM(args, 0))->ctx;
+    }
+    else {
+        result->new_ctx = context->ctx;
+    }
     result->old_ctx = context->ctx;
-    result->new_ctx = context->ctx;
-
+    
 #ifdef WITHMPC
-    if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
+    if (!(PyArg_ParseTupleAndKeywords(local_args, kwargs,
             "|llliiilliiiiiiiii", kwlist,
             &result->new_ctx.mpfr_prec,
             &result->new_ctx.real_prec,
@@ -494,7 +506,7 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
             &result->new_ctx.trap_expbound,
             &result->new_ctx.allow_complex))) {
 #else
-    if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
+    if (!(PyArg_ParseTupleAndKeywords(local_args, kwargs,
             "|lilliiiiiiii", kwlist,
             &result->new_ctx.mpfr_prec,
             &result->new_ctx.mpfr_round,
@@ -587,6 +599,7 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
     return (PyObject*)result;
 
   error:
+    if (arg_context) Py_DECREF(local_args);
     Py_DECREF((PyObject*)result);
     return NULL;
 }
