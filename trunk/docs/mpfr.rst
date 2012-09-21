@@ -223,7 +223,7 @@ Context Attributes
         >>>
 
 **erange**
-    This flage is not user controllable. It is automatically set if an erange
+    This flag is not user controllable. It is automatically set if an erange
     error occurred.
 
 **trap_divzero**
@@ -243,6 +243,35 @@ Context Attributes
 **allow_complex**
     This attribute controls whether or not an *mpc* result can be returned if
     an *mpfr* result would normally not be possible.
+    
+Contexts can also be used in conjunction with Python's *with ...* statement to
+temporarily change the context settings for a block of code and then restore the
+original settings when the block of code exits.
+
+``gmpy2.local_context()`` makes a copy of the current context and modifies the copy
+if any optional keyword arguments are given. The orginal context, before modification
+by any keyword arguments, is restored when the block completes.
+
+::
+
+    >>> gmpy2.set_context(gmpy2.context())
+    >>> with gmpy2.local_context(precision=100) as ctx:
+    ...   print(gmpy2.sqrt(mpfr(2)))
+    ...   ctx.precision += 100
+    ...   print(gmpy2.sqrt(mpfr(2)))
+    ... 
+    1.4142135623730950488016887242092
+    1.4142135623730950488016887242096980785696718753769480731766796
+    >>> print(gmpy2.sqrt(mpfr(2)))
+    1.4142135623730951
+    >>>
+
+Any context object can also be used to create a context manager block. Since
+``gmpy2.get_context()`` returns a context object, the above example
+Contexts that implement the standard *single*, *double*, and *quadruple* precision
+floating point types can be created using **ieee()**.
+
+
 
 
 Context Methods
@@ -471,6 +500,11 @@ mpfr Functions
 **hypot(...)**
     hypot(y, x) returns square root of (x**2 + y**2).
 
+**ieee(...)**
+    ieee(bitwidth) returns a context with settings for 32-bit (aka single),
+    64-bit (aka double), or 128-bit (aka quadruple) precision floating
+    point types.
+    
 **inf(...)**
     inf(n) returns an *mpfr* initialized to Infinity with the same sign as n.
     If n is not given, +Infinity is returned.
