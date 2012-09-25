@@ -267,12 +267,12 @@ GMPyContextManager_repr(GMPyContextManagerObject *self)
 PyDoc_STRVAR(doc_get_context,
 "get_context([keywords]) -> gmpy2 context\n\n"
 "Return a reference to the current context. Keyword arguments will\n"
-"modify the current context. Changing attributes will modify the\n"
-"current context unless another context is activated by set_context().\n"
-"When used in 'with get_context(...):', the context modified by any\n"
-"keyword arguments will be restored at the end of the with block.\n"
-"This differs from local_context() which will restore the context\n"
-"before any keyword arguments.");
+"modify the current context. Changing attributes of the returned object\n"
+"will modify the current context unless another context is activated by\n"
+"set_context(). When used in 'with get_context(...):', the context as\n"
+"modified by any keyword arguments will be restored at the end of the\n"
+"with block. This differs from local_context() which will restore the\n"
+"context before any changes by keyword arguments.");
 
 /* Should parse keyword arguments. */
 
