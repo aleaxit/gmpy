@@ -484,7 +484,7 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
         result->new_ctx = context->ctx;
     }
     result->old_ctx = context->ctx;
-    
+
 #ifdef WITHMPC
     if (!(PyArg_ParseTupleAndKeywords(local_args, kwargs,
             "|llliiilliiiiiiiii", kwlist,
@@ -599,7 +599,9 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
     return (PyObject*)result;
 
   error:
-    if (arg_context) Py_DECREF(local_args);
+    if (arg_context) {
+        Py_DECREF(local_args);
+    }
     Py_DECREF((PyObject*)result);
     return NULL;
 }
