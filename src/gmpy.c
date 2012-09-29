@@ -229,6 +229,7 @@
  *
  *   1.16
  *   Fix compatibility with Python 2.4 (casevh)
+ *   Fix compatibility with Python 3.3 (casevh)
  */
 #include "Python.h"
 
@@ -2448,6 +2449,8 @@ static int isNumber(PyObject* obj)
         return 1;
     } else if(!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
         return 1;
+    } else if(!strcmp(Py_TYPE(obj)->tp_name, "decimal.Decimal")) {
+        return 1;
     } else if(!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
         return 1;
     }
@@ -2543,6 +2546,12 @@ anynum2Pympq(PyObject* obj)
             newob = PyStr2Pympq(s, 10);
             Py_DECREF(s);
         }
+    } else if(!strcmp(Py_TYPE(obj)->tp_name, "decimal.Decimal")) {
+        PyObject *s = PyObject_Str(obj);
+        if(s) {
+            newob = PyStr2Pympq(s, 10);
+            Py_DECREF(s);
+        }
     } else if(!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) {
         PyObject *s = PyObject_Str(obj);
         if(s) {
@@ -2611,6 +2620,12 @@ anynum2Pympz(PyObject* obj)
     } else if(PyFloat_Check(obj)) {
         newob = PyFloat2Pympz(obj);
     } else if(PyNumber_Check(obj) && !strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
+        PyObject *s = PyNumber_Long(obj);
+        if(s) {
+            newob = PyLong2Pympz(s);
+            Py_DECREF(s);
+        }
+    } else if(PyNumber_Check(obj) && !strcmp(Py_TYPE(obj)->tp_name, "decimal.Decimal")) {
         PyObject *s = PyNumber_Long(obj);
         if(s) {
             newob = PyLong2Pympz(s);
@@ -2712,6 +2727,16 @@ anynum2Pympf(PyObject* obj, size_t bits)
     } else if(PyLong_Check(obj)) {
         newob = PyLong2Pympf(obj, bits);
     } else if(!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) {
+        PyObject *s = PyObject_Str(obj);
+        if(s) {
+            newob = PyStr2Pympf(s, 10, bits);
+            if(!newob) {
+                Py_DECREF(s);
+                return NULL;
+            }
+            Py_DECREF(s);
+        }
+    } else if(!strcmp(Py_TYPE(obj)->tp_name, "decimal.Decimal")) {
         PyObject *s = PyObject_Str(obj);
         if(s) {
             newob = PyStr2Pympf(s, 10, bits);
