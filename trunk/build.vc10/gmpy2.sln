@@ -9,7 +9,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmpy2.python26", "gmpy2.pyt
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmpy2.python32", "gmpy2.python32\gmpy2.python32.vcxproj", "{B7EF078D-1DE7-45B7-9764-D1BF1BB57EE6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmpy2.python33", "gmpy2.python33\gmpy2.python33.vcxproj", "{073E8B78-255B-0967-7FC9-704FF3A19D46}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmpy2.python33", "gmpy2.python33\gmpy2.python33.vcxproj", "{3CC03A4A-FA38-473F-B3D7-0B9660B758AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,14 +51,14 @@ Global
 		{B7EF078D-1DE7-45B7-9764-D1BF1BB57EE6}.Release|Win32.Build.0 = Release|Win32
 		{B7EF078D-1DE7-45B7-9764-D1BF1BB57EE6}.Release|x64.ActiveCfg = Release|x64
 		{B7EF078D-1DE7-45B7-9764-D1BF1BB57EE6}.Release|x64.Build.0 = Release|x64
-		{073E8B78-255B-0967-7FC9-704FF3A19D46}.Debug|Win32.ActiveCfg = Debug|Win32
-		{073E8B78-255B-0967-7FC9-704FF3A19D46}.Debug|Win32.Build.0 = Debug|Win32
-		{073E8B78-255B-0967-7FC9-704FF3A19D46}.Debug|x64.ActiveCfg = Debug|x64
-		{073E8B78-255B-0967-7FC9-704FF3A19D46}.Debug|x64.Build.0 = Debug|x64
-		{073E8B78-255B-0967-7FC9-704FF3A19D46}.Release|Win32.ActiveCfg = Release|Win32
-		{073E8B78-255B-0967-7FC9-704FF3A19D46}.Release|Win32.Build.0 = Release|Win32
-		{073E8B78-255B-0967-7FC9-704FF3A19D46}.Release|x64.ActiveCfg = Release|x64
-		{073E8B78-255B-0967-7FC9-704FF3A19D46}.Release|x64.Build.0 = Release|x64
+		{3CC03A4A-FA38-473F-B3D7-0B9660B758AA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3CC03A4A-FA38-473F-B3D7-0B9660B758AA}.Debug|Win32.Build.0 = Debug|Win32
+		{3CC03A4A-FA38-473F-B3D7-0B9660B758AA}.Debug|x64.ActiveCfg = Debug|x64
+		{3CC03A4A-FA38-473F-B3D7-0B9660B758AA}.Debug|x64.Build.0 = Debug|x64
+		{3CC03A4A-FA38-473F-B3D7-0B9660B758AA}.Release|Win32.ActiveCfg = Release|Win32
+		{3CC03A4A-FA38-473F-B3D7-0B9660B758AA}.Release|Win32.Build.0 = Release|Win32
+		{3CC03A4A-FA38-473F-B3D7-0B9660B758AA}.Release|x64.ActiveCfg = Release|x64
+		{3CC03A4A-FA38-473F-B3D7-0B9660B758AA}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
