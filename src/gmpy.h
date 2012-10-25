@@ -70,6 +70,7 @@ typedef unsigned long Py_uhash_t;
 #if (PY_MAJOR_VERSION == 3)
 #define PY3
 #define Py2or3String_FromString     PyUnicode_FromString
+#define Py2or3String_FromFormat     PyUnicode_FromFormat
 #define Py2or3String_Check          PyUnicode_Check
 #define Py2or3String_Format         PyUnicode_Format
 #define Py2or3String_AsString       PyUnicode_AS_DATA
@@ -83,6 +84,7 @@ typedef unsigned long Py_uhash_t;
 #else
 #define PY2
 #define Py2or3String_FromString     PyString_FromString
+#define Py2or3String_FromFormat     PyString_FromFormat
 #define Py2or3String_Check          PyString_Check
 #define Py2or3String_Format         PyString_Format
 #define Py2or3String_AsString       PyString_AsString
