@@ -281,6 +281,10 @@
  *      requiring set_context()/local_context() sequence
  *   local_context() now accepts an optional context (casevh)
  *
+ *   2.0.0b3
+ *   mp_version(), mpc_version(), and mpfr_version() shouldn't (casevh)
+ *      return Unicode on Python 2.x
+ *
  ************************************************************************
  *
  * Discussion on sizes of C integer types.
@@ -350,7 +354,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.0.0b2";
+char gmpy_version[] = "2.0.0b3";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -791,7 +795,7 @@ _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] =
-"gmpy2 2.0.0b2 - General Multiple-precision arithmetic for Python\n"
+"gmpy2 2.0.0b3 - General Multiple-precision arithmetic for Python\n"
 "\n"
 "gmpy2 supports several multiple-precision libraries. Integer and\n"
 "rational arithmetic is provided by either the GMP or MPIR libraries.\n"

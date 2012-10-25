@@ -66,9 +66,9 @@ static PyObject *
 Pygmpy_get_mp_version(PyObject *self, PyObject *args)
 {
 #ifndef __MPIR_VERSION
-    return PyUnicode_FromFormat("%s %s", "GMP", gmp_version);
+    return Py2or3String_FromFormat("%s %s", "GMP", gmp_version);
 #else
-    return PyUnicode_FromFormat("%s %s", "MPIR", mpir_version);
+    return Py2or3String_FromFormat("%s %s", "MPIR", mpir_version);
 #endif
 }
 
@@ -81,8 +81,8 @@ static PyObject *
 Pygmpy_get_mpfr_version(PyObject *self, PyObject *args)
 {
 #ifdef WITHMPFR
-    return PyUnicode_FromFormat("%s %s", "MPFR",
-                                MPFR_VERSION_STRING);
+    return Py2or3String_FromFormat("%s %s", "MPFR",
+                                   MPFR_VERSION_STRING);
 #else
     Py_RETURN_NONE;
 #endif
@@ -97,8 +97,8 @@ static PyObject *
 Pygmpy_get_mpc_version(PyObject *self, PyObject *args)
 {
 #ifdef WITHMPC
-    return PyUnicode_FromFormat("%s %s", "MPC",
-                                MPC_VERSION_STRING);
+    return Py2or3String_FromFormat("%s %s", "MPC",
+                                   MPC_VERSION_STRING);
 #else
     Py_RETURN_NONE;
 #endif
