@@ -35,6 +35,7 @@
 PyDoc_STRVAR(doc_g_mpz_from_old_binary,
 "mpz_from_old_binary(string) -> mpz\n\n"
 "Return an 'mpz' from a GMPY 1.x binary format.");
+
 static PyObject *
 Pympz_From_Old_Binary(PyObject *self, PyObject *other)
 {
@@ -67,6 +68,7 @@ Pympz_From_Old_Binary(PyObject *self, PyObject *other)
 PyDoc_STRVAR(doc_g_mpq_from_old_binary,
 "mpq_from_old_binary(string) -> mpq\n\n"
 "Return an 'mpq' from a GMPY 1.x binary format.");
+
 static PyObject *
 Pympq_From_Old_Binary(PyObject *self, PyObject *other)
 {
@@ -121,6 +123,7 @@ Pympq_From_Old_Binary(PyObject *self, PyObject *other)
 PyDoc_STRVAR(doc_g_mpfr_from_old_binary,
 "mpfr_from_old_binary(string) -> mpfr\n\n"
 "Return an 'mpfr' from a GMPY 1.x binary mpf format.");
+
 static PyObject *
 Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
 {
@@ -219,9 +222,9 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
  *
  * byte[0]:     1 => mpz
  *              2 => xmpz
- *              3 => mpq  (see Pympq_As_Binary)
- *              4 => mpfr (see Pympfr_As_Binary)
- *              5 => mpc  (see Pympc_As_Binary)
+ *              3 => mpq  (see Pympq_To_Binary)
+ *              4 => mpfr (see Pympfr_To_Binary)
+ *              5 => mpc  (see Pympc_To_Binary)
  * byte[1:0-1]: 0 => value is 0
  *              1 => value is > 0
  *              2 => value is < 0
@@ -230,7 +233,7 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
  */
 
 static PyObject *
-Pympz_As_Binary(PympzObject *self)
+Pympz_To_Binary(PympzObject *self)
 {
     size_t size = 2;
     int sgn;
@@ -262,7 +265,7 @@ Pympz_As_Binary(PympzObject *self)
 }
 
 static PyObject *
-Pyxmpz_As_Binary(PyxmpzObject *self)
+Pyxmpz_To_Binary(PyxmpzObject *self)
 {
     size_t size = 2;
     int sgn;
@@ -295,11 +298,11 @@ Pyxmpz_As_Binary(PyxmpzObject *self)
 
 /* Format of the binary representation of an mpq.
  *
- * byte[0]:     1 => mpz  (see Pympz_As_Binary)
- *              2 => xmpz (see Pyxmpz_As_Binary)
+ * byte[0]:     1 => mpz  (see Pympz_To_Binary)
+ *              2 => xmpz (see Pyxmpz_To_Binary)
  *              3 => mpq
- *              4 => mpfr (see Pympfr_As_Binary)
- *              5 => mpc  (see Pympc_As_Binary)
+ *              4 => mpfr (see Pympfr_To_Binary)
+ *              5 => mpc  (see Pympc_To_Binary)
  * byte[1:0-1]: 0 => value is 0
  *              1 => value is > 0
  *              2 => value is < 0
@@ -311,7 +314,7 @@ Pyxmpz_As_Binary(PyxmpzObject *self)
  */
 
 static PyObject *
-Pympq_As_Binary(PympqObject *self)
+Pympq_To_Binary(PympqObject *self)
 {
     size_t sizenum, sizeden, sizesize = 4, size = 2, sizetemp, i;
     size_t count = 0;
@@ -332,7 +335,7 @@ Pympq_As_Binary(PympqObject *self)
     size = sizenum + sizeden + 2;
 
     /* Check if sizenum larger than 32 bits. */
-    if (sizenum >> 32) {
+    if ((sizenum >> 16) >> 16) {
         large = 0x04;
         sizesize = 8;
     }
@@ -355,7 +358,7 @@ Pympq_As_Binary(PympqObject *self)
     mpz_export(buffer+sizesize+2, &count, -1,
                sizeof(char), 0, 0, mpq_numref(self->q));
     if (count != sizenum) {
-        SYSTEM_ERROR("internal error in Pympq_As_Binary");
+        SYSTEM_ERROR("internal error in Pympq_To_Binary");
         TEMP_FREE(buffer, size);
         return NULL;
     }
@@ -363,7 +366,7 @@ Pympq_As_Binary(PympqObject *self)
     mpz_export(buffer+sizenum+sizesize+2, &count, -1,
                sizeof(char), 0, 0, mpq_denref(self->q));
     if (count != sizeden) {
-        SYSTEM_ERROR("internal error in Pympq_As_Binary");
+        SYSTEM_ERROR("internal error in Pympq_To_Binary");
         TEMP_FREE(buffer, size);
         return NULL;
     }
@@ -378,11 +381,11 @@ Pympq_As_Binary(PympqObject *self)
 #ifdef WITHMPFR
 /* Format of the binary representation of an mpfr.
  *
- * byte[0]:      1 => mpz  (see Pympz_As_Binary)
- *               2 => xmpz (see Pyxmpz_As_Binary)
- *               3 => mpq  (see Pympq_As_Binary)
+ * byte[0]:      1 => mpz  (see Pympz_To_Binary)
+ *               2 => xmpz (see Pyxmpz_To_Binary)
+ *               3 => mpq  (see Pympq_To_Binary)
  *               4 => mpfr
- *               5 => mpc  (see Pympc_As_Binary)
+ *               5 => mpc  (see Pympc_To_Binary)
  * byte[1:0]:    0 => value is "special"
  *               1 => value is an actual number
  * byte[1:1]:    0 => signbit is clear
@@ -407,7 +410,7 @@ Pympq_As_Binary(PympqObject *self)
  */
 
 static PyObject *
-Pympfr_As_Binary(PympfrObject *self)
+Pympfr_To_Binary(PympfrObject *self)
 {
     size_t sizemant = 0, sizesize = 4, size = 4, sizetemp, i;
     mp_limb_t templimb;
@@ -436,7 +439,9 @@ Pympfr_As_Binary(PympfrObject *self)
         /* Calculate the size of mantissa in limbs */
         sizemant = (self->f->_mpfr_prec + mp_bits_per_limb - 1)/mp_bits_per_limb;
     }
-    if ((exponent >> 32) || (precision >> 32) || (sizemant >> 32)) {
+    if (((exponent >> 16) >> 16) ||
+        ((precision >> 16) >> 16) ||
+        ((sizemant >> 16) >> 16)) {
         sizesize = 8;
         large = 0x04;
     }
@@ -579,7 +584,7 @@ Pympfr_As_Binary(PympfrObject *self)
  */
 
 static PyObject *
-Pympc_As_Binary(PympcObject *self)
+Pympc_To_Binary(PympcObject *self)
 {
     PympfrObject *real = 0, *imag = 0;
     PyObject *result = 0, *temp = 0;
@@ -599,8 +604,8 @@ Pympc_As_Binary(PympcObject *self)
     real->rc = self->rc;
     real->round_mode = self->round_mode;
 
-    result = Pympfr_As_Binary(real);
-    temp = Pympfr_As_Binary(imag);
+    result = Pympfr_To_Binary(real);
+    temp = Pympfr_To_Binary(imag);
     Py_DECREF((PyObject*)real);
     Py_DECREF((PyObject*)imag);
     if (!result || !temp) {

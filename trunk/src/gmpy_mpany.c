@@ -285,18 +285,18 @@ static PyObject *
 Pympany_to_binary(PyObject *self, PyObject *other)
 {
     if(Pympz_Check(other))
-        return Pympz_As_Binary((PympzObject*)other);
+        return Pympz_To_Binary((PympzObject*)other);
     else if(Pyxmpz_Check(other))
-        return Pyxmpz_As_Binary((PyxmpzObject*)other);
+        return Pyxmpz_To_Binary((PyxmpzObject*)other);
     else if(Pympq_Check(other))
-        return Pympq_As_Binary((PympqObject*)other);
+        return Pympq_To_Binary((PympqObject*)other);
 #ifdef WITHMPFR
     else if(Pympfr_Check(other))
-        return Pympfr_As_Binary((PympfrObject*)other);
+        return Pympfr_To_Binary((PympfrObject*)other);
 #endif
 #ifdef WITHMPC
     else if(Pympc_Check(other))
-        return Pympc_As_Binary((PympcObject*)other);
+        return Pympc_To_Binary((PympcObject*)other);
 #endif
     TYPE_ERROR("to_binary() argument type not supported");
     return NULL;
@@ -1037,7 +1037,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         if (PyComplex_Check(b)) {
             PympcObject *tempmpc;
 
-            if (!(tempmpc = PyComplex2Pympc(b, 53, 53)))
+            if (!(tempmpc = Pympc_From_PyComplex(b, 53, 53)))
                 return NULL;
             mpfr_clear_flags();
             c = mpc_cmp(Pympc_AS_MPC(a), Pympc_AS_MPC(tempmpc));

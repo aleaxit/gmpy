@@ -25,6 +25,15 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+static int isInteger(PyObject* obj)
+{
+    if (Pympz_Check(obj))       return 1;
+    if (PyIntOrLong_Check(obj)) return 1;
+    if (Pyxmpz_Check(obj))      return 1;
+
+    return 0;
+}
+
 static int isFraction(PyObject* obj)
 {
     if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) return 1;
@@ -34,39 +43,40 @@ static int isFraction(PyObject* obj)
 
 static int isDecimal(PyObject* obj)
 {
+#if PY_VERSION_HEX < 0x03030000
     if (!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) return 1;
+#else
+    if (!strcmp(Py_TYPE(obj)->tp_name, "decimal.Decimal")) return 1;
+#endif
 
     return 0;
 }
 
 static PyxmpzObject *
-Pyxmpz2Pyxmpz(PyObject *self)
+Pyxmpz_From_Pyxmpz(PyObject *self)
 {
     PyxmpzObject *newob;
 
-    assert(Pyxmpz_Check(self));
     if ((newob = (PyxmpzObject*)Pyxmpz_new()))
         mpz_set(newob->z, Pyxmpz_AS_MPZ(self));
     return newob;
 }
 
 static PympzObject *
-Pyxmpz2Pympz(PyObject *self)
+Pympz_From_Pyxmpz(PyObject *self)
 {
     PympzObject *newob;
 
-    assert(Pyxmpz_Check(self));
     if ((newob = (PympzObject*)Pympz_new()))
         mpz_set(newob->z, Pyxmpz_AS_MPZ(self));
     return newob;
 }
 
 static PyxmpzObject *
-Pympz2Pyxmpz(PyObject *self)
+Pyxmpz_From_Pympz(PyObject *self)
 {
     PyxmpzObject *newob;
 
-    assert(Pympz_Check(self));
     if ((newob = (PyxmpzObject*)Pyxmpz_new()))
         mpz_set(newob->z, Pyxmpz_AS_MPZ(self));
     return newob;
@@ -74,22 +84,20 @@ Pympz2Pyxmpz(PyObject *self)
 
 #ifdef PY2
 static PympzObject *
-PyInt2Pympz(PyObject *self)
+Pympz_From_PyInt(PyObject *self)
 {
     PympzObject *newob;
 
-    assert(PyInt_Check(self));
     if ((newob = (PympzObject*)Pympz_new()))
         mpz_set_si(newob->z, PyInt_AS_LONG(self));
     return newob;
 }
 
 static PyxmpzObject *
-PyInt2Pyxmpz(PyObject *self)
+Pyxmpz_From_PyInt(PyObject *self)
 {
     PyxmpzObject *newob;
 
-    assert(PyInt_Check(self));
     if ((newob = (PyxmpzObject*)Pyxmpz_new()))
         mpz_set_si(newob->z, PyInt_AsLong(self));
     return newob;
@@ -97,11 +105,10 @@ PyInt2Pyxmpz(PyObject *self)
 #endif
 
 static PympzObject *
-PyFloat2Pympz(PyObject *self)
+Pympz_From_PyFloat(PyObject *self)
 {
     PympzObject *newob;
 
-    assert(PyFloat_Check(self));
     if ((newob = (PympzObject*)Pympz_new())) {
         double d = PyFloat_AsDouble(self);
         if (Py_IS_NAN(d)) {
@@ -120,11 +127,10 @@ PyFloat2Pympz(PyObject *self)
 }
 
 static PyxmpzObject *
-PyFloat2Pyxmpz(PyObject *self)
+Pyxmpz_From_PyFloat(PyObject *self)
 {
     PyxmpzObject *newob;
 
-    assert(PyFloat_Check(self));
     if ((newob = (PyxmpzObject*)Pyxmpz_new())) {
         double d = PyFloat_AsDouble(self);
         if (Py_IS_NAN(d)) {
@@ -146,7 +152,7 @@ PyFloat2Pyxmpz(PyObject *self)
  * mpz_pylong.c.
  */
 static PympzObject *
-PyLong2Pympz(PyObject * obj)
+Pympz_From_PyLong(PyObject * obj)
 {
     PympzObject *newob;
     if (!(newob = (PympzObject*)Pympz_new()))
@@ -156,7 +162,7 @@ PyLong2Pympz(PyObject * obj)
 }
 
 static PyxmpzObject *
-PyLong2Pyxmpz(PyObject * obj)
+Pyxmpz_From_PyLong(PyObject * obj)
 {
     PyxmpzObject *newob;
     if (!(newob = (PyxmpzObject*)Pyxmpz_new()))
@@ -174,8 +180,6 @@ mpz_set_PyStr(mpz_ptr z, PyObject *s, long base)
     Py_ssize_t len;
     size_t i;
     PyObject *ascii_str = NULL;
-
-    assert(PyStrOrUnicode_Check(s));
 
     if (PyBytes_Check(s)) {
         len = PyBytes_Size(s);
@@ -232,13 +236,13 @@ mpz_set_PyStr(mpz_ptr z, PyObject *s, long base)
 }
 
 static PympzObject *
-PyStr2Pympz(PyObject *s, long base)
+Pympz_From_PyStr(PyObject *s, long base)
 {
     PympzObject *newob;
 
-    assert(PyStrOrUnicode_Check(s));
     if (!(newob = (PympzObject*)Pympz_new()))
         return NULL;
+
     if (mpz_set_PyStr(newob->z, s, base) == -1) {
         Py_DECREF((PyObject*)newob);
         return NULL;
@@ -247,13 +251,13 @@ PyStr2Pympz(PyObject *s, long base)
 }
 
 static PyxmpzObject *
-PyStr2Pyxmpz(PyObject *s, long base)
+Pyxmpz_From_PyStr(PyObject *s, long base)
 {
     PyxmpzObject *newob;
 
-    assert(PyStrOrUnicode_Check(s));
     if (!(newob = (PyxmpzObject*)Pyxmpz_new()))
         return NULL;
+
     if (mpz_set_PyStr(newob->z, s, base) == -1) {
         Py_DECREF((PyObject*)newob);
         return NULL;
@@ -264,47 +268,52 @@ PyStr2Pyxmpz(PyObject *s, long base)
 /* For fast mpz to PyLong conversion, we use code located in mpz_pylong.
  */
 static PyObject *
-Pympz2PyLong(PympzObject *self)
+Pympz_To_PyLong(PympzObject *self)
 {
     return mpz_get_PyLong(Pympz_AS_MPZ(self));
 }
 
 static PyObject *
-Pyxmpz2PyLong(PyxmpzObject *self)
+Pyxmpz_To_PyLong(PyxmpzObject *self)
 {
     return mpz_get_PyLong(Pyxmpz_AS_MPZ(self));
 }
 
+/* The _To_PyIntOrLong functions should be used when converting a number back
+ * to a Python value since is automatically returns an "int" or "long" when
+ * using Python 2.x
+ */
+
 static PyObject *
-Pympz_To_Integer(PympzObject *self)
+Pympz_To_PyIntOrLong(PympzObject *self)
 {
 #ifdef PY3
-    return Pympz2PyLong(self);
+    return Pympz_To_PyLong(self);
 #else
     if (mpz_fits_slong_p(self->z))
         /* cast is safe since we know if first in a signed long */
         return PyInt_FromLong((long)mpz_get_si(self->z));
     else
-        return Pympz2PyLong(self);
+        return Pympz_To_PyLong(self);
 #endif
 }
 
 static PyObject *
-Pyxmpz_To_Integer(PyxmpzObject *self)
+Pyxmpz_To_PyIntOrLong(PyxmpzObject *self)
 {
 #ifdef PY3
-    return Pyxmpz2PyLong(self);
+    return Pyxmpz_To_PyLong(self);
 #else
     if (mpz_fits_slong_p(self->z))
         /* cast is safe since we know if first in a signed long */
         return PyInt_FromLong((long)mpz_get_si(self->z));
     else
-        return Pyxmpz2PyLong(self);
+        return Pyxmpz_To_PyLong(self);
 #endif
 }
 
 static PyObject *
-Pympz2PyFloat(PympzObject *self)
+Pympz_To_PyFloat(PympzObject *self)
 {
     double res = mpz_get_d(self->z);
 
@@ -542,24 +551,15 @@ xmpz_ascii(mpz_t z, int base, int option)
 }
 
 static PyObject *
-Pympz_ascii(PympzObject *self, int base, int option)
+Pympz_To_PyStr(PympzObject *self, int base, int option)
 {
     return mpz_ascii(self->z, base, option);
 }
 
 static PyObject *
-Pyxmpz_ascii(PyxmpzObject *self, int base, int option)
+Pyxmpz_To_PyStr(PyxmpzObject *self, int base, int option)
 {
     return xmpz_ascii(self->z, base, option);
-}
-
-static int isInteger(PyObject* obj)
-{
-    if (Pympz_Check(obj))       return 1;
-    if (PyIntOrLong_Check(obj)) return 1;
-    if (Pyxmpz_Check(obj))      return 1;
-
-    return 0;
 }
 
 /* Number conversion routines
@@ -600,7 +600,7 @@ static int isInteger(PyObject* obj)
  */
 
 static PympzObject*
-anynum2Pympz(PyObject* obj)
+Pympz_From_Number(PyObject* obj)
 {
     PympzObject* newob = 0;
     PympqObject* temp = 0;
@@ -611,40 +611,42 @@ anynum2Pympz(PyObject* obj)
 #ifdef PY2
     }
     else if (PyInt_Check(obj)) {
-        newob = PyInt2Pympz(obj);
+        newob = Pympz_From_PyInt(obj);
 #endif
     }
     else if (PyLong_Check(obj)) {
-        newob = PyLong2Pympz(obj);
+        newob = Pympz_From_PyLong(obj);
     }
     else if (Pympq_Check(obj)) {
-        newob = Pympq2Pympz(obj);
+        newob = Pympq_To_Pympz(obj);
     }
 #ifdef WITHMPFR
     else if (Pympfr_Check(obj)) {
-        newob = Pympfr2Pympz(obj);
+        newob = Pympfr_To_Pympz(obj);
     }
 #endif
     else if (PyFloat_Check(obj)) {
-        newob = PyFloat2Pympz(obj);
+        newob = Pympz_From_PyFloat(obj);
     }
     else if (Pyxmpz_Check(obj)) {
-        newob = Pyxmpz2Pympz(obj);
+        newob = Pympz_From_Pyxmpz(obj);
     }
     else if (isDecimal(obj)) {
         PyObject *s = PyNumber_Long(obj);
         if (s) {
-            newob = PyLong2Pympz(s);
+            newob = Pympz_From_PyLong(s);
             Py_DECREF(s);
         }
     }
     else if (isFraction(obj)) {
         PyObject *s = PyObject_Str(obj);
         if (s) {
-            temp = PyStr2Pympq(s, 10);
-            newob = Pympq2Pympz((PyObject *)temp);
+            temp = Pympq_From_PyStr(s, 10);
+            if (temp) {
+                newob = Pympq_To_Pympz((PyObject *)temp);
+                Py_DECREF((PyObject*)temp);
+            }
             Py_DECREF(s);
-            Py_DECREF((PyObject*)temp);
         }
     }
 
@@ -652,50 +654,52 @@ anynum2Pympz(PyObject* obj)
 }
 
 static PyxmpzObject*
-anynum2Pyxmpz(PyObject* obj)
+Pyxmpz_From_Number(PyObject* obj)
 {
-    PyxmpzObject* newob = 0;
-    PympqObject* temp = 0;
+    PyxmpzObject* newob = NULL;
+    PympqObject* temp = NULL;
 
     if (Pympz_Check(obj)) {
-        newob = Pympz2Pyxmpz(obj);
+        newob = Pyxmpz_From_Pympz(obj);
 #ifdef PY2
     }
     else if (PyInt_Check(obj)) {
-        newob = PyInt2Pyxmpz(obj);
+        newob = Pyxmpz_From_PyInt(obj);
 #endif
     }
     else if (PyLong_Check(obj)) {
-        newob = PyLong2Pyxmpz(obj);
+        newob = Pyxmpz_From_PyLong(obj);
     }
     else if (Pympq_Check(obj)) {
-        newob = Pympq2Pyxmpz(obj);
+        newob = Pympq_To_Pyxmpz(obj);
     }
 #ifdef WITHMPFR
     else if (Pympfr_Check(obj)) {
-        newob = Pympfr2Pyxmpz(obj);
+        newob = Pympfr_To_Pyxmpz(obj);
     }
 #endif
     else if (PyFloat_Check(obj)) {
-        newob = PyFloat2Pyxmpz(obj);
+        newob = Pyxmpz_From_PyFloat(obj);
     }
     else if (Pyxmpz_Check(obj)) {
-        newob = Pyxmpz2Pyxmpz(obj);
+        newob = Pyxmpz_From_Pyxmpz(obj);
     }
     else if (isDecimal(obj)) {
         PyObject *s = PyNumber_Long(obj);
         if (s) {
-            newob = PyLong2Pyxmpz(s);
+            newob = Pyxmpz_From_PyLong(s);
             Py_DECREF(s);
         }
     }
     else if (isFraction(obj)) {
         PyObject *s = PyObject_Str(obj);
         if (s) {
-            temp = PyStr2Pympq(s, 10);
-            newob = Pympq2Pyxmpz((PyObject *)temp);
+            temp = Pympq_From_PyStr(s, 10);
+            if (temp) {
+                newob = Pympq_To_Pyxmpz((PyObject *)temp);
+                Py_DECREF((PyObject*)temp);
+            }
             Py_DECREF(s);
-            Py_DECREF((PyObject*)temp);
         }
     }
 
@@ -718,14 +722,14 @@ Pympz_From_Integer(PyObject* obj)
 #ifdef PY2
     }
     else if (PyInt_Check(obj)) {
-        newob = PyInt2Pympz(obj);
+        newob = Pympz_From_PyInt(obj);
 #endif
     }
     else if (PyLong_Check(obj)) {
-        newob = PyLong2Pympz(obj);
+        newob = Pympz_From_PyLong(obj);
     }
     else if (Pyxmpz_Check(obj)) {
-        newob = Pyxmpz2Pympz(obj);
+        newob = Pympz_From_Pyxmpz(obj);
     }
     if (!newob)
         TYPE_ERROR("conversion error in Pympz_From_Integer");
@@ -936,10 +940,14 @@ ssize_t_From_Integer(PyObject *obj)
 /*
  * coerce any number to a mpz
  */
-int
+
+/* currently not in use */
+#if 0
+static int
 Pympz_convert_arg(PyObject *arg, PyObject **ptr)
 {
     PympzObject* newob = Pympz_From_Integer(arg);
+
     if (newob) {
         *ptr = (PyObject*)newob;
         return 1;
@@ -949,35 +957,36 @@ Pympz_convert_arg(PyObject *arg, PyObject **ptr)
         return 0;
     }
 }
+#endif
 
 /* str and repr implementations for mpz */
 static PyObject *
-Pympz2str(PympzObject *self)
+Pympz_To_Str(PympzObject *self)
 {
     /* base-10, no tag */
-    return Pympz_ascii(self, 10, 0);
+    return Pympz_To_PyStr(self, 10, 0);
 }
 
 static PyObject *
-Pympz2repr(PympzObject *self)
+Pympz_To_Repr(PympzObject *self)
 {
     /* base-10, with tag */
-    return Pympz_ascii(self, 10, 1);
+    return Pympz_To_PyStr(self, 10, 1);
 }
 
 /* str and repr implementations for xmpz */
 static PyObject *
-Pyxmpz2str(PyxmpzObject *self)
+Pyxmpz_To_Str(PyxmpzObject *self)
 {
     /* base-10, no tag */
-    return Pyxmpz_ascii(self, 10, 0);
+    return Pyxmpz_To_PyStr(self, 10, 0);
 }
 
 static PyObject *
-Pyxmpz2repr(PyxmpzObject *self)
+Pyxmpz_To_Repr(PyxmpzObject *self)
 {
     /* base-10, with tag */
-    return Pyxmpz_ascii(self, 10, 1);
+    return Pyxmpz_To_PyStr(self, 10, 1);
 }
 
 

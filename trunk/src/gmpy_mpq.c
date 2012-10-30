@@ -60,23 +60,14 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
                             "interval 2 ... 62");
             }
             else {
-                result = PyStr2Pympq(n, base);
+                result = Pympq_From_PyStr(n, base);
             }
         }
         return (PyObject*)result;
     }
 
     if (isDecimal(n)) {
-        result = Pympq_From_Decimal(n);
-        if (!mpz_cmp_si(mpq_denref(result->q), 0)) {
-            if (mpz_get_si(mpq_numref(result->q)) == 0)
-                VALUE_ERROR("'mpq' does not support NaN");
-            else
-                VALUE_ERROR("'mpq' does not support Infinity");
-            Py_DECREF((PyObject*)result);
-            result = NULL;
-        }
-        return (PyObject*)result;
+        return (PyObject*)Pympq_From_Real(n);
     }
 
     if (argc == 2)
@@ -133,8 +124,7 @@ Pympq_digits(PyObject *self, PyObject *args)
     PyObject *result;
 
     SELF_MPQ_ONE_ARG("|i", &base);
-    assert(Pympq_Check(self));
-    result = Pympq_ascii((PympqObject*)self, base, 0);
+    result = Pympq_To_PyStr((PympqObject*)self, base, 0);
     Py_DECREF(self);
     return result;
 }
@@ -574,7 +564,7 @@ Pympq_hash(PympqObject *self)
     if (self->hash_cache != -1)
         return self->hash_cache;
 
-    if (!(temp = Pympq2PyFloat(self))) {
+    if (!(temp = Pympq_To_PyFloat(self))) {
         SYSTEM_ERROR("Could not convert 'mpq' to float.");
         return -1;
     }
@@ -675,9 +665,9 @@ static PyNumberMethods mpq_number_methods =
         0,                               /* nb_and                  */
         0,                               /* nb_xor                  */
         0,                               /* nb_or                   */
-    (unaryfunc) Pympq2PyLong,            /* nb_int                  */
+    (unaryfunc) Pympq_To_PyLong,         /* nb_int                  */
         0,                               /* nb_reserved             */
-    (unaryfunc) Pympq2PyFloat,           /* nb_float                */
+    (unaryfunc) Pympq_To_PyFloat,        /* nb_float                */
         0,                               /* nb_inplace_add          */
         0,                               /* nb_inplace_subtract     */
         0,                               /* nb_inplace_multiply     */
@@ -715,9 +705,9 @@ static PyNumberMethods mpq_number_methods =
         0,                               /* nb_xor                  */
         0,                               /* nb_or                   */
         0,                               /* nb_coerce               */
-    (unaryfunc) Pympq2PyInt,             /* nb_int                  */
-    (unaryfunc) Pympq2PyLong,            /* nb_long                 */
-    (unaryfunc) Pympq2PyFloat,           /* nb_float                */
+    (unaryfunc) Pympq_To_PyInt,          /* nb_int                  */
+    (unaryfunc) Pympq_To_PyLong,         /* nb_long                 */
+    (unaryfunc) Pympq_To_PyFloat,        /* nb_float                */
         0,                               /* nb_oct                  */
         0,                               /* nb_hex                  */
         0,                               /* nb_inplace_add;         */
@@ -769,13 +759,13 @@ static PyTypeObject Pympq_Type =
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
-    (reprfunc) Pympq2repr,                  /* tp_repr          */
+    (reprfunc) Pympq_To_Repr,               /* tp_repr          */
     &mpq_number_methods,                    /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
         0,                                  /* tp_as_mapping    */
     (hashfunc) Pympq_hash,                  /* tp_hash          */
         0,                                  /* tp_call          */
-    (reprfunc) Pympq2str,                   /* tp_str           */
+    (reprfunc) Pympq_To_Str,                /* tp_str           */
     (getattrofunc) 0,                       /* tp_getattro      */
     (setattrofunc) 0,                       /* tp_setattro      */
         0,                                  /* tp_as_buffer     */

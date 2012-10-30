@@ -241,30 +241,39 @@ static PyTypeObject Pympfr_Type;
     )
 
 /* Forward declarations begin here. */
-static PympfrObject * Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
+
 static int isReal(PyObject* obj);
-static PympfrObject * Pympfr2Pympfr(PyObject *self, mpfr_prec_t bits);
-static PympfrObject * PyFloat2Pympfr(PyObject *self, mpfr_prec_t bits);
-static PympfrObject * Pympz2Pympfr(PyObject *self, mpfr_prec_t bits);
-static PympzObject * Pympfr2Pympz(PyObject *self);
-static PyxmpzObject * Pympfr2Pyxmpz(PyObject *self);
-static PympqObject * stern_brocot(PympfrObject* self, PympfrObject *err, mpfr_prec_t prec, int mayz);
-static PympqObject * Pympfr2Pympq(PyObject *self);
-static PympfrObject * Pympq2Pympfr(PyObject *self, mpfr_prec_t bits);
-static PympfrObject * PyLong2Pympfr(PyObject *self, mpfr_prec_t bits);
-#ifdef PY2
-static PympfrObject * PyInt2Pympfr(PyObject *self, mpfr_prec_t bits);
-static PyObject * Pympfr2PyInt(PympfrObject *self);
-#endif
-static PympfrObject * PyStr2Pympfr(PyObject *s, long base, mpfr_prec_t bits);
-static PyObject * Pympfr2PyLong(PympfrObject *self);
-static PyObject * Pympfr2PyFloat(PympfrObject *self);
-static PyObject* Pympfr_ascii(PympfrObject *self, int base, int digits);
-static PympfrObject * Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
+
+/* conversions */
+
 static int Pympfr_convert_arg(PyObject *arg, PyObject **ptr);
+
+#ifdef PY2
+static PympfrObject *   Pympfr_From_PyInt(PyObject *self, mpfr_prec_t bits);
+static PyObject *       Pympfr_To_PyInt(PympfrObject *self);
+#endif
+
+static PympfrObject *   Pympfr_From_Pympfr(PyObject *self, mpfr_prec_t bits);
+static PympfrObject *   Pympfr_From_PyFloat(PyObject *self, mpfr_prec_t bits);
+static PympfrObject *   Pympfr_From_PyLong(PyObject *self, mpfr_prec_t bits);
+static PympfrObject *   Pympfr_From_Pympz(PyObject *self, mpfr_prec_t bits);
+static PympfrObject *   Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
+static PympfrObject *   Pympfr_From_Pympq(PyObject *self, mpfr_prec_t bits);
+static PympfrObject *   Pympfr_From_PyStr(PyObject *s, long base, mpfr_prec_t bits);
+static PympfrObject *   Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
+static PympzObject *    Pympfr_To_Pympz(PyObject *self);
+static PyxmpzObject *   Pympfr_To_Pyxmpz(PyObject *self);
+static PympqObject *    Pympfr_To_Pympq(PyObject *self);
+static PyObject *       Pympfr_To_PyLong(PympfrObject *self);
+static PyObject *       Pympfr_To_PyFloat(PympfrObject *self);
+static PyObject*        Pympfr_To_PyStr(PympfrObject *self, int base, int digits);
+
+/* support str() and repr() */
+static PyObject *       Pympfr_To_Str(PympfrObject *self);
+static PyObject *       Pympfr_To_Repr(PympfrObject *self);
+
+static PympqObject * stern_brocot(PympfrObject* self, PympfrObject *err, mpfr_prec_t prec, int mayz);
 static PyObject * Pympfr_f2q(PyObject *self, PyObject *args);
-static PyObject * Pympfr2str(PympfrObject *self);
-static PyObject * Pympfr2repr(PympfrObject *self);
 static PyObject * Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject * Pympfr_getprec_attrib(PympfrObject *self, void *closure);
 static PyObject * Pympfr_getrc_attrib(PympfrObject *self, void *closure);

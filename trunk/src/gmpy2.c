@@ -284,6 +284,7 @@
  *   2.0.0b3
  *   mp_version(), mpc_version(), and mpfr_version() shouldn't (casevh)
  *      return Unicode on Python 2.x
+ *   Fix warnings when shifting 32-bit integer by 32 bits (casevh)
  *
  ************************************************************************
  *

@@ -59,7 +59,7 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
 #else
         if ((isRational(n) || PyFloat_Check(n)) && !keywds) {
 #endif
-            result = anynum2Pyxmpz(n);
+            result = Pyxmpz_From_Number(n);
             if (!result && !PyErr_Occurred())
                 TYPE_ERROR("xmpz() requires numeric or string argument");
             return (PyObject*)result;
@@ -78,14 +78,14 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
 
     if (PyStrOrUnicode_Check(n)) {
         /* build-from-string (ascii or unicode) */
-        result = PyStr2Pyxmpz(n, base);
+        result = Pyxmpz_From_PyStr(n, base);
     }
     else {
         if (argc==2 || (argc == 1 && keywds))
             TYPE_ERROR("xmpz() with non-string argument needs exactly "
                        "1 argument");
         else {
-            result = anynum2Pyxmpz(n);
+            result = Pyxmpz_From_Number(n);
             if (!result && !PyErr_Occurred())
                 TYPE_ERROR("xmpz() requires numeric or string argument");
         }
@@ -103,7 +103,7 @@ Pyxmpz_digits(PyObject *self, PyObject *args)
 
     PARSE_ONE_MPZ_OPT_CLONG(&base,
             "digits() requires 'int' argument for base");
-    result = Pyxmpz_ascii((PyxmpzObject*)self, base, 0);
+    result = Pyxmpz_To_PyStr((PyxmpzObject*)self, base, 0);
     Py_DECREF(self);
     return result;
 }
@@ -179,13 +179,13 @@ Pyxmpz_com(PyxmpzObject *x)
 static PyObject *
 Pyxmpz_oct(PyxmpzObject *self)
 {
-    return Pyxmpz_ascii(self, 8, 0);
+    return Pyxmpz_To_PyStr(self, 8, 0);
 }
 
 static PyObject *
 Pyxmpz_hex(PyxmpzObject *self)
 {
-    return Pyxmpz_ascii(self, 16, 0);
+    return Pyxmpz_To_PyStr(self, 16, 0);
 }
 #endif
 
@@ -214,7 +214,7 @@ PyDoc_STRVAR(doc_xmpz_copy,
 static PyObject *
 Pyxmpz_copy(PyObject *self, PyObject *other)
 {
-    return (PyObject*)Pyxmpz2Pyxmpz(self);
+    return (PyObject*)Pyxmpz_From_Pyxmpz(self);
 }
 
 /*
@@ -652,9 +652,9 @@ static PyNumberMethods xmpz_number_methods =
     (binaryfunc) Pympz_and,              /* nb_and                  */
     (binaryfunc) Pympz_xor,              /* nb_xor                  */
     (binaryfunc) Pympz_ior,              /* nb_or                   */
-    (unaryfunc) Pympz2PyLong,            /* nb_int                  */
+    (unaryfunc) Pympz_To_PyLong,         /* nb_int                  */
         0,                               /* nb_reserved             */
-    (unaryfunc) Pympz2PyFloat,           /* nb_float                */
+    (unaryfunc) Pympz_To_PyFloat,        /* nb_float                */
     (binaryfunc) Pyxmpz_inplace_add,     /* nb_inplace_add          */
     (binaryfunc) Pyxmpz_inplace_sub,     /* nb_inplace_subtract     */
     (binaryfunc) Pyxmpz_inplace_mul,     /* nb_inplace_multiply     */
@@ -669,7 +669,7 @@ static PyNumberMethods xmpz_number_methods =
     (binaryfunc) Pybasic_truediv,        /* nb_true_divide          */
     (binaryfunc) Pyxmpz_inplace_floordiv,/* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */
-    (unaryfunc)  Pyxmpz_To_Integer,      /* nb_index                */
+    (unaryfunc)  Pyxmpz_To_PyIntOrLong,  /* nb_index                */
 };
 
 #else
@@ -693,9 +693,9 @@ static PyNumberMethods xmpz_number_methods =
     (binaryfunc) Pympz_xor,              /* nb_xor                  */
     (binaryfunc) Pympz_ior,              /* nb_or                   */
         0,                               /* nb_coerce               */
-    (unaryfunc) Pympz_To_Integer,        /* nb_int                  */
-    (unaryfunc) Pympz2PyLong,            /* nb_long                 */
-    (unaryfunc) Pympz2PyFloat,           /* nb_float                */
+    (unaryfunc) Pympz_To_PyIntOrLong,    /* nb_int                  */
+    (unaryfunc) Pympz_To_PyLong,         /* nb_long                 */
+    (unaryfunc) Pympz_To_PyFloat,        /* nb_float                */
     (unaryfunc) Pyxmpz_oct,              /* nb_oct                  */
     (unaryfunc) Pyxmpz_hex,              /* nb_hex                  */
     (binaryfunc) Pyxmpz_inplace_add,     /* nb_inplace_add          */
@@ -713,7 +713,7 @@ static PyNumberMethods xmpz_number_methods =
     (binaryfunc) Pybasic_truediv,        /* nb_true_divide          */
     (binaryfunc) Pyxmpz_inplace_floordiv,/* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */
-    (unaryfunc) Pyxmpz_To_Integer,       /* nb_index                */
+    (unaryfunc) Pyxmpz_To_PyIntOrLong,   /* nb_index                */
 };
 #endif
 
@@ -764,13 +764,13 @@ static PyTypeObject Pyxmpz_Type =
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
-    (reprfunc) Pyxmpz2repr,                 /* tp_repr          */
+    (reprfunc) Pyxmpz_To_Repr,              /* tp_repr          */
     &xmpz_number_methods,                   /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
     &xmpz_mapping_methods,                  /* tp_as_mapping    */
         0,                                  /* tp_hash          */
         0,                                  /* tp_call          */
-    (reprfunc) Pyxmpz2str,                  /* tp_str           */
+    (reprfunc) Pyxmpz_To_Str,               /* tp_str           */
         0,                                  /* tp_getattro      */
         0,                                  /* tp_setattro      */
         0,                                  /* tp_as_buffer     */

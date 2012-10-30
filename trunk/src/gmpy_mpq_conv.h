@@ -32,22 +32,25 @@
 extern "C" {
 #endif
 
-static PympqObject * Pympz2Pympq(PyObject *self);
-static PympqObject * Pyxmpz2Pympq(PyObject * obj);
-static PympzObject * Pympq2Pympz(PyObject *self);
-static PyxmpzObject * Pympq2Pyxmpz(PyObject *self);
-static PympqObject * PyLong2Pympq(PyObject *self);
-static PympqObject * PyFloat2Pympq(PyObject *self);
-static PympqObject * PyStr2Pympq(PyObject *stringarg, long base);
-static PyObject * Pympq2PyLong(PympqObject *self);
-#ifdef PY2
-static PympqObject * PyInt2Pympq(PyObject *self);
-static PyObject * Pympq2PyInt(PympqObject *self);
-#endif
-static PyObject * Pympq2PyFloat(PympqObject *self);
-static PyObject * Pympq_ascii(PympqObject *self, int base, int option);
-
 static int isRational(PyObject* obj);
+
+int Pympq_convert_arg(PyObject *arg, PyObject **ptr);
+
+#ifdef PY2
+static PympqObject *   Pympq_From_PyInt(PyObject *self);
+static PyObject *      Pympq_To_PyInt(PympqObject *self);
+#endif
+
+static PympqObject *   Pympq_From_PyLong(PyObject *self);
+static PympqObject *   Pympq_From_Pympz(PyObject *self);
+static PympqObject *   Pympq_From_Pyxmpz(PyObject * obj);
+static PympqObject *   Pympq_From_PyFloat(PyObject *self);
+static PympqObject *   Pympq_From_PyStr(PyObject *stringarg, long base);
+static PyObject *      Pympq_To_PyLong(PympqObject *self);
+static PympzObject *   Pympq_To_Pympz(PyObject *self);
+static PyxmpzObject *  Pympq_To_Pyxmpz(PyObject *self);
+static PyObject *      Pympq_To_PyFloat(PympqObject *self);
+static PyObject *      Pympq_To_PyStr(PympqObject *self, int base, int option);
 
 /* NOTE: Pympq_From_Decimal returns an invalid mpq object when attempting to
  *       convert a NaN or inifinity. If the denominator is 0, then interpret
@@ -57,12 +60,13 @@ static int isRational(PyObject* obj);
  *          1: Infinity
  */
 
-static PympqObject * Pympq_From_Decimal(PyObject* obj);
-static PympqObject * Pympq_From_Real(PyObject* obj);
-static PympqObject * Pympq_From_Rational(PyObject* obj);
-int Pympq_convert_arg(PyObject *arg, PyObject **ptr);
-static PyObject * Pympq2str(PympqObject *self);
-static PyObject * Pympq2repr(PympqObject *self);
+static PympqObject *   Pympq_From_Decimal(PyObject* obj);
+static PympqObject *   Pympq_From_Real(PyObject* obj);
+static PympqObject *   Pympq_From_Rational(PyObject* obj);
+
+/* support str() and repr() */
+static PyObject *      Pympq_To_Str(PympqObject *self);
+static PyObject *      Pympq_To_Repr(PympqObject *self);
 
 #ifdef __cplusplus
 }
