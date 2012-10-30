@@ -55,7 +55,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
 #else
         if ((isRational(n) || PyFloat_Check(n)) && !keywds) {
 #endif
-            result = anynum2Pympz(n);
+            result = Pympz_From_Number(n);
             if (!result && !PyErr_Occurred())
                 TYPE_ERROR("mpz() requires numeric or string argument");
             return (PyObject*)result;
@@ -74,14 +74,14 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
 
     if (PyStrOrUnicode_Check(n)) {
         /* build-from-string (ascii or unicode) */
-        result = PyStr2Pympz(n, base);
+        result = Pympz_From_PyStr(n, base);
     }
     else {
         if (argc==2 || (argc == 1 && keywds))
             TYPE_ERROR("mpz() with non-string argument needs exactly "
                        "1 argument");
         else {
-            result = anynum2Pympz(n);
+            result = Pympz_From_Number(n);
             if (!result && !PyErr_Occurred())
                 TYPE_ERROR("mpz() requires numeric or string argument");
         }
@@ -106,7 +106,7 @@ Pympz_digits(PyObject *self, PyObject *args)
 
     PARSE_ONE_MPZ_OPT_CLONG(&base,
             "digits() requires 'int' argument for base");
-    result = Pympz_ascii((PympzObject*)self, base, 16);
+    result = Pympz_To_PyStr((PympzObject*)self, base, 16);
     Py_DECREF(self);
     return result;
 }
@@ -1090,13 +1090,13 @@ Pympz_lshift(PyObject *a, PyObject *b)
 static PyObject *
 Pympz_oct(PympzObject *self)
 {
-    return Pympz_ascii(self, 8, 0);
+    return Pympz_To_PyStr(self, 8, 0);
 }
 
 static PyObject *
 Pympz_hex(PympzObject *self)
 {
-    return Pympz_ascii(self, 16, 0);
+    return Pympz_To_PyStr(self, 16, 0);
 }
 #endif
 
@@ -2275,9 +2275,9 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pympz_and,              /* nb_and                  */
     (binaryfunc) Pympz_xor,              /* nb_xor                  */
     (binaryfunc) Pympz_ior,              /* nb_or                   */
-    (unaryfunc) Pympz2PyLong,            /* nb_int                  */
+    (unaryfunc) Pympz_To_PyLong,         /* nb_int                  */
         0,                               /* nb_reserved             */
-    (unaryfunc) Pympz2PyFloat,           /* nb_float                */
+    (unaryfunc) Pympz_To_PyFloat,        /* nb_float                */
     (binaryfunc) Pympz_inplace_add,      /* nb_inplace_add          */
     (binaryfunc) Pympz_inplace_sub,      /* nb_inplace_subtract     */
     (binaryfunc) Pympz_inplace_mul,      /* nb_inplace_multiply     */
@@ -2292,7 +2292,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pybasic_truediv,        /* nb_true_divide          */
     (binaryfunc) Pympz_inplace_floordiv, /* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */
-    (unaryfunc)  Pympz_To_Integer,       /* nb_index                */
+    (unaryfunc)  Pympz_To_PyIntOrLong,   /* nb_index                */
 };
 
 #else
@@ -2316,9 +2316,9 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pympz_xor,              /* nb_xor                  */
     (binaryfunc) Pympz_ior,              /* nb_or                   */
         0,                               /* nb_coerce               */
-    (unaryfunc) Pympz_To_Integer,        /* nb_int                  */
-    (unaryfunc) Pympz2PyLong,            /* nb_long                 */
-    (unaryfunc) Pympz2PyFloat,           /* nb_float                */
+    (unaryfunc) Pympz_To_PyIntOrLong,    /* nb_int                  */
+    (unaryfunc) Pympz_To_PyLong,         /* nb_long                 */
+    (unaryfunc) Pympz_To_PyFloat,        /* nb_float                */
     (unaryfunc) Pympz_oct,               /* nb_oct                  */
     (unaryfunc) Pympz_hex,               /* nb_hex                  */
     (binaryfunc) Pympz_inplace_add,      /* nb_inplace_add          */
@@ -2336,7 +2336,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pybasic_truediv,        /* nb_true_divide          */
     (binaryfunc) Pympz_inplace_floordiv, /* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */
-    (unaryfunc) Pympz_To_Integer,        /* nb_index                */
+    (unaryfunc) Pympz_To_PyIntOrLong,    /* nb_index                */
 };
 #endif
 
@@ -2379,13 +2379,13 @@ static PyTypeObject Pympz_Type =
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
-    (reprfunc) Pympz2repr,                  /* tp_repr          */
+    (reprfunc) Pympz_To_Repr,               /* tp_repr          */
     &mpz_number_methods,                    /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
     &mpz_mapping_methods,                   /* tp_as_mapping    */
     (hashfunc) Pympz_hash,                  /* tp_hash          */
         0,                                  /* tp_call          */
-    (reprfunc) Pympz2str,                   /* tp_str           */
+    (reprfunc) Pympz_To_Str,                /* tp_str           */
         0,                                  /* tp_getattro      */
         0,                                  /* tp_setattro      */
         0,                                  /* tp_as_buffer     */

@@ -50,7 +50,7 @@ static int isComplex(PyObject* obj)
  */
 
 static PympcObject *
-Pympc2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
+Pympc_From_Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *result;
 
@@ -62,7 +62,7 @@ Pympc2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 }
 
 static PympcObject *
-PyComplex2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
+Pympc_From_PyComplex(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *result;
 
@@ -73,7 +73,7 @@ PyComplex2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 }
 
 static PympcObject *
-Pympfr2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
+Pympc_From_Pympfr(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *result;
 
@@ -86,7 +86,7 @@ Pympfr2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 }
 
 static PympcObject *
-PyFloat2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
+Pympc_From_PyFloat(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *result;
 
@@ -99,14 +99,14 @@ PyFloat2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 }
 
 static PyObject *
-Pympc2PyFloat(PyObject *self)
+Pympc_To_PyFloat(PyObject *self)
 {
     TYPE_ERROR("can't covert 'mpc' to 'float'");
     return NULL;
 }
 
 static PympcObject *
-Pympz2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
+Pympc_From_Pympz(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *result;
 
@@ -116,10 +116,10 @@ Pympz2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
     return result;
 }
 
-#define Pyxmpz2Pympc Pympz2Pympc
+#define Pympc_From_Pyxmpz Pympc_From_Pympz
 
 static PympcObject *
-Pympq2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
+Pympc_From_Pympq(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *result;
 
@@ -130,20 +130,20 @@ Pympq2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 }
 
 static PympcObject *
-PyLong2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
+Pympc_From_PyLong(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *result;
-    PyObject *temp = (PyObject*)PyLong2Pympz(self);
+    PyObject *temp = (PyObject*)Pympz_From_PyLong(self);
 
     if (!temp)
         return NULL;
-    result = Pympz2Pympc(temp, rprec, iprec);
+    result = Pympc_From_Pympz(temp, rprec, iprec);
     Py_DECREF(temp);
     return result;
 }
 
 static PyObject *
-Pympc2PyLong(PyObject *self)
+Pympc_To_PyLong(PyObject *self)
 {
     TYPE_ERROR("can't covert 'mpc' to 'long'");
     return NULL;
@@ -151,7 +151,7 @@ Pympc2PyLong(PyObject *self)
 
 #ifdef PY2
 static PympcObject *
-PyInt2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
+Pympc_From_PyInt(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *result;
 
@@ -161,7 +161,7 @@ PyInt2Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
     return result;
 }
 static PyObject *
-Pympc2PyInt(PyObject *self)
+Pympc_To_PyIntOrLong(PyObject *self)
 {
     TYPE_ERROR("can't covert 'mpc' to 'int'");
     return NULL;
@@ -178,7 +178,7 @@ Pympc2PyInt(PyObject *self)
  */
 
 static PympcObject *
-PyStr2Pympc(PyObject *s, long base, mpfr_prec_t rbits, mpfr_prec_t ibits)
+Pympc_From_PyStr(PyObject *s, long base, mpfr_prec_t rbits, mpfr_prec_t ibits)
 {
     PympcObject *newob;
     PyObject *ascii_str = NULL;
@@ -326,7 +326,7 @@ raw_mpfr_ascii(mpfr_t self, int base, int digits, int round)
 }
 
 static PyObject *
-Pympc_ascii(PympcObject *self, int base, int digits)
+Pympc_To_PyStr(PympcObject *self, int base, int digits)
 {
     PyObject *tempreal = 0, *tempimag = 0, *result;
 
@@ -388,7 +388,7 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
                 newob = (PympcObject*)obj;
             }
             else {
-                newob = Pympc2Pympc((PyObject*)obj, rprec, iprec);
+                newob = Pympc_From_Pympc((PyObject*)obj, rprec, iprec);
             }
         }
     }
@@ -419,35 +419,35 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
         }
     }
     else if (Pympfr_Check(obj)) {
-            newob = Pympfr2Pympc((PyObject*)obj, rprec, iprec);
+            newob = Pympc_From_Pympfr((PyObject*)obj, rprec, iprec);
     }
     else if (PyFloat_Check(obj)) {
-        newob = PyFloat2Pympc(obj, rprec, iprec);
+        newob = Pympc_From_PyFloat(obj, rprec, iprec);
     }
     else if (PyComplex_Check(obj)) {
-            newob = PyComplex2Pympc(obj, rprec, iprec);
+            newob = Pympc_From_PyComplex(obj, rprec, iprec);
 #ifdef PY2
     }
     else if (PyInt_Check(obj)) {
-        newob = PyInt2Pympc(obj, rprec, iprec);
+        newob = Pympc_From_PyInt(obj, rprec, iprec);
 #endif
     }
     else if (Pympq_Check(obj)) {
-        newob = Pympq2Pympc(obj, rprec, iprec);
+        newob = Pympc_From_Pympq(obj, rprec, iprec);
     }
     else if (Pympz_Check(obj)) {
-        newob = Pympz2Pympc(obj, rprec, iprec);
+        newob = Pympc_From_Pympz(obj, rprec, iprec);
     }
     else if (PyLong_Check(obj)) {
-        newob = PyLong2Pympc(obj, rprec, iprec);
+        newob = Pympc_From_PyLong(obj, rprec, iprec);
     }
     else if (Pyxmpz_Check(obj)) {
-        newob = Pyxmpz2Pympc(obj, rprec, iprec);
+        newob = Pympc_From_Pyxmpz(obj, rprec, iprec);
     }
     else if (isDecimal(obj)) {
         PyObject *s = PyObject_Str(obj);
         if (s) {
-            newob = PyStr2Pympc(s, 10, rprec, iprec);
+            newob = Pympc_From_PyStr(s, 10, rprec, iprec);
             if (!newob) {
                 Py_DECREF(s);
                 return NULL;
@@ -458,8 +458,8 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
     else if (isFraction(obj)) {
         PyObject *s = PyObject_Str(obj);
         if (s) {
-            temp = PyStr2Pympq(s, 10);
-            newob = Pympq2Pympc((PyObject *)temp, rprec, iprec);
+            temp = Pympq_From_PyStr(s, 10);
+            newob = Pympc_From_Pympq((PyObject *)temp, rprec, iprec);
             Py_DECREF(s);
             Py_DECREF((PyObject*)temp);
         }
@@ -513,7 +513,7 @@ Pympc_digits(PyObject *self, PyObject *args)
                             &base, &prec))
         return NULL;
     }
-    result = Pympc_ascii((PympcObject*)self, base, prec);
+    result = Pympc_To_PyStr((PympcObject*)self, base, prec);
     Py_DECREF(self);
     return result;
 }
@@ -589,7 +589,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
             return NULL;
         }
 
-        result = PyStr2Pympc(arg0, base, rbits, ibits);
+        result = Pympc_From_PyStr(arg0, base, rbits, ibits);
     }
     else if (PyComplex_Check(arg0) || Pympc_Check(arg0)) {
         /* First argument is a complex number */
@@ -613,10 +613,10 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
         }
 
         if (PyComplex_Check(arg0)) {
-            result = PyComplex2Pympc(arg0, rbits, ibits);
+            result = Pympc_From_PyComplex(arg0, rbits, ibits);
         }
         else {
-            result = Pympc2Pympc(arg0, rbits, ibits);
+            result = Pympc_From_Pympc(arg0, rbits, ibits);
         }
     }
     else if (isReal(arg0)) {
@@ -954,7 +954,7 @@ Pympc_format(PyObject *self, PyObject *args)
 
 /* str and repr implementations for mpc */
 static PyObject *
-Pympc2str(PympcObject *self)
+Pympc_To_Str(PympcObject *self)
 {
     PyObject *result, *temp;
     mpfr_prec_t rbits, ibits;
@@ -976,7 +976,7 @@ Pympc2str(PympcObject *self)
 }
 
 static PyObject *
-Pympc2repr(PympcObject *self)
+Pympc_To_Repr(PympcObject *self)
 {
     PyObject *result, *temp;
     mpfr_prec_t rbits, ibits;
@@ -1753,9 +1753,9 @@ static PyNumberMethods mpc_number_methods =
         0,                               /* nb_and                  */
         0,                               /* nb_xor                  */
         0,                               /* nb_or                   */
-    (unaryfunc) Pympc2PyLong,            /* nb_int                  */
+    (unaryfunc) Pympc_To_PyLong,         /* nb_int                  */
         0,                               /* nb_reserved             */
-    (unaryfunc) Pympc2PyFloat,           /* nb_float                */
+    (unaryfunc) Pympc_To_PyFloat,        /* nb_float                */
         0,                               /* nb_inplace_add          */
         0,                               /* nb_inplace_subtract     */
         0,                               /* nb_inplace_multiply     */
@@ -1793,9 +1793,9 @@ static PyNumberMethods mpc_number_methods =
         0,                               /* nb_xor                  */
         0,                               /* nb_or                   */
         0,                               /* nb_coerce               */
-    (unaryfunc) Pympc2PyInt,             /* nb_int                  */
-    (unaryfunc) Pympc2PyLong,            /* nb_long                 */
-    (unaryfunc) Pympc2PyFloat,           /* nb_float                */
+    (unaryfunc) Pympc_To_PyIntOrLong,    /* nb_int                  */
+    (unaryfunc) Pympc_To_PyLong,         /* nb_long                 */
+    (unaryfunc) Pympc_To_PyFloat,        /* nb_float                */
         0,                               /* nb_oct                  */
         0,                               /* nb_hex                  */
         0,                               /* nb_inplace_add          */
@@ -1843,13 +1843,13 @@ static PyTypeObject Pympc_Type =
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
-    (reprfunc) Pympc2repr,                  /* tp_repr          */
+    (reprfunc) Pympc_To_Repr,               /* tp_repr          */
     &mpc_number_methods,                    /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
         0,                                  /* tp_as_mapping    */
     (hashfunc) Pympc_hash,                  /* tp_hash          */
         0,                                  /* tp_call          */
-    (reprfunc) Pympc2str,                   /* tp_str           */
+    (reprfunc) Pympc_To_Str,                /* tp_str           */
         0,                                  /* tp_getattro      */
         0,                                  /* tp_setattro      */
         0,                                  /* tp_as_buffer     */
