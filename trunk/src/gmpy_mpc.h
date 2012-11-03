@@ -263,36 +263,6 @@ static PyTypeObject Pympc_Type;
         return NULL; \
     }
 
-/* Forward declarations begin here. */
-static int isComplex(PyObject* obj);
-
-/* conversions */
-#ifdef PY2
-static PympcObject *   Pympc_From_PyInt(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
-static PyObject *      Pympc_To_PyIntOrLong(PyObject *self);
-#endif
-
-static PympcObject *   Pympc_From_Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
-static PympcObject *   Pympc_From_PyComplex(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
-static PympcObject *   Pympc_From_Pympfr(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
-static PympcObject *   Pympc_From_PyFloat(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
-static PympcObject *   Pympc_From_Pympz(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
-static PympcObject *   Pympc_From_Pympq(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
-static PympcObject *   Pympc_From_PyLong(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
-static PympcObject *   Pympc_From_PyStr(PyObject *s, long base, mpfr_prec_t rbits, mpfr_prec_t ibits);
-static PympcObject *   Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec);
-static PyObject *      Pympc_To_PyFloat(PyObject *self);
-static PyObject *      Pympc_To_PyLong(PyObject *self);
-static PyObject *      Pympc_To_PyStr(PympcObject *self, int base, int digits);
-
-/* support str() and repr() */
-static PyObject *      Pympc_To_Str(PympcObject *self);
-static PyObject *      Pympc_To_Repr(PympcObject *self);
-
-static PyObject * raw_mpfr_ascii(mpfr_t self, int base, int digits, int round);
-int Pympc_convert_arg(PyObject *arg, PyObject **ptr);
-
-
 static PyObject * Pympc_digits(PyObject *self, PyObject *args);
 static PyObject * Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject * Pympc_format(PyObject *self, PyObject *args);

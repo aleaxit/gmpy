@@ -477,7 +477,7 @@ Pympq_From_Decimal(PyObject* obj)
 }
 
 static PympqObject*
-Pympq_From_Real(PyObject* obj)
+Pympq_From_Number(PyObject* obj)
 {
     PympqObject* newob = 0;
 
@@ -580,7 +580,7 @@ Pympq_From_Rational(PyObject* obj)
 int
 Pympq_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympqObject* newob = Pympq_From_Rational(arg);
+    PympqObject* newob = Pympq_From_Number(arg);
     if (newob) {
         *ptr = (PyObject*)newob;
         return 1;

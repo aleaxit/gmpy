@@ -240,15 +240,12 @@ typedef long                mpir_si;
 
 #include "gmpy_mpz.h"
 #include "gmpy_xmpz.h"
-
-#include "gmpy_mpz_conv.h"
 #include "gmpy_mpz_divmod.h"
 #include "gmpy_mpz_divmod2exp.h"
 #include "gmpy_mpz_inplace.h"
 #include "gmpy_xmpz_inplace.h"
 
 #include "gmpy_mpq.h"
-#include "gmpy_mpq_conv.h"
 
 #ifdef WITHMPFR
 #  include "mpfr.h"
@@ -262,10 +259,12 @@ typedef long                mpir_si;
 #ifdef WITHMPC
 #  include "mpc.h"
 #  include "gmpy_mpc.h"
-#  if MPC_VERSION < 0x000900
-#    error gmpy2 requires MPC 0.9.0 or later
+#  if MPC_VERSION < 0x010000
+#    error gmpy2 requires MPC 1.0.0 or later
 #  endif
 #endif
+
+#include "gmpy_convert.h"
 
 /* Support object caching, creation, and deletion. */
 

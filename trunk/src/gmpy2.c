@@ -430,13 +430,9 @@ static PyObject *GMPyExc_ExpBound = NULL;
 
 #include "gmpy_binary.c"
 
-/* Support for conversions to/from mpz & xmpz. */
+/* Support for conversions to/from numeric types. */
 
-#include "gmpy_mpz_conv.c"
-
-/* Support for conversions to/from mpq. */
-
-#include "gmpy_mpq_conv.c"
+#include "gmpy_convert.c"
 
 /* Support primitive arithmetic operations. */
 

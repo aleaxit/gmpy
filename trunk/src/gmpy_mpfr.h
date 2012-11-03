@@ -240,39 +240,7 @@ static PyTypeObject Pympfr_Type;
         ) \
     )
 
-/* Forward declarations begin here. */
 
-static int isReal(PyObject* obj);
-
-/* conversions */
-
-static int Pympfr_convert_arg(PyObject *arg, PyObject **ptr);
-
-#ifdef PY2
-static PympfrObject *   Pympfr_From_PyInt(PyObject *self, mpfr_prec_t bits);
-static PyObject *       Pympfr_To_PyInt(PympfrObject *self);
-#endif
-
-static PympfrObject *   Pympfr_From_Pympfr(PyObject *self, mpfr_prec_t bits);
-static PympfrObject *   Pympfr_From_PyFloat(PyObject *self, mpfr_prec_t bits);
-static PympfrObject *   Pympfr_From_PyLong(PyObject *self, mpfr_prec_t bits);
-static PympfrObject *   Pympfr_From_Pympz(PyObject *self, mpfr_prec_t bits);
-static PympfrObject *   Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
-static PympfrObject *   Pympfr_From_Pympq(PyObject *self, mpfr_prec_t bits);
-static PympfrObject *   Pympfr_From_PyStr(PyObject *s, long base, mpfr_prec_t bits);
-static PympfrObject *   Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
-static PympzObject *    Pympfr_To_Pympz(PyObject *self);
-static PyxmpzObject *   Pympfr_To_Pyxmpz(PyObject *self);
-static PympqObject *    Pympfr_To_Pympq(PyObject *self);
-static PyObject *       Pympfr_To_PyLong(PympfrObject *self);
-static PyObject *       Pympfr_To_PyFloat(PympfrObject *self);
-static PyObject*        Pympfr_To_PyStr(PympfrObject *self, int base, int digits);
-
-/* support str() and repr() */
-static PyObject *       Pympfr_To_Str(PympfrObject *self);
-static PyObject *       Pympfr_To_Repr(PympfrObject *self);
-
-static PympqObject * stern_brocot(PympfrObject* self, PympfrObject *err, mpfr_prec_t prec, int mayz);
 static PyObject * Pympfr_f2q(PyObject *self, PyObject *args);
 static PyObject * Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject * Pympfr_getprec_attrib(PympfrObject *self, void *closure);
