@@ -46,6 +46,7 @@ static PympqObject *   Pympq_From_Pympz(PyObject *self);
 static PympqObject *   Pympq_From_Pyxmpz(PyObject * obj);
 static PympqObject *   Pympq_From_PyFloat(PyObject *self);
 static PympqObject *   Pympq_From_PyStr(PyObject *stringarg, long base);
+static PympqObject *   Pympq_From_Decimal(PyObject* obj);
 static PyObject *      Pympq_To_PyLong(PympqObject *self);
 static PympzObject *   Pympq_To_Pympz(PyObject *self);
 static PyxmpzObject *  Pympq_To_Pyxmpz(PyObject *self);
@@ -60,9 +61,7 @@ static PyObject *      Pympq_To_PyStr(PympqObject *self, int base, int option);
  *          1: Infinity
  */
 
-static PympqObject *   Pympq_From_Decimal(PyObject* obj);
-static PympqObject *   Pympq_From_Real(PyObject* obj);
-static PympqObject *   Pympq_From_Rational(PyObject* obj);
+static PympqObject *   Pympq_From_Number(PyObject* obj);
 
 /* support str() and repr() */
 static PyObject *      Pympq_To_Str(PympqObject *self);

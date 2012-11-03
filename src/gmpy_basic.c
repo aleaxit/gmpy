@@ -122,7 +122,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(addition);
         }
         if (isInteger(b)) {
-            if (!(pbz = Pympz_From_Integer(b))) {
+            if (!(pbz = Pympz_From_Number(b))) {
                 SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -133,21 +133,9 @@ Pybasic_add(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbz);
             MPFR_CLEANUP_RF(addition);
         }
-        if (isRational(b)) {
-            if (!(pbq = Pympq_From_Rational(b))) {
-                SYSTEM_ERROR("Can not convert Rational to 'mpq'");
-                Py_DECREF((PyObject*)rf);
-                return NULL;
-            }
-            mpfr_clear_flags();
-            rf->rc = mpfr_add_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
-                                context->ctx.mpfr_round);
-            Py_DECREF((PyObject*)pbq);
-            MPFR_CLEANUP_RF(addition);
-        }
-        if (isDecimal(b)) {
-            if (!(pbq = Pympq_From_Decimal(b))) {
-                SYSTEM_ERROR("Can not convert Decimal to 'mpq'");
+        if (isRational(b) || isDecimal(b)) {
+            if (!(pbq = Pympq_From_Number(b))) {
+                SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -171,7 +159,7 @@ Pybasic_add(PyObject *a, PyObject *b)
         if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
         if (isInteger(a)) {
-            if (!(paz = Pympz_From_Integer(a))) {
+            if (!(paz = Pympz_From_Number(a))) {
                 SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -182,21 +170,9 @@ Pybasic_add(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)paz);
             MPFR_CLEANUP_RF(addition);
         }
-        if (isRational(a)) {
-            if (!(paq = Pympq_From_Rational(a))) {
-                SYSTEM_ERROR("Can not convert Rational to 'mpq'");
-                Py_DECREF((PyObject*)rf);
-                return NULL;
-            }
-            mpfr_clear_flags();
-            rf->rc = mpfr_add_q(rf->f, Pympfr_AS_MPFR(b), paq->q,
-                                context->ctx.mpfr_round);
-            Py_DECREF((PyObject*)paq);
-            MPFR_CLEANUP_RF(addition);
-        }
-        if (isDecimal(a)) {
-            if (!(paq = Pympq_From_Decimal(a))) {
-                SYSTEM_ERROR("Can not convert Decimal to 'mpq'");
+        if (isRational(a) || isDecimal(a)) {
+            if (!(paq = Pympq_From_Number(a))) {
+                SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
             }
@@ -217,8 +193,8 @@ Pybasic_add(PyObject *a, PyObject *b)
 #endif
 
     if (isInteger(a) && isInteger(b)) {
-        paz = Pympz_From_Integer(a);
-        pbz = Pympz_From_Integer(b);
+        paz = Pympz_From_Number(a);
+        pbz = Pympz_From_Number(b);
         if (!paz || !pbz) {
             SYSTEM_ERROR("Can not convert Integer to 'mpz'");
             Py_XDECREF((PyObject*)paz);
@@ -237,8 +213,8 @@ Pybasic_add(PyObject *a, PyObject *b)
     }
 
     if (isRational(a) && isRational(b)) {
-        paq = Pympq_From_Rational(a);
-        pbq = Pympq_From_Rational(b);
+        paq = Pympq_From_Number(a);
+        pbq = Pympq_From_Number(b);
         if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert Rational to 'mpq'");
             Py_XDECREF((PyObject*)paq);
@@ -398,7 +374,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(subtraction);
         }
         if (isInteger(b)) {
-            if (!(pbz = Pympz_From_Integer(b))) {
+            if (!(pbz = Pympz_From_Number(b))) {
                 SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -410,7 +386,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(subtraction);
         }
         if (isRational(b)) {
-            if (!(pbq = Pympq_From_Rational(b))) {
+            if (!(pbq = Pympq_From_Number(b))) {
                 SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -446,7 +422,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
         if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
         if (isInteger(a)) {
-            if (!(paz = Pympz_From_Integer(a))) {
+            if (!(paz = Pympz_From_Number(a))) {
                 SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -458,7 +434,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(subtraction);
         }
         if (isRational(a)) {
-            if (!(paq = Pympq_From_Rational(a))) {
+            if (!(paq = Pympq_From_Number(a))) {
                 SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -492,8 +468,8 @@ Pybasic_sub(PyObject *a, PyObject *b)
 #endif
 
     if (isInteger(a) && isInteger(b)) {
-        paz = Pympz_From_Integer(a);
-        pbz = Pympz_From_Integer(b);
+        paz = Pympz_From_Number(a);
+        pbz = Pympz_From_Number(b);
         if (!paz || !pbz) {
             SYSTEM_ERROR("Can not convert Integer to 'mpz'");
             Py_XDECREF((PyObject*)paz);
@@ -512,8 +488,8 @@ Pybasic_sub(PyObject *a, PyObject *b)
     }
 
     if (isRational(a) && isRational(b)) {
-        paq = Pympq_From_Rational(a);
-        pbq = Pympq_From_Rational(b);
+        paq = Pympq_From_Number(a);
+        pbq = Pympq_From_Number(b);
         if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert Rational to 'mpq'");
             Py_XDECREF((PyObject*)paq);
@@ -666,7 +642,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(multiplication);
         }
         if (isInteger(b)) {
-            if (!(pbz = Pympz_From_Integer(b))) {
+            if (!(pbz = Pympz_From_Number(b))) {
                 SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -678,7 +654,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(multiplication);
         }
         if (isRational(b)) {
-            if (!(pbq = Pympq_From_Rational(b))) {
+            if (!(pbq = Pympq_From_Number(b))) {
                 SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -714,7 +690,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
         if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
         if (isInteger(a)) {
-            if (!(paz = Pympz_From_Integer(a))) {
+            if (!(paz = Pympz_From_Number(a))) {
                 SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -726,7 +702,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(multiplication);
         }
         if (isRational(a)) {
-            if (!(paq = Pympq_From_Rational(a))) {
+            if (!(paq = Pympq_From_Number(a))) {
                 SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -760,8 +736,8 @@ Pybasic_mul(PyObject *a, PyObject *b)
 #endif
 
     if (isInteger(a) && isInteger(b)) {
-        paz = Pympz_From_Integer(a);
-        pbz = Pympz_From_Integer(b);
+        paz = Pympz_From_Number(a);
+        pbz = Pympz_From_Number(b);
         if (!paz || !pbz) {
             SYSTEM_ERROR("Can not convert Integer to 'mpz'");
             Py_XDECREF((PyObject*)paz);
@@ -780,8 +756,8 @@ Pybasic_mul(PyObject *a, PyObject *b)
     }
 
     if (isRational(a) && isRational(b)) {
-        paq = Pympq_From_Rational(a);
-        pbq = Pympq_From_Rational(b);
+        paq = Pympq_From_Number(a);
+        pbq = Pympq_From_Number(b);
         if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert Rational to 'mpq'");
             Py_XDECREF((PyObject*)paq);
@@ -942,7 +918,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(division);
         }
         if (isInteger(b)) {
-            if (!(pbz = Pympz_From_Integer(b))) {
+            if (!(pbz = Pympz_From_Number(b))) {
                 SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -955,7 +931,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(division);
         }
         if (isRational(b)) {
-            if (!(pbq = Pympq_From_Rational(b))) {
+            if (!(pbq = Pympq_From_Number(b))) {
                 SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -1011,8 +987,8 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
 #endif
 
     if (isInteger(a) && isInteger(b)) {
-        paz = Pympz_From_Integer(a);
-        pbz = Pympz_From_Integer(b);
+        paz = Pympz_From_Number(a);
+        pbz = Pympz_From_Number(b);
         if (!paz || !pbz) {
             SYSTEM_ERROR("Can not convert Integer to 'mpz'");
             Py_XDECREF((PyObject*)paz);
@@ -1037,8 +1013,8 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
     }
 
     if (isRational(a) && isRational(b)) {
-        paq = Pympq_From_Rational(a);
-        pbq = Pympq_From_Rational(b);
+        paq = Pympq_From_Number(a);
+        pbq = Pympq_From_Number(b);
         if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert Rational to 'mpq'");
             Py_XDECREF((PyObject*)paq);
@@ -1136,7 +1112,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(division);
         }
         if (isInteger(b)) {
-            if (!(pbz = Pympz_From_Integer(b))) {
+            if (!(pbz = Pympz_From_Number(b))) {
                 SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -1148,7 +1124,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(division);
         }
         if (isRational(b)) {
-            if (!(pbq = Pympq_From_Rational(b))) {
+            if (!(pbq = Pympq_From_Number(b))) {
                 SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -1200,8 +1176,8 @@ Pybasic_truediv(PyObject *a, PyObject *b)
 #endif
 
     if (isInteger(a) && isInteger(b)) {
-        paz = Pympz_From_Integer(a);
-        pbz = Pympz_From_Integer(b);
+        paz = Pympz_From_Number(a);
+        pbz = Pympz_From_Number(b);
         if (!paz || !pbz) {
             SYSTEM_ERROR("Can not convert Integer to 'mpz'");
             Py_XDECREF((PyObject*)paz);
@@ -1242,8 +1218,8 @@ Pybasic_truediv(PyObject *a, PyObject *b)
     }
 
     if (isRational(a) && isRational(b)) {
-        paq = Pympq_From_Rational(a);
-        pbq = Pympq_From_Rational(b);
+        paq = Pympq_From_Number(a);
+        pbq = Pympq_From_Number(b);
         if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert Rational to 'mpq'");
             Py_XDECREF((PyObject*)paq);
@@ -1401,8 +1377,8 @@ Pybasic_div2(PyObject *a, PyObject *b)
     }
 
     if (isInteger(a) && isInteger(b)) {
-        paz = Pympz_From_Integer(a);
-        pbz = Pympz_From_Integer(b);
+        paz = Pympz_From_Number(a);
+        pbz = Pympz_From_Number(b);
         if (!paz || !pbz) {
             SYSTEM_ERROR("Can not convert Integer to 'mpz'");
             Py_XDECREF((PyObject*)paz);
@@ -1427,8 +1403,8 @@ Pybasic_div2(PyObject *a, PyObject *b)
     }
 
     if (isRational(a) && isRational(b)) {
-        paq = Pympq_From_Rational(a);
-        pbq = Pympq_From_Rational(b);
+        paq = Pympq_From_Number(a);
+        pbq = Pympq_From_Number(b);
         if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert Rational to 'mpq'");
             Py_XDECREF((PyObject*)paq);
@@ -1465,7 +1441,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(division);
         }
         if (isInteger(b)) {
-            if (!(pbz = Pympz_From_Integer(b))) {
+            if (!(pbz = Pympz_From_Number(b))) {
                 SYSTEM_ERROR("Can not convert Integer to 'mpz'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -1477,7 +1453,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
             MPFR_CLEANUP_RF(division);
         }
         if (isRational(b)) {
-            if (!(pbq = Pympq_From_Rational(b))) {
+            if (!(pbq = Pympq_From_Number(b))) {
                 SYSTEM_ERROR("Can not convert Rational to 'mpq'");
                 Py_DECREF((PyObject*)rf);
                 return NULL;
@@ -1658,8 +1634,8 @@ Pybasic_rem(PyObject *a, PyObject *b)
     }
 
     if (isRational(a) && isRational(b)) {
-        paq = Pympq_From_Rational(a);
-        pbq = Pympq_From_Rational(b);
+        paq = Pympq_From_Number(a);
+        pbq = Pympq_From_Number(b);
         if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert Rational to 'mpq'");
             Py_XDECREF((PyObject*)paq);
@@ -1872,8 +1848,8 @@ Pybasic_divmod(PyObject *a, PyObject *b)
     }
 
     if (isInteger(a) && isInteger(b)) {
-        paz = Pympz_From_Integer(a);
-        pbz = Pympz_From_Integer(b);
+        paz = Pympz_From_Number(a);
+        pbz = Pympz_From_Number(b);
         if (!paz || !pbz) {
             SYSTEM_ERROR("Can not convert Integer to 'mpz'");
             Py_XDECREF((PyObject*)paz);
@@ -1905,8 +1881,8 @@ Pybasic_divmod(PyObject *a, PyObject *b)
     }
 
     if (isRational(a) && isRational(b)) {
-        paq = Pympq_From_Rational(a);
-        pbq = Pympq_From_Rational(b);
+        paq = Pympq_From_Number(a);
+        pbq = Pympq_From_Number(b);
         if (!paq || !pbq) {
             SYSTEM_ERROR("Can not convert Rational to mpq");
             Py_XDECREF((PyObject*)paq);

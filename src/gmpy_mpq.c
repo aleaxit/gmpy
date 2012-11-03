@@ -67,7 +67,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
     }
 
     if (isDecimal(n)) {
-        return (PyObject*)Pympq_From_Real(n);
+        return (PyObject*)Pympq_From_Number(n);
     }
 
     if (argc == 2)
@@ -84,13 +84,13 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
     }
 
     /* should now have one or two numeric values */
-    result = Pympq_From_Real(n);
+    result = Pympq_From_Number(n);
     if (!result && !PyErr_Occurred()) {
         TYPE_ERROR("mpq() requires numeric or string argument");
         return NULL;
     }
     if (m) {
-        temp = Pympq_From_Real(m);
+        temp = Pympq_From_Number(m);
         if (!temp && !PyErr_Occurred()) {
             TYPE_ERROR("mpq() requires numeric or string argument");
             Py_DECREF((PyObject*)result);
@@ -129,20 +129,21 @@ Pympq_digits(PyObject *self, PyObject *args)
     return result;
 }
 
+/* Since Pympq_sign() is called by Pympany_sign(), we know that 'other' is
+ * a Rational type.
+ */
+
 static PyObject *
 Pympq_sign(PyObject *self, PyObject *other)
 {
     long res;
     PympqObject* tempx;
 
-    if (self && (Pympq_Check(self))) {
-        res = mpq_sgn(Pympq_AS_MPQ(self));
-    }
-    else if (Pympq_Check(other)) {
+    if (Pympq_Check(other)) {
         res = mpq_sgn(Pympq_AS_MPQ(other));
     }
     else {
-        if (!(tempx = Pympq_From_Rational(other))) {
+        if (!(tempx = Pympq_From_Number(other))) {
             TYPE_ERROR("sign() requires 'mpq' argument");
             return NULL;
         }
