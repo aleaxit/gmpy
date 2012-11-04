@@ -285,6 +285,7 @@
  *   mp_version(), mpc_version(), and mpfr_version() shouldn't (casevh)
  *      return Unicode on Python 2.x
  *   Fix warnings when shifting 32-bit integer by 32 bits (casevh)
+ *   Faster conversion of Fraction to gmpy2 types (casevh)
  *
  ************************************************************************
  *

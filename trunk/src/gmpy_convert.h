@@ -135,8 +135,9 @@ static PyObject *      Pympq_To_PyInt(PympqObject *self);
 #endif
 static PympqObject *   Pympq_From_PyLong(PyObject *self);
 static PympqObject *   Pympq_From_Pympz(PyObject *self);
-static PympqObject *   Pympq_From_Pyxmpz(PyObject * obj);
+static PympqObject *   Pympq_From_Pyxmpz(PyObject *obj);
 static PympqObject *   Pympq_From_PyFloat(PyObject *self);
+static PympqObject *   Pympq_From_Fraction(PyObject *obj);
 static PympqObject *   Pympq_From_PyStr(PyObject *stringarg, long base);
 
 /* NOTE: Pympq_From_Decimal returns an invalid mpq object when attempting to

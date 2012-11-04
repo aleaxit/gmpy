@@ -221,7 +221,7 @@ Pympz_From_PyLong(PyObject * obj)
     PympzObject *newob;
     if (!(newob = (PympzObject*)Pympz_new()))
         return NULL;
-    mpz_set_PyLong(newob->z, obj);
+    mpz_set_PyIntOrLong(newob->z, obj);
     return newob;
 }
 
@@ -231,7 +231,7 @@ Pyxmpz_From_PyLong(PyObject * obj)
     PyxmpzObject *newob;
     if (!(newob = (PyxmpzObject*)Pyxmpz_new()))
         return NULL;
-    mpz_set_PyLong(newob->z, obj);
+    mpz_set_PyIntOrLong(newob->z, obj);
     return newob;
 }
 
@@ -705,14 +705,10 @@ Pympz_From_Number(PyObject* obj)
         }
     }
     else if (isFraction(obj)) {
-        PyObject *s = PyObject_Str(obj);
-        if (s) {
-            temp = Pympq_From_PyStr(s, 10);
-            if (temp) {
-                newob = Pympq_To_Pympz((PyObject *)temp);
-                Py_DECREF((PyObject*)temp);
-            }
-            Py_DECREF(s);
+        temp = Pympq_From_Fraction(obj);
+        if (temp) {
+            newob = Pympq_To_Pympz((PyObject *)temp);
+            Py_DECREF((PyObject*)temp);
         }
     }
 
@@ -758,14 +754,10 @@ Pyxmpz_From_Number(PyObject* obj)
         }
     }
     else if (isFraction(obj)) {
-        PyObject *s = PyObject_Str(obj);
-        if (s) {
-            temp = Pympq_From_PyStr(s, 10);
-            if (temp) {
-                newob = Pympq_To_Pyxmpz((PyObject *)temp);
-                Py_DECREF((PyObject*)temp);
-            }
-            Py_DECREF(s);
+        temp = Pympq_From_Fraction(obj);
+        if (temp) {
+            newob = Pympq_To_Pyxmpz((PyObject *)temp);
+            Py_DECREF((PyObject*)temp);
         }
     }
 
@@ -1496,6 +1488,32 @@ Pympq_From_Decimal(PyObject* obj)
 }
 
 static PympqObject*
+Pympq_From_Fraction(PyObject* obj)
+{
+    PympqObject *result;
+    PyObject *num, *den;
+
+    if (!(result = (PympqObject*)Pympq_new()))
+        return NULL;
+    mpq_set_si(result->q, 0, 1);
+
+    num = PyObject_GetAttrString(obj, "numerator");
+    den = PyObject_GetAttrString(obj, "denominator");
+    if (!num || !PyIntOrLong_Check(num) || !den || !PyIntOrLong_Check(den)) {
+        SYSTEM_ERROR("Object does not appear to be Fraction");
+        Py_XDECREF(num);
+        Py_XDECREF(den);
+        Py_DECREF((PyObject*)result);
+        return NULL;
+    }
+    mpz_set_PyIntOrLong(mpq_numref(result->q), num);
+    mpz_set_PyIntOrLong(mpq_denref(result->q), den);
+    Py_DECREF(num);
+    Py_DECREF(den);
+    return result;
+}
+
+static PympqObject*
 Pympq_From_Number(PyObject* obj)
 {
     PympqObject* newob = 0;
@@ -1546,11 +1564,7 @@ Pympq_From_Number(PyObject* obj)
         }
     }
     else if (isFraction(obj)) {
-        PyObject *s = PyObject_Str(obj);
-        if (s) {
-            newob = Pympq_From_PyStr(s, 10);
-            Py_DECREF(s);
-        }
+        newob = Pympq_From_Fraction(obj);
     }
 
     return newob;
@@ -1582,11 +1596,7 @@ Pympq_From_Rational(PyObject* obj)
         newob = Pympq_From_Pyxmpz(obj);
     }
     else if (isFraction(obj)) {
-        PyObject *s = PyObject_Str(obj);
-        if (s) {
-            newob = Pympq_From_PyStr(s, 10);
-            Py_DECREF(s);
-        }
+        newob = Pympq_From_Fraction(obj);
     }
 
     return newob;
@@ -2118,11 +2128,9 @@ Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
         }
     }
     else if (isFraction(obj)) {
-        PyObject *s = PyObject_Str(obj);
-        if (s) {
-            temp = Pympq_From_PyStr(s, 10);
+        temp = Pympq_From_Fraction(obj);
+        if (temp) {
             newob = Pympfr_From_Pympq((PyObject*)temp, bits);
-            Py_DECREF(s);
             Py_DECREF((PyObject*)temp);
         }
     }
@@ -2602,11 +2610,9 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
         }
     }
     else if (isFraction(obj)) {
-        PyObject *s = PyObject_Str(obj);
-        if (s) {
-            temp = Pympq_From_PyStr(s, 10);
+        temp = Pympq_From_Fraction(obj);
+        if (temp) {
             newob = Pympc_From_Pympq((PyObject *)temp, rprec, iprec);
-            Py_DECREF(s);
             Py_DECREF((PyObject*)temp);
         }
     }

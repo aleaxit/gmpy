@@ -713,7 +713,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             temp_si = PyLong_AsSIAndOverflow(b, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
-                mpz_set_PyLong(tempz, b);
+                mpz_set_PyIntOrLong(tempz, b);
                 c = mpz_cmp(Pympz_AS_MPZ(a), tempz);
                 mpz_cloc(tempz);
             }
