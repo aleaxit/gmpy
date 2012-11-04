@@ -50,7 +50,7 @@ Pympz_inplace_add(PyObject *self, PyObject *other)
         temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
-            mpz_set_PyLong(tempz, other);
+            mpz_set_PyIntOrLong(tempz, other);
             mpz_add(rz->z, Pympz_AS_MPZ(self), tempz);
             mpz_cloc(tempz);
         }
@@ -86,7 +86,7 @@ Pympz_inplace_sub(PyObject *self, PyObject *other)
         temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
-            mpz_set_PyLong(tempz, other);
+            mpz_set_PyIntOrLong(tempz, other);
             mpz_sub(rz->z, Pympz_AS_MPZ(self), tempz);
             mpz_cloc(tempz);
         }
@@ -122,7 +122,7 @@ Pympz_inplace_mul(PyObject *self, PyObject *other)
         temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
-            mpz_set_PyLong(tempz, other);
+            mpz_set_PyIntOrLong(tempz, other);
             mpz_mul(rz->z, Pympz_AS_MPZ(self), tempz);
             mpz_cloc(tempz);
         }
@@ -164,7 +164,7 @@ Pympz_inplace_floordiv(PyObject *self, PyObject *other)
         temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
-            mpz_set_PyLong(tempz, other);
+            mpz_set_PyIntOrLong(tempz, other);
             mpz_fdiv_q(rz->z, Pympz_AS_MPZ(self), tempz);
             mpz_cloc(tempz);
         }
@@ -209,7 +209,7 @@ Pympz_inplace_rem(PyObject *self, PyObject *other)
         temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
-            mpz_set_PyLong(tempz, other);
+            mpz_set_PyIntOrLong(tempz, other);
             mpz_fdiv_r(rz->z, Pympz_AS_MPZ(self), tempz);
             mpz_cloc(tempz);
         }
