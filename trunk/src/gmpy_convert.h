@@ -182,6 +182,7 @@ static PympfrObject *   Pympfr_From_Pympz(PyObject *self, mpfr_prec_t bits);
 static PympfrObject *   Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
 static PympfrObject *   Pympfr_From_Pympq(PyObject *self, mpfr_prec_t bits);
 static PympfrObject *   Pympfr_From_PyStr(PyObject *s, long base, mpfr_prec_t bits);
+static PympfrObject *   Pympfr_From_Decimal(PyObject *obj, mpfr_prec_t bits);
 static PympfrObject *   Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
 
 static PympzObject *    Pympfr_To_Pympz(PyObject *self);
