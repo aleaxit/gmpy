@@ -67,7 +67,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
     }
 
     if (isDecimal(n)) {
-        return (PyObject*)Pympq_From_Number(n);
+        return (PyObject*)Pympq_From_Decimal(n);
     }
 
     if (argc == 2)
