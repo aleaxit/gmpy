@@ -1411,7 +1411,7 @@ Pympq_To_PyStr(PympqObject *self, int base, int option)
     return result;
 }
 
-/* NOTE: Pympq_From_Decimal returns an invalid mpq object when attempting to
+/* NOTE: Pympq_From_DecimalRaw returns an invalid mpq object when attempting to
  *       convert a NaN or inifinity. If the denominator is 0, then interpret
  *       the numerator as:
  *         -1: -Infinity
@@ -1427,7 +1427,7 @@ Pympq_To_PyStr(PympqObject *self, int base, int option)
 
 #if PY_VERSION_HEX < 0x03030000
 static PympqObject*
-Pympq_From_Decimal(PyObject* obj)
+Pympq_From_DecimalRaw(PyObject* obj)
 {
     PympqObject *result;
     PyObject *d_exp, *d_int, *d_sign, *d_is_special;
@@ -1445,38 +1445,24 @@ Pympq_From_Decimal(PyObject* obj)
     d_is_special = PyObject_GetAttrString(obj, "_is_special");
     if (!d_exp || !d_int || !d_sign || !d_is_special) {
         SYSTEM_ERROR("Object does not appear to be Decimal");
-        Py_XDECREF(d_exp);
-        Py_XDECREF(d_int);
-        Py_XDECREF(d_sign);
-        Py_XDECREF(d_is_special);
-        Py_DECREF((PyObject*)result);
-        return NULL;
+        goto error;
     }
 
     if (PyObject_IsTrue(d_is_special)) {
         string = Py2or3String_AsString(d_exp);
         if (string[0] == 'N' || string[0] == 'n') {
             mpz_set_si(mpq_denref(result->q), 0);
-            Py_DECREF(d_exp);
-            Py_DECREF(d_int);
-            Py_DECREF(d_sign);
-            Py_DECREF(d_is_special);
-            return result;
+            goto okay;
         }
         if (string[0] == 'F') {
             if (PyObject_IsTrue(d_sign))
                 mpq_set_si(result->q, -1, 0);
             else
                 mpq_set_si(result->q, 1, 0);
-            Py_DECREF(d_exp);
-            Py_DECREF(d_int);
-            Py_DECREF(d_sign);
-            Py_DECREF(d_is_special);
-            return result;
+            goto okay;
         }
         SYSTEM_ERROR("Cannot convert Decimal to mpq");
-        Py_DECREF((PyObject*)result);
-        return NULL;
+        goto error;
     }
 
     mpz_set_PyStr(mpq_numref(result->q), d_int, 10);
@@ -1484,12 +1470,7 @@ Pympq_From_Decimal(PyObject* obj)
     exp = PyIntOrLong_AsSI(d_exp);
     if (exp == -1 && PyErr_Occurred()) {
         SYSTEM_ERROR("Decimal _exp is not valid or overflow occurred");
-        Py_DECREF((PyObject*)result);
-        Py_DECREF(d_exp);
-        Py_DECREF(d_int);
-        Py_DECREF(d_sign);
-        Py_DECREF(d_is_special);
-        return NULL;
+        goto error;
     }
 
     mpz_inoc(temp);
@@ -1512,27 +1493,135 @@ Pympq_From_Decimal(PyObject* obj)
             mpz_mul_si(mpq_numref(result->q), mpq_numref(result->q), -1);
     }
 
+  okay:
     Py_DECREF(d_exp);
     Py_DECREF(d_int);
     Py_DECREF(d_sign);
     Py_DECREF(d_is_special);
-
     return result;
+
+  error:
+    Py_XDECREF(d_exp);
+    Py_XDECREF(d_int);
+    Py_XDECREF(d_sign);
+    Py_XDECREF(d_is_special);
+    Py_DECREF((PyObject*)result);
+    return NULL;
+
 }
 #else
 static PympqObject*
-Pympq_From_Decimal(PyObject* obj)
+Pympq_From_DecimalRaw(PyObject* obj)
 {
-    PympqObject *newob = NULL;
-    PyObject *s = PyObject_Str(obj);
+    PympqObject *result;
+    PyObject *temp = NULL, *d_is_inf, *d_is_nan, *d_is_zero, *d_is_signed, *s;
 
+    if (!(result = (PympqObject*)Pympq_new()))
+        return NULL;
+
+    d_is_inf = PyObject_GetAttrString(obj, "is_infinite");
+    d_is_nan = PyObject_GetAttrString(obj, "is_nan");
+    d_is_zero = PyObject_GetAttrString(obj, "is_zero");
+    d_is_signed = PyObject_GetAttrString(obj, "is_signed");
+    if (!d_is_inf || !d_is_nan || !d_is_zero || !d_is_signed) {
+        SYSTEM_ERROR("Object does not appear to be Decimal");
+        goto error;
+    }
+
+    if (!(temp = PyObject_CallFunctionObjArgs(d_is_nan, NULL)))
+        goto error;
+    if (PyObject_IsTrue(temp)) {
+        mpz_set_si(mpq_numref(result->q), 0);
+        mpz_set_si(mpq_denref(result->q), 0);
+        goto okay;
+    }
+
+    if (!(temp = PyObject_CallFunctionObjArgs(d_is_inf, NULL)))
+        goto error;
+    if (PyObject_IsTrue(temp)) {
+        if (!(temp = PyObject_CallFunctionObjArgs(d_is_signed, NULL)))
+            goto error;
+        if (PyObject_IsTrue(temp)) {
+            mpz_set_si(mpq_numref(result->q), -1);
+            mpz_set_si(mpq_denref(result->q), 0);
+        }
+        else {
+            mpz_set_si(mpq_numref(result->q), 1);
+            mpz_set_si(mpq_denref(result->q), 0);
+        }
+        goto okay;
+    }
+
+    if (!(temp = PyObject_CallFunctionObjArgs(d_is_zero, NULL)))
+        goto error;
+    if (PyObject_IsTrue(temp)) {
+        if (!(temp = PyObject_CallFunctionObjArgs(d_is_signed, NULL)))
+            goto error;
+        if (PyObject_IsTrue(temp)) {
+            mpz_set_si(mpq_numref(result->q), 0);
+            mpz_set_si(mpq_denref(result->q), -1);
+        }
+        else {
+            mpz_set_si(mpq_numref(result->q), 0);
+            mpz_set_si(mpq_denref(result->q), 1);
+        }
+        goto okay;
+    }
+
+    Py_DECREF(result);
+
+    s = PyObject_Str(obj);
     if (s) {
-        newob = Pympq_From_PyStr(s, 10);
+        result = Pympq_From_PyStr(s, 10);
         Py_DECREF(s);
     }
-    return newob;
+
+  okay:
+    Py_DECREF(temp);
+    Py_DECREF(d_is_inf);
+    Py_DECREF(d_is_nan);
+    Py_DECREF(d_is_zero);
+    Py_DECREF(d_is_signed);
+    return result;
+
+  error:
+    Py_XDECREF(temp);
+    Py_XDECREF(d_is_inf);
+    Py_XDECREF(d_is_nan);
+    Py_XDECREF(d_is_zero);
+    Py_XDECREF(d_is_signed);
+    Py_DECREF((PyObject*)result);
+    return NULL;
 }
 #endif
+
+static PympqObject*
+Pympq_From_Decimal(PyObject* obj)
+{
+    PympqObject *result;
+
+    if ((result = Pympq_From_DecimalRaw(obj))) {
+        if (!mpz_cmp_si(mpq_numref(result->q), 0)) {
+            if (mpz_cmp_si(mpq_denref(result->q), 0) < 0) {
+                VALUE_ERROR("'mpq' does not support -0");
+                goto error;
+            }
+            else if (mpz_cmp_si(mpq_denref(result->q), 0) == 0) {
+                VALUE_ERROR("'mpq' does not support NaN");
+                goto error;
+            }
+        }
+        else if (!mpz_cmp_si(mpq_denref(result->q), 0)) {
+            VALUE_ERROR("'mpq' does not support Infinity");
+            goto error;
+        }
+    }
+    return result;
+
+  error:
+    Py_DECREF((PyObject*)result);
+    return NULL;
+}
 
 static PympqObject*
 Pympq_From_Fraction(PyObject* obj)
@@ -1592,23 +1681,7 @@ Pympq_From_Number(PyObject* obj)
         newob = Pympq_From_Pyxmpz(obj);
     }
     else if (isDecimal(obj)) {
-        if ((newob = Pympq_From_Decimal(obj))) {
-            if (!mpz_cmp_si(mpq_numref(newob->q), 0)) {
-                if (mpz_cmp_si(mpq_denref(newob->q), 0) < 0) {
-                    VALUE_ERROR("'mpq' does not support -0");
-                    Py_DECREF((PyObject*)newob);
-                    newob = NULL;
-                }
-            }
-            else if (!mpz_cmp_si(mpq_denref(newob->q), 0)) {
-                if (mpz_get_si(mpq_numref(newob->q)) == 0)
-                    VALUE_ERROR("'mpq' does not support NaN");
-                else
-                    VALUE_ERROR("'mpq' does not support Infinity");
-                Py_DECREF((PyObject*)newob);
-                newob = NULL;
-            }
-        }
+        newob = Pympq_From_Decimal(obj);
     }
     else if (isFraction(obj)) {
         newob = Pympq_From_Fraction(obj);
@@ -2089,57 +2162,41 @@ Pympfr_To_PyStr(PympfrObject *self, int base, int digits)
     return result;
 }
 
-#if PY_VERSION_HEX < 0x03030000
 static PympfrObject *
 Pympfr_From_Decimal(PyObject* obj, mpfr_prec_t bits)
 {
-    PympfrObject *newob = NULL;
-    PympqObject *temp = Pympq_From_Decimal(obj);
+    PympfrObject *result = (PympfrObject*)Pympfr_new(0);
+    PympqObject *temp = Pympq_From_DecimalRaw(obj);
 
-    if (temp) {
-        if (!mpz_cmp_si(mpq_numref(temp->q), 0)) {
-            if ((newob = (PympfrObject*)Pympfr_new(0))) {
-                mpfr_set_zero(newob->f, mpz_sgn(mpq_denref(temp->q)));
-            }
-        }
-        else if (!mpz_cmp_si(mpq_denref(temp->q), 0)) {
-            if (mpz_get_si(mpq_numref(temp->q)) == 0) {
-                if ((newob = (PympfrObject*)Pympfr_new(0))) {
-                    mpfr_set_nan(newob->f);
-                }
-            }
-            else if (mpz_get_si(mpq_numref(temp->q)) < 0) {
-                if ((newob = (PympfrObject*)Pympfr_new(0))) {
-                    mpfr_set_inf(newob->f, -1);
-                }
-            }
-            else {
-                if ((newob = (PympfrObject*)Pympfr_new(0))) {
-                    mpfr_set_inf(newob->f, 1);
-                }
-            }
+    if (!temp || !result) {
+        Py_XDECREF((PyObject*)temp);
+        Py_XDECREF((PyObject*)result);
+        return NULL;
+    }
+
+    if (!mpz_cmp_si(mpq_numref(temp->q), 0)) {
+        if (!mpz_cmp_si(mpq_denref(temp->q), 0)) {
+            mpfr_set_nan(result->f);
         }
         else {
-            newob = Pympfr_From_Pympq((PyObject*)temp, bits);
+            mpfr_set_zero(result->f, mpz_sgn(mpq_denref(temp->q)));
         }
-        Py_DECREF((PyObject*)temp);
     }
-    return newob;
-}
-#else
-static PympfrObject *
-Pympfr_From_Decimal(PyObject* obj, mpfr_prec_t bits)
-{
-    PympfrObject *newob = NULL;
-    PyObject *s = PyObject_Str(obj);
-
-    if (s) {
-        newob = Pympfr_From_PyStr(s, 10, bits);
-        Py_DECREF(s);
+    else if (!mpz_cmp_si(mpq_denref(temp->q), 0)) {
+        if (mpz_cmp_si(mpq_numref(temp->q), 0) < 0) {
+            mpfr_set_inf(result->f, -1);
+        }
+        else {
+            mpfr_set_inf(result->f, 1);
+        }
     }
-    return newob;
+    else {
+        Py_DECREF((PyObject*)result);
+        result = Pympfr_From_Pympq((PyObject*)temp, bits);
+    }
+    Py_DECREF((PyObject*)temp);
+    return result;
 }
-#endif
 
 /*
  * If obj is a Pympfr and bits is 0 or bits is the same as the precision of
