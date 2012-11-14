@@ -181,7 +181,7 @@ Pympz_From_PyFloat(PyObject *self)
         }
         if (Py_IS_INFINITY(d)) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("'mpz' does not support Infinity");
+            OVERFLOW_ERROR("'mpz' does not support Infinity");
             return NULL;
         }
         mpz_set_d(newob->z, d);
@@ -203,7 +203,7 @@ Pyxmpz_From_PyFloat(PyObject *self)
         }
         if (Py_IS_INFINITY(d)) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("'xmpz' does not support Infinity");
+            OVERFLOW_ERROR("'xmpz' does not support Infinity");
             return NULL;
         }
         mpz_set_d(newob->z, d);
@@ -1124,7 +1124,7 @@ Pympq_From_PyFloat(PyObject *self)
         }
         if (Py_IS_INFINITY(d)) {
             Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("'mpq' does not support Infinity");
+            OVERFLOW_ERROR("'mpq' does not support Infinity");
             return NULL;
         }
         mpq_set_d(newob->q, d);
@@ -1612,7 +1612,7 @@ Pympq_From_Decimal(PyObject* obj)
             }
         }
         else if (!mpz_cmp_si(mpq_denref(result->q), 0)) {
-            VALUE_ERROR("'mpq' does not support Infinity");
+            OVERFLOW_ERROR("'mpq' does not support Infinity");
             goto error;
         }
     }
@@ -1826,7 +1826,7 @@ Pympfr_To_Pympz(PyObject *self)
         }
         if (mpfr_inf_p(Pympfr_AS_MPFR(self))) {
             Py_DECREF((PyObject*)result);
-            VALUE_ERROR("'mpz' does not support Infinity");
+            OVERFLOW_ERROR("'mpz' does not support Infinity");
             return NULL;
         }
         /* return code is ignored */
@@ -1849,7 +1849,7 @@ Pympfr_To_Pyxmpz(PyObject *self)
         }
         if (mpfr_inf_p(Pympfr_AS_MPFR(self))) {
             Py_DECREF((PyObject*)result);
-            VALUE_ERROR("'xmpz' does not support Infinity");
+            OVERFLOW_ERROR("'xmpz' does not support Infinity");
             return NULL;
         }
         /* return code is ignored */
