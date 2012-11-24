@@ -1465,7 +1465,10 @@ Pympq_From_DecimalRaw(PyObject* obj)
         goto error;
     }
 
-    mpz_set_PyStr(mpq_numref(result->q), d_int, 10);
+    if (mpz_set_PyStr(mpq_numref(result->q), d_int, 10) == -1) {
+        SYSTEM_ERROR("Cannot convert Decimal to mpq");
+        goto error;
+    }
 
     exp = PyIntOrLong_AsSI(d_exp);
     if (exp == -1 && PyErr_Occurred()) {
