@@ -1262,7 +1262,7 @@ Pympq_From_PyStr(PyObject *stringarg, long base)
         }
         if (whereslash) {
             *whereslash = '/';
-            if (-1==mpz_set_str(mpq_denref(newob->q), whereslash+1, base)) {
+            if (-1 == mpz_set_str(mpq_denref(newob->q), whereslash+1, base)) {
                 VALUE_ERROR("invalid digits");
                 goto error;
             }

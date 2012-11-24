@@ -2075,7 +2075,7 @@ Pympz_format(PyObject *self, PyObject *args)
     PyObject *result = 0, *mpzstr = 0;
     char *fmtcode = 0, *p1, *p2;
     char fmt[30];
-    int base = 10, option = 0;
+    int base = 10, option = 16;
     int seensign = 0, seenindicator = 0, seenalign = 0, seendigits = 0;
 
     if (!CHECK_MPZANY(self)) {
@@ -2138,7 +2138,7 @@ Pympz_format(PyObject *self, PyObject *args)
             }
             else {
                 option |= 8;
-                seensign = 1;
+                seenindicator = 1;
                 continue;
             }
         }
@@ -2163,6 +2163,10 @@ Pympz_format(PyObject *self, PyObject *args)
             base = 16;
             break;
         }
+        if (*p1 == 'd') {
+            base = 10;
+            break;
+        }
         if (*p1 == 'X') {
             base = -16;
             break;
@@ -2172,14 +2176,10 @@ Pympz_format(PyObject *self, PyObject *args)
     }
     *(p2++) = '\00';
 
-    mpzstr = mpz_ascii(Pympz_AS_MPZ(self), base, option);
-    if (!mpzstr)
+    if (!(mpzstr = mpz_ascii(Pympz_AS_MPZ(self), base, option)))
         return NULL;
+
     result = PyObject_CallMethod(mpzstr, "__format__", "(s)", fmt);
-    if (!result) {
-        Py_DECREF(mpzstr);
-        return NULL;
-    }
     Py_DECREF(mpzstr);
     return result;
 }
