@@ -281,11 +281,14 @@
  *      requiring set_context()/local_context() sequence
  *   local_context() now accepts an optional context (casevh)
  *
- *   2.0.0b3
+ *   2.0.0
  *   mp_version(), mpc_version(), and mpfr_version() shouldn't (casevh)
  *      return Unicode on Python 2.x
  *   Fix warnings when shifting 32-bit integer by 32 bits (casevh)
  *   Faster conversion of Fraction to gmpy2 types (casevh)
+ *   Fix conversion with Decimal, especially on Python 3.3 (casevh)
+ *   Consistently return OverflowError when converting "inf" (casevh)
+ *   Fix mpz.__format__() with # code (casevh)
  *
  ************************************************************************
  *
@@ -356,7 +359,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.0.0b3";
+char gmpy_version[] = "2.0.0";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -793,7 +796,7 @@ _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] =
-"gmpy2 2.0.0b3 - General Multiple-precision arithmetic for Python\n"
+"gmpy2 2.0.0 - General Multiple-precision arithmetic for Python\n"
 "\n"
 "gmpy2 supports several multiple-precision libraries. Integer and\n"
 "rational arithmetic is provided by either the GMP or MPIR libraries.\n"

@@ -3,7 +3,7 @@ Miscellaneous Functions
 
     >>> import gmpy2 as G
     >>> G.version()
-    '2.0.0b3'
+    '2.0.0'
     >>> G.mp_limbsize() in (32,64)
     True
     >>> G.mp_version().split()[0] in ['GMP', 'MPIR']
@@ -18,5 +18,5 @@ Miscellaneous Functions
     True
     >>> G.mpc_version() and G.mpc_version().startswith('MPC')
     True
-    >>> G.mpc_version() and '0.9' <= G.mpc_version().split()[1]
+    >>> G.mpc_version() and '1.0' <= G.mpc_version().split()[1]
     True
