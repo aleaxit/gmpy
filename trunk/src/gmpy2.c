@@ -289,6 +289,7 @@
  *   Fix conversion with Decimal, especially on Python 3.3 (casevh)
  *   Consistently return OverflowError when converting "inf" (casevh)
  *   Fix mpz.__format__() with # code (casevh)
+ *   Add is_infinite(), deprecate is_inf() (casevh)
  *
  ************************************************************************
  *
@@ -645,6 +646,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "ieee", GMPyContext_ieee, METH_O, doc_context_ieee },
     { "inf", Pympfr_set_inf, METH_VARARGS, doc_g_mpfr_set_inf },
     { "is_inf", Pympany_is_inf, METH_O, doc_mpany_is_inf },
+    { "is_infinite", Pympany_is_infinite, METH_O, doc_mpany_is_infinite },
     { "is_integer", Pympfr_is_integer, METH_O, doc_g_mpfr_is_integer },
     { "is_lessgreater", Pympfr_is_lessgreater, METH_VARARGS, doc_g_mpfr_is_lessgreater },
     { "is_nan", Pympany_is_nan, METH_O, doc_mpany_is_nan },

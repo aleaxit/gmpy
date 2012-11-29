@@ -8,6 +8,14 @@ MPZ Related Functions
 
 Test gmpy2.add
 --------------
+    >>> G.add(a, b)
+    mpz(579)
+    >>> G.add(a, 456)
+    mpz(579)
+    >>> G.add(123, 456)
+    mpz(579)
+    >>> G.add(123, b)
+    mpz(579)
 
 Test gmpy2.bincoef
 ------------------
@@ -34,6 +42,12 @@ Test gmpy2.bit_clear
 
 Test gmpy2.bit_flip
 -------------------
+    >>> bin(a)
+    '0b1111011'
+    >>> bin(a.bit_flip(1))
+    '0b1111001'
+    >>> bin(a.bit_flip(2))
+    '0b1111111'
 
 Test gmpy2.bit_length
 ---------------------
@@ -86,12 +100,38 @@ Test gmpy2.bit_test
 Test gmpy2.c_div
 ----------------
 
+    >>> G.c_div(b,64)
+    mpz(8)
+    >>> G.c_div(b,-64)
+    mpz(-7)
+    >>> G.c_div(-b,64)
+    mpz(-7)
+    >>> G.c_div(-b,-64)
+    mpz(8)
+
 Test gmpy2.c_div_2exp
 ---------------------
+
+    >>> G.c_div_2exp(b, 6)
+    mpz(8)
+    >>> G.c_div_2exp(b, -6)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    OverflowError: can't convert negative value to unsigned int
+    >>> G.c_div_2exp(-b, 6)
+    mpz(-7)
 
 Test gmpy2.c_divmod
 -------------------
 
+    >>> G.c_divmod(b,64)
+    (mpz(8), mpz(-56))
+    >>> G.c_divmod(b,-64)
+    (mpz(-7), mpz(8))
+    >>> G.c_divmod(-b,64)
+    (mpz(-7), mpz(-8))
+    >>> G.c_divmod(-b,-64)
+    (mpz(8), mpz(56))
     >>> G.c_divmod(17,5)
     (mpz(4), mpz(-3))
     >>> G.c_divmod(-17,5)
@@ -100,15 +140,46 @@ Test gmpy2.c_divmod
     (mpz(-3), mpz(2))
     >>> G.c_divmod(-17,-5)
     (mpz(4), mpz(3))
+    >>> G.c_divmod(b, 4.0)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: c_divmod() requires 'mpz','mpz' arguments
+    >>> G.c_divmod('a', b)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: c_divmod() requires 'mpz','mpz' arguments
+    >>> G.c_divmod(b)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: c_divmod() requires 'mpz','mpz' arguments
 
 Test gmpy2.c_divmod_2exp
 ------------------------
 
+    >>> G.c_divmod_2exp(b, 6)
+    (mpz(8), mpz(-56))
+    >>> G.c_divmod_2exp(-b, 6)
+    (mpz(-7), mpz(-8))
+
 Test gmpy2.c_mod
 ----------------
 
+    >>> G.c_mod(b,64)
+    mpz(-56)
+    >>> G.c_mod(b,-64)
+    mpz(8)
+    >>> G.c_mod(-b,64)
+    mpz(-8)
+    >>> G.c_mod(-b,-64)
+    mpz(56)
+
 Test gmpy2.c_mod_2exp
 ---------------------
+
+    >>> G.c_mod_2exp(b, 6)
+    mpz(-56)
+    >>> G.c_mod_2exp(-b, 6)
+    mpz(-8)
 
 Test gmpy2.comb
 ---------------
@@ -117,6 +188,8 @@ Test gmpy2.comb
     Traceback (most recent call last):
       ...
     ValueError: binomial coefficient with negative k
+    >>> G.comb(8,4)
+    mpz(70)
 
 Test gmpy2.divexact
 -------------------
@@ -161,9 +234,22 @@ Test gmpy2.f_divmod
     (mpz(-4), mpz(-3))
     >>> G.f_divmod(-17,-5)
     (mpz(3), mpz(-2))
+    >>> G.f_divmod(b,64)
+    (mpz(7), mpz(8))
+    >>> G.f_divmod(-b,64)
+    (mpz(-8), mpz(56))
+    >>> G.f_divmod(b,-64)
+    (mpz(-8), mpz(-56))
+    >>> G.f_divmod(-b,-64)
+    (mpz(7), mpz(-8))
 
 Test gmpy2.f_divmod_2exp
 ------------------------
+
+    >>> G.f_divmod_2exp(b,6)
+    (mpz(7), mpz(8))
+    >>> G.f_divmod_2exp(-b,6)
+    (mpz(-8), mpz(56))
 
 Test gmpy2.f_mod
 ----------------
@@ -195,6 +281,9 @@ Test gmpy2.fib
 Test gmpy2.fib2
 ---------------
 
+    >>> G.fib2(17)
+    (mpz(1597), mpz(987))
+
 Test gmpy2.gcd
 --------------
 
@@ -205,6 +294,9 @@ Test gmpy2.gcdext
 -----------------
 
     >>> temp=G.gcdext(a,b)
+    >>> temp[0]==a*temp[1]+b*temp[2]
+    True
+    >>> temp=G.gcdext(123,456)
     >>> temp[0]==a*temp[1]+b*temp[2]
     True
     >>> del temp
@@ -254,6 +346,8 @@ Test gmpy2.iroot
     (mpz(4), False) (mpz(7), False)
     (mpz(3), False) (mpz(4), False)
     (mpz(2), False) (mpz(3), False)
+    >>> G.iroot(9,2)
+    (mpz(3), True)
 
 Test gmpy2.iroot_rem
 --------------------
@@ -272,16 +366,30 @@ Test gmpy2.iroot_rem
 Test gmpy2.is_even
 ------------------
 
+    >>> G.is_even(a)
+    False
+    >>> G.is_even(b)
+    True
+
 Test gmpy2.is_odd
 -----------------
+
+    >>> G.is_odd(a)
+    True
+    >>> G.is_odd(b)
+    False
 
 Test gmpy2.is_power
 -------------------
 
-    >>> a.is_power()
-    False
+    >>> G.is_power()
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: is_power() takes exactly one argument (0 given)    >>> a.is_power()
     >>> G.is_power(99*99*99)
     True
+    >>> G.is_power(99*98)
+    False
 
 Test gmpy2.is_prime
 -------------------
@@ -290,6 +398,10 @@ Test gmpy2.is_prime
     Traceback (most recent call last):
       ...
     ValueError: repetition count for is_prime must be positive
+    >>> G.is_prime(12345)
+    False
+    >>> G.is_prime(80**81 + 81**80)
+    True
 
 Test gmpy2.is_square
 --------------------

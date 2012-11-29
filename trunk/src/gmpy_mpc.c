@@ -81,6 +81,7 @@ PyDoc_STRVAR(doc_g_mpc,
 "      is used for both the real and imaginary components, or as a\n"
 "      tuple that can specify different precisions for the real\n"
 "      and imaginary components.");
+
 static PyObject *
 Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
 {
@@ -150,6 +151,8 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
                 }
             }
         }
+
+        /* Need to validate rbits and ibits!!! */
 
         if (PyComplex_Check(arg0)) {
             result = Pympc_From_PyComplex(arg0, rbits, ibits);
