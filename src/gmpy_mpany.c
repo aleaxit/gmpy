@@ -447,7 +447,8 @@ Pympany_is_nan(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(doc_mpany_is_inf,
 "is_inf(x) -> boolean\n\n"
-"Return True if x is +Infinity or -Infinity.");
+"Return True if x is +Infinity or -Infinity.\n"
+"Note: is_inf() is deprecated; please use is_infinite().");
 
 static PyObject *
 Pympany_is_inf(PyObject *self, PyObject *other)
@@ -459,6 +460,24 @@ Pympany_is_inf(PyObject *self, PyObject *other)
         return Pympc_is_INF(self, other);
 #endif
     TYPE_ERROR("is_inf() argument type not supported");
+    return NULL;
+}
+
+PyDoc_STRVAR(doc_mpany_is_infinite,
+"is_infinite(x) -> boolean\n\n"
+"Return True if x is +Infinity or -Infinity. If x is an mpc, return True\n"
+"if either x.real or x.imag is infinite.");
+
+static PyObject *
+Pympany_is_infinite(PyObject *self, PyObject *other)
+{
+    if (isReal(other))
+        return Pympfr_is_inf(self, other);
+#ifdef WITHMPC
+    else if (isComplex(other))
+        return Pympc_is_INF(self, other);
+#endif
+    TYPE_ERROR("is_infinite() argument type not supported");
     return NULL;
 }
 

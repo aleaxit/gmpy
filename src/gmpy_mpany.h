@@ -47,6 +47,7 @@ static PyObject * Pympany_printf(PyObject *self, PyObject *args);
 #ifdef WITHMPFR
 static PyObject * Pympany_is_nan(PyObject *self, PyObject *other);
 static PyObject * Pympany_is_inf(PyObject *self, PyObject *other);
+static PyObject * Pympany_is_infinite(PyObject *self, PyObject *other);
 static PyObject * Pympany_is_zero(PyObject *self, PyObject *other);
 static PyObject * Pympany_log(PyObject *self, PyObject *other);
 static PyObject * Pympany_exp(PyObject *self, PyObject *other);

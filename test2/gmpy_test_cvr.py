@@ -40,19 +40,19 @@ mpfr('-inf')
 >>> _g.mpq(x)
 Traceback (most recent call last):
   ...
-ValueError: 'mpq' does not support Infinity
+OverflowError: 'mpq' does not support Infinity
 >>> _g.mpq(-x)
 Traceback (most recent call last):
   ...
-ValueError: 'mpq' does not support Infinity
+OverflowError: 'mpq' does not support Infinity
 >>> _g.mpz(x)
 Traceback (most recent call last):
   ...
-ValueError: 'mpz' does not support Infinity
+OverflowError: 'mpz' does not support Infinity
 >>> _g.mpz(-x)
 Traceback (most recent call last):
   ...
-ValueError: 'mpz' does not support Infinity
+OverflowError: 'mpz' does not support Infinity
 >>> _g.mpfr(n)
 mpfr('nan')
 >>> _g.mpq(n)
