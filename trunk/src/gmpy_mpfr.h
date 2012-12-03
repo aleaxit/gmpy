@@ -264,6 +264,9 @@ static PyObject * Pympfr_set_inf(PyObject *self, PyObject *args);
 static PyObject * Pympfr_set_zero(PyObject *self, PyObject *args);
 static PyObject * Pympfr_is_signed(PyObject *self, PyObject *other);
 static PyObject * Pympfr_is_nan(PyObject *self, PyObject *other);
+/* Pympfr_is_number is used to implement is_finite. */
+static PyObject * Pympfr_is_number(PyObject *self, PyObject *other);
+/* Pympfr_is_inf is used to implement is_infinite. */
 static PyObject * Pympfr_is_inf(PyObject *self, PyObject *other);
 static PyObject * Pympfr_is_zero(PyObject *self, PyObject *other);
 static PyObject * Pympfr_is_regular(PyObject *self, PyObject *other);

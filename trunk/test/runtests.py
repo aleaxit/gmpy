@@ -46,7 +46,7 @@ mpz_doctests = ["test_misc.txt", "test_mpz_io.txt"]
 mpfr_doctests = ["test_mpfr_trig.txt"]
 
 # The following tests require MPC support.
-mpc_doctests = []
+mpc_doctests = ["test_mpc.txt"]
 
 # The following tests will only pass on Python 3.2+.
 py32_doctests = ["test_py32_hash.txt"]

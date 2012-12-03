@@ -710,13 +710,14 @@ Pympc_nonzero(PympcObject *self)
     return !MPC_IS_ZERO_P(self->c);
 }
 
-/* To work with the MPC_IS_ macros, NAN, INF, and ZERO are all upper-case. */
+/* To work with the MPC_IS_ macros, NAN, INF, FINITE, and ZERO are
+ * all upper-case.
+ */
 
 #define MPC_TEST_OTHER(NAME, msg) \
 static PyObject * \
 Pympc_is_##NAME(PyObject *self, PyObject *other)\
 {\
-    int res;\
     if(self && Pympc_Check(self)) {\
         Py_INCREF(self);\
     }\
@@ -728,17 +729,21 @@ Pympc_is_##NAME(PyObject *self, PyObject *other)\
         PyErr_SetString(PyExc_TypeError, msg);\
         return NULL;\
     }\
-    res = MPC_IS_##NAME##_P(Pympc_AS_MPC(self));\
-    Py_DECREF(self);\
-    if (res)\
+    if (MPC_IS_##NAME##_P(self)) {\
+        Py_DECREF(self);\
         Py_RETURN_TRUE;\
-    else\
+    }\
+    else {\
+        Py_DECREF(self);\
         Py_RETURN_FALSE;\
+    }\
 }
 
 MPC_TEST_OTHER(NAN, "is_nan() requires 'mpc' argument");
 
-MPC_TEST_OTHER(INF, "is_inf() requires 'mpc' argument");
+MPC_TEST_OTHER(INF, "is_infinite() requires 'mpc' argument");
+
+MPC_TEST_OTHER(FINITE, "is_finite() requires 'mpc' argument");
 
 MPC_TEST_OTHER(ZERO, "is_zero() requires 'mpc' argument");
 

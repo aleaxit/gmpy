@@ -290,6 +290,8 @@
  *   Consistently return OverflowError when converting "inf" (casevh)
  *   Fix mpz.__format__() with # code (casevh)
  *   Add is_infinite(), deprecate is_inf() (casevh)
+ *   Add is_finite(), deprecate is_number() (casevh)
+ *   Fixed issues with mpc() and various is_XXX() functions (casevh)
  *
  ************************************************************************
  *
@@ -645,6 +647,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "hypot", Pympfr_hypot, METH_VARARGS, doc_g_mpfr_hypot },
     { "ieee", GMPyContext_ieee, METH_O, doc_context_ieee },
     { "inf", Pympfr_set_inf, METH_VARARGS, doc_g_mpfr_set_inf },
+    { "is_finite", Pympany_is_finite, METH_O, doc_mpany_is_finite },
     { "is_inf", Pympany_is_inf, METH_O, doc_mpany_is_inf },
     { "is_infinite", Pympany_is_infinite, METH_O, doc_mpany_is_infinite },
     { "is_integer", Pympfr_is_integer, METH_O, doc_g_mpfr_is_integer },
