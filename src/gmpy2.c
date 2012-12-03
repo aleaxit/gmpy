@@ -292,6 +292,8 @@
  *   Add is_infinite(), deprecate is_inf() (casevh)
  *   Add is_finite(), deprecate is_number() (casevh)
  *   Fixed issues with mpc() and various is_XXX() functions (casevh)
+ *   Fixed error handling with mpc(); mpc(1,"nan") is properly (casevh)
+ *      handled
  *
  ************************************************************************
  *
