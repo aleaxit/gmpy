@@ -75,6 +75,10 @@ static PyTypeObject Pympc_Type;
     (mpfr_inf_p(mpc_realref(Pympc_AS_MPC(x))) || \
      mpfr_inf_p(mpc_imagref(Pympc_AS_MPC(x))))
 
+#define MPC_IS_FINITE_P(x) \
+    (mpfr_number_p(mpc_realref(Pympc_AS_MPC(x))) && \
+     mpfr_number_p(mpc_imagref(Pympc_AS_MPC(x))))
+
 /* Verify that an object is an mpc and that both components have valid exp */
 #define Pympc_CheckAndExp(v) \
     (Pympc_Check(v) && \
@@ -280,6 +284,7 @@ static int Pympc_nonzero(PympcObject *self);
 static PyObject * Pympc_is_NAN(PyObject *self, PyObject *other);
 static PyObject * Pympc_is_ZERO(PyObject *self, PyObject *other);
 static PyObject * Pympc_is_INF(PyObject *self, PyObject *other);
+static PyObject * Pympc_is_FINITE(PyObject *self, PyObject *other);
 static PyObject * Pympc_phase(PyObject *self, PyObject *other);
 static PyObject * Pympc_norm(PyObject *self, PyObject *other);
 static PyObject * Pympc_polar(PyObject *self, PyObject *other);

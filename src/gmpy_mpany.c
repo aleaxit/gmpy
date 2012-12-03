@@ -481,6 +481,24 @@ Pympany_is_infinite(PyObject *self, PyObject *other)
     return NULL;
 }
 
+PyDoc_STRVAR(doc_mpany_is_finite,
+"is_finite(x) -> boolean\n\n"
+"Return True if x is an actual number (i.e. not NaN or Infinity). If x is\n"
+"an mpc, return True if both x.real and x.imag are finite.");
+
+static PyObject *
+Pympany_is_finite(PyObject *self, PyObject *other)
+{
+    if (isReal(other))
+        return Pympfr_is_number(self, other);
+#ifdef WITHMPC
+    else if (isComplex(other))
+        return Pympc_is_FINITE(self, other);
+#endif
+    TYPE_ERROR("is_finite() argument type not supported");
+    return NULL;
+}
+
 PyDoc_STRVAR(doc_mpany_is_zero,
 "is_zero(x) -> boolean\n\n"
 "Return True if x is zero.");

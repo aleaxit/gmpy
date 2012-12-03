@@ -543,14 +543,15 @@ Pympfr_is_##NAME(PyObject *self, PyObject *other)\
 
 MPFR_TEST_OTHER(nan, "is_nan() requires 'mpfr' argument");
 
-MPFR_TEST_OTHER(inf, "is_inf() requires 'mpfr' argument");
+MPFR_TEST_OTHER(inf, "is_infinite() requires 'mpfr' argument");
 
 PyDoc_STRVAR(doc_g_mpfr_is_number,
 "is_number(x) -> boolean\n\n"
 "Return True if x is an actual number (i.e. not NaN or Infinity);\n"
-"False otherwise.");
+"False otherwise.\n"
+"Note: is_number() is deprecated; please use is_finite().");
 
-MPFR_TEST_OTHER(number, "is_number() requires 'mpfr' argument");
+MPFR_TEST_OTHER(number, "is_finite() requires 'mpfr' argument");
 
 MPFR_TEST_OTHER(zero, "is_zero() requires 'mpfr' argument");
 
