@@ -1517,7 +1517,8 @@ static PympqObject*
 Pympq_From_DecimalRaw(PyObject* obj)
 {
     PympqObject *result;
-    PyObject *temp = NULL, *d_is_inf, *d_is_nan, *d_is_zero, *d_is_signed, *s;
+    PyObject *temp = NULL, *d_is_inf = NULL, *d_is_nan = NULL;
+    PyObject *d_is_zero = NULL, *d_is_signed = NULL, *s = NULL;
 
     if (!(result = (PympqObject*)Pympq_new()))
         return NULL;
@@ -1538,10 +1539,12 @@ Pympq_From_DecimalRaw(PyObject* obj)
         mpz_set_si(mpq_denref(result->q), 0);
         goto okay;
     }
+    Py_DECREF(temp);
 
     if (!(temp = PyObject_CallFunctionObjArgs(d_is_inf, NULL)))
         goto error;
     if (PyObject_IsTrue(temp)) {
+        Py_DECREF(temp);
         if (!(temp = PyObject_CallFunctionObjArgs(d_is_signed, NULL)))
             goto error;
         if (PyObject_IsTrue(temp)) {
@@ -1554,10 +1557,12 @@ Pympq_From_DecimalRaw(PyObject* obj)
         }
         goto okay;
     }
+    Py_DECREF(temp);
 
     if (!(temp = PyObject_CallFunctionObjArgs(d_is_zero, NULL)))
         goto error;
     if (PyObject_IsTrue(temp)) {
+        Py_DECREF(temp);
         if (!(temp = PyObject_CallFunctionObjArgs(d_is_signed, NULL)))
             goto error;
         if (PyObject_IsTrue(temp)) {
