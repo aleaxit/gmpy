@@ -419,6 +419,11 @@ static PyObject *GMPyExc_ExpBound = NULL;
 
 #endif
 
+#ifdef WITHMPC
+static PympcObject **pympccache;
+static int in_pympccache;
+#endif
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * End of global data declarations.                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -799,6 +804,9 @@ _PyInitGMP(void)
                                          temp, NULL);
     Py_XDECREF(temp);
 
+#endif
+#ifdef WITHMPC
+    set_pympccache();
 #endif
 }
 

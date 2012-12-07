@@ -160,5 +160,8 @@ Pygmpy_set_cache(PyObject *self, PyObject *args)
 #ifdef WITHMPFR
     set_pympfrcache();
 #endif
+#ifdef WITHMPC
+    set_pympccache();
+#endif
     Py_RETURN_NONE;
 }

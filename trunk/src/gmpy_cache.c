@@ -287,28 +287,51 @@ Pympfr_dealloc(PympfrObject *self)
 #endif
 
 #ifdef WITHMPC
-/* Caching logic for Pympc.
-   No caching is done for Pympc since support for setting real and imaginary
-   precision independantly forces a new memory allocation.
-*/
+static void
+set_pympccache(void)
+{
+    if (in_pympccache > global.cache_size) {
+        int i;
+        for (i = global.cache_size; i < in_pympccache; ++i) {
+            mpc_clear(pympccache[i]->c);
+            PyObject_Del(pympccache[i]);
+        }
+        in_pympccache = global.cache_size;
+    }
+    pympccache = GMPY_REALLOC(pympccache, sizeof(PympcObject)*global.cache_size);
+}
+
 
 static PyObject *
 Pympc_new(mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *self;
 
-    if (rprec == 0)
-        rprec = GET_REAL_PREC(context);
-    if (iprec == 0)
-        iprec = GET_IMAG_PREC(context);
+    if (!rprec) rprec = GET_REAL_PREC(context);
+    if (!iprec) iprec = GET_IMAG_PREC(context);
     if (rprec < MPFR_PREC_MIN || rprec > MPFR_PREC_MAX ||
         iprec < MPFR_PREC_MIN || iprec > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");
         return NULL;
     }
-    if (!(self = PyObject_New(PympcObject, &Pympc_Type)))
-        return NULL;
-    mpc_init3(self->c, rprec, iprec);
+    if (in_pympccache) {
+        self = pympccache[--in_pympccache];
+        /* Py_INCREF does not set the debugging pointers, so need to use
+           _Py_NewReference instead. */
+        _Py_NewReference((PyObject*)self);
+        if (rprec == iprec) {
+            mpc_set_prec(self->c, rprec);
+        }
+        else {
+            mpc_clear(self->c);
+            mpc_init3(self->c, rprec, iprec);
+        }
+    }
+    else {
+        if (!(self = PyObject_New(PympcObject, &Pympc_Type)))
+            return NULL;
+        mpc_init3(self->c, rprec, iprec);
+    }
     self->hash_cache = -1;
     self->rc = 0;
     self->round_mode = GET_MPC_ROUND(context);
@@ -318,8 +341,19 @@ Pympc_new(mpfr_prec_t rprec, mpfr_prec_t iprec)
 static void
 Pympc_dealloc(PympcObject *self)
 {
-    mpc_clear(self->c);
-    PyObject_Del(self);
+    size_t msize;
+
+    /* Calculate the number of limbs in the mantissa. */
+    msize = (mpc_realref(self->c)->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
+    msize += (mpc_imagref(self->c)->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
+    if (in_pympccache < global.cache_size &&
+        msize <= (size_t)global.cache_obsize) {
+        pympccache[in_pympccache++] = self;
+    }
+    else {
+        mpc_clear(self->c);
+        PyObject_Del(self);
+    }
 }
 #endif
 

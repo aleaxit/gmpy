@@ -70,6 +70,7 @@ static void Pympfr_dealloc(PympfrObject *self);
 #endif
 
 #ifdef WITHMPC
+static void set_pympccache(void);
 static PyObject * Pympc_new(mpfr_prec_t rprec, mpfr_prec_t iprec);
 static void Pympc_dealloc(PympcObject *self);
 #endif

@@ -192,6 +192,16 @@ Pybasic_add(PyObject *a, PyObject *b)
     }
 #endif
 
+#ifdef WITHMPC
+    if (Pympc_CheckAndExp(a) && Pympc_CheckAndExp(b)) {
+        if (!(rc = (PympcObject*)Pympc_new(0, 0))) {
+            return NULL;
+        }
+        rc->rc = mpc_add(rc->c, Pympc_AS_MPC(a), Pympc_AS_MPC(b), GET_MPC_ROUND(context));
+        MPC_CLEANUP(rc, "addition");
+    }
+#endif
+
     if (isInteger(a) && isInteger(b)) {
         paz = Pympz_From_Number(a);
         pbz = Pympz_From_Number(b);
@@ -285,7 +295,7 @@ Pybasic_add(PyObject *a, PyObject *b)
         rc->rc = mpc_add(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)pac);
         Py_DECREF((PyObject*)pbc);
-        MPC_CLEANUP(rc, "addition");
+        MPC_CLEANUP2(rc, "addition");
     }
 #endif
 
@@ -467,6 +477,15 @@ Pybasic_sub(PyObject *a, PyObject *b)
     }
 #endif
 
+#ifdef WITHMPC
+    if (Pympc_CheckAndExp(a) && Pympc_CheckAndExp(b)) {
+        if (!(rc = (PympcObject*)Pympc_new(0, 0))) {
+            return NULL;
+        }
+        rc->rc = mpc_sub(rc->c, Pympc_AS_MPC(a), Pympc_AS_MPC(b), GET_MPC_ROUND(context));
+        MPC_CLEANUP(rc, "subtraction");
+    }
+#endif
     if (isInteger(a) && isInteger(b)) {
         paz = Pympz_From_Number(a);
         pbz = Pympz_From_Number(b);
@@ -560,7 +579,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
         rc->rc = mpc_sub(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)pac);
         Py_DECREF((PyObject*)pbc);
-        MPC_CLEANUP(rc, "subtraction");
+        MPC_CLEANUP2(rc, "subtraction");
     }
 #endif
 
@@ -735,6 +754,16 @@ Pybasic_mul(PyObject *a, PyObject *b)
     }
 #endif
 
+#ifdef WITHMPC
+    if (Pympc_CheckAndExp(a) && Pympc_CheckAndExp(b)) {
+        if (!(rc = (PympcObject*)Pympc_new(0, 0))) {
+            return NULL;
+        }
+        rc->rc = mpc_mul(rc->c, Pympc_AS_MPC(a), Pympc_AS_MPC(b), GET_MPC_ROUND(context));
+        MPC_CLEANUP(rc, "multiplication");
+    }
+#endif
+
     if (isInteger(a) && isInteger(b)) {
         paz = Pympz_From_Number(a);
         pbz = Pympz_From_Number(b);
@@ -828,7 +857,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
         rc->rc = mpc_mul(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)pac);
         Py_DECREF((PyObject*)pbc);
-        MPC_CLEANUP(rc, "multiplication");
+        MPC_CLEANUP2(rc, "multiplication");
     }
 #endif
 
@@ -1175,7 +1204,24 @@ Pybasic_truediv(PyObject *a, PyObject *b)
     }
 #endif
 
-    if (isInteger(a) && isInteger(b)) {
+ #ifdef WITHMPC
+    if (Pympc_CheckAndExp(a) && Pympc_CheckAndExp(b)) {
+        if (MPC_IS_ZERO_P(b)) {
+            context->ctx.divzero = 1;
+            if (context->ctx.trap_divzero) {
+                GMPY_DIVZERO("'mpc' division by zero");
+                return NULL;
+            }
+        }
+        if (!(rc = (PympcObject*)Pympc_new(0, 0))) {
+            return NULL;
+        }
+        rc->rc = mpc_div(rc->c, Pympc_AS_MPC(a), Pympc_AS_MPC(b), GET_MPC_ROUND(context));
+        MPC_CLEANUP(rc, "division");
+    }
+#endif
+
+   if (isInteger(a) && isInteger(b)) {
         paz = Pympz_From_Number(a);
         pbz = Pympz_From_Number(b);
         if (!paz || !pbz) {
@@ -1305,7 +1351,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
         rc->rc = mpc_div(rc->c, pac->c, pbc->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)pac);
         Py_DECREF((PyObject*)pbc);
-        MPC_CLEANUP(rc, "division");
+        MPC_CLEANUP2(rc, "division");
     }
 #endif
 
