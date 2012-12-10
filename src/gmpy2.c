@@ -294,6 +294,10 @@
  *   Fixed issues with mpc() and various is_XXX() functions (casevh)
  *   Fixed error handling with mpc(); mpc(1,"nan") is properly (casevh)
  *      handled
+ *   Added caching for mpc objects; faster when real and  (casevh)
+ *      imaginary precisions are equal
+ *   Add optimal path for mpfr/mpc + - * / when both operands (casevh)
+ *      have the same type
  *
  ************************************************************************
  *

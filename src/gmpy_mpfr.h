@@ -226,6 +226,31 @@ typedef struct {
     } \
     return (PyObject*)rf;
 
+#define MPFR_CLEANUP_RESULT(NAME) \
+    SUBNORMALIZE(result); \
+    MERGE_FLAGS; \
+    if (mpfr_divby0_p() && context->ctx.trap_divzero) { \
+        GMPY_DIVZERO("'mpfr' division by zero in " #NAME); \
+        Py_DECREF((PyObject*)result); \
+        return NULL; \
+    } \
+    if (mpfr_underflow_p() && context->ctx.trap_underflow) { \
+        GMPY_UNDERFLOW("'mpfr' underflow in " #NAME); \
+        Py_DECREF((PyObject*)result); \
+        return NULL; \
+    } \
+    if (mpfr_overflow_p() && context->ctx.trap_overflow) { \
+        GMPY_OVERFLOW("'mpfr' overflow in " #NAME); \
+        Py_DECREF((PyObject*)result); \
+        return NULL; \
+    } \
+    if (mpfr_inexflag_p() && context->ctx.trap_inexact) { \
+        GMPY_INEXACT("'mpfr' inexact result in " #NAME); \
+        Py_DECREF((PyObject*)result); \
+        return NULL; \
+    } \
+    return (PyObject*)result;
+
 static PyTypeObject Pympfr_Type;
 #define Pympfr_AS_MPFR(obj) (((PympfrObject *)(obj))->f)
 #define Pympfr_Check(v) (((PyObject*)v)->ob_type == &Pympfr_Type)
@@ -344,9 +369,16 @@ static PyObject * Pympfr_y0(PyObject* self, PyObject *other);
 static PyObject * Pympfr_y1(PyObject* self, PyObject *other);
 static PyObject * Pympfr_yn(PyObject* self, PyObject *other);
 static PyObject * Pympfr_ai(PyObject* self, PyObject *other);
+static PyObject * Pympfr_add_fast(PyObject *x, PyObject *y);
 static PyObject * Pympfr_add(PyObject* self, PyObject *other);
+static PyObject * Pympfr_sub_fast(PyObject *x, PyObject *y);
 static PyObject * Pympfr_sub(PyObject* self, PyObject *other);
+static PyObject * Pympfr_mul_fast(PyObject *x, PyObject *y);
 static PyObject * Pympfr_mul(PyObject *self, PyObject *args);
+static PyObject * Pympfr_truediv_fast(PyObject *x, PyObject *y);
+#ifdef PY2
+static PyObject * Pympfr_div2_fast(PyObject *x, PyObject *y);
+#endif
 static PyObject * Pympfr_div(PyObject *self, PyObject *args);
 static PyObject * Pympfr_fmod(PyObject *self, PyObject *args);
 static PyObject * Pympfr_remainder(PyObject *self, PyObject *args);
