@@ -1141,6 +1141,27 @@ Pympc_hash(PympcObject *self)
 }
 
 static PyObject *
+Pympc_add_fast(PyObject *x, PyObject *y)
+{
+    PympcObject *result;
+
+    if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
+        if (!(result = (PympcObject*)Pympc_new(0, 0))) {
+            return NULL;
+        }
+        result->rc = mpc_add(result->c,
+                             Pympc_AS_MPC(x),
+                             Pympc_AS_MPC(y),
+                             GET_MPC_ROUND(context));
+        MPC_CLEANUP(result, "addition");
+        return (PyObject*)result;
+    }
+    else {
+        return Pybasic_add(x, y);
+    }
+}
+
+static PyObject *
 Pympc_add(PyObject *self, PyObject *args)
 {
     PympcObject *result;
@@ -1159,6 +1180,27 @@ Pympc_add(PyObject *self, PyObject *args)
     Py_DECREF(self);
     Py_DECREF(other);
     MPC_CLEANUP(result, "add()");
+}
+
+static PyObject *
+Pympc_sub_fast(PyObject *x, PyObject *y)
+{
+    PympcObject *result;
+
+    if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
+        if (!(result = (PympcObject*)Pympc_new(0, 0))) {
+            return NULL;
+        }
+        result->rc = mpc_sub(result->c,
+                             Pympc_AS_MPC(x),
+                             Pympc_AS_MPC(y),
+                             GET_MPC_ROUND(context));
+        MPC_CLEANUP(result, "subtraction");
+        return (PyObject*)result;
+    }
+    else {
+        return Pybasic_sub(x, y);
+    }
 }
 
 static PyObject *
@@ -1183,6 +1225,27 @@ Pympc_sub(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+Pympc_mul_fast(PyObject *x, PyObject *y)
+{
+    PympcObject *result;
+
+    if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
+        if (!(result = (PympcObject*)Pympc_new(0, 0))) {
+            return NULL;
+        }
+        result->rc = mpc_mul(result->c,
+                             Pympc_AS_MPC(x),
+                             Pympc_AS_MPC(y),
+                             GET_MPC_ROUND(context));
+        MPC_CLEANUP(result, "multiplication");
+        return (PyObject*)result;
+    }
+    else {
+        return Pybasic_mul(x, y);
+    }
+}
+
+static PyObject *
 Pympc_mul(PyObject *self, PyObject *args)
 {
     PympcObject *result;
@@ -1202,6 +1265,64 @@ Pympc_mul(PyObject *self, PyObject *args)
     Py_DECREF(other);
     MPC_CLEANUP(result, "mul()");
 }
+
+static PyObject *
+Pympc_truediv_fast(PyObject *x, PyObject *y)
+{
+    PympcObject *result;
+
+    if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
+        if (MPC_IS_ZERO_P(y)) {
+            context->ctx.divzero = 1;
+            if (context->ctx.trap_divzero) {
+                GMPY_DIVZERO("'mpc' division by zero");
+                return NULL;
+            }
+        }
+        if (!(result = (PympcObject*)Pympc_new(0, 0))) {
+            return NULL;
+        }
+        result->rc = mpc_div(result->c,
+                             Pympc_AS_MPC(x),
+                             Pympc_AS_MPC(y),
+                             GET_MPC_ROUND(context));
+        MPC_CLEANUP(result, "division");
+        return (PyObject*)result;
+    }
+    else {
+        return Pybasic_truediv(x, y);
+    }
+}
+
+#ifdef PY2
+static PyObject *
+Pympc_div2_fast(PyObject *x, PyObject *y)
+{
+    PympcObject *result;
+
+    if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
+        if (MPC_IS_ZERO_P(y)) {
+            context->ctx.divzero = 1;
+            if (context->ctx.trap_divzero) {
+                GMPY_DIVZERO("'mpc' division by zero");
+                return NULL;
+            }
+        }
+        if (!(result = (PympcObject*)Pympc_new(0, 0))) {
+            return NULL;
+        }
+        result->rc = mpc_div(result->c,
+                             Pympc_AS_MPC(x),
+                             Pympc_AS_MPC(y),
+                             GET_MPC_ROUND(context));
+        MPC_CLEANUP(result, "division");
+        return (PyObject*)result;
+    }
+    else {
+        return Pybasic_div2(x, y);
+    }
+}
+#endif
 
 static PyObject *
 Pympc_div(PyObject *self, PyObject *args)
@@ -1246,9 +1367,9 @@ static PyMethodDef Pympc_methods[] =
 #ifdef PY3
 static PyNumberMethods mpc_number_methods =
 {
-    (binaryfunc) Pybasic_add,            /* nb_add                  */
-    (binaryfunc) Pybasic_sub,            /* nb_subtract             */
-    (binaryfunc) Pybasic_mul,            /* nb_multiply             */
+    (binaryfunc) Pympc_add_fast,         /* nb_add                  */
+    (binaryfunc) Pympc_sub_fast,         /* nb_subtract             */
+    (binaryfunc) Pympc_mul_fast,         /* nb_multiply             */
     (binaryfunc) Pybasic_rem,            /* nb_remainder            */
     (binaryfunc) Pybasic_divmod,         /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
@@ -1276,7 +1397,7 @@ static PyNumberMethods mpc_number_methods =
         0,                               /* nb_inplace_xor          */
         0,                               /* nb_inplace_or           */
     (binaryfunc) Pybasic_floordiv,       /* nb_floor_divide         */
-    (binaryfunc) Pybasic_truediv,        /* nb_true_divide          */
+    (binaryfunc) Pympc_truediv_fast,     /* nb_true_divide          */
         0,                               /* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */
         0,                               /* nb_index                */
@@ -1284,10 +1405,10 @@ static PyNumberMethods mpc_number_methods =
 #else
 static PyNumberMethods mpc_number_methods =
 {
-    (binaryfunc) Pybasic_add,            /* nb_add                  */
-    (binaryfunc) Pybasic_sub,            /* nb_subtract             */
-    (binaryfunc) Pybasic_mul,            /* nb_multiply             */
-    (binaryfunc) Pybasic_div2,           /* nb_divide               */
+    (binaryfunc) Pympc_add_fast,         /* nb_add                  */
+    (binaryfunc) Pympc_sub_fast,         /* nb_subtract             */
+    (binaryfunc) Pympc_mul_fast,         /* nb_multiply             */
+    (binaryfunc) Pympc_div2_fast,        /* nb_divide               */
     (binaryfunc) Pybasic_rem,            /* nb_remainder            */
     (binaryfunc) Pybasic_divmod,         /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
@@ -1319,7 +1440,7 @@ static PyNumberMethods mpc_number_methods =
         0,                               /* nb_inplace_xor          */
         0,                               /* nb_inplace_or           */
     (binaryfunc) Pybasic_floordiv,       /* nb_floor_divide         */
-    (binaryfunc) Pybasic_truediv,        /* nb_true_divide          */
+    (binaryfunc) Pympc_truediv_fast,     /* nb_true_divide          */
         0,                               /* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */
 };
