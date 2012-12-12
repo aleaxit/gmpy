@@ -31,6 +31,90 @@ The following libraries are supported:
 
   mpz_prp: http://sourceforge.net/projects/mpzprp/
 
+Changes in gmpy2 2.0.0b3
+------------------------
+
+* mp_version(), mpc_version(), and mpfr_version() now return normal strings on
+  Python 2.x instead of Unicode strings.
+* Faster conversion of the standard library Fraction type to mpq.
+* Improved conversion of the Decimal type to mpfr.
+* Consistently return OverflowError when converting "inf".
+* Fix mpz.__format__() when the format code includes "#".
+* Add is_infinite() and deprecate is_inf().
+* Add is_finite() and deprecate is_number().
+* Fixed the various is_XXX() tests when used with mpc.
+* Added caching for mpc objects.
+* Faster code path for basic operation is both operands are mpfr or mpc.
+* Fix mpfr + float segmentation fault.
+
+Changes in gmpy2 2.0.0b2
+------------------------
+
+* Allow xmpz slice assignment to increase length of xmpz instance by specifying
+  a value for stop.
+* Fixed reference counting bug in several is_xxx_prp() tests.
+* Added iter_bits(), iter_clear(), iter_set() methods to xmpz.
+* Added powmod() for easy access to three argument pow().
+* Removed addmul() and submul() which were added in 2.0.0b1 since they are
+  slower than just using Python code.
+* Bug fix in gcd_ext when both arguments are not mpz.
+* Added ieee() to create contexts for 32, 64, or 128 bit floats.
+* Bug fix in context() not setting emax/emin correctly if they had been changed
+  earlier.
+* Contexts can be directly used in with statement without requiring
+  set_context()/local_context() sequence.
+* local_context() now accepts an optional context.
+
+Changes in gmpy2 2.0.0b1 and earlier
+------------------------------------
+
+* Renamed functions that manipulate individual bits to bit_XXX() to align with
+  bit_length().
+* Added caching for mpq.
+* Added rootrem(), fib2(), lucas(), lucas2().
+* Support changed hash function in Python 3.2.
+* Added is_even(), is_odd().
+* Add caching of the calculated hash value.
+* Add xmpz (mutable mpz) type.
+* Fix mpq formatting issue.
+* Add read/write bit access using slices to xmpz.
+* Add read-only bit access using slices to mpz.
+* Add pack()/unpack() methods to split/join an integer into n-bit chunks.
+* Add support for MPFR (casevh)
+* Removed fcoform float conversion modifier.
+* Add support for MPC.
+* Added context manager.
+* Allow building with just GMP/MPIR if MPFR not available.
+* Allow building with GMP/MPIR and MPFR if MPC not available.
+* Removed most instance methods in favor of gmpy2.function. The general guideline
+  is that *properties* of an instance can be done via instance methods but
+  *functions* that return a new result are done using gmpy2.function.
+* Added __ceil__, __floor__, and __trunc__ methods since they are called by
+  math.ceil(), math.floor(), and math.trunc().
+* Removed gmpy2.pow() to avoid conflicts.
+* Removed gmpy2._copy and added xmpz.copy.
+* Added support for __format__.
+* Added as_integer_ratio, as_mantissa_exp, as_simple_fraction.
+* Updated rich_compare.
+* Require MPFR 3.1.0+ to get divby0 support.
+* Added fsum(), degrees(), radians().
+* Updated random number generation support.
+* Changed license to LGPL 3+.
+* Added lucasu, lucasu_mod, lucasv, and lucasv_mod.
+  *Based on code contributed by David Cleaver.*
+* Added probable-prime tests.
+  *Based on code contributed by David Cleaver.*
+* Added to_binary()/from_binary.
+* Renamed numdigits() to num_digits().
+* Added keyword precision to constants.
+* Added addmul() and submul().
+* Added __round__(), round2(), round_away() for mpfr.
+* round() is no longer a module level function.
+* Renamed module functions min()/max() to min2()/max2().
+*    No longer conflicts with builtin min() and max()
+* Removed set_debug() and related functionality.
+
+
 Installing gmpy2 on Windows
 ---------------------------
 
@@ -51,7 +135,7 @@ Requirements
 gmpy2 has only been tested with the most recent versions of GMP, MPFR and MPC.
 Specifically, for integer and rational support, gmpy2 requires GMP 5.0.x or
 later. To support multiple-precision floating point arithmetic, MPFR 3.1.x or
-later is required. MPC 1.0 or later is required for complex arithmetic.
+later is required. MPC 1.0.1 or later is required for complex arithmetic.
 
 The MPC and MPFR libraries are optional. If the MPC library is not available,
 gmpy2 will still support integer, rational, and real floating-point arithmetic.
@@ -109,7 +193,7 @@ Download and un-tar the MPC source code. Change to MPC source directory
 and compile MPC.
 ::
 
-    $ cd /opt/local/mpc-1.0
+    $ cd /opt/local/mpc-1.0.1
     $ ./configure --prefix=/opt/local --with-gmp=/opt/local --with-mpfr=/opt/local
     $ make
     $ make check
@@ -135,9 +219,9 @@ Miscellaneous gmpy2 Functions
     get_cache() returns the current cache size (number of objects) and the
     maximum size per object (number of limbs).
 
-    gmpy2 maintains an internal list of freed *mpz*, *xmpz*, *mpq*, and *mpfr*
-    objects for reuse. The cache significantly improves performance but does
-    increase the memory footprint.
+    gmpy2 maintains an internal list of freed *mpz*, *xmpz*, *mpq*, *mpfr*, and
+    *mpc* objects for reuse. The cache significantly improves performance but
+    also increases the memory footprint.
 
 **license(...)**
     license() returns the gmpy2 license information.

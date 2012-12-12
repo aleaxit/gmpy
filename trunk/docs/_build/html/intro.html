@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction to gmpy2 &mdash; gmpy2 2.0.0b2 documentation</title>
+    <title>Introduction to gmpy2 &mdash; gmpy2 2.0.0b3 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '2.0.0b2',
+        VERSION:     '2.0.0b3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="gmpy2 2.0.0b2 documentation" href="index.html" />
+    <link rel="top" title="gmpy2 2.0.0b3 documentation" href="index.html" />
     <link rel="next" title="Multiple-precision Integers" href="mpz.html" />
     <link rel="prev" title="Welcome to gmpy2’s documentation!" href="index.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="index.html" title="Welcome to gmpy2’s documentation!"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">gmpy2 2.0.0b2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">gmpy2 2.0.0b3 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -81,6 +81,92 @@ code:</p>
 <p>mpz_prp: <a class="reference external" href="http://sourceforge.net/projects/mpzprp/">http://sourceforge.net/projects/mpzprp/</a></p>
 </li>
 </ul>
+<div class="section" id="changes-in-gmpy2-2-0-0b3">
+<h2>Changes in gmpy2 2.0.0b3<a class="headerlink" href="#changes-in-gmpy2-2-0-0b3" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>mp_version(), mpc_version(), and mpfr_version() now return normal strings on
+Python 2.x instead of Unicode strings.</li>
+<li>Faster conversion of the standard library Fraction type to mpq.</li>
+<li>Improved conversion of the Decimal type to mpfr.</li>
+<li>Consistently return OverflowError when converting &#8220;inf&#8221;.</li>
+<li>Fix mpz.__format__() when the format code includes &#8220;#&#8221;.</li>
+<li>Add is_infinite() and deprecate is_inf().</li>
+<li>Add is_finite() and deprecate is_number().</li>
+<li>Fixed the various is_XXX() tests when used with mpc.</li>
+<li>Added caching for mpc objects.</li>
+<li>Faster code path for basic operation is both operands are mpfr or mpc.</li>
+<li>Fix mpfr + float segmentation fault.</li>
+</ul>
+</div>
+<div class="section" id="changes-in-gmpy2-2-0-0b2">
+<h2>Changes in gmpy2 2.0.0b2<a class="headerlink" href="#changes-in-gmpy2-2-0-0b2" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Allow xmpz slice assignment to increase length of xmpz instance by specifying
+a value for stop.</li>
+<li>Fixed reference counting bug in several is_xxx_prp() tests.</li>
+<li>Added iter_bits(), iter_clear(), iter_set() methods to xmpz.</li>
+<li>Added powmod() for easy access to three argument pow().</li>
+<li>Removed addmul() and submul() which were added in 2.0.0b1 since they are
+slower than just using Python code.</li>
+<li>Bug fix in gcd_ext when both arguments are not mpz.</li>
+<li>Added ieee() to create contexts for 32, 64, or 128 bit floats.</li>
+<li>Bug fix in context() not setting emax/emin correctly if they had been changed
+earlier.</li>
+<li>Contexts can be directly used in with statement without requiring
+set_context()/local_context() sequence.</li>
+<li>local_context() now accepts an optional context.</li>
+</ul>
+</div>
+<div class="section" id="changes-in-gmpy2-2-0-0b1-and-earlier">
+<h2>Changes in gmpy2 2.0.0b1 and earlier<a class="headerlink" href="#changes-in-gmpy2-2-0-0b1-and-earlier" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Renamed functions that manipulate individual bits to bit_XXX() to align with
+bit_length().</li>
+<li>Added caching for mpq.</li>
+<li>Added rootrem(), fib2(), lucas(), lucas2().</li>
+<li>Support changed hash function in Python 3.2.</li>
+<li>Added is_even(), is_odd().</li>
+<li>Add caching of the calculated hash value.</li>
+<li>Add xmpz (mutable mpz) type.</li>
+<li>Fix mpq formatting issue.</li>
+<li>Add read/write bit access using slices to xmpz.</li>
+<li>Add read-only bit access using slices to mpz.</li>
+<li>Add pack()/unpack() methods to split/join an integer into n-bit chunks.</li>
+<li>Add support for MPFR (casevh)</li>
+<li>Removed fcoform float conversion modifier.</li>
+<li>Add support for MPC.</li>
+<li>Added context manager.</li>
+<li>Allow building with just GMP/MPIR if MPFR not available.</li>
+<li>Allow building with GMP/MPIR and MPFR if MPC not available.</li>
+<li>Removed most instance methods in favor of gmpy2.function. The general guideline
+is that <em>properties</em> of an instance can be done via instance methods but
+<em>functions</em> that return a new result are done using gmpy2.function.</li>
+<li>Added __ceil__, __floor__, and __trunc__ methods since they are called by
+math.ceil(), math.floor(), and math.trunc().</li>
+<li>Removed gmpy2.pow() to avoid conflicts.</li>
+<li>Removed gmpy2._copy and added xmpz.copy.</li>
+<li>Added support for __format__.</li>
+<li>Added as_integer_ratio, as_mantissa_exp, as_simple_fraction.</li>
+<li>Updated rich_compare.</li>
+<li>Require MPFR 3.1.0+ to get divby0 support.</li>
+<li>Added fsum(), degrees(), radians().</li>
+<li>Updated random number generation support.</li>
+<li>Changed license to LGPL 3+.</li>
+<li>Added lucasu, lucasu_mod, lucasv, and lucasv_mod.
+<em>Based on code contributed by David Cleaver.</em></li>
+<li>Added probable-prime tests.
+<em>Based on code contributed by David Cleaver.</em></li>
+<li>Added to_binary()/from_binary.</li>
+<li>Renamed numdigits() to num_digits().</li>
+<li>Added keyword precision to constants.</li>
+<li>Added addmul() and submul().</li>
+<li>Added __round__(), round2(), round_away() for mpfr.</li>
+<li>round() is no longer a module level function.</li>
+<li>Renamed module functions min()/max() to min2()/max2().</li>
+<li>No longer conflicts with builtin min() and max()</li>
+<li>Removed set_debug() and related functionality.</li>
+</ul>
+</div>
 <div class="section" id="installing-gmpy2-on-windows">
 <h2>Installing gmpy2 on Windows<a class="headerlink" href="#installing-gmpy2-on-windows" title="Permalink to this headline">¶</a></h2>
 <p>Pre-compiled versions of gmpy2 are available at <a class="reference external" href="http://code.google.com/p/gmpy/downloads/list">Downloads</a> . Please
@@ -97,7 +183,7 @@ version of the gmpy2 installer.</p>
 <p>gmpy2 has only been tested with the most recent versions of GMP, MPFR and MPC.
 Specifically, for integer and rational support, gmpy2 requires GMP 5.0.x or
 later. To support multiple-precision floating point arithmetic, MPFR 3.1.x or
-later is required. MPC 1.0 or later is required for complex arithmetic.</p>
+later is required. MPC 1.0.1 or later is required for complex arithmetic.</p>
 <p>The MPC and MPFR libraries are optional. If the MPC library is not available,
 gmpy2 will still support integer, rational, and real floating-point arithmetic.
 If the MPFR library is not available, gmpy2 will only support integer and
@@ -140,7 +226,7 @@ $ make install</pre>
 </div>
 <p>Download and un-tar the MPC source code. Change to MPC source directory
 and compile MPC.</p>
-<div class="highlight-python"><pre>$ cd /opt/local/mpc-1.0
+<div class="highlight-python"><pre>$ cd /opt/local/mpc-1.0.1
 $ ./configure --prefix=/opt/local --with-gmp=/opt/local --with-mpfr=/opt/local
 $ make
 $ make check
@@ -163,9 +249,9 @@ to_binary().</dd>
 <dt><strong>get_cache(...)</strong></dt>
 <dd><p class="first">get_cache() returns the current cache size (number of objects) and the
 maximum size per object (number of limbs).</p>
-<p class="last">gmpy2 maintains an internal list of freed <em>mpz</em>, <em>xmpz</em>, <em>mpq</em>, and <em>mpfr</em>
-objects for reuse. The cache significantly improves performance but does
-increase the memory footprint.</p>
+<p class="last">gmpy2 maintains an internal list of freed <em>mpz</em>, <em>xmpz</em>, <em>mpq</em>, <em>mpfr</em>, and
+<em>mpc</em> objects for reuse. The cache significantly improves performance but
+also increases the memory footprint.</p>
 </dd>
 <dt><strong>license(...)</strong></dt>
 <dd>license() returns the gmpy2 license information.</dd>
@@ -213,6 +299,9 @@ are supported.</dd>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Introduction to gmpy2</a><ul>
+<li><a class="reference internal" href="#changes-in-gmpy2-2-0-0b3">Changes in gmpy2 2.0.0b3</a></li>
+<li><a class="reference internal" href="#changes-in-gmpy2-2-0-0b2">Changes in gmpy2 2.0.0b2</a></li>
+<li><a class="reference internal" href="#changes-in-gmpy2-2-0-0b1-and-earlier">Changes in gmpy2 2.0.0b1 and earlier</a></li>
 <li><a class="reference internal" href="#installing-gmpy2-on-windows">Installing gmpy2 on Windows</a></li>
 <li><a class="reference internal" href="#installing-gmpy2-on-unix-linux">Installing gmpy2 on Unix/Linux</a><ul>
 <li><a class="reference internal" href="#requirements">Requirements</a></li>
@@ -265,7 +354,7 @@ are supported.</dd>
         <li class="right" >
           <a href="index.html" title="Welcome to gmpy2’s documentation!"
              >previous</a> |</li>
-        <li><a href="index.html">gmpy2 2.0.0b2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">gmpy2 2.0.0b3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

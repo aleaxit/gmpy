@@ -6,7 +6,7 @@ The xmpz type
 
 gmpy2 provides access to an experimental integer type called *xmpz*. The
 *xmpz* type is a mutable integer type. In-place operations (+=, //=, etc.)
-modify the orignal object and do not create a new object. Instances of 
+modify the orignal object and do not create a new object. Instances of
 *xmpz* cannot be used as dictionary keys.
 
 ::
@@ -31,10 +31,10 @@ Individual bits can be set or cleared::
     xmpz(1148)
 
 Slice notation is supported. The bits referenced by a slice can be either 'read
-from' or 'written to'. To clear a slice of bits, use a source value of 0. In 
+from' or 'written to'. To clear a slice of bits, use a source value of 0. In
 2s-complement format, 0 is represented by an arbitrary number of 0-bits. To set
-a slice of bits, use a source value of ~0. The *tilde* operator inverts, or 
-complements the bits in an integer. (~0 is -1 so you can also use -1.) In 
+a slice of bits, use a source value of ~0. The *tilde* operator inverts, or
+complements the bits in an integer. (~0 is -1 so you can also use -1.) In
 2s-complement format, -1 is represented by an arbitrary number of 1-bits.
 
 If a value for *stop* is specified in a slice assignment and the actual
@@ -58,16 +58,16 @@ Bits can be reversed::
     >>> a[::] = a[::-1]
     >>> bin(a)
     '0b111110001'
-    
-The methods *iter_bits()*, *iter_clear*, and *iter_set* return generators
-that return True/False for each bit position, or the bit positions that
-are 1 or 0. The methods support arguments *start* and *stop* that define the
-beginning and ending bit positions that are used. To mimic the behavior of
-slices. the bit positions checked include *start* but the last position
-checked is *stop* - 1.
+
+The *iter_bits()* method returns a generator that returns True or False for each
+bit position. The methods *iter_clear()*, and *iter_set()* return generators
+that return the bit positions that are 1 or 0. The methods support arguments
+*start* and *stop* that define the beginning and ending bit positions that are
+used. To mimic the behavior of slices. the bit positions checked include *start*
+but the last position checked is *stop* - 1.
 
 ::
-    
+
     >>> a=xmpz(117)
     >>> bin(a)
     '0b1110101'
@@ -110,7 +110,7 @@ prime numbers.
 	    bitmap[p*p : limit : p+p] = -1
 
 	return bitmap.iter_clear(2, limit)
-	
+
     if __name__ == "__main__":
         start = time.time()
         result = list(sieve())

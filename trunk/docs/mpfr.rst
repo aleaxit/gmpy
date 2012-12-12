@@ -527,11 +527,18 @@ mpfr Functions
     inf(n) returns an *mpfr* initialized to Infinity with the same sign as n.
     If n is not given, +Infinity is returned.
 
+**is_finite(...)**
+    is_finite(x) returns True if x is an actual number (i.e. not NaN or
+    Infinity).
+
 **is_inf(...)**
     is_inf(x) returns True if x is Infinity or -Infinity.
 
     .. note::
         **is_inf()** is deprecated; please use **if_infinite()**.
+
+**is_infinite(...)**
+    is_infinite(x) returns True if x Infinity or -Infinity.
 
 **is_nan(...)**
     is_nan(x) returns True if x is NaN (Not-A-Number).

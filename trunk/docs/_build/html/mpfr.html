@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Multiple-precision Reals &mdash; gmpy2 2.0.0b2 documentation</title>
+    <title>Multiple-precision Reals &mdash; gmpy2 2.0.0b3 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '2.0.0b2',
+        VERSION:     '2.0.0b3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="gmpy2 2.0.0b2 documentation" href="index.html" />
+    <link rel="top" title="gmpy2 2.0.0b3 documentation" href="index.html" />
     <link rel="next" title="Multiple-precision Complex" href="mpc.html" />
     <link rel="prev" title="Multiple-precision Rationals" href="mpq.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="mpq.html" title="Multiple-precision Rationals"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">gmpy2 2.0.0b2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">gmpy2 2.0.0b3 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -495,13 +495,28 @@ point types.</dd>
 <dt><strong>inf(...)</strong></dt>
 <dd>inf(n) returns an <em>mpfr</em> initialized to Infinity with the same sign as n.
 If n is not given, +Infinity is returned.</dd>
+<dt><strong>is_finite(...)</strong></dt>
+<dd>is_finite(x) returns True if x is an actual number (i.e. not NaN or
+Infinity).</dd>
 <dt><strong>is_inf(...)</strong></dt>
-<dd>is_inf(x) returns True if x is Infinity or - Infinity.</dd>
+<dd><p class="first">is_inf(x) returns True if x is Infinity or -Infinity.</p>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>is_inf()</strong> is deprecated; please use <strong>if_infinite()</strong>.</p>
+</div>
+</dd>
+<dt><strong>is_infinite(...)</strong></dt>
+<dd>is_infinite(x) returns True if x Infinity or -Infinity.</dd>
 <dt><strong>is_nan(...)</strong></dt>
 <dd>is_nan(x) returns True if x is NaN (Not-A-Number).</dd>
 <dt><strong>is_number(...)</strong></dt>
-<dd>is_number(x) returns True if x is an actual number (i.e. not NaN or
-Infinity).</dd>
+<dd><p class="first">is_number(x) returns True if x is an actual number (i.e. not NaN or
+Infinity).</p>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>is_number()</strong> is deprecated; please use <strong>is_finite()</strong>.</p>
+</div>
+</dd>
 <dt><strong>is_regular(...)</strong></dt>
 <dd>is_regular(x) returns True if x is not zero, NaN, or Infinity.</dd>
 <dt><strong>is_signed(...)</strong></dt>
@@ -795,7 +810,7 @@ format string &#8216;fmt&#8217;. A valid format string consists of:</p>
         <li class="right" >
           <a href="mpq.html" title="Multiple-precision Rationals"
              >previous</a> |</li>
-        <li><a href="index.html">gmpy2 2.0.0b2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">gmpy2 2.0.0b3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
