@@ -1,60 +1,140 @@
-Instructions for compiling GMPY for 32-bit Windows.
+Assumptions
+===========
 
-GMPY 32-bit binaries can be compiled for the Windows operating systems
-using the free MinGW toolkit. The MinGW toolkit provides a Minimalist
-GNU for Windows environment. If you are trying to build a 64-bit version
-of GMPY, please refer to "win_x64_sdk_build.txt".
+The build files for MPIR, MPFR, and MPC only support VS 2010. However, if
+VS 2008 is also installed, the "Platform Toolset" setting can be used to select
+a specific compiler: v100 = VS 2010, v90 = VS 2008.
 
-GMPY can use either the GMP or MPIR multiple-precision library. The
-procedure for MPIR is indentical.
+Assumes MPIR is placed in c:\src\mpir. (No version number.)
+Assumes MPFR is placed in c:\src\mpfr. (No version number.)
+Assumes MPC is placed in c:\src\mpc. (No version number.)
+Assumes gmpy2 is placed in c:\src\gmpy2. (No version number.)
+Assumes vsyasm is installed.
 
-1) Download and install MinGW-5.1.6.exe. Choose the "current" release.
+Compiling MPIR
+==============
 
-2) Download and install MSYS-1.0.11.exe.
+cd c:\src\mpir\build.vc10
+python mpir_config.py
+# enter 3 (Pentium 3) and 18 (AMD K8)
 
-3) The following instructions assume that both Python and gcc (part of
-   MinGW) exist on the operating system PATH. On Windows XP, this can be
-   done using Settings -> Control Panel -> System -> Environment Variables.
+Start Visual Studio 2010 and open c:\src\mpir\build.vc10\mpir.sln.
+Select "Release" and "Win32"
+Open "lib_mpir_p3" properties
+- Change "Platform Toolset" if needed.
+- Change "Character Set" to "Not Set". (Probably not needed.)
+- Change "Optimization" to "/O2". (Set uniformly in MPFR and MPC too.)
+- Change "Runtime Library" to "Multi-threaded DLL /MD".
+- Change "Buffer Security Check" to "No".
+Select "Build"
+- Ignore preinv* warnings (I think)
+- Ignore *_ux and *_sx warnings if using v90 toolset (i.e. VS2008).
 
-   If not already present, add c:\python26 and c:\mingw\bin to the PATH.
-   The entries should be separated by a semi-colon. Note: Python 2.6 is
-   used in this example.
+Select "Release" and "x64"
+Open "lib_mpir_k8" properties
+- Change "Platform Toolset" if needed.
+- Change "Character Set" to "Not Set". (Probably not needed.)
+- Change "Optimization" to "/O2". (Set uniformly in MPFR and MPC too.)
+- Change "Runtime Library" to "Multi-threaded DLL /MD".
+- Change "Buffer Security Check" to "No".
+Select "Build"
+- Ignore preinv* warnings (I think)
+- Ignore *_ux and *_sx warnings if using v90 toolset (i.e. VS2008).
 
-4) A icon entitled "MSYS" should be created on the desktop. It provides
-   a GNU-compatible command line interface. Start MSYS and create a
-   directory that will contain the MPIR and GMPY source code. C:\src will
-   be used for this build. Note that /c/src is the MSYS equivalent of
-   C:\src.
+Compiling MPFR
+==============
 
-   $ mkdir /c/src
+Start Visual Studio 2010 and open c:\src\mpfr\build.vc10\lib_mpfr.sln.
+Select "Release" and "Win32"
+Open "lib_mpfr" properties
+- Change "Platform Toolset: if needed.
+- Change settings to match MPIR except "Enable Fiber-Safe Optimizations" should
+  be set.
+Select "Build"
 
-5) Download the GMP source code from www.gmplib.org and save it in C:\src.
-   gmp-5.0.1.tar.bz2 is used in this example. The GMP source is also
-   available at http://gmpy.googlecode.com/files/gmp-5.0.1.tar.bz2.
+Select "Release" and "x64"
+Open "lib_mpfr" properties
+- Change "Platform Toolset: if needed.
+- Change settings to match MPIR except "Enable Fiber-Safe Optimizations" should
+  be set.
+Select "Build"
 
-6) Download the GMPY source code and save it in C:\src. For this example,
-   I used gmpy-1.12.tar.gz.
+Compiling MPC
+=============
 
-7) Using MSYS, uncompress GMP, and then compile GMP. The resulting files
-   are installed in C:\src.
+Start Visual Studio 2010 and open c:\src\mpfr\build.vc10\mpc.sln.
+Select "Release" and "Win32"
+Open "mpc_lib" properties
+- Change "Platform Toolset: if needed.
+- Change remaining settings to match MPIR.
+Select "Build"
 
-   $ cd /c/src
-   $ bunzip2 gmp.5.0.1.tar.bz2
-   $ tar -xf gmp-5.0.1.tar
-   $ cd gmp-5.0.1
-   $ ./configure --prefix=/c/src --enable-fat
-   $ make
-   $ make check
-   $ make install
+Select "Release" and "x64"
+Open "lib_mpfr" properties
+- Change "Platform Toolset: if needed.
+- Change remaining settings to match MPIR.
+Select "Build"
 
-8) Using the Windows command line, compile GMPY. The instructions assume the
-   GMPY source code is in C:\src\gmpy-1.12.
+Copy the library files
+======================
 
-   > cd C:\src\gmpy-1.12
-   > python setup.py build_ext -cmingw32 -Ic:\src\include -Lc:\src\lib install
-   > python test\gmpy_test.py
+The header files will be copied c:\src\BB\vsNNNN\include and the library files
+will be copied to c:\src\BB\vsNNNN\lib where BB is 32 or 64, and NNNN is 2008
+or 2010.
 
-Miscellaneous notes on compiling GMPY
+32-bit, VS 2008
 
-If you are using MPIR, you will need to include -DMPIR after build_ext.
+cd c:\src
+xcopy /y c:\src\mpir\lib\Win32\Release\*.h c:\src\32\vs2008\include\
+xcopy /y c:\src\mpir\lib\Win32\Release\*.lib c:\src\32\vs2008\lib\
+xcopy /y c:\src\mpfr\lib\Win32\Release\*.h c:\src\32\vs2008\include\
+xcopy /y c:\src\mpfr\lib\Win32\Release\*.lib c:\src\32\vs2008\lib\
+xcopy /y c:\src\mpc\lib\Win32\Release\*.h c:\src\32\vs2008\include\
+xcopy /y c:\src\mpc\lib\Win32\Release\*.lib c:\src\32\vs2008\lib\
+
+64-bit, VS 2008
+
+cd c:\src
+xcopy /y c:\src\mpir\lib\x64\Release\*.h c:\src\64\vs2008\include\
+xcopy /y c:\src\mpir\lib\x64\Release\*.lib c:\src\64\vs2008\lib\
+xcopy /y c:\src\mpfr\lib\x64\Release\*.h c:\src\64\vs2008\include\
+xcopy /y c:\src\mpfr\lib\x64\Release\*.lib c:\src\64\vs2008\lib\
+xcopy /y c:\src\mpc\lib\x64\Release\*.h c:\src\64\vs2008\include\
+xcopy /y c:\src\mpc\lib\x64\Release\*.lib c:\src\64\vs2008\lib\
+
+32-bit, VS 2010
+
+cd c:\src
+xcopy /y c:\src\mpir\lib\Win32\Release\*.h c:\src\32\vs2010\include\
+xcopy /y c:\src\mpir\lib\Win32\Release\*.lib c:\src\32\vs2010\lib\
+xcopy /y c:\src\mpfr\lib\Win32\Release\*.h c:\src\32\vs2010\include\
+xcopy /y c:\src\mpfr\lib\Win32\Release\*.lib c:\src\32\vs2010\lib\
+xcopy /y c:\src\mpc\lib\Win32\Release\*.h c:\src\32\vs2010\include\
+xcopy /y c:\src\mpc\lib\Win32\Release\*.lib c:\src\32\vs2010\lib\
+
+64-bit, VS 2010
+
+cd c:\src
+xcopy /y c:\src\mpir\lib\x64\Release\*.h c:\src\64\vs2010\include\
+xcopy /y c:\src\mpir\lib\x64\Release\*.lib c:\src\64\vs2010\lib\
+xcopy /y c:\src\mpfr\lib\x64\Release\*.h c:\src\64\vs2010\include\
+xcopy /y c:\src\mpfr\lib\x64\Release\*.lib c:\src\64\vs2010\lib\
+xcopy /y c:\src\mpc\lib\x64\Release\*.h c:\src\64\vs2010\include\
+xcopy /y c:\src\mpc\lib\x64\Release\*.lib c:\src\64\vs2010\lib\
+
+Compile gmpy2
+=============
+
+c:\32\Python26\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2008 bdist_wininst
+c:\32\Python27\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2008 bdist_wininst
+c:\32\Python32\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2008 bdist_wininst
+c:\32\Python33\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2010 bdist_wininst
+
+c:\64\Python26\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2008 bdist_wininst
+c:\64\Python27\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2008 bdist_wininst
+c:\64\Python32\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2008 bdist_wininst
+c:\64\Python33\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2010 bdist_wininst
+
+
+
 
