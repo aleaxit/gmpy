@@ -1077,7 +1077,7 @@ static PyObject *
 Pympc_div_2exp(PyObject *self, PyObject *args)
 {
     PympcObject *result = 0;
-    mp_bitcnt_t exp = 0;
+    unsigned long exp = 0;
 
     if (!PyArg_ParseTuple(args, "O&k", Pympc_convert_arg, &self, &exp)) {
         TYPE_ERROR("div_2exp() requires 'mpc', 'int' arguments");
@@ -1100,7 +1100,7 @@ static PyObject *
 Pympc_mul_2exp(PyObject *self, PyObject *args)
 {
     PympcObject *result = 0;
-    mp_bitcnt_t exp = 0;
+    unsigned long exp = 0;
 
     if (!PyArg_ParseTuple(args, "O&k", Pympc_convert_arg, &self, &exp)) {
         TYPE_ERROR("mul_2exp() requires 'mpc', 'int' arguments");

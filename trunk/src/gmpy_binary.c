@@ -878,7 +878,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
                 templimb = (templimb << 8) + cp[2];
                 templimb = (templimb << 8) + cp[1];
                 templimb = (templimb << 8) + cp[0];
-                result->f->_mpfr_d[i] = (templimb << 32);
+                result->f->_mpfr_d[i] = ((templimb << 16) << 16);
                 cp += 4;
                 for (i=0; i<newmant-1; i++) {
                     templimb = cp[7];
@@ -1009,7 +1009,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
                 templimb = (templimb << 8) + cp[2];
                 templimb = (templimb << 8) + cp[1];
                 templimb = (templimb << 8) + cp[0];
-                real->f->_mpfr_d[i] = (templimb << 32);
+                real->f->_mpfr_d[i] = ((templimb << 16) << 16);
                 cp += 4;
                 for (i=0; i<newmant-1; i++) {
                     templimb = cp[7];
@@ -1135,7 +1135,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
                 templimb = (templimb << 8) + cp[2];
                 templimb = (templimb << 8) + cp[1];
                 templimb = (templimb << 8) + cp[0];
-                imag->f->_mpfr_d[i] = (templimb << 32);
+                imag->f->_mpfr_d[i] = ((templimb << 16) << 16);
                 cp += 4;
                 for (i=0; i<newmant-1; i++) {
                     templimb = cp[7];

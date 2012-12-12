@@ -770,9 +770,9 @@ GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
     mpz_t zD, s, nmj, res;
     /* these are needed for the LucasU and LucasV part of this function */
     mpz_t uh, vl, vh, ql, qh, tmp;
-    unsigned long int r = 0;
+    mpir_ui r = 0;
     int ret = 0;
-    int j = 0;
+    mpir_ui j = 0;
 
     if (PyTuple_Size(args) != 3) {
         TYPE_ERROR("is_strong_lucas_prp() requires 3 integer arguments");
@@ -999,9 +999,9 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     mpz_t zD, s, nmj, nm2, res;
     /* these are needed for the LucasU and LucasV part of this function */
     mpz_t uh, vl, vh, ql, qh, tmp;
-    unsigned long int r = 0;
+    mpir_ui r = 0;
     int ret = 0;
-    int j = 0;
+    mpir_ui j = 0;
 
     if (PyTuple_Size(args) != 2) {
         TYPE_ERROR("is_extra_strong_lucas_prp() requires 2 integer arguments");
