@@ -298,6 +298,7 @@
  *      imaginary precisions are equal
  *   Add optimal path for mpfr/mpc + - * / when both operands (casevh)
  *      have the same type
+ *   Fix mpfr + float segmentation fault (casevh)
  *
  ************************************************************************
  *

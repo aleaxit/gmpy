@@ -158,7 +158,6 @@ Pybasic_add(PyObject *a, PyObject *b)
             mpfr_clear_flags();
             rf->rc = mpfr_add_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
                                 context->ctx.mpfr_round);
-            Py_DECREF((PyObject*)pbq);
             MPFR_CLEANUP_RF(addition);
         }
         Py_DECREF((PyObject*)rf);
