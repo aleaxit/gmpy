@@ -1,1 +1,1 @@
-include README COPYING COPYING.LESSER *.txt *.py doc/* src/* test/*.py test2/*.py test3/*.py build.vc10/* build.vc9/*
+include README COPYING COPYING.LESSER *.txt *.py docs/* src/* test/*.py test/*.txt test2/*.py test3/*.py build.vc10/* build.vc9/*
