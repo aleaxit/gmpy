@@ -43,7 +43,7 @@ if sys.version.startswith('3.1'):
 mpz_doctests = ["test_misc.txt", "test_mpz_io.txt"]
 
 # The following tests require MPFR support.
-mpfr_doctests = ["test_mpfr_trig.txt"]
+mpfr_doctests = ["test_mpfr.txt", "test_mpfr_trig.txt"]
 
 # The following tests require MPC support.
 mpc_doctests = ["test_mpc.txt"]
