@@ -437,7 +437,7 @@ GMPYIter_Dealloc(GMPYIterObject *self)
 static PyObject *
 GMPYIter_Next(GMPYIterObject *self) {
     PyObject *result = 0;
-    int temp;
+    mpir_si temp;
     Py_ssize_t current_stop;
 
     if (self->stop < 0)
