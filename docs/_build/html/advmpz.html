@@ -104,12 +104,12 @@ logically padded with 0-bits to length <em>stop</em>.</p>
 <span class="go">&#39;0b111110001&#39;</span>
 </pre></div>
 </div>
-<p>The methods <em>iter_bits()</em>, <em>iter_clear</em>, and <em>iter_set</em> return generators
-that return True/False for each bit position, or the bit positions that
-are 1 or 0. The methods support arguments <em>start</em> and <em>stop</em> that define the
-beginning and ending bit positions that are used. To mimic the behavior of
-slices. the bit positions checked include <em>start</em> but the last position
-checked is <em>stop</em> - 1.</p>
+<p>The <em>iter_bits()</em> method returns a generator that returns True or False for each
+bit position. The methods <em>iter_clear()</em>, and <em>iter_set()</em> return generators
+that return the bit positions that are 1 or 0. The methods support arguments
+<em>start</em> and <em>stop</em> that define the beginning and ending bit positions that are
+used. To mimic the behavior of slices. the bit positions checked include <em>start</em>
+but the last position checked is <em>stop</em> - 1.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">=</span><span class="n">xmpz</span><span class="p">(</span><span class="mi">117</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">bin</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 <span class="go">&#39;0b1110101&#39;</span>
