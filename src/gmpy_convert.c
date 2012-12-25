@@ -2400,6 +2400,19 @@ Pympc_To_PyFloat(PyObject *self)
     return NULL;
 }
 
+PyDoc_STRVAR(doc_mpc_complex, "Convert 'mpc' to 'complex'.");
+
+static PyObject *
+Pympc_To_PyComplex(PyObject *self, PyObject *other)
+{
+    double real = mpfr_get_d(mpc_realref(Pympc_AS_MPC(self)),
+                             GET_REAL_ROUND(context));
+    double imag = mpfr_get_d(mpc_imagref(Pympc_AS_MPC(self)),
+                             GET_IMAG_ROUND(context));
+
+    return PyComplex_FromDoubles(real, imag);
+}
+
 static PympcObject *
 Pympc_From_Pympz(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
