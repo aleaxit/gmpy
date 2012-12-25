@@ -1357,6 +1357,7 @@ Pympc_div(PyObject *self, PyObject *args)
 
 static PyMethodDef Pympc_methods[] =
 {
+    { "__complex__", Pympc_To_PyComplex, METH_VARARGS, doc_mpc_complex },
     { "__format__", Pympc_format, METH_VARARGS, doc_mpc_format },
     { "conjugate", Pympc_conjugate, METH_NOARGS, doc_mpc_conjugate },
     { "digits", Pympc_digits, METH_VARARGS, doc_mpc_digits },

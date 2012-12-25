@@ -222,7 +222,7 @@ static PympcObject *   Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr
 static PyObject *      Pympc_To_PyFloat(PyObject *self);
 static PyObject *      Pympc_To_PyLong(PyObject *self);
 static PyObject *      Pympc_To_PyStr(PympcObject *self, int base, int digits);
-
+static PyObject *      Pympc_To_PyComplex(PyObject *self, PyObject *other);
 /* support str() and repr() */
 static PyObject *      Pympc_To_Str(PympcObject *self);
 static PyObject *      Pympc_To_Repr(PympcObject *self);
