@@ -51,9 +51,12 @@ static PyObject * Pympq_getnumer(PympqObject *self, void *closure);
 static PyObject * Pympq_denom(PyObject *self, PyObject *args);
 static PyObject * Pympq_getdenom(PympqObject *self, void *closure);
 static PyObject * Pympq_qdiv(PyObject *self, PyObject *args);
-static PyObject * Pympq_neg(PympqObject *x);
-static PyObject * Pympq_abs(PympqObject *x);
-static PyObject * Pympq_pos(PympqObject *x);
+static PyObject * Pympq_neg(PympqObject *self);
+static PyObject * Pympq_abs(PympqObject *self);
+static PyObject * Pympq_pos(PympqObject *self);
+static PyObject * Pympq_ceil(PyObject *self, PyObject *other);
+static PyObject * Pympq_floor(PyObject *self, PyObject *other);
+static PyObject * Pympq_trunc(PyObject *self, PyObject *other);
 static PyObject * Pympq_square(PyObject *self, PyObject *other);
 static PyObject * Pympq_pow(PyObject *base, PyObject *exp, PyObject *m);
 static int Pympq_nonzero(PympqObject *x);
@@ -66,4 +69,4 @@ static PyObject * Pympq_div(PyObject *self, PyObject *args);
 #ifdef __cplusplus
 }
 #endif
-#endif 
+#endif

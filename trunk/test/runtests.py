@@ -40,7 +40,8 @@ if sys.version.startswith('3.1'):
     print()
 
 # The following tests should pass on all builds.
-mpz_doctests = ["test_misc.txt", "test_mpz_io.txt"]
+mpz_doctests = ["test_mpz.txt", "test_mpz_io.txt"]
+mpq_doctests = ["test_mpq.txt"]
 
 # The following tests require MPFR support.
 mpfr_doctests = ["test_mpfr.txt", "test_mpfr_trig.txt"]
@@ -54,7 +55,7 @@ py32_doctests = ["test_py32_hash.txt"]
 failed = 0
 attempted = 0
 
-all_doctests = mpz_doctests
+all_doctests = ["test_misc.txt"] + mpz_doctests + mpq_doctests
 if gmpy2.mpfr_version():
     all_doctests += mpfr_doctests
 if gmpy2.mpc_version():

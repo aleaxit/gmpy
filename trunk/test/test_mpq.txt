@@ -1,25 +1,23 @@
-MPZ Functionality
+MPQ Functionality
 =================
 
-Testing of mpz functionality is split into multiple files.
+Testing of mpq functionality is split into multiple files.
 
-    test_mpz.txt
+    test_mpq.txt
         Test basic functionality and stuff not covered anywhere else.
 
-    test_mpz_functions.txt
-        Test mpz functions, including error messages.
-
-    test_mpz_io.txt
+    test_mpq_io.txt
         Test input/output and formating.
 
-    test_mpz_comp.txt
+    test_mpq_comp.txt
         Test comparisons.
 
     >>> import gmpy2 as G
+    >>> from fractions import Fraction as F
     >>> from gmpy2 import mpz, mpq, mpfr
-    >>> a = mpz(123)
-    >>> b = mpz(456)
-    >>> c = 12345678901234567890
+    >>> a = mpq(3,11)
+    >>> b = mpq(1,2)
+    >>> c = F(5,7)
 
 Test elementary operations
 ==========================
@@ -27,187 +25,157 @@ Test elementary operations
 Test addition
 -------------
 
-    >>> a+1
-    mpz(124)
-    >>> a+(-1)
-    mpz(122)
-    >>> (-1)+a
-    mpz(122)
-    >>> 1+a
-    mpz(124)
     >>> a+b
-    mpz(579)
+    mpq(17,22)
     >>> b+a
-    mpz(579)
+    mpq(17,22)
+    >>> a+1
+    mpq(14,11)
+    >>> 1+a
+    mpq(14,11)
+    >>> a+(-1)
+    mpq(-8,11)
+    >>> -1+a
+    mpq(-8,11)
     >>> a+c
-    mpz(12345678901234568013)
+    mpq(76,77)
     >>> c+a
-    mpz(12345678901234568013)
+    mpq(76,77)
+    >>> a+a
+    mpq(6,11)
+    >>> b+b
+    mpq(1,1)
+    >>> a+mpz(123456)
+    mpq(1358019,11)
+    >>> mpz(-123456)+a
+    mpq(-1358013,11)
     >>> a+'b'
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-    TypeError: unsupported operand type(s) for +: 'mpz' and 'str'
-    >>> 'b'+a #doctest: +IGNORE_EXCEPTION_DETAIL
+    TypeError: unsupported operand type(s) for +: 'mpq' and 'str'
+    >>> 'b'+a
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-    TypeError: Can't convert 'mpz' object to str implicitly
+    TypeError: Can't convert 'mpq' object to str implicitly
 
 Test subtraction
 ----------------
 
-    >>> a-1
-    mpz(122)
-    >>> a-(-1)
-    mpz(124)
-    >>> 1-a
-    mpz(-122)
-    >>> (-1)-a
-    mpz(-124)
     >>> a-b
-    mpz(-333)
+    mpq(-5,22)
     >>> b-a
-    mpz(333)
+    mpq(5,22)
+    >>> a-1
+    mpq(-8,11)
+    >>> 1-a
+    mpq(8,11)
     >>> a-c
-    mpz(-12345678901234567767)
+    mpq(-34,77)
     >>> c-a
-    mpz(12345678901234567767)
+    mpq(34,77)
+    >>> a-a
+    mpq(0,1)
+    >>> a-mpz(123456)
+    mpq(-1358013,11)
+    >>> mpz(-123456)-a
+    mpq(-1358019,11)
     >>> a-'b'
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-    TypeError: unsupported operand type(s) for -: 'mpz' and 'str'
+    TypeError: unsupported operand type(s) for -: 'mpq' and 'str'
     >>> 'b'-a
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
-    TypeError: unsupported operand type(s) for -: 'str' and 'mpz'
+    TypeError: unsupported operand type(s) for -: 'str' and 'mpq'
 
 Test multiplication
 -------------------
 
     >>> a*b
-    mpz(56088)
+    mpq(3,22)
     >>> b*a
-    mpz(56088)
+    mpq(3,22)
     >>> a*0
-    mpz(0)
+    mpq(0,1)
     >>> 0*a
-    mpz(0)
-    >>> a*123
-    mpz(15129)
-    >>> 123*a
-    mpz(15129)
-    >>> a*c
-    mpz(1518518504851851850470)
-    >>> c*a
-    mpz(1518518504851851850470)
+    mpq(0,1)
+    >>> a*-1
+    mpq(-3,11)
+    >>> -1*a
+    mpq(-3,11)
+    >>> a*mpz(17)
+    mpq(51,11)
+    >>> mpz(17)*a
+    mpq(51,11)
+    >>> a*a
+    mpq(9,121)
     >>> a*'b'
-    'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: can't multiply sequence by non-int of type 'mpq'
     >>> 'b'*a
-    'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: can't multiply sequence by non-int of type 'mpq'
 
 Test division
 -------------
 
     >>> a//b
     mpz(0)
-    >>> a/b
-    mpfr('0.26973684210526316')
     >>> b//a
-    mpz(3)
-    >>> b/a
-    mpfr('3.7073170731707319')
-    >>> a*b
-    mpz(56088)
-    >>> b*a
-    mpz(56088)
-
-    >>> a//b
-    mpz(0)
-    >>> b//a
-    mpz(3)
+    mpz(1)
     >>> a/b
-    mpfr('0.26973684210526316')
+    mpq(6,11)
     >>> b/a
-    mpfr('3.7073170731707319')
-    >>> a//0
-    Traceback (most recent call last):
-      ...
-    ZeroDivisionError: division or modulo by zero
+    mpq(11,6)
     >>> a/0
     Traceback (most recent call last):
-      ...
+      File "<stdin>", line 1, in <module>
     ZeroDivisionError: division or modulo by zero
-
-    >>> c//a
-    mpz(100371373180768844)
-    >>> a**10//c
-    mpz(64)
+    >>> a//0
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: division or modulo by zero
+    >>> 0//a
+    mpz(0)
+    >>> 0/a
+    mpq(0,1)
 
 Test modulo
 -----------
 
     >>> a%b
-    mpz(123)
+    mpq(3,11)
     >>> b%a
-    mpz(87)
+    mpq(5,22)
     >>> divmod(a,b)
-    (mpz(0), mpz(123))
+    (mpz(0), mpq(3,11))
     >>> divmod(b,a)
-    (mpz(3), mpz(87))
+    (mpz(1), mpq(5,22))
     >>> divmod(a,0)
     Traceback (most recent call last):
-      ...
-    ZeroDivisionError: division or modulo by zero
-
-Test miscellaneous
-------------------
-
-    >>> a+True
-    mpz(124)
-    >>> a+False
-    mpz(123)
-    >>> a*False
-    mpz(0)
-    >>> a//True
-    mpz(123)
-    >>> abs(-a) == a
-    True
-    >>> print(pow(a,10))
-    792594609605189126649
-    >>> pow(a,7,b)
-    mpz(99)
-    >>> G.sign(b-a)
-    1
-    >>> G.sign(b-b)
-    0
-    >>> G.sign(a-b)
-    -1
-    >>> G.sign(a)
-    1
-    >>> G.sign(-a)
-    -1
-    >>> z=b-b; G.sign(z)
-    0
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: 'mpq' division or modulo by zero
+    >>> divmod(17,a)
+    (mpz(62), mpq(1,11))
+    >>> divmod(mpz(17),a)
+    (mpz(62), mpq(1,11))
+    >>> divmod(a,c)
+    (mpz(0), mpq(3,11))
+    >>> divmod(c,a)
+    (mpz(2), mpq(13,77))
 
 Test pickle
 -----------
 
     >>> import pickle
-    >>> pickle.loads(pickle.dumps(G.mpz(12346789)))
-    mpz(12346789)
-    >>> pickle.loads(pickle.dumps(G.mpz(-12346789)))
-    mpz(-12346789)
-    >>> pickle.loads(pickle.dumps(G.mpz(0)))
-    mpz(0)
-
-Test mpz.__index__
-------------------
-
-    >>> range(333)[a]
-    123
-    >>> range(333)[b] #doctest: +IGNORE_EXCEPTION_DETAIL
-    Traceback (innermost last):
-      ...
-    IndexError: range object index out of range
+    >>> pickle.loads(pickle.dumps(G.mpq(1234,6789)))
+    mpq(1234,6789)
+    >>> pickle.loads(pickle.dumps(G.mpq(-1234,6789)))
+    mpq(-1234,6789)
+    >>> pickle.loads(pickle.dumps(G.mpq(0,1)))
+    mpq(0,1)
 
 Test operations involving NaN/Inf
 ---------------------------------
@@ -367,13 +335,13 @@ Test operations involving NaN/Inf
     mpfr('nan')
 
     >>> divmod(a, float('Inf'))
-    (mpfr('0.0'), mpfr('123.0'))
+    (mpfr('0.0'), mpfr('0.27272727272727271'))
     >>> divmod(a, float('-Inf'))
     (mpfr('-1.0'), mpfr('-inf'))
     >>> divmod(-a, float('Inf'))
     (mpfr('-1.0'), mpfr('inf'))
     >>> divmod(-a, float('-Inf'))
-    (mpfr('0.0'), mpfr('-123.0'))
+    (mpfr('0.0'), mpfr('-0.27272727272727271'))
     >>> divmod(a, float('nan'))
     (mpfr('nan'), mpfr('nan'))
     >>> divmod(-a, float('nan'))
@@ -404,13 +372,13 @@ Test operations involving NaN/Inf
     (mpfr('nan'), mpfr('nan'))
 
     >>> divmod(a, mpfr('Inf'))
-    (mpfr('0.0'), mpfr('123.0'))
+    (mpfr('0.0'), mpfr('0.27272727272727271'))
     >>> divmod(a, mpfr('-Inf'))
     (mpfr('-1.0'), mpfr('-inf'))
     >>> divmod(-a, mpfr('Inf'))
     (mpfr('-1.0'), mpfr('inf'))
     >>> divmod(-a, mpfr('-Inf'))
-    (mpfr('0.0'), mpfr('-123.0'))
+    (mpfr('0.0'), mpfr('-0.27272727272727271'))
     >>> divmod(a, mpfr('nan'))
     (mpfr('nan'), mpfr('nan'))
     >>> divmod(-a, mpfr('nan'))
@@ -439,38 +407,4 @@ Test operations involving NaN/Inf
     (mpfr('nan'), mpfr('nan'))
     >>> divmod(mpfr('nan'), G.mpz(0))
     (mpfr('nan'), mpfr('nan'))
-
-Test bit operations
--------------------
-
-    >>> ~a
-    mpz(-124)
-    >>> a&b
-    mpz(72)
-    >>> a|b
-    mpz(507)
-    >>> a^b
-    mpz(435)
-    >>> a<<1
-    mpz(246)
-    >>> a>>1
-    mpz(61)
-    >>> a<<-1
-    Traceback (innermost last):
-      ...
-    ValueError: negative shift count
-    >>> a>>-2
-    Traceback (innermost last):
-      ...
-    ValueError: negative shift count
-    >>> a<<0
-    mpz(123)
-    >>> a>>0
-    mpz(123)
-
-Test conversions
-----------------
-
-    >>> int(G.mpz(-3))
-    -3
 
