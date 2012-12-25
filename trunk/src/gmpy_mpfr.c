@@ -1020,38 +1020,80 @@ PyDoc_STRVAR(doc_g_mpfr_round10,
 static PyObject *
 Pympfr_round10(PyObject *self, PyObject *args)
 {
-    long digits = 0;
-    PympfrObject *result = 0, *temp = 0;
+    Py_ssize_t digits = 0;
+    mpz_t temp;
+    PympfrObject *resultf = 0;
+    PympzObject *resultz;
 
-    PARSE_ONE_MPFR_OPT_CLONG(&digits,
-            "__round__() requires 'mpfr',['int'] arguments");
+    /* If the size of args is 0, we just return an mpz. */
+
+    if (PyTuple_GET_SIZE(args) == 0) {
+        if ((resultz = (PympzObject*)Pympz_new())) {
+            if (mpfr_nan_p(Pympfr_AS_MPFR(self))) {
+                Py_DECREF((PyObject*)resultz);
+                VALUE_ERROR("'mpz' does not support NaN");
+                return NULL;
+            }
+            if (mpfr_inf_p(Pympfr_AS_MPFR(self))) {
+                Py_DECREF((PyObject*)resultz);
+                OVERFLOW_ERROR("'mpz' does not support Infinity");
+                return NULL;
+            }
+            /* return code is ignored */
+            mpfr_get_z(resultz->z, Pympfr_AS_MPFR(self), MPFR_RNDN);
+        }
+        return (PyObject*)resultz;
+    }
+
+    /* Now we need to return an mpfr, so handle the simple cases. */
 
     if (!mpfr_regular_p(Pympfr_AS_MPFR(self))) {
-        /* Don't do anything for Inf, NaN, or 0.
-         * The refcount for self is incremented by PARSE_....
-         */
+        Py_INCREF(self);
         return self;
     }
 
-    result = (PympfrObject*)Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(self))+20);
-    temp = (PympfrObject*)Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(self))+20);
-    if (!result || !temp) {
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)temp);
-        Py_DECREF(self);
+    if (PyTuple_GET_SIZE(args) > 1) {
+        TYPE_ERROR("Too many arguments for __round__().");
         return NULL;
     }
 
-    mpfr_set_si(temp->f, digits, MPFR_RNDN);
-    mpfr_exp10(temp->f, temp->f, MPFR_RNDN);
-    mpfr_mul(result->f, Pympfr_AS_MPFR(self), temp->f, MPFR_RNDN);
-    mpfr_rint(result->f, result->f, MPFR_RNDN);
-    mpfr_div(result->f, result->f, temp->f, MPFR_RNDN);
-    mpfr_prec_round(result->f, mpfr_get_prec(Pympfr_AS_MPFR(self)), MPFR_RNDN);
+    if (PyTuple_GET_SIZE(args) == 1) {
+        digits = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 0));
+        if (digits == -1 && PyErr_Occurred()) {
+            TYPE_ERROR("__round__() requires 'int' argument");
+            return NULL;
+        }
+    }
 
-    Py_DECREF((PyObject*)temp);
-    Py_DECREF(self);
-    return((PyObject*)result);
+    /* TODO: better error analysis, or else convert the mpfr to an exact
+     * fraction, round the fraction, and then convert back to an mpfr.
+     */
+
+    resultf = (PympfrObject*)Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(self))+100);
+    if (!resultf)
+        return NULL;
+
+    mpz_inoc(temp);
+    mpz_ui_pow_ui(temp, 10, digits > 0 ? digits : -digits);
+    if (digits >= 0) {
+        mpfr_mul_z(resultf->f, Pympfr_AS_MPFR(self), temp, MPFR_RNDN);
+    }
+    else {
+        mpfr_div_z(resultf->f, Pympfr_AS_MPFR(self), temp, MPFR_RNDN);
+    }
+
+    mpfr_rint(resultf->f, resultf->f, MPFR_RNDN);
+
+    if (digits >= 0) {
+        mpfr_div_z(resultf->f, resultf->f, temp, MPFR_RNDN);
+    }
+    else {
+        mpfr_mul_z(resultf->f, resultf->f, temp, MPFR_RNDN);
+    }
+    mpfr_prec_round(resultf->f, mpfr_get_prec(Pympfr_AS_MPFR(self)), MPFR_RNDN);
+
+    mpz_cloc(temp);
+    return((PyObject*)resultf);
 }
 
 PyDoc_STRVAR(doc_g_mpfr_reldiff,
