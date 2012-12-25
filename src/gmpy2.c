@@ -301,6 +301,7 @@
  *   Fix mpfr + float segmentation fault (casevh)
  *
  *   2.0.0b4
+ *   Add __ceil__, __floor__, __trunc__, __round__ to mpz & mpq (casevh)
  *
  ************************************************************************
  *

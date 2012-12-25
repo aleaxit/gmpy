@@ -124,12 +124,6 @@ Pybasic_add(PyObject *a, PyObject *b)
     if (Pympfr_CheckAndExp(a)) {
         if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
-        if (Pympfr_CheckAndExp(b)) {
-            mpfr_clear_flags();
-            rf->rc = mpfr_add(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
-                              context->ctx.mpfr_round);
-            MPFR_CLEANUP_RF(addition);
-        }
         if (isInteger(b)) {
             if (!(pbz = Pympz_From_Number(b))) {
                 SYSTEM_ERROR("Can not convert Integer to 'mpz'");
@@ -199,26 +193,6 @@ Pybasic_add(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)rf);
     }
 #endif
-
-    if (isInteger(a) && isInteger(b)) {
-        paz = Pympz_From_Number(a);
-        pbz = Pympz_From_Number(b);
-        if (!paz || !pbz) {
-            SYSTEM_ERROR("Can not convert Integer to 'mpz'");
-            Py_XDECREF((PyObject*)paz);
-            Py_XDECREF((PyObject*)pbz);
-            return NULL;
-        }
-        if (!(rz = (PympzObject*)Pympz_new())) {
-            Py_DECREF((PyObject*)paz);
-            Py_DECREF((PyObject*)pbz);
-            return NULL;
-        }
-        mpz_add(rz->z, paz->z, pbz->z);
-        Py_DECREF((PyObject*)paz);
-        Py_DECREF((PyObject*)pbz);
-        return (PyObject*)rz;
-    }
 
     if (isRational(a) && isRational(b)) {
         paq = Pympq_From_Number(a);

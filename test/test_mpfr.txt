@@ -22,6 +22,7 @@ Testing of mpfr functionality is split into multiple files.
     >>> from gmpy2 import mpz, mpq, mpfr
     >>> a = mpfr("12.34")
     >>> b = mpfr("45.67")
+    >>> c = 12345678901234567890
 
 Test elementary operations
 ==========================
@@ -33,16 +34,24 @@ Test addition
     mpfr('13.34')
     >>> a+1.0
     mpfr('13.34')
+    >>> a+mpz(1)
+    mpfr('13.34')
+    >>> a+mpq(1,1)
+    mpfr('13.34')
+    >>> 1+a
+    mpfr('13.34')
+    >>> 1.0+a
+    mpfr('13.34')
+    >>> mpz(1)+a
+    mpfr('13.34')
+    >>> mpq(1,1)+a
+    mpfr('13.34')
     >>> a+b
     mpfr('58.010000000000005')
     >>> a+0
     mpfr('12.34')
     >>> 0+a
     mpfr('12.34')
-    >>> 1+a
-    mpfr('13.34')
-    >>> 1.0+a
-    mpfr('13.34')
     >>> b+a
     mpfr('58.010000000000005')
     >>> a+'b'
@@ -53,11 +62,11 @@ Test addition
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
     TypeError: Can't convert 'mpfr' object to str implicitly
-    >>> a==12.34
+    >>> a == 12.34
     True
-    >>> b==45.67
+    >>> b == 45.67
     True
-    >>> a+b==12.34+45.67
+    >>> a+b == 12.34+45.67
     True
 
 Test subtraction

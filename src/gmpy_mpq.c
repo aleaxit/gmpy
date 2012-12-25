@@ -329,61 +329,168 @@ Pympq_qdiv(PyObject *self, PyObject *args)
     }
 }
 
-#define MPQ_BINOP(NAME) \
-static PyObject * \
-Py##NAME(PyObject *a, PyObject *b) \
-{ \
-  PympqObject *r; \
-  PympqObject *pa = 0; \
-  PympqObject *pb = 0; \
-  pa = Pympq_From_Rational(a); \
-  pb = Pympq_From_Rational(b); \
-  if (!pa || !pb) { \
-    Py_XDECREF((PyObject*)pa); \
-    Py_XDECREF((PyObject*)pb); \
-    Py_RETURN_NOTIMPLEMENTED; \
-  } \
-  if (!(r = (PympqObject*)Pympq_new())) { \
-    Py_DECREF((PyObject*)pa); \
-    Py_DECREF((PyObject*)pb); \
-    return NULL; \
-  } \
-  NAME(r->q, pa->q, pb->q); \
-  Py_DECREF((PyObject*)pa); \
-  Py_DECREF((PyObject*)pb); \
-  return (PyObject *) r; \
+static PyObject *
+Pympq_neg(PympqObject *self)
+{
+    PympqObject *result;
+
+    if ((result = (PympqObject*)Pympq_new())) {
+        mpq_neg(result->q, self->q);
+    }
+
+    return (PyObject*)result;
 }
-
-#define MPQ_MONOP(NAME) \
-static PyObject * \
-Py##NAME(PympqObject *x) \
-{ \
-  PympqObject *r; \
-  if (!(r = (PympqObject*)Pympq_new())) return NULL; \
-  NAME(r->q, x->q); \
-  return (PyObject *) r; \
-}
-
-/* MPQ_MONOP(mpq_inv) */
-
-MPQ_MONOP(mpq_neg)
 
 static PyObject *
-Pympq_abs(PympqObject *x)
+Pympq_abs(PympqObject *self)
 {
-    PympqObject *r;
-    if (!(r = (PympqObject*)Pympq_new()))
+    PympqObject *result;
+
+    if ((result = (PympqObject*)Pympq_new())) {
+        mpq_set(result->q, self->q);
+        mpz_abs(mpq_numref(result->q), mpq_numref(result->q));
+    }
+
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpq_floor,
+             "Return greatest integer less than or equal to an mpq.");
+
+static PyObject *
+Pympq_floor(PyObject *self, PyObject *other)
+{
+    PympzObject *result;
+
+    if ((result = (PympzObject*)Pympz_new())) {
+        mpz_fdiv_q(result->z,
+                   mpq_numref(Pympq_AS_MPQ(self)),
+                   mpq_denref(Pympq_AS_MPQ(self)));
+    }
+
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpq_ceil,
+             "Return least integer greater than or equal to an mpq.");
+
+static PyObject *
+Pympq_ceil(PyObject *self, PyObject *other)
+{
+    PympzObject *result;
+
+    if ((result = (PympzObject*)Pympz_new())) {
+        mpz_cdiv_q(result->z,
+                   mpq_numref(Pympq_AS_MPQ(self)),
+                   mpq_denref(Pympq_AS_MPQ(self)));
+    }
+
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpq_trunc,
+             "Return integer portion of an mpq.");
+
+static PyObject *
+Pympq_trunc(PyObject *self, PyObject *other)
+{
+    PympzObject *result;
+
+    if ((result = (PympzObject*)Pympz_new())) {
+        mpz_tdiv_q(result->z,
+                   mpq_numref(Pympq_AS_MPQ(self)),
+                   mpq_denref(Pympq_AS_MPQ(self)));
+    }
+
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(doc_mpq_round, "Round an mpq to power of 10.");
+
+static PyObject *
+Pympq_round(PyObject *self, PyObject *args)
+{
+    Py_ssize_t round_digits = 0;
+    PympqObject *resultq;
+    PympzObject *resultz;
+    mpz_t temp, rem;
+
+    /* If args is NULL or the size of args is 0, we just return an mpz. */
+
+    if (!args || PyTuple_GET_SIZE(args) == 0) {
+        if (!(resultz = (PympzObject*)Pympz_new()))
+            return NULL;
+
+        mpz_inoc(rem);
+        mpz_fdiv_qr(resultz->z, rem, mpq_numref(Pympq_AS_MPQ(self)),
+                    mpq_denref(Pympq_AS_MPQ(self)));
+        mpz_mul_2exp(rem, rem, 1);
+        if (mpz_cmp(rem, mpq_denref(Pympq_AS_MPQ(self))) > 0) {
+            mpz_add_ui(resultz->z, resultz->z, 1);
+        }
+        else if (mpz_cmp(rem, mpq_denref(Pympq_AS_MPQ(self))) == 0) {
+            if (mpz_odd_p(resultz->z)) {
+                mpz_add_ui(resultz->z, resultz->z, 1);
+            }
+        }
+        mpz_cloc(rem);
+        return (PyObject*)resultz;
+    }
+
+    if (PyTuple_GET_SIZE(args) > 1) {
+        TYPE_ERROR("Too many arguments for __round__().");
         return NULL;
-    mpq_set(r->q, x->q);
-    mpz_abs(mpq_numref(r->q),mpq_numref(r->q));
-    return (PyObject *) r;
+    }
+
+    if (PyTuple_GET_SIZE(args) == 1) {
+        round_digits = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 0));
+        if (round_digits == -1 && PyErr_Occurred()) {
+            TYPE_ERROR("__round__() requires 'int' argument");
+            return NULL;
+        }
+    }
+
+    if (!(resultq = (PympqObject*)Pympq_new()))
+        return NULL;
+
+    mpz_inoc(temp);
+    mpz_ui_pow_ui(temp, 10, round_digits > 0 ? round_digits : -round_digits);
+
+    mpq_set(resultq->q, Pympq_AS_MPQ(self));
+    if (round_digits > 0) {
+        mpz_mul(mpq_numref(resultq->q), mpq_numref(resultq->q), temp);
+        mpq_canonicalize(resultq->q);
+        if (!(resultz = (PympzObject*)Pympq_round((PyObject*)resultq, NULL))) {
+            mpz_cloc(temp);
+            return NULL;
+        }
+        mpz_set(mpq_numref(resultq->q), resultz->z);
+        Py_DECREF((PyObject*)resultz);
+        mpz_set(mpq_denref(resultq->q), temp);
+        mpz_cloc(temp);
+        mpq_canonicalize(resultq->q);
+    }
+    else {
+        mpz_mul(mpq_denref(resultq->q), mpq_denref(resultq->q), temp);
+        mpq_canonicalize(resultq->q);
+        if (!(resultz = (PympzObject*)Pympq_round((PyObject*)resultq, NULL))) {
+            mpz_cloc(temp);
+            return NULL;
+        }
+        mpq_set_ui(resultq->q, 0, 1);
+        mpz_mul(mpq_numref(resultq->q), resultz->z, temp);
+        Py_DECREF((PyObject*)resultz);
+        mpz_cloc(temp);
+        mpq_canonicalize(resultq->q);
+    }
+    return (PyObject*)resultq;
 }
 
 static PyObject *
-Pympq_pos(PympqObject *x)
+Pympq_pos(PympqObject *self)
 {
-    Py_INCREF((PyObject*)x);
-    return (PyObject *) x;
+    Py_INCREF((PyObject*)self);
+    return (PyObject*)self;
 }
 
 static PyObject *
@@ -511,9 +618,9 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
 }
 
 static int
-Pympq_nonzero(PympqObject *x)
+Pympq_nonzero(PympqObject *self)
 {
-    return mpq_sgn(x->q) != 0;
+    return mpq_sgn(self->q) != 0;
 }
 
 static Py_hash_t
@@ -738,6 +845,10 @@ static PyGetSetDef Pympq_getseters[] =
 
 static PyMethodDef Pympq_methods [] =
 {
+    { "__ceil__", Pympq_ceil, METH_NOARGS, doc_mpq_ceil },
+    { "__floor__", Pympq_floor, METH_NOARGS, doc_mpq_floor },
+    { "__round__", Pympq_round, METH_VARARGS, doc_mpq_round },
+    { "__trunc__", Pympq_trunc, METH_NOARGS, doc_mpq_trunc },
     { "digits", Pympq_digits, METH_VARARGS, doc_qdigitsm },
     { NULL, NULL, 1 }
 };
