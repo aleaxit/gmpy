@@ -121,6 +121,11 @@ Pybasic_add(PyObject *a, PyObject *b)
     }
 
 #ifdef WITHMPFR
+
+    /* Pympfr_add_fast already handles the case when both a and b are valid
+     * mpfr instances.
+     */
+
     if (Pympfr_CheckAndExp(a)) {
         if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
@@ -346,15 +351,14 @@ Pybasic_sub(PyObject *a, PyObject *b)
     }
 
 #ifdef WITHMPFR
+
+    /* Pympfr_sub_fast already handles the case when both a and b are valid
+     * mpfr instances.
+     */
+
     if (Pympfr_CheckAndExp(a)) {
         if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
-        if (Pympfr_CheckAndExp(b)) {
-            mpfr_clear_flags();
-            rf->rc = mpfr_sub(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
-                              context->ctx.mpfr_round);
-            MPFR_CLEANUP_RF(subtraction);
-        }
         if (isInteger(b)) {
             if (!(pbz = Pympz_From_Number(b))) {
                 SYSTEM_ERROR("Can not convert Integer to 'mpz'");
@@ -1745,7 +1749,7 @@ Pybasic_divmod(PyObject *a, PyObject *b)
 {
     PyObject *r = 0;
     mpz_t tempz;
-    PympzObject *qz = 0, *rz = 0, *paz = 0, *pbz = 0;
+    PympzObject *qz = 0, *rz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
 #ifdef WITHMPFR
     PympfrObject *qf = 0, *rf = 0, *paf = 0, *pbf = 0;
@@ -1826,39 +1830,6 @@ Pybasic_divmod(PyObject *a, PyObject *b)
         mpz_cloc(tempz);
         PyTuple_SET_ITEM(r, 0, (PyObject*)qz);
         PyTuple_SET_ITEM(r, 1, (PyObject*)rz);
-        return r;
-    }
-
-    if (isInteger(a) && isInteger(b)) {
-        paz = Pympz_From_Number(a);
-        pbz = Pympz_From_Number(b);
-        if (!paz || !pbz) {
-            SYSTEM_ERROR("Can not convert Integer to 'mpz'");
-            Py_XDECREF((PyObject*)paz);
-            Py_XDECREF((PyObject*)pbz);
-            return NULL;
-        }
-        if (mpz_sgn(pbz->z) == 0) {
-            ZERO_ERROR("division or modulo by zero");
-            Py_DECREF((PyObject*)paz);
-            Py_DECREF((PyObject*)pbz);
-            return NULL;
-        }
-        if (!(r = PyTuple_New(2)) ||
-            !(rz = (PympzObject*)Pympz_new()) ||
-            !(qz = (PympzObject*)Pympz_new())) {
-            Py_XDECREF((PyObject*)r);
-            Py_XDECREF((PyObject*)rz);
-            Py_XDECREF((PyObject*)qz);
-            Py_DECREF((PyObject*)paz);
-            Py_DECREF((PyObject*)pbz);
-            return NULL;
-        }
-        mpz_fdiv_qr(qz->z, rz->z, paz->z, pbz->z);
-        Py_DECREF((PyObject*)paz);
-        Py_DECREF((PyObject*)pbz);
-        PyTuple_SET_ITEM(r, 0, (PyObject*)qz);
-        PyTuple_SET_ITEM(r, 1, (PyObject*)rq);
         return r;
     }
 
