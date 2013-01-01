@@ -25,38 +25,6 @@ Test elementary operations
 Test addition
 -------------
 
-    >>> a+b
-    mpq(17,22)
-    >>> b+a
-    mpq(17,22)
-    >>> a+1
-    mpq(14,11)
-    >>> 1+a
-    mpq(14,11)
-    >>> a+(-1)
-    mpq(-8,11)
-    >>> -1+a
-    mpq(-8,11)
-    >>> a+c
-    mpq(76,77)
-    >>> c+a
-    mpq(76,77)
-    >>> a+a
-    mpq(6,11)
-    >>> b+b
-    mpq(1,1)
-    >>> a+mpz(123456)
-    mpq(1358019,11)
-    >>> mpz(-123456)+a
-    mpq(-1358013,11)
-    >>> a+'b'
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-    TypeError: unsupported operand type(s) for +: 'mpq' and 'str'
-    >>> 'b'+a
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-    TypeError: Can't convert 'mpq' object to str implicitly
 
 Test subtraction
 ----------------
