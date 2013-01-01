@@ -6,7 +6,7 @@
  *                                                                         *
  * Copyright 2011 David Cleaver                                            *
  *                                                                         *
- * Copyright 2012 Case Van Horsen                                          *
+ * Copyright 2012, 2013 Case Van Horsen                                    *
  *                                                                         *
  * The original file is available at:                                      *
  *   <http://sourceforge.net/projects/mpzprp/files/>                       *

@@ -21,8 +21,15 @@ Testing of mpc functionality is split into multiple files.
 
     >>> import gmpy2 as G
     >>> from gmpy2 import mpz, mpq, mpfr, mpc
+    >>> from fractions import Fraction as F
+    >>> from decimal import Decimal as D
     >>> a = mpz(123)
     >>> b = mpz(456)
+    >>> c = 12345678901234567890
+    >>> af = mpfr("12.34")
+    >>> bf = mpfr("45.67")
+    >>> aq = mpq(3,11)
+    >>> bq = mpq(17,2)
     >>> aj = mpc(1+2j)
     >>> bj = mpc(4+5j)
 
@@ -32,6 +39,7 @@ Test elementary operations
 Test addition
 -------------
 
+>>> aj + bj
 mpc('5.0+7.0j')
 >>> bj + aj
 mpc('5.0+7.0j')
@@ -83,14 +91,54 @@ True
 Test multiplication
 -------------------
 
+>>> aj * bj
+mpc('-6.0+13.0j')
+>>> bj * aj
+mpc('-6.0+13.0j')
+>>> aj * a
+mpc('123.0+246.0j')
+>>> a * aj
+mpc('123.0+246.0j')
+>>> aj * -1
+mpc('-1.0-2.0j')
+>>> aj * (0.0+1j)
+mpc('-2.0+1.0j')
 
 Test division
 -------------
 
+>>> aj / bj
+mpc('0.34146341463414637+0.073170731707317069j')
+>>> aj // bj
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: can't take floor of complex number.
+>>> aj / a
+mpc('0.008130081300813009+0.016260162601626018j')
+>>> a / aj
+mpc('24.600000000000001-49.200000000000003j')
+>>> aj / 0
+mpc('inf+infj')
 
 Test modulo
 -----------
 
+>>> aj % bj
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: can't mod complex numbers
+>>> aj % a
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: can't mod complex numbers
+>>> a % aj
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: can't mod complex numbers
+>>> divmod(aj, bj)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: can't take floor or mod of complex number.
 
 Test pickle
 -----------
@@ -99,233 +147,40 @@ Test pickle
 Test operations involving NaN/Inf
 ---------------------------------
 
-    >>> a + float('Inf')
-    mpfr('inf')
-    >>> float('Inf') + a
-    mpfr('inf')
-    >>> a + float('-Inf')
-    mpfr('-inf')
-    >>> float('-Inf') + a
-    mpfr('-inf')
-    >>> a + float('nan')
-    mpfr('nan')
-    >>> float('nan') + a
-    mpfr('nan')
-    >>> a - float('Inf')
-    mpfr('-inf')
-    >>> float('Inf') - a
-    mpfr('inf')
-    >>> a - float('-Inf')
-    mpfr('inf')
-    >>> float('-Inf') - a
-    mpfr('-inf')
-    >>> a - float('nan')
-    mpfr('nan')
-    >>> float('nan') - a
-    mpfr('nan')
-    >>> a * float('Inf')
-    mpfr('inf')
-    >>> float('Inf') * a
-    mpfr('inf')
-    >>> a * float('-Inf')
-    mpfr('-inf')
-    >>> float('-Inf') * a
-    mpfr('-inf')
-    >>> -a * float('Inf')
-    mpfr('-inf')
-    >>> float('Inf') * -a
-    mpfr('-inf')
-    >>> -a * float('-Inf')
-    mpfr('inf')
-    >>> float('-Inf') * -a
-    mpfr('inf')
-    >>> a * float('nan')
-    mpfr('nan')
-    >>> float('nan') * a
-    mpfr('nan')
-    >>> G.mpz(0) * float('Inf')
-    mpfr('nan')
-    >>> G.mpz(0) * float('-Inf')
-    mpfr('nan')
-    >>> float('Inf') * G.mpz(0)
-    mpfr('nan')
-    >>> float('-Inf') * G.mpz(0)
-    mpfr('nan')
-    >>> a / float('Inf')
-    mpfr('0.0')
-    >>> -a / float('Inf')
-    mpfr('-0.0')
-    >>> float('Inf') / a
-    mpfr('inf')
-    >>> float('Inf') / -a
-    mpfr('-inf')
-    >>> a / float('-Inf')
-    mpfr('-0.0')
-    >>> -a / float('-Inf')
-    mpfr('0.0')
-    >>> float('-Inf') / a
-    mpfr('-inf')
-    >>> float('-Inf') / -a
-    mpfr('inf')
-    >>> a / float('nan')
-    mpfr('nan')
-    >>> float('nan') / a
-    mpfr('nan')
-    >>> float('nan') / G.mpz(0)
-    mpfr('nan')
-    >>> float('nan') / G.mpz(0)
-    mpfr('nan')
-
-    >>> a + mpfr('Inf')
-    mpfr('inf')
-    >>> mpfr('Inf') + a
-    mpfr('inf')
-    >>> a + mpfr('-Inf')
-    mpfr('-inf')
-    >>> mpfr('-Inf') + a
-    mpfr('-inf')
-    >>> a + mpfr('nan')
-    mpfr('nan')
-    >>> mpfr('nan') + a
-    mpfr('nan')
-    >>> a - mpfr('Inf')
-    mpfr('-inf')
-    >>> mpfr('Inf') - a
-    mpfr('inf')
-    >>> a - mpfr('-Inf')
-    mpfr('inf')
-    >>> mpfr('-Inf') - a
-    mpfr('-inf')
-    >>> a - mpfr('nan')
-    mpfr('nan')
-    >>> mpfr('nan') - a
-    mpfr('nan')
-    >>> a * mpfr('Inf')
-    mpfr('inf')
-    >>> mpfr('Inf') * a
-    mpfr('inf')
-    >>> a * mpfr('-Inf')
-    mpfr('-inf')
-    >>> mpfr('-Inf') * a
-    mpfr('-inf')
-    >>> -a * mpfr('Inf')
-    mpfr('-inf')
-    >>> mpfr('Inf') * -a
-    mpfr('-inf')
-    >>> -a * mpfr('-Inf')
-    mpfr('inf')
-    >>> mpfr('-Inf') * -a
-    mpfr('inf')
-    >>> a * mpfr('nan')
-    mpfr('nan')
-    >>> mpfr('nan') * a
-    mpfr('nan')
-    >>> G.mpz(0) * mpfr('Inf')
-    mpfr('nan')
-    >>> G.mpz(0) * mpfr('-Inf')
-    mpfr('nan')
-    >>> mpfr('Inf') * G.mpz(0)
-    mpfr('nan')
-    >>> mpfr('-Inf') * G.mpz(0)
-    mpfr('nan')
-    >>> a / mpfr('Inf')
-    mpfr('0.0')
-    >>> -a / mpfr('Inf')
-    mpfr('-0.0')
-    >>> mpfr('Inf') / a
-    mpfr('inf')
-    >>> mpfr('Inf') / -a
-    mpfr('-inf')
-    >>> a / mpfr('-Inf')
-    mpfr('-0.0')
-    >>> -a / mpfr('-Inf')
-    mpfr('0.0')
-    >>> mpfr('-Inf') / a
-    mpfr('-inf')
-    >>> mpfr('-Inf') / -a
-    mpfr('inf')
-    >>> a / mpfr('nan')
-    mpfr('nan')
-    >>> mpfr('nan') / a
-    mpfr('nan')
-    >>> mpfr('nan') / G.mpz(0)
-    mpfr('nan')
-    >>> mpfr('nan') / G.mpz(0)
-    mpfr('nan')
-
-    >>> divmod(a, float('Inf'))
-    (mpfr('0.0'), mpfr('123.0'))
-    >>> divmod(a, float('-Inf'))
-    (mpfr('-1.0'), mpfr('-inf'))
-    >>> divmod(-a, float('Inf'))
-    (mpfr('-1.0'), mpfr('inf'))
-    >>> divmod(-a, float('-Inf'))
-    (mpfr('0.0'), mpfr('-123.0'))
-    >>> divmod(a, float('nan'))
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(-a, float('nan'))
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(G.mpz(0), float('Inf'))
-    (mpfr('0.0'), mpfr('0.0'))
-    >>> divmod(G.mpz(0), float('-Inf'))
-    (mpfr('-0.0'), mpfr('-0.0'))
-    >>> divmod(G.mpz(0), float('nan'))
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(float('Inf'), a)
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(float('-Inf'), a)
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(float('Inf'), -a)
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(float('-Inf'), -a)
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(float('nan'), a)
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(float('nan'), -a)
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(float('Inf'), G.mpz(0))
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(float('-Inf'), G.mpz(0))
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(float('nan'), G.mpz(0))
-    (mpfr('nan'), mpfr('nan'))
-
-    >>> divmod(a, mpfr('Inf'))
-    (mpfr('0.0'), mpfr('123.0'))
-    >>> divmod(a, mpfr('-Inf'))
-    (mpfr('-1.0'), mpfr('-inf'))
-    >>> divmod(-a, mpfr('Inf'))
-    (mpfr('-1.0'), mpfr('inf'))
-    >>> divmod(-a, mpfr('-Inf'))
-    (mpfr('0.0'), mpfr('-123.0'))
-    >>> divmod(a, mpfr('nan'))
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(-a, mpfr('nan'))
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(G.mpz(0), mpfr('Inf'))
-    (mpfr('0.0'), mpfr('0.0'))
-    >>> divmod(G.mpz(0), mpfr('-Inf'))
-    (mpfr('-0.0'), mpfr('-0.0'))
-    >>> divmod(G.mpz(0), mpfr('nan'))
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(mpfr('Inf'), a)
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(mpfr('-Inf'), a)
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(mpfr('Inf'), -a)
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(mpfr('-Inf'), -a)
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(mpfr('nan'), a)
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(mpfr('nan'), -a)
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(mpfr('Inf'), G.mpz(0))
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(mpfr('-Inf'), G.mpz(0))
-    (mpfr('nan'), mpfr('nan'))
-    >>> divmod(mpfr('nan'), G.mpz(0))
-    (mpfr('nan'), mpfr('nan'))
+    >>> aj + float('inf')
+    mpc('inf+2.0j')
+    >>> aj + float('-inf')
+    mpc('-inf+2.0j')
+    >>> aj + float('nan')
+    mpc('nan+2.0j')
+    >>> float('inf') - aj
+    mpc('inf-2.0j')
+    >>> aj - float('inf')
+    mpc('-inf+2.0j')
+    >>> aj - float('-inf')
+    mpc('inf+2.0j')
+    >>> aj - float('nan')
+    mpc('nan+2.0j')
+    >>> aj * float('inf')
+    mpc('inf+infj')
+    >>> aj * float('-inf')
+    mpc('-inf-infj')
+    >>> aj * float('nan')
+    mpc('nan+nanj')
+    >>> mpc(0,0) * float('inf')
+    mpc('nan+nanj')
+    >>> mpc(0,0) * float('-inf')
+    mpc('nan+nanj')
+    >>> mpc(0,0) * float('nan')
+    mpc('nan+nanj')
+    >>> aj / float('inf')
+    mpc('0.0+0.0j')
+    >>> aj / float('-inf')
+    mpc('-0.0-0.0j')
+    >>> float('inf') / aj
+    mpc('inf-infj')
+    >>> float('-inf') / aj
+    mpc('-inf+infj')
 
 Test is_XXX
 -----------

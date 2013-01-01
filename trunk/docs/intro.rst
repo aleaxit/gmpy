@@ -31,6 +31,13 @@ The following libraries are supported:
 
   mpz_prp: http://sourceforge.net/projects/mpzprp/
 
+Changes in gmpy2 2.0.0b4
+------------------------
+* Added __ceil__, __floor__, __trunc__, and __round__ methods to mpz and mpq
+  types.
+* Added __complex__ to mpc type.
+* round(mpfr) now correctly returns an mpz type.
+
 Changes in gmpy2 2.0.0b3
 ------------------------
 

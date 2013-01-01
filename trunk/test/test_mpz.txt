@@ -27,30 +27,6 @@ Test elementary operations
 Test addition
 -------------
 
-    >>> a+1
-    mpz(124)
-    >>> a+(-1)
-    mpz(122)
-    >>> (-1)+a
-    mpz(122)
-    >>> 1+a
-    mpz(124)
-    >>> a+b
-    mpz(579)
-    >>> b+a
-    mpz(579)
-    >>> a+c
-    mpz(12345678901234568013)
-    >>> c+a
-    mpz(12345678901234568013)
-    >>> a+'b'
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-    TypeError: unsupported operand type(s) for +: 'mpz' and 'str'
-    >>> 'b'+a #doctest: +IGNORE_EXCEPTION_DETAIL
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-    TypeError: Can't convert 'mpz' object to str implicitly
 
 Test subtraction
 ----------------
@@ -157,6 +133,30 @@ Test modulo
     Traceback (most recent call last):
       ...
     ZeroDivisionError: division or modulo by zero
+    >>> divmod(b,123)
+    (mpz(3), mpz(87))
+    >>> divmod(a,c)
+    (mpz(0), mpz(123))
+    >>> divmod(a,int(c))
+    (mpz(0), mpz(123))
+    >>> divmod(a*(c-1),c)
+    (mpz(122), mpz(12345678901234567767))
+    >>> divmod(a*(c-1),int(c))
+    (mpz(122), mpz(12345678901234567767))
+    >>> divmod(a*(c-1),-c)
+    (mpz(-123), mpz(-123))
+    >>> divmod(a*(c-1),-int(c))
+    (mpz(-123), mpz(-123))
+    >>> divmod(int(a*(c-1)),-int(c))
+    (-123, -123)
+    >>> divmod(a,mpz(0))
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: division or modulo by zero
+    >>> divmod(123,mpz(0))
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: division or modulo by zero
 
 Test miscellaneous
 ------------------
@@ -212,18 +212,6 @@ Test mpz.__index__
 Test operations involving NaN/Inf
 ---------------------------------
 
-    >>> a + float('Inf')
-    mpfr('inf')
-    >>> float('Inf') + a
-    mpfr('inf')
-    >>> a + float('-Inf')
-    mpfr('-inf')
-    >>> float('-Inf') + a
-    mpfr('-inf')
-    >>> a + float('nan')
-    mpfr('nan')
-    >>> float('nan') + a
-    mpfr('nan')
     >>> a - float('Inf')
     mpfr('-inf')
     >>> float('Inf') - a
@@ -289,18 +277,6 @@ Test operations involving NaN/Inf
     >>> float('nan') / G.mpz(0)
     mpfr('nan')
 
-    >>> a + mpfr('Inf')
-    mpfr('inf')
-    >>> mpfr('Inf') + a
-    mpfr('inf')
-    >>> a + mpfr('-Inf')
-    mpfr('-inf')
-    >>> mpfr('-Inf') + a
-    mpfr('-inf')
-    >>> a + mpfr('nan')
-    mpfr('nan')
-    >>> mpfr('nan') + a
-    mpfr('nan')
     >>> a - mpfr('Inf')
     mpfr('-inf')
     >>> mpfr('Inf') - a

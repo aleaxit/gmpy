@@ -4,14 +4,7 @@
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
  *                                                                         *
- * Copyright 2011 David Cleaver                                            *
- *                                                                         *
  * Copyright 2012 Case Van Horsen                                          *
- *                                                                         *
- * The original file is available at:                                      *
- *   <http://sourceforge.net/projects/mpzprp/files/>                       *
- *                                                                         *
- * Modified by Case Van Horsen for inclusion into GMPY2.                   *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -43,6 +36,10 @@ static PyObject * GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args);
 static PyObject * GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args);
 static PyObject * GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args);
 static PyObject * GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args);
+static PyObject * GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args);
+static PyObject * GMPY_mpz_is_strongselfridge_prp(PyObject *self, PyObject *args);
+static PyObject * GMPY_mpz_is_bpsw_prp(PyObject *self, PyObject *args);
+static PyObject * GMPY_mpz_is_strongbpsw_prp(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
 }
