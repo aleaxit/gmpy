@@ -126,7 +126,9 @@ if use_mpc:
 
 # Error message if libraries can not be found...
 if running_build and not libdirs:
-    sys.stdout.write("GMPY2 can not find the requires libraries.\n")
+    sys.stdout.write("GMPY2 can not find the requires libraries. Please specify\n")
+    sys.stdout.write("the parent directory of include and lib directories using:\n")
+    sys.stdout.write("python setup.py build_ext -Ddir=<path>.");
     sys.exit()
 
 # decomment next line (w/gcc, only!) to support gcov
