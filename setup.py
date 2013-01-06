@@ -126,7 +126,7 @@ if use_mpc:
 
 # Error message if libraries can not be found...
 if running_build and not libdirs:
-    sys.stdout.write("GMPY2 can not find the requires libraries. Please specify\n")
+    sys.stdout.write("GMPY2 can not find the required libraries. Please specify\n")
     sys.stdout.write("the parent directory of include and lib directories using:\n")
     sys.stdout.write("python setup.py build_ext -Ddir=<path>.");
     sys.exit()
@@ -152,8 +152,8 @@ setup (name = "gmpy2",
        classifiers = [
          'Development Status :: 4 - Beta',
          'Intended Audience :: Developers',
-         'Intended Audience :: Science/Research',
-         'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
+         'Intended Audience :: Science/Research'
+         'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
          'Natural Language :: English',
          'Operating System :: MacOS :: MacOS X',
          'Operating System :: Microsoft :: Windows',
@@ -161,6 +161,7 @@ setup (name = "gmpy2",
          'Programming Language :: C',
          'Programming Language :: Python :: 2',
          'Programming Language :: Python :: 3',
+         'Programming Language :: Python :: Implementation :: CPython',
          'Topic :: Scientific/Engineering :: Mathematics',
          'Topic :: Software Development :: Libraries :: Python Modules',
        ],
