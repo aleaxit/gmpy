@@ -11,7 +11,7 @@ If you want to compile *gmpy2* yourself, please consult the file "vs2010_build.t
 
 ==Requirements==
 
-*gmpy2* has only been tested with the most recent versions of GMP (or MPIR) and (optionally) MPFR. Specifically, for integer and rational support, *gmpy2* requires either GMP 5.0.x or later, or MPIR 2.2 or later. To support multiple precision floating point arithmetic, MPFR 3.0.x is required. A future release of *gmpy2* will support multiple precision complex arithmetic using MPC.
+*gmpy2* has only been tested with the most recent versions of GMP (or MPIR) and (optionally) MPFR. Specifically, for integer and rational support, *gmpy2* requires either GMP 5.0.x or later, or MPIR 2.6.0 or later. To support multiple precision floating point arithmetic, MPFR 3.1.0 or later is required. To support multiple precision complex arithmetic, MPC version 1.0 or later is required.
 
 If MPFR is not available, *gmpy2* will only support integer and rational arithmetic. The _mpf_ type included with GMP is no longer supported.
 
@@ -28,17 +28,17 @@ If this fails, read on.
 
 ==Detailed Instructions==
 
-If your Linux distribution does not support recent versions of GMP or MPFR, you will need to compile your own versions. To avoid any possible conflict with existing libraries on your system, the following instructions install GMP and MPFR to a location in your home directory.
+If your Linux distribution does not support recent versions of GMP, MPFR, and MPC, you will need to compile your own versions. To avoid any possible conflict with existing libraries on your system, the following instructions install GMP, MPFR, and MPC to a location in your home directory.
 
-===Compiling GMP and MPFR===
+===Compiling GMP, MPFR, and MPC===
 
-  # Create the desired destination directory for GMP and MPFR.
+  # Create the desired destination directory for GMP, MPFR, and MPC.
 {{{
 $ mkdir /home/case/local
 }}}
   # Download and un-tar the GMP source code. Change to GMP source directory and compile GMP.
 {{{
-$ cd ~/src/gmp-5.0.2
+$ cd ~/src/gmp-5.1.0
 $ ./configure --prefix=/home/case/local
 $ make
 $ make check
@@ -46,15 +46,27 @@ $ make install
 }}}
   # Download and un-tar the MPFR source code. Change to MPFR source directory and compile MPFR.
 {{{
-$ cd ~/src/mpfr-3.0.1
+$ cd ~/src/mpfr-3.1.1
 $ ./configure --prefix=/home/case/local --with-gmp=/home/case/local
 $ make
 $ make check
 $ make install
 }}}
-  # Compile *gmpy2* and specify the location of GMP and MPFR.
+  # Download and un-tar the MPC source code. Change to MPC source directory and compile MPC.
+{{{
+$ cd ~/src/mpc-1.0.1
+$ ./configure --prefix=/home/case/local --with-gmp=/home/case/local --with-mpfr=/home/case/local
+$ make
+$ make check
+$ make install
+}}}
+  # Compile *gmpy2* and specify the location of GMP, MPFR, and MPC.
 {{{
 $ python setup.py build_ext -Ddir=/home/case/local install
+}}}
+  # You can install using pip also.
+{{{
+$ pip install gmpy2 --global-option=build_ext --global-option=-Ddir=/home/case/local
 }}}
   # If you get a "permission denied" error message, you may need to use
 {{{
