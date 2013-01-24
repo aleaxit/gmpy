@@ -304,6 +304,7 @@
  *   Add __ceil__, __floor__, __trunc__, __round__ to mpz & mpq (casevh)
  *   Add __complex__ to mpc (casevh)
  *   round(mpfr) now correctly returns an mpz (casevh)
+ *   Add mpz.denominator and mpz.numerator (casevh)
  *
  ************************************************************************
  *

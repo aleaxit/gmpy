@@ -2335,6 +2335,23 @@ Pympz_div(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+static PyObject *
+Pympz_getnumer(PympzObject *self, void *closure)
+{
+    Py_INCREF((PyObject*)self);
+    return (PyObject*)self;
+}
+
+static PyObject *
+Pympz_getdenom(PympqObject *self, void *closure)
+{
+    PympzObject *result;
+
+    if ((result = (PympzObject*)Pympz_new()))
+        mpz_set_ui(result->z, 1);
+    return (PyObject*)result;
+}
+
 #ifdef PY3
 static PyNumberMethods mpz_number_methods =
 {
@@ -2425,6 +2442,13 @@ static PyMappingMethods mpz_mapping_methods = {
     NULL
 };
 
+static PyGetSetDef Pympz_getseters[] =
+{
+    { "numerator", (getter)Pympz_getnumer, NULL, "numerator", NULL },
+    { "denominator", (getter)Pympz_getdenom, NULL, "denominator", NULL },
+    {NULL}
+};
+
 static PyMethodDef Pympz_methods [] =
 {
     { "__format__", Pympz_format, METH_VARARGS, doc_mpz_format },
@@ -2487,5 +2511,7 @@ static PyTypeObject Pympz_Type =
         0,                                  /* tp_iter          */
         0,                                  /* tp_iternext      */
     Pympz_methods,                          /* tp_methods       */
+        0,                                  /* tp_members       */
+    Pympz_getseters,                        /* tp_getset        */
 };
 
