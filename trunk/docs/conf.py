@@ -41,7 +41,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'gmpy2'
-copyright = u'2012, Case Van Horsen'
+copyright = u'2012, 2013, Case Van Horsen'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

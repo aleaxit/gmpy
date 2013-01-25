@@ -26,6 +26,8 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(doc_mpq,
+"mpq() -> mpq(0,1)\n\n"
+"     If no argument is given, return mpq(0,1).\n\n"
 "mpq(n) -> mpq\n\n"
 "     Return an 'mpq' object with a numeric value n. Decimal and\n"
 "     Fraction values are converted exactly.\n\n"
@@ -46,9 +48,16 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
     static char *kwlist[] = {"s", "base", NULL };
 
     argc = PyTuple_Size(args);
-    if (argc < 1 || argc > 2) {
-        TYPE_ERROR("mpq() requires 1 or 2 arguments");
+    if (argc > 2) {
+        TYPE_ERROR("mpq() requires 0, 1 or 2 arguments");
         return NULL;
+    }
+
+    if (argc == 0) {
+        if ((result = (PympqObject*)Pympq_new())) {
+            mpq_set_ui(result->q, 0, 0);
+        }
+        return (PyObject*)result;
     }
 
     n = PyTuple_GetItem(args, 0);

@@ -305,6 +305,7 @@
  *   Add __complex__ to mpc (casevh)
  *   round(mpfr) now correctly returns an mpz (casevh)
  *   Add mpz.denominator and mpz.numerator (casevh)
+ *   mpz() returns mpz(0); also xmpz, mpq, mpfr, and mpc (casevh)
  *
  ************************************************************************
  *

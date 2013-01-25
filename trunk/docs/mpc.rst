@@ -151,11 +151,13 @@ mpc Functions
 
 **log(...)**
     log(x) returns the natural logarithm of x.
-    
+
 **log10(...)**
     log10(x) returns the base-10 logarithm of x.
 
 **mpc(...)**
+    mpc() returns an *mpc* object set to 0.0+0.0j.
+
     mpc(c[, precision=0]) returns a new 'mpc' object from an existing complex
     number (either a Python complex object or another 'mpc' object). If the
     precision is not specified, then the precision is taken from the current
