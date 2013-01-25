@@ -51,6 +51,8 @@ Pympfr_f2q(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_mpfr,
+"mpfr() -> mpfr(0.0)\n\n"
+"     If no argument is given, return mpfr(0.0).\n\n"
 "mpfr(n[, precison=0]) -> mpfr\n\n"
 "     Return an 'mpfr' object after converting a numeric value. If\n"
 "     no precision, or a precision of 0, is specified; the precison\n"
@@ -79,11 +81,17 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
     static char *kwlist_n[] = {"n", "precision", NULL};
 
     argc = PyTuple_Size(args);
-    if ((argc < 1) || (argc > 3)) {
-        TYPE_ERROR("mpfr() requires 1 to 3 arguments");
+    if ((argc < 0) || (argc > 3)) {
+        TYPE_ERROR("mpfr() requires 0 to 3 arguments");
         return NULL;
     }
 
+    if (argc == 0) {
+        if ((result = (PympfrObject*)Pympfr_new(0))) {
+            mpfr_set_ui(result->f, 0, context->ctx.mpfr_round);
+        }
+        return (PyObject*)result;
+    }
     arg0 = PyTuple_GetItem(args, 0);
     if (PyStrOrUnicode_Check(arg0)) {
         /* Can have both precision and/or base as keyword arguments. */

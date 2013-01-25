@@ -26,6 +26,8 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(doc_xmpz,
+"xmpz() -> xmpz(0)\n\n"
+"     If no argument is given, return xmpz(0).\n\n"
 "xmpz(n) -> xmpz\n\n"
 "     Return an 'xmpz' object with a numeric value 'n' (truncating n\n"
 "     to its integer part if it's a Fraction, 'mpq', Decimal, float\n"
@@ -52,6 +54,12 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
 
     /* Optimize the most common use case */
     argc = PyTuple_Size(args);
+    if (argc == 0) {
+        if ((result = (PyxmpzObject*)Pyxmpz_new())) {
+            mpz_set_ui(result->z, 0);
+        }
+        return (PyObject*)result;
+    }
     if (argc == 1) {
         n = PyTuple_GetItem(args, 0);
 #ifdef WITHMPFR

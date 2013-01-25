@@ -58,6 +58,8 @@ Pympc_digits(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_g_mpc,
+"mpc() -> mpc(0.0+0.0j)\n\n"
+"      If no argument is given, return mpc(0.0+0.0j).\n\n"
 "mpc(c[, precision=0]) -> mpc\n\n"
 "      Return a new 'mpc' object from an existing complex number\n"
 "      (either a Python complex object or another 'mpc' object). If\n"
@@ -97,9 +99,12 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
     static char *kwlist_s[] = {"s", "precision", "base", NULL};
 
     argc = PyTuple_Size(args);
-    if (argc < 1) {
-        TYPE_ERROR("mpc() requires at least 1 non-keyword argument");
-        return NULL;
+
+    if (argc == 0) {
+        if ((result = (PympcObject*)Pympc_new(0,0))) {
+            mpc_set_ui(result->c, 0, GET_MPC_ROUND(context));
+        }
+        return (PyObject*)result;
     }
 
     arg0 = PyTuple_GetItem(args, 0);

@@ -33,10 +33,13 @@ The following libraries are supported:
 
 Changes in gmpy2 2.0.0b4
 ------------------------
+
 * Added __ceil__, __floor__, __trunc__, and __round__ methods to mpz and mpq
   types.
 * Added __complex__ to mpc type.
 * round(mpfr) now correctly returns an mpz type.
+* If no arguments are given to mpz, mpq, mpfr, mpc, and xmpz, return 0 of the
+  appropriate type.
 
 Changes in gmpy2 2.0.0b3
 ------------------------
@@ -180,7 +183,7 @@ Download and un-tar the GMP source code. Change to GMP source directory and
 compile GMP.
 ::
 
-    $ cd /opt/local/src/gmp-5.0.2
+    $ cd /opt/local/src/gmp-5.1.0
     $ ./configure --prefix=/opt/local
     $ make
     $ make check

@@ -51,6 +51,8 @@ mpq Functions
     *err* < 0, then the relative error sought is 2.0 ** *err*.
 
 **mpq(...)**
+    mpq() returns an *mpq* object set to 0/1.
+
     mpq(n) returns an *mpq* object with a numeric value *n*. Decimal and
     Fraction values are converted exactly.
 
