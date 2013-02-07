@@ -778,7 +778,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 Py_XDECREF(b);
                 return NULL;
             }
-            c = mpq_cmp(Pympq_AS_MPQ(a), Pympq_AS_MPQ(tempb));
+            c = mpq_cmp(Pympq_AS_MPQ(tempa), Pympq_AS_MPQ(tempb));
             Py_DECREF(tempa);
             Py_DECREF(tempb);
             return _cmp_to_object(c, op);
