@@ -40,6 +40,8 @@ Changes in gmpy2 2.0.0b4
 * round(mpfr) now correctly returns an mpz type.
 * If no arguments are given to mpz, mpq, mpfr, mpc, and xmpz, return 0 of the
   appropriate type.
+* Fix broken comparison between mpz and mpq when mpz is on the left.
+* Added __sizeof__ to all types.
 
 Changes in gmpy2 2.0.0b3
 ------------------------

@@ -605,6 +605,18 @@ Pyxmpz_iter_clear(PyObject *self, PyObject *args, PyObject *kwargs)
     return (PyObject*)result;
 }
 
+PyDoc_STRVAR(doc_xmpz_sizeof,
+"x.__sizeof__()\n\n"
+"Returns the amount of memory consumed by x. Note: deleted xmpz objects\n"
+"are reused and may or may not be resized when a new value is assigned.");
+
+static PyObject *
+Pyxmpz_sizeof(PyObject *self, PyObject *other)
+{
+    return PyIntOrLong_FromSize_t(sizeof(PyxmpzObject) + \
+        (Pympz_AS_MPZ(self)->_mp_alloc * sizeof(mp_limb_t)));
+}
+
 static PyTypeObject GMPYIter_Type =
 {
 #ifdef PY3
@@ -734,6 +746,7 @@ static PyMappingMethods xmpz_mapping_methods = {
 static PyMethodDef Pyxmpz_methods [] =
 {
     { "__format__", Pympz_format, METH_VARARGS, doc_mpz_format },
+    { "__sizeof__", Pyxmpz_sizeof, METH_NOARGS, doc_xmpz_sizeof },
     { "bit_clear", Pympz_bit_clear, METH_O, doc_bit_clearm },
     { "bit_flip", Pympz_bit_flip, METH_O, doc_bit_flipm },
     { "bit_length", Pympz_bit_length, METH_NOARGS, doc_bit_lengthm },

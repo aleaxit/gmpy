@@ -2737,6 +2737,18 @@ Pympfr_format(PyObject *self, PyObject *args)
     return result;
 }
 
+PyDoc_STRVAR(doc_mpfr_sizeof,
+"x.__sizeof__()\n\n"
+"Returns the amount of memory consumed by x.");
+
+static PyObject *
+Pympfr_sizeof(PyObject *self, PyObject *other)
+{
+    return PyIntOrLong_FromSize_t(sizeof(PympfrObject) + \
+        (((Pympfr_AS_MPFR(self))->_mpfr_prec + mp_bits_per_limb - 1) / \
+        mp_bits_per_limb) * sizeof(mp_limb_t));
+}
+
 #ifdef PY3
 static PyNumberMethods mpfr_number_methods =
 {
@@ -2834,6 +2846,7 @@ static PyMethodDef Pympfr_methods [] =
     { "__floor__", Pympfr_floor, METH_NOARGS, doc_mpfr_floor },
     { "__format__", Pympfr_format, METH_VARARGS, doc_mpfr_format },
     { "__round__", Pympfr_round10, METH_VARARGS, doc_g_mpfr_round10 },
+    { "__sizeof__", Pympfr_sizeof, METH_NOARGS, doc_mpfr_sizeof },
     { "__trunc__", Pympfr_trunc, METH_NOARGS, doc_mpfr_trunc },
     { "as_integer_ratio", Pympfr_integer_ratio, METH_NOARGS, doc_mpfr_integer_ratio },
     { "as_mantissa_exp", Pympfr_mantissa_exp, METH_NOARGS, doc_mpfr_mantissa_exp },

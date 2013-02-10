@@ -1360,10 +1360,25 @@ Pympc_div(PyObject *self, PyObject *args)
     MPC_CLEANUP(result, "div()");
 }
 
+PyDoc_STRVAR(doc_mpc_sizeof,
+"x.__sizeof__()\n\n"
+"Returns the amount of memory consumed by x.");
+
+static PyObject *
+Pympc_sizeof(PyObject *self, PyObject *other)
+{
+    return PyIntOrLong_FromSize_t(sizeof(PympcObject) + \
+        (((mpc_realref(Pympc_AS_MPC(self))->_mpfr_prec + mp_bits_per_limb - 1) / \
+        mp_bits_per_limb) * sizeof(mp_limb_t)) + \
+        (((mpc_imagref(Pympc_AS_MPC(self))->_mpfr_prec + mp_bits_per_limb - 1) / \
+        mp_bits_per_limb) * sizeof(mp_limb_t)));
+}
+
 static PyMethodDef Pympc_methods[] =
 {
     { "__complex__", Pympc_To_PyComplex, METH_VARARGS, doc_mpc_complex },
     { "__format__", Pympc_format, METH_VARARGS, doc_mpc_format },
+    { "__sizeof__", Pympc_sizeof, METH_NOARGS, doc_mpc_sizeof },
     { "conjugate", Pympc_conjugate, METH_NOARGS, doc_mpc_conjugate },
     { "digits", Pympc_digits, METH_VARARGS, doc_mpc_digits },
     { NULL, NULL, 1 }
