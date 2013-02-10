@@ -763,6 +763,19 @@ Pympq_div(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+PyDoc_STRVAR(doc_mpq_sizeof,
+"x.__sizeof__()\n\n"
+"Returns the amount of memory consumed by x. Note: deleted mpq objects\n"
+"are reused and may or may not be resized when a new value is assigned.");
+
+static PyObject *
+Pympq_sizeof(PyObject *self, PyObject *other)
+{
+    return PyIntOrLong_FromSize_t(sizeof(PympqObject) + \
+        (mpq_numref(Pympq_AS_MPQ(self))->_mp_alloc * sizeof(mp_limb_t)) + \
+        (mpq_denref(Pympq_AS_MPQ(self))->_mp_alloc * sizeof(mp_limb_t)));
+}
+
 #ifdef PY3
 static PyNumberMethods mpq_number_methods =
 {
@@ -857,6 +870,7 @@ static PyMethodDef Pympq_methods [] =
     { "__ceil__", Pympq_ceil, METH_NOARGS, doc_mpq_ceil },
     { "__floor__", Pympq_floor, METH_NOARGS, doc_mpq_floor },
     { "__round__", Pympq_round, METH_VARARGS, doc_mpq_round },
+    { "__sizeof__", Pympq_sizeof, METH_NOARGS, doc_mpq_sizeof },
     { "__trunc__", Pympq_trunc, METH_NOARGS, doc_mpq_trunc },
     { "digits", Pympq_digits, METH_VARARGS, doc_qdigitsm },
     { NULL, NULL, 1 }

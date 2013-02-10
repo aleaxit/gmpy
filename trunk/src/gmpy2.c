@@ -307,6 +307,7 @@
  *   Add mpz.denominator and mpz.numerator (casevh)
  *   mpz() returns mpz(0); also xmpz, mpq, mpfr, and mpc (casevh)
  *   Fix bug when comparing mpz to mpq (with mpz on left) (casevh)
+ *   Add __sizeof__ (casevh)
  *
  ************************************************************************
  *

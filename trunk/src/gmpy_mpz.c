@@ -2360,6 +2360,18 @@ Pympz_getdenom(PympqObject *self, void *closure)
     return (PyObject*)result;
 }
 
+PyDoc_STRVAR(doc_mpz_sizeof,
+"x.__sizeof__()\n\n"
+"Returns the amount of memory consumed by x. Note: deleted mpz objects\n"
+"are reused and may or may not be resized when a new value is assigned.");
+
+static PyObject *
+Pympz_sizeof(PyObject *self, PyObject *other)
+{
+    return PyIntOrLong_FromSize_t(sizeof(PympzObject) + \
+        (Pympz_AS_MPZ(self)->_mp_alloc * sizeof(mp_limb_t)));
+}
+
 #ifdef PY3
 static PyNumberMethods mpz_number_methods =
 {
@@ -2463,6 +2475,7 @@ static PyMethodDef Pympz_methods [] =
     { "__ceil__", Pympz_ceil, METH_NOARGS, doc_mpz_ceil },
     { "__floor__", Pympz_floor, METH_NOARGS, doc_mpz_floor },
     { "__round__", Pympz_round, METH_VARARGS, doc_mpz_round },
+    { "__sizeof__", Pympz_sizeof, METH_NOARGS, doc_mpz_sizeof },
     { "__trunc__", Pympz_trunc, METH_NOARGS, doc_mpz_trunc },
     { "bit_clear", Pympz_bit_clear, METH_O, doc_bit_clearm },
     { "bit_flip", Pympz_bit_flip, METH_O, doc_bit_flipm },

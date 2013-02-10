@@ -260,7 +260,7 @@ TypeError: mpz() requires numeric or string argument
 >>> _g.mpq(1,2,3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: mpq() requires 1 or 2 arguments
+TypeError: mpq() requires 0, 1 or 2 arguments
 >>> _g.mpq('bi','bo')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -282,9 +282,7 @@ Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ZeroDivisionError: zero denominator in 'mpq'
 >>> _g.mpfr()
-Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: mpfr() requires 1 to 3 arguments
+mpfr('0.0')
 >>> _g.mpfr(1,'bo')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
