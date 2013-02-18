@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Multiple-precision Integers &mdash; gmpy2 2.0.0b3 documentation</title>
+    <title>Multiple-precision Integers &mdash; gmpy2 2.0.0b4 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '2.0.0b3',
+        VERSION:     '2.0.0b4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="gmpy2 2.0.0b3 documentation" href="index.html" />
+    <link rel="top" title="gmpy2 2.0.0b4 documentation" href="index.html" />
     <link rel="next" title="Multiple-precision Integers (Advanced topics)" href="advmpz.html" />
     <link rel="prev" title="Introduction to gmpy2" href="intro.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="intro.html" title="Introduction to gmpy2"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">gmpy2 2.0.0b3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">gmpy2 2.0.0b4 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -103,8 +103,12 @@ complement format), then None is returned. <em>n</em> must be &gt;= 0.</dd>
 <dt><strong>bit_test(...)</strong></dt>
 <dd>x.bit_test(n) returns True if bit <em>n</em> of <em>x</em> is set, and False if it
 is not set.</dd>
+<dt><strong>denominator(...)</strong></dt>
+<dd>x.denominator() returns mpz(1).</dd>
 <dt><strong>digits(...)</strong></dt>
 <dd>x.digits([base=10]) returns a string representing <em>x</em> in radix <em>base</em>.</dd>
+<dt><strong>numerator(...)</strong></dt>
+<dd>x.numerator() returns a copy of x.</dd>
 <dt><strong>num_digits(...)</strong></dt>
 <dd>x.num_digits([base=10]) returns the length of the string representing
 the absolute value of <em>x</em> in radix <em>base</em>. The result is correct if base is
@@ -267,7 +271,8 @@ to be an odd prime.</dd>
 <dd>lucas2(n) returns a 2-tuple with the (<em>n</em>-1)-th and <em>n</em>-th Lucas
 numbers.</dd>
 <dt><strong>mpz(...)</strong></dt>
-<dd><p class="first">mpz(n) returns a new <em>mpz</em> object from a numeric value <em>n</em>. If <em>n</em> is
+<dd><p class="first">mpz() returns a new <em>mpz</em> object set to 0.</p>
+<p>mpz(n) returns a new <em>mpz</em> object from a numeric value <em>n</em>. If <em>n</em> is
 not an integer, it will be truncated to an integer.</p>
 <p class="last">mpz(s[, base=0]) returns a new <em>mpz</em> object from a string <em>s</em> made of
 digits in the given base. If base = 0, thn binary, octal, or hex Python
@@ -393,11 +398,11 @@ must be &gt; 0.</dd>
         <li class="right" >
           <a href="intro.html" title="Introduction to gmpy2"
              >previous</a> |</li>
-        <li><a href="index.html">gmpy2 2.0.0b3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">gmpy2 2.0.0b4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2012, Case Van Horsen.
+        &copy; Copyright 2012, 2013, Case Van Horsen.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
