@@ -59,8 +59,14 @@ mpz Methods
     x.bit_test(n) returns True if bit *n* of *x* is set, and False if it
     is not set.
 
+**denominator(...)**
+    x.denominator() returns mpz(1).
+
 **digits(...)**
     x.digits([base=10]) returns a string representing *x* in radix *base*.
+
+**numerator(...)**
+    x.numerator() returns a copy of x.
 
 **num_digits(...)**
     x.num_digits([base=10]) returns the length of the string representing
@@ -272,6 +278,8 @@ mpz Functions
     numbers.
 
 **mpz(...)**
+    mpz() returns a new *mpz* object set to 0.
+
     mpz(n) returns a new *mpz* object from a numeric value *n*. If *n* is
     not an integer, it will be truncated to an integer.
 
@@ -311,7 +319,7 @@ mpz Functions
 **popcount(...)**
     popcount(x) returns the number of bits with value 1 in *x*. If *x* < 0,
     the number of bits with value 1 is infinite so -1 is returned in that case.
-    
+
 **powmod(...)**
     powmod(x, y, m) returns (*x* ** *y*) mod *m*. The exponenent *y* can be
     negative, and the correct result will be returned if the inverse of *x*

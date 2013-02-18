@@ -41,7 +41,17 @@ Changes in gmpy2 2.0.0b4
 * If no arguments are given to mpz, mpq, mpfr, mpc, and xmpz, return 0 of the
   appropriate type.
 * Fix broken comparison between mpz and mpq when mpz is on the left.
-* Added __sizeof__ to all types.
+* Added __sizeof__ to all types. *Note: sys.getsizeof() calls __sizeof__ to get
+  the memory size of a gmpy2 object. The returned value reflects the size of the
+  allocated memory which may be larger than the actual minimum memory required
+  by the object.*
+
+Known issues in gmpy2 2.0.0b4
+-----------------------------
+
+* The new test suite (test/runtest.py) is incomplete and some tests fail on
+  Python 2.x due to formating issues.
+
 
 Changes in gmpy2 2.0.0b3
 ------------------------

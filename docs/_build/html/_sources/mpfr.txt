@@ -511,8 +511,8 @@ mpfr Functions
     gamma(x) returns the gamma of x.
 
 **get_exp(...)**
-    get_exp(mpfr) returns the exponent of an *mpfr*. Returns 0 for NaN or Infinity and
-    sets the erange flag and will raise an exception if trap_erange
+    get_exp(mpfr) returns the exponent of an *mpfr*. Returns 0 for NaN or
+    Infinity and sets the erange flag and will raise an exception if trap_erange
     is set.
 
 **hypot(...)**
@@ -608,6 +608,8 @@ mpfr Functions
     of x.
 
 **mpfr(...)**
+    mpfr() returns and *mpfr* object set to 0.0.
+
     mpfr(n[, precison=0]) returns an *mpfr* object after converting a numeric
     value n. If no precision, or a precision of 0, is specified; the precision
     is taken from the current context.
