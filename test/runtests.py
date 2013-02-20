@@ -4,6 +4,25 @@ import sys
 import doctest
 import gmpy2
 
+# *****************************************************************************
+# Test strategy
+# -------------
+# Tests are divided into two different categories:
+#
+#   1) The 'txt' files contain doctest style tests. These tests should cover
+#      basic functionality for all functions/types.
+#   2) The 'py' files contain Python code that perform extensive tests, but
+#      may not test every function.
+#
+# If run by a debug build of Python, the test suite can be repeated multiple
+# times to search for memory leaks.
+#
+# NOTE: IF THE LAST TEST IN A BLOCK OF TESTS GENERATES AN EXCEPTION, THE
+#       REFERENCE COUNTING IN A DEBUG BUILD GETS CONFUSED. ALWAYS ENSURE THAT
+#       AT LEAST ONE VALID TEST IS PERFORMED AFTER AN EXCEPTION IS RAISED!
+#
+# *****************************************************************************
+
 # Check if this is a debug build of Python.
 try:
     sys.gettotalrefcount()
@@ -20,6 +39,8 @@ if debug:
         repeat = 1
 else:
     repeat = 1
+
+# gmpy2.set_cache(0,0)
 
 print()
 print("Unit tests for gmpy2 {0} with Python {1}".format(gmpy2.version(), sys.version.split()[0]))
