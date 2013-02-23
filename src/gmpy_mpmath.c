@@ -69,9 +69,8 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
 {
     long sign = 0;
     mpir_si bc = 0, prec = 0, shift, zbits, carry = 0;
-    PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0;
+    PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0, *rndstr = 0;
     PympzObject *man = 0, *upper = 0, *lower = 0;
-    /* mpz_t upper, lower; */
     char rnd = 0;
 
     if (PyTuple_GET_SIZE(args) == 6) {
@@ -82,7 +81,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         exp = PyTuple_GET_ITEM(args, 2);
         bc = SI_From_Integer(PyTuple_GET_ITEM(args, 3));
         prec = SI_From_Integer(PyTuple_GET_ITEM(args, 4));
-        rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 5))[0];
+        rndstr = PyTuple_GET_ITEM(args, 5);
         if (PyErr_Occurred()) {
             TYPE_ERROR("arguments long, PympzObject*, PyObject*, long, long, char needed");
             return NULL;
@@ -95,6 +94,15 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
 
     if (!Pympz_Check(man)) {
         TYPE_ERROR("argument is not an mpz");
+        return NULL;
+    }
+
+    /* If rndstr really is a string, extract the first character. */
+    if (Py2or3String_Check(rndstr)) {
+        rnd = Py2or3String_AsString(rndstr)[0];
+    }
+    else {
+        VALUE_ERROR("invalid rounding mode specified");
         return NULL;
     }
 
