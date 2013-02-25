@@ -1,170 +1,259 @@
-import sys, os
+import sys
+import os
 from distutils.core import setup, Extension
+from distutils.command.clean import clean
+from distutils.command.build_ext import build_ext
+
+def writeln(s):
+    sys.stdout.write('%s\n' % s)
+    sys.stdout.flush()
 
 # Fail gracefully for old versions of Python.
+
 if sys.version[:3] < '2.6':
-    sys.stdout.write("GMPY2 requires Python 2.6 or later.\n")
-    sys.stdout.write("Please use GMPY 1.x for earlier versions of Python.\n")
+    writeln("GMPY2 requires Python 2.6 or later.")
+    writeln("Please use GMPY 1.x for earlier versions of Python.")
     sys.exit()
 
-# Check for build options:
-#   -DMPIR  -> use MPIR instead of GMP
-#   -DGMP   -> use GMP instead of MPIR
-# Windows build defaults to MPIR.
+# Improved clean command.
+
+class gmpy_clean(clean):
+
+    def run(self):
+        self.all = True
+        clean.run(self)
+
+# Define a custom build class to force a new build.
+
+class gmpy_build_ext(build_ext):
+
+    def finalize_options(self):
+        build_ext.finalize_options(self)
+        self.force = 1
+
+# Several command line options can be used to modify compilation of GMPY2. To
+# maintain backwards compatibility with older versions of setup.py, the old
+# options are still supported.
+#
+# New-style options
+#
+#  --force         -> ignore timestamps and recompile
+#  --mpir          -> use MPIR instead of GMP (GMP is the default on
+#                     non-Windows operating systems)
+#  --gmp           -> use GMP instead of MPIR
+#  --nompfr        -> disable MPFR and MPC library support
+#  --nompc         -> disable MPC support (MPFR should still work)
+#  --prefix=<...>  -> add the specified directory prefix to the beginning of
+#                     the list of directories that are searched for GMP, MPFR,
+#                     and MPC
+#
+# Old-stype options
+#
+#   -DMPIR       -> use MPIR instead of GMP
+#   -DGMP        -> use GMP instead of MPIR
+#   -DNOMPFR     -> disable MPFR and MPC library support
+#   -DNOMPC      -> disable MPC support (MPFR should still work)
+#   -Ddir=<...>  -> add the specified directory to beginning of the list of
+#                   directories that are searched for GMP, MPFR, and MPC
+
+# Windows build defaults to using MPIR.
+
 if sys.version.find('MSC') == -1:
     mplib='gmp'
 else:
     mplib='mpir'
 
-local_dir = None
-running_build = False
-for token in sys.argv:
-    if token.upper().startswith('-DMPIR'):
-        mplib='mpir'
-    if token.upper().startswith('-DGMP'):
-        mplib='gmp'
-    if token.upper().startswith('BUILD'):
-        running_build = True
-    if token.upper().startswith('-DDIR'):
-        try:
-            local_dir = token.split('=')[1]
-        except:
-            pass
+# Specify the default search directories for Unix/Linux/MacOSX and Windows.
+
+if sys.version.find('MSC') == -1:
+    search_dirs = ['/opt/local', '/opt', '/usr/local', '/usr', '/sw']
+else:
+    search_dirs = []
+
+# If 'clean' is the only argument to setup.py then we want to skip looking for
+# header files.
+
+if len(sys.argv) == 2 and sys.argv[1].lower() == 'clean':
+    do_search = False
+else:
+    do_search = True
 
 use_mpc = True
 use_mpfr = True
+force = False
 
-incdirs = None
+for token in sys.argv[:]:
+    if token.lower() == '--force':
+        force = True
+        sys.argv.remove(token)
+
+    if token.lower() == '--mpir':
+        mplib='mpir'
+        sys.argv.remove(token)
+
+    if token.lower() == '--gmp':
+        mplib='gmp'
+        sys.argv.remove(token)
+
+    if token.lower() == '--nompc':
+        use_mpc = False
+        sys.argv.remove(token)
+
+    if token.lower() == '--nompfr':
+        use_mpfr = False
+        use_mpc = False
+        sys.argv.remove(token)
+
+    if token.lower().startswith('--prefix'):
+        try:
+            search_dirs = [token.split('=')[1]] + search_dirs
+        except:
+            writeln('Please include a directory location.')
+        sys.argv.remove(token)
+
+    # The following options are deprecated and will be removed in the future.
+    if token.upper().startswith('-DMPIR'):
+        mplib='mpir'
+        sys.argv.remove(token)
+        writeln('The -DMPIR option is deprecated. Use --mpir instead.')
+
+    if token.upper().startswith('-DGMP'):
+        mplib='gmp'
+        sys.argv.remove(token)
+        writeln('The -DGMP option is deprecated. Use --gmp instead.')
+
+    if token.upper().startswith('-DNOMPC'):
+        use_mpc = False
+        sys.argv.remove(token)
+        writeln('The -DNOMPC option is deprecated. Use --nompc instead.')
+
+    if token.upper().startswith('-DNOMPFR'):
+        use_mpfr = False
+        use_mpc = False
+        sys.argv.remove(token)
+        writeln('The -DNOMPFR option is deprecated. Use --nompfr instead.')
+
+    if token.upper().startswith('-DDIR'):
+        try:
+            search_dirs = [token.split('=')[1]] + search_dirs
+        except:
+            writeln('Please include a directory location.')
+        sys.argv.remove(token)
+        writeln('The -DDIR option is deprecated. Use --prefix instead.')
+
+# The list of directories in search_dirs is scanned for gmp.h (or mpir.h),
+# mpfr.h, and mpc.h. If the header files are found id <dir>/include, then it is
+# assumed the libraries will be found in <dir>/lib. In addition, the run_path
+# is specified as <dir>/lib. (This is done to make it easy to support locally
+# compiled versions of GMP, MPFR, and MPC.)
+
+incdirs = ['./src']
 libdirs = None
 rundirs = None
-my_extra_link_args = None
 
-# determine include and library dirs
-if running_build and sys.version.find('MSC') == -1:
-    # Unix-like build (including MacOSX)
-    incdirs = ['./src']
-    dirord = ['/opt/local', '/opt', '/usr/local']
-    if local_dir:
-        dirord = [local_dir] + dirord
-    for adir in dirord:
-        lookin = '%s/include' % adir
-        if os.path.isfile(lookin + '/' + mplib + '.h'):
-            incdirs = [lookin]
-            # Verify that MPFR and MPC exist in the same directory
-            if not os.path.isfile(lookin + '/mpfr.h'):
-                use_mpfr = False
-            if not os.path.isfile(lookin + '/mpc.h'):
-                use_mpc = False
-            break
-    for adir in dirord:
-        lookin = '%s/lib' % adir
-        if os.path.isfile(lookin + '/lib' + mplib + '.a'):
-            libdirs = [lookin]
-            if local_dir and lookin.startswith(local_dir):
-                rundirs = [lookin]
-            # Verify that MPFR and MPC exist in the same directory
-            if not os.path.isfile(lookin + '/libmpfr.a'):
-                use_mpfr = False
-            if not os.path.isfile(lookin + '/libmpc.a'):
-                use_mpc = False
-            break
+# Specify extra link arguments for Windows.
 
-# Validate include and library directories on Windows
-if running_build and sys.version.find('MSC') != -1:
-    rundirs = None
+if sys.version.find('MSC') == -1:
+    my_extra_link_args = None
+else:
     my_extra_link_args = ["/MANIFEST"]
-    if not local_dir:
-        sys.stdout.write("Please specify parent directory of include and lib\n")
-        sys.stdout.write("directories using -Ddir=<path>.");
+
+mp_found = False
+if do_search:
+    if not search_dirs:
+        writeln('Please specify the prefix directory for the include and library files')
+        writeln('using the --prefix=<dir> option.');
         sys.exit()
-    testpath = local_dir + '\\include'
-    if os.path.isfile(testpath + '\\' + mplib + '.h'):
-        incdirs = [testpath]
-        if not os.path.isfile(testpath + '\\mpfr.h'):
-            use_mpfr = False
-        if not os.path.isfile(testpath + '\\mpc.h'):
-            use_mpc = False
-    testpath = local_dir + '\\lib'
-    if os.path.isfile(testpath + '\\' + mplib + '.lib'):
-        libdirs = [testpath]
-        if not os.path.isfile(testpath + '\\mpfr.lib'):
-            use_mpfr = False
-        if not os.path.isfile(testpath + '\\mpc.lib'):
-            use_mpc = False
 
-# Use options to prevent use of MPFR and MPC even if found.
-#   -DNOMPC  -> build without MPC library
-#   -DNOMPFR -> build without MPFR library
-for token in sys.argv:
-    if token.upper() == '-DNOMPC':
-        use_mpc = False
-    if token.upper() == '-DNOMPFR':
-        use_mpfr = False
+    for adir in search_dirs:
+        lookin = adir + '/include'
+        if os.path.isfile(lookin + '/' + mplib + '.h'):
+            mp_found = True
+            writeln('found it in %s' % lookin)
+            incdirs += [lookin]
+            libdirs = [adir + '/lib']
+            rundirs = [adir + '/lib']
+            # If MPFR and MPC support is required, verify that the header files
+            # exist in the same directory. If not, generate an error message.
+            if use_mpfr and not os.path.isfile(lookin + '/mpfr.h'):
+                writeln('mpfr.h is not present in %s.' % lookin)
+                writeln('To disable support for MPFR, use the --nompfr option.')
+                writeln('To specify a directory prefix for the include and library files,')
+                writeln('use the --prefix=<dir> option.')
+                sys.exit()
+            if use_mpc and not os.path.isfile(lookin + '/mpc.h'):
+                writeln('mpc.h is not present in %s.' % lookin)
+                writeln('To disable support for MPC, use the --nompc option.')
+                writeln('To specify a directory prefix for the include and library files,')
+                writeln('use the --prefix=<dir> option.')
+                sys.exit()
+            break
 
-if not use_mpfr:
-    use_mpc = False
+    if not mp_found:
+        writeln('%s.h could not be found.' % mplib)
+        writeln('To specify a directory prefix for the include and library files,')
+        writeln('use the --prefix=<dir> option.')
+        sys.exit()
 
 # Configure the defines...
+
 defines = []
 if mplib == 'mpir':
     defines.append( ('MPIR', 1) )
 if use_mpfr:
     defines.append( ('WITHMPFR', 1) )
-else:
-    defines.append( ('NOMPFR', 1) )
 if use_mpc:
     defines.append( ('WITHMPC', 1) )
-else:
-    defines.append( ('NOMPC', 1) )
 
 # Build list of the required libraries...
+
 libs = [mplib]
 if use_mpfr:
     libs.append('mpfr')
 if use_mpc:
     libs.append('mpc')
 
-# Error message if libraries can not be found...
-if running_build and not libdirs:
-    sys.stdout.write("GMPY2 can not find the required libraries. Please specify\n")
-    sys.stdout.write("the parent directory of include and lib directories using:\n")
-    sys.stdout.write("python setup.py build_ext -Ddir=<path>.");
-    sys.exit()
-
 # decomment next line (w/gcc, only!) to support gcov
 #   os.environ['CFLAGS'] = '-fprofile-arcs -ftest-coverage -O0'
+
 # prepare the extension for building
-gmpy2_ext = Extension('gmpy2', sources=['src/gmpy2.c'],
-    include_dirs=incdirs,
-    library_dirs=libdirs,
-    libraries=libs,
-    runtime_library_dirs=rundirs,
-    define_macros = defines,
-    extra_link_args = my_extra_link_args)
 
-setup (name = "gmpy2",
-       version = "2.0.0b4",
-       maintainer = "Case Van Horsen",
-       maintainer_email = "casevh@gmail.com",
-       url = "http://code.google.com/p/gmpy/",
-       description = "GMP/MPIR, MPFR, and MPC interface to Python 2.6+ and 3.x",
+if force:
+    cmdclass = {'clean' : gmpy_clean, 'build_ext' : gmpy_build_ext}
+else:
+    cmdclass = {'clean' : gmpy_clean}
 
-       classifiers = [
-         'Development Status :: 4 - Beta',
-         'Intended Audience :: Developers',
-         'Intended Audience :: Science/Research'
-         'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
-         'Natural Language :: English',
-         'Operating System :: MacOS :: MacOS X',
-         'Operating System :: Microsoft :: Windows',
-         'Operating System :: POSIX',
-         'Programming Language :: C',
-         'Programming Language :: Python :: 2',
-         'Programming Language :: Python :: 3',
-         'Programming Language :: Python :: Implementation :: CPython',
-         'Topic :: Scientific/Engineering :: Mathematics',
-         'Topic :: Software Development :: Libraries :: Python Modules',
-       ],
+gmpy2_ext = Extension('gmpy2',
+                      sources=['src/gmpy2.c'],
+                      include_dirs=incdirs,
+                      library_dirs=libdirs,
+                      libraries=libs,
+                      runtime_library_dirs=rundirs,
+                      define_macros = defines,
+                      extra_link_args = my_extra_link_args)
 
-       ext_modules = [ gmpy2_ext ]
+setup(name = "gmpy2",
+      version = "2.0.0b4",
+      maintainer = "Case Van Horsen",
+      maintainer_email = "casevh@gmail.com",
+      url = "http://code.google.com/p/gmpy/",
+      description = "GMP/MPIR, MPFR, and MPC interface to Python 2.6+ and 3.x",
+      classifiers = [
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Science/Research'
+        'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
+        'Natural Language :: English',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX',
+        'Programming Language :: C',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Topic :: Scientific/Engineering :: Mathematics',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+      ],
+      cmdclass = cmdclass,
+      ext_modules = [gmpy2_ext]
 )
