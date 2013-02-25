@@ -309,6 +309,9 @@
  *   Fix bug when comparing mpz to mpq (with mpz on left) (casevh)
  *   Add __sizeof__ (casevh)
  *
+ *   2.0.0b5
+ *   Fix segfault in _mpmath_normalize if rnd not specified (casevh)
+ *
  ************************************************************************
  *
  * Discussion on sizes of C integer types.
@@ -378,7 +381,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.0.0b4";
+char gmpy_version[] = "2.0.0b5";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -825,7 +828,7 @@ _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] =
-"gmpy2 2.0.0b4 - General Multiple-precision arithmetic for Python\n"
+"gmpy2 2.0.0b5 - General Multiple-precision arithmetic for Python\n"
 "\n"
 "gmpy2 supports several multiple-precision libraries. Integer and\n"
 "rational arithmetic is provided by either the GMP or MPIR libraries.\n"
