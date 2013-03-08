@@ -311,6 +311,9 @@
  *
  *   2.0.0b5
  *   Fix segfault in _mpmath_normalize if rnd not specified (casevh)
+ *   Improved setup.py (casevh)
+ *   Fix issues encountered when compiled without MPFR support (casevh)
+ *   Conversion of too large an mpz to float now raises OverflowError (casevh)
  *
  ************************************************************************
  *
