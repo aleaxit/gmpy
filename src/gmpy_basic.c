@@ -59,7 +59,11 @@ static PyObject *
 Pybasic_add(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
+#ifdef WITHMPFR
     PympzObject *rz = 0, *paz = 0, *pbz = 0;
+#else
+    PympzObject *rz = 0;
+#endif
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
 #ifdef WITHMPFR
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
@@ -786,11 +790,19 @@ Pybasic_mul(PyObject *a, PyObject *b)
     /* Support mpz*float and float*mpz. */
     if (CHECK_MPZANY(a) && PyFloat_Check(b)) {
         tempdouble = mpz_get_d(Pympz_AS_MPZ(a));
+        if (Py_IS_INFINITY(tempdouble)) {
+            OVERFLOW_ERROR("'mpz' too large to convert to float");
+            return NULL;
+        }
         tempdouble = tempdouble*PyFloat_AsDouble(b);
         return PyFloat_FromDouble(tempdouble);
     }
     if (CHECK_MPZANY(b) && PyFloat_Check(a)) {
         tempdouble = mpz_get_d(Pympz_AS_MPZ(b));
+        if (Py_IS_INFINITY(tempdouble)) {
+            OVERFLOW_ERROR("'mpz' too large to convert to float");
+            return NULL;
+        }
         tempdouble = PyFloat_AsDouble(a)*tempdouble;
         return PyFloat_FromDouble(tempdouble);
     }
@@ -1051,6 +1063,17 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF(division);
     }
+#else
+    /* Handle mixed mpz and PyFloat floor division. */
+    if (CHECK_MPZANY(a) && PyFloat_Check(b)) {
+        PyObject *temp = NULL, *result = NULL;
+
+        if ((temp = Pympz_To_PyLong((PympzObject*)a))) {
+            result = PyNumber_FloorDivide(temp, b);
+            Py_DECREF(temp);
+        }
+        return result;
+    }
 #endif
 
 #ifdef WITHMPC
@@ -1254,11 +1277,19 @@ Pybasic_truediv(PyObject *a, PyObject *b)
     /* Support mpz/float and float/mpz. */
     if (CHECK_MPZANY(a) && PyFloat_Check(b)) {
         tempdouble = mpz_get_d(Pympz_AS_MPZ(a));
+        if (Py_IS_INFINITY(tempdouble)) {
+            OVERFLOW_ERROR("'mpz' too large to convert to float");
+            return NULL;
+        }
         tempdouble = tempdouble/PyFloat_AsDouble(b);
         return PyFloat_FromDouble(tempdouble);
     }
     if (CHECK_MPZANY(b) && PyFloat_Check(a)) {
         tempdouble = mpz_get_d(Pympz_AS_MPZ(b));
+        if (Py_IS_INFINITY(tempdouble)) {
+            OVERFLOW_ERROR("'mpz' too large to convert to float");
+            return NULL;
+        }
         tempdouble = PyFloat_AsDouble(a)/tempdouble;
         return PyFloat_FromDouble(tempdouble);
     }
@@ -1508,6 +1539,17 @@ Pybasic_div2(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF(division);
+    }
+#else
+    /* Handle mixed mpz and PyFloat true division. */
+    if (CHECK_MPZANY(a) && PyFloat_Check(b)) {
+        PyObject *temp = NULL, *result = NULL;
+
+        if ((temp = Pympz_To_PyLong((PympzObject*)a))) {
+            result = PyNumber_TrueDivide(temp, b);
+            Py_DECREF(temp);
+        }
+        return result;
     }
 #endif
 

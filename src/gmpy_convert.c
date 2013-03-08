@@ -383,6 +383,11 @@ Pympz_To_PyFloat(PympzObject *self)
 {
     double res = mpz_get_d(self->z);
 
+    if (Py_IS_INFINITY(res)) {
+        OVERFLOW_ERROR("'mpz' too large to convert to float");
+        return NULL;
+    }
+
     return PyFloat_FromDouble(res);
 }
 
