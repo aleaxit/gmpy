@@ -2057,10 +2057,15 @@ Pympfr_hypot(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_g_mpfr_max2,
-"max2(y, x) -> mpfr\n\n"
-"Return the maximum of x and y. If x and y are not 'mpfr', they are\n"
+"max2(x, y) -> mpfr\n\n"
+"Return the maximum number of x and y. This function is deprecated.\n"
+"Please use maxnum() instead.");
+
+PyDoc_STRVAR(doc_g_mpfr_maxnum,
+"maxnum(x, y) -> mpfr\n\n"
+"Return the maximum number of x and y. If x and y are not 'mpfr', they are\n"
 "converted to 'mpfr'. The result is rounded to match the current\n"
-"context.");
+"context. If only one of x or y is a number, then that number is returned.");
 
 static PyObject *
 Pympfr_max2(PyObject *self, PyObject *args)
@@ -2080,10 +2085,15 @@ Pympfr_max2(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_g_mpfr_min2,
-"min2(y, x) -> mpfr\n\n"
+"min2(x, y) -> mpfr\n\n"
+"Return the minimum of x and y. This function is deprecated.\n"
+"Please use minnum() instead.");
+
+PyDoc_STRVAR(doc_g_mpfr_minnum,
+"minnum(x, y) -> mpfr\n\n"
 "Return the minimum of x and y. If x and y are not 'mpfr', they are\n"
 "converted to 'mpfr'. The result is rounded to match the current\n"
-"context.");
+"context. If only one of x or y is a number, then that number is returned.");
 
 static PyObject *
 Pympfr_min2(PyObject *self, PyObject *args)
