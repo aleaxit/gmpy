@@ -169,7 +169,6 @@ if do_search:
         lookin = adir + '/include'
         if os.path.isfile(lookin + '/' + mplib + '.h'):
             mp_found = True
-            writeln('found it in %s' % lookin)
             incdirs += [lookin]
             libdirs = [adir + '/lib']
             rundirs = [adir + '/lib']
@@ -233,7 +232,7 @@ gmpy2_ext = Extension('gmpy2',
                       extra_link_args = my_extra_link_args)
 
 setup(name = "gmpy2",
-      version = "2.0.0b4",
+      version = "2.0.0b5",
       maintainer = "Case Van Horsen",
       maintainer_email = "casevh@gmail.com",
       url = "http://code.google.com/p/gmpy/",
