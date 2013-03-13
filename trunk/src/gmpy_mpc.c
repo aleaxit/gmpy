@@ -90,7 +90,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
     PympcObject *result = NULL;
     PympfrObject *tempreal = NULL, *tempimag = NULL;
     PyObject *arg0 = NULL, *arg1 = NULL, *prec = NULL;
-    long base = 10;
+    int base = 10;
     /* Assumes mpfr_prec_t is the same as a long. */
     mpfr_prec_t rbits = 0, ibits = 0;
     Py_ssize_t argc;

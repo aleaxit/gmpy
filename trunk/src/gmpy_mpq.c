@@ -43,7 +43,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
 {
     PympqObject *result = 0, *temp;
     PyObject *n = 0, *m = 0;
-    long base = 10;
+    int base = 10;
     Py_ssize_t argc;
     static char *kwlist[] = {"s", "base", NULL };
 
@@ -63,7 +63,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
     n = PyTuple_GetItem(args, 0);
     if (PyStrOrUnicode_Check(n)) {
         /* keyword base is legal */
-        if (PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist, &n, &base)) {
+        if (PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwlist, &n, &base)) {
             if ((base!=0) && ((base<2)||(base>62))) {
                 VALUE_ERROR("base for mpq() must be 0 or in the "
                             "interval 2 ... 62");

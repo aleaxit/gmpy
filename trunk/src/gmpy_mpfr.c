@@ -73,7 +73,7 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
 {
     PympfrObject *result = 0;
     PyObject *arg0;
-    long base = 0;
+    int base = 0;
     Py_ssize_t argc;
     /* Assumes mpfr_prec_t is the same as a long. */
     mpfr_prec_t bits = 0;
@@ -95,7 +95,7 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
     arg0 = PyTuple_GetItem(args, 0);
     if (PyStrOrUnicode_Check(arg0)) {
         /* Can have both precision and/or base as keyword arguments. */
-        if (PyArg_ParseTupleAndKeywords(args, keywds, "O|ll", kwlist_s,
+        if (PyArg_ParseTupleAndKeywords(args, keywds, "O|li", kwlist_s,
                                         &arg0, &bits, &base)) {
             if ((base!=0) && ((base<2)||(base>62))) {
                 VALUE_ERROR("base for mpfr() must be 0 or in the "

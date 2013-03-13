@@ -48,7 +48,7 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
 {
     PyxmpzObject *result = 0;
     PyObject *n = 0;
-    long base = 0;
+    int base = 0;
     Py_ssize_t argc;
     static char *kwlist[] = {"n", "base", NULL };
 
@@ -74,7 +74,7 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
         }
     }
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwlist,
                                      &n, &base))
         return NULL;
 
@@ -111,7 +111,12 @@ Pyxmpz_digits(PyObject *self, PyObject *args)
 
     PARSE_ONE_MPZ_OPT_CLONG(&base,
             "digits() requires 'int' argument for base");
-    result = Pyxmpz_To_PyStr((PyxmpzObject*)self, base, 0);
+    if ((base < 2) || (base > 62)) {
+        VALUE_ERROR("base must be in the interval 2 ... 62");
+        Py_DECREF(self);
+        return NULL;
+    }
+    result = Pyxmpz_To_PyStr((PyxmpzObject*)self, (int)base, 0);
     Py_DECREF(self);
     return result;
 }
