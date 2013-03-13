@@ -67,11 +67,11 @@ static int isComplex(PyObject* obj);
 #ifdef PY2
 static PympzObject *   Pympz_From_PyInt(PyObject *self);
 #endif
-static PympzObject *   Pympz_From_PyStr(PyObject *s, long base);
-static PympzObject *   Pympz_From_PyLong(PyObject * obj);
+static PympzObject *   Pympz_From_PyStr(PyObject *s, int base);
+static PympzObject *   Pympz_From_PyLong(PyObject *obj);
 static PympzObject *   Pympz_From_Pyxmpz(PyObject *self);
 static PympzObject *   Pympz_From_PyFloat(PyObject *self);
-static PympzObject *   Pympz_From_Number(PyObject* obj);
+static PympzObject *   Pympz_From_Number(PyObject *obj);
 
 static PyObject *      Pympz_To_PyLong(PympzObject *self);
 static PyObject *      Pympz_To_PyIntOrLong(PympzObject *self);
@@ -82,12 +82,12 @@ static PyObject *      Pympz_To_PyStr(PympzObject *self, int base, int option);
 #ifdef PY2
 static PyxmpzObject *  Pyxmpz_From_PyInt(PyObject *self);
 #endif
-static PyxmpzObject *  Pyxmpz_From_PyStr(PyObject *s, long base);
-static PyxmpzObject *  Pyxmpz_From_PyLong(PyObject * obj);
+static PyxmpzObject *  Pyxmpz_From_PyStr(PyObject *s, int base);
+static PyxmpzObject *  Pyxmpz_From_PyLong(PyObject *obj);
 static PyxmpzObject *  Pyxmpz_From_Pyxmpz(PyObject *self);
 static PyxmpzObject *  Pyxmpz_From_Pympz(PyObject *self);
 static PyxmpzObject *  Pyxmpz_From_PyFloat(PyObject *self);
-static PyxmpzObject *  Pyxmpz_From_Number(PyObject* obj);
+static PyxmpzObject *  Pyxmpz_From_Number(PyObject *obj);
 
 static PyObject *      Pyxmpz_To_PyLong(PyxmpzObject *self);
 static PyObject *      Pyxmpz_To_PyIntOrLong(PyxmpzObject *self);
@@ -100,7 +100,7 @@ static PyObject *      Pyxmpz_To_Str(PyxmpzObject *self);
 static PyObject *      Pyxmpz_To_Repr(PyxmpzObject *self);
 
 /* Miscellaneous integer conversion functions. */
-static int mpz_set_PyStr(mpz_ptr z, PyObject *s, long base);
+static int mpz_set_PyStr(mpz_ptr z, PyObject *s, int base);
 static PyObject * mpz_ascii(mpz_t z, int base, int option);
 static PyObject * xmpz_ascii(mpz_t z, int base, int option);
 #if 0
@@ -138,7 +138,7 @@ static PympqObject *   Pympq_From_Pympz(PyObject *self);
 static PympqObject *   Pympq_From_Pyxmpz(PyObject *obj);
 static PympqObject *   Pympq_From_PyFloat(PyObject *self);
 static PympqObject *   Pympq_From_Fraction(PyObject *obj);
-static PympqObject *   Pympq_From_PyStr(PyObject *stringarg, long base);
+static PympqObject *   Pympq_From_PyStr(PyObject *stringarg, int base);
 
 /* NOTE: Pympq_From_Decimal returns an invalid mpq object when attempting to
  *       convert a NaN or Infinity. If the denominator is 0, then interpret
@@ -181,7 +181,7 @@ static PympfrObject *   Pympfr_From_PyLong(PyObject *self, mpfr_prec_t bits);
 static PympfrObject *   Pympfr_From_Pympz(PyObject *self, mpfr_prec_t bits);
 static PympfrObject *   Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
 static PympfrObject *   Pympfr_From_Pympq(PyObject *self, mpfr_prec_t bits);
-static PympfrObject *   Pympfr_From_PyStr(PyObject *s, long base, mpfr_prec_t bits);
+static PympfrObject *   Pympfr_From_PyStr(PyObject *s, int base, mpfr_prec_t bits);
 static PympfrObject *   Pympfr_From_Decimal(PyObject *obj, mpfr_prec_t bits);
 static PympfrObject *   Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
 
@@ -216,7 +216,7 @@ static PympcObject *   Pympc_From_PyFloat(PyObject *self, mpfr_prec_t rprec, mpf
 static PympcObject *   Pympc_From_Pympz(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
 static PympcObject *   Pympc_From_Pympq(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
 static PympcObject *   Pympc_From_PyLong(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
-static PympcObject *   Pympc_From_PyStr(PyObject *s, long base, mpfr_prec_t rbits, mpfr_prec_t ibits);
+static PympcObject *   Pympc_From_PyStr(PyObject *s, int base, mpfr_prec_t rbits, mpfr_prec_t ibits);
 static PympcObject *   Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec);
 
 static PyObject *      Pympc_To_PyFloat(PyObject *self);

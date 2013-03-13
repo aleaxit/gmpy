@@ -1073,15 +1073,15 @@ GMPyContext_set_round(GMPyContextObject *self, PyObject *value, void *closure)
         return -1;
     }
     if (temp == MPFR_RNDN)
-        self->ctx.mpfr_round = temp;
+        self->ctx.mpfr_round = MPFR_RNDN;
     else if (temp == MPFR_RNDZ)
-        self->ctx.mpfr_round = temp;
+        self->ctx.mpfr_round = MPFR_RNDZ;
     else if (temp == MPFR_RNDU)
-        self->ctx.mpfr_round = temp;
+        self->ctx.mpfr_round = MPFR_RNDU;
     else if (temp == MPFR_RNDD)
-        self->ctx.mpfr_round = temp;
+        self->ctx.mpfr_round = MPFR_RNDD;
     else if (temp == MPFR_RNDA) {
-        self->ctx.mpfr_round = temp;
+        self->ctx.mpfr_round = MPFR_RNDA;
 #ifdef WITHMPC
         /* Since RNDA is not supported for MPC, set the MPC rounding modes
            to MPFR_RNDN. */
@@ -1119,7 +1119,7 @@ GMPyContext_set_real_round(GMPyContextObject *self, PyObject *value, void *closu
     }
     if (temp == GMPY_DEFAULT || temp == MPFR_RNDN || temp == MPFR_RNDZ ||
         temp == MPFR_RNDU || temp == MPFR_RNDD) {
-        self->ctx.real_round = temp;
+        self->ctx.real_round = (int)temp;
     }
     else {
         VALUE_ERROR("invalid value for round mode");
@@ -1150,7 +1150,7 @@ GMPyContext_set_imag_round(GMPyContextObject *self, PyObject *value, void *closu
     }
     if (temp == GMPY_DEFAULT || temp == MPFR_RNDN || temp == MPFR_RNDZ ||
         temp == MPFR_RNDU || temp == MPFR_RNDD) {
-        self->ctx.imag_round = temp;
+        self->ctx.imag_round = (int)temp;
     }
     else {
         VALUE_ERROR("invalid value for round mode");

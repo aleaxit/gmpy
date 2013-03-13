@@ -238,7 +238,7 @@ Pyxmpz_From_PyLong(PyObject * obj)
 /* mpz_set_PyStr returns -1 on error, 1 if successful. */
 
 static int
-mpz_set_PyStr(mpz_ptr z, PyObject *s, long base)
+mpz_set_PyStr(mpz_ptr z, PyObject *s, int base)
 {
     unsigned char *cp;
     Py_ssize_t len;
@@ -300,7 +300,7 @@ mpz_set_PyStr(mpz_ptr z, PyObject *s, long base)
 }
 
 static PympzObject *
-Pympz_From_PyStr(PyObject *s, long base)
+Pympz_From_PyStr(PyObject *s, int base)
 {
     PympzObject *newob;
 
@@ -315,7 +315,7 @@ Pympz_From_PyStr(PyObject *s, long base)
 }
 
 static PyxmpzObject *
-Pyxmpz_From_PyStr(PyObject *s, long base)
+Pyxmpz_From_PyStr(PyObject *s, int base)
 {
     PyxmpzObject *newob;
 
@@ -1152,7 +1152,7 @@ Pympq_From_PyFloat(PyObject *self)
  * numerator (as above for mpz), then denominator (ditto).
  */
 static PympqObject *
-Pympq_From_PyStr(PyObject *stringarg, long base)
+Pympq_From_PyStr(PyObject *stringarg, int base)
 {
     PympqObject *newob;
     unsigned char *cp;
@@ -2056,7 +2056,7 @@ Pympfr_To_PyInt(PympfrObject *self)
 #endif
 
 static PympfrObject *
-Pympfr_From_PyStr(PyObject *s, long base, mpfr_prec_t bits)
+Pympfr_From_PyStr(PyObject *s, int base, mpfr_prec_t bits)
 {
     PympfrObject *result;
     char *cp, *endptr;
@@ -2491,7 +2491,7 @@ Pympc_To_PyIntOrLong(PyObject *self)
  */
 
 static PympcObject *
-Pympc_From_PyStr(PyObject *s, long base, mpfr_prec_t rbits, mpfr_prec_t ibits)
+Pympc_From_PyStr(PyObject *s, int base, mpfr_prec_t rbits, mpfr_prec_t ibits)
 {
     PympcObject *newob;
     PyObject *ascii_str = NULL;
