@@ -314,6 +314,7 @@
  *   Improved setup.py (casevh)
  *   Fix issues encountered when compiled without MPFR support (casevh)
  *   Conversion of too large an mpz to float now raises OverflowError (casevh)
+ *   Renamed module functions min2()/max2() to minnum()/maxnum() (casevh)
  *
  ************************************************************************
  *
@@ -696,7 +697,9 @@ static PyMethodDef Pygmpy_methods [] =
     { "log1p", Pympfr_log1p, METH_O, doc_g_mpfr_log1p },
     { "log10", Pympany_log10, METH_O, doc_mpany_log10 },
     { "log2", Pympfr_log2, METH_O, doc_g_mpfr_log2 },
+    { "maxnum", Pympfr_max2, METH_VARARGS, doc_g_mpfr_maxnum },
     { "max2", Pympfr_max2, METH_VARARGS, doc_g_mpfr_max2 },
+    { "minnum", Pympfr_min2, METH_VARARGS, doc_g_mpfr_minnum },
     { "min2", Pympfr_min2, METH_VARARGS, doc_g_mpfr_min2 },
     { "modf", Pympfr_modf, METH_O, doc_g_mpfr_modf },
     { "mpfr", (PyCFunction)Pygmpy_mpfr, METH_VARARGS | METH_KEYWORDS, doc_mpfr },
