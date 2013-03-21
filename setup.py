@@ -3,6 +3,7 @@ import os
 from distutils.core import setup, Extension
 from distutils.command.clean import clean
 from distutils.command.build_ext import build_ext
+from distutils.sysconfig import get_python_inc, get_python_lib
 
 def writeln(s):
     sys.stdout.write('%s\n' % s)
@@ -30,6 +31,34 @@ class gmpy_build_ext(build_ext):
     def finalize_options(self):
         build_ext.finalize_options(self)
         self.force = 1
+
+# Extract the version information from the various header files. Since header
+# store the information differently, a separate function is provided for each
+# library.
+
+def get_mpfr_version(fname):
+    result = []
+    with open(fname) as f:
+        for line in f:
+            if line.startswith('#define MPFR_VERSION_MAJOR'):
+                result.append(int(line.split()[-1]))
+            if line.startswith('#define MPFR_VERSION_MINOR'):
+                result.append(int(line.split()[-1]))
+            if line.startswith('#define MPFR_VERSION_PATCHLEVEL'):
+                result.append(int(line.split()[-1]))
+    return tuple(result)
+
+def get_mpc_version(fname):
+    result = []
+    with open(fname) as f:
+        for line in f:
+            if line.startswith('#define MPC_VERSION_MAJOR'):
+                result.append(int(line.split()[-1]))
+            if line.startswith('#define MPC_VERSION_MINOR'):
+                result.append(int(line.split()[-1]))
+            if line.startswith('#define MPC_VERSION_PATCHLEVEL'):
+                result.append(int(line.split()[-1]))
+    return tuple(result)
 
 # Several command line options can be used to modify compilation of GMPY2. To
 # maintain backwards compatibility with older versions of setup.py, the old
@@ -63,12 +92,29 @@ if sys.version.find('MSC') == -1:
 else:
     mplib='mpir'
 
-# Specify the default search directories for Unix/Linux/MacOSX and Windows.
+# Specify the default search directories for Unix/Linux/MacOSX. The prefixes
+# '/usr/local' and '/usr' are searched since they are "standard" on most Linux
+# distributions.
+#
+# The directories are searched for 'include/gmp.h' or 'include/mpir.h'. If
+# found, then 'include/mpfr.h' and 'include/mpc.h' are expected to be found
+# under the same prefix.
+#
+# To specify an alternate location for the gmp/mpir, mpfr, and mpc, use the
+# --prefix=<<prefix>> option. If --prefix is specified, the standard locations
+# are not searched. When using --prefix, the run_path option is specified when
+# linking gmpy2. The is done to make it easy to support locally compiled
+# versions of GMP/MPIR, MPFR, and MPC.
 
 if sys.version.find('MSC') == -1:
-    search_dirs = ['/opt/local', '/opt', '/usr/local', '/usr', '/sw']
+    search_dirs = ['/usr/local', '/usr']
 else:
     search_dirs = []
+
+# Some operating systems may use a different library directory under the
+# prefix specified by --prefix. It must be manually changed.
+
+lib_path = '/lib'
 
 # If 'clean' is the only argument to setup.py then we want to skip looking for
 # header files.
@@ -81,6 +127,7 @@ else:
 use_mpc = True
 use_mpfr = True
 force = False
+prefix = False
 
 for token in sys.argv[:]:
     if token.lower() == '--force':
@@ -106,7 +153,8 @@ for token in sys.argv[:]:
 
     if token.lower().startswith('--prefix'):
         try:
-            search_dirs = [token.split('=')[1]] + search_dirs
+            prefix = True
+            search_dirs = [token.split('=')[1]]
         except:
             writeln('Please include a directory location.')
         sys.argv.remove(token)
@@ -135,21 +183,16 @@ for token in sys.argv[:]:
 
     if token.upper().startswith('-DDIR'):
         try:
-            search_dirs = [token.split('=')[1]] + search_dirs
+            prefix = True
+            search_dirs = [token.split('=')[1]]
         except:
             writeln('Please include a directory location.')
         sys.argv.remove(token)
         writeln('The -DDIR option is deprecated. Use --prefix instead.')
 
-# The list of directories in search_dirs is scanned for gmp.h (or mpir.h),
-# mpfr.h, and mpc.h. If the header files are found id <dir>/include, then it is
-# assumed the libraries will be found in <dir>/lib. In addition, the run_path
-# is specified as <dir>/lib. (This is done to make it easy to support locally
-# compiled versions of GMP, MPFR, and MPC.)
-
 incdirs = ['./src']
-libdirs = None
-rundirs = None
+libdirs = []
+rundirs = []
 
 # Specify extra link arguments for Windows.
 
@@ -159,6 +202,9 @@ else:
     my_extra_link_args = ["/MANIFEST"]
 
 mp_found = False
+
+# TODO: Parse the header files and check for the appropriate version.
+
 if do_search:
     if not search_dirs:
         writeln('Please specify the prefix directory for the include and library files')
@@ -169,9 +215,12 @@ if do_search:
         lookin = adir + '/include'
         if os.path.isfile(lookin + '/' + mplib + '.h'):
             mp_found = True
-            incdirs += [lookin]
-            libdirs = [adir + '/lib']
-            rundirs = [adir + '/lib']
+            # Only modify the inc/lib/run directories if --prefix was used.
+            if prefix:
+                incdirs += [lookin]
+                libdirs += [adir + lib_path]
+                rundirs = [adir + lib_path]
+
             # If MPFR and MPC support is required, verify that the header files
             # exist in the same directory. If not, generate an error message.
             if use_mpfr and not os.path.isfile(lookin + '/mpfr.h'):
@@ -186,6 +235,23 @@ if do_search:
                 writeln('To specify a directory prefix for the include and library files,')
                 writeln('use the --prefix=<dir> option.')
                 sys.exit()
+
+            # Check for the proper versions of MPFR and MPC.
+            mpfr_version = get_mpfr_version(lookin + '/mpfr.h')
+            if use_mpfr and mpfr_version < (3,1,0):
+                writeln('MPFR version %s.%s.%s was found.' % mpfr_version)
+                writeln('The mininum required version is 3.1.0.')
+                writeln('To specify the location of an updated version, use the')
+                writeln('--prefix=<dir> option.')
+                sys.exit()
+            mpc_version = get_mpc_version(lookin + '/mpc.h')
+            if use_mpc and mpc_version < (1,0,0):
+                writeln('MPC version %s.%s.%s was found.' % mpc_version)
+                writeln('The mininum required version is 1.0.0.')
+                writeln('To specify the location of an updated version, use the')
+                writeln('--prefix=<dir> option.')
+                sys.exit()
+
             break
 
     if not mp_found:
@@ -204,9 +270,17 @@ if use_mpfr:
 if use_mpc:
     defines.append( ('WITHMPC', 1) )
 
-# Build list of the required libraries...
+# Build list of the required libraries. If the instance of Python used to compile
+# gmpy2 not found under --prefix, then specify the Python shared to use.
 
-libs = [mplib]
+if prefix:
+    if get_python_lib(standard_lib=True).startswith(search_dirs[0]):
+        libs = [mplib]
+    else:
+        libs = [get_python_lib(standard_lib=True), mplib]
+else:
+    libs = [mplib]
+
 if use_mpfr:
     libs.append('mpfr')
 if use_mpc:
