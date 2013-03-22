@@ -40,8 +40,6 @@ if debug:
 else:
     repeat = 1
 
-# gmpy2.set_cache(0,0)
-
 print()
 print("Unit tests for gmpy2 {0} with Python {1}".format(gmpy2.version(), sys.version.split()[0]))
 print("  Mutliple-precision library:     {0}".format(gmpy2.mp_version()))
@@ -65,7 +63,7 @@ mpz_doctests = ["test_mpz.txt", "test_mpz_io.txt"]
 mpq_doctests = ["test_mpq.txt"]
 
 # The following tests require MPFR support.
-mpfr_doctests = ["test_mpfr.txt", "test_mpfr_trig.txt"]
+mpfr_doctests = ["test_mpfr.txt", "test_mpfr_trig.txt", "test_mpfr_min_max.txt"]
 
 # The following tests require MPC support.
 mpc_doctests = ["test_mpc.txt"]
