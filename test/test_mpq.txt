@@ -131,8 +131,6 @@ Test modulo
     (mpz(62), mpq(1,11))
     >>> divmod(a,c)
     (mpz(0), mpq(3,11))
-    >>> divmod(c,a)
-    (mpz(2), mpq(13,77))
 
 Test pickle
 -----------

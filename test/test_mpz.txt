@@ -166,16 +166,16 @@ Test modulo
     (mpz(0), mpz(123))
     >>> divmod(a,int(c))
     (mpz(0), mpz(123))
-    >>> divmod(a*(c-1),c)
-    (mpz(122), mpz(12345678901234567767))
-    >>> divmod(a*(c-1),int(c))
-    (mpz(122), mpz(12345678901234567767))
+    >>> print("%s %s" % divmod(a*(c-1),c))
+    122 12345678901234567767
+    >>> print("%s %s" % divmod(a*(c-1),int(c)))
+    122 12345678901234567767
     >>> divmod(a*(c-1),-c)
     (mpz(-123), mpz(-123))
     >>> divmod(a*(c-1),-int(c))
     (mpz(-123), mpz(-123))
-    >>> divmod(int(a*(c-1)),-int(c))
-    (-123, -123)
+    >>> print("%s %s" % divmod(int(a*(c-1)),-int(c)))
+    -123 -123
 
 Test miscellaneous
 ------------------

@@ -9,32 +9,12 @@ def writeln(s):
     sys.stdout.write('%s\n' % s)
     sys.stdout.flush()
 
-# Fail gracefully for old versions of Python.
+# Some operating systems may use a different library directory under the
+# prefix specified by --prefix. It must be manually changed.
 
-if sys.version[:3] < '2.6':
-    writeln("GMPY2 requires Python 2.6 or later.")
-    writeln("Please use GMPY 1.x for earlier versions of Python.")
-    sys.exit()
+lib_path = '/lib'
 
-# Improved clean command.
-
-class gmpy_clean(clean):
-
-    def run(self):
-        self.all = True
-        clean.run(self)
-
-# Define a custom build class to force a new build.
-
-class gmpy_build_ext(build_ext):
-
-    def finalize_options(self):
-        build_ext.finalize_options(self)
-        self.force = 1
-
-# Extract the version information from the various header files. Since header
-# store the information differently, a separate function is provided for each
-# library.
+# Extract the version from MPFR/MPC
 
 def get_mpfr_version(fname):
     result = []
@@ -59,6 +39,125 @@ def get_mpc_version(fname):
             if line.startswith('#define MPC_VERSION_PATCHLEVEL'):
                 result.append(int(line.split()[-1]))
     return tuple(result)
+
+# Fail gracefully for old versions of Python.
+
+if sys.version[:3] < '2.6':
+    writeln("GMPY2 requires Python 2.6 or later.")
+    writeln("Please use GMPY 1.x for earlier versions of Python.")
+    sys.exit()
+
+# Improved clean command.
+
+class gmpy_clean(clean):
+
+    def run(self):
+        self.all = True
+        clean.run(self)
+
+# Define a custom build class to force a new build.
+
+class gmpy_build_ext(build_ext):
+
+    # Extract the version information from the various header files. Since header
+    # store the information differently, a separate function is provided for each
+    # library.
+
+    def check_versions(self):
+        # Check the specified list of include directories to verify that valid
+        # versions of MPFR and MPC are available. If so, add entries to the
+        # appropriate lists
+
+        # Find the directory specfied for PREFIX.
+        prefix = None
+        for i,d in enumerate(self.extensions[0].define_macros[:]):
+            if d[0] == 'PREFIX':
+                prefix = d[1]
+                try:
+                    self.extensions[0].define_macros.remove(d)
+                except ValueError:
+                    pass
+
+        if sys.version.find('MSC') == -1:
+            search_dirs = ['/usr/local', '/usr', '/opt/local', '/opt', '/sw']
+        else:
+            search_dirs = []
+
+        if prefix:
+            search_dirs = [prefix] + search_dirs
+
+        if 'gmp' in self.extensions[0].libraries:
+            mplib = 'gmp'
+        else:
+            mplib = 'mpir'
+
+        use_mpfr = 'mpfr' in self.extensions[0].libraries
+        use_mpc = 'mpc' in self.extensions[0].libraries
+
+        # Try to find a directory prefix that contains valid GMP/MPFR/MPC
+        # libraries. Only the version numbers of MPFR and MPC are checked.
+
+        for adir in search_dirs:
+            lookin = adir + '/include'
+            mp_found = False
+            mpfr_found = False
+            mpc_found = False
+            if os.path.isfile(lookin + '/' + mplib + '.h'):
+                mp_found = True
+
+                # If MPFR and MPC support is required, verify that the header files
+                # exist in the same directory. If not, generate an error message.
+                # If header isn't found, go to the next directory.
+
+                if use_mpfr \
+                    and os.path.isfile(lookin + '/mpfr.h') \
+                    and get_mpfr_version(lookin + '/mpfr.h') >= (3,1,0):
+                    mpfr_found = True
+                else:
+                    continue
+
+                if use_mpc \
+                    and os.path.isfile(lookin + '/mpc.h') \
+                    and get_mpc_version(lookin + '/mpc.h') >= (1,0,0):
+                    mpc_found = True
+                else:
+                    continue
+
+                # Stop searching once valid versions are found.
+                break
+
+        if not mp_found or (use_mpfr and not mpfr_found) or (use_mpc and not mpc_found):
+            writeln('The required versions of GMP/MPIR, MPFR, or MPC could not be')
+            writeln('found. gmpy2 requires MPFR version 3.1.0 or greater and MPC')
+            writeln('version 1.0.0 or greater. To specify a directory prefix that')
+            writeln('contains the proper versions, use the --prefix=<dir> option.')
+            raise SystemExit
+
+        # Add the directory information for location where valid versions were
+        # found. This can cause confusion if there are multiple installations of
+        # the same version of Python on the system.
+
+        self.extensions[0].include_dirs += [lookin]
+        self.extensions[0].library_dirs += [adir + lib_path]
+        self.extensions[0].runtime_library_dirs += [adir + lib_path]
+
+        # If the instance of Python used to compile gmpy2 not found in 'adir',
+        # then specify the Python shared library to use.
+        if not get_python_lib(standard_lib=True).startswith(adir):
+            self.extensions[0].libraries = [get_python_lib(standard_lib=True)] \
+                                            + self.extensions[0].libraries
+
+    def finalize_options(self):
+        build_ext.finalize_options(self)
+        gmpy_build_ext.check_versions(self)
+        # Check if --force was specified.
+        for i,d in enumerate(self.extensions[0].define_macros[:]):
+            if d[0] == 'FORCE':
+                self.force = 1
+                try:
+                    self.extensions[0].define_macros.remove(d)
+                except ValueError:
+                    pass
 
 # Several command line options can be used to modify compilation of GMPY2. To
 # maintain backwards compatibility with older versions of setup.py, the old
@@ -92,46 +191,27 @@ if sys.version.find('MSC') == -1:
 else:
     mplib='mpir'
 
-# Specify the default search directories for Unix/Linux/MacOSX. The prefixes
-# '/usr/local' and '/usr' are searched since they are "standard" on most Linux
-# distributions.
-#
-# The directories are searched for 'include/gmp.h' or 'include/mpir.h'. If
-# found, then 'include/mpfr.h' and 'include/mpc.h' are expected to be found
-# under the same prefix.
-#
-# To specify an alternate location for the gmp/mpir, mpfr, and mpc, use the
-# --prefix=<<prefix>> option. If --prefix is specified, the standard locations
-# are not searched. When using --prefix, the run_path option is specified when
-# linking gmpy2. The is done to make it easy to support locally compiled
-# versions of GMP/MPIR, MPFR, and MPC.
-
-if sys.version.find('MSC') == -1:
-    search_dirs = ['/usr/local', '/usr']
-else:
-    search_dirs = []
-
-# Some operating systems may use a different library directory under the
-# prefix specified by --prefix. It must be manually changed.
-
-lib_path = '/lib'
-
 # If 'clean' is the only argument to setup.py then we want to skip looking for
 # header files.
 
-if len(sys.argv) == 2 and sys.argv[1].lower() == 'clean':
-    do_search = False
-else:
+if sys.argv[1].lower() in ['build', 'install']:
     do_search = True
+else:
+    do_search = False
+
+# Parse command line arguments. If custom prefix location is specified, it is
+# passed as a define so it can be processed in the custom build_ext defined
+# above.
+
+defines = []
 
 use_mpc = True
 use_mpfr = True
 force = False
-prefix = False
 
 for token in sys.argv[:]:
     if token.lower() == '--force':
-        force = True
+        defines.append( ('FORCE', 1) )
         sys.argv.remove(token)
 
     if token.lower() == '--mpir':
@@ -153,8 +233,7 @@ for token in sys.argv[:]:
 
     if token.lower().startswith('--prefix'):
         try:
-            prefix = True
-            search_dirs = [token.split('=')[1]]
+            defines.append( ('PREFIX', token.split('=')[1]) )
         except:
             writeln('Please include a directory location.')
         sys.argv.remove(token)
@@ -183,8 +262,7 @@ for token in sys.argv[:]:
 
     if token.upper().startswith('-DDIR'):
         try:
-            prefix = True
-            search_dirs = [token.split('=')[1]]
+            defines.append( ('PREFIX', token.split('=')[1]) )
         except:
             writeln('Please include a directory location.')
         sys.argv.remove(token)
@@ -203,98 +281,30 @@ else:
 
 mp_found = False
 
-# TODO: Parse the header files and check for the appropriate version.
-
-if do_search:
-    if not search_dirs:
-        writeln('Please specify the prefix directory for the include and library files')
-        writeln('using the --prefix=<dir> option.');
-        sys.exit()
-
-    for adir in search_dirs:
-        lookin = adir + '/include'
-        if os.path.isfile(lookin + '/' + mplib + '.h'):
-            mp_found = True
-            # Only modify the inc/lib/run directories if --prefix was used.
-            if prefix:
-                incdirs += [lookin]
-                libdirs += [adir + lib_path]
-                rundirs = [adir + lib_path]
-
-            # If MPFR and MPC support is required, verify that the header files
-            # exist in the same directory. If not, generate an error message.
-            if use_mpfr and not os.path.isfile(lookin + '/mpfr.h'):
-                writeln('mpfr.h is not present in %s.' % lookin)
-                writeln('To disable support for MPFR, use the --nompfr option.')
-                writeln('To specify a directory prefix for the include and library files,')
-                writeln('use the --prefix=<dir> option.')
-                sys.exit()
-            if use_mpc and not os.path.isfile(lookin + '/mpc.h'):
-                writeln('mpc.h is not present in %s.' % lookin)
-                writeln('To disable support for MPC, use the --nompc option.')
-                writeln('To specify a directory prefix for the include and library files,')
-                writeln('use the --prefix=<dir> option.')
-                sys.exit()
-
-            # Check for the proper versions of MPFR and MPC.
-            mpfr_version = get_mpfr_version(lookin + '/mpfr.h')
-            if use_mpfr and mpfr_version < (3,1,0):
-                writeln('MPFR version %s.%s.%s was found.' % mpfr_version)
-                writeln('The mininum required version is 3.1.0.')
-                writeln('To specify the location of an updated version, use the')
-                writeln('--prefix=<dir> option.')
-                sys.exit()
-            mpc_version = get_mpc_version(lookin + '/mpc.h')
-            if use_mpc and mpc_version < (1,0,0):
-                writeln('MPC version %s.%s.%s was found.' % mpc_version)
-                writeln('The mininum required version is 1.0.0.')
-                writeln('To specify the location of an updated version, use the')
-                writeln('--prefix=<dir> option.')
-                sys.exit()
-
-            break
-
-    if not mp_found:
-        writeln('%s.h could not be found.' % mplib)
-        writeln('To specify a directory prefix for the include and library files,')
-        writeln('use the --prefix=<dir> option.')
-        sys.exit()
-
 # Configure the defines...
 
-defines = []
 if mplib == 'mpir':
-    defines.append( ('MPIR', 1) )
-if use_mpfr:
-    defines.append( ('WITHMPFR', 1) )
-if use_mpc:
-    defines.append( ('WITHMPC', 1) )
-
-# Build list of the required libraries. If the instance of Python used to compile
-# gmpy2 not found under --prefix, then specify the Python shared to use.
-
-if prefix:
-    if get_python_lib(standard_lib=True).startswith(search_dirs[0]):
-        libs = [mplib]
-    else:
-        libs = [get_python_lib(standard_lib=True), mplib]
+    defines.append( ('MPIR', None) )
+    libs = ['mpir']
 else:
-    libs = [mplib]
+    libs = ['gmp']
 
 if use_mpfr:
+    defines.append( ('WITHMPFR', None) )
     libs.append('mpfr')
+
 if use_mpc:
+    defines.append( ('WITHMPC', None) )
     libs.append('mpc')
+
+
 
 # decomment next line (w/gcc, only!) to support gcov
 #   os.environ['CFLAGS'] = '-fprofile-arcs -ftest-coverage -O0'
 
 # prepare the extension for building
 
-if force:
-    cmdclass = {'clean' : gmpy_clean, 'build_ext' : gmpy_build_ext}
-else:
-    cmdclass = {'clean' : gmpy_clean}
+my_commands = {'clean' : gmpy_clean, 'build_ext' : gmpy_build_ext}
 
 gmpy2_ext = Extension('gmpy2',
                       sources=['src/gmpy2.c'],
@@ -327,6 +337,6 @@ setup(name = "gmpy2",
         'Topic :: Scientific/Engineering :: Mathematics',
         'Topic :: Software Development :: Libraries :: Python Modules',
       ],
-      cmdclass = cmdclass,
+      cmdclass = my_commands,
       ext_modules = [gmpy2_ext]
 )
