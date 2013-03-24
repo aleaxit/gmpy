@@ -1,13 +1,8 @@
-MPFR Functionality
-==================
+Test mpfr special functions
+---------------------------
 
-    >>> import gmpy2 as G
+    >>> import gmpy2
     >>> from gmpy2 import mpfr
-    >>> a = mpz(123)
-    >>> b = mpz(456)
-
-Test special functions
-======================
 
 Test agm
 --------

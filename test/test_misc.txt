@@ -1,22 +1,22 @@
 Miscellaneous Functions
-=======================
+-----------------------
 
-    >>> import gmpy2 as G
-    >>> G.version()
+    >>> import gmpy2
+    >>> gmpy2.version()
     '2.0.0b5'
-    >>> G.mp_limbsize() in (32,64)
+    >>> gmpy2.mp_limbsize() in (32,64)
     True
-    >>> G.mp_version().split()[0] in ['GMP', 'MPIR']
+    >>> gmpy2.mp_version().split()[0] in ['GMP', 'MPIR']
     True
-    >>> check_gmp = G.mp_version().startswith('GMP') and '5.0.0' <= G.mp_version().split()[1]
-    >>> check_mpir = G.mp_version().startswith('MPIR') and '2.4.0' <= G.mp_version().split()[1]
+    >>> check_gmp = gmpy2.mp_version().startswith('GMP') and '5.0.0' <= gmpy2.mp_version().split()[1]
+    >>> check_mpir = gmpy2.mp_version().startswith('MPIR') and '2.4.0' <= gmpy2.mp_version().split()[1]
     >>> check_gmp or check_mpir
     True
-    >>> G.mpfr_version() and G.mpfr_version().startswith('MPFR')
+    >>> gmpy2.mpfr_version() and gmpy2.mpfr_version().startswith('MPFR')
     True
-    >>> G.mpfr_version() and '3.1.0' <= G.mpfr_version().split()[1]
+    >>> gmpy2.mpfr_version() and '3.1.0' <= gmpy2.mpfr_version().split()[1]
     True
-    >>> G.mpc_version() and G.mpc_version().startswith('MPC')
+    >>> gmpy2.mpc_version() and gmpy2.mpc_version().startswith('MPC')
     True
-    >>> G.mpc_version() and '1.0' <= G.mpc_version().split()[1]
+    >>> gmpy2.mpc_version() and '1.0' <= gmpy2.mpc_version().split()[1]
     True

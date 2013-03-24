@@ -31,6 +31,24 @@ The following libraries are supported:
 
   mpz_prp: http://sourceforge.net/projects/mpzprp/
 
+Changes in gmpy2 2.0.0b5
+------------------------
+
+* Fix segmentation fault in _mpmath_normalize (an undocumented helper function
+  specifically for mpmath.)
+* Improved setup.py See below for documentation on the changes.
+* Fix issues when compiled without support for MPFR.
+* Conversion of too large an mpz to float now raises OverflowError instead of
+  returning *inf*.
+* Renamed min2()/max2() to minnum()/maxnum()
+* The build and install process (i.e. setup.py) has been completely rewritten.
+  See the Installation section for more information.
+
+Known issues in gmpy2 2.0.0b5
+-----------------------------
+
+* The test suite is still incomplete.
+
 Changes in gmpy2 2.0.0b4
 ------------------------
 
@@ -136,6 +154,8 @@ Changes in gmpy2 2.0.0b1 and earlier
 *    No longer conflicts with builtin min() and max()
 * Removed set_debug() and related functionality.
 
+Installation
+============
 
 Installing gmpy2 on Windows
 ---------------------------
@@ -158,11 +178,6 @@ gmpy2 has only been tested with the most recent versions of GMP, MPFR and MPC.
 Specifically, for integer and rational support, gmpy2 requires GMP 5.0.x or
 later. To support multiple-precision floating point arithmetic, MPFR 3.1.x or
 later is required. MPC 1.0.1 or later is required for complex arithmetic.
-
-The MPC and MPFR libraries are optional. If the MPC library is not available,
-gmpy2 will still support integer, rational, and real floating-point arithmetic.
-If the MPFR library is not available, gmpy2 will only support integer and
-rational arithmetic. The mpf type included with GMP is no longer supported.
 
 Short Instructions
 ^^^^^^^^^^^^^^^^^^
@@ -205,7 +220,7 @@ Download and un-tar the MPFR source code. Change to MPFR source directory
 and compile MPFR.
 ::
 
-    $ cd /opt/local/mpfr-3.1.1
+    $ cd /opt/local/src/mpfr-3.1.1
     $ ./configure --prefix=/opt/local --with-gmp=/opt/local
     $ make
     $ make check
@@ -215,7 +230,7 @@ Download and un-tar the MPC source code. Change to MPC source directory
 and compile MPC.
 ::
 
-    $ cd /opt/local/mpc-1.0.1
+    $ cd /opt/local/src/mpc-1.0.1
     $ ./configure --prefix=/opt/local --with-gmp=/opt/local --with-mpfr=/opt/local
     $ make
     $ make check
@@ -224,11 +239,41 @@ and compile MPC.
 Compile gmpy2 and specify the location of GMP, MPFR and MPC.
 ::
 
-    $ python setup.py build_ext -Ddir=/opt/local install
+    $ python setup.py install --prefix=/opt/local
 
 If you get a "permission denied" error message, you may need to use::
 
-    $ sudo python setup.py build_ext -Ddir=/home/opt/local install
+    $ python setup.py build --prefix=/opt/local
+    $ sudo python setup.py install --prefix=/opt/local
+
+Options for setup.py
+^^^^^^^^^^^^^^^^^^^^
+
+**--force**
+    Ignore the timestamps on all files and recompile. Normally, the results of a
+    previous compile are cached. To force gmpy2 to recognize external changes
+    (updated version of GMP, etc.), you will need to use this option.
+
+**--mpir**
+    Force the use of MPIR instead of GMP. GMP is the default library on non-Windows
+    operating systems.
+
+**--gmp**
+    Force the use of GMP instead of MPIR. MPIR is the default library on Windows
+    operating systems.
+
+**--prefix=<...>**
+    Specify the directory prefix where GMP/MPIR, MPFR, and MPC are located. For
+    example, **--prefix=/opt/local** instructs setup.py to search /opt/local/include
+    for header files and /opt/local/lib for libraries.
+
+**--nompfr**
+    Disables support for MPFR and MPC. This option is intended for testing purposes
+    and is not offically supported.
+
+**--nompc**
+    Disables support MPC. This option is intended for testing purposes and is not
+    officially supported.
 
 Miscellaneous gmpy2 Functions
 -----------------------------

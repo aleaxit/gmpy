@@ -265,182 +265,37 @@ GMPyContextManager_repr(GMPyContextManagerObject *self)
 }
 
 PyDoc_STRVAR(doc_get_context,
-"get_context([keywords]) -> gmpy2 context\n\n"
-"Return a reference to the current context. Keyword arguments will\n"
-"modify the current context. Changing attributes of the returned object\n"
-"will modify the current context unless another context is activated by\n"
-"set_context(). When used in 'with get_context(...):', the context as\n"
-"modified by any keyword arguments will be restored at the end of the\n"
-"with block. This differs from local_context() which will restore the\n"
-"context before any changes by keyword arguments.");
-
-/* Should parse keyword arguments. */
+"get_context() -> gmpy2 context\n\n"
+"Return a reference to the current context.");
 
 static PyObject *
-GMPyContext_get_context(PyObject *self, PyObject *args, PyObject *kwargs)
+GMPyContext_get_context(PyObject *self, PyObject *args)
 {
-    gmpy_context old;
-
-#ifdef WITHMPC
-    static char *kwlist[] = {
-        "precision", "real_prec", "imag_prec", "round",
-        "real_round", "imag_round", "emax", "emin", "subnormalize",
-        "trap_underflow", "trap_overflow", "trap_inexact",
-        "trap_invalid", "trap_erange", "trap_divzero",
-        "trap_expbound", "allow_complex", NULL };
-#else
-    static char *kwlist[] = {
-        "precision", "round", "emax", "emin", "subnormalize",
-        "trap_underflow", "trap_overflow", "trap_inexact",
-        "trap_invalid", "trap_erange", "trap_divzero", "trap_expbound",
-        NULL };
-#endif
-
-    if (PyTuple_GET_SIZE(args)) {
-        VALUE_ERROR("get_context() only supports keyword arguments");
-        return NULL;
-    }
-
-    /* Temporarily save the options of the global context manager in case
-     * there is an error while processing the arguments.
-     */
-
-    old = context->ctx;
-
-#ifdef WITHMPC
-    if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|llliiilliiiiiiiii", kwlist,
-            &context->ctx.mpfr_prec,
-            &context->ctx.real_prec,
-            &context->ctx.imag_prec,
-            &context->ctx.mpfr_round,
-            &context->ctx.real_round,
-            &context->ctx.imag_round,
-            &context->ctx.emax,
-            &context->ctx.emin,
-            &context->ctx.subnormalize,
-            &context->ctx.trap_underflow,
-            &context->ctx.trap_overflow,
-            &context->ctx.trap_inexact,
-            &context->ctx.trap_invalid,
-            &context->ctx.trap_erange,
-            &context->ctx.trap_divzero,
-            &context->ctx.trap_expbound,
-            &context->ctx.allow_complex))) {
-#else
-    if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|lilliiiiiiii", kwlist,
-            &context->ctx.mpfr_prec,
-            &context->ctx.mpfr_round,
-            &context->ctx.emax,
-            &context->ctx.emin,
-            &context->ctx.subnormalize,
-            &context->ctx.trap_underflow,
-            &context->ctx.trap_overflow,
-            &context->ctx.trap_inexact,
-            &context->ctx.trap_invalid,
-            &context->ctx.trap_erange,
-            &context->ctx.trap_divzero,
-            &context->ctx.trap_expbound))) {
-#endif
-        VALUE_ERROR("invalid keyword arguments in get_context()");
-        return NULL;
-    }
-
-    /* Sanity check for values. */
-    if (context->ctx.mpfr_prec < MPFR_PREC_MIN ||
-        context->ctx.mpfr_prec > MPFR_PREC_MAX) {
-        context->ctx = old;
-        VALUE_ERROR("invalid value for precision");
-        return NULL;
-    }
-
-#ifdef WITHMPC
-    if (!(context->ctx.real_prec == GMPY_DEFAULT ||
-        (context->ctx.real_prec >= MPFR_PREC_MIN &&
-        context->ctx.real_prec <= MPFR_PREC_MAX))) {
-        context->ctx = old;
-        VALUE_ERROR("invalid value for real_prec");
-        return NULL;
-    }
-    if (!(context->ctx.imag_prec == GMPY_DEFAULT ||
-        (context->ctx.imag_prec >= MPFR_PREC_MIN &&
-        context->ctx.imag_prec <= MPFR_PREC_MAX))) {
-        context->ctx = old;
-        VALUE_ERROR("invalid value for imag_prec");
-        return NULL;
-    }
-#endif
-
-    if (!(context->ctx.mpfr_round == MPFR_RNDN ||
-        context->ctx.mpfr_round == MPFR_RNDZ ||
-        context->ctx.mpfr_round == MPFR_RNDU ||
-        context->ctx.mpfr_round == MPFR_RNDD ||
-        context->ctx.mpfr_round == MPFR_RNDA)) {
-        context->ctx = old;
-        VALUE_ERROR("invalid value for round");
-        return NULL;
-    }
-
-#ifdef WITHMPC
-    if (context->ctx.mpfr_round == MPFR_RNDA) {
-        /* Since RNDA is not supported for MPC, set the MPC rounding modes
-         * to MPFR_RNDN.
-         */
-        context->ctx.real_round = MPFR_RNDN;
-        context->ctx.imag_round = MPFR_RNDN;
-    }
-    if (!(context->ctx.real_round == MPFR_RNDN ||
-        context->ctx.real_round == MPFR_RNDZ ||
-        context->ctx.real_round == MPFR_RNDU ||
-        context->ctx.real_round == MPFR_RNDD ||
-        context->ctx.real_round == GMPY_DEFAULT)) {
-        context->ctx = old;
-        VALUE_ERROR("invalid value for real_round");
-        return NULL;
-    }
-    if (!(context->ctx.imag_round == MPFR_RNDN ||
-        context->ctx.imag_round == MPFR_RNDZ ||
-        context->ctx.imag_round == MPFR_RNDU ||
-        context->ctx.imag_round == MPFR_RNDD ||
-        context->ctx.imag_round == GMPY_DEFAULT)) {
-        context->ctx = old;
-        VALUE_ERROR("invalid value for imag_round");
-        return NULL;
-    }
-#endif
-
-    if (!(context->ctx.emin < 0 && context->ctx.emax > 0)) {
-        VALUE_ERROR("invalid values for emin and/or emax");
-        context->ctx = old;
-        return NULL;
-    }
-
-    if (mpfr_set_emin(context->ctx.emin)) {
-        VALUE_ERROR("invalid value for emin");
-        context->ctx = old;
-        return NULL;
-    }
-    if (mpfr_set_emax(context->ctx.emax)) {
-        VALUE_ERROR("invalid value for emax");
-        context->ctx = old;
-        return NULL;
-    }
-
-    /* The values in the global context manager have been changed. Also return
-     * another reference to that context manager.
-     */
-
     Py_INCREF((PyObject*)context);
     return (PyObject*)context;
 }
 
+PyDoc_STRVAR(doc_context_copy,
+"context.copy() -> gmpy2 context\n\n"
+"Return a copy of a context.");
+
+static PyObject *
+GMPyContext_context_copy(PyObject *self, PyObject *other)
+{
+    GMPyContextObject *result;
+
+    result = (GMPyContextObject*)GMPyContext_new();
+    result->ctx = ((GMPyContextObject*)self)->ctx;
+    return (PyObject*)result;
+}
+
 PyDoc_STRVAR(doc_local_context,
 "local_context([context[,keywords]]) -> context manager\n\n"
-"Create a context manager object that will restore either the context\n"
-"that is passed as an argument, or the context that is active when\n"
-"called when the 'with ...' block terminates. Keyword arguments are\n"
-"supported and will modify the new context.");
+"Create a context manager object that will restore the current context\n"
+"when the 'with ...' block terminates. The temporary context for the\n"
+"'with ...' block is based on the current context if no context is\n"
+"specified. Keyword arguments are supported and will modify the\n"
+"temporary new context.");
 
 static PyObject *
 GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
@@ -596,6 +451,9 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
         goto error;
     }
 
+    if (arg_context) {
+        Py_DECREF(local_args);
+    }
     return (PyObject*)result;
 
   error:
@@ -1260,6 +1118,7 @@ static PyMethodDef GMPyContext_methods[] =
 {
     { "clear_flags", GMPyContext_clear_flags, METH_NOARGS,
             doc_context_clear_flags },
+    { "copy", GMPyContext_context_copy, METH_NOARGS, doc_context_copy },
     { "__enter__", GMPyContext_enter, METH_NOARGS, NULL },
     { "__exit__", GMPyContext_exit, METH_VARARGS, NULL },
     { NULL, NULL, 1 }

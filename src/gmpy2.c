@@ -315,6 +315,8 @@
  *   Fix issues encountered when compiled without MPFR support (casevh)
  *   Conversion of too large an mpz to float now raises OverflowError (casevh)
  *   Renamed module functions min2()/max2() to minnum()/maxnum() (casevh)
+ *   Added copy() method to contexts (casevh)
+ *   get_context() no longer supports keyword arguments (casevh)
  *
  ************************************************************************
  *
@@ -667,7 +669,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "frexp", Pympfr_frexp, METH_O, doc_g_mpfr_frexp },
     { "fsum", Pympfr_fsum, METH_O, doc_g_mpfr_fsum },
     { "gamma", Pympfr_gamma, METH_O, doc_g_mpfr_gamma },
-    { "get_context", (PyCFunction)GMPyContext_get_context, METH_VARARGS | METH_KEYWORDS, doc_get_context },
+    { "get_context", GMPyContext_get_context, METH_NOARGS, doc_get_context },
     { "get_emax_max", Pympfr_get_emax_max, METH_NOARGS, doc_g_mpfr_get_emax_max },
     { "get_emin_min", Pympfr_get_emin_min, METH_NOARGS, doc_g_mpfr_get_emin_min },
     { "get_exp", Pympfr_get_exp, METH_O, doc_g_mpfr_get_exp },

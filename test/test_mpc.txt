@@ -1,23 +1,5 @@
-MPC Functionality
-=================
-
-Testing of mpc functionality is split into multiple files.
-
-    test_mpc.txt
-        Test basic functionality and stuff not covered anywhere else.
-
-    test_mpc_trig.txt
-        Test mpc trigonometry related functions, including error messages.
-
-    test_mpc_exp_log.txt
-        Test mpc exponential and logarithmic functions, including error
-        messages.
-
-    test_mpc_io.txt
-        Test input/output and formating.
-
-    test_mpc_comp.txt
-        Test comparisons.
+Test mpc elementary operations
+------------------------------
 
     >>> import gmpy2 as G
     >>> from gmpy2 import mpz, mpq, mpfr, mpc
@@ -32,9 +14,6 @@ Testing of mpc functionality is split into multiple files.
     >>> bq = mpq(17,2)
     >>> aj = mpc(1+2j)
     >>> bj = mpc(4+5j)
-
-Test elementary operations
-==========================
 
 Test addition
 -------------
@@ -139,10 +118,6 @@ TypeError: can't mod complex numbers
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: can't take floor or mod of complex number.
-
-Test pickle
------------
-
 
 Test operations involving NaN/Inf
 ---------------------------------

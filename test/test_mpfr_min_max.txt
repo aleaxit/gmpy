@@ -1,6 +1,7 @@
-Testing of mpfr maxnum and minnum functions.
+Testing of mpfr maxnum and minnum functions
+-------------------------------------------
 
-    >>> import gmpy2 as G
+    >>> import gmpy2
     >>> from gmpy2 import mpz, mpq, mpfr, maxnum, minnum
     >>> a = mpfr("12.34")
     >>> b = mpfr("45.67")

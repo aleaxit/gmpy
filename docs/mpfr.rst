@@ -45,7 +45,8 @@ results can be enabled.
 ``gmpy2.get_context()`` will return a reference to the active context. Note
 that contexts are mutable: modifying the reference returned by get_context()
 will modify the active context until a new context is enabled with
-set_context().
+set_context(). The ``copy()`` method of a context will return a copy of the
+context.
 
 The following example just modifies the precision. The remaining options will
 be discussed later.
@@ -249,6 +250,9 @@ Context Methods
 
 **clear_flags()**
     Clear the underflow, overflow, inexact, invalid, erange, and divzero flags.
+
+**copy()**
+    Return a copy of the context.
 
 Contexts and the with statement
 -------------------------------
