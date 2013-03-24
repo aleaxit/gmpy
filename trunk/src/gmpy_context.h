@@ -98,7 +98,7 @@ static PyObject * GMPyContextManager_exit(PyObject *self, PyObject *args);
 static PyObject * GMPyContext_new(void);
 static void GMPyContext_dealloc(GMPyContextObject *self);
 static PyObject * GMPyContext_repr(GMPyContextObject *self);
-static PyObject * GMPyContext_get_context(PyObject *self, PyObject *args, PyObject *kwargs);
+static PyObject * GMPyContext_get_context(PyObject *self, PyObject *args);
 static PyObject * GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject * GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject * GMPyContext_set_context(PyObject *self, PyObject *other);

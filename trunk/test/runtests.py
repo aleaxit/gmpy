@@ -59,14 +59,16 @@ if sys.version.startswith('3.1'):
     print()
 
 # The following tests should pass on all builds.
-mpz_doctests = ["test_mpz.txt", "test_mpz_io.txt"]
-mpq_doctests = ["test_mpq.txt"]
+mpz_doctests = ["test_mpz.txt", "test_mpz_io.txt", "test_mpz_pack_unpack.txt",
+                "test_mpz_to_from_binary.txt"]
+mpq_doctests = ["test_mpq.txt", "test_mpq_to_from_binary.txt"]
 
 # The following tests require MPFR support.
-mpfr_doctests = ["test_mpfr.txt", "test_mpfr_trig.txt", "test_mpfr_min_max.txt"]
+mpfr_doctests = ["test_mpfr.txt", "test_mpfr_trig.txt", "test_mpfr_min_max.txt",
+                 "test_mpfr_to_from_binary.txt", "test_context.txt"]
 
 # The following tests require MPC support.
-mpc_doctests = ["test_mpc.txt"]
+mpc_doctests = ["test_mpc.txt", "test_mpc_to_from_binary.txt"]
 
 # The following tests will only pass on Python 3.2+.
 py32_doctests = ["test_py32_hash.txt"]
@@ -82,10 +84,10 @@ if gmpy2.mpc_version():
 if sys.version >= "3.2":
     all_doctests += py32_doctests
 
-for test in all_doctests:
+for test in sorted(all_doctests):
     for r in range(repeat):
         result = doctest.testfile(test, globs=globals(), optionflags=doctest.IGNORE_EXCEPTION_DETAIL)
-        print("Results for:  {0:16}".format(test.split(".")[0]), end="")
+        print("Results for:  {0:24}".format(test.split(".")[0]), end="")
         print(" Attempted: {1:4d}   Failed: {0:4d}".format(*result), end="")
         if debug:
             print(" RefCount: {0:6d}".format(sys.gettotalrefcount()))
@@ -96,5 +98,5 @@ for test in all_doctests:
 
 
 print()
-print("                     Summary - Attempted: {0:4d}   Failed: {1:4d}".format(attempted, failed))
+print("                             Summary - Attempted: {0:4d}   Failed: {1:4d}".format(attempted, failed))
 
