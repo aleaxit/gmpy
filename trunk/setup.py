@@ -79,8 +79,10 @@ class gmpy_build_ext(build_ext):
                     pass
 
         if sys.version.find('MSC') == -1:
+            windows = False
             search_dirs = ['/usr/local', '/usr', '/opt/local', '/opt', '/sw']
         else:
+            windows = True
             search_dirs = []
 
         if prefix:
@@ -97,6 +99,8 @@ class gmpy_build_ext(build_ext):
         # Try to find a directory prefix that contains valid GMP/MPFR/MPC
         # libraries. Only the version numbers of MPFR and MPC are checked.
 
+        if not search_dirs:
+            return
         for adir in search_dirs:
             lookin = adir + '/include'
             mp_found = False
@@ -139,11 +143,12 @@ class gmpy_build_ext(build_ext):
 
         self.extensions[0].include_dirs += [lookin]
         self.extensions[0].library_dirs += [adir + lib_path]
-        self.extensions[0].runtime_library_dirs += [adir + lib_path]
+        if not windows:
+            self.extensions[0].runtime_library_dirs += [adir + lib_path]
 
         # If the instance of Python used to compile gmpy2 not found in 'adir',
         # then specify the Python shared library to use.
-        if not get_python_lib(standard_lib=True).startswith(adir):
+        if windows and not get_python_lib(standard_lib=True).startswith(adir):
             self.extensions[0].libraries = [get_python_lib(standard_lib=True)] \
                                             + self.extensions[0].libraries
 
