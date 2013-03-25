@@ -31,6 +31,25 @@ The following libraries are supported:
 
   mpz_prp: http://sourceforge.net/projects/mpzprp/
 
+Changes in gmpy2 2.0.0
+----------------------
+
+* Fix segmentation fault in _mpmath_normalize (an undocumented helper function
+  specifically for mpmath.)
+* Improved setup.py See below for documentation on the changes.
+* Fix issues when compiled without support for MPFR.
+* Conversion of too large an mpz to float now raises OverflowError instead of
+  returning *inf*.
+* Renamed min2()/max2() to minnum()/maxnum()
+* The build and install process (i.e. setup.py) has been completely rewritten.
+  See the Installation section for more information.
+* get_context() no longer accepts keyword arguments.
+
+Known issues in gmpy2 2.0.0
+-----------------------------
+
+* The test suite is still incomplete.
+
 Changes in gmpy2 2.0.0b4
 ------------------------
 
@@ -136,6 +155,8 @@ Changes in gmpy2 2.0.0b1 and earlier
 *    No longer conflicts with builtin min() and max()
 * Removed set_debug() and related functionality.
 
+Installation
+============
 
 Installing gmpy2 on Windows
 ---------------------------
@@ -159,11 +180,6 @@ Specifically, for integer and rational support, gmpy2 requires GMP 5.0.x or
 later. To support multiple-precision floating point arithmetic, MPFR 3.1.x or
 later is required. MPC 1.0.1 or later is required for complex arithmetic.
 
-The MPC and MPFR libraries are optional. If the MPC library is not available,
-gmpy2 will still support integer, rational, and real floating-point arithmetic.
-If the MPFR library is not available, gmpy2 will only support integer and
-rational arithmetic. The mpf type included with GMP is no longer supported.
-
 Short Instructions
 ^^^^^^^^^^^^^^^^^^
 
@@ -182,105 +198,97 @@ Detailed Instructions
 
 If your Linux distribution does not support recent versions of GMP, MPFR and
 MPC, you will need to compile your own versions. To avoid any possible conflict
-with existing libraries on your system, the following instructions install GMP,
-MPFR and MPC in a separate directory. The examples use /opt/local but you can
-use another directory if you choose.
+with existing libraries on your system, it is recommended to use a directory
+not normally used by your distribution. setup.py will automatically search the
+following directories for the required libraries:
+
+    #. /opt/local
+    #. /opt
+    #. /usr/local
+    #. /usr
+    #. /sw
+
+If you can't use one of these directories, you can use a directory located in
+your home directory. The examples will use /home/case/local. If you use one of
+standard directories (say /opt/local), then you won't need to specify
+--prefix=/home/case/local to setup.py but you will need to specify the prefix
+when compiling GMP, MPFR, and MPC.
 
 Create the desired destination directory for GMP, MPFR, and MPC.
 ::
 
-$ mkdir /opt/local
+    $ mkdir /home/case/local
 
-Download and un-tar the GMP source code. Change to GMP source directory and
+Download and un-tar the GMP source code. Change to the GMP source directory and
 compile GMP.
 ::
 
-    $ cd /opt/local/src/gmp-5.1.0
-    $ ./configure --prefix=/opt/local
+    $ cd /home/case/local/src/gmp-5.1.0
+    $ ./configure --prefix=/home/case/local
     $ make
     $ make check
     $ make install
 
-Download and un-tar the MPFR source code. Change to MPFR source directory
+Download and un-tar the MPFR source code. Change to the MPFR source directory
 and compile MPFR.
 ::
 
-    $ cd /opt/local/mpfr-3.1.1
-    $ ./configure --prefix=/opt/local --with-gmp=/opt/local
+    $ cd /home/case/local/src/mpfr-3.1.1
+    $ ./configure --prefix=/home/case/local --with-gmp=/home/case/local
     $ make
     $ make check
     $ make install
 
-Download and un-tar the MPC source code. Change to MPC source directory
+Download and un-tar the MPC source code. Change to the MPC source directory
 and compile MPC.
 ::
 
-    $ cd /opt/local/mpc-1.0.1
-    $ ./configure --prefix=/opt/local --with-gmp=/opt/local --with-mpfr=/opt/local
+    $ cd /home/case/local/src/mpc-1.0.1
+    $ ./configure --prefix=/home/case/local --with-gmp=/home/case/local --with-mpfr=/home/case/local
     $ make
     $ make check
     $ make install
 
-Compile gmpy2 and specify the location of GMP, MPFR and MPC.
+Compile gmpy2 and specify the location of GMP, MPFR and MPC. The location of
+the GMP, MPFR, and MPC libraries is embedded into the gmpy2 library so the new
+versions of GMP, MPFR, and MPC do not need to be installed the system library
+directories. The prefix directory is added to the beginning of the directories
+that are checked so it will be found first.
 ::
 
-    $ python setup.py build_ext -Ddir=/opt/local install
+    $ python setup.py install --prefix=/home/case/local
 
 If you get a "permission denied" error message, you may need to use::
 
-    $ sudo python setup.py build_ext -Ddir=/home/opt/local install
+    $ python setup.py build --prefix=/home/case/local
+    $ sudo python setup.py install --prefix=/home/case/local
 
-Miscellaneous gmpy2 Functions
------------------------------
+Options for setup.py
+^^^^^^^^^^^^^^^^^^^^
 
-**from_binary(...)**
-    from_binary(bytes) returns a gmpy2 object from a byte sequence created by
-    to_binary().
+**--force**
+    Ignore the timestamps on all files and recompile. Normally, the results of a
+    previous compile are cached. To force gmpy2 to recognize external changes
+    (updated version of GMP, etc.), you will need to use this option.
 
-**get_cache(...)**
-    get_cache() returns the current cache size (number of objects) and the
-    maximum size per object (number of limbs).
+**--mpir**
+    Force the use of MPIR instead of GMP. GMP is the default library on non-Windows
+    operating systems.
 
-    gmpy2 maintains an internal list of freed *mpz*, *xmpz*, *mpq*, *mpfr*, and
-    *mpc* objects for reuse. The cache significantly improves performance but
-    also increases the memory footprint.
+**--gmp**
+    Force the use of GMP instead of MPIR. MPIR is the default library on Windows
+    operating systems.
 
-**license(...)**
-    license() returns the gmpy2 license information.
+**--prefix=<...>**
+    Specify the directory prefix where GMP/MPIR, MPFR, and MPC are located. For
+    example, **--prefix=/opt/local** instructs setup.py to search /opt/local/include
+    for header files and /opt/local/lib for libraries.
 
-**mp_limbsize(...)**
-    mp_limbsize() returns the number of bits per limb used by the GMP or MPIR
-    libarary.
+**--nompfr**
+    Disables support for MPFR and MPC. This option is intended for testing purposes
+    and is not offically supported.
 
-**mp_version(...)**
-    mp_version() returns the version of the GMP or MPIR library.
+**--nompc**
+    Disables support MPC. This option is intended for testing purposes and is not
+    officially supported.
 
-**mpc_version(...)**
-    mpc_version() returns the version of the MPC library.
-
-**mpfr_version(...)**
-    mpfr_version() returns the version of the MPFR library.
-
-**random_state(...)**
-    random_state([seed]) returns a new object containing state information for
-    the random number generator. An optional integer argument can be specified
-    as the seed value. Only the Mersenne Twister random number generator is
-    supported.
-
-**set_cache(...)**
-    set_cache(number, size) updates the maximum number of freed objects of each
-    type that are cached and the maximum size (in limbs) of each object. The
-    maximum number of objects of each type that can be cached is 1000. The
-    maximum size of an object is 16384. The maximum size of an object is
-    approximately 64K on 32-bit systems and 128K on 64-bit systems.
-
-    .. note::
-        The caching options are global to gmpy2. Changes are not thread-safe. A
-        change in one thread will impact all threads.
-
-**to_binary(...)**
-    to_binary(x) returns a byte sequence from a gmpy2 object. All object types
-    are supported.
-
-**version(...)**
-    version() returns the version of gmpy2.

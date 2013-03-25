@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction to gmpy2 &mdash; gmpy2 2.0.0b4 documentation</title>
+    <title>Introduction to gmpy2 &mdash; gmpy2 2.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '2.0.0b4',
+        VERSION:     '2.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,8 +25,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="gmpy2 2.0.0b4 documentation" href="index.html" />
-    <link rel="next" title="Multiple-precision Integers" href="mpz.html" />
+    <link rel="top" title="gmpy2 2.0.0 documentation" href="index.html" />
+    <link rel="next" title="Overview of gmpy2" href="overview.html" />
     <link rel="prev" title="Welcome to gmpy2’s documentation!" href="index.html" /> 
   </head>
   <body>
@@ -37,12 +37,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="mpz.html" title="Multiple-precision Integers"
+          <a href="overview.html" title="Overview of gmpy2"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to gmpy2’s documentation!"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">gmpy2 2.0.0b4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">gmpy2 2.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -81,6 +81,27 @@ code:</p>
 <p>mpz_prp: <a class="reference external" href="http://sourceforge.net/projects/mpzprp/">http://sourceforge.net/projects/mpzprp/</a></p>
 </li>
 </ul>
+<div class="section" id="changes-in-gmpy2-2-0-0">
+<h2>Changes in gmpy2 2.0.0<a class="headerlink" href="#changes-in-gmpy2-2-0-0" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Fix segmentation fault in _mpmath_normalize (an undocumented helper function
+specifically for mpmath.)</li>
+<li>Improved setup.py See below for documentation on the changes.</li>
+<li>Fix issues when compiled without support for MPFR.</li>
+<li>Conversion of too large an mpz to float now raises OverflowError instead of
+returning <em>inf</em>.</li>
+<li>Renamed min2()/max2() to minnum()/maxnum()</li>
+<li>The build and install process (i.e. setup.py) has been completely rewritten.
+See the Installation section for more information.</li>
+<li>get_context() no longer accepts keyword arguments.</li>
+</ul>
+</div>
+<div class="section" id="known-issues-in-gmpy2-2-0-0">
+<h2>Known issues in gmpy2 2.0.0<a class="headerlink" href="#known-issues-in-gmpy2-2-0-0" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>The test suite is still incomplete.</li>
+</ul>
+</div>
 <div class="section" id="changes-in-gmpy2-2-0-0b4">
 <h2>Changes in gmpy2 2.0.0b4<a class="headerlink" href="#changes-in-gmpy2-2-0-0b4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -190,6 +211,9 @@ math.ceil(), math.floor(), and math.trunc().</li>
 <li>Removed set_debug() and related functionality.</li>
 </ul>
 </div>
+</div>
+<div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="installing-gmpy2-on-windows">
 <h2>Installing gmpy2 on Windows<a class="headerlink" href="#installing-gmpy2-on-windows" title="Permalink to this headline">¶</a></h2>
 <p>Pre-compiled versions of gmpy2 are available at <a class="reference external" href="http://code.google.com/p/gmpy/downloads/list">Downloads</a> . Please
@@ -207,10 +231,6 @@ version of the gmpy2 installer.</p>
 Specifically, for integer and rational support, gmpy2 requires GMP 5.0.x or
 later. To support multiple-precision floating point arithmetic, MPFR 3.1.x or
 later is required. MPC 1.0.1 or later is required for complex arithmetic.</p>
-<p>The MPC and MPFR libraries are optional. If the MPC library is not available,
-gmpy2 will still support integer, rational, and real floating-point arithmetic.
-If the MPFR library is not available, gmpy2 will only support integer and
-rational arithmetic. The mpf type included with GMP is no longer supported.</p>
 </div>
 <div class="section" id="short-instructions">
 <h3>Short Instructions<a class="headerlink" href="#short-instructions" title="Permalink to this headline">¶</a></h3>
@@ -225,91 +245,87 @@ python setup.py install</pre>
 <h3>Detailed Instructions<a class="headerlink" href="#detailed-instructions" title="Permalink to this headline">¶</a></h3>
 <p>If your Linux distribution does not support recent versions of GMP, MPFR and
 MPC, you will need to compile your own versions. To avoid any possible conflict
-with existing libraries on your system, the following instructions install GMP,
-MPFR and MPC in a separate directory. The examples use /opt/local but you can
-use another directory if you choose.</p>
+with existing libraries on your system, it is recommended to use a directory
+not normally used by your distribution. setup.py will automatically search the
+following directories for the required libraries:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>/opt/local</li>
+<li>/opt</li>
+<li>/usr/local</li>
+<li>/usr</li>
+<li>/sw</li>
+</ol>
+</div></blockquote>
+<p>If you can&#8217;t use one of these directories, you can use a directory located in
+your home directory. The examples will use /home/case/local. If you use one of
+standard directories (say /opt/local), then you won&#8217;t need to specify
+&#8211;prefix=/home/case/local to setup.py but you will need to specify the prefix
+when compiling GMP, MPFR, and MPC.</p>
 <p>Create the desired destination directory for GMP, MPFR, and MPC.</p>
-<div class="highlight-python"><pre>$ mkdir /opt/local</pre>
+<div class="highlight-python"><pre>$ mkdir /home/case/local</pre>
 </div>
-<p>Download and un-tar the GMP source code. Change to GMP source directory and
+<p>Download and un-tar the GMP source code. Change to the GMP source directory and
 compile GMP.</p>
-<div class="highlight-python"><pre>$ cd /opt/local/src/gmp-5.1.0
-$ ./configure --prefix=/opt/local
+<div class="highlight-python"><pre>$ cd /home/case/local/src/gmp-5.1.0
+$ ./configure --prefix=/home/case/local
 $ make
 $ make check
 $ make install</pre>
 </div>
-<p>Download and un-tar the MPFR source code. Change to MPFR source directory
+<p>Download and un-tar the MPFR source code. Change to the MPFR source directory
 and compile MPFR.</p>
-<div class="highlight-python"><pre>$ cd /opt/local/mpfr-3.1.1
-$ ./configure --prefix=/opt/local --with-gmp=/opt/local
+<div class="highlight-python"><pre>$ cd /home/case/local/src/mpfr-3.1.1
+$ ./configure --prefix=/home/case/local --with-gmp=/home/case/local
 $ make
 $ make check
 $ make install</pre>
 </div>
-<p>Download and un-tar the MPC source code. Change to MPC source directory
+<p>Download and un-tar the MPC source code. Change to the MPC source directory
 and compile MPC.</p>
-<div class="highlight-python"><pre>$ cd /opt/local/mpc-1.0.1
-$ ./configure --prefix=/opt/local --with-gmp=/opt/local --with-mpfr=/opt/local
+<div class="highlight-python"><pre>$ cd /home/case/local/src/mpc-1.0.1
+$ ./configure --prefix=/home/case/local --with-gmp=/home/case/local --with-mpfr=/home/case/local
 $ make
 $ make check
 $ make install</pre>
 </div>
-<p>Compile gmpy2 and specify the location of GMP, MPFR and MPC.</p>
-<div class="highlight-python"><pre>$ python setup.py build_ext -Ddir=/opt/local install</pre>
+<p>Compile gmpy2 and specify the location of GMP, MPFR and MPC. The location of
+the GMP, MPFR, and MPC libraries is embedded into the gmpy2 library so the new
+versions of GMP, MPFR, and MPC do not need to be installed the system library
+directories. The prefix directory is added to the beginning of the directories
+that are checked so it will be found first.</p>
+<div class="highlight-python"><pre>$ python setup.py install --prefix=/home/case/local</pre>
 </div>
 <p>If you get a &#8220;permission denied&#8221; error message, you may need to use:</p>
-<div class="highlight-python"><pre>$ sudo python setup.py build_ext -Ddir=/home/opt/local install</pre>
+<div class="highlight-python"><pre>$ python setup.py build --prefix=/home/case/local
+$ sudo python setup.py install --prefix=/home/case/local</pre>
 </div>
 </div>
-</div>
-<div class="section" id="miscellaneous-gmpy2-functions">
-<h2>Miscellaneous gmpy2 Functions<a class="headerlink" href="#miscellaneous-gmpy2-functions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="options-for-setup-py">
+<h3>Options for setup.py<a class="headerlink" href="#options-for-setup-py" title="Permalink to this headline">¶</a></h3>
 <dl class="docutils">
-<dt><strong>from_binary(...)</strong></dt>
-<dd>from_binary(bytes) returns a gmpy2 object from a byte sequence created by
-to_binary().</dd>
-<dt><strong>get_cache(...)</strong></dt>
-<dd><p class="first">get_cache() returns the current cache size (number of objects) and the
-maximum size per object (number of limbs).</p>
-<p class="last">gmpy2 maintains an internal list of freed <em>mpz</em>, <em>xmpz</em>, <em>mpq</em>, <em>mpfr</em>, and
-<em>mpc</em> objects for reuse. The cache significantly improves performance but
-also increases the memory footprint.</p>
-</dd>
-<dt><strong>license(...)</strong></dt>
-<dd>license() returns the gmpy2 license information.</dd>
-<dt><strong>mp_limbsize(...)</strong></dt>
-<dd>mp_limbsize() returns the number of bits per limb used by the GMP or MPIR
-libarary.</dd>
-<dt><strong>mp_version(...)</strong></dt>
-<dd>mp_version() returns the version of the GMP or MPIR library.</dd>
-<dt><strong>mpc_version(...)</strong></dt>
-<dd>mpc_version() returns the version of the MPC library.</dd>
-<dt><strong>mpfr_version(...)</strong></dt>
-<dd>mpfr_version() returns the version of the MPFR library.</dd>
-<dt><strong>random_state(...)</strong></dt>
-<dd>random_state([seed]) returns a new object containing state information for
-the random number generator. An optional integer argument can be specified
-as the seed value. Only the Mersenne Twister random number generator is
-supported.</dd>
-<dt><strong>set_cache(...)</strong></dt>
-<dd><p class="first">set_cache(number, size) updates the maximum number of freed objects of each
-type that are cached and the maximum size (in limbs) of each object. The
-maximum number of objects of each type that can be cached is 1000. The
-maximum size of an object is 16384. The maximum size of an object is
-approximately 64K on 32-bit systems and 128K on 64-bit systems.</p>
-<div class="last admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The caching options are global to gmpy2. Changes are not thread-safe. A
-change in one thread will impact all threads.</p>
-</div>
-</dd>
-<dt><strong>to_binary(...)</strong></dt>
-<dd>to_binary(x) returns a byte sequence from a gmpy2 object. All object types
-are supported.</dd>
-<dt><strong>version(...)</strong></dt>
-<dd>version() returns the version of gmpy2.</dd>
+<dt><strong>&#8211;force</strong></dt>
+<dd>Ignore the timestamps on all files and recompile. Normally, the results of a
+previous compile are cached. To force gmpy2 to recognize external changes
+(updated version of GMP, etc.), you will need to use this option.</dd>
+<dt><strong>&#8211;mpir</strong></dt>
+<dd>Force the use of MPIR instead of GMP. GMP is the default library on non-Windows
+operating systems.</dd>
+<dt><strong>&#8211;gmp</strong></dt>
+<dd>Force the use of GMP instead of MPIR. MPIR is the default library on Windows
+operating systems.</dd>
+<dt><strong>&#8211;prefix=&lt;...&gt;</strong></dt>
+<dd>Specify the directory prefix where GMP/MPIR, MPFR, and MPC are located. For
+example, <strong>&#8211;prefix=/opt/local</strong> instructs setup.py to search /opt/local/include
+for header files and /opt/local/lib for libraries.</dd>
+<dt><strong>&#8211;nompfr</strong></dt>
+<dd>Disables support for MPFR and MPC. This option is intended for testing purposes
+and is not offically supported.</dd>
+<dt><strong>&#8211;nompc</strong></dt>
+<dd>Disables support MPC. This option is intended for testing purposes and is not
+officially supported.</dd>
 </dl>
+</div>
 </div>
 </div>
 
@@ -322,19 +338,24 @@ are supported.</dd>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Introduction to gmpy2</a><ul>
+<li><a class="reference internal" href="#changes-in-gmpy2-2-0-0">Changes in gmpy2 2.0.0</a></li>
+<li><a class="reference internal" href="#known-issues-in-gmpy2-2-0-0">Known issues in gmpy2 2.0.0</a></li>
 <li><a class="reference internal" href="#changes-in-gmpy2-2-0-0b4">Changes in gmpy2 2.0.0b4</a></li>
 <li><a class="reference internal" href="#known-issues-in-gmpy2-2-0-0b4">Known issues in gmpy2 2.0.0b4</a></li>
 <li><a class="reference internal" href="#changes-in-gmpy2-2-0-0b3">Changes in gmpy2 2.0.0b3</a></li>
 <li><a class="reference internal" href="#changes-in-gmpy2-2-0-0b2">Changes in gmpy2 2.0.0b2</a></li>
 <li><a class="reference internal" href="#changes-in-gmpy2-2-0-0b1-and-earlier">Changes in gmpy2 2.0.0b1 and earlier</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
 <li><a class="reference internal" href="#installing-gmpy2-on-windows">Installing gmpy2 on Windows</a></li>
 <li><a class="reference internal" href="#installing-gmpy2-on-unix-linux">Installing gmpy2 on Unix/Linux</a><ul>
 <li><a class="reference internal" href="#requirements">Requirements</a></li>
 <li><a class="reference internal" href="#short-instructions">Short Instructions</a></li>
 <li><a class="reference internal" href="#detailed-instructions">Detailed Instructions</a></li>
+<li><a class="reference internal" href="#options-for-setup-py">Options for setup.py</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#miscellaneous-gmpy2-functions">Miscellaneous gmpy2 Functions</a></li>
 </ul>
 </li>
 </ul>
@@ -343,8 +364,8 @@ are supported.</dd>
   <p class="topless"><a href="index.html"
                         title="previous chapter">Welcome to gmpy2&#8217;s documentation!</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="mpz.html"
-                        title="next chapter">Multiple-precision Integers</a></p>
+  <p class="topless"><a href="overview.html"
+                        title="next chapter">Overview of gmpy2</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/intro.txt"
@@ -374,12 +395,12 @@ are supported.</dd>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="mpz.html" title="Multiple-precision Integers"
+          <a href="overview.html" title="Overview of gmpy2"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to gmpy2’s documentation!"
              >previous</a> |</li>
-        <li><a href="index.html">gmpy2 2.0.0b4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">gmpy2 2.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

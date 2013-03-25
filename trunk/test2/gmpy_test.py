@@ -1,9 +1,3 @@
-r'''
->>> gmpy2.version()
-'2.0.0b2'
->>>
-'''
-
 import sys
 import doctest
 import gmpy2

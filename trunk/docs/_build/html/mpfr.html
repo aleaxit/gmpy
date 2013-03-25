@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Multiple-precision Reals &mdash; gmpy2 2.0.0b4 documentation</title>
+    <title>Multiple-precision Reals &mdash; gmpy2 2.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '2.0.0b4',
+        VERSION:     '2.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="gmpy2 2.0.0b4 documentation" href="index.html" />
+    <link rel="top" title="gmpy2 2.0.0 documentation" href="index.html" />
     <link rel="next" title="Multiple-precision Complex" href="mpc.html" />
     <link rel="prev" title="Multiple-precision Rationals" href="mpq.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="mpq.html" title="Multiple-precision Rationals"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">gmpy2 2.0.0b4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">gmpy2 2.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -93,7 +93,8 @@ results can be enabled.</p>
 <tt class="docutils literal"><span class="pre">gmpy2.get_context()</span></tt> will return a reference to the active context. Note
 that contexts are mutable: modifying the reference returned by get_context()
 will modify the active context until a new context is enabled with
-set_context().</p>
+set_context(). The <tt class="docutils literal"><span class="pre">copy()</span></tt> method of a context will return a copy of the
+context.</p>
 <p>The following example just modifies the precision. The remaining options will
 be discussed later.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">set_context</span><span class="p">(</span><span class="n">gmpy2</span><span class="o">.</span><span class="n">context</span><span class="p">())</span>
@@ -278,6 +279,8 @@ an <em>mpfr</em> result would normally not be possible.</dd>
 <dl class="docutils">
 <dt><strong>clear_flags()</strong></dt>
 <dd>Clear the underflow, overflow, inexact, invalid, erange, and divzero flags.</dd>
+<dt><strong>copy()</strong></dt>
+<dd>Return a copy of the context.</dd>
 </dl>
 </div>
 <div class="section" id="contexts-and-the-with-statement">
@@ -811,7 +814,7 @@ format string &#8216;fmt&#8217;. A valid format string consists of:</p>
         <li class="right" >
           <a href="mpq.html" title="Multiple-precision Rationals"
              >previous</a> |</li>
-        <li><a href="index.html">gmpy2 2.0.0b4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">gmpy2 2.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
