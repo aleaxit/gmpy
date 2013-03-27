@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="gmpy2.python27"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="..\..\..\$(mp_dir)"
+		PreprocessorDefinitions="MPIR"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalDependencies="..\..\..\$(mp_dir)\build.vc10\lib\$(IntDir)\$(mp_lib)"
+	/>
+	<UserMacro
+		Name="mp_dir"
+		Value="mpir"
+		InheritsFromParent="true"
+		Delimiter=";"
+		PerformEnvironmentSet="true"
+	/>
+	<UserMacro
+		Name="mp_lib"
+		Value="mpir.lib"
+		InheritsFromParent="true"
+		Delimiter=";"
+		PerformEnvironmentSet="true"
+	/>
+	<UserMacro
+		Name="python_version"
+		Value="python27"
+		InheritsFromParent="true"
+		Delimiter=";"
+		PerformEnvironmentSet="true"
+	/>
+</VisualStudioPropertySheet>
