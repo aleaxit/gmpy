@@ -1,0 +1,377 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Multiple-precision Complex &mdash; gmpy2 2.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="gmpy2 2.0.0 documentation" href="index.html" />
+    <link rel="prev" title="Multiple-precision Reals" href="mpfr.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mpfr.html" title="Multiple-precision Reals"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">gmpy2 2.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="multiple-precision-complex">
+<h1>Multiple-precision Complex<a class="headerlink" href="#multiple-precision-complex" title="Permalink to this headline">¶</a></h1>
+<p>gmpy2 adds a multiple-precision complex type called <em>mpc</em> that is based on the
+MPC library. The context manager settings for <em>mpfr</em> arithmetic are applied to
+<em>mpc</em> arithmetic by default. It is possible to specifiy different precision and
+rounding modes for both the real and imaginary components of an <em>mpc</em>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">gmpy2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gmpy2</span> <span class="kn">import</span> <span class="n">mpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mpc</span><span class="p">(</span><span class="s">&quot;1+2j&quot;</span><span class="p">))</span>
+<span class="go">mpc(&#39;1.272019649514069+0.78615137775742328j&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">get_context</span><span class="p">(</span><span class="n">real_prec</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">imag_prec</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="go">context(precision=53, real_prec=100, imag_prec=200,</span>
+<span class="go">        round=RoundToNearest, real_round=Default, imag_round=Default,</span>
+<span class="go">        emax=1073741823, emin=-1073741823,</span>
+<span class="go">        subnormalize=False,</span>
+<span class="go">        trap_underflow=False, underflow=False,</span>
+<span class="go">        trap_overflow=False, overflow=False,</span>
+<span class="go">        trap_inexact=False, inexact=True,</span>
+<span class="go">        trap_invalid=False, invalid=False,</span>
+<span class="go">        trap_erange=False, erange=False,</span>
+<span class="go">        trap_divzero=False, divzero=False,</span>
+<span class="go">        trap_expbound=False,</span>
+<span class="go">        allow_complex=False)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mpc</span><span class="p">(</span><span class="s">&quot;1+2j&quot;</span><span class="p">))</span>
+<span class="go">mpc(&#39;1.2720196495140689642524224617376+0.78615137775742328606955858584295892952312205783772323766490213j&#39;,(100,200))</span>
+</pre></div>
+</div>
+<p>Exceptions are normally raised in Python when the result of a real operation
+is not defined over the reals; for example, <tt class="docutils literal"><span class="pre">sqrt(-4)</span></tt> will raise an
+exception. The default context in gmpy2 implements the same behavior but by
+setting allow_complex to True, complex results will be returned.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">gmpy2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gmpy2</span> <span class="kn">import</span> <span class="n">mpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">mpfr(&#39;nan&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">get_context</span><span class="p">(</span><span class="n">allow_complex</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="go">context(precision=53, real_prec=Default, imag_prec=Default,</span>
+<span class="go">        round=RoundToNearest, real_round=Default, imag_round=Default,</span>
+<span class="go">        emax=1073741823, emin=-1073741823,</span>
+<span class="go">        subnormalize=False,</span>
+<span class="go">        trap_underflow=False, underflow=False,</span>
+<span class="go">        trap_overflow=False, overflow=False,</span>
+<span class="go">        trap_inexact=False, inexact=False,</span>
+<span class="go">        trap_invalid=False, invalid=True,</span>
+<span class="go">        trap_erange=False, erange=False,</span>
+<span class="go">        trap_divzero=False, divzero=False,</span>
+<span class="go">        trap_expbound=False,</span>
+<span class="go">        allow_complex=True)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gmpy2</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">mpc(&#39;0.0+2.0j&#39;)</span>
+</pre></div>
+</div>
+<div class="section" id="mpc-methods">
+<h2>mpc Methods<a class="headerlink" href="#mpc-methods" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>conjugate()</strong></dt>
+<dd>Returns the complex conjugate.</dd>
+<dt><strong>digits()</strong></dt>
+<dd>Returns a two element tuple where each element represents the real and
+imaginary components as a 3-tuple containing the mantissa, the exponent,
+and the number of bits of precision. The mantissa is represented as a
+string in the specified base with up to &#8216;prec&#8217; digits. If &#8216;prec&#8217; is 0, as
+many digits that are available are returned. No more digits than available
+given x&#8217;s precision are returned. &#8216;base&#8217; must be between 2 and 62,
+inclusive.</dd>
+</dl>
+</div>
+<div class="section" id="mpc-attributes">
+<h2>mpc Attributes<a class="headerlink" href="#mpc-attributes" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>imag</strong></dt>
+<dd>Returns the imaginary component.</dd>
+<dt><strong>precision</strong></dt>
+<dd>Returns a 2-tuple containing the the precision of the real and imaginary
+components.</dd>
+<dt><strong>rc</strong></dt>
+<dd>Returns a 2-tuple containing the ternary value of the real and imaginary
+components. The ternary value is 0 if the value of the component is exactly
+equal to the exact, infinite precision value. If the result code is 1, then
+the value of the component is greater than the exact value. If the result
+code is -1, then the value of the component is less than the exact,
+infinite precision value.</dd>
+<dt><strong>real</strong></dt>
+<dd>Returns the real component.</dd>
+</dl>
+</div>
+<div class="section" id="mpc-functions">
+<h2>mpc Functions<a class="headerlink" href="#mpc-functions" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><strong>acos(...)</strong></dt>
+<dd>acos(x) returns the arc-cosine of x.</dd>
+<dt><strong>acosh(...)</strong></dt>
+<dd>acosh(x) returns the inverse hyperbolic cosine of x.</dd>
+<dt><strong>add(...)</strong></dt>
+<dd>add(x, y) returns x + y. The type of the result is based on the types of
+the arguments.</dd>
+<dt><strong>asin(...)</strong></dt>
+<dd>asin(x) returns the arc-sine of x.</dd>
+<dt><strong>asinh(...)</strong></dt>
+<dd>asinh(x) return the inverse hyperbolic sine of x.</dd>
+<dt><strong>atan(...)</strong></dt>
+<dd>atan(x) returns the arc-tangent of x.</dd>
+<dt><strong>atanh(...)</strong></dt>
+<dd>atanh(x) returns the inverse hyperbolic tangent of x.</dd>
+<dt><strong>cos(...)</strong></dt>
+<dd>cos(x) seturns the cosine of x.</dd>
+<dt><strong>cosh(...)</strong></dt>
+<dd>cosh(x) returns the hyperbolic cosine of x.</dd>
+<dt><strong>div(...)</strong></dt>
+<dd>div(x, y) returns x / y. The type of the result is based on the types of
+the arguments.</dd>
+<dt><strong>div_2exp(...)</strong></dt>
+<dd>div_2exp(x, n) returns an &#8216;mpfr&#8217; or &#8216;mpc&#8217; divided by 2**n.</dd>
+<dt><strong>exp(...)</strong></dt>
+<dd>exp(x) returns e**x.</dd>
+<dt><strong>fma(...)</strong></dt>
+<dd>fma(x, y, z) returns correctly rounded result of (x * y) + z.</dd>
+<dt><strong>fms(...)</strong></dt>
+<dd>fms(x, y, z) returns correctly rounded result of (x * y) - z.</dd>
+<dt><strong>is_inf(...)</strong></dt>
+<dd>is_inf(x) returns True if either the real or imaginary component of x is
+Infinity or -Infinity.</dd>
+<dt><strong>is_nan(...)</strong></dt>
+<dd>is_nan(x) returns True if either the real or imaginary component of x is
+NaN (Not-A-Number).</dd>
+<dt><strong>is_zero(...)</strong></dt>
+<dd>is_zero(x) returns True if x is zero.</dd>
+<dt><strong>log(...)</strong></dt>
+<dd>log(x) returns the natural logarithm of x.</dd>
+<dt><strong>log10(...)</strong></dt>
+<dd>log10(x) returns the base-10 logarithm of x.</dd>
+<dt><strong>mpc(...)</strong></dt>
+<dd><p class="first">mpc() returns an <em>mpc</em> object set to 0.0+0.0j.</p>
+<p>mpc(c[, precision=0]) returns a new &#8216;mpc&#8217; object from an existing complex
+number (either a Python complex object or another &#8216;mpc&#8217; object). If the
+precision is not specified, then the precision is taken from the current
+context. The rounding mode is always taken from the current context.</p>
+<p>mpc(r[, i=0[, precision=0]]) returns a new &#8216;mpc&#8217; object by converting two
+non-complex numbers into the real and imaginary components of an &#8216;mpc&#8217;
+object. If the precision is not specified, then the precision is taken from
+the current context. The rounding mode is always taken from the current
+context.</p>
+<p>mpc(s[, [precision=0[, base=10]]) returns a new &#8216;mpc&#8217; object by converting
+a string s into a complex number. If base is omitted, then a base-10
+representation is assumed otherwise a base between 2 and 36 can be
+specified. If the precision is not specified, then the precision is taken
+from the current context. The rounding mode is always taken from the
+current context.</p>
+<p>In addition to the standard Python string representation of a complex
+number: <tt class="docutils literal"><span class="pre">&quot;1+2j&quot;</span></tt>, the string representation used by the MPC library:
+<tt class="docutils literal"><span class="pre">&quot;(1</span> <span class="pre">2)&quot;</span></tt> is also supported.</p>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The precision can be specified either a single number that is used for
+both the real and imaginary components, or as a 2-tuple that can
+specify different precisions for the real and imaginary components.</p>
+</div>
+</dd>
+<dt><strong>mpc_random(...)</strong></dt>
+<dd>mpfc_random(random_state) returns a uniformly distributed number in the
+unit square [0,1]x[0,1]. The parameter <em>random_state</em> must be created by
+random_state() first.</dd>
+<dt><strong>mul(...)</strong></dt>
+<dd>mul(x, y) returns x * y. The type of the result is based on the types of
+the arguments.</dd>
+<dt><strong>mul_2exp(...)</strong></dt>
+<dd>mul_2exp(x, n) returns &#8216;mpfr&#8217; or &#8216;mpc&#8217; multiplied by 2**n.</dd>
+<dt><strong>norm(...)</strong></dt>
+<dd>norm(x) returns the norm of a complex x. The norm(x) is defined as
+x.real**2 + x.imag**2. abs(x) is the square root of norm(x).</dd>
+<dt><strong>phase(...)</strong></dt>
+<dd>phase(x) returns the phase angle, also known as argument, of a complex x.</dd>
+<dt><strong>polar(...)</strong></dt>
+<dd>polar(x) returns the polar coordinate form of a complex x that is in
+rectangular form.</dd>
+<dt><strong>proj(...)</strong></dt>
+<dd>proj(x) returns the projection of a complex x on to the Riemann sphere.</dd>
+<dt><strong>rect(...)</strong></dt>
+<dd>rect(x) returns the polar coordinate form of a complex x that is in
+rectangular form.</dd>
+<dt><strong>sin(...)</strong></dt>
+<dd>sin(x) returns the sine of x.</dd>
+<dt><strong>sinh(...)</strong></dt>
+<dd>sinh(x) returns the hyberbolic sine of x.</dd>
+<dt><strong>sqrt(...)</strong></dt>
+<dd>sqrt(x) returns the square root of x. If x is integer, rational, or real,
+then an <em>mpfr</em> will be returned. If x is complex, then an <em>mpc</em> will
+be returned. If context.allow_complex is True, negative values of x
+will return an <em>mpc</em>.</dd>
+<dt><strong>square(...)</strong></dt>
+<dd>square(x) returns x * x. The type of the result is based on the types of
+the arguments.</dd>
+<dt><strong>sub(...)</strong></dt>
+<dd>sub(x, y) returns x - y. The type of the result is based on the types of
+the arguments.</dd>
+<dt><strong>tan(...)</strong></dt>
+<dd>tan(x) returns the tangent of x. x is measured in radians.</dd>
+<dt><strong>tanh(...)</strong></dt>
+<dd>tanh(x) returns the hyperbolic tangent of x.</dd>
+</dl>
+</div>
+<div class="section" id="mpc-formatting">
+<h2>mpc Formatting<a class="headerlink" href="#mpc-formatting" title="Permalink to this headline">¶</a></h2>
+<p>The <em>mpc</em> type supports the __format__() special method to allow custom output
+formatting.</p>
+<dl class="docutils">
+<dt><strong>__format__(...)</strong></dt>
+<dd><p class="first">x.__format__(fmt) returns a Python string by formatting &#8216;x&#8217; using the
+format string &#8216;fmt&#8217;. A valid format string consists of:</p>
+<div class="line-block">
+<div class="line">optional alignment code:</div>
+<div class="line-block">
+<div class="line">&#8216;&lt;&#8217; -&gt; left shifted in field</div>
+<div class="line">&#8216;&gt;&#8217; -&gt; right shifted in field</div>
+<div class="line">&#8216;^&#8217; -&gt; centered in field</div>
+</div>
+<div class="line">optional leading sign code</div>
+<div class="line-block">
+<div class="line">&#8216;+&#8217; -&gt; always display leading sign</div>
+<div class="line">&#8216;-&#8216; -&gt; only display minus for negative values</div>
+<div class="line">&#8216; &#8216; -&gt; minus for negative values, space for positive values</div>
+</div>
+<div class="line">optional width.real_precision.imag_precision</div>
+<div class="line">optional rounding mode:</div>
+<div class="line-block">
+<div class="line">&#8216;U&#8217; -&gt; round toward plus infinity</div>
+<div class="line">&#8216;D&#8217; -&gt; round toward minus infinity</div>
+<div class="line">&#8216;Z&#8217; -&gt; round toward zero</div>
+<div class="line">&#8216;N&#8217; -&gt; round to nearest</div>
+</div>
+<div class="line">optional output style:</div>
+<div class="line-block">
+<div class="line">&#8216;P&#8217; -&gt; Python style, 1+2j, (default)</div>
+<div class="line">&#8216;M&#8217; -&gt; MPC style, (1 2)</div>
+</div>
+<div class="line">optional conversion code:</div>
+<div class="line-block">
+<div class="line">&#8216;a&#8217;,&#8217;A&#8217; -&gt; hex format</div>
+<div class="line">&#8216;b&#8217;     -&gt; binary format</div>
+<div class="line">&#8216;e&#8217;,&#8217;E&#8217; -&gt; scientific format</div>
+<div class="line">&#8216;f&#8217;,&#8217;F&#8217; -&gt; fixed point format</div>
+<div class="line">&#8216;g&#8217;,&#8217;G&#8217; -&gt; fixed or scientific format</div>
+</div>
+</div>
+<div class="last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The formatting codes must be specified in the order shown above.</p>
+</div>
+</dd>
+</dl>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">gmpy2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gmpy2</span> <span class="kn">import</span> <span class="n">mpc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">=</span><span class="n">gmpy2</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mpc</span><span class="p">(</span><span class="s">&quot;1+2j&quot;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
+<span class="go">mpc(&#39;1.272019649514069+0.78615137775742328j&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">&quot;{0:.4.4Mf}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">&#39;(1.2720 0.7862)&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">&quot;{0:.4.4f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">&#39;1.2720+0.7862j&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">&quot;{0:^20.4.4U}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">&#39;   1.2721+0.7862j   &#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">&quot;{0:^20.4.4D}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">&#39;   1.2720+0.7861j   &#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Multiple-precision Complex</a><ul>
+<li><a class="reference internal" href="#mpc-methods">mpc Methods</a></li>
+<li><a class="reference internal" href="#mpc-attributes">mpc Attributes</a></li>
+<li><a class="reference internal" href="#mpc-functions">mpc Functions</a></li>
+<li><a class="reference internal" href="#mpc-formatting">mpc Formatting</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mpfr.html"
+                        title="previous chapter">Multiple-precision Reals</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/mpc.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mpfr.html" title="Multiple-precision Reals"
+             >previous</a> |</li>
+        <li><a href="index.html">gmpy2 2.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, 2013, Case Van Horsen.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

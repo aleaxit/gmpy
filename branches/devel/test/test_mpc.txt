@@ -1,0 +1,202 @@
+Test mpc elementary operations
+------------------------------
+
+    >>> import gmpy2 as G
+    >>> from gmpy2 import mpz, mpq, mpfr, mpc
+    >>> from fractions import Fraction as F
+    >>> from decimal import Decimal as D
+    >>> a = mpz(123)
+    >>> b = mpz(456)
+    >>> c = 12345678901234567890
+    >>> af = mpfr("12.34")
+    >>> bf = mpfr("45.67")
+    >>> aq = mpq(3,11)
+    >>> bq = mpq(17,2)
+    >>> aj = mpc(1+2j)
+    >>> bj = mpc(4+5j)
+
+Test addition
+-------------
+
+>>> aj + bj
+mpc('5.0+7.0j')
+>>> bj + aj
+mpc('5.0+7.0j')
+>>> aj + a
+mpc('124.0+2.0j')
+>>> a + aj
+mpc('124.0+2.0j')
+>>> aj + 1
+mpc('2.0+2.0j')
+>>> 1 + aj
+mpc('2.0+2.0j')
+>>> aj + 0
+mpc('1.0+2.0j')
+>>> 0 + aj
+mpc('1.0+2.0j')
+>>> -1 + aj
+mpc('0.0+2.0j')
+>>> aj - 1
+mpc('0.0+2.0j')
+>>> aj + 1.2 == 2.2 + 2j
+True
+
+Test subtraction
+----------------
+
+>>> aj - bj
+mpc('-3.0-3.0j')
+>>> bj - aj
+mpc('3.0+3.0j')
+>>> aj - a
+mpc('-122.0+2.0j')
+>>> a - aj
+mpc('122.0-2.0j')
+>>> aj - 1
+mpc('0.0+2.0j')
+>>> 1 - aj
+mpc('0.0-2.0j')
+>>> 0 - aj
+mpc('-1.0-2.0j')
+>>> aj - 0
+mpc('1.0+2.0j')
+>>> aj - -1
+mpc('2.0+2.0j')
+>>> -1 - aj
+mpc('-2.0-2.0j')
+>>> aj - 1.2 == (1+2j) - 1.2
+True
+
+Test multiplication
+-------------------
+
+>>> aj * bj
+mpc('-6.0+13.0j')
+>>> bj * aj
+mpc('-6.0+13.0j')
+>>> aj * a
+mpc('123.0+246.0j')
+>>> a * aj
+mpc('123.0+246.0j')
+>>> aj * -1
+mpc('-1.0-2.0j')
+>>> aj * (0.0+1j)
+mpc('-2.0+1.0j')
+
+Test division
+-------------
+
+>>> aj / bj
+mpc('0.34146341463414637+0.073170731707317069j')
+>>> aj // bj
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: can't take floor of complex number.
+>>> aj / a
+mpc('0.008130081300813009+0.016260162601626018j')
+>>> a / aj
+mpc('24.600000000000001-49.200000000000003j')
+>>> aj / 0
+mpc('inf+infj')
+
+Test modulo
+-----------
+
+>>> aj % bj
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: can't mod complex numbers
+>>> aj % a
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: can't mod complex numbers
+>>> a % aj
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: can't mod complex numbers
+>>> divmod(aj, bj)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: can't take floor or mod of complex number.
+
+Test operations involving NaN/Inf
+---------------------------------
+
+    >>> aj + float('inf')
+    mpc('inf+2.0j')
+    >>> aj + float('-inf')
+    mpc('-inf+2.0j')
+    >>> aj + float('nan')
+    mpc('nan+2.0j')
+    >>> float('inf') - aj
+    mpc('inf-2.0j')
+    >>> aj - float('inf')
+    mpc('-inf+2.0j')
+    >>> aj - float('-inf')
+    mpc('inf+2.0j')
+    >>> aj - float('nan')
+    mpc('nan+2.0j')
+    >>> aj * float('inf')
+    mpc('inf+infj')
+    >>> aj * float('-inf')
+    mpc('-inf-infj')
+    >>> aj * float('nan')
+    mpc('nan+nanj')
+    >>> mpc(0,0) * float('inf')
+    mpc('nan+nanj')
+    >>> mpc(0,0) * float('-inf')
+    mpc('nan+nanj')
+    >>> mpc(0,0) * float('nan')
+    mpc('nan+nanj')
+    >>> aj / float('inf')
+    mpc('0.0+0.0j')
+    >>> aj / float('-inf')
+    mpc('-0.0-0.0j')
+    >>> float('inf') / aj
+    mpc('inf-infj')
+    >>> float('-inf') / aj
+    mpc('-inf+infj')
+
+Test is_XXX
+-----------
+
+    >>> G.is_zero(mpc("0+0j"))
+    True
+    >>> G.is_zero(mpc("1+0j"))
+    False
+    >>> G.is_zero(mpc("1+1j"))
+    False
+    >>> G.is_zero(mpc("0+1j"))
+    False
+    >>> G.is_nan(mpc("nan+1j"))
+    True
+    >>> G.is_nan(mpc("1+nanj"))
+    True
+    >>> G.is_nan(mpc("nan+nanj"))
+    True
+    >>> G.is_nan(mpc("1+1j"))
+    False
+    >>> G.is_infinite(mpc("inf+1j"))
+    True
+    >>> G.is_infinite(mpc("-inf+1j"))
+    True
+    >>> G.is_infinite(mpc("1+infj"))
+    True
+    >>> G.is_infinite(mpc("1-infj"))
+    True
+    >>> G.is_infinite(mpc("inf-infj"))
+    True
+    >>> G.is_infinite(mpc("1+1j"))
+    False
+    >>> G.is_finite(mpc("0+0j"))
+    True
+    >>> G.is_finite(mpc("nan+0j"))
+    False
+    >>> G.is_finite(mpc("0+nanj"))
+    False
+    >>> G.is_finite(mpc("0+infj"))
+    False
+    >>> G.is_finite(mpc("inf+3j"))
+    False
+
+

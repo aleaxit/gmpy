@@ -1,0 +1,140 @@
+Assumptions
+===========
+
+The build files for MPIR, MPFR, and MPC only support VS 2010. However, if
+VS 2008 is also installed, the "Platform Toolset" setting can be used to select
+a specific compiler: v100 = VS 2010, v90 = VS 2008.
+
+Assumes MPIR is placed in c:\src\mpir. (No version number.)
+Assumes MPFR is placed in c:\src\mpfr. (No version number.)
+Assumes MPC is placed in c:\src\mpc. (No version number.)
+Assumes gmpy2 is placed in c:\src\gmpy2. (No version number.)
+Assumes vsyasm is installed.
+
+Compiling MPIR
+==============
+
+cd c:\src\mpir\build.vc10
+python mpir_config.py
+# enter 3 (Pentium 3) and 18 (AMD K8)
+
+Start Visual Studio 2010 and open c:\src\mpir\build.vc10\mpir.sln.
+Select "Release" and "Win32"
+Open "lib_mpir_p3" properties
+- Change "Platform Toolset" if needed.
+- Change "Character Set" to "Not Set". (Probably not needed.)
+- Change "Optimization" to "/O2". (Set uniformly in MPFR and MPC too.)
+- Change "Runtime Library" to "Multi-threaded DLL /MD".
+- Change "Buffer Security Check" to "No".
+Select "Build"
+- Ignore preinv* warnings (I think)
+- Ignore *_ux and *_sx warnings if using v90 toolset (i.e. VS2008).
+
+Select "Release" and "x64"
+Open "lib_mpir_k8" properties
+- Change "Platform Toolset" if needed.
+- Change "Character Set" to "Not Set". (Probably not needed.)
+- Change "Optimization" to "/O2". (Set uniformly in MPFR and MPC too.)
+- Change "Runtime Library" to "Multi-threaded DLL /MD".
+- Change "Buffer Security Check" to "No".
+Select "Build"
+- Ignore preinv* warnings (I think)
+- Ignore *_ux and *_sx warnings if using v90 toolset (i.e. VS2008).
+
+Compiling MPFR
+==============
+
+Start Visual Studio 2010 and open c:\src\mpfr\build.vc10\lib_mpfr.sln.
+Select "Release" and "Win32"
+Open "lib_mpfr" properties
+- Change "Platform Toolset: if needed.
+- Change settings to match MPIR except "Enable Fiber-Safe Optimizations" should
+  be set.
+Select "Build"
+
+Select "Release" and "x64"
+Open "lib_mpfr" properties
+- Change "Platform Toolset: if needed.
+- Change settings to match MPIR except "Enable Fiber-Safe Optimizations" should
+  be set.
+Select "Build"
+
+Compiling MPC
+=============
+
+Start Visual Studio 2010 and open c:\src\mpfr\build.vc10\mpc.sln.
+Select "Release" and "Win32"
+Open "mpc_lib" properties
+- Change "Platform Toolset: if needed.
+- Change remaining settings to match MPIR.
+Select "Build"
+
+Select "Release" and "x64"
+Open "lib_mpfr" properties
+- Change "Platform Toolset: if needed.
+- Change remaining settings to match MPIR.
+Select "Build"
+
+Copy the library files
+======================
+
+The header files will be copied c:\src\BB\vsNNNN\include and the library files
+will be copied to c:\src\BB\vsNNNN\lib where BB is 32 or 64, and NNNN is 2008
+or 2010.
+
+32-bit, VS 2008
+
+cd c:\src
+xcopy /y c:\src\mpir\lib\Win32\Release\*.h c:\src\32\vs2008\include\
+xcopy /y c:\src\mpir\lib\Win32\Release\*.lib c:\src\32\vs2008\lib\
+xcopy /y c:\src\mpfr\lib\Win32\Release\*.h c:\src\32\vs2008\include\
+xcopy /y c:\src\mpfr\lib\Win32\Release\*.lib c:\src\32\vs2008\lib\
+xcopy /y c:\src\mpc\lib\Win32\Release\*.h c:\src\32\vs2008\include\
+xcopy /y c:\src\mpc\lib\Win32\Release\*.lib c:\src\32\vs2008\lib\
+
+64-bit, VS 2008
+
+cd c:\src
+xcopy /y c:\src\mpir\lib\x64\Release\*.h c:\src\64\vs2008\include\
+xcopy /y c:\src\mpir\lib\x64\Release\*.lib c:\src\64\vs2008\lib\
+xcopy /y c:\src\mpfr\lib\x64\Release\*.h c:\src\64\vs2008\include\
+xcopy /y c:\src\mpfr\lib\x64\Release\*.lib c:\src\64\vs2008\lib\
+xcopy /y c:\src\mpc\lib\x64\Release\*.h c:\src\64\vs2008\include\
+xcopy /y c:\src\mpc\lib\x64\Release\*.lib c:\src\64\vs2008\lib\
+
+32-bit, VS 2010
+
+cd c:\src
+xcopy /y c:\src\mpir\lib\Win32\Release\*.h c:\src\32\vs2010\include\
+xcopy /y c:\src\mpir\lib\Win32\Release\*.lib c:\src\32\vs2010\lib\
+xcopy /y c:\src\mpfr\lib\Win32\Release\*.h c:\src\32\vs2010\include\
+xcopy /y c:\src\mpfr\lib\Win32\Release\*.lib c:\src\32\vs2010\lib\
+xcopy /y c:\src\mpc\lib\Win32\Release\*.h c:\src\32\vs2010\include\
+xcopy /y c:\src\mpc\lib\Win32\Release\*.lib c:\src\32\vs2010\lib\
+
+64-bit, VS 2010
+
+cd c:\src
+xcopy /y c:\src\mpir\lib\x64\Release\*.h c:\src\64\vs2010\include\
+xcopy /y c:\src\mpir\lib\x64\Release\*.lib c:\src\64\vs2010\lib\
+xcopy /y c:\src\mpfr\lib\x64\Release\*.h c:\src\64\vs2010\include\
+xcopy /y c:\src\mpfr\lib\x64\Release\*.lib c:\src\64\vs2010\lib\
+xcopy /y c:\src\mpc\lib\x64\Release\*.h c:\src\64\vs2010\include\
+xcopy /y c:\src\mpc\lib\x64\Release\*.lib c:\src\64\vs2010\lib\
+
+Compile gmpy2
+=============
+
+c:\32\Python26\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2008 bdist_wininst
+c:\32\Python27\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2008 bdist_wininst
+c:\32\Python32\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2008 bdist_wininst
+c:\32\Python33\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2010 bdist_wininst
+
+c:\64\Python26\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2008 bdist_wininst
+c:\64\Python27\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2008 bdist_wininst
+c:\64\Python32\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2008 bdist_wininst
+c:\64\Python33\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2010 bdist_wininst
+
+
+
+

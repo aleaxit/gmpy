@@ -1,0 +1,18 @@
+Testing of gmpy2 mpq to_binary and from_binary
+----------------------------------------------
+
+    >>> import gmpy2
+    >>> from gmpy2 import mpq,to_binary,from_binary
+
+Test
+----
+
+    >>> x=mpq(0,1);x==from_binary(to_binary(x))
+    True
+    >>> x=mpq(1,1);x==from_binary(to_binary(x))
+    True
+    >>> x=mpq(-1,2);x==from_binary(to_binary(x))
+    True
+    >>> x=mpq(123456789123456789,9876);x==from_binary(to_binary(x))
+    True
+
