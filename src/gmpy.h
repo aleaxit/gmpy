@@ -187,7 +187,9 @@ typedef long                mpir_si;
 
 /* Choose which memory manager is used: Python or C.
  * NOTE: The use of PyMem is not compatible with Sage, therefore it is
- * disabled by default.
+ *       disabled by default.
+ * NOTE: The use of PyMem is not compatible with releasing the GIL, so
+ *       it should never be enabled.
  * Use -DUSE_PYMEM to enable.
  */
 
