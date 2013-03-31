@@ -50,11 +50,11 @@ typedef struct {
     PyxmpzObject *bitmap;
     Py_ssize_t start, stop;
     int iter_type;
-} GMPYIterObject;
+} GMPyIterObject;
 
-static PyTypeObject GMPYIter_Type;
+static PyTypeObject GMPyIter_Type;
 
-#define GMPyIter_Check(v) (((PyObject*)v)->ob_type == &GMPYIter_Type)
+#define GMPyIter_Check(v) (((PyObject*)v)->ob_type == &GMPyIter_Type)
 
 static PyObject * Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject * Pyxmpz_digits(PyObject *self, PyObject *args);

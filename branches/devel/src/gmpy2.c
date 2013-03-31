@@ -802,68 +802,6 @@ gmpy_free( void *ptr, size_t size)
     GMPY_FREE(ptr);
 }
 
-
-/* TODO: no checking for exceptions is done. This really needs to be
- *       fixed.
- *
- * TODO: this should be combined with PyInit_gmpy2.
- */
-
-static void
-_PyInitGMP(void)
-{
-#ifdef WITHMPFR
-    PyObject *temp = NULL;
-#endif
-
-    mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
-
-    set_zcache();
-    set_pympzcache();
-    set_pympqcache();
-    set_pyxmpzcache();
-#ifdef WITHMPFR
-    set_pympfrcache();
-
-#ifndef WITHOUT_THREADS
-    module_context = (GMPyContextObject*)GMPyContext_new();
-    Py_INCREF(Py_False);
-    PyModule_AddObject(gmpy_module, "HAVE_THREADS", Py_False);
-#else
-    tls_context_key = PyUnicode_FromString("___GMPY2_CTX__");
-    Py_INCREF(Py_True);
-    PyModule_AddObject(gmpy_module, "HAVE_THREADS", Py_True);
-#endif
-
-    GMPyExc_GmpyError = PyErr_NewException("gmpy2.gmpyError",
-                                           PyExc_ArithmeticError, NULL);
-    GMPyExc_Erange = PyErr_NewException("gmpy2.RangeError",
-                                        GMPyExc_GmpyError, NULL);
-    GMPyExc_Inexact = PyErr_NewException("gmpy2.InexactResultError",
-                                         GMPyExc_GmpyError, NULL);
-    GMPyExc_Overflow = PyErr_NewException("gmpy2.OverflowResultError",
-                                          GMPyExc_Inexact, NULL);
-    GMPyExc_Underflow = PyErr_NewException("gmpy2.UnderflowResultError",
-                                           GMPyExc_Inexact, NULL);
-    GMPyExc_ExpBound = PyErr_NewException("gmpy2.ExponentOutOfBoundsError",
-                                          GMPyExc_GmpyError, NULL);
-
-    temp = PyTuple_Pack(2, GMPyExc_GmpyError, PyExc_ValueError);
-    GMPyExc_Invalid = PyErr_NewException("gmpy2.InvalidOperationError",
-                                         temp, NULL);
-    Py_XDECREF(temp);
-
-    temp = PyTuple_Pack(2, GMPyExc_GmpyError, PyExc_ZeroDivisionError);
-    GMPyExc_DivZero = PyErr_NewException("gmpy2.DivisionByZeroError",
-                                         temp, NULL);
-    Py_XDECREF(temp);
-
-#endif
-#ifdef WITHMPC
-    set_pympccache();
-#endif
-}
-
 static char _gmpy_docs[] =
 "gmpy2 2.1.0a0 - General Multiple-precision arithmetic for Python\n"
 "\n"
@@ -907,14 +845,21 @@ static struct PyModuleDef moduledef = {
         NULL, /* gmpy_clear */
         NULL
 };
-PyMODINIT_FUNC PyInit_gmpy2(void)
 #else
 #define INITERROR return
+#endif
+
+#ifdef PY3
+PyMODINIT_FUNC PyInit_gmpy2(void)
+#else
 PyMODINIT_FUNC initgmpy2(void)
 #endif
 {
     PyObject* gmpy_module = NULL;
     PyObject* copy_reg_module = NULL;
+#ifdef WITHMPFR
+    PyObject *temp = NULL;
+#endif
 
     /* Validate the sizes of the various typedef'ed integer types. */
     if (sizeof(mp_limb_t) != sizeof(mpir_si)) {
@@ -940,13 +885,14 @@ PyMODINIT_FUNC initgmpy2(void)
     }
 #endif
 
+    /* Initialize the types. */
     if (PyType_Ready(&Pympz_Type) < 0)
         INITERROR;
     if (PyType_Ready(&Pympq_Type) < 0)
         INITERROR;
     if (PyType_Ready(&Pyxmpz_Type) < 0)
         INITERROR;
-    if (PyType_Ready(&GMPYIter_Type) < 0)
+    if (PyType_Ready(&GMPyIter_Type) < 0)
         INITERROR;
 #ifdef WITHMPFR
     if (PyType_Ready(&Pympfr_Type) < 0)
@@ -961,7 +907,72 @@ PyMODINIT_FUNC initgmpy2(void)
         INITERROR;
 #endif
 
-    _PyInitGMP();
+    /* Initialize the custom memory handlers. */
+    mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
+
+    /* Initialize object caching. */
+    set_zcache();
+    set_pympzcache();
+    set_pympqcache();
+    set_pyxmpzcache();
+#ifdef WITHMPFR
+    set_pympfrcache();
+#endif
+#ifdef WITHMPC
+    set_pympccache();
+#endif
+
+#ifdef WITHMPFR
+    /* Initialize exceptions. */
+    GMPyExc_GmpyError = PyErr_NewException("gmpy2.gmpyError",
+                                           PyExc_ArithmeticError, NULL);
+    if (!GMPyExc_GmpyError)
+        INITERROR;
+
+    GMPyExc_Erange = PyErr_NewException("gmpy2.RangeError",
+                                        GMPyExc_GmpyError, NULL);
+    if (!GMPyExc_Erange)
+        INITERROR;
+
+    GMPyExc_Inexact = PyErr_NewException("gmpy2.InexactResultError",
+                                         GMPyExc_GmpyError, NULL);
+    if (!GMPyExc_Inexact)
+        INITERROR;
+
+    GMPyExc_Overflow = PyErr_NewException("gmpy2.OverflowResultError",
+                                          GMPyExc_Inexact, NULL);
+    if (!GMPyExc_Overflow)
+        INITERROR;
+
+    GMPyExc_Underflow = PyErr_NewException("gmpy2.UnderflowResultError",
+                                           GMPyExc_Inexact, NULL);
+    if (!GMPyExc_Underflow)
+        INITERROR;
+
+    GMPyExc_ExpBound = PyErr_NewException("gmpy2.ExponentOutOfBoundsError",
+                                          GMPyExc_GmpyError, NULL);
+    if (!GMPyExc_ExpBound)
+        INITERROR;
+
+    temp = PyTuple_Pack(2, GMPyExc_GmpyError, PyExc_ValueError);
+    if (!temp)
+        INITERROR;
+    GMPyExc_Invalid = PyErr_NewException("gmpy2.InvalidOperationError",
+                                         temp, NULL);
+    Py_DECREF(temp);
+    if (!GMPyExc_Invalid)
+        INITERROR;
+
+    temp = PyTuple_Pack(2, GMPyExc_GmpyError, PyExc_ZeroDivisionError);
+    if (!temp)
+        INITERROR;
+    GMPyExc_DivZero = PyErr_NewException("gmpy2.DivisionByZeroError",
+                                         temp, NULL);
+    Py_DECREF(temp);
+    if (!GMPyExc_DivZero)
+        INITERROR;
+
+#endif
 
 #ifdef PY3
     gmpy_module = PyModule_Create(&moduledef);
@@ -972,32 +983,78 @@ PyMODINIT_FUNC initgmpy2(void)
     if (gmpy_module == NULL)
         INITERROR;
 
+#ifdef WITHMPFR
+    /* Initialize thread local contexts. */
+#ifdef WITHOUT_THREADS
+    module_context = (GMPyContextObject*)GMPyContext_new();
+    if (!module_context)
+        INITERROR;
+    Py_INCREF(Py_False);
+    if (PyModule_AddObject(gmpy_module, "HAVE_THREADS", Py_False) < 0) {
+        Py_DECREF(Py_False);
+        INITERROR;
+    }
+#else
+    tls_context_key = PyUnicode_FromString("___GMPY2_CTX__");
+    Py_INCREF(Py_True);
+    if (PyModule_AddObject(gmpy_module, "HAVE_THREADS", Py_True) < 0) {
+        Py_DECREF(Py_True);
+        INITERROR;
+    }
+#endif
+#endif
 
 #ifdef WITHMPFR
-
     /* Add the constants for defining rounding modes. */
+    if (PyModule_AddIntConstant(gmpy_module, "RoundToNearest", MPFR_RNDN) < 0)
+        INITERROR;
+    if (PyModule_AddIntConstant(gmpy_module, "RoundToZero", MPFR_RNDZ) < 0)
+        INITERROR;
+    if (PyModule_AddIntConstant(gmpy_module, "RoundUp", MPFR_RNDU) < 0)
+        INITERROR;
+    if (PyModule_AddIntConstant(gmpy_module, "RoundDown", MPFR_RNDD) < 0)
+        INITERROR;
+    if (PyModule_AddIntConstant(gmpy_module, "RoundAwayZero", MPFR_RNDA) < 0)
+        INITERROR;
+    if (PyModule_AddIntConstant(gmpy_module, "Default", GMPY_DEFAULT) < 0)
+        INITERROR;
 
-    PyModule_AddIntConstant(gmpy_module, "RoundToNearest", MPFR_RNDN);
-    PyModule_AddIntConstant(gmpy_module, "RoundToZero", MPFR_RNDZ);
-    PyModule_AddIntConstant(gmpy_module, "RoundUp", MPFR_RNDU);
-    PyModule_AddIntConstant(gmpy_module, "RoundDown", MPFR_RNDD);
-    PyModule_AddIntConstant(gmpy_module, "RoundAwayZero", MPFR_RNDA);
-    PyModule_AddIntConstant(gmpy_module, "Default", GMPY_DEFAULT);
+    /* Add the exceptions. */
     Py_INCREF(GMPyExc_DivZero);
-    PyModule_AddObject(gmpy_module, "DivisionByZeroError", GMPyExc_DivZero);
+    if (PyModule_AddObject(gmpy_module, "DivisionByZeroError", GMPyExc_DivZero) < 0) {
+        Py_DECREF(GMPyExc_DivZero);
+        INITERROR;
+    }
     Py_INCREF(GMPyExc_Inexact);
-    PyModule_AddObject(gmpy_module, "InexactResultError", GMPyExc_Inexact);
+    if (PyModule_AddObject(gmpy_module, "InexactResultError", GMPyExc_Inexact) < 0) {
+        Py_DECREF(GMPyExc_Inexact);
+        INITERROR;
+    }
     Py_INCREF(GMPyExc_Invalid);
-    PyModule_AddObject(gmpy_module, "InvalidOperationError", GMPyExc_Invalid);
+    if (PyModule_AddObject(gmpy_module, "InvalidOperationError", GMPyExc_Invalid) < 0 ) {
+        Py_DECREF(GMPyExc_Invalid);
+        INITERROR;
+    }
     Py_INCREF(GMPyExc_Overflow);
-    PyModule_AddObject(gmpy_module, "OverflowResultError", GMPyExc_Overflow);
+    if (PyModule_AddObject(gmpy_module, "OverflowResultError", GMPyExc_Overflow) < 0) {
+        Py_DECREF(GMPyExc_Overflow);
+        INITERROR;
+    }
     Py_INCREF(GMPyExc_Underflow);
-    PyModule_AddObject(gmpy_module, "UnderflowResultError", GMPyExc_Underflow);
+    if (PyModule_AddObject(gmpy_module, "UnderflowResultError", GMPyExc_Underflow) < 0) {
+        Py_DECREF(GMPyExc_Underflow);
+        INITERROR;
+    }
     Py_INCREF(GMPyExc_Erange);
-    PyModule_AddObject(gmpy_module, "RangeError", GMPyExc_Erange);
+    if (PyModule_AddObject(gmpy_module, "RangeError", GMPyExc_Erange) < 0) {
+        Py_DECREF(GMPyExc_Erange);
+        INITERROR;
+    }
     Py_INCREF(GMPyExc_ExpBound);
-    PyModule_AddObject(gmpy_module, "ExponentOutOfBoundsError", GMPyExc_ExpBound);
-
+    if (PyModule_AddObject(gmpy_module, "ExponentOutOfBoundsError", GMPyExc_ExpBound) < 0) {
+        Py_DECREF(GMPyExc_ExpBound);
+        INITERROR;
+    }
 #endif
 
     /* Add support for pickling. */

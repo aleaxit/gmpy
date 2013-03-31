@@ -425,13 +425,13 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
  *
  */
 
-static GMPYIterObject *
-GMPYIter_New(void)
+static GMPyIterObject *
+GMPyIter_New(void)
 {
-    GMPYIterObject *result;
+    GMPyIterObject *result;
 
-    if ((result = PyObject_New(GMPYIterObject,
-                               &GMPYIter_Type))) {
+    if ((result = PyObject_New(GMPyIterObject,
+                               &GMPyIter_Type))) {
         result->bitmap = NULL;
         result->start = 0;
         result->stop = -1;
@@ -441,14 +441,14 @@ GMPYIter_New(void)
 };
 
 static void
-GMPYIter_Dealloc(GMPYIterObject *self)
+GMPyIter_Dealloc(GMPyIterObject *self)
 {
     Py_XDECREF((PyObject*)self->bitmap);
     PyObject_Del(self);
 };
 
 static PyObject *
-GMPYIter_Next(GMPYIterObject *self) {
+GMPyIter_Next(GMPyIterObject *self) {
     PyObject *result = 0;
     mpir_si temp;
     Py_ssize_t current_stop;
@@ -502,7 +502,7 @@ GMPYIter_Next(GMPYIterObject *self) {
 }
 
 static PyObject *
-GMPYIter_Repr(GMPYIterObject *self)
+GMPyIter_Repr(GMPyIterObject *self)
 {
     return Py_BuildValue("s", "<gmpy2.Iterator>");
 };
@@ -518,12 +518,12 @@ PyDoc_STRVAR(doc_xmpz_iter_bits,
 static PyObject *
 Pyxmpz_iter_bits(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    GMPYIterObject *result;
+    GMPyIterObject *result;
     Py_ssize_t start = 0, stop = -1;
 
     static char *kwlist[] = {"start", "stop", NULL };
 
-    if (!(result = GMPYIter_New()))
+    if (!(result = GMPyIter_New()))
         return NULL;
 
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "|nn", kwlist,
@@ -553,12 +553,12 @@ PyDoc_STRVAR(doc_xmpz_iter_set,
 static PyObject *
 Pyxmpz_iter_set(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    GMPYIterObject *result;
+    GMPyIterObject *result;
     Py_ssize_t start = 0, stop = -1;
 
     static char *kwlist[] = {"start", "stop", NULL };
 
-    if (!(result = GMPYIter_New()))
+    if (!(result = GMPyIter_New()))
         return NULL;
 
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "|nn", kwlist,
@@ -588,12 +588,12 @@ PyDoc_STRVAR(doc_xmpz_iter_clear,
 static PyObject *
 Pyxmpz_iter_clear(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    GMPYIterObject *result;
+    GMPyIterObject *result;
     Py_ssize_t start = 0, stop = -1;
 
     static char *kwlist[] = {"start", "stop", NULL };
 
-    if (!(result = GMPYIter_New()))
+    if (!(result = GMPyIter_New()))
         return NULL;
 
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "|nn", kwlist,
@@ -622,7 +622,7 @@ Pyxmpz_sizeof(PyObject *self, PyObject *other)
         (Pympz_AS_MPZ(self)->_mp_alloc * sizeof(mp_limb_t)));
 }
 
-static PyTypeObject GMPYIter_Type =
+static PyTypeObject GMPyIter_Type =
 {
 #ifdef PY3
     PyVarObject_HEAD_INIT(0, 0)
@@ -631,14 +631,14 @@ static PyTypeObject GMPYIter_Type =
         0,                                  /* ob_size          */
 #endif
     "gmpy2 iterator",                       /* tp_name          */
-    sizeof(GMPYIterObject),                 /* tp_basicsize     */
+    sizeof(GMPyIterObject),                 /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
-    (destructor) GMPYIter_Dealloc,          /* tp_dealloc       */
+    (destructor) GMPyIter_Dealloc,          /* tp_dealloc       */
         0,                                  /* tp_print         */
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
-    (reprfunc) GMPYIter_Repr,               /* tp_repr          */
+    (reprfunc) GMPyIter_Repr,               /* tp_repr          */
         0,                                  /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
         0,                                  /* tp_as_mapping    */
@@ -655,7 +655,7 @@ static PyTypeObject GMPYIter_Type =
         0,                                  /* tp_richcompare   */
         0,                                  /* tp_weaklistoffset*/
     PyObject_SelfIter,                      /* tp_iter          */
-    (iternextfunc)GMPYIter_Next,            /* tp_iternext      */
+    (iternextfunc)GMPyIter_Next,            /* tp_iternext      */
 };
 
 #ifdef PY3

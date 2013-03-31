@@ -88,6 +88,12 @@ GMPyContext_dealloc(GMPyContextObject *self)
 
 /* Support for global and thread local contexts. */
 
+/* Doc-string, alternate definitions below. */
+
+PyDoc_STRVAR(doc_set_context,
+"set_context(context)\n\n"
+"Activate a context object controlling MPFR and MPC arithmetic.\n");
+
 #ifdef WITHOUT_THREADS
 
 /* Return a borrowed reference to current context. */
@@ -99,10 +105,6 @@ GMPyContext_current(void)
 }
 
 #define CURRENT_CONTEXT(obj) obj = module_context;
-
-PyDoc_STRVAR(doc_set_context,
-"set_context(context)\n\n"
-"Activate a context object controlling MPFR and MPC arithmetic.\n");
 
 static PyObject *
 GMPyContext_set_context(PyObject *self, PyObject *other)
@@ -195,7 +197,6 @@ static PyObject *
 GMPyContext_set_context(PyObject *self, PyObject *other)
 {
     PyObject *dict;
-    PyObject *tl_context;
     PyThreadState *tstate;
 
     if (!GMPyContext_Check(other)) {
@@ -230,7 +231,7 @@ GMPyContext_set_context(PyObject *self, PyObject *other)
     cached_context = NULL;
     tstate = PyThreadState_GET();
     if (tstate) {
-        cached_context = (GMPyContextObject*)tl_context;
+        cached_context = (GMPyContextObject*)other;
         cached_context->tstate = tstate;
     }
 
