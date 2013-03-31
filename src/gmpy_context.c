@@ -70,6 +70,12 @@ GMPyContext_new(void)
         result->ctx.imag_round = -1;
         result->ctx.allow_complex = 0;
 #endif
+        result->ctx.template = 0;
+
+#ifndef WITHOUT_THREADS
+        result->tstate = NULL;
+#endif
+
     }
     return (PyObject*)result;
 };
@@ -79,6 +85,159 @@ GMPyContext_dealloc(GMPyContextObject *self)
 {
     PyObject_Del(self);
 };
+
+/* Support for global and thread local contexts. */
+
+#ifdef WITHOUT_THREADS
+
+/* Return a borrowed reference to current context. */
+
+static GMPyContextObject *
+GMPyContext_current(void)
+{
+    return module_context;
+}
+
+#define CURRENT_CONTEXT(obj) obj = module_context;
+
+PyDoc_STRVAR(doc_set_context,
+"set_context(context)\n\n"
+"Activate a context object controlling MPFR and MPC arithmetic.\n");
+
+static PyObject *
+GMPyContext_set_context(PyObject *self, PyObject *other)
+{
+    if (!GMPyContext_Check(other)) {
+        VALUE_ERROR("set_context() requires a context argument");
+        return NULL;
+    }
+
+    Py_DECREF((PyObject*)module_context);
+    if (other->ctx.template) {
+        module_context = GMPyContext_context_copy(other, NULL);
+    }
+    else {
+        Py_INCREF((PyObject*)other);
+        module_context = (GMPyContextObject*)other;
+    }
+    mpfr_set_emin(module_context->ctx.emin);
+    mpfr_set_emax(module_context->ctx.emax);
+    Py_RETURN_NONE;
+}
+
+#else
+
+/* Begin support for thread local contexts. */
+
+/* Get the context from the thread state dictionary. */
+static GMPyContextObject *
+current_context_from_dict(void)
+{
+    PyObject *dict;
+    PyObject *tl_context;
+    PyThreadState *tstate;
+
+    dict = PyThreadState_GetDict();
+    if (dict == NULL) {
+        RUNTIME_ERROR("cannot get thread state");
+        return NULL;
+    }
+
+    tl_context = PyDict_GetItemWithError(dict, tls_context_key);
+    if (!tl_context) {
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+
+        /* Set up a new thread local context. */
+        tl_context = GMPyContext_new();
+        if (tl_context == NULL) {
+            return NULL;
+        }
+
+        if (PyDict_SetItem(dict, tls_context_key, tl_context) < 0) {
+            Py_DECREF(tl_context);
+            return NULL;
+        }
+        Py_DECREF(tl_context);
+    }
+
+    /* Cache the context of the current thread, assuming that it
+     * will be accessed several times before a thread switch. */
+    tstate = PyThreadState_GET();
+    if (tstate) {
+        cached_context = (GMPyContextObject*)tl_context;
+        cached_context->tstate = tstate;
+    }
+
+    /* Borrowed reference with refcount==1 */
+    return (GMPyContextObject*)tl_context;
+}
+
+/* Return borrowed reference to thread local context. */
+static GMPyContextObject *
+GMPyContext_current(void)
+{
+    PyThreadState *tstate;
+
+    tstate = PyThreadState_GET();
+    if (cached_context && cached_context->tstate == tstate) {
+        return (GMPyContextObject*)cached_context;
+    }
+
+    return current_context_from_dict();
+}
+
+#define CURRENT_CONTEXT(obj) obj = GMPyContext_current()
+
+/* Set the thread local context to a new context, decrement old reference */
+static PyObject *
+GMPyContext_set_context(PyObject *self, PyObject *other)
+{
+    PyObject *dict;
+    PyObject *tl_context;
+    PyThreadState *tstate;
+
+    if (!GMPyContext_Check(other)) {
+        VALUE_ERROR("set_context() requires a context argument");
+        return NULL;
+    }
+
+    dict = PyThreadState_GetDict();
+    if (dict == NULL) {
+        RUNTIME_ERROR("cannot get thread state");
+        return NULL;
+    }
+
+    /* Make a copy if it is a template. */
+    if (((GMPyContextObject*)other)->ctx.template) {
+        other = GMPyContext_context_copy(other, NULL);
+        if (!other) {
+            return NULL;
+        }
+    }
+    else {
+        Py_INCREF(other);
+    }
+
+    if (PyDict_SetItem(dict, tls_context_key, other) < 0) {
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    /* Cache the context of the current thread, assuming that it
+     * will be accessed several times before a thread switch. */
+    cached_context = NULL;
+    tstate = PyThreadState_GET();
+    if (tstate) {
+        cached_context = (GMPyContextObject*)tl_context;
+        cached_context->tstate = tstate;
+    }
+
+    Py_DECREF(other);
+    Py_RETURN_NONE;
+}
+#endif
 
 PyDoc_STRVAR(doc_context_ieee,
 "ieee(bitwidth) -> context\n\n"
@@ -271,7 +430,10 @@ PyDoc_STRVAR(doc_get_context,
 static PyObject *
 GMPyContext_get_context(PyObject *self, PyObject *args)
 {
-    Py_INCREF((PyObject*)context);
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+    Py_XINCREF((PyObject*)context);
     return (PyObject*)context;
 }
 
@@ -286,6 +448,9 @@ GMPyContext_context_copy(PyObject *self, PyObject *other)
 
     result = (GMPyContextObject*)GMPyContext_new();
     result->ctx = ((GMPyContextObject*)self)->ctx;
+    /* If a copy is made from a template, it should no longer be
+     * considered a template. */
+    result->ctx.template = 0;
     return (PyObject*)result;
 }
 
@@ -303,6 +468,9 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
     GMPyContextManagerObject *result;
     PyObject *local_args = args;
     int arg_context = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
 #ifdef WITHMPC
     static char *kwlist[] = {
@@ -333,120 +501,122 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
 
     if (arg_context) {
-        result->new_ctx = ((GMPyContextObject*)PyTuple_GET_ITEM(args, 0))->ctx;
+        result->new_context = (GMPyContextObject*)PyTuple_GET_ITEM(args, 0);
     }
     else {
-        result->new_ctx = context->ctx;
+        result->new_context = context;
     }
-    result->old_ctx = context->ctx;
+    result->old_context = context;
+    Py_INCREF((PyObject*)(result->new_context));
+    Py_INCREF((PyObject*)(result->old_context));
 
 #ifdef WITHMPC
     if (!(PyArg_ParseTupleAndKeywords(local_args, kwargs,
             "|llliiilliiiiiiiii", kwlist,
-            &result->new_ctx.mpfr_prec,
-            &result->new_ctx.real_prec,
-            &result->new_ctx.imag_prec,
-            &result->new_ctx.mpfr_round,
-            &result->new_ctx.real_round,
-            &result->new_ctx.imag_round,
-            &result->new_ctx.emax,
-            &result->new_ctx.emin,
-            &result->new_ctx.subnormalize,
-            &result->new_ctx.trap_underflow,
-            &result->new_ctx.trap_overflow,
-            &result->new_ctx.trap_inexact,
-            &result->new_ctx.trap_invalid,
-            &result->new_ctx.trap_erange,
-            &result->new_ctx.trap_divzero,
-            &result->new_ctx.trap_expbound,
-            &result->new_ctx.allow_complex))) {
+            &result->new_context->ctx.mpfr_prec,
+            &result->new_context->ctx.real_prec,
+            &result->new_context->ctx.imag_prec,
+            &result->new_context->ctx.mpfr_round,
+            &result->new_context->ctx.real_round,
+            &result->new_context->ctx.imag_round,
+            &result->new_context->ctx.emax,
+            &result->new_context->ctx.emin,
+            &result->new_context->ctx.subnormalize,
+            &result->new_context->ctx.trap_underflow,
+            &result->new_context->ctx.trap_overflow,
+            &result->new_context->ctx.trap_inexact,
+            &result->new_context->ctx.trap_invalid,
+            &result->new_context->ctx.trap_erange,
+            &result->new_context->ctx.trap_divzero,
+            &result->new_context->ctx.trap_expbound,
+            &result->new_context->ctx.allow_complex))) {
 #else
     if (!(PyArg_ParseTupleAndKeywords(local_args, kwargs,
             "|lilliiiiiiii", kwlist,
-            &result->new_ctx.mpfr_prec,
-            &result->new_ctx.mpfr_round,
-            &result->new_ctx.emax,
-            &result->new_ctx.emin,
-            &result->new_ctx.subnormalize,
-            &result->new_ctx.trap_underflow,
-            &result->new_ctx.trap_overflow,
-            &result->new_ctx.trap_inexact,
-            &result->new_ctx.trap_invalid,
-            &result->new_ctx.trap_erange,
-            &result->new_ctx.trap_divzero,
-            &result->new_ctx.trap_expbound))) {
+            &result->new_context->ctx.mpfr_prec,
+            &result->new_context->ctx.mpfr_round,
+            &result->new_context->ctx.emax,
+            &result->new_context->ctx.emin,
+            &result->new_context->ctx.subnormalize,
+            &result->new_context->ctx.trap_underflow,
+            &result->new_context->ctx.trap_overflow,
+            &result->new_context->ctx.trap_inexact,
+            &result->new_context->ctx.trap_invalid,
+            &result->new_context->ctx.trap_erange,
+            &result->new_context->ctx.trap_divzero,
+            &result->new_context->ctx.trap_expbound))) {
 #endif
         VALUE_ERROR("invalid keyword arguments in local_context()");
         goto error;
     }
 
     /* Sanity check for values. */
-    if (result->new_ctx.mpfr_prec < MPFR_PREC_MIN ||
-        result->new_ctx.mpfr_prec > MPFR_PREC_MAX) {
+    if (result->new_context->ctx.mpfr_prec < MPFR_PREC_MIN ||
+        result->new_context->ctx.mpfr_prec > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");
         goto error;
     }
 
 #ifdef WITHMPC
-    if (!(result->new_ctx.real_prec == GMPY_DEFAULT ||
-        (result->new_ctx.real_prec >= MPFR_PREC_MIN &&
-        result->new_ctx.real_prec <= MPFR_PREC_MAX))) {
+    if (!(result->new_context->ctx.real_prec == GMPY_DEFAULT ||
+        (result->new_context->ctx.real_prec >= MPFR_PREC_MIN &&
+        result->new_context->ctx.real_prec <= MPFR_PREC_MAX))) {
         VALUE_ERROR("invalid value for real_prec");
         goto error;
     }
-    if (!(result->new_ctx.imag_prec == GMPY_DEFAULT ||
-        (result->new_ctx.imag_prec >= MPFR_PREC_MIN &&
-        result->new_ctx.imag_prec <= MPFR_PREC_MAX))) {
+    if (!(result->new_context->ctx.imag_prec == GMPY_DEFAULT ||
+        (result->new_context->ctx.imag_prec >= MPFR_PREC_MIN &&
+        result->new_context->ctx.imag_prec <= MPFR_PREC_MAX))) {
         VALUE_ERROR("invalid value for imag_prec");
         goto error;
     }
 #endif
 
-    if (!(result->new_ctx.mpfr_round == MPFR_RNDN ||
-        result->new_ctx.mpfr_round == MPFR_RNDZ ||
-        result->new_ctx.mpfr_round == MPFR_RNDU ||
-        result->new_ctx.mpfr_round == MPFR_RNDD ||
-        result->new_ctx.mpfr_round == MPFR_RNDA)) {
+    if (!(result->new_context->ctx.mpfr_round == MPFR_RNDN ||
+        result->new_context->ctx.mpfr_round == MPFR_RNDZ ||
+        result->new_context->ctx.mpfr_round == MPFR_RNDU ||
+        result->new_context->ctx.mpfr_round == MPFR_RNDD ||
+        result->new_context->ctx.mpfr_round == MPFR_RNDA)) {
         VALUE_ERROR("invalid value for round");
         goto error;
     }
 
 #ifdef WITHMPC
-    if (result->new_ctx.mpfr_round == MPFR_RNDA) {
+    if (result->new_context->ctx.mpfr_round == MPFR_RNDA) {
         /* Since RNDA is not supported for MPC, set the MPC rounding modes
          * to MPFR_RNDN.
          */
-        result->new_ctx.real_round = MPFR_RNDN;
-        result->new_ctx.imag_round = MPFR_RNDN;
+        result->new_context->ctx.real_round = MPFR_RNDN;
+        result->new_context->ctx.imag_round = MPFR_RNDN;
     }
-    if (!(result->new_ctx.real_round == MPFR_RNDN ||
-        result->new_ctx.real_round == MPFR_RNDZ ||
-        result->new_ctx.real_round == MPFR_RNDU ||
-        result->new_ctx.real_round == MPFR_RNDD ||
-        result->new_ctx.real_round == GMPY_DEFAULT)) {
+    if (!(result->new_context->ctx.real_round == MPFR_RNDN ||
+        result->new_context->ctx.real_round == MPFR_RNDZ ||
+        result->new_context->ctx.real_round == MPFR_RNDU ||
+        result->new_context->ctx.real_round == MPFR_RNDD ||
+        result->new_context->ctx.real_round == GMPY_DEFAULT)) {
         VALUE_ERROR("invalid value for real_round");
         goto error;
     }
-    if (!(result->new_ctx.imag_round == MPFR_RNDN ||
-        result->new_ctx.imag_round == MPFR_RNDZ ||
-        result->new_ctx.imag_round == MPFR_RNDU ||
-        result->new_ctx.imag_round == MPFR_RNDD ||
-        result->new_ctx.imag_round == GMPY_DEFAULT)) {
+    if (!(result->new_context->ctx.imag_round == MPFR_RNDN ||
+        result->new_context->ctx.imag_round == MPFR_RNDZ ||
+        result->new_context->ctx.imag_round == MPFR_RNDU ||
+        result->new_context->ctx.imag_round == MPFR_RNDD ||
+        result->new_context->ctx.imag_round == GMPY_DEFAULT)) {
         VALUE_ERROR("invalid value for imag_round");
         goto error;
     }
 #endif
 
-    if (!(result->new_ctx.emin < 0 && result->new_ctx.emax > 0)) {
+    if (!(result->new_context->ctx.emin < 0 && result->new_context->ctx.emax > 0)) {
         VALUE_ERROR("invalid values for emin and/or emax");
         goto error;
     }
 
-    if (mpfr_set_emin(result->new_ctx.emin)) {
+    if (mpfr_set_emin(result->new_context->ctx.emin)) {
         VALUE_ERROR("invalid value for emin");
         goto error;
     }
-    if (mpfr_set_emax(result->new_ctx.emax)) {
+    if (mpfr_set_emax(result->new_context->ctx.emax)) {
         VALUE_ERROR("invalid value for emax");
         goto error;
     }
@@ -690,85 +860,72 @@ GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_set_context,
-"set_context(context)\n\n"
-"Activate a context object controlling MPFR and MPC arithmetic.\n");
-
-static PyObject *
-GMPyContext_set_context(PyObject *self, PyObject *other)
-{
-    if (GMPyContext_Check(other)) {
-        Py_INCREF((PyObject*)other);
-        Py_DECREF((PyObject*)context);
-        context = (GMPyContextObject*)other;
-        mpfr_set_emin(context->ctx.emin);
-        mpfr_set_emax(context->ctx.emax);
-        Py_RETURN_NONE;
-    }
-    else {
-        VALUE_ERROR("set_context() requires a context argument");
-        return NULL;
-    }
-}
-
 static PyObject *
 GMPyContextManager_enter(PyObject *self, PyObject *args)
 {
-    GMPyContextObject *result;
+    PyObject *temp;
 
-    if (!(result = (GMPyContextObject*)GMPyContext_new()))
+    temp = GMPyContext_set_context(NULL,
+                    (PyObject*)((GMPyContextManagerObject*)self)->new_context);
+    if (!temp)
         return NULL;
+    Py_DECREF(temp);
 
-    result->ctx = ((GMPyContextManagerObject*)self)->new_ctx;
-    Py_DECREF((PyObject*)context);
-    context = (GMPyContextObject*)result;
-    Py_INCREF((PyObject*)context);
-    mpfr_set_emin(context->ctx.emin);
-    mpfr_set_emax(context->ctx.emax);
-    return (PyObject*)result;
+    mpfr_set_emin(((GMPyContextManagerObject*)self)->new_context->ctx.emin);
+    mpfr_set_emax(((GMPyContextManagerObject*)self)->new_context->ctx.emax);
+
+    Py_INCREF((PyObject*)(((GMPyContextManagerObject*)self)->new_context));
+    return (PyObject*)(((GMPyContextManagerObject*)self)->new_context);
 }
 
 static PyObject *
 GMPyContextManager_exit(PyObject *self, PyObject *args)
 {
-    GMPyContextObject *result;
+    PyObject *temp;
 
-    if (!(result = (GMPyContextObject*)GMPyContext_new()))
+    temp = GMPyContext_set_context(NULL,
+                    (PyObject*)((GMPyContextManagerObject*)self)->old_context);
+    if (!temp)
         return NULL;
+    Py_DECREF(temp);
 
-    result->ctx = ((GMPyContextManagerObject*)self)->old_ctx;
-    Py_DECREF((PyObject*)context);
-    context = (GMPyContextObject*)result;
-    mpfr_set_emin(context->ctx.emin);
-    mpfr_set_emax(context->ctx.emax);
+    mpfr_set_emin(((GMPyContextManagerObject*)self)->old_context->ctx.emin);
+    mpfr_set_emax(((GMPyContextManagerObject*)self)->old_context->ctx.emax);
     Py_RETURN_NONE;
 }
 
 static PyObject *
 GMPyContext_enter(PyObject *self, PyObject *args)
 {
-    GMPyContextObject *result;
+    PyObject *temp;
+    PyObject *result;
 
-    if (!(result = (GMPyContextObject*)GMPyContext_new()))
+    result = GMPyContext_context_copy(self, NULL);
+    if (!result)
         return NULL;
 
-    result->ctx = ((GMPyContextObject*)self)->ctx;
-    Py_DECREF((PyObject*)context);
-    context = (GMPyContextObject*)result;
-    Py_INCREF((PyObject*)context);
-    mpfr_set_emin(context->ctx.emin);
-    mpfr_set_emax(context->ctx.emax);
-    return (PyObject*)result;
+    temp = GMPyContext_set_context(NULL, result);
+    if (!temp)
+        return NULL;
+    Py_DECREF(temp);
+
+    mpfr_set_emin(((GMPyContextObject*)result)->ctx.emin);
+    mpfr_set_emax(((GMPyContextObject*)result)->ctx.emax);
+    return result;
 }
 
 static PyObject *
 GMPyContext_exit(PyObject *self, PyObject *args)
 {
-    Py_DECREF((PyObject*)context);
-    context = (GMPyContextObject*)self;
-    Py_INCREF((PyObject*)context);
-    mpfr_set_emin(context->ctx.emin);
-    mpfr_set_emax(context->ctx.emax);
+    PyObject *temp;
+
+    temp = GMPyContext_set_context(NULL, self);
+    if (!temp)
+        return NULL;
+    Py_DECREF(temp);
+
+    mpfr_set_emin(((GMPyContextObject*)self)->ctx.emin);
+    mpfr_set_emax(((GMPyContextObject*)self)->ctx.emax);
     Py_RETURN_NONE;
 }
 

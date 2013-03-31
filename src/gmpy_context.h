@@ -59,24 +59,34 @@ typedef struct {
     mpfr_rnd_t imag_round;   /* current rounding mode for Im(MPC) */
     int allow_complex;       /* if 1, allow mpfr functions to return an mpc */
 #endif
+    int template;            /* if 1, this context is a template */
 } gmpy_context;
 
 typedef struct {
     PyObject_HEAD
     gmpy_context ctx;
+#ifndef WITHOUT_THREADS
+    PyThreadState *tstate;
+#endif
 } GMPyContextObject;
 
 typedef struct {
     PyObject_HEAD
-    gmpy_context new_ctx;    /* Context that will be returned when __enter__
-                              * is called. */
-    gmpy_context old_ctx;    /* Context that will restored when __exit__ is
-                              * is called. */
+    GMPyContextObject *new_context; /* Context that will be returned when
+                                     * __enter__ is called. */
+    GMPyContextObject *old_context; /* Context that will restored when
+                                     * __exit__ is called. */
 } GMPyContextManagerObject;
 
 
 static PyTypeObject GMPyContext_Type;
 static PyTypeObject GMPyContextManager_Type;
+
+#ifdef WITHOUT_THREADS
+#define CURRENT_CONTEXT(obj) obj = module_context;
+#else
+#define CURRENT_CONTEXT(obj) obj = GMPyContext_current()
+#endif
 
 #define GMPyContext_Check(v) (((PyObject*)v)->ob_type == &GMPyContext_Type)
 #define GMPyContextManager_Check(v) (((PyObject*)v)->ob_type == &GMPyContextManager_Type)
@@ -103,6 +113,8 @@ static PyObject * GMPyContext_local_context(PyObject *self, PyObject *args, PyOb
 static PyObject * GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject * GMPyContext_set_context(PyObject *self, PyObject *other);
 static PyObject * GMPyContext_clear_flags(PyObject *self, PyObject *args);
+static GMPyContextObject * GMPyContext_current(void);
+static PyObject * GMPyContext_context_copy(PyObject *self, PyObject *other);
 
 #ifdef __cplusplus
 }

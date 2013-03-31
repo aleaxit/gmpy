@@ -75,6 +75,11 @@ Pybasic_add(PyObject *a, PyObject *b)
 #endif
     mpir_si temp_si;
     int overflow;
+#ifdef WITHMPFR
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+#endif
 
     if (CHECK_MPZANY(a)) {
         if (!(rz = (PympzObject*)Pympz_new()))
@@ -304,6 +309,11 @@ Pybasic_sub(PyObject *a, PyObject *b)
 #endif
     mpir_si temp_si;
     int overflow;
+#ifdef WITHMPFR
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+#endif
 
     if (CHECK_MPZANY(a)) {
         if (!(rz = (PympzObject*)Pympz_new()))
@@ -578,6 +588,11 @@ Pybasic_mul(PyObject *a, PyObject *b)
 #endif
     mpir_si temp_si;
     int overflow;
+#ifdef WITHMPFR
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+#endif
 
     if (CHECK_MPZANY(a)) {
         if (!(rz = (PympzObject*)Pympz_new()))
@@ -849,6 +864,11 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
 #endif
     mpir_si temp_si;
     int overflow;
+#ifdef WITHMPFR
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+#endif
 
     if (CHECK_MPZANY(a)) {
         if (!(rz = (PympzObject*)Pympz_new()))
@@ -1109,6 +1129,11 @@ Pybasic_truediv(PyObject *a, PyObject *b)
     PympcObject *rc = 0, *pac = 0, *pbc = 0;
 #endif
     mpq_t tempq;
+#ifdef WITHMPFR
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+#endif
 
 #ifdef WITHMPFR
     if (Pympfr_CheckAndExp(a)) {
@@ -1353,6 +1378,11 @@ Pybasic_div2(PyObject *a, PyObject *b)
 #endif
     mpir_si temp_si;
     int overflow;
+#ifdef WITHMPFR
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+#endif
 
     /* Use floordiv for integer types. */
 
@@ -1608,6 +1638,11 @@ Pybasic_rem(PyObject *a, PyObject *b)
 #endif
     mpir_si temp_si;
     int overflow;
+#ifdef WITHMPFR
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+#endif
 
     if (CHECK_MPZANY(a)) {
         if (!(rz = (PympzObject*)Pympz_new()))
@@ -1798,6 +1833,11 @@ Pybasic_divmod(PyObject *a, PyObject *b)
 #endif
     mpir_si temp_si;
     int overflow;
+#ifdef WITHMPFR
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+#endif
 
     if (CHECK_MPZANY(a)) {
         if (!( r= PyTuple_New(2)) ||
@@ -1976,11 +2016,11 @@ Pybasic_divmod(PyObject *a, PyObject *b)
                     mpfr_set_zero(rf->f, mpfr_sgn(pbf->f));
                 }
                 else if ((mpfr_signbit(paf->f)) != (mpfr_signbit(pbf->f))) {
-                    mpfr_set_si(qf->f, -1, context->ctx.mpfr_round);
+                    mpfr_set_si(qf->f, -1, MPFR_RNDN);
                     mpfr_set_inf(rf->f, mpfr_sgn(pbf->f));
                 }
                 else {
-                    mpfr_set_si(qf->f, 0, context->ctx.mpfr_round);
+                    mpfr_set_si(qf->f, 0, MPFR_RNDN);
                     rf->rc = mpfr_set(rf->f, paf->f, context->ctx.mpfr_round);
                 }
             }

@@ -170,6 +170,7 @@ typedef long                mpir_si;
 #define ZERO_ERROR(msg) PyErr_SetString(PyExc_ZeroDivisionError, msg)
 #define SYSTEM_ERROR(msg) PyErr_SetString(PyExc_SystemError, msg)
 #define OVERFLOW_ERROR(msg) PyErr_SetString(PyExc_OverflowError, msg)
+#define RUNTIME_ERROR(msg) PyErr_SetString(PyExc_RuntimeError, msg)
 
 #define GMPY_DEFAULT -1
 

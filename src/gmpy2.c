@@ -318,6 +318,9 @@
  *   Added copy() method to contexts (casevh)
  *   get_context() no longer supports keyword arguments (casevh)
  *
+ *   2.1.0
+ *   Add thread-safe contexts (casevh)
+ *
  ************************************************************************
  *
  * Discussion on sizes of C integer types.
@@ -425,7 +428,16 @@ static int in_pympfrcache;
 
 /* Support for context manager. */
 
-static GMPyContextObject *context = NULL;
+#ifdef WITHOUT_THREADS
+/* Use a module-level context. */
+static GMPyContextObject *module_context = NULL;
+#else
+/* Key for thread state dictionary */
+static PyObject *tls_context_key = NULL;
+/* Invariant: NULL or the most recently accessed thread local context */
+static GMPyContextObject *cached_context = NULL;
+#endif
+
 
 /* Define gmpy2 specific errors for mpfr and mpc data types. No change will
  * be made the exceptions raised by mpz, xmpz, and mpq.
@@ -790,6 +802,13 @@ gmpy_free( void *ptr, size_t size)
     GMPY_FREE(ptr);
 }
 
+
+/* TODO: no checking for exceptions is done. This really needs to be
+ *       fixed.
+ *
+ * TODO: this should be combined with PyInit_gmpy2.
+ */
+
 static void
 _PyInitGMP(void)
 {
@@ -805,7 +824,17 @@ _PyInitGMP(void)
     set_pyxmpzcache();
 #ifdef WITHMPFR
     set_pympfrcache();
-    context = (GMPyContextObject*)GMPyContext_new();
+
+#ifndef WITHOUT_THREADS
+    module_context = (GMPyContextObject*)GMPyContext_new();
+    Py_INCREF(Py_False);
+    PyModule_AddObject(gmpy_module, "HAVE_THREADS", Py_False);
+#else
+    tls_context_key = PyUnicode_FromString("___GMPY2_CTX__");
+    Py_INCREF(Py_True);
+    PyModule_AddObject(gmpy_module, "HAVE_THREADS", Py_True);
+#endif
+
     GMPyExc_GmpyError = PyErr_NewException("gmpy2.gmpyError",
                                            PyExc_ArithmeticError, NULL);
     GMPyExc_Erange = PyErr_NewException("gmpy2.RangeError",
