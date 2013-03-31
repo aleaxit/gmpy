@@ -744,6 +744,11 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     mpz_t tempz;
     PyObject *tempa = 0, *tempb = 0;
     PyObject *result = 0;
+#ifdef WITHMPFR
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+#endif
 
     if (CHECK_MPZANY(a)) {
         if (PyIntOrLong_Check(b)) {

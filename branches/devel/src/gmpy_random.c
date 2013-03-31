@@ -199,6 +199,9 @@ static PyObject *
 GMPY_mpfr_random(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 1) {
         TYPE_ERROR("mpfr_random() requires 1 argument");
@@ -228,6 +231,9 @@ GMPY_mpfr_grandom(PyObject *self, PyObject *args)
 {
     PympfrObject *result1, *result2;
     PyObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 1) {
         TYPE_ERROR("mpfr_grandom() requires 1 argument");

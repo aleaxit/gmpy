@@ -242,6 +242,9 @@ static PyObject *
 Pympfr_new(mpfr_prec_t bits)
 {
     PympfrObject *self;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (!bits)
         bits = context->ctx.mpfr_prec;
@@ -306,6 +309,9 @@ static PyObject *
 Pympc_new(mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     PympcObject *self;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (!rprec) rprec = GET_REAL_PREC(context);
     if (!iprec) iprec = GET_IMAG_PREC(context);

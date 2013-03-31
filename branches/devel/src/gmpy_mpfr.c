@@ -79,6 +79,9 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
     mpfr_prec_t bits = 0;
     static char *kwlist_s[] = {"s", "precision", "base", NULL};
     static char *kwlist_n[] = {"n", "precision", NULL};
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     argc = PyTuple_Size(args);
     if ((argc < 0) || (argc > 3)) {
@@ -88,7 +91,7 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
 
     if (argc == 0) {
         if ((result = (PympfrObject*)Pympfr_new(0))) {
-            mpfr_set_ui(result->f, 0, context->ctx.mpfr_round);
+            mpfr_set_ui(result->f, 0, MPFR_RNDN);
         }
         return (PyObject*)result;
     }
@@ -198,6 +201,9 @@ static PyObject *
 Pympfr_pos(PympfrObject *self)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (!(result = (PympfrObject*)Pympfr_new(mpfr_get_prec(self->f))))
         return NULL;
@@ -268,6 +274,9 @@ Pympfr_get_exp(PyObject *self, PyObject *other)
 {
     PyObject *result = 0;
     Py_ssize_t exp;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("get_exp() requires 'mpfr' argument");
 
@@ -304,6 +313,9 @@ Pympfr_set_exp(PyObject *self, PyObject *args)
 {
     PympfrObject *result = 0;
     long exp = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (!PyArg_ParseTuple(args, "O&l", Pympfr_convert_arg, &self, &exp)) {
         TYPE_ERROR("set_exp() requires 'mpfr', 'integer' arguments");
@@ -338,6 +350,9 @@ Pympfr_set_sign(PyObject *self, PyObject *args)
     PympfrObject *result = 0;
     PyObject *boolean = 0;
     int s;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (!PyArg_ParseTuple(args, "O&O", Pympfr_convert_arg, &self, &boolean)) {
         TYPE_ERROR("set_sign() requires 'mpfr', 'boolean' arguments");
@@ -374,6 +389,9 @@ Pympfr_copy_sign(PyObject *self, PyObject *args)
 {
     PympfrObject *result = 0;
     PyObject *other = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (!PyArg_ParseTuple(args, "O&O&", Pympfr_convert_arg, &self,
                           Pympfr_convert_arg, &other)) {
@@ -397,6 +415,9 @@ Pympfr_div_2exp(PyObject *self, PyObject *args)
 {
     PympfrObject *result = 0;
     unsigned long exp = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (!PyArg_ParseTuple(args, "O&k", Pympfr_convert_arg, &self, &exp)) {
         TYPE_ERROR("div_2exp() requires 'mpfr', 'integer' arguments");
@@ -419,6 +440,9 @@ Pympfr_mul_2exp(PyObject *self, PyObject *args)
 {
     PympfrObject *result = 0;
     unsigned long exp = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (!PyArg_ParseTuple(args, "O&k", Pympfr_convert_arg, &self, &exp)) {
         TYPE_ERROR("mul_2exp() requires 'mpfr', 'integer' arguments");
@@ -800,6 +824,9 @@ Pympfr_pow(PyObject *base, PyObject *exp, PyObject *m)
 #ifdef WITHMPC
     PympcObject *mpc_result;
 #endif
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (m != Py_None) {
         TYPE_ERROR("pow() 3rd argument not allowed unless all arguments are integers");
@@ -873,6 +900,8 @@ Pympfr_##NAME(PyObject *self, PyObject *args, PyObject *keywds) \
     PympfrObject *result; \
     mpfr_prec_t bits = 0; \
     static char *kwlist[] = {"precision", NULL}; \
+    GMPyContextObject *context; \
+    CURRENT_CONTEXT(context); \
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "|l", kwlist, &bits)) return NULL; \
     if ((result = (PympfrObject*)Pympfr_new(bits))) { \
         mpfr_clear_flags(); \
@@ -916,6 +945,9 @@ static PyObject *
 Pympfr_sqrt(PyObject *self, PyObject *other)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("sqrt() requires 'mpfr' argument");
 
@@ -946,6 +978,9 @@ static PyObject *
 Pympfr_rec_sqrt(PyObject *self, PyObject *other)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("rec_sqrt() requires 'mpfr' argument");
 
@@ -968,6 +1003,9 @@ Pympfr_root(PyObject *self, PyObject *args)
 {
     long n;
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_REQ_CLONG(&n, "root() requires 'mpfr','int' arguments");
 
@@ -994,8 +1032,12 @@ PyDoc_STRVAR(doc_g_mpfr_round2,
 static PyObject *
 Pympfr_round2(PyObject *self, PyObject *args)
 {
-    mpfr_prec_t prec = context->ctx.mpfr_prec;
+    mpfr_prec_t prec;
     PympfrObject *result = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+    prec = context->ctx.mpfr_prec;
 
     PARSE_ONE_MPFR_OPT_CLONG(&prec,
             "round2() requires 'mpfr',['int'] arguments");
@@ -1114,6 +1156,9 @@ Pympfr_reldiff(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     PyObject *other;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "reldiff() requires 'mpfr','mpfr' arguments");
 
@@ -1138,6 +1183,9 @@ static PyObject *
 Pympfr_sign(PyObject *self, PyObject *other)
 {
     long sign;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("sign() requires 'mpfr' argument");
 
@@ -1160,6 +1208,8 @@ static PyObject * \
 Py##NAME(PympfrObject *x) \
 { \
     PympfrObject *r; \
+    GMPyContextObject *context; \
+    CURRENT_CONTEXT(context); \
     if (!(r = (PympfrObject*)Pympfr_new(0))) \
         return NULL; \
     if (Pympfr_CheckAndExp(x)) { \
@@ -1187,6 +1237,8 @@ static PyObject * \
 Pympfr_##NAME(PyObject* self, PyObject *other) \
 { \
     PympfrObject *result; \
+    GMPyContextObject *context; \
+    CURRENT_CONTEXT(context); \
     PARSE_ONE_MPFR_OTHER(#NAME "() requires 'mpfr' argument"); \
     if (!(result = (PympfrObject*)Pympfr_new(0))) goto done; \
     mpfr_clear_flags(); \
@@ -1235,6 +1287,9 @@ static PyObject *
 Pympfr_round_away(PyObject* self, PyObject *other)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("round_away() requires 'mpfr' argument");
     if (!(result = (PympfrObject*)Pympfr_new(0)))
@@ -1249,6 +1304,8 @@ static PyObject * \
 Pympfr_##NAME(PyObject* self, PyObject *other) \
 { \
     PympfrObject *result; \
+    GMPyContextObject *context; \
+    CURRENT_CONTEXT(context); \
     PARSE_ONE_MPFR_OTHER(#NAME "() requires 'mpfr' argument"); \
     if (!(result = (PympfrObject*)Pympfr_new(0))) goto done; \
     mpfr_clear_flags(); \
@@ -1311,6 +1368,9 @@ Pympfr_modf(PyObject *self, PyObject *other)
     PympfrObject *s, *c;
     PyObject *result;
     int code;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("modf() requires 'mpfr' argument");
 
@@ -1415,6 +1475,9 @@ static PyObject *
 Pympfr_acos(PyObject* self, PyObject *other)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("acos() requires 'mpfr' argument");
 
@@ -1442,6 +1505,9 @@ static PyObject *
 Pympfr_asin(PyObject* self, PyObject *other)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("asin() requires 'mpfr' argument");
 
@@ -1499,6 +1565,9 @@ static PyObject *
 Pympfr_atanh(PyObject* self, PyObject *other)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("atanh() requires 'mpfr' argument");
 
@@ -1570,6 +1639,9 @@ Pympfr_lgamma(PyObject* self, PyObject *other)
     PyObject *result;
     PympfrObject *value;
     int signp = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("lgamma() requires 'mpfr' argument");
 
@@ -1644,6 +1716,9 @@ Pympfr_jn(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     long n = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_REQ_CLONG(&n, "jn() requires 'mpfr','int' arguments");
 
@@ -1677,6 +1752,9 @@ Pympfr_yn(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     long n = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_REQ_CLONG(&n, "yn() requires 'mpfr','int' arguments");
 
@@ -1699,6 +1777,9 @@ static PyObject *
 Pympfr_add_fast(PyObject *x, PyObject *y)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (Pympfr_CheckAndExp(x) && Pympfr_CheckAndExp(y)) {
         if (!(result = (PympfrObject*)Pympfr_new(0))) {
@@ -1721,6 +1802,9 @@ Pympfr_add(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     PyObject *other;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "add() requires 'mpfr','mpfr' arguments");
 
@@ -1737,6 +1821,9 @@ static PyObject *
 Pympfr_sub_fast(PyObject *x, PyObject *y)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (Pympfr_CheckAndExp(x) && Pympfr_CheckAndExp(y)) {
         if (!(result = (PympfrObject*)Pympfr_new(0))) {
@@ -1759,6 +1846,9 @@ Pympfr_sub(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     PyObject *other;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "sub() requires 'mpfr','mpfr' arguments");
 
@@ -1775,6 +1865,9 @@ static PyObject *
 Pympfr_mul_fast(PyObject *x, PyObject *y)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (Pympfr_CheckAndExp(x) && Pympfr_CheckAndExp(y)) {
         if (!(result = (PympfrObject*)Pympfr_new(0))) {
@@ -1797,6 +1890,9 @@ Pympfr_mul(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     PyObject *other;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "mul() requires 'mpfr','mpfr' arguments");
 
@@ -1813,6 +1909,9 @@ static PyObject *
 Pympfr_truediv_fast(PyObject *x, PyObject *y)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (Pympfr_CheckAndExp(x) && Pympfr_CheckAndExp(y)) {
         if (!(result = (PympfrObject*)Pympfr_new(0))) {
@@ -1835,6 +1934,9 @@ static PyObject *
 Pympfr_div2_fast(PyObject *x, PyObject *y)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (Pympfr_CheckAndExp(x) && Pympfr_CheckAndExp(y)) {
         if (!(result = (PympfrObject*)Pympfr_new(0))) {
@@ -1858,6 +1960,9 @@ Pympfr_div(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     PyObject *other;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "div() requires 'mpfr','mpfr' arguments");
 
@@ -1879,6 +1984,9 @@ Pympfr_fmod(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     PyObject *other;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "fmod() requires 'mpfr','mpfr' arguments");
 
@@ -1901,6 +2009,9 @@ Pympfr_remainder(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     PyObject *other;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "remainder() requires 'mpfr','mpfr' arguments");
 
@@ -1924,6 +2035,9 @@ Pympfr_remquo(PyObject* self, PyObject *args)
     PyObject *result, *other;
     PympfrObject *value;
     long quobits = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "remquo() requires 'mpfr', 'mpfr' argument");
 
@@ -1964,6 +2078,9 @@ Pympfr_frexp(PyObject *self, PyObject *other)
     PyObject *result;
     PympfrObject *value;
     mpfr_exp_t exp = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("frexp() requires 'mpfr' argument");
 
@@ -2002,6 +2119,9 @@ Pympfr_atan2(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     PyObject *other;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "atan2() requires 'mpfr','mpfr' arguments");
 
@@ -2023,6 +2143,9 @@ Pympfr_agm(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     PyObject *other;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "agm() requires 'mpfr','mpfr' arguments");
 
@@ -2044,6 +2167,9 @@ Pympfr_hypot(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     PyObject *other;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "hypot() requires 'mpfr','mpfr' arguments");
 
@@ -2072,6 +2198,9 @@ Pympfr_max2(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     PyObject *other;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "max2() requires 'mpfr','mpfr' arguments");
 
@@ -2100,6 +2229,9 @@ Pympfr_min2(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     PyObject *other;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "min2() requires 'mpfr','mpfr' arguments");
 
@@ -2121,6 +2253,9 @@ Pympfr_nexttoward(PyObject *self, PyObject *args)
 {
     PympfrObject *result;
     PyObject *other;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "next_toward() requires 'mpfr','mpfr' arguments");
 
@@ -2142,6 +2277,9 @@ static PyObject *
 Pympfr_nextabove(PyObject *self, PyObject *other)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("next_above() requires 'mpfr' argument");
 
@@ -2163,6 +2301,9 @@ static PyObject *
 Pympfr_nextbelow(PyObject *self, PyObject *other)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("next_below() requires 'mpfr' argument");
 
@@ -2182,6 +2323,9 @@ Pympfr_sin_cos(PyObject *self, PyObject *other)
     PympfrObject *s, *c;
     PyObject *result;
     int code;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("sin_cos() requires 'mpfr' argument");
 
@@ -2228,6 +2372,9 @@ Pympfr_sinh_cosh(PyObject *self, PyObject *other)
     PympfrObject *s, *c;
     PyObject *result;
     int code;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("sinh_cosh() requires 'mpfr' argument");
 
@@ -2268,6 +2415,9 @@ static PyObject *
 Pympfr_fma(PyObject *self, PyObject *args)
 {
     PympfrObject *result, *x, *y, *z;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 3) {
         TYPE_ERROR("fma() requires 'mpfr','mpfr','mpfr' arguments.");
@@ -2305,6 +2455,9 @@ static PyObject *
 Pympfr_fms(PyObject *self, PyObject *args)
 {
     PympfrObject *result, *x, *y, *z;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 3) {
         TYPE_ERROR("fms() requires 'mpfr','mpfr','mpfr' arguments.");
@@ -2348,6 +2501,9 @@ Pympfr_factorial(PyObject *self, PyObject *other)
 {
     PympfrObject *result;
     long n;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     n = clong_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
@@ -2424,6 +2580,9 @@ static PyObject *
 Pympfr_check_range(PyObject *self, PyObject *other)
 {
     PympfrObject *result = NULL;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (self && Pympfr_Check(self)) {
         if ((result = (PympfrObject*)Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(self))))) {
@@ -2465,6 +2624,9 @@ Pympfr_fsum(PyObject *self, PyObject *other)
     mpfr_ptr *tab;
     int errcode;
     Py_ssize_t i, seq_length = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (!(result = (PympfrObject*)Pympfr_new(0)))
         return NULL;
@@ -2523,6 +2685,9 @@ static PyObject *
 Pympfr_degrees(PyObject *self, PyObject *other)
 {
     PympfrObject *result, *temp;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("degrees() requires 'mpfr' argument");
 
@@ -2551,6 +2716,9 @@ static PyObject *
 Pympfr_radians(PyObject *self, PyObject *other)
 {
     PympfrObject *result, *temp;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("radians() requires 'mpfr' argument");
 

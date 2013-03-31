@@ -97,6 +97,9 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
     static char *kwlist_c[] = {"c", "precision", NULL};
     static char *kwlist_r[] = {"r", "i", "precision", NULL};
     static char *kwlist_s[] = {"s", "precision", "base", NULL};
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     argc = PyTuple_Size(args);
 
@@ -198,7 +201,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
         }
         else {
             if ((tempreal = (PympfrObject*)Pympfr_new(rbits))) {
-                mpfr_set_ui(Pympfr_AS_MPFR(tempreal), 0, context->ctx.mpfr_round);
+                mpfr_set_ui(Pympfr_AS_MPFR(tempreal), 0, MPFR_RNDN);
             }
         }
 
@@ -207,7 +210,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
         }
         else {
             if ((tempimag = (PympfrObject*)Pympfr_new(ibits))) {
-                mpfr_set_ui(Pympfr_AS_MPFR(tempimag), 0, context->ctx.mpfr_round);
+                mpfr_set_ui(Pympfr_AS_MPFR(tempimag), 0, MPFR_RNDN);
             }
         }
 
@@ -515,6 +518,9 @@ Pympc_abs(PyObject *self)
 {
     PympfrObject *result = 0;
     PympcObject *tempx = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     result = (PympfrObject*)Pympfr_new(0);
     tempx = Pympc_From_Complex(self, 0, 0);
@@ -545,6 +551,9 @@ static PyObject *
 Pympc_neg(PympcObject *self)
 {
     PympcObject *result = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (!(result = (PympcObject*)Pympc_new(0, 0)))
         return NULL;
@@ -564,6 +573,9 @@ static PyObject *
 Pympc_pos(PympcObject *self)
 {
     PympcObject *result = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (!(result = Pympc_From_Complex((PyObject*)self, 0, 0))) {
         SYSTEM_ERROR("__pos__ requires 'mpc' argument");
@@ -579,6 +591,9 @@ static PyObject *
 Pympc_sqr(PyObject* self, PyObject *other)
 {
     PympcObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPC_OTHER("square() requires 'mpc' argument");
 
@@ -598,6 +613,9 @@ static PyObject *
 Pympc_pow(PyObject *base, PyObject *exp, PyObject *m)
 {
     PympcObject *tempb, *tempe, *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (m != Py_None) {
         TYPE_ERROR("pow() 3rd argument not allowed unless all arguments are integers");
@@ -660,6 +678,9 @@ static PyObject *
 Pympc_conjugate(PyObject *self, PyObject *args)
 {
     PympcObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPC_ARGS("conjugate() requires 'mpc' argument");
 
@@ -700,6 +721,9 @@ static PyObject *
 Pympc_getimag_attrib(PympcObject *self, void *closure)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if ((result = (PympfrObject*)Pympfr_new(0)))
         mpc_imag(result->f, self->c, context->ctx.mpfr_round);
@@ -712,6 +736,9 @@ static PyObject *
 Pympc_getreal_attrib(PympcObject *self, void *closure)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if ((result = (PympfrObject*)Pympfr_new(0)))
         mpc_real(result->f, self->c, context->ctx.mpfr_round);
@@ -771,6 +798,9 @@ static PyObject *
 Pympc_phase(PyObject *self, PyObject *other)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPC_OTHER("phase() requires 'mpc' argument");
 
@@ -805,6 +835,9 @@ static PyObject *
 Pympc_norm(PyObject *self, PyObject *other)
 {
     PympfrObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPC_OTHER("norm() requires 'mpc' argument");
 
@@ -839,6 +872,9 @@ static PyObject *
 Pympc_polar(PyObject *self, PyObject *other)
 {
     PyObject *abs, *phase, *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPC_OTHER("norm() requires 'mpc' argument");
 
@@ -873,6 +909,9 @@ Pympc_rect(PyObject *self, PyObject *args)
 {
     PyObject *other;
     PympcObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "rect() requires 'mpfr','mpfr' arguments");
 
@@ -904,6 +943,9 @@ static PyObject *
 Pympc_proj(PyObject *self, PyObject *other)
 {
     PympcObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPC_OTHER("proj() requires 'mpc' argument");
 
@@ -924,6 +966,8 @@ static PyObject * \
 Pympc_##NAME(PyObject* self, PyObject *other) \
 { \
     PympcObject *result; \
+    GMPyContextObject *context; \
+    CURRENT_CONTEXT(context); \
     PARSE_ONE_MPC_OTHER(#NAME "() requires 'mpc' argument"); \
     if (!(result = (PympcObject*)Pympc_new(0, 0))) { \
         Py_DECREF(self); \
@@ -972,6 +1016,9 @@ Pympc_sin_cos(PyObject *self, PyObject *other)
     PympcObject *s, *c;
     PyObject *result;
     int code;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPC_OTHER("sin_cos() requires 'mpc' argument");
 
@@ -1011,6 +1058,9 @@ static PyObject *
 Pympc_fma(PyObject *self, PyObject *args)
 {
     PympcObject *result, *x, *y, *z;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 3) {
         TYPE_ERROR("fma() requires 'mpc','mpc','mpc' arguments.");
@@ -1046,6 +1096,9 @@ static PyObject *
 Pympc_fms(PyObject *self, PyObject *args)
 {
     PympcObject *result, *x, *y, *z;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 3) {
         TYPE_ERROR("fms() requires 'mpc','mpc','mpc' arguments.");
@@ -1083,6 +1136,9 @@ Pympc_div_2exp(PyObject *self, PyObject *args)
 {
     PympcObject *result = 0;
     unsigned long exp = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (!PyArg_ParseTuple(args, "O&k", Pympc_convert_arg, &self, &exp)) {
         TYPE_ERROR("div_2exp() requires 'mpc', 'int' arguments");
@@ -1106,6 +1162,9 @@ Pympc_mul_2exp(PyObject *self, PyObject *args)
 {
     PympcObject *result = 0;
     unsigned long exp = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (!PyArg_ParseTuple(args, "O&k", Pympc_convert_arg, &self, &exp)) {
         TYPE_ERROR("mul_2exp() requires 'mpc', 'int' arguments");
@@ -1149,6 +1208,9 @@ static PyObject *
 Pympc_add_fast(PyObject *x, PyObject *y)
 {
     PympcObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
         if (!(result = (PympcObject*)Pympc_new(0, 0))) {
@@ -1171,6 +1233,9 @@ Pympc_add(PyObject *self, PyObject *args)
 {
     PympcObject *result;
     PyObject *other;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPC_ARGS(other, "add() requires 'mpc','mpc' arguments");
 
@@ -1191,6 +1256,9 @@ static PyObject *
 Pympc_sub_fast(PyObject *x, PyObject *y)
 {
     PympcObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
         if (!(result = (PympcObject*)Pympc_new(0, 0))) {
@@ -1213,6 +1281,9 @@ Pympc_sub(PyObject *self, PyObject *args)
 {
     PympcObject *result;
     PyObject *other;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPC_ARGS(other, "sub() requires 'mpc','mpc' arguments");
 
@@ -1233,6 +1304,9 @@ static PyObject *
 Pympc_mul_fast(PyObject *x, PyObject *y)
 {
     PympcObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
         if (!(result = (PympcObject*)Pympc_new(0, 0))) {
@@ -1255,6 +1329,9 @@ Pympc_mul(PyObject *self, PyObject *args)
 {
     PympcObject *result;
     PyObject *other;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPC_ARGS(other, "mul() requires 'mpc','mpc' arguments");
 
@@ -1275,6 +1352,9 @@ static PyObject *
 Pympc_truediv_fast(PyObject *x, PyObject *y)
 {
     PympcObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
         if (MPC_IS_ZERO_P(y)) {
@@ -1304,6 +1384,9 @@ static PyObject *
 Pympc_div2_fast(PyObject *x, PyObject *y)
 {
     PympcObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
         if (MPC_IS_ZERO_P(y)) {
@@ -1334,6 +1417,9 @@ Pympc_div(PyObject *self, PyObject *args)
 {
     PympcObject *result;
     PyObject *other;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     PARSE_TWO_MPC_ARGS(other, "div() requires 'mpc','mpc' arguments");
 

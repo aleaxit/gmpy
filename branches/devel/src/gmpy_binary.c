@@ -134,6 +134,9 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
     mpfr_prec_t prec;
     int i, codebyte, resusign, exposign, resuzero, precilen;
     unsigned int expomag = 0;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (!(PyBytes_Check(other))) {
         TYPE_ERROR("mpfr_from_old_binary() requires bytes argument");
@@ -175,7 +178,7 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
     if (resuzero) {
         if (!(result = (PympfrObject*)Pympfr_new(prec)))
             return NULL;
-        result->rc = mpfr_set_ui(result->f, 0, context->ctx.mpfr_round);
+        result->rc = mpfr_set_ui(result->f, 0, MPFR_RNDN);
         return (PyObject*)result;
     }
 
@@ -196,23 +199,23 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
     }
 
     /* reconstruct 'mantissa' (significand) */
-    mpfr_set_si(result->f, 0, context->ctx.mpfr_round);
+    mpfr_set_si(result->f, 0, MPFR_RNDN);
     mpfr_init2(digit, prec);
     for (i = 5 + precilen; i<len; i++) {
-        mpfr_set_ui(digit, cp[i], context->ctx.mpfr_round);
+        mpfr_set_ui(digit, cp[i], MPFR_RNDN);
         mpfr_div_2ui(digit, digit, (unsigned long)((i-4-precilen) * 8),
                      context->ctx.mpfr_round);
-        mpfr_add(result->f, result->f, digit, context->ctx.mpfr_round);
+        mpfr_add(result->f, result->f, digit, MPFR_RNDN);
     }
     mpfr_clear(digit);
     /* apply exponent, with its appropriate sign */
     if (exposign)
-        mpfr_div_2ui(result->f, result->f, 8*expomag, context->ctx.mpfr_round);
+        mpfr_div_2ui(result->f, result->f, 8*expomag, MPFR_RNDN);
     else
-        mpfr_mul_2ui(result->f, result->f, 8*expomag, context->ctx.mpfr_round);
+        mpfr_mul_2ui(result->f, result->f, 8*expomag, MPFR_RNDN);
     /* apply significand-sign (sign of the overall number) */
     if (resusign)
-        mpfr_neg(result->f, result->f, context->ctx.mpfr_round);
+        mpfr_neg(result->f, result->f, MPFR_RNDN);
 
     return (PyObject*)result;
 }

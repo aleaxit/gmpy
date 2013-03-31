@@ -222,6 +222,8 @@ Pympq_getdenom(PympqObject *self, void *closure)
     return (PyObject*)result;
 }
 
+/* TODO: add error checking for arguments. */
+
 PyDoc_STRVAR(doc_qdivg,
 "qdiv(x[, y=1]) -> number\n\n"
 "Return x/y as 'mpz' if possible, or as 'mpq' if x is not exactly\n"
@@ -229,6 +231,12 @@ PyDoc_STRVAR(doc_qdivg,
 
 static int isOne(PyObject* obj)
 {
+#ifdef WITHMPFR
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+#endif
+
     if (!obj)
         return 1;
 
@@ -535,11 +543,14 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
 {
     PympqObject *rq, *tempbq;
     PympzObject *tempez;
-#ifdef WITHMPFR
-    PympfrObject *rf, *tempbf, *tempef;
-#endif
     int esign, bsign;
     mpir_si tempexp;
+#ifdef WITHMPFR
+    PympfrObject *rf, *tempbf, *tempef;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+#endif
 
     if ((PyObject*)m != Py_None) {
         TYPE_ERROR("mpq.pow() no modulo allowed");
