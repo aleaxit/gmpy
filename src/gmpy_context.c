@@ -305,6 +305,8 @@ GMPyContextManager_new(void)
 static void
 GMPyContextManager_dealloc(GMPyContextManagerObject *self)
 {
+    Py_DECREF(self->new_context);
+    Py_DECREF(self->old_context);
     PyObject_Del(self);
 };
 
@@ -507,9 +509,14 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
     else {
         result->new_context = context;
     }
-    result->old_context = context;
     Py_INCREF((PyObject*)(result->new_context));
-    Py_INCREF((PyObject*)(result->old_context));
+
+    result->old_context = (GMPyContextObject*)GMPyContext_context_copy( \
+                                                (PyObject*)context, NULL);
+    if (!(result->old_context)) {
+        Py_DECREF((PyObject*)result);
+        return NULL;
+    }
 
 #ifdef WITHMPC
     if (!(PyArg_ParseTupleAndKeywords(local_args, kwargs,
