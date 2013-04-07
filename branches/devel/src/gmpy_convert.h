@@ -48,18 +48,14 @@ static int isFraction(PyObject* obj);
 /* Combined mpq, isInteger() and isFraction() check. */
 static int isRational(PyObject* obj);
 
-#ifdef WITHMPFR
 /* Checks for the Decimal type included with Python. */
 static int isDecimal(PyObject* obj);
 
 /* Combined mpfr, PyFloat, isDecimal() and isRational() check. */
 static int isReal(PyObject* obj);
-#endif
 
-#ifdef WITHMPC
 /* Combined mpc, PyComplex, and isReal() check. */
 static int isComplex(PyObject* obj);
-#endif
 
 /********* Integer Conversions *********/
 
@@ -109,10 +105,8 @@ static int Pympz_convert_arg(PyObject *arg, PyObject **ptr);
 
 /* The following functions convert isInteger() objects into C types. */
 
-#ifdef WITHMPFR
 /* Should only be used by MPFR/MPC related code. */
 static long clong_From_Integer(PyObject *obj);
-#endif
 
 /* MPIR 2.6.0 introduces two new data types: mpir_si and mpir_ui. On all
  * platforms except 64-bit Windows, those data types correspond to "long" and
@@ -167,7 +161,6 @@ static PyObject *      Pympq_To_Repr(PympqObject *self);
 /* Miscellaneous rational conversion functions. */
 int Pympq_convert_arg(PyObject *arg, PyObject **ptr);
 
-#ifdef WITHMPFR
 /********* Pympfr Conversions *********/
 
 /* Conversions with Pympfr */
@@ -199,9 +192,7 @@ static PyObject *       Pympfr_To_Repr(PympfrObject *self);
 /* Miscellaneous */
 static int Pympfr_convert_arg(PyObject *arg, PyObject **ptr);
 static PympqObject * stern_brocot(PympfrObject* self, PympfrObject *err, mpfr_prec_t prec, int mayz);
-#endif
 
-#ifdef WITHMPC
 /********* Pympc Conversions *********/
 
 /* Conversions with Pympc */
@@ -230,7 +221,6 @@ static PyObject *      Pympc_To_Repr(PympcObject *self);
 /* Miscellaneous */
 static PyObject * raw_mpfr_ascii(mpfr_t self, int base, int digits, int round);
 int Pympc_convert_arg(PyObject *arg, PyObject **ptr);
-#endif
 
 #ifdef __cplusplus
 }

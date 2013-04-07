@@ -59,27 +59,15 @@ static PyObject *
 Pybasic_add(PyObject *a, PyObject *b)
 {
     mpz_t tempz;
-#ifdef WITHMPFR
     PympzObject *rz = 0, *paz = 0, *pbz = 0;
-#else
-    PympzObject *rz = 0;
-#endif
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
-#ifdef WITHMPFR
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
-#else
-    double tempdouble;
-#endif
-#ifdef WITHMPC
     PympcObject *rc = 0, *pac = 0, *pbc = 0;
-#endif
     mpir_si temp_si;
     int overflow;
-#ifdef WITHMPFR
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
-#endif
 
     if (CHECK_MPZANY(a)) {
         if (!(rz = (PympzObject*)Pympz_new()))
@@ -128,8 +116,6 @@ Pybasic_add(PyObject *a, PyObject *b)
         }
         Py_DECREF((PyObject*)rz);
     }
-
-#ifdef WITHMPFR
 
     /* Pympfr_add_fast already handles the case when both a and b are valid
      * mpfr instances.
@@ -206,7 +192,6 @@ Pybasic_add(PyObject *a, PyObject *b)
         }
         Py_DECREF((PyObject*)rf);
     }
-#endif
 
     if (isRational(a) && isRational(b)) {
         paq = Pympq_From_Number(a);
@@ -228,7 +213,6 @@ Pybasic_add(PyObject *a, PyObject *b)
         return (PyObject*)rq;
     }
 
-#ifdef WITHMPFR
     if (isReal(a) && isReal(b)) {
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
@@ -249,21 +233,7 @@ Pybasic_add(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF(addition);
     }
-#else
-    /* Support mpz+float and float+mpz. */
-    if (CHECK_MPZANY(a) && PyFloat_Check(b)) {
-        tempdouble = mpz_get_d(Pympz_AS_MPZ(a));
-        tempdouble = tempdouble + PyFloat_AsDouble(b);
-        return PyFloat_FromDouble(tempdouble);
-    }
-    if (CHECK_MPZANY(b) && PyFloat_Check(a)) {
-        tempdouble = mpz_get_d(Pympz_AS_MPZ(b));
-        tempdouble = PyFloat_AsDouble(a) + tempdouble;
-        return PyFloat_FromDouble(tempdouble);
-    }
-#endif
 
-#ifdef WITHMPC
     if (isComplex(a) && isComplex(b)) {
         pac = Pympc_From_Complex(a, 0, 0);
         pbc = Pympc_From_Complex(b, 0, 0);
@@ -283,7 +253,6 @@ Pybasic_add(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbc);
         MPC_CLEANUP(rc, "addition");
     }
-#endif
 
     Py_RETURN_NOTIMPLEMENTED;
 }
@@ -299,21 +268,13 @@ Pybasic_sub(PyObject *a, PyObject *b)
     mpz_t tempz;
     PympzObject *rz = 0, *paz = 0, *pbz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
-#ifdef WITHMPFR
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
-#else
-    double tempdouble;
-#endif
-#ifdef WITHMPC
     PympcObject *rc = 0, *pac = 0, *pbc = 0;
-#endif
     mpir_si temp_si;
     int overflow;
-#ifdef WITHMPFR
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
-#endif
 
     if (CHECK_MPZANY(a)) {
         if (!(rz = (PympzObject*)Pympz_new()))
@@ -363,8 +324,6 @@ Pybasic_sub(PyObject *a, PyObject *b)
         }
         Py_DECREF((PyObject*)rz);
     }
-
-#ifdef WITHMPFR
 
     /* Pympfr_sub_fast already handles the case when both a and b are valid
      * mpfr instances.
@@ -465,7 +424,6 @@ Pybasic_sub(PyObject *a, PyObject *b)
         }
         Py_DECREF((PyObject*)rf);
     }
-#endif
 
     if (isInteger(a) && isInteger(b)) {
         paz = Pympz_From_Number(a);
@@ -507,7 +465,6 @@ Pybasic_sub(PyObject *a, PyObject *b)
         return (PyObject*)rq;
     }
 
-#ifdef WITHMPFR
     if (isReal(a) && isReal(b)) {
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
@@ -528,21 +485,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF(subtraction);
     }
-#else
-    /* Support mpz-float and float-mpz. */
-    if (CHECK_MPZANY(a) && PyFloat_Check(b)) {
-        tempdouble = mpz_get_d(Pympz_AS_MPZ(a));
-        tempdouble = tempdouble-PyFloat_AsDouble(b);
-        return PyFloat_FromDouble(tempdouble);
-    }
-    if (CHECK_MPZANY(b) && PyFloat_Check(a)) {
-        tempdouble = mpz_get_d(Pympz_AS_MPZ(b));
-        tempdouble = PyFloat_AsDouble(a)-tempdouble;
-        return PyFloat_FromDouble(tempdouble);
-    }
-#endif
 
-#ifdef WITHMPC
     if (isComplex(a) && isComplex(b)) {
         pac = Pympc_From_Complex(a, 0, 0);
         pbc = Pympc_From_Complex(b, 0, 0);
@@ -562,7 +505,6 @@ Pybasic_sub(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbc);
         MPC_CLEANUP(rc, "subtraction");
     }
-#endif
 
     Py_RETURN_NOTIMPLEMENTED;
 }
@@ -578,21 +520,13 @@ Pybasic_mul(PyObject *a, PyObject *b)
     mpz_t tempz;
     PympzObject *rz = 0, *paz = 0, *pbz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
-#ifdef WITHMPFR
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
-#else
-    double tempdouble;
-#endif
-#ifdef WITHMPC
     PympcObject *rc = 0, *pac = 0, *pbc = 0;
-#endif
     mpir_si temp_si;
     int overflow;
-#ifdef WITHMPFR
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
-#endif
 
     if (CHECK_MPZANY(a)) {
         if (!(rz = (PympzObject*)Pympz_new()))
@@ -636,7 +570,6 @@ Pybasic_mul(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)rz);
     }
 
-#ifdef WITHMPFR
     if (Pympfr_CheckAndExp(a)) {
         if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
@@ -738,7 +671,6 @@ Pybasic_mul(PyObject *a, PyObject *b)
         }
         Py_DECREF((PyObject*)rf);
     }
-#endif
 
     if (isInteger(a) && isInteger(b)) {
         paz = Pympz_From_Number(a);
@@ -780,7 +712,6 @@ Pybasic_mul(PyObject *a, PyObject *b)
         return (PyObject*)rq;
     }
 
-#ifdef WITHMPFR
     if (isReal(a) && isReal(b)) {
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
@@ -801,29 +732,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF(multiplication);
     }
-#else
-    /* Support mpz*float and float*mpz. */
-    if (CHECK_MPZANY(a) && PyFloat_Check(b)) {
-        tempdouble = mpz_get_d(Pympz_AS_MPZ(a));
-        if (Py_IS_INFINITY(tempdouble)) {
-            OVERFLOW_ERROR("'mpz' too large to convert to float");
-            return NULL;
-        }
-        tempdouble = tempdouble*PyFloat_AsDouble(b);
-        return PyFloat_FromDouble(tempdouble);
-    }
-    if (CHECK_MPZANY(b) && PyFloat_Check(a)) {
-        tempdouble = mpz_get_d(Pympz_AS_MPZ(b));
-        if (Py_IS_INFINITY(tempdouble)) {
-            OVERFLOW_ERROR("'mpz' too large to convert to float");
-            return NULL;
-        }
-        tempdouble = PyFloat_AsDouble(a)*tempdouble;
-        return PyFloat_FromDouble(tempdouble);
-    }
-#endif
 
-#ifdef WITHMPC
     if (isComplex(a) && isComplex(b)) {
         pac = Pympc_From_Complex(a, 0, 0);
         pbc = Pympc_From_Complex(b, 0, 0);
@@ -843,7 +752,6 @@ Pybasic_mul(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbc);
         MPC_CLEANUP(rc, "multiplication");
     }
-#endif
 
     Py_RETURN_NOTIMPLEMENTED;
 }
@@ -859,16 +767,12 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
     mpz_t tempz;
     PympzObject *rz = 0, *paz = 0, *pbz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
-#ifdef WITHMPFR
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
-#endif
     mpir_si temp_si;
     int overflow;
-#ifdef WITHMPFR
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
-#endif
 
     if (CHECK_MPZANY(a)) {
         if (!(rz = (PympzObject*)Pympz_new()))
@@ -924,7 +828,6 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)rz);
     }
 
-#ifdef WITHMPFR
     if (Pympfr_CheckAndExp(a)) {
         if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
@@ -1002,7 +905,6 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
         }
         Py_DECREF((PyObject*)rf);
     }
-#endif
 
     if (isInteger(a) && isInteger(b)) {
         paz = Pympz_From_Number(a);
@@ -1060,7 +962,6 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
         return (PyObject*)rz;
     }
 
-#ifdef WITHMPFR
     if (isReal(a) && isReal(b)) {
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
@@ -1083,25 +984,11 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF(division);
     }
-#else
-    /* Handle mixed mpz and PyFloat floor division. */
-    if (CHECK_MPZANY(a) && PyFloat_Check(b)) {
-        PyObject *temp = NULL, *result = NULL;
 
-        if ((temp = Pympz_To_PyLong((PympzObject*)a))) {
-            result = PyNumber_FloorDivide(temp, b);
-            Py_DECREF(temp);
-        }
-        return result;
-    }
-#endif
-
-#ifdef WITHMPC
     if (isComplex(a) && isComplex(b)) {
         TYPE_ERROR("can't take floor of complex number.");
         return NULL;
     }
-#endif
 
     Py_RETURN_NOTIMPLEMENTED;
 }
@@ -1120,22 +1007,13 @@ Pybasic_truediv(PyObject *a, PyObject *b)
 {
     PympzObject *paz = 0, *pbz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
-#ifdef WITHMPFR
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
-#else
-    double tempdouble;
-#endif
-#ifdef WITHMPC
     PympcObject *rc = 0, *pac = 0, *pbc = 0;
-#endif
     mpq_t tempq;
-#ifdef WITHMPFR
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
-#endif
 
-#ifdef WITHMPFR
     if (Pympfr_CheckAndExp(a)) {
         if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
@@ -1207,7 +1085,6 @@ Pybasic_truediv(PyObject *a, PyObject *b)
         }
         Py_DECREF((PyObject*)rf);
     }
-#endif
 
    if (isInteger(a) && isInteger(b)) {
         paz = Pympz_From_Number(a);
@@ -1224,31 +1101,21 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             Py_DECREF((PyObject*)pbz);
             return NULL;
         }
-#ifdef WITHMPFR
         if (!(rf = (PympfrObject*)Pympfr_new(0))) {
             Py_DECREF((PyObject*)paz);
             Py_DECREF((PyObject*)pbz);
             return NULL;
         }
-#endif
         mpq_init(tempq);
         mpq_set_num(tempq, paz->z);
         mpq_set_den(tempq, pbz->z);
         mpq_canonicalize(tempq);
-#ifdef WITHMPFR
         mpfr_clear_flags();
         rf->rc = mpfr_set_q(rf->f, tempq, context->ctx.mpfr_round);
-#else
-        tempdouble = mpq_get_d(tempq);
-#endif
         mpq_clear(tempq);
         Py_DECREF((PyObject*)paz);
         Py_DECREF((PyObject*)pbz);
-#ifdef WITHMPFR
         MPFR_CLEANUP_RF(division);
-#else
-        return PyFloat_FromDouble(tempdouble);
-#endif
     }
 
     if (isRational(a) && isRational(b)) {
@@ -1277,7 +1144,6 @@ Pybasic_truediv(PyObject *a, PyObject *b)
         return (PyObject*) rq;
     }
 
-#ifdef WITHMPFR
     if (isReal(a) && isReal(b)) {
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
@@ -1298,29 +1164,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF(division);
     }
-#else
-    /* Support mpz/float and float/mpz. */
-    if (CHECK_MPZANY(a) && PyFloat_Check(b)) {
-        tempdouble = mpz_get_d(Pympz_AS_MPZ(a));
-        if (Py_IS_INFINITY(tempdouble)) {
-            OVERFLOW_ERROR("'mpz' too large to convert to float");
-            return NULL;
-        }
-        tempdouble = tempdouble/PyFloat_AsDouble(b);
-        return PyFloat_FromDouble(tempdouble);
-    }
-    if (CHECK_MPZANY(b) && PyFloat_Check(a)) {
-        tempdouble = mpz_get_d(Pympz_AS_MPZ(b));
-        if (Py_IS_INFINITY(tempdouble)) {
-            OVERFLOW_ERROR("'mpz' too large to convert to float");
-            return NULL;
-        }
-        tempdouble = PyFloat_AsDouble(a)/tempdouble;
-        return PyFloat_FromDouble(tempdouble);
-    }
-#endif
 
-#ifdef WITHMPC
     if (isComplex(a) && isComplex(b)) {
         pac = Pympc_From_Complex(a, 0, 0);
         pbc = Pympc_From_Complex(b, 0, 0);
@@ -1349,7 +1193,6 @@ Pybasic_truediv(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbc);
         MPC_CLEANUP(rc, "division");
     }
-#endif
 
     Py_RETURN_NOTIMPLEMENTED;
 }
@@ -1370,19 +1213,13 @@ Pybasic_div2(PyObject *a, PyObject *b)
     mpz_t tempz;
     PympzObject *rz = 0, *paz = 0, *pbz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
-#ifdef WITHMPFR
     PympfrObject *rf = 0, *paf = 0, *pbf = 0;
-#endif
-#ifdef WITHMPC
     PympcObject *rc = 0, *pac = 0, *pbc = 0;
-#endif
     mpir_si temp_si;
     int overflow;
-#ifdef WITHMPFR
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
-#endif
 
     /* Use floordiv for integer types. */
 
@@ -1477,7 +1314,6 @@ Pybasic_div2(PyObject *a, PyObject *b)
 
     /* Use truediv for floating-point types. */
 
-#ifdef WITHMPFR
     if (Pympfr_CheckAndExp(a)) {
         if (!(rf = (PympfrObject*)Pympfr_new(0)))
             return NULL;
@@ -1570,20 +1406,7 @@ Pybasic_div2(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF(division);
     }
-#else
-    /* Handle mixed mpz and PyFloat true division. */
-    if (CHECK_MPZANY(a) && PyFloat_Check(b)) {
-        PyObject *temp = NULL, *result = NULL;
 
-        if ((temp = Pympz_To_PyLong((PympzObject*)a))) {
-            result = PyNumber_TrueDivide(temp, b);
-            Py_DECREF(temp);
-        }
-        return result;
-    }
-#endif
-
-#ifdef WITHMPC
     if (isComplex(a) && isComplex(b)) {
         pac = Pympc_From_Complex(a, 0, 0);
         pbc = Pympc_From_Complex(b, 0, 0);
@@ -1612,7 +1435,6 @@ Pybasic_div2(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbc);
         MPC_CLEANUP(rc, "division");
     }
-#endif
 
     Py_RETURN_NOTIMPLEMENTED;
 }
@@ -1633,16 +1455,12 @@ Pybasic_rem(PyObject *a, PyObject *b)
     mpz_t tempz;
     PympzObject *rz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
-#ifdef WITHMPFR
     PympfrObject *qf = 0, *rf = 0, *paf = 0, *pbf = 0;
-#endif
     mpir_si temp_si;
     int overflow;
-#ifdef WITHMPFR
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
-#endif
 
     if (CHECK_MPZANY(a)) {
         if (!(rz = (PympzObject*)Pympz_new()))
@@ -1730,7 +1548,6 @@ Pybasic_rem(PyObject *a, PyObject *b)
         return (PyObject*)rq;
     }
 
-#ifdef WITHMPFR
     if (isReal(a) && isReal(b)) {
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
@@ -1800,14 +1617,11 @@ Pybasic_rem(PyObject *a, PyObject *b)
         Py_DECREF((PyObject*)pbf);
         MPFR_CLEANUP_RF(rem);
     }
-#endif
 
-#ifdef WITHMPC
     if (isComplex(a) && isComplex(b)) {
         TYPE_ERROR("can't mod complex numbers");
         return NULL;
     }
-#endif
 
     Py_RETURN_NOTIMPLEMENTED;
 }
@@ -1828,16 +1642,12 @@ Pybasic_divmod(PyObject *a, PyObject *b)
     mpz_t tempz;
     PympzObject *qz = 0, *rz = 0;
     PympqObject *rq = 0, *paq = 0, *pbq = 0;
-#ifdef WITHMPFR
     PympfrObject *qf = 0, *rf = 0, *paf = 0, *pbf = 0;
-#endif
     mpir_si temp_si;
     int overflow;
-#ifdef WITHMPFR
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
-#endif
 
     if (CHECK_MPZANY(a)) {
         if (!( r= PyTuple_New(2)) ||
@@ -1953,7 +1763,6 @@ Pybasic_divmod(PyObject *a, PyObject *b)
         return r;
     }
 
-#ifdef WITHMPFR
     if (isReal(a) && isReal(b)) {
         paf = Pympfr_From_Real(a, 0);
         pbf = Pympfr_From_Real(b, 0);
@@ -2061,14 +1870,11 @@ Pybasic_divmod(PyObject *a, PyObject *b)
         PyTuple_SET_ITEM(r, 1, (PyObject*)rf);
         return r;
     }
-#endif
 
-#ifdef WITHMPC
     if (isComplex(a) && isComplex(b)) {
         TYPE_ERROR("can't take floor or mod of complex number.");
         return NULL;
     }
-#endif
 
     Py_RETURN_NOTIMPLEMENTED;
 }

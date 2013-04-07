@@ -82,12 +82,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
     if (argc == 2)
         m = PyTuple_GetItem(args, 1);
 
-#ifdef WITHMPFR
     if (!isReal(n) || (m && !isReal(m))) {
-#else
-    if (!(isRational(n) || PyFloat_Check(n)) ||
-        (m && !(isRational(m) || PyFloat_Check(m)))) {
-#endif
         TYPE_ERROR("mpq() requires numeric or string argument");
         return NULL;
     }
@@ -231,11 +226,9 @@ PyDoc_STRVAR(doc_qdivg,
 
 static int isOne(PyObject* obj)
 {
-#ifdef WITHMPFR
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
-#endif
 
     if (!obj)
         return 1;
@@ -255,11 +248,9 @@ static int isOne(PyObject* obj)
         return PyInt_AS_LONG(obj)==1;
 #endif
     }
-#ifdef WITHMPFR
     else if (Pympfr_Check(obj)) {
         return mpfr_get_d(Pympfr_AS_MPFR(obj), context->ctx.mpfr_round)==1.0;
     }
-#endif
     else if (PyFloat_Check(obj)) {
         return PyFloat_AS_DOUBLE(obj)==1.0;
     }
@@ -545,12 +536,10 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
     PympzObject *tempez;
     int esign, bsign;
     mpir_si tempexp;
-#ifdef WITHMPFR
     PympfrObject *rf, *tempbf, *tempef;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
-#endif
 
     if ((PyObject*)m != Py_None) {
         TYPE_ERROR("mpq.pow() no modulo allowed");
@@ -615,7 +604,6 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
         return (PyObject*)rq;
     }
     else {
-#ifdef WITHMPFR
         tempbf = Pympfr_From_Real(base, 0);
         tempef = Pympfr_From_Real(exp, 0);
         rf = (PympfrObject*)Pympfr_new(0);
@@ -630,10 +618,6 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
         Py_DECREF((PyObject*)tempbf);
         Py_DECREF((PyObject*)tempef);
         return (PyObject*)rf;
-#else
-        TYPE_ERROR("mpq.pow() unsupported operands");
-        return NULL;
-#endif
     }
 }
 

@@ -119,7 +119,6 @@ Pympq_From_Old_Binary(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-#ifdef WITHMPFR
 PyDoc_STRVAR(doc_g_mpfr_from_old_binary,
 "mpfr_from_old_binary(string) -> mpfr\n\n"
 "Return an 'mpfr' from a GMPY 1.x binary mpf format.");
@@ -219,7 +218,6 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
 
     return (PyObject*)result;
 }
-#endif
 
 /* Format of the binary representation of an mpz/xmpz.
  *
@@ -381,7 +379,6 @@ Pympq_To_Binary(PympqObject *self)
     return result;
 }
 
-#ifdef WITHMPFR
 /* Format of the binary representation of an mpfr.
  *
  * byte[0]:      1 => mpz  (see Pympz_To_Binary)
@@ -576,9 +573,7 @@ Pympfr_To_Binary(PympfrObject *self)
     TEMP_FREE(buffer, size);
     return result;
 }
-#endif
 
-#ifdef WITHMPC
 /* Format of the binary representation of an mpc.
  *
  * The format consists of the concatenation of mpfrs (real and imaginary)
@@ -623,7 +618,6 @@ Pympc_To_Binary(PympcObject *self)
     PyBytes_ConcatAndDel(&result, temp);
     return result;
 }
-#endif
 
 PyDoc_STRVAR(doc_from_binary,
 "from_binary(bytes) -> gmpy2 object\n"
@@ -727,11 +721,6 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             break;
         }
         case 0x04: {
-#ifndef WITHMPFR
-            VALUE_ERROR("creating 'mpfr' object not supported");
-            return NULL;
-        }
-#else
             PympfrObject *result;
             size_t sizemant = 0, sizesize = 4, i, newmant;
             mpfr_prec_t precision = 0;
@@ -901,13 +890,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
                 return (PyObject*)result;
             }
         }
-#endif
         case 0x05: {
-#ifndef WITHMPC
-            VALUE_ERROR("creating 'mpc' object not supported");
-            return NULL;
-        }
-#else
             PympcObject *result;
             PympfrObject *real = 0, *imag = 0;
             size_t sizemant = 0, sizesize = 4, i, newmant;
@@ -1168,7 +1151,6 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)imag);
             return (PyObject*)result;
         }
-#endif
         default: {
             TYPE_ERROR("from_binary() argument type not supported");
             return NULL;

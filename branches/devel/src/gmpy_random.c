@@ -190,7 +190,6 @@ GMPY_mpz_random(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-#ifdef WITHMPFR
 PyDoc_STRVAR(doc_mpfr_random,
 "mpfr_random(random_state) -> mpfr\n\n"
 "Return uniformly distributed number between [0,1].");
@@ -264,9 +263,7 @@ GMPY_mpfr_grandom(PyObject *self, PyObject *args)
     }
     return result;
 }
-#endif
 
-#ifdef WITHMPC
 PyDoc_STRVAR(doc_mpc_random,
 "mpfc_random(random_state) -> mpc\n\n"
 "Return uniformly distributed number in the unit square [0,1]x[0,1].");
@@ -293,7 +290,6 @@ GMPY_mpc_random(PyObject *self, PyObject *args)
 
     return (PyObject*)result;
 }
-#endif
 
 static PyTypeObject GMPYRandomState_Type =
 {

@@ -221,7 +221,6 @@ Pympq_dealloc(PympqObject *self)
     }
 }
 
-#ifdef WITHMPFR
 /* Caching logic for Pympfr. */
 
 static void
@@ -287,9 +286,7 @@ Pympfr_dealloc(PympfrObject *self)
         PyObject_Del(self);
     }
 }
-#endif
 
-#ifdef WITHMPC
 static void
 set_pympccache(void)
 {
@@ -361,5 +358,4 @@ Pympc_dealloc(PympcObject *self)
         PyObject_Del(self);
     }
 }
-#endif
 

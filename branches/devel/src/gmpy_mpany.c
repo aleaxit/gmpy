@@ -53,14 +53,10 @@ Pympany_square(PyObject *self, PyObject *other)
         return Pympz_square(self, other);
     else if (isRational(other))
         return Pympq_square(self, other);
-#ifdef WITHMPFR
     else if (isReal(other))
         return Pympfr_sqr(self, other);
-#endif
-#ifdef WITHMPC
     else if (isComplex(other))
         return Pympc_sqr(self, other);
-#endif
 
     TYPE_ERROR("square() argument type not supported");
     return NULL;
@@ -91,14 +87,10 @@ Pympany_digits(PyObject *self, PyObject *args)
         return Pympz_digits(self, args);
     else if (isRational(temp))
         return Pympq_digits(self, args);
-#ifdef WITHMPFR
     else if (isReal(temp))
         return Pympfr_digits(self, args);
-#endif
-#ifdef WITHMPC
     else if (isComplex(temp))
         return Pympc_digits(self, args);
-#endif
 
     TYPE_ERROR("digits() argument type not supported");
     return NULL;
@@ -120,10 +112,8 @@ Pympany_sign(PyObject *self, PyObject *other)
         return Pympz_sign(self, other);
     else if (isRational(other))
         return Pympq_sign(self, other);
-#ifdef WITHMPFR
     else if (isReal(other))
         return Pympfr_sign(self, other);
-#endif
 
     TYPE_ERROR("sign() argument type not supported");
     return NULL;
@@ -149,18 +139,14 @@ Pympany_add(PyObject *self, PyObject *args)
         isRational(PyTuple_GET_ITEM(args, 1)))
         return Pympq_add(self, args);
 
-#ifdef WITHMPFR
     if (isReal(PyTuple_GET_ITEM(args, 0)) &&
         isReal(PyTuple_GET_ITEM(args, 1)))
         return Pympfr_add(self, args);
 
-#endif
-#ifdef WITHMPC
     if (isComplex(PyTuple_GET_ITEM(args, 0)) &&
         isComplex(PyTuple_GET_ITEM(args, 1)))
         return Pympc_add(self, args);
 
-#endif
     TYPE_ERROR("add() argument types not supported");
     return NULL;
 }
@@ -185,18 +171,14 @@ Pympany_sub(PyObject *self, PyObject *args)
         isRational(PyTuple_GET_ITEM(args, 1)))
         return Pympq_sub(self, args);
 
-#ifdef WITHMPFR
     if (isReal(PyTuple_GET_ITEM(args, 0)) &&
         isReal(PyTuple_GET_ITEM(args, 1)))
         return Pympfr_sub(self, args);
 
-#endif
-#ifdef WITHMPC
     if (isComplex(PyTuple_GET_ITEM(args, 0)) &&
         isComplex(PyTuple_GET_ITEM(args, 1)))
         return Pympc_sub(self, args);
 
-#endif
     TYPE_ERROR("sub() argument types not supported");
     return NULL;
 }
@@ -221,18 +203,14 @@ Pympany_mul(PyObject *self, PyObject *args)
         isRational(PyTuple_GET_ITEM(args, 1)))
         return Pympq_mul(self, args);
 
-#ifdef WITHMPFR
     if (isReal(PyTuple_GET_ITEM(args, 0)) &&
         isReal(PyTuple_GET_ITEM(args, 1)))
         return Pympfr_mul(self, args);
 
-#endif
-#ifdef WITHMPC
     if (isComplex(PyTuple_GET_ITEM(args, 0)) &&
         isComplex(PyTuple_GET_ITEM(args, 1)))
         return Pympc_mul(self, args);
 
-#endif
     TYPE_ERROR("mul() argument types not supported");
     return NULL;
 }
@@ -257,18 +235,14 @@ Pympany_div(PyObject *self, PyObject *args)
         isRational(PyTuple_GET_ITEM(args, 1)))
         return Pympq_div(self, args);
 
-#ifdef WITHMPFR
     if (isReal(PyTuple_GET_ITEM(args, 0)) &&
         isReal(PyTuple_GET_ITEM(args, 1)))
         return Pympfr_div(self, args);
 
-#endif
-#ifdef WITHMPC
     if (isComplex(PyTuple_GET_ITEM(args, 0)) &&
         isComplex(PyTuple_GET_ITEM(args, 1)))
         return Pympc_div(self, args);
 
-#endif
     TYPE_ERROR("div() argument types not supported");
     return NULL;
 }
@@ -290,14 +264,10 @@ Pympany_to_binary(PyObject *self, PyObject *other)
         return Pyxmpz_To_Binary((PyxmpzObject*)other);
     else if(Pympq_Check(other))
         return Pympq_To_Binary((PympqObject*)other);
-#ifdef WITHMPFR
     else if(Pympfr_Check(other))
         return Pympfr_To_Binary((PympfrObject*)other);
-#endif
-#ifdef WITHMPC
     else if(Pympc_Check(other))
         return Pympc_To_Binary((PympcObject*)other);
-#endif
     TYPE_ERROR("to_binary() argument type not supported");
     return NULL;
 }
@@ -305,40 +275,14 @@ Pympany_to_binary(PyObject *self, PyObject *other)
 static PyObject *
 Pympany_pow(PyObject *base, PyObject *exp, PyObject *mod)
 {
-#ifndef WITHMPFR
-    PyObject *result = 0, *temp;
-#endif
-
     if (isInteger(base) && isInteger(exp))
         return Pympz_pow(base, exp, mod);
     else if (isRational(base) && isRational(exp))
         return Pympq_pow(base, exp, mod);
-#ifdef WITHMPFR
     else if (isReal(base) && isReal(exp))
         return Pympfr_pow(base, exp, mod);
-#else
-    /* Support mpz**float and float**mpz. */
-    if (CHECK_MPZANY(base) && PyFloat_Check(exp)) {
-        temp = PyFloat_FromDouble(mpz_get_d(Pympz_AS_MPZ(base)));
-        if (temp) {
-            result = PyNumber_Power(temp, exp, mod);
-            Py_DECREF(temp);
-        }
-        return result;
-    }
-    if (CHECK_MPZANY(exp) && PyFloat_Check(base)) {
-        temp = PyFloat_FromDouble(mpz_get_d(Pympz_AS_MPZ(exp)));
-        if (temp) {
-            result = PyNumber_Power(base, temp, mod);
-            Py_DECREF(temp);
-        }
-        return result;
-    }
-#endif
-#ifdef WITHMPC
     else if (isComplex(base) && isComplex(exp))
         return Pympc_pow(base, exp, mod);
-#endif
 
     Py_RETURN_NOTIMPLEMENTED;
 }
@@ -377,7 +321,6 @@ Pympany_printf(PyObject *self, PyObject *args)
         }
         return result;
     }
-#ifdef WITHMPFR
     else if(Pympfr_Check(x)) {
         generic = Pympfr_AS_MPFR(x);
         buflen = mpfr_asprintf(&buffer, fmtcode, generic);
@@ -390,20 +333,16 @@ Pympany_printf(PyObject *self, PyObject *args)
         }
         return result;
     }
-#endif
-#ifdef WITHMPC
     else if(Pympc_Check(x)) {
         TYPE_ERROR("printf() does not support 'mpc'");
         return NULL;
     }
-#endif
     else {
         TYPE_ERROR("printf() argument type not supported");
         return NULL;
     }
 }
 
-#ifdef WITHMPC
 #define MPANY_MPFR_MPC(NAME) \
 static PyObject * \
 Pympany_##NAME(PyObject *self, PyObject *other) \
@@ -415,19 +354,7 @@ Pympany_##NAME(PyObject *self, PyObject *other) \
     TYPE_ERROR(#NAME"() argument type not supported"); \
     return NULL; \
 }
-#else
-#define MPANY_MPFR_MPC(NAME) \
-static PyObject * \
-Pympany_##NAME(PyObject *self, PyObject *other) \
-{ \
-    if (isReal(other)) \
-        return Pympfr_##NAME(self, other); \
-    TYPE_ERROR(#NAME"() argument type not supported"); \
-    return NULL; \
-}
-#endif
 
-#ifdef WITHMPFR
 PyDoc_STRVAR(doc_mpany_is_nan,
 "is_nan(x) -> boolean\n\n"
 "Return True if x is NaN (Not-A-Number).");
@@ -437,10 +364,8 @@ Pympany_is_nan(PyObject *self, PyObject *other)
 {
     if (isReal(other))
         return Pympfr_is_nan(self, other);
-#ifdef WITHMPC
     else if (isComplex(other))
         return Pympc_is_NAN(self, other);
-#endif
     TYPE_ERROR("is_nan() argument type not supported");
     return NULL;
 }
@@ -455,10 +380,8 @@ Pympany_is_inf(PyObject *self, PyObject *other)
 {
     if (isReal(other))
         return Pympfr_is_inf(self, other);
-#ifdef WITHMPC
     else if (isComplex(other))
         return Pympc_is_INF(self, other);
-#endif
     TYPE_ERROR("is_inf() argument type not supported");
     return NULL;
 }
@@ -473,10 +396,8 @@ Pympany_is_infinite(PyObject *self, PyObject *other)
 {
     if (isReal(other))
         return Pympfr_is_inf(self, other);
-#ifdef WITHMPC
     else if (isComplex(other))
         return Pympc_is_INF(self, other);
-#endif
     TYPE_ERROR("is_infinite() argument type not supported");
     return NULL;
 }
@@ -491,10 +412,8 @@ Pympany_is_finite(PyObject *self, PyObject *other)
 {
     if (isReal(other))
         return Pympfr_is_number(self, other);
-#ifdef WITHMPC
     else if (isComplex(other))
         return Pympc_is_FINITE(self, other);
-#endif
     TYPE_ERROR("is_finite() argument type not supported");
     return NULL;
 }
@@ -508,10 +427,8 @@ Pympany_is_zero(PyObject *self, PyObject *other)
 {
     if (isReal(other))
         return Pympfr_is_zero(self, other);
-#ifdef WITHMPC
     else if (isComplex(other))
         return Pympc_is_ZERO(self, other);
-#endif
     TYPE_ERROR("is_zero() argument type not supported");
     return NULL;
 }
@@ -637,12 +554,10 @@ Pympany_fma(PyObject *self, PyObject *args)
         isReal(PyTuple_GET_ITEM(args, 1)) &&
         isReal(PyTuple_GET_ITEM(args, 2)))
         return Pympfr_fma(self, args);
-#ifdef WITHMPC
     if (isComplex(PyTuple_GET_ITEM(args, 0)) &&
         isComplex(PyTuple_GET_ITEM(args, 1)) &&
         isComplex(PyTuple_GET_ITEM(args, 2)))
         return Pympc_fma(self, args);
-#endif
     TYPE_ERROR("fma() argument types not supported");
     return NULL;
 }
@@ -663,12 +578,10 @@ Pympany_fms(PyObject *self, PyObject *args)
         isReal(PyTuple_GET_ITEM(args, 1)) &&
         isReal(PyTuple_GET_ITEM(args, 2)))
         return Pympfr_fms(self, args);
-#ifdef WITHMPC
     if (isComplex(PyTuple_GET_ITEM(args, 0)) &&
         isComplex(PyTuple_GET_ITEM(args, 1)) &&
         isComplex(PyTuple_GET_ITEM(args, 2)))
         return Pympc_fms(self, args);
-#endif
     TYPE_ERROR("fms() argument types not supported");
     return NULL;
 }
@@ -687,10 +600,8 @@ Pympany_div_2exp(PyObject *self, PyObject *args)
 
     if (isReal(PyTuple_GET_ITEM(args, 0)))
         return Pympfr_div_2exp(self, args);
-#ifdef WITHMPC
     if (isComplex(PyTuple_GET_ITEM(args, 0)))
         return Pympc_div_2exp(self, args);
-#endif
     TYPE_ERROR("div_2exp() argument types not supported");
     return NULL;
 }
@@ -709,15 +620,12 @@ Pympany_mul_2exp(PyObject *self, PyObject *args)
 
     if (isReal(PyTuple_GET_ITEM(args, 0)))
         return Pympfr_mul_2exp(self, args);
-#ifdef WITHMPC
     if (isComplex(PyTuple_GET_ITEM(args, 0)))
         return Pympc_mul_2exp(self, args);
-#endif
     TYPE_ERROR("mul_2exp() argument types not supported");
     return NULL;
 }
 
-#endif
 
 /* COMPARING */
 
@@ -744,11 +652,9 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     mpz_t tempz;
     PyObject *tempa = 0, *tempb = 0;
     PyObject *result = 0;
-#ifdef WITHMPFR
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
-#endif
 
     if (CHECK_MPZANY(a)) {
         if (PyIntOrLong_Check(b)) {
@@ -899,7 +805,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
     }
-#ifdef WITHMPFR
+
     if (Pympfr_Check(a)) {
         if (Pympfr_Check(b)) {
             mpfr_clear_flags();
@@ -1050,9 +956,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
     }
-#endif
 
-#ifdef WITHMPC
     if (Pympc_Check(a)) {
         if (!(op == Py_EQ || op == Py_NE)) {
             TYPE_ERROR("no ordering relation is defined for complex numbers");
@@ -1126,7 +1030,6 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return result;
         }
     }
-#endif
 
     Py_RETURN_NOTIMPLEMENTED;
 }

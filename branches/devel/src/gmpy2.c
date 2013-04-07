@@ -320,6 +320,7 @@
  *
  *   2.1.0
  *   Add thread-safe contexts (casevh)
+ *   MPFR and MPC are now required. (casevh)
  *
  ************************************************************************
  *
@@ -422,9 +423,11 @@ static int in_pyxmpzcache;
 static PympqObject **pympqcache;
 static int in_pympqcache;
 
-#ifdef WITHMPFR
 static PympfrObject **pympfrcache;
 static int in_pympfrcache;
+
+static PympcObject **pympccache;
+static int in_pympccache;
 
 /* Support for context manager. */
 
@@ -452,12 +455,6 @@ static PyObject *GMPyExc_Underflow = NULL;
 static PyObject *GMPyExc_Erange = NULL;
 static PyObject *GMPyExc_ExpBound = NULL;
 
-#endif
-
-#ifdef WITHMPC
-static PympcObject **pympccache;
-static int in_pympccache;
-#endif
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * End of global data declarations.                                        *
@@ -516,15 +513,10 @@ static int in_pympccache;
 #include "gmpy_xmpz.c"
 
 #include "gmpy_mpq.c"
-
-#ifdef WITHMPFR
-#include "gmpy_context.c"
 #include "gmpy_mpfr.c"
-#endif
-
-#ifdef WITHMPC
 #include "gmpy_mpc.c"
-#endif
+
+#include "gmpy_context.c"
 
 static PyMethodDef Pygmpy_methods [] =
 {
@@ -636,7 +628,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "xmpz", (PyCFunction)Pygmpy_xmpz, METH_VARARGS | METH_KEYWORDS, doc_xmpz },
     { "_mpmath_normalize", Pympz_mpmath_normalize, METH_VARARGS, doc_mpmath_normalizeg },
     { "_mpmath_create", Pympz_mpmath_create, METH_VARARGS, doc_mpmath_createg },
-#ifdef WITHMPFR
+
     { "acos", Pympany_acos, METH_O, doc_mpany_acos },
     { "acosh", Pympany_acosh, METH_O, doc_mpany_acosh },
     { "ai", Pympfr_ai, METH_O, doc_g_mpfr_ai },
@@ -756,9 +748,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "y1", Pympfr_y1, METH_O, doc_g_mpfr_y1 },
     { "zero", Pympfr_set_zero, METH_VARARGS, doc_g_mpfr_set_zero },
     { "zeta", Pympfr_zeta, METH_O, doc_g_mpfr_zeta },
-#endif
 
-#ifdef WITHMPC
     { "mpc", (PyCFunction)Pygmpy_mpc, METH_VARARGS | METH_KEYWORDS, doc_g_mpc },
     { "mpc_random", GMPY_mpc_random, METH_VARARGS, doc_mpc_random },
     { "norm", Pympc_norm, METH_O, doc_mpc_norm },
@@ -766,7 +756,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "phase", Pympc_phase, METH_O, doc_mpc_phase },
     { "proj", Pympc_proj, METH_O, doc_mpc_proj },
     { "rect", Pympc_rect, METH_VARARGS, doc_mpc_rect },
-#endif
     { NULL, NULL, 1}
 };
 
@@ -857,9 +846,7 @@ PyMODINIT_FUNC initgmpy2(void)
 {
     PyObject* gmpy_module = NULL;
     PyObject* copy_reg_module = NULL;
-#ifdef WITHMPFR
     PyObject *temp = NULL;
-#endif
 
     /* Validate the sizes of the various typedef'ed integer types. */
     if (sizeof(mp_limb_t) != sizeof(mpir_si)) {
@@ -874,7 +861,6 @@ PyMODINIT_FUNC initgmpy2(void)
         SYSTEM_ERROR("Size of mp_size_t and size_t not compatible");
         INITERROR;
     }
-#ifdef WITHMPFR
     if (sizeof(mpfr_prec_t) != sizeof(long)) {
         SYSTEM_ERROR("Size of mpfr_prec_t and long not compatible");
         INITERROR;
@@ -883,7 +869,6 @@ PyMODINIT_FUNC initgmpy2(void)
         SYSTEM_ERROR("Size of mpfr_exp_t and long not compatible");
         INITERROR;
     }
-#endif
 
     /* Initialize the types. */
     if (PyType_Ready(&Pympz_Type) < 0)
@@ -894,18 +879,14 @@ PyMODINIT_FUNC initgmpy2(void)
         INITERROR;
     if (PyType_Ready(&GMPyIter_Type) < 0)
         INITERROR;
-#ifdef WITHMPFR
     if (PyType_Ready(&Pympfr_Type) < 0)
         INITERROR;
     if (PyType_Ready(&GMPyContext_Type) < 0)
         INITERROR;
     if (PyType_Ready(&GMPyContextManager_Type) < 0)
         INITERROR;
-#endif
-#ifdef WITHMPC
     if (PyType_Ready(&Pympc_Type) < 0)
         INITERROR;
-#endif
 
     /* Initialize the custom memory handlers. */
     mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
@@ -915,14 +896,9 @@ PyMODINIT_FUNC initgmpy2(void)
     set_pympzcache();
     set_pympqcache();
     set_pyxmpzcache();
-#ifdef WITHMPFR
     set_pympfrcache();
-#endif
-#ifdef WITHMPC
     set_pympccache();
-#endif
 
-#ifdef WITHMPFR
     /* Initialize exceptions. */
     GMPyExc_GmpyError = PyErr_NewException("gmpy2.gmpyError",
                                            PyExc_ArithmeticError, NULL);
@@ -972,7 +948,6 @@ PyMODINIT_FUNC initgmpy2(void)
     if (!GMPyExc_DivZero)
         INITERROR;
 
-#endif
 
 #ifdef PY3
     gmpy_module = PyModule_Create(&moduledef);
@@ -983,7 +958,6 @@ PyMODINIT_FUNC initgmpy2(void)
     if (gmpy_module == NULL)
         INITERROR;
 
-#ifdef WITHMPFR
     /* Initialize thread local contexts. */
 #ifdef WITHOUT_THREADS
     module_context = (GMPyContextObject*)GMPyContext_new();
@@ -1002,9 +976,7 @@ PyMODINIT_FUNC initgmpy2(void)
         INITERROR;
     }
 #endif
-#endif
 
-#ifdef WITHMPFR
     /* Add the constants for defining rounding modes. */
     if (PyModule_AddIntConstant(gmpy_module, "RoundToNearest", MPFR_RNDN) < 0)
         INITERROR;
@@ -1055,7 +1027,6 @@ PyMODINIT_FUNC initgmpy2(void)
         Py_DECREF(GMPyExc_ExpBound);
         INITERROR;
     }
-#endif
 
     /* Add support for pickling. */
 #ifdef PY3
@@ -1066,13 +1037,8 @@ PyMODINIT_FUNC initgmpy2(void)
             "copyreg.pickle(type(gmpy2.mpz(0)), gmpy2_reducer)\n"
             "copyreg.pickle(type(gmpy2.xmpz(0)), gmpy2_reducer)\n"
             "copyreg.pickle(type(gmpy2.mpq(0)), gmpy2_reducer)\n"
-#ifdef WITHMPFR
             "copyreg.pickle(type(gmpy2.mpfr(0)), gmpy2_reducer)\n"
-#endif
-#ifdef WITHMPC
-            "copyreg.pickle(type(gmpy2.mpc(0,0)), gmpy2_reducer)\n"
-#endif
-        ;
+            "copyreg.pickle(type(gmpy2.mpc(0,0)), gmpy2_reducer)\n";
         PyObject* namespace = PyDict_New();
         PyObject* result = NULL;
         PyDict_SetItemString(namespace, "copyreg", copy_reg_module);
@@ -1097,13 +1063,8 @@ PyMODINIT_FUNC initgmpy2(void)
             "copy_reg.pickle(type(gmpy2.mpz(0)), gmpy2_reducer)\n"
             "copy_reg.pickle(type(gmpy2.xmpz(0)), gmpy2_reducer)\n"
             "copy_reg.pickle(type(gmpy2.mpq(0)), gmpy2_reducer)\n"
-#ifdef WITHMPFR
             "copy_reg.pickle(type(gmpy2.mpfr(0)), gmpy2_reducer)\n"
-#endif
-#ifdef WITHMPFR
-            "copy_reg.pickle(type(gmpy2.mpc(0,0)), gmpy2_reducer)\n"
-#endif
-        ;
+            "copy_reg.pickle(type(gmpy2.mpc(0,0)), gmpy2_reducer)\n";
         PyObject* namespace = PyDict_New();
         PyObject* result = NULL;
 
