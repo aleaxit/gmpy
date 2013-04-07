@@ -52,13 +52,11 @@ typedef struct {
     int trap_divzero;        /* if 1, raise exception for divide by zero */
     int trap_expbound;       /* if 1, raise exception if mpfr/mpc exponents */
                              /*       are out of bounds */
-#ifdef WITHMPC
     mpfr_prec_t real_prec;   /* current precision in bits, for Re(MPC) */
     mpfr_prec_t imag_prec;   /* current precision in bits, for Im(MPC) */
     mpfr_rnd_t real_round;   /* current rounding mode for Re(MPC) */
     mpfr_rnd_t imag_round;   /* current rounding mode for Im(MPC) */
     int allow_complex;       /* if 1, allow mpfr functions to return an mpc */
-#endif
     int template;            /* if 1, this context is a template */
 } gmpy_context;
 

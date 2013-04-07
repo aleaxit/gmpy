@@ -821,9 +821,7 @@ static PyObject *
 Pympfr_pow(PyObject *base, PyObject *exp, PyObject *m)
 {
     PympfrObject *tempb, *tempe, *result;
-#ifdef WITHMPC
     PympcObject *mpc_result;
-#endif
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
@@ -861,7 +859,6 @@ Pympfr_pow(PyObject *base, PyObject *exp, PyObject *m)
     mpfr_clear_flags();
     result->rc = mpfr_pow(result->f, tempb->f,
                           tempe->f, context->ctx.mpfr_round);
-#ifdef WITHMPC
     if (result && mpfr_nanflag_p() && context->ctx.allow_complex) {
         /* If we don't get a valid result, or the result is a nan, then just
          * return the original mpfr value. */
@@ -878,7 +875,6 @@ Pympfr_pow(PyObject *base, PyObject *exp, PyObject *m)
         result = (PympfrObject*)mpc_result;
         goto done;
     }
-#endif
 
     SUBNORMALIZE(result)
     MERGE_FLAGS
@@ -936,7 +932,7 @@ MPFR_CONST(const_log2)
 
 PyDoc_STRVAR(doc_mpfr_const_catalan,
 "const_catalan([precision=0]) -> mpfr\n\n"
-"Return the catalan constant  using the specified precision. If no\n"
+"Return the catalan constant using the specified precision. If no\n"
 "precision is specified, the default precision is used.");
 
 MPFR_CONST(const_catalan)
@@ -951,12 +947,10 @@ Pympfr_sqrt(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPFR_OTHER("sqrt() requires 'mpfr' argument");
 
-#ifdef WITHMPC
     if (mpfr_sgn(Pympfr_AS_MPFR(self)) < 0 && context->ctx.allow_complex) {
         Py_DECREF(self);
         return Pympc_sqrt(self, other);
     }
-#endif
 
     if (!(result = (PympfrObject*)Pympfr_new(0))) {
         Py_DECREF(self);
@@ -1481,7 +1475,6 @@ Pympfr_acos(PyObject* self, PyObject *other)
 
     PARSE_ONE_MPFR_OTHER("acos() requires 'mpfr' argument");
 
-#ifdef WITHMPC
     if (!mpfr_nan_p(Pympfr_AS_MPFR(self)) &&
             (mpfr_cmp_si(Pympfr_AS_MPFR(self), 1) > 0 ||
             mpfr_cmp_si(Pympfr_AS_MPFR(self), -1) < 0) &&
@@ -1489,7 +1482,6 @@ Pympfr_acos(PyObject* self, PyObject *other)
         Py_DECREF(self);
         return Pympc_acos(self, other);
     }
-#endif
 
     if (!(result = (PympfrObject*)Pympfr_new(0))) {
         Py_DECREF(self);
@@ -1511,7 +1503,6 @@ Pympfr_asin(PyObject* self, PyObject *other)
 
     PARSE_ONE_MPFR_OTHER("asin() requires 'mpfr' argument");
 
-#ifdef WITHMPC
     if (!mpfr_nan_p(Pympfr_AS_MPFR(self)) &&
             (mpfr_cmp_si(Pympfr_AS_MPFR(self), 1) > 0 ||
             mpfr_cmp_si(Pympfr_AS_MPFR(self), -1) < 0) &&
@@ -1519,7 +1510,6 @@ Pympfr_asin(PyObject* self, PyObject *other)
         Py_DECREF(self);
         return Pympc_asin(self, other);
     }
-#endif
 
     if (!(result = (PympfrObject*)Pympfr_new(0))) {
         Py_DECREF(self);
@@ -1571,7 +1561,6 @@ Pympfr_atanh(PyObject* self, PyObject *other)
 
     PARSE_ONE_MPFR_OTHER("atanh() requires 'mpfr' argument");
 
-#ifdef WITHMPC
     if (!mpfr_nan_p(Pympfr_AS_MPFR(self)) &&
             (mpfr_cmp_si(Pympfr_AS_MPFR(self), 1) > 0 ||
             mpfr_cmp_si(Pympfr_AS_MPFR(self), -1) < 0) &&
@@ -1579,7 +1568,6 @@ Pympfr_atanh(PyObject* self, PyObject *other)
         Py_DECREF(self);
         return Pympc_atanh(self, other);
     }
-#endif
 
     if (!(result = (PympfrObject*)Pympfr_new(0))) {
         Py_DECREF(self);

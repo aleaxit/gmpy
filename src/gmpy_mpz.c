@@ -58,11 +58,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
     }
     if (argc == 1) {
         n = PyTuple_GetItem(args, 0);
-#ifdef WITHMPFR
         if (isReal(n) && !keywds) {
-#else
-        if ((isRational(n) || PyFloat_Check(n)) && !keywds) {
-#endif
             result = Pympz_From_Number(n);
             if (!result && !PyErr_Occurred())
                 TYPE_ERROR("mpz() requires numeric or string argument");

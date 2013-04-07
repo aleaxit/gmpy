@@ -44,7 +44,6 @@ static PyObject * Pympany_div(PyObject *self, PyObject *args);
 static PyObject * Pympany_to_binary(PyObject *self, PyObject *other);
 static PyObject * Pympany_pow(PyObject *base, PyObject *exp, PyObject *mod);
 static PyObject * Pympany_printf(PyObject *self, PyObject *args);
-#ifdef WITHMPFR
 static PyObject * Pympany_is_nan(PyObject *self, PyObject *other);
 static PyObject * Pympany_is_inf(PyObject *self, PyObject *other);
 static PyObject * Pympany_is_infinite(PyObject *self, PyObject *other);
@@ -69,7 +68,6 @@ static PyObject * Pympany_fma(PyObject *self, PyObject *other);
 static PyObject * Pympany_fms(PyObject *self, PyObject *other);
 static PyObject * Pympany_div_2exp(PyObject *self, PyObject *other);
 static PyObject * Pympany_mul_2exp(PyObject *self, PyObject *other);
-#endif
 static PyObject * mpany_richcompare(PyObject *a, PyObject *b, int op);
 
 #ifdef __cplusplus

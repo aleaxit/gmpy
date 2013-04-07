@@ -63,17 +63,13 @@ static void set_pympqcache(void);
 static PyObject * Pympq_new(void);
 static void Pympq_dealloc(PympqObject *self);
 
-#ifdef WITHMPFR
 static void set_pympfrcache(void);
 static PyObject * Pympfr_new(mpfr_prec_t bits);
 static void Pympfr_dealloc(PympfrObject *self);
-#endif
 
-#ifdef WITHMPC
 static void set_pympccache(void);
 static PyObject * Pympc_new(mpfr_prec_t rprec, mpfr_prec_t iprec);
 static void Pympc_dealloc(PympcObject *self);
-#endif
 
 #ifdef __cplusplus
 }

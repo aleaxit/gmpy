@@ -250,22 +250,19 @@ typedef long                mpir_si;
 
 #include "gmpy_mpq.h"
 
-#ifdef WITHMPFR
-#  include "mpfr.h"
-#  include "gmpy_mpfr.h"
-#  if MPFR_VERSION < 0x030100
-#    error gmpy2 requires MPFR 3.1.0 or later
-#  endif
-#  include "gmpy_context.h"
+#include "mpfr.h"
+#include "gmpy_mpfr.h"
+#if MPFR_VERSION < 0x030100
+#  error gmpy2 requires MPFR 3.1.0 or later
 #endif
 
-#ifdef WITHMPC
-#  include "mpc.h"
-#  include "gmpy_mpc.h"
-#  if MPC_VERSION < 0x010000
-#    error gmpy2 requires MPC 1.0.0 or later
-#  endif
+#include "mpc.h"
+#include "gmpy_mpc.h"
+#if MPC_VERSION < 0x010000
+#  error gmpy2 requires MPC 1.0.0 or later
 #endif
+
+#include "gmpy_context.h"
 
 #include "gmpy_convert.h"
 

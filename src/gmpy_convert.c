@@ -81,7 +81,6 @@ static int isRational(PyObject* obj)
     return 0;
 }
 
-#ifdef WITHMPFR
 static int isReal(PyObject* obj)
 {
     if (Pympz_Check(obj))       return 1;
@@ -95,9 +94,7 @@ static int isReal(PyObject* obj)
 
     return 0;
 }
-#endif
 
-#ifdef WITHMPC
 static int isComplex(PyObject* obj)
 {
     if (Pympz_Check(obj))       return 1;
@@ -113,7 +110,6 @@ static int isComplex(PyObject* obj)
 
     return 0;
 }
-#endif
 
 static PyxmpzObject *
 Pyxmpz_From_Pyxmpz(PyObject *self)
@@ -683,11 +679,9 @@ Pympz_From_Number(PyObject* obj)
     else if (Pympq_Check(obj)) {
         newob = Pympq_To_Pympz(obj);
     }
-#ifdef WITHMPFR
     else if (Pympfr_Check(obj)) {
         newob = Pympfr_To_Pympz(obj);
     }
-#endif
     else if (PyFloat_Check(obj)) {
         newob = Pympz_From_PyFloat(obj);
     }
@@ -732,11 +726,9 @@ Pyxmpz_From_Number(PyObject* obj)
     else if (Pympq_Check(obj)) {
         newob = Pympq_To_Pyxmpz(obj);
     }
-#ifdef WITHMPFR
     else if (Pympfr_Check(obj)) {
         newob = Pympfr_To_Pyxmpz(obj);
     }
-#endif
     else if (PyFloat_Check(obj)) {
         newob = Pyxmpz_From_PyFloat(obj);
     }
@@ -1679,11 +1671,9 @@ Pympq_From_Number(PyObject* obj)
         newob = Pympq_From_PyInt(obj);
 #endif
     }
-#ifdef WITHMPFR
     else if (Pympfr_Check(obj)) {
         newob = Pympfr_To_Pympq(obj);
     }
-#endif
     else if (PyFloat_Check(obj)) {
         newob = Pympq_From_PyFloat(obj);
     }
@@ -1770,7 +1760,6 @@ Pympq_To_Repr(PympqObject *self)
     return Pympq_To_PyStr(self, 10, 1);
 }
 
-#ifdef WITHMPFR
 /* Functions that operate strictly on mpfr. */
 
 /* Make a copy of an mpfr object. If bits is 0, the new object will have
@@ -2388,9 +2377,6 @@ Pympfr_To_Repr(PympfrObject *self)
     Py_DECREF(temp);
     return result;
 }
-#endif
-
-#ifdef WITHMPC
 static PympcObject *
 Pympc_From_Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
@@ -2918,7 +2904,6 @@ Pympc_To_Repr(PympcObject *self)
     Py_DECREF(temp);
     return result;
 }
-#endif
 
 
 

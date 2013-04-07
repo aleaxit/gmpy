@@ -80,12 +80,8 @@ PyDoc_STRVAR(doc_mpfr_version,
 static PyObject *
 Pygmpy_get_mpfr_version(PyObject *self, PyObject *args)
 {
-#ifdef WITHMPFR
     return Py2or3String_FromFormat("%s %s", "MPFR",
                                    MPFR_VERSION_STRING);
-#else
-    Py_RETURN_NONE;
-#endif
 }
 
 PyDoc_STRVAR(doc_mpc_version,
@@ -96,12 +92,8 @@ PyDoc_STRVAR(doc_mpc_version,
 static PyObject *
 Pygmpy_get_mpc_version(PyObject *self, PyObject *args)
 {
-#ifdef WITHMPC
     return Py2or3String_FromFormat("%s %s", "MPC",
                                    MPC_VERSION_STRING);
-#else
-    Py_RETURN_NONE;
-#endif
 }
 
 PyDoc_STRVAR(doc_mp_limbsize,
@@ -157,11 +149,7 @@ Pygmpy_set_cache(PyObject *self, PyObject *args)
     set_pympzcache();
     set_pympqcache();
     set_pyxmpzcache();
-#ifdef WITHMPFR
     set_pympfrcache();
-#endif
-#ifdef WITHMPC
     set_pympccache();
-#endif
     Py_RETURN_NONE;
 }
