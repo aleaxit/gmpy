@@ -1704,6 +1704,7 @@ Pympfr_add_fast(PyObject *x, PyObject *y)
         if (!(result = (PympfrObject*)Pympfr_new(0))) {
             return NULL;
         }
+        mpfr_clear_flags();
         result->rc = mpfr_add(result->f,
                               Pympfr_AS_MPFR(x),
                               Pympfr_AS_MPFR(y),
@@ -1742,6 +1743,7 @@ Pympfr_sub_fast(PyObject *x, PyObject *y)
         if (!(result = (PympfrObject*)Pympfr_new(0))) {
             return NULL;
         }
+        mpfr_clear_flags();
         result->rc = mpfr_sub(result->f,
                               Pympfr_AS_MPFR(x),
                               Pympfr_AS_MPFR(y),
@@ -1780,6 +1782,7 @@ Pympfr_mul_fast(PyObject *x, PyObject *y)
         if (!(result = (PympfrObject*)Pympfr_new(0))) {
             return NULL;
         }
+        mpfr_clear_flags();
         result->rc = mpfr_mul(result->f,
                               Pympfr_AS_MPFR(x),
                               Pympfr_AS_MPFR(y),
@@ -1818,6 +1821,7 @@ Pympfr_truediv_fast(PyObject *x, PyObject *y)
         if (!(result = (PympfrObject*)Pympfr_new(0))) {
             return NULL;
         }
+        mpfr_clear_flags();
         result->rc = mpfr_div(result->f,
                               Pympfr_AS_MPFR(x),
                               Pympfr_AS_MPFR(y),
@@ -1840,6 +1844,7 @@ Pympfr_div2_fast(PyObject *x, PyObject *y)
         if (!(result = (PympfrObject*)Pympfr_new(0))) {
             return NULL;
         }
+        mpfr_clear_flags();
         result->rc = mpfr_div(result->f,
                               Pympfr_AS_MPFR(x),
                               Pympfr_AS_MPFR(y),
