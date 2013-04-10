@@ -318,6 +318,10 @@
  *   Added copy() method to contexts (casevh)
  *   get_context() no longer supports keyword arguments (casevh)
  *
+ *   2.0.1
+ *   Updated setup.py (casevh)
+ *   Added missing mpfr_clear_flags() to Pympfr_*_fast (casevh)
+ *
  ************************************************************************
  *
  * Discussion on sizes of C integer types.
@@ -387,7 +391,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.0.0";
+char gmpy_version[] = "2.0.1a0";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -836,7 +840,7 @@ _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] =
-"gmpy2 2.0.0 - General Multiple-precision arithmetic for Python\n"
+"gmpy2 2.0.1 - General Multiple-precision arithmetic for Python\n"
 "\n"
 "gmpy2 supports several multiple-precision libraries. Integer and\n"
 "rational arithmetic is provided by either the GMP or MPIR libraries.\n"
