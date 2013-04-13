@@ -1204,28 +1204,61 @@ Pympc_hash(PympcObject *self)
     return (Py_hash_t)combined;
 }
 
+/* Pympc_Add_Complex(x, y, context) returns x+y using the provided context. If
+ * an error occurs, NULL is returned and an exception is set. If either x or
+ * y can't be converted to an mpc, then Py_NotImplemented is returned. */
+
+static PyObject *
+Pympc_Add_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
+{
+    PympcObject *result = NULL;
+
+    if (!(result = (PympcObject*)Pympc_new_context(0, 0, context)))
+        return NULL;
+
+    if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
+        result->rc = mpc_add(result->c, Pympc_AS_MPC(x), Pympc_AS_MPC(y),
+                             GET_MPC_ROUND(context));
+        MPC_CLEANUP_RESULT("addition");
+        return (PyObject*)result;
+    }
+
+    if (isComplex(x) && isComplex(y)) {
+        PympcObject *tempx, *tempy;
+
+        tempx = Pympc_From_Complex_context(x, 0, 0, context);
+        tempy = Pympc_From_Complex_context(y, 0, 0, context);
+        if (!tempx || !tempy) {
+            SYSTEM_ERROR("Can not convert Complex to 'mpc'");
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+        result->rc = mpc_add(result->c, tempx->c, tempy->c, GET_MPC_ROUND(context));
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+        MPC_CLEANUP_RESULT("addition");
+        return (PyObject*)result;
+    }
+
+    Py_DECREF((PyObject*)result);
+    Py_RETURN_NOTIMPLEMENTED;
+}
+
+/* Pympc_add_fast() is called by mpc.__add__. It just gets a borrowed reference
+ * to the current context and call Pympc_Add_Complex(). Since mpc is the last
+ * step of the numeric ladder, the NotImplemented return value from
+ * Pympc_Add_Complex() is correct and is just passed on. */
+
 static PyObject *
 Pympc_add_fast(PyObject *x, PyObject *y)
 {
-    PympcObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
-    if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
-        if (!(result = (PympcObject*)Pympc_new(0, 0))) {
-            return NULL;
-        }
-        result->rc = mpc_add(result->c,
-                             Pympc_AS_MPC(x),
-                             Pympc_AS_MPC(y),
-                             GET_MPC_ROUND(context));
-        MPC_CLEANUP(result, "addition");
-        return (PyObject*)result;
-    }
-    else {
-        return Pybasic_add(x, y);
-    }
+    return Pympc_Add_Complex(x, y, context);
 }
 
 static PyObject *

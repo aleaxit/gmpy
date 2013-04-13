@@ -138,6 +138,41 @@ static PyTypeObject Pympc_Type;
     MPC_CHECK_OVERFLOW(mpct, "'mpc' overflow in "NAME); \
     MPC_CHECK_INEXACT(mpct, "'mpc' inexact result in "NAME);
 
+#define MPC_CHECK_FLAGS_RESULT(NAME) \
+    if (MPC_IS_NAN_P(result)) { \
+        context->ctx.invalid = 1; \
+        if (context->ctx.trap_invalid) { \
+            GMPY_INVALID("'mpc' invalid operation "NAME); \
+            Py_DECREF((PyObject*)result); \
+            return NULL; \
+        } \
+    } \
+    if (MPC_IS_ZERO_P(result) && result->rc) { \
+        context->ctx.underflow = 1; \
+        if (context->ctx.trap_underflow) { \
+            GMPY_UNDERFLOW("'mpc' underflow in "NAME); \
+            Py_DECREF((PyObject*)result); \
+            return NULL; \
+        } \
+    } \
+    if (MPC_IS_INF_P(result)) { \
+        context->ctx.overflow = 1; \
+        if (context->ctx.trap_overflow) { \
+            GMPY_OVERFLOW("'mpc' overflow in "NAME); \
+            Py_DECREF((PyObject*)result); \
+            return NULL; \
+        } \
+    } \
+    if (result->rc) { \
+        context->ctx.inexact = 1; \
+        if (context->ctx.trap_inexact) { \
+            GMPY_INEXACT("'mpc' inexact result in "NAME); \
+            Py_DECREF((PyObject*)result); \
+            return NULL; \
+        } \
+    } \
+
+
 #define MPC_SUBNORMALIZE(mpct) \
     if (context->ctx.subnormalize) { \
         int rcr, rci; \
@@ -157,6 +192,10 @@ static PyTypeObject Pympc_Type;
         mpct = NULL; \
     } \
     return (PyObject*)mpct;
+
+#define MPC_CLEANUP_RESULT(NAME) \
+    MPC_SUBNORMALIZE(result); \
+    MPC_CHECK_FLAGS_RESULT(NAME);
 
 /*
  * Parses one, and only one, argument into "self" and converts it to an
@@ -313,6 +352,7 @@ static PyObject * Pympc_div_2exp(PyObject *self, PyObject *args);
 static PyObject * Pympc_mul_2exp(PyObject *self, PyObject *args);
 static Py_hash_t Pympc_hash(PympcObject *self);
 static PyObject * Pympc_add_fast(PyObject *x, PyObject *y);
+static PyObject * Pympc_Add_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympc_add(PyObject *self, PyObject *args);
 static PyObject * Pympc_sub_fast(PyObject *x, PyObject *y);
 static PyObject * Pympc_sub(PyObject *self, PyObject *args);

@@ -702,6 +702,76 @@ Pympq_add(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+/* Add two Rational objects (see convert.c/isRational). Returns None and
+ * raises TypeError if both objects are not valid rationals. Pympq_Add_Rational
+ * is intended to be called from Pympany_Add_Number. */
+
+static PyObject *
+Pympq_Add_Rational(PyObject *x, PyObject *y)
+{
+    PyObject *result = NULL;
+
+    if (!(result = Pympq_new()))
+        return NULL;
+
+    if (Pympq_Check(x) && Pympq_Check(y)) {
+        mpq_add(Pympq_AS_MPQ(result), Pympq_AS_MPQ(x), Pympq_AS_MPQ(y));
+        return result;
+    }
+
+    if (isRational(x) && isRational(y)) {
+        PympqObject *tempx, *tempy;
+
+        tempx = Pympq_From_Number(x);
+        tempy = Pympq_From_Number(y);
+        if (!tempx || !tempy) {
+            SYSTEM_ERROR("Could not convert Rational to mpq.");
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF(result);
+        }
+
+        mpq_add(Pympq_AS_MPQ(result), tempx->q, tempy->q);
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+        return result;
+    }
+
+    Py_DECREF(result);
+    Py_RETURN_NOTIMPLEMENTED;
+}
+
+/* Implement __add__ for Pympq. On entry, one of the two arguments must
+ * be a Pympq. If the other object is a Rational, add and return a Pympq.
+ * If the other object isn't a Pympq, call the appropriate function. If
+ * no appropriate function can be found, return NotImplemented. */
+
+static PyObject *
+Pympq_add_fast(PyObject *x, PyObject *y)
+{
+    PyObject *result;
+    GMPyContextObject *context;
+
+    result = Pympq_Add_Rational(x, y);
+
+    if (result != Py_NotImplemented)
+        return result;
+
+    Py_DECREF(result);
+
+    CURRENT_CONTEXT(context);
+
+    if (isReal(x) && isReal(y))
+        result = Pympfr_Add_Real(x, y, context);
+    else if (isComplex(x) && isComplex(y))
+        result = Pympc_Add_Complex(x, y, context);
+    else {
+        Py_INCREF(Py_NotImplemented);
+        result = Py_NotImplemented;
+    }
+    return result;
+}
+
 static PyObject *
 Pympq_sub(PyObject *self, PyObject *args)
 {
@@ -774,7 +844,7 @@ Pympq_sizeof(PyObject *self, PyObject *other)
 #ifdef PY3
 static PyNumberMethods mpq_number_methods =
 {
-    (binaryfunc) Pybasic_add,            /* nb_add                  */
+    (binaryfunc) Pympq_add_fast,         /* nb_add                  */
     (binaryfunc) Pybasic_sub,            /* nb_subtract             */
     (binaryfunc) Pybasic_mul,            /* nb_multiply             */
     (binaryfunc) Pybasic_rem,            /* nb_remainder            */
@@ -812,7 +882,7 @@ static PyNumberMethods mpq_number_methods =
 #else
 static PyNumberMethods mpq_number_methods =
 {
-    (binaryfunc) Pybasic_add,            /* nb_add                  */
+    (binaryfunc) Pympq_add_fast,         /* nb_add                  */
     (binaryfunc) Pybasic_sub,            /* nb_subtract             */
     (binaryfunc) Pybasic_mul,            /* nb_multiply             */
     (binaryfunc) Pybasic_div2,           /* nb_divide               */

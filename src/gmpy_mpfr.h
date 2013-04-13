@@ -248,8 +248,7 @@ typedef struct {
         GMPY_INEXACT("'mpfr' inexact result in " #NAME); \
         Py_DECREF((PyObject*)result); \
         return NULL; \
-    } \
-    return (PyObject*)result;
+    }
 
 static PyTypeObject Pympfr_Type;
 #define Pympfr_AS_MPFR(obj) (((PympfrObject *)(obj))->f)
@@ -370,6 +369,7 @@ static PyObject * Pympfr_y1(PyObject* self, PyObject *other);
 static PyObject * Pympfr_yn(PyObject* self, PyObject *other);
 static PyObject * Pympfr_ai(PyObject* self, PyObject *other);
 static PyObject * Pympfr_add_fast(PyObject *x, PyObject *y);
+static PyObject * Pympfr_Add_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympfr_add(PyObject* self, PyObject *other);
 static PyObject * Pympfr_sub_fast(PyObject *x, PyObject *y);
 static PyObject * Pympfr_sub(PyObject* self, PyObject *other);
