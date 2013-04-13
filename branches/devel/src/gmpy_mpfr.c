@@ -1761,8 +1761,197 @@ PyDoc_STRVAR(doc_g_mpfr_ai,
 
 MPFR_UNIOP(ai)
 
+/* Addition can be performed by the equivalent of mpfr.__add__ or by
+ * gmpy2.add().
+ *
+ *   Pympfr_Add_Real(x, y, context) returns x+y using the provided context. If
+ *   an error occurs, NULL is returned and an exception is set. If either x or
+ *   y can't be converted to an mpfr, then Py_NotImplemented is returned.
+ *   Pympfr_Add_Real() will not try to promote the result to a different type
+ *   (i.e. mpc).
+ *
+ *   Pympfr_add_fast(x, y) is the entry point for mpfr.__add__.
+ *   Pympfr_add_fast() gets a reference to the thread local context and then
+ *   calls Pympfr_Add_Real(x, y, context). If Py_NotImplmented is returned,
+ *   Pympc_Add_Complex(x, y, context) is called.
+ */
+
+/* Attempt to add two numbers and return an mpfr. The code path is optimized by
+ * checking for mpfr objects first. Returns Py_NotImplemented if both objects
+ * are not valid reals.  */
+
+static PyObject *
+Pympfr_Add_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
+{
+    PympfrObject *result = NULL;
+
+    if (!(result = (PympfrObject*)Pympfr_new_context(0, context)))
+        return NULL;
+
+    /* This only processes mpfr if the exponent is still in-bounds. Need
+     * to handle the rare case at the end. */
+
+    if (Pympfr_CheckAndExp(x) && Pympfr_CheckAndExp(y)) {
+        mpfr_clear_flags();
+        result->rc = mpfr_add(result->f, Pympfr_AS_MPFR(x), Pympfr_AS_MPFR(y),
+                              GET_MPFR_ROUND(context));
+        MPFR_CLEANUP_RESULT("addition");
+        return (PyObject*)result;
+    }
+
+    if (Pympfr_CheckAndExp(x)) {
+        if (isInteger(y)) {
+            PympzObject *tempy;
+
+            if (!(tempy = Pympz_From_Number(y))) {
+                SYSTEM_ERROR("Can not convert Integer to 'mpz'");
+                Py_DECREF(result);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            result->rc = mpfr_add_z(result->f, Pympfr_AS_MPFR(x), tempy->z,
+                                    GET_MPFR_ROUND(context));
+            Py_DECREF((PyObject*)tempy);
+            MPFR_CLEANUP_RESULT("addition");
+            return (PyObject*)result;
+        }
+
+        if (isRational(y) || isDecimal(y)) {
+            PympqObject *tempy;
+
+            if (!(tempy = Pympq_From_Number(y))) {
+                SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
+                Py_DECREF(result);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            result->rc = mpfr_add_q(result->f, Pympfr_AS_MPFR(x), tempy->q,
+                                    GET_MPFR_ROUND(context));
+            Py_DECREF((PyObject*)tempy);
+            MPFR_CLEANUP_RESULT("addition");
+            return (PyObject*)result;
+        }
+
+        if (PyFloat_Check(y)) {
+            mpfr_clear_flags();
+            result->rc = mpfr_add_d (result->f, Pympfr_AS_MPFR(x), PyFloat_AS_DOUBLE(y),
+                                   GET_MPFR_ROUND(context));
+            MPFR_CLEANUP_RESULT("addition");
+            return (PyObject*)result;
+        }
+    }
+
+    if (Pympfr_CheckAndExp(y)) {
+        if (isInteger(x)) {
+            PympzObject *tempx;
+
+            if (!(tempx = Pympz_From_Number(x))) {
+                SYSTEM_ERROR("Can not convert Integer to 'mpz'");
+                Py_DECREF(result);
+                return NULL;
+            }
+
+            mpfr_clear_flags();
+            Py_DECREF((PyObject*)tempx);
+
+            result->rc = mpfr_add_z(result->f, Pympfr_AS_MPFR(y), tempx->z,
+                                    GET_MPFR_ROUND(context));
+            Py_DECREF((PyObject*)tempx);
+            MPFR_CLEANUP_RESULT("addition");
+            return (PyObject*)result;
+        }
+
+        if (isRational(x) || isDecimal(x)) {
+            PympqObject *tempx;
+
+            if (!(tempx = Pympq_From_Number(x))) {
+                SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
+                Py_DECREF(result);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            result->rc = mpfr_add_q(result->f, Pympfr_AS_MPFR(y), tempx->q,
+                                    GET_MPFR_ROUND(context));
+            Py_DECREF((PyObject*)tempx);
+            MPFR_CLEANUP_RESULT("addition");
+            return (PyObject*)result;
+        }
+        if (PyFloat_Check(x)) {
+            mpfr_clear_flags();
+            result->rc = mpfr_add_d(result->f, Pympfr_AS_MPFR(y), PyFloat_AS_DOUBLE(x),
+                                    GET_MPFR_ROUND(context));
+            MPFR_CLEANUP_RESULT("addition");
+            return (PyObject*)result;
+        }
+    }
+
+    /* The rare case when the exponent bounds have been changed is handled here.
+     * See Pympfr_From_Real() for details. */
+
+    if (Pympfr_Check(x) && Pympfr_Check(y)) {
+        PympfrObject *tempx, *tempy;
+
+        tempx = Pympfr_From_Real_context(x, 0, context);
+        tempy = Pympfr_From_Real_context(y, 0, context);
+        if (!tempx || !tempy) {
+            SYSTEM_ERROR("Can not convert 'mpfr' to 'mpfr'");
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF(result);
+        }
+        result->rc = mpfr_add(result->f, Pympfr_AS_MPFR(tempx), Pympfr_AS_MPFR(tempy),
+                              GET_MPFR_ROUND(context));
+        MPFR_CLEANUP_RESULT("addition");
+        return (PyObject*)result;
+    }
+
+    Py_DECREF(result);
+    Py_RETURN_NOTIMPLEMENTED;
+}
+
+/* Implement __add__ for Pympfr. On entry, one of the two arguments must
+ * be a Pympfr. If the other object is a Real, add and return a Pympfr.
+ * If the other object isn't a Pympfr, call the appropriate function. If
+ * no appropriate function can be found, return NotImplemented. */
+
 static PyObject *
 Pympfr_add_fast(PyObject *x, PyObject *y)
+{
+    PyObject *result = NULL;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+
+    result = Pympfr_Add_Real(x, y, context);
+
+    if (result != Py_NotImplemented)
+        return result;
+
+    Py_DECREF(result);
+
+    if (isComplex(x) && isComplex(y)) {
+        return Pympc_Add_Complex(x, y, context);
+    }
+
+    Py_RETURN_NOTIMPLEMENTED;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+static PyObject *
+Pympfr_add_fast_old(PyObject *x, PyObject *y)
 {
     PympfrObject *result;
     GMPyContextObject *context;

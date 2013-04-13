@@ -65,6 +65,7 @@ static PyObject * Pympq_add(PyObject *self, PyObject *args);
 static PyObject * Pympq_sub(PyObject *self, PyObject *args);
 static PyObject * Pympq_mul(PyObject *self, PyObject *args);
 static PyObject * Pympq_div(PyObject *self, PyObject *args);
+static PyObject * Pympq_Add_Rational(PyObject *x, PyObject *y);
 
 #ifdef __cplusplus
 }

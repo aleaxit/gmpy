@@ -270,6 +270,36 @@ Pympfr_new(mpfr_prec_t bits)
     return (PyObject*)self;
 }
 
+static PyObject *
+Pympfr_new_context(mpfr_prec_t bits, GMPyContextObject *context)
+{
+    PympfrObject *self;
+
+    if (!bits)
+        bits = context->ctx.mpfr_prec;
+
+    if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
+        VALUE_ERROR("invalid value for precision");
+        return NULL;
+    }
+    if (in_pympfrcache) {
+        self = pympfrcache[--in_pympfrcache];
+        /* Py_INCREF does not set the debugging pointers, so need to use
+           _Py_NewReference instead. */
+        _Py_NewReference((PyObject*)self);
+        mpfr_set_prec(self->f, bits);
+    }
+    else {
+        if (!(self = PyObject_New(PympfrObject, &Pympfr_Type)))
+            return NULL;
+        mpfr_init2(self->f, bits);
+    }
+    self->hash_cache = -1;
+    self->rc = 0;
+    self->round_mode = context->ctx.mpfr_round;
+    return (PyObject*)self;
+}
+
 static void
 Pympfr_dealloc(PympfrObject *self)
 {
@@ -309,6 +339,42 @@ Pympc_new(mpfr_prec_t rprec, mpfr_prec_t iprec)
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
+
+    if (!rprec) rprec = GET_REAL_PREC(context);
+    if (!iprec) iprec = GET_IMAG_PREC(context);
+    if (rprec < MPFR_PREC_MIN || rprec > MPFR_PREC_MAX ||
+        iprec < MPFR_PREC_MIN || iprec > MPFR_PREC_MAX) {
+        VALUE_ERROR("invalid value for precision");
+        return NULL;
+    }
+    if (in_pympccache) {
+        self = pympccache[--in_pympccache];
+        /* Py_INCREF does not set the debugging pointers, so need to use
+           _Py_NewReference instead. */
+        _Py_NewReference((PyObject*)self);
+        if (rprec == iprec) {
+            mpc_set_prec(self->c, rprec);
+        }
+        else {
+            mpc_clear(self->c);
+            mpc_init3(self->c, rprec, iprec);
+        }
+    }
+    else {
+        if (!(self = PyObject_New(PympcObject, &Pympc_Type)))
+            return NULL;
+        mpc_init3(self->c, rprec, iprec);
+    }
+    self->hash_cache = -1;
+    self->rc = 0;
+    self->round_mode = GET_MPC_ROUND(context);
+    return (PyObject*)self;
+}
+
+static PyObject *
+Pympc_new_context(mpfr_prec_t rprec, mpfr_prec_t iprec, GMPyContextObject *context)
+{
+    PympcObject *self;
 
     if (!rprec) rprec = GET_REAL_PREC(context);
     if (!iprec) iprec = GET_IMAG_PREC(context);
