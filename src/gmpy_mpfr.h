@@ -204,6 +204,11 @@ typedef struct {
 #define MPFR_CLEANUP_RF(NAME) \
     SUBNORMALIZE(rf); \
     MERGE_FLAGS; \
+    if (mpfr_nanflag_p() && context->ctx.trap_invalid) { \
+        GMPY_INVALID("'mpfr' invalid operation in " #NAME); \
+        Py_DECREF((PyObject*)rf); \
+        return NULL; \
+    } \
     if (mpfr_divby0_p() && context->ctx.trap_divzero) { \
         GMPY_DIVZERO("'mpfr' division by zero in " #NAME); \
         Py_DECREF((PyObject*)rf); \
@@ -229,6 +234,11 @@ typedef struct {
 #define MPFR_CLEANUP_RESULT(NAME) \
     SUBNORMALIZE(result); \
     MERGE_FLAGS; \
+    if (mpfr_nanflag_p() && context->ctx.trap_invalid) { \
+        GMPY_INVALID("'mpfr' invalid operation in " #NAME); \
+        Py_DECREF((PyObject*)result); \
+        return NULL; \
+    } \
     if (mpfr_divby0_p() && context->ctx.trap_divzero) { \
         GMPY_DIVZERO("'mpfr' division by zero in " #NAME); \
         Py_DECREF((PyObject*)result); \
