@@ -1910,16 +1910,17 @@ Pympfr_Add_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
         }
     }
 
-    /* The rare case when the exponent bounds have been changed is handled here.
-     * See Pympfr_From_Real() for details. */
+    /* In addition to handling PyFloat + PyFloat, the rare case when the
+     * exponent bounds have been changed is handled here. See
+     * Pympfr_From_Real() for details. */
 
-    if (Pympfr_Check(x) && Pympfr_Check(y)) {
+    if (IS_REAL(x) && IS_REAL(y)) {
         PympfrObject *tempx, *tempy;
 
         tempx = Pympfr_From_Real_context(x, 0, context);
         tempy = Pympfr_From_Real_context(y, 0, context);
         if (!tempx || !tempy) {
-            SYSTEM_ERROR("Can not convert 'mpfr' to 'mpfr'");
+            SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF(result);
@@ -1927,6 +1928,8 @@ Pympfr_Add_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
         mpfr_clear_flags();
         result->rc = mpfr_add(result->f, Pympfr_AS_MPFR(tempx), Pympfr_AS_MPFR(tempy),
                               GET_MPFR_ROUND(context));
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
         goto done;
     }
 

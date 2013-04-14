@@ -67,7 +67,7 @@ GMPyContext_new(void)
         result->ctx.real_round = -1;
         result->ctx.imag_round = -1;
         result->ctx.allow_complex = 0;
-        result->ctx.template = 0;
+        result->ctx.readonly = 0;
 
 #ifndef WITHOUT_THREADS
         result->tstate = NULL;
@@ -110,7 +110,7 @@ GMPyContext_set_context(PyObject *self, PyObject *other)
     }
 
     Py_DECREF((PyObject*)module_context);
-    if (((GMPyContextObject*)other)->ctx.template) {
+    if (((GMPyContextObject*)other)->ctx.readonly) {
         module_context = (GMPyContextObject*)GMPyContext_context_copy(other, NULL);
     }
     else {
@@ -203,8 +203,8 @@ GMPyContext_set_context(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    /* Make a copy if it is a template. */
-    if (((GMPyContextObject*)other)->ctx.template) {
+    /* Make a copy if it is readonly. */
+    if (((GMPyContextObject*)other)->ctx.readonly) {
         other = GMPyContext_context_copy(other, NULL);
         if (!other) {
             return NULL;
@@ -418,9 +418,9 @@ GMPyContext_context_copy(PyObject *self, PyObject *other)
 
     result = (GMPyContextObject*)GMPyContext_new();
     result->ctx = ((GMPyContextObject*)self)->ctx;
-    /* If a copy is made from a template, it should no longer be
-     * considered a template. */
-    result->ctx.template = 0;
+    /* If a copy is made from a readonly template, it should no longer be
+     * considered readonly. */
+    result->ctx.readonly = 0;
     return (PyObject*)result;
 }
 
@@ -438,7 +438,7 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
     GMPyContextManagerObject *result;
     PyObject *local_args = args;
     int arg_context = 0;
-    GMPyContextObject *context;
+    GMPyContextObject *context, *temp;
 
     CURRENT_CONTEXT(context);
 
@@ -463,12 +463,20 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
 
     if (arg_context) {
-        result->new_context = (GMPyContextObject*)PyTuple_GET_ITEM(args, 0);
+        temp = (GMPyContextObject*)PyTuple_GET_ITEM(args, 0);
+        if (temp->ctx.readonly) {
+            result->new_context = (GMPyContextObject*)GMPyContext_context_copy( \
+                                                (PyObject*)temp, NULL);
+        }
+        else {
+            result->new_context = (GMPyContextObject*)PyTuple_GET_ITEM(args, 0);
+            Py_INCREF((PyObject*)(result->new_context));
+        }
     }
     else {
         result->new_context = context;
+        Py_INCREF((PyObject*)(result->new_context));
     }
-    Py_INCREF((PyObject*)(result->new_context));
 
     result->old_context = (GMPyContextObject*)GMPyContext_context_copy( \
                                                 (PyObject*)context, NULL);
@@ -839,6 +847,30 @@ GMPyContext_get_##NAME(GMPyContextObject *self, void *closure) \
 static int \
 GMPyContext_set_##NAME(GMPyContextObject *self, PyObject *value, void *closure) \
 { \
+    if (self->ctx.readonly) { \
+        VALUE_ERROR("can not modify a readonly context"); \
+        return -1; \
+    } \
+    if (!(PyBool_Check(value))) { \
+        TYPE_ERROR(#NAME " must be True or False"); \
+        return -1; \
+    } \
+    self->ctx.NAME = (value == Py_True) ? 1 : 0; \
+    return 0; \
+}
+
+/* The _EX version doesn't check if the context is already readonly. This
+ * allows the readonly state to be temporarily cleared. */
+
+#define GETSET_BOOLEAN_EX(NAME) \
+static PyObject * \
+GMPyContext_get_##NAME(GMPyContextObject *self, void *closure) \
+{ \
+    return PyBool_FromLong(self->ctx.NAME); \
+}; \
+static int \
+GMPyContext_set_##NAME(GMPyContextObject *self, PyObject *value, void *closure) \
+{ \
     if (!(PyBool_Check(value))) { \
         TYPE_ERROR(#NAME " must be True or False"); \
         return -1; \
@@ -862,6 +894,7 @@ GETSET_BOOLEAN(trap_erange);
 GETSET_BOOLEAN(trap_divzero);
 GETSET_BOOLEAN(trap_expbound);
 GETSET_BOOLEAN(allow_complex)
+GETSET_BOOLEAN_EX(readonly)
 
 static PyObject *
 GMPyContext_get_precision(GMPyContextObject *self, void *closure)
@@ -874,6 +907,10 @@ GMPyContext_set_precision(GMPyContextObject *self, PyObject *value, void *closur
 {
     Py_ssize_t temp;
 
+    if (self->ctx.readonly) {
+        VALUE_ERROR("can not modify a readonly context");
+        return -1;
+    }
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("precision must be Python integer");
         return -1;
@@ -898,6 +935,10 @@ GMPyContext_set_real_prec(GMPyContextObject *self, PyObject *value, void *closur
 {
     Py_ssize_t temp;
 
+    if (self->ctx.readonly) {
+        VALUE_ERROR("can not modify a readonly context");
+        return -1;
+    }
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("real_prec must be Python integer");
         return -1;
@@ -928,6 +969,10 @@ GMPyContext_set_imag_prec(GMPyContextObject *self, PyObject *value, void *closur
 {
     Py_ssize_t temp;
 
+    if (self->ctx.readonly) {
+        VALUE_ERROR("can not modify a readonly context");
+        return -1;
+    }
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("imag_prec must be Python integer");
         return -1;
@@ -958,6 +1003,10 @@ GMPyContext_set_round(GMPyContextObject *self, PyObject *value, void *closure)
 {
     long temp;
 
+    if (self->ctx.readonly) {
+        VALUE_ERROR("can not modify a readonly context");
+        return -1;
+    }
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("round mode must be Python integer");
         return -1;
@@ -1000,6 +1049,10 @@ GMPyContext_set_real_round(GMPyContextObject *self, PyObject *value, void *closu
 {
     long temp;
 
+    if (self->ctx.readonly) {
+        VALUE_ERROR("can not modify a readonly context");
+        return -1;
+    }
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("round mode must be Python integer");
         return -1;
@@ -1031,6 +1084,10 @@ GMPyContext_set_imag_round(GMPyContextObject *self, PyObject *value, void *closu
 {
     long temp;
 
+    if (self->ctx.readonly) {
+        VALUE_ERROR("can not modify a readonly context");
+        return -1;
+    }
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("round mode must be Python integer");
         return -1;
@@ -1062,6 +1119,10 @@ GMPyContext_set_emin(GMPyContextObject *self, PyObject *value, void *closure)
 {
     long exp;
 
+    if (self->ctx.readonly) {
+        VALUE_ERROR("can not modify a readonly context");
+        return -1;
+    }
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("emin must be Python integer");
         return -1;
@@ -1091,6 +1152,10 @@ GMPyContext_set_emax(GMPyContextObject *self, PyObject *value, void *closure)
 {
     long exp;
 
+    if (self->ctx.readonly) {
+        VALUE_ERROR("can not modify a readonly context");
+        return -1;
+    }
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("emax must be Python integer");
         return -1;
@@ -1138,13 +1203,14 @@ static PyGetSetDef GMPyContext_getseters[] = {
     ADD_GETSET(trap_divzero),
     ADD_GETSET(trap_expbound),
     ADD_GETSET(allow_complex),
+    ADD_GETSET(readonly),
     {NULL}
 };
 
 static PyMethodDef GMPyContext_methods[] =
 {
-    { "clear_flags", GMPyContext_clear_flags, METH_NOARGS,
-            doc_context_clear_flags },
+    { "add", Pympany_add, METH_VARARGS, doc_context_add },
+    { "clear_flags", GMPyContext_clear_flags, METH_NOARGS, doc_context_clear_flags },
     { "copy", GMPyContext_context_copy, METH_NOARGS, doc_context_copy },
     { "__enter__", GMPyContext_enter, METH_NOARGS, NULL },
     { "__exit__", GMPyContext_exit, METH_VARARGS, NULL },
