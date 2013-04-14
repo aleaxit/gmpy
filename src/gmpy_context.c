@@ -219,6 +219,9 @@ GMPyContext_set_context(PyObject *self, PyObject *other)
         return NULL;
     }
 
+    mpfr_set_emin(((GMPyContextObject*)other)->ctx.emin);
+    mpfr_set_emax(((GMPyContextObject*)other)->ctx.emax);
+
     /* Cache the context of the current thread, assuming that it
      * will be accessed several times before a thread switch. */
     cached_context = NULL;
@@ -1212,6 +1215,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "add", Pympany_add, METH_VARARGS, doc_context_add },
     { "clear_flags", GMPyContext_clear_flags, METH_NOARGS, doc_context_clear_flags },
     { "copy", GMPyContext_context_copy, METH_NOARGS, doc_context_copy },
+    { "sub", Pympany_sub, METH_VARARGS, doc_context_sub },
     { "__enter__", GMPyContext_enter, METH_NOARGS, NULL },
     { "__exit__", GMPyContext_exit, METH_VARARGS, NULL },
     { NULL, NULL, 1 }

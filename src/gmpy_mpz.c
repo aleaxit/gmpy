@@ -2272,22 +2272,6 @@ Pympz_format(PyObject *self, PyObject *args)
     return result;
 }
 
-static PyObject *
-Pympz_add(PyObject *self, PyObject *args)
-{
-    PympzObject *result;
-    PyObject *other;
-
-    PARSE_TWO_MPZ(other, "add() requires 'mpz','mpz' arguments");
-
-    if ((result = (PympzObject*)Pympz_new()))
-        mpz_add(result->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
-
-    Py_DECREF(self);
-    Py_DECREF(other);
-    return (PyObject*)result;
-}
-
 /* Add two Integer objects (see convert.c/isInteger). If an error occurs, NULL
  * is returned and an exception is set. It either x or y can't be converted
  * into an mpz, Py_NotImplemented is returned. */
@@ -2398,21 +2382,114 @@ Pympz_add_fast(PyObject *x, PyObject *y)
     return result;
 }
 
+/* Subtract two Integer objects (see convert.c/isInteger). If an error occurs,
+ * NULL is returned and an exception is set. It either x or y can't be
+ * converted into an mpz, Py_NotImplemented is returned. */
 
 static PyObject *
-Pympz_sub(PyObject *self, PyObject *args)
+Pympz_Sub_Integer(PyObject *x, PyObject *y)
 {
-    PympzObject *result;
-    PyObject *other;
+    PympzObject *result = NULL;
+    mpz_t tempz;
+    mpir_si temp_si;
+    int overflow;
 
-    PARSE_TWO_MPZ(other, "sub() requires 'mpz','mpz' arguments");
+    if (!(result = (PympzObject*)Pympz_new()))
+        return NULL;
 
-    if ((result = (PympzObject*)Pympz_new()))
-        mpz_sub(result->z, Pympz_AS_MPZ(self), Pympz_AS_MPZ(other));
+    if (CHECK_MPZANY(x)) {
+        if (PyIntOrLong_Check(y)) {
+            temp_si = PyLong_AsSIAndOverflow(y, &overflow);
+            if (overflow) {
+                mpz_inoc(tempz);
+                mpz_set_PyIntOrLong(tempz, y);
+                mpz_sub(result->z, Pympz_AS_MPZ(x), tempz);
+                mpz_cloc(tempz);
+            }
+            else if (temp_si >= 0) {
+                mpz_sub_ui(result->z, Pympz_AS_MPZ(x), temp_si);
+            }
+            else {
+                mpz_add_ui(result->z, Pympz_AS_MPZ(x), -temp_si);
+            }
+            return (PyObject*)result;
+        }
 
-    Py_DECREF(self);
-    Py_DECREF(other);
-    return (PyObject*)result;
+        if (CHECK_MPZANY(y)) {
+            mpz_sub(result->z, Pympz_AS_MPZ(x), Pympz_AS_MPZ(y));
+            return (PyObject*)result;
+        }
+    }
+
+    if (CHECK_MPZANY(y)) {
+        if (PyIntOrLong_Check(x)) {
+            temp_si = PyLong_AsSIAndOverflow(x, &overflow);
+            if (overflow) {
+                mpz_inoc(tempz);
+                mpz_set_PyIntOrLong(tempz, x);
+                mpz_sub(result->z, Pympz_AS_MPZ(y), tempz);
+                mpz_cloc(tempz);
+            }
+            else if (temp_si >0) {
+                mpz_sub_ui(result->z, Pympz_AS_MPZ(y), temp_si);
+            }
+            else {
+                mpz_add_ui(result->z, Pympz_AS_MPZ(y), -temp_si);
+            }
+            return (PyObject*)result;
+        }
+    }
+
+    if (PyIntOrLong_Check(x) && PyIntOrLong_Check(y)) {
+        PympzObject *tempx, *tempy;
+
+        tempx = Pympz_From_PyLong(x);
+        tempy = Pympz_From_PyLong(y);
+        if (!tempx || !tempy || !result) {
+            SYSTEM_ERROR("Could not convert Integer to mpz.");
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+
+        mpz_sub(result->z, tempx->z, tempy->z);
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+        return (PyObject*)result;
+    }
+
+    Py_DECREF((PyObject*)result);
+    Py_RETURN_NOTIMPLEMENTED;
+}
+
+/* Implement __sub__ for Pympz. On entry, one of the two arguments must
+ * be a Pympz. If the other object is an Integer, add and return a Pympz.
+ * If the other object isn't a Pympz, call the appropriate function. If
+ * no appropriate function can be found, return NotImplemented. */
+
+static PyObject *
+Pympz_sub_fast(PyObject *x, PyObject *y)
+{
+    PyObject *result;
+    GMPyContextObject *context;
+
+    if (IS_INTEGER(x) && IS_INTEGER(y))
+        result = Pympz_Sub_Integer(x, y);
+    else if (IS_RATIONAL(x) && IS_RATIONAL(y))
+        result = Pympq_Sub_Rational(x, y);
+    else {
+        CURRENT_CONTEXT(context);
+        if (IS_REAL(x) && IS_REAL(y))
+            result = Pympfr_Sub_Real(x, y, context);
+        else if (IS_COMPLEX(x) && IS_COMPLEX(y))
+            result = Pympc_Sub_Complex(x, y, context);
+        else {
+            Py_INCREF(Py_NotImplemented);
+            result = Py_NotImplemented;
+        }
+    }
+    return result;
 }
 
 static PyObject *
@@ -2488,7 +2565,7 @@ Pympz_sizeof(PyObject *self, PyObject *other)
 static PyNumberMethods mpz_number_methods =
 {
     (binaryfunc) Pympz_add_fast,         /* nb_add                  */
-    (binaryfunc) Pybasic_sub,            /* nb_subtract             */
+    (binaryfunc) Pympz_sub_fast,         /* nb_subtract             */
     (binaryfunc) Pybasic_mul,            /* nb_multiply             */
     (binaryfunc) Pybasic_rem,            /* nb_remainder            */
     (binaryfunc) Pybasic_divmod,         /* nb_divmod               */
@@ -2527,7 +2604,7 @@ static PyNumberMethods mpz_number_methods =
 static PyNumberMethods mpz_number_methods =
 {
     (binaryfunc) Pympz_add_fast,         /* nb_add                  */
-    (binaryfunc) Pybasic_sub,            /* nb_subtract             */
+    (binaryfunc) Pympz_sub_fast,         /* nb_subtract             */
     (binaryfunc) Pybasic_mul,            /* nb_multiply             */
     (binaryfunc) Pybasic_div2,           /* nb_divide               */
     (binaryfunc) Pybasic_rem,            /* nb_remainder            */

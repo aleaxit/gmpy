@@ -686,22 +686,6 @@ Pympq_hash(PympqObject *self)
 #endif
 }
 
-static PyObject *
-Pympq_add(PyObject *self, PyObject *args)
-{
-    PympqObject *result;
-    PyObject *other;
-
-    PARSE_TWO_MPQ(other, "add() requires 'mpq','mpq' arguments");
-
-    if ((result = (PympqObject*)Pympq_new()))
-        mpq_add(result->q, Pympq_AS_MPQ(self), Pympq_AS_MPQ(other));
-
-    Py_DECREF(self);
-    Py_DECREF(other);
-    return (PyObject*)result;
-}
-
 /* Add two Rational objects (see convert.c/isRational). Returns None and
  * raises TypeError if both objects are not valid rationals. Pympq_Add_Rational
  * is intended to be called from Pympany_Add_Number. */
@@ -768,20 +752,70 @@ Pympq_add_fast(PyObject *x, PyObject *y)
     return result;
 }
 
+/* Subtract two Rational objects (see convert.c/isRational). Returns None and
+ * raises TypeError if both objects are not valid rationals. Pympq_Add_Rational
+ * is intended to be called from Pympany_Add_Number. */
+
 static PyObject *
-Pympq_sub(PyObject *self, PyObject *args)
+Pympq_Sub_Rational(PyObject *x, PyObject *y)
 {
-    PympqObject *result;
-    PyObject *other;
+    PyObject *result = NULL;
 
-    PARSE_TWO_MPQ(other, "sub() requires 'mpq','mpq' arguments");
+    if (!(result = Pympq_new()))
+        return NULL;
 
-    if ((result = (PympqObject*)Pympq_new()))
-        mpq_sub(result->q, Pympq_AS_MPQ(self), Pympq_AS_MPQ(other));
+    if (Pympq_Check(x) && Pympq_Check(y)) {
+        mpq_sub(Pympq_AS_MPQ(result), Pympq_AS_MPQ(x), Pympq_AS_MPQ(y));
+        return result;
+    }
 
-    Py_DECREF(self);
-    Py_DECREF(other);
-    return (PyObject*)result;
+    if (isRational(x) && isRational(y)) {
+        PympqObject *tempx, *tempy;
+
+        tempx = Pympq_From_Number(x);
+        tempy = Pympq_From_Number(y);
+        if (!tempx || !tempy) {
+            SYSTEM_ERROR("Could not convert Rational to mpq.");
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF(result);
+        }
+
+        mpq_sub(Pympq_AS_MPQ(result), tempx->q, tempy->q);
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+        return result;
+    }
+
+    Py_DECREF(result);
+    Py_RETURN_NOTIMPLEMENTED;
+}
+
+/* Implement __sub__ for Pympq. On entry, one of the two arguments must
+ * be a Pympq. If the other object is a Rational, add and return a Pympq.
+ * If the other object isn't a Pympq, call the appropriate function. If
+ * no appropriate function can be found, return NotImplemented. */
+
+static PyObject *
+Pympq_sub_fast(PyObject *x, PyObject *y)
+{
+    PyObject *result;
+    GMPyContextObject *context;
+
+    if (IS_RATIONAL(x) && IS_RATIONAL(y))
+        result = Pympq_Sub_Rational(x, y);
+    else {
+        CURRENT_CONTEXT(context);
+        if (IS_REAL(x) && IS_REAL(y))
+            result = Pympfr_Sub_Real(x, y, context);
+        else if (IS_COMPLEX(x) && IS_COMPLEX(y))
+            result = Pympc_Sub_Complex(x, y, context);
+        else {
+            Py_INCREF(Py_NotImplemented);
+            result = Py_NotImplemented;
+        }
+    }
+    return result;
 }
 
 static PyObject *
@@ -841,7 +875,7 @@ Pympq_sizeof(PyObject *self, PyObject *other)
 static PyNumberMethods mpq_number_methods =
 {
     (binaryfunc) Pympq_add_fast,         /* nb_add                  */
-    (binaryfunc) Pybasic_sub,            /* nb_subtract             */
+    (binaryfunc) Pympq_sub_fast,         /* nb_subtract             */
     (binaryfunc) Pybasic_mul,            /* nb_multiply             */
     (binaryfunc) Pybasic_rem,            /* nb_remainder            */
     (binaryfunc) Pybasic_divmod,         /* nb_divmod               */
@@ -879,7 +913,7 @@ static PyNumberMethods mpq_number_methods =
 static PyNumberMethods mpq_number_methods =
 {
     (binaryfunc) Pympq_add_fast,         /* nb_add                  */
-    (binaryfunc) Pybasic_sub,            /* nb_subtract             */
+    (binaryfunc) Pympq_sub_fast,         /* nb_subtract             */
     (binaryfunc) Pybasic_mul,            /* nb_multiply             */
     (binaryfunc) Pybasic_div2,           /* nb_divide               */
     (binaryfunc) Pybasic_rem,            /* nb_remainder            */
