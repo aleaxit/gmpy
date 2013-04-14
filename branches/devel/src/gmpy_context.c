@@ -110,8 +110,8 @@ GMPyContext_set_context(PyObject *self, PyObject *other)
     }
 
     Py_DECREF((PyObject*)module_context);
-    if (other->ctx.template) {
-        module_context = GMPyContext_context_copy(other, NULL);
+    if (((GMPyContextObject*)other)->ctx.template) {
+        module_context = (GMPyContextObject*)GMPyContext_context_copy(other, NULL);
     }
     else {
         Py_INCREF((PyObject*)other);

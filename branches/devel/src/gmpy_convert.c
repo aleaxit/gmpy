@@ -1788,17 +1788,38 @@ Pympfr_From_Pympfr(PyObject *self, mpfr_prec_t bits)
     return result;
 }
 
+/* Return a copy of an mpfr, using the precision of the context argument. */
+
 static PympfrObject *
-Pympfr_From_Pympfr_context(PyObject *self,
-                           mpfr_prec_t bits,
-                           GMPyContextObject *context)
+Pympfr_From_Pympfr_context(PyObject *self, GMPyContextObject *context)
+{
+    PympfrObject *result;
+
+    if ((result = (PympfrObject*)Pympfr_new_context(context))) {
+        result->rc = mpfr_set(result->f,
+                              Pympfr_AS_MPFR(self),
+                              context->ctx.mpfr_round);
+    }
+
+    return result;
+}
+
+/* Return a copy of an mpfr. If the specified precision is 0, then the
+ * precision of the original mpfr is used. If the specified precision
+ * is not 0, then it is used directly. See Pympfr_From_Pympfr_context()
+ * to create a copy using the precision specified in the context. */
+
+static PympfrObject *
+Pympfr_From_Pympfr_bits_context(PyObject *self,
+                                mpfr_prec_t bits,
+                                GMPyContextObject *context)
 {
     PympfrObject *result;
 
     if (bits == 0)
         bits = mpfr_get_prec(Pympfr_AS_MPFR(self));
 
-    if ((result = (PympfrObject*)Pympfr_new_context(bits, context))) {
+    if ((result = (PympfrObject*)Pympfr_new_bits_context(bits, context))) {
         result->rc = mpfr_set(result->f,
                               Pympfr_AS_MPFR(self),
                               GET_MPFR_ROUND(context));
@@ -1831,7 +1852,7 @@ Pympfr_From_PyFloat_context(PyObject *self,
 {
     PympfrObject *result;
 
-    if ((result = (PympfrObject*)Pympfr_new_context(bits, context))) {
+    if ((result = (PympfrObject*)Pympfr_new_bits_context(bits, context))) {
         result->rc = mpfr_set_d(result->f,
                                 PyFloat_AS_DOUBLE(self),
                                 GET_MPFR_ROUND(context));
@@ -1864,7 +1885,7 @@ Pympfr_From_Pympz_context(PyObject *self,
 {
     PympfrObject *result;
 
-    if ((result = (PympfrObject*)Pympfr_new_context(bits, context))) {
+    if ((result = (PympfrObject*)Pympfr_new_bits_context(bits, context))) {
         result->rc = mpfr_set_z(result->f,
                                 Pympz_AS_MPZ(self),
                                 GET_MPFR_ROUND(context));
@@ -2080,12 +2101,12 @@ Pympfr_From_Pympq(PyObject *self, mpfr_prec_t bits)
 }
 
 static PympfrObject *
-Pympfr_From_Pympq_context(PyObject *self, mpfr_prec_t bits,
-                          GMPyContextObject *context)
+Pympfr_From_Pympq_bits_context(PyObject *self, mpfr_prec_t bits,
+                               GMPyContextObject *context)
 {
     PympfrObject *result;
 
-    if ((result = (PympfrObject*)Pympfr_new_context(bits, context)))
+    if ((result = (PympfrObject*)Pympfr_new_bits_context(bits, context)))
         result->rc = mpfr_set_q(result->f, Pympq_AS_MPQ(self),
                                 context->ctx.mpfr_round);
     return result;
@@ -2348,7 +2369,7 @@ Pympfr_From_Decimal(PyObject* obj, mpfr_prec_t bits)
 
     CURRENT_CONTEXT(context);
 
-    result = (PympfrObject*)Pympfr_new_context(0, context);
+    result = (PympfrObject*)Pympfr_new_bits_context(bits, context);
     temp = Pympq_From_DecimalRaw(obj);
 
     if (!temp || !result) {
@@ -2375,7 +2396,7 @@ Pympfr_From_Decimal(PyObject* obj, mpfr_prec_t bits)
     }
     else {
         Py_DECREF((PyObject*)result);
-        result = Pympfr_From_Pympq_context((PyObject*)temp, bits, context);
+        result = Pympfr_From_Pympq_bits_context((PyObject*)temp, bits, context);
     }
     Py_DECREF((PyObject*)temp);
     return result;
@@ -2384,12 +2405,12 @@ Pympfr_From_Decimal(PyObject* obj, mpfr_prec_t bits)
 static PympfrObject *
 Pympfr_From_Decimal_context(PyObject* obj,
                             mpfr_prec_t bits,
-                             GMPyContextObject *context)
+                            GMPyContextObject *context)
 {
     PympfrObject *result;
     PympqObject *temp;
 
-    result = (PympfrObject*)Pympfr_new_context(0, context);
+    result = (PympfrObject*)Pympfr_new_bits_context(bits, context);
     temp = Pympq_From_DecimalRaw(obj);
 
     if (!temp || !result) {
@@ -2416,7 +2437,7 @@ Pympfr_From_Decimal_context(PyObject* obj,
     }
     else {
         Py_DECREF((PyObject*)result);
-        result = Pympfr_From_Pympq_context((PyObject*)temp, bits, context);
+        result = Pympfr_From_Pympq_bits_context((PyObject*)temp, bits, context);
     }
     Py_DECREF((PyObject*)temp);
     return result;
@@ -2523,8 +2544,8 @@ Pympfr_From_Real_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject *con
             GMPY_EXPBOUND("exponent of existing 'mpfr' incompatible with current context");
             return NULL;
         }
-        if ((newob = (PympfrObject*)Pympfr_new_context(mpfr_get_prec(Pympfr_AS_MPFR(obj)),
-                                                       context))) {
+        if ((newob = (PympfrObject*)Pympfr_new_bits_context(mpfr_get_prec(Pympfr_AS_MPFR(obj)),
+                                                            context))) {
             mpfr_set(newob->f, Pympfr_AS_MPFR(obj), GET_MPFR_ROUND(context));
             newob->round_mode = ((PympfrObject*)obj)->round_mode;
             newob->rc = ((PympfrObject*)obj)->rc;
@@ -2540,7 +2561,7 @@ Pympfr_From_Real_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject *con
 #endif
     }
     else if (Pympq_Check(obj)) {
-        newob = Pympfr_From_Pympq_context(obj, bits, context);
+        newob = Pympfr_From_Pympq_bits_context(obj, bits, context);
     }
     else if (Pympz_Check(obj)) {
         newob = Pympfr_From_Pympz_context(obj, bits, context);
@@ -2557,7 +2578,7 @@ Pympfr_From_Real_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject *con
     else if (isFraction(obj)) {
         temp = Pympq_From_Fraction(obj);
         if (temp) {
-            newob = Pympfr_From_Pympq_context((PyObject*)temp, bits, context);
+            newob = Pympfr_From_Pympq_bits_context((PyObject*)temp, bits, context);
             Py_DECREF((PyObject*)temp);
         }
     }

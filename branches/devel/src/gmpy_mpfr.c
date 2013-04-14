@@ -1785,7 +1785,7 @@ Pympfr_Add_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
     PympfrObject *result = NULL;
 
-    if (!(result = (PympfrObject*)Pympfr_new_context(0, context)))
+    if (!(result = (PympfrObject*)Pympfr_new_context(context)))
         return NULL;
 
     /* This only processes mpfr if the exponent is still in-bounds. Need
@@ -1799,21 +1799,38 @@ Pympfr_Add_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
         return (PyObject*)result;
     }
 
-    if (Pympfr_CheckAndExp(x)) {
-        if (isInteger(y)) {
-            PympzObject *tempy;
+    /*result->rc = mpfr_set_ui(result->f, 0, GET_MPFR_ROUND(context));
+    return (PyObject*)result; */
 
-            if (!(tempy = Pympz_From_Number(y))) {
-                SYSTEM_ERROR("Can not convert Integer to 'mpz'");
-                Py_DECREF(result);
-                return NULL;
+    if (Pympfr_CheckAndExp(x)) {
+        if (PyIntOrLong_Check(y)) {
+            mpz_t tempz;
+            mpir_si temp_si;
+            int overflow;
+
+            temp_si = PyLong_AsSIAndOverflow(y, &overflow);
+            if (overflow) {
+                mpz_inoc(tempz);
+                mpz_set_PyIntOrLong(tempz, y);
+                mpfr_clear_flags();
+                result->rc = mpfr_add_z(result->f, Pympfr_AS_MPFR(x),
+                                        tempz, GET_MPFR_ROUND(context));
+                mpz_cloc(tempz);
+                goto done;
             }
+            else {
+                mpfr_clear_flags();
+                result->rc = mpfr_add_si(result->f, Pympfr_AS_MPFR(x),
+                                         temp_si, GET_MPFR_ROUND(context));
+                goto done;
+            }
+        }
+
+        if (CHECK_MPZANY(y)) {
             mpfr_clear_flags();
-            result->rc = mpfr_add_z(result->f, Pympfr_AS_MPFR(x), tempy->z,
-                                    GET_MPFR_ROUND(context));
-            Py_DECREF((PyObject*)tempy);
-            MPFR_CLEANUP_RESULT("addition");
-            return (PyObject*)result;
+            result->rc = mpfr_add_z(result->f, Pympfr_AS_MPFR(x),
+                                    Pympz_AS_MPZ(y), GET_MPFR_ROUND(context));
+            goto done;
         }
 
         if (isRational(y) || isDecimal(y)) {
@@ -1828,37 +1845,46 @@ Pympfr_Add_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
             result->rc = mpfr_add_q(result->f, Pympfr_AS_MPFR(x), tempy->q,
                                     GET_MPFR_ROUND(context));
             Py_DECREF((PyObject*)tempy);
-            MPFR_CLEANUP_RESULT("addition");
-            return (PyObject*)result;
+            goto done;
         }
 
         if (PyFloat_Check(y)) {
             mpfr_clear_flags();
             result->rc = mpfr_add_d (result->f, Pympfr_AS_MPFR(x), PyFloat_AS_DOUBLE(y),
                                    GET_MPFR_ROUND(context));
-            MPFR_CLEANUP_RESULT("addition");
-            return (PyObject*)result;
+            goto done;
         }
     }
 
     if (Pympfr_CheckAndExp(y)) {
-        if (isInteger(x)) {
-            PympzObject *tempx;
+        if (PyIntOrLong_Check(x)) {
+            mpz_t tempz;
+            mpir_si temp_si;
+            int overflow;
 
-            if (!(tempx = Pympz_From_Number(x))) {
-                SYSTEM_ERROR("Can not convert Integer to 'mpz'");
-                Py_DECREF(result);
-                return NULL;
+            temp_si = PyLong_AsSIAndOverflow(x, &overflow);
+            if (overflow) {
+                mpz_inoc(tempz);
+                mpz_set_PyIntOrLong(tempz, x);
+                mpfr_clear_flags();
+                result->rc = mpfr_add_z(result->f, Pympfr_AS_MPFR(y),
+                                        tempz, GET_MPFR_ROUND(context));
+                mpz_cloc(tempz);
+                goto done;
             }
+            else {
+                mpfr_clear_flags();
+                result->rc = mpfr_add_si(result->f, Pympfr_AS_MPFR(y),
+                                         temp_si, GET_MPFR_ROUND(context));
+                goto done;
+            }
+        }
 
+        if (CHECK_MPZANY(x)) {
             mpfr_clear_flags();
-            Py_DECREF((PyObject*)tempx);
-
-            result->rc = mpfr_add_z(result->f, Pympfr_AS_MPFR(y), tempx->z,
-                                    GET_MPFR_ROUND(context));
-            Py_DECREF((PyObject*)tempx);
-            MPFR_CLEANUP_RESULT("addition");
-            return (PyObject*)result;
+            result->rc = mpfr_add_z(result->f, Pympfr_AS_MPFR(y),
+                                    Pympz_AS_MPZ(x), GET_MPFR_ROUND(context));
+            goto done;
         }
 
         if (isRational(x) || isDecimal(x)) {
@@ -1873,15 +1899,14 @@ Pympfr_Add_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
             result->rc = mpfr_add_q(result->f, Pympfr_AS_MPFR(y), tempx->q,
                                     GET_MPFR_ROUND(context));
             Py_DECREF((PyObject*)tempx);
-            MPFR_CLEANUP_RESULT("addition");
-            return (PyObject*)result;
+            goto done;
         }
+
         if (PyFloat_Check(x)) {
             mpfr_clear_flags();
             result->rc = mpfr_add_d(result->f, Pympfr_AS_MPFR(y), PyFloat_AS_DOUBLE(x),
                                     GET_MPFR_ROUND(context));
-            MPFR_CLEANUP_RESULT("addition");
-            return (PyObject*)result;
+            goto done;
         }
     }
 
@@ -1899,14 +1924,18 @@ Pympfr_Add_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF(result);
         }
+        mpfr_clear_flags();
         result->rc = mpfr_add(result->f, Pympfr_AS_MPFR(tempx), Pympfr_AS_MPFR(tempy),
                               GET_MPFR_ROUND(context));
-        MPFR_CLEANUP_RESULT("addition");
-        return (PyObject*)result;
+        goto done;
     }
 
     Py_DECREF(result);
     Py_RETURN_NOTIMPLEMENTED;
+
+  done:
+    MPFR_CLEANUP_RESULT("addition");
+    return (PyObject*)result;
 }
 
 /* Implement __add__ for Pympfr. On entry, one of the two arguments must
@@ -1917,61 +1946,19 @@ Pympfr_Add_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympfr_add_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result = NULL;
+    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
-
-    result = Pympfr_Add_Real(x, y, context);
-
-    if (result != Py_NotImplemented)
-        return result;
-
-    Py_DECREF(result);
-
-    if (isComplex(x) && isComplex(y)) {
-        return Pympc_Add_Complex(x, y, context);
-    }
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-static PyObject *
-Pympfr_add_fast_old(PyObject *x, PyObject *y)
-{
-    PympfrObject *result;
-    GMPyContextObject *context;
-
-    CURRENT_CONTEXT(context);
-
-    if (Pympfr_CheckAndExp(x) && Pympfr_CheckAndExp(y)) {
-        if (!(result = (PympfrObject*)Pympfr_new(0))) {
-            return NULL;
-        }
-        result->rc = mpfr_add(result->f,
-                              Pympfr_AS_MPFR(x),
-                              Pympfr_AS_MPFR(y),
-                              context->ctx.mpfr_round);
-        MPFR_CLEANUP_RESULT("addition");
-        return (PyObject*)result;
-    }
+    if (IS_REAL(x) && IS_REAL(y))
+        result = Pympfr_Add_Real(x, y, context);
+    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
+        result = Pympc_Add_Complex(x, y, context);
     else {
-        return Pybasic_add(x, y);
+        Py_INCREF(Py_NotImplemented);
+        result = Py_NotImplemented;
     }
+    return result;
 }
 
 static PyObject *
