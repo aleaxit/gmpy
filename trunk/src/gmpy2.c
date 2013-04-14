@@ -321,6 +321,7 @@
  *   2.0.1
  *   Updated setup.py (casevh)
  *   Added missing mpfr_clear_flags() to Pympfr_*_fast (casevh)
+ *   Fixed exception not raised for Invalid Operation (casevh)
  *
  ************************************************************************
  *
