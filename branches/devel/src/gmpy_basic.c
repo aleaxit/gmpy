@@ -134,7 +134,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             rf->rc = mpfr_add_z(rf->f, Pympfr_AS_MPFR(a), pbz->z,
                                 context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbz);
-            MPFR_CLEANUP_RF(addition);
+            MPFR_CLEANUP_RF("addition");
         }
         if (isRational(b) || isDecimal(b)) {
             if (!(pbq = Pympq_From_Number(b))) {
@@ -146,13 +146,13 @@ Pybasic_add(PyObject *a, PyObject *b)
             rf->rc = mpfr_add_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
                                 context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
-            MPFR_CLEANUP_RF(addition);
+            MPFR_CLEANUP_RF("addition");
         }
         if (PyFloat_Check(b)) {
             mpfr_clear_flags();
             rf->rc = mpfr_add_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
                                 context->ctx.mpfr_round);
-            MPFR_CLEANUP_RF(addition);
+            MPFR_CLEANUP_RF("addition");
         }
         Py_DECREF((PyObject*)rf);
     }
@@ -170,7 +170,7 @@ Pybasic_add(PyObject *a, PyObject *b)
             rf->rc = mpfr_add_z(rf->f, Pympfr_AS_MPFR(b), paz->z,
                                 context->ctx.mpfr_round);
             Py_DECREF((PyObject*)paz);
-            MPFR_CLEANUP_RF(addition);
+            MPFR_CLEANUP_RF("addition");
         }
         if (isRational(a) || isDecimal(a)) {
             if (!(paq = Pympq_From_Number(a))) {
@@ -182,13 +182,13 @@ Pybasic_add(PyObject *a, PyObject *b)
             rf->rc = mpfr_add_q(rf->f, Pympfr_AS_MPFR(b), paq->q,
                                 context->ctx.mpfr_round);
             Py_DECREF((PyObject*)paq);
-            MPFR_CLEANUP_RF(addition);
+            MPFR_CLEANUP_RF("addition");
         }
         if (PyFloat_Check(a)) {
             mpfr_clear_flags();
             rf->rc = mpfr_add_d(rf->f, Pympfr_AS_MPFR(b), PyFloat_AS_DOUBLE(a),
                                 context->ctx.mpfr_round);
-            MPFR_CLEANUP_RF(addition);
+            MPFR_CLEANUP_RF("addition");
         }
         Py_DECREF((PyObject*)rf);
     }
@@ -231,7 +231,7 @@ Pybasic_add(PyObject *a, PyObject *b)
         rf->rc = mpfr_add(rf->f, paf->f, pbf->f, context->ctx.mpfr_round);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        MPFR_CLEANUP_RF(addition);
+        MPFR_CLEANUP_RF("addition");
     }
 
     if (isComplex(a) && isComplex(b)) {
@@ -342,7 +342,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             rf->rc = mpfr_sub_z(rf->f, Pympfr_AS_MPFR(a), pbz->z,
                                 context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbz);
-            MPFR_CLEANUP_RF(subtraction);
+            MPFR_CLEANUP_RF("subtraction");
         }
         if (isRational(b)) {
             if (!(pbq = Pympq_From_Number(b))) {
@@ -354,7 +354,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             rf->rc = mpfr_sub_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
                                 context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
-            MPFR_CLEANUP_RF(subtraction);
+            MPFR_CLEANUP_RF("subtraction");
         }
         if (isDecimal(b)) {
             if (!(pbq = Pympq_From_Decimal(b))) {
@@ -366,13 +366,13 @@ Pybasic_sub(PyObject *a, PyObject *b)
             rf->rc = mpfr_sub_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
                                 context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
-            MPFR_CLEANUP_RF(subtraction);
+            MPFR_CLEANUP_RF("subtraction");
         }
         if (PyFloat_Check(b)) {
             mpfr_clear_flags();
             rf->rc = mpfr_sub_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
                                 context->ctx.mpfr_round);
-            MPFR_CLEANUP_RF(subtraction);
+            MPFR_CLEANUP_RF("subtraction");
         }
         Py_DECREF((PyObject*)rf);
     }
@@ -390,7 +390,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             rf->rc = mpfr_sub_z(rf->f, Pympfr_AS_MPFR(b), paz->z, context->ctx.mpfr_round);
             mpfr_neg(rf->f, rf->f, context->ctx.mpfr_round);
             Py_DECREF((PyObject*)paz);
-            MPFR_CLEANUP_RF(subtraction);
+            MPFR_CLEANUP_RF("subtraction");
         }
         if (isRational(a)) {
             if (!(paq = Pympq_From_Number(a))) {
@@ -402,7 +402,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
             rf->rc = mpfr_sub_q(rf->f, Pympfr_AS_MPFR(b), paq->q, context->ctx.mpfr_round);
             mpfr_neg(rf->f, rf->f, context->ctx.mpfr_round);
             Py_DECREF((PyObject*)paq);
-            MPFR_CLEANUP_RF(subtraction);
+            MPFR_CLEANUP_RF("subtraction");
         }
         if (isDecimal(a)) {
             if (!(paq = Pympq_From_Decimal(a))) {
@@ -414,13 +414,13 @@ Pybasic_sub(PyObject *a, PyObject *b)
             rf->rc = mpfr_sub_q(rf->f, Pympfr_AS_MPFR(b), paq->q, context->ctx.mpfr_round);
             mpfr_neg(rf->f, rf->f, context->ctx.mpfr_round);
             Py_DECREF((PyObject*)paq);
-            MPFR_CLEANUP_RF(subtraction);
+            MPFR_CLEANUP_RF("subtraction");
         }
         if (PyFloat_Check(a)) {
             mpfr_clear_flags();
             rf->rc = mpfr_sub_d(rf->f, Pympfr_AS_MPFR(b), PyFloat_AS_DOUBLE(a), context->ctx.mpfr_round);
             mpfr_neg(rf->f, rf->f, context->ctx.mpfr_round);
-            MPFR_CLEANUP_RF(subtraction);
+            MPFR_CLEANUP_RF("subtraction");
         }
         Py_DECREF((PyObject*)rf);
     }
@@ -483,7 +483,7 @@ Pybasic_sub(PyObject *a, PyObject *b)
         rf->rc = mpfr_sub(rf->f, paf->f, pbf->f, context->ctx.mpfr_round);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        MPFR_CLEANUP_RF(subtraction);
+        MPFR_CLEANUP_RF("subtraction");
     }
 
     if (isComplex(a) && isComplex(b)) {
@@ -577,7 +577,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             mpfr_clear_flags();
             rf->rc = mpfr_mul(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
                               context->ctx.mpfr_round);
-            MPFR_CLEANUP_RF(multiplication);
+            MPFR_CLEANUP_RF("multiplication");
         }
         if (isInteger(b)) {
             if (!(pbz = Pympz_From_Number(b))) {
@@ -589,7 +589,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             rf->rc = mpfr_mul_z(rf->f, Pympfr_AS_MPFR(a), pbz->z,
                                 context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbz);
-            MPFR_CLEANUP_RF(multiplication);
+            MPFR_CLEANUP_RF("multiplication");
         }
         if (isRational(b)) {
             if (!(pbq = Pympq_From_Number(b))) {
@@ -601,7 +601,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             rf->rc = mpfr_mul_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
                                 context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
-            MPFR_CLEANUP_RF(multiplication);
+            MPFR_CLEANUP_RF("multiplication");
         }
         if (isDecimal(b)) {
             if (!(pbq = Pympq_From_Decimal(b))) {
@@ -613,13 +613,13 @@ Pybasic_mul(PyObject *a, PyObject *b)
             rf->rc = mpfr_mul_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
                                 context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
-            MPFR_CLEANUP_RF(multiplication);
+            MPFR_CLEANUP_RF("multiplication");
         }
         if (PyFloat_Check(b)) {
             mpfr_clear_flags();
             rf->rc = mpfr_mul_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
                                 context->ctx.mpfr_round);
-            MPFR_CLEANUP_RF(multiplication);
+            MPFR_CLEANUP_RF("multiplication");
         }
         Py_DECREF((PyObject*)rf);
     }
@@ -637,7 +637,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             rf->rc = mpfr_mul_z(rf->f, Pympfr_AS_MPFR(b), paz->z,
                                 context->ctx.mpfr_round);
             Py_DECREF((PyObject*)paz);
-            MPFR_CLEANUP_RF(multiplication);
+            MPFR_CLEANUP_RF("multiplication");
         }
         if (isRational(a)) {
             if (!(paq = Pympq_From_Number(a))) {
@@ -649,7 +649,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
             rf->rc = mpfr_mul_q(rf->f, Pympfr_AS_MPFR(b), paq->q,
                                 context->ctx.mpfr_round);
             Py_DECREF((PyObject*)paq);
-            MPFR_CLEANUP_RF(multiplication);
+            MPFR_CLEANUP_RF("multiplication");
         }
         if (isDecimal(a)) {
             if (!(paq = Pympq_From_Decimal(a))) {
@@ -661,13 +661,13 @@ Pybasic_mul(PyObject *a, PyObject *b)
             rf->rc = mpfr_mul_q(rf->f, Pympfr_AS_MPFR(b), paq->q,
                                 context->ctx.mpfr_round);
             Py_DECREF((PyObject*)paq);
-            MPFR_CLEANUP_RF(multiplication);
+            MPFR_CLEANUP_RF("multiplication");
         }
         if (PyFloat_Check(a)) {
             mpfr_clear_flags();
             rf->rc = mpfr_mul_d(rf->f, Pympfr_AS_MPFR(b), PyFloat_AS_DOUBLE(a),
                                 context->ctx.mpfr_round);
-            MPFR_CLEANUP_RF(multiplication);
+            MPFR_CLEANUP_RF("multiplication");
         }
         Py_DECREF((PyObject*)rf);
     }
@@ -730,7 +730,7 @@ Pybasic_mul(PyObject *a, PyObject *b)
         rf->rc = mpfr_mul(rf->f, paf->f, pbf->f, context->ctx.mpfr_round);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        MPFR_CLEANUP_RF(multiplication);
+        MPFR_CLEANUP_RF("multiplication");
     }
 
     if (isComplex(a) && isComplex(b)) {
@@ -836,7 +836,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
             rf->rc = mpfr_div(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
                               MPFR_RNDD);
             rf->rc = mpfr_floor(rf->f, rf->f);
-            MPFR_CLEANUP_RF(division);
+            MPFR_CLEANUP_RF("division");
         }
         if (isInteger(b)) {
             if (!(pbz = Pympz_From_Number(b))) {
@@ -849,7 +849,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
                                 MPFR_RNDD);
             rf->rc = mpfr_floor(rf->f, rf->f);
             Py_DECREF((PyObject*)pbz);
-            MPFR_CLEANUP_RF(division);
+            MPFR_CLEANUP_RF("division");
         }
         if (isRational(b)) {
             if (!(pbq = Pympq_From_Number(b))) {
@@ -862,7 +862,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
                                 MPFR_RNDD);
             rf->rc = mpfr_floor(rf->f, rf->f);
             Py_DECREF((PyObject*)pbq);
-            MPFR_CLEANUP_RF(division);
+            MPFR_CLEANUP_RF("division");
         }
         if (isDecimal(b)) {
             if (!(pbq = Pympq_From_Decimal(b))) {
@@ -875,14 +875,14 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
                                 MPFR_RNDD);
             rf->rc = mpfr_floor(rf->f, rf->f);
             Py_DECREF((PyObject*)pbq);
-            MPFR_CLEANUP_RF(division);
+            MPFR_CLEANUP_RF("division");
         }
         if (PyFloat_Check(b)) {
             mpfr_clear_flags();
             rf->rc = mpfr_div_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
                                 MPFR_RNDD);
             rf->rc = mpfr_floor(rf->f, rf->f);
-            MPFR_CLEANUP_RF(division);
+            MPFR_CLEANUP_RF("division");
         }
         Py_DECREF((PyObject*)rf);
     }
@@ -901,7 +901,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
             rf->rc = mpfr_d_div(rf->f, PyFloat_AS_DOUBLE(a), Pympfr_AS_MPFR(b),
                                 MPFR_RNDD);
             rf->rc = mpfr_floor(rf->f, rf->f);
-            MPFR_CLEANUP_RF(division);
+            MPFR_CLEANUP_RF("division");
         }
         Py_DECREF((PyObject*)rf);
     }
@@ -982,7 +982,7 @@ Pybasic_floordiv(PyObject *a, PyObject *b)
         rf->rc = mpfr_floor(rf->f, rf->f);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        MPFR_CLEANUP_RF(division);
+        MPFR_CLEANUP_RF("division");
     }
 
     if (isComplex(a) && isComplex(b)) {
@@ -1021,7 +1021,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             mpfr_clear_flags();
             rf->rc = mpfr_div(rf->f, Pympfr_AS_MPFR(a), Pympfr_AS_MPFR(b),
                               context->ctx.mpfr_round);
-            MPFR_CLEANUP_RF(division);
+            MPFR_CLEANUP_RF("division");
         }
         if (isInteger(b)) {
             if (!(pbz = Pympz_From_Number(b))) {
@@ -1033,7 +1033,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             rf->rc = mpfr_div_z(rf->f, Pympfr_AS_MPFR(a), pbz->z,
                                 context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbz);
-            MPFR_CLEANUP_RF(division);
+            MPFR_CLEANUP_RF("division");
         }
         if (isRational(b)) {
             if (!(pbq = Pympq_From_Number(b))) {
@@ -1045,7 +1045,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             rf->rc = mpfr_div_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
                                 context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
-            MPFR_CLEANUP_RF(division);
+            MPFR_CLEANUP_RF("division");
         }
         if (isDecimal(b)) {
             if (!(pbq = Pympq_From_Decimal(b))) {
@@ -1057,13 +1057,13 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             rf->rc = mpfr_div_q(rf->f, Pympfr_AS_MPFR(a), pbq->q,
                                 context->ctx.mpfr_round);
             Py_DECREF((PyObject*)pbq);
-            MPFR_CLEANUP_RF(division);
+            MPFR_CLEANUP_RF("division");
         }
         if (PyFloat_Check(b)) {
             mpfr_clear_flags();
             rf->rc = mpfr_div_d(rf->f, Pympfr_AS_MPFR(a), PyFloat_AS_DOUBLE(b),
                                 context->ctx.mpfr_round);
-            MPFR_CLEANUP_RF(division);
+            MPFR_CLEANUP_RF("division");
         }
         Py_DECREF((PyObject*)rf);
     }
@@ -1081,7 +1081,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
             mpfr_clear_flags();
             rf->rc = mpfr_d_div(rf->f, PyFloat_AS_DOUBLE(a), Pympfr_AS_MPFR(b),
                                 context->ctx.mpfr_round);
-            MPFR_CLEANUP_RF(division);
+            MPFR_CLEANUP_RF("division");
         }
         Py_DECREF((PyObject*)rf);
     }
@@ -1115,7 +1115,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
         mpq_clear(tempq);
         Py_DECREF((PyObject*)paz);
         Py_DECREF((PyObject*)pbz);
-        MPFR_CLEANUP_RF(division);
+        MPFR_CLEANUP_RF("division");
     }
 
     if (isRational(a) && isRational(b)) {
@@ -1162,7 +1162,7 @@ Pybasic_truediv(PyObject *a, PyObject *b)
         rf->rc = mpfr_div(rf->f, paf->f, pbf->f, context->ctx.mpfr_round);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        MPFR_CLEANUP_RF(division);
+        MPFR_CLEANUP_RF("division");
     }
 
     if (isComplex(a) && isComplex(b)) {
@@ -1615,7 +1615,7 @@ Pybasic_rem(PyObject *a, PyObject *b)
         Py_XDECREF((PyObject*)qf);
         Py_DECREF((PyObject*)paf);
         Py_DECREF((PyObject*)pbf);
-        MPFR_CLEANUP_RF(rem);
+        MPFR_CLEANUP_RF("rem");
     }
 
     if (isComplex(a) && isComplex(b)) {

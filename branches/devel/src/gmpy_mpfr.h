@@ -204,23 +204,28 @@ typedef struct {
 #define MPFR_CLEANUP_RF(NAME) \
     SUBNORMALIZE(rf); \
     MERGE_FLAGS; \
+    if (mpfr_nanflag_p() && context->ctx.trap_invalid) { \
+        GMPY_INVALID("'mpfr' invalid operation in " NAME); \
+        Py_DECREF((PyObject*)rf); \
+        return NULL; \
+    } \
     if (mpfr_divby0_p() && context->ctx.trap_divzero) { \
-        GMPY_DIVZERO("'mpfr' division by zero in " #NAME); \
+        GMPY_DIVZERO("'mpfr' division by zero in " NAME); \
         Py_DECREF((PyObject*)rf); \
         return NULL; \
     } \
     if (mpfr_underflow_p() && context->ctx.trap_underflow) { \
-        GMPY_UNDERFLOW("'mpfr' underflow in " #NAME); \
+        GMPY_UNDERFLOW("'mpfr' underflow in " NAME); \
         Py_DECREF((PyObject*)rf); \
         return NULL; \
     } \
     if (mpfr_overflow_p() && context->ctx.trap_overflow) { \
-        GMPY_OVERFLOW("'mpfr' overflow in " #NAME); \
+        GMPY_OVERFLOW("'mpfr' overflow in " NAME); \
         Py_DECREF((PyObject*)rf); \
         return NULL; \
     } \
     if (mpfr_inexflag_p() && context->ctx.trap_inexact) { \
-        GMPY_INEXACT("'mpfr' inexact result in " #NAME); \
+        GMPY_INEXACT("'mpfr' inexact result in " NAME); \
         Py_DECREF((PyObject*)rf); \
         return NULL; \
     } \
@@ -229,23 +234,28 @@ typedef struct {
 #define MPFR_CLEANUP_RESULT(NAME) \
     SUBNORMALIZE(result); \
     MERGE_FLAGS; \
+    if (mpfr_nanflag_p() && context->ctx.trap_invalid) { \
+        GMPY_INVALID("'mpfr' invalid operation in " NAME); \
+        Py_DECREF((PyObject*)result); \
+        return NULL; \
+    } \
     if (mpfr_divby0_p() && context->ctx.trap_divzero) { \
-        GMPY_DIVZERO("'mpfr' division by zero in " #NAME); \
+        GMPY_DIVZERO("'mpfr' division by zero in " NAME); \
         Py_DECREF((PyObject*)result); \
         return NULL; \
     } \
     if (mpfr_underflow_p() && context->ctx.trap_underflow) { \
-        GMPY_UNDERFLOW("'mpfr' underflow in " #NAME); \
+        GMPY_UNDERFLOW("'mpfr' underflow in " NAME); \
         Py_DECREF((PyObject*)result); \
         return NULL; \
     } \
     if (mpfr_overflow_p() && context->ctx.trap_overflow) { \
-        GMPY_OVERFLOW("'mpfr' overflow in " #NAME); \
+        GMPY_OVERFLOW("'mpfr' overflow in " NAME); \
         Py_DECREF((PyObject*)result); \
         return NULL; \
     } \
     if (mpfr_inexflag_p() && context->ctx.trap_inexact) { \
-        GMPY_INEXACT("'mpfr' inexact result in " #NAME); \
+        GMPY_INEXACT("'mpfr' inexact result in " NAME); \
         Py_DECREF((PyObject*)result); \
         return NULL; \
     }
@@ -369,10 +379,7 @@ static PyObject * Pympfr_y1(PyObject* self, PyObject *other);
 static PyObject * Pympfr_yn(PyObject* self, PyObject *other);
 static PyObject * Pympfr_ai(PyObject* self, PyObject *other);
 static PyObject * Pympfr_add_fast(PyObject *x, PyObject *y);
-static PyObject * Pympfr_Add_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * Pympfr_add(PyObject* self, PyObject *other);
 static PyObject * Pympfr_sub_fast(PyObject *x, PyObject *y);
-static PyObject * Pympfr_sub(PyObject* self, PyObject *other);
 static PyObject * Pympfr_mul_fast(PyObject *x, PyObject *y);
 static PyObject * Pympfr_mul(PyObject *self, PyObject *args);
 static PyObject * Pympfr_truediv_fast(PyObject *x, PyObject *y);
@@ -404,6 +411,9 @@ static PyObject * Pympfr_fsum(PyObject *self, PyObject *other);
 static PyObject * Pympfr_degrees(PyObject *self, PyObject *other);
 static PyObject * Pympfr_radians(PyObject *self, PyObject *other);
 static PyObject * Pympfr_format(PyObject *self, PyObject *args);
+
+static PyObject * Pympfr_Add_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
+static PyObject * Pympfr_Sub_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
 
 #ifdef __cplusplus
 }

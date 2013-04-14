@@ -319,8 +319,10 @@
  *   get_context() no longer supports keyword arguments (casevh)
  *
  *   2.1.0
+ *   Improvemnts to setup.py (casevh)
  *   Add thread-safe contexts (casevh)
- *   MPFR and MPC are now required. (casevh)
+ *   MPFR and MPC are now required (casevh)
+ *   Invalid Operation exception now raised for addition, etc. (casevh)
  *
  ************************************************************************
  *

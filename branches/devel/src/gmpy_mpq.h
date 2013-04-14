@@ -61,11 +61,10 @@ static PyObject * Pympq_square(PyObject *self, PyObject *other);
 static PyObject * Pympq_pow(PyObject *base, PyObject *exp, PyObject *m);
 static int Pympq_nonzero(PympqObject *x);
 static Py_hash_t Pympq_hash(PympqObject *self);
-static PyObject * Pympq_add(PyObject *self, PyObject *args);
-static PyObject * Pympq_sub(PyObject *self, PyObject *args);
 static PyObject * Pympq_mul(PyObject *self, PyObject *args);
 static PyObject * Pympq_div(PyObject *self, PyObject *args);
 static PyObject * Pympq_Add_Rational(PyObject *x, PyObject *y);
+static PyObject * Pympq_Sub_Rational(PyObject *x, PyObject *y);
 
 #ifdef __cplusplus
 }

@@ -1219,8 +1219,7 @@ Pympc_Add_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
         result->rc = mpc_add(result->c, Pympc_AS_MPC(x), Pympc_AS_MPC(y),
                              GET_MPC_ROUND(context));
-        MPC_CLEANUP_RESULT("addition");
-        return (PyObject*)result;
+        goto done;
     }
 
     if (isComplex(x) && isComplex(y)) {
@@ -1238,12 +1237,15 @@ Pympc_Add_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
         result->rc = mpc_add(result->c, tempx->c, tempy->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
-        MPC_CLEANUP_RESULT("addition");
-        return (PyObject*)result;
+        goto done;
     }
 
     Py_DECREF((PyObject*)result);
     Py_RETURN_NOTIMPLEMENTED;
+
+  done:
+    MPC_CLEANUP_RESULT("addition");
+    return (PyObject*)result;
 }
 
 /* Pympc_add_fast() is called by mpc.__add__. It just gets a borrowed reference
@@ -1261,76 +1263,63 @@ Pympc_add_fast(PyObject *x, PyObject *y)
     return Pympc_Add_Complex(x, y, context);
 }
 
+/* Pympc_Sub_Complex(x, y, context) returns x-y using the provided context. If
+ * an error occurs, NULL is returned and an exception is set. If either x or
+ * y can't be converted to an mpc, then Py_NotImplemented is returned. */
+
 static PyObject *
-Pympc_add(PyObject *self, PyObject *args)
+Pympc_Sub_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
-    PympcObject *result;
-    PyObject *other;
-    GMPyContextObject *context;
+    PympcObject *result = NULL;
 
-    CURRENT_CONTEXT(context);
-
-    PARSE_TWO_MPC_ARGS(other, "add() requires 'mpc','mpc' arguments");
-
-    if (!(result = (PympcObject*)Pympc_new(0, 0))) {
-        Py_DECREF(self);
-        Py_DECREF(other);
+    if (!(result = (PympcObject*)Pympc_new_context(0, 0, context)))
         return NULL;
+
+    if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
+        result->rc = mpc_sub(result->c, Pympc_AS_MPC(x), Pympc_AS_MPC(y),
+                             GET_MPC_ROUND(context));
+        goto done;
     }
 
-    result->rc = mpc_add(result->c, Pympc_AS_MPC(self),
-                         Pympc_AS_MPC(other), GET_MPC_ROUND(context));
-    Py_DECREF(self);
-    Py_DECREF(other);
-    MPC_CLEANUP(result, "add()");
+    if (isComplex(x) && isComplex(y)) {
+        PympcObject *tempx, *tempy;
+
+        tempx = Pympc_From_Complex_context(x, 0, 0, context);
+        tempy = Pympc_From_Complex_context(y, 0, 0, context);
+        if (!tempx || !tempy) {
+            SYSTEM_ERROR("Can not convert Complex to 'mpc'");
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+        result->rc = mpc_sub(result->c, tempx->c, tempy->c, GET_MPC_ROUND(context));
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+        goto done;
+    }
+
+    Py_DECREF((PyObject*)result);
+    Py_RETURN_NOTIMPLEMENTED;
+
+  done:
+    MPC_CLEANUP_RESULT("subtraction");
+    return (PyObject*)result;
 }
+
+/* Pympc_sub_fast() is called by mpc.__sub__. It just gets a borrowed reference
+ * to the current context and call Pympc_Sub_Complex(). Since mpc is the last
+ * step of the numeric ladder, the NotImplemented return value from
+ * Pympc_Add_Complex() is correct and is just passed on. */
 
 static PyObject *
 Pympc_sub_fast(PyObject *x, PyObject *y)
 {
-    PympcObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
-    if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
-        if (!(result = (PympcObject*)Pympc_new(0, 0))) {
-            return NULL;
-        }
-        result->rc = mpc_sub(result->c,
-                             Pympc_AS_MPC(x),
-                             Pympc_AS_MPC(y),
-                             GET_MPC_ROUND(context));
-        MPC_CLEANUP(result, "subtraction");
-        return (PyObject*)result;
-    }
-    else {
-        return Pybasic_sub(x, y);
-    }
-}
-
-static PyObject *
-Pympc_sub(PyObject *self, PyObject *args)
-{
-    PympcObject *result;
-    PyObject *other;
-    GMPyContextObject *context;
-
-    CURRENT_CONTEXT(context);
-
-    PARSE_TWO_MPC_ARGS(other, "sub() requires 'mpc','mpc' arguments");
-
-    if (!(result = (PympcObject*)Pympc_new(0, 0))) {
-        Py_DECREF(self);
-        Py_DECREF(other);
-        return NULL;
-    }
-
-    result->rc = mpc_sub(result->c, Pympc_AS_MPC(self),
-                         Pympc_AS_MPC(other), GET_MPC_ROUND(context));
-    Py_DECREF(self);
-    Py_DECREF(other);
-    MPC_CLEANUP(result, "sub()");
+    return Pympc_Add_Complex(x, y, context);
 }
 
 static PyObject *
