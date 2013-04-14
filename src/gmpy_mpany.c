@@ -120,32 +120,69 @@ Pympany_sign(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(doc_mpany_add,
-"add(x, y) -> number\n\n"
+"add(x, y[, context]) -> number\n\n"
+"Return x + y.");
+
+PyDoc_STRVAR(doc_context_add,
+"context.add(x, y) -> number\n\n"
 "Return x + y.");
 
 static PyObject *
 Pympany_add(PyObject *self, PyObject *args)
 {
-    if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("add() requires 2 arguments.");
-        return NULL;
+    Py_ssize_t argc;
+    PyObject *arg0, *arg1, *arg2;
+    GMPyContextObject *context;
+
+    argc = PyTuple_GET_SIZE(args);
+    if (self && GMPyContext_Check(self)) {
+        if (argc != 2) {
+            TYPE_ERROR("context.add() requires 2 arguments.");
+            return NULL;
+        }
+        /* If we are passed a read-only context, make a copy of it before
+         * proceeding. */
+
+        if (((GMPyContextObject*)self)->ctx.readonly)
+            context = (GMPyContextObject*)GMPyContext_context_copy(self, NULL);
+        else
+            context = (GMPyContextObject*)self;
+    }
+    else {
+        if ((argc < 2) && (argc > 3)) {
+            TYPE_ERROR("add() requires 2 or 3 arguments.");
+            return NULL;
+        }
+        if (argc == 3) {
+            arg2 = PyTuple_GET_ITEM(args, 2);
+            if (!GMPyContext_Check(arg2)) {
+                TYPE_ERROR("third argument must be context.");
+                return NULL;
+            }
+            if (((GMPyContextObject*)arg2)->ctx.readonly)
+                context = (GMPyContextObject*)GMPyContext_context_copy(arg2, NULL);
+            else
+                context = (GMPyContextObject*)arg2;
+        }
+        else {
+            CURRENT_CONTEXT(context);
+        }
     }
 
-    if (isInteger(PyTuple_GET_ITEM(args, 0)) &&
-        isInteger(PyTuple_GET_ITEM(args, 1)))
-        return Pympz_add(self, args);
+    arg0 = PyTuple_GET_ITEM(args, 0);
+    arg1 = PyTuple_GET_ITEM(args, 1);
 
-    if (isRational(PyTuple_GET_ITEM(args, 0)) &&
-        isRational(PyTuple_GET_ITEM(args, 1)))
-        return Pympq_add(self, args);
+    if (IS_INTEGER(arg0) && IS_INTEGER(arg1))
+        return Pympz_Add_Integer(arg0, arg1);
 
-    if (isReal(PyTuple_GET_ITEM(args, 0)) &&
-        isReal(PyTuple_GET_ITEM(args, 1)))
-        return Pympfr_add(self, args);
+    if (IS_RATIONAL(arg0) && IS_RATIONAL(arg1))
+        return Pympq_Add_Rational(arg0, arg1);
 
-    if (isComplex(PyTuple_GET_ITEM(args, 0)) &&
-        isComplex(PyTuple_GET_ITEM(args, 1)))
-        return Pympc_add(self, args);
+    if (IS_REAL(arg0) && IS_REAL(arg1))
+        return Pympfr_Add_Real(arg0, arg1, context);
+
+    if (IS_COMPLEX(arg0) && IS_COMPLEX(arg1))
+        return Pympc_Add_Complex(arg0, arg1, context);
 
     TYPE_ERROR("add() argument types not supported");
     return NULL;

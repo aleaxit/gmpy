@@ -118,6 +118,9 @@ static PyObject * Pympz_sub(PyObject *self, PyObject *args);
 static PyObject * Pympz_mul(PyObject *self, PyObject *args);
 static PyObject * Pympz_div(PyObject *self, PyObject *args);
 
+static PyObject * Pympz_Add_Integer(PyObject *x, PyObject *y);
+
+
 #ifdef __cplusplus
 }
 #endif
