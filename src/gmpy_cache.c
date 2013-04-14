@@ -271,7 +271,7 @@ Pympfr_new(mpfr_prec_t bits)
 }
 
 static PyObject *
-Pympfr_new_context(mpfr_prec_t bits, GMPyContextObject *context)
+Pympfr_new_bits_context(mpfr_prec_t bits, GMPyContextObject *context)
 {
     PympfrObject *self;
 
@@ -298,6 +298,36 @@ Pympfr_new_context(mpfr_prec_t bits, GMPyContextObject *context)
     self->rc = 0;
     self->round_mode = context->ctx.mpfr_round;
     return (PyObject*)self;
+}
+
+static PyObject *
+Pympfr_new_context(GMPyContextObject *context)
+{
+    mpfr_prec_t bits;
+    PympfrObject *result;
+
+    bits = GET_MPFR_PREC(context);
+
+    if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
+        VALUE_ERROR("invalid value for precision");
+        return NULL;
+    }
+    if (in_pympfrcache) {
+        result = pympfrcache[--in_pympfrcache];
+        /* Py_INCREF does not set the debugging pointers, so need to use
+           _Py_NewReference instead. */
+        _Py_NewReference((PyObject*)result);
+        mpfr_set_prec(result->f, bits);
+    }
+    else {
+        if (!(result = PyObject_New(PympfrObject, &Pympfr_Type)))
+            return NULL;
+        mpfr_init2(result->f, bits);
+    }
+    result->hash_cache = -1;
+    result->rc = 0;
+    result->round_mode = GET_MPFR_ROUND(context);
+    return (PyObject*)result;
 }
 
 static void

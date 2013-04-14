@@ -38,6 +38,27 @@ extern "C" {
  * These checks are currently implemented as functions but may be
  * implemented as macros in the future.
  */
+#ifdef PY2
+#define IS_INTEGER_ONLY(x) (Pympz_Check(x) || PyInt_Check(x) || PyLong_Check(x) || Pyxmpz_Check(x))
+#else
+#define IS_INTEGER_ONLY(x) (Pympz_Check(x) || PyLong_Check(x) || Pyxmpz_Check(x))
+#endif
+#define IS_INTEGER(x) IS_INTEGER_ONLY(x)
+
+#define IS_RATIONAL_ONLY(x) (Pympq_Check(x) || (!strcmp(Py_TYPE(x)->tp_name, "Fraction")))
+#define IS_RATIONAL(x) (IS_INTEGER(x) || IS_RATIONAL_ONLY(x))
+
+#if PY_VERSION_HEX < 0x03030000
+#define IS_DECIMAL_ONLY(x) (!strcmp(Py_TYPE(x)->tp_name, "Decimal"))
+#else
+#define IS_DECIMAL_ONLY(x) (!strcmp(Py_TYPE(x)->tp_name, "decimal.Decimal"))
+#endif
+
+#define IS_REAL_ONLY(x) (Pympfr_Check(x) || PyFloat_Check(x) || IS_DECIMAL_ONLY(x))
+#define IS_REAL(x) (IS_RATIONAL(x) || IS_REAL_ONLY(x))
+
+#define IS_COMPLEX_ONLY(x) (Pympc_Check(x) || PyComplex_Check(x))
+#define IS_COMPLEX(x) (IS_REAL(x) || IS_COMPLEX_ONLY(x))
 
 /* Checks for mpz, xmpz, and the integer types included with Python. */
 static int isInteger(PyObject* obj);
@@ -169,7 +190,8 @@ static PympfrObject *   Pympfr_From_PyInt(PyObject *self, mpfr_prec_t bits);
 static PyObject *       Pympfr_To_PyInt(PympfrObject *self);
 #endif
 static PympfrObject *   Pympfr_From_Pympfr(PyObject *self, mpfr_prec_t bits);
-static PympfrObject *   Pympfr_From_Pympfr_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
+static PympfrObject *   Pympfr_From_Pympfr_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
+static PympfrObject *   Pympfr_From_Pympfr_context(PyObject *self, GMPyContextObject *context);
 static PympfrObject *   Pympfr_From_PyFloat(PyObject *self, mpfr_prec_t bits);
 static PympfrObject *   Pympfr_From_PyFloat_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
 static PympfrObject *   Pympfr_From_PyLong(PyObject *self, mpfr_prec_t bits);
@@ -179,7 +201,7 @@ static PympfrObject *   Pympfr_From_Pympz_context(PyObject *self, mpfr_prec_t bi
 static PympfrObject *   Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
 static PympfrObject *   Pympfr_From_Real_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject *context);
 static PympfrObject *   Pympfr_From_Pympq(PyObject *self, mpfr_prec_t bits);
-static PympfrObject *   Pympfr_From_Pympq_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
+static PympfrObject *   Pympfr_From_Pympq_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
 static PympfrObject *   Pympfr_From_PyStr(PyObject *s, int base, mpfr_prec_t bits);
 static PympfrObject *   Pympfr_From_Decimal(PyObject *obj, mpfr_prec_t bits);
 static PympfrObject *   Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);

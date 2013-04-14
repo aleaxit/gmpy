@@ -657,7 +657,7 @@ static PyTypeObject GMPyIter_Type =
 #ifdef PY3
 static PyNumberMethods xmpz_number_methods =
 {
-    (binaryfunc) Pybasic_add,            /* nb_add                  */
+    (binaryfunc) Pympz_add_fast,         /* nb_add                  */
     (binaryfunc) Pybasic_sub,            /* nb_subtract             */
     (binaryfunc) Pybasic_mul,            /* nb_multiply             */
     (binaryfunc) Pybasic_rem,            /* nb_remainder            */
@@ -696,7 +696,7 @@ static PyNumberMethods xmpz_number_methods =
 #else
 static PyNumberMethods xmpz_number_methods =
 {
-    (binaryfunc) Pybasic_add,            /* nb_add                  */
+    (binaryfunc) Pympz_add_fast,         /* nb_add                  */
     (binaryfunc) Pybasic_sub,            /* nb_subtract             */
     (binaryfunc) Pybasic_mul,            /* nb_multiply             */
     (binaryfunc) Pybasic_div2,           /* nb_divide               */

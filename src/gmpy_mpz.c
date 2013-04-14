@@ -2380,24 +2380,20 @@ Pympz_add_fast(PyObject *x, PyObject *y)
     PyObject *result;
     GMPyContextObject *context;
 
-    result = Pympz_Add_Integer(x, y);
-
-    if (result != Py_NotImplemented)
-        return result;
-
-    Py_DECREF(result);
-
-    CURRENT_CONTEXT(context);
-
-    if (isRational(x) && isRational(y))
+    if (IS_INTEGER(x) && IS_INTEGER(y))
+        result = Pympz_Add_Integer(x, y);
+    else if (IS_RATIONAL(x) && IS_RATIONAL(y))
         result = Pympq_Add_Rational(x, y);
-    else if (isReal(x) && isReal(y))
-        result = Pympfr_Add_Real(x, y, context);
-    else if (isComplex(x) && isComplex(y))
-        result = Pympc_Add_Complex(x, y, context);
     else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
+        CURRENT_CONTEXT(context);
+        if (IS_REAL(x) && IS_REAL(y))
+            result = Pympfr_Add_Real(x, y, context);
+        else if (IS_COMPLEX(x) && IS_COMPLEX(y))
+            result = Pympc_Add_Complex(x, y, context);
+        else {
+            Py_INCREF(Py_NotImplemented);
+            result = Py_NotImplemented;
+        }
     }
     return result;
 }
