@@ -140,11 +140,17 @@ current_context_from_dict(void)
         return NULL;
     }
 
+#ifdef PY3
     tl_context = PyDict_GetItemWithError(dict, tls_context_key);
+#else
+    tl_context = PyDict_GetItem(dict, tls_context_key);
+#endif
     if (!tl_context) {
+#ifdef PY3
         if (PyErr_Occurred()) {
             return NULL;
         }
+#endif
 
         /* Set up a new thread local context. */
         tl_context = GMPyContext_new();
@@ -1215,6 +1221,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "add", Pympany_add, METH_VARARGS, doc_context_add },
     { "clear_flags", GMPyContext_clear_flags, METH_NOARGS, doc_context_clear_flags },
     { "copy", GMPyContext_context_copy, METH_NOARGS, doc_context_copy },
+    { "mul", Pympany_mul, METH_VARARGS, doc_context_mul },
     { "sub", Pympany_sub, METH_VARARGS, doc_context_sub },
     { "__enter__", GMPyContext_enter, METH_NOARGS, NULL },
     { "__exit__", GMPyContext_exit, METH_VARARGS, NULL },

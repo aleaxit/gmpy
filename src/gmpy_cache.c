@@ -402,12 +402,49 @@ Pympc_new(mpfr_prec_t rprec, mpfr_prec_t iprec)
 }
 
 static PyObject *
-Pympc_new_context(mpfr_prec_t rprec, mpfr_prec_t iprec, GMPyContextObject *context)
+Pympc_new_bits_context(mpfr_prec_t rprec, mpfr_prec_t iprec, GMPyContextObject *context)
 {
     PympcObject *self;
 
     if (!rprec) rprec = GET_REAL_PREC(context);
     if (!iprec) iprec = GET_IMAG_PREC(context);
+    if (rprec < MPFR_PREC_MIN || rprec > MPFR_PREC_MAX ||
+        iprec < MPFR_PREC_MIN || iprec > MPFR_PREC_MAX) {
+        VALUE_ERROR("invalid value for precision");
+        return NULL;
+    }
+    if (in_pympccache) {
+        self = pympccache[--in_pympccache];
+        /* Py_INCREF does not set the debugging pointers, so need to use
+           _Py_NewReference instead. */
+        _Py_NewReference((PyObject*)self);
+        if (rprec == iprec) {
+            mpc_set_prec(self->c, rprec);
+        }
+        else {
+            mpc_clear(self->c);
+            mpc_init3(self->c, rprec, iprec);
+        }
+    }
+    else {
+        if (!(self = PyObject_New(PympcObject, &Pympc_Type)))
+            return NULL;
+        mpc_init3(self->c, rprec, iprec);
+    }
+    self->hash_cache = -1;
+    self->rc = 0;
+    self->round_mode = GET_MPC_ROUND(context);
+    return (PyObject*)self;
+}
+
+static PyObject *
+Pympc_new_context(GMPyContextObject *context)
+{
+    mpfr_prec_t rprec, iprec;
+    PympcObject *self;
+
+    rprec = GET_REAL_PREC(context);
+    iprec = GET_IMAG_PREC(context);
     if (rprec < MPFR_PREC_MIN || rprec > MPFR_PREC_MAX ||
         iprec < MPFR_PREC_MIN || iprec > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");
