@@ -10,7 +10,7 @@ def writeln(s):
     sys.stdout.flush()
 
 # Some operating systems may use a different library directory under the
-# prefix specified by --prefix. It must be manually changed.
+# prefix specified by --prefix. It can be changed using the --lib64 option.
 
 lib_path = '/lib'
 
@@ -113,14 +113,14 @@ class gmpy_build_ext(build_ext):
             if not mpfr_found \
                 and os.path.isfile(lookin + '/mpfr.h') \
                 and get_mpfr_version(lookin + '/mpfr.h') >= (3,1,0):
-                mpfr_found = lookin
+                mpfr_found = adir
             else:
                 continue
 
             if not mpc_found \
                 and os.path.isfile(lookin + '/mpc.h') \
                 and get_mpc_version(lookin + '/mpc.h') >= (1,0,0):
-                mpc_found = lookin
+                mpc_found = adir
             else:
                 continue
 
@@ -146,16 +146,16 @@ class gmpy_build_ext(build_ext):
         # found. This can cause confusion if there are multiple installations of
         # the same version of Python on the system.
 
-        for lookin in (mpfr_found, mpc_found):
-            if not lookin:
+        for adir in (mpfr_found, mpc_found):
+            if not adir:
                 continue
-            if lookin in base_dir:
+            if adir in base_dir:
                 continue
-            if lookin in self.extensions[0].include_dirs:
+            if adir + '/include' in self.extensions[0].include_dirs:
                 continue
-            self.extensions[0].include_dirs += [lookin]
+            self.extensions[0].include_dirs += [adir + '/include']
             self.extensions[0].library_dirs += [adir + lib_path]
-            if not windows:
+            if not windows and adir not in base_dir:
                 self.extensions[0].runtime_library_dirs += [adir + lib_path]
 
         # If the instance of Python used to compile gmpy2 not found in 'prefix',

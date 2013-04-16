@@ -352,16 +352,17 @@ static PyObject * Pympc_div_2exp(PyObject *self, PyObject *args);
 static PyObject * Pympc_mul_2exp(PyObject *self, PyObject *args);
 static Py_hash_t Pympc_hash(PympcObject *self);
 static PyObject * Pympc_add_fast(PyObject *x, PyObject *y);
-static PyObject * Pympc_Add_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympc_sub_fast(PyObject *x, PyObject *y);
-static PyObject * Pympc_Sub_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympc_mul_fast(PyObject *x, PyObject *y);
-static PyObject * Pympc_mul(PyObject *self, PyObject *args);
 static PyObject * Pympc_truediv_fast(PyObject *x, PyObject *y);
 #ifdef PY2
 static PyObject * Pympc_div2_fast(PyObject *x, PyObject *y);
 #endif
 static PyObject * Pympc_div(PyObject *self, PyObject *args);
+
+static PyObject * Pympc_Add_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
+static PyObject * Pympc_Sub_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
+static PyObject * Pympc_Mul_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
 
 #ifdef __cplusplus
 }

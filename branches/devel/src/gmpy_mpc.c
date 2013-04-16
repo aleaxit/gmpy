@@ -1213,7 +1213,7 @@ Pympc_Add_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
     PympcObject *result = NULL;
 
-    if (!(result = (PympcObject*)Pympc_new_context(0, 0, context)))
+    if (!(result = (PympcObject*)Pympc_new_bits_context(0, 0, context)))
         return NULL;
 
     if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
@@ -1225,8 +1225,8 @@ Pympc_Add_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (isComplex(x) && isComplex(y)) {
         PympcObject *tempx, *tempy;
 
-        tempx = Pympc_From_Complex_context(x, 0, 0, context);
-        tempy = Pympc_From_Complex_context(y, 0, 0, context);
+        tempx = Pympc_From_Complex_bits_context(x, 0, 0, context);
+        tempy = Pympc_From_Complex_bits_context(y, 0, 0, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Can not convert Complex to 'mpc'");
             Py_XDECREF((PyObject*)tempx);
@@ -1272,7 +1272,7 @@ Pympc_Sub_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
     PympcObject *result = NULL;
 
-    if (!(result = (PympcObject*)Pympc_new_context(0, 0, context)))
+    if (!(result = (PympcObject*)Pympc_new_bits_context(0, 0, context)))
         return NULL;
 
     if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
@@ -1284,8 +1284,8 @@ Pympc_Sub_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (isComplex(x) && isComplex(y)) {
         PympcObject *tempx, *tempy;
 
-        tempx = Pympc_From_Complex_context(x, 0, 0, context);
-        tempy = Pympc_From_Complex_context(y, 0, 0, context);
+        tempx = Pympc_From_Complex_bits_context(x, 0, 0, context);
+        tempy = Pympc_From_Complex_bits_context(y, 0, 0, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Can not convert Complex to 'mpc'");
             Py_XDECREF((PyObject*)tempx);
@@ -1319,55 +1319,66 @@ Pympc_sub_fast(PyObject *x, PyObject *y)
 
     CURRENT_CONTEXT(context);
 
-    return Pympc_Add_Complex(x, y, context);
+    return Pympc_Sub_Complex(x, y, context);
 }
+
+/* Pympc_Mul_Complex(x, y, context) returns x*y using the provided context. If
+ * an error occurs, NULL is returned and an exception is set. If either x or
+ * y can't be converted to an mpc, then Py_NotImplemented is returned. */
+
+static PyObject *
+Pympc_Mul_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
+{
+    PympcObject *result = NULL;
+
+    if (!(result = (PympcObject*)Pympc_new_bits_context(0, 0, context)))
+        return NULL;
+
+    if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
+        result->rc = mpc_mul(result->c, Pympc_AS_MPC(x), Pympc_AS_MPC(y),
+                             GET_MPC_ROUND(context));
+        goto done;
+    }
+
+    if (isComplex(x) && isComplex(y)) {
+        PympcObject *tempx, *tempy;
+
+        tempx = Pympc_From_Complex_bits_context(x, 0, 0, context);
+        tempy = Pympc_From_Complex_bits_context(y, 0, 0, context);
+        if (!tempx || !tempy) {
+            SYSTEM_ERROR("Can not convert Complex to 'mpc'");
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+        result->rc = mpc_mul(result->c, tempx->c, tempy->c, GET_MPC_ROUND(context));
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+        goto done;
+    }
+
+    Py_DECREF((PyObject*)result);
+    Py_RETURN_NOTIMPLEMENTED;
+
+  done:
+    MPC_CLEANUP_RESULT("multiplication");
+    return (PyObject*)result;
+}
+
+/* Pympc_mul_fast() is called by mpc.__mul__. It just gets a borrowed reference
+ * to the current context and call Pympc_Mul_Complex(). Since mpc is the last
+ * step of the numeric ladder, the NotImplemented return value from
+ * Pympc_Add_Complex() is correct and is just passed on. */
 
 static PyObject *
 Pympc_mul_fast(PyObject *x, PyObject *y)
 {
-    PympcObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
-    if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
-        if (!(result = (PympcObject*)Pympc_new(0, 0))) {
-            return NULL;
-        }
-        result->rc = mpc_mul(result->c,
-                             Pympc_AS_MPC(x),
-                             Pympc_AS_MPC(y),
-                             GET_MPC_ROUND(context));
-        MPC_CLEANUP(result, "multiplication");
-        return (PyObject*)result;
-    }
-    else {
-        return Pybasic_mul(x, y);
-    }
-}
-
-static PyObject *
-Pympc_mul(PyObject *self, PyObject *args)
-{
-    PympcObject *result;
-    PyObject *other;
-    GMPyContextObject *context;
-
-    CURRENT_CONTEXT(context);
-
-    PARSE_TWO_MPC_ARGS(other, "mul() requires 'mpc','mpc' arguments");
-
-    if (!(result = (PympcObject*)Pympc_new(0, 0))) {
-        Py_DECREF(self);
-        Py_DECREF(other);
-        return NULL;
-    }
-
-    result->rc = mpc_mul(result->c, Pympc_AS_MPC(self),
-                         Pympc_AS_MPC(other), GET_MPC_ROUND(context));
-    Py_DECREF(self);
-    Py_DECREF(other);
-    MPC_CLEANUP(result, "mul()");
+    return Pympc_Mul_Complex(x, y, context);
 }
 
 static PyObject *

@@ -381,7 +381,6 @@ static PyObject * Pympfr_ai(PyObject* self, PyObject *other);
 static PyObject * Pympfr_add_fast(PyObject *x, PyObject *y);
 static PyObject * Pympfr_sub_fast(PyObject *x, PyObject *y);
 static PyObject * Pympfr_mul_fast(PyObject *x, PyObject *y);
-static PyObject * Pympfr_mul(PyObject *self, PyObject *args);
 static PyObject * Pympfr_truediv_fast(PyObject *x, PyObject *y);
 #ifdef PY2
 static PyObject * Pympfr_div2_fast(PyObject *x, PyObject *y);
@@ -414,6 +413,7 @@ static PyObject * Pympfr_format(PyObject *self, PyObject *args);
 
 static PyObject * Pympfr_Add_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympfr_Sub_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
+static PyObject * Pympfr_Mul_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
 
 #ifdef __cplusplus
 }

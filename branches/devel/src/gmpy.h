@@ -239,7 +239,12 @@ typedef long                mpir_si;
 /* The gmpy_args.h file includes macros that are used for argument
  * processing.
  */
+#include "mpfr.h"
+#include "mpc.h"
+
 #include "gmpy_args.h"
+
+#include "gmpy_context.h"
 
 #include "gmpy_mpz.h"
 #include "gmpy_xmpz.h"
@@ -249,11 +254,6 @@ typedef long                mpir_si;
 #include "gmpy_xmpz_inplace.h"
 
 #include "gmpy_mpq.h"
-
-#include "mpfr.h"
-#include "mpc.h"
-
-#include "gmpy_context.h"
 
 #include "gmpy_mpfr.h"
 #if MPFR_VERSION < 0x030100
