@@ -126,11 +126,12 @@ class gmpy_build_ext(build_ext):
             # exist in the same directory. If not, generate an error message.
             # If header isn't found, go to the next directory.
 
-            writeln('looking in: %s' % lookin)
-            writeln('mpfr.h found: %s' % os.path.isfile(lookin + '/mpfr.h'))
-            writeln('mpfr.h version %s' % repr(get_mpfr_version(lookin + '/mpfr.h')))
-            writeln('mpc.h found: %s' % os.path.isfile(lookin + '/mpc.h'))
-            writeln('mpc.h version %s' % repr(get_mpc_version(lookin + '/mpc.h')))
+            # For debugging information, uncomment the following lines.
+            # writeln('looking in: %s' % lookin)
+            # writeln('mpfr.h found: %s' % os.path.isfile(lookin + '/mpfr.h'))
+            # writeln('mpfr.h version %s' % repr(get_mpfr_version(lookin + '/mpfr.h')))
+            # writeln('mpc.h found: %s' % os.path.isfile(lookin + '/mpc.h'))
+            # writeln('mpc.h version %s' % repr(get_mpc_version(lookin + '/mpc.h')))
 
             if use_mpfr and os.path.isfile(lookin + '/mpfr.h'):
                 v = get_mpfr_version(lookin + '/mpfr.h')
@@ -186,11 +187,11 @@ class gmpy_build_ext(build_ext):
                                             + self.extensions[0].libraries
 
         # For debugging information, uncomment the following lines.
-        writeln([mpfr_found, mpc_found])
-        writeln(self.extensions[0].include_dirs)
-        writeln(self.extensions[0].library_dirs)
-        writeln(self.extensions[0].runtime_library_dirs)
-        writeln(self.extensions[0].libraries)
+        # writeln([mpfr_found, mpc_found])
+        # writeln(self.extensions[0].include_dirs)
+        # writeln(self.extensions[0].library_dirs)
+        # writeln(self.extensions[0].runtime_library_dirs)
+        # writeln(self.extensions[0].libraries)
 
     def finalize_options(self):
         build_ext.finalize_options(self)
