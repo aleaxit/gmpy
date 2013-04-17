@@ -18,27 +18,33 @@ lib_path = '/lib'
 
 def get_mpfr_version(fname):
     result = []
-    with open(fname) as f:
-        for line in f:
-            if line.startswith('#define MPFR_VERSION_MAJOR'):
-                result.append(int(line.split()[-1]))
-            if line.startswith('#define MPFR_VERSION_MINOR'):
-                result.append(int(line.split()[-1]))
-            if line.startswith('#define MPFR_VERSION_PATCHLEVEL'):
-                result.append(int(line.split()[-1]))
-    return tuple(result)
+    try:
+        with open(fname) as f:
+            for line in f:
+                if line.startswith('#define MPFR_VERSION_MAJOR'):
+                    result.append(int(line.split()[-1]))
+                if line.startswith('#define MPFR_VERSION_MINOR'):
+                    result.append(int(line.split()[-1]))
+                if line.startswith('#define MPFR_VERSION_PATCHLEVEL'):
+                    result.append(int(line.split()[-1]))
+        return tuple(result)
+    except:
+        return (0,0,0)
 
 def get_mpc_version(fname):
     result = []
-    with open(fname) as f:
-        for line in f:
-            if line.startswith('#define MPC_VERSION_MAJOR'):
-                result.append(int(line.split()[-1]))
-            if line.startswith('#define MPC_VERSION_MINOR'):
-                result.append(int(line.split()[-1]))
-            if line.startswith('#define MPC_VERSION_PATCHLEVEL'):
-                result.append(int(line.split()[-1]))
-    return tuple(result)
+    try:
+        with open(fname) as f:
+            for line in f:
+                if line.startswith('#define MPC_VERSION_MAJOR'):
+                    result.append(int(line.split()[-1]))
+                if line.startswith('#define MPC_VERSION_MINOR'):
+                    result.append(int(line.split()[-1]))
+                if line.startswith('#define MPC_VERSION_PATCHLEVEL'):
+                    result.append(int(line.split()[-1]))
+        return tuple(result)
+    except:
+        return (0,0,0)
 
 # Fail gracefully for old versions of Python.
 
@@ -88,7 +94,7 @@ class gmpy_build_ext(build_ext):
             addin_dirs = []
 
         if prefix:
-            search_dirs = [prefix] + base_dir + addin_dirs
+            search_dirs = base_dir + addin_dirs + [prefix]
         else:
             search_dirs = base_dir + addin_dirs
 
@@ -106,27 +112,36 @@ class gmpy_build_ext(build_ext):
             return
 
         mpfr_found = ''
+        mpfr_version = (0,0,0)
         mpc_found = ''
+        mpc_version = (0,0,0)
+
         for adir in search_dirs:
             lookin = adir + '/include'
 
-            if not mpfr_found \
-                and os.path.isfile(lookin + '/mpfr.h') \
-                and get_mpfr_version(lookin + '/mpfr.h') >= (3,1,0):
-                mpfr_found = adir
-            else:
-                continue
+            # For debugging information, uncomment the following lines.
+            # writeln('looking in: %s' % lookin)
+            # writeln('mpfr.h found: %s' % os.path.isfile(lookin + '/mpfr.h'))
+            # writeln('mpfr.h version %s' % repr(get_mpfr_version(lookin + '/mpfr.h')))
+            # writeln('mpc.h found: %s' % os.path.isfile(lookin + '/mpc.h'))
+            # writeln('mpc.h version %s' % repr(get_mpc_version(lookin + '/mpc.h')))
 
-            if not mpc_found \
-                and os.path.isfile(lookin + '/mpc.h') \
-                and get_mpc_version(lookin + '/mpc.h') >= (1,0,0):
-                mpc_found = adir
-            else:
-                continue
+            if os.path.isfile(lookin + '/mpfr.h'):
+                v = get_mpfr_version(lookin + '/mpfr.h')
+                if v >= mpfr_version:
+                    mpfr_found = adir
+                    mpfr_version = v
 
-            # Stop searching once valid versions are found.
-            if mpfr_found and mpc_found:
-                break
+            if os.path.isfile(lookin + '/mpc.h'):
+                v = get_mpc_version(lookin + '/mpc.h')
+                if v >= mpc_version:
+                    mpc_found = adir
+                    mpc_version = v
+
+        if mpfr_version < (3,1,0):
+            mpfr_found = False
+        if mpc_version < (1,0,0):
+            mpc_found = False
 
         if not mpfr_found or not mpc_found:
             writeln('----------------------------------------------------------------')
@@ -165,6 +180,7 @@ class gmpy_build_ext(build_ext):
                                             + self.extensions[0].libraries
 
         # For debugging information, uncomment the following lines.
+        # writeln([mpfr_found, mpc_found])
         # writeln(self.extensions[0].include_dirs)
         # writeln(self.extensions[0].library_dirs)
         # writeln(self.extensions[0].runtime_library_dirs)
