@@ -2635,6 +2635,11 @@ Pympz_FloorDiv_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
         }
 
         if (CHECK_MPZANY(y)) {
+            if (mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
+                ZERO_ERROR("division or modulo by zero");
+                Py_DECREF((PyObject*)result);
+                return NULL;
+            }
             mpz_fdiv_q(result->z, Pympz_AS_MPZ(x), Pympz_AS_MPZ(y));
             return (PyObject*)result;
         }
@@ -2801,7 +2806,7 @@ Pympz_div2_fast(PyObject *x, PyObject *y)
     else if (IS_REAL(x) && IS_REAL(y))
         result = Pympfr_TrueDiv_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_TrueDive_Complex(x, y, context);
+        result = Pympc_TrueDiv_Complex(x, y, context);
     else {
         Py_INCREF(Py_NotImplemented);
         result = Py_NotImplemented;
