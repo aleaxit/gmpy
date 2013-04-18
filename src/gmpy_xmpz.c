@@ -686,8 +686,8 @@ static PyNumberMethods xmpz_number_methods =
     (binaryfunc) Pyxmpz_inplace_and,     /* nb_inplace_and          */
     (binaryfunc) Pyxmpz_inplace_xor,     /* nb_inplace_xor          */
     (binaryfunc) Pyxmpz_inplace_ior,     /* nb_inplace_or           */
-    (binaryfunc) Pybasic_floordiv,       /* nb_floor_divide         */
-    (binaryfunc) Pybasic_truediv,        /* nb_true_divide          */
+    (binaryfunc) Pympz_floordiv_fast,    /* nb_floor_divide         */
+    (binaryfunc) Pympz_truediv_fast,     /* nb_true_divide          */
     (binaryfunc) Pyxmpz_inplace_floordiv,/* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */
     (unaryfunc)  Pyxmpz_To_PyIntOrLong,  /* nb_index                */
@@ -699,7 +699,7 @@ static PyNumberMethods xmpz_number_methods =
     (binaryfunc) Pympz_add_fast,         /* nb_add                  */
     (binaryfunc) Pympz_sub_fast,         /* nb_subtract             */
     (binaryfunc) Pympz_mul_fast,         /* nb_multiply             */
-    (binaryfunc) Pybasic_div2,           /* nb_divide               */
+    (binaryfunc) Pympz_div2_fast,        /* nb_divide               */
     (binaryfunc) Pybasic_rem,            /* nb_remainder            */
     (binaryfunc) Pybasic_divmod,         /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
@@ -730,8 +730,8 @@ static PyNumberMethods xmpz_number_methods =
     (binaryfunc) Pyxmpz_inplace_and,     /* nb_inplace_and          */
     (binaryfunc) Pyxmpz_inplace_xor,     /* nb_inplace_xor          */
     (binaryfunc) Pyxmpz_inplace_ior,     /* nb_inplace_or           */
-    (binaryfunc) Pybasic_floordiv,       /* nb_floor_divide         */
-    (binaryfunc) Pybasic_truediv,        /* nb_true_divide          */
+    (binaryfunc) Pympz_floordiv_fast,    /* nb_floor_divide         */
+    (binaryfunc) Pympz_truediv_fast,     /* nb_true_divide          */
     (binaryfunc) Pyxmpz_inplace_floordiv,/* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */
     (unaryfunc) Pyxmpz_To_PyIntOrLong,   /* nb_index                */

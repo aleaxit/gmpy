@@ -382,10 +382,6 @@ static PyObject * Pympfr_add_fast(PyObject *x, PyObject *y);
 static PyObject * Pympfr_sub_fast(PyObject *x, PyObject *y);
 static PyObject * Pympfr_mul_fast(PyObject *x, PyObject *y);
 static PyObject * Pympfr_truediv_fast(PyObject *x, PyObject *y);
-#ifdef PY2
-static PyObject * Pympfr_div2_fast(PyObject *x, PyObject *y);
-#endif
-static PyObject * Pympfr_div(PyObject *self, PyObject *args);
 static PyObject * Pympfr_fmod(PyObject *self, PyObject *args);
 static PyObject * Pympfr_remainder(PyObject *self, PyObject *args);
 static PyObject * Pympfr_remquo(PyObject* self, PyObject *args);
@@ -414,6 +410,8 @@ static PyObject * Pympfr_format(PyObject *self, PyObject *args);
 static PyObject * Pympfr_Add_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympfr_Sub_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympfr_Mul_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
+static PyObject * Pympfr_FloorDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
+static PyObject * Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
 
 #ifdef __cplusplus
 }

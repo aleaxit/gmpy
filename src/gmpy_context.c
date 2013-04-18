@@ -1221,6 +1221,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "add", Pympany_add, METH_VARARGS, doc_context_add },
     { "clear_flags", GMPyContext_clear_flags, METH_NOARGS, doc_context_clear_flags },
     { "copy", GMPyContext_context_copy, METH_NOARGS, doc_context_copy },
+    { "div", Pympany_div, METH_VARARGS, doc_context_div },
     { "mul", Pympany_mul, METH_VARARGS, doc_context_mul },
     { "sub", Pympany_sub, METH_VARARGS, doc_context_sub },
     { "__enter__", GMPyContext_enter, METH_NOARGS, NULL },
