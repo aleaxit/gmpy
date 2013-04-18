@@ -1786,7 +1786,7 @@ MPFR_UNIOP(ai)
 static PyObject *
 Pympfr_Add_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
-    PympfrObject *result = NULL;
+    PympfrObject *result;
 
     if (!(result = (PympfrObject*)Pympfr_new_context(context)))
         return NULL;
@@ -1923,6 +1923,7 @@ Pympfr_Add_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF(result);
+            return NULL;
         }
         mpfr_clear_flags();
         result->rc = mpfr_add(result->f, Pympfr_AS_MPFR(tempx), Pympfr_AS_MPFR(tempy),
@@ -1970,7 +1971,7 @@ Pympfr_add_fast(PyObject *x, PyObject *y)
 static PyObject *
 Pympfr_Sub_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
-    PympfrObject *result = NULL;
+    PympfrObject *result;
 
     if (!(result = (PympfrObject*)Pympfr_new_context(context)))
         return NULL;
@@ -2108,6 +2109,7 @@ Pympfr_Sub_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF(result);
+            return NULL;
         }
         mpfr_clear_flags();
         result->rc = mpfr_sub(result->f, Pympfr_AS_MPFR(tempx), Pympfr_AS_MPFR(tempy),
@@ -2155,7 +2157,7 @@ Pympfr_sub_fast(PyObject *x, PyObject *y)
 static PyObject *
 Pympfr_Mul_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
-    PympfrObject *result = NULL;
+    PympfrObject *result;
 
     if (!(result = (PympfrObject*)Pympfr_new_context(context)))
         return NULL;
@@ -2292,6 +2294,7 @@ Pympfr_Mul_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF(result);
+            return NULL;
         }
         mpfr_clear_flags();
         result->rc = mpfr_mul(result->f, Pympfr_AS_MPFR(tempx), Pympfr_AS_MPFR(tempy),
@@ -2332,74 +2335,315 @@ Pympfr_mul_fast(PyObject *x, PyObject *y)
     return result;
 }
 
+/* Attempt floor division of two numbers and return an mpfr. The code path is
+ * optimized by checking for mpfr objects first. Returns Py_NotImplemented if
+ * both objects are not valid reals.  */
+
+static PyObject *
+Pympfr_FloorDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
+{
+    PympfrObject *result;
+
+    if (!(result = (PympfrObject*)Pympfr_new_context(context)))
+        return NULL;
+
+    /* This only processes mpfr if the exponent is still in-bounds. Need
+     * to handle the rare case at the end. */
+
+    if (Pympfr_CheckAndExp(x) && Pympfr_CheckAndExp(y)) {
+        mpfr_clear_flags();
+        result->rc = mpfr_div(result->f, Pympfr_AS_MPFR(x), Pympfr_AS_MPFR(y),
+                              GET_MPFR_ROUND(context));
+        result->rc = mpfr_floor(result->f, result->f);
+        goto done;
+    }
+
+    if (Pympfr_CheckAndExp(x)) {
+        if (PyIntOrLong_Check(y)) {
+            mpz_t tempz;
+            mpir_si temp_si;
+            int overflow;
+
+            temp_si = PyLong_AsSIAndOverflow(y, &overflow);
+            if (overflow) {
+                mpz_inoc(tempz);
+                mpz_set_PyIntOrLong(tempz, y);
+                mpfr_clear_flags();
+                result->rc = mpfr_div_z(result->f, Pympfr_AS_MPFR(x),
+                                        tempz, GET_MPFR_ROUND(context));
+                mpz_cloc(tempz);
+                result->rc = mpfr_floor(result->f, result->f);
+                goto done;
+            }
+            else {
+                mpfr_clear_flags();
+                result->rc = mpfr_div_si(result->f, Pympfr_AS_MPFR(x),
+                                         temp_si, GET_MPFR_ROUND(context));
+                result->rc = mpfr_floor(result->f, result->f);
+                goto done;
+            }
+        }
+
+        if (CHECK_MPZANY(y)) {
+            mpfr_clear_flags();
+            result->rc = mpfr_div_z(result->f, Pympfr_AS_MPFR(x),
+                                    Pympz_AS_MPZ(y), GET_MPFR_ROUND(context));
+            result->rc = mpfr_floor(result->f, result->f);
+            goto done;
+        }
+
+        if (isRational(y) || isDecimal(y)) {
+            PympqObject *tempy;
+
+            if (!(tempy = Pympq_From_Number(y))) {
+                SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
+                Py_DECREF(result);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            result->rc = mpfr_div_q(result->f, Pympfr_AS_MPFR(x), tempy->q,
+                                    GET_MPFR_ROUND(context));
+            result->rc = mpfr_floor(result->f, result->f);
+            Py_DECREF((PyObject*)tempy);
+            goto done;
+        }
+
+        if (PyFloat_Check(y)) {
+            mpfr_clear_flags();
+            result->rc = mpfr_div_d(result->f, Pympfr_AS_MPFR(x),
+                                    PyFloat_AS_DOUBLE(y), GET_MPFR_ROUND(context));
+            result->rc = mpfr_floor(result->f, result->f);
+            goto done;
+        }
+    }
+
+    if (Pympfr_CheckAndExp(y)) {
+        if (PyIntOrLong_Check(x)) {
+            mpir_si temp_si;
+            int overflow;
+
+            temp_si = PyLong_AsSIAndOverflow(x, &overflow);
+            if (!overflow) {
+                mpfr_clear_flags();
+                result->rc = mpfr_si_div(result->f, temp_si, Pympfr_AS_MPFR(y),
+                                         GET_MPFR_ROUND(context));
+                result->rc = mpfr_floor(result->f, result->f);
+                goto done;
+            }
+        }
+
+        /* Since mpfr_z_div does not exist, this combination is handled at the
+         * end by converting x to an mpfr. Ditto for rational.*/
+
+        if (PyFloat_Check(x)) {
+            mpfr_clear_flags();
+            result->rc = mpfr_d_div(result->f, PyFloat_AS_DOUBLE(x),
+                                    Pympfr_AS_MPFR(y), GET_MPFR_ROUND(context));
+            result->rc = mpfr_floor(result->f, result->f);
+            goto done;
+        }
+    }
+
+    /* In addition to handling PyFloat + PyFloat, the rare case when the
+     * exponent bounds have been changed is handled here. See
+     * Pympfr_From_Real() for details. */
+
+    if (IS_REAL(x) && IS_REAL(y)) {
+        PympfrObject *tempx, *tempy;
+
+        tempx = Pympfr_From_Real_context(x, 0, context);
+        tempy = Pympfr_From_Real_context(y, 0, context);
+        if (!tempx || !tempy) {
+            SYSTEM_ERROR("Can not convert Real to 'mpfr'");
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF(result);
+            return NULL;
+        }
+        mpfr_clear_flags();
+        result->rc = mpfr_div(result->f, Pympfr_AS_MPFR(tempx), Pympfr_AS_MPFR(tempy),
+                              GET_MPFR_ROUND(context));
+        result->rc = mpfr_floor(result->f, result->f);
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+        goto done;
+    }
+
+    Py_DECREF(result);
+    Py_RETURN_NOTIMPLEMENTED;
+
+  done:
+    MPFR_CLEANUP_RESULT("division");
+    return (PyObject*)result;
+}
+
+static PyObject *
+Pympfr_floordiv_fast(PyObject *x, PyObject *y)
+{
+    PyObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+    if (IS_REAL(x) && IS_REAL(y))
+        result = Pympfr_FloorDiv_Real(x, y, context);
+    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
+        result = Pympc_FloorDiv_Complex(x, y, context);
+    else {
+        Py_INCREF(Py_NotImplemented);
+        result = Py_NotImplemented;
+    }
+    return result;
+}
+
+/* Attempt true division of two numbers and return an mpfr. The code path is
+ * optimized by checking for mpfr objects first. Returns Py_NotImplemented if
+ * both objects are not valid reals.  */
+
+static PyObject *
+Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
+{
+    PympfrObject *result;
+
+    if (!(result = (PympfrObject*)Pympfr_new_context(context)))
+        return NULL;
+
+    /* This only processes mpfr if the exponent is still in-bounds. Need
+     * to handle the rare case at the end. */
+
+    if (Pympfr_CheckAndExp(x) && Pympfr_CheckAndExp(y)) {
+        mpfr_clear_flags();
+        result->rc = mpfr_div(result->f, Pympfr_AS_MPFR(x), Pympfr_AS_MPFR(y),
+                              GET_MPFR_ROUND(context));
+        goto done;
+    }
+
+    if (Pympfr_CheckAndExp(x)) {
+        if (PyIntOrLong_Check(y)) {
+            mpz_t tempz;
+            mpir_si temp_si;
+            int overflow;
+
+            temp_si = PyLong_AsSIAndOverflow(y, &overflow);
+            if (overflow) {
+                mpz_inoc(tempz);
+                mpz_set_PyIntOrLong(tempz, y);
+                mpfr_clear_flags();
+                result->rc = mpfr_div_z(result->f, Pympfr_AS_MPFR(x),
+                                        tempz, GET_MPFR_ROUND(context));
+                mpz_cloc(tempz);
+                goto done;
+            }
+            else {
+                mpfr_clear_flags();
+                result->rc = mpfr_div_si(result->f, Pympfr_AS_MPFR(x),
+                                         temp_si, GET_MPFR_ROUND(context));
+                goto done;
+            }
+        }
+
+        if (CHECK_MPZANY(y)) {
+            mpfr_clear_flags();
+            result->rc = mpfr_div_z(result->f, Pympfr_AS_MPFR(x),
+                                    Pympz_AS_MPZ(y), GET_MPFR_ROUND(context));
+            goto done;
+        }
+
+        if (isRational(y) || isDecimal(y)) {
+            PympqObject *tempy;
+
+            if (!(tempy = Pympq_From_Number(y))) {
+                SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
+                Py_DECREF(result);
+                return NULL;
+            }
+            mpfr_clear_flags();
+            result->rc = mpfr_div_q(result->f, Pympfr_AS_MPFR(x), tempy->q,
+                                    GET_MPFR_ROUND(context));
+            Py_DECREF((PyObject*)tempy);
+            goto done;
+        }
+
+        if (PyFloat_Check(y)) {
+            mpfr_clear_flags();
+            result->rc = mpfr_div_d(result->f, Pympfr_AS_MPFR(x),
+                                    PyFloat_AS_DOUBLE(y), GET_MPFR_ROUND(context));
+            goto done;
+        }
+    }
+
+    if (Pympfr_CheckAndExp(y)) {
+        if (PyIntOrLong_Check(x)) {
+            mpir_si temp_si;
+            int overflow;
+
+            temp_si = PyLong_AsSIAndOverflow(x, &overflow);
+            if (!overflow) {
+                mpfr_clear_flags();
+                result->rc = mpfr_si_div(result->f, temp_si, Pympfr_AS_MPFR(y),
+                                         GET_MPFR_ROUND(context));
+                goto done;
+            }
+        }
+
+        /* Since mpfr_z_div does not exist, this combination is handled at the
+         * end by converting x to an mpfr. Ditto for rational.*/
+
+        if (PyFloat_Check(x)) {
+            mpfr_clear_flags();
+            result->rc = mpfr_d_div(result->f, PyFloat_AS_DOUBLE(x),
+                                    Pympfr_AS_MPFR(y), GET_MPFR_ROUND(context));
+            goto done;
+        }
+    }
+
+    /* In addition to handling PyFloat + PyFloat, the rare case when the
+     * exponent bounds have been changed is handled here. See
+     * Pympfr_From_Real() for details. */
+
+    if (IS_REAL(x) && IS_REAL(y)) {
+        PympfrObject *tempx, *tempy;
+
+        tempx = Pympfr_From_Real_context(x, 0, context);
+        tempy = Pympfr_From_Real_context(y, 0, context);
+        if (!tempx || !tempy) {
+            SYSTEM_ERROR("Can not convert Real to 'mpfr'");
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF(result);
+            return NULL;
+        }
+        mpfr_clear_flags();
+        result->rc = mpfr_div(result->f, Pympfr_AS_MPFR(tempx), Pympfr_AS_MPFR(tempy),
+                              GET_MPFR_ROUND(context));
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+        goto done;
+    }
+
+    Py_DECREF(result);
+    Py_RETURN_NOTIMPLEMENTED;
+
+  done:
+    MPFR_CLEANUP_RESULT("division");
+    return (PyObject*)result;
+}
+
 static PyObject *
 Pympfr_truediv_fast(PyObject *x, PyObject *y)
 {
-    PympfrObject *result;
+    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
-
-    if (Pympfr_CheckAndExp(x) && Pympfr_CheckAndExp(y)) {
-        if (!(result = (PympfrObject*)Pympfr_new(0))) {
-            return NULL;
-        }
-        result->rc = mpfr_div(result->f,
-                              Pympfr_AS_MPFR(x),
-                              Pympfr_AS_MPFR(y),
-                              context->ctx.mpfr_round);
-        MPFR_CLEANUP_RESULT("division");
-        return (PyObject*)result;
-    }
+    if (IS_REAL(x) && IS_REAL(y))
+        result = Pympfr_TrueDiv_Real(x, y, context);
+    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
+        result = Pympc_TrueDiv_Complex(x, y, context);
     else {
-        return Pybasic_truediv(x, y);
+        Py_INCREF(Py_NotImplemented);
+        result = Py_NotImplemented;
     }
-}
-
-#ifdef PY2
-static PyObject *
-Pympfr_div2_fast(PyObject *x, PyObject *y)
-{
-    PympfrObject *result;
-    GMPyContextObject *context;
-
-    CURRENT_CONTEXT(context);
-
-    if (Pympfr_CheckAndExp(x) && Pympfr_CheckAndExp(y)) {
-        if (!(result = (PympfrObject*)Pympfr_new(0))) {
-            return NULL;
-        }
-        result->rc = mpfr_div(result->f,
-                              Pympfr_AS_MPFR(x),
-                              Pympfr_AS_MPFR(y),
-                              context->ctx.mpfr_round);
-        MPFR_CLEANUP_RESULT("division");
-        return (PyObject*)result;
-    }
-    else {
-        return Pybasic_div2(x, y);
-    }
-}
-#endif
-
-static PyObject *
-Pympfr_div(PyObject *self, PyObject *args)
-{
-    PympfrObject *result;
-    PyObject *other;
-    GMPyContextObject *context;
-
-    CURRENT_CONTEXT(context);
-
-    PARSE_TWO_MPFR_ARGS(other, "div() requires 'mpfr','mpfr' arguments");
-
-    if (!(result = (PympfrObject*)Pympfr_new(0)))
-        goto done;
-
-    mpfr_clear_flags();
-    result->rc = mpfr_div(result->f, Pympfr_AS_MPFR(self),
-                          Pympfr_AS_MPFR(other), context->ctx.mpfr_round);
-    MPFR_CLEANUP_SELF_OTHER("div()");
+    return result;
 }
 
 PyDoc_STRVAR(doc_g_mpfr_fmod,
@@ -3386,7 +3630,7 @@ static PyNumberMethods mpfr_number_methods =
         0,                               /* nb_inplace_and          */
         0,                               /* nb_inplace_xor          */
         0,                               /* nb_inplace_or           */
-    (binaryfunc) Pybasic_floordiv,       /* nb_floor_divide         */
+    (binaryfunc) Pympfr_floordiv_fast,   /* nb_floor_divide         */
     (binaryfunc) Pympfr_truediv_fast,    /* nb_true_divide          */
         0,                               /* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */
@@ -3398,7 +3642,7 @@ static PyNumberMethods mpfr_number_methods =
     (binaryfunc) Pympfr_add_fast,        /* nb_add                  */
     (binaryfunc) Pympfr_sub_fast,        /* nb_subtract             */
     (binaryfunc) Pympfr_mul_fast,        /* nb_multiply             */
-    (binaryfunc) Pympfr_div2_fast,       /* nb_divide               */
+    (binaryfunc) Pympfr_truediv_fast,    /* nb_divide               */
     (binaryfunc) Pybasic_rem,            /* nb_remainder            */
     (binaryfunc) Pybasic_divmod,         /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
@@ -3429,7 +3673,7 @@ static PyNumberMethods mpfr_number_methods =
         0,                               /* nb_inplace_and          */
         0,                               /* nb_inplace_xor          */
         0,                               /* nb_inplace_or           */
-    (binaryfunc) Pybasic_floordiv,       /* nb_floor_divide         */
+    (binaryfunc) Pympfr_floordiv_fast,   /* nb_floor_divide         */
     (binaryfunc) Pympfr_truediv_fast,    /* nb_true_divide          */
         0,                               /* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */

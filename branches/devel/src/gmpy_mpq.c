@@ -693,14 +693,14 @@ Pympq_hash(PympqObject *self)
 static PyObject *
 Pympq_Add_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
-    PyObject *result = NULL;
+    PympqObject *result;
 
-    if (!(result = Pympq_new()))
+    if (!(result = (PympqObject*)Pympq_new()))
         return NULL;
 
     if (Pympq_Check(x) && Pympq_Check(y)) {
-        mpq_add(Pympq_AS_MPQ(result), Pympq_AS_MPQ(x), Pympq_AS_MPQ(y));
-        return result;
+        mpq_add(result->q, Pympq_AS_MPQ(x), Pympq_AS_MPQ(y));
+        return (PyObject*)result;
     }
 
     if (isRational(x) && isRational(y)) {
@@ -712,16 +712,17 @@ Pympq_Add_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
             SYSTEM_ERROR("Could not convert Rational to mpq.");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
-            Py_DECREF(result);
+            Py_DECREF((PyObject*)result);
+            return NULL;
         }
 
-        mpq_add(Pympq_AS_MPQ(result), tempx->q, tempy->q);
+        mpq_add(result->q, tempx->q, tempy->q);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
-        return result;
+        return (PyObject*)result;
     }
 
-    Py_DECREF(result);
+    Py_DECREF((PyObject*)result);
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -758,14 +759,14 @@ Pympq_add_fast(PyObject *x, PyObject *y)
 static PyObject *
 Pympq_Sub_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
-    PyObject *result = NULL;
+    PympqObject *result;
 
-    if (!(result = Pympq_new()))
+    if (!(result = (PympqObject*)Pympq_new()))
         return NULL;
 
     if (Pympq_Check(x) && Pympq_Check(y)) {
-        mpq_sub(Pympq_AS_MPQ(result), Pympq_AS_MPQ(x), Pympq_AS_MPQ(y));
-        return result;
+        mpq_sub(result->q, Pympq_AS_MPQ(x), Pympq_AS_MPQ(y));
+        return (PyObject*)result;
     }
 
     if (isRational(x) && isRational(y)) {
@@ -777,16 +778,17 @@ Pympq_Sub_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
             SYSTEM_ERROR("Could not convert Rational to mpq.");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
-            Py_DECREF(result);
+            Py_DECREF((PyObject*)result);
+            return NULL;
         }
 
-        mpq_sub(Pympq_AS_MPQ(result), tempx->q, tempy->q);
+        mpq_sub(result->q, tempx->q, tempy->q);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
-        return result;
+        return (PyObject*)result;
     }
 
-    Py_DECREF(result);
+    Py_DECREF((PyObject*)result);
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -823,14 +825,14 @@ Pympq_sub_fast(PyObject *x, PyObject *y)
 static PyObject *
 Pympq_Mul_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
-    PyObject *result = NULL;
+    PympqObject *result;
 
-    if (!(result = Pympq_new()))
+    if (!(result = (PympqObject*)Pympq_new()))
         return NULL;
 
     if (Pympq_Check(x) && Pympq_Check(y)) {
-        mpq_mul(Pympq_AS_MPQ(result), Pympq_AS_MPQ(x), Pympq_AS_MPQ(y));
-        return result;
+        mpq_mul(result->q, Pympq_AS_MPQ(x), Pympq_AS_MPQ(y));
+        return (PyObject*)result;
     }
 
     if (isRational(x) && isRational(y)) {
@@ -842,16 +844,17 @@ Pympq_Mul_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
             SYSTEM_ERROR("Could not convert Rational to mpq.");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
-            Py_DECREF(result);
+            Py_DECREF((PyObject*)result);
+            return NULL;
         }
 
-        mpq_mul(Pympq_AS_MPQ(result), tempx->q, tempy->q);
+        mpq_mul(result->q, tempx->q, tempy->q);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
-        return result;
+        return (PyObject*)result;
     }
 
-    Py_DECREF(result);
+    Py_DECREF((PyObject*)result);
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -881,28 +884,158 @@ Pympq_mul_fast(PyObject *x, PyObject *y)
     return result;
 }
 
+/* Divide two Rational objects (see convert.c/isRational). Returns None and
+ * raises TypeError if both objects are not valid rationals. */
+
 static PyObject *
-Pympq_div(PyObject *self, PyObject *args)
+Pympq_FloorDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
-    PympqObject *result;
-    PyObject *other;
+    PympzObject *result;
+    PympqObject *tempq;
 
-    PARSE_TWO_MPQ(other, "div() requires 'mpq','mpq' arguments");
-
-    if ((result = (PympqObject*)Pympq_new())) {
-        if (mpq_sgn(Pympq_AS_MPQ(other)) == 0) {
-            ZERO_ERROR("'mpq' division by zero");
-            Py_DECREF((PyObject*)result);
-            result = 0;
-        }
-        else {
-            mpq_div(result->q, Pympq_AS_MPQ(self), Pympq_AS_MPQ(other));
-        }
+    result = (PympzObject*)Pympz_new();
+    tempq = (PympqObject*)Pympq_new();
+    if (!result || !tempq) {
+        Py_XDECREF((PyObject*)result);
+        Py_XDECREF((PyObject*)tempq);
+        return NULL;
     }
 
-    Py_DECREF(self);
-    Py_DECREF(other);
-    return (PyObject*)result;
+    if (Pympq_Check(x) && Pympq_Check(y)) {
+        if (mpq_sgn(Pympq_AS_MPQ(y)) == 0) {
+            ZERO_ERROR("division or modulo by zero");
+            goto error;
+        }
+        mpq_div(tempq->q, Pympq_AS_MPQ(x), Pympq_AS_MPQ(y));
+        mpz_fdiv_q(result->z, mpq_numref(tempq->q), mpq_denref(tempq->q));
+        Py_DECREF((PyObject*)tempq);
+        return (PyObject*)result;
+    }
+
+    if (isRational(x) && isRational(y)) {
+        PympqObject *tempx, *tempy;
+
+        tempx = Pympq_From_Number(x);
+        tempy = Pympq_From_Number(y);
+        if (!tempx || !tempy) {
+            SYSTEM_ERROR("Could not convert Rational to mpq.");
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            goto error;
+        }
+        if (mpq_sgn(tempy->q) == 0) {
+            ZERO_ERROR("division or modulo by zero");
+            Py_DECREF((PyObject*)tempx);
+            Py_DECREF((PyObject*)tempy);
+            goto error;
+        }
+
+        mpq_div(tempq->q, tempx->q, tempy->q);
+        mpz_fdiv_q(result->z, mpq_numref(tempx->q), mpq_denref(tempy->q));
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+        Py_DECREF((PyObject*)tempq);
+        return (PyObject*)result;
+    }
+
+    Py_DECREF((PyObject*)result);
+    Py_RETURN_NOTIMPLEMENTED;
+
+  error:
+    Py_DECREF((PyObject*)result);
+    Py_DECREF((PyObject*)tempq);
+    return NULL;
+}
+
+static PyObject *
+Pympq_floordiv_fast(PyObject *x, PyObject *y)
+{
+    PyObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+
+    if (IS_RATIONAL(x) && IS_RATIONAL(y))
+        result = Pympq_FloorDiv_Rational(x, y, context);
+    else if (IS_REAL(x) && IS_REAL(y))
+        result = Pympfr_FloorDiv_Real(x, y, context);
+    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
+        result = Pympc_FloorDiv_Complex(x, y, context);
+    else {
+        Py_INCREF(Py_NotImplemented);
+        result = Py_NotImplemented;
+    }
+    return result;
+}
+
+static PyObject *
+Pympq_TrueDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
+{
+    PympqObject *result;
+
+    if (!(result = (PympqObject*)Pympq_new()))
+        return NULL;
+
+    if (Pympq_Check(x) && Pympq_Check(y)) {
+        if (mpq_sgn(Pympq_AS_MPQ(y)) == 0) {
+            ZERO_ERROR("division or modulo by zero");
+            goto error;
+        }
+        mpq_div(result->q, Pympq_AS_MPQ(x), Pympq_AS_MPQ(y));
+        return (PyObject*)result;
+    }
+
+    if (isRational(x) && isRational(y)) {
+        PympqObject *tempx, *tempy;
+
+        tempx = Pympq_From_Number(x);
+        tempy = Pympq_From_Number(y);
+        if (!tempx || !tempy) {
+            SYSTEM_ERROR("Could not convert Rational to mpq.");
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            goto error;
+        }
+        if (mpq_sgn(tempy->q) == 0) {
+            ZERO_ERROR("division or modulo by zero");
+            Py_DECREF((PyObject*)tempx);
+            Py_DECREF((PyObject*)tempy);
+            goto error;
+        }
+
+        mpq_div(result->q, tempx->q, tempy->q);
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+        return (PyObject*)result;
+    }
+
+    Py_DECREF((PyObject*)result);
+    Py_RETURN_NOTIMPLEMENTED;
+
+  error:
+    Py_DECREF((PyObject*)result);
+    return NULL;
+}
+
+static PyObject *
+Pympq_truediv_fast(PyObject *x, PyObject *y)
+{
+    PyObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+
+    if (IS_RATIONAL(x) && IS_RATIONAL(y))
+        result = Pympq_TrueDiv_Rational(x, y, context);
+    else if (IS_REAL(x) && IS_REAL(y))
+        result = Pympfr_TrueDiv_Real(x, y, context);
+    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
+        result = Pympc_TrueDiv_Complex(x, y, context);
+    else {
+        Py_INCREF(Py_NotImplemented);
+        result = Py_NotImplemented;
+    }
+    return result;
 }
 
 PyDoc_STRVAR(doc_mpq_sizeof,
@@ -950,8 +1083,8 @@ static PyNumberMethods mpq_number_methods =
         0,                               /* nb_inplace_and          */
         0,                               /* nb_inplace_xor          */
         0,                               /* nb_inplace_or           */
-    (binaryfunc) Pybasic_floordiv,       /* nb_floor_divide         */
-    (binaryfunc) Pybasic_truediv,        /* nb_true_divide          */
+    (binaryfunc) Pympq_floordiv_fast,    /* nb_floor_divide         */
+    (binaryfunc) Pympq_truediv_fast,     /* nb_true_divide          */
         0,                               /* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */
         0,                               /* nb_index                */
@@ -962,7 +1095,7 @@ static PyNumberMethods mpq_number_methods =
     (binaryfunc) Pympq_add_fast,         /* nb_add                  */
     (binaryfunc) Pympq_sub_fast,         /* nb_subtract             */
     (binaryfunc) Pympq_mul_fast,         /* nb_multiply             */
-    (binaryfunc) Pybasic_div2,           /* nb_divide               */
+    (binaryfunc) Pympq_truediv_fast,     /* nb_divide               */
     (binaryfunc) Pybasic_rem,            /* nb_remainder            */
     (binaryfunc) Pybasic_divmod,         /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
@@ -993,8 +1126,8 @@ static PyNumberMethods mpq_number_methods =
         0,                               /* nb_inplace_and          */
         0,                               /* nb_inplace_xor          */
         0,                               /* nb_inplace_or           */
-    (binaryfunc) Pybasic_floordiv,       /* nb_floor_divide         */
-    (binaryfunc) Pybasic_truediv,        /* nb_true_divide          */
+    (binaryfunc) Pympq_floordiv_fast,    /* nb_floor_divide         */
+    (binaryfunc) Pympq_truediv_fast,     /* nb_true_divide          */
         0,                               /* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */
 };
