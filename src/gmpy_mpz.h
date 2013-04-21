@@ -119,6 +119,7 @@ static PyObject * Pympz_Sub_Integer(PyObject *x, PyObject *y, GMPyContextObject 
 static PyObject * Pympz_Mul_Integer(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympz_FloorDiv_Integer(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympz_TrueDiv_Integer(PyObject *x, PyObject *y, GMPyContextObject *context);
+static PyObject * Pympz_Mod_Integer(PyObject *x, PyObject *y, GMPyContextObject *context);
 
 
 #ifdef __cplusplus
