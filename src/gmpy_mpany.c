@@ -469,7 +469,7 @@ PyDoc_STRVAR(doc_mpany_mod,
 "Return x % y.");
 
 PyDoc_STRVAR(doc_context_mod,
-"context.div(x, y) -> number\n\n"
+"context.mod(x, y) -> number\n\n"
 "Return x % y.");
 
 static PyObject *
@@ -530,6 +530,75 @@ Pympany_mod(PyObject *self, PyObject *args)
         return Pympc_Mod_Complex(arg0, arg1, context);
 
     TYPE_ERROR("mod() argument types not supported");
+    return NULL;
+}
+
+PyDoc_STRVAR(doc_mpany_divmod,
+"div_mod(x, y[, context]) -> (number, number)\n\n"
+"Return (x // y, x % y).");
+
+PyDoc_STRVAR(doc_context_divmod,
+"context.div_mod(x, y) -> (number, number)\n\n"
+"Return (x // y, x % y).");
+
+static PyObject *
+Pympany_divmod(PyObject *self, PyObject *args)
+{
+    Py_ssize_t argc;
+    PyObject *arg0, *arg1, *arg2;
+    GMPyContextObject *context;
+
+    argc = PyTuple_GET_SIZE(args);
+    if (self && GMPyContext_Check(self)) {
+        if (argc != 2) {
+            TYPE_ERROR("context.div_mod() requires 2 arguments.");
+            return NULL;
+        }
+        /* If we are passed a read-only context, make a copy of it before
+         * proceeding. */
+
+        if (((GMPyContextObject*)self)->ctx.readonly)
+            context = (GMPyContextObject*)GMPyContext_context_copy(self, NULL);
+        else
+            context = (GMPyContextObject*)self;
+    }
+    else {
+        if ((argc < 2) && (argc > 3)) {
+            TYPE_ERROR("div_mod() requires 2 or 3 arguments.");
+            return NULL;
+        }
+        if (argc == 3) {
+            arg2 = PyTuple_GET_ITEM(args, 2);
+            if (!GMPyContext_Check(arg2)) {
+                TYPE_ERROR("third argument must be context.");
+                return NULL;
+            }
+            if (((GMPyContextObject*)arg2)->ctx.readonly)
+                context = (GMPyContextObject*)GMPyContext_context_copy(arg2, NULL);
+            else
+                context = (GMPyContextObject*)arg2;
+        }
+        else {
+            CURRENT_CONTEXT(context);
+        }
+    }
+
+    arg0 = PyTuple_GET_ITEM(args, 0);
+    arg1 = PyTuple_GET_ITEM(args, 1);
+
+    if (IS_INTEGER(arg0) && IS_INTEGER(arg1))
+        return Pympz_DivMod_Integer(arg0, arg1, context);
+
+    if (IS_RATIONAL(arg0) && IS_RATIONAL(arg1))
+        return Pympq_DivMod_Rational(arg0, arg1, context);
+
+    if (IS_REAL(arg0) && IS_REAL(arg1))
+        return Pympfr_DivMod_Real(arg0, arg1, context);
+
+    if (IS_COMPLEX(arg0) && IS_COMPLEX(arg1))
+        return Pympc_DivMod_Complex(arg0, arg1, context);
+
+    TYPE_ERROR("div_mod() argument types not supported");
     return NULL;
 }
 

@@ -413,6 +413,7 @@ static PyObject * Pympfr_Mul_Real(PyObject *x, PyObject *y, GMPyContextObject *c
 static PyObject * Pympfr_FloorDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympfr_Mod_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
+static PyObject * Pympfr_DivMod_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
 
 #ifdef __cplusplus
 }
