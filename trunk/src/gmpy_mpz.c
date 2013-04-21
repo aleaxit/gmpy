@@ -1706,7 +1706,8 @@ Pympz_remove(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_invertg,
 "invert(x, m) -> mpz\n\n"
-"Return the y such that x*y==1 modulo m, or 0 if no such y exists.");
+"Return y such that x*y == 1 (mod m). Raises ZeroDivisionError if no\n"
+"inverse exists.");
 
 static PyObject *
 Pygmpy_invert(PyObject *self, PyObject *args)
@@ -1732,8 +1733,11 @@ Pygmpy_invert(PyObject *self, PyObject *args)
             return NULL;
         }
         success = mpz_invert(result->z, Pympz_AS_MPZ(x), Pympz_AS_MPZ(y));
-        if (!success)
-            mpz_set_ui(result->z, 0);
+        if (!success) {
+            ZERO_ERROR("invert() no inverse exists");
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
     }
     else {
         tempx = Pympz_From_Integer(x);
@@ -1753,8 +1757,13 @@ Pygmpy_invert(PyObject *self, PyObject *args)
             return NULL;
         }
         success = mpz_invert(result->z, tempx->z, tempy->z);
-        if (!success)
-            mpz_set_ui(result->z, 0);
+        if (!success) {
+            ZERO_ERROR("invert() no inverse exists");
+            Py_DECREF((PyObject*)tempx);
+            Py_DECREF((PyObject*)tempy);
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
     }
