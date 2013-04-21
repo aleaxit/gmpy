@@ -546,6 +546,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "div", Pympany_div, METH_VARARGS, doc_mpany_div },
     { "divexact", Pygmpy_divexact, METH_VARARGS, doc_divexactg },
     { "divm", Pygmpy_divm, METH_VARARGS, doc_divm },
+    { "div_mod", Pympany_divmod, METH_VARARGS, doc_mpany_divmod },
     { "fac", Pygmpy_fac, METH_O, doc_fac },
     { "fib", Pygmpy_fib, METH_O, doc_fib },
     { "fib2", Pygmpy_fib2, METH_O, doc_fib2 },

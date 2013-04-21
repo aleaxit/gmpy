@@ -2927,6 +2927,145 @@ Pympz_mod_fast(PyObject *x, PyObject *y)
     return result;
 }
 
+/* Divide two Integer objects (see convert.c/isInteger) and return quotient
+ * and remainder. If an error occurs, NULL is returned and an exception is set.
+ * If either x or y can't be converted into an mpz, Py_NotImplemented is
+ * returned. */
+
+static PyObject *
+Pympz_DivMod_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
+{
+    PyObject *result;
+    PympzObject *tempx, *tempy, *rem, *quo;
+    mpz_t tempz;
+    mpir_si temp_si;
+    int overflow;
+
+    result = PyTuple_New(2);
+    rem = (PympzObject*)Pympz_new();
+    quo = (PympzObject*)Pympz_new();
+    if (!result || !rem || !quo) {
+        Py_XDECREF((PyObject*)rem);
+        Py_XDECREF((PyObject*)quo);
+        Py_XDECREF(result);
+        return NULL;
+    }
+
+    if (CHECK_MPZANY(x)) {
+        if (PyIntOrLong_Check(y)) {
+            temp_si = PyLong_AsSIAndOverflow(y, &overflow);
+            if (overflow) {
+                mpz_inoc(tempz);
+                mpz_set_PyIntOrLong(tempz, y);
+                mpz_fdiv_qr(quo->z, rem->z, Pympz_AS_MPZ(x), tempz);
+                mpz_cloc(tempz);
+            }
+            else if (temp_si > 0) {
+                mpz_fdiv_qr_ui(quo->z, rem->z, Pympz_AS_MPZ(x), temp_si);
+            }
+            else if (temp_si == 0) {
+                ZERO_ERROR("division or modulo by zero");
+                Py_DECREF((PyObject*)rem);
+                Py_DECREF((PyObject*)quo);
+                Py_DECREF(result);
+                return NULL;
+            }
+            else {
+                mpz_cdiv_qr_ui(quo->z, rem->z, Pympz_AS_MPZ(x), -temp_si);
+                mpz_neg(quo->z, quo->z);
+            }
+            PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
+            PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
+            return result;
+        }
+        if (CHECK_MPZANY(y)) {
+            if (mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
+                ZERO_ERROR("division or modulo by zero");
+                Py_DECREF((PyObject*)rem);
+                Py_DECREF((PyObject*)quo);
+                Py_DECREF(result);
+                return NULL;
+            }
+            mpz_fdiv_qr(quo->z, rem->z, Pympz_AS_MPZ(x), Pympz_AS_MPZ(y));
+            PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
+            PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
+            return result;
+        }
+    }
+
+    if (CHECK_MPZANY(y) && PyIntOrLong_Check(x)) {
+        if (mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
+            ZERO_ERROR("division or modulo by zero");
+            Py_DECREF((PyObject*)rem);
+            Py_DECREF((PyObject*)quo);
+            Py_DECREF(result);
+            return NULL;
+        }
+        mpz_inoc(tempz);
+        mpz_set_PyIntOrLong(tempz, x);
+        mpz_fdiv_qr(quo->z, rem->z, tempz, Pympz_AS_MPZ(y));
+        mpz_cloc(tempz);
+        PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
+        PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
+        return (PyObject*)result;
+    }
+
+    if (IS_INTEGER(x) && IS_INTEGER(y)) {
+        tempx = Pympz_From_Integer(x);
+        tempy = Pympz_From_Integer(y);
+        if (!tempx || !tempy) {
+            SYSTEM_ERROR("Could not convert Integer to mpz.");
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF((PyObject*)rem);
+            Py_DECREF((PyObject*)quo);
+            Py_DECREF(result);
+            return NULL;
+        }
+        if (mpz_sgn(tempy->z) == 0) {
+            ZERO_ERROR("division or modulo by zero");
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF((PyObject*)rem);
+            Py_DECREF((PyObject*)quo);
+            Py_DECREF(result);
+            return NULL;
+        }
+        mpz_fdiv_qr(quo->z, rem->z, tempx->z, tempy->z);
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+        PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
+        PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
+        return result;
+    }
+
+    Py_DECREF((PyObject*)result);
+    Py_RETURN_NOTIMPLEMENTED;
+}
+
+static PyObject *
+Pympz_divmod_fast(PyObject *x, PyObject *y)
+{
+    PyObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+
+    if (IS_INTEGER(x) && IS_INTEGER(y))
+        result = Pympz_DivMod_Integer(x, y, context);
+    else if (IS_RATIONAL(x) && IS_RATIONAL(y))
+        result = Pympq_DivMod_Rational(x, y, context);
+    else if (IS_REAL(x) && IS_REAL(y))
+        result = Pympfr_DivMod_Real(x, y, context);
+    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
+        result = Pympc_DivMod_Complex(x, y, context);
+    else {
+        Py_INCREF(Py_NotImplemented);
+        result = Py_NotImplemented;
+    }
+    return result;
+}
+
 static PyObject *
 Pympz_getnumer(PympzObject *self, void *closure)
 {
@@ -2963,7 +3102,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pympz_sub_fast,         /* nb_subtract             */
     (binaryfunc) Pympz_mul_fast,         /* nb_multiply             */
     (binaryfunc) Pympz_mod_fast,         /* nb_remainder            */
-    (binaryfunc) Pybasic_divmod,         /* nb_divmod               */
+    (binaryfunc) Pympz_divmod_fast,      /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
     (unaryfunc) Pympz_neg,               /* nb_negative             */
     (unaryfunc) Pympz_pos,               /* nb_positive             */
@@ -3002,8 +3141,8 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pympz_sub_fast,         /* nb_subtract             */
     (binaryfunc) Pympz_mul_fast,         /* nb_multiply             */
     (binaryfunc) Pympz_div2_fast,        /* nb_divide               */
-    (binaryfunc) Pympc_mod_fast,         /* nb_remainder            */
-    (binaryfunc) Pybasic_divmod,         /* nb_divmod               */
+    (binaryfunc) Pympz_mod_fast,         /* nb_remainder            */
+    (binaryfunc) Pympz_divmod_fast,      /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
     (unaryfunc) Pympz_neg,               /* nb_negative             */
     (unaryfunc) Pympz_pos,               /* nb_positive             */

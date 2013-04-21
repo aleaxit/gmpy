@@ -68,6 +68,7 @@ static PyObject * Pympq_Mul_Rational(PyObject *x, PyObject *y, GMPyContextObject
 static PyObject * Pympq_FloorDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympq_TrueDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympq_Mod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);
+static PyObject * Pympq_DivMod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);
 
 #ifdef __cplusplus
 }
