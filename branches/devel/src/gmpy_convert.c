@@ -2587,6 +2587,73 @@ Pympfr_From_Real_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject *con
     return newob;
 }
 
+static PympfrObject *
+Pympfr_From_Real_bits_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject *context)
+{
+    PympfrObject* newob = 0;
+    PympqObject* temp = 0;
+
+    if (Pympfr_CheckAndExp(obj)) {
+        /* Handle the likely case where the exponent of the mpfr is still
+         * valid in the current context. */
+        if (!bits || mpfr_get_prec(Pympfr_AS_MPFR(obj)) == bits) {
+            newob = (PympfrObject*) obj;
+            Py_INCREF(obj);
+        }
+        else {
+            newob = Pympfr_From_Pympfr((PyObject*)obj, bits);
+        }
+    }
+    else if (Pympfr_Check(obj)) {
+        /* Handle the unlikely case where the exponent is no longer valid
+         * and mpfr_check_range needs to be called. */
+        if (context->ctx.trap_expbound) {
+            GMPY_EXPBOUND("exponent of existing 'mpfr' incompatible with current context");
+            return NULL;
+        }
+        if ((newob = (PympfrObject*)Pympfr_new_bits_context(mpfr_get_prec(Pympfr_AS_MPFR(obj)),
+                                                            context))) {
+            mpfr_set(newob->f, Pympfr_AS_MPFR(obj), GET_MPFR_ROUND(context));
+            newob->round_mode = ((PympfrObject*)obj)->round_mode;
+            newob->rc = ((PympfrObject*)obj)->rc;
+            newob->rc = mpfr_check_range(newob->f, newob->rc, newob->round_mode);
+        }
+    }
+    else if (PyFloat_Check(obj)) {
+        newob = Pympfr_From_PyFloat_bits_context(obj, bits, context);
+#ifdef PY2
+    }
+    else if (PyInt_Check(obj)) {
+        newob = Pympfr_From_PyInt_bits_context(obj, bits, context);
+#endif
+    }
+    else if (Pympq_Check(obj)) {
+        newob = Pympfr_From_Pympq_bits_context(obj, bits, context);
+    }
+    else if (Pympz_Check(obj)) {
+        newob = Pympfr_From_Pympz_context(obj, bits, context);
+    }
+    else if (PyLong_Check(obj)) {
+        newob = Pympfr_From_PyLong_context(obj, bits, context);
+    }
+    else if (Pyxmpz_Check(obj)) {
+        newob = Pympfr_From_Pyxmpz_context(obj, bits, context);
+    }
+    else if (isDecimal(obj)) {
+        newob = Pympfr_From_Decimal_context(obj, bits, context);
+    }
+    else if (isFraction(obj)) {
+        temp = Pympq_From_Fraction(obj);
+        if (temp) {
+            newob = Pympfr_From_Pympq_bits_context((PyObject*)temp, bits, context);
+            Py_DECREF((PyObject*)temp);
+        }
+    }
+    if (!newob)
+        TYPE_ERROR("object could not be converted to 'mpfr'");
+    return newob;
+}
+
 /*
  * coerce any number to a mpf
  */

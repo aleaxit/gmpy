@@ -328,11 +328,11 @@ Pympany_mul(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_mpany_div,
 "div(x, y[, context]) -> number\n\n"
-"Return x * y; uses 'true division'.");
+"Return x / y; uses 'true division'.");
 
 PyDoc_STRVAR(doc_context_div,
 "context.div(x, y) -> number\n\n"
-"Return x * y; uses 'true division'.");
+"Return x / y; uses 'true division'.");
 
 static PyObject *
 Pympany_div(PyObject *self, PyObject *args)
@@ -392,6 +392,144 @@ Pympany_div(PyObject *self, PyObject *args)
         return Pympc_TrueDiv_Complex(arg0, arg1, context);
 
     TYPE_ERROR("div() argument types not supported");
+    return NULL;
+}
+
+PyDoc_STRVAR(doc_mpany_floordiv,
+"floor_div(x, y[, context]) -> number\n\n"
+"Return x // y; uses 'floor division'.");
+
+PyDoc_STRVAR(doc_context_floordiv,
+"context.floor_div(x, y) -> number\n\n"
+"Return x // y; uses 'floor division'.");
+
+static PyObject *
+Pympany_floordiv(PyObject *self, PyObject *args)
+{
+    Py_ssize_t argc;
+    PyObject *arg0, *arg1, *arg2;
+    GMPyContextObject *context;
+
+    argc = PyTuple_GET_SIZE(args);
+    if (self && GMPyContext_Check(self)) {
+        if (argc != 2) {
+            TYPE_ERROR("context.floor_div() requires 2 arguments.");
+            return NULL;
+        }
+        /* If we are passed a read-only context, make a copy of it before
+         * proceeding. */
+
+        if (((GMPyContextObject*)self)->ctx.readonly)
+            context = (GMPyContextObject*)GMPyContext_context_copy(self, NULL);
+        else
+            context = (GMPyContextObject*)self;
+    }
+    else {
+        if ((argc < 2) && (argc > 3)) {
+            TYPE_ERROR("floor_div() requires 2 or 3 arguments.");
+            return NULL;
+        }
+        if (argc == 3) {
+            arg2 = PyTuple_GET_ITEM(args, 2);
+            if (!GMPyContext_Check(arg2)) {
+                TYPE_ERROR("third argument must be context.");
+                return NULL;
+            }
+            if (((GMPyContextObject*)arg2)->ctx.readonly)
+                context = (GMPyContextObject*)GMPyContext_context_copy(arg2, NULL);
+            else
+                context = (GMPyContextObject*)arg2;
+        }
+        else {
+            CURRENT_CONTEXT(context);
+        }
+    }
+
+    arg0 = PyTuple_GET_ITEM(args, 0);
+    arg1 = PyTuple_GET_ITEM(args, 1);
+
+    if (IS_INTEGER(arg0) && IS_INTEGER(arg1))
+        return Pympz_FloorDiv_Integer(arg0, arg1, context);
+
+    if (IS_RATIONAL(arg0) && IS_RATIONAL(arg1))
+        return Pympq_FloorDiv_Rational(arg0, arg1, context);
+
+    if (IS_REAL(arg0) && IS_REAL(arg1))
+        return Pympfr_FloorDiv_Real(arg0, arg1, context);
+
+    if (IS_COMPLEX(arg0) && IS_COMPLEX(arg1))
+        return Pympc_FloorDiv_Complex(arg0, arg1, context);
+
+    TYPE_ERROR("floor_div() argument types not supported");
+    return NULL;
+}
+
+PyDoc_STRVAR(doc_mpany_mod,
+"mod(x, y[, context]) -> number\n\n"
+"Return x % y.");
+
+PyDoc_STRVAR(doc_context_mod,
+"context.div(x, y) -> number\n\n"
+"Return x % y.");
+
+static PyObject *
+Pympany_mod(PyObject *self, PyObject *args)
+{
+    Py_ssize_t argc;
+    PyObject *arg0, *arg1, *arg2;
+    GMPyContextObject *context;
+
+    argc = PyTuple_GET_SIZE(args);
+    if (self && GMPyContext_Check(self)) {
+        if (argc != 2) {
+            TYPE_ERROR("context.mod() requires 2 arguments.");
+            return NULL;
+        }
+        /* If we are passed a read-only context, make a copy of it before
+         * proceeding. */
+
+        if (((GMPyContextObject*)self)->ctx.readonly)
+            context = (GMPyContextObject*)GMPyContext_context_copy(self, NULL);
+        else
+            context = (GMPyContextObject*)self;
+    }
+    else {
+        if ((argc < 2) && (argc > 3)) {
+            TYPE_ERROR("mod() requires 2 or 3 arguments.");
+            return NULL;
+        }
+        if (argc == 3) {
+            arg2 = PyTuple_GET_ITEM(args, 2);
+            if (!GMPyContext_Check(arg2)) {
+                TYPE_ERROR("third argument must be context.");
+                return NULL;
+            }
+            if (((GMPyContextObject*)arg2)->ctx.readonly)
+                context = (GMPyContextObject*)GMPyContext_context_copy(arg2, NULL);
+            else
+                context = (GMPyContextObject*)arg2;
+        }
+        else {
+            CURRENT_CONTEXT(context);
+        }
+    }
+
+    arg0 = PyTuple_GET_ITEM(args, 0);
+    arg1 = PyTuple_GET_ITEM(args, 1);
+
+    if (IS_INTEGER(arg0) && IS_INTEGER(arg1))
+        return Pympz_Mod_Integer(arg0, arg1, context);
+
+    if (IS_RATIONAL(arg0) && IS_RATIONAL(arg1))
+        return Pympq_Mod_Rational(arg0, arg1, context);
+
+    if (IS_REAL(arg0) && IS_REAL(arg1))
+        return Pympfr_Mod_Real(arg0, arg1, context);
+
+    if (IS_COMPLEX(arg0) && IS_COMPLEX(arg1))
+        return Pympc_Mod_Complex(arg0, arg1, context);
+
+    TYPE_ERROR("mod() argument types not supported");
     return NULL;
 }
 

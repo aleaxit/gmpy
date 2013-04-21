@@ -1038,6 +1038,91 @@ Pympq_truediv_fast(PyObject *x, PyObject *y)
     return result;
 }
 
+/* Divide two Rational objects (see convert.c/isRational) and return the
+ * remainder. Returns None and raises TypeError if both objects are not valid
+ * rationals. */
+
+static PyObject *
+Pympq_Mod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
+{
+    mpz_t tempz;
+    PympqObject *tempx, *tempy, *result;
+
+    if (!(result = (PympqObject*)Pympq_new()))
+        return NULL;
+
+    if (Pympq_Check(x) && Pympq_Check(y)) {
+        if (mpq_sgn(Pympq_AS_MPQ(y)) == 0) {
+            ZERO_ERROR("division or modulo by zero");
+            goto error1;
+        }
+
+        mpz_inoc(tempz);
+        mpq_div(result->q, Pympq_AS_MPQ(x), Pympq_AS_MPQ(y));
+        mpz_fdiv_q(tempz, mpq_numref(result->q), mpq_denref(result->q));
+        /* Need to calculate paq - rz * pbq */
+        mpq_set_z(result->q, tempz);
+        mpq_mul(result->q, result->q, Pympq_AS_MPQ(y));
+        mpq_sub(result->q, Pympq_AS_MPQ(x), result->q);
+        mpz_cloc(tempz);
+        return (PyObject*)result;
+    }
+
+    if (isRational(x) && isRational(y)) {
+        tempx = Pympq_From_Number(x);
+        tempy = Pympq_From_Number(y);
+        if (!tempx || !tempy) {
+            SYSTEM_ERROR("Could not convert Rational to mpq.");
+            goto error;
+        }
+        if (mpq_sgn(tempy->q) == 0) {
+            ZERO_ERROR("division or modulo by zero");
+            goto error;
+        }
+
+        mpz_inoc(tempz);
+        mpq_div(result->q, tempx->q, tempy->q);
+        mpz_fdiv_q(tempz, mpq_numref(result->q), mpq_denref(result->q));
+        /* Need to calculate x - tempz * y. */
+        mpq_set_z(result->q, tempz);
+        mpq_mul(result->q, result->q, tempy->q);
+        mpq_sub(result->q, tempx->q, result->q);
+        mpz_cloc(tempz);
+        return (PyObject*)result;
+    }
+
+    Py_DECREF((PyObject*)result);
+    Py_RETURN_NOTIMPLEMENTED;
+
+  error:
+    Py_XDECREF((PyObject*)tempx);
+    Py_XDECREF((PyObject*)tempy);
+  error1:
+    Py_DECREF((PyObject*)result);
+    return NULL;
+}
+
+static PyObject *
+Pympq_mod_fast(PyObject *x, PyObject *y)
+{
+    PyObject *result;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+
+    if (IS_RATIONAL(x) && IS_RATIONAL(y))
+        result = Pympq_Mod_Rational(x, y, context);
+    else if (IS_REAL(x) && IS_REAL(y))
+        result = Pympfr_Mod_Real(x, y, context);
+    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
+        result = Pympc_Mod_Complex(x, y, context);
+    else {
+        Py_INCREF(Py_NotImplemented);
+        result = Py_NotImplemented;
+    }
+    return result;
+}
+
 PyDoc_STRVAR(doc_mpq_sizeof,
 "x.__sizeof__()\n\n"
 "Returns the amount of memory consumed by x. Note: deleted mpq objects\n"
@@ -1057,7 +1142,7 @@ static PyNumberMethods mpq_number_methods =
     (binaryfunc) Pympq_add_fast,         /* nb_add                  */
     (binaryfunc) Pympq_sub_fast,         /* nb_subtract             */
     (binaryfunc) Pympq_mul_fast,         /* nb_multiply             */
-    (binaryfunc) Pybasic_rem,            /* nb_remainder            */
+    (binaryfunc) Pympq_mod_fast,         /* nb_remainder            */
     (binaryfunc) Pybasic_divmod,         /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
     (unaryfunc) Pympq_neg,               /* nb_negative             */
@@ -1096,7 +1181,7 @@ static PyNumberMethods mpq_number_methods =
     (binaryfunc) Pympq_sub_fast,         /* nb_subtract             */
     (binaryfunc) Pympq_mul_fast,         /* nb_multiply             */
     (binaryfunc) Pympq_truediv_fast,     /* nb_divide               */
-    (binaryfunc) Pybasic_rem,            /* nb_remainder            */
+    (binaryfunc) Pympq_mod_fast,         /* nb_remainder            */
     (binaryfunc) Pybasic_divmod,         /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
     (unaryfunc) Pympq_neg,               /* nb_negative             */
