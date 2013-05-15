@@ -58,7 +58,6 @@ static PyObject * Pympq_ceil(PyObject *self, PyObject *other);
 static PyObject * Pympq_floor(PyObject *self, PyObject *other);
 static PyObject * Pympq_trunc(PyObject *self, PyObject *other);
 static PyObject * Pympq_square(PyObject *self, PyObject *other);
-static PyObject * Pympq_pow(PyObject *base, PyObject *exp, PyObject *m);
 static int Pympq_nonzero(PympqObject *x);
 static Py_hash_t Pympq_hash(PympqObject *self);
 
@@ -69,6 +68,7 @@ static PyObject * Pympq_FloorDiv_Rational(PyObject *x, PyObject *y, GMPyContextO
 static PyObject * Pympq_TrueDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympq_Mod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympq_DivMod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);
+static PyObject * Pympq_Pow_Rational(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject *context);
 
 #ifdef __cplusplus
 }

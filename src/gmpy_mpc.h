@@ -313,7 +313,6 @@ static PyObject * Pympc_abs(PyObject *self);
 static PyObject * Pympc_neg(PympcObject *self);
 static PyObject * Pympc_pos(PympcObject *self);
 static PyObject * Pympc_sqr(PyObject* self, PyObject *other);
-static PyObject * Pympc_pow(PyObject *base, PyObject *exp, PyObject *m);
 static PyObject * Pympc_conjugate(PyObject *self, PyObject *args);
 static PyObject * Pympc_getprec_attrib(PympcObject *self, void *closure);
 static PyObject * Pympc_getrc_attrib(PympcObject *self, void *closure);
@@ -364,6 +363,7 @@ static PyObject * Pympc_FloorDiv_Complex(PyObject *x, PyObject *y, GMPyContextOb
 static PyObject * Pympc_TrueDiv_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympc_Mod_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympc_DivMod_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
+static PyObject * Pympc_Pow_Complex(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject *context);
 
 #ifdef __cplusplus
 }

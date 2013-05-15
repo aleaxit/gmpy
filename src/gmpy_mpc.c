@@ -610,20 +610,17 @@ Pympc_sqr(PyObject* self, PyObject *other)
 }
 
 static PyObject *
-Pympc_pow(PyObject *base, PyObject *exp, PyObject *m)
+Pympc_Pow_Complex(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject *context)
 {
     PympcObject *tempb, *tempe, *result;
-    GMPyContextObject *context;
 
-    CURRENT_CONTEXT(context);
-
-    if (m != Py_None) {
+    if (m && m != Py_None) {
         TYPE_ERROR("pow() 3rd argument not allowed unless all arguments are integers");
         return NULL;
     }
 
-    tempb = Pympc_From_Complex(base, 0, 0);
-    tempe = Pympc_From_Complex(exp, 0, 0);
+    tempb = Pympc_From_Complex_context(base, context);
+    tempe = Pympc_From_Complex_context(exp, context);
 
     if (!tempe || !tempb) {
         Py_XDECREF((PyObject*)tempe);
@@ -631,7 +628,7 @@ Pympc_pow(PyObject *base, PyObject *exp, PyObject *m)
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    result = (PympcObject*)Pympc_new(0, 0);
+    result = (PympcObject*)Pympc_new_context(context);
 
     if (!result) {
         Py_DECREF((PyObject*)tempe);
