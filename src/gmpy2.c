@@ -483,10 +483,6 @@ static PyObject *GMPyExc_ExpBound = NULL;
 
 #include "gmpy_convert.c"
 
-/* Support primitive arithmetic operations. */
-
-#include "gmpy_basic.c"
-
 /* Include the module-level methods that call the type-specific methods. */
 
 #include "gmpy_mpany.c"
