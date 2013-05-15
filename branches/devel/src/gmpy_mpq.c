@@ -734,22 +734,18 @@ Pympq_Add_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympq_add_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        result = Pympq_Add_Rational(x, y, context);
+        return Pympq_Add_Rational(x, y, context);
     else if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_Add_Real(x, y, context);
+        return Pympfr_Add_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_Add_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_Add_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Subtract two Rational objects (see convert.c/isRational). Returns None and
@@ -800,22 +796,18 @@ Pympq_Sub_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympq_sub_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        result = Pympq_Sub_Rational(x, y, context);
+        return Pympq_Sub_Rational(x, y, context);
     else if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_Sub_Real(x, y, context);
+        return Pympfr_Sub_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_Sub_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_Sub_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Multiply two Rational objects (see convert.c/isRational). Returns None and
@@ -866,22 +858,18 @@ Pympq_Mul_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympq_mul_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        result = Pympq_Mul_Rational(x, y, context);
+        return Pympq_Mul_Rational(x, y, context);
     else if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_Mul_Real(x, y, context);
+        return Pympfr_Mul_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_Mul_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_Mul_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Divide two Rational objects (see convert.c/isRational). Returns None and
@@ -950,22 +938,18 @@ Pympq_FloorDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympq_floordiv_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        result = Pympq_FloorDiv_Rational(x, y, context);
+        return Pympq_FloorDiv_Rational(x, y, context);
     else if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_FloorDiv_Real(x, y, context);
+        return Pympfr_FloorDiv_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_FloorDiv_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_FloorDiv_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 static PyObject *
@@ -1020,22 +1004,18 @@ Pympq_TrueDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympq_truediv_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        result = Pympq_TrueDiv_Rational(x, y, context);
+        return Pympq_TrueDiv_Rational(x, y, context);
     else if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_TrueDiv_Real(x, y, context);
+        return Pympfr_TrueDiv_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_TrueDiv_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_TrueDiv_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Divide two Rational objects (see convert.c/isRational) and return the
@@ -1089,22 +1069,18 @@ Pympq_Mod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympq_mod_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        result = Pympq_Mod_Rational(x, y, context);
+        return Pympq_Mod_Rational(x, y, context);
     else if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_Mod_Real(x, y, context);
+        return Pympfr_Mod_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_Mod_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_Mod_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Return the quotient and remainder from dividing two Rational objects (see
@@ -1168,22 +1144,18 @@ Pympq_DivMod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympq_divmod_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        result = Pympq_DivMod_Rational(x, y, context);
+        return Pympq_DivMod_Rational(x, y, context);
     else if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_DivMod_Real(x, y, context);
+        return Pympfr_DivMod_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_DivMod_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_DivMod_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 PyDoc_STRVAR(doc_mpq_sizeof,

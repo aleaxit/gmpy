@@ -2368,24 +2368,20 @@ Pympz_Add_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympz_add_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (IS_INTEGER(x) && IS_INTEGER(y))
-        result = Pympz_Add_Integer(x, y, context);
+        return Pympz_Add_Integer(x, y, context);
     else if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        result = Pympq_Add_Rational(x, y, context);
+        return Pympq_Add_Rational(x, y, context);
     else if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_Add_Real(x, y, context);
+        return Pympfr_Add_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_Add_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_Add_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Subtract two Integer objects (see convert.c/isInteger). If an error occurs,
@@ -2478,24 +2474,20 @@ Pympz_Sub_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympz_sub_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (IS_INTEGER(x) && IS_INTEGER(y))
-        result = Pympz_Sub_Integer(x, y, context);
+        return Pympz_Sub_Integer(x, y, context);
     else if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        result = Pympq_Sub_Rational(x, y, context);
+        return Pympq_Sub_Rational(x, y, context);
     else if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_Sub_Real(x, y, context);
+        return Pympfr_Sub_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_Sub_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_Sub_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Multiply two Integer objects (see convert.c/isInteger). If an error occurs,
@@ -2581,24 +2573,20 @@ Pympz_Mul_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympz_mul_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (IS_INTEGER(x) && IS_INTEGER(y))
-        result = Pympz_Mul_Integer(x, y, context);
+        return Pympz_Mul_Integer(x, y, context);
     else if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        result = Pympq_Mul_Rational(x, y, context);
+        return Pympq_Mul_Rational(x, y, context);
     else if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_Mul_Real(x, y, context);
+        return Pympfr_Mul_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_Mul_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_Mul_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Divide two Integer objects (see convert.c/isInteger) using floor (//)
@@ -2705,24 +2693,20 @@ Pympz_FloorDiv_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympz_floordiv_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (IS_INTEGER(x) && IS_INTEGER(y))
-        result = Pympz_FloorDiv_Integer(x, y, context);
+        return Pympz_FloorDiv_Integer(x, y, context);
     else if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        result = Pympq_FloorDiv_Rational(x, y, context);
+        return Pympq_FloorDiv_Rational(x, y, context);
     else if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_FloorDiv_Real(x, y, context);
+        return Pympfr_FloorDiv_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_FloorDiv_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_FloorDiv_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Divide two Integer objects (see convert.c/isInteger) using true division.
@@ -2776,48 +2760,40 @@ Pympz_TrueDiv_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympz_truediv_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (IS_INTEGER(x) && IS_INTEGER(y))
-        result = Pympz_TrueDiv_Integer(x, y, context);
+        return Pympz_TrueDiv_Integer(x, y, context);
     else if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        result = Pympq_TrueDiv_Rational(x, y, context);
+        return Pympq_TrueDiv_Rational(x, y, context);
     else if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_TrueDiv_Real(x, y, context);
+        return Pympfr_TrueDiv_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_TrueDiv_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_TrueDiv_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 #ifdef PY2
 static PyObject *
 Pympz_div2_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (IS_INTEGER(x) && IS_INTEGER(y))
-        result = Pympz_FloorDiv_Integer(x, y, context);
+        return Pympz_FloorDiv_Integer(x, y, context);
     else if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        result = Pympq_TrueDiv_Rational(x, y, context);
+        return Pympq_TrueDiv_Rational(x, y, context);
     else if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_TrueDiv_Real(x, y, context);
+        return Pympfr_TrueDiv_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_TrueDiv_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_TrueDiv_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 #endif
 
@@ -2914,24 +2890,20 @@ Pympz_Mod_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympz_mod_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (IS_INTEGER(x) && IS_INTEGER(y))
-        result = Pympz_Mod_Integer(x, y, context);
+        return Pympz_Mod_Integer(x, y, context);
     else if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        result = Pympq_Mod_Rational(x, y, context);
+        return Pympq_Mod_Rational(x, y, context);
     else if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_Mod_Real(x, y, context);
+        return Pympfr_Mod_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_Mod_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_Mod_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Divide two Integer objects (see convert.c/isInteger) and return quotient

@@ -1949,19 +1949,15 @@ Pympfr_Add_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympfr_add_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
     if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_Add_Real(x, y, context);
+        return Pympfr_Add_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_Add_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_Add_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Attempt to subtract two numbers and return an mpfr. The code path is
@@ -2135,19 +2131,15 @@ Pympfr_Sub_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympfr_sub_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
     if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_Sub_Real(x, y, context);
+        return Pympfr_Sub_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_Sub_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_Sub_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Attempt to multiply two numbers and return an mpfr. The code path is
@@ -2320,19 +2312,15 @@ Pympfr_Mul_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympfr_mul_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
     if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_Mul_Real(x, y, context);
+        return Pympfr_Mul_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_Mul_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_Mul_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Attempt floor division of two numbers and return an mpfr. The code path is
@@ -2480,19 +2468,15 @@ Pympfr_FloorDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympfr_floordiv_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
     if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_FloorDiv_Real(x, y, context);
+        return Pympfr_FloorDiv_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_FloorDiv_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_FloorDiv_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Attempt true division of two numbers and return an mpfr. The code path is
@@ -2631,19 +2615,15 @@ Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympfr_truediv_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
     if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_TrueDiv_Real(x, y, context);
+        return Pympfr_TrueDiv_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_TrueDiv_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_TrueDiv_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Compute the remainder of two mpfr numbers. Match Python's behavior for
@@ -2730,19 +2710,15 @@ Pympfr_Mod_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympfr_mod_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
     if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_Mod_Real(x, y, context);
+        return Pympfr_Mod_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_Mod_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_Mod_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Compute the quotient and remainder of two mpfr numbers. Match Python's
@@ -2854,19 +2830,15 @@ Pympfr_DivMod_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympfr_divmod_fast(PyObject *x, PyObject *y)
 {
-    PyObject *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
     if (IS_REAL(x) && IS_REAL(y))
-        result = Pympfr_DivMod_Real(x, y, context);
+        return Pympfr_DivMod_Real(x, y, context);
     else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        result = Pympc_DivMod_Complex(x, y, context);
-    else {
-        Py_INCREF(Py_NotImplemented);
-        result = Py_NotImplemented;
-    }
-    return result;
+        return Pympc_DivMod_Complex(x, y, context);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 PyDoc_STRVAR(doc_g_mpfr_fmod,
