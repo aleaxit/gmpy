@@ -275,10 +275,6 @@ typedef long                mpir_si;
 
 #include "gmpy_misc.h"
 
-/* Support basic arithmetic operations on mpz, mpq, mpfr, and mpc types. */
-
-#include "gmpy_basic.h"
-
 /* Support operations other than those in gmpy_basic. */
 
 #include "gmpy_mpany.h"
