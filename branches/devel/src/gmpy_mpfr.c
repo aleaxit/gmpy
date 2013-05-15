@@ -821,21 +821,18 @@ Pympfr_hash(PympfrObject *self)
 /* This function is used in gmpy_mpany. */
 
 static PyObject *
-Pympfr_pow(PyObject *base, PyObject *exp, PyObject *m)
+Pympfr_Pow_Real(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject *context)
 {
     PympfrObject *tempb, *tempe, *result;
     PympcObject *mpc_result;
-    GMPyContextObject *context;
 
-    CURRENT_CONTEXT(context);
-
-    if (m != Py_None) {
+    if (m && m != Py_None) {
         TYPE_ERROR("pow() 3rd argument not allowed unless all arguments are integers");
         return NULL;
     }
 
-    tempb = Pympfr_From_Real(base, 0);
-    tempe = Pympfr_From_Real(exp, 0);
+    tempb = Pympfr_From_Real_bits_context(base, 0, context);
+    tempe = Pympfr_From_Real_bits_context(exp, 0, context);
 
     if (!tempe || !tempb) {
         Py_XDECREF((PyObject*)tempe);
@@ -843,7 +840,7 @@ Pympfr_pow(PyObject *base, PyObject *exp, PyObject *m)
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    result = (PympfrObject*)Pympfr_new(0);
+    result = (PympfrObject*)Pympfr_new_context(context);
 
     if (!result) {
         Py_DECREF((PyObject*)tempe);
@@ -861,11 +858,11 @@ Pympfr_pow(PyObject *base, PyObject *exp, PyObject *m)
 
     mpfr_clear_flags();
     result->rc = mpfr_pow(result->f, tempb->f,
-                          tempe->f, context->ctx.mpfr_round);
+                          tempe->f, GET_MPFR_ROUND(context));
     if (result && mpfr_nanflag_p() && context->ctx.allow_complex) {
         /* If we don't get a valid result, or the result is a nan, then just
          * return the original mpfr value. */
-        if (!(mpc_result = (PympcObject*)Pympc_pow(base, exp, m)) ||
+        if (!(mpc_result = (PympcObject*)Pympc_Pow_Complex(base, exp, m, context)) ||
             MPC_IS_NAN_P(mpc_result)) {
 
             Py_XDECREF((PyObject*)mpc_result);

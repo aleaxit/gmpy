@@ -310,7 +310,6 @@ static PyObject * Pympfr_integer_ratio(PyObject *self, PyObject *args);
 static PyObject * Pympfr_mantissa_exp(PyObject *self, PyObject *args);
 static PyObject * Pympfr_simple_fraction(PyObject *self, PyObject *args, PyObject *keywds);
 static Py_hash_t Pympfr_hash(PympfrObject *self);
-static PyObject * Pympfr_pow(PyObject *base, PyObject *exp, PyObject *m);
 static PyObject * Pympfr_const_pi(PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject * Pympfr_const_euler(PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject * Pympfr_const_log2(PyObject *self, PyObject *args, PyObject *keywds);
@@ -414,6 +413,7 @@ static PyObject * Pympfr_FloorDiv_Real(PyObject *x, PyObject *y, GMPyContextObje
 static PyObject * Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympfr_Mod_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympfr_DivMod_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
+static PyObject * Pympfr_Pow_Real(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject *context);
 
 #ifdef __cplusplus
 }

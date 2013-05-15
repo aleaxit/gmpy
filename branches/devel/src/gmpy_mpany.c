@@ -534,11 +534,11 @@ Pympany_mod(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_mpany_divmod,
-"div_mod(x, y[, context]) -> (number, number)\n\n"
+"divmod(x, y[, context]) -> (number, number)\n\n"
 "Return (x // y, x % y).");
 
 PyDoc_STRVAR(doc_context_divmod,
-"context.div_mod(x, y) -> (number, number)\n\n"
+"context.divmod(x, y) -> (number, number)\n\n"
 "Return (x // y, x % y).");
 
 static PyObject *
@@ -551,7 +551,7 @@ Pympany_divmod(PyObject *self, PyObject *args)
     argc = PyTuple_GET_SIZE(args);
     if (self && GMPyContext_Check(self)) {
         if (argc != 2) {
-            TYPE_ERROR("context.div_mod() requires 2 arguments.");
+            TYPE_ERROR("context.divmod() requires 2 arguments.");
             return NULL;
         }
         /* If we are passed a read-only context, make a copy of it before
@@ -564,7 +564,7 @@ Pympany_divmod(PyObject *self, PyObject *args)
     }
     else {
         if ((argc < 2) && (argc > 3)) {
-            TYPE_ERROR("div_mod() requires 2 or 3 arguments.");
+            TYPE_ERROR("divmod() requires 2 or 3 arguments.");
             return NULL;
         }
         if (argc == 3) {
@@ -598,7 +598,7 @@ Pympany_divmod(PyObject *self, PyObject *args)
     if (IS_COMPLEX(arg0) && IS_COMPLEX(arg1))
         return Pympc_DivMod_Complex(arg0, arg1, context);
 
-    TYPE_ERROR("div_mod() argument types not supported");
+    TYPE_ERROR("divmod() argument types not supported");
     return NULL;
 }
 
@@ -627,17 +627,73 @@ Pympany_to_binary(PyObject *self, PyObject *other)
     return NULL;
 }
 
+PyDoc_STRVAR(doc_context_pow,
+"context.pow(x, y) -> number\n\n"
+"Return x ** y.");
+
 static PyObject *
-Pympany_pow(PyObject *base, PyObject *exp, PyObject *mod)
+Pympany_pow(PyObject *self, PyObject *args)
 {
-    if (isInteger(base) && isInteger(exp))
-        return Pympz_pow(base, exp, mod);
-    else if (isRational(base) && isRational(exp))
-        return Pympq_pow(base, exp, mod);
-    else if (isReal(base) && isReal(exp))
-        return Pympfr_pow(base, exp, mod);
-    else if (isComplex(base) && isComplex(exp))
-        return Pympc_pow(base, exp, mod);
+    Py_ssize_t argc;
+    PyObject *arg0, *arg1;
+    GMPyContextObject *context;
+
+    argc = PyTuple_GET_SIZE(args);
+    if (self && GMPyContext_Check(self)) {
+        if (argc != 2) {
+            TYPE_ERROR("context.pow() requires 2 arguments.");
+            return NULL;
+        }
+        /* If we are passed a read-only context, make a copy of it before
+         * proceeding. */
+
+        if (((GMPyContextObject*)self)->ctx.readonly)
+            context = (GMPyContextObject*)GMPyContext_context_copy(self, NULL);
+        else
+            context = (GMPyContextObject*)self;
+    }
+    else {
+        /* pow() is only supported as a context method so this branch should
+         * be impossible to reach.
+         */
+        SYSTEM_ERROR("pow() only supported as method of a context.");
+        return NULL;
+    }
+
+    arg0 = PyTuple_GET_ITEM(args, 0);
+    arg1 = PyTuple_GET_ITEM(args, 1);
+
+    if (IS_INTEGER(arg0) && IS_INTEGER(arg1))
+        return Pympz_Pow_Integer(arg0, arg1, NULL, context);
+
+    if (IS_RATIONAL(arg0) && IS_RATIONAL(arg1))
+        return Pympq_Pow_Rational(arg0, arg1, NULL, context);
+
+    if (IS_REAL(arg0) && IS_REAL(arg1))
+        return Pympfr_Pow_Real(arg0, arg1, NULL, context);
+
+    if (IS_COMPLEX(arg0) && IS_COMPLEX(arg1))
+        return Pympc_Pow_Complex(arg0, arg1, NULL, context);
+
+    TYPE_ERROR("pow() argument types not supported");
+    return NULL;
+}
+
+static PyObject *
+Pympany_pow_fast(PyObject *base, PyObject *exp, PyObject *mod)
+{
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+
+    if (IS_INTEGER(base) && IS_INTEGER(exp))
+        return Pympz_Pow_Integer(base, exp, mod, context);
+    else if (IS_RATIONAL(base) && IS_RATIONAL(exp))
+        return Pympq_Pow_Rational(base, exp, mod, context);
+    else if (IS_REAL(base) && IS_REAL(exp))
+        return Pympfr_Pow_Real(base, exp, mod, context);
+    else if (IS_COMPLEX(base) && IS_COMPLEX(exp))
+        return Pympc_Pow_Complex(base, exp, mod, context);
 
     Py_RETURN_NOTIMPLEMENTED;
 }

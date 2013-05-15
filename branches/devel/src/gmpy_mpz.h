@@ -71,7 +71,6 @@ static PyObject * Pympz_floor(PyObject *self, PyObject *other);
 static PyObject * Pympz_round(PyObject *self, PyObject *other);
 static PyObject * Pympz_trunc(PyObject *self, PyObject *other);
 static PyObject * Pympz_square(PyObject *self, PyObject *other);
-static PyObject * Pympz_pow(PyObject *b, PyObject *e, PyObject *m);
 static int Pympz_nonzero(PympzObject *self);
 static PyObject * Pympz_com(PympzObject *self);
 static PyObject * Pympz_and(PyObject *self, PyObject *other);
@@ -121,6 +120,7 @@ static PyObject * Pympz_FloorDiv_Integer(PyObject *x, PyObject *y, GMPyContextOb
 static PyObject * Pympz_TrueDiv_Integer(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympz_Mod_Integer(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympz_DivMod_Integer(PyObject *x, PyObject *y, GMPyContextObject *context);
+static PyObject * Pympz_Pow_Integer(PyObject *b, PyObject *e, PyObject *m, GMPyContextObject *context);
 
 
 #ifdef __cplusplus

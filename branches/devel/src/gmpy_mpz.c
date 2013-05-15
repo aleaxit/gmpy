@@ -884,14 +884,27 @@ Pympz_square(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-/* Pympz_pow is called by Pympany_pow after verifying that all the
- * arguments are integers, but not necessarily mpz.
+/* Pympz_Pow_Integer is called by Pympany_pow after verifying that all the
+ * arguments are integers, but not necessarily mpz. The context argument is
+ * current not used.
+ *
+ * Notes on arguments.
+ *
+ * Passing in a NULL for the modulus is equivalent to passing in Py_None.
+ *
+ * Passing in a NULL for context is currently done by powmod(). If context is
+ * used in the future, either powmod() must change or context must be checked
+ * for NULL.
  */
 
 static PyObject *
-Pympz_pow(PyObject *b, PyObject *e, PyObject *m)
+Pympz_Pow_Integer(PyObject *b, PyObject *e, PyObject *m, GMPyContextObject *context)
 {
     PympzObject *result, *tempb = 0, *tempe = 0, *tempm = 0;
+    int has_mod = 1;
+
+    if (m || m == Py_None)
+        has_mod = 0;
 
     if (!(result = (PympzObject*)Pympz_new()))
         return NULL;
@@ -900,16 +913,16 @@ Pympz_pow(PyObject *b, PyObject *e, PyObject *m)
     tempe = Pympz_From_Integer(e);
 
     /* m will either be a number or Py_None. */
-    if (m != Py_None) {
+    if (has_mod) {
         tempm = Pympz_From_Integer(m);
     }
 
-    if (!tempb || !tempe || (!tempm && (m != Py_None))) {
-        TYPE_ERROR("Unsupported operand in mpz.pow()");
+    if (!tempb || !tempe || (!tempm && has_mod)) {
+        TYPE_ERROR("Unsupported operand in pow()");
         goto err;
     }
 
-    if (m == Py_None) {
+    if (!has_mod) {
         /* When no modulo is present, the exponent must fit in mpir_ui
          * the exponent must be positive.
          */
@@ -981,7 +994,7 @@ Pympz_pow(PyObject *b, PyObject *e, PyObject *m)
 }
 
 PyDoc_STRVAR(doc_gmpy_powmod,
-"powmod(x,y,m) -> mpz\n\n"
+"powmod(x, y, m) -> mpz\n\n"
 "Return (x**y) mod m. Same as the three argument version of Python's\n"
 "built-in pow(), but converts all three arguments to mpz.");
 
@@ -999,8 +1012,8 @@ Pympz_powmod(PyObject *self, PyObject *args)
     y = PyTuple_GET_ITEM(args, 1);
     m = PyTuple_GET_ITEM(args, 2);
 
-    if (isInteger(x) && isInteger(y) && isInteger(m))
-        return Pympz_pow(x, y, m);
+    if (IS_INTEGER(x) && IS_INTEGER(y) && IS_INTEGER(m))
+        return Pympz_Pow_Integer(x, y, m, NULL);
 
     TYPE_ERROR("powmod() argument types not supported");
     return NULL;
@@ -3082,7 +3095,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pympz_mul_fast,         /* nb_multiply             */
     (binaryfunc) Pympz_mod_fast,         /* nb_remainder            */
     (binaryfunc) Pympz_divmod_fast,      /* nb_divmod               */
-    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (ternaryfunc) Pympany_pow_fast,      /* nb_power                */
     (unaryfunc) Pympz_neg,               /* nb_negative             */
     (unaryfunc) Pympz_pos,               /* nb_positive             */
     (unaryfunc) Pympz_abs,               /* nb_absolute             */
@@ -3122,7 +3135,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pympz_div2_fast,        /* nb_divide               */
     (binaryfunc) Pympz_mod_fast,         /* nb_remainder            */
     (binaryfunc) Pympz_divmod_fast,      /* nb_divmod               */
-    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (ternaryfunc) Pympany_pow_fast,      /* nb_power                */
     (unaryfunc) Pympz_neg,               /* nb_negative             */
     (unaryfunc) Pympz_pos,               /* nb_positive             */
     (unaryfunc) Pympz_abs,               /* nb_absolute             */

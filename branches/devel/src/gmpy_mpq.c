@@ -530,24 +530,21 @@ Pympq_square(PyObject *self, PyObject *other)
 }
 
 static PyObject *
-Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
+Pympq_Pow_Rational(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject *context)
 {
     PympqObject *rq, *tempbq;
     PympzObject *tempez;
     int esign, bsign;
     mpir_si tempexp;
     PympfrObject *rf, *tempbf, *tempef;
-    GMPyContextObject *context;
 
-    CURRENT_CONTEXT(context);
-
-    if ((PyObject*)m != Py_None) {
+    if (m && m != Py_None) {
         TYPE_ERROR("mpq.pow() no modulo allowed");
         return NULL;
     }
 
     /* Only support mpq**int. Everything else gets converted to mpf. */
-    if (isRational(base) && isInteger(exp)) {
+    if (IS_RATIONAL(base) && IS_INTEGER(exp)) {
         tempbq = Pympq_From_Rational(base);
         tempez = Pympz_From_Integer(exp);
         if (!tempbq || !tempez) {
@@ -604,9 +601,9 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
         return (PyObject*)rq;
     }
     else {
-        tempbf = Pympfr_From_Real(base, 0);
-        tempef = Pympfr_From_Real(exp, 0);
-        rf = (PympfrObject*)Pympfr_new(0);
+        tempbf = Pympfr_From_Real_bits_context(base, 0, context);
+        tempef = Pympfr_From_Real_bits_context(exp, 0, context);
+        rf = (PympfrObject*)Pympfr_new_context(context);
         if (!tempbf || !tempef || !rf) {
             TYPE_ERROR("mpq.pow() unsupported operands");
             Py_XDECREF((PyObject*)tempbf);
@@ -614,7 +611,7 @@ Pympq_pow(PyObject *base, PyObject *exp, PyObject *m)
             Py_XDECREF((PyObject*)rf);
             return NULL;
         }
-        rf->rc = mpfr_pow(rf->f, tempbf->f, tempef->f, context->ctx.mpfr_round);
+        rf->rc = mpfr_pow(rf->f, tempbf->f, tempef->f, GET_MPFR_ROUND(context));
         Py_DECREF((PyObject*)tempbf);
         Py_DECREF((PyObject*)tempef);
         return (PyObject*)rf;
