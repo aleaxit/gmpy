@@ -161,6 +161,10 @@ class gmpy_build_ext(build_ext):
             writeln('this warning can be ignored. If you have difficulties compiling')
             writeln('or running gmpy2, please try compiling with the --prefix option.')
             writeln('')
+            writeln('It is possible to compile gmpy2 without support for MPFR and MPC')
+            writeln('but that is not a supported configuration. Beginning with v2.1.0,')
+            writeln('MPFR and MPC will be required.')
+            writeln('')
             writeln('setup.py will continue and attempt to compile gmpy2.')
             writeln('-----------------------------------------------------------------')
 
@@ -251,6 +255,8 @@ else:
 # above.
 
 defines = []
+
+# Beginning with v2.1.0, MPFR and MPC will be required.
 
 use_mpc = True
 use_mpfr = True
