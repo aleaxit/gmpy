@@ -83,7 +83,7 @@ and run:
 
 The DistUtils that come with Python take over and build and
 install the gmpy module for you (you may need to use 'sudo' or
-'su' appropriately to actually perform the installation, depending
+'su' appropriately to actually perform the isntallation, depending
 on the permissions you're using on Python's site-packages).
 
 Detailed instructions for building on Windows are included in
@@ -160,9 +160,6 @@ issue tracker.
 
 
 *General notes on gmpy*
-
-Note that the mpfr() type from the MPFR library replaced GMP's mpf()
-type in gmpy2.
 
 gmpy exposes to Python three types of numbers that are implemented
 in GMP and MPIR:
@@ -391,7 +388,7 @@ gmpy._copy(x) or x._copy(): provide a separate copy of x (only
 relevant for future mutability of mpz... currently useless!).
 
 gmpy.divexact(x,y): returns the quotient of x divided by y. It uses
-a faster division algorithm but requires that the remainder is 0.
+a fasterr  division algorithm but requires that the remainder is 0.
 It will return garbage if the remainder is not 0! (New in 1.04.)
 
 *gmpy module-level setting functions*
@@ -586,7 +583,7 @@ converted-to-mpf-via-string in these cases, through the fcoform
 mechanism).
 
 An optional second argument can always be supplied to gmpy.mpf,
-whether the first argument is a number or a string; if supplied,
+whether the first argument is a numner or a string; if supplied,
 it must be a Python int, >=0.  If absent or 0, the precision of
 the mpf that is generated is determined by default depending on
 the input argument (in many cases, it's the number of significant
@@ -647,7 +644,7 @@ if at all -- keywords NOT accepted!) are...:
         exponent is higher than maxexp), default -1
     option: bitmask argument, default 0 (no options)
 
-Note that, by default, the formatting is in fraction-and-exponent
+Note that, by default, the formating is in fraction-and-exponent
 form:
     [<sign>]<digit>.<digits><marker><signed exponent>
 sign is '-' if x is negative, omitted if x>=0
@@ -707,18 +704,15 @@ format string is used by gmpy).
 
 *Experimental: function gmpy.rand*
 
-Support for these random number generation functions was removed
-in gmpy2. A new API will be introduced.
-
 Since gmpy 0.5, the linear congruential random number generator of
 GMP is exposed via gmpy (with some modest added-value
-functionality) through function gmpy.rand.  A couple of options were
+functionality) through function gmpy.rand.  A couple options were
 added in 0.6.  This will be refactored into separate functions in
 some future release.
 
 Its first parameter is a string 'opt' (4-characters, lowercase)
 which determines the exact functionality; it normally has a second
-parameter 'arg' (which is optional for most values of 'opt') and
+paramenter 'arg' (which is optional for most values of 'opt') and
 may return either None or a significant value (an mpz, except for
 opt='floa', when an mpf is returned).
 
@@ -739,7 +733,7 @@ gmpy.rand('qual')
         returns the current 'quality of random
         numbers' (the arg value passed to 'init',
         with a default of 32), or 0 if random
-        number generation is not initialized yet.
+        number generation is not inited yet.
         [ignores arg, if present]
 gmpy.rand('seed', arg)
         set the current random-seed to 'arg', an
@@ -758,7 +752,7 @@ gmpy.rand('next')
         returns a uniformly distributed random
         number in the range 0:2**31 (note that
         the UPPER end is EXCLUDED) and advances
-        the random-number generation by 1 step.
+        the random-number gneration by 1 step.
 	(Basically, returns '31 random bits', if
 	the current quality of the generator is
 	at least 31; for lower-quality generators,

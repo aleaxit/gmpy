@@ -2,10 +2,10 @@
 # relies on Tim Peters' "doctest.py" test-driver
 
 r'''
->>> _g.gmp_version()[:3] in ('5.0', '4.3', '')
-True
->>> _g.mpir_version()[:3] in ( '2.3', '2.4', '2.5', '')
-True
+>>> print int(_g.gmp_version()[:3] in ('5.0', '4.3', ''))
+1
+>>> print int(_g.mpir_version()[:3] in ('2.3', '2.4', '2.5', ''))
+1
 >>> _g.version()
 '1.16'
 >>> int('gmpy.c' in _g._cvsid())
@@ -24,10 +24,16 @@ r'''
 1
 >>> _g.set_fcoform(None)
 >>> _g.set_fcoform()
->>> print(_g.mpf(3.0))
+>>> print _g.mpf(3.0)
 3.0
 >>> _g.gmp_limbsize() in (32, 64)
 True
+>>> _g.mpz(u"123")
+mpz(123)
+>>> _g.mpq(u"12/37")
+mpq(12,37)
+>>> _g.mpf(u"123")
+mpf('1.23e2')
 '''
 
 try:
@@ -159,13 +165,13 @@ ValueError: invalid mpq binary (too short)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: invalid mpq binary (num len)
->>> _g.mpq(b'\001\000\000\000\003\002',256)
+>>> _g.mpq('\001\000\000\000\003\002',256)
 mpq(3,2)
->>> _g.mpq(b'\002\000\000\000\003\377\002',256)
+>>> _g.mpq('\002\000\000\000\003\377\002',256)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: invalid mpq binary (num sgn)
->>> _g.mpq(b'\001\000\000\000\003\002\377',256)
+>>> _g.mpq('\001\000\000\000\003\002\377',256)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: invalid mpq binary (den sgn)
@@ -173,13 +179,13 @@ ValueError: invalid mpq binary (den sgn)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: invalid digits
->>> print('ba/bo')
+>>> print 'ba/bo'
 ba/bo
 >>> _g.mpq('1/bo')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: invalid digits
->>> print('1/bo')
+>>> print '1/bo'
 1/bo
 >>> _g.mpq('1/0')
 Traceback (most recent call last):
@@ -197,8 +203,8 @@ ValueError: string too short to be a gmpy.mpf binary encoding
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: invalid digits
->>> int(_g.mpz(1000*1000*1000*1000*1000*1000*1000))
-1000000000000000000000
+>>> int(_g.mpz(1000L*1000*1000*1000*1000*1000*1000))
+1000000000000000000000L
 >>> _g.scan0(12,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -239,11 +245,11 @@ ValueError: n must be > 0
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: root of negative number
->>> _g.digits(3,'peep')
+>>> _g.digits(3.14)
 Traceback (most recent call last):
   ...
 TypeError: digits() expects 'mpz',['int'] arguments
->>> _g.digits(3.14)
+>>> _g.digits(3,'peep')
 Traceback (most recent call last):
   ...
 TypeError: digits() expects 'mpz',['int'] arguments
@@ -251,7 +257,7 @@ TypeError: digits() expects 'mpz',['int'] arguments
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 TypeError: an integer is required
->>> _g.qdigits(3.14)
+>>> _g.qdigits(3.14,'peep')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 TypeError: argument can not be converted to mpq
@@ -275,7 +281,7 @@ mpz(3)
 mpz(3)
 >>> _g.qdiv(3,1.0)
 mpz(3)
->>> _g.qdiv(3,1)
+>>> _g.qdiv(3,1L)
 mpz(3)
 >>> _g.qdiv(3)
 mpz(3)
@@ -383,7 +389,7 @@ mpq(1,1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: mpz.pow with negative power
->>> _g.mpz(2)**_g.mpz(1000000*10000000000000)
+>>> _g.mpz(2)**_g.mpz(1000000*10000000000000L)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: mpz.pow outrageous exponent
@@ -397,7 +403,7 @@ mpz(-2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
 ValueError: mpq.pow no modulo allowed
->>> a=10000000000**2
+>>> a=10000000000L**2
 >>> _g.mpq(2)**a
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -516,25 +522,24 @@ True
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy 1.16 (extra cover)")
-        print("    running on Python", sys.version)
-        print()
+        print "Unit tests for gmpy 1.16 (extra cover)"
+        print "    running on Python", sys.version
+        print
         if _g.gmp_version():
-            print("Testing gmpy %s (GMP %s), default caching (%s, %s)" % (
+            print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.gmp_version(), _g.get_cache()[0],
-                _g.get_cache()[1])))
+                _g.get_cache()[1]))
         else:
-            print("Testing gmpy %s (MPIR %s), default caching (%s, %s)" % (
+            print "Testing gmpy %s (MPIR %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.mpir_version(), _g.get_cache()[0],
-                _g.get_cache()[1])))
+                _g.get_cache()[1]))
 
-        print(__test__.keys())
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
     if chat:
-        print()
-        print("Overall results for cvr:")
+        print
+        print "Overall results for cvr:"
     return doctest.master.summarize(chat)
 
 if __name__=='__main__':
