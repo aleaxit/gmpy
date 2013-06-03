@@ -1,0 +1,94 @@
+        Building MPIR and GMPY using the Windows SDK tools
+
+It is possible to build MPIR and GMPY from source on a Microsoft Windows
+platform using the command-line compiler that is included with the Microsoft
+Platform SDK. I've documented the process for a 64-bit build. The operating
+system was Windows XP x64. The process isn't difficult but assumes some
+familiarity with the command line.
+
+1)  You should have an program for processing .zip and .tar.gz archives.
+
+2)  Python should be installed on your system and the installation
+    directory should be added to your system's PATH environment variable.
+
+3)  Install .NET Framework 2.0 or later. (This is required for the
+    installer used by the SDK.)
+
+4)  Install the Microsoft Windows SDK. I used "Microsoft Windows SDK for
+    Windows 7 and .NET Framework 3.5 Service Pack 1". It can be found at
+    "http://msdn.microsoft.com/en-us/windowsserver/bb980924.aspx". This
+    version of the SDK provides compilers that are compatible with VS2008.
+    VS2008 is required for Python 2.6, 2.7, 3.1, and 3.2. Compiling Python
+    extensions with another version of the SDK is not supported. Use the
+    version appropriate for your system: X86 for a 32-bit system or AMD64
+    for a 64-bit system.
+
+5)  Download the current version of the YASM assembler. It can be found at
+    "http://www.tortall.net/projects/yasm/". Again, use the version approp-
+    riate for your system.
+
+    The executable must be renamed to "yasm.exe" and copied to the SDK
+    installation directory, typically:
+
+    C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin
+
+6)  Create a directory to use for the build process. I use C:\src.
+
+    mkdir c:\src
+
+7)  Download the GMPY and MPIR source code. This example uses
+    gmpy-1.15.zip and mpir-2.5.0.tar.gz. They should be unzipped
+    (or untarred) into c:\src. There should be c:\src\gmpy-1.15
+    and c:\src\mpir-2.5.0 directories in c:\src.
+
+8)  The file "yasm.rules" must be copied from
+
+    c:\src\mpir-2.5.0\yasm\Mkfiles\vc9
+
+    to
+
+    C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\VCProjectDefaults
+
+9)  Open a command window and enter the following commands:
+
+    rem Configure the environment for 64-bit builds.
+    rem Use "vcvars32.bat" for a 32-bit build.
+    "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars64.bat"
+
+    rem Set environment variable so yasm.exe can be found by the batch files.
+    set YASMPATH=C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin
+
+    rem Build mpir first.
+    cd C:\src\mpir-2.5.0\win
+
+    rem Check contents of configure.bat to see allowed options. Verify that
+    rem all tests pass.
+    rem 64-bit binaries were built with --cpu=k8.
+    configure
+    make
+    make check
+
+    rem Copy the required to a convenient location for gmpy.
+    rem The files are located in "lib\Win32\release" for 32-bit
+    rem build.
+    cd c:\src\mpir-2.5.0
+    mkdir c:\src\lib
+    mkdir c:\src\include
+    xcopy /Y mpir.h c:\src\include\*.*
+    xcopy /Y win\mpir.lib c:\src\lib\*.*
+
+    rem Done with mpir, now build gmpy.
+    cd c:\src\gmpy-1.15
+
+    rem Convince setup.py to use the SDK tools.
+    set MSSdk=1
+    set DISTUTILS_USE_SDK=1
+
+    rem Build and install gmpy.pyd
+    python setup.py build_ext -DMPIR -Ic:\src\include -Lc:\src\lib install
+
+    rem Run the test suite
+    python test\gmpy_test.py
+
+    rem (Optional) Build an installer, located in c:\src\gmpy-1.15\dist.
+    python setup.py bdist_wininst
