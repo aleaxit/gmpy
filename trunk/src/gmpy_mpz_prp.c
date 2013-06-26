@@ -1522,7 +1522,7 @@ GMPY_mpz_is_bpsw_prp(PyObject *self, PyObject *args)
     /* Remember to ignore the preceding result */
     Py_DECREF(result);
 
-    temp = Py_BuildValue("O", n);
+    temp = Py_BuildValue("(O)", n);
     if (!temp)
         goto cleanup;
     result = GMPY_mpz_is_selfridge_prp(NULL, temp);
@@ -1601,10 +1601,10 @@ GMPY_mpz_is_strongbpsw_prp(PyObject *self, PyObject *args)
     /* Remember to ignore the preceding result */
     Py_DECREF(result);
 
-    temp = Py_BuildValue("O", n);
+    temp = Py_BuildValue("(O)", n);
     if (!temp)
         goto cleanup;
-    result = GMPY_mpz_is_selfridge_prp(NULL, temp);
+    result = GMPY_mpz_is_strongselfridge_prp(NULL, temp);
     Py_DECREF(temp);
     goto return_result;
 
