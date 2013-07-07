@@ -136,6 +136,7 @@ static Pympf_new_RETURN Pympf_new Pympf_new_PROTO;
 static Pympf_dealloc_RETURN Pympf_dealloc Pympf_dealloc_PROTO;
 static Pympf_convert_arg_RETURN Pympf_convert_arg Pympf_convert_arg_PROTO;
 
+#if PY_MAJOR_VERSION < 3
 #define export_gmpy(m) { \
       PyObject *d; \
       static void *Pygmpy_API[Pygmpy_API_pointers]; \
@@ -159,6 +160,7 @@ static Pympf_convert_arg_RETURN Pympf_convert_arg Pympf_convert_arg_PROTO;
       d = PyModule_GetDict(m);\
       PyDict_SetItemString(d, "_C_API", c_api_object);\
     }
+#endif
 
 #else
 /* This section is used in other C-coded modules that use gmpy's API */
@@ -194,6 +196,7 @@ static void **Pygmpy_API;
 #define Pympf_convert_arg \
   (*(Pympf_convert_arg_RETURN (*)Pympf_convert_arg_PROTO) Pygmpy_API[Pympf_convert_arg_NUM])
 
+#if PY_MAJOR_VERSION < 3
 #define import_gmpy() \
      {  \
        PyObject *module = PyImport_ImportModule("gmpy");\
@@ -205,7 +208,14 @@ static void **Pygmpy_API;
          } \
        } \
      }
-
+#else
+static int
+import_gmpy(void)
+{
+    Pygmpy_API = (void **)PyCapsule_Import("gmpy._C_API", 0);
+    return (Pygmpy_API != NULL) ? 0 : -1;
+}
+#endif
 #endif
 
 #ifdef __cplusplus

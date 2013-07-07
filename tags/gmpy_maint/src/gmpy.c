@@ -7005,6 +7005,11 @@ initgmpy(void)
 {
     PyObject* copy_reg_module = NULL;
     char *do_debug = getenv("GMPY_DEBUG");
+#if PY_MAJOR_VERSION >= 3
+    static void *Pygmpy_API[Pygmpy_API_pointers];
+    PyObject *c_api_object;
+#endif
+
     if (PyType_Ready(&Pympz_Type) < 0)
         INITERROR;
     if (PyType_Ready(&Pympq_Type) < 0)
@@ -7029,6 +7034,26 @@ initgmpy(void)
 
 #if PY_MAJOR_VERSION < 3
     export_gmpy(gmpy_module);
+#else
+    /* Initialize the C API pointer array */
+    Pygmpy_API[Pympz_Type_NUM] = (void*)&Pympz_Type;
+    Pygmpy_API[Pympq_Type_NUM] = (void*)&Pympq_Type;
+    Pygmpy_API[Pympf_Type_NUM] = (void*)&Pympf_Type;
+    Pygmpy_API[Pympz_new_NUM] = (void*)Pympz_new;
+    Pygmpy_API[Pympz_dealloc_NUM] = (void*)Pympz_dealloc;
+    Pygmpy_API[Pympz_convert_arg_NUM] = (void*)Pympz_convert_arg;
+    Pygmpy_API[Pympq_new_NUM] = (void*)Pympq_new;
+    Pygmpy_API[Pympq_dealloc_NUM] = (void*)Pympq_dealloc;
+    Pygmpy_API[Pympq_convert_arg_NUM] = (void*)Pympq_convert_arg;
+    Pygmpy_API[Pympf_new_NUM] = (void*)Pympf_new;
+    Pygmpy_API[Pympf_dealloc_NUM] = (void*)Pympf_dealloc;
+    Pygmpy_API[Pympf_convert_arg_NUM] = (void*)Pympf_convert_arg;
+
+    /* Create a Capsule containing the API pointer array's address */
+    c_api_object = PyCapsule_New((void *)Pygmpy_API, "gmpy._C_API", NULL);
+
+    if (c_api_object != NULL)
+        PyModule_AddObject(gmpy_module, "_C_API", c_api_object);
 #endif
 
     if (options.debug)
