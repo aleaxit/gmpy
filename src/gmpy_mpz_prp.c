@@ -942,7 +942,7 @@ PyDoc_STRVAR(doc_mpz_is_extrastronglucas_prp,
 "    n = s*(2**r) + Jacobi(D,n), s odd\n"
 "Then an extra strong Lucas probable prime requires:\n"
 "    lucasu(p,1,s) == 0 (mod n)\n"
-"    or\n"
+"    and\n"
 "    lucasv(p,1,s) == +/-2 (mod n)\n"
 "    or\n"
 "    lucasv(p,1,s*(2**t)) == 0 (mod n) for some t, 0 <= t < r");
@@ -991,7 +991,7 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     mpz_mul(zD, p->z, p->z);
     mpz_sub_ui(zD, zD, 4);
     if (mpz_sgn(zD) == 0) {
-        result = Py_False;
+        VALUE_ERROR("is_extra_strong_lucas_prp() requires p*p-4 != 0");
         goto cleanup;
     }
 
@@ -1028,10 +1028,10 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     r = mpz_scan1(nmj, 0);
     mpz_fdiv_q_2exp(s, nmj, r);
 
-    mpz_set(nm2, n->z);
-    mpz_sub_ui(nm2, nm2, 2);
+    /* (-2 mod n) is needed for one of the tests. */
+    mpz_sub_ui(nm2, n->z, 2);
 
-    /* make sure that either U_s == 0 mod n or V_s == +/-2 mod n, or */
+    /* make sure that either U_s == 0 mod n and V_s == +/-2 mod n, or */
     /* V_((2^t)*s) == 0 mod n for some t with 0 <= t < r-1           */
     mpz_set_si(uh, 1);
     mpz_set_si(vl, 2);
@@ -1108,8 +1108,8 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     mpz_mod(vl, vl, n->z);
 
     /* uh contains LucasU_s and vl contains LucasV_s */
-    if ((mpz_cmp_ui(uh, 0) == 0) || (mpz_cmp_ui(vl, 0) == 0) ||
-        (mpz_cmp(vl, nm2) == 0) || (mpz_cmp_si(vl, 2) == 0)) {
+    if (((mpz_cmp_ui(uh, 0) == 0) && ((mpz_cmp(vl, nm2) == 0) ||
+        (mpz_cmp_si(vl, 2) == 0))) || (mpz_cmp_ui(vl, 0) == 0)) {
         result = Py_True;
         goto cleanup;
     }
@@ -1462,7 +1462,7 @@ PyDoc_STRVAR(doc_mpz_is_strongbpsw_prp,
 "is_strong_bpsw_prp(n) -> boolean\n\n"
 "Return True if n is a strong Baillie-Pomerance-Selfridge-Wagstaff\n"
 "probable prime. A strong BPSW probable prime passes the is_strong_prp()\n"
-"test with base and the is_strong_selfridge_prp() test.\n");
+"test with base 2 and the is_strong_selfridge_prp() test.\n");
 
 static PyObject *
 GMPY_mpz_is_strongbpsw_prp(PyObject *self, PyObject *args)

@@ -324,6 +324,7 @@
  *   Fixed exception not raised for Invalid Operation (casevh)
  *   invert() now raises exception if inverse does not exist (casevh)
  *   Fixed is_bpsw_prp() and is_strong_pbsw_prp() (casevh)
+ *   Fixed is_extra_strong_lucas_prp() (casevh)
  *
  ************************************************************************
  *
