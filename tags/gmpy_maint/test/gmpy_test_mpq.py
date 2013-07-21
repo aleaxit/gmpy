@@ -314,7 +314,7 @@ mpq(12,5)
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.16 (mpq functionality)"
+        print "Unit tests for gmpy 1.17 (mpq functionality)"
         print "    running on Python",sys.version
         print
         if _g.gmp_version():
