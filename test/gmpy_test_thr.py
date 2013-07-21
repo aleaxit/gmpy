@@ -1,10 +1,10 @@
 # partial unit test for gmpy threaded mpz functionality
 # relies on Tim Peters' "doctest.py" test-driver
 
-import gmpy as _g, doctest, sys, operator, gc, queue, threading
-from functools import reduce
-__test__={}
 
+import gmpy as _g, doctest, sys, operator, gc, Queue, threading
+
+__test__={}
 def _tf(N=2, _K=1234**5678):
     """Takes about 100ms on a first-generation Macbook Pro"""
     for i in range(N): assert (_g.mpz(1234)**5678)==_K
@@ -68,23 +68,23 @@ def elemop(N=1000):
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy 1.17 (threading)")
-        print("    running on Python", sys.version)
-        print()
+        print "Unit tests for gmpy 1.17 (threading)"
+        print "    running on Python", sys.version
+        print
         if _g.gmp_version():
-            print("Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
+            print "Testing gmpy %s (GMP %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.gmp_version(), _g.get_cache()[0],
-                _g.get_cache()[1])))
+                _g.get_cache()[1]))
         else:
-            print("Testing gmpy %s (MPIR %s) with default caching (%s, %s)" % (
+            print "Testing gmpy %s (MPIR %s) with default caching (%s, %s)" % (
                 (_g.version(), _g.mpir_version(), _g.get_cache()[0],
-                _g.get_cache()[1])))
+                _g.get_cache()[1]))
 
     thismod = sys.modules.get(__name__)
     doctest.testmod(thismod, report=0)
 
-    if chat: print("Repeating tests, with caching disabled")
-    _g.set_cache(0,128)
+    if chat: print "Repeating tests, with caching disabled"
+    _g.set_zcache(0)
 
     sav = sys.stdout
     class _Dummy:
@@ -97,8 +97,8 @@ def _test(chat=None):
         sys.stdout = sav
 
     if chat:
-        print()
-        print("Overall results for thr:")
+        print
+        print "Overall results for thr:"
     return doctest.master.summarize(chat)
 
 class DoOne(threading.Thread):
@@ -112,7 +112,7 @@ class DoOne(threading.Thread):
             task()
 
 def _test_thr(Ntasks=5, Nthreads=1):
-    q = queue.Queue()
+    q = Queue.Queue()
     funcs = (_tf, 1), (factorize, 4), (elemop, 2)
     for i in range(Ntasks):
         for f, n in funcs:
