@@ -68,7 +68,7 @@ def elemop(N=1000):
 
 def _test(chat=None):
     if chat:
-        print "Unit tests for gmpy 1.16 (threading)"
+        print "Unit tests for gmpy 1.17 (threading)"
         print "    running on Python", sys.version
         print
         if _g.gmp_version():

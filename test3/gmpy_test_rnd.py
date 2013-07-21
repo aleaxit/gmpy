@@ -127,7 +127,7 @@ if sys.version<'2.4':
 
 def _test(chat=None):
     if chat:
-        print("Unit tests for gmpy 1.16 (rand functionality)")
+        print("Unit tests for gmpy 1.17 (rand functionality)")
         print("    running on Python %s" % sys.version)
         print("")
         if _g.gmp_version():
