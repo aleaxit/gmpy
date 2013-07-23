@@ -7,6 +7,7 @@ r'''
 ['bit_clear', 'bit_flip', 'bit_length', 'bit_scan0', 'bit_scan1', 'bit_set', 'bit_test', 'denominator', 'digits', 'num_digits', 'numerator']
 >>>
 '''
+
 import gmpy2 as _g, doctest, sys, operator, gc
 __test__={}
 a=_g.mpz(123)

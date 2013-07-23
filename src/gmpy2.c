@@ -395,7 +395,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.0.1a0";
+char gmpy_version[] = "2.0.1";
 
 char _gmpy_cvs[] = "$Id$";
 
