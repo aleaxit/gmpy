@@ -31,6 +31,16 @@ The following libraries are supported:
 
   mpz_prp: http://sourceforge.net/projects/mpzprp/
 
+Changes in gmpy2 2.0.1
+----------------------
+
+* Updated setup.py to work in more situations.
+* Corrected exception handling in basic operations with mpfr type.
+* Correct InvalidOperation exception not raised in certain circumstances.
+* invert() now raises an exception if the modular inverse does not exist.
+* Fixed internal exception in is_bpsw_prp() and is_strong_bpsw_prp().
+* Updated is_extra_strong_lucas_prp() to latest version.
+
 Changes in gmpy2 2.0.0
 ----------------------
 
