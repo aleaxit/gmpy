@@ -319,8 +319,6 @@ static PyObject * Pympfr_rec_sqrt(PyObject *self, PyObject *other);
 static PyObject * Pympfr_root(PyObject *self, PyObject *args);
 static PyObject * Pympfr_reldiff(PyObject *self, PyObject *args);
 static PyObject * Pympfr_sign(PyObject *self, PyObject *other);
-static PyObject * Pympfr_abs(PympfrObject *x);
-static PyObject * Pympfr_neg(PympfrObject *x);
 static PyObject * Pympfr_ceil(PyObject *self, PyObject *other);
 static PyObject * Pympfr_floor(PyObject *self, PyObject *other);
 static PyObject * Pympfr_trunc(PyObject *self, PyObject *other);
@@ -414,6 +412,8 @@ static PyObject * Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, GMPyContextObjec
 static PyObject * Pympfr_Mod_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympfr_DivMod_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympfr_Pow_Real(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject *context);
+static PyObject * Pympfr_Abs_Real(PyObject *x, GMPyContextObject *context);
+static PyObject * Pympfr_Neg_Real(PyObject *x, GMPyContextObject *context);
 
 #ifdef __cplusplus
 }
