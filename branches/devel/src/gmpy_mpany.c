@@ -119,6 +119,57 @@ Pympany_sign(PyObject *self, PyObject *other)
     return NULL;
 }
 
+/* Implement context.abs(). The following code assumes it used a as method of
+ * a context. */
+
+PyDoc_STRVAR(doc_context_abs,
+"context.abs(x, y) -> number\n\n"
+"Return abs(x), the context is applied to the result.");
+
+static PyObject *
+Pympany_abs(PyObject *self, PyObject *args)
+{
+    Py_ssize_t argc;
+    PyObject *arg0, *arg1, *arg2;
+    GMPyContextObject *context;
+
+    argc = PyTuple_GET_SIZE(args);
+    if (self && GMPyContext_Check(self)) {
+        if (argc != 1) {
+            TYPE_ERROR("context.abs() requires 1 argument.");
+            return NULL;
+        }
+        /* If we are passed a read-only context, make a copy of it before
+         * proceeding. */
+
+        if (((GMPyContextObject*)self)->ctx.readonly)
+            context = (GMPyContextObject*)GMPyContext_context_copy(self, NULL);
+        else
+            context = (GMPyContextObject*)self;
+    }
+    else {
+        SYSTEM_ERROR("function is not supported");
+        return NULL;
+    }
+
+    arg0 = PyTuple_GET_ITEM(args, 0);
+
+    if (IS_INTEGER(arg0))
+        return Pympz_Add_Integer(arg0, arg1, context);
+
+    if (IS_RATIONAL(arg0))
+        return Pympq_Add_Rational(arg0, arg1, context);
+
+    if (IS_REAL(arg0))
+        return Pympfr_Add_Real(arg0, arg1, context);
+
+    if (IS_COMPLEX(arg0))
+        return Pympc_Add_Complex(arg0, arg1, context);
+
+    TYPE_ERROR("abs() argument types not supported");
+    return NULL;
+}
+
 PyDoc_STRVAR(doc_mpany_add,
 "add(x, y[, context]) -> number\n\n"
 "Return x + y.");

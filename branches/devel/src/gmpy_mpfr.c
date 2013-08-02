@@ -1223,8 +1223,113 @@ Py##NAME(PympfrObject *x) \
     return (PyObject *) r; \
 }
 
-MPFR_MONOP(mpfr_abs)
-MPFR_MONOP(mpfr_neg)
+/* Note: Pympfr_Abs_Real, Pympfr_Neg_Real, and Pympfr_Pos_Real duplicate much
+ *       code. They may be converted to use a macro in the future. */
+
+/* Pympfr_Abs_Real is expected to be called by Pympany_abs (when used as a
+ * context method) or Pympfr_abs_fast (when used as mpfr.__abs__). */
+
+static PyObject *
+Pympfr_Abs_Real(PyObject *x, GMPyContextObject *context)
+{
+    PympfrObject *result;
+
+    if (!(result = (PympfrObject*)Pympfr_new(0)))
+        return NULL;
+
+    if (Pympfr_CheckAndExp(x)) {
+        mpfr_clear_flags();
+        result->rc = mpfr_abs(result->f, Pympfr_AS_MPFR(x), GET_MPFR_ROUND(context));
+        MERGE_FLAGS;
+        CHECK_FLAGS("abs()");
+        goto done;
+    }
+    else if (IS_REAL(x)) {
+        PympfrObject *tempx;
+
+        tempx = Pympfr_From_Real_context(x, 0, context);
+        if (!tempx) {
+            SYSTEM_ERROR("Can not covert Real to 'mpfr'");
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+        mpfr_clear_flags();
+        result->rc = mpfr_abs(result->f, tempx->f, GET_MPFR_ROUND(context));
+        MERGE_FLAGS;
+        CHECK_FLAGS("abs()");
+        Py_DECREF((PyObject*)tempx);
+        goto done;
+    }
+    else {
+        TYPE_ERROR("abs() called with invalid type");
+        Py_DECREF((PyObject*)result);
+        return NULL;
+    }
+
+  done:
+    MPFR_CLEANUP_RESULT("abs()");
+    return (PyObject*)result;
+}
+
+static PyObject *
+Pympfr_abs_fast(PympfrObject *x)
+{
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+    return Pympfr_Abs_Real((PyObject*)x, context);
+}
+
+static PyObject *
+Pympfr_Neg_Real(PyObject *x, GMPyContextObject *context)
+{
+    PympfrObject *result;
+
+    if (!(result = (PympfrObject*)Pympfr_new(0)))
+        return NULL;
+
+    if (Pympfr_CheckAndExp(x)) {
+        mpfr_clear_flags();
+        result->rc = mpfr_neg(result->f, Pympfr_AS_MPFR(x), GET_MPFR_ROUND(context));
+        MERGE_FLAGS;
+        CHECK_FLAGS("neg()");
+        goto done;
+    }
+    else if (IS_REAL(x)) {
+        PympfrObject *tempx;
+
+        tempx = Pympfr_From_Real_context(x, 0, context);
+        if (!tempx) {
+            SYSTEM_ERROR("Can not covert Real to 'mpfr'");
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+        mpfr_clear_flags();
+        result->rc = mpfr_neg(result->f, tempx->f, GET_MPFR_ROUND(context));
+        MERGE_FLAGS;
+        CHECK_FLAGS("neg()");
+        Py_DECREF((PyObject*)tempx);
+        goto done;
+    }
+    else {
+        TYPE_ERROR("neg() called with invalid type");
+        Py_DECREF((PyObject*)result);
+        return NULL;
+    }
+
+  done:
+    MPFR_CLEANUP_RESULT("neg()");
+    return (PyObject*)result;
+}
+
+static PyObject *
+Pympfr_neg_fast(PympfrObject *x)
+{
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
+    return Pympfr_Neg_Real((PyObject*)x, context);
+}
 
 #define MPFR_UNIOP_NOROUND(NAME) \
 static PyObject * \
@@ -2046,6 +2151,7 @@ Pympfr_Sub_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
                 mpfr_clear_flags();
                 result->rc = mpfr_sub_z(result->f, Pympfr_AS_MPFR(y),
                                         tempz, GET_MPFR_ROUND(context));
+                mpfr_neg(result->f, result->f, GET_MPFR_ROUND(context));
                 mpz_cloc(tempz);
                 goto done;
             }
@@ -2053,6 +2159,7 @@ Pympfr_Sub_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
                 mpfr_clear_flags();
                 result->rc = mpfr_sub_si(result->f, Pympfr_AS_MPFR(y),
                                          temp_si, GET_MPFR_ROUND(context));
+                mpfr_neg(result->f, result->f, GET_MPFR_ROUND(context));
                 goto done;
             }
         }
@@ -2061,6 +2168,7 @@ Pympfr_Sub_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
             mpfr_clear_flags();
             result->rc = mpfr_sub_z(result->f, Pympfr_AS_MPFR(y),
                                     Pympz_AS_MPZ(x), GET_MPFR_ROUND(context));
+            mpfr_neg(result->f, result->f, GET_MPFR_ROUND(context));
             goto done;
         }
 
@@ -2075,6 +2183,7 @@ Pympfr_Sub_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
             mpfr_clear_flags();
             result->rc = mpfr_sub_q(result->f, Pympfr_AS_MPFR(y), tempx->q,
                                     GET_MPFR_ROUND(context));
+            mpfr_neg(result->f, result->f, GET_MPFR_ROUND(context));
             Py_DECREF((PyObject*)tempx);
             goto done;
         }
@@ -3799,9 +3908,9 @@ static PyNumberMethods mpfr_number_methods =
     (binaryfunc) Pympfr_mod_fast,        /* nb_remainder            */
     (binaryfunc) Pympfr_divmod_fast,     /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
-    (unaryfunc) Pympfr_neg,              /* nb_negative             */
+    (unaryfunc) Pympfr_neg_fast,         /* nb_negative             */
     (unaryfunc) Pympfr_pos,              /* nb_positive             */
-    (unaryfunc) Pympfr_abs,              /* nb_absolute             */
+    (unaryfunc) Pympfr_abs_fast,         /* nb_absolute             */
     (inquiry) Pympfr_nonzero,            /* nb_bool                 */
         0,                               /* nb_invert               */
         0,                               /* nb_lshift               */
@@ -3838,9 +3947,9 @@ static PyNumberMethods mpfr_number_methods =
     (binaryfunc) Pympfr_mod_fast,        /* nb_remainder            */
     (binaryfunc) Pympfr_divmod_fast,     /* nb_divmod               */
     (ternaryfunc) Pympany_pow,           /* nb_power                */
-    (unaryfunc) Pympfr_neg,              /* nb_negative             */
+    (unaryfunc) Pympfr_neg_fast,         /* nb_negative             */
     (unaryfunc) Pympfr_pos,              /* nb_positive             */
-    (unaryfunc) Pympfr_abs,              /* nb_absolute             */
+    (unaryfunc) Pympfr_abs_fast,         /* nb_absolute             */
     (inquiry) Pympfr_nonzero,            /* nb_bool                 */
         0,                               /* nb_invert               */
         0,                               /* nb_lshift               */
