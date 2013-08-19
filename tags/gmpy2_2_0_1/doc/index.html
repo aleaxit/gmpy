@@ -1,0 +1,198 @@
+<HTML>
+<HEAD>
+<TITLE>Welcome to General Multiprecision PYthon
+</TITLE>
+
+<!--
+<LINK rel="stylesheet"
+    href="http://sourceforge.net/sourceforge.css"
+    type="text/css">
+-->
+
+<STYLE>
+body { margin-left: 30; margin-right: 30; }
+</STYLE>
+
+</HEAD>
+<BODY>
+<FONT SIZE=-1>
+Last updated on: 2008, June 22;
+for GMPY release: 1.04
+<A href="http://code.google.com/p/gmpy/">
+<IMG src="http://code.google.com/images/code_sm.png"
+width="88" height="31" border="0" alt="Go to Google Code gmpy page"></A>
+<br>
+</FONT>
+<H1>GMPY Project goals and strategies</H1>
+The General Multiprecision PYthon project (GMPY) focuses on
+Python-usable modules providing multiprecision arithmetic
+functionality to Python programmers.  The project mission
+includes both C and C++ Python-modules (for speed) and pure
+Python modules (for flexibility and convenience); it
+potentially includes integral, rational and floating-point
+arithmetic in any base.  Only cross-platform functionality
+is of interest, at least for now.
+<P>
+As there are many good existing free C and C++ libraries
+that address these issues, it is expected that most of the
+work of the GMPY project will involve wrapping, and exposing
+to Python, exactly these existing libraries (possibly with
+additional "convenience" wrappers written in Python itself).
+For starters, we've focused on the popular (and excellent)
+GNU Multiple Precision library,
+<A HREF="http://gmplib.org/">GMP</A>,
+exposing its functionality through module <b>gmpy</b>.
+
+<H1>The GMPY Module</H1>
+<P>
+Python modules older than GMPY exposes a subset of the integral-MP
+(MPZ) functionality of earlier releases of the GMP library.  The
+first GMPY goal (currently nearly reached) was to develop the gmpy
+module into a complete exposure of MPZ, MPF (floating-point), and
+MPQ (rational) functionality of current GMP (release 4), as well
+as auxiliary functionality such as random number generation, with
+full support for current Python releases (2.3 and up) and the
+Python 'distutils' (and also support for a "C API" allowing some
+level of interoperation with other C-written extension modules for
+Python).
+
+<p>
+<b>Note</b>: the module's ability to be used as a "drop-in
+replacement" for Python's own implementation of <i>long</i>s,
+to rebuild Python from sources in a version using GMP, was a
+characteristic of the gmp-module we started from, but is
+<b>not</b> a target of the gmpy project, and we have no plans
+to support it.
+<P>
+This first GMPY
+module is called <b>gmpy</b>, just like the whole project.
+<P>
+The extended MP floating-point facilities of
+<A HREF="http://www.loria.fr/projets/mpfr/">MPFR</A>
+will later also be considered for inclusion in gmpy (either within
+the same module, or as a further, separate add-on module).
+[[ Rooting for MPFR to be merged with GMP so we can avoid some
+awkwardness (but seeing no movement on this front so far) ]].
+
+<H2>Mutability... but <u>not</u> for now</H2>
+Early tests have shown that supporting Python 2's "in-place
+operation" functionality (by making MPZ, MPF and MPQ Python objects
+<b>mutable</b>) would offer a substantial performance boost.
+<p>
+Despite this, widespread feeling among Python cognoscenti appears
+to be against exposing such "mutable numbers".  As a consequence,
+our current aim is for a first release of GMPY without mutability,
+to be followed at some later time by one which will also fully
+support in-place-mutable versions of number objects (as well as
+the default immutable ones), but only when explicitly and
+deliberately requested by a user (who can then be presumed to know
+what he or she is doing).  Meanwhile, caching strategies are used
+to ameliorate performance issues, and appear to be reasonably
+worthwhile (so far, only MPZ and MPQ objects are subject to this
+caching).
+<p>
+We've tended to solve other debatable design issues in a similar
+vein, i.e., by trying to work "like Python's built-in numbers" when
+there was a choice and two or more alternatives made sense.
+
+<H1>Project Status and near-future plans</H1>
+The gmpy module's current release (latest current release
+as of 2008/10/16: 1.04) is available for download in both
+source and Windows-binary form, and Mac-binary form too.
+
+gmpy 1.04 exposes all of the mpz, mpq
+and mpf functionality that was already available in GMP 3.1, and
+most of the random-number generation functionality (there are no
+current plans to extend gmpy to expose other such functionality,
+although the currently experimental way in which it is architected
+is subject to possible future changes).
+<p>
+On most platforms, you will need to separately procure and install
+the GMP library itself to be able to build and use GMPY.  Note that
+4.0.1 or better is needed; take care: some Linux releases come bundled
+with <strong>older</strong> GMP versions, such as GMP 3, and you may
+have to install the latest GMP version instead -- beware also of
+/usr/lib vs /usr/local/lib issues.
+<p>
+Please read the file "windows_build.txt" for detailed instructions on
+compiling GMP and GMPY using the freely available MinGW tools.
+<p>
+[[ OLD: The exception to this need is under (32-bit) Windows, where
+binary-accompanied releases are the norm, and builds of GMP usable
+with MS VC++ 6 (the main C compiler used for Python on this platform)
+are traditionally hard to come by.
+<p>
+We started the GMPY project using a VC++ port of GMP.LIB "just found on
+the net", and later a port by Jorgen Lundman, but are currently relying
+on other volunteers to build Windows binaries since we don't have any
+Windows machine any more.  <a
+href="http://www.cs.nyu.edu/exact/core/gmp/">This site</a> does appear
+to offer all needed files and instructions for Windows developers who
+want to re-build the gmpy module from sources; the gmpy project itself
+just supplies a separate 'binary module' package is supplied, containing
+only the pre-built GMPY.PYD, for those who do <b>not</b> want to
+re-build from sources. ]]
+<p>
+<b>Do</b> note, however, that <b>all</b> gmpy users should download the
+gmpy source-package as well, as currently that is the one including
+<b>gmpy</b> documentation and unit-tests!
+<H2>Currently-open issues</h2>
+<p>
+A still-weakish point is with the output-formatting of mpf numbers;
+sometimes, this formatting ends up providing a few more digits than
+a given number's accuracy would actually warrant (a few noise digits
+after a long string of trailing '0' or '9' digits), particularly when
+the mpf number is built from a Python float -- the accuracy situation
+is quite a bit better when the mpf number is built from a <b>string</b>.
+<p>
+Because of this, since release 0.6, gmpy introduced an optional
+'floating-conversion format string' module-level setting: if present,
+float-&gt;mpf conversion goes through an intermediate formatted
+string (by default, it still proceeds directly, at least for now);
+this does ameliorate things a bit, as does the better tracking done
+(since 0.6, with further enhancements in 0.7) of the 'requested'
+precision for an mpf (as opposed to the precision the underlying GMP
+actually 'assigns' to it); but the issue cannot yet be considered fully
+solved, and may well still need some design changes in the output
+formatting functionality.
+<p>
+Unit tests are not considered a weak point any more; the over 1000
+unit-tests now being run provide a decent cover of 93+% SLOC for gmpy.c,
+up from 72% in 0.7.  The non-covered SLOCs (about 150 of gmpy.c's
+current 2311 executable lines out of 6205 total)
+are mostly disaster-tests to handle out-of-memory
+situations, a smattering of 'defensive
+programming' cases (to handle situations that 'should never happen,
+but'...) and some cases of the new experimental 'callbacks' facility
+(mostly provided for the specific use of PySymbolic, and intended to be
+tested by that package).  We'll have to do better, eventually (presumably with
+some mocking approach e.g. to simulate out-of-memory situations), but, for now,
+this can be considered OK.
+<p>
+In the attempt to make gmpy as useful as can be for both stand-alone
+use, and also in the context of PySymbolic, a tad too many design
+decisions have been delayed/postponed by introducing module-level
+flags, letting us 'have it both ways' in the current
+gmpy 1.04; this has produced a somewhat unwieldy mix of module-level
+flag-setting and call-back functions.  This whole area's architecture
+will neet to be revisited, including other such design-decisions yet.
+
+<H2>Near-future plans</h2>
+Future releases may have changes including: re-architecting the
+module-level setting functions; more elegantly formatted documentation;
+more timing-measurement scripts and usage-examples.  Some of the
+currently experimental 'callbacks' will also be removed, having been
+proven unnecessary.  All relevant GMP 4 functionality will be exposed.
+<p>
+No predictions on timing, though.  gmpy 1.04 meets all current needs
+of the main author, so his motivation to work more on it is low:-).
+So, don't hold your breath (pitching in and helping it happen, on the
+other hand, _might_ be advisable, and will surely yield results:-).
+<p>
+<A HREF="http://code.google.com/p/gmpy/">Project page on
+code.google.com</A>
+<A href="http://code.google.com/p/gmpy/">
+<IMG src="http://code.google.com/images/code_sm.png"
+width="88" height="31" border="0" alt="Go to Google Code gmpy page"></A>
+</BODY>
+</HTML>
