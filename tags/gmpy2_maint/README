@@ -1,0 +1,90 @@
+Installing gmpy2 on Unix/Linux
+------------------------------
+
+Requirements
+
+gmpy2 has only been tested with the most recent versions of GMP, MPFR and MPC.
+Specifically, for integer and rational support, gmpy2 requires GMP 5.0.x or
+later. To support multiple-precision floating point arithmetic, MPFR 3.1.x or
+later is required. MPC 1.0.1 or later is required for complex arithmetic.
+
+The MPC and MPFR libraries are optional. If the MPC library is not available,
+gmpy2 will still support integer, rational, and real floating-point arithmetic.
+If the MPFR library is not available, gmpy2 will only support integer and
+rational arithmetic. The mpf type included with GMP is no longer supported.
+
+Quick Instructions
+
+If your system includes sufficiently recent versions of GMP, MPFR and MPC, and
+you have the development libraries installed, compiling should be as simple as:
+
+    $ cd <gmpy2 source directory>
+    $ python setup.py install
+
+If this fails, read on.
+
+Detailed Instructions
+
+If your Linux distribution does not support recent versions of GMP, MPFR and
+MPC, you will need to compile your own versions. To avoid any possible conflict
+with existing libraries on your system, it is recommended to use a directory
+not normally used by your distribution. setup.py will automatically search the
+following directories for the required libraries:
+
+    1) /opt/local
+    2) /opt
+    3) /usr/local
+    4) /usr
+    5) /sw
+
+If you can't use one of these directories, you can use a directory located in
+your home directory. The examples will use /home/case/local. If you use one of
+standard directories (say /opt/local), then you won't need to specify
+--prefix=/home/case/local to setup.py but you will need to specify the prefix
+when compiling GMP, MPFR, and MPC.
+
+Create the desired destination directory for GMP, MPFR, and MPC.
+
+    $ mkdir /home/case/local
+
+Download and un-tar the GMP source code. Change to GMP source directory and
+compile GMP.
+
+    $ cd /home/case/local/src/gmp-5.1.0
+    $ ./configure --prefix=/home/case/local
+    $ make
+    $ make check
+    $ make install
+
+Download and un-tar the MPFR source code. Change to MPFR source directory
+and compile MPFR.
+
+    $ cd /home/case/local/mpfr-3.1.1
+    $ ./configure --prefix=/home/case/local --with-gmp=/home/case/local
+    $ make
+    $ make check
+    $ make install
+
+Download and un-tar the MPC source code. Change to MPC source directory
+and compile MPC.
+
+    $ cd /home/case/local/mpc-1.0.1
+    $ ./configure --prefix=/home/case/local --with-gmp=/home/case/local --with-mpfr=/home/case/local
+    $ make
+    $ make check
+    $ make install
+
+Compile gmpy2 and specify the location of GMP, MPFR and MPC. The location of
+the GMP, MPFR, and MPC libraries is embedded into the gmpy2 library so the new
+versions of GMP, MPFR, and MPC do not need to be installed the system library
+directories. The prefix directory is added to the beginning of the directories
+that are checked so it will be found first.
+
+    $ python setup.py install --prefix=/home/case/local
+
+If you get a "permission denied" error message, you may need to use:
+
+    $ python setup.py build --prefix=/home/case/local
+    $ sudo python setup.py install --prefix=/home/case/local
+
+
