@@ -1,0 +1,485 @@
+MPZ Functionality
+=================
+
+Testing of mpz functionality is split into multiple files.
+
+    test_mpz.txt
+        Test basic functionality and stuff not covered anywhere else.
+
+    test_mpz_functions.txt
+        Test mpz functions, including error messages.
+
+    test_mpz_io.txt
+        Test input/output and formating.
+
+    test_mpz_comp.txt
+        Test comparisons.
+
+    >>> import gmpy2 as G
+    >>> from gmpy2 import mpz, mpq, mpfr, mpc
+    >>> from decimal import Decimal as D
+    >>> from fractions import Fraction as F
+    >>> a = mpz(123)
+    >>> b = mpz(456)
+    >>> c = 12345678901234567890
+
+Test elementary operations
+==========================
+
+Test addition
+-------------
+
+    >>> a+1
+    mpz(124)
+    >>> a+(-1)
+    mpz(122)
+    >>> 1+a
+    mpz(124)
+    >>> (-1)+a
+    mpz(122)
+    >>> a+b
+    mpz(579)
+    >>> b+a
+    mpz(579)
+    >>> a+'b'
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: unsupported operand type(s) for +: 'mpz' and 'str'
+    >>> 'b'+a
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: ** message detail varies **
+    >>> print(a+c)
+    12345678901234568013
+    >>> print(c+a)
+    12345678901234568013
+
+
+Test subtraction
+----------------
+
+    >>> a-1
+    mpz(122)
+    >>> a-(-1)
+    mpz(124)
+    >>> 1-a
+    mpz(-122)
+    >>> (-1)-a
+    mpz(-124)
+    >>> a-b
+    mpz(-333)
+    >>> b-a
+    mpz(333)
+    >>> a-'b'
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: unsupported operand type(s) for -: 'mpz' and 'str'
+    >>> 'b'-a
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: ** message detail varies **
+    >>> print(a-c)
+    -12345678901234567767
+    >>> print(c-a)
+    12345678901234567767
+
+Test multiplication
+-------------------
+
+    >>> a*b
+    mpz(56088)
+    >>> b*a
+    mpz(56088)
+    >>> a*0
+    mpz(0)
+    >>> 0*a
+    mpz(0)
+    >>> a*123
+    mpz(15129)
+    >>> 123*a
+    mpz(15129)
+    >>> print(a*c)
+    1518518504851851850470
+    >>> print(c*a)
+    1518518504851851850470
+    >>> a*'b'
+    'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+    >>> 'b'*a
+    'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+
+Test division
+-------------
+
+    >>> a//b
+    mpz(0)
+    >>> a/b
+    mpfr('0.26973684210526316')
+    >>> b//a
+    mpz(3)
+    >>> b/a
+    mpfr('3.7073170731707319')
+    >>> (a*b)//b
+    mpz(123)
+    >>> (a*b)//a
+    mpz(456)
+    >>> a//0
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: division or modulo by zero
+    >>> a/0
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: division or modulo by zero
+    >>> a/0.0
+    mpfr('inf')
+    >>> print(c//a)
+    100371373180768844
+    >>> a**10//c
+    mpz(64)
+
+Test modulo
+-----------
+
+    >>> a%b
+    mpz(123)
+    >>> b%a
+    mpz(87)
+    >>> divmod(a,b)
+    (mpz(0), mpz(123))
+    >>> divmod(b,a)
+    (mpz(3), mpz(87))
+    >>> divmod(a,0)
+    Traceback (most recent call last):
+      ...
+    ZeroDivisionError: division or modulo by zero
+    >>> divmod(a,mpz(0))
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: division or modulo by zero
+    >>> divmod(123,mpz(0))
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: division or modulo by zero
+    >>> divmod(b,123)
+    (mpz(3), mpz(87))
+    >>> divmod(a,c)
+    (mpz(0), mpz(123))
+    >>> divmod(a,int(c))
+    (mpz(0), mpz(123))
+    >>> print("%s %s" % divmod(a*(c-1),c))
+    122 12345678901234567767
+    >>> print("%s %s" % divmod(a*(c-1),int(c)))
+    122 12345678901234567767
+    >>> divmod(a*(c-1),-c)
+    (mpz(-123), mpz(-123))
+    >>> divmod(a*(c-1),-int(c))
+    (mpz(-123), mpz(-123))
+    >>> print("%s %s" % divmod(int(a*(c-1)),-int(c)))
+    -123 -123
+
+Test miscellaneous
+------------------
+
+    >>> a+True
+    mpz(124)
+    >>> a+False
+    mpz(123)
+    >>> a*False
+    mpz(0)
+    >>> a//True
+    mpz(123)
+    >>> abs(-a) == a
+    True
+    >>> print(pow(a,10))
+    792594609605189126649
+    >>> pow(a,7,b)
+    mpz(99)
+    >>> G.sign(b-a)
+    1
+    >>> G.sign(b-b)
+    0
+    >>> G.sign(a-b)
+    -1
+    >>> G.sign(a)
+    1
+    >>> G.sign(-a)
+    -1
+    >>> z=b-b; G.sign(z)
+    0
+
+Test pickle
+-----------
+
+    >>> import pickle
+    >>> pickle.loads(pickle.dumps(G.mpz(12346789)))
+    mpz(12346789)
+    >>> pickle.loads(pickle.dumps(G.mpz(-12346789)))
+    mpz(-12346789)
+    >>> pickle.loads(pickle.dumps(G.mpz(0)))
+    mpz(0)
+
+Test mpz.__index__
+------------------
+
+    >>> range(333)[a]
+    123
+    >>> range(333)[b]
+    Traceback (innermost last):
+      ...
+    IndexError: range object index out of range
+
+Test operations involving NaN/Inf
+---------------------------------
+
+    >>> a + float('Inf')
+    mpfr('inf')
+    >>> float('Inf') + a
+    mpfr('inf')
+    >>> a + float('-Inf')
+    mpfr('-inf')
+    >>> float('-Inf') + a
+    mpfr('-inf')
+    >>> a + float('nan')
+    mpfr('nan')
+    >>> float('nan') + a
+    mpfr('nan')
+
+    >>> a - float('Inf')
+    mpfr('-inf')
+    >>> float('Inf') - a
+    mpfr('inf')
+    >>> a - float('-Inf')
+    mpfr('inf')
+    >>> float('-Inf') - a
+    mpfr('-inf')
+    >>> a - float('nan')
+    mpfr('nan')
+    >>> float('nan') - a
+    mpfr('nan')
+
+    >>> a * float('Inf')
+    mpfr('inf')
+    >>> float('Inf') * a
+    mpfr('inf')
+    >>> a * float('-Inf')
+    mpfr('-inf')
+    >>> float('-Inf') * a
+    mpfr('-inf')
+    >>> -a * float('Inf')
+    mpfr('-inf')
+    >>> float('Inf') * -a
+    mpfr('-inf')
+    >>> -a * float('-Inf')
+    mpfr('inf')
+    >>> float('-Inf') * -a
+    mpfr('inf')
+    >>> a * float('nan')
+    mpfr('nan')
+    >>> float('nan') * a
+    mpfr('nan')
+    >>> G.mpz(0) * float('Inf')
+    mpfr('nan')
+    >>> G.mpz(0) * float('-Inf')
+    mpfr('nan')
+    >>> float('Inf') * G.mpz(0)
+    mpfr('nan')
+    >>> float('-Inf') * G.mpz(0)
+    mpfr('nan')
+    >>> a / float('Inf')
+    mpfr('0.0')
+    >>> -a / float('Inf')
+    mpfr('-0.0')
+    >>> float('Inf') / a
+    mpfr('inf')
+    >>> float('Inf') / -a
+    mpfr('-inf')
+    >>> a / float('-Inf')
+    mpfr('-0.0')
+    >>> -a / float('-Inf')
+    mpfr('0.0')
+    >>> float('-Inf') / a
+    mpfr('-inf')
+    >>> float('-Inf') / -a
+    mpfr('inf')
+    >>> a / float('nan')
+    mpfr('nan')
+    >>> float('nan') / a
+    mpfr('nan')
+    >>> float('nan') / G.mpz(0)
+    mpfr('nan')
+    >>> float('nan') / G.mpz(0)
+    mpfr('nan')
+
+    >>> a - mpfr('Inf')
+    mpfr('-inf')
+    >>> mpfr('Inf') - a
+    mpfr('inf')
+    >>> a - mpfr('-Inf')
+    mpfr('inf')
+    >>> mpfr('-Inf') - a
+    mpfr('-inf')
+    >>> a - mpfr('nan')
+    mpfr('nan')
+    >>> mpfr('nan') - a
+    mpfr('nan')
+    >>> a * mpfr('Inf')
+    mpfr('inf')
+    >>> mpfr('Inf') * a
+    mpfr('inf')
+    >>> a * mpfr('-Inf')
+    mpfr('-inf')
+    >>> mpfr('-Inf') * a
+    mpfr('-inf')
+    >>> -a * mpfr('Inf')
+    mpfr('-inf')
+    >>> mpfr('Inf') * -a
+    mpfr('-inf')
+    >>> -a * mpfr('-Inf')
+    mpfr('inf')
+    >>> mpfr('-Inf') * -a
+    mpfr('inf')
+    >>> a * mpfr('nan')
+    mpfr('nan')
+    >>> mpfr('nan') * a
+    mpfr('nan')
+    >>> G.mpz(0) * mpfr('Inf')
+    mpfr('nan')
+    >>> G.mpz(0) * mpfr('-Inf')
+    mpfr('nan')
+    >>> mpfr('Inf') * G.mpz(0)
+    mpfr('nan')
+    >>> mpfr('-Inf') * G.mpz(0)
+    mpfr('nan')
+    >>> a / mpfr('Inf')
+    mpfr('0.0')
+    >>> -a / mpfr('Inf')
+    mpfr('-0.0')
+    >>> mpfr('Inf') / a
+    mpfr('inf')
+    >>> mpfr('Inf') / -a
+    mpfr('-inf')
+    >>> a / mpfr('-Inf')
+    mpfr('-0.0')
+    >>> -a / mpfr('-Inf')
+    mpfr('0.0')
+    >>> mpfr('-Inf') / a
+    mpfr('-inf')
+    >>> mpfr('-Inf') / -a
+    mpfr('inf')
+    >>> a / mpfr('nan')
+    mpfr('nan')
+    >>> mpfr('nan') / a
+    mpfr('nan')
+    >>> mpfr('nan') / G.mpz(0)
+    mpfr('nan')
+    >>> mpfr('nan') / G.mpz(0)
+    mpfr('nan')
+
+    >>> divmod(a, mpfr('Inf'))
+    (mpfr('0.0'), mpfr('123.0'))
+    >>> divmod(a, mpfr('-Inf'))
+    (mpfr('-1.0'), mpfr('-inf'))
+    >>> divmod(-a, mpfr('Inf'))
+    (mpfr('-1.0'), mpfr('inf'))
+    >>> divmod(-a, mpfr('-Inf'))
+    (mpfr('0.0'), mpfr('-123.0'))
+    >>> divmod(a, mpfr('nan'))
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(-a, mpfr('nan'))
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(G.mpz(0), mpfr('Inf'))
+    (mpfr('0.0'), mpfr('0.0'))
+    >>> divmod(G.mpz(0), mpfr('-Inf'))
+    (mpfr('-0.0'), mpfr('-0.0'))
+    >>> divmod(G.mpz(0), mpfr('nan'))
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('Inf'), a)
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('-Inf'), a)
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('Inf'), -a)
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('-Inf'), -a)
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('nan'), a)
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('nan'), -a)
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('Inf'), G.mpz(0))
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('-Inf'), G.mpz(0))
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('nan'), G.mpz(0))
+    (mpfr('nan'), mpfr('nan'))
+
+    >>> divmod(a, mpfr('Inf'))
+    (mpfr('0.0'), mpfr('123.0'))
+    >>> divmod(a, mpfr('-Inf'))
+    (mpfr('-1.0'), mpfr('-inf'))
+    >>> divmod(-a, mpfr('Inf'))
+    (mpfr('-1.0'), mpfr('inf'))
+    >>> divmod(-a, mpfr('-Inf'))
+    (mpfr('0.0'), mpfr('-123.0'))
+    >>> divmod(a, mpfr('nan'))
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(-a, mpfr('nan'))
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(G.mpz(0), mpfr('Inf'))
+    (mpfr('0.0'), mpfr('0.0'))
+    >>> divmod(G.mpz(0), mpfr('-Inf'))
+    (mpfr('-0.0'), mpfr('-0.0'))
+    >>> divmod(G.mpz(0), mpfr('nan'))
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('Inf'), a)
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('-Inf'), a)
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('Inf'), -a)
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('-Inf'), -a)
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('nan'), a)
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('nan'), -a)
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('Inf'), G.mpz(0))
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('-Inf'), G.mpz(0))
+    (mpfr('nan'), mpfr('nan'))
+    >>> divmod(mpfr('nan'), G.mpz(0))
+    (mpfr('nan'), mpfr('nan'))
+
+Test bit operations
+-------------------
+
+    >>> ~a
+    mpz(-124)
+    >>> a&b
+    mpz(72)
+    >>> a|b
+    mpz(507)
+    >>> a^b
+    mpz(435)
+    >>> a<<1
+    mpz(246)
+    >>> a>>1
+    mpz(61)
+    >>> a<<-1
+    Traceback (innermost last):
+      ...
+    ValueError: negative shift count
+    >>> a>>-2
+    Traceback (innermost last):
+      ...
+    ValueError: negative shift count
+    >>> a<<0
+    mpz(123)
+    >>> a>>0
+    mpz(123)
+
+Test conversions
+----------------
+
+    >>> int(G.mpz(-3))
+    -3
+

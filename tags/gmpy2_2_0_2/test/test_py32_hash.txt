@@ -1,0 +1,40 @@
+Test hash() behavior
+====================
+
+This test is only applicable for Python 3.2 and later.
+
+    >>> import gmpy2
+    >>> from gmpy2 import mpz, mpq, mpfr
+    >>> from decimal import Decimal
+    >>> gmpy2.set_context(gmpy2.context())
+
+
+    >>> hash(mpfr('123.456')) == hash(float('123.456'))
+    True
+    >>> hash(mpfr('123.5')) == hash(float('123.5'))
+    True
+    >>> hash(mpfr('0')) == hash(float('0'))
+    True
+    >>> hash(mpfr('1')) == hash(float('1'))
+    True
+    >>> hash(mpfr('2')) == hash(float('2'))
+    True
+    >>> hash(mpfr('-1')) == hash(float('-1'))
+    True
+    >>> hash(mpfr('Inf')) == hash(float('Inf'))
+    True
+    >>> hash(mpfr('-Inf')) == hash(float('-Inf'))
+    True
+    >>> hash(mpfr('-0')) == hash(float('-0'))
+    True
+    >>> hash(mpfr('NaN')) == hash(float('NaN'))
+    True
+    >>> hash(mpfr('123.456')) == hash(Decimal('123.456'))
+    False
+    >>> hash(mpfr('123.5')) == hash(Decimal('123.5'))
+    True
+    >>> hash(mpq(123456,1000)) == hash(Decimal('123.456'))
+    True
+    >>> hash(mpz(123)) == hash(Decimal(123))
+    True
+

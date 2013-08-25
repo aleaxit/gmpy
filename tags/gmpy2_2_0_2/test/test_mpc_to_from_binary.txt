@@ -1,0 +1,72 @@
+Testing of gmpy2 mpc to_binary and from_binary
+----------------------------------------------
+
+    >>> import gmpy2
+    >>> from gmpy2 import mpc,to_binary,from_binary
+
+Test
+----
+
+    >>> x=mpc("0+0j");x==from_binary(to_binary(x))
+    True
+    >>> x=mpc("1+0j");x==from_binary(to_binary(x))
+    True
+    >>> x=mpc("-1+0j");x==from_binary(to_binary(x))
+    True
+    >>> x=mpc("0+1j");x==from_binary(to_binary(x))
+    True
+    >>> x=mpc("0-1j");x==from_binary(to_binary(x))
+    True
+    >>> x=mpc("inf+0j");x==from_binary(to_binary(x))
+    True
+    >>> x=mpc("0+infj");x==from_binary(to_binary(x))
+    True
+    >>> x=mpc("inf-infj");x==from_binary(to_binary(x))
+    True
+    >>> x=mpc("inf+nanj")
+    >>> y=from_binary(to_binary(x))
+    >>> x.real==y.real
+    True
+    >>> gmpy2.is_nan(y.imag)
+    True
+    >>> x=mpc("-inf+0j");x==from_binary(to_binary(x))
+    True
+    >>> x=mpc("0-infj");x==from_binary(to_binary(x))
+    True
+    >>> x=mpc("-inf-infj");x==from_binary(to_binary(x))
+    True
+    >>> x=mpc("-inf+nanj")
+    >>> y=from_binary(to_binary(x))
+    >>> x.real==y.real
+    True
+    >>> gmpy2.is_nan(y.imag)
+    True
+    >>> x=mpc("nan+0j")
+    >>> y=from_binary(to_binary(x))
+    >>> x.imag==y.imag
+    True
+    >>> gmpy2.is_nan(y.real)
+    True
+    >>> x=mpc("0+nanj")
+    >>> y=from_binary(to_binary(x))
+    >>> x.real==y.real
+    True
+    >>> gmpy2.is_nan(y.imag)
+    True
+    >>> x=mpc("nan-infj")
+    >>> y=from_binary(to_binary(x))
+    >>> x.imag==y.imag
+    True
+    >>> gmpy2.is_nan(y.real)
+    True
+    >>> x=mpc("nan+nanj")
+    >>> y=from_binary(to_binary(x))
+    >>> gmpy2.is_nan(y.real)
+    True
+    >>> gmpy2.is_nan(y.imag)
+    True
+    >>> gmpy2.get_context().real_prec=100
+    >>> gmpy2.get_context().imag_prec=110
+    >>> from_binary(to_binary(mpc("1.3-4.7j")))
+    mpc('1.2999999999999999999999999999994-4.7000000000000000000000000000000025j',(100,110))
+    >>> gmpy2.set_context(gmpy2.context())

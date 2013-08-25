@@ -1,0 +1,48 @@
+Testing of gmpy2 mpfr to_binary and from_binary
+-----------------------------------------------
+
+    >>> import gmpy2
+    >>> from gmpy2 import mpfr,to_binary,from_binary
+
+Test
+----
+
+    >>> x=mpfr("0");x==from_binary(to_binary(x))
+    True
+    >>> x=mpfr("1");x==from_binary(to_binary(x))
+    True
+    >>> x=mpfr("-1");x==from_binary(to_binary(x))
+    True
+    >>> x=mpfr("inf");x==from_binary(to_binary(x))
+    True
+    >>> x=mpfr("-inf");x==from_binary(to_binary(x))
+    True
+    >>> x=mpfr("nan");gmpy2.is_nan(from_binary(to_binary(x)))
+    True
+    >>> x=mpfr(1.345);x==from_binary(to_binary(x))
+    True
+    >>> x=mpfr("1.345e1000");x==from_binary(to_binary(x))
+    True
+    >>> x=gmpy2.const_pi()
+    >>> x.rc
+    -1
+    >>> y=from_binary(to_binary(x))
+    >>> x==y
+    True
+    >>> y.rc
+    -1
+    >>> gmpy2.get_context().precision=100
+    >>> x=gmpy2.const_pi();x==from_binary(to_binary(x))
+    True
+    >>> gmpy2.get_context().precision=200
+    >>> x=mpfr(gmpy2.const_pi());x==from_binary(to_binary(x))
+    True
+    >>> gmpy2.get_context().precision=200
+    >>> x=gmpy2.const_pi()
+    >>> gmpy2.get_context().precision=300
+    >>> x=from_binary(to_binary(x))
+    >>> x.precision
+    200
+    >>> gmpy2.set_context(gmpy2.context())
+
+

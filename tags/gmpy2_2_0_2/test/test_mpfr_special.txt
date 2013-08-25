@@ -1,0 +1,126 @@
+Test mpfr special functions
+---------------------------
+
+    >>> import gmpy2
+    >>> from gmpy2 import mpfr
+
+Test agm
+--------
+
+Test ai
+-------
+
+Test const_catalan
+------------------
+
+Test const_euler
+----------------
+
+Test const_log2
+---------------
+
+Test const_pi
+-------------
+
+Test digamma
+------------
+
+Test eint
+---------
+
+Test erf
+--------
+
+Test erfc
+---------
+
+Test factorial
+--------------
+
+Test f2q
+--------
+
+Test fma
+--------
+
+Test fmod
+---------
+
+Test fms
+--------
+
+Test frac
+---------
+
+Test frexp
+----------
+
+Test fsum
+---------
+
+Test gamma
+----------
+
+Test j0
+-------
+
+Test j1
+-------
+
+Test jn
+-------
+
+Test lgamma
+-----------
+
+Test li2
+--------
+
+Test lngamma
+------------
+
+Test modf
+---------
+
+Test mul_2exp
+-------------
+
+Test next_above
+---------------
+
+Test next_below
+---------------
+
+Test next_toward
+----------------
+
+Test rec_sqrt
+-------------
+
+Test reldiff
+------------
+
+Test remainder
+--------------
+
+Test remquo
+-----------
+
+Test root
+---------
+
+Test sqrt
+---------
+
+Test y0
+-------
+
+Test y1
+-------
+
+Test yn
+-------
+
+Test zeta
+---------
+
