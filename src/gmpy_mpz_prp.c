@@ -943,7 +943,7 @@ PyDoc_STRVAR(doc_mpz_is_extrastronglucas_prp,
 "Then an extra strong Lucas probable prime requires:\n"
 "    (lucasu(p,1,s) == 0 (mod n)\n"
 "     and\n"
-"     lucasv(p,1,s) == +/-2 (mod n)\n")
+"     lucasv(p,1,s) == +/-2 (mod n))\n"
 "    or\n"
 "    lucasv(p,1,s*(2**t)) == 0 (mod n) for some t, 0 <= t < r");
 
