@@ -2,7 +2,7 @@
 # relies on Tim Peters' "doctest.py" test-driver
 r'''
 >>> _g.version()
-'2.0.1'
+'2.0.2'
 >>> int('gmpy2.c' in _g._cvsid())
 1
 '''
@@ -16,7 +16,13 @@ r'''
 3.0
 >>> _g.mp_limbsize() in (32, 64)
 True
+>>> _g.next_prime(2357*7069-1) == 2357*7069
+False
 '''
+
+# If the next_prime() test fails, you have encountered a bug in MPIR. Please
+# see https://code.google.com/p/gmpy/issues/detail?id=76 for more details.
+
 
 try:
     x = float('inf')

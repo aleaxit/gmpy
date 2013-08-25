@@ -31,6 +31,13 @@ The following libraries are supported:
 
   mpz_prp: http://sourceforge.net/projects/mpzprp/
 
+Changes in gmpy2 2.0.2
+----------------------
+
+* Rebuild the Windows binary installers due to a bug in MPIR.
+* Correct test in is_extra_strong_lucas_prp(). Note: The incorrect test is not
+  known to cause any errors.
+
 Changes in gmpy2 2.0.1
 ----------------------
 
