@@ -1,1 +1,2 @@
 include README COPYING COPYING.LESSER *.txt *.py docs/* src/* test/* test2/*.py test3/*.py build.vc10/* build.vc9/*
+prune docs/_build docs/_static docs/_templates
