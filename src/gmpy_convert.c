@@ -758,10 +758,10 @@ Pyxmpz_From_Number(PyObject* obj)
  * Integer-like object.
  */
 
-static PympzObject*
-Pympz_From_Integer(PyObject* obj)
+static PympzObject *
+Pympz_From_Integer(PyObject *obj)
 {
-    PympzObject* newob = 0;
+    PympzObject *newob = 0;
 
     if (Pympz_Check(obj)) {
         Py_INCREF(obj);

@@ -52,7 +52,7 @@ static PyObject * Pympq_denom(PyObject *self, PyObject *args);
 static PyObject * Pympq_getdenom(PympqObject *self, void *closure);
 static PyObject * Pympq_qdiv(PyObject *self, PyObject *args);
 static PyObject * Pympq_neg(PympqObject *self);
-static PyObject * Pympq_abs(PympqObject *self);
+/* static PyObject * Pympq_abs(PympqObject *self); */
 static PyObject * Pympq_pos(PympqObject *self);
 static PyObject * Pympq_ceil(PyObject *self, PyObject *other);
 static PyObject * Pympq_floor(PyObject *self, PyObject *other);

@@ -1226,6 +1226,7 @@ Py##NAME(PympfrObject *x) \
 /* Note: Pympfr_Abs_Real, Pympfr_Neg_Real, and Pympfr_Pos_Real duplicate much
  *       code. They may be converted to use a macro in the future. */
 
+#if 0
 /* Pympfr_Abs_Real is expected to be called by Pympany_abs (when used as a
  * context method) or Pympfr_abs_fast (when used as mpfr.__abs__). */
 
@@ -1279,7 +1280,7 @@ Pympfr_abs_fast(PympfrObject *x)
     CURRENT_CONTEXT(context);
     return Pympfr_Abs_Real((PyObject*)x, context);
 }
-
+#endif
 static PyObject *
 Pympfr_Neg_Real(PyObject *x, GMPyContextObject *context)
 {

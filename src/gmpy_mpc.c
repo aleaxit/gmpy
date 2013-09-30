@@ -513,6 +513,7 @@ Pympc_format(PyObject *self, PyObject *args)
     return result;
 }
 
+#if 0
 static PyObject *
 Pympc_abs(PyObject *self)
 {
@@ -546,6 +547,7 @@ Pympc_abs(PyObject *self)
     }
     return (PyObject*)result;
 }
+#endif
 
 static PyObject *
 Pympc_neg(PympcObject *self)
