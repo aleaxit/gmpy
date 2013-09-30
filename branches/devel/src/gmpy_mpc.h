@@ -309,7 +309,7 @@ static PyTypeObject Pympc_Type;
 static PyObject * Pympc_digits(PyObject *self, PyObject *args);
 static PyObject * Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject * Pympc_format(PyObject *self, PyObject *args);
-static PyObject * Pympc_abs(PyObject *self);
+/* static PyObject * Pympc_abs(PyObject *self); */
 static PyObject * Pympc_neg(PympcObject *self);
 static PyObject * Pympc_pos(PympcObject *self);
 static PyObject * Pympc_sqr(PyObject* self, PyObject *other);

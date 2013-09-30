@@ -25,6 +25,21 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+ /* Todo list
+  * ---------
+  * Add all MPFR and MPC functions as context methods.
+  * All MPFR and MPC functions need to set exponent range on entry. The
+  *    current approach where only set_context() and context.__enter__ set
+  *    the exponent range fails for context methods.
+  * Should a read-only (or template) context prevent the setting of
+  *    exception flags?
+  * Add context option to control the result of integer division:
+  *    integer (mpz), exact (mpq), or true (mpfr).
+  * Add modular arithmetic functions.
+  * Implement Chinese Remainder Theorem.
+  * Update PRP code.
+  */
+
 /*
  * originally written for GMP-2.0 (by AMK...?)
  * Rewritten by Niels Möller, May 1996

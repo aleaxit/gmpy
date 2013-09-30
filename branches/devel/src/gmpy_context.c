@@ -67,6 +67,7 @@ GMPyContext_new(void)
         result->ctx.real_round = -1;
         result->ctx.imag_round = -1;
         result->ctx.allow_complex = 0;
+        result->ctx.rational_division = 0;
         result->ctx.readonly = 0;
 
 #ifndef WITHOUT_THREADS
@@ -334,7 +335,7 @@ GMPyContext_repr(GMPyContextObject *self)
     PyObject *result = NULL;
     int i = 0;
 
-    tuple = PyTuple_New(23);
+    tuple = PyTuple_New(24);
     if (!tuple) return NULL;
 
     format = Py2or3String_FromString(
@@ -349,7 +350,8 @@ GMPyContext_repr(GMPyContextObject *self)
             "        trap_erange=%s, erange=%s,\n"
             "        trap_divzero=%s, divzero=%s,\n"
             "        trap_expbound=%s,\n"
-            "        allow_complex=%s)"
+            "        allow_complex=%s, \n"
+            "        rational_division=%s)"
             );
     if (!format) {
         Py_DECREF(tuple);
@@ -385,6 +387,7 @@ GMPyContext_repr(GMPyContextObject *self)
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.divzero));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.trap_expbound));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.allow_complex));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.rational_division));
 
     if (!PyErr_Occurred())
         result = Py2or3String_Format(format, tuple);
@@ -456,7 +459,7 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
         "real_round", "imag_round", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero",
-        "trap_expbound", "allow_complex", NULL };
+        "trap_expbound", "allow_complex", "rational_division", NULL };
 
     if (PyTuple_GET_SIZE(args) == 1 && GMPyContext_Check(PyTuple_GET_ITEM(args, 0))) {
         arg_context = 1;
@@ -495,7 +498,7 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (!(PyArg_ParseTupleAndKeywords(local_args, kwargs,
-            "|llliiilliiiiiiiii", kwlist,
+            "|llliiilliiiiiiiiii", kwlist,
             &result->new_context->ctx.mpfr_prec,
             &result->new_context->ctx.real_prec,
             &result->new_context->ctx.imag_prec,
@@ -512,7 +515,8 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
             &result->new_context->ctx.trap_erange,
             &result->new_context->ctx.trap_divzero,
             &result->new_context->ctx.trap_expbound,
-            &result->new_context->ctx.allow_complex))) {
+            &result->new_context->ctx.allow_complex,
+            &result->new_context->ctx.rational_division))) {
         VALUE_ERROR("invalid keyword arguments in local_context()");
         goto error;
     }
@@ -601,7 +605,8 @@ PyDoc_STRVAR(doc_context,
 "context() -> context manager\n\n"
 "Return a new context for controlling MPFR and MPC arithmetic. To load\n"
 "the new context, use set_context(). Options can only be specified as\n"
-"keyword arguments. \n\n"
+"keyword arguments. \n"
+"\nOptions\n"
 "    precision:      precision, in bits, of an MPFR result\n"
 "    real_prec:      precision, in bits, of Re(MPC)\n"
 "                      -1 implies use mpfr_prec\n"
@@ -632,7 +637,103 @@ PyDoc_STRVAR(doc_context,
 "                    if False, mpfr/mpc with exponent out-of-bounds\n"
 "                        will be coerced to either 0 or Infinity\n"
 "    allow_complex:  if True, allow mpfr functions to return mpc\n"
-"                    if False, mpfr functions cannot return an mpc\n");
+"                    if False, mpfr functions cannot return an mpc\n"
+"    rational_division: if True, mpz/mpz returns an mpq\n"
+"                       if False, mpz/mpz follows default behavior\n"
+"\nMethods\n"
+"    abs(x)          return absolute value of x\n"
+"    acos(x)         return inverse cosine of x\n"
+"    acosh(x)        return inverse hyperbolic cosine of x\n"
+"    add(x,y)        return x + y\n"
+"    agm(x,y)        return arthimetic-geometric mean of x and y\n"
+"    ai(x)           return the Airy function of x\n"
+"    asin(x)         return inverse sine of x\n"
+"    asinh(x)        return inverse hyperbolic sine of x\n"
+"    atan(x)         return inverse tangent of x\n"
+"    atan2(y,x)      return inverse tangent of (y / x)\n"
+"    atanh(x)        return inverse hyperbolic tangent of x\n"
+"    cbrt(x)         return cube root of x\n"
+"    ceil(x)         return ceiling of x\n"
+"    check_range(x)  return value with exponents within current range\n"
+"    clear_flags()   clear all exception flags\n"
+"    const_catalan() return Catalan constant (0.91596559...)\n"
+"    const_euler()   return Euler contstant (0.57721566...)\n"
+"    const_log()     return natural log of 2 (0.69314718...)\n"
+"    const_pi()      return Pi (3.14159265...)\n"
+"    copy()          return a copy of the context\n"
+"    cos(x)          return cosine of x\n"
+"    cosh(x)         return hyperbolic cosine of x\n"
+"    cot(x)          return cotangent of x\n"
+"    coth(x)         return hyperbolic cotangent of x\n"
+"    csc(x)          return cosecant of x\n"
+"    csch(x)         return hyperbolic cosecant of x\n"
+"    degrees(x)      convert value in radians to degrees\n"
+"    digamma(x)      return the digamma of x\n"
+"    div(x,y)        return x / y\n"
+"    div_2exp(x,n)   return x / 2**n)\n"
+"    eint(x)         return exponential integral of x\n"
+"    erf(x)          return error function of x\n"
+"    erfc(x)         return complementary error function of x\n"
+"    exp(x)          return e**x\n"
+"    exp10(x)        return 10**x\n"
+"    exp2(x)         return 2**x\n"
+"    expm1(x)        return e**x - 1\n"
+"    factorial(n)    return floating-point approximation to n!\n"
+"    floor(x)        return floor of x\n"
+"    fma(x,y,z)      return correctly rounded (x * y) + z\n"
+"    fmod(x,y)       return x - int(x / y) * y, rounding to 0\n"
+"    fms(x,y,z)      return correctly rounded (x * y) - z\n"
+"    fsum(i)         return accurate sum of iterable i\n"
+"    gamma(x)        return gamma of x\n"
+"    hypot(y,x)      return square root of (x**2 + y**2)\n"
+"    j0(x)           return Bessel of first kind of order 0 of x\n"
+"    j1(x)           return Bessel of first kind of order 1 of x\n"
+"    jn(x,n)         return Bessel of first kind of order n of x\n"
+"    lgamma(x)       return tuple (log(abs(gamma(x)), sign(gamma(x)))\n"
+"    li2(x)          return real part of dilogarithm of x\n"
+"    lngamma(x)      return logarithm of gamma of x\n"
+"    log(x)          return natural logarithm of x\n"
+"    log10(x)        return base-10 logarithm of x\n"
+"    log2(x)         return base-2 logarithm of x\n"
+"    max2(x,y)       return maximum of x and y, rounded to context\n"
+"    mpc(...)        create a new instance of an mpc\n"
+"    mpfr(...)       create a new instance of an mpfr\n"
+"    min2(x,y)       return minimum of x and y, rounded to context\n"
+"    mul(x,y)        return x * y\n"
+"    mul_2exp(x,n)   return x * 2**n\n"
+"    next_above(x)   return next mpfr towards +Infinity\n"
+"    next_below(x)   return next mpfr towards -Infinity\n"
+"    neg(x)          return -x\n"
+"    radians(x)      convert value in degrees to radians\n"
+"    rec_sqrt(x)     return 1 / sqrt(x)\n"
+"    rel_diff(x,y)   return abs(x - y) / x\n"
+"    remainder(x,y)  return x - int(x / y) * y, rounding to even\n"
+"    remquo(x,y)     return tuple of remainder(x,y) and low bits of\n"
+"                    the quotient\n"
+"    rint(x)         return x rounded to integer with current rounding\n"
+"    rint_ceil(x)    ...\n"
+"    rint_floor(x)   ...\n"
+"    rint_round(x)   ...\n"
+"    rint_trunc(x)   ...\n"
+"    root(x,n)       return the n-th of x\n"
+"    round2(x,n)     return x rounded to n bits.\n"
+"    round_away(x)   return x rounded to integer, ties away from 0\n"
+"    sec(x)          return secant of x\n"
+"    sech(x)         return hyperbolic secant of x\n"
+"    sin(x)          return sine of x\n"
+"    sin_cos(x)      return tuple (sin(x), cos(x))\n"
+"    sinh(x)         return hyperbolic sine of x\n"
+"    sinh_cosh(x)    return tuple (sinh(x), cosh(x))\n"
+"    sqrt(x)         return square root of x\n"
+"    square(x)       return x * x\n"
+"    sub(x)          return x - y\n"
+"    tan(x)          return tangent of x\n"
+"    tanh(x)         return hyperbolic tangent of x\n"
+"    trunc(x)        return x rounded towards 0\n"
+"    y0(x)           return Bessel of second kind of order 0 of x\n"
+"    y1(x)           return Bessel of second kind of order 1 of x\n"
+"    yn(x,n)         return Bessel of second kind of order n of x\n"
+"    zeta(x)         return Riemann zeta of x");
 
 static PyObject *
 GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
@@ -644,7 +745,7 @@ GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
         "real_round", "imag_round", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero", "trap_expbound",
-        "allow_complex", NULL };
+        "allow_complex", "rational_division", NULL };
 
     if (PyTuple_GET_SIZE(args)) {
         VALUE_ERROR("context() only supports keyword arguments");
@@ -655,7 +756,7 @@ GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
 
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|llliiilliiiiiiiii", kwlist,
+            "|llliiilliiiiiiiiii", kwlist,
             &result->ctx.mpfr_prec,
             &result->ctx.real_prec,
             &result->ctx.imag_prec,
@@ -672,7 +773,8 @@ GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
             &result->ctx.trap_erange,
             &result->ctx.trap_divzero,
             &result->ctx.trap_expbound,
-            &result->ctx.allow_complex))) {
+            &result->ctx.allow_complex,
+            &result->ctx.rational_division))) {
         VALUE_ERROR("invalid keyword arguments in context()");
         return NULL;
     }
@@ -903,6 +1005,7 @@ GETSET_BOOLEAN(trap_erange);
 GETSET_BOOLEAN(trap_divzero);
 GETSET_BOOLEAN(trap_expbound);
 GETSET_BOOLEAN(allow_complex)
+GETSET_BOOLEAN(rational_division)
 GETSET_BOOLEAN_EX(readonly)
 
 static PyObject *
@@ -1212,6 +1315,7 @@ static PyGetSetDef GMPyContext_getseters[] = {
     ADD_GETSET(trap_divzero),
     ADD_GETSET(trap_expbound),
     ADD_GETSET(allow_complex),
+    ADD_GETSET(rational_division),
     ADD_GETSET(readonly),
     {NULL}
 };

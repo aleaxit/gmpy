@@ -742,8 +742,9 @@ Pympz_sign(PyObject *self, PyObject *other)
     return PyIntOrLong_FromLong(res);
 }
 
+#if 0
 static PyObject *
-Pympz_abs(PympzObject *self)
+GMPy_mpz_abs_fast(PympzObject *self)
 {
     PympzObject *result;
 
@@ -752,6 +753,20 @@ Pympz_abs(PympzObject *self)
 
     return (PyObject*)result;
 }
+
+static PyObject *
+GMPy_Abs_Integer(PyObject *self)
+{
+    PympzObject *result;
+
+    if (IS_INTEGER(self)) {
+        if (result = Pympz_From_Integer(self)) {
+            mpz_abs(result->z, self->z);
+        }
+    }
+    return (PyObject*)result;
+}
+#endif
 
 static PyObject *
 Pympz_neg(PympzObject *self)
@@ -3098,7 +3113,7 @@ static PyNumberMethods mpz_number_methods =
     (ternaryfunc) Pympany_pow_fast,      /* nb_power                */
     (unaryfunc) Pympz_neg,               /* nb_negative             */
     (unaryfunc) Pympz_pos,               /* nb_positive             */
-    (unaryfunc) Pympz_abs,               /* nb_absolute             */
+    (unaryfunc) GMPy_mpz_abs_fast,       /* nb_absolute             */
     (inquiry) Pympz_nonzero,             /* nb_bool                 */
     (unaryfunc) Pympz_com,               /* nb_invert               */
     (binaryfunc) Pympz_lshift,           /* nb_lshift               */
@@ -3138,7 +3153,7 @@ static PyNumberMethods mpz_number_methods =
     (ternaryfunc) Pympany_pow_fast,      /* nb_power                */
     (unaryfunc) Pympz_neg,               /* nb_negative             */
     (unaryfunc) Pympz_pos,               /* nb_positive             */
-    (unaryfunc) Pympz_abs,               /* nb_absolute             */
+    (unaryfunc) GMPy_mpz_abs_fast,       /* nb_absolute             */
     (inquiry) Pympz_nonzero,             /* nb_bool                 */
     (unaryfunc) Pympz_com,               /* nb_invert               */
     (binaryfunc) Pympz_lshift,           /* nb_lshift               */

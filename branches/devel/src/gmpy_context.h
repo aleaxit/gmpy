@@ -57,6 +57,7 @@ typedef struct {
     mpfr_rnd_t real_round;   /* current rounding mode for Re(MPC) */
     mpfr_rnd_t imag_round;   /* current rounding mode for Im(MPC) */
     int allow_complex;       /* if 1, allow mpfr functions to return an mpc */
+    int rational_division;   /* if 1, mpz/mpz returns an mpq result */
     int readonly;            /* if 1, this context is a readonly template */
 } gmpy_context;
 
