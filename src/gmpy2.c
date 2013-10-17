@@ -530,6 +530,12 @@ static PyObject *GMPyExc_ExpBound = NULL;
 #include "gmpy_mpfr.c"
 #include "gmpy_mpc.c"
 
+/* Begin includes of refactored code. */
+
+#include "gmpy2_abs.c"
+
+/* Include gmpy_context last to avoid adding doc names to .h files. */
+
 #include "gmpy_context.c"
 
 static PyMethodDef Pygmpy_methods [] =

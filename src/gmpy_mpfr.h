@@ -412,7 +412,6 @@ static PyObject * Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, GMPyContextObjec
 static PyObject * Pympfr_Mod_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympfr_DivMod_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympfr_Pow_Real(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject *context);
-static PyObject * Pympfr_Abs_Real(PyObject *x, GMPyContextObject *context);
 static PyObject * Pympfr_Neg_Real(PyObject *x, GMPyContextObject *context);
 
 #ifdef __cplusplus

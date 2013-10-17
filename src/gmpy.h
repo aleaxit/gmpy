@@ -295,6 +295,10 @@ typedef long                mpir_si;
 
 #include "gmpy_mpz_prp.h"
 
+/* Begin includes for refactored code. */
+
+#include "gmpy2_abs.h"
+
 #ifdef __cplusplus
 }
 #endif

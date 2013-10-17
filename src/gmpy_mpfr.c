@@ -3911,7 +3911,7 @@ static PyNumberMethods mpfr_number_methods =
     (ternaryfunc) Pympany_pow,           /* nb_power                */
     (unaryfunc) Pympfr_neg_fast,         /* nb_negative             */
     (unaryfunc) Pympfr_pos,              /* nb_positive             */
-    (unaryfunc) Pympfr_abs_fast,         /* nb_absolute             */
+    (unaryfunc) GMPy_mpfr_abs_fast,      /* nb_absolute             */
     (inquiry) Pympfr_nonzero,            /* nb_bool                 */
         0,                               /* nb_invert               */
         0,                               /* nb_lshift               */
@@ -3950,7 +3950,7 @@ static PyNumberMethods mpfr_number_methods =
     (ternaryfunc) Pympany_pow,           /* nb_power                */
     (unaryfunc) Pympfr_neg_fast,         /* nb_negative             */
     (unaryfunc) Pympfr_pos,              /* nb_positive             */
-    (unaryfunc) Pympfr_abs_fast,         /* nb_absolute             */
+    (unaryfunc) GMPy_mpfr_abs_fast,      /* nb_absolute             */
     (inquiry) Pympfr_nonzero,            /* nb_bool                 */
         0,                               /* nb_invert               */
         0,                               /* nb_lshift               */

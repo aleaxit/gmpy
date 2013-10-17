@@ -877,7 +877,7 @@ Pympc_polar(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPC_OTHER("norm() requires 'mpc' argument");
 
-    if (!(abs = Pympc_abs(self))) {
+    if (!(abs = GMPy_Complex_Abs(self, context))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -1541,7 +1541,7 @@ static PyNumberMethods mpc_number_methods =
     (ternaryfunc) Pympany_pow,           /* nb_power                */
     (unaryfunc) Pympc_neg,               /* nb_negative             */
     (unaryfunc) Pympc_pos,               /* nb_positive             */
-    (unaryfunc) Pympc_abs,               /* nb_absolute             */
+    (unaryfunc) GMPy_mpc_abs_fast,       /* nb_absolute             */
     (inquiry) Pympc_nonzero,             /* nb_bool                 */
         0,                               /* nb_invert               */
         0,                               /* nb_lshift               */
@@ -1580,7 +1580,7 @@ static PyNumberMethods mpc_number_methods =
     (ternaryfunc) Pympany_pow,           /* nb_power                */
     (unaryfunc) Pympc_neg,               /* nb_negative             */
     (unaryfunc) Pympc_pos,               /* nb_positive             */
-    (unaryfunc) Pympc_abs,               /* nb_absolute             */
+    (unaryfunc) GMPy_mpc_abs_fast,       /* nb_absolute             */
     (inquiry) Pympc_nonzero,             /* nb_bool                 */
         0,                               /* nb_invert               */
         0,                               /* nb_lshift               */

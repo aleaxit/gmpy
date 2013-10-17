@@ -1181,7 +1181,7 @@ static PyNumberMethods mpq_number_methods =
     (ternaryfunc) Pympany_pow,           /* nb_power                */
     (unaryfunc) Pympq_neg,               /* nb_negative             */
     (unaryfunc) Pympq_pos,               /* nb_positive             */
-    (unaryfunc) Pympq_abs,               /* nb_absolute             */
+    (unaryfunc) GMPy_mpq_abs_fast,       /* nb_absolute             */
     (inquiry) Pympq_nonzero,             /* nb_bool                 */
         0,                               /* nb_invert               */
         0,                               /* nb_lshift               */
@@ -1220,7 +1220,7 @@ static PyNumberMethods mpq_number_methods =
     (ternaryfunc) Pympany_pow,           /* nb_power                */
     (unaryfunc) Pympq_neg,               /* nb_negative             */
     (unaryfunc) Pympq_pos,               /* nb_positive             */
-    (unaryfunc) Pympq_abs,               /* nb_absolute             */
+    (unaryfunc) GMPy_mpq_abs_fast,       /* nb_absolute             */
     (inquiry) Pympq_nonzero,             /* nb_bool                 */
         0,                               /* nb_invert               */
         0,                               /* nb_lshift               */
