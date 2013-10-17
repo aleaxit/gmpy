@@ -63,7 +63,6 @@ static PyObject * Pympz_bit_flip(PyObject *self, PyObject *other);
 static PyObject * Pympz_iroot(PyObject *self, PyObject *args);
 static PyObject * Pympz_iroot_rem(PyObject *self, PyObject *args);
 static PyObject * Pympz_sign(PyObject *self, PyObject *other);
-static PyObject * Pympz_abs(PympzObject *self);
 static PyObject * Pympz_neg(PympzObject *self);
 static PyObject * Pympz_pos(PympzObject *self);
 static PyObject * Pympz_ceil(PyObject *self, PyObject *other);

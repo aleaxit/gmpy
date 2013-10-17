@@ -98,6 +98,11 @@ static PyTypeObject GMPyContextManager_Type;
 #define GET_IMAG_ROUND(c) ((c->ctx.imag_round==GMPY_DEFAULT)?GET_REAL_ROUND(c):c->ctx.imag_round)
 #define GET_MPC_ROUND(c) (MPC_RND(GET_REAL_ROUND(c), GET_IMAG_ROUND(c)))
 
+#define SET_EXPONENT(context) \
+    mpfr_set_emin(context->ctx.emin); \
+    mpfr_set_emax(context->ctx.emax);
+
+
 static PyObject * GMPyContextManager_new(void);
 static void GMPyContextManager_dealloc(GMPyContextManagerObject *self);
 static PyObject * GMPyContextManager_repr(GMPyContextManagerObject *self);
