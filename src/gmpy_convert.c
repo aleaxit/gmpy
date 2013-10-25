@@ -2476,7 +2476,7 @@ Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
     else if (Pympfr_Check(obj)) {
         /* Handle the unlikely case where the exponent is no longer valid
          * and mpfr_check_range needs to be called. */
-        if (context->ctx.trap_expbound) {
+        if (context->ctx.traps & TRAP_EXPBOUND) {
             GMPY_EXPBOUND("exponent of existing 'mpfr' incompatible with current context");
             return NULL;
         }
@@ -2542,7 +2542,7 @@ Pympfr_From_Real_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject *con
     else if (Pympfr_Check(obj)) {
         /* Handle the unlikely case where the exponent is no longer valid
          * and mpfr_check_range needs to be called. */
-        if (context->ctx.trap_expbound) {
+        if (context->ctx.traps & TRAP_EXPBOUND) {
             GMPY_EXPBOUND("exponent of existing 'mpfr' incompatible with current context");
             return NULL;
         }
@@ -2609,7 +2609,7 @@ Pympfr_From_Real_bits_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject
     else if (Pympfr_Check(obj)) {
         /* Handle the unlikely case where the exponent is no longer valid
          * and mpfr_check_range needs to be called. */
-        if (context->ctx.trap_expbound) {
+        if (context->ctx.traps & TRAP_EXPBOUND) {
             GMPY_EXPBOUND("exponent of existing 'mpfr' incompatible with current context");
             return NULL;
         }
@@ -3535,7 +3535,7 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
     else if (Pympc_Check(obj)) {
         /* Handle the unlikely case where the exponent is no longer
          * valid and mpfr_check_range needs to be called. */
-        if (context->ctx.trap_expbound) {
+        if (context->ctx.traps & TRAP_EXPBOUND) {
             GMPY_EXPBOUND("exponent of existing 'mpc' incompatible with current context");
             return NULL;
         }
@@ -3636,7 +3636,7 @@ Pympc_From_Complex_bits_context(PyObject* obj, mpfr_prec_t rprec,
     else if (Pympc_Check(obj)) {
         /* Handle the unlikely case where the exponent is no longer
          * valid and mpfr_check_range needs to be called. */
-        if (context->ctx.trap_expbound) {
+        if (context->ctx.traps & TRAP_EXPBOUND) {
             GMPY_EXPBOUND("exponent of existing 'mpc' incompatible with current context");
             return NULL;
         }
@@ -3736,7 +3736,7 @@ Pympc_From_Complex_context(PyObject* obj, GMPyContextObject *context)
     else if (Pympc_Check(obj)) {
         /* Handle the unlikely case where the exponent is no longer
          * valid and mpfr_check_range needs to be called. */
-        if (context->ctx.trap_expbound) {
+        if (context->ctx.traps & TRAP_EXPBOUND) {
             GMPY_EXPBOUND("exponent of existing 'mpc' incompatible with current context");
             return NULL;
         }

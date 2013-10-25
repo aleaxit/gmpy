@@ -290,7 +290,7 @@ Pympfr_get_exp(PyObject *self, PyObject *other)
     }
     else {
         context->ctx.erange = 1;
-        if (context->ctx.trap_erange) {
+        if (context->ctx.traps & TRAP_ERANGE) {
             GMPY_ERANGE("Can not get exponent from NaN or Infinity.");
         }
         else {
@@ -330,7 +330,7 @@ Pympfr_set_exp(PyObject *self, PyObject *args)
 
     if (result->rc) {
         context->ctx.erange = 1;
-        if (context->ctx.trap_erange) {
+        if (context->ctx.traps & TRAP_ERANGE) {
             GMPY_ERANGE("New exponent is out-of-bounds.");
             Py_DECREF(result);
             return NULL;
@@ -850,7 +850,7 @@ Pympfr_Pow_Real(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject *c
 
     if (mpfr_zero_p(tempb->f) && (mpfr_sgn(tempe->f) < 0)) {
         context->ctx.divzero = 1;
-        if (context->ctx.trap_divzero) {
+        if (context->ctx.traps & TRAP_DIVZERO) {
             GMPY_DIVZERO("zero cannot be raised to a negative power");
             goto done;
         }
@@ -2759,7 +2759,7 @@ Pympfr_Mod_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
         }
         if (mpfr_zero_p(tempy->f)) {
             context->ctx.divzero = 1;
-            if (context->ctx.trap_divzero) {
+            if (context->ctx.traps & TRAP_DIVZERO) {
                 GMPY_DIVZERO("'mpfr' division by zero in modulo");
                 goto error;
             }
@@ -2767,7 +2767,7 @@ Pympfr_Mod_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
         mpfr_clear_flags();
         if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
             context->ctx.invalid = 1;
-            if (context->ctx.trap_invalid) {
+            if (context->ctx.traps & TRAP_INVALID) {
                 GMPY_INVALID("'mpfr' invalid operation in modulo");
                 goto error;
             }
@@ -2777,7 +2777,7 @@ Pympfr_Mod_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
         }
         else if (mpfr_inf_p(tempy->f)) {
             context->ctx.invalid = 1;
-            if (context->ctx.trap_invalid) {
+            if (context->ctx.traps & TRAP_INVALID) {
                 GMPY_INVALID("'mpfr' invalid operation in modulo");
                 goto error;
             }
@@ -2857,7 +2857,7 @@ Pympfr_DivMod_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
         }
         if (mpfr_zero_p(tempy->f)) {
             context->ctx.divzero = 1;
-            if (context->ctx.trap_divzero) {
+            if (context->ctx.traps & TRAP_DIVZERO) {
                 GMPY_DIVZERO("'mpfr' division by zero in divmod");
                 goto error;
             }
@@ -2865,7 +2865,7 @@ Pympfr_DivMod_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
         mpfr_clear_flags();
         if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
             context->ctx.invalid = 1;
-            if (context->ctx.trap_invalid) {
+            if (context->ctx.traps & TRAP_INVALID) {
                 GMPY_INVALID("'mpfr' invalid operation in divmod");
                 goto error;
             }
@@ -2876,7 +2876,7 @@ Pympfr_DivMod_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
         }
         else if (mpfr_inf_p(tempy->f)) {
             context->ctx.invalid = 1;
-            if (context->ctx.trap_invalid) {
+            if (context->ctx.traps & TRAP_INVALID) {
                 GMPY_INVALID("'mpfr' invalid operation in divmod");
                 goto error;
             }
@@ -2903,15 +2903,15 @@ Pympfr_DivMod_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
         SUBNORMALIZE(rem);
         SUBNORMALIZE(quo);
         MERGE_FLAGS;
-        if (mpfr_underflow_p() && context->ctx.trap_underflow) {
+        if (mpfr_underflow_p() && (context->ctx.traps & TRAP_UNDERFLOW)) {
             GMPY_UNDERFLOW("'mpfr' underflow in divmod");
             goto error;
         }
-        if (mpfr_overflow_p() && context->ctx.trap_overflow) {
+        if (mpfr_overflow_p() && (context->ctx.traps & TRAP_OVERFLOW)) {
             GMPY_OVERFLOW("'mpfr' overflow in divmod");
             goto error;
         }
-        if (mpfr_inexflag_p() && context->ctx.trap_inexact) {
+        if (mpfr_inexflag_p() && (context->ctx.traps & TRAP_INEXACT)) {
             GMPY_INEXACT("'mpfr' inexact result in divmod");
             goto error;
         }
