@@ -650,7 +650,7 @@ Pympc_Pow_Complex(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject 
          mpfr_sgn(mpc_realref(tempe->c)) < 0)) {
 
         context->ctx.divzero = 1;
-        if (context->ctx.trap_divzero) {
+        if (context->ctx.traps & TRAP_DIVZERO) {
             GMPY_DIVZERO("zero cannot be raised to a negative or complex power");
             Py_DECREF((PyObject*)tempe);
             Py_DECREF((PyObject*)tempb);
@@ -1415,7 +1415,7 @@ Pympc_TrueDiv_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (Pympc_CheckAndExp(x) && Pympc_CheckAndExp(y)) {
         if (MPC_IS_ZERO_P(y)) {
             context->ctx.divzero = 1;
-            if (context->ctx.trap_divzero) {
+            if (context->ctx.traps & TRAP_DIVZERO) {
                 GMPY_DIVZERO("'mpc' division by zero");
                 Py_DECREF((PyObject*)result);
                 return NULL;

@@ -99,7 +99,7 @@ static PyTypeObject Pympc_Type;
 #define MPC_CHECK_UNDERFLOW(mpct, msg) \
     if (MPC_IS_ZERO_P(mpct) && mpct->rc) { \
         context->ctx.underflow = 1; \
-        if (context->ctx.trap_underflow) { \
+        if (context->ctx.traps & TRAP_UNDERFLOW) { \
             GMPY_UNDERFLOW(msg); \
             goto done; \
         } \
@@ -108,7 +108,7 @@ static PyTypeObject Pympc_Type;
 #define MPC_CHECK_OVERFLOW(mpct, msg) \
     if (MPC_IS_INF_P(mpct)) { \
         context->ctx.overflow = 1; \
-        if (context->ctx.trap_overflow) { \
+        if (context->ctx.traps & TRAP_OVERFLOW) { \
             GMPY_OVERFLOW(msg); \
             goto done; \
         } \
@@ -117,7 +117,7 @@ static PyTypeObject Pympc_Type;
 #define MPC_CHECK_INVALID(mpct, msg) \
     if (MPC_IS_NAN_P(mpct)) { \
         context->ctx.invalid = 1; \
-        if (context->ctx.trap_invalid) { \
+        if (context->ctx.traps & TRAP_INVALID) { \
             GMPY_INVALID(msg); \
             goto done; \
         } \
@@ -126,7 +126,7 @@ static PyTypeObject Pympc_Type;
 #define MPC_CHECK_INEXACT(mpct, msg) \
     if (mpct->rc) { \
         context->ctx.inexact = 1; \
-        if (context->ctx.trap_inexact) { \
+        if (context->ctx.traps & TRAP_INEXACT) { \
             GMPY_INEXACT(msg); \
             goto done; \
         } \
@@ -141,7 +141,7 @@ static PyTypeObject Pympc_Type;
 #define MPC_CHECK_FLAGS_RESULT(NAME) \
     if (MPC_IS_NAN_P(result)) { \
         context->ctx.invalid = 1; \
-        if (context->ctx.trap_invalid) { \
+        if (context->ctx.traps & TRAP_INVALID) { \
             GMPY_INVALID("'mpc' invalid operation "NAME); \
             Py_DECREF((PyObject*)result); \
             return NULL; \
@@ -149,7 +149,7 @@ static PyTypeObject Pympc_Type;
     } \
     if (MPC_IS_ZERO_P(result) && result->rc) { \
         context->ctx.underflow = 1; \
-        if (context->ctx.trap_underflow) { \
+        if (context->ctx.traps & TRAP_UNDERFLOW) { \
             GMPY_UNDERFLOW("'mpc' underflow in "NAME); \
             Py_DECREF((PyObject*)result); \
             return NULL; \
@@ -157,7 +157,7 @@ static PyTypeObject Pympc_Type;
     } \
     if (MPC_IS_INF_P(result)) { \
         context->ctx.overflow = 1; \
-        if (context->ctx.trap_overflow) { \
+        if (context->ctx.traps & TRAP_OVERFLOW) { \
             GMPY_OVERFLOW("'mpc' overflow in "NAME); \
             Py_DECREF((PyObject*)result); \
             return NULL; \
@@ -165,7 +165,7 @@ static PyTypeObject Pympc_Type;
     } \
     if (result->rc) { \
         context->ctx.inexact = 1; \
-        if (context->ctx.trap_inexact) { \
+        if (context->ctx.traps & TRAP_INEXACT) { \
             GMPY_INEXACT("'mpc' inexact result in "NAME); \
             Py_DECREF((PyObject*)result); \
             return NULL; \

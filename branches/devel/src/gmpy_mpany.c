@@ -1277,7 +1277,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             if (mpfr_erangeflag_p()) {
                 /* Set erange and check if an exception should be raised. */
                 context->ctx.erange = 1;
-                if (context->ctx.trap_erange) {
+                if (context->ctx.traps & TRAP_ERANGE) {
                     GMPY_ERANGE("comparison with NaN");
                     return NULL;
                 }
@@ -1296,7 +1296,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             if (mpfr_erangeflag_p()) {
                 /* Set erange and check if an exception should be raised. */
                 context->ctx.erange = 1;
-                if (context->ctx.trap_erange) {
+                if (context->ctx.traps & TRAP_ERANGE) {
                     GMPY_ERANGE("comparison with NaN");
                     return NULL;
                 }
@@ -1318,7 +1318,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             if (mpfr_erangeflag_p()) {
                 /* Set erange and check if an exception should be raised. */
                 context->ctx.erange = 1;
-                if (context->ctx.trap_erange) {
+                if (context->ctx.traps & TRAP_ERANGE) {
                     GMPY_ERANGE("comparison with NaN");
                     return NULL;
                 }
@@ -1340,7 +1340,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             if (mpfr_erangeflag_p()) {
                 /* Set erange and check if an exception should be raised. */
                 context->ctx.erange = 1;
-                if (context->ctx.trap_erange) {
+                if (context->ctx.traps & TRAP_ERANGE) {
                     GMPY_ERANGE("comparison with NaN");
                     return NULL;
                 }
@@ -1359,7 +1359,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             if (!mpz_cmp_si(mpq_denref(Pympq_AS_MPQ(tempb)), 0)) {
                 if (!mpz_cmp_si(mpq_numref(Pympq_AS_MPQ(tempb)), 0)) {
                     context->ctx.erange = 1;
-                    if (context->ctx.trap_erange) {
+                    if (context->ctx.traps & TRAP_ERANGE) {
                         GMPY_ERANGE("comparison with NaN");
                         return NULL;
                     }
@@ -1384,7 +1384,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 if (mpfr_erangeflag_p()) {
                     /* Set erange and check if an exception should be raised. */
                     context->ctx.erange = 1;
-                    if (context->ctx.trap_erange) {
+                    if (context->ctx.traps & TRAP_ERANGE) {
                         GMPY_ERANGE("comparison with NaN");
                         return NULL;
                     }
@@ -1407,7 +1407,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             if (mpfr_erangeflag_p()) {
                 /* Set erange and check if an exception should be raised. */
                 context->ctx.erange = 1;
-                if (context->ctx.trap_erange) {
+                if (context->ctx.traps & TRAP_ERANGE) {
                     GMPY_ERANGE("comparison with NaN");
                     return NULL;
                 }
@@ -1432,7 +1432,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             if (mpfr_erangeflag_p()) {
                 /* Set erange and check if an exception should be raised. */
                 context->ctx.erange = 1;
-                if (context->ctx.trap_erange) {
+                if (context->ctx.traps & TRAP_ERANGE) {
                     GMPY_ERANGE("comparison with NaN");
                     return NULL;
                 }
@@ -1455,7 +1455,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             if (mpfr_erangeflag_p()) {
                 /* Set erange and check if an exception should be raised. */
                 context->ctx.erange = 1;
-                if (context->ctx.trap_erange) {
+                if (context->ctx.traps & TRAP_ERANGE) {
                     GMPY_ERANGE("comparison with NaN");
                     return NULL;
                 }
@@ -1472,7 +1472,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             /* if a.real is NaN, possibly raise exception */
             if (mpfr_nan_p(mpc_realref(Pympc_AS_MPC(a)))) {
                 context->ctx.erange = 1;
-                if (context->ctx.trap_erange) {
+                if (context->ctx.traps & TRAP_ERANGE) {
                     GMPY_ERANGE("comparison with NaN");
                     return NULL;
                 }

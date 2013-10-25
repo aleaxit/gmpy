@@ -32,6 +32,15 @@
 extern "C" {
 #endif
 
+#define TRAP_NONE      0
+#define TRAP_UNDERFLOW 1
+#define TRAP_OVERFLOW  2
+#define TRAP_INEXACT   4
+#define TRAP_INVALID   8
+#define TRAP_ERANGE    16
+#define TRAP_DIVZERO   32
+#define TRAP_EXPBOUND  64
+
 typedef struct {
     mpfr_prec_t mpfr_prec;   /* current precision in bits, for MPFR */
     mpfr_rnd_t mpfr_round;   /* current rounding mode for float (MPFR) */
@@ -44,14 +53,8 @@ typedef struct {
     int invalid;             /* invalid operation (i.e. NaN)? */
     int erange;              /* did a range error occur? */
     int divzero;             /* divided by zero? */
-    int trap_underflow;      /* if 1, raise exception for underflow */
-    int trap_overflow;       /* if 1, raise exception for overflow */
-    int trap_inexact;        /* if 1, raise exception for inexact */
-    int trap_invalid;        /* if 1, raise exception for invalid (NaN) */
-    int trap_erange;         /* if 1, raise exception for range error */
-    int trap_divzero;        /* if 1, raise exception for divide by zero */
-    int trap_expbound;       /* if 1, raise exception if mpfr/mpc exponents */
-                             /*       are out of bounds */
+    int traps;               /* if 0, do not trap any exceptions; if not */
+                             /*       0 then raise traps per bits above  */
     mpfr_prec_t real_prec;   /* current precision in bits, for Re(MPC) */
     mpfr_prec_t imag_prec;   /* current precision in bits, for Im(MPC) */
     mpfr_rnd_t real_round;   /* current rounding mode for Re(MPC) */

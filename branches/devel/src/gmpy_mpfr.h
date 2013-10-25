@@ -67,7 +67,7 @@ typedef struct {
 #define GMPY_EXPBOUND(msg) PyErr_SetString(GMPyExc_ExpBound, msg)
 
 #define CHECK_UNDERFLOW(msg) \
-    if (mpfr_underflow_p() && context->ctx.trap_underflow) { \
+    if (mpfr_underflow_p() && (context->ctx.traps & TRAP_UNDERFLOW)) { \
         GMPY_UNDERFLOW(msg); \
         goto done; \
     }
@@ -75,14 +75,14 @@ typedef struct {
 #define MPFR_CHECK_UNDERFLOW(mpfrt, msg) \
     if (mpfr_zero_p(mpfrt->f) && mpfrt->rc) { \
         context->ctx.underflow = 1; \
-        if (context->ctx.trap_underflow) { \
+        if (context->ctx.traps * TRAP_UNDERFLOW) { \
             GMPY_UNDERFLOW(msg); \
             goto done; \
         } \
     }
 
 #define CHECK_OVERFLOW(msg) \
-    if (mpfr_overflow_p() && context->ctx.trap_overflow) { \
+    if (mpfr_overflow_p() && (context->ctx.traps & TRAP_OVERFLOW)) { \
         GMPY_OVERFLOW(msg); \
         goto done; \
     }
@@ -90,14 +90,14 @@ typedef struct {
 #define MPFR_CHECK_OVERFLOW(mpfrt, msg) \
     if (mpfr_inf_p(mpfrt->f)) { \
         context->ctx.overflow = 1; \
-        if (context->ctx.trap_overflow) { \
+        if (context->ctx.traps & TRAP_OVERFLOW) { \
             GMPY_OVERFLOW(msg); \
             goto done; \
         } \
     }
 
 #define CHECK_INEXACT(msg) \
-    if (mpfr_inexflag_p() && context->ctx.trap_inexact) { \
+    if (mpfr_inexflag_p() && (context->ctx.traps & TRAP_INEXACT)) { \
         GMPY_INEXACT(msg); \
         goto done; \
     }
@@ -105,14 +105,14 @@ typedef struct {
 #define MPFR_CHECK_INEXACT(mpfrt, msg) \
     if (mpfrt->rc)  { \
         context->ctx.inexact = 1; \
-        if (context->ctx.trap_inexact) { \
+        if (context->ctx.traps & TRAP_INEXACT) { \
             GMPY_INEXACT(msg); \
             goto done; \
         } \
     }
 
 #define CHECK_INVALID(msg) \
-    if (mpfr_nanflag_p() && context->ctx.trap_invalid) { \
+    if (mpfr_nanflag_p() && (context->ctx.traps & TRAP_INVALID)) { \
         GMPY_INVALID(msg); \
         goto done; \
     }
@@ -120,20 +120,20 @@ typedef struct {
 #define MPFR_CHECK_INVALID(mpfrt, msg) \
     if (mpfr_nan_p(mpfrt->f)) { \
         context->ctx.invalid = 1; \
-        if (context->ctx.trap_invalid) { \
+        if (context->ctx.traps & TRAP_INVALID) { \
             GMPY_INVALID(msg); \
             goto done; \
         } \
     }
 
 #define CHECK_ERANGE(msg) \
-    if (mpfr_erangeflag_p() && context->ctx.trap_erange) { \
+    if (mpfr_erangeflag_p() && (context->ctx.traps & TRAP_ERANGE)) { \
         GMPY_ERANGE(msg); \
         goto done; \
     }
 
 #define CHECK_DIVBY0(msg) \
-    if (mpfr_divby0_p() && context->ctx.trap_divzero) { \
+    if (mpfr_divby0_p() && (context->ctx.traps & TRAP_DIVZERO)) { \
         GMPY_DIVZERO(msg); \
         goto done; \
     }
@@ -152,6 +152,95 @@ typedef struct {
     CHECK_UNDERFLOW("'mpfr' underflow in "NAME); \
     CHECK_OVERFLOW("'mpfr' overflow in "NAME); \
     CHECK_INEXACT("'mpfr' inexact result in "NAME); \
+
+/* The _2 versions should eventually replace all the non _2
+ * versions.
+ */
+
+#define SUBNORMALIZE_2(V, CTX) \
+    if (CTX->ctx.subnormalize) \
+        V->rc = mpfr_subnormalize(V->f, V->rc, CTX->ctx.mpfr_round);
+
+#define MERGE_FLAGS_2(CTX) \
+    CTX->ctx.underflow |= mpfr_underflow_p(); \
+    CTX->ctx.overflow |= mpfr_overflow_p(); \
+    CTX->ctx.invalid |= mpfr_nanflag_p(); \
+    CTX->ctx.inexact |= mpfr_inexflag_p(); \
+    CTX->ctx.divzero |= mpfr_divby0_p();
+
+#define CHECK_ERANGE_2(CTX, MSG) \
+    if ((CTX->ctx.traps & TRAP_ERANGE) && mpfr_erangeflag_p()) { \
+        GMPY_ERANGE(MSG); \
+        goto done; \
+    }
+
+#define CHECK_DIVBY0_2(CTX, MSG) \
+    if ((CTX->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) { \
+        GMPY_DIVZERO(MSG); \
+        goto done; \
+    }
+
+#define CHECK_INVALID_2(CTX, MSG) \
+    if ((CTX->ctx.traps & TRAP_INVALID) && mpfr_nanflag_p()) { \
+        GMPY_INVALID(MSG); \
+        goto done; \
+    }
+
+#define CHECK_UNDERFLOW_2(msg) \
+    if ((context->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) { \
+        GMPY_UNDERFLOW(msg); \
+        goto done; \
+    }
+
+#define CHECK_OVERFLOW_2(msg) \
+    if ((context->ctx.traps & TRAP_OVERFLOW) && mpfr_overflow_p()) { \
+        GMPY_OVERFLOW(msg); \
+        goto done; \
+    }
+
+#define CHECK_INEXACT_2(CTX, MSG) \
+    if ((CTX->ctx.traps & TRAP_INEXACT) && mpfr_inexflag_p()) { \
+        GMPY_INEXACT(MSG); \
+        goto done; \
+    }
+
+#define CHECK_FLAGS_2(CTX, NAME) \
+    CHECK_DIVBY0_2(CTX, NAME": division by zero"); \
+    CHECK_INVALID_2(CTX, NAME": invalid operation"); \
+    CHECK_UNDERFLOW_2(CTX, NAME": underflow"); \
+    CHECK_OVERFLOW_2(CTX, NAME": overflow"); \
+    CHECK_INEXACT_2(CTX, NAME": inexact result"); \
+
+#define MPFR_CLEANUP_2(V, CTX, NAME) \
+    SUBNORMALIZE_2(V, CTX); \
+    MERGE_FLAGS_2(CTX); \
+    if (CTX->ctx.traps) { \
+        if ((CTX->ctx.traps & TRAP_INVALID) && mpfr_nanflag_p()) { \
+            GMPY_INVALID(NAME ": invalid operation"); \
+            Py_DECREF((PyObject*)V); \
+            return NULL; \
+        } \
+        if ((CTX->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) { \
+            GMPY_DIVZERO(NAME ": division by zero"); \
+            Py_DECREF((PyObject*)V); \
+            return NULL; \
+        } \
+        if ((CTX->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) { \
+            GMPY_UNDERFLOW(NAME ": underflow"); \
+            Py_DECREF((PyObject*)V); \
+            return NULL; \
+        } \
+        if ((CTX->ctx.traps & TRAP_OVERFLOW) && mpfr_overflow_p()) { \
+            GMPY_OVERFLOW(NAME ": overflow"); \
+            Py_DECREF((PyObject*)V); \
+            return NULL; \
+        } \
+        if ((CTX->ctx.traps & TRAP_INEXACT) && mpfr_inexflag_p()) { \
+            GMPY_INEXACT(NAME ": inexact result"); \
+            Py_DECREF((PyObject*)V); \
+            return NULL; \
+        } \
+    }
 
 #define MPFR_CHECK_FLAGS(mpfrt, NAME) \
     CHECK_DIVBY0(mpfrt, "'mpfr' division by zero in "NAME); \
@@ -204,27 +293,27 @@ typedef struct {
 #define MPFR_CLEANUP_RF(NAME) \
     SUBNORMALIZE(rf); \
     MERGE_FLAGS; \
-    if (mpfr_nanflag_p() && context->ctx.trap_invalid) { \
+    if ((context->ctx.traps & TRAP_INVALID) && mpfr_nanflag_p()) { \
         GMPY_INVALID("'mpfr' invalid operation in " NAME); \
         Py_DECREF((PyObject*)rf); \
         return NULL; \
     } \
-    if (mpfr_divby0_p() && context->ctx.trap_divzero) { \
+    if ((context->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) { \
         GMPY_DIVZERO("'mpfr' division by zero in " NAME); \
         Py_DECREF((PyObject*)rf); \
         return NULL; \
     } \
-    if (mpfr_underflow_p() && context->ctx.trap_underflow) { \
+    if ((context->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) { \
         GMPY_UNDERFLOW("'mpfr' underflow in " NAME); \
         Py_DECREF((PyObject*)rf); \
         return NULL; \
     } \
-    if (mpfr_overflow_p() && context->ctx.trap_overflow) { \
+    if ((context->ctx.traps & TRAP_OVERFLOW) && mpfr_overflow_p()) { \
         GMPY_OVERFLOW("'mpfr' overflow in " NAME); \
         Py_DECREF((PyObject*)rf); \
         return NULL; \
     } \
-    if (mpfr_inexflag_p() && context->ctx.trap_inexact) { \
+    if ((context->ctx.traps & TRAP_INEXACT) && mpfr_inexflag_p()) { \
         GMPY_INEXACT("'mpfr' inexact result in " NAME); \
         Py_DECREF((PyObject*)rf); \
         return NULL; \
@@ -234,27 +323,27 @@ typedef struct {
 #define MPFR_CLEANUP_RESULT(NAME) \
     SUBNORMALIZE(result); \
     MERGE_FLAGS; \
-    if (mpfr_nanflag_p() && context->ctx.trap_invalid) { \
+    if ((context->ctx.traps & TRAP_INVALID) && mpfr_nanflag_p()) { \
         GMPY_INVALID("'mpfr' invalid operation in " NAME); \
         Py_DECREF((PyObject*)result); \
         return NULL; \
     } \
-    if (mpfr_divby0_p() && context->ctx.trap_divzero) { \
+    if ((context->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) { \
         GMPY_DIVZERO("'mpfr' division by zero in " NAME); \
         Py_DECREF((PyObject*)result); \
         return NULL; \
     } \
-    if (mpfr_underflow_p() && context->ctx.trap_underflow) { \
+    if ((context->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) { \
         GMPY_UNDERFLOW("'mpfr' underflow in " NAME); \
         Py_DECREF((PyObject*)result); \
         return NULL; \
     } \
-    if (mpfr_overflow_p() && context->ctx.trap_overflow) { \
+    if ((context->ctx.traps & TRAP_OVERFLOW) && mpfr_overflow_p()) { \
         GMPY_OVERFLOW("'mpfr' overflow in " NAME); \
         Py_DECREF((PyObject*)result); \
         return NULL; \
     } \
-    if (mpfr_inexflag_p() && context->ctx.trap_inexact) { \
+    if ((context->ctx.traps & TRAP_INEXACT) && mpfr_inexflag_p()) { \
         GMPY_INEXACT("'mpfr' inexact result in " NAME); \
         Py_DECREF((PyObject*)result); \
         return NULL; \

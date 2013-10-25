@@ -66,7 +66,7 @@ GMPy_Integer_Abs(PyObject *x, GMPyContextObject *context)
         return (PyObject*)result;
     }
     else {
-        TYPE_ERROR("argument is not an integer number");
+        TYPE_ERROR("abs(): argument is not an integer number");
         return NULL;
     }
 }
@@ -95,7 +95,7 @@ GMPy_Rational_Abs(PyObject *x, GMPyContextObject *context)
         return (PyObject*)result;
     }
     else {
-        TYPE_ERROR("argument is not a rational number");
+        TYPE_ERROR("abs(): argument is not a rational number");
         return NULL;
     }
 }
@@ -124,12 +124,11 @@ GMPy_Real_Abs(PyObject *x, GMPyContextObject *context)
     if (!(result = (PympfrObject*)Pympfr_new_context(context)))
         return NULL;
 
+    SET_EXPONENT(context);
+
     if (Pympfr_CheckAndExp(x)) {
-        SET_EXPONENT(context);
         mpfr_clear_flags();
         result->rc = mpfr_abs(result->f, Pympfr_AS_MPFR(x), GET_MPFR_ROUND(context));
-        MERGE_FLAGS;
-        CHECK_FLAGS("abs()");
         goto done;
     }
     else if (IS_REAL(x)) {
@@ -139,37 +138,26 @@ GMPy_Real_Abs(PyObject *x, GMPyContextObject *context)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        SET_EXPONENT(context);
         mpfr_clear_flags();
         result->rc = mpfr_abs(result->f, tempx->f, GET_MPFR_ROUND(context));
-
-        /* Per MPFR source, the only flag that can be set is overflow. The
-         * following code should be cleaned up in the future.
-         */
-
         Py_DECREF((PyObject*)tempx);
-        MERGE_FLAGS;
-        CHECK_FLAGS("abs()");
         goto done;
     }
     else {
-        TYPE_ERROR("argument is not a real number");
+        TYPE_ERROR("abs(): argument is not a real number");
         Py_DECREF((PyObject*)result);
         return NULL;
     }
 
   done:
-    MPFR_CLEANUP_RESULT("abs()");
+    MPFR_CLEANUP_2(result, context, "abs()");
     return (PyObject*)result;
 }
 
 static PyObject *
 GMPy_mpfr_abs_fast(PympfrObject *x)
 {
-    GMPyContextObject *context;
-
-    CURRENT_CONTEXT(context);
-    return GMPy_Real_Abs((PyObject*)x, context);
+    return GMPy_Real_Abs((PyObject*)x, NULL);
 }
 
 static PyObject *
@@ -204,7 +192,7 @@ GMPy_Complex_Abs(PyObject *x, GMPyContextObject *context)
         goto done;
     }
     else {
-        TYPE_ERROR("argument is not a complex number");
+        TYPE_ERROR("abs(): argument is not a complex number");
         Py_DECREF((PyObject*)result);
         return NULL;
     }
@@ -217,10 +205,7 @@ GMPy_Complex_Abs(PyObject *x, GMPyContextObject *context)
 static PyObject *
 GMPy_mpc_abs_fast(PympcObject *x)
 {
-    GMPyContextObject *context;
-
-    CURRENT_CONTEXT(context);
-    return GMPy_Complex_Abs((PyObject*)x, context);
+    return GMPy_Complex_Abs((PyObject*)x, NULL);
 }
 
 static PyObject *
@@ -232,16 +217,16 @@ GMPy_Number_Abs(PyObject *x, GMPyContextObject *context)
     if (IS_INTEGER(x))
         return GMPy_Integer_Abs(x, context);
 
-    if (IS_RATIONAL(x))
+    if (IS_RATIONAL_ONLY(x))
         return GMPy_Rational_Abs(x, context);
 
-    if (IS_REAL(x))
+    if (IS_REAL_ONLY(x))
         return GMPy_Real_Abs(x, context);
 
-    if (IS_COMPLEX(x))
+    if (IS_COMPLEX_ONLY(x))
         return GMPy_Complex_Abs(x, context);
 
-    TYPE_ERROR("argument type not supported");
+    TYPE_ERROR("abs(): argument type not supported");
     return NULL;
 }
 
@@ -255,13 +240,10 @@ PyDoc_STRVAR(GMPy_doc_context_abs,
 static PyObject *
 GMPy_Context_Abs(PyObject *self, PyObject *args)
 {
-    Py_ssize_t argc;
-    PyObject *arg0;
     GMPyContextObject *context;
 
-    argc = PyTuple_GET_SIZE(args);
     if (self && GMPyContext_Check(self)) {
-        if (argc != 1) {
+        if (PyTuple_GET_SIZE(args) != 1) {
             TYPE_ERROR("context.abs() requires 1 argument.");
             return NULL;
         }
@@ -277,22 +259,6 @@ GMPy_Context_Abs(PyObject *self, PyObject *args)
         SYSTEM_ERROR("function is not supported");
         return NULL;
     }
-
-    arg0 = PyTuple_GET_ITEM(args, 0);
-
-    if (IS_INTEGER(arg0))
-        return GMPy_Integer_Abs(arg0, context);
-
-    if (IS_RATIONAL(arg0))
-        return GMPy_Rational_Abs(arg0, context);
-
-    if (IS_REAL(arg0))
-        return GMPy_Real_Abs(arg0, context);
-
-    if (IS_COMPLEX(arg0))
-        return GMPy_Complex_Abs(arg0, context);
-
-    TYPE_ERROR("abs() argument type not supported");
-    return NULL;
+    return GMPy_Number_Abs(PyTuple_GET_ITEM(args, 0), context);
 }
 

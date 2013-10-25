@@ -55,13 +55,7 @@ GMPyContext_new(void)
         result->ctx.invalid = 0;
         result->ctx.erange = 0;
         result->ctx.divzero = 0;
-        result->ctx.trap_underflow = 0;
-        result->ctx.trap_overflow = 0;
-        result->ctx.trap_inexact = 0;
-        result->ctx.trap_invalid = 0;
-        result->ctx.trap_erange = 0;
-        result->ctx.trap_divzero = 0;
-        result->ctx.trap_expbound = 0;
+        result->ctx.traps = TRAP_NONE;
         result->ctx.real_prec = -1;
         result->ctx.imag_prec = -1;
         result->ctx.real_round = -1;
@@ -373,19 +367,19 @@ GMPyContext_repr(GMPyContextObject *self)
     PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.emax));
     PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.emin));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.subnormalize));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.trap_underflow));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.traps & TRAP_UNDERFLOW));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.underflow));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.trap_overflow));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.traps & TRAP_OVERFLOW));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.overflow));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.trap_inexact));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.traps & TRAP_INEXACT));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.inexact));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.trap_invalid));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.traps & TRAP_INVALID));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.invalid));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.trap_erange));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.traps & TRAP_ERANGE));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.erange));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.trap_divzero));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.traps & TRAP_DIVZERO));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.divzero));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.trap_expbound));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.traps & TRAP_EXPBOUND));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.allow_complex));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.rational_division));
 
@@ -450,6 +444,9 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
     GMPyContextManagerObject *result;
     PyObject *local_args = args;
     int arg_context = 0;
+    int x_trap_underflow = 0, x_trap_overflow = 0, x_trap_inexact = 0;
+    int x_trap_invalid = 0, x_trap_erange = 0, x_trap_divzero = 0;
+    int x_trap_expbound = 0;
     GMPyContextObject *context, *temp;
 
     CURRENT_CONTEXT(context);
@@ -497,6 +494,17 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
+    /* Convert the trap bit positions into ints for the benefit of
+     * PyArg_ParseTupleAndKeywords().
+     */
+    x_trap_underflow = result->new_context->ctx.traps & TRAP_UNDERFLOW;
+    x_trap_overflow = result->new_context->ctx.traps & TRAP_OVERFLOW;
+    x_trap_inexact = result->new_context->ctx.traps & TRAP_INEXACT;
+    x_trap_invalid = result->new_context->ctx.traps & TRAP_INVALID;
+    x_trap_erange = result->new_context->ctx.traps & TRAP_ERANGE;
+    x_trap_divzero = result->new_context->ctx.traps & TRAP_DIVZERO;
+    x_trap_expbound = result->new_context->ctx.traps & TRAP_EXPBOUND;
+
     if (!(PyArg_ParseTupleAndKeywords(local_args, kwargs,
             "|llliiilliiiiiiiiii", kwlist,
             &result->new_context->ctx.mpfr_prec,
@@ -508,18 +516,34 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
             &result->new_context->ctx.emax,
             &result->new_context->ctx.emin,
             &result->new_context->ctx.subnormalize,
-            &result->new_context->ctx.trap_underflow,
-            &result->new_context->ctx.trap_overflow,
-            &result->new_context->ctx.trap_inexact,
-            &result->new_context->ctx.trap_invalid,
-            &result->new_context->ctx.trap_erange,
-            &result->new_context->ctx.trap_divzero,
-            &result->new_context->ctx.trap_expbound,
+            &x_trap_underflow,
+            &x_trap_overflow,
+            &x_trap_inexact,
+            &x_trap_invalid,
+            &x_trap_erange,
+            &x_trap_divzero,
+            &x_trap_expbound,
             &result->new_context->ctx.allow_complex,
             &result->new_context->ctx.rational_division))) {
         VALUE_ERROR("invalid keyword arguments in local_context()");
         goto error;
     }
+
+    result->new_context->ctx.traps = TRAP_NONE;
+    if (x_trap_underflow)
+        result->new_context->ctx.traps |= TRAP_UNDERFLOW;
+    if (x_trap_overflow)
+        result->new_context->ctx.traps |= TRAP_OVERFLOW;
+    if (x_trap_inexact)
+        result->new_context->ctx.traps |= TRAP_INEXACT;
+    if (x_trap_invalid)
+        result->new_context->ctx.traps |= TRAP_INVALID;
+    if (x_trap_erange)
+        result->new_context->ctx.traps |= TRAP_ERANGE;
+    if (x_trap_divzero)
+        result->new_context->ctx.traps |= TRAP_DIVZERO;
+    if (x_trap_expbound)
+        result->new_context->ctx.traps |= TRAP_EXPBOUND;
 
     /* Sanity check for values. */
     if (result->new_context->ctx.mpfr_prec < MPFR_PREC_MIN ||
@@ -573,6 +597,8 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
         VALUE_ERROR("invalid value for imag_round");
         goto error;
     }
+
+    /* TODO: refactor exponent range checks. */
 
     if (!(result->new_context->ctx.emin < 0 && result->new_context->ctx.emax > 0)) {
         VALUE_ERROR("invalid values for emin and/or emax");
@@ -739,6 +765,9 @@ static PyObject *
 GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     GMPyContextObject *result;
+    int x_trap_underflow = 0, x_trap_overflow = 0, x_trap_inexact = 0;
+    int x_trap_invalid = 0, x_trap_erange = 0, x_trap_divzero = 0;
+    int x_trap_expbound = 0;
 
     static char *kwlist[] = {
         "precision", "real_prec", "imag_prec", "round",
@@ -755,6 +784,17 @@ GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!(result = (GMPyContextObject*)GMPyContext_new()))
         return NULL;
 
+    /* Convert the trap bit positions into ints for the benefit of
+     * PyArg_ParseTupleAndKeywords().
+     */
+    x_trap_underflow = result->ctx.traps & TRAP_UNDERFLOW;
+    x_trap_overflow = result->ctx.traps & TRAP_OVERFLOW;
+    x_trap_inexact = result->ctx.traps & TRAP_INEXACT;
+    x_trap_invalid = result->ctx.traps & TRAP_INVALID;
+    x_trap_erange = result->ctx.traps & TRAP_ERANGE;
+    x_trap_divzero = result->ctx.traps & TRAP_DIVZERO;
+    x_trap_expbound = result->ctx.traps & TRAP_EXPBOUND;
+
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
             "|llliiilliiiiiiiiii", kwlist,
             &result->ctx.mpfr_prec,
@@ -766,18 +806,34 @@ GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
             &result->ctx.emax,
             &result->ctx.emin,
             &result->ctx.subnormalize,
-            &result->ctx.trap_underflow,
-            &result->ctx.trap_overflow,
-            &result->ctx.trap_inexact,
-            &result->ctx.trap_invalid,
-            &result->ctx.trap_erange,
-            &result->ctx.trap_divzero,
-            &result->ctx.trap_expbound,
+            &x_trap_underflow,
+            &x_trap_overflow,
+            &x_trap_inexact,
+            &x_trap_invalid,
+            &x_trap_erange,
+            &x_trap_divzero,
+            &x_trap_expbound,
             &result->ctx.allow_complex,
             &result->ctx.rational_division))) {
         VALUE_ERROR("invalid keyword arguments in context()");
         return NULL;
     }
+
+    result->ctx.traps = TRAP_NONE;
+    if (x_trap_underflow)
+        result->ctx.traps |= TRAP_UNDERFLOW;
+    if (x_trap_overflow)
+        result->ctx.traps |= TRAP_OVERFLOW;
+    if (x_trap_inexact)
+        result->ctx.traps |= TRAP_INEXACT;
+    if (x_trap_invalid)
+        result->ctx.traps |= TRAP_INVALID;
+    if (x_trap_erange)
+        result->ctx.traps |= TRAP_ERANGE;
+    if (x_trap_divzero)
+        result->ctx.traps |= TRAP_DIVZERO;
+    if (x_trap_expbound)
+        result->ctx.traps |= TRAP_EXPBOUND;
 
     /* Sanity check for values. */
     if (result->ctx.mpfr_prec < MPFR_PREC_MIN ||
@@ -970,6 +1026,34 @@ GMPyContext_set_##NAME(GMPyContextObject *self, PyObject *value, void *closure) 
     return 0; \
 }
 
+/* Define the get/set functions. This version works with the individual
+ * bits in the traps field.
+ */
+
+#define GETSET_BOOLEAN_BIT(NAME, TRAP) \
+static PyObject * \
+GMPyContext_get_##NAME(GMPyContextObject *self, void *closure) \
+{ \
+    return PyBool_FromLong(self->ctx.traps & TRAP); \
+}; \
+static int \
+GMPyContext_set_##NAME(GMPyContextObject *self, PyObject *value, void *closure) \
+{ \
+    if (self->ctx.readonly) { \
+        VALUE_ERROR("can not modify a readonly context"); \
+        return -1; \
+    } \
+    if (!(PyBool_Check(value))) { \
+        TYPE_ERROR(#NAME " must be True or False"); \
+        return -1; \
+    } \
+    if (value == Py_True) \
+        self->ctx.traps |= TRAP; \
+    else \
+        self->ctx.traps &= ~(TRAP); \
+    return 0; \
+}
+
 /* The _EX version doesn't check if the context is already readonly. This
  * allows the readonly state to be temporarily cleared. */
 
@@ -997,13 +1081,13 @@ GETSET_BOOLEAN(inexact);
 GETSET_BOOLEAN(invalid);
 GETSET_BOOLEAN(erange);
 GETSET_BOOLEAN(divzero);
-GETSET_BOOLEAN(trap_underflow);
-GETSET_BOOLEAN(trap_overflow);
-GETSET_BOOLEAN(trap_inexact);
-GETSET_BOOLEAN(trap_invalid);
-GETSET_BOOLEAN(trap_erange);
-GETSET_BOOLEAN(trap_divzero);
-GETSET_BOOLEAN(trap_expbound);
+GETSET_BOOLEAN_BIT(trap_underflow, TRAP_UNDERFLOW);
+GETSET_BOOLEAN_BIT(trap_overflow, TRAP_OVERFLOW);
+GETSET_BOOLEAN_BIT(trap_inexact, TRAP_INEXACT);
+GETSET_BOOLEAN_BIT(trap_invalid, TRAP_INVALID);
+GETSET_BOOLEAN_BIT(trap_erange, TRAP_ERANGE);
+GETSET_BOOLEAN_BIT(trap_divzero, TRAP_DIVZERO);
+GETSET_BOOLEAN_BIT(trap_expbound, TRAP_EXPBOUND);
 GETSET_BOOLEAN(allow_complex)
 GETSET_BOOLEAN(rational_division)
 GETSET_BOOLEAN_EX(readonly)
