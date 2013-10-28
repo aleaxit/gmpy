@@ -1407,7 +1407,7 @@ static PyGetSetDef GMPyContext_getseters[] = {
 static PyMethodDef GMPyContext_methods[] =
 {
     { "abs", GMPy_Context_Abs, METH_VARARGS, GMPy_doc_context_abs },
-    { "add", Pympany_add, METH_VARARGS, doc_context_add },
+    { "add", GMPy_Context_Add, METH_VARARGS, GMPy_doc_context_add },
     { "clear_flags", GMPyContext_clear_flags, METH_NOARGS, doc_context_clear_flags },
     { "copy", GMPyContext_context_copy, METH_NOARGS, doc_context_copy },
     { "div", Pympany_div, METH_VARARGS, doc_context_div },

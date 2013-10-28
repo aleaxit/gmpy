@@ -309,7 +309,6 @@ static PyTypeObject Pympc_Type;
 static PyObject * Pympc_digits(PyObject *self, PyObject *args);
 static PyObject * Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject * Pympc_format(PyObject *self, PyObject *args);
-/* static PyObject * Pympc_abs(PyObject *self); */
 static PyObject * Pympc_neg(PympcObject *self);
 static PyObject * Pympc_pos(PympcObject *self);
 static PyObject * Pympc_sqr(PyObject* self, PyObject *other);
@@ -350,13 +349,11 @@ static PyObject * Pympc_fms(PyObject *self, PyObject *args);
 static PyObject * Pympc_div_2exp(PyObject *self, PyObject *args);
 static PyObject * Pympc_mul_2exp(PyObject *self, PyObject *args);
 static Py_hash_t Pympc_hash(PympcObject *self);
-static PyObject * Pympc_add_fast(PyObject *x, PyObject *y);
 static PyObject * Pympc_sub_fast(PyObject *x, PyObject *y);
 static PyObject * Pympc_mul_fast(PyObject *x, PyObject *y);
 static PyObject * Pympc_truediv_fast(PyObject *x, PyObject *y);
 static PyObject * Pympc_floordiv_fast(PyObject *x, PyObject *y);
 
-static PyObject * Pympc_Add_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympc_Sub_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympc_Mul_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympc_FloorDiv_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
