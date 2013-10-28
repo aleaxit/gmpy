@@ -121,10 +121,10 @@ GMPy_Real_Abs(PyObject *x, GMPyContextObject *context)
     if (!context)
         CURRENT_CONTEXT(context);
 
+    SET_EXPONENT(context);
+
     if (!(result = (PympfrObject*)Pympfr_new_context(context)))
         return NULL;
-
-    SET_EXPONENT(context);
 
     if (Pympfr_CheckAndExp(x)) {
         mpfr_clear_flags();
@@ -167,6 +167,8 @@ GMPy_Complex_Abs(PyObject *x, GMPyContextObject *context)
 
     if (!context)
         CURRENT_CONTEXT(context);
+
+    SET_EXPONENT(context);
 
     if (!(result = (PympfrObject*)Pympfr_new_context(context)))
         return NULL;

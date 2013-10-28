@@ -298,6 +298,7 @@ typedef long                mpir_si;
 /* Begin includes for refactored code. */
 
 #include "gmpy2_abs.h"
+#include "gmpy2_add.h"
 
 #ifdef __cplusplus
 }

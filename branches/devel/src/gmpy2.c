@@ -533,6 +533,7 @@ static PyObject *GMPyExc_ExpBound = NULL;
 /* Begin includes of refactored code. */
 
 #include "gmpy2_abs.c"
+#include "gmpy2_add.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
@@ -542,7 +543,7 @@ static PyMethodDef Pygmpy_methods [] =
 {
     { "_cvsid", Pygmpy_get_cvsid, METH_NOARGS, doc_cvsid },
     { "_printf", Pympany_printf, METH_VARARGS, doc_printf },
-    { "add", Pympany_add, METH_VARARGS, doc_mpany_add },
+    { "add", GMPy_Context_Add, METH_VARARGS, GMPy_doc_add },
     { "bit_clear", Pygmpy_bit_clear, METH_VARARGS, doc_bit_clearg },
     { "bit_flip", Pygmpy_bit_flip, METH_VARARGS, doc_bit_flipg },
     { "bit_length", Pympz_bit_length, METH_O, doc_bit_lengthg },

@@ -112,7 +112,6 @@ static Py_ssize_t Pympz_nbits(PympzObject *self);
 static PyObject * Pympz_subscript(PympzObject *self, PyObject *item);
 static PyObject * Pympz_format(PyObject *self, PyObject *args);
 
-static PyObject * Pympz_Add_Integer(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympz_Sub_Integer(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympz_Mul_Integer(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympz_FloorDiv_Integer(PyObject *x, PyObject *y, GMPyContextObject *context);

@@ -61,7 +61,6 @@ static PyObject * Pympq_square(PyObject *self, PyObject *other);
 static int Pympq_nonzero(PympqObject *x);
 static Py_hash_t Pympq_hash(PympqObject *self);
 
-static PyObject * Pympq_Add_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympq_Sub_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympq_Mul_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympq_FloorDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);

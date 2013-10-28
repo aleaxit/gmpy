@@ -2307,111 +2307,6 @@ Pympz_format(PyObject *self, PyObject *args)
     return result;
 }
 
-/* Add two Integer objects (see convert.c/isInteger). If an error occurs, NULL
- * is returned and an exception is set. If either x or y can't be converted
- * into an mpz, Py_NotImplemented is returned. */
-
-static PyObject *
-Pympz_Add_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
-{
-    PympzObject *result;
-    mpz_t tempz;
-    mpir_si temp_si;
-    int overflow;
-
-    if (!(result = (PympzObject*)Pympz_new()))
-        return NULL;
-
-    if (CHECK_MPZANY(x)) {
-        if (PyIntOrLong_Check(y)) {
-            temp_si = PyLong_AsSIAndOverflow(y, &overflow);
-            if (overflow) {
-                mpz_inoc(tempz);
-                mpz_set_PyIntOrLong(tempz, y);
-                mpz_add(result->z, Pympz_AS_MPZ(x), tempz);
-                mpz_cloc(tempz);
-            }
-            else if (temp_si >= 0) {
-                mpz_add_ui(result->z, Pympz_AS_MPZ(x), temp_si);
-            }
-            else {
-                mpz_sub_ui(result->z, Pympz_AS_MPZ(x), -temp_si);
-            }
-            return (PyObject*)result;
-        }
-
-        if (CHECK_MPZANY(y)) {
-            mpz_add(result->z, Pympz_AS_MPZ(x), Pympz_AS_MPZ(y));
-            return (PyObject*)result;
-        }
-    }
-
-    if (CHECK_MPZANY(y)) {
-        if (PyIntOrLong_Check(x)) {
-            temp_si = PyLong_AsSIAndOverflow(x, &overflow);
-            if (overflow) {
-                mpz_inoc(tempz);
-                mpz_set_PyIntOrLong(tempz, x);
-                mpz_add(result->z, Pympz_AS_MPZ(y), tempz);
-                mpz_cloc(tempz);
-            }
-            else if (temp_si >0) {
-                mpz_add_ui(result->z, Pympz_AS_MPZ(y), temp_si);
-            }
-            else {
-                mpz_sub_ui(result->z, Pympz_AS_MPZ(y), -temp_si);
-            }
-            return (PyObject*)result;
-        }
-    }
-
-    if (PyIntOrLong_Check(x) && PyIntOrLong_Check(y)) {
-        PympzObject *tempx, *tempy;
-
-        tempx = Pympz_From_PyLong(x);
-        tempy = Pympz_From_PyLong(y);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("Could not convert Integer to mpz.");
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-
-        mpz_add(result->z, tempx->z, tempy->z);
-        Py_DECREF((PyObject*)tempx);
-        Py_DECREF((PyObject*)tempy);
-        return (PyObject*)result;
-    }
-
-    Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-/* Implement __add__ for Pympz. On entry, one of the two arguments must
- * be a Pympz. If the other object is an Integer, add and return a Pympz.
- * If the other object isn't a Pympz, call the appropriate function. If
- * no appropriate function can be found, return NotImplemented. */
-
-static PyObject *
-Pympz_add_fast(PyObject *x, PyObject *y)
-{
-    GMPyContextObject *context;
-
-    CURRENT_CONTEXT(context);
-
-    if (IS_INTEGER(x) && IS_INTEGER(y))
-        return Pympz_Add_Integer(x, y, context);
-    else if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return Pympq_Add_Rational(x, y, context);
-    else if (IS_REAL(x) && IS_REAL(y))
-        return Pympfr_Add_Real(x, y, context);
-    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return Pympc_Add_Complex(x, y, context);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
 /* Subtract two Integer objects (see convert.c/isInteger). If an error occurs,
  * NULL is returned and an exception is set. If either x or y can't be
  * converted into an mpz, Py_NotImplemented is returned. */
@@ -3105,7 +3000,7 @@ Pympz_sizeof(PyObject *self, PyObject *other)
 #ifdef PY3
 static PyNumberMethods mpz_number_methods =
 {
-    (binaryfunc) Pympz_add_fast,         /* nb_add                  */
+    (binaryfunc) GMPy_mpz_add_fast,      /* nb_add                  */
     (binaryfunc) Pympz_sub_fast,         /* nb_subtract             */
     (binaryfunc) Pympz_mul_fast,         /* nb_multiply             */
     (binaryfunc) Pympz_mod_fast,         /* nb_remainder            */
@@ -3144,7 +3039,7 @@ static PyNumberMethods mpz_number_methods =
 #else
 static PyNumberMethods mpz_number_methods =
 {
-    (binaryfunc) Pympz_add_fast,         /* nb_add                  */
+    (binaryfunc) GMPy_mpz_add_fast,      /* nb_add                  */
     (binaryfunc) Pympz_sub_fast,         /* nb_subtract             */
     (binaryfunc) Pympz_mul_fast,         /* nb_multiply             */
     (binaryfunc) Pympz_div2_fast,        /* nb_divide               */
