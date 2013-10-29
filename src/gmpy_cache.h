@@ -51,25 +51,25 @@ static void set_zcache(void);
 static void mpz_inoc(mpz_t newo);
 static void mpz_cloc(mpz_t oldo);
 
-static void set_pympzcache(void);
+static void set_gmpympzcache(void);
 static PyObject * Pympz_new(void);
-static void Pympz_dealloc(PympzObject *self);
+static void Pympz_dealloc(MPZ_Object *self);
 
-static void set_pyxmpzcache(void);
+static void set_gmpyxmpzcache(void);
 static PyObject * Pyxmpz_new(void);
-static void Pyxmpz_dealloc(PyxmpzObject *self);
+static void Pyxmpz_dealloc(XMPZ_Object *self);
 
-static void set_pympqcache(void);
+static void set_gmpympqcache(void);
 static PyObject * Pympq_new(void);
-static void Pympq_dealloc(PympqObject *self);
+static void Pympq_dealloc(MPQ_Object *self);
 
-static void set_pympfrcache(void);
+static void set_gmpympfrcache(void);
 static PyObject * Pympfr_new(mpfr_prec_t bits);
-static void Pympfr_dealloc(PympfrObject *self);
+static void Pympfr_dealloc(MPFR_Object *self);
 
-static void set_pympccache(void);
+static void set_gmpympccache(void);
 static PyObject * Pympc_new(mpfr_prec_t rprec, mpfr_prec_t iprec);
-static void Pympc_dealloc(PympcObject *self);
+static void Pympc_dealloc(MPC_Object *self);
 
 #ifdef __cplusplus
 }

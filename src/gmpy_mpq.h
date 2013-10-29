@@ -36,30 +36,30 @@ typedef struct {
     PyObject_HEAD
     mpq_t q;
     Py_hash_t  hash_cache;
-} PympqObject;
+} MPQ_Object;
 
-#define Pympq_AS_MPQ(obj) (((PympqObject *)(obj))->q)
+#define MPQ(obj) (((MPQ_Object *)(obj))->q)
 
-static PyTypeObject Pympq_Type;
-#define Pympq_Check(v) (((PyObject*)v)->ob_type == &Pympq_Type)
+static PyTypeObject MPQ_Type;
+#define MPQ_Check(v) (((PyObject*)v)->ob_type == &MPQ_Type)
 
 static PyObject * Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject * Pympq_digits(PyObject *self, PyObject *args);
 static PyObject * Pympq_sign(PyObject *self, PyObject *other);
 static PyObject * Pympq_numer(PyObject *self, PyObject *args);
-static PyObject * Pympq_getnumer(PympqObject *self, void *closure);
+static PyObject * Pympq_getnumer(MPQ_Object *self, void *closure);
 static PyObject * Pympq_denom(PyObject *self, PyObject *args);
-static PyObject * Pympq_getdenom(PympqObject *self, void *closure);
+static PyObject * Pympq_getdenom(MPQ_Object *self, void *closure);
 static PyObject * Pympq_qdiv(PyObject *self, PyObject *args);
-static PyObject * Pympq_neg(PympqObject *self);
-/* static PyObject * Pympq_abs(PympqObject *self); */
-static PyObject * Pympq_pos(PympqObject *self);
+static PyObject * Pympq_neg(MPQ_Object *self);
+/* static PyObject * Pympq_abs(MPQ_Object *self); */
+static PyObject * Pympq_pos(MPQ_Object *self);
 static PyObject * Pympq_ceil(PyObject *self, PyObject *other);
 static PyObject * Pympq_floor(PyObject *self, PyObject *other);
 static PyObject * Pympq_trunc(PyObject *self, PyObject *other);
 static PyObject * Pympq_square(PyObject *self, PyObject *other);
-static int Pympq_nonzero(PympqObject *x);
-static Py_hash_t Pympq_hash(PympqObject *self);
+static int Pympq_nonzero(MPQ_Object *x);
+static Py_hash_t Pympq_hash(MPQ_Object *self);
 
 static PyObject * Pympq_Sub_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympq_Mul_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);

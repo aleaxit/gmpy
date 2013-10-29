@@ -44,7 +44,7 @@ static PyObject *
 Pygmpy_c_divmod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y, *result;
-    PympzObject *q, *r, *tempx, *tempy;
+    MPZ_Object *q, *r, *tempx, *tempy;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("c_divmod() requires 'mpz','mpz' arguments");
@@ -56,14 +56,14 @@ Pygmpy_c_divmod(PyObject *self, PyObject *args)
     CREATE_TWO_MPZ_TUPLE(q, r, result);
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
-        if(mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
+        if(mpz_sgn(MPZ(y)) == 0) {
             ZERO_ERROR("c_divmod() division by 0");
             Py_DECREF((PyObject*)q);
             Py_DECREF((PyObject*)r);
             Py_DECREF(result);
             return NULL;
         }
-        mpz_cdiv_qr(q->z, r->z, Pympz_AS_MPZ(x), Pympz_AS_MPZ(y));
+        mpz_cdiv_qr(q->z, r->z, MPZ(x), MPZ(y));
     }
     else {
         tempx = Pympz_From_Integer(x);
@@ -77,7 +77,7 @@ Pygmpy_c_divmod(PyObject *self, PyObject *args)
             Py_DECREF(result);
             return NULL;
         }
-        if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
+        if (mpz_sgn(MPZ(tempy)) == 0) {
             ZERO_ERROR("c_divmod() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
@@ -104,7 +104,7 @@ static PyObject *
 Pygmpy_c_div(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
-    PympzObject *q, *tempx, *tempy;
+    MPZ_Object *q, *tempx, *tempy;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("c_div() requires 'mpz','mpz' arguments");
@@ -113,16 +113,16 @@ Pygmpy_c_div(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(q = (PympzObject*)Pympz_new()))
+    if (!(q = (MPZ_Object*)Pympz_new()))
         return NULL;
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
-        if (mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
+        if (mpz_sgn(MPZ(y)) == 0) {
             ZERO_ERROR("c_div() division by 0");
             Py_DECREF((PyObject*)q);
             return NULL;
         }
-        mpz_cdiv_q(q->z, Pympz_AS_MPZ(x), Pympz_AS_MPZ(y));
+        mpz_cdiv_q(q->z, MPZ(x), MPZ(y));
     }
     else {
         tempx = Pympz_From_Integer(x);
@@ -134,7 +134,7 @@ Pygmpy_c_div(PyObject *self, PyObject *args)
             Py_DECREF((PyObject*)q);
             return NULL;
         }
-        if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
+        if (mpz_sgn(MPZ(tempy)) == 0) {
             ZERO_ERROR("c_div() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
@@ -157,7 +157,7 @@ static PyObject *
 Pygmpy_c_mod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
-    PympzObject *r, *tempx, *tempy;
+    MPZ_Object *r, *tempx, *tempy;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("c_mod() requires 'mpz','mpz' arguments");
@@ -166,16 +166,16 @@ Pygmpy_c_mod(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(r = (PympzObject*)Pympz_new()))
+    if (!(r = (MPZ_Object*)Pympz_new()))
         return NULL;
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
-        if(mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
+        if(mpz_sgn(MPZ(y)) == 0) {
             ZERO_ERROR("c_mod() division by 0");
             Py_DECREF((PyObject*)r);
             return NULL;
         }
-        mpz_cdiv_r(r->z, Pympz_AS_MPZ(x), Pympz_AS_MPZ(y));
+        mpz_cdiv_r(r->z, MPZ(x), MPZ(y));
     }
     else {
         tempx = Pympz_From_Integer(x);
@@ -187,7 +187,7 @@ Pygmpy_c_mod(PyObject *self, PyObject *args)
             Py_DECREF((PyObject*)r);
             return NULL;
         }
-        if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
+        if (mpz_sgn(MPZ(tempy)) == 0) {
             ZERO_ERROR("c_mod() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
@@ -217,7 +217,7 @@ static PyObject *
 Pygmpy_f_divmod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y, *result;
-    PympzObject *q, *r, *tempx, *tempy;
+    MPZ_Object *q, *r, *tempx, *tempy;
 
     if(PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("f_divmod() requires 'mpz','mpz' arguments");
@@ -229,14 +229,14 @@ Pygmpy_f_divmod(PyObject *self, PyObject *args)
     CREATE_TWO_MPZ_TUPLE(q, r, result);
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
-        if (mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
+        if (mpz_sgn(MPZ(y)) == 0) {
             ZERO_ERROR("f_divmod() division by 0");
             Py_DECREF((PyObject*)q);
             Py_DECREF((PyObject*)r);
             Py_DECREF(result);
             return NULL;
         }
-        mpz_fdiv_qr(q->z, r->z, Pympz_AS_MPZ(x), Pympz_AS_MPZ(y));
+        mpz_fdiv_qr(q->z, r->z, MPZ(x), MPZ(y));
     }
     else {
         tempx = Pympz_From_Integer(x);
@@ -250,7 +250,7 @@ Pygmpy_f_divmod(PyObject *self, PyObject *args)
             Py_DECREF(result);
             return NULL;
         }
-        if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
+        if (mpz_sgn(MPZ(tempy)) == 0) {
             ZERO_ERROR("f_divmod() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
@@ -277,7 +277,7 @@ static PyObject *
 Pygmpy_f_div(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
-    PympzObject *q, *tempx, *tempy;
+    MPZ_Object *q, *tempx, *tempy;
 
     if(PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("f_div() requires 'mpz','mpz' arguments");
@@ -286,16 +286,16 @@ Pygmpy_f_div(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(q = (PympzObject*)Pympz_new()))
+    if (!(q = (MPZ_Object*)Pympz_new()))
         return NULL;
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
-        if (mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
+        if (mpz_sgn(MPZ(y)) == 0) {
             ZERO_ERROR("f_div() division by 0");
             Py_DECREF((PyObject*)q);
             return NULL;
         }
-        mpz_fdiv_q(q->z, Pympz_AS_MPZ(x), Pympz_AS_MPZ(y));
+        mpz_fdiv_q(q->z, MPZ(x), MPZ(y));
     }
     else {
         tempx = Pympz_From_Integer(x);
@@ -307,7 +307,7 @@ Pygmpy_f_div(PyObject *self, PyObject *args)
             Py_DECREF((PyObject*)q);
             return NULL;
         }
-        if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
+        if (mpz_sgn(MPZ(tempy)) == 0) {
             ZERO_ERROR("f_div() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
@@ -330,7 +330,7 @@ static PyObject *
 Pygmpy_f_mod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
-    PympzObject *r, *tempx, *tempy;
+    MPZ_Object *r, *tempx, *tempy;
 
     if(PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("f_mod() requires 'mpz','mpz' arguments");
@@ -339,16 +339,16 @@ Pygmpy_f_mod(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(r = (PympzObject*)Pympz_new()))
+    if (!(r = (MPZ_Object*)Pympz_new()))
         return NULL;
 
     if(CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
-        if (mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
+        if (mpz_sgn(MPZ(y)) == 0) {
             ZERO_ERROR("f_mod() division by 0");
             Py_DECREF((PyObject*)r);
             return NULL;
         }
-        mpz_fdiv_r(r->z, Pympz_AS_MPZ(x), Pympz_AS_MPZ(y));
+        mpz_fdiv_r(r->z, MPZ(x), MPZ(y));
     }
     else {
         tempx = Pympz_From_Integer(x);
@@ -360,7 +360,7 @@ Pygmpy_f_mod(PyObject *self, PyObject *args)
             Py_DECREF((PyObject*)r);
             return NULL;
         }
-        if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
+        if (mpz_sgn(MPZ(tempy)) == 0) {
             ZERO_ERROR("f_mod() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
@@ -390,7 +390,7 @@ static PyObject *
 Pygmpy_t_divmod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y, *result;
-    PympzObject *q, *r, *tempx, *tempy;
+    MPZ_Object *q, *r, *tempx, *tempy;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("t_divmod() requires 'mpz','mpz' arguments");
@@ -402,14 +402,14 @@ Pygmpy_t_divmod(PyObject *self, PyObject *args)
     CREATE_TWO_MPZ_TUPLE(q, r, result);
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
-        if (mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
+        if (mpz_sgn(MPZ(y)) == 0) {
             ZERO_ERROR("t_divmod() division by 0");
             Py_DECREF((PyObject*)q);
             Py_DECREF((PyObject*)r);
             Py_DECREF(result);
             return NULL;
         }
-        mpz_tdiv_qr(q->z, r->z, Pympz_AS_MPZ(x), Pympz_AS_MPZ(y));
+        mpz_tdiv_qr(q->z, r->z, MPZ(x), MPZ(y));
     }
     else {
         tempx = Pympz_From_Integer(x);
@@ -423,7 +423,7 @@ Pygmpy_t_divmod(PyObject *self, PyObject *args)
             Py_DECREF(result);
             return NULL;
         }
-        if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
+        if (mpz_sgn(MPZ(tempy)) == 0) {
             ZERO_ERROR("t_divmod() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
@@ -450,7 +450,7 @@ static PyObject *
 Pygmpy_t_div(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
-    PympzObject *q, *tempx, *tempy;
+    MPZ_Object *q, *tempx, *tempy;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("t_div() requires 'mpz','mpz' arguments");
@@ -459,16 +459,16 @@ Pygmpy_t_div(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(q = (PympzObject*)Pympz_new()))
+    if (!(q = (MPZ_Object*)Pympz_new()))
         return NULL;
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
-        if (mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
+        if (mpz_sgn(MPZ(y)) == 0) {
             ZERO_ERROR("t_div() division by 0");
             Py_DECREF((PyObject*)q);
             return NULL;
         }
-        mpz_tdiv_q(q->z, Pympz_AS_MPZ(x), Pympz_AS_MPZ(y));
+        mpz_tdiv_q(q->z, MPZ(x), MPZ(y));
     }
     else {
         tempx = Pympz_From_Integer(x);
@@ -480,7 +480,7 @@ Pygmpy_t_div(PyObject *self, PyObject *args)
             Py_DECREF((PyObject*)q);
             return NULL;
         }
-        if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
+        if (mpz_sgn(MPZ(tempy)) == 0) {
             ZERO_ERROR("t_div() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
@@ -503,7 +503,7 @@ static PyObject *
 Pygmpy_t_mod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
-    PympzObject *r, *tempx, *tempy;
+    MPZ_Object *r, *tempx, *tempy;
 
     if(PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("t_mod() requires 'mpz','mpz' arguments");
@@ -512,16 +512,16 @@ Pygmpy_t_mod(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(r = (PympzObject*)Pympz_new()))
+    if (!(r = (MPZ_Object*)Pympz_new()))
         return NULL;
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
-        if (mpz_sgn(Pympz_AS_MPZ(y)) == 0) {
+        if (mpz_sgn(MPZ(y)) == 0) {
             ZERO_ERROR("t_mod() division by 0");
             Py_DECREF((PyObject*)r);
             return NULL;
         }
-        mpz_tdiv_r(r->z, Pympz_AS_MPZ(x), Pympz_AS_MPZ(y));
+        mpz_tdiv_r(r->z, MPZ(x), MPZ(y));
     }
     else {
         tempx = Pympz_From_Integer(x);
@@ -533,7 +533,7 @@ Pygmpy_t_mod(PyObject *self, PyObject *args)
             Py_DECREF((PyObject*)r);
             return NULL;
         }
-        if (mpz_sgn(Pympz_AS_MPZ(tempy)) == 0) {
+        if (mpz_sgn(MPZ(tempy)) == 0) {
             ZERO_ERROR("t_mod() division by 0");
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);

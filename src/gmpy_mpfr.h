@@ -56,7 +56,7 @@ typedef struct {
     Py_hash_t hash_cache;
     int rc;
     int round_mode;
-} PympfrObject;
+} MPFR_Object;
 
 #define GMPY_DIVZERO(msg) PyErr_SetString(GMPyExc_DivZero, msg)
 #define GMPY_INEXACT(msg) PyErr_SetString(GMPyExc_Inexact, msg)
@@ -349,16 +349,16 @@ typedef struct {
         return NULL; \
     }
 
-static PyTypeObject Pympfr_Type;
-#define Pympfr_AS_MPFR(obj) (((PympfrObject *)(obj))->f)
-#define Pympfr_Check(v) (((PyObject*)v)->ob_type == &Pympfr_Type)
+static PyTypeObject MPFR_Type;
+#define MPFR(obj) (((MPFR_Object *)(obj))->f)
+#define MPFR_Check(v) (((PyObject*)v)->ob_type == &MPFR_Type)
 /* Verify that an object is an mpfr and the exponent is valid */
-#define Pympfr_CheckAndExp(v) \
-    (Pympfr_Check(v) && \
-        (mpfr_zero_p(Pympfr_AS_MPFR(v)) || \
-            (mpfr_regular_p(Pympfr_AS_MPFR(v)) && \
-                (Pympfr_AS_MPFR(v)->_mpfr_exp >= context->ctx.emin) && \
-                (Pympfr_AS_MPFR(v)->_mpfr_exp <= context->ctx.emax) \
+#define MPFR_CheckAndExp(v) \
+    (MPFR_Check(v) && \
+        (mpfr_zero_p(MPFR(v)) || \
+            (mpfr_regular_p(MPFR(v)) && \
+                (MPFR(v)->_mpfr_exp >= context->ctx.emin) && \
+                (MPFR(v)->_mpfr_exp <= context->ctx.emax) \
             ) \
         ) \
     )
@@ -366,13 +366,13 @@ static PyTypeObject Pympfr_Type;
 
 static PyObject * Pympfr_f2q(PyObject *self, PyObject *args);
 static PyObject * Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds);
-static PyObject * Pympfr_getprec_attrib(PympfrObject *self, void *closure);
-static PyObject * Pympfr_getrc_attrib(PympfrObject *self, void *closure);
-static PyObject * Pympfr_getimag_attrib(PympfrObject *self, void *closure);
-static PyObject * Pympfr_getreal_attrib(PympfrObject *self, void *closure);
-static int Pympfr_nonzero(PympfrObject *self);
+static PyObject * Pympfr_getprec_attrib(MPFR_Object *self, void *closure);
+static PyObject * Pympfr_getrc_attrib(MPFR_Object *self, void *closure);
+static PyObject * Pympfr_getimag_attrib(MPFR_Object *self, void *closure);
+static PyObject * Pympfr_getreal_attrib(MPFR_Object *self, void *closure);
+static int Pympfr_nonzero(MPFR_Object *self);
 static PyObject * Pympfr_conjugate(PyObject *self, PyObject *args);
-static PyObject * Pympfr_pos(PympfrObject *self);
+static PyObject * Pympfr_pos(MPFR_Object *self);
 static PyObject * Pympfr_get_emin_min(PyObject *self, PyObject *args);
 static PyObject * Pympfr_get_emax_max(PyObject *self, PyObject *args);
 static PyObject * Pympfr_get_max_precision(PyObject *self, PyObject *args);
@@ -398,7 +398,7 @@ static PyObject * Pympfr_digits(PyObject *self, PyObject *args);
 static PyObject * Pympfr_integer_ratio(PyObject *self, PyObject *args);
 static PyObject * Pympfr_mantissa_exp(PyObject *self, PyObject *args);
 static PyObject * Pympfr_simple_fraction(PyObject *self, PyObject *args, PyObject *keywds);
-static Py_hash_t Pympfr_hash(PympfrObject *self);
+static Py_hash_t Pympfr_hash(MPFR_Object *self);
 static PyObject * Pympfr_const_pi(PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject * Pympfr_const_euler(PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject * Pympfr_const_log2(PyObject *self, PyObject *args, PyObject *keywds);

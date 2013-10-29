@@ -47,7 +47,7 @@ Pygmpy_c_divmod_2exp(PyObject *self, PyObject *args)
 {
     mp_bitcnt_t nbits;
     PyObject *x, *result;
-    PympzObject *q, *r, *tempx;
+    MPZ_Object *q, *r, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("c_divmod_2exp() requires 'mpz','int' arguments");
@@ -63,8 +63,8 @@ Pygmpy_c_divmod_2exp(PyObject *self, PyObject *args)
     CREATE_TWO_MPZ_TUPLE(q, r, result);
 
     if (CHECK_MPZANY(x)) {
-        mpz_cdiv_q_2exp(q->z, Pympz_AS_MPZ(x), nbits);
-        mpz_cdiv_r_2exp(r->z, Pympz_AS_MPZ(x), nbits);
+        mpz_cdiv_q_2exp(q->z, MPZ(x), nbits);
+        mpz_cdiv_r_2exp(r->z, MPZ(x), nbits);
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
@@ -93,7 +93,7 @@ Pygmpy_c_div_2exp(PyObject *self, PyObject *args)
 {
     mp_bitcnt_t nbits;
     PyObject *x;
-    PympzObject *result, *tempx;
+    MPZ_Object *result, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("c_div_2exp() requires 'mpz','int' arguments");
@@ -106,11 +106,11 @@ Pygmpy_c_div_2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = (MPZ_Object*)Pympz_new()))
         return NULL;
 
     if (CHECK_MPZANY(x)) {
-        mpz_cdiv_q_2exp(result->z, Pympz_AS_MPZ(x), nbits);
+        mpz_cdiv_q_2exp(result->z, MPZ(x), nbits);
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
@@ -134,7 +134,7 @@ Pygmpy_c_mod_2exp(PyObject *self, PyObject *args)
 {
     mp_bitcnt_t nbits;
     PyObject *x;
-    PympzObject *result, *tempx;
+    MPZ_Object *result, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("c_mod_2exp() requires 'mpz','int' arguments");
@@ -147,11 +147,11 @@ Pygmpy_c_mod_2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = (MPZ_Object*)Pympz_new()))
         return NULL;
 
     if (CHECK_MPZANY(x)) {
-        mpz_cdiv_r_2exp(result->z, Pympz_AS_MPZ(x), nbits);
+        mpz_cdiv_r_2exp(result->z, MPZ(x), nbits);
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
@@ -182,7 +182,7 @@ Pygmpy_f_divmod_2exp(PyObject *self, PyObject *args)
 {
     mp_bitcnt_t nbits;
     PyObject *x, *result;
-    PympzObject *q, *r, *tempx;
+    MPZ_Object *q, *r, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("f_divmod_2exp() requires 'mpz','int' arguments");
@@ -198,8 +198,8 @@ Pygmpy_f_divmod_2exp(PyObject *self, PyObject *args)
     CREATE_TWO_MPZ_TUPLE(q, r, result);
 
     if (CHECK_MPZANY(x)) {
-        mpz_fdiv_q_2exp(q->z, Pympz_AS_MPZ(x), nbits);
-        mpz_fdiv_r_2exp(r->z, Pympz_AS_MPZ(x), nbits);
+        mpz_fdiv_q_2exp(q->z, MPZ(x), nbits);
+        mpz_fdiv_r_2exp(r->z, MPZ(x), nbits);
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
@@ -228,7 +228,7 @@ Pygmpy_f_div_2exp(PyObject *self, PyObject *args)
 {
     mp_bitcnt_t nbits;
     PyObject *x;
-    PympzObject *result, *tempx;
+    MPZ_Object *result, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("f_div_2exp() requires 'mpz','int' arguments");
@@ -241,11 +241,11 @@ Pygmpy_f_div_2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = (MPZ_Object*)Pympz_new()))
         return NULL;
 
     if (CHECK_MPZANY(x)) {
-        mpz_fdiv_q_2exp(result->z, Pympz_AS_MPZ(x), nbits);
+        mpz_fdiv_q_2exp(result->z, MPZ(x), nbits);
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
@@ -269,7 +269,7 @@ Pygmpy_f_mod_2exp(PyObject *self, PyObject *args)
 {
     mp_bitcnt_t nbits;
     PyObject *x;
-    PympzObject *result, *tempx;
+    MPZ_Object *result, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("f_mod_2exp() requires 'mpz','int' arguments");
@@ -282,11 +282,11 @@ Pygmpy_f_mod_2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = (MPZ_Object*)Pympz_new()))
         return NULL;
 
     if (CHECK_MPZANY(x)) {
-        mpz_fdiv_r_2exp(result->z, Pympz_AS_MPZ(x), nbits);
+        mpz_fdiv_r_2exp(result->z, MPZ(x), nbits);
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
@@ -294,7 +294,7 @@ Pygmpy_f_mod_2exp(PyObject *self, PyObject *args)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        mpz_fdiv_r_2exp(result->z, Pympz_AS_MPZ(tempx), nbits);
+        mpz_fdiv_r_2exp(result->z, MPZ(tempx), nbits);
         Py_DECREF((PyObject*)tempx);
     }
     return (PyObject*)result;
@@ -317,7 +317,7 @@ Pygmpy_t_divmod_2exp(PyObject *self, PyObject *args)
 {
     mp_bitcnt_t nbits;
     PyObject *x, *result;
-    PympzObject *q, *r, *tempx;
+    MPZ_Object *q, *r, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("t_divmod_2exp() requires 'mpz','int' arguments");
@@ -333,8 +333,8 @@ Pygmpy_t_divmod_2exp(PyObject *self, PyObject *args)
     CREATE_TWO_MPZ_TUPLE(q, r, result);
 
     if (CHECK_MPZANY(x)) {
-        mpz_tdiv_q_2exp(q->z, Pympz_AS_MPZ(x), nbits);
-        mpz_tdiv_r_2exp(r->z, Pympz_AS_MPZ(x), nbits);
+        mpz_tdiv_q_2exp(q->z, MPZ(x), nbits);
+        mpz_tdiv_r_2exp(r->z, MPZ(x), nbits);
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
@@ -363,7 +363,7 @@ Pygmpy_t_div_2exp(PyObject *self, PyObject *args)
 {
     mp_bitcnt_t nbits;
     PyObject *x;
-    PympzObject *result, *tempx;
+    MPZ_Object *result, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("t_div_2exp() requires 'mpz','int' arguments");
@@ -376,10 +376,10 @@ Pygmpy_t_div_2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = (MPZ_Object*)Pympz_new()))
         return NULL;
     if (CHECK_MPZANY(x)) {
-        mpz_tdiv_q_2exp(result->z, Pympz_AS_MPZ(x), nbits);
+        mpz_tdiv_q_2exp(result->z, MPZ(x), nbits);
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
@@ -403,7 +403,7 @@ Pygmpy_t_mod_2exp(PyObject *self, PyObject *args)
 {
     mp_bitcnt_t nbits;
     PyObject *x;
-    PympzObject *result, *tempx;
+    MPZ_Object *result, *tempx;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("t_mod_2exp() requires 'mpz','int' arguments");
@@ -416,11 +416,11 @@ Pygmpy_t_mod_2exp(PyObject *self, PyObject *args)
     }
 
     x = PyTuple_GET_ITEM(args, 0);
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = (MPZ_Object*)Pympz_new()))
         return NULL;
 
     if (CHECK_MPZANY(x)) {
-        mpz_tdiv_r_2exp(result->z, Pympz_AS_MPZ(x), nbits);
+        mpz_tdiv_r_2exp(result->z, MPZ(x), nbits);
     }
     else {
         if (!(tempx = Pympz_From_Integer(x))) {
@@ -459,7 +459,7 @@ Pygmpy_pack(PyObject *self, PyObject *args)
     Py_ssize_t nbits, total_bits, index, lst_count, i, temp_bits, limb_count, tempx_bits;
     PyObject *lst;
     mpz_t temp;
-    PympzObject *result, *tempx = 0;
+    MPZ_Object *result, *tempx = 0;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("pack() requires 'list','int' arguments");
@@ -482,7 +482,7 @@ Pygmpy_pack(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = (MPZ_Object*)Pympz_new()))
         return NULL;
 
     lst = PyTuple_GET_ITEM(args, 0);
@@ -548,7 +548,7 @@ Pygmpy_unpack(PyObject *self, PyObject *args)
     PyObject *result;
     mpz_t temp;
     mp_limb_t extra = 0;
-    PympzObject *item, *tempx = 0;
+    MPZ_Object *item, *tempx = 0;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("unpack() requires 'int','int' arguments");
@@ -587,7 +587,7 @@ Pygmpy_unpack(PyObject *self, PyObject *args)
     }
 
     if (mpz_sgn(tempx->z) == 0) {
-        if (!(item = (PympzObject*)Pympz_new())) {
+        if (!(item = (MPZ_Object*)Pympz_new())) {
             Py_DECREF((PyObject*)tempx);
             Py_DECREF(result);
             return NULL;
@@ -622,7 +622,7 @@ Pygmpy_unpack(PyObject *self, PyObject *args)
         temp_bits += extra_bits;
 
         while ((lst_ptr < lst_count) && (temp_bits >= nbits)) {
-            if(!(item = (PympzObject*)Pympz_new())) {
+            if(!(item = (MPZ_Object*)Pympz_new())) {
                 mpz_cloc(temp);
                 Py_DECREF((PyObject*)tempx);
                 Py_DECREF(result);

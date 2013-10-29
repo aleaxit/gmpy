@@ -57,7 +57,7 @@
 static PyObject *
 GMPy_Integer_Abs(PyObject *x, GMPyContextObject *context)
 {
-    PympzObject *result;
+    MPZ_Object *result;
 
     if (IS_INTEGER(x)) {
         if ((result = Pympz_From_Integer(x))) {
@@ -72,11 +72,11 @@ GMPy_Integer_Abs(PyObject *x, GMPyContextObject *context)
 }
 
 static PyObject *
-GMPy_mpz_abs_fast(PympzObject *x)
+GMPy_mpz_abs_fast(MPZ_Object *x)
 {
-    PympzObject *result;
+    MPZ_Object *result;
 
-    if ((result = (PympzObject*)Pympz_new())) {
+    if ((result = (MPZ_Object*)Pympz_new())) {
         mpz_abs(result->z, x->z);
     }
 
@@ -86,7 +86,7 @@ GMPy_mpz_abs_fast(PympzObject *x)
 static PyObject *
 GMPy_Rational_Abs(PyObject *x, GMPyContextObject *context)
 {
-    PympqObject *result;
+    MPQ_Object *result;
 
     if (IS_RATIONAL(x)) {
         if ((result = Pympq_From_Rational(x))) {
@@ -101,11 +101,11 @@ GMPy_Rational_Abs(PyObject *x, GMPyContextObject *context)
 }
 
 static PyObject *
-GMPy_mpq_abs_fast(PympqObject *x)
+GMPy_mpq_abs_fast(MPQ_Object *x)
 {
-    PympqObject *result;
+    MPQ_Object *result;
 
-    if ((result = (PympqObject*)Pympq_new())) {
+    if ((result = (MPQ_Object*)Pympq_new())) {
         mpq_set(result->q, x->q);
         mpz_abs(mpq_numref(result->q), mpq_numref(result->q));
     }
@@ -116,23 +116,23 @@ GMPy_mpq_abs_fast(PympqObject *x)
 static PyObject *
 GMPy_Real_Abs(PyObject *x, GMPyContextObject *context)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
 
     if (!context)
         CURRENT_CONTEXT(context);
 
     SET_EXPONENT(context);
 
-    if (!(result = (PympfrObject*)Pympfr_new_context(context)))
+    if (!(result = (MPFR_Object*)Pympfr_new_context(context)))
         return NULL;
 
-    if (Pympfr_CheckAndExp(x)) {
+    if (MPFR_CheckAndExp(x)) {
         mpfr_clear_flags();
-        result->rc = mpfr_abs(result->f, Pympfr_AS_MPFR(x), GET_MPFR_ROUND(context));
+        result->rc = mpfr_abs(result->f, MPFR(x), GET_MPFR_ROUND(context));
         goto done;
     }
     else if (IS_REAL(x)) {
-        PympfrObject *tempx;
+        MPFR_Object *tempx;
 
         if (!(tempx = Pympfr_From_Real_context(x, 0, context))) {
             Py_DECREF((PyObject*)result);
@@ -155,7 +155,7 @@ GMPy_Real_Abs(PyObject *x, GMPyContextObject *context)
 }
 
 static PyObject *
-GMPy_mpfr_abs_fast(PympfrObject *x)
+GMPy_mpfr_abs_fast(MPFR_Object *x)
 {
     return GMPy_Real_Abs((PyObject*)x, NULL);
 }
@@ -163,18 +163,18 @@ GMPy_mpfr_abs_fast(PympfrObject *x)
 static PyObject *
 GMPy_Complex_Abs(PyObject *x, GMPyContextObject *context)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
 
     if (!context)
         CURRENT_CONTEXT(context);
 
     SET_EXPONENT(context);
 
-    if (!(result = (PympfrObject*)Pympfr_new_context(context)))
+    if (!(result = (MPFR_Object*)Pympfr_new_context(context)))
         return NULL;
 
     if (IS_COMPLEX(x)) {
-        PympcObject *tempx;
+        MPC_Object *tempx;
 
         if (!(tempx = Pympc_From_Complex_context(x, context)))  {
             Py_DECREF((PyObject*)result);
@@ -205,7 +205,7 @@ GMPy_Complex_Abs(PyObject *x, GMPyContextObject *context)
 }
 
 static PyObject *
-GMPy_mpc_abs_fast(PympcObject *x)
+GMPy_mpc_abs_fast(MPC_Object *x)
 {
     return GMPy_Complex_Abs((PyObject*)x, NULL);
 }

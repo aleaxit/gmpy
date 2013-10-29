@@ -42,10 +42,10 @@ static PyObject * GMPy_Number_Abs(PyObject *x, GMPyContextObject *context);
 
 /* Private API */
 
-static PyObject * GMPy_mpz_abs_fast(PympzObject *x);
-static PyObject * GMPy_mpq_abs_fast(PympqObject *x);
-static PyObject * GMPy_mpfr_abs_fast(PympfrObject *x);
-static PyObject * GMPy_mpc_abs_fast(PympcObject *x);
+static PyObject * GMPy_mpz_abs_fast(MPZ_Object *x);
+static PyObject * GMPy_mpq_abs_fast(MPQ_Object *x);
+static PyObject * GMPy_mpfr_abs_fast(MPFR_Object *x);
+static PyObject * GMPy_mpc_abs_fast(MPC_Object *x);
 
 static PyObject * GMPy_Context_Abs(PyObject *self, PyObject *args);
 

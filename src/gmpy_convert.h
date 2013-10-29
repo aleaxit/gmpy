@@ -39,13 +39,13 @@ extern "C" {
  * implemented as macros in the future.
  */
 #ifdef PY2
-#define IS_INTEGER_ONLY(x) (Pympz_Check(x) || PyInt_Check(x) || PyLong_Check(x) || Pyxmpz_Check(x))
+#define IS_INTEGER_ONLY(x) (MPZ_Check(x) || PyInt_Check(x) || PyLong_Check(x) || XMPZ_Check(x))
 #else
-#define IS_INTEGER_ONLY(x) (Pympz_Check(x) || PyLong_Check(x) || Pyxmpz_Check(x))
+#define IS_INTEGER_ONLY(x) (MPZ_Check(x) || PyLong_Check(x) || XMPZ_Check(x))
 #endif
 #define IS_INTEGER(x) IS_INTEGER_ONLY(x)
 
-#define IS_RATIONAL_ONLY(x) (Pympq_Check(x) || (!strcmp(Py_TYPE(x)->tp_name, "Fraction")))
+#define IS_RATIONAL_ONLY(x) (MPQ_Check(x) || (!strcmp(Py_TYPE(x)->tp_name, "Fraction")))
 #define IS_RATIONAL(x) (IS_INTEGER(x) || IS_RATIONAL_ONLY(x))
 
 #if PY_VERSION_HEX < 0x03030000
@@ -54,10 +54,10 @@ extern "C" {
 #define IS_DECIMAL_ONLY(x) (!strcmp(Py_TYPE(x)->tp_name, "decimal.Decimal"))
 #endif
 
-#define IS_REAL_ONLY(x) (Pympfr_Check(x) || PyFloat_Check(x) || IS_DECIMAL_ONLY(x))
+#define IS_REAL_ONLY(x) (MPFR_Check(x) || PyFloat_Check(x) || IS_DECIMAL_ONLY(x))
 #define IS_REAL(x) (IS_RATIONAL(x) || IS_REAL_ONLY(x))
 
-#define IS_COMPLEX_ONLY(x) (Pympc_Check(x) || PyComplex_Check(x))
+#define IS_COMPLEX_ONLY(x) (MPC_Check(x) || PyComplex_Check(x))
 #define IS_COMPLEX(x) (IS_REAL(x) || IS_COMPLEX_ONLY(x))
 
 /* Checks for mpz, xmpz, and the integer types included with Python. */
@@ -80,41 +80,41 @@ static int isComplex(PyObject* obj);
 
 /********* Integer Conversions *********/
 
-/* conversions with Pympz */
+/* conversions with MPZ_Object */
 #ifdef PY2
-static PympzObject *   Pympz_From_PyInt(PyObject *self);
+static MPZ_Object *    Pympz_From_PyInt(PyObject *self);
 #endif
-static PympzObject *   Pympz_From_PyStr(PyObject *s, int base);
-static PympzObject *   Pympz_From_PyLong(PyObject *obj);
-static PympzObject *   Pympz_From_Pyxmpz(PyObject *self);
-static PympzObject *   Pympz_From_PyFloat(PyObject *self);
-static PympzObject *   Pympz_From_Number(PyObject *obj);
+static MPZ_Object *    Pympz_From_PyStr(PyObject *s, int base);
+static MPZ_Object *    Pympz_From_PyLong(PyObject *obj);
+static MPZ_Object *    Pympz_From_Pyxmpz(PyObject *self);
+static MPZ_Object *    Pympz_From_PyFloat(PyObject *self);
+static MPZ_Object *    Pympz_From_Number(PyObject *obj);
 
-static PyObject *      Pympz_To_PyLong(PympzObject *self);
-static PyObject *      Pympz_To_PyIntOrLong(PympzObject *self);
-static PyObject *      Pympz_To_PyFloat(PympzObject *self);
-static PyObject *      Pympz_To_PyStr(PympzObject *self, int base, int option);
+static PyObject *      Pympz_To_PyLong(MPZ_Object *self);
+static PyObject *      Pympz_To_PyIntOrLong(MPZ_Object *self);
+static PyObject *      Pympz_To_PyFloat(MPZ_Object *self);
+static PyObject *      Pympz_To_PyStr(MPZ_Object *self, int base, int option);
 
-/* conversions with Pyxmpz */
+/* conversions with XMPZ_Object */
 #ifdef PY2
-static PyxmpzObject *  Pyxmpz_From_PyInt(PyObject *self);
+static XMPZ_Object *  Pyxmpz_From_PyInt(PyObject *self);
 #endif
-static PyxmpzObject *  Pyxmpz_From_PyStr(PyObject *s, int base);
-static PyxmpzObject *  Pyxmpz_From_PyLong(PyObject *obj);
-static PyxmpzObject *  Pyxmpz_From_Pyxmpz(PyObject *self);
-static PyxmpzObject *  Pyxmpz_From_Pympz(PyObject *self);
-static PyxmpzObject *  Pyxmpz_From_PyFloat(PyObject *self);
-static PyxmpzObject *  Pyxmpz_From_Number(PyObject *obj);
+static XMPZ_Object *  Pyxmpz_From_PyStr(PyObject *s, int base);
+static XMPZ_Object *  Pyxmpz_From_PyLong(PyObject *obj);
+static XMPZ_Object *  Pyxmpz_From_Pyxmpz(PyObject *self);
+static XMPZ_Object *  Pyxmpz_From_Pympz(PyObject *self);
+static XMPZ_Object *  Pyxmpz_From_PyFloat(PyObject *self);
+static XMPZ_Object *  Pyxmpz_From_Number(PyObject *obj);
 
-static PyObject *      Pyxmpz_To_PyLong(PyxmpzObject *self);
-static PyObject *      Pyxmpz_To_PyIntOrLong(PyxmpzObject *self);
-static PyObject *      Pyxmpz_To_PyStr(PyxmpzObject *self, int base, int option);
+static PyObject *      Pyxmpz_To_PyLong(XMPZ_Object *self);
+static PyObject *      Pyxmpz_To_PyIntOrLong(XMPZ_Object *self);
+static PyObject *      Pyxmpz_To_PyStr(XMPZ_Object *self, int base, int option);
 
 /* for str() and repr() */
-static PyObject *      Pympz_To_Str(PympzObject *self);
-static PyObject *      Pympz_To_Repr(PympzObject *self);
-static PyObject *      Pyxmpz_To_Str(PyxmpzObject *self);
-static PyObject *      Pyxmpz_To_Repr(PyxmpzObject *self);
+static PyObject *      Pympz_To_Str(MPZ_Object *self);
+static PyObject *      Pympz_To_Repr(MPZ_Object *self);
+static PyObject *      Pyxmpz_To_Str(XMPZ_Object *self);
+static PyObject *      Pyxmpz_To_Repr(XMPZ_Object *self);
 
 /* Miscellaneous integer conversion functions. */
 static int mpz_set_PyStr(mpz_ptr z, PyObject *s, int base);
@@ -145,15 +145,15 @@ static Py_ssize_t ssize_t_From_Integer(PyObject *obj);
 
 /* Conversions with Pympq */
 #ifdef PY2
-static PympqObject *   Pympq_From_PyInt(PyObject *self);
-static PyObject *      Pympq_To_PyInt(PympqObject *self);
+static MPQ_Object *   Pympq_From_PyInt(PyObject *self);
+static PyObject *      Pympq_To_PyInt(MPQ_Object *self);
 #endif
-static PympqObject *   Pympq_From_PyLong(PyObject *self);
-static PympqObject *   Pympq_From_Pympz(PyObject *self);
-static PympqObject *   Pympq_From_Pyxmpz(PyObject *obj);
-static PympqObject *   Pympq_From_PyFloat(PyObject *self);
-static PympqObject *   Pympq_From_Fraction(PyObject *obj);
-static PympqObject *   Pympq_From_PyStr(PyObject *stringarg, int base);
+static MPQ_Object *   Pympq_From_PyLong(PyObject *self);
+static MPQ_Object *   Pympq_From_Pympz(PyObject *self);
+static MPQ_Object *   Pympq_From_Pyxmpz(PyObject *obj);
+static MPQ_Object *   Pympq_From_PyFloat(PyObject *self);
+static MPQ_Object *   Pympq_From_Fraction(PyObject *obj);
+static MPQ_Object *   Pympq_From_PyStr(PyObject *stringarg, int base);
 
 /* NOTE: Pympq_From_Decimal returns an invalid mpq object when attempting to
  *       convert a NaN or Infinity. If the denominator is 0, then interpret
@@ -165,19 +165,19 @@ static PympqObject *   Pympq_From_PyStr(PyObject *stringarg, int base);
  *       If the numerator is 0 and the denominator is not 0, then the sign of
  *       the denominator is the sign of the 0.
  */
-static PympqObject *   Pympq_From_Decimal(PyObject* obj);
+static MPQ_Object *   Pympq_From_Decimal(PyObject* obj);
 
-static PympqObject *   Pympq_From_Number(PyObject* obj);
+static MPQ_Object *   Pympq_From_Number(PyObject* obj);
 
-static PyObject *      Pympq_To_PyLong(PympqObject *self);
-static PympzObject *   Pympq_To_Pympz(PyObject *self);
-static PyxmpzObject *  Pympq_To_Pyxmpz(PyObject *self);
-static PyObject *      Pympq_To_PyFloat(PympqObject *self);
-static PyObject *      Pympq_To_PyStr(PympqObject *self, int base, int option);
+static PyObject *      Pympq_To_PyLong(MPQ_Object *self);
+static MPZ_Object *   Pympq_To_Pympz(PyObject *self);
+static XMPZ_Object *  Pympq_To_Pyxmpz(PyObject *self);
+static PyObject *      Pympq_To_PyFloat(MPQ_Object *self);
+static PyObject *      Pympq_To_PyStr(MPQ_Object *self, int base, int option);
 
 /* support str() and repr() */
-static PyObject *      Pympq_To_Str(PympqObject *self);
-static PyObject *      Pympq_To_Repr(PympqObject *self);
+static PyObject *      Pympq_To_Str(MPQ_Object *self);
+static PyObject *      Pympq_To_Repr(MPQ_Object *self);
 
 /* Miscellaneous rational conversion functions. */
 int Pympq_convert_arg(PyObject *arg, PyObject **ptr);
@@ -186,67 +186,67 @@ int Pympq_convert_arg(PyObject *arg, PyObject **ptr);
 
 /* Conversions with Pympfr */
 #ifdef PY2
-static PympfrObject *   Pympfr_From_PyInt(PyObject *self, mpfr_prec_t bits);
-static PyObject *       Pympfr_To_PyInt(PympfrObject *self);
+static MPFR_Object *   Pympfr_From_PyInt(PyObject *self, mpfr_prec_t bits);
+static PyObject *       Pympfr_To_PyInt(MPFR_Object *self);
 #endif
-static PympfrObject *   Pympfr_From_Pympfr(PyObject *self, mpfr_prec_t bits);
+static MPFR_Object *   Pympfr_From_Pympfr(PyObject *self, mpfr_prec_t bits);
 #if 0
-static PympfrObject *   Pympfr_From_Pympfr_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
+static MPFR_Object *   Pympfr_From_Pympfr_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
 #endif
-static PympfrObject *   Pympfr_From_Pympfr_context(PyObject *self, GMPyContextObject *context);
-static PympfrObject *   Pympfr_From_PyFloat(PyObject *self, mpfr_prec_t bits);
-static PympfrObject *   Pympfr_From_PyFloat_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
-static PympfrObject *   Pympfr_From_PyLong(PyObject *self, mpfr_prec_t bits);
-static PympfrObject *   Pympfr_From_PyLong_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
-static PympfrObject *   Pympfr_From_Pympz(PyObject *self, mpfr_prec_t bits);
-static PympfrObject *   Pympfr_From_Pympz_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
-static PympfrObject *   Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
-static PympfrObject *   Pympfr_From_Real_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject *context);
-static PympfrObject *   Pympfr_From_Pympq(PyObject *self, mpfr_prec_t bits);
-static PympfrObject *   Pympfr_From_Pympq_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
-static PympfrObject *   Pympfr_From_PyStr(PyObject *s, int base, mpfr_prec_t bits);
-static PympfrObject *   Pympfr_From_Decimal(PyObject *obj, mpfr_prec_t bits);
-static PympfrObject *   Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
+static MPFR_Object *   Pympfr_From_Pympfr_context(PyObject *self, GMPyContextObject *context);
+static MPFR_Object *   Pympfr_From_PyFloat(PyObject *self, mpfr_prec_t bits);
+static MPFR_Object *   Pympfr_From_PyFloat_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
+static MPFR_Object *   Pympfr_From_PyLong(PyObject *self, mpfr_prec_t bits);
+static MPFR_Object *   Pympfr_From_PyLong_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
+static MPFR_Object *   Pympfr_From_Pympz(PyObject *self, mpfr_prec_t bits);
+static MPFR_Object *   Pympfr_From_Pympz_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
+static MPFR_Object *   Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
+static MPFR_Object *   Pympfr_From_Real_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject *context);
+static MPFR_Object *   Pympfr_From_Pympq(PyObject *self, mpfr_prec_t bits);
+static MPFR_Object *   Pympfr_From_Pympq_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
+static MPFR_Object *   Pympfr_From_PyStr(PyObject *s, int base, mpfr_prec_t bits);
+static MPFR_Object *   Pympfr_From_Decimal(PyObject *obj, mpfr_prec_t bits);
+static MPFR_Object *   Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
 
-static PympzObject *    Pympfr_To_Pympz(PyObject *self);
-static PyxmpzObject *   Pympfr_To_Pyxmpz(PyObject *self);
-static PympqObject *    Pympfr_To_Pympq(PyObject *self);
-static PyObject *       Pympfr_To_PyLong(PympfrObject *self);
-static PyObject *       Pympfr_To_PyFloat(PympfrObject *self);
-static PyObject *       Pympfr_To_PyStr(PympfrObject *self, int base, int digits);
+static MPZ_Object   *   Pympfr_To_Pympz(PyObject *self);
+static XMPZ_Object *   Pympfr_To_Pyxmpz(PyObject *self);
+static MPQ_Object  *    Pympfr_To_Pympq(PyObject *self);
+static PyObject *       Pympfr_To_PyLong(MPFR_Object *self);
+static PyObject *       Pympfr_To_PyFloat(MPFR_Object *self);
+static PyObject *       Pympfr_To_PyStr(MPFR_Object *self, int base, int digits);
 
 /* support str() and repr() */
-static PyObject *       Pympfr_To_Str(PympfrObject *self);
-static PyObject *       Pympfr_To_Repr(PympfrObject *self);
+static PyObject *       Pympfr_To_Str(MPFR_Object *self);
+static PyObject *       Pympfr_To_Repr(MPFR_Object *self);
 
 /* Miscellaneous */
 static int Pympfr_convert_arg(PyObject *arg, PyObject **ptr);
-static PympqObject * stern_brocot(PympfrObject* self, PympfrObject *err, mpfr_prec_t prec, int mayz);
+static MPQ_Object * stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz);
 
 /********* Pympc Conversions *********/
 
 /* Conversions with Pympc */
 #ifdef PY2
-static PympcObject *   Pympc_From_PyInt_bits_context(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec, GMPyContextObject *context);
+static MPC_Object *   Pympc_From_PyInt_bits_context(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec, GMPyContextObject *context);
 static PyObject *      Pympc_To_PyIntOrLong(PyObject *self);
 #endif
-static PympcObject *   Pympc_From_Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
-static PympcObject *   Pympc_From_PyComplex(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
-static PympcObject *   Pympc_From_Pympfr(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
-static PympcObject *   Pympc_From_PyFloat(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
-static PympcObject *   Pympc_From_Pympz(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
-static PympcObject *   Pympc_From_Pympq(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
-static PympcObject *   Pympc_From_PyLong(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
-static PympcObject *   Pympc_From_PyStr(PyObject *s, int base, mpfr_prec_t rbits, mpfr_prec_t ibits);
-static PympcObject *   Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec);
+static MPC_Object *   Pympc_From_Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
+static MPC_Object *   Pympc_From_PyComplex(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
+static MPC_Object *   Pympc_From_Pympfr(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
+static MPC_Object *   Pympc_From_PyFloat(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
+static MPC_Object *   Pympc_From_Pympz(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
+static MPC_Object *   Pympc_From_Pympq(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
+static MPC_Object *   Pympc_From_PyLong(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
+static MPC_Object *   Pympc_From_PyStr(PyObject *s, int base, mpfr_prec_t rbits, mpfr_prec_t ibits);
+static MPC_Object *   Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec);
 
 static PyObject *      Pympc_To_PyFloat(PyObject *self);
 static PyObject *      Pympc_To_PyLong(PyObject *self);
-static PyObject *      Pympc_To_PyStr(PympcObject *self, int base, int digits);
+static PyObject *      Pympc_To_PyStr(MPC_Object *self, int base, int digits);
 static PyObject *      Pympc_To_PyComplex(PyObject *self, PyObject *other);
 /* support str() and repr() */
-static PyObject *      Pympc_To_Str(PympcObject *self);
-static PyObject *      Pympc_To_Repr(PympcObject *self);
+static PyObject *      Pympc_To_Str(MPC_Object *self);
+static PyObject *      Pympc_To_Repr(MPC_Object *self);
 
 /* Miscellaneous */
 static PyObject * raw_mpfr_ascii(mpfr_t self, int base, int digits, int round);
