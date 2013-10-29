@@ -334,11 +334,12 @@
  *   get_context() no longer supports keyword arguments (casevh)
  *
  *   2.1.0
- *   Improvemnts to setup.py (casevh)
+ *   Improvements to setup.py (casevh)
  *   Add thread-safe contexts (casevh)
  *   MPFR and MPC are now required (casevh)
  *   Invalid Operation exception now raised for addition, etc. (casevh)
  *   inverse() now raises exception if inverse does not exist (casevh)
+ *   Add context methods (casevh) (in progress)
  *
  ************************************************************************
  *
@@ -432,20 +433,20 @@ static struct gmpy_global {
 static mpz_t* zcache;
 static int in_zcache;
 
-static PympzObject **pympzcache;
-static int in_pympzcache;
+static MPZ_Object **gmpympzcache;
+static int in_gmpympzcache;
 
-static PyxmpzObject **pyxmpzcache;
-static int in_pyxmpzcache;
+static XMPZ_Object **gmpyxmpzcache;
+static int in_gmpyxmpzcache;
 
-static PympqObject **pympqcache;
-static int in_pympqcache;
+static MPQ_Object **gmpympqcache;
+static int in_gmpympqcache;
 
-static PympfrObject **pympfrcache;
-static int in_pympfrcache;
+static MPFR_Object **gmpympfrcache;
+static int in_gmpympfrcache;
 
-static PympcObject **pympccache;
-static int in_pympccache;
+static MPC_Object **gmpympccache;
+static int in_gmpympccache;
 
 /* Support for context manager. */
 
@@ -895,21 +896,21 @@ PyMODINIT_FUNC initgmpy2(void)
     }
 
     /* Initialize the types. */
-    if (PyType_Ready(&Pympz_Type) < 0)
+    if (PyType_Ready(&MPZ_Type) < 0)
         INITERROR;
-    if (PyType_Ready(&Pympq_Type) < 0)
+    if (PyType_Ready(&MPQ_Type) < 0)
         INITERROR;
-    if (PyType_Ready(&Pyxmpz_Type) < 0)
+    if (PyType_Ready(&XMPZ_Type) < 0)
         INITERROR;
     if (PyType_Ready(&GMPyIter_Type) < 0)
         INITERROR;
-    if (PyType_Ready(&Pympfr_Type) < 0)
+    if (PyType_Ready(&MPFR_Type) < 0)
         INITERROR;
     if (PyType_Ready(&GMPyContext_Type) < 0)
         INITERROR;
     if (PyType_Ready(&GMPyContextManager_Type) < 0)
         INITERROR;
-    if (PyType_Ready(&Pympc_Type) < 0)
+    if (PyType_Ready(&MPC_Type) < 0)
         INITERROR;
 
     /* Initialize the custom memory handlers. */
@@ -917,11 +918,11 @@ PyMODINIT_FUNC initgmpy2(void)
 
     /* Initialize object caching. */
     set_zcache();
-    set_pympzcache();
-    set_pympqcache();
-    set_pyxmpzcache();
-    set_pympfrcache();
-    set_pympccache();
+    set_gmpympzcache();
+    set_gmpympqcache();
+    set_gmpyxmpzcache();
+    set_gmpympfrcache();
+    set_gmpympccache();
 
     /* Initialize exceptions. */
     GMPyExc_GmpyError = PyErr_NewException("gmpy2.gmpyError",

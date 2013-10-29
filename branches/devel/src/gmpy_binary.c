@@ -42,14 +42,14 @@ Pympz_From_Old_Binary(PyObject *self, PyObject *other)
     unsigned char *cp;
     Py_ssize_t len;
     int negative = 0;
-    PympzObject *result;
+    MPZ_Object *result;
 
     if (!(PyBytes_Check(other))) {
         TYPE_ERROR("mpz_from_old_binary() requires bytes argument");
         return NULL;
     }
 
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = (MPZ_Object*)Pympz_new()))
         return NULL;
 
     len = PyBytes_Size(other);
@@ -76,14 +76,14 @@ Pympq_From_Old_Binary(PyObject *self, PyObject *other)
     Py_ssize_t len;
     int topper, negative, numlen;
     mpz_t numerator, denominator;
-    PympqObject *result;
+    MPQ_Object *result;
 
     if (!(PyBytes_Check(other))) {
         TYPE_ERROR("mpq_from_old_binary() requires bytes argument");
         return NULL;
     }
 
-    if (!(result = (PympqObject*)Pympq_new()))
+    if (!(result = (MPQ_Object*)Pympq_new()))
         return NULL;
 
     len = PyBytes_Size(other);
@@ -128,7 +128,7 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
 {
     unsigned char *cp;
     Py_ssize_t len;
-    PympfrObject *result;
+    MPFR_Object *result;
     mpfr_t digit;
     mpfr_prec_t prec;
     int i, codebyte, resusign, exposign, resuzero, precilen;
@@ -175,7 +175,7 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
 
     /* mpfr zero has a very compact (1-byte) binary encoding!-) */
     if (resuzero) {
-        if (!(result = (PympfrObject*)Pympfr_new(prec)))
+        if (!(result = (MPFR_Object*)Pympfr_new(prec)))
             return NULL;
         result->rc = mpfr_set_ui(result->f, 0, MPFR_RNDN);
         return (PyObject*)result;
@@ -189,7 +189,7 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = (PympfrObject*)Pympfr_new(prec)))
+    if (!(result = (MPFR_Object*)Pympfr_new(prec)))
         return NULL;
 
     /* reconstruct exponent */
@@ -234,7 +234,7 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
  */
 
 static PyObject *
-Pympz_To_Binary(PympzObject *self)
+Pympz_To_Binary(MPZ_Object *self)
 {
     size_t size = 2;
     int sgn;
@@ -266,7 +266,7 @@ Pympz_To_Binary(PympzObject *self)
 }
 
 static PyObject *
-Pyxmpz_To_Binary(PyxmpzObject *self)
+Pyxmpz_To_Binary(XMPZ_Object *self)
 {
     size_t size = 2;
     int sgn;
@@ -315,7 +315,7 @@ Pyxmpz_To_Binary(PyxmpzObject *self)
  */
 
 static PyObject *
-Pympq_To_Binary(PympqObject *self)
+Pympq_To_Binary(MPQ_Object *self)
 {
     size_t sizenum, sizeden, sizesize = 4, size = 2, sizetemp, i;
     size_t count = 0;
@@ -410,7 +410,7 @@ Pympq_To_Binary(PympqObject *self)
  */
 
 static PyObject *
-Pympfr_To_Binary(PympfrObject *self)
+Pympfr_To_Binary(MPFR_Object *self)
 {
     size_t sizemant = 0, sizesize = 4, size = 4, sizetemp, i;
     mp_limb_t templimb;
@@ -582,15 +582,15 @@ Pympfr_To_Binary(PympfrObject *self)
  */
 
 static PyObject *
-Pympc_To_Binary(PympcObject *self)
+Pympc_To_Binary(MPC_Object *self)
 {
-    PympfrObject *real = 0, *imag = 0;
+    MPFR_Object *real = 0, *imag = 0;
     PyObject *result = 0, *temp = 0;
     mpfr_prec_t rprec = 0, cprec = 0;
 
     mpc_get_prec2(&rprec, &cprec, self->c);
-    real = (PympfrObject*)Pympfr_new(rprec);
-    imag = (PympfrObject*)Pympfr_new(cprec);
+    real = (MPFR_Object*)Pympfr_new(rprec);
+    imag = (MPFR_Object*)Pympfr_new(cprec);
     if (!real || !imag) {
         Py_XDECREF((PyObject*)real);
         Py_XDECREF((PyObject*)imag);
@@ -646,9 +646,9 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
 
     switch (cp[0]) {
         case 0x01: {
-            PympzObject *result;
+            MPZ_Object *result;
 
-            if (!(result = (PympzObject*)Pympz_new()))
+            if (!(result = (MPZ_Object*)Pympz_new()))
                 return NULL;
             if (cp[1] == 0x00) {
                 mpz_set_ui(result->z, 0);
@@ -661,9 +661,9 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             break;
         }
         case 0x02: {
-            PyxmpzObject *result;
+            XMPZ_Object *result;
 
-            if (!(result = (PyxmpzObject*)Pyxmpz_new()))
+            if (!(result = (XMPZ_Object*)Pyxmpz_new()))
                 return NULL;
             if (cp[1] == 0x00) {
                 mpz_set_ui(result->z, 0);
@@ -676,11 +676,11 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             break;
         }
         case 0x03: {
-            PympqObject *result;
+            MPQ_Object *result;
             size_t numlen = 0, sizesize = 4, i;
             mpz_t num, den;
 
-            if (!(result = (PympqObject*)Pympq_new()))
+            if (!(result = (MPQ_Object*)Pympq_new()))
                 return NULL;
             if (cp[1] == 0x00) {
                 mpq_set_ui(result->q, 0, 1);
@@ -721,7 +721,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             break;
         }
         case 0x04: {
-            PympfrObject *result;
+            MPFR_Object *result;
             size_t sizemant = 0, sizesize = 4, i, newmant;
             mpfr_prec_t precision = 0;
             mpfr_exp_t exponent = 0;
@@ -752,7 +752,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             if (cp[1] & 0x40) limbsize = 8;
 
 
-            if (!(result = (PympfrObject*)Pympfr_new(precision)))
+            if (!(result = (MPFR_Object*)Pympfr_new(precision)))
                 return NULL;
 
             /* Restore the original result code and rounding mode. */
@@ -891,8 +891,8 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             }
         }
         case 0x05: {
-            PympcObject *result;
-            PympfrObject *real = 0, *imag = 0;
+            MPC_Object *result;
+            MPFR_Object *real = 0, *imag = 0;
             size_t sizemant = 0, sizesize = 4, i, newmant;
             mpfr_prec_t precision = 0;
             mpfr_exp_t exponent = 0;
@@ -913,7 +913,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             if (cp[1] & 0x02) sgn = -1;
             if (cp[1] & 0x20) expsgn = -1;
             if (cp[1] & 0x40) limbsize = 8;
-            if (!(real = (PympfrObject*)Pympfr_new(precision)))
+            if (!(real = (MPFR_Object*)Pympfr_new(precision)))
                 return NULL;
             if (cp[2] == 0)      real->rc = 0;
             else if (cp[2] == 1) real->rc = 1;
@@ -1038,7 +1038,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             if (cp[1] & 0x02) sgn = -1;
             if (cp[1] & 0x20) expsgn = -1;
             if (cp[1] & 0x40) limbsize = 8;
-            if (!(imag = (PympfrObject*)Pympfr_new(precision)))
+            if (!(imag = (MPFR_Object*)Pympfr_new(precision)))
                 return NULL;
             if (cp[2] == 0)      imag->rc = 0;
             else if (cp[2] == 1) imag->rc = 1;
@@ -1140,7 +1140,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
                     mpfr_neg(imag->f, imag->f, MPFR_RNDN);
             }
   alldone:
-            if (!(result = (PympcObject*)Pympc_new(0,0))) {
+            if (!(result = (MPC_Object*)Pympc_new(0,0))) {
                 Py_DECREF((PyObject*)real);
                 Py_DECREF((PyObject*)imag);
                 return NULL;

@@ -38,8 +38,8 @@ extern "C" {
  */
 
 #define CREATE_TWO_MPZ_TUPLE(q, r, t) \
-    q = (PympzObject*)Pympz_new(); \
-    r = (PympzObject*)Pympz_new(); \
+    q = (MPZ_Object*)Pympz_new(); \
+    r = (MPZ_Object*)Pympz_new(); \
     t = PyTuple_New(2); \
     if (!q || !r || !t) { \
         Py_XDECREF(t); \
@@ -93,10 +93,10 @@ extern "C" {
  */
 
 #define PARSE_ONE_MPFR_OTHER(msg) \
-    if (self && Pympfr_CheckAndExp(self)) { \
+    if (self && MPFR_CheckAndExp(self)) { \
         Py_INCREF(self); \
     } \
-    else if (Pympfr_CheckAndExp(other)) { \
+    else if (MPFR_CheckAndExp(other)) { \
         self = other; \
         Py_INCREF((PyObject*)self); \
     } \
@@ -298,7 +298,7 @@ extern "C" {
  */
 
 #define PARSE_ONE_MPFR_OPT_CLONG(var, msg) \
-    if (self && Pympfr_CheckAndExp(self)) { \
+    if (self && MPFR_CheckAndExp(self)) { \
         if (PyTuple_GET_SIZE(args) == 1) { \
             *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             if (*var == -1 && PyErr_Occurred()) { \
@@ -320,7 +320,7 @@ extern "C" {
                 return NULL; \
             } \
             self = PyTuple_GET_ITEM(args, 0); \
-            if (Pympfr_CheckAndExp(self)) { \
+            if (MPFR_CheckAndExp(self)) { \
                 Py_INCREF((PyObject*)self); \
             } \
             else { \
@@ -329,7 +329,7 @@ extern "C" {
         } \
         else if (PyTuple_GET_SIZE(args) == 1) { \
             self = PyTuple_GET_ITEM(args, 0); \
-            if(Pympfr_CheckAndExp(self)) { \
+            if(MPFR_CheckAndExp(self)) { \
                 Py_INCREF((PyObject*)self); \
             } \
             else { \
@@ -458,7 +458,7 @@ extern "C" {
  */
 
 #define PARSE_ONE_MPFR_REQ_CLONG(var, msg) \
-    if (self && Pympfr_CheckAndExp(self)) { \
+    if (self && MPFR_CheckAndExp(self)) { \
         if (PyTuple_GET_SIZE(args) != 1) { \
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
@@ -484,7 +484,7 @@ extern "C" {
                 return NULL; \
             } \
             self = PyTuple_GET_ITEM(args, 0); \
-            if (Pympfr_CheckAndExp(self)) { \
+            if (MPFR_CheckAndExp(self)) { \
                 Py_INCREF((PyObject*)self); \
             } \
             else { \
@@ -537,7 +537,7 @@ extern "C" {
     }
 
 #define PARSE_TWO_MPQ(var, msg) \
-    if (self && Pympq_Check(self)) { \
+    if (self && MPQ_Check(self)) { \
         if (PyTuple_GET_SIZE(args) != 1) { \
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
@@ -575,7 +575,7 @@ extern "C" {
  */
 
 #define PARSE_TWO_MPFR_ARGS(var, msg) \
-    if (self && Pympfr_Check(self)) { \
+    if (self && MPFR_Check(self)) { \
         if (PyTuple_GET_SIZE(args) != 1) { \
             TYPE_ERROR(msg); \
             return NULL; \
@@ -603,7 +603,7 @@ extern "C" {
    under Python 3.x, self is a module. */
 
 #define SELF_MPQ_NO_ARG \
-    if (self && Pympq_Check(self)) { \
+    if (self && MPQ_Check(self)) { \
         if(!PyArg_ParseTuple(args, "")) \
             return NULL; \
         Py_INCREF(self); \
@@ -614,7 +614,7 @@ extern "C" {
     }
 
 #define SELF_MPQ_ONE_ARG(fm, var) \
-    if (self && Pympq_Check(self)) { \
+    if (self && MPQ_Check(self)) { \
         if (!PyArg_ParseTuple(args, fm, var)) \
             return NULL; \
         Py_INCREF(self); \

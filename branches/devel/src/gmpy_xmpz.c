@@ -46,7 +46,7 @@ PyDoc_STRVAR(doc_xmpz,
 static PyObject *
 Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
 {
-    PyxmpzObject *result = 0;
+    XMPZ_Object *result = 0;
     PyObject *n = 0;
     int base = 0;
     Py_ssize_t argc;
@@ -55,7 +55,7 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
     /* Optimize the most common use case */
     argc = PyTuple_Size(args);
     if (argc == 0) {
-        if ((result = (PyxmpzObject*)Pyxmpz_new())) {
+        if ((result = (XMPZ_Object*)Pyxmpz_new())) {
             mpz_set_ui(result->z, 0);
         }
         return (PyObject*)result;
@@ -112,7 +112,7 @@ Pyxmpz_digits(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
-    result = Pyxmpz_To_PyStr((PyxmpzObject*)self, (int)base, 0);
+    result = Pyxmpz_To_PyStr((XMPZ_Object*)self, (int)base, 0);
     Py_DECREF(self);
     return result;
 }
@@ -125,7 +125,7 @@ static PyObject *
 Pyxmpz_xbit_mask(PyObject *self, PyObject *other)
 {
     Py_ssize_t i = 0;
-    PyxmpzObject* result;
+    XMPZ_Object* result;
 
     i = ssize_t_From_Integer(other);
     if (i == -1 && PyErr_Occurred()) {
@@ -138,7 +138,7 @@ Pyxmpz_xbit_mask(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = (PyxmpzObject*)Pyxmpz_new()))
+    if (!(result = (XMPZ_Object*)Pyxmpz_new()))
         return NULL;
 
     mpz_set_ui(result->z, 1);
@@ -149,27 +149,27 @@ Pyxmpz_xbit_mask(PyObject *self, PyObject *other)
 }
 
 static PyObject *
-Pyxmpz_abs(PyxmpzObject *x)
+Pyxmpz_abs(XMPZ_Object *x)
 {
     mpz_abs(x->z, x->z);
     Py_RETURN_NONE;
 }
 
 static PyObject *
-Pyxmpz_neg(PyxmpzObject *x)
+Pyxmpz_neg(XMPZ_Object *x)
 {
     mpz_neg(x->z, x->z);
     Py_RETURN_NONE;
 }
 
 static PyObject *
-Pyxmpz_pos(PyxmpzObject *x)
+Pyxmpz_pos(XMPZ_Object *x)
 {
     Py_RETURN_NONE;
 }
 
 static int
-Pyxmpz_nonzero(PyxmpzObject *x)
+Pyxmpz_nonzero(XMPZ_Object *x)
 {
     return mpz_sgn(x->z) != 0;
 }
@@ -177,7 +177,7 @@ Pyxmpz_nonzero(PyxmpzObject *x)
 /* BIT OPERATIONS */
 
 static PyObject *
-Pyxmpz_com(PyxmpzObject *x)
+Pyxmpz_com(XMPZ_Object *x)
 {
     mpz_com(x->z, x->z);
     Py_RETURN_NONE;
@@ -186,13 +186,13 @@ Pyxmpz_com(PyxmpzObject *x)
 #if PY_MAJOR_VERSION < 3
 /* hex/oct formatting (mpz-only) */
 static PyObject *
-Pyxmpz_oct(PyxmpzObject *self)
+Pyxmpz_oct(XMPZ_Object *self)
 {
     return Pyxmpz_To_PyStr(self, 8, 0);
 }
 
 static PyObject *
-Pyxmpz_hex(PyxmpzObject *self)
+Pyxmpz_hex(XMPZ_Object *self)
 {
     return Pyxmpz_To_PyStr(self, 16, 0);
 }
@@ -207,12 +207,12 @@ PyDoc_STRVAR(doc_make_mpzm,
 static PyObject *
 Pyxmpz_make_mpz(PyObject *self, PyObject *other)
 {
-    PympzObject* result;
+    MPZ_Object* result;
 
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = (MPZ_Object*)Pympz_new()))
         return NULL;
-    mpz_swap(result->z, Pympz_AS_MPZ(self));
-    mpz_set_ui(Pympz_AS_MPZ(self), 0);
+    mpz_swap(result->z, MPZ(self));
+    mpz_set_ui(MPZ(self), 0);
     return (PyObject*)result;
 }
 
@@ -231,13 +231,13 @@ Pyxmpz_copy(PyObject *self, PyObject *other)
  */
 
 static Py_ssize_t
-Pyxmpz_nbits(PyxmpzObject *obj)
+Pyxmpz_nbits(XMPZ_Object *obj)
 {
     return mpz_sizeinbase(obj->z, 2);
 }
 
 static PyObject *
-Pyxmpz_subscript(PyxmpzObject* self, PyObject* item)
+Pyxmpz_subscript(XMPZ_Object* self, PyObject* item)
 {
     if (PyIndex_Check(item)) {
         Py_ssize_t i;
@@ -269,11 +269,11 @@ Pyxmpz_subscript(PyxmpzObject* self, PyObject* item)
 
         if (!(result = (PyObject*)Pympz_new()))
             return NULL;
-        mpz_set_ui(Pympz_AS_MPZ(result), 0);
+        mpz_set_ui(MPZ(result), 0);
         if (slicelength > 0) {
             for (cur = start, i = 0; i < slicelength; cur += step, i++) {
                 if (mpz_tstbit(self->z, cur)) {
-                    mpz_setbit(Pympz_AS_MPZ(result), i);
+                    mpz_setbit(MPZ(result), i);
                 }
             }
         }
@@ -286,7 +286,7 @@ Pyxmpz_subscript(PyxmpzObject* self, PyObject* item)
 }
 
 static int
-Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
+Pyxmpz_assign_subscript(XMPZ_Object* self, PyObject* item, PyObject* value)
 {
     if (PyIndex_Check(item)) {
         Py_ssize_t bit_value, i;
@@ -369,7 +369,7 @@ Pyxmpz_assign_subscript(PyxmpzObject* self, PyObject* item, PyObject* value)
 
         else {
             int bit;
-            PympzObject *tempx;
+            MPZ_Object *tempx;
 
             if (!(tempx = Pympz_From_Integer(value))) {
                 VALUE_ERROR("must specify bit sequence as an integer");
@@ -529,7 +529,7 @@ Pyxmpz_iter_bits(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     result->iter_type = 1;
-    result->bitmap = (PyxmpzObject*)self;
+    result->bitmap = (XMPZ_Object*)self;
     Py_INCREF(self);
     result->start = start;
     result->stop = stop;
@@ -564,7 +564,7 @@ Pyxmpz_iter_set(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     result->iter_type = 2;
-    result->bitmap = (PyxmpzObject*)self;
+    result->bitmap = (XMPZ_Object*)self;
     Py_INCREF(self);
     result->start = start;
     result->stop = stop;
@@ -599,7 +599,7 @@ Pyxmpz_iter_clear(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     result->iter_type = 3;
-    result->bitmap = (PyxmpzObject*)self;
+    result->bitmap = (XMPZ_Object*)self;
     Py_INCREF(self);
     result->start = start;
     result->stop = stop;
@@ -614,8 +614,8 @@ PyDoc_STRVAR(doc_xmpz_sizeof,
 static PyObject *
 Pyxmpz_sizeof(PyObject *self, PyObject *other)
 {
-    return PyIntOrLong_FromSize_t(sizeof(PyxmpzObject) + \
-        (Pympz_AS_MPZ(self)->_mp_alloc * sizeof(mp_limb_t)));
+    return PyIntOrLong_FromSize_t(sizeof(XMPZ_Object) + \
+        (MPZ(self)->_mp_alloc * sizeof(mp_limb_t)));
 }
 
 static PyTypeObject GMPyIter_Type =
@@ -768,7 +768,7 @@ static PyMethodDef Pyxmpz_methods [] =
     { NULL, NULL, 1 }
 };
 
-static PyTypeObject Pyxmpz_Type =
+static PyTypeObject XMPZ_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
 #ifdef PY3
@@ -778,7 +778,7 @@ static PyTypeObject Pyxmpz_Type =
         0,                                  /* ob_size          */
 #endif
     "xmpz",                                 /* tp_name          */
-    sizeof(PyxmpzObject),                   /* tp_basicsize     */
+    sizeof(XMPZ_Object),                   /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
     /* methods */
     (destructor) Pyxmpz_dealloc,            /* tp_dealloc       */

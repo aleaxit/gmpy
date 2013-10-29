@@ -52,11 +52,11 @@ typedef struct {
     Py_hash_t hash_cache;
     int rc;
     int round_mode;
-} PympcObject;
+} MPC_Object;
 
-static PyTypeObject Pympc_Type;
-#define Pympc_AS_MPC(obj) (((PympcObject *)(obj))->c)
-#define Pympc_Check(v) (((PyObject*)v)->ob_type == &Pympc_Type)
+static PyTypeObject MPC_Type;
+#define MPC(obj) (((MPC_Object *)(obj))->c)
+#define MPC_Check(v) (((PyObject*)v)->ob_type == &MPC_Type)
 
 /*
  * Define macros for comparing with zero, checking if either component is
@@ -64,34 +64,34 @@ static PyTypeObject Pympc_Type;
  */
 
 #define MPC_IS_ZERO_P(x) \
-    (mpfr_zero_p(mpc_realref(Pympc_AS_MPC(x))) && \
-     mpfr_zero_p(mpc_imagref(Pympc_AS_MPC(x))))
+    (mpfr_zero_p(mpc_realref(MPC(x))) && \
+     mpfr_zero_p(mpc_imagref(MPC(x))))
 
 #define MPC_IS_NAN_P(x) \
-    (mpfr_nan_p(mpc_realref(Pympc_AS_MPC(x))) || \
-     mpfr_nan_p(mpc_imagref(Pympc_AS_MPC(x))))
+    (mpfr_nan_p(mpc_realref(MPC(x))) || \
+     mpfr_nan_p(mpc_imagref(MPC(x))))
 
 #define MPC_IS_INF_P(x) \
-    (mpfr_inf_p(mpc_realref(Pympc_AS_MPC(x))) || \
-     mpfr_inf_p(mpc_imagref(Pympc_AS_MPC(x))))
+    (mpfr_inf_p(mpc_realref(MPC(x))) || \
+     mpfr_inf_p(mpc_imagref(MPC(x))))
 
 #define MPC_IS_FINITE_P(x) \
-    (mpfr_number_p(mpc_realref(Pympc_AS_MPC(x))) && \
-     mpfr_number_p(mpc_imagref(Pympc_AS_MPC(x))))
+    (mpfr_number_p(mpc_realref(MPC(x))) && \
+     mpfr_number_p(mpc_imagref(MPC(x))))
 
 /* Verify that an object is an mpc and that both components have valid exp */
-#define Pympc_CheckAndExp(v) \
-    (Pympc_Check(v) && \
-        (mpfr_zero_p(mpc_realref(Pympc_AS_MPC(v))) || \
-            (mpfr_regular_p(mpc_realref(Pympc_AS_MPC(v))) && \
-                ((mpc_realref(Pympc_AS_MPC(v))->_mpfr_exp >= context->ctx.emin)) && \
-                ((mpc_realref(Pympc_AS_MPC(v))->_mpfr_exp <= context->ctx.emax)) \
+#define MPC_CheckAndExp(v) \
+    (MPC_Check(v) && \
+        (mpfr_zero_p(mpc_realref(MPC(v))) || \
+            (mpfr_regular_p(mpc_realref(MPC(v))) && \
+                ((mpc_realref(MPC(v))->_mpfr_exp >= context->ctx.emin)) && \
+                ((mpc_realref(MPC(v))->_mpfr_exp <= context->ctx.emax)) \
             ) \
         ) && \
-        (mpfr_zero_p(mpc_imagref(Pympc_AS_MPC(v))) || \
-            (mpfr_regular_p(mpc_imagref(Pympc_AS_MPC(v))) && \
-                ((mpc_imagref(Pympc_AS_MPC(v))->_mpfr_exp >= context->ctx.emin)) && \
-                ((mpc_imagref(Pympc_AS_MPC(v))->_mpfr_exp <= context->ctx.emax)) \
+        (mpfr_zero_p(mpc_imagref(MPC(v))) || \
+            (mpfr_regular_p(mpc_imagref(MPC(v))) && \
+                ((mpc_imagref(MPC(v))->_mpfr_exp >= context->ctx.emin)) && \
+                ((mpc_imagref(MPC(v))->_mpfr_exp <= context->ctx.emax)) \
             ) \
         ) \
     )
@@ -206,12 +206,12 @@ static PyTypeObject Pympc_Type;
  */
 
 #define PARSE_ONE_MPC_ARGS(msg) \
-    if(self && Pympc_Check(self)) { \
+    if(self && MPC_Check(self)) { \
         if (PyTuple_GET_SIZE(args) != 0) { \
             TYPE_ERROR(msg); \
             return NULL; \
         } \
-        if (Pympc_CheckAndExp(self)) { \
+        if (MPC_CheckAndExp(self)) { \
             Py_INCREF(self); \
         } \
         else { \
@@ -227,7 +227,7 @@ static PyTypeObject Pympc_Type;
             return NULL; \
         } \
         self = PyTuple_GET_ITEM(args, 0);\
-        if (Pympc_CheckAndExp(self)) { \
+        if (MPC_CheckAndExp(self)) { \
             Py_INCREF(self); \
         } \
         else { \
@@ -249,8 +249,8 @@ static PyTypeObject Pympc_Type;
  */
 
 #define PARSE_ONE_MPC_OTHER(msg) \
-    if(self && Pympc_Check(self)) { \
-        if (Pympc_CheckAndExp(self)) { \
+    if(self && MPC_Check(self)) { \
+        if (MPC_CheckAndExp(self)) { \
             Py_INCREF(self); \
         } \
         else { \
@@ -261,7 +261,7 @@ static PyTypeObject Pympc_Type;
         } \
     } \
     else { \
-        if (Pympc_CheckAndExp(other)) { \
+        if (MPC_CheckAndExp(other)) { \
             self = other; \
             Py_INCREF(self); \
         } \
@@ -283,7 +283,7 @@ static PyTypeObject Pympc_Type;
  */
 
 #define PARSE_TWO_MPC_ARGS(var, msg) \
-    if(self && Pympc_Check(self)) { \
+    if(self && MPC_Check(self)) { \
         if (PyTuple_GET_SIZE(args) != 1) { \
             TYPE_ERROR(msg); \
             return NULL; \
@@ -309,15 +309,15 @@ static PyTypeObject Pympc_Type;
 static PyObject * Pympc_digits(PyObject *self, PyObject *args);
 static PyObject * Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject * Pympc_format(PyObject *self, PyObject *args);
-static PyObject * Pympc_neg(PympcObject *self);
-static PyObject * Pympc_pos(PympcObject *self);
+static PyObject * Pympc_neg(MPC_Object *self);
+static PyObject * Pympc_pos(MPC_Object *self);
 static PyObject * Pympc_sqr(PyObject* self, PyObject *other);
 static PyObject * Pympc_conjugate(PyObject *self, PyObject *args);
-static PyObject * Pympc_getprec_attrib(PympcObject *self, void *closure);
-static PyObject * Pympc_getrc_attrib(PympcObject *self, void *closure);
-static PyObject * Pympc_getimag_attrib(PympcObject *self, void *closure);
-static PyObject * Pympc_getreal_attrib(PympcObject *self, void *closure);
-static int Pympc_nonzero(PympcObject *self);
+static PyObject * Pympc_getprec_attrib(MPC_Object *self, void *closure);
+static PyObject * Pympc_getrc_attrib(MPC_Object *self, void *closure);
+static PyObject * Pympc_getimag_attrib(MPC_Object *self, void *closure);
+static PyObject * Pympc_getreal_attrib(MPC_Object *self, void *closure);
+static int Pympc_nonzero(MPC_Object *self);
 static PyObject * Pympc_is_NAN(PyObject *self, PyObject *other);
 static PyObject * Pympc_is_ZERO(PyObject *self, PyObject *other);
 static PyObject * Pympc_is_INF(PyObject *self, PyObject *other);
@@ -348,7 +348,7 @@ static PyObject * Pympc_fma(PyObject *self, PyObject *args);
 static PyObject * Pympc_fms(PyObject *self, PyObject *args);
 static PyObject * Pympc_div_2exp(PyObject *self, PyObject *args);
 static PyObject * Pympc_mul_2exp(PyObject *self, PyObject *args);
-static Py_hash_t Pympc_hash(PympcObject *self);
+static Py_hash_t Pympc_hash(MPC_Object *self);
 static PyObject * Pympc_sub_fast(PyObject *x, PyObject *y);
 static PyObject * Pympc_mul_fast(PyObject *x, PyObject *y);
 static PyObject * Pympc_truediv_fast(PyObject *x, PyObject *y);

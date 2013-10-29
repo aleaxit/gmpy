@@ -45,9 +45,9 @@
 
 static int isInteger(PyObject* obj)
 {
-    if (Pympz_Check(obj))       return 1;
+    if (MPZ_Check(obj))         return 1;
     if (PyIntOrLong_Check(obj)) return 1;
-    if (Pyxmpz_Check(obj))      return 1;
+    if (XMPZ_Check(obj))      return 1;
 
     return 0;
 }
@@ -72,10 +72,10 @@ static int isDecimal(PyObject* obj)
 
 static int isRational(PyObject* obj)
 {
-    if (Pympz_Check(obj))       return 1;
+    if (MPZ_Check(obj))         return 1;
     if (PyIntOrLong_Check(obj)) return 1;
-    if (Pympq_Check(obj))       return 1;
-    if (Pyxmpz_Check(obj))      return 1;
+    if (MPQ_Check(obj))       return 1;
+    if (XMPZ_Check(obj))      return 1;
     if (isFraction(obj))        return 1;
 
     return 0;
@@ -83,11 +83,11 @@ static int isRational(PyObject* obj)
 
 static int isReal(PyObject* obj)
 {
-    if (Pympz_Check(obj))       return 1;
+    if (MPZ_Check(obj))         return 1;
     if (PyIntOrLong_Check(obj)) return 1;
-    if (Pympq_Check(obj))       return 1;
-    if (Pympfr_Check(obj))      return 1;
-    if (Pyxmpz_Check(obj))      return 1;
+    if (MPQ_Check(obj))       return 1;
+    if (MPFR_Check(obj))      return 1;
+    if (XMPZ_Check(obj))      return 1;
     if (PyFloat_Check(obj))     return 1;
     if (isDecimal(obj))         return 1;
     if (isFraction(obj))        return 1;
@@ -97,12 +97,12 @@ static int isReal(PyObject* obj)
 
 static int isComplex(PyObject* obj)
 {
-    if (Pympz_Check(obj))       return 1;
+    if (MPZ_Check(obj))         return 1;
     if (PyIntOrLong_Check(obj)) return 1;
-    if (Pympq_Check(obj))       return 1;
-    if (Pympfr_Check(obj))      return 1;
-    if (Pyxmpz_Check(obj))      return 1;
-    if (Pympc_Check(obj))       return 1;
+    if (MPQ_Check(obj))       return 1;
+    if (MPFR_Check(obj))      return 1;
+    if (XMPZ_Check(obj))      return 1;
+    if (MPC_Check(obj))       return 1;
     if (PyFloat_Check(obj))     return 1;
     if (PyComplex_Check(obj))   return 1;
     if (isDecimal(obj))         return 1;
@@ -111,64 +111,64 @@ static int isComplex(PyObject* obj)
     return 0;
 }
 
-static PyxmpzObject *
+static XMPZ_Object *
 Pyxmpz_From_Pyxmpz(PyObject *self)
 {
-    PyxmpzObject *newob;
+    XMPZ_Object *newob;
 
-    if ((newob = (PyxmpzObject*)Pyxmpz_new()))
-        mpz_set(newob->z, Pyxmpz_AS_MPZ(self));
+    if ((newob = (XMPZ_Object*)Pyxmpz_new()))
+        mpz_set(newob->z, MPZ(self));
     return newob;
 }
 
-static PympzObject *
+static MPZ_Object *
 Pympz_From_Pyxmpz(PyObject *self)
 {
-    PympzObject *newob;
+    MPZ_Object *newob;
 
-    if ((newob = (PympzObject*)Pympz_new()))
-        mpz_set(newob->z, Pyxmpz_AS_MPZ(self));
+    if ((newob = (MPZ_Object*)Pympz_new()))
+        mpz_set(newob->z, MPZ(self));
     return newob;
 }
 
-static PyxmpzObject *
+static XMPZ_Object *
 Pyxmpz_From_Pympz(PyObject *self)
 {
-    PyxmpzObject *newob;
+    XMPZ_Object *newob;
 
-    if ((newob = (PyxmpzObject*)Pyxmpz_new()))
-        mpz_set(newob->z, Pyxmpz_AS_MPZ(self));
+    if ((newob = (XMPZ_Object*)Pyxmpz_new()))
+        mpz_set(newob->z, MPZ(self));
     return newob;
 }
 
 #ifdef PY2
-static PympzObject *
+static MPZ_Object *
 Pympz_From_PyInt(PyObject *self)
 {
-    PympzObject *newob;
+    MPZ_Object *newob;
 
-    if ((newob = (PympzObject*)Pympz_new()))
+    if ((newob = (MPZ_Object*)Pympz_new()))
         mpz_set_si(newob->z, PyInt_AS_LONG(self));
     return newob;
 }
 
-static PyxmpzObject *
+static XMPZ_Object *
 Pyxmpz_From_PyInt(PyObject *self)
 {
-    PyxmpzObject *newob;
+    XMPZ_Object *newob;
 
-    if ((newob = (PyxmpzObject*)Pyxmpz_new()))
+    if ((newob = (XMPZ_Object*)Pyxmpz_new()))
         mpz_set_si(newob->z, PyInt_AsLong(self));
     return newob;
 }
 #endif
 
-static PympzObject *
+static MPZ_Object *
 Pympz_From_PyFloat(PyObject *self)
 {
-    PympzObject *newob;
+    MPZ_Object *newob;
 
-    if ((newob = (PympzObject*)Pympz_new())) {
+    if ((newob = (MPZ_Object*)Pympz_new())) {
         double d = PyFloat_AsDouble(self);
         if (Py_IS_NAN(d)) {
             Py_DECREF((PyObject*)newob);
@@ -185,12 +185,12 @@ Pympz_From_PyFloat(PyObject *self)
     return newob;
 }
 
-static PyxmpzObject *
+static XMPZ_Object *
 Pyxmpz_From_PyFloat(PyObject *self)
 {
-    PyxmpzObject *newob;
+    XMPZ_Object *newob;
 
-    if ((newob = (PyxmpzObject*)Pyxmpz_new())) {
+    if ((newob = (XMPZ_Object*)Pyxmpz_new())) {
         double d = PyFloat_AsDouble(self);
         if (Py_IS_NAN(d)) {
             Py_DECREF((PyObject*)newob);
@@ -211,21 +211,21 @@ Pyxmpz_From_PyFloat(PyObject *self)
  * mpz_pylong.c.
  */
 
-static PympzObject *
+static MPZ_Object *
 Pympz_From_PyLong(PyObject * obj)
 {
-    PympzObject *newob;
-    if (!(newob = (PympzObject*)Pympz_new()))
+    MPZ_Object *newob;
+    if (!(newob = (MPZ_Object*)Pympz_new()))
         return NULL;
     mpz_set_PyIntOrLong(newob->z, obj);
     return newob;
 }
 
-static PyxmpzObject *
+static XMPZ_Object *
 Pyxmpz_From_PyLong(PyObject * obj)
 {
-    PyxmpzObject *newob;
-    if (!(newob = (PyxmpzObject*)Pyxmpz_new()))
+    XMPZ_Object *newob;
+    if (!(newob = (XMPZ_Object*)Pyxmpz_new()))
         return NULL;
     mpz_set_PyIntOrLong(newob->z, obj);
     return newob;
@@ -295,12 +295,12 @@ mpz_set_PyStr(mpz_ptr z, PyObject *s, int base)
     return 1;
 }
 
-static PympzObject *
+static MPZ_Object *
 Pympz_From_PyStr(PyObject *s, int base)
 {
-    PympzObject *newob;
+    MPZ_Object *newob;
 
-    if (!(newob = (PympzObject*)Pympz_new()))
+    if (!(newob = (MPZ_Object*)Pympz_new()))
         return NULL;
 
     if (mpz_set_PyStr(newob->z, s, base) == -1) {
@@ -310,12 +310,12 @@ Pympz_From_PyStr(PyObject *s, int base)
     return newob;
 }
 
-static PyxmpzObject *
+static XMPZ_Object *
 Pyxmpz_From_PyStr(PyObject *s, int base)
 {
-    PyxmpzObject *newob;
+    XMPZ_Object *newob;
 
-    if (!(newob = (PyxmpzObject*)Pyxmpz_new()))
+    if (!(newob = (XMPZ_Object*)Pyxmpz_new()))
         return NULL;
 
     if (mpz_set_PyStr(newob->z, s, base) == -1) {
@@ -329,15 +329,15 @@ Pyxmpz_From_PyStr(PyObject *s, int base)
  */
 
 static PyObject *
-Pympz_To_PyLong(PympzObject *self)
+Pympz_To_PyLong(MPZ_Object *self)
 {
-    return mpz_get_PyLong(Pympz_AS_MPZ(self));
+    return mpz_get_PyLong(MPZ(self));
 }
 
 static PyObject *
-Pyxmpz_To_PyLong(PyxmpzObject *self)
+Pyxmpz_To_PyLong(XMPZ_Object *self)
 {
-    return mpz_get_PyLong(Pyxmpz_AS_MPZ(self));
+    return mpz_get_PyLong(MPZ(self));
 }
 
 /* The _To_PyIntOrLong functions should be used when converting a number back
@@ -347,7 +347,7 @@ Pyxmpz_To_PyLong(PyxmpzObject *self)
  */
 
 static PyObject *
-Pympz_To_PyIntOrLong(PympzObject *self)
+Pympz_To_PyIntOrLong(MPZ_Object *self)
 {
 #ifdef PY3
     return Pympz_To_PyLong(self);
@@ -361,7 +361,7 @@ Pympz_To_PyIntOrLong(PympzObject *self)
 }
 
 static PyObject *
-Pyxmpz_To_PyIntOrLong(PyxmpzObject *self)
+Pyxmpz_To_PyIntOrLong(XMPZ_Object *self)
 {
 #ifdef PY3
     return Pyxmpz_To_PyLong(self);
@@ -375,7 +375,7 @@ Pyxmpz_To_PyIntOrLong(PyxmpzObject *self)
 }
 
 static PyObject *
-Pympz_To_PyFloat(PympzObject *self)
+Pympz_To_PyFloat(MPZ_Object *self)
 {
     double res = mpz_get_d(self->z);
 
@@ -618,13 +618,13 @@ xmpz_ascii(mpz_t z, int base, int option)
 }
 
 static PyObject *
-Pympz_To_PyStr(PympzObject *self, int base, int option)
+Pympz_To_PyStr(MPZ_Object *self, int base, int option)
 {
     return mpz_ascii(self->z, base, option);
 }
 
 static PyObject *
-Pyxmpz_To_PyStr(PyxmpzObject *self, int base, int option)
+Pyxmpz_To_PyStr(XMPZ_Object *self, int base, int option)
 {
     return xmpz_ascii(self->z, base, option);
 }
@@ -658,15 +658,15 @@ Pyxmpz_To_PyStr(PyxmpzObject *self, int base, int option)
  *      6) xmpz
  */
 
-static PympzObject*
+static MPZ_Object*
 Pympz_From_Number(PyObject* obj)
 {
-    PympzObject* newob = 0;
-    PympqObject* temp = 0;
+    MPZ_Object* newob = 0;
+    MPQ_Object* temp = 0;
 
-    if (Pympz_Check(obj)) {
+    if (MPZ_Check(obj)) {
         Py_INCREF(obj);
-        newob = (PympzObject *) obj;
+        newob = (MPZ_Object*) obj;
 #ifdef PY2
     }
     else if (PyInt_Check(obj)) {
@@ -676,16 +676,16 @@ Pympz_From_Number(PyObject* obj)
     else if (PyLong_Check(obj)) {
         newob = Pympz_From_PyLong(obj);
     }
-    else if (Pympq_Check(obj)) {
+    else if (MPQ_Check(obj)) {
         newob = Pympq_To_Pympz(obj);
     }
-    else if (Pympfr_Check(obj)) {
+    else if (MPFR_Check(obj)) {
         newob = Pympfr_To_Pympz(obj);
     }
     else if (PyFloat_Check(obj)) {
         newob = Pympz_From_PyFloat(obj);
     }
-    else if (Pyxmpz_Check(obj)) {
+    else if (XMPZ_Check(obj)) {
         newob = Pympz_From_Pyxmpz(obj);
     }
     else if (isDecimal(obj)) {
@@ -706,13 +706,13 @@ Pympz_From_Number(PyObject* obj)
     return newob;
 }
 
-static PyxmpzObject*
+static XMPZ_Object*
 Pyxmpz_From_Number(PyObject* obj)
 {
-    PyxmpzObject* newob = NULL;
-    PympqObject* temp = NULL;
+    XMPZ_Object* newob = NULL;
+    MPQ_Object* temp = NULL;
 
-    if (Pympz_Check(obj)) {
+    if (MPZ_Check(obj)) {
         newob = Pyxmpz_From_Pympz(obj);
 #ifdef PY2
     }
@@ -723,16 +723,16 @@ Pyxmpz_From_Number(PyObject* obj)
     else if (PyLong_Check(obj)) {
         newob = Pyxmpz_From_PyLong(obj);
     }
-    else if (Pympq_Check(obj)) {
+    else if (MPQ_Check(obj)) {
         newob = Pympq_To_Pyxmpz(obj);
     }
-    else if (Pympfr_Check(obj)) {
+    else if (MPFR_Check(obj)) {
         newob = Pympfr_To_Pyxmpz(obj);
     }
     else if (PyFloat_Check(obj)) {
         newob = Pyxmpz_From_PyFloat(obj);
     }
-    else if (Pyxmpz_Check(obj)) {
+    else if (XMPZ_Check(obj)) {
         newob = Pyxmpz_From_Pyxmpz(obj);
     }
     else if (isDecimal(obj)) {
@@ -758,14 +758,14 @@ Pyxmpz_From_Number(PyObject* obj)
  * Integer-like object.
  */
 
-static PympzObject *
+static MPZ_Object *
 Pympz_From_Integer(PyObject *obj)
 {
-    PympzObject *newob = 0;
+    MPZ_Object *newob = 0;
 
-    if (Pympz_Check(obj)) {
+    if (MPZ_Check(obj)) {
         Py_INCREF(obj);
-        newob = (PympzObject*) obj;
+        newob = (MPZ_Object*) obj;
 #ifdef PY2
     }
     else if (PyInt_Check(obj)) {
@@ -775,7 +775,7 @@ Pympz_From_Integer(PyObject *obj)
     else if (PyLong_Check(obj)) {
         newob = Pympz_From_PyLong(obj);
     }
-    else if (Pyxmpz_Check(obj)) {
+    else if (XMPZ_Check(obj)) {
         newob = Pympz_From_Pyxmpz(obj);
     }
     if (!newob)
@@ -794,8 +794,8 @@ clong_From_Integer(PyObject *obj)
         return PyLong_AsLong(obj);
     }
     else if (CHECK_MPZANY(obj)) {
-        if (mpz_fits_slong_p(Pympz_AS_MPZ(obj))) {
-            return (long)mpz_get_si(Pympz_AS_MPZ(obj));
+        if (mpz_fits_slong_p(MPZ(obj))) {
+            return (long)mpz_get_si(MPZ(obj));
         }
         else {
             OVERFLOW_ERROR("overflow in clong_From_Integer");
@@ -830,8 +830,8 @@ SI_From_Integer(PyObject *obj)
     }
 #endif
     else if (CHECK_MPZANY(obj)) {
-        if (mpz_fits_slong_p(Pympz_AS_MPZ(obj))) {
-            return mpz_get_si(Pympz_AS_MPZ(obj));
+        if (mpz_fits_slong_p(MPZ(obj))) {
+            return mpz_get_si(MPZ(obj));
         }
         else {
             OVERFLOW_ERROR("overflow in SI_From_Integer");
@@ -862,8 +862,8 @@ UI_From_Integer(PyObject *obj)
     }
 #endif
     else if (CHECK_MPZANY(obj)) {
-        if (mpz_fits_ulong_p(Pympz_AS_MPZ(obj))) {
-            return mpz_get_ui(Pympz_AS_MPZ(obj));
+        if (mpz_fits_ulong_p(MPZ(obj))) {
+            return mpz_get_ui(MPZ(obj));
         }
         else {
             OVERFLOW_ERROR("overflow in UI_From_Integer");
@@ -893,8 +893,8 @@ SI_From_Integer(PyObject *obj)
     }
 #endif
     else if (CHECK_MPZANY(obj)) {
-        if (mpz_fits_si_p(Pympz_AS_MPZ(obj))) {
-            return mpz_get_si(Pympz_AS_MPZ(obj));
+        if (mpz_fits_si_p(MPZ(obj))) {
+            return mpz_get_si(MPZ(obj));
         }
         else {
             OVERFLOW_ERROR("overflow in SI_From_Integer");
@@ -924,8 +924,8 @@ UI_From_Integer(PyObject *obj)
     }
 #endif
     else if (CHECK_MPZANY(obj)) {
-        if (mpz_fits_ui_p(Pympz_AS_MPZ(obj))) {
-            return mpz_get_ui(Pympz_AS_MPZ(obj));
+        if (mpz_fits_ui_p(MPZ(obj))) {
+            return mpz_get_ui(MPZ(obj));
         }
         else {
             OVERFLOW_ERROR("overflow in UI_From_Integer");
@@ -963,12 +963,12 @@ ssize_t_From_Integer(PyObject *obj)
     }
 #endif
     else if (CHECK_MPZANY(obj)) {
-        if (mpz_fits_slong_p(Pympz_AS_MPZ(obj))) {
-            return (Py_ssize_t)mpz_get_si(Pympz_AS_MPZ(obj));
+        if (mpz_fits_slong_p(MPZ(obj))) {
+            return (Py_ssize_t)mpz_get_si(MPZ(obj));
         }
         else {
             /* This section should only be called on Win64. */
-            temp = mpz_get_PyLong(Pympz_AS_MPZ(obj));
+            temp = mpz_get_PyLong(MPZ(obj));
             if (!temp) {
                 TYPE_ERROR("conversion error in ssize_t_From_Integer");
                 return -1;
@@ -993,7 +993,7 @@ ssize_t_From_Integer(PyObject *obj)
 static int
 Pympz_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympzObject* newob = Pympz_From_Integer(arg);
+    MPZ_Object* newob = Pympz_From_Integer(arg);
 
     if (newob) {
         *ptr = (PyObject*)newob;
@@ -1008,14 +1008,14 @@ Pympz_convert_arg(PyObject *arg, PyObject **ptr)
 
 /* str and repr implementations for mpz */
 static PyObject *
-Pympz_To_Str(PympzObject *self)
+Pympz_To_Str(MPZ_Object *self)
 {
     /* base-10, no tag */
     return Pympz_To_PyStr(self, 10, 0);
 }
 
 static PyObject *
-Pympz_To_Repr(PympzObject *self)
+Pympz_To_Repr(MPZ_Object *self)
 {
     /* base-10, with tag */
     return Pympz_To_PyStr(self, 10, 1);
@@ -1023,80 +1023,80 @@ Pympz_To_Repr(PympzObject *self)
 
 /* str and repr implementations for xmpz */
 static PyObject *
-Pyxmpz_To_Str(PyxmpzObject *self)
+Pyxmpz_To_Str(XMPZ_Object *self)
 {
     /* base-10, no tag */
     return Pyxmpz_To_PyStr(self, 10, 0);
 }
 
 static PyObject *
-Pyxmpz_To_Repr(PyxmpzObject *self)
+Pyxmpz_To_Repr(XMPZ_Object *self)
 {
     /* base-10, with tag */
     return Pyxmpz_To_PyStr(self, 10, 1);
 }
 
 #ifdef PY2
-static PympqObject *
+static MPQ_Object *
 Pympq_From_PyInt(PyObject *self)
 {
-    PympqObject *newob;
+    MPQ_Object *newob;
 
-    if ((newob = (PympqObject*)Pympq_new()))
+    if ((newob = (MPQ_Object*)Pympq_new()))
         mpq_set_si(newob->q, PyInt_AsLong(self), 1);
 
     return newob;
 }
 #endif
 
-static PympqObject *
+static MPQ_Object *
 Pympq_From_Pympz(PyObject *self)
 {
-    PympqObject *newob;
+    MPQ_Object *newob;
 
-    if ((newob = (PympqObject*)Pympq_new()))
-        mpq_set_z(newob->q, Pympz_AS_MPZ(self));
+    if ((newob = (MPQ_Object*)Pympq_new()))
+        mpq_set_z(newob->q, MPZ(self));
 
     return newob;
 }
 
-static PympqObject *
+static MPQ_Object *
 Pympq_From_Pyxmpz(PyObject * obj)
 {
-    PympqObject *newob;
+    MPQ_Object *newob;
 
-    if ((newob = (PympqObject*)Pympq_new()))
-        mpq_set_z(newob->q, Pyxmpz_AS_MPZ(obj));
+    if ((newob = (MPQ_Object*)Pympq_new()))
+        mpq_set_z(newob->q, MPZ(obj));
 
     return newob;
 }
 
-static PympzObject *
+static MPZ_Object *
 Pympq_To_Pympz(PyObject *self)
 {
-    PympzObject *newob;
+    MPZ_Object *newob;
 
-    if ((newob = (PympzObject*)Pympz_new()))
-        mpz_set_q(newob->z, Pympq_AS_MPQ(self));
+    if ((newob = (MPZ_Object*)Pympz_new()))
+        mpz_set_q(newob->z, MPQ(self));
 
     return newob;
 }
 
-static PyxmpzObject *
+static XMPZ_Object *
 Pympq_To_Pyxmpz(PyObject *self)
 {
-    PyxmpzObject *newob;
+    XMPZ_Object *newob;
 
-    if ((newob = (PyxmpzObject*)Pyxmpz_new()))
-        mpz_set_q(newob->z, Pympq_AS_MPQ(self));
+    if ((newob = (XMPZ_Object*)Pyxmpz_new()))
+        mpz_set_q(newob->z, MPQ(self));
 
     return newob;
 }
 
-static PympqObject *
+static MPQ_Object *
 Pympq_From_PyLong(PyObject *self)
 {
-    PympqObject *newob;
+    MPQ_Object *newob;
     PyObject *temp = (PyObject*)Pympz_From_PyLong(self);
 
     if (!temp)
@@ -1107,12 +1107,12 @@ Pympq_From_PyLong(PyObject *self)
     return newob;
 }
 
-static PympqObject *
+static MPQ_Object *
 Pympq_From_PyFloat(PyObject *self)
 {
-    PympqObject *newob;
+    MPQ_Object *newob;
 
-    if ((newob = (PympqObject*)Pympq_new())) {
+    if ((newob = (MPQ_Object*)Pympq_new())) {
         double d = PyFloat_AsDouble(self);
         if (Py_IS_NAN(d)) {
             Py_DECREF((PyObject*)newob);
@@ -1143,10 +1143,10 @@ Pympq_From_PyFloat(PyObject *self)
  * Binary-form: 4-byte numerator length (upper bit set if <0), then
  * numerator (as above for mpz), then denominator (ditto).
  */
-static PympqObject *
+static MPQ_Object *
 Pympq_From_PyStr(PyObject *stringarg, int base)
 {
-    PympqObject *newob;
+    MPQ_Object *newob;
     unsigned char *cp;
     Py_ssize_t len;
     int i;
@@ -1154,7 +1154,7 @@ Pympq_From_PyStr(PyObject *stringarg, int base)
     mpz_t temp;
     long expt = 0;
 
-    if (!(newob = (PympqObject*)Pympq_new()))
+    if (!(newob = (MPQ_Object*)Pympq_new()))
         return NULL;
 
     if (PyBytes_Check(stringarg)) {
@@ -1297,10 +1297,10 @@ Pympq_From_PyStr(PyObject *stringarg, int base)
 }
 
 static PyObject *
-Pympq_To_PyLong(PympqObject *self)
+Pympq_To_PyLong(MPQ_Object *self)
 {
     PyObject* result;
-    PympzObject *temp = Pympq_To_Pympz((PyObject*)self);
+    MPZ_Object *temp = Pympq_To_Pympz((PyObject*)self);
 
     if (!temp)
         return NULL;
@@ -1313,10 +1313,10 @@ Pympq_To_PyLong(PympqObject *self)
 
 #ifdef PY2
 static PyObject *
-Pympq_To_PyInt(PympqObject *self)
+Pympq_To_PyInt(MPQ_Object *self)
 {
     PyObject* result;
-    PympzObject *temp = Pympq_To_Pympz((PyObject*)self);
+    MPZ_Object *temp = Pympq_To_Pympz((PyObject*)self);
 
     if (!temp)
         return NULL;
@@ -1329,7 +1329,7 @@ Pympq_To_PyInt(PympqObject *self)
 #endif
 
 static PyObject *
-Pympq_To_PyFloat(PympqObject *self)
+Pympq_To_PyFloat(MPQ_Object *self)
 {
     double res = mpq_get_d(self->q);
 
@@ -1342,7 +1342,7 @@ static int qden_1(mpq_t q)
 }
 
 static PyObject *
-Pympq_To_PyStr(PympqObject *self, int base, int option)
+Pympq_To_PyStr(MPQ_Object *self, int base, int option)
 {
     PyObject *result = 0, *numstr = 0, *denstr = 0;
     char buffer[50], *p;
@@ -1423,16 +1423,16 @@ Pympq_To_PyStr(PympqObject *self, int base, int option)
  */
 
 #if PY_VERSION_HEX < 0x03030000
-static PympqObject*
+static MPQ_Object*
 Pympq_From_DecimalRaw(PyObject* obj)
 {
-    PympqObject *result;
+    MPQ_Object *result;
     PyObject *d_exp, *d_int, *d_sign, *d_is_special;
     mpir_si exp;
     mpz_t temp;
     const char *string;
 
-    if (!(result = (PympqObject*)Pympq_new()))
+    if (!(result = (MPQ_Object*)Pympq_new()))
         return NULL;
     mpq_set_si(result->q, 0, 1);
 
@@ -1510,14 +1510,14 @@ Pympq_From_DecimalRaw(PyObject* obj)
 
 }
 #else
-static PympqObject*
+static MPQ_Object*
 Pympq_From_DecimalRaw(PyObject* obj)
 {
-    PympqObject *result;
+    MPQ_Object *result;
     PyObject *temp = NULL, *d_is_inf = NULL, *d_is_nan = NULL;
     PyObject *d_is_zero = NULL, *d_is_signed = NULL, *s = NULL;
 
-    if (!(result = (PympqObject*)Pympq_new()))
+    if (!(result = (MPQ_Object*)Pympq_new()))
         return NULL;
 
     d_is_inf = PyObject_GetAttrString(obj, "is_infinite");
@@ -1600,10 +1600,10 @@ Pympq_From_DecimalRaw(PyObject* obj)
 }
 #endif
 
-static PympqObject*
+static MPQ_Object*
 Pympq_From_Decimal(PyObject* obj)
 {
-    PympqObject *result;
+    MPQ_Object *result;
 
     if ((result = Pympq_From_DecimalRaw(obj))) {
         if (!mpz_cmp_si(mpq_numref(result->q), 0)) {
@@ -1628,13 +1628,13 @@ Pympq_From_Decimal(PyObject* obj)
     return NULL;
 }
 
-static PympqObject*
+static MPQ_Object*
 Pympq_From_Fraction(PyObject* obj)
 {
-    PympqObject *result;
+    MPQ_Object *result;
     PyObject *num, *den;
 
-    if (!(result = (PympqObject*)Pympq_new()))
+    if (!(result = (MPQ_Object*)Pympq_new()))
         return NULL;
     mpq_set_si(result->q, 0, 1);
 
@@ -1654,16 +1654,16 @@ Pympq_From_Fraction(PyObject* obj)
     return result;
 }
 
-static PympqObject*
+static MPQ_Object*
 Pympq_From_Number(PyObject* obj)
 {
-    PympqObject* newob = 0;
+    MPQ_Object* newob = 0;
 
-    if (Pympq_Check(obj)) {
+    if (MPQ_Check(obj)) {
         Py_INCREF(obj);
-        newob = (PympqObject *) obj;
+        newob = (MPQ_Object *) obj;
     }
-    else if (Pympz_Check(obj)) {
+    else if (MPZ_Check(obj)) {
         newob = Pympq_From_Pympz(obj);
 #ifdef PY2
     }
@@ -1671,7 +1671,7 @@ Pympq_From_Number(PyObject* obj)
         newob = Pympq_From_PyInt(obj);
 #endif
     }
-    else if (Pympfr_Check(obj)) {
+    else if (MPFR_Check(obj)) {
         newob = Pympfr_To_Pympq(obj);
     }
     else if (PyFloat_Check(obj)) {
@@ -1680,7 +1680,7 @@ Pympq_From_Number(PyObject* obj)
     else if (PyLong_Check(obj)) {
         newob = Pympq_From_PyLong(obj);
     }
-    else if (Pyxmpz_Check(obj)) {
+    else if (XMPZ_Check(obj)) {
         newob = Pympq_From_Pyxmpz(obj);
     }
     else if (isDecimal(obj)) {
@@ -1695,16 +1695,16 @@ Pympq_From_Number(PyObject* obj)
 
 /* Convert an integer or mpz to mpq. */
 
-static PympqObject*
+static MPQ_Object*
 Pympq_From_Rational(PyObject* obj)
 {
-    PympqObject* newob = 0;
+    MPQ_Object* newob = 0;
 
-    if (Pympq_Check(obj)) {
+    if (MPQ_Check(obj)) {
         Py_INCREF(obj);
-        newob = (PympqObject *) obj;
+        newob = (MPQ_Object *) obj;
     }
-    else if (Pympz_Check(obj)) {
+    else if (MPZ_Check(obj)) {
         newob = Pympq_From_Pympz(obj);
 #ifdef PY2
     }
@@ -1715,7 +1715,7 @@ Pympq_From_Rational(PyObject* obj)
     else if (PyLong_Check(obj)) {
         newob = Pympq_From_PyLong(obj);
     }
-    else if (Pyxmpz_Check(obj)) {
+    else if (XMPZ_Check(obj)) {
         newob = Pympq_From_Pyxmpz(obj);
     }
     else if (isFraction(obj)) {
@@ -1732,7 +1732,7 @@ Pympq_From_Rational(PyObject* obj)
 int
 Pympq_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympqObject* newob = Pympq_From_Number(arg);
+    MPQ_Object* newob = Pympq_From_Number(arg);
     if (newob) {
         *ptr = (PyObject*)newob;
         return 1;
@@ -1747,14 +1747,14 @@ Pympq_convert_arg(PyObject *arg, PyObject **ptr)
 
 /* str and repr implementations for mpq */
 static PyObject *
-Pympq_To_Str(PympqObject *self)
+Pympq_To_Str(MPQ_Object *self)
 {
     /* base-10, no tag */
     return Pympq_To_PyStr(self, 10, 0);
 }
 
 static PyObject *
-Pympq_To_Repr(PympqObject *self)
+Pympq_To_Repr(MPQ_Object *self)
 {
     /* base-10, with tag */
     return Pympq_To_PyStr(self, 10, 1);
@@ -1768,20 +1768,20 @@ Pympq_To_Repr(PympqObject *self)
  * will be rounded to requested precision using the current rounding mode.
  */
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_Pympfr(PyObject *self, mpfr_prec_t bits)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (bits == 0)
-        bits = mpfr_get_prec(Pympfr_AS_MPFR(self));
+        bits = mpfr_get_prec(MPFR(self));
 
-    if ((result = (PympfrObject*)Pympfr_new(bits))) {
+    if ((result = (MPFR_Object*)Pympfr_new(bits))) {
         result->rc = mpfr_set(result->f,
-                              Pympfr_AS_MPFR(self),
+                              MPFR(self),
                               context->ctx.mpfr_round);
     }
 
@@ -1790,14 +1790,14 @@ Pympfr_From_Pympfr(PyObject *self, mpfr_prec_t bits)
 
 /* Return a copy of an mpfr, using the precision of the context argument. */
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_Pympfr_context(PyObject *self, GMPyContextObject *context)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
 
-    if ((result = (PympfrObject*)Pympfr_new_context(context))) {
+    if ((result = (MPFR_Object*)Pympfr_new_context(context))) {
         result->rc = mpfr_set(result->f,
-                              Pympfr_AS_MPFR(self),
+                              MPFR(self),
                               context->ctx.mpfr_round);
     }
 
@@ -1810,19 +1810,19 @@ Pympfr_From_Pympfr_context(PyObject *self, GMPyContextObject *context)
  * is not 0, then it is used directly. See Pympfr_From_Pympfr_context()
  * to create a copy using the precision specified in the context. */
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_Pympfr_bits_context(PyObject *self,
                                 mpfr_prec_t bits,
                                 GMPyContextObject *context)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
 
     if (bits == 0)
-        bits = mpfr_get_prec(Pympfr_AS_MPFR(self));
+        bits = mpfr_get_prec(MPFR(self));
 
-    if ((result = (PympfrObject*)Pympfr_new_bits_context(bits, context))) {
+    if ((result = (MPFR_Object*)Pympfr_new_bits_context(bits, context))) {
         result->rc = mpfr_set(result->f,
-                              Pympfr_AS_MPFR(self),
+                              MPFR(self),
                               GET_MPFR_ROUND(context));
     }
 
@@ -1830,15 +1830,15 @@ Pympfr_From_Pympfr_bits_context(PyObject *self,
 }
 #endif
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_PyFloat(PyObject *self, mpfr_prec_t bits)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
-    if ((result = (PympfrObject*)Pympfr_new(bits))) {
+    if ((result = (MPFR_Object*)Pympfr_new(bits))) {
         result->rc = mpfr_set_d(result->f,
                                 PyFloat_AS_DOUBLE(self),
                                 context->ctx.mpfr_round);
@@ -1847,14 +1847,14 @@ Pympfr_From_PyFloat(PyObject *self, mpfr_prec_t bits)
     return result;
 }
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_PyFloat_bits_context(PyObject *self,
                                  mpfr_prec_t bits,
                                  GMPyContextObject *context)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
 
-    if ((result = (PympfrObject*)Pympfr_new_bits_context(bits, context))) {
+    if ((result = (MPFR_Object*)Pympfr_new_bits_context(bits, context))) {
         result->rc = mpfr_set_d(result->f,
                                 PyFloat_AS_DOUBLE(self),
                                 GET_MPFR_ROUND(context));
@@ -1863,33 +1863,33 @@ Pympfr_From_PyFloat_bits_context(PyObject *self,
     return result;
 }
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_Pympz(PyObject *self, mpfr_prec_t bits)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
-    if ((result = (PympfrObject*)Pympfr_new(bits))) {
+    if ((result = (MPFR_Object*)Pympfr_new(bits))) {
         result->rc = mpfr_set_z(result->f,
-                                Pympz_AS_MPZ(self),
+                                MPZ(self),
                                 context->ctx.mpfr_round);
     }
 
     return result;
 }
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_Pympz_context(PyObject *self,
                           mpfr_prec_t bits,
                           GMPyContextObject *context)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
 
-    if ((result = (PympfrObject*)Pympfr_new_bits_context(bits, context))) {
+    if ((result = (MPFR_Object*)Pympfr_new_bits_context(bits, context))) {
         result->rc = mpfr_set_z(result->f,
-                                Pympz_AS_MPZ(self),
+                                MPZ(self),
                                 GET_MPFR_ROUND(context));
     }
 
@@ -1899,53 +1899,53 @@ Pympfr_From_Pympz_context(PyObject *self,
 #define Pympfr_From_Pyxmpz Pympfr_From_Pympz
 #define Pympfr_From_Pyxmpz_context Pympfr_From_Pympz_context
 
-static PympzObject *
+static MPZ_Object *
 Pympfr_To_Pympz(PyObject *self)
 {
-    PympzObject *result;
+    MPZ_Object *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
-    if ((result = (PympzObject*)Pympz_new())) {
-        if (mpfr_nan_p(Pympfr_AS_MPFR(self))) {
+    if ((result = (MPZ_Object*)Pympz_new())) {
+        if (mpfr_nan_p(MPFR(self))) {
             Py_DECREF((PyObject*)result);
             VALUE_ERROR("'mpz' does not support NaN");
             return NULL;
         }
-        if (mpfr_inf_p(Pympfr_AS_MPFR(self))) {
+        if (mpfr_inf_p(MPFR(self))) {
             Py_DECREF((PyObject*)result);
             OVERFLOW_ERROR("'mpz' does not support Infinity");
             return NULL;
         }
         /* return code is ignored */
-        mpfr_get_z(result->z, Pympfr_AS_MPFR(self), context->ctx.mpfr_round);
+        mpfr_get_z(result->z, MPFR(self), context->ctx.mpfr_round);
     }
 
     return result;
 }
 
-static PyxmpzObject *
+static XMPZ_Object *
 Pympfr_To_Pyxmpz(PyObject *self)
 {
-    PyxmpzObject *result;
+    XMPZ_Object *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
-    if ((result = (PyxmpzObject*)Pyxmpz_new())) {
-        if (mpfr_nan_p(Pympfr_AS_MPFR(self))) {
+    if ((result = (XMPZ_Object*)Pyxmpz_new())) {
+        if (mpfr_nan_p(MPFR(self))) {
             Py_DECREF((PyObject*)result);
             VALUE_ERROR("'xmpz' does not support NaN");
             return NULL;
         }
-        if (mpfr_inf_p(Pympfr_AS_MPFR(self))) {
+        if (mpfr_inf_p(MPFR(self))) {
             Py_DECREF((PyObject*)result);
             OVERFLOW_ERROR("'xmpz' does not support Infinity");
             return NULL;
         }
         /* return code is ignored */
-        mpfr_get_z(result->z, Pympfr_AS_MPFR(self), context->ctx.mpfr_round);
+        mpfr_get_z(result->z, MPFR(self), context->ctx.mpfr_round);
     }
 
     return result;
@@ -1958,10 +1958,10 @@ Pympfr_To_Pyxmpz(PyObject *self)
  * the precision of 'self'.
  */
 
-static PympqObject *
-stern_brocot(PympfrObject* self, PympfrObject *err, mpfr_prec_t prec, int mayz)
+static MPQ_Object *
+stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz)
 {
-    PympqObject *result = 0;
+    MPQ_Object *result = 0;
     int i, negative, errsign;
     mpfr_t f, al, a, r1[3], r2[3], minerr, curerr, newerr, temp;
     GMPyContextObject *context;
@@ -1992,7 +1992,7 @@ stern_brocot(PympfrObject* self, PympfrObject *err, mpfr_prec_t prec, int mayz)
         return NULL;
     }
 
-    if (!(result = (PympqObject*)Pympq_new()))
+    if (!(result = (MPQ_Object*)Pympq_new()))
         return NULL;
 
     mpfr_init2(minerr, F2Q_PREC);
@@ -2056,10 +2056,10 @@ stern_brocot(PympfrObject* self, PympfrObject *err, mpfr_prec_t prec, int mayz)
 
     if (mayz && (mpfr_cmp_ui(r1[2],1) == 0)) {
         Py_DECREF((PyObject*)result);
-        result = (PympqObject*)Pympz_new();
-        mpfr_get_z(Pympz_AS_MPZ(result), r2[2], context->ctx.mpfr_round);
+        result = (MPQ_Object*)Pympz_new();
+        mpfr_get_z(MPZ(result), r2[2], context->ctx.mpfr_round);
         if (negative)
-            mpz_neg(Pympz_AS_MPZ(result), Pympz_AS_MPZ(result));
+            mpz_neg(MPZ(result), MPZ(result));
     }
     else {
         mpfr_get_z(mpq_numref(result->q), r2[2], context->ctx.mpfr_round);
@@ -2082,42 +2082,42 @@ stern_brocot(PympfrObject* self, PympfrObject *err, mpfr_prec_t prec, int mayz)
     return result;
 }
 
-static PympqObject *
+static MPQ_Object *
 Pympfr_To_Pympq(PyObject *self)
 {
-    return stern_brocot((PympfrObject*)self, 0, 0, 0);
+    return stern_brocot((MPFR_Object*)self, 0, 0, 0);
 }
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_Pympq(PyObject *self, mpfr_prec_t bits)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
-    if ((result = (PympfrObject*)Pympfr_new(bits)))
-        result->rc = mpfr_set_q(result->f, Pympq_AS_MPQ(self),
+    if ((result = (MPFR_Object*)Pympfr_new(bits)))
+        result->rc = mpfr_set_q(result->f, MPQ(self),
                                 context->ctx.mpfr_round);
     return result;
 }
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_Pympq_bits_context(PyObject *self, mpfr_prec_t bits,
                                GMPyContextObject *context)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
 
-    if ((result = (PympfrObject*)Pympfr_new_bits_context(bits, context)))
-        result->rc = mpfr_set_q(result->f, Pympq_AS_MPQ(self),
+    if ((result = (MPFR_Object*)Pympfr_new_bits_context(bits, context)))
+        result->rc = mpfr_set_q(result->f, MPQ(self),
                                 context->ctx.mpfr_round);
     return result;
 }
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_PyLong(PyObject *self, mpfr_prec_t bits)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
     PyObject *temp = (PyObject*)Pympz_From_PyLong(self);
 
     if (!temp)
@@ -2127,11 +2127,11 @@ Pympfr_From_PyLong(PyObject *self, mpfr_prec_t bits)
     return result;
 }
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_PyLong_context(PyObject *self, mpfr_prec_t bits,
                           GMPyContextObject *context)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
     PyObject *temp = (PyObject*)Pympz_From_PyLong(self);
 
     if (!temp)
@@ -2142,37 +2142,37 @@ Pympfr_From_PyLong_context(PyObject *self, mpfr_prec_t bits,
 }
 
 #ifdef PY2
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_PyInt(PyObject *self, mpfr_prec_t bits)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
-    if ((result = (PympfrObject*)Pympfr_new(bits)))
+    if ((result = (MPFR_Object*)Pympfr_new(bits)))
         result->rc = mpfr_set_si(result->f, PyInt_AsLong(self),
                                  context->ctx.mpfr_round);
     return result;
 }
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_PyInt_bits_context(PyObject *self, mpfr_prec_t bits,
                           GMPyContextObject *context)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
 
-    if ((result = (PympfrObject*)Pympfr_new_bits_context(bits, context)))
+    if ((result = (MPFR_Object*)Pympfr_new_bits_context(bits, context)))
         result->rc = mpfr_set_si(result->f, PyInt_AsLong(self),
                                  context->ctx.mpfr_round);
     return result;
 }
 
 static PyObject *
-Pympfr_To_PyInt(PympfrObject *self)
+Pympfr_To_PyInt(MPFR_Object *self)
 {
     PyObject *result;
-    PympzObject *temp = Pympfr_To_Pympz((PyObject*)self);
+    MPZ_Object *temp = Pympfr_To_Pympz((PyObject*)self);
 
     if (!temp)
         return NULL;
@@ -2182,10 +2182,10 @@ Pympfr_To_PyInt(PympfrObject *self)
 }
 #endif
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_PyStr(PyObject *s, int base, mpfr_prec_t bits)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
     char *cp, *endptr;
     mpfr_prec_t prec;
     Py_ssize_t len;
@@ -2213,7 +2213,7 @@ Pympfr_From_PyStr(PyObject *s, int base, mpfr_prec_t bits)
     else
         prec = context->ctx.mpfr_prec;
 
-    if (!(result = (PympfrObject*)Pympfr_new(prec))) {
+    if (!(result = (MPFR_Object*)Pympfr_new(prec))) {
         Py_XDECREF(ascii_str);
         return NULL;
     }
@@ -2233,11 +2233,11 @@ Pympfr_From_PyStr(PyObject *s, int base, mpfr_prec_t bits)
     return result;
 }
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_PyStr_context(PyObject *s, int base, mpfr_prec_t bits,
                           GMPyContextObject *context)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
     char *cp, *endptr;
     mpfr_prec_t prec;
     Py_ssize_t len;
@@ -2262,7 +2262,7 @@ Pympfr_From_PyStr_context(PyObject *s, int base, mpfr_prec_t bits,
     else
         prec = context->ctx.mpfr_prec;
 
-    if (!(result = (PympfrObject*)Pympfr_new(prec))) {
+    if (!(result = (MPFR_Object*)Pympfr_new(prec))) {
         Py_XDECREF(ascii_str);
         return NULL;
     }
@@ -2283,10 +2283,10 @@ Pympfr_From_PyStr_context(PyObject *s, int base, mpfr_prec_t bits,
 }
 
 static PyObject *
-Pympfr_To_PyLong(PympfrObject *self)
+Pympfr_To_PyLong(MPFR_Object *self)
 {
     PyObject *result;
-    PympzObject *temp = Pympfr_To_Pympz((PyObject*)self);
+    MPZ_Object *temp = Pympfr_To_Pympz((PyObject*)self);
 
     if (!temp) return NULL;
 
@@ -2297,7 +2297,7 @@ Pympfr_To_PyLong(PympfrObject *self)
 }
 
 static PyObject *
-Pympfr_To_PyFloat(PympfrObject *self)
+Pympfr_To_PyFloat(MPFR_Object *self)
 {
     double res;
     GMPyContextObject *context;
@@ -2310,7 +2310,7 @@ Pympfr_To_PyFloat(PympfrObject *self)
 }
 
 static PyObject*
-Pympfr_To_PyStr(PympfrObject *self, int base, int digits)
+Pympfr_To_PyStr(MPFR_Object *self, int base, int digits)
 {
     PyObject *result;
     char *buffer;
@@ -2320,7 +2320,7 @@ Pympfr_To_PyStr(PympfrObject *self, int base, int digits)
     CURRENT_CONTEXT(context);
 
     /* check arguments are valid */
-    assert(Pympfr_Check((PyObject*)self));
+    assert(MPFR_Check((PyObject*)self));
     if (!((base >= 2) && (base <= 62))) {
         VALUE_ERROR("base must be in the interval 2 ... 62");
         return NULL;
@@ -2362,16 +2362,16 @@ Pympfr_To_PyStr(PympfrObject *self, int base, int digits)
     return result;
 }
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_Decimal(PyObject* obj, mpfr_prec_t bits)
 {
-    PympfrObject *result;
-    PympqObject *temp;
+    MPFR_Object *result;
+    MPQ_Object *temp;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
-    result = (PympfrObject*)Pympfr_new_bits_context(bits, context);
+    result = (MPFR_Object*)Pympfr_new_bits_context(bits, context);
     temp = Pympq_From_DecimalRaw(obj);
 
     if (!temp || !result) {
@@ -2404,15 +2404,15 @@ Pympfr_From_Decimal(PyObject* obj, mpfr_prec_t bits)
     return result;
 }
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_Decimal_context(PyObject* obj,
                             mpfr_prec_t bits,
                             GMPyContextObject *context)
 {
-    PympfrObject *result;
-    PympqObject *temp;
+    MPFR_Object *result;
+    MPQ_Object *temp;
 
-    result = (PympfrObject*)Pympfr_new_bits_context(bits, context);
+    result = (MPFR_Object*)Pympfr_new_bits_context(bits, context);
     temp = Pympq_From_DecimalRaw(obj);
 
     if (!temp || !result) {
@@ -2453,37 +2453,37 @@ Pympfr_From_Decimal_context(PyObject* obj,
  * context->ctx.mpfr_prec.
  */
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
 {
-    PympfrObject* newob = 0;
-    PympqObject* temp = 0;
+    MPFR_Object* newob = 0;
+    MPQ_Object* temp = 0;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
-    if (Pympfr_CheckAndExp(obj)) {
+    if (MPFR_CheckAndExp(obj)) {
         /* Handle the likely case where the exponent of the mpfr is still
          * valid in the current context. */
-        if (!bits || mpfr_get_prec(Pympfr_AS_MPFR(obj)) == bits) {
-            newob = (PympfrObject*) obj;
+        if (!bits || mpfr_get_prec(MPFR(obj)) == bits) {
+            newob = (MPFR_Object*) obj;
             Py_INCREF(obj);
         }
         else {
             newob = Pympfr_From_Pympfr((PyObject*)obj, bits);
         }
     }
-    else if (Pympfr_Check(obj)) {
+    else if (MPFR_Check(obj)) {
         /* Handle the unlikely case where the exponent is no longer valid
          * and mpfr_check_range needs to be called. */
         if (context->ctx.traps & TRAP_EXPBOUND) {
             GMPY_EXPBOUND("exponent of existing 'mpfr' incompatible with current context");
             return NULL;
         }
-        if ((newob = (PympfrObject*)Pympfr_new(mpfr_get_prec(Pympfr_AS_MPFR(obj))))) {
-            mpfr_set(newob->f, Pympfr_AS_MPFR(obj), context->ctx.mpfr_round);
-            newob->round_mode = ((PympfrObject*)obj)->round_mode;
-            newob->rc = ((PympfrObject*)obj)->rc;
+        if ((newob = (MPFR_Object*)Pympfr_new(mpfr_get_prec(MPFR(obj))))) {
+            mpfr_set(newob->f, MPFR(obj), context->ctx.mpfr_round);
+            newob->round_mode = ((MPFR_Object*)obj)->round_mode;
+            newob->rc = ((MPFR_Object*)obj)->rc;
             newob->rc = mpfr_check_range(newob->f, newob->rc, newob->round_mode);
         }
     }
@@ -2495,16 +2495,16 @@ Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
         newob = Pympfr_From_PyInt(obj, bits);
 #endif
     }
-    else if (Pympq_Check(obj)) {
+    else if (MPQ_Check(obj)) {
         newob = Pympfr_From_Pympq(obj, bits);
     }
-    else if (Pympz_Check(obj)) {
+    else if (MPZ_Check(obj)) {
         newob = Pympfr_From_Pympz(obj, bits);
     }
     else if (PyLong_Check(obj)) {
         newob = Pympfr_From_PyLong(obj, bits);
     }
-    else if (Pyxmpz_Check(obj)) {
+    else if (XMPZ_Check(obj)) {
         newob = Pympfr_From_Pyxmpz(obj, bits);
     }
     else if (isDecimal(obj)) {
@@ -2522,35 +2522,35 @@ Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
     return newob;
 }
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_Real_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject *context)
 {
-    PympfrObject* newob = 0;
-    PympqObject* temp = 0;
+    MPFR_Object* newob = 0;
+    MPQ_Object* temp = 0;
 
-    if (Pympfr_CheckAndExp(obj)) {
+    if (MPFR_CheckAndExp(obj)) {
         /* Handle the likely case where the exponent of the mpfr is still
          * valid in the current context. */
-        if (!bits || mpfr_get_prec(Pympfr_AS_MPFR(obj)) == bits) {
-            newob = (PympfrObject*) obj;
+        if (!bits || mpfr_get_prec(MPFR(obj)) == bits) {
+            newob = (MPFR_Object*) obj;
             Py_INCREF(obj);
         }
         else {
             newob = Pympfr_From_Pympfr((PyObject*)obj, bits);
         }
     }
-    else if (Pympfr_Check(obj)) {
+    else if (MPFR_Check(obj)) {
         /* Handle the unlikely case where the exponent is no longer valid
          * and mpfr_check_range needs to be called. */
         if (context->ctx.traps & TRAP_EXPBOUND) {
             GMPY_EXPBOUND("exponent of existing 'mpfr' incompatible with current context");
             return NULL;
         }
-        if ((newob = (PympfrObject*)Pympfr_new_bits_context(mpfr_get_prec(Pympfr_AS_MPFR(obj)),
+        if ((newob = (MPFR_Object*)Pympfr_new_bits_context(mpfr_get_prec(MPFR(obj)),
                                                             context))) {
-            mpfr_set(newob->f, Pympfr_AS_MPFR(obj), GET_MPFR_ROUND(context));
-            newob->round_mode = ((PympfrObject*)obj)->round_mode;
-            newob->rc = ((PympfrObject*)obj)->rc;
+            mpfr_set(newob->f, MPFR(obj), GET_MPFR_ROUND(context));
+            newob->round_mode = ((MPFR_Object*)obj)->round_mode;
+            newob->rc = ((MPFR_Object*)obj)->rc;
             newob->rc = mpfr_check_range(newob->f, newob->rc, newob->round_mode);
         }
     }
@@ -2562,16 +2562,16 @@ Pympfr_From_Real_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject *con
         newob = Pympfr_From_PyInt_bits_context(obj, bits, context);
 #endif
     }
-    else if (Pympq_Check(obj)) {
+    else if (MPQ_Check(obj)) {
         newob = Pympfr_From_Pympq_bits_context(obj, bits, context);
     }
-    else if (Pympz_Check(obj)) {
+    else if (MPZ_Check(obj)) {
         newob = Pympfr_From_Pympz_context(obj, bits, context);
     }
     else if (PyLong_Check(obj)) {
         newob = Pympfr_From_PyLong_context(obj, bits, context);
     }
-    else if (Pyxmpz_Check(obj)) {
+    else if (XMPZ_Check(obj)) {
         newob = Pympfr_From_Pyxmpz_context(obj, bits, context);
     }
     else if (isDecimal(obj)) {
@@ -2589,35 +2589,35 @@ Pympfr_From_Real_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject *con
     return newob;
 }
 
-static PympfrObject *
+static MPFR_Object *
 Pympfr_From_Real_bits_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject *context)
 {
-    PympfrObject* newob = 0;
-    PympqObject* temp = 0;
+    MPFR_Object* newob = 0;
+    MPQ_Object* temp = 0;
 
-    if (Pympfr_CheckAndExp(obj)) {
+    if (MPFR_CheckAndExp(obj)) {
         /* Handle the likely case where the exponent of the mpfr is still
          * valid in the current context. */
-        if (!bits || mpfr_get_prec(Pympfr_AS_MPFR(obj)) == bits) {
-            newob = (PympfrObject*) obj;
+        if (!bits || mpfr_get_prec(MPFR(obj)) == bits) {
+            newob = (MPFR_Object*) obj;
             Py_INCREF(obj);
         }
         else {
             newob = Pympfr_From_Pympfr((PyObject*)obj, bits);
         }
     }
-    else if (Pympfr_Check(obj)) {
+    else if (MPFR_Check(obj)) {
         /* Handle the unlikely case where the exponent is no longer valid
          * and mpfr_check_range needs to be called. */
         if (context->ctx.traps & TRAP_EXPBOUND) {
             GMPY_EXPBOUND("exponent of existing 'mpfr' incompatible with current context");
             return NULL;
         }
-        if ((newob = (PympfrObject*)Pympfr_new_bits_context(mpfr_get_prec(Pympfr_AS_MPFR(obj)),
+        if ((newob = (MPFR_Object*)Pympfr_new_bits_context(mpfr_get_prec(MPFR(obj)),
                                                             context))) {
-            mpfr_set(newob->f, Pympfr_AS_MPFR(obj), GET_MPFR_ROUND(context));
-            newob->round_mode = ((PympfrObject*)obj)->round_mode;
-            newob->rc = ((PympfrObject*)obj)->rc;
+            mpfr_set(newob->f, MPFR(obj), GET_MPFR_ROUND(context));
+            newob->round_mode = ((MPFR_Object*)obj)->round_mode;
+            newob->rc = ((MPFR_Object*)obj)->rc;
             newob->rc = mpfr_check_range(newob->f, newob->rc, newob->round_mode);
         }
     }
@@ -2629,16 +2629,16 @@ Pympfr_From_Real_bits_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject
         newob = Pympfr_From_PyInt_bits_context(obj, bits, context);
 #endif
     }
-    else if (Pympq_Check(obj)) {
+    else if (MPQ_Check(obj)) {
         newob = Pympfr_From_Pympq_bits_context(obj, bits, context);
     }
-    else if (Pympz_Check(obj)) {
+    else if (MPZ_Check(obj)) {
         newob = Pympfr_From_Pympz_context(obj, bits, context);
     }
     else if (PyLong_Check(obj)) {
         newob = Pympfr_From_PyLong_context(obj, bits, context);
     }
-    else if (Pyxmpz_Check(obj)) {
+    else if (XMPZ_Check(obj)) {
         newob = Pympfr_From_Pyxmpz_context(obj, bits, context);
     }
     else if (isDecimal(obj)) {
@@ -2663,7 +2663,7 @@ Pympfr_From_Real_bits_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject
 int
 Pympfr_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympfrObject* newob = Pympfr_From_Real(arg, 0);
+    MPFR_Object* newob = Pympfr_From_Real(arg, 0);
 
     if (newob) {
         *ptr = (PyObject*)newob;
@@ -2677,13 +2677,13 @@ Pympfr_convert_arg(PyObject *arg, PyObject **ptr)
 
 /* str and repr implementations for mpfr */
 static PyObject *
-Pympfr_To_Str(PympfrObject *self)
+Pympfr_To_Str(MPFR_Object *self)
 {
     PyObject *result, *temp;
     long precision;
     char fmtstr[30];
 
-    precision = (long)(log10(2) * (double)mpfr_get_prec(Pympfr_AS_MPFR(self))) + 2;
+    precision = (long)(log10(2) * (double)mpfr_get_prec(MPFR(self))) + 2;
 
     sprintf(fmtstr, "{0:.%ldg}", precision);
 
@@ -2696,16 +2696,16 @@ Pympfr_To_Str(PympfrObject *self)
 }
 
 static PyObject *
-Pympfr_To_Repr(PympfrObject *self)
+Pympfr_To_Repr(MPFR_Object *self)
 {
     PyObject *result, *temp;
     long precision, bits;
     char fmtstr[30];
 
-    bits = mpfr_get_prec(Pympfr_AS_MPFR(self));
+    bits = mpfr_get_prec(MPFR(self));
     precision = (long)(log10(2) * (double)bits) + 2;
 
-    if (mpfr_number_p(Pympfr_AS_MPFR(self)) && bits != DBL_MANT_DIG)
+    if (mpfr_number_p(MPFR(self)) && bits != DBL_MANT_DIG)
         sprintf(fmtstr, "mpfr('{0:.%ldg}',%ld)", precision, bits);
     else
         sprintf(fmtstr, "mpfr('{0:.%ldg}')", precision);
@@ -2718,31 +2718,31 @@ Pympfr_To_Repr(PympfrObject *self)
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
-    PympcObject *result;
+    MPC_Object *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (rprec == 0 || iprec == 0)
-        mpc_get_prec2(&rprec, &iprec, Pympc_AS_MPC(self));
-    if ((result = (PympcObject*)Pympc_new(rprec, iprec)))
-        mpc_set(result->c, Pympc_AS_MPC(self), GET_MPC_ROUND(context));
+        mpc_get_prec2(&rprec, &iprec, MPC(self));
+    if ((result = (MPC_Object*)Pympc_new(rprec, iprec)))
+        mpc_set(result->c, MPC(self), GET_MPC_ROUND(context));
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_Pympc_bits_context(PyObject *self, mpfr_prec_t rprec,
                               mpfr_prec_t iprec, GMPyContextObject *context)
 {
-    PympcObject *result;
+    MPC_Object *result;
 
     if (rprec == 0 || iprec == 0)
-        mpc_get_prec2(&rprec, &iprec, Pympc_AS_MPC(self));
-    if ((result = (PympcObject*)Pympc_new_bits_context(rprec, iprec, context)))
-        mpc_set(result->c, Pympc_AS_MPC(self), GET_MPC_ROUND(context));
+        mpc_get_prec2(&rprec, &iprec, MPC(self));
+    if ((result = (MPC_Object*)Pympc_new_bits_context(rprec, iprec, context)))
+        mpc_set(result->c, MPC(self), GET_MPC_ROUND(context));
     return result;
 }
 
@@ -2750,138 +2750,138 @@ Pympc_From_Pympc_bits_context(PyObject *self, mpfr_prec_t rprec,
  * the same as the context's precision, then a new reference is created. If
  * the precisions are different, then a new object is created. */
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_Pympc_context(PyObject *self, GMPyContextObject *context)
 {
     mpfr_prec_t rprec, iprec;
-    PympcObject *result;
+    MPC_Object *result;
 
-    mpc_get_prec2(&rprec, &iprec, Pympc_AS_MPC(self));
+    mpc_get_prec2(&rprec, &iprec, MPC(self));
     if ((rprec == GET_REAL_PREC(context)) && (iprec == GET_IMAG_PREC(context))) {
         Py_INCREF(self);
-        return (PympcObject*)self;
+        return (MPC_Object*)self;
     }
     else {
-        if ((result = (PympcObject*)Pympc_new_context(context)))
-            mpc_set(result->c, Pympc_AS_MPC(self), GET_MPC_ROUND(context));
+        if ((result = (MPC_Object*)Pympc_new_context(context)))
+            mpc_set(result->c, MPC(self), GET_MPC_ROUND(context));
         return result;
     }
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_PyComplex(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
-    PympcObject *result;
+    MPC_Object *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
-    if ((result = (PympcObject*)Pympc_new(rprec, iprec)))
+    if ((result = (MPC_Object*)Pympc_new(rprec, iprec)))
         mpc_set_d_d(result->c, PyComplex_RealAsDouble(self),
                     PyComplex_ImagAsDouble(self), GET_MPC_ROUND(context));
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_PyComplex_bits_context(PyObject *self, mpfr_prec_t rprec,
                                   mpfr_prec_t iprec, GMPyContextObject *context)
 {
-    PympcObject *result;
+    MPC_Object *result;
 
-    if ((result = (PympcObject*)Pympc_new_bits_context(rprec, iprec, context)))
+    if ((result = (MPC_Object*)Pympc_new_bits_context(rprec, iprec, context)))
         mpc_set_d_d(result->c, PyComplex_RealAsDouble(self),
                     PyComplex_ImagAsDouble(self), GET_MPC_ROUND(context));
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_PyComplex_context(PyObject *self, GMPyContextObject *context)
 {
-    PympcObject *result;
+    MPC_Object *result;
 
-    if ((result = (PympcObject*)Pympc_new_context(context)))
+    if ((result = (MPC_Object*)Pympc_new_context(context)))
         mpc_set_d_d(result->c, PyComplex_RealAsDouble(self),
                     PyComplex_ImagAsDouble(self), GET_MPC_ROUND(context));
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_Pympfr(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
-    PympcObject *result;
+    MPC_Object *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (!rprec)
-        rprec = mpfr_get_prec(Pympfr_AS_MPFR(self));
-    if ((result = (PympcObject*)Pympc_new_bits_context(rprec, iprec, context)))
-        result->rc = mpc_set_fr(result->c, Pympfr_AS_MPFR(self),
+        rprec = mpfr_get_prec(MPFR(self));
+    if ((result = (MPC_Object*)Pympc_new_bits_context(rprec, iprec, context)))
+        result->rc = mpc_set_fr(result->c, MPFR(self),
                                 GET_MPC_ROUND(context));
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_Pympfr_bits_context(PyObject *self, mpfr_prec_t rprec,
                                mpfr_prec_t iprec, GMPyContextObject *context)
 {
-    PympcObject *result;
+    MPC_Object *result;
 
     if (!rprec)
-        rprec = mpfr_get_prec(Pympfr_AS_MPFR(self));
-    if ((result = (PympcObject*)Pympc_new_bits_context(rprec, iprec, context)))
-        result->rc = mpc_set_fr(result->c, Pympfr_AS_MPFR(self),
+        rprec = mpfr_get_prec(MPFR(self));
+    if ((result = (MPC_Object*)Pympc_new_bits_context(rprec, iprec, context)))
+        result->rc = mpc_set_fr(result->c, MPFR(self),
                                 GET_MPC_ROUND(context));
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_Pympfr_context(PyObject *self, GMPyContextObject *context)
 {
-    PympcObject *result;
+    MPC_Object *result;
 
-    if ((result = (PympcObject*)Pympc_new_context(context)))
-        result->rc = mpc_set_fr(result->c, Pympfr_AS_MPFR(self),
+    if ((result = (MPC_Object*)Pympc_new_context(context)))
+        result->rc = mpc_set_fr(result->c, MPFR(self),
                                 GET_MPC_ROUND(context));
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_PyFloat(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
-    PympcObject *result;
+    MPC_Object *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
     if (!rprec)
         rprec = DBL_MANT_DIG;
-    if ((result = (PympcObject*)Pympc_new_bits_context(rprec, iprec, context)))
+    if ((result = (MPC_Object*)Pympc_new_bits_context(rprec, iprec, context)))
         result->rc = mpc_set_d(result->c, PyFloat_AS_DOUBLE(self),
                                GET_MPC_ROUND(context));
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_PyFloat_bits_context(PyObject *self, mpfr_prec_t rprec,
                                 mpfr_prec_t iprec, GMPyContextObject *context)
 {
-    PympcObject *result;
+    MPC_Object *result;
 
     if (!rprec)
         rprec = DBL_MANT_DIG;
-    if ((result = (PympcObject*)Pympc_new_bits_context(rprec, iprec, context)))
+    if ((result = (MPC_Object*)Pympc_new_bits_context(rprec, iprec, context)))
         result->rc = mpc_set_d(result->c, PyFloat_AS_DOUBLE(self),
                                GET_MPC_ROUND(context));
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_PyFloat_context(PyObject *self, GMPyContextObject *context)
 {
-    PympcObject *result;
+    MPC_Object *result;
 
-    if ((result = (PympcObject*)Pympc_new_context(context)))
+    if ((result = (MPC_Object*)Pympc_new_context(context)))
         result->rc = mpc_set_d(result->c, PyFloat_AS_DOUBLE(self),
                                GET_MPC_ROUND(context));
     return result;
@@ -2903,9 +2903,9 @@ Pympc_To_PyComplex(PyObject *self, PyObject *other)
 
     CURRENT_CONTEXT(context);
 
-    double real = mpfr_get_d(mpc_realref(Pympc_AS_MPC(self)),
+    double real = mpfr_get_d(mpc_realref(MPC(self)),
                              GET_REAL_ROUND(context));
-    double imag = mpfr_get_d(mpc_imagref(Pympc_AS_MPC(self)),
+    double imag = mpfr_get_d(mpc_imagref(MPC(self)),
                              GET_IMAG_ROUND(context));
 
     return PyComplex_FromDoubles(real, imag);
@@ -2915,47 +2915,47 @@ static PyObject *
 Pympc_To_PyComplex_context(PyObject *self, PyObject *other,
                            GMPyContextObject *context)
 {
-    double real = mpfr_get_d(mpc_realref(Pympc_AS_MPC(self)),
+    double real = mpfr_get_d(mpc_realref(MPC(self)),
                              GET_REAL_ROUND(context));
-    double imag = mpfr_get_d(mpc_imagref(Pympc_AS_MPC(self)),
+    double imag = mpfr_get_d(mpc_imagref(MPC(self)),
                              GET_IMAG_ROUND(context));
 
     return PyComplex_FromDoubles(real, imag);
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_Pympz(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
-    PympcObject *result;
+    MPC_Object *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
-    if ((result = (PympcObject*)Pympc_new(rprec, iprec)))
-        result->rc = mpc_set_z(result->c, Pympz_AS_MPZ(self),
+    if ((result = (MPC_Object*)Pympc_new(rprec, iprec)))
+        result->rc = mpc_set_z(result->c, MPZ(self),
                                 GET_MPC_ROUND(context));
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_Pympz_bits_context(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec,
                          GMPyContextObject *context)
 {
-    PympcObject *result;
+    MPC_Object *result;
 
-    if ((result = (PympcObject*)Pympc_new_bits_context(rprec, iprec, context)))
-        result->rc = mpc_set_z(result->c, Pympz_AS_MPZ(self),
+    if ((result = (MPC_Object*)Pympc_new_bits_context(rprec, iprec, context)))
+        result->rc = mpc_set_z(result->c, MPZ(self),
                                 GET_MPC_ROUND(context));
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_Pympz_context(PyObject *self, GMPyContextObject *context)
 {
-    PympcObject *result;
+    MPC_Object *result;
 
-    if ((result = (PympcObject*)Pympc_new_context(context)))
-        result->rc = mpc_set_z(result->c, Pympz_AS_MPZ(self),
+    if ((result = (MPC_Object*)Pympc_new_context(context)))
+        result->rc = mpc_set_z(result->c, MPZ(self),
                                 GET_MPC_ROUND(context));
     return result;
 }
@@ -2964,47 +2964,47 @@ Pympc_From_Pympz_context(PyObject *self, GMPyContextObject *context)
 #define Pympc_From_Pyxmpz_bits_context Pympc_From_Pympz_bits_context
 #define Pympc_From_Pyxmpz_context Pympc_From_Pympz_context
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_Pympq(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
-    PympcObject *result;
+    MPC_Object *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
-    if ((result = (PympcObject*)Pympc_new_bits_context(rprec, iprec, context)))
-        result->rc = mpc_set_q(result->c, Pympq_AS_MPQ(self),
+    if ((result = (MPC_Object*)Pympc_new_bits_context(rprec, iprec, context)))
+        result->rc = mpc_set_q(result->c, MPQ(self),
                                GET_MPC_ROUND(context));
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_Pympq_bits_context(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec,
                          GMPyContextObject *context)
 {
-    PympcObject *result;
+    MPC_Object *result;
 
-    if ((result = (PympcObject*)Pympc_new_bits_context(rprec, iprec, context)))
-        result->rc = mpc_set_q(result->c, Pympq_AS_MPQ(self),
+    if ((result = (MPC_Object*)Pympc_new_bits_context(rprec, iprec, context)))
+        result->rc = mpc_set_q(result->c, MPQ(self),
                                GET_MPC_ROUND(context));
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_Pympq_context(PyObject *self, GMPyContextObject *context)
 {
-    PympcObject *result;
+    MPC_Object *result;
 
-    if ((result = (PympcObject*)Pympc_new_context(context)))
-        result->rc = mpc_set_q(result->c, Pympq_AS_MPQ(self),
+    if ((result = (MPC_Object*)Pympc_new_context(context)))
+        result->rc = mpc_set_q(result->c, MPQ(self),
                                GET_MPC_ROUND(context));
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_PyLong(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
-    PympcObject *result;
+    MPC_Object *result;
     PyObject *temp = (PyObject*)Pympz_From_PyLong(self);
 
     if (!temp)
@@ -3014,11 +3014,11 @@ Pympc_From_PyLong(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_PyLong_bits_context(PyObject *self, mpfr_prec_t rprec,
                                mpfr_prec_t iprec, GMPyContextObject *context)
 {
-    PympcObject *result;
+    MPC_Object *result;
     PyObject *temp = (PyObject*)Pympz_From_PyLong(self);
 
     if (!temp)
@@ -3028,10 +3028,10 @@ Pympc_From_PyLong_bits_context(PyObject *self, mpfr_prec_t rprec,
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_PyLong_context(PyObject *self, GMPyContextObject *context)
 {
-    PympcObject *result;
+    MPC_Object *result;
     PyObject *temp = (PyObject*)Pympz_From_PyLong(self);
 
     if (!temp)
@@ -3049,24 +3049,24 @@ Pympc_To_PyLong(PyObject *self)
 }
 
 #ifdef PY2
-static PympcObject *
+static MPC_Object *
 Pympc_From_PyInt_bits_context(PyObject *self, mpfr_prec_t rprec,
                               mpfr_prec_t iprec, GMPyContextObject *context)
 {
-    PympcObject *result;
+    MPC_Object *result;
 
-    if ((result = (PympcObject*)Pympc_new(rprec, iprec)))
+    if ((result = (MPC_Object*)Pympc_new(rprec, iprec)))
         result->rc = mpc_set_si(result->c, PyInt_AsLong(self),
                                 GET_MPC_ROUND(context));
     return result;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_PyInt_context(PyObject *self, GMPyContextObject *context)
 {
-    PympcObject *result;
+    MPC_Object *result;
 
-    if ((result = (PympcObject*)Pympc_new_context(context)))
+    if ((result = (MPC_Object*)Pympc_new_context(context)))
         result->rc = mpc_set_si(result->c, PyInt_AsLong(self),
                                 GET_MPC_ROUND(context));
     return result;
@@ -3089,10 +3089,10 @@ Pympc_To_PyIntOrLong(PyObject *self)
  * the string and storing into the real and imaginary components respectively.
  */
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_PyStr(PyObject *s, int base, mpfr_prec_t rbits, mpfr_prec_t ibits)
 {
-    PympcObject *newob;
+    MPC_Object *newob;
     PyObject *ascii_str = NULL;
     Py_ssize_t len;
     char *cp, *unwind, *tempchar, *lastchar;
@@ -3119,7 +3119,7 @@ Pympc_From_PyStr(PyObject *s, int base, mpfr_prec_t rbits, mpfr_prec_t ibits)
         return NULL;
     }
 
-    if (!(newob = (PympcObject*)Pympc_new(rbits, ibits))) {
+    if (!(newob = (MPC_Object*)Pympc_new(rbits, ibits))) {
         Py_XDECREF(ascii_str);
         return NULL;
     }
@@ -3201,11 +3201,11 @@ Pympc_From_PyStr(PyObject *s, int base, mpfr_prec_t rbits, mpfr_prec_t ibits)
     return NULL;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_PyStr_bits_context(PyObject *s, int base, mpfr_prec_t rbits,
                               mpfr_prec_t ibits, GMPyContextObject *context)
 {
-    PympcObject *newob;
+    MPC_Object *newob;
     PyObject *ascii_str = NULL;
     Py_ssize_t len;
     char *cp, *unwind, *tempchar, *lastchar;
@@ -3229,7 +3229,7 @@ Pympc_From_PyStr_bits_context(PyObject *s, int base, mpfr_prec_t rbits,
         return NULL;
     }
 
-    if (!(newob = (PympcObject*)Pympc_new_bits_context(rbits, ibits, context))) {
+    if (!(newob = (MPC_Object*)Pympc_new_bits_context(rbits, ibits, context))) {
         Py_XDECREF(ascii_str);
         return NULL;
     }
@@ -3311,10 +3311,10 @@ Pympc_From_PyStr_bits_context(PyObject *s, int base, mpfr_prec_t rbits,
     return NULL;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_PyStr_context(PyObject *s, int base, GMPyContextObject *context)
 {
-    PympcObject *newob;
+    MPC_Object *newob;
     PyObject *ascii_str = NULL;
     Py_ssize_t len;
     char *cp, *unwind, *tempchar, *lastchar;
@@ -3338,7 +3338,7 @@ Pympc_From_PyStr_context(PyObject *s, int base, GMPyContextObject *context)
         return NULL;
     }
 
-    if (!(newob = (PympcObject*)Pympc_new_context(context))) {
+    if (!(newob = (MPC_Object*)Pympc_new_context(context))) {
         Py_XDECREF(ascii_str);
         return NULL;
     }
@@ -3460,7 +3460,7 @@ raw_mpfr_ascii(mpfr_t self, int base, int digits, int round)
 }
 
 static PyObject *
-Pympc_To_PyStr(PympcObject *self, int base, int digits)
+Pympc_To_PyStr(MPC_Object *self, int base, int digits)
 {
     PyObject *tempreal = 0, *tempimag = 0, *result;
     GMPyContextObject *context;
@@ -3503,36 +3503,36 @@ Pympc_To_PyStr(PympcObject *self, int base, int digits)
  * according to the context.
  */
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
-    PympcObject* newob = 0;
-    PympqObject* temp = 0;
+    MPC_Object* newob = 0;
+    MPQ_Object* temp = 0;
     mpfr_prec_t pr = 0, pi = 0;
     int rr, ri, dr, di;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
 
-    if (Pympc_CheckAndExp(obj)) {
+    if (MPC_CheckAndExp(obj)) {
         /* Handle the likely case where the exponent of the mpc is still
          * valid in the current context. */
         if (!rprec && !iprec) {
             Py_INCREF(obj);
-            newob = (PympcObject*)obj;
+            newob = (MPC_Object*)obj;
         }
         else {
-            mpc_get_prec2(&pr, &pi, Pympc_AS_MPC(obj));
+            mpc_get_prec2(&pr, &pi, MPC(obj));
             if (rprec == pr && iprec == pi) {
                 Py_INCREF(obj);
-                newob = (PympcObject*)obj;
+                newob = (MPC_Object*)obj;
             }
             else {
                 newob = Pympc_From_Pympc((PyObject*)obj, rprec, iprec);
             }
         }
     }
-    else if (Pympc_Check(obj)) {
+    else if (MPC_Check(obj)) {
         /* Handle the unlikely case where the exponent is no longer
          * valid and mpfr_check_range needs to be called. */
         if (context->ctx.traps & TRAP_EXPBOUND) {
@@ -3540,25 +3540,25 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
             return NULL;
         }
         /* Get the real and imaginary precisions. */
-        mpc_get_prec2(&pr, &pi, Pympc_AS_MPC(obj));
+        mpc_get_prec2(&pr, &pi, MPC(obj));
 
         /* Get the real and imaginary inexact codes. */
-        rr = MPC_INEX_RE( ((PympcObject*)obj)->rc );
-        ri = MPC_INEX_IM( ((PympcObject*)obj)->rc );
+        rr = MPC_INEX_RE( ((MPC_Object*)obj)->rc );
+        ri = MPC_INEX_IM( ((MPC_Object*)obj)->rc );
 
         /* Get the real and imaginary rounding modes. */
-        dr = MPC_RND_RE( ((PympcObject*)obj)->round_mode );
-        di = MPC_RND_IM( ((PympcObject*)obj)->round_mode );
+        dr = MPC_RND_RE( ((MPC_Object*)obj)->round_mode );
+        di = MPC_RND_IM( ((MPC_Object*)obj)->round_mode );
 
-        if ((newob = (PympcObject*)Pympc_new(pr, pi))) {
-            mpc_set(newob->c, Pympc_AS_MPC(obj), GET_MPC_ROUND(context));
-            newob->round_mode = ((PympcObject*)obj)->round_mode;
+        if ((newob = (MPC_Object*)Pympc_new(pr, pi))) {
+            mpc_set(newob->c, MPC(obj), GET_MPC_ROUND(context));
+            newob->round_mode = ((MPC_Object*)obj)->round_mode;
             rr = mpfr_check_range(mpc_realref(newob->c), rr, dr);
             ri = mpfr_check_range(mpc_imagref(newob->c), ri, di);
             newob->rc = MPC_INEX(rr, ri);
         }
     }
-    else if (Pympfr_Check(obj)) {
+    else if (MPFR_Check(obj)) {
             newob = Pympc_From_Pympfr((PyObject*)obj, rprec, iprec);
     }
     else if (PyFloat_Check(obj)) {
@@ -3572,16 +3572,16 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
         newob = Pympc_From_PyInt_bits_context(obj, rprec, iprec, context);
 #endif
     }
-    else if (Pympq_Check(obj)) {
+    else if (MPQ_Check(obj)) {
         newob = Pympc_From_Pympq(obj, rprec, iprec);
     }
-    else if (Pympz_Check(obj)) {
+    else if (MPZ_Check(obj)) {
         newob = Pympc_From_Pympz(obj, rprec, iprec);
     }
     else if (PyLong_Check(obj)) {
         newob = Pympc_From_PyLong(obj, rprec, iprec);
     }
-    else if (Pyxmpz_Check(obj)) {
+    else if (XMPZ_Check(obj)) {
         newob = Pympc_From_Pyxmpz(obj, rprec, iprec);
     }
     else if (isDecimal(obj)) {
@@ -3605,27 +3605,27 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
     return newob;
 }
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_Complex_bits_context(PyObject* obj, mpfr_prec_t rprec,
                                 mpfr_prec_t iprec, GMPyContextObject *context)
 {
-    PympcObject* newob = 0;
-    PympqObject* temp = 0;
+    MPC_Object* newob = 0;
+    MPQ_Object* temp = 0;
     mpfr_prec_t pr = 0, pi = 0;
     int rr, ri, dr, di;
 
-    if (Pympc_CheckAndExp(obj)) {
+    if (MPC_CheckAndExp(obj)) {
         /* Handle the likely case where the exponent of the mpc is still
          * valid in the current context. */
         if (!rprec && !iprec) {
             Py_INCREF(obj);
-            newob = (PympcObject*)obj;
+            newob = (MPC_Object*)obj;
         }
         else {
-            mpc_get_prec2(&pr, &pi, Pympc_AS_MPC(obj));
+            mpc_get_prec2(&pr, &pi, MPC(obj));
             if (rprec == pr && iprec == pi) {
                 Py_INCREF(obj);
-                newob = (PympcObject*)obj;
+                newob = (MPC_Object*)obj;
             }
             else {
                 newob = Pympc_From_Pympc_bits_context((PyObject*)obj, rprec,
@@ -3633,7 +3633,7 @@ Pympc_From_Complex_bits_context(PyObject* obj, mpfr_prec_t rprec,
             }
         }
     }
-    else if (Pympc_Check(obj)) {
+    else if (MPC_Check(obj)) {
         /* Handle the unlikely case where the exponent is no longer
          * valid and mpfr_check_range needs to be called. */
         if (context->ctx.traps & TRAP_EXPBOUND) {
@@ -3641,25 +3641,25 @@ Pympc_From_Complex_bits_context(PyObject* obj, mpfr_prec_t rprec,
             return NULL;
         }
         /* Get the real and imaginary precisions. */
-        mpc_get_prec2(&pr, &pi, Pympc_AS_MPC(obj));
+        mpc_get_prec2(&pr, &pi, MPC(obj));
 
         /* Get the real and imaginary inexact codes. */
-        rr = MPC_INEX_RE( ((PympcObject*)obj)->rc );
-        ri = MPC_INEX_IM( ((PympcObject*)obj)->rc );
+        rr = MPC_INEX_RE( ((MPC_Object*)obj)->rc );
+        ri = MPC_INEX_IM( ((MPC_Object*)obj)->rc );
 
         /* Get the real and imaginary rounding modes. */
-        dr = MPC_RND_RE( ((PympcObject*)obj)->round_mode );
-        di = MPC_RND_IM( ((PympcObject*)obj)->round_mode );
+        dr = MPC_RND_RE( ((MPC_Object*)obj)->round_mode );
+        di = MPC_RND_IM( ((MPC_Object*)obj)->round_mode );
 
-        if ((newob = (PympcObject*)Pympc_new_bits_context(pr, pi, context))) {
-            mpc_set(newob->c, Pympc_AS_MPC(obj), GET_MPC_ROUND(context));
-            newob->round_mode = ((PympcObject*)obj)->round_mode;
+        if ((newob = (MPC_Object*)Pympc_new_bits_context(pr, pi, context))) {
+            mpc_set(newob->c, MPC(obj), GET_MPC_ROUND(context));
+            newob->round_mode = ((MPC_Object*)obj)->round_mode;
             rr = mpfr_check_range(mpc_realref(newob->c), rr, dr);
             ri = mpfr_check_range(mpc_imagref(newob->c), ri, di);
             newob->rc = MPC_INEX(rr, ri);
         }
     }
-    else if (Pympfr_Check(obj)) {
+    else if (MPFR_Check(obj)) {
             newob = Pympc_From_Pympfr_bits_context((PyObject*)obj, rprec, iprec,
                                                    context);
     }
@@ -3674,16 +3674,16 @@ Pympc_From_Complex_bits_context(PyObject* obj, mpfr_prec_t rprec,
         newob = Pympc_From_PyInt_bits_context(obj, rprec, iprec, context);
 #endif
     }
-    else if (Pympq_Check(obj)) {
+    else if (MPQ_Check(obj)) {
         newob = Pympc_From_Pympq_bits_context(obj, rprec, iprec, context);
     }
-    else if (Pympz_Check(obj)) {
+    else if (MPZ_Check(obj)) {
         newob = Pympc_From_Pympz_bits_context(obj, rprec, iprec, context);
     }
     else if (PyLong_Check(obj)) {
         newob = Pympc_From_PyLong_bits_context(obj, rprec, iprec, context);
     }
-    else if (Pyxmpz_Check(obj)) {
+    else if (XMPZ_Check(obj)) {
         newob = Pympc_From_Pyxmpz_bits_context(obj, rprec, iprec, context);
     }
     else if (isDecimal(obj)) {
@@ -3712,28 +3712,28 @@ Pympc_From_Complex_bits_context(PyObject* obj, mpfr_prec_t rprec,
  * obj is an mpc, and its precision matches the precision in context, then
  * just return a new reference to obj. Otherwise, create a new mpc. */
 
-static PympcObject *
+static MPC_Object *
 Pympc_From_Complex_context(PyObject* obj, GMPyContextObject *context)
 {
-    PympcObject *newob = NULL;
-    PympqObject *temp;
+    MPC_Object *newob = NULL;
+    MPQ_Object *temp;
     mpfr_prec_t rprec, iprec;
     int rr, ri, dr, di;
 
     /* Handle the likely case where the exponent of the mpc is still
      * valid in the current context. */
-    if (Pympc_CheckAndExp(obj)) {
-        mpc_get_prec2(&rprec, &iprec, Pympc_AS_MPC(obj));
+    if (MPC_CheckAndExp(obj)) {
+        mpc_get_prec2(&rprec, &iprec, MPC(obj));
         if ((rprec == GET_REAL_PREC(context)) &&
             (iprec == GET_IMAG_PREC(context))) {
                 Py_INCREF(obj);
-                newob = (PympcObject*)obj;
+                newob = (MPC_Object*)obj;
         }
         else {
             newob = Pympc_From_Pympc_context((PyObject*)obj, context);
         }
     }
-    else if (Pympc_Check(obj)) {
+    else if (MPC_Check(obj)) {
         /* Handle the unlikely case where the exponent is no longer
          * valid and mpfr_check_range needs to be called. */
         if (context->ctx.traps & TRAP_EXPBOUND) {
@@ -3741,25 +3741,25 @@ Pympc_From_Complex_context(PyObject* obj, GMPyContextObject *context)
             return NULL;
         }
         /* Get the real and imaginary precisions. */
-        mpc_get_prec2(&rprec, &iprec, Pympc_AS_MPC(obj));
+        mpc_get_prec2(&rprec, &iprec, MPC(obj));
 
         /* Get the real and imaginary inexact codes. */
-        rr = MPC_INEX_RE( ((PympcObject*)obj)->rc );
-        ri = MPC_INEX_IM( ((PympcObject*)obj)->rc );
+        rr = MPC_INEX_RE( ((MPC_Object*)obj)->rc );
+        ri = MPC_INEX_IM( ((MPC_Object*)obj)->rc );
 
         /* Get the real and imaginary rounding modes. */
-        dr = MPC_RND_RE( ((PympcObject*)obj)->round_mode );
-        di = MPC_RND_IM( ((PympcObject*)obj)->round_mode );
+        dr = MPC_RND_RE( ((MPC_Object*)obj)->round_mode );
+        di = MPC_RND_IM( ((MPC_Object*)obj)->round_mode );
 
-        if ((newob = (PympcObject*)Pympc_new_bits_context(rprec, iprec, context))) {
-            mpc_set(newob->c, Pympc_AS_MPC(obj), GET_MPC_ROUND(context));
-            newob->round_mode = ((PympcObject*)obj)->round_mode;
+        if ((newob = (MPC_Object*)Pympc_new_bits_context(rprec, iprec, context))) {
+            mpc_set(newob->c, MPC(obj), GET_MPC_ROUND(context));
+            newob->round_mode = ((MPC_Object*)obj)->round_mode;
             rr = mpfr_check_range(mpc_realref(newob->c), rr, dr);
             ri = mpfr_check_range(mpc_imagref(newob->c), ri, di);
             newob->rc = MPC_INEX(rr, ri);
         }
     }
-    else if (Pympfr_Check(obj)) {
+    else if (MPFR_Check(obj)) {
             newob = Pympc_From_Pympfr_context((PyObject*)obj, context);
     }
     else if (PyFloat_Check(obj)) {
@@ -3773,16 +3773,16 @@ Pympc_From_Complex_context(PyObject* obj, GMPyContextObject *context)
         newob = Pympc_From_PyInt_context(obj, context);
 #endif
     }
-    else if (Pympq_Check(obj)) {
+    else if (MPQ_Check(obj)) {
         newob = Pympc_From_Pympq_context(obj, context);
     }
-    else if (Pympz_Check(obj)) {
+    else if (MPZ_Check(obj)) {
         newob = Pympc_From_Pympz_context(obj, context);
     }
     else if (PyLong_Check(obj)) {
         newob = Pympc_From_PyLong_context(obj, context);
     }
-    else if (Pyxmpz_Check(obj)) {
+    else if (XMPZ_Check(obj)) {
         newob = Pympc_From_Pyxmpz_context(obj, context);
     }
     else if (isDecimal(obj)) {
@@ -3809,7 +3809,7 @@ Pympc_From_Complex_context(PyObject* obj, GMPyContextObject *context)
 int
 Pympc_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    PympcObject* newob = Pympc_From_Complex(arg, 0, 0);
+    MPC_Object* newob = Pympc_From_Complex(arg, 0, 0);
 
     if (newob) {
         *ptr = (PyObject*)newob;
@@ -3823,14 +3823,14 @@ Pympc_convert_arg(PyObject *arg, PyObject **ptr)
 
 /* str and repr implementations for mpc */
 static PyObject *
-Pympc_To_Str(PympcObject *self)
+Pympc_To_Str(MPC_Object *self)
 {
     PyObject *result, *temp;
     mpfr_prec_t rbits, ibits;
     long rprec, iprec;
     char fmtstr[30];
 
-    mpc_get_prec2(&rbits, &ibits, Pympc_AS_MPC(self));
+    mpc_get_prec2(&rbits, &ibits, MPC(self));
     rprec = (long)(log10(2) * (double)rbits) + 2;
     iprec = (long)(log10(2) * (double)ibits) + 2;
 
@@ -3845,14 +3845,14 @@ Pympc_To_Str(PympcObject *self)
 }
 
 static PyObject *
-Pympc_To_Repr(PympcObject *self)
+Pympc_To_Repr(MPC_Object *self)
 {
     PyObject *result, *temp;
     mpfr_prec_t rbits, ibits;
     long rprec, iprec;
     char fmtstr[30];
 
-    mpc_get_prec2(&rbits, &ibits, Pympc_AS_MPC(self));
+    mpc_get_prec2(&rbits, &ibits, MPC(self));
     rprec = (long)(log10(2) * (double)rbits) + 2;
     iprec = (long)(log10(2) * (double)ibits) + 2;
 

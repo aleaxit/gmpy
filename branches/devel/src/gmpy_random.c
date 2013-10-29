@@ -59,7 +59,7 @@ static PyObject *
 GMPY_random_state(PyObject *self, PyObject *args)
 {
     GMPYRandomStateObject *result;
-    PympzObject *temp;
+    MPZ_Object *temp;
 
     if (!(result = GMPYRandomState_New()))
         return NULL;
@@ -92,7 +92,7 @@ PyDoc_STRVAR(doc_mpz_urandomb,
 static PyObject *
 GMPY_mpz_urandomb(PyObject *self, PyObject *args)
 {
-    PympzObject *result;
+    MPZ_Object *result;
     mp_bitcnt_t len;
 
     if (PyTuple_GET_SIZE(args) != 2) {
@@ -111,8 +111,8 @@ GMPY_mpz_urandomb(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if ((result = (PympzObject*)Pympz_new())) {
-        mpz_urandomb(Pympz_AS_MPZ(result),
+    if ((result = (MPZ_Object*)Pympz_new())) {
+        mpz_urandomb(MPZ(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                      len);
     }
@@ -128,7 +128,7 @@ PyDoc_STRVAR(doc_mpz_rrandomb,
 static PyObject *
 GMPY_mpz_rrandomb(PyObject *self, PyObject *args)
 {
-    PympzObject *result;
+    MPZ_Object *result;
     mp_bitcnt_t len;
 
     if (PyTuple_GET_SIZE(args) != 2) {
@@ -147,8 +147,8 @@ GMPY_mpz_rrandomb(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if ((result = (PympzObject*)Pympz_new())) {
-        mpz_rrandomb(Pympz_AS_MPZ(result),
+    if ((result = (MPZ_Object*)Pympz_new())) {
+        mpz_rrandomb(MPZ(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                      len);
     }
@@ -163,7 +163,7 @@ PyDoc_STRVAR(doc_mpz_random,
 static PyObject *
 GMPY_mpz_random(PyObject *self, PyObject *args)
 {
-    PympzObject *result, *temp;
+    MPZ_Object *result, *temp;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("mpz_random() requires 2 arguments");
@@ -180,10 +180,10 @@ GMPY_mpz_random(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if ((result = (PympzObject*)Pympz_new())) {
-        mpz_urandomm(Pympz_AS_MPZ(result),
+    if ((result = (MPZ_Object*)Pympz_new())) {
+        mpz_urandomm(MPZ(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
-                     Pympz_AS_MPZ(temp));
+                     MPZ(temp));
     }
 
     Py_DECREF((PyObject*)temp);
@@ -197,7 +197,7 @@ PyDoc_STRVAR(doc_mpfr_random,
 static PyObject *
 GMPY_mpfr_random(PyObject *self, PyObject *args)
 {
-    PympfrObject *result;
+    MPFR_Object *result;
     GMPyContextObject *context;
 
     CURRENT_CONTEXT(context);
@@ -212,8 +212,8 @@ GMPY_mpfr_random(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if ((result = (PympfrObject*)Pympfr_new(0))) {
-        mpfr_urandom(Pympfr_AS_MPFR(result),
+    if ((result = (MPFR_Object*)Pympfr_new(0))) {
+        mpfr_urandom(MPFR(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                      context->ctx.mpfr_round);
     }
@@ -228,7 +228,7 @@ PyDoc_STRVAR(doc_mpfr_grandom,
 static PyObject *
 GMPY_mpfr_grandom(PyObject *self, PyObject *args)
 {
-    PympfrObject *result1, *result2;
+    MPFR_Object *result1, *result2;
     PyObject *result;
     GMPyContextObject *context;
 
@@ -244,15 +244,15 @@ GMPY_mpfr_grandom(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    result1 = (PympfrObject*)Pympfr_new(0);
-    result2 = (PympfrObject*)Pympfr_new(0);
+    result1 = (MPFR_Object*)Pympfr_new(0);
+    result2 = (MPFR_Object*)Pympfr_new(0);
     if (!result1 || !result2) {
         Py_XDECREF((PyObject*)result1);
         Py_XDECREF((PyObject*)result2);
         return NULL;
     }
 
-    mpfr_grandom(Pympfr_AS_MPFR(result1), Pympfr_AS_MPFR(result2),
+    mpfr_grandom(MPFR(result1), MPFR(result2),
                  PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                  context->ctx.mpfr_round);
 
@@ -271,7 +271,7 @@ PyDoc_STRVAR(doc_mpc_random,
 static PyObject *
 GMPY_mpc_random(PyObject *self, PyObject *args)
 {
-    PympcObject *result;
+    MPC_Object *result;
 
     if (PyTuple_GET_SIZE(args) != 1) {
         TYPE_ERROR("mpfc_random() requires 1 argument");
@@ -283,8 +283,8 @@ GMPY_mpc_random(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if ((result = (PympcObject*)Pympc_new(0,0))) {
-        mpc_urandom(Pympc_AS_MPC(result),
+    if ((result = (MPC_Object*)Pympc_new(0,0))) {
+        mpc_urandom(MPC(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)));
     }
 

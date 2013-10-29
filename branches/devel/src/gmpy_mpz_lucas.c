@@ -42,7 +42,7 @@ GMPY_mpz_lucasu(PyObject *self, PyObject *args)
      * Note: p^2-4q=0 is not tested, not a proper Lucas sequence!!
      */
 
-    PympzObject *result = 0, *p, *q, *k;
+    MPZ_Object *result = 0, *p, *q, *k;
     size_t s = 0, j = 0;
     mpz_t uh, vl, vh, ql, qh, tmp;
 
@@ -164,7 +164,7 @@ GMPY_mpz_lucasu(PyObject *self, PyObject *args)
         mpz_mul(ql, ql, ql);
     }
 
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = (MPZ_Object*)Pympz_new()))
         goto cleanup;
 
     /* uh contains our return value */
@@ -198,7 +198,7 @@ GMPY_mpz_lucasu_mod(PyObject *self, PyObject *args)
      * Note: p^2-4q=0 is not tested, not a proper Lucas sequence!!
      */
 
-    PympzObject *result = 0, *p, *q, *k, *n;
+    MPZ_Object *result = 0, *p, *q, *k, *n;
 
     size_t s = 0, j = 0;
     mpz_t uh, vl, vh, ql, qh, tmp;
@@ -339,7 +339,7 @@ GMPY_mpz_lucasu_mod(PyObject *self, PyObject *args)
         mpz_mod(ql, ql, n->z);
     }
 
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = (MPZ_Object*)Pympz_new()))
         goto cleanup;
 
     /* uh contains our return value */
@@ -373,7 +373,7 @@ GMPY_mpz_lucasv(PyObject *self, PyObject *args)
      * Note: p^2-4q=0 is not tested, not a proper Lucas sequence!!
      */
 
-    PympzObject *result = 0, *p, *q, *k;
+    MPZ_Object *result = 0, *p, *q, *k;
     size_t s = 0, j = 0;
     mpz_t vl, vh, ql, qh, tmp;
 
@@ -479,7 +479,7 @@ GMPY_mpz_lucasv(PyObject *self, PyObject *args)
         mpz_mul(ql, ql, ql);
     }
 
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = (MPZ_Object*)Pympz_new()))
         goto cleanup;
 
     /* vl contains our return value */
@@ -512,7 +512,7 @@ GMPY_mpz_lucasv_mod(PyObject *self, PyObject *args)
      * Note: p^2-4q=0 is not tested, not a proper Lucas sequence!!
      */
 
-    PympzObject *result = 0, *p, *q, *k, *n;
+    MPZ_Object *result = 0, *p, *q, *k, *n;
 
     size_t s = 0, j = 0;
     mpz_t vl, vh, ql, qh, tmp;
@@ -634,7 +634,7 @@ GMPY_mpz_lucasv_mod(PyObject *self, PyObject *args)
         mpz_mod(ql, ql, n->z);
     }
 
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = (MPZ_Object*)Pympz_new()))
         goto cleanup;
 
     /* vl contains our return value */

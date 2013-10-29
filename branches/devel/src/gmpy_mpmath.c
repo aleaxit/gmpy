@@ -29,7 +29,7 @@
 /* Internal helper function for mpmath. */
 
 static PyObject *
-mpmath_build_mpf(long sign, PympzObject *man, PyObject *exp, mpir_si bc)
+mpmath_build_mpf(long sign, MPZ_Object *man, PyObject *exp, mpir_si bc)
 {
     PyObject *tup, *tsign, *tbc;
 
@@ -70,20 +70,20 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     long sign = 0;
     mpir_si bc = 0, prec = 0, shift, zbits, carry = 0;
     PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0, *rndstr = 0;
-    PympzObject *man = 0, *upper = 0, *lower = 0;
+    MPZ_Object *man = 0, *upper = 0, *lower = 0;
     char rnd = 0;
 
     if (PyTuple_GET_SIZE(args) == 6) {
         /* Need better error-checking here. Under Python 3.0, overflow into
            C-long is possible. */
         sign = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
-        man = (PympzObject *)PyTuple_GET_ITEM(args, 1);
+        man = (MPZ_Object *)PyTuple_GET_ITEM(args, 1);
         exp = PyTuple_GET_ITEM(args, 2);
         bc = SI_From_Integer(PyTuple_GET_ITEM(args, 3));
         prec = SI_From_Integer(PyTuple_GET_ITEM(args, 4));
         rndstr = PyTuple_GET_ITEM(args, 5);
         if (PyErr_Occurred()) {
-            TYPE_ERROR("arguments long, PympzObject*, PyObject*, long, long, char needed");
+            TYPE_ERROR("arguments long, MPZ_Object*, PyObject*, long, long, char needed");
             return NULL;
         }
     }
@@ -92,7 +92,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!Pympz_Check(man)) {
+    if (!MPZ_Check(man)) {
         TYPE_ERROR("argument is not an mpz");
         return NULL;
     }
@@ -119,8 +119,8 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         return mpmath_build_mpf(sign, man, exp, bc);
     }
 
-    if (!(upper = (PympzObject*)Pympz_new()) ||
-        !(lower = (PympzObject*)Pympz_new())) {
+    if (!(upper = (MPZ_Object*)Pympz_new()) ||
+        !(lower = (MPZ_Object*)Pympz_new())) {
         Py_XDECREF((PyObject*)upper);
         Py_XDECREF((PyObject*)lower);
     }
@@ -231,7 +231,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     long sign;
     mpir_si bc, shift, zbits, carry = 0, prec = 0;
     PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0;
-    PympzObject *man = 0, *upper = 0, *lower = 0;
+    MPZ_Object *man = 0, *upper = 0, *lower = 0;
 
     const char *rnd = "f";
 
@@ -263,8 +263,8 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
         return mpmath_build_mpf(0, man, 0, 0);
     }
 
-    upper = (PympzObject*)Pympz_new();
-    lower = (PympzObject*)Pympz_new();
+    upper = (MPZ_Object*)Pympz_new();
+    lower = (MPZ_Object*)Pympz_new();
     if (!upper || !lower) {
         Py_DECREF((PyObject*)man);
         Py_XDECREF((PyObject*)upper);

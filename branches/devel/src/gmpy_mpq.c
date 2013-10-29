@@ -41,7 +41,7 @@ PyDoc_STRVAR(doc_mpq,
 static PyObject *
 Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
 {
-    PympqObject *result = 0, *temp;
+    MPQ_Object *result = 0, *temp;
     PyObject *n = 0, *m = 0;
     int base = 10;
     Py_ssize_t argc;
@@ -54,7 +54,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
     }
 
     if (argc == 0) {
-        if ((result = (PympqObject*)Pympq_new())) {
+        if ((result = (MPQ_Object*)Pympq_new())) {
             mpq_set_ui(result->q, 0, 0);
         }
         return (PyObject*)result;
@@ -128,7 +128,7 @@ Pympq_digits(PyObject *self, PyObject *args)
     PyObject *result;
 
     SELF_MPQ_ONE_ARG("|i", &base);
-    result = Pympq_To_PyStr((PympqObject*)self, base, 0);
+    result = Pympq_To_PyStr((MPQ_Object*)self, base, 0);
     Py_DECREF(self);
     return result;
 }
@@ -141,10 +141,10 @@ static PyObject *
 Pympq_sign(PyObject *self, PyObject *other)
 {
     long res;
-    PympqObject* tempx;
+    MPQ_Object* tempx;
 
-    if (Pympq_Check(other)) {
-        res = mpq_sgn(Pympq_AS_MPQ(other));
+    if (MPQ_Check(other)) {
+        res = mpq_sgn(MPQ(other));
     }
     else {
         if (!(tempx = Pympq_From_Number(other))) {
@@ -166,25 +166,25 @@ PyDoc_STRVAR(doc_numerg,
 static PyObject *
 Pympq_numer(PyObject *self, PyObject *args)
 {
-    PympzObject *result;
+    MPZ_Object *result;
 
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = (MPZ_Object*)Pympz_new()))
         return NULL;
 
     SELF_MPQ_NO_ARG;
-    assert(Pympq_Check(self));
-    mpz_set(result->z, mpq_numref(Pympq_AS_MPQ(self)));
+    assert(MPQ_Check(self));
+    mpz_set(result->z, mpq_numref(MPQ(self)));
     Py_DECREF(self);
     return (PyObject*)result;
 }
 
 static PyObject *
-Pympq_getnumer(PympqObject *self, void *closure)
+Pympq_getnumer(MPQ_Object *self, void *closure)
 {
-    PympzObject *result;
+    MPZ_Object *result;
 
-    if ((result = (PympzObject*)Pympz_new()))
-        mpz_set(result->z, mpq_numref(Pympq_AS_MPQ(self)));
+    if ((result = (MPZ_Object*)Pympz_new()))
+        mpz_set(result->z, mpq_numref(MPQ(self)));
     return (PyObject*)result;
 }
 
@@ -195,25 +195,25 @@ PyDoc_STRVAR(doc_denomg,
 static PyObject *
 Pympq_denom(PyObject *self, PyObject *args)
 {
-    PympzObject *result;
+    MPZ_Object *result;
 
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = (MPZ_Object*)Pympz_new()))
         return NULL;
 
     SELF_MPQ_NO_ARG;
-    assert(Pympq_Check(self));
-    mpz_set(result->z, mpq_denref(Pympq_AS_MPQ(self)));
+    assert(MPQ_Check(self));
+    mpz_set(result->z, mpq_denref(MPQ(self)));
     Py_DECREF(self);
     return (PyObject*)result;
 }
 
 static PyObject *
-Pympq_getdenom(PympqObject *self, void *closure)
+Pympq_getdenom(MPQ_Object *self, void *closure)
 {
-    PympzObject *result;
+    MPZ_Object *result;
 
-    if ((result = (PympzObject*)Pympz_new()))
-        mpz_set(result->z, mpq_denref(Pympq_AS_MPQ(self)));
+    if ((result = (MPZ_Object*)Pympz_new()))
+        mpz_set(result->z, mpq_denref(MPQ(self)));
     return (PyObject*)result;
 }
 
@@ -233,23 +233,23 @@ static int isOne(PyObject* obj)
     if (!obj)
         return 1;
 
-    if (Pympq_Check(obj)) {
-        return (0==mpz_cmp_ui(mpq_denref(Pympq_AS_MPQ(obj)),1)) &&
-               (0==mpz_cmp_ui(mpq_numref(Pympq_AS_MPQ(obj)),1));
+    if (MPQ_Check(obj)) {
+        return (0==mpz_cmp_ui(mpq_denref(MPQ(obj)),1)) &&
+               (0==mpz_cmp_ui(mpq_numref(MPQ(obj)),1));
     }
-    else if (Pympz_Check(obj)) {
-        return 0==mpz_cmp_ui(Pympz_AS_MPZ(obj),1);
+    else if (MPZ_Check(obj)) {
+        return 0==mpz_cmp_ui(MPZ(obj),1);
     }
-    else if (Pyxmpz_Check(obj)) {
-        return 0==mpz_cmp_ui(Pyxmpz_AS_MPZ(obj),1);
+    else if (XMPZ_Check(obj)) {
+        return 0==mpz_cmp_ui(MPZ(obj),1);
 #ifdef PY2
     }
     else if (PyInt_Check(obj)) {
         return PyInt_AS_LONG(obj)==1;
 #endif
     }
-    else if (Pympfr_Check(obj)) {
-        return mpfr_get_d(Pympfr_AS_MPFR(obj), context->ctx.mpfr_round)==1.0;
+    else if (MPFR_Check(obj)) {
+        return mpfr_get_d(MPFR(obj), context->ctx.mpfr_round)==1.0;
     }
     else if (PyFloat_Check(obj)) {
         return PyFloat_AS_DOUBLE(obj)==1.0;
@@ -266,7 +266,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
     PyObject *s = 0;
     int wasone;
 
-    if ( self && Pympq_Check(self)) {
+    if ( self && MPQ_Check(self)) {
         if (!PyArg_ParseTuple(args, "|O", &other))
             return NULL;
     }
@@ -276,20 +276,20 @@ Pympq_qdiv(PyObject *self, PyObject *args)
     }
     wasone = isOne(other);
     /* optimize if self must be returned unchanged */
-    if (Pympq_Check(self) && wasone) {
+    if (MPQ_Check(self) && wasone) {
         /* optimize if self is mpq and result must==self */
-        if (mpz_cmp_ui(mpq_denref(Pympq_AS_MPQ(self)), 1) != 0) {
+        if (mpz_cmp_ui(mpq_denref(MPQ(self)), 1) != 0) {
             Py_INCREF(self);
             return self;
         }
         else {
             /* denominator is 1, optimize returning an mpz */
             s = Pympz_new();
-            mpz_set(Pympz_AS_MPZ(s), mpq_numref(Pympq_AS_MPQ(self)));
+            mpz_set(MPZ(s), mpq_numref(MPQ(self)));
             return s;
         }
     }
-    else if (Pympz_Check(self) && wasone) {
+    else if (MPZ_Check(self) && wasone) {
         /* optimize if self is mpz and result must==self */
         Py_INCREF(self);
         return self;
@@ -312,7 +312,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
                 TYPE_ERROR("second argument cannot be converted to 'mpq'");
             return NULL;
         }
-        if (mpq_sgn(Pympq_AS_MPQ(other))==0) {
+        if (mpq_sgn(MPQ(other))==0) {
             PyObject* result = 0;
             ZERO_ERROR("division or modulo by zero in qdiv");
             Py_DECREF(self);
@@ -320,29 +320,29 @@ Pympq_qdiv(PyObject *self, PyObject *args)
             return result;
         }
         s = Pympq_new();
-        mpq_div(Pympq_AS_MPQ(s), Pympq_AS_MPQ(self), Pympq_AS_MPQ(other));
+        mpq_div(MPQ(s), MPQ(self), MPQ(other));
         Py_DECREF(self);
         Py_DECREF(other);
     }
-    if (mpz_cmp_ui(mpq_denref(Pympq_AS_MPQ(s)), 1) != 0) {
+    if (mpz_cmp_ui(mpq_denref(MPQ(s)), 1) != 0) {
         return s;
     }
     else {
         /* denominator is 1, return an mpz */
         PyObject* ss = Pympz_new();
         if (ss)
-            mpz_set(Pympz_AS_MPZ(ss), mpq_numref(Pympq_AS_MPQ(s)));
+            mpz_set(MPZ(ss), mpq_numref(MPQ(s)));
         Py_DECREF(s);
         return ss;
     }
 }
 
 static PyObject *
-Pympq_neg(PympqObject *self)
+Pympq_neg(MPQ_Object *self)
 {
-    PympqObject *result;
+    MPQ_Object *result;
 
-    if ((result = (PympqObject*)Pympq_new())) {
+    if ((result = (MPQ_Object*)Pympq_new())) {
         mpq_neg(result->q, self->q);
     }
 
@@ -351,11 +351,11 @@ Pympq_neg(PympqObject *self)
 
 #if 0
 static PyObject *
-Pympq_abs(PympqObject *self)
+Pympq_abs(MPQ_Object *self)
 {
-    PympqObject *result;
+    MPQ_Object *result;
 
-    if ((result = (PympqObject*)Pympq_new())) {
+    if ((result = (MPQ_Object*)Pympq_new())) {
         mpq_set(result->q, self->q);
         mpz_abs(mpq_numref(result->q), mpq_numref(result->q));
     }
@@ -370,12 +370,12 @@ PyDoc_STRVAR(doc_mpq_floor,
 static PyObject *
 Pympq_floor(PyObject *self, PyObject *other)
 {
-    PympzObject *result;
+    MPZ_Object *result;
 
-    if ((result = (PympzObject*)Pympz_new())) {
+    if ((result = (MPZ_Object*)Pympz_new())) {
         mpz_fdiv_q(result->z,
-                   mpq_numref(Pympq_AS_MPQ(self)),
-                   mpq_denref(Pympq_AS_MPQ(self)));
+                   mpq_numref(MPQ(self)),
+                   mpq_denref(MPQ(self)));
     }
 
     return (PyObject*)result;
@@ -387,12 +387,12 @@ PyDoc_STRVAR(doc_mpq_ceil,
 static PyObject *
 Pympq_ceil(PyObject *self, PyObject *other)
 {
-    PympzObject *result;
+    MPZ_Object *result;
 
-    if ((result = (PympzObject*)Pympz_new())) {
+    if ((result = (MPZ_Object*)Pympz_new())) {
         mpz_cdiv_q(result->z,
-                   mpq_numref(Pympq_AS_MPQ(self)),
-                   mpq_denref(Pympq_AS_MPQ(self)));
+                   mpq_numref(MPQ(self)),
+                   mpq_denref(MPQ(self)));
     }
 
     return (PyObject*)result;
@@ -404,12 +404,12 @@ PyDoc_STRVAR(doc_mpq_trunc,
 static PyObject *
 Pympq_trunc(PyObject *self, PyObject *other)
 {
-    PympzObject *result;
+    MPZ_Object *result;
 
-    if ((result = (PympzObject*)Pympz_new())) {
+    if ((result = (MPZ_Object*)Pympz_new())) {
         mpz_tdiv_q(result->z,
-                   mpq_numref(Pympq_AS_MPQ(self)),
-                   mpq_denref(Pympq_AS_MPQ(self)));
+                   mpq_numref(MPQ(self)),
+                   mpq_denref(MPQ(self)));
     }
 
     return (PyObject*)result;
@@ -421,24 +421,24 @@ static PyObject *
 Pympq_round(PyObject *self, PyObject *args)
 {
     Py_ssize_t round_digits = 0;
-    PympqObject *resultq;
-    PympzObject *resultz;
+    MPQ_Object *resultq;
+    MPZ_Object *resultz;
     mpz_t temp, rem;
 
     /* If args is NULL or the size of args is 0, we just return an mpz. */
 
     if (!args || PyTuple_GET_SIZE(args) == 0) {
-        if (!(resultz = (PympzObject*)Pympz_new()))
+        if (!(resultz = (MPZ_Object*)Pympz_new()))
             return NULL;
 
         mpz_inoc(rem);
-        mpz_fdiv_qr(resultz->z, rem, mpq_numref(Pympq_AS_MPQ(self)),
-                    mpq_denref(Pympq_AS_MPQ(self)));
+        mpz_fdiv_qr(resultz->z, rem, mpq_numref(MPQ(self)),
+                    mpq_denref(MPQ(self)));
         mpz_mul_2exp(rem, rem, 1);
-        if (mpz_cmp(rem, mpq_denref(Pympq_AS_MPQ(self))) > 0) {
+        if (mpz_cmp(rem, mpq_denref(MPQ(self))) > 0) {
             mpz_add_ui(resultz->z, resultz->z, 1);
         }
-        else if (mpz_cmp(rem, mpq_denref(Pympq_AS_MPQ(self))) == 0) {
+        else if (mpz_cmp(rem, mpq_denref(MPQ(self))) == 0) {
             if (mpz_odd_p(resultz->z)) {
                 mpz_add_ui(resultz->z, resultz->z, 1);
             }
@@ -460,17 +460,17 @@ Pympq_round(PyObject *self, PyObject *args)
         }
     }
 
-    if (!(resultq = (PympqObject*)Pympq_new()))
+    if (!(resultq = (MPQ_Object*)Pympq_new()))
         return NULL;
 
     mpz_inoc(temp);
     mpz_ui_pow_ui(temp, 10, round_digits > 0 ? round_digits : -round_digits);
 
-    mpq_set(resultq->q, Pympq_AS_MPQ(self));
+    mpq_set(resultq->q, MPQ(self));
     if (round_digits > 0) {
         mpz_mul(mpq_numref(resultq->q), mpq_numref(resultq->q), temp);
         mpq_canonicalize(resultq->q);
-        if (!(resultz = (PympzObject*)Pympq_round((PyObject*)resultq, NULL))) {
+        if (!(resultz = (MPZ_Object*)Pympq_round((PyObject*)resultq, NULL))) {
             mpz_cloc(temp);
             return NULL;
         }
@@ -483,7 +483,7 @@ Pympq_round(PyObject *self, PyObject *args)
     else {
         mpz_mul(mpq_denref(resultq->q), mpq_denref(resultq->q), temp);
         mpq_canonicalize(resultq->q);
-        if (!(resultz = (PympzObject*)Pympq_round((PyObject*)resultq, NULL))) {
+        if (!(resultz = (MPZ_Object*)Pympq_round((PyObject*)resultq, NULL))) {
             mpz_cloc(temp);
             return NULL;
         }
@@ -497,7 +497,7 @@ Pympq_round(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-Pympq_pos(PympqObject *self)
+Pympq_pos(MPQ_Object *self)
 {
     Py_INCREF((PyObject*)self);
     return (PyObject*)self;
@@ -506,16 +506,16 @@ Pympq_pos(PympqObject *self)
 static PyObject *
 Pympq_square(PyObject *self, PyObject *other)
 {
-    PympqObject *tempx, *result;
+    MPQ_Object *tempx, *result;
 
-    if (!(result = (PympqObject*)Pympq_new()))
+    if (!(result = (MPQ_Object*)Pympq_new()))
         return NULL;
 
-    if (self && (Pympq_Check(self))) {
-        mpq_mul(result->q, Pympq_AS_MPQ(self), Pympq_AS_MPQ(self));
+    if (self && (MPQ_Check(self))) {
+        mpq_mul(result->q, MPQ(self), MPQ(self));
     }
-    else if (Pympq_Check(other)) {
-        mpq_mul(result->q, Pympq_AS_MPQ(other), Pympq_AS_MPQ(other));
+    else if (MPQ_Check(other)) {
+        mpq_mul(result->q, MPQ(other), MPQ(other));
     }
     else {
         if (!(tempx = Pympq_From_Rational(other))) {
@@ -524,7 +524,7 @@ Pympq_square(PyObject *self, PyObject *other)
             return NULL;
         }
         else {
-            mpq_mul(result->q, Pympq_AS_MPQ(tempx), Pympq_AS_MPQ(tempx));
+            mpq_mul(result->q, MPQ(tempx), MPQ(tempx));
             Py_DECREF((PyObject*)tempx);
         }
     }
@@ -534,11 +534,11 @@ Pympq_square(PyObject *self, PyObject *other)
 static PyObject *
 Pympq_Pow_Rational(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject *context)
 {
-    PympqObject *rq, *tempbq;
-    PympzObject *tempez;
+    MPQ_Object *rq, *tempbq;
+    MPZ_Object *tempez;
     int esign, bsign;
     mpir_si tempexp;
-    PympfrObject *rf, *tempbf, *tempef;
+    MPFR_Object *rf, *tempbf, *tempef;
 
     if (m && m != Py_None) {
         TYPE_ERROR("mpq.pow() no modulo allowed");
@@ -560,7 +560,7 @@ Pympq_Pow_Rational(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject
             Py_DECREF((PyObject*)tempez);
             return NULL;
         }
-        if (!(rq = (PympqObject*)Pympq_new())) {
+        if (!(rq = (MPQ_Object*)Pympq_new())) {
             Py_DECREF((PyObject*)tempbq);
             Py_DECREF((PyObject*)tempez);
             return NULL;
@@ -605,7 +605,7 @@ Pympq_Pow_Rational(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject
     else {
         tempbf = Pympfr_From_Real_bits_context(base, 0, context);
         tempef = Pympfr_From_Real_bits_context(exp, 0, context);
-        rf = (PympfrObject*)Pympfr_new_context(context);
+        rf = (MPFR_Object*)Pympfr_new_context(context);
         if (!tempbf || !tempef || !rf) {
             TYPE_ERROR("mpq.pow() unsupported operands");
             Py_XDECREF((PyObject*)tempbf);
@@ -621,13 +621,13 @@ Pympq_Pow_Rational(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject
 }
 
 static int
-Pympq_nonzero(PympqObject *self)
+Pympq_nonzero(MPQ_Object *self)
 {
     return mpq_sgn(self->q) != 0;
 }
 
 static Py_hash_t
-Pympq_hash(PympqObject *self)
+Pympq_hash(MPQ_Object *self)
 {
 #ifdef _PyHASH_MODULUS
     Py_hash_t hash = 0;
@@ -692,18 +692,18 @@ Pympq_hash(PympqObject *self)
 static PyObject *
 Pympq_Sub_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
-    PympqObject *result;
+    MPQ_Object *result;
 
-    if (!(result = (PympqObject*)Pympq_new()))
+    if (!(result = (MPQ_Object*)Pympq_new()))
         return NULL;
 
-    if (Pympq_Check(x) && Pympq_Check(y)) {
-        mpq_sub(result->q, Pympq_AS_MPQ(x), Pympq_AS_MPQ(y));
+    if (MPQ_Check(x) && MPQ_Check(y)) {
+        mpq_sub(result->q, MPQ(x), MPQ(y));
         return (PyObject*)result;
     }
 
     if (isRational(x) && isRational(y)) {
-        PympqObject *tempx, *tempy;
+        MPQ_Object *tempx, *tempy;
 
         tempx = Pympq_From_Number(x);
         tempy = Pympq_From_Number(y);
@@ -754,18 +754,18 @@ Pympq_sub_fast(PyObject *x, PyObject *y)
 static PyObject *
 Pympq_Mul_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
-    PympqObject *result;
+    MPQ_Object *result;
 
-    if (!(result = (PympqObject*)Pympq_new()))
+    if (!(result = (MPQ_Object*)Pympq_new()))
         return NULL;
 
-    if (Pympq_Check(x) && Pympq_Check(y)) {
-        mpq_mul(result->q, Pympq_AS_MPQ(x), Pympq_AS_MPQ(y));
+    if (MPQ_Check(x) && MPQ_Check(y)) {
+        mpq_mul(result->q, MPQ(x), MPQ(y));
         return (PyObject*)result;
     }
 
     if (isRational(x) && isRational(y)) {
-        PympqObject *tempx, *tempy;
+        MPQ_Object *tempx, *tempy;
 
         tempx = Pympq_From_Number(x);
         tempy = Pympq_From_Number(y);
@@ -815,30 +815,30 @@ Pympq_mul_fast(PyObject *x, PyObject *y)
 static PyObject *
 Pympq_FloorDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
-    PympzObject *result;
-    PympqObject *tempq;
+    MPZ_Object *result;
+    MPQ_Object *tempq;
 
-    result = (PympzObject*)Pympz_new();
-    tempq = (PympqObject*)Pympq_new();
+    result = (MPZ_Object*)Pympz_new();
+    tempq = (MPQ_Object*)Pympq_new();
     if (!result || !tempq) {
         Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)tempq);
         return NULL;
     }
 
-    if (Pympq_Check(x) && Pympq_Check(y)) {
-        if (mpq_sgn(Pympq_AS_MPQ(y)) == 0) {
+    if (MPQ_Check(x) && MPQ_Check(y)) {
+        if (mpq_sgn(MPQ(y)) == 0) {
             ZERO_ERROR("division or modulo by zero");
             goto error;
         }
-        mpq_div(tempq->q, Pympq_AS_MPQ(x), Pympq_AS_MPQ(y));
+        mpq_div(tempq->q, MPQ(x), MPQ(y));
         mpz_fdiv_q(result->z, mpq_numref(tempq->q), mpq_denref(tempq->q));
         Py_DECREF((PyObject*)tempq);
         return (PyObject*)result;
     }
 
     if (isRational(x) && isRational(y)) {
-        PympqObject *tempx, *tempy;
+        MPQ_Object *tempx, *tempy;
 
         tempx = Pympq_From_Number(x);
         tempy = Pympq_From_Number(y);
@@ -892,22 +892,22 @@ Pympq_floordiv_fast(PyObject *x, PyObject *y)
 static PyObject *
 Pympq_TrueDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
-    PympqObject *result;
+    MPQ_Object *result;
 
-    if (!(result = (PympqObject*)Pympq_new()))
+    if (!(result = (MPQ_Object*)Pympq_new()))
         return NULL;
 
-    if (Pympq_Check(x) && Pympq_Check(y)) {
-        if (mpq_sgn(Pympq_AS_MPQ(y)) == 0) {
+    if (MPQ_Check(x) && MPQ_Check(y)) {
+        if (mpq_sgn(MPQ(y)) == 0) {
             ZERO_ERROR("division or modulo by zero");
             goto error;
         }
-        mpq_div(result->q, Pympq_AS_MPQ(x), Pympq_AS_MPQ(y));
+        mpq_div(result->q, MPQ(x), MPQ(y));
         return (PyObject*)result;
     }
 
     if (isRational(x) && isRational(y)) {
-        PympqObject *tempx, *tempy;
+        MPQ_Object *tempx, *tempy;
 
         tempx = Pympq_From_Number(x);
         tempy = Pympq_From_Number(y);
@@ -963,9 +963,9 @@ static PyObject *
 Pympq_Mod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
     mpz_t tempz;
-    PympqObject *tempx, *tempy, *result;
+    MPQ_Object *tempx, *tempy, *result;
 
-    if (!(result = (PympqObject*)Pympq_new()))
+    if (!(result = (MPQ_Object*)Pympq_new()))
         return NULL;
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
@@ -1027,13 +1027,13 @@ Pympq_mod_fast(PyObject *x, PyObject *y)
 static PyObject *
 Pympq_DivMod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
-    PympqObject *tempx, *tempy, *rem;
-    PympzObject *quo;
+    MPQ_Object *tempx, *tempy, *rem;
+    MPZ_Object *quo;
     PyObject *result;
 
     result = PyTuple_New(2);
-    rem = (PympqObject*)Pympq_new();
-    quo = (PympzObject*)Pympz_new();
+    rem = (MPQ_Object*)Pympq_new();
+    quo = (MPZ_Object*)Pympz_new();
     if (!result || !rem || !quo) {
         Py_XDECREF(result);
         Py_XDECREF((PyObject*)rem);
@@ -1103,9 +1103,9 @@ PyDoc_STRVAR(doc_mpq_sizeof,
 static PyObject *
 Pympq_sizeof(PyObject *self, PyObject *other)
 {
-    return PyIntOrLong_FromSize_t(sizeof(PympqObject) + \
-        (mpq_numref(Pympq_AS_MPQ(self))->_mp_alloc * sizeof(mp_limb_t)) + \
-        (mpq_denref(Pympq_AS_MPQ(self))->_mp_alloc * sizeof(mp_limb_t)));
+    return PyIntOrLong_FromSize_t(sizeof(MPQ_Object) + \
+        (mpq_numref(MPQ(self))->_mp_alloc * sizeof(mp_limb_t)) + \
+        (mpq_denref(MPQ(self))->_mp_alloc * sizeof(mp_limb_t)));
 }
 
 #ifdef PY3
@@ -1208,7 +1208,7 @@ static PyMethodDef Pympq_methods [] =
     { NULL, NULL, 1 }
 };
 
-static PyTypeObject Pympq_Type =
+static PyTypeObject MPQ_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
 #ifdef PY3
@@ -1218,7 +1218,7 @@ static PyTypeObject Pympq_Type =
         0,                                  /* ob_size          */
 #endif
     "mpq",                                  /* tp_name          */
-    sizeof(PympqObject),                    /* tp_basicsize     */
+    sizeof(MPQ_Object),                    /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
     /* methods */
     (destructor) Pympq_dealloc,             /* tp_dealloc       */
