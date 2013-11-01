@@ -1226,61 +1226,6 @@ Py##NAME(MPFR_Object *x) \
 /* Note: Pympfr_Abs_Real, Pympfr_Neg_Real, and Pympfr_Pos_Real duplicate much
  *       code. They may be converted to use a macro in the future. */
 
-#if 0
-/* Pympfr_Abs_Real is expected to be called by Pympany_abs (when used as a
- * context method) or Pympfr_abs_fast (when used as mpfr.__abs__). */
-
-static PyObject *
-Pympfr_Abs_Real(PyObject *x, GMPyContextObject *context)
-{
-    MPFR_Object *result;
-
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
-        return NULL;
-
-    if (MPFR_CheckAndExp(x)) {
-        mpfr_clear_flags();
-        result->rc = mpfr_abs(result->f, MPFR(x), GET_MPFR_ROUND(context));
-        MERGE_FLAGS;
-        CHECK_FLAGS("abs()");
-        goto done;
-    }
-    else if (IS_REAL(x)) {
-        MPFR_Object *tempx;
-
-        tempx = Pympfr_From_Real_context(x, 0, context);
-        if (!tempx) {
-            SYSTEM_ERROR("Can not covert Real to 'mpfr'");
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        mpfr_clear_flags();
-        result->rc = mpfr_abs(result->f, tempx->f, GET_MPFR_ROUND(context));
-        MERGE_FLAGS;
-        CHECK_FLAGS("abs()");
-        Py_DECREF((PyObject*)tempx);
-        goto done;
-    }
-    else {
-        TYPE_ERROR("abs() called with invalid type");
-        Py_DECREF((PyObject*)result);
-        return NULL;
-    }
-
-  done:
-    MPFR_CLEANUP_RESULT("abs()");
-    return (PyObject*)result;
-}
-
-static PyObject *
-Pympfr_abs_fast(MPFR_Object *x)
-{
-    GMPyContextObject *context;
-
-    CURRENT_CONTEXT(context);
-    return Pympfr_Abs_Real((PyObject*)x, context);
-}
-#endif
 static PyObject *
 Pympfr_Neg_Real(PyObject *x, GMPyContextObject *context)
 {
@@ -1299,7 +1244,7 @@ Pympfr_Neg_Real(PyObject *x, GMPyContextObject *context)
     else if (IS_REAL(x)) {
         MPFR_Object *tempx;
 
-        tempx = Pympfr_From_Real_context(x, 0, context);
+        tempx = GMPy_MPFR_From_Real_Temp(x, context);
         if (!tempx) {
             SYSTEM_ERROR("Can not covert Real to 'mpfr'");
             Py_DECREF((PyObject*)result);
@@ -1307,9 +1252,9 @@ Pympfr_Neg_Real(PyObject *x, GMPyContextObject *context)
         }
         mpfr_clear_flags();
         result->rc = mpfr_neg(result->f, tempx->f, GET_MPFR_ROUND(context));
+        Py_DECREF((PyObject*)tempx);
         MERGE_FLAGS;
         CHECK_FLAGS("neg()");
-        Py_DECREF((PyObject*)tempx);
         goto done;
     }
     else {
@@ -2009,8 +1954,8 @@ Pympfr_Sub_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (IS_REAL(x) && IS_REAL(y)) {
         MPFR_Object *tempx, *tempy;
 
-        tempx = Pympfr_From_Real_context(x, 0, context);
-        tempy = Pympfr_From_Real_context(y, 0, context);
+        tempx = GMPy_MPFR_From_Real_Temp(x, context);
+        tempy = GMPy_MPFR_From_Real_Temp(y, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             Py_XDECREF((PyObject*)tempx);
@@ -2190,8 +2135,8 @@ Pympfr_Mul_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (IS_REAL(x) && IS_REAL(y)) {
         MPFR_Object *tempx, *tempy;
 
-        tempx = Pympfr_From_Real_context(x, 0, context);
-        tempy = Pympfr_From_Real_context(y, 0, context);
+        tempx = GMPy_MPFR_From_Real_Temp(x, context);
+        tempy = GMPy_MPFR_From_Real_Temp(y, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             Py_XDECREF((PyObject*)tempx);
@@ -2350,8 +2295,8 @@ Pympfr_FloorDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (IS_REAL(x) && IS_REAL(y)) {
         MPFR_Object *tempx, *tempy;
 
-        tempx = Pympfr_From_Real_context(x, 0, context);
-        tempy = Pympfr_From_Real_context(y, 0, context);
+        tempx = GMPy_MPFR_From_Real_Temp(x, context);
+        tempy = GMPy_MPFR_From_Real_Temp(y, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             Py_XDECREF((PyObject*)tempx);
@@ -2498,8 +2443,8 @@ Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (IS_REAL(x) && IS_REAL(y)) {
         MPFR_Object *tempx, *tempy;
 
-        tempx = Pympfr_From_Real_context(x, 0, context);
-        tempy = Pympfr_From_Real_context(y, 0, context);
+        tempx = GMPy_MPFR_From_Real_Temp(x, context);
+        tempy = GMPy_MPFR_From_Real_Temp(y, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             Py_XDECREF((PyObject*)tempx);

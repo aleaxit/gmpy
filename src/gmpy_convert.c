@@ -2522,72 +2522,97 @@ Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
     return newob;
 }
 
+/* GMPy_MPFR_From_Real_Temp() converts a real number to an mpfr. When
+ * converting values that can be converted exactly (i.e. floating-point using
+ * radix-2 represetnation), the conversion is done with the maximum possible
+ * precision. Regardless of the context's precision, the precision of the
+ * returned value will not be decreased. This is done to minimize rounding
+ * error. This value returned by this function is primarily intended for
+ * internal use. See GMPy_MPFR_From_Real_Prec() to convert a real number to an
+ * mpfr with precision and rounding controlled by the context.
+ *
+ * Note: Even though the precision of the value returned by ..._Temp() is
+ *       not be constrained by the context, the exponent of the returned
+ *       value is guaranteed to be valid as per the context.
+ */
+
 static MPFR_Object *
-Pympfr_From_Real_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject *context)
+GMPy_MPFR_From_Real_Temp(PyObject *obj, GMPyContextObject *context)
 {
-    MPFR_Object* newob = 0;
-    MPQ_Object* temp = 0;
+    MPFR_Object *result = NULL;
+
+    if (!context)
+        CURRENT_CONTEXT(context);
+
+    SET_EXPONENT(context);
+
+    /* Check if obj is an mpfr and exponent is valid. */
 
     if (MPFR_CheckAndExp(obj)) {
-        /* Handle the likely case where the exponent of the mpfr is still
-         * valid in the current context. */
-        if (!bits || mpfr_get_prec(MPFR(obj)) == bits) {
-            newob = (MPFR_Object*) obj;
-            Py_INCREF(obj);
-        }
-        else {
-            newob = Pympfr_From_Pympfr((PyObject*)obj, bits);
-        }
+        /* Return a new reference with the precision of the input. */
+        result = (MPFR_Object*) obj;
+        Py_INCREF(obj);
+        return result;
     }
-    else if (MPFR_Check(obj)) {
+
+    /* The exponent is not valid. */
+
+    if (MPFR_Check(obj)) {
         /* Handle the unlikely case where the exponent is no longer valid
          * and mpfr_check_range needs to be called. */
         if (context->ctx.traps & TRAP_EXPBOUND) {
             GMPY_EXPBOUND("exponent of existing 'mpfr' incompatible with current context");
             return NULL;
         }
-        if ((newob = (MPFR_Object*)Pympfr_new_bits_context(mpfr_get_prec(MPFR(obj)),
-                                                            context))) {
-            mpfr_set(newob->f, MPFR(obj), GET_MPFR_ROUND(context));
-            newob->round_mode = ((MPFR_Object*)obj)->round_mode;
-            newob->rc = ((MPFR_Object*)obj)->rc;
-            newob->rc = mpfr_check_range(newob->f, newob->rc, newob->round_mode);
+        if ((result = (MPFR_Object*)Pympfr_new_bits_context(mpfr_get_prec(MPFR(obj)), context))) {
+            mpfr_set(result->f, MPFR(obj), GET_MPFR_ROUND(context));
+            result->round_mode = ((MPFR_Object*)obj)->round_mode;
+            result->rc = mpfr_check_range(result->f, ((MPFR_Object*)obj)->rc, result->round_mode);
         }
+        return result;
     }
-    else if (PyFloat_Check(obj)) {
-        newob = Pympfr_From_PyFloat_bits_context(obj, bits, context);
+
+    /* To prevent losing precision when converting a standard Python float
+     * to an temporary mpfr, we specify 53 bits of precision.
+     */
+    if (PyFloat_Check(obj))
+        return Pympfr_From_PyFloat_bits_context(obj, 53, context);
+
 #ifdef PY2
-    }
-    else if (PyInt_Check(obj)) {
-        newob = Pympfr_From_PyInt_bits_context(obj, bits, context);
+    if (PyInt_Check(obj))
+        return Pympfr_From_PyInt_bits_context(obj, 0, context);
 #endif
-    }
-    else if (MPQ_Check(obj)) {
-        newob = Pympfr_From_Pympq_bits_context(obj, bits, context);
-    }
-    else if (MPZ_Check(obj)) {
-        newob = Pympfr_From_Pympz_context(obj, bits, context);
-    }
-    else if (PyLong_Check(obj)) {
-        newob = Pympfr_From_PyLong_context(obj, bits, context);
-    }
-    else if (XMPZ_Check(obj)) {
-        newob = Pympfr_From_Pyxmpz_context(obj, bits, context);
-    }
-    else if (isDecimal(obj)) {
-        newob = Pympfr_From_Decimal_context(obj, bits, context);
-    }
-    else if (isFraction(obj)) {
-        temp = Pympq_From_Fraction(obj);
-        if (temp) {
-            newob = Pympfr_From_Pympq_bits_context((PyObject*)temp, bits, context);
-            Py_DECREF((PyObject*)temp);
+
+    if (MPQ_Check(obj))
+        return Pympfr_From_Pympq_bits_context(obj, 0, context);
+
+    if (MPZ_Check(obj))
+        return Pympfr_From_Pympz_context(obj, 0, context);
+
+    if (PyLong_Check(obj))
+        return Pympfr_From_PyLong_context(obj, 0, context);
+
+    if (XMPZ_Check(obj))
+        return Pympfr_From_Pyxmpz_context(obj, 0, context);
+
+    if (isDecimal(obj))
+        return Pympfr_From_Decimal_context(obj, 0, context);
+
+    if (isFraction(obj)) {
+        MPQ_Object *tempq = NULL;
+
+        if ((tempq = Pympq_From_Fraction(obj))) {
+            result = Pympfr_From_Pympq_bits_context((PyObject*)tempq, 0, context);
+            Py_DECREF((PyObject*)tempq);
         }
+        return result;
     }
-    if (!newob)
-        TYPE_ERROR("object could not be converted to 'mpfr'");
-    return newob;
+
+    TYPE_ERROR("object could not be converted to 'mpfr'");
+    return NULL;
 }
+
+/* This function should eventually go away. */
 
 static MPFR_Object *
 Pympfr_From_Real_bits_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject *context)
@@ -3603,6 +3628,110 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
         }
     }
     return newob;
+}
+
+/* See the comments for GMPy_MPFR_From_Real_Temp. */
+
+static MPC_Object *
+GMPy_MPC_From_Complex_Temp(PyObject* obj, GMPyContextObject *context)
+{
+    MPC_Object* result = NULL;
+
+    if (!context)
+        CURRENT_CONTEXT(context);
+
+    SET_EXPONENT(context);
+
+    /* Check if obj is an mpc and the exponents are valid. */
+
+    if (MPC_CheckAndExp(obj)) {
+        /* Return a new reference with the precision of the input. */
+        result = (MPC_Object*)obj;
+        Py_INCREF(obj);
+        return result;
+    }
+
+    /* The exponent is not valid. */
+
+    if (MPC_Check(obj)) {
+        mpfr_prec_t pr = 0, pi = 0;
+        int rr, ri, dr, di;
+
+        if (context->ctx.traps & TRAP_EXPBOUND) {
+            GMPY_EXPBOUND("exponent of existing 'mpc' incompatible with current context");
+            return NULL;
+        }
+
+        /* Get the real and imaginary precisions. */
+        mpc_get_prec2(&pr, &pi, MPC(obj));
+
+        /* Get the real and imaginary inexact codes. */
+        rr = MPC_INEX_RE( ((MPC_Object*)obj)->rc );
+        ri = MPC_INEX_IM( ((MPC_Object*)obj)->rc );
+
+        /* Get the real and imaginary rounding modes. */
+        dr = MPC_RND_RE( ((MPC_Object*)obj)->round_mode );
+        di = MPC_RND_IM( ((MPC_Object*)obj)->round_mode );
+
+        if ((result = (MPC_Object*)Pympc_new(pr, pi))) {
+            mpc_set(result->c, MPC(obj), GET_MPC_ROUND(context));
+            result->round_mode = ((MPC_Object*)obj)->round_mode;
+            rr = mpfr_check_range(mpc_realref(result->c), rr, dr);
+            ri = mpfr_check_range(mpc_imagref(result->c), ri, di);
+            result->rc = MPC_INEX(rr, ri);
+        }
+        return result;
+    }
+
+    if (MPFR_Check(obj))
+        return Pympc_From_Pympfr((PyObject*)obj, mpfr_get_prec(MPFR(obj)),
+                                 mpfr_get_prec(MPFR(obj)));
+
+    if (PyFloat_Check(obj))
+        return Pympc_From_PyFloat(obj, 53, 53);
+
+    if (PyComplex_Check(obj))
+        return Pympc_From_PyComplex(obj, 53, 53);
+
+#ifdef PY2
+    if (PyInt_Check(obj))
+        return Pympc_From_PyInt_bits_context(obj, 0, 0, context);
+#endif
+
+    if (MPQ_Check(obj))
+        return Pympc_From_Pympq(obj, 0, 0);
+
+    if (MPZ_Check(obj))
+        return Pympc_From_Pympz(obj, 0, 0);
+
+    if (PyLong_Check(obj))
+        return Pympc_From_PyLong(obj, 0, 0);
+
+    if (XMPZ_Check(obj))
+        return Pympc_From_Pyxmpz(obj, 0, 0);
+
+    if (isDecimal(obj)) {
+        PyObject *temps = PyObject_Str(obj);
+
+        if (temps) {
+            result = Pympc_From_PyStr(temps, 10, 0, 0);
+            Py_DECREF(temps);
+        }
+        return result;
+    }
+
+    if (isFraction(obj)) {
+        MPQ_Object *tempq = Pympq_From_Fraction(obj);
+
+        if (tempq) {
+            result = Pympc_From_Pympq((PyObject *)tempq, 0, 0);
+            Py_DECREF((PyObject*)tempq);
+        }
+        return result;
+    }
+
+    TYPE_ERROR("object could not be converted to 'mpc'");
+    return NULL;
 }
 
 static MPC_Object *

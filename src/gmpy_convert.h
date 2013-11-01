@@ -97,14 +97,14 @@ static PyObject *      Pympz_To_PyStr(MPZ_Object *self, int base, int option);
 
 /* conversions with XMPZ_Object */
 #ifdef PY2
-static XMPZ_Object *  Pyxmpz_From_PyInt(PyObject *self);
+static XMPZ_Object *   Pyxmpz_From_PyInt(PyObject *self);
 #endif
-static XMPZ_Object *  Pyxmpz_From_PyStr(PyObject *s, int base);
-static XMPZ_Object *  Pyxmpz_From_PyLong(PyObject *obj);
-static XMPZ_Object *  Pyxmpz_From_Pyxmpz(PyObject *self);
-static XMPZ_Object *  Pyxmpz_From_Pympz(PyObject *self);
-static XMPZ_Object *  Pyxmpz_From_PyFloat(PyObject *self);
-static XMPZ_Object *  Pyxmpz_From_Number(PyObject *obj);
+static XMPZ_Object *   Pyxmpz_From_PyStr(PyObject *s, int base);
+static XMPZ_Object *   Pyxmpz_From_PyLong(PyObject *obj);
+static XMPZ_Object *   Pyxmpz_From_Pyxmpz(PyObject *self);
+static XMPZ_Object *   Pyxmpz_From_Pympz(PyObject *self);
+static XMPZ_Object *   Pyxmpz_From_PyFloat(PyObject *self);
+static XMPZ_Object *   Pyxmpz_From_Number(PyObject *obj);
 
 static PyObject *      Pyxmpz_To_PyLong(XMPZ_Object *self);
 static PyObject *      Pyxmpz_To_PyIntOrLong(XMPZ_Object *self);
@@ -145,15 +145,15 @@ static Py_ssize_t ssize_t_From_Integer(PyObject *obj);
 
 /* Conversions with Pympq */
 #ifdef PY2
-static MPQ_Object *   Pympq_From_PyInt(PyObject *self);
+static MPQ_Object *    Pympq_From_PyInt(PyObject *self);
 static PyObject *      Pympq_To_PyInt(MPQ_Object *self);
 #endif
-static MPQ_Object *   Pympq_From_PyLong(PyObject *self);
-static MPQ_Object *   Pympq_From_Pympz(PyObject *self);
-static MPQ_Object *   Pympq_From_Pyxmpz(PyObject *obj);
-static MPQ_Object *   Pympq_From_PyFloat(PyObject *self);
-static MPQ_Object *   Pympq_From_Fraction(PyObject *obj);
-static MPQ_Object *   Pympq_From_PyStr(PyObject *stringarg, int base);
+static MPQ_Object *    Pympq_From_PyLong(PyObject *self);
+static MPQ_Object *    Pympq_From_Pympz(PyObject *self);
+static MPQ_Object *    Pympq_From_Pyxmpz(PyObject *obj);
+static MPQ_Object *    Pympq_From_PyFloat(PyObject *self);
+static MPQ_Object *    Pympq_From_Fraction(PyObject *obj);
+static MPQ_Object *    Pympq_From_PyStr(PyObject *stringarg, int base);
 
 /* NOTE: Pympq_From_Decimal returns an invalid mpq object when attempting to
  *       convert a NaN or Infinity. If the denominator is 0, then interpret
@@ -165,13 +165,13 @@ static MPQ_Object *   Pympq_From_PyStr(PyObject *stringarg, int base);
  *       If the numerator is 0 and the denominator is not 0, then the sign of
  *       the denominator is the sign of the 0.
  */
-static MPQ_Object *   Pympq_From_Decimal(PyObject* obj);
+static MPQ_Object *    Pympq_From_Decimal(PyObject* obj);
 
-static MPQ_Object *   Pympq_From_Number(PyObject* obj);
+static MPQ_Object *    Pympq_From_Number(PyObject* obj);
 
 static PyObject *      Pympq_To_PyLong(MPQ_Object *self);
-static MPZ_Object *   Pympq_To_Pympz(PyObject *self);
-static XMPZ_Object *  Pympq_To_Pyxmpz(PyObject *self);
+static MPZ_Object *    Pympq_To_Pympz(PyObject *self);
+static XMPZ_Object *   Pympq_To_Pyxmpz(PyObject *self);
 static PyObject *      Pympq_To_PyFloat(MPQ_Object *self);
 static PyObject *      Pympq_To_PyStr(MPQ_Object *self, int base, int option);
 
@@ -186,27 +186,27 @@ int Pympq_convert_arg(PyObject *arg, PyObject **ptr);
 
 /* Conversions with Pympfr */
 #ifdef PY2
-static MPFR_Object *   Pympfr_From_PyInt(PyObject *self, mpfr_prec_t bits);
+static MPFR_Object *    Pympfr_From_PyInt(PyObject *self, mpfr_prec_t bits);
 static PyObject *       Pympfr_To_PyInt(MPFR_Object *self);
 #endif
-static MPFR_Object *   Pympfr_From_Pympfr(PyObject *self, mpfr_prec_t bits);
+static MPFR_Object *    Pympfr_From_Pympfr(PyObject *self, mpfr_prec_t bits);
 #if 0
-static MPFR_Object *   Pympfr_From_Pympfr_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
+static MPFR_Object *    Pympfr_From_Pympfr_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
 #endif
-static MPFR_Object *   Pympfr_From_Pympfr_context(PyObject *self, GMPyContextObject *context);
-static MPFR_Object *   Pympfr_From_PyFloat(PyObject *self, mpfr_prec_t bits);
-static MPFR_Object *   Pympfr_From_PyFloat_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
-static MPFR_Object *   Pympfr_From_PyLong(PyObject *self, mpfr_prec_t bits);
-static MPFR_Object *   Pympfr_From_PyLong_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
-static MPFR_Object *   Pympfr_From_Pympz(PyObject *self, mpfr_prec_t bits);
-static MPFR_Object *   Pympfr_From_Pympz_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
-static MPFR_Object *   Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
-static MPFR_Object *   Pympfr_From_Real_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject *context);
-static MPFR_Object *   Pympfr_From_Pympq(PyObject *self, mpfr_prec_t bits);
-static MPFR_Object *   Pympfr_From_Pympq_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
-static MPFR_Object *   Pympfr_From_PyStr(PyObject *s, int base, mpfr_prec_t bits);
-static MPFR_Object *   Pympfr_From_Decimal(PyObject *obj, mpfr_prec_t bits);
-static MPFR_Object *   Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
+static MPFR_Object *    Pympfr_From_Pympfr_context(PyObject *self, GMPyContextObject *context);
+static MPFR_Object *    Pympfr_From_PyFloat(PyObject *self, mpfr_prec_t bits);
+static MPFR_Object *    Pympfr_From_PyFloat_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
+static MPFR_Object *    Pympfr_From_PyLong(PyObject *self, mpfr_prec_t bits);
+static MPFR_Object *    Pympfr_From_PyLong_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
+static MPFR_Object *    Pympfr_From_Pympz(PyObject *self, mpfr_prec_t bits);
+static MPFR_Object *    Pympfr_From_Pympz_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
+static MPFR_Object *    Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
+static MPFR_Object *    GMPy_MPFR_From_Real_Temp(PyObject* obj, GMPyContextObject *context);
+static MPFR_Object *    Pympfr_From_Pympq(PyObject *self, mpfr_prec_t bits);
+static MPFR_Object *    Pympfr_From_Pympq_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
+static MPFR_Object *    Pympfr_From_PyStr(PyObject *s, int base, mpfr_prec_t bits);
+static MPFR_Object *    Pympfr_From_Decimal(PyObject *obj, mpfr_prec_t bits);
+static MPFR_Object *    Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
 
 static MPZ_Object   *   Pympfr_To_Pympz(PyObject *self);
 static XMPZ_Object *   Pympfr_To_Pyxmpz(PyObject *self);
@@ -239,6 +239,7 @@ static MPC_Object *   Pympc_From_Pympq(PyObject *self, mpfr_prec_t rprec, mpfr_p
 static MPC_Object *   Pympc_From_PyLong(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec);
 static MPC_Object *   Pympc_From_PyStr(PyObject *s, int base, mpfr_prec_t rbits, mpfr_prec_t ibits);
 static MPC_Object *   Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec);
+static MPC_Object *   GMPy_MPC_From_Complex_Temp(PyObject* obj, GMPyContextObject *context);
 
 static PyObject *      Pympc_To_PyFloat(PyObject *self);
 static PyObject *      Pympc_To_PyLong(PyObject *self);
