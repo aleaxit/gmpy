@@ -246,7 +246,7 @@ Pympfr_new(mpfr_prec_t bits)
     CURRENT_CONTEXT(context);
 
     if (!bits)
-        bits = context->ctx.mpfr_prec;
+        bits = GET_MPFR_PREC(context);
 
     if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");

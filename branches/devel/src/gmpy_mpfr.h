@@ -159,7 +159,7 @@ typedef struct {
 
 #define SUBNORMALIZE_2(V, CTX) \
     if (CTX->ctx.subnormalize) \
-        V->rc = mpfr_subnormalize(V->f, V->rc, CTX->ctx.mpfr_round);
+        V->rc = mpfr_subnormalize(V->f, V->rc, GET_MPFR_ROUND(CTX));
 
 #define MERGE_FLAGS_2(CTX) \
     CTX->ctx.underflow |= mpfr_underflow_p(); \

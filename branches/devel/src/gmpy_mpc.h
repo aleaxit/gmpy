@@ -197,6 +197,59 @@ static PyTypeObject MPC_Type;
     MPC_SUBNORMALIZE(result); \
     MPC_CHECK_FLAGS_RESULT(NAME);
 
+#define MPC_SUBNORMALIZE_2(V, CTX) \
+    if (CTX->ctx.subnormalize) { \
+        int rcr, rci; \
+        rcr = MPC_INEX_RE(V->rc); \
+        rci = MPC_INEX_IM(V->rc); \
+        rcr = mpfr_subnormalize(mpc_realref(V->c), rcr, GET_REAL_ROUND(CTX)); \
+        rci = mpfr_subnormalize(mpc_imagref(V->c), rci, GET_IMAG_ROUND(CTX)); \
+        V->rc = MPC_INEX(rcr, rci); \
+    } \
+
+#define MPC_CLEANUP_2(V, CTX, NAME) \
+    MPC_SUBNORMALIZE_2(V, CTX); \
+    if (CTX->ctx.traps) { \
+        if (MPC_IS_NAN_P(V)) { \
+            CTX->ctx.invalid = 1; \
+            if (CTX->ctx.traps & TRAP_INVALID) { \
+                GMPY_INVALID(NAME": invalid operation"); \
+                Py_DECREF((PyObject*)V); \
+                return NULL; \
+            } \
+        } \
+        if (MPC_IS_ZERO_P(V) && V->rc) { \
+            CTX->ctx.underflow = 1; \
+            if (CTX->ctx.traps & TRAP_UNDERFLOW) { \
+                GMPY_UNDERFLOW(NAME": underflow"); \
+                Py_DECREF((PyObject*)V); \
+                return NULL; \
+            } \
+        } \
+        if (MPC_IS_INF_P(V)) { \
+            CTX->ctx.overflow = 1; \
+            if (CTX->ctx.traps & TRAP_OVERFLOW) { \
+                GMPY_OVERFLOW(NAME": overflow"); \
+                Py_DECREF((PyObject*)V); \
+                return NULL; \
+            } \
+        } \
+        if (V->rc) { \
+            CTX->ctx.inexact = 1; \
+            if (CTX->ctx.traps & TRAP_INEXACT) { \
+                GMPY_INEXACT(NAME": inexact result"); \
+                Py_DECREF((PyObject*)V); \
+                return NULL; \
+            } \
+        } \
+    }
+
+
+
+
+
+
+
 /*
  * Parses one, and only one, argument into "self" and converts it to an
  * mpc. Is faster, but not as generic, as using PyArg_ParseTuple. It

@@ -126,32 +126,24 @@ GMPy_Real_Abs(PyObject *x, GMPyContextObject *context)
     if (!(result = (MPFR_Object*)Pympfr_new_context(context)))
         return NULL;
 
-    if (MPFR_CheckAndExp(x)) {
-        mpfr_clear_flags();
-        result->rc = mpfr_abs(result->f, MPFR(x), GET_MPFR_ROUND(context));
-        goto done;
-    }
-    else if (IS_REAL(x)) {
+    if (IS_REAL(x)) {
         MPFR_Object *tempx;
 
-        if (!(tempx = Pympfr_From_Real_context(x, 0, context))) {
+        if (!(tempx = GMPy_MPFR_From_Real_Temp(x, context))) {
             Py_DECREF((PyObject*)result);
             return NULL;
         }
         mpfr_clear_flags();
         result->rc = mpfr_abs(result->f, tempx->f, GET_MPFR_ROUND(context));
         Py_DECREF((PyObject*)tempx);
-        goto done;
+        MPFR_CLEANUP_2(result, context, "abs()");
+        return (PyObject*)result;
     }
     else {
         TYPE_ERROR("abs(): argument is not a real number");
         Py_DECREF((PyObject*)result);
         return NULL;
     }
-
-  done:
-    MPFR_CLEANUP_2(result, context, "abs()");
-    return (PyObject*)result;
 }
 
 static PyObject *
@@ -176,32 +168,26 @@ GMPy_Complex_Abs(PyObject *x, GMPyContextObject *context)
     if (IS_COMPLEX(x)) {
         MPC_Object *tempx;
 
-        if (!(tempx = Pympc_From_Complex_context(x, context)))  {
+        if (!(tempx = GMPy_MPC_From_Complex_Temp(x, context)))  {
             Py_DECREF((PyObject*)result);
             return NULL;
         }
 
-        /* Per MPC, mpc_abs just calls mpfr_hypot. We will just call mpfr_hypot
-         * directly.
+        /* Per MPC source code, mpc_abs just calls mpfr_hypot. We will just
+         * call mpfr_hypot directly.
          */
-        SET_EXPONENT(context);
         mpfr_clear_flags();
         result->rc = mpfr_hypot(result->f, mpc_realref(tempx->c),
                                 mpc_imagref(tempx->c), GET_MPFR_ROUND(context));
         Py_DECREF((PyObject*)tempx);
-        MERGE_FLAGS;
-        CHECK_FLAGS("abs()");
-        goto done;
+        MPFR_CLEANUP_2(result, context, "abs()");
+        return (PyObject*)result;
     }
     else {
         TYPE_ERROR("abs(): argument is not a complex number");
         Py_DECREF((PyObject*)result);
         return NULL;
     }
-
-  done:
-    MPFR_CLEANUP_RESULT("abs()");
-    return (PyObject*)result;
 }
 
 static PyObject *
