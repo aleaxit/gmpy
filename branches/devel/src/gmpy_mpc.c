@@ -513,42 +513,6 @@ Pympc_format(PyObject *self, PyObject *args)
     return result;
 }
 
-#if 0
-static PyObject *
-Pympc_abs(PyObject *self)
-{
-    MPFR_Object *result = 0;
-    MPC_Object *tempx = 0;
-    GMPyContextObject *context;
-
-    CURRENT_CONTEXT(context);
-
-    result = (MPFR_Object*)Pympfr_new(0);
-    tempx = Pympc_From_Complex(self, 0, 0);
-    if (!tempx || !result) {
-        SYSTEM_ERROR("Can't convert argument to 'mpc'.");
-        Py_XDECREF((PyObject*)tempx);
-        Py_XDECREF((PyObject*)result);
-        return NULL;
-    }
-
-    result->rc = mpc_abs(result->f, tempx->c, GET_MPC_ROUND(context));
-    Py_DECREF((PyObject*)tempx);
-
-    MPFR_SUBNORMALIZE(result);
-    MPFR_CHECK_INVALID(result, "invalid operation in 'mpc' __abs__");
-    MPFR_CHECK_UNDERFLOW(result, "underflow in 'mpc' __abs__");
-    MPFR_CHECK_OVERFLOW(result, "overflow in 'mpc' __abs__");
-    MPFR_CHECK_INEXACT(result, "inexact result in 'mpc' __abs__");
-  done:
-    if (PyErr_Occurred()) {
-        Py_DECREF((PyObject*)result);
-        result = NULL;
-    }
-    return (PyObject*)result;
-}
-#endif
-
 static PyObject *
 Pympc_neg(MPC_Object *self)
 {

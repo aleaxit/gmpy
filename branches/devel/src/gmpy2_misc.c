@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_misc.c                                                             *
+ * gmpy2_misc.c                                                            *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -32,7 +32,7 @@ PyDoc_STRVAR(doc_license,
 "Return string giving license information.");
 
 static PyObject *
-Pygmpy_get_license(PyObject *self, PyObject *args)
+GMPy_get_license(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("s", gmpy_license);
 }
@@ -42,7 +42,7 @@ PyDoc_STRVAR(doc_version,
 "Return string giving current GMPY2 version.");
 
 static PyObject *
-Pygmpy_get_version(PyObject *self, PyObject *args)
+GMPy_get_version(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("s", gmpy_version);
 }
@@ -52,7 +52,7 @@ PyDoc_STRVAR(doc_cvsid,
 "Return string giving current GMPY2 cvs Id.");
 
 static PyObject *
-Pygmpy_get_cvsid(PyObject *self, PyObject *args)
+GMPy_get_cvsid(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("s", _gmpy_cvs);
 }
@@ -63,7 +63,7 @@ PyDoc_STRVAR(doc_mp_version,
 "library used.");
 
 static PyObject *
-Pygmpy_get_mp_version(PyObject *self, PyObject *args)
+GMPy_get_mp_version(PyObject *self, PyObject *args)
 {
 #ifndef __MPIR_VERSION
     return Py2or3String_FromFormat("%s %s", "GMP", gmp_version);
@@ -78,10 +78,9 @@ PyDoc_STRVAR(doc_mpfr_version,
 "support is not available.");
 
 static PyObject *
-Pygmpy_get_mpfr_version(PyObject *self, PyObject *args)
+GMPy_get_mpfr_version(PyObject *self, PyObject *args)
 {
-    return Py2or3String_FromFormat("%s %s", "MPFR",
-                                   MPFR_VERSION_STRING);
+    return Py2or3String_FromFormat("%s %s", "MPFR", MPFR_VERSION_STRING);
 }
 
 PyDoc_STRVAR(doc_mpc_version,
@@ -90,10 +89,9 @@ PyDoc_STRVAR(doc_mpc_version,
 "support is not available.");
 
 static PyObject *
-Pygmpy_get_mpc_version(PyObject *self, PyObject *args)
+GMPy_get_mpc_version(PyObject *self, PyObject *args)
 {
-    return Py2or3String_FromFormat("%s %s", "MPC",
-                                   MPC_VERSION_STRING);
+    return Py2or3String_FromFormat("%s %s", "MPC", MPC_VERSION_STRING);
 }
 
 PyDoc_STRVAR(doc_mp_limbsize,
@@ -101,7 +99,7 @@ PyDoc_STRVAR(doc_mp_limbsize,
 Return the number of bits per limb.");
 
 static PyObject *
-Pygmpy_get_mp_limbsize(PyObject *self, PyObject *args)
+GMPy_get_mp_limbsize(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("i", mp_bits_per_limb);
 }
@@ -116,7 +114,7 @@ Return the current cache size (number of objects) and maximum size\n\
 per object (number of limbs) for all GMPY2 objects.");
 
 static PyObject *
-Pygmpy_get_cache(PyObject *self, PyObject *args)
+GMPy_get_cache(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("(ii)", global.cache_size, global.cache_obsize);
 }
@@ -128,7 +126,7 @@ per object (number of limbs). Raises ValueError if cache size exceeds\n\
 1000 or object size exceeds 16384.");
 
 static PyObject *
-Pygmpy_set_cache(PyObject *self, PyObject *args)
+GMPy_set_cache(PyObject *self, PyObject *args)
 {
     int newcache = -1, newsize = -1;
 

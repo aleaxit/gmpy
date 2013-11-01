@@ -273,7 +273,7 @@ typedef long                mpir_si;
 
 /* Suport for miscellaneous functions (ie. version, license, etc.). */
 
-#include "gmpy_misc.h"
+#include "gmpy2_misc.h"
 
 /* Support operations other than those in gmpy_basic. */
 

@@ -742,32 +742,6 @@ Pympz_sign(PyObject *self, PyObject *other)
     return PyIntOrLong_FromLong(res);
 }
 
-#if 0
-static PyObject *
-GMPy_mpz_abs_fast(MPZ_Object *self)
-{
-    MPZ_Object *result;
-
-    if ((result = (MPZ_Object*)Pympz_new()))
-        mpz_abs(result->z, self->z);
-
-    return (PyObject*)result;
-}
-
-static PyObject *
-GMPy_Abs_Integer(PyObject *self)
-{
-    MPZ_Object *result;
-
-    if (IS_INTEGER(self)) {
-        if (result = Pympz_From_Integer(self)) {
-            mpz_abs(result->z, self->z);
-        }
-    }
-    return (PyObject*)result;
-}
-#endif
-
 static PyObject *
 Pympz_neg(MPZ_Object *self)
 {

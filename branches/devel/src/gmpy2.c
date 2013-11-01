@@ -485,7 +485,7 @@ static PyObject *GMPyExc_ExpBound = NULL;
 
 /* Miscellaneous helper functions and simple methods are in gmpy_misc.c. */
 
-#include "gmpy_misc.c"
+#include "gmpy2_misc.c"
 
 /* Include fast mpz to/from PyLong conversion from sage. */
 
@@ -542,7 +542,7 @@ static PyObject *GMPyExc_ExpBound = NULL;
 
 static PyMethodDef Pygmpy_methods [] =
 {
-    { "_cvsid", Pygmpy_get_cvsid, METH_NOARGS, doc_cvsid },
+    { "_cvsid", GMPy_get_cvsid, METH_NOARGS, doc_cvsid },
     { "_printf", Pympany_printf, METH_VARARGS, doc_printf },
     { "add", GMPy_Context_Add, METH_VARARGS, GMPy_doc_add },
     { "bit_clear", Pygmpy_bit_clear, METH_VARARGS, doc_bit_clearg },
@@ -580,7 +580,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "f_mod_2exp", Pygmpy_f_mod_2exp, METH_VARARGS, doc_gmpy_f_mod_2exp },
     { "gcd", Pygmpy_gcd, METH_VARARGS, doc_gcd },
     { "gcdext", Pygmpy_gcdext, METH_VARARGS, doc_gcdext },
-    { "get_cache", Pygmpy_get_cache, METH_NOARGS, doc_get_cache },
+    { "get_cache", GMPy_get_cache, METH_NOARGS, doc_get_cache },
     { "hamdist", Pympz_hamdist, METH_VARARGS, doc_hamdistg },
     { "invert", Pygmpy_invert, METH_VARARGS, doc_invertg },
     { "isqrt", Pympz_isqrt, METH_O, doc_mpz_isqrt },
@@ -605,7 +605,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "kronecker", Pympz_kronecker, METH_VARARGS, doc_kroneckerg },
     { "lcm", Pygmpy_lcm, METH_VARARGS, doc_lcm },
     { "legendre", Pympz_legendre, METH_VARARGS, doc_legendreg },
-    { "license", Pygmpy_get_license, METH_NOARGS, doc_license },
+    { "license", GMPy_get_license, METH_NOARGS, doc_license },
     { "lucas", Pygmpy_lucas, METH_O, doc_lucas },
     { "lucasu", GMPY_mpz_lucasu, METH_VARARGS, doc_mpz_lucasu },
     { "lucasu_mod", GMPY_mpz_lucasu_mod, METH_VARARGS, doc_mpz_lucasu_mod },
@@ -613,10 +613,10 @@ static PyMethodDef Pygmpy_methods [] =
     { "lucasv_mod", GMPY_mpz_lucasv_mod, METH_VARARGS, doc_mpz_lucasv_mod },
     { "lucas2", Pygmpy_lucas2, METH_O, doc_lucas2 },
     { "mod", Pympany_mod, METH_VARARGS, doc_mpany_mod },
-    { "mp_version", Pygmpy_get_mp_version, METH_NOARGS, doc_mp_version },
-    { "mp_limbsize", Pygmpy_get_mp_limbsize, METH_NOARGS, doc_mp_limbsize },
-    { "mpc_version", Pygmpy_get_mpc_version, METH_NOARGS, doc_mpc_version },
-    { "mpfr_version", Pygmpy_get_mpfr_version, METH_NOARGS, doc_mpfr_version },
+    { "mp_version", GMPy_get_mp_version, METH_NOARGS, doc_mp_version },
+    { "mp_limbsize", GMPy_get_mp_limbsize, METH_NOARGS, doc_mp_limbsize },
+    { "mpc_version", GMPy_get_mpc_version, METH_NOARGS, doc_mpc_version },
+    { "mpfr_version", GMPy_get_mpfr_version, METH_NOARGS, doc_mpfr_version },
     { "mpq", (PyCFunction)Pygmpy_mpq, METH_VARARGS | METH_KEYWORDS, doc_mpq },
     { "mpq_from_old_binary", Pympq_From_Old_Binary, METH_O, doc_g_mpq_from_old_binary },
     { "mpz", (PyCFunction)Pygmpy_mpz, METH_VARARGS | METH_KEYWORDS, doc_mpz },
@@ -636,7 +636,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "iroot", Pympz_iroot, METH_VARARGS, doc_mpz_iroot },
     { "iroot_rem", Pympz_iroot_rem, METH_VARARGS, doc_mpz_iroot_rem },
     { "random_state", GMPY_random_state, METH_VARARGS, doc_random_state },
-    { "set_cache", Pygmpy_set_cache, METH_VARARGS, doc_set_cache },
+    { "set_cache", GMPy_set_cache, METH_VARARGS, doc_set_cache },
     { "sign", Pympany_sign, METH_O, doc_g_mpany_sign },
     { "square", Pympany_square, METH_O, doc_mpany_square },
     { "sub", Pympany_sub, METH_VARARGS, doc_mpany_sub },
@@ -648,7 +648,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "t_mod", Pygmpy_t_mod, METH_VARARGS, doc_gmpy_t_mod },
     { "t_mod_2exp", Pygmpy_t_mod_2exp, METH_VARARGS, doc_gmpy_t_mod_2exp },
     { "unpack", Pygmpy_unpack, METH_VARARGS, doc_gmpy_unpack },
-    { "version", Pygmpy_get_version, METH_NOARGS, doc_version },
+    { "version", GMPy_get_version, METH_NOARGS, doc_version },
     { "xbit_mask", Pyxmpz_xbit_mask, METH_O, doc_xbit_maskg },
     { "xmpz", (PyCFunction)Pygmpy_xmpz, METH_VARARGS | METH_KEYWORDS, doc_xmpz },
     { "_mpmath_normalize", Pympz_mpmath_normalize, METH_VARARGS, doc_mpmath_normalizeg },

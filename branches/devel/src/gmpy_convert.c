@@ -1804,32 +1804,6 @@ Pympfr_From_Pympfr_context(PyObject *self, GMPyContextObject *context)
     return result;
 }
 
-#if 0
-/* Return a copy of an mpfr. If the specified precision is 0, then the
- * precision of the original mpfr is used. If the specified precision
- * is not 0, then it is used directly. See Pympfr_From_Pympfr_context()
- * to create a copy using the precision specified in the context. */
-
-static MPFR_Object *
-Pympfr_From_Pympfr_bits_context(PyObject *self,
-                                mpfr_prec_t bits,
-                                GMPyContextObject *context)
-{
-    MPFR_Object *result;
-
-    if (bits == 0)
-        bits = mpfr_get_prec(MPFR(self));
-
-    if ((result = (MPFR_Object*)Pympfr_new_bits_context(bits, context))) {
-        result->rc = mpfr_set(result->f,
-                              MPFR(self),
-                              GET_MPFR_ROUND(context));
-    }
-
-    return result;
-}
-#endif
-
 static MPFR_Object *
 Pympfr_From_PyFloat(PyObject *self, mpfr_prec_t bits)
 {
