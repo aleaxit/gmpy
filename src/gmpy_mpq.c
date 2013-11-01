@@ -349,21 +349,6 @@ Pympq_neg(MPQ_Object *self)
     return (PyObject*)result;
 }
 
-#if 0
-static PyObject *
-Pympq_abs(MPQ_Object *self)
-{
-    MPQ_Object *result;
-
-    if ((result = (MPQ_Object*)Pympq_new())) {
-        mpq_set(result->q, self->q);
-        mpz_abs(mpq_numref(result->q), mpq_numref(result->q));
-    }
-
-    return (PyObject*)result;
-}
-#endif
-
 PyDoc_STRVAR(doc_mpq_floor,
              "Return greatest integer less than or equal to an mpq.");
 

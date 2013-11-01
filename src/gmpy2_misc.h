@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_misc.c                                                             *
+ * gmpy2_misc.c                                                            *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -32,15 +32,15 @@
 extern "C" {
 #endif
 
-static PyObject * Pygmpy_get_license(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_get_version(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_get_cvsid(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_get_mp_version(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_get_mpfr_version(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_get_mpc_version(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_get_mp_limbsize(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_get_cache(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_set_cache(PyObject *self, PyObject *args);
+static PyObject * GMPy_get_license(PyObject *self, PyObject *args);
+static PyObject * GMPy_get_version(PyObject *self, PyObject *args);
+static PyObject * GMPy_get_cvsid(PyObject *self, PyObject *args);
+static PyObject * GMPy_get_mp_version(PyObject *self, PyObject *args);
+static PyObject * GMPy_get_mpfr_version(PyObject *self, PyObject *args);
+static PyObject * GMPy_get_mpc_version(PyObject *self, PyObject *args);
+static PyObject * GMPy_get_mp_limbsize(PyObject *self, PyObject *args);
+static PyObject * GMPy_get_cache(PyObject *self, PyObject *args);
+static PyObject * GMPy_set_cache(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
 }
