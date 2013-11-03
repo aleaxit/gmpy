@@ -1416,7 +1416,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "mod", Pympany_mod, METH_VARARGS, doc_context_mod },
     { "mul", Pympany_mul, METH_VARARGS, doc_context_mul },
     { "pow", Pympany_pow, METH_VARARGS, doc_context_pow },
-    { "sub", Pympany_sub, METH_VARARGS, doc_context_sub },
+    { "sub", GMPy_Context_Sub, METH_VARARGS, GMPy_doc_context_sub },
     { "__enter__", GMPyContext_enter, METH_NOARGS, NULL },
     { "__exit__", GMPyContext_exit, METH_VARARGS, NULL },
     { NULL, NULL, 1 }
