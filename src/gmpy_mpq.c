@@ -168,7 +168,7 @@ Pympq_numer(PyObject *self, PyObject *args)
 {
     MPZ_Object *result;
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     SELF_MPQ_NO_ARG;
@@ -183,7 +183,7 @@ Pympq_getnumer(MPQ_Object *self, void *closure)
 {
     MPZ_Object *result;
 
-    if ((result = (MPZ_Object*)Pympz_new()))
+    if ((result = (MPZ_Object*)GMPy_MPZ_New()))
         mpz_set(result->z, mpq_numref(MPQ(self)));
     return (PyObject*)result;
 }
@@ -197,7 +197,7 @@ Pympq_denom(PyObject *self, PyObject *args)
 {
     MPZ_Object *result;
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     SELF_MPQ_NO_ARG;
@@ -212,7 +212,7 @@ Pympq_getdenom(MPQ_Object *self, void *closure)
 {
     MPZ_Object *result;
 
-    if ((result = (MPZ_Object*)Pympz_new()))
+    if ((result = (MPZ_Object*)GMPy_MPZ_New()))
         mpz_set(result->z, mpq_denref(MPQ(self)));
     return (PyObject*)result;
 }
@@ -284,7 +284,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
         }
         else {
             /* denominator is 1, optimize returning an mpz */
-            s = Pympz_new();
+            s = GMPy_MPZ_New();
             mpz_set(MPZ(s), mpq_numref(MPQ(self)));
             return s;
         }
@@ -329,7 +329,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
     }
     else {
         /* denominator is 1, return an mpz */
-        PyObject* ss = Pympz_new();
+        PyObject* ss = GMPy_MPZ_New();
         if (ss)
             mpz_set(MPZ(ss), mpq_numref(MPQ(s)));
         Py_DECREF(s);
@@ -357,7 +357,7 @@ Pympq_floor(PyObject *self, PyObject *other)
 {
     MPZ_Object *result;
 
-    if ((result = (MPZ_Object*)Pympz_new())) {
+    if ((result = (MPZ_Object*)GMPy_MPZ_New())) {
         mpz_fdiv_q(result->z,
                    mpq_numref(MPQ(self)),
                    mpq_denref(MPQ(self)));
@@ -374,7 +374,7 @@ Pympq_ceil(PyObject *self, PyObject *other)
 {
     MPZ_Object *result;
 
-    if ((result = (MPZ_Object*)Pympz_new())) {
+    if ((result = (MPZ_Object*)GMPy_MPZ_New())) {
         mpz_cdiv_q(result->z,
                    mpq_numref(MPQ(self)),
                    mpq_denref(MPQ(self)));
@@ -391,7 +391,7 @@ Pympq_trunc(PyObject *self, PyObject *other)
 {
     MPZ_Object *result;
 
-    if ((result = (MPZ_Object*)Pympz_new())) {
+    if ((result = (MPZ_Object*)GMPy_MPZ_New())) {
         mpz_tdiv_q(result->z,
                    mpq_numref(MPQ(self)),
                    mpq_denref(MPQ(self)));
@@ -413,7 +413,7 @@ Pympq_round(PyObject *self, PyObject *args)
     /* If args is NULL or the size of args is 0, we just return an mpz. */
 
     if (!args || PyTuple_GET_SIZE(args) == 0) {
-        if (!(resultz = (MPZ_Object*)Pympz_new()))
+        if (!(resultz = (MPZ_Object*)GMPy_MPZ_New()))
             return NULL;
 
         mpz_inoc(rem);
@@ -741,7 +741,7 @@ Pympq_FloorDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
     MPZ_Object *result;
     MPQ_Object *tempq;
 
-    result = (MPZ_Object*)Pympz_new();
+    result = (MPZ_Object*)GMPy_MPZ_New();
     tempq = (MPQ_Object*)Pympq_new();
     if (!result || !tempq) {
         Py_XDECREF((PyObject*)result);
@@ -956,7 +956,7 @@ Pympq_DivMod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 
     result = PyTuple_New(2);
     rem = (MPQ_Object*)Pympq_new();
-    quo = (MPZ_Object*)Pympz_new();
+    quo = (MPZ_Object*)GMPy_MPZ_New();
     if (!result || !rem || !quo) {
         Py_XDECREF(result);
         Py_XDECREF((PyObject*)rem);

@@ -164,7 +164,7 @@ GMPY_mpz_lucasu(PyObject *self, PyObject *args)
         mpz_mul(ql, ql, ql);
     }
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         goto cleanup;
 
     /* uh contains our return value */
@@ -339,7 +339,7 @@ GMPY_mpz_lucasu_mod(PyObject *self, PyObject *args)
         mpz_mod(ql, ql, n->z);
     }
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         goto cleanup;
 
     /* uh contains our return value */
@@ -479,7 +479,7 @@ GMPY_mpz_lucasv(PyObject *self, PyObject *args)
         mpz_mul(ql, ql, ql);
     }
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         goto cleanup;
 
     /* vl contains our return value */
@@ -634,7 +634,7 @@ GMPY_mpz_lucasv_mod(PyObject *self, PyObject *args)
         mpz_mod(ql, ql, n->z);
     }
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         goto cleanup;
 
     /* vl contains our return value */

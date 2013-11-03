@@ -52,8 +52,8 @@ static void mpz_inoc(mpz_t newo);
 static void mpz_cloc(mpz_t oldo);
 
 static void set_gmpympzcache(void);
-static PyObject * Pympz_new(void);
-static void Pympz_dealloc(MPZ_Object *self);
+static PyObject * GMPy_MPZ_New(void);
+static void GMPy_MPZ_Dealloc(MPZ_Object *self);
 
 static void set_gmpyxmpzcache(void);
 static PyObject * Pyxmpz_new(void);

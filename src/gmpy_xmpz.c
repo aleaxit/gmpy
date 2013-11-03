@@ -209,7 +209,7 @@ Pyxmpz_make_mpz(PyObject *self, PyObject *other)
 {
     MPZ_Object* result;
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
     mpz_swap(result->z, MPZ(self));
     mpz_set_ui(MPZ(self), 0);
@@ -267,7 +267,7 @@ Pyxmpz_subscript(XMPZ_Object* self, PyObject* item)
             (step > 0 && start > stop))
             stop = start;
 
-        if (!(result = (PyObject*)Pympz_new()))
+        if (!(result = (PyObject*)GMPy_MPZ_New()))
             return NULL;
         mpz_set_ui(MPZ(result), 0);
         if (slicelength > 0) {

@@ -51,7 +51,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
     /* Optimize the most common use case */
     argc = PyTuple_Size(args);
     if (argc == 0) {
-        if ((result = (MPZ_Object*)Pympz_new())) {
+        if ((result = (MPZ_Object*)GMPy_MPZ_New())) {
             mpz_set_ui(result->z, 0);
         }
         return (PyObject*)result;
@@ -212,7 +212,7 @@ Pympz_bit_mask(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     mpz_set_ui(result->z, 1);
@@ -445,7 +445,7 @@ Pygmpy_bit_clear(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     if (CHECK_MPZANY(x)) {
-        if (!(result = (MPZ_Object*)Pympz_new()))
+        if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
             return NULL;
         mpz_set(result->z, MPZ(x));
         mpz_clrbit(result->z, bit_index);
@@ -481,7 +481,7 @@ Pympz_bit_clear(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
     mpz_set(result->z, MPZ(self));
     mpz_clrbit(result->z, bit_index);
@@ -517,7 +517,7 @@ Pygmpy_bit_set(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     if (CHECK_MPZANY(x)) {
-        if (!(result = (MPZ_Object*)Pympz_new()))
+        if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
             return NULL;
         mpz_set(result->z, MPZ(x));
         mpz_setbit(result->z, bit_index);
@@ -553,7 +553,7 @@ Pympz_bit_set(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
     mpz_set(result->z, MPZ(self));
     mpz_setbit(result->z, bit_index);
@@ -589,7 +589,7 @@ Pygmpy_bit_flip(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     if (CHECK_MPZANY(x)) {
-        if (!(result = (MPZ_Object*)Pympz_new()))
+        if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
             return NULL;
         mpz_set(result->z, MPZ(x));
         mpz_combit(result->z, bit_index);
@@ -625,7 +625,7 @@ Pympz_bit_flip(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
     mpz_set(result->z, MPZ(self));
     mpz_combit(result->z, bit_index);
@@ -660,7 +660,7 @@ Pympz_iroot(PyObject *self, PyObject *args)
             return NULL;
         }
     }
-    if (!(s = (MPZ_Object*)Pympz_new()) || !(result = PyTuple_New(2))) {
+    if (!(s = (MPZ_Object*)GMPy_MPZ_New()) || !(result = PyTuple_New(2))) {
         Py_DECREF(self);
         Py_XDECREF((PyObject*)s);
         Py_XDECREF(result);
@@ -700,8 +700,8 @@ Pympz_iroot_rem(PyObject *self, PyObject *args)
             return NULL;
         }
     }
-    y = (MPZ_Object*)Pympz_new();
-    r = (MPZ_Object*)Pympz_new();
+    y = (MPZ_Object*)GMPy_MPZ_New();
+    r = (MPZ_Object*)GMPy_MPZ_New();
     result = PyTuple_New(2);
     if (!y || !r || !result) {
         Py_DECREF(self);
@@ -747,7 +747,7 @@ Pympz_neg(MPZ_Object *self)
 {
     MPZ_Object *result;
 
-    if ((result = (MPZ_Object*)Pympz_new()))
+    if ((result = (MPZ_Object*)GMPy_MPZ_New()))
         mpz_neg(result->z, self->z);
 
     return (PyObject*)result;
@@ -818,7 +818,7 @@ Pympz_round(PyObject *self, PyObject *args)
     }
     round_digits = -round_digits;
 
-    if ((result = (MPZ_Object*)Pympz_new())) {
+    if ((result = (MPZ_Object*)GMPy_MPZ_New())) {
         if (round_digits >= mpz_sizeinbase(MPZ(self), 10)) {
             mpz_set_ui(result->z, 0);
         }
@@ -850,7 +850,7 @@ Pympz_square(PyObject *self, PyObject *other)
 {
     MPZ_Object *tempx, *result;
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     if (self && (CHECK_MPZANY(self))) {
@@ -895,7 +895,7 @@ Pympz_Pow_Integer(PyObject *b, PyObject *e, PyObject *m, GMPyContextObject *cont
     if (m || m == Py_None)
         has_mod = 0;
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     tempb = GMPy_MPZ_From_Integer(b);
@@ -1021,7 +1021,7 @@ Pympz_com(MPZ_Object *self)
 {
     MPZ_Object *result;
 
-    if ((result = (MPZ_Object*)Pympz_new()))
+    if ((result = (MPZ_Object*)GMPy_MPZ_New()))
         mpz_com(result->z, MPZ(self));
 
     return (PyObject*)result;
@@ -1034,7 +1034,7 @@ Py##NAME(PyObject *self, PyObject *other) \
     MPZ_Object *result = 0; \
     if (CHECK_MPZANY(self)) { \
         if (CHECK_MPZANY(other)) { \
-            if (!(result = (MPZ_Object*)Pympz_new())) \
+            if (!(result = (MPZ_Object*)GMPy_MPZ_New())) \
                 return NULL; \
             NAME(result->z, MPZ(self), MPZ(other)); \
         } \
@@ -1066,7 +1066,7 @@ Pympz_rshift(PyObject *self, PyObject *other)
     int overflow;
     MPZ_Object *result, *tempa, *tempb;
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     /* Try to make mpz >> Python int/long as fast as possible. */
@@ -1124,7 +1124,7 @@ Pympz_lshift(PyObject *self, PyObject *other)
     int overflow;
     MPZ_Object *result, *tempa, *tempb;
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     /* Try to make mpz >> Python int/long as fast as possible. */
@@ -1229,7 +1229,7 @@ Pygmpy_gcd(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     a = PyTuple_GET_ITEM(args, 0);
@@ -1270,7 +1270,7 @@ Pygmpy_lcm(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     a = PyTuple_GET_ITEM(args, 0);
@@ -1312,9 +1312,9 @@ Pygmpy_gcdext(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    g = (MPZ_Object*)Pympz_new();
-    s = (MPZ_Object*)Pympz_new();
-    t = (MPZ_Object*)Pympz_new();
+    g = (MPZ_Object*)GMPy_MPZ_New();
+    s = (MPZ_Object*)GMPy_MPZ_New();
+    t = (MPZ_Object*)GMPy_MPZ_New();
     result = PyTuple_New(3);
     if (!g || !s || !t || !result) {
         Py_XDECREF((PyObject*)g);
@@ -1370,7 +1370,7 @@ Pygmpy_divm(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     num = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0));
@@ -1440,7 +1440,7 @@ Pygmpy_fac(PyObject *self, PyObject *other)
         return NULL;
     }
     else {
-        if (!(result = (MPZ_Object*)Pympz_new()))
+        if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
             return NULL;
         mpz_fac_ui(result->z, n);
     }
@@ -1467,7 +1467,7 @@ Pygmpy_fib(PyObject *self, PyObject *other)
         return NULL;
     }
     else {
-        if (!(result = (MPZ_Object*)Pympz_new()))
+        if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
             return NULL;
         mpz_fib_ui(MPZ(result), n);
     }
@@ -1522,7 +1522,7 @@ Pygmpy_lucas(PyObject *self, PyObject *other)
         return NULL;
     }
     else {
-        if (!(result = (MPZ_Object*)Pympz_new()))
+        if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
             return NULL;
         mpz_lucnum_ui(result->z, n);
     }
@@ -1581,7 +1581,7 @@ Pympz_bincoef(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if(!(result = (MPZ_Object*)Pympz_new())) {
+    if(!(result = (MPZ_Object*)GMPy_MPZ_New())) {
         Py_DECREF(self);
         return NULL;
     }
@@ -1604,7 +1604,7 @@ Pympz_isqrt(PyObject *self, PyObject *other)
             VALUE_ERROR("isqrt() of negative number");
             return NULL;
         }
-        if (!(result = (MPZ_Object*)Pympz_new()))
+        if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
             return NULL;
         mpz_sqrt(result->z, MPZ(self));
     }
@@ -1613,7 +1613,7 @@ Pympz_isqrt(PyObject *self, PyObject *other)
             VALUE_ERROR("isqrt() of negative number");
             return NULL;
         }
-        if (!(result = (MPZ_Object*)Pympz_new()))
+        if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
             return NULL;
         mpz_sqrt(result->z, MPZ(other));
     }
@@ -1651,8 +1651,8 @@ Pympz_isqrt_rem(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    root = (MPZ_Object*)Pympz_new();
-    rem = (MPZ_Object*)Pympz_new();
+    root = (MPZ_Object*)GMPy_MPZ_New();
+    rem = (MPZ_Object*)GMPy_MPZ_New();
     result = PyTuple_New(2);
     if (!root || !rem || !result) {
         Py_DECREF(self);
@@ -1691,7 +1691,7 @@ Pympz_remove(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(result = (MPZ_Object*)Pympz_new())) {
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New())) {
         Py_DECREF(self);
         Py_DECREF(factor);
         return NULL;
@@ -1719,7 +1719,7 @@ Pygmpy_invert(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
@@ -1801,7 +1801,7 @@ Pygmpy_divexact(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
@@ -1934,7 +1934,7 @@ Pympz_next_prime(PyObject *self, PyObject *other)
     MPZ_Object *result;
 
     if(CHECK_MPZANY(other)) {
-        if(!(result = (MPZ_Object*)Pympz_new()))
+        if(!(result = (MPZ_Object*)GMPy_MPZ_New()))
             return NULL;
         mpz_nextprime(result->z, MPZ(other));
     }
@@ -2118,7 +2118,7 @@ Pympz_subscript(MPZ_Object *self, PyObject *item)
             (step > 0 && start > stop))
             stop = start;
 
-        if (!(result = (PyObject*)Pympz_new()))
+        if (!(result = (PyObject*)GMPy_MPZ_New()))
             return NULL;
         mpz_set_ui(MPZ(result), 0);
         if (slicelength > 0) {
@@ -2293,7 +2293,7 @@ Pympz_Mul_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
     mpir_si temp_si;
     int overflow;
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     if (CHECK_MPZANY(x)) {
@@ -2393,7 +2393,7 @@ Pympz_FloorDiv_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
     mpir_si temp_si;
     int overflow;
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     if (CHECK_MPZANY(x)) {
@@ -2600,7 +2600,7 @@ Pympz_Mod_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
     mpir_si temp_si;
     int overflow;
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     if (CHECK_MPZANY(x)) {
@@ -2712,8 +2712,8 @@ Pympz_DivMod_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
     int overflow;
 
     result = PyTuple_New(2);
-    rem = (MPZ_Object*)Pympz_new();
-    quo = (MPZ_Object*)Pympz_new();
+    rem = (MPZ_Object*)GMPy_MPZ_New();
+    quo = (MPZ_Object*)GMPy_MPZ_New();
     if (!result || !rem || !quo) {
         Py_XDECREF((PyObject*)rem);
         Py_XDECREF((PyObject*)quo);
@@ -2848,7 +2848,7 @@ Pympz_getdenom(MPQ_Object *self, void *closure)
 {
     MPZ_Object *result;
 
-    if ((result = (MPZ_Object*)Pympz_new()))
+    if ((result = (MPZ_Object*)GMPy_MPZ_New()))
         mpz_set_ui(result->z, 1);
     return (PyObject*)result;
 }
@@ -2995,7 +2995,7 @@ static PyTypeObject MPZ_Type =
     sizeof(MPZ_Object),                     /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
     /* methods */
-    (destructor) Pympz_dealloc,             /* tp_dealloc       */
+    (destructor) GMPy_MPZ_Dealloc,          /* tp_dealloc       */
         0,                                  /* tp_print         */
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */

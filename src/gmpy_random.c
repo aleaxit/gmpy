@@ -111,7 +111,7 @@ GMPY_mpz_urandomb(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if ((result = (MPZ_Object*)Pympz_new())) {
+    if ((result = (MPZ_Object*)GMPy_MPZ_New())) {
         mpz_urandomb(MPZ(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                      len);
@@ -147,7 +147,7 @@ GMPY_mpz_rrandomb(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if ((result = (MPZ_Object*)Pympz_new())) {
+    if ((result = (MPZ_Object*)GMPy_MPZ_New())) {
         mpz_rrandomb(MPZ(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                      len);
@@ -180,7 +180,7 @@ GMPY_mpz_random(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if ((result = (MPZ_Object*)Pympz_new())) {
+    if ((result = (MPZ_Object*)GMPy_MPZ_New())) {
         mpz_urandomm(MPZ(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                      MPZ(temp));
