@@ -113,7 +113,7 @@ Pygmpy_c_div(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(q = (MPZ_Object*)Pympz_new()))
+    if (!(q = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
@@ -166,7 +166,7 @@ Pygmpy_c_mod(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(r = (MPZ_Object*)Pympz_new()))
+    if (!(r = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
@@ -286,7 +286,7 @@ Pygmpy_f_div(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(q = (MPZ_Object*)Pympz_new()))
+    if (!(q = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
@@ -339,7 +339,7 @@ Pygmpy_f_mod(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(r = (MPZ_Object*)Pympz_new()))
+    if (!(r = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     if(CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
@@ -459,7 +459,7 @@ Pygmpy_t_div(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(q = (MPZ_Object*)Pympz_new()))
+    if (!(q = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
@@ -512,7 +512,7 @@ Pygmpy_t_mod(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(r = (MPZ_Object*)Pympz_new()))
+    if (!(r = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {

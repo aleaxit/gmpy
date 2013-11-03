@@ -659,8 +659,8 @@ Pympfr_integer_ratio(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    num = (MPZ_Object*)Pympz_new();
-    den = (MPZ_Object*)Pympz_new();
+    num = (MPZ_Object*)GMPy_MPZ_New();
+    den = (MPZ_Object*)GMPy_MPZ_New();
     if (!num || !den) {
         Py_XDECREF((PyObject*)num);
         Py_XDECREF((PyObject*)den);
@@ -713,8 +713,8 @@ Pympfr_mantissa_exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    mantissa = (MPZ_Object*)Pympz_new();
-    exponent = (MPZ_Object*)Pympz_new();
+    mantissa = (MPZ_Object*)GMPy_MPZ_New();
+    exponent = (MPZ_Object*)GMPy_MPZ_New();
     if (!mantissa || !exponent) {
         Py_XDECREF((PyObject*)mantissa);
         Py_XDECREF((PyObject*)exponent);
@@ -1072,7 +1072,7 @@ Pympfr_round10(PyObject *self, PyObject *args)
     /* If the size of args is 0, we just return an mpz. */
 
     if (PyTuple_GET_SIZE(args) == 0) {
-        if ((resultz = (MPZ_Object*)Pympz_new())) {
+        if ((resultz = (MPZ_Object*)GMPy_MPZ_New())) {
             if (mpfr_nan_p(MPFR(self))) {
                 Py_DECREF((PyObject*)resultz);
                 VALUE_ERROR("'mpz' does not support NaN");

@@ -126,7 +126,7 @@ Pympz_From_Pyxmpz(PyObject *self)
 {
     MPZ_Object *newob;
 
-    if ((newob = (MPZ_Object*)Pympz_new()))
+    if ((newob = (MPZ_Object*)GMPy_MPZ_New()))
         mpz_set(newob->z, MPZ(self));
     return newob;
 }
@@ -147,7 +147,7 @@ Pympz_From_PyInt(PyObject *self)
 {
     MPZ_Object *newob;
 
-    if ((newob = (MPZ_Object*)Pympz_new()))
+    if ((newob = (MPZ_Object*)GMPy_MPZ_New()))
         mpz_set_si(newob->z, PyInt_AS_LONG(self));
     return newob;
 }
@@ -168,7 +168,7 @@ Pympz_From_PyFloat(PyObject *self)
 {
     MPZ_Object *newob;
 
-    if ((newob = (MPZ_Object*)Pympz_new())) {
+    if ((newob = (MPZ_Object*)GMPy_MPZ_New())) {
         double d = PyFloat_AsDouble(self);
         if (Py_IS_NAN(d)) {
             Py_DECREF((PyObject*)newob);
@@ -216,7 +216,7 @@ GMPy_MPZ_From_PyLong(PyObject *obj)
 {
     MPZ_Object *result;
 
-    if (!(result = (MPZ_Object*)Pympz_new()))
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     if (-1 == mpz_set_PyIntOrLong(result->z, obj)) {
@@ -314,7 +314,7 @@ Pympz_From_PyStr(PyObject *s, int base)
 {
     MPZ_Object *newob;
 
-    if (!(newob = (MPZ_Object*)Pympz_new()))
+    if (!(newob = (MPZ_Object*)GMPy_MPZ_New()))
         return NULL;
 
     if (mpz_set_PyStr(newob->z, s, base) == -1) {
@@ -1062,7 +1062,7 @@ Pympq_To_Pympz(PyObject *self)
 {
     MPZ_Object *newob;
 
-    if ((newob = (MPZ_Object*)Pympz_new()))
+    if ((newob = (MPZ_Object*)GMPy_MPZ_New()))
         mpz_set_q(newob->z, MPQ(self));
 
     return newob;
@@ -1867,7 +1867,7 @@ Pympfr_To_Pympz(PyObject *self)
 
     CURRENT_CONTEXT(context);
 
-    if ((result = (MPZ_Object*)Pympz_new())) {
+    if ((result = (MPZ_Object*)GMPy_MPZ_New())) {
         if (mpfr_nan_p(MPFR(self))) {
             Py_DECREF((PyObject*)result);
             VALUE_ERROR("'mpz' does not support NaN");
@@ -2016,7 +2016,7 @@ stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz)
 
     if (mayz && (mpfr_cmp_ui(r1[2],1) == 0)) {
         Py_DECREF((PyObject*)result);
-        result = (MPQ_Object*)Pympz_new();
+        result = (MPQ_Object*)GMPy_MPZ_New();
         mpfr_get_z(MPZ(result), r2[2], context->ctx.mpfr_round);
         if (negative)
             mpz_neg(MPZ(result), MPZ(result));

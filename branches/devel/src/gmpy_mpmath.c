@@ -119,8 +119,8 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         return mpmath_build_mpf(sign, man, exp, bc);
     }
 
-    if (!(upper = (MPZ_Object*)Pympz_new()) ||
-        !(lower = (MPZ_Object*)Pympz_new())) {
+    if (!(upper = (MPZ_Object*)GMPy_MPZ_New()) ||
+        !(lower = (MPZ_Object*)GMPy_MPZ_New())) {
         Py_XDECREF((PyObject*)upper);
         Py_XDECREF((PyObject*)lower);
     }
@@ -263,8 +263,8 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
         return mpmath_build_mpf(0, man, 0, 0);
     }
 
-    upper = (MPZ_Object*)Pympz_new();
-    lower = (MPZ_Object*)Pympz_new();
+    upper = (MPZ_Object*)GMPy_MPZ_New();
+    lower = (MPZ_Object*)GMPy_MPZ_New();
     if (!upper || !lower) {
         Py_DECREF((PyObject*)man);
         Py_XDECREF((PyObject*)upper);

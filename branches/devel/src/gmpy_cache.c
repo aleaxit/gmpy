@@ -91,27 +91,27 @@ set_gmpympzcache(void)
 }
 
 static PyObject *
-Pympz_new(void)
+GMPy_MPZ_New(void)
 {
-    MPZ_Object *self;
+    MPZ_Object *result;
 
     if (in_gmpympzcache) {
-        self = gmpympzcache[--in_gmpympzcache];
+        result = gmpympzcache[--in_gmpympzcache];
         /* Py_INCREF does not set the debugging pointers, so need to use
          * _Py_NewReference instead. */
-        _Py_NewReference((PyObject*)self);
+        _Py_NewReference((PyObject*)result);
     }
     else {
-        if (!(self = PyObject_New(MPZ_Object, &MPZ_Type)))
+        if (!(result = PyObject_New(MPZ_Object, &MPZ_Type)))
             return NULL;
-        mpz_inoc(self->z);
+        mpz_inoc(result->z);
     }
-    self->hash_cache = -1;
-    return (PyObject*)self;
+    result->hash_cache = -1;
+    return (PyObject*)result;
 }
 
 static void
-Pympz_dealloc(MPZ_Object *self)
+GMPy_MPZ_Dealloc(MPZ_Object *self)
 {
     if (in_gmpympzcache < global.cache_size &&
         self->z->_mp_alloc <= global.cache_obsize) {
