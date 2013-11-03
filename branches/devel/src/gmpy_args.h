@@ -74,7 +74,7 @@ extern "C" {
         if(CHECK_MPZANY(self)) { \
             Py_INCREF((PyObject*)self); \
         } else { \
-            self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
         } \
         if (!self) { \
             PyErr_SetString(PyExc_TypeError, msg); \
@@ -144,7 +144,7 @@ extern "C" {
                 Py_INCREF((PyObject*)self); \
             } \
             else { \
-                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+                self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             } \
         } \
         else if (PyTuple_GET_SIZE(args) == 1) { \
@@ -153,7 +153,7 @@ extern "C" {
                 Py_INCREF((PyObject*)self); \
             } \
             else { \
-                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+                self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             } \
         } \
         else { \
@@ -203,7 +203,7 @@ extern "C" {
                 Py_INCREF((PyObject*)self); \
             } \
             else { \
-                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+                self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             } \
         } \
         else if (PyTuple_GET_SIZE(args) == 1) { \
@@ -212,7 +212,7 @@ extern "C" {
                 Py_INCREF((PyObject*)self); \
             } \
             else { \
-                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+                self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             } \
         } \
         else { \
@@ -265,7 +265,7 @@ extern "C" {
                 Py_INCREF((PyObject*)self); \
             } \
             else { \
-                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+                self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             } \
         } \
         else if (PyTuple_GET_SIZE(args) == 1) { \
@@ -274,7 +274,7 @@ extern "C" {
                 Py_INCREF((PyObject*)self); \
             } \
             else { \
-                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+                self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             } \
         } \
         else { \
@@ -389,7 +389,7 @@ extern "C" {
                 Py_INCREF((PyObject*)self); \
             } \
             else { \
-                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+                self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             } \
         } \
         if (!self) { \
@@ -439,7 +439,7 @@ extern "C" {
                 Py_INCREF((PyObject*)self); \
             } \
             else { \
-                self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+                self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             } \
         } \
         if (!self) { \
@@ -514,7 +514,7 @@ extern "C" {
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
         } \
-        var = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+        var = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
         if (!var) { \
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
@@ -526,8 +526,8 @@ extern "C" {
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
         } \
-        self = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-        var = (PyObject*)Pympz_From_Integer(PyTuple_GET_ITEM(args, 1)); \
+        self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+        var = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1)); \
         if (!self || !var) { \
             PyErr_SetString(PyExc_TypeError, msg); \
             Py_XDECREF((PyObject*)self); \

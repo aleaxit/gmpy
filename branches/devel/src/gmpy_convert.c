@@ -643,35 +643,6 @@ Pyxmpz_To_PyStr(XMPZ_Object *self, int base, int option)
     return xmpz_ascii(self->z, base, option);
 }
 
-/* Number conversion routines
- *
- * The routines anynum2mpX will attempt to convert any number-like object into
- * into a gmpy object. These routines are intended for construction of mpXs.
- * The accepted number-like objects are:
- *      1) int (Python 2.x)
- *      2) long (Python 2.x and 3.x)
- *      3) float
- *      4) Decimal
- *      5) Fraction
- *      6) other gmpy objects
- *
- * The routine Pympz_From_Integer will only convert integer-like objects into to a
- * gmpy mpz. The accepted integer-like objects are:
- *      1) int
- *      2) long
- *      3) mpz
- *      4) xmpz
- *
- * The routine Pympq_From_Rational will convert an integer- and rational-like
- * object into a gmpy mpq. The accepted objects are:
- *      1) int
- *      2) long
- *      3) Fraction
- *      4) mpz
- *      5) mpq
- *      6) xmpz
- */
-
 static MPZ_Object*
 Pympz_From_Number(PyObject* obj)
 {
@@ -773,28 +744,29 @@ Pyxmpz_From_Number(PyObject* obj)
  */
 
 static MPZ_Object *
-Pympz_From_Integer(PyObject *obj)
+GMPy_MPZ_From_Integer(PyObject *obj)
 {
-    MPZ_Object *newob = 0;
+    MPZ_Object *result = NULL;
 
     if (MPZ_Check(obj)) {
         Py_INCREF(obj);
-        newob = (MPZ_Object*) obj;
+        result = (MPZ_Object*)obj;
 #ifdef PY2
     }
     else if (PyInt_Check(obj)) {
-        newob = Pympz_From_PyInt(obj);
+        result = Pympz_From_PyInt(obj);
 #endif
     }
     else if (PyLong_Check(obj)) {
-        newob = GMPy_MPZ_From_PyLong(obj);
+        result = GMPy_MPZ_From_PyLong(obj);
     }
     else if (XMPZ_Check(obj)) {
-        newob = Pympz_From_Pyxmpz(obj);
+        result = Pympz_From_Pyxmpz(obj);
     }
-    if (!newob)
-        TYPE_ERROR("conversion error in Pympz_From_Integer");
-    return newob;
+    else {
+        TYPE_ERROR("cannot convert object to mpz");
+    }
+    return result;
 }
 
 /* Convert an Integer-like object (as determined by isInteger) to a

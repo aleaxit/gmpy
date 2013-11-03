@@ -60,7 +60,7 @@ GMPy_Integer_Abs(PyObject *x, GMPyContextObject *context)
     MPZ_Object *result;
 
     if (IS_INTEGER(x)) {
-        if ((result = Pympz_From_Integer(x))) {
+        if ((result = GMPy_MPZ_From_Integer(x))) {
             mpz_abs(result->z, result->z);
         }
         return (PyObject*)result;
@@ -228,25 +228,36 @@ PyDoc_STRVAR(GMPy_doc_context_abs,
 static PyObject *
 GMPy_Context_Abs(PyObject *self, PyObject *args)
 {
-    GMPyContextObject *context;
+    PyObject *result;
+    GMPyContextObject *context = NULL;
+
+    if (PyTuple_GET_SIZE(args) != 1) {
+        TYPE_ERROR("context.abs() requires 1 argument.");
+        return NULL;
+    }
 
     if (self && GMPyContext_Check(self)) {
-        if (PyTuple_GET_SIZE(args) != 1) {
-            TYPE_ERROR("context.abs() requires 1 argument.");
-            return NULL;
-        }
         /* If we are passed a read-only context, make a copy of it before
-         * proceeding. */
+         * proceeding. Remember to decref context when we're done.
+         */
 
-        if (((GMPyContextObject*)self)->ctx.readonly)
+        if (((GMPyContextObject*)self)->ctx.readonly) {
             context = (GMPyContextObject*)GMPyContext_context_copy(self, NULL);
-        else
+            if (!context)
+                return NULL;
+        }
+        else {
             context = (GMPyContextObject*)self;
+            Py_INCREF((PyObject*)context);
+        }
     }
     else {
         SYSTEM_ERROR("function is not supported");
         return NULL;
     }
-    return GMPy_Number_Abs(PyTuple_GET_ITEM(args, 0), context);
+
+    result = GMPy_Number_Abs(PyTuple_GET_ITEM(args, 0), context);
+    Py_DECREF((PyObject*)context);
+    return result;
 }
 
