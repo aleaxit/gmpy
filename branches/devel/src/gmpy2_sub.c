@@ -66,7 +66,7 @@ GMPy_Integer_Sub(PyObject *x, PyObject *y, GMPyContextObject *context)
     mpir_si temp_si;
     int overflow;
 
-    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
+    if (!(result = GMPy_MPZ_New()))
         return NULL;
 
     if (CHECK_MPZANY(x)) {

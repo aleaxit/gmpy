@@ -55,7 +55,7 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
     /* Optimize the most common use case */
     argc = PyTuple_Size(args);
     if (argc == 0) {
-        if ((result = (XMPZ_Object*)Pyxmpz_new())) {
+        if ((result = GMPy_XMPZ_New())) {
             mpz_set_ui(result->z, 0);
         }
         return (PyObject*)result;
@@ -138,7 +138,7 @@ Pyxmpz_xbit_mask(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = (XMPZ_Object*)Pyxmpz_new()))
+    if (!(result = GMPy_XMPZ_New()))
         return NULL;
 
     mpz_set_ui(result->z, 1);
@@ -209,7 +209,7 @@ Pyxmpz_make_mpz(PyObject *self, PyObject *other)
 {
     MPZ_Object* result;
 
-    if (!(result = (MPZ_Object*)GMPy_MPZ_New()))
+    if (!(result = GMPy_MPZ_New()))
         return NULL;
     mpz_swap(result->z, MPZ(self));
     mpz_set_ui(MPZ(self), 0);
@@ -223,7 +223,7 @@ PyDoc_STRVAR(doc_xmpz_copy,
 static PyObject *
 Pyxmpz_copy(PyObject *self, PyObject *other)
 {
-    return (PyObject*)Pyxmpz_From_Pyxmpz(self);
+    return (PyObject*)GMPy_XMPZ_From_XMPZ(self);
 }
 
 /*
@@ -251,7 +251,7 @@ Pyxmpz_subscript(XMPZ_Object* self, PyObject* item)
     }
     else if (PySlice_Check(item)) {
         Py_ssize_t start, stop, step, slicelength, cur, i;
-        PyObject* result;
+        MPZ_Object *result;
 
 #if PY_VERSION_HEX > 0x030200A4
         if (PySlice_GetIndicesEx(item,
@@ -267,17 +267,18 @@ Pyxmpz_subscript(XMPZ_Object* self, PyObject* item)
             (step > 0 && start > stop))
             stop = start;
 
-        if (!(result = (PyObject*)GMPy_MPZ_New()))
+        if (!(result = GMPy_MPZ_New()))
             return NULL;
-        mpz_set_ui(MPZ(result), 0);
+
+        mpz_set_ui(result->z, 0);
         if (slicelength > 0) {
             for (cur = start, i = 0; i < slicelength; cur += step, i++) {
                 if (mpz_tstbit(self->z, cur)) {
-                    mpz_setbit(MPZ(result), i);
+                    mpz_setbit(result->z, i);
                 }
             }
         }
-        return result;
+        return (PyObject*)result;
     }
     else {
         TYPE_ERROR("bit positions must be integers");
@@ -778,10 +779,10 @@ static PyTypeObject XMPZ_Type =
         0,                                  /* ob_size          */
 #endif
     "xmpz",                                 /* tp_name          */
-    sizeof(XMPZ_Object),                   /* tp_basicsize     */
+    sizeof(XMPZ_Object),                    /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
     /* methods */
-    (destructor) Pyxmpz_dealloc,            /* tp_dealloc       */
+    (destructor) GMPy_XMPZ_Dealloc,         /* tp_dealloc       */
         0,                                  /* tp_print         */
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */

@@ -86,10 +86,10 @@ static MPZ_Object *    Pympz_From_PyInt(PyObject *self);
 #endif
 static MPZ_Object *    Pympz_From_PyStr(PyObject *s, int base);
 static MPZ_Object *    GMPy_MPZ_From_PyLong(PyObject *obj);
-static MPZ_Object *    Pympz_From_Pyxmpz(PyObject *self);
+static MPZ_Object *    GMPy_MPZ_From_XMPZ(PyObject *self);
 static MPZ_Object *    Pympz_From_PyFloat(PyObject *self);
 static MPZ_Object *    GMPy_MPZ_From_Integer(PyObject *obj);
-static MPZ_Object *    Pympz_From_Number(PyObject *obj);
+static MPZ_Object *    GMPy_MPZ_From_Number(PyObject *obj);
 
 static PyObject *      Pympz_To_PyLong(MPZ_Object *self);
 static PyObject *      Pympz_To_PyIntOrLong(MPZ_Object *self);
@@ -102,8 +102,8 @@ static XMPZ_Object *   Pyxmpz_From_PyInt(PyObject *self);
 #endif
 static XMPZ_Object *   Pyxmpz_From_PyStr(PyObject *s, int base);
 static XMPZ_Object *   GMPy_XMPZ_From_PyLong(PyObject *obj);
-static XMPZ_Object *   Pyxmpz_From_Pyxmpz(PyObject *self);
-static XMPZ_Object *   Pyxmpz_From_Pympz(PyObject *self);
+static XMPZ_Object *   GMPy_XMPZ_From_XMPZ(PyObject *self);
+static XMPZ_Object *   GMPy_XMPZ_From_MPZ(PyObject *self);
 static XMPZ_Object *   Pyxmpz_From_PyFloat(PyObject *self);
 static XMPZ_Object *   Pyxmpz_From_Number(PyObject *obj);
 
