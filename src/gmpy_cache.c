@@ -90,7 +90,7 @@ set_gmpympzcache(void)
     gmpympzcache = GMPY_REALLOC(gmpympzcache, sizeof(MPZ_Object)*global.cache_size);
 }
 
-static PyObject *
+static MPZ_Object *
 GMPy_MPZ_New(void)
 {
     MPZ_Object *result;
@@ -107,7 +107,7 @@ GMPy_MPZ_New(void)
         mpz_inoc(result->z);
     }
     result->hash_cache = -1;
-    return (PyObject*)result;
+    return result;
 }
 
 static void
@@ -139,35 +139,35 @@ set_gmpyxmpzcache(void)
     gmpyxmpzcache = GMPY_REALLOC(gmpyxmpzcache, sizeof(XMPZ_Object)*global.cache_size);
 }
 
-static PyObject *
-Pyxmpz_new(void)
+static XMPZ_Object *
+GMPy_XMPZ_New(void)
 {
-    XMPZ_Object *self;
+    XMPZ_Object *result;
 
     if (in_gmpyxmpzcache) {
-        self = gmpyxmpzcache[--in_gmpyxmpzcache];
+        result = gmpyxmpzcache[--in_gmpyxmpzcache];
         /* Py_INCREF does not set the debugging pointers, so need to use
          * _Py_NewReference instead. */
-        _Py_NewReference((PyObject*)self);
+        _Py_NewReference((PyObject*)result);
     }
     else {
-        if (!(self = PyObject_New(XMPZ_Object, &XMPZ_Type)))
+        if (!(result = PyObject_New(XMPZ_Object, &XMPZ_Type)))
             return NULL;
-        mpz_inoc(self->z);
+        mpz_inoc(result->z);
     }
-    return (PyObject*)self;
+    return result;
 }
 
 static void
-Pyxmpz_dealloc(XMPZ_Object *self)
+GMPy_XMPZ_Dealloc(XMPZ_Object *obj)
 {
     if (in_gmpyxmpzcache < global.cache_size &&
-        self->z->_mp_alloc <= global.cache_obsize) {
-        gmpyxmpzcache[in_gmpyxmpzcache++] = self;
+        obj->z->_mp_alloc <= global.cache_obsize) {
+        gmpyxmpzcache[in_gmpyxmpzcache++] = obj;
     }
     else {
-        mpz_cloc(self->z);
-        PyObject_Del(self);
+        mpz_cloc(obj->z);
+        PyObject_Del((PyObject*)obj);
     }
 }
 

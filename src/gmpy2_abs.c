@@ -76,7 +76,7 @@ GMPy_mpz_abs_fast(MPZ_Object *x)
 {
     MPZ_Object *result;
 
-    if ((result = (MPZ_Object*)GMPy_MPZ_New())) {
+    if ((result = GMPy_MPZ_New())) {
         mpz_abs(result->z, x->z);
     }
 

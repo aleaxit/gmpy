@@ -37,6 +37,8 @@ typedef struct {
     mpz_t z;
 } XMPZ_Object;
 
+#define XMPZ(obj) (((XMPZ_Object*)(obj))->z)
+
 static PyTypeObject XMPZ_Type;
 
 #define XMPZ_Check(v) (((PyObject*)v)->ob_type == &XMPZ_Type)
