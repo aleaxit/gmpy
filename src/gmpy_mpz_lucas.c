@@ -61,9 +61,9 @@ GMPY_mpz_lucasu(PyObject *self, PyObject *args)
     mpz_inoc(qh);
     mpz_inoc(tmp);
 
-    p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
-    q = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
-    k = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
+    p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0));
+    q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1));
+    k = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2));
     if (!p || !q || !k) {
         TYPE_ERROR("lucasu() requires 3 integer arguments");
         goto cleanup;
@@ -218,10 +218,10 @@ GMPY_mpz_lucasu_mod(PyObject *self, PyObject *args)
     mpz_inoc(qh);
     mpz_inoc(tmp);
 
-    p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
-    q = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
-    k = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
-    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 3));
+    p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0));
+    q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1));
+    k = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2));
+    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 3));
     if (!p || !q || !k || !n) {
         TYPE_ERROR("lucasu_mod() requires 4 integer arguments");
         goto cleanup;
@@ -391,9 +391,9 @@ GMPY_mpz_lucasv(PyObject *self, PyObject *args)
     mpz_inoc(qh);
     mpz_inoc(tmp);
 
-    p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
-    q = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
-    k = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
+    p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0));
+    q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1));
+    k = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2));
     if (!p || !q || !k) {
         TYPE_ERROR("lucasv() requires 3 integer arguments");
         goto cleanup;
@@ -531,10 +531,10 @@ GMPY_mpz_lucasv_mod(PyObject *self, PyObject *args)
     mpz_inoc(qh);
     mpz_inoc(tmp);
 
-    p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
-    q = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
-    k = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
-    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 3));
+    p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0));
+    q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1));
+    k = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2));
+    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 3));
     if (!p || !q || !k || !n) {
         TYPE_ERROR("lucasv_mod() requires 4 integer arguments");
         goto cleanup;

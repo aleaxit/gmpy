@@ -533,7 +533,7 @@ Pympq_Pow_Rational(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject
     /* Only support mpq**int. Everything else gets converted to mpf. */
     if (IS_RATIONAL(base) && IS_INTEGER(exp)) {
         tempbq = Pympq_From_Rational(base);
-        tempez = Pympz_From_Integer(exp);
+        tempez = GMPy_MPZ_From_Integer(exp);
         if (!tempbq || !tempez) {
             Py_XDECREF((PyObject*)tempbq);
             Py_XDECREF((PyObject*)tempez);

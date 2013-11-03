@@ -251,7 +251,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
         case 2:
             exp = PyTuple_GET_ITEM(args, 1);
         case 1:
-            man = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+            man = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0));
             if (!man) {
                 TYPE_ERROR("mpmath_create() expects 'mpz','int'[,'int','str'] arguments");
                 return NULL;

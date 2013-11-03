@@ -947,7 +947,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(mpz_cmp(MPZ(a), MPZ(b)), op);
         }
         if (isInteger(b)) {
-            tempb = (PyObject*)Pympz_From_Integer(b);
+            tempb = (PyObject*)GMPy_MPZ_From_Integer(b);
             if (!tempb)
                 return NULL;
             c = mpz_cmp(MPZ(a), MPZ(tempb));
@@ -1118,7 +1118,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (isInteger(b)) {
-            tempb = (PyObject*)Pympz_From_Integer(b);
+            tempb = (PyObject*)GMPy_MPZ_From_Integer(b);
             if (!tempb)
                 return NULL;
             mpfr_clear_flags();

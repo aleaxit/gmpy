@@ -177,7 +177,7 @@ Pympz_bit_length(PyObject *self, PyObject *other)
             i = mpz_sizeinbase(MPZ(other), 2);
     }
     else {
-        if (!(tempx = Pympz_From_Integer(other))) {
+        if (!(tempx = GMPy_MPZ_From_Integer(other))) {
             TYPE_ERROR("bit_length() requires 'mpz' argument");
             return NULL;
         }
@@ -331,7 +331,7 @@ Pympz_popcount(PyObject *self, PyObject *other)
     else if(CHECK_MPZANY(other))
         return PyIntOrLong_FromSsize_t(mpz_popcount(MPZ(other)));
     else {
-        if ((tempx = Pympz_From_Integer(other))) {
+        if ((tempx = GMPy_MPZ_From_Integer(other))) {
             temp = mpz_popcount(tempx->z);
             Py_DECREF((PyObject*)tempx);
             return PyIntOrLong_FromSsize_t(temp);
@@ -377,7 +377,7 @@ Pygmpy_bit_test(PyObject *self, PyObject *args)
         temp = mpz_tstbit(MPZ(x), bit_index);
     }
     else {
-        if (!(tempx = Pympz_From_Integer(x))) {
+        if (!(tempx = GMPy_MPZ_From_Integer(x))) {
             TYPE_ERROR("bit_test() requires 'mpz','int' arguments");
             return NULL;
         }
@@ -451,7 +451,7 @@ Pygmpy_bit_clear(PyObject *self, PyObject *args)
         mpz_clrbit(result->z, bit_index);
     }
     else {
-        if (!(result = Pympz_From_Integer(x))) {
+        if (!(result = GMPy_MPZ_From_Integer(x))) {
             TYPE_ERROR("bit_clear() requires 'mpz','int' arguments");
             return NULL;
         }
@@ -523,7 +523,7 @@ Pygmpy_bit_set(PyObject *self, PyObject *args)
         mpz_setbit(result->z, bit_index);
     }
     else {
-        if (!(result = Pympz_From_Integer(x))) {
+        if (!(result = GMPy_MPZ_From_Integer(x))) {
             TYPE_ERROR("bit_set() requires 'mpz','int' arguments");
             return NULL;
         }
@@ -595,7 +595,7 @@ Pygmpy_bit_flip(PyObject *self, PyObject *args)
         mpz_combit(result->z, bit_index);
     }
     else {
-        if (!(result = Pympz_From_Integer(x))) {
+        if (!(result = GMPy_MPZ_From_Integer(x))) {
             TYPE_ERROR("bit_flip() requires 'mpz','int' arguments");
             return NULL;
         }
@@ -730,7 +730,7 @@ Pympz_sign(PyObject *self, PyObject *other)
         res = mpz_sgn(MPZ(other));
     }
     else {
-        if (!(tempx = Pympz_From_Integer(other))) {
+        if (!(tempx = GMPy_MPZ_From_Integer(other))) {
             TYPE_ERROR("sign() requires 'mpz' argument");
             return NULL;
         }
@@ -860,7 +860,7 @@ Pympz_square(PyObject *self, PyObject *other)
         mpz_mul(result->z, MPZ(other), MPZ(other));
     }
     else {
-        if (!(tempx = Pympz_From_Integer(other))) {
+        if (!(tempx = GMPy_MPZ_From_Integer(other))) {
             TYPE_ERROR("square() requires 'mpz' argument");
             Py_DECREF((PyObject*)result);
             return NULL;
@@ -898,12 +898,12 @@ Pympz_Pow_Integer(PyObject *b, PyObject *e, PyObject *m, GMPyContextObject *cont
     if (!(result = (MPZ_Object*)Pympz_new()))
         return NULL;
 
-    tempb = Pympz_From_Integer(b);
-    tempe = Pympz_From_Integer(e);
+    tempb = GMPy_MPZ_From_Integer(b);
+    tempe = GMPy_MPZ_From_Integer(e);
 
     /* m will either be a number or Py_None. */
     if (has_mod) {
-        tempm = Pympz_From_Integer(m);
+        tempm = GMPy_MPZ_From_Integer(m);
     }
 
     if (!tempb || !tempe || (!tempm && has_mod)) {
@@ -1039,13 +1039,13 @@ Py##NAME(PyObject *self, PyObject *other) \
             NAME(result->z, MPZ(self), MPZ(other)); \
         } \
         else { \
-            if (!(result = Pympz_From_Integer(other))) \
+            if (!(result = GMPy_MPZ_From_Integer(other))) \
                 return NULL; \
             NAME(result->z, MPZ(self), result->z); \
         } \
     } \
     else if (CHECK_MPZANY(other)) { \
-        if (!(result = Pympz_From_Integer(self))) \
+        if (!(result = GMPy_MPZ_From_Integer(self))) \
             return NULL; \
         NAME(result->z, result->z, MPZ(other)); \
     } \
@@ -1090,8 +1090,8 @@ Pympz_rshift(PyObject *self, PyObject *other)
         }
     }
 
-    tempa = Pympz_From_Integer(self);
-    tempb = Pympz_From_Integer(other);
+    tempa = GMPy_MPZ_From_Integer(self);
+    tempb = GMPy_MPZ_From_Integer(other);
     if (!tempb || !tempa) {
         TYPE_ERROR("Pympz_rshift() expects integer arguments");
         goto err;
@@ -1148,8 +1148,8 @@ Pympz_lshift(PyObject *self, PyObject *other)
         }
     }
 
-    tempa = Pympz_From_Integer(self);
-    tempb = Pympz_From_Integer(other);
+    tempa = GMPy_MPZ_From_Integer(self);
+    tempb = GMPy_MPZ_From_Integer(other);
     if (!tempb || !tempa) {
         TYPE_ERROR("Pympz_lshift() expects integer arguments");
         goto err;
@@ -1239,8 +1239,8 @@ Pygmpy_gcd(PyObject *self, PyObject *args)
         mpz_gcd(result->z, MPZ(a), MPZ(b));
     }
     else {
-        tempa = Pympz_From_Integer(a);
-        tempb = Pympz_From_Integer(b);
+        tempa = GMPy_MPZ_From_Integer(a);
+        tempb = GMPy_MPZ_From_Integer(b);
         if (!tempa || !tempb) {
             TYPE_ERROR("gcd() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempa);
@@ -1280,8 +1280,8 @@ Pygmpy_lcm(PyObject *self, PyObject *args)
         mpz_lcm(result->z, MPZ(a), MPZ(b));
     }
     else {
-        tempa = Pympz_From_Integer(a);
-        tempb = Pympz_From_Integer(b);
+        tempa = GMPy_MPZ_From_Integer(a);
+        tempb = GMPy_MPZ_From_Integer(b);
         if (!tempa || !tempb) {
             TYPE_ERROR("lcm() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempa);
@@ -1331,8 +1331,8 @@ Pygmpy_gcdext(PyObject *self, PyObject *args)
         mpz_gcdext(g->z, s->z, t->z, MPZ(a), MPZ(b));
     }
     else {
-        tempa = Pympz_From_Integer(a);
-        tempb = Pympz_From_Integer(b);
+        tempa = GMPy_MPZ_From_Integer(a);
+        tempb = GMPy_MPZ_From_Integer(b);
         if(!tempa || !tempb) {
             TYPE_ERROR("gcdext() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempa);
@@ -1373,9 +1373,9 @@ Pygmpy_divm(PyObject *self, PyObject *args)
     if (!(result = (MPZ_Object*)Pympz_new()))
         return NULL;
 
-    num = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
-    den = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
-    mod = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
+    num = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0));
+    den = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1));
+    mod = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2));
 
     if(!num || !den || !mod) {
         TYPE_ERROR("divm() requires 'mpz','mpz','mpz' arguments");
@@ -1618,7 +1618,7 @@ Pympz_isqrt(PyObject *self, PyObject *other)
         mpz_sqrt(result->z, MPZ(other));
     }
     else {
-        if (!(result = Pympz_From_Integer(other))) {
+        if (!(result = GMPy_MPZ_From_Integer(other))) {
             TYPE_ERROR("isqrt() requires 'mpz' argument");
             return NULL;
         }
@@ -1738,8 +1738,8 @@ Pygmpy_invert(PyObject *self, PyObject *args)
         }
     }
     else {
-        tempx = Pympz_From_Integer(x);
-        tempy = Pympz_From_Integer(y);
+        tempx = GMPy_MPZ_From_Integer(x);
+        tempy = GMPy_MPZ_From_Integer(y);
         if (!tempx || !tempy) {
             TYPE_ERROR("invert() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -1815,8 +1815,8 @@ Pygmpy_divexact(PyObject *self, PyObject *args)
         mpz_divexact(result->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = Pympz_From_Integer(x);
-        tempy = Pympz_From_Integer(y);
+        tempx = GMPy_MPZ_From_Integer(x);
+        tempy = GMPy_MPZ_From_Integer(y);
         if (!tempx || !tempy) {
             TYPE_ERROR("divexact() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -1852,7 +1852,7 @@ Pympz_is_square(PyObject *self, PyObject *other)
         res = mpz_perfect_square_p(MPZ(other));
     }
     else {
-        if (!(tempx = Pympz_From_Integer(other))) {
+        if (!(tempx = GMPy_MPZ_From_Integer(other))) {
             TYPE_ERROR("is_square() requires 'mpz' argument");
             return NULL;
         }
@@ -1882,7 +1882,7 @@ Pympz_is_power(PyObject *self, PyObject *other)
         res = mpz_perfect_power_p(MPZ(other));
     }
     else {
-        if (!(tempx = Pympz_From_Integer(other))) {
+        if (!(tempx = GMPy_MPZ_From_Integer(other))) {
             TYPE_ERROR("is_power() requires 'mpz' argument");
             return NULL;
         }
@@ -1939,7 +1939,7 @@ Pympz_next_prime(PyObject *self, PyObject *other)
         mpz_nextprime(result->z, MPZ(other));
     }
     else {
-        if (!(result = Pympz_From_Integer(other))) {
+        if (!(result = GMPy_MPZ_From_Integer(other))) {
             TYPE_ERROR("next_prime() requires 'mpz' argument");
             return NULL;
         }
@@ -2033,7 +2033,7 @@ Pympz_is_even(PyObject *self, PyObject *other)
         res = mpz_even_p(MPZ(other));
     }
     else {
-        if (!(tempx = Pympz_From_Integer(other))) {
+        if (!(tempx = GMPy_MPZ_From_Integer(other))) {
             TYPE_ERROR("is_even() requires 'mpz' argument");
             return NULL;
         }
@@ -2062,7 +2062,7 @@ Pympz_is_odd(PyObject *self, PyObject *other)
         res = mpz_odd_p(MPZ(other));
     }
     else {
-        if (!(tempx = Pympz_From_Integer(other))) {
+        if (!(tempx = GMPy_MPZ_From_Integer(other))) {
             TYPE_ERROR("is_odd() requires 'mpz' argument");
             return NULL;
         }
@@ -2449,8 +2449,8 @@ Pympz_FloorDiv_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
         MPZ_Object *tempx, *tempy;
 
-        tempx = Pympz_From_Integer(x);
-        tempy = Pympz_From_Integer(y);
+        tempx = GMPy_MPZ_From_Integer(x);
+        tempy = GMPy_MPZ_From_Integer(y);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Could not convert Integer to mpz.");
             Py_XDECREF((PyObject*)tempx);
@@ -2515,8 +2515,8 @@ Pympz_TrueDiv_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
         return NULL;
 
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
-        tempx = Pympz_From_Integer(x);
-        tempy = Pympz_From_Integer(y);
+        tempx = GMPy_MPZ_From_Integer(x);
+        tempy = GMPy_MPZ_From_Integer(y);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Could not convert Integer to mpz.");
             Py_XDECREF((PyObject*)tempx);
@@ -2652,8 +2652,8 @@ Pympz_Mod_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
     }
 
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
-        tempx = Pympz_From_Integer(x);
-        tempy = Pympz_From_Integer(y);
+        tempx = GMPy_MPZ_From_Integer(x);
+        tempy = GMPy_MPZ_From_Integer(y);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Could not convert Integer to mpz.");
             Py_XDECREF((PyObject*)tempx);
@@ -2781,8 +2781,8 @@ Pympz_DivMod_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
     }
 
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
-        tempx = Pympz_From_Integer(x);
-        tempy = Pympz_From_Integer(y);
+        tempx = GMPy_MPZ_From_Integer(x);
+        tempy = GMPy_MPZ_From_Integer(y);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Could not convert Integer to mpz.");
             Py_XDECREF((PyObject*)tempx);

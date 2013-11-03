@@ -371,7 +371,7 @@ Pyxmpz_assign_subscript(XMPZ_Object* self, PyObject* item, PyObject* value)
             int bit;
             MPZ_Object *tempx;
 
-            if (!(tempx = Pympz_From_Integer(value))) {
+            if (!(tempx = GMPy_MPZ_From_Integer(value))) {
                 VALUE_ERROR("must specify bit sequence as an integer");
                 return -1;
             }
