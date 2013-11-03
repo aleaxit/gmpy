@@ -212,23 +212,37 @@ Pyxmpz_From_PyFloat(PyObject *self)
  */
 
 static MPZ_Object *
-Pympz_From_PyLong(PyObject * obj)
+GMPy_MPZ_From_PyLong(PyObject *obj)
 {
-    MPZ_Object *newob;
-    if (!(newob = (MPZ_Object*)Pympz_new()))
+    MPZ_Object *result;
+
+    if (!(result = (MPZ_Object*)Pympz_new()))
         return NULL;
-    mpz_set_PyIntOrLong(newob->z, obj);
-    return newob;
+
+    if (-1 == mpz_set_PyIntOrLong(result->z, obj)) {
+        Py_DECREF((PyObject*)result);
+        return NULL;
+    }
+    else {
+        return result;
+    }
 }
 
 static XMPZ_Object *
-Pyxmpz_From_PyLong(PyObject * obj)
+GMPy_XMPZ_From_PyLong(PyObject *obj)
 {
-    XMPZ_Object *newob;
-    if (!(newob = (XMPZ_Object*)Pyxmpz_new()))
+    XMPZ_Object *result;
+
+    if (!(result = (XMPZ_Object*)Pyxmpz_new()))
         return NULL;
-    mpz_set_PyIntOrLong(newob->z, obj);
-    return newob;
+
+    if (-1 == mpz_set_PyIntOrLong(result->z, obj)) {
+        Py_DECREF((PyObject*)result);
+        return NULL;
+    }
+    else {
+        return result;
+    }
 }
 
 /* mpz_set_PyStr returns -1 on error, 1 if successful. */
@@ -674,7 +688,7 @@ Pympz_From_Number(PyObject* obj)
 #endif
     }
     else if (PyLong_Check(obj)) {
-        newob = Pympz_From_PyLong(obj);
+        newob = GMPy_MPZ_From_PyLong(obj);
     }
     else if (MPQ_Check(obj)) {
         newob = Pympq_To_Pympz(obj);
@@ -691,7 +705,7 @@ Pympz_From_Number(PyObject* obj)
     else if (isDecimal(obj)) {
         PyObject *s = PyNumber_Long(obj);
         if (s) {
-            newob = Pympz_From_PyLong(s);
+            newob = GMPy_MPZ_From_PyLong(s);
             Py_DECREF(s);
         }
     }
@@ -721,7 +735,7 @@ Pyxmpz_From_Number(PyObject* obj)
 #endif
     }
     else if (PyLong_Check(obj)) {
-        newob = Pyxmpz_From_PyLong(obj);
+        newob = GMPy_XMPZ_From_PyLong(obj);
     }
     else if (MPQ_Check(obj)) {
         newob = Pympq_To_Pyxmpz(obj);
@@ -738,7 +752,7 @@ Pyxmpz_From_Number(PyObject* obj)
     else if (isDecimal(obj)) {
         PyObject *s = PyNumber_Long(obj);
         if (s) {
-            newob = Pyxmpz_From_PyLong(s);
+            newob = GMPy_XMPZ_From_PyLong(s);
             Py_DECREF(s);
         }
     }
@@ -773,7 +787,7 @@ Pympz_From_Integer(PyObject *obj)
 #endif
     }
     else if (PyLong_Check(obj)) {
-        newob = Pympz_From_PyLong(obj);
+        newob = GMPy_MPZ_From_PyLong(obj);
     }
     else if (XMPZ_Check(obj)) {
         newob = Pympz_From_Pyxmpz(obj);
@@ -1097,7 +1111,7 @@ static MPQ_Object *
 Pympq_From_PyLong(PyObject *self)
 {
     MPQ_Object *newob;
-    PyObject *temp = (PyObject*)Pympz_From_PyLong(self);
+    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyLong(self);
 
     if (!temp)
         return NULL;
@@ -2092,7 +2106,7 @@ static MPFR_Object *
 Pympfr_From_PyLong(PyObject *self, mpfr_prec_t bits)
 {
     MPFR_Object *result;
-    PyObject *temp = (PyObject*)Pympz_From_PyLong(self);
+    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyLong(self);
 
     if (!temp)
         return NULL;
@@ -2106,7 +2120,7 @@ Pympfr_From_PyLong_context(PyObject *self, mpfr_prec_t bits,
                           GMPyContextObject *context)
 {
     MPFR_Object *result;
-    PyObject *temp = (PyObject*)Pympz_From_PyLong(self);
+    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyLong(self);
 
     if (!temp)
         return NULL;
@@ -3004,7 +3018,7 @@ static MPC_Object *
 Pympc_From_PyLong(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     MPC_Object *result;
-    PyObject *temp = (PyObject*)Pympz_From_PyLong(self);
+    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyLong(self);
 
     if (!temp)
         return NULL;
@@ -3018,7 +3032,7 @@ Pympc_From_PyLong_bits_context(PyObject *self, mpfr_prec_t rprec,
                                mpfr_prec_t iprec, GMPyContextObject *context)
 {
     MPC_Object *result;
-    PyObject *temp = (PyObject*)Pympz_From_PyLong(self);
+    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyLong(self);
 
     if (!temp)
         return NULL;
@@ -3031,7 +3045,7 @@ static MPC_Object *
 Pympc_From_PyLong_context(PyObject *self, GMPyContextObject *context)
 {
     MPC_Object *result;
-    PyObject *temp = (PyObject*)Pympz_From_PyLong(self);
+    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyLong(self);
 
     if (!temp)
         return NULL;

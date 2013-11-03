@@ -115,8 +115,8 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (PyIntOrLong_Check(x) && PyIntOrLong_Check(y)) {
         MPZ_Object *tempx, *tempy;
 
-        tempx = Pympz_From_PyLong(x);
-        tempy = Pympz_From_PyLong(y);
+        tempx = GMPy_MPZ_From_PyLong(x);
+        tempy = GMPy_MPZ_From_PyLong(y);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Could not convert Integer to mpz.");
             Py_XDECREF((PyObject*)tempx);
@@ -161,7 +161,7 @@ GMPy_mpz_add_fast(PyObject *x, PyObject *y)
 
 /* Add two Rational objects (see convert.c/isRational). Returns None and
  * raises TypeError if both objects are not valid rationals. Pympq_Add_Rational
- * is intended to be called from Pympany_Add_Number. */
+ * is intended to be called from GMPy_Number_Add(). */
 
 static PyObject *
 GMPy_Rational_Add(PyObject *x, PyObject *y, GMPyContextObject *context)

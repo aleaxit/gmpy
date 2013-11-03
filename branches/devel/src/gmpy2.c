@@ -535,6 +535,7 @@ static PyObject *GMPyExc_ExpBound = NULL;
 
 #include "gmpy2_abs.c"
 #include "gmpy2_add.c"
+#include "gmpy2_sub.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
@@ -639,7 +640,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "set_cache", GMPy_set_cache, METH_VARARGS, doc_set_cache },
     { "sign", Pympany_sign, METH_O, doc_g_mpany_sign },
     { "square", Pympany_square, METH_O, doc_mpany_square },
-    { "sub", Pympany_sub, METH_VARARGS, doc_mpany_sub },
+    { "sub", GMPy_Context_Sub, METH_VARARGS, GMPy_doc_sub },
     { "to_binary", Pympany_to_binary, METH_O, doc_to_binary },
     { "t_div", Pygmpy_t_div, METH_VARARGS, doc_gmpy_t_div },
     { "t_div_2exp", Pygmpy_t_div_2exp, METH_VARARGS, doc_gmpy_t_div_2exp },
