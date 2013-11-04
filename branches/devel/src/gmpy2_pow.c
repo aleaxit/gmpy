@@ -378,7 +378,7 @@ GMPy_Integer_PowMod(PyObject *self, PyObject *args)
     return NULL;
 }
 
-PyDoc_STRVAR(doc_context_pow,
+PyDoc_STRVAR(GMPy_doc_context_pow,
 "context.pow(x, y) -> number\n\n"
 "Return x ** y.");
 

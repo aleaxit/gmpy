@@ -1741,187 +1741,6 @@ PyDoc_STRVAR(doc_g_mpfr_ai,
 
 MPFR_UNIOP(ai)
 
-/* Attempt to multiply two numbers and return an mpfr. The code path is
- * optimized by checking for mpfr objects first. Returns Py_NotImplemented if
- * both objects are not valid reals.  */
-
-static PyObject *
-Pympfr_Mul_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
-{
-    MPFR_Object *result;
-
-    if (!(result = (MPFR_Object*)Pympfr_new_context(context)))
-        return NULL;
-
-    /* This only processes mpfr if the exponent is still in-bounds. Need
-     * to handle the rare case at the end. */
-
-    if (MPFR_CheckAndExp(x) && MPFR_CheckAndExp(y)) {
-        mpfr_clear_flags();
-        result->rc = mpfr_mul(result->f, MPFR(x), MPFR(y),
-                              GET_MPFR_ROUND(context));
-        goto done;
-    }
-
-    if (MPFR_CheckAndExp(x)) {
-        if (PyIntOrLong_Check(y)) {
-            mpz_t tempz;
-            mpir_si temp_si;
-            int overflow;
-
-            temp_si = PyLong_AsSIAndOverflow(y, &overflow);
-            if (overflow) {
-                mpz_inoc(tempz);
-                mpz_set_PyIntOrLong(tempz, y);
-                mpfr_clear_flags();
-                result->rc = mpfr_mul_z(result->f, MPFR(x),
-                                        tempz, GET_MPFR_ROUND(context));
-                mpz_cloc(tempz);
-                goto done;
-            }
-            else {
-                mpfr_clear_flags();
-                result->rc = mpfr_mul_si(result->f, MPFR(x),
-                                         temp_si, GET_MPFR_ROUND(context));
-                goto done;
-            }
-        }
-
-        if (CHECK_MPZANY(y)) {
-            mpfr_clear_flags();
-            result->rc = mpfr_mul_z(result->f, MPFR(x),
-                                    MPZ(y), GET_MPFR_ROUND(context));
-            goto done;
-        }
-
-        if (isRational(y) || isDecimal(y)) {
-            MPQ_Object *tempy;
-
-            if (!(tempy = Pympq_From_Number(y))) {
-                SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
-                Py_DECREF(result);
-                return NULL;
-            }
-            mpfr_clear_flags();
-            result->rc = mpfr_mul_q(result->f, MPFR(x), tempy->q,
-                                    GET_MPFR_ROUND(context));
-            Py_DECREF((PyObject*)tempy);
-            goto done;
-        }
-
-        if (PyFloat_Check(y)) {
-            mpfr_clear_flags();
-            result->rc = mpfr_mul_d(result->f, MPFR(x), PyFloat_AS_DOUBLE(y),
-                                    GET_MPFR_ROUND(context));
-            goto done;
-        }
-    }
-
-    if (MPFR_CheckAndExp(y)) {
-        if (PyIntOrLong_Check(x)) {
-            mpz_t tempz;
-            mpir_si temp_si;
-            int overflow;
-
-            temp_si = PyLong_AsSIAndOverflow(x, &overflow);
-            if (overflow) {
-                mpz_inoc(tempz);
-                mpz_set_PyIntOrLong(tempz, x);
-                mpfr_clear_flags();
-                result->rc = mpfr_mul_z(result->f, MPFR(y),
-                                        tempz, GET_MPFR_ROUND(context));
-                mpz_cloc(tempz);
-                goto done;
-            }
-            else {
-                mpfr_clear_flags();
-                result->rc = mpfr_mul_si(result->f, MPFR(y),
-                                         temp_si, GET_MPFR_ROUND(context));
-                goto done;
-            }
-        }
-
-        if (CHECK_MPZANY(x)) {
-            mpfr_clear_flags();
-            result->rc = mpfr_mul_z(result->f, MPFR(y),
-                                    MPZ(x), GET_MPFR_ROUND(context));
-            goto done;
-        }
-
-        if (isRational(x) || isDecimal(x)) {
-            MPQ_Object *tempx;
-
-            if (!(tempx = Pympq_From_Number(x))) {
-                SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
-                Py_DECREF(result);
-                return NULL;
-            }
-            mpfr_clear_flags();
-            result->rc = mpfr_mul_q(result->f, MPFR(y), tempx->q,
-                                    GET_MPFR_ROUND(context));
-            Py_DECREF((PyObject*)tempx);
-            goto done;
-        }
-
-        if (PyFloat_Check(x)) {
-            mpfr_clear_flags();
-            result->rc = mpfr_mul_d(result->f, MPFR(y), PyFloat_AS_DOUBLE(x),
-                                    GET_MPFR_ROUND(context));
-            goto done;
-        }
-    }
-
-    /* In addition to handling PyFloat + PyFloat, the rare case when the
-     * exponent bounds have been changed is handled here. See
-     * Pympfr_From_Real() for details. */
-
-    if (IS_REAL(x) && IS_REAL(y)) {
-        MPFR_Object *tempx, *tempy;
-
-        tempx = GMPy_MPFR_From_Real_Temp(x, context);
-        tempy = GMPy_MPFR_From_Real_Temp(y, context);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("Can not convert Real to 'mpfr'");
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            Py_DECREF(result);
-            return NULL;
-        }
-        mpfr_clear_flags();
-        result->rc = mpfr_mul(result->f, MPFR(tempx), MPFR(tempy),
-                              GET_MPFR_ROUND(context));
-        Py_DECREF((PyObject*)tempx);
-        Py_DECREF((PyObject*)tempy);
-        goto done;
-    }
-
-    Py_DECREF(result);
-    Py_RETURN_NOTIMPLEMENTED;
-
-  done:
-    MPFR_CLEANUP_RESULT("multiplication");
-    return (PyObject*)result;
-}
-
-/* Implement __mul__ for Pympfr. On entry, one of the two arguments must
- * be a Pympfr. If the other object is a Real, add and return a Pympfr.
- * If the other object isn't a Pympfr, call the appropriate function. If
- * no appropriate function can be found, return NotImplemented. */
-
-static PyObject *
-Pympfr_mul_fast(PyObject *x, PyObject *y)
-{
-    GMPyContextObject *context;
-
-    CURRENT_CONTEXT(context);
-    if (IS_REAL(x) && IS_REAL(y))
-        return Pympfr_Mul_Real(x, y, context);
-    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return Pympc_Mul_Complex(x, y, context);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
 /* Attempt floor division of two numbers and return an mpfr. The code path is
  * optimized by checking for mpfr objects first. Returns Py_NotImplemented if
  * both objects are not valid reals.  */
@@ -3397,7 +3216,7 @@ static PyNumberMethods mpfr_number_methods =
 {
     (binaryfunc) GMPy_mpfr_add_fast,     /* nb_add                  */
     (binaryfunc) GMPy_mpfr_sub_fast,     /* nb_subtract             */
-    (binaryfunc) Pympfr_mul_fast,        /* nb_multiply             */
+    (binaryfunc) GMPy_mpfr_mul_fast,     /* nb_multiply             */
     (binaryfunc) Pympfr_mod_fast,        /* nb_remainder            */
     (binaryfunc) Pympfr_divmod_fast,     /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
@@ -3435,7 +3254,7 @@ static PyNumberMethods mpfr_number_methods =
 {
     (binaryfunc) GMPy_mpfr_add_fast,     /* nb_add                  */
     (binaryfunc) GMPy_mpfr_sub_fast,     /* nb_subtract             */
-    (binaryfunc) Pympfr_mul_fast,        /* nb_multiply             */
+    (binaryfunc) GMPy_mpfr_mul_fast,     /* nb_multiply             */
     (binaryfunc) Pympfr_truediv_fast,    /* nb_divide               */
     (binaryfunc) Pympfr_mod_fast,        /* nb_remainder            */
     (binaryfunc) Pympfr_divmod_fast,     /* nb_divmod               */

@@ -99,7 +99,7 @@ GMPy_Integer_Sub(PyObject *x, PyObject *y, GMPyContextObject *context)
             if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyIntOrLong(tempz, x);
-                mpz_sub(result->z, MPZ(y), tempz);
+                mpz_sub(result->z, tempz, MPZ(y));
                 mpz_cloc(tempz);
             }
             else if (temp_si >= 0) {

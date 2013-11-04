@@ -535,6 +535,7 @@ static PyObject *GMPyExc_ExpBound = NULL;
 
 #include "gmpy2_abs.c"
 #include "gmpy2_add.c"
+#include "gmpy2_mul.c"
 #include "gmpy2_pow.c"
 #include "gmpy2_sub.c"
 
@@ -626,7 +627,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "mpz_random", GMPY_mpz_random, METH_VARARGS, doc_mpz_random },
     { "mpz_rrandomb", GMPY_mpz_rrandomb, METH_VARARGS, doc_mpz_rrandomb },
     { "mpz_urandomb", GMPY_mpz_urandomb, METH_VARARGS, doc_mpz_urandomb },
-    { "mul", Pympany_mul, METH_VARARGS, doc_mpany_mul },
+    { "mul", GMPy_Context_Mul, METH_VARARGS, GMPy_doc_mul },
     { "next_prime", Pympz_next_prime, METH_O, doc_next_primeg },
     { "numer", Pympq_numer, METH_VARARGS, doc_numerg },
     { "num_digits", Pympz_num_digits, METH_VARARGS, doc_num_digitsg },
