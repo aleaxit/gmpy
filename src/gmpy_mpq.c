@@ -516,95 +516,6 @@ Pympq_square(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-static PyObject *
-Pympq_Pow_Rational(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject *context)
-{
-    MPQ_Object *rq, *tempbq;
-    MPZ_Object *tempez;
-    int esign, bsign;
-    mpir_si tempexp;
-    MPFR_Object *rf, *tempbf, *tempef;
-
-    if (m && m != Py_None) {
-        TYPE_ERROR("mpq.pow() no modulo allowed");
-        return NULL;
-    }
-
-    /* Only support mpq**int. Everything else gets converted to mpf. */
-    if (IS_RATIONAL(base) && IS_INTEGER(exp)) {
-        tempbq = Pympq_From_Rational(base);
-        tempez = GMPy_MPZ_From_Integer(exp);
-        if (!tempbq || !tempez) {
-            Py_XDECREF((PyObject*)tempbq);
-            Py_XDECREF((PyObject*)tempez);
-            return NULL;
-        }
-        if (!mpz_fits_slong_p(tempez->z)) {
-            VALUE_ERROR("mpq.pow() outrageous exponent");
-            Py_DECREF((PyObject*)tempbq);
-            Py_DECREF((PyObject*)tempez);
-            return NULL;
-        }
-        if (!(rq = (MPQ_Object*)Pympq_new())) {
-            Py_DECREF((PyObject*)tempbq);
-            Py_DECREF((PyObject*)tempez);
-            return NULL;
-        }
-        esign = mpz_sgn(tempez->z);
-        if (esign == 0) {
-            mpq_set_si(rq->q, 1, 1);
-            Py_DECREF((PyObject*)tempbq);
-            Py_DECREF((PyObject*)tempez);
-            return (PyObject*)rq;
-        }
-        bsign = mpq_sgn(tempbq->q);
-        if (esign < 0) {
-            if (bsign == 0) {
-                ZERO_ERROR("mpq.pow() 0 base to negative exponent");
-                Py_DECREF((PyObject*)rq);
-                Py_DECREF((PyObject*)tempbq);
-                Py_DECREF((PyObject*)tempez);
-                return NULL;
-            }
-            if (bsign < 0) {
-                mpz_neg(mpq_numref(rq->q), mpq_denref(tempbq->q));
-            }
-            else {
-                mpz_set(mpq_numref(rq->q), mpq_denref(tempbq->q));
-            }
-            mpz_abs(mpq_denref(rq->q), mpq_numref(tempbq->q));
-            tempexp = -mpz_get_si(tempez->z);
-        }
-        else {
-            mpq_set(rq->q, tempbq->q);
-            tempexp = mpz_get_si(tempez->z);
-        }
-        if (tempexp>1) {
-            mpz_pow_ui(mpq_numref(rq->q), mpq_numref(rq->q), tempexp);
-            mpz_pow_ui(mpq_denref(rq->q), mpq_denref(rq->q), tempexp);
-        }
-        Py_DECREF((PyObject*)tempbq);
-        Py_DECREF((PyObject*)tempez);
-        return (PyObject*)rq;
-    }
-    else {
-        tempbf = Pympfr_From_Real_bits_context(base, 0, context);
-        tempef = Pympfr_From_Real_bits_context(exp, 0, context);
-        rf = (MPFR_Object*)Pympfr_new_context(context);
-        if (!tempbf || !tempef || !rf) {
-            TYPE_ERROR("mpq.pow() unsupported operands");
-            Py_XDECREF((PyObject*)tempbf);
-            Py_XDECREF((PyObject*)tempef);
-            Py_XDECREF((PyObject*)rf);
-            return NULL;
-        }
-        rf->rc = mpfr_pow(rf->f, tempbf->f, tempef->f, GET_MPFR_ROUND(context));
-        Py_DECREF((PyObject*)tempbf);
-        Py_DECREF((PyObject*)tempef);
-        return (PyObject*)rf;
-    }
-}
-
 static int
 Pympq_nonzero(MPQ_Object *self)
 {
@@ -1039,7 +950,7 @@ static PyNumberMethods mpq_number_methods =
     (binaryfunc) Pympq_mul_fast,         /* nb_multiply             */
     (binaryfunc) Pympq_mod_fast,         /* nb_remainder            */
     (binaryfunc) Pympq_divmod_fast,      /* nb_divmod               */
-    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
     (unaryfunc) Pympq_neg,               /* nb_negative             */
     (unaryfunc) Pympq_pos,               /* nb_positive             */
     (unaryfunc) GMPy_mpq_abs_fast,       /* nb_absolute             */
@@ -1078,7 +989,7 @@ static PyNumberMethods mpq_number_methods =
     (binaryfunc) Pympq_truediv_fast,     /* nb_divide               */
     (binaryfunc) Pympq_mod_fast,         /* nb_remainder            */
     (binaryfunc) Pympq_divmod_fast,      /* nb_divmod               */
-    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
     (unaryfunc) Pympq_neg,               /* nb_negative             */
     (unaryfunc) Pympq_pos,               /* nb_positive             */
     (unaryfunc) GMPy_mpq_abs_fast,       /* nb_absolute             */
@@ -1141,7 +1052,7 @@ static PyTypeObject MPQ_Type =
         0,                                  /* ob_size          */
 #endif
     "mpq",                                  /* tp_name          */
-    sizeof(MPQ_Object),                    /* tp_basicsize     */
+    sizeof(MPQ_Object),                     /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
     /* methods */
     (destructor) Pympq_dealloc,             /* tp_dealloc       */

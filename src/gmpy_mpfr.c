@@ -818,77 +818,6 @@ Pympfr_hash(MPFR_Object *self)
     return self->hash_cache;
 }
 
-/* This function is used in gmpy_mpany. */
-
-static PyObject *
-Pympfr_Pow_Real(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject *context)
-{
-    MPFR_Object *tempb, *tempe, *result;
-    MPC_Object *mpc_result;
-
-    if (m && m != Py_None) {
-        TYPE_ERROR("pow() 3rd argument not allowed unless all arguments are integers");
-        return NULL;
-    }
-
-    tempb = Pympfr_From_Real_bits_context(base, 0, context);
-    tempe = Pympfr_From_Real_bits_context(exp, 0, context);
-
-    if (!tempe || !tempb) {
-        Py_XDECREF((PyObject*)tempe);
-        Py_XDECREF((PyObject*)tempb);
-        Py_RETURN_NOTIMPLEMENTED;
-    }
-
-    result = (MPFR_Object*)Pympfr_new_context(context);
-
-    if (!result) {
-        Py_DECREF((PyObject*)tempe);
-        Py_DECREF((PyObject*)tempb);
-        return NULL;
-    }
-
-    if (mpfr_zero_p(tempb->f) && (mpfr_sgn(tempe->f) < 0)) {
-        context->ctx.divzero = 1;
-        if (context->ctx.traps & TRAP_DIVZERO) {
-            GMPY_DIVZERO("zero cannot be raised to a negative power");
-            goto done;
-        }
-    }
-
-    mpfr_clear_flags();
-    result->rc = mpfr_pow(result->f, tempb->f,
-                          tempe->f, GET_MPFR_ROUND(context));
-    if (result && mpfr_nanflag_p() && context->ctx.allow_complex) {
-        /* If we don't get a valid result, or the result is a nan, then just
-         * return the original mpfr value. */
-        if (!(mpc_result = (MPC_Object*)Pympc_Pow_Complex(base, exp, m, context)) ||
-            MPC_IS_NAN_P(mpc_result)) {
-
-            Py_XDECREF((PyObject*)mpc_result);
-            context->ctx.invalid = 1;
-            GMPY_INVALID("invalid operation in 'mpfr' pow()");
-            goto done;
-        }
-        /* return a valid complex result */
-        Py_DECREF(result);
-        result = (MPFR_Object*)mpc_result;
-        goto done;
-    }
-
-    SUBNORMALIZE(result)
-    MERGE_FLAGS
-    CHECK_FLAGS("pow()")
-  done:
-    Py_DECREF((PyObject*)tempe);
-    Py_DECREF((PyObject*)tempb);
-    if (PyErr_Occurred()) {
-        Py_XDECREF((PyObject*)result);
-        result = NULL;
-    }
-    return (PyObject*)result;
-}
-
 #define MPFR_CONST(NAME) \
 static PyObject * \
 Pympfr_##NAME(PyObject *self, PyObject *args, PyObject *keywds) \
@@ -3471,7 +3400,7 @@ static PyNumberMethods mpfr_number_methods =
     (binaryfunc) Pympfr_mul_fast,        /* nb_multiply             */
     (binaryfunc) Pympfr_mod_fast,        /* nb_remainder            */
     (binaryfunc) Pympfr_divmod_fast,     /* nb_divmod               */
-    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
     (unaryfunc) Pympfr_neg_fast,         /* nb_negative             */
     (unaryfunc) Pympfr_pos,              /* nb_positive             */
     (unaryfunc) GMPy_mpfr_abs_fast,      /* nb_absolute             */
@@ -3510,7 +3439,7 @@ static PyNumberMethods mpfr_number_methods =
     (binaryfunc) Pympfr_truediv_fast,    /* nb_divide               */
     (binaryfunc) Pympfr_mod_fast,        /* nb_remainder            */
     (binaryfunc) Pympfr_divmod_fast,     /* nb_divmod               */
-    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
     (unaryfunc) Pympfr_neg_fast,         /* nb_negative             */
     (unaryfunc) Pympfr_pos,              /* nb_positive             */
     (unaryfunc) GMPy_mpfr_abs_fast,      /* nb_absolute             */
@@ -3581,7 +3510,7 @@ static PyTypeObject MPFR_Type =
     0,                                      /* ob_size          */
 #endif
     "mpfr",                                 /* tp_name          */
-    sizeof(MPFR_Object),                   /* tp_basicsize     */
+    sizeof(MPFR_Object),                    /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
     /* methods */
     (destructor) Pympfr_dealloc,            /* tp_dealloc       */

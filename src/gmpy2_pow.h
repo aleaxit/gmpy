@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_mpq.h                                                              *
+ * gmpy2_pow.h                                                              *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -25,46 +25,20 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef GMPY_MPQ_H
-#define GMPY_MPQ_H
+#ifndef GMPY2_POW_H
+#define GMPY2_POW_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct {
-    PyObject_HEAD
-    mpq_t q;
-    Py_hash_t  hash_cache;
-} MPQ_Object;
-
-#define MPQ(obj) (((MPQ_Object *)(obj))->q)
-
-static PyTypeObject MPQ_Type;
-#define MPQ_Check(v) (((PyObject*)v)->ob_type == &MPQ_Type)
-
-static PyObject * Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds);
-static PyObject * Pympq_digits(PyObject *self, PyObject *args);
-static PyObject * Pympq_sign(PyObject *self, PyObject *other);
-static PyObject * Pympq_numer(PyObject *self, PyObject *args);
-static PyObject * Pympq_getnumer(MPQ_Object *self, void *closure);
-static PyObject * Pympq_denom(PyObject *self, PyObject *args);
-static PyObject * Pympq_getdenom(MPQ_Object *self, void *closure);
-static PyObject * Pympq_qdiv(PyObject *self, PyObject *args);
-static PyObject * Pympq_neg(MPQ_Object *self);
-static PyObject * Pympq_pos(MPQ_Object *self);
-static PyObject * Pympq_ceil(PyObject *self, PyObject *other);
-static PyObject * Pympq_floor(PyObject *self, PyObject *other);
-static PyObject * Pympq_trunc(PyObject *self, PyObject *other);
-static PyObject * Pympq_square(PyObject *self, PyObject *other);
-static int Pympq_nonzero(MPQ_Object *x);
-static Py_hash_t Pympq_hash(MPQ_Object *self);
-
-static PyObject * Pympq_Mul_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * Pympq_FloorDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * Pympq_TrueDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * Pympq_Mod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * Pympq_DivMod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context);
+static PyObject * GMPy_Integer_Pow(PyObject *b, PyObject *e, PyObject *m, GMPyContextObject *context);
+static PyObject * GMPy_Rational_Pow(PyObject *base, PyObject *exp, GMPyContextObject *context);
+static PyObject * GMPy_Real_Pow(PyObject *base, PyObject *exp, GMPyContextObject *context);
+static PyObject * GMPy_Complex_Pow(PyObject *base, PyObject *exp, GMPyContextObject *context);
+static PyObject * GMPy_Integer_PowMod(PyObject *self, PyObject *args);
+static PyObject * GMPy_Context_Pow(PyObject *self, PyObject *args);
+static PyObject * GMPy_mpany_pow_fast(PyObject *base, PyObject *exp, PyObject *mod);
 
 #ifdef __cplusplus
 }

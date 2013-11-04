@@ -575,62 +575,6 @@ Pympc_sqr(PyObject* self, PyObject *other)
     MPC_CLEANUP(result, "square()");
 }
 
-static PyObject *
-Pympc_Pow_Complex(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject *context)
-{
-    MPC_Object *tempb, *tempe, *result;
-
-    if (m && m != Py_None) {
-        TYPE_ERROR("pow() 3rd argument not allowed unless all arguments are integers");
-        return NULL;
-    }
-
-    tempb = Pympc_From_Complex_context(base, context);
-    tempe = Pympc_From_Complex_context(exp, context);
-
-    if (!tempe || !tempb) {
-        Py_XDECREF((PyObject*)tempe);
-        Py_XDECREF((PyObject*)tempb);
-        Py_RETURN_NOTIMPLEMENTED;
-    }
-
-    result = (MPC_Object*)Pympc_new_context(context);
-
-    if (!result) {
-        Py_DECREF((PyObject*)tempe);
-        Py_DECREF((PyObject*)tempb);
-        return NULL;
-    }
-
-    if (MPC_IS_ZERO_P(tempb) && MPC_IS_ZERO_P(tempe)) {
-        mpc_set_ui(result->c, 1, GET_MPC_ROUND(context));
-        Py_DECREF((PyObject*)tempe);
-        Py_DECREF((PyObject*)tempb);
-        return (PyObject*)result;
-    }
-
-    if (MPC_IS_ZERO_P(tempb) &&
-        (!mpfr_zero_p(mpc_imagref(tempe->c)) ||
-         mpfr_sgn(mpc_realref(tempe->c)) < 0)) {
-
-        context->ctx.divzero = 1;
-        if (context->ctx.traps & TRAP_DIVZERO) {
-            GMPY_DIVZERO("zero cannot be raised to a negative or complex power");
-            Py_DECREF((PyObject*)tempe);
-            Py_DECREF((PyObject*)tempb);
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-    }
-
-    result->rc = mpc_pow(result->c, tempb->c,
-                         tempe->c, GET_MPC_ROUND(context));
-    Py_DECREF((PyObject*)tempe);
-    Py_DECREF((PyObject*)tempb);
-
-    MPC_CLEANUP(result, "pow()");
-}
-
 /* Implement the conjugate() method. */
 
 PyDoc_STRVAR(doc_mpc_conjugate,
@@ -1384,7 +1328,7 @@ static PyNumberMethods mpc_number_methods =
     (binaryfunc) Pympc_mul_fast,         /* nb_multiply             */
     (binaryfunc) Pympc_mod_fast,         /* nb_remainder            */
     (binaryfunc) Pympc_divmod_fast,      /* nb_divmod               */
-    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
     (unaryfunc) Pympc_neg,               /* nb_negative             */
     (unaryfunc) Pympc_pos,               /* nb_positive             */
     (unaryfunc) GMPy_mpc_abs_fast,       /* nb_absolute             */
@@ -1423,7 +1367,7 @@ static PyNumberMethods mpc_number_methods =
     (binaryfunc) Pympc_truediv_fast,     /* nb_divide               */
     (binaryfunc) Pympc_mod_fast,         /* nb_remainder            */
     (binaryfunc) Pympc_divmod_fast,      /* nb_divmod               */
-    (ternaryfunc) Pympany_pow,           /* nb_power                */
+    (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
     (unaryfunc) Pympc_neg,               /* nb_negative             */
     (unaryfunc) Pympc_pos,               /* nb_positive             */
     (unaryfunc) GMPy_mpc_abs_fast,       /* nb_absolute             */
