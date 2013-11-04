@@ -60,8 +60,6 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
         n = PyTuple_GetItem(args, 0);
         if (isReal(n) && !keywds) {
             result = GMPy_MPZ_From_Number(n);
-            if (!result)
-                TYPE_ERROR("mpz() requires numeric or string argument");
             return (PyObject*)result;
         }
     }
@@ -871,141 +869,6 @@ Pympz_square(PyObject *self, PyObject *other)
         }
     }
     return (PyObject*)result;
-}
-
-/* Pympz_Pow_Integer is called by Pympany_pow after verifying that all the
- * arguments are integers, but not necessarily mpz. The context argument is
- * current not used.
- *
- * Notes on arguments.
- *
- * Passing in a NULL for the modulus is equivalent to passing in Py_None.
- *
- * Passing in a NULL for context is currently done by powmod(). If context is
- * used in the future, either powmod() must change or context must be checked
- * for NULL.
- */
-
-static PyObject *
-Pympz_Pow_Integer(PyObject *b, PyObject *e, PyObject *m, GMPyContextObject *context)
-{
-    MPZ_Object *result, *tempb = 0, *tempe = 0, *tempm = 0;
-    int has_mod = 1;
-
-    if (m || m == Py_None)
-        has_mod = 0;
-
-    if (!(result = GMPy_MPZ_New()))
-        return NULL;
-
-    tempb = GMPy_MPZ_From_Integer(b);
-    tempe = GMPy_MPZ_From_Integer(e);
-
-    /* m will either be a number or Py_None. */
-    if (has_mod) {
-        tempm = GMPy_MPZ_From_Integer(m);
-    }
-
-    if (!tempb || !tempe || (!tempm && has_mod)) {
-        TYPE_ERROR("Unsupported operand in pow()");
-        goto err;
-    }
-
-    if (!has_mod) {
-        /* When no modulo is present, the exponent must fit in mpir_ui
-         * the exponent must be positive.
-         */
-        mpir_ui el;
-        if (mpz_sgn(tempe->z) < 0) {
-            VALUE_ERROR("pow() exponent cannot be negative");
-            goto err;
-        }
-        if (!mpz_fits_ui_p(tempe->z)) {
-            VALUE_ERROR("pow() outrageous exponent");
-            goto err;
-        }
-        el = mpz_get_ui(tempe->z);
-        mpz_pow_ui(result->z, tempb->z, el);
-    }
-    else { /* Modulo exponentiation */
-        int sign;
-        mpz_t mm, base, exp;
-
-        sign = mpz_sgn(tempm->z);
-        if (sign == 0) {
-            VALUE_ERROR("pow() 3rd argument cannot be 0");
-            goto err;
-        }
-        mpz_inoc(mm);
-        mpz_abs(mm, tempm->z);
-        /* A negative exponent is allowed if inverse exists. */
-        if (mpz_sgn(tempe->z) < 0) {
-            mpz_inoc(base);
-            mpz_inoc(exp);
-            if (!mpz_invert(base, tempb->z, mm)) {
-                VALUE_ERROR("pow() base not invertible");
-                mpz_cloc(base);
-                mpz_cloc(exp);
-                mpz_cloc(mm);
-                goto err;
-            }
-            else {
-                mpz_abs(exp, tempe->z);
-            }
-            mpz_powm(result->z, base, exp, mm);
-            mpz_cloc(base);
-            mpz_cloc(exp);
-        }
-        else {
-            mpz_powm(result->z, tempb->z, tempe->z, mm);
-        }
-        mpz_cloc(mm);
-
-        /* Python uses a rather peculiar convention for negative modulos
-         * If the modulo is negative, result should be in the interval
-         * m < r <= 0 .
-         */
-        if ((sign<0) && (mpz_sgn(MPZ(result)) > 0)) {
-            mpz_add(result->z, result->z, tempm->z);
-        }
-    }
-    Py_XDECREF((PyObject*)tempb);
-    Py_XDECREF((PyObject*)tempe);
-    Py_XDECREF((PyObject*)tempm);
-    return (PyObject*)result;
-
-  err:
-    Py_XDECREF((PyObject*)tempb);
-    Py_XDECREF((PyObject*)tempe);
-    Py_XDECREF((PyObject*)tempm);
-    Py_DECREF((PyObject*)result);
-    return NULL;
-}
-
-PyDoc_STRVAR(doc_gmpy_powmod,
-"powmod(x, y, m) -> mpz\n\n"
-"Return (x**y) mod m. Same as the three argument version of Python's\n"
-"built-in pow(), but converts all three arguments to mpz.");
-
-static PyObject *
-Pympz_powmod(PyObject *self, PyObject *args)
-{
-    PyObject *x, *y, *m;
-
-    if (PyTuple_GET_SIZE(args) != 3) {
-        TYPE_ERROR("powmod() requires 3 arguments.");
-        return NULL;
-    }
-
-    x = PyTuple_GET_ITEM(args, 0);
-    y = PyTuple_GET_ITEM(args, 1);
-    m = PyTuple_GET_ITEM(args, 2);
-
-    if (IS_INTEGER(x) && IS_INTEGER(y) && IS_INTEGER(m))
-        return Pympz_Pow_Integer(x, y, m, NULL);
-
-    TYPE_ERROR("powmod() argument types not supported");
-    return NULL;
 }
 
 static int
@@ -2874,7 +2737,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pympz_mul_fast,         /* nb_multiply             */
     (binaryfunc) Pympz_mod_fast,         /* nb_remainder            */
     (binaryfunc) Pympz_divmod_fast,      /* nb_divmod               */
-    (ternaryfunc) Pympany_pow_fast,      /* nb_power                */
+    (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
     (unaryfunc) Pympz_neg,               /* nb_negative             */
     (unaryfunc) Pympz_pos,               /* nb_positive             */
     (unaryfunc) GMPy_mpz_abs_fast,       /* nb_absolute             */
@@ -2914,7 +2777,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) Pympz_div2_fast,        /* nb_divide               */
     (binaryfunc) Pympz_mod_fast,         /* nb_remainder            */
     (binaryfunc) Pympz_divmod_fast,      /* nb_divmod               */
-    (ternaryfunc) Pympany_pow_fast,      /* nb_power                */
+    (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
     (unaryfunc) Pympz_neg,               /* nb_negative             */
     (unaryfunc) Pympz_pos,               /* nb_positive             */
     (unaryfunc) GMPy_mpz_abs_fast,       /* nb_absolute             */

@@ -411,7 +411,6 @@ static PyObject * Pympc_FloorDiv_Complex(PyObject *x, PyObject *y, GMPyContextOb
 static PyObject * Pympc_TrueDiv_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympc_Mod_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympc_DivMod_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * Pympc_Pow_Complex(PyObject *base, PyObject *exp, PyObject *m, GMPyContextObject *context);
 
 #ifdef __cplusplus
 }

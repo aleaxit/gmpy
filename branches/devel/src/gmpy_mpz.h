@@ -117,7 +117,6 @@ static PyObject * Pympz_FloorDiv_Integer(PyObject *x, PyObject *y, GMPyContextOb
 static PyObject * Pympz_TrueDiv_Integer(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympz_Mod_Integer(PyObject *x, PyObject *y, GMPyContextObject *context);
 static PyObject * Pympz_DivMod_Integer(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * Pympz_Pow_Integer(PyObject *b, PyObject *e, PyObject *m, GMPyContextObject *context);
 
 
 #ifdef __cplusplus
