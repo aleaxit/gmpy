@@ -581,68 +581,6 @@ Pympq_hash(MPQ_Object *self)
 #endif
 }
 
-/* Multiply two Rational objects (see convert.c/isRational). Returns None and
- * raises TypeError if both objects are not valid rationals. Pympq_Add_Rational
- * is intended to be called from Pympany_Add_Number. */
-
-static PyObject *
-Pympq_Mul_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
-{
-    MPQ_Object *result;
-
-    if (!(result = (MPQ_Object*)Pympq_new()))
-        return NULL;
-
-    if (MPQ_Check(x) && MPQ_Check(y)) {
-        mpq_mul(result->q, MPQ(x), MPQ(y));
-        return (PyObject*)result;
-    }
-
-    if (isRational(x) && isRational(y)) {
-        MPQ_Object *tempx, *tempy;
-
-        tempx = Pympq_From_Number(x);
-        tempy = Pympq_From_Number(y);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("Could not convert Rational to mpq.");
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-
-        mpq_mul(result->q, tempx->q, tempy->q);
-        Py_DECREF((PyObject*)tempx);
-        Py_DECREF((PyObject*)tempy);
-        return (PyObject*)result;
-    }
-
-    Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-/* Implement __mul__ for Pympq. On entry, one of the two arguments must
- * be a Pympq. If the other object is a Rational, add and return a Pympq.
- * If the other object isn't a Pympq, call the appropriate function. If
- * no appropriate function can be found, return NotImplemented. */
-
-static PyObject *
-Pympq_mul_fast(PyObject *x, PyObject *y)
-{
-    GMPyContextObject *context;
-
-    CURRENT_CONTEXT(context);
-
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return Pympq_Mul_Rational(x, y, context);
-    else if (IS_REAL(x) && IS_REAL(y))
-        return Pympfr_Mul_Real(x, y, context);
-    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return Pympc_Mul_Complex(x, y, context);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
 /* Divide two Rational objects (see convert.c/isRational). Returns None and
  * raises TypeError if both objects are not valid rationals. */
 
@@ -947,7 +885,7 @@ static PyNumberMethods mpq_number_methods =
 {
     (binaryfunc) GMPy_mpq_add_fast,      /* nb_add                  */
     (binaryfunc) GMPy_mpq_sub_fast,      /* nb_subtract             */
-    (binaryfunc) Pympq_mul_fast,         /* nb_multiply             */
+    (binaryfunc) GMPy_mpq_mul_fast,      /* nb_multiply             */
     (binaryfunc) Pympq_mod_fast,         /* nb_remainder            */
     (binaryfunc) Pympq_divmod_fast,      /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
@@ -985,7 +923,7 @@ static PyNumberMethods mpq_number_methods =
 {
     (binaryfunc) GMPy_mpq_add_fast,      /* nb_add                  */
     (binaryfunc) GMPy_mpq_sub_fast,      /* nb_subtract             */
-    (binaryfunc) Pympq_mul_fast,         /* nb_multiply             */
+    (binaryfunc) GMPy_mpq_mul_fast,      /* nb_multiply             */
     (binaryfunc) Pympq_truediv_fast,     /* nb_divide               */
     (binaryfunc) Pympq_mod_fast,         /* nb_remainder            */
     (binaryfunc) Pympq_divmod_fast,      /* nb_divmod               */

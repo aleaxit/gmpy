@@ -1111,65 +1111,6 @@ Pympc_hash(MPC_Object *self)
     return (Py_hash_t)combined;
 }
 
-/* Pympc_Mul_Complex(x, y, context) returns x*y using the provided context. If
- * an error occurs, NULL is returned and an exception is set. If either x or
- * y can't be converted to an mpc, then Py_NotImplemented is returned. */
-
-static PyObject *
-Pympc_Mul_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
-{
-    MPC_Object *result = NULL;
-
-    if (!(result = (MPC_Object*)Pympc_new_bits_context(0, 0, context)))
-        return NULL;
-
-    if (MPC_CheckAndExp(x) && MPC_CheckAndExp(y)) {
-        result->rc = mpc_mul(result->c, MPC(x), MPC(y),
-                             GET_MPC_ROUND(context));
-        goto done;
-    }
-
-    if (isComplex(x) && isComplex(y)) {
-        MPC_Object *tempx, *tempy;
-
-        tempx = Pympc_From_Complex_bits_context(x, 0, 0, context);
-        tempy = Pympc_From_Complex_bits_context(y, 0, 0, context);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("Can not convert Complex to 'mpc'");
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        result->rc = mpc_mul(result->c, tempx->c, tempy->c, GET_MPC_ROUND(context));
-        Py_DECREF((PyObject*)tempx);
-        Py_DECREF((PyObject*)tempy);
-        goto done;
-    }
-
-    Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
-
-  done:
-    MPC_CLEANUP_RESULT("multiplication");
-    return (PyObject*)result;
-}
-
-/* Pympc_mul_fast() is called by mpc.__mul__. It just gets a borrowed reference
- * to the current context and call Pympc_Mul_Complex(). Since mpc is the last
- * step of the numeric ladder, the NotImplemented return value from
- * Pympc_Add_Complex() is correct and is just passed on. */
-
-static PyObject *
-Pympc_mul_fast(PyObject *x, PyObject *y)
-{
-    GMPyContextObject *context;
-
-    CURRENT_CONTEXT(context);
-
-    return Pympc_Mul_Complex(x, y, context);
-}
-
 /* For consistency, provide a Pympc_FloorDiv_Complex that just returns a
  * TypeError. */
 
@@ -1325,7 +1266,7 @@ static PyNumberMethods mpc_number_methods =
 {
     (binaryfunc) GMPy_mpc_add_fast,      /* nb_add                  */
     (binaryfunc) GMPy_mpc_sub_fast,      /* nb_subtract             */
-    (binaryfunc) Pympc_mul_fast,         /* nb_multiply             */
+    (binaryfunc) GMPy_mpc_mul_fast,      /* nb_multiply             */
     (binaryfunc) Pympc_mod_fast,         /* nb_remainder            */
     (binaryfunc) Pympc_divmod_fast,      /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
@@ -1363,7 +1304,7 @@ static PyNumberMethods mpc_number_methods =
 {
     (binaryfunc) GMPy_mpc_add_fast,      /* nb_add                  */
     (binaryfunc) GMPy_mpc_sub_fast,      /* nb_subtract             */
-    (binaryfunc) Pympc_mul_fast,         /* nb_multiply             */
+    (binaryfunc) GMPy_mpc_mul_fast,      /* nb_multiply             */
     (binaryfunc) Pympc_truediv_fast,     /* nb_divide               */
     (binaryfunc) Pympc_mod_fast,         /* nb_remainder            */
     (binaryfunc) Pympc_divmod_fast,      /* nb_divmod               */
@@ -1421,7 +1362,7 @@ static PyTypeObject MPC_Type =
     0,                                      /* ob_size          */
 #endif
     "mpc",                                  /* tp_name          */
-    sizeof(MPC_Object),                    /* tp_basicsize     */
+    sizeof(MPC_Object),                     /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
     /* methods */
     (destructor) Pympc_dealloc,             /* tp_dealloc       */
