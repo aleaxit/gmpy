@@ -87,7 +87,7 @@ static PyTypeObject GMPyContextManager_Type;
 #ifdef WITHOUT_THREADS
 #define CURRENT_CONTEXT(obj) obj = module_context;
 #else
-#define CURRENT_CONTEXT(obj) obj = GMPyContext_current()
+#define CURRENT_CONTEXT(obj) obj = GMPyContext_current();
 #endif
 
 #define GMPyContext_Check(v) (((PyObject*)v)->ob_type == &GMPyContext_Type)
@@ -102,9 +102,18 @@ static PyTypeObject GMPyContextManager_Type;
 #define GET_MPC_ROUND(c) (MPC_RND(GET_REAL_ROUND(c), GET_IMAG_ROUND(c)))
 
 #define SET_EXPONENT(context) \
-    mpfr_set_emin(context->ctx.emin); \
-    mpfr_set_emax(context->ctx.emax);
+    if (mpfr_set_emin(context->ctx.emin)) { \
+        VALUE_ERROR("value for exponent too low"); \
+        return NULL; \
+    } \
+    if (mpfr_set_emax(context->ctx.emax)) { \
+        VALUE_ERROR("value for exponent too high"); \
+        return NULL; \
+    }
 
+#define CHECK_CONTEXT_SET_EXPONENT(context) \
+    CURRENT_CONTEXT(context); \
+    SET_EXPONENT(context);
 
 static PyObject * GMPyContextManager_new(void);
 static void GMPyContextManager_dealloc(GMPyContextManagerObject *self);

@@ -210,7 +210,7 @@ static MPFR_Object *    Pympfr_From_Decimal(PyObject *obj, mpfr_prec_t bits);
 static MPFR_Object *    Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
 
 static MPZ_Object   *   Pympfr_To_Pympz(PyObject *self);
-static XMPZ_Object *   Pympfr_To_Pyxmpz(PyObject *self);
+static XMPZ_Object *    Pympfr_To_Pyxmpz(PyObject *self);
 static MPQ_Object  *    Pympfr_To_Pympq(PyObject *self);
 static PyObject *       Pympfr_To_PyLong(MPFR_Object *self);
 static PyObject *       Pympfr_To_PyFloat(MPFR_Object *self);

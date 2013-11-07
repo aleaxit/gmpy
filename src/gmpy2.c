@@ -633,7 +633,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "num_digits", Pympz_num_digits, METH_VARARGS, doc_num_digitsg },
     { "pack", Pygmpy_pack, METH_VARARGS, doc_gmpy_pack },
     { "popcount", Pympz_popcount, METH_O, doc_popcountg },
-    { "powmod", GMPy_Integer_PowMod, METH_VARARGS, doc_integer_powmod },
+    { "powmod", GMPy_Integer_PowMod, METH_VARARGS, GMPy_doc_integer_powmod },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivg },
     { "remove", Pympz_remove, METH_VARARGS, doc_removeg },
     { "iroot", Pympz_iroot, METH_VARARGS, doc_mpz_iroot },

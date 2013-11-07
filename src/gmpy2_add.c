@@ -25,31 +25,28 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* This file implements the + operator and context.add().
+/* This file implements the + operator, gmpy2.add(), and context.add().
  *
  * Private API
  * ===========
- * The Python + operator calls the nb_add slot of a numeric type. This
- * file implements the following private functions:
- *
  *   GMPy_mpz_add_fast; called by + via the nb_add slot of mpz
  *   GMPy_mpq_add_fast; called by + via the nb_add slot of mpq
  *   GMPy_mpfr_add_fast; called by + via the nb_add slot of mpfr
  *   GMPy_mpc_add_fast; called by + via the nb_add slot of mpc
  *
- *   GMPy_Context_Add; called by context.add()
- *
- * Public API
- * ==========
- * The following functions are availabe as part of GMPY2's C API. A NULL value
- * for context implies the function should use the currently active context.
- * The first four functions check the type of the first argument and will set
- * an exception and return NULL if the check fails.
- *
  *   GMPy_Integer_Add(Integer, Integer, context|NULL)
  *   GMPy_Rational_Add(Rational, Rational, context|NULL)
  *   GMPy_Real_Add(Real, Real, context|NULL)
  *   GMPy_Complex_Add(Complex, Complex, context|NULL)
+ *
+ *   GMPy_Context_Add
+ *
+ * Public API
+ * ==========
+ * The following function will be availabe as part of GMPY2's C API. A NULL
+ * value for context implies the function should use the currently active
+ * context.
+ *
  *   GMPy_Number_Add(Number, Number, context|NULL)
  *
  */
@@ -112,11 +109,11 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, GMPyContextObject *context)
         }
     }
 
-    if (PyIntOrLong_Check(x) && PyIntOrLong_Check(y)) {
+    if (IS_INTEGER(x) && IS_INTEGER(y)) {
         MPZ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPZ_From_PyLong(x);
-        tempy = GMPy_MPZ_From_PyLong(y);
+        tempx = GMPy_MPZ_From_Integer(x);
+        tempy = GMPy_MPZ_From_Integer(y);
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -159,7 +156,7 @@ GMPy_mpz_add_fast(PyObject *x, PyObject *y)
 }
 
 /* Add two Rational objects (see convert.c/isRational). Returns None and
- * raises TypeError if both objects are not valid rationals. Pympq_Add_Rational
+ * raises TypeError if both objects are not valid rationals. GMPy_Rational_Add
  * is intended to be called from GMPy_Number_Add(). */
 
 static PyObject *
@@ -175,7 +172,7 @@ GMPy_Rational_Add(PyObject *x, PyObject *y, GMPyContextObject *context)
         return (PyObject*)result;
     }
 
-    if (isRational(x) && isRational(y)) {
+    if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx, *tempy;
 
         tempx = Pympq_From_Number(x);
