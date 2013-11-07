@@ -453,9 +453,6 @@ GMPy_mpc_mul_fast(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Number_Mul(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
-    if (!context)
-        CURRENT_CONTEXT(context);
-
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Mul(x, y, context);
 

@@ -2524,11 +2524,6 @@ GMPy_MPFR_From_Real_Temp(PyObject *obj, GMPyContextObject *context)
 {
     MPFR_Object *result = NULL;
 
-    if (!context)
-        CURRENT_CONTEXT(context);
-
-    SET_EXPONENT(context);
-
     /* Check if obj is an mpfr and exponent is valid. */
 
     if (MPFR_CheckAndExp(obj)) {
@@ -3619,11 +3614,6 @@ static MPC_Object *
 GMPy_MPC_From_Complex_Temp(PyObject* obj, GMPyContextObject *context)
 {
     MPC_Object* result = NULL;
-
-    if (!context)
-        CURRENT_CONTEXT(context);
-
-    SET_EXPONENT(context);
 
     /* Check if obj is an mpc and the exponents are valid. */
 

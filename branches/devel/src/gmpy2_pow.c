@@ -352,7 +352,7 @@ GMPy_Complex_Pow(PyObject *base, PyObject *exp, GMPyContextObject *context)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_integer_powmod,
+PyDoc_STRVAR(GMPy_doc_integer_powmod,
 "powmod(x, y, m) -> mpz\n\n"
 "Return (x**y) mod m. Same as the three argument version of Python's\n"
 "built-in pow(), but converts all three arguments to mpz.");
