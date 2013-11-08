@@ -497,7 +497,10 @@ static PyObject *GMPyExc_ExpBound = NULL;
 
 /* Support for conversions to/from numeric types. */
 
-#include "gmpy_convert.c"
+#include "gmpy2_convert.c"
+#include "gmpy2_convert_gmp.c"
+#include "gmpy2_convert_mpfr.c"
+#include "gmpy2_convert_mpc.c"
 
 /* Include the module-level methods that call the type-specific methods. */
 

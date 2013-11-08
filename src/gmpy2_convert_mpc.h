@@ -25,8 +25,8 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef GMPY_CONVERT_H
-#define GMPY_CONVERT_H
+#ifndef GMPY2_CONVERT_H
+#define GMPY2_CONVERT_H
 
 #ifdef __cplusplus
 extern "C" {

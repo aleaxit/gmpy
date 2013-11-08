@@ -265,7 +265,10 @@ typedef long                mpir_si;
 #  error gmpy2 requires MPC 1.0.0 or later
 #endif
 
-#include "gmpy_convert.h"
+#include "gmpy2_convert.h"
+#include "gmpy2_convert_gmp.h"
+#include "gmpy2_convert_mpfr.h"
+#include "gmpy2_convert_mpc.h"
 
 /* Support object caching, creation, and deletion. */
 
