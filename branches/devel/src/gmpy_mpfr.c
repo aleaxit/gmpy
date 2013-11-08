@@ -116,7 +116,7 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
     }
 
     /* Optimize the common case */
-    if (isReal(arg0) && argc == 1 && !keywds) {
+    if (IS_REAL(arg0) && argc == 1 && !keywds) {
         result = Pympfr_From_Real(arg0, bits);
         SUBNORMALIZE(result);
         return (PyObject*)result;
@@ -1798,7 +1798,7 @@ Pympfr_FloorDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
             goto done;
         }
 
-        if (isRational(y) || isDecimal(y)) {
+        if (IS_RATIONAL(y) || IS_DECIMAL(y)) {
             MPQ_Object *tempy;
 
             if (!(tempy = Pympq_From_Number(y))) {
@@ -1950,7 +1950,7 @@ Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
             goto done;
         }
 
-        if (isRational(y) || isDecimal(y)) {
+        if (IS_RATIONAL(y) || IS_DECIMAL(y)) {
             MPQ_Object *tempy;
 
             if (!(tempy = Pympq_From_Number(y))) {

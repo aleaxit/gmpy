@@ -764,10 +764,10 @@ Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
     else if (XMPZ_Check(obj)) {
         newob = Pympfr_From_Pyxmpz(obj, bits);
     }
-    else if (isDecimal(obj)) {
+    else if (IS_DECIMAL(obj)) {
         newob = Pympfr_From_Decimal(obj, bits);
     }
-    else if (isFraction(obj)) {
+    else if (IS_FRACTION(obj)) {
         temp = Pympq_From_Fraction(obj);
         if (temp) {
             newob = Pympfr_From_Pympq((PyObject*)temp, bits);
@@ -847,10 +847,10 @@ GMPy_MPFR_From_Real_Temp(PyObject *obj, GMPyContextObject *context)
     if (XMPZ_Check(obj))
         return Pympfr_From_Pyxmpz_context(obj, 0, context);
 
-    if (isDecimal(obj))
+    if (IS_DECIMAL(obj))
         return Pympfr_From_Decimal_context(obj, 0, context);
 
-    if (isFraction(obj)) {
+    if (IS_FRACTION(obj)) {
         MPQ_Object *tempq = NULL;
 
         if ((tempq = Pympq_From_Fraction(obj))) {
@@ -918,10 +918,10 @@ Pympfr_From_Real_bits_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject
     else if (XMPZ_Check(obj)) {
         newob = Pympfr_From_Pyxmpz_context(obj, bits, context);
     }
-    else if (isDecimal(obj)) {
+    else if (IS_DECIMAL(obj)) {
         newob = Pympfr_From_Decimal_context(obj, bits, context);
     }
-    else if (isFraction(obj)) {
+    else if (IS_FRACTION(obj)) {
         temp = Pympq_From_Fraction(obj);
         if (temp) {
             newob = Pympfr_From_Pympq_bits_context((PyObject*)temp, bits, context);

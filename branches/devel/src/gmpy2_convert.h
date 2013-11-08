@@ -39,44 +39,51 @@ extern "C" {
  * implemented as macros in the future.
  */
 #ifdef PY2
-#define IS_INTEGER_ONLY(x) (MPZ_Check(x) || PyInt_Check(x) || PyLong_Check(x) || XMPZ_Check(x))
+#define IS_INTEGER(x) (MPZ_Check(x) || PyInt_Check(x) || PyLong_Check(x) || XMPZ_Check(x))
 #else
-#define IS_INTEGER_ONLY(x) (MPZ_Check(x) || PyLong_Check(x) || XMPZ_Check(x))
+#define IS_INTEGER(x) (MPZ_Check(x) || PyLong_Check(x) || XMPZ_Check(x))
 #endif
-#define IS_INTEGER(x) IS_INTEGER_ONLY(x)
 
-#define IS_RATIONAL_ONLY(x) (MPQ_Check(x) || (!strcmp(Py_TYPE(x)->tp_name, "Fraction")))
+#define IS_FRACTION(x) (!strcmp(Py_TYPE(x)->tp_name, "Fraction"))
+
+#define IS_RATIONAL_ONLY(x) (MPQ_Check(x) || IS_FRACTION(x))
 #define IS_RATIONAL(x) (IS_INTEGER(x) || IS_RATIONAL_ONLY(x))
 
 #if PY_VERSION_HEX < 0x03030000
-#define IS_DECIMAL_ONLY(x) (!strcmp(Py_TYPE(x)->tp_name, "Decimal"))
+#define IS_DECIMAL(x) (!strcmp(Py_TYPE(x)->tp_name, "Decimal"))
 #else
-#define IS_DECIMAL_ONLY(x) (!strcmp(Py_TYPE(x)->tp_name, "decimal.Decimal"))
+#define IS_DECIMAL(x) (!strcmp(Py_TYPE(x)->tp_name, "decimal.Decimal"))
 #endif
 
-#define IS_REAL_ONLY(x) (MPFR_Check(x) || PyFloat_Check(x) || IS_DECIMAL_ONLY(x))
+#define IS_REAL_ONLY(x) (MPFR_Check(x) || PyFloat_Check(x) || IS_DECIMAL(x))
 #define IS_REAL(x) (IS_RATIONAL(x) || IS_REAL_ONLY(x))
 
 #define IS_COMPLEX_ONLY(x) (MPC_Check(x) || PyComplex_Check(x))
 #define IS_COMPLEX(x) (IS_REAL(x) || IS_COMPLEX_ONLY(x))
 
+/* Since the macros are used in gmpy2's codebase, these functions are skipped
+ * until they are needed for the C API in the future.
+ */
+
+#if 0
 /* Checks for mpz, xmpz, and the integer types included with Python. */
-static int isInteger(PyObject* obj);
+static int GMPy_isInteger(PyObject *obj);
 
 /* Checks for the Fraction type included with Python. */
-static int isFraction(PyObject* obj);
+static int GMPy_isFraction(PyObject *obj);
 
 /* Combined mpq, isInteger() and isFraction() check. */
-static int isRational(PyObject* obj);
+static int GMPy_isRational(PyObject *obj);
 
 /* Checks for the Decimal type included with Python. */
-static int isDecimal(PyObject* obj);
+static int GMPy_isDecimal(PyObject *obj);
 
 /* Combined mpfr, PyFloat, isDecimal() and isRational() check. */
-static int isReal(PyObject* obj);
+static int GMPy_isReal(PyObject *obj);
 
 /* Combined mpc, PyComplex, and isReal() check. */
-static int isComplex(PyObject* obj);
+static int GMPy_isComplex(PyObject *obj);
+#endif
 
 #ifdef __cplusplus
 }

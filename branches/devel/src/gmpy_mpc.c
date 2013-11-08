@@ -169,7 +169,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
             result = Pympc_From_Pympc(arg0, rbits, ibits);
         }
     }
-    else if (isReal(arg0)) {
+    else if (IS_REAL(arg0)) {
         /* First argument is a real number */
 
         if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO", kwlist_r,
@@ -191,7 +191,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
             }
         }
 
-        if (arg1 && !isReal(arg1)) {
+        if (arg1 && !IS_REAL(arg1)) {
             TYPE_ERROR("invalid type for imaginary component in mpc()");
             return NULL;
         }
@@ -1117,7 +1117,7 @@ Pympc_hash(MPC_Object *self)
 static PyObject *
 Pympc_FloorDiv_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
-    if (isComplex(x) && isComplex(y)) {
+    if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
         TYPE_ERROR("can't take floor of complex number.");
         return NULL;
     }
@@ -1157,7 +1157,7 @@ Pympc_TrueDiv_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
         goto done;
     }
 
-    if (isComplex(x) && isComplex(y)) {
+    if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
         MPC_Object *tempx, *tempy;
 
         tempx = Pympc_From_Complex_context(x, context);
@@ -1197,7 +1197,7 @@ Pympc_truediv_fast(PyObject *x, PyObject *y)
 static PyObject *
 Pympc_Mod_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
-    if (isComplex(x) && isComplex(y)) {
+    if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
         TYPE_ERROR("can't mod complex numbers");
         return NULL;
     }
@@ -1218,7 +1218,7 @@ Pympc_mod_fast(PyObject *x, PyObject *y)
 static PyObject *
 Pympc_DivMod_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
-    if (isComplex(x) && isComplex(y)) {
+    if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
         TYPE_ERROR("can't take floor or mod of complex numbers");
         return NULL;
     }

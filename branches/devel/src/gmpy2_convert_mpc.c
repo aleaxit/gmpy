@@ -870,7 +870,7 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
     else if (XMPZ_Check(obj)) {
         newob = Pympc_From_Pyxmpz(obj, rprec, iprec);
     }
-    else if (isDecimal(obj)) {
+    else if (IS_DECIMAL(obj)) {
         PyObject *s = PyObject_Str(obj);
         if (s) {
             newob = Pympc_From_PyStr(s, 10, rprec, iprec);
@@ -881,7 +881,7 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
             Py_DECREF(s);
         }
     }
-    else if (isFraction(obj)) {
+    else if (IS_FRACTION(obj)) {
         temp = Pympq_From_Fraction(obj);
         if (temp) {
             newob = Pympc_From_Pympq((PyObject *)temp, rprec, iprec);
@@ -966,7 +966,7 @@ GMPy_MPC_From_Complex_Temp(PyObject* obj, GMPyContextObject *context)
     if (XMPZ_Check(obj))
         return Pympc_From_Pyxmpz(obj, 0, 0);
 
-    if (isDecimal(obj)) {
+    if (IS_DECIMAL(obj)) {
         PyObject *temps = PyObject_Str(obj);
 
         if (temps) {
@@ -976,7 +976,7 @@ GMPy_MPC_From_Complex_Temp(PyObject* obj, GMPyContextObject *context)
         return result;
     }
 
-    if (isFraction(obj)) {
+    if (IS_FRACTION(obj)) {
         MPQ_Object *tempq = Pympq_From_Fraction(obj);
 
         if (tempq) {
@@ -1071,7 +1071,7 @@ Pympc_From_Complex_bits_context(PyObject* obj, mpfr_prec_t rprec,
     else if (XMPZ_Check(obj)) {
         newob = Pympc_From_Pyxmpz_bits_context(obj, rprec, iprec, context);
     }
-    else if (isDecimal(obj)) {
+    else if (IS_DECIMAL(obj)) {
         PyObject *s = PyObject_Str(obj);
         if (s) {
             newob = Pympc_From_PyStr_bits_context(s, 10, rprec, iprec, context);
@@ -1082,7 +1082,7 @@ Pympc_From_Complex_bits_context(PyObject* obj, mpfr_prec_t rprec,
             Py_DECREF(s);
         }
     }
-    else if (isFraction(obj)) {
+    else if (IS_FRACTION(obj)) {
         temp = Pympq_From_Fraction(obj);
         if (temp) {
             newob = Pympc_From_Pympq_bits_context((PyObject *)temp, rprec,
@@ -1170,14 +1170,14 @@ Pympc_From_Complex_context(PyObject* obj, GMPyContextObject *context)
     else if (XMPZ_Check(obj)) {
         newob = Pympc_From_Pyxmpz_context(obj, context);
     }
-    else if (isDecimal(obj)) {
+    else if (IS_DECIMAL(obj)) {
         PyObject *s = PyObject_Str(obj);
         if (s) {
             newob = Pympc_From_PyStr_context(s, 10, context);
             Py_DECREF(s);
         }
     }
-    else if (isFraction(obj)) {
+    else if (IS_FRACTION(obj)) {
         temp = Pympq_From_Fraction(obj);
         if (temp) {
             newob = Pympc_From_Pympq_context((PyObject*)temp, context);

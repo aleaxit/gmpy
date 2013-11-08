@@ -75,14 +75,14 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
         return (PyObject*)result;
     }
 
-    if (isDecimal(n)) {
+    if (IS_DECIMAL(n)) {
         return (PyObject*)Pympq_From_Decimal(n);
     }
 
     if (argc == 2)
         m = PyTuple_GetItem(args, 1);
 
-    if (!isReal(n) || (m && !isReal(m))) {
+    if (!IS_REAL(n) || (m && !IS_REAL(m))) {
         TYPE_ERROR("mpq() requires numeric or string argument");
         return NULL;
     }
@@ -581,7 +581,7 @@ Pympq_hash(MPQ_Object *self)
 #endif
 }
 
-/* Divide two Rational objects (see convert.c/isRational). Returns None and
+/* Divide two Rational objects (see gmpy2_convert.h). Returns None and
  * raises TypeError if both objects are not valid rationals. */
 
 static PyObject *
@@ -609,7 +609,7 @@ Pympq_FloorDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
         return (PyObject*)result;
     }
 
-    if (isRational(x) && isRational(y)) {
+    if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx, *tempy;
 
         tempx = Pympq_From_Number(x);
@@ -678,7 +678,7 @@ Pympq_TrueDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
         return (PyObject*)result;
     }
 
-    if (isRational(x) && isRational(y)) {
+    if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx, *tempy;
 
         tempx = Pympq_From_Number(x);
@@ -727,7 +727,7 @@ Pympq_truediv_fast(PyObject *x, PyObject *y)
     Py_RETURN_NOTIMPLEMENTED;
 }
 
-/* Divide two Rational objects (see convert.c/isRational) and return the
+/* Divide two Rational objects (see convert.c/IS_RATIONAL) and return the
  * remainder. Returns None and raises TypeError if both objects are not valid
  * rationals. */
 
@@ -793,7 +793,7 @@ Pympq_mod_fast(PyObject *x, PyObject *y)
 }
 
 /* Return the quotient and remainder from dividing two Rational objects (see
- * convert.c/isRational). Returns None and raises TypeError if both objects
+ * convert.c/IS_RATIONAL). Returns None and raises TypeError if both objects
  * are not valid rationals. */
 
 static PyObject *
