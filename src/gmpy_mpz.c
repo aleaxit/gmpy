@@ -58,7 +58,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
     }
     if (argc == 1) {
         n = PyTuple_GetItem(args, 0);
-        if (isReal(n) && !keywds) {
+        if (IS_REAL(n) && !keywds) {
             result = GMPy_MPZ_From_Number(n);
             return (PyObject*)result;
         }

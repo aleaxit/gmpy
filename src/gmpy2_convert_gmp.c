@@ -615,7 +615,7 @@ GMPy_MPZ_From_Number(PyObject* obj)
     else if (XMPZ_Check(obj)) {
         result = GMPy_MPZ_From_XMPZ(obj);
     }
-    else if (isDecimal(obj)) {
+    else if (IS_DECIMAL(obj)) {
         PyObject *s = PyNumber_Long(obj);
 
         if (s) {
@@ -623,7 +623,7 @@ GMPy_MPZ_From_Number(PyObject* obj)
             Py_DECREF(s);
         }
     }
-    else if (isFraction(obj)) {
+    else if (IS_FRACTION(obj)) {
         MPQ_Object *temp = NULL;
 
         temp = Pympq_From_Fraction(obj);
@@ -668,14 +668,14 @@ Pyxmpz_From_Number(PyObject* obj)
     else if (XMPZ_Check(obj)) {
         newob = GMPy_XMPZ_From_XMPZ(obj);
     }
-    else if (isDecimal(obj)) {
+    else if (IS_DECIMAL(obj)) {
         PyObject *s = PyNumber_Long(obj);
         if (s) {
             newob = GMPy_XMPZ_From_PyLong(s);
             Py_DECREF(s);
         }
     }
-    else if (isFraction(obj)) {
+    else if (IS_FRACTION(obj)) {
         temp = Pympq_From_Fraction(obj);
         if (temp) {
             newob = Pympq_To_Pyxmpz((PyObject *)temp);
@@ -1617,10 +1617,10 @@ Pympq_From_Number(PyObject* obj)
     else if (XMPZ_Check(obj)) {
         newob = Pympq_From_Pyxmpz(obj);
     }
-    else if (isDecimal(obj)) {
+    else if (IS_DECIMAL(obj)) {
         newob = Pympq_From_Decimal(obj);
     }
-    else if (isFraction(obj)) {
+    else if (IS_FRACTION(obj)) {
         newob = Pympq_From_Fraction(obj);
     }
 
@@ -1652,7 +1652,7 @@ Pympq_From_Rational(PyObject* obj)
     else if (XMPZ_Check(obj)) {
         newob = Pympq_From_Pyxmpz(obj);
     }
-    else if (isFraction(obj)) {
+    else if (IS_FRACTION(obj)) {
         newob = Pympq_From_Fraction(obj);
     }
 

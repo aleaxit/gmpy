@@ -51,7 +51,7 @@
  *
  */
 
-/* Add two Integer objects (see convert.c/isInteger). If an error occurs, NULL
+/* Add two Integer objects (see gmpy2_convert.h). If an error occurs, NULL
  * is returned and an exception is set. If either x or y can't be converted
  * into an mpz, Py_NotImplemented is returned. */
 
@@ -155,7 +155,7 @@ GMPy_mpz_add_fast(PyObject *x, PyObject *y)
     Py_RETURN_NOTIMPLEMENTED;
 }
 
-/* Add two Rational objects (see convert.c/isRational). Returns None and
+/* Add two Rational objects (see gmpy2_convert.h). Returns None and
  * raises TypeError if both objects are not valid rationals. GMPy_Rational_Add
  * is intended to be called from GMPy_Number_Add(). */
 
@@ -285,7 +285,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, GMPyContextObject *context)
             goto done;
         }
 
-        if (isRational(y) || isDecimal(y)) {
+        if (IS_RATIONAL(y) || IS_DECIMAL(y)) {
             MPQ_Object *tempy;
 
             if (!(tempy = Pympq_From_Number(y))) {
@@ -338,7 +338,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, GMPyContextObject *context)
             goto done;
         }
 
-        if (isRational(x) || isDecimal(x)) {
+        if (IS_RATIONAL(x) || IS_DECIMAL(x)) {
             MPQ_Object *tempx;
 
             if (!(tempx = Pympq_From_Number(x))) {
@@ -432,7 +432,7 @@ GMPy_Complex_Add(PyObject *x, PyObject *y, GMPyContextObject *context)
         goto done;
     }
 
-    if (isComplex(x) && isComplex(y)) {
+    if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
         MPC_Object *tempx, *tempy;
 
         tempx = GMPy_MPC_From_Complex_Temp(x, context);

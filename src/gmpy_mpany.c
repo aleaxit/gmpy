@@ -49,13 +49,13 @@ PyDoc_STRVAR(doc_mpany_square,
 static PyObject *
 Pympany_square(PyObject *self, PyObject *other)
 {
-    if (isInteger(other))
+    if (IS_INTEGER(other))
         return Pympz_square(self, other);
-    else if (isRational(other))
+    else if (IS_RATIONAL(other))
         return Pympq_square(self, other);
-    else if (isReal(other))
+    else if ((other))
         return Pympfr_sqr(self, other);
-    else if (isComplex(other))
+    else if (IS_COMPLEX(other))
         return Pympc_sqr(self, other);
 
     TYPE_ERROR("square() argument type not supported");
@@ -83,13 +83,13 @@ Pympany_digits(PyObject *self, PyObject *args)
     }
 
     temp = PyTuple_GET_ITEM(args, 0);
-    if (isInteger(temp))
+    if (IS_INTEGER(temp))
         return Pympz_digits(self, args);
-    else if (isRational(temp))
+    else if (IS_RATIONAL(temp))
         return Pympq_digits(self, args);
-    else if (isReal(temp))
+    else if (IS_REAL(temp))
         return Pympfr_digits(self, args);
-    else if (isComplex(temp))
+    else if (IS_COMPLEX(temp))
         return Pympc_digits(self, args);
 
     TYPE_ERROR("digits() argument type not supported");
@@ -108,11 +108,11 @@ PyDoc_STRVAR(doc_g_mpany_sign,
 static PyObject *
 Pympany_sign(PyObject *self, PyObject *other)
 {
-    if (isInteger(other))
+    if (IS_INTEGER(other))
         return Pympz_sign(self, other);
-    else if (isRational(other))
+    else if (IS_RATIONAL(other))
         return Pympq_sign(self, other);
-    else if (isReal(other))
+    else if (IS_REAL(other))
         return Pympfr_sign(self, other);
 
     TYPE_ERROR("sign() argument type not supported");
@@ -178,7 +178,7 @@ Pympany_div(PyObject *self, PyObject *args)
     if (IS_RATIONAL(arg0) && IS_RATIONAL(arg1))
         return Pympq_TrueDiv_Rational(arg0, arg1, context);
 
-    if (IS_REAL(arg0) && IS_REAL(arg1))
+    if ((arg0) && (arg1))
         return Pympfr_TrueDiv_Real(arg0, arg1, context);
 
     if (IS_COMPLEX(arg0) && IS_COMPLEX(arg1))
@@ -247,7 +247,7 @@ Pympany_floordiv(PyObject *self, PyObject *args)
     if (IS_RATIONAL(arg0) && IS_RATIONAL(arg1))
         return Pympq_FloorDiv_Rational(arg0, arg1, context);
 
-    if (IS_REAL(arg0) && IS_REAL(arg1))
+    if ((arg0) && (arg1))
         return Pympfr_FloorDiv_Real(arg0, arg1, context);
 
     if (IS_COMPLEX(arg0) && IS_COMPLEX(arg1))
@@ -316,7 +316,7 @@ Pympany_mod(PyObject *self, PyObject *args)
     if (IS_RATIONAL(arg0) && IS_RATIONAL(arg1))
         return Pympq_Mod_Rational(arg0, arg1, context);
 
-    if (IS_REAL(arg0) && IS_REAL(arg1))
+    if ((arg0) && (arg1))
         return Pympfr_Mod_Real(arg0, arg1, context);
 
     if (IS_COMPLEX(arg0) && IS_COMPLEX(arg1))
@@ -385,7 +385,7 @@ Pympany_divmod(PyObject *self, PyObject *args)
     if (IS_RATIONAL(arg0) && IS_RATIONAL(arg1))
         return Pympq_DivMod_Rational(arg0, arg1, context);
 
-    if (IS_REAL(arg0) && IS_REAL(arg1))
+    if ((arg0) && (arg1))
         return Pympfr_DivMod_Real(arg0, arg1, context);
 
     if (IS_COMPLEX(arg0) && IS_COMPLEX(arg1))
@@ -480,9 +480,9 @@ Pympany_printf(PyObject *self, PyObject *args)
 static PyObject * \
 Pympany_##NAME(PyObject *self, PyObject *other) \
 { \
-    if (isReal(other)) \
+    if (IS_REAL(other)) \
         return Pympfr_##NAME(self, other); \
-    else if (isComplex(other)) \
+    else if (IS_COMPLEX(other)) \
         return Pympc_##NAME(self, other); \
     TYPE_ERROR(#NAME"() argument type not supported"); \
     return NULL; \
@@ -495,9 +495,9 @@ PyDoc_STRVAR(doc_mpany_is_nan,
 static PyObject *
 Pympany_is_nan(PyObject *self, PyObject *other)
 {
-    if (isReal(other))
+    if (IS_REAL(other))
         return Pympfr_is_nan(self, other);
-    else if (isComplex(other))
+    else if (IS_COMPLEX(other))
         return Pympc_is_NAN(self, other);
     TYPE_ERROR("is_nan() argument type not supported");
     return NULL;
@@ -511,9 +511,9 @@ PyDoc_STRVAR(doc_mpany_is_inf,
 static PyObject *
 Pympany_is_inf(PyObject *self, PyObject *other)
 {
-    if (isReal(other))
+    if (IS_REAL(other))
         return Pympfr_is_inf(self, other);
-    else if (isComplex(other))
+    else if (IS_COMPLEX(other))
         return Pympc_is_INF(self, other);
     TYPE_ERROR("is_inf() argument type not supported");
     return NULL;
@@ -527,9 +527,9 @@ PyDoc_STRVAR(doc_mpany_is_infinite,
 static PyObject *
 Pympany_is_infinite(PyObject *self, PyObject *other)
 {
-    if (isReal(other))
+    if (IS_REAL(other))
         return Pympfr_is_inf(self, other);
-    else if (isComplex(other))
+    else if (IS_COMPLEX(other))
         return Pympc_is_INF(self, other);
     TYPE_ERROR("is_infinite() argument type not supported");
     return NULL;
@@ -543,9 +543,9 @@ PyDoc_STRVAR(doc_mpany_is_finite,
 static PyObject *
 Pympany_is_finite(PyObject *self, PyObject *other)
 {
-    if (isReal(other))
+    if (IS_REAL(other))
         return Pympfr_is_number(self, other);
-    else if (isComplex(other))
+    else if (IS_COMPLEX(other))
         return Pympc_is_FINITE(self, other);
     TYPE_ERROR("is_finite() argument type not supported");
     return NULL;
@@ -558,9 +558,9 @@ PyDoc_STRVAR(doc_mpany_is_zero,
 static PyObject *
 Pympany_is_zero(PyObject *self, PyObject *other)
 {
-    if (isReal(other))
+    if (IS_REAL(other))
         return Pympfr_is_zero(self, other);
-    else if (isComplex(other))
+    else if (IS_COMPLEX(other))
         return Pympc_is_ZERO(self, other);
     TYPE_ERROR("is_zero() argument type not supported");
     return NULL;
@@ -683,13 +683,13 @@ Pympany_fma(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (isReal(PyTuple_GET_ITEM(args, 0)) &&
-        isReal(PyTuple_GET_ITEM(args, 1)) &&
-        isReal(PyTuple_GET_ITEM(args, 2)))
+    if (IS_REAL(PyTuple_GET_ITEM(args, 0)) &&
+        IS_REAL(PyTuple_GET_ITEM(args, 1)) &&
+        IS_REAL(PyTuple_GET_ITEM(args, 2)))
         return Pympfr_fma(self, args);
-    if (isComplex(PyTuple_GET_ITEM(args, 0)) &&
-        isComplex(PyTuple_GET_ITEM(args, 1)) &&
-        isComplex(PyTuple_GET_ITEM(args, 2)))
+    if (IS_COMPLEX(PyTuple_GET_ITEM(args, 0)) &&
+        IS_COMPLEX(PyTuple_GET_ITEM(args, 1)) &&
+        IS_COMPLEX(PyTuple_GET_ITEM(args, 2)))
         return Pympc_fma(self, args);
     TYPE_ERROR("fma() argument types not supported");
     return NULL;
@@ -707,13 +707,13 @@ Pympany_fms(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (isReal(PyTuple_GET_ITEM(args, 0)) &&
-        isReal(PyTuple_GET_ITEM(args, 1)) &&
-        isReal(PyTuple_GET_ITEM(args, 2)))
+    if (IS_REAL(PyTuple_GET_ITEM(args, 0)) &&
+        IS_REAL(PyTuple_GET_ITEM(args, 1)) &&
+        IS_REAL(PyTuple_GET_ITEM(args, 2)))
         return Pympfr_fms(self, args);
-    if (isComplex(PyTuple_GET_ITEM(args, 0)) &&
-        isComplex(PyTuple_GET_ITEM(args, 1)) &&
-        isComplex(PyTuple_GET_ITEM(args, 2)))
+    if (IS_COMPLEX(PyTuple_GET_ITEM(args, 0)) &&
+        IS_COMPLEX(PyTuple_GET_ITEM(args, 1)) &&
+        IS_COMPLEX(PyTuple_GET_ITEM(args, 2)))
         return Pympc_fms(self, args);
     TYPE_ERROR("fms() argument types not supported");
     return NULL;
@@ -731,9 +731,9 @@ Pympany_div_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (isReal(PyTuple_GET_ITEM(args, 0)))
+    if (IS_REAL(PyTuple_GET_ITEM(args, 0)))
         return Pympfr_div_2exp(self, args);
-    if (isComplex(PyTuple_GET_ITEM(args, 0)))
+    if (IS_COMPLEX(PyTuple_GET_ITEM(args, 0)))
         return Pympc_div_2exp(self, args);
     TYPE_ERROR("div_2exp() argument types not supported");
     return NULL;
@@ -751,9 +751,9 @@ Pympany_mul_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (isReal(PyTuple_GET_ITEM(args, 0)))
+    if (IS_REAL(PyTuple_GET_ITEM(args, 0)))
         return Pympfr_mul_2exp(self, args);
-    if (isComplex(PyTuple_GET_ITEM(args, 0)))
+    if (IS_COMPLEX(PyTuple_GET_ITEM(args, 0)))
         return Pympc_mul_2exp(self, args);
     TYPE_ERROR("mul_2exp() argument types not supported");
     return NULL;
@@ -806,7 +806,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         if (CHECK_MPZANY(b)) {
             return _cmp_to_object(mpz_cmp(MPZ(a), MPZ(b)), op);
         }
-        if (isInteger(b)) {
+        if (IS_INTEGER(b)) {
             tempb = (PyObject*)GMPy_MPZ_From_Integer(b);
             if (!tempb)
                 return NULL;
@@ -814,7 +814,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             Py_DECREF(tempb);
             return _cmp_to_object(c, op);
         }
-        if (isRational(b)) {
+        if (IS_RATIONAL(b)) {
             tempa = (PyObject*)Pympq_From_Rational(a);
             tempb = (PyObject*)Pympq_From_Rational(b);
             if (!tempa || !tempb) {
@@ -844,7 +844,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 return _cmp_to_object(mpz_cmp_d(MPZ(a), d), op);
             }
         }
-        if (isDecimal(b)) {
+        if (IS_DECIMAL(b)) {
             tempa = (PyObject*)Pympq_From_Rational(a);
             tempb = (PyObject*)Pympq_From_Decimal(b);
             if (!tempa || !tempb) {
@@ -883,7 +883,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         if (MPQ_Check(b)) {
             return _cmp_to_object(mpq_cmp(MPQ(a), MPQ(b)), op);
         }
-        if (isRational(b)) {
+        if (IS_RATIONAL(b)) {
             tempb = (PyObject*)Pympq_From_Rational(b);
             c = mpq_cmp(MPQ(a), MPQ(tempb));
             Py_DECREF(tempb);
@@ -912,7 +912,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 return _cmp_to_object(c, op);
             }
         }
-        if (isDecimal(b)) {
+        if (IS_DECIMAL(b)) {
             if (!(tempb = (PyObject*)Pympq_From_Decimal(b)))
                 return NULL;
             if (!mpz_cmp_si(mpq_denref(MPQ(tempb)), 0)) {
@@ -977,7 +977,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 return _cmp_to_object(c, op);
             }
         }
-        if (isInteger(b)) {
+        if (IS_INTEGER(b)) {
             tempb = (PyObject*)GMPy_MPZ_From_Integer(b);
             if (!tempb)
                 return NULL;
@@ -999,7 +999,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 return _cmp_to_object(c, op);
             }
         }
-        if (isRational(b)) {
+        if (IS_RATIONAL(b)) {
             tempb = (PyObject*)Pympq_From_Rational(b);
             if (!tempb)
                 return NULL;
@@ -1021,7 +1021,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 return _cmp_to_object(c, op);
             }
         }
-        if (isDecimal(b)) {
+        if (IS_DECIMAL(b)) {
             tempb = (PyObject*)Pympq_From_Decimal(b);
             if (!tempb)
                 return NULL;
@@ -1066,7 +1066,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                 }
             }
         }
-        if (isReal(b)) {
+        if (IS_REAL(b)) {
             tempb = (PyObject*)Pympfr_From_Real(b, 0);
             if (!tempb)
                 return NULL;

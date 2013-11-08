@@ -43,73 +43,42 @@
  *
  */
 
-static int isInteger(PyObject* obj)
-{
-    if (MPZ_Check(obj))         return 1;
-    if (PyIntOrLong_Check(obj)) return 1;
-    if (XMPZ_Check(obj))      return 1;
+/* Since the macros are used in gmpy2's codebase, these functions are skipped
+ * until they are needed for the C API in the future.
+ */
 
-    return 0;
+#if 0
+static int GMPy_isInteger(PyObject *obj)
+{
+    return IS_INTEGER(obj) ? 1 : 0;
 }
 
-static int isFraction(PyObject* obj)
+static int GMPy_isFraction(PyObject *obj)
 {
-    if (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) return 1;
-
-    return 0;
+    return (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) ? 1 : 0;
 }
 
-static int isDecimal(PyObject* obj)
+static int GMPy_isDecimal(PyObject *obj)
 {
 #if PY_VERSION_HEX < 0x03030000
-    if (!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) return 1;
+    return (!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) ? 1 : 0;
 #else
-    if (!strcmp(Py_TYPE(obj)->tp_name, "decimal.Decimal")) return 1;
+    return (!strcmp(Py_TYPE(obj)->tp_name, "decimal.Decimal")) ? 1 : 0;
 #endif
-
-    return 0;
 }
 
-static int isRational(PyObject* obj)
+static int GMPy_isRational(PyObject *obj)
 {
-    if (MPZ_Check(obj))         return 1;
-    if (PyIntOrLong_Check(obj)) return 1;
-    if (MPQ_Check(obj))         return 1;
-    if (XMPZ_Check(obj))        return 1;
-    if (isFraction(obj))        return 1;
-
-    return 0;
+    return IS_RATIONAL(obj) ? 1 : 0;
 }
 
-static int isReal(PyObject* obj)
+static int GMPy_isReal(PyObject *obj)
 {
-    if (MPZ_Check(obj))         return 1;
-    if (PyIntOrLong_Check(obj)) return 1;
-    if (MPQ_Check(obj))         return 1;
-    if (MPFR_Check(obj))        return 1;
-    if (XMPZ_Check(obj))        return 1;
-    if (PyFloat_Check(obj))     return 1;
-    if (isDecimal(obj))         return 1;
-    if (isFraction(obj))        return 1;
-
-    return 0;
+    return IS_REAL(obj) ? 1 : 0;
 }
 
-static int isComplex(PyObject* obj)
+static int GMPy_isComplex(PyObject *obj)
 {
-    if (MPZ_Check(obj))         return 1;
-    if (PyIntOrLong_Check(obj)) return 1;
-    if (MPQ_Check(obj))         return 1;
-    if (MPFR_Check(obj))        return 1;
-    if (XMPZ_Check(obj))        return 1;
-    if (MPC_Check(obj))         return 1;
-    if (PyFloat_Check(obj))     return 1;
-    if (PyComplex_Check(obj))   return 1;
-    if (isDecimal(obj))         return 1;
-    if (isFraction(obj))        return 1;
-
-    return 0;
+    return IS_COMPLEX(obj) ? 1 : 0;
 }
-
-
-
+#endif
