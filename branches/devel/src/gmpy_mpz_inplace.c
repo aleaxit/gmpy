@@ -333,7 +333,7 @@ Pympz_inplace_pow(PyObject *self, PyObject *other, PyObject *mod)
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    if (!(e = GMPy_MPZ_From_Integer(other))) {
+    if (!(e = GMPy_MPZ_From_Integer_Temp(other))) {
         PyErr_Clear();
         Py_RETURN_NOTIMPLEMENTED;
     }

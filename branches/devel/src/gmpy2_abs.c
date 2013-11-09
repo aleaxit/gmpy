@@ -56,7 +56,7 @@ GMPy_Integer_Abs(PyObject *x, GMPyContextObject *context)
 {
     MPZ_Object *result;
 
-    if ((result = GMPy_MPZ_From_Integer(x))) {
+    if ((result = GMPy_MPZ_From_Integer_New(x))) {
         mpz_abs(result->z, result->z);
     }
 

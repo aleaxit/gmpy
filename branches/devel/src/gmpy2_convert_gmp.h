@@ -42,8 +42,10 @@ static MPZ_Object *    Pympz_From_PyStr(PyObject *s, int base);
 static MPZ_Object *    GMPy_MPZ_From_PyLong(PyObject *obj);
 static MPZ_Object *    GMPy_MPZ_From_XMPZ(PyObject *self);
 static MPZ_Object *    Pympz_From_PyFloat(PyObject *self);
-static MPZ_Object *    GMPy_MPZ_From_Integer(PyObject *obj);
-static MPZ_Object *    GMPy_MPZ_From_Number(PyObject *obj);
+static MPZ_Object *    GMPy_MPZ_From_Integer_New(PyObject *obj);
+static MPZ_Object *    GMPy_MPZ_From_Integer_Temp(PyObject *obj);
+static MPZ_Object *    GMPy_MPZ_From_Number_New(PyObject *obj);
+static MPZ_Object *    GMPy_MPZ_From_Number_Temp(PyObject *obj);
 
 static PyObject *      Pympz_To_PyLong(MPZ_Object *self);
 static PyObject *      Pympz_To_PyIntOrLong(MPZ_Object *self);

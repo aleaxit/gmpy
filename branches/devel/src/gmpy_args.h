@@ -71,11 +71,7 @@ extern "C" {
             return NULL; \
         } \
         self = PyTuple_GET_ITEM(args, 0); \
-        if(CHECK_MPZANY(self)) { \
-            Py_INCREF((PyObject*)self); \
-        } else { \
-            self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-        } \
+        self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0)); \
         if (!self) { \
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
@@ -139,22 +135,10 @@ extern "C" {
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \
             } \
-            self = PyTuple_GET_ITEM(args, 0); \
-            if (CHECK_MPZANY(self)) { \
-                Py_INCREF((PyObject*)self); \
-            } \
-            else { \
-                self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            } \
+            self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0)); \
         } \
         else if (PyTuple_GET_SIZE(args) == 1) { \
-            self = PyTuple_GET_ITEM(args, 0); \
-            if (CHECK_MPZANY(self)) { \
-                Py_INCREF((PyObject*)self); \
-            } \
-            else { \
-                self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            } \
+            self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0)); \
         } \
         else { \
             PyErr_SetString(PyExc_TypeError, msg); \
@@ -198,22 +182,10 @@ extern "C" {
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \
             } \
-            self = PyTuple_GET_ITEM(args, 0); \
-            if (CHECK_MPZANY(self)) { \
-                Py_INCREF((PyObject*)self); \
-            } \
-            else { \
-                self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            } \
+            self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0)); \
         } \
         else if (PyTuple_GET_SIZE(args) == 1) { \
-            self = PyTuple_GET_ITEM(args, 0); \
-            if (CHECK_MPZANY(self)) { \
-                Py_INCREF((PyObject*)self); \
-            } \
-            else { \
-                self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            } \
+            self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0)); \
         } \
         else { \
             PyErr_SetString(PyExc_TypeError, msg); \
@@ -260,22 +232,10 @@ extern "C" {
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \
             } \
-            self = PyTuple_GET_ITEM(args, 0); \
-            if (CHECK_MPZANY(self)) { \
-                Py_INCREF((PyObject*)self); \
-            } \
-            else { \
-                self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            } \
+            self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0)); \
         } \
         else if (PyTuple_GET_SIZE(args) == 1) { \
-            self = PyTuple_GET_ITEM(args, 0); \
-            if (CHECK_MPZANY(self)) { \
-                Py_INCREF((PyObject*)self); \
-            } \
-            else { \
-                self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            } \
+            self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0)); \
         } \
         else { \
             PyErr_SetString(PyExc_TypeError, msg); \
@@ -384,13 +344,7 @@ extern "C" {
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \
             } \
-            self = PyTuple_GET_ITEM(args, 0); \
-            if (CHECK_MPZANY(self)) { \
-                Py_INCREF((PyObject*)self); \
-            } \
-            else { \
-                self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            } \
+            self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0)); \
         } \
         if (!self) { \
             PyErr_SetString(PyExc_TypeError, msg); \
@@ -434,13 +388,7 @@ extern "C" {
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \
             } \
-            self = PyTuple_GET_ITEM(args, 0); \
-            if (CHECK_MPZANY(self)) { \
-                Py_INCREF((PyObject*)self); \
-            } \
-            else { \
-                self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            } \
+            self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0)); \
         } \
         if (!self) { \
             PyErr_SetString(PyExc_TypeError, msg); \
@@ -514,7 +462,7 @@ extern "C" {
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
         } \
-        var = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+        var = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0)); \
         if (!var) { \
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
@@ -526,8 +474,8 @@ extern "C" {
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
         } \
-        self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-        var = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1)); \
+        self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0)); \
+        var = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 1)); \
         if (!self || !var) { \
             PyErr_SetString(PyExc_TypeError, msg); \
             Py_XDECREF((PyObject*)self); \
