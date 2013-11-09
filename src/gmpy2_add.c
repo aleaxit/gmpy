@@ -112,8 +112,8 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
         MPZ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPZ_From_Integer(x);
-        tempy = GMPy_MPZ_From_Integer(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x);
+        tempy = GMPy_MPZ_From_Integer_Temp(y);
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);

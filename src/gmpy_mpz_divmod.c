@@ -66,8 +66,8 @@ Pygmpy_c_divmod(PyObject *self, PyObject *args)
         mpz_cdiv_qr(q->z, r->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer(x);
-        tempy = GMPy_MPZ_From_Integer(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x);
+        tempy = GMPy_MPZ_From_Integer_Temp(y);
         if (!tempx || !tempy) {
             TYPE_ERROR("c_divmod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -125,8 +125,8 @@ Pygmpy_c_div(PyObject *self, PyObject *args)
         mpz_cdiv_q(q->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer(x);
-        tempy = GMPy_MPZ_From_Integer(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x);
+        tempy = GMPy_MPZ_From_Integer_Temp(y);
         if (!tempx || !tempy) {
             TYPE_ERROR("c_div() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -178,8 +178,8 @@ Pygmpy_c_mod(PyObject *self, PyObject *args)
         mpz_cdiv_r(r->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer(x);
-        tempy = GMPy_MPZ_From_Integer(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x);
+        tempy = GMPy_MPZ_From_Integer_Temp(y);
         if (!tempx || !tempy) {
             TYPE_ERROR("c_mod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -239,8 +239,8 @@ Pygmpy_f_divmod(PyObject *self, PyObject *args)
         mpz_fdiv_qr(q->z, r->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer(x);
-        tempy = GMPy_MPZ_From_Integer(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x);
+        tempy = GMPy_MPZ_From_Integer_Temp(y);
         if (!tempx || !tempy) {
             TYPE_ERROR("f_divmod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -298,8 +298,8 @@ Pygmpy_f_div(PyObject *self, PyObject *args)
         mpz_fdiv_q(q->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer(x);
-        tempy = GMPy_MPZ_From_Integer(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x);
+        tempy = GMPy_MPZ_From_Integer_Temp(y);
         if (!tempx || !tempy) {
             TYPE_ERROR("f_div() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -351,8 +351,8 @@ Pygmpy_f_mod(PyObject *self, PyObject *args)
         mpz_fdiv_r(r->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer(x);
-        tempy = GMPy_MPZ_From_Integer(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x);
+        tempy = GMPy_MPZ_From_Integer_Temp(y);
         if (!tempx || !tempy) {
             TYPE_ERROR("f_mod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -412,8 +412,8 @@ Pygmpy_t_divmod(PyObject *self, PyObject *args)
         mpz_tdiv_qr(q->z, r->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer(x);
-        tempy = GMPy_MPZ_From_Integer(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x);
+        tempy = GMPy_MPZ_From_Integer_Temp(y);
         if (!tempx || !tempy) {
             TYPE_ERROR("t_divmod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -471,8 +471,8 @@ Pygmpy_t_div(PyObject *self, PyObject *args)
         mpz_tdiv_q(q->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer(x);
-        tempy = GMPy_MPZ_From_Integer(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x);
+        tempy = GMPy_MPZ_From_Integer_Temp(y);
         if (!tempx || !tempy) {
             TYPE_ERROR("t_div() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -524,8 +524,8 @@ Pygmpy_t_mod(PyObject *self, PyObject *args)
         mpz_tdiv_r(r->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer(x);
-        tempy = GMPy_MPZ_From_Integer(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x);
+        tempy = GMPy_MPZ_From_Integer_Temp(y);
         if (!tempx || !tempy) {
             TYPE_ERROR("t_mod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);

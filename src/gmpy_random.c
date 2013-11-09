@@ -68,7 +68,7 @@ GMPY_random_state(PyObject *self, PyObject *args)
         gmp_randseed_ui(result->state, 0);
     }
     else if (PyTuple_GET_SIZE(args) == 1) {
-        if (!(temp = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args,0)))) {
+        if (!(temp = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args,0)))) {
             Py_DECREF((PyObject*)result);
             TYPE_ERROR("seed must be an integer");
             return NULL;
@@ -175,7 +175,7 @@ GMPY_mpz_random(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(temp = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1)))) {
+    if (!(temp = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 1)))) {
         TYPE_ERROR("mpz_random() requires 'random_state' and 'int' arguments");
         return NULL;
     }
