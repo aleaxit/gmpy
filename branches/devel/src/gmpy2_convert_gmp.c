@@ -36,152 +36,15 @@
  * some basic types such as C longs or doubles.
  */
 
-#include "longintrepr.h"
+/* ======================================================================== *
+ * Miscellaneous C helper functions.                                        *
+ * ======================================================================== */
 
-static XMPZ_Object *
-GMPy_XMPZ_From_XMPZ(XMPZ_Object *obj)
-{
-    XMPZ_Object *result;
-
-    assert(XMPZ_Check(obj));
-
-    if ((result = GMPy_XMPZ_New()))
-        mpz_set(MPZ(result), MPZ(obj));
-
-    return result;
-}
-
-static MPZ_Object *
-GMPy_MPZ_From_XMPZ(XMPZ_Object *obj)
-{
-    MPZ_Object *result;
-
-    assert(XMPZ_Check(obj));
-
-    if ((result = GMPy_MPZ_New()))
-        mpz_set(MPZ(result), MPZ(obj));
-
-    return result;
-}
-
-static XMPZ_Object *
-GMPy_XMPZ_From_MPZ(MPZ_Object *obj)
-{
-    XMPZ_Object *result;
-
-    assert(MPZ_Check(obj));
-
-    if ((result = GMPy_XMPZ_New()))
-        mpz_set(MPZ(result), MPZ(obj));
-
-    return result;
-}
-
-#ifdef PY2
-static MPZ_Object *
-GMPy_MPZ_From_PyInt(PyObject *obj)
-{
-    MPZ_Object *result;
-
-    assert(PyInte_Check(obj));
-
-    if ((result = GMPy_MPZ_New()))
-        mpz_set_si(MPZ(result), PyInt_AS_LONG(obj));
-    return result;
-}
-
-static XMPZ_Object *
-GMPy_XMPZ_From_PyInt(PyObject *obj)
-{
-    XMPZ_Object *result;
-
-    assert(PyInt_Check(obj));
-
-    if ((result = GMPy_XMPZ_New()))
-        mpz_set_si(MPZ(result), PyInt_AsLong(obj));
-    return result;
-}
-#endif
-
-static MPZ_Object *
-GMPy_MPZ_From_PyFloat(PyObject *obj)
-{
-    MPZ_Object *result;
-
-    assert(PyFloat_Check(obj));
-
-    if ((result = GMPy_MPZ_New())) {
-        double d = PyFloat_AsDouble(obj);
-
-        if (Py_IS_NAN(d)) {
-            Py_DECREF((PyObject*)result);
-            VALUE_ERROR("'mpz' does not support NaN");
-            return NULL;
-        }
-        if (Py_IS_INFINITY(d)) {
-            Py_DECREF((PyObject*)result);
-            OVERFLOW_ERROR("'mpz' does not support Infinity");
-            return NULL;
-        }
-        mpz_set_d(MPZ(result), d);
-    }
-    return result;
-}
-
-static XMPZ_Object *
-GMPy_XMPZ_From_PyFloat(PyObject *obj)
-{
-    XMPZ_Object *result;
-
-    assert(PyFloat_Check(obj));
-
-    if ((result = GMPy_XMPZ_New())) {
-        double d = PyFloat_AsDouble(obj);
-
-        if (Py_IS_NAN(d)) {
-            Py_DECREF((PyObject*)result);
-            VALUE_ERROR("'xmpz' does not support NaN");
-            return NULL;
-        }
-        if (Py_IS_INFINITY(d)) {
-            Py_DECREF((PyObject*)result);
-            OVERFLOW_ERROR("'xmpz' does not support Infinity");
-            return NULL;
-        }
-        mpz_set_d(MPZ(result), d);
-    }
-    return result;
-}
-
-static MPZ_Object *
-GMPy_MPZ_From_PyIntOrLong(PyObject *obj)
-{
-    MPZ_Object *result;
-
-    assert(PyIntOrLong_Check(obj));
-
-    if(!(result = GMPy_MPZ_New()))
-        return NULL;
-
-    mpz_set_PyIntOrLong(MPZ(result), obj);
-    return result;
-}
-
-static XMPZ_Object *
-GMPy_XMPZ_From_PyIntOrLong(PyObject *obj)
-{
-    XMPZ_Object *result;
-
-    assert(PyIntOrLong_Check(obj));
-
-    if(!(result = GMPy_XMPZ_New()))
-        return NULL;
-
-    mpz_set_PyIntOrLong(MPZ(result), obj);
-    return result;
-}
-
-/* mpz_set_PyStr returns -1 on error, 1 if successful. */
+/* mpz_set_PyStr converts a Python "string" into a mpz_t structure. It accepts
+ * a sequence of bytes (i.e. str in Python 2, bytes in Python 3) or a Unicode
+ * string (i.e. unicode in Python 3, str in Python 3). Returns -1 on error,
+ * 1 if successful.
+ */
 
 static int
 mpz_set_PyStr(mpz_ptr z, PyObject *s, int base)
@@ -216,29 +79,21 @@ mpz_set_PyStr(mpz_ptr z, PyObject *s, int base)
             return -1;
         }
     }
-    /* delegate rest to GMP's _set_str function */
+
+    /* Check for leading base indicators. */
     if (base == 0) {
         if (cp[0] == '0') {
-            if (cp[1] == 'b') {
-                base = 2;
-                cp += 2;
-            }
-            else if (cp[1] == 'o') {
-                base = 8;
-                cp += 2;
-            }
-            else if (cp[1] == 'x') {
-                base = 16;
-                cp += 2;
-            }
-            else {
-                base = 10;
-            }
+            if (cp[1] == 'b')      { base = 2;  cp += 2; }
+            else if (cp[1] == 'o') { base = 8;  cp += 2; }
+            else if (cp[1] == 'x') { base = 16; cp += 2; }
+            else                   { base = 10; }
         }
         else {
             base = 10;
         }
     }
+
+    /* delegate rest to GMP's _set_str function */
     if (-1 == mpz_set_str(z, cp, base)) {
         VALUE_ERROR("invalid digits");
         Py_DECREF(ascii_str);
@@ -246,6 +101,179 @@ mpz_set_PyStr(mpz_ptr z, PyObject *s, int base)
     }
     Py_DECREF(ascii_str);
     return 1;
+}
+
+/* Format an mpz into any base (2 to 62). Bits in the option parameter
+ * control various behaviors:
+ *   bit 0: if set, output is wrapped with mpz(...) or xmpz(...)
+ *   bit 1: if set, a '+' is included for positive numbers
+ *   bit 2: if set, a ' ' is included for positive nubmers
+ *   bit 3: if set, a '0b', '0o', or '0x' is included for binary, octal, hex
+ *   bit 4: if set, no prefix is included for binary, octal, hex
+ *
+ * Note: if neither bit 3 or 4 is set, prefixes that match the platform
+ * default are included.
+ *
+ * If base < 0, capital letters are used.
+ *
+ * If which = 0, then mpz formatting is used (if bit 0 set). Otherwise xmpz
+ * formatting is used (if bit 0 is set).
+ */
+
+static char* _ztag = "mpz(";
+static char* _xztag = "xmpz(";
+
+static PyObject *
+mpz_ascii(mpz_t z, int base, int option, int which)
+{
+    PyObject *result;
+    char *buffer, *p;
+    int negative = 0;
+    size_t size;
+
+    if (
+        !(
+          (base == 0) ||
+          ((base >= -36) && (base <= -2)) ||
+          ((base >= 2) && (base <= 62))
+         )
+       ) {
+        VALUE_ERROR("base must be in the interval 2 ... 62");
+        return NULL;
+    }
+
+    /* Allocate extra space for:
+     *
+     * minus sign and trailing NULL byte (2)
+     * 'xmpz()' tag                      (6)
+     * '0x' prefix                       (2)
+     * 'L' suffix                        (1)
+     *                                  -----
+     *                                   11
+     *
+     * And add one more to be sure...
+     */
+
+    size = mpz_sizeinbase(z, base) + 12;
+    TEMP_ALLOC(buffer, size);
+
+    if (mpz_sgn(z) < 0) {
+        negative = 1;
+        mpz_neg(z, z);
+    }
+
+    p = buffer;
+    if (option & 1) {
+        if (which)
+            strcpy(p, _xztag);
+        else
+            strcpy(p, _ztag);
+        p += strlen(p);
+    }
+
+    if (negative) {
+        *(p++) = '-';
+    }
+    else {
+        if (option & 2)
+            *(p++) = '+';
+        else if (option & 4)
+            *(p++) = ' ';
+    }
+
+    if (option & 8) {
+        if (base == 2)        { *(p++) = '0'; *(p++) = 'b'; }
+        else if (base == 8)   { *(p++) = '0'; *(p++) = 'o'; }
+        else if (base == 16)  { *(p++) = '0'; *(p++) = 'x'; }
+        else if (base == -16) { *(p++) = '0'; *(p++) = 'X'; }
+    }
+    else if (!(option & 24)) {
+    #ifdef PY2
+        if (base == 8)        { *(p++) = '0'; }
+    #else
+        if (base == 2)        { *(p++) = '0'; *(p++) = 'b'; }
+        else if (base == 8)   { *(p++) = '0'; *(p++) = 'o'; }
+    #endif
+        else if (base == 16)  { *(p++) = '0'; *(p++) = 'x'; }
+        else if (base == -16) { *(p++) = '0'; *(p++) = 'X'; }
+    }
+
+    /* Call GMP. */
+    mpz_get_str(p, base, z);
+    p = buffer + strlen(buffer);
+
+#ifdef PY2
+    if ((option & 1) && !mpz_fits_slong_p(z))
+        *(p++) = 'L';
+#endif
+
+    if (option & 1)
+        *(p++) = ')';
+    *(p++) = '\00';
+
+    result = Py_BuildValue("s", buffer);
+    if (negative == 1) {
+        mpz_neg(z, z);
+    }
+    TEMP_FREE(buffer, size);
+    return result;
+}
+
+/* ======================================================================== *
+ * Conversion between native Python objects and MPZ.                        *
+ * ======================================================================== */
+
+#ifdef PY2
+static MPZ_Object *
+GMPy_MPZ_From_PyInt(PyObject *obj)
+{
+    MPZ_Object *result;
+
+    assert(PyInte_Check(obj));
+
+    if ((result = GMPy_MPZ_New()))
+        mpz_set_si(MPZ(result), PyInt_AS_LONG(obj));
+    return result;
+}
+#endif
+
+static MPZ_Object *
+GMPy_MPZ_From_PyIntOrLong(PyObject *obj)
+{
+    MPZ_Object *result;
+
+    assert(PyIntOrLong_Check(obj));
+
+    if(!(result = GMPy_MPZ_New()))
+        return NULL;
+
+    mpz_set_PyIntOrLong(MPZ(result), obj);
+    return result;
+}
+
+static MPZ_Object *
+GMPy_MPZ_From_PyFloat(PyObject *obj)
+{
+    MPZ_Object *result;
+
+    assert(PyFloat_Check(obj));
+
+    if ((result = GMPy_MPZ_New())) {
+        double d = PyFloat_AsDouble(obj);
+
+        if (Py_IS_NAN(d)) {
+            Py_DECREF((PyObject*)result);
+            VALUE_ERROR("'mpz' does not support NaN");
+            return NULL;
+        }
+        if (Py_IS_INFINITY(d)) {
+            Py_DECREF((PyObject*)result);
+            OVERFLOW_ERROR("'mpz' does not support Infinity");
+            return NULL;
+        }
+        mpz_set_d(MPZ(result), d);
+    }
+    return result;
 }
 
 static MPZ_Object *
@@ -263,36 +291,10 @@ GMPy_MPZ_From_PyStr(PyObject *s, int base)
     return result;
 }
 
-static XMPZ_Object *
-GMPy_XMPZ_From_PyStr(PyObject *s, int base)
-{
-    XMPZ_Object *result;
-
-    if (!(result = GMPy_XMPZ_New()))
-        return NULL;
-
-    if (mpz_set_PyStr(result->z, s, base) == -1) {
-        Py_DECREF((PyObject*)result);
-        return NULL;
-    }
-    return result;
-}
-
-/* For fast mpz to PyLong conversion, we use code located in mpz_pylong.
- */
-
 static PyObject *
 GMPy_PyLong_From_MPZ(MPZ_Object *obj)
 {
     assert(MPZ_Check(obj));
-
-    return mpz_get_PyLong(MPZ(obj));
-}
-
-static PyObject *
-GMPy_PyLong_From_XMPZ(XMPZ_Object *obj)
-{
-    assert(XMPZ_Check(obj));
 
     return mpz_get_PyLong(MPZ(obj));
 }
@@ -320,23 +322,13 @@ GMPy_PyIntOrLong_From_MPZ(MPZ_Object *obj)
 }
 
 static PyObject *
-GMPy_PyIntOrLong_From_XMPZ(XMPZ_Object *obj)
-{
-#ifdef PY3
-    return GMPy_PyLong_From_XMPZ(obj);
-#else
-    if (mpz_fits_slong_p(MPZ(obj)))
-        /* cast is safe since we know it fits in a signed long */
-        return PyInt_FromLong((long)mpz_get_si(MPZ(obj)));
-    else
-        return GMPy_PyLong_From_XMPZ(obj);
-#endif
-}
-
-static PyObject *
 GMPy_PyFloat_From_MPZ(MPZ_Object *obj)
 {
-    double res = mpz_get_d(MPZ(obj));
+    double res;
+
+    assert(MPZ_Check(obj));
+
+    res = mpz_get_d(MPZ(obj));
 
     if (Py_IS_INFINITY(res)) {
         OVERFLOW_ERROR("'mpz' too large to convert to float");
@@ -346,250 +338,12 @@ GMPy_PyFloat_From_MPZ(MPZ_Object *obj)
     return PyFloat_FromDouble(res);
 }
 
-/* Format an mpz into any base (2 to 62). Bits in the option parameter
- * control various behaviors:
- *   bit 0: if set, output is wrapped with 'mpz(...)'
- *   bit 1: if set, a '+' is included for positive numbers
- *   bit 2: if set, a ' ' is included for positive nubmers
- *   bit 3: if set, a '0b', '0o', or '0x' is included for binary, octal, hex
- *   bit 4: if set, no prefix is included for binary, octal, hex
- *
- * Note: if neither bit 3 or 4 is set, prefixes that match the platform default
- * are included.
- *
- * If base < 0, capital letters are used
- */
-static char* ztag = "mpz(";
-static PyObject *
-mpz_ascii(mpz_t z, int base, int option)
-{
-    PyObject *result;
-    char *buffer, *p;
-    int negative = 0;
-    size_t size;
-
-    if (!((base == 0) || ((base >= -36) && (base <= -2)) ||
-        ((base >= 2) && (base <= 62)) )) {
-        VALUE_ERROR("base must be in the interval 2 ... 62");
-        return NULL;
-    }
-
-    /* Allocate extra space for:
-     *
-     * minus sign and trailing NULL byte (2)
-     * 'mpz()' tag                       (5)
-     * '0x' prefix                       (2)
-     * 'L' suffix                        (1)
-     *                                  -----
-     *                                   10
-     */
-    size = mpz_sizeinbase(z, base) + 11;
-    TEMP_ALLOC(buffer, size);
-
-    if (mpz_sgn(z) < 0) {
-        negative = 1;
-        mpz_neg(z, z);
-    }
-
-    p = buffer;
-    if (option & 1) {
-       strcpy(p, ztag);
-       p += strlen(p);
-    }
-
-    if (negative)
-        *(p++) = '-';
-    else if (option & 2)
-        *(p++) = '+';
-    else if (option & 4)
-        *(p++) = ' ';
-
-    if (option & 8) {
-        if (base == 2) {
-            *(p++) = '0';
-            *(p++) = 'b';
-        }
-        else if (base == 8) {
-            *(p++) = '0';
-            *(p++) = 'o';
-        }
-        else if (base == 16) {
-            *(p++) = '0';
-            *(p++) = 'x';
-        }
-        else if (base == -16) {
-            *(p++) = '0';
-            *(p++) = 'X';
-        }
-    }
-    else if (!(option & 24)) {
-    #ifdef PY2
-        if (base == 8) {
-            *(p++) = '0';
-        }
-    #else
-        if (base == 2) {
-            *(p++) = '0';
-            *(p++) = 'b';
-        }
-        else if (base == 8) {
-            *(p++) = '0';
-            *(p++) = 'o';
-        }
-    #endif
-        else if (base == 16) {
-            *(p++) = '0';
-            *(p++) = 'x';
-        }
-        else if (base == -16) {
-            *(p++) = '0';
-            *(p++) = 'X';
-        }
-    }
-
-    mpz_get_str(p, base, z);     /* Doesn't return number of characters */
-    p = buffer + strlen(buffer); /* Address of NULL byte */
-#ifdef PY2
-    if ((option & 1) && !mpz_fits_slong_p(z))
-        *(p++) = 'L';
-#endif
-    if (option & 1)
-        *(p++) = ')';
-    *(p++) = '\00';
-
-    result = Py_BuildValue("s", buffer);
-    if (negative == 1) {
-        mpz_neg(z, z);
-    }
-    TEMP_FREE(buffer, size);
-    return result;
-}
-
-/* Format an xmpz into any base (2 to 62). If with_tag != 0, the the output
- * is wrapped with 'xmpz(...)'. If with_sign > 0, a plus or minus leading
- * sign is always included. If with_sign < 0, a space is included instead of
- * a plus sign.
- */
-static char* xztag = "xmpz(";
-static PyObject *
-xmpz_ascii(mpz_t z, int base, int option)
-{
-    PyObject *result;
-    char *buffer, *p;
-    int negative = 0;
-    size_t size;
-
-    if (!((base == 0) || ((base >= -36) && (base <= -2)) ||
-        ((base >= 2) && (base <= 62)) )) {
-        VALUE_ERROR("base must be in the interval 2 ... 62");
-        return NULL;
-    }
-
-    /* Allocate extra space for:
-     *
-     * minus sign and trailing NULL byte (2)
-     * 'gmpy2.xmpz()' tag                (6)
-     * '0x' prefix                       (2)
-     * 'L' suffix                        (1)
-     *                                  -----
-     *                                   11
-     */
-    size = mpz_sizeinbase(z, base) + 12;
-    TEMP_ALLOC(buffer, size);
-
-    if (mpz_sgn(z) < 0) {
-        negative = 1;
-        mpz_neg(z, z);
-    }
-
-    p = buffer;
-    if (option & 1) {
-       strcpy(p, xztag);
-       p += strlen(p);
-    }
-
-    if (negative)
-        *(p++) = '-';
-    else if (option & 2)
-        *(p++) = '+';
-    else if (option & 4)
-        *(p++) = ' ';
-
-    if (option & 8) {
-        if (base == 2) {
-            *(p++) = '0';
-            *(p++) = 'b';
-        }
-        else if (base == 8) {
-            *(p++) = '0';
-            *(p++) = 'o';
-        }
-        else if (base == 16) {
-            *(p++) = '0';
-            *(p++) = 'x';
-        }
-        else if (base == -16) {
-            *(p++) = '0';
-            *(p++) = 'X';
-        }
-    }
-    else if (!(option & 24)) {
-    #ifdef PY2
-        if (base == 8) {
-            *(p++) = '0';
-        }
-    #else
-        if (base == 2) {
-            *(p++) = '0';
-            *(p++) = 'b';
-        }
-        else if (base == 8) {
-            *(p++) = '0';
-            *(p++) = 'o';
-        }
-    #endif
-        else if (base == 16) {
-            *(p++) = '0';
-            *(p++) = 'x';
-        }
-        else if (base == -16) {
-            *(p++) = '0';
-            *(p++) = 'X';
-        }
-    }
-
-    mpz_get_str(p, base, z);     /* Doesn't return number of characters */
-    p = buffer + strlen(buffer); /* Address of NULL byte */
-#ifdef PY2
-    if ((option & 1) && !mpz_fits_slong_p(z))
-        *(p++) = 'L';
-#endif
-    if (option & 1)
-        *(p++) = ')';
-    *(p++) = '\00';
-
-    result = Py_BuildValue("s", buffer);
-    if (negative == 1) {
-        mpz_neg(z, z);
-    }
-    TEMP_FREE(buffer, size);
-    return result;
-}
-
 static PyObject *
 GMPy_PyStr_From_MPZ(MPZ_Object *obj, int base, int option)
 {
     assert(MPZ_Check(obj));
 
-    return mpz_ascii(MPZ(obj), base, option);
-}
-
-static PyObject *
-GMPy_PyStr_From_XMPZ(XMPZ_Object *obj, int base, int option)
-{
-    assert(XMPZ_Check(obj));
-
-    return xmpz_ascii(MPZ(obj), base, option);
+    return mpz_ascii(MPZ(obj), base, option, 0);
 }
 
 static MPZ_Object *
@@ -692,9 +446,278 @@ GMPy_MPZ_From_Number_New(PyObject *obj)
     return result;
 }
 
+static MPZ_Object *
+GMPy_MPZ_From_Integer_Temp(PyObject *obj)
+{
+    MPZ_Object *result = NULL;
+
+    if (MPZ_Check(obj)) {
+        Py_INCREF(obj);
+        return (MPZ_Object*)obj;
+    }
+
+    if (PyIntOrLong_Check(obj))
+        return GMPy_MPZ_From_PyIntOrLong(obj);
+
+    if (XMPZ_Check(obj))
+        return GMPy_MPZ_From_XMPZ((XMPZ_Object*)obj);
+
+    TYPE_ERROR("cannot convert object to mpz");
+    return result;
+}
+
+static MPZ_Object *
+GMPy_MPZ_From_Integer_New(PyObject *obj)
+{
+    MPZ_Object *result = NULL;
+
+    if (MPZ_Check(obj)) {
+        if ((result = GMPy_MPZ_New()))
+            mpz_set(MPZ(result), MPZ(obj));
+        return result;
+    }
+
+    if (PyIntOrLong_Check(obj))
+        return GMPy_MPZ_From_PyIntOrLong(obj);
+
+    if (XMPZ_Check(obj))
+        return GMPy_MPZ_From_XMPZ((XMPZ_Object*)obj);
+
+    TYPE_ERROR("cannot convert object to mpz");
+    return result;
+}
+
+/* str and repr implementations for mpz */
+static PyObject *
+GMPy_MPZ_Str_Slot(MPZ_Object *self)
+{
+    /* base-10, no tag */
+    return GMPy_PyStr_From_MPZ(self, 10, 0);
+}
+
+static PyObject *
+GMPy_MPZ_Repr_Slot(MPZ_Object *self)
+{
+    /* base-10, with tag */
+    return GMPy_PyStr_From_MPZ(self, 10, 1);
+}
+
+/* Helper function for argument parsing. Not currently used. */
+
+#if 0
+static int
+GMPy_MPZ_convert_arg(PyObject *arg, PyObject **ptr)
+{
+    MPZ_Object *result = GMPy_MPZ_From_Integer_Temp(arg);
+
+    if (result) {
+        *ptr = (PyObject*)result;
+        return 1;
+    }
+    else {
+        TYPE_ERROR("argument can not be converted to 'mpz'");
+        return 0;
+    }
+}
+#endif
+/* ======================================================================== *
+ * Conversion between native Python objects/MPZ and XMPZ.                   *
+ * ======================================================================== */
+
+static XMPZ_Object *
+GMPy_XMPZ_From_XMPZ(XMPZ_Object *obj)
+{
+    XMPZ_Object *result;
+
+    assert(XMPZ_Check(obj));
+
+    if ((result = GMPy_XMPZ_New()))
+        mpz_set(MPZ(result), MPZ(obj));
+
+    return result;
+}
+
+static MPZ_Object *
+GMPy_MPZ_From_XMPZ(XMPZ_Object *obj)
+{
+    MPZ_Object *result;
+
+    assert(XMPZ_Check(obj));
+
+    if ((result = GMPy_MPZ_New()))
+        mpz_set(MPZ(result), MPZ(obj));
+
+    return result;
+}
+
+static XMPZ_Object *
+GMPy_XMPZ_From_MPZ(MPZ_Object *obj)
+{
+    XMPZ_Object *result;
+
+    assert(MPZ_Check(obj));
+
+    if ((result = GMPy_XMPZ_New()))
+        mpz_set(MPZ(result), MPZ(obj));
+
+    return result;
+}
+
+#ifdef PY2
+static XMPZ_Object *
+GMPy_XMPZ_From_PyInt(PyObject *obj)
+{
+    XMPZ_Object *result;
+
+    assert(PyInt_Check(obj));
+
+    if ((result = GMPy_XMPZ_New()))
+        mpz_set_si(MPZ(result), PyInt_AsLong(obj));
+    return result;
+}
+#endif
+static XMPZ_Object *
+GMPy_XMPZ_From_PyFloat(PyObject *obj)
+{
+    XMPZ_Object *result;
+
+    assert(PyFloat_Check(obj));
+
+    if ((result = GMPy_XMPZ_New())) {
+        double d = PyFloat_AsDouble(obj);
+
+        if (Py_IS_NAN(d)) {
+            Py_DECREF((PyObject*)result);
+            VALUE_ERROR("'xmpz' does not support NaN");
+            return NULL;
+        }
+        if (Py_IS_INFINITY(d)) {
+            Py_DECREF((PyObject*)result);
+            OVERFLOW_ERROR("'xmpz' does not support Infinity");
+            return NULL;
+        }
+        mpz_set_d(MPZ(result), d);
+    }
+    return result;
+}
+
+static XMPZ_Object *
+GMPy_XMPZ_From_PyIntOrLong(PyObject *obj)
+{
+    XMPZ_Object *result;
+
+    assert(PyIntOrLong_Check(obj));
+
+    if(!(result = GMPy_XMPZ_New()))
+        return NULL;
+
+    mpz_set_PyIntOrLong(MPZ(result), obj);
+    return result;
+}
+
+static XMPZ_Object *
+GMPy_XMPZ_From_PyStr(PyObject *s, int base)
+{
+    XMPZ_Object *result;
+
+    if (!(result = GMPy_XMPZ_New()))
+        return NULL;
+
+    if (mpz_set_PyStr(result->z, s, base) == -1) {
+        Py_DECREF((PyObject*)result);
+        return NULL;
+    }
+    return result;
+}
+
+static PyObject *
+GMPy_PyLong_From_XMPZ(XMPZ_Object *obj)
+{
+    assert(XMPZ_Check(obj));
+
+    return mpz_get_PyLong(MPZ(obj));
+}
+
+static PyObject *
+GMPy_PyIntOrLong_From_XMPZ(XMPZ_Object *obj)
+{
+    assert(XMPZ_Check(obj));
+
+#ifdef PY3
+    return GMPy_PyLong_From_XMPZ(obj);
+#else
+    if (mpz_fits_slong_p(MPZ(obj)))
+        /* cast is safe since we know it fits in a signed long */
+        return PyInt_FromLong((long)mpz_get_si(MPZ(obj)));
+    else
+        return GMPy_PyLong_From_XMPZ(obj);
+#endif
+}
+
+
+
+
+
+
+static PyObject *
+GMPy_PyStr_From_XMPZ(XMPZ_Object *obj, int base, int option)
+{
+    assert(XMPZ_Check(obj));
+
+    return mpz_ascii(MPZ(obj), base, option, 1);
+}
 
 static XMPZ_Object*
-GMPy_XMPZ_From_Number(PyObject *obj)
+GMPy_XMPZ_From_Number_Temp(PyObject *obj)
+{
+    XMPZ_Object *result = NULL;
+
+    if (MPZ_Check(obj))
+        return GMPy_XMPZ_From_MPZ((MPZ_Object*)obj);
+
+    if (PyIntOrLong_Check(obj))
+        return GMPy_XMPZ_From_PyIntOrLong(obj);
+
+    if (MPQ_Check(obj))
+        return GMPy_XMPZ_From_MPQ(obj);
+
+    if (MPFR_Check(obj))
+        return Pympfr_To_Pyxmpz(obj);
+
+    if (PyFloat_Check(obj))
+        return GMPy_XMPZ_From_PyFloat(obj);
+
+    if (XMPZ_Check(obj)) {
+        Py_INCREF(obj);
+        return (XMPZ_Object*)obj;
+    }
+
+    if (IS_DECIMAL(obj)) {
+        PyObject *temp = PyNumber_Long(obj);
+
+        if (temp) {
+            result = GMPy_XMPZ_From_PyIntOrLong(temp);
+            Py_DECREF(temp);
+        }
+        return result;
+    }
+
+    if (IS_FRACTION(obj)) {
+        MPQ_Object *temp = Pympq_From_Fraction(obj);
+
+        if (temp) {
+            result = GMPy_XMPZ_From_MPQ((PyObject *)temp);
+            Py_DECREF((PyObject*)temp);
+        }
+        return result;
+    }
+
+    TYPE_ERROR("cannot convert object to xmpz");
+    return result;
+}
+
+static XMPZ_Object*
+GMPy_XMPZ_From_Number_New(PyObject *obj)
 {
     XMPZ_Object *result = NULL;
 
@@ -740,51 +763,24 @@ GMPy_XMPZ_From_Number(PyObject *obj)
     return result;
 }
 
-/* Convert an Integer-like object (as determined by isInteger) to
- * a Pympz. Returns NULL and raises a TypeError if obj is not an
- * Integer-like object.
- */
-
-static MPZ_Object *
-GMPy_MPZ_From_Integer_Temp(PyObject *obj)
+/* str and repr implementations for xmpz */
+static PyObject *
+GMPy_XMPZ_Str_Slot(XMPZ_Object *self)
 {
-    MPZ_Object *result = NULL;
-
-    if (MPZ_Check(obj)) {
-        Py_INCREF(obj);
-        return (MPZ_Object*)obj;
-    }
-
-    if (PyIntOrLong_Check(obj))
-        return GMPy_MPZ_From_PyIntOrLong(obj);
-
-    if (XMPZ_Check(obj))
-        return GMPy_MPZ_From_XMPZ((XMPZ_Object*)obj);
-
-    TYPE_ERROR("cannot convert object to mpz");
-    return result;
+    /* base-10, no tag */
+    return GMPy_PyStr_From_XMPZ(self, 10, 0);
 }
 
-static MPZ_Object *
-GMPy_MPZ_From_Integer_New(PyObject *obj)
+static PyObject *
+GMPy_XMPZ_Repr_Slot(XMPZ_Object *self)
 {
-    MPZ_Object *result = NULL;
-
-    if (MPZ_Check(obj)) {
-        if ((result = GMPy_MPZ_New()))
-            mpz_set(MPZ(result), MPZ(obj));
-        return result;
-    }
-
-    if (PyIntOrLong_Check(obj))
-        return GMPy_MPZ_From_PyIntOrLong(obj);
-
-    if (XMPZ_Check(obj))
-        return GMPy_MPZ_From_XMPZ((XMPZ_Object*)obj);
-
-    TYPE_ERROR("cannot convert object to mpz");
-    return result;
+    /* base-10, with tag */
+    return GMPy_PyStr_From_XMPZ(self, 10, 1);
 }
+
+/****************************************************************************
+ * Conversions to native C types occurs here.                               *
+ ****************************************************************************/
 
 /* Convert an Integer-like object (as determined by isInteger) to a
  * C long or C unsigned long.
@@ -985,58 +981,6 @@ ssize_t_From_Integer(PyObject *obj)
     }
     TYPE_ERROR("conversion error in ssize_t_From_Integer");
     return -1;
-}
-
-/*
- * coerce any number to a mpz
- */
-
-/* currently not in use */
-#if 0
-static int
-GMPy_MPZ_convert_arg(PyObject *arg, PyObject **ptr)
-{
-    MPZ_Object *result = GMPy_MPZ_From_Integer_Temp(arg);
-
-    if (result) {
-        *ptr = (PyObject*)result;
-        return 1;
-    }
-    else {
-        TYPE_ERROR("argument can not be converted to 'mpz'");
-        return 0;
-    }
-}
-#endif
-
-/* str and repr implementations for mpz */
-static PyObject *
-GMPy_MPZ_Str_Slot(MPZ_Object *self)
-{
-    /* base-10, no tag */
-    return GMPy_PyStr_From_MPZ(self, 10, 0);
-}
-
-static PyObject *
-GMPy_MPZ_Repr_Slot(MPZ_Object *self)
-{
-    /* base-10, with tag */
-    return GMPy_PyStr_From_MPZ(self, 10, 1);
-}
-
-/* str and repr implementations for xmpz */
-static PyObject *
-GMPy_XMPZ_Str_Slot(XMPZ_Object *self)
-{
-    /* base-10, no tag */
-    return GMPy_PyStr_From_XMPZ(self, 10, 0);
-}
-
-static PyObject *
-GMPy_XMPZ_Repr_Slot(XMPZ_Object *self)
-{
-    /* base-10, with tag */
-    return GMPy_PyStr_From_XMPZ(self, 10, 1);
 }
 
 #ifdef PY2
@@ -1356,7 +1300,7 @@ Pympq_To_PyStr(MPQ_Object *self, int base, int option)
     PyObject *result = 0, *numstr = 0, *denstr = 0;
     char buffer[50], *p;
 
-    numstr = mpz_ascii(mpq_numref(self->q), base, 0);
+    numstr = mpz_ascii(mpq_numref(self->q), base, 0, 0);
     if (!numstr)
         return NULL;
 
@@ -1366,7 +1310,7 @@ Pympq_To_PyStr(MPQ_Object *self, int base, int option)
     if (!(option & 1) && qden_1(self->q))
         return numstr;
 
-    denstr = mpz_ascii(mpq_denref(self->q), base, 0);
+    denstr = mpz_ascii(mpq_denref(self->q), base, 0, 0);
     if (!denstr) {
         Py_DECREF(numstr);
         return NULL;

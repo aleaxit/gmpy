@@ -51,12 +51,42 @@
  *
  */
 
+/* Logical analysis
+ *
+ * If x already is an mpz, the sign is checked. If x is greater than or equal
+ * to 0, the reference count is incremented and x is returned. If x is less
+ * than 0, then a new object is created, set to the absolute value and the
+ * new object is returned.
+ *
+ * For any other object, GMPy_MPZ_From_Integer_Temp(x) is called. If x is an
+ * mpz, then GMPy_MPZ_From_Integer_Temp just increments the reference count
+ * and returns the same object. Modifying the new reference to the original
+ * object is not a good idea. We already have handled the case where x is an
+ * mpz so this is not an issue.
+ *
+ * If we do not want to handle the case where x is an mpz separately, then we
+ * must call GMPy_MPZ_From_Integer_New(). It will make a copy of an mpz that
+ * is safe to modify.
+ */
+
 static PyObject *
 GMPy_Integer_Abs(PyObject *x, GMPyContextObject *context)
 {
     MPZ_Object *result;
 
-    if ((result = GMPy_MPZ_From_Integer_New(x))) {
+    if (MPZ_Check(x)) {
+        if (mpz_sgn(MPZ(x)) >= 0) {
+            Py_INCREF(x);
+            return x;
+        }
+        else {
+            if ((result = GMPy_MPZ_New()))
+                mpz_abs(MPZ(result), MPZ(x));
+            return (PyObject*)result;
+        }
+    }
+
+    if ((result = GMPy_MPZ_From_Integer_Temp(x))) {
         mpz_abs(result->z, result->z);
     }
 

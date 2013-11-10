@@ -63,7 +63,7 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
     if (argc == 1) {
         n = PyTuple_GetItem(args, 0);
         if (IS_REAL(n) && !keywds) {
-            result = GMPy_XMPZ_From_Number(n);
+            result = GMPy_XMPZ_From_Number_New(n);
             if (!result && !PyErr_Occurred())
                 TYPE_ERROR("xmpz() requires numeric or string argument");
             return (PyObject*)result;
@@ -89,7 +89,7 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
             TYPE_ERROR("xmpz() with non-string argument needs exactly "
                        "1 argument");
         else {
-            result = GMPy_XMPZ_From_Number(n);
+            result = GMPy_XMPZ_From_Number_New(n);
             if (!result && !PyErr_Occurred())
                 TYPE_ERROR("xmpz() requires numeric or string argument");
         }
