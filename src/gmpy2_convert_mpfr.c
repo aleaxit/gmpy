@@ -375,7 +375,7 @@ static MPFR_Object *
 Pympfr_From_PyLong(PyObject *self, mpfr_prec_t bits)
 {
     MPFR_Object *result;
-    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyLong(self);
+    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyIntOrLong(self);
 
     if (!temp)
         return NULL;
@@ -389,7 +389,7 @@ Pympfr_From_PyLong_context(PyObject *self, mpfr_prec_t bits,
                           GMPyContextObject *context)
 {
     MPFR_Object *result;
-    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyLong(self);
+    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyIntOrLong(self);
 
     if (!temp)
         return NULL;
@@ -433,7 +433,7 @@ Pympfr_To_PyInt(MPFR_Object *self)
 
     if (!temp)
         return NULL;
-    result = Pympz_To_PyIntOrLong(temp);
+    result = GMPy_PyIntOrLong_From_MPZ(temp);
     Py_DECREF((PyObject*)temp);
     return result;
 }
@@ -547,7 +547,7 @@ Pympfr_To_PyLong(MPFR_Object *self)
 
     if (!temp) return NULL;
 
-    result = Pympz_To_PyLong(temp);
+    result = GMPy_PyLong_From_MPZ(temp);
     Py_DECREF((PyObject*)temp);
 
     return result;

@@ -113,11 +113,11 @@ GMPy_Integer_Sub(PyObject *x, PyObject *y, GMPyContextObject *context)
         }
     }
 
-    if (PyIntOrLong_Check(x) && PyIntOrLong_Check(y)) {
+    if (IS_INTEGER(x) && IS_INTEGER(y)) {
         MPZ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPZ_From_PyLong(x);
-        tempy = GMPy_MPZ_From_PyLong(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x);
+        tempy = GMPy_MPZ_From_Integer_Temp(y);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Could not convert Integer to mpz.");
             Py_XDECREF((PyObject*)tempx);
@@ -264,10 +264,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, GMPyContextObject *context)
             temp_si = PyLong_AsSIAndOverflow(y, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
-                if (-1 == mpz_set_PyIntOrLong(tempz, y)) {
-                    Py_DECREF((PyObject*)result);
-                    return NULL;
-                }
+                mpz_set_PyIntOrLong(tempz, y);
                 mpfr_clear_flags();
                 result->rc = mpfr_sub_z(result->f, MPFR(x), tempz,
                                         GET_MPFR_ROUND(context));
@@ -321,10 +318,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, GMPyContextObject *context)
             temp_si = PyLong_AsSIAndOverflow(x, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
-                if (-1 == mpz_set_PyIntOrLong(tempz, x)) {
-                    Py_DECREF((PyObject*)result);
-                    return NULL;
-                }
+                mpz_set_PyIntOrLong(tempz, x);
                 mpfr_clear_flags();
                 result->rc = mpfr_sub_z(result->f, MPFR(y), tempz,
                                         GET_MPFR_ROUND(context));
