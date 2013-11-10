@@ -79,7 +79,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
 
     if (PyStrOrUnicode_Check(n)) {
         /* build-from-string (ascii or unicode) */
-        result = Pympz_From_PyStr(n, base);
+        result = GMPy_MPZ_From_PyStr(n, base);
     }
     else {
         if (argc==2 || (argc == 1 && keywds))
@@ -116,7 +116,7 @@ Pympz_digits(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
-    result = Pympz_To_PyStr((MPZ_Object*)self, (int)base, 16);
+    result = GMPy_PyStr_From_MPZ((MPZ_Object*)self, (int)base, 16);
     Py_DECREF(self);
     return result;
 }
@@ -1046,13 +1046,13 @@ Pympz_lshift(PyObject *self, PyObject *other)
 static PyObject *
 Pympz_oct(MPZ_Object *self)
 {
-    return Pympz_To_PyStr(self, 8, 0);
+    return GMPy_PyStr_From_MPZ(self, 8, 0);
 }
 
 static PyObject *
 Pympz_hex(MPZ_Object *self)
 {
-    return Pympz_To_PyStr(self, 16, 0);
+    return GMPy_PyStr_From_MPZ(self, 16, 0);
 }
 #endif
 
@@ -1068,7 +1068,7 @@ Pympz_hash(MPZ_Object *self)
     hash = (Py_hash_t)mpn_mod_1(self->z->_mp_d, mpz_size(self->z), _PyHASH_MODULUS);
     if (mpz_sgn(self->z)<0)
         hash = -hash;
-    if (hash==-1)
+    if (hash == -1)
         hash = -2;
     return (self->hash_cache = hash);
 #else
@@ -2636,84 +2636,84 @@ Pympz_sizeof(PyObject *self, PyObject *other)
 #ifdef PY3
 static PyNumberMethods mpz_number_methods =
 {
-    (binaryfunc) GMPy_mpz_add_fast,      /* nb_add                  */
-    (binaryfunc) GMPy_mpz_sub_fast,      /* nb_subtract             */
-    (binaryfunc) GMPy_mpz_mul_fast,      /* nb_multiply             */
-    (binaryfunc) Pympz_mod_fast,         /* nb_remainder            */
-    (binaryfunc) Pympz_divmod_fast,      /* nb_divmod               */
-    (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
-    (unaryfunc) Pympz_neg,               /* nb_negative             */
-    (unaryfunc) Pympz_pos,               /* nb_positive             */
-    (unaryfunc) GMPy_mpz_abs_fast,       /* nb_absolute             */
-    (inquiry) Pympz_nonzero,             /* nb_bool                 */
-    (unaryfunc) Pympz_com,               /* nb_invert               */
-    (binaryfunc) Pympz_lshift,           /* nb_lshift               */
-    (binaryfunc) Pympz_rshift,           /* nb_rshift               */
-    (binaryfunc) Pympz_and,              /* nb_and                  */
-    (binaryfunc) Pympz_xor,              /* nb_xor                  */
-    (binaryfunc) Pympz_ior,              /* nb_or                   */
-    (unaryfunc) Pympz_To_PyLong,         /* nb_int                  */
-        0,                               /* nb_reserved             */
-    (unaryfunc) Pympz_To_PyFloat,        /* nb_float                */
-    (binaryfunc) Pympz_inplace_add,      /* nb_inplace_add          */
-    (binaryfunc) Pympz_inplace_sub,      /* nb_inplace_subtract     */
-    (binaryfunc) Pympz_inplace_mul,      /* nb_inplace_multiply     */
-    (binaryfunc) Pympz_inplace_rem,      /* nb_inplace_remainder    */
-    (ternaryfunc) Pympz_inplace_pow,     /* nb_inplace_power        */
-    (binaryfunc) Pympz_inplace_lshift,   /* nb_inplace_lshift       */
-    (binaryfunc) Pympz_inplace_rshift,   /* nb_inplace_rshift       */
-        0,                               /* nb_inplace_and          */
-        0,                               /* nb_inplace_xor          */
-        0,                               /* nb_inplace_or           */
-    (binaryfunc) Pympz_floordiv_fast,    /* nb_floor_divide         */
-    (binaryfunc) Pympz_truediv_fast,     /* nb_true_divide          */
-    (binaryfunc) Pympz_inplace_floordiv, /* nb_inplace_floor_divide */
-        0,                               /* nb_inplace_true_divide  */
-    (unaryfunc)  Pympz_To_PyIntOrLong,   /* nb_index                */
+    (binaryfunc) GMPy_mpz_add_fast,        /* nb_add                  */
+    (binaryfunc) GMPy_mpz_sub_fast,        /* nb_subtract             */
+    (binaryfunc) GMPy_mpz_mul_fast,        /* nb_multiply             */
+    (binaryfunc) Pympz_mod_fast,           /* nb_remainder            */
+    (binaryfunc) Pympz_divmod_fast,        /* nb_divmod               */
+    (ternaryfunc) GMPy_mpany_pow_fast,     /* nb_power                */
+    (unaryfunc) Pympz_neg,                 /* nb_negative             */
+    (unaryfunc) Pympz_pos,                 /* nb_positive             */
+    (unaryfunc) GMPy_mpz_abs_fast,         /* nb_absolute             */
+    (inquiry) Pympz_nonzero,               /* nb_bool                 */
+    (unaryfunc) Pympz_com,                 /* nb_invert               */
+    (binaryfunc) Pympz_lshift,             /* nb_lshift               */
+    (binaryfunc) Pympz_rshift,             /* nb_rshift               */
+    (binaryfunc) Pympz_and,                /* nb_and                  */
+    (binaryfunc) Pympz_xor,                /* nb_xor                  */
+    (binaryfunc) Pympz_ior,                /* nb_or                   */
+    (unaryfunc) GMPy_PyLong_From_MPZ,      /* nb_int                  */
+        0,                                 /* nb_reserved             */
+    (unaryfunc) GMPy_PyFloat_From_MPZ,     /* nb_float                */
+    (binaryfunc) Pympz_inplace_add,        /* nb_inplace_add          */
+    (binaryfunc) Pympz_inplace_sub,        /* nb_inplace_subtract     */
+    (binaryfunc) Pympz_inplace_mul,        /* nb_inplace_multiply     */
+    (binaryfunc) Pympz_inplace_rem,        /* nb_inplace_remainder    */
+    (ternaryfunc) Pympz_inplace_pow,       /* nb_inplace_power        */
+    (binaryfunc) Pympz_inplace_lshift,     /* nb_inplace_lshift       */
+    (binaryfunc) Pympz_inplace_rshift,     /* nb_inplace_rshift       */
+        0,                                 /* nb_inplace_and          */
+        0,                                 /* nb_inplace_xor          */
+        0,                                 /* nb_inplace_or           */
+    (binaryfunc) Pympz_floordiv_fast,      /* nb_floor_divide         */
+    (binaryfunc) Pympz_truediv_fast,       /* nb_true_divide          */
+    (binaryfunc) Pympz_inplace_floordiv,   /* nb_inplace_floor_divide */
+        0,                                 /* nb_inplace_true_divide  */
+    (unaryfunc) GMPy_PyIntOrLong_From_MPZ, /* nb_index                */
 };
 
 #else
 static PyNumberMethods mpz_number_methods =
 {
-    (binaryfunc) GMPy_mpz_add_fast,      /* nb_add                  */
-    (binaryfunc) GMPy_mpz_sub_fast,      /* nb_subtract             */
-    (binaryfunc) GMPy_mpz_mul_fast,      /* nb_multiply             */
-    (binaryfunc) Pympz_div2_fast,        /* nb_divide               */
-    (binaryfunc) Pympz_mod_fast,         /* nb_remainder            */
-    (binaryfunc) Pympz_divmod_fast,      /* nb_divmod               */
-    (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
-    (unaryfunc) Pympz_neg,               /* nb_negative             */
-    (unaryfunc) Pympz_pos,               /* nb_positive             */
-    (unaryfunc) GMPy_mpz_abs_fast,       /* nb_absolute             */
-    (inquiry) Pympz_nonzero,             /* nb_bool                 */
-    (unaryfunc) Pympz_com,               /* nb_invert               */
-    (binaryfunc) Pympz_lshift,           /* nb_lshift               */
-    (binaryfunc) Pympz_rshift,           /* nb_rshift               */
-    (binaryfunc) Pympz_and,              /* nb_and                  */
-    (binaryfunc) Pympz_xor,              /* nb_xor                  */
-    (binaryfunc) Pympz_ior,              /* nb_or                   */
-        0,                               /* nb_coerce               */
-    (unaryfunc) Pympz_To_PyIntOrLong,    /* nb_int                  */
-    (unaryfunc) Pympz_To_PyLong,         /* nb_long                 */
-    (unaryfunc) Pympz_To_PyFloat,        /* nb_float                */
-    (unaryfunc) Pympz_oct,               /* nb_oct                  */
-    (unaryfunc) Pympz_hex,               /* nb_hex                  */
-    (binaryfunc) Pympz_inplace_add,      /* nb_inplace_add          */
-    (binaryfunc) Pympz_inplace_sub,      /* nb_inplace_subtract     */
-    (binaryfunc) Pympz_inplace_mul,      /* nb_inplace_multiply     */
-        0,                               /* nb_inplace_divide       */
-    (binaryfunc) Pympz_inplace_rem,      /* nb_inplace_remainder    */
-    (ternaryfunc) Pympz_inplace_pow,     /* nb_inplace_power        */
-    (binaryfunc) Pympz_inplace_lshift,   /* nb_inplace_lshift       */
-    (binaryfunc) Pympz_inplace_rshift,   /* nb_inplace_rshift       */
-        0,                               /* nb_inplace_and          */
-        0,                               /* nb_inplace_xor          */
-        0,                               /* nb_inplace_or           */
-    (binaryfunc) Pympz_floordiv_fast,    /* nb_floor_divide         */
-    (binaryfunc) Pympz_truediv_fast,     /* nb_true_divide          */
-    (binaryfunc) Pympz_inplace_floordiv, /* nb_inplace_floor_divide */
-        0,                               /* nb_inplace_true_divide  */
-    (unaryfunc) Pympz_To_PyIntOrLong,    /* nb_index                */
+    (binaryfunc) GMPy_mpz_add_fast,        /* nb_add                  */
+    (binaryfunc) GMPy_mpz_sub_fast,        /* nb_subtract             */
+    (binaryfunc) GMPy_mpz_mul_fast,        /* nb_multiply             */
+    (binaryfunc) Pympz_div2_fast,          /* nb_divide               */
+    (binaryfunc) Pympz_mod_fast,           /* nb_remainder            */
+    (binaryfunc) Pympz_divmod_fast,        /* nb_divmod               */
+    (ternaryfunc) GMPy_mpany_pow_fast,     /* nb_power                */
+    (unaryfunc) Pympz_neg,                 /* nb_negative             */
+    (unaryfunc) Pympz_pos,                 /* nb_positive             */
+    (unaryfunc) GMPy_mpz_abs_fast,         /* nb_absolute             */
+    (inquiry) Pympz_nonzero,               /* nb_bool                 */
+    (unaryfunc) Pympz_com,                 /* nb_invert               */
+    (binaryfunc) Pympz_lshift,             /* nb_lshift               */
+    (binaryfunc) Pympz_rshift,             /* nb_rshift               */
+    (binaryfunc) Pympz_and,                /* nb_and                  */
+    (binaryfunc) Pympz_xor,                /* nb_xor                  */
+    (binaryfunc) Pympz_ior,                /* nb_or                   */
+        0,                                 /* nb_coerce               */
+    (unaryfunc) GMPy_PyIntOrLong_From_MPZ, /* nb_int                  */
+    (unaryfunc) GMPy_PyLong_From_MPZ,      /* nb_long                 */
+    (unaryfunc) GMPy_PyFloat_From_MPZ,     /* nb_float                */
+    (unaryfunc) Pympz_oct,                 /* nb_oct                  */
+    (unaryfunc) Pympz_hex,                 /* nb_hex                  */
+    (binaryfunc) Pympz_inplace_add,        /* nb_inplace_add          */
+    (binaryfunc) Pympz_inplace_sub,        /* nb_inplace_subtract     */
+    (binaryfunc) Pympz_inplace_mul,        /* nb_inplace_multiply     */
+        0,                                 /* nb_inplace_divide       */
+    (binaryfunc) Pympz_inplace_rem,        /* nb_inplace_remainder    */
+    (ternaryfunc) Pympz_inplace_pow,       /* nb_inplace_power        */
+    (binaryfunc) Pympz_inplace_lshift,     /* nb_inplace_lshift       */
+    (binaryfunc) Pympz_inplace_rshift,     /* nb_inplace_rshift       */
+        0,                                 /* nb_inplace_and          */
+        0,                                 /* nb_inplace_xor          */
+        0,                                 /* nb_inplace_or           */
+    (binaryfunc) Pympz_floordiv_fast,      /* nb_floor_divide         */
+    (binaryfunc) Pympz_truediv_fast,       /* nb_true_divide          */
+    (binaryfunc) Pympz_inplace_floordiv,   /* nb_inplace_floor_divide */
+        0,                                 /* nb_inplace_true_divide  */
+    (unaryfunc) GMPy_PyIntOrLong_From_MPZ, /* nb_index                */
 };
 #endif
 
@@ -2768,13 +2768,13 @@ static PyTypeObject MPZ_Type =
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
-    (reprfunc) Pympz_To_Repr,               /* tp_repr          */
+    (reprfunc) GMPy_MPZ_Repr_Slot,          /* tp_repr          */
     &mpz_number_methods,                    /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
     &mpz_mapping_methods,                   /* tp_as_mapping    */
     (hashfunc) Pympz_hash,                  /* tp_hash          */
         0,                                  /* tp_call          */
-    (reprfunc) Pympz_To_Str,                /* tp_str           */
+    (reprfunc) GMPy_MPZ_Str_Slot,           /* tp_str           */
         0,                                  /* tp_getattro      */
         0,                                  /* tp_setattro      */
         0,                                  /* tp_as_buffer     */

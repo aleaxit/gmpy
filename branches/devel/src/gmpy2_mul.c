@@ -106,11 +106,11 @@ GMPy_Integer_Mul(PyObject *x, PyObject *y, GMPyContextObject *context)
         }
     }
 
-    if (PyIntOrLong_Check(x) && PyIntOrLong_Check(y)) {
+    if (IS_INTEGER(x) && IS_INTEGER(y)) {
         MPZ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPZ_From_PyLong(x);
-        tempy = GMPy_MPZ_From_PyLong(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x);
+        tempy = GMPy_MPZ_From_Integer_Temp(y);
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);

@@ -330,7 +330,7 @@ static MPC_Object *
 Pympc_From_PyLong(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     MPC_Object *result;
-    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyLong(self);
+    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyIntOrLong(self);
 
     if (!temp)
         return NULL;
@@ -344,7 +344,7 @@ Pympc_From_PyLong_bits_context(PyObject *self, mpfr_prec_t rprec,
                                mpfr_prec_t iprec, GMPyContextObject *context)
 {
     MPC_Object *result;
-    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyLong(self);
+    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyIntOrLong(self);
 
     if (!temp)
         return NULL;
@@ -357,7 +357,7 @@ static MPC_Object *
 Pympc_From_PyLong_context(PyObject *self, GMPyContextObject *context)
 {
     MPC_Object *result;
-    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyLong(self);
+    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyIntOrLong(self);
 
     if (!temp)
         return NULL;
