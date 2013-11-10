@@ -181,7 +181,7 @@ GMPy_Rational_Pow(PyObject *base, PyObject *exp, GMPyContextObject *context)
     /* Only support mpq**int. Everything else gets converted to mpf. */
     if (IS_RATIONAL(base) && IS_INTEGER(exp)) {
 
-        resultq = (MPQ_Object*)Pympq_new();
+        resultq = GMPy_MPQ_New();
         tempbq = Pympq_From_Rational(base);
         tempez = GMPy_MPZ_From_Integer_Temp(exp);
         if (!resultq || !tempbq || !tempez) {

@@ -83,7 +83,7 @@ Pympq_From_Old_Binary(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = (MPQ_Object*)Pympq_new()))
+    if (!(result = GMPy_MPQ_New()))
         return NULL;
 
     len = PyBytes_Size(other);
@@ -680,7 +680,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             size_t numlen = 0, sizesize = 4, i;
             mpz_t num, den;
 
-            if (!(result = (MPQ_Object*)Pympq_new()))
+            if (!(result = GMPy_MPQ_New()))
                 return NULL;
             if (cp[1] == 0x00) {
                 mpq_set_ui(result->q, 0, 1);
