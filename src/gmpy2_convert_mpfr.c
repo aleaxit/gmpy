@@ -249,7 +249,7 @@ stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz)
         return NULL;
     }
 
-    if (!(result = (MPQ_Object*)Pympq_new()))
+    if (!(result = GMPy_MPQ_New()))
         return NULL;
 
     mpfr_init2(minerr, F2Q_PREC);

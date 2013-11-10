@@ -223,7 +223,7 @@ PyDoc_STRVAR(doc_xmpz_copy,
 static PyObject *
 Pyxmpz_copy(PyObject *self, PyObject *other)
 {
-    return (PyObject*)GMPy_XMPZ_From_XMPZ(self);
+    return (PyObject*)GMPy_XMPZ_From_XMPZ((XMPZ_Object*)self);
 }
 
 /*

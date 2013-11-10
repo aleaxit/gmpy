@@ -169,7 +169,7 @@ GMPy_Rational_Sub(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
     MPQ_Object *result;
 
-    if (!(result = (MPQ_Object*)Pympq_new()))
+    if (!(result = GMPy_MPQ_New()))
         return NULL;
 
     if (MPQ_Check(x) && MPQ_Check(y)) {

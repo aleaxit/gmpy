@@ -903,7 +903,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                     return _cmp_to_object(-1, op);
             }
             else {
-                tempb = (PyObject*)Pympq_new();
+                tempb = (PyObject*)GMPy_MPQ_New();
                 if (!tempb)
                     return NULL;
                 mpq_set_d(MPQ(tempb), d);

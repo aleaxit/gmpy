@@ -187,28 +187,28 @@ set_gmpympqcache(void)
     gmpympqcache = GMPY_REALLOC(gmpympqcache, sizeof(MPQ_Object)*global.cache_size);
 }
 
-static PyObject *
-Pympq_new(void)
+static MPQ_Object *
+GMPy_MPQ_New(void)
 {
-    MPQ_Object *self;
+    MPQ_Object *result;
 
     if (in_gmpympqcache) {
-        self = gmpympqcache[--in_gmpympqcache];
+        result = gmpympqcache[--in_gmpympqcache];
         /* Py_INCREF does not set the debugging pointers, so need to use
            _Py_NewReference instead. */
-        _Py_NewReference((PyObject*)self);
+        _Py_NewReference((PyObject*)result);
     }
     else {
-        if (!(self = PyObject_New(MPQ_Object, &MPQ_Type)))
+        if (!(result = PyObject_New(MPQ_Object, &MPQ_Type)))
             return NULL;
-        mpq_init(self->q);
+        mpq_init(result->q);
     }
-    self->hash_cache = -1;
-    return (PyObject*)self;
+    result->hash_cache = -1;
+    return result;
 }
 
 static void
-Pympq_dealloc(MPQ_Object *self)
+GMPy_MPQ_Dealloc(MPQ_Object *self)
 {
     if (in_gmpympqcache<global.cache_size &&
         mpq_numref(self->q)->_mp_alloc <= global.cache_obsize &&
