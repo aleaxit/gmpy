@@ -32,15 +32,18 @@
 extern "C" {
 #endif
 
+/* ======== C helper routines ======== */
+static int             mpz_set_PyStr(mpz_ptr z, PyObject *s, int base);
+static PyObject *      mpz_ascii(mpz_t z, int base, int option, int which);
+
 /********* Integer Conversions *********/
 
 /* conversions with MPZ_Object */
 #ifdef PY2
 static MPZ_Object *    GMPy_MPZ_From_PyInt(PyObject *obj);
 #endif
-static MPZ_Object *    GMPy_MPZ_From_PyStr(PyObject *s, int base);
 static MPZ_Object *    GMPy_MPZ_From_PyIntOrLong(PyObject *obj);
-static MPZ_Object *    GMPy_MPZ_From_XMPZ(XMPZ_Object *obj);
+static MPZ_Object *    GMPy_MPZ_From_PyStr(PyObject *s, int base);
 static MPZ_Object *    GMPy_MPZ_From_PyFloat(PyObject *obj);
 
 static MPZ_Object *    GMPy_MPZ_From_Integer_New(PyObject *obj);
@@ -57,13 +60,15 @@ static PyObject *      GMPy_PyStr_From_MPZ(MPZ_Object *obj, int base, int option
 #ifdef PY2
 static XMPZ_Object *   GMPy_XMPZ_From_PyInt(PyObject *obj);
 #endif
-static XMPZ_Object *   GMPy_XMPZ_From_PyStr(PyObject *s, int base);
 static XMPZ_Object *   GMPy_XMPZ_From_PyIntOrLong(PyObject *obj);
+static XMPZ_Object *   GMPy_XMPZ_From_PyStr(PyObject *s, int base);
 static XMPZ_Object *   GMPy_XMPZ_From_XMPZ(XMPZ_Object *obj);
 static XMPZ_Object *   GMPy_XMPZ_From_MPZ(MPZ_Object *obj);
 static XMPZ_Object *   GMPy_XMPZ_From_PyFloat(PyObject *self);
-static XMPZ_Object *   GMPy_XMPZ_From_Number(PyObject *obj);
+static XMPZ_Object *   GMPy_XMPZ_From_Number_New(PyObject *obj);
+static XMPZ_Object *   GMPy_XMPZ_From_Number_Temp(PyObject *obj);
 
+static MPZ_Object *    GMPy_MPZ_From_XMPZ(XMPZ_Object *obj);
 static PyObject *      GMPy_PyLong_From_XMPZ(XMPZ_Object *self);
 static PyObject *      GMPy_PyIntOrLong_From_XMPZ(XMPZ_Object *self);
 static PyObject *      GMPy_PyStr_From_XMPZ(XMPZ_Object *self, int base, int option);
@@ -74,10 +79,6 @@ static PyObject *      GMPy_MPZ_Repr_Slot(MPZ_Object *self);
 static PyObject *      GMPy_XMPZ_Str_Slot(XMPZ_Object *self);
 static PyObject *      GMPy_XMPZ_Repr_Slot(XMPZ_Object *self);
 
-/* Miscellaneous integer conversion functions. */
-static int             mpz_set_PyStr(mpz_ptr z, PyObject *s, int base);
-static PyObject *      mpz_ascii(mpz_t z, int base, int option);
-static PyObject *      xmpz_ascii(mpz_t z, int base, int option);
 #if 0
 static int             GMPy_MPZ_convert_arg(PyObject *arg, PyObject **ptr);
 #endif

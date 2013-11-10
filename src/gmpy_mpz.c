@@ -2140,7 +2140,7 @@ Pympz_format(PyObject *self, PyObject *args)
     }
     *(p2++) = '\00';
 
-    if (!(mpzstr = mpz_ascii(MPZ(self), base, option)))
+    if (!(mpzstr = mpz_ascii(MPZ(self), base, option, 0)))
         return NULL;
 
     result = PyObject_CallMethod(mpzstr, "__format__", "(s)", fmt);
