@@ -37,205 +37,8 @@
  */
 
 /* ======================================================================== *
- * Miscellaneous C helper functions.                                        *
- * ======================================================================== */
-
-/* mpz_set_PyStr converts a Python "string" into a mpz_t structure. It accepts
- * a sequence of bytes (i.e. str in Python 2, bytes in Python 3) or a Unicode
- * string (i.e. unicode in Python 3, str in Python 3). Returns -1 on error,
- * 1 if successful.
- */
-
-static int
-mpz_set_PyStr(mpz_ptr z, PyObject *s, int base)
-{
-    char *cp;
-    Py_ssize_t len;
-    size_t i;
-    PyObject *ascii_str = NULL;
-
-    if (PyBytes_Check(s)) {
-        len = PyBytes_Size(s);
-        cp = PyBytes_AsString(s);
-    }
-    else if (PyUnicode_Check(s)) {
-        ascii_str = PyUnicode_AsASCIIString(s);
-        if (!ascii_str) {
-            VALUE_ERROR("string contains non-ASCII characters");
-            return -1;
-        }
-        len = PyBytes_Size(ascii_str);
-        cp = PyBytes_AsString(ascii_str);
-    } else {
-        TYPE_ERROR("object not string or unicode");
-        return -1;
-    }
-
-    /* Don't allow NULL characters */
-    for (i = 0; i < len; i++) {
-        if (cp[i] == '\0') {
-            VALUE_ERROR("string contains NULL characters");
-            Py_DECREF(ascii_str);
-            return -1;
-        }
-    }
-
-    /* Check for leading base indicators. */
-    if (base == 0) {
-        if (cp[0] == '0') {
-            if (cp[1] == 'b')      { base = 2;  cp += 2; }
-            else if (cp[1] == 'o') { base = 8;  cp += 2; }
-            else if (cp[1] == 'x') { base = 16; cp += 2; }
-            else                   { base = 10; }
-        }
-        else {
-            base = 10;
-        }
-    }
-
-    /* delegate rest to GMP's _set_str function */
-    if (-1 == mpz_set_str(z, cp, base)) {
-        VALUE_ERROR("invalid digits");
-        Py_DECREF(ascii_str);
-        return -1;
-    }
-    Py_DECREF(ascii_str);
-    return 1;
-}
-
-/* Format an mpz into any base (2 to 62). Bits in the option parameter
- * control various behaviors:
- *   bit 0: if set, output is wrapped with mpz(...) or xmpz(...)
- *   bit 1: if set, a '+' is included for positive numbers
- *   bit 2: if set, a ' ' is included for positive nubmers
- *   bit 3: if set, a '0b', '0o', or '0x' is included for binary, octal, hex
- *   bit 4: if set, no prefix is included for binary, octal, hex
- *
- * Note: if neither bit 3 or 4 is set, prefixes that match the platform
- * default are included.
- *
- * If base < 0, capital letters are used.
- *
- * If which = 0, then mpz formatting is used (if bit 0 set). Otherwise xmpz
- * formatting is used (if bit 0 is set).
- */
-
-static char* _ztag = "mpz(";
-static char* _xztag = "xmpz(";
-
-static PyObject *
-mpz_ascii(mpz_t z, int base, int option, int which)
-{
-    PyObject *result;
-    char *buffer, *p;
-    int negative = 0;
-    size_t size;
-
-    if (
-        !(
-          (base == 0) ||
-          ((base >= -36) && (base <= -2)) ||
-          ((base >= 2) && (base <= 62))
-         )
-       ) {
-        VALUE_ERROR("base must be in the interval 2 ... 62");
-        return NULL;
-    }
-
-    /* Allocate extra space for:
-     *
-     * minus sign and trailing NULL byte (2)
-     * 'xmpz()' tag                      (6)
-     * '0x' prefix                       (2)
-     * 'L' suffix                        (1)
-     *                                  -----
-     *                                   11
-     *
-     * And add one more to be sure...
-     */
-
-    size = mpz_sizeinbase(z, base) + 12;
-    TEMP_ALLOC(buffer, size);
-
-    if (mpz_sgn(z) < 0) {
-        negative = 1;
-        mpz_neg(z, z);
-    }
-
-    p = buffer;
-    if (option & 1) {
-        if (which)
-            strcpy(p, _xztag);
-        else
-            strcpy(p, _ztag);
-        p += strlen(p);
-    }
-
-    if (negative) {
-        *(p++) = '-';
-    }
-    else {
-        if (option & 2)
-            *(p++) = '+';
-        else if (option & 4)
-            *(p++) = ' ';
-    }
-
-    if (option & 8) {
-        if (base == 2)        { *(p++) = '0'; *(p++) = 'b'; }
-        else if (base == 8)   { *(p++) = '0'; *(p++) = 'o'; }
-        else if (base == 16)  { *(p++) = '0'; *(p++) = 'x'; }
-        else if (base == -16) { *(p++) = '0'; *(p++) = 'X'; }
-    }
-    else if (!(option & 24)) {
-    #ifdef PY2
-        if (base == 8)        { *(p++) = '0'; }
-    #else
-        if (base == 2)        { *(p++) = '0'; *(p++) = 'b'; }
-        else if (base == 8)   { *(p++) = '0'; *(p++) = 'o'; }
-    #endif
-        else if (base == 16)  { *(p++) = '0'; *(p++) = 'x'; }
-        else if (base == -16) { *(p++) = '0'; *(p++) = 'X'; }
-    }
-
-    /* Call GMP. */
-    mpz_get_str(p, base, z);
-    p = buffer + strlen(buffer);
-
-#ifdef PY2
-    if ((option & 1) && !mpz_fits_slong_p(z))
-        *(p++) = 'L';
-#endif
-
-    if (option & 1)
-        *(p++) = ')';
-    *(p++) = '\00';
-
-    result = Py_BuildValue("s", buffer);
-    if (negative == 1) {
-        mpz_neg(z, z);
-    }
-    TEMP_FREE(buffer, size);
-    return result;
-}
-
-/* ======================================================================== *
  * Conversion between native Python objects and MPZ.                        *
  * ======================================================================== */
-
-#ifdef PY2
-static MPZ_Object *
-GMPy_MPZ_From_PyInt(PyObject *obj)
-{
-    MPZ_Object *result;
-
-    assert(PyInte_Check(obj));
-
-    if ((result = GMPy_MPZ_New()))
-        mpz_set_si(MPZ(result), PyInt_AS_LONG(obj));
-    return result;
-}
-#endif
 
 static MPZ_Object *
 GMPy_MPZ_From_PyIntOrLong(PyObject *obj)
@@ -248,6 +51,21 @@ GMPy_MPZ_From_PyIntOrLong(PyObject *obj)
         return NULL;
 
     mpz_set_PyIntOrLong(MPZ(result), obj);
+    return result;
+}
+
+static MPZ_Object *
+GMPy_MPZ_From_PyStr(PyObject *s, int base)
+{
+    MPZ_Object *result;
+
+    if (!(result = GMPy_MPZ_New()))
+        return NULL;
+
+    if (mpz_set_PyStr(result->z, s, base) == -1) {
+        Py_DECREF((PyObject*)result);
+        return NULL;
+    }
     return result;
 }
 
@@ -276,21 +94,6 @@ GMPy_MPZ_From_PyFloat(PyObject *obj)
     return result;
 }
 
-static MPZ_Object *
-GMPy_MPZ_From_PyStr(PyObject *s, int base)
-{
-    MPZ_Object *result;
-
-    if (!(result = GMPy_MPZ_New()))
-        return NULL;
-
-    if (mpz_set_PyStr(result->z, s, base) == -1) {
-        Py_DECREF((PyObject*)result);
-        return NULL;
-    }
-    return result;
-}
-
 static PyObject *
 GMPy_PyLong_From_MPZ(MPZ_Object *obj)
 {
@@ -311,13 +114,13 @@ GMPy_PyIntOrLong_From_MPZ(MPZ_Object *obj)
     assert(MPZ_Check(obj));
 
 #ifdef PY3
-    return GMPy_PyLong_From_MPZ(obj);
+    return mpz_get_PyLong(MPZ(obj));
 #else
     if (mpz_fits_slong_p(MPZ(obj)))
         /* cast is safe since we know it fits in a signed long */
         return PyInt_FromLong((long)mpz_get_si(MPZ(obj)));
     else
-        return GMPy_PyLong_From_MPZ(obj);
+        return mpz_get_PyLong(MPZ(obj));
 #endif
 }
 
@@ -525,83 +328,6 @@ GMPy_MPZ_convert_arg(PyObject *arg, PyObject **ptr)
  * ======================================================================== */
 
 static XMPZ_Object *
-GMPy_XMPZ_From_XMPZ(XMPZ_Object *obj)
-{
-    XMPZ_Object *result;
-
-    assert(XMPZ_Check(obj));
-
-    if ((result = GMPy_XMPZ_New()))
-        mpz_set(MPZ(result), MPZ(obj));
-
-    return result;
-}
-
-static MPZ_Object *
-GMPy_MPZ_From_XMPZ(XMPZ_Object *obj)
-{
-    MPZ_Object *result;
-
-    assert(XMPZ_Check(obj));
-
-    if ((result = GMPy_MPZ_New()))
-        mpz_set(MPZ(result), MPZ(obj));
-
-    return result;
-}
-
-static XMPZ_Object *
-GMPy_XMPZ_From_MPZ(MPZ_Object *obj)
-{
-    XMPZ_Object *result;
-
-    assert(MPZ_Check(obj));
-
-    if ((result = GMPy_XMPZ_New()))
-        mpz_set(MPZ(result), MPZ(obj));
-
-    return result;
-}
-
-#ifdef PY2
-static XMPZ_Object *
-GMPy_XMPZ_From_PyInt(PyObject *obj)
-{
-    XMPZ_Object *result;
-
-    assert(PyInt_Check(obj));
-
-    if ((result = GMPy_XMPZ_New()))
-        mpz_set_si(MPZ(result), PyInt_AsLong(obj));
-    return result;
-}
-#endif
-static XMPZ_Object *
-GMPy_XMPZ_From_PyFloat(PyObject *obj)
-{
-    XMPZ_Object *result;
-
-    assert(PyFloat_Check(obj));
-
-    if ((result = GMPy_XMPZ_New())) {
-        double d = PyFloat_AsDouble(obj);
-
-        if (Py_IS_NAN(d)) {
-            Py_DECREF((PyObject*)result);
-            VALUE_ERROR("'xmpz' does not support NaN");
-            return NULL;
-        }
-        if (Py_IS_INFINITY(d)) {
-            Py_DECREF((PyObject*)result);
-            OVERFLOW_ERROR("'xmpz' does not support Infinity");
-            return NULL;
-        }
-        mpz_set_d(MPZ(result), d);
-    }
-    return result;
-}
-
-static XMPZ_Object *
 GMPy_XMPZ_From_PyIntOrLong(PyObject *obj)
 {
     XMPZ_Object *result;
@@ -630,6 +356,57 @@ GMPy_XMPZ_From_PyStr(PyObject *s, int base)
     return result;
 }
 
+static XMPZ_Object *
+GMPy_XMPZ_From_PyFloat(PyObject *obj)
+{
+    XMPZ_Object *result;
+
+    assert(PyFloat_Check(obj));
+
+    if ((result = GMPy_XMPZ_New())) {
+        double d = PyFloat_AsDouble(obj);
+
+        if (Py_IS_NAN(d)) {
+            Py_DECREF((PyObject*)result);
+            VALUE_ERROR("'xmpz' does not support NaN");
+            return NULL;
+        }
+        if (Py_IS_INFINITY(d)) {
+            Py_DECREF((PyObject*)result);
+            OVERFLOW_ERROR("'xmpz' does not support Infinity");
+            return NULL;
+        }
+        mpz_set_d(MPZ(result), d);
+    }
+    return result;
+}
+
+static XMPZ_Object *
+GMPy_XMPZ_From_MPZ(MPZ_Object *obj)
+{
+    XMPZ_Object *result;
+
+    assert(MPZ_Check(obj));
+
+    if ((result = GMPy_XMPZ_New()))
+        mpz_set(MPZ(result), MPZ(obj));
+
+    return result;
+}
+
+static XMPZ_Object *
+GMPy_XMPZ_From_XMPZ(XMPZ_Object *obj)
+{
+    XMPZ_Object *result;
+
+    assert(XMPZ_Check(obj));
+
+    if ((result = GMPy_XMPZ_New()))
+        mpz_set(MPZ(result), MPZ(obj));
+
+    return result;
+}
+
 static PyObject *
 GMPy_PyLong_From_XMPZ(XMPZ_Object *obj)
 {
@@ -654,17 +431,72 @@ GMPy_PyIntOrLong_From_XMPZ(XMPZ_Object *obj)
 #endif
 }
 
-
-
-
-
-
 static PyObject *
 GMPy_PyStr_From_XMPZ(XMPZ_Object *obj, int base, int option)
 {
     assert(XMPZ_Check(obj));
 
     return mpz_ascii(MPZ(obj), base, option, 1);
+}
+
+static MPZ_Object *
+GMPy_MPZ_From_XMPZ(XMPZ_Object *obj)
+{
+    MPZ_Object *result;
+
+    assert(XMPZ_Check(obj));
+
+    if ((result = GMPy_MPZ_New()))
+        mpz_set(MPZ(result), MPZ(obj));
+
+    return result;
+}
+
+static XMPZ_Object*
+GMPy_XMPZ_From_Number_New(PyObject *obj)
+{
+    XMPZ_Object *result = NULL;
+
+    if (MPZ_Check(obj))
+        return GMPy_XMPZ_From_MPZ((MPZ_Object*)obj);
+
+    if (PyIntOrLong_Check(obj))
+        return GMPy_XMPZ_From_PyIntOrLong(obj);
+
+    if (MPQ_Check(obj))
+        return GMPy_XMPZ_From_MPQ(obj);
+
+    if (MPFR_Check(obj))
+        return Pympfr_To_Pyxmpz(obj);
+
+    if (PyFloat_Check(obj))
+        return GMPy_XMPZ_From_PyFloat(obj);
+
+    if (XMPZ_Check(obj))
+        return GMPy_XMPZ_From_XMPZ((XMPZ_Object*)obj);
+
+    if (IS_DECIMAL(obj)) {
+        PyObject *temp = PyNumber_Long(obj);
+
+        if (temp) {
+            result = GMPy_XMPZ_From_PyIntOrLong(temp);
+            Py_DECREF(temp);
+        }
+        return result;
+    }
+
+    if (IS_FRACTION(obj)) {
+        MPQ_Object *temp = Pympq_From_Fraction(obj);
+
+        if (temp) {
+            result = GMPy_XMPZ_From_MPQ((PyObject *)temp);
+            Py_DECREF((PyObject*)temp);
+        }
+        return result;
+    }
+
+    TYPE_ERROR("cannot convert object to xmpz");
+    return result;
 }
 
 static XMPZ_Object*
@@ -716,53 +548,6 @@ GMPy_XMPZ_From_Number_Temp(PyObject *obj)
     return result;
 }
 
-static XMPZ_Object*
-GMPy_XMPZ_From_Number_New(PyObject *obj)
-{
-    XMPZ_Object *result = NULL;
-
-    if (MPZ_Check(obj))
-        return GMPy_XMPZ_From_MPZ((MPZ_Object*)obj);
-
-    if (PyIntOrLong_Check(obj))
-        return GMPy_XMPZ_From_PyIntOrLong(obj);
-
-    if (MPQ_Check(obj))
-        return GMPy_XMPZ_From_MPQ(obj);
-
-    if (MPFR_Check(obj))
-        return Pympfr_To_Pyxmpz(obj);
-
-    if (PyFloat_Check(obj))
-        return GMPy_XMPZ_From_PyFloat(obj);
-
-    if (XMPZ_Check(obj))
-        return GMPy_XMPZ_From_XMPZ((XMPZ_Object*)obj);
-
-    if (IS_DECIMAL(obj)) {
-        PyObject *temp = PyNumber_Long(obj);
-
-        if (temp) {
-            result = GMPy_XMPZ_From_PyIntOrLong(temp);
-            Py_DECREF(temp);
-        }
-        return result;
-    }
-
-    if (IS_FRACTION(obj)) {
-        MPQ_Object *temp = Pympq_From_Fraction(obj);
-
-        if (temp) {
-            result = GMPy_XMPZ_From_MPQ((PyObject *)temp);
-            Py_DECREF((PyObject*)temp);
-        }
-        return result;
-    }
-
-    TYPE_ERROR("cannot convert object to xmpz");
-    return result;
-}
-
 /* str and repr implementations for xmpz */
 static PyObject *
 GMPy_XMPZ_Str_Slot(XMPZ_Object *self)
@@ -778,9 +563,9 @@ GMPy_XMPZ_Repr_Slot(XMPZ_Object *self)
     return GMPy_PyStr_From_XMPZ(self, 10, 1);
 }
 
-/****************************************************************************
- * Conversions to native C types occurs here.                               *
- ****************************************************************************/
+/* ======================================================================== *
+ * Conversion between Integer objects and C types.                          *
+ * ======================================================================== */
 
 /* Convert an Integer-like object (as determined by isInteger) to a
  * C long or C unsigned long.
@@ -983,20 +768,221 @@ ssize_t_From_Integer(PyObject *obj)
     return -1;
 }
 
-#ifdef PY2
+/* ======================================================================== *
+ * Conversion between native Python objects/MPZ/XMPZ and MPQ.               *
+ * ======================================================================== */
+
 static MPQ_Object *
-GMPy_MPQ_From_PyInt(PyObject *obj)
+GMPy_MPQ_From_PyIntOrLong(PyObject *obj)
+{
+    MPQ_Object *result;
+    MPZ_Object *temp;
+
+    assert(PyIntOrLong_Check(obj));
+
+    temp = GMPy_MPZ_From_PyIntOrLong(obj);
+
+    if (!temp)
+        return NULL;
+
+    if ((result = GMPy_MPQ_New())) {
+        mpq_set_z(MPQ(result), MPZ(obj));
+        Py_DECREF((PyObject*)temp);
+    }
+    return result;
+}
+
+static MPQ_Object *
+GMPy_MPQ_From_PyStr(PyObject *s, int base)
+{
+    MPQ_Object *result;
+    char *cp;
+    Py_ssize_t len, i;
+    PyObject *ascii_str = NULL;
+    long expt = 0;
+
+    if (!(result = GMPy_MPQ_New()))
+        return NULL;
+
+    if (PyBytes_Check(s)) {
+        len = PyBytes_Size(s);
+        cp = PyBytes_AsString(s);
+    }
+    else if (PyUnicode_Check(s)) {
+        ascii_str = PyUnicode_AsASCIIString(s);
+        if (!ascii_str) {
+            VALUE_ERROR("string contains non-ASCII characters");
+            goto error;
+        }
+        len = PyBytes_Size(ascii_str);
+        cp = PyBytes_AsString(ascii_str);
+    }
+    else {
+        TYPE_ERROR("object is not string or Unicode");
+        goto error;
+    }
+
+    /* Don't allow NULL characters */
+    for (i = 0; i < len; i++) {
+        if (cp[i] == '\0') {
+            VALUE_ERROR("string contains NULL characters");
+            goto error;
+        }
+    }
+
+    {
+        char *whereslash = strchr((char*)cp, '/');
+        char *wheredot = strchr((char*)cp, '.');
+        char *whereexp = strchr((char*)cp, 'E');
+
+        if (whereslash && wheredot) {
+            VALUE_ERROR("illegal string: both . and / found");
+            goto error;
+        }
+
+        if (wheredot && (base != 10)) {
+            VALUE_ERROR("illegal string: embedded . requires base=10");
+            goto error;
+        }
+
+        /* If base=10, no slash is found, and an exponent symbol is found, then
+         * assume we have decimal number in scientific format.
+         */
+        if (whereexp && !whereslash && (base == 10)) {
+            /* Temporarily shorten the string and continue processing as
+             * normal. We'll deal with the exponent later.
+             */
+            *whereexp = '\0';
+            expt = atol(whereexp+1);
+        }
+
+        /* Handle the case where an embedded decimal point exists. An optional
+         * exponent is also allowed. We take advantage of the fact that
+         * mpz_set_str() ignores embedded space characters. We count the
+         * number of digits after the decimal point and then replace the '.'
+         * with a ' '. We've already inserted a NUL byte to terminate the
+         * string in the case when an exponent was entered. The value for
+         * the exponent has already been read.
+         */
+
+        if (wheredot) {
+            char *counter;
+            long digits = 0;
+
+            counter = wheredot;
+            digits = 0;
+            *wheredot = ' ';
+            while (*++counter != '\0') {
+                if (isdigit(*counter))
+                    digits++;
+            }
+            if (-1 == mpz_set_str(mpq_numref(result->q), (char*)cp, base)) {
+                if (wheredot)
+                    *wheredot = '.';
+                /* Restore the exponent! */
+                if (whereexp && !whereslash && (base == 10))
+                    *whereexp = 'E';
+                VALUE_ERROR("invalid digits");
+                goto error;
+            }
+            /* Process the exponent. */
+            digits = expt - digits;
+            if (digits < 0) {
+                mpz_ui_pow_ui(mpq_denref(result->q), 10, (unsigned long)(-digits));
+            }
+            else {
+                /* Use the denominator instead of a temporary variable. */
+                mpz_ui_pow_ui(mpq_denref(result->q), 10, (unsigned long)(digits));
+                mpz_mul(mpq_numref(result->q), mpq_numref(result->q), mpq_denref(result->q));
+                mpz_set_ui(mpq_denref(result->q), 1);
+            }
+            mpq_canonicalize(result->q);
+
+            /* Restore the decimal point. */
+            *wheredot = '.';
+
+            /* Restore the exponent! */
+            if (whereexp && (base == 10))
+                *whereexp = 'E';
+
+            goto finish;
+        }
+
+        if (whereslash)
+            *whereslash = '\0';
+
+        /* Read the numerator. */
+        if (-1 == mpz_set_str(mpq_numref(result->q), (char*)cp, base)) {
+            if (whereslash)
+                *whereslash = '/';
+            VALUE_ERROR("invalid digits");
+            goto error;
+        }
+
+        /* If a slash was present, read the denominator. */
+        if (whereslash) {
+            *whereslash = '/';
+            if (-1 == mpz_set_str(mpq_denref(result->q), whereslash+1, base)) {
+                VALUE_ERROR("invalid digits");
+                goto error;
+            }
+            if (0 == mpz_sgn(mpq_denref(result->q))) {
+                ZERO_ERROR("zero denominator in 'mpq'");
+                goto error;
+            }
+            mpq_canonicalize(result->q);
+        }
+        else {
+            /* Since no slash was present, either the denominator is 1 or a
+             * power of 10.
+             */
+
+            if (expt <= 0) {
+                mpz_ui_pow_ui(mpq_denref(result->q), 10, (unsigned long)(-expt));
+            }
+            else {
+                mpz_ui_pow_ui(mpq_denref(result->q), 10, (unsigned long)(expt));
+                mpz_mul(mpq_numref(result->q), mpq_numref(result->q), mpq_denref(result->q));
+                mpz_set_ui(mpq_denref(result->q), 1);
+            }
+            mpq_canonicalize(result->q);
+            if (whereexp && (base == 10))
+                *whereexp = 'E';
+        }
+    }
+
+  finish:
+    Py_XDECREF(ascii_str);
+    return result;
+
+  error:
+    Py_DECREF((PyObject*)result);
+    Py_XDECREF(ascii_str);
+    return NULL;
+}
+
+static MPQ_Object *
+Pympq_From_PyFloat(PyObject *self)
 {
     MPQ_Object *result;
 
-    assert(PyInt_Check(obj));
-
-    if ((result = GMPy_MPQ_New()))
-        mpq_set_si(MPQ(result), PyInt_AsLong(obj), 1);
+    if ((result = GMPy_MPQ_New())) {
+        double d = PyFloat_AsDouble(self);
+        if (Py_IS_NAN(d)) {
+            Py_DECREF((PyObject*)result);
+            VALUE_ERROR("'mpq' does not support NaN");
+            return NULL;
+        }
+        if (Py_IS_INFINITY(d)) {
+            Py_DECREF((PyObject*)result);
+            OVERFLOW_ERROR("'mpq' does not support Infinity");
+            return NULL;
+        }
+        mpq_set_d(result->q, d);
+    }
 
     return result;
 }
-#endif
 
 static MPQ_Object *
 GMPy_MPQ_From_MPZ(MPZ_Object *obj)
@@ -1044,209 +1030,6 @@ GMPy_XMPZ_From_MPQ(PyObject *obj)
         mpz_set_q(result->z, MPQ(obj));
 
     return result;
-}
-
-static MPQ_Object *
-GMPy_MPQ_From_PyLong(PyObject *self)
-{
-    MPQ_Object *result;
-    MPZ_Object *temp = GMPy_MPZ_From_PyIntOrLong(self);
-
-    if (!temp)
-        return NULL;
-
-    result = GMPy_MPQ_From_MPZ(temp);
-    Py_DECREF((PyObject*)temp);
-    return result;
-}
-
-static MPQ_Object *
-Pympq_From_PyFloat(PyObject *self)
-{
-    MPQ_Object *newob;
-
-    if ((newob = GMPy_MPQ_New())) {
-        double d = PyFloat_AsDouble(self);
-        if (Py_IS_NAN(d)) {
-            Py_DECREF((PyObject*)newob);
-            VALUE_ERROR("'mpq' does not support NaN");
-            return NULL;
-        }
-        if (Py_IS_INFINITY(d)) {
-            Py_DECREF((PyObject*)newob);
-            OVERFLOW_ERROR("'mpq' does not support Infinity");
-            return NULL;
-        }
-        mpq_set_d(newob->q, d);
-    }
-
-    return newob;
-}
-
-/*
- * mpq conversion from string includes from-binary (base-256 LSB string
- * of bytes) and 'true' from-string (bases 2 to 62; bases 8 and 16 are
- * special -- decorations of leading 0/0x are allowed (but not required).
- * For 'true-bases' 2..62 there is a '/' separator between numerator and
- * denominator (if none, just numerator!); decimal point NOT allowed.
- *
- * Added in gmpy 1.02: also support a string of the form '12.34', i.e.,
- * WITH a decimal point and WITHOUT a slash
- *
- * Binary-form: 4-byte numerator length (upper bit set if <0), then
- * numerator (as above for mpz), then denominator (ditto).
- */
-static MPQ_Object *
-Pympq_From_PyStr(PyObject *stringarg, int base)
-{
-    MPQ_Object *newob;
-    unsigned char *cp;
-    Py_ssize_t len;
-    int i;
-    PyObject *ascii_str = NULL;
-    mpz_t temp;
-    long expt = 0;
-
-    if (!(newob = GMPy_MPQ_New()))
-        return NULL;
-
-    if (PyBytes_Check(stringarg)) {
-        len = PyBytes_Size(stringarg);
-        cp = (unsigned char*)PyBytes_AsString(stringarg);
-    }
-    else {
-        ascii_str = PyUnicode_AsASCIIString(stringarg);
-        if (!ascii_str) {
-            VALUE_ERROR("string contains non-ASCII characters");
-            goto error;
-        }
-        len = PyBytes_Size(ascii_str);
-        cp = (unsigned char*)PyBytes_AsString(ascii_str);
-    }
-
-    /* Don't allow NULL characters */
-    for (i=0; i<len; i++) {
-        if (cp[i] == '\0') {
-            VALUE_ERROR("string contains NULL characters");
-            goto error;
-        }
-    }
-    /* trickily delegate the rest to GMP avoiding allocations/copies */
-    {
-        char *whereslash = strchr((char*)cp, '/');
-        char *wheredot = strchr((char*)cp, '.');
-        char *whereexp = strchr((char*)cp, 'E');
-
-        if (whereslash && wheredot) {
-            VALUE_ERROR("illegal string: both . and / found");
-            goto error;
-        }
-
-        if (wheredot && (base != 10)) {
-            VALUE_ERROR("illegal string: embedded . requires base=10");
-            goto error;
-        }
-
-        /* If base=10, no slash is found, and an exponent symbol is found, then
-         * assume we have decimal number in scientific format.
-         */
-        if (whereexp && !whereslash && (base == 10)) {
-            /* Temporarily shorten the string and continue processing as
-             * normal. We'll deal with the possible exponent later.
-             */
-            *whereexp = '\0';
-            expt = atol(whereexp+1);
-        }
-
-        if (wheredot) {
-            char *counter;
-            long digits = 0;
-
-            counter = wheredot;
-            digits = 0;
-            *wheredot = ' ';
-            while (*++counter != '\0') {
-                if (isdigit(*counter))
-                    digits++;
-            }
-            if (-1 == mpz_set_str(mpq_numref(newob->q), (char*)cp, base)) {
-                if (wheredot)
-                    *wheredot = '.';
-                /* Restore the exponent! */
-                if (whereexp && (base == 10))
-                    *whereexp = '\0';
-                VALUE_ERROR("invalid digits");
-                goto error;
-            }
-            /* Process the exponent. */
-            digits = expt - digits;
-            mpz_inoc(temp);
-            if (digits < 0) {
-                mpz_ui_pow_ui(mpq_denref(newob->q), 10, (unsigned long)(-digits));
-            }
-            else {
-                mpz_ui_pow_ui(temp, 10, (unsigned long)digits);
-                mpz_mul(mpq_numref(newob->q), mpq_numref(newob->q), temp);
-                mpz_set_ui(mpq_denref(newob->q), 1);
-            }
-            mpz_cloc(temp);
-            mpq_canonicalize(newob->q);
-
-            /* Restore the decimal point. */
-            *wheredot = '.';
-
-            /* Restore the exponent! */
-            if (whereexp && !whereslash && (base == 10))
-                *whereexp = '\0';
-
-            goto finish;
-        }
-
-        if (whereslash)
-            *whereslash = 0;
-        if (-1 == mpz_set_str(mpq_numref(newob->q), (char*)cp, base)) {
-            if (whereslash)
-                *whereslash = '/';
-            VALUE_ERROR("invalid digits");
-            goto error;
-        }
-        if (whereslash) {
-            *whereslash = '/';
-            if (-1 == mpz_set_str(mpq_denref(newob->q), whereslash+1, base)) {
-                VALUE_ERROR("invalid digits");
-                goto error;
-            }
-            if (0==mpz_sgn(mpq_denref(newob->q))) {
-                ZERO_ERROR("zero denominator in 'mpq'");
-                goto error;
-            }
-            mpq_canonicalize(newob->q);
-        }
-        else {
-            mpz_inoc(temp);
-            if (expt < 0) {
-                mpz_ui_pow_ui(mpq_denref(newob->q), 10, (unsigned long)(-expt));
-            }
-            else {
-                mpz_ui_pow_ui(temp, 10, (unsigned long)expt);
-                mpz_mul(mpq_numref(newob->q), mpq_numref(newob->q), temp);
-                mpz_set_ui(mpq_denref(newob->q), 1);
-            }
-            mpz_cloc(temp);
-            mpq_canonicalize(newob->q);
-            if (whereexp && (base == 10))
-                *whereexp = 'E';
-        }
-    }
-
-  finish:
-    Py_XDECREF(ascii_str);
-    return newob;
-
-  error:
-    Py_DECREF((PyObject*)newob);
-    Py_XDECREF(ascii_str);
-    return NULL;
 }
 
 static PyObject *
@@ -1530,7 +1313,7 @@ Pympq_From_DecimalRaw(PyObject* obj)
 
     s = PyObject_Str(obj);
     if (s) {
-        result = Pympq_From_PyStr(s, 10);
+        result = GMPy_MPQ_From_PyStr(s, 10);
         Py_DECREF(s);
     }
 
@@ -1618,19 +1401,14 @@ Pympq_From_Number(PyObject *obj)
     if (MPZ_Check(obj))
         return GMPy_MPQ_From_MPZ((MPZ_Object*)obj);
 
-#ifdef PY2
-    if (PyInt_Check(obj))
-        return GMPy_MPQ_From_PyInt(obj);
-#endif
-
     if (MPFR_Check(obj))
         return Pympfr_To_Pympq(obj);
 
     if (PyFloat_Check(obj))
         return Pympq_From_PyFloat(obj);
 
-    if (PyLong_Check(obj))
-        return GMPy_MPQ_From_PyLong(obj);
+    if (PyIntOrLong_Check(obj))
+        return GMPy_MPQ_From_PyIntOrLong(obj);
 
     if (XMPZ_Check(obj))
         return GMPy_MPQ_From_XMPZ((XMPZ_Object*)obj);
@@ -1650,31 +1428,26 @@ Pympq_From_Number(PyObject *obj)
 static MPQ_Object*
 Pympq_From_Rational(PyObject* obj)
 {
-    MPQ_Object* newob = 0;
+    MPQ_Object* result = 0;
 
     if (MPQ_Check(obj)) {
         Py_INCREF(obj);
-        newob = (MPQ_Object *) obj;
+        result = (MPQ_Object *) obj;
     }
     else if (MPZ_Check(obj)) {
-        newob = GMPy_MPQ_From_MPZ((MPZ_Object*)obj);
-#ifdef PY2
+        result = GMPy_MPQ_From_MPZ((MPZ_Object*)obj);
     }
-    else if (PyInt_Check(obj)) {
-        newob = GMPy_MPQ_From_PyInt(obj);
-#endif
-    }
-    else if (PyLong_Check(obj)) {
-        newob = GMPy_MPQ_From_PyLong(obj);
+    else if (PyIntOrLong_Check(obj)) {
+        result = GMPy_MPQ_From_PyIntOrLong(obj);
     }
     else if (XMPZ_Check(obj)) {
-        newob = GMPy_MPQ_From_XMPZ((XMPZ_Object*)obj);
+        result = GMPy_MPQ_From_XMPZ((XMPZ_Object*)obj);
     }
     else if (IS_FRACTION(obj)) {
-        newob = Pympq_From_Fraction(obj);
+        result = Pympq_From_Fraction(obj);
     }
 
-    return newob;
+    return result;
 }
 
 /*
@@ -1684,9 +1457,9 @@ Pympq_From_Rational(PyObject* obj)
 int
 Pympq_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    MPQ_Object* newob = Pympq_From_Number(arg);
-    if (newob) {
-        *ptr = (PyObject*)newob;
+    MPQ_Object* result = Pympq_From_Number(arg);
+    if (result) {
+        *ptr = (PyObject*)result;
         return 1;
     }
     else {

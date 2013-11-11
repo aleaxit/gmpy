@@ -69,7 +69,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
                             "interval 2 ... 62");
             }
             else {
-                result = Pympq_From_PyStr(n, base);
+                result = GMPy_MPQ_From_PyStr(n, base);
             }
         }
         return (PyObject*)result;
