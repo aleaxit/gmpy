@@ -32,12 +32,10 @@
 extern "C" {
 #endif
 
-/* The following functions identify and classify the numeric types that are
- * supported by gmpy2.
- *
- * These checks are currently implemented as functions but may be
- * implemented as macros in the future.
+/* The following macros classify the numeric types that are supported by
+ * gmpy2.
  */
+
 #ifdef PY2
 #define IS_INTEGER(x) (MPZ_Check(x) || PyInt_Check(x) || PyLong_Check(x) || XMPZ_Check(x))
 #else
@@ -84,6 +82,10 @@ static int GMPy_isReal(PyObject *obj);
 /* Combined mpc, PyComplex, and isReal() check. */
 static int GMPy_isComplex(PyObject *obj);
 #endif
+
+/* ======== C helper routines ======== */
+static int             mpz_set_PyStr(mpz_ptr z, PyObject *s, int base);
+static PyObject *      mpz_ascii(mpz_t z, int base, int option, int which);
 
 #ifdef __cplusplus
 }
