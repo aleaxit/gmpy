@@ -104,7 +104,7 @@ GMPy_Rational_Abs(PyObject *x, GMPyContextObject *context)
 {
     MPQ_Object *result;
 
-    if ((result = Pympq_From_Rational(x))) {
+    if ((result = GMPy_MPQ_From_Number_New(x))) {
         mpz_abs(mpq_numref(result->q), mpq_numref(result->q));
     }
 

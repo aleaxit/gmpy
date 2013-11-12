@@ -40,11 +40,6 @@ static MPZ_Object *    GMPy_MPZ_From_PyIntOrLong(PyObject *obj);
 static MPZ_Object *    GMPy_MPZ_From_PyStr(PyObject *s, int base);
 static MPZ_Object *    GMPy_MPZ_From_PyFloat(PyObject *obj);
 
-static PyObject *      GMPy_PyLong_From_MPZ(MPZ_Object *obj);
-static PyObject *      GMPy_PyIntOrLong_From_MPZ(MPZ_Object *obj);
-static PyObject *      GMPy_PyFloat_From_MPZ(MPZ_Object *obj);
-static PyObject *      GMPy_PyStr_From_MPZ(MPZ_Object *obj, int base, int option);
-
 static MPZ_Object *    GMPy_MPZ_From_Number_New(PyObject *obj);
 static MPZ_Object *    GMPy_MPZ_From_Number_Temp(PyObject *obj);
 static MPZ_Object *    GMPy_MPZ_From_Integer_New(PyObject *obj);
@@ -52,6 +47,11 @@ static MPZ_Object *    GMPy_MPZ_From_Integer_Temp(PyObject *obj);
 
 static PyObject *      GMPy_MPZ_Str_Slot(MPZ_Object *self);
 static PyObject *      GMPy_MPZ_Repr_Slot(MPZ_Object *self);
+
+static PyObject *      GMPy_PyLong_From_MPZ(MPZ_Object *obj);
+static PyObject *      GMPy_PyIntOrLong_From_MPZ(MPZ_Object *obj);
+static PyObject *      GMPy_PyFloat_From_MPZ(MPZ_Object *obj);
+static PyObject *      GMPy_PyStr_From_MPZ(MPZ_Object *obj, int base, int option);
 
 /* Helper function not currently used. */
 #if 0
@@ -68,16 +68,17 @@ static XMPZ_Object *   GMPy_XMPZ_From_PyFloat(PyObject *self);
 static XMPZ_Object *   GMPy_XMPZ_From_MPZ(MPZ_Object *obj);
 static XMPZ_Object *   GMPy_XMPZ_From_XMPZ(XMPZ_Object *obj);
 
-static PyObject *      GMPy_PyLong_From_XMPZ(XMPZ_Object *self);
-static PyObject *      GMPy_PyIntOrLong_From_XMPZ(XMPZ_Object *self);
-static PyObject *      GMPy_PyStr_From_XMPZ(XMPZ_Object *self, int base, int option);
-static MPZ_Object *    GMPy_MPZ_From_XMPZ(XMPZ_Object *obj);
-
 static XMPZ_Object *   GMPy_XMPZ_From_Number_New(PyObject *obj);
 static XMPZ_Object *   GMPy_XMPZ_From_Number_Temp(PyObject *obj);
 
 static PyObject *      GMPy_XMPZ_Str_Slot(XMPZ_Object *self);
 static PyObject *      GMPy_XMPZ_Repr_Slot(XMPZ_Object *self);
+
+static PyObject *      GMPy_PyLong_From_XMPZ(XMPZ_Object *self);
+static PyObject *      GMPy_PyIntOrLong_From_XMPZ(XMPZ_Object *self);
+static PyObject *      GMPy_PyStr_From_XMPZ(XMPZ_Object *self, int base, int option);
+static MPZ_Object *    GMPy_MPZ_From_XMPZ(XMPZ_Object *obj);
+
 
 /* ======================================================================== *
  * Conversion between Integer objects and C types.                          *
@@ -104,15 +105,14 @@ static Py_ssize_t      ssize_t_From_Integer(PyObject *obj);
 
 static MPQ_Object *    GMPy_MPQ_From_PyIntOrLong(PyObject *obj);
 static MPQ_Object *    GMPy_MPQ_From_PyStr(PyObject *s, int base);
+static MPQ_Object *    GMPy_MPQ_From_PyFloat(PyObject *obj);
+static MPQ_Object *    GMPy_MPQ_From_Fraction(PyObject *obj);
 static MPQ_Object *    GMPy_MPQ_From_MPZ(MPZ_Object *obj);
 static MPQ_Object *    GMPy_MPQ_From_XMPZ(XMPZ_Object *obj);
 
-static MPQ_Object *    Pympq_From_PyFloat(PyObject *obj);
-static MPQ_Object *    Pympq_From_Fraction(PyObject *obj);
-
-/* NOTE: Pympq_From_Decimal returns an invalid mpq object when attempting to
- *       convert a NaN or Infinity. If the denominator is 0, then interpret
- *       the numerator as:
+/* NOTE: GMPy_MPQ_From_DecimalRaw returns an invalid mpq object when
+ *       attempting to convert a NaN or Infinity. If the denominator is 0,
+ *       then interpret the numerator as:
  *         -1: -Infinity
  *          0: Nan
  *          1: Infinity
@@ -120,23 +120,26 @@ static MPQ_Object *    Pympq_From_Fraction(PyObject *obj);
  *       If the numerator is 0 and the denominator is not 0, then the sign of
  *       the denominator is the sign of the 0.
  */
-static MPQ_Object *    Pympq_From_Decimal(PyObject* obj);
+static MPQ_Object *    GMPy_MPQ_From_DecimalRaw(PyObject* obj);
+static MPQ_Object *    GMPy_MPQ_From_Decimal(PyObject* obj);
 
-static MPQ_Object *    Pympq_From_Number(PyObject* obj);
+static MPQ_Object *    GMPy_MPQ_From_Rational_Temp(PyObject* obj);
+static MPQ_Object *    GMPy_MPQ_From_Number_Temp(PyObject* obj);
+static MPQ_Object *    GMPy_MPQ_From_Number_New(PyObject* obj);
 
-static PyObject *      Pympq_To_PyLong(MPQ_Object *self);
-static MPZ_Object *    GMPy_MPZ_From_MPQ(PyObject *obj);
-static XMPZ_Object *   GMPy_XMPZ_From_MPQ(PyObject *obj);
-static PyObject *      Pympq_To_PyFloat(MPQ_Object *self);
-static PyObject *      Pympq_To_PyStr(MPQ_Object *self, int base, int option);
+static PyObject *      GMPy_PyLong_From_MPQ(MPQ_Object *obj);
+static PyObject *      GMPy_PyIntOrLong_From_MPQ(MPQ_Object *obj);
+static PyObject *      GMPy_PyStr_From_MPQ(MPQ_Object *obj, int base, int option);
+static PyObject *      GMPy_PyFloat_From_MPQ(MPQ_Object *obj);
+static MPZ_Object *    GMPy_MPZ_From_MPQ(MPQ_Object *obj);
+static XMPZ_Object *   GMPy_XMPZ_From_MPQ(MPQ_Object *obj);
 
 /* support str() and repr() */
-static PyObject *      Pympq_To_Str(MPQ_Object *self);
-static PyObject *      Pympq_To_Repr(MPQ_Object *self);
+static PyObject *      GMPy_MPQ_Str_Slot(MPQ_Object *obj);
+static PyObject *      GMPy_MPQ_Repr_Slot(MPQ_Object *obj);
 
 /* Miscellaneous rational conversion functions. */
-int Pympq_convert_arg(PyObject *arg, PyObject **ptr);
-
+int GMPy_MPQ_convert_arg(PyObject *arg, PyObject **ptr);
 
 #ifdef __cplusplus
 }

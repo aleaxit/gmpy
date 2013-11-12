@@ -557,7 +557,7 @@ extern "C" {
         Py_INCREF(self); \
     } \
     else { \
-        if(!PyArg_ParseTuple(args, "O&", Pympq_convert_arg, &self)) \
+        if(!PyArg_ParseTuple(args, "O&", GMPy_MPQ_convert_arg, &self)) \
             return NULL; \
     }
 
@@ -568,7 +568,7 @@ extern "C" {
         Py_INCREF(self); \
     } \
     else { \
-        if (!PyArg_ParseTuple(args, "O&" fm, Pympq_convert_arg, &self, var)) \
+        if (!PyArg_ParseTuple(args, "O&" fm, GMPy_MPQ_convert_arg, &self, var)) \
             return NULL; \
     }
 

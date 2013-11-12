@@ -815,8 +815,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(c, op);
         }
         if (IS_RATIONAL(b)) {
-            tempa = (PyObject*)Pympq_From_Rational(a);
-            tempb = (PyObject*)Pympq_From_Rational(b);
+            tempa = (PyObject*)GMPy_MPQ_From_Rational_Temp(a);
+            tempb = (PyObject*)GMPy_MPQ_From_Rational_Temp(b);
             if (!tempa || !tempb) {
                 Py_XDECREF(a);
                 Py_XDECREF(b);
@@ -845,8 +845,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_DECIMAL(b)) {
-            tempa = (PyObject*)Pympq_From_Rational(a);
-            tempb = (PyObject*)Pympq_From_Decimal(b);
+            tempa = (PyObject*)GMPy_MPQ_From_Rational_Temp(a);
+            tempb = (PyObject*)GMPy_MPQ_From_Decimal(b);
             if (!tempa || !tempb) {
                 Py_XDECREF(a);
                 Py_XDECREF(b);
@@ -884,7 +884,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(mpq_cmp(MPQ(a), MPQ(b)), op);
         }
         if (IS_RATIONAL(b)) {
-            tempb = (PyObject*)Pympq_From_Rational(b);
+            tempb = (PyObject*)GMPy_MPQ_From_Rational_Temp(b);
             c = mpq_cmp(MPQ(a), MPQ(tempb));
             Py_DECREF(tempb);
             return _cmp_to_object(c, op);
@@ -913,7 +913,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_DECIMAL(b)) {
-            if (!(tempb = (PyObject*)Pympq_From_Decimal(b)))
+            if (!(tempb = (PyObject*)GMPy_MPQ_From_Decimal(b)))
                 return NULL;
             if (!mpz_cmp_si(mpq_denref(MPQ(tempb)), 0)) {
                 if (!mpz_cmp_si(mpq_numref(MPQ(tempb)), 0)) {
@@ -1000,7 +1000,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_RATIONAL(b)) {
-            tempb = (PyObject*)Pympq_From_Rational(b);
+            tempb = (PyObject*)GMPy_MPQ_From_Rational_Temp(b);
             if (!tempb)
                 return NULL;
             mpfr_clear_flags();
@@ -1022,7 +1022,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_DECIMAL(b)) {
-            tempb = (PyObject*)Pympq_From_Decimal(b);
+            tempb = (PyObject*)GMPy_MPQ_From_Decimal(b);
             if (!tempb)
                 return NULL;
             if (!mpz_cmp_si(mpq_denref(MPQ(tempb)), 0)) {

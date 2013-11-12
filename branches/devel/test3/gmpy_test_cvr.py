@@ -208,33 +208,37 @@ mpz(3)
 >>> _g.qdiv(3,_g.mpz(1))
 mpz(3)
 >>> _g.qdiv(3,_g.mpfr(1))
-mpz(3)
+Traceback (most recent call last):
+  ...
+TypeError: qdiv() takes one or two Integer or Rational argument(s)
 >>> _g.qdiv(3,1.0)
-mpz(3)
+Traceback (most recent call last):
+  ...
+TypeError: qdiv() takes one or two Integer or Rational argument(s)
 >>> _g.qdiv(3,1)
 mpz(3)
 >>> _g.qdiv(3)
 mpz(3)
 >>> _g.qdiv(3,'bu')
 Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: second argument cannot be converted to 'mpq'
+  ...
+TypeError: qdiv() takes one or two Integer or Rational argument(s)
 >>> _g.qdiv(3,4,5)
 Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: function takes at most 2 arguments (3 given)
+  ...
+TypeError: qdiv() takes one or two Integer or Rational argument(s)
 >>> _g.qdiv('bu')
 Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: first argument cannot be converted to 'mpq'
+  ...
+TypeError: qdiv() takes one or two Integer or Rational argument(s)
 >>> _g.qdiv(1.0,1)
 Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-TypeError: first argument cannot be converted to 'mpq'
+  ...
+TypeError: qdiv() takes one or two Integer or Rational argument(s)
 >>> _g.qdiv(1,0)
 Traceback (most recent call last):
-  File "<stdin>", line 1, in ?
-ZeroDivisionError: division or modulo by zero in qdiv
+  ...
+ZeroDivisionError: division by zero in qdiv()
 >>> _g.f2q(-1.0)
 mpz(-1)
 >>> _g.mpz(1,2,3)
