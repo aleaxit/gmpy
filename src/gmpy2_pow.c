@@ -171,18 +171,23 @@ GMPy_Integer_Pow(PyObject *b, PyObject *e, PyObject *m, GMPyContextObject *conte
 }
 
 static PyObject *
-GMPy_Rational_Pow(PyObject *base, PyObject *exp, GMPyContextObject *context)
+GMPy_Rational_Pow(PyObject *base, PyObject *exp, PyObject *mod, GMPyContextObject *context)
 {
     MPQ_Object *tempbq = NULL, *resultq = NULL;
     MPZ_Object *tempez = NULL;
     int esign, bsign;
     mpir_si tempexp;
 
+    if (mod != Py_None) {
+        TYPE_ERROR("pow() 3rd argument not allowed unless all arguments are integers");
+        return NULL;
+    }
+
     /* Only support mpq**int. Everything else gets converted to mpf. */
     if (IS_RATIONAL(base) && IS_INTEGER(exp)) {
 
         resultq = GMPy_MPQ_New();
-        tempbq = Pympq_From_Rational(base);
+        tempbq = GMPy_MPQ_From_Rational_Temp(base);
         tempez = GMPy_MPZ_From_Integer_Temp(exp);
         if (!resultq || !tempbq || !tempez) {
             Py_XDECREF((PyObject*)resultq);
@@ -239,15 +244,20 @@ GMPy_Rational_Pow(PyObject *base, PyObject *exp, GMPyContextObject *context)
         return (PyObject*)resultq;
     }
     else {
-        return GMPy_Real_Pow(base, exp, context);
+        return GMPy_Real_Pow(base, exp, Py_None, context);
     }
 }
 
 static PyObject *
-GMPy_Real_Pow(PyObject *base, PyObject *exp, GMPyContextObject *context)
+GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, GMPyContextObject *context)
 {
     MPFR_Object *tempb = NULL, *tempe = NULL, *result = NULL;
     MPC_Object *mpc_result = NULL;
+
+    if (mod != Py_None) {
+        TYPE_ERROR("pow() 3rd argument not allowed unless all arguments are integers");
+        return NULL;
+    }
 
     if (!context)
         CURRENT_CONTEXT(context);
@@ -280,7 +290,7 @@ GMPy_Real_Pow(PyObject *base, PyObject *exp, GMPyContextObject *context)
     if (result && mpfr_nanflag_p() && context->ctx.allow_complex) {
         /* If the result is NaN, check if a complex result works. */
 
-        mpc_result = (MPC_Object*)GMPy_Complex_Pow(base, exp, context);
+        mpc_result = (MPC_Object*)GMPy_Complex_Pow(base, exp, Py_None, context);
         if (!mpc_result || MPC_IS_NAN_P(mpc_result)) {
             Py_XDECREF((PyObject*)mpc_result);
             context->ctx.invalid = 1;
@@ -307,9 +317,14 @@ GMPy_Real_Pow(PyObject *base, PyObject *exp, GMPyContextObject *context)
 }
 
 static PyObject *
-GMPy_Complex_Pow(PyObject *base, PyObject *exp, GMPyContextObject *context)
+GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, GMPyContextObject *context)
 {
     MPC_Object *tempb = NULL, *tempe = NULL, *result= NULL;
+
+    if (mod != Py_None) {
+        TYPE_ERROR("pow() 3rd argument not allowed unless all arguments are integers");
+        return NULL;
+    }
 
     result = (MPC_Object*)Pympc_new_context(context);
     tempb = GMPy_MPC_From_Complex_Temp(base, context);
@@ -418,13 +433,13 @@ GMPy_Context_Pow(PyObject *self, PyObject *args)
         return GMPy_Integer_Pow(arg0, arg1, Py_None, context);
 
     if (IS_RATIONAL(arg0) && IS_RATIONAL(arg1))
-        return GMPy_Rational_Pow(arg0, arg1, context);
+        return GMPy_Rational_Pow(arg0, arg1, Py_None, context);
 
     if (IS_REAL(arg0) && IS_REAL(arg1))
-        return GMPy_Real_Pow(arg0, arg1, context);
+        return GMPy_Real_Pow(arg0, arg1, Py_None, context);
 
     if (IS_COMPLEX(arg0) && IS_COMPLEX(arg1))
-        return GMPy_Complex_Pow(arg0, arg1, context);
+        return GMPy_Complex_Pow(arg0, arg1, Py_None, context);
 
     TYPE_ERROR("pow() argument types not supported");
     return NULL;
@@ -437,13 +452,13 @@ GMPy_mpany_pow_fast(PyObject *base, PyObject *exp, PyObject *mod)
         return GMPy_Integer_Pow(base, exp, mod, NULL);
 
     if (IS_RATIONAL(base) && IS_RATIONAL(exp))
-        return GMPy_Rational_Pow(base, exp, NULL);
+        return GMPy_Rational_Pow(base, exp, mod, NULL);
 
     if (IS_REAL(base) && IS_REAL(exp))
-        return GMPy_Real_Pow(base, exp, NULL);
+        return GMPy_Real_Pow(base, exp, mod, NULL);
 
     if (IS_COMPLEX(base) && IS_COMPLEX(exp))
-        return GMPy_Complex_Pow(base, exp, NULL);
+        return GMPy_Complex_Pow(base, exp, mod, NULL);
 
     Py_RETURN_NOTIMPLEMENTED;
 }

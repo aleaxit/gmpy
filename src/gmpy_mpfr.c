@@ -1801,7 +1801,7 @@ Pympfr_FloorDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
         if (IS_RATIONAL(y) || IS_DECIMAL(y)) {
             MPQ_Object *tempy;
 
-            if (!(tempy = Pympq_From_Number(y))) {
+            if (!(tempy = GMPy_MPQ_From_Number_Temp(y))) {
                 SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
                 Py_DECREF((PyObject*)result);
                 return NULL;
@@ -1953,7 +1953,7 @@ Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
         if (IS_RATIONAL(y) || IS_DECIMAL(y)) {
             MPQ_Object *tempy;
 
-            if (!(tempy = Pympq_From_Number(y))) {
+            if (!(tempy = GMPy_MPQ_From_Number_Temp(y))) {
                 SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
                 Py_DECREF((PyObject*)result);
                 return NULL;

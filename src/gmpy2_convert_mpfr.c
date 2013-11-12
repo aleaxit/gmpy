@@ -629,7 +629,7 @@ Pympfr_From_Decimal(PyObject* obj, mpfr_prec_t bits)
     CURRENT_CONTEXT(context);
 
     result = (MPFR_Object*)Pympfr_new_bits_context(bits, context);
-    temp = Pympq_From_DecimalRaw(obj);
+    temp = GMPy_MPQ_From_DecimalRaw(obj);
 
     if (!temp || !result) {
         Py_XDECREF((PyObject*)temp);
@@ -670,7 +670,7 @@ Pympfr_From_Decimal_context(PyObject* obj,
     MPQ_Object *temp;
 
     result = (MPFR_Object*)Pympfr_new_bits_context(bits, context);
-    temp = Pympq_From_DecimalRaw(obj);
+    temp = GMPy_MPQ_From_DecimalRaw(obj);
 
     if (!temp || !result) {
         Py_XDECREF((PyObject*)temp);
@@ -768,7 +768,7 @@ Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits)
         newob = Pympfr_From_Decimal(obj, bits);
     }
     else if (IS_FRACTION(obj)) {
-        temp = Pympq_From_Fraction(obj);
+        temp = GMPy_MPQ_From_Fraction(obj);
         if (temp) {
             newob = Pympfr_From_Pympq((PyObject*)temp, bits);
             Py_DECREF((PyObject*)temp);
@@ -853,7 +853,7 @@ GMPy_MPFR_From_Real_Temp(PyObject *obj, GMPyContextObject *context)
     if (IS_FRACTION(obj)) {
         MPQ_Object *tempq = NULL;
 
-        if ((tempq = Pympq_From_Fraction(obj))) {
+        if ((tempq = GMPy_MPQ_From_Fraction(obj))) {
             result = Pympfr_From_Pympq_bits_context((PyObject*)tempq, 0, context);
             Py_DECREF((PyObject*)tempq);
         }
@@ -922,7 +922,7 @@ Pympfr_From_Real_bits_context(PyObject* obj, mpfr_prec_t bits, GMPyContextObject
         newob = Pympfr_From_Decimal_context(obj, bits, context);
     }
     else if (IS_FRACTION(obj)) {
-        temp = Pympq_From_Fraction(obj);
+        temp = GMPy_MPQ_From_Fraction(obj);
         if (temp) {
             newob = Pympfr_From_Pympq_bits_context((PyObject*)temp, bits, context);
             Py_DECREF((PyObject*)temp);

@@ -41,8 +41,8 @@ PyDoc_STRVAR(doc_mpq,
 static PyObject *
 Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
 {
-    MPQ_Object *result = 0, *temp;
-    PyObject *n = 0, *m = 0;
+    MPQ_Object *result = NULL, *temp;
+    PyObject *n = NULL, *m = NULL;
     int base = 10;
     Py_ssize_t argc;
     static char *kwlist[] = {"s", "base", NULL };
@@ -53,18 +53,20 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
         return NULL;
     }
 
+    /* Handle 0 arguments. */
     if (argc == 0) {
         if ((result = GMPy_MPQ_New())) {
-            mpq_set_ui(result->q, 0, 0);
+            mpq_set_ui(result->q, 0, 1);
         }
         return (PyObject*)result;
     }
 
+    /* Handle the case where the first argument is a string. */
     n = PyTuple_GetItem(args, 0);
     if (PyStrOrUnicode_Check(n)) {
         /* keyword base is legal */
         if (PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwlist, &n, &base)) {
-            if ((base!=0) && ((base<2)||(base>62))) {
+            if ((base != 0) && ((base < 2) || (base > 62))) {
                 VALUE_ERROR("base for mpq() must be 0 or in the "
                             "interval 2 ... 62");
             }
@@ -75,41 +77,46 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
         return (PyObject*)result;
     }
 
-    if (IS_DECIMAL(n)) {
-        return (PyObject*)Pympq_From_Decimal(n);
-    }
-
-    if (argc == 2)
-        m = PyTuple_GetItem(args, 1);
-
-    if (!IS_REAL(n) || (m && !IS_REAL(m))) {
-        TYPE_ERROR("mpq() requires numeric or string argument");
-        return NULL;
-    }
-
-    /* should now have one or two numeric values */
-    result = Pympq_From_Number(n);
-    if (!result && !PyErr_Occurred()) {
-        TYPE_ERROR("mpq() requires numeric or string argument");
-        return NULL;
-    }
-    if (m) {
-        temp = Pympq_From_Number(m);
-        if (!temp && !PyErr_Occurred()) {
-            TYPE_ERROR("mpq() requires numeric or string argument");
-            Py_DECREF((PyObject*)result);
-            return NULL;
+    /* Handle 1 argument. It can be non-complex number. */
+    if (argc == 1) {
+        if (IS_REAL(n)) {
+            return (PyObject*)GMPy_MPQ_From_Number_Temp(n);
         }
-        if (mpq_sgn(temp->q) == 0) {
-            ZERO_ERROR("zero denominator in 'mpq'");
-            Py_DECREF((PyObject*)result);
-            Py_DECREF((PyObject*)temp);
-            return NULL;
+        else {
+            goto type_error;
         }
-        mpq_div(result->q, result->q, temp->q);
+    }
+
+    /* Handle 2 arguments. Both arguments must be integer or rational. */
+    m = PyTuple_GetItem(args, 1);
+
+    if (!IS_RATIONAL(n) || !IS_RATIONAL(m)) {
+        goto type_error;
+    }
+
+    if (!(result = GMPy_MPQ_From_Number_New(n))) {
+        goto type_error;
+    }
+
+    if (!(temp = GMPy_MPQ_From_Number_Temp(m))) {
+        Py_DECREF((PyObject*)result);
+        goto type_error;
+    }
+
+    if (mpq_sgn(temp->q) == 0) {
+        ZERO_ERROR("zero denominator in mpq()");
+        Py_DECREF((PyObject*)result);
         Py_DECREF((PyObject*)temp);
+        return NULL;
     }
+
+    mpq_div(result->q, result->q, temp->q);
+    Py_DECREF((PyObject*)temp);
     return (PyObject*)result;
+
+  type_error:
+    TYPE_ERROR("mpq() requires numeric or string argument");
+    return NULL;
 }
 
 /* Functions that operate strictly on mpq. */
@@ -128,7 +135,7 @@ Pympq_digits(PyObject *self, PyObject *args)
     PyObject *result;
 
     SELF_MPQ_ONE_ARG("|i", &base);
-    result = Pympq_To_PyStr((MPQ_Object*)self, base, 0);
+    result = GMPy_PyStr_From_MPQ((MPQ_Object*)self, base, 0);
     Py_DECREF(self);
     return result;
 }
@@ -147,7 +154,7 @@ Pympq_sign(PyObject *self, PyObject *other)
         res = mpq_sgn(MPQ(other));
     }
     else {
-        if (!(tempx = Pympq_From_Number(other))) {
+        if (!(tempx = GMPy_MPQ_From_Number_Temp(other))) {
             TYPE_ERROR("sign() requires 'mpq' argument");
             return NULL;
         }
@@ -224,116 +231,96 @@ PyDoc_STRVAR(doc_qdivg,
 "Return x/y as 'mpz' if possible, or as 'mpq' if x is not exactly\n"
 "divisible by y.");
 
-static int isOne(PyObject* obj)
-{
-    GMPyContextObject *context;
-
-    CURRENT_CONTEXT(context);
-
-    if (!obj)
-        return 1;
-
-    if (MPQ_Check(obj)) {
-        return (0==mpz_cmp_ui(mpq_denref(MPQ(obj)),1)) &&
-               (0==mpz_cmp_ui(mpq_numref(MPQ(obj)),1));
-    }
-    else if (MPZ_Check(obj)) {
-        return 0==mpz_cmp_ui(MPZ(obj),1);
-    }
-    else if (XMPZ_Check(obj)) {
-        return 0==mpz_cmp_ui(MPZ(obj),1);
-#ifdef PY2
-    }
-    else if (PyInt_Check(obj)) {
-        return PyInt_AS_LONG(obj)==1;
-#endif
-    }
-    else if (MPFR_Check(obj)) {
-        return mpfr_get_d(MPFR(obj), context->ctx.mpfr_round)==1.0;
-    }
-    else if (PyFloat_Check(obj)) {
-        return PyFloat_AS_DOUBLE(obj)==1.0;
-    }
-    else if (PyLong_Check(obj)) {
-        return PyLong_AsLong(obj)==1;
-    }
-    return 0;
-}
 static PyObject *
 Pympq_qdiv(PyObject *self, PyObject *args)
 {
-    PyObject *other = NULL, *temp = NULL;
-    int wasone;
+    Py_ssize_t argc;
+    int isOne = 0;
+    PyObject *result, *x, *y;
+    MPQ_Object *tempx = NULL, *tempy = NULL;
 
-    if ( self && MPQ_Check(self)) {
-        if (!PyArg_ParseTuple(args, "|O", &other))
+    argc = PyTuple_Size(args);
+    if (argc == 0 || argc > 2)
+        goto arg_error;
+
+    /* Validate the first argument. */
+
+    x = PyTuple_GET_ITEM(args, 0);
+    if (!IS_RATIONAL(x))
+        goto arg_error;
+
+    /* Convert the second argument first and see if it is 1. If the second
+     * argument is 1 (or didn't exist), then isOne is true and tempy does not
+     * contain a valid reference.
+     */
+
+    if (argc == 2) {
+        y = PyTuple_GET_ITEM(args, 1);
+        if (!IS_RATIONAL(y)) {
+            goto arg_error;
+        }
+        tempy = GMPy_MPQ_From_Rational_Temp(y);
+        if (!tempy) {
             return NULL;
+        }
+        if (mpq_cmp_ui(tempy->q, 1, 1) == 0) {
+            isOne = 1;
+            Py_DECREF((PyObject*)tempy);
+        }
     }
     else {
-        if (!PyArg_ParseTuple(args, "O|O", &self, &other))
-            return NULL;
+        isOne = 1;
     }
-    wasone = isOne(other);
-    /* optimize if self must be returned unchanged */
-    if (MPQ_Check(self) && wasone) {
-        /* optimize if self is mpq and result must==self */
-        if (mpz_cmp_ui(mpq_denref(MPQ(self)), 1) != 0) {
-            Py_INCREF(self);
-            return self;
+
+    if (isOne) {
+        if (IS_INTEGER(x))
+            return (PyObject*)GMPy_MPZ_From_Integer_Temp(x);
+
+        if (IS_RATIONAL(x)) {
+            tempx = GMPy_MPQ_From_Rational_Temp(x);
+            if (!tempx)
+                return NULL;
+            if (mpz_cmp_ui(mpq_denref(tempx->q), 1) == 0) {
+                if ((result = (PyObject*)GMPy_MPZ_New())) {
+                    mpz_set(MPZ(result), mpq_numref(tempx->q));
+                }
+                Py_DECREF((PyObject*)tempx);
+                return result;
+            }
+            else {
+                return (PyObject*)tempx;
+            }
         }
-        else {
-            /* denominator is 1, optimize returning an mpz */
-            temp = (PyObject*)GMPy_MPZ_New();
-            mpz_set(MPZ(temp), mpq_numref(MPQ(self)));
-            return temp;
-        }
+        goto arg_error;
     }
-    else if (MPZ_Check(self) && wasone) {
-        /* optimize if self is mpz and result must==self */
-        Py_INCREF(self);
-        return self;
-    }
-    /* normal, non-optimized case: must make new object as result */
-    self = (PyObject*)Pympq_From_Rational(self);
-    if (!self) {
-        if (!PyErr_Occurred())
-            TYPE_ERROR("first argument cannot be converted to 'mpq'");
+
+    if (mpq_sgn(tempy->q) == 0) {
+        Py_DECREF((PyObject*)tempy);
+        ZERO_ERROR("division by zero in qdiv()");
         return NULL;
     }
-    if (wasone) { /* self was mpf, float, int, long... */
-        temp = self;
+
+    if (!(tempx = GMPy_MPQ_From_Number_New(x))) {
+        Py_DECREF((PyObject*)tempy);
+        return NULL;
     }
-    else {     /* other explicitly present and !=1... must compute */
-        other = (PyObject*)Pympq_From_Rational(other);
-        if (!other) {
-            Py_DECREF(self);
-            if (!PyErr_Occurred())
-                TYPE_ERROR("second argument cannot be converted to 'mpq'");
-            return NULL;
+
+    mpq_div(tempx->q, tempx->q, tempy->q);
+    Py_DECREF((PyObject*)tempy);
+
+    if (mpz_cmp_ui(mpq_denref(tempx->q), 1) == 0) {
+        if ((result = (PyObject*)GMPy_MPZ_New())) {
+            mpz_set(MPZ(result), mpq_numref(tempx->q));
         }
-        if (mpq_sgn(MPQ(other)) == 0) {
-            PyObject *result = NULL;
-            ZERO_ERROR("division or modulo by zero in qdiv");
-            Py_DECREF(self);
-            Py_DECREF(other);
-            return result;
-        }
-        temp = (PyObject*)GMPy_MPQ_New();
-        mpq_div(MPQ(temp), MPQ(self), MPQ(other));
-        Py_DECREF(self);
-        Py_DECREF(other);
+        Py_DECREF((PyObject*)tempx);
+        return result;
     }
-    if (mpz_cmp_ui(mpq_denref(MPQ(temp)), 1) != 0) {
-        return temp;
-    }
-    else {
-        /* denominator is 1, return an mpz */
-        PyObject* ss = (PyObject*)GMPy_MPZ_New();
-        if (ss)
-            mpz_set(MPZ(ss), mpq_numref(MPQ(temp)));
-        Py_DECREF(temp);
-        return ss;
-    }
+
+    return (PyObject*)tempx;
+
+  arg_error:
+    TYPE_ERROR("qdiv() takes one or two Integer or Rational argument(s)");
+    return NULL;
 }
 
 static PyObject *
@@ -502,7 +489,7 @@ Pympq_square(PyObject *self, PyObject *other)
         mpq_mul(result->q, MPQ(other), MPQ(other));
     }
     else {
-        if (!(tempx = Pympq_From_Rational(other))) {
+        if (!(tempx = GMPy_MPQ_From_Rational_Temp(other))) {
             TYPE_ERROR("square() requires 'mpq' argument");
             Py_DECREF((PyObject*)result);
             return NULL;
@@ -611,8 +598,8 @@ Pympq_FloorDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx, *tempy;
 
-        tempx = Pympq_From_Number(x);
-        tempy = Pympq_From_Number(y);
+        tempx = GMPy_MPQ_From_Number_Temp(x);
+        tempy = GMPy_MPQ_From_Number_Temp(y);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Could not convert Rational to mpq.");
             Py_XDECREF((PyObject*)tempx);
@@ -680,8 +667,8 @@ Pympq_TrueDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx, *tempy;
 
-        tempx = Pympq_From_Number(x);
-        tempy = Pympq_From_Number(y);
+        tempx = GMPy_MPQ_From_Number_Temp(x);
+        tempy = GMPy_MPQ_From_Number_Temp(y);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Could not convert Rational to mpq.");
             Py_XDECREF((PyObject*)tempx);
@@ -740,8 +727,8 @@ Pympq_Mod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
         return NULL;
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
-        tempx = Pympq_From_Number(x);
-        tempy = Pympq_From_Number(y);
+        tempx = GMPy_MPQ_From_Number_Temp(x);
+        tempy = GMPy_MPQ_From_Number_Temp(y);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Could not convert Rational to mpq.");
             goto error;
@@ -813,8 +800,8 @@ Pympq_DivMod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
     }
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
-        tempx = Pympq_From_Number(x);
-        tempy = Pympq_From_Number(y);
+        tempx = GMPy_MPQ_From_Number_Temp(x);
+        tempy = GMPy_MPQ_From_Number_Temp(y);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Could not convert Rational to mpq.");
             goto error;
@@ -882,82 +869,82 @@ Pympq_sizeof(PyObject *self, PyObject *other)
 #ifdef PY3
 static PyNumberMethods mpq_number_methods =
 {
-    (binaryfunc) GMPy_mpq_add_fast,      /* nb_add                  */
-    (binaryfunc) GMPy_mpq_sub_fast,      /* nb_subtract             */
-    (binaryfunc) GMPy_mpq_mul_fast,      /* nb_multiply             */
-    (binaryfunc) Pympq_mod_fast,         /* nb_remainder            */
-    (binaryfunc) Pympq_divmod_fast,      /* nb_divmod               */
-    (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
-    (unaryfunc) Pympq_neg,               /* nb_negative             */
-    (unaryfunc) Pympq_pos,               /* nb_positive             */
-    (unaryfunc) GMPy_mpq_abs_fast,       /* nb_absolute             */
-    (inquiry) Pympq_nonzero,             /* nb_bool                 */
-        0,                               /* nb_invert               */
-        0,                               /* nb_lshift               */
-        0,                               /* nb_rshift               */
-        0,                               /* nb_and                  */
-        0,                               /* nb_xor                  */
-        0,                               /* nb_or                   */
-    (unaryfunc) Pympq_To_PyLong,         /* nb_int                  */
-        0,                               /* nb_reserved             */
-    (unaryfunc) Pympq_To_PyFloat,        /* nb_float                */
-        0,                               /* nb_inplace_add          */
-        0,                               /* nb_inplace_subtract     */
-        0,                               /* nb_inplace_multiply     */
-        0,                               /* nb_inplace_remainder    */
-        0,                               /* nb_inplace_power        */
-        0,                               /* nb_inplace_lshift       */
-        0,                               /* nb_inplace_rshift       */
-        0,                               /* nb_inplace_and          */
-        0,                               /* nb_inplace_xor          */
-        0,                               /* nb_inplace_or           */
-    (binaryfunc) Pympq_floordiv_fast,    /* nb_floor_divide         */
-    (binaryfunc) Pympq_truediv_fast,     /* nb_true_divide          */
-        0,                               /* nb_inplace_floor_divide */
-        0,                               /* nb_inplace_true_divide  */
-        0,                               /* nb_index                */
+    (binaryfunc) GMPy_mpq_add_fast,         /* nb_add                  */
+    (binaryfunc) GMPy_mpq_sub_fast,         /* nb_subtract             */
+    (binaryfunc) GMPy_mpq_mul_fast,         /* nb_multiply             */
+    (binaryfunc) Pympq_mod_fast,            /* nb_remainder            */
+    (binaryfunc) Pympq_divmod_fast,         /* nb_divmod               */
+    (ternaryfunc) GMPy_mpany_pow_fast,      /* nb_power                */
+    (unaryfunc) Pympq_neg,                  /* nb_negative             */
+    (unaryfunc) Pympq_pos,                  /* nb_positive             */
+    (unaryfunc) GMPy_mpq_abs_fast,          /* nb_absolute             */
+    (inquiry) Pympq_nonzero,                /* nb_bool                 */
+        0,                                  /* nb_invert               */
+        0,                                  /* nb_lshift               */
+        0,                                  /* nb_rshift               */
+        0,                                  /* nb_and                  */
+        0,                                  /* nb_xor                  */
+        0,                                  /* nb_or                   */
+    (unaryfunc) GMPy_PyLong_From_MPQ,       /* nb_int                  */
+        0,                                  /* nb_reserved             */
+    (unaryfunc) GMPy_PyFloat_From_MPQ,      /* nb_float                */
+        0,                                  /* nb_inplace_add          */
+        0,                                  /* nb_inplace_subtract     */
+        0,                                  /* nb_inplace_multiply     */
+        0,                                  /* nb_inplace_remainder    */
+        0,                                  /* nb_inplace_power        */
+        0,                                  /* nb_inplace_lshift       */
+        0,                                  /* nb_inplace_rshift       */
+        0,                                  /* nb_inplace_and          */
+        0,                                  /* nb_inplace_xor          */
+        0,                                  /* nb_inplace_or           */
+    (binaryfunc) Pympq_floordiv_fast,       /* nb_floor_divide         */
+    (binaryfunc) Pympq_truediv_fast,        /* nb_true_divide          */
+        0,                                  /* nb_inplace_floor_divide */
+        0,                                  /* nb_inplace_true_divide  */
+        0,                                  /* nb_index                */
 };
 #else
 static PyNumberMethods mpq_number_methods =
 {
-    (binaryfunc) GMPy_mpq_add_fast,      /* nb_add                  */
-    (binaryfunc) GMPy_mpq_sub_fast,      /* nb_subtract             */
-    (binaryfunc) GMPy_mpq_mul_fast,      /* nb_multiply             */
-    (binaryfunc) Pympq_truediv_fast,     /* nb_divide               */
-    (binaryfunc) Pympq_mod_fast,         /* nb_remainder            */
-    (binaryfunc) Pympq_divmod_fast,      /* nb_divmod               */
-    (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
-    (unaryfunc) Pympq_neg,               /* nb_negative             */
-    (unaryfunc) Pympq_pos,               /* nb_positive             */
-    (unaryfunc) GMPy_mpq_abs_fast,       /* nb_absolute             */
-    (inquiry) Pympq_nonzero,             /* nb_bool                 */
-        0,                               /* nb_invert               */
-        0,                               /* nb_lshift               */
-        0,                               /* nb_rshift               */
-        0,                               /* nb_and                  */
-        0,                               /* nb_xor                  */
-        0,                               /* nb_or                   */
-        0,                               /* nb_coerce               */
-    (unaryfunc) Pympq_To_PyInt,          /* nb_int                  */
-    (unaryfunc) Pympq_To_PyLong,         /* nb_long                 */
-    (unaryfunc) Pympq_To_PyFloat,        /* nb_float                */
-        0,                               /* nb_oct                  */
-        0,                               /* nb_hex                  */
-        0,                               /* nb_inplace_add;         */
-        0,                               /* nb_inplace_subtract     */
-        0,                               /* nb_inplace_multiply     */
-        0,                               /* nb_inplace_divide       */
-        0,                               /* nb_inplace_remainder    */
-        0,                               /* nb_inplace_power        */
-        0,                               /* nb_inplace_lshift       */
-        0,                               /* nb_inplace_rshift       */
-        0,                               /* nb_inplace_and          */
-        0,                               /* nb_inplace_xor          */
-        0,                               /* nb_inplace_or           */
-    (binaryfunc) Pympq_floordiv_fast,    /* nb_floor_divide         */
-    (binaryfunc) Pympq_truediv_fast,     /* nb_true_divide          */
-        0,                               /* nb_inplace_floor_divide */
-        0,                               /* nb_inplace_true_divide  */
+    (binaryfunc) GMPy_mpq_add_fast,         /* nb_add                  */
+    (binaryfunc) GMPy_mpq_sub_fast,         /* nb_subtract             */
+    (binaryfunc) GMPy_mpq_mul_fast,         /* nb_multiply             */
+    (binaryfunc) Pympq_truediv_fast,        /* nb_divide               */
+    (binaryfunc) Pympq_mod_fast,            /* nb_remainder            */
+    (binaryfunc) Pympq_divmod_fast,         /* nb_divmod               */
+    (ternaryfunc) GMPy_mpany_pow_fast,      /* nb_power                */
+    (unaryfunc) Pympq_neg,                  /* nb_negative             */
+    (unaryfunc) Pympq_pos,                  /* nb_positive             */
+    (unaryfunc) GMPy_mpq_abs_fast,          /* nb_absolute             */
+    (inquiry) Pympq_nonzero,                /* nb_bool                 */
+        0,                                  /* nb_invert               */
+        0,                                  /* nb_lshift               */
+        0,                                  /* nb_rshift               */
+        0,                                  /* nb_and                  */
+        0,                                  /* nb_xor                  */
+        0,                                  /* nb_or                   */
+        0,                                  /* nb_coerce               */
+    (unaryfunc) GMPy_PyIntOrLong_From_MPQ,  /* nb_int                  */
+    (unaryfunc) Pympq_To_PyLong,            /* nb_long                 */
+    (unaryfunc) Pympq_To_PyFloat,           /* nb_float                */
+        0,                                  /* nb_oct                  */
+        0,                                  /* nb_hex                  */
+        0,                                  /* nb_inplace_add;         */
+        0,                                  /* nb_inplace_subtract     */
+        0,                                  /* nb_inplace_multiply     */
+        0,                                  /* nb_inplace_divide       */
+        0,                                  /* nb_inplace_remainder    */
+        0,                                  /* nb_inplace_power        */
+        0,                                  /* nb_inplace_lshift       */
+        0,                                  /* nb_inplace_rshift       */
+        0,                                  /* nb_inplace_and          */
+        0,                                  /* nb_inplace_xor          */
+        0,                                  /* nb_inplace_or           */
+    (binaryfunc) Pympq_floordiv_fast,       /* nb_floor_divide         */
+    (binaryfunc) Pympq_truediv_fast,        /* nb_true_divide          */
+        0,                                  /* nb_inplace_floor_divide */
+        0,                                  /* nb_inplace_true_divide  */
 };
 #endif
 
@@ -997,13 +984,13 @@ static PyTypeObject MPQ_Type =
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
-    (reprfunc) Pympq_To_Repr,               /* tp_repr          */
+    (reprfunc) GMPy_MPQ_Repr_Slot,          /* tp_repr          */
     &mpq_number_methods,                    /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
         0,                                  /* tp_as_mapping    */
     (hashfunc) Pympq_hash,                  /* tp_hash          */
         0,                                  /* tp_call          */
-    (reprfunc) Pympq_To_Str,                /* tp_str           */
+    (reprfunc) GMPy_MPQ_Str_Slot,           /* tp_str           */
     (getattrofunc) 0,                       /* tp_getattro      */
     (setattrofunc) 0,                       /* tp_setattro      */
         0,                                  /* tp_as_buffer     */

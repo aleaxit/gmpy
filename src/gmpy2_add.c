@@ -175,8 +175,8 @@ GMPy_Rational_Add(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx, *tempy;
 
-        tempx = Pympq_From_Number(x);
-        tempy = Pympq_From_Number(y);
+        tempx = GMPy_MPQ_From_Number_Temp(x);
+        tempy = GMPy_MPQ_From_Number_Temp(y);
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -288,7 +288,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, GMPyContextObject *context)
         if (IS_RATIONAL(y) || IS_DECIMAL(y)) {
             MPQ_Object *tempy;
 
-            if (!(tempy = Pympq_From_Number(y))) {
+            if (!(tempy = GMPy_MPQ_From_Number_Temp(y))) {
                 Py_DECREF(result);
                 return NULL;
             }
@@ -341,7 +341,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, GMPyContextObject *context)
         if (IS_RATIONAL(x) || IS_DECIMAL(x)) {
             MPQ_Object *tempx;
 
-            if (!(tempx = Pympq_From_Number(x))) {
+            if (!(tempx = GMPy_MPQ_From_Number_Temp(x))) {
                 Py_DECREF(result);
                 return NULL;
             }

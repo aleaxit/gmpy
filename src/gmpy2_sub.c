@@ -180,8 +180,8 @@ GMPy_Rational_Sub(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx, *tempy;
 
-        tempx = Pympq_From_Number(x);
-        tempy = Pympq_From_Number(y);
+        tempx = GMPy_MPQ_From_Rational_Temp(x);
+        tempy = GMPy_MPQ_From_Rational_Temp(y);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Could not convert Rational to mpq.");
             Py_XDECREF((PyObject*)tempx);
@@ -289,7 +289,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, GMPyContextObject *context)
         if (IS_RATIONAL(y) || IS_DECIMAL(y)) {
             MPQ_Object *tempy;
 
-            if (!(tempy = Pympq_From_Number(y))) {
+            if (!(tempy = GMPy_MPQ_From_Number_Temp(y))) {
                 SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
                 Py_DECREF(result);
                 return NULL;
@@ -344,7 +344,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, GMPyContextObject *context)
         if (IS_RATIONAL(x) || IS_DECIMAL(x)) {
             MPQ_Object *tempx;
 
-            if (!(tempx = Pympq_From_Number(x))) {
+            if (!(tempx = GMPy_MPQ_From_Number_Temp(x))) {
                 SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
                 Py_DECREF(result);
                 return NULL;
