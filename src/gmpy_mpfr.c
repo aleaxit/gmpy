@@ -90,7 +90,7 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
     }
 
     if (argc == 0) {
-        if ((result = (MPFR_Object*)Pympfr_new(0))) {
+        if ((result = GMPy_MPFR_New(0, context))) {
             mpfr_set_ui(result->f, 0, MPFR_RNDN);
         }
         return (PyObject*)result;
@@ -158,8 +158,11 @@ static PyObject *
 Pympfr_getimag_attrib(MPFR_Object *self, void *closure)
 {
     MPFR_Object *result;
+    GMPyContextObject *context;
 
-    if ((result = (MPFR_Object*)Pympfr_new(0)))
+    CURRENT_CONTEXT(context);
+
+    if ((result = GMPy_MPFR_New(0, context)))
         mpfr_set_zero(result->f, 1);
     return (PyObject*)result;
 }
@@ -205,7 +208,7 @@ Pympfr_pos(MPFR_Object *self)
 
     CURRENT_CONTEXT(context);
 
-    if (!(result = (MPFR_Object*)Pympfr_new(mpfr_get_prec(self->f))))
+    if (!(result = GMPy_MPFR_New(mpfr_get_prec(self->f), context)))
         return NULL;
 
     mpfr_clear_flags();
@@ -359,7 +362,7 @@ Pympfr_set_sign(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
 
     s = PyObject_IsTrue(boolean);
@@ -399,7 +402,7 @@ Pympfr_copy_sign(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
 
     result->rc = mpfr_copysign(MPFR(result), MPFR(self),
@@ -424,7 +427,7 @@ Pympfr_div_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
 
     mpfr_clear_flags();
@@ -449,7 +452,7 @@ Pympfr_mul_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
 
     mpfr_clear_flags();
@@ -468,8 +471,11 @@ static PyObject *
 Pympfr_set_nan(PyObject *self, PyObject *other)
 {
     MPFR_Object *result;
+    GMPyContextObject *context;
 
-    if ((result = (MPFR_Object*)Pympfr_new(0)))
+    CURRENT_CONTEXT(context);
+
+    if ((result = GMPy_MPFR_New(0, context)))
         mpfr_set_nan(result->f);
     return (PyObject*)result;
 }
@@ -484,6 +490,9 @@ Pympfr_set_inf(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     long s = 1;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (PyTuple_Size(args) == 1) {
         s = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
@@ -493,7 +502,7 @@ Pympfr_set_inf(PyObject *self, PyObject *args)
         }
     }
 
-    if ((result = (MPFR_Object*)Pympfr_new(0)))
+    if ((result = GMPy_MPFR_New(0, context)))
         mpfr_set_inf(result->f, s<0?-1:1);
     return (PyObject*)result;
 }
@@ -508,6 +517,9 @@ Pympfr_set_zero(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     long s = 1;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (PyTuple_Size(args) == 1) {
         s = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
@@ -517,7 +529,7 @@ Pympfr_set_zero(PyObject *self, PyObject *args)
         }
     }
 
-    if ((result = (MPFR_Object*)Pympfr_new(0)))
+    if ((result = GMPy_MPFR_New(0, context)))
         mpfr_set_zero(result->f, s<0?-1:1);
     return (PyObject*)result;
 }
@@ -828,7 +840,7 @@ Pympfr_##NAME(PyObject *self, PyObject *args, PyObject *keywds) \
     GMPyContextObject *context; \
     CURRENT_CONTEXT(context); \
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "|l", kwlist, &bits)) return NULL; \
-    if ((result = (MPFR_Object*)Pympfr_new(bits))) { \
+    if ((result = GMPy_MPFR_New(bits, context))) { \
         mpfr_clear_flags(); \
         result->rc = mpfr_##NAME(result->f, context->ctx.mpfr_round); \
         MERGE_FLAGS \
@@ -881,7 +893,7 @@ Pympfr_sqrt(PyObject *self, PyObject *other)
         return Pympc_sqrt(self, other);
     }
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0))) {
+    if (!(result = GMPy_MPFR_New(0, context))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -907,7 +919,7 @@ Pympfr_rec_sqrt(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPFR_OTHER("rec_sqrt() requires 'mpfr' argument");
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         goto done;
 
     mpfr_clear_flags();
@@ -932,7 +944,7 @@ Pympfr_root(PyObject *self, PyObject *args)
 
     PARSE_ONE_MPFR_REQ_CLONG(&n, "root() requires 'mpfr','int' arguments");
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         goto done;
 
     if (n <= 0) {
@@ -970,7 +982,7 @@ Pympfr_round2(PyObject *self, PyObject *args)
         goto done;
     }
 
-    if (!(result = (MPFR_Object*)Pympfr_new(mpfr_get_prec(MPFR(self))))) {
+    if (!(result = GMPy_MPFR_New(mpfr_get_prec(MPFR(self)), context))) {
         goto done;
     }
 
@@ -997,6 +1009,9 @@ Pympfr_round10(PyObject *self, PyObject *args)
     mpz_t temp;
     MPFR_Object *resultf = 0;
     MPZ_Object *resultz;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     /* If the size of args is 0, we just return an mpz. */
 
@@ -1042,7 +1057,7 @@ Pympfr_round10(PyObject *self, PyObject *args)
      * fraction, round the fraction, and then convert back to an mpfr.
      */
 
-    resultf = (MPFR_Object*)Pympfr_new(mpfr_get_prec(MPFR(self))+100);
+    resultf = GMPy_MPFR_New(mpfr_get_prec(MPFR(self))+100, context);
     if (!resultf)
         return NULL;
 
@@ -1085,7 +1100,7 @@ Pympfr_reldiff(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPFR_ARGS(other, "reldiff() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0))) {
+    if (!(result = GMPy_MPFR_New(0, context))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
@@ -1133,7 +1148,7 @@ Py##NAME(MPFR_Object *x) \
     MPFR_Object *r; \
     GMPyContextObject *context; \
     CURRENT_CONTEXT(context); \
-    if (!(r = (MPFR_Object*)Pympfr_new(0))) \
+    if (!(r = GMPy_MPFR_New(0, context))) \
         return NULL; \
     if (MPFR_CheckAndExp(x)) { \
         r->rc = NAME(r->f, x->f, context->ctx.mpfr_round); \
@@ -1160,7 +1175,7 @@ Pympfr_Neg_Real(PyObject *x, GMPyContextObject *context)
 {
     MPFR_Object *result;
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
 
     if (MPFR_CheckAndExp(x)) {
@@ -1214,7 +1229,7 @@ Pympfr_##NAME(PyObject* self, PyObject *other) \
     GMPyContextObject *context; \
     CURRENT_CONTEXT(context); \
     PARSE_ONE_MPFR_OTHER(#NAME "() requires 'mpfr' argument"); \
-    if (!(result = (MPFR_Object*)Pympfr_new(0))) goto done; \
+    if (!(result = GMPy_MPFR_New(0, context))) goto done; \
     mpfr_clear_flags(); \
     result->rc = mpfr_##NAME(result->f, MPFR(self)); \
     MPFR_CLEANUP_SELF(#NAME "()"); \
@@ -1266,7 +1281,7 @@ Pympfr_round_away(PyObject* self, PyObject *other)
     CURRENT_CONTEXT(context);
 
     PARSE_ONE_MPFR_OTHER("round_away() requires 'mpfr' argument");
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         goto done;
     mpfr_clear_flags();
     result->rc = mpfr_round(result->f, MPFR(self));
@@ -1281,7 +1296,7 @@ Pympfr_##NAME(PyObject* self, PyObject *other) \
     GMPyContextObject *context; \
     CURRENT_CONTEXT(context); \
     PARSE_ONE_MPFR_OTHER(#NAME "() requires 'mpfr' argument"); \
-    if (!(result = (MPFR_Object*)Pympfr_new(0))) goto done; \
+    if (!(result = GMPy_MPFR_New(0, context))) goto done; \
     mpfr_clear_flags(); \
     result->rc = mpfr_##NAME(result->f, MPFR(self), context->ctx.mpfr_round); \
     MPFR_CLEANUP_SELF(#NAME "()"); \
@@ -1348,8 +1363,8 @@ Pympfr_modf(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPFR_OTHER("modf() requires 'mpfr' argument");
 
-    s = (MPFR_Object*)Pympfr_new(0);
-    c = (MPFR_Object*)Pympfr_new(0);
+    s = GMPy_MPFR_New(0, context);
+    c = GMPy_MPFR_New(0, context);
     result = PyTuple_New(2);
     if (!s || !c || !result)
         goto done;
@@ -1463,7 +1478,7 @@ Pympfr_acos(PyObject* self, PyObject *other)
         return Pympc_acos(self, other);
     }
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0))) {
+    if (!(result = GMPy_MPFR_New(0, context))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -1491,7 +1506,7 @@ Pympfr_asin(PyObject* self, PyObject *other)
         return Pympc_asin(self, other);
     }
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0))) {
+    if (!(result = GMPy_MPFR_New(0, context))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -1549,7 +1564,7 @@ Pympfr_atanh(PyObject* self, PyObject *other)
         return Pympc_atanh(self, other);
     }
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0))) {
+    if (!(result = GMPy_MPFR_New(0, context))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -1613,7 +1628,7 @@ Pympfr_lgamma(PyObject* self, PyObject *other)
 
     PARSE_ONE_MPFR_OTHER("lgamma() requires 'mpfr' argument");
 
-    value = (MPFR_Object*)Pympfr_new(0);
+    value = GMPy_MPFR_New(0, context);
     result = PyTuple_New(2);
     if (!value || !result)
         goto done;
@@ -1690,7 +1705,7 @@ Pympfr_jn(PyObject *self, PyObject *args)
 
     PARSE_ONE_MPFR_REQ_CLONG(&n, "jn() requires 'mpfr','int' arguments");
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         goto done;
 
     mpfr_clear_flags();
@@ -1726,7 +1741,7 @@ Pympfr_yn(PyObject *self, PyObject *args)
 
     PARSE_ONE_MPFR_REQ_CLONG(&n, "yn() requires 'mpfr','int' arguments");
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         goto done;
 
     mpfr_clear_flags();
@@ -1750,7 +1765,7 @@ Pympfr_FloorDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
     MPFR_Object *result;
 
-    if (!(result = (MPFR_Object*)Pympfr_new_context(context)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
 
     /* This only processes mpfr if the exponent is still in-bounds. Need
@@ -1906,7 +1921,7 @@ Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
     MPFR_Object *result;
 
-    if (!(result = (MPFR_Object*)Pympfr_new_context(context)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
 
     /* This only processes mpfr if the exponent is still in-bounds. Need
@@ -2053,8 +2068,8 @@ Pympfr_Mod_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 {
     MPFR_Object *tempx, *tempy, *temp, *result;
 
-    result = (MPFR_Object*)Pympfr_new_context(context);
-    temp = (MPFR_Object*)Pympfr_new_context(context);
+    result = GMPy_MPFR_New(0, context);
+    temp = GMPy_MPFR_New(0, context);
     if (!result || !temp) {
         Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)temp);
@@ -2150,8 +2165,8 @@ Pympfr_DivMod_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
     PyObject *result;
 
     result = PyTuple_New(2);
-    rem = (MPFR_Object*)Pympfr_new_context(context);
-    quo = (MPFR_Object*)Pympfr_new_context(context);
+    rem = GMPy_MPFR_New(0, context);
+    quo = GMPy_MPFR_New(0, context);
     if (!result || !rem || !quo) {
         Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)quo);
@@ -2274,7 +2289,7 @@ Pympfr_fmod(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPFR_ARGS(other, "fmod() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         goto done;
 
     mpfr_clear_flags();
@@ -2299,7 +2314,7 @@ Pympfr_remainder(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPFR_ARGS(other, "remainder() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         goto done;
 
     mpfr_clear_flags();
@@ -2325,7 +2340,7 @@ Pympfr_remquo(PyObject* self, PyObject *args)
 
     PARSE_TWO_MPFR_ARGS(other, "remquo() requires 'mpfr', 'mpfr' argument");
 
-    value = (MPFR_Object*)Pympfr_new(0);
+    value = GMPy_MPFR_New(0, context);
     result = PyTuple_New(2);
     if (!value || !result)
         goto done;
@@ -2368,7 +2383,7 @@ Pympfr_frexp(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPFR_OTHER("frexp() requires 'mpfr' argument");
 
-    value = (MPFR_Object*)Pympfr_new(0);
+    value = GMPy_MPFR_New(0, context);
     result = PyTuple_New(2);
     if (!value || !result)
         goto done;
@@ -2409,7 +2424,7 @@ Pympfr_atan2(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPFR_ARGS(other, "atan2() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         goto done;
 
     mpfr_clear_flags();
@@ -2433,7 +2448,7 @@ Pympfr_agm(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPFR_ARGS(other, "agm() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         goto done;
 
     mpfr_clear_flags();
@@ -2457,7 +2472,7 @@ Pympfr_hypot(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPFR_ARGS(other, "hypot() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         goto done;
 
     mpfr_clear_flags();
@@ -2488,7 +2503,7 @@ Pympfr_max2(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPFR_ARGS(other, "max2() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         goto done;
 
     mpfr_clear_flags();
@@ -2519,7 +2534,7 @@ Pympfr_min2(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPFR_ARGS(other, "min2() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         goto done;
 
     mpfr_clear_flags();
@@ -2543,7 +2558,7 @@ Pympfr_nexttoward(PyObject *self, PyObject *args)
 
     PARSE_TWO_MPFR_ARGS(other, "next_toward() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = (MPFR_Object*)Pympfr_new(mpfr_get_prec(MPFR(self)))))
+    if (!(result = GMPy_MPFR_New(mpfr_get_prec(MPFR(self)), context)))
         goto done;
 
     mpfr_clear_flags();
@@ -2567,7 +2582,7 @@ Pympfr_nextabove(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPFR_OTHER("next_above() requires 'mpfr' argument");
 
-    if (!(result = (MPFR_Object*)Pympfr_new(mpfr_get_prec(MPFR(self)))))
+    if (!(result = GMPy_MPFR_New(mpfr_get_prec(MPFR(self)), context)))
         goto done;
 
     mpfr_clear_flags();
@@ -2591,7 +2606,7 @@ Pympfr_nextbelow(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPFR_OTHER("next_below() requires 'mpfr' argument");
 
-    if (!(result = (MPFR_Object*)Pympfr_new(mpfr_get_prec(MPFR(self)))))
+    if (!(result = GMPy_MPFR_New(mpfr_get_prec(MPFR(self)), context)))
         goto done;
 
     mpfr_clear_flags();
@@ -2613,8 +2628,8 @@ Pympfr_sin_cos(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPFR_OTHER("sin_cos() requires 'mpfr' argument");
 
-    s = (MPFR_Object*)Pympfr_new(0);
-    c = (MPFR_Object*)Pympfr_new(0);
+    s = GMPy_MPFR_New(0, context);
+    c = GMPy_MPFR_New(0, context);
     result = PyTuple_New(2);
     if (!s || !c || !result)
         goto done;
@@ -2662,8 +2677,8 @@ Pympfr_sinh_cosh(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPFR_OTHER("sinh_cosh() requires 'mpfr' argument");
 
-    s = (MPFR_Object*)Pympfr_new(0);
-    c = (MPFR_Object*)Pympfr_new(0);
+    s = GMPy_MPFR_New(0, context);
+    c = GMPy_MPFR_New(0, context);
     result = PyTuple_New(2);
     if (!s || !c || !result)
         goto done;
@@ -2708,7 +2723,7 @@ Pympfr_fma(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    result = (MPFR_Object*)Pympfr_new(0);
+    result = GMPy_MPFR_New(0, context);
     x = Pympfr_From_Real(PyTuple_GET_ITEM(args, 0), 0);
     y = Pympfr_From_Real(PyTuple_GET_ITEM(args, 1), 0);
     z = Pympfr_From_Real(PyTuple_GET_ITEM(args, 2), 0);
@@ -2748,7 +2763,7 @@ Pympfr_fms(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    result = (MPFR_Object*)Pympfr_new(0);
+    result = GMPy_MPFR_New(0, context);
     x = Pympfr_From_Real(PyTuple_GET_ITEM(args, 0), 0);
     y = Pympfr_From_Real(PyTuple_GET_ITEM(args, 1), 0);
     z = Pympfr_From_Real(PyTuple_GET_ITEM(args, 2), 0);
@@ -2800,7 +2815,7 @@ Pympfr_factorial(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
 
     mpfr_clear_flags();
@@ -2869,7 +2884,7 @@ Pympfr_check_range(PyObject *self, PyObject *other)
     CURRENT_CONTEXT(context);
 
     if (self && MPFR_Check(self)) {
-        if ((result = (MPFR_Object*)Pympfr_new(mpfr_get_prec(MPFR(self))))) {
+        if ((result = GMPy_MPFR_New(mpfr_get_prec(MPFR(self)), context))) {
             mpfr_set(result->f, MPFR(self), context->ctx.mpfr_round);
             result->round_mode = ((MPFR_Object*)self)->round_mode;
             result->rc = ((MPFR_Object*)self)->rc;
@@ -2879,7 +2894,7 @@ Pympfr_check_range(PyObject *self, PyObject *other)
         }
     }
     else if (MPFR_Check(other)) {
-        if ((result = (MPFR_Object*)Pympfr_new(mpfr_get_prec(MPFR(other))))) {
+        if ((result = GMPy_MPFR_New(mpfr_get_prec(MPFR(other)), context))) {
             mpfr_set(result->f, MPFR(other), context->ctx.mpfr_round);
             result->round_mode = ((MPFR_Object*)other)->round_mode;
             result->rc = ((MPFR_Object*)other)->rc;
@@ -2912,7 +2927,7 @@ Pympfr_fsum(PyObject *self, PyObject *other)
 
     CURRENT_CONTEXT(context);
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
 
     if (!(other = PySequence_List(other))) {
@@ -2975,8 +2990,8 @@ Pympfr_degrees(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPFR_OTHER("degrees() requires 'mpfr' argument");
 
-    result = (MPFR_Object*)Pympfr_new(0);
-    temp = (MPFR_Object*)Pympfr_new(context->ctx.mpfr_prec + 20);
+    result = GMPy_MPFR_New(0, context);
+    temp = GMPy_MPFR_New(context->ctx.mpfr_prec + 20, context);
     if (!result || !temp) {
         Py_XDECREF((PyObject*)temp);
         Py_XDECREF((PyObject*)result);
@@ -3006,8 +3021,8 @@ Pympfr_radians(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPFR_OTHER("radians() requires 'mpfr' argument");
 
-    result = (MPFR_Object*)Pympfr_new(0);
-    temp = (MPFR_Object*)Pympfr_new(context->ctx.mpfr_prec + 20);
+    result = GMPy_MPFR_New(0, context);
+    temp = GMPy_MPFR_New(context->ctx.mpfr_prec + 20, context);
     if (!result || !temp) {
         Py_XDECREF((PyObject*)temp);
         Py_XDECREF((PyObject*)result);
@@ -3332,7 +3347,7 @@ static PyTypeObject MPFR_Type =
     sizeof(MPFR_Object),                    /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
     /* methods */
-    (destructor) Pympfr_dealloc,            /* tp_dealloc       */
+    (destructor) GMPy_MPFR_Dealloc,         /* tp_dealloc       */
         0,                                  /* tp_print         */
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */

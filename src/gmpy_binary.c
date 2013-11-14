@@ -175,7 +175,7 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
 
     /* mpfr zero has a very compact (1-byte) binary encoding!-) */
     if (resuzero) {
-        if (!(result = (MPFR_Object*)Pympfr_new(prec)))
+        if (!(result = GMPy_MPFR_New(prec, context)))
             return NULL;
         result->rc = mpfr_set_ui(result->f, 0, MPFR_RNDN);
         return (PyObject*)result;
@@ -189,7 +189,7 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = (MPFR_Object*)Pympfr_new(prec)))
+    if (!(result = GMPy_MPFR_New(prec, context)))
         return NULL;
 
     /* reconstruct exponent */
@@ -582,25 +582,28 @@ Pympfr_To_Binary(MPFR_Object *self)
  */
 
 static PyObject *
-Pympc_To_Binary(MPC_Object *self)
+Pympc_To_Binary(MPC_Object *obj)
 {
-    MPFR_Object *real = 0, *imag = 0;
-    PyObject *result = 0, *temp = 0;
+    MPFR_Object *real = NULL, *imag = NULL;
+    PyObject *result = NULL, *temp = NULL;
     mpfr_prec_t rprec = 0, cprec = 0;
+    GMPyContextObject *context;
 
-    mpc_get_prec2(&rprec, &cprec, self->c);
-    real = (MPFR_Object*)Pympfr_new(rprec);
-    imag = (MPFR_Object*)Pympfr_new(cprec);
+    CURRENT_CONTEXT(context);
+
+    mpc_get_prec2(&rprec, &cprec, obj->c);
+    real = GMPy_MPFR_New(rprec, context);
+    imag = GMPy_MPFR_New(cprec, context);
     if (!real || !imag) {
         Py_XDECREF((PyObject*)real);
         Py_XDECREF((PyObject*)imag);
         return NULL;
     }
 
-    mpfr_set(real->f, mpc_realref(self->c), MPFR_RNDN);
-    mpfr_set(imag->f, mpc_imagref(self->c), MPFR_RNDN);
-    real->rc = self->rc;
-    real->round_mode = self->round_mode;
+    mpfr_set(real->f, mpc_realref(obj->c), MPFR_RNDN);
+    mpfr_set(imag->f, mpc_imagref(obj->c), MPFR_RNDN);
+    real->rc = obj->rc;
+    real->round_mode = obj->round_mode;
 
     result = Pympfr_To_Binary(real);
     temp = Pympfr_To_Binary(imag);
@@ -630,6 +633,9 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
 {
     unsigned char *buffer, *cp;
     Py_ssize_t len;
+    GMPyContextObject *context;
+
+    CURRENT_CONTEXT(context);
 
     if (!(PyBytes_Check(other))) {
         TYPE_ERROR("from_binary() requires bytes argument");
@@ -752,7 +758,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             if (cp[1] & 0x40) limbsize = 8;
 
 
-            if (!(result = (MPFR_Object*)Pympfr_new(precision)))
+            if (!(result = GMPy_MPFR_New(precision, context)))
                 return NULL;
 
             /* Restore the original result code and rounding mode. */
@@ -913,7 +919,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             if (cp[1] & 0x02) sgn = -1;
             if (cp[1] & 0x20) expsgn = -1;
             if (cp[1] & 0x40) limbsize = 8;
-            if (!(real = (MPFR_Object*)Pympfr_new(precision)))
+            if (!(real = GMPy_MPFR_New(precision, context)))
                 return NULL;
             if (cp[2] == 0)      real->rc = 0;
             else if (cp[2] == 1) real->rc = 1;
@@ -1038,7 +1044,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             if (cp[1] & 0x02) sgn = -1;
             if (cp[1] & 0x20) expsgn = -1;
             if (cp[1] & 0x40) limbsize = 8;
-            if (!(imag = (MPFR_Object*)Pympfr_new(precision)))
+            if (!(imag = GMPy_MPFR_New(precision, context)))
                 return NULL;
             if (cp[2] == 0)      imag->rc = 0;
             else if (cp[2] == 1) imag->rc = 1;

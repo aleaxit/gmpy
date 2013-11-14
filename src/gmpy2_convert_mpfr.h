@@ -43,7 +43,8 @@ static MPFR_Object *    Pympfr_From_Pympfr(PyObject *self, mpfr_prec_t bits);
 #if 0
 static MPFR_Object *    Pympfr_From_Pympfr_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
 #endif
-static MPFR_Object *    Pympfr_From_Pympfr_context(PyObject *self, GMPyContextObject *context);
+/* static MPFR_Object *    Pympfr_From_Pympfr_context(PyObject *self, GMPyContextObject *context); */
+static MPFR_Object *    GMPy_MPFR_From_MPFR_New(MPFR_Object *obj, mpfr_prec_t bits, GMPyContextObject *context);
 static MPFR_Object *    Pympfr_From_PyFloat(PyObject *self, mpfr_prec_t bits);
 static MPFR_Object *    Pympfr_From_PyFloat_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
 static MPFR_Object *    Pympfr_From_PyLong(PyObject *self, mpfr_prec_t bits);
@@ -73,7 +74,7 @@ static PyObject *       Pympfr_To_Repr(MPFR_Object *self);
 static int Pympfr_convert_arg(PyObject *arg, PyObject **ptr);
 static MPQ_Object * stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz);
 
-static PyObject * raw_mpfr_ascii(mpfr_t self, int base, int digits, int round);
+static PyObject *       mpfr_ascii(mpfr_t self, int base, int digits, int round);
 
 #ifdef __cplusplus
 }

@@ -200,7 +200,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
             tempreal = Pympfr_From_Real(arg0, rbits);
         }
         else {
-            if ((tempreal = (MPFR_Object*)Pympfr_new(rbits))) {
+            if ((tempreal = GMPy_MPFR_New(rbits, context))) {
                 mpfr_set_ui(MPFR(tempreal), 0, MPFR_RNDN);
             }
         }
@@ -209,7 +209,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
             tempimag = Pympfr_From_Real(arg1, ibits);
         }
         else {
-            if ((tempimag = (MPFR_Object*)Pympfr_new(ibits))) {
+            if ((tempimag = GMPy_MPFR_New(ibits, context))) {
                 mpfr_set_ui(MPFR(tempimag), 0, MPFR_RNDN);
             }
         }
@@ -632,7 +632,7 @@ Pympc_getimag_attrib(MPC_Object *self, void *closure)
 
     CURRENT_CONTEXT(context);
 
-    if ((result = (MPFR_Object*)Pympfr_new(0)))
+    if ((result = GMPy_MPFR_New(0, context)))
         mpc_imag(result->f, self->c, context->ctx.mpfr_round);
     return (PyObject*)result;
 }
@@ -647,7 +647,7 @@ Pympc_getreal_attrib(MPC_Object *self, void *closure)
 
     CURRENT_CONTEXT(context);
 
-    if ((result = (MPFR_Object*)Pympfr_new(0)))
+    if ((result = GMPy_MPFR_New(0, context)))
         mpc_real(result->f, self->c, context->ctx.mpfr_round);
     return (PyObject*)result;
 }
@@ -711,7 +711,7 @@ Pympc_phase(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPC_OTHER("phase() requires 'mpc' argument");
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0))) {
+    if (!(result = GMPy_MPFR_New(0, context))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -748,7 +748,7 @@ Pympc_norm(PyObject *self, PyObject *other)
 
     PARSE_ONE_MPC_OTHER("norm() requires 'mpc' argument");
 
-    if (!(result = (MPFR_Object*)Pympfr_new(0))) {
+    if (!(result = GMPy_MPFR_New(0, context))) {
         Py_DECREF(self);
         return NULL;
     }
