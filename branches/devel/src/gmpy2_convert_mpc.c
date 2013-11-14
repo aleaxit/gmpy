@@ -762,10 +762,10 @@ Pympc_To_PyStr(MPC_Object *self, int base, int digits)
         return NULL;
     }
 
-    tempreal = raw_mpfr_ascii(mpc_realref(self->c), base, digits,
-                            MPC_RND_RE(GET_MPC_ROUND(context)));
-    tempimag = raw_mpfr_ascii(mpc_imagref(self->c), base, digits,
-                            MPC_RND_IM(GET_MPC_ROUND(context)));
+    tempreal = mpfr_ascii(mpc_realref(self->c), base, digits,
+                          MPC_RND_RE(GET_MPC_ROUND(context)));
+    tempimag = mpfr_ascii(mpc_imagref(self->c), base, digits,
+                          MPC_RND_IM(GET_MPC_ROUND(context)));
 
     if (!tempreal || !tempimag) {
         Py_XDECREF(tempreal);

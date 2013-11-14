@@ -251,7 +251,6 @@ static PyObject *      Pympc_To_Str(MPC_Object *self);
 static PyObject *      Pympc_To_Repr(MPC_Object *self);
 
 /* Miscellaneous */
-static PyObject * raw_mpfr_ascii(mpfr_t self, int base, int digits, int round);
 int Pympc_convert_arg(PyObject *arg, PyObject **ptr);
 
 #ifdef __cplusplus

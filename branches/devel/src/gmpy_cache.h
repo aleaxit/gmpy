@@ -63,9 +63,9 @@ static void          set_gmpympqcache(void);
 static MPQ_Object *  GMPy_MPQ_New(void);
 static void          GMPy_MPQ_Dealloc(MPQ_Object *self);
 
-static void set_gmpympfrcache(void);
-static PyObject * Pympfr_new(mpfr_prec_t bits);
-static void Pympfr_dealloc(MPFR_Object *self);
+static void          set_gmpympfrcache(void);
+static MPFR_Object * GMPy_MPFR_New(mpfr_prec_t bits, GMPyContextObject *context);
+static void          GMPy_MPFR_Dealloc(MPFR_Object *self);
 
 static void set_gmpympccache(void);
 static PyObject * Pympc_new(mpfr_prec_t rprec, mpfr_prec_t iprec);

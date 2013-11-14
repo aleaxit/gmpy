@@ -2279,7 +2279,7 @@ Pympz_TrueDiv_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
     mpq_t tempq;
     MPFR_Object *result;
 
-    if (!(result = (MPFR_Object*)Pympfr_new_context(context)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
 
     if (IS_INTEGER(x) && IS_INTEGER(y)) {

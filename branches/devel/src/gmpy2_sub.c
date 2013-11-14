@@ -242,7 +242,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, GMPyContextObject *context)
 
     SET_EXPONENT(context);
 
-    if (!(result = (MPFR_Object*)Pympfr_new_context(context)))
+    if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
 
     /* This only processes mpfr if the exponent is still in-bounds. Need

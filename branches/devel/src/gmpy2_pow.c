@@ -264,7 +264,7 @@ GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, GMPyContextObject *c
 
     SET_EXPONENT(context);
 
-    result = (MPFR_Object*)Pympfr_new_context(context);
+    result = GMPy_MPFR_New(0, context);
     tempb = GMPy_MPFR_From_Real_Temp(base, context);
     tempe = GMPy_MPFR_From_Real_Temp(exp, context);
 

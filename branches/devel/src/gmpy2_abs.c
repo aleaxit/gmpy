@@ -104,7 +104,21 @@ GMPy_Rational_Abs(PyObject *x, GMPyContextObject *context)
 {
     MPQ_Object *result;
 
-    if ((result = GMPy_MPQ_From_Number_New(x))) {
+    if (MPQ_Check(x)) {
+        if (mpz_sgn(mpq_numref(MPQ(x))) >= 0) {
+            Py_INCREF(x);
+            return x;
+        }
+        else {
+            if ((result = GMPy_MPQ_New())) {
+                mpq_set(result->q, MPQ(x));
+                mpz_abs(mpq_numref(result->q), mpq_numref(result->q));
+            }
+            return (PyObject*)result;
+        }
+    }
+
+    if ((result = GMPy_MPQ_From_Number_Temp(x))) {
         mpz_abs(mpq_numref(result->q), mpq_numref(result->q));
     }
 
@@ -128,7 +142,7 @@ GMPy_Real_Abs(PyObject *x, GMPyContextObject *context)
         return NULL;
     }
 
-    if (!(result = (MPFR_Object*)Pympfr_new_context(context))) {
+    if (!(result = GMPy_MPFR_New(0, context))) {
         Py_DECREF((PyObject*)tempx);
         return NULL;
     }
@@ -159,7 +173,7 @@ GMPy_Complex_Abs(PyObject *x, GMPyContextObject *context)
         return NULL;
     }
 
-    if (!(result = (MPFR_Object*)Pympfr_new_context(context))) {
+    if (!(result = GMPy_MPFR_New(0, context))) {
         Py_DECREF((PyObject*)tempx);
         return NULL;
     }

@@ -212,7 +212,7 @@ GMPY_mpfr_random(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if ((result = (MPFR_Object*)Pympfr_new(0))) {
+    if ((result = GMPy_MPFR_New(0, context))) {
         mpfr_urandom(MPFR(result),
                      PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
                      context->ctx.mpfr_round);
@@ -244,17 +244,17 @@ GMPY_mpfr_grandom(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    result1 = (MPFR_Object*)Pympfr_new(0);
-    result2 = (MPFR_Object*)Pympfr_new(0);
+    result1 = GMPy_MPFR_New(0, context);
+    result2 = GMPy_MPFR_New(0, context);
     if (!result1 || !result2) {
         Py_XDECREF((PyObject*)result1);
         Py_XDECREF((PyObject*)result2);
         return NULL;
     }
 
-    mpfr_grandom(MPFR(result1), MPFR(result2),
+    mpfr_grandom(result1->f, result2->f,
                  PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)),
-                 context->ctx.mpfr_round);
+                 GET_MPFR_ROUND(context));
 
     result = Py_BuildValue("(NN)", (PyObject*)result1, (PyObject*)result2);
     if (!result) {

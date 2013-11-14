@@ -237,13 +237,10 @@ set_gmpympfrcache(void)
     gmpympfrcache = GMPY_REALLOC(gmpympfrcache, sizeof(MPFR_Object)*global.cache_size);
 }
 
-static PyObject *
-Pympfr_new(mpfr_prec_t bits)
+static MPFR_Object *
+GMPy_MPFR_New(mpfr_prec_t bits, GMPyContextObject *context)
 {
-    MPFR_Object *self;
-    GMPyContextObject *context;
-
-    CURRENT_CONTEXT(context);
+    MPFR_Object *result;
 
     if (!bits)
         bits = GET_MPFR_PREC(context);
@@ -252,66 +249,7 @@ Pympfr_new(mpfr_prec_t bits)
         VALUE_ERROR("invalid value for precision");
         return NULL;
     }
-    if (in_gmpympfrcache) {
-        self = gmpympfrcache[--in_gmpympfrcache];
-        /* Py_INCREF does not set the debugging pointers, so need to use
-           _Py_NewReference instead. */
-        _Py_NewReference((PyObject*)self);
-        mpfr_set_prec(self->f, bits);
-    }
-    else {
-        if (!(self = PyObject_New(MPFR_Object, &MPFR_Type)))
-            return NULL;
-        mpfr_init2(self->f, bits);
-    }
-    self->hash_cache = -1;
-    self->rc = 0;
-    self->round_mode = context->ctx.mpfr_round;
-    return (PyObject*)self;
-}
 
-static PyObject *
-Pympfr_new_bits_context(mpfr_prec_t bits, GMPyContextObject *context)
-{
-    MPFR_Object *self;
-
-    if (!bits)
-        bits = context->ctx.mpfr_prec;
-
-    if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
-        VALUE_ERROR("invalid value for precision");
-        return NULL;
-    }
-    if (in_gmpympfrcache) {
-        self = gmpympfrcache[--in_gmpympfrcache];
-        /* Py_INCREF does not set the debugging pointers, so need to use
-           _Py_NewReference instead. */
-        _Py_NewReference((PyObject*)self);
-        mpfr_set_prec(self->f, bits);
-    }
-    else {
-        if (!(self = PyObject_New(MPFR_Object, &MPFR_Type)))
-            return NULL;
-        mpfr_init2(self->f, bits);
-    }
-    self->hash_cache = -1;
-    self->rc = 0;
-    self->round_mode = context->ctx.mpfr_round;
-    return (PyObject*)self;
-}
-
-static PyObject *
-Pympfr_new_context(GMPyContextObject *context)
-{
-    mpfr_prec_t bits;
-    MPFR_Object *result;
-
-    bits = GET_MPFR_PREC(context);
-
-    if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
-        VALUE_ERROR("invalid value for precision");
-        return NULL;
-    }
     if (in_gmpympfrcache) {
         result = gmpympfrcache[--in_gmpympfrcache];
         /* Py_INCREF does not set the debugging pointers, so need to use
@@ -327,11 +265,11 @@ Pympfr_new_context(GMPyContextObject *context)
     result->hash_cache = -1;
     result->rc = 0;
     result->round_mode = GET_MPFR_ROUND(context);
-    return (PyObject*)result;
+    return result;
 }
 
 static void
-Pympfr_dealloc(MPFR_Object *self)
+GMPy_MPFR_Dealloc(MPFR_Object *self)
 {
     size_t msize;
 
