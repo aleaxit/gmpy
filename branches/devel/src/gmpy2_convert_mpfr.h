@@ -39,12 +39,11 @@ extern "C" {
 static MPFR_Object *    Pympfr_From_PyInt(PyObject *self, mpfr_prec_t bits);
 static PyObject *       Pympfr_To_PyInt(MPFR_Object *self);
 #endif
+
 static MPFR_Object *    Pympfr_From_Pympfr(PyObject *self, mpfr_prec_t bits);
-#if 0
-static MPFR_Object *    Pympfr_From_Pympfr_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
-#endif
-/* static MPFR_Object *    Pympfr_From_Pympfr_context(PyObject *self, GMPyContextObject *context); */
+
 static MPFR_Object *    GMPy_MPFR_From_MPFR_New(MPFR_Object *obj, mpfr_prec_t bits, GMPyContextObject *context);
+static MPFR_Object *    GMPy_MPFR_From_MPFR_Temp(MPFR_Object *obj, mpfr_prec_t bits, GMPyContextObject *context);
 static MPFR_Object *    Pympfr_From_PyFloat(PyObject *self, mpfr_prec_t bits);
 static MPFR_Object *    Pympfr_From_PyFloat_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
 static MPFR_Object *    Pympfr_From_PyLong(PyObject *self, mpfr_prec_t bits);
@@ -52,7 +51,7 @@ static MPFR_Object *    Pympfr_From_PyLong_context(PyObject *self, mpfr_prec_t b
 static MPFR_Object *    Pympfr_From_Pympz(PyObject *self, mpfr_prec_t bits);
 static MPFR_Object *    Pympfr_From_Pympz_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
 static MPFR_Object *    Pympfr_From_Real(PyObject* obj, mpfr_prec_t bits);
-static MPFR_Object *    GMPy_MPFR_From_Real_Temp(PyObject* obj, GMPyContextObject *context);
+static MPFR_Object *    GMPy_MPFR_From_Real_Temp(PyObject* obj, mpfr_prec_t bits, GMPyContextObject *context);
 static MPFR_Object *    Pympfr_From_Pympq(PyObject *self, mpfr_prec_t bits);
 static MPFR_Object *    Pympfr_From_Pympq_bits_context(PyObject *self, mpfr_prec_t bits, GMPyContextObject *context);
 static MPFR_Object *    Pympfr_From_PyStr(PyObject *s, int base, mpfr_prec_t bits);

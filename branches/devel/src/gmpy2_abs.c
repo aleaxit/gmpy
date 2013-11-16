@@ -134,23 +134,15 @@ GMPy_mpq_abs_fast(MPQ_Object *x)
 static PyObject *
 GMPy_Real_Abs(PyObject *x, GMPyContextObject *context)
 {
-    MPFR_Object *result, *tempx;
+    MPFR_Object *result;
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!(tempx = GMPy_MPFR_From_Real_Temp(x, context))) {
-        return NULL;
+    if ((result = GMPy_MPFR_From_Real_New(x, 0, context))) {
+        mpfr_clear_flags();
+        result->rc = mpfr_abs(result->f, result->f, GET_MPFR_ROUND(context));
+        MPFR_CLEANUP_2(result, context, "abs()");
     }
-
-    if (!(result = GMPy_MPFR_New(0, context))) {
-        Py_DECREF((PyObject*)tempx);
-        return NULL;
-    }
-
-    mpfr_clear_flags();
-    result->rc = mpfr_abs(result->f, tempx->f, GET_MPFR_ROUND(context));
-    Py_DECREF((PyObject*)tempx);
-    MPFR_CLEANUP_2(result, context, "abs()");
 
     return (PyObject*)result;
 }
