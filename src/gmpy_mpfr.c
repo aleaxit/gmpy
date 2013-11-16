@@ -172,7 +172,8 @@ Pympfr_getimag_attrib(MPFR_Object *self, void *closure)
 static PyObject *
 Pympfr_getreal_attrib(MPFR_Object *self, void *closure)
 {
-    return (PyObject*)Pympfr_From_Pympfr((PyObject*)self, 0);
+    Py_INCREF((PyObject*)self);
+    return (PyObject*)self;
 }
 
 /* Implement the nb_bool slot. */
@@ -193,7 +194,8 @@ PyDoc_STRVAR(doc_mpfr_conjugate,
 static PyObject *
 Pympfr_conjugate(PyObject *self, PyObject *args)
 {
-    return (PyObject*)Pympfr_From_Pympfr(self, 0);
+    Py_INCREF((PyObject*)self);
+    return (PyObject*)self;
 }
 
 /* Implement the nb_positive slot. */
@@ -1188,7 +1190,7 @@ Pympfr_Neg_Real(PyObject *x, GMPyContextObject *context)
     else if (IS_REAL(x)) {
         MPFR_Object *tempx;
 
-        tempx = GMPy_MPFR_From_Real_Temp(x, context);
+        tempx = GMPy_MPFR_From_Real_Temp(x, 0, context);
         if (!tempx) {
             SYSTEM_ERROR("Can not covert Real to 'mpfr'");
             Py_DECREF((PyObject*)result);
@@ -1872,8 +1874,8 @@ Pympfr_FloorDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (IS_REAL(x) && IS_REAL(y)) {
         MPFR_Object *tempx, *tempy;
 
-        tempx = GMPy_MPFR_From_Real_Temp(x, context);
-        tempy = GMPy_MPFR_From_Real_Temp(y, context);
+        tempx = GMPy_MPFR_From_Real_Temp(x, 0, context);
+        tempy = GMPy_MPFR_From_Real_Temp(y, 0, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             Py_XDECREF((PyObject*)tempx);
@@ -2020,8 +2022,8 @@ Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (IS_REAL(x) && IS_REAL(y)) {
         MPFR_Object *tempx, *tempy;
 
-        tempx = GMPy_MPFR_From_Real_Temp(x, context);
-        tempy = GMPy_MPFR_From_Real_Temp(y, context);
+        tempx = GMPy_MPFR_From_Real_Temp(x, 0, context);
+        tempy = GMPy_MPFR_From_Real_Temp(y, 0, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             Py_XDECREF((PyObject*)tempx);
@@ -2077,8 +2079,8 @@ Pympfr_Mod_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
     }
 
     if (IS_REAL(x) && IS_REAL(y)) {
-        tempx = Pympfr_From_Real_bits_context(x, 0, context);
-        tempy = Pympfr_From_Real_bits_context(y, 0, context);
+        tempx = GMPy_MPFR_From_Real_Temp(x, 0, context);
+        tempy = GMPy_MPFR_From_Real_Temp(y, 0, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             goto error;
@@ -2175,8 +2177,8 @@ Pympfr_DivMod_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
     }
 
     if (IS_REAL(x) && IS_REAL(y)) {
-        tempx = Pympfr_From_Real_bits_context(x, 0, context);
-        tempy = Pympfr_From_Real_bits_context(y, 0, context);
+        tempx = GMPy_MPFR_From_Real_Temp(x, 0, context);
+        tempy = GMPy_MPFR_From_Real_Temp(y, 0, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             goto error;

@@ -371,8 +371,8 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, GMPyContextObject *context)
     if (IS_REAL(x) && IS_REAL(y)) {
         MPFR_Object *tempx, *tempy;
 
-        tempx = GMPy_MPFR_From_Real_Temp(x, context);
-        tempy = GMPy_MPFR_From_Real_Temp(y, context);
+        tempx = GMPy_MPFR_From_Real_Temp(x, 0, context);
+        tempy = GMPy_MPFR_From_Real_Temp(y, 0, context);
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
