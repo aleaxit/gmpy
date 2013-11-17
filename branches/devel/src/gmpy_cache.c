@@ -238,7 +238,7 @@ set_gmpympfrcache(void)
 }
 
 static MPFR_Object *
-GMPy_MPFR_New(mpfr_prec_t bits, GMPyContextObject *context)
+GMPy_MPFR_New(mpfr_prec_t bits, CTXT_Object *context)
 {
     MPFR_Object *result;
 
@@ -304,7 +304,7 @@ static PyObject *
 Pympc_new(mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     MPC_Object *self;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -340,7 +340,7 @@ Pympc_new(mpfr_prec_t rprec, mpfr_prec_t iprec)
 }
 
 static PyObject *
-Pympc_new_bits_context(mpfr_prec_t rprec, mpfr_prec_t iprec, GMPyContextObject *context)
+Pympc_new_bits_context(mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context)
 {
     MPC_Object *self;
 
@@ -376,7 +376,7 @@ Pympc_new_bits_context(mpfr_prec_t rprec, mpfr_prec_t iprec, GMPyContextObject *
 }
 
 static PyObject *
-Pympc_new_context(GMPyContextObject *context)
+Pympc_new_context(CTXT_Object *context)
 {
     mpfr_prec_t rprec, iprec;
     MPC_Object *self;

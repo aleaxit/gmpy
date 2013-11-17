@@ -61,7 +61,7 @@ typedef struct {
     mpfr_rnd_t imag_round;   /* current rounding mode for Im(MPC) */
     int allow_complex;       /* if 1, allow mpfr functions to return an mpc */
     int rational_division;   /* if 1, mpz/mpz returns an mpq result */
-    int readonly;            /* if 1, this context is a readonly template */
+    int readonly;            /* if 1, this context is a template */
 } gmpy_context;
 
 typedef struct {
@@ -70,28 +70,41 @@ typedef struct {
 #ifndef WITHOUT_THREADS
     PyThreadState *tstate;
 #endif
-} GMPyContextObject;
+} CTXT_Object;
 
 typedef struct {
     PyObject_HEAD
-    GMPyContextObject *new_context; /* Context that will be returned when
-                                     * __enter__ is called. */
-    GMPyContextObject *old_context; /* Context that will restored when
-                                     * __exit__ is called. */
-} GMPyContextManagerObject;
+    CTXT_Object *new_context; /* Context that will be returned when
+                               * __enter__ is called. */
+    CTXT_Object *old_context; /* Context that will restored when
+                               * __exit__ is called. */
+} CTXT_Manager_Object;
 
 
-static PyTypeObject GMPyContext_Type;
-static PyTypeObject GMPyContextManager_Type;
+static PyTypeObject CTXT_Type;
+static PyTypeObject CTXT_Manager_Type;
 
 #ifdef WITHOUT_THREADS
 #define CURRENT_CONTEXT(obj) obj = module_context;
 #else
-#define CURRENT_CONTEXT(obj) obj = GMPyContext_current();
+#define CURRENT_CONTEXT(obj) obj = GMPy_current_context();
 #endif
 
-#define GMPyContext_Check(v) (((PyObject*)v)->ob_type == &GMPyContext_Type)
-#define GMPyContextManager_Check(v) (((PyObject*)v)->ob_type == &GMPyContextManager_Type)
+#define CHECK_CONTEXT_SET_EXPONENT(context) \
+    if (!context) { \
+        CURRENT_CONTEXT(context); \
+        if (mpfr_set_emin(context->ctx.emin)) { \
+            VALUE_ERROR("value for exponent too low"); \
+            return NULL; \
+        } \
+        if (mpfr_set_emax(context->ctx.emax)) { \
+            VALUE_ERROR("value for exponent too high"); \
+            return NULL; \
+        } \
+    }
+
+#define CTXT_Check(v) (((PyObject*)v)->ob_type == &CTXT_Type)
+#define CTXT_Manager_Check(v) (((PyObject*)v)->ob_type == &CTXT_Manager_Type)
 
 #define GET_MPFR_PREC(c) (c->ctx.mpfr_prec)
 #define GET_REAL_PREC(c) ((c->ctx.real_prec==GMPY_DEFAULT)?GET_MPFR_PREC(c):c->ctx.real_prec)
@@ -101,36 +114,26 @@ static PyTypeObject GMPyContextManager_Type;
 #define GET_IMAG_ROUND(c) ((c->ctx.imag_round==GMPY_DEFAULT)?GET_REAL_ROUND(c):c->ctx.imag_round)
 #define GET_MPC_ROUND(c) (MPC_RND(GET_REAL_ROUND(c), GET_IMAG_ROUND(c)))
 
-#define SET_EXPONENT(context) \
-    if (mpfr_set_emin(context->ctx.emin)) { \
-        VALUE_ERROR("value for exponent too low"); \
-        return NULL; \
-    } \
-    if (mpfr_set_emax(context->ctx.emax)) { \
-        VALUE_ERROR("value for exponent too high"); \
-        return NULL; \
-    }
 
-#define CHECK_CONTEXT_SET_EXPONENT(context) \
-    CURRENT_CONTEXT(context); \
-    SET_EXPONENT(context);
+static PyObject *    GMPy_CTXT_Manager_New(void);
+static void          GMPy_CTXT_Manager_Dealloc(CTXT_Manager_Object *self);
+static PyObject *    GMPy_CTXT_Manager_Repr(CTXT_Manager_Object *self);
+static PyObject *    GMPy_CTXT_Manager_Enter(PyObject *self, PyObject *args);
+static PyObject *    GMPy_CTXT_Manager_Exit(PyObject *self, PyObject *args);
 
-static PyObject * GMPyContextManager_new(void);
-static void GMPyContextManager_dealloc(GMPyContextManagerObject *self);
-static PyObject * GMPyContextManager_repr(GMPyContextManagerObject *self);
-static PyObject * GMPyContextManager_enter(PyObject *self, PyObject *args);
-static PyObject * GMPyContextManager_exit(PyObject *self, PyObject *args);
-
-static PyObject * GMPyContext_new(void);
-static void GMPyContext_dealloc(GMPyContextObject *self);
-static PyObject * GMPyContext_repr(GMPyContextObject *self);
-static PyObject * GMPyContext_get_context(PyObject *self, PyObject *args);
-static PyObject * GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs);
-static PyObject * GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs);
-static PyObject * GMPyContext_set_context(PyObject *self, PyObject *other);
-static PyObject * GMPyContext_clear_flags(PyObject *self, PyObject *args);
-static GMPyContextObject * GMPyContext_current(void);
-static PyObject * GMPyContext_context_copy(PyObject *self, PyObject *other);
+static PyObject *    GMPy_CTXT_New(void);
+static void          GMPy_CTXT_Dealloc(CTXT_Object *self);
+static PyObject *    GMPy_CTXT_Repr(CTXT_Object *self);
+static PyObject *    GMPy_CTXT_Get(PyObject *self, PyObject *args);
+static PyObject *    GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs);
+static PyObject *    GMPy_CTXT_Context(PyObject *self, PyObject *args, PyObject *kwargs);
+static PyObject *    GMPy_CTXT_Set(PyObject *self, PyObject *other);
+static PyObject *    GMPy_CTXT_Clear_Flags(PyObject *self, PyObject *args);
+static PyObject *    GMPy_CTXT_Copy(PyObject *self, PyObject *other);
+static PyObject *    GMPy_CTXT_ieee(PyObject *self, PyObject *other);
+static PyObject *    GMPy_CTXT_Enter(PyObject *self, PyObject *args);
+static PyObject *    GMPy_CTXT_Exit(PyObject *self, PyObject *args);
+static CTXT_Object * GMPy_current_context(void);
 
 #ifdef __cplusplus
 }

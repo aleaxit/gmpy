@@ -59,7 +59,7 @@
  * converted into an mpz, Py_NotImplemented is returned. */
 
 static PyObject *
-GMPy_Integer_Sub(PyObject *x, PyObject *y, GMPyContextObject *context)
+GMPy_Integer_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPZ_Object *result;
     mpz_t tempz;
@@ -165,7 +165,7 @@ GMPy_mpz_sub_fast(PyObject *x, PyObject *y)
  * is intended to be called from GMPy_Number_Sub(). */
 
 static PyObject *
-GMPy_Rational_Sub(PyObject *x, PyObject *y, GMPyContextObject *context)
+GMPy_Rational_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPQ_Object *result;
 
@@ -233,7 +233,7 @@ GMPy_mpq_sub_fast(PyObject *x, PyObject *y)
  */
 
 static PyObject *
-GMPy_Real_Sub(PyObject *x, PyObject *y, GMPyContextObject *context)
+GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *result;
 
@@ -365,8 +365,8 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, GMPyContextObject *context)
     }
 
     /* In addition to handling PyFloat - PyFloat, the rare case when the
-     * exponent bounds have been changed is handled here. See
-     * Pympfr_From_Real() for details. */
+     * exponent bounds have been changed is handled here.
+     */
 
     if (IS_REAL(x) && IS_REAL(y)) {
         MPFR_Object *tempx, *tempy;
@@ -418,7 +418,7 @@ GMPy_mpfr_sub_fast(PyObject *x, PyObject *y)
  * an mpc, then Py_NotImplemented is returned. */
 
 static PyObject *
-GMPy_Complex_Sub(PyObject *x, PyObject *y, GMPyContextObject *context)
+GMPy_Complex_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPC_Object *result = NULL;
 
@@ -473,7 +473,7 @@ GMPy_mpc_sub_fast(PyObject *x, PyObject *y)
 }
 
 static PyObject *
-GMPy_Number_Sub(PyObject *x, PyObject *y, GMPyContextObject *context)
+GMPy_Number_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     if (!context)
         CURRENT_CONTEXT(context);
@@ -508,7 +508,7 @@ static PyObject *
 GMPy_Context_Sub(PyObject *self, PyObject *args)
 {
     PyObject *result;
-    GMPyContextObject *context = NULL;
+    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("sub(): requires 2 arguments.");
@@ -520,13 +520,13 @@ GMPy_Context_Sub(PyObject *self, PyObject *args)
          * proceeding. Remember to decref context when we're done.
          */
 
-        if (((GMPyContextObject*)self)->ctx.readonly) {
-            context = (GMPyContextObject*)GMPyContext_context_copy(self, NULL);
+        if (((CTXT_Object*)self)->ctx.readonly) {
+            context = (CTXT_Object*)GMPyContext_context_copy(self, NULL);
             if (!context)
                 return NULL;
         }
         else {
-            context = (GMPyContextObject*)self;
+            context = (CTXT_Object*)self;
             Py_INCREF((PyObject*)context);
         }
     }

@@ -2154,7 +2154,7 @@ Pympz_format(PyObject *self, PyObject *args)
  * returned. */
 
 static PyObject *
-Pympz_FloorDiv_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
+Pympz_FloorDiv_Integer(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPZ_Object *result;
     mpz_t tempz;
@@ -2252,7 +2252,7 @@ Pympz_FloorDiv_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympz_floordiv_fast(PyObject *x, PyObject *y)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2273,7 +2273,7 @@ Pympz_floordiv_fast(PyObject *x, PyObject *y)
  * or y can't be converted into an mpz, Py_NotImplemented is returned. */
 
 static PyObject *
-Pympz_TrueDiv_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
+Pympz_TrueDiv_Integer(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPZ_Object *tempx, *tempy;
     mpq_t tempq;
@@ -2319,7 +2319,7 @@ Pympz_TrueDiv_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympz_truediv_fast(PyObject *x, PyObject *y)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2339,7 +2339,7 @@ Pympz_truediv_fast(PyObject *x, PyObject *y)
 static PyObject *
 Pympz_div2_fast(PyObject *x, PyObject *y)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2361,7 +2361,7 @@ Pympz_div2_fast(PyObject *x, PyObject *y)
  * or y can't be converted into an mpz, Py_NotImplemented is returned. */
 
 static PyObject *
-Pympz_Mod_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
+Pympz_Mod_Integer(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPZ_Object *tempx, *tempy, *result;
     mpz_t tempz;
@@ -2449,7 +2449,7 @@ Pympz_Mod_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympz_mod_fast(PyObject *x, PyObject *y)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2471,7 +2471,7 @@ Pympz_mod_fast(PyObject *x, PyObject *y)
  * returned. */
 
 static PyObject *
-Pympz_DivMod_Integer(PyObject *x, PyObject *y, GMPyContextObject *context)
+Pympz_DivMod_Integer(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     PyObject *result;
     MPZ_Object *tempx, *tempy, *rem, *quo;
@@ -2585,7 +2585,7 @@ static PyObject *
 Pympz_divmod_fast(PyObject *x, PyObject *y)
 {
     PyObject *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 

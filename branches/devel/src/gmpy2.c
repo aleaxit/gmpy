@@ -452,12 +452,12 @@ static int in_gmpympccache;
 
 #ifdef WITHOUT_THREADS
 /* Use a module-level context. */
-static GMPyContextObject *module_context = NULL;
+static CTXT_Object *module_context = NULL;
 #else
 /* Key for thread state dictionary */
 static PyObject *tls_context_key = NULL;
 /* Invariant: NULL or the most recently accessed thread local context */
-static GMPyContextObject *cached_context = NULL;
+static CTXT_Object *cached_context = NULL;
 #endif
 
 
@@ -991,7 +991,7 @@ PyMODINIT_FUNC initgmpy2(void)
 
     /* Initialize thread local contexts. */
 #ifdef WITHOUT_THREADS
-    module_context = (GMPyContextObject*)GMPyContext_new();
+    module_context = (CTXT_Object*)GMPy_CTXT_New();
     if (!module_context)
         INITERROR;
     Py_INCREF(Py_False);

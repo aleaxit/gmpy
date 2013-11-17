@@ -97,9 +97,9 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
     static char *kwlist_c[] = {"c", "precision", NULL};
     static char *kwlist_r[] = {"r", "i", "precision", NULL};
     static char *kwlist_s[] = {"s", "precision", "base", NULL};
-    GMPyContextObject *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     argc = PyTuple_Size(args);
 
@@ -197,7 +197,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
         }
 
         if (arg0) {
-            tempreal = Pympfr_From_Real(arg0, rbits);
+            tempreal = GMPy_MPFR_From_Real_Temp(arg0, rbits, context);
         }
         else {
             if ((tempreal = GMPy_MPFR_New(rbits, context))) {
@@ -206,7 +206,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
         }
 
         if (arg1) {
-            tempimag = Pympfr_From_Real(arg1, ibits);
+            tempimag = GMPy_MPFR_From_Real_Temp(arg1, ibits, context);
         }
         else {
             if ((tempimag = GMPy_MPFR_New(ibits, context))) {
@@ -517,7 +517,7 @@ static PyObject *
 Pympc_neg(MPC_Object *self)
 {
     MPC_Object *result = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -539,7 +539,7 @@ static PyObject *
 Pympc_pos(MPC_Object *self)
 {
     MPC_Object *result = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -557,7 +557,7 @@ static PyObject *
 Pympc_sqr(PyObject* self, PyObject *other)
 {
     MPC_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -585,7 +585,7 @@ static PyObject *
 Pympc_conjugate(PyObject *self, PyObject *args)
 {
     MPC_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -628,7 +628,7 @@ static PyObject *
 Pympc_getimag_attrib(MPC_Object *self, void *closure)
 {
     MPFR_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -643,7 +643,7 @@ static PyObject *
 Pympc_getreal_attrib(MPC_Object *self, void *closure)
 {
     MPFR_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -705,7 +705,7 @@ static PyObject *
 Pympc_phase(PyObject *self, PyObject *other)
 {
     MPFR_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -742,7 +742,7 @@ static PyObject *
 Pympc_norm(PyObject *self, PyObject *other)
 {
     MPFR_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -779,7 +779,7 @@ static PyObject *
 Pympc_polar(PyObject *self, PyObject *other)
 {
     PyObject *abs, *phase, *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -816,7 +816,7 @@ Pympc_rect(PyObject *self, PyObject *args)
 {
     PyObject *other;
     MPC_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -850,7 +850,7 @@ static PyObject *
 Pympc_proj(PyObject *self, PyObject *other)
 {
     MPC_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -873,7 +873,7 @@ static PyObject * \
 Pympc_##NAME(PyObject* self, PyObject *other) \
 { \
     MPC_Object *result; \
-    GMPyContextObject *context; \
+    CTXT_Object *context; \
     CURRENT_CONTEXT(context); \
     PARSE_ONE_MPC_OTHER(#NAME "() requires 'mpc' argument"); \
     if (!(result = (MPC_Object*)Pympc_new(0, 0))) { \
@@ -923,7 +923,7 @@ Pympc_sin_cos(PyObject *self, PyObject *other)
     MPC_Object *s, *c;
     PyObject *result;
     int code;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -965,7 +965,7 @@ static PyObject *
 Pympc_fma(PyObject *self, PyObject *args)
 {
     MPC_Object *result, *x, *y, *z;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1003,7 +1003,7 @@ static PyObject *
 Pympc_fms(PyObject *self, PyObject *args)
 {
     MPC_Object *result, *x, *y, *z;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1043,7 +1043,7 @@ Pympc_div_2exp(PyObject *self, PyObject *args)
 {
     MPC_Object *result = 0;
     unsigned long exp = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1069,7 +1069,7 @@ Pympc_mul_2exp(PyObject *self, PyObject *args)
 {
     MPC_Object *result = 0;
     unsigned long exp = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1115,7 +1115,7 @@ Pympc_hash(MPC_Object *self)
  * TypeError. */
 
 static PyObject *
-Pympc_FloorDiv_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
+Pympc_FloorDiv_Complex(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
         TYPE_ERROR("can't take floor of complex number.");
@@ -1128,7 +1128,7 @@ Pympc_FloorDiv_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympc_floordiv_fast(PyObject *x, PyObject *y)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1136,7 +1136,7 @@ Pympc_floordiv_fast(PyObject *x, PyObject *y)
 }
 
 static PyObject *
-Pympc_TrueDiv_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
+Pympc_TrueDiv_Complex(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPC_Object *result = NULL;
 
@@ -1187,7 +1187,7 @@ Pympc_TrueDiv_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympc_truediv_fast(PyObject *x, PyObject *y)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1195,7 +1195,7 @@ Pympc_truediv_fast(PyObject *x, PyObject *y)
 }
 
 static PyObject *
-Pympc_Mod_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
+Pympc_Mod_Complex(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
         TYPE_ERROR("can't mod complex numbers");
@@ -1208,7 +1208,7 @@ Pympc_Mod_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympc_mod_fast(PyObject *x, PyObject *y)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1216,7 +1216,7 @@ Pympc_mod_fast(PyObject *x, PyObject *y)
 }
 
 static PyObject *
-Pympc_DivMod_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
+Pympc_DivMod_Complex(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
         TYPE_ERROR("can't take floor or mod of complex numbers");
@@ -1229,7 +1229,7 @@ Pympc_DivMod_Complex(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympc_divmod_fast(PyObject *x, PyObject *y)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 

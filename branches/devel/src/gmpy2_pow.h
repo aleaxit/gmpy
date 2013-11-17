@@ -32,10 +32,10 @@
 extern "C" {
 #endif
 
-static PyObject * GMPy_Integer_Pow(PyObject *base, PyObject *exp, PyObject *mod, GMPyContextObject *context);
-static PyObject * GMPy_Rational_Pow(PyObject *base, PyObject *exp, PyObject *mod, GMPyContextObject *context);
-static PyObject * GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, GMPyContextObject *context);
-static PyObject * GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, GMPyContextObject *context);
+static PyObject * GMPy_Integer_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context);
+static PyObject * GMPy_Rational_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context);
+static PyObject * GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context);
+static PyObject * GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context);
 static PyObject * GMPy_Integer_PowMod(PyObject *self, PyObject *args);
 static PyObject * GMPy_Context_Pow(PyObject *self, PyObject *args);
 static PyObject * GMPy_mpany_pow_fast(PyObject *base, PyObject *exp, PyObject *mod);

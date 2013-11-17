@@ -133,7 +133,7 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
     mpfr_prec_t prec;
     int i, codebyte, resusign, exposign, resuzero, precilen;
     unsigned int expomag = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -587,7 +587,7 @@ Pympc_To_Binary(MPC_Object *obj)
     MPFR_Object *real = NULL, *imag = NULL;
     PyObject *result = NULL, *temp = NULL;
     mpfr_prec_t rprec = 0, cprec = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -633,7 +633,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
 {
     unsigned char *buffer, *cp;
     Py_ssize_t len;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 

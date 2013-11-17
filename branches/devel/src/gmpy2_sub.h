@@ -34,11 +34,11 @@ extern "C" {
 
 /* Public API */
 
-static PyObject * GMPy_Integer_Sub(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * GMPy_Rational_Sub(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * GMPy_Real_Sub(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * GMPy_Complex_Sub(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * GMPy_Number_Sub(PyObject *x, PyObject *y, GMPyContextObject *context);
+static PyObject * GMPy_Integer_Sub(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Rational_Sub(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Complex_Sub(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Number_Sub(PyObject *x, PyObject *y, CTXT_Object *context);
 
 /* Private API */
 

@@ -61,7 +61,7 @@
  */
 
 static PyObject *
-GMPy_Integer_Pow(PyObject *b, PyObject *e, PyObject *m, GMPyContextObject *context)
+GMPy_Integer_Pow(PyObject *b, PyObject *e, PyObject *m, CTXT_Object *context)
 {
     MPZ_Object *result = NULL, *tempb = NULL, *tempe = NULL, *tempm = NULL;
     int has_mod;
@@ -171,7 +171,7 @@ GMPy_Integer_Pow(PyObject *b, PyObject *e, PyObject *m, GMPyContextObject *conte
 }
 
 static PyObject *
-GMPy_Rational_Pow(PyObject *base, PyObject *exp, PyObject *mod, GMPyContextObject *context)
+GMPy_Rational_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context)
 {
     MPQ_Object *tempbq = NULL, *resultq = NULL;
     MPZ_Object *tempez = NULL;
@@ -249,7 +249,7 @@ GMPy_Rational_Pow(PyObject *base, PyObject *exp, PyObject *mod, GMPyContextObjec
 }
 
 static PyObject *
-GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, GMPyContextObject *context)
+GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context)
 {
     MPFR_Object *tempb = NULL, *tempe = NULL, *result = NULL;
     MPC_Object *mpc_result = NULL;
@@ -317,7 +317,7 @@ GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, GMPyContextObject *c
 }
 
 static PyObject *
-GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, GMPyContextObject *context)
+GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context)
 {
     MPC_Object *tempb = NULL, *tempe = NULL, *result= NULL;
 
@@ -402,7 +402,7 @@ GMPy_Context_Pow(PyObject *self, PyObject *args)
 {
     Py_ssize_t argc;
     PyObject *arg0, *arg1;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     argc = PyTuple_GET_SIZE(args);
     if (self && GMPyContext_Check(self)) {
@@ -413,10 +413,10 @@ GMPy_Context_Pow(PyObject *self, PyObject *args)
         /* If we are passed a read-only context, make a copy of it before
          * proceeding. */
 
-        if (((GMPyContextObject*)self)->ctx.readonly)
-            context = (GMPyContextObject*)GMPyContext_context_copy(self, NULL);
+        if (((CTXT_Object*)self)->ctx.readonly)
+            context = (CTXT_Object*)GMPyContext_context_copy(self, NULL);
         else
-            context = (GMPyContextObject*)self;
+            context = (CTXT_Object*)self;
     }
     else {
         /* pow() is only supported as a context method so this branch should

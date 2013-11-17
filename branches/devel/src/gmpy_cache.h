@@ -64,7 +64,7 @@ static MPQ_Object *  GMPy_MPQ_New(void);
 static void          GMPy_MPQ_Dealloc(MPQ_Object *self);
 
 static void          set_gmpympfrcache(void);
-static MPFR_Object * GMPy_MPFR_New(mpfr_prec_t bits, GMPyContextObject *context);
+static MPFR_Object * GMPy_MPFR_New(mpfr_prec_t bits, CTXT_Object *context);
 static void          GMPy_MPFR_Dealloc(MPFR_Object *self);
 
 static void set_gmpympccache(void);
