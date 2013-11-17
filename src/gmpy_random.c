@@ -198,7 +198,7 @@ static PyObject *
 GMPY_mpfr_random(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -230,7 +230,7 @@ GMPY_mpfr_grandom(PyObject *self, PyObject *args)
 {
     MPFR_Object *result1, *result2;
     PyObject *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 

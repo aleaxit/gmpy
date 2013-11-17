@@ -166,7 +166,7 @@ GMPy_MPZ_From_Number_Temp(PyObject *obj)
         return GMPy_MPZ_From_MPQ((MPQ_Object*)obj);
 
     if (MPFR_Check(obj))
-        return Pympfr_To_Pympz(obj);
+        return GMPy_MPZ_From_MPFR((MPFR_Object*)obj, NULL);
 
     if (PyFloat_Check(obj))
         return GMPy_MPZ_From_PyFloat(obj);
@@ -217,7 +217,7 @@ GMPy_MPZ_From_Number_New(PyObject *obj)
         return GMPy_MPZ_From_MPQ((MPQ_Object*)obj);
 
     if (MPFR_Check(obj))
-        return Pympfr_To_Pympz(obj);
+        return GMPy_MPZ_From_MPFR((MPFR_Object*)obj, GET_CONTEXT);
 
     if (PyFloat_Check(obj))
         return GMPy_MPZ_From_PyFloat(obj);

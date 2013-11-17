@@ -76,12 +76,13 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
     int base = 0;
     Py_ssize_t argc;
     /* Assumes mpfr_prec_t is the same as a long. */
-    mpfr_prec_t bits = 0;
+    mpfr_prec_t bits;
     static char *kwlist_s[] = {"s", "precision", "base", NULL};
     static char *kwlist_n[] = {"n", "precision", NULL};
-    GMPyContextObject *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
+    bits = GET_MPFR_PREC(context);
 
     argc = PyTuple_Size(args);
     if ((argc < 0) || (argc > 3)) {
@@ -105,10 +106,10 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
                             "interval 2 ... 62");
             }
             else if (bits < 0) {
-                VALUE_ERROR("precision for mpfr() must be >= 0");
+                VALUE_ERROR("precision for mpfr() must be >= 2");
             }
             else {
-                result = Pympfr_From_PyStr(arg0, base, bits);
+                result = GMPy_MPFR_From_PyStr(arg0, base, bits, context);
             }
         }
         SUBNORMALIZE(result);
@@ -117,18 +118,18 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
 
     /* Optimize the common case */
     if (IS_REAL(arg0) && argc == 1 && !keywds) {
-        result = Pympfr_From_Real(arg0, bits);
+        result = GMPy_MPFR_From_Real_New(arg0, bits, context);
         SUBNORMALIZE(result);
         return (PyObject*)result;
     }
 
     /* Can only have precision as keyword argument. */
     if (PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist_n, &arg0, &bits)) {
-        if (bits < 0) {
-            VALUE_ERROR("precision for mpfr() must be >= 0");
+        if (bits < 2) {
+            VALUE_ERROR("precision for mpfr() must be >= 2");
         }
         else {
-            result = Pympfr_From_Real(arg0, bits);
+            result = GMPy_MPFR_From_Real_New(arg0, bits, context);
             if (!result)
                 TYPE_ERROR("mpfr() requires numeric or string argument");
         }
@@ -158,7 +159,7 @@ static PyObject *
 Pympfr_getimag_attrib(MPFR_Object *self, void *closure)
 {
     MPFR_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -206,7 +207,7 @@ static PyObject *
 Pympfr_pos(MPFR_Object *self)
 {
     MPFR_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -279,7 +280,7 @@ Pympfr_get_exp(PyObject *self, PyObject *other)
 {
     PyObject *result = 0;
     Py_ssize_t exp;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -318,16 +319,16 @@ Pympfr_set_exp(PyObject *self, PyObject *args)
 {
     MPFR_Object *result = 0;
     long exp = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (!PyArg_ParseTuple(args, "O&l", Pympfr_convert_arg, &self, &exp)) {
         TYPE_ERROR("set_exp() requires 'mpfr', 'integer' arguments");
         return NULL;
     }
 
-    if (!(result = Pympfr_From_Pympfr(self, 0)))
+    if (!(result = GMPy_MPFR_From_MPFR_New((MPFR_Object*)self, 0, context)))
         return NULL;
     Py_DECREF(self);
 
@@ -355,7 +356,7 @@ Pympfr_set_sign(PyObject *self, PyObject *args)
     MPFR_Object *result = 0;
     PyObject *boolean = 0;
     int s;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -394,7 +395,7 @@ Pympfr_copy_sign(PyObject *self, PyObject *args)
 {
     MPFR_Object *result = 0;
     PyObject *other = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -420,7 +421,7 @@ Pympfr_div_2exp(PyObject *self, PyObject *args)
 {
     MPFR_Object *result = 0;
     unsigned long exp = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -445,7 +446,7 @@ Pympfr_mul_2exp(PyObject *self, PyObject *args)
 {
     MPFR_Object *result = 0;
     unsigned long exp = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -473,7 +474,7 @@ static PyObject *
 Pympfr_set_nan(PyObject *self, PyObject *other)
 {
     MPFR_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -492,7 +493,7 @@ Pympfr_set_inf(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     long s = 1;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -519,9 +520,9 @@ Pympfr_set_zero(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     long s = 1;
-    GMPyContextObject *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (PyTuple_Size(args) == 1) {
         s = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
@@ -544,6 +545,10 @@ static PyObject *
 Pympfr_is_signed(PyObject *self, PyObject *other)
 {
     int res;
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT_SET_EXPONENT(context);
+
     if(self && MPFR_Check(self)) {
         Py_INCREF(self);
     }
@@ -551,7 +556,7 @@ Pympfr_is_signed(PyObject *self, PyObject *other)
         self = other;
         Py_INCREF((PyObject*)self);
     }
-    else if (!(self = (PyObject*)Pympfr_From_Real(other, 0))) {
+    else if (!(self = (PyObject*)GMPy_MPFR_From_Real_Temp(other, 0, context))) {
         TYPE_ERROR("is_signed() requires 'mpfr' argument");
         return NULL;
     }
@@ -565,26 +570,28 @@ Pympfr_is_signed(PyObject *self, PyObject *other)
 
 #define MPFR_TEST_OTHER(NAME, msg) \
 static PyObject * \
-Pympfr_is_##NAME(PyObject *self, PyObject *other)\
-{\
-    int res;\
-    if(self && MPFR_Check(self)) {\
-        Py_INCREF(self);\
-    }\
-    else if(MPFR_Check(other)) {\
-        self = other;\
-        Py_INCREF((PyObject*)self);\
-    }\
-    else if (!(self = (PyObject*)Pympfr_From_Real(other, 0))) {\
-        PyErr_SetString(PyExc_TypeError, msg);\
-        return NULL;\
-    }\
-    res = mpfr_##NAME##_p(MPFR(self));\
-    Py_DECREF(self);\
-    if (res)\
-        Py_RETURN_TRUE;\
+Pympfr_is_##NAME(PyObject *self, PyObject *other) \
+{ \
+    int res; \
+    CTXT_Object *context = NULL; \
+    CHECK_CONTEXT_SET_EXPONENT(context); \
+    if(self && MPFR_Check(self)) { \
+        Py_INCREF(self); \
+    } \
+    else if(MPFR_Check(other)) { \
+        self = other; \
+        Py_INCREF((PyObject*)self); \
+    } \
+    else if (!(self = (PyObject*)GMPy_MPFR_From_Real_Temp(other, 0, context))) { \
+        PyErr_SetString(PyExc_TypeError, msg); \
+        return NULL; \
+    } \
+    res = mpfr_##NAME##_p(MPFR(self)); \
+    Py_DECREF(self); \
+    if (res) \
+        Py_RETURN_TRUE; \
     else\
-        Py_RETURN_FALSE;\
+        Py_RETURN_FALSE; \
 }
 
 MPFR_TEST_OTHER(nan, "is_nan() requires 'mpfr' argument");
@@ -816,7 +823,7 @@ _mpfr_hash(mpfr_t f)
     return (Py_hash_t)hash;
 #else
     double temp;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
     temp = mpfr_get_d(f, context->ctx.mpfr_round);
@@ -839,7 +846,7 @@ Pympfr_##NAME(PyObject *self, PyObject *args, PyObject *keywds) \
     MPFR_Object *result; \
     mpfr_prec_t bits = 0; \
     static char *kwlist[] = {"precision", NULL}; \
-    GMPyContextObject *context; \
+    CTXT_Object *context; \
     CURRENT_CONTEXT(context); \
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "|l", kwlist, &bits)) return NULL; \
     if ((result = GMPy_MPFR_New(bits, context))) { \
@@ -884,7 +891,7 @@ static PyObject *
 Pympfr_sqrt(PyObject *self, PyObject *other)
 {
     MPFR_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -915,7 +922,7 @@ static PyObject *
 Pympfr_rec_sqrt(PyObject *self, PyObject *other)
 {
     MPFR_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -940,7 +947,7 @@ Pympfr_root(PyObject *self, PyObject *args)
 {
     long n;
     MPFR_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -971,7 +978,7 @@ Pympfr_round2(PyObject *self, PyObject *args)
 {
     mpfr_prec_t prec;
     MPFR_Object *result = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
     prec = context->ctx.mpfr_prec;
@@ -1011,7 +1018,7 @@ Pympfr_round10(PyObject *self, PyObject *args)
     mpz_t temp;
     MPFR_Object *resultf = 0;
     MPZ_Object *resultz;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1096,7 +1103,7 @@ Pympfr_reldiff(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     PyObject *other;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1123,7 +1130,7 @@ static PyObject *
 Pympfr_sign(PyObject *self, PyObject *other)
 {
     long sign;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1148,7 +1155,7 @@ static PyObject * \
 Py##NAME(MPFR_Object *x) \
 { \
     MPFR_Object *r; \
-    GMPyContextObject *context; \
+    CTXT_Object *context; \
     CURRENT_CONTEXT(context); \
     if (!(r = GMPy_MPFR_New(0, context))) \
         return NULL; \
@@ -1173,7 +1180,7 @@ Py##NAME(MPFR_Object *x) \
  *       code. They may be converted to use a macro in the future. */
 
 static PyObject *
-Pympfr_Neg_Real(PyObject *x, GMPyContextObject *context)
+Pympfr_Neg_Real(PyObject *x, CTXT_Object *context)
 {
     MPFR_Object *result;
 
@@ -1217,7 +1224,7 @@ Pympfr_Neg_Real(PyObject *x, GMPyContextObject *context)
 static PyObject *
 Pympfr_neg_fast(MPFR_Object *x)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
     return Pympfr_Neg_Real((PyObject*)x, context);
@@ -1228,7 +1235,7 @@ static PyObject * \
 Pympfr_##NAME(PyObject* self, PyObject *other) \
 { \
     MPFR_Object *result; \
-    GMPyContextObject *context; \
+    CTXT_Object *context; \
     CURRENT_CONTEXT(context); \
     PARSE_ONE_MPFR_OTHER(#NAME "() requires 'mpfr' argument"); \
     if (!(result = GMPy_MPFR_New(0, context))) goto done; \
@@ -1278,7 +1285,7 @@ static PyObject *
 Pympfr_round_away(PyObject* self, PyObject *other)
 {
     MPFR_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1295,7 +1302,7 @@ static PyObject * \
 Pympfr_##NAME(PyObject* self, PyObject *other) \
 { \
     MPFR_Object *result; \
-    GMPyContextObject *context; \
+    CTXT_Object *context; \
     CURRENT_CONTEXT(context); \
     PARSE_ONE_MPFR_OTHER(#NAME "() requires 'mpfr' argument"); \
     if (!(result = GMPy_MPFR_New(0, context))) goto done; \
@@ -1359,7 +1366,7 @@ Pympfr_modf(PyObject *self, PyObject *other)
     MPFR_Object *s, *c;
     PyObject *result;
     int code;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1466,7 +1473,7 @@ static PyObject *
 Pympfr_acos(PyObject* self, PyObject *other)
 {
     MPFR_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1494,7 +1501,7 @@ static PyObject *
 Pympfr_asin(PyObject* self, PyObject *other)
 {
     MPFR_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1552,7 +1559,7 @@ static PyObject *
 Pympfr_atanh(PyObject* self, PyObject *other)
 {
     MPFR_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1624,7 +1631,7 @@ Pympfr_lgamma(PyObject* self, PyObject *other)
     PyObject *result;
     MPFR_Object *value;
     int signp = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1701,7 +1708,7 @@ Pympfr_jn(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     long n = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1737,7 +1744,7 @@ Pympfr_yn(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     long n = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -1763,7 +1770,7 @@ MPFR_UNIOP(ai)
  * both objects are not valid reals.  */
 
 static PyObject *
-Pympfr_FloorDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
+Pympfr_FloorDiv_Real(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *result;
 
@@ -1903,7 +1910,7 @@ Pympfr_FloorDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympfr_floordiv_fast(PyObject *x, PyObject *y)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
     if (IS_REAL(x) && IS_REAL(y))
@@ -1919,7 +1926,7 @@ Pympfr_floordiv_fast(PyObject *x, PyObject *y)
  * both objects are not valid reals.  */
 
 static PyObject *
-Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
+Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *result;
 
@@ -2050,7 +2057,7 @@ Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympfr_truediv_fast(PyObject *x, PyObject *y)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
     if (IS_REAL(x) && IS_REAL(y))
@@ -2066,7 +2073,7 @@ Pympfr_truediv_fast(PyObject *x, PyObject *y)
  * first. Returns Py_NotImplemented if both objects are not valid reals.  */
 
 static PyObject *
-Pympfr_Mod_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
+Pympfr_Mod_Real(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *tempx, *tempy, *temp, *result;
 
@@ -2145,7 +2152,7 @@ Pympfr_Mod_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympfr_mod_fast(PyObject *x, PyObject *y)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
     if (IS_REAL(x) && IS_REAL(y))
@@ -2161,7 +2168,7 @@ Pympfr_mod_fast(PyObject *x, PyObject *y)
  * if both objects are not valid reals.  */
 
 static PyObject *
-Pympfr_DivMod_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
+Pympfr_DivMod_Real(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *tempx, *tempy, *quo, *rem;
     PyObject *result;
@@ -2265,7 +2272,7 @@ Pympfr_DivMod_Real(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympfr_divmod_fast(PyObject *x, PyObject *y)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
     if (IS_REAL(x) && IS_REAL(y))
@@ -2285,7 +2292,7 @@ Pympfr_fmod(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     PyObject *other;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2310,7 +2317,7 @@ Pympfr_remainder(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     PyObject *other;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2336,7 +2343,7 @@ Pympfr_remquo(PyObject* self, PyObject *args)
     PyObject *result, *other;
     MPFR_Object *value;
     long quobits = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2379,7 +2386,7 @@ Pympfr_frexp(PyObject *self, PyObject *other)
     PyObject *result;
     MPFR_Object *value;
     mpfr_exp_t exp = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2420,7 +2427,7 @@ Pympfr_atan2(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     PyObject *other;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2444,7 +2451,7 @@ Pympfr_agm(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     PyObject *other;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2468,7 +2475,7 @@ Pympfr_hypot(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     PyObject *other;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2499,7 +2506,7 @@ Pympfr_max2(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     PyObject *other;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2530,7 +2537,7 @@ Pympfr_min2(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     PyObject *other;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2554,7 +2561,7 @@ Pympfr_nexttoward(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     PyObject *other;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2578,7 +2585,7 @@ static PyObject *
 Pympfr_nextabove(PyObject *self, PyObject *other)
 {
     MPFR_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2602,7 +2609,7 @@ static PyObject *
 Pympfr_nextbelow(PyObject *self, PyObject *other)
 {
     MPFR_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2624,7 +2631,7 @@ Pympfr_sin_cos(PyObject *self, PyObject *other)
     MPFR_Object *s, *c;
     PyObject *result;
     int code;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2673,7 +2680,7 @@ Pympfr_sinh_cosh(PyObject *self, PyObject *other)
     MPFR_Object *s, *c;
     PyObject *result;
     int code;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2716,9 +2723,9 @@ static PyObject *
 Pympfr_fma(PyObject *self, PyObject *args)
 {
     MPFR_Object *result, *x, *y, *z;
-    GMPyContextObject *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (PyTuple_GET_SIZE(args) != 3) {
         TYPE_ERROR("fma() requires 'mpfr','mpfr','mpfr' arguments.");
@@ -2726,9 +2733,9 @@ Pympfr_fma(PyObject *self, PyObject *args)
     }
 
     result = GMPy_MPFR_New(0, context);
-    x = Pympfr_From_Real(PyTuple_GET_ITEM(args, 0), 0);
-    y = Pympfr_From_Real(PyTuple_GET_ITEM(args, 1), 0);
-    z = Pympfr_From_Real(PyTuple_GET_ITEM(args, 2), 0);
+    x = GMPy_MPFR_From_Real_Temp(PyTuple_GET_ITEM(args, 0), 0, context);
+    y = GMPy_MPFR_From_Real_Temp(PyTuple_GET_ITEM(args, 1), 0, context);
+    z = GMPy_MPFR_From_Real_Temp(PyTuple_GET_ITEM(args, 2), 0, context);
     if (!result || !x || !y || !z) {
         TYPE_ERROR("fma() requires 'mpfr','mpfr','mpfr' arguments.");
         goto done;
@@ -2756,9 +2763,9 @@ static PyObject *
 Pympfr_fms(PyObject *self, PyObject *args)
 {
     MPFR_Object *result, *x, *y, *z;
-    GMPyContextObject *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (PyTuple_GET_SIZE(args) != 3) {
         TYPE_ERROR("fms() requires 'mpfr','mpfr','mpfr' arguments.");
@@ -2766,9 +2773,9 @@ Pympfr_fms(PyObject *self, PyObject *args)
     }
 
     result = GMPy_MPFR_New(0, context);
-    x = Pympfr_From_Real(PyTuple_GET_ITEM(args, 0), 0);
-    y = Pympfr_From_Real(PyTuple_GET_ITEM(args, 1), 0);
-    z = Pympfr_From_Real(PyTuple_GET_ITEM(args, 2), 0);
+    x = GMPy_MPFR_From_Real_Temp(PyTuple_GET_ITEM(args, 0), 0, context);
+    y = GMPy_MPFR_From_Real_Temp(PyTuple_GET_ITEM(args, 1), 0, context);
+    z = GMPy_MPFR_From_Real_Temp(PyTuple_GET_ITEM(args, 2), 0, context);
     if (!result || !x || !y || !z) {
         TYPE_ERROR("fms() requires 'mpfr','mpfr','mpfr' arguments.");
         goto done;
@@ -2802,9 +2809,9 @@ Pympfr_factorial(PyObject *self, PyObject *other)
 {
     MPFR_Object *result;
     long n;
-    GMPyContextObject *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     n = clong_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
@@ -2839,6 +2846,9 @@ Pympfr_is_lessgreater(PyObject *self, PyObject *args)
 {
     PyObject *other;
     int temp;
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "is_lessgreater() requires 'mpfr','mpfr' arguments");
 
@@ -2860,6 +2870,9 @@ Pympfr_is_unordered(PyObject *self, PyObject *args)
 {
     PyObject *other;
     int temp;
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "unordered() requires 'mpfr','mpfr' arguments");
 
@@ -2881,7 +2894,7 @@ static PyObject *
 Pympfr_check_range(PyObject *self, PyObject *other)
 {
     MPFR_Object *result = NULL;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -2925,9 +2938,9 @@ Pympfr_fsum(PyObject *self, PyObject *other)
     mpfr_ptr *tab;
     int errcode;
     Py_ssize_t i, seq_length = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
@@ -2944,7 +2957,7 @@ Pympfr_fsum(PyObject *self, PyObject *other)
 
     seq_length = PyList_GET_SIZE(other);
     for (i=0; i < seq_length; i++) {
-        if (!(temp = Pympfr_From_Real(PyList_GET_ITEM(other, i), 0))) {
+        if (!(temp = GMPy_MPFR_From_Real_Temp(PyList_GET_ITEM(other, i), 0, context))) {
             Py_DECREF(other);
             Py_DECREF((PyObject*)result);
             TYPE_ERROR("all items in iterable must be real numbers");
@@ -2986,7 +2999,7 @@ static PyObject *
 Pympfr_degrees(PyObject *self, PyObject *other)
 {
     MPFR_Object *result, *temp;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -3017,7 +3030,7 @@ static PyObject *
 Pympfr_radians(PyObject *self, PyObject *other)
 {
     MPFR_Object *result, *temp;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 

@@ -405,10 +405,10 @@ static Py_hash_t Pympc_hash(MPC_Object *self);
 static PyObject * Pympc_truediv_fast(PyObject *x, PyObject *y);
 static PyObject * Pympc_floordiv_fast(PyObject *x, PyObject *y);
 
-static PyObject * Pympc_FloorDiv_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * Pympc_TrueDiv_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * Pympc_Mod_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * Pympc_DivMod_Complex(PyObject *x, PyObject *y, GMPyContextObject *context);
+static PyObject * Pympc_FloorDiv_Complex(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * Pympc_TrueDiv_Complex(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * Pympc_Mod_Complex(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * Pympc_DivMod_Complex(PyObject *x, PyObject *y, CTXT_Object *context);
 
 #ifdef __cplusplus
 }

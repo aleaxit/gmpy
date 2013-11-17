@@ -47,7 +47,7 @@ static MPC_Object *
 Pympc_From_Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     MPC_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -60,7 +60,7 @@ Pympc_From_Pympc(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 
 static MPC_Object *
 Pympc_From_Pympc_bits_context(PyObject *self, mpfr_prec_t rprec,
-                              mpfr_prec_t iprec, GMPyContextObject *context)
+                              mpfr_prec_t iprec, CTXT_Object *context)
 {
     MPC_Object *result;
 
@@ -76,7 +76,7 @@ Pympc_From_Pympc_bits_context(PyObject *self, mpfr_prec_t rprec,
  * the precisions are different, then a new object is created. */
 
 static MPC_Object *
-Pympc_From_Pympc_context(PyObject *self, GMPyContextObject *context)
+Pympc_From_Pympc_context(PyObject *self, CTXT_Object *context)
 {
     mpfr_prec_t rprec, iprec;
     MPC_Object *result;
@@ -97,7 +97,7 @@ static MPC_Object *
 Pympc_From_PyComplex(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     MPC_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -109,7 +109,7 @@ Pympc_From_PyComplex(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 
 static MPC_Object *
 Pympc_From_PyComplex_bits_context(PyObject *self, mpfr_prec_t rprec,
-                                  mpfr_prec_t iprec, GMPyContextObject *context)
+                                  mpfr_prec_t iprec, CTXT_Object *context)
 {
     MPC_Object *result;
 
@@ -120,7 +120,7 @@ Pympc_From_PyComplex_bits_context(PyObject *self, mpfr_prec_t rprec,
 }
 
 static MPC_Object *
-Pympc_From_PyComplex_context(PyObject *self, GMPyContextObject *context)
+Pympc_From_PyComplex_context(PyObject *self, CTXT_Object *context)
 {
     MPC_Object *result;
 
@@ -134,7 +134,7 @@ static MPC_Object *
 Pympc_From_Pympfr(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     MPC_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -148,7 +148,7 @@ Pympc_From_Pympfr(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 
 static MPC_Object *
 Pympc_From_Pympfr_bits_context(PyObject *self, mpfr_prec_t rprec,
-                               mpfr_prec_t iprec, GMPyContextObject *context)
+                               mpfr_prec_t iprec, CTXT_Object *context)
 {
     MPC_Object *result;
 
@@ -161,7 +161,7 @@ Pympc_From_Pympfr_bits_context(PyObject *self, mpfr_prec_t rprec,
 }
 
 static MPC_Object *
-Pympc_From_Pympfr_context(PyObject *self, GMPyContextObject *context)
+Pympc_From_Pympfr_context(PyObject *self, CTXT_Object *context)
 {
     MPC_Object *result;
 
@@ -175,7 +175,7 @@ static MPC_Object *
 Pympc_From_PyFloat(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     MPC_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -189,7 +189,7 @@ Pympc_From_PyFloat(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 
 static MPC_Object *
 Pympc_From_PyFloat_bits_context(PyObject *self, mpfr_prec_t rprec,
-                                mpfr_prec_t iprec, GMPyContextObject *context)
+                                mpfr_prec_t iprec, CTXT_Object *context)
 {
     MPC_Object *result;
 
@@ -202,7 +202,7 @@ Pympc_From_PyFloat_bits_context(PyObject *self, mpfr_prec_t rprec,
 }
 
 static MPC_Object *
-Pympc_From_PyFloat_context(PyObject *self, GMPyContextObject *context)
+Pympc_From_PyFloat_context(PyObject *self, CTXT_Object *context)
 {
     MPC_Object *result;
 
@@ -224,7 +224,7 @@ PyDoc_STRVAR(doc_mpc_complex, "Convert 'mpc' to 'complex'.");
 static PyObject *
 Pympc_To_PyComplex(PyObject *self, PyObject *other)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -238,7 +238,7 @@ Pympc_To_PyComplex(PyObject *self, PyObject *other)
 
 static PyObject *
 Pympc_To_PyComplex_context(PyObject *self, PyObject *other,
-                           GMPyContextObject *context)
+                           CTXT_Object *context)
 {
     double real = mpfr_get_d(mpc_realref(MPC(self)),
                              GET_REAL_ROUND(context));
@@ -252,7 +252,7 @@ static MPC_Object *
 Pympc_From_Pympz(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     MPC_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -264,7 +264,7 @@ Pympc_From_Pympz(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 
 static MPC_Object *
 Pympc_From_Pympz_bits_context(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec,
-                         GMPyContextObject *context)
+                         CTXT_Object *context)
 {
     MPC_Object *result;
 
@@ -275,7 +275,7 @@ Pympc_From_Pympz_bits_context(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t ipr
 }
 
 static MPC_Object *
-Pympc_From_Pympz_context(PyObject *self, GMPyContextObject *context)
+Pympc_From_Pympz_context(PyObject *self, CTXT_Object *context)
 {
     MPC_Object *result;
 
@@ -293,7 +293,7 @@ static MPC_Object *
 Pympc_From_Pympq(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     MPC_Object *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -305,7 +305,7 @@ Pympc_From_Pympq(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 
 static MPC_Object *
 Pympc_From_Pympq_bits_context(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec,
-                         GMPyContextObject *context)
+                         CTXT_Object *context)
 {
     MPC_Object *result;
 
@@ -316,7 +316,7 @@ Pympc_From_Pympq_bits_context(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t ipr
 }
 
 static MPC_Object *
-Pympc_From_Pympq_context(PyObject *self, GMPyContextObject *context)
+Pympc_From_Pympq_context(PyObject *self, CTXT_Object *context)
 {
     MPC_Object *result;
 
@@ -341,7 +341,7 @@ Pympc_From_PyLong(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 
 static MPC_Object *
 Pympc_From_PyLong_bits_context(PyObject *self, mpfr_prec_t rprec,
-                               mpfr_prec_t iprec, GMPyContextObject *context)
+                               mpfr_prec_t iprec, CTXT_Object *context)
 {
     MPC_Object *result;
     PyObject *temp = (PyObject*)GMPy_MPZ_From_PyIntOrLong(self);
@@ -354,7 +354,7 @@ Pympc_From_PyLong_bits_context(PyObject *self, mpfr_prec_t rprec,
 }
 
 static MPC_Object *
-Pympc_From_PyLong_context(PyObject *self, GMPyContextObject *context)
+Pympc_From_PyLong_context(PyObject *self, CTXT_Object *context)
 {
     MPC_Object *result;
     PyObject *temp = (PyObject*)GMPy_MPZ_From_PyIntOrLong(self);
@@ -376,7 +376,7 @@ Pympc_To_PyLong(PyObject *self)
 #ifdef PY2
 static MPC_Object *
 Pympc_From_PyInt_bits_context(PyObject *self, mpfr_prec_t rprec,
-                              mpfr_prec_t iprec, GMPyContextObject *context)
+                              mpfr_prec_t iprec, CTXT_Object *context)
 {
     MPC_Object *result;
 
@@ -387,7 +387,7 @@ Pympc_From_PyInt_bits_context(PyObject *self, mpfr_prec_t rprec,
 }
 
 static MPC_Object *
-Pympc_From_PyInt_context(PyObject *self, GMPyContextObject *context)
+Pympc_From_PyInt_context(PyObject *self, CTXT_Object *context)
 {
     MPC_Object *result;
 
@@ -422,7 +422,7 @@ Pympc_From_PyStr(PyObject *s, int base, mpfr_prec_t rbits, mpfr_prec_t ibits)
     Py_ssize_t len;
     char *cp, *unwind, *tempchar, *lastchar;
     int firstp = 0, lastp = 0, real_rc = 0, imag_rc = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -528,7 +528,7 @@ Pympc_From_PyStr(PyObject *s, int base, mpfr_prec_t rbits, mpfr_prec_t ibits)
 
 static MPC_Object *
 Pympc_From_PyStr_bits_context(PyObject *s, int base, mpfr_prec_t rbits,
-                              mpfr_prec_t ibits, GMPyContextObject *context)
+                              mpfr_prec_t ibits, CTXT_Object *context)
 {
     MPC_Object *newob;
     PyObject *ascii_str = NULL;
@@ -637,7 +637,7 @@ Pympc_From_PyStr_bits_context(PyObject *s, int base, mpfr_prec_t rbits,
 }
 
 static MPC_Object *
-Pympc_From_PyStr_context(PyObject *s, int base, GMPyContextObject *context)
+Pympc_From_PyStr_context(PyObject *s, int base, CTXT_Object *context)
 {
     MPC_Object *newob;
     PyObject *ascii_str = NULL;
@@ -749,7 +749,7 @@ static PyObject *
 Pympc_To_PyStr(MPC_Object *self, int base, int digits)
 {
     PyObject *tempreal = 0, *tempimag = 0, *result;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -796,7 +796,7 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
     MPQ_Object* temp = 0;
     mpfr_prec_t pr = 0, pi = 0;
     int rr, ri, dr, di;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -894,7 +894,7 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
 /* See the comments for GMPy_MPFR_From_Real_Temp. */
 
 static MPC_Object *
-GMPy_MPC_From_Complex_Temp(PyObject* obj, GMPyContextObject *context)
+GMPy_MPC_From_Complex_Temp(PyObject* obj, CTXT_Object *context)
 {
     MPC_Object* result = NULL;
 
@@ -992,7 +992,7 @@ GMPy_MPC_From_Complex_Temp(PyObject* obj, GMPyContextObject *context)
 
 static MPC_Object *
 Pympc_From_Complex_bits_context(PyObject* obj, mpfr_prec_t rprec,
-                                mpfr_prec_t iprec, GMPyContextObject *context)
+                                mpfr_prec_t iprec, CTXT_Object *context)
 {
     MPC_Object* newob = 0;
     MPQ_Object* temp = 0;
@@ -1098,7 +1098,7 @@ Pympc_From_Complex_bits_context(PyObject* obj, mpfr_prec_t rprec,
  * just return a new reference to obj. Otherwise, create a new mpc. */
 
 static MPC_Object *
-Pympc_From_Complex_context(PyObject* obj, GMPyContextObject *context)
+Pympc_From_Complex_context(PyObject* obj, CTXT_Object *context)
 {
     MPC_Object *newob = NULL;
     MPQ_Object *temp;

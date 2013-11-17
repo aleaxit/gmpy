@@ -25,25 +25,26 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* A GMPyContextObject contains an instance of the C struct gmpy_context
+/* ======================================================================= *
+ * Managing contexts                                                       *
+ * -----------------                                                       *
+ * A CTXT_Object contains an instance of the C struct gmpy_context
  * and a PyObject* used to reference the enclosing instance when used as a
  * context manager in Python.
  *
  * gmpy2 uses a global pointer "context" to refer to the active
- * GMPyContextObject.
+ * CTXT_Object.
  *
- * WARNING: The context manager is not thread-safe. This may be fixed in a
- *          future version.
  */
 
 /* Create and delete Context objects. */
 
 static PyObject *
-GMPyContext_new(void)
+GMPy_CTXT_New(void)
 {
-    GMPyContextObject *result;
+    CTXT_Object *result;
 
-    if ((result = PyObject_New(GMPyContextObject, &GMPyContext_Type))) {
+    if ((result = PyObject_New(CTXT_Object, &CTXT_Type))) {
         result->ctx.mpfr_prec = DBL_MANT_DIG;
         result->ctx.mpfr_round = MPFR_RNDN;
         result->ctx.emax = MPFR_EMAX_DEFAULT;
@@ -73,7 +74,7 @@ GMPyContext_new(void)
 };
 
 static void
-GMPyContext_dealloc(GMPyContextObject *self)
+GMPy_CTXT_Dealloc(CTXT_Object *self)
 {
     PyObject_Del(self);
 };
@@ -84,33 +85,33 @@ GMPyContext_dealloc(GMPyContextObject *self)
 
 PyDoc_STRVAR(doc_set_context,
 "set_context(context)\n\n"
-"Activate a context object controlling MPFR and MPC arithmetic.\n");
+"Activate a context object controlling gmpy2 arithmetic.\n");
 
 #ifdef WITHOUT_THREADS
 
 /* Return a borrowed reference to current context. */
 
-static GMPyContextObject *
-GMPyContext_current(void)
+static CTXT_Object *
+GMPy_current_context(void)
 {
     return module_context;
 }
 
 static PyObject *
-GMPyContext_set_context(PyObject *self, PyObject *other)
+GMPy_CTXT_Set(PyObject *self, PyObject *other)
 {
-    if (!GMPyContext_Check(other)) {
+    if (!CTXT_Check(other)) {
         VALUE_ERROR("set_context() requires a context argument");
         return NULL;
     }
 
     Py_DECREF((PyObject*)module_context);
-    if (((GMPyContextObject*)other)->ctx.readonly) {
-        module_context = (GMPyContextObject*)GMPyContext_context_copy(other, NULL);
+    if (((CTXT_Object*)other)->ctx.readonly) {
+        module_context = (CTXT_Object*)GMPy_CTXT_Copy(other, NULL);
     }
     else {
         Py_INCREF((PyObject*)other);
-        module_context = (GMPyContextObject*)other;
+        module_context = (CTXT_Object*)other;
     }
     mpfr_set_emin(module_context->ctx.emin);
     mpfr_set_emax(module_context->ctx.emax);
@@ -122,7 +123,7 @@ GMPyContext_set_context(PyObject *self, PyObject *other)
 /* Begin support for thread local contexts. */
 
 /* Get the context from the thread state dictionary. */
-static GMPyContextObject *
+static CTXT_Object *
 current_context_from_dict(void)
 {
     PyObject *dict;
@@ -148,8 +149,8 @@ current_context_from_dict(void)
 #endif
 
         /* Set up a new thread local context. */
-        tl_context = GMPyContext_new();
-        if (tl_context == NULL) {
+        tl_context = GMPy_CTXT_New();
+        if (!tl_context) {
             return NULL;
         }
 
@@ -164,23 +165,23 @@ current_context_from_dict(void)
      * will be accessed several times before a thread switch. */
     tstate = PyThreadState_GET();
     if (tstate) {
-        cached_context = (GMPyContextObject*)tl_context;
+        cached_context = (CTXT_Object*)tl_context;
         cached_context->tstate = tstate;
     }
 
     /* Borrowed reference with refcount==1 */
-    return (GMPyContextObject*)tl_context;
+    return (CTXT_Object*)tl_context;
 }
 
 /* Return borrowed reference to thread local context. */
-static GMPyContextObject *
-GMPyContext_current(void)
+static CTXT_Object *
+GMPy_current_context(void)
 {
     PyThreadState *tstate;
 
     tstate = PyThreadState_GET();
     if (cached_context && cached_context->tstate == tstate) {
-        return (GMPyContextObject*)cached_context;
+        return (CTXT_Object*)cached_context;
     }
 
     return current_context_from_dict();
@@ -188,12 +189,12 @@ GMPyContext_current(void)
 
 /* Set the thread local context to a new context, decrement old reference */
 static PyObject *
-GMPyContext_set_context(PyObject *self, PyObject *other)
+GMPy_CTXT_Set(PyObject *self, PyObject *other)
 {
     PyObject *dict;
     PyThreadState *tstate;
 
-    if (!GMPyContext_Check(other)) {
+    if (!CTXT_Check(other)) {
         VALUE_ERROR("set_context() requires a context argument");
         return NULL;
     }
@@ -205,8 +206,8 @@ GMPyContext_set_context(PyObject *self, PyObject *other)
     }
 
     /* Make a copy if it is readonly. */
-    if (((GMPyContextObject*)other)->ctx.readonly) {
-        other = GMPyContext_context_copy(other, NULL);
+    if (((CTXT_Object*)other)->ctx.readonly) {
+        other = GMPy_CTXT_Copy(other, NULL);
         if (!other) {
             return NULL;
         }
@@ -220,15 +221,15 @@ GMPyContext_set_context(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    mpfr_set_emin(((GMPyContextObject*)other)->ctx.emin);
-    mpfr_set_emax(((GMPyContextObject*)other)->ctx.emax);
+    mpfr_set_emin(((CTXT_Object*)other)->ctx.emin);
+    mpfr_set_emax(((CTXT_Object*)other)->ctx.emax);
 
     /* Cache the context of the current thread, assuming that it
      * will be accessed several times before a thread switch. */
     cached_context = NULL;
     tstate = PyThreadState_GET();
     if (tstate) {
-        cached_context = (GMPyContextObject*)other;
+        cached_context = (CTXT_Object*)other;
         cached_context->tstate = tstate;
     }
 
@@ -243,10 +244,10 @@ PyDoc_STRVAR(doc_context_ieee,
 "format. The currently supported precisions are 32, 64, and 128 bits.");
 
 static PyObject *
-GMPyContext_ieee(PyObject *self, PyObject *other)
+GMPy_CTXT_ieee(PyObject *self, PyObject *other)
 {
     long bitwidth;
-    GMPyContextObject *result;
+    CTXT_Object *result;
 
     bitwidth = PyIntOrLong_AsLong(other);
     if (bitwidth == -1 && PyErr_Occurred()) {
@@ -255,7 +256,7 @@ GMPyContext_ieee(PyObject *self, PyObject *other)
     }
 
     if (bitwidth == 32) {
-        result = (GMPyContextObject*)GMPyContext_new();
+        result = (CTXT_Object*)GMPy_CTXT_New();
         if (result) {
             result->ctx.subnormalize = 1;
             result->ctx.mpfr_prec = 24;
@@ -265,7 +266,7 @@ GMPyContext_ieee(PyObject *self, PyObject *other)
         return (PyObject*)result;
     }
     else if (bitwidth == 64) {
-        result = (GMPyContextObject*)GMPyContext_new();
+        result = (CTXT_Object*)GMPy_CTXT_New();
         if (result) {
             result->ctx.subnormalize = 1;
             result->ctx.mpfr_prec = 53;
@@ -275,7 +276,7 @@ GMPyContext_ieee(PyObject *self, PyObject *other)
         return (PyObject*)result;
     }
     else if (bitwidth == 128) {
-        result = (GMPyContextObject*)GMPyContext_new();
+        result = (CTXT_Object*)GMPy_CTXT_New();
         if (result) {
             result->ctx.subnormalize = 1;
             result->ctx.mpfr_prec = 113;
@@ -293,14 +294,13 @@ GMPyContext_ieee(PyObject *self, PyObject *other)
 /* Create and delete ContextManager objects. */
 
 static PyObject *
-GMPyContextManager_new(void)
+GMPy_CTXT_Manager_New(void)
 {
-    return (PyObject*)PyObject_New(GMPyContextManagerObject,
-                                   &GMPyContextManager_Type);
+    return (PyObject*)PyObject_New(CTXT_Manager_Object, &CTXT_Manager_Type);
 };
 
 static void
-GMPyContextManager_dealloc(GMPyContextManagerObject *self)
+GMPy_CTXT_Manager_Dealloc(CTXT_Manager_Object *self)
 {
     Py_DECREF(self->new_context);
     Py_DECREF(self->old_context);
@@ -322,7 +322,7 @@ _round_to_name(int val)
 };
 
 static PyObject *
-GMPyContext_repr(GMPyContextObject *self)
+GMPy_CTXT_Repr(CTXT_Object *self)
 {
     PyObject *format;
     PyObject *tuple;
@@ -330,7 +330,8 @@ GMPyContext_repr(GMPyContextObject *self)
     int i = 0;
 
     tuple = PyTuple_New(24);
-    if (!tuple) return NULL;
+    if (!tuple)
+        return NULL;
 
     format = Py2or3String_FromString(
             "context(precision=%s, real_prec=%s, imag_prec=%s,\n"
@@ -386,7 +387,7 @@ GMPyContext_repr(GMPyContextObject *self)
     if (!PyErr_Occurred())
         result = Py2or3String_Format(format, tuple);
     else
-        SYSTEM_ERROR("internal error in GMPyContext_repr");
+        SYSTEM_ERROR("internal error in GMPy_CTXT_Repr");
 
     Py_DECREF(format);
     Py_DECREF(tuple);
@@ -394,7 +395,7 @@ GMPyContext_repr(GMPyContextObject *self)
 };
 
 static PyObject *
-GMPyContextManager_repr(GMPyContextManagerObject *self)
+GMPy_CTXT_Manager_Repr(CTXT_Manager_Object *self)
 {
     return Py_BuildValue("s", "<gmpy2.ContextManagerObject>");
 }
@@ -404,9 +405,9 @@ PyDoc_STRVAR(doc_get_context,
 "Return a reference to the current context.");
 
 static PyObject *
-GMPyContext_get_context(PyObject *self, PyObject *args)
+GMPy_CTXT_Get(PyObject *self, PyObject *args)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
     Py_XINCREF((PyObject*)context);
@@ -418,12 +419,12 @@ PyDoc_STRVAR(doc_context_copy,
 "Return a copy of a context.");
 
 static PyObject *
-GMPyContext_context_copy(PyObject *self, PyObject *other)
+GMPy_CTXT_Copy(PyObject *self, PyObject *other)
 {
-    GMPyContextObject *result;
+    CTXT_Object *result;
 
-    result = (GMPyContextObject*)GMPyContext_new();
-    result->ctx = ((GMPyContextObject*)self)->ctx;
+    result = (CTXT_Object*)GMPy_CTXT_New();
+    result->ctx = ((CTXT_Object*)self)->ctx;
     /* If a copy is made from a readonly template, it should no longer be
      * considered readonly. */
     result->ctx.readonly = 0;
@@ -439,15 +440,15 @@ PyDoc_STRVAR(doc_local_context,
 "temporary new context.");
 
 static PyObject *
-GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
+GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    GMPyContextManagerObject *result;
+    CTXT_Manager_Object *result;
     PyObject *local_args = args;
     int arg_context = 0;
     int x_trap_underflow = 0, x_trap_overflow = 0, x_trap_inexact = 0;
     int x_trap_invalid = 0, x_trap_erange = 0, x_trap_divzero = 0;
     int x_trap_expbound = 0;
-    GMPyContextObject *context, *temp;
+    CTXT_Object *context, *temp;
 
     CURRENT_CONTEXT(context);
 
@@ -458,7 +459,7 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
         "trap_invalid", "trap_erange", "trap_divzero",
         "trap_expbound", "allow_complex", "rational_division", NULL };
 
-    if (PyTuple_GET_SIZE(args) == 1 && GMPyContext_Check(PyTuple_GET_ITEM(args, 0))) {
+    if (PyTuple_GET_SIZE(args) == 1 && CTXT_Check(PyTuple_GET_ITEM(args, 0))) {
         arg_context = 1;
         if (!(local_args = PyTuple_New(0)))
             return NULL;
@@ -468,17 +469,16 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-    if (!(result = (GMPyContextManagerObject*)GMPyContextManager_new()))
+    if (!(result = (CTXT_Manager_Object*)GMPy_CTXT_Manager_New()))
         return NULL;
 
     if (arg_context) {
-        temp = (GMPyContextObject*)PyTuple_GET_ITEM(args, 0);
+        temp = (CTXT_Object*)PyTuple_GET_ITEM(args, 0);
         if (temp->ctx.readonly) {
-            result->new_context = (GMPyContextObject*)GMPyContext_context_copy( \
-                                                (PyObject*)temp, NULL);
+            result->new_context = (CTXT_Object*)GMPy_CTXT_Copy((PyObject*)temp, NULL);
         }
         else {
-            result->new_context = (GMPyContextObject*)PyTuple_GET_ITEM(args, 0);
+            result->new_context = (CTXT_Object*)PyTuple_GET_ITEM(args, 0);
             Py_INCREF((PyObject*)(result->new_context));
         }
     }
@@ -487,8 +487,7 @@ GMPyContext_local_context(PyObject *self, PyObject *args, PyObject *kwargs)
         Py_INCREF((PyObject*)(result->new_context));
     }
 
-    result->old_context = (GMPyContextObject*)GMPyContext_context_copy( \
-                                                (PyObject*)context, NULL);
+    result->old_context = (CTXT_Object*)GMPy_CTXT_Copy((PyObject*)context, NULL);
     if (!(result->old_context)) {
         Py_DECREF((PyObject*)result);
         return NULL;
@@ -764,7 +763,7 @@ PyDoc_STRVAR(doc_context,
 static PyObject *
 GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
-    GMPyContextObject *result;
+    CTXT_Object *result;
     int x_trap_underflow = 0, x_trap_overflow = 0, x_trap_inexact = 0;
     int x_trap_invalid = 0, x_trap_erange = 0, x_trap_divzero = 0;
     int x_trap_expbound = 0;
@@ -781,7 +780,7 @@ GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-    if (!(result = (GMPyContextObject*)GMPyContext_new()))
+    if (!(result = (CTXT_Object*)GMPy_CTXT_New()))
         return NULL;
 
     /* Convert the trap bit positions into ints for the benefit of
@@ -920,71 +919,78 @@ GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyObject *
-GMPyContextManager_enter(PyObject *self, PyObject *args)
+GMPy_CTXT_Manager_Enter(PyObject *self, PyObject *args)
 {
     PyObject *temp;
 
-    temp = GMPyContext_set_context(NULL,
-                    (PyObject*)((GMPyContextManagerObject*)self)->new_context);
+    temp = GMPy_CTXT_Set(NULL, (PyObject*)((CTXT_Manager_Object*)self)->new_context);
     if (!temp)
         return NULL;
     Py_DECREF(temp);
 
-    mpfr_set_emin(((GMPyContextManagerObject*)self)->new_context->ctx.emin);
-    mpfr_set_emax(((GMPyContextManagerObject*)self)->new_context->ctx.emax);
+    /* These two lines need to be removed after all the context handling logic
+     * is updated.
+     */
 
-    Py_INCREF((PyObject*)(((GMPyContextManagerObject*)self)->new_context));
-    return (PyObject*)(((GMPyContextManagerObject*)self)->new_context);
+    mpfr_set_emin(((CTXT_Manager_Object*)self)->new_context->ctx.emin);
+    mpfr_set_emax(((CTXT_Manager_Object*)self)->new_context->ctx.emax);
+
+    Py_INCREF((PyObject*)(((CTXT_Manager_Object*)self)->new_context));
+    return (PyObject*)(((CTXT_Manager_Object*)self)->new_context);
 }
 
 static PyObject *
-GMPyContextManager_exit(PyObject *self, PyObject *args)
+GMPy_CTXT_Manager_Exit(PyObject *self, PyObject *args)
 {
     PyObject *temp;
 
-    temp = GMPyContext_set_context(NULL,
-                    (PyObject*)((GMPyContextManagerObject*)self)->old_context);
+    temp = GMPy_CTXT_Set(NULL, (PyObject*)((CTXT_Manager_Object*)self)->old_context);
     if (!temp)
         return NULL;
     Py_DECREF(temp);
 
-    mpfr_set_emin(((GMPyContextManagerObject*)self)->old_context->ctx.emin);
-    mpfr_set_emax(((GMPyContextManagerObject*)self)->old_context->ctx.emax);
+    /* These two lines need to be removed after all the context handling logic
+     * is updated.
+     */
+
+    mpfr_set_emin(((CTXT_Manager_Object*)self)->old_context->ctx.emin);
+    mpfr_set_emax(((CTXT_Manager_Object*)self)->old_context->ctx.emax);
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
-GMPyContext_enter(PyObject *self, PyObject *args)
+GMPy_CTXT_Enter(PyObject *self, PyObject *args)
 {
     PyObject *temp;
     PyObject *result;
 
-    result = GMPyContext_context_copy(self, NULL);
+    result = GMPy_CTXT_Copy(self, NULL);
     if (!result)
         return NULL;
 
-    temp = GMPyContext_set_context(NULL, result);
+    temp = GMPy_CTXT_Set(NULL, result);
     if (!temp)
         return NULL;
     Py_DECREF(temp);
 
-    mpfr_set_emin(((GMPyContextObject*)result)->ctx.emin);
-    mpfr_set_emax(((GMPyContextObject*)result)->ctx.emax);
+    mpfr_set_emin(((CTXT_Object*)result)->ctx.emin);
+    mpfr_set_emax(((CTXT_Object*)result)->ctx.emax);
     return result;
 }
 
 static PyObject *
-GMPyContext_exit(PyObject *self, PyObject *args)
+GMPy_CTXT_Exit(PyObject *self, PyObject *args)
 {
     PyObject *temp;
 
-    temp = GMPyContext_set_context(NULL, self);
+    temp = GMPy_CTXT_Set(NULL, self);
     if (!temp)
         return NULL;
     Py_DECREF(temp);
 
-    mpfr_set_emin(((GMPyContextObject*)self)->ctx.emin);
-    mpfr_set_emax(((GMPyContextObject*)self)->ctx.emax);
+    mpfr_set_emin(((CTXT_Object*)self)->ctx.emin);
+    mpfr_set_emax(((CTXT_Object*)self)->ctx.emax);
     Py_RETURN_NONE;
 }
 
@@ -992,14 +998,14 @@ PyDoc_STRVAR(doc_context_clear_flags,
 "clear_flags()\n\n"
 "Clear all MPFR exception flags.");
 static PyObject *
-GMPyContext_clear_flags(PyObject *self, PyObject *args)
+GMPy_CTXT_Clear_Flags(PyObject *self, PyObject *args)
 {
-    ((GMPyContextObject*)self)->ctx.underflow = 0;
-    ((GMPyContextObject*)self)->ctx.overflow = 0;
-    ((GMPyContextObject*)self)->ctx.inexact = 0;
-    ((GMPyContextObject*)self)->ctx.invalid = 0;
-    ((GMPyContextObject*)self)->ctx.erange = 0;
-    ((GMPyContextObject*)self)->ctx.divzero = 0;
+    ((CTXT_Object*)self)->ctx.underflow = 0;
+    ((CTXT_Object*)self)->ctx.overflow = 0;
+    ((CTXT_Object*)self)->ctx.inexact = 0;
+    ((CTXT_Object*)self)->ctx.invalid = 0;
+    ((CTXT_Object*)self)->ctx.erange = 0;
+    ((CTXT_Object*)self)->ctx.divzero = 0;
     Py_RETURN_NONE;
 }
 
@@ -1007,12 +1013,12 @@ GMPyContext_clear_flags(PyObject *self, PyObject *args)
 
 #define GETSET_BOOLEAN(NAME) \
 static PyObject * \
-GMPyContext_get_##NAME(GMPyContextObject *self, void *closure) \
+GMPyContext_get_##NAME(CTXT_Object *self, void *closure) \
 { \
     return PyBool_FromLong(self->ctx.NAME); \
 }; \
 static int \
-GMPyContext_set_##NAME(GMPyContextObject *self, PyObject *value, void *closure) \
+GMPyContext_set_##NAME(CTXT_Object *self, PyObject *value, void *closure) \
 { \
     if (self->ctx.readonly) { \
         VALUE_ERROR("can not modify a readonly context"); \
@@ -1032,12 +1038,12 @@ GMPyContext_set_##NAME(GMPyContextObject *self, PyObject *value, void *closure) 
 
 #define GETSET_BOOLEAN_BIT(NAME, TRAP) \
 static PyObject * \
-GMPyContext_get_##NAME(GMPyContextObject *self, void *closure) \
+GMPyContext_get_##NAME(CTXT_Object *self, void *closure) \
 { \
     return PyBool_FromLong(self->ctx.traps & TRAP); \
 }; \
 static int \
-GMPyContext_set_##NAME(GMPyContextObject *self, PyObject *value, void *closure) \
+GMPyContext_set_##NAME(CTXT_Object *self, PyObject *value, void *closure) \
 { \
     if (self->ctx.readonly) { \
         VALUE_ERROR("can not modify a readonly context"); \
@@ -1059,12 +1065,12 @@ GMPyContext_set_##NAME(GMPyContextObject *self, PyObject *value, void *closure) 
 
 #define GETSET_BOOLEAN_EX(NAME) \
 static PyObject * \
-GMPyContext_get_##NAME(GMPyContextObject *self, void *closure) \
+GMPyContext_get_##NAME(CTXT_Object *self, void *closure) \
 { \
     return PyBool_FromLong(self->ctx.NAME); \
 }; \
 static int \
-GMPyContext_set_##NAME(GMPyContextObject *self, PyObject *value, void *closure) \
+GMPyContext_set_##NAME(CTXT_Object *self, PyObject *value, void *closure) \
 { \
     if (!(PyBool_Check(value))) { \
         TYPE_ERROR(#NAME " must be True or False"); \
@@ -1093,13 +1099,13 @@ GETSET_BOOLEAN(rational_division)
 GETSET_BOOLEAN_EX(readonly)
 
 static PyObject *
-GMPyContext_get_precision(GMPyContextObject *self, void *closure)
+GMPyContext_get_precision(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromSsize_t((Py_ssize_t)(self->ctx.mpfr_prec));
 }
 
 static int
-GMPyContext_set_precision(GMPyContextObject *self, PyObject *value, void *closure)
+GMPyContext_set_precision(CTXT_Object *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
@@ -1121,13 +1127,13 @@ GMPyContext_set_precision(GMPyContextObject *self, PyObject *value, void *closur
 }
 
 static PyObject *
-GMPyContext_get_real_prec(GMPyContextObject *self, void *closure)
+GMPyContext_get_real_prec(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromSsize_t((Py_ssize_t)(GET_REAL_PREC(self)));
 }
 
 static int
-GMPyContext_set_real_prec(GMPyContextObject *self, PyObject *value, void *closure)
+GMPyContext_set_real_prec(CTXT_Object *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
@@ -1155,13 +1161,13 @@ GMPyContext_set_real_prec(GMPyContextObject *self, PyObject *value, void *closur
 }
 
 static PyObject *
-GMPyContext_get_imag_prec(GMPyContextObject *self, void *closure)
+GMPyContext_get_imag_prec(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromSsize_t((Py_ssize_t)(GET_IMAG_PREC(self)));
 }
 
 static int
-GMPyContext_set_imag_prec(GMPyContextObject *self, PyObject *value, void *closure)
+GMPyContext_set_imag_prec(CTXT_Object *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
@@ -1189,13 +1195,13 @@ GMPyContext_set_imag_prec(GMPyContextObject *self, PyObject *value, void *closur
 }
 
 static PyObject *
-GMPyContext_get_round(GMPyContextObject *self, void *closure)
+GMPyContext_get_round(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromLong((long)(self->ctx.mpfr_round));
 }
 
 static int
-GMPyContext_set_round(GMPyContextObject *self, PyObject *value, void *closure)
+GMPyContext_set_round(CTXT_Object *self, PyObject *value, void *closure)
 {
     long temp;
 
@@ -1235,13 +1241,13 @@ GMPyContext_set_round(GMPyContextObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-GMPyContext_get_real_round(GMPyContextObject *self, void *closure)
+GMPyContext_get_real_round(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromLong((long)GET_REAL_ROUND(self));
 }
 
 static int
-GMPyContext_set_real_round(GMPyContextObject *self, PyObject *value, void *closure)
+GMPyContext_set_real_round(CTXT_Object *self, PyObject *value, void *closure)
 {
     long temp;
 
@@ -1270,13 +1276,13 @@ GMPyContext_set_real_round(GMPyContextObject *self, PyObject *value, void *closu
 }
 
 static PyObject *
-GMPyContext_get_imag_round(GMPyContextObject *self, void *closure)
+GMPyContext_get_imag_round(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromLong((long)GET_IMAG_ROUND(self));
 }
 
 static int
-GMPyContext_set_imag_round(GMPyContextObject *self, PyObject *value, void *closure)
+GMPyContext_set_imag_round(CTXT_Object *self, PyObject *value, void *closure)
 {
     long temp;
 
@@ -1305,13 +1311,13 @@ GMPyContext_set_imag_round(GMPyContextObject *self, PyObject *value, void *closu
 }
 
 static PyObject *
-GMPyContext_get_emin(GMPyContextObject *self, void *closure)
+GMPyContext_get_emin(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromLong(self->ctx.emin);
 }
 
 static int
-GMPyContext_set_emin(GMPyContextObject *self, PyObject *value, void *closure)
+GMPyContext_set_emin(CTXT_Object *self, PyObject *value, void *closure)
 {
     long exp;
 
@@ -1338,13 +1344,13 @@ GMPyContext_set_emin(GMPyContextObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-GMPyContext_get_emax(GMPyContextObject *self, void *closure)
+GMPyContext_get_emax(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromLong(self->ctx.emax);
 }
 
 static int
-GMPyContext_set_emax(GMPyContextObject *self, PyObject *value, void *closure)
+GMPyContext_set_emax(CTXT_Object *self, PyObject *value, void *closure)
 {
     long exp;
 
@@ -1408,8 +1414,8 @@ static PyMethodDef GMPyContext_methods[] =
 {
     { "abs", GMPy_Context_Abs, METH_VARARGS, GMPy_doc_context_abs },
     { "add", GMPy_Context_Add, METH_VARARGS, GMPy_doc_context_add },
-    { "clear_flags", GMPyContext_clear_flags, METH_NOARGS, doc_context_clear_flags },
-    { "copy", GMPyContext_context_copy, METH_NOARGS, doc_context_copy },
+    { "clear_flags", GMPy_CTXT_Clear_Flags, METH_NOARGS, doc_context_clear_flags },
+    { "copy", GMPy_CTXT_Copy, METH_NOARGS, doc_context_copy },
     { "div", Pympany_div, METH_VARARGS, doc_context_div },
     { "divmod", Pympany_divmod, METH_VARARGS, doc_context_divmod },
     { "floor_div", Pympany_floordiv, METH_VARARGS, doc_context_floordiv },
@@ -1417,12 +1423,12 @@ static PyMethodDef GMPyContext_methods[] =
     { "mul", GMPy_Context_Mul, METH_VARARGS, GMPy_doc_context_mul },
     { "pow", GMPy_Context_Pow, METH_VARARGS, GMPy_doc_context_pow },
     { "sub", GMPy_Context_Sub, METH_VARARGS, GMPy_doc_context_sub },
-    { "__enter__", GMPyContext_enter, METH_NOARGS, NULL },
-    { "__exit__", GMPyContext_exit, METH_VARARGS, NULL },
+    { "__enter__", GMPy_CTXT_Enter, METH_NOARGS, NULL },
+    { "__exit__", GMPy_CTXT_Exit, METH_VARARGS, NULL },
     { NULL, NULL, 1 }
 };
 
-static PyTypeObject GMPyContext_Type =
+static PyTypeObject CTXT_Type =
 {
 #ifdef PY3
     PyVarObject_HEAD_INIT(0, 0)
@@ -1431,7 +1437,7 @@ static PyTypeObject GMPyContext_Type =
         0,                                  /* ob_size          */
 #endif
     "gmpy2 context",                        /* tp_name          */
-    sizeof(GMPyContextObject),              /* tp_basicsize     */
+    sizeof(CTXT_Object),                    /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
     (destructor) GMPyContext_dealloc,       /* tp_dealloc       */
         0,                                  /* tp_print         */
@@ -1477,7 +1483,7 @@ static PyTypeObject GMPyContextManager_Type =
         0,                                   /* ob_size          */
 #endif
     "gmpy2 context",                         /* tp_name          */
-    sizeof(GMPyContextManagerObject),        /* tp_basicsize     */
+    sizeof(CTXT_Manager_Object),             /* tp_basicsize     */
         0,                                   /* tp_itemsize      */
     (destructor) GMPyContextManager_dealloc, /* tp_dealloc       */
         0,                                   /* tp_print         */

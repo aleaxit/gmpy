@@ -571,7 +571,7 @@ Pympq_hash(MPQ_Object *self)
  * raises TypeError if both objects are not valid rationals. */
 
 static PyObject *
-Pympq_FloorDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
+Pympq_FloorDiv_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPZ_Object *result;
     MPQ_Object *tempq;
@@ -633,7 +633,7 @@ Pympq_FloorDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympq_floordiv_fast(PyObject *x, PyObject *y)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -648,7 +648,7 @@ Pympq_floordiv_fast(PyObject *x, PyObject *y)
 }
 
 static PyObject *
-Pympq_TrueDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
+Pympq_TrueDiv_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPQ_Object *result;
 
@@ -699,7 +699,7 @@ Pympq_TrueDiv_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympq_truediv_fast(PyObject *x, PyObject *y)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -718,7 +718,7 @@ Pympq_truediv_fast(PyObject *x, PyObject *y)
  * rationals. */
 
 static PyObject *
-Pympq_Mod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
+Pympq_Mod_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     mpz_t tempz;
     MPQ_Object *tempx, *tempy, *result;
@@ -764,7 +764,7 @@ Pympq_Mod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympq_mod_fast(PyObject *x, PyObject *y)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 
@@ -783,7 +783,7 @@ Pympq_mod_fast(PyObject *x, PyObject *y)
  * are not valid rationals. */
 
 static PyObject *
-Pympq_DivMod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
+Pympq_DivMod_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPQ_Object *tempx, *tempy, *rem;
     MPZ_Object *quo;
@@ -839,7 +839,7 @@ Pympq_DivMod_Rational(PyObject *x, PyObject *y, GMPyContextObject *context)
 static PyObject *
 Pympq_divmod_fast(PyObject *x, PyObject *y)
 {
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     CURRENT_CONTEXT(context);
 

@@ -132,7 +132,7 @@ Pympany_div(PyObject *self, PyObject *args)
 {
     Py_ssize_t argc;
     PyObject *arg0, *arg1, *arg2;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     argc = PyTuple_GET_SIZE(args);
     if (self && GMPyContext_Check(self)) {
@@ -143,10 +143,10 @@ Pympany_div(PyObject *self, PyObject *args)
         /* If we are passed a read-only context, make a copy of it before
          * proceeding. */
 
-        if (((GMPyContextObject*)self)->ctx.readonly)
-            context = (GMPyContextObject*)GMPyContext_context_copy(self, NULL);
+        if (((CTXT_Object*)self)->ctx.readonly)
+            context = (CTXT_Object*)GMPyContext_context_copy(self, NULL);
         else
-            context = (GMPyContextObject*)self;
+            context = (CTXT_Object*)self;
     }
     else {
         if ((argc < 2) && (argc > 3)) {
@@ -159,10 +159,10 @@ Pympany_div(PyObject *self, PyObject *args)
                 TYPE_ERROR("third argument must be context.");
                 return NULL;
             }
-            if (((GMPyContextObject*)arg2)->ctx.readonly)
-                context = (GMPyContextObject*)GMPyContext_context_copy(arg2, NULL);
+            if (((CTXT_Object*)arg2)->ctx.readonly)
+                context = (CTXT_Object*)GMPyContext_context_copy(arg2, NULL);
             else
-                context = (GMPyContextObject*)arg2;
+                context = (CTXT_Object*)arg2;
         }
         else {
             CURRENT_CONTEXT(context);
@@ -201,7 +201,7 @@ Pympany_floordiv(PyObject *self, PyObject *args)
 {
     Py_ssize_t argc;
     PyObject *arg0, *arg1, *arg2;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     argc = PyTuple_GET_SIZE(args);
     if (self && GMPyContext_Check(self)) {
@@ -212,10 +212,10 @@ Pympany_floordiv(PyObject *self, PyObject *args)
         /* If we are passed a read-only context, make a copy of it before
          * proceeding. */
 
-        if (((GMPyContextObject*)self)->ctx.readonly)
-            context = (GMPyContextObject*)GMPyContext_context_copy(self, NULL);
+        if (((CTXT_Object*)self)->ctx.readonly)
+            context = (CTXT_Object*)GMPyContext_context_copy(self, NULL);
         else
-            context = (GMPyContextObject*)self;
+            context = (CTXT_Object*)self;
     }
     else {
         if ((argc < 2) && (argc > 3)) {
@@ -228,10 +228,10 @@ Pympany_floordiv(PyObject *self, PyObject *args)
                 TYPE_ERROR("third argument must be context.");
                 return NULL;
             }
-            if (((GMPyContextObject*)arg2)->ctx.readonly)
-                context = (GMPyContextObject*)GMPyContext_context_copy(arg2, NULL);
+            if (((CTXT_Object*)arg2)->ctx.readonly)
+                context = (CTXT_Object*)GMPyContext_context_copy(arg2, NULL);
             else
-                context = (GMPyContextObject*)arg2;
+                context = (CTXT_Object*)arg2;
         }
         else {
             CURRENT_CONTEXT(context);
@@ -270,7 +270,7 @@ Pympany_mod(PyObject *self, PyObject *args)
 {
     Py_ssize_t argc;
     PyObject *arg0, *arg1, *arg2;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     argc = PyTuple_GET_SIZE(args);
     if (self && GMPyContext_Check(self)) {
@@ -281,10 +281,10 @@ Pympany_mod(PyObject *self, PyObject *args)
         /* If we are passed a read-only context, make a copy of it before
          * proceeding. */
 
-        if (((GMPyContextObject*)self)->ctx.readonly)
-            context = (GMPyContextObject*)GMPyContext_context_copy(self, NULL);
+        if (((CTXT_Object*)self)->ctx.readonly)
+            context = (CTXT_Object*)GMPyContext_context_copy(self, NULL);
         else
-            context = (GMPyContextObject*)self;
+            context = (CTXT_Object*)self;
     }
     else {
         if ((argc < 2) && (argc > 3)) {
@@ -297,10 +297,10 @@ Pympany_mod(PyObject *self, PyObject *args)
                 TYPE_ERROR("third argument must be context.");
                 return NULL;
             }
-            if (((GMPyContextObject*)arg2)->ctx.readonly)
-                context = (GMPyContextObject*)GMPyContext_context_copy(arg2, NULL);
+            if (((CTXT_Object*)arg2)->ctx.readonly)
+                context = (CTXT_Object*)GMPyContext_context_copy(arg2, NULL);
             else
-                context = (GMPyContextObject*)arg2;
+                context = (CTXT_Object*)arg2;
         }
         else {
             CURRENT_CONTEXT(context);
@@ -339,7 +339,7 @@ Pympany_divmod(PyObject *self, PyObject *args)
 {
     Py_ssize_t argc;
     PyObject *arg0, *arg1, *arg2;
-    GMPyContextObject *context;
+    CTXT_Object *context;
 
     argc = PyTuple_GET_SIZE(args);
     if (self && GMPyContext_Check(self)) {
@@ -350,10 +350,10 @@ Pympany_divmod(PyObject *self, PyObject *args)
         /* If we are passed a read-only context, make a copy of it before
          * proceeding. */
 
-        if (((GMPyContextObject*)self)->ctx.readonly)
-            context = (GMPyContextObject*)GMPyContext_context_copy(self, NULL);
+        if (((CTXT_Object*)self)->ctx.readonly)
+            context = (CTXT_Object*)GMPyContext_context_copy(self, NULL);
         else
-            context = (GMPyContextObject*)self;
+            context = (CTXT_Object*)self;
     }
     else {
         if ((argc < 2) && (argc > 3)) {
@@ -366,10 +366,10 @@ Pympany_divmod(PyObject *self, PyObject *args)
                 TYPE_ERROR("third argument must be context.");
                 return NULL;
             }
-            if (((GMPyContextObject*)arg2)->ctx.readonly)
-                context = (GMPyContextObject*)GMPyContext_context_copy(arg2, NULL);
+            if (((CTXT_Object*)arg2)->ctx.readonly)
+                context = (CTXT_Object*)GMPyContext_context_copy(arg2, NULL);
             else
-                context = (GMPyContextObject*)arg2;
+                context = (CTXT_Object*)arg2;
         }
         else {
             CURRENT_CONTEXT(context);
@@ -785,9 +785,9 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
     mpz_t tempz;
     PyObject *tempa = 0, *tempb = 0;
     PyObject *result = 0;
-    GMPyContextObject *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (CHECK_MPZANY(a)) {
         if (PyIntOrLong_Check(b)) {
@@ -1067,7 +1067,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_REAL(b)) {
-            tempb = (PyObject*)Pympfr_From_Real(b, 0);
+            tempb = (PyObject*)GMPy_MPFR_From_Real_Temp(b, 0, context);
             if (!tempb)
                 return NULL;
             mpfr_clear_flags();

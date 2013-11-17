@@ -70,7 +70,7 @@
  */
 
 static PyObject *
-GMPy_Integer_Abs(PyObject *x, GMPyContextObject *context)
+GMPy_Integer_Abs(PyObject *x, CTXT_Object *context)
 {
     MPZ_Object *result;
 
@@ -100,7 +100,7 @@ GMPy_mpz_abs_fast(MPZ_Object *x)
 }
 
 static PyObject *
-GMPy_Rational_Abs(PyObject *x, GMPyContextObject *context)
+GMPy_Rational_Abs(PyObject *x, CTXT_Object *context)
 {
     MPQ_Object *result;
 
@@ -132,7 +132,7 @@ GMPy_mpq_abs_fast(MPQ_Object *x)
 }
 
 static PyObject *
-GMPy_Real_Abs(PyObject *x, GMPyContextObject *context)
+GMPy_Real_Abs(PyObject *x, CTXT_Object *context)
 {
     MPFR_Object *result;
 
@@ -154,7 +154,7 @@ GMPy_mpfr_abs_fast(MPFR_Object *x)
 }
 
 static PyObject *
-GMPy_Complex_Abs(PyObject *x, GMPyContextObject *context)
+GMPy_Complex_Abs(PyObject *x, CTXT_Object *context)
 {
     MPFR_Object *result;
     MPC_Object *tempx;
@@ -185,7 +185,7 @@ GMPy_mpc_abs_fast(MPC_Object *x)
 }
 
 static PyObject *
-GMPy_Number_Abs(PyObject *x, GMPyContextObject *context)
+GMPy_Number_Abs(PyObject *x, CTXT_Object *context)
 {
     if (IS_INTEGER(x))
         return GMPy_Integer_Abs(x, context);
@@ -218,6 +218,6 @@ GMPy_Context_Abs(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    return GMPy_Number_Abs(PyTuple_GET_ITEM(args, 0), (GMPyContextObject*)self);
+    return GMPy_Number_Abs(PyTuple_GET_ITEM(args, 0), (CTXT_Object*)self);
 }
 

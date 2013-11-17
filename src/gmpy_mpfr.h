@@ -490,11 +490,11 @@ static PyObject * Pympfr_degrees(PyObject *self, PyObject *other);
 static PyObject * Pympfr_radians(PyObject *self, PyObject *other);
 static PyObject * Pympfr_format(PyObject *self, PyObject *args);
 
-static PyObject * Pympfr_FloorDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * Pympfr_Mod_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * Pympfr_DivMod_Real(PyObject *x, PyObject *y, GMPyContextObject *context);
-static PyObject * Pympfr_Neg_Real(PyObject *x, GMPyContextObject *context);
+static PyObject * Pympfr_FloorDiv_Real(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * Pympfr_Mod_Real(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * Pympfr_DivMod_Real(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * Pympfr_Neg_Real(PyObject *x, CTXT_Object *context);
 
 #ifdef __cplusplus
 }
