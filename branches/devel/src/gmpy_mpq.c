@@ -46,6 +46,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
     int base = 10;
     Py_ssize_t argc;
     static char *kwlist[] = {"s", "base", NULL };
+    CTXT_Object *context = NULL;
 
     argc = PyTuple_Size(args);
     if (argc > 2) {
@@ -55,7 +56,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
 
     /* Handle 0 arguments. */
     if (argc == 0) {
-        if ((result = GMPy_MPQ_New())) {
+        if ((result = GMPy_MPQ_New(context))) {
             mpq_set_ui(result->q, 0, 1);
         }
         return (PyObject*)result;
@@ -71,7 +72,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
                             "interval 2 ... 62");
             }
             else {
-                result = GMPy_MPQ_From_PyStr(n, base);
+                result = GMPy_MPQ_From_PyStr(n, base, context);
             }
         }
         return (PyObject*)result;
@@ -80,7 +81,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
     /* Handle 1 argument. It can be non-complex number. */
     if (argc == 1) {
         if (IS_REAL(n)) {
-            return (PyObject*)GMPy_MPQ_From_Number_Temp(n);
+            return (PyObject*)GMPy_MPQ_From_Number_Temp(n, context);
         }
         else {
             goto type_error;
@@ -94,11 +95,11 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
         goto type_error;
     }
 
-    if (!(result = GMPy_MPQ_From_Number_New(n))) {
+    if (!(result = GMPy_MPQ_From_Number_New(n, context))) {
         goto type_error;
     }
 
-    if (!(temp = GMPy_MPQ_From_Number_Temp(m))) {
+    if (!(temp = GMPy_MPQ_From_Number_Temp(m, context))) {
         Py_DECREF((PyObject*)result);
         goto type_error;
     }
@@ -133,9 +134,10 @@ Pympq_digits(PyObject *self, PyObject *args)
 {
     int base = 10;
     PyObject *result;
+    CTXT_Object *context = NULL;
 
     SELF_MPQ_ONE_ARG("|i", &base);
-    result = GMPy_PyStr_From_MPQ((MPQ_Object*)self, base, 0);
+    result = GMPy_PyStr_From_MPQ((MPQ_Object*)self, base, 0, context);
     Py_DECREF(self);
     return result;
 }
@@ -149,12 +151,13 @@ Pympq_sign(PyObject *self, PyObject *other)
 {
     long res;
     MPQ_Object* tempx;
+    CTXT_Object *context = NULL;
 
     if (MPQ_Check(other)) {
         res = mpq_sgn(MPQ(other));
     }
     else {
-        if (!(tempx = GMPy_MPQ_From_Number_Temp(other))) {
+        if (!(tempx = GMPy_MPQ_From_Number_Temp(other, context))) {
             TYPE_ERROR("sign() requires 'mpq' argument");
             return NULL;
         }
@@ -174,8 +177,9 @@ static PyObject *
 Pympq_numer(PyObject *self, PyObject *args)
 {
     MPZ_Object *result;
+    CTXT_Object *context = NULL;
 
-    if (!(result = GMPy_MPZ_New()))
+    if (!(result = GMPy_MPZ_New(context)))
         return NULL;
 
     SELF_MPQ_NO_ARG;
@@ -189,8 +193,9 @@ static PyObject *
 Pympq_getnumer(MPQ_Object *self, void *closure)
 {
     MPZ_Object *result;
+    CTXT_Object *context = NULL;
 
-    if ((result = GMPy_MPZ_New()))
+    if ((result = GMPy_MPZ_New(context)))
         mpz_set(result->z, mpq_numref(MPQ(self)));
     return (PyObject*)result;
 }
@@ -203,8 +208,9 @@ static PyObject *
 Pympq_denom(PyObject *self, PyObject *args)
 {
     MPZ_Object *result;
+    CTXT_Object *context = NULL;
 
-    if (!(result = GMPy_MPZ_New()))
+    if (!(result = GMPy_MPZ_New(context)))
         return NULL;
 
     SELF_MPQ_NO_ARG;
@@ -218,8 +224,9 @@ static PyObject *
 Pympq_getdenom(MPQ_Object *self, void *closure)
 {
     MPZ_Object *result;
+    CTXT_Object *context = NULL;
 
-    if ((result = GMPy_MPZ_New()))
+    if ((result = GMPy_MPZ_New(context)))
         mpz_set(result->z, mpq_denref(MPQ(self)));
     return (PyObject*)result;
 }
@@ -238,6 +245,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
     int isOne = 0;
     PyObject *result, *x, *y;
     MPQ_Object *tempx = NULL, *tempy = NULL;
+    CTXT_Object *context = NULL;
 
     argc = PyTuple_Size(args);
     if (argc == 0 || argc > 2)
@@ -259,7 +267,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
         if (!IS_RATIONAL(y)) {
             goto arg_error;
         }
-        tempy = GMPy_MPQ_From_Rational_Temp(y);
+        tempy = GMPy_MPQ_From_Rational_Temp(y, context);
         if (!tempy) {
             return NULL;
         }
@@ -274,14 +282,14 @@ Pympq_qdiv(PyObject *self, PyObject *args)
 
     if (isOne) {
         if (IS_INTEGER(x))
-            return (PyObject*)GMPy_MPZ_From_Integer_Temp(x);
+            return (PyObject*)GMPy_MPZ_From_Integer_Temp(x, context);
 
         if (IS_RATIONAL(x)) {
-            tempx = GMPy_MPQ_From_Rational_Temp(x);
+            tempx = GMPy_MPQ_From_Rational_Temp(x, context);
             if (!tempx)
                 return NULL;
             if (mpz_cmp_ui(mpq_denref(tempx->q), 1) == 0) {
-                if ((result = (PyObject*)GMPy_MPZ_New())) {
+                if ((result = (PyObject*)GMPy_MPZ_New(context))) {
                     mpz_set(MPZ(result), mpq_numref(tempx->q));
                 }
                 Py_DECREF((PyObject*)tempx);
@@ -300,7 +308,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(tempx = GMPy_MPQ_From_Number_New(x))) {
+    if (!(tempx = GMPy_MPQ_From_Number_New(x, context))) {
         Py_DECREF((PyObject*)tempy);
         return NULL;
     }
@@ -309,7 +317,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
     Py_DECREF((PyObject*)tempy);
 
     if (mpz_cmp_ui(mpq_denref(tempx->q), 1) == 0) {
-        if ((result = (PyObject*)GMPy_MPZ_New())) {
+        if ((result = (PyObject*)GMPy_MPZ_New(context))) {
             mpz_set(MPZ(result), mpq_numref(tempx->q));
         }
         Py_DECREF((PyObject*)tempx);
@@ -327,8 +335,9 @@ static PyObject *
 Pympq_neg(MPQ_Object *self)
 {
     MPQ_Object *result;
+    CTXT_Object *context = NULL;
 
-    if ((result = GMPy_MPQ_New())) {
+    if ((result = GMPy_MPQ_New(context))) {
         mpq_neg(result->q, self->q);
     }
 
@@ -342,8 +351,9 @@ static PyObject *
 Pympq_floor(PyObject *self, PyObject *other)
 {
     MPZ_Object *result;
+    CTXT_Object *context = NULL;
 
-    if ((result = GMPy_MPZ_New())) {
+    if ((result = GMPy_MPZ_New(context))) {
         mpz_fdiv_q(result->z,
                    mpq_numref(MPQ(self)),
                    mpq_denref(MPQ(self)));
@@ -359,8 +369,9 @@ static PyObject *
 Pympq_ceil(PyObject *self, PyObject *other)
 {
     MPZ_Object *result;
+    CTXT_Object *context = NULL;
 
-    if ((result = GMPy_MPZ_New())) {
+    if ((result = GMPy_MPZ_New(context))) {
         mpz_cdiv_q(result->z,
                    mpq_numref(MPQ(self)),
                    mpq_denref(MPQ(self)));
@@ -376,8 +387,9 @@ static PyObject *
 Pympq_trunc(PyObject *self, PyObject *other)
 {
     MPZ_Object *result;
+    CTXT_Object *context = NULL;
 
-    if ((result = GMPy_MPZ_New())) {
+    if ((result = GMPy_MPZ_New(context))) {
         mpz_tdiv_q(result->z,
                    mpq_numref(MPQ(self)),
                    mpq_denref(MPQ(self)));
@@ -395,11 +407,12 @@ Pympq_round(PyObject *self, PyObject *args)
     MPQ_Object *resultq;
     MPZ_Object *resultz;
     mpz_t temp, rem;
+    CTXT_Object *context = NULL;
 
     /* If args is NULL or the size of args is 0, we just return an mpz. */
 
     if (!args || PyTuple_GET_SIZE(args) == 0) {
-        if (!(resultz = GMPy_MPZ_New()))
+        if (!(resultz = GMPy_MPZ_New(context)))
             return NULL;
 
         mpz_inoc(rem);
@@ -431,7 +444,7 @@ Pympq_round(PyObject *self, PyObject *args)
         }
     }
 
-    if (!(resultq = GMPy_MPQ_New()))
+    if (!(resultq = GMPy_MPQ_New(context)))
         return NULL;
 
     mpz_inoc(temp);
@@ -478,8 +491,9 @@ static PyObject *
 Pympq_square(PyObject *self, PyObject *other)
 {
     MPQ_Object *tempx, *result;
+    CTXT_Object *context = NULL;
 
-    if (!(result = GMPy_MPQ_New()))
+    if (!(result = GMPy_MPQ_New(context)))
         return NULL;
 
     if (self && (MPQ_Check(self))) {
@@ -489,7 +503,7 @@ Pympq_square(PyObject *self, PyObject *other)
         mpq_mul(result->q, MPQ(other), MPQ(other));
     }
     else {
-        if (!(tempx = GMPy_MPQ_From_Rational_Temp(other))) {
+        if (!(tempx = GMPy_MPQ_From_Rational_Temp(other, context))) {
             TYPE_ERROR("square() requires 'mpq' argument");
             Py_DECREF((PyObject*)result);
             return NULL;
@@ -576,8 +590,8 @@ Pympq_FloorDiv_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
     MPZ_Object *result;
     MPQ_Object *tempq;
 
-    result = GMPy_MPZ_New();
-    tempq = GMPy_MPQ_New();
+    result = GMPy_MPZ_New(context);
+    tempq = GMPy_MPQ_New(context);
     if (!result || !tempq) {
         Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)tempq);
@@ -598,8 +612,8 @@ Pympq_FloorDiv_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPQ_From_Number_Temp(x);
-        tempy = GMPy_MPQ_From_Number_Temp(y);
+        tempx = GMPy_MPQ_From_Number_Temp(x, context);
+        tempy = GMPy_MPQ_From_Number_Temp(y, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Could not convert Rational to mpq.");
             Py_XDECREF((PyObject*)tempx);
@@ -633,9 +647,7 @@ Pympq_FloorDiv_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 Pympq_floordiv_fast(PyObject *x, PyObject *y)
 {
-    CTXT_Object *context;
-
-    CURRENT_CONTEXT(context);
+    CTXT_Object *context = NULL;
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y))
         return Pympq_FloorDiv_Rational(x, y, context);
@@ -652,7 +664,7 @@ Pympq_TrueDiv_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPQ_Object *result;
 
-    if (!(result = GMPy_MPQ_New()))
+    if (!(result = GMPy_MPQ_New(context)))
         return NULL;
 
     if (MPQ_Check(x) && MPQ_Check(y)) {
@@ -667,8 +679,8 @@ Pympq_TrueDiv_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPQ_From_Number_Temp(x);
-        tempy = GMPy_MPQ_From_Number_Temp(y);
+        tempx = GMPy_MPQ_From_Number_Temp(x, context);
+        tempy = GMPy_MPQ_From_Number_Temp(y, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Could not convert Rational to mpq.");
             Py_XDECREF((PyObject*)tempx);
@@ -699,9 +711,7 @@ Pympq_TrueDiv_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 Pympq_truediv_fast(PyObject *x, PyObject *y)
 {
-    CTXT_Object *context;
-
-    CURRENT_CONTEXT(context);
+    CTXT_Object *context = NULL;
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y))
         return Pympq_TrueDiv_Rational(x, y, context);
@@ -723,12 +733,12 @@ Pympq_Mod_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
     mpz_t tempz;
     MPQ_Object *tempx, *tempy, *result;
 
-    if (!(result = GMPy_MPQ_New()))
+    if (!(result = GMPy_MPQ_New(context)))
         return NULL;
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
-        tempx = GMPy_MPQ_From_Number_Temp(x);
-        tempy = GMPy_MPQ_From_Number_Temp(y);
+        tempx = GMPy_MPQ_From_Number_Temp(x, context);
+        tempy = GMPy_MPQ_From_Number_Temp(y, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Could not convert Rational to mpq.");
             goto error;
@@ -764,9 +774,7 @@ Pympq_Mod_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 Pympq_mod_fast(PyObject *x, PyObject *y)
 {
-    CTXT_Object *context;
-
-    CURRENT_CONTEXT(context);
+    CTXT_Object *context = NULL;
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y))
         return Pympq_Mod_Rational(x, y, context);
@@ -790,8 +798,8 @@ Pympq_DivMod_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
     PyObject *result;
 
     result = PyTuple_New(2);
-    rem = GMPy_MPQ_New();
-    quo = GMPy_MPZ_New();
+    rem = GMPy_MPQ_New(context);
+    quo = GMPy_MPZ_New(context);
     if (!result || !rem || !quo) {
         Py_XDECREF(result);
         Py_XDECREF((PyObject*)rem);
@@ -800,8 +808,8 @@ Pympq_DivMod_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
-        tempx = GMPy_MPQ_From_Number_Temp(x);
-        tempy = GMPy_MPQ_From_Number_Temp(y);
+        tempx = GMPy_MPQ_From_Number_Temp(x, context);
+        tempy = GMPy_MPQ_From_Number_Temp(y, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Could not convert Rational to mpq.");
             goto error;
@@ -839,9 +847,7 @@ Pympq_DivMod_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 Pympq_divmod_fast(PyObject *x, PyObject *y)
 {
-    CTXT_Object *context;
-
-    CURRENT_CONTEXT(context);
+    CTXT_Object *context= NULL;
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y))
         return Pympq_DivMod_Rational(x, y, context);

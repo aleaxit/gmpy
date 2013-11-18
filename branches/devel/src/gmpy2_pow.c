@@ -77,15 +77,15 @@ GMPy_Integer_Pow(PyObject *b, PyObject *e, PyObject *m, CTXT_Object *context)
             Py_RETURN_NOTIMPLEMENTED;
         }
         else {
-            if (!(tempm = GMPy_MPZ_From_Integer_Temp(m))) {
+            if (!(tempm = GMPy_MPZ_From_Integer_Temp(m, context))) {
                 goto err;
             }
         }
     }
 
-    result = GMPy_MPZ_New();
-    tempb = GMPy_MPZ_From_Integer_Temp(b);
-    tempe = GMPy_MPZ_From_Integer_Temp(e);
+    result = GMPy_MPZ_New(context);
+    tempb = GMPy_MPZ_From_Integer_Temp(b, context);
+    tempe = GMPy_MPZ_From_Integer_Temp(e, context);
 
     if (!tempb || !tempe || !result) {
         goto err;
@@ -186,9 +186,9 @@ GMPy_Rational_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *con
     /* Only support mpq**int. Everything else gets converted to mpf. */
     if (IS_RATIONAL(base) && IS_INTEGER(exp)) {
 
-        resultq = GMPy_MPQ_New();
-        tempbq = GMPy_MPQ_From_Rational_Temp(base);
-        tempez = GMPy_MPZ_From_Integer_Temp(exp);
+        resultq = GMPy_MPQ_New(context);
+        tempbq = GMPy_MPQ_From_Rational_Temp(base, context);
+        tempez = GMPy_MPZ_From_Integer_Temp(exp, context);
         if (!resultq || !tempbq || !tempez) {
             Py_XDECREF((PyObject*)resultq);
             Py_XDECREF((PyObject*)tempbq);
@@ -259,10 +259,7 @@ GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context
         return NULL;
     }
 
-    if (!context)
-        CURRENT_CONTEXT(context);
-
-    SET_EXPONENT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     result = GMPy_MPFR_New(0, context);
     tempb = GMPy_MPFR_From_Real_Temp(base, 0, context);
@@ -405,7 +402,7 @@ GMPy_Context_Pow(PyObject *self, PyObject *args)
     CTXT_Object *context;
 
     argc = PyTuple_GET_SIZE(args);
-    if (self && GMPyContext_Check(self)) {
+    if (self && CTXT_Check(self)) {
         if (argc != 2) {
             TYPE_ERROR("context.pow() requires 2 arguments.");
             return NULL;
@@ -414,7 +411,7 @@ GMPy_Context_Pow(PyObject *self, PyObject *args)
          * proceeding. */
 
         if (((CTXT_Object*)self)->ctx.readonly)
-            context = (CTXT_Object*)GMPyContext_context_copy(self, NULL);
+            context = (CTXT_Object*)GMPy_CTXT_Copy(self, NULL);
         else
             context = (CTXT_Object*)self;
     }

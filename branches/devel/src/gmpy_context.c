@@ -322,7 +322,7 @@ _round_to_name(int val)
 };
 
 static PyObject *
-GMPy_CTXT_Repr(CTXT_Object *self)
+GMPy_CTXT_Repr_Slot(CTXT_Object *self)
 {
     PyObject *format;
     PyObject *tuple;
@@ -395,7 +395,7 @@ GMPy_CTXT_Repr(CTXT_Object *self)
 };
 
 static PyObject *
-GMPy_CTXT_Manager_Repr(CTXT_Manager_Object *self)
+GMPy_CTXT_Manager_Repr_Slot(CTXT_Manager_Object *self)
 {
     return Py_BuildValue("s", "<gmpy2.ContextManagerObject>");
 }
@@ -761,7 +761,7 @@ PyDoc_STRVAR(doc_context,
 "    zeta(x)         return Riemann zeta of x");
 
 static PyObject *
-GMPyContext_context(PyObject *self, PyObject *args, PyObject *kwargs)
+GMPy_CTXT_Context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     CTXT_Object *result;
     int x_trap_underflow = 0, x_trap_overflow = 0, x_trap_inexact = 0;
@@ -1439,12 +1439,12 @@ static PyTypeObject CTXT_Type =
     "gmpy2 context",                        /* tp_name          */
     sizeof(CTXT_Object),                    /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
-    (destructor) GMPyContext_dealloc,       /* tp_dealloc       */
+    (destructor) GMPy_CTXT_Dealloc,         /* tp_dealloc       */
         0,                                  /* tp_print         */
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
-    (reprfunc) GMPyContext_repr,            /* tp_repr          */
+    (reprfunc) GMPy_CTXT_Repr_Slot,         /* tp_repr          */
         0,                                  /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
         0,                                  /* tp_as_mapping    */
@@ -1469,12 +1469,12 @@ static PyTypeObject CTXT_Type =
 
 static PyMethodDef GMPyContextManager_methods[] =
 {
-    { "__enter__", GMPyContextManager_enter, METH_NOARGS, NULL },
-    { "__exit__", GMPyContextManager_exit, METH_VARARGS, NULL },
+    { "__enter__", GMPy_CTXT_Manager_Enter, METH_NOARGS, NULL },
+    { "__exit__", GMPy_CTXT_Manager_Exit, METH_VARARGS, NULL },
     { NULL, NULL, 1 }
 };
 
-static PyTypeObject GMPyContextManager_Type =
+static PyTypeObject CTXT_Manager_Type =
 {
 #ifdef PY3
     PyVarObject_HEAD_INIT(0, 0)
@@ -1485,12 +1485,12 @@ static PyTypeObject GMPyContextManager_Type =
     "gmpy2 context",                         /* tp_name          */
     sizeof(CTXT_Manager_Object),             /* tp_basicsize     */
         0,                                   /* tp_itemsize      */
-    (destructor) GMPyContextManager_dealloc, /* tp_dealloc       */
+    (destructor) GMPy_CTXT_Manager_Dealloc,  /* tp_dealloc       */
         0,                                   /* tp_print         */
         0,                                   /* tp_getattr       */
         0,                                   /* tp_setattr       */
         0,                                   /* tp_reserved      */
-    (reprfunc) GMPyContextManager_repr,      /* tp_repr          */
+    (reprfunc) GMPy_CTXT_Manager_Repr_Slot,  /* tp_repr          */
         0,                                   /* tp_as_number     */
         0,                                   /* tp_as_sequence   */
         0,                                   /* tp_as_mapping    */

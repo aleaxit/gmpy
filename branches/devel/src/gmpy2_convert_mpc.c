@@ -330,7 +330,7 @@ static MPC_Object *
 Pympc_From_PyLong(PyObject *self, mpfr_prec_t rprec, mpfr_prec_t iprec)
 {
     MPC_Object *result;
-    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyIntOrLong(self);
+    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyIntOrLong(self, NULL);
 
     if (!temp)
         return NULL;
@@ -344,7 +344,7 @@ Pympc_From_PyLong_bits_context(PyObject *self, mpfr_prec_t rprec,
                                mpfr_prec_t iprec, CTXT_Object *context)
 {
     MPC_Object *result;
-    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyIntOrLong(self);
+    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyIntOrLong(self, context);
 
     if (!temp)
         return NULL;
@@ -357,7 +357,7 @@ static MPC_Object *
 Pympc_From_PyLong_context(PyObject *self, CTXT_Object *context)
 {
     MPC_Object *result;
-    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyIntOrLong(self);
+    PyObject *temp = (PyObject*)GMPy_MPZ_From_PyIntOrLong(self, context);
 
     if (!temp)
         return NULL;
@@ -882,7 +882,7 @@ Pympc_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec)
         }
     }
     else if (IS_FRACTION(obj)) {
-        temp = GMPy_MPQ_From_Fraction(obj);
+        temp = GMPy_MPQ_From_Fraction(obj, NULL);
         if (temp) {
             newob = Pympc_From_Pympq((PyObject *)temp, rprec, iprec);
             Py_DECREF((PyObject*)temp);
@@ -977,7 +977,7 @@ GMPy_MPC_From_Complex_Temp(PyObject* obj, CTXT_Object *context)
     }
 
     if (IS_FRACTION(obj)) {
-        MPQ_Object *tempq = GMPy_MPQ_From_Fraction(obj);
+        MPQ_Object *tempq = GMPy_MPQ_From_Fraction(obj, context);
 
         if (tempq) {
             result = Pympc_From_Pympq((PyObject *)tempq, 0, 0);
@@ -1083,7 +1083,7 @@ Pympc_From_Complex_bits_context(PyObject* obj, mpfr_prec_t rprec,
         }
     }
     else if (IS_FRACTION(obj)) {
-        temp = GMPy_MPQ_From_Fraction(obj);
+        temp = GMPy_MPQ_From_Fraction(obj, context);
         if (temp) {
             newob = Pympc_From_Pympq_bits_context((PyObject *)temp, rprec,
                                                   iprec, context);
@@ -1178,7 +1178,7 @@ Pympc_From_Complex_context(PyObject* obj, CTXT_Object *context)
         }
     }
     else if (IS_FRACTION(obj)) {
-        temp = GMPy_MPQ_From_Fraction(obj);
+        temp = GMPy_MPQ_From_Fraction(obj, context);
         if (temp) {
             newob = Pympc_From_Pympq_context((PyObject*)temp, context);
             Py_DECREF((PyObject*)temp);

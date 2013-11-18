@@ -334,7 +334,7 @@ Pyxmpz_inplace_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
         SYSTEM_ERROR("modulo not expected");
         return NULL;
     }
-    e = GMPy_MPZ_From_Integer_Temp(in_e);
+    e = GMPy_MPZ_From_Integer_Temp(in_e, NULL);
     if (!e) {
         TYPE_ERROR("expected an integer exponent");
         return NULL;

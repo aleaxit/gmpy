@@ -91,7 +91,7 @@ set_gmpympzcache(void)
 }
 
 static MPZ_Object *
-GMPy_MPZ_New(void)
+GMPy_MPZ_New(CTXT_Object *context)
 {
     MPZ_Object *result;
 
@@ -140,7 +140,7 @@ set_gmpyxmpzcache(void)
 }
 
 static XMPZ_Object *
-GMPy_XMPZ_New(void)
+GMPy_XMPZ_New(CTXT_Object *context)
 {
     XMPZ_Object *result;
 
@@ -188,7 +188,7 @@ set_gmpympqcache(void)
 }
 
 static MPQ_Object *
-GMPy_MPQ_New(void)
+GMPy_MPQ_New(CTXT_Object *context)
 {
     MPQ_Object *result;
 

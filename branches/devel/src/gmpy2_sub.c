@@ -66,7 +66,7 @@ GMPy_Integer_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
     mpir_si temp_si;
     int overflow;
 
-    if (!(result = GMPy_MPZ_New()))
+    if (!(result = GMPy_MPZ_New(context)))
         return NULL;
 
     if (CHECK_MPZANY(x)) {
@@ -116,8 +116,8 @@ GMPy_Integer_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
         MPZ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPZ_From_Integer_Temp(x);
-        tempy = GMPy_MPZ_From_Integer_Temp(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x, context);
+        tempy = GMPy_MPZ_From_Integer_Temp(y, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Could not convert Integer to mpz.");
             Py_XDECREF((PyObject*)tempx);
@@ -169,7 +169,7 @@ GMPy_Rational_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPQ_Object *result;
 
-    if (!(result = GMPy_MPQ_New()))
+    if (!(result = GMPy_MPQ_New(context)))
         return NULL;
 
     if (MPQ_Check(x) && MPQ_Check(y)) {
@@ -180,8 +180,8 @@ GMPy_Rational_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPQ_From_Rational_Temp(x);
-        tempy = GMPy_MPQ_From_Rational_Temp(y);
+        tempx = GMPy_MPQ_From_Rational_Temp(x, context);
+        tempy = GMPy_MPQ_From_Rational_Temp(y, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Could not convert Rational to mpq.");
             Py_XDECREF((PyObject*)tempx);
@@ -237,10 +237,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *result;
 
-    if (!context)
-        CURRENT_CONTEXT(context);
-
-    SET_EXPONENT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
@@ -289,7 +286,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
         if (IS_RATIONAL(y) || IS_DECIMAL(y)) {
             MPQ_Object *tempy;
 
-            if (!(tempy = GMPy_MPQ_From_Number_Temp(y))) {
+            if (!(tempy = GMPy_MPQ_From_Number_Temp(y, context))) {
                 SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
                 Py_DECREF(result);
                 return NULL;
@@ -344,7 +341,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
         if (IS_RATIONAL(x) || IS_DECIMAL(x)) {
             MPQ_Object *tempx;
 
-            if (!(tempx = GMPy_MPQ_From_Number_Temp(x))) {
+            if (!(tempx = GMPy_MPQ_From_Number_Temp(x, context))) {
                 SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
                 Py_DECREF(result);
                 return NULL;
@@ -422,10 +419,7 @@ GMPy_Complex_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPC_Object *result = NULL;
 
-    if (!context)
-        CURRENT_CONTEXT(context);
-
-    SET_EXPONENT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (!(result = (MPC_Object*)Pympc_new_bits_context(0, 0, context)))
         return NULL;
@@ -475,9 +469,6 @@ GMPy_mpc_sub_fast(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Number_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    if (!context)
-        CURRENT_CONTEXT(context);
-
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Sub(x, y, context);
 
@@ -515,13 +506,13 @@ GMPy_Context_Sub(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (self && GMPyContext_Check(self)) {
+    if (self && CTXT_Check(self)) {
         /* If we are passed a read-only context, make a copy of it before
          * proceeding. Remember to decref context when we're done.
          */
 
         if (((CTXT_Object*)self)->ctx.readonly) {
-            context = (CTXT_Object*)GMPyContext_context_copy(self, NULL);
+            context = (CTXT_Object*)GMPy_CTXT_Copy(self, NULL);
             if (!context)
                 return NULL;
         }

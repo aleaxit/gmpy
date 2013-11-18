@@ -37,14 +37,15 @@ Pympfr_f2q(PyObject *self, PyObject *args)
 {
     MPFR_Object *err = 0;
     PyObject *result;
+    CTXT_Object *context = NULL;
 
-    if (!PyArg_ParseTuple(args, "O&|O&", Pympfr_convert_arg, &self,
-                          Pympfr_convert_arg, &err)) {
+    if (!PyArg_ParseTuple(args, "O&|O&", GMPy_MPFR_convert_arg, &self,
+                          GMPy_MPFR_convert_arg, &err)) {
         TYPE_ERROR("f2q() requires 'mpfr', ['mpfr'] arguments");
         return NULL;
     }
 
-    result = (PyObject*)stern_brocot((MPFR_Object*)self, err, 0, 1);
+    result = (PyObject*)stern_brocot((MPFR_Object*)self, err, 0, 1, context);
     Py_DECREF(self);
     Py_XDECREF((PyObject*)err);
     return result;
@@ -323,7 +324,7 @@ Pympfr_set_exp(PyObject *self, PyObject *args)
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!PyArg_ParseTuple(args, "O&l", Pympfr_convert_arg, &self, &exp)) {
+    if (!PyArg_ParseTuple(args, "O&l", GMPy_MPFR_convert_arg, &self, &exp)) {
         TYPE_ERROR("set_exp() requires 'mpfr', 'integer' arguments");
         return NULL;
     }
@@ -360,7 +361,7 @@ Pympfr_set_sign(PyObject *self, PyObject *args)
 
     CURRENT_CONTEXT(context);
 
-    if (!PyArg_ParseTuple(args, "O&O", Pympfr_convert_arg, &self, &boolean)) {
+    if (!PyArg_ParseTuple(args, "O&O", GMPy_MPFR_convert_arg, &self, &boolean)) {
         TYPE_ERROR("set_sign() requires 'mpfr', 'boolean' arguments");
         return NULL;
     }
@@ -399,8 +400,8 @@ Pympfr_copy_sign(PyObject *self, PyObject *args)
 
     CURRENT_CONTEXT(context);
 
-    if (!PyArg_ParseTuple(args, "O&O&", Pympfr_convert_arg, &self,
-                          Pympfr_convert_arg, &other)) {
+    if (!PyArg_ParseTuple(args, "O&O&", GMPy_MPFR_convert_arg, &self,
+                          GMPy_MPFR_convert_arg, &other)) {
         TYPE_ERROR("copy_sign() requires 'mpfr', 'mpfr' arguments");
         return NULL;
     }
@@ -425,7 +426,7 @@ Pympfr_div_2exp(PyObject *self, PyObject *args)
 
     CURRENT_CONTEXT(context);
 
-    if (!PyArg_ParseTuple(args, "O&k", Pympfr_convert_arg, &self, &exp)) {
+    if (!PyArg_ParseTuple(args, "O&k", GMPy_MPFR_convert_arg, &self, &exp)) {
         TYPE_ERROR("div_2exp() requires 'mpfr', 'integer' arguments");
         return NULL;
     }
@@ -450,7 +451,7 @@ Pympfr_mul_2exp(PyObject *self, PyObject *args)
 
     CURRENT_CONTEXT(context);
 
-    if (!PyArg_ParseTuple(args, "O&k", Pympfr_convert_arg, &self, &exp)) {
+    if (!PyArg_ParseTuple(args, "O&k", GMPy_MPFR_convert_arg, &self, &exp)) {
         TYPE_ERROR("mul_2exp() requires 'mpfr', 'integer' arguments");
         return NULL;
     }
@@ -642,6 +643,7 @@ Pympfr_digits(PyObject *self, PyObject *args)
     int base = 10;
     int prec = 0;
     PyObject *result;
+    CTXT_Object *context = NULL;
 
     if (self && MPFR_Check(self)) {
         if (!PyArg_ParseTuple(args, "|ii", &base, &prec))
@@ -649,11 +651,11 @@ Pympfr_digits(PyObject *self, PyObject *args)
         Py_INCREF(self);
     }
     else {
-        if(!PyArg_ParseTuple(args, "O&|ii", Pympfr_convert_arg, &self,
+        if(!PyArg_ParseTuple(args, "O&|ii", GMPy_MPFR_convert_arg, &self,
                             &base, &prec))
         return NULL;
     }
-    result = Pympfr_To_PyStr((MPFR_Object*)self, base, prec);
+    result = GMPy_PyStr_From_MPFR((MPFR_Object*)self, base, prec, context);
     Py_DECREF(self);
     return result;
 }
@@ -669,6 +671,7 @@ Pympfr_integer_ratio(PyObject *self, PyObject *args)
     MPZ_Object *num = 0, *den = 0;
     mpfr_exp_t temp, twocount;
     PyObject *result;
+    CTXT_Object *context = NULL;
 
     if (mpfr_nan_p(MPFR(self))) {
         VALUE_ERROR("Cannot pass NaN to mpfr.as_integer_ratio.");
@@ -680,8 +683,8 @@ Pympfr_integer_ratio(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    num = GMPy_MPZ_New();
-    den = GMPy_MPZ_New();
+    num = GMPy_MPZ_New(context);
+    den = GMPy_MPZ_New(context);
     if (!num || !den) {
         Py_XDECREF((PyObject*)num);
         Py_XDECREF((PyObject*)den);
@@ -723,6 +726,7 @@ Pympfr_mantissa_exp(PyObject *self, PyObject *args)
     MPZ_Object *mantissa = 0, *exponent = 0;
     mpfr_exp_t temp;
     PyObject *result;
+    CTXT_Object *context = NULL;
 
     if (mpfr_nan_p(MPFR(self))) {
         VALUE_ERROR("Cannot pass NaN to mpfr.as_mantissa_exp.");
@@ -734,8 +738,8 @@ Pympfr_mantissa_exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    mantissa = GMPy_MPZ_New();
-    exponent = GMPy_MPZ_New();
+    mantissa = GMPy_MPZ_New(context);
+    exponent = GMPy_MPZ_New(context);
     if (!mantissa || !exponent) {
         Py_XDECREF((PyObject*)mantissa);
         Py_XDECREF((PyObject*)exponent);
@@ -769,11 +773,12 @@ Pympfr_simple_fraction(PyObject *self, PyObject *args, PyObject *keywds)
 {
     mpfr_prec_t prec = 0;
     static char *kwlist[] = {"precision", NULL};
+    CTXT_Object *context = NULL;
 
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "|l", kwlist, &prec))
         return NULL;
 
-    return (PyObject*)stern_brocot((MPFR_Object*)self, 0, prec, 0);
+    return (PyObject*)stern_brocot((MPFR_Object*)self, 0, prec, 0, context);
 }
 
 static Py_hash_t
@@ -1018,14 +1023,12 @@ Pympfr_round10(PyObject *self, PyObject *args)
     mpz_t temp;
     MPFR_Object *resultf = 0;
     MPZ_Object *resultz;
-    CTXT_Object *context;
-
-    CURRENT_CONTEXT(context);
+    CTXT_Object *context = NULL;
 
     /* If the size of args is 0, we just return an mpz. */
 
     if (PyTuple_GET_SIZE(args) == 0) {
-        if ((resultz = GMPy_MPZ_New())) {
+        if ((resultz = GMPy_MPZ_New(context))) {
             if (mpfr_nan_p(MPFR(self))) {
                 Py_DECREF((PyObject*)resultz);
                 VALUE_ERROR("'mpz' does not support NaN");
@@ -1825,7 +1828,7 @@ Pympfr_FloorDiv_Real(PyObject *x, PyObject *y, CTXT_Object *context)
         if (IS_RATIONAL(y) || IS_DECIMAL(y)) {
             MPQ_Object *tempy;
 
-            if (!(tempy = GMPy_MPQ_From_Number_Temp(y))) {
+            if (!(tempy = GMPy_MPQ_From_Number_Temp(y, context))) {
                 SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
                 Py_DECREF((PyObject*)result);
                 return NULL;
@@ -1977,7 +1980,7 @@ Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, CTXT_Object *context)
         if (IS_RATIONAL(y) || IS_DECIMAL(y)) {
             MPQ_Object *tempy;
 
-            if (!(tempy = GMPy_MPQ_From_Number_Temp(y))) {
+            if (!(tempy = GMPy_MPQ_From_Number_Temp(y, context))) {
                 SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
                 Py_DECREF((PyObject*)result);
                 return NULL;
@@ -3244,82 +3247,82 @@ Pympfr_sizeof(PyObject *self, PyObject *other)
 #ifdef PY3
 static PyNumberMethods mpfr_number_methods =
 {
-    (binaryfunc) GMPy_mpfr_add_fast,     /* nb_add                  */
-    (binaryfunc) GMPy_mpfr_sub_fast,     /* nb_subtract             */
-    (binaryfunc) GMPy_mpfr_mul_fast,     /* nb_multiply             */
-    (binaryfunc) Pympfr_mod_fast,        /* nb_remainder            */
-    (binaryfunc) Pympfr_divmod_fast,     /* nb_divmod               */
-    (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
-    (unaryfunc) Pympfr_neg_fast,         /* nb_negative             */
-    (unaryfunc) Pympfr_pos,              /* nb_positive             */
-    (unaryfunc) GMPy_mpfr_abs_fast,      /* nb_absolute             */
-    (inquiry) Pympfr_nonzero,            /* nb_bool                 */
-        0,                               /* nb_invert               */
-        0,                               /* nb_lshift               */
-        0,                               /* nb_rshift               */
-        0,                               /* nb_and                  */
-        0,                               /* nb_xor                  */
-        0,                               /* nb_or                   */
-    (unaryfunc) Pympfr_To_PyLong,        /* nb_int                  */
-        0,                               /* nb_reserved             */
-    (unaryfunc) Pympfr_To_PyFloat,       /* nb_float                */
-        0,                               /* nb_inplace_add          */
-        0,                               /* nb_inplace_subtract     */
-        0,                               /* nb_inplace_multiply     */
-        0,                               /* nb_inplace_remainder    */
-        0,                               /* nb_inplace_power        */
-        0,                               /* nb_inplace_lshift       */
-        0,                               /* nb_inplace_rshift       */
-        0,                               /* nb_inplace_and          */
-        0,                               /* nb_inplace_xor          */
-        0,                               /* nb_inplace_or           */
-    (binaryfunc) Pympfr_floordiv_fast,   /* nb_floor_divide         */
-    (binaryfunc) Pympfr_truediv_fast,    /* nb_true_divide          */
-        0,                               /* nb_inplace_floor_divide */
-        0,                               /* nb_inplace_true_divide  */
-        0,                               /* nb_index                */
+    (binaryfunc) GMPy_mpfr_add_fast,         /* nb_add                  */
+    (binaryfunc) GMPy_mpfr_sub_fast,         /* nb_subtract             */
+    (binaryfunc) GMPy_mpfr_mul_fast,         /* nb_multiply             */
+    (binaryfunc) Pympfr_mod_fast,            /* nb_remainder            */
+    (binaryfunc) Pympfr_divmod_fast,         /* nb_divmod               */
+    (ternaryfunc) GMPy_mpany_pow_fast,       /* nb_power                */
+    (unaryfunc) Pympfr_neg_fast,             /* nb_negative             */
+    (unaryfunc) Pympfr_pos,                  /* nb_positive             */
+    (unaryfunc) GMPy_mpfr_abs_fast,          /* nb_absolute             */
+    (inquiry) Pympfr_nonzero,                /* nb_bool                 */
+        0,                                   /* nb_invert               */
+        0,                                   /* nb_lshift               */
+        0,                                   /* nb_rshift               */
+        0,                                   /* nb_and                  */
+        0,                                   /* nb_xor                  */
+        0,                                   /* nb_or                   */
+    (unaryfunc) GMPy_PyIntOrLong_From_MPFR,  /* nb_int                  */
+        0,                                   /* nb_reserved             */
+    (unaryfunc) GMPy_PyFloat_From_MPFR,      /* nb_float                */
+        0,                                   /* nb_inplace_add          */
+        0,                                   /* nb_inplace_subtract     */
+        0,                                   /* nb_inplace_multiply     */
+        0,                                   /* nb_inplace_remainder    */
+        0,                                   /* nb_inplace_power        */
+        0,                                   /* nb_inplace_lshift       */
+        0,                                   /* nb_inplace_rshift       */
+        0,                                   /* nb_inplace_and          */
+        0,                                   /* nb_inplace_xor          */
+        0,                                   /* nb_inplace_or           */
+    (binaryfunc) Pympfr_floordiv_fast,       /* nb_floor_divide         */
+    (binaryfunc) Pympfr_truediv_fast,        /* nb_true_divide          */
+        0,                                   /* nb_inplace_floor_divide */
+        0,                                   /* nb_inplace_true_divide  */
+        0,                                   /* nb_index                */
 };
 #else
 static PyNumberMethods mpfr_number_methods =
 {
-    (binaryfunc) GMPy_mpfr_add_fast,     /* nb_add                  */
-    (binaryfunc) GMPy_mpfr_sub_fast,     /* nb_subtract             */
-    (binaryfunc) GMPy_mpfr_mul_fast,     /* nb_multiply             */
-    (binaryfunc) Pympfr_truediv_fast,    /* nb_divide               */
-    (binaryfunc) Pympfr_mod_fast,        /* nb_remainder            */
-    (binaryfunc) Pympfr_divmod_fast,     /* nb_divmod               */
-    (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
-    (unaryfunc) Pympfr_neg_fast,         /* nb_negative             */
-    (unaryfunc) Pympfr_pos,              /* nb_positive             */
-    (unaryfunc) GMPy_mpfr_abs_fast,      /* nb_absolute             */
-    (inquiry) Pympfr_nonzero,            /* nb_bool                 */
-        0,                               /* nb_invert               */
-        0,                               /* nb_lshift               */
-        0,                               /* nb_rshift               */
-        0,                               /* nb_and                  */
-        0,                               /* nb_xor                  */
-        0,                               /* nb_or                   */
-        0,                               /* nb_coerce               */
-    (unaryfunc) Pympfr_To_PyInt,         /* nb_int                  */
-    (unaryfunc) Pympfr_To_PyLong,        /* nb_long                 */
-    (unaryfunc) Pympfr_To_PyFloat,       /* nb_float                */
-        0,                               /* nb_oct                  */
-        0,                               /* nb_hex                  */
-        0,                               /* nb_inplace_add          */
-        0,                               /* nb_inplace_subtract     */
-        0,                               /* nb_inplace_multiply     */
-        0,                               /* nb_inplace_divide       */
-        0,                               /* nb_inplace_remainder    */
-        0,                               /* nb_inplace_power        */
-        0,                               /* nb_inplace_lshift       */
-        0,                               /* nb_inplace_rshift       */
-        0,                               /* nb_inplace_and          */
-        0,                               /* nb_inplace_xor          */
-        0,                               /* nb_inplace_or           */
-    (binaryfunc) Pympfr_floordiv_fast,   /* nb_floor_divide         */
-    (binaryfunc) Pympfr_truediv_fast,    /* nb_true_divide          */
-        0,                               /* nb_inplace_floor_divide */
-        0,                               /* nb_inplace_true_divide  */
+    (binaryfunc) GMPy_mpfr_add_fast,         /* nb_add                  */
+    (binaryfunc) GMPy_mpfr_sub_fast,         /* nb_subtract             */
+    (binaryfunc) GMPy_mpfr_mul_fast,         /* nb_multiply             */
+    (binaryfunc) Pympfr_truediv_fast,        /* nb_divide               */
+    (binaryfunc) Pympfr_mod_fast,            /* nb_remainder            */
+    (binaryfunc) Pympfr_divmod_fast,         /* nb_divmod               */
+    (ternaryfunc) GMPy_mpany_pow_fast,       /* nb_power                */
+    (unaryfunc) Pympfr_neg_fast,             /* nb_negative             */
+    (unaryfunc) Pympfr_pos,                  /* nb_positive             */
+    (unaryfunc) GMPy_mpfr_abs_fast,          /* nb_absolute             */
+    (inquiry) Pympfr_nonzero,                /* nb_bool                 */
+        0,                                   /* nb_invert               */
+        0,                                   /* nb_lshift               */
+        0,                                   /* nb_rshift               */
+        0,                                   /* nb_and                  */
+        0,                                   /* nb_xor                  */
+        0,                                   /* nb_or                   */
+        0,                                   /* nb_coerce               */
+    (unaryfunc) GMPy_PyIntOrLong_From_MPFR,  /* nb_int                  */
+    (unaryfunc) GMPy_PyLong_From_MPFR,       /* nb_long                 */
+    (unaryfunc) GMPy_PyFloat_From_MPFR,      /* nb_float                */
+        0,                                   /* nb_oct                  */
+        0,                                   /* nb_hex                  */
+        0,                                   /* nb_inplace_add          */
+        0,                                   /* nb_inplace_subtract     */
+        0,                                   /* nb_inplace_multiply     */
+        0,                                   /* nb_inplace_divide       */
+        0,                                   /* nb_inplace_remainder    */
+        0,                                   /* nb_inplace_power        */
+        0,                                   /* nb_inplace_lshift       */
+        0,                                   /* nb_inplace_rshift       */
+        0,                                   /* nb_inplace_and          */
+        0,                                   /* nb_inplace_xor          */
+        0,                                   /* nb_inplace_or           */
+    (binaryfunc) Pympfr_floordiv_fast,       /* nb_floor_divide         */
+    (binaryfunc) Pympfr_truediv_fast,        /* nb_true_divide          */
+        0,                                   /* nb_inplace_floor_divide */
+        0,                                   /* nb_inplace_true_divide  */
 };
 #endif
 
@@ -3367,13 +3370,13 @@ static PyTypeObject MPFR_Type =
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
-    (reprfunc) Pympfr_To_Repr,              /* tp_repr          */
+    (reprfunc) GMPy_MPFR_Repr_Slot,         /* tp_repr          */
     &mpfr_number_methods,                   /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
         0,                                  /* tp_as_mapping    */
     (hashfunc) Pympfr_hash,                 /* tp_hash          */
         0,                                  /* tp_call          */
-    (reprfunc) Pympfr_To_Str,               /* tp_str           */
+    (reprfunc) GMPy_MPFR_Str_Slot,          /* tp_str           */
     (getattrofunc) 0,                       /* tp_getattro      */
     (setattrofunc) 0,                       /* tp_setattro      */
         0,                                  /* tp_as_buffer     */

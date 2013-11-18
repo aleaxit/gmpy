@@ -48,20 +48,21 @@ static MPFR_Object *    GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t 
 static MPFR_Object *    GMPy_MPFR_From_Real_New(PyObject* obj, mpfr_prec_t bits, CTXT_Object *context);
 static MPFR_Object *    GMPy_MPFR_From_Real_Temp(PyObject* obj, mpfr_prec_t bits, CTXT_Object *context);
 
-static MPZ_Object *     GMPy_MPZ_From_MPFR(MPFR_Object *obj);
-static PyObject *       GMPy_PyIntOrLong_From_MPFR(MPFR_Object *obj);
-static XMPZ_Object *    Pympfr_To_Pyxmpz(PyObject *self);
-static MPQ_Object  *    Pympfr_To_Pympq(PyObject *self);
-static PyObject *       Pympfr_To_PyFloat(MPFR_Object *self);
-static PyObject *       Pympfr_To_PyStr(MPFR_Object *self, int base, int digits);
+static PyObject *       GMPy_PyIntOrLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context);
+static PyObject *       GMPy_PyLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context);
+static MPZ_Object *     GMPy_MPZ_From_MPFR(MPFR_Object *obj, CTXT_Object *context);
+static XMPZ_Object *    GMPy_XMPZ_From_MPFR(MPFR_Object *self, CTXT_Object *context);
+static MPQ_Object  *    GMPy_MPQ_From_MPFR(MPFR_Object *self, CTXT_Object *context);
+static PyObject *       GMPy_PyFloat_From_MPFR(MPFR_Object *self, CTXT_Object *context);
+static PyObject *       GMPy_PyStr_From_MPFR(MPFR_Object *self, int base, int digits, CTXT_Object *context);
 
 /* support str() and repr() */
-static PyObject *       Pympfr_To_Str(MPFR_Object *self);
-static PyObject *       Pympfr_To_Repr(MPFR_Object *self);
+static PyObject *       GMPy_MPFR_Str_Slot(MPFR_Object *self);
+static PyObject *       GMPy_MPFR_Repr_Slot(MPFR_Object *self);
 
 /* Miscellaneous */
-static int Pympfr_convert_arg(PyObject *arg, PyObject **ptr);
-static MPQ_Object * stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz);
+static int              GMPy_MPFR_convert_arg(PyObject *arg, PyObject **ptr);
+static MPQ_Object *     stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz, CTXT_Object *context);
 
 static PyObject *       mpfr_ascii(mpfr_t self, int base, int digits, int round);
 

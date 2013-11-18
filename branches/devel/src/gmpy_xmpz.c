@@ -51,11 +51,12 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
     int base = 0;
     Py_ssize_t argc;
     static char *kwlist[] = {"n", "base", NULL };
+    CTXT_Object *context = NULL;
 
     /* Optimize the most common use case */
     argc = PyTuple_Size(args);
     if (argc == 0) {
-        if ((result = GMPy_XMPZ_New())) {
+        if ((result = GMPy_XMPZ_New(context))) {
             mpz_set_ui(result->z, 0);
         }
         return (PyObject*)result;
@@ -63,7 +64,7 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
     if (argc == 1) {
         n = PyTuple_GetItem(args, 0);
         if (IS_REAL(n) && !keywds) {
-            result = GMPy_XMPZ_From_Number_New(n);
+            result = GMPy_XMPZ_From_Number_New(n, context);
             if (!result && !PyErr_Occurred())
                 TYPE_ERROR("xmpz() requires numeric or string argument");
             return (PyObject*)result;
@@ -82,14 +83,14 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
 
     if (PyStrOrUnicode_Check(n)) {
         /* build-from-string (ascii or unicode) */
-        result = GMPy_XMPZ_From_PyStr(n, base);
+        result = GMPy_XMPZ_From_PyStr(n, base, context);
     }
     else {
         if (argc==2 || (argc == 1 && keywds))
             TYPE_ERROR("xmpz() with non-string argument needs exactly "
                        "1 argument");
         else {
-            result = GMPy_XMPZ_From_Number_New(n);
+            result = GMPy_XMPZ_From_Number_New(n, context);
             if (!result && !PyErr_Occurred())
                 TYPE_ERROR("xmpz() requires numeric or string argument");
         }
@@ -104,6 +105,7 @@ Pyxmpz_digits(PyObject *self, PyObject *args)
 {
     long base = 10;
     PyObject *result;
+    CTXT_Object *context = NULL;
 
     PARSE_ONE_MPZ_OPT_CLONG(&base,
             "digits() requires 'int' argument for base");
@@ -112,7 +114,7 @@ Pyxmpz_digits(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
-    result = GMPy_PyStr_From_XMPZ((XMPZ_Object*)self, (int)base, 0);
+    result = GMPy_PyStr_From_XMPZ((XMPZ_Object*)self, (int)base, 0, context);
     Py_DECREF(self);
     return result;
 }
@@ -126,6 +128,7 @@ Pyxmpz_xbit_mask(PyObject *self, PyObject *other)
 {
     Py_ssize_t i = 0;
     XMPZ_Object* result;
+    CTXT_Object *context = NULL;
 
     i = ssize_t_From_Integer(other);
     if (i == -1 && PyErr_Occurred()) {
@@ -138,7 +141,7 @@ Pyxmpz_xbit_mask(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = GMPy_XMPZ_New()))
+    if (!(result = GMPy_XMPZ_New(context)))
         return NULL;
 
     mpz_set_ui(result->z, 1);
@@ -188,13 +191,17 @@ Pyxmpz_com(XMPZ_Object *x)
 static PyObject *
 Pyxmpz_oct(XMPZ_Object *self)
 {
-    return GMPy_PyStr_From_XMPZ(self, 8, 0);
+    CTXT_Object *context = NULL;
+
+    return GMPy_PyStr_From_XMPZ(self, 8, 0, context);
 }
 
 static PyObject *
 Pyxmpz_hex(XMPZ_Object *self)
 {
-    return GMPy_PyStr_From_XMPZ(self, 16, 0);
+    CTXT_Object *context = NULL;
+
+    return GMPy_PyStr_From_XMPZ(self, 16, 0, context);
 }
 #endif
 
@@ -208,8 +215,9 @@ static PyObject *
 Pyxmpz_make_mpz(PyObject *self, PyObject *other)
 {
     MPZ_Object* result;
+    CTXT_Object *context = NULL;
 
-    if (!(result = GMPy_MPZ_New()))
+    if (!(result = GMPy_MPZ_New(context)))
         return NULL;
     mpz_swap(result->z, MPZ(self));
     mpz_set_ui(MPZ(self), 0);
@@ -223,7 +231,9 @@ PyDoc_STRVAR(doc_xmpz_copy,
 static PyObject *
 Pyxmpz_copy(PyObject *self, PyObject *other)
 {
-    return (PyObject*)GMPy_XMPZ_From_XMPZ((XMPZ_Object*)self);
+    CTXT_Object *context = NULL;
+
+    return (PyObject*)GMPy_XMPZ_From_XMPZ((XMPZ_Object*)self, context);
 }
 
 /*
@@ -239,6 +249,8 @@ Pyxmpz_nbits(XMPZ_Object *obj)
 static PyObject *
 Pyxmpz_subscript(XMPZ_Object* self, PyObject* item)
 {
+    CTXT_Object *context = NULL;
+
     if (PyIndex_Check(item)) {
         Py_ssize_t i;
 
@@ -267,7 +279,7 @@ Pyxmpz_subscript(XMPZ_Object* self, PyObject* item)
             (step > 0 && start > stop))
             stop = start;
 
-        if (!(result = GMPy_MPZ_New()))
+        if (!(result = GMPy_MPZ_New(context)))
             return NULL;
 
         mpz_set_ui(result->z, 0);
@@ -289,6 +301,8 @@ Pyxmpz_subscript(XMPZ_Object* self, PyObject* item)
 static int
 Pyxmpz_assign_subscript(XMPZ_Object* self, PyObject* item, PyObject* value)
 {
+    CTXT_Object *context = NULL;
+
     if (PyIndex_Check(item)) {
         Py_ssize_t bit_value, i;
 
@@ -372,7 +386,7 @@ Pyxmpz_assign_subscript(XMPZ_Object* self, PyObject* item, PyObject* value)
             int bit;
             MPZ_Object *tempx;
 
-            if (!(tempx = GMPy_MPZ_From_Integer_Temp(value))) {
+            if (!(tempx = GMPy_MPZ_From_Integer_Temp(value, context))) {
                 VALUE_ERROR("must specify bit sequence as an integer");
                 return -1;
             }

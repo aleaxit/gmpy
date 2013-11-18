@@ -117,13 +117,13 @@ static PyTypeObject CTXT_Manager_Type;
 
 static PyObject *    GMPy_CTXT_Manager_New(void);
 static void          GMPy_CTXT_Manager_Dealloc(CTXT_Manager_Object *self);
-static PyObject *    GMPy_CTXT_Manager_Repr(CTXT_Manager_Object *self);
+static PyObject *    GMPy_CTXT_Manager_Repr_Slot(CTXT_Manager_Object *self);
 static PyObject *    GMPy_CTXT_Manager_Enter(PyObject *self, PyObject *args);
 static PyObject *    GMPy_CTXT_Manager_Exit(PyObject *self, PyObject *args);
 
 static PyObject *    GMPy_CTXT_New(void);
 static void          GMPy_CTXT_Dealloc(CTXT_Object *self);
-static PyObject *    GMPy_CTXT_Repr(CTXT_Object *self);
+static PyObject *    GMPy_CTXT_Repr_Slot(CTXT_Object *self);
 static PyObject *    GMPy_CTXT_Get(PyObject *self, PyObject *args);
 static PyObject *    GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject *    GMPy_CTXT_Context(PyObject *self, PyObject *args, PyObject *kwargs);
