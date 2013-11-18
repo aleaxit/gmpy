@@ -66,7 +66,7 @@ GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     mpir_si temp_si;
     int overflow;
 
-    if (!(result = GMPy_MPZ_New()))
+    if (!(result = GMPy_MPZ_New(context)))
         return NULL;
 
     if (CHECK_MPZANY(x)) {
@@ -109,8 +109,8 @@ GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
         MPZ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPZ_From_Integer_Temp(x);
-        tempy = GMPy_MPZ_From_Integer_Temp(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x, context);
+        tempy = GMPy_MPZ_From_Integer_Temp(y, context);
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -160,7 +160,7 @@ GMPy_Rational_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPQ_Object *result;
 
-    if (!(result = GMPy_MPQ_New()))
+    if (!(result = GMPy_MPQ_New(context)))
         return NULL;
 
     if (MPQ_Check(x) && MPQ_Check(y)) {
@@ -171,8 +171,8 @@ GMPy_Rational_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPQ_From_Number_Temp(x);
-        tempy = GMPy_MPQ_From_Number_Temp(y);
+        tempx = GMPy_MPQ_From_Number_Temp(x, context);
+        tempy = GMPy_MPQ_From_Number_Temp(y, context);
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -219,10 +219,7 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *result;
 
-    if (!context)
-        CURRENT_CONTEXT(context);
-
-    SET_EXPONENT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
@@ -271,7 +268,7 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         if (IS_RATIONAL(y) || IS_DECIMAL(y)) {
             MPQ_Object *tempy;
 
-            if (!(tempy = GMPy_MPQ_From_Number_Temp(y))) {
+            if (!(tempy = GMPy_MPQ_From_Number_Temp(y, context))) {
                 Py_DECREF(result);
                 return NULL;
             }
@@ -324,7 +321,7 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         if (IS_RATIONAL(x) || IS_DECIMAL(x)) {
             MPQ_Object *tempx;
 
-            if (!(tempx = GMPy_MPQ_From_Number_Temp(x))) {
+            if (!(tempx = GMPy_MPQ_From_Number_Temp(x, context))) {
                 Py_DECREF(result);
                 return NULL;
             }
@@ -400,10 +397,7 @@ GMPy_Complex_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPC_Object *result = NULL;
 
-    if (!context)
-        CURRENT_CONTEXT(context);
-
-    SET_EXPONENT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (!(result = (MPC_Object*)Pympc_new_bits_context(0, 0, context)))
         return NULL;
@@ -490,12 +484,12 @@ GMPy_Context_Mul(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (self && GMPyContext_Check(self)) {
+    if (self && CTXT_Check(self)) {
         /* If we are passed a read-only context, make a copy of it before
          * proceeding. Remember to decref context when we're done. */
 
         if (((CTXT_Object*)self)->ctx.readonly) {
-            context = (CTXT_Object*)GMPyContext_context_copy(self, NULL);
+            context = (CTXT_Object*)GMPy_CTXT_Copy(self, NULL);
             if (!context)
                 return NULL;
         }

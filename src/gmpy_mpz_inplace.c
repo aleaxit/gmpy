@@ -38,7 +38,7 @@ Pympz_inplace_add(PyObject *self, PyObject *other)
     mpir_si temp_si;
     int overflow;
 
-    if (!(rz = GMPy_MPZ_New()))
+    if (!(rz =  GMPy_MPZ_New(NULL)))
         return NULL;
 
     if (CHECK_MPZANY(other)) {
@@ -74,7 +74,7 @@ Pympz_inplace_sub(PyObject *self, PyObject *other)
     mpir_si temp_si;
     int overflow;
 
-    if (!(rz = GMPy_MPZ_New()))
+    if (!(rz =  GMPy_MPZ_New(NULL)))
         return NULL;
 
     if (CHECK_MPZANY(other)) {
@@ -110,7 +110,7 @@ Pympz_inplace_mul(PyObject *self, PyObject *other)
     mpir_si temp_si;
     int overflow;
 
-    if (!(rz = GMPy_MPZ_New()))
+    if (!(rz =  GMPy_MPZ_New(NULL)))
         return NULL;
 
     if (CHECK_MPZANY(other)) {
@@ -148,7 +148,7 @@ Pympz_inplace_floordiv(PyObject *self, PyObject *other)
     mpir_si temp_si;
     int overflow;
 
-    if (!(rz = GMPy_MPZ_New()))
+    if (!(rz =  GMPy_MPZ_New(NULL)))
         return NULL;
 
     if (CHECK_MPZANY(other)) {
@@ -193,7 +193,7 @@ Pympz_inplace_rem(PyObject *self, PyObject *other)
     mpir_si temp_si;
     int overflow;
 
-    if (!(rz = GMPy_MPZ_New()))
+    if (!(rz =  GMPy_MPZ_New(NULL)))
         return NULL;
 
      if (CHECK_MPZANY(other)) {
@@ -236,7 +236,7 @@ Pympz_inplace_rshift(PyObject *self, PyObject *other)
     mpir_si temp_si;
     int overflow;
 
-    if (!(rz = GMPy_MPZ_New()))
+    if (!(rz =  GMPy_MPZ_New(NULL)))
         return NULL;
 
     if (CHECK_MPZANY(other)) {
@@ -283,7 +283,7 @@ Pympz_inplace_lshift(PyObject *self, PyObject *other)
     mpir_si temp_si;
     int overflow;
 
-    if (!(rz = GMPy_MPZ_New()))
+    if (!(rz =  GMPy_MPZ_New(NULL)))
         return NULL;
 
     if (CHECK_MPZANY(other)) {
@@ -333,7 +333,7 @@ Pympz_inplace_pow(PyObject *self, PyObject *other, PyObject *mod)
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    if (!(e = GMPy_MPZ_From_Integer_Temp(other))) {
+    if (!(e = GMPy_MPZ_From_Integer_Temp(other, NULL))) {
         PyErr_Clear();
         Py_RETURN_NOTIMPLEMENTED;
     }
@@ -347,7 +347,7 @@ Pympz_inplace_pow(PyObject *self, PyObject *other, PyObject *mod)
         Py_DECREF((PyObject*)e);
         Py_RETURN_NOTIMPLEMENTED;
     }
-    if (!(r = GMPy_MPZ_New())) {
+    if (!(r =  GMPy_MPZ_New(NULL))) {
         Py_DECREF((PyObject*)e);
         return NULL;
     }

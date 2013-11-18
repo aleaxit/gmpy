@@ -45,6 +45,7 @@ Pygmpy_c_divmod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y, *result;
     MPZ_Object *q, *r, *tempx, *tempy;
+    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("c_divmod() requires 'mpz','mpz' arguments");
@@ -66,8 +67,8 @@ Pygmpy_c_divmod(PyObject *self, PyObject *args)
         mpz_cdiv_qr(q->z, r->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer_Temp(x);
-        tempy = GMPy_MPZ_From_Integer_Temp(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x, context);
+        tempy = GMPy_MPZ_From_Integer_Temp(y, context);
         if (!tempx || !tempy) {
             TYPE_ERROR("c_divmod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -105,6 +106,7 @@ Pygmpy_c_div(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
     MPZ_Object *q, *tempx, *tempy;
+    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("c_div() requires 'mpz','mpz' arguments");
@@ -113,7 +115,7 @@ Pygmpy_c_div(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(q = GMPy_MPZ_New()))
+    if (!(q = GMPy_MPZ_New(context)))
         return NULL;
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
@@ -125,8 +127,8 @@ Pygmpy_c_div(PyObject *self, PyObject *args)
         mpz_cdiv_q(q->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer_Temp(x);
-        tempy = GMPy_MPZ_From_Integer_Temp(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x, context);
+        tempy = GMPy_MPZ_From_Integer_Temp(y, context);
         if (!tempx || !tempy) {
             TYPE_ERROR("c_div() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -158,6 +160,7 @@ Pygmpy_c_mod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
     MPZ_Object *r, *tempx, *tempy;
+    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("c_mod() requires 'mpz','mpz' arguments");
@@ -166,7 +169,7 @@ Pygmpy_c_mod(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(r = GMPy_MPZ_New()))
+    if (!(r = GMPy_MPZ_New(context)))
         return NULL;
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
@@ -178,8 +181,8 @@ Pygmpy_c_mod(PyObject *self, PyObject *args)
         mpz_cdiv_r(r->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer_Temp(x);
-        tempy = GMPy_MPZ_From_Integer_Temp(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x, context);
+        tempy = GMPy_MPZ_From_Integer_Temp(y, context);
         if (!tempx || !tempy) {
             TYPE_ERROR("c_mod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -218,6 +221,7 @@ Pygmpy_f_divmod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y, *result;
     MPZ_Object *q, *r, *tempx, *tempy;
+    CTXT_Object *context = NULL;
 
     if(PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("f_divmod() requires 'mpz','mpz' arguments");
@@ -239,8 +243,8 @@ Pygmpy_f_divmod(PyObject *self, PyObject *args)
         mpz_fdiv_qr(q->z, r->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer_Temp(x);
-        tempy = GMPy_MPZ_From_Integer_Temp(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x, context);
+        tempy = GMPy_MPZ_From_Integer_Temp(y, context);
         if (!tempx || !tempy) {
             TYPE_ERROR("f_divmod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -278,6 +282,7 @@ Pygmpy_f_div(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
     MPZ_Object *q, *tempx, *tempy;
+    CTXT_Object *context = NULL;
 
     if(PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("f_div() requires 'mpz','mpz' arguments");
@@ -286,7 +291,7 @@ Pygmpy_f_div(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(q = GMPy_MPZ_New()))
+    if (!(q = GMPy_MPZ_New(context)))
         return NULL;
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
@@ -298,8 +303,8 @@ Pygmpy_f_div(PyObject *self, PyObject *args)
         mpz_fdiv_q(q->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer_Temp(x);
-        tempy = GMPy_MPZ_From_Integer_Temp(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x, context);
+        tempy = GMPy_MPZ_From_Integer_Temp(y, context);
         if (!tempx || !tempy) {
             TYPE_ERROR("f_div() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -331,6 +336,7 @@ Pygmpy_f_mod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
     MPZ_Object *r, *tempx, *tempy;
+    CTXT_Object *context = NULL;
 
     if(PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("f_mod() requires 'mpz','mpz' arguments");
@@ -339,7 +345,7 @@ Pygmpy_f_mod(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(r = GMPy_MPZ_New()))
+    if (!(r = GMPy_MPZ_New(context)))
         return NULL;
 
     if(CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
@@ -351,8 +357,8 @@ Pygmpy_f_mod(PyObject *self, PyObject *args)
         mpz_fdiv_r(r->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer_Temp(x);
-        tempy = GMPy_MPZ_From_Integer_Temp(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x, context);
+        tempy = GMPy_MPZ_From_Integer_Temp(y, context);
         if (!tempx || !tempy) {
             TYPE_ERROR("f_mod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -391,6 +397,7 @@ Pygmpy_t_divmod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y, *result;
     MPZ_Object *q, *r, *tempx, *tempy;
+    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("t_divmod() requires 'mpz','mpz' arguments");
@@ -412,8 +419,8 @@ Pygmpy_t_divmod(PyObject *self, PyObject *args)
         mpz_tdiv_qr(q->z, r->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer_Temp(x);
-        tempy = GMPy_MPZ_From_Integer_Temp(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x, context);
+        tempy = GMPy_MPZ_From_Integer_Temp(y, context);
         if (!tempx || !tempy) {
             TYPE_ERROR("t_divmod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -451,6 +458,7 @@ Pygmpy_t_div(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
     MPZ_Object *q, *tempx, *tempy;
+    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("t_div() requires 'mpz','mpz' arguments");
@@ -459,7 +467,7 @@ Pygmpy_t_div(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(q = GMPy_MPZ_New()))
+    if (!(q = GMPy_MPZ_New(context)))
         return NULL;
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
@@ -471,8 +479,8 @@ Pygmpy_t_div(PyObject *self, PyObject *args)
         mpz_tdiv_q(q->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer_Temp(x);
-        tempy = GMPy_MPZ_From_Integer_Temp(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x, context);
+        tempy = GMPy_MPZ_From_Integer_Temp(y, context);
         if (!tempx || !tempy) {
             TYPE_ERROR("t_div() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -504,6 +512,7 @@ Pygmpy_t_mod(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
     MPZ_Object *r, *tempx, *tempy;
+    CTXT_Object *context = NULL;
 
     if(PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("t_mod() requires 'mpz','mpz' arguments");
@@ -512,7 +521,7 @@ Pygmpy_t_mod(PyObject *self, PyObject *args)
 
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
-    if (!(r = GMPy_MPZ_New()))
+    if (!(r = GMPy_MPZ_New(context)))
         return NULL;
 
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
@@ -524,8 +533,8 @@ Pygmpy_t_mod(PyObject *self, PyObject *args)
         mpz_tdiv_r(r->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer_Temp(x);
-        tempy = GMPy_MPZ_From_Integer_Temp(y);
+        tempx = GMPy_MPZ_From_Integer_Temp(x, context);
+        tempy = GMPy_MPZ_From_Integer_Temp(y, context);
         if (!tempx || !tempy) {
             TYPE_ERROR("t_mod() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);

@@ -155,7 +155,7 @@ GMPy_MPFR_From_PyIntOrLong(PyObject *obj, mpfr_prec_t bits, CTXT_Object *context
 
     assert(PyIntOrLong_Check(obj));
 
-    if (!(tempz = GMPy_MPZ_From_PyIntOrLong(obj))) {
+    if (!(tempz = GMPy_MPZ_From_PyIntOrLong(obj, context))) {
         result = GMPy_MPFR_From_MPZ(tempz, bits, context);
         Py_DECREF((PyObject*)tempz);
     }
@@ -208,7 +208,7 @@ GMPy_MPFR_From_Fraction(PyObject *obj, mpfr_prec_t bits, CTXT_Object *context)
     MPFR_Object *result = NULL;
     MPQ_Object *tempq;
 
-    if ((tempq = GMPy_MPQ_From_Fraction(obj))) {
+    if ((tempq = GMPy_MPQ_From_Fraction(obj, context))) {
         result = GMPy_MPFR_From_MPQ(tempq, bits, context);
         Py_DECREF((PyObject*)tempq);
     }
@@ -216,14 +216,13 @@ GMPy_MPFR_From_Fraction(PyObject *obj, mpfr_prec_t bits, CTXT_Object *context)
 }
 
 static MPFR_Object *
-GMPy_MPFR_From_Decimal(PyObject* obj, mpfr_prec_t bits,
-                       CTXT_Object *context)
+GMPy_MPFR_From_Decimal(PyObject* obj, mpfr_prec_t bits, CTXT_Object *context)
 {
     MPFR_Object *result;
     MPQ_Object *temp;
 
     result = GMPy_MPFR_New(bits, context);
-    temp = GMPy_MPQ_From_DecimalRaw(obj);
+    temp = GMPy_MPQ_From_DecimalRaw(obj, context);
 
     if (!temp || !result) {
         Py_XDECREF((PyObject*)temp);
@@ -256,8 +255,7 @@ GMPy_MPFR_From_Decimal(PyObject* obj, mpfr_prec_t bits,
 }
 
 static MPFR_Object *
-GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t bits,
-                     CTXT_Object *context)
+GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t bits, CTXT_Object *context)
 {
     MPFR_Object *result;
     char *cp, *endptr;
@@ -385,7 +383,7 @@ GMPy_MPZ_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
 
     assert(MPFR_Check(obj));
 
-    if ((result = GMPy_MPZ_New())) {
+    if ((result = GMPy_MPZ_New(context))) {
         if (mpfr_nan_p(MPFR(obj))) {
             Py_DECREF((PyObject*)result);
             VALUE_ERROR("'mpz' does not support NaN");
@@ -404,14 +402,13 @@ GMPy_MPZ_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
 }
 
 static XMPZ_Object *
-Pympfr_To_Pyxmpz(PyObject *self)
+GMPy_XMPZ_From_MPFR(MPFR_Object *self, CTXT_Object *context)
 {
     XMPZ_Object *result;
-    CTXT_Object *context;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if ((result = GMPy_XMPZ_New())) {
+    if ((result = GMPy_XMPZ_New(context))) {
         if (mpfr_nan_p(MPFR(self))) {
             Py_DECREF((PyObject*)result);
             VALUE_ERROR("'xmpz' does not support NaN");
@@ -423,7 +420,7 @@ Pympfr_To_Pyxmpz(PyObject *self)
             return NULL;
         }
         /* return code is ignored */
-        mpfr_get_z(result->z, MPFR(self), context->ctx.mpfr_round);
+        mpfr_get_z(result->z, MPFR(self), GET_MPFR_ROUND(context));
     }
 
     return result;
@@ -437,14 +434,13 @@ Pympfr_To_Pyxmpz(PyObject *self)
  */
 
 static MPQ_Object *
-stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz)
+stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz, CTXT_Object *context)
 {
     MPQ_Object *result = 0;
     int i, negative, errsign;
     mpfr_t f, al, a, r1[3], r2[3], minerr, curerr, newerr, temp;
-    CTXT_Object *context;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
 #define F2Q_PREC 20
 
@@ -463,37 +459,37 @@ stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz)
 
     errsign = err ? mpfr_sgn(err->f) : 0;
     if (errsign < 0)
-        prec = (mpfr_prec_t)(-mpfr_get_si(err->f, context->ctx.mpfr_round));
+        prec = (mpfr_prec_t)(-mpfr_get_si(err->f, GET_MPFR_ROUND(context)));
 
     if (errsign <= 0 && (prec < 2 || prec > mpfr_get_prec(self->f))) {
         VALUE_ERROR("Requested precision out-of-bounds.");
         return NULL;
     }
 
-    if (!(result = GMPy_MPQ_New()))
+    if (!(result = GMPy_MPQ_New(context)))
         return NULL;
 
     mpfr_init2(minerr, F2Q_PREC);
     if (errsign <= 0) {
         mpfr_set_ui(minerr, 1, MPFR_RNDN);
-        mpfr_div_2si(minerr, minerr, prec, context->ctx.mpfr_round);
+        mpfr_div_2si(minerr, minerr, prec, GET_MPFR_ROUND(context));
     }
     else {
-        mpfr_set(minerr, err->f, context->ctx.mpfr_round);
+        mpfr_set(minerr, err->f, GET_MPFR_ROUND(context));
     }
 
     mpfr_init2(f, prec);
     if (mpfr_sgn(self->f) < 0) {
         negative = 1;
-        mpfr_abs(f, self->f, context->ctx.mpfr_round);
+        mpfr_abs(f, self->f, GET_MPFR_ROUND(context));
     }
     else {
         negative = 0;
-        mpfr_set(f, self->f, context->ctx.mpfr_round);
+        mpfr_set(f, self->f, GET_MPFR_ROUND(context));
     }
 
     mpfr_init2(al, prec);
-    mpfr_set(al, f, context->ctx.mpfr_round);
+    mpfr_set(al, f, GET_MPFR_ROUND(context));
     mpfr_init2(a, prec);
     mpfr_floor(a, al);
     mpfr_init2(temp, prec);
@@ -506,24 +502,24 @@ stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz)
     mpfr_set_si(r1[2], 1, MPFR_RNDN);
     mpfr_set_si(r2[0], 0, MPFR_RNDN);
     mpfr_set_si(r2[1], 1, MPFR_RNDN);
-    mpfr_set(r2[2], a, context->ctx.mpfr_round);
+    mpfr_set(r2[2], a, GET_MPFR_ROUND(context));
     mpfr_init2(curerr, F2Q_PREC);
     mpfr_init2(newerr, F2Q_PREC);
-    mpfr_reldiff(curerr, f, a, context->ctx.mpfr_round);
+    mpfr_reldiff(curerr, f, a, GET_MPFR_ROUND(context));
     while (mpfr_cmp(curerr, minerr) > 0) {
-        mpfr_sub(temp, al, a, context->ctx.mpfr_round);
-        mpfr_ui_div(al, 1, temp, context->ctx.mpfr_round);
+        mpfr_sub(temp, al, a, GET_MPFR_ROUND(context));
+        mpfr_ui_div(al, 1, temp, GET_MPFR_ROUND(context));
         mpfr_floor(a, al);
         mpfr_swap(r1[0], r1[1]);
         mpfr_swap(r1[1], r1[2]);
-        mpfr_mul(r1[2], r1[1], a, context->ctx.mpfr_round);
-        mpfr_add(r1[2], r1[2], r1[0], context->ctx.mpfr_round);
+        mpfr_mul(r1[2], r1[1], a, GET_MPFR_ROUND(context));
+        mpfr_add(r1[2], r1[2], r1[0], GET_MPFR_ROUND(context));
         mpfr_swap(r2[0], r2[1]);
         mpfr_swap(r2[1], r2[2]);
-        mpfr_mul(r2[2], r2[1], a, context->ctx.mpfr_round);
-        mpfr_add(r2[2], r2[2], r2[0], context->ctx.mpfr_round);
-        mpfr_div(temp, r2[2], r1[2], context->ctx.mpfr_round);
-        mpfr_reldiff(newerr, f, temp, context->ctx.mpfr_round);
+        mpfr_mul(r2[2], r2[1], a, GET_MPFR_ROUND(context));
+        mpfr_add(r2[2], r2[2], r2[0], GET_MPFR_ROUND(context));
+        mpfr_div(temp, r2[2], r1[2], GET_MPFR_ROUND(context));
+        mpfr_reldiff(newerr, f, temp, GET_MPFR_ROUND(context));
         if (mpfr_cmp(curerr, newerr) <= 0) {
             mpfr_swap(r1[1],r1[2]);
             mpfr_swap(r2[1],r2[2]);
@@ -534,14 +530,14 @@ stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz)
 
     if (mayz && (mpfr_cmp_ui(r1[2],1) == 0)) {
         Py_DECREF((PyObject*)result);
-        result = (MPQ_Object*)GMPy_MPZ_New();
-        mpfr_get_z(MPZ(result), r2[2], context->ctx.mpfr_round);
+        result = (MPQ_Object*)GMPy_MPZ_New(context);
+        mpfr_get_z(MPZ(result), r2[2], GET_MPFR_ROUND(context));
         if (negative)
             mpz_neg(MPZ(result), MPZ(result));
     }
     else {
-        mpfr_get_z(mpq_numref(result->q), r2[2], context->ctx.mpfr_round);
-        mpfr_get_z(mpq_denref(result->q), r1[2], context->ctx.mpfr_round);
+        mpfr_get_z(mpq_numref(result->q), r2[2], GET_MPFR_ROUND(context));
+        mpfr_get_z(mpq_denref(result->q), r1[2], GET_MPFR_ROUND(context));
         if (negative)
             mpz_neg(mpq_numref(result->q), mpq_numref(result->q));
     }
@@ -561,9 +557,9 @@ stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz)
 }
 
 static MPQ_Object *
-Pympfr_To_Pympq(PyObject *self)
+GMPy_MPQ_From_MPFR(MPFR_Object *self, CTXT_Object *context)
 {
-    return stern_brocot((MPFR_Object*)self, 0, 0, 0);
+    return stern_brocot((MPFR_Object*)self, 0, 0, 0, context);
 }
 
 static PyObject *
@@ -575,34 +571,47 @@ GMPy_PyIntOrLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
     if (!(tempz = GMPy_MPZ_From_MPFR(obj, context)))
         return NULL;
 
-    result = GMPy_PyLong_From_MPZ(tempz);
+    result = GMPy_PyIntOrLong_From_MPZ(tempz, context);
     Py_DECREF((PyObject*)tempz);
 
     return result;
 }
 
 static PyObject *
-Pympfr_To_PyFloat(MPFR_Object *self)
+GMPy_PyLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
+{
+    PyObject *result;
+    MPZ_Object *tempz;
+
+    if (!(tempz = GMPy_MPZ_From_MPFR(obj, context)))
+        return NULL;
+
+    result = GMPy_PyLong_From_MPZ(tempz, context);
+    Py_DECREF((PyObject*)tempz);
+
+    return result;
+}
+
+static PyObject *
+GMPy_PyFloat_From_MPFR(MPFR_Object *self, CTXT_Object *context)
 {
     double res;
-    CTXT_Object *context;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
-    res = mpfr_get_d(self->f, context->ctx.mpfr_round);
+    res = mpfr_get_d(self->f, GET_MPFR_ROUND(context));
 
     return PyFloat_FromDouble(res);
 }
 
 static PyObject*
-Pympfr_To_PyStr(MPFR_Object *self, int base, int digits)
+GMPy_PyStr_From_MPFR(MPFR_Object *self, int base, int digits, CTXT_Object *context)
 {
     PyObject *result;
     char *buffer;
     mpfr_exp_t the_exp;
-    CTXT_Object *context;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     /* check arguments are valid */
     assert(MPFR_Check((PyObject*)self));
@@ -636,7 +645,7 @@ Pympfr_To_PyStr(MPFR_Object *self, int base, int digits)
     }
 
     /* obtain digits-string and exponent */
-    buffer = mpfr_get_str(0, &the_exp, base, digits, self->f, context->ctx.mpfr_round);
+    buffer = mpfr_get_str(0, &the_exp, base, digits, self->f, GET_MPFR_ROUND(context));
     if (!*buffer) {
         SYSTEM_ERROR("Internal error in Pympfr_To_PyStr");
         return NULL;
@@ -652,7 +661,7 @@ Pympfr_To_PyStr(MPFR_Object *self, int base, int digits)
  */
 
 int
-Pympfr_convert_arg(PyObject *arg, PyObject **ptr)
+GMPy_MPFR_convert_arg(PyObject *arg, PyObject **ptr)
 {
     MPFR_Object* newob = GMPy_MPFR_From_Real_Temp(arg, 0, NULL);
 
@@ -668,7 +677,7 @@ Pympfr_convert_arg(PyObject *arg, PyObject **ptr)
 
 /* str and repr implementations for mpfr */
 static PyObject *
-Pympfr_To_Str(MPFR_Object *self)
+GMPy_MPFR_Str_Slot(MPFR_Object *self)
 {
     PyObject *result, *temp;
     long precision;
@@ -687,7 +696,7 @@ Pympfr_To_Str(MPFR_Object *self)
 }
 
 static PyObject *
-Pympfr_To_Repr(MPFR_Object *self)
+GMPy_MPFR_Repr_Slot(MPFR_Object *self)
 {
     PyObject *result, *temp;
     long precision, bits;

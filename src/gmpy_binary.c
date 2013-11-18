@@ -49,7 +49,7 @@ Pympz_From_Old_Binary(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = GMPy_MPZ_New()))
+    if (!(result = GMPy_MPZ_New(NULL)))
         return NULL;
 
     len = PyBytes_Size(other);
@@ -83,7 +83,7 @@ Pympq_From_Old_Binary(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = GMPy_MPQ_New()))
+    if (!(result = GMPy_MPQ_New(NULL)))
         return NULL;
 
     len = PyBytes_Size(other);
@@ -654,7 +654,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
         case 0x01: {
             MPZ_Object *result;
 
-            if (!(result = GMPy_MPZ_New()))
+            if (!(result = GMPy_MPZ_New(NULL)))
                 return NULL;
             if (cp[1] == 0x00) {
                 mpz_set_ui(result->z, 0);
@@ -669,7 +669,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
         case 0x02: {
             XMPZ_Object *result;
 
-            if (!(result = GMPy_XMPZ_New()))
+            if (!(result = GMPy_XMPZ_New(NULL)))
                 return NULL;
             if (cp[1] == 0x00) {
                 mpz_set_ui(result->z, 0);
@@ -686,7 +686,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             size_t numlen = 0, sizesize = 4, i;
             mpz_t num, den;
 
-            if (!(result = GMPy_MPQ_New()))
+            if (!(result = GMPy_MPQ_New(NULL)))
                 return NULL;
             if (cp[1] == 0x00) {
                 mpq_set_ui(result->q, 0, 1);

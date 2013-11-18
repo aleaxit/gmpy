@@ -120,7 +120,7 @@ Pympany_sign(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(doc_mpany_div,
-"div(x, y[, context]) -> number\n\n"
+"div(x, y) -> number\n\n"
 "Return x / y; uses 'true division'.");
 
 PyDoc_STRVAR(doc_context_div,
@@ -135,7 +135,7 @@ Pympany_div(PyObject *self, PyObject *args)
     CTXT_Object *context;
 
     argc = PyTuple_GET_SIZE(args);
-    if (self && GMPyContext_Check(self)) {
+    if (self && CTXT_Check(self)) {
         if (argc != 2) {
             TYPE_ERROR("context.div() requires 2 arguments.");
             return NULL;
@@ -144,7 +144,7 @@ Pympany_div(PyObject *self, PyObject *args)
          * proceeding. */
 
         if (((CTXT_Object*)self)->ctx.readonly)
-            context = (CTXT_Object*)GMPyContext_context_copy(self, NULL);
+            context = (CTXT_Object*)GMPy_CTXT_Copy(self, NULL);
         else
             context = (CTXT_Object*)self;
     }
@@ -155,12 +155,12 @@ Pympany_div(PyObject *self, PyObject *args)
         }
         if (argc == 3) {
             arg2 = PyTuple_GET_ITEM(args, 2);
-            if (!GMPyContext_Check(arg2)) {
+            if (!CTXT_Check(arg2)) {
                 TYPE_ERROR("third argument must be context.");
                 return NULL;
             }
             if (((CTXT_Object*)arg2)->ctx.readonly)
-                context = (CTXT_Object*)GMPyContext_context_copy(arg2, NULL);
+                context = (CTXT_Object*)GMPy_CTXT_Copy(arg2, NULL);
             else
                 context = (CTXT_Object*)arg2;
         }
@@ -204,7 +204,7 @@ Pympany_floordiv(PyObject *self, PyObject *args)
     CTXT_Object *context;
 
     argc = PyTuple_GET_SIZE(args);
-    if (self && GMPyContext_Check(self)) {
+    if (self && CTXT_Check(self)) {
         if (argc != 2) {
             TYPE_ERROR("context.floor_div() requires 2 arguments.");
             return NULL;
@@ -213,7 +213,7 @@ Pympany_floordiv(PyObject *self, PyObject *args)
          * proceeding. */
 
         if (((CTXT_Object*)self)->ctx.readonly)
-            context = (CTXT_Object*)GMPyContext_context_copy(self, NULL);
+            context = (CTXT_Object*)GMPy_CTXT_Copy(self, NULL);
         else
             context = (CTXT_Object*)self;
     }
@@ -224,12 +224,12 @@ Pympany_floordiv(PyObject *self, PyObject *args)
         }
         if (argc == 3) {
             arg2 = PyTuple_GET_ITEM(args, 2);
-            if (!GMPyContext_Check(arg2)) {
+            if (!CTXT_Check(arg2)) {
                 TYPE_ERROR("third argument must be context.");
                 return NULL;
             }
             if (((CTXT_Object*)arg2)->ctx.readonly)
-                context = (CTXT_Object*)GMPyContext_context_copy(arg2, NULL);
+                context = (CTXT_Object*)GMPy_CTXT_Copy(arg2, NULL);
             else
                 context = (CTXT_Object*)arg2;
         }
@@ -273,7 +273,7 @@ Pympany_mod(PyObject *self, PyObject *args)
     CTXT_Object *context;
 
     argc = PyTuple_GET_SIZE(args);
-    if (self && GMPyContext_Check(self)) {
+    if (self && CTXT_Check(self)) {
         if (argc != 2) {
             TYPE_ERROR("context.mod() requires 2 arguments.");
             return NULL;
@@ -282,7 +282,7 @@ Pympany_mod(PyObject *self, PyObject *args)
          * proceeding. */
 
         if (((CTXT_Object*)self)->ctx.readonly)
-            context = (CTXT_Object*)GMPyContext_context_copy(self, NULL);
+            context = (CTXT_Object*)GMPy_CTXT_Copy(self, NULL);
         else
             context = (CTXT_Object*)self;
     }
@@ -293,12 +293,12 @@ Pympany_mod(PyObject *self, PyObject *args)
         }
         if (argc == 3) {
             arg2 = PyTuple_GET_ITEM(args, 2);
-            if (!GMPyContext_Check(arg2)) {
+            if (!CTXT_Check(arg2)) {
                 TYPE_ERROR("third argument must be context.");
                 return NULL;
             }
             if (((CTXT_Object*)arg2)->ctx.readonly)
-                context = (CTXT_Object*)GMPyContext_context_copy(arg2, NULL);
+                context = (CTXT_Object*)GMPy_CTXT_Copy(arg2, NULL);
             else
                 context = (CTXT_Object*)arg2;
         }
@@ -342,7 +342,7 @@ Pympany_divmod(PyObject *self, PyObject *args)
     CTXT_Object *context;
 
     argc = PyTuple_GET_SIZE(args);
-    if (self && GMPyContext_Check(self)) {
+    if (self && CTXT_Check(self)) {
         if (argc != 2) {
             TYPE_ERROR("context.divmod() requires 2 arguments.");
             return NULL;
@@ -351,7 +351,7 @@ Pympany_divmod(PyObject *self, PyObject *args)
          * proceeding. */
 
         if (((CTXT_Object*)self)->ctx.readonly)
-            context = (CTXT_Object*)GMPyContext_context_copy(self, NULL);
+            context = (CTXT_Object*)GMPy_CTXT_Copy(self, NULL);
         else
             context = (CTXT_Object*)self;
     }
@@ -362,12 +362,12 @@ Pympany_divmod(PyObject *self, PyObject *args)
         }
         if (argc == 3) {
             arg2 = PyTuple_GET_ITEM(args, 2);
-            if (!GMPyContext_Check(arg2)) {
+            if (!CTXT_Check(arg2)) {
                 TYPE_ERROR("third argument must be context.");
                 return NULL;
             }
             if (((CTXT_Object*)arg2)->ctx.readonly)
-                context = (CTXT_Object*)GMPyContext_context_copy(arg2, NULL);
+                context = (CTXT_Object*)GMPy_CTXT_Copy(arg2, NULL);
             else
                 context = (CTXT_Object*)arg2;
         }
@@ -807,7 +807,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(mpz_cmp(MPZ(a), MPZ(b)), op);
         }
         if (IS_INTEGER(b)) {
-            tempb = (PyObject*)GMPy_MPZ_From_Integer_Temp(b);
+            tempb = (PyObject*)GMPy_MPZ_From_Integer_Temp(b, context);
             if (!tempb)
                 return NULL;
             c = mpz_cmp(MPZ(a), MPZ(tempb));
@@ -815,8 +815,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(c, op);
         }
         if (IS_RATIONAL(b)) {
-            tempa = (PyObject*)GMPy_MPQ_From_Rational_Temp(a);
-            tempb = (PyObject*)GMPy_MPQ_From_Rational_Temp(b);
+            tempa = (PyObject*)GMPy_MPQ_From_Rational_Temp(a, context);
+            tempb = (PyObject*)GMPy_MPQ_From_Rational_Temp(b, context);
             if (!tempa || !tempb) {
                 Py_XDECREF(a);
                 Py_XDECREF(b);
@@ -845,8 +845,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_DECIMAL(b)) {
-            tempa = (PyObject*)GMPy_MPQ_From_Rational_Temp(a);
-            tempb = (PyObject*)GMPy_MPQ_From_Decimal(b);
+            tempa = (PyObject*)GMPy_MPQ_From_Rational_Temp(a, context);
+            tempb = (PyObject*)GMPy_MPQ_From_Decimal(b, context);
             if (!tempa || !tempb) {
                 Py_XDECREF(a);
                 Py_XDECREF(b);
@@ -884,7 +884,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(mpq_cmp(MPQ(a), MPQ(b)), op);
         }
         if (IS_RATIONAL(b)) {
-            tempb = (PyObject*)GMPy_MPQ_From_Rational_Temp(b);
+            tempb = (PyObject*)GMPy_MPQ_From_Rational_Temp(b, context);
             c = mpq_cmp(MPQ(a), MPQ(tempb));
             Py_DECREF(tempb);
             return _cmp_to_object(c, op);
@@ -903,7 +903,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                     return _cmp_to_object(-1, op);
             }
             else {
-                tempb = (PyObject*)GMPy_MPQ_New();
+                tempb = (PyObject*)GMPy_MPQ_New(context);
                 if (!tempb)
                     return NULL;
                 mpq_set_d(MPQ(tempb), d);
@@ -913,7 +913,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_DECIMAL(b)) {
-            if (!(tempb = (PyObject*)GMPy_MPQ_From_Decimal(b)))
+            if (!(tempb = (PyObject*)GMPy_MPQ_From_Decimal(b, context)))
                 return NULL;
             if (!mpz_cmp_si(mpq_denref(MPQ(tempb)), 0)) {
                 if (!mpz_cmp_si(mpq_numref(MPQ(tempb)), 0)) {
@@ -978,7 +978,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_INTEGER(b)) {
-            tempb = (PyObject*)GMPy_MPZ_From_Integer_Temp(b);
+            tempb = (PyObject*)GMPy_MPZ_From_Integer_Temp(b, context);
             if (!tempb)
                 return NULL;
             mpfr_clear_flags();
@@ -1000,7 +1000,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_RATIONAL(b)) {
-            tempb = (PyObject*)GMPy_MPQ_From_Rational_Temp(b);
+            tempb = (PyObject*)GMPy_MPQ_From_Rational_Temp(b, context);
             if (!tempb)
                 return NULL;
             mpfr_clear_flags();
@@ -1022,7 +1022,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_DECIMAL(b)) {
-            tempb = (PyObject*)GMPy_MPQ_From_Decimal(b);
+            tempb = (PyObject*)GMPy_MPQ_From_Decimal(b, context);
             if (!tempb)
                 return NULL;
             if (!mpz_cmp_si(mpq_denref(MPQ(tempb)), 0)) {

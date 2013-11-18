@@ -119,7 +119,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         return mpmath_build_mpf(sign, man, exp, bc);
     }
 
-    if (!(upper = GMPy_MPZ_New()) || !(lower = GMPy_MPZ_New())) {
+    if (!(upper = GMPy_MPZ_New(NULL)) || !(lower = GMPy_MPZ_New(NULL))) {
         Py_XDECREF((PyObject*)upper);
         Py_XDECREF((PyObject*)lower);
     }
@@ -250,7 +250,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
         case 2:
             exp = PyTuple_GET_ITEM(args, 1);
         case 1:
-            man = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0));
+            man = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), NULL);
             if (!man) {
                 TYPE_ERROR("mpmath_create() expects 'mpz','int'[,'int','str'] arguments");
                 return NULL;
@@ -262,8 +262,8 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
         return mpmath_build_mpf(0, man, 0, 0);
     }
 
-    upper = GMPy_MPZ_New();
-    lower = GMPy_MPZ_New();
+    upper = GMPy_MPZ_New(NULL);
+    lower = GMPy_MPZ_New(NULL);
     if (!upper || !lower) {
         Py_DECREF((PyObject*)man);
         Py_XDECREF((PyObject*)upper);

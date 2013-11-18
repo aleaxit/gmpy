@@ -80,13 +80,13 @@ GMPy_Integer_Abs(PyObject *x, CTXT_Object *context)
             return x;
         }
         else {
-            if ((result = GMPy_MPZ_New()))
+            if ((result = GMPy_MPZ_New(context)))
                 mpz_abs(MPZ(result), MPZ(x));
             return (PyObject*)result;
         }
     }
 
-    if ((result = GMPy_MPZ_From_Integer_Temp(x))) {
+    if ((result = GMPy_MPZ_From_Integer_Temp(x, context))) {
         mpz_abs(result->z, result->z);
     }
 
@@ -110,7 +110,7 @@ GMPy_Rational_Abs(PyObject *x, CTXT_Object *context)
             return x;
         }
         else {
-            if ((result = GMPy_MPQ_New())) {
+            if ((result = GMPy_MPQ_New(context))) {
                 mpq_set(result->q, MPQ(x));
                 mpz_abs(mpq_numref(result->q), mpq_numref(result->q));
             }
@@ -118,7 +118,7 @@ GMPy_Rational_Abs(PyObject *x, CTXT_Object *context)
         }
     }
 
-    if ((result = GMPy_MPQ_From_Number_Temp(x))) {
+    if ((result = GMPy_MPQ_From_Number_Temp(x, context))) {
         mpz_abs(mpq_numref(result->q), mpq_numref(result->q));
     }
 

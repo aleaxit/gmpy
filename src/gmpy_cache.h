@@ -52,15 +52,15 @@ static void          mpz_inoc(mpz_t newo);
 static void          mpz_cloc(mpz_t oldo);
 
 static void          set_gmpympzcache(void);
-static MPZ_Object *  GMPy_MPZ_New(void);
+static MPZ_Object *  GMPy_MPZ_New(CTXT_Object *context);
 static void          GMPy_MPZ_Dealloc(MPZ_Object *self);
 
 static void          set_gmpyxmpzcache(void);
-static XMPZ_Object * GMPy_XMPZ_New(void);
+static XMPZ_Object * GMPy_XMPZ_New(CTXT_Object *context);
 static void          GMPy_XMPZ_Dealloc(XMPZ_Object *self);
 
 static void          set_gmpympqcache(void);
-static MPQ_Object *  GMPy_MPQ_New(void);
+static MPQ_Object *  GMPy_MPQ_New(CTXT_Object *context);
 static void          GMPy_MPQ_Dealloc(MPQ_Object *self);
 
 static void          set_gmpympfrcache(void);
