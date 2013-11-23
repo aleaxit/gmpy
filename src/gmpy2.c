@@ -330,6 +330,9 @@
  *   Rebuild Windows binary installers due to MPIR 2.6.0 bug in next_prime().
  *   Another fix for is_extra_strong_lucas_prp().
  *
+ *   2.0.3
+ *   Fix lucas2 (casevh)
+ *
  ************************************************************************
  *
  * Discussion on sizes of C integer types.
@@ -399,7 +402,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.0.2";
+char gmpy_version[] = "2.0.3";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -848,7 +851,7 @@ _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] =
-"gmpy2 2.0.2 - General Multiple-precision arithmetic for Python\n"
+"gmpy2 2.0.3 - General Multiple-precision arithmetic for Python\n"
 "\n"
 "gmpy2 supports several multiple-precision libraries. Integer and\n"
 "rational arithmetic is provided by either the GMP or MPIR libraries.\n"
