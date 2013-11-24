@@ -399,7 +399,7 @@ GMPy_Complex_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!(result = (MPC_Object*)Pympc_new_bits_context(0, 0, context)))
+    if (!(result = GMPy_MPC_New(0, 0, context)))
         return NULL;
 
     if (MPC_CheckAndExp(x) && MPC_CheckAndExp(y)) {
@@ -411,8 +411,8 @@ GMPy_Complex_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
         MPC_Object *tempx, *tempy;
 
-        tempx = GMPy_MPC_From_Complex_Temp(x, context);
-        tempy = GMPy_MPC_From_Complex_Temp(y, context);
+        tempx = GMPy_MPC_From_Complex_Temp(x, 0, 0, context);
+        tempy = GMPy_MPC_From_Complex_Temp(y, 0, 0, context);
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -444,6 +444,10 @@ GMPy_mpc_mul_fast(PyObject *x, PyObject *y)
     return GMPy_Complex_Mul(x, y, NULL);
 }
 
+PyDoc_STRVAR(GMPy_doc_mul,
+"mul(x, y) -> number\n\n"
+"Return x * y.");
+
 static PyObject *
 GMPy_Number_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 {
@@ -459,15 +463,11 @@ GMPy_Number_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_COMPLEX(x) && IS_COMPLEX(y))
         return GMPy_Complex_Mul(x, y, context);
 
-    TYPE_ERROR("mul(): argument type not supported");
+    TYPE_ERROR("mul() argument type not supported");
     return NULL;
 }
 
 /* Implement context.add() and gmpy2.add(). */
-
-PyDoc_STRVAR(GMPy_doc_mul,
-"mul(x, y) -> number\n\n"
-"Return x * y.");
 
 PyDoc_STRVAR(GMPy_doc_context_mul,
 "context.mul(x, y) -> number\n\n"
@@ -480,7 +480,7 @@ GMPy_Context_Mul(PyObject *self, PyObject *args)
     CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("mul(): requires 2 arguments.");
+        TYPE_ERROR("mul() requires 2 arguments.");
         return NULL;
     }
 
@@ -499,7 +499,7 @@ GMPy_Context_Mul(PyObject *self, PyObject *args)
         }
     }
     else {
-        CURRENT_CONTEXT(context);
+        CHECK_CONTEXT_SET_EXPONENT(context);
         Py_INCREF((PyObject*)context);
     }
 

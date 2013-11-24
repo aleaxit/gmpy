@@ -48,11 +48,11 @@ Pympc_digits(PyObject *self, PyObject *args)
         Py_INCREF(self);
     }
     else {
-        if(!PyArg_ParseTuple(args, "O&|ii", Pympc_convert_arg, &self,
+        if(!PyArg_ParseTuple(args, "O&|ii", GMPy_MPC_convert_arg, &self,
                             &base, &prec))
         return NULL;
     }
-    result = Pympc_To_PyStr((MPC_Object*)self, base, prec);
+    result = GMPy_PyStr_From_MPC((MPC_Object*)self, base, prec, NULL);
     Py_DECREF(self);
     return result;
 }
@@ -104,7 +104,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
     argc = PyTuple_Size(args);
 
     if (argc == 0) {
-        if ((result = (MPC_Object*)Pympc_new(0,0))) {
+        if ((result = GMPy_MPC_New(0, 0, context))) {
             mpc_set_ui(result->c, 0, GET_MPC_ROUND(context));
         }
         return (PyObject*)result;
@@ -138,7 +138,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
             return NULL;
         }
 
-        result = Pympc_From_PyStr(arg0, base, rbits, ibits);
+        result = GMPy_MPC_From_PyStr(arg0, base, rbits, ibits, context);
     }
     else if (PyComplex_Check(arg0) || MPC_Check(arg0)) {
         /* First argument is a complex number */
@@ -163,10 +163,10 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
         }
 
         if (PyComplex_Check(arg0)) {
-            result = Pympc_From_PyComplex(arg0, rbits, ibits);
+            result = GMPy_MPC_From_PyComplex(arg0, rbits, ibits, context);
         }
         else {
-            result = Pympc_From_Pympc(arg0, rbits, ibits);
+            result = GMPy_MPC_From_MPC_Temp((MPC_Object*)arg0, rbits, ibits, context);
         }
     }
     else if (IS_REAL(arg0)) {
@@ -214,7 +214,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
             }
         }
 
-        result = (MPC_Object*)Pympc_new(rbits, ibits);
+        result = GMPy_MPC_New(rbits, ibits, context);
         if (!tempreal || !tempimag || !result) {
             Py_XDECREF(tempreal);
             Py_XDECREF(tempimag);
@@ -516,17 +516,13 @@ Pympc_format(PyObject *self, PyObject *args)
 static PyObject *
 Pympc_neg(MPC_Object *self)
 {
-    MPC_Object *result = 0;
-    CTXT_Object *context;
+    MPC_Object *result;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!(result = (MPC_Object*)Pympc_new(0, 0)))
-        return NULL;
-
-    if (!(self = Pympc_From_Complex((PyObject*)self, 0, 0))) {
+    if (!(result = GMPy_MPC_From_MPC_New(self, 0, 0, context))) {
         SYSTEM_ERROR("__neg__() requires 'mpc' argument");
-        Py_DECREF(result);
         return NULL;
     }
 
@@ -539,11 +535,11 @@ static PyObject *
 Pympc_pos(MPC_Object *self)
 {
     MPC_Object *result = 0;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!(result = Pympc_From_Complex((PyObject*)self, 0, 0))) {
+    if (!(result = GMPy_MPC_From_MPC_New(self, 0, 0, context))) {
         SYSTEM_ERROR("__pos__ requires 'mpc' argument");
         return NULL;
     }
@@ -557,13 +553,13 @@ static PyObject *
 Pympc_sqr(PyObject* self, PyObject *other)
 {
     MPC_Object *result;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     PARSE_ONE_MPC_OTHER("square() requires 'mpc' argument");
 
-    if (!(result = (MPC_Object*)Pympc_new(0, 0))) {
+    if (!(result = GMPy_MPC_New(0, 0, context))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -585,13 +581,13 @@ static PyObject *
 Pympc_conjugate(PyObject *self, PyObject *args)
 {
     MPC_Object *result;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     PARSE_ONE_MPC_ARGS("conjugate() requires 'mpc' argument");
 
-    if (!(result = (MPC_Object*)Pympc_new(0,0))) {
+    if (!(result = GMPy_MPC_New(0, 0, context))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -628,9 +624,9 @@ static PyObject *
 Pympc_getimag_attrib(MPC_Object *self, void *closure)
 {
     MPFR_Object *result;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if ((result = GMPy_MPFR_New(0, context)))
         mpc_imag(result->f, self->c, context->ctx.mpfr_round);
@@ -643,9 +639,9 @@ static PyObject *
 Pympc_getreal_attrib(MPC_Object *self, void *closure)
 {
     MPFR_Object *result;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if ((result = GMPy_MPFR_New(0, context)))
         mpc_real(result->f, self->c, context->ctx.mpfr_round);
@@ -668,6 +664,8 @@ Pympc_nonzero(MPC_Object *self)
 static PyObject * \
 Pympc_is_##NAME(PyObject *self, PyObject *other)\
 {\
+    CTXT_Object *context = NULL; \
+    CHECK_CONTEXT_SET_EXPONENT(context); \
     if(self && MPC_Check(self)) {\
         Py_INCREF(self);\
     }\
@@ -675,7 +673,7 @@ Pympc_is_##NAME(PyObject *self, PyObject *other)\
         self = other;\
         Py_INCREF((PyObject*)self);\
     }\
-    else if (!(self = (PyObject*)Pympc_From_Complex(other, 0, 0))) {\
+    else if (!(self = (PyObject*)GMPy_MPC_From_Complex_Temp(other, 0, 0, context))) {\
         PyErr_SetString(PyExc_TypeError, msg);\
         return NULL;\
     }\
@@ -705,9 +703,9 @@ static PyObject *
 Pympc_phase(PyObject *self, PyObject *other)
 {
     MPFR_Object *result;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     PARSE_ONE_MPC_OTHER("phase() requires 'mpc' argument");
 
@@ -742,9 +740,9 @@ static PyObject *
 Pympc_norm(PyObject *self, PyObject *other)
 {
     MPFR_Object *result;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     PARSE_ONE_MPC_OTHER("norm() requires 'mpc' argument");
 
@@ -779,9 +777,9 @@ static PyObject *
 Pympc_polar(PyObject *self, PyObject *other)
 {
     PyObject *abs, *phase, *result;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     PARSE_ONE_MPC_OTHER("norm() requires 'mpc' argument");
 
@@ -816,13 +814,13 @@ Pympc_rect(PyObject *self, PyObject *args)
 {
     PyObject *other;
     MPC_Object *result;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     PARSE_TWO_MPFR_ARGS(other, "rect() requires 'mpfr','mpfr' arguments");
 
-    if (!(result = (MPC_Object*)Pympc_new(0, 0))) {
+    if (!(result = GMPy_MPC_New(0, 0, context))) {
         Py_DECREF(self);
         Py_DECREF(other);
         return NULL;
@@ -850,13 +848,13 @@ static PyObject *
 Pympc_proj(PyObject *self, PyObject *other)
 {
     MPC_Object *result;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     PARSE_ONE_MPC_OTHER("proj() requires 'mpc' argument");
 
-    if (!(result = (MPC_Object*)Pympc_new(0, 0))) {
+    if (!(result = GMPy_MPC_New(0, 0, context))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -873,10 +871,10 @@ static PyObject * \
 Pympc_##NAME(PyObject* self, PyObject *other) \
 { \
     MPC_Object *result; \
-    CTXT_Object *context; \
-    CURRENT_CONTEXT(context); \
+    CTXT_Object *context = NULL; \
+    CHECK_CONTEXT_SET_EXPONENT(context); \
     PARSE_ONE_MPC_OTHER(#NAME "() requires 'mpc' argument"); \
-    if (!(result = (MPC_Object*)Pympc_new(0, 0))) { \
+    if (!(result = GMPy_MPC_New(0, 0, context))) { \
         Py_DECREF(self); \
         return NULL; \
     } \
@@ -923,14 +921,14 @@ Pympc_sin_cos(PyObject *self, PyObject *other)
     MPC_Object *s, *c;
     PyObject *result;
     int code;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     PARSE_ONE_MPC_OTHER("sin_cos() requires 'mpc' argument");
 
-    s = (MPC_Object*)Pympc_new(0, 0);
-    c = (MPC_Object*)Pympc_new(0, 0);
+    s = GMPy_MPC_New(0, 0, context);
+    c = GMPy_MPC_New(0, 0, context);
     result = PyTuple_New(2);
     if (!s || !c || !result) {
         Py_DECREF(self);
@@ -964,34 +962,34 @@ Pympc_sin_cos(PyObject *self, PyObject *other)
 static PyObject *
 Pympc_fma(PyObject *self, PyObject *args)
 {
-    MPC_Object *result, *x, *y, *z;
-    CTXT_Object *context;
+    MPC_Object *result, *tempx, *tempy, *tempz;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (PyTuple_GET_SIZE(args) != 3) {
         TYPE_ERROR("fma() requires 'mpc','mpc','mpc' arguments.");
         return NULL;
     }
 
-    result = (MPC_Object*)Pympc_new(0, 0);
-    x = Pympc_From_Complex(PyTuple_GET_ITEM(args, 0), 0, 0);
-    y = Pympc_From_Complex(PyTuple_GET_ITEM(args, 1), 0, 0);
-    z = Pympc_From_Complex(PyTuple_GET_ITEM(args, 2), 0, 0);
-    if (!result || !x || !y || !z) {
+    result = GMPy_MPC_New(0, 0, context);
+    tempx = GMPy_MPC_From_Complex_Temp(PyTuple_GET_ITEM(args, 0), 0, 0, context);
+    tempy = GMPy_MPC_From_Complex_Temp(PyTuple_GET_ITEM(args, 1), 0, 0, context);
+    tempz = GMPy_MPC_From_Complex_Temp(PyTuple_GET_ITEM(args, 2), 0, 0, context);
+    if (!result || !tempx || !tempy || !tempz) {
         TYPE_ERROR("fma() requires 'mpc','mpc','mpc' arguments.");
         goto done;
     }
 
-    result->rc = mpc_fma(result->c, x->c, y->c, z->c,
-                         context->ctx.mpfr_round);
+    result->rc = mpc_fma(result->c, tempx->c, tempy->c, tempz->c,
+                         GET_MPC_ROUND(context));
     MPC_SUBNORMALIZE(result);
     MPC_CHECK_FLAGS(result, "fma()");
 
   done:
-    Py_XDECREF((PyObject*)x);
-    Py_XDECREF((PyObject*)y);
-    Py_XDECREF((PyObject*)z);
+    Py_XDECREF((PyObject*)tempx);
+    Py_XDECREF((PyObject*)tempy);
+    Py_XDECREF((PyObject*)tempz);
     if (PyErr_Occurred()) {
         Py_XDECREF(result);
         result = NULL;
@@ -1003,19 +1001,19 @@ static PyObject *
 Pympc_fms(PyObject *self, PyObject *args)
 {
     MPC_Object *result, *x, *y, *z;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (PyTuple_GET_SIZE(args) != 3) {
         TYPE_ERROR("fms() requires 'mpc','mpc','mpc' arguments.");
         return NULL;
     }
 
-    result = (MPC_Object*)Pympc_new(0, 0);
-    x = Pympc_From_Complex(PyTuple_GET_ITEM(args, 0), 0, 0);
-    y = Pympc_From_Complex(PyTuple_GET_ITEM(args, 1), 0, 0);
-    z = Pympc_From_Complex(PyTuple_GET_ITEM(args, 2), 0, 0);
+    result = GMPy_MPC_New(0, 0, context);
+    x = GMPy_MPC_From_Complex_Temp(PyTuple_GET_ITEM(args, 0), 0, 0, context);
+    y = GMPy_MPC_From_Complex_Temp(PyTuple_GET_ITEM(args, 1), 0, 0, context);
+    z = GMPy_MPC_From_Complex_Temp(PyTuple_GET_ITEM(args, 2), 0, 0, context);
     if (!result || !x || !y || !z) {
         TYPE_ERROR("fms() requires 'mpc','mpc','mpc' arguments.");
         goto done;
@@ -1043,16 +1041,16 @@ Pympc_div_2exp(PyObject *self, PyObject *args)
 {
     MPC_Object *result = 0;
     unsigned long exp = 0;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!PyArg_ParseTuple(args, "O&k", Pympc_convert_arg, &self, &exp)) {
+    if (!PyArg_ParseTuple(args, "O&k", GMPy_MPC_convert_arg, &self, &exp)) {
         TYPE_ERROR("div_2exp() requires 'mpc', 'int' arguments");
         return NULL;
     }
 
-    if (!(result = (MPC_Object*)Pympc_new(0, 0))) {
+    if (!(result = GMPy_MPC_New(0, 0, context))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -1069,16 +1067,16 @@ Pympc_mul_2exp(PyObject *self, PyObject *args)
 {
     MPC_Object *result = 0;
     unsigned long exp = 0;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!PyArg_ParseTuple(args, "O&k", Pympc_convert_arg, &self, &exp)) {
+    if (!PyArg_ParseTuple(args, "O&k", GMPy_MPC_convert_arg, &self, &exp)) {
         TYPE_ERROR("mul_2exp() requires 'mpc', 'int' arguments");
         return NULL;
     }
 
-    if (!(result = (MPC_Object*)Pympc_new(0, 0))) {
+    if (!(result = GMPy_MPC_New(0, 0, context))) {
         Py_DECREF(self);
         return NULL;
     }
@@ -1128,9 +1126,9 @@ Pympc_FloorDiv_Complex(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 Pympc_floordiv_fast(PyObject *x, PyObject *y)
 {
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     return Pympc_FloorDiv_Complex(x, y, context);
 }
@@ -1140,7 +1138,7 @@ Pympc_TrueDiv_Complex(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPC_Object *result = NULL;
 
-    if (!(result = (MPC_Object*)Pympc_new_context(context)))
+    if (!(result = GMPy_MPC_New(0, 0, context)))
         return NULL;
 
     if (MPC_CheckAndExp(x) && MPC_CheckAndExp(y)) {
@@ -1160,8 +1158,8 @@ Pympc_TrueDiv_Complex(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
         MPC_Object *tempx, *tempy;
 
-        tempx = Pympc_From_Complex_context(x, context);
-        tempy = Pympc_From_Complex_context(y, context);
+        tempx = GMPy_MPC_From_Complex_Temp(x, 0, 0, context);
+        tempy = GMPy_MPC_From_Complex_Temp(y, 0, 0, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Can not convert Complex to 'mpc'");
             Py_XDECREF((PyObject*)tempx);
@@ -1187,9 +1185,9 @@ Pympc_TrueDiv_Complex(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 Pympc_truediv_fast(PyObject *x, PyObject *y)
 {
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     return Pympc_TrueDiv_Complex(x, y, context);
 }
@@ -1208,9 +1206,9 @@ Pympc_Mod_Complex(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 Pympc_mod_fast(PyObject *x, PyObject *y)
 {
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     return Pympc_FloorDiv_Complex(x, y, context);
 }
@@ -1229,9 +1227,9 @@ Pympc_DivMod_Complex(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 Pympc_divmod_fast(PyObject *x, PyObject *y)
 {
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     return Pympc_DivMod_Complex(x, y, context);
 }
@@ -1365,7 +1363,7 @@ static PyTypeObject MPC_Type =
     sizeof(MPC_Object),                     /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
     /* methods */
-    (destructor) Pympc_dealloc,             /* tp_dealloc       */
+    (destructor) GMPy_MPC_Dealloc,          /* tp_dealloc       */
         0,                                  /* tp_print         */
         0,                                  /* tp_getattr       */
         0,                                  /* tp_setattr       */

@@ -88,8 +88,13 @@ GMPy_MPFR_From_MPFR_New(MPFR_Object *obj, mpfr_prec_t bits, CTXT_Object *context
 
     assert(MPFR_Check(obj));
 
+    CHECK_CONTEXT_SET_EXPONENT(context);
+
+    if (!bits)
+        bits = GET_MPFR_PREC(context);
+
     if (MPFR_CheckAndExp(obj)) {
-        /* The exponents are valid in the current context. */
+        /* The exponent is valid in the current context. */
         if ((result = GMPy_MPFR_New(bits, context)))
             result->rc = mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
         return result;
@@ -99,18 +104,19 @@ GMPy_MPFR_From_MPFR_New(MPFR_Object *obj, mpfr_prec_t bits, CTXT_Object *context
             GMPY_EXPBOUND("exponent of existing mpfr incompatible with current context");
             return NULL;
         }
+
         if ((result = GMPy_MPFR_New(mpfr_get_prec(obj->f), context))) {
             /* First make the exponent valid. */
             mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
             result->rc = mpfr_check_range(result->f, obj->rc, obj->round_mode);
             /* Round to the desired precision. */
-            result->rc = mpfr_prec_round(result->f, GET_MPFR_PREC(context), GET_MPFR_ROUND(context));
+            result->rc = mpfr_prec_round(result->f, bits, GET_MPFR_ROUND(context));
         }
         return result;
     }
 }
 
-/* Return a new reference to an existing mpfr is the exponent is valid in the
+/* Return a new reference to an existing mpfr if the exponent is valid in the
  * current context. If the exponent is not valid, a reference to a new, valid
  * instance is returned.
  *
@@ -129,6 +135,8 @@ GMPy_MPFR_From_MPFR_Temp(MPFR_Object *obj, mpfr_prec_t bits, CTXT_Object *contex
 
     assert(MPFR_Check(obj));
 
+    CHECK_CONTEXT_SET_EXPONENT(context);
+
     if (MPFR_CheckAndExp(obj)) {
         Py_INCREF((PyObject*)obj);
         return obj;
@@ -138,6 +146,7 @@ GMPy_MPFR_From_MPFR_Temp(MPFR_Object *obj, mpfr_prec_t bits, CTXT_Object *contex
             GMPY_EXPBOUND("exponent of existing mpfr incompatible with current context");
             return NULL;
         }
+
         if ((result = GMPy_MPFR_New(mpfr_get_prec(obj->f), context))) {
             /* First make the exponent valid. */
             mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
@@ -155,6 +164,8 @@ GMPy_MPFR_From_PyIntOrLong(PyObject *obj, mpfr_prec_t bits, CTXT_Object *context
 
     assert(PyIntOrLong_Check(obj));
 
+    CHECK_CONTEXT_SET_EXPONENT(context);
+
     if (!(tempz = GMPy_MPZ_From_PyIntOrLong(obj, context))) {
         result = GMPy_MPFR_From_MPZ(tempz, bits, context);
         Py_DECREF((PyObject*)tempz);
@@ -168,6 +179,8 @@ GMPy_MPFR_From_PyFloat(PyObject *obj, mpfr_prec_t bits, CTXT_Object *context)
     MPFR_Object *result;
 
     assert(PyFloat_Check(obj));
+
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if ((result = GMPy_MPFR_New(bits, context))) {
         result->rc = mpfr_set_d(result->f, PyFloat_AS_DOUBLE(obj), GET_MPFR_ROUND(context));
@@ -183,6 +196,8 @@ GMPy_MPFR_From_MPZ(MPZ_Object *obj, mpfr_prec_t bits, CTXT_Object *context)
 
     assert(MPZ_Check(obj));
 
+    CHECK_CONTEXT_SET_EXPONENT(context);
+
     if ((result = GMPy_MPFR_New(bits, context))) {
         result->rc = mpfr_set_z(result->f, obj->z, GET_MPFR_ROUND(context));
     }
@@ -197,6 +212,8 @@ GMPy_MPFR_From_MPQ(MPQ_Object *obj, mpfr_prec_t bits, CTXT_Object *context)
 
     assert(MPQ_Check(obj));
 
+    CHECK_CONTEXT_SET_EXPONENT(context);
+
     if ((result = GMPy_MPFR_New(bits, context)))
         result->rc = mpfr_set_q(result->f, obj->q, GET_MPFR_ROUND(context));
     return result;
@@ -207,6 +224,10 @@ GMPy_MPFR_From_Fraction(PyObject *obj, mpfr_prec_t bits, CTXT_Object *context)
 {
     MPFR_Object *result = NULL;
     MPQ_Object *tempq;
+
+    assert(IS_RATIONAL(obj));
+
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if ((tempq = GMPy_MPQ_From_Fraction(obj, context))) {
         result = GMPy_MPFR_From_MPQ(tempq, bits, context);
@@ -220,6 +241,10 @@ GMPy_MPFR_From_Decimal(PyObject* obj, mpfr_prec_t bits, CTXT_Object *context)
 {
     MPFR_Object *result;
     MPQ_Object *temp;
+
+    assert(IS_DECIMAL(obj));
+
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     result = GMPy_MPFR_New(bits, context);
     temp = GMPy_MPQ_From_DecimalRaw(obj, context);
@@ -261,6 +286,8 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t bits, CTXT_Object *conte
     char *cp, *endptr;
     Py_ssize_t len;
     PyObject *ascii_str = NULL;
+
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (PyBytes_Check(s)) {
         len = PyBytes_Size(s);
@@ -382,6 +409,8 @@ GMPy_MPZ_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
     MPZ_Object *result;
 
     assert(MPFR_Check(obj));
+
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if ((result = GMPy_MPZ_New(context))) {
         if (mpfr_nan_p(MPFR(obj))) {
@@ -568,6 +597,8 @@ GMPy_PyIntOrLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
     PyObject *result;
     MPZ_Object *tempz;
 
+    CHECK_CONTEXT_SET_EXPONENT(context);
+
     if (!(tempz = GMPy_MPZ_From_MPFR(obj, context)))
         return NULL;
 
@@ -582,6 +613,8 @@ GMPy_PyLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
 {
     PyObject *result;
     MPZ_Object *tempz;
+
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (!(tempz = GMPy_MPZ_From_MPFR(obj, context)))
         return NULL;

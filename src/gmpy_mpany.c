@@ -132,7 +132,7 @@ Pympany_div(PyObject *self, PyObject *args)
 {
     Py_ssize_t argc;
     PyObject *arg0, *arg1, *arg2;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
     argc = PyTuple_GET_SIZE(args);
     if (self && CTXT_Check(self)) {
@@ -165,7 +165,7 @@ Pympany_div(PyObject *self, PyObject *args)
                 context = (CTXT_Object*)arg2;
         }
         else {
-            CURRENT_CONTEXT(context);
+            CHECK_CONTEXT_SET_EXPONENT(context);
         }
     }
 
@@ -201,7 +201,7 @@ Pympany_floordiv(PyObject *self, PyObject *args)
 {
     Py_ssize_t argc;
     PyObject *arg0, *arg1, *arg2;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
     argc = PyTuple_GET_SIZE(args);
     if (self && CTXT_Check(self)) {
@@ -234,7 +234,7 @@ Pympany_floordiv(PyObject *self, PyObject *args)
                 context = (CTXT_Object*)arg2;
         }
         else {
-            CURRENT_CONTEXT(context);
+            CHECK_CONTEXT_SET_EXPONENT(context);
         }
     }
 
@@ -270,7 +270,7 @@ Pympany_mod(PyObject *self, PyObject *args)
 {
     Py_ssize_t argc;
     PyObject *arg0, *arg1, *arg2;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
     argc = PyTuple_GET_SIZE(args);
     if (self && CTXT_Check(self)) {
@@ -303,7 +303,7 @@ Pympany_mod(PyObject *self, PyObject *args)
                 context = (CTXT_Object*)arg2;
         }
         else {
-            CURRENT_CONTEXT(context);
+            CHECK_CONTEXT_SET_EXPONENT(context);
         }
     }
 
@@ -339,7 +339,7 @@ Pympany_divmod(PyObject *self, PyObject *args)
 {
     Py_ssize_t argc;
     PyObject *arg0, *arg1, *arg2;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
     argc = PyTuple_GET_SIZE(args);
     if (self && CTXT_Check(self)) {
@@ -372,7 +372,7 @@ Pympany_divmod(PyObject *self, PyObject *args)
                 context = (CTXT_Object*)arg2;
         }
         else {
-            CURRENT_CONTEXT(context);
+            CHECK_CONTEXT_SET_EXPONENT(context);
         }
     }
 
@@ -1116,7 +1116,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
         if (PyComplex_Check(b)) {
             MPC_Object *tempmpc;
 
-            if (!(tempmpc = Pympc_From_PyComplex(b, 53, 53)))
+            if (!(tempmpc = GMPy_MPC_From_PyComplex(b, 53, 53, context)))
                 return NULL;
             mpfr_clear_flags();
             c = mpc_cmp(MPC(a), MPC(tempmpc));
