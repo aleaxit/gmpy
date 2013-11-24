@@ -133,9 +133,9 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
     mpfr_prec_t prec;
     int i, codebyte, resusign, exposign, resuzero, precilen;
     unsigned int expomag = 0;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (!(PyBytes_Check(other))) {
         TYPE_ERROR("mpfr_from_old_binary() requires bytes argument");
@@ -587,9 +587,9 @@ Pympc_To_Binary(MPC_Object *obj)
     MPFR_Object *real = NULL, *imag = NULL;
     PyObject *result = NULL, *temp = NULL;
     mpfr_prec_t rprec = 0, cprec = 0;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     mpc_get_prec2(&rprec, &cprec, obj->c);
     real = GMPy_MPFR_New(rprec, context);
@@ -633,9 +633,9 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
 {
     unsigned char *buffer, *cp;
     Py_ssize_t len;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (!(PyBytes_Check(other))) {
         TYPE_ERROR("from_binary() requires bytes argument");
@@ -1146,7 +1146,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
                     mpfr_neg(imag->f, imag->f, MPFR_RNDN);
             }
   alldone:
-            if (!(result = (MPC_Object*)Pympc_new(0,0))) {
+            if (!(result = (MPC_Object*)GMPy_MPC_New(0, 0, context))) {
                 Py_DECREF((PyObject*)real);
                 Py_DECREF((PyObject*)imag);
                 return NULL;

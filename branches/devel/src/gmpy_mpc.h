@@ -268,7 +268,7 @@ static PyTypeObject MPC_Type;
             Py_INCREF(self); \
         } \
         else { \
-            if (!(self = (PyObject*)Pympc_From_Complex(self, 0, 0))) { \
+            if (!(self = (PyObject*)GMPy_MPC_From_Complex_Temp(self, 0, 0, context))) { \
                 TYPE_ERROR(msg); \
                 return NULL; \
             } \
@@ -284,7 +284,7 @@ static PyTypeObject MPC_Type;
             Py_INCREF(self); \
         } \
         else { \
-            if (!(self = (PyObject*)Pympc_From_Complex(self, 0, 0))) { \
+            if (!(self = (PyObject*)GMPy_MPC_From_Complex_Temp(self, 0, 0, context))) { \
                 TYPE_ERROR(msg); \
                 return NULL; \
             } \
@@ -307,7 +307,7 @@ static PyTypeObject MPC_Type;
             Py_INCREF(self); \
         } \
         else { \
-            if (!(self = (PyObject*)Pympc_From_Complex(self, 0, 0))) { \
+            if (!(self = (PyObject*)GMPy_MPC_From_Complex_Temp(self, 0, 0, context))) { \
                 TYPE_ERROR(msg); \
                 return NULL; \
             } \
@@ -319,7 +319,7 @@ static PyTypeObject MPC_Type;
             Py_INCREF(self); \
         } \
         else { \
-            if (!(self = (PyObject*)Pympc_From_Complex(other, 0, 0))) { \
+            if (!(self = (PyObject*)GMPy_MPC_From_Complex_Temp(other, 0, 0, context))) { \
                 TYPE_ERROR(msg); \
                 return NULL; \
             } \
@@ -341,16 +341,16 @@ static PyTypeObject MPC_Type;
             TYPE_ERROR(msg); \
             return NULL; \
         } \
-        self = (PyObject*)Pympc_From_Complex(self, 0, 0); \
-        var = (PyObject*)Pympc_From_Complex(PyTuple_GET_ITEM(args, 0), 0, 0); \
+        self = (PyObject*)GMPy_MPC_From_Complex_Temp(self, 0, 0, context); \
+        var = (PyObject*)GMPy_MPC_From_Complex_Temp(PyTuple_GET_ITEM(args, 0), 0, 0, context); \
     } \
     else { \
         if (PyTuple_GET_SIZE(args) != 2) { \
             TYPE_ERROR(msg); \
             return NULL; \
         } \
-        self = (PyObject*)Pympc_From_Complex(PyTuple_GET_ITEM(args, 0), 0, 0); \
-        var = (PyObject*)Pympc_From_Complex(PyTuple_GET_ITEM(args, 1), 0, 0); \
+        self = (PyObject*)GMPy_MPC_From_Complex_Temp(PyTuple_GET_ITEM(args, 0), 0, 0, context); \
+        var = (PyObject*)GMPy_MPC_From_Complex_Temp(PyTuple_GET_ITEM(args, 1), 0, 0, context); \
     } \
     if (!self || !var) { \
         TYPE_ERROR(msg); \

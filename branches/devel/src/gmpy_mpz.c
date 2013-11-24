@@ -1454,7 +1454,7 @@ Pygmpy_lucas2(PyObject *self, PyObject *other)
     }
     else {
         CREATE_TWO_MPZ_TUPLE(luc1, luc2, result);
-        mpz_fib2_ui(luc1->z, luc2->z, n);
+        mpz_lucnum2_ui(luc1->z, luc2->z, n);
     }
     PyTuple_SET_ITEM(result, 0, (PyObject*)luc1);
     PyTuple_SET_ITEM(result, 1, (PyObject*)luc2);

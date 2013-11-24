@@ -198,9 +198,9 @@ static PyObject *
 GMPY_mpfr_random(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (PyTuple_GET_SIZE(args) != 1) {
         TYPE_ERROR("mpfr_random() requires 1 argument");
@@ -230,9 +230,9 @@ GMPY_mpfr_grandom(PyObject *self, PyObject *args)
 {
     MPFR_Object *result1, *result2;
     PyObject *result;
-    CTXT_Object *context;
+    CTXT_Object *context = NULL;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (PyTuple_GET_SIZE(args) != 1) {
         TYPE_ERROR("mpfr_grandom() requires 1 argument");
@@ -265,13 +265,16 @@ GMPY_mpfr_grandom(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_mpc_random,
-"mpfc_random(random_state) -> mpc\n\n"
+"mpc_random(random_state) -> mpc\n\n"
 "Return uniformly distributed number in the unit square [0,1]x[0,1].");
 
 static PyObject *
 GMPY_mpc_random(PyObject *self, PyObject *args)
 {
     MPC_Object *result;
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (PyTuple_GET_SIZE(args) != 1) {
         TYPE_ERROR("mpfc_random() requires 1 argument");
@@ -283,9 +286,8 @@ GMPY_mpc_random(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if ((result = (MPC_Object*)Pympc_new(0,0))) {
-        mpc_urandom(MPC(result),
-                     PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)));
+    if ((result = GMPy_MPC_New(0, 0, context))) {
+        mpc_urandom(result->c, PyObj_AS_STATE(PyTuple_GET_ITEM(args, 0)));
     }
 
     return (PyObject*)result;

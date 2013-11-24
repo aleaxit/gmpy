@@ -421,7 +421,7 @@ GMPy_Complex_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!(result = (MPC_Object*)Pympc_new_bits_context(0, 0, context)))
+    if (!(result = GMPy_MPC_New(0, 0, context)))
         return NULL;
 
     if (MPC_CheckAndExp(x) && MPC_CheckAndExp(y)) {
@@ -433,8 +433,8 @@ GMPy_Complex_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
         MPC_Object *tempx, *tempy;
 
-        tempx = GMPy_MPC_From_Complex_Temp(x, context);
-        tempy = GMPy_MPC_From_Complex_Temp(y, context);
+        tempx = GMPy_MPC_From_Complex_Temp(x, 0, 0, context);
+        tempy = GMPy_MPC_From_Complex_Temp(y, 0, 0, context);
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -522,7 +522,7 @@ GMPy_Context_Sub(PyObject *self, PyObject *args)
         }
     }
     else {
-        CURRENT_CONTEXT(context);
+        CHECK_CONTEXT_SET_EXPONENT(context);
         Py_INCREF((PyObject*)context);
     }
 

@@ -161,7 +161,7 @@ GMPy_Complex_Abs(PyObject *x, CTXT_Object *context)
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!(tempx = GMPy_MPC_From_Complex_Temp(x, context)))  {
+    if (!(tempx = GMPy_MPC_From_Complex_Temp(x, 0, 0, context)))  {
         return NULL;
     }
 
