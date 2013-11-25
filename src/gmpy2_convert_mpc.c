@@ -111,7 +111,7 @@ GMPy_MPC_From_MPC_Temp(MPC_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
     if (MPC_CheckAndExp(obj)) {
         /* The exponents are valid in the current context. */
         Py_INCREF((PyObject*)obj);
-        return result;
+        return obj;
     }
     else {
         if (context->ctx.traps & TRAP_EXPBOUND) {
@@ -159,9 +159,6 @@ GMPy_MPC_From_MPFR(MPFR_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!rprec)
-        rprec = mpfr_get_prec(obj->f);
-
     if ((result = GMPy_MPC_New(rprec, iprec, context)))
         result->rc = mpc_set_fr(result->c, obj->f,GET_MPC_ROUND(context));
 
@@ -175,9 +172,6 @@ GMPy_MPC_From_PyFloat(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
     MPC_Object *result;
 
     CHECK_CONTEXT_SET_EXPONENT(context);
-
-    if (!rprec)
-        rprec = DBL_MANT_DIG;
 
     if ((result = GMPy_MPC_New(rprec, iprec, context)))
         result->rc = mpc_set_d(result->c, PyFloat_AS_DOUBLE(obj),
@@ -227,7 +221,7 @@ GMPy_MPC_From_Fraction(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!(tempq = GMPy_MPQ_From_Fraction(obj, context))) {
+    if ((tempq = GMPy_MPQ_From_Fraction(obj, context))) {
         result = GMPy_MPC_From_MPQ(tempq, rprec, iprec, context);
         Py_DECREF((PyObject*)tempq);
     }
@@ -240,15 +234,36 @@ GMPy_MPC_From_Decimal(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 {
     MPC_Object *result = NULL;
     MPFR_Object *tempf;
+    mpfr_prec_t oldmpfr, oldreal;
+    int oldmpfr_round, oldreal_round;
+
+    oldmpfr = GET_MPFR_PREC(context);
+    oldreal = GET_REAL_PREC(context);
+    oldmpfr_round = GET_MPFR_ROUND(context);
+    oldreal_round = GET_REAL_ROUND(context);
 
     assert(IS_DECIMAL(obj));
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!(tempf = GMPy_MPFR_From_Decimal(obj, rprec, context))) {
-        result = GMPy_MPC_From_MPFR(tempf, rprec, iprec, context);
-        Py_DECREF((PyObject*)tempf);
+    context->ctx.mpfr_prec = oldreal;
+    context->ctx.mpfr_round = oldreal_round;
+
+    tempf = GMPy_MPFR_From_Decimal(obj, rprec, context);
+
+    context->ctx.mpfr_prec = oldmpfr;
+    context->ctx.mpfr_round = oldmpfr_round;
+
+    result = GMPy_MPC_New(0, 0, context);
+    if (!tempf || !result) {
+        Py_XDECREF((PyObject*)tempf);
+        Py_XDECREF((PyObject*)result);
+        return NULL;
     }
+
+    result->rc = MPC_INEX(tempf->rc, 0);
+    mpfr_swap(mpc_realref(result->c), tempf->f);
+    Py_DECREF(tempf);
     return result;
 }
 
@@ -263,7 +278,7 @@ GMPy_MPC_From_PyIntOrLong(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!(tempz = GMPy_MPZ_From_PyIntOrLong(obj, context))) {
+    if ((tempz = GMPy_MPZ_From_PyIntOrLong(obj, context))) {
         result = GMPy_MPC_From_MPZ(tempz, rprec, iprec, context);
         Py_DECREF((PyObject*)tempz);
     }

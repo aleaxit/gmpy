@@ -365,7 +365,7 @@ static PyTypeObject MPFR_Type;
 
 
 static PyObject * Pympfr_f2q(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds);
+static PyObject * Pygmpy_mpfr(PyObject *self, PyObject *args);
 static PyObject * Pympfr_getprec_attrib(MPFR_Object *self, void *closure);
 static PyObject * Pympfr_getrc_attrib(MPFR_Object *self, void *closure);
 static PyObject * Pympfr_getimag_attrib(MPFR_Object *self, void *closure);

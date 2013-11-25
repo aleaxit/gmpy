@@ -60,43 +60,32 @@ Pympc_digits(PyObject *self, PyObject *args)
 PyDoc_STRVAR(doc_g_mpc,
 "mpc() -> mpc(0.0+0.0j)\n\n"
 "      If no argument is given, return mpc(0.0+0.0j).\n\n"
-"mpc(c[, precision=0]) -> mpc\n\n"
+"mpc(c) -> mpc\n\n"
 "      Return a new 'mpc' object from an existing complex number\n"
-"      (either a Python complex object or another 'mpc' object). If\n"
-"      the precision is not specified, then the precision is taken\n"
-"      from the current context. The rounding mode is always taken\n"
-"      from the current context.\n\n"
-"mpc(r[, i=0[, precision=0]]) -> mpc\n\n"
+"      (either a Python complex object or another 'mpc' object). The\n"
+"      precision and rounding mode are taken from the current context.\n\n"
+"mpc(r[,i]) -> mpc\n\n"
 "      Return a new 'mpc' object by converting two non-complex numbers\n"
-"      into the real and imaginary components of an 'mpc' object. If\n"
-"      the precision is not specified, then the precision is taken from\n"
-"      the current context. The rounding mode is always taken from the\n"
-"      current context.\n\n"
-"mpc(s[, [precision=0[, base=10]]) -> mpc\n\n"
+"      into the real and imaginary components of an 'mpc' object. The\n"
+"      precision and rounding mode are taken from the current context.\n\n"
+"mpc(s[,base=10]) -> mpc\n\n"
 "      Return a new 'mpc' object by converting a string s into a complex\n"
 "      number. If base is omitted, then a base-10 representation is\n"
-"      assumed otherwise a base between 2 and 36 can be specified. If\n"
-"      the precision is not specified, then the precision is taken from\n"
-"      the current context. The rounding mode is always taken from the\n"
-"      current context.\n\n"
+"      assumed otherwise a base between 2 and 36 can be specified. The\n"
+"      precision and rounding mode are taken from the current context.\n\n"
 "Note: The precision can be specified either a single number that\n"
 "      is used for both the real and imaginary components, or as a\n"
 "      tuple that can specify different precisions for the real\n"
 "      and imaginary components.");
 
 static PyObject *
-Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
+Pygmpy_mpc(PyObject *self, PyObject *args)
 {
     MPC_Object *result = NULL;
     MPFR_Object *tempreal = NULL, *tempimag = NULL;
-    PyObject *arg0 = NULL, *arg1 = NULL, *prec = NULL;
-    int base = 10;
-    /* Assumes mpfr_prec_t is the same as a long. */
-    mpfr_prec_t rbits = 0, ibits = 0;
+    PyObject *arg0 = NULL, *arg1 = NULL;
+    mpir_si base = 10;
     Py_ssize_t argc;
-    static char *kwlist_c[] = {"c", "precision", NULL};
-    static char *kwlist_r[] = {"r", "i", "precision", NULL};
-    static char *kwlist_s[] = {"s", "precision", "base", NULL};
     CTXT_Object *context = NULL;
 
     CHECK_CONTEXT_SET_EXPONENT(context);
@@ -110,111 +99,99 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
         return (PyObject*)result;
     }
 
-    arg0 = PyTuple_GetItem(args, 0);
-    if (PyStrOrUnicode_Check(arg0)) {
-        /* First argument is a string */
-
-        if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "O|Oi", kwlist_s,
-                                          &arg0, &prec, &base)))
-            return NULL;
-
-        if (prec) {
-            if (PyIntOrLong_Check(prec)) {
-                rbits = (mpfr_prec_t)PyIntOrLong_AsLong(prec);
-                ibits = rbits;
-            }
-            else if (PyTuple_Check(prec) && PyTuple_Size(prec) == 2) {
-                rbits = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GetItem(prec, 0));
-                ibits = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GetItem(prec, 1));
-            }
-            if (PyErr_Occurred()) {
-                VALUE_ERROR("invalid value for precision in gmpy2.mpc().");
-                return NULL;
-            }
-        }
-
-        if (base < 2 || base > 36) {
-            VALUE_ERROR("base for mpc() must be in the interval 2 ... 36.");
-            return NULL;
-        }
-
-        result = GMPy_MPC_From_PyStr(arg0, base, rbits, ibits, context);
+    if (argc > 2) {
+        TYPE_ERROR("mpc() takes at most 2 arguments");
+        return NULL;
     }
-    else if (PyComplex_Check(arg0) || MPC_Check(arg0)) {
-        /* First argument is a complex number */
 
-        if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "O|O", kwlist_c,
-                                          &arg0, &prec)))
-            return NULL;
+    arg0 = PyTuple_GET_ITEM(args, 0);
+    if (PyStrOrUnicode_Check(arg0)) {
+        if (argc == 2) {
+            base = SI_From_Integer(PyTuple_GET_ITEM(args, 1));
+            if (base == -1 && PyErr_Occurred()) {
+                TYPE_ERROR("base for mpc() must be an integer");
+                return NULL;
+            }
 
-        if (prec) {
-            if (PyIntOrLong_Check(prec)) {
-                rbits = (mpfr_prec_t)PyIntOrLong_AsLong(prec);
-                ibits = rbits;
-            }
-            else if (PyTuple_Check(prec) && PyTuple_Size(prec) == 2) {
-                rbits = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GetItem(prec, 0));
-                ibits = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GetItem(prec, 1));
-            }
-            if (PyErr_Occurred()) {
-                VALUE_ERROR("invalid value for precision in mpc().");
+            if (base != 0 && (base < 2 || base > 36)) {
+                VALUE_ERROR("base for mpc() must be 0 or the interval [2, 36]");
                 return NULL;
             }
         }
+        result = GMPy_MPC_From_PyStr(arg0, (int)base, 0, 0, context);
+        MPC_SUBNORMALIZE_2(result, context);
+        return (PyObject*)result;
+    }
 
-        if (PyComplex_Check(arg0)) {
-            result = GMPy_MPC_From_PyComplex(arg0, rbits, ibits, context);
+    if (MPC_Check(arg0)) {
+        if (argc > 1) {
+            TYPE_ERROR("only 1 argument allowed if first argument is mpc");
+            return NULL;
         }
-        else {
-            result = GMPy_MPC_From_MPC_Temp((MPC_Object*)arg0, rbits, ibits, context);
+        result = GMPy_MPC_From_MPC_New((MPC_Object*)arg0, 0, 0, context);
+        MPC_SUBNORMALIZE_2(result, context);
+        return (PyObject*)result;
+    }
+    else if (PyComplex_Check(arg0)) {
+        if (argc > 1) {
+            TYPE_ERROR("only 1 argument allowed if first argument is complex");
+            return NULL;
         }
+        result = GMPy_MPC_From_PyComplex(arg0, 0, 0, context);
+        MPC_SUBNORMALIZE_2(result, context);
+        return (PyObject*)result;
     }
     else if (IS_REAL(arg0)) {
-        /* First argument is a real number */
+        /* Since we create two mpfr objects to build the mpc object, we need
+         * to modify the context so that the real and imaginary components are
+         * built with the correct rounding mode and precision.
+         */
+        mpfr_prec_t oldmpfr, oldreal, oldimag;
+        int oldmpfr_round, oldreal_round, oldimag_round;
 
-        if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO", kwlist_r,
-                                          &arg0, &arg1, &prec)))
-            return NULL;
+        oldmpfr = GET_MPFR_PREC(context);
+        oldreal = GET_REAL_PREC(context);
+        oldimag = GET_IMAG_PREC(context);
+        oldmpfr_round = GET_MPFR_ROUND(context);
+        oldreal_round = GET_REAL_ROUND(context);
+        oldimag_round = GET_IMAG_ROUND(context);
 
-        if (prec) {
-            if (PyIntOrLong_Check(prec)) {
-                rbits = (mpfr_prec_t)PyIntOrLong_AsLong(prec);
-                ibits = rbits;
-            }
-            else if (PyTuple_Check(prec) && PyTuple_Size(prec) == 2) {
-                rbits = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GetItem(prec, 0));
-                ibits = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GetItem(prec, 1));
-            }
-            if (PyErr_Occurred()) {
-                VALUE_ERROR("invalid value for precision in mpc().");
+        context->ctx.mpfr_prec = oldreal;
+        context->ctx.mpfr_round = oldreal_round;
+
+        tempreal = GMPy_MPFR_From_Real_New(arg0, 0, context);
+
+        context->ctx.mpfr_prec = oldmpfr;
+        context->ctx.mpfr_round = oldmpfr_round;
+
+        if (argc == 2) {
+            arg1 = PyTuple_GET_ITEM(args, 1);
+
+            if (!IS_REAL(arg1)) {
+                TYPE_ERROR("invalid type for imaginary component in mpc()");
+                Py_XDECREF((PyObject*)tempreal);
                 return NULL;
             }
-        }
+            context->ctx.mpfr_prec = oldimag;
+            context->ctx.mpfr_round = oldimag_round;
 
-        if (arg1 && !IS_REAL(arg1)) {
-            TYPE_ERROR("invalid type for imaginary component in mpc()");
-            return NULL;
-        }
+            tempimag = GMPy_MPFR_From_Real_New(arg1, 0, context);
 
-        if (arg0) {
-            tempreal = GMPy_MPFR_From_Real_Temp(arg0, rbits, context);
+            context->ctx.mpfr_prec = oldmpfr;
+            context->ctx.mpfr_round = oldmpfr_round;
         }
         else {
-            if ((tempreal = GMPy_MPFR_New(rbits, context))) {
-                mpfr_set_ui(MPFR(tempreal), 0, MPFR_RNDN);
-            }
+            context->ctx.mpfr_prec = oldimag;
+            context->ctx.mpfr_round = oldimag_round;
+
+            if ((tempimag = GMPy_MPFR_New(0, context)))
+                mpfr_set_ui(tempimag->f, 0, MPFR_RNDN);
+
+            context->ctx.mpfr_prec = oldmpfr;
+            context->ctx.mpfr_round = oldmpfr_round;
         }
 
-        if (arg1) {
-            tempimag = GMPy_MPFR_From_Real_Temp(arg1, ibits, context);
-        }
-        else {
-            if ((tempimag = GMPy_MPFR_New(ibits, context))) {
-                mpfr_set_ui(MPFR(tempimag), 0, MPFR_RNDN);
-            }
-        }
-
-        result = GMPy_MPC_New(rbits, ibits, context);
+        result = GMPy_MPC_New(0, 0, context);
         if (!tempreal || !tempimag || !result) {
             Py_XDECREF(tempreal);
             Py_XDECREF(tempimag);
@@ -223,16 +200,18 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
             return NULL;
         }
 
-        mpc_set_fr_fr(MPC(result), MPFR(tempreal),
-                      MPFR(tempimag), GET_MPC_ROUND(context));
+        result->rc = MPC_INEX(tempreal->rc, tempimag->rc);
+        mpfr_swap(mpc_realref(result->c), tempreal->f);
+        mpfr_swap(mpc_imagref(result->c), tempimag->f);
         Py_DECREF(tempreal);
         Py_DECREF(tempimag);
+        MPC_SUBNORMALIZE_2(result, context);
+        return (PyObject*)result;
     }
     else {
         TYPE_ERROR("mpc() requires numeric or string argument");
+        return NULL;
     }
-
-    return (PyObject*)result;
 }
 
 PyDoc_STRVAR(doc_mpc_format,
