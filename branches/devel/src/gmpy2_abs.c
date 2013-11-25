@@ -58,15 +58,8 @@
  * than 0, then a new object is created, set to the absolute value and the
  * new object is returned.
  *
- * For any other object, GMPy_MPZ_From_Integer_Temp(x) is called. If x is an
- * mpz, then GMPy_MPZ_From_Integer_Temp just increments the reference count
- * and returns the same object. Modifying the new reference to the original
- * object is not a good idea. We already have handled the case where x is an
- * mpz so this is not an issue.
- *
- * If we do not want to handle the case where x is an mpz separately, then we
- * must call GMPy_MPZ_From_Integer_New(). It will make a copy of an mpz that
- * is safe to modify.
+ * Since we call GMPy_MPZ_From_Integer_New(), we could skip the check for mpz
+ * argument but it is a reasonable optimization.
  */
 
 static PyObject *
@@ -81,12 +74,12 @@ GMPy_Integer_Abs(PyObject *x, CTXT_Object *context)
         }
         else {
             if ((result = GMPy_MPZ_New(context)))
-                mpz_abs(MPZ(result), MPZ(x));
+                mpz_abs(result->z, MPZ(x));
             return (PyObject*)result;
         }
     }
 
-    if ((result = GMPy_MPZ_From_Integer_Temp(x, context))) {
+    if ((result = GMPy_MPZ_From_Integer_New(x, context))) {
         mpz_abs(result->z, result->z);
     }
 
@@ -118,7 +111,7 @@ GMPy_Rational_Abs(PyObject *x, CTXT_Object *context)
         }
     }
 
-    if ((result = GMPy_MPQ_From_Number_Temp(x, context))) {
+    if ((result = GMPy_MPQ_From_Number_New(x, context))) {
         mpz_abs(mpq_numref(result->q), mpq_numref(result->q));
     }
 
@@ -213,6 +206,8 @@ PyDoc_STRVAR(GMPy_doc_context_abs,
 static PyObject *
 GMPy_Context_Abs(PyObject *self, PyObject *args)
 {
+    assert(CTXT_Check(self));
+
     if (PyTuple_GET_SIZE(args) != 1) {
         TYPE_ERROR("context.abs() requires 1 argument.");
         return NULL;

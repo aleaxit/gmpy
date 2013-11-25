@@ -360,7 +360,7 @@ static PyTypeObject MPC_Type;
     }
 
 static PyObject * Pympc_digits(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs);
+static PyObject * Pygmpy_mpc(PyObject *self, PyObject *args);
 static PyObject * Pympc_format(PyObject *self, PyObject *args);
 static PyObject * Pympc_neg(MPC_Object *self);
 static PyObject * Pympc_pos(MPC_Object *self);

@@ -166,7 +166,7 @@ GMPy_MPFR_From_PyIntOrLong(PyObject *obj, mpfr_prec_t bits, CTXT_Object *context
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!(tempz = GMPy_MPZ_From_PyIntOrLong(obj, context))) {
+    if ((tempz = GMPy_MPZ_From_PyIntOrLong(obj, context))) {
         result = GMPy_MPFR_From_MPZ(tempz, bits, context);
         Py_DECREF((PyObject*)tempz);
     }

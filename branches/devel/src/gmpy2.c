@@ -739,7 +739,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "minnum", Pympfr_min2, METH_VARARGS, doc_g_mpfr_minnum },
     { "min2", Pympfr_min2, METH_VARARGS, doc_g_mpfr_min2 },
     { "modf", Pympfr_modf, METH_O, doc_g_mpfr_modf },
-    { "mpfr", (PyCFunction)Pygmpy_mpfr, METH_VARARGS | METH_KEYWORDS, doc_mpfr },
+    { "mpfr", Pygmpy_mpfr, METH_VARARGS, doc_mpfr },
     { "mpfr_from_old_binary", Pympfr_From_Old_Binary, METH_O, doc_g_mpfr_from_old_binary },
     { "mpfr_random", GMPY_mpfr_random, METH_VARARGS, doc_mpfr_random },
     { "mpfr_grandom", GMPY_mpfr_grandom, METH_VARARGS, doc_mpfr_grandom },
@@ -780,7 +780,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "zero", Pympfr_set_zero, METH_VARARGS, doc_g_mpfr_set_zero },
     { "zeta", Pympfr_zeta, METH_O, doc_g_mpfr_zeta },
 
-    { "mpc", (PyCFunction)Pygmpy_mpc, METH_VARARGS | METH_KEYWORDS, doc_g_mpc },
+    { "mpc", Pygmpy_mpc, METH_VARARGS, doc_g_mpc },
     { "mpc_random", GMPY_mpc_random, METH_VARARGS, doc_mpc_random },
     { "norm", Pympc_norm, METH_O, doc_mpc_norm },
     { "polar", Pympc_polar, METH_O, doc_mpc_polar },

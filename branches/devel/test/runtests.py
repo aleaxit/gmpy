@@ -86,7 +86,7 @@ if sys.version >= "3.2":
 
 for test in sorted(all_doctests):
     for r in range(repeat):
-        result = doctest.testfile(test, globs=globals(), optionflags=doctest.IGNORE_EXCEPTION_DETAIL)
+        result = doctest.testfile(test, globs=globals(), optionflags=doctest.IGNORE_EXCEPTION_DETAIL | doctest.NORMALIZE_WHITESPACE | doctest.REPORT_NDIFF)
         print("Results for:  {0:24}".format(test.split(".")[0]), end="")
         print(" Attempted: {1:4d}   Failed: {0:4d}".format(*result), end="")
         if debug:
