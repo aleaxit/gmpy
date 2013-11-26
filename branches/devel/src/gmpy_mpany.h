@@ -37,7 +37,6 @@ extern "C" {
 static PyObject * Pympany_square(PyObject *self, PyObject *other);
 static PyObject * Pympany_digits(PyObject *self, PyObject *args);
 static PyObject * Pympany_sign(PyObject *self, PyObject *other);
-static PyObject * Pympany_div(PyObject *self, PyObject *args);
 static PyObject * Pympany_to_binary(PyObject *self, PyObject *other);
 static PyObject * Pympany_printf(PyObject *self, PyObject *args);
 static PyObject * Pympany_is_nan(PyObject *self, PyObject *other);

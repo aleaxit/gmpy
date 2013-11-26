@@ -2321,90 +2321,6 @@ Pympz_floordiv_fast(PyObject *x, PyObject *y)
     Py_RETURN_NOTIMPLEMENTED;
 }
 
-/* Divide two Integer objects (see convert.c/isInteger) using true division.
- * If an error occurs, NULL is returned and an exception is set. If either x
- * or y can't be converted into an mpz, Py_NotImplemented is returned. */
-
-static PyObject *
-Pympz_TrueDiv_Integer(PyObject *x, PyObject *y, CTXT_Object *context)
-{
-    MPZ_Object *tempx, *tempy;
-    mpq_t tempq;
-    MPFR_Object *result;
-
-    if (!(result = GMPy_MPFR_New(0, context)))
-        return NULL;
-
-    if (IS_INTEGER(x) && IS_INTEGER(y)) {
-        tempx = GMPy_MPZ_From_Integer_Temp(x, context);
-        tempy = GMPy_MPZ_From_Integer_Temp(y, context);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("Could not convert Integer to mpz.");
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        if (mpz_sgn(tempy->z) == 0) {
-            ZERO_ERROR("division or modulo by zero");
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        mpq_init(tempq);
-        mpq_set_num(tempq, tempx->z);
-        mpq_set_den(tempq, tempy->z);
-        mpq_canonicalize(tempq);
-        mpfr_clear_flags();
-        result->rc = mpfr_set_q(result->f, tempq, GET_MPFR_ROUND(context));
-        mpq_clear(tempq);
-        Py_DECREF((PyObject*)tempx);
-        Py_DECREF((PyObject*)tempy);
-        MPFR_CLEANUP_RESULT("division");
-        return (PyObject*)result;
-    }
-
-    Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-static PyObject *
-Pympz_truediv_fast(PyObject *x, PyObject *y)
-{
-    CTXT_Object *context = NULL;
-
-    if (IS_INTEGER(x) && IS_INTEGER(y))
-        return Pympz_TrueDiv_Integer(x, y, context);
-    else if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return Pympq_TrueDiv_Rational(x, y, context);
-    else if (IS_REAL(x) && IS_REAL(y))
-        return Pympfr_TrueDiv_Real(x, y, context);
-    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return Pympc_TrueDiv_Complex(x, y, context);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-#ifdef PY2
-static PyObject *
-Pympz_div2_fast(PyObject *x, PyObject *y)
-{
-    CTXT_Object *context = NULL;
-
-    if (IS_INTEGER(x) && IS_INTEGER(y))
-        return Pympz_FloorDiv_Integer(x, y, context);
-    else if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return Pympq_TrueDiv_Rational(x, y, context);
-    else if (IS_REAL(x) && IS_REAL(y))
-        return Pympfr_TrueDiv_Real(x, y, context);
-    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return Pympc_TrueDiv_Complex(x, y, context);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-#endif
-
 /* Divide two Integer objects (see convert.c/isInteger) and return remainder.
  * If an error occurs, NULL is returned and an exception is set. If either x
  * or y can't be converted into an mpz, Py_NotImplemented is returned. */
@@ -2712,7 +2628,7 @@ static PyNumberMethods mpz_number_methods =
         0,                                 /* nb_inplace_xor          */
         0,                                 /* nb_inplace_or           */
     (binaryfunc) Pympz_floordiv_fast,      /* nb_floor_divide         */
-    (binaryfunc) Pympz_truediv_fast,       /* nb_true_divide          */
+    (binaryfunc) GMPy_mpz_truediv_fast,    /* nb_true_divide          */
     (binaryfunc) Pympz_inplace_floordiv,   /* nb_inplace_floor_divide */
         0,                                 /* nb_inplace_true_divide  */
     (unaryfunc) GMPy_PyIntOrLong_From_MPZ, /* nb_index                */
@@ -2724,7 +2640,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) GMPy_mpz_add_fast,        /* nb_add                  */
     (binaryfunc) GMPy_mpz_sub_fast,        /* nb_subtract             */
     (binaryfunc) GMPy_mpz_mul_fast,        /* nb_multiply             */
-    (binaryfunc) Pympz_div2_fast,          /* nb_divide               */
+    (binaryfunc) GMPy_mpz_div2_fast,       /* nb_divide               */
     (binaryfunc) Pympz_mod_fast,           /* nb_remainder            */
     (binaryfunc) Pympz_divmod_fast,        /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,     /* nb_power                */
@@ -2756,7 +2672,7 @@ static PyNumberMethods mpz_number_methods =
         0,                                 /* nb_inplace_xor          */
         0,                                 /* nb_inplace_or           */
     (binaryfunc) Pympz_floordiv_fast,      /* nb_floor_divide         */
-    (binaryfunc) Pympz_truediv_fast,       /* nb_true_divide          */
+    (binaryfunc) GMPy_mpz_truediv_fast,    /* nb_true_divide          */
     (binaryfunc) Pympz_inplace_floordiv,   /* nb_inplace_floor_divide */
         0,                                 /* nb_inplace_true_divide  */
     (unaryfunc) GMPy_PyIntOrLong_From_MPZ, /* nb_index                */

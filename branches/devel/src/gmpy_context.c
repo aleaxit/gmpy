@@ -1416,7 +1416,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "add", GMPy_Context_Add, METH_VARARGS, GMPy_doc_context_add },
     { "clear_flags", GMPy_CTXT_Clear_Flags, METH_NOARGS, doc_context_clear_flags },
     { "copy", GMPy_CTXT_Copy, METH_NOARGS, doc_context_copy },
-    { "div", Pympany_div, METH_VARARGS, doc_context_div },
+    { "div", GMPy_Context_TrueDiv, METH_VARARGS, GMPy_doc_context_truediv },
     { "divmod", Pympany_divmod, METH_VARARGS, doc_context_divmod },
     { "floor_div", Pympany_floordiv, METH_VARARGS, doc_context_floordiv },
     { "mod", Pympany_mod, METH_VARARGS, doc_context_mod },

@@ -464,7 +464,6 @@ static PyObject * Pympfr_y0(PyObject* self, PyObject *other);
 static PyObject * Pympfr_y1(PyObject* self, PyObject *other);
 static PyObject * Pympfr_yn(PyObject* self, PyObject *other);
 static PyObject * Pympfr_ai(PyObject* self, PyObject *other);
-static PyObject * Pympfr_truediv_fast(PyObject *x, PyObject *y);
 static PyObject * Pympfr_fmod(PyObject *self, PyObject *args);
 static PyObject * Pympfr_remainder(PyObject *self, PyObject *args);
 static PyObject * Pympfr_remquo(PyObject* self, PyObject *args);
@@ -491,7 +490,6 @@ static PyObject * Pympfr_radians(PyObject *self, PyObject *other);
 static PyObject * Pympfr_format(PyObject *self, PyObject *args);
 
 static PyObject * Pympfr_FloorDiv_Real(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * Pympfr_TrueDiv_Real(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * Pympfr_Mod_Real(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * Pympfr_DivMod_Real(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * Pympfr_Neg_Real(PyObject *x, CTXT_Object *context);

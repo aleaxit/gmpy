@@ -27,28 +27,27 @@
 
 /* This file implements abs(), gmpy2.abs(), and context.abs().
  *
+ * Public API
+ * ==========
+ * The following function is available as part of GMPY2's C API. A NULL
+ * value for context implies the function should use the currently active
+ * context.
+ *
+ *   GMPy_Number_Abs(Number, context|NULL)
+ *
  * Private API
  * ===========
- *   GMPy_mpz_abs_fast; called by abs() via mpz.__abs__
- *   GMPy_mpq_abs_fast; called by abs() via mpq.__abs__
- *   GMPy_mpfr_abs_fast; called by abs() via mpfr.__abs__
- *   GMPy_mpc_abs_fast; called by abs() via mpc.__abs__
+ *   GMPy_mpz_abs_fast; called by abs() via mpz.nb_absolute
+ *   GMPy_mpq_abs_fast; called by abs() via mpq.nb_absolute
+ *   GMPy_mpfr_abs_fast; called by abs() via mpfr.absolute
+ *   GMPy_mpc_abs_fast; called by abs() via mpc.absolute
  *
  *   GMPy_Integer_Abs(Integer, context|NULL)
  *   GMPy_Rational_Abs(Rational, context|NULL)
  *   GMPy_Real_Abs(Real, context|NULL)
  *   GMPy_Complex_Abs(Complex, context|NULL)
  *
- *   GMPy_Context_Abs
- *
- * Public API
- * ==========
- * The following function will be availabe as part of GMPY2's C API. A NULL
- * value for context implies the function should use the currently active
- * context.
- *
- *   GMPy_Number_Abs(Number, context|NULL)
- *
+ *   GMPy_Context_Abs(context, args)
  */
 
 /* Logical analysis
