@@ -34,13 +34,14 @@ extern "C" {
 
 /* Public API */
 
+static PyObject * GMPy_Number_Mul(PyObject *x, PyObject *y, CTXT_Object *context);
+
+/* Private API */
+
 static PyObject * GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Rational_Mul(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Complex_Mul(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Number_Mul(PyObject *x, PyObject *y, CTXT_Object *context);
-
-/* Private API */
 
 static PyObject * GMPy_mpz_mul_fast(PyObject *x, PyObject *y);
 static PyObject * GMPy_mpq_mul_fast(PyObject *x, PyObject *y);

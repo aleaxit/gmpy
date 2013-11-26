@@ -1113,65 +1113,6 @@ Pympc_floordiv_fast(PyObject *x, PyObject *y)
 }
 
 static PyObject *
-Pympc_TrueDiv_Complex(PyObject *x, PyObject *y, CTXT_Object *context)
-{
-    MPC_Object *result = NULL;
-
-    if (!(result = GMPy_MPC_New(0, 0, context)))
-        return NULL;
-
-    if (MPC_CheckAndExp(x) && MPC_CheckAndExp(y)) {
-        if (MPC_IS_ZERO_P(y)) {
-            context->ctx.divzero = 1;
-            if (context->ctx.traps & TRAP_DIVZERO) {
-                GMPY_DIVZERO("'mpc' division by zero");
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-        }
-        result->rc = mpc_div(result->c, MPC(x), MPC(y),
-                             GET_MPC_ROUND(context));
-        goto done;
-    }
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
-        MPC_Object *tempx, *tempy;
-
-        tempx = GMPy_MPC_From_Complex_Temp(x, 0, 0, context);
-        tempy = GMPy_MPC_From_Complex_Temp(y, 0, 0, context);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("Can not convert Complex to 'mpc'");
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        result->rc = mpc_div(result->c, tempx->c, tempy->c,
-                             GET_MPC_ROUND(context));
-        Py_DECREF((PyObject*)tempx);
-        Py_DECREF((PyObject*)tempy);
-        goto done;
-    }
-
-    Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
-
-  done:
-    MPC_CLEANUP_RESULT("division");
-    return (PyObject*)result;
-}
-
-static PyObject *
-Pympc_truediv_fast(PyObject *x, PyObject *y)
-{
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    return Pympc_TrueDiv_Complex(x, y, context);
-}
-
-static PyObject *
 Pympc_Mod_Complex(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
@@ -1271,7 +1212,7 @@ static PyNumberMethods mpc_number_methods =
         0,                               /* nb_inplace_xor          */
         0,                               /* nb_inplace_or           */
     (binaryfunc) Pympc_floordiv_fast,    /* nb_floor_divide         */
-    (binaryfunc) Pympc_truediv_fast,     /* nb_true_divide          */
+    (binaryfunc) GMPy_mpc_truediv_fast,  /* nb_true_divide          */
         0,                               /* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */
         0,                               /* nb_index                */
@@ -1282,7 +1223,7 @@ static PyNumberMethods mpc_number_methods =
     (binaryfunc) GMPy_mpc_add_fast,      /* nb_add                  */
     (binaryfunc) GMPy_mpc_sub_fast,      /* nb_subtract             */
     (binaryfunc) GMPy_mpc_mul_fast,      /* nb_multiply             */
-    (binaryfunc) Pympc_truediv_fast,     /* nb_divide               */
+    (binaryfunc) GMPy_mpc_truediv_fast,  /* nb_divide               */
     (binaryfunc) Pympc_mod_fast,         /* nb_remainder            */
     (binaryfunc) Pympc_divmod_fast,      /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
@@ -1314,7 +1255,7 @@ static PyNumberMethods mpc_number_methods =
         0,                               /* nb_inplace_xor          */
         0,                               /* nb_inplace_or           */
     (binaryfunc) Pympc_floordiv_fast,    /* nb_floor_divide         */
-    (binaryfunc) Pympc_truediv_fast,     /* nb_true_divide          */
+    (binaryfunc) GMPy_mpc_truediv_fast,  /* nb_true_divide          */
         0,                               /* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */
 };

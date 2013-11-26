@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy2_pow.h                                                              *
+ * gmpy2_truediv.h                                                              *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -25,24 +25,30 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef GMPY2_POW_H
-#define GMPY2_POW_H
+#ifndef GMPY2_TRUEDIV_H
+#define GMPY2_TRUEDIV_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/* Public API */
+
+static PyObject * GMPy_Number_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context);
+
 /* Private API */
 
-static PyObject * GMPy_mpany_pow_fast(PyObject *base, PyObject *exp, PyObject *mod);
+static PyObject * GMPy_Integer_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Rational_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Complex_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context);
 
-static PyObject * GMPy_Integer_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context);
-static PyObject * GMPy_Rational_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context);
-static PyObject * GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context);
-static PyObject * GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context);
-static PyObject * GMPy_Integer_PowMod(PyObject *self, PyObject *args);
+static PyObject * GMPy_mpz_truediv_fast(PyObject *x, PyObject *y);
+static PyObject * GMPy_mpq_truediv_fast(PyObject *x, PyObject *y);
+static PyObject * GMPy_mpfr_truediv_fast(PyObject *x, PyObject *y);
+static PyObject * GMPy_mpc_truediv_fast(PyObject *x, PyObject *y);
 
-static PyObject * GMPy_Context_Pow(PyObject *self, PyObject *args);
+static PyObject * GMPy_Context_TrueDiv(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
 }

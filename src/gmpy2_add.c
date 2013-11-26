@@ -27,27 +27,27 @@
 
 /* This file implements the + operator, gmpy2.add(), and context.add().
  *
+ * Public API
+ * ==========
+ * The following function is available as part of GMPY2's C API. A NULL
+ * value for context implies the function should use the currently active
+ * context.
+ *
+ *   GMPy_Number_Add(Number, Number, context|NULL)
+ *
  * Private API
  * ===========
- *   GMPy_mpz_add_fast; called by + via the nb_add slot of mpz
- *   GMPy_mpq_add_fast; called by + via the nb_add slot of mpq
- *   GMPy_mpfr_add_fast; called by + via the nb_add slot of mpfr
- *   GMPy_mpc_add_fast; called by + via the nb_add slot of mpc
+ *   GMPy_mpz_add_fast; called by + via the mpz.nb_add
+ *   GMPy_mpq_add_fast; called by + via the mpq.nb_add
+ *   GMPy_mpfr_add_fast; called by + via the mpfr.nb_add
+ *   GMPy_mpc_add_fast; called by + via the mpc.nb_add
  *
  *   GMPy_Integer_Add(Integer, Integer, context|NULL)
  *   GMPy_Rational_Add(Rational, Rational, context|NULL)
  *   GMPy_Real_Add(Real, Real, context|NULL)
  *   GMPy_Complex_Add(Complex, Complex, context|NULL)
  *
- *   GMPy_Context_Add
- *
- * Public API
- * ==========
- * The following function will be availabe as part of GMPY2's C API. A NULL
- * value for context implies the function should use the currently active
- * context.
- *
- *   GMPy_Number_Add(Number, Number, context|NULL)
+ *   GMPy_Context_Add(context, args)
  *
  */
 

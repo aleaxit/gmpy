@@ -28,29 +28,24 @@
 /* This file implements the ** operator, Python's pow() function,
  * gmpy2.powmod(), and context.pow().
  *
+ *
+ * Public API
+ * ==========
+ * The following function is available as part of GMPY2's C API. A NULL value
+ * for context implies the function should use the currently active context.
+ *
+ *   GMPy_Number_Pow(Number, Number, context|NULL)
+ *
  * Private API
  * ===========
- * The Python ** operator and the pow() function both call the nb_add slot
- * of a numeric type. This file implements the following private function:
+ *   GMPy_mpany_pow_fast; called via the nb_power slot of all mp types
  *
- *   GMPy_mpany_pow_fast; called via the nb_power slot of mp*
  *   GMPy_Integer_Pow(Integer, Integer, Integer|Py_None, context|NULL)
  *   GMPy_Rational_Pow(Rational, Rational, context|NULL)
  *   GMPy_Real_Pow(Real, Real, context|NULL)
  *   GMPy_Complex_Pow(Complex, Complex, context|NULL)
- *   GMPy_Context_Pow; called by gmpy2.pow() and context.pow()
  *
- * Public API
- * ==========
- * The following functions are availabe as part of GMPY2's C API. A NULL value
- * for context implies the function should use the currently active context.
- * The first four functions check the type of the first argument and will set
- * an exception and return NULL if the check fails.
- *
- *   Not yet implemented!
- *
- *   GMPy_Number_Pow(Number, Number, context|NULL)
- *
+ *   GMPy_Context_Pow(context, args)
  */
 
 

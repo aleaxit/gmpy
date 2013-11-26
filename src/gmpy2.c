@@ -541,6 +541,7 @@ static PyObject *GMPyExc_ExpBound = NULL;
 #include "gmpy2_mul.c"
 #include "gmpy2_pow.c"
 #include "gmpy2_sub.c"
+#include "gmpy2_truediv.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
@@ -569,7 +570,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "c_mod_2exp", Pygmpy_c_mod_2exp, METH_VARARGS, doc_gmpy_c_mod_2exp },
     { "denom", Pympq_denom, METH_VARARGS, doc_denomg },
     { "digits", Pympany_digits, METH_VARARGS, doc_g_mpany_digits },
-    { "div", Pympany_div, METH_VARARGS, doc_mpany_div },
+    { "div", GMPy_Context_TrueDiv, METH_VARARGS, GMPy_doc_truediv },
     { "divexact", Pygmpy_divexact, METH_VARARGS, doc_divexactg },
     { "divm", Pygmpy_divm, METH_VARARGS, doc_divm },
     { "div_mod", Pympany_divmod, METH_VARARGS, doc_mpany_divmod },

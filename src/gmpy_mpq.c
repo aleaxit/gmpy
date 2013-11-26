@@ -659,70 +659,6 @@ Pympq_floordiv_fast(PyObject *x, PyObject *y)
     Py_RETURN_NOTIMPLEMENTED;
 }
 
-static PyObject *
-Pympq_TrueDiv_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
-{
-    MPQ_Object *result;
-
-    if (!(result = GMPy_MPQ_New(context)))
-        return NULL;
-
-    if (MPQ_Check(x) && MPQ_Check(y)) {
-        if (mpq_sgn(MPQ(y)) == 0) {
-            ZERO_ERROR("division or modulo by zero");
-            goto error;
-        }
-        mpq_div(result->q, MPQ(x), MPQ(y));
-        return (PyObject*)result;
-    }
-
-    if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
-        MPQ_Object *tempx, *tempy;
-
-        tempx = GMPy_MPQ_From_Number_Temp(x, context);
-        tempy = GMPy_MPQ_From_Number_Temp(y, context);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("Could not convert Rational to mpq.");
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            goto error;
-        }
-        if (mpq_sgn(tempy->q) == 0) {
-            ZERO_ERROR("division or modulo by zero");
-            Py_DECREF((PyObject*)tempx);
-            Py_DECREF((PyObject*)tempy);
-            goto error;
-        }
-
-        mpq_div(result->q, tempx->q, tempy->q);
-        Py_DECREF((PyObject*)tempx);
-        Py_DECREF((PyObject*)tempy);
-        return (PyObject*)result;
-    }
-
-    Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
-
-  error:
-    Py_DECREF((PyObject*)result);
-    return NULL;
-}
-
-static PyObject *
-Pympq_truediv_fast(PyObject *x, PyObject *y)
-{
-    CTXT_Object *context = NULL;
-
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return Pympq_TrueDiv_Rational(x, y, context);
-    else if (IS_REAL(x) && IS_REAL(y))
-        return Pympfr_TrueDiv_Real(x, y, context);
-    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return Pympc_TrueDiv_Complex(x, y, context);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
 /* Divide two Rational objects (see convert.c/IS_RATIONAL) and return the
  * remainder. Returns None and raises TypeError if both objects are not valid
  * rationals. */
@@ -905,7 +841,7 @@ static PyNumberMethods mpq_number_methods =
         0,                                  /* nb_inplace_xor          */
         0,                                  /* nb_inplace_or           */
     (binaryfunc) Pympq_floordiv_fast,       /* nb_floor_divide         */
-    (binaryfunc) Pympq_truediv_fast,        /* nb_true_divide          */
+    (binaryfunc) GMPy_mpq_truediv_fast,     /* nb_true_divide          */
         0,                                  /* nb_inplace_floor_divide */
         0,                                  /* nb_inplace_true_divide  */
         0,                                  /* nb_index                */
@@ -916,7 +852,7 @@ static PyNumberMethods mpq_number_methods =
     (binaryfunc) GMPy_mpq_add_fast,         /* nb_add                  */
     (binaryfunc) GMPy_mpq_sub_fast,         /* nb_subtract             */
     (binaryfunc) GMPy_mpq_mul_fast,         /* nb_multiply             */
-    (binaryfunc) Pympq_truediv_fast,        /* nb_divide               */
+    (binaryfunc) GMPy_mpq_truediv_fast,     /* nb_divide               */
     (binaryfunc) Pympq_mod_fast,            /* nb_remainder            */
     (binaryfunc) Pympq_divmod_fast,         /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,      /* nb_power                */
@@ -948,7 +884,7 @@ static PyNumberMethods mpq_number_methods =
         0,                                  /* nb_inplace_xor          */
         0,                                  /* nb_inplace_or           */
     (binaryfunc) Pympq_floordiv_fast,       /* nb_floor_divide         */
-    (binaryfunc) Pympq_truediv_fast,        /* nb_true_divide          */
+    (binaryfunc) GMPy_mpq_truediv_fast,     /* nb_true_divide          */
         0,                                  /* nb_inplace_floor_divide */
         0,                                  /* nb_inplace_true_divide  */
 };
