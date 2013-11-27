@@ -1272,6 +1272,7 @@ GMPy_MPQ_From_DecimalRaw(PyObject* obj, CTXT_Object *context)
 
     if (!(result = GMPy_MPQ_New(context)))
         return NULL;
+    mpq_set_si(result->q, 0, 1);
 
     d_is_inf = PyObject_GetAttrString(obj, "is_infinite");
     d_is_nan = PyObject_GetAttrString(obj, "is_nan");
@@ -1285,7 +1286,7 @@ GMPy_MPQ_From_DecimalRaw(PyObject* obj, CTXT_Object *context)
     if (!(temp = PyObject_CallFunctionObjArgs(d_is_nan, NULL)))
         goto error;
     if (PyObject_IsTrue(temp)) {
-        mpq_set_si(result->q, 0, 0);
+        mpz_set_si(mpq_denref(result->q), 0);
         goto okay;
     }
     Py_DECREF(temp);
@@ -1313,10 +1314,7 @@ GMPy_MPQ_From_DecimalRaw(PyObject* obj, CTXT_Object *context)
         if (!(temp = PyObject_CallFunctionObjArgs(d_is_signed, NULL)))
             goto error;
         if (PyObject_IsTrue(temp)) {
-            mpq_set_si(result->q, 0, -1);
-        }
-        else {
-            mpq_set_si(result->q, 0, 1);
+            mpz_set_si(mpq_denref(result->q), -1);
         }
         goto okay;
     }
