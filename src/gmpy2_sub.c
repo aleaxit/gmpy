@@ -279,7 +279,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
             goto done;
         }
 
-        if (IS_RATIONAL(y) || IS_DECIMAL(y)) {
+        if (IS_RATIONAL(y)) {
             MPQ_Object *tempy;
 
             if (!(tempy = GMPy_MPQ_From_Number_Temp(y, context))) {
@@ -315,6 +315,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
                 mpfr_clear_flags();
                 result->rc = mpfr_sub_z(result->f, MPFR(y), tempz,
                                         GET_MPFR_ROUND(context));
+                mpfr_neg(result->f, result->f, GET_MPFR_ROUND(context));
                 mpz_cloc(tempz);
                 goto done;
             }
@@ -331,10 +332,11 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
             mpfr_clear_flags();
             result->rc = mpfr_sub_z(result->f, MPFR(y), MPZ(x),
                                     GET_MPFR_ROUND(context));
+            mpfr_neg(result->f, result->f, GET_MPFR_ROUND(context));
             goto done;
         }
 
-        if (IS_RATIONAL(x) || IS_DECIMAL(x)) {
+        if (IS_RATIONAL(x)) {
             MPQ_Object *tempx;
 
             if (!(tempx = GMPy_MPQ_From_Number_Temp(x, context))) {
@@ -345,6 +347,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
             mpfr_clear_flags();
             result->rc = mpfr_sub_q(result->f, MPFR(y), tempx->q,
                                     GET_MPFR_ROUND(context));
+            mpfr_neg(result->f, result->f, GET_MPFR_ROUND(context));
             Py_DECREF((PyObject*)tempx);
             goto done;
         }
@@ -353,6 +356,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
             mpfr_clear_flags();
             result->rc = mpfr_sub_d(result->f, MPFR(y), PyFloat_AS_DOUBLE(x),
                                     GET_MPFR_ROUND(context));
+            mpfr_neg(result->f, result->f, GET_MPFR_ROUND(context));
             goto done;
         }
     }

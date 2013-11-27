@@ -84,7 +84,8 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_erange=False, erange=False,
         trap_divzero=False, divzero=False,
         trap_expbound=False,
-        allow_complex=False)
+        allow_complex=False,
+        rational_division=False)
 
 Test asin
 ---------
@@ -148,7 +149,8 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_erange=False, erange=False,
         trap_divzero=False, divzero=False,
         trap_expbound=False,
-        allow_complex=False)
+        allow_complex=False,
+        rational_division=False)
 
 Test atan
 ---------
@@ -206,7 +208,8 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_erange=False, erange=False,
         trap_divzero=False, divzero=False,
         trap_expbound=False,
-        allow_complex=False)
+        allow_complex=False,
+        rational_division=False)
 
 Test atan2
 ----------
@@ -303,7 +306,8 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_erange=False, erange=False,
         trap_divzero=False, divzero=False,
         trap_expbound=False,
-        allow_complex=False)
+        allow_complex=False,
+        rational_division=False)
 
 Test cot
 --------

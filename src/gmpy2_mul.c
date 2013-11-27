@@ -314,7 +314,7 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
             goto done;
         }
 
-        if (IS_RATIONAL(x) || IS_DECIMAL(x)) {
+        if (IS_RATIONAL(x)) {
             MPQ_Object *tempx;
 
             if (!(tempx = GMPy_MPQ_From_Number_Temp(x, context))) {

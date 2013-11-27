@@ -284,7 +284,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             goto done;
         }
 
-        if (IS_RATIONAL(y) || IS_DECIMAL(y)) {
+        if (IS_RATIONAL(y)) {
             MPQ_Object *tempy;
 
             if (!(tempy = GMPy_MPQ_From_Number_Temp(y, context))) {
@@ -337,7 +337,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             goto done;
         }
 
-        if (IS_RATIONAL(x) || IS_DECIMAL(x)) {
+        if (IS_RATIONAL(x)) {
             MPQ_Object *tempx;
 
             if (!(tempx = GMPy_MPQ_From_Number_Temp(x, context))) {
@@ -359,8 +359,9 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         }
     }
 
-    /* In addition to handling PyFloat + PyFloat, the rare case when the
-     * exponent bounds have been changed is handled here.
+    /* In addition to handling PyFloat + PyFloat, or calculation involving
+     * decimal instances, the rare case when the exponent bounds have been
+     * changed is handled here.
      */
 
     if (IS_REAL(x) && IS_REAL(y)) {
