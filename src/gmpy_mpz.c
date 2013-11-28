@@ -2203,113 +2203,6 @@ Pympz_format(PyObject *self, PyObject *args)
     return result;
 }
 
-/* Divide two Integer objects (see convert.c/isInteger) and return remainder.
- * If an error occurs, NULL is returned and an exception is set. If either x
- * or y can't be converted into an mpz, Py_NotImplemented is returned. */
-
-static PyObject *
-Pympz_Mod_Integer(PyObject *x, PyObject *y, CTXT_Object *context)
-{
-    MPZ_Object *tempx, *tempy, *result;
-    mpz_t tempz;
-    mpir_si temp_si;
-    int overflow;
-
-    if (!(result = GMPy_MPZ_New(context)))
-        return NULL;
-
-    if (CHECK_MPZANY(x)) {
-        if (PyIntOrLong_Check(y)) {
-            temp_si = PyLong_AsSIAndOverflow(y, &overflow);
-            if (overflow) {
-                mpz_inoc(tempz);
-                mpz_set_PyIntOrLong(tempz, y);
-                mpz_fdiv_r(result->z, MPZ(x), tempz);
-                mpz_cloc(tempz);
-            }
-            else if (temp_si > 0) {
-                mpz_fdiv_r_ui(result->z, MPZ(x), temp_si);
-            }
-            else if (temp_si == 0) {
-                ZERO_ERROR("division or modulo by zero");
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-            else {
-                mpz_cdiv_r_ui(result->z, MPZ(x), -temp_si);
-            }
-            return (PyObject*)result;
-        }
-        if (CHECK_MPZANY(y)) {
-            if (mpz_sgn(MPZ(y)) == 0) {
-                ZERO_ERROR("division or modulo by zero");
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-            mpz_fdiv_r(result->z, MPZ(x), MPZ(y));
-            return (PyObject*)result;
-        }
-    }
-
-    if (CHECK_MPZANY(y)) {
-        if (mpz_sgn(MPZ(y)) == 0) {
-            ZERO_ERROR("division or modulo by zero");
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        if (PyIntOrLong_Check(x)) {
-            mpz_inoc(tempz);
-            mpz_set_PyIntOrLong(tempz, x);
-            mpz_fdiv_r(result->z, tempz, MPZ(y));
-            mpz_cloc(tempz);
-            return (PyObject*)result;
-        }
-    }
-
-    if (IS_INTEGER(x) && IS_INTEGER(y)) {
-        tempx = GMPy_MPZ_From_Integer_Temp(x, context);
-        tempy = GMPy_MPZ_From_Integer_Temp(y, context);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("Could not convert Integer to mpz.");
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        if (mpz_sgn(tempy->z) == 0) {
-            ZERO_ERROR("division or modulo by zero");
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        mpz_fdiv_r(result->z, tempx->z, tempy->z);
-        Py_DECREF((PyObject*)tempx);
-        Py_DECREF((PyObject*)tempy);
-        return (PyObject*)result;
-    }
-
-    Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-static PyObject *
-Pympz_mod_fast(PyObject *x, PyObject *y)
-{
-    CTXT_Object *context = NULL;
-
-    if (IS_INTEGER(x) && IS_INTEGER(y))
-        return Pympz_Mod_Integer(x, y, context);
-    else if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return Pympq_Mod_Rational(x, y, context);
-    else if (IS_REAL(x) && IS_REAL(y))
-        return Pympfr_Mod_Real(x, y, context);
-    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return Pympc_Mod_Complex(x, y, context);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
 static PyObject *
 Pympz_getnumer(MPZ_Object *self, void *closure)
 {
@@ -2346,7 +2239,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) GMPy_mpz_add_fast,        /* nb_add                  */
     (binaryfunc) GMPy_mpz_sub_fast,        /* nb_subtract             */
     (binaryfunc) GMPy_mpz_mul_fast,        /* nb_multiply             */
-    (binaryfunc) Pympz_mod_fast,           /* nb_remainder            */
+    (binaryfunc) GMPy_mpz_mod_fast,        /* nb_remainder            */
     (binaryfunc) GMPy_mpz_divmod_fast,     /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,     /* nb_power                */
     (unaryfunc) Pympz_neg,                 /* nb_negative             */
@@ -2386,7 +2279,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) GMPy_mpz_sub_fast,        /* nb_subtract             */
     (binaryfunc) GMPy_mpz_mul_fast,        /* nb_multiply             */
     (binaryfunc) GMPy_mpz_div2_fast,       /* nb_divide               */
-    (binaryfunc) Pympz_mod_fast,           /* nb_remainder            */
+    (binaryfunc) GMPy_mpz_mod_fast,        /* nb_remainder            */
     (binaryfunc) GMPy_mpz_divmod_fast,     /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,     /* nb_power                */
     (unaryfunc) Pympz_neg,                 /* nb_negative             */

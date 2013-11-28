@@ -59,10 +59,10 @@ GMPy_Integer_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     mpir_si temp_si;
     int overflow;
 
+    CHECK_CONTEXT_SET_EXPONENT(context);
+
     if (!(result = GMPy_MPZ_New(context)))
         return NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (CHECK_MPZANY(x)) {
         if (PyIntOrLong_Check(y)) {
@@ -400,12 +400,8 @@ GMPy_mpfr_floordiv_fast(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Complex_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
-        TYPE_ERROR("can't take floor of complex number.");
-        return NULL;
-    }
-
-    Py_RETURN_NOTIMPLEMENTED;
+    TYPE_ERROR("can't take floor of complex number.");
+    return NULL;
 }
 
 static PyObject *

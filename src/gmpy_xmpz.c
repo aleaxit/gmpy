@@ -675,7 +675,7 @@ static PyNumberMethods xmpz_number_methods =
     (binaryfunc) GMPy_mpz_add_fast,        /* nb_add                  */
     (binaryfunc) GMPy_mpz_sub_fast,        /* nb_subtract             */
     (binaryfunc) GMPy_mpz_mul_fast,        /* nb_multiply             */
-    (binaryfunc) Pympz_mod_fast,           /* nb_remainder            */
+    (binaryfunc) GMPy_mpz_mod_fast,        /* nb_remainder            */
     (binaryfunc) GMPy_mpz_divmod_fast,     /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,     /* nb_power                */
     (unaryfunc) Pyxmpz_neg,                /* nb_negative             */
@@ -715,7 +715,7 @@ static PyNumberMethods xmpz_number_methods =
     (binaryfunc) GMPy_mpz_sub_fast,        /* nb_subtract             */
     (binaryfunc) GMPy_mpz_mul_fast,        /* nb_multiply             */
     (binaryfunc) GMPy_mpz_div2_fast,       /* nb_divide               */
-    (binaryfunc) Pympz_mod_fast,           /* nb_remainder            */
+    (binaryfunc) GMPy_mpz_mod_fast,        /* nb_remainder            */
     (binaryfunc) GMPy_mpz_divmod_fast,     /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,     /* nb_power                */
     (unaryfunc) Pyxmpz_neg,                /* nb_negative             */

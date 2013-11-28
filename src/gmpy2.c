@@ -540,6 +540,7 @@ static PyObject *GMPyExc_ExpBound = NULL;
 #include "gmpy2_add.c"
 #include "gmpy2_divmod.c"
 #include "gmpy2_floordiv.c"
+#include "gmpy2_mod.c"
 #include "gmpy2_mul.c"
 #include "gmpy2_pow.c"
 #include "gmpy2_sub.c"
@@ -621,7 +622,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "lucasv", GMPY_mpz_lucasv, METH_VARARGS, doc_mpz_lucasv },
     { "lucasv_mod", GMPY_mpz_lucasv_mod, METH_VARARGS, doc_mpz_lucasv_mod },
     { "lucas2", Pygmpy_lucas2, METH_O, doc_lucas2 },
-    { "mod", Pympany_mod, METH_VARARGS, doc_mpany_mod },
+    { "mod", GMPy_Context_Mod, METH_VARARGS, GMPy_doc_mod },
     { "mp_version", GMPy_get_mp_version, METH_NOARGS, doc_mp_version },
     { "mp_limbsize", GMPy_get_mp_limbsize, METH_NOARGS, doc_mp_limbsize },
     { "mpc_version", GMPy_get_mpc_version, METH_NOARGS, doc_mpc_version },
@@ -679,7 +680,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "const_euler", (PyCFunction)Pympfr_const_euler, METH_VARARGS | METH_KEYWORDS, doc_mpfr_const_euler },
     { "const_log2", (PyCFunction)Pympfr_const_log2, METH_VARARGS | METH_KEYWORDS, doc_mpfr_const_log2 },
     { "const_pi", (PyCFunction)Pympfr_const_pi, METH_VARARGS | METH_KEYWORDS, doc_mpfr_const_pi },
-    { "context", (PyCFunction)GMPy_CTXT_Context, METH_VARARGS | METH_KEYWORDS, doc_context },
+    { "context", (PyCFunction)GMPy_CTXT_Context, METH_VARARGS | METH_KEYWORDS, GMPy_doc_context },
     { "copy_sign", Pympfr_copy_sign, METH_VARARGS, doc_g_mpfr_copy_sign },
     { "cos", Pympany_cos, METH_O, doc_mpany_cos },
     { "cosh", Pympany_cosh, METH_O, doc_mpany_cosh },
@@ -707,13 +708,13 @@ static PyMethodDef Pygmpy_methods [] =
     { "frexp", Pympfr_frexp, METH_O, doc_g_mpfr_frexp },
     { "fsum", Pympfr_fsum, METH_O, doc_g_mpfr_fsum },
     { "gamma", Pympfr_gamma, METH_O, doc_g_mpfr_gamma },
-    { "get_context", GMPy_CTXT_Get, METH_NOARGS, doc_get_context },
+    { "get_context", GMPy_CTXT_Get, METH_NOARGS, GMPy_doc_get_context },
     { "get_emax_max", Pympfr_get_emax_max, METH_NOARGS, doc_g_mpfr_get_emax_max },
     { "get_emin_min", Pympfr_get_emin_min, METH_NOARGS, doc_g_mpfr_get_emin_min },
     { "get_exp", Pympfr_get_exp, METH_O, doc_g_mpfr_get_exp },
     { "get_max_precision", Pympfr_get_max_precision, METH_NOARGS, doc_g_mpfr_get_max_precision },
     { "hypot", Pympfr_hypot, METH_VARARGS, doc_g_mpfr_hypot },
-    { "ieee", GMPy_CTXT_ieee, METH_O, doc_context_ieee },
+    { "ieee", GMPy_CTXT_ieee, METH_O, GMPy_doc_context_ieee },
     { "inf", Pympfr_set_inf, METH_VARARGS, doc_g_mpfr_set_inf },
     { "is_finite", Pympany_is_finite, METH_O, doc_mpany_is_finite },
     { "is_inf", Pympany_is_inf, METH_O, doc_mpany_is_inf },
@@ -732,7 +733,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "lgamma", Pympfr_lgamma, METH_O, doc_g_mpfr_lgamma },
     { "li2", Pympfr_li2, METH_O, doc_g_mpfr_li2 },
     { "lngamma", Pympfr_lngamma, METH_O, doc_g_mpfr_lngamma },
-    { "local_context", (PyCFunction)GMPy_CTXT_Local, METH_VARARGS | METH_KEYWORDS, doc_local_context },
+    { "local_context", (PyCFunction)GMPy_CTXT_Local, METH_VARARGS | METH_KEYWORDS, GMPy_doc_local_context },
     { "log", Pympany_log, METH_O, doc_mpany_log },
     { "log1p", Pympfr_log1p, METH_O, doc_g_mpfr_log1p },
     { "log10", Pympany_log10, METH_O, doc_mpany_log10 },
@@ -766,7 +767,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "round2", Pympfr_round2, METH_VARARGS, doc_g_mpfr_round2 },
     { "sec", Pympfr_sec, METH_O, doc_g_mpfr_sec },
     { "sech", Pympfr_sech, METH_O, doc_g_mpfr_sech },
-    { "set_context", GMPy_CTXT_Set, METH_O, doc_set_context },
+    { "set_context", GMPy_CTXT_Set, METH_O, GMPy_doc_set_context },
     { "set_exp", Pympfr_set_exp, METH_VARARGS, doc_g_mpfr_set_exp },
     { "set_sign", Pympfr_set_sign, METH_VARARGS, doc_g_mpfr_set_sign },
     { "sin", Pympany_sin, METH_O, doc_mpany_sin },

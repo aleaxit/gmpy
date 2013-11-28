@@ -83,7 +83,7 @@ GMPy_CTXT_Dealloc(CTXT_Object *self)
 
 /* Doc-string, alternate definitions below. */
 
-PyDoc_STRVAR(doc_set_context,
+PyDoc_STRVAR(GMPy_doc_set_context,
 "set_context(context)\n\n"
 "Activate a context object controlling gmpy2 arithmetic.\n");
 
@@ -238,7 +238,7 @@ GMPy_CTXT_Set(PyObject *self, PyObject *other)
 }
 #endif
 
-PyDoc_STRVAR(doc_context_ieee,
+PyDoc_STRVAR(GMPy_doc_context_ieee,
 "ieee(bitwidth) -> context\n\n"
 "Return a new context corresponding to a standard IEEE floating point\n"
 "format. The currently supported precisions are 32, 64, and 128 bits.");
@@ -400,7 +400,7 @@ GMPy_CTXT_Manager_Repr_Slot(CTXT_Manager_Object *self)
     return Py_BuildValue("s", "<gmpy2.ContextManagerObject>");
 }
 
-PyDoc_STRVAR(doc_get_context,
+PyDoc_STRVAR(GMPy_doc_get_context,
 "get_context() -> gmpy2 context\n\n"
 "Return a reference to the current context.");
 
@@ -414,7 +414,7 @@ GMPy_CTXT_Get(PyObject *self, PyObject *args)
     return (PyObject*)context;
 }
 
-PyDoc_STRVAR(doc_context_copy,
+PyDoc_STRVAR(GMPy_doc_context_copy,
 "context.copy() -> gmpy2 context\n\n"
 "Return a copy of a context.");
 
@@ -431,7 +431,7 @@ GMPy_CTXT_Copy(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_local_context,
+PyDoc_STRVAR(GMPy_doc_local_context,
 "local_context([context[,keywords]]) -> context manager\n\n"
 "Create a context manager object that will restore the current context\n"
 "when the 'with ...' block terminates. The temporary context for the\n"
@@ -626,7 +626,7 @@ GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
     return NULL;
 }
 
-PyDoc_STRVAR(doc_context,
+PyDoc_STRVAR(GMPy_doc_context,
 "context() -> context manager\n\n"
 "Return a new context for controlling MPFR and MPC arithmetic. To load\n"
 "the new context, use set_context(). Options can only be specified as\n"
@@ -994,9 +994,10 @@ GMPy_CTXT_Exit(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-PyDoc_STRVAR(doc_context_clear_flags,
+PyDoc_STRVAR(GMPy_doc_context_clear_flags,
 "clear_flags()\n\n"
 "Clear all MPFR exception flags.");
+
 static PyObject *
 GMPy_CTXT_Clear_Flags(PyObject *self, PyObject *args)
 {
@@ -1414,12 +1415,12 @@ static PyMethodDef GMPyContext_methods[] =
 {
     { "abs", GMPy_Context_Abs, METH_VARARGS, GMPy_doc_context_abs },
     { "add", GMPy_Context_Add, METH_VARARGS, GMPy_doc_context_add },
-    { "clear_flags", GMPy_CTXT_Clear_Flags, METH_NOARGS, doc_context_clear_flags },
-    { "copy", GMPy_CTXT_Copy, METH_NOARGS, doc_context_copy },
+    { "clear_flags", GMPy_CTXT_Clear_Flags, METH_NOARGS, GMPy_doc_context_clear_flags },
+    { "copy", GMPy_CTXT_Copy, METH_NOARGS, GMPy_doc_context_copy },
     { "div", GMPy_Context_TrueDiv, METH_VARARGS, GMPy_doc_context_truediv },
     { "divmod", GMPy_Context_DivMod, METH_VARARGS, GMPy_doc_context_divmod },
     { "floor_div", GMPy_Context_FloorDiv, METH_VARARGS, GMPy_doc_context_floordiv },
-    { "mod", Pympany_mod, METH_VARARGS, doc_context_mod },
+    { "mod", GMPy_Context_Mod, METH_VARARGS, GMPy_doc_context_mod },
     { "mul", GMPy_Context_Mul, METH_VARARGS, GMPy_doc_context_mul },
     { "pow", GMPy_Context_Pow, METH_VARARGS, GMPy_doc_context_pow },
     { "sub", GMPy_Context_Sub, METH_VARARGS, GMPy_doc_context_sub },
