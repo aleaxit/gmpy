@@ -644,79 +644,6 @@ Pympq_mod_fast(PyObject *x, PyObject *y)
     Py_RETURN_NOTIMPLEMENTED;
 }
 
-/* Return the quotient and remainder from dividing two Rational objects (see
- * convert.c/IS_RATIONAL). Returns None and raises TypeError if both objects
- * are not valid rationals. */
-
-static PyObject *
-Pympq_DivMod_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
-{
-    MPQ_Object *tempx, *tempy, *rem;
-    MPZ_Object *quo;
-    PyObject *result;
-
-    result = PyTuple_New(2);
-    rem = GMPy_MPQ_New(context);
-    quo = GMPy_MPZ_New(context);
-    if (!result || !rem || !quo) {
-        Py_XDECREF(result);
-        Py_XDECREF((PyObject*)rem);
-        Py_XDECREF((PyObject*)quo);
-        return NULL;
-    }
-
-    if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
-        tempx = GMPy_MPQ_From_Number_Temp(x, context);
-        tempy = GMPy_MPQ_From_Number_Temp(y, context);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("Could not convert Rational to mpq.");
-            goto error;
-        }
-        if (mpq_sgn(tempy->q) == 0) {
-            ZERO_ERROR("division or modulo by zero");
-            goto error;
-        }
-
-        mpq_div(rem->q, tempx->q, tempy->q);
-        mpz_fdiv_q(quo->z, mpq_numref(rem->q), mpq_denref(rem->q));
-        /* Need to calculate x - quo * y. */
-        mpq_set_z(rem->q, quo->z);
-        mpq_mul(rem->q, rem->q, tempy->q);
-        mpq_sub(rem->q, tempx->q, rem->q);
-        Py_DECREF((PyObject*)tempx);
-        Py_DECREF((PyObject*)tempy);
-        PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
-        PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
-        return result;
-    }
-
-    Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
-
-  error:
-    Py_XDECREF((PyObject*)tempx);
-    Py_XDECREF((PyObject*)tempy);
-    Py_DECREF((PyObject*)rem);
-    Py_DECREF((PyObject*)quo);
-    Py_DECREF(result);
-    return NULL;
-}
-
-static PyObject *
-Pympq_divmod_fast(PyObject *x, PyObject *y)
-{
-    CTXT_Object *context= NULL;
-
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return Pympq_DivMod_Rational(x, y, context);
-    else if (IS_REAL(x) && IS_REAL(y))
-        return Pympfr_DivMod_Real(x, y, context);
-    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return Pympc_DivMod_Complex(x, y, context);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
 PyDoc_STRVAR(doc_mpq_sizeof,
 "x.__sizeof__()\n\n"
 "Returns the amount of memory consumed by x. Note: deleted mpq objects\n"
@@ -737,7 +664,7 @@ static PyNumberMethods mpq_number_methods =
     (binaryfunc) GMPy_mpq_sub_fast,         /* nb_subtract             */
     (binaryfunc) GMPy_mpq_mul_fast,         /* nb_multiply             */
     (binaryfunc) Pympq_mod_fast,            /* nb_remainder            */
-    (binaryfunc) Pympq_divmod_fast,         /* nb_divmod               */
+    (binaryfunc) GMPy_mpq_divmod_fast,      /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,      /* nb_power                */
     (unaryfunc) Pympq_neg,                  /* nb_negative             */
     (unaryfunc) Pympq_pos,                  /* nb_positive             */
@@ -776,7 +703,7 @@ static PyNumberMethods mpq_number_methods =
     (binaryfunc) GMPy_mpq_mul_fast,         /* nb_multiply             */
     (binaryfunc) GMPy_mpq_truediv_fast,     /* nb_divide               */
     (binaryfunc) Pympq_mod_fast,            /* nb_remainder            */
-    (binaryfunc) Pympq_divmod_fast,         /* nb_divmod               */
+    (binaryfunc) GMPy_mpq_divmod_fast,      /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,      /* nb_power                */
     (unaryfunc) Pympq_neg,                  /* nb_negative             */
     (unaryfunc) Pympq_pos,                  /* nb_positive             */

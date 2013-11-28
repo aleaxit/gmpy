@@ -538,6 +538,7 @@ static PyObject *GMPyExc_ExpBound = NULL;
 
 #include "gmpy2_abs.c"
 #include "gmpy2_add.c"
+#include "gmpy2_divmod.c"
 #include "gmpy2_floordiv.c"
 #include "gmpy2_mul.c"
 #include "gmpy2_pow.c"
@@ -574,7 +575,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "div", GMPy_Context_TrueDiv, METH_VARARGS, GMPy_doc_truediv },
     { "divexact", Pygmpy_divexact, METH_VARARGS, doc_divexactg },
     { "divm", Pygmpy_divm, METH_VARARGS, doc_divm },
-    { "div_mod", Pympany_divmod, METH_VARARGS, doc_mpany_divmod },
+    { "div_mod", GMPy_Context_DivMod, METH_VARARGS, GMPy_doc_divmod },
     { "fac", Pygmpy_fac, METH_O, doc_fac },
     { "fib", Pygmpy_fib, METH_O, doc_fib },
     { "fib2", Pygmpy_fib2, METH_O, doc_fib2 },

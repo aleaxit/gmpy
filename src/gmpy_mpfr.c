@@ -1849,126 +1849,6 @@ Pympfr_mod_fast(PyObject *x, PyObject *y)
     Py_RETURN_NOTIMPLEMENTED;
 }
 
-/* Compute the quotient and remainder of two mpfr numbers. Match Python's
- * behavior for handling signs and special values. Returns Py_NotImplemented
- * if both objects are not valid reals.  */
-
-static PyObject *
-Pympfr_DivMod_Real(PyObject *x, PyObject *y, CTXT_Object *context)
-{
-    MPFR_Object *tempx, *tempy, *quo, *rem;
-    PyObject *result;
-
-    result = PyTuple_New(2);
-    rem = GMPy_MPFR_New(0, context);
-    quo = GMPy_MPFR_New(0, context);
-    if (!result || !rem || !quo) {
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)quo);
-        Py_XDECREF((PyObject*)rem);
-        return NULL;
-    }
-
-    if (IS_REAL(x) && IS_REAL(y)) {
-        tempx = GMPy_MPFR_From_Real_Temp(x, 0, context);
-        tempy = GMPy_MPFR_From_Real_Temp(y, 0, context);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("Can not convert Real to 'mpfr'");
-            goto error;
-        }
-        if (mpfr_zero_p(tempy->f)) {
-            context->ctx.divzero = 1;
-            if (context->ctx.traps & TRAP_DIVZERO) {
-                GMPY_DIVZERO("'mpfr' division by zero in divmod");
-                goto error;
-            }
-        }
-        mpfr_clear_flags();
-        if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
-            context->ctx.invalid = 1;
-            if (context->ctx.traps & TRAP_INVALID) {
-                GMPY_INVALID("'mpfr' invalid operation in divmod");
-                goto error;
-            }
-            else {
-                mpfr_set_nan(quo->f);
-                mpfr_set_nan(rem->f);
-            }
-        }
-        else if (mpfr_inf_p(tempy->f)) {
-            context->ctx.invalid = 1;
-            if (context->ctx.traps & TRAP_INVALID) {
-                GMPY_INVALID("'mpfr' invalid operation in divmod");
-                goto error;
-            }
-            if (mpfr_zero_p(tempx->f)) {
-                mpfr_set_zero(quo->f, mpfr_sgn(tempy->f));
-                mpfr_set_zero(rem->f, mpfr_sgn(tempy->f));
-            }
-            else if ((mpfr_signbit(tempx->f)) != (mpfr_signbit(tempy->f))) {
-                mpfr_set_si(quo->f, -1, MPFR_RNDN);
-                mpfr_set_inf(rem->f, mpfr_sgn(tempy->f));
-            }
-            else {
-                mpfr_set_si(quo->f, 0, MPFR_RNDN);
-                rem->rc = mpfr_set(rem->f, tempx->f, GET_MPFR_ROUND(context));
-            }
-        }
-        else {
-            mpfr_div(quo->f, tempx->f, tempy->f, MPFR_RNDD);
-            mpfr_floor(quo->f, quo->f);
-            rem->rc = mpfr_fms(rem->f, quo->f, tempy->f, tempx->f,
-                               GET_MPFR_ROUND(context));
-            mpfr_neg(rem->f, rem->f, GET_MPFR_ROUND(context));
-        }
-        SUBNORMALIZE(rem);
-        SUBNORMALIZE(quo);
-        MERGE_FLAGS;
-        if (mpfr_underflow_p() && (context->ctx.traps & TRAP_UNDERFLOW)) {
-            GMPY_UNDERFLOW("'mpfr' underflow in divmod");
-            goto error;
-        }
-        if (mpfr_overflow_p() && (context->ctx.traps & TRAP_OVERFLOW)) {
-            GMPY_OVERFLOW("'mpfr' overflow in divmod");
-            goto error;
-        }
-        if (mpfr_inexflag_p() && (context->ctx.traps & TRAP_INEXACT)) {
-            GMPY_INEXACT("'mpfr' inexact result in divmod");
-            goto error;
-        }
-        Py_DECREF((PyObject*)tempx);
-        Py_DECREF((PyObject*)tempy);
-        PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
-        PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
-        return (PyObject*)result;
-    }
-
-    Py_DECREF(result);
-    Py_RETURN_NOTIMPLEMENTED;
-
-  error:
-    Py_XDECREF((PyObject*)tempx);
-    Py_XDECREF((PyObject*)tempy);
-    Py_DECREF((PyObject*)rem);
-    Py_DECREF((PyObject*)quo);
-    Py_DECREF(result);
-    return NULL;
-}
-
-static PyObject *
-Pympfr_divmod_fast(PyObject *x, PyObject *y)
-{
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-    if (IS_REAL(x) && IS_REAL(y))
-        return Pympfr_DivMod_Real(x, y, context);
-    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return Pympc_DivMod_Complex(x, y, context);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
 PyDoc_STRVAR(doc_g_mpfr_fmod,
 "fmod(x, y) -> mpfr\n\n"
 "Return x - n*y where n is the integer quotient of x/y, rounded to 0.");
@@ -2934,7 +2814,7 @@ static PyNumberMethods mpfr_number_methods =
     (binaryfunc) GMPy_mpfr_sub_fast,         /* nb_subtract             */
     (binaryfunc) GMPy_mpfr_mul_fast,         /* nb_multiply             */
     (binaryfunc) Pympfr_mod_fast,            /* nb_remainder            */
-    (binaryfunc) Pympfr_divmod_fast,         /* nb_divmod               */
+    (binaryfunc) GMPy_mpfr_divmod_fast,      /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,       /* nb_power                */
     (unaryfunc) Pympfr_neg_fast,             /* nb_negative             */
     (unaryfunc) Pympfr_pos,                  /* nb_positive             */
@@ -2973,7 +2853,7 @@ static PyNumberMethods mpfr_number_methods =
     (binaryfunc) GMPy_mpfr_mul_fast,         /* nb_multiply             */
     (binaryfunc) GMPy_mpfr_truediv_fast,     /* nb_divide               */
     (binaryfunc) Pympfr_mod_fast,            /* nb_remainder            */
-    (binaryfunc) Pympfr_divmod_fast,         /* nb_divmod               */
+    (binaryfunc) GMPy_mpfr_divmod_fast,      /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,       /* nb_power                */
     (unaryfunc) Pympfr_neg_fast,             /* nb_negative             */
     (unaryfunc) Pympfr_pos,                  /* nb_positive             */

@@ -302,6 +302,7 @@ typedef long                mpir_si;
 
 #include "gmpy2_abs.h"
 #include "gmpy2_add.h"
+#include "gmpy2_divmod.h"
 #include "gmpy2_floordiv.h"
 #include "gmpy2_mul.h"
 #include "gmpy2_pow.h"
