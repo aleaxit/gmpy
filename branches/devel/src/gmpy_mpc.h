@@ -370,7 +370,7 @@ static PyObject * Pympc_getprec_attrib(MPC_Object *self, void *closure);
 static PyObject * Pympc_getrc_attrib(MPC_Object *self, void *closure);
 static PyObject * Pympc_getimag_attrib(MPC_Object *self, void *closure);
 static PyObject * Pympc_getreal_attrib(MPC_Object *self, void *closure);
-static int Pympc_nonzero(MPC_Object *self);
+static int        Pympc_nonzero(MPC_Object *self);
 static PyObject * Pympc_is_NAN(PyObject *self, PyObject *other);
 static PyObject * Pympc_is_ZERO(PyObject *self, PyObject *other);
 static PyObject * Pympc_is_INF(PyObject *self, PyObject *other);
@@ -401,10 +401,9 @@ static PyObject * Pympc_fma(PyObject *self, PyObject *args);
 static PyObject * Pympc_fms(PyObject *self, PyObject *args);
 static PyObject * Pympc_div_2exp(PyObject *self, PyObject *args);
 static PyObject * Pympc_mul_2exp(PyObject *self, PyObject *args);
-static Py_hash_t Pympc_hash(MPC_Object *self);
+static Py_hash_t  Pympc_hash(MPC_Object *self);
 
 static PyObject * Pympc_Mod_Complex(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * Pympc_DivMod_Complex(PyObject *x, PyObject *y, CTXT_Object *context);
 
 #ifdef __cplusplus
 }

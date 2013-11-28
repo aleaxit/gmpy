@@ -1106,27 +1106,6 @@ Pympc_mod_fast(PyObject *x, PyObject *y)
     return NULL;
 }
 
-static PyObject *
-Pympc_DivMod_Complex(PyObject *x, PyObject *y, CTXT_Object *context)
-{
-    if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
-        TYPE_ERROR("can't take floor or mod of complex numbers");
-        return NULL;
-    }
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-static PyObject *
-Pympc_divmod_fast(PyObject *x, PyObject *y)
-{
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    return Pympc_DivMod_Complex(x, y, context);
-}
-
 PyDoc_STRVAR(doc_mpc_sizeof,
 "x.__sizeof__()\n\n"
 "Returns the amount of memory consumed by x.");
@@ -1159,7 +1138,7 @@ static PyNumberMethods mpc_number_methods =
     (binaryfunc) GMPy_mpc_sub_fast,      /* nb_subtract             */
     (binaryfunc) GMPy_mpc_mul_fast,      /* nb_multiply             */
     (binaryfunc) Pympc_mod_fast,         /* nb_remainder            */
-    (binaryfunc) Pympc_divmod_fast,      /* nb_divmod               */
+    (binaryfunc) GMPy_mpc_divmod_fast,   /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
     (unaryfunc) Pympc_neg,               /* nb_negative             */
     (unaryfunc) Pympc_pos,               /* nb_positive             */
@@ -1198,7 +1177,7 @@ static PyNumberMethods mpc_number_methods =
     (binaryfunc) GMPy_mpc_mul_fast,      /* nb_multiply             */
     (binaryfunc) GMPy_mpc_truediv_fast,  /* nb_divide               */
     (binaryfunc) Pympc_mod_fast,         /* nb_remainder            */
-    (binaryfunc) Pympc_divmod_fast,      /* nb_divmod               */
+    (binaryfunc) GMPy_mpc_divmod_fast,   /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
     (unaryfunc) Pympc_neg,               /* nb_negative             */
     (unaryfunc) Pympc_pos,               /* nb_positive             */
