@@ -1088,24 +1088,6 @@ Pympc_hash(MPC_Object *self)
     return (Py_hash_t)combined;
 }
 
-static PyObject *
-Pympc_Mod_Complex(PyObject *x, PyObject *y, CTXT_Object *context)
-{
-    if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
-        TYPE_ERROR("can't mod complex numbers");
-        return NULL;
-    }
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-static PyObject *
-Pympc_mod_fast(PyObject *x, PyObject *y)
-{
-    TYPE_ERROR("can't mod complex numbers");
-    return NULL;
-}
-
 PyDoc_STRVAR(doc_mpc_sizeof,
 "x.__sizeof__()\n\n"
 "Returns the amount of memory consumed by x.");
@@ -1137,7 +1119,7 @@ static PyNumberMethods mpc_number_methods =
     (binaryfunc) GMPy_mpc_add_fast,      /* nb_add                  */
     (binaryfunc) GMPy_mpc_sub_fast,      /* nb_subtract             */
     (binaryfunc) GMPy_mpc_mul_fast,      /* nb_multiply             */
-    (binaryfunc) Pympc_mod_fast,         /* nb_remainder            */
+    (binaryfunc) GMPy_mpc_mod_fast,      /* nb_remainder            */
     (binaryfunc) GMPy_mpc_divmod_fast,   /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
     (unaryfunc) Pympc_neg,               /* nb_negative             */
@@ -1176,7 +1158,7 @@ static PyNumberMethods mpc_number_methods =
     (binaryfunc) GMPy_mpc_sub_fast,      /* nb_subtract             */
     (binaryfunc) GMPy_mpc_mul_fast,      /* nb_multiply             */
     (binaryfunc) GMPy_mpc_truediv_fast,  /* nb_divide               */
-    (binaryfunc) Pympc_mod_fast,         /* nb_remainder            */
+    (binaryfunc) GMPy_mpc_mod_fast,      /* nb_remainder            */
     (binaryfunc) GMPy_mpc_divmod_fast,   /* nb_divmod               */
     (ternaryfunc) GMPy_mpany_pow_fast,   /* nb_power                */
     (unaryfunc) Pympc_neg,               /* nb_negative             */

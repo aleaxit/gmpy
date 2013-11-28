@@ -112,9 +112,6 @@ static Py_ssize_t Pympz_nbits(MPZ_Object *self);
 static PyObject * Pympz_subscript(MPZ_Object *self, PyObject *item);
 static PyObject * Pympz_format(PyObject *self, PyObject *args);
 
-static PyObject * Pympz_Mod_Integer(PyObject *x, PyObject *y, CTXT_Object *context);
-
-
 #ifdef __cplusplus
 }
 #endif
