@@ -581,84 +581,6 @@ Pympq_hash(MPQ_Object *self)
 #endif
 }
 
-/* Divide two Rational objects (see gmpy2_convert.h). Returns None and
- * raises TypeError if both objects are not valid rationals. */
-
-static PyObject *
-Pympq_FloorDiv_Rational(PyObject *x, PyObject *y, CTXT_Object *context)
-{
-    MPZ_Object *result;
-    MPQ_Object *tempq;
-
-    result = GMPy_MPZ_New(context);
-    tempq = GMPy_MPQ_New(context);
-    if (!result || !tempq) {
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)tempq);
-        return NULL;
-    }
-
-    if (MPQ_Check(x) && MPQ_Check(y)) {
-        if (mpq_sgn(MPQ(y)) == 0) {
-            ZERO_ERROR("division or modulo by zero");
-            goto error;
-        }
-        mpq_div(tempq->q, MPQ(x), MPQ(y));
-        mpz_fdiv_q(result->z, mpq_numref(tempq->q), mpq_denref(tempq->q));
-        Py_DECREF((PyObject*)tempq);
-        return (PyObject*)result;
-    }
-
-    if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
-        MPQ_Object *tempx, *tempy;
-
-        tempx = GMPy_MPQ_From_Number_Temp(x, context);
-        tempy = GMPy_MPQ_From_Number_Temp(y, context);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("Could not convert Rational to mpq.");
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            goto error;
-        }
-        if (mpq_sgn(tempy->q) == 0) {
-            ZERO_ERROR("division or modulo by zero");
-            Py_DECREF((PyObject*)tempx);
-            Py_DECREF((PyObject*)tempy);
-            goto error;
-        }
-
-        mpq_div(tempq->q, tempx->q, tempy->q);
-        mpz_fdiv_q(result->z, mpq_numref(tempx->q), mpq_denref(tempy->q));
-        Py_DECREF((PyObject*)tempx);
-        Py_DECREF((PyObject*)tempy);
-        Py_DECREF((PyObject*)tempq);
-        return (PyObject*)result;
-    }
-
-    Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
-
-  error:
-    Py_DECREF((PyObject*)result);
-    Py_DECREF((PyObject*)tempq);
-    return NULL;
-}
-
-static PyObject *
-Pympq_floordiv_fast(PyObject *x, PyObject *y)
-{
-    CTXT_Object *context = NULL;
-
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return Pympq_FloorDiv_Rational(x, y, context);
-    else if (IS_REAL(x) && IS_REAL(y))
-        return Pympfr_FloorDiv_Real(x, y, context);
-    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return Pympc_FloorDiv_Complex(x, y, context);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
 /* Divide two Rational objects (see convert.c/IS_RATIONAL) and return the
  * remainder. Returns None and raises TypeError if both objects are not valid
  * rationals. */
@@ -840,7 +762,7 @@ static PyNumberMethods mpq_number_methods =
         0,                                  /* nb_inplace_and          */
         0,                                  /* nb_inplace_xor          */
         0,                                  /* nb_inplace_or           */
-    (binaryfunc) Pympq_floordiv_fast,       /* nb_floor_divide         */
+    (binaryfunc) GMPy_mpq_floordiv_fast,    /* nb_floor_divide         */
     (binaryfunc) GMPy_mpq_truediv_fast,     /* nb_true_divide          */
         0,                                  /* nb_inplace_floor_divide */
         0,                                  /* nb_inplace_true_divide  */
@@ -883,7 +805,7 @@ static PyNumberMethods mpq_number_methods =
         0,                                  /* nb_inplace_and          */
         0,                                  /* nb_inplace_xor          */
         0,                                  /* nb_inplace_or           */
-    (binaryfunc) Pympq_floordiv_fast,       /* nb_floor_divide         */
+    (binaryfunc) GMPy_mpq_floordiv_fast,    /* nb_floor_divide         */
     (binaryfunc) GMPy_mpq_truediv_fast,     /* nb_true_divide          */
         0,                                  /* nb_inplace_floor_divide */
         0,                                  /* nb_inplace_true_divide  */

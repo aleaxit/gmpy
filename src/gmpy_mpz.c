@@ -2203,124 +2203,6 @@ Pympz_format(PyObject *self, PyObject *args)
     return result;
 }
 
-/* Divide two Integer objects (see convert.c/isInteger) using floor (//)
- * division. If an error occurs, NULL is returned and an exception is set.
- * If either x or y can't be converted into an mpz, Py_NotImplemented is
- * returned. */
-
-static PyObject *
-Pympz_FloorDiv_Integer(PyObject *x, PyObject *y, CTXT_Object *context)
-{
-    MPZ_Object *result;
-    mpz_t tempz;
-    mpir_si temp_si;
-    int overflow;
-
-    if (!(result = GMPy_MPZ_New(context)))
-        return NULL;
-
-    if (CHECK_MPZANY(x)) {
-        if (PyIntOrLong_Check(y)) {
-            temp_si = PyLong_AsSIAndOverflow(y, &overflow);
-            if (overflow) {
-                mpz_inoc(tempz);
-                mpz_set_PyIntOrLong(tempz, y);
-                mpz_fdiv_q(result->z, MPZ(x), tempz);
-                mpz_cloc(tempz);
-            }
-            else if (temp_si > 0) {
-                mpz_fdiv_q_ui(result->z, MPZ(x), temp_si);
-            }
-            else if (temp_si == 0) {
-                ZERO_ERROR("division or modulo by zero");
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-            else {
-                mpz_cdiv_q_ui(result->z, MPZ(x), -temp_si);
-                mpz_neg(result->z, result->z);
-            }
-            return (PyObject*)result;
-        }
-
-        if (CHECK_MPZANY(y)) {
-            if (mpz_sgn(MPZ(y)) == 0) {
-                ZERO_ERROR("division or modulo by zero");
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-            mpz_fdiv_q(result->z, MPZ(x), MPZ(y));
-            return (PyObject*)result;
-        }
-    }
-
-    if (CHECK_MPZANY(y)) {
-        if (mpz_sgn(MPZ(y)) == 0) {
-            ZERO_ERROR("division or modulo by zero");
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        if (PyIntOrLong_Check(x)) {
-            mpz_inoc(tempz);
-            mpz_set_PyIntOrLong(tempz, x);
-            mpz_fdiv_q(result->z, tempz, MPZ(y));
-            mpz_cloc(tempz);
-            return (PyObject*)result;
-        }
-    }
-
-    if (IS_INTEGER(x) && IS_INTEGER(y)) {
-        MPZ_Object *tempx, *tempy;
-
-        tempx = GMPy_MPZ_From_Integer_Temp(x, context);
-        tempy = GMPy_MPZ_From_Integer_Temp(y, context);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("Could not convert Integer to mpz.");
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        if (mpz_sgn(tempy->z) == 0) {
-            ZERO_ERROR("division or modulo by zero");
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-
-        mpz_fdiv_q(result->z, tempx->z, tempy->z);
-        Py_DECREF((PyObject*)tempx);
-        Py_DECREF((PyObject*)tempy);
-        return (PyObject*)result;
-    }
-
-    Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-/* Implement floordiv for Pympz. On entry, one of the two arguments must
- * be a Pympz. If the other object is an Integer, add and return a Pympz.
- * If the other object isn't a Pympz, call the appropriate function. If
- * no appropriate function can be found, return NotImplemented. */
-
-static PyObject *
-Pympz_floordiv_fast(PyObject *x, PyObject *y)
-{
-    CTXT_Object *context = NULL;
-
-    if (IS_INTEGER(x) && IS_INTEGER(y))
-        return Pympz_FloorDiv_Integer(x, y, context);
-    else if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return Pympq_FloorDiv_Rational(x, y, context);
-    else if (IS_REAL(x) && IS_REAL(y))
-        return Pympfr_FloorDiv_Real(x, y, context);
-    else if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return Pympc_FloorDiv_Complex(x, y, context);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
 /* Divide two Integer objects (see convert.c/isInteger) and return remainder.
  * If an error occurs, NULL is returned and an exception is set. If either x
  * or y can't be converted into an mpz, Py_NotImplemented is returned. */
@@ -2627,7 +2509,7 @@ static PyNumberMethods mpz_number_methods =
         0,                                 /* nb_inplace_and          */
         0,                                 /* nb_inplace_xor          */
         0,                                 /* nb_inplace_or           */
-    (binaryfunc) Pympz_floordiv_fast,      /* nb_floor_divide         */
+    (binaryfunc) GMPy_mpz_floordiv_fast,   /* nb_floor_divide         */
     (binaryfunc) GMPy_mpz_truediv_fast,    /* nb_true_divide          */
     (binaryfunc) Pympz_inplace_floordiv,   /* nb_inplace_floor_divide */
         0,                                 /* nb_inplace_true_divide  */
@@ -2671,7 +2553,7 @@ static PyNumberMethods mpz_number_methods =
         0,                                 /* nb_inplace_and          */
         0,                                 /* nb_inplace_xor          */
         0,                                 /* nb_inplace_or           */
-    (binaryfunc) Pympz_floordiv_fast,      /* nb_floor_divide         */
+    (binaryfunc) GMPy_mpz_floordiv_fast,   /* nb_floor_divide         */
     (binaryfunc) GMPy_mpz_truediv_fast,    /* nb_true_divide          */
     (binaryfunc) Pympz_inplace_floordiv,   /* nb_inplace_floor_divide */
         0,                                 /* nb_inplace_true_divide  */
