@@ -538,6 +538,7 @@ static PyObject *GMPyExc_ExpBound = NULL;
 
 #include "gmpy2_abs.c"
 #include "gmpy2_add.c"
+#include "gmpy2_floordiv.c"
 #include "gmpy2_mul.c"
 #include "gmpy2_pow.c"
 #include "gmpy2_sub.c"
@@ -577,7 +578,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "fac", Pygmpy_fac, METH_O, doc_fac },
     { "fib", Pygmpy_fib, METH_O, doc_fib },
     { "fib2", Pygmpy_fib2, METH_O, doc_fib2 },
-    { "floor_div", Pympany_floordiv, METH_VARARGS, doc_mpany_floordiv },
+    { "floor_div", GMPy_Context_FloorDiv, METH_VARARGS, GMPy_doc_floordiv },
     { "from_binary", Pympany_From_Binary, METH_O, doc_from_binary },
     { "f_div", Pygmpy_f_div, METH_VARARGS, doc_gmpy_f_div },
     { "f_div_2exp", Pygmpy_f_div_2exp, METH_VARARGS, doc_gmpy_f_div_2exp },

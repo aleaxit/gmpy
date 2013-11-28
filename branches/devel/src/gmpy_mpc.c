@@ -1088,30 +1088,6 @@ Pympc_hash(MPC_Object *self)
     return (Py_hash_t)combined;
 }
 
-/* For consistency, provide a Pympc_FloorDiv_Complex that just returns a
- * TypeError. */
-
-static PyObject *
-Pympc_FloorDiv_Complex(PyObject *x, PyObject *y, CTXT_Object *context)
-{
-    if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
-        TYPE_ERROR("can't take floor of complex number.");
-        return NULL;
-    }
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-static PyObject *
-Pympc_floordiv_fast(PyObject *x, PyObject *y)
-{
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    return Pympc_FloorDiv_Complex(x, y, context);
-}
-
 static PyObject *
 Pympc_Mod_Complex(PyObject *x, PyObject *y, CTXT_Object *context)
 {
@@ -1126,11 +1102,8 @@ Pympc_Mod_Complex(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 Pympc_mod_fast(PyObject *x, PyObject *y)
 {
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    return Pympc_FloorDiv_Complex(x, y, context);
+    TYPE_ERROR("can't mod complex numbers");
+    return NULL;
 }
 
 static PyObject *
@@ -1211,7 +1184,7 @@ static PyNumberMethods mpc_number_methods =
         0,                               /* nb_inplace_and          */
         0,                               /* nb_inplace_xor          */
         0,                               /* nb_inplace_or           */
-    (binaryfunc) Pympc_floordiv_fast,    /* nb_floor_divide         */
+    (binaryfunc) GMPy_mpc_floordiv_fast, /* nb_floor_divide         */
     (binaryfunc) GMPy_mpc_truediv_fast,  /* nb_true_divide          */
         0,                               /* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */
@@ -1254,7 +1227,7 @@ static PyNumberMethods mpc_number_methods =
         0,                               /* nb_inplace_and          */
         0,                               /* nb_inplace_xor          */
         0,                               /* nb_inplace_or           */
-    (binaryfunc) Pympc_floordiv_fast,    /* nb_floor_divide         */
+    (binaryfunc) GMPy_mpc_floordiv_fast, /* nb_floor_divide         */
     (binaryfunc) GMPy_mpc_truediv_fast,  /* nb_true_divide          */
         0,                               /* nb_inplace_floor_divide */
         0,                               /* nb_inplace_true_divide  */

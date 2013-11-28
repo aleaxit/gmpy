@@ -402,9 +402,7 @@ static PyObject * Pympc_fms(PyObject *self, PyObject *args);
 static PyObject * Pympc_div_2exp(PyObject *self, PyObject *args);
 static PyObject * Pympc_mul_2exp(PyObject *self, PyObject *args);
 static Py_hash_t Pympc_hash(MPC_Object *self);
-static PyObject * Pympc_floordiv_fast(PyObject *x, PyObject *y);
 
-static PyObject * Pympc_FloorDiv_Complex(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * Pympc_Mod_Complex(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * Pympc_DivMod_Complex(PyObject *x, PyObject *y, CTXT_Object *context);
 

@@ -701,7 +701,7 @@ static PyNumberMethods xmpz_number_methods =
     (binaryfunc) Pyxmpz_inplace_and,       /* nb_inplace_and          */
     (binaryfunc) Pyxmpz_inplace_xor,       /* nb_inplace_xor          */
     (binaryfunc) Pyxmpz_inplace_ior,       /* nb_inplace_or           */
-    (binaryfunc) Pympz_floordiv_fast,      /* nb_floor_divide         */
+    (binaryfunc) GMPy_mpz_floordiv_fast,   /* nb_floor_divide         */
     (binaryfunc) GMPy_mpz_truediv_fast,    /* nb_true_divide          */
     (binaryfunc) Pyxmpz_inplace_floordiv,  /* nb_inplace_floor_divide */
         0,                                 /* nb_inplace_true_divide  */
@@ -745,7 +745,7 @@ static PyNumberMethods xmpz_number_methods =
     (binaryfunc) Pyxmpz_inplace_and,       /* nb_inplace_and          */
     (binaryfunc) Pyxmpz_inplace_xor,       /* nb_inplace_xor          */
     (binaryfunc) Pyxmpz_inplace_ior,       /* nb_inplace_or           */
-    (binaryfunc) Pympz_floordiv_fast,      /* nb_floor_divide         */
+    (binaryfunc) GMPy_mpz_floordiv_fast,   /* nb_floor_divide         */
     (binaryfunc) GMPy_mpz_truediv_fast,    /* nb_true_divide          */
     (binaryfunc) Pyxmpz_inplace_floordiv,  /* nb_inplace_floor_divide */
         0,                                 /* nb_inplace_true_divide  */
