@@ -1,0 +1,30 @@
+Testing of gmpy2 pack and unpack
+--------------------------------
+
+    >>> import gmpy2 as G
+    >>> from gmpy2 import mpz,pack,unpack
+
+Test
+----
+
+    >>> x = mpz(0)
+    >>> all((x == pack(unpack(x,i),i) for i in range(1,100)))
+    True
+    >>> x = mpz(1)
+    >>> all((x == pack(unpack(x,i),i) for i in range(1,100)))
+    True
+    >>> x = mpz(2)
+    >>> all((x == pack(unpack(x,i),i) for i in range(1,100)))
+    True
+    >>> x = mpz(3141592635)
+    >>> all((x == pack(unpack(x,i),i) for i in range(1,100)))
+    True
+    >>> x = mpz(1234567891234567890000000000000000000000000000000000000123)
+    >>> all((x == pack(unpack(x,i),i) for i in range(1,100)))
+    True
+    >>> x = mpz(1) << 500
+    >>> all((x == pack(unpack(x,i),i) for i in range(1,200)))
+    True
+    >>> x -= 1
+    >>> all((x == pack(unpack(x,i),i) for i in range(1,200)))
+    True

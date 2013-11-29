@@ -1,0 +1,22 @@
+Miscellaneous Functions
+-----------------------
+
+    >>> import gmpy2
+    >>> gmpy2.version()
+    '2.0.3'
+    >>> gmpy2.mp_limbsize() in (32,64)
+    True
+    >>> gmpy2.mp_version().split()[0] in ['GMP', 'MPIR']
+    True
+    >>> check_gmp = gmpy2.mp_version().startswith('GMP') and '5.0.0' <= gmpy2.mp_version().split()[1]
+    >>> check_mpir = gmpy2.mp_version().startswith('MPIR') and '2.4.0' <= gmpy2.mp_version().split()[1]
+    >>> check_gmp or check_mpir
+    True
+    >>> gmpy2.mpfr_version() and gmpy2.mpfr_version().startswith('MPFR')
+    True
+    >>> gmpy2.mpfr_version() and '3.1.0' <= gmpy2.mpfr_version().split()[1]
+    True
+    >>> gmpy2.mpc_version() and gmpy2.mpc_version().startswith('MPC')
+    True
+    >>> gmpy2.mpc_version() and '1.0' <= gmpy2.mpc_version().split()[1]
+    True

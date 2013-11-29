@@ -1,0 +1,18 @@
+Testing of gmpy2 mpz to_binary and from_binary
+----------------------------------------------
+
+    >>> import gmpy2
+    >>> from gmpy2 import mpz,to_binary,from_binary
+
+Test
+----
+
+    >>> x=mpz(1);x==from_binary(to_binary(x))
+    True
+    >>> x=mpz(0);x==from_binary(to_binary(x))
+    True
+    >>> x=mpz(-1);x==from_binary(to_binary(x))
+    True
+    >>> x=mpz(123456789123456789);x==from_binary(to_binary(x))
+    True
+
