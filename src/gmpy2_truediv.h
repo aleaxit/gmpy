@@ -43,10 +43,10 @@ static PyObject * GMPy_Rational_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *c
 static PyObject * GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Complex_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context);
 
-static PyObject * GMPy_mpz_truediv_fast(PyObject *x, PyObject *y);
-static PyObject * GMPy_mpq_truediv_fast(PyObject *x, PyObject *y);
-static PyObject * GMPy_mpfr_truediv_fast(PyObject *x, PyObject *y);
-static PyObject * GMPy_mpc_truediv_fast(PyObject *x, PyObject *y);
+static PyObject * GMPy_MPZ_TrueDiv_Slot(PyObject *x, PyObject *y);
+static PyObject * GMPy_MPQ_TrueDiv_Slot(PyObject *x, PyObject *y);
+static PyObject * GMPy_MPFR_TrueDiv_Slot(PyObject *x, PyObject *y);
+static PyObject * GMPy_MPC_TrueDiv_Slot(PyObject *x, PyObject *y);
 
 static PyObject * GMPy_Context_TrueDiv(PyObject *self, PyObject *args);
 

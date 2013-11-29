@@ -672,12 +672,12 @@ static PyTypeObject GMPyIter_Type =
 #ifdef PY3
 static PyNumberMethods xmpz_number_methods =
 {
-    (binaryfunc) GMPy_mpz_add_fast,        /* nb_add                  */
-    (binaryfunc) GMPy_mpz_sub_fast,        /* nb_subtract             */
-    (binaryfunc) GMPy_mpz_mul_fast,        /* nb_multiply             */
-    (binaryfunc) GMPy_mpz_mod_fast,        /* nb_remainder            */
-    (binaryfunc) GMPy_mpz_divmod_fast,     /* nb_divmod               */
-    (ternaryfunc) GMPy_mpany_pow_fast,     /* nb_power                */
+    (binaryfunc) GMPy_MPZ_Add_Slot,        /* nb_add                  */
+    (binaryfunc) GMPy_MPZ_Sub_Slot,        /* nb_subtract             */
+    (binaryfunc) GMPy_MPZ_Mul_Slot,        /* nb_multiply             */
+    (binaryfunc) GMPy_MPZ_Mod_Slot,        /* nb_remainder            */
+    (binaryfunc) GMPy_MPZ_DivMod_Slot,     /* nb_divmod               */
+    (ternaryfunc) GMPy_MPANY_Pow_Slot,     /* nb_power                */
     (unaryfunc) Pyxmpz_neg,                /* nb_negative             */
     (unaryfunc) Pyxmpz_pos,                /* nb_positive             */
     (unaryfunc) Pyxmpz_abs,                /* nb_absolute             */
@@ -688,9 +688,9 @@ static PyNumberMethods xmpz_number_methods =
     (binaryfunc) Pympz_and,                /* nb_and                  */
     (binaryfunc) Pympz_xor,                /* nb_xor                  */
     (binaryfunc) Pympz_ior,                /* nb_or                   */
-    (unaryfunc) GMPy_PyLong_From_MPZ,      /* nb_int                  */
+    (unaryfunc) GMPy_MPZ_Int_Slot,         /* nb_int                  */
         0,                                 /* nb_reserved             */
-    (unaryfunc) GMPy_PyFloat_From_MPZ,     /* nb_float                */
+    (unaryfunc) GMPy_MPZ_Float_Slot,       /* nb_float                */
     (binaryfunc) Pyxmpz_inplace_add,       /* nb_inplace_add          */
     (binaryfunc) Pyxmpz_inplace_sub,       /* nb_inplace_subtract     */
     (binaryfunc) Pyxmpz_inplace_mul,       /* nb_inplace_multiply     */
@@ -701,23 +701,23 @@ static PyNumberMethods xmpz_number_methods =
     (binaryfunc) Pyxmpz_inplace_and,       /* nb_inplace_and          */
     (binaryfunc) Pyxmpz_inplace_xor,       /* nb_inplace_xor          */
     (binaryfunc) Pyxmpz_inplace_ior,       /* nb_inplace_or           */
-    (binaryfunc) GMPy_mpz_floordiv_fast,   /* nb_floor_divide         */
-    (binaryfunc) GMPy_mpz_truediv_fast,    /* nb_true_divide          */
+    (binaryfunc) GMPy_MPZ_FloorDiv_Slot,   /* nb_floor_divide         */
+    (binaryfunc) GMPy_MPZ_TrueDiv_Slot,    /* nb_true_divide          */
     (binaryfunc) Pyxmpz_inplace_floordiv,  /* nb_inplace_floor_divide */
         0,                                 /* nb_inplace_true_divide  */
-    (unaryfunc) GMPy_PyIntOrLong_From_MPZ, /* nb_index                */
+    (unaryfunc) GMPy_MPZ_Int_Slot,         /* nb_index                */
 };
 
 #else
 static PyNumberMethods xmpz_number_methods =
 {
-    (binaryfunc) GMPy_mpz_add_fast,        /* nb_add                  */
-    (binaryfunc) GMPy_mpz_sub_fast,        /* nb_subtract             */
-    (binaryfunc) GMPy_mpz_mul_fast,        /* nb_multiply             */
-    (binaryfunc) GMPy_mpz_div2_fast,       /* nb_divide               */
-    (binaryfunc) GMPy_mpz_mod_fast,        /* nb_remainder            */
-    (binaryfunc) GMPy_mpz_divmod_fast,     /* nb_divmod               */
-    (ternaryfunc) GMPy_mpany_pow_fast,     /* nb_power                */
+    (binaryfunc) GMPy_MPZ_Add_slot,        /* nb_add                  */
+    (binaryfunc) GMPy_MPZ_Sub_Slot,        /* nb_subtract             */
+    (binaryfunc) GMPy_MPZ_Mul_Slot,        /* nb_multiply             */
+    (binaryfunc) GMPy_MPZ_Div2_Slot,       /* nb_divide               */
+    (binaryfunc) GMPy_MPZ_Mod_Slot,        /* nb_remainder            */
+    (binaryfunc) GMPy_MPZ_DivMod_Slot,     /* nb_divmod               */
+    (ternaryfunc) GMPy_MPANY_Pow_Slot,     /* nb_power                */
     (unaryfunc) Pyxmpz_neg,                /* nb_negative             */
     (unaryfunc) Pyxmpz_pos,                /* nb_positive             */
     (unaryfunc) Pyxmpz_abs,                /* nb_absolute             */
@@ -729,9 +729,9 @@ static PyNumberMethods xmpz_number_methods =
     (binaryfunc) Pympz_xor,                /* nb_xor                  */
     (binaryfunc) Pympz_ior,                /* nb_or                   */
         0,                                 /* nb_coerce               */
-    (unaryfunc) GMPy_PyIntOrLong_From_MPZ, /* nb_int                  */
-    (unaryfunc) GMPy_PyLong_From_MPZ,      /* nb_long                 */
-    (unaryfunc) GMPy_PyFloat_From_MPZ,     /* nb_float                */
+    (unaryfunc) GMPy_MPZ_Int_Slot,         /* nb_int                  */
+    (unaryfunc) GMPy_MPZ_Long_Slot,        /* nb_long                 */
+    (unaryfunc) GMPy_MPZ_Float_Slot,       /* nb_float                */
     (unaryfunc) Pyxmpz_oct,                /* nb_oct                  */
     (unaryfunc) Pyxmpz_hex,                /* nb_hex                  */
     (binaryfunc) Pyxmpz_inplace_add,       /* nb_inplace_add          */
@@ -745,11 +745,11 @@ static PyNumberMethods xmpz_number_methods =
     (binaryfunc) Pyxmpz_inplace_and,       /* nb_inplace_and          */
     (binaryfunc) Pyxmpz_inplace_xor,       /* nb_inplace_xor          */
     (binaryfunc) Pyxmpz_inplace_ior,       /* nb_inplace_or           */
-    (binaryfunc) GMPy_mpz_floordiv_fast,   /* nb_floor_divide         */
-    (binaryfunc) GMPy_mpz_truediv_fast,    /* nb_true_divide          */
+    (binaryfunc) GMPy_MPZ_FloorDiv_Slot,   /* nb_floor_divide         */
+    (binaryfunc) GMPy_MPZ_TrueDiv_Slot,    /* nb_true_divide          */
     (binaryfunc) Pyxmpz_inplace_floordiv,  /* nb_inplace_floor_divide */
         0,                                 /* nb_inplace_true_divide  */
-    (unaryfunc) GMPy_PyIntOrLong_From_MPZ, /* nb_index                */
+    (unaryfunc) GMPy_MPZ_Int_Slot,         /* nb_index                */
 };
 #endif
 

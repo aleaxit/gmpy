@@ -38,9 +38,10 @@
  *
  * Private API
  * ===========
- *   GMPy_mpany_pow_fast; called via the nb_power slot of all mp types
+ *   GMPy_MPANY_Pow_Slot
  *
  *   GMPy_Integer_Pow(Integer, Integer, Integer|Py_None, context|NULL)
+ *   GMPy_Integer_PowMod(Integer, Integer, Integer|Py_None, context|NULL)
  *   GMPy_Rational_Pow(Rational, Rational, context|NULL)
  *   GMPy_Real_Pow(Real, Real, context|NULL)
  *   GMPy_Complex_Pow(Complex, Complex, context|NULL)
@@ -438,7 +439,7 @@ GMPy_Context_Pow(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-GMPy_mpany_pow_fast(PyObject *base, PyObject *exp, PyObject *mod)
+GMPy_MPANY_Pow_Slot(PyObject *base, PyObject *exp, PyObject *mod)
 {
     if (IS_INTEGER(base) && IS_INTEGER(exp))
         return GMPy_Integer_Pow(base, exp, mod, NULL);

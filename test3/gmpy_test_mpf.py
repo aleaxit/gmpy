@@ -223,26 +223,6 @@ mpfr('1000000000000.0')
 >>> c=_g.mpfr(a)
 >>> a is c
 1
->>> c=_g.mpfr(a,99)
->>> a is c
-0
->>> a==c
-1
->>> _g.mpfr('1.1') == _g.mpfr('1.1') * _g.mpfr(1)
-True
->>> _g.mpfr('1.1',64) == _g.mpfr('1.1',128)
-False
->>> _g.mpfr('1.1',64) == _g.mpfr(_g.mpfr('1.1',128),64)
-True
->>> a = _g.mpfr('.123', 64)
->>> b = _g.mpfr('.123', 128)
->>> c = _g.mpfr('.123', 128) * _g.mpfr(1, 128)
->>> a == b
-False
->>> a == c
-False
->>> b == c
-False
 >>> f=_g.mpfr
 >>> bool(float('nan')) == bool(f('nan'))
 True

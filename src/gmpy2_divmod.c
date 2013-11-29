@@ -36,10 +36,10 @@
  *
  * Private API
  * ===========
- *   GMPy_mpz_divmod_fast
- *   GMPy_mpq_divmod_fast
- *   GMPy_mpfr_divmod_fast
- *   GMPy_mpc_divmod_fast
+ *   GMPy_MPZ_DivMod_Slot
+ *   GMPy_MPQ_DivMod_Slot
+ *   GMPy_MPFR_DivMod_Slot
+ *   GMPy_MPC_DivMod_Slot
  *
  *   GMPy_Integer_DivMod(Integer, Integer, context|NULL)
  *   GMPy_Rational_DivMod(Rational, Rational, context|NULL)
@@ -164,7 +164,7 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_mpz_divmod_fast(PyObject *x, PyObject *y)
+GMPy_MPZ_DivMod_Slot(PyObject *x, PyObject *y)
 {
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_DivMod(x, y, NULL);
@@ -238,7 +238,7 @@ GMPy_Rational_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_mpq_divmod_fast(PyObject *x, PyObject *y)
+GMPy_MPQ_DivMod_Slot(PyObject *x, PyObject *y)
 {
     if (IS_RATIONAL(x) && IS_RATIONAL(y))
         return GMPy_Rational_DivMod(x, y, NULL);
@@ -362,7 +362,7 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_mpfr_divmod_fast(PyObject *x, PyObject *y)
+GMPy_MPFR_DivMod_Slot(PyObject *x, PyObject *y)
 {
     if (IS_REAL(x) && IS_REAL(y))
         return GMPy_Real_DivMod(x, y, NULL);
@@ -381,7 +381,7 @@ GMPy_Complex_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_mpc_divmod_fast(PyObject *x, PyObject *y)
+GMPy_MPC_DivMod_Slot(PyObject *x, PyObject *y)
 {
     return GMPy_Complex_DivMod(x, y, NULL);
 }

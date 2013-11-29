@@ -36,10 +36,10 @@
  *
  * Private API
  * ===========
- *   GMPy_mpz_sub_fast; called by - via the nb_sub slot of mpz
- *   GMPy_mpq_sub_fast; called by - via the nb_sub slot of mpq
- *   GMPy_mpfr_sub_fast; called by - via the nb_sub slot of mpfr
- *   GMPy_mpc_sub_fast; called by - via the nb_sub slot of mpc
+ *   GMPy_MPZ_Sub_Slot
+ *   GMPy_MPQ_Sub_Slot
+ *   GMPy_MPFR_Sub_Slot
+ *   GMPy_MPC_Sub_Slot
  *
  *   GMPy_Integer_Sub(Integer, Integer, context|NULL)
  *   GMPy_Rational_Sub(Rational, Rational, context|NULL)
@@ -139,7 +139,7 @@ GMPy_Integer_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
  */
 
 static PyObject *
-GMPy_mpz_sub_fast(PyObject *x, PyObject *y)
+GMPy_MPZ_Sub_Slot(PyObject *x, PyObject *y)
 {
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Sub(x, y, NULL);
@@ -204,7 +204,7 @@ GMPy_Rational_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
  */
 
 static PyObject *
-GMPy_mpq_sub_fast(PyObject *x, PyObject *y)
+GMPy_MPQ_Sub_Slot(PyObject *x, PyObject *y)
 {
     if (IS_RATIONAL(x) && IS_RATIONAL(y))
         return GMPy_Rational_Sub(x, y, NULL);
@@ -398,7 +398,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
  * no appropriate function can be found, return NotImplemented. */
 
 static PyObject *
-GMPy_mpfr_sub_fast(PyObject *x, PyObject *y)
+GMPy_MPFR_Sub_Slot(PyObject *x, PyObject *y)
 {
     if (IS_REAL(x) && IS_REAL(y))
         return GMPy_Real_Sub(x, y, NULL);
@@ -461,7 +461,7 @@ GMPy_Complex_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
  * Pympc_Sub_Complex() is correct and is just passed on. */
 
 static PyObject *
-GMPy_mpc_sub_fast(PyObject *x, PyObject *y)
+GMPy_MPC_Sub_Slot(PyObject *x, PyObject *y)
 {
     return GMPy_Complex_Sub(x, y, NULL);
 }

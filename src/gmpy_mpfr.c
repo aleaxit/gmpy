@@ -108,6 +108,15 @@ Pygmpy_mpfr(PyObject *self, PyObject *args)
         }
         result = GMPy_MPFR_From_PyStr(arg0, base, 0, context);
     }
+    else if (MPFR_CheckAndExp(arg0) &&
+             GET_MPFR_PREC(context) == mpfr_get_prec(MPFR(arg0))) {
+        if (argc > 1) {
+            TYPE_ERROR("only 1 argument allowed if first argument is a number");
+            return NULL;
+        }
+        Py_INCREF(arg0);
+        return arg0;
+    }
     else if (IS_REAL(arg0)) {
         if (argc > 1) {
             TYPE_ERROR("only 1 argument allowed if first argument is a number");
@@ -2715,15 +2724,15 @@ Pympfr_sizeof(PyObject *self, PyObject *other)
 #ifdef PY3
 static PyNumberMethods mpfr_number_methods =
 {
-    (binaryfunc) GMPy_mpfr_add_fast,         /* nb_add                  */
-    (binaryfunc) GMPy_mpfr_sub_fast,         /* nb_subtract             */
-    (binaryfunc) GMPy_mpfr_mul_fast,         /* nb_multiply             */
-    (binaryfunc) GMPy_mpfr_mod_fast,         /* nb_remainder            */
-    (binaryfunc) GMPy_mpfr_divmod_fast,      /* nb_divmod               */
-    (ternaryfunc) GMPy_mpany_pow_fast,       /* nb_power                */
+    (binaryfunc) GMPy_MPFR_Add_Slot,         /* nb_add                  */
+    (binaryfunc) GMPy_MPFR_Sub_Slot,         /* nb_subtract             */
+    (binaryfunc) GMPy_MPFR_Mul_Slot,         /* nb_multiply             */
+    (binaryfunc) GMPy_MPFR_Mod_Slot,         /* nb_remainder            */
+    (binaryfunc) GMPy_MPFR_DivMod_Slot,      /* nb_divmod               */
+    (ternaryfunc) GMPy_MPANY_Pow_Slot,       /* nb_power                */
     (unaryfunc) Pympfr_neg_fast,             /* nb_negative             */
     (unaryfunc) Pympfr_pos,                  /* nb_positive             */
-    (unaryfunc) GMPy_mpfr_abs_fast,          /* nb_absolute             */
+    (unaryfunc) GMPy_MPFR_Abs_Slot,          /* nb_absolute             */
     (inquiry) Pympfr_nonzero,                /* nb_bool                 */
         0,                                   /* nb_invert               */
         0,                                   /* nb_lshift               */
@@ -2731,9 +2740,9 @@ static PyNumberMethods mpfr_number_methods =
         0,                                   /* nb_and                  */
         0,                                   /* nb_xor                  */
         0,                                   /* nb_or                   */
-    (unaryfunc) GMPy_PyIntOrLong_From_MPFR,  /* nb_int                  */
+    (unaryfunc) GMPy_MPFR_Int_Slot,          /* nb_int                  */
         0,                                   /* nb_reserved             */
-    (unaryfunc) GMPy_PyFloat_From_MPFR,      /* nb_float                */
+    (unaryfunc) GMPy_MPFR_Float_Slot,        /* nb_float                */
         0,                                   /* nb_inplace_add          */
         0,                                   /* nb_inplace_subtract     */
         0,                                   /* nb_inplace_multiply     */
@@ -2744,8 +2753,8 @@ static PyNumberMethods mpfr_number_methods =
         0,                                   /* nb_inplace_and          */
         0,                                   /* nb_inplace_xor          */
         0,                                   /* nb_inplace_or           */
-    (binaryfunc) GMPy_mpfr_floordiv_fast,       /* nb_floor_divide         */
-    (binaryfunc) GMPy_mpfr_truediv_fast,     /* nb_true_divide          */
+    (binaryfunc) GMPy_MPFR_FloorDiv_Slot,    /* nb_floor_divide         */
+    (binaryfunc) GMPy_MPFR_TrueDiv_Slot,     /* nb_true_divide          */
         0,                                   /* nb_inplace_floor_divide */
         0,                                   /* nb_inplace_true_divide  */
         0,                                   /* nb_index                */
@@ -2753,16 +2762,16 @@ static PyNumberMethods mpfr_number_methods =
 #else
 static PyNumberMethods mpfr_number_methods =
 {
-    (binaryfunc) GMPy_mpfr_add_fast,         /* nb_add                  */
-    (binaryfunc) GMPy_mpfr_sub_fast,         /* nb_subtract             */
-    (binaryfunc) GMPy_mpfr_mul_fast,         /* nb_multiply             */
-    (binaryfunc) GMPy_mpfr_truediv_fast,     /* nb_divide               */
-    (binaryfunc) GMPy_mpfr_mod_fast,         /* nb_remainder            */
-    (binaryfunc) GMPy_mpfr_divmod_fast,      /* nb_divmod               */
-    (ternaryfunc) GMPy_mpany_pow_fast,       /* nb_power                */
+    (binaryfunc) GMPy_MPFR_Add_Slot,         /* nb_add                  */
+    (binaryfunc) GMPy_MPFR_Sub_Slot,         /* nb_subtract             */
+    (binaryfunc) GMPy_MPFR_Mul_Slot,         /* nb_multiply             */
+    (binaryfunc) GMPy_MPFR_TrueDiv_Slot,     /* nb_divide               */
+    (binaryfunc) GMPy_MPFR_Mod_Slot,         /* nb_remainder            */
+    (binaryfunc) GMPy_MPFR_DivMod_Slot,      /* nb_divmod               */
+    (ternaryfunc) GMPy_MPANY_Pow_Slot,       /* nb_power                */
     (unaryfunc) Pympfr_neg_fast,             /* nb_negative             */
     (unaryfunc) Pympfr_pos,                  /* nb_positive             */
-    (unaryfunc) GMPy_mpfr_abs_fast,          /* nb_absolute             */
+    (unaryfunc) GMPy_MPFR_Abs_Slot,          /* nb_absolute             */
     (inquiry) Pympfr_nonzero,                /* nb_bool                 */
         0,                                   /* nb_invert               */
         0,                                   /* nb_lshift               */
@@ -2771,9 +2780,9 @@ static PyNumberMethods mpfr_number_methods =
         0,                                   /* nb_xor                  */
         0,                                   /* nb_or                   */
         0,                                   /* nb_coerce               */
-    (unaryfunc) GMPy_PyIntOrLong_From_MPFR,  /* nb_int                  */
-    (unaryfunc) GMPy_PyLong_From_MPFR,       /* nb_long                 */
-    (unaryfunc) GMPy_PyFloat_From_MPFR,      /* nb_float                */
+    (unaryfunc) GMPy_MPFR_Int_Slot,          /* nb_int                  */
+    (unaryfunc) GMPy_MPFR_Long_Slot,         /* nb_long                 */
+    (unaryfunc) GMPy_MPFR_Float_Slot,        /* nb_float                */
         0,                                   /* nb_oct                  */
         0,                                   /* nb_hex                  */
         0,                                   /* nb_inplace_add          */
@@ -2787,8 +2796,8 @@ static PyNumberMethods mpfr_number_methods =
         0,                                   /* nb_inplace_and          */
         0,                                   /* nb_inplace_xor          */
         0,                                   /* nb_inplace_or           */
-    (binaryfunc) GMPy_mpfr_floordiv_fast,    /* nb_floor_divide         */
-    (binaryfunc) GMPy_mpfr_truediv_fast,     /* nb_true_divide          */
+    (binaryfunc) GMPy_MPFR_FloorDiv_Slot,    /* nb_floor_divide         */
+    (binaryfunc) GMPy_MPFR_TrueDiv_Slot,     /* nb_true_divide          */
         0,                                   /* nb_inplace_floor_divide */
         0,                                   /* nb_inplace_true_divide  */
 };

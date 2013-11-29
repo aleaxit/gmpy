@@ -43,10 +43,10 @@ static PyObject * GMPy_Rational_Add(PyObject *x, PyObject *y, CTXT_Object *conte
 static PyObject * GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Complex_Add(PyObject *x, PyObject *y, CTXT_Object *context);
 
-static PyObject * GMPy_mpz_add_fast(PyObject *x, PyObject *y);
-static PyObject * GMPy_mpq_add_fast(PyObject *x, PyObject *y);
-static PyObject * GMPy_mpfr_add_fast(PyObject *x, PyObject *y);
-static PyObject * GMPy_mpc_add_fast(PyObject *x, PyObject *y);
+static PyObject * GMPy_MPZ_Add_Slot(PyObject *x, PyObject *y);
+static PyObject * GMPy_MPQ_Add_Slot(PyObject *x, PyObject *y);
+static PyObject * GMPy_MPFR_Add_Slot(PyObject *x, PyObject *y);
+static PyObject * GMPy_MPC_Add_Slot(PyObject *x, PyObject *y);
 
 static PyObject * GMPy_Context_Add(PyObject *self, PyObject *args);
 

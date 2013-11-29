@@ -43,10 +43,10 @@ static PyObject * GMPy_Rational_Sub(PyObject *x, PyObject *y, CTXT_Object *conte
 static PyObject * GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Complex_Sub(PyObject *x, PyObject *y, CTXT_Object *context);
 
-static PyObject * GMPy_mpz_sub_fast(PyObject *x, PyObject *y);
-static PyObject * GMPy_mpq_sub_fast(PyObject *x, PyObject *y);
-static PyObject * GMPy_mpfr_sub_fast(PyObject *x, PyObject *y);
-static PyObject * GMPy_mpc_sub_fast(PyObject *x, PyObject *y);
+static PyObject * GMPy_MPZ_Sub_Slot(PyObject *x, PyObject *y);
+static PyObject * GMPy_MPQ_Sub_Slot(PyObject *x, PyObject *y);
+static PyObject * GMPy_MPFR_Sub_Slot(PyObject *x, PyObject *y);
+static PyObject * GMPy_MPC_Sub_Slot(PyObject *x, PyObject *y);
 
 static PyObject * GMPy_Context_Sub(PyObject *self, PyObject *args);
 

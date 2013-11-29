@@ -597,15 +597,15 @@ Pympq_sizeof(PyObject *self, PyObject *other)
 #ifdef PY3
 static PyNumberMethods mpq_number_methods =
 {
-    (binaryfunc) GMPy_mpq_add_fast,         /* nb_add                  */
-    (binaryfunc) GMPy_mpq_sub_fast,         /* nb_subtract             */
-    (binaryfunc) GMPy_mpq_mul_fast,         /* nb_multiply             */
-    (binaryfunc) GMPy_mpq_mod_fast,         /* nb_remainder            */
-    (binaryfunc) GMPy_mpq_divmod_fast,      /* nb_divmod               */
-    (ternaryfunc) GMPy_mpany_pow_fast,      /* nb_power                */
+    (binaryfunc) GMPy_MPQ_Add_Slot,         /* nb_add                  */
+    (binaryfunc) GMPy_MPQ_Sub_Slot,         /* nb_subtract             */
+    (binaryfunc) GMPy_MPQ_Mul_Slot,         /* nb_multiply             */
+    (binaryfunc) GMPy_MPQ_Mod_Slot,         /* nb_remainder            */
+    (binaryfunc) GMPy_MPQ_DivMod_Slot,      /* nb_divmod               */
+    (ternaryfunc) GMPy_MPANY_Pow_Slot,      /* nb_power                */
     (unaryfunc) Pympq_neg,                  /* nb_negative             */
     (unaryfunc) Pympq_pos,                  /* nb_positive             */
-    (unaryfunc) GMPy_mpq_abs_fast,          /* nb_absolute             */
+    (unaryfunc) GMPy_MPQ_Abs_Slot,          /* nb_absolute             */
     (inquiry) Pympq_nonzero,                /* nb_bool                 */
         0,                                  /* nb_invert               */
         0,                                  /* nb_lshift               */
@@ -613,9 +613,9 @@ static PyNumberMethods mpq_number_methods =
         0,                                  /* nb_and                  */
         0,                                  /* nb_xor                  */
         0,                                  /* nb_or                   */
-    (unaryfunc) GMPy_PyLong_From_MPQ,       /* nb_int                  */
+    (unaryfunc) GMPy_MPQ_Int_Slot,          /* nb_int                  */
         0,                                  /* nb_reserved             */
-    (unaryfunc) GMPy_PyFloat_From_MPQ,      /* nb_float                */
+    (unaryfunc) GMPy_MPQ_Float_Slot,        /* nb_float                */
         0,                                  /* nb_inplace_add          */
         0,                                  /* nb_inplace_subtract     */
         0,                                  /* nb_inplace_multiply     */
@@ -626,8 +626,8 @@ static PyNumberMethods mpq_number_methods =
         0,                                  /* nb_inplace_and          */
         0,                                  /* nb_inplace_xor          */
         0,                                  /* nb_inplace_or           */
-    (binaryfunc) GMPy_mpq_floordiv_fast,    /* nb_floor_divide         */
-    (binaryfunc) GMPy_mpq_truediv_fast,     /* nb_true_divide          */
+    (binaryfunc) GMPy_MPQ_FloorDiv_Slot,    /* nb_floor_divide         */
+    (binaryfunc) GMPy_MPQ_TrueDiv_Slot,     /* nb_true_divide          */
         0,                                  /* nb_inplace_floor_divide */
         0,                                  /* nb_inplace_true_divide  */
         0,                                  /* nb_index                */
@@ -635,16 +635,16 @@ static PyNumberMethods mpq_number_methods =
 #else
 static PyNumberMethods mpq_number_methods =
 {
-    (binaryfunc) GMPy_mpq_add_fast,         /* nb_add                  */
-    (binaryfunc) GMPy_mpq_sub_fast,         /* nb_subtract             */
-    (binaryfunc) GMPy_mpq_mul_fast,         /* nb_multiply             */
+    (binaryfunc) GMPy_MPQ_Add_Slot,         /* nb_add                  */
+    (binaryfunc) GMPy_MPQ_Sub_Slot,         /* nb_subtract             */
+    (binaryfunc) GMPy_MPQ_Mul_Slot,         /* nb_multiply             */
     (binaryfunc) GMPy_mpq_truediv_fast,     /* nb_divide               */
-    (binaryfunc) GMPy_mpq_mod_fast,         /* nb_remainder            */
-    (binaryfunc) GMPy_mpq_divmod_fast,      /* nb_divmod               */
-    (ternaryfunc) GMPy_mpany_pow_fast,      /* nb_power                */
+    (binaryfunc) GMPy_MPQ_Mod_Slot,         /* nb_remainder            */
+    (binaryfunc) GMPy_MPQ_DivMod_Slot,      /* nb_divmod               */
+    (ternaryfunc) GMPy_MPANY_Pow_Slot,      /* nb_power                */
     (unaryfunc) Pympq_neg,                  /* nb_negative             */
     (unaryfunc) Pympq_pos,                  /* nb_positive             */
-    (unaryfunc) GMPy_mpq_abs_fast,          /* nb_absolute             */
+    (unaryfunc) GMPy_MPQ_Abs_Slot,          /* nb_absolute             */
     (inquiry) Pympq_nonzero,                /* nb_bool                 */
         0,                                  /* nb_invert               */
         0,                                  /* nb_lshift               */
@@ -653,9 +653,9 @@ static PyNumberMethods mpq_number_methods =
         0,                                  /* nb_xor                  */
         0,                                  /* nb_or                   */
         0,                                  /* nb_coerce               */
-    (unaryfunc) GMPy_PyIntOrLong_From_MPQ,  /* nb_int                  */
-    (unaryfunc) Pympq_To_PyLong,            /* nb_long                 */
-    (unaryfunc) Pympq_To_PyFloat,           /* nb_float                */
+    (unaryfunc) GMPy_MPQ_Int_Slot,          /* nb_int                  */
+    (unaryfunc) GMPy_MPQ_Long_Slot,         /* nb_long                 */
+    (unaryfunc) GMPy_MPQ_Float_Slot,        /* nb_float                */
         0,                                  /* nb_oct                  */
         0,                                  /* nb_hex                  */
         0,                                  /* nb_inplace_add;         */
@@ -669,8 +669,8 @@ static PyNumberMethods mpq_number_methods =
         0,                                  /* nb_inplace_and          */
         0,                                  /* nb_inplace_xor          */
         0,                                  /* nb_inplace_or           */
-    (binaryfunc) GMPy_mpq_floordiv_fast,    /* nb_floor_divide         */
-    (binaryfunc) GMPy_mpq_truediv_fast,     /* nb_true_divide          */
+    (binaryfunc) GMPy_MPQ_FloorDiv_Slot,    /* nb_floor_divide         */
+    (binaryfunc) GMPy_MPQ_TrueDiv_Slot,     /* nb_true_divide          */
         0,                                  /* nb_inplace_floor_divide */
         0,                                  /* nb_inplace_true_divide  */
 };

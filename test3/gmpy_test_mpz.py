@@ -838,7 +838,9 @@ True
 >>> _g.invert(a,100)
 mpz(87)
 >>> _g.invert(b,100)
-mpz(0)
+Traceback (most recent call last):
+  ...
+ZeroDivisionError: invert() no inverse exists
 >>> _g.invert(3)
 Traceback (innermost last):
   ...

@@ -102,6 +102,12 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
     return mpz_get_PyLong(obj->z);
 }
 
+static PyObject *
+GMPy_MPZ_Long_Slot(MPZ_Object *self)
+{
+    return GMPy_PyLong_From_MPZ(self, NULL);
+}
+
 /* The PyIntOrLong functions should be used when converting a number back
  * to a Python value since is automatically returns an "int" or "long" when
  * using Python 2.x. The PyLong_From functions (above) should only be used
@@ -125,6 +131,12 @@ GMPy_PyIntOrLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
 }
 
 static PyObject *
+GMPy_MPZ_Int_Slot(MPZ_Object *self)
+{
+    return GMPy_PyIntOrLong_From_MPZ(self, NULL);
+}
+
+static PyObject *
 GMPy_PyFloat_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
 {
     double res;
@@ -139,6 +151,12 @@ GMPy_PyFloat_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
     }
 
     return PyFloat_FromDouble(res);
+}
+
+static PyObject *
+GMPy_MPZ_Float_Slot(MPZ_Object *self)
+{
+    return GMPy_PyFloat_From_MPZ(self, NULL);
 }
 
 static PyObject *
@@ -407,29 +425,29 @@ GMPy_XMPZ_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context)
     return result;
 }
 
-static PyObject *
-GMPy_PyLong_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context)
-{
-    assert(XMPZ_Check(obj));
+//~ static PyObject *
+//~ GMPy_PyLong_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context)
+//~ {
+    //~ assert(XMPZ_Check(obj));
 
-    return mpz_get_PyLong(obj->z);
-}
+    //~ return mpz_get_PyLong(obj->z);
+//~ }
 
-static PyObject *
-GMPy_PyIntOrLong_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context)
-{
-    assert(XMPZ_Check(obj));
+//~ static PyObject *
+//~ GMPy_PyIntOrLong_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context)
+//~ {
+    //~ assert(XMPZ_Check(obj));
 
-#ifdef PY3
-    return GMPy_PyLong_From_XMPZ(obj, context);
-#else
-    if (mpz_fits_slong_p(MPZ(obj)))
-        /* cast is safe since we know it fits in a signed long */
-        return PyInt_FromLong((long)mpz_get_si(obj->z));
-    else
-        return GMPy_PyLong_From_XMPZ(obj, context);
-#endif
-}
+//~ #ifdef PY3
+    //~ return GMPy_PyLong_From_XMPZ(obj, context);
+//~ #else
+    //~ if (mpz_fits_slong_p(MPZ(obj)))
+        //~ /* cast is safe since we know it fits in a signed long */
+        //~ return PyInt_FromLong((long)mpz_get_si(obj->z));
+    //~ else
+        //~ return GMPy_PyLong_From_XMPZ(obj, context);
+//~ #endif
+//~ }
 
 static PyObject *
 GMPy_PyStr_From_XMPZ(XMPZ_Object *obj, int base, int option, CTXT_Object *context)
@@ -927,7 +945,7 @@ GMPy_MPQ_From_PyStr(PyObject *s, int base, CTXT_Object *context)
                 goto error;
             }
             if (0 == mpz_sgn(mpq_denref(result->q))) {
-                ZERO_ERROR("zero denominator in 'mpq'");
+                ZERO_ERROR("zero denominator in mpq()");
                 goto error;
             }
             mpq_canonicalize(result->q);
@@ -1060,6 +1078,12 @@ GMPy_PyLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
 }
 
 static PyObject *
+GMPy_MPQ_Long_Slot(MPQ_Object *self)
+{
+    return GMPy_PyLong_From_MPQ(self, NULL);
+}
+
+static PyObject *
 GMPy_PyIntOrLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
 {
     PyObject *result;
@@ -1076,6 +1100,12 @@ GMPy_PyIntOrLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
     Py_DECREF((PyObject*)temp);
 
     return result;
+}
+
+static PyObject *
+GMPy_MPQ_Int_Slot(MPQ_Object *self)
+{
+    return GMPy_PyIntOrLong_From_MPQ(self, NULL);
 }
 
 static char* _qtag = "mpq(";
@@ -1163,6 +1193,11 @@ GMPy_PyFloat_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
     return PyFloat_FromDouble(res);
 }
 
+static PyObject *
+GMPy_MPQ_Float_Slot(MPQ_Object *self)
+{
+    return GMPy_PyFloat_From_MPQ(self, NULL);
+}
 
 /* NOTE: Pympq_From_DecimalRaw returns an invalid mpq object when attempting to
  *       convert a NaN or inifinity. If the denominator is 0, then interpret
