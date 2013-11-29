@@ -1576,7 +1576,7 @@ Pympfr_atanh(PyObject* self, PyObject *other)
         return NULL;
     }
     mpfr_clear_flags();
-    result->rc = mpfr_asin(result->f, MPFR(self),
+    result->rc = mpfr_atanh(result->f, MPFR(self),
                            context->ctx.mpfr_round);
     MPFR_CLEANUP_SELF("atanh()");
 }
