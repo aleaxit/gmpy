@@ -609,6 +609,11 @@ GMPy_PyIntOrLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
 }
 
 static PyObject *
+GMPy_MPFR_Int_Slot(MPFR_Object *self) {
+    return GMPy_PyIntOrLong_From_MPFR(self, NULL);
+}
+
+static PyObject *
 GMPy_PyLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
 {
     PyObject *result;
@@ -626,6 +631,11 @@ GMPy_PyLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
 }
 
 static PyObject *
+GMPy_MPFR_Long_Slot(MPFR_Object *self) {
+    return GMPy_PyLong_From_MPFR(self, NULL);
+}
+
+static PyObject *
 GMPy_PyFloat_From_MPFR(MPFR_Object *self, CTXT_Object *context)
 {
     double res;
@@ -635,6 +645,11 @@ GMPy_PyFloat_From_MPFR(MPFR_Object *self, CTXT_Object *context)
     res = mpfr_get_d(self->f, GET_MPFR_ROUND(context));
 
     return PyFloat_FromDouble(res);
+}
+
+static PyObject *
+GMPy_MPFR_Float_Slot(MPFR_Object *self) {
+    return GMPy_PyFloat_From_MPFR(self, NULL);
 }
 
 static PyObject*

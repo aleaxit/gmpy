@@ -43,10 +43,10 @@ static PyObject * GMPy_Rational_Abs(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Real_Abs(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Complex_Abs(PyObject *x, CTXT_Object *context);
 
-static PyObject * GMPy_mpz_abs_fast(MPZ_Object *x);
-static PyObject * GMPy_mpq_abs_fast(MPQ_Object *x);
-static PyObject * GMPy_mpfr_abs_fast(MPFR_Object *x);
-static PyObject * GMPy_mpc_abs_fast(MPC_Object *x);
+static PyObject * GMPy_MPZ_Abs_Slot(MPZ_Object *x);
+static PyObject * GMPy_MPQ_Abs_Slot(MPQ_Object *x);
+static PyObject * GMPy_MPFR_Abs_Slot(MPFR_Object *x);
+static PyObject * GMPy_MPC_Abs_Slot(MPC_Object *x);
 
 static PyObject * GMPy_Context_Abs(PyObject *self, PyObject *args);
 

@@ -134,7 +134,7 @@ ValueError: invalid digits
 >>> _g.mpq('1/0')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ZeroDivisionError: zero denominator in 'mpq'
+ZeroDivisionError: zero denominator in mpq()
 >>> _g.mpfr([])
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
@@ -284,29 +284,29 @@ TypeError: mpq() requires numeric or string argument
 >>> _g.mpq(1,0)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ZeroDivisionError: zero denominator in 'mpq'
+ZeroDivisionError: zero denominator in mpq()
 >>> _g.mpfr()
 mpfr('0.0')
 >>> _g.mpfr(1,'bo')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: an integer is required
+TypeError: only 1 argument allowed if first argument is a number
 >>> _g.mpfr(1,-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: precision for mpfr() must be >= 0
+TypeError: only 1 argument allowed if first argument is a number
 >>> _g.mpfr('ba',0,'bu')
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: an integer is required
+TypeError: mpfr() takes at most 2 arguments
 >>> _g.mpfr('ba',0,99)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-ValueError: base for mpfr() must be 0 or in the interval 2 ... 62
+TypeError: mpfr() takes at most 2 arguments
 >>> _g.mpfr(1,2,3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: function takes at most 2 arguments (3 given)
+TypeError: mpfr() takes at most 2 arguments
 >>> +_g.mpz(1)
 mpz(1)
 >>> +_g.mpfr(1)
@@ -330,7 +330,7 @@ mpz(-2)
 >>> pow(_g.mpq(2),3,-5)
 Traceback (most recent call last):
   File "<stdin>", line 1, in ?
-TypeError: mpq.pow() no modulo allowed
+TypeError: pow() 3rd argument not allowed unless all arguments are integers
 >>> a=10000000000**2
 >>> _g.mpq(2)**a
 Traceback (most recent call last):
@@ -354,12 +354,6 @@ Traceback (most recent call last):
 ZeroDivisionError: mpq.pow() 0 base to negative exponent
 >>> _g.mpq(-1)**-1
 mpq(-1,1)
->>> _g.mpfr(9,100)**2
-mpfr('81.0')
->>> _g.mpfr(9,100)**0.5
-mpfr('3.0')
->>> _g.mpfr(9,100)**_g.mpfr(0.5)
-mpfr('3.0')
 >>> _g.mpfr(0)**2
 mpfr('0.0')
 >>> pow(_g.mpfr(2),3,-5)

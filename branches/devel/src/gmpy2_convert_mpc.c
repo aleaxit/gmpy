@@ -527,7 +527,7 @@ GMPy_PyStr_From_MPC(MPC_Object *self, int base, int digits, CTXT_Object *context
 }
 
 static PyObject *
-Pympc_To_PyFloat(PyObject *self)
+GMPy_MPC_Float_Slot(PyObject *self)
 {
     TYPE_ERROR("can't covert 'mpc' to 'float'");
     return NULL;
@@ -536,7 +536,7 @@ Pympc_To_PyFloat(PyObject *self)
 PyDoc_STRVAR(doc_mpc_complex, "Convert 'mpc' to 'complex'.");
 
 static PyObject *
-Pympc_To_PyComplex(PyObject *self, PyObject *other)
+GMPy_PyComplex_From_MPC(PyObject *self, PyObject *other)
 {
     CTXT_Object *context = NULL;
     double real, imag;
@@ -549,24 +549,31 @@ Pympc_To_PyComplex(PyObject *self, PyObject *other)
     return PyComplex_FromDoubles(real, imag);
 }
 
+//~ static PyObject *
+//~ Pympc_To_PyComplex_context(PyObject *self, PyObject *other,
+                           //~ CTXT_Object *context)
+//~ {
+    //~ double real, imag;
+
+    //~ CHECK_CONTEXT_SET_EXPONENT(context);
+
+    //~ real = mpfr_get_d(mpc_realref(MPC(self)), GET_REAL_ROUND(context));
+    //~ imag = mpfr_get_d(mpc_imagref(MPC(self)), GET_IMAG_ROUND(context));
+
+    //~ return PyComplex_FromDoubles(real, imag);
+//~ }
+
 static PyObject *
-Pympc_To_PyComplex_context(PyObject *self, PyObject *other,
-                           CTXT_Object *context)
+GMPy_MPC_Long_Slot(PyObject *self)
 {
-    double real, imag;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    real = mpfr_get_d(mpc_realref(MPC(self)), GET_REAL_ROUND(context));
-    imag = mpfr_get_d(mpc_imagref(MPC(self)), GET_IMAG_ROUND(context));
-
-    return PyComplex_FromDoubles(real, imag);
+    TYPE_ERROR("can't covert mpc to long");
+    return NULL;
 }
 
 static PyObject *
-Pympc_To_PyLong(PyObject *self)
+GMPy_MPC_Int_Slot(PyObject *self)
 {
-    TYPE_ERROR("can't covert 'mpc' to 'long'");
+    TYPE_ERROR("can't covert mpc to int");
     return NULL;
 }
 
@@ -591,7 +598,7 @@ GMPy_MPC_convert_arg(PyObject *arg, PyObject **ptr)
 
 /* str and repr implementations for mpc */
 static PyObject *
-Pympc_To_Str(MPC_Object *self)
+GMPy_MPC_Str_Slot(MPC_Object *self)
 {
     PyObject *result, *temp;
     mpfr_prec_t rbits, ibits;
@@ -613,7 +620,7 @@ Pympc_To_Str(MPC_Object *self)
 }
 
 static PyObject *
-Pympc_To_Repr(MPC_Object *self)
+GMPy_MPC_Repr_Slot(MPC_Object *self)
 {
     PyObject *result, *temp;
     mpfr_prec_t rbits, ibits;

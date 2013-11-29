@@ -37,10 +37,10 @@
  *
  * Private API
  * ===========
- *   GMPy_mpz_floordiv_fast
- *   GMPy_mpq_floordiv_fast
- *   GMPy_mpfr_floordiv_fast
- *   GMPy_mpc_floordiv_fast
+ *   GMPy_MPZ_FloorDiv_Slot
+ *   GMPy_MPQ_FloorDiv_Slot
+ *   GMPy_MPFR_FloorDiv_Slot
+ *   GMPy_MPC_FloorDiv_Slot
  *
  *   GMPy_Integer_FloorDiv(Integer, Integer, context|NULL)
  *   GMPy_Rational_FloorDiv(Rational, Rational, context|NULL)
@@ -150,7 +150,7 @@ GMPy_Integer_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
  */
 
 static PyObject *
-GMPy_mpz_floordiv_fast(PyObject *x, PyObject *y)
+GMPy_MPZ_FloorDiv_Slot(PyObject *x, PyObject *y)
 {
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_FloorDiv(x, y, NULL);
@@ -229,7 +229,7 @@ GMPy_Rational_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_mpq_floordiv_fast(PyObject *x, PyObject *y)
+GMPy_MPQ_FloorDiv_Slot(PyObject *x, PyObject *y)
 {
     if (IS_RATIONAL(x) && IS_RATIONAL(y))
         return GMPy_Rational_FloorDiv(x, y, NULL);
@@ -386,7 +386,7 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_mpfr_floordiv_fast(PyObject *x, PyObject *y)
+GMPy_MPFR_FloorDiv_Slot(PyObject *x, PyObject *y)
 {
     if (IS_REAL(x) && IS_REAL(y))
         return GMPy_Real_FloorDiv(x, y, NULL);
@@ -405,7 +405,7 @@ GMPy_Complex_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_mpc_floordiv_fast(PyObject *x, PyObject *y)
+GMPy_MPC_FloorDiv_Slot(PyObject *x, PyObject *y)
 {
     return GMPy_Complex_FloorDiv(x, y, NULL);
 }

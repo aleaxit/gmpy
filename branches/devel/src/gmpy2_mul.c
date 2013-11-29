@@ -36,10 +36,10 @@
  *
  * Private API
  * ===========
- *   GMPy_mpz_mul_fast; called by + via the nb_add slot of mpz
- *   GMPy_mpq_mul_fast; called by + via the nb_add slot of mpq
- *   GMPy_mpfr_mul_fast; called by + via the nb_add slot of mpfr
- *   GMPy_mpc_mul_fast; called by + via the nb_add slot of mpc
+ *   GMPy_MPZ_Mul_Slot
+ *   GMPy_MPQ_Mul_Slot
+ *   GMPy_MPFR_Mul_Slot
+ *   GMPy_MPC_Mul_Slot
  *
  *   GMPy_Integer_Mul(Integer, Integer, context|NULL)
  *   GMPy_Rational_Mul(Rational, Rational, context|NULL)
@@ -130,7 +130,7 @@ GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
  * function. If no appropriate function can be found, return NotImplemented. */
 
 static PyObject *
-GMPy_mpz_mul_fast(PyObject *x, PyObject *y)
+GMPy_MPZ_Mul_Slot(PyObject *x, PyObject *y)
 {
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Mul(x, y, NULL);
@@ -192,7 +192,7 @@ GMPy_Rational_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
  * no appropriate function can be found, return NotImplemented. */
 
 static PyObject *
-GMPy_mpq_mul_fast(PyObject *x, PyObject *y)
+GMPy_MPQ_Mul_Slot(PyObject *x, PyObject *y)
 {
     if (IS_RATIONAL(x) && IS_RATIONAL(y))
         return GMPy_Rational_Mul(x, y, NULL);
@@ -373,7 +373,7 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
  * no appropriate function can be found, return NotImplemented. */
 
 static PyObject *
-GMPy_mpfr_mul_fast(PyObject *x, PyObject *y)
+GMPy_MPFR_Mul_Slot(PyObject *x, PyObject *y)
 {
     if (IS_REAL(x) && IS_REAL(y))
         return GMPy_Real_Mul(x, y, NULL);
@@ -435,7 +435,7 @@ GMPy_Complex_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
  * Pympc_Add_Complex() is correct and is just passed on. */
 
 static PyObject *
-GMPy_mpc_mul_fast(PyObject *x, PyObject *y)
+GMPy_MPC_Mul_Slot(PyObject *x, PyObject *y)
 {
     return GMPy_Complex_Mul(x, y, NULL);
 }

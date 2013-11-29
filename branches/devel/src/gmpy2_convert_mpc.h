@@ -54,16 +54,17 @@ static MPC_Object *   GMPy_MPC_From_PyStr(PyObject *s, int base, mpfr_prec_t rbi
 static MPC_Object *   GMPy_MPC_From_Complex_New(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
 static MPC_Object *   GMPy_MPC_From_Complex_Temp(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
 
-static PyObject *      Pympc_To_PyFloat(PyObject *self);
-static PyObject *      Pympc_To_PyLong(PyObject *self);
-static PyObject *      GMPy_PyStr_From_MPC(MPC_Object *self, int base, int digits, CTXT_Object *context);
-static PyObject *      Pympc_To_PyComplex(PyObject *self, PyObject *other);
+static PyObject *     GMPy_MPC_Float_Slot(PyObject *self);
+static PyObject *     GMPy_MPC_Long_Slot(PyObject *self);
+static PyObject *     GMPy_MPC_Int_Slot(PyObject *self);
+static PyObject *     GMPy_PyStr_From_MPC(MPC_Object *self, int base, int digits, CTXT_Object *context);
+static PyObject *     GMPy_PyComplex_From_MPC(PyObject *self, PyObject *other);
 /* support str() and repr() */
-static PyObject *      Pympc_To_Str(MPC_Object *self);
-static PyObject *      Pympc_To_Repr(MPC_Object *self);
+static PyObject *     GMPy_MPC_Str_Slot(MPC_Object *self);
+static PyObject *     GMPy_MPC_Repr_Slot(MPC_Object *self);
 
 /* Miscellaneous */
-static int             GMPy_MPC_convert_arg(PyObject *arg, PyObject **ptr);
+static int            GMPy_MPC_convert_arg(PyObject *arg, PyObject **ptr);
 
 #ifdef __cplusplus
 }

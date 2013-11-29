@@ -37,10 +37,10 @@
  *
  * Private API
  * ===========
- *   GMPy_mpz_add_fast; called by + via the mpz.nb_add
- *   GMPy_mpq_add_fast; called by + via the mpq.nb_add
- *   GMPy_mpfr_add_fast; called by + via the mpfr.nb_add
- *   GMPy_mpc_add_fast; called by + via the mpc.nb_add
+ *   GMPy_MPZ_Add_Slot
+ *   GMPy_MPQ_Add_Slot
+ *   GMPy_MPFR_Add_Slot
+ *   GMPy_MPC_Add_Slot
  *
  *   GMPy_Integer_Add(Integer, Integer, context|NULL)
  *   GMPy_Rational_Add(Rational, Rational, context|NULL)
@@ -138,7 +138,7 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
  */
 
 static PyObject *
-GMPy_mpz_add_fast(PyObject *x, PyObject *y)
+GMPy_MPZ_Add_Slot(PyObject *x, PyObject *y)
 {
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Add(x, y, NULL);
@@ -200,7 +200,7 @@ GMPy_Rational_Add(PyObject *x, PyObject *y, CTXT_Object *context)
  * no appropriate function can be found, return NotImplemented. */
 
 static PyObject *
-GMPy_mpq_add_fast(PyObject *x, PyObject *y)
+GMPy_MPQ_Add_Slot(PyObject *x, PyObject *y)
 {
     CTXT_Object *context = NULL;
 
@@ -397,7 +397,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
  * no appropriate function can be found, return NotImplemented. */
 
 static PyObject *
-GMPy_mpfr_add_fast(PyObject *x, PyObject *y)
+GMPy_MPFR_Add_Slot(PyObject *x, PyObject *y)
 {
     CTXT_Object *context = NULL;
 
@@ -461,7 +461,7 @@ GMPy_Complex_Add(PyObject *x, PyObject *y, CTXT_Object *context)
  * Pympc_Add_Complex() is correct and is just passed on. */
 
 static PyObject *
-GMPy_mpc_add_fast(PyObject *x, PyObject *y)
+GMPy_MPC_Add_Slot(PyObject *x, PyObject *y)
 {
     CTXT_Object *context = NULL;
 

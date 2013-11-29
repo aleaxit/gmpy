@@ -36,10 +36,10 @@
  *
  * Private API
  * ===========
- *   GMPy_mpz_truediv_fast
- *   GMPy_mpq_truediv_fast
- *   GMPy_mpfr_truediv_fast
- *   GMPy_mpc_truediv_fast
+ *   GMPy_MPZ_TrueDiv_Slot
+ *   GMPy_MPQ_TrueDiv_Slot
+ *   GMPy_MPFR_TrueDiv_Slot
+ *   GMPy_MPC_TrueDiv_Slot
  *
  *   GMPy_Integer_TrueDiv(Integer, Integer, context|NULL)
  *   GMPy_Rational_TrueDiv(Rational, Rational, context|NULL)
@@ -115,7 +115,7 @@ GMPy_Integer_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
  */
 
 static PyObject *
-GMPy_mpz_truediv_fast(PyObject *x, PyObject *y)
+GMPy_MPZ_TrueDiv_Slot(PyObject *x, PyObject *y)
 {
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_TrueDiv(x, y, NULL);
@@ -134,7 +134,7 @@ GMPy_mpz_truediv_fast(PyObject *x, PyObject *y)
 
 #ifdef PY2
 static PyObject *
-GMPy_mpz_div2_fast(PyObject *x, PyObject *y)
+GMPy_MPZ_Div2_Slot(PyObject *x, PyObject *y)
 {
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_FloorDiv(x, y, NULL);
@@ -191,7 +191,7 @@ GMPy_Rational_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_mpq_truediv_fast(PyObject *x, PyObject *y)
+GMPy_MPQ_TrueDiv_Slot(PyObject *x, PyObject *y)
 {
     if (IS_RATIONAL(x) && IS_RATIONAL(y))
         return GMPy_Rational_TrueDiv(x, y, NULL);
@@ -339,7 +339,7 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_mpfr_truediv_fast(PyObject *x, PyObject *y)
+GMPy_MPFR_TrueDiv_Slot(PyObject *x, PyObject *y)
 {
     if (IS_REAL(x) && IS_REAL(y))
         return GMPy_Real_TrueDiv(x, y, NULL);
@@ -401,7 +401,7 @@ GMPy_Complex_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_mpc_truediv_fast(PyObject *x, PyObject *y)
+GMPy_MPC_TrueDiv_Slot(PyObject *x, PyObject *y)
 {
     return GMPy_Complex_TrueDiv(x, y, NULL);
 }

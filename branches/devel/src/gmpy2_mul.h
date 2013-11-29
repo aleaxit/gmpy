@@ -43,10 +43,10 @@ static PyObject * GMPy_Rational_Mul(PyObject *x, PyObject *y, CTXT_Object *conte
 static PyObject * GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Complex_Mul(PyObject *x, PyObject *y, CTXT_Object *context);
 
-static PyObject * GMPy_mpz_mul_fast(PyObject *x, PyObject *y);
-static PyObject * GMPy_mpq_mul_fast(PyObject *x, PyObject *y);
-static PyObject * GMPy_mpfr_mul_fast(PyObject *x, PyObject *y);
-static PyObject * GMPy_mpc_mul_fast(PyObject *x, PyObject *y);
+static PyObject * GMPy_MPZ_Mul_Slot(PyObject *x, PyObject *y);
+static PyObject * GMPy_MPQ_Mul_Slot(PyObject *x, PyObject *y);
+static PyObject * GMPy_MPFR_Mul_Slot(PyObject *x, PyObject *y);
+static PyObject * GMPy_MPC_Mul_Slot(PyObject *x, PyObject *y);
 
 static PyObject * GMPy_Context_Mul(PyObject *self, PyObject *args);
 

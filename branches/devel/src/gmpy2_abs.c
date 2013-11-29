@@ -37,10 +37,10 @@
  *
  * Private API
  * ===========
- *   GMPy_mpz_abs_fast
- *   GMPy_mpq_abs_fast
- *   GMPy_mpfr_abs_fast
- *   GMPy_mpc_abs_fast
+ *   GMPy_MPZ_Abs_Slot
+ *   GMPy_MPQ_Abs_Slot
+ *   GMPy_MPFR_Abs_Slot
+ *   GMPy_MPC_Abs_Slot
  *
  *   GMPy_Integer_Abs(Integer, context|NULL)
  *   GMPy_Rational_Abs(Rational, context|NULL)
@@ -86,7 +86,7 @@ GMPy_Integer_Abs(PyObject *x, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_mpz_abs_fast(MPZ_Object *x)
+GMPy_MPZ_Abs_Slot(MPZ_Object *x)
 {
     return GMPy_Integer_Abs((PyObject*)x, NULL);
 }
@@ -118,7 +118,7 @@ GMPy_Rational_Abs(PyObject *x, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_mpq_abs_fast(MPQ_Object *x)
+GMPy_MPQ_Abs_Slot(MPQ_Object *x)
 {
     return GMPy_Rational_Abs((PyObject*)x, NULL);
 }
@@ -140,7 +140,7 @@ GMPy_Real_Abs(PyObject *x, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_mpfr_abs_fast(MPFR_Object *x)
+GMPy_MPFR_Abs_Slot(MPFR_Object *x)
 {
     return GMPy_Real_Abs((PyObject*)x, NULL);
 }
@@ -171,7 +171,7 @@ GMPy_Complex_Abs(PyObject *x, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_mpc_abs_fast(MPC_Object *x)
+GMPy_MPC_Abs_Slot(MPC_Object *x)
 {
     return GMPy_Complex_Abs((PyObject*)x, NULL);
 }
