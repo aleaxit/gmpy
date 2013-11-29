@@ -108,13 +108,20 @@ GMPy_CTXT_Set(PyObject *self, PyObject *other)
     Py_DECREF((PyObject*)module_context);
     if (((CTXT_Object*)other)->ctx.readonly) {
         module_context = (CTXT_Object*)GMPy_CTXT_Copy(other, NULL);
+        if (!module_context) {
+            return NULL;
+        }
+        ((CTXT_Object*)module_context)->ctx.underflow = 0;
+        ((CTXT_Object*)module_contex)->ctx.overflow = 0;
+        ((CTXT_Object*)module_contex)->ctx.inexact = 0;
+        ((CTXT_Object*)module_contex)->ctx.invalid = 0;
+        ((CTXT_Object*)module_contex)->ctx.erange = 0;
+        ((CTXT_Object*)module_contex)->ctx.divzero = 0;
     }
     else {
         Py_INCREF((PyObject*)other);
         module_context = (CTXT_Object*)other;
     }
-    mpfr_set_emin(module_context->ctx.emin);
-    mpfr_set_emax(module_context->ctx.emax);
     Py_RETURN_NONE;
 }
 
@@ -211,6 +218,12 @@ GMPy_CTXT_Set(PyObject *self, PyObject *other)
         if (!other) {
             return NULL;
         }
+        ((CTXT_Object*)other)->ctx.underflow = 0;
+        ((CTXT_Object*)other)->ctx.overflow = 0;
+        ((CTXT_Object*)other)->ctx.inexact = 0;
+        ((CTXT_Object*)other)->ctx.invalid = 0;
+        ((CTXT_Object*)other)->ctx.erange = 0;
+        ((CTXT_Object*)other)->ctx.divzero = 0;
     }
     else {
         Py_INCREF(other);
@@ -220,9 +233,6 @@ GMPy_CTXT_Set(PyObject *self, PyObject *other)
         Py_DECREF(other);
         return NULL;
     }
-
-    mpfr_set_emin(((CTXT_Object*)other)->ctx.emin);
-    mpfr_set_emax(((CTXT_Object*)other)->ctx.emax);
 
     /* Cache the context of the current thread, assuming that it
      * will be accessed several times before a thread switch. */
@@ -296,16 +306,21 @@ GMPy_CTXT_ieee(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_CTXT_Manager_New(void)
 {
-    return (PyObject*)PyObject_New(CTXT_Manager_Object, &CTXT_Manager_Type);
-};
+    PyObject *result;
+
+    result = (PyObject*)PyObject_New(CTXT_Manager_Object, &CTXT_Manager_Type);
+    ((CTXT_Manager_Object*)(result))->new_context = NULL;
+    ((CTXT_Manager_Object*)(result))->old_context = NULL;
+    return result;
+}
 
 static void
 GMPy_CTXT_Manager_Dealloc(CTXT_Manager_Object *self)
 {
-    Py_DECREF(self->new_context);
-    Py_DECREF(self->old_context);
+    Py_XDECREF(self->new_context);
+    Py_XDECREF(self->old_context);
     PyObject_Del(self);
-};
+}
 
 /* Helper function to convert to convert a rounding mode to a string. */
 
@@ -319,7 +334,7 @@ _round_to_name(int val)
     if (val == MPFR_RNDA) return Py2or3String_FromString("RoundAwayZero");
     if (val == GMPY_DEFAULT) return Py2or3String_FromString("Default");
     return NULL;
-};
+}
 
 static PyObject *
 GMPy_CTXT_Repr_Slot(CTXT_Object *self)
@@ -392,7 +407,7 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
     Py_DECREF(format);
     Py_DECREF(tuple);
     return result;
-};
+}
 
 static PyObject *
 GMPy_CTXT_Manager_Repr_Slot(CTXT_Manager_Object *self)
@@ -431,6 +446,154 @@ GMPy_CTXT_Copy(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
+/* Parse the keyword arguments available to a context. Returns 1 if no
+ * error occurred; returns 0 is an error occurred.
+ */
+
+static int
+_parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
+{
+    PyObject *args;
+    int x_trap_underflow = 0, x_trap_overflow = 0, x_trap_inexact = 0;
+    int x_trap_invalid = 0, x_trap_erange = 0, x_trap_divzero = 0;
+    int x_trap_expbound = 0;
+
+    static char *kwlist[] = {
+        "precision", "real_prec", "imag_prec", "round",
+        "real_round", "imag_round", "emax", "emin", "subnormalize",
+        "trap_underflow", "trap_overflow", "trap_inexact",
+        "trap_invalid", "trap_erange", "trap_divzero", "trap_expbound",
+        "allow_complex", "rational_division", NULL };
+
+    /* Create an empty dummy tuple to use for args. */
+
+    if (!(args = PyTuple_New(0)))
+        return 0;
+
+    /* Convert the trap bit positions into ints for the benefit of
+     * PyArg_ParseTupleAndKeywords().
+     */
+    x_trap_underflow = ctxt->ctx.traps & TRAP_UNDERFLOW;
+    x_trap_overflow = ctxt->ctx.traps & TRAP_OVERFLOW;
+    x_trap_inexact = ctxt->ctx.traps & TRAP_INEXACT;
+    x_trap_invalid = ctxt->ctx.traps & TRAP_INVALID;
+    x_trap_erange = ctxt->ctx.traps & TRAP_ERANGE;
+    x_trap_divzero = ctxt->ctx.traps & TRAP_DIVZERO;
+    x_trap_expbound = ctxt->ctx.traps & TRAP_EXPBOUND;
+
+    if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
+            "|llliiilliiiiiiiiii", kwlist,
+            &ctxt->ctx.mpfr_prec,
+            &ctxt->ctx.real_prec,
+            &ctxt->ctx.imag_prec,
+            &ctxt->ctx.mpfr_round,
+            &ctxt->ctx.real_round,
+            &ctxt->ctx.imag_round,
+            &ctxt->ctx.emax,
+            &ctxt->ctx.emin,
+            &ctxt->ctx.subnormalize,
+            &x_trap_underflow,
+            &x_trap_overflow,
+            &x_trap_inexact,
+            &x_trap_invalid,
+            &x_trap_erange,
+            &x_trap_divzero,
+            &x_trap_expbound,
+            &ctxt->ctx.allow_complex,
+            &ctxt->ctx.rational_division))) {
+        VALUE_ERROR("invalid keyword arguments in local_context()");
+        Py_DECREF(args);
+        return 0;
+    }
+    Py_DECREF(args);
+
+    ctxt->ctx.traps = TRAP_NONE;
+    if (x_trap_underflow)
+        ctxt->ctx.traps |= TRAP_UNDERFLOW;
+    if (x_trap_overflow)
+        ctxt->ctx.traps |= TRAP_OVERFLOW;
+    if (x_trap_inexact)
+        ctxt->ctx.traps |= TRAP_INEXACT;
+    if (x_trap_invalid)
+        ctxt->ctx.traps |= TRAP_INVALID;
+    if (x_trap_erange)
+        ctxt->ctx.traps |= TRAP_ERANGE;
+    if (x_trap_divzero)
+        ctxt->ctx.traps |= TRAP_DIVZERO;
+    if (x_trap_expbound)
+        ctxt->ctx.traps |= TRAP_EXPBOUND;
+
+    /* Sanity check for values. */
+    if (ctxt->ctx.mpfr_prec < MPFR_PREC_MIN ||
+        ctxt->ctx.mpfr_prec > MPFR_PREC_MAX) {
+        VALUE_ERROR("invalid value for precision");
+        return 0;
+    }
+
+    if (!(ctxt->ctx.real_prec == GMPY_DEFAULT ||
+        (ctxt->ctx.real_prec >= MPFR_PREC_MIN &&
+        ctxt->ctx.real_prec <= MPFR_PREC_MAX))) {
+        VALUE_ERROR("invalid value for real_prec");
+        return 0;
+    }
+
+    if (!(ctxt->ctx.imag_prec == GMPY_DEFAULT ||
+        (ctxt->ctx.imag_prec >= MPFR_PREC_MIN &&
+        ctxt->ctx.imag_prec <= MPFR_PREC_MAX))) {
+        VALUE_ERROR("invalid value for imag_prec");
+        return 0;
+    }
+
+    if (!(ctxt->ctx.mpfr_round == MPFR_RNDN ||
+        ctxt->ctx.mpfr_round == MPFR_RNDZ ||
+        ctxt->ctx.mpfr_round == MPFR_RNDU ||
+        ctxt->ctx.mpfr_round == MPFR_RNDD ||
+        ctxt->ctx.mpfr_round == MPFR_RNDA)) {
+        VALUE_ERROR("invalid value for round");
+        return 0;
+    }
+
+    if (ctxt->ctx.mpfr_round == MPFR_RNDA) {
+        /* Since RNDA is not supported for MPC, set the MPC rounding modes
+         * to MPFR_RNDN.
+         */
+        ctxt->ctx.real_round = MPFR_RNDN;
+        ctxt->ctx.imag_round = MPFR_RNDN;
+    }
+
+    if (!(ctxt->ctx.real_round == MPFR_RNDN ||
+        ctxt->ctx.real_round == MPFR_RNDZ ||
+        ctxt->ctx.real_round == MPFR_RNDU ||
+        ctxt->ctx.real_round == MPFR_RNDD ||
+        ctxt->ctx.real_round == GMPY_DEFAULT)) {
+        VALUE_ERROR("invalid value for real_round");
+        return 0;
+    }
+
+    if (!(ctxt->ctx.imag_round == MPFR_RNDN ||
+        ctxt->ctx.imag_round == MPFR_RNDZ ||
+        ctxt->ctx.imag_round == MPFR_RNDU ||
+        ctxt->ctx.imag_round == MPFR_RNDD ||
+        ctxt->ctx.imag_round == GMPY_DEFAULT)) {
+        VALUE_ERROR("invalid value for imag_round");
+        return 0;
+    }
+
+    if (ctxt->ctx.emin < mpfr_get_emin_min() ||
+        ctxt->ctx.emin > mpfr_get_emin_max()) {
+        VALUE_ERROR("invalid value for emin");
+        return 0;
+    }
+
+    if (ctxt->ctx.emax < mpfr_get_emax_min() ||
+        ctxt->ctx.emax > mpfr_get_emax_max()) {
+        VALUE_ERROR("invalid value for emax");
+        return 0;
+    }
+
+    return 1;
+}
+
 PyDoc_STRVAR(GMPy_doc_local_context,
 "local_context([context[,keywords]]) -> context manager\n\n"
 "Create a context manager object that will restore the current context\n"
@@ -443,26 +606,13 @@ static PyObject *
 GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     CTXT_Manager_Object *result;
-    PyObject *local_args = args;
     int arg_context = 0;
-    int x_trap_underflow = 0, x_trap_overflow = 0, x_trap_inexact = 0;
-    int x_trap_invalid = 0, x_trap_erange = 0, x_trap_divzero = 0;
-    int x_trap_expbound = 0;
     CTXT_Object *context, *temp;
 
     CURRENT_CONTEXT(context);
 
-    static char *kwlist[] = {
-        "precision", "real_prec", "imag_prec", "round",
-        "real_round", "imag_round", "emax", "emin", "subnormalize",
-        "trap_underflow", "trap_overflow", "trap_inexact",
-        "trap_invalid", "trap_erange", "trap_divzero",
-        "trap_expbound", "allow_complex", "rational_division", NULL };
-
     if (PyTuple_GET_SIZE(args) == 1 && CTXT_Check(PyTuple_GET_ITEM(args, 0))) {
         arg_context = 1;
-        if (!(local_args = PyTuple_New(0)))
-            return NULL;
     }
     else if (PyTuple_GET_SIZE(args)) {
         VALUE_ERROR("local_context() only supports [context[,keyword]] arguments");
@@ -476,9 +626,19 @@ GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
         temp = (CTXT_Object*)PyTuple_GET_ITEM(args, 0);
         if (temp->ctx.readonly) {
             result->new_context = (CTXT_Object*)GMPy_CTXT_Copy((PyObject*)temp, NULL);
+            if (!(result->new_context)) {
+                Py_DECREF((PyObject*)result);
+                return NULL;
+            }
+            ((CTXT_Object*)(result->new_context))->ctx.underflow = 0;
+            ((CTXT_Object*)(result->new_context))->ctx.overflow = 0;
+            ((CTXT_Object*)(result->new_context))->ctx.inexact = 0;
+            ((CTXT_Object*)(result->new_context))->ctx.invalid = 0;
+            ((CTXT_Object*)(result->new_context))->ctx.erange = 0;
+            ((CTXT_Object*)(result->new_context))->ctx.divzero = 0;
         }
         else {
-            result->new_context = (CTXT_Object*)PyTuple_GET_ITEM(args, 0);
+            result->new_context = temp;
             Py_INCREF((PyObject*)(result->new_context));
         }
     }
@@ -493,137 +653,15 @@ GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-    /* Convert the trap bit positions into ints for the benefit of
-     * PyArg_ParseTupleAndKeywords().
-     */
-    x_trap_underflow = result->new_context->ctx.traps & TRAP_UNDERFLOW;
-    x_trap_overflow = result->new_context->ctx.traps & TRAP_OVERFLOW;
-    x_trap_inexact = result->new_context->ctx.traps & TRAP_INEXACT;
-    x_trap_invalid = result->new_context->ctx.traps & TRAP_INVALID;
-    x_trap_erange = result->new_context->ctx.traps & TRAP_ERANGE;
-    x_trap_divzero = result->new_context->ctx.traps & TRAP_DIVZERO;
-    x_trap_expbound = result->new_context->ctx.traps & TRAP_EXPBOUND;
-
-    if (!(PyArg_ParseTupleAndKeywords(local_args, kwargs,
-            "|llliiilliiiiiiiiii", kwlist,
-            &result->new_context->ctx.mpfr_prec,
-            &result->new_context->ctx.real_prec,
-            &result->new_context->ctx.imag_prec,
-            &result->new_context->ctx.mpfr_round,
-            &result->new_context->ctx.real_round,
-            &result->new_context->ctx.imag_round,
-            &result->new_context->ctx.emax,
-            &result->new_context->ctx.emin,
-            &result->new_context->ctx.subnormalize,
-            &x_trap_underflow,
-            &x_trap_overflow,
-            &x_trap_inexact,
-            &x_trap_invalid,
-            &x_trap_erange,
-            &x_trap_divzero,
-            &x_trap_expbound,
-            &result->new_context->ctx.allow_complex,
-            &result->new_context->ctx.rational_division))) {
-        VALUE_ERROR("invalid keyword arguments in local_context()");
-        goto error;
+    if (!_parse_context_args(result->new_context, kwargs)) {
+        /* There was an error parsing the keyword arguments. */
+        Py_DECREF((PyObject*)result);
+        return NULL;
     }
-
-    result->new_context->ctx.traps = TRAP_NONE;
-    if (x_trap_underflow)
-        result->new_context->ctx.traps |= TRAP_UNDERFLOW;
-    if (x_trap_overflow)
-        result->new_context->ctx.traps |= TRAP_OVERFLOW;
-    if (x_trap_inexact)
-        result->new_context->ctx.traps |= TRAP_INEXACT;
-    if (x_trap_invalid)
-        result->new_context->ctx.traps |= TRAP_INVALID;
-    if (x_trap_erange)
-        result->new_context->ctx.traps |= TRAP_ERANGE;
-    if (x_trap_divzero)
-        result->new_context->ctx.traps |= TRAP_DIVZERO;
-    if (x_trap_expbound)
-        result->new_context->ctx.traps |= TRAP_EXPBOUND;
-
-    /* Sanity check for values. */
-    if (result->new_context->ctx.mpfr_prec < MPFR_PREC_MIN ||
-        result->new_context->ctx.mpfr_prec > MPFR_PREC_MAX) {
-        VALUE_ERROR("invalid value for precision");
-        goto error;
+    else {
+        /* Parsing was successful. */
+        return (PyObject*)result;
     }
-
-    if (!(result->new_context->ctx.real_prec == GMPY_DEFAULT ||
-        (result->new_context->ctx.real_prec >= MPFR_PREC_MIN &&
-        result->new_context->ctx.real_prec <= MPFR_PREC_MAX))) {
-        VALUE_ERROR("invalid value for real_prec");
-        goto error;
-    }
-    if (!(result->new_context->ctx.imag_prec == GMPY_DEFAULT ||
-        (result->new_context->ctx.imag_prec >= MPFR_PREC_MIN &&
-        result->new_context->ctx.imag_prec <= MPFR_PREC_MAX))) {
-        VALUE_ERROR("invalid value for imag_prec");
-        goto error;
-    }
-
-    if (!(result->new_context->ctx.mpfr_round == MPFR_RNDN ||
-        result->new_context->ctx.mpfr_round == MPFR_RNDZ ||
-        result->new_context->ctx.mpfr_round == MPFR_RNDU ||
-        result->new_context->ctx.mpfr_round == MPFR_RNDD ||
-        result->new_context->ctx.mpfr_round == MPFR_RNDA)) {
-        VALUE_ERROR("invalid value for round");
-        goto error;
-    }
-
-    if (result->new_context->ctx.mpfr_round == MPFR_RNDA) {
-        /* Since RNDA is not supported for MPC, set the MPC rounding modes
-         * to MPFR_RNDN.
-         */
-        result->new_context->ctx.real_round = MPFR_RNDN;
-        result->new_context->ctx.imag_round = MPFR_RNDN;
-    }
-    if (!(result->new_context->ctx.real_round == MPFR_RNDN ||
-        result->new_context->ctx.real_round == MPFR_RNDZ ||
-        result->new_context->ctx.real_round == MPFR_RNDU ||
-        result->new_context->ctx.real_round == MPFR_RNDD ||
-        result->new_context->ctx.real_round == GMPY_DEFAULT)) {
-        VALUE_ERROR("invalid value for real_round");
-        goto error;
-    }
-    if (!(result->new_context->ctx.imag_round == MPFR_RNDN ||
-        result->new_context->ctx.imag_round == MPFR_RNDZ ||
-        result->new_context->ctx.imag_round == MPFR_RNDU ||
-        result->new_context->ctx.imag_round == MPFR_RNDD ||
-        result->new_context->ctx.imag_round == GMPY_DEFAULT)) {
-        VALUE_ERROR("invalid value for imag_round");
-        goto error;
-    }
-
-    /* TODO: refactor exponent range checks. */
-
-    if (!(result->new_context->ctx.emin < 0 && result->new_context->ctx.emax > 0)) {
-        VALUE_ERROR("invalid values for emin and/or emax");
-        goto error;
-    }
-
-    if (mpfr_set_emin(result->new_context->ctx.emin)) {
-        VALUE_ERROR("invalid value for emin");
-        goto error;
-    }
-    if (mpfr_set_emax(result->new_context->ctx.emax)) {
-        VALUE_ERROR("invalid value for emax");
-        goto error;
-    }
-
-    if (arg_context) {
-        Py_DECREF(local_args);
-    }
-    return (PyObject*)result;
-
-  error:
-    if (arg_context) {
-        Py_DECREF(local_args);
-    }
-    Py_DECREF((PyObject*)result);
-    return NULL;
 }
 
 PyDoc_STRVAR(GMPy_doc_context,
@@ -764,16 +802,6 @@ static PyObject *
 GMPy_CTXT_Context(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     CTXT_Object *result;
-    int x_trap_underflow = 0, x_trap_overflow = 0, x_trap_inexact = 0;
-    int x_trap_invalid = 0, x_trap_erange = 0, x_trap_divzero = 0;
-    int x_trap_expbound = 0;
-
-    static char *kwlist[] = {
-        "precision", "real_prec", "imag_prec", "round",
-        "real_round", "imag_round", "emax", "emin", "subnormalize",
-        "trap_underflow", "trap_overflow", "trap_inexact",
-        "trap_invalid", "trap_erange", "trap_divzero", "trap_expbound",
-        "allow_complex", "rational_division", NULL };
 
     if (PyTuple_GET_SIZE(args)) {
         VALUE_ERROR("context() only supports keyword arguments");
@@ -783,139 +811,15 @@ GMPy_CTXT_Context(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!(result = (CTXT_Object*)GMPy_CTXT_New()))
         return NULL;
 
-    /* Convert the trap bit positions into ints for the benefit of
-     * PyArg_ParseTupleAndKeywords().
-     */
-    x_trap_underflow = result->ctx.traps & TRAP_UNDERFLOW;
-    x_trap_overflow = result->ctx.traps & TRAP_OVERFLOW;
-    x_trap_inexact = result->ctx.traps & TRAP_INEXACT;
-    x_trap_invalid = result->ctx.traps & TRAP_INVALID;
-    x_trap_erange = result->ctx.traps & TRAP_ERANGE;
-    x_trap_divzero = result->ctx.traps & TRAP_DIVZERO;
-    x_trap_expbound = result->ctx.traps & TRAP_EXPBOUND;
-
-    if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|llliiilliiiiiiiiii", kwlist,
-            &result->ctx.mpfr_prec,
-            &result->ctx.real_prec,
-            &result->ctx.imag_prec,
-            &result->ctx.mpfr_round,
-            &result->ctx.real_round,
-            &result->ctx.imag_round,
-            &result->ctx.emax,
-            &result->ctx.emin,
-            &result->ctx.subnormalize,
-            &x_trap_underflow,
-            &x_trap_overflow,
-            &x_trap_inexact,
-            &x_trap_invalid,
-            &x_trap_erange,
-            &x_trap_divzero,
-            &x_trap_expbound,
-            &result->ctx.allow_complex,
-            &result->ctx.rational_division))) {
-        VALUE_ERROR("invalid keyword arguments in context()");
-        return NULL;
-    }
-
-    result->ctx.traps = TRAP_NONE;
-    if (x_trap_underflow)
-        result->ctx.traps |= TRAP_UNDERFLOW;
-    if (x_trap_overflow)
-        result->ctx.traps |= TRAP_OVERFLOW;
-    if (x_trap_inexact)
-        result->ctx.traps |= TRAP_INEXACT;
-    if (x_trap_invalid)
-        result->ctx.traps |= TRAP_INVALID;
-    if (x_trap_erange)
-        result->ctx.traps |= TRAP_ERANGE;
-    if (x_trap_divzero)
-        result->ctx.traps |= TRAP_DIVZERO;
-    if (x_trap_expbound)
-        result->ctx.traps |= TRAP_EXPBOUND;
-
-    /* Sanity check for values. */
-    if (result->ctx.mpfr_prec < MPFR_PREC_MIN ||
-        result->ctx.mpfr_prec > MPFR_PREC_MAX) {
-        Py_DECREF((PyObject*)result);
-        VALUE_ERROR("invalid value for precision");
-        return NULL;
-    }
-
-    if (!(result->ctx.real_prec == GMPY_DEFAULT ||
-        (result->ctx.real_prec >= MPFR_PREC_MIN &&
-        result->ctx.real_prec <= MPFR_PREC_MAX))) {
-        Py_DECREF((PyObject*)result);
-        VALUE_ERROR("invalid value for real_prec");
-        return NULL;
-    }
-    if (!(result->ctx.imag_prec == GMPY_DEFAULT ||
-        (result->ctx.imag_prec >= MPFR_PREC_MIN &&
-        result->ctx.imag_prec <= MPFR_PREC_MAX))) {
-        Py_DECREF((PyObject*)result);
-        VALUE_ERROR("invalid value for imag_prec");
-        return NULL;
-    }
-
-    if (!(result->ctx.mpfr_round == MPFR_RNDN ||
-        result->ctx.mpfr_round == MPFR_RNDZ ||
-        result->ctx.mpfr_round == MPFR_RNDU ||
-        result->ctx.mpfr_round == MPFR_RNDD ||
-        result->ctx.mpfr_round == MPFR_RNDA)) {
-        Py_DECREF((PyObject*)result);
-        VALUE_ERROR("invalid value for round");
-        return NULL;
-    }
-
-    if (result->ctx.mpfr_round == MPFR_RNDA) {
-        /* Since RNDA is not supported for MPC, set the MPC rounding modes
-           to MPFR_RNDN. */
-        result->ctx.real_round = MPFR_RNDN;
-        result->ctx.imag_round = MPFR_RNDN;
-    }
-    if (!(result->ctx.real_round == MPFR_RNDN ||
-        result->ctx.real_round == MPFR_RNDZ ||
-        result->ctx.real_round == MPFR_RNDU ||
-        result->ctx.real_round == MPFR_RNDD ||
-        result->ctx.real_round == GMPY_DEFAULT)) {
-        Py_DECREF((PyObject*)result);
-        VALUE_ERROR("invalid value for real_round");
-        return NULL;
-    }
-    if (!(result->ctx.imag_round == MPFR_RNDN ||
-        result->ctx.imag_round == MPFR_RNDZ ||
-        result->ctx.imag_round == MPFR_RNDU ||
-        result->ctx.imag_round == MPFR_RNDD ||
-        result->ctx.imag_round == GMPY_DEFAULT)) {
-        Py_DECREF((PyObject*)result);
-        VALUE_ERROR("invalid value for imag_round");
-        return NULL;
-    }
-
-    if (!(result->ctx.emin < 0 && result->ctx.emax > 0)) {
-        VALUE_ERROR("invalid values for emin and/or emax");
+    if (!_parse_context_args(result, kwargs)) {
+        /* There was an error parsing the keyword arguments. */
         Py_DECREF((PyObject*)result);
         return NULL;
     }
-
-    if (mpfr_set_emin(result->ctx.emin)) {
-        VALUE_ERROR("invalid value for emin");
-        Py_DECREF((PyObject*)result);
-        return NULL;
+    else {
+        /* Parsing was successful. */
+        return (PyObject*)result;
     }
-    if (mpfr_set_emax(result->ctx.emax)) {
-        VALUE_ERROR("invalid value for emax");
-        Py_DECREF((PyObject*)result);
-        return NULL;
-    }
-
-    result->ctx.underflow = 0;
-    result->ctx.overflow = 0;
-    result->ctx.inexact = 0;
-    result->ctx.invalid = 0;
-    result->ctx.erange = 0;
-    result->ctx.divzero = 0;
-    return (PyObject*)result;
 }
 
 static PyObject *
@@ -1021,10 +925,6 @@ GMPyContext_get_##NAME(CTXT_Object *self, void *closure) \
 static int \
 GMPyContext_set_##NAME(CTXT_Object *self, PyObject *value, void *closure) \
 { \
-    if (self->ctx.readonly) { \
-        VALUE_ERROR("can not modify a readonly context"); \
-        return -1; \
-    } \
     if (!(PyBool_Check(value))) { \
         TYPE_ERROR(#NAME " must be True or False"); \
         return -1; \
@@ -1046,10 +946,6 @@ GMPyContext_get_##NAME(CTXT_Object *self, void *closure) \
 static int \
 GMPyContext_set_##NAME(CTXT_Object *self, PyObject *value, void *closure) \
 { \
-    if (self->ctx.readonly) { \
-        VALUE_ERROR("can not modify a readonly context"); \
-        return -1; \
-    } \
     if (!(PyBool_Check(value))) { \
         TYPE_ERROR(#NAME " must be True or False"); \
         return -1; \
@@ -1058,26 +954,6 @@ GMPyContext_set_##NAME(CTXT_Object *self, PyObject *value, void *closure) \
         self->ctx.traps |= TRAP; \
     else \
         self->ctx.traps &= ~(TRAP); \
-    return 0; \
-}
-
-/* The _EX version doesn't check if the context is already readonly. This
- * allows the readonly state to be temporarily cleared. */
-
-#define GETSET_BOOLEAN_EX(NAME) \
-static PyObject * \
-GMPyContext_get_##NAME(CTXT_Object *self, void *closure) \
-{ \
-    return PyBool_FromLong(self->ctx.NAME); \
-}; \
-static int \
-GMPyContext_set_##NAME(CTXT_Object *self, PyObject *value, void *closure) \
-{ \
-    if (!(PyBool_Check(value))) { \
-        TYPE_ERROR(#NAME " must be True or False"); \
-        return -1; \
-    } \
-    self->ctx.NAME = (value == Py_True) ? 1 : 0; \
     return 0; \
 }
 
@@ -1097,7 +973,6 @@ GETSET_BOOLEAN_BIT(trap_divzero, TRAP_DIVZERO);
 GETSET_BOOLEAN_BIT(trap_expbound, TRAP_EXPBOUND);
 GETSET_BOOLEAN(allow_complex)
 GETSET_BOOLEAN(rational_division)
-GETSET_BOOLEAN_EX(readonly)
 
 static PyObject *
 GMPyContext_get_precision(CTXT_Object *self, void *closure)
@@ -1110,10 +985,6 @@ GMPyContext_set_precision(CTXT_Object *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
-    if (self->ctx.readonly) {
-        VALUE_ERROR("can not modify a readonly context");
-        return -1;
-    }
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("precision must be Python integer");
         return -1;
@@ -1138,10 +1009,6 @@ GMPyContext_set_real_prec(CTXT_Object *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
-    if (self->ctx.readonly) {
-        VALUE_ERROR("can not modify a readonly context");
-        return -1;
-    }
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("real_prec must be Python integer");
         return -1;
@@ -1172,10 +1039,6 @@ GMPyContext_set_imag_prec(CTXT_Object *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
-    if (self->ctx.readonly) {
-        VALUE_ERROR("can not modify a readonly context");
-        return -1;
-    }
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("imag_prec must be Python integer");
         return -1;
@@ -1206,10 +1069,6 @@ GMPyContext_set_round(CTXT_Object *self, PyObject *value, void *closure)
 {
     long temp;
 
-    if (self->ctx.readonly) {
-        VALUE_ERROR("can not modify a readonly context");
-        return -1;
-    }
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("round mode must be Python integer");
         return -1;
@@ -1252,10 +1111,6 @@ GMPyContext_set_real_round(CTXT_Object *self, PyObject *value, void *closure)
 {
     long temp;
 
-    if (self->ctx.readonly) {
-        VALUE_ERROR("can not modify a readonly context");
-        return -1;
-    }
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("round mode must be Python integer");
         return -1;
@@ -1287,10 +1142,6 @@ GMPyContext_set_imag_round(CTXT_Object *self, PyObject *value, void *closure)
 {
     long temp;
 
-    if (self->ctx.readonly) {
-        VALUE_ERROR("can not modify a readonly context");
-        return -1;
-    }
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("round mode must be Python integer");
         return -1;
@@ -1322,10 +1173,6 @@ GMPyContext_set_emin(CTXT_Object *self, PyObject *value, void *closure)
 {
     long exp;
 
-    if (self->ctx.readonly) {
-        VALUE_ERROR("can not modify a readonly context");
-        return -1;
-    }
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("emin must be Python integer");
         return -1;
@@ -1355,10 +1202,6 @@ GMPyContext_set_emax(CTXT_Object *self, PyObject *value, void *closure)
 {
     long exp;
 
-    if (self->ctx.readonly) {
-        VALUE_ERROR("can not modify a readonly context");
-        return -1;
-    }
     if (!(PyIntOrLong_Check(value))) {
         TYPE_ERROR("emax must be Python integer");
         return -1;
@@ -1407,7 +1250,6 @@ static PyGetSetDef GMPyContext_getseters[] = {
     ADD_GETSET(trap_expbound),
     ADD_GETSET(allow_complex),
     ADD_GETSET(rational_division),
-    ADD_GETSET(readonly),
     {NULL}
 };
 
