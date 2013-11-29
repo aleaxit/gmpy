@@ -201,7 +201,7 @@ GMPy_MPC_From_MPQ(MPQ_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 {
     MPC_Object *result = NULL;
 
-    assert(MPQ_Object(obj));
+    assert(MPQ_Check(obj));
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
@@ -217,7 +217,7 @@ GMPy_MPC_From_Fraction(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
     MPC_Object *result = NULL;
     MPQ_Object *tempq;
 
-    assert(IS_RATIONALt(obj));
+    assert(IS_RATIONAL(obj));
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
@@ -539,11 +539,12 @@ static PyObject *
 Pympc_To_PyComplex(PyObject *self, PyObject *other)
 {
     CTXT_Object *context = NULL;
+    double real, imag;
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    double real = mpfr_get_d(mpc_realref(MPC(self)), GET_REAL_ROUND(context));
-    double imag = mpfr_get_d(mpc_imagref(MPC(self)), GET_IMAG_ROUND(context));
+    real = mpfr_get_d(mpc_realref(MPC(self)), GET_REAL_ROUND(context));
+    imag = mpfr_get_d(mpc_imagref(MPC(self)), GET_IMAG_ROUND(context));
 
     return PyComplex_FromDoubles(real, imag);
 }
@@ -552,10 +553,12 @@ static PyObject *
 Pympc_To_PyComplex_context(PyObject *self, PyObject *other,
                            CTXT_Object *context)
 {
+    double real, imag;
+
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    double real = mpfr_get_d(mpc_realref(MPC(self)), GET_REAL_ROUND(context));
-    double imag = mpfr_get_d(mpc_imagref(MPC(self)), GET_IMAG_ROUND(context));
+    real = mpfr_get_d(mpc_realref(MPC(self)), GET_REAL_ROUND(context));
+    imag = mpfr_get_d(mpc_imagref(MPC(self)), GET_IMAG_ROUND(context));
 
     return PyComplex_FromDoubles(real, imag);
 }

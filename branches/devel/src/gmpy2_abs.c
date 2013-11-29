@@ -25,7 +25,7 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* This file implements abs(), gmpy2.abs(), and context.abs().
+/* This file implements __abs__, gmpy2.abs(), and context.abs().
  *
  * Public API
  * ==========
@@ -37,10 +37,10 @@
  *
  * Private API
  * ===========
- *   GMPy_mpz_abs_fast; called by abs() via mpz.nb_absolute
- *   GMPy_mpq_abs_fast; called by abs() via mpq.nb_absolute
- *   GMPy_mpfr_abs_fast; called by abs() via mpfr.absolute
- *   GMPy_mpc_abs_fast; called by abs() via mpc.absolute
+ *   GMPy_mpz_abs_fast
+ *   GMPy_mpq_abs_fast
+ *   GMPy_mpfr_abs_fast
+ *   GMPy_mpc_abs_fast
  *
  *   GMPy_Integer_Abs(Integer, context|NULL)
  *   GMPy_Rational_Abs(Rational, context|NULL)

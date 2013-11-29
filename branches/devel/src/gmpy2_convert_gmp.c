@@ -966,7 +966,7 @@ GMPy_MPQ_From_PyFloat(PyObject *obj, CTXT_Object *context)
 {
     MPQ_Object *result;
 
-    assert(PyFLoat_Check(obj));
+    assert(PyFloat_Check(obj));
 
     if ((result = GMPy_MPQ_New(context))) {
         double d = PyFloat_AsDouble(obj);
