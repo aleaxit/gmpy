@@ -941,9 +941,9 @@ PyDoc_STRVAR(doc_mpz_is_extrastronglucas_prp,
 "    gcd(n, 2*D) == 1\n"
 "    n = s*(2**r) + Jacobi(D,n), s odd\n"
 "Then an extra strong Lucas probable prime requires:\n"
-"    lucasu(p,1,s) == 0 (mod n)\n"
-"    and\n"
-"    lucasv(p,1,s) == +/-2 (mod n)\n"
+"    (lucasu(p,1,s) == 0 (mod n)\n"
+"     and\n"
+"     lucasv(p,1,s) == +/-2 (mod n))\n"
 "    or\n"
 "    lucasv(p,1,s*(2**t)) == 0 (mod n) for some t, 0 <= t < r");
 
@@ -1108,8 +1108,8 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     mpz_mod(vl, vl, n->z);
 
     /* uh contains LucasU_s and vl contains LucasV_s */
-    if (((mpz_cmp_ui(uh, 0) == 0) && ((mpz_cmp(vl, nm2) == 0) ||
-        (mpz_cmp_si(vl, 2) == 0))) || (mpz_cmp_ui(vl, 0) == 0)) {
+    if ((mpz_cmp_ui(uh, 0) == 0) &&
+       ((mpz_cmp(vl, nm2) == 0) || (mpz_cmp_si(vl, 2) == 0))) {
         result = Py_True;
         goto cleanup;
     }
