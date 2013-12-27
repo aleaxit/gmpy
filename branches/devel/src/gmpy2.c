@@ -1004,7 +1004,7 @@ PyMODINIT_FUNC initgmpy2(void)
         INITERROR;
     }
 #else
-    tls_context_key = PyUnicode_FromString("___GMPY2_CTX__");
+    tls_context_key = PyUnicode_FromString("__GMPY2_CTX__");
     Py_INCREF(Py_True);
     if (PyModule_AddObject(gmpy_module, "HAVE_THREADS", Py_True) < 0) {
         Py_DECREF(Py_True);

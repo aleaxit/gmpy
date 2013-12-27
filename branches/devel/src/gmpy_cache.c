@@ -242,8 +242,8 @@ GMPy_MPFR_New(mpfr_prec_t bits, CTXT_Object *context)
 {
     MPFR_Object *result;
 
-    if (!bits)
-        bits = GET_MPFR_PREC(context);
+    if (bits < 2)
+        bits = GET_MPFR_PREC(context) + bits * GET_GUARD_BITS(context);
 
     if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");
