@@ -53,14 +53,16 @@ typedef struct {
     int invalid;             /* invalid operation (i.e. NaN)? */
     int erange;              /* did a range error occur? */
     int divzero;             /* divided by zero? */
-    int traps;               /* if 0, do not trap any exceptions; if not */
-                             /*       0 then raise traps per bits above  */
+    int traps;               /* if 0, do not trap any exceptions */
+                             /* if not 0, then raise traps per bits above  */
     mpfr_prec_t real_prec;   /* current precision in bits, for Re(MPC) */
     mpfr_prec_t imag_prec;   /* current precision in bits, for Im(MPC) */
     mpfr_rnd_t real_round;   /* current rounding mode for Re(MPC) */
     mpfr_rnd_t imag_round;   /* current rounding mode for Im(MPC) */
     int allow_complex;       /* if 1, allow mpfr functions to return an mpc */
     int rational_division;   /* if 1, mpz/mpz returns an mpq result */
+    int guard_bits;          /* use additional precision when creating mpfr */
+                             /*   especially for temporary values */
     int readonly;            /* if 1, this context is a template */
 } gmpy_context;
 
@@ -124,6 +126,9 @@ static PyTypeObject CTXT_Manager_Type;
 #define GET_IMAG_ROUND(c) ((c->ctx.imag_round==GMPY_DEFAULT)?GET_REAL_ROUND(c):c->ctx.imag_round)
 #define GET_MPC_ROUND(c) (MPC_RND(GET_REAL_ROUND(c), GET_IMAG_ROUND(c)))
 
+#define GET_DIV_MODE(c) (c->ctx.rational_division)
+#define GET_GUARD_BITS(c) (c->ctx.guard_bits)
+#define MAX_GUARD_BITS 100
 
 static PyObject *    GMPy_CTXT_Manager_New(void);
 static void          GMPy_CTXT_Manager_Dealloc(CTXT_Manager_Object *self);

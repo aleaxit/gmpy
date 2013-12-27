@@ -63,6 +63,7 @@ GMPy_CTXT_New(void)
         result->ctx.imag_round = -1;
         result->ctx.allow_complex = 0;
         result->ctx.rational_division = 0;
+        result->ctx.guard_bits = 0;
         result->ctx.readonly = 0;
 
 #ifndef WITHOUT_THREADS
@@ -344,7 +345,7 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
     PyObject *result = NULL;
     int i = 0;
 
-    tuple = PyTuple_New(24);
+    tuple = PyTuple_New(25);
     if (!tuple)
         return NULL;
 
@@ -361,6 +362,7 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
             "        trap_divzero=%s, divzero=%s,\n"
             "        trap_expbound=%s,\n"
             "        allow_complex=%s, \n"
+            "        guard_bits=%s, \n"
             "        rational_division=%s)"
             );
     if (!format) {
@@ -398,6 +400,7 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.traps & TRAP_EXPBOUND));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.allow_complex));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.rational_division));
+    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.guard_bits));
 
     if (!PyErr_Occurred())
         result = Py2or3String_Format(format, tuple);
@@ -463,7 +466,7 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
         "real_round", "imag_round", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero", "trap_expbound",
-        "allow_complex", "rational_division", NULL };
+        "allow_complex", "rational_division", "guard_bits", NULL };
 
     /* Create an empty dummy tuple to use for args. */
 
@@ -482,7 +485,7 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
     x_trap_expbound = ctxt->ctx.traps & TRAP_EXPBOUND;
 
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|llliiilliiiiiiiiii", kwlist,
+            "|llliiilliiiiiiiiiii", kwlist,
             &ctxt->ctx.mpfr_prec,
             &ctxt->ctx.real_prec,
             &ctxt->ctx.imag_prec,
@@ -500,7 +503,8 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
             &x_trap_divzero,
             &x_trap_expbound,
             &ctxt->ctx.allow_complex,
-            &ctxt->ctx.rational_division))) {
+            &ctxt->ctx.rational_division,
+            &ctxt->ctx.guard_bits))) {
         VALUE_ERROR("invalid keyword arguments in local_context()");
         Py_DECREF(args);
         return 0;
@@ -591,6 +595,12 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
         return 0;
     }
 
+    if (ctxt->ctx.guard_bits < 0 ||
+        ctxt->ctx.guard_bits > MAX_GUARD_BITS) {
+        VALUE_ERROR("invalid value for guard_bits");
+        return 0;
+    }
+
     return 1;
 }
 
@@ -670,39 +680,41 @@ PyDoc_STRVAR(GMPy_doc_context,
 "the new context, use set_context(). Options can only be specified as\n"
 "keyword arguments. \n"
 "\nOptions\n"
-"    precision:      precision, in bits, of an MPFR result\n"
-"    real_prec:      precision, in bits, of Re(MPC)\n"
-"                      -1 implies use mpfr_prec\n"
-"    imag_prec:      precision, in bits, of Im(MPC)\n"
-"                      -1 implies use real_prec\n"
-"    round:          rounding mode for MPFR\n"
-"    real_round:     rounding mode for Re(MPC)\n"
-"                      -1 implies use mpfr_round\n"
-"    imag_round:     rounding mode for Im(MPC)\n"
-"                      -1 implies use real_round\n"
-"    e_max:          maximum allowed exponent\n"
-"    e_min:          minimum allowed exponent\n"
-"    subnormalize:   if True, subnormalized results can be returned\n"
-"    trap_underflow: if True, raise exception for underflow\n"
-"                    if False, set underflow flag\n"
-"    trap_overflow:  if True, raise exception for overflow\n"
-"                    if False, set overflow flag and return Inf or -Inf\n"
-"    trap_inexact:   if True, raise exception for inexact result\n"
-"                    if False, set inexact flag\n"
-"    trap_invalid:   if True, raise exception for invalid operation\n"
-"                    if False, set invalid flag and return NaN\n"
-"    trap_erange:    if True, raise exception for range error\n"
-"                    if False, set erange flag\n"
-"    trap_divzero:   if True, raise exception for division by zero\n"
-"                    if False, set divzero flag and return Inf or -Inf\n"
-"    trap_expbound:  if True, raise exception when mpfr/mpc exponent\n"
-"                        no longer valid in current context\n"
-"                    if False, mpfr/mpc with exponent out-of-bounds\n"
-"                        will be coerced to either 0 or Infinity\n"
-"    allow_complex:  if True, allow mpfr functions to return mpc\n"
-"                    if False, mpfr functions cannot return an mpc\n"
+"    precision:         precision, in bits, of an MPFR result\n"
+"    real_prec:         precision, in bits, of Re(MPC)\n"
+"                         -1 implies use mpfr_prec\n"
+"    imag_prec:         precision, in bits, of Im(MPC)\n"
+"                         -1 implies use real_prec\n"
+"    round:             rounding mode for MPFR\n"
+"    real_round:        rounding mode for Re(MPC)\n"
+"                         -1 implies use mpfr_round\n"
+"    imag_round:        rounding mode for Im(MPC)\n"
+"                         -1 implies use real_round\n"
+"    e_max:             maximum allowed exponent\n"
+"    e_min:             minimum allowed exponent\n"
+"    subnormalize:      if True, subnormalized results can be returned\n"
+"    trap_underflow:    if True, raise exception for underflow\n"
+"                       if False, set underflow flag\n"
+"    trap_overflow:     if True, raise exception for overflow\n"
+"                       if False, set overflow flag and return Inf or -Inf\n"
+"    trap_inexact:      if True, raise exception for inexact result\n"
+"                       if False, set inexact flag\n"
+"    trap_invalid:      if True, raise exception for invalid operation\n"
+"                       if False, set invalid flag and return NaN\n"
+"    trap_erange:       if True, raise exception for range error\n"
+"                       if False, set erange flag\n"
+"    trap_divzero:      if True, raise exception for division by zero\n"
+"                       if False, set divzero flag and return Inf or -Inf\n"
+"    trap_expbound:     if True, raise exception when mpfr/mpc exponent\n"
+"                          no longer valid in current context\n"
+"                       if False, mpfr/mpc with exponent out-of-bounds\n"
+"                          will be coerced to either 0 or Infinity\n"
+"    allow_complex:     if True, allow mpfr functions to return mpc\n"
+"                       if False, mpfr functions cannot return an mpc\n"
 "    rational_division: if True, mpz/mpz returns an mpq\n"
 "                       if False, mpz/mpz follows default behavior\n"
+"    guard_bits:        added to precision for temporary objects that\n"
+"                          can't be converted exactly\n"
 "\nMethods\n"
 "    abs(x)          return absolute value of x\n"
 "    acos(x)         return inverse cosine of x\n"
@@ -990,7 +1002,10 @@ GMPyContext_set_precision(CTXT_Object *self, PyObject *value, void *closure)
         return -1;
     }
     temp = PyIntOrLong_AsSsize_t(value);
-    if (temp < MPFR_PREC_MIN || temp > MPFR_PREC_MAX || PyErr_Occurred()) {
+    /* A return value of -1 indicates an error has occurred. Since -1 is not
+     * a legal value, we don't specifically check for an error condition.
+     */
+    if (temp < MPFR_PREC_MIN || temp > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");
         return -1;
     }
@@ -1014,13 +1029,10 @@ GMPyContext_set_real_prec(CTXT_Object *self, PyObject *value, void *closure)
         return -1;
     }
     temp = PyIntOrLong_AsSsize_t(value);
-    if (temp == -1) {
-        if (PyErr_Occurred()) {
-            VALUE_ERROR("invalid value for real_prec");
-            return -1;
-        }
-    }
-    else if (temp < MPFR_PREC_MIN || temp > MPFR_PREC_MAX) {
+    /* A return value of -1 indicates an error has occurred. Since -1 is not
+     * a legal value, we don't specifically check for an error condition.
+     */
+    if (temp < MPFR_PREC_MIN || temp > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for real_prec");
         return -1;
     }
@@ -1044,17 +1056,41 @@ GMPyContext_set_imag_prec(CTXT_Object *self, PyObject *value, void *closure)
         return -1;
     }
     temp = PyIntOrLong_AsSsize_t(value);
-    if (temp == -1) {
-        if (PyErr_Occurred()) {
-            VALUE_ERROR("invalid value for imag_prec");
-            return -1;
-        }
-    }
-    else if (temp < MPFR_PREC_MIN || temp > MPFR_PREC_MAX) {
+    /* A return value of -1 indicates an error has occurred. Since -1 is not
+     * a legal value, we don't specifically check for an error condition.
+     */
+    if (temp < MPFR_PREC_MIN || temp > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for imag_prec");
         return -1;
     }
     self->ctx.imag_prec = (mpfr_prec_t)temp;
+    return 0;
+}
+
+static PyObject *
+GMPyContext_get_guard_bits(CTXT_Object *self, void *closure)
+{
+    return PyIntOrLong_FromSsize_t((Py_ssize_t)(GET_GUARD_BITS(self)));
+}
+
+static int
+GMPyContext_set_guard_bits(CTXT_Object *self, PyObject *value, void *closure)
+{
+    Py_ssize_t temp;
+
+    if (!(PyIntOrLong_Check(value))) {
+        TYPE_ERROR("guard_bits must be Python integer");
+        return -1;
+    }
+    temp = PyIntOrLong_AsSsize_t(value);
+    /* A return value of -1 indicates an error has occurred. Since -1 is not
+     * a legal value, we don't specifically check for an error condition.
+     */
+    if (temp < 0 || temp > MAX_GUARD_BITS) {
+        VALUE_ERROR("invalid value for imag_prec");
+        return -1;
+    }
+    self->ctx.guard_bits = (mpfr_prec_t)temp;
     return 0;
 }
 
@@ -1250,6 +1286,7 @@ static PyGetSetDef GMPyContext_getseters[] = {
     ADD_GETSET(trap_expbound),
     ADD_GETSET(allow_complex),
     ADD_GETSET(rational_division),
+    ADD_GETSET(guard_bits),
     {NULL}
 };
 

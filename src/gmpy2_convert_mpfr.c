@@ -30,59 +30,49 @@
  * Overview
  * --------
  * gmpy2 tries to optimize the performance and accuracy of conversions from
- * other numeric types. gmpy2 uses a LBYL (Look Before You Leap) approach and
- * identifies the numeric type before conversion before conversion to a gmpy2
- * type. The basic operations (+, -, *, /) are optimized to directly work with
- * some basic types such as C longs or doubles.
+ * other numeric types. The basic operations (+, -, *, /) are optimized to
+ * directly work with the basic types such as C longs or doubles.
+ *
+ * gmpy2 supports two different strategies for creating new references to
+ * an mpfr instance. If bits (or prec) is set to 0, the precison of the
+ * result exactly matches the precision of the context. This is the default
+ * behavior of the mpfr() function. If bits (or prec) is set to 1, the
+ * precision of the result depends on the type of the source.
+ *
+ *   1) if the source number is already a radix-2 floating point number,
+ *      the precision is not changed. In practical terms, this only applies
+ *      to sources operands that either an mpfr or Python double.
+ *
+ *   2) otherwise, the source is converted to an mpfr using a precision of
+ *      (context.precison + context.guard_bits). guard_bits is
+ *      set to 0 by default but can be changed to provide additional
+ *      precision for creating temporary mpfr instances that are used
+ *      are arguments for MPFR functions.
+ *
+ * Even though the precision of an mpfr or PyDouble can remain unchanged,
+ * the exponent of the result is always guaranteed to be valid.
  *
  * Support for the Decimal type is a challenge. For the basic operations, it
  * is most accurate to convert a Decimal instance into an mpq and then use
  * MPFR's functions to accurately operate on an mpfr and mpq. This approach is
  * challenging because (1) a large exponent can create a very large mpq and
  * (2) the changes made to C-coded version of Decimal in Python 3.3. See
- * gmpy2_convert_gmpy.c for the code to convert a Decimal to an mpq exactly.
- *
+ * gmpy2_convert_gmp.c for the code to convert a Decimal to an mpq exactly.
  */
 
 /* ======================================================================== *
  * Conversion between native Python objects/MPZ/MPQ and MPFR.               *
  * ======================================================================== */
 
-/* All conversion functions return an instance of an mpfr accept parameters
- * that control the precision of the result - bits and context. The value for
- * 'bits' is interpreted as follows:
- *
- *    If bits == 0, then the precision of the source (the object being
- *    converted) is used as precision of the result. If the source object
- *    does not have a precision, then precision of the context is used. This
- *    allows the full precision of a binary floating point object to be
- *    retained.
- *
- *    If bits >= 2, then the bits specifies the precision of the result. The
- *    minimum precision of an mpfr object is 2. The value 1 is currently
- *    unused but may be used in the future.
- *
- * When creating a new mpfr instance, then a value of 0 implies the context's
- * precision is used.
- *
- * The exponent of the result is always guaranteed to be valid in the current
- * context. If the source was an mpfr, and the exponent was invalid, then an
- * exception may be raised. The corresponding flag will always be set.
- *
- * Conversion functions that end in 'Temp' will return a new reference to an
+/* Conversion functions that end in 'Temp' will return a new reference to an
  * existing object if the source object is a valid mpfr. Care must be taken
  * not to mutate the return value. Conversion functions that end in 'New'
  * will always return a new object. New objects are always returned if the
  * source object is not an mpfr.
  */
 
-/* Return a copy of an mpfr. If the value for bits is 0, then the context's
- * precision is used. If the value for bits is >= 2, then bits precision will
- * be used. This function will always return a new instance.
- */
-
 static MPFR_Object *
-GMPy_MPFR_From_MPFR_New(MPFR_Object *obj, mpfr_prec_t bits, CTXT_Object *context)
+GMPy_MPFR_From_MPFR_New(MPFR_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
 {
     MPFR_Object *result = NULL;
 
@@ -90,30 +80,38 @@ GMPy_MPFR_From_MPFR_New(MPFR_Object *obj, mpfr_prec_t bits, CTXT_Object *context
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!bits)
-        bits = GET_MPFR_PREC(context);
+    if (prec == 0)
+        prec = GET_MPFR_PREC(context);
 
+    if (prec == 1)
+        prec = mpfr_get_prec(obj->f);
+
+    /* The exponent is valid in the current context. */
     if (MPFR_CheckAndExp(obj)) {
-        /* The exponent is valid in the current context. */
-        if ((result = GMPy_MPFR_New(bits, context)))
+        if ((result = GMPy_MPFR_New(prec, context))) {
+            mpfr_clear_flags();
             result->rc = mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
+            MPFR_CLEANUP_2(result, context, "mpfr()");
+        }
         return result;
     }
-    else {
-        if (context->ctx.traps & TRAP_EXPBOUND) {
-            GMPY_EXPBOUND("exponent of existing mpfr incompatible with current context");
-            return NULL;
-        }
 
-        if ((result = GMPy_MPFR_New(mpfr_get_prec(obj->f), context))) {
-            /* First make the exponent valid. */
-            mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
-            result->rc = mpfr_check_range(result->f, obj->rc, obj->round_mode);
-            /* Round to the desired precision. */
-            result->rc = mpfr_prec_round(result->f, bits, GET_MPFR_ROUND(context));
-        }
-        return result;
+    if (context->ctx.traps & TRAP_EXPBOUND) {
+        GMPY_EXPBOUND("exponent of existing mpfr incompatible with current context");
+        return NULL;
     }
+
+    if ((result = GMPy_MPFR_New(mpfr_get_prec(obj->f), context))) {
+        /* First make the exponent valid. */
+        mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
+        mpfr_clear_flags();
+        result->rc = mpfr_check_range(result->f, obj->rc, obj->round_mode);
+        /* Then round to the desired precision. */
+        result->rc = mpfr_prec_round(result->f, prec, GET_MPFR_ROUND(context));
+        MPFR_CLEANUP_2(result, context, "mpfr()");
+    }
+
+    return result;
 }
 
 /* Return a new reference to an existing mpfr if the exponent is valid in the
@@ -129,7 +127,7 @@ GMPy_MPFR_From_MPFR_New(MPFR_Object *obj, mpfr_prec_t bits, CTXT_Object *context
  */
 
 static MPFR_Object *
-GMPy_MPFR_From_MPFR_Temp(MPFR_Object *obj, mpfr_prec_t bits, CTXT_Object *context)
+GMPy_MPFR_From_MPFR_Temp(MPFR_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
 {
     MPFR_Object *result = NULL;
 
@@ -137,23 +135,38 @@ GMPy_MPFR_From_MPFR_Temp(MPFR_Object *obj, mpfr_prec_t bits, CTXT_Object *contex
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (MPFR_CheckAndExp(obj)) {
-        Py_INCREF((PyObject*)obj);
-        return obj;
-    }
-    else {
-        if (context->ctx.traps & TRAP_EXPBOUND) {
-            GMPY_EXPBOUND("exponent of existing mpfr incompatible with current context");
-            return NULL;
-        }
+    if (prec == 0)
+        prec = GET_MPFR_PREC(context);
 
-        if ((result = GMPy_MPFR_New(mpfr_get_prec(obj->f), context))) {
-            /* First make the exponent valid. */
-            mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
-            result->rc = mpfr_check_range(result->f, obj->rc, obj->round_mode);
+    if (prec == 1)
+        prec = mpfr_get_prec(obj->f);
+
+    if (MPFR_CheckAndExp(obj)) {
+        if (prec == mpfr_get_prec(obj->f)) {
+            Py_INCREF((PyObject*)obj);
+            return obj;
         }
-        return result;
+        else {
+            if ((result = GMPy_MPFR_New(prec, context)))
+                result->rc = mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
+            return result;
+        }
     }
+
+    if (context->ctx.traps & TRAP_EXPBOUND) {
+        GMPY_EXPBOUND("exponent of existing mpfr incompatible with current context");
+        return NULL;
+    }
+
+    if ((result = GMPy_MPFR_New(mpfr_get_prec(obj->f), context))) {
+        /* First make the exponent valid. */
+        mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
+        result->rc = mpfr_check_range(result->f, obj->rc, obj->round_mode);
+        /* Then round to the desired precision. */
+        result->rc = mpfr_prec_round(result->f, prec, GET_MPFR_ROUND(context));
+    }
+
+    return result;
 }
 
 static MPFR_Object *

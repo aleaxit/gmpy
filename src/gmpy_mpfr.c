@@ -102,7 +102,7 @@ Pygmpy_mpfr(PyObject *self, PyObject *args)
             }
 
             if (base != 0 && (base < 2 || base > 62)) {
-                VALUE_ERROR("base for mpc() must be 0 or the interval [2, 62]");
+                VALUE_ERROR("base for mpfr() must be 0 or in the interval [2, 62]");
                 return NULL;
             }
         }
