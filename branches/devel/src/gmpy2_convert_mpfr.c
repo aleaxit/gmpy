@@ -7,7 +7,7 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013 Case Van Horsen            *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -147,8 +147,11 @@ GMPy_MPFR_From_MPFR_Temp(MPFR_Object *obj, mpfr_prec_t prec, CTXT_Object *contex
             return obj;
         }
         else {
-            if ((result = GMPy_MPFR_New(prec, context)))
+            if ((result = GMPy_MPFR_New(prec, context))) {
+                mpfr_clear_flags();
                 result->rc = mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
+                MPFR_CLEANUP_2(result, context, "mpfr()");
+            }
             return result;
         }
     }
@@ -161,9 +164,11 @@ GMPy_MPFR_From_MPFR_Temp(MPFR_Object *obj, mpfr_prec_t prec, CTXT_Object *contex
     if ((result = GMPy_MPFR_New(mpfr_get_prec(obj->f), context))) {
         /* First make the exponent valid. */
         mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
+        mpfr_clear_flags();
         result->rc = mpfr_check_range(result->f, obj->rc, obj->round_mode);
         /* Then round to the desired precision. */
         result->rc = mpfr_prec_round(result->f, prec, GET_MPFR_ROUND(context));
+        MPFR_CLEANUP_2(result, context, "mpfr()");
     }
 
     return result;
@@ -196,7 +201,9 @@ GMPy_MPFR_From_PyFloat(PyObject *obj, mpfr_prec_t bits, CTXT_Object *context)
     CHECK_CONTEXT_SET_EXPONENT(context);
 
     if ((result = GMPy_MPFR_New(bits, context))) {
+        mpfr_clear_flags();
         result->rc = mpfr_set_d(result->f, PyFloat_AS_DOUBLE(obj), GET_MPFR_ROUND(context));
+        MPFR_CLEANUP_2(result, context, "mpfr()");
     }
 
     return result;
@@ -212,7 +219,9 @@ GMPy_MPFR_From_MPZ(MPZ_Object *obj, mpfr_prec_t bits, CTXT_Object *context)
     CHECK_CONTEXT_SET_EXPONENT(context);
 
     if ((result = GMPy_MPFR_New(bits, context))) {
+        mpfr_clear_flags();
         result->rc = mpfr_set_z(result->f, obj->z, GET_MPFR_ROUND(context));
+        MPFR_CLEANUP_2(result, context, "mpfr()");
     }
 
     return result;
@@ -227,8 +236,12 @@ GMPy_MPFR_From_MPQ(MPQ_Object *obj, mpfr_prec_t bits, CTXT_Object *context)
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if ((result = GMPy_MPFR_New(bits, context)))
+    if ((result = GMPy_MPFR_New(bits, context))) {
+        mpfr_clear_flags();
         result->rc = mpfr_set_q(result->f, obj->q, GET_MPFR_ROUND(context));
+        MPFR_CLEANUP_2(result, context, "mpfr()");
+    }
+
     return result;
 }
 

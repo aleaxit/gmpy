@@ -7,7 +7,7 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013 Case Van Horsen            *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -54,31 +54,53 @@ Pympfr_f2q(PyObject *self, PyObject *args)
 PyDoc_STRVAR(doc_mpfr,
 "mpfr() -> mpfr(0.0)\n\n"
 "     If no argument is given, return mpfr(0.0).\n\n"
-"mpfr(n) -> mpfr\n\n"
-"     Return an 'mpfr' object after converting a numeric value. The\n"
-"     the precision is taken from the current context.\n\n"
-"mpfr(s[,base=0]) -> mpfr\n\n"
+"mpfr(n [,precision=0]) -> mpfr\n\n"
+"     Return an 'mpfr' object after converting a numeric value. See\n"
+"     below for the interpretation of precision.\n\n"
+"mpfr(s [,precision=0 [,base=0]]) -> mpfr\n\n"
 "     Return a new 'mpfr' object after converting a string s made of\n"
 "     digits in the given base, possibly with fraction-part (with a\n"
 "     period as a separator) and/or exponent-part (with an exponent\n"
-"     marker 'e' for base<=10, else '@'). The precison is taken from\n"
-"     the current context. The base of the string representation must\n"
-"     be 0 or in the interval 2 ... 62. If the base is 0, the leading\n"
-"     digits of the string are used to identify the base: 0b implies\n"
-"     base=2, 0x implies base=16, otherwise base=10 is assumed.\n");
+"     marker 'e' for base<=10, else '@'). The base of the string\n"
+"     representation must be 0 or in the interval [2,62]. If the base\n"
+"     is 0, the leading digits of the string are used to identify the\n"
+"     base: 0b implies base=2, 0x implies base=16, otherwise base=10\n"
+"     is assumed.\n\n"
+"     If a precision greater than or equal to 2 is specified, then it\n"
+"     is used.\n\n"
+"     A precision of 0 (the default) implies the precision of the\n"
+"     current context is used.\n\n"
+"     A precision of 1 minimizes the loss of precision by following\n"
+"     these rules:\n"
+"       1) If n is a radix-2 floating point number, then the full\n"
+"          precision of n is retained.\n"
+"       2) For all other n, the precision of the result is the context\n"
+"          precision + guard_bits.\n" );
 
 static PyObject *
-Pygmpy_mpfr(PyObject *self, PyObject *args)
+Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
 {
     MPFR_Object *result = NULL;
     PyObject *arg0 = NULL;
     mpir_si base = 0;
-    Py_ssize_t argc;
+    Py_ssize_t argc, keywdc = 0;
     CTXT_Object *context = NULL;
+
+    /* Assumes mpfr_prec_t is the same as a long. */
+    mpfr_prec_t bits = 0;
+    static char *kwlist_s[] = {"s", "precision", "base", NULL};
+    static char *kwlist_n[] = {"n", "precision", NULL};
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
     argc = PyTuple_Size(args);
+    if (keywds)
+        keywdc = PyDict_Size(keywds);
+
+    if (argc + keywdc > 3) {
+        TYPE_ERROR("mpfr() takes at most 3 arguments");
+        return NULL;
+    }
 
     if (argc == 0) {
         if ((result = GMPy_MPFR_New(0, context))) {
@@ -87,50 +109,40 @@ Pygmpy_mpfr(PyObject *self, PyObject *args)
         return (PyObject*)result;
     }
 
-    if (argc > 2) {
-        TYPE_ERROR("mpfr() takes at most 2 arguments");
-        return NULL;
-    }
-
     arg0 = PyTuple_GET_ITEM(args, 0);
-    if (PyStrOrUnicode_Check(arg0)) {
-        if (argc == 2) {
-            base = SI_From_Integer(PyTuple_GET_ITEM(args, 1));
-            if (base == -1 && PyErr_Occurred()) {
-                TYPE_ERROR("base for mpfr() must be an integer");
-                return NULL;
-            }
 
+    /* A string can have both precision and base additional arguments. */
+    if (PyStrOrUnicode_Check(arg0)) {
+        if (PyArg_ParseTupleAndKeywords(args, keywds, "O|li", kwlist_s,
+                                        &arg0, &bits, &base)) {
             if (base != 0 && (base < 2 || base > 62)) {
                 VALUE_ERROR("base for mpfr() must be 0 or in the interval [2, 62]");
-                return NULL;
+            }
+            else if (bits < 0) {
+                VALUE_ERROR("precision for mpfr() must be >= 0");
+            }
+            else {
+                result = GMPy_MPFR_From_PyStr(arg0, base, bits, context);
             }
         }
-        result = GMPy_MPFR_From_PyStr(arg0, base, 0, context);
-    }
-    else if (MPFR_CheckAndExp(arg0) &&
-             GET_MPFR_PREC(context) == mpfr_get_prec(MPFR(arg0))) {
-        if (argc > 1) {
-            TYPE_ERROR("only 1 argument allowed if first argument is a number");
-            return NULL;
-        }
-        Py_INCREF(arg0);
-        return arg0;
-    }
-    else if (IS_REAL(arg0)) {
-        if (argc > 1) {
-            TYPE_ERROR("only 1 argument allowed if first argument is a number");
-            return NULL;
-        }
-        result = GMPy_MPFR_From_Real_New(arg0, 0, context);
-    }
-    else {
-        TYPE_ERROR("mpfr() requires numeric or string argument");
-        return NULL;
+        return (PyObject*)result;
     }
 
-    SUBNORMALIZE(result);
-    return (PyObject*)result;
+    /* A number can only have precision additional argument. */
+    if (IS_REAL(arg0)) {
+        if (PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist_n, &arg0, &bits)) {
+            if (bits < 0) {
+                VALUE_ERROR("precision for mpfr() must be >= 0");
+            }
+            else {
+                result = GMPy_MPFR_From_Real_New(arg0, bits, context);
+            }
+        }
+        return (PyObject*)result;
+    }
+
+    TYPE_ERROR("mpfr() requires numeric or string argument");
+    return NULL;
 }
 
 /* Implement the .precision attribute of an mpfr. */

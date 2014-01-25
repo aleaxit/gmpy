@@ -61,8 +61,8 @@ typedef struct {
     mpfr_rnd_t imag_round;   /* current rounding mode for Im(MPC) */
     int allow_complex;       /* if 1, allow mpfr functions to return an mpc */
     int rational_division;   /* if 1, mpz/mpz returns an mpq result */
-    int guard_bits;          /* use additional precision when creating mpfr */
-                             /*   especially for temporary values */
+    int guard_bits;          /* number of additional guard bits to use */
+                             /*   must be less than MAX_GUARD_BITS     */
     int readonly;            /* if 1, this context is a template */
 } gmpy_context;
 
@@ -128,7 +128,7 @@ static PyTypeObject CTXT_Manager_Type;
 
 #define GET_DIV_MODE(c) (c->ctx.rational_division)
 #define GET_GUARD_BITS(c) (c->ctx.guard_bits)
-#define MAX_GUARD_BITS 100
+#define MAX_GUARD_BITS 1000
 
 static PyObject *    GMPy_CTXT_Manager_New(void);
 static void          GMPy_CTXT_Manager_Dealloc(CTXT_Manager_Object *self);

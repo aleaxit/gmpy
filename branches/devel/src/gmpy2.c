@@ -7,7 +7,7 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013 Case Van Horsen            *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -743,7 +743,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "minnum", Pympfr_min2, METH_VARARGS, doc_g_mpfr_minnum },
     { "min2", Pympfr_min2, METH_VARARGS, doc_g_mpfr_min2 },
     { "modf", Pympfr_modf, METH_O, doc_g_mpfr_modf },
-    { "mpfr", Pygmpy_mpfr, METH_VARARGS, doc_mpfr },
+    { "mpfr", (PyCFunction)Pygmpy_mpfr, METH_VARARGS | METH_KEYWORDS, doc_mpfr },
     { "mpfr_from_old_binary", Pympfr_From_Old_Binary, METH_O, doc_g_mpfr_from_old_binary },
     { "mpfr_random", GMPY_mpfr_random, METH_VARARGS, doc_mpfr_random },
     { "mpfr_grandom", GMPY_mpfr_grandom, METH_VARARGS, doc_mpfr_grandom },
