@@ -96,7 +96,7 @@ extern "C" {
         self = other; \
         Py_INCREF((PyObject*)self); \
     } \
-    else if (!(self = (PyObject*)GMPy_MPFR_From_Real_Temp(other, 0, context))) { \
+    else if (!(self = (PyObject*)GMPy_MPFR_From_Real(other, 1, context))) { \
         PyErr_SetString(PyExc_TypeError, msg); \
         return NULL; \
     }
@@ -284,7 +284,7 @@ extern "C" {
                 Py_INCREF((PyObject*)self); \
             } \
             else { \
-                self = (PyObject*)GMPy_MPFR_From_Real_Temp(PyTuple_GET_ITEM(args, 0), 0, context); \
+                self = (PyObject*)GMPy_MPFR_From_Real(PyTuple_GET_ITEM(args, 0), 1, context); \
             } \
         } \
         else if (PyTuple_GET_SIZE(args) == 1) { \
@@ -293,7 +293,7 @@ extern "C" {
                 Py_INCREF((PyObject*)self); \
             } \
             else { \
-                self = (PyObject*)GMPy_MPFR_From_Real_Temp(self, 0, context); \
+                self = (PyObject*)GMPy_MPFR_From_Real(self, 1, context); \
             } \
         } \
         else { \
@@ -436,7 +436,7 @@ extern "C" {
                 Py_INCREF((PyObject*)self); \
             } \
             else { \
-                self = (PyObject*)GMPy_MPFR_From_Real_Temp(PyTuple_GET_ITEM(args, 0), 0, context); \
+                self = (PyObject*)GMPy_MPFR_From_Real(PyTuple_GET_ITEM(args, 0), 1, context); \
             } \
         } \
         if (!self) { \
@@ -528,16 +528,16 @@ extern "C" {
             TYPE_ERROR(msg); \
             return NULL; \
         } \
-        self = (PyObject*)GMPy_MPFR_From_Real_Temp(self, 0, context); \
-        var = (PyObject*)GMPy_MPFR_From_Real_Temp(PyTuple_GET_ITEM(args, 0), 0, context); \
+        self = (PyObject*)GMPy_MPFR_From_Real(self, 1, context); \
+        var = (PyObject*)GMPy_MPFR_From_Real(PyTuple_GET_ITEM(args, 0), 1, context); \
     } \
     else { \
         if (PyTuple_GET_SIZE(args) != 2) { \
             TYPE_ERROR(msg); \
             return NULL; \
         } \
-        self = (PyObject*)GMPy_MPFR_From_Real_Temp(PyTuple_GET_ITEM(args, 0), 0, context); \
-        var = (PyObject*)GMPy_MPFR_From_Real_Temp(PyTuple_GET_ITEM(args, 1), 0, context); \
+        self = (PyObject*)GMPy_MPFR_From_Real(PyTuple_GET_ITEM(args, 0), 1, context); \
+        var = (PyObject*)GMPy_MPFR_From_Real(PyTuple_GET_ITEM(args, 1), 1, context); \
     } \
     if (!self || !var) { \
         TYPE_ERROR(msg); \

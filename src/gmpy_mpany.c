@@ -791,7 +791,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_REAL(b)) {
-            tempb = (PyObject*)GMPy_MPFR_From_Real_Temp(b, 0, context);
+            tempb = (PyObject*)GMPy_MPFR_From_Real(b, 1, context);
             if (!tempb)
                 return NULL;
             mpfr_clear_flags();

@@ -160,22 +160,14 @@ Pygmpy_mpc(PyObject *self, PyObject *args)
          * to modify the context so that the real and imaginary components are
          * built with the correct rounding mode and precision.
          */
-        mpfr_prec_t oldmpfr, oldreal, oldimag;
         int oldmpfr_round, oldreal_round, oldimag_round;
 
-        oldmpfr = GET_MPFR_PREC(context);
-        oldreal = GET_REAL_PREC(context);
-        oldimag = GET_IMAG_PREC(context);
         oldmpfr_round = GET_MPFR_ROUND(context);
         oldreal_round = GET_REAL_ROUND(context);
         oldimag_round = GET_IMAG_ROUND(context);
 
-        context->ctx.mpfr_prec = oldreal;
         context->ctx.mpfr_round = oldreal_round;
-
-        tempreal = GMPy_MPFR_From_Real_New(arg0, 0, context);
-
-        context->ctx.mpfr_prec = oldmpfr;
+        tempreal = GMPy_MPFR_From_Real(arg0, GET_REAL_PREC(context), context);
         context->ctx.mpfr_round = oldmpfr_round;
 
         if (argc == 2) {
@@ -186,22 +178,15 @@ Pygmpy_mpc(PyObject *self, PyObject *args)
                 Py_XDECREF((PyObject*)tempreal);
                 return NULL;
             }
-            context->ctx.mpfr_prec = oldimag;
+
             context->ctx.mpfr_round = oldimag_round;
-
-            tempimag = GMPy_MPFR_From_Real_New(arg1, 0, context);
-
-            context->ctx.mpfr_prec = oldmpfr;
+            tempimag = GMPy_MPFR_From_Real(arg1, GET_IMAG_PREC(context), context);
             context->ctx.mpfr_round = oldmpfr_round;
         }
         else {
-            context->ctx.mpfr_prec = oldimag;
             context->ctx.mpfr_round = oldimag_round;
-
-            if ((tempimag = GMPy_MPFR_New(0, context)))
+            if ((tempimag = GMPy_MPFR_New(GET_IMAG_PREC(context), context)))
                 mpfr_set_ui(tempimag->f, 0, MPFR_RNDN);
-
-            context->ctx.mpfr_prec = oldmpfr;
             context->ctx.mpfr_round = oldmpfr_round;
         }
 
@@ -215,8 +200,8 @@ Pygmpy_mpc(PyObject *self, PyObject *args)
         }
 
         result->rc = MPC_INEX(tempreal->rc, tempimag->rc);
-        mpfr_swap(mpc_realref(result->c), tempreal->f);
-        mpfr_swap(mpc_imagref(result->c), tempimag->f);
+        mpfr_set(mpc_realref(result->c), tempreal->f, GET_REAL_ROUND(context));
+        mpfr_set(mpc_imagref(result->c), tempimag->f, GET_IMAG_ROUND(context));
         Py_DECREF(tempreal);
         Py_DECREF(tempimag);
         MPC_SUBNORMALIZE_2(result, context);

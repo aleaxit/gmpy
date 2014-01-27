@@ -126,13 +126,17 @@ GMPy_MPQ_Abs_Slot(MPQ_Object *x)
 static PyObject *
 GMPy_Real_Abs(PyObject *x, CTXT_Object *context)
 {
-    MPFR_Object *result;
+    MPFR_Object *result, *temp;
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if ((result = GMPy_MPFR_From_Real_New(x, 0, context))) {
+    if (!(temp = GMPy_MPFR_From_Real(x, 1, context)))
+        return NULL;
+
+    if ((result = GMPy_MPFR_New(0, context))) {
         mpfr_clear_flags();
-        result->rc = mpfr_abs(result->f, result->f, GET_MPFR_ROUND(context));
+        result->rc = mpfr_abs(result->f, temp->f, GET_MPFR_ROUND(context));
+        Py_DECREF((PyObject*)temp);
         MPFR_CLEANUP_2(result, context, "abs()");
     }
 

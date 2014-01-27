@@ -87,7 +87,7 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
     CTXT_Object *context = NULL;
 
     /* Assumes mpfr_prec_t is the same as a long. */
-    mpfr_prec_t bits = 0;
+    mpfr_prec_t prec = 0;
     static char *kwlist_s[] = {"s", "precision", "base", NULL};
     static char *kwlist_n[] = {"n", "precision", NULL};
 
@@ -114,15 +114,15 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
     /* A string can have both precision and base additional arguments. */
     if (PyStrOrUnicode_Check(arg0)) {
         if (PyArg_ParseTupleAndKeywords(args, keywds, "O|li", kwlist_s,
-                                        &arg0, &bits, &base)) {
+                                        &arg0, &prec, &base)) {
             if (base != 0 && (base < 2 || base > 62)) {
                 VALUE_ERROR("base for mpfr() must be 0 or in the interval [2, 62]");
             }
-            else if (bits < 0) {
+            else if (prec < 0) {
                 VALUE_ERROR("precision for mpfr() must be >= 0");
             }
             else {
-                result = GMPy_MPFR_From_PyStr(arg0, base, bits, context);
+                result = GMPy_MPFR_From_PyStr(arg0, base, prec, context);
             }
         }
         return (PyObject*)result;
@@ -130,12 +130,12 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
 
     /* A number can only have precision additional argument. */
     if (IS_REAL(arg0)) {
-        if (PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist_n, &arg0, &bits)) {
-            if (bits < 0) {
+        if (PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist_n, &arg0, &prec)) {
+            if (prec < 0) {
                 VALUE_ERROR("precision for mpfr() must be >= 0");
             }
             else {
-                result = GMPy_MPFR_From_Real_New(arg0, bits, context);
+                result = GMPy_MPFR_From_Real(arg0, prec, context);
             }
         }
         return (PyObject*)result;
@@ -325,21 +325,22 @@ PyDoc_STRVAR(doc_g_mpfr_set_exp,
 static PyObject *
 Pympfr_set_exp(PyObject *self, PyObject *args)
 {
-    MPFR_Object *result = 0;
+    MPFR_Object *result;
+    PyObject *temp;
     long exp = 0;
     CTXT_Object *context = NULL;
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!PyArg_ParseTuple(args, "O&l", GMPy_MPFR_convert_arg, &self, &exp)) {
+    if (!PyArg_ParseTuple(args, "O!l", &MPFR_Type, &temp, &exp)) {
         TYPE_ERROR("set_exp() requires 'mpfr', 'integer' arguments");
         return NULL;
     }
 
-    if (!(result = GMPy_MPFR_From_MPFR_New((MPFR_Object*)self, 0, context)))
+    if (!(result = GMPy_MPFR_New(mpfr_get_prec(MPFR(temp)), context)))
         return NULL;
-    Py_DECREF(self);
 
+    mpfr_set(MPFR(result), MPFR(temp), GET_MPFR_ROUND(context));
     result->rc = mpfr_set_exp(MPFR(result), exp);
 
     if (result->rc) {
@@ -564,7 +565,7 @@ Pympfr_is_signed(PyObject *self, PyObject *other)
         self = other;
         Py_INCREF((PyObject*)self);
     }
-    else if (!(self = (PyObject*)GMPy_MPFR_From_Real_Temp(other, 0, context))) {
+    else if (!(self = (PyObject*)GMPy_MPFR_From_Real(other, 1, context))) {
         TYPE_ERROR("is_signed() requires 'mpfr' argument");
         return NULL;
     }
@@ -590,7 +591,7 @@ Pympfr_is_##NAME(PyObject *self, PyObject *other) \
         self = other; \
         Py_INCREF((PyObject*)self); \
     } \
-    else if (!(self = (PyObject*)GMPy_MPFR_From_Real_Temp(other, 0, context))) { \
+    else if (!(self = (PyObject*)GMPy_MPFR_From_Real(other, 1, context))) { \
         PyErr_SetString(PyExc_TypeError, msg); \
         return NULL; \
     } \
@@ -1207,7 +1208,7 @@ Pympfr_Neg_Real(PyObject *x, CTXT_Object *context)
     else if (IS_REAL(x)) {
         MPFR_Object *tempx;
 
-        tempx = GMPy_MPFR_From_Real_Temp(x, 0, context);
+        tempx = GMPy_MPFR_From_Real(x, 1, context);
         if (!tempx) {
             SYSTEM_ERROR("Can not covert Real to 'mpfr'");
             Py_DECREF((PyObject*)result);
@@ -2225,9 +2226,9 @@ Pympfr_fma(PyObject *self, PyObject *args)
     }
 
     result = GMPy_MPFR_New(0, context);
-    x = GMPy_MPFR_From_Real_Temp(PyTuple_GET_ITEM(args, 0), 0, context);
-    y = GMPy_MPFR_From_Real_Temp(PyTuple_GET_ITEM(args, 1), 0, context);
-    z = GMPy_MPFR_From_Real_Temp(PyTuple_GET_ITEM(args, 2), 0, context);
+    x = GMPy_MPFR_From_Real(PyTuple_GET_ITEM(args, 0), 1, context);
+    y = GMPy_MPFR_From_Real(PyTuple_GET_ITEM(args, 1), 1, context);
+    z = GMPy_MPFR_From_Real(PyTuple_GET_ITEM(args, 2), 1, context);
     if (!result || !x || !y || !z) {
         TYPE_ERROR("fma() requires 'mpfr','mpfr','mpfr' arguments.");
         goto done;
@@ -2265,9 +2266,9 @@ Pympfr_fms(PyObject *self, PyObject *args)
     }
 
     result = GMPy_MPFR_New(0, context);
-    x = GMPy_MPFR_From_Real_Temp(PyTuple_GET_ITEM(args, 0), 0, context);
-    y = GMPy_MPFR_From_Real_Temp(PyTuple_GET_ITEM(args, 1), 0, context);
-    z = GMPy_MPFR_From_Real_Temp(PyTuple_GET_ITEM(args, 2), 0, context);
+    x = GMPy_MPFR_From_Real(PyTuple_GET_ITEM(args, 0), 1, context);
+    y = GMPy_MPFR_From_Real(PyTuple_GET_ITEM(args, 1), 1, context);
+    z = GMPy_MPFR_From_Real(PyTuple_GET_ITEM(args, 2), 1, context);
     if (!result || !x || !y || !z) {
         TYPE_ERROR("fms() requires 'mpfr','mpfr','mpfr' arguments.");
         goto done;
@@ -2449,7 +2450,7 @@ Pympfr_fsum(PyObject *self, PyObject *other)
 
     seq_length = PyList_GET_SIZE(other);
     for (i=0; i < seq_length; i++) {
-        if (!(temp = GMPy_MPFR_From_Real_Temp(PyList_GET_ITEM(other, i), 0, context))) {
+        if (!(temp = GMPy_MPFR_From_Real(PyList_GET_ITEM(other, i), 1, context))) {
             Py_DECREF(other);
             Py_DECREF((PyObject*)result);
             TYPE_ERROR("all items in iterable must be real numbers");
