@@ -276,8 +276,8 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     if (IS_REAL(x) && IS_REAL(y)) {
-        tempx = GMPy_MPFR_From_Real_Temp(x, 0, context);
-        tempy = GMPy_MPFR_From_Real_Temp(y, 0, context);
+        tempx = GMPy_MPFR_From_Real(x, 1, context);
+        tempy = GMPy_MPFR_From_Real(y, 1, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("Can not convert Real to 'mpfr'");
             goto error;

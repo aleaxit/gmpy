@@ -258,8 +258,8 @@ GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context
     CHECK_CONTEXT_SET_EXPONENT(context);
 
     result = GMPy_MPFR_New(0, context);
-    tempb = GMPy_MPFR_From_Real_Temp(base, 0, context);
-    tempe = GMPy_MPFR_From_Real_Temp(exp, 0, context);
+    tempb = GMPy_MPFR_From_Real(base, 1, context);
+    tempe = GMPy_MPFR_From_Real(exp, 1, context);
 
     if (!result || !tempe || !tempb) {
         Py_XDECREF((PyObject*)result);
