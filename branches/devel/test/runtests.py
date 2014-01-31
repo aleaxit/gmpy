@@ -64,7 +64,8 @@ mpz_doctests = ["test_mpz.txt", "test_mpz_io.txt", "test_mpz_pack_unpack.txt",
 mpq_doctests = ["test_mpq.txt", "test_mpq_to_from_binary.txt"]
 
 # The following tests require MPFR support.
-mpfr_doctests = ["test_mpfr.txt", "test_mpfr_trig.txt", "test_mpfr_min_max.txt",
+mpfr_doctests = ["test_mpfr_create.txt", "test_mpfr.txt",
+                 "test_mpfr_trig.txt", "test_mpfr_min_max.txt",
                  "test_mpfr_to_from_binary.txt", "test_context.txt"]
 
 # The following tests require MPC support.
@@ -86,7 +87,10 @@ if sys.version >= "3.2":
 
 for test in sorted(all_doctests):
     for r in range(repeat):
-        result = doctest.testfile(test, globs=globals(), optionflags=doctest.IGNORE_EXCEPTION_DETAIL | doctest.NORMALIZE_WHITESPACE | doctest.REPORT_NDIFF)
+        result = doctest.testfile(test, globs=globals(),
+                                  optionflags=doctest.IGNORE_EXCEPTION_DETAIL |
+                                              doctest.NORMALIZE_WHITESPACE |
+                                              doctest.REPORT_NDIFF)
         print("Results for:  {0:24}".format(test.split(".")[0]), end="")
         print(" Attempted: {1:4d}   Failed: {0:4d}".format(*result), end="")
         if debug:

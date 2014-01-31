@@ -216,27 +216,27 @@ typedef struct {
     MERGE_FLAGS_2(CTX); \
     if (CTX->ctx.traps) { \
         if ((CTX->ctx.traps & TRAP_INVALID) && mpfr_nanflag_p()) { \
-            GMPY_INVALID(NAME ": invalid operation"); \
+            GMPY_INVALID(NAME " invalid operation"); \
             Py_DECREF((PyObject*)V); \
             return NULL; \
         } \
         if ((CTX->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) { \
-            GMPY_DIVZERO(NAME ": division by zero"); \
+            GMPY_DIVZERO(NAME " division by zero"); \
             Py_DECREF((PyObject*)V); \
             return NULL; \
         } \
         if ((CTX->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) { \
-            GMPY_UNDERFLOW(NAME ": underflow"); \
+            GMPY_UNDERFLOW(NAME " underflow"); \
             Py_DECREF((PyObject*)V); \
             return NULL; \
         } \
         if ((CTX->ctx.traps & TRAP_OVERFLOW) && mpfr_overflow_p()) { \
-            GMPY_OVERFLOW(NAME ": overflow"); \
+            GMPY_OVERFLOW(NAME " overflow"); \
             Py_DECREF((PyObject*)V); \
             return NULL; \
         } \
         if ((CTX->ctx.traps & TRAP_INEXACT) && mpfr_inexflag_p()) { \
-            GMPY_INEXACT(NAME ": inexact result"); \
+            GMPY_INEXACT(NAME " inexact result"); \
             Py_DECREF((PyObject*)V); \
             return NULL; \
         } \
@@ -355,11 +355,9 @@ static PyTypeObject MPFR_Type;
 /* Verify that an object is an mpfr and the exponent is valid */
 #define MPFR_CheckAndExp(v) \
     (MPFR_Check(v) && \
-        (mpfr_zero_p(MPFR(v)) || \
-            (mpfr_regular_p(MPFR(v)) && \
-                (MPFR(v)->_mpfr_exp >= context->ctx.emin) && \
-                (MPFR(v)->_mpfr_exp <= context->ctx.emax) \
-            ) \
+        (!mpfr_regular_p(MPFR(v)) || \
+            ((MPFR(v)->_mpfr_exp >= context->ctx.emin) && \
+             (MPFR(v)->_mpfr_exp <= context->ctx.emax)) \
         ) \
     )
 

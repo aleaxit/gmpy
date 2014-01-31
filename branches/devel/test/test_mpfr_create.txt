@@ -1,0 +1,111 @@
+MPFR Functionality
+==================
+
+This file tests the mpfr() function that is used to create mpfr instances.
+
+>>> import gmpy2
+>>> from gmpy2 import mpz, mpq, mpfr
+>>> import decimal
+>>> from decimal import Decimal as D
+>>> import fractions
+>>> from fractions import Fraction as F
+
+Test creation using default context
+-----------------------------------
+
+>>> mpfr()
+mpfr('0.0')
+>>> mpfr(0)
+mpfr('0.0')
+>>> mpfr(1)
+mpfr('1.0')
+>>> mpfr(-1)
+mpfr('-1.0')
+>>> mpfr("123e17")
+mpfr('1.23e+19')
+>>> mpfr("foo")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: invalid digits
+>>> mpfr(1,100)
+mpfr('1.0',100)
+>>> mpfr("1",100)
+mpfr('1.0',100)
+>>> mpfr("1","hi")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: base for mpfr() must be an integer
+>>> mpfr("-inf")
+mpfr('-inf')
+>>> mpfr("inf")
+mpfr('inf')
+>>> mpfr("nan")
+mpfr('nan')
+>>> mpfr(float("-inf"))
+mpfr('-inf')
+>>> mpfr(float("inf"))
+mpfr('inf')
+>>> mpfr(float("nan"))
+mpfr('nan')
+>>> mpfr(float("0"))
+mpfr('0.0')
+>>> mpfr(float("-0"))
+mpfr('-0.0')
+>>> mpfr("-0")
+mpfr('-0.0')
+>>> a = float("1.2345678901234567890")
+>>> b = mpfr("1.2345678901234567890")
+>>> a
+1.2345678901234567
+>>> b
+mpfr('1.2345678901234567')
+>>> a == b
+True
+>>> c = mpfr(b)
+>>> b is c
+True
+>>> mpfr(D("inf"))
+mpfr('inf')
+>>> mpfr(D("-inf"))
+mpfr('-inf')
+>>> mpfr(D("nan"))
+mpfr('nan')
+>>> mpfr(D("0"))
+mpfr('0.0')
+>>> mpfr(D("-0"))
+mpfr('-0.0')
+>>> mpfr(D("1.2345678901234567890"))
+mpfr('1.2345678901234567')
+>>> mpfr(D("-1.234567890e9999"))
+mpfr('-1.23456789e+9999')
+>>> mpfr(D("-1.234567890e-9999"))
+mpfr('-1.2345678899999999e-9999')
+>>> mpfr(D("-1.234567890e-9999"),10)
+mpfr('-1.234e-9999',10)
+>>> mpfr(F(0,1))
+mpfr('0.0')
+>>> mpfr(F(0,-1))
+mpfr('0.0')
+>>> mpfr(F(1,2))
+mpfr('0.5')
+>>> mpfr(-1)
+mpfr('-1.0')
+>>> mpfr(1 << 15)
+mpfr('32768.0')
+>>> mpfr(1 << 30 - 1)
+mpfr('536870912.0')
+>>> mpfr(1 << 30 + 1)
+mpfr('2147483648.0')
+>>> mpfr(1 << 30)
+mpfr('1073741824.0')
+>>> mpfr(12345678901234567890)
+mpfr('1.2345678901234567e+19')
+>>> mpfr(mpz(12345678901234567890))
+mpfr('1.2345678901234567e+19')
+>>> mpfr(mpz(-1))
+mpfr('-1.0')
+>>>
+
+Create using extended precision
+-------------------------------
+
