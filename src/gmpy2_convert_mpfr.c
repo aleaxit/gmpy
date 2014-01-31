@@ -117,7 +117,33 @@ GMPy_MPFR_From_MPFR(MPFR_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
             if ((result = GMPy_MPFR_New(prec, context))) {
                 mpfr_clear_flags();
                 result->rc = mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
-                MPFR_CLEANUP_2(result, context, "mpfr()");
+                /* Expanded version of MPFR_CLEANUP_2 macro without the check
+                 * for NAN.
+                 */
+                SUBNORMALIZE_2(result, context);
+                MERGE_FLAGS_2(context);
+                if (context->ctx.traps) {
+                    if ((context->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) {
+                        GMPY_DIVZERO("mpfr() division by zero");
+                        Py_DECREF((PyObject*)result);
+                        return NULL;
+                    }
+                    if ((context->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) {
+                        GMPY_UNDERFLOW("mpfr() underflow");
+                        Py_DECREF((PyObject*)result);
+                        return NULL;
+                    }
+                    if ((context->ctx.traps & TRAP_OVERFLOW) && mpfr_overflow_p()) {
+                        GMPY_OVERFLOW("mpfr() overflow");
+                        Py_DECREF((PyObject*)result);
+                        return NULL;
+                    }
+                    if ((context->ctx.traps & TRAP_INEXACT) && mpfr_inexflag_p()) {
+                        GMPY_INEXACT("mpfr() inexact result");
+                        Py_DECREF((PyObject*)result);
+                        return NULL;
+                    }
+                }
             }
             return result;
         }
@@ -160,7 +186,7 @@ GMPy_MPFR_From_PyIntOrLong(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context
     CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (prec == 0 || prec == 1)
-        prec = GET_MPFR_PREC(context) + GET_GUARD_BITS(context);
+        prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
 
     if ((tempz = GMPy_MPZ_From_PyIntOrLong(obj, context))) {
         result = GMPy_MPFR_From_MPZ(tempz, prec, context);
@@ -201,7 +227,8 @@ GMPy_MPFR_From_PyFloat(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
 
 /* If prec==0, then the precision of the current context is used.
  *
- * If prec==1, then the precision of Python float type is used (typically 53).
+ * If prec==1, then the precision of the current context plus guard bits is
+ * used.
  *
  * If prec>=2, then the specified precision is used.
  */
@@ -215,10 +242,8 @@ GMPy_MPFR_From_MPZ(MPZ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (prec == 0)
-        prec = GET_MPFR_PREC(context);
-    else if (prec == 1)
-        prec = DBL_MANT_DIG;
+    if (prec == 0 || prec == 1)
+        prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
 
     if ((result = GMPy_MPFR_New(prec, context))) {
         mpfr_clear_flags();
@@ -247,7 +272,7 @@ GMPy_MPFR_From_MPQ(MPQ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
     CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (prec == 0 || prec == 1)
-        prec = GET_MPFR_PREC(context) + GET_GUARD_BITS(context);
+        prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
 
     if ((result = GMPy_MPFR_New(prec, context))) {
         mpfr_clear_flags();
@@ -277,7 +302,7 @@ GMPy_MPFR_From_Fraction(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
     CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (prec == 0 || prec == 1)
-        prec = GET_MPFR_PREC(context) + GET_GUARD_BITS(context);
+        prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
 
     if ((tempq = GMPy_MPQ_From_Fraction(obj, context))) {
         result = GMPy_MPFR_From_MPQ(tempq, prec, context);
@@ -306,7 +331,7 @@ GMPy_MPFR_From_Decimal(PyObject* obj, mpfr_prec_t prec, CTXT_Object *context)
     CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (prec == 0 || prec == 1)
-        prec = GET_MPFR_PREC(context) + GET_GUARD_BITS(context);
+        prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
 
     result = GMPy_MPFR_New(prec, context);
     temp = GMPy_MPQ_From_DecimalRaw(obj, context);
@@ -360,7 +385,7 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
     CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (prec == 0 || prec == 1)
-        prec = GET_MPFR_PREC(context) + GET_GUARD_BITS(context);
+        prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
 
     if (PyBytes_Check(s)) {
         len = PyBytes_Size(s);

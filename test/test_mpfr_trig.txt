@@ -1,14 +1,14 @@
 MPFR Functionality
 ==================
 
-    >>> import gmpy2
-    >>> import math
-    >>> from gmpy2 import mpfr, mpq, mpz
-    >>> from fractions import Fraction as F
-    >>> from decimal import Decimal as D
-    >>> def _cmp(x,y):
-    ...   return x.as_integer_ratio() == y.as_integer_ratio()
-    ...
+>>> import gmpy2
+>>> import math
+>>> from gmpy2 import mpfr, mpq, mpz
+>>> from fractions import Fraction as F
+>>> from decimal import Decimal as D
+>>> def _cmp(x,y):
+...   return x.as_integer_ratio() == y.as_integer_ratio()
+...
 
 Test trigonometric operations
 =============================
@@ -85,7 +85,8 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         trap_expbound=False,
         allow_complex=False,
-        rational_division=False)
+        rational_division=False,
+        guard_bits=0)
 
 Test asin
 ---------
@@ -150,7 +151,8 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         trap_expbound=False,
         allow_complex=False,
-        rational_division=False)
+        rational_division=False,
+        guard_bits=0)
 
 Test atan
 ---------
@@ -209,7 +211,8 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         trap_expbound=False,
         allow_complex=False,
-        rational_division=False)
+        rational_division=False,
+        guard_bits=0)
 
 Test atan2
 ----------
@@ -307,7 +310,8 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         trap_expbound=False,
         allow_complex=False,
-        rational_division=False)
+        rational_division=False,
+        guard_bits=0)
 
 Test cot
 --------

@@ -361,9 +361,9 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
             "        trap_erange=%s, erange=%s,\n"
             "        trap_divzero=%s, divzero=%s,\n"
             "        trap_expbound=%s,\n"
-            "        allow_complex=%s, \n"
-            "        guard_bits=%s, \n"
-            "        rational_division=%s)"
+            "        allow_complex=%s,\n"
+            "        rational_division=%s,\n"
+            "        guard_bits=%s)\n"
             );
     if (!format) {
         Py_DECREF(tuple);
