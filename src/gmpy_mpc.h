@@ -268,7 +268,7 @@ static PyTypeObject MPC_Type;
             Py_INCREF(self); \
         } \
         else { \
-            if (!(self = (PyObject*)GMPy_MPC_From_Complex_Temp(self, 0, 0, context))) { \
+            if (!(self = (PyObject*)GMPy_MPC_From_Complex(self, 0, 0, context))) { \
                 TYPE_ERROR(msg); \
                 return NULL; \
             } \
@@ -284,7 +284,7 @@ static PyTypeObject MPC_Type;
             Py_INCREF(self); \
         } \
         else { \
-            if (!(self = (PyObject*)GMPy_MPC_From_Complex_Temp(self, 0, 0, context))) { \
+            if (!(self = (PyObject*)GMPy_MPC_From_Complex(self, 0, 0, context))) { \
                 TYPE_ERROR(msg); \
                 return NULL; \
             } \
@@ -307,7 +307,7 @@ static PyTypeObject MPC_Type;
             Py_INCREF(self); \
         } \
         else { \
-            if (!(self = (PyObject*)GMPy_MPC_From_Complex_Temp(self, 0, 0, context))) { \
+            if (!(self = (PyObject*)GMPy_MPC_From_Complex(self, 0, 0, context))) { \
                 TYPE_ERROR(msg); \
                 return NULL; \
             } \
@@ -319,7 +319,7 @@ static PyTypeObject MPC_Type;
             Py_INCREF(self); \
         } \
         else { \
-            if (!(self = (PyObject*)GMPy_MPC_From_Complex_Temp(other, 0, 0, context))) { \
+            if (!(self = (PyObject*)GMPy_MPC_From_Complex(other, 0, 0, context))) { \
                 TYPE_ERROR(msg); \
                 return NULL; \
             } \
@@ -360,7 +360,7 @@ static PyTypeObject MPC_Type;
     }
 
 static PyObject * Pympc_digits(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_mpc(PyObject *self, PyObject *args);
+static PyObject * Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject * Pympc_format(PyObject *self, PyObject *args);
 static PyObject * Pympc_neg(MPC_Object *self);
 static PyObject * Pympc_pos(MPC_Object *self);

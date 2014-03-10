@@ -58,7 +58,7 @@ PyDoc_STRVAR(doc_mpfr,
 "     Return an 'mpfr' object after converting a numeric value. See\n"
 "     below for the interpretation of precision.\n\n"
 "mpfr(s [,precision=0 [,base=0]]) -> mpfr\n\n"
-"     Return a new 'mpfr' object after converting a string s made of\n"
+"     Return a new 'mpfr' object by converting a string s made of\n"
 "     digits in the given base, possibly with fraction-part (with a\n"
 "     period as a separator) and/or exponent-part (with an exponent\n"
 "     marker 'e' for base<=10, else '@'). The base of the string\n"
@@ -102,7 +102,7 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
         return NULL;
     }
 
-    if (argc == 0) {
+    if (argc + keywdc == 0) {
         if ((result = GMPy_MPFR_New(0, context))) {
             mpfr_set_ui(result->f, 0, MPFR_RNDN);
         }
