@@ -320,8 +320,8 @@ GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *cont
     }
 
     result = GMPy_MPC_New(0, 0, context);
-    tempb = GMPy_MPC_From_Complex_Temp(base, 0, 0, context);
-    tempe = GMPy_MPC_From_Complex_Temp(exp, 0, 0, context);
+    tempb = GMPy_MPC_From_Complex(base, 1, 1, context);
+    tempe = GMPy_MPC_From_Complex(exp, 1, 1, context);
 
     if (!result || !tempe || !tempb) {
         Py_XDECREF((PyObject*)result);

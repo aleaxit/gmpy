@@ -60,10 +60,6 @@
  * gmpy2_convert_gmp.c for the code to convert a Decimal to an mpq exactly.
  */
 
-/* ======================================================================== *
- * Conversion between native Python objects/MPZ/MPQ and MPFR.               *
- * ======================================================================== */
-
 /* If prec == 0:
  *   Return an additional reference to an existing mpfr if the exponent is
  *   valid in the current context and the precision of the existing mpfr
@@ -118,16 +114,11 @@ GMPy_MPFR_From_MPFR(MPFR_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
                 mpfr_clear_flags();
                 result->rc = mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
                 /* Expanded version of MPFR_CLEANUP_2 macro without the check
-                 * for NAN.
+                 * for NAN or division by zero.
                  */
                 SUBNORMALIZE_2(result, context);
                 MERGE_FLAGS_2(context);
                 if (context->ctx.traps) {
-                    if ((context->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) {
-                        GMPY_DIVZERO("mpfr() division by zero");
-                        Py_DECREF((PyObject*)result);
-                        return NULL;
-                    }
                     if ((context->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) {
                         GMPY_UNDERFLOW("mpfr() underflow");
                         Py_DECREF((PyObject*)result);
@@ -161,7 +152,9 @@ GMPy_MPFR_From_MPFR(MPFR_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
         result->rc = mpfr_check_range(result->f, obj->rc, obj->round_mode);
         /* Then round to the desired precision. */
         result->rc = mpfr_prec_round(result->f, prec, GET_MPFR_ROUND(context));
-        MPFR_CLEANUP_2(result, context, "mpfr()");
+        /* Removing any exception checks. Need to think about what should happen.
+         * MPFR_CLEANUP_2(result, context, "mpfr()");
+         */
     }
 
     return result;
@@ -218,7 +211,8 @@ GMPy_MPFR_From_PyFloat(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
 
     if ((result = GMPy_MPFR_New(prec, context))) {
         mpfr_clear_flags();
-        result->rc = mpfr_set_d(result->f, PyFloat_AS_DOUBLE(obj), GET_MPFR_ROUND(context));
+        result->rc = mpfr_set_d(result->f, PyFloat_AS_DOUBLE(obj),
+                                GET_MPFR_ROUND(context));
         MPFR_CLEANUP_2(result, context, "mpfr()");
     }
 

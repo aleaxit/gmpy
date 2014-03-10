@@ -433,8 +433,8 @@ GMPy_Complex_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
         MPC_Object *tempx, *tempy;
 
-        tempx = GMPy_MPC_From_Complex_Temp(x, 0, 0, context);
-        tempy = GMPy_MPC_From_Complex_Temp(y, 0, 0, context);
+        tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
+        tempy = GMPy_MPC_From_Complex(y, 1, 1, context);
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);

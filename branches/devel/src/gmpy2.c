@@ -784,7 +784,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "zero", Pympfr_set_zero, METH_VARARGS, doc_g_mpfr_set_zero },
     { "zeta", Pympfr_zeta, METH_O, doc_g_mpfr_zeta },
 
-    { "mpc", Pygmpy_mpc, METH_VARARGS, doc_g_mpc },
+    { "mpc", (PyCFunction)Pygmpy_mpc, METH_VARARGS | METH_KEYWORDS, doc_g_mpc },
     { "mpc_random", GMPY_mpc_random, METH_VARARGS, doc_mpc_random },
     { "norm", Pympc_norm, METH_O, doc_mpc_norm },
     { "polar", Pympc_polar, METH_O, doc_mpc_polar },

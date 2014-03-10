@@ -25,101 +25,97 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-PyDoc_STRVAR(doc_mpc_digits,
-"c.digits(base=10, prec=0) -> ((mant, exp, prec), (mant, exp, prec))\n\n"
-"Returns up to 'prec' digits in the given base. If 'prec' is 0, as many\n"
-"digits that are available given c's precision are returned. 'base' must\n"
-"be between 2 and 62. The result consists of 2 three-element tuples that\n"
-"contain the mantissa, exponent, and number of bits of precision of the\n"
-"real and imaginary components.");
-
-/* TODO: support keyword arguments. */
-
-static PyObject *
-Pympc_digits(PyObject *self, PyObject *args)
-{
-    int base = 10;
-    int prec = 0;
-    PyObject *result;
-
-    if (self && MPC_Check(self)) {
-        if (!PyArg_ParseTuple(args, "|ii", &base, &prec))
-            return NULL;
-        Py_INCREF(self);
-    }
-    else {
-        if(!PyArg_ParseTuple(args, "O&|ii", GMPy_MPC_convert_arg, &self,
-                            &base, &prec))
-        return NULL;
-    }
-    result = GMPy_PyStr_From_MPC((MPC_Object*)self, base, prec, NULL);
-    Py_DECREF(self);
-    return result;
-}
-
 PyDoc_STRVAR(doc_g_mpc,
 "mpc() -> mpc(0.0+0.0j)\n\n"
 "      If no argument is given, return mpc(0.0+0.0j).\n\n"
-"mpc(c) -> mpc\n\n"
-"      Return a new 'mpc' object from an existing complex number\n"
-"      (either a Python complex object or another 'mpc' object). The\n"
-"      precision and rounding mode are taken from the current context.\n\n"
-"mpc(r[,i]) -> mpc\n\n"
+"mpc(c [, precision=0]) -> mpc\n\n"
+"      Return a new 'mpc' object from an existing complex number (either\n"
+"      a Python complex object or another 'mpc' object).\n\n"
+"mpc(real [,imag=0 [, precision=0]]) -> mpc\n\n"
 "      Return a new 'mpc' object by converting two non-complex numbers\n"
-"      into the real and imaginary components of an 'mpc' object. The\n"
-"      precision and rounding mode are taken from the current context.\n\n"
-"mpc(s[,base=10]) -> mpc\n\n"
+"      into the real and imaginary components of an 'mpc' object.\n\n"
+"mpc(s [, precision=0 [, base=10]]) -> mpc\n\n"
 "      Return a new 'mpc' object by converting a string s into a complex\n"
 "      number. If base is omitted, then a base-10 representation is\n"
-"      assumed otherwise a base between 2 and 36 can be specified. The\n"
-"      precision and rounding mode are taken from the current context.\n\n"
+"      assumed otherwise the base must be in the interval [2,36].\n\n"
 "Note: The precision can be specified either a single number that\n"
 "      is used for both the real and imaginary components, or as a\n"
 "      tuple that can specify different precisions for the real\n"
-"      and imaginary components.");
+"      and imaginary components.\n\n"
+"      If a precision greater than or equal to 2 is specified, then it\n"
+"      is used.\n\n"
+"      A precision of 0 (the default) implies the precision of the\n"
+"      current context is used.\n\n"
+"      A precision of 1 minimizes the loss of precision by following\n"
+"      these rules:\n"
+"        1) If n is a radix-2 floating point number, then the full\n"
+"           precision of n is retained.\n"
+"        2) For all other n, the precision of the result is the context\n"
+"           precision + guard_bits.\n" );
 
 static PyObject *
-Pygmpy_mpc(PyObject *self, PyObject *args)
+Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     MPC_Object *result = NULL;
     MPFR_Object *tempreal = NULL, *tempimag = NULL;
-    PyObject *arg0 = NULL, *arg1 = NULL;
-    mpir_si base = 10;
-    Py_ssize_t argc;
+    PyObject *arg0 = NULL, *arg1 = NULL, *prec = NULL;
+    int base = 10;
+    Py_ssize_t argc = 0, keywdc = 0;
     mpfr_prec_t tempr = 0, tempi = 0;
     CTXT_Object *context = NULL;
+
+    /* Assumes mpfr_prec_t is the same as a long. */
+    mpfr_prec_t rprec = 0, iprec = 0;
+    static char *kwlist_c[] = {"c", "precision", NULL};
+    static char *kwlist_r[] = {"real", "imag", "precision", NULL};
+    static char *kwlist_s[] = {"s", "precision", "base", NULL};
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
     argc = PyTuple_Size(args);
+    if (kwargs)
+        keywdc = PyDict_Size(kwargs);
 
-    if (argc == 0) {
+    if (argc > 3) {
+        TYPE_ERROR("mpc() takes at most 3 arguments");
+        return NULL;
+    }
+
+    if (argc + keywdc == 0) {
         if ((result = GMPy_MPC_New(0, 0, context))) {
             mpc_set_ui(result->c, 0, GET_MPC_ROUND(context));
         }
         return (PyObject*)result;
     }
 
-    if (argc > 2) {
-        TYPE_ERROR("mpc() takes at most 2 arguments");
-        return NULL;
-    }
-
     arg0 = PyTuple_GET_ITEM(args, 0);
-    if (PyStrOrUnicode_Check(arg0)) {
-        if (argc == 2) {
-            base = SI_From_Integer(PyTuple_GET_ITEM(args, 1));
-            if (base == -1 && PyErr_Occurred()) {
-                TYPE_ERROR("base for mpc() must be an integer");
-                return NULL;
-            }
 
-            if (base != 0 && (base < 2 || base > 36)) {
-                VALUE_ERROR("base for mpc() must be 0 or the interval [2, 36]");
+    if (PyStrOrUnicode_Check(arg0)) {
+        if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "O|Oi", kwlist_s,
+                                          &arg0, &prec, &base)))
+            return NULL;
+
+        if (prec) {
+            if (PyIntOrLong_Check(prec)) {
+                rprec = (mpfr_prec_t)PyIntOrLong_AsLong(prec);
+                iprec = rprec;
+            }
+            else if (PyTuple_Check(prec) && PyTuple_Size(prec) == 2) {
+                rprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GetItem(prec, 0));
+                iprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GetItem(prec, 1));
+            }
+            if (PyErr_Occurred()) {
+                VALUE_ERROR("invalid value for precision in mpc().");
                 return NULL;
             }
         }
-        result = GMPy_MPC_From_PyStr(arg0, (int)base, 0, 0, context);
+
+        if (base < 2 || base > 36) {
+            VALUE_ERROR("base for mpc() must be in the interval [2,36].");
+            return NULL;
+        }
+
+        result = GMPy_MPC_From_PyStr(arg0, base, rprec, iprec, context);
         MPC_SUBNORMALIZE_2(result, context);
         return (PyObject*)result;
     }
@@ -142,7 +138,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args)
             TYPE_ERROR("only 1 argument allowed if first argument is mpc");
             return NULL;
         }
-        result = GMPy_MPC_From_MPC_New((MPC_Object*)arg0, 0, 0, context);
+        result = GMPy_MPC_From_MPC((MPC_Object*)arg0, 0, 0, context);
         MPC_SUBNORMALIZE_2(result, context);
         return (PyObject*)result;
     }
@@ -491,6 +487,38 @@ Pympc_format(PyObject *self, PyObject *args)
     return result;
 }
 
+PyDoc_STRVAR(doc_mpc_digits,
+"c.digits(base=10, prec=0) -> ((mant, exp, prec), (mant, exp, prec))\n\n"
+"Returns up to 'prec' digits in the given base. If 'prec' is 0, as many\n"
+"digits that are available given c's precision are returned. 'base' must\n"
+"be between 2 and 62. The result consists of 2 three-element tuples that\n"
+"contain the mantissa, exponent, and number of bits of precision of the\n"
+"real and imaginary components.");
+
+/* TODO: support keyword arguments. */
+
+static PyObject *
+Pympc_digits(PyObject *self, PyObject *args)
+{
+    int base = 10;
+    int prec = 0;
+    PyObject *result;
+
+    if (self && MPC_Check(self)) {
+        if (!PyArg_ParseTuple(args, "|ii", &base, &prec))
+            return NULL;
+        Py_INCREF(self);
+    }
+    else {
+        if(!PyArg_ParseTuple(args, "O&|ii", GMPy_MPC_convert_arg, &self,
+                            &base, &prec))
+        return NULL;
+    }
+    result = GMPy_PyStr_From_MPC((MPC_Object*)self, base, prec, NULL);
+    Py_DECREF(self);
+    return result;
+}
+
 static PyObject *
 Pympc_neg(MPC_Object *self)
 {
@@ -499,7 +527,7 @@ Pympc_neg(MPC_Object *self)
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!(result = GMPy_MPC_From_MPC_New(self, 0, 0, context))) {
+    if (!(result = GMPy_MPC_New(0, 0, context))) {
         SYSTEM_ERROR("__neg__() requires 'mpc' argument");
         return NULL;
     }
@@ -517,7 +545,7 @@ Pympc_pos(MPC_Object *self)
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
-    if (!(result = GMPy_MPC_From_MPC_New(self, 0, 0, context))) {
+    if (!(result = GMPy_MPC_From_MPC(self, 0, 0, context))) {
         SYSTEM_ERROR("__pos__ requires 'mpc' argument");
         return NULL;
     }
@@ -651,7 +679,7 @@ Pympc_is_##NAME(PyObject *self, PyObject *other)\
         self = other;\
         Py_INCREF((PyObject*)self);\
     }\
-    else if (!(self = (PyObject*)GMPy_MPC_From_Complex_Temp(other, 0, 0, context))) {\
+    else if (!(self = (PyObject*)GMPy_MPC_From_Complex(other, 0, 0, context))) {\
         PyErr_SetString(PyExc_TypeError, msg);\
         return NULL;\
     }\
@@ -951,9 +979,9 @@ Pympc_fma(PyObject *self, PyObject *args)
     }
 
     result = GMPy_MPC_New(0, 0, context);
-    tempx = GMPy_MPC_From_Complex_Temp(PyTuple_GET_ITEM(args, 0), 0, 0, context);
-    tempy = GMPy_MPC_From_Complex_Temp(PyTuple_GET_ITEM(args, 1), 0, 0, context);
-    tempz = GMPy_MPC_From_Complex_Temp(PyTuple_GET_ITEM(args, 2), 0, 0, context);
+    tempx = GMPy_MPC_From_Complex(PyTuple_GET_ITEM(args, 0), 0, 0, context);
+    tempy = GMPy_MPC_From_Complex(PyTuple_GET_ITEM(args, 1), 0, 0, context);
+    tempz = GMPy_MPC_From_Complex(PyTuple_GET_ITEM(args, 2), 0, 0, context);
     if (!result || !tempx || !tempy || !tempz) {
         TYPE_ERROR("fma() requires 'mpc','mpc','mpc' arguments.");
         goto done;
@@ -989,9 +1017,9 @@ Pympc_fms(PyObject *self, PyObject *args)
     }
 
     result = GMPy_MPC_New(0, 0, context);
-    x = GMPy_MPC_From_Complex_Temp(PyTuple_GET_ITEM(args, 0), 0, 0, context);
-    y = GMPy_MPC_From_Complex_Temp(PyTuple_GET_ITEM(args, 1), 0, 0, context);
-    z = GMPy_MPC_From_Complex_Temp(PyTuple_GET_ITEM(args, 2), 0, 0, context);
+    x = GMPy_MPC_From_Complex(PyTuple_GET_ITEM(args, 0), 0, 0, context);
+    y = GMPy_MPC_From_Complex(PyTuple_GET_ITEM(args, 1), 0, 0, context);
+    z = GMPy_MPC_From_Complex(PyTuple_GET_ITEM(args, 2), 0, 0, context);
     if (!result || !x || !y || !z) {
         TYPE_ERROR("fms() requires 'mpc','mpc','mpc' arguments.");
         goto done;
