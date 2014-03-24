@@ -186,9 +186,9 @@ class gmpy_build_ext(build_ext):
 
         # If the instance of Python used to compile gmpy2 not found in 'prefix',
         # then specify the Python shared library to use.
-        if not windows and not get_python_lib(standard_lib=True).startswith(prefix):
-            self.extensions[0].libraries = [get_python_lib(standard_lib=True)] \
-                                            + self.extensions[0].libraries
+        #~ if not windows and not static and not get_python_lib(standard_lib=True).startswith(prefix):
+           #~ self.extensions[0].libraries = [get_python_lib(standard_lib=True)] \
+                                           #~ + self.extensions[0].libraries
 
         # For debugging information, uncomment the following lines.
         # writeln([mpfr_found, mpc_found])
@@ -225,6 +225,7 @@ class gmpy_build_ext(build_ext):
 #  --prefix=<...>  -> add the specified directory prefix to the beginning of
 #                     the list of directories that are searched for GMP, MPFR,
 #                     and MPC
+#  --static        -> create a statically linked library
 #
 # Old-stype options
 #
@@ -261,6 +262,7 @@ defines = []
 use_mpc = True
 use_mpfr = True
 force = False
+static = False
 
 for token in sys.argv[:]:
     if token.lower() == '--force':
@@ -291,8 +293,13 @@ for token in sys.argv[:]:
     if token.lower().startswith('--prefix'):
         try:
             defines.append( ('PREFIX', token.split('=')[1]) )
+
         except:
             writeln('Please include a directory location.')
+        sys.argv.remove(token)
+
+    if token.lower() == '--static':
+        static = True
         sys.argv.remove(token)
 
     # The following options are deprecated and will be removed in the future.
@@ -328,6 +335,7 @@ for token in sys.argv[:]:
 incdirs = ['./src']
 libdirs = []
 rundirs = []
+extras = []
 
 # Specify extra link arguments for Windows.
 
@@ -338,23 +346,32 @@ else:
 
 mp_found = False
 
-# Configure the defines...
+prefix = ''
+for i,d in enumerate(defines):
+    if d[0] == 'PREFIX':
+        prefix = d[1]
 
 if mplib == 'mpir':
     defines.append( ('MPIR', None) )
     libs = ['mpir']
+    if static:
+        extras.append(prefix + lib_path + '/libmpir.a')
 else:
     libs = ['gmp']
+    if static:
+        extras.append(prefix + lib_path + '/libgmp.a')
 
 if use_mpfr:
     defines.append( ('WITHMPFR', None) )
     libs.append('mpfr')
+    if static:
+        extras.append(prefix + lib_path + '/libmpfr.a')
 
 if use_mpc:
     defines.append( ('WITHMPC', None) )
     libs.append('mpc')
-
-
+    if static:
+        extras.append(prefix + lib_path + '/libmpc.a')
 
 # decomment next line (w/gcc, only!) to support gcov
 #   os.environ['CFLAGS'] = '-fprofile-arcs -ftest-coverage -O0'
@@ -370,6 +387,7 @@ gmpy2_ext = Extension('gmpy2',
                       libraries=libs,
                       runtime_library_dirs=rundirs,
                       define_macros = defines,
+                      extra_objects = extras,
                       extra_link_args = my_extra_link_args)
 
 setup(name = "gmpy2",
