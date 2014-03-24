@@ -50,7 +50,7 @@ GMPy_MPC_From_MPC(MPC_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
     if (iprec == 0)
         iprec = GET_IMAG_PREC(context);
     else if (iprec == 1)
-        rprec = mpfr_get_prec(mpc_imagref(obj->c));
+        iprec = mpfr_get_prec(mpc_imagref(obj->c));
 
 
     if (MPC_CheckAndExp(obj)) {
@@ -117,7 +117,8 @@ GMPy_MPC_From_PyComplex(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
         mpc_set_d_d(result->c, PyComplex_RealAsDouble(obj),
                     PyComplex_ImagAsDouble(obj), GET_MPC_ROUND(context));
 
-    /* Still need to perform exception checking. */
+    MPC_SUBNORMALIZE_2(result, context);
+    /* Need to do exception checks! */
 
     return result;
 }
@@ -143,7 +144,8 @@ GMPy_MPC_From_MPFR(MPFR_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
     if ((result = GMPy_MPC_New(rprec, iprec, context)))
         result->rc = mpc_set_fr(result->c, obj->f, GET_MPC_ROUND(context));
 
-    /* Still need to perform exception checking. */
+    MPC_SUBNORMALIZE_2(result, context);
+    /* Need to do exception checks! */
 
     return result;
 }
@@ -172,7 +174,8 @@ GMPy_MPC_From_PyFloat(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
         result->rc = mpc_set_d(result->c, PyFloat_AS_DOUBLE(obj),
                                GET_MPC_ROUND(context));
 
-    /* Still need to perform exception checking. */
+    MPC_SUBNORMALIZE_2(result, context);
+    /* Need to do exception checks! */
 
     return result;
 }
@@ -196,7 +199,8 @@ GMPy_MPC_From_MPZ(MPZ_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
     if ((result = GMPy_MPC_New(rprec, iprec, context)))
         result->rc = mpc_set_z(result->c, obj->z, GET_MPC_ROUND(context));
 
-    /* Still need to perform exception checking. */
+    MPC_SUBNORMALIZE_2(result, context);
+    /* Need to do exception checks! */
 
     return result;
 }
@@ -220,7 +224,8 @@ GMPy_MPC_From_MPQ(MPQ_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
     if ((result = GMPy_MPC_New(rprec, iprec, context)))
         result->rc = mpc_set_q(result->c, obj->q, GET_MPC_ROUND(context));
 
-    /* Still need to perform exception checking. */
+    MPC_SUBNORMALIZE_2(result, context);
+    /* Need to do exception checks! */
 
     return result;
 }
@@ -240,6 +245,10 @@ GMPy_MPC_From_Fraction(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
         result = GMPy_MPC_From_MPQ(tempq, rprec, iprec, context);
         Py_DECREF((PyObject*)tempq);
     }
+
+    MPC_SUBNORMALIZE_2(result, context);
+    /* Need to do exception checks! */
+
     return result;
 }
 
@@ -279,6 +288,10 @@ GMPy_MPC_From_Decimal(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
     result->rc = MPC_INEX(tempf->rc, 0);
     mpfr_swap(mpc_realref(result->c), tempf->f);
     Py_DECREF(tempf);
+
+    MPC_SUBNORMALIZE_2(result, context);
+    /* Need to do exception checks! */
+
     return result;
 }
 
@@ -297,15 +310,17 @@ GMPy_MPC_From_PyIntOrLong(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
         result = GMPy_MPC_From_MPZ(tempz, rprec, iprec, context);
         Py_DECREF((PyObject*)tempz);
     }
+
     return result;
 }
 
 /* Python's string representation of a complex number differs from the format
  * used by MPC. Both MPC and Python surround the complex number with '(' and
  * ')' but Python adds a 'j' after the imaginary component and MPC requires a
- * space between the real and imaginery components. PyStr2Pympc tries to work
- * around the differences as follows reading two MPFR-compatible numbers from
- * the string and storing into the real and imaginary components respectively.
+ * space between the real and imaginery components. GMPy_MPC_From_PyStr tries
+ * to work around the differences as follows reading two MPFR-compatible
+ * numbers from the string and storing into the real and imaginary components
+ * respectively.
  */
 
 static MPC_Object *
@@ -413,6 +428,10 @@ GMPy_MPC_From_PyStr(PyObject *s, int base, mpfr_prec_t rprec, mpfr_prec_t iprec,
   valid_string:
     Py_XDECREF(ascii_str);
     result->rc = MPC_INEX(real_rc, imag_rc);
+
+    MPC_SUBNORMALIZE_2(result, context);
+    /* Need to do exception checks! */
+
     return result;
 
   invalid_string:
@@ -522,20 +541,6 @@ GMPy_PyComplex_From_MPC(PyObject *self, PyObject *other)
 
     return PyComplex_FromDoubles(real, imag);
 }
-
-//~ static PyObject *
-//~ Pympc_To_PyComplex_context(PyObject *self, PyObject *other,
-                           //~ CTXT_Object *context)
-//~ {
-    //~ double real, imag;
-
-    //~ CHECK_CONTEXT_SET_EXPONENT(context);
-
-    //~ real = mpfr_get_d(mpc_realref(MPC(self)), GET_REAL_ROUND(context));
-    //~ imag = mpfr_get_d(mpc_imagref(MPC(self)), GET_IMAG_ROUND(context));
-
-    //~ return PyComplex_FromDoubles(real, imag);
-//~ }
 
 static PyObject *
 GMPy_MPC_Long_Slot(PyObject *self)
