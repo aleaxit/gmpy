@@ -25,39 +25,13 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-PyDoc_STRVAR(doc_g_mpfr_f2q,
-"f2q(x,[err]) -> mpq\n\n"
-"Return the 'best' mpq approximating x to within relative error 'err'.\n"
-"Default is the precision of x. Uses Stern-Brocot tree to find the\n"
-"'best' approximation. An 'mpz' is returned if the the denominator\n"
-"is 1. If 'err'<0, error sought is 2.0 ** err.");
-
-static PyObject *
-Pympfr_f2q(PyObject *self, PyObject *args)
-{
-    MPFR_Object *err = 0;
-    PyObject *result;
-    CTXT_Object *context = NULL;
-
-    if (!PyArg_ParseTuple(args, "O&|O&", GMPy_MPFR_convert_arg, &self,
-                          GMPy_MPFR_convert_arg, &err)) {
-        TYPE_ERROR("f2q() requires 'mpfr', ['mpfr'] arguments");
-        return NULL;
-    }
-
-    result = (PyObject*)stern_brocot((MPFR_Object*)self, err, 0, 1, context);
-    Py_DECREF(self);
-    Py_XDECREF((PyObject*)err);
-    return result;
-}
-
 PyDoc_STRVAR(doc_mpfr,
 "mpfr() -> mpfr(0.0)\n\n"
 "     If no argument is given, return mpfr(0.0).\n\n"
-"mpfr(n [,precision=0]) -> mpfr\n\n"
+"mpfr(n [, precision=0]) -> mpfr\n\n"
 "     Return an 'mpfr' object after converting a numeric value. See\n"
 "     below for the interpretation of precision.\n\n"
-"mpfr(s [,precision=0 [,base=0]]) -> mpfr\n\n"
+"mpfr(s [, precision=0 [, base=0]]) -> mpfr\n\n"
 "     Return a new 'mpfr' object by converting a string s made of\n"
 "     digits in the given base, possibly with fraction-part (with a\n"
 "     period as a separator) and/or exponent-part (with an exponent\n"
@@ -143,6 +117,32 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
 
     TYPE_ERROR("mpfr() requires numeric or string argument");
     return NULL;
+}
+
+PyDoc_STRVAR(doc_g_mpfr_f2q,
+"f2q(x,[err]) -> mpq\n\n"
+"Return the 'best' mpq approximating x to within relative error 'err'.\n"
+"Default is the precision of x. Uses Stern-Brocot tree to find the\n"
+"'best' approximation. An 'mpz' is returned if the the denominator\n"
+"is 1. If 'err'<0, error sought is 2.0 ** err.");
+
+static PyObject *
+Pympfr_f2q(PyObject *self, PyObject *args)
+{
+    MPFR_Object *err = 0;
+    PyObject *result;
+    CTXT_Object *context = NULL;
+
+    if (!PyArg_ParseTuple(args, "O&|O&", GMPy_MPFR_convert_arg, &self,
+                          GMPy_MPFR_convert_arg, &err)) {
+        TYPE_ERROR("f2q() requires 'mpfr', ['mpfr'] arguments");
+        return NULL;
+    }
+
+    result = (PyObject*)stern_brocot((MPFR_Object*)self, err, 0, 1, context);
+    Py_DECREF(self);
+    Py_XDECREF((PyObject*)err);
+    return result;
 }
 
 /* Implement the .precision attribute of an mpfr. */
