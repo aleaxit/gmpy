@@ -140,6 +140,14 @@ mpz_set_PyStr(mpz_ptr z, PyObject *s, int base)
             base = 10;
         }
     }
+    else if (cp[0] == '0') {
+        /* If the specified base matches the leading base indicators, then
+         * we need to skip the base indicators.
+         */
+        if (cp[1] =='b' && base == 2)       { cp += 2; }
+        else if (cp[1] =='o' && base == 8)  { cp += 2; }
+        else if (cp[1] =='x' && base == 16) { cp += 2; }
+    }
 
     /* delegate rest to GMP's _set_str function */
     if (-1 == mpz_set_str(z, cp, base)) {
