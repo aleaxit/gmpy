@@ -65,6 +65,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
 
     /* Assumes mpfr_prec_t is the same as a long. */
     mpfr_prec_t rprec = 0, iprec = 0;
+
     static char *kwlist_c[] = {"c", "precision", NULL};
     static char *kwlist_r[] = {"real", "imag", "precision", NULL};
     static char *kwlist_s[] = {"s", "precision", "base", NULL};
@@ -114,7 +115,13 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
                 rprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 0));
                 iprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 1));
             }
-            if (rprec < 0 || iprec < 0 || PyErr_Occurred()) {
+
+            if (rprec < 0 || iprec < 0) {
+                VALUE_ERROR("precision for mpc() must be >= 0");
+                return NULL;
+            }
+
+            if (PyErr_Occurred()) {
                 VALUE_ERROR("invalid value for precision in mpc()");
                 return NULL;
             }
@@ -125,8 +132,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
             return NULL;
         }
 
-        result = GMPy_MPC_From_PyStr(arg0, base, rprec, iprec, context);
-        return (PyObject*)result;
+        return (PyObject*)GMPy_MPC_From_PyStr(arg0, base, rprec, iprec, context);
     }
 
     if (IS_REAL(arg0)) {
@@ -145,7 +151,13 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
                 rprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 0));
                 iprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 1));
             }
-            if (rprec < 0 || iprec < 0 || PyErr_Occurred()) {
+
+            if (rprec < 0 || iprec < 0) {
+                VALUE_ERROR("precision for mpc() must be >= 0");
+                return NULL;
+            }
+
+            if (PyErr_Occurred()) {
                 VALUE_ERROR("invalid value for precision in mpc()");
                 return NULL;
             }
@@ -197,7 +209,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
                 rprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 0));
                 iprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 1));
             }
-            if (rprec < 0 || iprec < 0 || PyErr_Occurred()) {
+            if (PyErr_Occurred()) {
                 VALUE_ERROR("invalid value for precision in mpc()");
                 return NULL;
             }
