@@ -58,17 +58,15 @@ if sys.version.startswith('3.1'):
     input("Press ENTER to continue.. ")
     print()
 
-# The following tests should pass on all builds.
-mpz_doctests = ["test_mpz.txt", "test_mpz_io.txt", "test_mpz_pack_unpack.txt",
-                "test_mpz_to_from_binary.txt"]
+mpz_doctests = ["test_mpz_create.txt", "test_mpz.txt", "test_mpz_io.txt",
+                "test_mpz_pack_unpack.txt", "test_mpz_to_from_binary.txt"]
+
 mpq_doctests = ["test_mpq.txt", "test_mpq_to_from_binary.txt"]
 
-# The following tests require MPFR support.
 mpfr_doctests = ["test_mpfr_create.txt", "test_mpfr.txt",
                  "test_mpfr_trig.txt", "test_mpfr_min_max.txt",
                  "test_mpfr_to_from_binary.txt", "test_context.txt"]
 
-# The following tests require MPC support.
 mpc_doctests = ["test_mpc.txt", "test_mpc_to_from_binary.txt"]
 
 # The following tests will only pass on Python 3.2+.
