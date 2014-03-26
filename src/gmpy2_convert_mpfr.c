@@ -104,7 +104,7 @@ GMPy_MPFR_From_MPFR(MPFR_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
     else if (prec == 1)
         prec = mpfr_get_prec(obj->f);
 
-    if (MPFR_CheckAndExp(obj)) {
+    if (MPFR_CheckAndExp(obj) && !mpfr_nan_p(MPFR(obj))) {
         if (prec == mpfr_get_prec(obj->f)) {
             Py_INCREF((PyObject*)obj);
             return obj;
@@ -113,28 +113,7 @@ GMPy_MPFR_From_MPFR(MPFR_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
             if ((result = GMPy_MPFR_New(prec, context))) {
                 mpfr_clear_flags();
                 result->rc = mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
-                /* Expanded version of MPFR_CLEANUP_2 macro without the check
-                 * for NAN or division by zero.
-                 */
-                SUBNORMALIZE_2(result, context);
-                MERGE_FLAGS_2(context);
-                if (context->ctx.traps) {
-                    if ((context->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) {
-                        GMPY_UNDERFLOW("mpfr() underflow");
-                        Py_DECREF((PyObject*)result);
-                        return NULL;
-                    }
-                    if ((context->ctx.traps & TRAP_OVERFLOW) && mpfr_overflow_p()) {
-                        GMPY_OVERFLOW("mpfr() overflow");
-                        Py_DECREF((PyObject*)result);
-                        return NULL;
-                    }
-                    if ((context->ctx.traps & TRAP_INEXACT) && mpfr_inexflag_p()) {
-                        GMPY_INEXACT("mpfr() inexact result");
-                        Py_DECREF((PyObject*)result);
-                        return NULL;
-                    }
-                }
+                MPFR_CLEANUP_2(result, context, "mpfr()");
             }
             return result;
         }
@@ -405,8 +384,11 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
     }
 
     /* delegate the rest to MPFR */
+    mpfr_clear_flags();
     result->rc = mpfr_strtofr(result->f, cp, &endptr, base, GET_MPFR_ROUND(context));
     Py_XDECREF(ascii_str);
+
+    MPFR_CLEANUP_2(result, context, "mpfr()");
 
     if (len != (Py_ssize_t)(endptr - cp)) {
         VALUE_ERROR("invalid digits");

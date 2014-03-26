@@ -67,7 +67,10 @@ mpfr_doctests = ["test_mpfr_create.txt", "test_mpfr.txt",
                  "test_mpfr_trig.txt", "test_mpfr_min_max.txt",
                  "test_mpfr_to_from_binary.txt", "test_context.txt"]
 
-mpc_doctests = ["test_mpc.txt", "test_mpc_to_from_binary.txt"]
+mpc_doctests = ["test_mpc_create.txt", "test_mpc.txt",
+                "test_mpc_to_from_binary.txt"]
+
+gmpy2_tests = ["test_misc.txt", "test_abs.txt"]
 
 # The following tests will only pass on Python 3.2+.
 py32_doctests = ["test_py32_hash.txt"]
@@ -75,11 +78,14 @@ py32_doctests = ["test_py32_hash.txt"]
 failed = 0
 attempted = 0
 
-all_doctests = ["test_misc.txt"] + mpz_doctests + mpq_doctests
-if gmpy2.mpfr_version():
-    all_doctests += mpfr_doctests
-if gmpy2.mpc_version():
-    all_doctests += mpc_doctests
+all_doctests = gmpy2_tests + mpz_doctests + mpq_doctests
+
+# MPFR support is required.
+all_doctests += mpfr_doctests
+
+# MPC support is required.
+all_doctests += mpc_doctests
+
 if sys.version >= "3.2":
     all_doctests += py32_doctests
 
