@@ -50,17 +50,6 @@
  *   GMPy_Context_Abs(context, args)
  */
 
-/* Logical analysis
- *
- * If x already is an mpz, the sign is checked. If x is greater than or equal
- * to 0, the reference count is incremented and x is returned. If x is less
- * than 0, then a new object is created, set to the absolute value and the
- * new object is returned.
- *
- * Since we call GMPy_MPZ_From_Integer_New(), we could skip the check for mpz
- * argument but it is a reasonable optimization.
- */
-
 static PyObject *
 GMPy_Integer_Abs(PyObject *x, CTXT_Object *context)
 {
@@ -78,7 +67,7 @@ GMPy_Integer_Abs(PyObject *x, CTXT_Object *context)
         }
     }
 
-    if ((result = GMPy_MPZ_From_Integer_New(x, context))) {
+    if ((result = GMPy_MPZ_From_Integer_Temp(x, context))) {
         mpz_abs(result->z, result->z);
     }
 

@@ -1,0 +1,26 @@
+Test mpc creation
+=================
+
+>>> import gmpy2
+>>> from gmpy2 import mpz, mpq, mpfr, mpc
+>>> ctx=gmpy2.get_context()
+>>> ctx.clear_flags()
+>>> a=mpc("1.2")
+>>> a.rc
+(-1, 0)
+>>> ctx
+context(precision=53, real_prec=Default, imag_prec=Default,
+        round=RoundToNearest, real_round=Default, imag_round=Default,
+        emax=1073741823, emin=-1073741823,
+        subnormalize=False,
+        trap_underflow=False, underflow=False,
+        trap_overflow=False, overflow=False,
+        trap_inexact=False, inexact=True,
+        trap_invalid=False, invalid=False,
+        trap_erange=False, erange=False,
+        trap_divzero=False, divzero=False,
+        trap_expbound=False,
+        allow_complex=False,
+        rational_division=False,
+        guard_bits=0)
+

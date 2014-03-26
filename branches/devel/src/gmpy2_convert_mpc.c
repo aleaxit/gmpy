@@ -62,8 +62,38 @@ GMPy_MPC_From_MPC(MPC_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
         else {
             if ((result = GMPy_MPC_New(rprec, iprec, context))) {
                 result->rc = mpc_set(result->c, obj->c, GET_MPC_ROUND(context));
+                /* Expanded version of MPC_CLEANUP_2 macro without the check for NAN.
+                 */
                 MPC_SUBNORMALIZE_2(result, context);
-                /* Need to do exception checks! */
+                do {
+                    int rcr, rci;
+                    rcr = MPC_INEX_RE(result->rc);
+                    rci = MPC_INEX_IM(result->rc);
+                    if ((rcr && mpfr_zero_p(mpc_realref(MPC(result)))) || (rci && mpfr_zero_p(mpc_imagref(MPC(result))))) {
+                        context->ctx.underflow = 1;
+                        if (context->ctx.traps & TRAP_UNDERFLOW) {
+                            GMPY_OVERFLOW("mpc() underflow");
+                            Py_DECREF((PyObject*)result);
+                            return NULL;
+                        }
+                    }
+                    if ((rcr && mpfr_inf_p(mpc_realref(MPC(result)))) || (rci && mpfr_inf_p(mpc_imagref(MPC(result))))) {
+                        context->ctx.overflow = 1;
+                        if (context->ctx.traps & TRAP_OVERFLOW) {
+                            GMPY_OVERFLOW("mpc() overflow");
+                            Py_DECREF((PyObject*)result);
+                            return NULL;
+                        }
+                    }
+                } while(0);
+                if (result->rc) {
+                    context->ctx.inexact = 1;
+                    if (context->ctx.traps & TRAP_INEXACT) {
+                        GMPY_INEXACT("mpc() inexact result");
+                        Py_DECREF((PyObject*)result);
+                        return NULL;
+                    }
+                }
             }
             return result;
         }
@@ -318,8 +348,8 @@ GMPy_MPC_From_PyIntOrLong(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
  * used by MPC. Both MPC and Python surround the complex number with '(' and
  * ')' but Python adds a 'j' after the imaginary component and MPC requires a
  * space between the real and imaginery components. GMPy_MPC_From_PyStr tries
- * to work around the differences as follows reading two MPFR-compatible
- * numbers from the string and storing into the real and imaginary components
+ * to work around the differences as by reading two MPFR-compatible numbers
+ * from the string and storing into the real and imaginary components
  * respectively.
  */
 
@@ -405,7 +435,7 @@ GMPy_MPC_From_PyStr(PyObject *s, int base, mpfr_prec_t rprec, mpfr_prec_t iprec,
      * we just read the imaginary componenet.
      */
     if (*tempchar == 'j') {
-        mpfr_set_zero(mpc_realref(result->c), +1);
+        mpfr_set_zero(mpc_realref(result->c), MPFR_RNDN);
         cp = unwind;
     }
     else {
@@ -429,8 +459,46 @@ GMPy_MPC_From_PyStr(PyObject *s, int base, mpfr_prec_t rprec, mpfr_prec_t iprec,
     Py_XDECREF(ascii_str);
     result->rc = MPC_INEX(real_rc, imag_rc);
 
+    /* Expanded version of MPC_CLEANUP_2 macro without the check for NAN.
+     */
     MPC_SUBNORMALIZE_2(result, context);
-    /* Need to do exception checks! */
+    if (MPC_IS_NAN_P(result)) {
+        context->ctx.invalid = 1;
+        if (context->ctx.traps & TRAP_INVALID) {
+            GMPY_INVALID("mpc() invalid operation");
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+    }
+    do {
+        int rcr, rci;
+        rcr = MPC_INEX_RE(result->rc);
+        rci = MPC_INEX_IM(result->rc);
+        if ((rcr && mpfr_zero_p(mpc_realref(MPC(result)))) || (rci && mpfr_zero_p(mpc_imagref(MPC(result))))) {
+            context->ctx.underflow = 1;
+            if (context->ctx.traps & TRAP_UNDERFLOW) {
+                GMPY_OVERFLOW("mpc() underflow");
+                Py_DECREF((PyObject*)result);
+                return NULL;
+            }
+        }
+        if ((rcr && mpfr_inf_p(mpc_realref(MPC(result)))) || (rci && mpfr_inf_p(mpc_imagref(MPC(result))))) {
+            context->ctx.overflow = 1;
+            if (context->ctx.traps & TRAP_OVERFLOW) {
+                GMPY_OVERFLOW("mpc() overflow");
+                Py_DECREF((PyObject*)result);
+                return NULL;
+            }
+        }
+    } while(0);
+    if (result->rc) {
+        context->ctx.inexact = 1;
+        if (context->ctx.traps & TRAP_INEXACT) {
+            GMPY_INEXACT("mpc() inexact result");
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+    }
 
     return result;
 
