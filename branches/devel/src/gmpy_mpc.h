@@ -214,43 +214,48 @@ static PyTypeObject MPC_Type;
 
 #define MPC_CLEANUP_2(V, CTX, NAME) \
     MPC_SUBNORMALIZE_2(V, CTX); \
-    if (MPC_IS_NAN_P(V)) { \
-        CTX->ctx.invalid = 1; \
-        if (CTX->ctx.traps & TRAP_INVALID) { \
+    do { \
+        int _invalid = 0, _underflow = 0, _overflow = 0, _inexact = 0; \
+        int rcr, rci; \
+        rcr = MPC_INEX_RE(V->rc); \
+        rci = MPC_INEX_IM(V->rc); \
+        if (MPC_IS_NAN_P(V)) { \
+            CTX->ctx.invalid = 1; \
+            _invalid = 1; \
+        } \
+        if (V->rc) { \
+            CTX->ctx.inexact = 1; \
+            _inexact = 1; \
+        } \
+        if ((rcr && mpfr_zero_p(mpc_realref(MPC(V)))) || (rci && mpfr_zero_p(mpc_imagref(MPC(V))))) { \
+            CTX->ctx.underflow = 1; \
+            _underflow = 1; \
+        } \
+        if ((rcr && mpfr_inf_p(mpc_realref(MPC(V)))) || (rci && mpfr_inf_p(mpc_imagref(MPC(V))))) { \
+            CTX->ctx.overflow = 1; \
+            _overflow = 1; \
+        } \
+        if (_invalid && (CTX->ctx.traps & TRAP_INVALID)) { \
             GMPY_INVALID(NAME" invalid operation"); \
             Py_DECREF((PyObject*)V); \
             return NULL; \
         } \
-    } \
-    do { \
-        int rcr, rci; \
-        rcr = MPC_INEX_RE(V->rc); \
-        rci = MPC_INEX_IM(V->rc); \
-        if ((rcr && mpfr_zero_p(mpc_realref(MPC(V)))) || (rci && mpfr_zero_p(mpc_imagref(MPC(V))))) { \
-            CTX->ctx.underflow = 1; \
-            if (CTX->ctx.traps & TRAP_UNDERFLOW) { \
-                GMPY_UNDERFLOW(NAME" underflow"); \
-                Py_DECREF((PyObject*)V); \
-                return NULL; \
-            } \
+        if (_underflow && (CTX->ctx.traps & TRAP_UNDERFLOW)) { \
+            GMPY_UNDERFLOW(NAME" underflow"); \
+            Py_DECREF((PyObject*)V); \
+            return NULL; \
         } \
-        if ((rcr && mpfr_inf_p(mpc_realref(MPC(V)))) || (rci && mpfr_inf_p(mpc_imagref(MPC(V))))) { \
-            CTX->ctx.overflow = 1; \
-            if (CTX->ctx.traps & TRAP_OVERFLOW) { \
-                GMPY_OVERFLOW(NAME" overflow"); \
-                Py_DECREF((PyObject*)V); \
-                return NULL; \
-            } \
+        if (_overflow && (CTX->ctx.traps & TRAP_OVERFLOW)) { \
+            GMPY_OVERFLOW(NAME" overflow"); \
+            Py_DECREF((PyObject*)V); \
+            return NULL; \
         } \
-    } while(0); \
-    if (V->rc) { \
-        CTX->ctx.inexact = 1; \
-        if (CTX->ctx.traps & TRAP_INEXACT) { \
+        if (_inexact && (CTX->ctx.traps & TRAP_INEXACT)) { \
             GMPY_INEXACT(NAME" inexact result"); \
             Py_DECREF((PyObject*)V); \
             return NULL; \
         } \
-    } \
+    } while(0); \
 
 /*
  * Parses one, and only one, argument into "self" and converts it to an

@@ -29,11 +29,11 @@
  *
  * Public API
  * ==========
- * The following function is available as part of GMPY2's C API. A NULL
- * value for context implies the function should use the currently active
+ * The following function is available as part of GMPY2's C API. If the value
+ * of context is NULL, then the function should use the currently active
  * context.
  *
- *   GMPy_Number_Abs(Number, context|NULL)
+ *   GMPy_Number_Abs(Number, context)
  *
  * Private API
  * ===========
@@ -172,6 +172,8 @@ GMPy_MPC_Abs_Slot(MPC_Object *x)
 static PyObject *
 GMPy_Number_Abs(PyObject *x, CTXT_Object *context)
 {
+    LOAD_CONTEXT_SET_EXPONENT(context);
+
     if (IS_INTEGER(x))
         return GMPy_Integer_Abs(x, context);
 

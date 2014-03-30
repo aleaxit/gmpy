@@ -447,6 +447,8 @@ PyDoc_STRVAR(GMPy_doc_mul,
 static PyObject *
 GMPy_Number_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 {
+    LOAD_CONTEXT_SET_EXPONENT(context);
+
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Mul(x, y, context);
 
@@ -476,7 +478,7 @@ GMPy_Context_Mul(PyObject *self, PyObject *args)
     CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("mul() requires 2 arguments.");
+        TYPE_ERROR("mul() requires 2 arguments");
         return NULL;
     }
 

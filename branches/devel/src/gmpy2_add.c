@@ -202,16 +202,14 @@ GMPy_Rational_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPQ_Add_Slot(PyObject *x, PyObject *y)
 {
-    CTXT_Object *context = NULL;
-
     if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return GMPy_Rational_Add(x, y, context);
+        return GMPy_Rational_Add(x, y, NULL);
 
     if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_Add(x, y, context);
+        return GMPy_Real_Add(x, y, NULL);
 
     if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_Add(x, y, context);
+        return GMPy_Complex_Add(x, y, NULL);
 
     Py_RETURN_NOTIMPLEMENTED;
 }
@@ -399,13 +397,11 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPFR_Add_Slot(PyObject *x, PyObject *y)
 {
-    CTXT_Object *context = NULL;
-
     if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_Add(x, y, context);
+        return GMPy_Real_Add(x, y, NULL);
 
     if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_Add(x, y, context);
+        return GMPy_Complex_Add(x, y, NULL);
 
     Py_RETURN_NOTIMPLEMENTED;
 }
@@ -463,14 +459,14 @@ GMPy_Complex_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPC_Add_Slot(PyObject *x, PyObject *y)
 {
-    CTXT_Object *context = NULL;
-
-    return GMPy_Complex_Add(x, y, context);
+    return GMPy_Complex_Add(x, y, NULL);
 }
 
 static PyObject *
 GMPy_Number_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 {
+    LOAD_CONTEXT_SET_EXPONENT(context);
+
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Add(x, y, context);
 
@@ -483,7 +479,7 @@ GMPy_Number_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_COMPLEX(x) && IS_COMPLEX(y))
         return GMPy_Complex_Add(x, y, context);
 
-    TYPE_ERROR("add(): argument type not supported");
+    TYPE_ERROR("add() argument type not supported");
     return NULL;
 }
 
@@ -504,7 +500,7 @@ GMPy_Context_Add(PyObject *self, PyObject *args)
     CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("add(): requires 2 arguments.");
+        TYPE_ERROR("add() requires 2 arguments.");
         return NULL;
     }
 
