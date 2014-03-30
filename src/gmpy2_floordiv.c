@@ -400,7 +400,7 @@ GMPy_MPFR_FloorDiv_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Complex_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    TYPE_ERROR("can't take floor of complex number.");
+    TYPE_ERROR("can't take floor of complex number");
     return NULL;
 }
 
@@ -417,6 +417,8 @@ PyDoc_STRVAR(GMPy_doc_floordiv,
 static PyObject *
 GMPy_Number_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 {
+    LOAD_CONTEXT_SET_EXPONENT(context);
+
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_FloorDiv(x, y, context);
 
@@ -444,7 +446,7 @@ GMPy_Context_FloorDiv(PyObject *self, PyObject *args)
     CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("floor_div() requires 2 arguments.");
+        TYPE_ERROR("floor_div() requires 2 arguments");
         return NULL;
     }
 

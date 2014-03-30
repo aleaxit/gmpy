@@ -115,7 +115,7 @@ GMPy_Integer_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
         tempx = GMPy_MPZ_From_Integer_Temp(x, context);
         tempy = GMPy_MPZ_From_Integer_Temp(y, context);
         if (!tempx || !tempy) {
-            SYSTEM_ERROR("Could not convert Integer to mpz.");
+            SYSTEM_ERROR("could not convert Integer to mpz");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
@@ -179,7 +179,7 @@ GMPy_Rational_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
         tempx = GMPy_MPQ_From_Rational_Temp(x, context);
         tempy = GMPy_MPQ_From_Rational_Temp(y, context);
         if (!tempx || !tempy) {
-            SYSTEM_ERROR("Could not convert Rational to mpq.");
+            SYSTEM_ERROR("could not convert Rational to mpq");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
@@ -283,7 +283,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
             MPQ_Object *tempy;
 
             if (!(tempy = GMPy_MPQ_From_Number_Temp(y, context))) {
-                SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
+                SYSTEM_ERROR("could not convert Rational or Decimal to mpq");
                 Py_DECREF(result);
                 return NULL;
             }
@@ -340,7 +340,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
             MPQ_Object *tempx;
 
             if (!(tempx = GMPy_MPQ_From_Number_Temp(x, context))) {
-                SYSTEM_ERROR("Can not convert Rational or Decimal to 'mpq'");
+                SYSTEM_ERROR("coud not convert Rational or Decimal to mpq");
                 Py_DECREF(result);
                 return NULL;
             }
@@ -469,6 +469,8 @@ GMPy_MPC_Sub_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Number_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 {
+    LOAD_CONTEXT_SET_EXPONENT(context);
+
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Sub(x, y, context);
 
@@ -481,7 +483,7 @@ GMPy_Number_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_COMPLEX(x) && IS_COMPLEX(y))
         return GMPy_Complex_Sub(x, y, context);
 
-    TYPE_ERROR("sub(): argument type not supported");
+    TYPE_ERROR("sub() argument type not supported");
     return NULL;
 }
 
@@ -502,7 +504,7 @@ GMPy_Context_Sub(PyObject *self, PyObject *args)
     CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("sub(): requires 2 arguments.");
+        TYPE_ERROR("sub() requires 2 arguments");
         return NULL;
     }
 

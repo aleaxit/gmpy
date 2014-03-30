@@ -134,7 +134,7 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         tempx = GMPy_MPZ_From_Integer_Temp(x, context);
         tempy = GMPy_MPZ_From_Integer_Temp(y, context);
         if (!tempx || !tempy) {
-            SYSTEM_ERROR("Could not convert Integer to mpz.");
+            SYSTEM_ERROR("could not convert Integer to mpz");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)rem);
@@ -204,7 +204,7 @@ GMPy_Rational_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         tempx = GMPy_MPQ_From_Number_Temp(x, context);
         tempy = GMPy_MPQ_From_Number_Temp(y, context);
         if (!tempx || !tempy) {
-            SYSTEM_ERROR("Could not convert Rational to mpq.");
+            SYSTEM_ERROR("could not convert Rational to mpq");
             goto error;
         }
         if (mpq_sgn(tempy->q) == 0) {
@@ -279,13 +279,13 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         tempx = GMPy_MPFR_From_Real(x, 1, context);
         tempy = GMPy_MPFR_From_Real(y, 1, context);
         if (!tempx || !tempy) {
-            SYSTEM_ERROR("Can not convert Real to 'mpfr'");
+            SYSTEM_ERROR("could not convert Real to mpfr");
             goto error;
         }
         if (mpfr_zero_p(tempy->f)) {
             context->ctx.divzero = 1;
             if (context->ctx.traps & TRAP_DIVZERO) {
-                GMPY_DIVZERO("'mpfr' division by zero in divmod");
+                GMPY_DIVZERO("divmod() division by zero");
                 goto error;
             }
         }
@@ -293,7 +293,7 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
             context->ctx.invalid = 1;
             if (context->ctx.traps & TRAP_INVALID) {
-                GMPY_INVALID("'mpfr' invalid operation in divmod");
+                GMPY_INVALID("divmod() invalid operation");
                 goto error;
             }
             else {
@@ -304,7 +304,7 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         else if (mpfr_inf_p(tempy->f)) {
             context->ctx.invalid = 1;
             if (context->ctx.traps & TRAP_INVALID) {
-                GMPY_INVALID("'mpfr' invalid operation in divmod");
+                GMPY_INVALID("divmod() invalid operation");
                 goto error;
             }
             if (mpfr_zero_p(tempx->f)) {
@@ -331,15 +331,15 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         SUBNORMALIZE(quo);
         MERGE_FLAGS;
         if (mpfr_underflow_p() && (context->ctx.traps & TRAP_UNDERFLOW)) {
-            GMPY_UNDERFLOW("'mpfr' underflow in divmod");
+            GMPY_UNDERFLOW("divmod() underflow");
             goto error;
         }
         if (mpfr_overflow_p() && (context->ctx.traps & TRAP_OVERFLOW)) {
-            GMPY_OVERFLOW("'mpfr' overflow in divmod");
+            GMPY_OVERFLOW("divmod() overflow");
             goto error;
         }
         if (mpfr_inexflag_p() && (context->ctx.traps & TRAP_INEXACT)) {
-            GMPY_INEXACT("'mpfr' inexact result in divmod");
+            GMPY_INEXACT("divmod() inexact result");
             goto error;
         }
         Py_DECREF((PyObject*)tempx);
@@ -393,6 +393,8 @@ PyDoc_STRVAR(GMPy_doc_divmod,
 static PyObject *
 GMPy_Number_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
+    LOAD_CONTEXT_SET_EXPONENT(context);
+
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_DivMod(x, y, context);
 
@@ -420,7 +422,7 @@ GMPy_Context_DivMod(PyObject *self, PyObject *args)
     CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("div_mod() requires 2 arguments.");
+        TYPE_ERROR("divmod() requires 2 arguments.");
         return NULL;
     }
 

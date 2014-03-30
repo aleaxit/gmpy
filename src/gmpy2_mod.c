@@ -115,7 +115,7 @@ GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
         tempx = GMPy_MPZ_From_Integer_Temp(x, context);
         tempy = GMPy_MPZ_From_Integer_Temp(y, context);
         if (!tempx || !tempy) {
-            SYSTEM_ERROR("Could not convert Integer to mpz.");
+            SYSTEM_ERROR("could not convert Integer to mpz");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
@@ -171,7 +171,7 @@ GMPy_Rational_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
         tempx = GMPy_MPQ_From_Number_Temp(x, context);
         tempy = GMPy_MPQ_From_Number_Temp(y, context);
         if (!tempx || !tempy) {
-            SYSTEM_ERROR("Could not convert Rational to mpq.");
+            SYSTEM_ERROR("could not convert Rational to mpq");
             goto error;
         }
         if (mpq_sgn(tempy->q) == 0) {
@@ -241,21 +241,23 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
         tempx = GMPy_MPFR_From_Real(x, 1, context);
         tempy = GMPy_MPFR_From_Real(y, 1, context);
         if (!tempx || !tempy) {
-            SYSTEM_ERROR("Can not convert Real to 'mpfr'");
+            SYSTEM_ERROR("could not convert Real to mpfr");
             goto error;
         }
         if (mpfr_zero_p(tempy->f)) {
             context->ctx.divzero = 1;
             if (context->ctx.traps & TRAP_DIVZERO) {
-                GMPY_DIVZERO("'mpfr' division by zero in modulo");
+                GMPY_DIVZERO("mod() division or modulo by zero");
                 goto error;
             }
         }
+
         mpfr_clear_flags();
+
         if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
             context->ctx.invalid = 1;
             if (context->ctx.traps & TRAP_INVALID) {
-                GMPY_INVALID("'mpfr' invalid operation in modulo");
+                GMPY_INVALID("mod() invalid operation");
                 goto error;
             }
             else {
@@ -265,7 +267,7 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
         else if (mpfr_inf_p(tempy->f)) {
             context->ctx.invalid = 1;
             if (context->ctx.traps & TRAP_INVALID) {
-                GMPY_INVALID("'mpfr' invalid operation in modulo");
+                GMPY_INVALID("mod() invalid operation");
                 goto error;
             }
             if (mpfr_signbit(tempy->f)) {
@@ -277,27 +279,29 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
             }
         }
         else {
+            MPFR_Object *temp;
+
+            temp = GMPy_MPFR_New(1, context);
             mpfr_div(temp->f, tempx->f, tempy->f, MPFR_RNDD);
             mpfr_floor(temp->f, temp->f);
             result->rc = mpfr_fms(result->f, temp->f, tempy->f, tempx->f,
                                   GET_MPFR_ROUND(context));
             mpfr_neg(result->f, result->f, GET_MPFR_ROUND(context));
+            Py_DECREF((PyObject*)temp);
         }
-        Py_DECREF((PyObject*)temp);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         MPFR_CLEANUP_RESULT("mod");
         return (PyObject*)result;
     }
 
-    Py_DECREF(result);
+    Py_DECREF((PyObject*)result);
     Py_RETURN_NOTIMPLEMENTED;
 
   error:
     Py_XDECREF((PyObject*)tempx);
     Py_XDECREF((PyObject*)tempy);
     Py_DECREF((PyObject*)result);
-    Py_DECREF((PyObject*)temp);
     return NULL;
 }
 
@@ -316,7 +320,7 @@ GMPy_MPFR_Mod_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Complex_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    TYPE_ERROR("can't take mod of complex number.");
+    TYPE_ERROR("can't take mod of complex number");
     return NULL;
 }
 
@@ -333,6 +337,8 @@ PyDoc_STRVAR(GMPy_doc_mod,
 static PyObject *
 GMPy_Number_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
+    LOAD_CONTEXT_SET_EXPONENT(context);
+
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Mod(x, y, context);
 
@@ -360,7 +366,7 @@ GMPy_Context_Mod(PyObject *self, PyObject *args)
     CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("mod() requires 2 arguments.");
+        TYPE_ERROR("mod() requires 2 arguments");
         return NULL;
     }
 
@@ -384,8 +390,8 @@ GMPy_Context_Mod(PyObject *self, PyObject *args)
     }
 
     result = GMPy_Number_Mod(PyTuple_GET_ITEM(args, 0),
-                                  PyTuple_GET_ITEM(args, 1),
-                                  context);
+                             PyTuple_GET_ITEM(args, 1),
+                             context);
     Py_DECREF((PyObject*)context);
     return result;
 }

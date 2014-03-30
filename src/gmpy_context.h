@@ -105,6 +105,20 @@ static PyTypeObject CTXT_Manager_Type;
         } \
     }
 
+#define LOAD_CONTEXT_SET_EXPONENT(context) \
+    if (!context) { \
+        CURRENT_CONTEXT(context); \
+    } \
+    if (mpfr_set_emin(context->ctx.emin)) { \
+        VALUE_ERROR("value for exponent too low"); \
+        return NULL; \
+    } \
+    if (mpfr_set_emax(context->ctx.emax)) { \
+        VALUE_ERROR("value for exponent too high"); \
+        return NULL; \
+    } \
+
+
 #define SET_EXPONENT(context) \
     if (mpfr_set_emin(context->ctx.emin)) { \
         VALUE_ERROR("value for exponent too low"); \
