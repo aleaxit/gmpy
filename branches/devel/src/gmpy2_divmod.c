@@ -289,7 +289,9 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
                 goto error;
             }
         }
+
         mpfr_clear_flags();
+
         if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
             context->ctx.invalid = 1;
             if (context->ctx.traps & TRAP_INVALID) {
@@ -321,27 +323,37 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
             }
         }
         else {
-            mpfr_div(quo->f, tempx->f, tempy->f, MPFR_RNDD);
-            mpfr_floor(quo->f, quo->f);
-            rem->rc = mpfr_fms(rem->f, quo->f, tempy->f, tempx->f,
-                               GET_MPFR_ROUND(context));
-            mpfr_neg(rem->f, rem->f, GET_MPFR_ROUND(context));
+            MPFR_Object *temp;
+
+            if (!(temp = GMPy_MPFR_New(0, context))) {
+                goto error;
+            }
+            mpfr_fmod(rem->f, tempx->f, tempy->f, GET_MPFR_ROUND(context));
+            mpfr_sub(temp->f, tempx->f, rem->f, GET_MPFR_ROUND(context));
+            mpfr_div(quo->f, temp->f, tempy->f, GET_MPFR_ROUND(context));
+
+            if (!mpfr_zero_p(rem->f)) {
+                if ((mpfr_sgn(tempy->f) < 0) != (mpfr_sgn(rem->f) < 0)) {
+                    mpfr_add(rem->f, rem->f, tempy->f, GET_MPFR_ROUND(context));
+                    mpfr_sub_ui(quo->f, quo->f, 1, GET_MPFR_ROUND(context));
+                }
+            }
+            else {
+                mpfr_copysign(rem->f, rem->f, tempy->f, GET_MPFR_ROUND(context));
+            }
+
+            if (!mpfr_zero_p(quo->f)) {
+                mpfr_round(quo->f, quo->f);
+            }
+            else {
+                mpfr_setsign(quo->f, quo->f,
+                             mpfr_sgn(tempx->f) * mpfr_sgn(tempy->f),
+                             GET_MPFR_ROUND(context));
+            }
+            Py_DECREF((PyObject*)temp);
         }
         SUBNORMALIZE(rem);
-        SUBNORMALIZE(quo);
-        MERGE_FLAGS;
-        if (mpfr_underflow_p() && (context->ctx.traps & TRAP_UNDERFLOW)) {
-            GMPY_UNDERFLOW("divmod() underflow");
-            goto error;
-        }
-        if (mpfr_overflow_p() && (context->ctx.traps & TRAP_OVERFLOW)) {
-            GMPY_OVERFLOW("divmod() overflow");
-            goto error;
-        }
-        if (mpfr_inexflag_p() && (context->ctx.traps & TRAP_INEXACT)) {
-            GMPY_INEXACT("divmod() inexact result");
-            goto error;
-        }
+
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
@@ -388,7 +400,8 @@ GMPy_MPC_DivMod_Slot(PyObject *x, PyObject *y)
 
 PyDoc_STRVAR(GMPy_doc_divmod,
 "div_mod(x, y) -> (quotient, remainder)\n\n"
-"Return divmod(x, y); uses alternate spelling to avoid conflicts.");
+"Return divmod(x, y); uses alternate spelling to avoid conflicts.\n"
+"Note: overflow, underflow, and inexact are not checked for div_mod().");
 
 static PyObject *
 GMPy_Number_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
