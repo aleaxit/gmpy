@@ -221,7 +221,7 @@ typedef struct {
             return NULL; \
         } \
         if ((CTX->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) { \
-            GMPY_DIVZERO(NAME " division by zero"); \
+            GMPY_DIVZERO(NAME " division or modulo by zero"); \
             Py_DECREF((PyObject*)V); \
             return NULL; \
         } \

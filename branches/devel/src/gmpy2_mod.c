@@ -225,7 +225,7 @@ GMPy_MPQ_Mod_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    MPFR_Object *tempx, *tempy, *temp, *result;
+    MPFR_Object *tempx = NULL, *tempy = NULL, *temp, *result;
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
@@ -247,12 +247,10 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
         if (mpfr_zero_p(tempy->f)) {
             context->ctx.divzero = 1;
             if (context->ctx.traps & TRAP_DIVZERO) {
-                GMPY_DIVZERO("mod() division or modulo by zero");
+                GMPY_DIVZERO("mod() modulo by zero");
                 goto error;
             }
         }
-
-        mpfr_clear_flags();
 
         if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
             context->ctx.invalid = 1;
@@ -279,28 +277,34 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
             }
         }
         else {
-            MPFR_Object *temp;
+            mpfr_fmod(result->f, tempx->f, tempy->f, GET_MPFR_ROUND(context));
 
-            temp = GMPy_MPFR_New(1, context);
-            mpfr_div(temp->f, tempx->f, tempy->f, MPFR_RNDD);
-            mpfr_floor(temp->f, temp->f);
-            result->rc = mpfr_fms(result->f, temp->f, tempy->f, tempx->f,
-                                  GET_MPFR_ROUND(context));
-            mpfr_neg(result->f, result->f, GET_MPFR_ROUND(context));
+            if (!mpfr_zero_p(result->f)) {
+                if ((mpfr_sgn(tempy->f) < 0) != (mpfr_sgn(result->f) < 0)) {
+                    mpfr_add(result->f, result->f, tempy->f, GET_MPFR_ROUND(context));
+                }
+            }
+            else {
+                mpfr_copysign(result->f, result->f, tempy->f, GET_MPFR_ROUND(context));
+            }
+
             Py_DECREF((PyObject*)temp);
         }
+        SUBNORMALIZE(result);
+
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
-        MPFR_CLEANUP_RESULT("mod");
         return (PyObject*)result;
     }
 
+    Py_DECREF((PyObject*)temp);
     Py_DECREF((PyObject*)result);
     Py_RETURN_NOTIMPLEMENTED;
 
   error:
     Py_XDECREF((PyObject*)tempx);
     Py_XDECREF((PyObject*)tempy);
+    Py_DECREF((PyObject*)temp);
     Py_DECREF((PyObject*)result);
     return NULL;
 }
@@ -332,7 +336,9 @@ GMPy_MPC_Mod_Slot(PyObject *x, PyObject *y)
 
 PyDoc_STRVAR(GMPy_doc_mod,
 "mod(x, y) -> number\n\n"
-"Return mod(x, y).");
+"Return mod(x, y).\n"
+"Note: overflow, underflow, and inexact exceptions are not supported for\n"
+"mpfr arguments to mod().");
 
 static PyObject *
 GMPy_Number_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
@@ -357,7 +363,9 @@ GMPy_Number_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 
 PyDoc_STRVAR(GMPy_doc_context_mod,
 "context.mod(x, y) -> number\n\n"
-"Return mod(x, y).");
+"Return mod(x, y).\n"
+"Note: overflow, underflow, and inexact exceptions are not supported for\n"
+"mpfr arguments to context.mod().");
 
 static PyObject *
 GMPy_Context_Mod(PyObject *self, PyObject *args)
