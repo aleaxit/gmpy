@@ -25,16 +25,36 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* =======================================================================
- * Managing contexts
- * -----------------
- * A CTXT_Object contains an instance of the C struct gmpy_context
- * and a PyObject* used to reference the enclosing instance when used as a
- * context manager in Python.
+/* This file implements contexts and context managers.
  *
- * gmpy2 uses a global pointer "context" to refer to the active
- * CTXT_Object.
+ * Public API
+ * ==========
+ *   TBD
  *
+ * Private API
+ * ===========
+ *   GMPy_CTXT_New
+ *   GMPy_CTXT_Dealloc
+ *   GMPy_CTXT_Set
+ *   GMPy_CTXT_Get
+ *   GMPy_CTXT_Copy
+ *   GMPy_CTXT_ieee
+ *   GMPy_CTXT_Local
+ *   GMPy_CTXT_Context
+ *   GMPy_CTXT_Repr_Slot
+ *   GMPy_CTXT_Enter
+ *   GMPy_CTXT_Exit
+ *   GMPy_CTXT_Clear_Flags
+ *   GMPy_CTXT_Manager_New
+ *   GMPy_CTXT_Manager_Dealloc
+ *   GMPy_CTXT_Manager_Repr_Slot
+ *   GMPy_CTXT_Manager_Enter
+ *   GMPy_CTXT_Manager_Exit
+ *     plus getters & setters....
+ *
+ * Internal functions
+ * ==================
+ *   GMPy_current_context
  */
 
 /* Create and delete Context objects. */
@@ -930,12 +950,12 @@ GMPy_CTXT_Clear_Flags(PyObject *self, PyObject *args)
 
 #define GETSET_BOOLEAN(NAME) \
 static PyObject * \
-GMPyContext_get_##NAME(CTXT_Object *self, void *closure) \
+GMPy_CTXT_Get_##NAME(CTXT_Object *self, void *closure) \
 { \
     return PyBool_FromLong(self->ctx.NAME); \
 }; \
 static int \
-GMPyContext_set_##NAME(CTXT_Object *self, PyObject *value, void *closure) \
+GMPy_CTXT_Set_##NAME(CTXT_Object *self, PyObject *value, void *closure) \
 { \
     if (!(PyBool_Check(value))) { \
         TYPE_ERROR(#NAME " must be True or False"); \
@@ -951,12 +971,12 @@ GMPyContext_set_##NAME(CTXT_Object *self, PyObject *value, void *closure) \
 
 #define GETSET_BOOLEAN_BIT(NAME, TRAP) \
 static PyObject * \
-GMPyContext_get_##NAME(CTXT_Object *self, void *closure) \
+GMPy_CTXT_Get_##NAME(CTXT_Object *self, void *closure) \
 { \
     return PyBool_FromLong(self->ctx.traps & TRAP); \
 }; \
 static int \
-GMPyContext_set_##NAME(CTXT_Object *self, PyObject *value, void *closure) \
+GMPy_CTXT_Set_##NAME(CTXT_Object *self, PyObject *value, void *closure) \
 { \
     if (!(PyBool_Check(value))) { \
         TYPE_ERROR(#NAME " must be True or False"); \
@@ -987,13 +1007,13 @@ GETSET_BOOLEAN(allow_complex)
 GETSET_BOOLEAN(rational_division)
 
 static PyObject *
-GMPyContext_get_precision(CTXT_Object *self, void *closure)
+GMPy_CTXT_Get_precision(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromSsize_t((Py_ssize_t)(self->ctx.mpfr_prec));
 }
 
 static int
-GMPyContext_set_precision(CTXT_Object *self, PyObject *value, void *closure)
+GMPy_CTXT_Set_precision(CTXT_Object *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
@@ -1014,13 +1034,13 @@ GMPyContext_set_precision(CTXT_Object *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-GMPyContext_get_real_prec(CTXT_Object *self, void *closure)
+GMPy_CTXT_Get_real_prec(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromSsize_t((Py_ssize_t)(GET_REAL_PREC(self)));
 }
 
 static int
-GMPyContext_set_real_prec(CTXT_Object *self, PyObject *value, void *closure)
+GMPy_CTXT_Set_real_prec(CTXT_Object *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
@@ -1041,13 +1061,13 @@ GMPyContext_set_real_prec(CTXT_Object *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-GMPyContext_get_imag_prec(CTXT_Object *self, void *closure)
+GMPy_CTXT_Get_imag_prec(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromSsize_t((Py_ssize_t)(GET_IMAG_PREC(self)));
 }
 
 static int
-GMPyContext_set_imag_prec(CTXT_Object *self, PyObject *value, void *closure)
+GMPy_CTXT_Set_imag_prec(CTXT_Object *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
@@ -1068,13 +1088,13 @@ GMPyContext_set_imag_prec(CTXT_Object *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-GMPyContext_get_guard_bits(CTXT_Object *self, void *closure)
+GMPy_CTXT_Get_guard_bits(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromSsize_t((Py_ssize_t)(GET_GUARD_BITS(self)));
 }
 
 static int
-GMPyContext_set_guard_bits(CTXT_Object *self, PyObject *value, void *closure)
+GMPy_CTXT_Set_guard_bits(CTXT_Object *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
@@ -1087,7 +1107,7 @@ GMPyContext_set_guard_bits(CTXT_Object *self, PyObject *value, void *closure)
      * a legal value, we don't specifically check for an error condition.
      */
     if (temp < 0 || temp > MAX_GUARD_BITS) {
-        VALUE_ERROR("invalid value for imag_prec");
+        VALUE_ERROR("invalid value for guard_bits");
         return -1;
     }
     self->ctx.guard_bits = (mpfr_prec_t)temp;
@@ -1095,13 +1115,13 @@ GMPyContext_set_guard_bits(CTXT_Object *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-GMPyContext_get_round(CTXT_Object *self, void *closure)
+GMPy_CTXT_Get_round(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromLong((long)(self->ctx.mpfr_round));
 }
 
 static int
-GMPyContext_set_round(CTXT_Object *self, PyObject *value, void *closure)
+GMPy_CTXT_Set_round(CTXT_Object *self, PyObject *value, void *closure)
 {
     long temp;
 
@@ -1137,13 +1157,13 @@ GMPyContext_set_round(CTXT_Object *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-GMPyContext_get_real_round(CTXT_Object *self, void *closure)
+GMPy_CTXT_Get_real_round(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromLong((long)GET_REAL_ROUND(self));
 }
 
 static int
-GMPyContext_set_real_round(CTXT_Object *self, PyObject *value, void *closure)
+GMPy_CTXT_Set_real_round(CTXT_Object *self, PyObject *value, void *closure)
 {
     long temp;
 
@@ -1168,13 +1188,13 @@ GMPyContext_set_real_round(CTXT_Object *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-GMPyContext_get_imag_round(CTXT_Object *self, void *closure)
+GMPy_CTXT_Get_imag_round(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromLong((long)GET_IMAG_ROUND(self));
 }
 
 static int
-GMPyContext_set_imag_round(CTXT_Object *self, PyObject *value, void *closure)
+GMPy_CTXT_Set_imag_round(CTXT_Object *self, PyObject *value, void *closure)
 {
     long temp;
 
@@ -1199,13 +1219,13 @@ GMPyContext_set_imag_round(CTXT_Object *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-GMPyContext_get_emin(CTXT_Object *self, void *closure)
+GMPy_CTXT_Get_emin(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromLong(self->ctx.emin);
 }
 
 static int
-GMPyContext_set_emin(CTXT_Object *self, PyObject *value, void *closure)
+GMPy_CTXT_Set_emin(CTXT_Object *self, PyObject *value, void *closure)
 {
     long exp;
 
@@ -1228,13 +1248,13 @@ GMPyContext_set_emin(CTXT_Object *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-GMPyContext_get_emax(CTXT_Object *self, void *closure)
+GMPy_CTXT_Get_emax(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromLong(self->ctx.emax);
 }
 
 static int
-GMPyContext_set_emax(CTXT_Object *self, PyObject *value, void *closure)
+GMPy_CTXT_Set_emax(CTXT_Object *self, PyObject *value, void *closure)
 {
     long exp;
 
@@ -1258,8 +1278,8 @@ GMPyContext_set_emax(CTXT_Object *self, PyObject *value, void *closure)
 
 #define ADD_GETSET(NAME) \
     {#NAME, \
-        (getter)GMPyContext_get_##NAME, \
-        (setter)GMPyContext_set_##NAME, NULL, NULL}
+        (getter)GMPy_CTXT_Get_##NAME, \
+        (setter)GMPy_CTXT_Set_##NAME, NULL, NULL}
 
 static PyGetSetDef GMPyContext_getseters[] = {
     ADD_GETSET(precision),
