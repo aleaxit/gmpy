@@ -67,6 +67,9 @@ GMPy_Integer_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
+    if (GET_DIV_MODE(context))
+        return GMPy_Rational_TrueDiv(x, y, context);
+
     if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
 
@@ -155,12 +158,21 @@ GMPy_MPZ_Div2_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Rational_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    MPQ_Object *result, *tempx, *tempy;
+    MPQ_Object *result, *tempx = NULL, *tempy = NULL;
 
     CHECK_CONTEXT_SET_EXPONENT(context);
 
     if (!(result = GMPy_MPQ_New(context)))
         return NULL;
+
+    if (MPQ_Check(x) && MPQ_Check(y)) {
+        if (mpq_sgn(MPQ(y)) == 0) {
+            ZERO_ERROR("division or modulo by zero");
+            goto error;
+        }
+        mpq_div(result->q, MPQ(x), MPQ(y));
+        return (PyObject*)result;
+    }
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         tempx = GMPy_MPQ_From_Number_Temp(x, context);
