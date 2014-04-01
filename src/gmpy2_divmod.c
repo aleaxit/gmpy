@@ -260,7 +260,7 @@ GMPy_MPQ_DivMod_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    MPFR_Object *tempx, *tempy, *quo, *rem;
+    MPFR_Object *tempx = NULL, *tempy = NULL, *quo, *rem;
     PyObject *result;
 
     CHECK_CONTEXT_SET_EXPONENT(context);
@@ -290,7 +290,6 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
             }
         }
 
-        mpfr_clear_flags();
 
         if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
             context->ctx.invalid = 1;
@@ -361,6 +360,8 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         return (PyObject*)result;
     }
 
+    Py_DECREF((PyObject*)rem);
+    Py_DECREF((PyObject*)quo);
     Py_DECREF(result);
     Py_RETURN_NOTIMPLEMENTED;
 
@@ -401,7 +402,8 @@ GMPy_MPC_DivMod_Slot(PyObject *x, PyObject *y)
 PyDoc_STRVAR(GMPy_doc_divmod,
 "div_mod(x, y) -> (quotient, remainder)\n\n"
 "Return divmod(x, y); uses alternate spelling to avoid conflicts.\n"
-"Note: overflow, underflow, and inexact are not checked for div_mod().");
+"Note: overflow, underflow, and inexact exceptions are not supported for\n"
+"mpfr arguments to div_mod().");
 
 static PyObject *
 GMPy_Number_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
@@ -426,7 +428,9 @@ GMPy_Number_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 
 PyDoc_STRVAR(GMPy_doc_context_divmod,
 "context.divmod(x, y) -> (quotient, remainder)\n\n"
-"Return divmod(x, y).");
+"Return divmod(x, y).\n"
+"Note: overflow, underflow, and inexact exceptions are not supported for\n"
+"mpfr arguments to context.divmod().");
 
 static PyObject *
 GMPy_Context_DivMod(PyObject *self, PyObject *args)
