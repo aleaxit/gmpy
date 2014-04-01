@@ -43,6 +43,7 @@ static PyObject * GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod,
 static PyObject * GMPy_Integer_PowMod(PyObject *self, PyObject *args);
 
 static PyObject * GMPy_Context_Pow(PyObject *self, PyObject *args);
+static PyObject * GMPy_Number_Pow(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
 
 #ifdef __cplusplus
 }

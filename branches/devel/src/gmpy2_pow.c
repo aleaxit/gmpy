@@ -248,6 +248,7 @@ static PyObject *
 GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context)
 {
     MPFR_Object *tempb = NULL, *tempe = NULL, *result = NULL;
+    MPZ_Object *tempz = NULL;
     MPC_Object *mpc_result = NULL;
 
     if (mod != Py_None) {
@@ -259,51 +260,72 @@ GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context
 
     result = GMPy_MPFR_New(0, context);
     tempb = GMPy_MPFR_From_Real(base, 1, context);
-    tempe = GMPy_MPFR_From_Real(exp, 1, context);
-
-    if (!result || !tempe || !tempb) {
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)tempe);
-        Py_XDECREF((PyObject*)tempb);
-        return NULL;
-    }
-
-    if (mpfr_zero_p(tempb->f) && (mpfr_sgn(tempe->f) < 0)) {
-        context->ctx.divzero = 1;
-        if (context->ctx.traps & TRAP_DIVZERO) {
-            GMPY_DIVZERO("zero cannot be raised to a negative power");
-            goto err;
-        }
+    if (!result || !tempb) {
+        goto err;
     }
 
     mpfr_clear_flags();
-    result->rc = mpfr_pow(result->f, tempb->f, tempe->f,
-                          GET_MPFR_ROUND(context));
 
+    if (PyIntOrLong_Check(exp)) {
+        long temp_exp;
+        int overflow;
+
+        temp_exp = PyLong_AsLongAndOverflow(exp, &overflow);
+        if (overflow) {
+            mpz_t tempzz;
+
+            mpz_inoc(tempzz);
+            mpz_set_PyIntOrLong(tempzz, exp);
+            result->rc = mpfr_pow_z(result->f, tempb->f, tempzz,
+                                    GET_MPFR_ROUND(context));
+            mpz_cloc(tempzz);
+        }
+        else {
+            result->rc = mpfr_pow_si(result->f, tempb->f, temp_exp,
+                                     GET_MPFR_ROUND(context));
+        }
+    }
+    else if (IS_INTEGER(exp)) {
+        if (!(tempz = GMPy_MPZ_From_Integer_Temp(exp, context))) {
+            goto err;
+        }
+        result->rc = mpfr_pow_z(result->f, tempb->f, tempz->z,
+                                GET_MPFR_ROUND(context));
+    }
+    else {
+        if (!(tempe = GMPy_MPFR_From_Real(exp, 1, context))) {
+            goto err;
+        }
+        result->rc = mpfr_pow(result->f, tempb->f, tempe->f,
+                              GET_MPFR_ROUND(context));
+    }
+
+    /* If the result is NaN, check if a complex result works. */
     if (result && mpfr_nanflag_p() && context->ctx.allow_complex) {
-        /* If the result is NaN, check if a complex result works. */
-
         mpc_result = (MPC_Object*)GMPy_Complex_Pow(base, exp, Py_None, context);
         if (!mpc_result || MPC_IS_NAN_P(mpc_result)) {
             Py_XDECREF((PyObject*)mpc_result);
             context->ctx.invalid = 1;
-            GMPY_INVALID("invalid operation in 'mpfr' pow()");
+            GMPY_INVALID("pow() invalid operation");
             goto err;
         }
         /* return a valid complex result */
-        Py_DECREF((PyObject*)tempe);
-        Py_DECREF((PyObject*)tempb);
-        Py_DECREF((PyObject*)result);
+        Py_XDECREF((PyObject*)tempe);
+        Py_XDECREF((PyObject*)tempz);
+        Py_XDECREF((PyObject*)tempb);
+        Py_XDECREF((PyObject*)result);
         return (PyObject*)mpc_result;
     }
 
     MPFR_CLEANUP_2(result, context, "pow()");
-    Py_DECREF((PyObject*)tempe);
-    Py_DECREF((PyObject*)tempb);
+    Py_XDECREF((PyObject*)tempz);
+    Py_XDECREF((PyObject*)tempe);
+    Py_XDECREF((PyObject*)tempb);
     return (PyObject*)result;
 
   err:
     Py_XDECREF((PyObject*)result);
+    Py_XDECREF((PyObject*)tempz);
     Py_XDECREF((PyObject*)tempe);
     Py_XDECREF((PyObject*)tempb);
     return NULL;
@@ -313,51 +335,79 @@ static PyObject *
 GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context)
 {
     MPC_Object *tempb = NULL, *tempe = NULL, *result= NULL;
+    MPFR_Object *tempf = NULL;
+    MPZ_Object *tempz = NULL;
 
     if (mod != Py_None) {
         TYPE_ERROR("pow() 3rd argument not allowed unless all arguments are integers");
         return NULL;
     }
 
+    CHECK_CONTEXT_SET_EXPONENT(context);
+
     result = GMPy_MPC_New(0, 0, context);
     tempb = GMPy_MPC_From_Complex(base, 1, 1, context);
-    tempe = GMPy_MPC_From_Complex(exp, 1, 1, context);
-
-    if (!result || !tempe || !tempb) {
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)tempe);
-        Py_XDECREF((PyObject*)tempb);
-        return NULL;
+    if (!result || !tempb) {
+        goto err;
     }
 
-    if (MPC_IS_ZERO_P(tempb) && MPC_IS_ZERO_P(tempe)) {
-        mpc_set_ui(result->c, 1, GET_MPC_ROUND(context));
-        Py_DECREF((PyObject*)tempe);
-        Py_DECREF((PyObject*)tempb);
-        return (PyObject*)result;
-    }
+    mpfr_clear_flags();
 
-    if (MPC_IS_ZERO_P(tempb) &&
-        (!mpfr_zero_p(mpc_imagref(tempe->c)) ||
-         mpfr_sgn(mpc_realref(tempe->c)) < 0)) {
+    if (PyIntOrLong_Check(exp)) {
+        long temp_exp;
+        int overflow;
 
-        context->ctx.divzero = 1;
-        if (context->ctx.traps & TRAP_DIVZERO) {
-            GMPY_DIVZERO("zero cannot be raised to a negative or complex power");
-            Py_DECREF((PyObject*)tempe);
-            Py_DECREF((PyObject*)tempb);
-            Py_DECREF((PyObject*)result);
-            return NULL;
+        temp_exp = PyLong_AsLongAndOverflow(exp, &overflow);
+        if (overflow) {
+            mpz_t tempzz;
+
+            mpz_inoc(tempzz);
+            mpz_set_PyIntOrLong(tempzz, exp);
+            result->rc = mpc_pow_z(result->c, tempb->c, tempzz,
+                                   GET_MPC_ROUND(context));
+            mpz_cloc(tempzz);
+        }
+        else {
+            result->rc = mpc_pow_si(result->c, tempb->c, temp_exp,
+                                    GET_MPC_ROUND(context));
         }
     }
-
-    result->rc = mpc_pow(result->c, tempb->c,
-                         tempe->c, GET_MPC_ROUND(context));
-    Py_DECREF((PyObject*)tempe);
-    Py_DECREF((PyObject*)tempb);
+    else if (IS_INTEGER(exp)) {
+        if (!(tempz = GMPy_MPZ_From_Integer_Temp(exp, context))) {
+            goto err;
+        }
+        result->rc = mpc_pow_z(result->c, tempb->c, tempz->z,
+                               GET_MPC_ROUND(context));
+    }
+    else if (IS_REAL(exp)) {
+        if (!(tempf = GMPy_MPFR_From_Real(exp, 1, context))) {
+            goto err;
+        }
+        result->rc = mpc_pow_fr(result->c, tempb->c, tempf->f,
+                                GET_MPC_ROUND(context));
+    }
+    else {
+        if (!(tempe = GMPy_MPC_From_Complex(exp, 1, 1, context))) {
+            goto err;
+        }
+        result->rc = mpc_pow(result->c, tempb->c, tempe->c,
+                             GET_MPC_ROUND(context));
+    }
 
     MPC_CLEANUP_2(result, context, "pow()");
+    Py_XDECREF((PyObject*)tempz);
+    Py_XDECREF((PyObject*)tempf);
+    Py_XDECREF((PyObject*)tempe);
+    Py_XDECREF((PyObject*)tempb);
     return (PyObject*)result;
+
+  err:
+    Py_XDECREF((PyObject*)result);
+    Py_XDECREF((PyObject*)tempz);
+    Py_XDECREF((PyObject*)tempf);
+    Py_XDECREF((PyObject*)tempe);
+    Py_XDECREF((PyObject*)tempb);
+    return NULL;
 }
 
 PyDoc_STRVAR(GMPy_doc_integer_powmod,
@@ -386,6 +436,27 @@ GMPy_Integer_PowMod(PyObject *self, PyObject *args)
     return NULL;
 }
 
+static PyObject *
+GMPy_Number_Pow(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
+{
+    LOAD_CONTEXT_SET_EXPONENT(context);
+
+    if (IS_INTEGER(x) && IS_INTEGER(y))
+        return GMPy_Integer_Pow(x, y, z, context);
+
+    if (IS_RATIONAL(x) && IS_RATIONAL(y))
+        return GMPy_Rational_Pow(x, y, z, context);
+
+    if (IS_REAL(x) && IS_REAL(y))
+        return GMPy_Real_Pow(x, y, z, context);
+
+    if (IS_COMPLEX(x) && IS_COMPLEX(y))
+        return GMPy_Complex_Pow(x, y, z, context);
+
+    TYPE_ERROR("pow() argument type not supported");
+    return NULL;
+}
+
 PyDoc_STRVAR(GMPy_doc_context_pow,
 "context.pow(x, y) -> number\n\n"
 "Return x ** y.");
@@ -394,7 +465,7 @@ static PyObject *
 GMPy_Context_Pow(PyObject *self, PyObject *args)
 {
     Py_ssize_t argc;
-    PyObject *arg0, *arg1;
+    PyObject *result;
     CTXT_Object *context;
 
     argc = PyTuple_GET_SIZE(args);
@@ -419,23 +490,12 @@ GMPy_Context_Pow(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    arg0 = PyTuple_GET_ITEM(args, 0);
-    arg1 = PyTuple_GET_ITEM(args, 1);
-
-    if (IS_INTEGER(arg0) && IS_INTEGER(arg1))
-        return GMPy_Integer_Pow(arg0, arg1, Py_None, context);
-
-    if (IS_RATIONAL(arg0) && IS_RATIONAL(arg1))
-        return GMPy_Rational_Pow(arg0, arg1, Py_None, context);
-
-    if (IS_REAL(arg0) && IS_REAL(arg1))
-        return GMPy_Real_Pow(arg0, arg1, Py_None, context);
-
-    if (IS_COMPLEX(arg0) && IS_COMPLEX(arg1))
-        return GMPy_Complex_Pow(arg0, arg1, Py_None, context);
-
-    TYPE_ERROR("pow() argument types not supported");
-    return NULL;
+    result = GMPy_Number_Pow(PyTuple_GET_ITEM(args, 0),
+                             PyTuple_GET_ITEM(args, 1),
+                             Py_None,
+                             context);
+    Py_DECREF((PyObject*)context);
+    return result;
 }
 
 static PyObject *
