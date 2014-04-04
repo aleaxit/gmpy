@@ -117,8 +117,8 @@ GMPy_Integer_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
         MPZ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPZ_From_Integer_Temp(x, context);
-        tempy = GMPy_MPZ_From_Integer_Temp(y, context);
+        tempx = GMPy_MPZ_From_Integer(x, context);
+        tempy = GMPy_MPZ_From_Integer(y, context);
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -197,8 +197,8 @@ GMPy_Rational_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPQ_From_Number_Temp(x, context);
-        tempy = GMPy_MPQ_From_Number_Temp(y, context);
+        tempx = GMPy_MPQ_From_Number(x, context);
+        tempy = GMPy_MPQ_From_Number(y, context);
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -305,7 +305,7 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         if (IS_RATIONAL(y)) {
             MPQ_Object *tempy;
 
-            if (!(tempy = GMPy_MPQ_From_Number_Temp(y, context))) {
+            if (!(tempy = GMPy_MPQ_From_Number(y, context))) {
                 Py_DECREF((PyObject*)result);
                 return NULL;
             }

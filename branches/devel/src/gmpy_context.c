@@ -864,13 +864,6 @@ GMPy_CTXT_Manager_Enter(PyObject *self, PyObject *args)
         return NULL;
     Py_DECREF(temp);
 
-    /* These two lines need to be removed after all the context handling logic
-     * is updated.
-     */
-
-    mpfr_set_emin(((CTXT_Manager_Object*)self)->new_context->ctx.emin);
-    mpfr_set_emax(((CTXT_Manager_Object*)self)->new_context->ctx.emax);
-
     Py_INCREF((PyObject*)(((CTXT_Manager_Object*)self)->new_context));
     return (PyObject*)(((CTXT_Manager_Object*)self)->new_context);
 }
@@ -884,13 +877,6 @@ GMPy_CTXT_Manager_Exit(PyObject *self, PyObject *args)
     if (!temp)
         return NULL;
     Py_DECREF(temp);
-
-    /* These two lines need to be removed after all the context handling logic
-     * is updated.
-     */
-
-    mpfr_set_emin(((CTXT_Manager_Object*)self)->old_context->ctx.emin);
-    mpfr_set_emax(((CTXT_Manager_Object*)self)->old_context->ctx.emax);
 
     Py_RETURN_NONE;
 }
@@ -910,8 +896,6 @@ GMPy_CTXT_Enter(PyObject *self, PyObject *args)
         return NULL;
     Py_DECREF(temp);
 
-    mpfr_set_emin(((CTXT_Object*)result)->ctx.emin);
-    mpfr_set_emax(((CTXT_Object*)result)->ctx.emax);
     return result;
 }
 
@@ -925,8 +909,6 @@ GMPy_CTXT_Exit(PyObject *self, PyObject *args)
         return NULL;
     Py_DECREF(temp);
 
-    mpfr_set_emin(((CTXT_Object*)self)->ctx.emin);
-    mpfr_set_emax(((CTXT_Object*)self)->ctx.emax);
     Py_RETURN_NONE;
 }
 
@@ -1238,12 +1220,11 @@ GMPy_CTXT_Set_emin(CTXT_Object *self, PyObject *value, void *closure)
         VALUE_ERROR("requested minimum exponent is invalid");
         return -1;
     }
-    if (mpfr_set_emin((mpfr_prec_t)exp)) {
+    if (!(exp >= MPFR_EMIN_MIN && exp <= MPFR_EMIN_MAX)) {
         VALUE_ERROR("requested minimum exponent is invalid");
         return -1;
     }
     self->ctx.emin = exp;
-    mpfr_set_emin(exp);
     return 0;
 }
 
@@ -1267,12 +1248,11 @@ GMPy_CTXT_Set_emax(CTXT_Object *self, PyObject *value, void *closure)
         VALUE_ERROR("requested maximum exponent is invalid");
         return -1;
     }
-    if (mpfr_set_emax((mpfr_prec_t)exp)) {
+    if (!(exp >= MPFR_EMAX_MIN && exp <= MPFR_EMAX_MAX)) {
         VALUE_ERROR("requested maximum exponent is invalid");
         return -1;
     }
     self->ctx.emax = exp;
-    mpfr_set_emax(exp);
     return 0;
 }
 
@@ -1317,7 +1297,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "clear_flags", GMPy_CTXT_Clear_Flags, METH_NOARGS, GMPy_doc_context_clear_flags },
     { "copy", GMPy_CTXT_Copy, METH_NOARGS, GMPy_doc_context_copy },
     { "div", GMPy_Context_TrueDiv, METH_VARARGS, GMPy_doc_context_truediv },
-    { "divmod", GMPy_Context_DivMod, METH_VARARGS, GMPy_doc_context_divmod },
+    { "div_mod", GMPy_Context_DivMod, METH_VARARGS, GMPy_doc_context_divmod },
     { "floor_div", GMPy_Context_FloorDiv, METH_VARARGS, GMPy_doc_context_floordiv },
     { "mod", GMPy_Context_Mod, METH_VARARGS, GMPy_doc_context_mod },
     { "mul", GMPy_Context_Mul, METH_VARARGS, GMPy_doc_context_mul },

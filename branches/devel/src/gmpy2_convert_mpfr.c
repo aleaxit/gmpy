@@ -97,7 +97,8 @@ GMPy_MPFR_From_MPFR(MPFR_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
 
     assert(MPFR_Check(obj));
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
+    SET_EXPONENT(context);
 
     if (prec == 0)
         prec = GET_MPFR_PREC(context);
@@ -131,9 +132,7 @@ GMPy_MPFR_From_MPFR(MPFR_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
         result->rc = mpfr_check_range(result->f, obj->rc, obj->round_mode);
         /* Then round to the desired precision. */
         result->rc = mpfr_prec_round(result->f, prec, GET_MPFR_ROUND(context));
-        /* Removing any exception checks. Need to think about what should happen.
-         * MPFR_CLEANUP_2(result, context, "mpfr()");
-         */
+        MPFR_CLEANUP_2(result, context, "mpfr()");
     }
 
     return result;
@@ -416,7 +415,7 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
 static MPFR_Object *
 GMPy_MPFR_From_Real(PyObject *obj, mp_prec_t prec, CTXT_Object *context)
 {
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (MPFR_Check(obj))
         return GMPy_MPFR_From_MPFR((MPFR_Object*)obj, prec, context);

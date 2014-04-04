@@ -531,7 +531,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(mpz_cmp(MPZ(a), MPZ(b)), op);
         }
         if (IS_INTEGER(b)) {
-            tempb = (PyObject*)GMPy_MPZ_From_Integer_Temp(b, context);
+            tempb = (PyObject*)GMPy_MPZ_From_Integer(b, context);
             if (!tempb)
                 return NULL;
             c = mpz_cmp(MPZ(a), MPZ(tempb));
@@ -539,8 +539,8 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(c, op);
         }
         if (IS_RATIONAL(b)) {
-            tempa = (PyObject*)GMPy_MPQ_From_Rational_Temp(a, context);
-            tempb = (PyObject*)GMPy_MPQ_From_Rational_Temp(b, context);
+            tempa = (PyObject*)GMPy_MPQ_From_Rational(a, context);
+            tempb = (PyObject*)GMPy_MPQ_From_Rational(b, context);
             if (!tempa || !tempb) {
                 Py_XDECREF(a);
                 Py_XDECREF(b);
@@ -569,7 +569,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_DECIMAL(b)) {
-            tempa = (PyObject*)GMPy_MPQ_From_Rational_Temp(a, context);
+            tempa = (PyObject*)GMPy_MPQ_From_Rational(a, context);
             tempb = (PyObject*)GMPy_MPQ_From_Decimal(b, context);
             if (!tempa || !tempb) {
                 Py_XDECREF(a);
@@ -608,7 +608,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(mpq_cmp(MPQ(a), MPQ(b)), op);
         }
         if (IS_RATIONAL(b)) {
-            tempb = (PyObject*)GMPy_MPQ_From_Rational_Temp(b, context);
+            tempb = (PyObject*)GMPy_MPQ_From_Rational(b, context);
             c = mpq_cmp(MPQ(a), MPQ(tempb));
             Py_DECREF(tempb);
             return _cmp_to_object(c, op);
@@ -702,7 +702,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_INTEGER(b)) {
-            tempb = (PyObject*)GMPy_MPZ_From_Integer_Temp(b, context);
+            tempb = (PyObject*)GMPy_MPZ_From_Integer(b, context);
             if (!tempb)
                 return NULL;
             mpfr_clear_flags();
@@ -724,7 +724,7 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_RATIONAL(b)) {
-            tempb = (PyObject*)GMPy_MPQ_From_Rational_Temp(b, context);
+            tempb = (PyObject*)GMPy_MPQ_From_Rational(b, context);
             if (!tempb)
                 return NULL;
             mpfr_clear_flags();

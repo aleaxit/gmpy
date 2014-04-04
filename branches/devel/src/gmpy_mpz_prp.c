@@ -55,8 +55,8 @@ GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    n = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), NULL);
-    a = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 1), NULL);
+    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    a = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
     if (!a || !n) {
         TYPE_ERROR("is_fermat_prp() requires 2 integer arguments");
         goto cleanup;
@@ -150,8 +150,8 @@ GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    n = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), NULL);
-    a = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 1), NULL);
+    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    a = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
     if (!a || !n) {
         TYPE_ERROR("is_euler_prp() requires 2 integer arguments");
         goto cleanup;
@@ -257,8 +257,8 @@ GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    n = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), NULL);
-    a = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 1), NULL);
+    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    a = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
     if (!a || !n) {
         TYPE_ERROR("is_strong_prp() requires 2 integer arguments");
         goto cleanup;
@@ -385,9 +385,9 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
     mpz_inoc(qh);
     mpz_inoc(tmp);
 
-    n = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), NULL);
-    p = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 1), NULL);
-    q = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 2), NULL);
+    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
+    q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2), NULL);
     if (!n || !p || !q) {
         TYPE_ERROR("is_fibonacci_prp() requires 3 integer arguments");
         goto cleanup;
@@ -574,9 +574,9 @@ GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args)
     mpz_inoc(qh);
     mpz_inoc(tmp);
 
-    n = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), NULL);
-    p = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 1), NULL);
-    q = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 2), NULL);
+    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
+    q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2), NULL);
     if (!n || !p || !q) {
         TYPE_ERROR("is_lucas_prp() requires 3 integer arguments");
         goto cleanup;
@@ -793,9 +793,9 @@ GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
     mpz_inoc(qh);
     mpz_inoc(tmp);
 
-    n = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), NULL);
-    p = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 1), NULL);
-    q = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 2), NULL);
+    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
+    q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2), NULL);
     if (!n || !p || !q) {
         TYPE_ERROR("is_strong_lucas_prp() requires 3 integer arguments");
         goto cleanup;
@@ -1023,8 +1023,8 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     mpz_inoc(qh);
     mpz_inoc(tmp);
 
-    n = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), NULL);
-    p = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 1), NULL);
+    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
     if (!n || !p) {
         TYPE_ERROR("is_extra_strong_lucas_prp() requires 2 integer arguments");
         goto cleanup;
@@ -1235,7 +1235,7 @@ GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args)
 
     mpz_inoc(zD);
 
-    n = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), NULL);
+    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     if (!n) {
         TYPE_ERROR("is_selfridge_prp() requires 1 integer argument");
         goto cleanup;
@@ -1363,7 +1363,7 @@ GMPY_mpz_is_strongselfridge_prp(PyObject *self, PyObject *args)
 
     mpz_inoc(zD);
 
-    n = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), NULL);
+    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     if (!n) {
         TYPE_ERROR("is_strong_selfridge_prp() requires 1 integer argument");
         goto cleanup;
@@ -1481,7 +1481,7 @@ GMPY_mpz_is_bpsw_prp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    n = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), NULL);
+    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     if (!n) {
         TYPE_ERROR("is_bpsw_prp() requires 1 integer argument");
         goto cleanup;
@@ -1560,7 +1560,7 @@ GMPY_mpz_is_strongbpsw_prp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    n = GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), NULL);
+    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     if (!n) {
         TYPE_ERROR("is_strong_bpsw_prp() requires 1 integer argument");
         goto cleanup;

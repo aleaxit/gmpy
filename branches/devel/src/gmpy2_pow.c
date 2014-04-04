@@ -73,15 +73,15 @@ GMPy_Integer_Pow(PyObject *b, PyObject *e, PyObject *m, CTXT_Object *context)
             Py_RETURN_NOTIMPLEMENTED;
         }
         else {
-            if (!(tempm = GMPy_MPZ_From_Integer_Temp(m, context))) {
+            if (!(tempm = GMPy_MPZ_From_Integer(m, context))) {
                 goto err;
             }
         }
     }
 
     result = GMPy_MPZ_New(context);
-    tempb = GMPy_MPZ_From_Integer_Temp(b, context);
-    tempe = GMPy_MPZ_From_Integer_Temp(e, context);
+    tempb = GMPy_MPZ_From_Integer(b, context);
+    tempe = GMPy_MPZ_From_Integer(e, context);
 
     if (!tempb || !tempe || !result) {
         goto err;
@@ -183,8 +183,8 @@ GMPy_Rational_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *con
     if (IS_RATIONAL(base) && IS_INTEGER(exp)) {
 
         resultq = GMPy_MPQ_New(context);
-        tempbq = GMPy_MPQ_From_Rational_Temp(base, context);
-        tempez = GMPy_MPZ_From_Integer_Temp(exp, context);
+        tempbq = GMPy_MPQ_From_Rational(base, context);
+        tempez = GMPy_MPZ_From_Integer(exp, context);
         if (!resultq || !tempbq || !tempez) {
             Py_XDECREF((PyObject*)resultq);
             Py_XDECREF((PyObject*)tempbq);
@@ -286,7 +286,7 @@ GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context
         }
     }
     else if (IS_INTEGER(exp)) {
-        if (!(tempz = GMPy_MPZ_From_Integer_Temp(exp, context))) {
+        if (!(tempz = GMPy_MPZ_From_Integer(exp, context))) {
             goto err;
         }
         result->rc = mpfr_pow_z(result->f, tempb->f, tempz->z,
@@ -373,7 +373,7 @@ GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *cont
         }
     }
     else if (IS_INTEGER(exp)) {
-        if (!(tempz = GMPy_MPZ_From_Integer_Temp(exp, context))) {
+        if (!(tempz = GMPy_MPZ_From_Integer(exp, context))) {
             goto err;
         }
         result->rc = mpc_pow_z(result->c, tempb->c, tempz->z,
