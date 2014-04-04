@@ -53,7 +53,9 @@
 static PyObject *
 GMPy_Integer_Abs(PyObject *x, CTXT_Object *context)
 {
-    MPZ_Object *result;
+    MPZ_Object *result = NULL;
+
+    CHECK_CONTEXT(context);
 
     if (MPZ_Check(x)) {
         if (mpz_sgn(MPZ(x)) >= 0) {
@@ -67,7 +69,15 @@ GMPy_Integer_Abs(PyObject *x, CTXT_Object *context)
         }
     }
 
-    if ((result = GMPy_MPZ_From_Integer_Temp(x, context))) {
+    /* This is safe because result is not an incremented reference to an
+     * existing value. Why?
+     *   1) No values are interned like Python's integers.
+     *   2) MPZ is already handled so GMPy_MPZ_From_Integer() can't return
+     *      an incremented reference to an existing value (which it would do
+     *      if passed an MPZ).
+     */
+
+    if ((result = GMPy_MPZ_From_Integer(x, context))) {
         mpz_abs(result->z, result->z);
     }
 
@@ -83,7 +93,9 @@ GMPy_MPZ_Abs_Slot(MPZ_Object *x)
 static PyObject *
 GMPy_Rational_Abs(PyObject *x, CTXT_Object *context)
 {
-    MPQ_Object *result;
+    MPQ_Object *result = NULL;
+
+    CHECK_CONTEXT(context);
 
     if (MPQ_Check(x)) {
         if (mpz_sgn(mpq_numref(MPQ(x))) >= 0) {
@@ -99,7 +111,13 @@ GMPy_Rational_Abs(PyObject *x, CTXT_Object *context)
         }
     }
 
-    if ((result = GMPy_MPQ_From_Number_New(x, context))) {
+    /* This is safe because result is not an incremented reference to an
+     * existing value. MPQ is already handled so GMPy_MPQ_From_Rational()
+     * can't return an incremented reference to an existing value (which it
+     * would do if passed an MPQ).
+     */
+
+    if ((result = GMPy_MPQ_From_Rational(x, context))) {
         mpz_abs(mpq_numref(result->q), mpq_numref(result->q));
     }
 
@@ -115,21 +133,29 @@ GMPy_MPQ_Abs_Slot(MPQ_Object *x)
 static PyObject *
 GMPy_Real_Abs(PyObject *x, CTXT_Object *context)
 {
-    MPFR_Object *result, *temp;
+    MPFR_Object *result = NULL, *tempx = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
-    if (!(temp = GMPy_MPFR_From_Real(x, 1, context)))
-        return NULL;
+    tempx = GMPy_MPFR_From_Real(x, 1, context);
+    result = GMPy_MPFR_New(0, context);
 
-    if ((result = GMPy_MPFR_New(0, context))) {
-        mpfr_clear_flags();
-        result->rc = mpfr_abs(result->f, temp->f, GET_MPFR_ROUND(context));
-        Py_DECREF((PyObject*)temp);
-        MPFR_CLEANUP_2(result, context, "abs()");
-    }
+    if (!tempx || !result)
+        goto err;
+
+    SET_EXPONENT(context);
+    mpfr_clear_flags();
+
+    result->rc = mpfr_abs(result->f, tempx->f, GET_MPFR_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
+    MPFR_CLEANUP_2(result, context, "abs()");
 
     return (PyObject*)result;
+
+  err:
+    Py_XDECREF((PyObject*)tempx);
+    Py_XDECREF((PyObject*)result);
+    return NULL;
 }
 
 static PyObject *
@@ -141,26 +167,30 @@ GMPy_MPFR_Abs_Slot(MPFR_Object *x)
 static PyObject *
 GMPy_Complex_Abs(PyObject *x, CTXT_Object *context)
 {
-    MPFR_Object *result;
-    MPC_Object *tempx;
+    MPFR_Object *result = NULL;
+    MPC_Object *tempx = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
-    if (!(tempx = GMPy_MPC_From_Complex(x, 1, 1, context)))  {
-        return NULL;
-    }
+    tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
+    result = GMPy_MPFR_New(0, context);
 
-    if (!(result = GMPy_MPFR_New(0, context))) {
-        Py_DECREF((PyObject*)tempx);
-        return NULL;
-    }
+    if (!tempx || !result)
+        goto err;
 
+    SET_EXPONENT(context);
     mpfr_clear_flags();
+
     result->rc = mpc_abs(result->f, tempx->c, GET_MPC_ROUND(context));
     Py_DECREF((PyObject*)tempx);
     MPFR_CLEANUP_2(result, context, "abs()");
 
     return (PyObject*)result;
+
+  err:
+    Py_XDECREF((PyObject*)tempx);
+    Py_XDECREF((PyObject*)result);
+    return NULL;
 }
 
 static PyObject *
@@ -172,8 +202,6 @@ GMPy_MPC_Abs_Slot(MPC_Object *x)
 static PyObject *
 GMPy_Number_Abs(PyObject *x, CTXT_Object *context)
 {
-    LOAD_CONTEXT_SET_EXPONENT(context);
-
     if (IS_INTEGER(x))
         return GMPy_Integer_Abs(x, context);
 
@@ -200,13 +228,29 @@ PyDoc_STRVAR(GMPy_doc_context_abs,
 static PyObject *
 GMPy_Context_Abs(PyObject *self, PyObject *args)
 {
-    assert(CTXT_Check(self));
+    PyObject *result;
 
     if (PyTuple_GET_SIZE(args) != 1) {
         TYPE_ERROR("context.abs() requires 1 argument.");
         return NULL;
     }
 
-    return GMPy_Number_Abs(PyTuple_GET_ITEM(args, 0), (CTXT_Object*)self);
+    /* If we are passed a read-only context, make a copy of it before
+     * proceeding. Remember to decref context when we're done. */
+
+    if (((CTXT_Object*)self)->ctx.readonly) {
+        self = GMPy_CTXT_Copy(self, NULL);
+        if (!self)
+            return NULL;
+    }
+    else {
+        Py_INCREF(self);
+    }
+
+    result = GMPy_Number_Abs(PyTuple_GET_ITEM(args, 0),
+                             (CTXT_Object*)self);
+
+    Py_DECREF(self);
+    return result;
 }
 

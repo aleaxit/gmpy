@@ -218,27 +218,27 @@ typedef struct {
         if ((CTX->ctx.traps & TRAP_INVALID) && mpfr_nanflag_p()) { \
             GMPY_INVALID(NAME " invalid operation"); \
             Py_DECREF((PyObject*)V); \
-            return NULL; \
+            V = NULL; \
         } \
-        if ((CTX->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) { \
+        else if ((CTX->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) { \
             GMPY_DIVZERO(NAME " division or modulo by zero"); \
             Py_DECREF((PyObject*)V); \
-            return NULL; \
+            V = NULL; \
         } \
-        if ((CTX->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) { \
+        else if ((CTX->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) { \
             GMPY_UNDERFLOW(NAME " underflow"); \
             Py_DECREF((PyObject*)V); \
-            return NULL; \
+            V = NULL; \
         } \
-        if ((CTX->ctx.traps & TRAP_OVERFLOW) && mpfr_overflow_p()) { \
+        else if ((CTX->ctx.traps & TRAP_OVERFLOW) && mpfr_overflow_p()) { \
             GMPY_OVERFLOW(NAME " overflow"); \
             Py_DECREF((PyObject*)V); \
-            return NULL; \
+            V = NULL; \
         } \
-        if ((CTX->ctx.traps & TRAP_INEXACT) && mpfr_inexflag_p()) { \
+        else if ((CTX->ctx.traps & TRAP_INEXACT) && mpfr_inexflag_p()) { \
             GMPY_INEXACT(NAME " inexact result"); \
             Py_DECREF((PyObject*)V); \
-            return NULL; \
+            V = NULL; \
         } \
     }
 

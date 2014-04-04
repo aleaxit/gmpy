@@ -112,8 +112,8 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
         MPZ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPZ_From_Integer_Temp(x, context);
-        tempy = GMPy_MPZ_From_Integer_Temp(y, context);
+        tempx = GMPy_MPZ_From_Integer(x, context);
+        tempy = GMPy_MPZ_From_Integer(y, context);
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -175,8 +175,8 @@ GMPy_Rational_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPQ_From_Number_Temp(x, context);
-        tempy = GMPy_MPQ_From_Number_Temp(y, context);
+        tempx = GMPy_MPQ_From_Number(x, context);
+        tempy = GMPy_MPQ_From_Number(y, context);
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -285,7 +285,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         if (IS_RATIONAL(y)) {
             MPQ_Object *tempy;
 
-            if (!(tempy = GMPy_MPQ_From_Number_Temp(y, context))) {
+            if (!(tempy = GMPy_MPQ_From_Number(y, context))) {
                 Py_DECREF(result);
                 return NULL;
             }
@@ -338,7 +338,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         if (IS_RATIONAL(x)) {
             MPQ_Object *tempx;
 
-            if (!(tempx = GMPy_MPQ_From_Number_Temp(x, context))) {
+            if (!(tempx = GMPy_MPQ_From_Number(x, context))) {
                 Py_DECREF(result);
                 return NULL;
             }
@@ -497,37 +497,29 @@ static PyObject *
 GMPy_Context_Add(PyObject *self, PyObject *args)
 {
     PyObject *result;
-    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("add() requires 2 arguments.");
         return NULL;
     }
 
-    if (self && CTXT_Check(self)) {
-        /* If we are passed a read-only context, make a copy of it before
-         * proceeding. Remember to decref context when we're done. */
+    /* If we are passed a read-only context, make a copy of it before
+     * proceeding. Remember to decref context when we're done. */
 
-        if (((CTXT_Object*)self)->ctx.readonly) {
-            context = (CTXT_Object*)GMPy_CTXT_Copy(self, NULL);
-            if (!context)
-                return NULL;
-        }
-        else {
-            context = (CTXT_Object*)self;
-            Py_INCREF((PyObject*)context);
-        }
-        SET_EXPONENT(context);
+    if (((CTXT_Object*)self)->ctx.readonly) {
+        self = GMPy_CTXT_Copy(self, NULL);
+        if (!self)
+            return NULL;
     }
     else {
-        CHECK_CONTEXT_SET_EXPONENT(context);
-        Py_INCREF((PyObject*)context);
+        Py_INCREF(self);
     }
 
     result = GMPy_Number_Add(PyTuple_GET_ITEM(args, 0),
                              PyTuple_GET_ITEM(args, 1),
-                             context);
-    Py_DECREF((PyObject*)context);
+                             (CTXT_Object*)self);
+
+    Py_DECREF(self);
     return result;
 }
 

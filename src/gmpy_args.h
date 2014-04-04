@@ -71,7 +71,7 @@ extern "C" {
             return NULL; \
         } \
         self = PyTuple_GET_ITEM(args, 0); \
-        self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), context); \
+        self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context); \
         if (!self) { \
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
@@ -135,10 +135,10 @@ extern "C" {
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \
             } \
-            self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), context); \
+            self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context); \
         } \
         else if (PyTuple_GET_SIZE(args) == 1) { \
-            self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), context); \
+            self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context); \
         } \
         else { \
             PyErr_SetString(PyExc_TypeError, msg); \
@@ -182,10 +182,10 @@ extern "C" {
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \
             } \
-            self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), context); \
+            self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context); \
         } \
         else if (PyTuple_GET_SIZE(args) == 1) { \
-            self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), context); \
+            self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context); \
         } \
         else { \
             PyErr_SetString(PyExc_TypeError, msg); \
@@ -232,10 +232,10 @@ extern "C" {
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \
             } \
-            self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), context); \
+            self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context); \
         } \
         else if (PyTuple_GET_SIZE(args) == 1) { \
-            self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), context); \
+            self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context); \
         } \
         else { \
             PyErr_SetString(PyExc_TypeError, msg); \
@@ -344,7 +344,7 @@ extern "C" {
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \
             } \
-            self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0)); \
+            self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0)); \
         } \
         if (!self) { \
             PyErr_SetString(PyExc_TypeError, msg); \
@@ -388,7 +388,7 @@ extern "C" {
                 PyErr_SetString(PyExc_TypeError, msg); \
                 return NULL; \
             } \
-            self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), context); \
+            self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context); \
         } \
         if (!self) { \
             PyErr_SetString(PyExc_TypeError, msg); \
@@ -462,7 +462,7 @@ extern "C" {
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
         } \
-        var = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), context); \
+        var = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context); \
         if (!var) { \
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
@@ -474,8 +474,8 @@ extern "C" {
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
         } \
-        self = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 0), context); \
-        var = (PyObject*)GMPy_MPZ_From_Integer_Temp(PyTuple_GET_ITEM(args, 1), context); \
+        self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context); \
+        var = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), context); \
         if (!self || !var) { \
             PyErr_SetString(PyExc_TypeError, msg); \
             Py_XDECREF((PyObject*)self); \

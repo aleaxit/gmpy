@@ -168,7 +168,7 @@ GMPy_PyStr_From_MPZ(MPZ_Object *obj, int base, int option, CTXT_Object *context)
 }
 
 static MPZ_Object *
-GMPy_MPZ_From_Number_Temp(PyObject *obj, CTXT_Object *context)
+GMPy_MPZ_From_Number(PyObject *obj, CTXT_Object *context)
 {
     MPZ_Object *result = NULL;
 
@@ -217,85 +217,13 @@ GMPy_MPZ_From_Number_Temp(PyObject *obj, CTXT_Object *context)
 }
 
 static MPZ_Object *
-GMPy_MPZ_From_Number_New(PyObject *obj, CTXT_Object *context)
-{
-    MPZ_Object *result = NULL;
-
-    if (MPZ_Check(obj)) {
-        if ((result = GMPy_MPZ_New(context)))
-            mpz_set(result->z, MPZ(obj));
-
-        return result;
-    }
-
-    if (PyIntOrLong_Check(obj))
-        return GMPy_MPZ_From_PyIntOrLong(obj, context);
-
-    if (MPQ_Check(obj))
-        return GMPy_MPZ_From_MPQ((MPQ_Object*)obj, context);
-
-    if (MPFR_Check(obj))
-        return GMPy_MPZ_From_MPFR((MPFR_Object*)obj, context);
-
-    if (PyFloat_Check(obj))
-        return GMPy_MPZ_From_PyFloat(obj, context);
-
-    if (XMPZ_Check(obj))
-        return GMPy_MPZ_From_XMPZ((XMPZ_Object*)obj, context);
-
-    if (IS_DECIMAL(obj)) {
-        PyObject *temp = PyNumber_Long(obj);
-
-        if (temp) {
-            result = GMPy_MPZ_From_PyIntOrLong(temp, context);
-            Py_DECREF(temp);
-        }
-        return result;
-    }
-
-    if (IS_FRACTION(obj)) {
-        MPQ_Object *temp = GMPy_MPQ_From_Fraction(obj, context);
-
-        if (temp) {
-            result = GMPy_MPZ_From_MPQ(temp, context);
-            Py_DECREF((PyObject*)temp);
-        }
-        return result;
-    }
-
-    TYPE_ERROR("cannot convert object to mpz");
-    return result;
-}
-
-static MPZ_Object *
-GMPy_MPZ_From_Integer_Temp(PyObject *obj, CTXT_Object *context)
+GMPy_MPZ_From_Integer(PyObject *obj, CTXT_Object *context)
 {
     MPZ_Object *result = NULL;
 
     if (MPZ_Check(obj)) {
         Py_INCREF(obj);
         return (MPZ_Object*)obj;
-    }
-
-    if (PyIntOrLong_Check(obj))
-        return GMPy_MPZ_From_PyIntOrLong(obj, context);
-
-    if (XMPZ_Check(obj))
-        return GMPy_MPZ_From_XMPZ((XMPZ_Object*)obj, context);
-
-    TYPE_ERROR("cannot convert object to mpz");
-    return result;
-}
-
-static MPZ_Object *
-GMPy_MPZ_From_Integer_New(PyObject *obj, CTXT_Object *context)
-{
-    MPZ_Object *result = NULL;
-
-    if (MPZ_Check(obj)) {
-        if ((result = GMPy_MPZ_New(context)))
-            mpz_set(result->z, MPZ(obj));
-        return result;
     }
 
     if (PyIntOrLong_Check(obj))
@@ -329,7 +257,7 @@ GMPy_MPZ_Repr_Slot(MPZ_Object *self)
 static int
 GMPy_MPZ_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    MPZ_Object *result = GMPy_MPZ_From_Integer_Temp(arg, NULL);
+    MPZ_Object *result = GMPy_MPZ_From_Integer(arg, NULL);
 
     if (result) {
         *ptr = (PyObject*)result;
@@ -424,30 +352,6 @@ GMPy_XMPZ_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context)
 
     return result;
 }
-
-//~ static PyObject *
-//~ GMPy_PyLong_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context)
-//~ {
-    //~ assert(XMPZ_Check(obj));
-
-    //~ return mpz_get_PyLong(obj->z);
-//~ }
-
-//~ static PyObject *
-//~ GMPy_PyIntOrLong_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context)
-//~ {
-    //~ assert(XMPZ_Check(obj));
-
-//~ #ifdef PY3
-    //~ return GMPy_PyLong_From_XMPZ(obj, context);
-//~ #else
-    //~ if (mpz_fits_slong_p(MPZ(obj)))
-        //~ /* cast is safe since we know it fits in a signed long */
-        //~ return PyInt_FromLong((long)mpz_get_si(obj->z));
-    //~ else
-        //~ return GMPy_PyLong_From_XMPZ(obj, context);
-//~ #endif
-//~ }
 
 static PyObject *
 GMPy_PyStr_From_XMPZ(XMPZ_Object *obj, int base, int option, CTXT_Object *context)
@@ -1436,7 +1340,7 @@ GMPy_MPQ_From_Fraction(PyObject* obj, CTXT_Object *context)
 }
 
 static MPQ_Object*
-GMPy_MPQ_From_Number_Temp(PyObject *obj, CTXT_Object *context)
+GMPy_MPQ_From_Number(PyObject *obj, CTXT_Object *context)
 {
     if (MPQ_Check(obj)) {
         Py_INCREF(obj);
@@ -1469,44 +1373,7 @@ GMPy_MPQ_From_Number_Temp(PyObject *obj, CTXT_Object *context)
 }
 
 static MPQ_Object*
-GMPy_MPQ_From_Number_New(PyObject *obj, CTXT_Object *context)
-{
-    if (MPQ_Check(obj)) {
-        MPQ_Object *result;
-
-        if ((result = GMPy_MPQ_New(context))) {
-            mpq_set(result->q, MPQ(obj));
-        }
-        return result;
-    }
-
-    if (MPZ_Check(obj))
-        return GMPy_MPQ_From_MPZ((MPZ_Object*)obj, context);
-
-    if (MPFR_Check(obj))
-        return GMPy_MPQ_From_MPFR((MPFR_Object*)obj, context);
-
-    if (PyFloat_Check(obj))
-        return GMPy_MPQ_From_PyFloat(obj, context);
-
-    if (PyIntOrLong_Check(obj))
-        return GMPy_MPQ_From_PyIntOrLong(obj, context);
-
-    if (XMPZ_Check(obj))
-        return GMPy_MPQ_From_XMPZ((XMPZ_Object*)obj, context);
-
-    if (IS_DECIMAL(obj))
-        return GMPy_MPQ_From_Decimal(obj, context);
-
-    if (IS_FRACTION(obj))
-        return GMPy_MPQ_From_Fraction(obj, context);
-
-    TYPE_ERROR("cannot convert object to mpq");
-    return NULL;
-}
-
-static MPQ_Object*
-GMPy_MPQ_From_Rational_Temp(PyObject *obj, CTXT_Object *context)
+GMPy_MPQ_From_Rational(PyObject *obj, CTXT_Object *context)
 {
     if (MPQ_Check(obj)) {
         Py_INCREF(obj);
@@ -1536,7 +1403,7 @@ GMPy_MPQ_From_Rational_Temp(PyObject *obj, CTXT_Object *context)
 int
 GMPy_MPQ_convert_arg(PyObject *arg, PyObject **ptr)
 {
-    MPQ_Object* result = GMPy_MPQ_From_Number_Temp(arg, NULL);
+    MPQ_Object* result = GMPy_MPQ_From_Number(arg, NULL);
 
     if (result) {
         *ptr = (PyObject*)result;

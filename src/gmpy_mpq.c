@@ -81,7 +81,7 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
     /* Handle 1 argument. It can be non-complex number. */
     if (argc == 1) {
         if (IS_REAL(n)) {
-            return (PyObject*)GMPy_MPQ_From_Number_Temp(n, context);
+            return (PyObject*)GMPy_MPQ_From_Number(n, context);
         }
         else {
             goto type_error;
@@ -95,11 +95,11 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
         goto type_error;
     }
 
-    if (!(result = GMPy_MPQ_From_Number_New(n, context))) {
+    if (!(result = GMPy_MPQ_From_Number(n, context))) {
         goto type_error;
     }
 
-    if (!(temp = GMPy_MPQ_From_Number_Temp(m, context))) {
+    if (!(temp = GMPy_MPQ_From_Number(m, context))) {
         Py_DECREF((PyObject*)result);
         goto type_error;
     }
@@ -157,7 +157,7 @@ Pympq_sign(PyObject *self, PyObject *other)
         res = mpq_sgn(MPQ(other));
     }
     else {
-        if (!(tempx = GMPy_MPQ_From_Number_Temp(other, context))) {
+        if (!(tempx = GMPy_MPQ_From_Number(other, context))) {
             TYPE_ERROR("sign() requires 'mpq' argument");
             return NULL;
         }
@@ -267,7 +267,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
         if (!IS_RATIONAL(y)) {
             goto arg_error;
         }
-        tempy = GMPy_MPQ_From_Rational_Temp(y, context);
+        tempy = GMPy_MPQ_From_Rational(y, context);
         if (!tempy) {
             return NULL;
         }
@@ -282,10 +282,10 @@ Pympq_qdiv(PyObject *self, PyObject *args)
 
     if (isOne) {
         if (IS_INTEGER(x))
-            return (PyObject*)GMPy_MPZ_From_Integer_Temp(x, context);
+            return (PyObject*)GMPy_MPZ_From_Integer(x, context);
 
         if (IS_RATIONAL(x)) {
-            tempx = GMPy_MPQ_From_Rational_Temp(x, context);
+            tempx = GMPy_MPQ_From_Rational(x, context);
             if (!tempx)
                 return NULL;
             if (mpz_cmp_ui(mpq_denref(tempx->q), 1) == 0) {
@@ -308,7 +308,7 @@ Pympq_qdiv(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(tempx = GMPy_MPQ_From_Number_New(x, context))) {
+    if (!(tempx = GMPy_MPQ_From_Number(x, context))) {
         Py_DECREF((PyObject*)tempy);
         return NULL;
     }
@@ -503,7 +503,7 @@ Pympq_square(PyObject *self, PyObject *other)
         mpq_mul(result->q, MPQ(other), MPQ(other));
     }
     else {
-        if (!(tempx = GMPy_MPQ_From_Rational_Temp(other, context))) {
+        if (!(tempx = GMPy_MPQ_From_Rational(other, context))) {
             TYPE_ERROR("square() requires 'mpq' argument");
             Py_DECREF((PyObject*)result);
             return NULL;

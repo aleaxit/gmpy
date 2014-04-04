@@ -131,8 +131,8 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
-        tempx = GMPy_MPZ_From_Integer_Temp(x, context);
-        tempy = GMPy_MPZ_From_Integer_Temp(y, context);
+        tempx = GMPy_MPZ_From_Integer(x, context);
+        tempy = GMPy_MPZ_From_Integer(y, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("could not convert Integer to mpz");
             Py_XDECREF((PyObject*)tempx);
@@ -201,8 +201,8 @@ GMPy_Rational_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
-        tempx = GMPy_MPQ_From_Number_Temp(x, context);
-        tempy = GMPy_MPQ_From_Number_Temp(y, context);
+        tempx = GMPy_MPQ_From_Number(x, context);
+        tempy = GMPy_MPQ_From_Number(y, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("could not convert Rational to mpq");
             goto error;

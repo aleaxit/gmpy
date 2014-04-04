@@ -40,10 +40,8 @@ static MPZ_Object *    GMPy_MPZ_From_PyIntOrLong(PyObject *obj, CTXT_Object *con
 static MPZ_Object *    GMPy_MPZ_From_PyStr(PyObject *s, int base, CTXT_Object *context);
 static MPZ_Object *    GMPy_MPZ_From_PyFloat(PyObject *obj, CTXT_Object *context);
 
-static MPZ_Object *    GMPy_MPZ_From_Number_New(PyObject *obj, CTXT_Object *context);
-static MPZ_Object *    GMPy_MPZ_From_Number_Temp(PyObject *obj, CTXT_Object *context);
-static MPZ_Object *    GMPy_MPZ_From_Integer_New(PyObject *obj, CTXT_Object *context);
-static MPZ_Object *    GMPy_MPZ_From_Integer_Temp(PyObject *obj, CTXT_Object *context);
+static MPZ_Object *    GMPy_MPZ_From_Number(PyObject *obj, CTXT_Object *context);
+static MPZ_Object *    GMPy_MPZ_From_Integer(PyObject *obj, CTXT_Object *context);
 
 static PyObject *      GMPy_MPZ_Str_Slot(MPZ_Object *self);
 static PyObject *      GMPy_MPZ_Repr_Slot(MPZ_Object *self);
@@ -123,9 +121,8 @@ static MPQ_Object *    GMPy_MPQ_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context
 static MPQ_Object *    GMPy_MPQ_From_DecimalRaw(PyObject* obj, CTXT_Object *context);
 static MPQ_Object *    GMPy_MPQ_From_Decimal(PyObject* obj, CTXT_Object *context);
 
-static MPQ_Object *    GMPy_MPQ_From_Rational_Temp(PyObject* obj, CTXT_Object *context);
-static MPQ_Object *    GMPy_MPQ_From_Number_Temp(PyObject* obj, CTXT_Object *context);
-static MPQ_Object *    GMPy_MPQ_From_Number_New(PyObject* obj, CTXT_Object *context);
+static MPQ_Object *    GMPy_MPQ_From_Rational(PyObject* obj, CTXT_Object *context);
+static MPQ_Object *    GMPy_MPQ_From_Number(PyObject* obj, CTXT_Object *context);
 
 static PyObject *      GMPy_PyLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context);
 static PyObject *      GMPy_PyIntOrLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context);
