@@ -89,10 +89,10 @@ extern "C" {
  */
 
 #define PARSE_ONE_MPFR_OTHER(msg) \
-    if (self && MPFR_CheckAndExp(self)) { \
+    if (self && MPFR_Check(self)) { \
         Py_INCREF(self); \
     } \
-    else if (MPFR_CheckAndExp(other)) { \
+    else if (MPFR_Check(other)) { \
         self = other; \
         Py_INCREF((PyObject*)self); \
     } \
@@ -258,7 +258,7 @@ extern "C" {
  */
 
 #define PARSE_ONE_MPFR_OPT_CLONG(var, msg) \
-    if (self && MPFR_CheckAndExp(self)) { \
+    if (self && MPFR_Check(self)) { \
         if (PyTuple_GET_SIZE(args) == 1) { \
             *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
             if (*var == -1 && PyErr_Occurred()) { \
@@ -280,7 +280,7 @@ extern "C" {
                 return NULL; \
             } \
             self = PyTuple_GET_ITEM(args, 0); \
-            if (MPFR_CheckAndExp(self)) { \
+            if (MPFR_Check(self)) { \
                 Py_INCREF((PyObject*)self); \
             } \
             else { \
@@ -289,7 +289,7 @@ extern "C" {
         } \
         else if (PyTuple_GET_SIZE(args) == 1) { \
             self = PyTuple_GET_ITEM(args, 0); \
-            if(MPFR_CheckAndExp(self)) { \
+            if(MPFR_Check(self)) { \
                 Py_INCREF((PyObject*)self); \
             } \
             else { \
@@ -406,7 +406,7 @@ extern "C" {
  */
 
 #define PARSE_ONE_MPFR_REQ_CLONG(var, msg) \
-    if (self && MPFR_CheckAndExp(self)) { \
+    if (self && MPFR_Check(self)) { \
         if (PyTuple_GET_SIZE(args) != 1) { \
             PyErr_SetString(PyExc_TypeError, msg); \
             return NULL; \
@@ -432,7 +432,7 @@ extern "C" {
                 return NULL; \
             } \
             self = PyTuple_GET_ITEM(args, 0); \
-            if (MPFR_CheckAndExp(self)) { \
+            if (MPFR_Check(self)) { \
                 Py_INCREF((PyObject*)self); \
             } \
             else { \

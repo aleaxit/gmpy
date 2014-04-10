@@ -59,7 +59,7 @@ GMPy_Integer_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     mpir_si temp_si;
     int overflow;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (!(result = GMPy_MPZ_New(context)))
         return NULL;
@@ -173,7 +173,7 @@ GMPy_Rational_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     MPZ_Object *result;
     MPQ_Object *tempq;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     result = GMPy_MPZ_New(context);
     tempq = GMPy_MPQ_New(context);
@@ -252,7 +252,7 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *result;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
@@ -260,7 +260,7 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     /* This only processes mpfr if the exponent is still in-bounds. Need
      * to handle the rare case at the end. */
 
-    if (MPFR_CheckAndExp(x) && MPFR_CheckAndExp(y)) {
+    if (MPFR_Check(x) && MPFR_Check(y)) {
         mpfr_clear_flags();
         result->rc = mpfr_div(result->f, MPFR(x), MPFR(y),
                               GET_MPFR_ROUND(context));
@@ -268,7 +268,7 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         goto done;
     }
 
-    if (MPFR_CheckAndExp(x)) {
+    if (MPFR_Check(x)) {
         if (PyIntOrLong_Check(y)) {
             mpz_t tempz;
             mpir_si temp_si;
@@ -326,7 +326,7 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         }
     }
 
-    if (MPFR_CheckAndExp(y)) {
+    if (MPFR_Check(y)) {
         if (PyIntOrLong_Check(x)) {
             mpir_si temp_si;
             int overflow;
@@ -417,8 +417,6 @@ PyDoc_STRVAR(GMPy_doc_floordiv,
 static PyObject *
 GMPy_Number_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    LOAD_CONTEXT_SET_EXPONENT(context);
-
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_FloorDiv(x, y, context);
 
@@ -443,36 +441,29 @@ static PyObject *
 GMPy_Context_FloorDiv(PyObject *self, PyObject *args)
 {
     PyObject *result;
-    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("floor_div() requires 2 arguments");
         return NULL;
     }
 
-    if (self && CTXT_Check(self)) {
-        /* If we are passed a read-only context, make a copy of it before
-         * proceeding. Remember to decref context when we're done. */
+    /* If we are passed a read-only context, make a copy of it before
+     * proceeding. Remember to decref context when we're done. */
 
-        if (((CTXT_Object*)self)->ctx.readonly) {
-            context = (CTXT_Object*)GMPy_CTXT_Copy(self, NULL);
-            if (!context)
-                return NULL;
-        }
-        else {
-            context = (CTXT_Object*)self;
-            Py_INCREF((PyObject*)context);
-        }
+    if (((CTXT_Object*)self)->ctx.readonly) {
+        self = GMPy_CTXT_Copy(self, NULL);
+        if (!self)
+            return NULL;
     }
     else {
-        CHECK_CONTEXT_SET_EXPONENT(context);
-        Py_INCREF((PyObject*)context);
+        Py_INCREF(self);
     }
+
 
     result = GMPy_Number_FloorDiv(PyTuple_GET_ITEM(args, 0),
                                   PyTuple_GET_ITEM(args, 1),
-                                  context);
-    Py_DECREF((PyObject*)context);
+                                  (CTXT_Object*)self);
+    Py_DECREF(self);
     return result;
 }
 

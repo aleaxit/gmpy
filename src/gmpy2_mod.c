@@ -58,7 +58,7 @@ GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
     mpir_si temp_si;
     int overflow;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (!(result = GMPy_MPZ_New(context)))
         return NULL;
@@ -162,7 +162,7 @@ GMPy_Rational_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
     mpz_t tempz;
     MPQ_Object *tempx, *tempy, *result;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (!(result = GMPy_MPQ_New(context)))
         return NULL;
@@ -217,17 +217,12 @@ GMPy_MPQ_Mod_Slot(PyObject *x, PyObject *y)
     Py_RETURN_NOTIMPLEMENTED;
 }
 
-/* Compute the quotient and remainder of two mpfr numbers. Match Python's
- * behavior for handling signs and special values. Returns Py_NotImplemented
- * if both objects are not valid reals.
- */
-
 static PyObject *
 GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *tempx = NULL, *tempy = NULL, *temp, *result;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     result = GMPy_MPFR_New(0, context);
     temp = GMPy_MPFR_New(0, context);
@@ -290,7 +285,8 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 
             Py_DECREF((PyObject*)temp);
         }
-        SUBNORMALIZE(result);
+        GMPY_MPFR_CHECK_RANGE(result, context);
+        GMPY_MPFR_SUBNORMALIZE(result, context);
 
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
@@ -343,8 +339,6 @@ PyDoc_STRVAR(GMPy_doc_mod,
 static PyObject *
 GMPy_Number_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    LOAD_CONTEXT_SET_EXPONENT(context);
-
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Mod(x, y, context);
 
@@ -371,36 +365,30 @@ static PyObject *
 GMPy_Context_Mod(PyObject *self, PyObject *args)
 {
     PyObject *result;
-    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("mod() requires 2 arguments");
         return NULL;
     }
 
-    if (self && CTXT_Check(self)) {
-        /* If we are passed a read-only context, make a copy of it before
-         * proceeding. Remember to decref context when we're done. */
+    /* If we are passed a read-only context, make a copy of it before
+     * proceeding. Remember to decref context when we're done. */
 
-        if (((CTXT_Object*)self)->ctx.readonly) {
-            context = (CTXT_Object*)GMPy_CTXT_Copy(self, NULL);
-            if (!context)
-                return NULL;
-        }
-        else {
-            context = (CTXT_Object*)self;
-            Py_INCREF((PyObject*)context);
-        }
+    if (((CTXT_Object*)self)->ctx.readonly) {
+        self = GMPy_CTXT_Copy(self, NULL);
+        if (!self)
+            return NULL;
     }
     else {
-        CHECK_CONTEXT_SET_EXPONENT(context);
-        Py_INCREF((PyObject*)context);
+        Py_INCREF(self);
     }
+
 
     result = GMPy_Number_Mod(PyTuple_GET_ITEM(args, 0),
                              PyTuple_GET_ITEM(args, 1),
-                             context);
-    Py_DECREF((PyObject*)context);
+                             (CTXT_Object*)self);
+
+    Py_DECREF(self);
     return result;
 }
 

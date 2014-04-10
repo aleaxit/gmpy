@@ -215,7 +215,7 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *result;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
@@ -223,14 +223,14 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     /* This only processes mpfr if the exponent is still in-bounds. Need
      * to handle the rare case at the end. */
 
-    if (MPFR_CheckAndExp(x) && MPFR_CheckAndExp(y)) {
+    if (MPFR_Check(x) && MPFR_Check(y)) {
         mpfr_clear_flags();
         result->rc = mpfr_mul(result->f, MPFR(x), MPFR(y),
                               GET_MPFR_ROUND(context));
         goto done;
     }
 
-    if (MPFR_CheckAndExp(x)) {
+    if (MPFR_Check(x)) {
         if (PyIntOrLong_Check(y)) {
             mpz_t tempz;
             mpir_si temp_si;
@@ -283,7 +283,7 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         }
     }
 
-    if (MPFR_CheckAndExp(y)) {
+    if (MPFR_Check(y)) {
         if (PyIntOrLong_Check(x)) {
             mpz_t tempz;
             mpir_si temp_si;
@@ -363,7 +363,7 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     Py_RETURN_NOTIMPLEMENTED;
 
   done:
-    MPFR_CLEANUP_2(result, context, "multiplication");
+    GMPY_MPFR_CLEANUP(result, context, "multiplication");
     return (PyObject*)result;
 }
 
@@ -393,12 +393,12 @@ GMPy_Complex_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPC_Object *result = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (!(result = GMPy_MPC_New(0, 0, context)))
         return NULL;
 
-    if (MPC_CheckAndExp(x) && MPC_CheckAndExp(y)) {
+    if (MPC_Check(x) && MPC_Check(y)) {
         result->rc = mpc_mul(result->c, MPC(x), MPC(y),
                              GET_MPC_ROUND(context));
         goto done;
@@ -447,8 +447,6 @@ PyDoc_STRVAR(GMPy_doc_mul,
 static PyObject *
 GMPy_Number_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    LOAD_CONTEXT_SET_EXPONENT(context);
-
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Mul(x, y, context);
 
@@ -475,36 +473,26 @@ static PyObject *
 GMPy_Context_Mul(PyObject *self, PyObject *args)
 {
     PyObject *result;
-    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("mul() requires 2 arguments");
         return NULL;
     }
 
-    if (self && CTXT_Check(self)) {
-        /* If we are passed a read-only context, make a copy of it before
-         * proceeding. Remember to decref context when we're done. */
-
-        if (((CTXT_Object*)self)->ctx.readonly) {
-            context = (CTXT_Object*)GMPy_CTXT_Copy(self, NULL);
-            if (!context)
-                return NULL;
-        }
-        else {
-            context = (CTXT_Object*)self;
-            Py_INCREF((PyObject*)context);
-        }
+    if (((CTXT_Object*)self)->ctx.readonly) {
+        self = GMPy_CTXT_Copy(self, NULL);
+        if (!self)
+            return NULL;
     }
     else {
-        CHECK_CONTEXT_SET_EXPONENT(context);
-        Py_INCREF((PyObject*)context);
+        Py_INCREF(self);
     }
 
     result = GMPy_Number_Mul(PyTuple_GET_ITEM(args, 0),
                              PyTuple_GET_ITEM(args, 1),
-                             context);
-    Py_DECREF((PyObject*)context);
+                             (CTXT_Object*)self);
+
+    Py_DECREF(self);
     return result;
 }
 
