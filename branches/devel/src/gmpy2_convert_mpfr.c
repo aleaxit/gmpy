@@ -35,13 +35,16 @@
  *
  * gmpy2 supports two different strategies for creating new references to
  * an mpfr instance. If bits (or prec) is set to 0, the precison of the
- * result exactly matches the precision of the context. This is the default
- * behavior of the mpfr() function. If bits (or prec) is set to 1, the
- * precision of the result depends on the type of the source.
+ * result exactly matches the precision of the context. The exponent range
+ * is also limited to the exponents defined in the contest. This is the
+ * default behavior of the mpfr() function.
+ *
+ * If bits (or prec) is set to 1, the precision of the result depends on the
+ * type of the source.
  *
  *   1) if the source number is already a radix-2 floating point number,
  *      the precision is not changed. In practical terms, this only applies
- *      to sources operands that either an mpfr or Python double.
+ *      to sources operands that are either an mpfr or Python double.
  *
  *   2) otherwise, the source is converted to an mpfr using a precision of
  *      (context.precison + context.guard_bits). guard_bits is
@@ -49,8 +52,8 @@
  *      precision for creating temporary mpfr instances that are used
  *      are arguments for MPFR functions.
  *
- * Even though the precision of an mpfr or PyDouble can remain unchanged,
- * the exponent of the result is always guaranteed to be valid.
+ * In addition, the exponent range is taken from the global emin/emax values
+ * set in the MPFR library.
  *
  * Support for the Decimal type is a challenge. For the basic operations, it
  * is most accurate to convert a Decimal instance into an mpq and then use
@@ -61,33 +64,28 @@
  */
 
 /* If prec == 0:
- *   Return an additional reference to an existing mpfr if the exponent is
- *   valid in the current context and the precision of the existing mpfr
- *   equals the current context precision.
+ *   Return an reference to a new mpfr instance. The context argument
+ *   specifies the precision, exponent range, whether or not subnormals are
+ *   allowed.
  *
- *   If the exponent is not valid or if the precision does not equal the
- *   current context precision, then a reference to a new, valid instance is
- *   returned. The precision of the current context will be used.
+ *   This is the default behavior of the mpfr() constructor.
  *
  * If prec == 1:
- *   Return an additional reference to an existing mpfr if the exponent is
- *   valid in the current context. The precision is not changed.
+ *   Return an additional reference to an existing mpfr. The precision is not
+ *   changed. The exponent is not checked and may be outside the bounds
+ *   specified in the context argument.
  *
- *   If the exponent is not valid, then a reference to a new, valid instance
- *   is returned. The precision is not changed.
+ *   This is used internally for parsing arguments to functions.
  *
  * If prec >= 2:
- *   Return a reference to a valid instance with the specified precision.
+ *   Return a reference to a new mpfr instance. The precision is taken from
+ *   the argument. n instance with the specified precision and the
+ *   exponent is valid in the current context.
  *
- * All mpfr arguments to functions in the MPFR library should go through this
- * function to guarantee that the exponent is valid. prec=1 should be used for
- * validating all arguments. To maintain maximum accuracy, the precision is
- * not changed. References returned when prec=1 should not be returned to the
- * user (although they must still be decremented like normal references).
+ *   This is used by mpfr() with an optional precision keyword.
  *
- * prec=0 should be used for creating references that may be returned to the
- * user. Note: do not mutate the returned reference; they are not guaranteed
- * to be new objects.
+ * Since references to existing objects may be returned, the result should not
+ * modified in-place.
  */
 
 static MPFR_Object *
@@ -97,44 +95,40 @@ GMPy_MPFR_From_MPFR(MPFR_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
 
     assert(MPFR_Check(obj));
 
+    /* Optimize the critical case when prec==1 or obj is NaN or Inf. */
+
+    if (prec == 1 || !mpfr_number_p(obj->f)) {
+        Py_INCREF((PyObject*)obj);
+        return obj;
+    }
+
     CHECK_CONTEXT(context);
-    SET_EXPONENT(context);
 
     if (prec == 0)
         prec = GET_MPFR_PREC(context);
-    else if (prec == 1)
-        prec = mpfr_get_prec(obj->f);
 
-    if (MPFR_CheckAndExp(obj) && !mpfr_nan_p(MPFR(obj))) {
-        if (prec == mpfr_get_prec(obj->f)) {
-            Py_INCREF((PyObject*)obj);
-            return obj;
-        }
-        else {
-            if ((result = GMPy_MPFR_New(prec, context))) {
-                mpfr_clear_flags();
-                result->rc = mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
-                MPFR_CLEANUP_2(result, context, "mpfr()");
-            }
-            return result;
-        }
+    /* Try to identify when an additional reference to existing instance can
+     * be returned. It is possible when (1) the precision matches, (2) the
+     * exponent is valid and not in the range that might require subnormal-
+     * ization, and (3) subnormalize is not enabled.
+     */
+
+    if (prec == mpfr_get_prec(obj->f) &&
+        !context->ctx.subnormalize &&
+        obj->f->_mpfr_exp >= (context->ctx.emin + mpfr_get_prec(obj->f) - 1) &&
+        obj->f->_mpfr_exp <= context->ctx.emax
+        ) {
+
+        Py_INCREF((PyObject*)obj);
+        return obj;
     }
 
-    if (context->ctx.traps & TRAP_EXPBOUND) {
-        GMPY_EXPBOUND("exponent of existing mpfr incompatible with current context");
-        return NULL;
-    }
 
-    if ((result = GMPy_MPFR_New(mpfr_get_prec(obj->f), context))) {
-        /* First make the exponent valid. */
-        mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
+    if ((result = GMPy_MPFR_New(prec, context))) {
         mpfr_clear_flags();
-        result->rc = mpfr_check_range(result->f, obj->rc, obj->round_mode);
-        /* Then round to the desired precision. */
-        result->rc = mpfr_prec_round(result->f, prec, GET_MPFR_ROUND(context));
-        MPFR_CLEANUP_2(result, context, "mpfr()");
+        result->rc = mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
+        GMPY_MPFR_CLEANUP(result, context, "mpfr()");
     }
-
     return result;
 }
 
@@ -154,7 +148,7 @@ GMPy_MPFR_From_PyIntOrLong(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context
 
     assert(PyIntOrLong_Check(obj));
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (prec == 0 || prec == 1)
         prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
@@ -180,7 +174,7 @@ GMPy_MPFR_From_PyFloat(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
 
     assert(PyFloat_Check(obj));
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (prec == 0)
         prec = GET_MPFR_PREC(context);
@@ -189,11 +183,13 @@ GMPy_MPFR_From_PyFloat(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
 
     if ((result = GMPy_MPFR_New(prec, context))) {
         mpfr_clear_flags();
-        result->rc = mpfr_set_d(result->f, PyFloat_AS_DOUBLE(obj),
-                                GET_MPFR_ROUND(context));
-        MPFR_CLEANUP_2(result, context, "mpfr()");
+        result->rc = mpfr_set_d(result->f, PyFloat_AS_DOUBLE(obj), GET_MPFR_ROUND(context));
+        if (prec != 1) {
+            GMPY_MPFR_CHECK_RANGE(result, context);
+        }
+        GMPY_MPFR_SUBNORMALIZE(result, context);
+        GMPY_MPFR_EXCEPTIONS(result, context, "mpfr()");
     }
-
     return result;
 }
 
@@ -212,7 +208,7 @@ GMPy_MPFR_From_MPZ(MPZ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
 
     assert(MPZ_Check(obj));
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (prec == 0 || prec == 1)
         prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
@@ -220,7 +216,11 @@ GMPy_MPFR_From_MPZ(MPZ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
     if ((result = GMPy_MPFR_New(prec, context))) {
         mpfr_clear_flags();
         result->rc = mpfr_set_z(result->f, obj->z, GET_MPFR_ROUND(context));
-        MPFR_CLEANUP_2(result, context, "mpfr()");
+        if (prec != 1) {
+            GMPY_MPFR_CHECK_RANGE(result, context);
+        }
+        GMPY_MPFR_SUBNORMALIZE(result, context);
+        GMPY_MPFR_EXCEPTIONS(result, context, "mpfr()");
     }
 
     return result;
@@ -241,7 +241,7 @@ GMPy_MPFR_From_MPQ(MPQ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
 
     assert(MPQ_Check(obj));
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (prec == 0 || prec == 1)
         prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
@@ -249,7 +249,11 @@ GMPy_MPFR_From_MPQ(MPQ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
     if ((result = GMPy_MPFR_New(prec, context))) {
         mpfr_clear_flags();
         result->rc = mpfr_set_q(result->f, obj->q, GET_MPFR_ROUND(context));
-        MPFR_CLEANUP_2(result, context, "mpfr()");
+        if (prec != 1) {
+            GMPY_MPFR_CHECK_RANGE(result, context);
+        }
+        GMPY_MPFR_SUBNORMALIZE(result, context);
+        GMPY_MPFR_EXCEPTIONS(result, context, "mpfr()");
     }
 
     return result;
@@ -271,7 +275,7 @@ GMPy_MPFR_From_Fraction(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
 
     assert(IS_RATIONAL(obj));
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (prec == 0 || prec == 1)
         prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
@@ -300,7 +304,7 @@ GMPy_MPFR_From_Decimal(PyObject* obj, mpfr_prec_t prec, CTXT_Object *context)
 
     assert(IS_DECIMAL(obj));
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (prec == 0 || prec == 1)
         prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
@@ -354,7 +358,7 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
     Py_ssize_t len;
     PyObject *ascii_str = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (prec == 0 || prec == 1)
         prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
@@ -387,13 +391,17 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
     result->rc = mpfr_strtofr(result->f, cp, &endptr, base, GET_MPFR_ROUND(context));
     Py_XDECREF(ascii_str);
 
-    MPFR_CLEANUP_2(result, context, "mpfr()");
-
     if (len != (Py_ssize_t)(endptr - cp)) {
         VALUE_ERROR("invalid digits");
         Py_DECREF((PyObject*)result);
         return NULL;
     }
+
+    if (prec != 1) {
+        GMPY_MPFR_CHECK_RANGE(result, context);
+    }
+    GMPY_MPFR_SUBNORMALIZE(result, context);
+    GMPY_MPFR_EXCEPTIONS(result, context, "mpfr()");
 
     return result;
 }
@@ -449,7 +457,7 @@ GMPy_MPZ_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
 
     assert(MPFR_Check(obj));
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if ((result = GMPy_MPZ_New(context))) {
         if (mpfr_nan_p(MPFR(obj))) {
@@ -474,7 +482,7 @@ GMPy_XMPZ_From_MPFR(MPFR_Object *self, CTXT_Object *context)
 {
     XMPZ_Object *result;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if ((result = GMPy_XMPZ_New(context))) {
         if (mpfr_nan_p(MPFR(self))) {
@@ -508,7 +516,7 @@ stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz, CT
     int i, negative, errsign;
     mpfr_t f, al, a, r1[3], r2[3], minerr, curerr, newerr, temp;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
 #define F2Q_PREC 20
 
@@ -527,7 +535,7 @@ stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz, CT
 
     errsign = err ? mpfr_sgn(err->f) : 0;
     if (errsign < 0)
-        prec = (mpfr_prec_t)(-mpfr_get_si(err->f, GET_MPFR_ROUND(context)));
+        prec = (mpfr_prec_t)(-mpfr_get_si(err->f, MPFR_RNDN));
 
     if (errsign <= 0 && (prec < 2 || prec > mpfr_get_prec(self->f))) {
         VALUE_ERROR("Requested precision out-of-bounds.");
@@ -540,24 +548,24 @@ stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz, CT
     mpfr_init2(minerr, F2Q_PREC);
     if (errsign <= 0) {
         mpfr_set_ui(minerr, 1, MPFR_RNDN);
-        mpfr_div_2si(minerr, minerr, prec, GET_MPFR_ROUND(context));
+        mpfr_div_2si(minerr, minerr, prec, MPFR_RNDN);
     }
     else {
-        mpfr_set(minerr, err->f, GET_MPFR_ROUND(context));
+        mpfr_set(minerr, err->f, MPFR_RNDN);
     }
 
     mpfr_init2(f, prec);
     if (mpfr_sgn(self->f) < 0) {
         negative = 1;
-        mpfr_abs(f, self->f, GET_MPFR_ROUND(context));
+        mpfr_abs(f, self->f, MPFR_RNDN);
     }
     else {
         negative = 0;
-        mpfr_set(f, self->f, GET_MPFR_ROUND(context));
+        mpfr_set(f, self->f, MPFR_RNDN);
     }
 
     mpfr_init2(al, prec);
-    mpfr_set(al, f, GET_MPFR_ROUND(context));
+    mpfr_set(al, f, MPFR_RNDN);
     mpfr_init2(a, prec);
     mpfr_floor(a, al);
     mpfr_init2(temp, prec);
@@ -570,24 +578,24 @@ stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz, CT
     mpfr_set_si(r1[2], 1, MPFR_RNDN);
     mpfr_set_si(r2[0], 0, MPFR_RNDN);
     mpfr_set_si(r2[1], 1, MPFR_RNDN);
-    mpfr_set(r2[2], a, GET_MPFR_ROUND(context));
+    mpfr_set(r2[2], a, MPFR_RNDN);
     mpfr_init2(curerr, F2Q_PREC);
     mpfr_init2(newerr, F2Q_PREC);
-    mpfr_reldiff(curerr, f, a, GET_MPFR_ROUND(context));
+    mpfr_reldiff(curerr, f, a, MPFR_RNDN);
     while (mpfr_cmp(curerr, minerr) > 0) {
-        mpfr_sub(temp, al, a, GET_MPFR_ROUND(context));
-        mpfr_ui_div(al, 1, temp, GET_MPFR_ROUND(context));
+        mpfr_sub(temp, al, a, MPFR_RNDN);
+        mpfr_ui_div(al, 1, temp, MPFR_RNDN);
         mpfr_floor(a, al);
         mpfr_swap(r1[0], r1[1]);
         mpfr_swap(r1[1], r1[2]);
-        mpfr_mul(r1[2], r1[1], a, GET_MPFR_ROUND(context));
-        mpfr_add(r1[2], r1[2], r1[0], GET_MPFR_ROUND(context));
+        mpfr_mul(r1[2], r1[1], a, MPFR_RNDN);
+        mpfr_add(r1[2], r1[2], r1[0], MPFR_RNDN);
         mpfr_swap(r2[0], r2[1]);
         mpfr_swap(r2[1], r2[2]);
-        mpfr_mul(r2[2], r2[1], a, GET_MPFR_ROUND(context));
-        mpfr_add(r2[2], r2[2], r2[0], GET_MPFR_ROUND(context));
-        mpfr_div(temp, r2[2], r1[2], GET_MPFR_ROUND(context));
-        mpfr_reldiff(newerr, f, temp, GET_MPFR_ROUND(context));
+        mpfr_mul(r2[2], r2[1], a, MPFR_RNDN);
+        mpfr_add(r2[2], r2[2], r2[0], MPFR_RNDN);
+        mpfr_div(temp, r2[2], r1[2], MPFR_RNDN);
+        mpfr_reldiff(newerr, f, temp, MPFR_RNDN);
         if (mpfr_cmp(curerr, newerr) <= 0) {
             mpfr_swap(r1[1],r1[2]);
             mpfr_swap(r2[1],r2[2]);
@@ -599,13 +607,13 @@ stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz, CT
     if (mayz && (mpfr_cmp_ui(r1[2],1) == 0)) {
         Py_DECREF((PyObject*)result);
         result = (MPQ_Object*)GMPy_MPZ_New(context);
-        mpfr_get_z(MPZ(result), r2[2], GET_MPFR_ROUND(context));
+        mpfr_get_z(MPZ(result), r2[2], MPFR_RNDN);
         if (negative)
             mpz_neg(MPZ(result), MPZ(result));
     }
     else {
-        mpfr_get_z(mpq_numref(result->q), r2[2], GET_MPFR_ROUND(context));
-        mpfr_get_z(mpq_denref(result->q), r1[2], GET_MPFR_ROUND(context));
+        mpfr_get_z(mpq_numref(result->q), r2[2], MPFR_RNDN);
+        mpfr_get_z(mpq_denref(result->q), r1[2], MPFR_RNDN);
         if (negative)
             mpz_neg(mpq_numref(result->q), mpq_numref(result->q));
     }
@@ -636,7 +644,7 @@ GMPy_PyIntOrLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
     PyObject *result;
     MPZ_Object *tempz;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (!(tempz = GMPy_MPZ_From_MPFR(obj, context)))
         return NULL;
@@ -658,7 +666,7 @@ GMPy_PyLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
     PyObject *result;
     MPZ_Object *tempz;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (!(tempz = GMPy_MPZ_From_MPFR(obj, context)))
         return NULL;
@@ -679,7 +687,7 @@ GMPy_PyFloat_From_MPFR(MPFR_Object *self, CTXT_Object *context)
 {
     double res;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     res = mpfr_get_d(self->f, GET_MPFR_ROUND(context));
 
@@ -698,12 +706,12 @@ GMPy_PyStr_From_MPFR(MPFR_Object *self, int base, int digits, CTXT_Object *conte
     char *buffer;
     mpfr_exp_t the_exp;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     /* check arguments are valid */
     assert(MPFR_Check((PyObject*)self));
     if (!((base >= 2) && (base <= 62))) {
-        VALUE_ERROR("base must be in the interval 2 ... 62");
+        VALUE_ERROR("base must be in the interval [2,62]");
         return NULL;
     }
     if ((digits < 0) || (digits == 1)) {

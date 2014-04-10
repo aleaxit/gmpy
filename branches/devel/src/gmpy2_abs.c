@@ -55,8 +55,6 @@ GMPy_Integer_Abs(PyObject *x, CTXT_Object *context)
 {
     MPZ_Object *result = NULL;
 
-    CHECK_CONTEXT(context);
-
     if (MPZ_Check(x)) {
         if (mpz_sgn(MPZ(x)) >= 0) {
             Py_INCREF(x);
@@ -94,8 +92,6 @@ static PyObject *
 GMPy_Rational_Abs(PyObject *x, CTXT_Object *context)
 {
     MPQ_Object *result = NULL;
-
-    CHECK_CONTEXT(context);
 
     if (MPQ_Check(x)) {
         if (mpz_sgn(mpq_numref(MPQ(x))) >= 0) {
@@ -139,17 +135,13 @@ GMPy_Real_Abs(PyObject *x, CTXT_Object *context)
 
     tempx = GMPy_MPFR_From_Real(x, 1, context);
     result = GMPy_MPFR_New(0, context);
-
     if (!tempx || !result)
         goto err;
 
-    SET_EXPONENT(context);
     mpfr_clear_flags();
-
     result->rc = mpfr_abs(result->f, tempx->f, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
-    MPFR_CLEANUP_2(result, context, "abs()");
-
+    GMPY_MPFR_CLEANUP(result, context, "abs()");
     return (PyObject*)result;
 
   err:
@@ -174,17 +166,13 @@ GMPy_Complex_Abs(PyObject *x, CTXT_Object *context)
 
     tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
     result = GMPy_MPFR_New(0, context);
-
     if (!tempx || !result)
         goto err;
 
-    SET_EXPONENT(context);
     mpfr_clear_flags();
-
     result->rc = mpc_abs(result->f, tempx->c, GET_MPC_ROUND(context));
     Py_DECREF((PyObject*)tempx);
-    MPFR_CLEANUP_2(result, context, "abs()");
-
+    GMPY_MPFR_CLEANUP(result, context, "abs()");
     return (PyObject*)result;
 
   err:
@@ -247,8 +235,7 @@ GMPy_Context_Abs(PyObject *self, PyObject *args)
         Py_INCREF(self);
     }
 
-    result = GMPy_Number_Abs(PyTuple_GET_ITEM(args, 0),
-                             (CTXT_Object*)self);
+    result = GMPy_Number_Abs(PyTuple_GET_ITEM(args, 0), (CTXT_Object*)self);
 
     Py_DECREF(self);
     return result;

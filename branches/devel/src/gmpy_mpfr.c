@@ -1183,7 +1183,7 @@ Py##NAME(MPFR_Object *x) \
     CHECK_CONTEXT_SET_EXPONENT(context); \
     if (!(r = GMPy_MPFR_New(0, context))) \
         return NULL; \
-    if (MPFR_CheckAndExp(x)) { \
+    if (MPFR_Check(x)) { \
         r->rc = NAME(r->f, x->f, context->ctx.mpfr_round); \
     } \
     else { \
@@ -1211,7 +1211,7 @@ Pympfr_Neg_Real(PyObject *x, CTXT_Object *context)
     if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
 
-    if (MPFR_CheckAndExp(x)) {
+    if (MPFR_Check(x)) {
         mpfr_clear_flags();
         result->rc = mpfr_neg(result->f, MPFR(x), GET_MPFR_ROUND(context));
         MERGE_FLAGS;

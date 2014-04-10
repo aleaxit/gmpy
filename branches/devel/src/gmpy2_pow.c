@@ -211,7 +211,7 @@ GMPy_Rational_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *con
         bsign = mpq_sgn(tempbq->q);
         if (esign < 0) {
             if (bsign == 0) {
-                ZERO_ERROR("mpq.pow() 0 base to negative exponent");
+                ZERO_ERROR("pow() 0 base to negative exponent");
                 Py_DECREF((PyObject*)resultq);
                 Py_DECREF((PyObject*)tempbq);
                 Py_DECREF((PyObject*)tempez);
@@ -256,7 +256,7 @@ GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context
         return NULL;
     }
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     result = GMPy_MPFR_New(0, context);
     tempb = GMPy_MPFR_From_Real(base, 1, context);
@@ -317,7 +317,7 @@ GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context
         return (PyObject*)mpc_result;
     }
 
-    MPFR_CLEANUP_2(result, context, "pow()");
+    GMPY_MPFR_CLEANUP(result, context, "pow()");
     Py_XDECREF((PyObject*)tempz);
     Py_XDECREF((PyObject*)tempe);
     Py_XDECREF((PyObject*)tempb);
@@ -343,7 +343,7 @@ GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *cont
         return NULL;
     }
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     result = GMPy_MPC_New(0, 0, context);
     tempb = GMPy_MPC_From_Complex(base, 1, 1, context);
@@ -439,8 +439,6 @@ GMPy_Integer_PowMod(PyObject *self, PyObject *args)
 static PyObject *
 GMPy_Number_Pow(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
-    LOAD_CONTEXT_SET_EXPONENT(context);
-
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Pow(x, y, z, context);
 
@@ -464,37 +462,30 @@ PyDoc_STRVAR(GMPy_doc_context_pow,
 static PyObject *
 GMPy_Context_Pow(PyObject *self, PyObject *args)
 {
-    Py_ssize_t argc;
     PyObject *result;
-    CTXT_Object *context;
 
-    argc = PyTuple_GET_SIZE(args);
-    if (self && CTXT_Check(self)) {
-        if (argc != 2) {
-            TYPE_ERROR("context.pow() requires 2 arguments.");
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("pow() requires 2 arguments.");
+        return NULL;
+    }
+    /* If we are passed a read-only context, make a copy of it before
+     * proceeding. Remember to decref context when we're done. */
+
+    if (((CTXT_Object*)self)->ctx.readonly) {
+        self = GMPy_CTXT_Copy(self, NULL);
+        if (!self)
             return NULL;
-        }
-        /* If we are passed a read-only context, make a copy of it before
-         * proceeding. */
-
-        if (((CTXT_Object*)self)->ctx.readonly)
-            context = (CTXT_Object*)GMPy_CTXT_Copy(self, NULL);
-        else
-            context = (CTXT_Object*)self;
     }
     else {
-        /* pow() is only supported as a context method so this branch should
-         * be impossible to reach.
-         */
-        SYSTEM_ERROR("pow() only supported as method of a context.");
-        return NULL;
+        Py_INCREF(self);
     }
 
     result = GMPy_Number_Pow(PyTuple_GET_ITEM(args, 0),
                              PyTuple_GET_ITEM(args, 1),
                              Py_None,
-                             context);
-    Py_DECREF((PyObject*)context);
+                             (CTXT_Object*)self);
+
+    Py_DECREF(self);
     return result;
 }
 

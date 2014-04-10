@@ -157,11 +157,39 @@ typedef struct {
  * versions.
  */
 
+#define GMPY_MPFR_CHECK_RANGE(V, CTX)  \
+    if (mpfr_regular_p(V->f) && \
+        (!((V->f->_mpfr_exp >= CTX->ctx.emin) && \
+           (V->f->_mpfr_exp <= CTX->ctx.emax)))) { \
+        mpfr_exp_t _oldemin, _oldemax; \
+        _oldemin = mpfr_get_emin(); \
+        _oldemax = mpfr_get_emax(); \
+        mpfr_set_emin(CTX->ctx.emin); \
+        mpfr_set_emax(CTX->ctx.emax); \
+        V->rc = mpfr_check_range(V->f, V->rc, GET_MPFR_ROUND(CTX)); \
+        mpfr_set_emin(_oldemin); \
+        mpfr_set_emax(_oldemax); \
+    }
+
+#define GMPY_MPFR_SUBNORMALIZE(V, CTX) \
+    if (CTX->ctx.subnormalize && \
+        V->f->_mpfr_exp >= CTX->ctx.emin && \
+        V->f->_mpfr_exp <= CTX->ctx.emin + mpfr_get_prec(V->f) - 2) { \
+        mpfr_exp_t _oldemin, _oldemax; \
+        _oldemin = mpfr_get_emin(); \
+        _oldemax = mpfr_get_emax(); \
+        mpfr_set_emin(CTX->ctx.emin); \
+        mpfr_set_emax(CTX->ctx.emax); \
+        V->rc = mpfr_subnormalize(V->f, V->rc, GET_MPFR_ROUND(CTX)); \
+        mpfr_set_emin(_oldemin); \
+        mpfr_set_emax(_oldemax); \
+    }
+
 #define SUBNORMALIZE_2(V, CTX) \
     if (CTX->ctx.subnormalize) \
         V->rc = mpfr_subnormalize(V->f, V->rc, GET_MPFR_ROUND(CTX));
 
-#define MERGE_FLAGS_2(CTX) \
+#define GMPY_MPFR_MERGE_FLAGS(CTX) \
     CTX->ctx.underflow |= mpfr_underflow_p(); \
     CTX->ctx.overflow |= mpfr_overflow_p(); \
     CTX->ctx.invalid |= mpfr_nanflag_p(); \
@@ -211,9 +239,75 @@ typedef struct {
     CHECK_OVERFLOW_2(CTX, NAME": overflow"); \
     CHECK_INEXACT_2(CTX, NAME": inexact result"); \
 
+#define GMPY_MPFR_EXCEPTIONS(V, CTX, NAME) \
+    CTX->ctx.underflow |= mpfr_underflow_p(); \
+    CTX->ctx.overflow |= mpfr_overflow_p(); \
+    CTX->ctx.invalid |= mpfr_nanflag_p(); \
+    CTX->ctx.inexact |= mpfr_inexflag_p(); \
+    CTX->ctx.divzero |= mpfr_divby0_p(); \
+    if (CTX->ctx.traps) { \
+        if ((CTX->ctx.traps & TRAP_INVALID) && mpfr_nanflag_p()) { \
+            GMPY_INVALID(NAME " invalid operation"); \
+            Py_DECREF((PyObject*)V); \
+            V = NULL; \
+        } \
+        else if ((CTX->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) { \
+            GMPY_DIVZERO(NAME " division or modulo by zero"); \
+            Py_DECREF((PyObject*)V); \
+            V = NULL; \
+        } \
+        else if ((CTX->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) { \
+            GMPY_UNDERFLOW(NAME " underflow"); \
+            Py_DECREF((PyObject*)V); \
+            V = NULL; \
+        } \
+        else if ((CTX->ctx.traps & TRAP_OVERFLOW) && mpfr_overflow_p()) { \
+            GMPY_OVERFLOW(NAME " overflow"); \
+            Py_DECREF((PyObject*)V); \
+            V = NULL; \
+        } \
+        else if ((CTX->ctx.traps & TRAP_INEXACT) && mpfr_inexflag_p()) { \
+            GMPY_INEXACT(NAME " inexact result"); \
+            Py_DECREF((PyObject*)V); \
+            V = NULL; \
+        } \
+    }
+
 #define MPFR_CLEANUP_2(V, CTX, NAME) \
-    SUBNORMALIZE_2(V, CTX); \
-    MERGE_FLAGS_2(CTX); \
+    GMPY_MPFR_CHECK_RANGE(V, CTX); \
+    GMPY_MPFR_SUBNORMALIZE(V, CTX); \
+    GMPY_MPFR_EXCEPTIONS(V, CTX, NAME);
+
+#define GMPY_MPFR_CLEANUP(V, CTX, NAME) \
+    if (mpfr_regular_p(V->f) && \
+        (!((V->f->_mpfr_exp >= CTX->ctx.emin) && \
+           (V->f->_mpfr_exp <= CTX->ctx.emax)))) { \
+        mpfr_exp_t _oldemin, _oldemax; \
+        _oldemin = mpfr_get_emin(); \
+        _oldemax = mpfr_get_emax(); \
+        mpfr_set_emin(CTX->ctx.emin); \
+        mpfr_set_emax(CTX->ctx.emax); \
+        V->rc = mpfr_check_range(V->f, V->rc, GET_MPFR_ROUND(CTX)); \
+        mpfr_set_emin(_oldemin); \
+        mpfr_set_emax(_oldemax); \
+    } \
+    if (CTX->ctx.subnormalize && \
+        V->f->_mpfr_exp >= CTX->ctx.emin && \
+        V->f->_mpfr_exp <= CTX->ctx.emin + mpfr_get_prec(V->f) - 2) { \
+        mpfr_exp_t _oldemin, _oldemax; \
+        _oldemin = mpfr_get_emin(); \
+        _oldemax = mpfr_get_emax(); \
+        mpfr_set_emin(CTX->ctx.emin); \
+        mpfr_set_emax(CTX->ctx.emax); \
+        V->rc = mpfr_subnormalize(V->f, V->rc, GET_MPFR_ROUND(CTX)); \
+        mpfr_set_emin(_oldemin); \
+        mpfr_set_emax(_oldemax); \
+    } \
+    CTX->ctx.underflow |= mpfr_underflow_p(); \
+    CTX->ctx.overflow |= mpfr_overflow_p(); \
+    CTX->ctx.invalid |= mpfr_nanflag_p(); \
+    CTX->ctx.inexact |= mpfr_inexflag_p(); \
+    CTX->ctx.divzero |= mpfr_divby0_p(); \
     if (CTX->ctx.traps) { \
         if ((CTX->ctx.traps & TRAP_INVALID) && mpfr_nanflag_p()) { \
             GMPY_INVALID(NAME " invalid operation"); \
@@ -353,7 +447,7 @@ static PyTypeObject MPFR_Type;
 #define MPFR(obj) (((MPFR_Object *)(obj))->f)
 #define MPFR_Check(v) (((PyObject*)v)->ob_type == &MPFR_Type)
 /* Verify that an object is an mpfr and the exponent is valid */
-#define MPFR_CheckAndExp(v) \
+#define MPFR_CheckAndExpXXX(v) \
     (MPFR_Check(v) && \
         (!mpfr_regular_p(MPFR(v)) || \
             ((MPFR(v)->_mpfr_exp >= context->ctx.emin) && \

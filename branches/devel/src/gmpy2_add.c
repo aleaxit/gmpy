@@ -236,7 +236,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *result;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
@@ -244,14 +244,13 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     /* This only processes mpfr if the exponent is still in-bounds. Need
      * to handle the rare case at the end. */
 
-    if (MPFR_CheckAndExp(x) && MPFR_CheckAndExp(y)) {
+    if (MPFR_Check(x) && MPFR_Check(y)) {
         mpfr_clear_flags();
-        result->rc = mpfr_add(result->f, MPFR(x), MPFR(y),
-                              GET_MPFR_ROUND(context));
+        result->rc = mpfr_add(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
         goto done;
     }
 
-    if (MPFR_CheckAndExp(x)) {
+    if (MPFR_Check(x)) {
         if (PyIntOrLong_Check(y)) {
             mpz_t tempz;
             mpir_si temp_si;
@@ -286,7 +285,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             MPQ_Object *tempy;
 
             if (!(tempy = GMPy_MPQ_From_Number(y, context))) {
-                Py_DECREF(result);
+                Py_DECREF((PyObject*)result);
                 return NULL;
             }
             mpfr_clear_flags();
@@ -304,7 +303,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         }
     }
 
-    if (MPFR_CheckAndExp(y)) {
+    if (MPFR_Check(y)) {
         if (PyIntOrLong_Check(x)) {
             mpz_t tempz;
             mpir_si temp_si;
@@ -339,7 +338,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             MPQ_Object *tempx;
 
             if (!(tempx = GMPy_MPQ_From_Number(x, context))) {
-                Py_DECREF(result);
+                Py_DECREF((PyObject*)result);
                 return NULL;
             }
             mpfr_clear_flags();
@@ -370,7 +369,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
-            Py_DECREF(result);
+            Py_DECREF((PyObject*)result);
             return NULL;
         }
         mpfr_clear_flags();
@@ -385,7 +384,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     Py_RETURN_NOTIMPLEMENTED;
 
   done:
-    MPFR_CLEANUP_2(result, context, "addition");
+    GMPY_MPFR_CLEANUP(result, context, "addition");
     return (PyObject*)result;
 }
 
@@ -415,7 +414,8 @@ static PyObject *
 GMPy_Complex_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPC_Object *result;
-    CHECK_CONTEXT_SET_EXPONENT(context);
+
+    CHECK_CONTEXT(context);
 
     if (!(result = GMPy_MPC_New(0, 0, context)))
         return NULL;
@@ -465,8 +465,6 @@ GMPy_MPC_Add_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Number_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    LOAD_CONTEXT_SET_EXPONENT(context);
-
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Add(x, y, context);
 

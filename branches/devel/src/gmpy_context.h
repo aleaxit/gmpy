@@ -98,20 +98,20 @@ static PyTypeObject CTXT_Manager_Type;
 #define CHECK_CONTEXT_SET_EXPONENT(context) \
     if (!context) { \
         CURRENT_CONTEXT(context); \
-        mpfr_set_emin(context->ctx.emin); \
-        mpfr_set_emax(context->ctx.emax); \
+        SET_EXPONENT(context); \
     }
 
 #define LOAD_CONTEXT_SET_EXPONENT(context) \
     if (!context) { \
         CURRENT_CONTEXT(context); \
     } \
+    SET_EXPONENT(context);
+
+#define SET_EXPONENT_REAL(context) \
     mpfr_set_emin(context->ctx.emin); \
     mpfr_set_emax(context->ctx.emax);
 
-#define SET_EXPONENT(context) \
-    mpfr_set_emin(context->ctx.emin); \
-    mpfr_set_emax(context->ctx.emax);
+#define SET_EXPONENT(context) ;
 
 #define CTXT_Check(v) (((PyObject*)v)->ob_type == &CTXT_Type)
 #define CTXT_Manager_Check(v) (((PyObject*)v)->ob_type == &CTXT_Manager_Type)

@@ -65,7 +65,7 @@ GMPy_Integer_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     mpq_t tempq;
     MPFR_Object *result;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (GET_DIV_MODE(context))
         return GMPy_Rational_TrueDiv(x, y, context);
@@ -103,7 +103,7 @@ GMPy_Integer_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         mpq_clear(tempq);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
-        MPFR_CLEANUP_2(result, context, "division");
+        GMPY_MPFR_CLEANUP(result, context, "division");
         return (PyObject*)result;
     }
 
@@ -160,7 +160,7 @@ GMPy_Rational_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPQ_Object *result, *tempx = NULL, *tempy = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (!(result = GMPy_MPQ_New(context)))
         return NULL;
@@ -226,22 +226,19 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *result;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
 
-    /* This only processes mpfr if the exponent is still in-bounds. Need
-     * to handle the rare case at the end. */
-
-    if (MPFR_CheckAndExp(x) && MPFR_CheckAndExp(y)) {
+    if (MPFR_Check(x) && MPFR_Check(y)) {
         mpfr_clear_flags();
         result->rc = mpfr_div(result->f, MPFR(x), MPFR(y),
                               GET_MPFR_ROUND(context));
         goto done;
     }
 
-    if (MPFR_CheckAndExp(x)) {
+    if (MPFR_Check(x)) {
         if (PyIntOrLong_Check(y)) {
             mpz_t tempz;
             mpir_si temp_si;
@@ -294,7 +291,7 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         }
     }
 
-    if (MPFR_CheckAndExp(y)) {
+    if (MPFR_Check(y)) {
         if (PyIntOrLong_Check(x)) {
             mpir_si temp_si;
             int overflow;
@@ -319,10 +316,6 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         }
     }
 
-    /* In addition to handling PyFloat + PyFloat, the rare case when the
-     * exponent bounds have been changed is handled here. See
-     * Pympfr_From_Real() for details. */
-
     if (IS_REAL(x) && IS_REAL(y)) {
         MPFR_Object *tempx, *tempy;
 
@@ -346,7 +339,7 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     Py_RETURN_NOTIMPLEMENTED;
 
   done:
-    MPFR_CLEANUP_2(result, context, "division");
+    GMPY_MPFR_CLEANUP(result, context, "division");
     return (PyObject*)result;
 }
 
@@ -367,7 +360,7 @@ GMPy_Complex_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPC_Object *result = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (!(result = GMPy_MPC_New(0, 0, context)))
         return NULL;
@@ -425,8 +418,6 @@ PyDoc_STRVAR(GMPy_doc_truediv,
 static PyObject *
 GMPy_Number_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    LOAD_CONTEXT_SET_EXPONENT(context);
-
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_TrueDiv(x, y, context);
 
@@ -451,35 +442,29 @@ static PyObject *
 GMPy_Context_TrueDiv(PyObject *self, PyObject *args)
 {
     PyObject *result;
-    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("div() requires 2 arguments.");
         return NULL;
     }
 
-    if (self && CTXT_Check(self)) {
-        /* If we are passed a read-only context, make a copy of it before
-         * proceeding. Remember to decref context when we're done. */
+    /* If we are passed a read-only context, make a copy of it before
+     * proceeding. Remember to decref context when we're done. */
 
-        if (((CTXT_Object*)self)->ctx.readonly) {
-            context = (CTXT_Object*)GMPy_CTXT_Copy(self, NULL);
-            if (!context)
-                return NULL;
-        }
-        else {
-            context = (CTXT_Object*)self;
-            Py_INCREF((PyObject*)context);
-        }
+    if (((CTXT_Object*)self)->ctx.readonly) {
+        self = GMPy_CTXT_Copy(self, NULL);
+        if (!self)
+            return NULL;
     }
     else {
-        SYSTEM_ERROR("must be context method");
+        Py_INCREF(self);
     }
 
     result = GMPy_Number_TrueDiv(PyTuple_GET_ITEM(args, 0),
                                  PyTuple_GET_ITEM(args, 1),
-                                 context);
-    Py_DECREF((PyObject*)context);
+                             (CTXT_Object*)self);
+
+    Py_DECREF(self);
     return result;
 }
 

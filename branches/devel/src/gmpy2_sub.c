@@ -233,7 +233,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *result;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
@@ -241,14 +241,14 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
     /* This only processes mpfr if the exponent is still in-bounds. Need
      * to handle the rare case at the end. */
 
-    if (MPFR_CheckAndExp(x) && MPFR_CheckAndExp(y)) {
+    if (MPFR_Check(x) && MPFR_Check(y)) {
         mpfr_clear_flags();
         result->rc = mpfr_sub(result->f, MPFR(x), MPFR(y),
                               GET_MPFR_ROUND(context));
         goto done;
     }
 
-    if (MPFR_CheckAndExp(x)) {
+    if (MPFR_Check(x)) {
         if (PyIntOrLong_Check(y)) {
             mpz_t tempz;
             mpir_si temp_si;
@@ -284,7 +284,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 
             if (!(tempy = GMPy_MPQ_From_Number(y, context))) {
                 SYSTEM_ERROR("could not convert Rational or Decimal to mpq");
-                Py_DECREF(result);
+                Py_DECREF((PyObject*)result);
                 return NULL;
             }
             mpfr_clear_flags();
@@ -302,7 +302,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
         }
     }
 
-    if (MPFR_CheckAndExp(y)) {
+    if (MPFR_Check(y)) {
         if (PyIntOrLong_Check(x)) {
             mpz_t tempz;
             mpir_si temp_si;
@@ -341,7 +341,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 
             if (!(tempx = GMPy_MPQ_From_Number(x, context))) {
                 SYSTEM_ERROR("coud not convert Rational or Decimal to mpq");
-                Py_DECREF(result);
+                Py_DECREF((PyObject*)result);
                 return NULL;
             }
             mpfr_clear_flags();
@@ -373,7 +373,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
-            Py_DECREF(result);
+            Py_DECREF((PyObject*)result);
             return NULL;
         }
         mpfr_clear_flags();
@@ -388,7 +388,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
     Py_RETURN_NOTIMPLEMENTED;
 
   done:
-    MPFR_CLEANUP_2(result, context, "subtraction");
+    GMPY_MPFR_CLEANUP(result, context, "subtraction");
     return (PyObject*)result;
 }
 
@@ -419,12 +419,12 @@ GMPy_Complex_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPC_Object *result = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (!(result = GMPy_MPC_New(0, 0, context)))
         return NULL;
 
-    if (MPC_CheckAndExp(x) && MPC_CheckAndExp(y)) {
+    if (MPC_Check(x) && MPC_Check(y)) {
         result->rc = mpc_sub(result->c, MPC(x), MPC(y),
                              GET_MPC_ROUND(context));
         goto done;
@@ -469,8 +469,6 @@ GMPy_MPC_Sub_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Number_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    LOAD_CONTEXT_SET_EXPONENT(context);
-
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Sub(x, y, context);
 
@@ -501,37 +499,29 @@ static PyObject *
 GMPy_Context_Sub(PyObject *self, PyObject *args)
 {
     PyObject *result;
-    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("sub() requires 2 arguments");
         return NULL;
     }
 
-    if (self && CTXT_Check(self)) {
-        /* If we are passed a read-only context, make a copy of it before
-         * proceeding. Remember to decref context when we're done.
-         */
+    /* If we are passed a read-only context, make a copy of it before
+     * proceeding. Remember to decref context when we're done. */
 
-        if (((CTXT_Object*)self)->ctx.readonly) {
-            context = (CTXT_Object*)GMPy_CTXT_Copy(self, NULL);
-            if (!context)
-                return NULL;
-        }
-        else {
-            context = (CTXT_Object*)self;
-            Py_INCREF((PyObject*)context);
-        }
+    if (((CTXT_Object*)self)->ctx.readonly) {
+        self = GMPy_CTXT_Copy(self, NULL);
+        if (!self)
+            return NULL;
     }
     else {
-        CHECK_CONTEXT_SET_EXPONENT(context);
-        Py_INCREF((PyObject*)context);
+        Py_INCREF(self);
     }
 
     result = GMPy_Number_Sub(PyTuple_GET_ITEM(args, 0),
                              PyTuple_GET_ITEM(args, 1),
-                             context);
-    Py_DECREF((PyObject*)context);
+                             (CTXT_Object*)self);
+
+    Py_DECREF(self);
     return result;
 }
 

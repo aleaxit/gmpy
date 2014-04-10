@@ -59,7 +59,7 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
     mpir_si temp_si;
     int overflow;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     result = PyTuple_New(2);
     rem = GMPy_MPZ_New(context);
@@ -188,7 +188,7 @@ GMPy_Rational_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
     MPZ_Object *quo;
     PyObject *result;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     result = PyTuple_New(2);
     rem = GMPy_MPQ_New(context);
@@ -263,7 +263,7 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
     MPFR_Object *tempx = NULL, *tempy = NULL, *quo, *rem;
     PyObject *result;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     result = PyTuple_New(2);
     rem = GMPy_MPFR_New(0, context);
@@ -289,7 +289,6 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
                 goto error;
             }
         }
-
 
         if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
             context->ctx.invalid = 1;
@@ -351,7 +350,11 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
             }
             Py_DECREF((PyObject*)temp);
         }
-        SUBNORMALIZE(rem);
+        GMPY_MPFR_CHECK_RANGE(quo, context);
+        GMPY_MPFR_CHECK_RANGE(rem, context);
+        GMPY_MPFR_SUBNORMALIZE(quo, context);
+        GMPY_MPFR_SUBNORMALIZE(rem, context);
+
 
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
@@ -408,8 +411,6 @@ PyDoc_STRVAR(GMPy_doc_divmod,
 static PyObject *
 GMPy_Number_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    LOAD_CONTEXT_SET_EXPONENT(context);
-
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_DivMod(x, y, context);
 
@@ -436,36 +437,28 @@ static PyObject *
 GMPy_Context_DivMod(PyObject *self, PyObject *args)
 {
     PyObject *result;
-    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("divmod() requires 2 arguments.");
         return NULL;
     }
 
-    if (self && CTXT_Check(self)) {
-        /* If we are passed a read-only context, make a copy of it before
-         * proceeding. Remember to decref context when we're done. */
+    /* If we are passed a read-only context, make a copy of it before
+     * proceeding. Remember to decref context when we're done. */
 
-        if (((CTXT_Object*)self)->ctx.readonly) {
-            context = (CTXT_Object*)GMPy_CTXT_Copy(self, NULL);
-            if (!context)
-                return NULL;
-        }
-        else {
-            context = (CTXT_Object*)self;
-            Py_INCREF((PyObject*)context);
-        }
+    if (((CTXT_Object*)self)->ctx.readonly) {
+        self = GMPy_CTXT_Copy(self, NULL);
+        if (!self)
+            return NULL;
     }
     else {
-        CHECK_CONTEXT_SET_EXPONENT(context);
-        Py_INCREF((PyObject*)context);
+        Py_INCREF(self);
     }
 
     result = GMPy_Number_DivMod(PyTuple_GET_ITEM(args, 0),
-                                  PyTuple_GET_ITEM(args, 1),
-                                  context);
-    Py_DECREF((PyObject*)context);
+                                PyTuple_GET_ITEM(args, 1),
+                                (CTXT_Object*)self);
+    Py_DECREF(self);
     return result;
 }
 
