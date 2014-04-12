@@ -793,12 +793,14 @@ PyDoc_STRVAR(GMPy_doc_context,
 "    max2(x,y)       return maximum of x and y, rounded to context\n"
 "    mpc(...)        create a new instance of an mpc\n"
 "    mpfr(...)       create a new instance of an mpfr\n"
+"    minus(x)        return -x\n"
 "    min2(x,y)       return minimum of x and y, rounded to context\n"
 "    mul(x,y)        return x * y\n"
 "    mul_2exp(x,n)   return x * 2**n\n"
 "    next_above(x)   return next mpfr towards +Infinity\n"
 "    next_below(x)   return next mpfr towards -Infinity\n"
-"    neg(x)          return -x\n"
+"    plus(x)         return +x\n"
+"    pow(x,y)        return x ** y\n"
 "    radians(x)      convert value in degrees to radians\n"
 "    rec_sqrt(x)     return 1 / sqrt(x)\n"
 "    rel_diff(x,y)   return abs(x - y) / x\n"
@@ -1301,6 +1303,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "floor_div", GMPy_Context_FloorDiv, METH_VARARGS, GMPy_doc_context_floordiv },
     { "mod", GMPy_Context_Mod, METH_VARARGS, GMPy_doc_context_mod },
     { "mul", GMPy_Context_Mul, METH_VARARGS, GMPy_doc_context_mul },
+    { "plus", GMPy_Context_Plus, METH_VARARGS, GMPy_doc_context_plus },
     { "pow", GMPy_Context_Pow, METH_VARARGS, GMPy_doc_context_pow },
     { "sub", GMPy_Context_Sub, METH_VARARGS, GMPy_doc_context_sub },
     { "__enter__", GMPy_CTXT_Enter, METH_NOARGS, NULL },

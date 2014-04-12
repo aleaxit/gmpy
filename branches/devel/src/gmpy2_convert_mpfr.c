@@ -65,8 +65,8 @@
 
 /* If prec == 0:
  *   Return an reference to a new mpfr instance. The context argument
- *   specifies the precision, exponent range, whether or not subnormals are
- *   allowed.
+ *   specifies the precision, exponent range, and whether or not subnormals
+ *   are allowed.
  *
  *   This is the default behavior of the mpfr() constructor.
  *

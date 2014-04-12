@@ -464,7 +464,6 @@ static PyObject * Pympfr_getimag_attrib(MPFR_Object *self, void *closure);
 static PyObject * Pympfr_getreal_attrib(MPFR_Object *self, void *closure);
 static int Pympfr_nonzero(MPFR_Object *self);
 static PyObject * Pympfr_conjugate(PyObject *self, PyObject *args);
-static PyObject * Pympfr_pos(MPFR_Object *self);
 static PyObject * Pympfr_get_emin_min(PyObject *self, PyObject *args);
 static PyObject * Pympfr_get_emax_max(PyObject *self, PyObject *args);
 static PyObject * Pympfr_get_max_precision(PyObject *self, PyObject *args);
