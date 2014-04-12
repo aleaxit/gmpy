@@ -1162,59 +1162,6 @@ Py##NAME(MPFR_Object *x) \
     return (PyObject *) r; \
 }
 
-/* Note: Pympfr_Abs_Real, Pympfr_Neg_Real, and Pympfr_Pos_Real duplicate much
- *       code. They may be converted to use a macro in the future. */
-
-static PyObject *
-Pympfr_Neg_Real(PyObject *x, CTXT_Object *context)
-{
-    MPFR_Object *result;
-
-    if (!(result = GMPy_MPFR_New(0, context)))
-        return NULL;
-
-    if (MPFR_Check(x)) {
-        mpfr_clear_flags();
-        result->rc = mpfr_neg(result->f, MPFR(x), GET_MPFR_ROUND(context));
-        MERGE_FLAGS;
-        CHECK_FLAGS("neg()");
-        goto done;
-    }
-    else if (IS_REAL(x)) {
-        MPFR_Object *tempx;
-
-        tempx = GMPy_MPFR_From_Real(x, 1, context);
-        if (!tempx) {
-            SYSTEM_ERROR("Can not covert Real to 'mpfr'");
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        mpfr_clear_flags();
-        result->rc = mpfr_neg(result->f, tempx->f, GET_MPFR_ROUND(context));
-        Py_DECREF((PyObject*)tempx);
-        MERGE_FLAGS;
-        CHECK_FLAGS("neg()");
-        goto done;
-    }
-    else {
-        TYPE_ERROR("neg() called with invalid type");
-        Py_DECREF((PyObject*)result);
-        return NULL;
-    }
-
-  done:
-    MPFR_CLEANUP_RESULT("neg()");
-    return (PyObject*)result;
-}
-
-static PyObject *
-Pympfr_neg_fast(MPFR_Object *x)
-{
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-    return Pympfr_Neg_Real((PyObject*)x, context);
-}
 
 #define MPFR_UNIOP_NOROUND(NAME) \
 static PyObject * \
@@ -2718,7 +2665,7 @@ static PyNumberMethods mpfr_number_methods =
     (binaryfunc) GMPy_MPFR_Mod_Slot,         /* nb_remainder            */
     (binaryfunc) GMPy_MPFR_DivMod_Slot,      /* nb_divmod               */
     (ternaryfunc) GMPy_MPANY_Pow_Slot,       /* nb_power                */
-    (unaryfunc) Pympfr_neg_fast,             /* nb_negative             */
+    (unaryfunc) GMPy_MPFR_Minus_Slot,        /* nb_negative             */
     (unaryfunc) GMPy_MPFR_Plus_Slot,         /* nb_positive             */
     (unaryfunc) GMPy_MPFR_Abs_Slot,          /* nb_absolute             */
     (inquiry) Pympfr_nonzero,                /* nb_bool                 */
@@ -2757,7 +2704,7 @@ static PyNumberMethods mpfr_number_methods =
     (binaryfunc) GMPy_MPFR_Mod_Slot,         /* nb_remainder            */
     (binaryfunc) GMPy_MPFR_DivMod_Slot,      /* nb_divmod               */
     (ternaryfunc) GMPy_MPANY_Pow_Slot,       /* nb_power                */
-    (unaryfunc) Pympfr_neg_fast,             /* nb_negative             */
+    (unaryfunc) GMPy_MPFR_Minus_Slot,        /* nb_negative             */
     (unaryfunc) GMPy_MPFR_Plus_Slot,         /* nb_positive             */
     (unaryfunc) GMPy_MPFR_Abs_Slot,          /* nb_absolute             */
     (inquiry) Pympfr_nonzero,                /* nb_bool                 */

@@ -331,19 +331,6 @@ Pympq_qdiv(PyObject *self, PyObject *args)
     return NULL;
 }
 
-static PyObject *
-Pympq_neg(MPQ_Object *self)
-{
-    MPQ_Object *result;
-    CTXT_Object *context = NULL;
-
-    if ((result = GMPy_MPQ_New(context))) {
-        mpq_neg(result->q, self->q);
-    }
-
-    return (PyObject*)result;
-}
-
 PyDoc_STRVAR(doc_mpq_floor,
              "Return greatest integer less than or equal to an mpq.");
 
@@ -596,7 +583,7 @@ static PyNumberMethods mpq_number_methods =
     (binaryfunc) GMPy_MPQ_Mod_Slot,         /* nb_remainder            */
     (binaryfunc) GMPy_MPQ_DivMod_Slot,      /* nb_divmod               */
     (ternaryfunc) GMPy_MPANY_Pow_Slot,      /* nb_power                */
-    (unaryfunc) Pympq_neg,                  /* nb_negative             */
+    (unaryfunc) GMPy_MPQ_Minus_Slot,        /* nb_negative             */
     (unaryfunc) GMPy_MPQ_Plus_Slot,         /* nb_positive             */
     (unaryfunc) GMPy_MPQ_Abs_Slot,          /* nb_absolute             */
     (inquiry) Pympq_nonzero,                /* nb_bool                 */
@@ -635,7 +622,7 @@ static PyNumberMethods mpq_number_methods =
     (binaryfunc) GMPy_MPQ_Mod_Slot,         /* nb_remainder            */
     (binaryfunc) GMPy_MPQ_DivMod_Slot,      /* nb_divmod               */
     (ternaryfunc) GMPy_MPANY_Pow_Slot,      /* nb_power                */
-    (unaryfunc) Pympq_neg,                  /* nb_negative             */
+    (unaryfunc) GMPy_MPQ_Minus_Slot,        /* nb_negative             */
     (unaryfunc) GMPy_MPQ_Plus_Slot,         /* nb_positive             */
     (unaryfunc) GMPy_MPQ_Abs_Slot,          /* nb_absolute             */
     (inquiry) Pympq_nonzero,                /* nb_bool                 */

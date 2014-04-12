@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_mpq.h                                                              *
+ * gmpy2_minus.h                                                           *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -25,38 +25,30 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef GMPY_MPQ_H
-#define GMPY_MPQ_H
+#ifndef GMPY2_MINUS_H
+#define GMPY2_MINUS_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct {
-    PyObject_HEAD
-    mpq_t q;
-    Py_hash_t  hash_cache;
-} MPQ_Object;
+/* Public API */
 
-#define MPQ(obj) (((MPQ_Object *)(obj))->q)
+static PyObject * GMPy_Number_Minus(PyObject *x, CTXT_Object *context);
 
-static PyTypeObject MPQ_Type;
-#define MPQ_Check(v) (((PyObject*)v)->ob_type == &MPQ_Type)
+/* Private API */
 
-static PyObject * Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds);
-static PyObject * Pympq_digits(PyObject *self, PyObject *args);
-static PyObject * Pympq_sign(PyObject *self, PyObject *other);
-static PyObject * Pympq_numer(PyObject *self, PyObject *args);
-static PyObject * Pympq_getnumer(MPQ_Object *self, void *closure);
-static PyObject * Pympq_denom(PyObject *self, PyObject *args);
-static PyObject * Pympq_getdenom(MPQ_Object *self, void *closure);
-static PyObject * Pympq_qdiv(PyObject *self, PyObject *args);
-static PyObject * Pympq_ceil(PyObject *self, PyObject *other);
-static PyObject * Pympq_floor(PyObject *self, PyObject *other);
-static PyObject * Pympq_trunc(PyObject *self, PyObject *other);
-static PyObject * Pympq_square(PyObject *self, PyObject *other);
-static int Pympq_nonzero(MPQ_Object *x);
-static Py_hash_t Pympq_hash(MPQ_Object *self);
+static PyObject * GMPy_Integer_Minus(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Rational_Minus(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Real_Minus(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Complex_Minus(PyObject *x, CTXT_Object *context);
+
+static PyObject * GMPy_MPZ_Minus_Slot(MPZ_Object *x);
+static PyObject * GMPy_MPQ_Minus_Slot(MPQ_Object *x);
+static PyObject * GMPy_MPFR_Minus_Slot(MPFR_Object *x);
+static PyObject * GMPy_MPC_Minus_Slot(MPC_Object *x);
+
+static PyObject * GMPy_Context_Minus(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
 }

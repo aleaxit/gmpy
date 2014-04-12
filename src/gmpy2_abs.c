@@ -135,19 +135,17 @@ GMPy_Real_Abs(PyObject *x, CTXT_Object *context)
 
     tempx = GMPy_MPFR_From_Real(x, 1, context);
     result = GMPy_MPFR_New(0, context);
-    if (!tempx || !result)
-        goto err;
+    if (!tempx || !result) {
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)result);
+        return NULL;
+    }
 
     mpfr_clear_flags();
     result->rc = mpfr_abs(result->f, tempx->f, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
     GMPY_MPFR_CLEANUP(result, context, "abs()");
     return (PyObject*)result;
-
-  err:
-    Py_XDECREF((PyObject*)tempx);
-    Py_XDECREF((PyObject*)result);
-    return NULL;
 }
 
 static PyObject *

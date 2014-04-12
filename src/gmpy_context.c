@@ -1250,6 +1250,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "div", GMPy_Context_TrueDiv, METH_VARARGS, GMPy_doc_context_truediv },
     { "div_mod", GMPy_Context_DivMod, METH_VARARGS, GMPy_doc_context_divmod },
     { "floor_div", GMPy_Context_FloorDiv, METH_VARARGS, GMPy_doc_context_floordiv },
+    { "minus", GMPy_Context_Minus, METH_VARARGS, GMPy_doc_context_minus },
     { "mod", GMPy_Context_Mod, METH_VARARGS, GMPy_doc_context_mod },
     { "mul", GMPy_Context_Mul, METH_VARARGS, GMPy_doc_context_mul },
     { "plus", GMPy_Context_Plus, METH_VARARGS, GMPy_doc_context_plus },

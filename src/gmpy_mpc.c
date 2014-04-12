@@ -538,24 +538,6 @@ Pympc_digits(PyObject *self, PyObject *args)
     return result;
 }
 
-static PyObject *
-Pympc_neg(MPC_Object *self)
-{
-    MPC_Object *result;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    if (!(result = GMPy_MPC_New(0, 0, context))) {
-        SYSTEM_ERROR("__neg__() requires 'mpc' argument");
-        return NULL;
-    }
-
-    result->rc = mpc_neg(result->c, self->c, GET_MPC_ROUND(context));
-
-    MPC_CLEANUP(result, "__neg__");
-}
-
 /* Support Pympany_square */
 
 static PyObject *
@@ -1152,7 +1134,7 @@ static PyNumberMethods mpc_number_methods =
     (binaryfunc) GMPy_MPC_Mod_Slot,      /* nb_remainder            */
     (binaryfunc) GMPy_MPC_DivMod_Slot,   /* nb_divmod               */
     (ternaryfunc) GMPy_MPANY_Pow_Slot,   /* nb_power                */
-    (unaryfunc) Pympc_neg,               /* nb_negative             */
+    (unaryfunc) GMPy_MPC_Minus_Slot,     /* nb_negative             */
     (unaryfunc) GMPy_MPC_Plus_Slot,      /* nb_positive             */
     (unaryfunc) GMPy_MPC_Abs_Slot,       /* nb_absolute             */
     (inquiry) Pympc_nonzero,             /* nb_bool                 */
@@ -1191,7 +1173,7 @@ static PyNumberMethods mpc_number_methods =
     (binaryfunc) GMPy_MPC_Mod_Slot,      /* nb_remainder            */
     (binaryfunc) GMPy_MPC_DivMod_Slot,   /* nb_divmod               */
     (ternaryfunc) GMPy_MPANY_Pow_Slot,   /* nb_power                */
-    (unaryfunc) Pympc_neg,               /* nb_negative             */
+    (unaryfunc) GMPy_MPC_Minus_Slot,     /* nb_negative             */
     (unaryfunc) GMPy_MPC_Plus_Slot,      /* nb_positive             */
     (unaryfunc) GMPy_MPC_Abs_Slot,       /* nb_absolute             */
     (inquiry) Pympc_nonzero,             /* nb_bool                 */
