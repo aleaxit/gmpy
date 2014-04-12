@@ -53,7 +53,7 @@
 static PyObject *
 GMPy_Integer_Plus(PyObject *x, CTXT_Object *context)
 {
-    return (PyObject*)GMPy_MPZ_From_Integer(x, NULL);
+    return (PyObject*)GMPy_MPZ_From_Integer(x, context);
 }
 
 static PyObject *
@@ -66,7 +66,7 @@ GMPy_MPZ_Plus_Slot(MPZ_Object *x)
 static PyObject *
 GMPy_Rational_Plus(PyObject *x, CTXT_Object *context)
 {
-    return (PyObject*)GMPy_MPQ_From_Rational(x, NULL);
+    return (PyObject*)GMPy_MPQ_From_Rational(x, context);
 }
 
 static PyObject *
@@ -133,7 +133,7 @@ GMPy_Context_Plus(PyObject *self, PyObject *args)
     CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 1) {
-        TYPE_ERROR("context.plus() requires 1 argument.");
+        TYPE_ERROR("plus() requires 1 argument.");
         return NULL;
     }
 

@@ -756,18 +756,6 @@ Pympz_sign(PyObject *self, PyObject *other)
     return PyIntOrLong_FromLong(res);
 }
 
-static PyObject *
-Pympz_neg(MPZ_Object *self)
-{
-    MPZ_Object *result;
-    CTXT_Object *context = NULL;
-
-    if ((result = GMPy_MPZ_New(context)))
-        mpz_neg(result->z, self->z);
-
-    return (PyObject*)result;
-}
-
 PyDoc_STRVAR(doc_mpz_ceil, "Ceiling of an mpz returns itself.");
 
 static PyObject *
@@ -2232,7 +2220,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) GMPy_MPZ_Mod_Slot,        /* nb_remainder            */
     (binaryfunc) GMPy_MPZ_DivMod_Slot,     /* nb_divmod               */
     (ternaryfunc) GMPy_MPANY_Pow_Slot,     /* nb_power                */
-    (unaryfunc) Pympz_neg,                 /* nb_negative             */
+    (unaryfunc) GMPy_MPZ_Minus_Slot,       /* nb_negative             */
     (unaryfunc) GMPy_MPZ_Plus_Slot,        /* nb_positive             */
     (unaryfunc) GMPy_MPZ_Abs_Slot,         /* nb_absolute             */
     (inquiry) Pympz_nonzero,               /* nb_bool                 */
@@ -2272,7 +2260,7 @@ static PyNumberMethods mpz_number_methods =
     (binaryfunc) GMPy_MPZ_Mod_Slot,        /* nb_remainder            */
     (binaryfunc) GMPy_MPZ_DivMod_Slot,     /* nb_divmod               */
     (ternaryfunc) GMPy_MPANY_Pow_Slot,     /* nb_power                */
-    (unaryfunc) Pympz_neg,                 /* nb_negative             */
+    (unaryfunc) GMPy_MPZ_Minus_Slot,       /* nb_negative             */
     (unaryfunc) GMPy_MPZ_Plus_Slot,        /* nb_positive             */
     (unaryfunc) GMPy_MPZ_Abs_Slot,         /* nb_absolute             */
     (inquiry) Pympz_nonzero,               /* nb_bool                 */
