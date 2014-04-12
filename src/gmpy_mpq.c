@@ -481,13 +481,6 @@ Pympq_round(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-Pympq_pos(MPQ_Object *self)
-{
-    Py_INCREF((PyObject*)self);
-    return (PyObject*)self;
-}
-
-static PyObject *
 Pympq_square(PyObject *self, PyObject *other)
 {
     MPQ_Object *tempx, *result;
@@ -604,7 +597,7 @@ static PyNumberMethods mpq_number_methods =
     (binaryfunc) GMPy_MPQ_DivMod_Slot,      /* nb_divmod               */
     (ternaryfunc) GMPy_MPANY_Pow_Slot,      /* nb_power                */
     (unaryfunc) Pympq_neg,                  /* nb_negative             */
-    (unaryfunc) Pympq_pos,                  /* nb_positive             */
+    (unaryfunc) GMPy_MPQ_Plus_Slot,         /* nb_positive             */
     (unaryfunc) GMPy_MPQ_Abs_Slot,          /* nb_absolute             */
     (inquiry) Pympq_nonzero,                /* nb_bool                 */
         0,                                  /* nb_invert               */
@@ -643,7 +636,7 @@ static PyNumberMethods mpq_number_methods =
     (binaryfunc) GMPy_MPQ_DivMod_Slot,      /* nb_divmod               */
     (ternaryfunc) GMPy_MPANY_Pow_Slot,      /* nb_power                */
     (unaryfunc) Pympq_neg,                  /* nb_negative             */
-    (unaryfunc) Pympq_pos,                  /* nb_positive             */
+    (unaryfunc) GMPy_MPQ_Plus_Slot,         /* nb_positive             */
     (unaryfunc) GMPy_MPQ_Abs_Slot,          /* nb_absolute             */
     (inquiry) Pympq_nonzero,                /* nb_bool                 */
         0,                                  /* nb_invert               */

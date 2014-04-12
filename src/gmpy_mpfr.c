@@ -220,44 +220,6 @@ Pympfr_conjugate(PyObject *self, PyObject *args)
     return (PyObject*)self;
 }
 
-/* Implement the nb_positive slot. */
-
-/* TODO: can probably just call Pympfr_From_Real. */
-
-static PyObject *
-Pympfr_pos(MPFR_Object *self)
-{
-    MPFR_Object *result;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    if (!(result = GMPy_MPFR_New(mpfr_get_prec(self->f), context)))
-        return NULL;
-
-    mpfr_clear_flags();
-
-    /* Since result has the same precision as self, no rounding occurs. */
-    mpfr_set(result->f, self->f, context->ctx.mpfr_round);
-    result->round_mode = self->round_mode;
-    result->rc = self->rc;
-    /* Force the exponents to be valid. */
-    result->rc = mpfr_check_range(result->f, result->rc, result->round_mode);
-    /* Now round result to the current precision. */
-    result->rc = mpfr_prec_round(result->f, context->ctx.mpfr_prec,
-                                 context->ctx.mpfr_round);
-
-    SUBNORMALIZE(result);
-    MERGE_FLAGS;
-    CHECK_FLAGS("__pos__");
-  done:
-    if (PyErr_Occurred()) {
-        Py_XDECREF((PyObject*)result);
-        result = NULL;
-    }
-    return (PyObject*)result;
-}
-
 PyDoc_STRVAR(doc_g_mpfr_get_emin_min,
 "get_emin_min() -> integer\n\n"
 "Return the minimum possible exponent that can be set for 'mpfr'.");
@@ -2757,7 +2719,7 @@ static PyNumberMethods mpfr_number_methods =
     (binaryfunc) GMPy_MPFR_DivMod_Slot,      /* nb_divmod               */
     (ternaryfunc) GMPy_MPANY_Pow_Slot,       /* nb_power                */
     (unaryfunc) Pympfr_neg_fast,             /* nb_negative             */
-    (unaryfunc) Pympfr_pos,                  /* nb_positive             */
+    (unaryfunc) GMPy_MPFR_Plus_Slot,         /* nb_positive             */
     (unaryfunc) GMPy_MPFR_Abs_Slot,          /* nb_absolute             */
     (inquiry) Pympfr_nonzero,                /* nb_bool                 */
         0,                                   /* nb_invert               */
@@ -2796,7 +2758,7 @@ static PyNumberMethods mpfr_number_methods =
     (binaryfunc) GMPy_MPFR_DivMod_Slot,      /* nb_divmod               */
     (ternaryfunc) GMPy_MPANY_Pow_Slot,       /* nb_power                */
     (unaryfunc) Pympfr_neg_fast,             /* nb_negative             */
-    (unaryfunc) Pympfr_pos,                  /* nb_positive             */
+    (unaryfunc) GMPy_MPFR_Plus_Slot,         /* nb_positive             */
     (unaryfunc) GMPy_MPFR_Abs_Slot,          /* nb_absolute             */
     (inquiry) Pympfr_nonzero,                /* nb_bool                 */
         0,                                   /* nb_invert               */

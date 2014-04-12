@@ -370,7 +370,6 @@ static PyObject * Pympc_digits(PyObject *self, PyObject *args);
 static PyObject * Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs);
 static PyObject * Pympc_format(PyObject *self, PyObject *args);
 static PyObject * Pympc_neg(MPC_Object *self);
-static PyObject * Pympc_pos(MPC_Object *self);
 static PyObject * Pympc_sqr(PyObject* self, PyObject *other);
 static PyObject * Pympc_conjugate(PyObject *self, PyObject *args);
 static PyObject * Pympc_getprec_attrib(MPC_Object *self, void *closure);

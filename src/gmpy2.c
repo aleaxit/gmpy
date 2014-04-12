@@ -542,6 +542,7 @@ static PyObject *GMPyExc_ExpBound = NULL;
 #include "gmpy2_floordiv.c"
 #include "gmpy2_mod.c"
 #include "gmpy2_mul.c"
+#include "gmpy2_plus.c"
 #include "gmpy2_pow.c"
 #include "gmpy2_sub.c"
 #include "gmpy2_truediv.c"
