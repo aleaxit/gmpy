@@ -39,7 +39,6 @@ extern "C" {
 #define TRAP_INVALID   8
 #define TRAP_ERANGE    16
 #define TRAP_DIVZERO   32
-#define TRAP_EXPBOUND  64
 
 typedef struct {
     mpfr_prec_t mpfr_prec;   /* current precision in bits, for MPFR */
@@ -63,7 +62,6 @@ typedef struct {
     int rational_division;   /* if 1, mpz/mpz returns an mpq result */
     int guard_bits;          /* number of additional guard bits to use */
                              /*   must be less than MAX_GUARD_BITS     */
-    int readonly;            /* if 1, this context is a template */
 } gmpy_context;
 
 typedef struct {

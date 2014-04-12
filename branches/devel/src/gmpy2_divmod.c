@@ -345,7 +345,7 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
             }
             else {
                 mpfr_setsign(quo->f, quo->f,
-                             mpfr_sgn(tempx->f) * mpfr_sgn(tempy->f),
+                             mpfr_sgn(tempx->f) * mpfr_sgn(tempy->f) - 1,
                              GET_MPFR_ROUND(context));
             }
             Py_DECREF((PyObject*)temp);
@@ -437,28 +437,23 @@ static PyObject *
 GMPy_Context_DivMod(PyObject *self, PyObject *args)
 {
     PyObject *result;
+    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("divmod() requires 2 arguments.");
         return NULL;
     }
 
-    /* If we are passed a read-only context, make a copy of it before
-     * proceeding. Remember to decref context when we're done. */
-
-    if (((CTXT_Object*)self)->ctx.readonly) {
-        self = GMPy_CTXT_Copy(self, NULL);
-        if (!self)
-            return NULL;
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
     }
     else {
-        Py_INCREF(self);
+        CHECK_CONTEXT(context);
     }
 
     result = GMPy_Number_DivMod(PyTuple_GET_ITEM(args, 0),
                                 PyTuple_GET_ITEM(args, 1),
-                                (CTXT_Object*)self);
-    Py_DECREF(self);
+                                context);
     return result;
 }
 

@@ -394,7 +394,7 @@ GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *cont
                              GET_MPC_ROUND(context));
     }
 
-    MPC_CLEANUP_2(result, context, "pow()");
+    GMPY_MPC_CLEANUP(result, context, "pow()");
     Py_XDECREF((PyObject*)tempz);
     Py_XDECREF((PyObject*)tempf);
     Py_XDECREF((PyObject*)tempe);
@@ -463,29 +463,23 @@ static PyObject *
 GMPy_Context_Pow(PyObject *self, PyObject *args)
 {
     PyObject *result;
+    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("pow() requires 2 arguments.");
         return NULL;
     }
-    /* If we are passed a read-only context, make a copy of it before
-     * proceeding. Remember to decref context when we're done. */
-
-    if (((CTXT_Object*)self)->ctx.readonly) {
-        self = GMPy_CTXT_Copy(self, NULL);
-        if (!self)
-            return NULL;
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
     }
     else {
-        Py_INCREF(self);
+        CHECK_CONTEXT(context);
     }
 
     result = GMPy_Number_Pow(PyTuple_GET_ITEM(args, 0),
                              PyTuple_GET_ITEM(args, 1),
-                             Py_None,
-                             (CTXT_Object*)self);
+                             Py_None, context);
 
-    Py_DECREF(self);
     return result;
 }
 

@@ -84,7 +84,6 @@ GMPy_CTXT_New(void)
         result->ctx.allow_complex = 0;
         result->ctx.rational_division = 0;
         result->ctx.guard_bits = 0;
-        result->ctx.readonly = 0;
 
 #ifndef WITHOUT_THREADS
         result->tstate = NULL;
@@ -233,25 +232,7 @@ GMPy_CTXT_Set(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    /* Make a copy if it is readonly. */
-    if (((CTXT_Object*)other)->ctx.readonly) {
-        other = GMPy_CTXT_Copy(other, NULL);
-        if (!other) {
-            return NULL;
-        }
-        ((CTXT_Object*)other)->ctx.underflow = 0;
-        ((CTXT_Object*)other)->ctx.overflow = 0;
-        ((CTXT_Object*)other)->ctx.inexact = 0;
-        ((CTXT_Object*)other)->ctx.invalid = 0;
-        ((CTXT_Object*)other)->ctx.erange = 0;
-        ((CTXT_Object*)other)->ctx.divzero = 0;
-    }
-    else {
-        Py_INCREF(other);
-    }
-
     if (PyDict_SetItem(dict, tls_context_key, other) < 0) {
-        Py_DECREF(other);
         return NULL;
     }
 
@@ -264,7 +245,6 @@ GMPy_CTXT_Set(PyObject *self, PyObject *other)
         cached_context->tstate = tstate;
     }
 
-    Py_DECREF(other);
     Py_RETURN_NONE;
 }
 #endif
@@ -365,7 +345,7 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
     PyObject *result = NULL;
     int i = 0;
 
-    tuple = PyTuple_New(25);
+    tuple = PyTuple_New(24);
     if (!tuple)
         return NULL;
 
@@ -380,7 +360,6 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
             "        trap_invalid=%s, invalid=%s,\n"
             "        trap_erange=%s, erange=%s,\n"
             "        trap_divzero=%s, divzero=%s,\n"
-            "        trap_expbound=%s,\n"
             "        allow_complex=%s,\n"
             "        rational_division=%s,\n"
             "        guard_bits=%s)"
@@ -417,7 +396,6 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.erange));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.traps & TRAP_DIVZERO));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.divzero));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.traps & TRAP_EXPBOUND));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.allow_complex));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.rational_division));
     PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.guard_bits));
@@ -463,9 +441,6 @@ GMPy_CTXT_Copy(PyObject *self, PyObject *other)
 
     result = (CTXT_Object*)GMPy_CTXT_New();
     result->ctx = ((CTXT_Object*)self)->ctx;
-    /* If a copy is made from a readonly template, it should no longer be
-     * considered readonly. */
-    result->ctx.readonly = 0;
     return (PyObject*)result;
 }
 
@@ -479,14 +454,13 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
     PyObject *args;
     int x_trap_underflow = 0, x_trap_overflow = 0, x_trap_inexact = 0;
     int x_trap_invalid = 0, x_trap_erange = 0, x_trap_divzero = 0;
-    int x_trap_expbound = 0;
 
     static char *kwlist[] = {
         "precision", "real_prec", "imag_prec", "round",
         "real_round", "imag_round", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
-        "trap_invalid", "trap_erange", "trap_divzero", "trap_expbound",
-        "allow_complex", "rational_division", "guard_bits", NULL };
+        "trap_invalid", "trap_erange", "trap_divzero", "allow_complex",
+        "rational_division", "guard_bits", NULL };
 
     /* Create an empty dummy tuple to use for args. */
 
@@ -502,10 +476,9 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
     x_trap_invalid = ctxt->ctx.traps & TRAP_INVALID;
     x_trap_erange = ctxt->ctx.traps & TRAP_ERANGE;
     x_trap_divzero = ctxt->ctx.traps & TRAP_DIVZERO;
-    x_trap_expbound = ctxt->ctx.traps & TRAP_EXPBOUND;
 
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|llliiilliiiiiiiiiii", kwlist,
+            "|llliiilliiiiiiiiii", kwlist,
             &ctxt->ctx.mpfr_prec,
             &ctxt->ctx.real_prec,
             &ctxt->ctx.imag_prec,
@@ -521,7 +494,6 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
             &x_trap_invalid,
             &x_trap_erange,
             &x_trap_divzero,
-            &x_trap_expbound,
             &ctxt->ctx.allow_complex,
             &ctxt->ctx.rational_division,
             &ctxt->ctx.guard_bits))) {
@@ -544,8 +516,6 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
         ctxt->ctx.traps |= TRAP_ERANGE;
     if (x_trap_divzero)
         ctxt->ctx.traps |= TRAP_DIVZERO;
-    if (x_trap_expbound)
-        ctxt->ctx.traps |= TRAP_EXPBOUND;
 
     /* Sanity check for values. */
     if (ctxt->ctx.mpfr_prec < MPFR_PREC_MIN ||
@@ -654,23 +624,8 @@ GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (arg_context) {
         temp = (CTXT_Object*)PyTuple_GET_ITEM(args, 0);
-        if (temp->ctx.readonly) {
-            result->new_context = (CTXT_Object*)GMPy_CTXT_Copy((PyObject*)temp, NULL);
-            if (!(result->new_context)) {
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-            ((CTXT_Object*)(result->new_context))->ctx.underflow = 0;
-            ((CTXT_Object*)(result->new_context))->ctx.overflow = 0;
-            ((CTXT_Object*)(result->new_context))->ctx.inexact = 0;
-            ((CTXT_Object*)(result->new_context))->ctx.invalid = 0;
-            ((CTXT_Object*)(result->new_context))->ctx.erange = 0;
-            ((CTXT_Object*)(result->new_context))->ctx.divzero = 0;
-        }
-        else {
-            result->new_context = temp;
-            Py_INCREF((PyObject*)(result->new_context));
-        }
+        result->new_context = temp;
+        Py_INCREF((PyObject*)(result->new_context));
     }
     else {
         result->new_context = context;
@@ -725,10 +680,6 @@ PyDoc_STRVAR(GMPy_doc_context,
 "                       if False, set erange flag\n"
 "    trap_divzero:      if True, raise exception for division by zero\n"
 "                       if False, set divzero flag and return Inf or -Inf\n"
-"    trap_expbound:     if True, raise exception when mpfr/mpc exponent\n"
-"                          no longer valid in current context\n"
-"                       if False, mpfr/mpc with exponent out-of-bounds\n"
-"                          will be coerced to either 0 or Infinity\n"
 "    allow_complex:     if True, allow mpfr functions to return mpc\n"
 "                       if False, mpfr functions cannot return an mpc\n"
 "    rational_division: if True, mpz/mpz returns an mpq\n"
@@ -986,7 +937,6 @@ GETSET_BOOLEAN_BIT(trap_inexact, TRAP_INEXACT);
 GETSET_BOOLEAN_BIT(trap_invalid, TRAP_INVALID);
 GETSET_BOOLEAN_BIT(trap_erange, TRAP_ERANGE);
 GETSET_BOOLEAN_BIT(trap_divzero, TRAP_DIVZERO);
-GETSET_BOOLEAN_BIT(trap_expbound, TRAP_EXPBOUND);
 GETSET_BOOLEAN(allow_complex)
 GETSET_BOOLEAN(rational_division)
 
@@ -1285,7 +1235,6 @@ static PyGetSetDef GMPyContext_getseters[] = {
     ADD_GETSET(trap_invalid),
     ADD_GETSET(trap_erange),
     ADD_GETSET(trap_divzero),
-    ADD_GETSET(trap_expbound),
     ADD_GETSET(allow_complex),
     ADD_GETSET(rational_division),
     ADD_GETSET(guard_bits),

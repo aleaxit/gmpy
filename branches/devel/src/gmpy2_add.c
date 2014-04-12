@@ -447,7 +447,7 @@ GMPy_Complex_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     Py_RETURN_NOTIMPLEMENTED;
 
   done:
-    MPC_CLEANUP_2(result, context, "addition");
+    GMPY_MPC_CLEANUP(result, context, "addition");
     return (PyObject*)result;
 }
 
@@ -495,29 +495,23 @@ static PyObject *
 GMPy_Context_Add(PyObject *self, PyObject *args)
 {
     PyObject *result;
+    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("add() requires 2 arguments.");
         return NULL;
     }
 
-    /* If we are passed a read-only context, make a copy of it before
-     * proceeding. Remember to decref context when we're done. */
-
-    if (((CTXT_Object*)self)->ctx.readonly) {
-        self = GMPy_CTXT_Copy(self, NULL);
-        if (!self)
-            return NULL;
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
     }
     else {
-        Py_INCREF(self);
+        CHECK_CONTEXT(context);
     }
 
     result = GMPy_Number_Add(PyTuple_GET_ITEM(args, 0),
                              PyTuple_GET_ITEM(args, 1),
-                             (CTXT_Object*)self);
-
-    Py_DECREF(self);
+                             context);
     return result;
 }
 

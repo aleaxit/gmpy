@@ -365,30 +365,24 @@ static PyObject *
 GMPy_Context_Mod(PyObject *self, PyObject *args)
 {
     PyObject *result;
+    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("mod() requires 2 arguments");
         return NULL;
     }
 
-    /* If we are passed a read-only context, make a copy of it before
-     * proceeding. Remember to decref context when we're done. */
-
-    if (((CTXT_Object*)self)->ctx.readonly) {
-        self = GMPy_CTXT_Copy(self, NULL);
-        if (!self)
-            return NULL;
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
     }
     else {
-        Py_INCREF(self);
+        CHECK_CONTEXT(context);
     }
-
 
     result = GMPy_Number_Mod(PyTuple_GET_ITEM(args, 0),
                              PyTuple_GET_ITEM(args, 1),
-                             (CTXT_Object*)self);
+                             context);
 
-    Py_DECREF(self);
     return result;
 }
 
