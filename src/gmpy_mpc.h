@@ -212,6 +212,121 @@ static PyTypeObject MPC_Type;
  * NAME is prepended to the error message.
  */
 
+#define GMPY_MPC_CHECK_RANGE(V, CTX) \
+    { \
+        int rcr, rci; \
+        rcr = MPC_INEX_RE(V->rc); \
+        rci = MPC_INEX_IM(V->rc); \
+        if (mpfr_regular_p(mpc_realref(V->c)) && \
+            (!((mpc_realref(V->c)->_mpfr_exp >= CTX->ctx.emin) && \
+               (mpc_realref(V->c)->_mpfr_exp <= CTX->ctx.emax)))) { \
+            mpfr_exp_t _oldemin, _oldemax; \
+            _oldemin = mpfr_get_emin(); \
+            _oldemax = mpfr_get_emax(); \
+            mpfr_set_emin(CTX->ctx.emin); \
+            mpfr_set_emax(CTX->ctx.emax); \
+            rcr = mpfr_check_range(mpc_realref(V->c), rcr, GET_REAL_ROUND(CTX)); \
+            mpfr_set_emin(_oldemin); \
+            mpfr_set_emax(_oldemax); \
+        } \
+        if (mpfr_regular_p(mpc_imagref(V->c)) && \
+            (!((mpc_imagref(V->c)->_mpfr_exp >= CTX->ctx.emin) && \
+               (mpc_imagref(V->c)->_mpfr_exp <= CTX->ctx.emax)))) { \
+            mpfr_exp_t _oldemin, _oldemax; \
+            _oldemin = mpfr_get_emin(); \
+            _oldemax = mpfr_get_emax(); \
+            mpfr_set_emin(CTX->ctx.emin); \
+            mpfr_set_emax(CTX->ctx.emax); \
+            rci = mpfr_check_range(mpc_imagref(V->c), rci, GET_IMAG_ROUND(CTX)); \
+            mpfr_set_emin(_oldemin); \
+            mpfr_set_emax(_oldemax); \
+        } \
+        V->rc = MPC_INEX(rcr, rci); \
+    }
+
+#define GMPY_MPC_SUBNORMALIZE(V, CTX) \
+    { \
+        int rcr, rci; \
+        rcr = MPC_INEX_RE(V->rc); \
+        rci = MPC_INEX_IM(V->rc); \
+        if (CTX->ctx.subnormalize && \
+            (!((mpc_realref(V->c)->_mpfr_exp >= CTX->ctx.emin) && \
+               (mpc_realref(V->c)->_mpfr_exp <= CTX->ctx.emin + mpfr_get_prec(mpc_realref(V->c)) - 2)))) { \
+            mpfr_exp_t _oldemin, _oldemax; \
+            _oldemin = mpfr_get_emin(); \
+            _oldemax = mpfr_get_emax(); \
+            mpfr_set_emin(CTX->ctx.emin); \
+            mpfr_set_emax(CTX->ctx.emax); \
+            rcr = mpfr_subnormalize(mpc_realref(V->c), rcr, GET_REAL_ROUND(CTX)); \
+            mpfr_set_emin(_oldemin); \
+            mpfr_set_emax(_oldemax); \
+        } \
+        if (CTX->ctx.subnormalize && \
+            (!((mpc_imagref(V->c)->_mpfr_exp >= CTX->ctx.emin) && \
+               (mpc_imagref(V->c)->_mpfr_exp <= CTX->ctx.emin + mpfr_get_prec(mpc_imagref(V->c)) - 2)))) { \
+            mpfr_exp_t _oldemin, _oldemax; \
+            _oldemin = mpfr_get_emin(); \
+            _oldemax = mpfr_get_emax(); \
+            mpfr_set_emin(CTX->ctx.emin); \
+            mpfr_set_emax(CTX->ctx.emax); \
+            rci = mpfr_check_range(mpc_imagref(V->c), rci, GET_IMAG_ROUND(CTX)); \
+            mpfr_set_emin(_oldemin); \
+            mpfr_set_emax(_oldemax); \
+        } \
+        V->rc = MPC_INEX(rcr, rci); \
+    }
+
+#define GMPY_MPC_EXCEPTIONS(V, CTX, NAME) \
+    do { \
+        int _invalid = 0, _underflow = 0, _overflow = 0, _inexact = 0; \
+        int rcr, rci; \
+        rcr = MPC_INEX_RE(V->rc); \
+        rci = MPC_INEX_IM(V->rc); \
+        if (MPC_IS_NAN_P(V)) { \
+            CTX->ctx.invalid = 1; \
+            _invalid = 1; \
+        } \
+        if (V->rc) { \
+            CTX->ctx.inexact = 1; \
+            _inexact = 1; \
+        } \
+        if ((rcr && mpfr_zero_p(mpc_realref(V->c))) || (rci && mpfr_zero_p(mpc_imagref(V->c)))) { \
+            CTX->ctx.underflow = 1; \
+            _underflow = 1; \
+        } \
+        if ((rcr && mpfr_inf_p(mpc_realref(V->c))) || (rci && mpfr_inf_p(mpc_imagref(V->c)))) { \
+            CTX->ctx.overflow = 1; \
+            _overflow = 1; \
+        } \
+        if (CTX->ctx.traps) { \
+            if ((CTX->ctx.traps & TRAP_UNDERFLOW) && _underflow) { \
+                GMPY_UNDERFLOW(NAME" underflow"); \
+                Py_DECREF((PyObject*)V); \
+                V = NULL; \
+            } \
+            if ((CTX->ctx.traps & TRAP_OVERFLOW) && _overflow) { \
+                GMPY_OVERFLOW(NAME" overflow"); \
+                Py_DECREF((PyObject*)V); \
+                V = NULL; \
+            } \
+            if ((CTX->ctx.traps & TRAP_INEXACT) && _inexact) { \
+                GMPY_INEXACT(NAME" inexact result"); \
+                Py_DECREF((PyObject*)V); \
+                V = NULL; \
+            } \
+            if ((CTX->ctx.traps & TRAP_INVALID) && _invalid) { \
+                GMPY_INVALID(NAME" invalid operation"); \
+                Py_DECREF((PyObject*)V); \
+                V = NULL; \
+            } \
+        } \
+    } while(0); \
+
+#define GMPY_MPC_CLEANUP(V, CTX, NAME) \
+    GMPY_MPC_CHECK_RANGE(V, CTX); \
+    GMPY_MPC_SUBNORMALIZE(V, CTX); \
+    GMPY_MPC_EXCEPTIONS(V, CTX, NAME); \
+
 #define MPC_CLEANUP_2(V, CTX, NAME) \
     MPC_SUBNORMALIZE_2(V, CTX); \
     do { \
@@ -240,6 +355,11 @@ static PyTypeObject MPC_Type;
             Py_DECREF((PyObject*)V); \
             return NULL; \
         } \
+        if (_inexact && (CTX->ctx.traps & TRAP_INEXACT)) { \
+            GMPY_INEXACT(NAME" inexact result"); \
+            Py_DECREF((PyObject*)V); \
+            return NULL; \
+        } \
         if (_underflow && (CTX->ctx.traps & TRAP_UNDERFLOW)) { \
             GMPY_UNDERFLOW(NAME" underflow"); \
             Py_DECREF((PyObject*)V); \
@@ -247,11 +367,6 @@ static PyTypeObject MPC_Type;
         } \
         if (_overflow && (CTX->ctx.traps & TRAP_OVERFLOW)) { \
             GMPY_OVERFLOW(NAME" overflow"); \
-            Py_DECREF((PyObject*)V); \
-            return NULL; \
-        } \
-        if (_inexact && (CTX->ctx.traps & TRAP_INEXACT)) { \
-            GMPY_INEXACT(NAME" inexact result"); \
             Py_DECREF((PyObject*)V); \
             return NULL; \
         } \

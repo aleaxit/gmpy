@@ -130,27 +130,22 @@ static PyObject *
 GMPy_Context_Plus(PyObject *self, PyObject *args)
 {
     PyObject *result;
+    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 1) {
         TYPE_ERROR("context.plus() requires 1 argument.");
         return NULL;
     }
 
-    /* If we are passed a read-only context, make a copy of it before
-     * proceeding. Remember to decref context when we're done. */
-
-    if (((CTXT_Object*)self)->ctx.readonly) {
-        self = GMPy_CTXT_Copy(self, NULL);
-        if (!self)
-            return NULL;
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
     }
     else {
-        Py_INCREF(self);
+        CHECK_CONTEXT(context);
     }
 
-    result = GMPy_Number_Plus(PyTuple_GET_ITEM(args, 0), (CTXT_Object*)self);
+    result = GMPy_Number_Plus(PyTuple_GET_ITEM(args, 0), context);
 
-    Py_DECREF(self);
     return result;
 }
 

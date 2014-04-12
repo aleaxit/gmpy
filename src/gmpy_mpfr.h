@@ -153,11 +153,7 @@ typedef struct {
     CHECK_OVERFLOW("'mpfr' overflow in "NAME); \
     CHECK_INEXACT("'mpfr' inexact result in "NAME); \
 
-/* The _2 versions should eventually replace all the non _2
- * versions.
- */
-
-#define GMPY_MPFR_CHECK_RANGE(V, CTX)  \
+#define GMPY_MPFR_CHECK_RANGE(V, CTX) \
     if (mpfr_regular_p(V->f) && \
         (!((V->f->_mpfr_exp >= CTX->ctx.emin) && \
            (V->f->_mpfr_exp <= CTX->ctx.emax)))) { \
@@ -185,59 +181,8 @@ typedef struct {
         mpfr_set_emax(_oldemax); \
     }
 
-#define SUBNORMALIZE_2(V, CTX) \
-    if (CTX->ctx.subnormalize) \
-        V->rc = mpfr_subnormalize(V->f, V->rc, GET_MPFR_ROUND(CTX));
-
-#define GMPY_MPFR_MERGE_FLAGS(CTX) \
-    CTX->ctx.underflow |= mpfr_underflow_p(); \
-    CTX->ctx.overflow |= mpfr_overflow_p(); \
-    CTX->ctx.invalid |= mpfr_nanflag_p(); \
-    CTX->ctx.inexact |= mpfr_inexflag_p(); \
-    CTX->ctx.divzero |= mpfr_divby0_p();
-
-#define CHECK_ERANGE_2(CTX, MSG) \
-    if ((CTX->ctx.traps & TRAP_ERANGE) && mpfr_erangeflag_p()) { \
-        GMPY_ERANGE(MSG); \
-        goto done; \
-    }
-
-#define CHECK_DIVBY0_2(CTX, MSG) \
-    if ((CTX->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) { \
-        GMPY_DIVZERO(MSG); \
-        goto done; \
-    }
-
-#define CHECK_INVALID_2(CTX, MSG) \
-    if ((CTX->ctx.traps & TRAP_INVALID) && mpfr_nanflag_p()) { \
-        GMPY_INVALID(MSG); \
-        goto done; \
-    }
-
-#define CHECK_UNDERFLOW_2(msg) \
-    if ((context->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) { \
-        GMPY_UNDERFLOW(msg); \
-        goto done; \
-    }
-
-#define CHECK_OVERFLOW_2(msg) \
-    if ((context->ctx.traps & TRAP_OVERFLOW) && mpfr_overflow_p()) { \
-        GMPY_OVERFLOW(msg); \
-        goto done; \
-    }
-
-#define CHECK_INEXACT_2(CTX, MSG) \
-    if ((CTX->ctx.traps & TRAP_INEXACT) && mpfr_inexflag_p()) { \
-        GMPY_INEXACT(MSG); \
-        goto done; \
-    }
-
-#define CHECK_FLAGS_2(CTX, NAME) \
-    CHECK_DIVBY0_2(CTX, NAME": division by zero"); \
-    CHECK_INVALID_2(CTX, NAME": invalid operation"); \
-    CHECK_UNDERFLOW_2(CTX, NAME": underflow"); \
-    CHECK_OVERFLOW_2(CTX, NAME": overflow"); \
-    CHECK_INEXACT_2(CTX, NAME": inexact result"); \
+/* Exceptions should be checked in order of least important to most important.
+ */
 
 #define GMPY_MPFR_EXCEPTIONS(V, CTX, NAME) \
     CTX->ctx.underflow |= mpfr_underflow_p(); \
@@ -246,102 +191,44 @@ typedef struct {
     CTX->ctx.inexact |= mpfr_inexflag_p(); \
     CTX->ctx.divzero |= mpfr_divby0_p(); \
     if (CTX->ctx.traps) { \
+        if ((CTX->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) { \
+            GMPY_UNDERFLOW(NAME" underflow"); \
+            Py_DECREF((PyObject*)V); \
+            V = NULL; \
+        } \
+        if ((CTX->ctx.traps & TRAP_OVERFLOW) && mpfr_overflow_p()) { \
+            GMPY_OVERFLOW(NAME" overflow"); \
+            Py_DECREF((PyObject*)V); \
+            V = NULL; \
+        } \
+        if ((CTX->ctx.traps & TRAP_INEXACT) && mpfr_inexflag_p()) { \
+            GMPY_INEXACT(NAME" inexact result"); \
+            Py_DECREF((PyObject*)V); \
+            V = NULL; \
+        } \
         if ((CTX->ctx.traps & TRAP_INVALID) && mpfr_nanflag_p()) { \
-            GMPY_INVALID(NAME " invalid operation"); \
+            GMPY_INVALID(NAME" invalid operation"); \
             Py_DECREF((PyObject*)V); \
             V = NULL; \
         } \
-        else if ((CTX->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) { \
-            GMPY_DIVZERO(NAME " division or modulo by zero"); \
-            Py_DECREF((PyObject*)V); \
-            V = NULL; \
-        } \
-        else if ((CTX->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) { \
-            GMPY_UNDERFLOW(NAME " underflow"); \
-            Py_DECREF((PyObject*)V); \
-            V = NULL; \
-        } \
-        else if ((CTX->ctx.traps & TRAP_OVERFLOW) && mpfr_overflow_p()) { \
-            GMPY_OVERFLOW(NAME " overflow"); \
-            Py_DECREF((PyObject*)V); \
-            V = NULL; \
-        } \
-        else if ((CTX->ctx.traps & TRAP_INEXACT) && mpfr_inexflag_p()) { \
-            GMPY_INEXACT(NAME " inexact result"); \
+        if ((CTX->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) { \
+            GMPY_DIVZERO(NAME" division by zero"); \
             Py_DECREF((PyObject*)V); \
             V = NULL; \
         } \
     }
-
-#define MPFR_CLEANUP_2(V, CTX, NAME) \
-    GMPY_MPFR_CHECK_RANGE(V, CTX); \
-    GMPY_MPFR_SUBNORMALIZE(V, CTX); \
-    GMPY_MPFR_EXCEPTIONS(V, CTX, NAME);
 
 #define GMPY_MPFR_CLEANUP(V, CTX, NAME) \
-    if (mpfr_regular_p(V->f) && \
-        (!((V->f->_mpfr_exp >= CTX->ctx.emin) && \
-           (V->f->_mpfr_exp <= CTX->ctx.emax)))) { \
-        mpfr_exp_t _oldemin, _oldemax; \
-        _oldemin = mpfr_get_emin(); \
-        _oldemax = mpfr_get_emax(); \
-        mpfr_set_emin(CTX->ctx.emin); \
-        mpfr_set_emax(CTX->ctx.emax); \
-        V->rc = mpfr_check_range(V->f, V->rc, GET_MPFR_ROUND(CTX)); \
-        mpfr_set_emin(_oldemin); \
-        mpfr_set_emax(_oldemax); \
-    } \
-    if (CTX->ctx.subnormalize && \
-        V->f->_mpfr_exp >= CTX->ctx.emin && \
-        V->f->_mpfr_exp <= CTX->ctx.emin + mpfr_get_prec(V->f) - 2) { \
-        mpfr_exp_t _oldemin, _oldemax; \
-        _oldemin = mpfr_get_emin(); \
-        _oldemax = mpfr_get_emax(); \
-        mpfr_set_emin(CTX->ctx.emin); \
-        mpfr_set_emax(CTX->ctx.emax); \
-        V->rc = mpfr_subnormalize(V->f, V->rc, GET_MPFR_ROUND(CTX)); \
-        mpfr_set_emin(_oldemin); \
-        mpfr_set_emax(_oldemax); \
-    } \
-    CTX->ctx.underflow |= mpfr_underflow_p(); \
-    CTX->ctx.overflow |= mpfr_overflow_p(); \
-    CTX->ctx.invalid |= mpfr_nanflag_p(); \
-    CTX->ctx.inexact |= mpfr_inexflag_p(); \
-    CTX->ctx.divzero |= mpfr_divby0_p(); \
-    if (CTX->ctx.traps) { \
-        if ((CTX->ctx.traps & TRAP_INVALID) && mpfr_nanflag_p()) { \
-            GMPY_INVALID(NAME " invalid operation"); \
-            Py_DECREF((PyObject*)V); \
-            V = NULL; \
-        } \
-        else if ((CTX->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) { \
-            GMPY_DIVZERO(NAME " division or modulo by zero"); \
-            Py_DECREF((PyObject*)V); \
-            V = NULL; \
-        } \
-        else if ((CTX->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) { \
-            GMPY_UNDERFLOW(NAME " underflow"); \
-            Py_DECREF((PyObject*)V); \
-            V = NULL; \
-        } \
-        else if ((CTX->ctx.traps & TRAP_OVERFLOW) && mpfr_overflow_p()) { \
-            GMPY_OVERFLOW(NAME " overflow"); \
-            Py_DECREF((PyObject*)V); \
-            V = NULL; \
-        } \
-        else if ((CTX->ctx.traps & TRAP_INEXACT) && mpfr_inexflag_p()) { \
-            GMPY_INEXACT(NAME " inexact result"); \
-            Py_DECREF((PyObject*)V); \
-            V = NULL; \
-        } \
-    }
+    GMPY_MPFR_CHECK_RANGE(V, CTX); \
+    GMPY_MPFR_SUBNORMALIZE(V, CTX); \
+    GMPY_MPFR_EXCEPTIONS(V, CTX, NAME); \
 
 #define MPFR_CHECK_FLAGS(mpfrt, NAME) \
     CHECK_DIVBY0(mpfrt, "'mpfr' division by zero in "NAME); \
     CHECK_INVALID(mpfrt, "'mpfr' invalid operation in "NAME); \
+    CHECK_INEXACT(mpfrt, "'mpfr' inexact result in "NAME); \
     CHECK_UNDERFLOW(mpfrt, "'mpfr' underflow in "NAME); \
     CHECK_OVERFLOW(mpfrt, "'mpfr' overflow in "NAME); \
-    CHECK_INEXACT(mpfrt, "'mpfr' inexact result in "NAME); \
 
 #define SUBNORMALIZE(NAME) \
     if (context->ctx.subnormalize) \
@@ -446,15 +333,6 @@ typedef struct {
 static PyTypeObject MPFR_Type;
 #define MPFR(obj) (((MPFR_Object *)(obj))->f)
 #define MPFR_Check(v) (((PyObject*)v)->ob_type == &MPFR_Type)
-/* Verify that an object is an mpfr and the exponent is valid */
-#define MPFR_CheckAndExpXXX(v) \
-    (MPFR_Check(v) && \
-        (!mpfr_regular_p(MPFR(v)) || \
-            ((MPFR(v)->_mpfr_exp >= context->ctx.emin) && \
-             (MPFR(v)->_mpfr_exp <= context->ctx.emax)) \
-        ) \
-    )
-
 
 static PyObject * Pympfr_f2q(PyObject *self, PyObject *args);
 static PyObject * Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds);

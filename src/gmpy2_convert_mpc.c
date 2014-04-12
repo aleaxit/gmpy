@@ -35,12 +35,18 @@ GMPy_MPC_From_MPC(MPC_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
                   CTXT_Object *context)
 {
     MPC_Object *result = NULL;
-    mpfr_prec_t tempr = 0, tempi = 0;
-    int rr, ri, dr, di;
 
     assert(MPC_Check(obj));
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    /* Optimize the critical case when prec==1 or obj is NaN or Inf. */
+
+    if ((rprec == 1 && iprec == 1) ||
+        (!mpfr_number_p(mpc_realref(obj->c)) && !mpfr_number_p(mpc_imagref(obj->c)))) {
+        Py_INCREF((PyObject*)obj);
+        return obj;
+    }
+
+    CHECK_CONTEXT(context);
 
     if (rprec == 0)
         rprec = GET_REAL_PREC(context);
@@ -52,74 +58,29 @@ GMPy_MPC_From_MPC(MPC_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
     else if (iprec == 1)
         iprec = mpfr_get_prec(mpc_imagref(obj->c));
 
+    /* Try to identify when an additional reference to existing instance can
+     * be returned. It is possible when (1) the precision matches, (2) the
+     * exponent is valid and not in the range that might require subnormal-
+     * ization, and (3) subnormalize is not enabled.
+     */
 
-    if (MPC_CheckAndExp(obj)) {
-        if (rprec == mpfr_get_prec(mpc_realref(obj->c)) &&
-            iprec == mpfr_get_prec(mpc_imagref(obj->c))) {
-            Py_INCREF((PyObject*)obj);
-            return obj;
-        }
-        else {
-            if ((result = GMPy_MPC_New(rprec, iprec, context))) {
-                result->rc = mpc_set(result->c, obj->c, GET_MPC_ROUND(context));
-                /* Expanded version of MPC_CLEANUP_2 macro without the check for NAN.
-                 */
-                MPC_SUBNORMALIZE_2(result, context);
-                do {
-                    int rcr, rci;
-                    rcr = MPC_INEX_RE(result->rc);
-                    rci = MPC_INEX_IM(result->rc);
-                    if ((rcr && mpfr_zero_p(mpc_realref(MPC(result)))) || (rci && mpfr_zero_p(mpc_imagref(MPC(result))))) {
-                        context->ctx.underflow = 1;
-                        if (context->ctx.traps & TRAP_UNDERFLOW) {
-                            GMPY_OVERFLOW("mpc() underflow");
-                            Py_DECREF((PyObject*)result);
-                            return NULL;
-                        }
-                    }
-                    if ((rcr && mpfr_inf_p(mpc_realref(MPC(result)))) || (rci && mpfr_inf_p(mpc_imagref(MPC(result))))) {
-                        context->ctx.overflow = 1;
-                        if (context->ctx.traps & TRAP_OVERFLOW) {
-                            GMPY_OVERFLOW("mpc() overflow");
-                            Py_DECREF((PyObject*)result);
-                            return NULL;
-                        }
-                    }
-                } while(0);
-                if (result->rc) {
-                    context->ctx.inexact = 1;
-                    if (context->ctx.traps & TRAP_INEXACT) {
-                        GMPY_INEXACT("mpc() inexact result");
-                        Py_DECREF((PyObject*)result);
-                        return NULL;
-                    }
-                }
-            }
-            return result;
-        }
+    if ((rprec == mpfr_get_prec(mpc_realref(obj->c))) &&
+        (iprec == mpfr_get_prec(mpc_imagref(obj->c))) &&
+        (!context->ctx.subnormalize) &&
+        (mpc_realref(obj->c)->_mpfr_exp >= (context->ctx.emin + mpfr_get_prec(mpc_realref(obj->c)) - 1)) &&
+        (mpc_realref(obj->c)->_mpfr_exp <= context->ctx.emax) &&
+        (mpc_imagref(obj->c)->_mpfr_exp >= (context->ctx.emin + mpfr_get_prec(mpc_imagref(obj->c)) - 1)) &&
+        (mpc_imagref(obj->c)->_mpfr_exp <= context->ctx.emax)
+        ) {
+
+        Py_INCREF((PyObject*)obj);
+        return obj;
     }
 
-
-    if (context->ctx.traps & TRAP_EXPBOUND) {
-        GMPY_EXPBOUND("exponent of existing mpc incompatible with current context");
-        return NULL;
+    if ((result = GMPy_MPC_New(rprec, iprec, context))) {
+        result->rc = mpc_set(result->c, obj->c, GET_MPC_ROUND(context));
+        GMPY_MPC_CLEANUP(result, context, "mpc()");
     }
-
-    mpc_get_prec2(&tempr, &tempi, obj->c);
-    rr = MPC_INEX_RE(obj->rc);
-    ri = MPC_INEX_IM(obj->rc);
-    dr = MPC_RND_RE(obj->round_mode);
-    di = MPC_RND_IM(obj->round_mode);
-
-    if ((result = GMPy_MPC_New(tempr, tempi, context))) {
-        /* First make the exponent valid. */
-        mpc_set(result->c, obj->c, GET_MPC_ROUND(context));
-        rr = mpfr_check_range(mpc_realref(result->c), rr, dr);
-        ri = mpfr_check_range(mpc_imagref(result->c), ri, di);
-        /* Round to the desired precision. */
-        result->rc = MPC_INEX(rr, ri);
-    }
-
     return result;
 }
 
@@ -131,7 +92,7 @@ GMPy_MPC_From_PyComplex(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 
     assert(PyComplex_Check(obj));
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (rprec == 0)
         rprec = GET_REAL_PREC(context);
@@ -143,13 +104,15 @@ GMPy_MPC_From_PyComplex(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
     else if (iprec == 1)
         rprec = DBL_MANT_DIG;
 
-    if ((result = GMPy_MPC_New(rprec, iprec, context)))
-        mpc_set_d_d(result->c, PyComplex_RealAsDouble(obj),
-                    PyComplex_ImagAsDouble(obj), GET_MPC_ROUND(context));
-
-    MPC_SUBNORMALIZE_2(result, context);
-    /* Need to do exception checks! */
-
+    if ((result = GMPy_MPC_New(rprec, iprec, context))) {
+        result->rc = mpc_set_d_d(result->c, PyComplex_RealAsDouble(obj),
+                                 PyComplex_ImagAsDouble(obj), GET_MPC_ROUND(context));
+        if (rprec != 1 || iprec != 1) {
+            GMPY_MPC_CHECK_RANGE(result, context);
+        }
+        GMPY_MPC_SUBNORMALIZE(result, context);
+        GMPY_MPC_EXCEPTIONS(result, context, "mpc()");
+    }
     return result;
 }
 
@@ -159,7 +122,7 @@ GMPy_MPC_From_MPFR(MPFR_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 {
     MPC_Object *result;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (rprec == 0)
         rprec = GET_REAL_PREC(context);
@@ -171,12 +134,14 @@ GMPy_MPC_From_MPFR(MPFR_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
     else if (iprec == 1)
         rprec = mpfr_get_prec(obj->f);
 
-    if ((result = GMPy_MPC_New(rprec, iprec, context)))
+    if ((result = GMPy_MPC_New(rprec, iprec, context))) {
         result->rc = mpc_set_fr(result->c, obj->f, GET_MPC_ROUND(context));
-
-    MPC_SUBNORMALIZE_2(result, context);
-    /* Need to do exception checks! */
-
+        if (rprec != 1) {
+            GMPY_MPC_CHECK_RANGE(result, context);
+        }
+        GMPY_MPC_SUBNORMALIZE(result, context);
+        GMPY_MPC_EXCEPTIONS(result, context, "mpc()");
+    }
     return result;
 }
 
@@ -186,7 +151,7 @@ GMPy_MPC_From_PyFloat(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 {
     MPC_Object *result;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     assert(PyFloat_Check(obj));
 
@@ -200,13 +165,15 @@ GMPy_MPC_From_PyFloat(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
     else if (iprec == 1)
         rprec = DBL_MANT_DIG;
 
-    if ((result = GMPy_MPC_New(rprec, iprec, context)))
+    if ((result = GMPy_MPC_New(rprec, iprec, context))) {
         result->rc = mpc_set_d(result->c, PyFloat_AS_DOUBLE(obj),
                                GET_MPC_ROUND(context));
-
-    MPC_SUBNORMALIZE_2(result, context);
-    /* Need to do exception checks! */
-
+        if (rprec != 1) {
+            GMPY_MPC_CHECK_RANGE(result, context);
+        }
+        GMPY_MPC_SUBNORMALIZE(result, context);
+        GMPY_MPC_EXCEPTIONS(result, context, "mpc()");
+    }
     return result;
 }
 
@@ -218,7 +185,7 @@ GMPy_MPC_From_MPZ(MPZ_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 
     assert(MPZ_Check(obj));
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (rprec == 0 || rprec == 1)
         rprec = GET_REAL_PREC(context) + rprec * GET_GUARD_BITS(context);
@@ -226,12 +193,14 @@ GMPy_MPC_From_MPZ(MPZ_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
     if (iprec == 0 || iprec == 1)
         iprec = GET_IMAG_PREC(context) + iprec * GET_GUARD_BITS(context);
 
-    if ((result = GMPy_MPC_New(rprec, iprec, context)))
+    if ((result = GMPy_MPC_New(rprec, iprec, context))) {
         result->rc = mpc_set_z(result->c, obj->z, GET_MPC_ROUND(context));
-
-    MPC_SUBNORMALIZE_2(result, context);
-    /* Need to do exception checks! */
-
+        if (rprec != 1) {
+            GMPY_MPC_CHECK_RANGE(result, context);
+        }
+        GMPY_MPC_SUBNORMALIZE(result, context);
+        GMPY_MPC_EXCEPTIONS(result, context, "mpc()");
+    }
     return result;
 }
 
@@ -243,7 +212,7 @@ GMPy_MPC_From_MPQ(MPQ_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 
     assert(MPQ_Check(obj));
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (rprec == 0 || rprec == 1)
         rprec = GET_REAL_PREC(context) + rprec * GET_GUARD_BITS(context);
@@ -251,12 +220,14 @@ GMPy_MPC_From_MPQ(MPQ_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
     if (iprec == 0 || iprec == 1)
         iprec = GET_IMAG_PREC(context) + iprec * GET_GUARD_BITS(context);
 
-    if ((result = GMPy_MPC_New(rprec, iprec, context)))
+    if ((result = GMPy_MPC_New(rprec, iprec, context))) {
         result->rc = mpc_set_q(result->c, obj->q, GET_MPC_ROUND(context));
-
-    MPC_SUBNORMALIZE_2(result, context);
-    /* Need to do exception checks! */
-
+        if (rprec != 1) {
+            GMPY_MPC_CHECK_RANGE(result, context);
+        }
+        GMPY_MPC_SUBNORMALIZE(result, context);
+        GMPY_MPC_EXCEPTIONS(result, context, "mpc()");
+    }
     return result;
 }
 
@@ -269,16 +240,12 @@ GMPy_MPC_From_Fraction(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 
     assert(IS_RATIONAL(obj));
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if ((tempq = GMPy_MPQ_From_Fraction(obj, context))) {
         result = GMPy_MPC_From_MPQ(tempq, rprec, iprec, context);
         Py_DECREF((PyObject*)tempq);
     }
-
-    MPC_SUBNORMALIZE_2(result, context);
-    /* Need to do exception checks! */
-
     return result;
 }
 
@@ -291,14 +258,14 @@ GMPy_MPC_From_Decimal(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
     mpfr_prec_t oldmpfr, oldreal;
     int oldmpfr_round, oldreal_round;
 
+    assert(IS_DECIMAL(obj));
+
+    CHECK_CONTEXT(context);
+
     oldmpfr = GET_MPFR_PREC(context);
     oldreal = GET_REAL_PREC(context);
     oldmpfr_round = GET_MPFR_ROUND(context);
     oldreal_round = GET_REAL_ROUND(context);
-
-    assert(IS_DECIMAL(obj));
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
 
     context->ctx.mpfr_prec = oldreal;
     context->ctx.mpfr_round = oldreal_round;
@@ -318,10 +285,6 @@ GMPy_MPC_From_Decimal(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
     result->rc = MPC_INEX(tempf->rc, 0);
     mpfr_swap(mpc_realref(result->c), tempf->f);
     Py_DECREF(tempf);
-
-    MPC_SUBNORMALIZE_2(result, context);
-    /* Need to do exception checks! */
-
     return result;
 }
 
@@ -334,7 +297,7 @@ GMPy_MPC_From_PyIntOrLong(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 
     assert(PyIntOrLong_Check(obj));
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if ((tempz = GMPy_MPZ_From_PyIntOrLong(obj, context))) {
         result = GMPy_MPC_From_MPZ(tempz, rprec, iprec, context);
@@ -363,7 +326,7 @@ GMPy_MPC_From_PyStr(PyObject *s, int base, mpfr_prec_t rprec, mpfr_prec_t iprec,
     char *cp, *unwind, *tempchar, *lastchar;
     int firstp = 0, lastp = 0, real_rc = 0, imag_rc = 0;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (PyBytes_Check(s)) {
         len = PyBytes_Size(s);
@@ -459,46 +422,11 @@ GMPy_MPC_From_PyStr(PyObject *s, int base, mpfr_prec_t rprec, mpfr_prec_t iprec,
     Py_XDECREF(ascii_str);
     result->rc = MPC_INEX(real_rc, imag_rc);
 
-    /* Expanded version of MPC_CLEANUP_2 macro without the check for NAN.
-     */
-    MPC_SUBNORMALIZE_2(result, context);
-    if (MPC_IS_NAN_P(result)) {
-        context->ctx.invalid = 1;
-        if (context->ctx.traps & TRAP_INVALID) {
-            GMPY_INVALID("mpc() invalid operation");
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
+    if (rprec != 1 || iprec != 1) {
+        GMPY_MPC_CHECK_RANGE(result, context);
     }
-    do {
-        int rcr, rci;
-        rcr = MPC_INEX_RE(result->rc);
-        rci = MPC_INEX_IM(result->rc);
-        if ((rcr && mpfr_zero_p(mpc_realref(MPC(result)))) || (rci && mpfr_zero_p(mpc_imagref(MPC(result))))) {
-            context->ctx.underflow = 1;
-            if (context->ctx.traps & TRAP_UNDERFLOW) {
-                GMPY_OVERFLOW("mpc() underflow");
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-        }
-        if ((rcr && mpfr_inf_p(mpc_realref(MPC(result)))) || (rci && mpfr_inf_p(mpc_imagref(MPC(result))))) {
-            context->ctx.overflow = 1;
-            if (context->ctx.traps & TRAP_OVERFLOW) {
-                GMPY_OVERFLOW("mpc() overflow");
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-        }
-    } while(0);
-    if (result->rc) {
-        context->ctx.inexact = 1;
-        if (context->ctx.traps & TRAP_INEXACT) {
-            GMPY_INEXACT("mpc() inexact result");
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-    }
+    GMPY_MPC_SUBNORMALIZE(result, context);
+    GMPY_MPC_EXCEPTIONS(result, context, "mpc()");
 
     return result;
 
@@ -515,23 +443,19 @@ static MPC_Object *
 GMPy_MPC_From_Complex(PyObject* obj, mp_prec_t rprec, mp_prec_t iprec,
                            CTXT_Object *context)
 {
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (MPC_Check(obj))
         return GMPy_MPC_From_MPC((MPC_Object*)obj, rprec, iprec, context);
 
     if (MPFR_Check(obj))
-        return GMPy_MPC_From_MPFR((MPFR_Object*)obj,
-                                  mpfr_get_prec(MPFR(obj)),
-                                  mpfr_get_prec(MPFR(obj)),
-                                  context
-                                 );
+        return GMPy_MPC_From_MPFR((MPFR_Object*)obj, rprec, iprec, context);
 
     if (PyFloat_Check(obj))
-        return GMPy_MPC_From_PyFloat(obj, 53, 53, context);
+        return GMPy_MPC_From_PyFloat(obj, rprec, iprec, context);
 
     if (PyComplex_Check(obj))
-        return GMPy_MPC_From_PyComplex(obj, 53, 53, context);
+        return GMPy_MPC_From_PyComplex(obj, rprec, iprec, context);
 
     if (MPQ_Check(obj))
         return GMPy_MPC_From_MPQ((MPQ_Object*)obj, rprec, iprec, context);
@@ -557,10 +481,10 @@ GMPy_PyStr_From_MPC(MPC_Object *self, int base, int digits, CTXT_Object *context
 {
     PyObject *tempreal = 0, *tempimag = 0, *result;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (!((base >= 2) && (base <= 62))) {
-        VALUE_ERROR("base must be in the interval 2 ... 62");
+        VALUE_ERROR("base must be in the interval [2,62]");
         return NULL;
     }
     if ((digits < 0) || (digits == 1)) {
@@ -602,7 +526,7 @@ GMPy_PyComplex_From_MPC(PyObject *self, PyObject *other)
     CTXT_Object *context = NULL;
     double real, imag;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     real = mpfr_get_d(mpc_realref(MPC(self)), GET_REAL_ROUND(context));
     imag = mpfr_get_d(mpc_imagref(MPC(self)), GET_IMAG_ROUND(context));
