@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_mpz_divmod.h                                                       *
+ * gmpy2_mpz_divmod.h                                                      *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -32,15 +32,15 @@
 extern "C" {
 #endif
 
-static PyObject * Pygmpy_c_divmod(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_c_div(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_c_mod(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_f_divmod(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_f_div(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_f_mod(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_t_divmod(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_t_div(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_t_mod(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_c_divmod(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_c_div(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_c_mod(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_f_divmod(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_f_div(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_f_mod(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_t_divmod(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_t_div(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_t_mod(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
 }

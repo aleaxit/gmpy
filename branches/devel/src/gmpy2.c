@@ -524,7 +524,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy_mpz_inplace.c"
 #include "gmpy_xmpz_inplace.c"
 #include "gmpy_mpz_divmod2exp.c"
-#include "gmpy_mpz_divmod.c"
+#include "gmpy2_mpz_divmod.c"
 
 #include "gmpy_mpz.c"
 #include "gmpy_xmpz.c"
@@ -566,11 +566,11 @@ static PyMethodDef Pygmpy_methods [] =
     { "bit_test", Pygmpy_bit_test, METH_VARARGS, doc_bit_testg },
     { "bincoef", Pympz_bincoef, METH_VARARGS, doc_bincoefg },
     { "comb", Pympz_bincoef, METH_VARARGS, doc_combg },
-    { "c_div", Pygmpy_c_div, METH_VARARGS, doc_gmpy_c_div },
+    { "c_div", GMPy_MPZ_c_div, METH_VARARGS, doc_c_div },
     { "c_div_2exp", Pygmpy_c_div_2exp, METH_VARARGS, doc_gmpy_c_div_2exp },
-    { "c_divmod", Pygmpy_c_divmod, METH_VARARGS, doc_gmpy_c_divmod },
+    { "c_divmod", GMPy_MPZ_c_divmod, METH_VARARGS, doc_c_divmod },
     { "c_divmod_2exp", Pygmpy_c_divmod_2exp, METH_VARARGS, doc_gmpy_c_divmod_2exp },
-    { "c_mod", Pygmpy_c_mod, METH_VARARGS, doc_gmpy_c_mod },
+    { "c_mod", GMPy_MPZ_c_mod, METH_VARARGS, doc_c_mod },
     { "c_mod_2exp", Pygmpy_c_mod_2exp, METH_VARARGS, doc_gmpy_c_mod_2exp },
     { "denom", Pympq_denom, METH_VARARGS, doc_denomg },
     { "digits", Pympany_digits, METH_VARARGS, doc_g_mpany_digits },
@@ -583,11 +583,11 @@ static PyMethodDef Pygmpy_methods [] =
     { "fib2", Pygmpy_fib2, METH_O, doc_fib2 },
     { "floor_div", GMPy_Context_FloorDiv, METH_VARARGS, GMPy_doc_floordiv },
     { "from_binary", GMPy_MPANY_From_Binary, METH_O, doc_from_binary },
-    { "f_div", Pygmpy_f_div, METH_VARARGS, doc_gmpy_f_div },
+    { "f_div", GMPy_MPZ_f_div, METH_VARARGS, doc_f_div },
     { "f_div_2exp", Pygmpy_f_div_2exp, METH_VARARGS, doc_gmpy_f_div_2exp },
-    { "f_divmod", Pygmpy_f_divmod, METH_VARARGS, doc_gmpy_f_divmod },
+    { "f_divmod", GMPy_MPZ_f_divmod, METH_VARARGS, doc_f_divmod },
     { "f_divmod_2exp", Pygmpy_f_divmod_2exp, METH_VARARGS, doc_gmpy_f_divmod_2exp },
-    { "f_mod", Pygmpy_f_mod, METH_VARARGS, doc_gmpy_f_mod },
+    { "f_mod", GMPy_MPZ_f_mod, METH_VARARGS, doc_f_mod },
     { "f_mod_2exp", Pygmpy_f_mod_2exp, METH_VARARGS, doc_gmpy_f_mod_2exp },
     { "gcd", Pygmpy_gcd, METH_VARARGS, doc_gcd },
     { "gcdext", Pygmpy_gcdext, METH_VARARGS, doc_gcdext },
@@ -652,11 +652,11 @@ static PyMethodDef Pygmpy_methods [] =
     { "square", Pympany_square, METH_O, doc_mpany_square },
     { "sub", GMPy_Context_Sub, METH_VARARGS, GMPy_doc_sub },
     { "to_binary", GMPy_MPANY_To_Binary, METH_O, doc_to_binary },
-    { "t_div", Pygmpy_t_div, METH_VARARGS, doc_gmpy_t_div },
+    { "t_div", GMPy_MPZ_t_div, METH_VARARGS, doc_t_div },
     { "t_div_2exp", Pygmpy_t_div_2exp, METH_VARARGS, doc_gmpy_t_div_2exp },
-    { "t_divmod", Pygmpy_t_divmod, METH_VARARGS, doc_gmpy_t_divmod },
+    { "t_divmod", GMPy_MPZ_t_divmod, METH_VARARGS, doc_t_divmod },
     { "t_divmod_2exp", Pygmpy_t_divmod_2exp, METH_VARARGS, doc_gmpy_t_divmod_2exp },
-    { "t_mod", Pygmpy_t_mod, METH_VARARGS, doc_gmpy_t_mod },
+    { "t_mod", GMPy_MPZ_t_mod, METH_VARARGS, doc_t_mod },
     { "t_mod_2exp", Pygmpy_t_mod_2exp, METH_VARARGS, doc_gmpy_t_mod_2exp },
     { "unpack", Pygmpy_unpack, METH_VARARGS, doc_gmpy_unpack },
     { "version", GMPy_get_version, METH_NOARGS, doc_version },
