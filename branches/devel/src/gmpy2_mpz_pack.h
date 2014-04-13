@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_mpz_divmod2exp.h                                                   *
+ * gmpy2_mpz_pack.h                                                   *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -25,24 +25,15 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef GMPY_MPZ_DIVMOD2EXP_H
-#define GMPY_MPZ_DIVMOD2EXP_H
+#ifndef GMPY_MPZ_PACK_H
+#define GMPY_MPZ_PACK_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-static PyObject * Pygmpy_c_divmod_2exp(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_c_div_2exp(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_c_mod_2exp(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_f_divmod_2exp(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_f_div_2exp(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_f_mod_2exp(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_t_divmod_2exp(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_t_div_2exp(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_t_mod_2exp(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_pack(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_unpack(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_pack(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_unpack(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
 }
