@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_binary.c                                                           *
+ * gmpy2_binary.c                                                          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -32,12 +32,12 @@
 
 /* Provide functions to access the old binary formats. */
 
-PyDoc_STRVAR(doc_g_mpz_from_old_binary,
+PyDoc_STRVAR(doc_mpz_from_old_binary,
 "mpz_from_old_binary(string) -> mpz\n\n"
 "Return an 'mpz' from a GMPY 1.x binary format.");
 
 static PyObject *
-Pympz_From_Old_Binary(PyObject *self, PyObject *other)
+GMPy_MPZ_From_Old_Binary(PyObject *self, PyObject *other)
 {
     unsigned char *cp;
     Py_ssize_t len;
@@ -65,12 +65,12 @@ Pympz_From_Old_Binary(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_g_mpq_from_old_binary,
+PyDoc_STRVAR(doc_mpq_from_old_binary,
 "mpq_from_old_binary(string) -> mpq\n\n"
 "Return an 'mpq' from a GMPY 1.x binary format.");
 
 static PyObject *
-Pympq_From_Old_Binary(PyObject *self, PyObject *other)
+GMPy_MPQ_From_Old_Binary(PyObject *self, PyObject *other)
 {
     unsigned char *cp;
     Py_ssize_t len;
@@ -119,12 +119,12 @@ Pympq_From_Old_Binary(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_from_old_binary,
+PyDoc_STRVAR(doc_mpfr_from_old_binary,
 "mpfr_from_old_binary(string) -> mpfr\n\n"
 "Return an 'mpfr' from a GMPY 1.x binary mpf format.");
 
 static PyObject *
-Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
+GMPy_MPFR_From_Old_Binary(PyObject *self, PyObject *other)
 {
     unsigned char *cp;
     Py_ssize_t len;
@@ -135,7 +135,7 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
     unsigned int expomag = 0;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (!(PyBytes_Check(other))) {
         TYPE_ERROR("mpfr_from_old_binary() requires bytes argument");
@@ -234,7 +234,7 @@ Pympfr_From_Old_Binary(PyObject *self, PyObject *other)
  */
 
 static PyObject *
-Pympz_To_Binary(MPZ_Object *self)
+GMPy_MPZ_To_Binary(MPZ_Object *self)
 {
     size_t size = 2;
     int sgn;
@@ -266,7 +266,7 @@ Pympz_To_Binary(MPZ_Object *self)
 }
 
 static PyObject *
-Pyxmpz_To_Binary(XMPZ_Object *self)
+GMPy_XMPZ_To_Binary(XMPZ_Object *self)
 {
     size_t size = 2;
     int sgn;
@@ -315,7 +315,7 @@ Pyxmpz_To_Binary(XMPZ_Object *self)
  */
 
 static PyObject *
-Pympq_To_Binary(MPQ_Object *self)
+GMPy_MPQ_To_Binary(MPQ_Object *self)
 {
     size_t sizenum, sizeden, sizesize = 4, size = 2, sizetemp, i;
     size_t count = 0;
@@ -410,7 +410,7 @@ Pympq_To_Binary(MPQ_Object *self)
  */
 
 static PyObject *
-Pympfr_To_Binary(MPFR_Object *self)
+GMPy_MPFR_To_Binary(MPFR_Object *self)
 {
     size_t sizemant = 0, sizesize = 4, size = 4, sizetemp, i;
     mp_limb_t templimb;
@@ -582,18 +582,18 @@ Pympfr_To_Binary(MPFR_Object *self)
  */
 
 static PyObject *
-Pympc_To_Binary(MPC_Object *obj)
+GMPy_MPC_To_Binary(MPC_Object *obj)
 {
     MPFR_Object *real = NULL, *imag = NULL;
     PyObject *result = NULL, *temp = NULL;
-    mpfr_prec_t rprec = 0, cprec = 0;
+    mpfr_prec_t rprec = 0, iprec = 0;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
-    mpc_get_prec2(&rprec, &cprec, obj->c);
+    mpc_get_prec2(&rprec, &iprec, obj->c);
     real = GMPy_MPFR_New(rprec, context);
-    imag = GMPy_MPFR_New(cprec, context);
+    imag = GMPy_MPFR_New(iprec, context);
     if (!real || !imag) {
         Py_XDECREF((PyObject*)real);
         Py_XDECREF((PyObject*)imag);
@@ -605,8 +605,8 @@ Pympc_To_Binary(MPC_Object *obj)
     real->rc = obj->rc;
     real->round_mode = obj->round_mode;
 
-    result = Pympfr_To_Binary(real);
-    temp = Pympfr_To_Binary(imag);
+    result = GMPy_MPFR_To_Binary(real);
+    temp = GMPy_MPFR_To_Binary(imag);
     Py_DECREF((PyObject*)real);
     Py_DECREF((PyObject*)imag);
     if (!result || !temp) {
@@ -629,13 +629,13 @@ PyDoc_STRVAR(doc_from_binary,
 
 
 static PyObject *
-Pympany_From_Binary(PyObject *self, PyObject *other)
+GMPy_MPANY_From_Binary(PyObject *self, PyObject *other)
 {
     unsigned char *buffer, *cp;
     Py_ssize_t len;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (!(PyBytes_Check(other))) {
         TYPE_ERROR("from_binary() requires bytes argument");
@@ -1162,5 +1162,30 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
             return NULL;
         }
     }
+}
+
+PyDoc_STRVAR(doc_to_binary,
+"to_binary(x) -> bytes\n"
+"Return a Python byte sequence that is a portable binary\n"
+"representation of a gmpy2 object x. The byte sequence can\n"
+"be passed to gmpy2.from_binary() to obtain an exact copy of\n"
+"x's value. Works with mpz, xmpz, mpq, mpfr, and mpc types. \n"
+"Raises TypeError if x is not a gmpy2 object.");
+
+static PyObject *
+GMPy_MPANY_To_Binary(PyObject *self, PyObject *other)
+{
+    if(MPZ_Check(other))
+        return GMPy_MPZ_To_Binary((MPZ_Object*)other);
+    else if(XMPZ_Check(other))
+        return GMPy_XMPZ_To_Binary((XMPZ_Object*)other);
+    else if(MPQ_Check(other))
+        return GMPy_MPQ_To_Binary((MPQ_Object*)other);
+    else if(MPFR_Check(other))
+        return GMPy_MPFR_To_Binary((MPFR_Object*)other);
+    else if(MPC_Check(other))
+        return GMPy_MPC_To_Binary((MPC_Object*)other);
+    TYPE_ERROR("to_binary() argument type not supported");
+    return NULL;
 }
 

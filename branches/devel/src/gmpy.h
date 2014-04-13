@@ -284,7 +284,7 @@ typedef long                mpir_si;
 
 /* Support conversion to/from binary format. */
 
-#include "gmpy_binary.h"
+#include "gmpy2_binary.h"
 
 /* Support random number generators. */
 
