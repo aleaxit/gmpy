@@ -523,8 +523,9 @@ static PyObject *GMPyExc_Erange = NULL;
 
 #include "gmpy_mpz_inplace.c"
 #include "gmpy_xmpz_inplace.c"
-#include "gmpy_mpz_divmod2exp.c"
 #include "gmpy2_mpz_divmod.c"
+#include "gmpy2_mpz_divmod2exp.c"
+#include "gmpy2_mpz_pack.c"
 
 #include "gmpy_mpz.c"
 #include "gmpy_xmpz.c"
@@ -567,11 +568,11 @@ static PyMethodDef Pygmpy_methods [] =
     { "bincoef", Pympz_bincoef, METH_VARARGS, doc_bincoefg },
     { "comb", Pympz_bincoef, METH_VARARGS, doc_combg },
     { "c_div", GMPy_MPZ_c_div, METH_VARARGS, doc_c_div },
-    { "c_div_2exp", Pygmpy_c_div_2exp, METH_VARARGS, doc_gmpy_c_div_2exp },
+    { "c_div_2exp", GMPy_MPZ_c_div_2exp, METH_VARARGS, doc_c_div_2exp },
     { "c_divmod", GMPy_MPZ_c_divmod, METH_VARARGS, doc_c_divmod },
-    { "c_divmod_2exp", Pygmpy_c_divmod_2exp, METH_VARARGS, doc_gmpy_c_divmod_2exp },
+    { "c_divmod_2exp", GMPy_MPZ_c_divmod_2exp, METH_VARARGS, doc_c_divmod_2exp },
     { "c_mod", GMPy_MPZ_c_mod, METH_VARARGS, doc_c_mod },
-    { "c_mod_2exp", Pygmpy_c_mod_2exp, METH_VARARGS, doc_gmpy_c_mod_2exp },
+    { "c_mod_2exp", GMPy_MPZ_c_mod_2exp, METH_VARARGS, doc_c_mod_2exp },
     { "denom", Pympq_denom, METH_VARARGS, doc_denomg },
     { "digits", Pympany_digits, METH_VARARGS, doc_g_mpany_digits },
     { "div", GMPy_Context_TrueDiv, METH_VARARGS, GMPy_doc_truediv },
@@ -584,11 +585,11 @@ static PyMethodDef Pygmpy_methods [] =
     { "floor_div", GMPy_Context_FloorDiv, METH_VARARGS, GMPy_doc_floordiv },
     { "from_binary", GMPy_MPANY_From_Binary, METH_O, doc_from_binary },
     { "f_div", GMPy_MPZ_f_div, METH_VARARGS, doc_f_div },
-    { "f_div_2exp", Pygmpy_f_div_2exp, METH_VARARGS, doc_gmpy_f_div_2exp },
+    { "f_div_2exp", GMPy_MPZ_f_div_2exp, METH_VARARGS, doc_f_div_2exp },
     { "f_divmod", GMPy_MPZ_f_divmod, METH_VARARGS, doc_f_divmod },
-    { "f_divmod_2exp", Pygmpy_f_divmod_2exp, METH_VARARGS, doc_gmpy_f_divmod_2exp },
+    { "f_divmod_2exp", GMPy_MPZ_f_divmod_2exp, METH_VARARGS, doc_f_divmod_2exp },
     { "f_mod", GMPy_MPZ_f_mod, METH_VARARGS, doc_f_mod },
-    { "f_mod_2exp", Pygmpy_f_mod_2exp, METH_VARARGS, doc_gmpy_f_mod_2exp },
+    { "f_mod_2exp", GMPy_MPZ_f_mod_2exp, METH_VARARGS, doc_f_mod_2exp },
     { "gcd", Pygmpy_gcd, METH_VARARGS, doc_gcd },
     { "gcdext", Pygmpy_gcdext, METH_VARARGS, doc_gcdext },
     { "get_cache", GMPy_get_cache, METH_NOARGS, doc_get_cache },
@@ -639,7 +640,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "next_prime", Pympz_next_prime, METH_O, doc_next_primeg },
     { "numer", Pympq_numer, METH_VARARGS, doc_numerg },
     { "num_digits", Pympz_num_digits, METH_VARARGS, doc_num_digitsg },
-    { "pack", Pygmpy_pack, METH_VARARGS, doc_gmpy_pack },
+    { "pack", GMPy_MPZ_pack, METH_VARARGS, doc_pack },
     { "popcount", Pympz_popcount, METH_O, doc_popcountg },
     { "powmod", GMPy_Integer_PowMod, METH_VARARGS, GMPy_doc_integer_powmod },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivg },
@@ -653,12 +654,12 @@ static PyMethodDef Pygmpy_methods [] =
     { "sub", GMPy_Context_Sub, METH_VARARGS, GMPy_doc_sub },
     { "to_binary", GMPy_MPANY_To_Binary, METH_O, doc_to_binary },
     { "t_div", GMPy_MPZ_t_div, METH_VARARGS, doc_t_div },
-    { "t_div_2exp", Pygmpy_t_div_2exp, METH_VARARGS, doc_gmpy_t_div_2exp },
+    { "t_div_2exp", GMPy_MPZ_t_div_2exp, METH_VARARGS, doc_t_div_2exp },
     { "t_divmod", GMPy_MPZ_t_divmod, METH_VARARGS, doc_t_divmod },
-    { "t_divmod_2exp", Pygmpy_t_divmod_2exp, METH_VARARGS, doc_gmpy_t_divmod_2exp },
+    { "t_divmod_2exp", GMPy_MPZ_t_divmod_2exp, METH_VARARGS, doc_t_divmod_2exp },
     { "t_mod", GMPy_MPZ_t_mod, METH_VARARGS, doc_t_mod },
-    { "t_mod_2exp", Pygmpy_t_mod_2exp, METH_VARARGS, doc_gmpy_t_mod_2exp },
-    { "unpack", Pygmpy_unpack, METH_VARARGS, doc_gmpy_unpack },
+    { "t_mod_2exp", GMPy_MPZ_t_mod_2exp, METH_VARARGS, doc_t_mod_2exp },
+    { "unpack", GMPy_MPZ_unpack, METH_VARARGS, doc_unpack },
     { "version", GMPy_get_version, METH_NOARGS, doc_version },
     { "xbit_mask", Pyxmpz_xbit_mask, METH_O, doc_xbit_maskg },
     { "xmpz", (PyCFunction)Pygmpy_xmpz, METH_VARARGS | METH_KEYWORDS, doc_xmpz },
