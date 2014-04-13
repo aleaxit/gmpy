@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_binary.c                                                           *
+ * gmpy2_binary.c                                                          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -37,19 +37,18 @@ extern "C" {
  * with GMPY 1.x. Methods to read the old format are provided.
  */
 
-static PyObject * Pympz_From_Old_Binary(PyObject *self, PyObject *other);
-static PyObject * Pympq_From_Old_Binary(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_From_Old_Binary(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPQ_From_Old_Binary(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPFR_From_Old_Binary(PyObject *self, PyObject *other);
 
-static PyObject * Pympany_From_Binary(PyObject *self, PyObject *other);
-static PyObject * Pympz_To_Binary(MPZ_Object *self);
-static PyObject * Pyxmpz_To_Binary(XMPZ_Object *self);
-static PyObject * Pympq_To_Binary(MPQ_Object *self);
+static PyObject * GMPy_MPANY_From_Binary(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPANY_To_Binary(PyObject *self, PyObject *other);
 
-static PyObject * Pympfr_From_Old_Binary(PyObject *self, PyObject *other);
-static PyObject * Pympfr_To_Binary(MPFR_Object *self);
-
-static PyObject * Pympc_To_Binary(MPC_Object *self);
-
+static PyObject * GMPy_MPZ_To_Binary(MPZ_Object *self);
+static PyObject * GMPy_XMPZ_To_Binary(XMPZ_Object *self);
+static PyObject * GMPy_MPQ_To_Binary(MPQ_Object *self);
+static PyObject * GMPy_MPFR_To_Binary(MPFR_Object *self);
+static PyObject * GMPy_MPC_To_Binary(MPC_Object *self);
 
 #ifdef __cplusplus
 }

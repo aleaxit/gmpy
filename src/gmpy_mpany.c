@@ -119,31 +119,6 @@ Pympany_sign(PyObject *self, PyObject *other)
     return NULL;
 }
 
-PyDoc_STRVAR(doc_to_binary,
-"to_binary(x) -> bytes\n"
-"Return a Python byte sequence that is a portable binary\n"
-"representation of a gmpy2 object x. The byte sequence can\n"
-"be passed to gmpy2.from_binary() to obtain an exact copy of\n"
-"x's value. Works with mpz, xmpz, mpq, mpfr, and mpc types. \n"
-"Raises TypeError if x is not a gmpy2 object.");
-
-static PyObject *
-Pympany_to_binary(PyObject *self, PyObject *other)
-{
-    if(MPZ_Check(other))
-        return Pympz_To_Binary((MPZ_Object*)other);
-    else if(XMPZ_Check(other))
-        return Pyxmpz_To_Binary((XMPZ_Object*)other);
-    else if(MPQ_Check(other))
-        return Pympq_To_Binary((MPQ_Object*)other);
-    else if(MPFR_Check(other))
-        return Pympfr_To_Binary((MPFR_Object*)other);
-    else if(MPC_Check(other))
-        return Pympc_To_Binary((MPC_Object*)other);
-    TYPE_ERROR("to_binary() argument type not supported");
-    return NULL;
-}
-
 PyDoc_STRVAR(doc_printf,
 "_printf(fmt, x) -> string\n\n"
 "Return a Python string by formatting 'x' using the format string\n"

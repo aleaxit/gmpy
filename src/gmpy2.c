@@ -493,7 +493,7 @@ static PyObject *GMPyExc_ExpBound = NULL;
 
 /* Support for conversion to/from binary representation. */
 
-#include "gmpy_binary.c"
+#include "gmpy2_binary.c"
 
 /* Support for conversions to/from numeric types. */
 
@@ -583,7 +583,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "fib", Pygmpy_fib, METH_O, doc_fib },
     { "fib2", Pygmpy_fib2, METH_O, doc_fib2 },
     { "floor_div", GMPy_Context_FloorDiv, METH_VARARGS, GMPy_doc_floordiv },
-    { "from_binary", Pympany_From_Binary, METH_O, doc_from_binary },
+    { "from_binary", GMPy_MPANY_From_Binary, METH_O, doc_from_binary },
     { "f_div", Pygmpy_f_div, METH_VARARGS, doc_gmpy_f_div },
     { "f_div_2exp", Pygmpy_f_div_2exp, METH_VARARGS, doc_gmpy_f_div_2exp },
     { "f_divmod", Pygmpy_f_divmod, METH_VARARGS, doc_gmpy_f_divmod },
@@ -630,9 +630,9 @@ static PyMethodDef Pygmpy_methods [] =
     { "mpc_version", GMPy_get_mpc_version, METH_NOARGS, doc_mpc_version },
     { "mpfr_version", GMPy_get_mpfr_version, METH_NOARGS, doc_mpfr_version },
     { "mpq", (PyCFunction)Pygmpy_mpq, METH_VARARGS | METH_KEYWORDS, doc_mpq },
-    { "mpq_from_old_binary", Pympq_From_Old_Binary, METH_O, doc_g_mpq_from_old_binary },
+    { "mpq_from_old_binary", GMPy_MPQ_From_Old_Binary, METH_O, doc_mpq_from_old_binary },
     { "mpz", (PyCFunction)Pygmpy_mpz, METH_VARARGS | METH_KEYWORDS, doc_mpz },
-    { "mpz_from_old_binary", Pympz_From_Old_Binary, METH_O, doc_g_mpz_from_old_binary },
+    { "mpz_from_old_binary", GMPy_MPZ_From_Old_Binary, METH_O, doc_mpz_from_old_binary },
     { "mpz_random", GMPY_mpz_random, METH_VARARGS, doc_mpz_random },
     { "mpz_rrandomb", GMPY_mpz_rrandomb, METH_VARARGS, doc_mpz_rrandomb },
     { "mpz_urandomb", GMPY_mpz_urandomb, METH_VARARGS, doc_mpz_urandomb },
@@ -652,7 +652,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "sign", Pympany_sign, METH_O, doc_g_mpany_sign },
     { "square", Pympany_square, METH_O, doc_mpany_square },
     { "sub", GMPy_Context_Sub, METH_VARARGS, GMPy_doc_sub },
-    { "to_binary", Pympany_to_binary, METH_O, doc_to_binary },
+    { "to_binary", GMPy_MPANY_To_Binary, METH_O, doc_to_binary },
     { "t_div", Pygmpy_t_div, METH_VARARGS, doc_gmpy_t_div },
     { "t_div_2exp", Pygmpy_t_div_2exp, METH_VARARGS, doc_gmpy_t_div_2exp },
     { "t_divmod", Pygmpy_t_divmod, METH_VARARGS, doc_gmpy_t_divmod },
@@ -746,7 +746,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "min2", Pympfr_min2, METH_VARARGS, doc_g_mpfr_min2 },
     { "modf", Pympfr_modf, METH_O, doc_g_mpfr_modf },
     { "mpfr", (PyCFunction)Pygmpy_mpfr, METH_VARARGS | METH_KEYWORDS, doc_mpfr },
-    { "mpfr_from_old_binary", Pympfr_From_Old_Binary, METH_O, doc_g_mpfr_from_old_binary },
+    { "mpfr_from_old_binary", GMPy_MPFR_From_Old_Binary, METH_O, doc_mpfr_from_old_binary },
     { "mpfr_random", GMPY_mpfr_random, METH_VARARGS, doc_mpfr_random },
     { "mpfr_grandom", GMPY_mpfr_grandom, METH_VARARGS, doc_mpfr_grandom },
     { "mul_2exp", Pympany_mul_2exp, METH_VARARGS, doc_mpany_mul_2exp },
