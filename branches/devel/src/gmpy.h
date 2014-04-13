@@ -244,7 +244,7 @@ typedef long                mpir_si;
 
 #include "gmpy_args.h"
 
-#include "gmpy_context.h"
+#include "gmpy2_context.h"
 
 #include "gmpy_mpz.h"
 #include "gmpy_xmpz.h"
@@ -272,7 +272,7 @@ typedef long                mpir_si;
 
 /* Support object caching, creation, and deletion. */
 
-#include "gmpy_cache.h"
+#include "gmpy2_cache.h"
 
 /* Suport for miscellaneous functions (ie. version, license, etc.). */
 
