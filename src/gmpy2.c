@@ -472,7 +472,6 @@ static PyObject *GMPyExc_Invalid = NULL;
 static PyObject *GMPyExc_Overflow = NULL;
 static PyObject *GMPyExc_Underflow = NULL;
 static PyObject *GMPyExc_Erange = NULL;
-static PyObject *GMPyExc_ExpBound = NULL;
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -481,7 +480,7 @@ static PyObject *GMPyExc_ExpBound = NULL;
 
 /* The code for object creation, deletion, and caching is in gmpy_cache.c. */
 
-#include "gmpy_cache.c"
+#include "gmpy2_cache.c"
 
 /* Miscellaneous helper functions and simple methods are in gmpy_misc.c. */
 
@@ -550,7 +549,7 @@ static PyObject *GMPyExc_ExpBound = NULL;
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
-#include "gmpy_context.c"
+#include "gmpy2_context.c"
 
 static PyMethodDef Pygmpy_methods [] =
 {
@@ -962,11 +961,6 @@ PyMODINIT_FUNC initgmpy2(void)
     if (!GMPyExc_Underflow)
         INITERROR;
 
-    GMPyExc_ExpBound = PyErr_NewException("gmpy2.ExponentOutOfBoundsError",
-                                          GMPyExc_GmpyError, NULL);
-    if (!GMPyExc_ExpBound)
-        INITERROR;
-
     temp = PyTuple_Pack(2, GMPyExc_GmpyError, PyExc_ValueError);
     if (!temp)
         INITERROR;
@@ -1057,11 +1051,6 @@ PyMODINIT_FUNC initgmpy2(void)
     Py_INCREF(GMPyExc_Erange);
     if (PyModule_AddObject(gmpy_module, "RangeError", GMPyExc_Erange) < 0) {
         Py_DECREF(GMPyExc_Erange);
-        INITERROR;
-    }
-    Py_INCREF(GMPyExc_ExpBound);
-    if (PyModule_AddObject(gmpy_module, "ExponentOutOfBoundsError", GMPyExc_ExpBound) < 0) {
-        Py_DECREF(GMPyExc_ExpBound);
         INITERROR;
     }
 
