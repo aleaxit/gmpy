@@ -683,11 +683,11 @@ static PyNumberMethods xmpz_number_methods =
     (unaryfunc) Pyxmpz_abs,                /* nb_absolute             */
     (inquiry) Pyxmpz_nonzero,              /* nb_bool                 */
     (unaryfunc) Pyxmpz_com,                /* nb_invert               */
-    (binaryfunc) Pympz_lshift,             /* nb_lshift               */
-    (binaryfunc) Pympz_rshift,             /* nb_rshift               */
-    (binaryfunc) Pympz_and,                /* nb_and                  */
-    (binaryfunc) Pympz_xor,                /* nb_xor                  */
-    (binaryfunc) Pympz_ior,                /* nb_or                   */
+    (binaryfunc) GMPy_MPZ_Lshift_Slot,     /* nb_lshift               */
+    (binaryfunc) GMPy_MPZ_Rshift_Slot,     /* nb_rshift               */
+    (binaryfunc) GMPy_MPZ_And_Slot,        /* nb_and                  */
+    (binaryfunc) GMPy_MPZ_Xor_Slot,        /* nb_xor                  */
+    (binaryfunc) GMPy_MPZ_Ior_Slot,        /* nb_or                   */
     (unaryfunc) GMPy_MPZ_Int_Slot,         /* nb_int                  */
         0,                                 /* nb_reserved             */
     (unaryfunc) GMPy_MPZ_Float_Slot,       /* nb_float                */
@@ -723,11 +723,11 @@ static PyNumberMethods xmpz_number_methods =
     (unaryfunc) Pyxmpz_abs,                /* nb_absolute             */
     (inquiry) Pyxmpz_nonzero,              /* nb_bool                 */
     (unaryfunc) Pyxmpz_com,                /* nb_invert               */
-    (binaryfunc) Pympz_lshift,             /* nb_lshift               */
-    (binaryfunc) Pympz_rshift,             /* nb_rshift               */
-    (binaryfunc) Pympz_and,                /* nb_and                  */
-    (binaryfunc) Pympz_xor,                /* nb_xor                  */
-    (binaryfunc) Pympz_ior,                /* nb_or                   */
+    (binaryfunc) GMPy_MPZ_Lshift_Slot,     /* nb_lshift               */
+    (binaryfunc) GMPy_MPZ_Rshift_Slot,     /* nb_rshift               */
+    (binaryfunc) GMPy_MPZ_And_Slot,        /* nb_and                  */
+    (binaryfunc) GMPy_MPZ_Xor_Slot,        /* nb_xor                  */
+    (binaryfunc) GMPy_MPZ_Ior_Slot,        /* nb_or                   */
         0,                                 /* nb_coerce               */
     (unaryfunc) GMPy_MPZ_Int_Slot,         /* nb_int                  */
     (unaryfunc) GMPy_MPZ_Long_Slot,        /* nb_long                 */
@@ -763,13 +763,13 @@ static PyMethodDef Pyxmpz_methods [] =
 {
     { "__format__", Pympz_format, METH_VARARGS, doc_mpz_format },
     { "__sizeof__", Pyxmpz_sizeof, METH_NOARGS, doc_xmpz_sizeof },
-    { "bit_clear", Pympz_bit_clear, METH_O, doc_bit_clearm },
-    { "bit_flip", Pympz_bit_flip, METH_O, doc_bit_flipm },
-    { "bit_length", Pympz_bit_length, METH_NOARGS, doc_bit_lengthm },
-    { "bit_scan0", Pympz_bit_scan0, METH_VARARGS, doc_bit_scan0m },
-    { "bit_scan1", Pympz_bit_scan1, METH_VARARGS, doc_bit_scan1m },
-    { "bit_set", Pympz_bit_set, METH_O, doc_bit_setm },
-    { "bit_test", Pympz_bit_test, METH_O, doc_bit_testm },
+    { "bit_clear", GMPy_MPZ_bit_clear_method, METH_O, doc_bit_clear_method },
+    { "bit_flip", GMPy_MPZ_bit_flip_method, METH_O, doc_bit_flip_method },
+    { "bit_length", GMPy_MPZ_bit_length, METH_NOARGS, doc_bit_length_method },
+    { "bit_scan0", GMPy_MPZ_bit_scan0, METH_VARARGS, doc_bit_scan0_method },
+    { "bit_scan1", GMPy_MPZ_bit_scan1, METH_VARARGS, doc_bit_scan1_method },
+    { "bit_set", GMPy_MPZ_bit_set_method, METH_O, doc_bit_set_method },
+    { "bit_test", GMPy_MPZ_bit_test_method, METH_O, doc_bit_test_method },
     { "copy", Pyxmpz_copy, METH_NOARGS, doc_xmpz_copy },
     { "digits", Pyxmpz_digits, METH_VARARGS, doc_mpz_digits },
     { "iter_bits", (PyCFunction)Pyxmpz_iter_bits, METH_VARARGS | METH_KEYWORDS,
