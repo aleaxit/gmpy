@@ -526,6 +526,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_mpz_divmod.c"
 #include "gmpy2_mpz_divmod2exp.c"
 #include "gmpy2_mpz_pack.c"
+#include "gmpy2_mpz_bitops.c"
 
 #include "gmpy_mpz.c"
 #include "gmpy_xmpz.c"
@@ -557,14 +558,14 @@ static PyMethodDef Pygmpy_methods [] =
     { "_cvsid", GMPy_get_cvsid, METH_NOARGS, doc_cvsid },
     { "_printf", Pympany_printf, METH_VARARGS, doc_printf },
     { "add", GMPy_Context_Add, METH_VARARGS, GMPy_doc_add },
-    { "bit_clear", Pygmpy_bit_clear, METH_VARARGS, doc_bit_clearg },
-    { "bit_flip", Pygmpy_bit_flip, METH_VARARGS, doc_bit_flipg },
-    { "bit_length", Pympz_bit_length, METH_O, doc_bit_lengthg },
-    { "bit_mask", Pympz_bit_mask, METH_O, doc_bit_maskg },
-    { "bit_scan0", Pympz_bit_scan0, METH_VARARGS, doc_bit_scan0g },
-    { "bit_scan1", Pympz_bit_scan1, METH_VARARGS, doc_bit_scan1g },
-    { "bit_set", Pygmpy_bit_set, METH_VARARGS, doc_bit_setg },
-    { "bit_test", Pygmpy_bit_test, METH_VARARGS, doc_bit_testg },
+    { "bit_clear", GMPy_MPZ_bit_clear_function, METH_VARARGS, doc_bit_clear_function },
+    { "bit_flip", GMPy_MPZ_bit_flip_function, METH_VARARGS, doc_bit_flip_function },
+    { "bit_length", GMPy_MPZ_bit_length, METH_O, doc_bit_length_function },
+    { "bit_mask", GMPy_MPZ_bit_mask, METH_O, doc_bit_mask },
+    { "bit_scan0", GMPy_MPZ_bit_scan0, METH_VARARGS, doc_bit_scan0_function },
+    { "bit_scan1", GMPy_MPZ_bit_scan1, METH_VARARGS, doc_bit_scan1_function },
+    { "bit_set", GMPy_MPZ_bit_set_function, METH_VARARGS, doc_bit_set_function },
+    { "bit_test", GMPy_MPZ_bit_test_function, METH_VARARGS, doc_bit_test_function },
     { "bincoef", Pympz_bincoef, METH_VARARGS, doc_bincoefg },
     { "comb", Pympz_bincoef, METH_VARARGS, doc_combg },
     { "c_div", GMPy_MPZ_c_div, METH_VARARGS, doc_c_div },
@@ -593,7 +594,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "gcd", Pygmpy_gcd, METH_VARARGS, doc_gcd },
     { "gcdext", Pygmpy_gcdext, METH_VARARGS, doc_gcdext },
     { "get_cache", GMPy_get_cache, METH_NOARGS, doc_get_cache },
-    { "hamdist", Pympz_hamdist, METH_VARARGS, doc_hamdistg },
+    { "hamdist", GMPy_MPZ_hamdist, METH_VARARGS, doc_hamdist },
     { "invert", Pygmpy_invert, METH_VARARGS, doc_invertg },
     { "isqrt", Pympz_isqrt, METH_O, doc_mpz_isqrt },
     { "isqrt_rem", Pympz_isqrt_rem, METH_VARARGS, doc_mpz_isqrt_rem },
@@ -641,7 +642,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "numer", Pympq_numer, METH_VARARGS, doc_numerg },
     { "num_digits", Pympz_num_digits, METH_VARARGS, doc_num_digitsg },
     { "pack", GMPy_MPZ_pack, METH_VARARGS, doc_pack },
-    { "popcount", Pympz_popcount, METH_O, doc_popcountg },
+    { "popcount", GMPy_MPZ_popcount, METH_O, doc_popcount },
     { "powmod", GMPy_Integer_PowMod, METH_VARARGS, GMPy_doc_integer_powmod },
     { "qdiv", Pympq_qdiv, METH_VARARGS, doc_qdivg },
     { "remove", Pympz_remove, METH_VARARGS, doc_removeg },
