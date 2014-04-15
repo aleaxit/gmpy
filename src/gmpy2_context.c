@@ -126,22 +126,9 @@ GMPy_CTXT_Set(PyObject *self, PyObject *other)
     }
 
     Py_DECREF((PyObject*)module_context);
-    if (((CTXT_Object*)other)->ctx.readonly) {
-        module_context = (CTXT_Object*)GMPy_CTXT_Copy(other, NULL);
-        if (!module_context) {
-            return NULL;
-        }
-        ((CTXT_Object*)module_context)->ctx.underflow = 0;
-        ((CTXT_Object*)module_contex)->ctx.overflow = 0;
-        ((CTXT_Object*)module_contex)->ctx.inexact = 0;
-        ((CTXT_Object*)module_contex)->ctx.invalid = 0;
-        ((CTXT_Object*)module_contex)->ctx.erange = 0;
-        ((CTXT_Object*)module_contex)->ctx.divzero = 0;
-    }
-    else {
-        Py_INCREF((PyObject*)other);
-        module_context = (CTXT_Object*)other;
-    }
+    Py_INCREF((PyObject*)other);
+    module_context = (CTXT_Object*)other;
+
     Py_RETURN_NONE;
 }
 

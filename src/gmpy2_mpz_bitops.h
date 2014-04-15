@@ -32,10 +32,13 @@
 extern "C" {
 #endif
 
-static PyObject * GMPy_MPZ_bit_length(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_bit_length_function(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_bit_length_method(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_bit_mask(PyObject *self, PyObject *other);
-static PyObject * GMPy_MPZ_bit_scan0(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_bit_scan1(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_bit_scan0_function(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_bit_scan0_method(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_bit_scan1_function(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_bit_scan1_method(PyObject *self, PyObject *args);
 
 static PyObject * GMPy_MPZ_bit_test_function(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_bit_test_method(PyObject *self, PyObject *other);
