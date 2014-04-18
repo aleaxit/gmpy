@@ -31,6 +31,17 @@ The following libraries are supported:
 
   mpz_prp: http://sourceforge.net/projects/mpzprp/
 
+Changes in gmpy2 2.0.4
+----------------------
+
+* Fixed bit_scan0() for negative values.
+* Added option to setup.py (--static) to support static linking.
+
+Changes in gmpy2 2.0.3
+----------------------
+
+* Fixed bugs in lucas2() and atanh() that caused incorrect results.
+
 Changes in gmpy2 2.0.2
 ----------------------
 

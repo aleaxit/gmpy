@@ -245,7 +245,7 @@ static PyObject *
 Pympz_bit_scan0(PyObject *self, PyObject *args)
 {
     Py_ssize_t maxbit, starting_bit = 0;
-    PyObject *result;
+    mp_bitcnt_t index;
 
     PARSE_ONE_MPZ_OPT_SSIZE_T(&starting_bit,
             "bit_scan0() requires 'mpz',['int'] arguments");
@@ -255,6 +255,7 @@ Pympz_bit_scan0(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
+
     maxbit = mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
     if (starting_bit > maxbit) {
         if (mpz_sgn(Pympz_AS_MPZ(self))<0) {
@@ -262,14 +263,19 @@ Pympz_bit_scan0(PyObject *self, PyObject *args)
             Py_RETURN_NONE;
         }
         else {
-            result = PyIntOrLong_FromSsize_t(starting_bit);
+            return PyIntOrLong_FromSsize_t(starting_bit);
         }
     }
     else {
-        result = PyIntOrLong_FromSsize_t(mpz_scan0(Pympz_AS_MPZ(self), starting_bit));
+        index = mpz_scan0(Pympz_AS_MPZ(self), (mp_bitcnt_t)starting_bit);
+        Py_DECREF(self);
+        if (index == (mp_bitcnt_t)-1) {
+            Py_RETURN_NONE;
+        }
+        else {
+            return PyIntOrLong_FromSize_t(index);
+        }
     }
-    Py_DECREF(self);
-    return result;
 }
 
 PyDoc_STRVAR(doc_bit_scan1m,
@@ -290,7 +296,7 @@ static PyObject *
 Pympz_bit_scan1(PyObject *self, PyObject *args)
 {
     Py_ssize_t maxbit, starting_bit = 0;
-    PyObject *result;
+    mp_bitcnt_t index;
 
     PARSE_ONE_MPZ_OPT_SSIZE_T(&starting_bit,
             "bit_scan1() requires 'mpz',['int'] arguments");
@@ -300,6 +306,7 @@ Pympz_bit_scan1(PyObject *self, PyObject *args)
         Py_DECREF(self);
         return NULL;
     }
+
     maxbit = mpz_sizeinbase(Pympz_AS_MPZ(self), 2);
     if (starting_bit >= maxbit) {
         if (mpz_sgn(Pympz_AS_MPZ(self))>=0) {
@@ -307,14 +314,19 @@ Pympz_bit_scan1(PyObject *self, PyObject *args)
             Py_RETURN_NONE;
         }
         else {
-            result = PyIntOrLong_FromSsize_t(starting_bit);
+            return PyIntOrLong_FromSsize_t(starting_bit);
         }
     }
     else {
-        result = PyIntOrLong_FromSsize_t(mpz_scan1(Pympz_AS_MPZ(self), starting_bit));
+        index = mpz_scan1(Pympz_AS_MPZ(self), (mp_bitcnt_t)starting_bit);
+        Py_DECREF(self);
+        if (index == (mp_bitcnt_t)-1) {
+            Py_RETURN_NONE;
+        }
+        else {
+            return PyIntOrLong_FromSize_t(index);
+        }
     }
-    Py_DECREF(self);
-    return result;
 }
 
 /* return population-count (# of 1-bits) for an mpz */
