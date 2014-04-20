@@ -73,7 +73,7 @@ GMPy_MPZ_bit_mask(PyObject *self, PyObject *other)
     mp_bitcnt_t n = 0;
     MPZ_Object* result;
 
-    n = (mp_bitcnt_t)PyLong_AsSize_t(other);
+    n = PyIntOrLong_As_mp_bitcnt_t(other);
     if (n == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
         return NULL;
     }
@@ -99,26 +99,22 @@ PyDoc_STRVAR(doc_bit_scan0_method,
 static PyObject *
 GMPy_MPZ_bit_scan0_method(PyObject *self, PyObject *args)
 {
-    mp_bitcnt_t maxbit, starting_bit = 0;
+    mp_bitcnt_t index, starting_bit = 0;
 
     if (PyTuple_GET_SIZE(args) == 1) {
-        starting_bit = (mp_bitcnt_t)PyLong_AsSize_t(PyTuple_GET_ITEM(args, 0));
+        starting_bit = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 0));
         if (starting_bit == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
             return NULL;
         }
     }
 
-    maxbit = mpz_sizeinbase(MPZ(self), 2);
-    if (starting_bit > maxbit) {
-        if (mpz_sgn(MPZ(self)) < 0) {
-            Py_RETURN_NONE;
-        }
-        else {
-            return PyIntOrLong_FromSize_t((size_t)starting_bit);
-        }
+    index = mpz_scan0(MPZ(self), starting_bit);
+
+    if (index == (mp_bitcnt_t)-1) {
+        Py_RETURN_NONE;
     }
     else {
-        return PyIntOrLong_FromSsize_t(mpz_scan0(MPZ(self), starting_bit));
+        return PyIntOrLong_FromSize_t(index);
     }
 }
 
@@ -132,9 +128,8 @@ PyDoc_STRVAR(doc_bit_scan0_function,
 static PyObject *
 GMPy_MPZ_bit_scan0_function(PyObject *self, PyObject *args)
 {
-    mp_bitcnt_t maxbit, starting_bit = 0;
-    MPZ_Object *tempx;
-    PyObject* result = NULL;
+    mp_bitcnt_t index, starting_bit = 0;
+    MPZ_Object *tempx = NULL;
 
     if (PyTuple_GET_SIZE(args) == 0 || PyTuple_GET_SIZE(args) > 2) {
         goto err;
@@ -145,27 +140,26 @@ GMPy_MPZ_bit_scan0_function(PyObject *self, PyObject *args)
     }
 
     if (PyTuple_GET_SIZE(args) == 2) {
-        starting_bit = (mp_bitcnt_t)PyLong_AsSize_t(PyTuple_GET_ITEM(args, 1));
+        starting_bit = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 1));
         if (starting_bit == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
-            goto err;
+            goto err_index;
         }
     }
 
-    maxbit = mpz_sizeinbase(tempx->z, 2);
-    if (starting_bit > maxbit) {
-        if (mpz_sgn(tempx->z) >= 0) {
-            result = PyIntOrLong_FromSize_t((size_t)starting_bit);
-        }
-    }
-    else {
-        result = PyIntOrLong_FromSsize_t(mpz_scan0(MPZ(self), starting_bit));
-    }
+    index = mpz_scan0(tempx->z, starting_bit);
 
     Py_DECREF((PyObject*)tempx);
-    return result;
+    if (index == (mp_bitcnt_t)-1) {
+        Py_RETURN_NONE;
+    }
+    else {
+        return PyIntOrLong_FromSize_t(index);
+    }
 
   err:
     TYPE_ERROR("bit_scan0() requires 'mpz',['int'] arguments");
+  err_index:
+    Py_DECREF((PyObject*)tempx);
     return NULL;
 }
 
@@ -179,26 +173,22 @@ PyDoc_STRVAR(doc_bit_scan1_method,
 static PyObject *
 GMPy_MPZ_bit_scan1_method(PyObject *self, PyObject *args)
 {
-    mp_bitcnt_t maxbit, starting_bit = 0;
+    mp_bitcnt_t index, starting_bit = 0;
 
     if (PyTuple_GET_SIZE(args) == 1) {
-        starting_bit = (mp_bitcnt_t)PyLong_AsSize_t(PyTuple_GET_ITEM(args, 0));
+        starting_bit = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 0));
         if (starting_bit == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
             return NULL;
         }
     }
 
-    maxbit = mpz_sizeinbase(MPZ(self), 2);
-    if (starting_bit >= maxbit) {
-        if (mpz_sgn(MPZ(self)) >= 0) {
-            Py_RETURN_NONE;
-        }
-        else {
-            return PyIntOrLong_FromSsize_t(starting_bit);
-        }
+    index = mpz_scan1(MPZ(self), starting_bit);
+
+    if (index == (mp_bitcnt_t)-1) {
+        Py_RETURN_NONE;
     }
     else {
-        return PyIntOrLong_FromSsize_t(mpz_scan1(MPZ(self), starting_bit));
+        return PyIntOrLong_FromSize_t(index);
     }
 }
 
@@ -212,9 +202,8 @@ PyDoc_STRVAR(doc_bit_scan1_function,
 static PyObject *
 GMPy_MPZ_bit_scan1_function(PyObject *self, PyObject *args)
 {
-    mp_bitcnt_t maxbit, starting_bit = 0;
-    MPZ_Object *tempx;
-    PyObject *result = NULL;
+    mp_bitcnt_t index, starting_bit = 0;
+    MPZ_Object *tempx = NULL;
 
     if (PyTuple_GET_SIZE(args) == 0 || PyTuple_GET_SIZE(args) > 2) {
         goto err;
@@ -225,27 +214,26 @@ GMPy_MPZ_bit_scan1_function(PyObject *self, PyObject *args)
     }
 
     if (PyTuple_GET_SIZE(args) == 2) {
-        starting_bit = (mp_bitcnt_t)PyLong_AsSize_t(PyTuple_GET_ITEM(args, 1));
+        starting_bit = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 1));
         if (starting_bit == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
-            goto err;
+            goto err_index;
         }
     }
 
-    maxbit = mpz_sizeinbase(tempx->z, 2);
-    if (starting_bit >= maxbit) {
-        if (mpz_sgn(tempx->z) < 0) {
-            result = PyIntOrLong_FromSsize_t(starting_bit);
-        }
-    }
-    else {
-        result = PyIntOrLong_FromSsize_t(mpz_scan1(tempx->z, starting_bit));
-    }
+    index = mpz_scan1(tempx->z, starting_bit);
 
     Py_DECREF((PyObject*)tempx);
-    return result;
+    if (index == (mp_bitcnt_t)-1) {
+        Py_RETURN_NONE;
+    }
+    else {
+        return PyIntOrLong_FromSize_t(index);
+    }
 
   err:
     TYPE_ERROR("bit_scan0() requires 'mpz',['int'] arguments");
+  err_index:
+    Py_DECREF((PyObject*)tempx);
     return NULL;
 }
 
@@ -259,7 +247,7 @@ GMPy_MPZ_bit_test_function(PyObject *self, PyObject *args)
 {
     mp_bitcnt_t bit_index;
     int temp;
-    MPZ_Object *tempx;
+    MPZ_Object *tempx = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         goto err;
@@ -269,9 +257,9 @@ GMPy_MPZ_bit_test_function(PyObject *self, PyObject *args)
         goto err;
     }
 
-    bit_index = (mp_bitcnt_t)PyLong_AsSize_t(PyTuple_GET_ITEM(args, 1));
+    bit_index = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 1));
     if (bit_index == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
-        goto err;
+        goto err_index;
     }
 
     temp = mpz_tstbit(tempx->z, bit_index);
@@ -284,6 +272,8 @@ GMPy_MPZ_bit_test_function(PyObject *self, PyObject *args)
 
   err:
     TYPE_ERROR("bit_test() requires 'mpz','int' arguments");
+  err_index:
+    Py_DECREF((PyObject*)tempx);
     return NULL;
 }
 
@@ -296,7 +286,7 @@ GMPy_MPZ_bit_test_method(PyObject *self, PyObject *other)
 {
     mp_bitcnt_t bit_index;
 
-    bit_index = (mp_bitcnt_t)PyLong_AsSize_t(other);
+    bit_index = PyIntOrLong_As_mp_bitcnt_t(other);
     if (bit_index == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
         return NULL;
     }
@@ -315,7 +305,7 @@ static PyObject *
 GMPy_MPZ_bit_clear_function(PyObject *self, PyObject *args)
 {
     mp_bitcnt_t bit_index;
-    MPZ_Object *result = NULL, *tempx;
+    MPZ_Object *result = NULL, *tempx = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2)
         goto err;
@@ -326,9 +316,9 @@ GMPy_MPZ_bit_clear_function(PyObject *self, PyObject *args)
     if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)))
         goto err;
 
-    bit_index = (mp_bitcnt_t)PyLong_AsSize_t(PyTuple_GET_ITEM(args, 1));
-    if (bit_index == -1 && PyErr_Occurred())
-        goto err;
+    bit_index = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 1));
+    if (bit_index == (mp_bitcnt_t)-1 && PyErr_Occurred())
+        goto err_index;
 
     mpz_set(result->z, tempx->z);
     mpz_clrbit(result->z, bit_index);
@@ -338,7 +328,9 @@ GMPy_MPZ_bit_clear_function(PyObject *self, PyObject *args)
 
   err:
     TYPE_ERROR("bit_clear() requires 'mpz','int' arguments");
-    Py_DECREF((PyObject*)result);
+  err_index:
+    Py_XDECREF((PyObject*)result);
+    Py_XDECREF((PyObject*)tempx);
     return NULL;
 }
 
@@ -355,7 +347,7 @@ GMPy_MPZ_bit_clear_method(PyObject *self, PyObject *other)
     if (!(result = GMPy_MPZ_New(NULL)))
         return NULL;
 
-    bit_index = (mp_bitcnt_t)PyLong_AsSize_t(other);
+    bit_index = PyIntOrLong_As_mp_bitcnt_t(other);
     if (bit_index == (mp_bitcnt_t)-1 && PyErr_Occurred())
         return NULL;
 
@@ -372,7 +364,7 @@ static PyObject *
 GMPy_MPZ_bit_set_function(PyObject *self, PyObject *args)
 {
     mp_bitcnt_t bit_index;
-    MPZ_Object *result = NULL, *tempx;
+    MPZ_Object *result = NULL, *tempx = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2)
         goto err;
@@ -383,9 +375,9 @@ GMPy_MPZ_bit_set_function(PyObject *self, PyObject *args)
     if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)))
         goto err;
 
-    bit_index = (mp_bitcnt_t)PyLong_AsSize_t(PyTuple_GET_ITEM(args, 1));
+    bit_index = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 1));
     if (bit_index == (mp_bitcnt_t)-1 && PyErr_Occurred())
-        goto err;
+        goto err_index;
 
     mpz_set(result->z, tempx->z);
     mpz_setbit(result->z, bit_index);
@@ -395,7 +387,9 @@ GMPy_MPZ_bit_set_function(PyObject *self, PyObject *args)
 
   err:
     TYPE_ERROR("bit_set() requires 'mpz','int' arguments");
-    Py_DECREF((PyObject*)result);
+  err_index:
+    Py_XDECREF((PyObject*)result);
+    Py_XDECREF((PyObject*)tempx);
     return NULL;
 }
 
@@ -412,7 +406,7 @@ GMPy_MPZ_bit_set_method(PyObject *self, PyObject *other)
     if (!(result = GMPy_MPZ_New(NULL)))
         return NULL;
 
-    bit_index = (mp_bitcnt_t)PyLong_AsSize_t(other);
+    bit_index = PyIntOrLong_As_mp_bitcnt_t(other);
     if (bit_index == (mp_bitcnt_t)-1 && PyErr_Occurred())
         return NULL;
 
@@ -428,42 +422,31 @@ PyDoc_STRVAR(doc_bit_flip_function,
 static PyObject *
 GMPy_MPZ_bit_flip_function(PyObject *self, PyObject *args)
 {
-    Py_ssize_t bit_index;
-    PyObject *x;
-    MPZ_Object *result;
-    CTXT_Object *context = NULL;
+    mp_bitcnt_t bit_index;
+    MPZ_Object *result = NULL, *tempx = NULL;
 
-    if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("bit_flip() requires 'mpz','int' arguments");
+    if (PyTuple_GET_SIZE(args) != 2)
+        goto err;
+
+    if (!(result = GMPy_MPZ_New(NULL)))
         return NULL;
-    }
 
-    bit_index = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if (bit_index == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("bit_flip() requires 'mpz','int' arguments");
-        return NULL;
-    }
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)))
+        goto err;
 
-    if (bit_index < 0) {
-        VALUE_ERROR("bit_index must be >= 0");
-        return NULL;
-    }
+    bit_index = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 1));
+    if (bit_index == (mp_bitcnt_t)-1 && PyErr_Occurred())
+        goto err_index;
 
-    x = PyTuple_GET_ITEM(args, 0);
-    if (CHECK_MPZANY(x)) {
-        if (!(result = GMPy_MPZ_New(context)))
-            return NULL;
-        mpz_set(result->z, MPZ(x));
-        mpz_combit(result->z, bit_index);
-    }
-    else {
-        if (!(result = GMPy_MPZ_From_Integer(x, context))) {
-            TYPE_ERROR("bit_flip() requires 'mpz','int' arguments");
-            return NULL;
-        }
-        mpz_combit(result->z, bit_index);
-    }
-    return (PyObject*)result;
+    mpz_set(result->z, tempx->z);
+    mpz_combit(result->z, bit_index);
+
+  err:
+    TYPE_ERROR("bit_flip() requires 'mpz','int' arguments");
+  err_index:
+    Py_XDECREF((PyObject*)result);
+    Py_XDECREF((PyObject*)tempx);
+    return NULL;
 }
 
 PyDoc_STRVAR(doc_bit_flip_method,
@@ -473,23 +456,16 @@ PyDoc_STRVAR(doc_bit_flip_method,
 static PyObject *
 GMPy_MPZ_bit_flip_method(PyObject *self, PyObject *other)
 {
-    Py_ssize_t bit_index;
-    MPZ_Object *result;
-    CTXT_Object *context = NULL;
+    mp_bitcnt_t bit_index;
+    MPZ_Object *result = NULL;
 
-    bit_index = ssize_t_From_Integer(other);
-    if (bit_index == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("bit_flip() requires 'mpz','int' arguments");
+    if (!(result = GMPy_MPZ_New(NULL)))
         return NULL;
-    }
 
-    if (bit_index < 0) {
-        VALUE_ERROR("bit_index must be >= 0");
+    bit_index = PyIntOrLong_As_mp_bitcnt_t(other);
+    if (bit_index == (mp_bitcnt_t)-1 && PyErr_Occurred())
         return NULL;
-    }
 
-    if (!(result = GMPy_MPZ_New(context)))
-        return NULL;
     mpz_set(result->z, MPZ(self));
     mpz_combit(result->z, bit_index);
     return (PyObject*)result;
@@ -593,119 +569,61 @@ GMPy_MPZ_Xor_Slot(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_MPZ_Rshift_Slot(PyObject *self, PyObject *other)
 {
-    mpir_si count_si;
-    int overflow;
-    MPZ_Object *result, *tempa, *tempb;
-    CTXT_Object *context = NULL;
+    mp_bitcnt_t count;
+    MPZ_Object *result, *tempx;
 
-    if (!(result = GMPy_MPZ_New(context)))
+    count = PyIntOrLong_As_mp_bitcnt_t(other);
+    if ((count == (mp_bitcnt_t)-1) && PyErr_Occurred())
         return NULL;
 
-    /* Try to make mpz >> Python int/long as fast as possible. */
+    if (!(result = GMPy_MPZ_New(NULL)))
+        return NULL;
+
     if (CHECK_MPZANY(self)) {
-        if (PyIntOrLong_Check(other)) {
-            count_si = PyLong_AsSIAndOverflow(other, &overflow);
-            if (overflow) {
-                VALUE_ERROR("outrageous shift count");
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-            else if (count_si >= 0) {
-                mpz_fdiv_q_2exp(result->z, MPZ(self), count_si);
-                return (PyObject*)result;
-            }
-            else {
-                VALUE_ERROR("negative shift count");
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
+        mpz_fdiv_q_2exp(result->z, MPZ(self), count);
+        return (PyObject*)result;
+    }
+    else {
+        if (!(tempx = GMPy_MPZ_From_Integer(self, NULL))) {
+            Py_XDECREF((PyObject*)result);
+            Py_XDECREF((PyObject*)tempx);
+            return NULL;
         }
-    }
 
-    tempa = GMPy_MPZ_From_Integer(self, context);
-    tempb = GMPy_MPZ_From_Integer(other, context);
-    if (!tempb || !tempa) {
-        TYPE_ERROR("Pympz_rshift() expects integer arguments");
-        goto err;
+        mpz_fdiv_q_2exp(result->z, tempx->z, count);
+        Py_DECREF((PyObject*)tempx);
+        return (PyObject*)result;
     }
-    if (mpz_sgn(MPZ(tempb)) < 0) {
-        VALUE_ERROR("negative shift count");
-        goto err;
-    }
-    if(!mpz_fits_si_p(MPZ(tempb))) {
-        OVERFLOW_ERROR("outrageous shift count");
-        goto err;
-    }
-    count_si = mpz_get_si(tempb->z);
-    mpz_fdiv_q_2exp(result->z, tempa->z, count_si);
-    Py_DECREF((PyObject*)tempa);
-    Py_DECREF((PyObject*)tempb);
-    return (PyObject*)result;
-
-  err:
-    Py_DECREF((PyObject*)result);
-    Py_DECREF((PyObject*)tempa);
-    Py_DECREF((PyObject*)tempb);
-    return NULL;
 }
 
 static PyObject *
 GMPy_MPZ_Lshift_Slot(PyObject *self, PyObject *other)
 {
-    mpir_si count_si;
-    int overflow;
-    MPZ_Object *result, *tempa, *tempb;
-    CTXT_Object *context = NULL;
+    mp_bitcnt_t count;
+    MPZ_Object *result, *tempx;
 
-    if (!(result = GMPy_MPZ_New(context)))
+    count = PyIntOrLong_As_mp_bitcnt_t(other);
+    if ((count == (mp_bitcnt_t)-1) && PyErr_Occurred())
         return NULL;
 
-    /* Try to make mpz >> Python int/long as fast as possible. */
+    if (!(result = GMPy_MPZ_New(NULL)))
+        return NULL;
+
     if (CHECK_MPZANY(self)) {
-        if (PyIntOrLong_Check(other)) {
-            count_si = PyLong_AsSIAndOverflow(other, &overflow);
-            if (overflow) {
-                VALUE_ERROR("outrageous shift count");
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-            else if (count_si >= 0) {
-                mpz_mul_2exp(result->z, MPZ(self), count_si);
-                return (PyObject*)result;
-            }
-            else {
-                VALUE_ERROR("negative shift count");
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
+        mpz_mul_2exp(result->z, MPZ(self), count);
+        return (PyObject*)result;
+    }
+    else {
+        if (!(tempx = GMPy_MPZ_From_Integer(self, NULL))) {
+            Py_XDECREF((PyObject*)result);
+            Py_XDECREF((PyObject*)tempx);
+            return NULL;
         }
-    }
 
-    tempa = GMPy_MPZ_From_Integer(self, context);
-    tempb = GMPy_MPZ_From_Integer(other, context);
-    if (!tempb || !tempa) {
-        TYPE_ERROR("Pympz_lshift() expects integer arguments");
-        goto err;
-        }
-    if (mpz_sgn(MPZ(tempb)) < 0) {
-        VALUE_ERROR("negative shift count");
-        goto err;
+        mpz_mul_2exp(result->z, tempx->z, count);
+        Py_DECREF((PyObject*)tempx);
+        return (PyObject*)result;
     }
-    if(!mpz_fits_si_p(MPZ(tempb))) {
-        OVERFLOW_ERROR("outrageous shift count");
-        goto err;
-    }
-    count_si = mpz_get_si(tempb->z);
-    mpz_mul_2exp(result->z, tempa->z, count_si);
-    Py_DECREF((PyObject*)tempa);
-    Py_DECREF((PyObject*)tempb);
-    return (PyObject*)result;
-
-  err:
-    Py_DECREF((PyObject*)result);
-    Py_DECREF((PyObject*)tempa);
-    Py_DECREF((PyObject*)tempb);
-    return NULL;
 }
 
 PyDoc_STRVAR(doc_popcount,
@@ -722,7 +640,10 @@ GMPy_MPZ_popcount(PyObject *self, PyObject *other)
     if ((tempx = GMPy_MPZ_From_Integer(other, NULL))) {
         n = mpz_popcount(tempx->z);
         Py_DECREF((PyObject*)tempx);
-        return PyIntOrLong_FromSize_t((size_t)n);
+        if (n == (mp_bitcnt_t)-1)
+            return PyLong_FromLong(-1);
+        else
+            return PyIntOrLong_FromSize_t((size_t)n);
     }
     else {
         TYPE_ERROR("popcount() requires 'mpz' argument");
@@ -738,25 +659,26 @@ PyDoc_STRVAR(doc_hamdist,
 static PyObject *
 GMPy_MPZ_hamdist(PyObject *self, PyObject *args)
 {
-    PyObject *result;
-    MPZ_Object *tempx, *tempy;
+    PyObject *result = NULL;
+    MPZ_Object *tempx = NULL, *tempy = NULL;
 
-    if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("hamdist() requires 'mpz','mpz' arguments");
-        return NULL;
-    }
+    if (PyTuple_GET_SIZE(args) != 2)
+        goto err;
 
     tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
-    if (!tempx || !tempy) {
-        Py_XDECREF((PyObject*)tempx);
-        Py_XDECREF((PyObject*)tempy);
-        return NULL;
-    }
+    if (!tempx || !tempy)
+        goto err;
 
     result = PyIntOrLong_FromSize_t((size_t)mpz_hamdist(tempx->z, tempy->z));
     Py_DECREF((PyObject*)tempx);
     Py_DECREF((PyObject*)tempy);
     return result;
+
+  err:
+    TYPE_ERROR("hamdist() requires 'mpz','mpz' arguments");
+    Py_XDECREF((PyObject*)tempx);
+    Py_XDECREF((PyObject*)tempy);
+    return NULL;
 }
 

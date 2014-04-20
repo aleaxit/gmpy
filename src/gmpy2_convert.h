@@ -86,6 +86,8 @@ static int GMPy_isComplex(PyObject *obj);
 /* ======== C helper routines ======== */
 static int             mpz_set_PyStr(mpz_ptr z, PyObject *s, int base);
 static PyObject *      mpz_ascii(mpz_t z, int base, int option, int which);
+static mp_bitcnt_t     PyIntOrLong_As_mp_bitcnt_t(PyObject *obj);
+
 
 #ifdef __cplusplus
 }
