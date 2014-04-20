@@ -880,25 +880,9 @@ MPC_UNIOP(log10)
 
 MPC_UNIOP(exp)
 
-MPC_UNIOP(cos)
-
-MPC_UNIOP(tan)
-
-MPC_UNIOP(sinh)
-
-MPC_UNIOP(cosh)
-
-MPC_UNIOP(tanh)
-
 MPC_UNIOP(asin)
 
 MPC_UNIOP(acos)
-
-MPC_UNIOP(atan)
-
-MPC_UNIOP(asinh)
-
-MPC_UNIOP(acosh)
 
 MPC_UNIOP(atanh)
 

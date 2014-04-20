@@ -283,18 +283,6 @@ PyDoc_STRVAR(doc_mpany_exp,
 
 MPANY_MPFR_MPC(exp)
 
-PyDoc_STRVAR(doc_mpany_cos,
-"cos(x) -> number\n\n"
-"Return the cosine of x; x in radians.\n");
-
-MPANY_MPFR_MPC(cos)
-
-PyDoc_STRVAR(doc_mpany_tan,
-"tan(x) -> number\n\n"
-"Return the tangent of x; x in radians.\n");
-
-MPANY_MPFR_MPC(tan)
-
 PyDoc_STRVAR(doc_mpany_acos,
 "acos(x) -> number\n\n"
 "Return the arc-cosine of x; x in radians.\n");
@@ -306,42 +294,6 @@ PyDoc_STRVAR(doc_mpany_asin,
 "Return the arc-sine of x; x in radians.\n");
 
 MPANY_MPFR_MPC(asin)
-
-PyDoc_STRVAR(doc_mpany_atan,
-"atan(x) -> number\n\n"
-"Return the arc-tangent of x; x in radians.\n");
-
-MPANY_MPFR_MPC(atan)
-
-PyDoc_STRVAR(doc_mpany_cosh,
-"cosh(x) -> number\n\n"
-"Return the hyperbolic cosine of x.\n");
-
-MPANY_MPFR_MPC(cosh)
-
-PyDoc_STRVAR(doc_mpany_sinh,
-"sinh(x) -> number\n\n"
-"Return the hyberbolic sine of x.\n");
-
-MPANY_MPFR_MPC(sinh)
-
-PyDoc_STRVAR(doc_mpany_tanh,
-"tanh(x) -> number\n\n"
-"Return the hyperbolic tangent of x.\n");
-
-MPANY_MPFR_MPC(tanh)
-
-PyDoc_STRVAR(doc_mpany_acosh,
-"acosh(x) -> number\n\n"
-"Return the inverse hyperbolic cosine of x.\n");
-
-MPANY_MPFR_MPC(acosh)
-
-PyDoc_STRVAR(doc_mpany_asinh,
-"asinh(x) -> number\n\n"
-"Return the inverse hyperbolic sine of x.\n");
-
-MPANY_MPFR_MPC(asinh)
 
 PyDoc_STRVAR(doc_mpany_atanh,
 "atanh(x) -> number\n\n"
