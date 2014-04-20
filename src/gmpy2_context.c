@@ -1231,8 +1231,13 @@ static PyGetSetDef GMPyContext_getseters[] = {
 static PyMethodDef GMPyContext_methods[] =
 {
     { "abs", GMPy_Context_Abs, METH_VARARGS, GMPy_doc_context_abs },
+    { "acosh", GMPy_Context_Acosh, METH_VARARGS, GMPy_doc_context_acosh },
     { "add", GMPy_Context_Add, METH_VARARGS, GMPy_doc_context_add },
+    { "asinh", GMPy_Context_Asinh, METH_VARARGS, GMPy_doc_context_asinh },
+    { "atan", GMPy_Context_Atan, METH_VARARGS, GMPy_doc_context_atan },
     { "clear_flags", GMPy_CTXT_Clear_Flags, METH_NOARGS, GMPy_doc_context_clear_flags },
+    { "cos", GMPy_Context_Cos, METH_VARARGS, GMPy_doc_context_cos },
+    { "cosh", GMPy_Context_Cosh, METH_VARARGS, GMPy_doc_context_cosh },
     { "copy", GMPy_CTXT_Copy, METH_NOARGS, GMPy_doc_context_copy },
     { "div", GMPy_Context_TrueDiv, METH_VARARGS, GMPy_doc_context_truediv },
     { "div_mod", GMPy_Context_DivMod, METH_VARARGS, GMPy_doc_context_divmod },
@@ -1243,7 +1248,10 @@ static PyMethodDef GMPyContext_methods[] =
     { "plus", GMPy_Context_Plus, METH_VARARGS, GMPy_doc_context_plus },
     { "pow", GMPy_Context_Pow, METH_VARARGS, GMPy_doc_context_pow },
     { "sin", GMPy_Context_Sin, METH_VARARGS, GMPy_doc_context_sin },
+    { "sinh", GMPy_Context_Sinh, METH_VARARGS, GMPy_doc_context_sinh },
+    { "tanh", GMPy_Context_Tanh, METH_VARARGS, GMPy_doc_context_tanh },
     { "sub", GMPy_Context_Sub, METH_VARARGS, GMPy_doc_context_sub },
+    { "tan", GMPy_Context_Tan, METH_VARARGS, GMPy_doc_context_tan },
     { "__enter__", GMPy_CTXT_Enter, METH_NOARGS, NULL },
     { "__exit__", GMPy_CTXT_Exit, METH_VARARGS, NULL },
     { NULL, NULL, 1 }

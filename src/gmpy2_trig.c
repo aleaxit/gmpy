@@ -81,101 +81,152 @@ Pympfr_##NAME(PyObject* self, PyObject *other) \
     MPFR_CLEANUP_SELF(#NAME "()"); \
 }
 
-static PyObject *
-GMPy_Real_Sin(PyObject *x, CTXT_Object *context)
-{
-    MPFR_Object *result = NULL, *tempx = NULL;
+/* NAME is used as part of the GMPy function name. It usually uses an upper-
+ *      case first character.
+ * FUNC is the component of the actual name used by MPFR and MPC.
+ */
 
-    CHECK_CONTEXT(context);
-
-    result = GMPy_MPFR_New(0, context);
-    tempx = GMPy_MPFR_From_Real(x, 1, context);
-    if (!result || !tempx) {
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)tempx);
-        return NULL;
-    }
-
-    mpfr_clear_flags();
-    result->rc = mpfr_sin(result->f, tempx->f, GET_MPFR_ROUND(context));
-    Py_DECREF((PyObject*)tempx);
-
-    GMPY_MPFR_CLEANUP(result, context, "sin()");
-    return (PyObject*)result;
-}
-
-static PyObject *
-GMPy_Complex_Sin(PyObject *x, CTXT_Object *context)
-{
-    MPC_Object *result = NULL, *tempx = NULL;
-
-    CHECK_CONTEXT(context);
-
-    result = GMPy_MPC_New(0, 0, context);
-    tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
-    if (!result || !tempx) {
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)tempx);
-        return NULL;
-    }
-
-    result->rc = mpc_sin(result->c, tempx->c, GET_MPC_ROUND(context));
-    Py_DECREF((PyObject*)tempx);
-
-    GMPY_MPC_CLEANUP(result, context, "sin()");
-    return (PyObject*)result;
-}
-
-static PyObject *
-GMPy_Number_Sin(PyObject *x, CTXT_Object *context)
-{
-    if (IS_REAL(x))
-        return GMPy_Real_Sin(x, context);
-
-    if (IS_COMPLEX(x))
-        return GMPy_Complex_Sin(x, context);
-
-    TYPE_ERROR("sin() argument type not supported");
-    return NULL;
-}
-
-PyDoc_STRVAR(GMPy_doc_function_sin,
-"sin(x) -> number\n\n"
-"Return sine of x; x in radians.");
-
-static PyObject *
-GMPy_Function_Sin(PyObject *self, PyObject *other)
-{
-    return GMPy_Number_Sin(other, NULL);
+#define GMPY_MPFR_MPC_UNIOP(NAME, FUNC) \
+static PyObject * \
+GMPy_Real_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    MPFR_Object *result = NULL, *tempx = NULL; \
+    CHECK_CONTEXT(context); \
+    result = GMPy_MPFR_New(0, context); \
+    tempx = GMPy_MPFR_From_Real(x, 1, context); \
+    if (!result || !tempx) { \
+        Py_XDECREF((PyObject*)result); \
+        Py_XDECREF((PyObject*)tempx); \
+        return NULL; \
+    } \
+    mpfr_clear_flags(); \
+    result->rc = mpfr_##FUNC(result->f, tempx->f, GET_MPFR_ROUND(context)); \
+    Py_DECREF((PyObject*)tempx); \
+    GMPY_MPFR_CLEANUP(result, context, #FUNC "()"); \
+    return (PyObject*)result; \
+} \
+static PyObject * \
+GMPy_Complex_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    MPC_Object *result = NULL, *tempx = NULL; \
+    CHECK_CONTEXT(context); \
+    result = GMPy_MPC_New(0, 0, context); \
+    tempx = GMPy_MPC_From_Complex(x, 1, 1, context); \
+    if (!result || !tempx) { \
+        Py_XDECREF((PyObject*)result); \
+        Py_XDECREF((PyObject*)tempx); \
+        return NULL; \
+    } \
+    result->rc = mpc_##FUNC(result->c, tempx->c, GET_MPC_ROUND(context)); \
+    Py_DECREF((PyObject*)tempx); \
+    GMPY_MPC_CLEANUP(result, context, #FUNC "()"); \
+    return (PyObject*)result; \
+} \
+static PyObject * \
+GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    if (IS_REAL(x)) \
+        return GMPy_Real_##NAME(x, context); \
+    if (IS_COMPLEX(x)) \
+        return GMPy_Complex_##NAME(x, context); \
+    TYPE_ERROR(#FUNC"() argument type not supported"); \
+    return NULL; \
+} \
+static PyObject * \
+GMPy_Function_##NAME(PyObject *self, PyObject *other) \
+{ \
+    return GMPy_Number_##NAME(other, NULL); \
+} \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *args) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (PyTuple_GET_SIZE(args) != 1) { \
+        TYPE_ERROR(#FUNC "() requires 1 argument"); \
+        return NULL; \
+    } \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), context); \
 }
 
 PyDoc_STRVAR(GMPy_doc_context_sin,
 "context.sin(x) -> number\n\n"
 "Return sine of x; x in radians.");
+PyDoc_STRVAR(GMPy_doc_function_sin,
+"sin(x) -> number\n\n"
+"Return sine of x; x in radians.");
+GMPY_MPFR_MPC_UNIOP(Sin, sin)
 
-static PyObject *
-GMPy_Context_Sin(PyObject *self, PyObject *args)
-{
-    CTXT_Object *context = NULL;
+PyDoc_STRVAR(GMPy_doc_context_cos,
+"context.cos(x) -> number\n\n"
+"Return cosine of x; x in radians.");
+PyDoc_STRVAR(GMPy_doc_function_cos,
+"cos(x) -> number\n\n"
+"Return cosine of x; x in radians.");
+GMPY_MPFR_MPC_UNIOP(Cos, cos)
 
-    if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("sin() requires 1 argument");
-        return NULL;
-    }
+PyDoc_STRVAR(GMPy_doc_context_tan,
+"context.tan(x) -> number\n\n"
+"Return tangent of x; x in radians.");
+PyDoc_STRVAR(GMPy_doc_function_tan,
+"tan(x) -> number\n\n"
+"Return tangent of x; x in radians.");
+GMPY_MPFR_MPC_UNIOP(Tan, tan)
 
-    if (self && CTXT_Check(self)) {
-        context = (CTXT_Object*)self;
-    }
-    else {
-        CHECK_CONTEXT(context);
-    }
+PyDoc_STRVAR(GMPy_doc_context_atan,
+"context.atan(x) -> number\n\n"
+"Return inverse tangent of x; x in radians.");
+PyDoc_STRVAR(GMPy_doc_function_atan,
+"atan(x) -> number\n\n"
+"Return inverse tangent of x; x in radians.");
+GMPY_MPFR_MPC_UNIOP(Atan, atan)
 
-    return GMPy_Number_Sin(PyTuple_GET_ITEM(args, 0), context);
-}
+PyDoc_STRVAR(GMPy_doc_context_sinh,
+"context.sinh(x) -> number\n\n"
+"Return hyperbolic sine of x.");
+PyDoc_STRVAR(GMPy_doc_function_sinh,
+"sinh(x) -> number\n\n"
+"Return hyperbolic sine of x.");
+GMPY_MPFR_MPC_UNIOP(Sinh, sinh)
 
-MPFR_UNIOP(cos)
+PyDoc_STRVAR(GMPy_doc_context_cosh,
+"context.cosh(x) -> number\n\n"
+"Return hyperbolic cosine of x.");
+PyDoc_STRVAR(GMPy_doc_function_cosh,
+"cosh(x) -> number\n\n"
+"Return hyperbolic cosine of x.");
+GMPY_MPFR_MPC_UNIOP(Cosh, cosh)
 
-MPFR_UNIOP(tan)
+PyDoc_STRVAR(GMPy_doc_context_tanh,
+"context.tanh(x) -> number\n\n"
+"Return hyperbolic tangent of x.");
+PyDoc_STRVAR(GMPy_doc_function_tanh,
+"tanh(x) -> number\n\n"
+"Return hyperbolic tangent of x.");
+GMPY_MPFR_MPC_UNIOP(Tanh, tanh)
+
+PyDoc_STRVAR(GMPy_doc_context_asinh,
+"context.asinh(x) -> number\n\n"
+"Return inverse hyperbolic sine of x.");
+PyDoc_STRVAR(GMPy_doc_function_asinh,
+"asinh(x) -> number\n\n"
+"Return inverse hyperbolic sine of x.");
+GMPY_MPFR_MPC_UNIOP(Asinh, asinh)
+
+PyDoc_STRVAR(GMPy_doc_context_acosh,
+"context.acosh(x) -> number\n\n"
+"Return inverse hyperbolic cosine of x.");
+PyDoc_STRVAR(GMPy_doc_function_acosh,
+"acosh(x) -> number\n\n"
+"Return inverse hyperbolic cosine of x.");
+GMPY_MPFR_MPC_UNIOP(Acosh, acosh)
+
+
 
 PyDoc_STRVAR(doc_g_mpfr_sec,
 "sec(x) -> mpfr\n\n"
@@ -251,14 +302,6 @@ Pympfr_asin(PyObject* self, PyObject *other)
     MPFR_CLEANUP_SELF("asin()");
 }
 
-MPFR_UNIOP(atan)
-
-MPFR_UNIOP(cosh)
-
-MPFR_UNIOP(sinh)
-
-MPFR_UNIOP(tanh)
-
 PyDoc_STRVAR(doc_g_mpfr_sech,
 "sech(x) -> mpfr\n\n"
 "Returns hyperbolic secant of x.");
@@ -276,10 +319,6 @@ PyDoc_STRVAR(doc_g_mpfr_coth,
 "Return hyperbolic cotangent of x.");
 
 MPFR_UNIOP(coth)
-
-MPFR_UNIOP(acosh)
-
-MPFR_UNIOP(asinh)
 
 static PyObject *
 Pympfr_atanh(PyObject* self, PyObject *other)
