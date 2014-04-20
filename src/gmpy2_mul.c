@@ -472,7 +472,6 @@ PyDoc_STRVAR(GMPy_doc_context_mul,
 static PyObject *
 GMPy_Context_Mul(PyObject *self, PyObject *args)
 {
-    PyObject *result;
     CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
@@ -487,10 +486,7 @@ GMPy_Context_Mul(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    result = GMPy_Number_Mul(PyTuple_GET_ITEM(args, 0),
-                             PyTuple_GET_ITEM(args, 1),
-                             context);
-
-    return result;
+    return GMPy_Number_Mul(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1),
+                           context);
 }
 

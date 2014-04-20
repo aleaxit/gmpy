@@ -440,7 +440,6 @@ PyDoc_STRVAR(GMPy_doc_context_floordiv,
 static PyObject *
 GMPy_Context_FloorDiv(PyObject *self, PyObject *args)
 {
-    PyObject *result;
     CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
@@ -456,9 +455,7 @@ GMPy_Context_FloorDiv(PyObject *self, PyObject *args)
     }
 
 
-    result = GMPy_Number_FloorDiv(PyTuple_GET_ITEM(args, 0),
-                                  PyTuple_GET_ITEM(args, 1),
-                                  context);
-    return result;
+    return GMPy_Number_FloorDiv(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1),
+                                context);
 }
 
