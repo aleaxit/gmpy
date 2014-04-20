@@ -1557,19 +1557,19 @@ static PyNumberMethods mpz_number_methods =
     (unaryfunc) GMPy_MPZ_Int_Slot,         /* nb_int                  */
         0,                                 /* nb_reserved             */
     (unaryfunc) GMPy_MPZ_Float_Slot,       /* nb_float                */
-    (binaryfunc) Pympz_inplace_add,        /* nb_inplace_add          */
-    (binaryfunc) Pympz_inplace_sub,        /* nb_inplace_subtract     */
-    (binaryfunc) Pympz_inplace_mul,        /* nb_inplace_multiply     */
-    (binaryfunc) Pympz_inplace_rem,        /* nb_inplace_remainder    */
-    (ternaryfunc) Pympz_inplace_pow,       /* nb_inplace_power        */
-    (binaryfunc) Pympz_inplace_lshift,     /* nb_inplace_lshift       */
-    (binaryfunc) Pympz_inplace_rshift,     /* nb_inplace_rshift       */
+    (binaryfunc) GMPy_MPZ_IAdd_Slot,       /* nb_inplace_add          */
+    (binaryfunc) GMPy_MPZ_ISub_Slot,       /* nb_inplace_subtract     */
+    (binaryfunc) GMPy_MPZ_IMul_Slot,       /* nb_inplace_multiply     */
+    (binaryfunc) GMPy_MPZ_IRem_Slot,       /* nb_inplace_remainder    */
+    (ternaryfunc) GMPy_MPZ_IPow_Slot,      /* nb_inplace_power        */
+    (binaryfunc) GMPy_MPZ_ILshift_Slot,    /* nb_inplace_lshift       */
+    (binaryfunc) GMPy_MPZ_IRshift_Slot,    /* nb_inplace_rshift       */
         0,                                 /* nb_inplace_and          */
         0,                                 /* nb_inplace_xor          */
         0,                                 /* nb_inplace_or           */
     (binaryfunc) GMPy_MPZ_FloorDiv_Slot,   /* nb_floor_divide         */
     (binaryfunc) GMPy_MPZ_TrueDiv_Slot,    /* nb_true_divide          */
-    (binaryfunc) Pympz_inplace_floordiv,   /* nb_inplace_floor_divide */
+    (binaryfunc) GMPy_MPZ_IFloorDiv_Slot,  /* nb_inplace_floor_divide */
         0,                                 /* nb_inplace_true_divide  */
     (unaryfunc) GMPy_MPZ_Int_Slot,         /* nb_index                */
 };
@@ -1600,20 +1600,20 @@ static PyNumberMethods mpz_number_methods =
     (unaryfunc) GMPy_MPZ_Float_Slot,       /* nb_float                */
     (unaryfunc) Pympz_oct,                 /* nb_oct                  */
     (unaryfunc) Pympz_hex,                 /* nb_hex                  */
-    (binaryfunc) Pympz_inplace_add,        /* nb_inplace_add          */
-    (binaryfunc) Pympz_inplace_sub,        /* nb_inplace_subtract     */
-    (binaryfunc) Pympz_inplace_mul,        /* nb_inplace_multiply     */
+    (binaryfunc) GMPy_MPZ_IAdd_Slot,       /* nb_inplace_add          */
+    (binaryfunc) GMPy_MPZ_ISub_Slot,       /* nb_inplace_subtract     */
+    (binaryfunc) GMPy_MPZ_IMul_Slot,       /* nb_inplace_multiply     */
         0,                                 /* nb_inplace_divide       */
-    (binaryfunc) Pympz_inplace_rem,        /* nb_inplace_remainder    */
-    (ternaryfunc) Pympz_inplace_pow,       /* nb_inplace_power        */
-    (binaryfunc) Pympz_inplace_lshift,     /* nb_inplace_lshift       */
-    (binaryfunc) Pympz_inplace_rshift,     /* nb_inplace_rshift       */
+    (binaryfunc) GMPy_MPZ_IRem_Slot,       /* nb_inplace_remainder    */
+    (ternaryfunc) GMPy_MPZ_IPow_Slot,      /* nb_inplace_power        */
+    (binaryfunc) GMPy_MPZ_ILshift_Slot,    /* nb_inplace_lshift       */
+    (binaryfunc) GMPy_MPZ_IRshift_Slot,    /* nb_inplace_rshift       */
         0,                                 /* nb_inplace_and          */
         0,                                 /* nb_inplace_xor          */
         0,                                 /* nb_inplace_or           */
     (binaryfunc) GMPy_MPZ_FloorDiv_Slot,   /* nb_floor_divide         */
     (binaryfunc) GMPy_MPZ_TrueDiv_Slot,    /* nb_true_divide          */
-    (binaryfunc) Pympz_inplace_floordiv,   /* nb_inplace_floor_divide */
+    (binaryfunc) GMPy_MPZ_IFloorDiv_Slot,  /* nb_inplace_floor_divide */
         0,                                 /* nb_inplace_true_divide  */
     (unaryfunc) GMPy_MPZ_Int_Slot,         /* nb_index                */
 };

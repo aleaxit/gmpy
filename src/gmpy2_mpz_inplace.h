@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_mpz_inplace.h                                                      *
+ * gmpy2_mpz_inplace.h                                                     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -32,14 +32,14 @@
 extern "C" {
 #endif
 
-static PyObject * Pympz_inplace_add(PyObject *self, PyObject *other);
-static PyObject * Pympz_inplace_sub(PyObject *self, PyObject *other);
-static PyObject * Pympz_inplace_mul(PyObject *self, PyObject *other);
-static PyObject * Pympz_inplace_floordiv(PyObject *self, PyObject *other);
-static PyObject * Pympz_inplace_rem(PyObject *self, PyObject *other);
-static PyObject * Pympz_inplace_rshift(PyObject *self, PyObject *other);
-static PyObject * Pympz_inplace_lshift(PyObject *self, PyObject *other);
-static PyObject * Pympz_inplace_pow(PyObject *self, PyObject *other, PyObject *mod);
+static PyObject * GMPy_MPZ_IAdd_Slot(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_ISub_Slot(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_IMul_Slot(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_IFloorDiv_Slot(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_IRem_Slot(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_IRshift_Slot(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_ILshift_Slot(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_IPow_Slot(PyObject *self, PyObject *other, PyObject *mod);
 
 #ifdef __cplusplus
 }

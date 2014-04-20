@@ -521,19 +521,12 @@ static PyObject *GMPyExc_Erange = NULL;
 
 #include "gmpy_mpmath.c"
 
-#include "gmpy_mpz_inplace.c"
-#include "gmpy_xmpz_inplace.c"
 #include "gmpy2_mpz_divmod.c"
 #include "gmpy2_mpz_divmod2exp.c"
 #include "gmpy2_mpz_pack.c"
 #include "gmpy2_mpz_bitops.c"
-
-#include "gmpy_mpz.c"
-#include "gmpy_xmpz.c"
-
-#include "gmpy_mpq.c"
-#include "gmpy_mpfr.c"
-#include "gmpy_mpc.c"
+#include "gmpy2_mpz_inplace.c"
+#include "gmpy_xmpz_inplace.c"
 
 /* Begin includes of refactored code. */
 
@@ -550,6 +543,13 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_truediv.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
+
+#include "gmpy_mpz.c"
+#include "gmpy_xmpz.c"
+
+#include "gmpy_mpq.c"
+#include "gmpy_mpfr.c"
+#include "gmpy_mpc.c"
 
 #include "gmpy2_context.c"
 
