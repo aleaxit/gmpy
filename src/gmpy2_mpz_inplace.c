@@ -275,10 +275,6 @@ GMPy_MPZ_IPow_Slot(PyObject *self, PyObject *other, PyObject *mod)
     MPZ_Object *r;
     mp_bitcnt_t exp;
 
-    if (mod != Py_None) {
-        Py_RETURN_NOTIMPLEMENTED;
-    }
-
     exp = PyIntOrLong_As_mp_bitcnt_t(other);
     if (exp == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
         PyErr_Clear();

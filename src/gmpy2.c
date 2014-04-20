@@ -526,7 +526,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_mpz_pack.c"
 #include "gmpy2_mpz_bitops.c"
 #include "gmpy2_mpz_inplace.c"
-#include "gmpy_xmpz_inplace.c"
+#include "gmpy2_xmpz_inplace.c"
 
 /* Begin includes of refactored code. */
 
