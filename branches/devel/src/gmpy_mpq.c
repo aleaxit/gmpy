@@ -551,7 +551,7 @@ Pympq_hash(MPQ_Object *self)
     if (self->hash_cache != -1)
         return self->hash_cache;
 
-    if (!(temp = Pympq_To_PyFloat(self))) {
+    if (!(temp = GMPy_PyFloat_From_MPQ(self, NULL))) {
         SYSTEM_ERROR("Could not convert 'mpq' to float.");
         return -1;
     }
@@ -618,7 +618,7 @@ static PyNumberMethods mpq_number_methods =
     (binaryfunc) GMPy_MPQ_Add_Slot,         /* nb_add                  */
     (binaryfunc) GMPy_MPQ_Sub_Slot,         /* nb_subtract             */
     (binaryfunc) GMPy_MPQ_Mul_Slot,         /* nb_multiply             */
-    (binaryfunc) GMPy_mpq_truediv_fast,     /* nb_divide               */
+    (binaryfunc) GMPy_MPQ_TrueDiv_Slot,     /* nb_divide               */
     (binaryfunc) GMPy_MPQ_Mod_Slot,         /* nb_remainder            */
     (binaryfunc) GMPy_MPQ_DivMod_Slot,      /* nb_divmod               */
     (ternaryfunc) GMPy_MPANY_Pow_Slot,      /* nb_power                */

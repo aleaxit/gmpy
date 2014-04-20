@@ -214,7 +214,6 @@ PyDoc_STRVAR(GMPy_doc_context_abs,
 static PyObject *
 GMPy_Context_Abs(PyObject *self, PyObject *args)
 {
-    PyObject *result;
     CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 1) {
@@ -229,8 +228,6 @@ GMPy_Context_Abs(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    result = GMPy_Number_Abs(PyTuple_GET_ITEM(args, 0), context);
-
-    return result;
+    return GMPy_Number_Abs(PyTuple_GET_ITEM(args, 0), context);
 }
 
