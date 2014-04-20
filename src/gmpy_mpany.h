@@ -45,7 +45,6 @@ static PyObject * Pympany_is_zero(PyObject *self, PyObject *other);
 static PyObject * Pympany_log(PyObject *self, PyObject *other);
 static PyObject * Pympany_exp(PyObject *self, PyObject *other);
 static PyObject * Pympany_cos(PyObject *self, PyObject *other);
-static PyObject * Pympany_sin(PyObject *self, PyObject *other);
 static PyObject * Pympany_tan(PyObject *self, PyObject *other);
 static PyObject * Pympany_acos(PyObject *self, PyObject *other);
 static PyObject * Pympany_asin(PyObject *self, PyObject *other);

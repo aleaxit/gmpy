@@ -503,7 +503,6 @@ static PyObject * Pympc_proj(PyObject *self, PyObject *other);
 static PyObject * Pympc_log(PyObject *self, PyObject *other);
 static PyObject * Pympc_log10(PyObject *self, PyObject *other);
 static PyObject * Pympc_exp(PyObject *self, PyObject *other);
-static PyObject * Pympc_sin(PyObject *self, PyObject *other);
 static PyObject * Pympc_cos(PyObject *self, PyObject *other);
 static PyObject * Pympc_tan(PyObject *self, PyObject *other);
 static PyObject * Pympc_sinh(PyObject *self, PyObject *other);

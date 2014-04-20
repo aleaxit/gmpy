@@ -541,6 +541,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_pow.c"
 #include "gmpy2_sub.c"
 #include "gmpy2_truediv.c"
+#include "gmpy2_trig.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
@@ -773,7 +774,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "set_context", GMPy_CTXT_Set, METH_O, GMPy_doc_set_context },
     { "set_exp", Pympfr_set_exp, METH_VARARGS, doc_g_mpfr_set_exp },
     { "set_sign", Pympfr_set_sign, METH_VARARGS, doc_g_mpfr_set_sign },
-    { "sin", Pympany_sin, METH_O, doc_mpany_sin },
+    { "sin", GMPy_Function_Sin, METH_O, GMPy_doc_function_sin },
     { "sinh", Pympany_sinh, METH_O, doc_mpany_sinh },
     { "sinh_cosh", Pympfr_sinh_cosh, METH_O, doc_g_mpfr_sinh_cosh },
     { "sin_cos", Pympany_sin_cos, METH_O, doc_mpany_sin_cos },

@@ -880,8 +880,6 @@ MPC_UNIOP(log10)
 
 MPC_UNIOP(exp)
 
-MPC_UNIOP(sin)
-
 MPC_UNIOP(cos)
 
 MPC_UNIOP(tan)
