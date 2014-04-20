@@ -1242,6 +1242,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "mul", GMPy_Context_Mul, METH_VARARGS, GMPy_doc_context_mul },
     { "plus", GMPy_Context_Plus, METH_VARARGS, GMPy_doc_context_plus },
     { "pow", GMPy_Context_Pow, METH_VARARGS, GMPy_doc_context_pow },
+    { "sin", GMPy_Context_Sin, METH_VARARGS, GMPy_doc_context_sin },
     { "sub", GMPy_Context_Sub, METH_VARARGS, GMPy_doc_context_sub },
     { "__enter__", GMPy_CTXT_Enter, METH_NOARGS, NULL },
     { "__exit__", GMPy_CTXT_Exit, METH_VARARGS, NULL },

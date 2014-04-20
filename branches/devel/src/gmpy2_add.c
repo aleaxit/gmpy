@@ -241,9 +241,6 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
 
-    /* This only processes mpfr if the exponent is still in-bounds. Need
-     * to handle the rare case at the end. */
-
     if (MPFR_Check(x) && MPFR_Check(y)) {
         mpfr_clear_flags();
         result->rc = mpfr_add(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
@@ -355,11 +352,6 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             goto done;
         }
     }
-
-    /* In addition to handling PyFloat + PyFloat, or calculation involving
-     * decimal instances, the rare case when the exponent bounds have been
-     * changed is handled here.
-     */
 
     if (IS_REAL(x) && IS_REAL(y)) {
         MPFR_Object *tempx, *tempy;

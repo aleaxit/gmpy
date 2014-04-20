@@ -289,12 +289,6 @@ PyDoc_STRVAR(doc_mpany_cos,
 
 MPANY_MPFR_MPC(cos)
 
-PyDoc_STRVAR(doc_mpany_sin,
-"sin(x) -> number\n\n"
-"Return the sine of x; x in radians.\n");
-
-MPANY_MPFR_MPC(sin)
-
 PyDoc_STRVAR(doc_mpany_tan,
 "tan(x) -> number\n\n"
 "Return the tangent of x; x in radians.\n");
