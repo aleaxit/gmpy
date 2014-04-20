@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_mpz_inplace.c                                                      *
+ * gmpy2_mpz_inplace.c                                                     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -31,7 +31,7 @@
 #include <math.h>
 
 static PyObject *
-Pympz_inplace_add(PyObject *self, PyObject *other)
+GMPy_MPZ_IAdd_Slot(PyObject *self, PyObject *other)
 {
     MPZ_Object *rz;
     mpz_t tempz;
@@ -67,7 +67,7 @@ Pympz_inplace_add(PyObject *self, PyObject *other)
 }
 
 static PyObject *
-Pympz_inplace_sub(PyObject *self, PyObject *other)
+GMPy_MPZ_ISub_Slot(PyObject *self, PyObject *other)
 {
     MPZ_Object *rz;
     mpz_t tempz;
@@ -103,7 +103,7 @@ Pympz_inplace_sub(PyObject *self, PyObject *other)
 }
 
 static PyObject *
-Pympz_inplace_mul(PyObject *self, PyObject *other)
+GMPy_MPZ_IMul_Slot(PyObject *self, PyObject *other)
 {
     MPZ_Object *rz;
     mpz_t tempz;
@@ -141,7 +141,7 @@ Pympz_inplace_mul(PyObject *self, PyObject *other)
  */
 
 static PyObject *
-Pympz_inplace_floordiv(PyObject *self, PyObject *other)
+GMPy_MPZ_IFloorDiv_Slot(PyObject *self, PyObject *other)
 {
     MPZ_Object *rz;
     mpz_t tempz;
@@ -186,7 +186,7 @@ Pympz_inplace_floordiv(PyObject *self, PyObject *other)
 }
 
 static PyObject *
-Pympz_inplace_rem(PyObject *self, PyObject *other)
+GMPy_MPZ_IRem_Slot(PyObject *self, PyObject *other)
 {
     MPZ_Object *rz;
     mpz_t tempz;
@@ -230,130 +230,65 @@ Pympz_inplace_rem(PyObject *self, PyObject *other)
 }
 
 static PyObject *
-Pympz_inplace_rshift(PyObject *self, PyObject *other)
+GMPy_MPZ_IRshift_Slot(PyObject *self, PyObject *other)
 {
     MPZ_Object *rz;
-    mpir_si temp_si;
-    int overflow;
+    mp_bitcnt_t shift;
 
-    if (!(rz =  GMPy_MPZ_New(NULL)))
-        return NULL;
+    if (IS_INTEGER(other)) {
+        shift = PyIntOrLong_As_mp_bitcnt_t(other);
+        if (shift == (mp_bitcnt_t)-1 && PyErr_Occurred())
+            return NULL;
 
-    if (CHECK_MPZANY(other)) {
-        if (mpz_sgn(MPZ(other)) < 0) {
-            VALUE_ERROR("negative shift count");
-            Py_DECREF((PyObject*)rz);
+        if (!(rz =  GMPy_MPZ_New(NULL)))
             return NULL;
-        }
-        if (!mpz_fits_si_p(MPZ(other))) {
-            OVERFLOW_ERROR("outrageous shift count");
-            Py_DECREF((PyObject*)rz);
-            return NULL;
-        }
-        temp_si = mpz_get_si(MPZ(other));
-        mpz_fdiv_q_2exp(rz->z, MPZ(self), temp_si);
-        return (PyObject*)rz;
+
+        mpz_fdiv_q_2exp(rz->z, MPZ(self), shift);
+        return (PyObject *)rz;
     }
-
-    if (PyIntOrLong_Check(other)) {
-        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
-        if (overflow) {
-            VALUE_ERROR("outrageous shift count");
-            Py_DECREF((PyObject*)rz);
-            return NULL;
-        }
-        else if(temp_si >= 0) {
-            mpz_fdiv_q_2exp(rz->z, MPZ(self), temp_si);
-            return (PyObject *)rz;
-        }
-        else {
-            VALUE_ERROR("negative shift count");
-            Py_DECREF((PyObject*)rz);
-            return NULL;
-        }
-    }
-
     Py_RETURN_NOTIMPLEMENTED;
 }
 
 static PyObject *
-Pympz_inplace_lshift(PyObject *self, PyObject *other)
+GMPy_MPZ_ILshift_Slot(PyObject *self, PyObject *other)
 {
     MPZ_Object *rz;
-    mpir_si temp_si;
-    int overflow;
+    mp_bitcnt_t shift;
 
-    if (!(rz =  GMPy_MPZ_New(NULL)))
-        return NULL;
+    if (IS_INTEGER(other)) {
+        shift = PyIntOrLong_As_mp_bitcnt_t(other);
+        if (shift == (mp_bitcnt_t)-1 && PyErr_Occurred())
+            return NULL;
 
-    if (CHECK_MPZANY(other)) {
-        if (mpz_sgn(MPZ(other)) < 0) {
-            VALUE_ERROR("negative shift count");
-            Py_DECREF((PyObject*)rz);
+        if (!(rz =  GMPy_MPZ_New(NULL)))
             return NULL;
-        }
-        if (!mpz_fits_si_p(MPZ(other))) {
-            OVERFLOW_ERROR("outrageous shift count");
-            Py_DECREF((PyObject*)rz);
-            return NULL;
-        }
-        temp_si = mpz_get_si(MPZ(other));
-        mpz_mul_2exp(rz->z, MPZ(self), temp_si);
-        return (PyObject*)rz;
+
+        mpz_mul_2exp(rz->z, MPZ(self), shift);
+        return (PyObject *)rz;
     }
-
-    if (PyIntOrLong_Check(other)) {
-        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
-        if (overflow) {
-            VALUE_ERROR("outrageous shift count");
-            Py_DECREF((PyObject*)rz);
-            return NULL;
-        }
-        else if(temp_si >= 0) {
-            mpz_mul_2exp(rz->z, MPZ(self), temp_si);
-            return (PyObject *)rz;
-        }
-        else {
-            VALUE_ERROR("negative shift count");
-            Py_DECREF((PyObject*)rz);
-            return NULL;
-        }
-    }
-
     Py_RETURN_NOTIMPLEMENTED;
 }
 
 static PyObject *
-Pympz_inplace_pow(PyObject *self, PyObject *other, PyObject *mod)
+GMPy_MPZ_IPow_Slot(PyObject *self, PyObject *other, PyObject *mod)
 {
-    MPZ_Object *r, *e = 0;
-    mpir_ui el;
+    MPZ_Object *r;
+    mp_bitcnt_t exp;
 
     if (mod != Py_None) {
         Py_RETURN_NOTIMPLEMENTED;
     }
 
-    if (!(e = GMPy_MPZ_From_Integer(other, NULL))) {
+    exp = PyIntOrLong_As_mp_bitcnt_t(other);
+    if (exp == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
         PyErr_Clear();
         Py_RETURN_NOTIMPLEMENTED;
     }
-    if (mpz_sgn(e->z) < 0) {
-        PyErr_Clear();
-        Py_DECREF((PyObject*)e);
-        Py_RETURN_NOTIMPLEMENTED;
-    }
-    if (!mpz_fits_ui_p(e->z)) {
-        PyErr_Clear();
-        Py_DECREF((PyObject*)e);
-        Py_RETURN_NOTIMPLEMENTED;
-    }
-    if (!(r =  GMPy_MPZ_New(NULL))) {
-        Py_DECREF((PyObject*)e);
+
+    if (!(r =  GMPy_MPZ_New(NULL)))
         return NULL;
-    }
-    el = mpz_get_ui(e->z);
-    mpz_pow_ui(r->z, MPZ(self), el);
-    Py_DECREF((PyObject*)e);
+
+    mpz_pow_ui(r->z, MPZ(self), exp);
     return (PyObject*)r;
 }
 
