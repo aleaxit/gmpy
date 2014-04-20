@@ -691,19 +691,19 @@ static PyNumberMethods xmpz_number_methods =
     (unaryfunc) GMPy_MPZ_Int_Slot,         /* nb_int                  */
         0,                                 /* nb_reserved             */
     (unaryfunc) GMPy_MPZ_Float_Slot,       /* nb_float                */
-    (binaryfunc) Pyxmpz_inplace_add,       /* nb_inplace_add          */
-    (binaryfunc) Pyxmpz_inplace_sub,       /* nb_inplace_subtract     */
-    (binaryfunc) Pyxmpz_inplace_mul,       /* nb_inplace_multiply     */
-    (binaryfunc) Pyxmpz_inplace_rem,       /* nb_inplace_remainder    */
-    (ternaryfunc) Pyxmpz_inplace_pow,      /* nb_inplace_power        */
-    (binaryfunc) Pyxmpz_inplace_lshift,    /* nb_inplace_lshift       */
-    (binaryfunc) Pyxmpz_inplace_rshift,    /* nb_inplace_rshift       */
-    (binaryfunc) Pyxmpz_inplace_and,       /* nb_inplace_and          */
-    (binaryfunc) Pyxmpz_inplace_xor,       /* nb_inplace_xor          */
-    (binaryfunc) Pyxmpz_inplace_ior,       /* nb_inplace_or           */
+    (binaryfunc) GMPy_XMPZ_IAdd_Slot,      /* nb_inplace_add          */
+    (binaryfunc) GMPy_XMPZ_ISub_Slot,      /* nb_inplace_subtract     */
+    (binaryfunc) GMPy_XMPZ_IMul_Slot,      /* nb_inplace_multiply     */
+    (binaryfunc) GMPy_XMPZ_IRem_Slot,      /* nb_inplace_remainder    */
+    (ternaryfunc) GMPy_XMPZ_IPow_Slot,     /* nb_inplace_power        */
+    (binaryfunc) GMPy_XMPZ_ILshift_Slot,   /* nb_inplace_lshift       */
+    (binaryfunc) GMPy_XMPZ_IRshift_Slot,   /* nb_inplace_rshift       */
+    (binaryfunc) GMPy_XMPZ_IAnd_Slot,      /* nb_inplace_and          */
+    (binaryfunc) GMPy_XMPZ_IXor_Slot,      /* nb_inplace_xor          */
+    (binaryfunc) GMPy_XMPZ_IIor_Slot,      /* nb_inplace_or           */
     (binaryfunc) GMPy_MPZ_FloorDiv_Slot,   /* nb_floor_divide         */
     (binaryfunc) GMPy_MPZ_TrueDiv_Slot,    /* nb_true_divide          */
-    (binaryfunc) Pyxmpz_inplace_floordiv,  /* nb_inplace_floor_divide */
+    (binaryfunc) GMPy_XMPZ_IFloorDiv_Slot, /* nb_inplace_floor_divide */
         0,                                 /* nb_inplace_true_divide  */
     (unaryfunc) GMPy_MPZ_Int_Slot,         /* nb_index                */
 };
@@ -734,20 +734,20 @@ static PyNumberMethods xmpz_number_methods =
     (unaryfunc) GMPy_MPZ_Float_Slot,       /* nb_float                */
     (unaryfunc) Pyxmpz_oct,                /* nb_oct                  */
     (unaryfunc) Pyxmpz_hex,                /* nb_hex                  */
-    (binaryfunc) Pyxmpz_inplace_add,       /* nb_inplace_add          */
-    (binaryfunc) Pyxmpz_inplace_sub,       /* nb_inplace_subtract     */
-    (binaryfunc) Pyxmpz_inplace_mul,       /* nb_inplace_multiply     */
+    (binaryfunc) GMPy_XMPZ_IAdd_Slot,      /* nb_inplace_add          */
+    (binaryfunc) GMPy_XMPZ_ISub_Slot,      /* nb_inplace_subtract     */
+    (binaryfunc) GMPy_XMPZ_IMul_Slot,      /* nb_inplace_multiply     */
         0,                                 /* nb_inplace_divide       */
-    (binaryfunc) Pyxmpz_inplace_rem,       /* nb_inplace_remainder    */
-    (ternaryfunc) Pyxmpz_inplace_pow,      /* nb_inplace_power        */
-    (binaryfunc) Pyxmpz_inplace_lshift,    /* nb_inplace_lshift       */
-    (binaryfunc) Pyxmpz_inplace_rshift,    /* nb_inplace_rshift       */
-    (binaryfunc) Pyxmpz_inplace_and,       /* nb_inplace_and          */
-    (binaryfunc) Pyxmpz_inplace_xor,       /* nb_inplace_xor          */
-    (binaryfunc) Pyxmpz_inplace_ior,       /* nb_inplace_or           */
+    (binaryfunc) GMPy_XMPZ_IRem_Slot,      /* nb_inplace_remainder    */
+    (ternaryfunc) GMPy_XMPZ_IPow_Slot,     /* nb_inplace_power        */
+    (binaryfunc) GMPy_XMPZ_ILshift_Slot,   /* nb_inplace_lshift       */
+    (binaryfunc) GMPy_XMPZ_IRshift_Slot,   /* nb_inplace_rshift       */
+    (binaryfunc) GMPy_XMPZ_IAnd_Slot,      /* nb_inplace_and          */
+    (binaryfunc) GMPy_XMPZ_IXor_Slot,      /* nb_inplace_xor          */
+    (binaryfunc) GMPy_XMPZ_IIor_Slot,      /* nb_inplace_or           */
     (binaryfunc) GMPy_MPZ_FloorDiv_Slot,   /* nb_floor_divide         */
     (binaryfunc) GMPy_MPZ_TrueDiv_Slot,    /* nb_true_divide          */
-    (binaryfunc) Pyxmpz_inplace_floordiv,  /* nb_inplace_floor_divide */
+    (binaryfunc) GMPy_XMPZ_IFloorDiv_Slot, /* nb_inplace_floor_divide */
         0,                                 /* nb_inplace_true_divide  */
     (unaryfunc) GMPy_MPZ_Int_Slot,         /* nb_index                */
 };

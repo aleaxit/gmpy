@@ -1,5 +1,5 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_xmpz_inplace.c                                                     *
+/* * * * * * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * *
+ * gmpy2_xmpz_inplace.c                                                     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -33,35 +33,35 @@
 /* Inplace xmpz addition. */
 
 static PyObject *
-Pyxmpz_inplace_add(PyObject *a, PyObject *b)
+GMPy_XMPZ_IAdd_Slot(PyObject *self, PyObject *other)
 {
     mpz_t tempz;
     mpir_si temp_si;
     int overflow;
 
     /* Try to make mpz + small_int faster */
-    if (PyIntOrLong_Check(b)) {
-        temp_si = PyLong_AsSIAndOverflow(b, &overflow);
+    if (PyIntOrLong_Check(other)) {
+        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
-            mpz_set_PyIntOrLong(tempz, b);
-            mpz_add(MPZ(a), MPZ(a), tempz);
+            mpz_set_PyIntOrLong(tempz, other);
+            mpz_add(MPZ(self), MPZ(self), tempz);
             mpz_cloc(tempz);
         }
         else if(temp_si >= 0) {
-            mpz_add_ui(MPZ(a), MPZ(a), temp_si);
+            mpz_add_ui(MPZ(self), MPZ(self), temp_si);
         }
         else {
-            mpz_sub_ui(MPZ(a), MPZ(a), -temp_si);
+            mpz_sub_ui(MPZ(self), MPZ(self), -temp_si);
         }
-        Py_INCREF(a);
-        return a;
+        Py_INCREF(self);
+        return self;
     }
 
-    if (CHECK_MPZANY(b)) {
-        mpz_add(MPZ(a), MPZ(a), MPZ(b));
-        Py_INCREF(a);
-        return a;
+    if (CHECK_MPZANY(other)) {
+        mpz_add(MPZ(self), MPZ(self), MPZ(other));
+        Py_INCREF(self);
+        return self;
     }
 
     Py_RETURN_NOTIMPLEMENTED;
@@ -71,34 +71,34 @@ Pyxmpz_inplace_add(PyObject *a, PyObject *b)
  */
 
 static PyObject *
-Pyxmpz_inplace_sub(PyObject *a, PyObject *b)
+GMPy_XMPZ_ISub_Slot(PyObject *self, PyObject *other)
 {
     mpz_t tempz;
     mpir_si temp_si;
     int overflow;
 
-    if (PyIntOrLong_Check(b)) {
-        temp_si = PyLong_AsSIAndOverflow(b, &overflow);
+    if (PyIntOrLong_Check(other)) {
+        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
-            mpz_set_PyIntOrLong(tempz, b);
-            mpz_sub(MPZ(a), MPZ(a), tempz);
+            mpz_set_PyIntOrLong(tempz, other);
+            mpz_sub(MPZ(self), MPZ(self), tempz);
             mpz_cloc(tempz);
         }
         else if(temp_si >= 0) {
-            mpz_sub_ui(MPZ(a), MPZ(a), temp_si);
+            mpz_sub_ui(MPZ(self), MPZ(self), temp_si);
         }
         else {
-            mpz_add_ui(MPZ(a), MPZ(a), -temp_si);
+            mpz_add_ui(MPZ(self), MPZ(self), -temp_si);
         }
-        Py_INCREF(a);
-        return a;
+        Py_INCREF(self);
+        return self;
     }
 
-    if (CHECK_MPZANY(b)) {
-        mpz_sub(MPZ(a), MPZ(a), MPZ(b));
-        Py_INCREF(a);
-        return a;
+    if (CHECK_MPZANY(other)) {
+        mpz_sub(MPZ(self), MPZ(self), MPZ(other));
+        Py_INCREF(self);
+        return self;
     }
 
     Py_RETURN_NOTIMPLEMENTED;
@@ -108,31 +108,31 @@ Pyxmpz_inplace_sub(PyObject *a, PyObject *b)
  */
 
 static PyObject *
-Pyxmpz_inplace_mul(PyObject *a, PyObject *b)
+GMPy_XMPZ_IMul_Slot(PyObject *self, PyObject *other)
 {
     mpz_t tempz;
     mpir_si temp_si;
     int overflow;
 
-    if (PyIntOrLong_Check(b)) {
-        temp_si = PyLong_AsSIAndOverflow(b, &overflow);
+    if (PyIntOrLong_Check(other)) {
+        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
-            mpz_set_PyIntOrLong(tempz, b);
-            mpz_mul(MPZ(a), MPZ(a), tempz);
+            mpz_set_PyIntOrLong(tempz, other);
+            mpz_mul(MPZ(self), MPZ(self), tempz);
             mpz_cloc(tempz);
         }
         else {
-            mpz_mul_si(MPZ(a), MPZ(a), temp_si);
+            mpz_mul_si(MPZ(self), MPZ(self), temp_si);
         }
-        Py_INCREF(a);
-        return a;
+        Py_INCREF(self);
+        return self;
     }
 
-    if (CHECK_MPZANY(b)) {
-        mpz_mul(MPZ(a), MPZ(a), MPZ(b));
-        Py_INCREF(a);
-        return a;
+    if (CHECK_MPZANY(other)) {
+        mpz_mul(MPZ(self), MPZ(self), MPZ(other));
+        Py_INCREF(self);
+        return self;
     }
 
     Py_RETURN_NOTIMPLEMENTED;
@@ -144,18 +144,18 @@ Pyxmpz_inplace_mul(PyObject *a, PyObject *b)
  */
 
 static PyObject *
-Pyxmpz_inplace_floordiv(PyObject *a, PyObject *b)
+GMPy_XMPZ_IFloorDiv_Slot(PyObject *self, PyObject *other)
 {
     mpz_t tempz;
     mpir_si temp_si;
     int overflow;
 
-    if (PyIntOrLong_Check(b)) {
-        temp_si = PyLong_AsSIAndOverflow(b, &overflow);
+    if (PyIntOrLong_Check(other)) {
+        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
-            mpz_set_PyIntOrLong(tempz, b);
-            mpz_fdiv_q(MPZ(a), MPZ(a), tempz);
+            mpz_set_PyIntOrLong(tempz, other);
+            mpz_fdiv_q(MPZ(self), MPZ(self), tempz);
             mpz_cloc(tempz);
         }
         else if(temp_si == 0) {
@@ -163,24 +163,24 @@ Pyxmpz_inplace_floordiv(PyObject *a, PyObject *b)
             return NULL;
         }
         else if(temp_si > 0) {
-            mpz_fdiv_q_ui(MPZ(a), MPZ(a), temp_si);
+            mpz_fdiv_q_ui(MPZ(self), MPZ(self), temp_si);
         }
         else {
-            mpz_cdiv_q_ui(MPZ(a), MPZ(a), -temp_si);
-            mpz_neg(MPZ(a), MPZ(a));
+            mpz_cdiv_q_ui(MPZ(self), MPZ(self), -temp_si);
+            mpz_neg(MPZ(self), MPZ(self));
         }
-        Py_INCREF(a);
-        return a;
+        Py_INCREF(self);
+        return self;
     }
 
-    if (CHECK_MPZANY(b)) {
-        if (mpz_sgn(MPZ(b)) == 0) {
+    if (CHECK_MPZANY(other)) {
+        if (mpz_sgn(MPZ(other)) == 0) {
             ZERO_ERROR("xmpz division by zero");
             return NULL;
         }
-        mpz_fdiv_q(MPZ(a), MPZ(a), MPZ(b));
-        Py_INCREF(a);
-        return a;
+        mpz_fdiv_q(MPZ(self), MPZ(self), MPZ(other));
+        Py_INCREF(self);
+        return self;
     }
 
     Py_RETURN_NOTIMPLEMENTED;
@@ -190,42 +190,42 @@ Pyxmpz_inplace_floordiv(PyObject *a, PyObject *b)
  */
 
 static PyObject *
-Pyxmpz_inplace_rem(PyObject *a, PyObject *b)
+GMPy_XMPZ_IRem_Slot(PyObject *self, PyObject *other)
 {
     mpz_t tempz;
     mpir_si temp_si;
     int overflow;
 
-    if (PyIntOrLong_Check(b)) {
-        temp_si = PyLong_AsSIAndOverflow(b, &overflow);
+    if (PyIntOrLong_Check(other)) {
+        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
         if (overflow) {
             mpz_inoc(tempz);
-            mpz_set_PyIntOrLong(tempz, b);
-            mpz_fdiv_r(MPZ(a), MPZ(a), tempz);
+            mpz_set_PyIntOrLong(tempz, other);
+            mpz_fdiv_r(MPZ(self), MPZ(self), tempz);
             mpz_cloc(tempz);
         }
         else if(temp_si > 0) {
-            mpz_fdiv_r_ui(MPZ(a), MPZ(a), temp_si);
+            mpz_fdiv_r_ui(MPZ(self), MPZ(self), temp_si);
         }
         else if(temp_si == 0) {
             ZERO_ERROR("xmpz modulo by zero");
             return NULL;
         }
         else {
-            mpz_cdiv_r_ui(MPZ(a), MPZ(a), -temp_si);
+            mpz_cdiv_r_ui(MPZ(self), MPZ(self), -temp_si);
         }
-        Py_INCREF(a);
-        return a;
+        Py_INCREF(self);
+        return self;
     }
 
-    if (CHECK_MPZANY(b)) {
-        if(mpz_sgn(MPZ(b)) == 0) {
+    if (CHECK_MPZANY(other)) {
+        if(mpz_sgn(MPZ(other)) == 0) {
             ZERO_ERROR("xmpz modulo by zero");
             return NULL;
         }
-        mpz_fdiv_r(MPZ(a), MPZ(a), MPZ(b));
-        Py_INCREF(a);
-        return a;
+        mpz_fdiv_r(MPZ(self), MPZ(self), MPZ(other));
+        Py_INCREF(self);
+        return self;
     }
 
     Py_RETURN_NOTIMPLEMENTED;
@@ -235,41 +235,18 @@ Pyxmpz_inplace_rem(PyObject *a, PyObject *b)
  */
 
 static PyObject *
-Pyxmpz_inplace_rshift(PyObject *a, PyObject *b)
+GMPy_XMPZ_IRshift_Slot(PyObject *self, PyObject *other)
 {
-    mpir_si temp_si;
-    int overflow;
+    mp_bitcnt_t shift;
 
-    if (PyIntOrLong_Check(b)) {
-        temp_si = PyLong_AsSIAndOverflow(b, &overflow);
-        if (overflow) {
-            OVERFLOW_ERROR("outrageous shift count");
+    if (IS_INTEGER(other)) {
+        shift = PyIntOrLong_As_mp_bitcnt_t(other);
+        if (shift == (mp_bitcnt_t)-1 && PyErr_Occurred())
             return NULL;
-        }
-        else if(temp_si >= 0) {
-            mpz_fdiv_q_2exp(MPZ(a), MPZ(a), temp_si);
-            Py_INCREF(a);
-            return a;
-        }
-        else {
-            VALUE_ERROR("negative shift count");
-            return NULL;
-        }
-    }
 
-    if (CHECK_MPZANY(b)) {
-        if (mpz_sgn(MPZ(b)) < 0) {
-            VALUE_ERROR("negative shift count");
-            return NULL;
-        }
-        if (!mpz_fits_si_p(MPZ(b))) {
-            OVERFLOW_ERROR("outrageous shift count");
-            return NULL;
-        }
-        temp_si = mpz_get_si(MPZ(b));
-        mpz_fdiv_q_2exp(MPZ(a), MPZ(a), temp_si);
-        Py_INCREF(a);
-        return a;
+        mpz_fdiv_q_2exp(MPZ(self), MPZ(self), shift);
+        Py_INCREF(self);
+        return self;
     }
 
     Py_RETURN_NOTIMPLEMENTED;
@@ -279,39 +256,18 @@ Pyxmpz_inplace_rshift(PyObject *a, PyObject *b)
  */
 
 static PyObject *
-Pyxmpz_inplace_lshift(PyObject *a, PyObject *b)
+GMPy_XMPZ_ILshift_Slot(PyObject *self, PyObject *other)
 {
-    mpir_si temp_si;
-    int overflow;
+    mp_bitcnt_t shift;
 
-    if (PyIntOrLong_Check(b)) {
-        temp_si = PyLong_AsSIAndOverflow(b, &overflow);
-        if (overflow) {
-            OVERFLOW_ERROR("outrageous shift count");
+    if (IS_INTEGER(other)) {
+        shift = PyIntOrLong_As_mp_bitcnt_t(other);
+        if (shift == (mp_bitcnt_t)-1 && PyErr_Occurred())
             return NULL;
-        }
-        else if(temp_si >= 0) {
-            mpz_mul_2exp(MPZ(a), MPZ(a), temp_si);
-        }
-        else {
-            VALUE_ERROR("negative shift count");
-            return NULL;
-        }
-    }
 
-    if (CHECK_MPZANY(b)) {
-        if (mpz_sgn(MPZ(b)) < 0) {
-            VALUE_ERROR("negative shift count");
-            return NULL;
-        }
-        if (!mpz_fits_si_p(MPZ(b))) {
-            OVERFLOW_ERROR("outrageous shift count");
-            return NULL;
-        }
-        temp_si = mpz_get_si(MPZ(b));
-        mpz_mul_2exp(MPZ(a), MPZ(a), temp_si);
-        Py_INCREF(a);
-        return a;
+        mpz_mul_2exp(MPZ(self), MPZ(self), shift);
+        Py_INCREF(self);
+        return self;
     }
 
     Py_RETURN_NOTIMPLEMENTED;
@@ -321,46 +277,26 @@ Pyxmpz_inplace_lshift(PyObject *a, PyObject *b)
  */
 
 static PyObject *
-Pyxmpz_inplace_pow(PyObject *in_b, PyObject *in_e, PyObject *in_m)
+GMPy_XMPZ_IPow_Slot(PyObject *self, PyObject *other, PyObject *mod)
 {
-    MPZ_Object *e = 0;
-    mpir_ui el;
+    mp_bitcnt_t exp;
 
-    if (!XMPZ_Check(in_b)) {
-        PyErr_SetString(PyExc_TypeError, "base must be an Integer");
-        return NULL;
+    exp = PyIntOrLong_As_mp_bitcnt_t(other);
+    if (exp == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
+        PyErr_Clear();
+        Py_RETURN_NOTIMPLEMENTED;
     }
-    if (in_m != Py_None) {
-        SYSTEM_ERROR("modulo not expected");
-        return NULL;
-    }
-    e = GMPy_MPZ_From_Integer(in_e, NULL);
-    if (!e) {
-        TYPE_ERROR("expected an integer exponent");
-        return NULL;
-    }
-    if (mpz_sgn(e->z) < 0) {
-        VALUE_ERROR("xmpz.pow with negative power");
-        Py_DECREF((PyObject*)e);
-        return NULL;
-    }
-    if (!mpz_fits_ui_p(e->z)) {
-        VALUE_ERROR("xmpz.pow outrageous exponent");
-        Py_DECREF((PyObject*)e);
-        return NULL;
-    }
-    el = mpz_get_ui(e->z);
-    mpz_pow_ui(MPZ(in_b), MPZ(in_b), el);
-    Py_DECREF((PyObject*)e);
-    Py_INCREF((PyObject*)in_b);
-    return (PyObject*)in_b;
+
+    mpz_pow_ui(MPZ(self), MPZ(self), exp);
+    Py_INCREF((PyObject*)self);
+    return (PyObject*)self;
 }
 
 /* Inplace xmpz and.
  */
 
 static PyObject *
-Pyxmpz_inplace_and(PyObject *self, PyObject *other)
+GMPy_XMPZ_IAnd_Slot(PyObject *self, PyObject *other)
 {
     mpz_t tempz;
 
@@ -386,7 +322,7 @@ Pyxmpz_inplace_and(PyObject *self, PyObject *other)
  */
 
 static PyObject *
-Pyxmpz_inplace_xor(PyObject *self, PyObject *other)
+GMPy_XMPZ_IXor_Slot(PyObject *self, PyObject *other)
 {
     mpz_t tempz;
 
@@ -412,7 +348,7 @@ Pyxmpz_inplace_xor(PyObject *self, PyObject *other)
  */
 
 static PyObject *
-Pyxmpz_inplace_ior(PyObject *self, PyObject *other)
+GMPy_XMPZ_IIor_Slot(PyObject *self, PyObject *other)
 {
     mpz_t tempz;
 
