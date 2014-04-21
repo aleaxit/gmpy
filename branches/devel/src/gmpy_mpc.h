@@ -301,22 +301,22 @@ static PyTypeObject MPC_Type;
         if (CTX->ctx.traps) { \
             if ((CTX->ctx.traps & TRAP_UNDERFLOW) && _underflow) { \
                 GMPY_UNDERFLOW(NAME" underflow"); \
-                Py_DECREF((PyObject*)V); \
+                Py_XDECREF((PyObject*)V); \
                 V = NULL; \
             } \
             if ((CTX->ctx.traps & TRAP_OVERFLOW) && _overflow) { \
                 GMPY_OVERFLOW(NAME" overflow"); \
-                Py_DECREF((PyObject*)V); \
+                Py_XDECREF((PyObject*)V); \
                 V = NULL; \
             } \
             if ((CTX->ctx.traps & TRAP_INEXACT) && _inexact) { \
                 GMPY_INEXACT(NAME" inexact result"); \
-                Py_DECREF((PyObject*)V); \
+                Py_XDECREF((PyObject*)V); \
                 V = NULL; \
             } \
             if ((CTX->ctx.traps & TRAP_INVALID) && _invalid) { \
                 GMPY_INVALID(NAME" invalid operation"); \
-                Py_DECREF((PyObject*)V); \
+                Py_XDECREF((PyObject*)V); \
                 V = NULL; \
             } \
         } \
@@ -504,7 +504,6 @@ static PyObject * Pympc_log(PyObject *self, PyObject *other);
 static PyObject * Pympc_log10(PyObject *self, PyObject *other);
 static PyObject * Pympc_exp(PyObject *self, PyObject *other);
 static PyObject * Pympc_sqrt(PyObject *self, PyObject *other);
-static PyObject * Pympc_sin_cos(PyObject *self, PyObject *other);
 static PyObject * Pympc_fma(PyObject *self, PyObject *args);
 static PyObject * Pympc_fms(PyObject *self, PyObject *args);
 static PyObject * Pympc_div_2exp(PyObject *self, PyObject *args);

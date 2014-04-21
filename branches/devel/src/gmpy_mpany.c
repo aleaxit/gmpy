@@ -292,12 +292,6 @@ PyDoc_STRVAR(doc_mpany_sqrt,
 
 MPANY_MPFR_MPC(sqrt)
 
-PyDoc_STRVAR(doc_mpany_sin_cos,
-"sin_cos(x) -> (number, number)\n\n"
-"Return a tuple containing the sine and cosine of x; x in radians.\n");
-
-MPANY_MPFR_MPC(sin_cos)
-
 PyDoc_STRVAR(doc_mpany_fma,
 "fma(x, y, z) -> number\n\n"
 "Return correctly rounded result of (x * y) + z.");

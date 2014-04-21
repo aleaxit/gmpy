@@ -209,6 +209,28 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
     return GMPy_Number_##NAME(other, context); \
 }
 
+#define GMPY_MPFR_UNIOP_TEMPLATE(NAME, FUNC) \
+static PyObject * \
+GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    if (IS_REAL(x)) \
+        return GMPy_Real_##NAME(x, context); \
+    TYPE_ERROR(#FUNC"() argument type not supported"); \
+    return NULL; \
+} \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *other) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(other, context); \
+}
+
 PyDoc_STRVAR(GMPy_doc_context_sin,
 "context.sin(x) -> number\n\n"
 "Return sine of x; x in radians.");
@@ -588,98 +610,156 @@ Pympfr_hypot(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-Pympfr_sin_cos(PyObject *self, PyObject *other)
+GMPy_Real_Sin_Cos(PyObject *x, CTXT_Object *context)
 {
-    MPFR_Object *s, *c;
+    MPFR_Object *s, *c, *tempx;
     PyObject *result;
     int code;
-    CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
-    PARSE_ONE_MPFR_OTHER("sin_cos() requires 'mpfr' argument");
-
+    tempx = GMPy_MPFR_From_Real(x, 1, context);
     s = GMPy_MPFR_New(0, context);
     c = GMPy_MPFR_New(0, context);
     result = PyTuple_New(2);
-    if (!s || !c || !result)
-        goto done;
+    if (!tempx || !s || !c || !result) {
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)s);
+        Py_XDECREF((PyObject*)c);
+        Py_XDECREF(result);
+        return NULL;
+    }
 
     mpfr_clear_flags();
-    code = mpfr_sin_cos(s->f, c->f, MPFR(self),
-                        context->ctx.mpfr_round);
+    code = mpfr_sin_cos(s->f, c->f, tempx->f, GET_MPFR_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
+
     s->rc = code & 0x03;
     c->rc = code >> 2;
     if (s->rc == 2) s->rc = -1;
     if (c->rc == 2) c->rc = -1;
-    SUBNORMALIZE(s);
-    SUBNORMALIZE(c);
-    MERGE_FLAGS;
-    CHECK_FLAGS("sin_cos()");
 
-  done:
-    Py_DECREF(self);
-    if (PyErr_Occurred()) {
+    GMPY_MPFR_CLEANUP(s, context, "sin_cos()");
+    GMPY_MPFR_CLEANUP(c, context, "sin_cos()");
+
+    if (!s || !c) {
         Py_XDECREF((PyObject*)s);
         Py_XDECREF((PyObject*)c);
         Py_XDECREF(result);
-        result = NULL;
+        return NULL;
     }
-    else {
-        PyTuple_SET_ITEM(result, 0, (PyObject*)s);
-        PyTuple_SET_ITEM(result, 1, (PyObject*)c);
-    }
+
+    PyTuple_SET_ITEM(result, 0, (PyObject*)s);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)c);
     return result;
 }
-
-PyDoc_STRVAR(doc_g_mpfr_sinh_cosh,
-"sinh_cosh(x) -> (mpfr, mpfr)\n\n"
-"Return a tuple containing the hyperbolic sine and cosine of x.");
 
 static PyObject *
-Pympfr_sinh_cosh(PyObject *self, PyObject *other)
+GMPy_Complex_Sin_Cos(PyObject *x, CTXT_Object *context)
 {
-    MPFR_Object *s, *c;
+    MPC_Object *s, *c, *tempx;
     PyObject *result;
     int code;
-    CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
-    PARSE_ONE_MPFR_OTHER("sinh_cosh() requires 'mpfr' argument");
+    tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
+    s = GMPy_MPC_New(0, 0, context);
+    c = GMPy_MPC_New(0, 0, context);
+    result = PyTuple_New(2);
+    if (!tempx || !s || !c || !result) {
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)s);
+        Py_XDECREF((PyObject*)c);
+        Py_XDECREF(result);
+        return NULL;
+    }
 
+    code = mpc_sin_cos(s->c, c->c, tempx->c, GET_MPC_ROUND(context), GET_MPC_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
+
+    s->rc = MPC_INEX1(code);
+    c->rc = MPC_INEX2(code);
+
+    GMPY_MPC_CLEANUP(s, context, "sin_cos()");
+    GMPY_MPC_CLEANUP(c, context, "sin_cos()");
+
+    if (!s || !c) {
+        Py_XDECREF((PyObject*)s);
+        Py_XDECREF((PyObject*)c);
+        Py_XDECREF(result);
+        return NULL;
+    }
+
+    PyTuple_SET_ITEM(result, 0, (PyObject*)s);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)c);
+    return result;
+}
+
+PyDoc_STRVAR(GMPy_doc_context_sin_cos,
+"context.sin_cos(x) -> (number, number)\n\n"
+"Return a tuple containing the sine and cosine of x; x in radians.");
+
+PyDoc_STRVAR(GMPy_doc_function_sin_cos,
+"sin_cos(x) -> (number, number)\n\n"
+"Return a tuple containing the sine and cosine of x; x in radians.");
+
+GMPY_MPFR_MPC_UNIOP_TEMPLATE(Sin_Cos, sin_cos)
+
+static PyObject *
+GMPy_Real_Sinh_Cosh(PyObject *x, CTXT_Object *context)
+{
+    MPFR_Object *s, *c, *tempx;
+    PyObject *result;
+    int code;
+
+    CHECK_CONTEXT(context);
+
+    tempx = GMPy_MPFR_From_Real(x, 1, context);
     s = GMPy_MPFR_New(0, context);
     c = GMPy_MPFR_New(0, context);
     result = PyTuple_New(2);
-    if (!s || !c || !result)
-        goto done;
+    if (!tempx || !s || !c || !result) {
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)s);
+        Py_XDECREF((PyObject*)c);
+        Py_XDECREF(result);
+        return NULL;
+    }
 
     mpfr_clear_flags();
-    code = mpfr_sinh_cosh(s->f, c->f, MPFR(self),
-                          context->ctx.mpfr_round);
+    code = mpfr_sinh_cosh(s->f, c->f, tempx->f, GET_MPFR_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
+
     s->rc = code & 0x03;
     c->rc = code >> 2;
     if (s->rc == 2) s->rc = -1;
     if (c->rc == 2) c->rc = -1;
-    SUBNORMALIZE(s);
-    SUBNORMALIZE(c);
-    MERGE_FLAGS;
-    CHECK_FLAGS("sin_cos()");
 
-  done:
-    Py_DECREF(self);
-    if (PyErr_Occurred()) {
+    GMPY_MPFR_CLEANUP(s, context, "sinh_cosh()");
+    GMPY_MPFR_CLEANUP(c, context, "sinh_cosh()");
+
+    if (!s || !c) {
         Py_XDECREF((PyObject*)s);
         Py_XDECREF((PyObject*)c);
         Py_XDECREF(result);
-        result = NULL;
+        return NULL;
     }
-    else {
-        PyTuple_SET_ITEM(result, 0, (PyObject*)s);
-        PyTuple_SET_ITEM(result, 1, (PyObject*)c);
-    }
+
+    PyTuple_SET_ITEM(result, 0, (PyObject*)s);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)c);
     return result;
 }
+
+PyDoc_STRVAR(GMPy_doc_context_sinh_cosh,
+"context.sinh_cosh(x) -> (number, number)\n\n"
+"Return a tuple containing the hyperbolic sine and cosine of x.");
+
+PyDoc_STRVAR(GMPy_doc_function_sinh_cosh,
+"sinh_cosh(x) -> (number, number)\n\n"
+"Return a tuple containing the hyperbolic sine and cosine of x.");
+
+GMPY_MPFR_UNIOP_TEMPLATE(Sinh_Cosh, sinh_cosh)
 
 PyDoc_STRVAR(GMPy_doc_function_degrees,
 "degrees(x) -> mpfr\n\n"

@@ -883,50 +883,6 @@ MPC_UNIOP(exp)
 MPC_UNIOP(sqrt)
 
 static PyObject *
-Pympc_sin_cos(PyObject *self, PyObject *other)
-{
-    MPC_Object *s, *c;
-    PyObject *result;
-    int code;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    PARSE_ONE_MPC_OTHER("sin_cos() requires 'mpc' argument");
-
-    s = GMPy_MPC_New(0, 0, context);
-    c = GMPy_MPC_New(0, 0, context);
-    result = PyTuple_New(2);
-    if (!s || !c || !result) {
-        Py_DECREF(self);
-        return NULL;
-    }
-
-    code = mpc_sin_cos(s->c, c->c, MPC(self),
-                       GET_MPC_ROUND(context), GET_MPC_ROUND(context));
-    s->rc = MPC_INEX1(code);
-    c->rc = MPC_INEX2(code);
-    MPC_SUBNORMALIZE(s);
-    MPC_SUBNORMALIZE(c);
-    MPC_CHECK_FLAGS(s, "sin_cos()");
-    MPC_CHECK_FLAGS(c, "sin_cos()");
-
-  done:
-    Py_DECREF(self);
-    if (PyErr_Occurred()) {
-        Py_XDECREF((PyObject*)s);
-        Py_XDECREF((PyObject*)c);
-        Py_XDECREF(result);
-        result = NULL;
-    }
-    else {
-        PyTuple_SET_ITEM(result, 0, (PyObject*)s);
-        PyTuple_SET_ITEM(result, 1, (PyObject*)c);
-    }
-    return result;
-}
-
-static PyObject *
 Pympc_fma(PyObject *self, PyObject *args)
 {
     MPC_Object *result, *tempx, *tempy, *tempz;
