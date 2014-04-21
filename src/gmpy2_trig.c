@@ -133,221 +133,411 @@ GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
     return NULL; \
 } \
 static PyObject * \
-GMPy_Function_##NAME(PyObject *self, PyObject *other) \
-{ \
-    return GMPy_Number_##NAME(other, NULL); \
-} \
-static PyObject * \
-GMPy_Context_##NAME(PyObject *self, PyObject *args) \
+GMPy_Context_##NAME(PyObject *self, PyObject *other) \
 { \
     CTXT_Object *context = NULL; \
-    if (PyTuple_GET_SIZE(args) != 1) { \
-        TYPE_ERROR(#FUNC "() requires 1 argument"); \
-        return NULL; \
-    } \
     if (self && CTXT_Check(self)) { \
         context = (CTXT_Object*)self; \
     } \
     else { \
         CHECK_CONTEXT(context); \
     } \
-    return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), context); \
+    return GMPy_Number_##NAME(other, context); \
+}
+
+#define GMPY_MPFR_MPC_UNIOP_TEMPLATE(NAME, FUNC) \
+static PyObject * \
+GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    if (IS_REAL(x)) \
+        return GMPy_Real_##NAME(x, context); \
+    if (IS_COMPLEX(x)) \
+        return GMPy_Complex_##NAME(x, context); \
+    TYPE_ERROR(#FUNC"() argument type not supported"); \
+    return NULL; \
+} \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *other) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(other, context); \
+}
+
+#define GMPY_MPFR_UNIOP(NAME, FUNC) \
+static PyObject * \
+GMPy_Real_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    MPFR_Object *result = NULL, *tempx = NULL; \
+    CHECK_CONTEXT(context); \
+    result = GMPy_MPFR_New(0, context); \
+    tempx = GMPy_MPFR_From_Real(x, 1, context); \
+    if (!result || !tempx) { \
+        Py_XDECREF((PyObject*)result); \
+        Py_XDECREF((PyObject*)tempx); \
+        return NULL; \
+    } \
+    mpfr_clear_flags(); \
+    result->rc = mpfr_##FUNC(result->f, tempx->f, GET_MPFR_ROUND(context)); \
+    Py_DECREF((PyObject*)tempx); \
+    GMPY_MPFR_CLEANUP(result, context, #FUNC "()"); \
+    return (PyObject*)result; \
+} \
+static PyObject * \
+GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    if (IS_REAL(x)) \
+        return GMPy_Real_##NAME(x, context); \
+    TYPE_ERROR(#FUNC"() argument type not supported"); \
+    return NULL; \
+} \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *other) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(other, context); \
 }
 
 PyDoc_STRVAR(GMPy_doc_context_sin,
 "context.sin(x) -> number\n\n"
 "Return sine of x; x in radians.");
+
 PyDoc_STRVAR(GMPy_doc_function_sin,
 "sin(x) -> number\n\n"
 "Return sine of x; x in radians.");
+
 GMPY_MPFR_MPC_UNIOP(Sin, sin)
 
 PyDoc_STRVAR(GMPy_doc_context_cos,
 "context.cos(x) -> number\n\n"
 "Return cosine of x; x in radians.");
+
 PyDoc_STRVAR(GMPy_doc_function_cos,
 "cos(x) -> number\n\n"
 "Return cosine of x; x in radians.");
+
 GMPY_MPFR_MPC_UNIOP(Cos, cos)
 
 PyDoc_STRVAR(GMPy_doc_context_tan,
 "context.tan(x) -> number\n\n"
 "Return tangent of x; x in radians.");
+
 PyDoc_STRVAR(GMPy_doc_function_tan,
 "tan(x) -> number\n\n"
 "Return tangent of x; x in radians.");
+
 GMPY_MPFR_MPC_UNIOP(Tan, tan)
 
 PyDoc_STRVAR(GMPy_doc_context_atan,
 "context.atan(x) -> number\n\n"
-"Return inverse tangent of x; x in radians.");
+"Return inverse tangent of x; result in radians.");
+
 PyDoc_STRVAR(GMPy_doc_function_atan,
 "atan(x) -> number\n\n"
-"Return inverse tangent of x; x in radians.");
+"Return inverse tangent of x; result in radians.");
+
 GMPY_MPFR_MPC_UNIOP(Atan, atan)
 
 PyDoc_STRVAR(GMPy_doc_context_sinh,
 "context.sinh(x) -> number\n\n"
 "Return hyperbolic sine of x.");
+
 PyDoc_STRVAR(GMPy_doc_function_sinh,
 "sinh(x) -> number\n\n"
 "Return hyperbolic sine of x.");
+
 GMPY_MPFR_MPC_UNIOP(Sinh, sinh)
 
 PyDoc_STRVAR(GMPy_doc_context_cosh,
 "context.cosh(x) -> number\n\n"
 "Return hyperbolic cosine of x.");
+
 PyDoc_STRVAR(GMPy_doc_function_cosh,
 "cosh(x) -> number\n\n"
 "Return hyperbolic cosine of x.");
+
 GMPY_MPFR_MPC_UNIOP(Cosh, cosh)
 
 PyDoc_STRVAR(GMPy_doc_context_tanh,
 "context.tanh(x) -> number\n\n"
 "Return hyperbolic tangent of x.");
+
 PyDoc_STRVAR(GMPy_doc_function_tanh,
 "tanh(x) -> number\n\n"
 "Return hyperbolic tangent of x.");
+
 GMPY_MPFR_MPC_UNIOP(Tanh, tanh)
 
 PyDoc_STRVAR(GMPy_doc_context_asinh,
 "context.asinh(x) -> number\n\n"
 "Return inverse hyperbolic sine of x.");
+
 PyDoc_STRVAR(GMPy_doc_function_asinh,
 "asinh(x) -> number\n\n"
 "Return inverse hyperbolic sine of x.");
+
 GMPY_MPFR_MPC_UNIOP(Asinh, asinh)
 
 PyDoc_STRVAR(GMPy_doc_context_acosh,
 "context.acosh(x) -> number\n\n"
 "Return inverse hyperbolic cosine of x.");
+
 PyDoc_STRVAR(GMPy_doc_function_acosh,
 "acosh(x) -> number\n\n"
 "Return inverse hyperbolic cosine of x.");
+
 GMPY_MPFR_MPC_UNIOP(Acosh, acosh)
 
-
-
-PyDoc_STRVAR(doc_g_mpfr_sec,
-"sec(x) -> mpfr\n\n"
+PyDoc_STRVAR(GMPy_doc_context_sec,
+"context.sec(x) -> number\n\n"
 "Return secant of x; x in radians.");
 
-MPFR_UNIOP(sec)
+PyDoc_STRVAR(GMPy_doc_function_sec,
+"sec(x) -> number\n\n"
+"Return secant of x; x in radians.");
 
-PyDoc_STRVAR(doc_g_mpfr_csc,
-"csc(x) -> mpfr\n\n"
+GMPY_MPFR_UNIOP(Sec, sec)
+
+PyDoc_STRVAR(GMPy_doc_context_csc,
+"context.csc(x) -> number\n\n"
 "Return cosecant of x; x in radians.");
 
-MPFR_UNIOP(csc)
+PyDoc_STRVAR(GMPy_doc_function_csc,
+"csc(x) -> number\n\n"
+"Return cosecant of x; x in radians.");
 
-PyDoc_STRVAR(doc_g_mpfr_cot,
-"cot(x) -> mpfr\n\n"
+GMPY_MPFR_UNIOP(Csc, csc)
+
+PyDoc_STRVAR(GMPy_doc_context_cot,
+"context.cot(x) -> number\n\n"
 "Return cotangent of x; x in radians.");
 
-MPFR_UNIOP(cot)
+PyDoc_STRVAR(GMPy_doc_function_cot,
+"cot(x) -> number\n\n"
+"Return cotangent of x; x in radians.");
 
-static PyObject *
-Pympfr_acos(PyObject* self, PyObject *other)
-{
-    MPFR_Object *result;
-    CTXT_Object *context = NULL;
+GMPY_MPFR_UNIOP(Cot, cot)
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+PyDoc_STRVAR(GMPy_doc_context_sech,
+"context.sech(x) -> number\n\n"
+"Return hyperbolic secant of x.");
 
-    PARSE_ONE_MPFR_OTHER("acos() requires 'mpfr' argument");
+PyDoc_STRVAR(GMPy_doc_function_sech,
+"sech(x) -> number\n\n"
+"Return hyperbolic secant of x.");
 
-    if (!mpfr_nan_p(MPFR(self)) &&
-            (mpfr_cmp_si(MPFR(self), 1) > 0 ||
-            mpfr_cmp_si(MPFR(self), -1) < 0) &&
-            context->ctx.allow_complex) {
-        Py_DECREF(self);
-        return Pympc_acos(self, other);
-    }
+GMPY_MPFR_UNIOP(Sech, sech)
 
-    if (!(result = GMPy_MPFR_New(0, context))) {
-        Py_DECREF(self);
-        return NULL;
-    }
-    mpfr_clear_flags();
-    result->rc = mpfr_acos(result->f, MPFR(self),
-                           context->ctx.mpfr_round);
-    MPFR_CLEANUP_SELF("acos()");
-}
-
-static PyObject *
-Pympfr_asin(PyObject* self, PyObject *other)
-{
-    MPFR_Object *result;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    PARSE_ONE_MPFR_OTHER("asin() requires 'mpfr' argument");
-
-    if (!mpfr_nan_p(MPFR(self)) &&
-            (mpfr_cmp_si(MPFR(self), 1) > 0 ||
-            mpfr_cmp_si(MPFR(self), -1) < 0) &&
-            context->ctx.allow_complex) {
-        Py_DECREF(self);
-        return Pympc_asin(self, other);
-    }
-
-    if (!(result = GMPy_MPFR_New(0, context))) {
-        Py_DECREF(self);
-        return NULL;
-    }
-    mpfr_clear_flags();
-    result->rc = mpfr_asin(result->f, MPFR(self),
-                           context->ctx.mpfr_round);
-    MPFR_CLEANUP_SELF("asin()");
-}
-
-PyDoc_STRVAR(doc_g_mpfr_sech,
-"sech(x) -> mpfr\n\n"
-"Returns hyperbolic secant of x.");
-
-MPFR_UNIOP(sech)
-
-PyDoc_STRVAR(doc_g_mpfr_csch,
-"csch(x) -> mpfr\n\n"
+PyDoc_STRVAR(GMPy_doc_context_csch,
+"context.csch(x) -> number\n\n"
 "Return hyperbolic cosecant of x.");
 
-MPFR_UNIOP(csch)
+PyDoc_STRVAR(GMPy_doc_function_csch,
+"csch(x) -> number\n\n"
+"Return hyperbolic cosecant of x.");
 
-PyDoc_STRVAR(doc_g_mpfr_coth,
-"coth(x) -> mpfr\n\n"
+GMPY_MPFR_UNIOP(Csch, csch)
+
+PyDoc_STRVAR(GMPy_doc_context_coth,
+"context.coth(x) -> number\n\n"
 "Return hyperbolic cotangent of x.");
 
-MPFR_UNIOP(coth)
+PyDoc_STRVAR(GMPy_doc_function_coth,
+"coth(x) -> number\n\n"
+"Return hyperbolic cotangent of x.");
+
+GMPY_MPFR_UNIOP(Coth, coth)
+
+PyDoc_STRVAR(GMPy_doc_context_acos,
+"context.acos(x) -> number\n\n"
+"Return inverse cosine of x; result in radians.");
+
+PyDoc_STRVAR(GMPy_doc_function_acos,
+"acos(x) -> number\n\n"
+"Return inverse cosine of x; result in radians.");
 
 static PyObject *
-Pympfr_atanh(PyObject* self, PyObject *other)
+GMPy_Real_Acos(PyObject *x, CTXT_Object *context)
 {
-    MPFR_Object *result;
-    CTXT_Object *context = NULL;
+    MPFR_Object *result = NULL, *tempx = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
-    PARSE_ONE_MPFR_OTHER("atanh() requires 'mpfr' argument");
+    if (!(tempx = GMPy_MPFR_From_Real(x, 1, context)))
+        return NULL;
 
-    if (!mpfr_nan_p(MPFR(self)) &&
-            (mpfr_cmp_si(MPFR(self), 1) > 0 ||
-            mpfr_cmp_si(MPFR(self), -1) < 0) &&
-            context->ctx.allow_complex) {
-        Py_DECREF(self);
-        return Pympc_atanh(self, other);
+    if (!mpfr_nan_p(tempx->f) &&
+            (mpfr_cmp_si(tempx->f, 1) > 0 || mpfr_cmp_si(tempx->f, -1) < 0) &&
+            context->ctx.allow_complex
+       ) {
+        Py_DECREF((PyObject*)tempx);
+        return GMPy_Complex_Acos(x, context);
     }
 
     if (!(result = GMPy_MPFR_New(0, context))) {
-        Py_DECREF(self);
+        Py_DECREF((PyObject*)tempx);
         return NULL;
     }
+
     mpfr_clear_flags();
-    result->rc = mpfr_atanh(result->f, MPFR(self),
-                           context->ctx.mpfr_round);
-    MPFR_CLEANUP_SELF("atanh()");
+    result->rc = mpfr_acos(result->f, tempx->f, GET_MPFR_ROUND(context));
+    GMPY_MPFR_CLEANUP(result, context, "acos()");
+    return (PyObject*)result;
 }
 
+static PyObject *
+GMPy_Complex_Acos(PyObject *x, CTXT_Object *context)
+{
+    MPC_Object *result = NULL, *tempx = NULL;
+
+    CHECK_CONTEXT(context);
+
+    result = GMPy_MPC_New(0, 0, context);
+    tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
+    if (!result || !tempx) {
+        Py_XDECREF((PyObject*)result);
+        Py_XDECREF((PyObject*)tempx);
+        return NULL;
+    }
+
+    result->rc = mpc_acos(result->c, tempx->c, GET_MPC_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
+    GMPY_MPC_CLEANUP(result, context, "acos()");
+    return (PyObject*)result;
+}
+
+GMPY_MPFR_MPC_UNIOP_TEMPLATE(Acos, acos)
+
+PyDoc_STRVAR(GMPy_doc_context_asin,
+"context.asin(x) -> number\n\n"
+"Return inverse sine of x; result in radians.");
+
+PyDoc_STRVAR(GMPy_doc_function_asin,
+"asin(x) -> number\n\n"
+"Return inverse sine of x; result in radians.");
+
+static PyObject *
+GMPy_Real_Asin(PyObject *x, CTXT_Object *context)
+{
+    MPFR_Object *result = NULL, *tempx = NULL;
+
+    CHECK_CONTEXT(context);
+
+    if (!(tempx = GMPy_MPFR_From_Real(x, 1, context)))
+        return NULL;
+
+    if (!mpfr_nan_p(tempx->f) &&
+            (mpfr_cmp_si(tempx->f, 1) > 0 || mpfr_cmp_si(tempx->f, -1) < 0) &&
+            context->ctx.allow_complex
+       ) {
+        Py_DECREF((PyObject*)tempx);
+        return GMPy_Complex_Asin(x, context);
+    }
+
+    if (!(result = GMPy_MPFR_New(0, context))) {
+        Py_DECREF((PyObject*)tempx);
+        return NULL;
+    }
+
+    mpfr_clear_flags();
+    result->rc = mpfr_asin(result->f, tempx->f, GET_MPFR_ROUND(context));
+    GMPY_MPFR_CLEANUP(result, context, "asin()");
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPy_Complex_Asin(PyObject *x, CTXT_Object *context)
+{
+    MPC_Object *result = NULL, *tempx = NULL;
+
+    CHECK_CONTEXT(context);
+
+    result = GMPy_MPC_New(0, 0, context);
+    tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
+    if (!result || !tempx) {
+        Py_XDECREF((PyObject*)result);
+        Py_XDECREF((PyObject*)tempx);
+        return NULL;
+    }
+
+    result->rc = mpc_asin(result->c, tempx->c, GET_MPC_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
+    GMPY_MPC_CLEANUP(result, context, "asin()");
+    return (PyObject*)result;
+}
+
+GMPY_MPFR_MPC_UNIOP_TEMPLATE(Asin, asin)
+
+PyDoc_STRVAR(GMPy_doc_context_atanh,
+"context.atanh(x) -> number\n\n"
+"Return inverse hyperbolic tanget of x.");
+
+PyDoc_STRVAR(GMPy_doc_function_atanh,
+"atanh(x) -> number\n\n"
+"Return inverse hyperbolic tangent of x.");
+
+static PyObject *
+GMPy_Real_Atanh(PyObject *x, CTXT_Object *context)
+{
+    MPFR_Object *result = NULL, *tempx = NULL;
+
+    CHECK_CONTEXT(context);
+
+    if (!(tempx = GMPy_MPFR_From_Real(x, 1, context)))
+        return NULL;
+
+    if (!mpfr_nan_p(tempx->f) &&
+            (mpfr_cmp_si(tempx->f, 1) > 0 || mpfr_cmp_si(tempx->f, -1) < 0) &&
+            context->ctx.allow_complex
+       ) {
+        Py_DECREF((PyObject*)tempx);
+        return GMPy_Complex_Atanh(x, context);
+    }
+
+    if (!(result = GMPy_MPFR_New(0, context))) {
+        Py_DECREF((PyObject*)tempx);
+        return NULL;
+    }
+
+    mpfr_clear_flags();
+    result->rc = mpfr_atanh(result->f, tempx->f, GET_MPFR_ROUND(context));
+    GMPY_MPFR_CLEANUP(result, context, "atanh()");
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPy_Complex_Atanh(PyObject *x, CTXT_Object *context)
+{
+    MPC_Object *result = NULL, *tempx = NULL;
+
+    CHECK_CONTEXT(context);
+
+    result = GMPy_MPC_New(0, 0, context);
+    tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
+    if (!result || !tempx) {
+        Py_XDECREF((PyObject*)result);
+        Py_XDECREF((PyObject*)tempx);
+        return NULL;
+    }
+
+    result->rc = mpc_atanh(result->c, tempx->c, GET_MPC_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
+    GMPY_MPC_CLEANUP(result, context, "atanh()");
+    return (PyObject*)result;
+}
+
+GMPY_MPFR_MPC_UNIOP_TEMPLATE(Atanh, atanh)
 
 PyDoc_STRVAR(doc_g_mpfr_atan2,
 "atan2(y, x) -> mpfr\n\n"
@@ -491,65 +681,91 @@ Pympfr_sinh_cosh(PyObject *self, PyObject *other)
     return result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_degrees,
+PyDoc_STRVAR(GMPy_doc_function_degrees,
 "degrees(x) -> mpfr\n\n"
-"Convert angle x from radians to degrees.");
+"Convert angle x from radians to degrees.\n"
+"Note: result may not be correctly rounded.");
+
+PyDoc_STRVAR(GMPy_doc_context_degrees,
+"context.degrees(x) -> mpfr\n\n"
+"Convert angle x from radians to degrees.\n"
+"Note: result may not be correctly rounded.");
 
 static PyObject *
-Pympfr_degrees(PyObject *self, PyObject *other)
+GMPy_Context_Degrees(PyObject *self, PyObject *other)
 {
-    MPFR_Object *result, *temp;
+    MPFR_Object *result, *tempx, *temp;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    PARSE_ONE_MPFR_OTHER("degrees() requires 'mpfr' argument");
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
+    }
+    else {
+        CHECK_CONTEXT(context);
+    }
 
     result = GMPy_MPFR_New(0, context);
-    temp = GMPy_MPFR_New(context->ctx.mpfr_prec + 20, context);
-    if (!result || !temp) {
+    temp = GMPy_MPFR_New(context->ctx.mpfr_prec + 100, context);
+    tempx = GMPy_MPFR_From_Real(other, 1, context);
+    if (!result || !temp || !tempx) {
         Py_XDECREF((PyObject*)temp);
+        Py_XDECREF((PyObject*)tempx);
         Py_XDECREF((PyObject*)result);
-        Py_DECREF(other);
         return NULL;
     }
 
-    mpfr_clear_flags();
     mpfr_const_pi(temp->f, MPFR_RNDN);
     mpfr_ui_div(temp->f, 180, temp->f, MPFR_RNDN);
-    mpfr_mul(result->f, temp->f, MPFR(self), MPFR_RNDN);
+
+    mpfr_clear_flags();
+    mpfr_mul(result->f, temp->f, tempx->f, MPFR_RNDN);
+
     Py_DECREF((PyObject*)temp);
-    MPFR_CLEANUP_SELF("degrees()");
+    Py_DECREF((PyObject*)tempx);
+    GMPY_MPFR_CLEANUP(result, context, "degrees()");
+    return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_radians,
+PyDoc_STRVAR(GMPy_doc_function_radians,
 "radians(x) -> mpfr\n\n"
-"Convert angle x from degrees to radians.");
+"Convert angle x from degrees to radians.\n"
+"Note: result may not be correctly rounded.");
+
+PyDoc_STRVAR(GMPy_doc_context_radians,
+"context.radians(x) -> mpfr\n\n"
+"Convert angle x from degrees to radians.\n"
+"Note: result may not be correctly rounded.");
 
 static PyObject *
-Pympfr_radians(PyObject *self, PyObject *other)
+GMPy_Context_Radians(PyObject *self, PyObject *other)
 {
-    MPFR_Object *result, *temp;
+    MPFR_Object *result, *tempx, *temp;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    PARSE_ONE_MPFR_OTHER("radians() requires 'mpfr' argument");
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
+    }
+    else {
+        CHECK_CONTEXT(context);
+    }
 
     result = GMPy_MPFR_New(0, context);
-    temp = GMPy_MPFR_New(context->ctx.mpfr_prec + 20, context);
-    if (!result || !temp) {
+    temp = GMPy_MPFR_New(context->ctx.mpfr_prec + 100, context);
+    tempx = GMPy_MPFR_From_Real(other, 1, context);
+    if (!result || !temp || !tempx) {
         Py_XDECREF((PyObject*)temp);
+        Py_XDECREF((PyObject*)tempx);
         Py_XDECREF((PyObject*)result);
-        Py_DECREF(other);
         return NULL;
     }
 
-    mpfr_clear_flags();
     mpfr_const_pi(temp->f, MPFR_RNDN);
     mpfr_div_ui(temp->f, temp->f, 180, MPFR_RNDN);
     mpfr_mul(result->f, MPFR(self), temp->f, MPFR_RNDN);
+
     Py_DECREF((PyObject*)temp);
-    MPFR_CLEANUP_SELF("radians()");
+    Py_DECREF((PyObject*)tempx);
+    GMPY_MPFR_CLEANUP(result, context, "radians()");
+    return (PyObject*)result;
 }
 

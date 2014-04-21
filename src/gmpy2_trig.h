@@ -35,72 +35,93 @@ extern "C" {
 static PyObject * GMPy_Real_Sin(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Complex_Sin(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Number_Sin(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Context_Sin(PyObject *self, PyObject *args);
-static PyObject * GMPy_Function_Sin(PyObject *self, PyObject *other);
+static PyObject * GMPy_Context_Sin(PyObject *self, PyObject *other);
 
 static PyObject * GMPy_Real_Cos(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Complex_Cos(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Number_Cos(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Context_Cos(PyObject *self, PyObject *args);
-static PyObject * GMPy_Function_Cos(PyObject *self, PyObject *other);
+static PyObject * GMPy_Context_Cos(PyObject *self, PyObject *other);
 
 static PyObject * GMPy_Real_Tan(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Complex_Tan(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Number_Tan(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Context_Tan(PyObject *self, PyObject *args);
-static PyObject * GMPy_Function_Tan(PyObject *self, PyObject *other);
+static PyObject * GMPy_Context_Tan(PyObject *self, PyObject *other);
 
 static PyObject * GMPy_Real_Atan(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Complex_Atan(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Number_Atan(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Context_Atan(PyObject *self, PyObject *args);
-static PyObject * GMPy_Function_Atan(PyObject *self, PyObject *other);
+static PyObject * GMPy_Context_Atan(PyObject *self, PyObject *other);
 
 static PyObject * GMPy_Real_Sinh(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Complex_Sinh(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Number_Sinh(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Context_Sinh(PyObject *self, PyObject *args);
-static PyObject * GMPy_Function_Sinh(PyObject *self, PyObject *other);
+static PyObject * GMPy_Context_Sinh(PyObject *self, PyObject *other);
 
 static PyObject * GMPy_Real_Cosh(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Complex_Cosh(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Number_Cosh(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Context_Cosh(PyObject *self, PyObject *args);
-static PyObject * GMPy_Function_Cosh(PyObject *self, PyObject *other);
+static PyObject * GMPy_Context_Cosh(PyObject *self, PyObject *other);
 
 static PyObject * GMPy_Real_Tanh(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Complex_Tanh(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Number_Tanh(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Context_Tanh(PyObject *self, PyObject *args);
-static PyObject * GMPy_Function_Tanh(PyObject *self, PyObject *other);
+static PyObject * GMPy_Context_Tanh(PyObject *self, PyObject *other);
 
 static PyObject * GMPy_Real_Asinh(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Complex_Asinh(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Number_Asinh(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Context_Asinh(PyObject *self, PyObject *args);
-static PyObject * GMPy_Function_Asinh(PyObject *self, PyObject *other);
+static PyObject * GMPy_Context_Asinh(PyObject *self, PyObject *other);
 
 static PyObject * GMPy_Real_Acosh(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Complex_Acosh(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Number_Acosh(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Context_Acosh(PyObject *self, PyObject *args);
-static PyObject * GMPy_Function_Acosh(PyObject *self, PyObject *other);
+static PyObject * GMPy_Context_Acosh(PyObject *self, PyObject *other);
 
-static PyObject * Pympfr_sec(PyObject* self, PyObject *other);
-static PyObject * Pympfr_csc(PyObject* self, PyObject *other);
-static PyObject * Pympfr_cot(PyObject* self, PyObject *other);
-static PyObject * Pympfr_acos(PyObject* self, PyObject *other);
-static PyObject * Pympfr_asin(PyObject* self, PyObject *other);
-static PyObject * Pympfr_sech(PyObject* self, PyObject *other);
-static PyObject * Pympfr_csch(PyObject* self, PyObject *other);
-static PyObject * Pympfr_coth(PyObject* self, PyObject *other);
-static PyObject * Pympfr_atanh(PyObject* self, PyObject *other);
+static PyObject * GMPy_Real_Sec(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Sec(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Sec(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Csc(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Csc(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Csc(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Cot(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Cot(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Cot(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Sech(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Sech(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Sech(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Csch(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Csch(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Csch(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Coth(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Coth(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Coth(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Acos(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Complex_Acos(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Acos(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Acos(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Asin(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Complex_Asin(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Asin(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Asin(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Atanh(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Complex_Atanh(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Atanh(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Atanh(PyObject *self, PyObject *other);
+
 static PyObject * Pympfr_atan2(PyObject *self, PyObject *args);
 static PyObject * Pympfr_hypot(PyObject *self, PyObject *args);
 static PyObject * Pympfr_sin_cos(PyObject *self, PyObject *other);
 static PyObject * Pympfr_sinh_cosh(PyObject *self, PyObject *other);
-static PyObject * Pympfr_degrees(PyObject *self, PyObject *other);
-static PyObject * Pympfr_radians(PyObject *self, PyObject *other);
+static PyObject * GMPy_Context_Degrees(PyObject *self, PyObject *other);
+static PyObject * GMPy_Context_Radians(PyObject *self, PyObject *other);
 
 #ifdef __cplusplus
 }

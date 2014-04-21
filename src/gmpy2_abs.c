@@ -47,7 +47,7 @@
  *   GMPy_Real_Abs(Real, context|NULL)
  *   GMPy_Complex_Abs(Complex, context|NULL)
  *
- *   GMPy_Context_Abs(context, args)
+ *   GMPy_Context_Abs(context, obj)
  */
 
 static PyObject *
@@ -212,14 +212,9 @@ PyDoc_STRVAR(GMPy_doc_context_abs,
 "Return abs(x), the context is applied to the result.");
 
 static PyObject *
-GMPy_Context_Abs(PyObject *self, PyObject *args)
+GMPy_Context_Abs(PyObject *self, PyObject *other)
 {
     CTXT_Object *context = NULL;
-
-    if (PyTuple_GET_SIZE(args) != 1) {
-        TYPE_ERROR("abs() requires 1 argument.");
-        return NULL;
-    }
 
     if (self && CTXT_Check(self)) {
         context = (CTXT_Object*)self;
@@ -228,6 +223,6 @@ GMPy_Context_Abs(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_Abs(PyTuple_GET_ITEM(args, 0), context);
+    return GMPy_Number_Abs(other, context);
 }
 
