@@ -283,24 +283,6 @@ PyDoc_STRVAR(doc_mpany_exp,
 
 MPANY_MPFR_MPC(exp)
 
-PyDoc_STRVAR(doc_mpany_acos,
-"acos(x) -> number\n\n"
-"Return the arc-cosine of x; x in radians.\n");
-
-MPANY_MPFR_MPC(acos)
-
-PyDoc_STRVAR(doc_mpany_asin,
-"asin(x) -> number\n\n"
-"Return the arc-sine of x; x in radians.\n");
-
-MPANY_MPFR_MPC(asin)
-
-PyDoc_STRVAR(doc_mpany_atanh,
-"atanh(x) -> number\n\n"
-"Return the inverse hyperbolic tangent of x.\n");
-
-MPANY_MPFR_MPC(atanh)
-
 PyDoc_STRVAR(doc_mpany_sqrt,
 "sqrt(x) -> number\n\n"
 "Return the square root of x. If x is integer, rational, or real,\n"

@@ -880,12 +880,6 @@ MPC_UNIOP(log10)
 
 MPC_UNIOP(exp)
 
-MPC_UNIOP(asin)
-
-MPC_UNIOP(acos)
-
-MPC_UNIOP(atanh)
-
 MPC_UNIOP(sqrt)
 
 static PyObject *
