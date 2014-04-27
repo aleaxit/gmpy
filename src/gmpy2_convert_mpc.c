@@ -534,12 +534,14 @@ GMPy_PyComplex_From_MPC(PyObject *self, PyObject *other)
     return PyComplex_FromDoubles(real, imag);
 }
 
+#ifdef PY2
 static PyObject *
 GMPy_MPC_Long_Slot(PyObject *self)
 {
     TYPE_ERROR("can't covert mpc to long");
     return NULL;
 }
+#endif
 
 static PyObject *
 GMPy_MPC_Int_Slot(PyObject *self)
