@@ -231,6 +231,53 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
     return GMPy_Number_##NAME(other, context); \
 }
 
+#define GMPY_MPFR_BINOP(NAME, FUNC) \
+static PyObject * \
+GMPy_Real_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
+{ \
+    MPFR_Object *result = NULL, *tempx = NULL, *tempy = NULL; \
+    CHECK_CONTEXT(context); \
+    tempx = GMPy_MPFR_From_Real(x, 1, context); \
+    tempy = GMPy_MPFR_From_Real(y, 1, context); \
+    result = GMPy_MPFR_New(0, context); \
+    if (!result || !tempx || !tempy) { \
+        Py_XDECREF((PyObject*)tempx); \
+        Py_XDECREF((PyObject*)tempy); \
+        Py_XDECREF((PyObject*)result); \
+        return NULL; \
+    } \
+    mpfr_clear_flags(); \
+    result->rc = mpfr_##FUNC(result->f, tempx->f, tempy->f, GET_MPFR_ROUND(context)); \
+    Py_DECREF((PyObject*)tempx); \
+    Py_DECREF((PyObject*)tempy); \
+    GMPY_MPFR_CLEANUP(result, context, #FUNC"()"); \
+    return (PyObject*)result; \
+} \
+static PyObject * \
+GMPy_Number_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
+{ \
+    if (IS_REAL(x) && IS_REAL(y)) \
+        return GMPy_Real_##NAME(x, y, context); \
+    TYPE_ERROR(#FUNC"() argument type not supported"); \
+    return NULL; \
+} \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *args) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (PyTuple_GET_SIZE(args) != 2) { \
+        TYPE_ERROR(#FUNC"() requires 2 arguments."); \
+        return NULL; \
+    } \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context); \
+} \
+
 PyDoc_STRVAR(GMPy_doc_context_sin,
 "context.sin(x) -> number\n\n"
 "Return sine of x; x in radians.");
@@ -561,53 +608,25 @@ GMPy_Complex_Atanh(PyObject *x, CTXT_Object *context)
 
 GMPY_MPFR_MPC_UNIOP_TEMPLATE(Atanh, atanh)
 
-PyDoc_STRVAR(doc_g_mpfr_atan2,
-"atan2(y, x) -> mpfr\n\n"
-"Return arc-tangent of (y/x).");
+PyDoc_STRVAR(GMPy_doc_function_atan2,
+"atan2(y, x) -> number\n\n"
+"Return arc-tangent of (y/x); result in radians.");
 
-static PyObject *
-Pympfr_atan2(PyObject *self, PyObject *args)
-{
-    MPFR_Object *result;
-    PyObject *other;
-    CTXT_Object *context = NULL;
+PyDoc_STRVAR(GMPy_doc_context_atan2,
+"context.atan2(y, x) -> number\n\n"
+"Return arc-tangent of (y/x); result in radians.");
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+GMPY_MPFR_BINOP(Atan2, atan2)
 
-    PARSE_TWO_MPFR_ARGS(other, "atan2() requires 'mpfr','mpfr' arguments");
-
-    if (!(result = GMPy_MPFR_New(0, context)))
-        goto done;
-
-    mpfr_clear_flags();
-    result->rc = mpfr_atan2(result->f, MPFR(self),
-                            MPFR(other), context->ctx.mpfr_round);
-    MPFR_CLEANUP_SELF_OTHER("atan2()");
-}
-
-PyDoc_STRVAR(doc_g_mpfr_hypot,
-"hypot(y, x) -> mpfr\n\n"
+PyDoc_STRVAR(GMPy_doc_function_hypot,
+"hypot(x, y) -> number\n\n"
 "Return square root of (x**2 + y**2).");
 
-static PyObject *
-Pympfr_hypot(PyObject *self, PyObject *args)
-{
-    MPFR_Object *result;
-    PyObject *other;
-    CTXT_Object *context = NULL;
+PyDoc_STRVAR(GMPy_doc_context_hypot,
+"context.hypot(x, y) -> number\n\n"
+"Return square root of (x**2 + y**2).");
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    PARSE_TWO_MPFR_ARGS(other, "hypot() requires 'mpfr','mpfr' arguments");
-
-    if (!(result = GMPy_MPFR_New(0, context)))
-        goto done;
-
-    mpfr_clear_flags();
-    result->rc = mpfr_hypot(result->f, MPFR(self),
-                            MPFR(other), context->ctx.mpfr_round);
-    MPFR_CLEANUP_SELF_OTHER("hypot()");
-}
+GMPY_MPFR_BINOP(Hypot, hypot)
 
 static PyObject *
 GMPy_Real_Sin_Cos(PyObject *x, CTXT_Object *context)
@@ -764,12 +783,12 @@ GMPY_MPFR_UNIOP_TEMPLATE(Sinh_Cosh, sinh_cosh)
 PyDoc_STRVAR(GMPy_doc_function_degrees,
 "degrees(x) -> mpfr\n\n"
 "Convert angle x from radians to degrees.\n"
-"Note: result may not be correctly rounded.");
+"Note: In rare cases the result may not be correctly rounded.");
 
 PyDoc_STRVAR(GMPy_doc_context_degrees,
 "context.degrees(x) -> mpfr\n\n"
 "Convert angle x from radians to degrees.\n"
-"Note: result may not be correctly rounded.");
+"Note: In rare cases the result may not be correctly rounded.");
 
 static PyObject *
 GMPy_Context_Degrees(PyObject *self, PyObject *other)
@@ -809,12 +828,12 @@ GMPy_Context_Degrees(PyObject *self, PyObject *other)
 PyDoc_STRVAR(GMPy_doc_function_radians,
 "radians(x) -> mpfr\n\n"
 "Convert angle x from degrees to radians.\n"
-"Note: result may not be correctly rounded.");
+"Note: In rare cases the result may not be correctly rounded.");
 
 PyDoc_STRVAR(GMPy_doc_context_radians,
 "context.radians(x) -> mpfr\n\n"
 "Convert angle x from degrees to radians.\n"
-"Note: result may not be correctly rounded.");
+"Note: In rare cases the result may not be correctly rounded.");
 
 static PyObject *
 GMPy_Context_Radians(PyObject *self, PyObject *other)
