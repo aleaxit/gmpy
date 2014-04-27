@@ -660,6 +660,7 @@ GMPy_MPFR_Int_Slot(MPFR_Object *self) {
     return GMPy_PyIntOrLong_From_MPFR(self, NULL);
 }
 
+#ifdef PY2
 static PyObject *
 GMPy_PyLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
 {
@@ -681,6 +682,7 @@ static PyObject *
 GMPy_MPFR_Long_Slot(MPFR_Object *self) {
     return GMPy_PyLong_From_MPFR(self, NULL);
 }
+#endif
 
 static PyObject *
 GMPy_PyFloat_From_MPFR(MPFR_Object *self, CTXT_Object *context)

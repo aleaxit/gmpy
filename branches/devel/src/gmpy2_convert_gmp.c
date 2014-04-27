@@ -94,6 +94,7 @@ GMPy_MPZ_From_PyFloat(PyObject *obj, CTXT_Object *context)
     return result;
 }
 
+#ifdef PY2
 static PyObject *
 GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
 {
@@ -107,6 +108,7 @@ GMPy_MPZ_Long_Slot(MPZ_Object *self)
 {
     return GMPy_PyLong_From_MPZ(self, NULL);
 }
+#endif
 
 /* The PyIntOrLong functions should be used when converting a number back
  * to a Python value since is automatically returns an "int" or "long" when
@@ -396,55 +398,6 @@ GMPy_XMPZ_From_Number_New(PyObject *obj, CTXT_Object *context)
 
     if (XMPZ_Check(obj))
         return GMPy_XMPZ_From_XMPZ((XMPZ_Object*)obj, context);
-
-    if (IS_DECIMAL(obj)) {
-        PyObject *temp = PyNumber_Long(obj);
-
-        if (temp) {
-            result = GMPy_XMPZ_From_PyIntOrLong(temp, context);
-            Py_DECREF(temp);
-        }
-        return result;
-    }
-
-    if (IS_FRACTION(obj)) {
-        MPQ_Object *temp = GMPy_MPQ_From_Fraction(obj, context);
-
-        if (temp) {
-            result = GMPy_XMPZ_From_MPQ(temp, context);
-            Py_DECREF((PyObject*)temp);
-        }
-        return result;
-    }
-
-    TYPE_ERROR("cannot convert object to xmpz");
-    return result;
-}
-
-static XMPZ_Object*
-GMPy_XMPZ_From_Number_Temp(PyObject *obj, CTXT_Object *context)
-{
-    XMPZ_Object *result = NULL;
-
-    if (MPZ_Check(obj))
-        return GMPy_XMPZ_From_MPZ((MPZ_Object*)obj, context);
-
-    if (PyIntOrLong_Check(obj))
-        return GMPy_XMPZ_From_PyIntOrLong(obj, context);
-
-    if (MPQ_Check(obj))
-        return GMPy_XMPZ_From_MPQ((MPQ_Object*)obj, context);
-
-    if (MPFR_Check(obj))
-        return GMPy_XMPZ_From_MPFR((MPFR_Object*)obj, context);
-
-    if (PyFloat_Check(obj))
-        return GMPy_XMPZ_From_PyFloat(obj, context);
-
-    if (XMPZ_Check(obj)) {
-        Py_INCREF(obj);
-        return (XMPZ_Object*)obj;
-    }
 
     if (IS_DECIMAL(obj)) {
         PyObject *temp = PyNumber_Long(obj);
@@ -961,7 +914,7 @@ GMPy_XMPZ_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
 
     return result;
 }
-
+#ifdef PY2
 static PyObject *
 GMPy_PyLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
 {
@@ -986,6 +939,7 @@ GMPy_MPQ_Long_Slot(MPQ_Object *self)
 {
     return GMPy_PyLong_From_MPQ(self, NULL);
 }
+#endif
 
 static PyObject *
 GMPy_PyIntOrLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
