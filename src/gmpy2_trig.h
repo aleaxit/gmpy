@@ -125,8 +125,13 @@ static PyObject * GMPy_Real_Sinh_Cosh(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Number_Sinh_Cosh(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Sinh_Cosh(PyObject *self, PyObject *other);
 
-static PyObject * Pympfr_atan2(PyObject *self, PyObject *args);
-static PyObject * Pympfr_hypot(PyObject *self, PyObject *args);
+static PyObject * GMPy_Real_Atan2(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Number_Atan2(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Context_Atan2(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_Real_Hypot(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Number_Hypot(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Context_Hypot(PyObject *self, PyObject *args);
 
 static PyObject * GMPy_Context_Degrees(PyObject *self, PyObject *other);
 static PyObject * GMPy_Context_Radians(PyObject *self, PyObject *other);
