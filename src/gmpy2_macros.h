@@ -247,7 +247,7 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
 { \
     CTXT_Object *context = NULL; \
     if (PyTuple_GET_SIZE(args) != 2) { \
-        TYPE_ERROR(#FUNC"() requires 2 arguments."); \
+        TYPE_ERROR(#FUNC"() requires 2 arguments"); \
         return NULL; \
     } \
     if (self && CTXT_Check(self)) { \
@@ -258,6 +258,70 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
     } \
     return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context); \
 } \
+
+/* GMPY_MPFR_CONST(NAME, FUNCT) is the template for creating constants. For
+ * compatibility with gmpy 2.0.x, the functions that create constants accept an
+ * optional precision.
+ */
+
+#define GMPY_MPFR_CONST(NAME, FUNC) \
+static PyObject * \
+GMPy_Function_##NAME(PyObject *self, PyObject *args, PyObject *keywds) \
+{ \
+    MPFR_Object *result = NULL; \
+    mpfr_prec_t bits = 0; \
+    static char *kwlist[] = {"precision", NULL}; \
+    CTXT_Object *context = NULL; \
+    CHECK_CONTEXT(context); \
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|l", kwlist, &bits)) return NULL; \
+    if ((result = GMPy_MPFR_New(bits, context))) { \
+        mpfr_clear_flags(); \
+        result->rc = mpfr_##FUNC(result->f, GET_MPFR_ROUND(context)); \
+        GMPY_MPFR_CLEANUP(result, context, #FUNC"()") \
+    } \
+    return (PyObject*)result; \
+}\
+
+/* GMPY_MPFR_NOOP(NAME, FUNC) is used in creating constants.
+ */
+
+#define GMPY_MPFR_NOOP(NAME, FUNC) \
+static PyObject * \
+GMPy_Real_##NAME(CTXT_Object *context) \
+{ \
+    MPFR_Object *result = NULL; \
+    CHECK_CONTEXT(context); \
+    if (!(result = GMPy_MPFR_New(0, context))) { \
+        return NULL; \
+    } \
+    mpfr_clear_flags(); \
+    result->rc = mpfr_##FUNC(result->f, GET_MPFR_ROUND(context)); \
+    GMPY_MPFR_CLEANUP(result, context, #FUNC"()"); \
+    return (PyObject*)result; \
+} \
+static PyObject * \
+GMPy_Number_##NAME(CTXT_Object *context) \
+{ \
+    return GMPy_Real_##NAME(context); \
+} \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *args) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (PyTuple_GET_SIZE(args) != 0) { \
+        TYPE_ERROR(#FUNC"() requires 0 arguments"); \
+        return NULL; \
+    } \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(context); \
+} \
+
+
 
 /* The following legacy macros should be removed in the future. */
 
