@@ -542,6 +542,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_sub.c"
 #include "gmpy2_truediv.c"
 #include "gmpy2_trig.c"
+#include "gmpy2_const.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
@@ -678,12 +679,12 @@ static PyMethodDef Pygmpy_methods [] =
     { "atanh", GMPy_Context_Atanh, METH_O, GMPy_doc_function_atanh },
     { "atan2", GMPy_Context_Atan2, METH_VARARGS, GMPy_doc_function_atan2 },
     { "cbrt", Pympfr_cbrt, METH_O, doc_g_mpfr_cbrt },
-    { "ceil", Pympfr_ceil, METH_O, doc_g_mpfr_ceil},
+    { "ceil", Pympfr_ceil, METH_O, doc_g_mpfr_ceil },
     { "check_range", Pympfr_check_range, METH_O, doc_g_mpfr_check_range },
-    { "const_catalan", (PyCFunction)Pympfr_const_catalan, METH_VARARGS | METH_KEYWORDS, doc_mpfr_const_catalan },
-    { "const_euler", (PyCFunction)Pympfr_const_euler, METH_VARARGS | METH_KEYWORDS, doc_mpfr_const_euler },
-    { "const_log2", (PyCFunction)Pympfr_const_log2, METH_VARARGS | METH_KEYWORDS, doc_mpfr_const_log2 },
-    { "const_pi", (PyCFunction)Pympfr_const_pi, METH_VARARGS | METH_KEYWORDS, doc_mpfr_const_pi },
+    { "const_catalan", (PyCFunction)GMPy_Function_Const_Catalan, METH_VARARGS | METH_KEYWORDS, GMPy_doc_function_const_catalan },
+    { "const_euler", (PyCFunction)GMPy_Function_Const_Euler, METH_VARARGS | METH_KEYWORDS, GMPy_doc_function_const_euler },
+    { "const_log2", (PyCFunction)GMPy_Function_Const_Log2, METH_VARARGS | METH_KEYWORDS, GMPy_doc_function_const_log2 },
+    { "const_pi", (PyCFunction)GMPy_Function_Const_Pi, METH_VARARGS | METH_KEYWORDS, GMPy_doc_function_const_pi },
     { "context", (PyCFunction)GMPy_CTXT_Context, METH_VARARGS | METH_KEYWORDS, GMPy_doc_context },
     { "copy_sign", Pympfr_copy_sign, METH_VARARGS, doc_g_mpfr_copy_sign },
     { "cos", GMPy_Context_Cos, METH_O, GMPy_doc_function_cos },
@@ -704,7 +705,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "exp2", Pympfr_exp2, METH_O, doc_g_mpfr_exp2 },
     { "f2q", Pympfr_f2q, METH_VARARGS, doc_g_mpfr_f2q },
     { "factorial", Pympfr_factorial, METH_O, doc_g_mpfr_factorial },
-    { "floor", Pympfr_floor, METH_O, doc_g_mpfr_floor},
+    { "floor", Pympfr_floor, METH_O, doc_g_mpfr_floor },
     { "fma", Pympany_fma, METH_VARARGS, doc_mpany_fma },
     { "fms", Pympany_fms, METH_VARARGS, doc_mpany_fms },
     { "fmod", Pympfr_fmod, METH_VARARGS, doc_g_mpfr_fmod },

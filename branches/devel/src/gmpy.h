@@ -315,6 +315,7 @@ typedef long                mpir_si;
 #include "gmpy2_sub.h"
 #include "gmpy2_truediv.h"
 #include "gmpy2_trig.h"
+#include "gmpy2_const.h"
 
 #ifdef __cplusplus
 }
