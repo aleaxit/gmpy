@@ -1272,6 +1272,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "sinh", GMPy_Context_Sinh, METH_O, GMPy_doc_context_sinh },
     { "sinh_cosh", GMPy_Context_Sinh_Cosh, METH_O, GMPy_doc_context_sinh_cosh },
     { "sqrt", GMPy_Context_Sqrt, METH_VARARGS, GMPy_doc_context_sqrt },
+    { "square", GMPy_Context_Square, METH_VARARGS, GMPy_doc_context_square },
     { "sub", GMPy_Context_Sub, METH_VARARGS, GMPy_doc_context_sub },
     { "tan", GMPy_Context_Tan, METH_O, GMPy_doc_context_tan },
     { "tanh", GMPy_Context_Tanh, METH_O, GMPy_doc_context_tanh },

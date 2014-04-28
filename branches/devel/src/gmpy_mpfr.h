@@ -384,7 +384,6 @@ static PyObject * Pympfr_rint_floor(PyObject* self, PyObject *other);
 static PyObject * Pympfr_rint_trunc(PyObject* self, PyObject *other);
 static PyObject * Pympfr_frac(PyObject* self, PyObject *other);
 static PyObject * Pympfr_modf(PyObject* self, PyObject *other);
-static PyObject * Pympfr_sqr(PyObject* self, PyObject *other);
 static PyObject * Pympfr_cbrt(PyObject* self, PyObject *other);
 static PyObject * Pympfr_log2(PyObject* self, PyObject *other);
 static PyObject * Pympfr_exp2(PyObject* self, PyObject *other);

@@ -54,7 +54,6 @@ static PyObject * Pympz_ceil(PyObject *self, PyObject *other);
 static PyObject * Pympz_floor(PyObject *self, PyObject *other);
 static PyObject * Pympz_round(PyObject *self, PyObject *other);
 static PyObject * Pympz_trunc(PyObject *self, PyObject *other);
-static PyObject * Pympz_square(PyObject *self, PyObject *other);
 static int Pympz_nonzero(MPZ_Object *self);
 #if PY_MAJOR_VERSION < 3
 /* hex/oct formatting (mpz-only) */

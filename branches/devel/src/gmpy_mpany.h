@@ -34,7 +34,6 @@ extern "C" {
 
 /* Forward declarations begin here. */
 
-static PyObject * Pympany_square(PyObject *self, PyObject *other);
 static PyObject * Pympany_digits(PyObject *self, PyObject *args);
 static PyObject * Pympany_sign(PyObject *self, PyObject *other);
 static PyObject * Pympany_printf(PyObject *self, PyObject *args);

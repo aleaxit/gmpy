@@ -538,30 +538,6 @@ Pympc_digits(PyObject *self, PyObject *args)
     return result;
 }
 
-/* Support Pympany_square */
-
-static PyObject *
-Pympc_sqr(PyObject* self, PyObject *other)
-{
-    MPC_Object *result;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    PARSE_ONE_MPC_OTHER("square() requires 'mpc' argument");
-
-    if (!(result = GMPy_MPC_New(0, 0, context))) {
-        Py_DECREF(self);
-        return NULL;
-    }
-
-    result->rc = mpc_sqr(result->c, MPC(self),
-                         GET_MPC_ROUND(context));
-    Py_DECREF(self);
-
-    MPC_CLEANUP(result, "square()");
-}
-
 /* Implement the conjugate() method. */
 
 PyDoc_STRVAR(doc_mpc_conjugate,

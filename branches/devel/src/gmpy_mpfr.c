@@ -1263,10 +1263,6 @@ Pympfr_modf(PyObject *self, PyObject *other)
     return result;
 }
 
-/* Needed for square() in mpz_mpany.c */
-
-MPFR_UNIOP(sqr)
-
 PyDoc_STRVAR(doc_g_mpfr_cbrt,
 "cbrt(x) -> mpfr\n\n"
 "Return the cube root of x.");
