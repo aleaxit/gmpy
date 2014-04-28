@@ -351,35 +351,6 @@ Pympz_round(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static PyObject *
-Pympz_square(PyObject *self, PyObject *other)
-{
-    MPZ_Object *tempx, *result;
-    CTXT_Object *context = NULL;
-
-    if (!(result = GMPy_MPZ_New(context)))
-        return NULL;
-
-    if (self && (CHECK_MPZANY(self))) {
-        mpz_mul(result->z, MPZ(self), MPZ(self));
-    }
-    else if (CHECK_MPZANY(other)) {
-        mpz_mul(result->z, MPZ(other), MPZ(other));
-    }
-    else {
-        if (!(tempx = GMPy_MPZ_From_Integer(other, context))) {
-            TYPE_ERROR("square() requires 'mpz' argument");
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        else {
-            mpz_mul(result->z, MPZ(tempx), MPZ(tempx));
-            Py_DECREF((PyObject*)tempx);
-        }
-    }
-    return (PyObject*)result;
-}
-
 static int
 Pympz_nonzero(MPZ_Object *self)
 {

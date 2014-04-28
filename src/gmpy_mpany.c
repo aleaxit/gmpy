@@ -34,34 +34,6 @@
  * n is a rational, or gmpy2.mpf(n).digits() is n is a float.
  */
 
-/* gmpy_square is only intended to be used at the module level!
- * gmpy_square uses the METH_O/METH_NOARGS calling convention!
- * gmpy_square assumes mpX_square also use the METH_O/METH_NOARGS convention!
- */
-
-PyDoc_STRVAR(doc_mpany_square,
-"square(x) -> number\n\n"
-"Return x * x. If x is an integer, then the result is an 'mpz'.\n"
-"If x is a rational, then the result is an 'mpq'. If x is a float,\n"
-"then the result is an 'mpf'. If x is a complex number, then the\n"
-"result is an 'mpc'.");
-
-static PyObject *
-Pympany_square(PyObject *self, PyObject *other)
-{
-    if (IS_INTEGER(other))
-        return Pympz_square(self, other);
-    else if (IS_RATIONAL(other))
-        return Pympq_square(self, other);
-    else if ((other))
-        return Pympfr_sqr(self, other);
-    else if (IS_COMPLEX(other))
-        return Pympc_sqr(self, other);
-
-    TYPE_ERROR("square() argument type not supported");
-    return NULL;
-}
-
 /* gmpy_digits is only intended to be used at the module level!
  * gmpy_digits uses the METH_VARARGS calling convention!
  * gmpy_digits assumes mpX_digits also use the METH_VARARGS convention!

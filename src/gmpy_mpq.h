@@ -54,7 +54,6 @@ static PyObject * Pympq_qdiv(PyObject *self, PyObject *args);
 static PyObject * Pympq_ceil(PyObject *self, PyObject *other);
 static PyObject * Pympq_floor(PyObject *self, PyObject *other);
 static PyObject * Pympq_trunc(PyObject *self, PyObject *other);
-static PyObject * Pympq_square(PyObject *self, PyObject *other);
 static int Pympq_nonzero(MPQ_Object *x);
 static Py_hash_t Pympq_hash(MPQ_Object *self);
 

@@ -467,35 +467,6 @@ Pympq_round(PyObject *self, PyObject *args)
     return (PyObject*)resultq;
 }
 
-static PyObject *
-Pympq_square(PyObject *self, PyObject *other)
-{
-    MPQ_Object *tempx, *result;
-    CTXT_Object *context = NULL;
-
-    if (!(result = GMPy_MPQ_New(context)))
-        return NULL;
-
-    if (self && (MPQ_Check(self))) {
-        mpq_mul(result->q, MPQ(self), MPQ(self));
-    }
-    else if (MPQ_Check(other)) {
-        mpq_mul(result->q, MPQ(other), MPQ(other));
-    }
-    else {
-        if (!(tempx = GMPy_MPQ_From_Rational(other, context))) {
-            TYPE_ERROR("square() requires 'mpq' argument");
-            Py_DECREF((PyObject*)result);
-            return NULL;
-        }
-        else {
-            mpq_mul(result->q, MPQ(tempx), MPQ(tempx));
-            Py_DECREF((PyObject*)tempx);
-        }
-    }
-    return (PyObject*)result;
-}
-
 static int
 Pympq_nonzero(MPQ_Object *self)
 {
