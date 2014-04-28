@@ -857,31 +857,6 @@ Pympc_proj(PyObject *self, PyObject *other)
     MPC_CLEANUP(result, "proj()");
 }
 
-#define MPC_UNIOP(NAME) \
-static PyObject * \
-Pympc_##NAME(PyObject* self, PyObject *other) \
-{ \
-    MPC_Object *result; \
-    CTXT_Object *context = NULL; \
-    CHECK_CONTEXT_SET_EXPONENT(context); \
-    PARSE_ONE_MPC_OTHER(#NAME "() requires 'mpc' argument"); \
-    if (!(result = GMPy_MPC_New(0, 0, context))) { \
-        Py_DECREF(self); \
-        return NULL; \
-    } \
-    result->rc = mpc_##NAME(result->c, MPC(self), GET_MPC_ROUND(context)); \
-    Py_DECREF(self); \
-    MPC_CLEANUP(result, #NAME"()"); \
-}
-
-MPC_UNIOP(log)
-
-MPC_UNIOP(log10)
-
-MPC_UNIOP(exp)
-
-MPC_UNIOP(sqrt)
-
 static PyObject *
 Pympc_fma(PyObject *self, PyObject *args)
 {
