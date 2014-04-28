@@ -541,7 +541,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_pow.c"
 #include "gmpy2_sub.c"
 #include "gmpy2_truediv.c"
-#include "gmpy2_trig.c"
+#include "gmpy2_math.c"
 #include "gmpy2_const.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
