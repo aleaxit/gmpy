@@ -827,33 +827,6 @@ Pympfr_hash(MPFR_Object *self)
     return self->hash_cache;
 }
 
-static PyObject *
-Pympfr_sqrt(PyObject *self, PyObject *other)
-{
-    MPFR_Object *result;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    PARSE_ONE_MPFR_OTHER("sqrt() requires 'mpfr' argument");
-
-    if (mpfr_sgn(MPFR(self)) < 0 && context->ctx.allow_complex) {
-        Py_DECREF(self);
-        return Pympc_sqrt(self, other);
-    }
-
-    if (!(result = GMPy_MPFR_New(0, context))) {
-        Py_DECREF(self);
-        return NULL;
-    }
-
-    mpfr_clear_flags();
-    result->rc = mpfr_sqrt(result->f, MPFR(self),
-                           context->ctx.mpfr_round);
-
-    MPFR_CLEANUP_SELF("sqrt()");
-}
-
 PyDoc_STRVAR(doc_g_mpfr_rec_sqrt,
 "rec_sqrt(x) -> mpfr\n\n"
 "Return the reciprocal of the square root of x.");
@@ -1300,23 +1273,11 @@ PyDoc_STRVAR(doc_g_mpfr_cbrt,
 
 MPFR_UNIOP(cbrt)
 
-/* Called via gmpy_mpany so doc-string is there. */
-
-MPFR_UNIOP(log)
-
 PyDoc_STRVAR(doc_g_mpfr_log2,
 "log2(x) -> mpfr\n\n"
 "Return base-2 logarithm of x.");
 
 MPFR_UNIOP(log2)
-
-/* Called via gmpy_mpany so doc-string is there. */
-
-MPFR_UNIOP(log10)
-
-/* Called via gmpy_mpany so doc-string is there. */
-
-MPFR_UNIOP(exp)
 
 PyDoc_STRVAR(doc_g_mpfr_exp2,
 "exp2(x) -> mpfr\n\n"

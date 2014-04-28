@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy2_mpfr_trig.h                                                       *
+ * gmpy2_mpfr_math.h                                                       *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -25,8 +25,8 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef GMPY_MPFR_TRIG_H
-#define GMPY_MPFR_TRIG_H
+#ifndef GMPY_MPFR_MATH_H
+#define GMPY_MPFR_MATH_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -135,6 +135,26 @@ static PyObject * GMPy_Context_Hypot(PyObject *self, PyObject *args);
 
 static PyObject * GMPy_Context_Degrees(PyObject *self, PyObject *other);
 static PyObject * GMPy_Context_Radians(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Log(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Complex_Log(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Log(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Log(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Log10(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Complex_Log10(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Log10(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Log10(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Exp(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Complex_Exp(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Exp(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Exp(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Sqrt(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Complex_Sqrt(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Sqrt(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Sqrt(PyObject *self, PyObject *other);
 
 #ifdef __cplusplus
 }

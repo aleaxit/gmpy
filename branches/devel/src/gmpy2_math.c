@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy2_trig.c                                                            *
+ * gmpy2_math.c                                                            *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -614,4 +614,100 @@ GMPy_Context_Radians(PyObject *self, PyObject *other)
     GMPY_MPFR_CLEANUP(result, context, "radians()");
     return (PyObject*)result;
 }
+
+
+
+
+
+
+
+
+PyDoc_STRVAR(GMPy_doc_context_log10,
+"context.log10(x) -> number\n\n"
+"Return the base-10 logarithm of x.");
+
+PyDoc_STRVAR(GMPy_doc_function_log10,
+"log10(x) -> number\n\n"
+"Return the base-10 logarithm of x.");
+
+GMPY_MPFR_MPC_UNIOP(Log10, log10)
+
+PyDoc_STRVAR(GMPy_doc_context_log,
+"context.log(x) -> number\n\n"
+"Return the natural logarithm of x.");
+
+PyDoc_STRVAR(GMPy_doc_function_log,
+"log(x) -> number\n\n"
+"Return the natural logarithm of x.");
+
+GMPY_MPFR_MPC_UNIOP(Log, log)
+
+PyDoc_STRVAR(GMPy_doc_context_exp,
+"context.exp(x) -> number\n\n"
+"Return the exponential of x.");
+
+PyDoc_STRVAR(GMPy_doc_function_exp,
+"exp(x) -> number\n\n"
+"Return the exponential of x.");
+
+GMPY_MPFR_MPC_UNIOP(Exp, exp)
+
+PyDoc_STRVAR(GMPy_doc_context_sqrt,
+"context.sqrt(x) -> number\n\n"
+"Return the square root of x.");
+
+PyDoc_STRVAR(GMPy_doc_function_sqrt,
+"sqrt(x) -> number\n\n"
+"Return the square root of x.");
+
+static PyObject *
+GMPy_Real_Sqrt(PyObject *x, CTXT_Object *context)
+{
+    MPFR_Object *result = NULL, *tempx = NULL;
+
+    CHECK_CONTEXT(context);
+
+    if (!(tempx = GMPy_MPFR_From_Real(x, 1, context)))
+        return NULL;
+
+    if (mpfr_sgn(tempx->f) < 0 && context->ctx.allow_complex) {
+        Py_DECREF((PyObject*)tempx);
+        return GMPy_Complex_Sqrt(x, context);
+    }
+
+    if (!(result = GMPy_MPFR_New(0, context))) {
+        Py_DECREF((PyObject*)tempx);
+        return NULL;
+    }
+
+    mpfr_clear_flags();
+    result->rc = mpfr_sqrt(result->f, tempx->f, GET_MPFR_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
+    GMPY_MPFR_CLEANUP(result, context, "sqrt()");
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPy_Complex_Sqrt(PyObject *x, CTXT_Object *context)
+{
+    MPC_Object *result = NULL, *tempx = NULL;
+
+    CHECK_CONTEXT(context);
+
+    if (!(tempx = GMPy_MPC_From_Complex(x, 1, 1, context)))
+        return NULL;
+
+    if (!(result = GMPy_MPC_New(0, 0, context))) {
+        Py_DECREF((PyObject*)tempx);
+        return NULL;
+    }
+
+    result->rc = mpc_sqrt(result->c, tempx->c, GET_MPFR_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
+    GMPY_MPC_CLEANUP(result, context, "sqrt()");
+    return (PyObject*)result;
+}
+
+GMPY_MPFR_MPC_UNIOP_TEMPLATE(Sqrt, sqrt)
+
 
