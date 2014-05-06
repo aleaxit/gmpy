@@ -25,7 +25,7 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-PyDoc_STRVAR(doc_g_mpc,
+PyDoc_STRVAR(GMPy_doc_mpc_factory,
 "mpc() -> mpc(0.0+0.0j)\n\n"
 "      If no argument is given, return mpc(0.0+0.0j).\n\n"
 "mpc(c [, precision=0]) -> mpc\n\n"
@@ -54,7 +54,7 @@ PyDoc_STRVAR(doc_g_mpc,
 "           precision + guard_bits.\n" );
 
 static PyObject *
-Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
+GMPy_MPC_Factory(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     MPC_Object *result = NULL;
     MPFR_Object *tempreal = NULL, *tempimag = NULL;
@@ -70,11 +70,17 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
     static char *kwlist_r[] = {"real", "imag", "precision", NULL};
     static char *kwlist_s[] = {"s", "precision", "base", NULL};
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
+    }
+    else {
+        CHECK_CONTEXT(context);
+    }
 
     argc = PyTuple_Size(args);
-    if (kwargs)
+    if (kwargs) {
         keywdc = PyDict_Size(kwargs);
+    }
 
     if (argc + keywdc > 3) {
         TYPE_ERROR("mpc() takes at most 3 arguments");
@@ -102,7 +108,7 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
     if (PyStrOrUnicode_Check(arg0)) {
         if (keywdc || argc > 1) {
             if (!(PyArg_ParseTupleAndKeywords(args, kwargs, "O|Oi", kwlist_s,
-                                            &arg0, &prec, &base)))
+                                              &arg0, &prec, &base)))
                 return NULL;
         }
 
@@ -115,14 +121,18 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
                 rprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 0));
                 iprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 1));
             }
-
-            if (rprec < 0 || iprec < 0) {
-                VALUE_ERROR("precision for mpc() must be >= 0");
+            else {
+                TYPE_ERROR("precision for mpc() must be integer or tuple");
                 return NULL;
             }
 
-            if (PyErr_Occurred()) {
-                VALUE_ERROR("invalid value for precision in mpc()");
+            if (rprec < 0 || iprec < 0) {
+                if (PyErr_Occurred()) {
+                    VALUE_ERROR("invalid value for precision in mpc()");
+                }
+                else {
+                    VALUE_ERROR("precision for mpc() must be >= 0");
+                }
                 return NULL;
             }
         }
@@ -151,14 +161,18 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
                 rprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 0));
                 iprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 1));
             }
-
-            if (rprec < 0 || iprec < 0) {
-                VALUE_ERROR("precision for mpc() must be >= 0");
+            else {
+                TYPE_ERROR("precision for mpc() must be integer or tuple");
                 return NULL;
             }
 
-            if (PyErr_Occurred()) {
-                VALUE_ERROR("invalid value for precision in mpc()");
+            if (rprec < 0 || iprec < 0) {
+                if (PyErr_Occurred()) {
+                    VALUE_ERROR("invalid value for precision in mpc()");
+                }
+                else {
+                    VALUE_ERROR("precision for mpc() must be >= 0");
+                }
                 return NULL;
             }
         }
@@ -209,8 +223,18 @@ Pygmpy_mpc(PyObject *self, PyObject *args, PyObject *kwargs)
                 rprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 0));
                 iprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 1));
             }
-            if (PyErr_Occurred()) {
-                VALUE_ERROR("invalid value for precision in mpc()");
+            else {
+                TYPE_ERROR("precision for mpc() must be integer or tuple");
+                return NULL;
+            }
+
+            if (rprec < 0 || iprec < 0) {
+                if (PyErr_Occurred()) {
+                    VALUE_ERROR("invalid value for precision in mpc()");
+                }
+                else {
+                    VALUE_ERROR("precision for mpc() must be >= 0");
+                }
                 return NULL;
             }
         }

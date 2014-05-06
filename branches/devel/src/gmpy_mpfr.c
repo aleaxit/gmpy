@@ -25,7 +25,7 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-PyDoc_STRVAR(doc_mpfr,
+PyDoc_STRVAR(GMPy_doc_mpfr_factory,
 "mpfr() -> mpfr(0.0)\n\n"
 "      If no argument is given, return mpfr(0.0).\n\n"
 "mpfr(n [, precision=0]) -> mpfr\n\n"
@@ -52,11 +52,11 @@ PyDoc_STRVAR(doc_mpfr,
 "           precision + guard_bits.\n" );
 
 static PyObject *
-Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
+GMPy_MPFR_Factory(PyObject *self, PyObject *args, PyObject *keywds)
 {
     MPFR_Object *result = NULL;
     PyObject *arg0 = NULL;
-    int base = 0;
+    int base = 10;
     Py_ssize_t argc, keywdc = 0;
     CTXT_Object *context = NULL;
 
@@ -66,11 +66,17 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
     static char *kwlist_s[] = {"s", "precision", "base", NULL};
     static char *kwlist_n[] = {"n", "precision", NULL};
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
+    }
+    else {
+        CHECK_CONTEXT(context);
+    }
 
     argc = PyTuple_Size(args);
-    if (keywds)
+    if (keywds) {
         keywdc = PyDict_Size(keywds);
+    }
 
     if (argc + keywdc > 3) {
         TYPE_ERROR("mpfr() takes at most 3 arguments");
@@ -95,7 +101,7 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
     if (PyStrOrUnicode_Check(arg0)) {
         if (keywdc || argc > 1) {
             if (!(PyArg_ParseTupleAndKeywords(args, keywds, "O|li", kwlist_s,
-                                            &arg0, &prec, &base)))
+                                              &arg0, &prec, &base)))
                 return NULL;
         }
 

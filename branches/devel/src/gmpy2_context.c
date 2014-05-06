@@ -1259,6 +1259,8 @@ static PyMethodDef GMPyContext_methods[] =
     { "hypot", GMPy_Context_Hypot, METH_VARARGS, GMPy_doc_context_hypot },
     { "log", GMPy_Context_Log, METH_VARARGS, GMPy_doc_context_log },
     { "log10", GMPy_Context_Log10, METH_VARARGS, GMPy_doc_context_log10 },
+    { "mpc", (PyCFunction)GMPy_MPC_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_mpc_factory },
+    { "mpfr", (PyCFunction)GMPy_MPFR_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_mpfr_factory },
     { "minus", GMPy_Context_Minus, METH_VARARGS, GMPy_doc_context_minus },
     { "mod", GMPy_Context_Mod, METH_VARARGS, GMPy_doc_context_mod },
     { "mul", GMPy_Context_Mul, METH_VARARGS, GMPy_doc_context_mul },
