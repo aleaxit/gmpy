@@ -615,13 +615,6 @@ GMPy_Context_Radians(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-
-
-
-
-
-
-
 PyDoc_STRVAR(GMPy_doc_context_log10,
 "context.log10(x) -> number\n\n"
 "Return the base-10 logarithm of x.");
