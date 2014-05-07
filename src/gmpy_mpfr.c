@@ -614,41 +614,6 @@ PyDoc_STRVAR(doc_g_mpfr_is_integer,
 
 MPFR_TEST_OTHER(integer, "is_integer() requires 'mpfr' argument");
 
-/* produce string for an mpfr with requested/defaulted parameters */
-
-PyDoc_STRVAR(doc_mpfr_digits,
-"x.digits([base=10[, prec=0]]) -> (mantissa, exponent, bits)\n\n"
-"Returns up to 'prec' digits in the given base. If 'prec' is 0, as many\n"
-"digits that are available are returned. No more digits than available\n"
-"given x's precision are returned. 'base' must be between 2 and 62,\n"
-"inclusive. The result is a three element tuple containing the mantissa,\n"
-"the exponent, and the number of bits of precision.");
-
-/* TODO: support keyword arguments. */
-
-static PyObject *
-Pympfr_digits(PyObject *self, PyObject *args)
-{
-    int base = 10;
-    int prec = 0;
-    PyObject *result;
-    CTXT_Object *context = NULL;
-
-    if (self && MPFR_Check(self)) {
-        if (!PyArg_ParseTuple(args, "|ii", &base, &prec))
-            return NULL;
-        Py_INCREF(self);
-    }
-    else {
-        if(!PyArg_ParseTuple(args, "O&|ii", GMPy_MPFR_convert_arg, &self,
-                            &base, &prec))
-        return NULL;
-    }
-    result = GMPy_PyStr_From_MPFR((MPFR_Object*)self, base, prec, context);
-    Py_DECREF(self);
-    return result;
-}
-
 PyDoc_STRVAR(doc_mpfr_integer_ratio,
 "x.as_integer_ratio() -> (num, den)\n\n"
 "Return the exact rational equivalent of an mpfr. Value is a tuple\n"
@@ -2040,182 +2005,6 @@ Pympfr_fsum(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpfr_format,
-"x.__format__(fmt) -> string\n\n"
-"Return a Python string by formatting 'x' using the format string\n"
-"'fmt'. A valid format string consists of:\n"
-"     optional alignment code:\n"
-"        '<' -> left shifted in field\n"
-"        '>' -> right shifted in field\n"
-"        '^' -> centered in field\n"
-"     optional leading sign code\n"
-"        '+' -> always display leading sign\n"
-"        '-' -> only display minus for negative values\n"
-"        ' ' -> minus for negative values, space for positive values\n"
-"     optional width.precision\n"
-"     optional rounding mode:\n"
-"        'U' -> round toward plus Infinity\n"
-"        'D' -> round toward minus Infinity\n"
-"        'Y' -> round away from zero\n"
-"        'Z' -> round toward zero\n"
-"        'N' -> round to nearest\n"
-"     optional conversion code:\n"
-"        'a','A' -> hex format\n"
-"        'b'     -> binary format\n"
-"        'e','E' -> scientific format\n"
-"        'f','F' -> fixed point format\n"
-"        'g','G' -> fixed or float format\n\n"
-"The default format is '.6f'.");
-
-static PyObject *
-Pympfr_format(PyObject *self, PyObject *args)
-{
-    PyObject *result = 0, *mpfrstr = 0;
-    char *buffer = 0, *newbuf = 0, *fmtcode = 0, *p1, *p2, *p3;
-    char mpfrfmt[100], fmt[30];
-    int buflen;
-    int seensign = 0, seenalign = 0, seendecimal = 0, seendigits = 0;
-    int seenround = 0, seenconv = 0;
-
-    if (!MPFR_Check(self)) {
-        TYPE_ERROR("requires mpfr type");
-        return NULL;
-    }
-
-    if (!PyArg_ParseTuple(args, "s", &fmtcode))
-        return NULL;
-
-    p2 = mpfrfmt;
-    p3 = fmt;
-    *(p2++) = '%';
-
-    for (p1 = fmtcode; *p1 != '\00'; p1++) {
-        if (*p1 == '<' || *p1 == '>' || *p1 == '^') {
-            if (seenalign || seensign || seendecimal || seendigits || seenround) {
-                VALUE_ERROR("Invalid conversion specification");
-                return NULL;
-            }
-            else {
-                *(p3++) = *p1;
-                seenalign = 1;
-                continue;
-            }
-        }
-        if (*p1 == '+' || *p1 == ' ') {
-            if (seensign || seendecimal || seendigits || seenround) {
-                VALUE_ERROR("Invalid conversion specification");
-                return NULL;
-            }
-            else {
-                *(p2++) = *p1;
-                seensign = 1;
-                continue;
-            }
-        }
-        if (*p1 == '-') {
-            if (seensign || seendecimal || seendigits || seenround) {
-                VALUE_ERROR("Invalid conversion specification");
-                return NULL;
-            }
-            else {
-                seensign = 1;
-                continue;
-            }
-        }
-        if (*p1 == '.') {
-            if (seendecimal || seendigits || seenround) {
-                VALUE_ERROR("Invalid conversion specification");
-                return NULL;
-            }
-            else {
-                *(p2++) = *p1;
-                seendecimal = 1;
-                continue;
-            }
-        }
-        if (isdigit(*p1)) {
-            if (seendigits || seenround) {
-                VALUE_ERROR("Invalid conversion specification");
-                return NULL;
-            }
-            else if (seendecimal) {
-                *(p2++) = *p1;
-                continue;
-            }
-            else {
-                if (p3 == fmt) {
-                    *(p3++) = '>';
-                    seenalign = 1;
-                }
-                *(p3++) = *p1;
-                continue;
-            }
-        }
-        if (!seendigits) {
-            seendigits = 1;
-            *(p2++) = 'R';
-        }
-        if (*p1 == 'U' || *p1 == 'D' || *p1 == 'Y' || *p1 == 'Z' ||
-            *p1 == 'N' ) {
-            if (seenround) {
-                VALUE_ERROR("Invalid conversion specification");
-                return NULL;
-            }
-            else {
-                *(p2++) = *p1;
-                seenround = 1;
-                continue;
-            }
-        }
-        if (*p1 == 'a' || *p1 == 'A' || *p1 == 'b' || *p1 == 'e' ||
-            *p1 == 'E' || *p1 == 'f' || *p1 == 'F' || *p1 == 'g' ||
-            *p1 == 'G' ) {
-            *(p2++) = *p1;
-            seenconv = 1;
-            break;
-        }
-        VALUE_ERROR("Invalid conversion specification");
-        return NULL;
-    }
-
-    if (!seendigits)
-        *(p2++) = 'R';
-    if (!seenconv)
-        *(p2++) = 'f';
-
-    *(p2) = '\00';
-    *(p3) = '\00';
-
-    buflen = mpfr_asprintf(&buffer, mpfrfmt, MPFR(self));
-
-    /* If there isn't a decimal point in the output and the output
-     * only consists of digits, then append .0 */
-    if (strlen(buffer) == strspn(buffer, "+- 0123456789")) {
-        newbuf = GMPY_MALLOC(buflen + 3);
-        if (!newbuf) {
-            mpfr_free_str(buffer);
-            return PyErr_NoMemory();
-        }
-        *newbuf = '\0';
-        strcat(newbuf, buffer);
-        strcat(newbuf, ".0");
-        mpfr_free_str(buffer);
-        mpfrstr = Py_BuildValue("s", newbuf);
-        GMPY_FREE(newbuf);
-    }
-    else {
-        mpfrstr = Py_BuildValue("s", buffer);
-        mpfr_free_str(buffer);
-    }
-    if (!mpfrstr) {
-        return NULL;
-    }
-
-    result = PyObject_CallMethod(mpfrstr, "__format__", "(s)", fmt);
-    Py_DECREF(mpfrstr);
-    return result;
-}
-
 PyDoc_STRVAR(doc_mpfr_sizeof,
 "x.__sizeof__()\n\n"
 "Returns the amount of memory consumed by x.");
@@ -2323,7 +2112,7 @@ static PyMethodDef Pympfr_methods [] =
 {
     { "__ceil__", Pympfr_ceil, METH_NOARGS, doc_mpfr_ceil },
     { "__floor__", Pympfr_floor, METH_NOARGS, doc_mpfr_floor },
-    { "__format__", Pympfr_format, METH_VARARGS, doc_mpfr_format },
+    { "__format__", GMPy_MPFR_Format, METH_VARARGS, GMPy_doc_mpfr_format },
     { "__round__", Pympfr_round10, METH_VARARGS, doc_g_mpfr_round10 },
     { "__sizeof__", Pympfr_sizeof, METH_NOARGS, doc_mpfr_sizeof },
     { "__trunc__", Pympfr_trunc, METH_NOARGS, doc_mpfr_trunc },
@@ -2331,7 +2120,7 @@ static PyMethodDef Pympfr_methods [] =
     { "as_mantissa_exp", Pympfr_mantissa_exp, METH_NOARGS, doc_mpfr_mantissa_exp },
     { "as_simple_fraction", (PyCFunction)Pympfr_simple_fraction, METH_VARARGS | METH_KEYWORDS, doc_mpfr_simple_fraction },
     { "conjugate", Pympfr_conjugate, METH_NOARGS, doc_mpfr_conjugate },
-    { "digits", Pympfr_digits, METH_VARARGS, doc_mpfr_digits },
+    { "digits", GMPy_MPFR_Digits_Method, METH_VARARGS, GMPy_doc_mpfr_digits_method },
     { "is_integer", Pympfr_is_integer, METH_NOARGS, doc_mpfr_is_integer },
     { NULL, NULL, 1 }
 };

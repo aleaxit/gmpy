@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_context.c                                                          *
+ * gmpy_mpany.h                                                            *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -34,7 +34,6 @@ extern "C" {
 
 /* Forward declarations begin here. */
 
-static PyObject * Pympany_digits(PyObject *self, PyObject *args);
 static PyObject * Pympany_sign(PyObject *self, PyObject *other);
 static PyObject * Pympany_printf(PyObject *self, PyObject *args);
 static PyObject * Pympany_is_nan(PyObject *self, PyObject *other);

@@ -94,32 +94,6 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
 
 /* Functions that operate strictly on mpz or xmpz. */
 
-/* produce digits for an mpz in requested base, default 10 */
-PyDoc_STRVAR(doc_mpz_digits,
-"x.digits([base=10]) -> string\n\n"
-"Return Python string representing x in the given base. Values for\n"
-"base can range between 2 to 62. A leading '-' is present if x<0\n"
-"but no leading '+' is present if x>=0.");
-
-static PyObject *
-Pympz_digits(PyObject *self, PyObject *args)
-{
-    long base = 10;
-    PyObject *result;
-    CTXT_Object *context = NULL;
-
-    PARSE_ONE_MPZ_OPT_CLONG(&base, "digits() requires 'int' argument for base");
-
-    if ((base < 2) || (base > 62)) {
-        VALUE_ERROR("base must be in the interval 2 ... 62");
-        Py_DECREF(self);
-        return NULL;
-    }
-    result = GMPy_PyStr_From_MPZ((MPZ_Object*)self, (int)base, 16, context);
-    Py_DECREF(self);
-    return result;
-}
-
 /* return number-of-digits for an mpz in requested base, default 10 */
 PyDoc_STRVAR(doc_num_digitsm,
 "x.num_digits([base=10]) -> int\n\n"
@@ -1331,151 +1305,6 @@ Pympz_subscript(MPZ_Object *self, PyObject *item)
     }
 }
 
-PyDoc_STRVAR(doc_mpz_format,
-"x.__format__(fmt) -> string\n\n"
-"Return a Python string by formatting mpz 'x' using the format string\n"
-"'fmt'. A valid format string consists of:\n"
-"     optional alignment code:\n"
-"        '<' -> left shifted in field\n"
-"        '>' -> right shifted in field\n"
-"        '^' -> centered in field\n"
-"     optional leading sign code:\n"
-"        '+' -> always display leading sign\n"
-"        '-' -> only display minus sign\n"
-"        ' ' -> minus for negative values, space for positive values\n"
-"     optional base indicator\n"
-"        '#' -> precede binary, octal, or hex with 0b, 0o or 0x\n"
-"     optional width\n"
-"     optional conversion code:\n"
-"        'd' -> decimal format\n"
-"        'b' -> binary format\n"
-"        'o' -> octal format\n"
-"        'x' -> hex format\n"
-"The default format is 'd'.");
-
-/* Formatting occurs in two phases. Pympz_ascii() is used to create a string
- * with the appropriate binary/octal/decimal/hex formatting, including the
- * leading sign character (+ , -, or space) and base encoding (0b, 0o, or 0x).
- * Left/right/centering using the specified width is done by creating a
- * format string and calling the __format__() method of the string object
- * returned by Pympz_ascii().
- */
-
-static PyObject *
-Pympz_format(PyObject *self, PyObject *args)
-{
-    PyObject *result = 0, *mpzstr = 0;
-    char *fmtcode = 0, *p1, *p2;
-    char fmt[30];
-    int base = 10, option = 16;
-    int seensign = 0, seenindicator = 0, seenalign = 0, seendigits = 0;
-
-    if (!CHECK_MPZANY(self)) {
-        TYPE_ERROR("requires mpz type");
-        return NULL;
-    }
-
-    if (!PyArg_ParseTuple(args, "s", &fmtcode))
-        return NULL;
-
-    p2 = fmt;
-    for (p1 = fmtcode; *p1 != '\00'; p1++) {
-        if (*p1 == '<' || *p1 == '>' || *p1 == '^') {
-            if (seenalign || seensign || seenindicator || seendigits) {
-                VALUE_ERROR("Invalid conversion specification");
-                return NULL;
-            }
-            else {
-                *(p2++) = *p1;
-                seenalign = 1;
-                continue;
-            }
-        }
-        if (*p1 == '+') {
-            if (seensign || seenindicator || seendigits) {
-                VALUE_ERROR("Invalid conversion specification");
-                return NULL;
-            }
-            else {
-                option |= 2;
-                seensign = 1;
-                continue;
-            }
-        }
-        if (*p1 == '-') {
-            if (seensign || seenindicator || seendigits) {
-                VALUE_ERROR("Invalid conversion specification");
-                return NULL;
-            }
-            else {
-                seensign = 1;
-                continue;
-            }
-        }
-        if (*p1 == ' ') {
-            if (seensign || seenindicator || seendigits) {
-                VALUE_ERROR("Invalid conversion specification");
-                return NULL;
-            }
-            else {
-                option |= 4;
-                seensign = 1;
-                continue;
-            }
-        }
-        if (*p1 == '#') {
-            if (seenindicator || seendigits) {
-                VALUE_ERROR("Invalid conversion specification");
-                return NULL;
-            }
-            else {
-                option |= 8;
-                seenindicator = 1;
-                continue;
-            }
-        }
-        if (isdigit(*p1)) {
-            if (!seenalign) {
-                *(p2++) = '>';
-                seenalign = 1;
-            }
-            *(p2++) = *p1;
-            seendigits = 1;
-            continue;
-        }
-        if (*p1 == 'b') {
-            base = 2;
-            break;
-        }
-        if (*p1 == 'o') {
-            base = 8;
-            break;
-        }
-        if (*p1 == 'x') {
-            base = 16;
-            break;
-        }
-        if (*p1 == 'd') {
-            base = 10;
-            break;
-        }
-        if (*p1 == 'X') {
-            base = -16;
-            break;
-        }
-        VALUE_ERROR("Invalid conversion specification");
-        return NULL;
-    }
-    *(p2++) = '\00';
-
-    if (!(mpzstr = mpz_ascii(MPZ(self), base, option, 0)))
-        return NULL;
-
-    result = PyObject_CallMethod(mpzstr, "__format__", "(s)", fmt);
-    Py_DECREF(mpzstr);
-    return result;
-}
-
 static PyObject *
 Pympz_getnumer(MPZ_Object *self, void *closure)
 {
@@ -1605,7 +1434,7 @@ static PyGetSetDef Pympz_getseters[] =
 
 static PyMethodDef Pympz_methods [] =
 {
-    { "__format__", Pympz_format, METH_VARARGS, doc_mpz_format },
+    { "__format__", GMPy_MPZ_Format, METH_VARARGS, GMPy_doc_mpz_format },
     { "__ceil__", Pympz_ceil, METH_NOARGS, doc_mpz_ceil },
     { "__floor__", Pympz_floor, METH_NOARGS, doc_mpz_floor },
     { "__round__", Pympz_round, METH_VARARGS, doc_mpz_round },
@@ -1618,7 +1447,7 @@ static PyMethodDef Pympz_methods [] =
     { "bit_scan1", GMPy_MPZ_bit_scan1_method, METH_VARARGS, doc_bit_scan1_method },
     { "bit_set", GMPy_MPZ_bit_set_method, METH_O, doc_bit_set_method },
     { "bit_test", GMPy_MPZ_bit_test_method, METH_O, doc_bit_test_method },
-    { "digits", Pympz_digits, METH_VARARGS, doc_mpz_digits },
+    { "digits", GMPy_MPZ_Digits_Method, METH_VARARGS, GMPy_doc_mpz_digits_method },
     { "num_digits", Pympz_num_digits, METH_VARARGS, doc_num_digitsm },
     { NULL, NULL, 1 }
 };

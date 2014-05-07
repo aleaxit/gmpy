@@ -317,6 +317,7 @@ typedef long                mpir_si;
 #include "gmpy2_math.h"
 #include "gmpy2_const.h"
 #include "gmpy2_square.h"
+#include "gmpy2_format.h"
 
 #ifdef __cplusplus
 }

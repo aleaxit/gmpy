@@ -481,9 +481,7 @@ static PyTypeObject MPC_Type;
         return NULL; \
     }
 
-static PyObject * Pympc_digits(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPC_Factory(PyObject *self, PyObject *args, PyObject *kwargs);
-static PyObject * Pympc_format(PyObject *self, PyObject *args);
 static PyObject * Pympc_conjugate(PyObject *self, PyObject *args);
 static PyObject * Pympc_getprec_attrib(MPC_Object *self, void *closure);
 static PyObject * Pympc_getrc_attrib(MPC_Object *self, void *closure);

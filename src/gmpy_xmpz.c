@@ -98,27 +98,6 @@ Pygmpy_xmpz(PyObject *self, PyObject *args, PyObject *keywds)
     return (PyObject*)result;
 }
 
-/* For many xmpz_functions, the doc-strings are in gmpy_mpz.c. */
-
-static PyObject *
-Pyxmpz_digits(PyObject *self, PyObject *args)
-{
-    long base = 10;
-    PyObject *result;
-    CTXT_Object *context = NULL;
-
-    PARSE_ONE_MPZ_OPT_CLONG(&base,
-            "digits() requires 'int' argument for base");
-    if ((base < 2) || (base > 62)) {
-        VALUE_ERROR("base must be in the interval 2 ... 62");
-        Py_DECREF(self);
-        return NULL;
-    }
-    result = GMPy_PyStr_From_XMPZ((XMPZ_Object*)self, (int)base, 0, context);
-    Py_DECREF(self);
-    return result;
-}
-
 PyDoc_STRVAR(doc_xbit_maskg,
 "xbit_mask(n) -> xmpz\n\n"
 "Return an 'xmpz' exactly n bits in length with all bits set.\n");
@@ -761,7 +740,7 @@ static PyMappingMethods xmpz_mapping_methods = {
 
 static PyMethodDef Pyxmpz_methods [] =
 {
-    { "__format__", Pympz_format, METH_VARARGS, doc_mpz_format },
+    { "__format__", GMPy_MPZ_Format, METH_VARARGS, GMPy_doc_mpz_format },
     { "__sizeof__", Pyxmpz_sizeof, METH_NOARGS, doc_xmpz_sizeof },
     { "bit_clear", GMPy_MPZ_bit_clear_method, METH_O, doc_bit_clear_method },
     { "bit_flip", GMPy_MPZ_bit_flip_method, METH_O, doc_bit_flip_method },
@@ -771,7 +750,7 @@ static PyMethodDef Pyxmpz_methods [] =
     { "bit_set", GMPy_MPZ_bit_set_method, METH_O, doc_bit_set_method },
     { "bit_test", GMPy_MPZ_bit_test_method, METH_O, doc_bit_test_method },
     { "copy", Pyxmpz_copy, METH_NOARGS, doc_xmpz_copy },
-    { "digits", Pyxmpz_digits, METH_VARARGS, doc_mpz_digits },
+    { "digits", GMPy_XMPZ_Digits_Method, METH_VARARGS, GMPy_doc_mpz_digits_method },
     { "iter_bits", (PyCFunction)Pyxmpz_iter_bits, METH_VARARGS | METH_KEYWORDS,
                    doc_xmpz_iter_bits },
     { "iter_clear", (PyCFunction)Pyxmpz_iter_clear, METH_VARARGS | METH_KEYWORDS,

@@ -363,7 +363,6 @@ static PyObject * Pympfr_is_inf(PyObject *self, PyObject *other);
 static PyObject * Pympfr_is_zero(PyObject *self, PyObject *other);
 static PyObject * Pympfr_is_regular(PyObject *self, PyObject *other);
 static PyObject * Pympfr_is_integer(PyObject *self, PyObject *other);
-static PyObject * Pympfr_digits(PyObject *self, PyObject *args);
 static PyObject * Pympfr_integer_ratio(PyObject *self, PyObject *args);
 static PyObject * Pympfr_mantissa_exp(PyObject *self, PyObject *args);
 static PyObject * Pympfr_simple_fraction(PyObject *self, PyObject *args, PyObject *keywds);
@@ -423,7 +422,6 @@ static PyObject * Pympfr_is_lessgreater(PyObject *self, PyObject *args);
 static PyObject * Pympfr_is_unordered(PyObject *self, PyObject *args);
 static PyObject * Pympfr_check_range(PyObject *self, PyObject *other);
 static PyObject * Pympfr_fsum(PyObject *self, PyObject *other);
-static PyObject * Pympfr_format(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
 }
