@@ -544,6 +544,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_math.c"
 #include "gmpy2_const.c"
 #include "gmpy2_square.c"
+#include "gmpy2_format.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
@@ -578,7 +579,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "c_mod", GMPy_MPZ_c_mod, METH_VARARGS, doc_c_mod },
     { "c_mod_2exp", GMPy_MPZ_c_mod_2exp, METH_VARARGS, doc_c_mod_2exp },
     { "denom", Pympq_denom, METH_VARARGS, doc_denomg },
-    { "digits", Pympany_digits, METH_VARARGS, doc_g_mpany_digits },
+    { "digits", GMPy_Context_Digits, METH_VARARGS, GMPy_doc_context_digits },
     { "div", GMPy_Context_TrueDiv, METH_VARARGS, GMPy_doc_truediv },
     { "divexact", Pygmpy_divexact, METH_VARARGS, doc_divexactg },
     { "divm", Pygmpy_divm, METH_VARARGS, doc_divm },

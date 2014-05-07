@@ -44,7 +44,6 @@ static PyTypeObject MPQ_Type;
 #define MPQ_Check(v) (((PyObject*)v)->ob_type == &MPQ_Type)
 
 static PyObject * Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds);
-static PyObject * Pympq_digits(PyObject *self, PyObject *args);
 static PyObject * Pympq_sign(PyObject *self, PyObject *other);
 static PyObject * Pympq_numer(PyObject *self, PyObject *args);
 static PyObject * Pympq_getnumer(MPQ_Object *self, void *closure);

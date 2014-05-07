@@ -45,7 +45,6 @@ static PyTypeObject MPZ_Type;
 #define MPZ_Check(v) (((PyObject*)v)->ob_type == &MPZ_Type)
 
 static PyObject * Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds);
-static PyObject * Pympz_digits(PyObject *self, PyObject *args);
 static PyObject * Pympz_num_digits(PyObject *self, PyObject *args);
 static PyObject * Pympz_iroot(PyObject *self, PyObject *args);
 static PyObject * Pympz_iroot_rem(PyObject *self, PyObject *args);
@@ -87,7 +86,6 @@ static PyObject * Pympz_is_even(PyObject *self, PyObject *other);
 static PyObject * Pympz_is_odd(PyObject *self, PyObject *other);
 static Py_ssize_t Pympz_nbits(MPZ_Object *self);
 static PyObject * Pympz_subscript(MPZ_Object *self, PyObject *item);
-static PyObject * Pympz_format(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
 }

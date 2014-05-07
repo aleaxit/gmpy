@@ -122,26 +122,6 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
 
 /* Functions that operate strictly on mpq. */
 
-/* produce digits for an mpq in requested base, default 10 */
-PyDoc_STRVAR(doc_qdigitsm,
-"x.digits([base=10]) -> string\n\n"
-"Return a Python string representing x in the given base (2 to 62,\n"
-"default is 10). A leading '-' is present if x<0, but no leading '+'\n"
-"is present if x>=0.\n");
-
-static PyObject *
-Pympq_digits(PyObject *self, PyObject *args)
-{
-    int base = 10;
-    PyObject *result;
-    CTXT_Object *context = NULL;
-
-    SELF_MPQ_ONE_ARG("|i", &base);
-    result = GMPy_PyStr_From_MPQ((MPQ_Object*)self, base, 0, context);
-    Py_DECREF(self);
-    return result;
-}
-
 /* Since Pympq_sign() is called by Pympany_sign(), we know that 'other' is
  * a Rational type.
  */
@@ -641,7 +621,7 @@ static PyMethodDef Pympq_methods [] =
     { "__round__", Pympq_round, METH_VARARGS, doc_mpq_round },
     { "__sizeof__", Pympq_sizeof, METH_NOARGS, doc_mpq_sizeof },
     { "__trunc__", Pympq_trunc, METH_NOARGS, doc_mpq_trunc },
-    { "digits", Pympq_digits, METH_VARARGS, doc_qdigitsm },
+    { "digits", GMPy_MPQ_Digits_Method, METH_VARARGS, GMPy_doc_mpq_digits_method },
     { NULL, NULL, 1 }
 };
 
