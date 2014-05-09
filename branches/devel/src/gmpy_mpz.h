@@ -59,7 +59,6 @@ static int Pympz_nonzero(MPZ_Object *self);
 static PyObject * Pympz_oct(MPZ_Object *self);
 static PyObject * Pympz_hex(MPZ_Object *self);
 #endif
-static Py_hash_t Pympz_hash(MPZ_Object *self);
 static PyObject * Pygmpy_gcd(PyObject *self, PyObject *args);
 static PyObject * Pygmpy_lcm(PyObject *self, PyObject *args);
 static PyObject * Pygmpy_gcdext(PyObject *self, PyObject *args);

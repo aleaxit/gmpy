@@ -501,7 +501,6 @@ static PyObject * Pympc_fma(PyObject *self, PyObject *args);
 static PyObject * Pympc_fms(PyObject *self, PyObject *args);
 static PyObject * Pympc_div_2exp(PyObject *self, PyObject *args);
 static PyObject * Pympc_mul_2exp(PyObject *self, PyObject *args);
-static Py_hash_t  Pympc_hash(MPC_Object *self);
 
 #ifdef __cplusplus
 }

@@ -350,29 +350,6 @@ Pympz_hex(MPZ_Object *self)
 }
 #endif
 
-static Py_hash_t
-Pympz_hash(MPZ_Object *self)
-{
-#ifdef _PyHASH_MODULUS
-    Py_hash_t hash;
-
-    if (self->hash_cache != -1)
-        return self->hash_cache;
-
-    hash = (Py_hash_t)mpn_mod_1(self->z->_mp_d, mpz_size(self->z), _PyHASH_MODULUS);
-    if (mpz_sgn(self->z)<0)
-        hash = -hash;
-    if (hash == -1)
-        hash = -2;
-    return (self->hash_cache = hash);
-#else
-    if (self->hash_cache != -1)
-        return self->hash_cache;
-    else
-        return (self->hash_cache = mpz_pythonhash(self->z));
-#endif
-}
-
 /* Miscellaneous gmpy functions */
 PyDoc_STRVAR(doc_gcd,
 "gcd(a, b) -> mpz\n\n"
@@ -1474,7 +1451,7 @@ static PyTypeObject MPZ_Type =
     &mpz_number_methods,                    /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
     &mpz_mapping_methods,                   /* tp_as_mapping    */
-    (hashfunc) Pympz_hash,                  /* tp_hash          */
+    (hashfunc) GMPy_MPZ_Hash_Slot,          /* tp_hash          */
         0,                                  /* tp_call          */
     (reprfunc) GMPy_MPZ_Str_Slot,           /* tp_str           */
         0,                                  /* tp_getattro      */
