@@ -798,30 +798,6 @@ Pympfr_hash(MPFR_Object *self)
     return self->hash_cache;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_rec_sqrt,
-"rec_sqrt(x) -> mpfr\n\n"
-"Return the reciprocal of the square root of x.");
-
-static PyObject *
-Pympfr_rec_sqrt(PyObject *self, PyObject *other)
-{
-    MPFR_Object *result;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    PARSE_ONE_MPFR_OTHER("rec_sqrt() requires 'mpfr' argument");
-
-    if (!(result = GMPy_MPFR_New(0, context)))
-        goto done;
-
-    mpfr_clear_flags();
-    result->rc = mpfr_rec_sqrt(result->f, MPFR(self),
-                               context->ctx.mpfr_round);
-
-    MPFR_CLEANUP_SELF("rec_sqrt()");
-}
-
 PyDoc_STRVAR(doc_mpfr_root,
 "root(x, n) -> mpfr\n\n"
 "Return n-th root of x. The result always an 'mpfr'.");
@@ -1140,50 +1116,6 @@ Pympfr_##NAME(PyObject* self, PyObject *other) \
     MPFR_CLEANUP_SELF(#NAME "()"); \
 }
 
-PyDoc_STRVAR(doc_g_mpfr_rint,
-"rint(x) -> mpfr\n\n"
-"Return x rounded to the nearest integer using the current rounding\n"
-"mode.");
-
-MPFR_UNIOP(rint)
-
-PyDoc_STRVAR(doc_g_mpfr_rint_ceil,
-"rint_ceil(x) -> mpfr\n\n"
-"Return x rounded to the nearest integer by first rounding to the\n"
-"next higher or equal integer and then, if needed, using the current\n"
-"rounding mode.");
-
-MPFR_UNIOP(rint_ceil)
-
-PyDoc_STRVAR(doc_g_mpfr_rint_floor,
-"rint_floor(x) -> mpfr\n\n"
-"Return x rounded to the nearest integer by first rounding to the\n"
-"next lower or equal integer and then, if needed, using the current\n"
-"rounding mode.");
-
-MPFR_UNIOP(rint_floor)
-
-PyDoc_STRVAR(doc_g_mpfr_rint_round,
-"rint_round(x) -> mpfr\n\n"
-"Return x rounded to the nearest integer by first rounding to the\n"
-"nearest integer (ties away from 0) and then, if needed, using\n"
-"the current rounding mode.");
-
-MPFR_UNIOP(rint_round)
-
-PyDoc_STRVAR(doc_g_mpfr_rint_trunc,
-"rint_trunc(x) -> mpfr\n\n"
-"Return x rounded to the nearest integer by first rounding towards\n"
-"zero and then, if needed, using the current rounding mode.");
-
-MPFR_UNIOP(rint_trunc)
-
-PyDoc_STRVAR(doc_g_mpfr_frac,
-"frac(x) -> mpfr\n\n"
-"Return fractional part of x.");
-
-MPFR_UNIOP(frac)
-
 PyDoc_STRVAR(doc_g_mpfr_modf,
 "modf(x) -> (mpfr, mpfr)\n\n"
 "Return a tuple containing the integer and fractional portions\n"
@@ -1234,66 +1166,6 @@ Pympfr_modf(PyObject *self, PyObject *other)
     return result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_cbrt,
-"cbrt(x) -> mpfr\n\n"
-"Return the cube root of x.");
-
-MPFR_UNIOP(cbrt)
-
-PyDoc_STRVAR(doc_g_mpfr_log2,
-"log2(x) -> mpfr\n\n"
-"Return base-2 logarithm of x.");
-
-MPFR_UNIOP(log2)
-
-PyDoc_STRVAR(doc_g_mpfr_exp2,
-"exp2(x) -> mpfr\n\n"
-"Return 2**x.");
-
-MPFR_UNIOP(exp2)
-
-PyDoc_STRVAR(doc_g_mpfr_exp10,
-"exp10(x) -> mpfr\n\n"
-"Return 10**x.");
-
-MPFR_UNIOP(exp10)
-
-PyDoc_STRVAR(doc_g_mpfr_log1p,
-"log1p(x) -> mpfr\n\n"
-"Return logarithm of (1+x).");
-
-MPFR_UNIOP(log1p)
-
-PyDoc_STRVAR(doc_g_mpfr_expm1,
-"expm1(x) -> mpfr\n\n"
-"Return exponential(x) - 1.");
-
-MPFR_UNIOP(expm1)
-
-PyDoc_STRVAR(doc_g_mpfr_eint,
-"eint(x) -> mpfr\n\n"
-"Return exponential integral of x.");
-
-MPFR_UNIOP(eint)
-
-PyDoc_STRVAR(doc_g_mpfr_li2,
-"li2(x) -> mpfr\n\n"
-"Return real part of dilogarithm of x.");
-
-MPFR_UNIOP(li2)
-
-PyDoc_STRVAR(doc_g_mpfr_gamma,
-"gamma(x) -> mpfr\n\n"
-"Return gamma of x.");
-
-MPFR_UNIOP(gamma)
-
-PyDoc_STRVAR(doc_g_mpfr_lngamma,
-"lngamma(x) -> mpfr\n\n"
-"Return logarithm of gamma(x).");
-
-MPFR_UNIOP(lngamma)
-
 PyDoc_STRVAR(doc_g_mpfr_lgamma,
 "lgamma(x) -> (mpfr, int)\n\n"
 "Return a tuple containing the logarithm of the absolute value of\n"
@@ -1337,42 +1209,6 @@ Pympfr_lgamma(PyObject* self, PyObject *other)
     return result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_digamma,
-"digamma(x) -> mpfr\n\n"
-"Return digamma of x.");
-
-MPFR_UNIOP(digamma)
-
-PyDoc_STRVAR(doc_g_mpfr_zeta,
-"zeta(x) -> mpfr\n\n"
-"Return Riemann zeta of x.");
-
-MPFR_UNIOP(zeta)
-
-PyDoc_STRVAR(doc_g_mpfr_erf,
-"erf(x) -> mpfr\n\n"
-"Return error function of x.");
-
-MPFR_UNIOP(erf)
-
-PyDoc_STRVAR(doc_g_mpfr_erfc,
-"erfc(x) -> mpfr\n\n"
-"Return complementary error function of x.");
-
-MPFR_UNIOP(erfc)
-
-PyDoc_STRVAR(doc_g_mpfr_j0,
-"j0(x) -> mpfr\n\n"
-"Return first kind Bessel function of order 0 of x.");
-
-MPFR_UNIOP(j0)
-
-PyDoc_STRVAR(doc_g_mpfr_j1,
-"j1(x) -> mpfr\n\n"
-"Return first kind Bessel function of order 1 of x.");
-
-MPFR_UNIOP(j1)
-
 PyDoc_STRVAR(doc_g_mpfr_jn,
 "jn(x,n) -> mpfr\n\n"
 "Return the first kind Bessel function of order n of x.");
@@ -1397,18 +1233,6 @@ Pympfr_jn(PyObject *self, PyObject *args)
     MPFR_CLEANUP_SELF("jn()");
 }
 
-PyDoc_STRVAR(doc_g_mpfr_y0,
-"y0(x) -> mpfr\n\n"
-"Return second kind Bessel function of order 0 of x.");
-
-MPFR_UNIOP(y0)
-
-PyDoc_STRVAR(doc_g_mpfr_y1,
-"y1(x) -> mpfr\n\n"
-"Return second kind Bessel function of order 1 of x.");
-
-MPFR_UNIOP(y1)
-
 PyDoc_STRVAR(doc_g_mpfr_yn,
 "yn(x,n) -> mpfr\n\n"
 "Return the second kind Bessel function of order n of x.");
@@ -1432,12 +1256,6 @@ Pympfr_yn(PyObject *self, PyObject *args)
                          context->ctx.mpfr_round);
     MPFR_CLEANUP_SELF("yn()");
 }
-
-PyDoc_STRVAR(doc_g_mpfr_ai,
-"ai(x) -> mpfr\n\n"
-"Return Airy function of x.");
-
-MPFR_UNIOP(ai)
 
 PyDoc_STRVAR(doc_g_mpfr_fmod,
 "fmod(x, y) -> mpfr\n\n"
