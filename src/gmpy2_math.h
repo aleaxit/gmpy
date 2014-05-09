@@ -156,6 +156,106 @@ static PyObject * GMPy_Complex_Sqrt(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Number_Sqrt(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Sqrt(PyObject *self, PyObject *other);
 
+static PyObject * GMPy_Real_RecSqrt(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_RecSqrt(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_RecSqrt(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Rint(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Rint(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Rint(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_RintCeil(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_RintCeil(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_RintCeil(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_RintFloor(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_RintFloor(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_RintFloor(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_RintRound(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_RintRound(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_RintRound(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_RintTrunc(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_RintTrunc(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_RintTrunc(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Frac(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Frac(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Frac(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Cbrt(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Cbrt(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Cbrt(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Log2(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Log2(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Log2(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Exp2(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Exp2(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Exp2(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Exp10(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Exp10(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Exp10(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Log1p(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Log1p(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Log1p(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Expm1(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Expm1(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Expm1(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Eint(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Eint(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Eint(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Li2(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Li2(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Li2(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Lngamma(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Lngamma(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Lngamma(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Digamma(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Digamma(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Digamma(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Zeta(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Zeta(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Zeta(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Erf(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Erf(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Erf(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Erfc(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Erfc(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Erfc(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_J0(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_J0(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_J0(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_J1(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_J1(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_J1(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Y0(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Y0(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Y0(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Y1(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Y1(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Y1(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Ai(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Ai(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Ai(PyObject *self, PyObject *other);
+
 #ifdef __cplusplus
 }
 #endif
