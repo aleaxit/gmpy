@@ -366,7 +366,6 @@ static PyObject * Pympfr_is_integer(PyObject *self, PyObject *other);
 static PyObject * Pympfr_integer_ratio(PyObject *self, PyObject *args);
 static PyObject * Pympfr_mantissa_exp(PyObject *self, PyObject *args);
 static PyObject * Pympfr_simple_fraction(PyObject *self, PyObject *args, PyObject *keywds);
-static Py_hash_t Pympfr_hash(MPFR_Object *self);
 static PyObject * Pympfr_root(PyObject *self, PyObject *args);
 static PyObject * Pympfr_reldiff(PyObject *self, PyObject *args);
 static PyObject * Pympfr_sign(PyObject *self, PyObject *other);

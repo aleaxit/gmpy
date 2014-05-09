@@ -735,69 +735,6 @@ Pympfr_simple_fraction(PyObject *self, PyObject *args, PyObject *keywds)
     return (PyObject*)stern_brocot((MPFR_Object*)self, 0, prec, 0, context);
 }
 
-static Py_hash_t
-_mpfr_hash(mpfr_t f)
-{
-#ifdef _PyHASH_MODULUS
-    Py_uhash_t hash = 0;
-    Py_ssize_t exp;
-    size_t msize;
-    int sign;
-
-    /* Handle special cases first */
-    if (!mpfr_number_p(f)) {
-        if (mpfr_inf_p(f))
-            if (mpfr_sgn(f) > 0)
-                return _PyHASH_INF;
-            else
-                return -_PyHASH_INF;
-        else
-            return _PyHASH_NAN;
-    }
-
-    /* Calculate the number of limbs in the mantissa. */
-    msize = (f->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
-
-    /* Calculate the hash of the mantissa. */
-    if (mpfr_sgn(f) > 0) {
-        hash = mpn_mod_1(f->_mpfr_d, msize, _PyHASH_MODULUS);
-        sign = 1;
-    }
-    else if (mpfr_sgn(f) < 0) {
-        hash = mpn_mod_1(f->_mpfr_d, msize, _PyHASH_MODULUS);
-        sign = -1;
-    }
-    else {
-        return 0;
-    }
-
-    /* Calculate the final hash. */
-    exp = f->_mpfr_exp - (msize * mp_bits_per_limb);
-    exp = exp >= 0 ? exp % _PyHASH_BITS : _PyHASH_BITS-1-((-1-exp) % _PyHASH_BITS);
-    hash = ((hash << exp) & _PyHASH_MODULUS) | hash >> (_PyHASH_BITS - exp);
-
-    hash *= sign;
-    if (hash == (Py_uhash_t)-1)
-        hash = (Py_uhash_t)-2;
-    return (Py_hash_t)hash;
-#else
-    double temp;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-    temp = mpfr_get_d(f, context->ctx.mpfr_round);
-    return _Py_HashDouble(temp);
-#endif
-}
-
-static Py_hash_t
-Pympfr_hash(MPFR_Object *self)
-{
-    if (self->hash_cache == -1)
-        self->hash_cache = _mpfr_hash(self->f);
-    return self->hash_cache;
-}
-
 PyDoc_STRVAR(doc_mpfr_root,
 "root(x, n) -> mpfr\n\n"
 "Return n-th root of x. The result always an 'mpfr'.");
@@ -1965,7 +1902,7 @@ static PyTypeObject MPFR_Type =
     &mpfr_number_methods,                   /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
         0,                                  /* tp_as_mapping    */
-    (hashfunc) Pympfr_hash,                 /* tp_hash          */
+    (hashfunc) GMPy_MPFR_Hash_Slot,         /* tp_hash          */
         0,                                  /* tp_call          */
     (reprfunc) GMPy_MPFR_Str_Slot,          /* tp_str           */
     (getattrofunc) 0,                       /* tp_getattro      */

@@ -676,27 +676,6 @@ Pympc_mul_2exp(PyObject *self, PyObject *args)
     MPC_CLEANUP(result, "mul_2exp()");
 }
 
-static Py_hash_t
-Pympc_hash(MPC_Object *self)
-{
-    Py_uhash_t hashreal, hashimag, combined;
-
-    if (self->hash_cache != -1)
-        return self->hash_cache;
-
-    hashreal = (Py_uhash_t)_mpfr_hash(mpc_realref(self->c));
-    if (hashreal == (Py_uhash_t)-1)
-        return -1;
-    hashimag = (Py_uhash_t)_mpfr_hash(mpc_imagref(self->c));
-    if (hashimag == (Py_uhash_t)-1)
-        return -1;
-    combined = hashreal + _PyHASH_IMAG * hashimag;
-    if (combined == (Py_uhash_t)-1)
-        combined = (Py_uhash_t)-2;
-    self->hash_cache = combined;
-    return (Py_hash_t)combined;
-}
-
 PyDoc_STRVAR(doc_mpc_sizeof,
 "x.__sizeof__()\n\n"
 "Returns the amount of memory consumed by x.");
@@ -835,7 +814,7 @@ static PyTypeObject MPC_Type =
     &mpc_number_methods,                    /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
         0,                                  /* tp_as_mapping    */
-    (hashfunc) Pympc_hash,                  /* tp_hash          */
+    (hashfunc) GMPy_MPC_Hash_Slot,          /* tp_hash          */
         0,                                  /* tp_call          */
     (reprfunc) GMPy_MPC_Str_Slot,           /* tp_str           */
         0,                                  /* tp_getattro      */

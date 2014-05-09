@@ -545,6 +545,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_const.c"
 #include "gmpy2_square.c"
 #include "gmpy2_format.c"
+#include "gmpy2_hash.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 

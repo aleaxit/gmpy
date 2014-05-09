@@ -453,65 +453,6 @@ Pympq_nonzero(MPQ_Object *self)
     return mpq_sgn(self->q) != 0;
 }
 
-static Py_hash_t
-Pympq_hash(MPQ_Object *self)
-{
-#ifdef _PyHASH_MODULUS
-    Py_hash_t hash = 0;
-    mpz_t temp, temp1, mask;
-
-    if (self->hash_cache != -1)
-        return self->hash_cache;
-
-    mpz_inoc(temp);
-    mpz_inoc(temp1);
-    mpz_inoc(mask);
-    mpz_set_si(mask, 1);
-    mpz_mul_2exp(mask, mask, _PyHASH_BITS);
-    mpz_sub_ui(mask, mask, 1);
-
-    if (!mpz_invert(temp, mpq_denref(self->q), mask)) {
-        mpz_cloc(temp);
-        mpz_cloc(temp1);
-        mpz_cloc(mask);
-        hash = _PyHASH_INF;
-        if (mpz_sgn(mpq_numref(self->q))<0)
-            hash = -hash;
-        self->hash_cache = hash;
-        return hash;
-    }
-    mpz_set(temp1, mask);
-    mpz_sub_ui(temp1, temp1, 2);
-    mpz_powm(temp, mpq_denref(self->q), temp1, mask);
-
-    mpz_tdiv_r(temp1, mpq_numref(self->q), mask);
-    mpz_mul(temp, temp, temp1);
-    hash = (Py_hash_t)mpn_mod_1(temp->_mp_d, mpz_size(temp), _PyHASH_MODULUS);
-
-    if (mpz_sgn(mpq_numref(self->q))<0)
-        hash = -hash;
-    if (hash==-1) hash = -2;
-    mpz_cloc(temp);
-    mpz_cloc(temp1);
-    mpz_cloc(mask);
-    self->hash_cache = hash;
-    return hash;
-#else
-    PyObject *temp;
-
-    if (self->hash_cache != -1)
-        return self->hash_cache;
-
-    if (!(temp = GMPy_PyFloat_From_MPQ(self, NULL))) {
-        SYSTEM_ERROR("Could not convert 'mpq' to float.");
-        return -1;
-    }
-    self->hash_cache = PyObject_Hash(temp);
-    Py_DECREF(temp);
-    return self->hash_cache;
-#endif
-}
-
 PyDoc_STRVAR(doc_mpq_sizeof,
 "x.__sizeof__()\n\n"
 "Returns the amount of memory consumed by x. Note: deleted mpq objects\n"
@@ -647,7 +588,7 @@ static PyTypeObject MPQ_Type =
     &mpq_number_methods,                    /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
         0,                                  /* tp_as_mapping    */
-    (hashfunc) Pympq_hash,                  /* tp_hash          */
+    (hashfunc) GMPy_MPQ_Hash_Slot,          /* tp_hash          */
         0,                                  /* tp_call          */
     (reprfunc) GMPy_MPQ_Str_Slot,           /* tp_str           */
     (getattrofunc) 0,                       /* tp_getattro      */
