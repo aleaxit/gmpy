@@ -1265,6 +1265,8 @@ static PyMethodDef GMPyContext_methods[] =
     { "exp10", GMPy_Context_Exp10, METH_O, GMPy_doc_context_exp10 },
     { "exp2", GMPy_Context_Exp2, METH_O, GMPy_doc_context_exp2 },
     { "floor_div", GMPy_Context_FloorDiv, METH_VARARGS, GMPy_doc_context_floordiv },
+    { "fma", GMPy_Context_FMA, METH_VARARGS, GMPy_doc_context_fma },
+    { "fms", GMPy_Context_FMS, METH_VARARGS, GMPy_doc_context_fms },
     { "frac", GMPy_Context_Frac, METH_O, GMPy_doc_context_frac },
     { "gamma", GMPy_Context_Gamma, METH_O, GMPy_doc_context_gamma },
     { "hypot", GMPy_Context_Hypot, METH_VARARGS, GMPy_doc_context_hypot },

@@ -256,6 +256,16 @@ static PyObject * GMPy_Real_Ai(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Number_Ai(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Ai(PyObject *self, PyObject *other);
 
+static PyObject * GMPy_Real_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
+static PyObject * GMPy_Real_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
+static PyObject * GMPy_Number_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
+static PyObject * GMPy_Context_FMA(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_Real_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
+static PyObject * GMPy_Real_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
+static PyObject * GMPy_Number_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
+static PyObject * GMPy_Context_FMS(PyObject *self, PyObject *args);
+
 #ifdef __cplusplus
 }
 #endif

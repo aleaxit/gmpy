@@ -203,54 +203,6 @@ Pympany_is_zero(PyObject *self, PyObject *other)
     return NULL;
 }
 
-PyDoc_STRVAR(doc_mpany_fma,
-"fma(x, y, z) -> number\n\n"
-"Return correctly rounded result of (x * y) + z.");
-
-static PyObject *
-Pympany_fma(PyObject *self, PyObject *args)
-{
-    if (PyTuple_GET_SIZE(args) != 3) {
-        TYPE_ERROR("fma() requires 3 arguments.");
-        return NULL;
-    }
-
-    if (IS_REAL(PyTuple_GET_ITEM(args, 0)) &&
-        IS_REAL(PyTuple_GET_ITEM(args, 1)) &&
-        IS_REAL(PyTuple_GET_ITEM(args, 2)))
-        return Pympfr_fma(self, args);
-    if (IS_COMPLEX(PyTuple_GET_ITEM(args, 0)) &&
-        IS_COMPLEX(PyTuple_GET_ITEM(args, 1)) &&
-        IS_COMPLEX(PyTuple_GET_ITEM(args, 2)))
-        return Pympc_fma(self, args);
-    TYPE_ERROR("fma() argument types not supported");
-    return NULL;
-}
-
-PyDoc_STRVAR(doc_mpany_fms,
-"fms(x, y, z) -> number\n\n"
-"Return correctly rounded result of (x * y) - z.");
-
-static PyObject *
-Pympany_fms(PyObject *self, PyObject *args)
-{
-    if (PyTuple_GET_SIZE(args) != 3) {
-        TYPE_ERROR("fms() requires 3 arguments.");
-        return NULL;
-    }
-
-    if (IS_REAL(PyTuple_GET_ITEM(args, 0)) &&
-        IS_REAL(PyTuple_GET_ITEM(args, 1)) &&
-        IS_REAL(PyTuple_GET_ITEM(args, 2)))
-        return Pympfr_fms(self, args);
-    if (IS_COMPLEX(PyTuple_GET_ITEM(args, 0)) &&
-        IS_COMPLEX(PyTuple_GET_ITEM(args, 1)) &&
-        IS_COMPLEX(PyTuple_GET_ITEM(args, 2)))
-        return Pympc_fms(self, args);
-    TYPE_ERROR("fms() argument types not supported");
-    return NULL;
-}
-
 PyDoc_STRVAR(doc_mpany_div_2exp,
 "div_2exp(x, n) -> number\n\n"
 "Return 'mpfr' or 'mpc' divided by 2**n.");

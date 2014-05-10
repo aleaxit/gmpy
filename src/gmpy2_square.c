@@ -84,6 +84,8 @@ GMPy_Real_Square(PyObject *x, CTXT_Object *context)
 {
     MPFR_Object *result = NULL, *tempx = NULL;
 
+    CHECK_CONTEXT(context);
+    
     result = GMPy_MPFR_New(0, context);
     tempx = GMPy_MPFR_From_Real(x, 1, context);
     if (!result || !tempx) {
@@ -103,6 +105,8 @@ static PyObject *
 GMPy_Complex_Square(PyObject *x, CTXT_Object *context)
 {
     MPC_Object *result = NULL, *tempx = NULL;
+
+    CHECK_CONTEXT(context);
 
     result = GMPy_MPC_New(0, 0, context);
     tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
