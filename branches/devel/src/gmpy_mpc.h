@@ -497,8 +497,6 @@ static PyObject * Pympc_norm(PyObject *self, PyObject *other);
 static PyObject * Pympc_polar(PyObject *self, PyObject *other);
 static PyObject * Pympc_rect(PyObject *self, PyObject *args);
 static PyObject * Pympc_proj(PyObject *self, PyObject *other);
-static PyObject * Pympc_fma(PyObject *self, PyObject *args);
-static PyObject * Pympc_fms(PyObject *self, PyObject *args);
 static PyObject * Pympc_div_2exp(PyObject *self, PyObject *args);
 static PyObject * Pympc_mul_2exp(PyObject *self, PyObject *args);
 

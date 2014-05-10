@@ -1021,4 +1021,22 @@ GMPy_Complex_Sqrt(PyObject *x, CTXT_Object *context)
 
 GMPY_MPFR_MPC_UNIOP_TEMPLATE(Sqrt, sqrt)
 
+PyDoc_STRVAR(GMPy_doc_context_fma,
+"context.fma(x, y, z) -> number\n\n"
+"Return correctly rounded result of (x * y) + z.");
 
+PyDoc_STRVAR(GMPy_doc_function_fma,
+"fma(x, y, z) -> number\n\n"
+"Return correctly rounded result of (x * y) + z.");
+
+GMPY_MPFR_MPC_TRIOP(FMA, fma);
+
+PyDoc_STRVAR(GMPy_doc_context_fms,
+"context.fms(x, y, z) -> number\n\n"
+"Return correctly rounded result of (x * y) - z.");
+
+PyDoc_STRVAR(GMPy_doc_function_fms,
+"fms(x, y, z) -> number\n\n"
+"Return correctly rounded result of (x * y) - z.");
+
+GMPY_MPFR_MPC_TRIOP(FMS, fms);
