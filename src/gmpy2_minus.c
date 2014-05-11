@@ -51,116 +51,170 @@
  */
 
 static PyObject *
-GMPy_Integer_Minus(PyObject *x, CTXT_Object *context)
+_GMPy_MPZ_Minus(PyObject *x, CTXT_Object *context)
 {
-    MPZ_Object *result = NULL, *tempx = NULL;
+    MPZ_Object *result;
 
     CHECK_CONTEXT(context);
 
-    result = GMPy_MPZ_New(context);
-    tempx = GMPy_MPZ_From_Integer(x, context);
-    if (!result || !tempx) {
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)tempx);
+    if (!(result = GMPy_MPZ_New(context))) {
         return NULL;
     }
 
-    mpz_neg(result->z, tempx->z);
-    Py_DECREF((PyObject*)tempx);
+    mpz_neg(result->z, MPZ(x));
     return (PyObject*)result;
+}
+static PyObject *
+GMPy_Integer_Minus(PyObject *x, CTXT_Object *context)
+{
+    PyObject *result, *tempx;
+
+    CHECK_CONTEXT(context);
+
+    if (!(tempx = (PyObject*)GMPy_MPZ_From_Integer(x, context))) {
+        return NULL;
+    }
+
+    result = _GMPy_MPZ_Minus(tempx, context);
+    Py_DECREF(tempx);
+    return result;
 }
 
 static PyObject *
 GMPy_MPZ_Minus_Slot(MPZ_Object *x)
 {
-    return GMPy_Integer_Minus((PyObject*)x, NULL);
+    return _GMPy_MPZ_Minus((PyObject*)x, NULL);
+}
+
+static PyObject *
+_GMPy_MPQ_Minus(PyObject *x, CTXT_Object *context)
+{
+    MPQ_Object *result;
+
+    CHECK_CONTEXT(context);
+
+    if (!(result = GMPy_MPQ_New(context))) {
+        return NULL;
+    }
+
+    mpq_neg(result->q, MPQ(x));
+    return (PyObject*)result;
 }
 
 static PyObject *
 GMPy_Rational_Minus(PyObject *x, CTXT_Object *context)
 {
-    MPQ_Object *result, *tempx;
+    PyObject *result, *tempx;
 
     CHECK_CONTEXT(context);
 
-    result = GMPy_MPQ_New(context);
-    tempx = GMPy_MPQ_From_Rational(x, context);
-    if (!result || !tempx) {
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)tempx);
+    if (!(tempx = (PyObject*)GMPy_MPQ_From_Rational(x, context))) {
         return NULL;
     }
 
-    mpq_neg(result->q, tempx->q);
-    Py_DECREF((PyObject*)tempx);
-    return (PyObject*)result;
+    result = _GMPy_MPQ_Minus(tempx, context);
+    Py_DECREF(tempx);
+    return result;
 }
 
 static PyObject *
 GMPy_MPQ_Minus_Slot(MPQ_Object *x)
 {
-    return GMPy_Rational_Minus((PyObject*)x, NULL);
+    return _GMPy_MPQ_Minus((PyObject*)x, NULL);
 }
 
 static PyObject *
-GMPy_Real_Minus(PyObject *x, CTXT_Object *context)
+_GMPy_MPFR_Minus(PyObject *x, CTXT_Object *context)
 {
-    MPFR_Object *result = NULL, *tempx = NULL;
+    MPFR_Object *result;
 
     CHECK_CONTEXT(context);
 
-    tempx = GMPy_MPFR_From_Real(x, 1, context);
-    result = GMPy_MPFR_New(0, context);
-    if (!tempx || !result) {
-        Py_XDECREF((PyObject*)tempx);
-        Py_XDECREF((PyObject*)result);
+    if (!(result = GMPy_MPFR_New(0, context))) {
         return NULL;
     }
 
     mpfr_clear_flags();
-    result->rc = mpfr_neg(result->f, tempx->f, GET_MPFR_ROUND(context));
-    Py_DECREF((PyObject*)tempx);
+    result->rc = mpfr_neg(result->f, MPFR(x), GET_MPFR_ROUND(context));
     GMPY_MPFR_CLEANUP(result, context, "minus()");
     return (PyObject*)result;
 }
 
 static PyObject *
-GMPy_MPFR_Minus_Slot(MPFR_Object *x)
+GMPy_Real_Minus(PyObject *x, CTXT_Object *context)
 {
-    return GMPy_Real_Minus((PyObject*)x, NULL);
-}
-
-static PyObject *
-GMPy_Complex_Minus(PyObject *x, CTXT_Object *context)
-{
-    MPC_Object *result = NULL, *tempx = NULL;
+    PyObject *result, *tempx;
 
     CHECK_CONTEXT(context);
 
-    tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
-    result = GMPy_MPC_New(0, 0, context);
-    if (!tempx || !result) {
-        Py_XDECREF((PyObject*)tempx);
-        Py_XDECREF((PyObject*)result);
+    if (!(tempx = (PyObject*)GMPy_MPFR_From_Real(x, 1, context))) {
         return NULL;
     }
 
-    mpfr_clear_flags();
-    result->rc = mpc_neg(result->c, tempx->c, GET_MPC_ROUND(context));
-    Py_DECREF((PyObject*)tempx);
+    result = _GMPy_MPFR_Minus(tempx, context);
+    Py_DECREF(tempx);
+    return result;
+}
+
+static PyObject *
+GMPy_MPFR_Minus_Slot(MPFR_Object *x)
+{
+    return _GMPy_MPFR_Minus((PyObject*)x, NULL);
+}
+
+static PyObject *
+_GMPy_MPC_Minus(PyObject *x, CTXT_Object *context)
+{
+    MPC_Object *result;
+
+    CHECK_CONTEXT(context);
+
+    if (!(result = GMPy_MPC_New(0, 0, context))) {
+        return NULL;
+    }
+
+    result->rc = mpc_neg(result->c, MPC(x), GET_MPC_ROUND(context));
     GMPY_MPC_CLEANUP(result, context, "minus()");
     return (PyObject*)result;
 }
 
 static PyObject *
+GMPy_Complex_Minus(PyObject *x, CTXT_Object *context)
+{
+    PyObject *result, *tempx;
+
+    CHECK_CONTEXT(context);
+
+    if (!(tempx = (PyObject*)GMPy_MPC_From_Complex(x, 1, 1, context))) {
+        return NULL;
+    }
+
+    result = _GMPy_MPC_Minus(tempx, context);
+    Py_DECREF(tempx);
+    return result;
+}
+
+static PyObject *
 GMPy_MPC_Minus_Slot(MPC_Object *x)
 {
-    return GMPy_Complex_Minus((PyObject*)x, NULL);
+    return _GMPy_MPC_Minus((PyObject*)x, NULL);
 }
 
 static PyObject *
 GMPy_Number_Minus(PyObject *x, CTXT_Object *context)
 {
+    if (MPZ_Check(x))
+        return _GMPy_MPZ_Minus(x, context);
+
+    if (MPQ_Check(x))
+        return _GMPy_MPQ_Minus(x, context);
+
+    if (MPFR_Check(x))
+        return _GMPy_MPFR_Minus(x, context);
+
+    if (MPC_Check(x))
+        return _GMPy_MPC_Minus(x, context);
+
     if (IS_INTEGER(x))
         return GMPy_Integer_Minus(x, context);
 

@@ -52,7 +52,7 @@ PyDoc_STRVAR(GMPy_doc_function_sin,
 "sin(x) -> number\n\n"
 "Return sine of x; x in radians.");
 
-GMPY_MPFR_MPC_UNIOP(Sin, sin)
+GMPY_MPFR_MPC_UNIOP_EX(Sin, sin)
 
 PyDoc_STRVAR(GMPy_doc_context_cos,
 "context.cos(x) -> number\n\n"
@@ -62,7 +62,7 @@ PyDoc_STRVAR(GMPy_doc_function_cos,
 "cos(x) -> number\n\n"
 "Return cosine of x; x in radians.");
 
-GMPY_MPFR_MPC_UNIOP(Cos, cos)
+GMPY_MPFR_MPC_UNIOP_EX(Cos, cos)
 
 PyDoc_STRVAR(GMPy_doc_context_tan,
 "context.tan(x) -> number\n\n"
@@ -72,7 +72,7 @@ PyDoc_STRVAR(GMPy_doc_function_tan,
 "tan(x) -> number\n\n"
 "Return tangent of x; x in radians.");
 
-GMPY_MPFR_MPC_UNIOP(Tan, tan)
+GMPY_MPFR_MPC_UNIOP_EX(Tan, tan)
 
 PyDoc_STRVAR(GMPy_doc_context_atan,
 "context.atan(x) -> number\n\n"
@@ -82,7 +82,7 @@ PyDoc_STRVAR(GMPy_doc_function_atan,
 "atan(x) -> number\n\n"
 "Return inverse tangent of x; result in radians.");
 
-GMPY_MPFR_MPC_UNIOP(Atan, atan)
+GMPY_MPFR_MPC_UNIOP_EX(Atan, atan)
 
 PyDoc_STRVAR(GMPy_doc_context_sinh,
 "context.sinh(x) -> number\n\n"
@@ -92,7 +92,7 @@ PyDoc_STRVAR(GMPy_doc_function_sinh,
 "sinh(x) -> number\n\n"
 "Return hyperbolic sine of x.");
 
-GMPY_MPFR_MPC_UNIOP(Sinh, sinh)
+GMPY_MPFR_MPC_UNIOP_EX(Sinh, sinh)
 
 PyDoc_STRVAR(GMPy_doc_context_cosh,
 "context.cosh(x) -> number\n\n"
@@ -102,7 +102,7 @@ PyDoc_STRVAR(GMPy_doc_function_cosh,
 "cosh(x) -> number\n\n"
 "Return hyperbolic cosine of x.");
 
-GMPY_MPFR_MPC_UNIOP(Cosh, cosh)
+GMPY_MPFR_MPC_UNIOP_EX(Cosh, cosh)
 
 PyDoc_STRVAR(GMPy_doc_context_tanh,
 "context.tanh(x) -> number\n\n"
@@ -112,7 +112,7 @@ PyDoc_STRVAR(GMPy_doc_function_tanh,
 "tanh(x) -> number\n\n"
 "Return hyperbolic tangent of x.");
 
-GMPY_MPFR_MPC_UNIOP(Tanh, tanh)
+GMPY_MPFR_MPC_UNIOP_EX(Tanh, tanh)
 
 PyDoc_STRVAR(GMPy_doc_context_asinh,
 "context.asinh(x) -> number\n\n"
@@ -122,7 +122,7 @@ PyDoc_STRVAR(GMPy_doc_function_asinh,
 "asinh(x) -> number\n\n"
 "Return inverse hyperbolic sine of x.");
 
-GMPY_MPFR_MPC_UNIOP(Asinh, asinh)
+GMPY_MPFR_MPC_UNIOP_EX(Asinh, asinh)
 
 PyDoc_STRVAR(GMPy_doc_context_acosh,
 "context.acosh(x) -> number\n\n"
@@ -132,7 +132,7 @@ PyDoc_STRVAR(GMPy_doc_function_acosh,
 "acosh(x) -> number\n\n"
 "Return inverse hyperbolic cosine of x.");
 
-GMPY_MPFR_MPC_UNIOP(Acosh, acosh)
+GMPY_MPFR_MPC_UNIOP_EX(Acosh, acosh)
 
 /* Section 2:
  * These functions accept a single argument and return an mpfr result.
@@ -1021,22 +1021,3 @@ GMPy_Complex_Sqrt(PyObject *x, CTXT_Object *context)
 
 GMPY_MPFR_MPC_UNIOP_TEMPLATE(Sqrt, sqrt)
 
-PyDoc_STRVAR(GMPy_doc_context_fma,
-"context.fma(x, y, z) -> number\n\n"
-"Return correctly rounded result of (x * y) + z.");
-
-PyDoc_STRVAR(GMPy_doc_function_fma,
-"fma(x, y, z) -> number\n\n"
-"Return correctly rounded result of (x * y) + z.");
-
-GMPY_MPFR_MPC_TRIOP(FMA, fma);
-
-PyDoc_STRVAR(GMPy_doc_context_fms,
-"context.fms(x, y, z) -> number\n\n"
-"Return correctly rounded result of (x * y) - z.");
-
-PyDoc_STRVAR(GMPy_doc_function_fms,
-"fms(x, y, z) -> number\n\n"
-"Return correctly rounded result of (x * y) - z.");
-
-GMPY_MPFR_MPC_TRIOP(FMS, fms);

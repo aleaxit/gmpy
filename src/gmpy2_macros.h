@@ -41,6 +41,15 @@
  *     GMPy_Context_NAME(self, other)
  *     - called with METH_O
  *
+ * GMPY_MPFR_MPC_UNIOP_EX(NAME, FUNC) creates the following functions:
+ *     GMPy_MPFR_NAME(x, context)
+ *     GMPy_Real_NAME(x, context)
+ *     GMPy_MPC_NAME(x, context)
+ *     GMPy_Complex_NAME(x, context)
+ *     GMPy_Number_NAME(x, context)
+ *     GMPy_Context_NAME(self, other)
+ *     - called with METH_O
+ *
  * GMPY_MPFR_MPC_UNIOP_TEMPLATE(NAME, FUNC) creates the following functions:
  *     GMPy_Number_NAME(x, context)
  *     - assumes GMPy_Real_NAME & GMPy_Complex_NAME exist
@@ -53,9 +62,11 @@
  *     GMPy_Context_NAME(self, args)
  *     - called with METH_VARARGS
  * 
- * GMPY_MPFR_MPC_TRIOP_TEMPLATE(NAME, FUNC) creates the following functions:
+ * GMPY_MPFR_MPC_TRIOP_EX(NAME, FUNC) creates the following functions:
+ *     GMPy_Real_NAME(x, y, Z, context)
+ *     GMPy_Complex_NAME(x, y, Z, context)
  *     GMPy_Number_NAME(x, y, Z, context)
- *     - assumes GMPy_Real_NAME & GMPy_Complex_NAME exist
+ *     - assumes GMPy_Integer_NAME & GMPy_Rational_NAME also exist
  *     GMPy_Context_NAME(self, args)
  *     - called with METH_VARARGS
  * 
@@ -144,6 +155,85 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
     return GMPy_Number_##NAME(other, context); \
 }
 
+#define GMPY_MPFR_MPC_UNIOP_EX(NAME, FUNC) \
+static PyObject * \
+_GMPy_MPFR_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    MPFR_Object *result; \
+    CHECK_CONTEXT(context); \
+    if (!(result = GMPy_MPFR_New(0, context))) { \
+        return NULL; \
+    } \
+    mpfr_clear_flags(); \
+    result->rc = mpfr_##FUNC(result->f, MPFR(x), GET_MPFR_ROUND(context)); \
+    GMPY_MPFR_CLEANUP(result, context, #FUNC "()"); \
+    return (PyObject*)result; \
+} \
+static PyObject * \
+GMPy_Real_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    MPFR_Object *tempx; \
+    PyObject *result; \
+    CHECK_CONTEXT(context); \
+    if (!(tempx = GMPy_MPFR_From_Real(x, 1, context))) { \
+        return NULL; \
+    } \
+    result = _GMPy_MPFR_##NAME((PyObject*)tempx, context); \
+    Py_DECREF((PyObject*)tempx); \
+    return (PyObject*)result; \
+} \
+static PyObject * \
+_GMPy_MPC_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    MPC_Object *result; \
+    CHECK_CONTEXT(context); \
+    if (!(result = GMPy_MPC_New(0, 0, context))) { \
+        return NULL; \
+    } \
+    result->rc = mpc_##FUNC(result->c, MPC(x), GET_MPC_ROUND(context)); \
+    GMPY_MPC_CLEANUP(result, context, #FUNC "()"); \
+    return (PyObject*)result; \
+} \
+static PyObject * \
+GMPy_Complex_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    MPC_Object *tempx; \
+    PyObject *result; \
+    CHECK_CONTEXT(context); \
+    if (!(tempx = GMPy_MPC_From_Complex(x, 1, 1, context))) { \
+        return NULL; \
+    } \
+    result = _GMPy_MPC_##NAME((PyObject*)tempx, context); \
+    Py_DECREF((PyObject*)tempx); \
+    return (PyObject*)result; \
+} \
+static PyObject * \
+GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    if (MPFR_Check(x)) \
+        return _GMPy_MPFR_##NAME(x, context); \
+    if (MPC_Check(x)) \
+        return _GMPy_MPC_##NAME(x, context); \
+    if (IS_REAL(x)) \
+        return GMPy_Real_##NAME(x, context); \
+    if (IS_COMPLEX(x)) \
+        return GMPy_Complex_##NAME(x, context); \
+    TYPE_ERROR(#FUNC"() argument type not supported"); \
+    return NULL; \
+} \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *other) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(other, context); \
+}
+
 #define GMPY_MPFR_MPC_UNIOP_TEMPLATE(NAME, FUNC) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
@@ -196,57 +286,22 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
     return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context); \
 }
 
-#define GMPY_MPFR_MPC_TRIOP(NAME, FUNC) \
-static PyObject * \
-GMPy_Real_##NAME(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context) \
-{ \
-    MPFR_Object *result = NULL, *tempx = NULL, *tempy = NULL, *tempz = NULL; \
-    CHECK_CONTEXT(context); \
-    result = GMPy_MPFR_New(0, context); \
-    tempx = GMPy_MPFR_From_Real(x, 1, context); \
-    tempy = GMPy_MPFR_From_Real(y, 1, context); \
-    tempz = GMPy_MPFR_From_Real(z, 1, context); \
-    if (!result || !tempx || !tempy || !tempz) { \
-        Py_XDECREF((PyObject*)tempx); \
-        Py_XDECREF((PyObject*)tempy); \
-        Py_XDECREF((PyObject*)tempz); \
-        Py_XDECREF((PyObject*)result); \
-        return NULL; \
-    } \
-    mpfr_clear_flags(); \
-    result->rc = mpfr_##FUNC(result->f, tempx->f, tempy->f, tempz->f, GET_MPFR_ROUND(context)); \
-    Py_DECREF((PyObject*)tempx); \
-    Py_DECREF((PyObject*)tempy); \
-    Py_DECREF((PyObject*)tempz); \
-    GMPY_MPFR_CLEANUP(result, context, #FUNC"()"); \
-    return (PyObject*)result; \
-} \
-static PyObject * \
-GMPy_Complex_##NAME(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context) \
-{ \
-    MPC_Object *result = NULL, *tempx = NULL, *tempy = NULL, *tempz = NULL; \
-    CHECK_CONTEXT(context); \
-    result = GMPy_MPC_New(0, 0, context); \
-    tempx = GMPy_MPC_From_Complex(x, 1, 1, context); \
-    tempy = GMPy_MPC_From_Complex(y, 1, 1, context); \
-    tempz = GMPy_MPC_From_Complex(z, 1, 1, context); \
-    if (!result || !tempx || !tempy || !tempz) { \
-        Py_XDECREF((PyObject*)tempx); \
-        Py_XDECREF((PyObject*)tempy); \
-        Py_XDECREF((PyObject*)tempz); \
-        Py_XDECREF((PyObject*)result); \
-        return NULL; \
-    } \
-    result->rc = mpc_fma(result->c, tempx->c, tempy->c, tempz->c, GET_MPC_ROUND(context)); \
-    Py_DECREF((PyObject*)tempx); \
-    Py_DECREF((PyObject*)tempy); \
-    Py_DECREF((PyObject*)tempz); \
-    GMPY_MPC_CLEANUP(result, context, #FUNC"()"); \
-    return (PyObject*)result; \
-} \
+#define GMPY_MPFR_MPC_TRIOP_TEMPLATE(NAME, FUNC) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context) \
 { \
+    if (MPZ_Check(x) && MPZ_Check(y) && MPZ_Check(z)) \
+        return _GMPy_MPZ_##NAME(x, y, z, context); \
+    if (MPQ_Check(x) && MPQ_Check(y) && MPQ_Check(z)) \
+        return _GMPy_MPQ_##NAME(x, y, z, context); \
+    if (MPFR_Check(x) && MPFR_Check(y) && MPFR_Check(z)) \
+        return _GMPy_MPFR_##NAME(x, y, z, context); \
+    if (MPC_Check(x) && MPC_Check(y) && MPC_Check(z)) \
+        return _GMPy_MPC_##NAME(x, y, z, context); \
+    if (IS_INTEGER(x) && IS_INTEGER(y) && IS_INTEGER(z)) \
+        return GMPy_Integer_##NAME(x, y, z, context); \
+    if (IS_RATIONAL(x) && IS_RATIONAL(y) && IS_RATIONAL(z)) \
+        return GMPy_Rational_##NAME(x, y, z, context); \
     if (IS_REAL(x) && IS_REAL(y) && IS_REAL(z)) \
         return GMPy_Real_##NAME(x, y, z, context); \
     if (IS_COMPLEX(x) && IS_COMPLEX(y) && IS_COMPLEX(z)) \
