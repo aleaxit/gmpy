@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy2_mpfr_math.h                                                       *
+ * gmpy2_math.h                                                            *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -25,8 +25,8 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef GMPY_MPFR_MATH_H
-#define GMPY_MPFR_MATH_H
+#ifndef GMPY_MATH_H
+#define GMPY_MATH_H
 
 #ifdef __cplusplus
 extern "C" {
