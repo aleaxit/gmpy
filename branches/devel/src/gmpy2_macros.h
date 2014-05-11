@@ -258,10 +258,70 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
     return GMPy_Number_##NAME(other, context); \
 }
 
+#define GMPY_MPFR_MPC_UNIOP_TEMPLATE_EX(NAME, FUNC) \
+static PyObject * \
+GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    if (MPFR_Check(x)) \
+        return _GMPy_MPFR_##NAME(x, context); \
+    if (MPC_Check(x)) \
+        return _GMPy_MPC_##NAME(x, context); \
+    if (IS_REAL(x)) \
+        return GMPy_Real_##NAME(x, context); \
+    if (IS_COMPLEX(x)) \
+        return GMPy_Complex_##NAME(x, context); \
+    TYPE_ERROR(#FUNC"() argument type not supported"); \
+    return NULL; \
+} \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *other) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(other, context); \
+}
+
 #define GMPY_MPFR_MPC_BIOP_TEMPLATE(NAME, FUNC) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, PyObject * y, CTXT_Object *context) \
 { \
+    if (IS_REAL(x) && IS_REAL(y)) \
+        return GMPy_Real_##NAME(x, y, context); \
+    if (IS_COMPLEX(x) && IS_COMPLEX(y)) \
+        return GMPy_Complex_##NAME(x, y, context); \
+    TYPE_ERROR(#FUNC"() argument type not supported"); \
+    return NULL; \
+} \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *args) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (PyTuple_GET_SIZE(args) != 2) { \
+        TYPE_ERROR(#FUNC"() requires 2 arguments"); \
+        return NULL; \
+    } \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context); \
+}
+
+#define GMPY_MPFR_MPC_BIOP_TEMPLATE_EX(NAME, FUNC) \
+static PyObject * \
+GMPy_Number_##NAME(PyObject *x, PyObject * y, CTXT_Object *context) \
+{ \
+    if (MPFR_Check(x) && MPFR_Check(y)) \
+        return _GMPy_MPFR_##NAME(x, y, context); \
+    if (MPC_Check(x) && MPC_Check(y)) \
+        return _GMPy_MPC_##NAME(x, y, context); \
     if (IS_REAL(x) && IS_REAL(y)) \
         return GMPy_Real_##NAME(x, y, context); \
     if (IS_COMPLEX(x) && IS_COMPLEX(y)) \
@@ -367,10 +427,83 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
     return GMPy_Number_##NAME(other, context); \
 }
 
+#define GMPY_MPFR_UNIOP_EX(NAME, FUNC) \
+static PyObject * \
+_GMPy_MPFR_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    MPFR_Object *result; \
+    CHECK_CONTEXT(context); \
+    if (!(result = GMPy_MPFR_New(0, context))) { \
+        return NULL; \
+    } \
+    mpfr_clear_flags(); \
+    result->rc = mpfr_##FUNC(result->f, MPFR(x), GET_MPFR_ROUND(context)); \
+    GMPY_MPFR_CLEANUP(result, context, #FUNC "()"); \
+    return (PyObject*)result; \
+} \
+static PyObject * \
+GMPy_Real_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    PyObject *result, *tempx; \
+    CHECK_CONTEXT(context); \
+    if (!(tempx = (PyObject*)GMPy_MPFR_From_Real(x, 1, context))) { \
+        return NULL; \
+    } \
+    result = _GMPy_MPFR_##NAME(tempx, context); \
+    Py_DECREF(tempx); \
+    return result; \
+} \
+static PyObject * \
+GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    if (MPFR_Check(x)) \
+        return _GMPy_MPFR_##NAME(x, context); \
+    if (IS_REAL(x)) \
+        return GMPy_Real_##NAME(x, context); \
+    TYPE_ERROR(#FUNC"() argument type not supported"); \
+    return NULL; \
+} \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *other) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(other, context); \
+}
+
 #define GMPY_MPFR_UNIOP_TEMPLATE(NAME, FUNC) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
 { \
+    if (IS_REAL(x)) \
+        return GMPy_Real_##NAME(x, context); \
+    TYPE_ERROR(#FUNC"() argument type not supported"); \
+    return NULL; \
+} \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *other) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(other, context); \
+}
+
+#define GMPY_MPFR_UNIOP_TEMPLATE_EX(NAME, FUNC) \
+static PyObject * \
+GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    if (MPFR_Check(x)) \
+        return _GMPy_MPFR_##NAME(x, context); \
     if (IS_REAL(x)) \
         return GMPy_Real_##NAME(x, context); \
     TYPE_ERROR(#FUNC"() argument type not supported"); \
@@ -414,6 +547,64 @@ GMPy_Real_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
 { \
+    if (IS_REAL(x) && IS_REAL(y)) \
+        return GMPy_Real_##NAME(x, y, context); \
+    TYPE_ERROR(#FUNC"() argument type not supported"); \
+    return NULL; \
+} \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *args) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (PyTuple_GET_SIZE(args) != 2) { \
+        TYPE_ERROR(#FUNC"() requires 2 arguments"); \
+        return NULL; \
+    } \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context); \
+} \
+
+#define GMPY_MPFR_BINOP_EX(NAME, FUNC) \
+static PyObject * \
+_GMPy_MPFR_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
+{ \
+    MPFR_Object *result; \
+    CHECK_CONTEXT(context); \
+    if (!(result = GMPy_MPFR_New(0, context))) { \
+        return NULL; \
+    } \
+    mpfr_clear_flags(); \
+    result->rc = mpfr_##FUNC(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context)); \
+    GMPY_MPFR_CLEANUP(result, context, #FUNC"()"); \
+    return (PyObject*)result; \
+} \
+static PyObject * \
+GMPy_Real_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
+{ \
+    PyObject *result, *tempx, *tempy; \
+    CHECK_CONTEXT(context); \
+    tempx = (PyObject*)GMPy_MPFR_From_Real(x, 1, context); \
+    tempy = (PyObject*)GMPy_MPFR_From_Real(y, 1, context); \
+    if (!tempx || !tempy) { \
+        Py_XDECREF(tempx); \
+        Py_XDECREF(tempy); \
+        return NULL; \
+    } \
+    result = _GMPy_MPFR_##NAME(tempx, tempy, context); \
+    Py_DECREF(tempx); \
+    Py_DECREF(tempy); \
+    return result; \
+} \
+static PyObject * \
+GMPy_Number_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
+{ \
+    if (MPFR_Check(x) && MPFR_Check(y)) \
+        return _GMPy_MPFR_##NAME(x, y, context); \
     if (IS_REAL(x) && IS_REAL(y)) \
         return GMPy_Real_##NAME(x, y, context); \
     TYPE_ERROR(#FUNC"() argument type not supported"); \

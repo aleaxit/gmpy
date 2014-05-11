@@ -44,82 +44,121 @@
  */
 
 static PyObject *
-GMPy_Integer_Square(PyObject *x, CTXT_Object *context)
+_GMPy_MPZ_Square(PyObject *x, CTXT_Object *context)
 {
-    MPZ_Object *result = NULL, *tempx = NULL;
+    MPZ_Object *result = NULL;
 
-    result = GMPy_MPZ_New(context);
-    tempx = GMPy_MPZ_From_Integer(x, context);
-    if (!result || !tempx) {
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)tempx);
+    if (!(result = GMPy_MPZ_New(context))) {
         return NULL;
     }
 
-    mpz_mul(result->z, tempx->z, tempx->z);
-    Py_DECREF((PyObject*)tempx);
+    mpz_mul(result->z, MPZ(x), MPZ(x));
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPy_Integer_Square(PyObject *x, CTXT_Object *context)
+{
+    PyObject *result, *tempx;
+
+    if (!(tempx = (PyObject*)GMPy_MPZ_From_Integer(x, context))) {
+        return NULL;
+    }
+
+    result = _GMPy_MPZ_Square(tempx, context);
+    Py_DECREF(tempx);
+    return result;
+}
+
+static PyObject *
+_GMPy_MPQ_Square(PyObject *x, CTXT_Object *context)
+{
+    MPQ_Object *result;
+
+    if (!(result = GMPy_MPQ_New(context))) {
+        return NULL;
+    }
+
+    mpq_mul(result->q, MPQ(x), MPQ(x));
     return (PyObject*)result;
 }
 
 static PyObject *
 GMPy_Rational_Square(PyObject *x, CTXT_Object *context)
 {
-    MPQ_Object *result = NULL, *tempx = NULL;
+    PyObject *result, *tempx;
 
-    result = GMPy_MPQ_New(context);
-    tempx = GMPy_MPQ_From_Rational(x, context);
-    if (!result || !tempx) {
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)tempx);
+    if (!(tempx = (PyObject*)GMPy_MPQ_From_Rational(x, context))) {
         return NULL;
     }
 
-    mpq_mul(result->q, tempx->q, tempx->q);
-    Py_DECREF((PyObject*)tempx);
+    result = _GMPy_MPQ_Square(tempx, context);
+    Py_DECREF(tempx);
+    return result;
+}
+
+static PyObject *
+_GMPy_MPFR_Square(PyObject *x, CTXT_Object *context)
+{
+    MPFR_Object *result;
+
+    CHECK_CONTEXT(context);
+    
+    if (!(result = GMPy_MPFR_New(0, context))) {
+        return NULL;
+    }
+
+    mpfr_clear_flags();
+    mpfr_mul(result->f, MPFR(x), MPFR(x), GET_MPFR_ROUND(context));
+    GMPY_MPFR_CLEANUP(result, context, "square()");
     return (PyObject*)result;
 }
 
 static PyObject *
 GMPy_Real_Square(PyObject *x, CTXT_Object *context)
 {
-    MPFR_Object *result = NULL, *tempx = NULL;
+    PyObject *result, *tempx;
 
     CHECK_CONTEXT(context);
     
-    result = GMPy_MPFR_New(0, context);
-    tempx = GMPy_MPFR_From_Real(x, 1, context);
-    if (!result || !tempx) {
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)tempx);
+    if (!(tempx = (PyObject*)GMPy_MPFR_From_Real(x, 1, context))) {
         return NULL;
     }
 
-    mpfr_clear_flags();
-    mpfr_mul(result->f, tempx->f, tempx->f, GET_MPFR_ROUND(context));
-    Py_DECREF((PyObject*)tempx);
-    GMPY_MPFR_CLEANUP(result, context, "square()");
-    return (PyObject*)result;
+    result = _GMPy_MPFR_Square(tempx, context);
+    Py_DECREF(tempx);
+    return result;
 }
 
 static PyObject *
-GMPy_Complex_Square(PyObject *x, CTXT_Object *context)
+_GMPy_MPC_Square(PyObject *x, CTXT_Object *context)
 {
-    MPC_Object *result = NULL, *tempx = NULL;
+    MPC_Object *result;
 
     CHECK_CONTEXT(context);
 
-    result = GMPy_MPC_New(0, 0, context);
-    tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
-    if (!result || !tempx) {
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)tempx);
+    if (!(result = GMPy_MPC_New(0, 0, context))) {
         return NULL;
     }
 
-    mpc_mul(result->c, tempx->c, tempx->c, GET_MPC_ROUND(context));
-    Py_DECREF((PyObject*)tempx);
+    mpc_mul(result->c, MPC(x), MPC(x), GET_MPC_ROUND(context));
     GMPY_MPC_CLEANUP(result, context, "square()");
     return (PyObject*)result;
+}
+static PyObject *
+GMPy_Complex_Square(PyObject *x, CTXT_Object *context)
+{
+    PyObject *result, *tempx;
+
+    CHECK_CONTEXT(context);
+
+    if (!(tempx = (PyObject*)GMPy_MPC_From_Complex(x, 1, 1, context))) {
+        return NULL;
+    }
+
+    result = _GMPy_MPC_Square(tempx, context);
+    Py_DECREF(tempx);
+    return result;
 }
 
 PyDoc_STRVAR(GMPy_doc_function_square,
@@ -139,6 +178,18 @@ PyDoc_STRVAR(GMPy_doc_context_square,
 static PyObject *
 GMPy_Number_Square(PyObject *x, CTXT_Object *context)
 {
+    if (MPZ_Check(x))
+        return _GMPy_MPZ_Square(x, context);
+
+    if (MPQ_Check(x))
+        return _GMPy_MPQ_Square(x, context);
+
+    if (MPFR_Check(x))
+        return _GMPy_MPFR_Square(x, context);
+
+    if (MPC_Check(x))
+        return _GMPy_MPC_Square(x, context);
+        
     if (IS_INTEGER(x))
         return GMPy_Integer_Square(x, context);
 
