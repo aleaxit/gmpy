@@ -115,7 +115,6 @@ GMPy_Integer_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
         tempx = GMPy_MPZ_From_Integer(x, context);
         tempy = GMPy_MPZ_From_Integer(y, context);
         if (!tempx || !tempy) {
-            SYSTEM_ERROR("could not convert Integer to mpz");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
@@ -179,7 +178,6 @@ GMPy_Rational_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
         tempx = GMPy_MPQ_From_Rational(x, context);
         tempy = GMPy_MPQ_From_Rational(y, context);
         if (!tempx || !tempy) {
-            SYSTEM_ERROR("could not convert Rational to mpq");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
@@ -283,7 +281,6 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
             MPQ_Object *tempy;
 
             if (!(tempy = GMPy_MPQ_From_Number(y, context))) {
-                SYSTEM_ERROR("could not convert Rational or Decimal to mpq");
                 Py_DECREF((PyObject*)result);
                 return NULL;
             }
@@ -340,7 +337,6 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
             MPQ_Object *tempx;
 
             if (!(tempx = GMPy_MPQ_From_Number(x, context))) {
-                SYSTEM_ERROR("coud not convert Rational or Decimal to mpq");
                 Py_DECREF((PyObject*)result);
                 return NULL;
             }
