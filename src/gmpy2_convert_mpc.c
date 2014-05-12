@@ -554,6 +554,7 @@ GMPy_MPC_Int_Slot(PyObject *self)
  * coerce any number to a mpc
  */
 
+#if 0
 int
 GMPy_MPC_convert_arg(PyObject *arg, PyObject **ptr)
 {
@@ -568,6 +569,7 @@ GMPy_MPC_convert_arg(PyObject *arg, PyObject **ptr)
         return 0;
     }
 }
+#endif
 
 /* str and repr implementations for mpc */
 static PyObject *

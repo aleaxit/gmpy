@@ -349,8 +349,6 @@ static PyObject * Pympfr_get_exp(PyObject *self, PyObject *other);
 static PyObject * Pympfr_set_exp(PyObject *self, PyObject *args);
 static PyObject * Pympfr_set_sign(PyObject *self, PyObject *args);
 static PyObject * Pympfr_copy_sign(PyObject *self, PyObject *args);
-static PyObject * Pympfr_div_2exp(PyObject *self, PyObject *args);
-static PyObject * Pympfr_mul_2exp(PyObject *self, PyObject *args);
 static PyObject * Pympfr_set_nan(PyObject *self, PyObject *other);
 static PyObject * Pympfr_set_inf(PyObject *self, PyObject *args);
 static PyObject * Pympfr_set_zero(PyObject *self, PyObject *args);
