@@ -64,7 +64,9 @@ static PyObject *     GMPy_MPC_Str_Slot(MPC_Object *self);
 static PyObject *     GMPy_MPC_Repr_Slot(MPC_Object *self);
 
 /* Miscellaneous */
+#if 0
 static int            GMPy_MPC_convert_arg(PyObject *arg, PyObject **ptr);
+#endif
 
 #ifdef __cplusplus
 }

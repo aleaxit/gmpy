@@ -203,47 +203,6 @@ Pympany_is_zero(PyObject *self, PyObject *other)
     return NULL;
 }
 
-PyDoc_STRVAR(doc_mpany_div_2exp,
-"div_2exp(x, n) -> number\n\n"
-"Return 'mpfr' or 'mpc' divided by 2**n.");
-
-static PyObject *
-Pympany_div_2exp(PyObject *self, PyObject *args)
-{
-    if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("div_2exp() requires 2 arguments.");
-        return NULL;
-    }
-
-    if (IS_REAL(PyTuple_GET_ITEM(args, 0)))
-        return Pympfr_div_2exp(self, args);
-    if (IS_COMPLEX(PyTuple_GET_ITEM(args, 0)))
-        return Pympc_div_2exp(self, args);
-    TYPE_ERROR("div_2exp() argument types not supported");
-    return NULL;
-}
-
-PyDoc_STRVAR(doc_mpany_mul_2exp,
-"mul_2exp(x, n) -> number\n\n"
-"Return 'mpfr' or 'mpc' multiplied by 2**n.");
-
-static PyObject *
-Pympany_mul_2exp(PyObject *self, PyObject *args)
-{
-    if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("mul_2exp() requires 2 arguments.");
-        return NULL;
-    }
-
-    if (IS_REAL(PyTuple_GET_ITEM(args, 0)))
-        return Pympfr_mul_2exp(self, args);
-    if (IS_COMPLEX(PyTuple_GET_ITEM(args, 0)))
-        return Pympc_mul_2exp(self, args);
-    TYPE_ERROR("mul_2exp() argument types not supported");
-    return NULL;
-}
-
-
 /* COMPARING */
 
 static PyObject *_cmp_to_object(int c, int op)

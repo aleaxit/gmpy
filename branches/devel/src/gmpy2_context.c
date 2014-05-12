@@ -703,6 +703,7 @@ PyDoc_STRVAR(GMPy_doc_context,
 "    degrees(x)      convert value in radians to degrees\n"
 "    digamma(x)      return the digamma of x\n"
 "    div(x,y)        return x / y\n"
+"    div_mod(x,y)    return integer quotient and remainder\n"
 "    div_2exp(x,n)   return x / 2**n)\n"
 "    eint(x)         return exponential integral of x\n"
 "    erf(x)          return error function of x\n"
@@ -1257,6 +1258,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "digamma", GMPy_Context_Digamma, METH_O, GMPy_doc_context_digamma },
     { "div", GMPy_Context_TrueDiv, METH_VARARGS, GMPy_doc_context_truediv },
     { "div_mod", GMPy_Context_DivMod, METH_VARARGS, GMPy_doc_context_divmod },
+    { "div_2exp", GMPy_Context_Div_2exp, METH_VARARGS, GMPy_doc_context_div_2exp },
     { "eint", GMPy_Context_Eint, METH_O, GMPy_doc_context_eint },
     { "erf", GMPy_Context_Erf, METH_O, GMPy_doc_context_erf },
     { "erfc", GMPy_Context_Erfc, METH_O, GMPy_doc_context_erfc },
@@ -1283,6 +1285,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "minus", GMPy_Context_Minus, METH_VARARGS, GMPy_doc_context_minus },
     { "mod", GMPy_Context_Mod, METH_VARARGS, GMPy_doc_context_mod },
     { "mul", GMPy_Context_Mul, METH_VARARGS, GMPy_doc_context_mul },
+    { "mul_2exp", GMPy_Context_Mul_2exp, METH_VARARGS, GMPy_doc_context_mul_2exp },
     { "plus", GMPy_Context_Plus, METH_VARARGS, GMPy_doc_context_plus },
     { "pow", GMPy_Context_Pow, METH_VARARGS, GMPy_doc_context_pow },
     { "radians", GMPy_Context_Radians, METH_O, GMPy_doc_context_radians },

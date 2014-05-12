@@ -406,56 +406,6 @@ Pympfr_copy_sign(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static PyObject *
-Pympfr_div_2exp(PyObject *self, PyObject *args)
-{
-    MPFR_Object *result = 0;
-    unsigned long exp = 0;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    if (!PyArg_ParseTuple(args, "O&k", GMPy_MPFR_convert_arg, &self, &exp)) {
-        TYPE_ERROR("div_2exp() requires 'mpfr', 'integer' arguments");
-        return NULL;
-    }
-
-    if (!(result = GMPy_MPFR_New(0, context)))
-        return NULL;
-
-    mpfr_clear_flags();
-
-    result->rc = mpfr_div_2ui(MPFR(result), MPFR(self),
-                              exp, context->ctx.mpfr_round);
-
-    MPFR_CLEANUP_SELF("div_2exp()");
-}
-
-static PyObject *
-Pympfr_mul_2exp(PyObject *self, PyObject *args)
-{
-    MPFR_Object *result = 0;
-    unsigned long exp = 0;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    if (!PyArg_ParseTuple(args, "O&k", GMPy_MPFR_convert_arg, &self, &exp)) {
-        TYPE_ERROR("mul_2exp() requires 'mpfr', 'integer' arguments");
-        return NULL;
-    }
-
-    if (!(result = GMPy_MPFR_New(0, context)))
-        return NULL;
-
-    mpfr_clear_flags();
-
-    result->rc = mpfr_mul_2ui(MPFR(result), MPFR(self),
-                              exp, context->ctx.mpfr_round);
-
-    MPFR_CLEANUP_SELF("mul_2exp()");
-}
-
 PyDoc_STRVAR(doc_g_mpfr_set_nan,
 "nan() -> mpfr\n\n"
 "Return an 'mpfr' initialized to NaN (Not-A-Number).");

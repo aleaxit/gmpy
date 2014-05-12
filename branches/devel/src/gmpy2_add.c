@@ -475,7 +475,7 @@ GMPy_Number_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 
 /* Implement context.add() and gmpy2.add(). */
 
-PyDoc_STRVAR(GMPy_doc_add,
+PyDoc_STRVAR(GMPy_doc_function_add,
 "add(x, y) -> number\n\n"
 "Return x + y.");
 

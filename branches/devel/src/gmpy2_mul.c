@@ -440,10 +440,6 @@ GMPy_MPC_Mul_Slot(PyObject *x, PyObject *y)
     return GMPy_Complex_Mul(x, y, NULL);
 }
 
-PyDoc_STRVAR(GMPy_doc_mul,
-"mul(x, y) -> number\n\n"
-"Return x * y.");
-
 static PyObject *
 GMPy_Number_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 {
@@ -464,6 +460,10 @@ GMPy_Number_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 /* Implement context.add() and gmpy2.add(). */
+
+PyDoc_STRVAR(GMPy_doc_function_mul,
+"mul(x, y) -> number\n\n"
+"Return x * y.");
 
 PyDoc_STRVAR(GMPy_doc_context_mul,
 "context.mul(x, y) -> number\n\n"

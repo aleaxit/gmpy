@@ -546,57 +546,6 @@ Pympc_proj(PyObject *self, PyObject *other)
 
     MPC_CLEANUP(result, "proj()");
 }
-static PyObject *
-Pympc_div_2exp(PyObject *self, PyObject *args)
-{
-    MPC_Object *result = 0;
-    unsigned long exp = 0;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    if (!PyArg_ParseTuple(args, "O&k", GMPy_MPC_convert_arg, &self, &exp)) {
-        TYPE_ERROR("div_2exp() requires 'mpc', 'int' arguments");
-        return NULL;
-    }
-
-    if (!(result = GMPy_MPC_New(0, 0, context))) {
-        Py_DECREF(self);
-        return NULL;
-    }
-
-    result->rc = mpc_div_2ui(MPC(result), MPC(self),
-                              exp, GET_MPC_ROUND(context));
-    Py_DECREF(self);
-
-    MPC_CLEANUP(result, "div_2exp()");
-}
-
-static PyObject *
-Pympc_mul_2exp(PyObject *self, PyObject *args)
-{
-    MPC_Object *result = 0;
-    unsigned long exp = 0;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    if (!PyArg_ParseTuple(args, "O&k", GMPy_MPC_convert_arg, &self, &exp)) {
-        TYPE_ERROR("mul_2exp() requires 'mpc', 'int' arguments");
-        return NULL;
-    }
-
-    if (!(result = GMPy_MPC_New(0, 0, context))) {
-        Py_DECREF(self);
-        return NULL;
-    }
-
-    result->rc = mpc_mul_2ui(MPC(result), MPC(self),
-                             exp, GET_MPC_ROUND(context));
-    Py_DECREF(self);
-
-    MPC_CLEANUP(result, "mul_2exp()");
-}
 
 PyDoc_STRVAR(doc_mpc_sizeof,
 "x.__sizeof__()\n\n"

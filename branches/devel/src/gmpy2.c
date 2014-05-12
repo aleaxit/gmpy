@@ -547,6 +547,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_format.c"
 #include "gmpy2_hash.c"
 #include "gmpy2_fused.c"
+#include "gmpy2_muldiv_2exp.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
@@ -563,7 +564,7 @@ static PyMethodDef Pygmpy_methods [] =
 {
     { "_cvsid", GMPy_get_cvsid, METH_NOARGS, doc_cvsid },
     { "_printf", Pympany_printf, METH_VARARGS, doc_printf },
-    { "add", GMPy_Context_Add, METH_VARARGS, GMPy_doc_add },
+    { "add", GMPy_Context_Add, METH_VARARGS, GMPy_doc_function_add },
     { "bit_clear", GMPy_MPZ_bit_clear_function, METH_VARARGS, doc_bit_clear_function },
     { "bit_flip", GMPy_MPZ_bit_flip_function, METH_VARARGS, doc_bit_flip_function },
     { "bit_length", GMPy_MPZ_bit_length_function, METH_O, doc_bit_length_function },
@@ -643,7 +644,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "mpz_random", GMPY_mpz_random, METH_VARARGS, doc_mpz_random },
     { "mpz_rrandomb", GMPY_mpz_rrandomb, METH_VARARGS, doc_mpz_rrandomb },
     { "mpz_urandomb", GMPY_mpz_urandomb, METH_VARARGS, doc_mpz_urandomb },
-    { "mul", GMPy_Context_Mul, METH_VARARGS, GMPy_doc_mul },
+    { "mul", GMPy_Context_Mul, METH_VARARGS, GMPy_doc_function_mul },
     { "next_prime", Pympz_next_prime, METH_O, doc_next_primeg },
     { "numer", Pympq_numer, METH_VARARGS, doc_numerg },
     { "num_digits", Pympz_num_digits, METH_VARARGS, doc_num_digitsg },
@@ -699,7 +700,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "csch", GMPy_Context_Csch, METH_O, GMPy_doc_function_csch },
     { "degrees", GMPy_Context_Degrees, METH_O, GMPy_doc_function_degrees },
     { "digamma", GMPy_Context_Digamma, METH_O, GMPy_doc_function_digamma },
-    { "div_2exp", Pympany_div_2exp, METH_VARARGS, doc_mpany_div_2exp },
+    { "div_2exp", GMPy_Context_Div_2exp, METH_VARARGS, GMPy_doc_function_div_2exp },
     { "eint", GMPy_Context_Eint, METH_O, GMPy_doc_function_eint },
     { "erf", GMPy_Context_Erf, METH_O, GMPy_doc_function_erf },
     { "erfc", GMPy_Context_Erfc, METH_O, GMPy_doc_function_erfc },
@@ -756,7 +757,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "mpfr_from_old_binary", GMPy_MPFR_From_Old_Binary, METH_O, doc_mpfr_from_old_binary },
     { "mpfr_random", GMPY_mpfr_random, METH_VARARGS, doc_mpfr_random },
     { "mpfr_grandom", GMPY_mpfr_grandom, METH_VARARGS, doc_mpfr_grandom },
-    { "mul_2exp", Pympany_mul_2exp, METH_VARARGS, doc_mpany_mul_2exp },
+    { "mul_2exp", GMPy_Context_Mul_2exp, METH_VARARGS, GMPy_doc_function_mul_2exp },
     { "nan", Pympfr_set_nan, METH_NOARGS, doc_g_mpfr_set_nan },
     { "next_above", Pympfr_nextabove, METH_O, doc_g_mpfr_nextabove },
     { "next_below", Pympfr_nextbelow, METH_O, doc_g_mpfr_nextbelow },

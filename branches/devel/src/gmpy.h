@@ -320,6 +320,7 @@ typedef long                mpir_si;
 #include "gmpy2_format.h"
 #include "gmpy2_hash.h"
 #include "gmpy2_fused.h"
+#include "gmpy2_muldiv_2exp.h"
 
 #ifdef __cplusplus
 }
