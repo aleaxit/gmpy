@@ -1110,11 +1110,13 @@ GMPy_MPQ_From_DecimalRaw(PyObject* obj, CTXT_Object *context)
         goto error;
     }
 
+    fprintf(stderr, "here I am\n");
+    
     if (mpz_set_PyStr(mpq_numref(result->q), d_int, 10) == -1) {
         SYSTEM_ERROR("Cannot convert Decimal to mpq");
         goto error;
     }
-
+    
     exp = PyIntOrLong_AsSI(d_exp);
     if (exp == -1 && PyErr_Occurred()) {
         SYSTEM_ERROR("Decimal _exp is not valid or overflow occurred");

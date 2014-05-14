@@ -337,45 +337,6 @@ Pympc_nonzero(MPC_Object *self)
     return !MPC_IS_ZERO_P(self->c);
 }
 
-/* To work with the MPC_IS_ macros, NAN, INF, FINITE, and ZERO are
- * all upper-case.
- */
-
-#define MPC_TEST_OTHER(NAME, msg) \
-static PyObject * \
-Pympc_is_##NAME(PyObject *self, PyObject *other)\
-{\
-    CTXT_Object *context = NULL; \
-    CHECK_CONTEXT_SET_EXPONENT(context); \
-    if(self && MPC_Check(self)) {\
-        Py_INCREF(self);\
-    }\
-    else if(MPC_Check(other)) {\
-        self = other;\
-        Py_INCREF((PyObject*)self);\
-    }\
-    else if (!(self = (PyObject*)GMPy_MPC_From_Complex(other, 0, 0, context))) {\
-        PyErr_SetString(PyExc_TypeError, msg);\
-        return NULL;\
-    }\
-    if (MPC_IS_##NAME##_P(self)) {\
-        Py_DECREF(self);\
-        Py_RETURN_TRUE;\
-    }\
-    else {\
-        Py_DECREF(self);\
-        Py_RETURN_FALSE;\
-    }\
-}
-
-MPC_TEST_OTHER(NAN, "is_nan() requires 'mpc' argument");
-
-MPC_TEST_OTHER(INF, "is_infinite() requires 'mpc' argument");
-
-MPC_TEST_OTHER(FINITE, "is_finite() requires 'mpc' argument");
-
-MPC_TEST_OTHER(ZERO, "is_zero() requires 'mpc' argument");
-
 PyDoc_STRVAR(doc_mpc_phase,
 "phase(x) -> mpfr\n\n"
 "Return the phase angle, also known as argument, of a complex x.");
@@ -568,6 +529,10 @@ static PyMethodDef Pympc_methods[] =
     { "__sizeof__", Pympc_sizeof, METH_NOARGS, doc_mpc_sizeof },
     { "conjugate", Pympc_conjugate, METH_NOARGS, doc_mpc_conjugate },
     { "digits", GMPy_MPC_Digits_Method, METH_VARARGS, GMPy_doc_mpc_digits_method },
+    { "is_finite", GMPy_MPC_Is_Finite_Method, METH_NOARGS, GMPy_doc_method_is_finite },
+    { "is_infinite", GMPy_MPC_Is_Infinite_Method, METH_NOARGS, GMPy_doc_method_is_infinite },
+    { "is_nan", GMPy_MPC_Is_NAN_Method, METH_NOARGS, GMPy_doc_method_is_nan },
+    { "is_zero", GMPy_MPC_Is_Zero_Method, METH_NOARGS, GMPy_doc_method_is_zero },
     { NULL, NULL, 1 }
 };
 

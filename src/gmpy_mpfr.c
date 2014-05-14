@@ -534,20 +534,6 @@ Pympfr_is_##NAME(PyObject *self, PyObject *other) \
         Py_RETURN_FALSE; \
 }
 
-MPFR_TEST_OTHER(nan, "is_nan() requires 'mpfr' argument");
-
-MPFR_TEST_OTHER(inf, "is_infinite() requires 'mpfr' argument");
-
-PyDoc_STRVAR(doc_g_mpfr_is_number,
-"is_number(x) -> boolean\n\n"
-"Return True if x is an actual number (i.e. not NaN or Infinity);\n"
-"False otherwise.\n"
-"Note: is_number() is deprecated; please use is_finite().");
-
-MPFR_TEST_OTHER(number, "is_finite() requires 'mpfr' argument");
-
-MPFR_TEST_OTHER(zero, "is_zero() requires 'mpfr' argument");
-
 PyDoc_STRVAR(doc_g_mpfr_is_regular,
 "is_regular(x) -> boolean\n\n"
 "Return True if x is not zero, NaN, or Infinity; False otherwise.");
@@ -1746,7 +1732,11 @@ static PyMethodDef Pympfr_methods [] =
     { "as_simple_fraction", (PyCFunction)Pympfr_simple_fraction, METH_VARARGS | METH_KEYWORDS, doc_mpfr_simple_fraction },
     { "conjugate", Pympfr_conjugate, METH_NOARGS, doc_mpfr_conjugate },
     { "digits", GMPy_MPFR_Digits_Method, METH_VARARGS, GMPy_doc_mpfr_digits_method },
+    { "is_finite", GMPy_MPFR_Is_Finite_Method, METH_NOARGS, GMPy_doc_method_is_finite },
+    { "is_infinite", GMPy_MPFR_Is_Infinite_Method, METH_NOARGS, GMPy_doc_method_is_infinite },
     { "is_integer", Pympfr_is_integer, METH_NOARGS, doc_mpfr_is_integer },
+    { "is_nan", GMPy_MPFR_Is_NAN_Method, METH_NOARGS, GMPy_doc_method_is_nan },
+    { "is_zero", GMPy_MPFR_Is_Zero_Method, METH_NOARGS, GMPy_doc_method_is_zero },
     { NULL, NULL, 1 }
 };
 

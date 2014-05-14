@@ -27,7 +27,7 @@
 
 /* Miscellaneous module-level functions and helper functions. */
 
-PyDoc_STRVAR(doc_license,
+PyDoc_STRVAR(GMPy_doc_license,
 "license() -> string\n\n"
 "Return string giving license information.");
 
@@ -37,7 +37,7 @@ GMPy_get_license(PyObject *self, PyObject *args)
     return Py_BuildValue("s", gmpy_license);
 }
 
-PyDoc_STRVAR(doc_version,
+PyDoc_STRVAR(GMPy_doc_version,
 "version() -> string\n\n"
 "Return string giving current GMPY2 version.");
 
@@ -47,7 +47,7 @@ GMPy_get_version(PyObject *self, PyObject *args)
     return Py_BuildValue("s", gmpy_version);
 }
 
-PyDoc_STRVAR(doc_cvsid,
+PyDoc_STRVAR(GMPy_doc_cvsid,
 "_cvsid() -> string\n\n"
 "Return string giving current GMPY2 cvs Id.");
 
@@ -57,7 +57,7 @@ GMPy_get_cvsid(PyObject *self, PyObject *args)
     return Py_BuildValue("s", _gmpy_cvs);
 }
 
-PyDoc_STRVAR(doc_mp_version,
+PyDoc_STRVAR(GMPy_doc_mp_version,
 "mp_version() -> string\n\n"
 "Return string giving the name and version of the multiple precision\n"
 "library used.");
@@ -72,7 +72,7 @@ GMPy_get_mp_version(PyObject *self, PyObject *args)
 #endif
 }
 
-PyDoc_STRVAR(doc_mpfr_version,
+PyDoc_STRVAR(GMPy_doc_mpfr_version,
 "mpfr_version() -> string\n\n"
 "Return string giving current MPFR version.");
 
@@ -82,7 +82,7 @@ GMPy_get_mpfr_version(PyObject *self, PyObject *args)
     return Py2or3String_FromFormat("%s %s", "MPFR", MPFR_VERSION_STRING);
 }
 
-PyDoc_STRVAR(doc_mpc_version,
+PyDoc_STRVAR(GMPy_doc_mpc_version,
 "mpc_version() -> string\n\n"
 "Return string giving current MPC version.");
 
@@ -92,7 +92,7 @@ GMPy_get_mpc_version(PyObject *self, PyObject *args)
     return Py2or3String_FromFormat("%s %s", "MPC", MPC_VERSION_STRING);
 }
 
-PyDoc_STRVAR(doc_mp_limbsize,
+PyDoc_STRVAR(GMPy_doc_mp_limbsize,
 "mp_limbsize() -> integer\n\n\
 Return the number of bits per limb.");
 
@@ -106,7 +106,7 @@ GMPy_get_mp_limbsize(PyObject *self, PyObject *args)
  * access cache options
  */
 
-PyDoc_STRVAR(doc_get_cache,
+PyDoc_STRVAR(GMPy_doc_get_cache,
 "get_cache() -> (cache_size, object_size)\n\n\
 Return the current cache size (number of objects) and maximum size\n\
 per object (number of limbs) for all GMPY2 objects.");
@@ -117,7 +117,7 @@ GMPy_get_cache(PyObject *self, PyObject *args)
     return Py_BuildValue("(ii)", global.cache_size, global.cache_obsize);
 }
 
-PyDoc_STRVAR(doc_set_cache,
+PyDoc_STRVAR(GMPy_doc_set_cache,
 "set_cache(cache_size, object_size)\n\n\
 Set the current cache size (number of objects) and the maximum size\n\
 per object (number of limbs). Raises ValueError if cache size exceeds\n\
@@ -149,3 +149,60 @@ GMPy_set_cache(PyObject *self, PyObject *args)
     set_gmpympccache();
     Py_RETURN_NONE;
 }
+
+PyDoc_STRVAR(GMPy_doc_function_printf,
+"_printf(fmt, x) -> string\n\n"
+"Return a Python string by formatting 'x' using the format string\n"
+"'fmt'.\n\n"
+"WARNING: Invalid format strings will cause a crash. Please see the\n"
+"         GMP and MPFR manuals for details on the format code. 'mpc'\n"
+"         objects are not supported.");
+
+static PyObject *
+GMPy_printf(PyObject *self, PyObject *args)
+{
+    PyObject *result = NULL, *x = NULL;
+    char *buffer = NULL, *fmtcode = NULL;
+    void *generic;
+    int buflen;
+
+    if (!PyArg_ParseTuple(args, "sO", &fmtcode, &x))
+        return NULL;
+
+    if (CHECK_MPZANY(x) || MPQ_Check(x)) {
+        if (CHECK_MPZANY(x))
+            generic = MPZ(x);
+        else
+            generic = MPQ(x);
+        buflen = gmp_asprintf(&buffer, fmtcode, generic);
+        if (buflen < 0) {
+            VALUE_ERROR("_printf() could not format the 'mpz' or 'mpq' object");
+        }
+        else {
+            result = Py_BuildValue("s", buffer);
+            GMPY_FREE(buffer);
+        }
+        return result;
+    }
+    else if(MPFR_Check(x)) {
+        generic = MPFR(x);
+        buflen = mpfr_asprintf(&buffer, fmtcode, generic);
+        if (buflen < 0) {
+            VALUE_ERROR("_printf() could not format the 'mpfr' object");
+        }
+        else {
+            result = Py_BuildValue("s", buffer);
+            GMPY_FREE(buffer);
+        }
+        return result;
+    }
+    else if(MPC_Check(x)) {
+        TYPE_ERROR("_printf() does not support 'mpc'");
+        return NULL;
+    }
+    else {
+        TYPE_ERROR("_printf() argument type not supported");
+        return NULL;
+    }
+}
+
