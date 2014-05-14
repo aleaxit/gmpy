@@ -35,11 +35,6 @@ extern "C" {
 /* Forward declarations begin here. */
 
 static PyObject * Pympany_sign(PyObject *self, PyObject *other);
-static PyObject * Pympany_printf(PyObject *self, PyObject *args);
-static PyObject * Pympany_is_nan(PyObject *self, PyObject *other);
-static PyObject * Pympany_is_inf(PyObject *self, PyObject *other);
-static PyObject * Pympany_is_infinite(PyObject *self, PyObject *other);
-static PyObject * Pympany_is_zero(PyObject *self, PyObject *other);
 static PyObject * mpany_richcompare(PyObject *a, PyObject *b, int op);
 
 #ifdef __cplusplus

@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy2_misc.c                                                            *
+ * gmpy2_predicate.h                                                       *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -25,23 +25,31 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef GMPY_MISC_H
-#define GMPY_MISC_H
+#ifndef GMPY_PREDICATE_H
+#define GMPY_PREDICATE_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+static PyObject * GMPy_Real_Is_NAN(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_MPFR_Is_NAN_Method(PyObject *self, PyObject *args);
+static PyObject * GMPy_Complex_Is_NAN(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_MPC_Is_NAN_Method(PyObject *self, PyObject *args);
 
-static PyObject * GMPy_get_license(PyObject *self, PyObject *args);
-static PyObject * GMPy_get_version(PyObject *self, PyObject *args);
-static PyObject * GMPy_get_cvsid(PyObject *self, PyObject *args);
-static PyObject * GMPy_get_mp_version(PyObject *self, PyObject *args);
-static PyObject * GMPy_get_mpfr_version(PyObject *self, PyObject *args);
-static PyObject * GMPy_get_mpc_version(PyObject *self, PyObject *args);
-static PyObject * GMPy_get_mp_limbsize(PyObject *self, PyObject *args);
-static PyObject * GMPy_get_cache(PyObject *self, PyObject *args);
-static PyObject * GMPy_set_cache(PyObject *self, PyObject *args);
-static PyObject * GMPy_printf(PyObject *self, PyObject *args);
+static PyObject * GMPy_Real_Is_Infinite(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_MPFR_Is_Infinite_Method(PyObject *self, PyObject *args);
+static PyObject * GMPy_Complex_Is_Infinite(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_MPC_Is_Infinite_Method(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_Real_Is_Finite(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_MPFR_Is_Finite_Method(PyObject *self, PyObject *args);
+static PyObject * GMPy_Complex_Is_Finite(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_MPC_Is_Finite_Method(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_Real_Is_Zero(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_MPFR_Is_Zero_Method(PyObject *self, PyObject *args);
+static PyObject * GMPy_Complex_Is_Zero(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_MPC_Is_Zero_Method(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
 }

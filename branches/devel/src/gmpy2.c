@@ -548,6 +548,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_hash.c"
 #include "gmpy2_fused.c"
 #include "gmpy2_muldiv_2exp.c"
+#include "gmpy2_predicate.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
@@ -562,8 +563,8 @@ static PyObject *GMPyExc_Erange = NULL;
 
 static PyMethodDef Pygmpy_methods [] =
 {
-    { "_cvsid", GMPy_get_cvsid, METH_NOARGS, doc_cvsid },
-    { "_printf", Pympany_printf, METH_VARARGS, doc_printf },
+    { "_cvsid", GMPy_get_cvsid, METH_NOARGS, GMPy_doc_cvsid },
+    { "_printf", GMPy_printf, METH_VARARGS, GMPy_doc_function_printf },
     { "add", GMPy_Context_Add, METH_VARARGS, GMPy_doc_function_add },
     { "bit_clear", GMPy_MPZ_bit_clear_function, METH_VARARGS, doc_bit_clear_function },
     { "bit_flip", GMPy_MPZ_bit_flip_function, METH_VARARGS, doc_bit_flip_function },
@@ -600,7 +601,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "f_mod_2exp", GMPy_MPZ_f_mod_2exp, METH_VARARGS, doc_f_mod_2exp },
     { "gcd", Pygmpy_gcd, METH_VARARGS, doc_gcd },
     { "gcdext", Pygmpy_gcdext, METH_VARARGS, doc_gcdext },
-    { "get_cache", GMPy_get_cache, METH_NOARGS, doc_get_cache },
+    { "get_cache", GMPy_get_cache, METH_NOARGS, GMPy_doc_get_cache },
     { "hamdist", GMPy_MPZ_hamdist, METH_VARARGS, doc_hamdist },
     { "invert", Pygmpy_invert, METH_VARARGS, doc_invertg },
     { "isqrt", Pympz_isqrt, METH_O, doc_mpz_isqrt },
@@ -625,7 +626,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "kronecker", Pympz_kronecker, METH_VARARGS, doc_kroneckerg },
     { "lcm", Pygmpy_lcm, METH_VARARGS, doc_lcm },
     { "legendre", Pympz_legendre, METH_VARARGS, doc_legendreg },
-    { "license", GMPy_get_license, METH_NOARGS, doc_license },
+    { "license", GMPy_get_license, METH_NOARGS, GMPy_doc_license },
     { "lucas", Pygmpy_lucas, METH_O, doc_lucas },
     { "lucasu", GMPY_mpz_lucasu, METH_VARARGS, doc_mpz_lucasu },
     { "lucasu_mod", GMPY_mpz_lucasu_mod, METH_VARARGS, doc_mpz_lucasu_mod },
@@ -633,10 +634,10 @@ static PyMethodDef Pygmpy_methods [] =
     { "lucasv_mod", GMPY_mpz_lucasv_mod, METH_VARARGS, doc_mpz_lucasv_mod },
     { "lucas2", Pygmpy_lucas2, METH_O, doc_lucas2 },
     { "mod", GMPy_Context_Mod, METH_VARARGS, GMPy_doc_mod },
-    { "mp_version", GMPy_get_mp_version, METH_NOARGS, doc_mp_version },
-    { "mp_limbsize", GMPy_get_mp_limbsize, METH_NOARGS, doc_mp_limbsize },
-    { "mpc_version", GMPy_get_mpc_version, METH_NOARGS, doc_mpc_version },
-    { "mpfr_version", GMPy_get_mpfr_version, METH_NOARGS, doc_mpfr_version },
+    { "mp_version", GMPy_get_mp_version, METH_NOARGS, GMPy_doc_mp_version },
+    { "mp_limbsize", GMPy_get_mp_limbsize, METH_NOARGS, GMPy_doc_mp_limbsize },
+    { "mpc_version", GMPy_get_mpc_version, METH_NOARGS, GMPy_doc_mpc_version },
+    { "mpfr_version", GMPy_get_mpfr_version, METH_NOARGS, GMPy_doc_mpfr_version },
     { "mpq", (PyCFunction)Pygmpy_mpq, METH_VARARGS | METH_KEYWORDS, doc_mpq },
     { "mpq_from_old_binary", GMPy_MPQ_From_Old_Binary, METH_O, doc_mpq_from_old_binary },
     { "mpz", (PyCFunction)Pygmpy_mpz, METH_VARARGS | METH_KEYWORDS, doc_mpz },
@@ -656,7 +657,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "iroot", Pympz_iroot, METH_VARARGS, doc_mpz_iroot },
     { "iroot_rem", Pympz_iroot_rem, METH_VARARGS, doc_mpz_iroot_rem },
     { "random_state", GMPY_random_state, METH_VARARGS, doc_random_state },
-    { "set_cache", GMPy_set_cache, METH_VARARGS, doc_set_cache },
+    { "set_cache", GMPy_set_cache, METH_VARARGS, GMPy_doc_set_cache },
     { "sign", Pympany_sign, METH_O, doc_g_mpany_sign },
     { "square", GMPy_Context_Square, METH_O, GMPy_doc_function_square },
     { "sub", GMPy_Context_Sub, METH_VARARGS, GMPy_doc_sub },
@@ -668,7 +669,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "t_mod", GMPy_MPZ_t_mod, METH_VARARGS, doc_t_mod },
     { "t_mod_2exp", GMPy_MPZ_t_mod_2exp, METH_VARARGS, doc_t_mod_2exp },
     { "unpack", GMPy_MPZ_unpack, METH_VARARGS, doc_unpack },
-    { "version", GMPy_get_version, METH_NOARGS, doc_version },
+    { "version", GMPy_get_version, METH_NOARGS, GMPy_doc_version },
     { "xbit_mask", Pyxmpz_xbit_mask, METH_O, doc_xbit_maskg },
     { "xmpz", (PyCFunction)Pygmpy_xmpz, METH_VARARGS | METH_KEYWORDS, doc_xmpz },
     { "_mpmath_normalize", Pympz_mpmath_normalize, METH_VARARGS, doc_mpmath_normalizeg },
@@ -726,17 +727,15 @@ static PyMethodDef Pygmpy_methods [] =
     { "hypot", GMPy_Context_Hypot, METH_VARARGS, GMPy_doc_function_hypot },
     { "ieee", GMPy_CTXT_ieee, METH_O, GMPy_doc_context_ieee },
     { "inf", Pympfr_set_inf, METH_VARARGS, doc_g_mpfr_set_inf },
-    { "is_finite", Pympany_is_finite, METH_O, doc_mpany_is_finite },
-    { "is_inf", Pympany_is_inf, METH_O, doc_mpany_is_inf },
-    { "is_infinite", Pympany_is_infinite, METH_O, doc_mpany_is_infinite },
+    { "is_finite", GMPy_Context_Is_Finite, METH_O, GMPy_doc_function_is_finite },
+    { "is_infinite", GMPy_Context_Is_Infinite, METH_O, GMPy_doc_function_is_infinite },
     { "is_integer", Pympfr_is_integer, METH_O, doc_g_mpfr_is_integer },
     { "is_lessgreater", Pympfr_is_lessgreater, METH_VARARGS, doc_g_mpfr_is_lessgreater },
-    { "is_nan", Pympany_is_nan, METH_O, doc_mpany_is_nan },
-    { "is_number", Pympfr_is_number, METH_O, doc_g_mpfr_is_number },
+    { "is_nan", GMPy_Context_Is_NAN, METH_O, GMPy_doc_function_is_nan },
     { "is_regular", Pympfr_is_regular, METH_O, doc_g_mpfr_is_regular },
     { "is_signed", Pympfr_is_signed, METH_O, doc_g_mpfr_is_signed },
     { "is_unordered", Pympfr_is_unordered, METH_VARARGS, doc_g_mpfr_is_unordered },
-    { "is_zero", Pympany_is_zero, METH_O, doc_mpany_is_zero },
+    { "is_zero", GMPy_Context_Is_Zero, METH_O, GMPy_doc_function_is_zero },
     { "jn", Pympfr_jn, METH_VARARGS, doc_g_mpfr_jn },
     { "j0", GMPy_Context_J0, METH_O, GMPy_doc_function_j0 },
     { "j1", GMPy_Context_J1, METH_O, GMPy_doc_function_j1 },

@@ -672,7 +672,8 @@ PyDoc_STRVAR(GMPy_doc_context,
 "    rational_division: if True, mpz/mpz returns an mpq\n"
 "                       if False, mpz/mpz follows default behavior\n"
 "    guard_bits:        added to precision for temporary objects that\n"
-"                          can't be converted exactly\n"
+"                       can't be converted exactly\n");
+#if 0
 "\nMethods\n"
 "    abs(x)          return absolute value of x\n"
 "    acos(x)         return inverse cosine of x\n"
@@ -720,6 +721,10 @@ PyDoc_STRVAR(GMPy_doc_context,
 "    fsum(i)         return accurate sum of iterable i\n"
 "    gamma(x)        return gamma of x\n"
 "    hypot(y,x)      return square root of (x**2 + y**2)\n"
+"    is_finite(x)    return True if x is finite\n"
+"    is_infinite(x)\n"
+"    is_nan(x)\n"
+"    is_zero(x)\n"
 "    j0(x)           return Bessel of first kind of order 0 of x\n"
 "    j1(x)           return Bessel of first kind of order 1 of x\n"
 "    jn(x,n)         return Bessel of first kind of order n of x\n"
@@ -769,7 +774,8 @@ PyDoc_STRVAR(GMPy_doc_context,
 "    y0(x)           return Bessel of second kind of order 0 of x\n"
 "    y1(x)           return Bessel of second kind of order 1 of x\n"
 "    yn(x,n)         return Bessel of second kind of order n of x\n"
-"    zeta(x)         return Riemann zeta of x");
+"    zeta(x)         return Riemann zeta of x"
+#endif
 
 static PyObject *
 GMPy_CTXT_Context(PyObject *self, PyObject *args, PyObject *kwargs)
@@ -1272,6 +1278,10 @@ static PyMethodDef GMPyContext_methods[] =
     { "frac", GMPy_Context_Frac, METH_O, GMPy_doc_context_frac },
     { "gamma", GMPy_Context_Gamma, METH_O, GMPy_doc_context_gamma },
     { "hypot", GMPy_Context_Hypot, METH_VARARGS, GMPy_doc_context_hypot },
+    { "is_finite", GMPy_Context_Is_Finite, METH_O, GMPy_doc_context_is_finite },
+    { "is_infinite", GMPy_Context_Is_Infinite, METH_O, GMPy_doc_context_is_infinite },
+    { "is_nan", GMPy_Context_Is_NAN, METH_O, GMPy_doc_context_is_nan },
+    { "is_zero", GMPy_Context_Is_Zero, METH_O, GMPy_doc_context_is_zero },
     { "j0", GMPy_Context_J0, METH_O, GMPy_doc_context_j0 },
     { "j1", GMPy_Context_J1, METH_O, GMPy_doc_context_j1 },
     { "li2", GMPy_Context_Li2, METH_O, GMPy_doc_context_li2 },
