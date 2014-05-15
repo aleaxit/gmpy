@@ -122,33 +122,6 @@ Pygmpy_mpq(PyObject *self, PyObject *args, PyObject *keywds)
 
 /* Functions that operate strictly on mpq. */
 
-/* Since Pympq_sign() is called by Pympany_sign(), we know that 'other' is
- * a Rational type.
- */
-
-static PyObject *
-Pympq_sign(PyObject *self, PyObject *other)
-{
-    long res;
-    MPQ_Object* tempx;
-    CTXT_Object *context = NULL;
-
-    if (MPQ_Check(other)) {
-        res = mpq_sgn(MPQ(other));
-    }
-    else {
-        if (!(tempx = GMPy_MPQ_From_Number(other, context))) {
-            TYPE_ERROR("sign() requires 'mpq' argument");
-            return NULL;
-        }
-        else {
-            res = mpq_sgn(tempx->q);
-            Py_DECREF((PyObject*)tempx);
-        }
-    }
-    return PyIntOrLong_FromLong(res);
-}
-
 PyDoc_STRVAR(doc_numerg,
 "numer(x) -> mpz\n\n"
 "Return the numerator of x.");

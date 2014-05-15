@@ -1110,8 +1110,6 @@ GMPy_MPQ_From_DecimalRaw(PyObject* obj, CTXT_Object *context)
         goto error;
     }
 
-    fprintf(stderr, "here I am\n");
-    
     if (mpz_set_PyStr(mpq_numref(result->q), d_int, 10) == -1) {
         SYSTEM_ERROR("Cannot convert Decimal to mpq");
         goto error;

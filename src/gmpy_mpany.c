@@ -26,38 +26,6 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
-/* Generic module-level methods for gmpy types.
- *
- * These methods are designed to accept any number type as input and call
- * the appropriate type-specific method. For example, gmpy2.digits(n) will
- * call gmpy2.mpz(n).digits() if n is an integer, gmpy2.mpq(n).digits() if
- * n is a rational, or gmpy2.mpf(n).digits() is n is a float.
- */
-
-/* gmpy_sign is only intended to be used at the module level!
- * gmpy_sign uses the METH_O/METH_NOARGS calling convention!
- * gmpy_sign assumes mpX_sign also use the METH_O/METH_NOARGS convention!
- */
-
-PyDoc_STRVAR(doc_g_mpany_sign,
-"sign(x) -> number\n\n"
-"Return -1 if x < 0, 0 if x == 0, or +1 if x >0.");
-
-static PyObject *
-Pympany_sign(PyObject *self, PyObject *other)
-{
-    if (IS_INTEGER(other))
-        return Pympz_sign(self, other);
-    else if (IS_RATIONAL(other))
-        return Pympq_sign(self, other);
-    else if (IS_REAL(other))
-        return Pympfr_sign(self, other);
-
-    TYPE_ERROR("sign() argument type not supported");
-    return NULL;
-}
-
-/* COMPARING */
 
 static PyObject *_cmp_to_object(int c, int op)
 {

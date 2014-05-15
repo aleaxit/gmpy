@@ -223,6 +223,16 @@ typedef struct {
     GMPY_MPFR_SUBNORMALIZE(V, CTX); \
     GMPY_MPFR_EXCEPTIONS(V, CTX, NAME); \
 
+#define GMPY_CHECK_ERANGE(V, CTX, NAME) \
+    CTX->ctx.erange |= mpfr_erangeflag_p(); \
+    if (CTX->ctx.traps) { \
+        if ((CTX->ctx.traps & TRAP_ERANGE) && mpfr_erangeflag_p()) { \
+            GMPY_ERANGE(NAME" range error"); \
+            Py_XDECREF((PyObject*)V); \
+            V = NULL; \
+        } \
+    } \
+
 #define MPFR_CHECK_FLAGS(mpfrt, NAME) \
     CHECK_DIVBY0(mpfrt, "'mpfr' division by zero in "NAME); \
     CHECK_INVALID(mpfrt, "'mpfr' invalid operation in "NAME); \
@@ -357,7 +367,6 @@ static PyObject * Pympfr_mantissa_exp(PyObject *self, PyObject *args);
 static PyObject * Pympfr_simple_fraction(PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject * Pympfr_root(PyObject *self, PyObject *args);
 static PyObject * Pympfr_reldiff(PyObject *self, PyObject *args);
-static PyObject * Pympfr_sign(PyObject *self, PyObject *other);
 static PyObject * Pympfr_ceil(PyObject *self, PyObject *other);
 static PyObject * Pympfr_floor(PyObject *self, PyObject *other);
 static PyObject * Pympfr_trunc(PyObject *self, PyObject *other);

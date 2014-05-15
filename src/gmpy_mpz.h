@@ -48,7 +48,6 @@ static PyObject * Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject * Pympz_num_digits(PyObject *self, PyObject *args);
 static PyObject * Pympz_iroot(PyObject *self, PyObject *args);
 static PyObject * Pympz_iroot_rem(PyObject *self, PyObject *args);
-static PyObject * Pympz_sign(PyObject *self, PyObject *other);
 static PyObject * Pympz_ceil(PyObject *self, PyObject *other);
 static PyObject * Pympz_floor(PyObject *self, PyObject *other);
 static PyObject * Pympz_round(PyObject *self, PyObject *other);
