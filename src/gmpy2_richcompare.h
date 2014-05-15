@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_mpany.h                                                            *
+ * gmpy2_richcompare.h                                                     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -25,8 +25,8 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef GMPY_MPANY_H
-#define GMPY_MPANY_H
+#ifndef GMPY_RICHCOMPARE_H
+#define GMPY_RICHCOMPARE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,7 +34,7 @@ extern "C" {
 
 /* Forward declarations begin here. */
 
-static PyObject * mpany_richcompare(PyObject *a, PyObject *b, int op);
+static PyObject * GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op);
 
 #ifdef __cplusplus
 }

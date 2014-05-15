@@ -501,10 +501,6 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_convert_mpfr.c"
 #include "gmpy2_convert_mpc.c"
 
-/* Include the module-level methods that call the type-specific methods. */
-
-#include "gmpy_mpany.c"
-
 /* Support for random numbers. */
 
 #include "gmpy_random.c"
@@ -550,12 +546,12 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_muldiv_2exp.c"
 #include "gmpy2_predicate.c"
 #include "gmpy2_sign.c"
+#include "gmpy2_richcompare.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
 #include "gmpy_mpz.c"
 #include "gmpy_xmpz.c"
-
 #include "gmpy_mpq.c"
 #include "gmpy_mpfr.c"
 #include "gmpy_mpc.c"

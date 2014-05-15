@@ -281,10 +281,6 @@ typedef long                mpir_si;
 
 #include "gmpy2_misc.h"
 
-/* Support operations other than those in gmpy_basic. */
-
-#include "gmpy_mpany.h"
-
 /* Support conversion to/from binary format. */
 
 #include "gmpy2_binary.h"
@@ -323,6 +319,7 @@ typedef long                mpir_si;
 #include "gmpy2_muldiv_2exp.h"
 #include "gmpy2_predicate.h"
 #include "gmpy2_sign.h"
+#include "gmpy2_richcompare.h"
 
 #ifdef __cplusplus
 }
