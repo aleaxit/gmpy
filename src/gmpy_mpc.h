@@ -482,12 +482,12 @@ static PyTypeObject MPC_Type;
     }
 
 static PyObject * GMPy_MPC_Factory(PyObject *self, PyObject *args, PyObject *kwargs);
-static PyObject * Pympc_conjugate(PyObject *self, PyObject *args);
-static PyObject * Pympc_getprec_attrib(MPC_Object *self, void *closure);
-static PyObject * Pympc_getrc_attrib(MPC_Object *self, void *closure);
-static PyObject * Pympc_getimag_attrib(MPC_Object *self, void *closure);
-static PyObject * Pympc_getreal_attrib(MPC_Object *self, void *closure);
-static int        Pympc_nonzero(MPC_Object *self);
+static PyObject * GMPy_MPC_Conjugate_Method(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPC_GetPrec_Attrib(MPC_Object *self, void *closure);
+static PyObject * GMPy_MPC_GetRc_Attrib(MPC_Object *self, void *closure);
+static PyObject * GMPy_MPC_GetImag_Attrib(MPC_Object *self, void *closure);
+static PyObject * GMPy_MPC_GetReal_Attrib(MPC_Object *self, void *closure);
+static int        GMPy_MPC_NonZero_Slot(MPC_Object *self);
 static PyObject * Pympc_phase(PyObject *self, PyObject *other);
 static PyObject * Pympc_norm(PyObject *self, PyObject *other);
 static PyObject * Pympc_polar(PyObject *self, PyObject *other);

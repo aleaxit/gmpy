@@ -254,36 +254,32 @@ GMPy_MPC_Factory(PyObject *self, PyObject *args, PyObject *kwargs)
 
 /* Implement the conjugate() method. */
 
-PyDoc_STRVAR(doc_mpc_conjugate,
+PyDoc_STRVAR(GMPy_doc_mpc_conjugate_method,
 "x.conjugate() -> mpc\n\n"
 "Returns the conjugate of x.");
 
 static PyObject *
-Pympc_conjugate(PyObject *self, PyObject *args)
+GMPy_MPC_Conjugate_Method(PyObject *self, PyObject *args)
 {
     MPC_Object *result;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    PARSE_ONE_MPC_ARGS("conjugate() requires 'mpc' argument");
+    CHECK_CONTEXT(context);
 
     if (!(result = GMPy_MPC_New(0, 0, context))) {
-        Py_DECREF(self);
         return NULL;
     }
 
-    result->rc = mpc_conj(result->c, MPC(self),
-                          GET_MPC_ROUND(context));
-    Py_DECREF(self);
+    result->rc = mpc_conj(result->c, MPC(self), GET_MPC_ROUND(context));
 
-    MPC_CLEANUP(result, "conjugate()");
+    GMPY_MPC_CLEANUP(result, context, "conjugate()");
+    return (PyObject*)result;
 }
 
 /* Implement the .precision attribute of an mpfr. */
 
 static PyObject *
-Pympc_getprec_attrib(MPC_Object *self, void *closure)
+GMPy_MPC_GetPrec_Attrib(MPC_Object *self, void *closure)
 {
     mpfr_prec_t rprec = 0, iprec = 0;
 
@@ -294,7 +290,7 @@ Pympc_getprec_attrib(MPC_Object *self, void *closure)
 /* Implement the .rc attribute of an mpfr. */
 
 static PyObject *
-Pympc_getrc_attrib(MPC_Object *self, void *closure)
+GMPy_MPC_GetRc_Attrib(MPC_Object *self, void *closure)
 {
     return Py_BuildValue("(ii)", MPC_INEX_RE(self->rc), MPC_INEX_IM(self->rc));
 }
@@ -302,37 +298,41 @@ Pympc_getrc_attrib(MPC_Object *self, void *closure)
 /* Implement the .imag attribute of an mpfr. */
 
 static PyObject *
-Pympc_getimag_attrib(MPC_Object *self, void *closure)
+GMPy_MPC_GetImag_Attrib(MPC_Object *self, void *closure)
 {
-    MPFR_Object *result;
+    MPFR_Object *result = NULL;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
-    if ((result = GMPy_MPFR_New(0, context)))
-        mpc_imag(result->f, self->c, context->ctx.mpfr_round);
+    if ((result = GMPy_MPFR_New(0, context))) {
+        result->rc = mpc_imag(result->f, self->c, GET_MPFR_ROUND(context));
+        GMPY_MPFR_CLEANUP(result, context, "imag()");
+    }
     return (PyObject*)result;
 }
 
 /* Implement the .real attribute of an mpfr. */
 
 static PyObject *
-Pympc_getreal_attrib(MPC_Object *self, void *closure)
+GMPy_MPC_GetReal_Attrib(MPC_Object *self, void *closure)
 {
-    MPFR_Object *result;
+    MPFR_Object *result = NULL;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
-    if ((result = GMPy_MPFR_New(0, context)))
-        mpc_real(result->f, self->c, context->ctx.mpfr_round);
+    if ((result = GMPy_MPFR_New(0, context))) {
+        result->rc = mpc_real(result->f, self->c, context->ctx.mpfr_round);
+        GMPY_MPFR_CLEANUP(result, context, "real()");
+    }
     return (PyObject*)result;
 }
 
 /* Implement the nb_bool slot. */
 
 static int
-Pympc_nonzero(MPC_Object *self)
+GMPy_MPC_NonZero_Slot(MPC_Object *self)
 {
     return !MPC_IS_ZERO_P(self->c);
 }
@@ -508,12 +508,12 @@ Pympc_proj(PyObject *self, PyObject *other)
     MPC_CLEANUP(result, "proj()");
 }
 
-PyDoc_STRVAR(doc_mpc_sizeof,
+PyDoc_STRVAR(GMPy_doc_mpc_sizeof_method,
 "x.__sizeof__()\n\n"
 "Returns the amount of memory consumed by x.");
 
 static PyObject *
-Pympc_sizeof(PyObject *self, PyObject *other)
+GMPy_MPC_SizeOf_Method(PyObject *self, PyObject *other)
 {
     return PyIntOrLong_FromSize_t(sizeof(MPC_Object) + \
         (((mpc_realref(MPC(self))->_mpfr_prec + mp_bits_per_limb - 1) / \
@@ -524,10 +524,10 @@ Pympc_sizeof(PyObject *self, PyObject *other)
 
 static PyMethodDef Pympc_methods[] =
 {
-    { "__complex__", GMPy_PyComplex_From_MPC, METH_O, doc_mpc_complex },
+    { "__complex__", GMPy_PyComplex_From_MPC, METH_O, GMPy_doc_mpc_complex },
     { "__format__", GMPy_MPC_Format, METH_VARARGS, GMPy_doc_mpc_format },
-    { "__sizeof__", Pympc_sizeof, METH_NOARGS, doc_mpc_sizeof },
-    { "conjugate", Pympc_conjugate, METH_NOARGS, doc_mpc_conjugate },
+    { "__sizeof__", GMPy_MPC_SizeOf_Method, METH_NOARGS, GMPy_doc_mpc_sizeof_method },
+    { "conjugate", GMPy_MPC_Conjugate_Method, METH_NOARGS, GMPy_doc_mpc_conjugate_method },
     { "digits", GMPy_MPC_Digits_Method, METH_VARARGS, GMPy_doc_mpc_digits_method },
     { "is_finite", GMPy_MPC_Is_Finite_Method, METH_NOARGS, GMPy_doc_method_is_finite },
     { "is_infinite", GMPy_MPC_Is_Infinite_Method, METH_NOARGS, GMPy_doc_method_is_infinite },
@@ -549,7 +549,7 @@ static PyNumberMethods mpc_number_methods =
     (unaryfunc) GMPy_MPC_Minus_Slot,     /* nb_negative             */
     (unaryfunc) GMPy_MPC_Plus_Slot,      /* nb_positive             */
     (unaryfunc) GMPy_MPC_Abs_Slot,       /* nb_absolute             */
-    (inquiry) Pympc_nonzero,             /* nb_bool                 */
+    (inquiry) GMPy_MPC_NonZero_Slot,     /* nb_bool                 */
         0,                               /* nb_invert               */
         0,                               /* nb_lshift               */
         0,                               /* nb_rshift               */
@@ -588,7 +588,7 @@ static PyNumberMethods mpc_number_methods =
     (unaryfunc) GMPy_MPC_Minus_Slot,     /* nb_negative             */
     (unaryfunc) GMPy_MPC_Plus_Slot,      /* nb_positive             */
     (unaryfunc) GMPy_MPC_Abs_Slot,       /* nb_absolute             */
-    (inquiry) Pympc_nonzero,             /* nb_bool                 */
+    (inquiry) GMPy_MPC_NonZero_Slot,     /* nb_bool                 */
         0,                               /* nb_invert               */
         0,                               /* nb_lshift               */
         0,                               /* nb_rshift               */
@@ -621,10 +621,10 @@ static PyNumberMethods mpc_number_methods =
 
 static PyGetSetDef Pympc_getseters[] =
 {
-    {"precision", (getter)Pympc_getprec_attrib, NULL, "precision in bits", NULL},
-    {"rc", (getter)Pympc_getrc_attrib, NULL, "return code", NULL},
-    {"imag", (getter)Pympc_getimag_attrib, NULL, "imaginary component", NULL},
-    {"real", (getter)Pympc_getreal_attrib, NULL, "real component", NULL},
+    {"precision", (getter)GMPy_MPC_GetPrec_Attrib, NULL, "precision in bits", NULL},
+    {"rc", (getter)GMPy_MPC_GetRc_Attrib, NULL, "return code", NULL},
+    {"imag", (getter)GMPy_MPC_GetImag_Attrib, NULL, "imaginary component", NULL},
+    {"real", (getter)GMPy_MPC_GetReal_Attrib, NULL, "real component", NULL},
     {NULL}
 };
 
