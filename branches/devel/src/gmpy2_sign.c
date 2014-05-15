@@ -74,7 +74,7 @@ GMPy_Real_Sign(PyObject *x, CTXT_Object *context)
         sign = mpfr_sgn(tempx->f);
         Py_DECREF((PyObject*)tempx);
         result = PyIntOrLong_FromLong(sign);
-        GMPY_CHECK_ERANGE(result, context, "sign()");
+        GMPY_CHECK_ERANGE(result, context, "sign() of invalid value (NaN)");
         return result;
     }
 }

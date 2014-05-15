@@ -1752,7 +1752,7 @@ static PyTypeObject MPFR_Type =
     "Multiple precision real",              /* tp_doc           */
         0,                                  /* tp_traverse      */
         0,                                  /* tp_clear         */
-    (richcmpfunc)&mpany_richcompare,        /* tp_richcompare   */
+    (richcmpfunc)&GMPy_RichCompare_Slot,    /* tp_richcompare   */
         0,                                  /* tp_weaklistoffset*/
         0,                                  /* tp_iter          */
         0,                                  /* tp_iternext      */

@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_mpany.c                                                            *
+ * gmpy2_richcompare.c                                                     *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -43,16 +43,15 @@ static PyObject *_cmp_to_object(int c, int op)
     return result;
 }
 static PyObject *
-mpany_richcompare(PyObject *a, PyObject *b, int op)
+GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
 {
     int c, overflow;
     mpir_si temp_si;
     mpz_t tempz;
-    PyObject *tempa = 0, *tempb = 0;
-    PyObject *result = 0;
+    PyObject *tempa = NULL, *tempb = NULL, *result = NULL;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (CHECK_MPZANY(a)) {
         if (PyIntOrLong_Check(b)) {
@@ -72,9 +71,9 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(mpz_cmp(MPZ(a), MPZ(b)), op);
         }
         if (IS_INTEGER(b)) {
-            tempb = (PyObject*)GMPy_MPZ_From_Integer(b, context);
-            if (!tempb)
+            if (!(tempb = (PyObject*)GMPy_MPZ_From_Integer(b, context))) {
                 return NULL;
+            }
             c = mpz_cmp(MPZ(a), MPZ(tempb));
             Py_DECREF(tempb);
             return _cmp_to_object(c, op);
@@ -149,7 +148,9 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(mpq_cmp(MPQ(a), MPQ(b)), op);
         }
         if (IS_RATIONAL(b)) {
-            tempb = (PyObject*)GMPy_MPQ_From_Rational(b, context);
+            if (!(tempb = (PyObject*)GMPy_MPQ_From_Rational(b, context))) {
+                return NULL;
+            }
             c = mpq_cmp(MPQ(a), MPQ(tempb));
             Py_DECREF(tempb);
             return _cmp_to_object(c, op);
@@ -168,9 +169,9 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
                     return _cmp_to_object(-1, op);
             }
             else {
-                tempb = (PyObject*)GMPy_MPQ_New(context);
-                if (!tempb)
+                if (!(tempb = (PyObject*)GMPy_MPQ_New(context))) {
                     return NULL;
+                }
                 mpq_set_d(MPQ(tempb), d);
                 c = mpq_cmp(MPQ(a), MPQ(tempb));
                 Py_DECREF(tempb);
@@ -178,8 +179,9 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_DECIMAL(b)) {
-            if (!(tempb = (PyObject*)GMPy_MPQ_From_Decimal(b, context)))
+            if (!(tempb = (PyObject*)GMPy_MPQ_From_Decimal(b, context))) {
                 return NULL;
+            }
             if (!mpz_cmp_si(mpq_denref(MPQ(tempb)), 0)) {
                 if (!mpz_cmp_si(mpq_numref(MPQ(tempb)), 0)) {
                     result = (op == Py_NE) ? Py_True : Py_False;
@@ -243,9 +245,9 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_INTEGER(b)) {
-            tempb = (PyObject*)GMPy_MPZ_From_Integer(b, context);
-            if (!tempb)
+            if (!(tempb = (PyObject*)GMPy_MPZ_From_Integer(b, context)))  {
                 return NULL;
+            }
             mpfr_clear_flags();
             c = mpfr_cmp_z(MPFR(a), MPZ(tempb));
             Py_DECREF(tempb);
@@ -265,9 +267,9 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_RATIONAL(b)) {
-            tempb = (PyObject*)GMPy_MPQ_From_Rational(b, context);
-            if (!tempb)
+            if (!(tempb = (PyObject*)GMPy_MPQ_From_Rational(b, context))) {
                 return NULL;
+            }
             mpfr_clear_flags();
             c = mpfr_cmp_q(MPFR(a), MPQ(tempb));
             Py_DECREF(tempb);
@@ -287,9 +289,9 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_DECIMAL(b)) {
-            tempb = (PyObject*)GMPy_MPQ_From_Decimal(b, context);
-            if (!tempb)
+            if (!(tempb = (PyObject*)GMPy_MPQ_From_Decimal(b, context))) {
                 return NULL;
+            }
             if (!mpz_cmp_si(mpq_denref(MPQ(tempb)), 0)) {
                 if (!mpz_cmp_si(mpq_numref(MPQ(tempb)), 0)) {
                     context->ctx.erange = 1;
@@ -332,9 +334,9 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (IS_REAL(b)) {
-            tempb = (PyObject*)GMPy_MPFR_From_Real(b, 1, context);
-            if (!tempb)
+            if (!(tempb = (PyObject*)GMPy_MPFR_From_Real(b, 1, context))) {
                 return NULL;
+            }
             mpfr_clear_flags();
             c = mpfr_cmp(MPFR(a), MPFR(tempb));
             Py_DECREF(tempb);
@@ -379,13 +381,12 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             }
         }
         if (PyComplex_Check(b)) {
-            MPC_Object *tempmpc;
-
-            if (!(tempmpc = GMPy_MPC_From_PyComplex(b, 53, 53, context)))
+            if (!(tempb = (PyObject*)GMPy_MPC_From_PyComplex(b, 1, 1, context))) {
                 return NULL;
+            }
             mpfr_clear_flags();
-            c = mpc_cmp(MPC(a), MPC(tempmpc));
-            Py_DECREF((PyObject*)tempmpc);
+            c = mpc_cmp(MPC(a), MPC(tempb));
+            Py_DECREF(tempb);
             if (mpfr_erangeflag_p()) {
                 /* Set erange and check if an exception should be raised. */
                 context->ctx.erange = 1;
@@ -416,14 +417,12 @@ mpany_richcompare(PyObject *a, PyObject *b, int op)
             return result;
         }
         else {
-            MPFR_Object *tempmpfr;
-
-            tempmpfr = GMPy_MPFR_New(mpfr_get_prec(mpc_realref(MPC(a))), context);
-            if (!tempmpfr)
+            if (!(tempb = (PyObject*)GMPy_MPFR_New(mpfr_get_prec(mpc_realref(MPC(a))), context))) {
                 return NULL;
-            mpc_real(tempmpfr->f, MPC(a), GET_MPFR_ROUND(context));
-            result = mpany_richcompare((PyObject*)tempmpfr, b, op);
-            Py_DECREF((PyObject*)tempmpfr);
+            }
+            mpc_real(MPFR(tempb), MPC(a), GET_MPFR_ROUND(context));
+            result = GMPy_RichCompare_Slot(tempb, b, op);
+            Py_DECREF(tempb);
             return result;
         }
     }

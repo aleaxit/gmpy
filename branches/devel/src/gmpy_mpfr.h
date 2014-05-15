@@ -223,11 +223,11 @@ typedef struct {
     GMPY_MPFR_SUBNORMALIZE(V, CTX); \
     GMPY_MPFR_EXCEPTIONS(V, CTX, NAME); \
 
-#define GMPY_CHECK_ERANGE(V, CTX, NAME) \
+#define GMPY_CHECK_ERANGE(V, CTX, MSG) \
     CTX->ctx.erange |= mpfr_erangeflag_p(); \
     if (CTX->ctx.traps) { \
         if ((CTX->ctx.traps & TRAP_ERANGE) && mpfr_erangeflag_p()) { \
-            GMPY_ERANGE(NAME" range error"); \
+            GMPY_ERANGE(MSG); \
             Py_XDECREF((PyObject*)V); \
             V = NULL; \
         } \
