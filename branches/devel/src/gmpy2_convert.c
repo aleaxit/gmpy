@@ -123,7 +123,7 @@ mpz_set_PyStr(mpz_ptr z, PyObject *s, int base)
     for (i = 0; i < len; i++) {
         if (cp[i] == '\0') {
             VALUE_ERROR("string contains NULL characters");
-            Py_DECREF(ascii_str);
+            Py_XDECREF(ascii_str);
             return -1;
         }
     }
@@ -148,14 +148,14 @@ mpz_set_PyStr(mpz_ptr z, PyObject *s, int base)
         else if (cp[1] =='o' && base == 8)  { cp += 2; }
         else if (cp[1] =='x' && base == 16) { cp += 2; }
     }
-
+    
     /* delegate rest to GMP's _set_str function */
     if (-1 == mpz_set_str(z, cp, base)) {
         VALUE_ERROR("invalid digits");
-        Py_DECREF(ascii_str);
+        Py_XDECREF(ascii_str);
         return -1;
     }
-    Py_DECREF(ascii_str);
+    Py_XDECREF(ascii_str);
     return 1;
 }
 
