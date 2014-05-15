@@ -549,6 +549,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_fused.c"
 #include "gmpy2_muldiv_2exp.c"
 #include "gmpy2_predicate.c"
+#include "gmpy2_sign.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
@@ -658,7 +659,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "iroot_rem", Pympz_iroot_rem, METH_VARARGS, doc_mpz_iroot_rem },
     { "random_state", GMPY_random_state, METH_VARARGS, doc_random_state },
     { "set_cache", GMPy_set_cache, METH_VARARGS, GMPy_doc_set_cache },
-    { "sign", Pympany_sign, METH_O, doc_g_mpany_sign },
+    { "sign", GMPy_Context_Sign, METH_O, GMPy_doc_function_sign },
     { "square", GMPy_Context_Square, METH_O, GMPy_doc_function_square },
     { "sub", GMPy_Context_Sub, METH_VARARGS, GMPy_doc_sub },
     { "to_binary", GMPy_MPANY_To_Binary, METH_O, doc_to_binary },

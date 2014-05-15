@@ -857,30 +857,6 @@ Pympfr_reldiff(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-static PyObject *
-Pympfr_sign(PyObject *self, PyObject *other)
-{
-    long sign;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    PARSE_ONE_MPFR_OTHER("sign() requires 'mpfr' argument");
-
-    mpfr_clear_flags();
-    sign = mpfr_sgn(MPFR(self));
-
-    MERGE_FLAGS;
-    CHECK_ERANGE("range error in 'mpfr' sign(), NaN argument");
-
-  done:
-    Py_DECREF((PyObject*)self);
-    if (PyErr_Occurred())
-        return NULL;
-    else
-        return PyIntOrLong_FromLong(sign);
-}
-
 #define MPFR_MONOP(NAME) \
 static PyObject * \
 Py##NAME(MPFR_Object *x) \

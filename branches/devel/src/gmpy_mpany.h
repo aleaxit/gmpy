@@ -34,7 +34,6 @@ extern "C" {
 
 /* Forward declarations begin here. */
 
-static PyObject * Pympany_sign(PyObject *self, PyObject *other);
 static PyObject * mpany_richcompare(PyObject *a, PyObject *b, int op);
 
 #ifdef __cplusplus

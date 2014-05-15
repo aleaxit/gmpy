@@ -213,32 +213,6 @@ Pympz_iroot_rem(PyObject *self, PyObject *args)
     return result;
 }
 
-static PyObject *
-Pympz_sign(PyObject *self, PyObject *other)
-{
-    long res;
-    MPZ_Object* tempx;
-    CTXT_Object *context = NULL;
-
-    if (self && (CHECK_MPZANY(self))) {
-        res = mpz_sgn(MPZ(self));
-    }
-    else if (CHECK_MPZANY(other)) {
-        res = mpz_sgn(MPZ(other));
-    }
-    else {
-        if (!(tempx = GMPy_MPZ_From_Integer(other, context))) {
-            TYPE_ERROR("sign() requires 'mpz' argument");
-            return NULL;
-        }
-        else {
-            res = mpz_sgn(tempx->z);
-            Py_DECREF((PyObject*)tempx);
-        }
-    }
-    return PyIntOrLong_FromLong(res);
-}
-
 PyDoc_STRVAR(doc_mpz_ceil, "Ceiling of an mpz returns itself.");
 
 static PyObject *
