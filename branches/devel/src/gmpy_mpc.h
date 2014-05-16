@@ -488,11 +488,6 @@ static PyObject * GMPy_MPC_GetRc_Attrib(MPC_Object *self, void *closure);
 static PyObject * GMPy_MPC_GetImag_Attrib(MPC_Object *self, void *closure);
 static PyObject * GMPy_MPC_GetReal_Attrib(MPC_Object *self, void *closure);
 static int        GMPy_MPC_NonZero_Slot(MPC_Object *self);
-static PyObject * Pympc_phase(PyObject *self, PyObject *other);
-static PyObject * Pympc_norm(PyObject *self, PyObject *other);
-static PyObject * Pympc_polar(PyObject *self, PyObject *other);
-static PyObject * Pympc_rect(PyObject *self, PyObject *args);
-static PyObject * Pympc_proj(PyObject *self, PyObject *other);
 
 #ifdef __cplusplus
 }
