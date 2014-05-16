@@ -547,6 +547,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_predicate.c"
 #include "gmpy2_sign.c"
 #include "gmpy2_richcompare.c"
+#include "gmpy2_mpc_misc.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
@@ -792,11 +793,11 @@ static PyMethodDef Pygmpy_methods [] =
 
     { "mpc", (PyCFunction)GMPy_MPC_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_mpc_factory },
     { "mpc_random", GMPY_mpc_random, METH_VARARGS, doc_mpc_random },
-    { "norm", Pympc_norm, METH_O, doc_mpc_norm },
-    { "polar", Pympc_polar, METH_O, doc_mpc_polar },
-    { "phase", Pympc_phase, METH_O, doc_mpc_phase },
-    { "proj", Pympc_proj, METH_O, doc_mpc_proj },
-    { "rect", Pympc_rect, METH_VARARGS, doc_mpc_rect },
+    { "norm", GMPy_Context_Norm, METH_O, GMPy_doc_function_norm },
+    { "polar", GMPy_Context_Polar, METH_O, GMPy_doc_function_polar },
+    { "phase", GMPy_Context_Phase, METH_O, GMPy_doc_function_phase },
+    { "proj", GMPy_Context_Proj, METH_O, GMPy_doc_function_proj },
+    { "rect", GMPy_Context_Rect, METH_VARARGS, GMPy_doc_function_rect },
     { NULL, NULL, 1}
 };
 

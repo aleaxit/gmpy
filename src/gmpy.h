@@ -320,6 +320,7 @@ typedef long                mpir_si;
 #include "gmpy2_predicate.h"
 #include "gmpy2_sign.h"
 #include "gmpy2_richcompare.h"
+#include "gmpy2_mpc_misc.h"
 
 #ifdef __cplusplus
 }
