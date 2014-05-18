@@ -44,19 +44,23 @@ extern "C" {
 typedef struct {
     PyObject_HEAD
     gmp_randstate_t state;
-} GMPYRandomStateObject;
+} RandomState_Object;
 
-static PyTypeObject GMPYRandomState_Type;
-#define PyObj_AS_STATE(obj) (((GMPYRandomStateObject *)(obj))->state)
-#define GMPYRandomState_Check(v) (((PyObject*)v)->ob_type == &GMPYRandomState_Type)
+static PyTypeObject RandomState_Type;
+#define RANDOM_STATE(obj) (((RandomState_Object *)(obj))->state)
+#define RandomState_Check(v) (((PyObject*)v)->ob_type == &RandomState_Type)
 
-static GMPYRandomStateObject * GMPYRandomState_New(void);
-static void GMPYRandomState_Dealloc(GMPYRandomStateObject *self);
-static PyObject * GMPYRandomState_Repr(GMPYRandomStateObject *self);
-static PyObject * GMPY_random_state(PyObject *self, PyObject *args);
-static PyObject * GMPY_mpz_urandomb(PyObject *self, PyObject *args);
-static PyObject * GMPY_mpz_rrandomb(PyObject *self, PyObject *args);
-static PyObject * GMPY_mpz_random(PyObject *self, PyObject *args);
+static RandomState_Object * GMPy_RandomState_New(void);
+static void                 GMPy_RandomState_Dealloc(RandomState_Object *self);
+
+static PyObject * GMPy_RandomState_Repr(RandomState_Object *self);
+static PyObject * GMPy_RandomState_Factory(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_urandomb_Function(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_rrandomb_Function(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_random_Function(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPFR_random_Function(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPFR_grandom_Function(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPC_random_Function(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
 }
