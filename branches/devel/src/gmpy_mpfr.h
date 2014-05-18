@@ -344,7 +344,6 @@ static PyTypeObject MPFR_Type;
 #define MPFR(obj) (((MPFR_Object *)(obj))->f)
 #define MPFR_Check(v) (((PyObject*)v)->ob_type == &MPFR_Type)
 
-static PyObject * Pympfr_f2q(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPFR_Factory(PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject * Pympfr_getprec_attrib(MPFR_Object *self, void *closure);
 static PyObject * Pympfr_getrc_attrib(MPFR_Object *self, void *closure);
@@ -352,19 +351,6 @@ static PyObject * Pympfr_getimag_attrib(MPFR_Object *self, void *closure);
 static PyObject * Pympfr_getreal_attrib(MPFR_Object *self, void *closure);
 static int Pympfr_nonzero(MPFR_Object *self);
 static PyObject * Pympfr_conjugate(PyObject *self, PyObject *args);
-static PyObject * Pympfr_get_emin_min(PyObject *self, PyObject *args);
-static PyObject * Pympfr_get_emax_max(PyObject *self, PyObject *args);
-static PyObject * Pympfr_get_max_precision(PyObject *self, PyObject *args);
-static PyObject * Pympfr_get_exp(PyObject *self, PyObject *other);
-static PyObject * Pympfr_set_exp(PyObject *self, PyObject *args);
-static PyObject * Pympfr_set_sign(PyObject *self, PyObject *args);
-static PyObject * Pympfr_copy_sign(PyObject *self, PyObject *args);
-static PyObject * Pympfr_is_signed(PyObject *self, PyObject *other);
-static PyObject * Pympfr_is_regular(PyObject *self, PyObject *other);
-static PyObject * Pympfr_is_integer(PyObject *self, PyObject *other);
-static PyObject * Pympfr_integer_ratio(PyObject *self, PyObject *args);
-static PyObject * Pympfr_mantissa_exp(PyObject *self, PyObject *args);
-static PyObject * Pympfr_simple_fraction(PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject * Pympfr_root(PyObject *self, PyObject *args);
 static PyObject * Pympfr_reldiff(PyObject *self, PyObject *args);
 static PyObject * Pympfr_ceil(PyObject *self, PyObject *other);

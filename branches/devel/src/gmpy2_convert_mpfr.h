@@ -65,7 +65,7 @@ static PyObject *       GMPy_MPFR_Float_Slot(MPFR_Object *self);
 
 /* Miscellaneous */
 static int              GMPy_MPFR_convert_arg(PyObject *arg, PyObject **ptr);
-static MPQ_Object *     stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz, CTXT_Object *context);
+static PyObject *       stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz, CTXT_Object *context);
 
 static PyObject *       mpfr_ascii(mpfr_t self, int base, int digits, int round);
 

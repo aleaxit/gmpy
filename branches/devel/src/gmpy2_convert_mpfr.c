@@ -509,10 +509,10 @@ GMPy_XMPZ_From_MPFR(MPFR_Object *self, CTXT_Object *context)
  * the precision of 'self'.
  */
 
-static MPQ_Object *
+static PyObject *
 stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz, CTXT_Object *context)
 {
-    MPQ_Object *result = 0;
+    PyObject *result = NULL;
     int i, negative, errsign;
     mpfr_t f, al, a, r1[3], r2[3], minerr, curerr, newerr, temp;
 
@@ -542,8 +542,9 @@ stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz, CT
         return NULL;
     }
 
-    if (!(result = GMPy_MPQ_New(context)))
+    if (!(result = (PyObject*)GMPy_MPQ_New(context))) {
         return NULL;
+    }
 
     mpfr_init2(minerr, F2Q_PREC);
     if (errsign <= 0) {
@@ -605,17 +606,17 @@ stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz, CT
     }
 
     if (mayz && (mpfr_cmp_ui(r1[2],1) == 0)) {
-        Py_DECREF((PyObject*)result);
-        result = (MPQ_Object*)GMPy_MPZ_New(context);
+        Py_DECREF(result);
+        result = (PyObject*)GMPy_MPZ_New(context);
         mpfr_get_z(MPZ(result), r2[2], MPFR_RNDN);
         if (negative)
             mpz_neg(MPZ(result), MPZ(result));
     }
     else {
-        mpfr_get_z(mpq_numref(result->q), r2[2], MPFR_RNDN);
-        mpfr_get_z(mpq_denref(result->q), r1[2], MPFR_RNDN);
+        mpfr_get_z(mpq_numref(MPQ(result)), r2[2], MPFR_RNDN);
+        mpfr_get_z(mpq_denref(MPQ(result)), r1[2], MPFR_RNDN);
         if (negative)
-            mpz_neg(mpq_numref(result->q), mpq_numref(result->q));
+            mpz_neg(mpq_numref(MPQ(result)), mpq_numref(MPQ(result)));
     }
 
     mpfr_clear(minerr);
@@ -635,7 +636,7 @@ stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz, CT
 static MPQ_Object *
 GMPy_MPQ_From_MPFR(MPFR_Object *self, CTXT_Object *context)
 {
-    return stern_brocot((MPFR_Object*)self, 0, 0, 0, context);
+    return (MPQ_Object*)stern_brocot((MPFR_Object*)self, 0, 0, 0, context);
 }
 
 static PyObject *

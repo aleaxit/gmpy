@@ -548,6 +548,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_sign.c"
 #include "gmpy2_richcompare.c"
 #include "gmpy2_mpc_misc.c"
+#include "gmpy2_mpfr_misc.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
@@ -707,7 +708,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "expm1", GMPy_Context_Expm1, METH_O, GMPy_doc_function_expm1 },
     { "exp10", GMPy_Context_Exp10, METH_O, GMPy_doc_function_exp10 },
     { "exp2", GMPy_Context_Exp2, METH_O, GMPy_doc_function_exp2 },
-    { "f2q", Pympfr_f2q, METH_VARARGS, doc_g_mpfr_f2q },
+    { "f2q", GMPy_Context_F2Q, METH_VARARGS, GMPy_doc_function_f2q },
     { "factorial", Pympfr_factorial, METH_O, doc_g_mpfr_factorial },
     { "floor", Pympfr_floor, METH_O, doc_g_mpfr_floor },
     { "fma", GMPy_Context_FMA, METH_VARARGS, GMPy_doc_function_fma },
