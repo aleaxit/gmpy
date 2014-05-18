@@ -503,37 +503,6 @@ SI_From_Integer(PyObject *obj)
 
 /* Working with C unsigned long. */
 
-static mpir_ui
-UI_From_Integer(PyObject *obj)
-{
-    if (PyLong_Check(obj)) {
-        return PyLong_AsUnsignedLong(obj);
-    }
-#ifdef PY2
-    if (PyInt_Check(obj)) {
-        long temp = PyInt_AsLong(obj);
-        /* Create an OverflowError for negative values. */
-        if (temp < 0) {
-            OVERFLOW_ERROR("can't convert negative value to unsigned int");
-            return (mpir_ui)-1;
-        }
-        return temp;
-    }
-#endif
-    else if (CHECK_MPZANY(obj)) {
-        if (mpz_fits_ulong_p(MPZ(obj))) {
-            return mpz_get_ui(MPZ(obj));
-        }
-        else {
-            OVERFLOW_ERROR("overflow in UI_From_Integer");
-            return (mpir_ui)-1;
-        }
-    }
-    TYPE_ERROR("conversion error in UI_From_Integer");
-    return (mpir_ui)-1;
-}
-
-#define MP_BITCNT_FROM_INTEGER(obj) UI_From_Integer(obj)
 #define PyLong_AsSIAndOverflow(a,b) PyLong_AsLongAndOverflow(a,b)
 
 #else
