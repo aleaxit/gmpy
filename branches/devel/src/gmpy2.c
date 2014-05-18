@@ -503,7 +503,7 @@ static PyObject *GMPyExc_Erange = NULL;
 
 /* Support for random numbers. */
 
-#include "gmpy_random.c"
+#include "gmpy2_random.c"
 
 /* Support for Lucas sequences. */
 
@@ -555,7 +555,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy_xmpz.c"
 #include "gmpy_mpq.c"
 #include "gmpy_mpfr.c"
-#include "gmpy_mpc.c"
+#include "gmpy2_mpc.c"
 
 #include "gmpy2_context.c"
 

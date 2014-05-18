@@ -365,7 +365,7 @@ GMPy_Complex_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     if (!(result = GMPy_MPC_New(0, 0, context)))
         return NULL;
 
-    if (MPC_CheckAndExp(x) && MPC_CheckAndExp(y)) {
+    if (MPC_Check(x) && MPC_Check(y)) {
         if (MPC_IS_ZERO_P(y)) {
             context->ctx.divzero = 1;
             if (context->ctx.traps & TRAP_DIVZERO) {

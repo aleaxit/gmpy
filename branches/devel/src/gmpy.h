@@ -263,7 +263,7 @@ typedef long                mpir_si;
 #  error gmpy2 requires MPFR 3.1.0 or later
 #endif
 
-#include "gmpy_mpc.h"
+#include "gmpy2_mpc.h"
 #if MPC_VERSION < 0x010000
 #  error gmpy2 requires MPC 1.0.0 or later
 #endif
@@ -287,7 +287,7 @@ typedef long                mpir_si;
 
 /* Support random number generators. */
 
-#include "gmpy_random.h"
+#include "gmpy2_random.h"
 
 /* Support Lucas sequences. */
 

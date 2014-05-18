@@ -412,9 +412,8 @@ GMPy_Complex_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     if (!(result = GMPy_MPC_New(0, 0, context)))
         return NULL;
 
-    if (MPC_CheckAndExp(x) && MPC_CheckAndExp(y)) {
-        result->rc = mpc_add(result->c, MPC(x), MPC(y),
-                             GET_MPC_ROUND(context));
+    if (MPC_Check(x) && MPC_Check(y)) {
+        result->rc = mpc_add(result->c, MPC(x), MPC(y), GET_MPC_ROUND(context));
         goto done;
     }
 
