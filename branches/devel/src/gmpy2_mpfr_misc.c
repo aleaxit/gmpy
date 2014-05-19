@@ -92,61 +92,63 @@ GMPy_Context_F2Q(PyObject *self, PyObject *args)
     }
 }
 
-PyDoc_STRVAR(doc_g_mpfr_get_emin_min,
+PyDoc_STRVAR(GMPy_doc_mpfr_get_emin_min,
 "get_emin_min() -> integer\n\n"
 "Return the minimum possible exponent that can be set for 'mpfr'.");
 
 static PyObject *
-Pympfr_get_emin_min(PyObject *self, PyObject *args)
+GMPy_MPFR_get_emin_min(PyObject *self, PyObject *args)
 {
     return PyIntOrLong_FromSsize_t((Py_ssize_t)mpfr_get_emin_min());
 }
 
-PyDoc_STRVAR(doc_g_mpfr_get_emax_max,
+PyDoc_STRVAR(GMPy_doc_mpfr_get_emax_max,
 "get_emax_max() -> integer\n\n"
 "Return the maximum possible exponent that can be set for 'mpfr'.");
 
 static PyObject *
-Pympfr_get_emax_max(PyObject *self, PyObject *args)
+GMPy_MPFR_get_emax_max(PyObject *self, PyObject *args)
 {
     return PyIntOrLong_FromSsize_t((Py_ssize_t)mpfr_get_emax_max());
 }
 
-PyDoc_STRVAR(doc_g_mpfr_get_max_precision,
+PyDoc_STRVAR(GMPy_doc_mpfr_get_max_precision,
 "get_max_precision() -> integer\n\n"
 "Return the maximum bits of precision that can be used for calculations.\n"
 "Note: to allow extra precision for intermediate calculations, avoid\n"
 "setting precision close the maximum precision.");
 
 static PyObject *
-Pympfr_get_max_precision(PyObject *self, PyObject *args)
+GMPy_MPFR_get_max_precision(PyObject *self, PyObject *args)
 {
     return PyIntOrLong_FromSsize_t((Py_ssize_t)MPFR_PREC_MAX);
 }
 
-PyDoc_STRVAR(doc_g_mpfr_get_exp,
+PyDoc_STRVAR(GMPy_doc_mpfr_get_exp,
 "get_exp(mpfr) -> integer\n\n"
 "Return the exponent of an mpfr. Returns 0 for NaN or Infinity and\n"
 "sets the erange flag and will raise an exception if trap_erange\n"
 "is set.");
 
 static PyObject *
-Pympfr_get_exp(PyObject *self, PyObject *other)
+GMPy_MPFR_get_exp(PyObject *self, PyObject *other)
 {
-    PyObject *result = 0;
+    PyObject *result = NULL;
     Py_ssize_t exp;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
-    PARSE_ONE_MPFR_OTHER("get_exp() requires 'mpfr' argument");
-
-    if (mpfr_regular_p(MPFR(self))) {
-        exp = (Py_ssize_t)mpfr_get_exp(MPFR(self));
-        result = PyIntOrLong_FromSsize_t((Py_ssize_t)exp);
+    if (!(MPFR_Check(other))) {
+        TYPE_ERROR("get_exp() requires 'mpfr' argument");
+        return NULL;
     }
-    else if (mpfr_zero_p(MPFR(self))) {
-        Py_DECREF(self);
+
+    if (mpfr_regular_p(MPFR(other))) {
+        exp = (Py_ssize_t)mpfr_get_exp(MPFR(other));
+        result = PyIntOrLong_FromSsize_t(exp);
+    }
+    else if (mpfr_zero_p(MPFR(other))) {
         result = PyIntOrLong_FromSsize_t(0);
     }
     else {
@@ -158,11 +160,10 @@ Pympfr_get_exp(PyObject *self, PyObject *other)
             result = PyIntOrLong_FromSsize_t(0);
         }
     }
-    Py_DECREF(self);
     return result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_set_exp,
+PyDoc_STRVAR(GMPy_doc_mpfr_set_exp,
 "set_exp(mpfr, n) -> mpfr\n\n"
 "Set the exponent of an mpfr to n. If n is outside the range of\n"
 "valid exponents, set_exp() will set the erange flag and either\n"
@@ -170,31 +171,49 @@ PyDoc_STRVAR(doc_g_mpfr_set_exp,
 "is set.");
 
 static PyObject *
-Pympfr_set_exp(PyObject *self, PyObject *args)
+GMPy_MPFR_set_exp(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     PyObject *temp;
-    long exp = 0;
+    mpfr_exp_t _oldemin, _oldemax, exp;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
-    if (!PyArg_ParseTuple(args, "O!l", &MPFR_Type, &temp, &exp)) {
+    if (PyTuple_GET_SIZE(args) != 2 ||
+        !MPFR_Check(PyTuple_GET_ITEM(args, 0)) ||
+        !PyIntOrLong_Check(PyTuple_GET_ITEM(args, 1))) {
         TYPE_ERROR("set_exp() requires 'mpfr', 'integer' arguments");
         return NULL;
     }
 
-    if (!(result = GMPy_MPFR_New(mpfr_get_prec(MPFR(temp)), context)))
+    temp = PyTuple_GET_ITEM(args, 0);
+    exp = (mpfr_exp_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(args, 1));
+    if (exp == -1 && PyErr_Occurred()) {
+        VALUE_ERROR("exponent too large");
         return NULL;
+    }
+    
+    if (!(result = GMPy_MPFR_New(mpfr_get_prec(MPFR(temp)), context))) {
+        return NULL;
+    }
+    
+    _oldemin = mpfr_get_emin();
+    _oldemax = mpfr_get_emax();
+    mpfr_set_emin(context->ctx.emin);
+    mpfr_set_emax(context->ctx.emax);
 
     mpfr_set(MPFR(result), MPFR(temp), GET_MPFR_ROUND(context));
     result->rc = mpfr_set_exp(MPFR(result), exp);
+    
+    mpfr_set_emin(_oldemin);
+    mpfr_set_emax(_oldemax);
 
     if (result->rc) {
         context->ctx.erange = 1;
         if (context->ctx.traps & TRAP_ERANGE) {
-            GMPY_ERANGE("New exponent is out-of-bounds.");
-            Py_DECREF(result);
+            GMPY_ERANGE("new exponent is out-of-bounds");
+            Py_DECREF((PyObject*)result);
             return NULL;
         }
     }
@@ -202,42 +221,33 @@ Pympfr_set_exp(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_set_sign,
+PyDoc_STRVAR(GMPy_doc_mpfr_set_sign,
 "set_sign(mpfr, bool) -> mpfr\n\n"
 "If 'bool' is True, then return an 'mpfr' with the sign bit set.");
 
 static PyObject *
-Pympfr_set_sign(PyObject *self, PyObject *args)
+GMPy_MPFR_set_sign(PyObject *self, PyObject *args)
 {
-    MPFR_Object *result = 0;
-    PyObject *boolean = 0;
-    int s;
+    MPFR_Object *result;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
-    if (!PyArg_ParseTuple(args, "O&O", GMPy_MPFR_convert_arg, &self, &boolean)) {
+    if (PyTuple_GET_SIZE(args) != 2 ||
+        !MPFR_Check(PyTuple_GET_ITEM(args, 0)) ||
+        !PyIntOrLong_Check(PyTuple_GET_ITEM(args, 1))) {
         TYPE_ERROR("set_sign() requires 'mpfr', 'boolean' arguments");
         return NULL;
     }
-
-    if (!(result = GMPy_MPFR_New(0, context)))
-        return NULL;
-
-    s = PyObject_IsTrue(boolean);
-    if (s == -1) {
-        TYPE_ERROR("set_sign() requires 'mpfr', 'boolean' arguments");
-        Py_DECREF(self);
-        Py_DECREF(boolean);
-        Py_DECREF(result);
+    
+    if (!(result = GMPy_MPFR_New(0, context))) {
         return NULL;
     }
 
-    result->rc = mpfr_setsign(MPFR(result), MPFR(self),
-                              s, context->ctx.mpfr_round);
+    result->rc = mpfr_setsign(MPFR(result), MPFR(PyTuple_GET_ITEM(args, 0)),
+                              PyObject_IsTrue(PyTuple_GET_ITEM(args, 1)),
+                              GET_MPFR_ROUND(context));
 
-    Py_DECREF(self);
-    Py_DECREF(boolean);
     return (PyObject*)result;
 }
 
