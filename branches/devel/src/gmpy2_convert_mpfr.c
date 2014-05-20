@@ -754,6 +754,7 @@ GMPy_PyStr_From_MPFR(MPFR_Object *self, int base, int digits, CTXT_Object *conte
     return result;
 }
 
+#if 0
 /*
  * coerce any number to a mpf
  */
@@ -772,6 +773,7 @@ GMPy_MPFR_convert_arg(PyObject *arg, PyObject **ptr)
         return 0;
     }
 }
+#endif
 
 /* str and repr implementations for mpfr */
 static PyObject *

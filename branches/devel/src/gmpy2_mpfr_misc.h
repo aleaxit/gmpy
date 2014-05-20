@@ -42,16 +42,13 @@ static PyObject * GMPy_MPFR_get_max_precision(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPFR_get_exp(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPFR_set_exp(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPFR_set_sign(PyObject *self, PyObject *args);
-static PyObject * Pympfr_copy_sign(PyObject *self, PyObject *args);
-static PyObject * Pympfr_is_signed(PyObject *self, PyObject *other);
-static PyObject * Pympfr_is_regular(PyObject *self, PyObject *other);
-static PyObject * Pympfr_is_integer(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPFR_copy_sign(PyObject *self, PyObject *args);
 static PyObject * Pympfr_integer_ratio(PyObject *self, PyObject *args);
 static PyObject * Pympfr_mantissa_exp(PyObject *self, PyObject *args);
 static PyObject * Pympfr_simple_fraction(PyObject *self, PyObject *args, PyObject *keywds);
-static PyObject * Pympfr_set_nan(PyObject *self, PyObject *other);
-static PyObject * Pympfr_set_inf(PyObject *self, PyObject *args);
-static PyObject * Pympfr_set_zero(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPFR_set_nan(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPFR_set_inf(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPFR_set_zero(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
 }

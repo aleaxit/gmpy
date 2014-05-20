@@ -251,67 +251,68 @@ GMPy_MPFR_set_sign(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_copy_sign,
+PyDoc_STRVAR(GMPy_doc_mpfr_copy_sign,
 "copy_sign(mpfr, mpfr) -> mpfr\n\n"
 "Return an 'mpfr' composed of the first argument with the sign of the\n"
 "second argument.");
 
 static PyObject *
-Pympfr_copy_sign(PyObject *self, PyObject *args)
-{
-    MPFR_Object *result = 0;
-    PyObject *other = 0;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    if (!PyArg_ParseTuple(args, "O&O&", GMPy_MPFR_convert_arg, &self,
-                          GMPy_MPFR_convert_arg, &other)) {
-        TYPE_ERROR("copy_sign() requires 'mpfr', 'mpfr' arguments");
-        return NULL;
-    }
-
-    if (!(result = GMPy_MPFR_New(0, context)))
-        return NULL;
-
-    result->rc = mpfr_copysign(MPFR(result), MPFR(self),
-                              MPFR(other), context->ctx.mpfr_round);
-
-    Py_DECREF(self);
-    Py_DECREF(other);
-    return (PyObject*)result;
-}
-
-PyDoc_STRVAR(doc_g_mpfr_set_nan,
-"nan() -> mpfr\n\n"
-"Return an 'mpfr' initialized to NaN (Not-A-Number).");
-
-static PyObject *
-Pympfr_set_nan(PyObject *self, PyObject *other)
+GMPy_MPFR_copy_sign(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
-    if ((result = GMPy_MPFR_New(0, context)))
-        mpfr_set_nan(result->f);
+    if (PyTuple_GET_SIZE(args) != 2 ||
+        !MPFR_Check(PyTuple_GET_ITEM(args, 0)) ||
+        !MPFR_Check(PyTuple_GET_ITEM(args, 1))) {
+        TYPE_ERROR("copy_sign() requires 'mpfr', 'boolean' arguments");
+        return NULL;
+    }
+
+    if (!(result = GMPy_MPFR_New(0, context))) {
+        return NULL;
+    }
+
+    result->rc = mpfr_copysign(MPFR(result), MPFR(PyTuple_GET_ITEM(args, 0)),
+                               MPFR(PyTuple_GET_ITEM(args, 1)),
+                               GET_MPFR_ROUND(context));
+
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_set_inf,
+PyDoc_STRVAR(GMPy_doc_mpfr_set_nan,
+"nan() -> mpfr\n\n"
+"Return an 'mpfr' initialized to NaN (Not-A-Number).");
+
+static PyObject *
+GMPy_MPFR_set_nan(PyObject *self, PyObject *other)
+{
+    MPFR_Object *result;
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
+
+    if ((result = GMPy_MPFR_New(0, context))) {
+        mpfr_set_nan(result->f);
+    }
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(GMPy_doc_mpfr_set_inf,
 "inf(n) -> mpfr\n\n"
 "Return an 'mpfr' initialized to Infinity with the same sign as n.\n"
 "If n is not given, +Infinity is returned.");
 
 static PyObject *
-Pympfr_set_inf(PyObject *self, PyObject *args)
+GMPy_MPFR_set_inf(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     long s = 1;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (PyTuple_Size(args) == 1) {
         s = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
@@ -321,24 +322,25 @@ Pympfr_set_inf(PyObject *self, PyObject *args)
         }
     }
 
-    if ((result = GMPy_MPFR_New(0, context)))
-        mpfr_set_inf(result->f, s<0?-1:1);
+    if ((result = GMPy_MPFR_New(0, context))) {
+        mpfr_set_inf(result->f, s < 0 ? -1 : 1);
+    }
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_set_zero,
+PyDoc_STRVAR(GMPy_doc_mpfr_set_zero,
 "zero(n) -> mpfr\n\n"
 "Return an 'mpfr' inialized to 0.0 with the same sign as n.\n"
 "If n is not given, +0.0 is returned.");
 
 static PyObject *
-Pympfr_set_zero(PyObject *self, PyObject *args)
+GMPy_MPFR_set_zero(PyObject *self, PyObject *args)
 {
     MPFR_Object *result;
     long s = 1;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (PyTuple_Size(args) == 1) {
         s = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
@@ -348,40 +350,10 @@ Pympfr_set_zero(PyObject *self, PyObject *args)
         }
     }
 
-    if ((result = GMPy_MPFR_New(0, context)))
-        mpfr_set_zero(result->f, s<0?-1:1);
+    if ((result = GMPy_MPFR_New(0, context))) {
+        mpfr_set_zero(result->f, s < 0 ? -1 : 1);
+    }
     return (PyObject*)result;
-}
-
-PyDoc_STRVAR(doc_g_mpfr_is_signed,
-"is_signed(x) -> boolean\n\n"
-"Return True if the sign bit of x is set.");
-
-static PyObject *
-Pympfr_is_signed(PyObject *self, PyObject *other)
-{
-    int res;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    if(self && MPFR_Check(self)) {
-        Py_INCREF(self);
-    }
-    else if(MPFR_Check(other)) {
-        self = other;
-        Py_INCREF((PyObject*)self);
-    }
-    else if (!(self = (PyObject*)GMPy_MPFR_From_Real(other, 1, context))) {
-        TYPE_ERROR("is_signed() requires 'mpfr' argument");
-        return NULL;
-    }
-    res = mpfr_signbit(MPFR(self));
-    Py_DECREF(self);
-    if (res)
-        Py_RETURN_TRUE;
-    else
-        Py_RETURN_FALSE;
 }
 
 #define MPFR_TEST_OTHER(NAME, msg) \
@@ -409,22 +381,6 @@ Pympfr_is_##NAME(PyObject *self, PyObject *other) \
     else\
         Py_RETURN_FALSE; \
 }
-
-PyDoc_STRVAR(doc_g_mpfr_is_regular,
-"is_regular(x) -> boolean\n\n"
-"Return True if x is not zero, NaN, or Infinity; False otherwise.");
-
-MPFR_TEST_OTHER(regular, "is_regular() requires 'mpfr' argument");
-
-PyDoc_STRVAR(doc_mpfr_is_integer,
-"x.is_integer() -> boolean\n\n"
-"Return True if x is an integer; False otherwise.");
-
-PyDoc_STRVAR(doc_g_mpfr_is_integer,
-"is_integer(x) -> boolean\n\n"
-"Return True if x is an integer; False otherwise.");
-
-MPFR_TEST_OTHER(integer, "is_integer() requires 'mpfr' argument");
 
 PyDoc_STRVAR(doc_mpfr_integer_ratio,
 "x.as_integer_ratio() -> (num, den)\n\n"

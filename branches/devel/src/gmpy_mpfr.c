@@ -1239,8 +1239,10 @@ static PyMethodDef Pympfr_methods [] =
     { "digits", GMPy_MPFR_Digits_Method, METH_VARARGS, GMPy_doc_mpfr_digits_method },
     { "is_finite", GMPy_MPFR_Is_Finite_Method, METH_NOARGS, GMPy_doc_method_is_finite },
     { "is_infinite", GMPy_MPFR_Is_Infinite_Method, METH_NOARGS, GMPy_doc_method_is_infinite },
-    { "is_integer", Pympfr_is_integer, METH_NOARGS, doc_mpfr_is_integer },
+    { "is_integer", GMPy_MPFR_Is_Integer_Method, METH_NOARGS, GMPy_doc_method_is_integer },
     { "is_nan", GMPy_MPFR_Is_NAN_Method, METH_NOARGS, GMPy_doc_method_is_nan },
+    { "is_signed", GMPy_MPFR_Is_Regular_Method, METH_NOARGS, GMPy_doc_method_is_regular },
+    { "is_signed", GMPy_MPFR_Is_Signed_Method, METH_NOARGS, GMPy_doc_method_is_signed },
     { "is_zero", GMPy_MPFR_Is_Zero_Method, METH_NOARGS, GMPy_doc_method_is_zero },
     { NULL, NULL, 1 }
 };
