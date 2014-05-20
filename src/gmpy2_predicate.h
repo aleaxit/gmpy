@@ -59,6 +59,21 @@ static PyObject * GMPy_MPC_Is_Zero_Method(PyObject *self, PyObject *args);
 static PyObject * GMPy_Number_Is_Zero(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Is_Zero(PyObject *self, PyObject *other);
 
+static PyObject * GMPy_Real_Is_Signed(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_MPFR_Is_Signed_Method(PyObject *self, PyObject *args);
+static PyObject * GMPy_Number_Is_Signed(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Is_Signed(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Is_Regular(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_MPFR_Is_Regular_Method(PyObject *self, PyObject *args);
+static PyObject * GMPy_Number_Is_Regular(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Is_Regular(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Is_Integer(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_MPFR_Is_Integer_Method(PyObject *self, PyObject *args);
+static PyObject * GMPy_Number_Is_Integer(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Is_Integer(PyObject *self, PyObject *other);
+
 #ifdef __cplusplus
 }
 #endif
