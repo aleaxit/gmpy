@@ -1147,3 +1147,93 @@ GMPy_Complex_Sqrt(PyObject *x, CTXT_Object *context)
 
 GMPY_MPFR_MPC_UNIOP_TEMPLATE_EX(Sqrt, sqrt)
 
+PyDoc_STRVAR(GMPy_doc_function_root,
+"root(x, n) -> mpfr\n\n"
+"Return n-th root of x. The result always an 'mpfr'.");
+
+PyDoc_STRVAR(GMPy_doc_context_root,
+"context.root(x, n) -> mpfr\n\n"
+"Return n-th root of x. The result always an 'mpfr'.");
+
+GMPY_MPFR_BINOP_REAL_ULONG(Root, root)
+
+PyDoc_STRVAR(GMPy_doc_function_jn,
+"jn(x,n) -> mpfr\n\n"
+"Return the first kind Bessel function of order n of x.");
+
+PyDoc_STRVAR(GMPy_doc_context_jn,
+"context.jn(x,n) -> mpfr\n\n"
+"Return the first kind Bessel function of order n of x.");
+
+GMPY_MPFR_BINOP_REAL_LONG(Jn, jn)
+
+PyDoc_STRVAR(GMPy_doc_function_yn,
+"yn(x,n) -> mpfr\n\n"
+"Return the second kind Bessel function of order n of x.");
+
+PyDoc_STRVAR(GMPy_doc_context_yn,
+"context.yn(x,n) -> mpfr\n\n"
+"Return the second kind Bessel function of order n of x.");
+
+GMPY_MPFR_BINOP_REAL_LONG(Yn, yn)
+
+PyDoc_STRVAR(GMPy_doc_function_agm,
+"agm(x, y) -> mpfr\n\n"
+"Return arithmetic-geometric mean of x and y.");
+
+PyDoc_STRVAR(GMPy_doc_context_agm,
+"context.agm(x, y) -> mpfr\n\n"
+"Return arithmetic-geometric mean of x and y.");
+
+GMPY_MPFR_BINOP(AGM, agm)
+
+PyDoc_STRVAR(GMPy_doc_function_maxnum,
+"maxnum(x, y) -> mpfr\n\n"
+"Return the maximum number of x and y. If x and y are not 'mpfr', they are\n"
+"converted to 'mpfr'. The result is rounded to match the current context.\n"
+"If only one of x or y is a number, then that number is returned.");
+
+PyDoc_STRVAR(GMPy_doc_context_maxnum,
+"context.maxnum(x, y) -> mpfr\n\n"
+"Return the maximum number of x and y. If x and y are not 'mpfr', they are\n"
+"converted to 'mpfr'. The result is rounded to match the specified context.\n"
+"If only one of x or y is a number, then that number is returned.");
+
+GMPY_MPFR_BINOP(Maxnum, max)
+
+PyDoc_STRVAR(GMPy_doc_function_minnum,
+"minnum(x, y) -> mpfr\n\n"
+"Return the minimum number of x and y. If x and y are not 'mpfr', they are\n"
+"converted to 'mpfr'. The result is rounded to match the current context.\n"
+"If only one of x or y is a number, then that number is returned.");
+
+PyDoc_STRVAR(GMPy_doc_context_minnum,
+"context.minnum(x, y) -> mpfr\n\n"
+"Return the minimum number of x and y. If x and y are not 'mpfr', they are\n"
+"converted to 'mpfr'. The result is rounded to match the specified context.\n"
+"If only one of x or y is a number, then that number is returned.");
+
+GMPY_MPFR_BINOP(Minnum, min)
+
+PyDoc_STRVAR(GMPy_doc_function_remainder,
+"remainder(x, y) -> mpfr\n\n"
+"Return x - n*y where n is the integer quotient of x/y, rounded to\n"
+"the nearest integer and ties rounded to even.");
+
+PyDoc_STRVAR(GMPy_doc_context_remainder,
+"context.remainder(x, y) -> mpfr\n\n"
+"Return x - n*y where n is the integer quotient of x/y, rounded to\n"
+"the nearest integer and ties rounded to even.");
+
+GMPY_MPFR_BINOP(Remainder, remainder)
+
+PyDoc_STRVAR(GMPy_doc_function_fmod,
+"fmod(x, y) -> mpfr\n\n"
+"Return x - n*y where n is the integer quotient of x/y, rounded to 0.");
+
+PyDoc_STRVAR(GMPy_doc_context_fmod,
+"context.fmod(x, y) -> mpfr\n\n"
+"Return x - n*y where n is the integer quotient of x/y, rounded to 0.");
+
+GMPY_MPFR_BINOP(Fmod, fmod)
+

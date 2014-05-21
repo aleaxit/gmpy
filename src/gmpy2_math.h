@@ -257,14 +257,44 @@ static PyObject * GMPy_Number_Ai(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Ai(PyObject *self, PyObject *other);
 
 static PyObject * GMPy_Real_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
-static PyObject * GMPy_Real_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
 static PyObject * GMPy_Number_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
 static PyObject * GMPy_Context_FMA(PyObject *self, PyObject *args);
 
 static PyObject * GMPy_Real_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
-static PyObject * GMPy_Real_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
 static PyObject * GMPy_Number_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
 static PyObject * GMPy_Context_FMS(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_Real_Root(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Number_Root(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Context_Root(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_Real_Jn(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Number_Jn(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Context_Jn(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_Real_Yn(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Number_Yn(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Context_Yn(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_Real_AGM(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Number_AGM(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Context_AGM(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_Real_Maxnum(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Number_Maxnum(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Context_Maxnum(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_Real_Minnum(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Number_Minnum(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Context_Minnum(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_Real_Remainder(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Number_Remainder(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Context_Remainder(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_Real_Fmod(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Number_Fmod(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Context_Fmod(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
 }
