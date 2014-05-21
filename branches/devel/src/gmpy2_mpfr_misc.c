@@ -356,44 +356,20 @@ GMPy_MPFR_set_zero(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-#define MPFR_TEST_OTHER(NAME, msg) \
-static PyObject * \
-Pympfr_is_##NAME(PyObject *self, PyObject *other) \
-{ \
-    int res; \
-    CTXT_Object *context = NULL; \
-    CHECK_CONTEXT_SET_EXPONENT(context); \
-    if(self && MPFR_Check(self)) { \
-        Py_INCREF(self); \
-    } \
-    else if(MPFR_Check(other)) { \
-        self = other; \
-        Py_INCREF((PyObject*)self); \
-    } \
-    else if (!(self = (PyObject*)GMPy_MPFR_From_Real(other, 1, context))) { \
-        PyErr_SetString(PyExc_TypeError, msg); \
-        return NULL; \
-    } \
-    res = mpfr_##NAME##_p(MPFR(self)); \
-    Py_DECREF(self); \
-    if (res) \
-        Py_RETURN_TRUE; \
-    else\
-        Py_RETURN_FALSE; \
-}
-
-PyDoc_STRVAR(doc_mpfr_integer_ratio,
+PyDoc_STRVAR(GMPy_doc_method_integer_ratio,
 "x.as_integer_ratio() -> (num, den)\n\n"
 "Return the exact rational equivalent of an mpfr. Value is a tuple\n"
 "for compatibility with Python's float.as_integer_ratio().");
 
 static PyObject *
-Pympfr_integer_ratio(PyObject *self, PyObject *args)
+GMPy_MPFR_Integer_Ratio_Method(PyObject *self, PyObject *args)
 {
-    MPZ_Object *num = 0, *den = 0;
+    MPZ_Object *num, *den;
     mpfr_exp_t temp, twocount;
     PyObject *result;
     CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     if (mpfr_nan_p(MPFR(self))) {
         VALUE_ERROR("Cannot pass NaN to mpfr.as_integer_ratio.");
@@ -438,18 +414,20 @@ Pympfr_integer_ratio(PyObject *self, PyObject *args)
     return result;
 }
 
-PyDoc_STRVAR(doc_mpfr_mantissa_exp,
+PyDoc_STRVAR(GMPy_doc_method_mantissa_exp,
 "x.as_mantissa_exp() -> (mantissa,exponent)\n\n"
 "Return the mantissa and exponent of an mpfr.");
 
 static PyObject *
-Pympfr_mantissa_exp(PyObject *self, PyObject *args)
+GMPy_MPFR_Mantissa_Exp_Method(PyObject *self, PyObject *args)
 {
-    MPZ_Object *mantissa = 0, *exponent = 0;
+    MPZ_Object *mantissa , *exponent;
     mpfr_exp_t temp;
     PyObject *result;
     CTXT_Object *context = NULL;
 
+    CHECK_CONTEXT(context);
+    
     if (mpfr_nan_p(MPFR(self))) {
         VALUE_ERROR("Cannot pass NaN to mpfr.as_mantissa_exp.");
         return NULL;
@@ -484,21 +462,22 @@ Pympfr_mantissa_exp(PyObject *self, PyObject *args)
     return result;
 }
 
-PyDoc_STRVAR(doc_mpfr_simple_fraction,
+PyDoc_STRVAR(GMPy_doc_method_simple_fraction,
 "x.as_simple_fraction([precision=0]) -> mpq\n\n"
 "Return a simple rational approximation to x. The result will be\n"
 "accurate to 'precision' bits. If 'precision' is 0, the precision\n"
 "of 'x' will be used.");
 
 static PyObject *
-Pympfr_simple_fraction(PyObject *self, PyObject *args, PyObject *keywds)
+GMPy_MPFR_Simple_Fraction_Method(PyObject *self, PyObject *args, PyObject *keywds)
 {
     mpfr_prec_t prec = 0;
     static char *kwlist[] = {"precision", NULL};
     CTXT_Object *context = NULL;
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|l", kwlist, &prec))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|l", kwlist, &prec)) {
         return NULL;
+    }
 
     return (PyObject*)stern_brocot((MPFR_Object*)self, 0, prec, 0, context);
 }

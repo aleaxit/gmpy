@@ -966,55 +966,6 @@ Pympfr_factorial(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_is_lessgreater,
-"is_lessgreater(x,y) -> boolean\n\n"
-"Return True if x > y or x < y. Return False if x == y or either x\n"
-"and/or y is NaN.");
-
-static PyObject *
-Pympfr_is_lessgreater(PyObject *self, PyObject *args)
-{
-    PyObject *other;
-    int temp;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    PARSE_TWO_MPFR_ARGS(other, "is_lessgreater() requires 'mpfr','mpfr' arguments");
-
-    temp = mpfr_lessgreater_p(MPFR(self), MPFR(other));
-    Py_DECREF(self);
-    Py_DECREF(other);
-    if (temp)
-        Py_RETURN_TRUE;
-    else
-        Py_RETURN_FALSE;
-}
-
-PyDoc_STRVAR(doc_g_mpfr_is_unordered,
-"is_unordered(x,y) -> boolean\n\n"
-"Return True if either x and/or y is NaN.");
-
-static PyObject *
-Pympfr_is_unordered(PyObject *self, PyObject *args)
-{
-    PyObject *other;
-    int temp;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    PARSE_TWO_MPFR_ARGS(other, "unordered() requires 'mpfr','mpfr' arguments");
-
-    temp = mpfr_unordered_p(MPFR(self), MPFR(other));
-    Py_DECREF(self);
-    Py_DECREF(other);
-    if (temp)
-        Py_RETURN_TRUE;
-    else
-        Py_RETURN_FALSE;
-}
-
 PyDoc_STRVAR(doc_g_mpfr_check_range,
 "check_range(x) -> mpfr\n\n"
 "Return a new 'mpfr' with exponent that lies within the current range\n"
@@ -1232,9 +1183,9 @@ static PyMethodDef Pympfr_methods [] =
     { "__round__", Pympfr_round10, METH_VARARGS, doc_g_mpfr_round10 },
     { "__sizeof__", Pympfr_sizeof, METH_NOARGS, doc_mpfr_sizeof },
     { "__trunc__", Pympfr_trunc, METH_NOARGS, doc_mpfr_trunc },
-    { "as_integer_ratio", Pympfr_integer_ratio, METH_NOARGS, doc_mpfr_integer_ratio },
-    { "as_mantissa_exp", Pympfr_mantissa_exp, METH_NOARGS, doc_mpfr_mantissa_exp },
-    { "as_simple_fraction", (PyCFunction)Pympfr_simple_fraction, METH_VARARGS | METH_KEYWORDS, doc_mpfr_simple_fraction },
+    { "as_integer_ratio", GMPy_MPFR_Integer_Ratio_Method, METH_NOARGS, GMPy_doc_method_integer_ratio },
+    { "as_mantissa_exp", GMPy_MPFR_Mantissa_Exp_Method, METH_NOARGS, GMPy_doc_method_mantissa_exp },
+    { "as_simple_fraction", (PyCFunction)GMPy_MPFR_Simple_Fraction_Method, METH_VARARGS | METH_KEYWORDS, GMPy_doc_method_simple_fraction },
     { "conjugate", Pympfr_conjugate, METH_NOARGS, doc_mpfr_conjugate },
     { "digits", GMPy_MPFR_Digits_Method, METH_VARARGS, GMPy_doc_mpfr_digits_method },
     { "is_finite", GMPy_MPFR_Is_Finite_Method, METH_NOARGS, GMPy_doc_method_is_finite },
