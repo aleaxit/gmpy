@@ -374,8 +374,6 @@ static PyObject * Pympfr_nexttoward(PyObject *self, PyObject *args);
 static PyObject * Pympfr_nextabove(PyObject *self, PyObject *other);
 static PyObject * Pympfr_nextbelow(PyObject *self, PyObject *other);
 static PyObject * Pympfr_factorial(PyObject *self, PyObject *other);
-static PyObject * Pympfr_is_lessgreater(PyObject *self, PyObject *args);
-static PyObject * Pympfr_is_unordered(PyObject *self, PyObject *args);
 static PyObject * Pympfr_check_range(PyObject *self, PyObject *other);
 static PyObject * Pympfr_fsum(PyObject *self, PyObject *other);
 
