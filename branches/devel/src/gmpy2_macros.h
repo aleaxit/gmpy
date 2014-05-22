@@ -391,7 +391,7 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
 static PyObject * \
 GMPy_Real_##NAME(PyObject *x, CTXT_Object *context) \
 { \
-    MPFR_Object *result = NULL, *tempx = NULL; \
+    MPFR_Object *result, *tempx; \
     CHECK_CONTEXT(context); \
     result = GMPy_MPFR_New(0, context); \
     tempx = GMPy_MPFR_From_Real(x, 1, context); \
@@ -414,6 +414,53 @@ GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
     TYPE_ERROR(#FUNC"() argument type not supported"); \
     return NULL; \
 } \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *other) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(other, context); \
+}
+
+#define GMPY_MPFR_UNIOP_NOROUND(NAME, FUNC) \
+static PyObject * \
+GMPy_Real_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    MPFR_Object *result, *tempx; \
+    CHECK_CONTEXT(context); \
+    result = GMPy_MPFR_New(0, context); \
+    tempx = GMPy_MPFR_From_Real(x, 1, context); \
+    if (!result || !tempx) { \
+        Py_XDECREF((PyObject*)result); \
+        Py_XDECREF((PyObject*)tempx); \
+        return NULL; \
+    } \
+    mpfr_clear_flags(); \
+    result->rc = mpfr_##FUNC(result->f, tempx->f); \
+    Py_DECREF((PyObject*)tempx); \
+    GMPY_MPFR_CLEANUP(result, context, #FUNC "()"); \
+    return (PyObject*)result; \
+} \
+static PyObject * \
+GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    if (IS_REAL(x)) \
+        return GMPy_Real_##NAME(x, context); \
+    TYPE_ERROR(#FUNC"() argument type not supported"); \
+    return NULL; \
+} \
+static PyObject * \
+GMPy_MPFR_Method_##NAME(PyObject *self, PyObject *other) \
+{ \
+    CTXT_Object *context = NULL; \
+    CHECK_CONTEXT(context); \
+    return GMPy_Number_##NAME(self, context); \
+}\
 static PyObject * \
 GMPy_Context_##NAME(PyObject *self, PyObject *other) \
 { \
@@ -847,21 +894,6 @@ Py##NAME(MPFR_Object *x) \
     } \
   done: \
     return (PyObject *) r; \
-}
-
-
-#define MPFR_UNIOP_NOROUND(NAME) \
-static PyObject * \
-Pympfr_##NAME(PyObject* self, PyObject *other) \
-{ \
-    MPFR_Object *result; \
-    CTXT_Object *context = NULL; \
-    CHECK_CONTEXT_SET_EXPONENT(context); \
-    PARSE_ONE_MPFR_OTHER(#NAME "() requires 'mpfr' argument"); \
-    if (!(result = GMPy_MPFR_New(0, context))) goto done; \
-    mpfr_clear_flags(); \
-    result->rc = mpfr_##NAME(result->f, MPFR(self)); \
-    MPFR_CLEANUP_SELF(#NAME "()"); \
 }
 
 #define MPFR_UNIOP(NAME) \

@@ -296,6 +296,40 @@ static PyObject * GMPy_Real_Fmod(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject * GMPy_Number_Fmod(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Context_Fmod(PyObject *self, PyObject *args);
 
+static PyObject * GMPy_Real_RelDiff(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Number_RelDiff(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Context_RelDiff(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_Real_Ceil(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Ceil(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_MPFR_Method_Ceil(PyObject *self, PyObject *args);
+static PyObject * GMPy_Context_Ceil(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_Real_Floor(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Floor(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_MPFR_Method_Floor(PyObject *self, PyObject *args);
+static PyObject * GMPy_Context_Floor(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_Real_Trunc(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Trunc(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_MPFR_Method_Trunc(PyObject *self, PyObject *args);
+static PyObject * GMPy_Context_Trunc(PyObject *self, PyObject *args);
+
+static PyObject * Pympfr_round2(PyObject *self, PyObject *args);
+static PyObject * Pympfr_round10(PyObject *self, PyObject *args);
+static PyObject * Pympfr_round_away(PyObject* self, PyObject *other);
+static PyObject * Pympfr_modf(PyObject* self, PyObject *other);
+static PyObject * Pympfr_lgamma(PyObject* self, PyObject *other);
+static PyObject * Pympfr_remquo(PyObject* self, PyObject *args);
+static PyObject * Pympfr_frexp(PyObject *self, PyObject *other);
+static PyObject * Pympfr_nexttoward(PyObject *self, PyObject *args);
+static PyObject * Pympfr_nextabove(PyObject *self, PyObject *other);
+static PyObject * Pympfr_nextbelow(PyObject *self, PyObject *other);
+static PyObject * Pympfr_factorial(PyObject *self, PyObject *other);
+static PyObject * Pympfr_fsum(PyObject *self, PyObject *other);
+
+
+
 #ifdef __cplusplus
 }
 #endif

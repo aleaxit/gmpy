@@ -345,22 +345,6 @@ static PyTypeObject MPFR_Type;
 #define MPFR_Check(v) (((PyObject*)v)->ob_type == &MPFR_Type)
 
 static PyObject * GMPy_MPFR_Factory(PyObject *self, PyObject *args, PyObject *keywds);
-static PyObject * Pympfr_reldiff(PyObject *self, PyObject *args);
-static PyObject * Pympfr_ceil(PyObject *self, PyObject *other);
-static PyObject * Pympfr_floor(PyObject *self, PyObject *other);
-static PyObject * Pympfr_trunc(PyObject *self, PyObject *other);
-static PyObject * Pympfr_round2(PyObject *self, PyObject *args);
-static PyObject * Pympfr_round10(PyObject *self, PyObject *args);
-static PyObject * Pympfr_round_away(PyObject* self, PyObject *other);
-static PyObject * Pympfr_modf(PyObject* self, PyObject *other);
-static PyObject * Pympfr_lgamma(PyObject* self, PyObject *other);
-static PyObject * Pympfr_remquo(PyObject* self, PyObject *args);
-static PyObject * Pympfr_frexp(PyObject *self, PyObject *other);
-static PyObject * Pympfr_nexttoward(PyObject *self, PyObject *args);
-static PyObject * Pympfr_nextabove(PyObject *self, PyObject *other);
-static PyObject * Pympfr_nextbelow(PyObject *self, PyObject *other);
-static PyObject * Pympfr_factorial(PyObject *self, PyObject *other);
-static PyObject * Pympfr_fsum(PyObject *self, PyObject *other);
 
 #ifdef __cplusplus
 }
