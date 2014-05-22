@@ -482,3 +482,127 @@ GMPy_MPFR_Simple_Fraction_Method(PyObject *self, PyObject *args, PyObject *keywd
     return (PyObject*)stern_brocot((MPFR_Object*)self, 0, prec, 0, context);
 }
 
+/* Implement the .precision attribute of an mpfr. */
+
+static PyObject *
+GMPy_MPFR_GetPrec_Attrib(MPFR_Object *self, void *closure)
+{
+    return PyIntOrLong_FromSsize_t((Py_ssize_t)mpfr_get_prec(self->f));
+}
+
+/* Implement the .rc attribute of an mpfr. */
+
+static PyObject *
+GMPy_MPFR_GetRc_Attrib(MPFR_Object *self, void *closure)
+{
+    return PyIntOrLong_FromLong((long)self->rc);
+}
+
+/* Implement the .imag attribute of an mpfr. */
+
+static PyObject *
+GMPy_MPFR_GetImag_Attrib(MPFR_Object *self, void *closure)
+{
+    MPFR_Object *result;
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
+
+    if ((result = GMPy_MPFR_New(0, context)))
+        mpfr_set_zero(result->f, 1);
+    return (PyObject*)result;
+}
+
+/* Implement the .real attribute of an mpfr. */
+
+static PyObject *
+GMPy_MPFR_GetReal_Attrib(MPFR_Object *self, void *closure)
+{
+    Py_INCREF((PyObject*)self);
+    return (PyObject*)self;
+}
+
+/* Implement the nb_bool slot. */
+
+static int
+GMPy_MPFR_NonZero_Slot(MPFR_Object *self)
+{
+    return !mpfr_zero_p(self->f);
+}
+
+/* Implement the conjugate() method. */
+
+PyDoc_STRVAR(GMPy_doc_mpfr_conjugate_method,
+"x.conjugate() -> mpfr\n\n"
+"Return the conjugate of x (which is just a new reference to x since x is\n"
+"not a complex number).");
+
+static PyObject *
+GMPy_MPFR_Conjugate_Method(PyObject *self, PyObject *args)
+{
+    Py_INCREF((PyObject*)self);
+    return (PyObject*)self;
+}
+
+PyDoc_STRVAR(GMPy_doc_function_check_range,
+"check_range(x) -> mpfr\n\n"
+"Return a new 'mpfr' with exponent that lies within the current range\n"
+"of emin and emax.");
+
+PyDoc_STRVAR(GMPy_doc_context_check_range,
+"context.check_range(x) -> mpfr\n\n"
+"Return a new 'mpfr' with exponent that lies within the range of emin\n"
+"and emax specified by context.");
+
+static PyObject *
+GMPy_MPFR_CheckRange(PyObject *x, CTXT_Object *context)
+{
+    MPFR_Object *result;
+
+    CHECK_CONTEXT(context);
+
+    if ((result = GMPy_MPFR_New(mpfr_get_prec(MPFR(x)), context))) {
+        mpfr_set(result->f, MPFR(x), GET_MPFR_ROUND(context));
+        mpfr_clear_flags();
+        GMPY_MPFR_CLEANUP(result, context, "check_range()")
+    }
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPy_Number_CheckRange(PyObject *x, CTXT_Object *context)
+{
+    if (MPFR_Check(x))
+        return GMPy_MPFR_CheckRange(x, context);
+
+    TYPE_ERROR("check_range() argument types not supported");
+    return NULL;
+}
+
+static PyObject *
+GMPy_Context_CheckRange(PyObject *self, PyObject *other)
+{
+    CTXT_Object *context = NULL;
+
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
+    }
+    else {
+        CHECK_CONTEXT(context);
+    }
+
+    return GMPy_Number_CheckRange(other, context);
+}
+
+PyDoc_STRVAR(GMPy_doc_mpfr_sizeof_method,
+"x.__sizeof__()\n\n"
+"Returns the amount of memory consumed by x.");
+
+static PyObject *
+GMPy_MPFR_SizeOf_Method(PyObject *self, PyObject *other)
+{
+    return PyIntOrLong_FromSize_t(sizeof(MPFR_Object) + \
+        (((MPFR(self))->_mpfr_prec + mp_bits_per_limb - 1) / \
+        mp_bits_per_limb) * sizeof(mp_limb_t));
+}
+

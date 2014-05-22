@@ -1250,6 +1250,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "atan2", GMPy_Context_Atan2, METH_VARARGS, GMPy_doc_context_atan2 },
     { "clear_flags", GMPy_CTXT_Clear_Flags, METH_NOARGS, GMPy_doc_context_clear_flags },
     { "cbrt", GMPy_Context_Cbrt, METH_O, GMPy_doc_context_cbrt },
+    { "check_range", GMPy_Context_CheckRange, METH_O, GMPy_doc_context_check_range },
     { "const_pi", GMPy_Context_Const_Catalan, METH_NOARGS, GMPy_doc_context_const_catalan },
     { "const_pi", GMPy_Context_Const_Euler, METH_NOARGS, GMPy_doc_context_const_euler },
     { "const_pi", GMPy_Context_Const_Log2, METH_NOARGS, GMPy_doc_context_const_log2 },

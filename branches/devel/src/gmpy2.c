@@ -685,7 +685,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "atan2", GMPy_Context_Atan2, METH_VARARGS, GMPy_doc_function_atan2 },
     { "cbrt", GMPy_Context_Cbrt, METH_O, GMPy_doc_function_cbrt },
     { "ceil", Pympfr_ceil, METH_O, doc_g_mpfr_ceil },
-    { "check_range", Pympfr_check_range, METH_O, doc_g_mpfr_check_range },
+    { "check_range", GMPy_Context_CheckRange, METH_O, GMPy_doc_function_check_range },
     { "const_catalan", (PyCFunction)GMPy_Function_Const_Catalan, METH_VARARGS | METH_KEYWORDS, GMPy_doc_function_const_catalan },
     { "const_euler", (PyCFunction)GMPy_Function_Const_Euler, METH_VARARGS | METH_KEYWORDS, GMPy_doc_function_const_euler },
     { "const_log2", (PyCFunction)GMPy_Function_Const_Log2, METH_VARARGS | METH_KEYWORDS, GMPy_doc_function_const_log2 },

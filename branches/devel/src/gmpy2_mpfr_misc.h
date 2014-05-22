@@ -50,6 +50,18 @@ static PyObject * GMPy_MPFR_set_nan(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPFR_set_inf(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPFR_set_zero(PyObject *self, PyObject *args);
 
+static PyObject * GMPy_MPFR_GetPrec_Attrib(MPFR_Object *self, void *closure);
+static PyObject * GMPy_MPFR_GetRc_Attrib(MPFR_Object *self, void *closure);
+static PyObject * GMPy_MPFR_GetImag_Attrib(MPFR_Object *self, void *closure);
+static PyObject * GMPy_MPFR_GetReal_Attrib(MPFR_Object *self, void *closure);
+static int        GMPy_MPFR_NonZero_Slot(MPFR_Object *self);
+static PyObject * GMPy_MPFR_Conjugate_Method(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPFR_SizeOf_Method(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_MPFR_CheckRange(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_CheckRange(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_CheckRange(PyObject *self, PyObject *other);
+
 #ifdef __cplusplus
 }
 #endif
