@@ -138,68 +138,6 @@ GMPy_MPFR_Factory(PyObject *self, PyObject *args, PyObject *keywds)
     return NULL;
 }
 
-/* Implement the .precision attribute of an mpfr. */
-
-static PyObject *
-Pympfr_getprec_attrib(MPFR_Object *self, void *closure)
-{
-    return PyIntOrLong_FromSsize_t((Py_ssize_t)mpfr_get_prec(self->f));
-}
-
-/* Implement the .rc attribute of an mpfr. */
-
-static PyObject *
-Pympfr_getrc_attrib(MPFR_Object *self, void *closure)
-{
-    return PyIntOrLong_FromLong((long)self->rc);
-}
-
-/* Implement the .imag attribute of an mpfr. */
-
-static PyObject *
-Pympfr_getimag_attrib(MPFR_Object *self, void *closure)
-{
-    MPFR_Object *result;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    if ((result = GMPy_MPFR_New(0, context)))
-        mpfr_set_zero(result->f, 1);
-    return (PyObject*)result;
-}
-
-/* Implement the .real attribute of an mpfr. */
-
-static PyObject *
-Pympfr_getreal_attrib(MPFR_Object *self, void *closure)
-{
-    Py_INCREF((PyObject*)self);
-    return (PyObject*)self;
-}
-
-/* Implement the nb_bool slot. */
-
-static int
-Pympfr_nonzero(MPFR_Object *self)
-{
-    return !mpfr_zero_p(self->f);
-}
-
-/* Implement the conjugate() method. */
-
-PyDoc_STRVAR(doc_mpfr_conjugate,
-"x.conjugate() -> mpfr\n\n"
-"Return the conjugate of x (which is just a copy of x since x is\n"
-"not a complex number).");
-
-static PyObject *
-Pympfr_conjugate(PyObject *self, PyObject *args)
-{
-    Py_INCREF((PyObject*)self);
-    return (PyObject*)self;
-}
-
 PyDoc_STRVAR(doc_g_mpfr_round2,
 "round2(x[, n]) -> mpfr\n\n"
 "Return x rounded to n bits. Uses default precision if n is not\n"
@@ -753,48 +691,6 @@ Pympfr_factorial(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_check_range,
-"check_range(x) -> mpfr\n\n"
-"Return a new 'mpfr' with exponent that lies within the current range\n"
-"of emin and emax.");
-
-static PyObject *
-Pympfr_check_range(PyObject *self, PyObject *other)
-{
-    MPFR_Object *result = NULL;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    if (self && MPFR_Check(self)) {
-        if ((result = GMPy_MPFR_New(mpfr_get_prec(MPFR(self)), context))) {
-            mpfr_set(result->f, MPFR(self), context->ctx.mpfr_round);
-            result->round_mode = ((MPFR_Object*)self)->round_mode;
-            result->rc = ((MPFR_Object*)self)->rc;
-            mpfr_clear_flags();
-            result->rc = mpfr_check_range(result->f, result->rc,
-                                          result->round_mode);
-        }
-    }
-    else if (MPFR_Check(other)) {
-        if ((result = GMPy_MPFR_New(mpfr_get_prec(MPFR(other)), context))) {
-            mpfr_set(result->f, MPFR(other), context->ctx.mpfr_round);
-            result->round_mode = ((MPFR_Object*)other)->round_mode;
-            result->rc = ((MPFR_Object*)other)->rc;
-            mpfr_clear_flags();
-            result->rc = mpfr_check_range(result->f, result->rc,
-                                          result->round_mode);
-        }
-    }
-    else {
-        TYPE_ERROR("check_range() requires 'mpfr' argument");
-    }
-    MERGE_FLAGS;
-    CHECK_FLAGS("check_range()");
-  done:
-    return (PyObject*)result;
-}
-
 PyDoc_STRVAR(doc_g_mpfr_fsum,
 "fsum(iterable) -> mpfr\n\n"
 "Return an accurate sum of the values in the iterable.");
@@ -859,18 +755,6 @@ Pympfr_fsum(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpfr_sizeof,
-"x.__sizeof__()\n\n"
-"Returns the amount of memory consumed by x.");
-
-static PyObject *
-Pympfr_sizeof(PyObject *self, PyObject *other)
-{
-    return PyIntOrLong_FromSize_t(sizeof(MPFR_Object) + \
-        (((MPFR(self))->_mpfr_prec + mp_bits_per_limb - 1) / \
-        mp_bits_per_limb) * sizeof(mp_limb_t));
-}
-
 #ifdef PY3
 static PyNumberMethods mpfr_number_methods =
 {
@@ -883,7 +767,7 @@ static PyNumberMethods mpfr_number_methods =
     (unaryfunc) GMPy_MPFR_Minus_Slot,        /* nb_negative             */
     (unaryfunc) GMPy_MPFR_Plus_Slot,         /* nb_positive             */
     (unaryfunc) GMPy_MPFR_Abs_Slot,          /* nb_absolute             */
-    (inquiry) Pympfr_nonzero,                /* nb_bool                 */
+    (inquiry) GMPy_MPFR_NonZero_Slot,        /* nb_bool                 */
         0,                                   /* nb_invert               */
         0,                                   /* nb_lshift               */
         0,                                   /* nb_rshift               */
@@ -922,7 +806,7 @@ static PyNumberMethods mpfr_number_methods =
     (unaryfunc) GMPy_MPFR_Minus_Slot,        /* nb_negative             */
     (unaryfunc) GMPy_MPFR_Plus_Slot,         /* nb_positive             */
     (unaryfunc) GMPy_MPFR_Abs_Slot,          /* nb_absolute             */
-    (inquiry) Pympfr_nonzero,                /* nb_bool                 */
+    (inquiry) GMPy_MPFR_NonZero_Slot,        /* nb_bool                 */
         0,                                   /* nb_invert               */
         0,                                   /* nb_lshift               */
         0,                                   /* nb_rshift               */
@@ -955,10 +839,10 @@ static PyNumberMethods mpfr_number_methods =
 
 static PyGetSetDef Pympfr_getseters[] =
 {
-    {"precision", (getter)Pympfr_getprec_attrib, NULL, "precision in bits", NULL},
-    {"rc", (getter)Pympfr_getrc_attrib, NULL, "return code", NULL},
-    {"imag", (getter)Pympfr_getimag_attrib, NULL, "imaginary component", NULL},
-    {"real", (getter)Pympfr_getreal_attrib, NULL, "real component", NULL},
+    {"precision", (getter)GMPy_MPFR_GetPrec_Attrib, NULL, "precision in bits", NULL},
+    {"rc", (getter)GMPy_MPFR_GetRc_Attrib, NULL, "return code", NULL},
+    {"imag", (getter)GMPy_MPFR_GetImag_Attrib, NULL, "imaginary component", NULL},
+    {"real", (getter)GMPy_MPFR_GetReal_Attrib, NULL, "real component", NULL},
     {NULL}
 };
 
@@ -968,12 +852,12 @@ static PyMethodDef Pympfr_methods [] =
     { "__floor__", Pympfr_floor, METH_NOARGS, doc_mpfr_floor },
     { "__format__", GMPy_MPFR_Format, METH_VARARGS, GMPy_doc_mpfr_format },
     { "__round__", Pympfr_round10, METH_VARARGS, doc_g_mpfr_round10 },
-    { "__sizeof__", Pympfr_sizeof, METH_NOARGS, doc_mpfr_sizeof },
+    { "__sizeof__", GMPy_MPFR_SizeOf_Method, METH_NOARGS, GMPy_doc_mpfr_sizeof_method },
     { "__trunc__", Pympfr_trunc, METH_NOARGS, doc_mpfr_trunc },
     { "as_integer_ratio", GMPy_MPFR_Integer_Ratio_Method, METH_NOARGS, GMPy_doc_method_integer_ratio },
     { "as_mantissa_exp", GMPy_MPFR_Mantissa_Exp_Method, METH_NOARGS, GMPy_doc_method_mantissa_exp },
     { "as_simple_fraction", (PyCFunction)GMPy_MPFR_Simple_Fraction_Method, METH_VARARGS | METH_KEYWORDS, GMPy_doc_method_simple_fraction },
-    { "conjugate", Pympfr_conjugate, METH_NOARGS, doc_mpfr_conjugate },
+    { "conjugate", GMPy_MPFR_Conjugate_Method, METH_NOARGS, GMPy_doc_mpfr_conjugate_method },
     { "digits", GMPy_MPFR_Digits_Method, METH_VARARGS, GMPy_doc_mpfr_digits_method },
     { "is_finite", GMPy_MPFR_Is_Finite_Method, METH_NOARGS, GMPy_doc_method_is_finite },
     { "is_infinite", GMPy_MPFR_Is_Infinite_Method, METH_NOARGS, GMPy_doc_method_is_infinite },
