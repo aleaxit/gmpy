@@ -1295,93 +1295,6 @@ GMPy_Context_Round2(PyObject *self, PyObject *args)
     }
 }
 
-PyDoc_STRVAR(GMPy_doc_method_round10,
-"__round__(x[, n = 0]) -> mpfr\n\n"
-"Return x rounded to n decimal digits before (n < 0) or after (n > 0)\n"
-"the decimal point. Rounds to an integer if n is not specified.");
-
-static PyObject *
-GMPy_MPFR_Method_Round10(PyObject *self, PyObject *args)
-{
-    long digits = 0;
-    mpz_t temp;
-    MPFR_Object *resultf = 0;
-    MPZ_Object *resultz;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
-
-    /* If the size of args is 0, we just return an mpz. */
-
-    if (PyTuple_GET_SIZE(args) == 0) {
-        if ((resultz = GMPy_MPZ_New(context))) {
-            if (mpfr_nan_p(MPFR(self))) {
-                Py_DECREF((PyObject*)resultz);
-                VALUE_ERROR("'mpz' does not support NaN");
-                return NULL;
-            }
-            if (mpfr_inf_p(MPFR(self))) {
-                Py_DECREF((PyObject*)resultz);
-                OVERFLOW_ERROR("'mpz' does not support Infinity");
-                return NULL;
-            }
-            /* return code is ignored */
-            mpfr_get_z(resultz->z, MPFR(self), MPFR_RNDN);
-        }
-        return (PyObject*)resultz;
-    }
-
-    /* Now we need to return an mpfr, so handle the simple cases. */
-
-    if (!mpfr_regular_p(MPFR(self))) {
-        Py_INCREF(self);
-        return self;
-    }
-
-    if (PyTuple_GET_SIZE(args) > 1) {
-        TYPE_ERROR("__round__() requires 0 or 1 argument");
-        return NULL;
-    }
-
-    if (PyTuple_GET_SIZE(args) == 1) {
-        digits = PyIntOrLong_AsLong(PyTuple_GET_ITEM(args, 0));
-        if (digits == -1 && PyErr_Occurred()) {
-            TYPE_ERROR("__round__() requires 'int' argument");
-            return NULL;
-        }
-    }
-
-    /* TODO: better error analysis, or else convert the mpfr to an exact
-     * fraction, round the fraction, and then convert back to an mpfr.
-     */
-
-    if (!(resultf = GMPy_MPFR_New(mpfr_get_prec(MPFR(self))+100, context))) {
-        return NULL;
-    }
-
-    mpz_inoc(temp);
-    mpz_ui_pow_ui(temp, 10, digits > 0 ? digits : -digits);
-    if (digits >= 0) {
-        mpfr_mul_z(resultf->f, MPFR(self), temp, MPFR_RNDN);
-    }
-    else {
-        mpfr_div_z(resultf->f, MPFR(self), temp, MPFR_RNDN);
-    }
-
-    mpfr_rint(resultf->f, resultf->f, MPFR_RNDN);
-
-    if (digits >= 0) {
-        mpfr_div_z(resultf->f, resultf->f, temp, MPFR_RNDN);
-    }
-    else {
-        mpfr_mul_z(resultf->f, resultf->f, temp, MPFR_RNDN);
-    }
-    mpfr_prec_round(resultf->f, mpfr_get_prec(MPFR(self)), MPFR_RNDN);
-
-    mpz_cloc(temp);
-    return((PyObject*)resultf);
-}
-
 PyDoc_STRVAR(GMPy_doc_function_reldiff,
 "reldiff(x, y) -> mpfr\n\n"
 "Return the relative difference between x and y. Result is equal to\n"
@@ -1465,133 +1378,121 @@ PyDoc_STRVAR(GMPy_doc_context_trunc,
 
 GMPY_MPFR_UNIOP_NOROUND(Trunc, trunc)
 
-PyDoc_STRVAR(doc_g_mpfr_round_away,
+PyDoc_STRVAR(GMPy_doc_function_round_away,
 "round_away(x) -> mpfr\n\n"
 "Return an 'mpfr' that is x rounded to the nearest integer,\n"
 "with ties rounded away from 0.");
 
-static PyObject *
-Pympfr_round_away(PyObject* self, PyObject *other)
-{
-    MPFR_Object *result;
-    CTXT_Object *context = NULL;
+PyDoc_STRVAR(GMPy_doc_context_round_away,
+"context.round_away(x) -> mpfr\n\n"
+"Return an 'mpfr' that is x rounded to the nearest integer,\n"
+"with ties rounded away from 0.");
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+GMPY_MPFR_UNIOP_NOROUND_NOMETHOD(RoundAway, round)
 
-    PARSE_ONE_MPFR_OTHER("round_away() requires 'mpfr' argument");
-    if (!(result = GMPy_MPFR_New(0, context)))
-        goto done;
-    mpfr_clear_flags();
-    result->rc = mpfr_round(result->f, MPFR(self));
-    MPFR_CLEANUP_SELF("round_away()");
-}
-
-#define MPFR_UNIOP(NAME) \
-static PyObject * \
-Pympfr_##NAME(PyObject* self, PyObject *other) \
-{ \
-    MPFR_Object *result; \
-    CTXT_Object *context = NULL; \
-    CHECK_CONTEXT_SET_EXPONENT(context); \
-    PARSE_ONE_MPFR_OTHER(#NAME "() requires 'mpfr' argument"); \
-    if (!(result = GMPy_MPFR_New(0, context))) goto done; \
-    mpfr_clear_flags(); \
-    result->rc = mpfr_##NAME(result->f, MPFR(self), context->ctx.mpfr_round); \
-    MPFR_CLEANUP_SELF(#NAME "()"); \
-}
-
-PyDoc_STRVAR(doc_g_mpfr_modf,
+PyDoc_STRVAR(GMPy_doc_function_modf,
 "modf(x) -> (mpfr, mpfr)\n\n"
 "Return a tuple containing the integer and fractional portions\n"
 "of x.");
 
+PyDoc_STRVAR(GMPy_doc_context_modf,
+"context.modf(x) -> (mpfr, mpfr)\n\n"
+"Return a tuple containing the integer and fractional portions\n"
+"of x.");
+
 static PyObject *
-Pympfr_modf(PyObject *self, PyObject *other)
+GMPy_Real_Modf(PyObject *x, CTXT_Object *context)
 {
-    MPFR_Object *s, *c;
+    MPFR_Object *s, *c, *tempx;
     PyObject *result;
     int code;
-    CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
-    PARSE_ONE_MPFR_OTHER("modf() requires 'mpfr' argument");
-
+    tempx = GMPy_MPFR_From_Real(x, 1, context);
     s = GMPy_MPFR_New(0, context);
     c = GMPy_MPFR_New(0, context);
     result = PyTuple_New(2);
-    if (!s || !c || !result)
-        goto done;
+    if (! tempx || !s || !c || !result) {
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)s);
+        Py_XDECREF((PyObject*)c);
+        Py_XDECREF(result);
+        return NULL;
+    }
 
     mpfr_clear_flags();
-    code = mpfr_modf(s->f, c->f, MPFR(self),
-                     context->ctx.mpfr_round);
+    code = mpfr_modf(s->f, c->f, tempx->f, GET_MPFR_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
+    
     s->rc = code & 0x03;
     c->rc = code >> 2;
     if (s->rc == 2) s->rc = -1;
     if (c->rc == 2) c->rc = -1;
-    SUBNORMALIZE(s);
-    SUBNORMALIZE(c);
-    MERGE_FLAGS;
-    CHECK_FLAGS("modf()");
+    
+    GMPY_MPFR_CLEANUP(s, context, "modf");
+    GMPY_MPFR_CLEANUP(c, context, "modf");
 
-  done:
-    Py_DECREF(self);
-    if (PyErr_Occurred()) {
+    if (!s || !c) {
         Py_XDECREF((PyObject*)s);
         Py_XDECREF((PyObject*)c);
-        Py_XDECREF(result);
-        result = NULL;
+        Py_DECREF(result);
+        return NULL;
     }
-    else {
-        PyTuple_SET_ITEM(result, 0, (PyObject*)s);
-        PyTuple_SET_ITEM(result, 1, (PyObject*)c);
-    }
+
+    PyTuple_SET_ITEM(result, 0, (PyObject*)s);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)c);
     return result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_lgamma,
+GMPY_MPFR_UNIOP_TEMPLATE(Modf, modf)
+
+PyDoc_STRVAR(GMPy_doc_function_lgamma,
 "lgamma(x) -> (mpfr, int)\n\n"
 "Return a tuple containing the logarithm of the absolute value of\n"
 "gamma(x) and the sign of gamma(x)");
 
+PyDoc_STRVAR(GMPy_doc_context_lgamma,
+"context.lgamma(x) -> (mpfr, int)\n\n"
+"Return a tuple containing the logarithm of the absolute value of\n"
+"gamma(x) and the sign of gamma(x)");
+
 static PyObject *
-Pympfr_lgamma(PyObject* self, PyObject *other)
+GMPy_Real_Lgamma(PyObject *x, CTXT_Object *context)
 {
     PyObject *result;
-    MPFR_Object *value;
+    MPFR_Object *value, *tempx;
     int signp = 0;
-    CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context)
 
-    PARSE_ONE_MPFR_OTHER("lgamma() requires 'mpfr' argument");
-
+    tempx = GMPy_MPFR_From_Real(x, 1, context);
     value = GMPy_MPFR_New(0, context);
     result = PyTuple_New(2);
-    if (!value || !result)
-        goto done;
+    if (!tempx || !value || !result) {
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)value);
+        Py_XDECREF(result);
+        return NULL;
+    }
 
     mpfr_clear_flags();
-    value->rc = mpfr_lgamma(value->f, &signp, MPFR(self),
-                            context->ctx.mpfr_round);
-    SUBNORMALIZE(value);
-    MERGE_FLAGS;
-    CHECK_FLAGS("lgamma()");
+    value->rc = mpfr_lgamma(value->f, &signp, tempx->f, GET_MPFR_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
 
-  done:
-    Py_DECREF(self);
-    if (PyErr_Occurred()) {
-        Py_XDECREF(result);
-        Py_XDECREF((PyObject*)value);
-        result = NULL;
+    GMPY_MPFR_CLEANUP(value, context, "lgamma")
+
+    if (!value) {
+        Py_DECREF(result);
+        return NULL;
     }
-    else {
-        PyTuple_SET_ITEM(result, 0, (PyObject*)value);
-        PyTuple_SET_ITEM(result, 1, PyIntOrLong_FromLong((long)signp));
-    }
+
+    PyTuple_SET_ITEM(result, 0, (PyObject*)value);
+    PyTuple_SET_ITEM(result, 1, PyIntOrLong_FromLong((long)signp));
     return result;
 }
+
+GMPY_MPFR_UNIOP_TEMPLATE(Lgamma, lgamma)
 
 PyDoc_STRVAR(doc_g_mpfr_remquo,
 "remquo(x, y) -> (mpfr, int)\n\n"
