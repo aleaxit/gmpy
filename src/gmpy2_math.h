@@ -315,8 +315,12 @@ static PyObject * GMPy_Number_Trunc(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_MPFR_Method_Trunc(PyObject *self, PyObject *args);
 static PyObject * GMPy_Context_Trunc(PyObject *self, PyObject *args);
 
-static PyObject * Pympfr_round2(PyObject *self, PyObject *args);
-static PyObject * Pympfr_round10(PyObject *self, PyObject *args);
+static PyObject * GMPy_Real_Round2(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Number_Round2(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Context_Round2(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_MPFR_Method_Round10(PyObject *self, PyObject *args);
+
 static PyObject * Pympfr_round_away(PyObject* self, PyObject *other);
 static PyObject * Pympfr_modf(PyObject* self, PyObject *other);
 static PyObject * Pympfr_lgamma(PyObject* self, PyObject *other);

@@ -770,7 +770,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "rint_trunc", GMPy_Context_RintTrunc, METH_O, GMPy_doc_function_rint_trunc },
     { "root", GMPy_Context_Root, METH_VARARGS, GMPy_doc_function_root },
     { "round_away", Pympfr_round_away, METH_O, doc_g_mpfr_round_away },
-    { "round2", Pympfr_round2, METH_VARARGS, doc_g_mpfr_round2 },
+    { "round2", GMPy_Context_Round2, METH_VARARGS, GMPy_doc_function_round2 },
     { "sec", GMPy_Context_Sec, METH_O, GMPy_doc_function_sec },
     { "sech", GMPy_Context_Sech, METH_O, GMPy_doc_function_sech },
     { "set_context", GMPy_CTXT_Set, METH_O, GMPy_doc_set_context },
