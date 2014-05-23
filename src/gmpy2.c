@@ -709,7 +709,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "exp10", GMPy_Context_Exp10, METH_O, GMPy_doc_function_exp10 },
     { "exp2", GMPy_Context_Exp2, METH_O, GMPy_doc_function_exp2 },
     { "f2q", GMPy_Context_F2Q, METH_VARARGS, GMPy_doc_function_f2q },
-    { "factorial", Pympfr_factorial, METH_O, doc_g_mpfr_factorial },
+    { "factorial", GMPy_Context_Factorial, METH_O, GMPy_doc_function_factorial },
     { "floor", GMPy_Context_Floor, METH_O, GMPy_doc_function_floor },
     { "fma", GMPy_Context_FMA, METH_VARARGS, GMPy_doc_function_fma },
     { "fms", GMPy_Context_FMS, METH_VARARGS, GMPy_doc_function_fms },

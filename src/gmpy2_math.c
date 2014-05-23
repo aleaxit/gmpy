@@ -1653,21 +1653,31 @@ Pympfr_nextbelow(PyObject *self, PyObject *other)
     MPFR_CLEANUP_SELF("next_below()");
 }
 
-PyDoc_STRVAR(doc_g_mpfr_factorial,
+PyDoc_STRVAR(GMPy_doc_function_factorial,
 "factorial(n) -> mpfr\n\n"
 "Return the floating-point approximation to the factorial of n.\n\n"
 "See fac(n) to get the exact integer result.");
 
+PyDoc_STRVAR(GMPy_doc_context_factorial,
+"context.factorial(n) -> mpfr\n\n"
+"Return the floating-point approximation to the factorial of n.\n\n"
+"See fac(n) to get the exact integer result.");
+
 static PyObject *
-Pympfr_factorial(PyObject *self, PyObject *other)
+GMPy_Context_Factorial(PyObject *self, PyObject *other)
 {
     MPFR_Object *result;
     long n;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
+    }
+    else {
+        CHECK_CONTEXT(context);
+    }
 
-    n = clong_From_Integer(other);
+    n = PyLong_AsLong(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("factorial() requires 'int' argument");
         return NULL;
@@ -1678,15 +1688,14 @@ Pympfr_factorial(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = GMPy_MPFR_New(0, context)))
+    if (!(result = GMPy_MPFR_New(0, context))) {
         return NULL;
+    }
 
     mpfr_clear_flags();
-    mpfr_fac_ui(result->f, n, context->ctx.mpfr_round);
+    mpfr_fac_ui(result->f, n, GET_MPFR_ROUND(context));
 
-    MERGE_FLAGS;
-    CHECK_FLAGS("factorial()");
-  done:
+    GMPY_MPFR_CLEANUP(result, context, "factorial()");
     return (PyObject*)result;
 }
 
