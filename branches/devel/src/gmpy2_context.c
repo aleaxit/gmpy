@@ -1280,6 +1280,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "fma", GMPy_Context_FMA, METH_VARARGS, GMPy_doc_context_fma },
     { "fmod", GMPy_Context_Fmod, METH_VARARGS, GMPy_doc_context_fmod },
     { "fms", GMPy_Context_FMS, METH_VARARGS, GMPy_doc_context_fms },
+    { "factorial", GMPy_Context_Factorial, METH_O, GMPy_doc_context_factorial },
     { "frac", GMPy_Context_Frac, METH_O, GMPy_doc_context_frac },
     { "fsum", GMPy_Context_Fsum, METH_O, GMPy_doc_context_fsum },
     { "gamma", GMPy_Context_Gamma, METH_O, GMPy_doc_context_gamma },

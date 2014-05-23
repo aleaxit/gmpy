@@ -336,7 +336,8 @@ static PyObject * Pympfr_frexp(PyObject *self, PyObject *other);
 static PyObject * Pympfr_nexttoward(PyObject *self, PyObject *args);
 static PyObject * Pympfr_nextabove(PyObject *self, PyObject *other);
 static PyObject * Pympfr_nextbelow(PyObject *self, PyObject *other);
-static PyObject * Pympfr_factorial(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Context_Factorial(PyObject *self, PyObject *other);
 
 static PyObject * GMPy_Context_Fsum(PyObject *self, PyObject *other);
 
