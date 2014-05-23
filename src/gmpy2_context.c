@@ -1281,6 +1281,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "fmod", GMPy_Context_Fmod, METH_VARARGS, GMPy_doc_context_fmod },
     { "fms", GMPy_Context_FMS, METH_VARARGS, GMPy_doc_context_fms },
     { "frac", GMPy_Context_Frac, METH_O, GMPy_doc_context_frac },
+    { "fsum", GMPy_Context_Fsum, METH_O, GMPy_doc_context_fsum },
     { "gamma", GMPy_Context_Gamma, METH_O, GMPy_doc_context_gamma },
     { "hypot", GMPy_Context_Hypot, METH_VARARGS, GMPy_doc_context_hypot },
     { "is_finite", GMPy_Context_Is_Finite, METH_O, GMPy_doc_context_is_finite },

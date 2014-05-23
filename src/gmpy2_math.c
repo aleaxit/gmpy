@@ -1690,12 +1690,16 @@ Pympfr_factorial(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_fsum,
+PyDoc_STRVAR(GMPy_doc_function_fsum,
+"fsum(iterable) -> mpfr\n\n"
+"Return an accurate sum of the values in the iterable.");
+
+PyDoc_STRVAR(GMPy_doc_context_fsum,
 "fsum(iterable) -> mpfr\n\n"
 "Return an accurate sum of the values in the iterable.");
 
 static PyObject *
-Pympfr_fsum(PyObject *self, PyObject *other)
+GMPy_Context_Fsum(PyObject *self, PyObject *other)
 {
     MPFR_Object *temp, *result;
     mpfr_ptr *tab;
@@ -1703,10 +1707,16 @@ Pympfr_fsum(PyObject *self, PyObject *other)
     Py_ssize_t i, seq_length = 0;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
+    }
+    else {
+        CHECK_CONTEXT(context);
+    }
 
-    if (!(result = GMPy_MPFR_New(0, context)))
+    if (!(result = GMPy_MPFR_New(0, context))) {
         return NULL;
+    }
 
     if (!(other = PySequence_List(other))) {
         Py_DECREF((PyObject*)result);
@@ -1747,10 +1757,13 @@ Pympfr_fsum(PyObject *self, PyObject *other)
         temp = (MPFR_Object*)PyList_GET_ITEM(other, i);
         tab[i] = temp->f;
     }
-    result->rc = mpfr_sum(result->f, tab, seq_length, context->ctx.mpfr_round);
+    
+    mpfr_clear_flags();
+    result->rc = mpfr_sum(result->f, tab, seq_length, GET_MPFR_ROUND(context));
     Py_DECREF(other);
     GMPY_FREE(tab);
 
+    GMPY_MPFR_CLEANUP(result, context, "fsum()");
     return (PyObject*)result;
 }
 
