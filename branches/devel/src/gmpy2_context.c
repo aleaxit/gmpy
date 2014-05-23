@@ -1324,6 +1324,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "rint_round", GMPy_Context_RintRound, METH_O, GMPy_doc_context_rint_round },
     { "rint_trunc", GMPy_Context_RintTrunc, METH_O, GMPy_doc_context_rint_trunc },
     { "root", GMPy_Context_Root, METH_VARARGS, GMPy_doc_context_root },
+    { "round2", GMPy_Context_Round2, METH_VARARGS, GMPy_doc_context_round2 },
     { "sec", GMPy_Context_Sec, METH_O, GMPy_doc_context_sec },
     { "sech", GMPy_Context_Sech, METH_O, GMPy_doc_context_sech },
     { "sin", GMPy_Context_Sin, METH_O, GMPy_doc_context_sin },

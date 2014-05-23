@@ -1218,57 +1218,98 @@ PyDoc_STRVAR(GMPy_doc_context_fmod,
 
 GMPY_MPFR_BINOP(Fmod, fmod)
 
-PyDoc_STRVAR(doc_g_mpfr_round2,
+PyDoc_STRVAR(GMPy_doc_function_round2,
 "round2(x[, n]) -> mpfr\n\n"
 "Return x rounded to n bits. Uses default precision if n is not\n"
 "specified. See round_away() to access the mpfr_round() function.");
 
+PyDoc_STRVAR(GMPy_doc_context_round2,
+"context.round2(x[, n]) -> mpfr\n\n"
+"Return x rounded to n bits. Uses default precision if n is not\n"
+"specified. See round_away() to access the mpfr_round() function.");
+
 static PyObject *
-Pympfr_round2(PyObject *self, PyObject *args)
+GMPy_Real_Round2(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    mpfr_prec_t prec;
-    MPFR_Object *result = 0;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT_SET_EXPONENT(context);
-    prec = context->ctx.mpfr_prec;
-
-    PARSE_ONE_MPFR_OPT_CLONG(&prec,
-            "round2() requires 'mpfr',['int'] arguments");
-
-    if (prec < MPFR_PREC_MIN || prec > MPFR_PREC_MAX) {
-        VALUE_ERROR("invalid precision");
-        goto done;
+    MPFR_Object *result, *tempx;
+    long n = 0;
+    
+    CHECK_CONTEXT(context);
+    
+    if (y) {
+        n = PyIntOrLong_AsLong(y);
+        if ( (n == -1 && PyErr_Occurred()) || n < MPFR_PREC_MIN || n > MPFR_PREC_MAX) {
+            VALUE_ERROR("invalid precision");
+            return NULL;
+        }
+    }
+    
+    if (!(tempx = GMPy_MPFR_From_Real(x, 1, context))) {
+        return NULL;
+    }
+    if (!(result = GMPy_MPFR_New(mpfr_get_prec(tempx->f), context))) {
+        Py_DECREF((PyObject*)tempx);
+        return NULL;
     }
 
-    if (!(result = GMPy_MPFR_New(mpfr_get_prec(MPFR(self)), context))) {
-        goto done;
-    }
-
+    mpfr_set(result->f, tempx->f, GET_MPFR_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
     mpfr_clear_flags();
-    /* Duplicate the code from Pympfr_pos. */
-    mpfr_set(result->f, MPFR(self), context->ctx.mpfr_round);
-    result->round_mode = ((MPFR_Object*)self)->round_mode;
-    result->rc = ((MPFR_Object*)self)->rc;
-    result->rc = mpfr_check_range(result->f, result->rc, result->round_mode);
-    result->rc = mpfr_prec_round(result->f, prec, context->ctx.mpfr_round);
-
-    MPFR_CLEANUP_SELF("round2()");
+    result->rc = mpfr_prec_round(result->f, n, GET_MPFR_ROUND(context));
+    GMPY_MPFR_CLEANUP(result, context, "round2()");
+    return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_round10,
+static PyObject *
+GMPy_Number_Round2(PyObject *x, PyObject *y, CTXT_Object *context)
+{
+    if (IS_REAL(x) && (!y || PyIntOrLong_Check(y)))
+        return GMPy_Real_Round2(x, y, context);
+        
+    TYPE_ERROR("round2() argument type not supported");
+    return NULL;
+}
+
+static PyObject *
+GMPy_Context_Round2(PyObject *self, PyObject *args)
+{
+    CTXT_Object *context = NULL;
+    
+    if (PyTuple_GET_SIZE(args) < 1 || PyTuple_GET_SIZE(args) > 2) {
+        TYPE_ERROR("round2() requires 1 or 2 arguments");
+        return NULL;
+    }
+    
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
+    }
+    else {
+        CHECK_CONTEXT(context);
+    }
+
+    if (PyTuple_GET_SIZE(args) == 1) {
+        return GMPy_Number_Round2(PyTuple_GET_ITEM(args, 0), NULL, context);
+    }
+    else {
+        return GMPy_Number_Round2(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context);
+    }
+}
+
+PyDoc_STRVAR(GMPy_doc_method_round10,
 "__round__(x[, n = 0]) -> mpfr\n\n"
 "Return x rounded to n decimal digits before (n < 0) or after (n > 0)\n"
 "the decimal point. Rounds to an integer if n is not specified.");
 
 static PyObject *
-Pympfr_round10(PyObject *self, PyObject *args)
+GMPy_MPFR_Method_Round10(PyObject *self, PyObject *args)
 {
-    Py_ssize_t digits = 0;
+    long digits = 0;
     mpz_t temp;
     MPFR_Object *resultf = 0;
     MPZ_Object *resultz;
     CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     /* If the size of args is 0, we just return an mpz. */
 
@@ -1298,12 +1339,12 @@ Pympfr_round10(PyObject *self, PyObject *args)
     }
 
     if (PyTuple_GET_SIZE(args) > 1) {
-        TYPE_ERROR("Too many arguments for __round__().");
+        TYPE_ERROR("__round__() requires 0 or 1 argument");
         return NULL;
     }
 
     if (PyTuple_GET_SIZE(args) == 1) {
-        digits = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 0));
+        digits = PyIntOrLong_AsLong(PyTuple_GET_ITEM(args, 0));
         if (digits == -1 && PyErr_Occurred()) {
             TYPE_ERROR("__round__() requires 'int' argument");
             return NULL;
@@ -1314,9 +1355,9 @@ Pympfr_round10(PyObject *self, PyObject *args)
      * fraction, round the fraction, and then convert back to an mpfr.
      */
 
-    resultf = GMPy_MPFR_New(mpfr_get_prec(MPFR(self))+100, context);
-    if (!resultf)
+    if (!(resultf = GMPy_MPFR_New(mpfr_get_prec(MPFR(self))+100, context))) {
         return NULL;
+    }
 
     mpz_inoc(temp);
     mpz_ui_pow_ui(temp, 10, digits > 0 ? digits : -digits);

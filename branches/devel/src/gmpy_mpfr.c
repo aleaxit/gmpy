@@ -234,7 +234,7 @@ static PyMethodDef Pympfr_methods [] =
     { "__ceil__", GMPy_MPFR_Method_Ceil, METH_NOARGS, GMPy_doc_mpfr_ceil_method },
     { "__floor__", GMPy_MPFR_Method_Floor, METH_NOARGS, GMPy_doc_mpfr_floor_method },
     { "__format__", GMPy_MPFR_Format, METH_VARARGS, GMPy_doc_mpfr_format },
-    { "__round__", Pympfr_round10, METH_VARARGS, doc_g_mpfr_round10 },
+    { "__round__", GMPy_MPFR_Method_Round10, METH_VARARGS, GMPy_doc_method_round10 },
     { "__sizeof__", GMPy_MPFR_SizeOf_Method, METH_NOARGS, GMPy_doc_mpfr_sizeof_method },
     { "__trunc__", GMPy_MPFR_Method_Trunc, METH_NOARGS, GMPy_doc_mpfr_trunc_method },
     { "as_integer_ratio", GMPy_MPFR_Integer_Ratio_Method, METH_NOARGS, GMPy_doc_method_integer_ratio },
