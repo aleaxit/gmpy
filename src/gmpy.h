@@ -81,7 +81,6 @@ typedef unsigned long Py_uhash_t;
 #define PyIntOrLong_FromSsize_t     PyLong_FromSsize_t
 #define PyIntOrLong_AsSsize_t       PyLong_AsSsize_t
 #define PyIntOrLong_AsLong          PyLong_AsLong
-#define PyIntOrLong_AsUnsignedLong  PyLong_AsUnsignedLong
 #else
 #define PY2
 #define Py2or3String_FromString     PyString_FromString
@@ -96,7 +95,6 @@ typedef unsigned long Py_uhash_t;
 #define PyIntOrLong_FromSsize_t     PyInt_FromSsize_t
 #define PyIntOrLong_AsSsize_t       PyInt_AsSsize_t
 #define PyIntOrLong_AsLong          PyInt_AsLong
-#define PyIntOrLong_AsUnsignedLong  PyInt_AsUnsignedLong
 #endif
 
 /* Support MPIR, if requested. */

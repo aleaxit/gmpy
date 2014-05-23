@@ -319,11 +319,18 @@ static PyObject * GMPy_Real_Round2(PyObject *x, PyObject *y, CTXT_Object *contex
 static PyObject * GMPy_Number_Round2(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Context_Round2(PyObject *self, PyObject *args);
 
-static PyObject * GMPy_MPFR_Method_Round10(PyObject *self, PyObject *args);
+static PyObject * GMPy_Real_RoundAway(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_RoundAway(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_RoundAway(PyObject *self, PyObject *other);
 
-static PyObject * Pympfr_round_away(PyObject* self, PyObject *other);
-static PyObject * Pympfr_modf(PyObject* self, PyObject *other);
-static PyObject * Pympfr_lgamma(PyObject* self, PyObject *other);
+static PyObject * GMPy_Real_Modf(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Modf(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Modf(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Lgamma(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Lgamma(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Lgamma(PyObject *self, PyObject *other);
+
 static PyObject * Pympfr_remquo(PyObject* self, PyObject *args);
 static PyObject * Pympfr_frexp(PyObject *self, PyObject *other);
 static PyObject * Pympfr_nexttoward(PyObject *self, PyObject *args);

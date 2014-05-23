@@ -474,6 +474,46 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
     return GMPy_Number_##NAME(other, context); \
 }
 
+#define GMPY_MPFR_UNIOP_NOROUND_NOMETHOD(NAME, FUNC) \
+static PyObject * \
+GMPy_Real_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    MPFR_Object *result, *tempx; \
+    CHECK_CONTEXT(context); \
+    result = GMPy_MPFR_New(0, context); \
+    tempx = GMPy_MPFR_From_Real(x, 1, context); \
+    if (!result || !tempx) { \
+        Py_XDECREF((PyObject*)result); \
+        Py_XDECREF((PyObject*)tempx); \
+        return NULL; \
+    } \
+    mpfr_clear_flags(); \
+    result->rc = mpfr_##FUNC(result->f, tempx->f); \
+    Py_DECREF((PyObject*)tempx); \
+    GMPY_MPFR_CLEANUP(result, context, #FUNC "()"); \
+    return (PyObject*)result; \
+} \
+static PyObject * \
+GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    if (IS_REAL(x)) \
+        return GMPy_Real_##NAME(x, context); \
+    TYPE_ERROR(#FUNC"() argument type not supported"); \
+    return NULL; \
+} \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *other) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(other, context); \
+}
+
 #define GMPY_MPFR_UNIOP_EX(NAME, FUNC) \
 static PyObject * \
 _GMPy_MPFR_##NAME(PyObject *x, CTXT_Object *context) \
@@ -629,7 +669,7 @@ GMPy_Real_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
     CHECK_CONTEXT(context); \
     result = GMPy_MPFR_New(0, context); \
     tempx = GMPy_MPFR_From_Real(x, 1, context); \
-    n = PyIntOrLong_AsUnsignedLong(y); \
+    n = PyLong_AsUnsignedLong(y); \
     if (!result || !tempx || (n == ULONG_MAX && PyErr_Occurred())) { \
         Py_XDECREF((PyObject*)tempx); \
         Py_XDECREF((PyObject*)result); \

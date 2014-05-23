@@ -62,6 +62,8 @@ static PyObject * GMPy_MPFR_CheckRange(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Number_CheckRange(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_CheckRange(PyObject *self, PyObject *other);
 
+static PyObject * GMPy_MPFR_Method_Round10(PyObject *self, PyObject *args);
+
 #ifdef __cplusplus
 }
 #endif
