@@ -331,11 +331,19 @@ static PyObject * GMPy_Real_Lgamma(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Number_Lgamma(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Lgamma(PyObject *self, PyObject *other);
 
-static PyObject * Pympfr_remquo(PyObject* self, PyObject *args);
-static PyObject * Pympfr_frexp(PyObject *self, PyObject *other);
-static PyObject * Pympfr_nexttoward(PyObject *self, PyObject *args);
-static PyObject * Pympfr_nextabove(PyObject *self, PyObject *other);
-static PyObject * Pympfr_nextbelow(PyObject *self, PyObject *other);
+static PyObject * GMPy_Real_RemQuo(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Number_RemQuo(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Context_RemQuo(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Real_Frexp(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Number_Frexp(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Context_Frexp(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Context_NextToward(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_Context_NextAbove(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_Context_NextBelow(PyObject *self, PyObject *other);
 
 static PyObject * GMPy_Context_Factorial(PyObject *self, PyObject *other);
 
