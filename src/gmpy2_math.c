@@ -1494,163 +1494,220 @@ GMPy_Real_Lgamma(PyObject *x, CTXT_Object *context)
 
 GMPY_MPFR_UNIOP_TEMPLATE(Lgamma, lgamma)
 
-PyDoc_STRVAR(doc_g_mpfr_remquo,
+PyDoc_STRVAR(GMPy_doc_function_remquo,
 "remquo(x, y) -> (mpfr, int)\n\n"
 "Return a tuple containing the remainder(x,y) and the low bits of the\n"
 "quotient.");
 
+PyDoc_STRVAR(GMPy_doc_context_remquo,
+"context.remquo(x, y) -> (mpfr, int)\n\n"
+"Return a tuple containing the remainder(x,y) and the low bits of the\n"
+"quotient.");
+
 static PyObject *
-Pympfr_remquo(PyObject* self, PyObject *args)
+GMPy_Real_RemQuo(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    PyObject *result, *other;
-    MPFR_Object *value;
+    PyObject *result;
+    MPFR_Object *value, *tempx, *tempy;
     long quobits = 0;
-    CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    PARSE_TWO_MPFR_ARGS(other, "remquo() requires 'mpfr', 'mpfr' argument");
+    CHECK_CONTEXT(context);
 
     value = GMPy_MPFR_New(0, context);
+    tempx = GMPy_MPFR_From_Real(x, 1, context);
+    tempy = GMPy_MPFR_From_Real(y, 1, context);
     result = PyTuple_New(2);
-    if (!value || !result)
-        goto done;
+    if (!value || !tempx || !tempx || !result) {
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)tempy);
+        Py_XDECREF((PyObject*)value);
+        Py_XDECREF(result);
+        return NULL;
+    }
 
     mpfr_clear_flags();
-    value->rc = mpfr_remquo(value->f, &quobits, MPFR(self),
-                            MPFR(other), context->ctx.mpfr_round);
-    SUBNORMALIZE(value);
-    MERGE_FLAGS;
-    CHECK_FLAGS("remquo()");
+    value->rc = mpfr_remquo(value->f, &quobits, tempx->f, tempy->f, GET_MPFR_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
+    Py_DECREF((PyObject*)tempy);
+    GMPY_MPFR_CLEANUP(value, context, "remquo()");
 
-  done:
-    Py_DECREF(self);
-    Py_DECREF(other);
-    if (PyErr_Occurred()) {
-        Py_XDECREF(result);
-        Py_XDECREF((PyObject*)value);
-        result = NULL;
-    }
-    else {
-        PyTuple_SET_ITEM(result, 0, (PyObject*)value);
-        PyTuple_SET_ITEM(result, 1, PyIntOrLong_FromLong(quobits));
-    }
+    PyTuple_SET_ITEM(result, 0, (PyObject*)value);
+    PyTuple_SET_ITEM(result, 1, PyIntOrLong_FromLong(quobits));
     return result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_frexp,
+GMPY_MPFR_BINOP_TEMPLATE(RemQuo, remquo);
+
+PyDoc_STRVAR(GMPy_doc_function_frexp,
 "frexp(x) -> (int, mpfr)\n\n"
 "Return a tuple containing the exponent and mantissa of x.");
 
+PyDoc_STRVAR(GMPy_doc_context_frexp,
+"context.frexp(x) -> (int, mpfr)\n\n"
+"Return a tuple containing the exponent and mantissa of x.");
+
 static PyObject *
-Pympfr_frexp(PyObject *self, PyObject *other)
+GMPy_Real_Frexp(PyObject *x, CTXT_Object *context)
 {
     PyObject *result;
-    MPFR_Object *value;
+    MPFR_Object *value, *tempx;
     mpfr_exp_t exp = 0;
-    CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
-
-    PARSE_ONE_MPFR_OTHER("frexp() requires 'mpfr' argument");
+    CHECK_CONTEXT(context);
 
     value = GMPy_MPFR_New(0, context);
+    tempx = GMPy_MPFR_From_Real(x, 1, context);
     result = PyTuple_New(2);
-    if (!value || !result)
-        goto done;
+    if (!value || !result || !tempx) {
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)value);
+        Py_XDECREF(result);
+        return NULL;
+    }
 
     mpfr_clear_flags();
-    value->rc = mpfr_frexp(&exp, value->f, MPFR(self),
-                           context->ctx.mpfr_round);
-    MERGE_FLAGS;
-    CHECK_FLAGS("frexp()");
+    value->rc = mpfr_frexp(&exp, value->f, tempx->f, GET_MPFR_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
+    GMPY_MPFR_CLEANUP(value, context, "frexp()");
 
-  done:
-    Py_DECREF(self);
-    Py_DECREF(other);
-    if (PyErr_Occurred()) {
-        Py_XDECREF(result);
-        Py_XDECREF((PyObject*)value);
-        result = NULL;
-    }
-    else {
-        PyTuple_SET_ITEM(result, 0, PyIntOrLong_FromSsize_t((Py_ssize_t)exp));
-        PyTuple_SET_ITEM(result, 1, (PyObject*)value);
-    }
+    PyTuple_SET_ITEM(result, 0, PyIntOrLong_FromSsize_t((Py_ssize_t)exp));
+    PyTuple_SET_ITEM(result, 1, (PyObject*)value);
     return result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_nexttoward,
-"next_toward(y, x) -> mpfr\n\n"
-"Return the next 'mpfr' from x in the direction of y.");
+GMPY_MPFR_UNIOP_TEMPLATE(Frexp, frexp)
+
+PyDoc_STRVAR(GMPy_doc_function_next_toward,
+"next_toward(x, y) -> mpfr\n\n"
+"Return the next 'mpfr' from x in the direction of y. The result has\n"
+"the same precision as x.");
+
+PyDoc_STRVAR(GMPy_doc_context_next_toward,
+"context.next_toward(x, y) -> mpfr\n\n"
+"Return the next 'mpfr' from x in the direction of y. The result has\n"
+"the same precision as x.");
 
 static PyObject *
-Pympfr_nexttoward(PyObject *self, PyObject *args)
+GMPy_Context_NextToward(PyObject *self, PyObject *args)
 {
-    MPFR_Object *result;
-    PyObject *other;
+    MPFR_Object *result, *tempx, *tempy;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
+    }
+    else {
+        CHECK_CONTEXT(context);
+    }
 
-    PARSE_TWO_MPFR_ARGS(other, "next_toward() requires 'mpfr','mpfr' arguments");
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("next_toward() requires 2 arguments");
+        return NULL;
+    }
 
-    if (!(result = GMPy_MPFR_New(mpfr_get_prec(MPFR(self)), context)))
-        goto done;
+    tempx = GMPy_MPFR_From_Real(PyTuple_GET_ITEM(args, 0), 1, context);
+    tempy = GMPy_MPFR_From_Real(PyTuple_GET_ITEM(args, 1), 1, context);
+    if (!tempx || !tempy) {
+        TYPE_ERROR("next_toward() argument type not supported");
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)tempy);
+        return NULL;
+    }
+
+    if (!(result = GMPy_MPFR_New(mpfr_get_prec(tempx->f), context))) {
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+        return NULL;
+    }
 
     mpfr_clear_flags();
-    mpfr_set(result->f, MPFR(self), context->ctx.mpfr_round);
-    mpfr_nexttoward(result->f, MPFR(other));
+    mpfr_set(result->f, tempx->f, GET_MPFR_ROUND(context));
+    mpfr_nexttoward(result->f, tempy->f);
     result->rc = 0;
-    MPFR_CLEANUP_SELF_OTHER("next_toward()");
+    Py_DECREF((PyObject*)tempx);
+    Py_DECREF((PyObject*)tempy);
+    GMPY_MPFR_CLEANUP(result, context, "next_toward()");
+    return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_nextabove,
+PyDoc_STRVAR(GMPy_doc_function_next_above,
 "next_above(x) -> mpfr\n\n"
 "Return the next 'mpfr' from x toward +Infinity.");
 
+PyDoc_STRVAR(GMPy_doc_context_next_above,
+"context.next_above(x) -> mpfr\n\n"
+"Return the next 'mpfr' from x toward +Infinity.");
+
 static PyObject *
-Pympfr_nextabove(PyObject *self, PyObject *other)
+GMPy_Context_NextAbove(PyObject *self, PyObject *other)
 {
-    MPFR_Object *result;
+    MPFR_Object *result, *tempx;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
+    }
+    else {
+        CHECK_CONTEXT(context);
+    }
 
-    PARSE_ONE_MPFR_OTHER("next_above() requires 'mpfr' argument");
+    if (!(tempx = GMPy_MPFR_From_Real(other, 1, context))) {
+        TYPE_ERROR("next_above() argument type not supported");
+        return NULL;
+    }
 
-    if (!(result = GMPy_MPFR_New(mpfr_get_prec(MPFR(self)), context)))
-        goto done;
+    if (!(result = GMPy_MPFR_New(mpfr_get_prec(tempx->f), context))) {
+        Py_DECREF((PyObject*)tempx);
+        return NULL;
+    }
 
     mpfr_clear_flags();
     mpfr_set(result->f, MPFR(self), context->ctx.mpfr_round);
+    Py_DECREF((PyObject*)tempx);
     mpfr_nextabove(result->f);
     result->rc = 0;
-    MPFR_CLEANUP_SELF("next_above()");
+    GMPY_MPFR_CLEANUP(result, context, "next_above()");
+    return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_g_mpfr_nextbelow,
+PyDoc_STRVAR(GMPy_doc_function_next_below,
 "next_below(x) -> mpfr\n\n"
 "Return the next 'mpfr' from x toward -Infinity.");
 
+PyDoc_STRVAR(GMPy_doc_context_next_below,
+"context.next_below(x) -> mpfr\n\n"
+"Return the next 'mpfr' from x toward -Infinity.");
+
 static PyObject *
-Pympfr_nextbelow(PyObject *self, PyObject *other)
+GMPy_Context_NextBelow(PyObject *self, PyObject *other)
 {
-    MPFR_Object *result;
+    MPFR_Object *result, *tempx;
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
+    }
+    else {
+        CHECK_CONTEXT(context);
+    }
 
-    PARSE_ONE_MPFR_OTHER("next_below() requires 'mpfr' argument");
+    if (!(tempx = GMPy_MPFR_From_Real(other, 1, context))) {
+        TYPE_ERROR("next_below() argument type not supported");
+        return NULL;
+    }
 
-    if (!(result = GMPy_MPFR_New(mpfr_get_prec(MPFR(self)), context)))
-        goto done;
+    if (!(result = GMPy_MPFR_New(mpfr_get_prec(tempx->f), context))) {
+        Py_DECREF((PyObject*)tempx);
+        return NULL;
+    }
 
     mpfr_clear_flags();
-    mpfr_set(result->f, MPFR(self), context->ctx.mpfr_round);
+    mpfr_set(result->f, tempx->f, GET_MPFR_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
     mpfr_nextbelow(result->f);
     result->rc = 0;
-    MPFR_CLEANUP_SELF("next_below()");
+    GMPY_MPFR_CLEANUP(result, context, "next_below()");
+    return (PyObject*)result;
 }
 
 PyDoc_STRVAR(GMPy_doc_function_factorial,

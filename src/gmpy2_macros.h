@@ -853,11 +853,14 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
 static PyObject * \
 GMPy_Function_##NAME(PyObject *self, PyObject *args, PyObject *keywds) \
 { \
-    MPFR_Object *result = NULL; \
+    MPFR_Object *result; \
     mpfr_prec_t bits = 0; \
     static char *kwlist[] = {"precision", NULL}; \
     CTXT_Object *context = NULL; \
-    CHECK_CONTEXT(context); \
+    if (self && CTXT_Check(self)) \
+        context = (CTXT_Object*)self; \
+    else \
+        CHECK_CONTEXT(context); \
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "|l", kwlist, &bits)) return NULL; \
     if ((result = GMPy_MPFR_New(bits, context))) { \
         mpfr_clear_flags(); \
