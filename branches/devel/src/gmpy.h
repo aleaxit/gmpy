@@ -258,7 +258,7 @@ typedef long                mpir_si;
 
 #include "gmpy_mpq.h"
 
-#include "gmpy_mpfr.h"
+#include "gmpy2_mpfr.h"
 #if MPFR_VERSION < 0x030100
 #  error gmpy2 requires MPFR 3.1.0 or later
 #endif
