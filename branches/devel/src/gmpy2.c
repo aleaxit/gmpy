@@ -555,7 +555,7 @@ static PyObject *GMPyExc_Erange = NULL;
 
 #include "gmpy_mpz.c"
 #include "gmpy_xmpz.c"
-#include "gmpy_mpq.c"
+#include "gmpy2_mpq.c"
 #include "gmpy2_mpfr.c"
 #include "gmpy2_mpc.c"
 
