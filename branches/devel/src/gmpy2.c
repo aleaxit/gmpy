@@ -393,7 +393,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-/* Include functions missing from the Python 2.6 C-API that are include
+/* Include functions missing from the Python 2.6 C-API that are included
  * in later versions of Python.
  */
 
@@ -549,6 +549,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_richcompare.c"
 #include "gmpy2_mpc_misc.c"
 #include "gmpy2_mpfr_misc.c"
+#include "gmpy2_mpq_misc.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
@@ -637,7 +638,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "mp_limbsize", GMPy_get_mp_limbsize, METH_NOARGS, GMPy_doc_mp_limbsize },
     { "mpc_version", GMPy_get_mpc_version, METH_NOARGS, GMPy_doc_mpc_version },
     { "mpfr_version", GMPy_get_mpfr_version, METH_NOARGS, GMPy_doc_mpfr_version },
-    { "mpq", (PyCFunction)Pygmpy_mpq, METH_VARARGS | METH_KEYWORDS, doc_mpq },
+    { "mpq", (PyCFunction)GMPy_MPQ_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_mpq_factory },
     { "mpq_from_old_binary", GMPy_MPQ_From_Old_Binary, METH_O, doc_mpq_from_old_binary },
     { "mpz", (PyCFunction)Pygmpy_mpz, METH_VARARGS | METH_KEYWORDS, doc_mpz },
     { "mpz_from_old_binary", GMPy_MPZ_From_Old_Binary, METH_O, doc_mpz_from_old_binary },
