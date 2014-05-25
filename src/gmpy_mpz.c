@@ -109,7 +109,7 @@ static PyNumberMethods mpz_number_methods =
     (unaryfunc) GMPy_MPZ_Minus_Slot,       /* nb_negative             */
     (unaryfunc) GMPy_MPZ_Plus_Slot,        /* nb_positive             */
     (unaryfunc) GMPy_MPZ_Abs_Slot,         /* nb_absolute             */
-    (inquiry) Pympz_nonzero,               /* nb_bool                 */
+    (inquiry) GMPy_MPZ_NonZero_Slot,       /* nb_bool                 */
     (unaryfunc) GMPy_MPZ_Invert_Slot,      /* nb_invert               */
     (binaryfunc) GMPy_MPZ_Lshift_Slot,     /* nb_lshift               */
     (binaryfunc) GMPy_MPZ_Rshift_Slot,     /* nb_rshift               */
@@ -149,7 +149,7 @@ static PyNumberMethods mpz_number_methods =
     (unaryfunc) GMPy_MPZ_Minus_Slot,       /* nb_negative             */
     (unaryfunc) GMPy_MPZ_Plus_Slot,        /* nb_positive             */
     (unaryfunc) GMPy_MPZ_Abs_Slot,         /* nb_absolute             */
-    (inquiry) Pympz_nonzero,               /* nb_bool                 */
+    (inquiry) GMPy_MPZ_NonZero_Slot,       /* nb_bool                 */
     (unaryfunc) GMPy_MPZ_Invert_Slot,      /* nb_invert               */
     (binaryfunc) GMPy_MPZ_Lshift_Slot,     /* nb_lshift               */
     (binaryfunc) GMPy_MPZ_Rshift_Slot,     /* nb_rshift               */
@@ -160,8 +160,8 @@ static PyNumberMethods mpz_number_methods =
     (unaryfunc) GMPy_MPZ_Int_Slot,         /* nb_int                  */
     (unaryfunc) GMPy_MPZ_Long_Slot,        /* nb_long                 */
     (unaryfunc) GMPy_MPZ_Float_Slot,       /* nb_float                */
-    (unaryfunc) Pympz_oct,                 /* nb_oct                  */
-    (unaryfunc) Pympz_hex,                 /* nb_hex                  */
+    (unaryfunc) GMPy_MPZ_Oct_Slot,         /* nb_oct                  */
+    (unaryfunc) GMPy_MPZ_Hex_Slot,         /* nb_hex                  */
     (binaryfunc) GMPy_MPZ_IAdd_Slot,       /* nb_inplace_add          */
     (binaryfunc) GMPy_MPZ_ISub_Slot,       /* nb_inplace_subtract     */
     (binaryfunc) GMPy_MPZ_IMul_Slot,       /* nb_inplace_multiply     */
@@ -189,19 +189,19 @@ static PyMappingMethods mpz_mapping_methods = {
 
 static PyGetSetDef Pympz_getseters[] =
 {
-    { "numerator", (getter)Pympz_getnumer, NULL, "numerator", NULL },
-    { "denominator", (getter)Pympz_getdenom, NULL, "denominator", NULL },
+    { "numerator", (getter)GMPy_MPZ_Attrib_GetNumer, NULL, "numerator", NULL },
+    { "denominator", (getter)GMPy_MPZ_Attrib_GetDenom, NULL, "denominator", NULL },
     {NULL}
 };
 
 static PyMethodDef Pympz_methods [] =
 {
     { "__format__", GMPy_MPZ_Format, METH_VARARGS, GMPy_doc_mpz_format },
-    { "__ceil__", Pympz_ceil, METH_NOARGS, doc_mpz_ceil },
-    { "__floor__", Pympz_floor, METH_NOARGS, doc_mpz_floor },
-    { "__round__", Pympz_round, METH_VARARGS, doc_mpz_round },
-    { "__sizeof__", Pympz_sizeof, METH_NOARGS, doc_mpz_sizeof },
-    { "__trunc__", Pympz_trunc, METH_NOARGS, doc_mpz_trunc },
+    { "__ceil__", GMPy_MPZ_Method_Ceil, METH_NOARGS, GMPy_doc_mpz_method_ceil },
+    { "__floor__", GMPy_MPZ_Method_Floor, METH_NOARGS, GMPy_doc_mpz_method_floor },
+    { "__round__", GMPy_MPZ_Method_Round, METH_VARARGS, GMPy_doc_mpz_method_round },
+    { "__sizeof__", GMPy_MPZ_Method_SizeOf, METH_NOARGS, GMPy_doc_mpz_method_sizeof },
+    { "__trunc__", GMPy_MPZ_Method_Trunc, METH_NOARGS, GMPy_doc_mpz_method_trunc },
     { "bit_clear", GMPy_MPZ_bit_clear_method, METH_O, doc_bit_clear_method },
     { "bit_flip", GMPy_MPZ_bit_flip_method, METH_O, doc_bit_flip_method },
     { "bit_length", GMPy_MPZ_bit_length_method, METH_NOARGS, doc_bit_length_method },
