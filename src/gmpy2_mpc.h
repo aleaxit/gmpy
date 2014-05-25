@@ -51,7 +51,6 @@ typedef struct {
     mpc_t c;
     Py_hash_t hash_cache;
     int rc;
-    int round_mode;
 } MPC_Object;
 
 static PyTypeObject MPC_Type;
@@ -200,12 +199,6 @@ static PyTypeObject MPC_Type;
     GMPY_MPC_EXCEPTIONS(V, CTX, NAME); \
 
 static PyObject * GMPy_MPC_Factory(PyObject *self, PyObject *args, PyObject *kwargs);
-static PyObject * GMPy_MPC_Conjugate_Method(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPC_GetPrec_Attrib(MPC_Object *self, void *closure);
-static PyObject * GMPy_MPC_GetRc_Attrib(MPC_Object *self, void *closure);
-static PyObject * GMPy_MPC_GetImag_Attrib(MPC_Object *self, void *closure);
-static PyObject * GMPy_MPC_GetReal_Attrib(MPC_Object *self, void *closure);
-static int        GMPy_MPC_NonZero_Slot(MPC_Object *self);
 
 #ifdef __cplusplus
 }

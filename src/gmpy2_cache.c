@@ -264,7 +264,6 @@ GMPy_MPFR_New(mpfr_prec_t bits, CTXT_Object *context)
     }
     result->hash_cache = -1;
     result->rc = 0;
-    result->round_mode = GET_MPFR_ROUND(context);
     return result;
 }
 
@@ -337,7 +336,6 @@ GMPy_MPC_New(mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context)
     }
     self->hash_cache = -1;
     self->rc = 0;
-    self->round_mode = GET_MPC_ROUND(context);
     return self;
 }
 
