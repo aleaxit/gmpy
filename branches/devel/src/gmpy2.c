@@ -599,7 +599,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "f_divmod_2exp", GMPy_MPZ_f_divmod_2exp, METH_VARARGS, doc_f_divmod_2exp },
     { "f_mod", GMPy_MPZ_f_mod, METH_VARARGS, doc_f_mod },
     { "f_mod_2exp", GMPy_MPZ_f_mod_2exp, METH_VARARGS, doc_f_mod_2exp },
-    { "gcd", Pygmpy_gcd, METH_VARARGS, doc_gcd },
+    { "gcd", GMPy_MPZ_Function_GCD, METH_VARARGS, GMPy_doc_mpz_function_gcd },
     { "gcdext", Pygmpy_gcdext, METH_VARARGS, doc_gcdext },
     { "get_cache", GMPy_get_cache, METH_NOARGS, GMPy_doc_get_cache },
     { "hamdist", GMPy_MPZ_hamdist, METH_VARARGS, doc_hamdist },

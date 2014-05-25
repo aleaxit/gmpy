@@ -37,13 +37,15 @@ static PyObject * GMPy_MPZ_NumDigits(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Iroot(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_IrootRem(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Bincoef(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Method_Ceil(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_Method_Floor(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_Method_Trunc(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_Method_Round(PyObject *self, PyObject *other);
+static int        GMPy_MPZ_NonZero_Slot(MPZ_Object *self);
+static PyObject * GMPy_MPZ_Attrib_GetNumer(MPZ_Object *self, void *closure);
+static PyObject * GMPy_MPZ_Attrib_GetDenom(MPQ_Object *self, void *closure);
+static PyObject * GMPy_MPZ_Function_GCD(PyObject *self, PyObject *args);
 
-static PyObject * Pympz_ceil(PyObject *self, PyObject *other);
-static PyObject * Pympz_floor(PyObject *self, PyObject *other);
-static PyObject * Pympz_round(PyObject *self, PyObject *other);
-static PyObject * Pympz_trunc(PyObject *self, PyObject *other);
-static int Pympz_nonzero(MPZ_Object *self);
-static PyObject * Pygmpy_gcd(PyObject *self, PyObject *args);
 static PyObject * Pygmpy_lcm(PyObject *self, PyObject *args);
 static PyObject * Pygmpy_gcdext(PyObject *self, PyObject *args);
 static PyObject * Pygmpy_divm(PyObject *self, PyObject *args);
@@ -70,9 +72,8 @@ static Py_ssize_t Pympz_nbits(MPZ_Object *self);
 static PyObject * Pympz_subscript(MPZ_Object *self, PyObject *item);
 
 #if PY_MAJOR_VERSION < 3
-/* hex/oct formatting (mpz-only) */
-static PyObject * Pympz_oct(MPZ_Object *self);
-static PyObject * Pympz_hex(MPZ_Object *self);
+static PyObject * GMPy_MPZ_Oct_Slot(MPZ_Object *self);
+static PyObject * GMPy_MPZ_Hex_Slot(MPZ_Object *self);
 #endif
 
 #ifdef __cplusplus

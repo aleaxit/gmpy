@@ -59,7 +59,6 @@ GMPy_MPZ_NumDigits(PyObject *self, PyObject *args)
     return result;
 }
 
-
 PyDoc_STRVAR(GMPy_doc_mpz_iroot,
 "iroot(x,n) -> (number, boolean)\n\n"
 "Return the integer n-th root of x and boolean value that is True\n"
@@ -159,37 +158,37 @@ GMPy_MPZ_IrootRem(PyObject *self, PyObject *args)
     return result;
 }
 
-PyDoc_STRVAR(doc_mpz_ceil, "Ceiling of an mpz returns itself.");
+PyDoc_STRVAR(GMPy_doc_mpz_method_ceil, "Ceiling of an mpz returns itself.");
 
 static PyObject *
-Pympz_ceil(PyObject *self, PyObject *other)
+GMPy_MPZ_Method_Ceil(PyObject *self, PyObject *other)
 {
     Py_INCREF(self);
     return self;
 }
 
-PyDoc_STRVAR(doc_mpz_floor, "Floor of an mpz returns itself.");
+PyDoc_STRVAR(GMPy_doc_mpz_method_floor, "Floor of an mpz returns itself.");
 
 static PyObject *
-Pympz_floor(PyObject *self, PyObject *other)
+GMPy_MPZ_Method_Floor(PyObject *self, PyObject *other)
 {
     Py_INCREF(self);
     return self;
 }
 
-PyDoc_STRVAR(doc_mpz_trunc, "Truncating an mpz returns itself.");
+PyDoc_STRVAR(GMPy_doc_mpz_method_trunc, "Truncating an mpz returns itself.");
 
 static PyObject *
-Pympz_trunc(PyObject *self, PyObject *other)
+GMPy_MPZ_Method_Trunc(PyObject *self, PyObject *other)
 {
     Py_INCREF(self);
     return self;
 }
 
-PyDoc_STRVAR(doc_mpz_round, "Round an mpz to power of 10.");
+PyDoc_STRVAR(GMPy_doc_mpz_method_round, "Round an mpz to power of 10.");
 
 static PyObject *
-Pympz_round(PyObject *self, PyObject *args)
+GMPy_MPZ_Method_Round(PyObject *self, PyObject *args)
 {
     Py_ssize_t round_digits;
     MPZ_Object *result;
@@ -216,6 +215,7 @@ Pympz_round(PyObject *self, PyObject *args)
         Py_INCREF(self);
         return self;
     }
+    
     round_digits = -round_digits;
 
     if ((result = GMPy_MPZ_New(context))) {
@@ -246,59 +246,69 @@ Pympz_round(PyObject *self, PyObject *args)
 }
 
 static int
-Pympz_nonzero(MPZ_Object *self)
+GMPy_MPZ_NonZero_Slot(MPZ_Object *self)
 {
     return mpz_sgn(self->z) != 0;
 }
 
 #if PY_MAJOR_VERSION < 3
+
 /* hex/oct formatting (mpz-only) */
+
 static PyObject *
-Pympz_oct(MPZ_Object *self)
+GMPy_MPZ_Oct_Slot(MPZ_Object *self)
 {
     CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     return GMPy_PyStr_From_MPZ(self, 8, 0, context);
 }
 
 static PyObject *
-Pympz_hex(MPZ_Object *self)
+GMPy_MPZ_Hex_Slot(MPZ_Object *self)
 {
     CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     return GMPy_PyStr_From_MPZ(self, 16, 0, context);
 }
 #endif
 
 /* Miscellaneous gmpy functions */
-PyDoc_STRVAR(doc_gcd,
+
+PyDoc_STRVAR(GMPy_doc_mpz_function_gcd,
 "gcd(a, b) -> mpz\n\n"
 "Return the greatest common denominator of integers a and b.");
 
 static PyObject *
-Pygmpy_gcd(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_GCD(PyObject *self, PyObject *args)
 {
-    PyObject *a, *b;
+    PyObject *arg0, *arg1;
     MPZ_Object *result, *tempa, *tempb;
     CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("gcd() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    if (!(result = GMPy_MPZ_New(context)))
+    if (!(result = GMPy_MPZ_New(context))) {
         return NULL;
+    }
 
-    a = PyTuple_GET_ITEM(args, 0);
-    b = PyTuple_GET_ITEM(args, 1);
-
-    if (CHECK_MPZANY(a) && CHECK_MPZANY(b)) {
-        mpz_gcd(result->z, MPZ(a), MPZ(b));
+    arg0 = PyTuple_GET_ITEM(args, 0);
+    arg1 = PyTuple_GET_ITEM(args, 1);
+    if (MPZ_Check(arg0) && MPZ_Check(arg1)) {
+        mpz_gcd(result->z, MPZ(arg0), MPZ(arg1));
+        return (PyObject*)result;
     }
     else {
-        tempa = GMPy_MPZ_From_Integer(a, context);
-        tempb = GMPy_MPZ_From_Integer(b, context);
+        tempa = GMPy_MPZ_From_Integer(arg0, context);
+        tempb = GMPy_MPZ_From_Integer(arg1, context);
         if (!tempa || !tempb) {
             TYPE_ERROR("gcd() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempa);
@@ -306,11 +316,12 @@ Pygmpy_gcd(PyObject *self, PyObject *args)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
+        
         mpz_gcd(result->z, tempa->z, tempb->z);
         Py_DECREF((PyObject*)tempa);
         Py_DECREF((PyObject*)tempb);
+        return (PyObject*)result;
     }
-    return (PyObject*)result;
 }
 
 PyDoc_STRVAR(doc_lcm,
@@ -1206,30 +1217,33 @@ Pympz_subscript(MPZ_Object *self, PyObject *item)
 }
 
 static PyObject *
-Pympz_getnumer(MPZ_Object *self, void *closure)
+GMPy_MPZ_Attrib_GetNumer(MPZ_Object *self, void *closure)
 {
     Py_INCREF((PyObject*)self);
     return (PyObject*)self;
 }
 
 static PyObject *
-Pympz_getdenom(MPQ_Object *self, void *closure)
+GMPy_MPZ_Attrib_GetDenom(MPQ_Object *self, void *closure)
 {
     MPZ_Object *result;
     CTXT_Object *context = NULL;
 
-    if ((result = GMPy_MPZ_New(context)))
+    CHECK_CONTEXT(context);
+
+    if ((result = GMPy_MPZ_New(context))) {
         mpz_set_ui(result->z, 1);
+    }
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpz_sizeof,
+PyDoc_STRVAR(GMPy_doc_mpz_method_sizeof,
 "x.__sizeof__()\n\n"
 "Returns the amount of memory consumed by x. Note: deleted mpz objects\n"
 "are reused and may or may not be resized when a new value is assigned.");
 
 static PyObject *
-Pympz_sizeof(PyObject *self, PyObject *other)
+GMPy_MPZ_Method_SizeOf(PyObject *self, PyObject *other)
 {
     return PyIntOrLong_FromSize_t(sizeof(MPZ_Object) + \
         (MPZ(self)->_mp_alloc * sizeof(mp_limb_t)));
