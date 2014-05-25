@@ -751,14 +751,11 @@ static PyMethodDef Pyxmpz_methods [] =
     { "bit_test", GMPy_MPZ_bit_test_method, METH_O, doc_bit_test_method },
     { "copy", Pyxmpz_copy, METH_NOARGS, doc_xmpz_copy },
     { "digits", GMPy_XMPZ_Digits_Method, METH_VARARGS, GMPy_doc_mpz_digits_method },
-    { "iter_bits", (PyCFunction)Pyxmpz_iter_bits, METH_VARARGS | METH_KEYWORDS,
-                   doc_xmpz_iter_bits },
-    { "iter_clear", (PyCFunction)Pyxmpz_iter_clear, METH_VARARGS | METH_KEYWORDS,
-                   doc_xmpz_iter_clear },
-    { "iter_set", (PyCFunction)Pyxmpz_iter_set, METH_VARARGS | METH_KEYWORDS,
-                   doc_xmpz_iter_set },
+    { "iter_bits", (PyCFunction)Pyxmpz_iter_bits, METH_VARARGS | METH_KEYWORDS, doc_xmpz_iter_bits },
+    { "iter_clear", (PyCFunction)Pyxmpz_iter_clear, METH_VARARGS | METH_KEYWORDS, doc_xmpz_iter_clear },
+    { "iter_set", (PyCFunction)Pyxmpz_iter_set, METH_VARARGS | METH_KEYWORDS, doc_xmpz_iter_set },
     { "make_mpz", Pyxmpz_make_mpz, METH_NOARGS, doc_make_mpzm },
-    { "num_digits", Pympz_num_digits, METH_VARARGS, doc_num_digitsm },
+    { "num_digits", GMPy_MPZ_NumDigits, METH_VARARGS, GMPy_doc_mpz_method_num_digits },
     { NULL, NULL, 1 }
 };
 
