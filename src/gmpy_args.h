@@ -93,23 +93,23 @@ extern "C" {
 #define PARSE_ONE_MPZ_OPT_CLONG(var, msg) \
     if (self && CHECK_MPZANY(self)) { \
         if (PyTuple_GET_SIZE(args) == 1) { \
-            *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            if (*var == -1 && PyErr_Occurred()) { \
-                PyErr_SetString(PyExc_TypeError, msg); \
+            var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
+            if (var == -1 && PyErr_Occurred()) { \
+                TYPE_ERROR(msg); \
                 return NULL; \
             } \
         } \
         else if (PyTuple_GET_SIZE(args) > 1) { \
-            PyErr_SetString(PyExc_TypeError, msg); \
+            TYPE_ERROR(msg); \
             return NULL; \
         } \
         Py_INCREF(self); \
     } \
     else { \
         if (PyTuple_GET_SIZE(args) == 2) { \
-            *var = clong_From_Integer(PyTuple_GET_ITEM(args, 1)); \
-            if (*var == -1 && PyErr_Occurred()) { \
-                PyErr_SetString(PyExc_TypeError, msg); \
+            var = clong_From_Integer(PyTuple_GET_ITEM(args, 1)); \
+            if (var == -1 && PyErr_Occurred()) { \
+                TYPE_ERROR(msg); \
                 return NULL; \
             } \
             self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context); \
@@ -118,11 +118,11 @@ extern "C" {
             self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context); \
         } \
         else { \
-            PyErr_SetString(PyExc_TypeError, msg); \
+            TYPE_ERROR(msg); \
             return NULL; \
         } \
         if (!self) { \
-            PyErr_SetString(PyExc_TypeError, msg); \
+            TYPE_ERROR(msg); \
             return NULL; \
         } \
     }
@@ -270,49 +270,29 @@ extern "C" {
         } \
     }
 
-/* Parses one argument into "self" and a required second argument into
- * "var". The second argument is converted into an mpir_si. It supports either
- * gmpy.fname(z,l) or z.fname(l). "self" must be decref'ed. "var" must be a
- * pointer to an mpir_si. "msg" should be an error message that includes the
- * function name and describes the required arguments. Replaces some uses of
- * SELF_MPZ_ONE_ARG.
+/* Parses one argument into "RES" and a required second argument into
+ * "VAR". RES is assumed to be an MPZ_Object. The second argument is converted
+ * into an mpir_si. Only use in a  function (gmpy.fname(z,l)) is supported. If
+ * required, the context is in "CTX". "MSG" should be an error message that
+ * includes the function name and describes the required arguments.
  *
  * Also considers an 'xmpz' to be equivalent to an 'mpz'.
  */
 
-#define PARSE_ONE_MPZ_REQ_SI(var, msg) \
-    if (self && CHECK_MPZANY(self)) { \
-        if (PyTuple_GET_SIZE(args) != 1) { \
-            PyErr_SetString(PyExc_TypeError, msg); \
-            return NULL; \
-        } \
-        else { \
-            *var = SI_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            if (*var == -1 && PyErr_Occurred()) { \
-                PyErr_SetString(PyExc_TypeError, msg); \
-                return NULL; \
-            } \
-        } \
-        Py_INCREF(self); \
+#define PARSE_ONE_MPZ_REQ_SI_FUNCTION(RES, VAR, CTX, MSG) \
+    if (PyTuple_GET_SIZE(args) != 2) { \
+        TYPE_ERROR(MSG); \
+        return NULL; \
     } \
     else { \
-        if (PyTuple_GET_SIZE(args) != 2) { \
-            PyErr_SetString(PyExc_TypeError, msg); \
+        VAR = SI_From_Integer(PyTuple_GET_ITEM(args, 1)); \
+        if (VAR == -1 && PyErr_Occurred()) { \
             return NULL; \
         } \
-        else { \
-            *var = SI_From_Integer(PyTuple_GET_ITEM(args, 1)); \
-            if (*var == -1 && PyErr_Occurred()) { \
-                PyErr_SetString(PyExc_TypeError, msg); \
-                return NULL; \
-            } \
-            self = (PyObject*)GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context); \
-        } \
-        if (!self) { \
-            PyErr_SetString(PyExc_TypeError, msg); \
+        if (!(RES = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), CTX))) { \
             return NULL; \
         } \
-    }
+    } \
 
 /*
  * Parses two, and only two, arguments into "self" and "var" and converts
