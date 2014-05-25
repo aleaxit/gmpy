@@ -145,7 +145,7 @@ static PyNumberMethods mpq_number_methods =
     (unaryfunc) GMPy_MPQ_Minus_Slot,        /* nb_negative             */
     (unaryfunc) GMPy_MPQ_Plus_Slot,         /* nb_positive             */
     (unaryfunc) GMPy_MPQ_Abs_Slot,          /* nb_absolute             */
-    (inquiry) Pympq_nonzero,                /* nb_bool                 */
+    (inquiry) GMPy_MPQ_NonZero_Slot,        /* nb_bool                 */
         0,                                  /* nb_invert               */
         0,                                  /* nb_lshift               */
         0,                                  /* nb_rshift               */
@@ -184,7 +184,7 @@ static PyNumberMethods mpq_number_methods =
     (unaryfunc) GMPy_MPQ_Minus_Slot,        /* nb_negative             */
     (unaryfunc) GMPy_MPQ_Plus_Slot,         /* nb_positive             */
     (unaryfunc) GMPy_MPQ_Abs_Slot,          /* nb_absolute             */
-    (inquiry) Pympq_nonzero,                /* nb_bool                 */
+    (inquiry) GMPy_MPQ_NonZero_Slot,        /* nb_bool                 */
         0,                                  /* nb_invert               */
         0,                                  /* nb_lshift               */
         0,                                  /* nb_rshift               */
@@ -215,20 +215,20 @@ static PyNumberMethods mpq_number_methods =
 };
 #endif
 
-static PyGetSetDef Pympq_getseters[] =
+static PyGetSetDef GMPy_MPQ_getseters[] =
 {
-    { "numerator", (getter)Pympq_getnumer, NULL, "numerator", NULL },
-    { "denominator", (getter)Pympq_getdenom, NULL, "denominator", NULL },
+    { "numerator", (getter)GMPy_MPQ_Attrib_GetNumer, NULL, "numerator", NULL },
+    { "denominator", (getter)GMPy_MPQ_Attrib_GetDenom, NULL, "denominator", NULL },
     {NULL}
 };
 
-static PyMethodDef Pympq_methods [] =
+static PyMethodDef GMPy_MPQ_methods [] =
 {
-    { "__ceil__", Pympq_ceil, METH_NOARGS, doc_mpq_ceil },
-    { "__floor__", Pympq_floor, METH_NOARGS, doc_mpq_floor },
-    { "__round__", Pympq_round, METH_VARARGS, doc_mpq_round },
-    { "__sizeof__", Pympq_sizeof, METH_NOARGS, doc_mpq_sizeof },
-    { "__trunc__", Pympq_trunc, METH_NOARGS, doc_mpq_trunc },
+    { "__ceil__", GMPy_MPQ_Method_Ceil, METH_NOARGS, GMPy_doc_mpq_method_ceil },
+    { "__floor__", GMPy_MPQ_Method_Floor, METH_NOARGS, GMPy_doc_mpq_method_floor },
+    { "__round__", GMPy_MPQ_Method_Round, METH_VARARGS, GMPy_doc_mpq_method_round },
+    { "__sizeof__", GMPy_MPQ_Method_Sizeof, METH_NOARGS, GMPy_doc_mpq_method_sizeof },
+    { "__trunc__", GMPy_MPQ_Method_Trunc, METH_NOARGS, GMPy_doc_mpq_method_trunc },
     { "digits", GMPy_MPQ_Digits_Method, METH_VARARGS, GMPy_doc_mpq_digits_method },
     { NULL, NULL, 1 }
 };
@@ -274,8 +274,8 @@ static PyTypeObject MPQ_Type =
         0,                                  /* tp_weaklistoffset*/
         0,                                  /* tp_iter          */
         0,                                  /* tp_iternext      */
-    Pympq_methods,                          /* tp_methods       */
+    GMPy_MPQ_methods,                       /* tp_methods       */
         0,                                  /* tp_members       */
-    Pympq_getseters,                        /* tp_getset        */
+    GMPy_MPQ_getseters,                     /* tp_getset        */
 };
 
