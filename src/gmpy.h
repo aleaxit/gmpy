@@ -256,7 +256,7 @@ typedef long                mpir_si;
 #include "gmpy2_mpz_inplace.h"
 #include "gmpy2_xmpz_inplace.h"
 
-#include "gmpy_mpq.h"
+#include "gmpy2_mpq.h"
 
 #include "gmpy2_mpfr.h"
 #if MPFR_VERSION < 0x030100

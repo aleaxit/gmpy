@@ -225,65 +225,6 @@ extern "C" {
     }
 
 /*
- * Parses one argument into "self" and an optional second argument into
- * "var". The second argument is converted into a C long. If there is not a
- * second argument, "var" is unchanged. Is faster, but not as generic, as
- * using PyArg_ParseTuple with "|l". It supports either gmpy.fname(z,l) or
- * z.fname(l). "self" must be decref'ed. "var" must be a pointer to a long.
- * "msg" should be an error message that includes the function name and
- * describes the required arguments. Replaces some uses of SELF_MPF_ONE_ARG.
- */
-
-#define PARSE_ONE_MPFR_OPT_CLONG(var, msg) \
-    if (self && MPFR_Check(self)) { \
-        if (PyTuple_GET_SIZE(args) == 1) { \
-            *var = clong_From_Integer(PyTuple_GET_ITEM(args, 0)); \
-            if (*var == -1 && PyErr_Occurred()) { \
-                PyErr_SetString(PyExc_TypeError, msg); \
-                return NULL; \
-            } \
-        } \
-        else if (PyTuple_GET_SIZE(args) > 1) { \
-            PyErr_SetString(PyExc_TypeError, msg); \
-            return NULL; \
-        } \
-        Py_INCREF(self); \
-    } \
-    else { \
-        if (PyTuple_GET_SIZE(args) == 2) { \
-            *var = clong_From_Integer(PyTuple_GET_ITEM(args, 1)); \
-            if (*var == -1 && PyErr_Occurred()) { \
-                PyErr_SetString(PyExc_TypeError, msg); \
-                return NULL; \
-            } \
-            self = PyTuple_GET_ITEM(args, 0); \
-            if (MPFR_Check(self)) { \
-                Py_INCREF((PyObject*)self); \
-            } \
-            else { \
-                self = (PyObject*)GMPy_MPFR_From_Real(PyTuple_GET_ITEM(args, 0), 1, context); \
-            } \
-        } \
-        else if (PyTuple_GET_SIZE(args) == 1) { \
-            self = PyTuple_GET_ITEM(args, 0); \
-            if(MPFR_Check(self)) { \
-                Py_INCREF((PyObject*)self); \
-            } \
-            else { \
-                self = (PyObject*)GMPy_MPFR_From_Real(self, 1, context); \
-            } \
-        } \
-        else { \
-            PyErr_SetString(PyExc_TypeError, msg); \
-            return NULL; \
-        } \
-        if (!self) { \
-            PyErr_SetString(PyExc_TypeError, msg); \
-            return NULL; \
-        } \
-    }
-
-/*
  * Parses one argument into "self" and a required second argument into
  * "var". The second argument is converted into a C long. Is faster, but not
  * as generic, as using PyArg_ParseTuple with "l". It supports either
@@ -410,61 +351,6 @@ extern "C" {
             Py_XDECREF((PyObject*)var); \
             return NULL; \
         } \
-    }
-
-#define PARSE_TWO_MPQ(var, msg) \
-    if (self && MPQ_Check(self)) { \
-        if (PyTuple_GET_SIZE(args) != 1) { \
-            PyErr_SetString(PyExc_TypeError, msg); \
-            return NULL; \
-        } \
-        var = (PyObject*)Pympq_From_Rational(PyTuple_GET_ITEM(args, 0), context); \
-        if (!var) { \
-            PyErr_SetString(PyExc_TypeError, msg); \
-            return NULL; \
-        } \
-        Py_INCREF(self); \
-    } \
-    else { \
-        if (PyTuple_GET_SIZE(args) != 2) { \
-            PyErr_SetString(PyExc_TypeError, msg); \
-            return NULL; \
-        } \
-        self = (PyObject*)Pympq_From_Rational(PyTuple_GET_ITEM(args, 0), context); \
-        var = (PyObject*)Pympq_From_Rational(PyTuple_GET_ITEM(args, 1), context); \
-        if (!self || !var) { \
-            PyErr_SetString(PyExc_TypeError, msg); \
-            Py_XDECREF((PyObject*)self); \
-            Py_XDECREF((PyObject*)var); \
-            return NULL; \
-        } \
-    }
-
-
-/* Define three different versions of the SELF_NO_ARG macro. Under Python
-   2.x, self is NULL when a function is called via gmpy.fname(..). But
-   under Python 3.x, self is a module. */
-
-#define SELF_MPQ_NO_ARG \
-    if (self && MPQ_Check(self)) { \
-        if(!PyArg_ParseTuple(args, "")) \
-            return NULL; \
-        Py_INCREF(self); \
-    } \
-    else { \
-        if(!PyArg_ParseTuple(args, "O&", GMPy_MPQ_convert_arg, &self)) \
-            return NULL; \
-    }
-
-#define SELF_MPQ_ONE_ARG(fm, var) \
-    if (self && MPQ_Check(self)) { \
-        if (!PyArg_ParseTuple(args, fm, var)) \
-            return NULL; \
-        Py_INCREF(self); \
-    } \
-    else { \
-        if (!PyArg_ParseTuple(args, "O&" fm, GMPy_MPQ_convert_arg, &self, var)) \
-            return NULL; \
     }
 
 #ifdef __cplusplus
