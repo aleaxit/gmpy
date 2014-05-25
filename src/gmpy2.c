@@ -550,6 +550,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_mpc_misc.c"
 #include "gmpy2_mpfr_misc.c"
 #include "gmpy2_mpq_misc.c"
+#include "gmpy2_mpz_misc.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
@@ -639,7 +640,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "mpfr_version", GMPy_get_mpfr_version, METH_NOARGS, GMPy_doc_mpfr_version },
     { "mpq", (PyCFunction)GMPy_MPQ_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_mpq_factory },
     { "mpq_from_old_binary", GMPy_MPQ_From_Old_Binary, METH_O, doc_mpq_from_old_binary },
-    { "mpz", (PyCFunction)Pygmpy_mpz, METH_VARARGS | METH_KEYWORDS, doc_mpz },
+    { "mpz", (PyCFunction)GMPy_MPZ_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_mpz_factory },
     { "mpz_from_old_binary", GMPy_MPZ_From_Old_Binary, METH_O, doc_mpz_from_old_binary },
     { "mpz_random", GMPy_MPZ_random_Function, METH_VARARGS, GMPy_doc_mpz_random_function },
     { "mpz_rrandomb", GMPy_MPZ_rrandomb_Function, METH_VARARGS, GMPy_doc_mpz_rrandomb_function },

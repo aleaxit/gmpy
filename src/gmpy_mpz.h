@@ -38,52 +38,11 @@ typedef struct {
     Py_hash_t hash_cache;
 } MPZ_Object;
 
-#define MPZ(obj) (((MPZ_Object*)(obj))->z)
-
 static PyTypeObject MPZ_Type;
-
+#define MPZ(obj) (((MPZ_Object*)(obj))->z)
 #define MPZ_Check(v) (((PyObject*)v)->ob_type == &MPZ_Type)
 
-static PyObject * Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds);
-static PyObject * Pympz_num_digits(PyObject *self, PyObject *args);
-static PyObject * Pympz_iroot(PyObject *self, PyObject *args);
-static PyObject * Pympz_iroot_rem(PyObject *self, PyObject *args);
-static PyObject * Pympz_ceil(PyObject *self, PyObject *other);
-static PyObject * Pympz_floor(PyObject *self, PyObject *other);
-static PyObject * Pympz_round(PyObject *self, PyObject *other);
-static PyObject * Pympz_trunc(PyObject *self, PyObject *other);
-static int Pympz_nonzero(MPZ_Object *self);
-#if PY_MAJOR_VERSION < 3
-/* hex/oct formatting (mpz-only) */
-static PyObject * Pympz_oct(MPZ_Object *self);
-static PyObject * Pympz_hex(MPZ_Object *self);
-#endif
-static PyObject * Pygmpy_gcd(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_lcm(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_gcdext(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_divm(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_fac(PyObject *self, PyObject *other);
-static PyObject * Pygmpy_fib(PyObject *self, PyObject *other);
-static PyObject * Pygmpy_fib2(PyObject *self, PyObject *other);
-static PyObject * Pygmpy_lucas(PyObject *self, PyObject *other);
-static PyObject * Pygmpy_lucas2(PyObject *self, PyObject *other);
-static PyObject * Pympz_bincoef(PyObject *self, PyObject *args);
-static PyObject * Pympz_isqrt(PyObject *self, PyObject *other);
-static PyObject * Pympz_isqrt_rem(PyObject *self, PyObject *args);
-static PyObject * Pympz_remove(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_invert(PyObject *self, PyObject *args);
-static PyObject * Pygmpy_divexact(PyObject *self, PyObject *args);
-static PyObject * Pympz_is_square(PyObject *self, PyObject *other);
-static PyObject * Pympz_is_power(PyObject *self, PyObject *other);
-static PyObject * Pympz_is_prime(PyObject *self, PyObject *args);
-static PyObject * Pympz_next_prime(PyObject *self, PyObject *other);
-static PyObject * Pympz_jacobi(PyObject *self, PyObject *args);
-static PyObject * Pympz_legendre(PyObject *self, PyObject *args);
-static PyObject * Pympz_kronecker(PyObject *self, PyObject *args);
-static PyObject * Pympz_is_even(PyObject *self, PyObject *other);
-static PyObject * Pympz_is_odd(PyObject *self, PyObject *other);
-static Py_ssize_t Pympz_nbits(MPZ_Object *self);
-static PyObject * Pympz_subscript(MPZ_Object *self, PyObject *item);
+static PyObject * GMPy_MPZ_Factory(PyObject *self, PyObject *args, PyObject *keywds);
 
 #ifdef __cplusplus
 }
