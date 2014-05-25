@@ -472,9 +472,6 @@ GMPy_MPFR_To_Binary(MPFR_Object *self)
         else if (self->rc > 0) buffer[2] = 0x01;
         else                   buffer[2] = 0x02;
 
-        /* Save the rounding mode active when the mpfr was created. */
-        buffer[3] = (char)(self->round_mode);
-
         /* Save the precision */
         sizetemp = precision;
         for (i=0; i<sizesize; i++) {
@@ -515,8 +512,8 @@ GMPy_MPFR_To_Binary(MPFR_Object *self)
     else if (self->rc > 0) buffer[2] = 0x01;
     else                   buffer[2] = 0x02;
 
-    /* Save the original rounding mode. */
-    buffer[3] = (char)(self->round_mode);
+    /* Rounding mode is no longer used, so just store a null byte. */
+    buffer[3] = 0x00;
 
     /* Save the precision */
     cp = buffer + 4;
@@ -603,7 +600,6 @@ GMPy_MPC_To_Binary(MPC_Object *obj)
     mpfr_set(real->f, mpc_realref(obj->c), MPFR_RNDN);
     mpfr_set(imag->f, mpc_imagref(obj->c), MPFR_RNDN);
     real->rc = obj->rc;
-    real->round_mode = obj->round_mode;
 
     result = GMPy_MPFR_To_Binary(real);
     temp = GMPy_MPFR_To_Binary(imag);
@@ -768,9 +764,6 @@ GMPy_MPANY_From_Binary(PyObject *self, PyObject *other)
             else if (cp[2] == 1) result->rc = 1;
             else                 result->rc = -1;
 
-            /* Get the original rounding mode. */
-            result->round_mode = cp[3];
-
             if (!(cp[1] & 0x01)) {
                 /* Process special numbers. */
                 if ((cp[1] & 0x18) == 0x00)
@@ -924,7 +917,6 @@ GMPy_MPANY_From_Binary(PyObject *self, PyObject *other)
             if (cp[2] == 0)      real->rc = 0;
             else if (cp[2] == 1) real->rc = 1;
             else                 real->rc = -1;
-            real->round_mode = cp[3];
             if (!(cp[1] & 0x01)) {
                 if ((cp[1] & 0x18) == 0x00)
                     mpfr_set_zero(real->f, sgn);
@@ -1049,7 +1041,6 @@ GMPy_MPANY_From_Binary(PyObject *self, PyObject *other)
             if (cp[2] == 0)      imag->rc = 0;
             else if (cp[2] == 1) imag->rc = 1;
             else                 imag->rc = -1;
-            imag->round_mode = cp[3];
             if (!(cp[1] & 0x01)) {
                 if ((cp[1] & 0x18) == 0x00)
                     mpfr_set_zero(imag->f, sgn);
