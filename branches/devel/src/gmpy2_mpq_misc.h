@@ -32,15 +32,14 @@
 extern "C" {
 #endif
 
-static PyObject * Pympq_numer(PyObject *self, PyObject *args);
-static PyObject * Pympq_getnumer(MPQ_Object *self, void *closure);
-static PyObject * Pympq_denom(PyObject *self, PyObject *args);
-static PyObject * Pympq_getdenom(MPQ_Object *self, void *closure);
-static PyObject * Pympq_qdiv(PyObject *self, PyObject *args);
-static PyObject * Pympq_ceil(PyObject *self, PyObject *other);
-static PyObject * Pympq_floor(PyObject *self, PyObject *other);
-static PyObject * Pympq_trunc(PyObject *self, PyObject *other);
-static int Pympq_nonzero(MPQ_Object *x);
+static PyObject * GMPy_MPQ_Attrib_GetNumer(MPQ_Object *self, void *closure);
+static PyObject * GMPy_MPQ_Attrib_GetDenom(MPQ_Object *self, void *closure);
+static PyObject * GMPy_MPQ_Function_Qdiv(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPQ_Method_Ceil(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPQ_Method_Floor(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPQ_Method_Trunc(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPQ_Method_Round(PyObject *self, PyObject *other);
+static int        GMPy_MPQ_NonZero_Slot(MPQ_Object *x);
 
 #ifdef __cplusplus
 }
