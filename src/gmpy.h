@@ -322,6 +322,7 @@ typedef long                mpir_si;
 #include "gmpy2_richcompare.h"
 #include "gmpy2_mpc_misc.h"
 #include "gmpy2_mpfr_misc.h"
+#include "gmpy2_mpq_misc.h"
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_mpq.h                                                              *
+ * gmpy2_mpq_misc.h                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -25,24 +25,22 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef GMPY_MPQ_H
-#define GMPY_MPQ_H
+#ifndef GMPY_MPQ_MISC_H
+#define GMPY_MPQ_MISC_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct {
-    PyObject_HEAD
-    mpq_t q;
-    Py_hash_t  hash_cache;
-} MPQ_Object;
-
-static PyTypeObject MPQ_Type;
-#define MPQ(obj) (((MPQ_Object *)(obj))->q)
-#define MPQ_Check(v) (((PyObject*)v)->ob_type == &MPQ_Type)
-
-static PyObject * GMPy_MPQ_Factory(PyObject *self, PyObject *args, PyObject *keywds);
+static PyObject * Pympq_numer(PyObject *self, PyObject *args);
+static PyObject * Pympq_getnumer(MPQ_Object *self, void *closure);
+static PyObject * Pympq_denom(PyObject *self, PyObject *args);
+static PyObject * Pympq_getdenom(MPQ_Object *self, void *closure);
+static PyObject * Pympq_qdiv(PyObject *self, PyObject *args);
+static PyObject * Pympq_ceil(PyObject *self, PyObject *other);
+static PyObject * Pympq_floor(PyObject *self, PyObject *other);
+static PyObject * Pympq_trunc(PyObject *self, PyObject *other);
+static int Pympq_nonzero(MPQ_Object *x);
 
 #ifdef __cplusplus
 }
