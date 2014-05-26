@@ -38,9 +38,9 @@ extern "C" {
  */
 
 #define CREATE_TWO_MPZ_TUPLE(q, r, t) \
+    t = PyTuple_New(2); \
     q = GMPy_MPZ_New(context); \
     r = GMPy_MPZ_New(context); \
-    t = PyTuple_New(2); \
     if (!q || !r || !t) { \
         Py_XDECREF(t); \
         Py_XDECREF((PyObject*)q); \

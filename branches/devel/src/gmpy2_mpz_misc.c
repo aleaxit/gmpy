@@ -304,7 +304,6 @@ GMPy_MPZ_Function_GCD(PyObject *self, PyObject *args)
     arg1 = PyTuple_GET_ITEM(args, 1);
     if (MPZ_Check(arg0) && MPZ_Check(arg1)) {
         mpz_gcd(result->z, MPZ(arg0), MPZ(arg1));
-        return (PyObject*)result;
     }
     else {
         tempa = GMPy_MPZ_From_Integer(arg0, context);
@@ -320,38 +319,41 @@ GMPy_MPZ_Function_GCD(PyObject *self, PyObject *args)
         mpz_gcd(result->z, tempa->z, tempb->z);
         Py_DECREF((PyObject*)tempa);
         Py_DECREF((PyObject*)tempb);
-        return (PyObject*)result;
     }
+    return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_lcm,
+PyDoc_STRVAR(GMPy_doc_mpz_function_lcm,
 "lcm(a, b) -> mpz\n\n"
 "Return the lowest common multiple of integers a and b.");
 
 static PyObject *
-Pygmpy_lcm(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_LCM(PyObject *self, PyObject *args)
 {
-    PyObject *a, *b;
+    PyObject *arg0, *arg1;
     MPZ_Object *result, *tempa, *tempb;
     CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     if(PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("lcm() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    if (!(result = GMPy_MPZ_New(context)))
+    if (!(result = GMPy_MPZ_New(context))) {
         return NULL;
+    }
 
-    a = PyTuple_GET_ITEM(args, 0);
-    b = PyTuple_GET_ITEM(args, 1);
+    arg0 = PyTuple_GET_ITEM(args, 0);
+    arg1 = PyTuple_GET_ITEM(args, 1);
 
-    if (CHECK_MPZANY(a) && CHECK_MPZANY(b)) {
-        mpz_lcm(result->z, MPZ(a), MPZ(b));
+    if (MPZ_Check(arg0) && MPZ_Check(arg1)) {
+        mpz_lcm(result->z, MPZ(arg0), MPZ(arg1));
     }
     else {
-        tempa = GMPy_MPZ_From_Integer(a, context);
-        tempb = GMPy_MPZ_From_Integer(b, context);
+        tempa = GMPy_MPZ_From_Integer(arg0, context);
+        tempb = GMPy_MPZ_From_Integer(arg1, context);
         if (!tempa || !tempb) {
             TYPE_ERROR("lcm() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempa);
@@ -366,27 +368,29 @@ Pygmpy_lcm(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_gcdext,
+PyDoc_STRVAR(GMPy_doc_mpz_function_gcdext,
 "gcdext(a, b) - > tuple\n\n"
 "Return a 3-element tuple (g,s,t) such that\n"
 "    g == gcd(a,b) and g == a*s + b*t");
 
 static PyObject *
-Pygmpy_gcdext(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_GCDext(PyObject *self, PyObject *args)
 {
-    PyObject *a, *b, *result = 0;
-    MPZ_Object *g = 0, *s = 0, *t = 0, *tempa, *tempb;
+    PyObject *arg0, *arg1, *result;
+    MPZ_Object *g, *s, *t, *tempa, *tempb;
     CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     if(PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("gcdext() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
+    result = PyTuple_New(3);
     g = GMPy_MPZ_New(context);
     s = GMPy_MPZ_New(context);
     t = GMPy_MPZ_New(context);
-    result = PyTuple_New(3);
     if (!g || !s || !t || !result) {
         Py_XDECREF((PyObject*)g);
         Py_XDECREF((PyObject*)s);
@@ -395,15 +399,15 @@ Pygmpy_gcdext(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    a = PyTuple_GET_ITEM(args, 0);
-    b = PyTuple_GET_ITEM(args, 1);
+    arg0 = PyTuple_GET_ITEM(args, 0);
+    arg1 = PyTuple_GET_ITEM(args, 1);
 
-    if (CHECK_MPZANY(a) && CHECK_MPZANY(b)) {
-        mpz_gcdext(g->z, s->z, t->z, MPZ(a), MPZ(b));
+    if (MPZ_Check(arg0) && MPZ_Check(arg1)) {
+        mpz_gcdext(g->z, s->z, t->z, MPZ(arg0), MPZ(arg1));
     }
     else {
-        tempa = GMPy_MPZ_From_Integer(a, context);
-        tempb = GMPy_MPZ_From_Integer(b, context);
+        tempa = GMPy_MPZ_From_Integer(arg0, context);
+        tempb = GMPy_MPZ_From_Integer(arg1, context);
         if(!tempa || !tempb) {
             TYPE_ERROR("gcdext() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempa);
@@ -424,26 +428,29 @@ Pygmpy_gcdext(PyObject *self, PyObject *args)
     return result;
 }
 
-PyDoc_STRVAR(doc_divm,
+PyDoc_STRVAR(GMPy_doc_mpz_function_divm,
 "divm(a, b, m) -> mpz\n\n"
 "Return x such that b*x == a mod m. Raises a ZeroDivisionError\n"
 "exception if no such value x exists.");
 
 static PyObject *
-Pygmpy_divm(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Divm(PyObject *self, PyObject *args)
 {
     MPZ_Object *result, *num, *den, *mod;
     mpz_t gcdz;
-    int ok;
+    int ok = 0;
     CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     if(PyTuple_GET_SIZE(args) != 3) {
         TYPE_ERROR("divm() requires 'mpz','mpz','mpz' arguments");
         return NULL;
     }
 
-    if (!(result = GMPy_MPZ_New(context)))
+    if (!(result = GMPy_MPZ_New(context))) {
         return NULL;
+    }
 
     num = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context);
     den = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), context);
@@ -491,148 +498,146 @@ Pygmpy_divm(PyObject *self, PyObject *args)
     }
 }
 
-PyDoc_STRVAR(doc_fac,
+PyDoc_STRVAR(GMPy_doc_mpz_function_fac,
 "fac(n) -> mpz\n\n"
 "Return the exact factorial of n.\n\n"
 "See factorial(n) to get the floating-point approximation.");
 
 static PyObject *
-Pygmpy_fac(PyObject *self, PyObject *other)
+GMPy_MPZ_Function_Fac(PyObject *self, PyObject *other)
 {
-    MPZ_Object *result;
+    MPZ_Object *result = NULL;
     mpir_si n;
     CTXT_Object *context = NULL;
 
     n = SI_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("fac() requires 'int' argument");
-        return NULL;
     }
     else if (n < 0) {
         VALUE_ERROR("fac() of negative number");
-        return NULL;
     }
     else {
-        if (!(result = GMPy_MPZ_New(context)))
-            return NULL;
-        mpz_fac_ui(result->z, n);
+        if ((result = GMPy_MPZ_New(context))) {
+            mpz_fac_ui(result->z, n);
+        }
     }
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_fib,
+PyDoc_STRVAR(GMPy_doc_mpz_function_fib,
 "fib(n) -> mpz\n\n"
 "Return the n-th Fibonacci number.");
 
 static PyObject *
-Pygmpy_fib(PyObject *self, PyObject *other)
+GMPy_MPZ_Function_Fib(PyObject *self, PyObject *other)
 {
-    MPZ_Object *result;
+    MPZ_Object *result = NULL;
     mpir_si n;
     CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     n = SI_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("fib() requires 'int' argument");
-        return NULL;
     }
     else if (n < 0) {
         VALUE_ERROR("Fibonacci of negative number");
-        return NULL;
     }
     else {
-        if (!(result = GMPy_MPZ_New(context)))
-            return NULL;
-        mpz_fib_ui(MPZ(result), n);
+        if ((result = GMPy_MPZ_New(context))) {
+            mpz_fib_ui(result->z, n);
+        }
     }
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_fib2,
+PyDoc_STRVAR(GMPy_doc_mpz_function_fib2,
 "fib2(n) -> tuple\n\n"
 "Return a 2-tuple with the (n-1)-th and n-th Fibonacci numbers.");
 
 static PyObject *
-Pygmpy_fib2(PyObject *self, PyObject *other)
+GMPy_MPZ_Function_Fib2(PyObject *self, PyObject *other)
 {
-    PyObject *result;
-    MPZ_Object *fib1 = 0, *fib2 = 0;
+    PyObject *result = NULL;
+    MPZ_Object *fib1, *fib2;
     mpir_si n;
     CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     n = SI_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("fib2() requires 'int' argument");
-        return NULL;
     }
     else if (n < 0) {
         VALUE_ERROR("Fibonacci of negative number");
-        return NULL;
     }
     else {
         CREATE_TWO_MPZ_TUPLE(fib1, fib2, result);
         mpz_fib2_ui(fib1->z, fib2->z, n);
+        PyTuple_SET_ITEM(result, 0, (PyObject*)fib1);
+        PyTuple_SET_ITEM(result, 1, (PyObject*)fib2);
     }
-    PyTuple_SET_ITEM(result, 0, (PyObject*)fib1);
-    PyTuple_SET_ITEM(result, 1, (PyObject*)fib2);
     return result;
 }
 
-PyDoc_STRVAR(doc_lucas,
+PyDoc_STRVAR(GMPy_doc_mpz_function_lucas,
 "lucas(n) -> mpz\n\n"
 "Return the n-th Lucas number.");
 
 static PyObject *
-Pygmpy_lucas(PyObject *self, PyObject *other)
+GMPy_MPZ_Function_Lucas(PyObject *self, PyObject *other)
 {
-    MPZ_Object *result;
+    MPZ_Object *result = NULL;
     mpir_si n;
     CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     n = SI_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("luc() requires 'int' argument");
-        return NULL;
     }
     else if (n < 0) {
         VALUE_ERROR("Lucas of negative number");
-        return NULL;
     }
     else {
-        if (!(result = GMPy_MPZ_New(context)))
-            return NULL;
-        mpz_lucnum_ui(result->z, n);
+        if ((result = GMPy_MPZ_New(context))) {
+            mpz_lucnum_ui(result->z, n);
+        }
     }
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_lucas2,
+PyDoc_STRVAR(GMPy_doc_mpz_function_lucas2,
 "lucas2(n) -> tuple\n\n"
 "Return a 2-tuple with the (n-1)-th and n-th Lucas numbers.");
 
 static PyObject *
-Pygmpy_lucas2(PyObject *self, PyObject *other)
+GMPy_MPZ_Function_Lucas2(PyObject *self, PyObject *other)
 {
-    PyObject *result;
+    PyObject *result = NULL;
     MPZ_Object *luc1, *luc2;
     mpir_si n;
     CTXT_Object *context = NULL;
 
+    CHECK_CONTEXT(context);
+    
     n = SI_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("luc2() requires 'int' argument");
-        return NULL;
     }
     else if (n < 0) {
         VALUE_ERROR("Lucas of negative number");
-        return NULL;
     }
     else {
         CREATE_TWO_MPZ_TUPLE(luc1, luc2, result);
         mpz_lucnum2_ui(luc1->z, luc2->z, n);
+        PyTuple_SET_ITEM(result, 0, (PyObject*)luc1);
+        PyTuple_SET_ITEM(result, 1, (PyObject*)luc2);
     }
-    PyTuple_SET_ITEM(result, 0, (PyObject*)luc1);
-    PyTuple_SET_ITEM(result, 1, (PyObject*)luc2);
     return result;
 }
 
@@ -673,33 +678,26 @@ GMPy_MPZ_Bincoef(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpz_isqrt,
+PyDoc_STRVAR(GMPy_doc_mpz_function_isqrt,
 "isqrt(x) -> mpz\n\n"
 "Return the integer square root of an integer x. x >= 0.");
 
 static PyObject *
-Pympz_isqrt(PyObject *self, PyObject *other)
+GMPy_MPZ_Function_Isqrt(PyObject *self, PyObject *other)
 {
     MPZ_Object *result;
     CTXT_Object *context = NULL;
 
-    if (self && (CHECK_MPZANY(self))) {
-        if (mpz_sgn(MPZ(self)) < 0) {
-            VALUE_ERROR("isqrt() of negative number");
-            return NULL;
-        }
-        if (!(result = GMPy_MPZ_New(context)))
-            return NULL;
-        mpz_sqrt(result->z, MPZ(self));
-    }
-    else if (CHECK_MPZANY(other)) {
+    CHECK_CONTEXT(context);
+
+    if (CHECK_MPZANY(other)) {
         if (mpz_sgn(MPZ(other)) < 0) {
             VALUE_ERROR("isqrt() of negative number");
             return NULL;
         }
-        if (!(result = GMPy_MPZ_New(context)))
-            return NULL;
-        mpz_sqrt(result->z, MPZ(other));
+        if ((result = GMPy_MPZ_New(context))) {
+            mpz_sqrt(result->z, MPZ(other));
+        }
     }
     else {
         if (!(result = GMPy_MPZ_From_Integer(other, context))) {
@@ -716,102 +714,134 @@ Pympz_isqrt(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_mpz_isqrt_rem,
+PyDoc_STRVAR(GMPy_doc_mpz_function_isqrt_rem,
 "isqrt_rem(x) -> tuple\n\n"
 "Return a 2-element tuple (s,t) such that s=isqrt(x) and t=x-s*s.\n"
 "x >=0.");
 
 static PyObject *
-Pympz_isqrt_rem(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_IsqrtRem(PyObject *self, PyObject *other)
 {
-    MPZ_Object *root = 0, *rem = 0;
-    PyObject *result = 0;
+    MPZ_Object *root, *rem, *temp;
+    PyObject *result;
     CTXT_Object *context = NULL;
 
-    PARSE_ONE_MPZ("isqrt_rem() requires 'mpz' argument");
-
-    if (mpz_sgn(MPZ(self)) < 0) {
-        VALUE_ERROR("isqrt_rem() of negative number");
-        Py_DECREF(self);
+    if (!(temp = GMPy_MPZ_From_Integer(other, context))) {
+        TYPE_ERROR("isqrt_rem() requires 'mpz' argument");
         return NULL;
     }
 
+    if (mpz_sgn(temp->z) < 0) {
+        VALUE_ERROR("isqrt_rem() of negative number");
+        Py_DECREF((PyObject*)temp);
+        return NULL;
+    }
+
+    result = PyTuple_New(2);
     root = GMPy_MPZ_New(context);
     rem = GMPy_MPZ_New(context);
-    result = PyTuple_New(2);
     if (!root || !rem || !result) {
-        Py_DECREF(self);
+        Py_DECREF((PyObject*)temp);
         Py_XDECREF(result);
         Py_XDECREF((PyObject*)root);
         Py_XDECREF((PyObject*)rem);
         return NULL;
     }
 
-    mpz_sqrtrem(root->z, rem->z, MPZ(self));
-    Py_DECREF(self);
+    mpz_sqrtrem(root->z, rem->z, temp->z);
+    Py_DECREF((PyObject*)temp);
     PyTuple_SET_ITEM(result, 0, (PyObject*)root);
     PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
     return result;
 }
 
-PyDoc_STRVAR(doc_removeg,
+PyDoc_STRVAR(GMPy_doc_mpz_function_remove,
 "remove(x, f) -> tuple\n\n"
 "Return a 2-element tuple (y,m) such that x=y*(f**m) and f does\n"
 "not divide y. Remove the factor f from x as many times as\n"
 "possible. m is the multiplicity f in x. f > 1.");
 
 static PyObject *
-Pympz_remove(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Remove(PyObject *self, PyObject *args)
 {
-    MPZ_Object *result;
-    PyObject *factor;
+    MPZ_Object *result, *tempx, *tempf;
+    PyObject *x, *f;
     size_t multiplicity;
     CTXT_Object *context = NULL;
 
-    PARSE_TWO_MPZ(factor, "remove() requires 'mpz','mpz' arguments");
+    CHECK_CONTEXT(context);
 
-    if (mpz_cmp_si(MPZ(factor), 2) < 0) {
-        VALUE_ERROR("factor must be > 1");
-        Py_DECREF(self);
-        Py_DECREF(factor);
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("invert() requires 'mpz','mpz' arguments");
         return NULL;
     }
-
+    
     if (!(result = GMPy_MPZ_New(context))) {
-        Py_DECREF(self);
-        Py_DECREF(factor);
         return NULL;
     }
-    multiplicity = mpz_remove(result->z, MPZ(self), MPZ(factor));
-    Py_DECREF(self);
-    Py_DECREF(factor);
-    return Py_BuildValue("(Nk)", result, multiplicity);
+    
+    x = PyTuple_GET_ITEM(args, 0);
+    f = PyTuple_GET_ITEM(args, 1);
+
+    if (MPZ_Check(x) && MPZ_Check(f)) {
+        if (mpz_cmp_si(MPZ(f), 2) < 0) {
+            VALUE_ERROR("factor must be > 1");
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+        multiplicity = mpz_remove(result->z, MPZ(x), MPZ(f));
+        return Py_BuildValue("(Nk)", result, multiplicity);
+    }
+    else {
+        tempx = GMPy_MPZ_From_Integer(x, context);
+        tempf = GMPy_MPZ_From_Integer(f, context);
+        if (!tempx || !tempf) {
+            TYPE_ERROR("invert() requires 'mpz','mpz' arguments");
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempf);
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+        if (mpz_cmp_si(MPZ(tempf), 2) < 0) {
+            VALUE_ERROR("factor must be > 1");
+            Py_DECREF((PyObject*)tempx);
+            Py_DECREF((PyObject*)tempf);
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+        multiplicity = mpz_remove(result->z, tempx->z, tempf->z);
+        return Py_BuildValue("(Nk)", result, multiplicity);
+    }
 }
 
-PyDoc_STRVAR(doc_invertg,
+PyDoc_STRVAR(GMPy_doc_mpz_function_invert,
 "invert(x, m) -> mpz\n\n"
-"Return y such that x*y == 1 modulo m. Raises ZeroDivisionError i no \n"
+"Return y such that x*y == 1 modulo m. Raises ZeroDivisionError if no\n"
 "inverse exists.");
 
 static PyObject *
-Pygmpy_invert(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Invert(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
     MPZ_Object *result, *tempx, *tempy;
     int success;
     CTXT_Object *context = NULL;
 
+    CHECK_CONTEXT(context);
+
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("invert() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    if (!(result = GMPy_MPZ_New(context)))
+    if (!(result = GMPy_MPZ_New(context))) {
         return NULL;
+    }
+    
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
 
-    if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
+    if (MPZ_Check(x) && MPZ_Check(y)) {
         if (mpz_sgn(MPZ(y)) == 0) {
             ZERO_ERROR("invert() division by 0");
             Py_DECREF((PyObject*)result);
@@ -853,29 +883,33 @@ Pygmpy_invert(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_divexactg,
+PyDoc_STRVAR(GMPy_doc_mpz_function_divexact,
 "divexact(x, y) -> mpz\n\n"
 "Return the quotient of x divided by y. Faster than standard\n"
 "division but requires the remainder is zero!");
 
 static PyObject *
-Pygmpy_divexact(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Divexact(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
     MPZ_Object *result, *tempx, *tempy;
     CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     if(PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("divexact() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    if (!(result = GMPy_MPZ_New(context)))
+    if (!(result = GMPy_MPZ_New(context))) {
         return NULL;
+    }
+    
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
 
-    if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
+    if (MPZ_Check(x) && MPZ_Check(y)) {
         if (mpz_sgn(MPZ(y)) == 0) {
             ZERO_ERROR("divexact() division by 0");
             Py_DECREF((PyObject*)result);
