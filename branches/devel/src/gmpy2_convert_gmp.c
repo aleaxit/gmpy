@@ -457,11 +457,11 @@ clong_From_Integer(PyObject *obj)
             return (long)mpz_get_si(MPZ(obj));
         }
         else {
-            OVERFLOW_ERROR("overflow in clong_From_Integer");
+            OVERFLOW_ERROR("overflow when converting to C long");
             return -1;
         }
     }
-    TYPE_ERROR("conversion error in clong_From_Integer");
+    TYPE_ERROR("cannot convert object to C long");
     return -1;
 }
 
