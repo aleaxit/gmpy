@@ -98,7 +98,7 @@ GMPy_MPZ_Factory(PyObject *self, PyObject *args, PyObject *keywds)
 }
 
 #ifdef PY3
-static PyNumberMethods mpz_number_methods =
+static PyNumberMethods GMPy_MPZ_number_methods =
 {
     (binaryfunc) GMPy_MPZ_Add_Slot,        /* nb_add                  */
     (binaryfunc) GMPy_MPZ_Sub_Slot,        /* nb_subtract             */
@@ -137,7 +137,7 @@ static PyNumberMethods mpz_number_methods =
 };
 
 #else
-static PyNumberMethods mpz_number_methods =
+static PyNumberMethods GMPy_MPZ_number_methods =
 {
     (binaryfunc) GMPy_MPZ_Add_Slot,        /* nb_add                  */
     (binaryfunc) GMPy_MPZ_Sub_Slot,        /* nb_subtract             */
@@ -181,20 +181,20 @@ static PyNumberMethods mpz_number_methods =
 };
 #endif
 
-static PyMappingMethods mpz_mapping_methods = {
-    (lenfunc)Pympz_nbits,
-    (binaryfunc)Pympz_subscript,
+static PyMappingMethods GMPy_MPZ_mapping_methods = {
+    (lenfunc)GMPy_MPZ_Method_Length,
+    (binaryfunc)GMPy_MPZ_Method_SubScript,
     NULL
 };
 
-static PyGetSetDef Pympz_getseters[] =
+static PyGetSetDef GMPy_MPZ_getseters[] =
 {
     { "numerator", (getter)GMPy_MPZ_Attrib_GetNumer, NULL, "numerator", NULL },
     { "denominator", (getter)GMPy_MPZ_Attrib_GetDenom, NULL, "denominator", NULL },
     {NULL}
 };
 
-static PyMethodDef Pympz_methods [] =
+static PyMethodDef GMPy_MPZ_methods [] =
 {
     { "__format__", GMPy_MPZ_Format, METH_VARARGS, GMPy_doc_mpz_format },
     { "__ceil__", GMPy_MPZ_Method_Ceil, METH_NOARGS, GMPy_doc_mpz_method_ceil },
@@ -233,9 +233,9 @@ static PyTypeObject MPZ_Type =
         0,                                  /* tp_setattr       */
         0,                                  /* tp_reserved      */
     (reprfunc) GMPy_MPZ_Repr_Slot,          /* tp_repr          */
-    &mpz_number_methods,                    /* tp_as_number     */
+    &GMPy_MPZ_number_methods,               /* tp_as_number     */
         0,                                  /* tp_as_sequence   */
-    &mpz_mapping_methods,                   /* tp_as_mapping    */
+    &GMPy_MPZ_mapping_methods,              /* tp_as_mapping    */
     (hashfunc) GMPy_MPZ_Hash_Slot,          /* tp_hash          */
         0,                                  /* tp_call          */
     (reprfunc) GMPy_MPZ_Str_Slot,           /* tp_str           */
@@ -256,8 +256,8 @@ static PyTypeObject MPZ_Type =
         0,                                  /* tp_weaklistoffset*/
         0,                                  /* tp_iter          */
         0,                                  /* tp_iternext      */
-    Pympz_methods,                          /* tp_methods       */
+    GMPy_MPZ_methods,                          /* tp_methods       */
         0,                                  /* tp_members       */
-    Pympz_getseters,                        /* tp_getset        */
+    GMPy_MPZ_getseters,                        /* tp_getset        */
 };
 

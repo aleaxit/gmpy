@@ -1061,6 +1061,7 @@ GMPy_MPZ_Function_IsSquare(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)tempx);
         }
     }
+    
     if (res)
         Py_RETURN_TRUE;
     else
@@ -1094,7 +1095,8 @@ GMPy_MPZ_Function_IsPower(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)tempx);
         }
     }
-    if(res)
+    
+    if (res)
         Py_RETURN_TRUE;
     else
         Py_RETURN_FALSE;
@@ -1289,18 +1291,20 @@ GMPy_MPZ_Function_Kronecker(PyObject *self, PyObject *args)
     return PyIntOrLong_FromLong(res);
 }
 
-PyDoc_STRVAR(doc_is_eveng,
+PyDoc_STRVAR(GMPy_doc_mpz_function_is_even,
 "is_even(x) -> bool\n\n"
 "Return True if x is even, False otherwise.");
 
 static PyObject *
-Pympz_is_even(PyObject *self, PyObject *other)
+GMPy_MPZ_Function_IsEven(PyObject *self, PyObject *other)
 {
     int res;
     MPZ_Object *tempx;
     CTXT_Object *context = NULL;
 
-    if (CHECK_MPZANY(other)) {
+    CHECK_CONTEXT(context);
+
+    if (MPZ_Check(other)) {
         res = mpz_even_p(MPZ(other));
     }
     else {
@@ -1313,22 +1317,25 @@ Pympz_is_even(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)tempx);
         }
     }
+    
     if (res)
         Py_RETURN_TRUE;
     else
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_is_oddg,
+PyDoc_STRVAR(GMPy_doc_mpz_function_is_odd,
 "is_odd(x) -> bool\n\n"
 "Return True if x is odd, False otherwise.");
 
 static PyObject *
-Pympz_is_odd(PyObject *self, PyObject *other)
+GMPy_MPZ_Function_IsOdd(PyObject *self, PyObject *other)
 {
     int res;
     MPZ_Object *tempx;
     CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     if (CHECK_MPZANY(other)) {
         res = mpz_odd_p(MPZ(other));
@@ -1343,6 +1350,7 @@ Pympz_is_odd(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)tempx);
         }
     }
+    
     if (res)
         Py_RETURN_TRUE;
     else
@@ -1354,24 +1362,29 @@ Pympz_is_odd(PyObject *self, PyObject *other)
  */
 
 static Py_ssize_t
-Pympz_nbits(MPZ_Object *self)
+GMPy_MPZ_Method_Length(MPZ_Object *self)
 {
     return mpz_sizeinbase(self->z, 2);
 }
 
 static PyObject *
-Pympz_subscript(MPZ_Object *self, PyObject *item)
+GMPy_MPZ_Method_SubScript(MPZ_Object *self, PyObject *item)
 {
     CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     if (PyIndex_Check(item)) {
         Py_ssize_t i;
 
-        i = PyNumber_AsSsize_t(item, PyExc_IndexError);
-        if (i == -1 && PyErr_Occurred())
+        i = PyIntOrLong_AsSsize_t(item);
+        if (i == -1 && PyErr_Occurred()) {
+            INDEX_ERROR("argument too large to convert to an index");
             return NULL;
-        if (i < 0)
+        }
+        if (i < 0) {
             i += mpz_sizeinbase(self->z, 2);
+        }
         return PyIntOrLong_FromLong(mpz_tstbit(self->z, i));
     }
     else if (PySlice_Check(item)) {
@@ -1388,12 +1401,13 @@ Pympz_subscript(MPZ_Object *self, PyObject *item)
             return NULL;
         }
 
-        if ((step < 0 && start < stop) ||
-            (step > 0 && start > stop))
+        if ((step < 0 && start < stop) || (step > 0 && start > stop)) {
             stop = start;
+        }
 
-        if (!(result = GMPy_MPZ_New(context)))
+        if (!(result = GMPy_MPZ_New(context))) {
             return NULL;
+        }
 
         mpz_set_ui(result->z, 0);
         if (slicelength > 0) {
