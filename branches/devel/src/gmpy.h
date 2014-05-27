@@ -165,6 +165,7 @@ typedef long                mpir_si;
 
 #define ALLOC_THRESHOLD 8192
 
+#define INDEX_ERROR(msg) PyErr_SetString(PyExc_IndexError, msg)
 #define TYPE_ERROR(msg) PyErr_SetString(PyExc_TypeError, msg)
 #define VALUE_ERROR(msg) PyErr_SetString(PyExc_ValueError, msg)
 #define ZERO_ERROR(msg) PyErr_SetString(PyExc_ZeroDivisionError, msg)

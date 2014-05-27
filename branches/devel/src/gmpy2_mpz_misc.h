@@ -66,10 +66,10 @@ static PyObject * GMPy_MPZ_Function_NextPrime(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Function_Jacobi(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_Legendre(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_Kronecker(PyObject *self, PyObject *args);
-static PyObject * Pympz_is_even(PyObject *self, PyObject *other);
-static PyObject * Pympz_is_odd(PyObject *self, PyObject *other);
-static Py_ssize_t Pympz_nbits(MPZ_Object *self);
-static PyObject * Pympz_subscript(MPZ_Object *self, PyObject *item);
+static PyObject * GMPy_MPZ_Function_IsEven(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_Function_IsOdd(PyObject *self, PyObject *other);
+static Py_ssize_t GMPy_MPZ_Method_Length(MPZ_Object *self);
+static PyObject * GMPy_MPZ_Method_SubScript(MPZ_Object *self, PyObject *item);
 
 #if PY_MAJOR_VERSION < 3
 static PyObject * GMPy_MPZ_Oct_Slot(MPZ_Object *self);
