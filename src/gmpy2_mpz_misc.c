@@ -941,18 +941,20 @@ GMPy_MPZ_Function_Divexact(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_is_squareg,
+PyDoc_STRVAR(GMPy_doc_mpz_function_is_square,
 "is_square(x) -> bool\n\n"
 "Returns True if x is a perfect square, else return False.");
 
 static PyObject *
-Pympz_is_square(PyObject *self, PyObject *other)
+GMPy_MPZ_Function_IsSquare(PyObject *self, PyObject *other)
 {
     int res;
     MPZ_Object *tempx;
     CTXT_Object *context = NULL;
 
-    if (CHECK_MPZANY(other)) {
+    CHECK_CONTEXT(context);
+
+    if (MPZ_Check(other)) {
         res = mpz_perfect_square_p(MPZ(other));
     }
     else {
@@ -971,19 +973,21 @@ Pympz_is_square(PyObject *self, PyObject *other)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_is_powerg,
+PyDoc_STRVAR(GMPy_doc_mpz_function_is_power,
 "is_power(x) -> bool\n\n"
 "Return True if x is a perfect power (there exists a y and an\n"
 "n > 1, such that x=y**n), else return False.");
 
 static PyObject *
-Pympz_is_power(PyObject *self, PyObject *other)
+GMPy_MPZ_Function_IsPower(PyObject *self, PyObject *other)
 {
     int res;
     MPZ_Object* tempx;
     CTXT_Object *context = NULL;
 
-    if (CHECK_MPZANY(other)) {
+    CHECK_CONTEXT(context);
+
+    if (MPZ_Check(other)) {
         res = mpz_perfect_power_p(MPZ(other));
     }
     else {
@@ -1002,27 +1006,49 @@ Pympz_is_power(PyObject *self, PyObject *other)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_is_primeg,
+PyDoc_STRVAR(GMPy_doc_mpz_function_is_prime,
 "is_prime(x[, n=25]) -> bool\n\n"
 "Return True if x is _probably_ prime, else False if x is\n"
 "definately composite. x is checked for small divisors and up\n"
 "to n Miller-Rabin tests are performed.");
 
 static PyObject *
-Pympz_is_prime(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args)
 {
     int i, reps = 25;
+    Py_ssize_t argc;
+    MPZ_Object *tempx;
     CTXT_Object *context = NULL;
 
-    PARSE_ONE_MPZ_OPT_CLONG(reps, "is_prime() requires 'mpz'[,'int'] arguments");
+    CHECK_CONTEXT(context);
+
+    argc = PyTuple_GET_SIZE(args);
+
+    if (argc == 0 || argc > 2) {
+        TYPE_ERROR("is_prime() requires 'mpz'[,'int'] arguments");
+        return NULL; 
+    }
+        
+    if (PyTuple_GET_SIZE(args) == 2) {
+        reps = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
+        if (reps == -1 && PyErr_Occurred()) {
+            return NULL; 
+        }
+    }
+    
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context))) {
+        return NULL;
+    }
 
     if (reps <= 0) {
         VALUE_ERROR("repetition count for is_prime() must be positive");
-        Py_DECREF(self);
+        Py_DECREF((PyObject*)tempx);
         return NULL;
     }
-    i = mpz_probab_prime_p(MPZ(self), reps);
-    Py_DECREF(self);
+    
+    i = mpz_probab_prime_p(tempx->z, reps);
+    Py_DECREF((PyObject*)tempx);
+    
     if (i)
         Py_RETURN_TRUE;
     else
