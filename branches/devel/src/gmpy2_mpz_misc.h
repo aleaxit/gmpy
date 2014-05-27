@@ -33,17 +33,18 @@ extern "C" {
 #endif
 
 
-static PyObject * GMPy_MPZ_NumDigits(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_Iroot(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_IrootRem(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_Bincoef(PyObject *self, PyObject *args);
+static int        GMPy_MPZ_NonZero_Slot(MPZ_Object *self);
+static PyObject * GMPy_MPZ_Attrib_GetNumer(MPZ_Object *self, void *closure);
+static PyObject * GMPy_MPZ_Attrib_GetDenom(MPQ_Object *self, void *closure);
 static PyObject * GMPy_MPZ_Method_Ceil(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_Floor(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_Trunc(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_Round(PyObject *self, PyObject *other);
-static int        GMPy_MPZ_NonZero_Slot(MPZ_Object *self);
-static PyObject * GMPy_MPZ_Attrib_GetNumer(MPZ_Object *self, void *closure);
-static PyObject * GMPy_MPZ_Attrib_GetDenom(MPQ_Object *self, void *closure);
+static PyObject * GMPy_MPZ_Method_NumDigits(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Function_IrootRem(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_GCD(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_LCM(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_GCDext(PyObject *self, PyObject *args);
@@ -61,10 +62,10 @@ static PyObject * GMPy_MPZ_Function_Divexact(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_IsSquare(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Function_IsPower(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args);
-static PyObject * Pympz_next_prime(PyObject *self, PyObject *other);
-static PyObject * Pympz_jacobi(PyObject *self, PyObject *args);
-static PyObject * Pympz_legendre(PyObject *self, PyObject *args);
-static PyObject * Pympz_kronecker(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Function_NextPrime(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_Function_Jacobi(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Function_Legendre(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Function_Kronecker(PyObject *self, PyObject *args);
 static PyObject * Pympz_is_even(PyObject *self, PyObject *other);
 static PyObject * Pympz_is_odd(PyObject *self, PyObject *other);
 static Py_ssize_t Pympz_nbits(MPZ_Object *self);

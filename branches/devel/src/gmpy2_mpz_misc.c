@@ -39,33 +39,74 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_num_digits,
 "value returned may be 1 too large.");
 
 static PyObject *
-GMPy_MPZ_NumDigits(PyObject *self, PyObject *args)
+GMPy_MPZ_Method_NumDigits(PyObject *self, PyObject *args)
 {
     long base = 10;
     PyObject *result;
-    CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT(context);
-
-    PARSE_ONE_MPZ_OPT_CLONG(base, "num_digits() requires 'mpz',['int'] arguments");
+    if (PyTuple_GET_SIZE(args) == 1) {
+        base = PyIntOrLong_AsLong(PyTuple_GET_ITEM(args, 0));
+        if (base == -1 && PyErr_Occurred()) {
+            return NULL;
+        }
+    }
 
     if ((base < 2) || (base > 62)) {
         VALUE_ERROR("base must be in the interval [2, 62]");
-        Py_DECREF(self);
         return NULL;
     }
+
     result = PyIntOrLong_FromSize_t(mpz_sizeinbase(MPZ(self), (int)base));
     Py_DECREF(self);
     return result;
 }
 
-PyDoc_STRVAR(GMPy_doc_mpz_iroot,
+static PyObject *
+GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *args)
+{
+    long base = 10;
+    Py_ssize_t argc;
+    MPZ_Object *temp;
+    PyObject *result;
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
+
+    argc = PyTuple_GET_SIZE(args);
+    if (argc == 0 || argc > 2) {
+        TYPE_ERROR("num_digits() requires 'mpz',['int'] arguments");
+        return NULL;
+    }
+
+    if (argc == 2) {
+        base = PyIntOrLong_AsLong(PyTuple_GET_ITEM(args, 1));
+        if (base == -1 && PyErr_Occurred()) {
+            return NULL;
+        }
+    }
+        
+    if ((base < 2) || (base > 62)) {
+        VALUE_ERROR("base must be in the interval [2, 62]");
+        Py_DECREF(self);
+        return NULL;
+    }
+
+    if (!(temp = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context))) {
+        return NULL;
+    }
+    
+    result = PyIntOrLong_FromSize_t(mpz_sizeinbase(temp->z, (int)base));
+    Py_DECREF((PyObject*)temp);
+    return result;
+}
+
+PyDoc_STRVAR(GMPy_doc_mpz_function_iroot,
 "iroot(x,n) -> (number, boolean)\n\n"
 "Return the integer n-th root of x and boolean value that is True\n"
 "iff the root is exact. x >= 0. n > 0.");
 
 static PyObject *
-GMPy_MPZ_Iroot(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
 {
     mpir_si n;
     int exact;
@@ -75,20 +116,30 @@ GMPy_MPZ_Iroot(PyObject *self, PyObject *args)
 
     CHECK_CONTEXT(context);
 
-    PARSE_ONE_MPZ_REQ_SI_FUNCTION(tempx, n, context,
-                                  "iroot() requires 'mpz','int' arguments");
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("iroot() requires 'mpz','int' arguments");
+        return NULL;
+    }
+    
+    n = SI_From_Integer(PyTuple_GET_ITEM(args, 1));
+    if (n == -1 && PyErr_Occurred()) {
+        return NULL;
+    }
+
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context))) {
+        return NULL;
+    }
 
     if (n <= 0) {
         VALUE_ERROR("n must be > 0");
         Py_DECREF((PyObject*)tempx);
         return NULL;
     }
-    else if (n > 1) {
-        if (mpz_sgn(tempx->z) < 0) {
-            VALUE_ERROR("iroot() of negative number");
-            Py_DECREF((PyObject*)tempx);
-            return NULL;
-        }
+    
+    if (n > 1 && mpz_sgn(tempx->z) < 0) {
+        VALUE_ERROR("iroot() of negative number");
+        Py_DECREF((PyObject*)tempx);
+        return NULL;
     }
     
     result = PyTuple_New(2);
@@ -108,13 +159,13 @@ GMPy_MPZ_Iroot(PyObject *self, PyObject *args)
     return result;
 }
 
-PyDoc_STRVAR(GMPy_doc_mpz_iroot_rem,
+PyDoc_STRVAR(GMPy_doc_mpz_function_iroot_rem,
 "iroot_rem(x,n) -> (number, number)\n\n"
 "Return a 2-element tuple (y,r), such that y is the integer n-th\n"
 "root of x and x=y**n + r. x >= 0. n > 0.");
 
 static PyObject *
-GMPy_MPZ_IrootRem(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_IrootRem(PyObject *self, PyObject *args)
 {
     mpir_si n;
     MPZ_Object *root, *rem, *tempx;
@@ -123,20 +174,30 @@ GMPy_MPZ_IrootRem(PyObject *self, PyObject *args)
 
     CHECK_CONTEXT(context);
 
-    PARSE_ONE_MPZ_REQ_SI_FUNCTION(tempx, n, context,
-                                  "iroot_rem() requires 'mpz','int' arguments");
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("iroot_rem() requires 'mpz','int' arguments");
+        return NULL;
+    }
+    
+    n = SI_From_Integer(PyTuple_GET_ITEM(args, 1));
+    if (n == -1 && PyErr_Occurred()) {
+        return NULL;
+    }
+
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context))) {
+        return NULL;
+    }
 
     if (n <= 0) {
         VALUE_ERROR("n must be > 0");
         Py_DECREF((PyObject*)tempx);
         return NULL;
     }
-    else if (n > 1) {
-        if (mpz_sgn(MPZ(self)) < 0) {
-            VALUE_ERROR("iroot_rem() of negative number");
-            Py_DECREF((PyObject*)tempx);
-            return NULL;
-        }
+    
+    if (n > 1 && mpz_sgn(tempx->z) < 0) {
+        VALUE_ERROR("iroot_rem() of negative number");
+        Py_DECREF((PyObject*)tempx);
+        return NULL;
     }
     
     result = PyTuple_New(2);
@@ -570,16 +631,27 @@ GMPy_MPZ_Function_Fib2(PyObject *self, PyObject *other)
     n = SI_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("fib2() requires 'int' argument");
+        return NULL;
     }
-    else if (n < 0) {
+    
+    if (n < 0) {
         VALUE_ERROR("Fibonacci of negative number");
+        return NULL;
     }
-    else {
-        CREATE_TWO_MPZ_TUPLE(fib1, fib2, result);
-        mpz_fib2_ui(fib1->z, fib2->z, n);
-        PyTuple_SET_ITEM(result, 0, (PyObject*)fib1);
-        PyTuple_SET_ITEM(result, 1, (PyObject*)fib2);
+    
+    result = PyTuple_New(2);
+    fib1 = GMPy_MPZ_New(context);
+    fib2 = GMPy_MPZ_New(context);
+    if (!result || !fib1 || !fib2) {
+        Py_XDECREF(result);
+        Py_XDECREF((PyObject*)fib1);
+        Py_XDECREF((PyObject*)fib2);
+        return NULL;
     }
+    
+    mpz_fib2_ui(fib1->z, fib2->z, n);
+    PyTuple_SET_ITEM(result, 0, (PyObject*)fib1);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)fib2);
     return result;
 }
 
@@ -628,16 +700,27 @@ GMPy_MPZ_Function_Lucas2(PyObject *self, PyObject *other)
     n = SI_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
         TYPE_ERROR("luc2() requires 'int' argument");
+        return NULL;
     }
-    else if (n < 0) {
+    
+    if (n < 0) {
         VALUE_ERROR("Lucas of negative number");
+        return NULL;
     }
-    else {
-        CREATE_TWO_MPZ_TUPLE(luc1, luc2, result);
-        mpz_lucnum2_ui(luc1->z, luc2->z, n);
-        PyTuple_SET_ITEM(result, 0, (PyObject*)luc1);
-        PyTuple_SET_ITEM(result, 1, (PyObject*)luc2);
+    
+    result = PyTuple_New(2);
+    luc1 = GMPy_MPZ_New(context);
+    luc2 = GMPy_MPZ_New(context);
+    if (!result || !luc1 || !luc2) {
+        Py_XDECREF(result);
+        Py_XDECREF((PyObject*)luc1);
+        Py_XDECREF((PyObject*)luc2);
+        return NULL;
     }
+    
+    mpz_lucnum2_ui(luc1->z, luc2->z, n);
+    PyTuple_SET_ITEM(result, 0, (PyObject*)luc1);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)luc2);
     return result;
 }
 
@@ -651,7 +734,7 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_comb,
 "time'. n >= 0. Same as bincoef(x, n)");
 
 static PyObject *
-GMPy_MPZ_Bincoef(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args)
 {
     MPZ_Object *result, *tempx;
     mpir_si k;
@@ -659,15 +742,26 @@ GMPy_MPZ_Bincoef(PyObject *self, PyObject *args)
 
     CHECK_CONTEXT(context);
 
-    PARSE_ONE_MPZ_REQ_SI_FUNCTION(tempx, k, context,
-                                  "bincoef() requires 'mpz','int' arguments");
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("bincoef() requires 'mpz','int' arguments");
+        return NULL;
+    }
+    
+    k = SI_From_Integer(PyTuple_GET_ITEM(args, 1));
+    if (k == -1 && PyErr_Occurred()) {
+        return NULL;
+    }
 
-    if (k < 0) {
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context))) {
+        return NULL;
+    }
+
+    if (k <= 0) {
         VALUE_ERROR("binomial coefficient with negative k");
         Py_DECREF((PyObject*)tempx);
         return NULL;
     }
-
+    
     if(!(result = GMPy_MPZ_New(context))) {
         Py_DECREF((PyObject*)tempx);
         return NULL;
@@ -1055,19 +1149,22 @@ GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args)
         Py_RETURN_FALSE;
 }
 
-PyDoc_STRVAR(doc_next_primeg,
+PyDoc_STRVAR(GMPy_doc_mpz_function_next_prime,
 "next_prime(x) -> mpz\n\n"
 "Return the next _probable_ prime number > x.");
 
 static PyObject *
-Pympz_next_prime(PyObject *self, PyObject *other)
+GMPy_MPZ_Function_NextPrime(PyObject *self, PyObject *other)
 {
     MPZ_Object *result;
     CTXT_Object *context = NULL;
 
-    if(CHECK_MPZANY(other)) {
-        if(!(result = GMPy_MPZ_New(context)))
+    CHECK_CONTEXT(context);
+
+    if(MPZ_Check(other)) {
+        if(!(result = GMPy_MPZ_New(context))) {
             return NULL;
+        }
         mpz_nextprime(result->z, MPZ(other));
     }
     else {
@@ -1082,76 +1179,114 @@ Pympz_next_prime(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
-PyDoc_STRVAR(doc_jacobig,
+PyDoc_STRVAR(GMPy_doc_mpz_function_jacobi,
 "jacobi(x, y) -> mpz\n\n"
 "Return the Jacobi symbol (x|y). y must be odd and >0.");
 
 static PyObject *
-Pympz_jacobi(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Jacobi(PyObject *self, PyObject *args)
 {
-    PyObject *other;
-    long i;
+    MPZ_Object *tempx, *tempy;
+    long res;
     CTXT_Object *context = NULL;
 
-    PARSE_TWO_MPZ(other, "jacobi() requires 'mpz','mpz' arguments");
+    CHECK_CONTEXT(context);
 
-    if (mpz_sgn(MPZ(other)) <= 0 ||
-        mpz_even_p(MPZ(other))) {
-        VALUE_ERROR("y must be odd and >0");
-        Py_DECREF(self);
-        Py_DECREF(other);
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("jacobi() requires 'mpz','mpz' arguments");
         return NULL;
     }
-    i = (long)(mpz_jacobi(MPZ(self), MPZ(other)));
-    Py_DECREF(self);
-    Py_DECREF(other);
-    return PyIntOrLong_FromLong(i);
+
+    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context);
+    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), context);
+    if (!tempx || !tempy) {
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)tempy);
+        return NULL;
+    }
+    
+    if (mpz_sgn(tempy->z) <= 0 || mpz_even_p(tempy->z)) {
+        VALUE_ERROR("y must be odd and >0");
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+        return NULL;
+    }
+    
+    res = (long)(mpz_jacobi(tempx->z, tempy->z));
+    Py_DECREF((PyObject*)tempx);
+    Py_DECREF((PyObject*)tempy);
+    return PyIntOrLong_FromLong(res);
 }
 
-PyDoc_STRVAR(doc_legendreg,
+PyDoc_STRVAR(GMPy_doc_mpz_function_legendre,
 "legendre(x, y) -> mpz\n\n"
 "Return the Legendre symbol (x|y). y is assumed to be an odd prime.");
 
 static PyObject *
-Pympz_legendre(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Legendre(PyObject *self, PyObject *args)
 {
-    PyObject *other;
-    long i;
+    MPZ_Object *tempx, *tempy;
+    long res;
     CTXT_Object *context = NULL;
 
-    PARSE_TWO_MPZ(other, "legendre() requires 'mpz','mpz' arguments");
+    CHECK_CONTEXT(context);
 
-    if (mpz_sgn(MPZ(other)) <= 0 ||
-        mpz_even_p(MPZ(other))) {
-        VALUE_ERROR("y must be odd and >0");
-        Py_DECREF(self);
-        Py_DECREF(other);
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("legendre() requires 'mpz','mpz' arguments");
         return NULL;
     }
-    i = (long) mpz_legendre(MPZ(self), MPZ(other));
-    Py_DECREF(self);
-    Py_DECREF(other);
-    return PyIntOrLong_FromLong(i);
+
+    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context);
+    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), context);
+    if (!tempx || !tempy) {
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)tempy);
+        return NULL;
+    }
+    
+    if (mpz_sgn(tempy->z) <= 0 || mpz_even_p(tempy->z)) {
+        VALUE_ERROR("y must be odd, prime, and >0");
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+        return NULL;
+    }
+    
+    res = (long) mpz_legendre(tempx->z, tempy->z);
+    Py_DECREF((PyObject*)tempx);
+    Py_DECREF((PyObject*)tempy);
+    return PyIntOrLong_FromLong(res);
 }
 
-PyDoc_STRVAR(doc_kroneckerg,
+PyDoc_STRVAR(GMPy_doc_mpz_function_kronecker,
 "kronecker(x, y) -> mpz\n\n"
 "Return the Kronecker-Jacobi symbol (x|y).");
 
 static PyObject *
-Pympz_kronecker(PyObject *self, PyObject *args)
+GMPy_MPZ_Function_Kronecker(PyObject *self, PyObject *args)
 {
-    PyObject *other;
-    long ires;
+    MPZ_Object *tempx, *tempy;
+    long res;
     CTXT_Object *context = NULL;
 
-    PARSE_TWO_MPZ(other, "kronecker() requires 'mpz','mpz' arguments");
+    CHECK_CONTEXT(context);
 
-    ires = (long) mpz_kronecker(MPZ(self), (MPZ(other)));
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("kronecker() requires 'mpz','mpz' arguments");
+        return NULL;
+    }
+    
+    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context);
+    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), context);
+    if (!tempx || !tempy) {
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)tempy);
+        return NULL;
+    }
 
-    Py_DECREF(self);
-    Py_DECREF(other);
-    return PyIntOrLong_FromLong(ires);
+    res = (long) mpz_kronecker(tempx->z, tempy->z);
+    Py_DECREF((PyObject*)tempx);
+    Py_DECREF((PyObject*)tempy);
+    return PyIntOrLong_FromLong(res);
 }
 
 PyDoc_STRVAR(doc_is_eveng,

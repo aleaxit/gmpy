@@ -755,7 +755,7 @@ static PyMethodDef Pyxmpz_methods [] =
     { "iter_clear", (PyCFunction)Pyxmpz_iter_clear, METH_VARARGS | METH_KEYWORDS, doc_xmpz_iter_clear },
     { "iter_set", (PyCFunction)Pyxmpz_iter_set, METH_VARARGS | METH_KEYWORDS, doc_xmpz_iter_set },
     { "make_mpz", Pyxmpz_make_mpz, METH_NOARGS, doc_make_mpzm },
-    { "num_digits", GMPy_MPZ_NumDigits, METH_VARARGS, GMPy_doc_mpz_method_num_digits },
+    { "num_digits", GMPy_MPZ_Method_NumDigits, METH_VARARGS, GMPy_doc_mpz_method_num_digits },
     { NULL, NULL, 1 }
 };
 
