@@ -242,7 +242,6 @@ typedef long                mpir_si;
 #include "mpfr.h"
 #include "mpc.h"
 
-#include "gmpy_args.h"
 #include "gmpy2_macros.h"
 
 #include "gmpy2_context.h"
