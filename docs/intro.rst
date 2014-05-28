@@ -190,12 +190,12 @@ Installation
 Installing gmpy2 on Windows
 ---------------------------
 
-Pre-compiled versions of gmpy2 are available at `Downloads
-<http://code.google.com/p/gmpy/downloads/list>`_ . Please
-select the installer that corresponds to the version of Python installed on
-your computer. Note that either a 32 or 64-bit version of Python can be
-installed on a 64-bit version of Windows. If you get an error message
-stating that Python could not be found in the registry, you have the wrong
+Pre-compiled versions of gmpy2 are available at `PyPi
+<https://pypi.python.org/pypi/gmpy2/>`_ . Please select the installer
+that corresponds to the version of Python installed on your computer.
+Note that either a 32 or 64-bit version of Python can be installed on a
+64-bit version of Windows. If you get an error message stating that
+Python could not be found in the registry, you have the wrong
 version of the gmpy2 installer.
 
 Installing gmpy2 on Unix/Linux
@@ -204,21 +204,26 @@ Installing gmpy2 on Unix/Linux
 Requirements
 ^^^^^^^^^^^^
 
-gmpy2 has only been tested with the most recent versions of GMP, MPFR and MPC.
-Specifically, for integer and rational support, gmpy2 requires GMP 5.0.x or
+gmpy2 has only been tested with recent versions of GMP, MPFR and MPC.
+Specifically, for integer and rational support, gmpy2 requires GMP 5.1.x or
 later. To support multiple-precision floating point arithmetic, MPFR 3.1.x or
 later is required. MPC 1.0.1 or later is required for complex arithmetic.
 
 Short Instructions
 ^^^^^^^^^^^^^^^^^^
 
-If your system includes sufficiently recent versions of GMP, MPFR and MPC, and
-you have the development libraries installed, compiling should be as simple as:
+You will need to install the development libraries for Python, GMP, MPFR, and
+MPC. Different Linux distributions may the development packages differently.
+Typical names are libpython-dev, libgmp-dev, libmpfr-dev, and libmpc-dev.
+
+If your system includes recent versions of GMP, MPFR and MPC, and you have
+the development libraries installed, compiling should be as simple as:
 
 ::
 
     cd <gmpy2 source directory>
-    python setup.py install
+    python setup.py build
+    sudo python setup.py install
 
 If this fails, read on.
 
@@ -238,22 +243,24 @@ following directories for the required libraries:
     #. /sw
 
 If you can't use one of these directories, you can use a directory located in
-your home directory. The examples will use /home/case/local. If you use one of
-standard directories (say /opt/local), then you won't need to specify
+your home directory. The examples will use /home/<username>/local. If you use
+one of standard directories (say /opt/local), then you won't need to specify
 --prefix=/home/case/local to setup.py but you will need to specify the prefix
 when compiling GMP, MPFR, and MPC.
+
+Please substitute your actual user name for <username>.
 
 Create the desired destination directory for GMP, MPFR, and MPC.
 ::
 
-    $ mkdir /home/case/local
+    $ mkdir /home/<username>/local
 
 Download and un-tar the GMP source code. Change to the GMP source directory and
 compile GMP.
 ::
 
-    $ cd /home/case/local/src/gmp-5.1.0
-    $ ./configure --prefix=/home/case/local
+    $ cd /home/<username>/local/src/gmp-6.0.0
+    $ ./configure --prefix=/home/<username>/local
     $ make
     $ make check
     $ make install
@@ -262,8 +269,8 @@ Download and un-tar the MPFR source code. Change to the MPFR source directory
 and compile MPFR.
 ::
 
-    $ cd /home/case/local/src/mpfr-3.1.1
-    $ ./configure --prefix=/home/case/local --with-gmp=/home/case/local
+    $ cd /home/<username>/local/src/mpfr-3.1.2
+    $ ./configure --prefix=/home/<username>/local --with-gmp=/home/<username>/local
     $ make
     $ make check
     $ make install
@@ -272,8 +279,8 @@ Download and un-tar the MPC source code. Change to the MPC source directory
 and compile MPC.
 ::
 
-    $ cd /home/case/local/src/mpc-1.0.1
-    $ ./configure --prefix=/home/case/local --with-gmp=/home/case/local --with-mpfr=/home/case/local
+    $ cd /home/<username>/local/src/mpc-1.0.2
+    $ ./configure --prefix=/home/<username>/local --with-gmp=/home/<username>/local --with-mpfr=/home/<username>/local
     $ make
     $ make check
     $ make install
@@ -285,12 +292,12 @@ directories. The prefix directory is added to the beginning of the directories
 that are checked so it will be found first.
 ::
 
-    $ python setup.py install --prefix=/home/case/local
+    $ python setup.py install --prefix=/home/<username>/local
 
 If you get a "permission denied" error message, you may need to use::
 
-    $ python setup.py build --prefix=/home/case/local
-    $ sudo python setup.py install --prefix=/home/case/local
+    $ python setup.py build --prefix=/home/<username>/local
+    $ sudo python setup.py install --prefix=/home/<username>/local
 
 Options for setup.py
 ^^^^^^^^^^^^^^^^^^^^
@@ -315,9 +322,16 @@ Options for setup.py
 
 **--nompfr**
     Disables support for MPFR and MPC. This option is intended for testing purposes
-    and is not offically supported.
+    and is not offically supported. MPFR will be required for future versions of
+    gmpy2.
 
 **--nompc**
-    Disables support MPC. This option is intended for testing purposes and is not
-    officially supported.
+    Disables support for MPC. This option is intended for testing purposes and is not
+    officially supported. MPC will be required for future versions of gmpy2.
+
+**--static**
+    Builds a statically linked library. This option will likely require the use of
+    --prefix=<...> to specify the directory where the static libraries are located.
+    To successfully link with gmpy2, the GMP, MPFR, and MPC libraries must be compiled
+    with the --with-pic option.
 
