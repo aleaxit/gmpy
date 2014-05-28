@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_mpz.h                                                              *
+ * gmpy2_mpz.h                                                             *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *

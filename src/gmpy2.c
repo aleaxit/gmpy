@@ -554,7 +554,7 @@ static PyObject *GMPyExc_Erange = NULL;
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
-#include "gmpy_mpz.c"
+#include "gmpy2_mpz.c"
 #include "gmpy_xmpz.c"
 #include "gmpy2_mpq.c"
 #include "gmpy2_mpfr.c"
