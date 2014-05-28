@@ -551,6 +551,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_mpfr_misc.c"
 #include "gmpy2_mpq_misc.c"
 #include "gmpy2_mpz_misc.c"
+#include "gmpy2_xmpz_misc.c"
 
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
@@ -669,8 +670,8 @@ static PyMethodDef Pygmpy_methods [] =
     { "t_mod_2exp", GMPy_MPZ_t_mod_2exp, METH_VARARGS, doc_t_mod_2exp },
     { "unpack", GMPy_MPZ_unpack, METH_VARARGS, doc_unpack },
     { "version", GMPy_get_version, METH_NOARGS, GMPy_doc_version },
-    { "xbit_mask", Pyxmpz_xbit_mask, METH_O, doc_xbit_maskg },
-    { "xmpz", (PyCFunction)Pygmpy_xmpz, METH_VARARGS | METH_KEYWORDS, doc_xmpz },
+    { "xbit_mask", GMPy_XMPZ_Function_XbitMask, METH_O, GMPy_doc_xmpz_function_xbit_mask },
+    { "xmpz", (PyCFunction)GMPy_XMPZ_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_xmpz_factory },
     { "_mpmath_normalize", Pympz_mpmath_normalize, METH_VARARGS, doc_mpmath_normalizeg },
     { "_mpmath_create", Pympz_mpmath_create, METH_VARARGS, doc_mpmath_createg },
 
@@ -918,7 +919,7 @@ PyMODINIT_FUNC initgmpy2(void)
         INITERROR;
     if (PyType_Ready(&XMPZ_Type) < 0)
         INITERROR;
-    if (PyType_Ready(&GMPyIter_Type) < 0)
+    if (PyType_Ready(&GMPy_Iter_Type) < 0)
         INITERROR;
     if (PyType_Ready(&MPFR_Type) < 0)
         INITERROR;

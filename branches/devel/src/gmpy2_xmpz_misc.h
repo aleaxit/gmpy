@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_xmpz.h                                                             *
+ * gmpy2_xmpz_misc.h                                                       *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
@@ -25,34 +25,40 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef GMPY_XMPZ_H
-#define GMPY_XMPZ_H
+#ifndef GMPY_XMPZ_MISC_H
+#define GMPY_XMPZ_MISC_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct {
-    PyObject_HEAD
-    mpz_t z;
-} XMPZ_Object;
+static int        GMPy_XMPZ_NonZero_Slot(XMPZ_Object *x);
+static PyObject * GMPy_XMPZ_Function_XbitMask(PyObject *self, PyObject *other);
+static PyObject * GMPy_XMPZ_Abs_Slot(XMPZ_Object *x);
+static PyObject * GMPy_XMPZ_Neg_Slot(XMPZ_Object *x);
+static PyObject * GMPy_XMPZ_Pos_Slot(XMPZ_Object *x);
+static PyObject * GMPy_XMPZ_Com_Slot(XMPZ_Object *x);
+static PyObject * GMPy_XMPZ_Method_MakeMPZ(PyObject *self, PyObject *other);
+static PyObject * GMPy_XMPZ_Method_Copy(PyObject *self, PyObject *other);
+static Py_ssize_t GMPy_XMPZ_Method_Length(XMPZ_Object *obj);
+static PyObject * GMPy_XMPZ_Method_SubScript(XMPZ_Object* self, PyObject* item);
+static int        GMPy_XMPZ_Method_AssignSubScript(XMPZ_Object* self, PyObject* item, PyObject* value);
 
-static PyTypeObject XMPZ_Type;
-#define XMPZ(obj) (((XMPZ_Object*)(obj))->z)
-#define XMPZ_Check(v) (((PyObject*)v)->ob_type == &XMPZ_Type)
-#define CHECK_MPZANY(v) (MPZ_Check(v) || XMPZ_Check(v))
+static GMPy_Iter_Object * GMPy_Iter_New(void);
+static void               GMPy_Iter_Dealloc(GMPy_Iter_Object *self);
+static PyObject *         GMPy_Iter_Next(GMPy_Iter_Object *self);
+static PyObject *         GMPy_Iter_Repr(GMPy_Iter_Object *self);
+static PyObject *         GMPy_XMPZ_Method_IterBits(PyObject *self, PyObject *args, PyObject *kwargs);
+static PyObject *         GMPy_XMPZ_Method_IterSet(PyObject *self, PyObject *args, PyObject *kwargs);
+static PyObject *         GMPy_XMPZ_Method_IterClear(PyObject *self, PyObject *args, PyObject *kwargs);
+static PyObject *         GMPy_XMPZ_Method_SizeOf(PyObject *self, PyObject *other);
 
-typedef struct {
-    PyObject_HEAD
-    XMPZ_Object *bitmap;
-    Py_ssize_t start, stop;
-    int iter_type;
-} GMPy_Iter_Object;
 
-static PyTypeObject GMPy_Iter_Type;
-#define GMPy_Iter_Check(v) (((PyObject*)v)->ob_type == &GMPy_Iter_Type)
-
-static PyObject * GMPy_XMPZ_Factory(PyObject *self, PyObject *args, PyObject *keywds);
+#if PY_MAJOR_VERSION < 3
+/* hex/oct formatting (mpz-only) */
+static PyObject * GMPy_XMPZ_Oct_Slot(XMPZ_Object *self);
+static PyObject * GMPy_XMPZ_Hex_Slot(XMPZ_Object *self);
+#endif
 
 #ifdef __cplusplus
 }
