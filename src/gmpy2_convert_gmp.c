@@ -377,7 +377,7 @@ GMPy_MPZ_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context)
 }
 
 static XMPZ_Object*
-GMPy_XMPZ_From_Number_New(PyObject *obj, CTXT_Object *context)
+GMPy_XMPZ_From_Number(PyObject *obj, CTXT_Object *context)
 {
     XMPZ_Object *result = NULL;
 
