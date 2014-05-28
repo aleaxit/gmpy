@@ -6,7 +6,7 @@
  *                                                                         *
  * Copyright 2011 David Cleaver                                            *
  *                                                                         *
- * Copyright 2012, 2013 Case Van Horsen                                    *
+ * Copyright 2012, 2013, 2014 Case Van Horsen                              *
  *                                                                         *
  * The original file is available at:                                      *
  *   <http://sourceforge.net/projects/mpzlucas/files/>                     *
@@ -42,7 +42,7 @@ GMPY_mpz_lucasu(PyObject *self, PyObject *args)
      * Note: p^2-4q=0 is not tested, not a proper Lucas sequence!!
      */
 
-    PympzObject *result = 0, *p, *q, *k;
+    MPZ_Object *result = 0, *p, *q, *k;
     size_t s = 0, j = 0;
     mpz_t uh, vl, vh, ql, qh, tmp;
 
@@ -61,9 +61,9 @@ GMPY_mpz_lucasu(PyObject *self, PyObject *args)
     mpz_inoc(qh);
     mpz_inoc(tmp);
 
-    p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
-    q = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
-    k = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
+    p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
+    k = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2), NULL);
     if (!p || !q || !k) {
         TYPE_ERROR("lucasu() requires 3 integer arguments");
         goto cleanup;
@@ -164,7 +164,7 @@ GMPY_mpz_lucasu(PyObject *self, PyObject *args)
         mpz_mul(ql, ql, ql);
     }
 
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = GMPy_MPZ_New(NULL)))
         goto cleanup;
 
     /* uh contains our return value */
@@ -198,7 +198,7 @@ GMPY_mpz_lucasu_mod(PyObject *self, PyObject *args)
      * Note: p^2-4q=0 is not tested, not a proper Lucas sequence!!
      */
 
-    PympzObject *result = 0, *p, *q, *k, *n;
+    MPZ_Object *result = 0, *p, *q, *k, *n;
 
     size_t s = 0, j = 0;
     mpz_t uh, vl, vh, ql, qh, tmp;
@@ -218,10 +218,10 @@ GMPY_mpz_lucasu_mod(PyObject *self, PyObject *args)
     mpz_inoc(qh);
     mpz_inoc(tmp);
 
-    p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
-    q = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
-    k = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
-    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 3));
+    p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
+    k = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2), NULL);
+    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 3), NULL);
     if (!p || !q || !k || !n) {
         TYPE_ERROR("lucasu_mod() requires 4 integer arguments");
         goto cleanup;
@@ -339,7 +339,7 @@ GMPY_mpz_lucasu_mod(PyObject *self, PyObject *args)
         mpz_mod(ql, ql, n->z);
     }
 
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = GMPy_MPZ_New(NULL)))
         goto cleanup;
 
     /* uh contains our return value */
@@ -373,7 +373,7 @@ GMPY_mpz_lucasv(PyObject *self, PyObject *args)
      * Note: p^2-4q=0 is not tested, not a proper Lucas sequence!!
      */
 
-    PympzObject *result = 0, *p, *q, *k;
+    MPZ_Object *result = 0, *p, *q, *k;
     size_t s = 0, j = 0;
     mpz_t vl, vh, ql, qh, tmp;
 
@@ -391,9 +391,9 @@ GMPY_mpz_lucasv(PyObject *self, PyObject *args)
     mpz_inoc(qh);
     mpz_inoc(tmp);
 
-    p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
-    q = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
-    k = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
+    p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
+    k = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2), NULL);
     if (!p || !q || !k) {
         TYPE_ERROR("lucasv() requires 3 integer arguments");
         goto cleanup;
@@ -479,7 +479,7 @@ GMPY_mpz_lucasv(PyObject *self, PyObject *args)
         mpz_mul(ql, ql, ql);
     }
 
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = GMPy_MPZ_New(NULL)))
         goto cleanup;
 
     /* vl contains our return value */
@@ -512,7 +512,7 @@ GMPY_mpz_lucasv_mod(PyObject *self, PyObject *args)
      * Note: p^2-4q=0 is not tested, not a proper Lucas sequence!!
      */
 
-    PympzObject *result = 0, *p, *q, *k, *n;
+    MPZ_Object *result = 0, *p, *q, *k, *n;
 
     size_t s = 0, j = 0;
     mpz_t vl, vh, ql, qh, tmp;
@@ -531,10 +531,10 @@ GMPY_mpz_lucasv_mod(PyObject *self, PyObject *args)
     mpz_inoc(qh);
     mpz_inoc(tmp);
 
-    p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
-    q = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
-    k = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
-    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 3));
+    p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
+    k = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2), NULL);
+    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 3), NULL);
     if (!p || !q || !k || !n) {
         TYPE_ERROR("lucasv_mod() requires 4 integer arguments");
         goto cleanup;
@@ -634,7 +634,7 @@ GMPY_mpz_lucasv_mod(PyObject *self, PyObject *args)
         mpz_mod(ql, ql, n->z);
     }
 
-    if (!(result = (PympzObject*)Pympz_new()))
+    if (!(result = GMPy_MPZ_New(NULL)))
         goto cleanup;
 
     /* vl contains our return value */

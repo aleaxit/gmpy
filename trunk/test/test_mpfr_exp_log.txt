@@ -2,7 +2,7 @@ MPFR Functionality
 ==================
 
     >>> import gmpy2 as G
-    >>> from gmpy2 import mpfr
+    >>> from gmpy2 import mpz,mpfr
     >>> a = mpz(123)
     >>> b = mpz(456)
 
