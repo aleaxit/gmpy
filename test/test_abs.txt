@@ -1,0 +1,229 @@
+Absolute value
+==============
+
+Test abs() and context.abs().
+
+>>> import gmpy2
+>>> from gmpy2 import mpz, xmpz, mpq, mpfr, mpc
+
+>>> a=mpz(123)
+>>> b=abs(a)
+>>> a is b
+True
+>>> a=xmpz(123)
+>>> b=abs(a)
+>>> a is b
+False
+>>> a=mpz(-123)
+>>> b=abs(a)
+>>> b
+mpz(123)
+>>> a is b
+False
+>>> a
+mpz(-123)
+>>> a=mpq(12,7)
+>>> b=abs(a)
+>>> a is b
+True
+>>> a=mpq(-12,7)
+>>> b=abs(a)
+>>> b
+mpq(12,7)
+>>> a
+mpq(-12,7)
+>>> a=xmpz(-123)
+>>> b=abs(a)
+>>> b
+>>> a
+xmpz(123)
+>>> b is None
+True
+>>> b = abs(a)
+>>> b is None
+True
+>>> a=mpfr(1.0)
+>>> b=abs(a)
+>>> a is b
+False
+>>> abs(mpfr(1, precision=100))
+mpfr('1.0')
+>>> ctx = gmpy2.get_context()
+>>> ctx.clear_flags()
+>>> abs(mpfr('nan'))
+mpfr('nan')
+>>> ctx
+context(precision=53, real_prec=Default, imag_prec=Default,
+        round=RoundToNearest, real_round=Default, imag_round=Default,
+        emax=1073741823, emin=-1073741823,
+        subnormalize=False,
+        trap_underflow=False, underflow=False,
+        trap_overflow=False, overflow=False,
+        trap_inexact=False, inexact=False,
+        trap_invalid=False, invalid=True,
+        trap_erange=False, erange=False,
+        trap_divzero=False, divzero=False,
+        allow_complex=False,
+        rational_division=False,
+        guard_bits=0)
+>>> ctx.clear_flags()
+>>> abs(mpfr('inf'))
+mpfr('inf')
+>>> ctx
+context(precision=53, real_prec=Default, imag_prec=Default,
+        round=RoundToNearest, real_round=Default, imag_round=Default,
+        emax=1073741823, emin=-1073741823,
+        subnormalize=False,
+        trap_underflow=False, underflow=False,
+        trap_overflow=False, overflow=False,
+        trap_inexact=False, inexact=False,
+        trap_invalid=False, invalid=False,
+        trap_erange=False, erange=False,
+        trap_divzero=False, divzero=False,
+        allow_complex=False,
+        rational_division=False,
+        guard_bits=0)
+>>> ctx.clear_flags()
+>>> abs(mpfr('-inf'))
+mpfr('inf')
+>>> ctx
+context(precision=53, real_prec=Default, imag_prec=Default,
+        round=RoundToNearest, real_round=Default, imag_round=Default,
+        emax=1073741823, emin=-1073741823,
+        subnormalize=False,
+        trap_underflow=False, underflow=False,
+        trap_overflow=False, overflow=False,
+        trap_inexact=False, inexact=False,
+        trap_invalid=False, invalid=False,
+        trap_erange=False, erange=False,
+        trap_divzero=False, divzero=False,
+        allow_complex=False,
+        rational_division=False,
+        guard_bits=0)
+>>> abs(mpc(-1,0))
+mpfr('1.0')
+>>> abs(-1+0j)
+1.0
+>>> abs(mpc(1,1))
+mpfr('1.4142135623730951')
+>>> ctx=gmpy2.get_context()
+>>> ctx.clear_flags()
+>>> mpc('nan+0j')
+mpc('nan+0.0j')
+>>> ctx
+context(precision=53, real_prec=Default, imag_prec=Default,
+        round=RoundToNearest, real_round=Default, imag_round=Default,
+        emax=1073741823, emin=-1073741823,
+        subnormalize=False,
+        trap_underflow=False, underflow=False,
+        trap_overflow=False, overflow=False,
+        trap_inexact=False, inexact=False,
+        trap_invalid=False, invalid=True,
+        trap_erange=False, erange=False,
+        trap_divzero=False, divzero=False,
+        allow_complex=False,
+        rational_division=False,
+        guard_bits=0)
+>>> abs(mpc('nan+0j'))
+mpfr('nan')
+>>> ctx
+context(precision=53, real_prec=Default, imag_prec=Default,
+        round=RoundToNearest, real_round=Default, imag_round=Default,
+        emax=1073741823, emin=-1073741823,
+        subnormalize=False,
+        trap_underflow=False, underflow=False,
+        trap_overflow=False, overflow=False,
+        trap_inexact=False, inexact=False,
+        trap_invalid=False, invalid=True,
+        trap_erange=False, erange=False,
+        trap_divzero=False, divzero=False,
+        allow_complex=False,
+        rational_division=False,
+        guard_bits=0)
+>>> ctx.clear_flags()
+>>> abs(mpc('nanj'))
+mpfr('nan')
+>>> ctx
+context(precision=53, real_prec=Default, imag_prec=Default,
+        round=RoundToNearest, real_round=Default, imag_round=Default,
+        emax=1073741823, emin=-1073741823,
+        subnormalize=False,
+        trap_underflow=False, underflow=False,
+        trap_overflow=False, overflow=False,
+        trap_inexact=False, inexact=False,
+        trap_invalid=False, invalid=True,
+        trap_erange=False, erange=False,
+        trap_divzero=False, divzero=False,
+        allow_complex=False,
+        rational_division=False,
+        guard_bits=0)
+>>> ctx.clear_flags()
+>>> abs(mpc('inf+10j'))
+mpfr('inf')
+>>> ctx
+context(precision=53, real_prec=Default, imag_prec=Default,
+        round=RoundToNearest, real_round=Default, imag_round=Default,
+        emax=1073741823, emin=-1073741823,
+        subnormalize=False,
+        trap_underflow=False, underflow=False,
+        trap_overflow=False, overflow=False,
+        trap_inexact=False, inexact=False,
+        trap_invalid=False, invalid=False,
+        trap_erange=False, erange=False,
+        trap_divzero=False, divzero=False,
+        allow_complex=False,
+        rational_division=False,
+        guard_bits=0)
+>>> ctx.clear_flags()
+>>> abs(mpc('-infj'))
+mpfr('inf')
+>>> ctx
+context(precision=53, real_prec=Default, imag_prec=Default,
+        round=RoundToNearest, real_round=Default, imag_round=Default,
+        emax=1073741823, emin=-1073741823,
+        subnormalize=False,
+        trap_underflow=False, underflow=False,
+        trap_overflow=False, overflow=False,
+        trap_inexact=False, inexact=False,
+        trap_invalid=False, invalid=False,
+        trap_erange=False, erange=False,
+        trap_divzero=False, divzero=False,
+        allow_complex=False,
+        rational_division=False,
+        guard_bits=0)
+>>> a=mpc('nan+infj')
+>>> ctx.clear_flags()
+>>> abs(a)
+mpfr('inf')
+>>> ctx
+context(precision=53, real_prec=Default, imag_prec=Default,
+        round=RoundToNearest, real_round=Default, imag_round=Default,
+        emax=1073741823, emin=-1073741823,
+        subnormalize=False,
+        trap_underflow=False, underflow=False,
+        trap_overflow=False, overflow=False,
+        trap_inexact=False, inexact=False,
+        trap_invalid=False, invalid=False,
+        trap_erange=False, erange=False,
+        trap_divzero=False, divzero=False,
+        allow_complex=False,
+        rational_division=False,
+        guard_bits=0)
+>>> a=mpc('-inf+nanj')
+>>> ctx.clear_flags()
+>>> abs(a)
+mpfr('inf')
+>>> ctx
+context(precision=53, real_prec=Default, imag_prec=Default,
+        round=RoundToNearest, real_round=Default, imag_round=Default,
+        emax=1073741823, emin=-1073741823,
+        subnormalize=False,
+        trap_underflow=False, underflow=False,
+        trap_overflow=False, overflow=False,
+        trap_inexact=False, inexact=False,
+        trap_invalid=False, invalid=False,
+        trap_erange=False, erange=False,
+        trap_divzero=False, divzero=False,
+        allow_complex=False,
+        rational_division=False,
+        guard_bits=0)
