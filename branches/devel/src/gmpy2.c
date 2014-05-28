@@ -401,7 +401,7 @@
 #include "py3intcompat.c"
 #endif
 
-#include "gmpy.h"
+#include "gmpy2.h"
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Global data declarations begin here.                                    *
@@ -515,7 +515,7 @@ static PyObject *GMPyExc_Erange = NULL;
 
 /* Include helper functions for mpmath. */
 
-#include "gmpy_mpmath.c"
+#include "gmpy2_mpmath.c"
 
 #include "gmpy2_mpz_divmod.c"
 #include "gmpy2_mpz_divmod2exp.c"
