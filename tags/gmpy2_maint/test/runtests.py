@@ -100,3 +100,8 @@ for test in sorted(all_doctests):
 print()
 print("                             Summary - Attempted: {0:4d}   Failed: {1:4d}".format(attempted, failed))
 
+if failed:
+    sys.exit(1)
+else:
+    sys.exit(0)
+

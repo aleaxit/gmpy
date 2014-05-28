@@ -36,6 +36,7 @@ Changes in gmpy2 2.0.4
 
 * Fixed bit_scan0() for negative values.
 * Added option to setup.py (--static) to support static linking.
+* Manpage is now installed in section 3.
 
 Changes in gmpy2 2.0.3
 ----------------------
