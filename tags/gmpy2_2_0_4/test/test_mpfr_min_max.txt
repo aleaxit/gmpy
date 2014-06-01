@@ -1,0 +1,57 @@
+Testing of mpfr maxnum and minnum functions
+-------------------------------------------
+
+    >>> import gmpy2
+    >>> from gmpy2 import mpz, mpq, mpfr, maxnum, minnum
+    >>> a = mpfr("12.34")
+    >>> b = mpfr("45.67")
+    >>> nan = mpfr("nan")
+    >>> inf = mpfr("inf")
+    >>> minf = mpfr("-inf")
+
+Test maxnum
+-----------
+
+    >>> maxnum(a,b)
+    mpfr('45.670000000000002')
+    >>> maxnum(b,a)
+    mpfr('45.670000000000002')
+    >>> maxnum(a,-b)
+    mpfr('12.34')
+    >>> maxnum(a, 123456)
+    mpfr('123456.0')
+    >>> maxnum(12345678901234567890, a)
+    mpfr('1.2345678901234567e+19')
+    >>> maxnum(0, -1)
+    mpfr('0.0')
+    >>> maxnum(1, inf)
+    mpfr('inf')
+    >>> maxnum(1, -inf)
+    mpfr('1.0')
+    >>> maxnum(nan, a)
+    mpfr('12.34')
+    >>> maxnum(a, nan)
+    mpfr('12.34')
+    >>> maxnum(nan, inf)
+    mpfr('inf')
+    >>> maxnum(nan, -inf)
+    mpfr('-inf')
+    >>> maxnum(nan, nan)
+    mpfr('nan')
+
+Test minnum
+-----------
+
+    >>> minnum(a,b)
+    mpfr('12.34')
+    >>> minnum(b,a)
+    mpfr('12.34')
+    >>> minnum(1,inf)
+    mpfr('1.0')
+    >>> minnum(minf, a)
+    mpfr('-inf')
+    >>> minnum(nan, inf)
+    mpfr('inf')
+    >>> minnum(nan, nan)
+    mpfr('nan')
+

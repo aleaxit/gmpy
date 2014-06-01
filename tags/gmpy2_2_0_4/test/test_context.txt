@@ -1,0 +1,295 @@
+Test context handling
+---------------------
+
+    >>> import gmpy2
+    >>> from gmpy2 import mpfr,mpc,get_context,set_context,ieee,context,local_context
+
+Test ieee()
+-----------
+
+    >>> ieee(32)
+    context(precision=24, real_prec=Default, imag_prec=Default,
+            round=RoundToNearest, real_round=Default, imag_round=Default,
+            emax=128, emin=-148,
+            subnormalize=True,
+            trap_underflow=False, underflow=False,
+            trap_overflow=False, overflow=False,
+            trap_inexact=False, inexact=False,
+            trap_invalid=False, invalid=False,
+            trap_erange=False, erange=False,
+            trap_divzero=False, divzero=False,
+            trap_expbound=False,
+            allow_complex=False)
+    >>> ieee(64)
+    context(precision=53, real_prec=Default, imag_prec=Default,
+            round=RoundToNearest, real_round=Default, imag_round=Default,
+            emax=1024, emin=-1073,
+            subnormalize=True,
+            trap_underflow=False, underflow=False,
+            trap_overflow=False, overflow=False,
+            trap_inexact=False, inexact=False,
+            trap_invalid=False, invalid=False,
+            trap_erange=False, erange=False,
+            trap_divzero=False, divzero=False,
+            trap_expbound=False,
+            allow_complex=False)
+    >>> ieee(128)
+    context(precision=113, real_prec=Default, imag_prec=Default,
+            round=RoundToNearest, real_round=Default, imag_round=Default,
+            emax=16384, emin=-16493,
+            subnormalize=True,
+            trap_underflow=False, underflow=False,
+            trap_overflow=False, overflow=False,
+            trap_inexact=False, inexact=False,
+            trap_invalid=False, invalid=False,
+            trap_erange=False, erange=False,
+            trap_divzero=False, divzero=False,
+            trap_expbound=False,
+            allow_complex=False)
+    >>> set_context(ieee(32))
+    >>> gmpy2.const_pi().digits(2)
+    ('110010010000111111011011', 2, 24)
+    >>> set_context(ieee(64))
+    >>> gmpy2.const_pi().digits(2)
+    ('11001001000011111101101010100010001000010110100011000', 2, 53)
+    >>> set_context(ieee(128))
+    >>> gmpy2.const_pi().digits(2)
+    ('11001001000011111101101010100010001000010110100011000010001101001100010011000110011000101000101110000000110111000', 2, 113)
+
+Test context()
+--------------
+
+    >>> context()
+    context(precision=53, real_prec=Default, imag_prec=Default,
+            round=RoundToNearest, real_round=Default, imag_round=Default,
+            emax=1073741823, emin=-1073741823,
+            subnormalize=False,
+            trap_underflow=False, underflow=False,
+            trap_overflow=False, overflow=False,
+            trap_inexact=False, inexact=False,
+            trap_invalid=False, invalid=False,
+            trap_erange=False, erange=False,
+            trap_divzero=False, divzero=False,
+            trap_expbound=False,
+            allow_complex=False)
+    >>> context(precision=100)
+    context(precision=100, real_prec=Default, imag_prec=Default,
+            round=RoundToNearest, real_round=Default, imag_round=Default,
+            emax=1073741823, emin=-1073741823,
+            subnormalize=False,
+            trap_underflow=False, underflow=False,
+            trap_overflow=False, overflow=False,
+            trap_inexact=False, inexact=False,
+            trap_invalid=False, invalid=False,
+            trap_erange=False, erange=False,
+            trap_divzero=False, divzero=False,
+            trap_expbound=False,
+            allow_complex=False)
+    >>> context(real_prec=100)
+    context(precision=53, real_prec=100, imag_prec=Default,
+            round=RoundToNearest, real_round=Default, imag_round=Default,
+            emax=1073741823, emin=-1073741823,
+            subnormalize=False,
+            trap_underflow=False, underflow=False,
+            trap_overflow=False, overflow=False,
+            trap_inexact=False, inexact=False,
+            trap_invalid=False, invalid=False,
+            trap_erange=False, erange=False,
+            trap_divzero=False, divzero=False,
+            trap_expbound=False,
+            allow_complex=False)
+    >>> context(real_prec=100,imag_prec=200)
+    context(precision=53, real_prec=100, imag_prec=200,
+            round=RoundToNearest, real_round=Default, imag_round=Default,
+            emax=1073741823, emin=-1073741823,
+            subnormalize=False,
+            trap_underflow=False, underflow=False,
+            trap_overflow=False, overflow=False,
+            trap_inexact=False, inexact=False,
+            trap_invalid=False, invalid=False,
+            trap_erange=False, erange=False,
+            trap_divzero=False, divzero=False,
+            trap_expbound=False,
+            allow_complex=False)
+
+Test get_context()
+------------------
+
+    >>> set_context(context())
+    >>> get_context()
+    context(precision=53, real_prec=Default, imag_prec=Default,
+            round=RoundToNearest, real_round=Default, imag_round=Default,
+            emax=1073741823, emin=-1073741823,
+            subnormalize=False,
+            trap_underflow=False, underflow=False,
+            trap_overflow=False, overflow=False,
+            trap_inexact=False, inexact=False,
+            trap_invalid=False, invalid=False,
+            trap_erange=False, erange=False,
+            trap_divzero=False, divzero=False,
+            trap_expbound=False,
+            allow_complex=False)
+    >>> a=get_context()
+    >>> a.precision=100
+    >>> a
+    context(precision=100, real_prec=Default, imag_prec=Default,
+            round=RoundToNearest, real_round=Default, imag_round=Default,
+            emax=1073741823, emin=-1073741823,
+            subnormalize=False,
+            trap_underflow=False, underflow=False,
+            trap_overflow=False, overflow=False,
+            trap_inexact=False, inexact=False,
+            trap_invalid=False, invalid=False,
+            trap_erange=False, erange=False,
+            trap_divzero=False, divzero=False,
+            trap_expbound=False,
+            allow_complex=False)
+    >>> get_context()
+    context(precision=100, real_prec=Default, imag_prec=Default,
+            round=RoundToNearest, real_round=Default, imag_round=Default,
+            emax=1073741823, emin=-1073741823,
+            subnormalize=False,
+            trap_underflow=False, underflow=False,
+            trap_overflow=False, overflow=False,
+            trap_inexact=False, inexact=False,
+            trap_invalid=False, invalid=False,
+            trap_erange=False, erange=False,
+            trap_divzero=False, divzero=False,
+            trap_expbound=False,
+            allow_complex=False)
+    >>> b=a.copy()
+    >>> b.precision=200
+    >>> b
+    context(precision=200, real_prec=Default, imag_prec=Default,
+            round=RoundToNearest, real_round=Default, imag_round=Default,
+            emax=1073741823, emin=-1073741823,
+            subnormalize=False,
+            trap_underflow=False, underflow=False,
+            trap_overflow=False, overflow=False,
+            trap_inexact=False, inexact=False,
+            trap_invalid=False, invalid=False,
+            trap_erange=False, erange=False,
+            trap_divzero=False, divzero=False,
+            trap_expbound=False,
+            allow_complex=False)
+    >>> a
+    context(precision=100, real_prec=Default, imag_prec=Default,
+            round=RoundToNearest, real_round=Default, imag_round=Default,
+            emax=1073741823, emin=-1073741823,
+            subnormalize=False,
+            trap_underflow=False, underflow=False,
+            trap_overflow=False, overflow=False,
+            trap_inexact=False, inexact=False,
+            trap_invalid=False, invalid=False,
+            trap_erange=False, erange=False,
+            trap_divzero=False, divzero=False,
+            trap_expbound=False,
+            allow_complex=False)
+    >>> get_context()
+    context(precision=100, real_prec=Default, imag_prec=Default,
+            round=RoundToNearest, real_round=Default, imag_round=Default,
+            emax=1073741823, emin=-1073741823,
+            subnormalize=False,
+            trap_underflow=False, underflow=False,
+            trap_overflow=False, overflow=False,
+            trap_inexact=False, inexact=False,
+            trap_invalid=False, invalid=False,
+            trap_erange=False, erange=False,
+            trap_divzero=False, divzero=False,
+            trap_expbound=False,
+            allow_complex=False)
+
+Test local_context()
+--------------------
+
+>>> set_context(context())
+>>> with local_context() as ctx:
+...   print(ctx.precision)
+...   ctx.precision+=20
+...   print(ctx.precision)
+...
+53
+73
+>>> get_context()
+context(precision=53, real_prec=Default, imag_prec=Default,
+        round=RoundToNearest, real_round=Default, imag_round=Default,
+        emax=1073741823, emin=-1073741823,
+        subnormalize=False,
+        trap_underflow=False, underflow=False,
+        trap_overflow=False, overflow=False,
+        trap_inexact=False, inexact=False,
+        trap_invalid=False, invalid=False,
+        trap_erange=False, erange=False,
+        trap_divzero=False, divzero=False,
+        trap_expbound=False,
+        allow_complex=False)
+>>> with local_context(ieee(64)) as ctx:
+...   print(ctx)
+...
+context(precision=53, real_prec=Default, imag_prec=Default,
+        round=RoundToNearest, real_round=Default, imag_round=Default,
+        emax=1024, emin=-1073,
+        subnormalize=True,
+        trap_underflow=False, underflow=False,
+        trap_overflow=False, overflow=False,
+        trap_inexact=False, inexact=False,
+        trap_invalid=False, invalid=False,
+        trap_erange=False, erange=False,
+        trap_divzero=False, divzero=False,
+        trap_expbound=False,
+        allow_complex=False)
+>>> get_context()
+context(precision=53, real_prec=Default, imag_prec=Default,
+        round=RoundToNearest, real_round=Default, imag_round=Default,
+        emax=1073741823, emin=-1073741823,
+        subnormalize=False,
+        trap_underflow=False, underflow=False,
+        trap_overflow=False, overflow=False,
+        trap_inexact=False, inexact=False,
+        trap_invalid=False, invalid=False,
+        trap_erange=False, erange=False,
+        trap_divzero=False, divzero=False,
+        trap_expbound=False,
+        allow_complex=False)
+>>> with get_context() as ctx:
+...   print(ctx.precision)
+...   ctx.precision+=100
+...   print(ctx.precision)
+...
+53
+153
+>>> get_context()
+context(precision=53, real_prec=Default, imag_prec=Default,
+        round=RoundToNearest, real_round=Default, imag_round=Default,
+        emax=1073741823, emin=-1073741823,
+        subnormalize=False,
+        trap_underflow=False, underflow=False,
+        trap_overflow=False, overflow=False,
+        trap_inexact=False, inexact=False,
+        trap_invalid=False, invalid=False,
+        trap_erange=False, erange=False,
+        trap_divzero=False, divzero=False,
+        trap_expbound=False,
+        allow_complex=False)
+>>> with local_context(precision=200) as ctx:
+...   print(ctx.precision)
+...   ctx.precision+=100
+...   print(ctx.precision)
+...
+200
+300
+>>> get_context()
+context(precision=53, real_prec=Default, imag_prec=Default,
+        round=RoundToNearest, real_round=Default, imag_round=Default,
+        emax=1073741823, emin=-1073741823,
+        subnormalize=False,
+        trap_underflow=False, underflow=False,
+        trap_overflow=False, overflow=False,
+        trap_inexact=False, inexact=False,
+        trap_invalid=False, invalid=False,
+        trap_erange=False, erange=False,
+        trap_divzero=False, divzero=False,
+        trap_expbound=False,
+        allow_complex=False)
+
+

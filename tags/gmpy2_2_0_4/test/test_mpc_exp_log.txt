@@ -1,0 +1,23 @@
+MPFR Functionality
+==================
+
+    >>> import gmpy2 as G
+    >>> from gmpy2 import mpfr
+    >>> a = mpz(123)
+    >>> b = mpz(456)
+
+Test special functions
+======================
+
+Test exp
+--------
+
+Test log
+--------
+
+Test sqrt
+---------
+
+Test pow
+--------
+

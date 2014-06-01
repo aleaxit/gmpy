@@ -1,0 +1,67 @@
+MPZ Functionality
+=================
+
+    >>> import gmpy2 as G
+    >>> from gmpy2 import mpz
+    >>> a = mpz(123)
+    >>> b = mpz(456)
+
+Test bit operations
+===================
+
+Test bit_clear
+--------------
+
+Test bit_flip
+-------------
+
+Test bit_length
+---------------
+
+Test bit_mask
+-------------
+
+Test bit_scan0
+--------------
+
+Test bit_scan1
+--------------
+
+Test bit_set
+------------
+
+Test bit_test
+-------------
+
+Test hamdist
+------------
+
+Test popcount
+-------------
+
+Test __invert__
+---------------
+
+Test __lshift__
+---------------
+
+Test __or__
+-----------
+
+Test __rlshift__
+----------------
+
+Test __ror__
+------------
+
+Test __rrshift__
+----------------
+
+Test __rshift__
+---------------
+
+Test __rxor__
+-------------
+
+Test __xor__
+------------

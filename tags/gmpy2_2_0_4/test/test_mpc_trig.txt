@@ -1,0 +1,52 @@
+MPC Functionality
+=================
+
+    >>> import gmpy2 as G
+    >>> from gmpy2 import mpc
+    >>> a = mpz(123)
+    >>> b = mpz(456)
+
+Test trigonometric operations
+=============================
+
+Test acos
+---------
+
+Test asin
+---------
+
+Test atan
+---------
+
+Test cos
+--------
+
+Test sin
+--------
+
+Test sin_cos
+------------
+
+Test tan
+--------
+
+Test acosh
+----------
+
+Test asinh
+----------
+
+Test atanh
+----------
+
+Test cosh
+---------
+
+Test sinh
+---------
+
+Test sinh_cosh
+--------------
+
+Test tanh
+---------
