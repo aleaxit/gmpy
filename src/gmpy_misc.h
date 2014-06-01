@@ -1,10 +1,13 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * gmpy_mpz_prp.h                                                          *
+ * gmpy_misc.c                                                             *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
  *                                                                         *
- * Copyright 2012 Case Van Horsen                                          *
+ * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
+ *           2008, 2009 Alex Martelli                                      *
+ *                                                                         *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013 Case Van Horsen            *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -22,24 +25,22 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef GMPY_PRP_H
-#define GMPY_PRP_H
+#ifndef GMPY_MISC_H
+#define GMPY_MISC_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-static PyObject * GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args);
-static PyObject * GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args);
-static PyObject * GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args);
-static PyObject * GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args);
-static PyObject * GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args);
-static PyObject * GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args);
-static PyObject * GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args);
-static PyObject * GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args);
-static PyObject * GMPY_mpz_is_strongselfridge_prp(PyObject *self, PyObject *args);
-static PyObject * GMPY_mpz_is_bpsw_prp(PyObject *self, PyObject *args);
-static PyObject * GMPY_mpz_is_strongbpsw_prp(PyObject *self, PyObject *args);
+static PyObject * Pygmpy_get_license(PyObject *self, PyObject *args);
+static PyObject * Pygmpy_get_version(PyObject *self, PyObject *args);
+static PyObject * Pygmpy_get_cvsid(PyObject *self, PyObject *args);
+static PyObject * Pygmpy_get_mp_version(PyObject *self, PyObject *args);
+static PyObject * Pygmpy_get_mpfr_version(PyObject *self, PyObject *args);
+static PyObject * Pygmpy_get_mpc_version(PyObject *self, PyObject *args);
+static PyObject * Pygmpy_get_mp_limbsize(PyObject *self, PyObject *args);
+static PyObject * Pygmpy_get_cache(PyObject *self, PyObject *args);
+static PyObject * Pygmpy_set_cache(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
 }

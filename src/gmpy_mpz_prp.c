@@ -6,7 +6,7 @@
  *                                                                         *
  * Copyright 2011 David Cleaver                                            *
  *                                                                         *
- * Copyright 2012, 2013, 2014 Case Van Horsen                              *
+ * Copyright 2012, 2013 Case Van Horsen                                    *
  *                                                                         *
  * The original file is available at:                                      *
  *   <http://sourceforge.net/projects/mpzprp/files/>                       *
@@ -46,8 +46,8 @@ PyDoc_STRVAR(doc_mpz_is_fermat_prp,
 static PyObject *
 GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *a, *n;
-    PyObject *result = 0;
+    PympzObject *a = NULL, *n = NULL;
+    PyObject *result = NULL;
     mpz_t res, nm1;
 
     if (PyTuple_Size(args) != 2) {
@@ -55,18 +55,18 @@ GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
-    a = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
+    /* Allocate the temporary values early to allow a single cleanup section
+     * to be used. */
+
+    mpz_inoc(res);
+    mpz_inoc(nm1);
+
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    a = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (!a || !n) {
         TYPE_ERROR("is_fermat_prp() requires 2 integer arguments");
         goto cleanup;
     }
-
-    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
-     * avoid memory allocations. */
-
-    mpz_inoc(res);
-    mpz_inoc(nm1);
 
     /* Require a >= 2. */
     if (mpz_cmp_ui(a->z, 2) < 0) {
@@ -74,9 +74,8 @@ GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args)
         goto cleanup;
     }
 
-    /* Require n > 0. */
-    if (mpz_sgn(n->z) <= 0) {
-        VALUE_ERROR("is_fermat_prp() requires 'n' be greater than 0");
+    if (mpz_cmp_ui(n->z, 2) < 0) {
+        result = Py_False;
         goto cleanup;
     }
 
@@ -99,7 +98,7 @@ GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args)
     /* Check gcd(a,n) */
     mpz_gcd(res, n->z, a->z);
     if (mpz_cmp_ui(res, 1) > 0) {
-        VALUE_ERROR("is_fermat_prp() requires gcd(n,a) == 1");
+        result = Py_False;
         goto cleanup;
     }
 
@@ -140,8 +139,8 @@ PyDoc_STRVAR(doc_mpz_is_euler_prp,
 static PyObject *
 GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *a, *n;
-    PyObject *result = 0;
+    PympzObject *a = NULL, *n = NULL;
+    PyObject *result = NULL;
     mpz_t res, exp;
     int ret;
 
@@ -150,18 +149,18 @@ GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
-    a = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
-    if (!a || !n) {
-        TYPE_ERROR("is_euler_prp() requires 2 integer arguments");
-        goto cleanup;
-    }
-
     /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
      * avoid memory allocations. */
 
     mpz_inoc(res);
     mpz_inoc(exp);
+
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    a = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
+    if (!a || !n) {
+        TYPE_ERROR("is_euler_prp() requires 2 integer arguments");
+        goto cleanup;
+    }
 
     /* Require a >= 2. */
     if (mpz_cmp_ui(a->z, 2) < 0) {
@@ -169,14 +168,7 @@ GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
         goto cleanup;
     }
 
-    /* Require n > 0. */
-    if (mpz_sgn(n->z) <= 0) {
-        VALUE_ERROR("is_euler_prp() requires 'n' be greater than 0");
-        goto cleanup;
-    }
-
-    /* Check for n == 1 */
-    if (mpz_cmp_ui(n->z, 1) == 0) {
+    if (mpz_cmp_ui(n->z, 2) < 0) {
         result = Py_False;
         goto cleanup;
     }
@@ -193,7 +185,7 @@ GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
     /* Check gcd(a,b) */
     mpz_gcd(res, n->z, a->z);
     if (mpz_cmp_ui(res, 1) > 0) {
-        VALUE_ERROR("is_euler_prp() requires gcd(n,a) == 1");
+        result = Py_False;
         goto cleanup;
     }
 
@@ -247,21 +239,14 @@ PyDoc_STRVAR(doc_mpz_is_strong_prp,
 static PyObject *
 GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *a, *n;
-    PyObject *result = 0;
+    PympzObject *a = NULL, *n = NULL;
+    PyObject *result = NULL;
     mpz_t s, nm1, mpz_test;
     mpir_ui r = 0;
 
     if (PyTuple_Size(args) != 2) {
         TYPE_ERROR("is_strong_prp() requires 2 integer arguments");
         return NULL;
-    }
-
-    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
-    a = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
-    if (!a || !n) {
-        TYPE_ERROR("is_strong_prp() requires 2 integer arguments");
-        goto cleanup;
     }
 
     /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
@@ -271,20 +256,20 @@ GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args)
     mpz_inoc(nm1);
     mpz_inoc(mpz_test);
 
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    a = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
+    if (!a || !n) {
+        TYPE_ERROR("is_strong_prp() requires 2 integer arguments");
+        goto cleanup;
+    }
+
     /* Require a >= 2. */
     if (mpz_cmp_ui(a->z, 2) < 0) {
         VALUE_ERROR("is_strong_prp() requires 'a' greater than or equal to 2");
         goto cleanup;
     }
 
-    /* Require n > 0. */
-    if (mpz_sgn(n->z) <= 0) {
-        VALUE_ERROR("is_strong_prp() requires 'n' be greater than 0");
-        goto cleanup;
-    }
-
-    /* Check for n == 1 */
-    if (mpz_cmp_ui(n->z, 1) == 0) {
+    if (mpz_cmp_ui(n->z, 2) < 0) {
         result = Py_False;
         goto cleanup;
     }
@@ -298,20 +283,12 @@ GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args)
         goto cleanup;
     }
 
-    /* Check gcd(a,b) */
-    mpz_gcd(s, n->z, a->z);
-    if (mpz_cmp_ui(s, 1) > 0) {
-        VALUE_ERROR("is_strong_prp() requires gcd(n,a) == 1");
-        goto cleanup;
-    }
-
     mpz_set(nm1, n->z);
     mpz_sub_ui(nm1, nm1, 1);
 
     /* Find s and r satisfying: n-1=(2^r)*s, s odd */
     r = mpz_scan1(nm1, 0);
     mpz_fdiv_q_2exp(s, nm1, r);
-
 
     /* Check a^((2^t)*s) mod n for 0 <= t < r */
     mpz_powm(mpz_test, a->z, s, n->z);
@@ -362,8 +339,8 @@ PyDoc_STRVAR(doc_mpz_is_fibonacci_prp,
 static PyObject *
 GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *n, *p, *q;
-    PyObject *result = 0;
+    PympzObject *n = NULL, *p = NULL, *q = NULL;
+    PyObject *result = NULL;
     mpz_t pmodn, zP;
     /* used for calculating the Lucas V sequence */
     mpz_t vl, vh, ql, qh, tmp;
@@ -385,9 +362,9 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
     mpz_inoc(qh);
     mpz_inoc(tmp);
 
-    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
-    p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
-    q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2), NULL);
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
+    q = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
     if (!n || !p || !q) {
         TYPE_ERROR("is_fibonacci_prp() requires 3 integer arguments");
         goto cleanup;
@@ -410,14 +387,7 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
         goto cleanup;
     }
 
-    /* Require n > 0. */
-    if (mpz_sgn(n->z) <= 0) {
-        VALUE_ERROR("is_fibonacci_prp() requires 'n' be greater than 0");
-        goto cleanup;
-    }
-
-    /* Check for n == 1 */
-    if (mpz_cmp_ui(n->z, 1) == 0) {
+    if (mpz_cmp_ui(n->z, 2) < 0) {
         result = Py_False;
         goto cleanup;
     }
@@ -548,8 +518,8 @@ PyDoc_STRVAR(doc_mpz_is_lucas_prp,
 static PyObject *
 GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *n, *p, *q;
-    PyObject *result = 0;
+    PympzObject *n= NULL, *p = NULL, *q = NULL;
+    PyObject *result = NULL;
     mpz_t zD, res, index;
     /* used for calculating the Lucas U sequence */
     mpz_t uh, vl, vh, ql, qh, tmp;
@@ -574,9 +544,9 @@ GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args)
     mpz_inoc(qh);
     mpz_inoc(tmp);
 
-    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
-    p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
-    q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2), NULL);
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
+    q = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
     if (!n || !p || !q) {
         TYPE_ERROR("is_lucas_prp() requires 3 integer arguments");
         goto cleanup;
@@ -591,14 +561,7 @@ GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args)
         goto cleanup;
     }
 
-    /* Require n > 0. */
-    if (mpz_sgn(n->z) <= 0) {
-        VALUE_ERROR("is_lucas_prp() requires 'n' be greater than 0");
-        goto cleanup;
-    }
-
-    /* Check for n == 1 */
-    if (mpz_cmp_ui(n->z, 1) == 0) {
+    if (mpz_cmp_ui(n->z, 2) < 0) {
         result = Py_False;
         goto cleanup;
     }
@@ -617,7 +580,7 @@ GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args)
     mpz_mul_ui(res, res, 2);
     mpz_gcd(res, res, n->z);
     if ((mpz_cmp(res, n->z) != 0) && (mpz_cmp_ui(res, 1) > 0)) {
-        VALUE_ERROR("is_lucas_prp() requires gcd(n,2*q*D) == 1");
+        result = Py_False;
         goto cleanup;
     }
 
@@ -765,8 +728,8 @@ PyDoc_STRVAR(doc_mpz_is_stronglucas_prp,
 static PyObject *
 GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *n, *p, *q;
-    PyObject *result = 0;
+    PympzObject *n = NULL, *p = NULL, *q = NULL;
+    PyObject *result = NULL;
     mpz_t zD, s, nmj, res;
     /* these are needed for the LucasU and LucasV part of this function */
     mpz_t uh, vl, vh, ql, qh, tmp;
@@ -793,9 +756,9 @@ GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
     mpz_inoc(qh);
     mpz_inoc(tmp);
 
-    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
-    p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
-    q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2), NULL);
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
+    q = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
     if (!n || !p || !q) {
         TYPE_ERROR("is_strong_lucas_prp() requires 3 integer arguments");
         goto cleanup;
@@ -810,14 +773,7 @@ GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
         goto cleanup;
     }
 
-    /* Require n > 0. */
-    if (mpz_sgn(n->z) <= 0) {
-        VALUE_ERROR("is_strong_lucas_prp() requires 'n' be greater than 0");
-        goto cleanup;
-    }
-
-    /* Check for n == 1 */
-    if (mpz_cmp_ui(n->z, 1) == 0) {
+    if (mpz_cmp_ui(n->z, 2) < 0) {
         result = Py_False;
         goto cleanup;
     }
@@ -836,7 +792,7 @@ GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
     mpz_mul_ui(res, res, 2);
     mpz_gcd(res, res, n->z);
     if ((mpz_cmp(res, n->z) != 0) && (mpz_cmp_ui(res, 1) > 0)) {
-        VALUE_ERROR("is_strong_lucas_prp() requires gcd(n,2*q*D) == 1");
+        result = Py_False;
         goto cleanup;
     }
 
@@ -985,23 +941,24 @@ PyDoc_STRVAR(doc_mpz_is_extrastronglucas_prp,
 "    gcd(n, 2*D) == 1\n"
 "    n = s*(2**r) + Jacobi(D,n), s odd\n"
 "Then an extra strong Lucas probable prime requires:\n"
-"    lucasu(p,1,s) == 0 (mod n)\n"
-"    or\n"
-"    lucasv(p,1,s) == +/-2 (mod n)\n"
+"    (lucasu(p,1,s) == 0 (mod n)\n"
+"     and\n"
+"     lucasv(p,1,s) == +/-2 (mod n))\n"
 "    or\n"
 "    lucasv(p,1,s*(2**t)) == 0 (mod n) for some t, 0 <= t < r");
 
 static PyObject *
 GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *n, *p;
-    PyObject *result = 0;
+    PympzObject *n = NULL, *p = NULL;
+    PyObject *result = NULL;
     mpz_t zD, s, nmj, nm2, res;
     /* these are needed for the LucasU and LucasV part of this function */
     mpz_t uh, vl, vh, ql, qh, tmp;
     mpir_ui r = 0;
+    mpir_si q = 1;
     int ret = 0;
-    mpir_ui j = 0;
+    int j = 0;
 
     if (PyTuple_Size(args) != 2) {
         TYPE_ERROR("is_extra_strong_lucas_prp() requires 2 integer arguments");
@@ -1023,8 +980,8 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     mpz_inoc(qh);
     mpz_inoc(tmp);
 
-    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
-    p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
+    p = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (!n || !p) {
         TYPE_ERROR("is_extra_strong_lucas_prp() requires 2 integer arguments");
         goto cleanup;
@@ -1034,18 +991,11 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     mpz_mul(zD, p->z, p->z);
     mpz_sub_ui(zD, zD, 4);
     if (mpz_sgn(zD) == 0) {
-        VALUE_ERROR("invalid value for p in is_extra_strong_lucas_prp()");
+        VALUE_ERROR("is_extra_strong_lucas_prp() requires p*p-4 != 0");
         goto cleanup;
     }
 
-    /* Require n > 0. */
-    if (mpz_sgn(n->z) <= 0) {
-        VALUE_ERROR("is_extra_strong_lucas_prp() requires 'n' be greater than 0");
-        goto cleanup;
-    }
-
-    /* Check for n == 1 */
-    if (mpz_cmp_ui(n->z, 1) == 0) {
+    if (mpz_cmp_ui(n->z, 2) < 0) {
         result = Py_False;
         goto cleanup;
     }
@@ -1063,7 +1013,7 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     mpz_mul_ui(res, zD, 2);
     mpz_gcd(res, res, n->z);
     if ((mpz_cmp(res, n->z) != 0) && (mpz_cmp_ui(res, 1) > 0)) {
-        VALUE_ERROR("is_extra_strong_lucas_prp() requires gcd(n,2*D) == 1");
+        result = Py_False;
         goto cleanup;
     }
 
@@ -1078,10 +1028,10 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     r = mpz_scan1(nmj, 0);
     mpz_fdiv_q_2exp(s, nmj, r);
 
-    mpz_set(nm2, n->z);
-    mpz_sub_ui(nm2, nm2, 2);
+    /* (-2 mod n) is needed for one of the tests. */
+    mpz_sub_ui(nm2, n->z, 2);
 
-    /* make sure that either U_s == 0 mod n or V_s == +/-2 mod n, or */
+    /* make sure that either U_s == 0 mod n and V_s == +/-2 mod n, or */
     /* V_((2^t)*s) == 0 mod n for some t with 0 <= t < r-1           */
     mpz_set_si(uh, 1);
     mpz_set_si(vl, 2);
@@ -1096,7 +1046,7 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
         mpz_mod(ql, ql, n->z);
         if (mpz_tstbit(s,j) == 1) {
             /* qh = ql*q */
-            mpz_set(qh, ql);
+            mpz_mul_si(qh, ql, q);
 
             /* uh = uh*vh (mod n) */
             mpz_mul(uh, uh, vh);
@@ -1158,8 +1108,8 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     mpz_mod(vl, vl, n->z);
 
     /* uh contains LucasU_s and vl contains LucasV_s */
-    if ((mpz_cmp_ui(uh, 0) == 0) || (mpz_cmp_ui(vl, 0) == 0) ||
-        (mpz_cmp(vl, nm2) == 0) || (mpz_cmp_si(vl, 2) == 0)) {
+    if ((mpz_cmp_ui(uh, 0) == 0) &&
+       ((mpz_cmp(vl, nm2) == 0) || (mpz_cmp_si(vl, 2) == 0))) {
         result = Py_True;
         goto cleanup;
     }
@@ -1219,8 +1169,8 @@ PyDoc_STRVAR(doc_mpz_is_selfridge_prp,
 static PyObject *
 GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *n;
-    PyObject *result = 0, *temp = 0;
+    PympzObject *n = NULL;
+    PyObject *result = NULL, *temp = NULL;
     long d = 5, p = 1, q = 0, max_d = 1000000;
     int jacobi = 0;
     mpz_t zD;
@@ -1235,20 +1185,13 @@ GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args)
 
     mpz_inoc(zD);
 
-    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     if (!n) {
         TYPE_ERROR("is_selfridge_prp() requires 1 integer argument");
         goto cleanup;
     }
 
-    /* Require n > 0. */
-    if (mpz_sgn(n->z) <= 0) {
-        VALUE_ERROR("is_selfridge_prp() requires 'n' be greater than 0");
-        goto cleanup;
-    }
-
-    /* Check for n == 1 */
-    if (mpz_cmp_ui(n->z, 1) == 0) {
+    if (mpz_cmp_ui(n->z, 2) < 0) {
         result = Py_False;
         goto cleanup;
     }
@@ -1261,6 +1204,7 @@ GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args)
             result = Py_False;
         goto cleanup;
     }
+
 
     mpz_set_ui(zD, d);
 
@@ -1324,7 +1268,7 @@ GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args)
     Py_XINCREF(result);
   return_result:
     mpz_cloc(zD);
-    Py_DECREF((PyObject*)n);
+    Py_XDECREF((PyObject*)n);
     return result;
 }
 
@@ -1347,8 +1291,8 @@ PyDoc_STRVAR(doc_mpz_is_strongselfridge_prp,
 static PyObject *
 GMPY_mpz_is_strongselfridge_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *n;
-    PyObject *result = 0, *temp = 0;
+    PympzObject *n = NULL;
+    PyObject *result = NULL, *temp = NULL;
     long d = 5, p = 1, q = 0, max_d = 1000000;
     int jacobi = 0;
     mpz_t zD;
@@ -1363,20 +1307,13 @@ GMPY_mpz_is_strongselfridge_prp(PyObject *self, PyObject *args)
 
     mpz_inoc(zD);
 
-    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     if (!n) {
         TYPE_ERROR("is_strong_selfridge_prp() requires 1 integer argument");
         goto cleanup;
     }
 
-    /* Require n > 0. */
-    if (mpz_sgn(n->z) <= 0) {
-        VALUE_ERROR("is_strong_selfridge_prp() requires 'n' be greater than 0");
-        goto cleanup;
-    }
-
-    /* Check for n == 1 */
-    if (mpz_cmp_ui(n->z, 1) == 0) {
+    if (mpz_cmp_ui(n->z, 2) < 0) {
         result = Py_False;
         goto cleanup;
     }
@@ -1389,7 +1326,6 @@ GMPY_mpz_is_strongselfridge_prp(PyObject *self, PyObject *args)
             result = Py_False;
         goto cleanup;
     }
-
 
     mpz_set_ui(zD, d);
 
@@ -1453,7 +1389,7 @@ GMPY_mpz_is_strongselfridge_prp(PyObject *self, PyObject *args)
     Py_XINCREF(result);
   return_result:
     mpz_cloc(zD);
-    Py_DECREF((PyObject*)n);
+    Py_XDECREF((PyObject*)n);
     return result;
 }
 
@@ -1473,38 +1409,17 @@ PyDoc_STRVAR(doc_mpz_is_bpsw_prp,
 static PyObject *
 GMPY_mpz_is_bpsw_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *n;
-    PyObject *result = 0, *temp = 0;
+    PympzObject *n = NULL;
+    PyObject *result = NULL, *temp = NULL;
 
     if (PyTuple_Size(args) != 1) {
         TYPE_ERROR("is_bpsw_prp() requires 1 integer argument");
         return NULL;
     }
 
-    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     if (!n) {
         TYPE_ERROR("is_bpsw_prp() requires 1 integer argument");
-        goto cleanup;
-    }
-
-    /* Require n > 0. */
-    if (mpz_sgn(n->z) <= 0) {
-        VALUE_ERROR("is_bpsw_prp() requires 'n' be greater than 0");
-        goto cleanup;
-    }
-
-    /* Check for n == 1 */
-    if (mpz_cmp_ui(n->z, 1) == 0) {
-        result = Py_False;
-        goto cleanup;
-    }
-
-    /* Handle n even. */
-    if (mpz_divisible_ui_p(n->z, 2)) {
-        if (mpz_cmp_ui(n->z, 2) == 0)
-            result = Py_True;
-        else
-            result = Py_False;
         goto cleanup;
     }
 
@@ -1521,7 +1436,7 @@ GMPY_mpz_is_bpsw_prp(PyObject *self, PyObject *args)
     /* Remember to ignore the preceding result */
     Py_DECREF(result);
 
-    temp = Py_BuildValue("O", n);
+    temp = Py_BuildValue("(O)", n);
     if (!temp)
         goto cleanup;
     result = GMPY_mpz_is_selfridge_prp(NULL, temp);
@@ -1531,7 +1446,7 @@ GMPY_mpz_is_bpsw_prp(PyObject *self, PyObject *args)
   cleanup:
     Py_XINCREF(result);
   return_result:
-    Py_DECREF((PyObject*)n);
+    Py_XDECREF((PyObject*)n);
     return result;
 }
 
@@ -1547,12 +1462,12 @@ PyDoc_STRVAR(doc_mpz_is_strongbpsw_prp,
 "is_strong_bpsw_prp(n) -> boolean\n\n"
 "Return True if n is a strong Baillie-Pomerance-Selfridge-Wagstaff\n"
 "probable prime. A strong BPSW probable prime passes the is_strong_prp()\n"
-"test with base and the is_strong_selfridge_prp() test.\n");
+"test with base 2 and the is_strong_selfridge_prp() test.\n");
 
 static PyObject *
 GMPY_mpz_is_strongbpsw_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *n;
+    PympzObject *n;
     PyObject *result = 0, *temp = 0;
 
     if (PyTuple_Size(args) != 1) {
@@ -1560,30 +1475,9 @@ GMPY_mpz_is_strongbpsw_prp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    n = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     if (!n) {
         TYPE_ERROR("is_strong_bpsw_prp() requires 1 integer argument");
-        goto cleanup;
-    }
-
-    /* Require n > 0. */
-    if (mpz_sgn(n->z) <= 0) {
-        VALUE_ERROR("is_strong_bpsw_prp() requires 'n' be greater than 0");
-        goto cleanup;
-    }
-
-    /* Check for n == 1 */
-    if (mpz_cmp_ui(n->z, 1) == 0) {
-        result = Py_False;
-        goto cleanup;
-    }
-
-    /* Handle n even. */
-    if (mpz_divisible_ui_p(n->z, 2)) {
-        if (mpz_cmp_ui(n->z, 2) == 0)
-            result = Py_True;
-        else
-            result = Py_False;
         goto cleanup;
     }
 
@@ -1600,17 +1494,17 @@ GMPY_mpz_is_strongbpsw_prp(PyObject *self, PyObject *args)
     /* Remember to ignore the preceding result */
     Py_DECREF(result);
 
-    temp = Py_BuildValue("O", n);
+    temp = Py_BuildValue("(O)", n);
     if (!temp)
         goto cleanup;
-    result = GMPY_mpz_is_selfridge_prp(NULL, temp);
+    result = GMPY_mpz_is_strongselfridge_prp(NULL, temp);
     Py_DECREF(temp);
     goto return_result;
 
   cleanup:
     Py_XINCREF(result);
   return_result:
-    Py_DECREF((PyObject*)n);
+    Py_XDECREF((PyObject*)n);
     return result;
 }
 
