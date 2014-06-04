@@ -135,11 +135,11 @@ typedef long                mpir_si;
 #endif
 
 #ifdef _WIN64
-#define PyIntOrLong_FromSI        PyLong_FromLongLong
-#define PyIntOrLong_AsSI          PyLong_AsLongLong
+#define PyIntOrLong_FromSI        PyIntOrLong_FromLongLong
+#define PyIntOrLong_AsSI          PyIntOrLong_AsLongLong
 #else
-#define PyIntOrLong_FromSI        PyLong_FromLong
-#define PyIntOrLong_AsSI          PyLong_AsLong
+#define PyIntOrLong_FromSI        PyIntOrLong_FromLong
+#define PyIntOrLong_AsSI          PyIntOrLong_AsLong
 #endif
 
 #ifdef __GNUC__
