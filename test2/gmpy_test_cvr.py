@@ -465,7 +465,7 @@ def _test(chat=None):
         print "  Caching Values: (Size, limbs) {0}".format(_g.get_cache()[1])
 
     thismod = sys.modules.get(__name__)
-    doctest.testmod(thismod, report=0)
+    doctest.testmod(thismod, report=0, optionflags=doctest.IGNORE_EXCEPTION_DETAIL)
 
     if chat:
         print

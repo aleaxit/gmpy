@@ -378,7 +378,7 @@ def _test(chat=None):
             pass
     try:
         sys.stdout = _Dummy()
-        doctest.testmod(thismod, report=0)
+        doctest.testmod(thismod, report=0, optionflags=doctest.IGNORE_EXCEPTION_DETAIL)
     finally:
         sys.stdout = sav
 
