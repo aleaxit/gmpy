@@ -453,7 +453,7 @@ def _test(chat=None):
 
         print(__test__.keys())
     thismod = sys.modules.get(__name__)
-    doctest.testmod(thismod, report=0)
+    doctest.testmod(thismod, report=0, optionflags=doctest.IGNORE_EXCEPTION_DETAIL)
 
     if chat:
         print()

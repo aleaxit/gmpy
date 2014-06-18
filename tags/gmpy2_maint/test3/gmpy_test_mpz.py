@@ -562,7 +562,7 @@ False
 [0, 1, 3, 3, 4, 5, 6, None, None, None]
 >>> n=_g.mpz(-(7+6*16+5*256+7*4092))
 >>> [n.bit_scan0(j) for j in range(18)]
-[1, 1, 3, 3, 6, 6, 6, 8, 8, 10, 10, 12, 12, 13, 14, -1, None, None]
+[1, 1, 3, 3, 6, 6, 6, 8, 8, 10, 10, 12, 12, 13, 14, None, None, None]
 >>> [n.bit_scan1(j) for j in range(33)]
 [0, 2, 2, 4, 4, 5, 7, 7, 9, 9, 11, 11, 15, 15, 15, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
 >>> _g.mpz(0).bit_length()
@@ -951,7 +951,7 @@ def _test(chat=None):
             pass
     try:
         sys.stdout = _Dummy()
-        doctest.testmod(thismod, report=0)
+        doctest.testmod(thismod, report=0, optionflags=doctest.IGNORE_EXCEPTION_DETAIL)
     finally:
         sys.stdout = sav
 
