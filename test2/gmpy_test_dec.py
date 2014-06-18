@@ -65,7 +65,7 @@ def _test(chat=None):
             print "Can't test, since can't import decimal"
         return 0, 0
     thismod = sys.modules.get(__name__)
-    doctest.testmod(thismod, report=0)
+    doctest.testmod(thismod, report=0, optionflags=doctest.IGNORE_EXCEPTION_DETAIL)
 
     if chat:
         print
