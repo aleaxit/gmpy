@@ -846,7 +846,7 @@ Pympz_round(PyObject *self, PyObject *args)
     round_digits = -round_digits;
 
     if ((result = (PympzObject*)Pympz_new())) {
-        if (round_digits >= mpz_sizeinbase(Pympz_AS_MPZ(self), 10)) {
+        if ((size_t)round_digits >= mpz_sizeinbase(Pympz_AS_MPZ(self), 10)) {
             mpz_set_ui(result->z, 0);
         }
         else {

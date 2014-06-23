@@ -129,11 +129,13 @@ c:\32\Python26\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2008 bdist_win
 c:\32\Python27\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2008 bdist_wininst
 c:\32\Python32\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2008 bdist_wininst
 c:\32\Python33\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2010 bdist_wininst
+c:\32\Python34\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2010 bdist_wininst
 
 c:\64\Python26\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2008 bdist_wininst
 c:\64\Python27\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2008 bdist_wininst
 c:\64\Python32\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2008 bdist_wininst
 c:\64\Python33\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2010 bdist_wininst
+c:\64\Python34\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2010 bdist_wininst
 
 
 
