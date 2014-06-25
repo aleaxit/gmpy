@@ -57,7 +57,6 @@ GMPy_MPZ_Method_NumDigits(PyObject *self, PyObject *args)
     }
 
     result = PyIntOrLong_FromSize_t(mpz_sizeinbase(MPZ(self), (int)base));
-    Py_DECREF(self);
     return result;
 }
 
@@ -756,7 +755,7 @@ GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (k <= 0) {
+    if (k < 0) {
         VALUE_ERROR("binomial coefficient with negative k");
         Py_DECREF((PyObject*)tempx);
         return NULL;
