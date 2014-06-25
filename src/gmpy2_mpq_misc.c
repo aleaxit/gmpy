@@ -63,16 +63,24 @@ GMPy_MPQ_Function_Qdiv(PyObject *self, PyObject *args)
 
     CHECK_CONTEXT(context);
 
-    argc = PyTuple_Size(args);
-    if (argc == 0 || argc > 2) {
-        goto arg_error;
+    /* Validate the argument(s). */
+
+    argc = PyTuple_GET_SIZE(args);
+    if (argc == 1) {
+        x = PyTuple_GET_ITEM(args, 0);
+        isOne = 1;
+        if (!IS_RATIONAL(x)) {
+            goto arg_error;
+        }
     }
-
-    /* Validate the first argument. */
-
-    x = PyTuple_GET_ITEM(args, 0);
-    y = PyTuple_GET_ITEM(args, 1);
-    if (!IS_RATIONAL(x) || !IS_RATIONAL(y)) {
+    else if (argc == 2) {
+        x = PyTuple_GET_ITEM(args, 0);
+        y = PyTuple_GET_ITEM(args, 1);
+        if (!IS_RATIONAL(x) || !IS_RATIONAL(y)) {
+            goto arg_error;
+        }
+    }
+    else {
         goto arg_error;
     }
 
@@ -90,9 +98,6 @@ GMPy_MPQ_Function_Qdiv(PyObject *self, PyObject *args)
             Py_DECREF((PyObject*)tempy);
         }
     }
-    else {
-        isOne = 1;
-    }
 
     if (isOne) {
         if (IS_INTEGER(x)) {
@@ -102,6 +107,7 @@ GMPy_MPQ_Function_Qdiv(PyObject *self, PyObject *args)
         if (!(tempx = GMPy_MPQ_From_Rational(x, context))) {
             return NULL;
         }
+
         if (mpz_cmp_ui(mpq_denref(tempx->q), 1) == 0) {
             if ((result = (PyObject*)GMPy_MPZ_New(context))) {
                 mpz_set(MPZ(result), mpq_numref(tempx->q));
