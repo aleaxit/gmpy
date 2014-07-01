@@ -86,7 +86,6 @@ GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *args)
         
     if ((base < 2) || (base > 62)) {
         VALUE_ERROR("base must be in the interval [2, 62]");
-        Py_DECREF(self);
         return NULL;
     }
 
@@ -865,7 +864,7 @@ GMPy_MPZ_Function_Remove(PyObject *self, PyObject *args)
     CHECK_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("invert() requires 'mpz','mpz' arguments");
+        TYPE_ERROR("remove() requires 'mpz','mpz' arguments");
         return NULL;
     }
     
@@ -889,7 +888,7 @@ GMPy_MPZ_Function_Remove(PyObject *self, PyObject *args)
         tempx = GMPy_MPZ_From_Integer(x, context);
         tempf = GMPy_MPZ_From_Integer(f, context);
         if (!tempx || !tempf) {
-            TYPE_ERROR("invert() requires 'mpz','mpz' arguments");
+            TYPE_ERROR("remove() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempf);
             Py_DECREF((PyObject*)result);

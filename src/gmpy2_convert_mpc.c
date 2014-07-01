@@ -122,6 +122,8 @@ GMPy_MPC_From_MPFR(MPFR_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 {
     MPC_Object *result;
 
+    assert(MPFR_Check(obj));
+
     CHECK_CONTEXT(context);
 
     if (rprec == 0)
@@ -183,7 +185,7 @@ GMPy_MPC_From_MPZ(MPZ_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 {
     MPC_Object *result = NULL;
 
-    assert(MPZ_Check(obj));
+    assert(CHECK_MPZANY(obj));
 
     CHECK_CONTEXT(context);
 

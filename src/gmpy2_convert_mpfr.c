@@ -206,7 +206,7 @@ GMPy_MPFR_From_MPZ(MPZ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
 {
     MPFR_Object *result;
 
-    assert(MPZ_Check(obj));
+    assert(CHECK_MPZANY(obj));
 
     CHECK_CONTEXT(context);
 
