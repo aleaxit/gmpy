@@ -98,7 +98,7 @@ GMPy_MPZ_From_PyFloat(PyObject *obj, CTXT_Object *context)
 static PyObject *
 GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
 {
-    assert(MPZ_Check(obj));
+    assert(CHECK_MPZANY(obj));
 
     return mpz_get_PyLong(obj->z);
 }
@@ -119,7 +119,7 @@ GMPy_MPZ_Long_Slot(MPZ_Object *self)
 static PyObject *
 GMPy_PyIntOrLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
 {
-    assert(MPZ_Check(obj));
+    assert(CHECK_MPZANY(obj));
 
 #ifdef PY3
     return mpz_get_PyLong(obj->z);
@@ -143,7 +143,7 @@ GMPy_PyFloat_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
 {
     double res;
 
-    assert(MPZ_Check(obj));
+    assert(CHECK_MPZANY(obj));
 
     res = mpz_get_d(obj->z);
 
@@ -164,7 +164,7 @@ GMPy_MPZ_Float_Slot(MPZ_Object *self)
 static PyObject *
 GMPy_PyStr_From_MPZ(MPZ_Object *obj, int base, int option, CTXT_Object *context)
 {
-    assert(MPZ_Check(obj));
+    assert(CHECK_MPZANY(obj));
 
     return mpz_ascii(obj->z, base, option, 0);
 }
@@ -334,7 +334,7 @@ GMPy_XMPZ_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
 {
     XMPZ_Object *result;
 
-    assert(MPZ_Check(obj));
+    assert(CHECK_MPZANY(obj));
 
     if ((result = GMPy_XMPZ_New(context)))
         mpz_set(result->z, obj->z);
@@ -836,7 +836,7 @@ GMPy_MPQ_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
 {
     MPQ_Object *result;
 
-    assert(MPZ_Check(obj));
+    assert(CHECK_MPZANY(obj));
 
     if ((result = GMPy_MPQ_New(context)))
         mpq_set_z(result->q, obj->z);
