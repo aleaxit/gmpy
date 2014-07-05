@@ -109,14 +109,6 @@ PyDoc_STRVAR(GMPy_doc_set_context,
 
 #ifdef WITHOUT_THREADS
 
-/* Return a borrowed reference to current context. */
-
-static CTXT_Object *
-GMPy_current_context(void)
-{
-    return module_context;
-}
-
 static PyObject *
 GMPy_CTXT_Set(PyObject *self, PyObject *other)
 {
@@ -191,9 +183,8 @@ current_context_from_dict(void)
 static CTXT_Object *
 GMPy_current_context(void)
 {
-    PyThreadState *tstate;
-
-    tstate = PyThreadState_GET();
+    PyThreadState *tstate = PyThreadState_GET();
+    
     if (cached_context && cached_context->tstate == tstate) {
         return (CTXT_Object*)cached_context;
     }

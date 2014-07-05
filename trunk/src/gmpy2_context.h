@@ -144,7 +144,10 @@ static PyObject *    GMPy_CTXT_Copy(PyObject *self, PyObject *other);
 static PyObject *    GMPy_CTXT_ieee(PyObject *self, PyObject *other);
 static PyObject *    GMPy_CTXT_Enter(PyObject *self, PyObject *args);
 static PyObject *    GMPy_CTXT_Exit(PyObject *self, PyObject *args);
+
+#ifndef WITHOUT_THREADS
 static CTXT_Object * GMPy_current_context(void);
+#endif
 
 #ifdef __cplusplus
 }
