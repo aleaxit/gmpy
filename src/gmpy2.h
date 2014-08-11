@@ -44,6 +44,7 @@
                 December 2010 (added mpfr, mpc) casevh
                 January 2011 (add Pygmpy_context) casevh
                 April 2011 (split into multiple files) casevh
+  Version 2.10  August 2014 (reflect major rewrite during 2013/2014) casevh
  */
 
 #ifndef Py_GMPYMODULE_H
@@ -64,6 +65,36 @@ typedef long Py_hash_t;
 typedef unsigned long Py_uhash_t;
 #  define _PyHASH_IMAG 1000003
 #endif
+
+/* To support optimized conversion between PyLong and C long arguments, we
+ * define DIGITS_PER_LONG as the number of PyLong "digits" that can be stored
+ * in a single C long. The optimized conversions do not attempt to convert all
+ * valid PyLong to a C long but just most of them. If you want to convert all
+ * valid values to a C long, then use PyLong_As... functions.
+ *
+ * Since a "digit" uses either 15 or 30 bits, and a C long is either 32 or 64
+ * bits, DIGITS_PER_LONG will be either 1, 2, or 4. See mpz_add.c for the
+ * reference implementation of the fast conversion.
+ */
+
+#if (PyLong_SHIFT == 15)
+    #if (LONG_BIT == 32)
+    #define DIGITS_PER_LONG 2
+    #elif (LONG_BIT == 64)
+    #define DIGITS_PER_LONG 4
+    #endif
+#elif (PyLong_SHIFT == 30)
+    #if (LONG_BIT == 32)
+    #define DIGITS_PER_LONG 1
+    #elif (LONG_BIT == 64)
+    #define DIGITS_PER_LONG 2
+    #endif
+#endif
+
+#ifndef DIGITS_PER_LONG
+    #error "No valid combination of PyLong_SHIFT and LONG_BIT could be found."
+#endif
+
 
 /* Define various macros to deal with differences between Python 2 and 3. */
 
