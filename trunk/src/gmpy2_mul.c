@@ -58,46 +58,91 @@ static PyObject *
 GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPZ_Object *result;
-    mpz_t tempz;
-    mpir_si temp_si;
-    int overflow;
 
     if (!(result = GMPy_MPZ_New(context)))
         return NULL;
 
     if (CHECK_MPZANY(x)) {
-        if (PyIntOrLong_Check(y)) {
-            temp_si = PyLong_AsSIAndOverflow(y, &overflow);
-            if (overflow) {
-                mpz_inoc(tempz);
-                mpz_set_PyIntOrLong(tempz, y);
-                mpz_mul(result->z, MPZ(x), tempz);
-                mpz_cloc(tempz);
-            }
-            else {
-                mpz_mul_si(result->z, MPZ(x), temp_si);
-            }
+        
+#ifdef PY2
+        if (PyInt_CheckExact(y)) {
+            long temp = PyInt_AS_LONG(y);
+
+            mpz_mul_si(result->z, MPZ(x), temp);
             return (PyObject*)result;
+        }
+#endif
+
+        if (PyLong_CheckExact(y)) {
+            long temp = 0;
+            Py_ssize_t i = Py_SIZE((PyLongObject*)y);
+            
+            switch (i) {
+            CASE_NEGATIVE(temp, y)
+                mpz_mul_si(result->z, MPZ(x), -temp);
+                return (PyObject*)result;
+                
+            case 0:
+                mpz_set_ui(result->z, 0);
+                return (PyObject*)result;
+                
+            CASE_POSITIVE(temp, y)
+                mpz_mul_si(result->z, MPZ(x), temp);
+                return (PyObject*)result;
+            }
         }
 
         if (CHECK_MPZANY(y)) {
             mpz_mul(result->z, MPZ(x), MPZ(y));
             return (PyObject*)result;
         }
+        
+        if (PyIntOrLong_Check(y)) {
+            mpz_t tempz;
+            mpz_inoc(tempz);
+            mpz_set_PyIntOrLong(tempz, y);
+            mpz_mul(result->z, MPZ(x), tempz);
+            mpz_cloc(tempz);
+            return (PyObject*)result;
+        }
     }
 
     if (CHECK_MPZANY(y)) {
+        
+#ifdef PY2
+        if (PyInt_CheckExact(x)) {
+            long temp = PyInt_AS_LONG(x);
+
+            mpz_mul_si(result->z, MPZ(y), temp);
+            return (PyObject*)result;
+        }
+#endif
+
+        if (PyLong_CheckExact(x)) {
+            long temp = 0;
+            Py_ssize_t i = Py_SIZE((PyLongObject*)x);
+            
+            switch (i) {
+            CASE_NEGATIVE(temp, x)
+                mpz_mul_si(result->z, MPZ(y), -temp);
+                return (PyObject*)result;
+                
+            case 0:
+                mpz_set_ui(result->z, 0);
+                return (PyObject*)result;
+                
+            CASE_POSITIVE(temp, x)
+                mpz_mul_si(result->z, MPZ(y), temp);
+                return (PyObject*)result;
+            }
+        }
+        
         if (PyIntOrLong_Check(x)) {
-            temp_si = PyLong_AsSIAndOverflow(x, &overflow);
-            if (overflow) {
-                mpz_inoc(tempz);
-                mpz_set_PyIntOrLong(tempz, x);
-                mpz_mul(result->z, MPZ(y), tempz);
-                mpz_cloc(tempz);
-            }
-            else {
-                mpz_mul_si(result->z, MPZ(y), temp_si);
-            }
+            mpz_t tempz;
+            mpz_inoc(tempz);
+            mpz_set_PyIntOrLong(tempz, x);
+            mpz_mul(result->z, MPZ(y), tempz);
+            mpz_cloc(tempz);
             return (PyObject*)result;
         }
     }
@@ -233,31 +278,28 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     if (MPFR_Check(x)) {
         if (PyIntOrLong_Check(y)) {
             mpz_t tempz;
-            mpir_si temp_si;
+            long temp;
             int overflow;
 
-            temp_si = PyLong_AsSIAndOverflow(y, &overflow);
+            temp = PyLong_AsLongAndOverflow(y, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyIntOrLong(tempz, y);
                 mpfr_clear_flags();
-                result->rc = mpfr_mul_z(result->f, MPFR(x), tempz,
-                                        GET_MPFR_ROUND(context));
+                result->rc = mpfr_mul_z(result->f, MPFR(x), tempz, GET_MPFR_ROUND(context));
                 mpz_cloc(tempz);
                 goto done;
             }
             else {
                 mpfr_clear_flags();
-                result->rc = mpfr_mul_si(result->f, MPFR(x), temp_si,
-                                         GET_MPFR_ROUND(context));
+                result->rc = mpfr_mul_si(result->f, MPFR(x), temp, GET_MPFR_ROUND(context));
                 goto done;
             }
         }
 
         if (CHECK_MPZANY(y)) {
             mpfr_clear_flags();
-            result->rc = mpfr_mul_z(result->f, MPFR(x), MPZ(y),
-                                    GET_MPFR_ROUND(context));
+            result->rc = mpfr_mul_z(result->f, MPFR(x), MPZ(y), GET_MPFR_ROUND(context));
             goto done;
         }
 
@@ -269,16 +311,14 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
                 return NULL;
             }
             mpfr_clear_flags();
-            result->rc = mpfr_mul_q(result->f, MPFR(x), tempy->q,
-                                    GET_MPFR_ROUND(context));
+            result->rc = mpfr_mul_q(result->f, MPFR(x), tempy->q, GET_MPFR_ROUND(context));
             Py_DECREF((PyObject*)tempy);
             goto done;
         }
 
         if (PyFloat_Check(y)) {
             mpfr_clear_flags();
-            result->rc = mpfr_mul_d(result->f, MPFR(x), PyFloat_AS_DOUBLE(y),
-                                    GET_MPFR_ROUND(context));
+            result->rc = mpfr_mul_d(result->f, MPFR(x), PyFloat_AS_DOUBLE(y), GET_MPFR_ROUND(context));
             goto done;
         }
     }
@@ -286,31 +326,28 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     if (MPFR_Check(y)) {
         if (PyIntOrLong_Check(x)) {
             mpz_t tempz;
-            mpir_si temp_si;
+            long temp;
             int overflow;
 
-            temp_si = PyLong_AsSIAndOverflow(x, &overflow);
+            temp = PyLong_AsLongAndOverflow(x, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyIntOrLong(tempz, x);
                 mpfr_clear_flags();
-                result->rc = mpfr_mul_z(result->f, MPFR(y), tempz,
-                                        GET_MPFR_ROUND(context));
+                result->rc = mpfr_mul_z(result->f, MPFR(y), tempz, GET_MPFR_ROUND(context));
                 mpz_cloc(tempz);
                 goto done;
             }
             else {
                 mpfr_clear_flags();
-                result->rc = mpfr_mul_si(result->f, MPFR(y), temp_si,
-                                         GET_MPFR_ROUND(context));
+                result->rc = mpfr_mul_si(result->f, MPFR(y), temp, GET_MPFR_ROUND(context));
                 goto done;
             }
         }
 
         if (CHECK_MPZANY(x)) {
             mpfr_clear_flags();
-            result->rc = mpfr_mul_z(result->f, MPFR(y), MPZ(x),
-                                    GET_MPFR_ROUND(context));
+            result->rc = mpfr_mul_z(result->f, MPFR(y), MPZ(x), GET_MPFR_ROUND(context));
             goto done;
         }
 
@@ -322,16 +359,14 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
                 return NULL;
             }
             mpfr_clear_flags();
-            result->rc = mpfr_mul_q(result->f, MPFR(y), tempx->q,
-                                    GET_MPFR_ROUND(context));
+            result->rc = mpfr_mul_q(result->f, MPFR(y), tempx->q, GET_MPFR_ROUND(context));
             Py_DECREF((PyObject*)tempx);
             goto done;
         }
 
         if (PyFloat_Check(x)) {
             mpfr_clear_flags();
-            result->rc = mpfr_mul_d(result->f, MPFR(y), PyFloat_AS_DOUBLE(x),
-                                    GET_MPFR_ROUND(context));
+            result->rc = mpfr_mul_d(result->f, MPFR(y), PyFloat_AS_DOUBLE(x), GET_MPFR_ROUND(context));
             goto done;
         }
     }
@@ -352,8 +387,7 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
             return NULL;
         }
         mpfr_clear_flags();
-        result->rc = mpfr_mul(result->f, MPFR(tempx), MPFR(tempy),
-                              GET_MPFR_ROUND(context));
+        result->rc = mpfr_mul(result->f, MPFR(tempx), MPFR(tempy), GET_MPFR_ROUND(context));
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         goto done;
@@ -399,8 +433,7 @@ GMPy_Complex_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         return NULL;
 
     if (MPC_Check(x) && MPC_Check(y)) {
-        result->rc = mpc_mul(result->c, MPC(x), MPC(y),
-                             GET_MPC_ROUND(context));
+        result->rc = mpc_mul(result->c, MPC(x), MPC(y), GET_MPC_ROUND(context));
         goto done;
     }
 
@@ -486,7 +519,6 @@ GMPy_Context_Mul(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_Mul(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1),
-                           context);
+    return GMPy_Number_Mul(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context);
 }
 
