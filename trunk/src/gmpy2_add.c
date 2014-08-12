@@ -69,13 +69,13 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         
 #ifdef PY2
         if (PyInt_CheckExact(y)) {
-            long i = PyInt_AS_LONG(y);
+            long temp = PyInt_AS_LONG(y);
 
-            if (i > 0) {
-                mpz_add_ui(result->z, MPZ(x), i);
+            if (temp > 0) {
+                mpz_add_ui(result->z, MPZ(x), temp);
             }
-            else if (i < 0) {
-                mpz_sub_ui(result->z, MPZ(x), -i);
+            else if (temp < 0) {
+                mpz_sub_ui(result->z, MPZ(x), -temp);
             }
             else {
                 mpz_set(result->z, MPZ(x));
@@ -122,13 +122,13 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         
 #ifdef PY2
         if (PyInt_CheckExact(x)) {
-            long i = PyInt_AS_LONG(x);
+            long temp = PyInt_AS_LONG(x);
 
-            if (i > 0) {
-                mpz_add_ui(result->z, MPZ(y), i);
+            if (temp > 0) {
+                mpz_add_ui(result->z, MPZ(y), temp);
             }
-            else if (i < 0) {
-                mpz_sub_ui(result->z, MPZ(y), -i);
+            else if (temp < 0) {
+                mpz_sub_ui(result->z, MPZ(y), -temp);
             }
             else {
                 mpz_set(result->z, MPZ(y));
@@ -197,6 +197,15 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPZ_Add_Slot(PyObject *x, PyObject *y)
 {
+    if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
+        MPZ_Object *result;
+
+        if (!(result = GMPy_MPZ_New(NULL)))
+            return NULL;
+        mpz_add(result->z, MPZ(x), MPZ(y));
+        return (PyObject*)result;
+    }
+
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Add(x, y, NULL);
 

@@ -56,10 +56,8 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
     PyObject *result;
     MPZ_Object *tempx, *tempy, *rem, *quo;
     mpz_t tempz;
-    mpir_si temp_si;
+    long temp;
     int overflow;
-
-    CHECK_CONTEXT(context);
 
     result = PyTuple_New(2);
     rem = GMPy_MPZ_New(context);
@@ -73,17 +71,17 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 
     if (CHECK_MPZANY(x)) {
         if (PyIntOrLong_Check(y)) {
-            temp_si = PyLong_AsSIAndOverflow(y, &overflow);
+            temp = PyLong_AsLongAndOverflow(y, &overflow);
             if (overflow) {
                 mpz_inoc(tempz);
                 mpz_set_PyIntOrLong(tempz, y);
                 mpz_fdiv_qr(quo->z, rem->z, MPZ(x), tempz);
                 mpz_cloc(tempz);
             }
-            else if (temp_si > 0) {
-                mpz_fdiv_qr_ui(quo->z, rem->z, MPZ(x), temp_si);
+            else if (temp > 0) {
+                mpz_fdiv_qr_ui(quo->z, rem->z, MPZ(x), temp);
             }
-            else if (temp_si == 0) {
+            else if (temp == 0) {
                 ZERO_ERROR("division or modulo by zero");
                 Py_DECREF((PyObject*)rem);
                 Py_DECREF((PyObject*)quo);
@@ -91,7 +89,7 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
                 return NULL;
             }
             else {
-                mpz_cdiv_qr_ui(quo->z, rem->z, MPZ(x), -temp_si);
+                mpz_cdiv_qr_ui(quo->z, rem->z, MPZ(x), -temp);
                 mpz_neg(quo->z, quo->z);
             }
             PyTuple_SET_ITEM(result, 0, (PyObject*)quo);

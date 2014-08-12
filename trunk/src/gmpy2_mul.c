@@ -177,6 +177,15 @@ GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPZ_Mul_Slot(PyObject *x, PyObject *y)
 {
+    if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
+        MPZ_Object *result;
+
+        if (!(result = GMPy_MPZ_New(NULL)))
+            return NULL;
+        mpz_mul(result->z, MPZ(x), MPZ(y));
+        return (PyObject*)result;
+    }
+    
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Mul(x, y, NULL);
 
