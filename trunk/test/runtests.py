@@ -107,4 +107,28 @@ for test in sorted(all_doctests):
 
 print()
 print("                             Summary - Attempted: {0:4d}   Failed: {1:4d}".format(attempted, failed))
+print()
+print("Running external test programs.")
 
+print("Running {0:29}  ".format("test_pack.py"), end="")
+import test_pack
+if test_pack.test():
+    print("successful")
+    attempted += 1
+else:
+    print("failed")
+    failed += 1
+
+print("Running {0:29}  ".format("test_mpz_args.py"), end="")
+import test_mpz_args
+if test_mpz_args.test():
+    print("successful")
+    attempted += 1
+else:
+    print("failed")
+    failed += 1
+
+if failed:
+    sys.exit(1)
+else:
+    sys.exit(0)
