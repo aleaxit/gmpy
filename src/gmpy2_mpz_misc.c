@@ -567,19 +567,112 @@ GMPy_MPZ_Function_Fac(PyObject *self, PyObject *other)
 {
     MPZ_Object *result = NULL;
     mpir_si n;
-    CTXT_Object *context = NULL;
 
     n = SI_From_Integer(other);
     if ((n == -1) && PyErr_Occurred()) {
-        TYPE_ERROR("fac() requires 'int' argument");
+        TYPE_ERROR("fac() requires integer argument");
     }
     else if (n < 0) {
-        VALUE_ERROR("fac() of negative number");
+        VALUE_ERROR("fac() requires positive argument");
     }
     else {
-        if ((result = GMPy_MPZ_New(context))) {
+        if ((result = GMPy_MPZ_New(NULL))) {
             mpz_fac_ui(result->z, n);
         }
+    }
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(GMPy_doc_mpz_function_double_fac,
+"double_fac(n) -> mpz\n\n"
+"Return the exact double factorial (n!!) of n. The double\n"
+"factorial is defined as n*(n-2)*(n-4)...");
+
+static PyObject *
+GMPy_MPZ_Function_DoubleFac(PyObject *self, PyObject *other)
+{
+    MPZ_Object *result = NULL;
+    mpir_si n;
+
+    n = SI_From_Integer(other);
+    if ((n == -1) && PyErr_Occurred()) {
+        TYPE_ERROR("double_fac() requires integer argument");
+    }
+    else if (n < 0) {
+        VALUE_ERROR("double_fac() requires positive argument");
+    }
+    else {
+        if ((result = GMPy_MPZ_New(NULL))) {
+            mpz_2fac_ui(result->z, n);
+        }
+    }
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(GMPy_doc_mpz_function_primorial,
+"primorial(n) -> mpz\n\n"
+"Return the product of all positive prime numbers less than or"
+"equal to n.");
+
+static PyObject *
+GMPy_MPZ_Function_Primorial(PyObject *self, PyObject *other)
+{
+    MPZ_Object *result = NULL;
+    mpir_si n;
+
+    n = SI_From_Integer(other);
+    if ((n == -1) && PyErr_Occurred()) {
+        TYPE_ERROR("primorial() requires integer argument");
+    }
+    else if (n < 0) {
+        VALUE_ERROR("primorial() requires positive argument");
+    }
+    else {
+        if ((result = GMPy_MPZ_New(NULL))) {
+            mpz_primorial_ui(result->z, n);
+        }
+    }
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(GMPy_doc_mpz_function_multi_fac,
+"multi_fac(n) -> mpz\n\n"
+"Return the exact m-multi factorial of n. The m-multi"
+"factorial is defined as n*(n-m)*(n-2m)...");
+
+static PyObject *
+GMPy_MPZ_Function_MultiFac(PyObject *self, PyObject *args)
+{
+    MPZ_Object *result = NULL;
+    mpir_si n, m;
+
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("multi_fac() requires 2 integer arguments");
+        return NULL;
+    }
+
+    n = SI_From_Integer(PyTuple_GET_ITEM(args, 0));
+    if ((n == -1) && PyErr_Occurred()) {
+        TYPE_ERROR("multi_fac() requires 2 integer arguments");
+        return NULL;
+    }
+    else if (n < 0) {
+        VALUE_ERROR("multi_fac() requires positive arguments");
+        return NULL;
+    }
+
+    m = SI_From_Integer(PyTuple_GET_ITEM(args, 1));
+    if ((m == -1) && PyErr_Occurred()) {
+        TYPE_ERROR("multi_fac() requires 2 integer arguments");
+        return NULL;
+    }
+    else if (m < 0) {
+        VALUE_ERROR("multi_fac() requires positive arguments");
+        return NULL;
+    }
+
+    if ((result = GMPy_MPZ_New(NULL))) {
+        mpz_mfac_uiui(result->z, n, m);
     }
     return (PyObject*)result;
 }
