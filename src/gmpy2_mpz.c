@@ -210,6 +210,8 @@ static PyMethodDef GMPy_MPZ_methods [] =
     { "bit_set", GMPy_MPZ_bit_set_method, METH_O, doc_bit_set_method },
     { "bit_test", GMPy_MPZ_bit_test_method, METH_O, doc_bit_test_method },
     { "digits", GMPy_MPZ_Digits_Method, METH_VARARGS, GMPy_doc_mpz_digits_method },
+    { "is_congruent", GMPy_MPZ_Method_IsCongruent, METH_VARARGS, GMPy_doc_mpz_method_is_congruent },
+    { "is_divisible", GMPy_MPZ_Method_IsDivisible, METH_O, GMPy_doc_mpz_method_is_divisible },
     { "num_digits", GMPy_MPZ_Method_NumDigits, METH_VARARGS, GMPy_doc_mpz_method_num_digits },
     { NULL, NULL, 1 }
 };
