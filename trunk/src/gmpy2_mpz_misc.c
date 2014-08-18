@@ -1066,6 +1066,198 @@ GMPy_MPZ_Function_IsSquare(PyObject *self, PyObject *other)
         Py_RETURN_FALSE;
 }
 
+PyDoc_STRVAR(GMPy_doc_mpz_function_is_divisible,
+"is_divisible(x, d) -> bool\n\n"
+"Returns True if x is divisible by d, else return False.");
+
+static PyObject *
+GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args)
+{
+    int res;
+    PyObject *d;
+    MPZ_Object *tempx, *tempd;
+    
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("is_divisible() requires 2 integer arguments");
+        return NULL;
+    }
+
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
+        return NULL;
+    }
+    
+    d = PyTuple_GET_ITEM(args, 1);
+#ifdef PY2
+    if (PyInt_CheckExact(d)) {
+        long temp = PyInt_AS_LONG(d);
+
+        if (temp >= 0) {
+            res = mpz_divisible_ui_p(tempx->z, temp);
+            Py_DECREF((PyObject*)tempx);
+            if (res)
+                Py_RETURN_TRUE;
+            else
+                Py_RETURN_FALSE;
+        }
+    }
+#endif
+
+    if (PyLong_CheckExact(d)) {
+        long temp = 0;
+        Py_ssize_t i = Py_SIZE((PyLongObject*)d);
+        
+        switch (i) {
+        case 0:
+            
+        CASE_POSITIVE(temp, d)
+            res = mpz_divisible_ui_p(tempx->z, temp);
+            Py_DECREF((PyObject*)tempx);
+            if (res)
+                Py_RETURN_TRUE;
+            else
+                Py_RETURN_FALSE;
+        }
+    }
+   
+    if (!(tempd = GMPy_MPZ_From_Integer(d, NULL))) {
+        TYPE_ERROR("is_divisible() requires 2 integer arguments");
+        Py_DECREF((PyObject*)tempx);
+        return NULL;
+    }
+    
+    res = mpz_divisible_p(tempx->z, tempd->z);
+    Py_DECREF((PyObject*)tempx);
+    Py_DECREF((PyObject*)tempd);
+    if (res)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
+PyDoc_STRVAR(GMPy_doc_mpz_method_is_divisible,
+"x.is_divisible(d) -> bool\n\n"
+"Returns True if x is divisible by d, else return False.");
+
+static PyObject *
+GMPy_MPZ_Method_IsDivisible(PyObject *self, PyObject *other)
+{
+    int res;
+    MPZ_Object *tempd;
+
+    assert(CHECK_MPZANY(self));
+    
+#ifdef PY2
+    if (PyInt_CheckExact(other)) {
+        long temp = PyInt_AS_LONG(other);
+
+        if (temp >= 0) {
+            res = mpz_divisible_ui_p(MPZ(self), temp);
+            if (res)
+                Py_RETURN_TRUE;
+            else
+                Py_RETURN_FALSE;
+        }
+    }
+#endif
+
+    if (PyLong_CheckExact(other)) {
+        long temp = 0;
+        Py_ssize_t i = Py_SIZE((PyLongObject*)other);
+        
+        switch (i) {
+        case 0:
+            
+        CASE_POSITIVE(temp, other)
+            res = mpz_divisible_ui_p(MPZ(self), temp);
+            if (res)
+                Py_RETURN_TRUE;
+            else
+                Py_RETURN_FALSE;
+        }
+    }
+   
+    if (!(tempd = GMPy_MPZ_From_Integer(other, NULL))) {
+        TYPE_ERROR("is_divisible() requires integer argument");
+        return NULL;
+    }
+    
+    res = mpz_divisible_p(MPZ(self), tempd->z);
+    Py_DECREF((PyObject*)tempd);
+    if (res)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
+PyDoc_STRVAR(GMPy_doc_mpz_function_is_congruent,
+"is_congruent(x, y, m) -> bool\n\n"
+"Returns True if x is congruent to y modulo m, else return False.");
+
+static PyObject *
+GMPy_MPZ_Function_IsCongruent(PyObject *self, PyObject *args)
+{
+    int res;
+    MPZ_Object *tempx, *tempy, *tempm;
+    
+    if (PyTuple_GET_SIZE(args) != 3) {
+        TYPE_ERROR("is_congruent() requires 3 integer arguments");
+        return NULL;
+    }
+
+    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
+    tempm = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2), NULL);
+    if (!tempx || !tempy || !tempm) {
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)tempy);
+        Py_XDECREF((PyObject*)tempm);
+        TYPE_ERROR("is_congruent() requires 3 integer arguments");
+        return NULL;
+    }
+    
+    res = mpz_congruent_p(tempx->z, tempy->z, tempm->z);
+    Py_DECREF((PyObject*)tempx);
+    Py_DECREF((PyObject*)tempy);
+    Py_DECREF((PyObject*)tempm);
+    if (res)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
+PyDoc_STRVAR(GMPy_doc_mpz_method_is_congruent,
+"x.is_congruent(y, m) -> bool\n\n"
+"Returns True if x is congruent to y modulo m, else return False.");
+
+static PyObject *
+GMPy_MPZ_Method_IsCongruent(PyObject *self, PyObject *args)
+{
+    int res;
+    MPZ_Object *tempy, *tempm;
+    
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("is_congruent() requires 3 integer arguments");
+        return NULL;
+    }
+
+    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    tempm = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
+    if (!tempy || !tempm) {
+        Py_XDECREF((PyObject*)tempy);
+        Py_XDECREF((PyObject*)tempm);
+        TYPE_ERROR("is_congruent() requires 3 integer arguments");
+        return NULL;
+    }
+    
+    res = mpz_congruent_p(MPZ(self), tempy->z, tempm->z);
+    Py_DECREF((PyObject*)tempy);
+    Py_DECREF((PyObject*)tempm);
+    if (res)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_power,
 "is_power(x) -> bool\n\n"
 "Return True if x is a perfect power (there exists a y and an\n"

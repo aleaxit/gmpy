@@ -610,6 +610,8 @@ static PyMethodDef Pygmpy_methods [] =
     { "isqrt", GMPy_MPZ_Function_Isqrt, METH_O, GMPy_doc_mpz_function_isqrt },
     { "isqrt_rem", GMPy_MPZ_Function_IsqrtRem, METH_O, GMPy_doc_mpz_function_isqrt_rem },
     { "is_bpsw_prp", GMPY_mpz_is_bpsw_prp, METH_VARARGS, doc_mpz_is_bpsw_prp },
+    { "is_congruent", GMPy_MPZ_Function_IsCongruent, METH_VARARGS, GMPy_doc_mpz_function_is_congruent },
+    { "is_divisible", GMPy_MPZ_Function_IsDivisible, METH_VARARGS, GMPy_doc_mpz_function_is_divisible },
     { "is_even", GMPy_MPZ_Function_IsEven, METH_O, GMPy_doc_mpz_function_is_even },
     { "is_euler_prp", GMPY_mpz_is_euler_prp, METH_VARARGS, doc_mpz_is_euler_prp },
     { "is_extra_strong_lucas_prp", GMPY_mpz_is_extrastronglucas_prp, METH_VARARGS, doc_mpz_is_extrastronglucas_prp },

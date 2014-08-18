@@ -60,6 +60,13 @@ static PyObject * GMPy_MPZ_Function_Remove(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_Invert(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_Divexact(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_IsSquare(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Method_IsDivisible(PyObject *self, PyObject *other);
+
+static PyObject * GMPy_MPZ_Function_IsCongruent(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Method_IsCongruent(PyObject *self, PyObject *args);
+
 static PyObject * GMPy_MPZ_Function_IsPower(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_NextPrime(PyObject *self, PyObject *other);
