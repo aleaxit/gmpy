@@ -65,10 +65,6 @@ class gmpy_clean(clean):
 
 class gmpy_build_ext(build_ext):
 
-    # Extract the version information from the various header files. Since header
-    # store the information differently, a separate function is provided for each
-    # library.
-
     def check_versions(self):
         # Check the specified list of include directories to verify that valid
         # versions of MPFR and MPC are available. If so, add entries to the
@@ -120,11 +116,11 @@ class gmpy_build_ext(build_ext):
             lookin = adir + '/include'
 
             # For debugging information, uncomment the following lines.
-            # writeln('looking in: %s' % lookin)
-            # writeln('mpfr.h found: %s' % os.path.isfile(lookin + '/mpfr.h'))
-            # writeln('mpfr.h version %s' % repr(get_mpfr_version(lookin + '/mpfr.h')))
-            # writeln('mpc.h found: %s' % os.path.isfile(lookin + '/mpc.h'))
-            # writeln('mpc.h version %s' % repr(get_mpc_version(lookin + '/mpc.h')))
+            writeln('looking in: %s' % lookin)
+            writeln('mpfr.h found: %s' % os.path.isfile(lookin + '/mpfr.h'))
+            writeln('mpfr.h version %s' % repr(get_mpfr_version(lookin + '/mpfr.h')))
+            writeln('mpc.h found: %s' % os.path.isfile(lookin + '/mpc.h'))
+            writeln('mpc.h version %s' % repr(get_mpc_version(lookin + '/mpc.h')))
 
             if os.path.isfile(lookin + '/mpfr.h'):
                 v = get_mpfr_version(lookin + '/mpfr.h')
@@ -197,6 +193,14 @@ class gmpy_build_ext(build_ext):
                     self.extensions[0].define_macros.remove(d)
                 except ValueError:
                     pass
+        # Check if --msys2 was specified.
+        for i,d in enumerate(self.extensions[0].define_macros[:]):
+            if d[0] == 'MSYS2':
+                self.compiler = 'mingw32'
+                try:
+                    self.extensions[0].define_macros.remove(d)
+                except ValueError:
+                    pass
 
 # Several command line options can be used to modify compilation of GMPY2. To
 # maintain backwards compatibility with older versions of setup.py, the old
@@ -208,6 +212,7 @@ class gmpy_build_ext(build_ext):
 #  --mpir          -> use MPIR instead of GMP (GMP is the default on
 #                     non-Windows operating systems)
 #  --gmp           -> use GMP instead of MPIR
+#  --msys2         -> build on Windows using MSYS2, MinGW, and GMP
 #  --nompfr        -> was disable MPFR and MPC library support in 2.0.x
 #                     MPFR and MPC are required for 2.1.x
 #  --nompc         -> was disable MPC support in 2.0.x
@@ -229,7 +234,8 @@ class gmpy_build_ext(build_ext):
 #   -Ddir=<...>  -> add the specified directory to beginning of the list of
 #                   directories that are searched for GMP, MPFR, and MPC
 
-# Windows build defaults to using MPIR.
+# Windows build defaults to using MPIR. This will be over-written later if
+# --msys2 is given.
 
 if sys.version.find('MSC') == -1:
     mplib='gmp'
@@ -252,6 +258,7 @@ defines = []
 
 force = False
 static = False
+msys2 = False
 
 for token in sys.argv[:]:
     if token.lower() == '--force':
@@ -268,6 +275,12 @@ for token in sys.argv[:]:
 
     if token.lower() == '--gmp':
         mplib = 'gmp'
+        sys.argv.remove(token)
+
+    if token.lower() == '--msys2':
+        msys2 = True
+        mplib = 'gmp'
+        defines.append( ('MSYS2', 1) )
         sys.argv.remove(token)
 
     if token.lower() == '--nompc':
@@ -323,7 +336,7 @@ extras = []
 
 # Specify extra link arguments for Windows.
 
-if sys.version.find('MSC') == -1:
+if sys.version.find('MSC') == -1 or msys2:
     my_extra_link_args = None
 else:
     my_extra_link_args = ["/MANIFEST"]
