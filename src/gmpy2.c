@@ -497,6 +497,7 @@ static PyObject *GMPyExc_Erange = NULL;
 /* Support for conversions to/from numeric types. */
 
 #include "gmpy2_convert.c"
+#include "gmpy2_convert_utils.c"
 #include "gmpy2_convert_gmp.c"
 #include "gmpy2_convert_mpfr.c"
 #include "gmpy2_convert_mpc.c"
@@ -896,10 +897,6 @@ PyMODINIT_FUNC initgmpy2(void)
     PyObject *temp = NULL;
 
     /* Validate the sizes of the various typedef'ed integer types. */
-    if (sizeof(mp_limb_t) != sizeof(mpir_si)) {
-        SYSTEM_ERROR("Size of mp_limb_t and mpir_si not compatible");
-        INITERROR;
-    }
     if (sizeof(mp_bitcnt_t) != sizeof(size_t)) {
         SYSTEM_ERROR("Size of mp_bitcnt_t and size_t not compatible");
         INITERROR;

@@ -53,9 +53,8 @@
 
 /* Add two Integer objects (see gmpy2_convert.h). If an error occurs, NULL
  * is returned and an exception is set. If either x or y can't be converted
- * into an mpz, Py_NotImplemented is returned. */
-
-#include "longintrepr.h"
+ * into an mpz, Py_NotImplemented is returned.
+ */
 
 static PyObject *
 GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
@@ -66,103 +65,56 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         return NULL;
 
     if (CHECK_MPZANY(x)) {
-        
-#ifdef PY2
-        if (PyInt_CheckExact(y)) {
-            long temp = PyInt_AS_LONG(y);
+        if (PyIntOrLong_Check(y)) {
+            int error;
+            long temp = GMPy_Integer_AsLongAndError(y, &error);
 
-            if (temp > 0) {
-                mpz_add_ui(result->z, MPZ(x), temp);
-            }
-            else if (temp < 0) {
-                mpz_sub_ui(result->z, MPZ(x), -temp);
+            if (!error) {
+                if (temp >= 0) {
+                    mpz_add_ui(result->z, MPZ(x), temp);
+                }
+                else {
+                    mpz_sub_ui(result->z, MPZ(x), -temp);
+                }
             }
             else {
-                mpz_set(result->z, MPZ(x));
+                mpz_t tempz;
+                mpz_inoc(tempz);
+                mpz_set_PyIntOrLong(tempz, y);
+                mpz_add(result->z, MPZ(x), tempz);
+                mpz_cloc(tempz);
             }
             return (PyObject*)result;
-        }
-#endif
-
-        if (PyLong_CheckExact(y)) {
-            long temp = 0;
-            Py_ssize_t i = Py_SIZE((PyLongObject*)y);
-            
-            switch (i) {
-            CASE_NEGATIVE(temp, y)
-                mpz_sub_ui(result->z, MPZ(x), temp);
-                return (PyObject*)result;
-                
-            case 0:
-                mpz_set(result->z, MPZ(x));
-                return (PyObject*)result;
-                
-            CASE_POSITIVE(temp, y)
-                mpz_add_ui(result->z, MPZ(x), temp);
-                return (PyObject*)result;
-            }
         }
 
         if (CHECK_MPZANY(y)) {
             mpz_add(result->z, MPZ(x), MPZ(y));
             return (PyObject*)result;
         }
-        
-        if (PyIntOrLong_Check(y)) {
-            mpz_t tempz;
-            mpz_inoc(tempz);
-            mpz_set_PyIntOrLong(tempz, y);
-            mpz_add(result->z, MPZ(x), tempz);
-            mpz_cloc(tempz);
-            return (PyObject*)result;
-        }
     }
 
     if (CHECK_MPZANY(y)) {
-        
-#ifdef PY2
-        if (PyInt_CheckExact(x)) {
-            long temp = PyInt_AS_LONG(x);
+        if (PyIntOrLong_Check(x)) {
+            int error;
+            long temp = GMPy_Integer_AsLongAndError(x, &error);
 
-            if (temp > 0) {
-                mpz_add_ui(result->z, MPZ(y), temp);
-            }
-            else if (temp < 0) {
-                mpz_sub_ui(result->z, MPZ(y), -temp);
+            if (!error) {
+                if (temp >= 0) {
+                    mpz_add_ui(result->z, MPZ(y), temp);
+                }
+                else {
+                    mpz_sub_ui(result->z, MPZ(y), -temp);
+                }
+                return (PyObject*)result;
             }
             else {
-                mpz_set(result->z, MPZ(y));
-            }
-            return (PyObject*)result;
-        }
-#endif
-
-        if (PyLong_CheckExact(x)) {
-            long temp = 0;
-            Py_ssize_t i = Py_SIZE((PyLongObject*)x);
-            
-            switch (i) {
-            CASE_NEGATIVE(temp, x)
-                mpz_sub_ui(result->z, MPZ(y), temp);
-                return (PyObject*)result;
-                
-            case 0:
-                mpz_set(result->z, MPZ(y));
-                return (PyObject*)result;
-                
-            CASE_POSITIVE(temp, x)
-                mpz_add_ui(result->z, MPZ(y), temp);
+                mpz_t tempz;
+                mpz_inoc(tempz);
+                mpz_set_PyIntOrLong(tempz, x);
+                mpz_add(result->z, MPZ(y), tempz);
+                mpz_cloc(tempz);
                 return (PyObject*)result;
             }
-        }
-
-        if (PyIntOrLong_Check(x)) {
-            mpz_t tempz;
-            mpz_inoc(tempz);
-            mpz_set_PyIntOrLong(tempz, x);
-            mpz_add(result->z, MPZ(y), tempz);
-            mpz_cloc(tempz);
-            return (PyObject*)result;
         }
     }
 
@@ -200,9 +152,9 @@ GMPy_MPZ_Add_Slot(PyObject *x, PyObject *y)
     if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
         MPZ_Object *result;
 
-        if (!(result = GMPy_MPZ_New(NULL)))
-            return NULL;
-        mpz_add(result->z, MPZ(x), MPZ(y));
+        if ((result = GMPy_MPZ_New(NULL))) {
+            mpz_add(result->z, MPZ(x), MPZ(y));
+        }
         return (PyObject*)result;
     }
 
@@ -317,11 +269,11 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         if (PyIntOrLong_Check(y)) {
             mpz_t tempz;
             long temp;
-            int overflow;
+            int error;
 
-            temp = PyLong_AsLongAndOverflow(y, &overflow);
+            temp = GMPy_Integer_AsLongAndError(y, &error);
             
-            if (overflow) {
+            if (error) {
                 mpz_inoc(tempz);
                 mpz_set_PyIntOrLong(tempz, y);
                 mpfr_clear_flags();
@@ -366,10 +318,10 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         if (PyIntOrLong_Check(x)) {
             mpz_t tempz;
             long temp;
-            int overflow;
+            int error;
 
-            temp = PyLong_AsLongAndOverflow(x, &overflow);
-            if (overflow) {
+            temp = GMPy_Integer_AsLongAndError(x, &error);
+            if (error) {
                 mpz_inoc(tempz);
                 mpz_set_PyIntOrLong(tempz, x);
                 mpfr_clear_flags();
@@ -498,7 +450,7 @@ GMPy_Complex_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     return (PyObject*)result;
 }
 
-/* Pympc_add_fast() is called by mpc.__add__. It just gets a borrowed reference
+/* GMPy_MPC_Add_Slot() is called by mpc.__add__. It just gets a borrowed reference
  * to the current context and call Pympc_Add_Complex(). Since mpc is the last
  * step of the numeric ladder, the NotImplemented return value from
  * Pympc_Add_Complex() is correct and is just passed on. */

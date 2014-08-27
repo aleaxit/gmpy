@@ -35,24 +35,25 @@
 static PyObject *
 GMPy_XMPZ_IAdd_Slot(PyObject *self, PyObject *other)
 {
-    mpz_t tempz;
-    mpir_si temp_si;
-    int overflow;
-
     /* Try to make mpz + small_int faster */
     if (PyIntOrLong_Check(other)) {
-        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
-        if (overflow) {
+        int error;
+        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        
+        if (!error) {
+            if (temp >= 0) {
+                mpz_add_ui(MPZ(self), MPZ(self), temp);
+            }
+            else {
+                mpz_sub_ui(MPZ(self), MPZ(self), -temp);
+            }
+        }
+        else {
+            mpz_t tempz;
             mpz_inoc(tempz);
             mpz_set_PyIntOrLong(tempz, other);
             mpz_add(MPZ(self), MPZ(self), tempz);
             mpz_cloc(tempz);
-        }
-        else if(temp_si >= 0) {
-            mpz_add_ui(MPZ(self), MPZ(self), temp_si);
-        }
-        else {
-            mpz_sub_ui(MPZ(self), MPZ(self), -temp_si);
         }
         Py_INCREF(self);
         return self;
@@ -73,23 +74,24 @@ GMPy_XMPZ_IAdd_Slot(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_XMPZ_ISub_Slot(PyObject *self, PyObject *other)
 {
-    mpz_t tempz;
-    mpir_si temp_si;
-    int overflow;
-
     if (PyIntOrLong_Check(other)) {
-        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
-        if (overflow) {
+        int error;
+        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        
+        if (!error) {
+            if (temp >= 0) {
+                mpz_sub_ui(MPZ(self), MPZ(self), temp);
+            }
+            else {
+                mpz_add_ui(MPZ(self), MPZ(self), -temp);
+            }
+        }
+        else {
+            mpz_t tempz;
             mpz_inoc(tempz);
             mpz_set_PyIntOrLong(tempz, other);
             mpz_sub(MPZ(self), MPZ(self), tempz);
             mpz_cloc(tempz);
-        }
-        else if(temp_si >= 0) {
-            mpz_sub_ui(MPZ(self), MPZ(self), temp_si);
-        }
-        else {
-            mpz_add_ui(MPZ(self), MPZ(self), -temp_si);
         }
         Py_INCREF(self);
         return self;
@@ -110,20 +112,19 @@ GMPy_XMPZ_ISub_Slot(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_XMPZ_IMul_Slot(PyObject *self, PyObject *other)
 {
-    mpz_t tempz;
-    mpir_si temp_si;
-    int overflow;
-
     if (PyIntOrLong_Check(other)) {
-        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
-        if (overflow) {
+        int error;
+        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        
+        if (!error) {
+            mpz_mul_si(MPZ(self), MPZ(self), temp);
+        }
+        else {
+            mpz_t tempz;
             mpz_inoc(tempz);
             mpz_set_PyIntOrLong(tempz, other);
             mpz_mul(MPZ(self), MPZ(self), tempz);
             mpz_cloc(tempz);
-        }
-        else {
-            mpz_mul_si(MPZ(self), MPZ(self), temp_si);
         }
         Py_INCREF(self);
         return self;
@@ -146,28 +147,29 @@ GMPy_XMPZ_IMul_Slot(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_XMPZ_IFloorDiv_Slot(PyObject *self, PyObject *other)
 {
-    mpz_t tempz;
-    mpir_si temp_si;
-    int overflow;
-
     if (PyIntOrLong_Check(other)) {
-        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
-        if (overflow) {
+        int error;
+        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        
+        if (!error) {
+            if (temp == 0) {
+                ZERO_ERROR("xmpz division by zero");
+                return NULL;
+            }
+            else if(temp > 0) {
+                mpz_fdiv_q_ui(MPZ(self), MPZ(self), temp);
+            }
+            else {
+                mpz_cdiv_q_ui(MPZ(self), MPZ(self), -temp);
+                mpz_neg(MPZ(self), MPZ(self));
+            }
+        }
+        else {
+            mpz_t tempz;
             mpz_inoc(tempz);
             mpz_set_PyIntOrLong(tempz, other);
             mpz_fdiv_q(MPZ(self), MPZ(self), tempz);
             mpz_cloc(tempz);
-        }
-        else if(temp_si == 0) {
-            ZERO_ERROR("xmpz division by zero");
-            return NULL;
-        }
-        else if(temp_si > 0) {
-            mpz_fdiv_q_ui(MPZ(self), MPZ(self), temp_si);
-        }
-        else {
-            mpz_cdiv_q_ui(MPZ(self), MPZ(self), -temp_si);
-            mpz_neg(MPZ(self), MPZ(self));
         }
         Py_INCREF(self);
         return self;
@@ -192,27 +194,28 @@ GMPy_XMPZ_IFloorDiv_Slot(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_XMPZ_IRem_Slot(PyObject *self, PyObject *other)
 {
-    mpz_t tempz;
-    mpir_si temp_si;
-    int overflow;
-
     if (PyIntOrLong_Check(other)) {
-        temp_si = PyLong_AsSIAndOverflow(other, &overflow);
-        if (overflow) {
+        int error;
+        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        
+        if (!error) {
+            if (temp > 0) {
+                mpz_fdiv_r_ui(MPZ(self), MPZ(self), temp);
+            }
+            else if (temp == 0) {
+                ZERO_ERROR("xmpz modulo by zero");
+                return NULL;
+            }
+            else {
+                mpz_cdiv_r_ui(MPZ(self), MPZ(self), -temp);
+            }
+        }
+        else {
+            mpz_t tempz;
             mpz_inoc(tempz);
             mpz_set_PyIntOrLong(tempz, other);
             mpz_fdiv_r(MPZ(self), MPZ(self), tempz);
             mpz_cloc(tempz);
-        }
-        else if(temp_si > 0) {
-            mpz_fdiv_r_ui(MPZ(self), MPZ(self), temp_si);
-        }
-        else if(temp_si == 0) {
-            ZERO_ERROR("xmpz modulo by zero");
-            return NULL;
-        }
-        else {
-            mpz_cdiv_r_ui(MPZ(self), MPZ(self), -temp_si);
         }
         Py_INCREF(self);
         return self;

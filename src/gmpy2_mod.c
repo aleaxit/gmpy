@@ -53,10 +53,7 @@
 static PyObject *
 GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    MPZ_Object *tempx, *tempy, *result;
-    mpz_t tempz;
-    mpir_si temp_si;
-    int overflow;
+    MPZ_Object *result;
 
     CHECK_CONTEXT(context);
 
@@ -65,26 +62,32 @@ GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 
     if (CHECK_MPZANY(x)) {
         if (PyIntOrLong_Check(y)) {
-            temp_si = PyLong_AsSIAndOverflow(y, &overflow);
-            if (overflow) {
+            int error;
+            long temp = GMPy_Integer_AsLongAndError(y, &error);
+            
+            if (!error) {
+                if (temp > 0) {
+                    mpz_fdiv_r_ui(result->z, MPZ(x), temp);
+                }
+                else if (temp == 0) {
+                    ZERO_ERROR("division or modulo by zero");
+                    Py_DECREF((PyObject*)result);
+                    return NULL;
+                }
+                else {
+                    mpz_cdiv_r_ui(result->z, MPZ(x), -temp);
+                }
+            }
+            else {
+                mpz_t tempz;
                 mpz_inoc(tempz);
                 mpz_set_PyIntOrLong(tempz, y);
                 mpz_fdiv_r(result->z, MPZ(x), tempz);
                 mpz_cloc(tempz);
             }
-            else if (temp_si > 0) {
-                mpz_fdiv_r_ui(result->z, MPZ(x), temp_si);
-            }
-            else if (temp_si == 0) {
-                ZERO_ERROR("division or modulo by zero");
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-            else {
-                mpz_cdiv_r_ui(result->z, MPZ(x), -temp_si);
-            }
             return (PyObject*)result;
         }
+        
         if (CHECK_MPZANY(y)) {
             if (mpz_sgn(MPZ(y)) == 0) {
                 ZERO_ERROR("division or modulo by zero");
@@ -102,7 +105,9 @@ GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
+        
         if (PyIntOrLong_Check(x)) {
+            mpz_t tempz;
             mpz_inoc(tempz);
             mpz_set_PyIntOrLong(tempz, x);
             mpz_fdiv_r(result->z, tempz, MPZ(y));
@@ -112,6 +117,8 @@ GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
+        MPZ_Object *tempx, *tempy;
+        
         tempx = GMPy_MPZ_From_Integer(x, context);
         tempy = GMPy_MPZ_From_Integer(y, context);
         if (!tempx || !tempy) {
@@ -378,7 +385,6 @@ GMPy_Context_Mod(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_Mod(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1),
-                           context);
+    return GMPy_Number_Mod(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context);
 }
 

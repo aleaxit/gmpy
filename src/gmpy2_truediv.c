@@ -67,7 +67,7 @@ GMPy_Integer_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
     CHECK_CONTEXT(context);
 
-    if (GET_DIV_MODE(context))
+    if (GET_DIV_MODE(context)) 
         return GMPy_Rational_TrueDiv(x, y, context);
 
     if (!(result = GMPy_MPFR_New(0, context)))
@@ -233,39 +233,34 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
     if (MPFR_Check(x) && MPFR_Check(y)) {
         mpfr_clear_flags();
-        result->rc = mpfr_div(result->f, MPFR(x), MPFR(y),
-                              GET_MPFR_ROUND(context));
+        result->rc = mpfr_div(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
         goto done;
     }
 
     if (MPFR_Check(x)) {
         if (PyIntOrLong_Check(y)) {
-            mpz_t tempz;
-            mpir_si temp_si;
-            int overflow;
-
-            temp_si = PyLong_AsSIAndOverflow(y, &overflow);
-            if (overflow) {
-                mpz_inoc(tempz);
-                mpz_set_PyIntOrLong(tempz, y);
+            int error;
+            long temp = GMPy_Integer_AsLongAndError(y, &error);
+            
+            if (!error) {
                 mpfr_clear_flags();
-                result->rc = mpfr_div_z(result->f, MPFR(x), tempz,
-                                        GET_MPFR_ROUND(context));
-                mpz_cloc(tempz);
+                result->rc = mpfr_div_si(result->f, MPFR(x), temp, GET_MPFR_ROUND(context));
                 goto done;
             }
             else {
+                mpz_t tempz;
+                mpz_inoc(tempz);
+                mpz_set_PyIntOrLong(tempz, y);
                 mpfr_clear_flags();
-                result->rc = mpfr_div_si(result->f, MPFR(x), temp_si,
-                                         GET_MPFR_ROUND(context));
+                result->rc = mpfr_div_z(result->f, MPFR(x), tempz, GET_MPFR_ROUND(context));
+                mpz_cloc(tempz);
                 goto done;
             }
         }
 
         if (CHECK_MPZANY(y)) {
             mpfr_clear_flags();
-            result->rc = mpfr_div_z(result->f, MPFR(x), MPZ(y),
-                                    GET_MPFR_ROUND(context));
+            result->rc = mpfr_div_z(result->f, MPFR(x), MPZ(y), GET_MPFR_ROUND(context));
             goto done;
         }
 
@@ -277,30 +272,26 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
                 return NULL;
             }
             mpfr_clear_flags();
-            result->rc = mpfr_div_q(result->f, MPFR(x), tempy->q,
-                                    GET_MPFR_ROUND(context));
+            result->rc = mpfr_div_q(result->f, MPFR(x), tempy->q, GET_MPFR_ROUND(context));
             Py_DECREF((PyObject*)tempy);
             goto done;
         }
 
         if (PyFloat_Check(y)) {
             mpfr_clear_flags();
-            result->rc = mpfr_div_d(result->f, MPFR(x), PyFloat_AS_DOUBLE(y),
-                                    GET_MPFR_ROUND(context));
+            result->rc = mpfr_div_d(result->f, MPFR(x), PyFloat_AS_DOUBLE(y), GET_MPFR_ROUND(context));
             goto done;
         }
     }
 
     if (MPFR_Check(y)) {
         if (PyIntOrLong_Check(x)) {
-            mpir_si temp_si;
-            int overflow;
-
-            temp_si = PyLong_AsSIAndOverflow(x, &overflow);
-            if (!overflow) {
+            int error;
+            long temp = GMPy_Integer_AsLongAndError(x, &error);
+            
+            if (!error) {
                 mpfr_clear_flags();
-                result->rc = mpfr_si_div(result->f, temp_si, MPFR(y),
-                                         GET_MPFR_ROUND(context));
+                result->rc = mpfr_si_div(result->f, temp, MPFR(y), GET_MPFR_ROUND(context));
                 goto done;
             }
         }
@@ -310,8 +301,7 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (PyFloat_Check(x)) {
             mpfr_clear_flags();
-            result->rc = mpfr_d_div(result->f, PyFloat_AS_DOUBLE(x),
-                                    MPFR(y), GET_MPFR_ROUND(context));
+            result->rc = mpfr_d_div(result->f, PyFloat_AS_DOUBLE(x), MPFR(y), GET_MPFR_ROUND(context));
             goto done;
         }
     }
