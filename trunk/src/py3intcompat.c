@@ -367,3 +367,82 @@ PyLong_AsLongLongAndOverflow(PyObject *vv, int *overflow)
 
 #endif   /* if HAVE_LONG_LONG */
 #endif   /* ifdef _WIN64 */
+
+#if PY_VERSION_HEX < 0x03020000
+
+/* Get a C size_t from an int object. Returns (size_t)-1 and sets
+   an error condition if overflow occurs. */
+
+/* This is based on code from Python 3.4 but heavily modified to retain
+ * compatibility with Python 2.x.
+ */
+ 
+size_t
+PyLong_AsSize_t(PyObject *vv)
+{
+    PyLongObject *v;
+    size_t x, prev;
+    Py_ssize_t i;
+    int do_decref = 0;
+
+    if (vv == NULL) {
+        PyErr_BadInternalCall();
+        return (size_t)-1;
+    }
+    if (PyLong_Check(vv)) {
+        v = (PyLongObject*)vv;
+    }
+    else {
+        PyNumberMethods *nb;
+        nb = vv->ob_type->tp_as_number;
+        if (nb == NULL || nb->nb_int == NULL) {
+            PyErr_SetString(PyExc_TypeError, "an integer is required");
+            return (size_t)-1;
+        }
+        v = (*nb->nb_int) (vv);
+        if (v == NULL)
+            return (size_t)-1;
+        do_decref = 1;
+        if (!PyLong_Check(v)) {
+            Py_DECREF(v);
+            PyErr_SetString(PyExc_TypeError, "nb_int should return int object");
+            return (size_t)-1;
+        }
+        PyErr_SetString(PyExc_TypeError, "an integer is required");
+        return (size_t)-1;
+    }
+
+    i = Py_SIZE(v);
+    x = 0;
+    if (i < 0) {
+        PyErr_SetString(PyExc_OverflowError,
+                   "can't convert negative value to size_t");
+        return (size_t)-1;
+    }
+    switch (i) {
+    case 0:
+        if (do_decref)
+            Py_DECREF((PyObject*)v);
+        return 0;
+    case 1:
+        x = v->ob_digit[0];
+        if (do_decref)
+            Py_DECREF((PyObject*)v);
+        return x;
+    }
+    while (--i >= 0) {
+        prev = x;
+        x = (x << PyLong_SHIFT) | v->ob_digit[i];
+        if ((x >> PyLong_SHIFT) != prev) {
+            PyErr_SetString(PyExc_OverflowError,
+                "Python int too large to convert to C size_t");
+            if (do_decref)
+                Py_DECREF((PyObject*)v);
+            return (size_t) -1;
+        }
+    }
+    if (do_decref)
+        Py_DECREF((PyObject*)v);
+    return x;
+}
+#endif   /* if (PY_VERSION_HEX < 0x03020000) */

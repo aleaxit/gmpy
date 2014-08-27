@@ -375,7 +375,7 @@ GMPy_Iter_Dealloc(GMPy_Iter_Object *self)
 static PyObject *
 GMPy_Iter_Next(GMPy_Iter_Object *self) {
     PyObject *result = 0;
-    mpir_si temp;
+    mp_bitcnt_t temp;
     Py_ssize_t current_stop;
 
     if (self->stop < 0)
@@ -399,7 +399,7 @@ GMPy_Iter_Next(GMPy_Iter_Object *self) {
                 PyErr_SetNone(PyExc_StopIteration);
             else {
                 temp = mpz_scan1(self->bitmap->z, self->start);
-                if (temp < 0)
+                if (temp == (mp_bitcnt_t)-1)
                     PyErr_SetNone(PyExc_StopIteration);
                 else {
                     self->start = temp + 1;

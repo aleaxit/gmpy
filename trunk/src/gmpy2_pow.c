@@ -88,10 +88,9 @@ GMPy_Integer_Pow(PyObject *b, PyObject *e, PyObject *m, CTXT_Object *context)
     }
 
     if (!has_mod) {
-        /* When no modulo is present, the exponent must fit in mpir_ui and
-         * the exponent must be positive.
+        /* When no modulo is present, the exponent must fit in unsigned long.
          */
-        mpir_ui el;
+        unsigned long el;
 
         if (mpz_sgn(tempe->z) < 0) {
             VALUE_ERROR("pow() exponent cannot be negative");
@@ -267,37 +266,31 @@ GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context
     mpfr_clear_flags();
 
     if (PyIntOrLong_Check(exp)) {
-        long temp_exp;
-        int overflow;
-
-        temp_exp = PyLong_AsLongAndOverflow(exp, &overflow);
-        if (overflow) {
-            mpz_t tempzz;
-
-            mpz_inoc(tempzz);
-            mpz_set_PyIntOrLong(tempzz, exp);
-            result->rc = mpfr_pow_z(result->f, tempb->f, tempzz,
-                                    GET_MPFR_ROUND(context));
-            mpz_cloc(tempzz);
+        int error;
+        long temp_exp = GMPy_Integer_AsLongAndError(exp, &error);
+        
+        if (!error) {
+            result->rc = mpfr_pow_si(result->f, tempb->f, temp_exp, GET_MPFR_ROUND(context));
         }
         else {
-            result->rc = mpfr_pow_si(result->f, tempb->f, temp_exp,
-                                     GET_MPFR_ROUND(context));
+            mpz_t tempzz;
+            mpz_inoc(tempzz);
+            mpz_set_PyIntOrLong(tempzz, exp);
+            result->rc = mpfr_pow_z(result->f, tempb->f, tempzz, GET_MPFR_ROUND(context));
+            mpz_cloc(tempzz);
         }
     }
     else if (IS_INTEGER(exp)) {
         if (!(tempz = GMPy_MPZ_From_Integer(exp, context))) {
             goto err;
         }
-        result->rc = mpfr_pow_z(result->f, tempb->f, tempz->z,
-                                GET_MPFR_ROUND(context));
+        result->rc = mpfr_pow_z(result->f, tempb->f, tempz->z, GET_MPFR_ROUND(context));
     }
     else {
         if (!(tempe = GMPy_MPFR_From_Real(exp, 1, context))) {
             goto err;
         }
-        result->rc = mpfr_pow(result->f, tempb->f, tempe->f,
-                              GET_MPFR_ROUND(context));
+        result->rc = mpfr_pow(result->f, tempb->f, tempe->f, GET_MPFR_ROUND(context));
     }
 
     /* If the result is NaN, check if a complex result works. */
@@ -354,44 +347,37 @@ GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *cont
     mpfr_clear_flags();
 
     if (PyIntOrLong_Check(exp)) {
-        long temp_exp;
-        int overflow;
-
-        temp_exp = PyLong_AsLongAndOverflow(exp, &overflow);
-        if (overflow) {
-            mpz_t tempzz;
-
-            mpz_inoc(tempzz);
-            mpz_set_PyIntOrLong(tempzz, exp);
-            result->rc = mpc_pow_z(result->c, tempb->c, tempzz,
-                                   GET_MPC_ROUND(context));
-            mpz_cloc(tempzz);
+        int error;
+        long temp_exp = GMPy_Integer_AsLongAndError(exp, &error);
+        
+        if (!error) {
+            result->rc = mpc_pow_si(result->c, tempb->c, temp_exp, GET_MPC_ROUND(context));
         }
         else {
-            result->rc = mpc_pow_si(result->c, tempb->c, temp_exp,
-                                    GET_MPC_ROUND(context));
+            mpz_t tempzz;
+            mpz_inoc(tempzz);
+            mpz_set_PyIntOrLong(tempzz, exp);
+            result->rc = mpc_pow_z(result->c, tempb->c, tempzz, GET_MPC_ROUND(context));
+            mpz_cloc(tempzz);
         }
     }
     else if (IS_INTEGER(exp)) {
         if (!(tempz = GMPy_MPZ_From_Integer(exp, context))) {
             goto err;
         }
-        result->rc = mpc_pow_z(result->c, tempb->c, tempz->z,
-                               GET_MPC_ROUND(context));
+        result->rc = mpc_pow_z(result->c, tempb->c, tempz->z, GET_MPC_ROUND(context));
     }
     else if (IS_REAL(exp)) {
         if (!(tempf = GMPy_MPFR_From_Real(exp, 1, context))) {
             goto err;
         }
-        result->rc = mpc_pow_fr(result->c, tempb->c, tempf->f,
-                                GET_MPC_ROUND(context));
+        result->rc = mpc_pow_fr(result->c, tempb->c, tempf->f, GET_MPC_ROUND(context));
     }
     else {
         if (!(tempe = GMPy_MPC_From_Complex(exp, 1, 1, context))) {
             goto err;
         }
-        result->rc = mpc_pow(result->c, tempb->c, tempe->c,
-                             GET_MPC_ROUND(context));
+        result->rc = mpc_pow(result->c, tempb->c, tempe->c, GET_MPC_ROUND(context));
     }
 
     GMPY_MPC_CLEANUP(result, context, "pow()");

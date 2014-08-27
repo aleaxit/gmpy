@@ -112,6 +112,7 @@ typedef unsigned long Py_uhash_t;
 #define PyIntOrLong_FromSsize_t     PyLong_FromSsize_t
 #define PyIntOrLong_AsSsize_t       PyLong_AsSsize_t
 #define PyIntOrLong_AsLong          PyLong_AsLong
+#define PyIntOrLong_As_mp_bitcnt    PyLong_AsSize_t
 #else
 #define PY2
 #define Py2or3String_FromString     PyString_FromString
@@ -126,6 +127,7 @@ typedef unsigned long Py_uhash_t;
 #define PyIntOrLong_FromSsize_t     PyInt_FromSsize_t
 #define PyIntOrLong_AsSsize_t       PyInt_AsSsize_t
 #define PyIntOrLong_AsLong          PyInt_AsLong
+#define PyIntOrLong_As_mp_bitcnt    PyLong_AsSize_t
 #endif
 
 /* Support MPIR, if requested. */
@@ -300,6 +302,7 @@ typedef long                mpir_si;
 #endif
 
 #include "gmpy2_convert.h"
+#include "gmpy2_convert_utils.h"
 #include "gmpy2_convert_gmp.h"
 #include "gmpy2_convert_mpfr.h"
 #include "gmpy2_convert_mpc.h"

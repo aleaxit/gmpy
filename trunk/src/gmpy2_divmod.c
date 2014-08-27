@@ -57,7 +57,7 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
     MPZ_Object *tempx, *tempy, *rem, *quo;
     mpz_t tempz;
     long temp;
-    int overflow;
+    int error;
 
     result = PyTuple_New(2);
     rem = GMPy_MPZ_New(context);
@@ -71,8 +71,8 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 
     if (CHECK_MPZANY(x)) {
         if (PyIntOrLong_Check(y)) {
-            temp = PyLong_AsLongAndOverflow(y, &overflow);
-            if (overflow) {
+            temp = GMPy_Integer_AsLongAndError(y, &error);
+            if (error) {
                 mpz_inoc(tempz);
                 mpz_set_PyIntOrLong(tempz, y);
                 mpz_fdiv_qr(quo->z, rem->z, MPZ(x), tempz);
@@ -96,6 +96,7 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
             PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
             return result;
         }
+        
         if (CHECK_MPZANY(y)) {
             if (mpz_sgn(MPZ(y)) == 0) {
                 ZERO_ERROR("division or modulo by zero");
@@ -402,7 +403,7 @@ GMPy_MPC_DivMod_Slot(PyObject *x, PyObject *y)
 
 PyDoc_STRVAR(GMPy_doc_divmod,
 "div_mod(x, y) -> (quotient, remainder)\n\n"
-"Return divmod(x, y); uses alternate spelling to avoid conflicts.\n"
+"Return divmod(x, y); uses alternate spelling to avoid naming conflicts.\n"
 "Note: overflow, underflow, and inexact exceptions are not supported for\n"
 "mpfr arguments to div_mod().");
 
@@ -426,10 +427,10 @@ GMPy_Number_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_divmod,
-"context.divmod(x, y) -> (quotient, remainder)\n\n"
-"Return divmod(x, y).\n"
+"context.div_mod(x, y) -> (quotient, remainder)\n\n"
+"Return div_mod(x, y); uses alternate spelling to avoid naming conflicts.\n"
 "Note: overflow, underflow, and inexact exceptions are not supported for\n"
-"mpfr arguments to context.divmod().");
+"mpfr arguments to context.div_mod().");
 
 static PyObject *
 GMPy_Context_DivMod(PyObject *self, PyObject *args)
