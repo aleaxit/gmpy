@@ -94,9 +94,6 @@ static long            clong_From_Integer(PyObject *obj);
  * "long long" and "unsigned long long".
  */
 
-/* Should be used by all MPIR/GMP related code. */
-static mpir_si         SI_From_Integer(PyObject *obj);
-
 static Py_ssize_t      ssize_t_From_Integer(PyObject *obj);
 
 /* ======================================================================== *

@@ -106,8 +106,8 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_iroot,
 static PyObject *
 GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
 {
-    mpir_si n;
-    int exact;
+    long n;
+    int exact, error;
     MPZ_Object *root, *tempx;
     PyObject *result;
     CTXT_Object *context = NULL;
@@ -119,22 +119,22 @@ GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
         return NULL;
     }
     
-    n = SI_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if (n == -1 && PyErr_Occurred()) {
-        return NULL;
-    }
-
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context))) {
+    n = GMPy_Integer_AsLongAndError(PyTuple_GET_ITEM(args, 1), &error);
+    if (error) {
+        TYPE_ERROR("iroot() requires 'mpz','int' arguments");
         return NULL;
     }
 
     if (n <= 0) {
         VALUE_ERROR("n must be > 0");
-        Py_DECREF((PyObject*)tempx);
         return NULL;
     }
     
-    if (n > 1 && mpz_sgn(tempx->z) < 0) {
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context))) {
+        return NULL;
+    }
+    
+    if (mpz_sgn(tempx->z) < 0) {
         VALUE_ERROR("iroot() of negative number");
         Py_DECREF((PyObject*)tempx);
         return NULL;
@@ -165,7 +165,8 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_iroot_rem,
 static PyObject *
 GMPy_MPZ_Function_IrootRem(PyObject *self, PyObject *args)
 {
-    mpir_si n;
+    long n;
+    int error;
     MPZ_Object *root, *rem, *tempx;
     PyObject *result;
     CTXT_Object *context = NULL;
@@ -177,22 +178,22 @@ GMPy_MPZ_Function_IrootRem(PyObject *self, PyObject *args)
         return NULL;
     }
     
-    n = SI_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if (n == -1 && PyErr_Occurred()) {
-        return NULL;
-    }
-
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context))) {
+    n = GMPy_Integer_AsLongAndError(PyTuple_GET_ITEM(args, 1), &error);
+    if (error) {
+        TYPE_ERROR("iroot_rem() requires 'mpz','int' arguments");
         return NULL;
     }
 
     if (n <= 0) {
         VALUE_ERROR("n must be > 0");
-        Py_DECREF((PyObject*)tempx);
         return NULL;
     }
     
-    if (n > 1 && mpz_sgn(tempx->z) < 0) {
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context))) {
+        return NULL;
+    }
+    
+    if (mpz_sgn(tempx->z) < 0) {
         VALUE_ERROR("iroot_rem() of negative number");
         Py_DECREF((PyObject*)tempx);
         return NULL;
@@ -566,19 +567,23 @@ static PyObject *
 GMPy_MPZ_Function_Fac(PyObject *self, PyObject *other)
 {
     MPZ_Object *result = NULL;
-    mpir_si n;
+    unsigned long n;
+    int error;
 
-    n = SI_From_Integer(other);
-    if ((n == -1) && PyErr_Occurred()) {
-        TYPE_ERROR("fac() requires integer argument");
-    }
-    else if (n < 0) {
-        VALUE_ERROR("fac() requires positive argument");
-    }
-    else {
+    n = GMPy_Integer_AsUnsignedLongAndError(other, &error);
+    if (!error) {
         if ((result = GMPy_MPZ_New(NULL))) {
             mpz_fac_ui(result->z, n);
         }
+    }
+    else if (error == 2) {
+        TYPE_ERROR("fac() requires integer argument");
+    }
+    else if (error == 1) {
+        OVERFLOW_ERROR("value too large to convert to long");
+    }
+    else if (error < 0) {
+        VALUE_ERROR("fac() requires positive argument");
     }
     return (PyObject*)result;
 }
@@ -592,19 +597,23 @@ static PyObject *
 GMPy_MPZ_Function_DoubleFac(PyObject *self, PyObject *other)
 {
     MPZ_Object *result = NULL;
-    mpir_si n;
+    unsigned long n;
+    int error;
 
-    n = SI_From_Integer(other);
-    if ((n == -1) && PyErr_Occurred()) {
-        TYPE_ERROR("double_fac() requires integer argument");
-    }
-    else if (n < 0) {
-        VALUE_ERROR("double_fac() requires positive argument");
-    }
-    else {
+    n = GMPy_Integer_AsUnsignedLongAndError(other, &error);
+    if (!error) {
         if ((result = GMPy_MPZ_New(NULL))) {
             mpz_2fac_ui(result->z, n);
         }
+    }
+    else if (error == 2) {
+        TYPE_ERROR("double_fac() requires integer argument");
+    }
+    else if (error == 1) {
+        OVERFLOW_ERROR("value too large to convert to long");
+    }
+    else if (error < 0) {
+        VALUE_ERROR("double_fac() requires positive argument");
     }
     return (PyObject*)result;
 }
@@ -618,19 +627,23 @@ static PyObject *
 GMPy_MPZ_Function_Primorial(PyObject *self, PyObject *other)
 {
     MPZ_Object *result = NULL;
-    mpir_si n;
+    unsigned long n;
+    int error;
 
-    n = SI_From_Integer(other);
-    if ((n == -1) && PyErr_Occurred()) {
-        TYPE_ERROR("primorial() requires integer argument");
-    }
-    else if (n < 0) {
-        VALUE_ERROR("primorial() requires positive argument");
-    }
-    else {
+    n = GMPy_Integer_AsUnsignedLongAndError(other, &error);
+    if (!error) {
         if ((result = GMPy_MPZ_New(NULL))) {
             mpz_primorial_ui(result->z, n);
         }
+    }
+    else if (error == 2) {
+        TYPE_ERROR("primorial() requires integer argument");
+    }
+    else if (error == 1) {
+        OVERFLOW_ERROR("value too large to convert to long");
+    }
+    else if (error < 0) {
+        VALUE_ERROR("primorial() requires positive argument");
     }
     return (PyObject*)result;
 }
@@ -644,36 +657,31 @@ static PyObject *
 GMPy_MPZ_Function_MultiFac(PyObject *self, PyObject *args)
 {
     MPZ_Object *result = NULL;
-    mpir_si n, m;
+    unsigned long n, m;
+    int err1, err2;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("multi_fac() requires 2 integer arguments");
         return NULL;
     }
 
-    n = SI_From_Integer(PyTuple_GET_ITEM(args, 0));
-    if ((n == -1) && PyErr_Occurred()) {
-        TYPE_ERROR("multi_fac() requires 2 integer arguments");
-        return NULL;
+    n = GMPy_Integer_AsUnsignedLongAndError(PyTuple_GET_ITEM(args, 0), &err1);
+    m = GMPy_Integer_AsUnsignedLongAndError(PyTuple_GET_ITEM(args, 1), &err2);
+    if (!err1 && !err2) {
+        if ((result = GMPy_MPZ_New(NULL))) {
+            mpz_mfac_uiui(result->z, n, m);
+        }
     }
-    else if (n < 0) {
+    else if (err1 == 2 || err2 == 2) {
+        TYPE_ERROR("multi_fac() requires 2 integer arguments");
+    }
+    else if (err1 == 1 || err2 == 1) {
+        OVERFLOW_ERROR("value too large to convert to long");
+    }
+    else if (err1 < 0 || err2 < 0) {
         VALUE_ERROR("multi_fac() requires positive arguments");
-        return NULL;
     }
 
-    m = SI_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if ((m == -1) && PyErr_Occurred()) {
-        TYPE_ERROR("multi_fac() requires 2 integer arguments");
-        return NULL;
-    }
-    else if (m < 0) {
-        VALUE_ERROR("multi_fac() requires positive arguments");
-        return NULL;
-    }
-
-    if ((result = GMPy_MPZ_New(NULL))) {
-        mpz_mfac_uiui(result->z, n, m);
-    }
     return (PyObject*)result;
 }
 
@@ -685,22 +693,23 @@ static PyObject *
 GMPy_MPZ_Function_Fib(PyObject *self, PyObject *other)
 {
     MPZ_Object *result = NULL;
-    mpir_si n;
-    CTXT_Object *context = NULL;
+    long  n;
+    int error;
 
-    CHECK_CONTEXT(context);
-
-    n = SI_From_Integer(other);
-    if ((n == -1) && PyErr_Occurred()) {
-        TYPE_ERROR("fib() requires 'int' argument");
-    }
-    else if (n < 0) {
-        VALUE_ERROR("Fibonacci of negative number");
-    }
-    else {
-        if ((result = GMPy_MPZ_New(context))) {
+    n = GMPy_Integer_AsUnsignedLongAndError(other, &error);
+    if (!error) {
+        if ((result = GMPy_MPZ_New(NULL))) {
             mpz_fib_ui(result->z, n);
         }
+    }
+    else if (error == 2) {
+        TYPE_ERROR("fib() requires integer argument");
+    }
+    else if (error == 1) {
+        OVERFLOW_ERROR("value too large to convert to long");
+    }
+    else if (error < 0) {
+        VALUE_ERROR("fib() requires positive argument");
     }
     return (PyObject*)result;
 }
@@ -714,36 +723,35 @@ GMPy_MPZ_Function_Fib2(PyObject *self, PyObject *other)
 {
     PyObject *result = NULL;
     MPZ_Object *fib1, *fib2;
-    mpir_si n;
-    CTXT_Object *context = NULL;
+    long n;
+    int error;
 
-    CHECK_CONTEXT(context);
-
-    n = SI_From_Integer(other);
-    if ((n == -1) && PyErr_Occurred()) {
-        TYPE_ERROR("fib2() requires 'int' argument");
-        return NULL;
+    n = GMPy_Integer_AsUnsignedLongAndError(other, &error);
+    if (!error) {
+        result = PyTuple_New(2);
+        fib1 = GMPy_MPZ_New(NULL);
+        fib2 = GMPy_MPZ_New(NULL);
+        if (!result || !fib1 || !fib2) {
+            Py_XDECREF(result);
+            Py_XDECREF((PyObject*)fib1);
+            Py_XDECREF((PyObject*)fib2);
+            result = NULL;
+        }
+        
+        mpz_fib2_ui(fib1->z, fib2->z, n);
+        PyTuple_SET_ITEM(result, 0, (PyObject*)fib1);
+        PyTuple_SET_ITEM(result, 1, (PyObject*)fib2);
     }
-    
-    if (n < 0) {
-        VALUE_ERROR("Fibonacci of negative number");
-        return NULL;
+    else if (error == 2) {
+        TYPE_ERROR("fib2() requires integer argument");
     }
-    
-    result = PyTuple_New(2);
-    fib1 = GMPy_MPZ_New(context);
-    fib2 = GMPy_MPZ_New(context);
-    if (!result || !fib1 || !fib2) {
-        Py_XDECREF(result);
-        Py_XDECREF((PyObject*)fib1);
-        Py_XDECREF((PyObject*)fib2);
-        return NULL;
+    else if (error == 1) {
+        OVERFLOW_ERROR("value too large to convert to long");
     }
-    
-    mpz_fib2_ui(fib1->z, fib2->z, n);
-    PyTuple_SET_ITEM(result, 0, (PyObject*)fib1);
-    PyTuple_SET_ITEM(result, 1, (PyObject*)fib2);
-    return result;
+    else if (error < 0) {
+        VALUE_ERROR("fib2() requires positive argument");
+    }
+    return (PyObject*)result;
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_lucas,
@@ -754,22 +762,23 @@ static PyObject *
 GMPy_MPZ_Function_Lucas(PyObject *self, PyObject *other)
 {
     MPZ_Object *result = NULL;
-    mpir_si n;
-    CTXT_Object *context = NULL;
+    long n;
+    int error;
 
-    CHECK_CONTEXT(context);
-
-    n = SI_From_Integer(other);
-    if ((n == -1) && PyErr_Occurred()) {
-        TYPE_ERROR("luc() requires 'int' argument");
-    }
-    else if (n < 0) {
-        VALUE_ERROR("Lucas of negative number");
-    }
-    else {
-        if ((result = GMPy_MPZ_New(context))) {
+    n = GMPy_Integer_AsUnsignedLongAndError(other, &error);
+    if (!error) {
+        if ((result = GMPy_MPZ_New(NULL))) {
             mpz_lucnum_ui(result->z, n);
         }
+    }
+    else if (error == 2) {
+        TYPE_ERROR("lucas() requires integer argument");
+    }
+    else if (error == 1) {
+        OVERFLOW_ERROR("value too large to convert to long");
+    }
+    else if (error < 0) {
+        VALUE_ERROR("lucas() requires positive argument");
     }
     return (PyObject*)result;
 }
@@ -783,35 +792,34 @@ GMPy_MPZ_Function_Lucas2(PyObject *self, PyObject *other)
 {
     PyObject *result = NULL;
     MPZ_Object *luc1, *luc2;
-    mpir_si n;
-    CTXT_Object *context = NULL;
+    long n;
+    int error;
 
-    CHECK_CONTEXT(context);
-    
-    n = SI_From_Integer(other);
-    if ((n == -1) && PyErr_Occurred()) {
-        TYPE_ERROR("luc2() requires 'int' argument");
-        return NULL;
+    n = GMPy_Integer_AsUnsignedLongAndError(other, &error);
+    if (!error) {
+        result = PyTuple_New(2);
+        luc1 = GMPy_MPZ_New(NULL);
+        luc2 = GMPy_MPZ_New(NULL);
+        if (!result || !luc1 || !luc2) {
+            Py_XDECREF(result);
+            Py_XDECREF((PyObject*)luc1);
+            Py_XDECREF((PyObject*)luc2);
+            result = NULL;
+        }
+        
+        mpz_lucnum2_ui(luc1->z, luc2->z, n);
+        PyTuple_SET_ITEM(result, 0, (PyObject*)luc1);
+        PyTuple_SET_ITEM(result, 1, (PyObject*)luc2);
     }
-    
-    if (n < 0) {
-        VALUE_ERROR("Lucas of negative number");
-        return NULL;
+    else if (error == 2) {
+        TYPE_ERROR("luc2() requires integer argument");
     }
-    
-    result = PyTuple_New(2);
-    luc1 = GMPy_MPZ_New(context);
-    luc2 = GMPy_MPZ_New(context);
-    if (!result || !luc1 || !luc2) {
-        Py_XDECREF(result);
-        Py_XDECREF((PyObject*)luc1);
-        Py_XDECREF((PyObject*)luc2);
-        return NULL;
+    else if (error == 1) {
+        OVERFLOW_ERROR("value too large to convert to long");
     }
-    
-    mpz_lucnum2_ui(luc1->z, luc2->z, n);
-    PyTuple_SET_ITEM(result, 0, (PyObject*)luc1);
-    PyTuple_SET_ITEM(result, 1, (PyObject*)luc2);
+    else if (error < 0) {
+        VALUE_ERROR("luc2() requires positive argument");
+    }
     return result;
 }
 
@@ -827,39 +835,37 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_comb,
 static PyObject *
 GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args)
 {
-    MPZ_Object *result, *tempx;
-    mpir_si k;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
+    MPZ_Object *result = NULL, *tempx;
+    unsigned long k;
+    int error;
 
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("bincoef() requires 'mpz','int' arguments");
+        TYPE_ERROR("bincoef() requires two integer arguments");
         return NULL;
     }
     
-    k = SI_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if (k == -1 && PyErr_Occurred()) {
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
         return NULL;
     }
 
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context))) {
-        return NULL;
-    }
-
-    if (k < 0) {
-        VALUE_ERROR("binomial coefficient with negative k");
+    k = GMPy_Integer_AsUnsignedLongAndError(PyTuple_GET_ITEM(args, 1), &error);
+    if (!error) {
+        if(!(result = GMPy_MPZ_New(NULL))) {
+            Py_DECREF((PyObject*)tempx);
+        }
+        
+        mpz_bin_ui(result->z, tempx->z, k);
         Py_DECREF((PyObject*)tempx);
-        return NULL;
     }
-    
-    if(!(result = GMPy_MPZ_New(context))) {
-        Py_DECREF((PyObject*)tempx);
-        return NULL;
+    else if (error == 2) {
+        TYPE_ERROR("bincoef() requires two integer arguments");
     }
-    
-    mpz_bin_ui(result->z, tempx->z, k);
-    Py_DECREF((PyObject*)tempx);
+    else if (error == 1) {
+        OVERFLOW_ERROR("value too large to convert to long");
+    }
+    else if (error < 0) {
+        VALUE_ERROR("bincoef() requires n >= 0");
+    }
     return (PyObject*)result;
 }
 

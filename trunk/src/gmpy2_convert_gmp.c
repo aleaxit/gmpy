@@ -473,65 +473,9 @@ clong_From_Integer(PyObject *obj)
  * Integer-like object.
  */
 
-#ifndef _WIN64
-
-/* Working with C long. */
-
-static mpir_si
-SI_From_Integer(PyObject *obj)
-{
-    if (PyLong_Check(obj)) {
-        return PyLong_AsLong(obj);
-    }
-#ifdef PY2
-    else if (PyInt_Check(obj)) {
-        return PyInt_AsLong(obj);
-    }
-#endif
-    else if (CHECK_MPZANY(obj)) {
-        if (mpz_fits_slong_p(MPZ(obj))) {
-            return mpz_get_si(MPZ(obj));
-        }
-        else {
-            OVERFLOW_ERROR("overflow in SI_From_Integer");
-            return -1;
-        }
-    }
-    TYPE_ERROR("conversion error in SI_From_Integer");
-    return -1;
-}
-
-/* Working with C unsigned long. */
-
-#define PyLong_AsSIAndOverflow(a,b) PyLong_AsLongAndOverflow(a,b)
-
-#else
+#ifdef _WIN64
 
 /* Working with C long long. Can also assume using > MPIR 2.5. */
-
-static mpir_si
-SI_From_Integer(PyObject *obj)
-{
-    if (PyLong_Check(obj)) {
-        return PyLong_AsLongLong(obj);
-    }
-#ifdef PY2
-    else if (PyInt_Check(obj)) {
-        return (mpir_si)PyInt_AsLong(obj);
-    }
-#endif
-    else if (CHECK_MPZANY(obj)) {
-        if (mpz_fits_si_p(MPZ(obj))) {
-            return mpz_get_si(MPZ(obj));
-        }
-        else {
-            OVERFLOW_ERROR("overflow in SI_From_Integer");
-            return -1;
-        }
-    }
-    TYPE_ERROR("conversion error in SI_From_Integer");
-    return -1;
-}
 
 static mpir_ui
 UI_From_Integer(PyObject *obj)

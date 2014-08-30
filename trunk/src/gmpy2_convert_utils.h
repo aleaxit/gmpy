@@ -36,12 +36,12 @@ extern "C" {
  * Conversion between Integer objects and C types.                          *
  * ======================================================================== */
 
-static long                  GMPy_Integer_AsLongAndError(PyObject *vv, int *overflow);
-static unsigned long         GMPy_Integer_AsUnsignedLongAndOverflow(PyObject *vv, int *overflow);
+static long                  GMPy_Integer_AsLongAndError(PyObject *vv, int *error);
+static unsigned long         GMPy_Integer_AsUnsignedLongAndError(PyObject *vv, int *error);
 
-#if HAVE_LONG_LONG
-static PY_LONG_LONG          GMPy_Integer_AsLongLongAndOverflow(PyObject *vv, int *overflow);
-static unsigned PY_LONG_LONG GMPy_Integer_AsUnsignedLongLongAndOverflow(PyObject *vv, int *overflow);
+#ifdef _WIN64
+static PY_LONG_LONG          GMPy_Integer_AsLongLongAndError(PyObject *vv, int *error);
+static unsigned PY_LONG_LONG GMPy_Integer_AsUnsignedLongLongAndError(PyObject *vv, int *error);
 #endif
 
 #ifdef __cplusplus
