@@ -42,7 +42,7 @@
 
 #define PY_ABS_LONG_MIN     (0-(unsigned long)LONG_MIN)
 
-/* The various ...AndOverflow functions indicate exceptions as follows:
+/* The various ...AndError functions indicate exceptions as follows:
  *   1) If error is -1, then the argument is negative and the result could
  *      not fit into the desired return type.
  *   2) If error is 1, then the argument is positive and the result could
@@ -52,7 +52,7 @@
  *
  * Note: The original Python functions will accept any object and attempt to
  *       convert the object to a PyLong. We do not do this. It is assumed that
- *       the argument is a Python int or long.
+ *       the argument is a Python integer or a GMPY2 mpz.
  *
  *       These functions will not set any exceptions. A return value of -1 does
  *       NOT indicate a possible exception.
@@ -137,19 +137,19 @@ GMPy_Integer_AsLongAndError(PyObject *vv, int *error)
 }
 
 static unsigned long
-GMPy_Integer_AsUnsignedLongAndOverflow(PyObject *vv, int *overflow)
+GMPy_Integer_AsUnsignedLongAndError(PyObject *vv, int *error)
 {
     register PyLongObject *v;
     unsigned long x, prev, res;
     Py_ssize_t i;
 
-    *overflow = 0;
+    *error = 0;
 
 #ifdef PY2
     if (PyInt_Check(vv)) {
         long temp = PyInt_AS_LONG(vv);
         if (temp < 0) {
-            *overflow = -1;
+            *error = -1;
             return res;
         }
         else {
@@ -164,7 +164,7 @@ GMPy_Integer_AsUnsignedLongAndOverflow(PyObject *vv, int *overflow)
         i = Py_SIZE(v);
 
         if (i < 0) {
-            *overflow = -1;
+            *error = -1;
             return res;
         }
             
@@ -180,7 +180,7 @@ GMPy_Integer_AsUnsignedLongAndOverflow(PyObject *vv, int *overflow)
                 prev = x;
                 x = (x << PyLong_SHIFT) + v->ob_digit[i];
                 if ((x >> PyLong_SHIFT) != prev) {
-                    *overflow = 1;
+                    *error = 1;
                     return res;
                 }
             }
@@ -193,22 +193,27 @@ GMPy_Integer_AsUnsignedLongAndOverflow(PyObject *vv, int *overflow)
             res = mpz_get_ui(MPZ(vv));
         }
         else {
-            *overflow = mpz_sgn(MPZ(vv));
+            *error = mpz_sgn(MPZ(vv));
             res = 0;
         }
         return res;
     }
 
-    *overflow = 2;
+    *error = 2;
     return 0;
 }
 
-#if HAVE_LONG_LONG
+
+/* The follow code is only used on Windows x64 platform. We check for _WIN64
+ * but we then assume the PY_LONG_LONG is defined.
+ */
+ 
+#ifdef _WIN64
 
 #define PY_ABS_LLONG_MIN (0-(unsigned PY_LONG_LONG)PY_LLONG_MIN)
 
 static PY_LONG_LONG
-GMPy_Integer_AsLongLongAndOverflow(PyObject *vv, int *overflow)
+GMPy_Integer_AsLongLongAndError(PyObject *vv, int *error)
 {
     register PyLongObject *v;
     unsigned PY_LONG_LONG x, prev;
@@ -216,7 +221,7 @@ GMPy_Integer_AsLongLongAndOverflow(PyObject *vv, int *overflow)
     Py_ssize_t i;
     int sign;
 
-    *overflow = 0;
+    *error = 0;
 
 #ifdef PY2
     if (PyInt_Check(vv)) {
@@ -249,7 +254,7 @@ GMPy_Integer_AsLongLongAndOverflow(PyObject *vv, int *overflow)
                 prev = x;
                 x = (x << PyLong_SHIFT) + v->ob_digit[i];
                 if ((x >> PyLong_SHIFT) != prev) {
-                    *overflow = sign;
+                    *error = sign;
                     return res;
                 }
             }
@@ -262,7 +267,7 @@ GMPy_Integer_AsLongLongAndOverflow(PyObject *vv, int *overflow)
                 res = PY_LLONG_MIN;
             }
             else {
-                *overflow = sign;
+                *error = sign;
             }
         }
         return res;
@@ -272,24 +277,24 @@ GMPy_Integer_AsLongLongAndOverflow(PyObject *vv, int *overflow)
         return 0;
     }
 
-    *overflow = 2;
+    *error = 2;
     return 0;
 }
 
 static unsigned PY_LONG_LONG
-GMPy_Integer_AsUnsignedLongLongAndOverflow(PyObject *vv, int *overflow)
+GMPy_Integer_AsUnsignedLongLongAndError(PyObject *vv, int *error)
 {
     register PyLongObject *v;
     unsigned PY_LONG_LONG x, prev, res;
     Py_ssize_t i;
 
-    *overflow = 0;
+    *error = 0;
 
 #ifdef PY2
     if (PyInt_Check(vv)) {
         long temp = PyInt_AS_LONG(vv);
         if (temp < 0) {
-            *overflow = -1;
+            *error = -1;
             return res;
         }
         else {
@@ -304,7 +309,7 @@ GMPy_Integer_AsUnsignedLongLongAndOverflow(PyObject *vv, int *overflow)
         i = Py_SIZE(v);
 
         if (i < 0) {
-            *overflow = -1;
+            *error = -1;
             return res;
         }
             
@@ -320,7 +325,7 @@ GMPy_Integer_AsUnsignedLongLongAndOverflow(PyObject *vv, int *overflow)
                 prev = x;
                 x = (x << PyLong_SHIFT) + v->ob_digit[i];
                 if ((x >> PyLong_SHIFT) != prev) {
-                    *overflow = 1;
+                    *error = 1;
                     return res;
                 }
             }
@@ -332,7 +337,7 @@ GMPy_Integer_AsUnsignedLongLongAndOverflow(PyObject *vv, int *overflow)
         return 0;
     }
 
-    *overflow = 2;
+    *error = 2;
     return 0;
 }
 

@@ -170,8 +170,8 @@ GMPy_Rational_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *con
 {
     MPQ_Object *tempbq = NULL, *resultq = NULL;
     MPZ_Object *tempez = NULL;
-    int esign, bsign;
-    mpir_si tempexp;
+    int bsign;
+    long tempexp;
 
     if (mod != Py_None) {
         TYPE_ERROR("pow() 3rd argument not allowed unless all arguments are integers");
@@ -198,9 +198,9 @@ GMPy_Rational_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *con
             Py_DECREF((PyObject*)tempez);
             return NULL;
         }
+        tempexp = mpz_get_si(tempez->z);
 
-        esign = mpz_sgn(tempez->z);
-        if (esign == 0) {
+        if (tempexp == 0) {
             mpq_set_si(resultq->q, 1, 1);
             Py_DECREF((PyObject*)tempbq);
             Py_DECREF((PyObject*)tempez);
@@ -208,7 +208,7 @@ GMPy_Rational_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *con
         }
 
         bsign = mpq_sgn(tempbq->q);
-        if (esign < 0) {
+        if (tempexp < 0) {
             if (bsign == 0) {
                 ZERO_ERROR("pow() 0 base to negative exponent");
                 Py_DECREF((PyObject*)resultq);
@@ -223,11 +223,10 @@ GMPy_Rational_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *con
                 mpz_set(mpq_numref(resultq->q), mpq_denref(tempbq->q));
             }
             mpz_abs(mpq_denref(resultq->q), mpq_numref(tempbq->q));
-            tempexp = -mpz_get_si(tempez->z);
+            tempexp = -tempexp;
         }
         else {
             mpq_set(resultq->q, tempbq->q);
-            tempexp = mpz_get_si(tempez->z);
         }
 
         if (tempexp > 1) {

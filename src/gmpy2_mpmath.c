@@ -29,7 +29,7 @@
 /* Internal helper function for mpmath. */
 
 static PyObject *
-mpmath_build_mpf(long sign, MPZ_Object *man, PyObject *exp, mpir_si bc)
+mpmath_build_mpf(long sign, MPZ_Object *man, PyObject *exp, long bc)
 {
     PyObject *tup, *tsign, *tbc;
 
@@ -46,7 +46,7 @@ mpmath_build_mpf(long sign, MPZ_Object *man, PyObject *exp, mpir_si bc)
         return NULL;
     }
 
-    if (!(tbc = PyIntOrLong_FromSI(bc))) {
+    if (!(tbc = PyIntOrLong_FromLong(bc))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
@@ -68,21 +68,22 @@ static PyObject *
 Pympz_mpmath_normalize(PyObject *self, PyObject *args)
 {
     long sign = 0;
-    mpir_si bc = 0, prec = 0, shift, zbits, carry = 0;
+    long bc = 0, prec = 0, shift, zbits, carry = 0;
     PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0, *rndstr = 0;
     MPZ_Object *man = 0, *upper = 0, *lower = 0;
     char rnd = 0;
+    int err1, err2, err3;
 
     if (PyTuple_GET_SIZE(args) == 6) {
         /* Need better error-checking here. Under Python 3.0, overflow into
            C-long is possible. */
-        sign = clong_From_Integer(PyTuple_GET_ITEM(args, 0));
+        sign = GMPy_Integer_AsLongAndError(PyTuple_GET_ITEM(args, 0), &err1);
         man = (MPZ_Object *)PyTuple_GET_ITEM(args, 1);
         exp = PyTuple_GET_ITEM(args, 2);
-        bc = SI_From_Integer(PyTuple_GET_ITEM(args, 3));
-        prec = SI_From_Integer(PyTuple_GET_ITEM(args, 4));
+        bc = GMPy_Integer_AsLongAndError(PyTuple_GET_ITEM(args, 3), &err2);
+        prec = GMPy_Integer_AsLongAndError(PyTuple_GET_ITEM(args, 4), &err3);
         rndstr = PyTuple_GET_ITEM(args, 5);
-        if (PyErr_Occurred()) {
+        if (err1 || err2 || err3) {
             TYPE_ERROR("arguments long, MPZ_Object*, PyObject*, long, long, char needed");
             return NULL;
         }
@@ -228,9 +229,10 @@ static PyObject *
 Pympz_mpmath_create(PyObject *self, PyObject *args)
 {
     long sign;
-    mpir_si bc, shift, zbits, carry = 0, prec = 0;
+    long bc, shift, zbits, carry = 0, prec = 0;
     PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0;
     MPZ_Object *man = 0, *upper = 0, *lower = 0;
+    int error;
 
     const char *rnd = "f";
 
@@ -243,8 +245,8 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
         case 4:
             rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 3));
         case 3:
-            prec = SI_From_Integer(PyTuple_GET_ITEM(args, 2));
-            if (prec == -1 && PyErr_Occurred())
+            prec = GMPy_Integer_AsLongAndError(PyTuple_GET_ITEM(args, 2), &error);
+            if (error)
                 return NULL;
             prec = ABS(prec);
         case 2:
