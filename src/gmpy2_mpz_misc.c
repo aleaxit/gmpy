@@ -1172,8 +1172,8 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_is_divisible,
 static PyObject *
 GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args)
 {
-    int res;
-    PyObject *d;
+    unsigned long temp;
+    int error, res;
     MPZ_Object *tempx, *tempd;
     
     if (PyTuple_GET_SIZE(args) != 2) {
@@ -1184,41 +1184,18 @@ GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args)
     if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
         return NULL;
     }
-    
-    d = PyTuple_GET_ITEM(args, 1);
-#ifdef PY2
-    if (PyInt_CheckExact(d)) {
-        long temp = PyInt_AS_LONG(d);
 
-        if (temp >= 0) {
-            res = mpz_divisible_ui_p(tempx->z, temp);
-            Py_DECREF((PyObject*)tempx);
-            if (res)
-                Py_RETURN_TRUE;
-            else
-                Py_RETURN_FALSE;
-        }
+    temp = GMPy_Integer_AsUnsignedLongAndError(PyTuple_GET_ITEM(args, 1), &error);
+    if (!error) {
+        res = mpz_divisible_ui_p(tempx->z, temp);
+        Py_DECREF((PyObject*)tempx);
+        if (res)
+            Py_RETURN_TRUE;
+        else
+            Py_RETURN_FALSE;
     }
-#endif
-
-    if (PyLong_CheckExact(d)) {
-        long temp = 0;
-        Py_ssize_t i = Py_SIZE((PyLongObject*)d);
         
-        switch (i) {
-        case 0:
-            
-        CASE_POSITIVE(temp, d)
-            res = mpz_divisible_ui_p(tempx->z, temp);
-            Py_DECREF((PyObject*)tempx);
-            if (res)
-                Py_RETURN_TRUE;
-            else
-                Py_RETURN_FALSE;
-        }
-    }
-   
-    if (!(tempd = GMPy_MPZ_From_Integer(d, NULL))) {
+    if (!(tempd = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL))) {
         TYPE_ERROR("is_divisible() requires 2 integer arguments");
         Py_DECREF((PyObject*)tempx);
         return NULL;
@@ -1240,39 +1217,19 @@ PyDoc_STRVAR(GMPy_doc_mpz_method_is_divisible,
 static PyObject *
 GMPy_MPZ_Method_IsDivisible(PyObject *self, PyObject *other)
 {
-    int res;
+    unsigned long temp;
+    int error, res;
     MPZ_Object *tempd;
 
     assert(CHECK_MPZANY(self));
     
-#ifdef PY2
-    if (PyInt_CheckExact(other)) {
-        long temp = PyInt_AS_LONG(other);
-
-        if (temp >= 0) {
-            res = mpz_divisible_ui_p(MPZ(self), temp);
-            if (res)
-                Py_RETURN_TRUE;
-            else
-                Py_RETURN_FALSE;
-        }
-    }
-#endif
-
-    if (PyLong_CheckExact(other)) {
-        long temp = 0;
-        Py_ssize_t i = Py_SIZE((PyLongObject*)other);
-        
-        switch (i) {
-        case 0:
-            
-        CASE_POSITIVE(temp, other)
-            res = mpz_divisible_ui_p(MPZ(self), temp);
-            if (res)
-                Py_RETURN_TRUE;
-            else
-                Py_RETURN_FALSE;
-        }
+    temp = GMPy_Integer_AsUnsignedLongAndError(other, &error);
+    if (!error) {
+        res = mpz_divisible_ui_p(MPZ(self), temp);
+        if (res)
+            Py_RETURN_TRUE;
+        else
+            Py_RETURN_FALSE;
     }
    
     if (!(tempd = GMPy_MPZ_From_Integer(other, NULL))) {
@@ -1415,7 +1372,7 @@ GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args)
     }
         
     if (PyTuple_GET_SIZE(args) == 2) {
-        reps = clong_From_Integer(PyTuple_GET_ITEM(args, 1));
+        reps = c_long_From_Integer(PyTuple_GET_ITEM(args, 1));
         if (reps == -1 && PyErr_Occurred()) {
             return NULL; 
         }

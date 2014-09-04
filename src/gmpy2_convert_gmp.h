@@ -85,15 +85,6 @@ static MPZ_Object *    GMPy_MPZ_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context
  * Conversion between Integer objects and C types.                          *
  * ======================================================================== */
 
-/* Should only be used by MPFR/MPC related code. */
-static long            clong_From_Integer(PyObject *obj);
-
-/* MPIR 2.6.0 introduces two new data types: mpir_si and mpir_ui. On all
- * platforms except 64-bit Windows, those data types correspond to "long" and
- * "unsigned long". On 64-bit Windows, those data type correspond to
- * "long long" and "unsigned long long".
- */
-
 static Py_ssize_t      ssize_t_From_Integer(PyObject *obj);
 
 /* ======================================================================== *

@@ -172,7 +172,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
                     mpz_add_ui(upper->z, upper->z, 1);
         }
 
-        if (!(tmp = PyIntOrLong_FromSI(shift))) {
+        if (!(tmp = PyIntOrLong_FromLong(shift))) {
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
@@ -197,7 +197,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     if ((zbits = mpz_scan1(upper->z, 0)))
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
-    if (!(tmp = PyIntOrLong_FromSI(zbits))) {
+    if (!(tmp = PyIntOrLong_FromLong(zbits))) {
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
         Py_DECREF(newexp);
@@ -326,7 +326,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                 if (carry)
                     mpz_add_ui(upper->z, upper->z, 1);
         }
-        if (!(tmp = PyIntOrLong_FromSI(shift))) {
+        if (!(tmp = PyIntOrLong_FromLong(shift))) {
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
@@ -350,7 +350,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     if ((zbits = mpz_scan1(upper->z, 0)))
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
-    if (!(tmp = PyIntOrLong_FromSI(zbits))) {
+    if (!(tmp = PyIntOrLong_FromLong(zbits))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);

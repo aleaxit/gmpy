@@ -97,7 +97,7 @@ GMPy_Integer_Pow(PyObject *b, PyObject *e, PyObject *m, CTXT_Object *context)
             goto err;
         }
 
-        if (!mpz_fits_ui_p(tempe->z)) {
+        if (!mpz_fits_ulong_p(tempe->z)) {
             VALUE_ERROR("pow() outrageous exponent");
             goto err;
         }

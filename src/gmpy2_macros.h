@@ -909,8 +909,6 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
     return GMPy_Number_##NAME(context); \
 } \
 
-
-
 /* The following legacy macros should be removed in the future. */
 
 #define MPFR_MONOP(NAME) \
@@ -952,41 +950,4 @@ Pympfr_##NAME(PyObject* self, PyObject *other) \
     result->rc = mpfr_##NAME(result->f, MPFR(self), context->ctx.mpfr_round); \
     MPFR_CLEANUP_SELF(#NAME "()"); \
 }
-
-#if DIGITS_PER_LONG == 4
-
-#define CASE_NEGATIVE(RESULT, OBJ) \
-            case -4: RESULT = ((PyLongObject*)OBJ)->ob_digit[3]; \
-            case -3: RESULT = (RESULT << PyLong_SHIFT) + ((PyLongObject*)OBJ)->ob_digit[2]; \
-            case -2: RESULT = (RESULT << PyLong_SHIFT) + ((PyLongObject*)OBJ)->ob_digit[1]; \
-            case -1: RESULT = (RESULT << PyLong_SHIFT) + ((PyLongObject*)OBJ)->ob_digit[0];
-
-#define CASE_POSITIVE(RESULT, OBJ) \
-            case 4: RESULT = ((PyLongObject*)OBJ)->ob_digit[3]; \
-            case 3: RESULT = (RESULT << PyLong_SHIFT) + ((PyLongObject*)OBJ)->ob_digit[2]; \
-            case 2: RESULT = (RESULT << PyLong_SHIFT) + ((PyLongObject*)OBJ)->ob_digit[1]; \
-            case 1: RESULT = (RESULT << PyLong_SHIFT) + ((PyLongObject*)OBJ)->ob_digit[0];
-
-#endif /* DIGITS_PER_LONG == 4 */
-
-#if DIGITS_PER_LONG == 2
-
-#define CASE_NEGATIVE(RESULT, OBJ) \
-            case -2: RESULT = ((PyLongObject*)OBJ)->ob_digit[1]; \
-            case -1: RESULT = (RESULT << PyLong_SHIFT) + ((PyLongObject*)OBJ)->ob_digit[0];
-
-#define CASE_POSITIVE(RESULT, OBJ) \
-            case 2: RESULT = ((PyLongObject*)OBJ)->ob_digit[1]; \
-            case 1: RESULT = (RESULT << PyLong_SHIFT) + ((PyLongObject*)OBJ)->ob_digit[0];
-            
-#endif /* DIGITS_PER_LONG == 2 */
-
-#if DIGITS_PER_LONG == 1
-
-#define CASE_NEGATIVE(RESULT, OBJ) \
-            case -1: RESULT = ((PyLongObject*)OBJ)->ob_digit[0];
-            
-#define CASE_POSITIVE(RESULT, OBJ) \
-            case 1: RESULT = ((PyLongObject*)OBJ)->ob_digit[0];
-#endif /* DIGITS_PER_LONG == 1 */
 

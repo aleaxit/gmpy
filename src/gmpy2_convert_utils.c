@@ -203,6 +203,50 @@ GMPy_Integer_AsUnsignedLongAndError(PyObject *vv, int *error)
     return 0;
 }
 
+static long
+c_long_From_Integer(PyObject *obj)
+{
+    long result;
+    int error;
+
+    result = GMPy_Integer_AsLongAndError(obj, &error);
+    if (!error) {
+        return result;
+    }
+    else {
+        if (error == 2) {
+            TYPE_ERROR("could not convert object to integer");
+        }
+        else {
+            OVERFLOW_ERROR("value too large to convert to C long");
+        }
+        return -1;
+    }
+}
+        
+static unsigned long
+c_ulong_From_Integer(PyObject *obj)
+{
+    unsigned long result;
+    int error;
+
+    result = GMPy_Integer_AsUnsignedLongAndError(obj, &error);
+    if (!error) {
+        return result;
+    }
+    else {
+        if (error == 2) {
+            TYPE_ERROR("could not convert object to integer");
+        }
+        else if (error == 1) {
+            OVERFLOW_ERROR("value too large to convert to C long");
+        }
+        else if (error < 0) {
+            VALUE_ERROR("a non-negative value is required");
+        }
+        return (unsigned long)-1;
+    }
+}
 
 /* The follow code is only used on Windows x64 platform. We check for _WIN64
  * but we then assume the PY_LONG_LONG is defined.
@@ -339,6 +383,51 @@ GMPy_Integer_AsUnsignedLongLongAndError(PyObject *vv, int *error)
 
     *error = 2;
     return 0;
+}
+
+static  PY_LONG_LONG
+c_longlong_From_Integer(PyObject *obj)
+{
+    PY_LONG_LONG result;
+    int error;
+
+    result = GMPy_Integer_AsLongLongAndError(obj, &error);
+    if (!error) {
+        return result;
+    }
+    else {
+        if (error == 2) {
+            TYPE_ERROR("could not convert object to integer");
+        }
+        else {
+            OVERFLOW_ERROR("value too large to convert to C long long");
+        }
+        return -1;
+    }
+}
+        
+static unsigned PY_LONG_LONG
+c_ulonglong_From_Integer(PyObject *obj)
+{
+    unsigned PY_LONG_LONG result;
+    int error;
+
+    result = GMPy_Integer_AsUnsignedLongLongAndError(obj, &error);
+    if (!error) {
+        return result;
+    }
+    else {
+        if (error == 2) {
+            TYPE_ERROR("could not convert object to integer");
+        }
+        else if (error == 1) {
+            OVERFLOW_ERROR("value too large to convert to C long long");
+        }
+        else if (error < 0) {
+            VALUE_ERROR("a non-negative value is required");
+        }
+        return (unsigned PY_LONG_LONG)-1;
+    }
 }
 
 #endif
