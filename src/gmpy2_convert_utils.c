@@ -60,7 +60,7 @@
 
 /* The following functions are based on PyLong_AsLongAndOverflow(). */
 
-Py_LOCAL(long)
+static long
 GMPy_Integer_AsLongAndError(PyObject *vv, int *error)
 {
     register PyLongObject *v;

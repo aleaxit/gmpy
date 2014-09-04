@@ -56,12 +56,6 @@
  *     GMPy_Context_NAME(self, other)
  *     - called with METH_O
  * 
- * GMPY_MPFR_MPC_BINOP_TEMPLATE(NAME, FUNC) creates the following functions:
- *     GMPy_Number_NAME(x, y, context)
- *     - assumes GMPy_Real_NAME & GMPy_Complex_NAME exist
- *     GMPy_Context_NAME(self, args)
- *     - called with METH_VARARGS
- * 
  * GMPY_MPFR_MPC_TRIOP_EX(NAME, FUNC) creates the following functions:
  *     GMPy_Real_NAME(x, y, Z, context)
  *     GMPy_Complex_NAME(x, y, Z, context)
@@ -284,66 +278,6 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
         CHECK_CONTEXT(context); \
     } \
     return GMPy_Number_##NAME(other, context); \
-}
-
-#define GMPY_MPFR_MPC_BINOP_TEMPLATE(NAME, FUNC) \
-static PyObject * \
-GMPy_Number_##NAME(PyObject *x, PyObject * y, CTXT_Object *context) \
-{ \
-    if (IS_REAL(x) && IS_REAL(y)) \
-        return GMPy_Real_##NAME(x, y, context); \
-    if (IS_COMPLEX(x) && IS_COMPLEX(y)) \
-        return GMPy_Complex_##NAME(x, y, context); \
-    TYPE_ERROR(#FUNC"() argument type not supported"); \
-    return NULL; \
-} \
-static PyObject * \
-GMPy_Context_##NAME(PyObject *self, PyObject *args) \
-{ \
-    CTXT_Object *context = NULL; \
-    if (PyTuple_GET_SIZE(args) != 2) { \
-        TYPE_ERROR(#FUNC"() requires 2 arguments"); \
-        return NULL; \
-    } \
-    if (self && CTXT_Check(self)) { \
-        context = (CTXT_Object*)self; \
-    } \
-    else { \
-        CHECK_CONTEXT(context); \
-    } \
-    return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context); \
-}
-
-#define GMPY_MPFR_MPC_BINOP_TEMPLATE_EX(NAME, FUNC) \
-static PyObject * \
-GMPy_Number_##NAME(PyObject *x, PyObject * y, CTXT_Object *context) \
-{ \
-    if (MPFR_Check(x) && MPFR_Check(y)) \
-        return _GMPy_MPFR_##NAME(x, y, context); \
-    if (MPC_Check(x) && MPC_Check(y)) \
-        return _GMPy_MPC_##NAME(x, y, context); \
-    if (IS_REAL(x) && IS_REAL(y)) \
-        return GMPy_Real_##NAME(x, y, context); \
-    if (IS_COMPLEX(x) && IS_COMPLEX(y)) \
-        return GMPy_Complex_##NAME(x, y, context); \
-    TYPE_ERROR(#FUNC"() argument type not supported"); \
-    return NULL; \
-} \
-static PyObject * \
-GMPy_Context_##NAME(PyObject *self, PyObject *args) \
-{ \
-    CTXT_Object *context = NULL; \
-    if (PyTuple_GET_SIZE(args) != 2) { \
-        TYPE_ERROR(#FUNC"() requires 2 arguments"); \
-        return NULL; \
-    } \
-    if (self && CTXT_Check(self)) { \
-        context = (CTXT_Object*)self; \
-    } \
-    else { \
-        CHECK_CONTEXT(context); \
-    } \
-    return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context); \
 }
 
 #define GMPY_MPFR_MPC_TRIOP_TEMPLATE(NAME, FUNC) \
@@ -658,7 +592,7 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
 
 /* Macro to support functions that require ('mpfr', 'int').
  * More precisely, the first argument must pass IS_REAL() and the second
- * argument must be a Python integer. */
+ * argument must pass IS_INTEGER(). */
 
 #define GMPY_MPFR_BINOP_REAL_ULONG(NAME, FUNC) \
 static PyObject * \
@@ -669,8 +603,8 @@ GMPy_Real_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
     CHECK_CONTEXT(context); \
     result = GMPy_MPFR_New(0, context); \
     tempx = GMPy_MPFR_From_Real(x, 1, context); \
-    n = PyLong_AsUnsignedLong(y); \
-    if (!result || !tempx || (n == ULONG_MAX && PyErr_Occurred())) { \
+    n = c_ulong_From_Integer(y); \
+    if (!result || !tempx || (n == (unsigned long)(-1) && PyErr_Occurred())) { \
         Py_XDECREF((PyObject*)tempx); \
         Py_XDECREF((PyObject*)result); \
         return NULL; \
@@ -708,7 +642,7 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
 
 /* Macro to support functions that require ('mpfr', 'int').
  * More precisely, the first argument must pass IS_REAL() and the second
- * argument must be a Python integer. The calling sequence passes n first
+ * argument must pass IS_INTEGER(). The calling sequence passes n first
  * to the MPFR library.*/
 
 #define GMPY_MPFR_BINOP_REAL_LONG(NAME, FUNC) \
@@ -720,13 +654,10 @@ GMPy_Real_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
     CHECK_CONTEXT(context); \
     result = GMPy_MPFR_New(0, context); \
     tempx = GMPy_MPFR_From_Real(x, 1, context); \
-    n = PyIntOrLong_AsLong(y); \
+    n = c_long_From_Integer(y); \
     if (!result || !tempx || (n == -1 && PyErr_Occurred())) { \
         Py_XDECREF((PyObject*)tempx); \
         Py_XDECREF((PyObject*)result); \
-        if (n == -1) { \
-            VALUE_ERROR("n must be >= 0"); \
-        } \
         return NULL; \
     } \
     mpfr_clear_flags(); \
@@ -907,47 +838,4 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
         CHECK_CONTEXT(context); \
     } \
     return GMPy_Number_##NAME(context); \
-} \
-
-/* The following legacy macros should be removed in the future. */
-
-#define MPFR_MONOP(NAME) \
-static PyObject * \
-Py##NAME(MPFR_Object *x) \
-{ \
-    MPFR_Object *r; \
-    CTXT_Object *context = NULL; \
-    CHECK_CONTEXT_SET_EXPONENT(context); \
-    if (!(r = GMPy_MPFR_New(0, context))) \
-        return NULL; \
-    if (MPFR_Check(x)) { \
-        r->rc = NAME(r->f, x->f, context->ctx.mpfr_round); \
-    } \
-    else { \
-        mpfr_set(r->f, x->f, context->ctx.mpfr_round); \
-        r->round_mode = x->round_mode; \
-        r->rc = x->rc; \
-        mpfr_clear_flags(); \
-        mpfr_check_range(r->f, r->rc, r->round_mode); \
-        r->rc = NAME(r->f, r->f, context->ctx.mpfr_round); \
-        MERGE_FLAGS; \
-        CHECK_FLAGS(#NAME "()"); \
-    } \
-  done: \
-    return (PyObject *) r; \
 }
-
-#define MPFR_UNIOP(NAME) \
-static PyObject * \
-Pympfr_##NAME(PyObject* self, PyObject *other) \
-{ \
-    MPFR_Object *result; \
-    CTXT_Object *context = NULL; \
-    CHECK_CONTEXT_SET_EXPONENT(context); \
-    PARSE_ONE_MPFR_OTHER(#NAME "() requires 'mpfr' argument"); \
-    if (!(result = GMPy_MPFR_New(0, context))) goto done; \
-    mpfr_clear_flags(); \
-    result->rc = mpfr_##NAME(result->f, MPFR(self), context->ctx.mpfr_round); \
-    MPFR_CLEANUP_SELF(#NAME "()"); \
-}
-
