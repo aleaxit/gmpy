@@ -348,24 +348,20 @@
  * GMP, MPIR, MPFR, and MPC use typedef to create integer objects with
  * different sizes. It can become confusing to map the different types
  * onto the standard C types used by Python's C API. Below are external
- * types and how the map to C types. The assumptions are verified when
+ * types and how they map to C types. The assumptions are verified when
  * the module is initialized.
  *
  * mp_limb_t: This is usually an 'unsigned long' but is an 'unsigned
  *     long long' on MPIR/64-bit Windows.
  *
  * mp_bitcnt_t: This is usually an 'unsigned long' but is an 'unsigned
- *     long long' on MPIR/64-bit Windows. 'size_t' is probably the best
- *     match since that is the return type of mpz_sizeinbase().
+ *     long long' on MPIR/64-bit Windows. 'size_t' is the best match.
  *
  * mp_size_t: This is a 'long'.
  *
- * mp_exp_t: This is defined by GMP to be a 'long'.
+ * mpfr_rnd_t: This is an 'int'.
  *
- * mpfr_rnd_t: This is an 'int' ???
- *
- * mpfr_prec_t: This can be 'short', 'int', or 'long'. GMPY assumes it
- *     will be a 'long'.
+ * mpfr_prec_t: This is a 'long'.
  *
  * mpfr_sign_t: This is an 'int'.
  *
@@ -889,6 +885,19 @@ PyMODINIT_FUNC initgmpy2(void)
     PyObject *temp = NULL;
 
     /* Validate the sizes of the various typedef'ed integer types. */
+    
+#ifdef _WIN64
+    if (sizeof(size_t) != sizeof(PY_LONG_LONG)) {
+        SYSTEM_ERROR("Size of PY_LONG_LONG and size_t not compatible (WIN64 only)");
+        INITERROR;
+    }
+#else
+    if (sizeof(size_t) != sizeof(long)) {
+        SYSTEM_ERROR("Size of long and size_t not compatible");
+        INITERROR;
+    }
+#endif
+        
     if (sizeof(mp_bitcnt_t) != sizeof(size_t)) {
         SYSTEM_ERROR("Size of mp_bitcnt_t and size_t not compatible");
         INITERROR;

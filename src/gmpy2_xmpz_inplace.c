@@ -243,7 +243,7 @@ GMPy_XMPZ_IRshift_Slot(PyObject *self, PyObject *other)
     mp_bitcnt_t shift;
 
     if (IS_INTEGER(other)) {
-        shift = PyIntOrLong_As_mp_bitcnt_t(other);
+        shift = mp_bitcnt_t_From_Integer(other);
         if (shift == (mp_bitcnt_t)-1 && PyErr_Occurred())
             return NULL;
 
@@ -264,7 +264,7 @@ GMPy_XMPZ_ILshift_Slot(PyObject *self, PyObject *other)
     mp_bitcnt_t shift;
 
     if (IS_INTEGER(other)) {
-        shift = PyIntOrLong_As_mp_bitcnt_t(other);
+        shift = mp_bitcnt_t_From_Integer(other);
         if (shift == (mp_bitcnt_t)-1 && PyErr_Occurred())
             return NULL;
 
@@ -284,7 +284,7 @@ GMPy_XMPZ_IPow_Slot(PyObject *self, PyObject *other, PyObject *mod)
 {
     mp_bitcnt_t exp;
 
-    exp = PyIntOrLong_As_mp_bitcnt_t(other);
+    exp = mp_bitcnt_t_From_Integer(other);
     if (exp == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
         PyErr_Clear();
         Py_RETURN_NOTIMPLEMENTED;

@@ -105,7 +105,7 @@ GMPy_MPZ_urandomb_Function(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    len = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 1));
+    len = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (len == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
         TYPE_ERROR("mpz_urandomb() requires 'random_state' and 'bit_count' arguments");
         return NULL;
@@ -139,7 +139,7 @@ GMPy_MPZ_rrandomb_Function(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    len = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 1));
+    len = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (len == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
         TYPE_ERROR("mpz_rrandomb() requires 'random_state' and 'bit_count' arguments");
         return NULL;
