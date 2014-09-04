@@ -46,6 +46,20 @@ static PY_LONG_LONG          GMPy_Integer_AsLongLongAndError(PyObject *vv, int *
 static unsigned PY_LONG_LONG GMPy_Integer_AsUnsignedLongLongAndError(PyObject *vv, int *error);
 #endif
 
+/* Support conversion to/from mp_bitcnt_t. */
+
+#ifndef _WIN64
+#define mp_bitcnt_t_From_Integer c_ulong_From_Integer
+#else
+#define mp_bitcnt_t_From_Integer c_ulonglong_From_Integer
+#endif
+
+#ifdef PY2
+#define PyIntOrLong_From_mp_bitcnt_t PyInt_FromSize_t
+#else
+#define PyIntOrLong_From_mp_bitcnt_t PyLong_FromSize_t
+#endif
+
 #ifdef __cplusplus
 }
 #endif

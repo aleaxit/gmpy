@@ -251,7 +251,7 @@ c_ulong_From_Integer(PyObject *obj)
 /* The follow code is only used on Windows x64 platform. We check for _WIN64
  * but we then assume the PY_LONG_LONG is defined.
  */
- 
+
 #ifdef _WIN64
 
 #define PY_ABS_LLONG_MIN (0-(unsigned PY_LONG_LONG)PY_LLONG_MIN)

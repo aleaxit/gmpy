@@ -38,7 +38,7 @@ GMPy_MPZ_bit_length_method(PyObject *self, PyObject *other)
     if (mpz_size(MPZ(self)))
         n = mpz_sizeinbase(MPZ(self), 2);
 
-    return PyIntOrLong_FromSize_t((size_t)n);
+    return PyIntOrLong_From_mp_bitcnt_t(n);
 }
 
 PyDoc_STRVAR(doc_bit_length_function,
@@ -60,7 +60,7 @@ GMPy_MPZ_bit_length_function(PyObject *self, PyObject *other)
         n = mpz_sizeinbase(tempx->z, 2);
 
     Py_DECREF((PyObject*)tempx);
-    return PyIntOrLong_FromSize_t((size_t)n);
+    return PyIntOrLong_From_mp_bitcnt_t(n);
 }
 
 PyDoc_STRVAR(doc_bit_mask,
@@ -73,7 +73,7 @@ GMPy_MPZ_bit_mask(PyObject *self, PyObject *other)
     mp_bitcnt_t n = 0;
     MPZ_Object* result;
 
-    n = PyIntOrLong_As_mp_bitcnt_t(other);
+    n = mp_bitcnt_t_From_Integer(other);
     if (n == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
         return NULL;
     }
@@ -102,7 +102,7 @@ GMPy_MPZ_bit_scan0_method(PyObject *self, PyObject *args)
     mp_bitcnt_t index, starting_bit = 0;
 
     if (PyTuple_GET_SIZE(args) == 1) {
-        starting_bit = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 0));
+        starting_bit = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 0));
         if (starting_bit == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
             return NULL;
         }
@@ -114,7 +114,7 @@ GMPy_MPZ_bit_scan0_method(PyObject *self, PyObject *args)
         Py_RETURN_NONE;
     }
     else {
-        return PyIntOrLong_FromSize_t(index);
+        return PyIntOrLong_From_mp_bitcnt_t(index);
     }
 }
 
@@ -140,7 +140,7 @@ GMPy_MPZ_bit_scan0_function(PyObject *self, PyObject *args)
     }
 
     if (PyTuple_GET_SIZE(args) == 2) {
-        starting_bit = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 1));
+        starting_bit = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
         if (starting_bit == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
             goto err_index;
         }
@@ -153,7 +153,7 @@ GMPy_MPZ_bit_scan0_function(PyObject *self, PyObject *args)
         Py_RETURN_NONE;
     }
     else {
-        return PyIntOrLong_FromSize_t(index);
+        return PyIntOrLong_From_mp_bitcnt_t(index);
     }
 
   err:
@@ -176,7 +176,7 @@ GMPy_MPZ_bit_scan1_method(PyObject *self, PyObject *args)
     mp_bitcnt_t index, starting_bit = 0;
 
     if (PyTuple_GET_SIZE(args) == 1) {
-        starting_bit = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 0));
+        starting_bit = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 0));
         if (starting_bit == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
             return NULL;
         }
@@ -188,7 +188,7 @@ GMPy_MPZ_bit_scan1_method(PyObject *self, PyObject *args)
         Py_RETURN_NONE;
     }
     else {
-        return PyIntOrLong_FromSize_t(index);
+        return PyIntOrLong_From_mp_bitcnt_t(index);
     }
 }
 
@@ -214,7 +214,7 @@ GMPy_MPZ_bit_scan1_function(PyObject *self, PyObject *args)
     }
 
     if (PyTuple_GET_SIZE(args) == 2) {
-        starting_bit = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 1));
+        starting_bit = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
         if (starting_bit == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
             goto err_index;
         }
@@ -227,7 +227,7 @@ GMPy_MPZ_bit_scan1_function(PyObject *self, PyObject *args)
         Py_RETURN_NONE;
     }
     else {
-        return PyIntOrLong_FromSize_t(index);
+        return PyIntOrLong_From_mp_bitcnt_t(index);
     }
 
   err:
@@ -257,7 +257,7 @@ GMPy_MPZ_bit_test_function(PyObject *self, PyObject *args)
         goto err;
     }
 
-    bit_index = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 1));
+    bit_index = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (bit_index == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
         goto err_index;
     }
@@ -286,7 +286,7 @@ GMPy_MPZ_bit_test_method(PyObject *self, PyObject *other)
 {
     mp_bitcnt_t bit_index;
 
-    bit_index = PyIntOrLong_As_mp_bitcnt_t(other);
+    bit_index = mp_bitcnt_t_From_Integer(other);
     if (bit_index == (mp_bitcnt_t)-1 && PyErr_Occurred()) {
         return NULL;
     }
@@ -316,7 +316,7 @@ GMPy_MPZ_bit_clear_function(PyObject *self, PyObject *args)
     if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)))
         goto err;
 
-    bit_index = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 1));
+    bit_index = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (bit_index == (mp_bitcnt_t)-1 && PyErr_Occurred())
         goto err_index;
 
@@ -347,7 +347,7 @@ GMPy_MPZ_bit_clear_method(PyObject *self, PyObject *other)
     if (!(result = GMPy_MPZ_New(NULL)))
         return NULL;
 
-    bit_index = PyIntOrLong_As_mp_bitcnt_t(other);
+    bit_index = mp_bitcnt_t_From_Integer(other);
     if (bit_index == (mp_bitcnt_t)-1 && PyErr_Occurred())
         return NULL;
 
@@ -375,7 +375,7 @@ GMPy_MPZ_bit_set_function(PyObject *self, PyObject *args)
     if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)))
         goto err;
 
-    bit_index = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 1));
+    bit_index = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (bit_index == (mp_bitcnt_t)-1 && PyErr_Occurred())
         goto err_index;
 
@@ -406,7 +406,7 @@ GMPy_MPZ_bit_set_method(PyObject *self, PyObject *other)
     if (!(result = GMPy_MPZ_New(NULL)))
         return NULL;
 
-    bit_index = PyIntOrLong_As_mp_bitcnt_t(other);
+    bit_index = mp_bitcnt_t_From_Integer(other);
     if (bit_index == (mp_bitcnt_t)-1 && PyErr_Occurred())
         return NULL;
 
@@ -434,7 +434,7 @@ GMPy_MPZ_bit_flip_function(PyObject *self, PyObject *args)
     if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)))
         goto err;
 
-    bit_index = PyIntOrLong_As_mp_bitcnt_t(PyTuple_GET_ITEM(args, 1));
+    bit_index = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (bit_index == (mp_bitcnt_t)-1 && PyErr_Occurred())
         goto err_index;
 
@@ -462,7 +462,7 @@ GMPy_MPZ_bit_flip_method(PyObject *self, PyObject *other)
     if (!(result = GMPy_MPZ_New(NULL)))
         return NULL;
 
-    bit_index = PyIntOrLong_As_mp_bitcnt_t(other);
+    bit_index = mp_bitcnt_t_From_Integer(other);
     if (bit_index == (mp_bitcnt_t)-1 && PyErr_Occurred())
         return NULL;
 
@@ -572,7 +572,7 @@ GMPy_MPZ_Rshift_Slot(PyObject *self, PyObject *other)
     mp_bitcnt_t count;
     MPZ_Object *result, *tempx;
 
-    count = PyIntOrLong_As_mp_bitcnt_t(other);
+    count = mp_bitcnt_t_From_Integer(other);
     if ((count == (mp_bitcnt_t)-1) && PyErr_Occurred())
         return NULL;
 
@@ -602,7 +602,7 @@ GMPy_MPZ_Lshift_Slot(PyObject *self, PyObject *other)
     mp_bitcnt_t count;
     MPZ_Object *result, *tempx;
 
-    count = PyIntOrLong_As_mp_bitcnt_t(other);
+    count = mp_bitcnt_t_From_Integer(other);
     if ((count == (mp_bitcnt_t)-1) && PyErr_Occurred())
         return NULL;
 
@@ -643,7 +643,7 @@ GMPy_MPZ_popcount(PyObject *self, PyObject *other)
         if (n == (mp_bitcnt_t)-1)
             return PyLong_FromLong(-1);
         else
-            return PyIntOrLong_FromSize_t((size_t)n);
+            return PyIntOrLong_From_mp_bitcnt_t(n);
     }
     else {
         TYPE_ERROR("popcount() requires 'mpz' argument");
@@ -670,7 +670,7 @@ GMPy_MPZ_hamdist(PyObject *self, PyObject *args)
     if (!tempx || !tempy)
         goto err;
 
-    result = PyIntOrLong_FromSize_t((size_t)mpz_hamdist(tempx->z, tempy->z));
+    result = PyIntOrLong_From_mp_bitcnt_t(mpz_hamdist(tempx->z, tempy->z));
     Py_DECREF((PyObject*)tempx);
     Py_DECREF((PyObject*)tempy);
     return result;
