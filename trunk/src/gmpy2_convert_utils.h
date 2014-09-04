@@ -38,6 +38,8 @@ extern "C" {
 
 static long                  GMPy_Integer_AsLongAndError(PyObject *vv, int *error);
 static unsigned long         GMPy_Integer_AsUnsignedLongAndError(PyObject *vv, int *error);
+static long                  c_long_From_Integer(PyObject *obj);
+static unsigned long         c_ulong_From_Integer(PyObject *obj);
 
 #ifdef _WIN64
 static PY_LONG_LONG          GMPy_Integer_AsLongLongAndError(PyObject *vv, int *error);

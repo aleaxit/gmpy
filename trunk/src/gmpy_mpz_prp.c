@@ -250,7 +250,7 @@ GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args)
     MPZ_Object *a, *n;
     PyObject *result = 0;
     mpz_t s, nm1, mpz_test;
-    mpir_ui r = 0;
+    mp_bitcnt_t r = 0;
 
     if (PyTuple_Size(args) != 2) {
         TYPE_ERROR("is_strong_prp() requires 2 integer arguments");
@@ -367,7 +367,7 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
     mpz_t pmodn, zP;
     /* used for calculating the Lucas V sequence */
     mpz_t vl, vh, ql, qh, tmp;
-    size_t s = 0, j = 0;
+    mp_bitcnt_t s = 0, j = 0;
 
     if (PyTuple_Size(args) != 3) {
         TYPE_ERROR("is_fibonacci_prp() requires 3 integer arguments");
@@ -553,7 +553,7 @@ GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args)
     mpz_t zD, res, index;
     /* used for calculating the Lucas U sequence */
     mpz_t uh, vl, vh, ql, qh, tmp;
-    size_t s = 0, j = 0;
+    mp_bitcnt_t s = 0, j = 0;
     int ret;
 
     if (PyTuple_Size(args) != 3) {
@@ -770,9 +770,8 @@ GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
     mpz_t zD, s, nmj, res;
     /* these are needed for the LucasU and LucasV part of this function */
     mpz_t uh, vl, vh, ql, qh, tmp;
-    mpir_ui r = 0;
+    mp_bitcnt_t r = 0, j = 0;
     int ret = 0;
-    mpir_ui j = 0;
 
     if (PyTuple_Size(args) != 3) {
         TYPE_ERROR("is_strong_lucas_prp() requires 3 integer arguments");
@@ -999,9 +998,8 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     mpz_t zD, s, nmj, nm2, res;
     /* these are needed for the LucasU and LucasV part of this function */
     mpz_t uh, vl, vh, ql, qh, tmp;
-    mpir_ui r = 0;
+    mp_bitcnt_t r = 0, j = 0;
     int ret = 0;
-    mpir_ui j = 0;
 
     if (PyTuple_Size(args) != 2) {
         TYPE_ERROR("is_extra_strong_lucas_prp() requires 2 integer arguments");
@@ -1332,7 +1330,7 @@ GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args)
  * mpz_strongselfridge_prp:
  * A "strong Lucas-Selfridge probable prime" n is a "strong Lucas probable prime" using Selfridge parameters of:
  * Find the first element D in the sequence {5, -7, 9, -11, 13, ...} such that Jacobi(D,n) = -1
- * Then use P=1 and Q=(1-D)/4 in the strong Lucase probable prime test.
+ * Then use P=1 and Q=(1-D)/4 in the strong Lucas probable prime test.
  * Make sure n is not a perfect square, otherwise the search for D will only stop when D=n.
  * **********************************************************************************************************/
 

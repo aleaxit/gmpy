@@ -66,36 +66,6 @@ typedef unsigned long Py_uhash_t;
 #  define _PyHASH_IMAG 1000003
 #endif
 
-/* To support optimized conversion between PyLong and C long arguments, we
- * define DIGITS_PER_LONG as the number of PyLong "digits" that can be stored
- * in a single C long. The optimized conversions do not attempt to convert all
- * valid PyLong to a C long but just most of them. If you want to convert all
- * valid values to a C long, then use PyLong_As... functions.
- *
- * Since a "digit" uses either 15 or 30 bits, and a C long is either 32 or 64
- * bits, DIGITS_PER_LONG will be either 1, 2, or 4. See mpz_add.c for the
- * reference implementation of the fast conversion.
- */
-
-#if (PyLong_SHIFT == 15)
-    #if (LONG_BIT == 32)
-    #define DIGITS_PER_LONG 2
-    #elif (LONG_BIT == 64)
-    #define DIGITS_PER_LONG 4
-    #endif
-#elif (PyLong_SHIFT == 30)
-    #if (LONG_BIT == 32)
-    #define DIGITS_PER_LONG 1
-    #elif (LONG_BIT == 64)
-    #define DIGITS_PER_LONG 2
-    #endif
-#endif
-
-#ifndef DIGITS_PER_LONG
-    #error "No valid combination of PyLong_SHIFT and LONG_BIT could be found."
-#endif
-
-
 /* Define various macros to deal with differences between Python 2 and 3. */
 
 #if (PY_MAJOR_VERSION == 3)
@@ -149,30 +119,6 @@ typedef unsigned long Py_uhash_t;
 #  define isinf !_finite
 #  define USE_ALLOCA 1
 #  define inline __inline
-#endif
-
-/* MPIR 2.6 introduce new data types - MPIR_UI and MPIR_SI - that correspond
- * to the "optimal" integer type for pass values to GMP/MPIR. On almost all
- * systems, these types correspond to "unsigned long" and "long". But on
- * 64-bit Windows, these types correspond to "unsigned long long" and
- * "long long".
- */
-
-#ifndef BITS_PER_UI
-/* Assume we are NOT using MPIR > 2.5. */
-#define BITS_PER_UI         BITS_PER_ULONG
-typedef unsigned long       mpir_ui;
-typedef long                mpir_si;
-#define mpz_fits_si_p       mpz_fits_slong_p
-#define mpz_fits_ui_p       mpz_fits_ulong_p
-#endif
-
-#ifdef _WIN64
-#define PyIntOrLong_FromSI        PyLong_FromLongLong
-#define PyIntOrLong_AsSI          PyLong_AsLongLong
-#else
-#define PyIntOrLong_FromSI        PyIntOrLong_FromLong
-#define PyIntOrLong_AsSI          PyIntOrLong_AsLong
 #endif
 
 #ifdef __GNUC__

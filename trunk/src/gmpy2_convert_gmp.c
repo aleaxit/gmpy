@@ -442,77 +442,6 @@ GMPy_XMPZ_Repr_Slot(XMPZ_Object *self)
  * Conversion between Integer objects and C types.                          *
  * ======================================================================== */
 
-/* Convert an Integer-like object (as determined by isInteger) to a
- * C long or C unsigned long.
- */
-
-static long
-clong_From_Integer(PyObject *obj)
-{
-    if (PyIntOrLong_Check(obj)) {
-        return PyLong_AsLong(obj);
-    }
-    else if (CHECK_MPZANY(obj)) {
-        if (mpz_fits_slong_p(MPZ(obj))) {
-            return (long)mpz_get_si(MPZ(obj));
-        }
-        else {
-            OVERFLOW_ERROR("overflow when converting to C long");
-            return -1;
-        }
-    }
-    TYPE_ERROR("cannot convert object to C long");
-    return -1;
-}
-
-/*
- * Convert an Integer-like object (as determined by isInteger) to
- * a mpir_si. On all platforms except 64-bit Windows, mpir_si is the same
- * as a C long. Returns -1 and raises OverflowError if the the number is
- * too large. Returns -1 and raises TypeError if obj was not an
- * Integer-like object.
- */
-
-#ifdef _WIN64
-
-/* Working with C long long. Can also assume using > MPIR 2.5. */
-
-static mpir_ui
-UI_From_Integer(PyObject *obj)
-{
-    if (PyLong_Check(obj)) {
-        /* Returns an OverflowError for negative values. */
-        return PyLong_AsUnsignedLongLong(obj);
-    }
-#ifdef PY2
-    else if (PyInt_Check(obj)) {
-        long temp = PyInt_AsLong(obj);
-        /* Create an OverflowError for negative values. */
-        if (temp < 0) {
-            OVERFLOW_ERROR("can't convert negative value to unsigned int");
-            return (mpir_ui)-1;
-        }
-        return (mpir_ui)temp;
-    }
-#endif
-    else if (CHECK_MPZANY(obj)) {
-        if (mpz_fits_ui_p(MPZ(obj))) {
-            return mpz_get_ui(MPZ(obj));
-        }
-        else {
-            OVERFLOW_ERROR("overflow in UI_From_Integer");
-            return (mpir_ui)-1;
-        }
-    }
-    TYPE_ERROR("conversion error in UI_From_Integer");
-    return (mpir_ui)-1;
-}
-
-#define MP_BITCNT_FROM_INTEGER(obj) UI_From_Integer(obj)
-#define PyLong_AsSIAndOverflow(a,b) PyLong_AsLongLongAndOverflow(a,b)
-
-#endif
-
 /*
  * Convert an Integer-like object (as determined by isInteger) to
  * a Py_ssize_t. Returns -1 and raises OverflowError if the the number is
@@ -990,7 +919,7 @@ GMPy_MPQ_From_DecimalRaw(PyObject* obj, CTXT_Object *context)
 {
     MPQ_Object *result;
     PyObject *d_exp, *d_int, *d_sign, *d_is_special;
-    mpir_si exp;
+    long exp;
     const char *string;
 
     if (!(result = GMPy_MPQ_New(context)))
@@ -1028,16 +957,16 @@ GMPy_MPQ_From_DecimalRaw(PyObject* obj, CTXT_Object *context)
         goto error;
     }
     
-    exp = PyIntOrLong_AsSI(d_exp);
+    exp = PyIntOrLong_AsLong(d_exp);
     if (exp == -1 && PyErr_Occurred()) {
         SYSTEM_ERROR("Decimal _exp is not valid or overflow occurred");
         goto error;
     }
 
     if (exp <= 0)
-        mpz_ui_pow_ui(mpq_denref(result->q), 10, (mpir_ui)(-exp));
+        mpz_ui_pow_ui(mpq_denref(result->q), 10, (unsigned long)(-exp));
     else {
-        mpz_ui_pow_ui(mpq_denref(result->q), 10, (mpir_ui)(exp));
+        mpz_ui_pow_ui(mpq_denref(result->q), 10, (unsigned long)(exp));
         mpz_mul(mpq_numref(result->q), mpq_numref(result->q), mpq_denref(result->q));
         mpz_set_si(mpq_denref(result->q), 1);
     }
