@@ -72,7 +72,7 @@ static PyTypeObject MPFR_Type;
 #define GMPY_MPFR_CHECK_RANGE(V, CTX) \
     if (mpfr_regular_p(V->f) && \
         (!((V->f->_mpfr_exp >= CTX->ctx.emin) && \
-           (V->f->_mpfr_exp <= CTX->ctx.emax)))) { \
+            (V->f->_mpfr_exp <= CTX->ctx.emax)))) { \
         mpfr_exp_t _oldemin, _oldemax; \
         _oldemin = mpfr_get_emin(); \
         _oldemax = mpfr_get_emax(); \

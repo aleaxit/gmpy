@@ -393,14 +393,6 @@
 #include <stdio.h>
 #include <ctype.h>
 
-/* Include functions missing from the Python 2.6 C-API that are included
- * in later versions of Python.
- */
-
-#if ((PY_VERSION_HEX < 0x02070000) || ((PY_MAJOR_VERSION == 3) && (PY_MINOR_VERSION < 2)))
-#include "py3intcompat.c"
-#endif
-
 #include "gmpy2.h"
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
