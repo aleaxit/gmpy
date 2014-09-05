@@ -47,7 +47,8 @@ PyDoc_STRVAR(doc_pack,
 static PyObject *
 GMPy_MPZ_pack(PyObject *self, PyObject *args)
 {
-    Py_ssize_t nbits, total_bits, index, lst_count, i, temp_bits, limb_count, tempx_bits;
+    mp_bitcnt_t nbits, total_bits, tempx_bits;
+    Py_ssize_t index, lst_count, i, temp_bits, limb_count;
     PyObject *lst;
     mpz_t temp;
     MPZ_Object *result, *tempx = 0;
@@ -58,14 +59,8 @@ GMPy_MPZ_pack(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 1));
+    nbits = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("pack() requires 'list','int' arguments");
-        return NULL;
-    }
-
-    if (nbits <= 0) {
-        VALUE_ERROR("pack() requires n > 0");
         return NULL;
     }
 
@@ -80,6 +75,11 @@ GMPy_MPZ_pack(PyObject *self, PyObject *args)
     lst = PyTuple_GET_ITEM(args, 0);
     lst_count = PyList_GET_SIZE(lst);
     total_bits = nbits * lst_count;
+
+    if ((total_bits / lst_count) != nbits) {
+        VALUE_ERROR("result too large to store in an 'mpz'");
+        return NULL;
+    }
 
     mpz_set_ui(result->z, 0);
     mpz_setbit(result->z, total_bits + (mp_bits_per_limb * 2));
@@ -135,8 +135,8 @@ PyDoc_STRVAR(doc_unpack,
 static PyObject *
 GMPy_MPZ_unpack(PyObject *self, PyObject *args)
 {
-    Py_ssize_t nbits, total_bits, index = 0, lst_count, i, temp_bits = 0, extra_bits = 0;
-    Py_ssize_t guard_bit, lst_ptr = 0;
+    mp_bitcnt_t nbits, total_bits, guard_bit, extra_bits, temp_bits;
+    Py_ssize_t index = 0, lst_count, i, lst_ptr = 0;
     PyObject *result;
     mpz_t temp;
     mp_limb_t extra = 0;
@@ -148,14 +148,8 @@ GMPy_MPZ_unpack(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 1));
+    nbits = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (nbits == -1 && PyErr_Occurred()) {
-        TYPE_ERROR("unpack() requires 'int','int' arguments");
-        return NULL;
-    }
-
-    if (nbits <= 0) {
-        VALUE_ERROR("unpack() requires n > 0");
         return NULL;
     }
 
@@ -169,10 +163,17 @@ GMPy_MPZ_unpack(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    total_bits = mpz_sizeinbase(tempx->z, 2) * mpz_sgn(tempx->z);
+    if (mpz_sgn(tempx->z) == 0) {
+        total_bits = 0;
+    }
+    else {
+        total_bits = mpz_sizeinbase(tempx->z, 2);
+    }
+    
     lst_count = total_bits / nbits;
-    if ((total_bits % nbits) || !lst_count)
+    if ((total_bits % nbits) || !lst_count) {
         lst_count += 1;
+    }
 
     if (!(result = PyList_New(lst_count))) {
         Py_DECREF((PyObject*)tempx);
@@ -193,7 +194,9 @@ GMPy_MPZ_unpack(PyObject *self, PyObject *args)
 
     mpz_inoc(temp);
     guard_bit = nbits + (2 * mp_bits_per_limb);
-
+    extra_bits = 0;
+    index = 0;
+    
     while (lst_ptr < lst_count) {
         i = 0;
         temp_bits = 0;
