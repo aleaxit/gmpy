@@ -568,22 +568,14 @@ GMPy_MPZ_Function_Fac(PyObject *self, PyObject *other)
 {
     MPZ_Object *result = NULL;
     unsigned long n;
-    int error;
 
-    n = GMPy_Integer_AsUnsignedLongAndError(other, &error);
-    if (!error) {
-        if ((result = GMPy_MPZ_New(NULL))) {
-            mpz_fac_ui(result->z, n);
-        }
+    n = c_ulong_From_Integer(other);
+    if (n == (unsigned long)(-1) && PyErr_Occurred()) {
+        return NULL;
     }
-    else if (error == 2) {
-        TYPE_ERROR("fac() requires integer argument");
-    }
-    else if (error == 1) {
-        OVERFLOW_ERROR("value too large to convert to long");
-    }
-    else if (error < 0) {
-        VALUE_ERROR("fac() requires positive argument");
+    
+    if ((result = GMPy_MPZ_New(NULL))) {
+        mpz_fac_ui(result->z, n);
     }
     return (PyObject*)result;
 }
@@ -598,22 +590,14 @@ GMPy_MPZ_Function_DoubleFac(PyObject *self, PyObject *other)
 {
     MPZ_Object *result = NULL;
     unsigned long n;
-    int error;
 
-    n = GMPy_Integer_AsUnsignedLongAndError(other, &error);
-    if (!error) {
-        if ((result = GMPy_MPZ_New(NULL))) {
-            mpz_2fac_ui(result->z, n);
-        }
+    n = c_ulong_From_Integer(other);
+    if (n == (unsigned long)(-1) && PyErr_Occurred()) {
+        return NULL;
     }
-    else if (error == 2) {
-        TYPE_ERROR("double_fac() requires integer argument");
-    }
-    else if (error == 1) {
-        OVERFLOW_ERROR("value too large to convert to long");
-    }
-    else if (error < 0) {
-        VALUE_ERROR("double_fac() requires positive argument");
+
+    if ((result = GMPy_MPZ_New(NULL))) {
+        mpz_2fac_ui(result->z, n);
     }
     return (PyObject*)result;
 }
@@ -628,22 +612,14 @@ GMPy_MPZ_Function_Primorial(PyObject *self, PyObject *other)
 {
     MPZ_Object *result = NULL;
     unsigned long n;
-    int error;
 
-    n = GMPy_Integer_AsUnsignedLongAndError(other, &error);
-    if (!error) {
-        if ((result = GMPy_MPZ_New(NULL))) {
-            mpz_primorial_ui(result->z, n);
-        }
+    n = c_ulong_From_Integer(other);
+    if (n == (unsigned long)(-1) && PyErr_Occurred()) {
+        return NULL;
     }
-    else if (error == 2) {
-        TYPE_ERROR("primorial() requires integer argument");
-    }
-    else if (error == 1) {
-        OVERFLOW_ERROR("value too large to convert to long");
-    }
-    else if (error < 0) {
-        VALUE_ERROR("primorial() requires positive argument");
+    
+    if ((result = GMPy_MPZ_New(NULL))) {
+        mpz_primorial_ui(result->z, n);
     }
     return (PyObject*)result;
 }
@@ -658,30 +634,25 @@ GMPy_MPZ_Function_MultiFac(PyObject *self, PyObject *args)
 {
     MPZ_Object *result = NULL;
     unsigned long n, m;
-    int err1, err2;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("multi_fac() requires 2 integer arguments");
         return NULL;
     }
 
-    n = GMPy_Integer_AsUnsignedLongAndError(PyTuple_GET_ITEM(args, 0), &err1);
-    m = GMPy_Integer_AsUnsignedLongAndError(PyTuple_GET_ITEM(args, 1), &err2);
-    if (!err1 && !err2) {
-        if ((result = GMPy_MPZ_New(NULL))) {
-            mpz_mfac_uiui(result->z, n, m);
-        }
+    n = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 0));
+    if (n == (unsigned long)(-1) && PyErr_Occurred()) {
+        return NULL;
     }
-    else if (err1 == 2 || err2 == 2) {
-        TYPE_ERROR("multi_fac() requires 2 integer arguments");
-    }
-    else if (err1 == 1 || err2 == 1) {
-        OVERFLOW_ERROR("value too large to convert to long");
-    }
-    else if (err1 < 0 || err2 < 0) {
-        VALUE_ERROR("multi_fac() requires positive arguments");
+    
+    m = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 1));
+    if (m == (unsigned long)(-1) && PyErr_Occurred()) {
+        return NULL;
     }
 
+    if ((result = GMPy_MPZ_New(NULL))) {
+        mpz_mfac_uiui(result->z, n, m);
+    }
     return (PyObject*)result;
 }
 
