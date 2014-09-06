@@ -244,7 +244,7 @@ c_ulong_From_Integer(PyObject *obj)
         else if (error < 0) {
             VALUE_ERROR("a non-negative value is required");
         }
-        return (unsigned long)-1;
+        return (unsigned long)(-1);
     }
 }
 
@@ -426,7 +426,7 @@ c_ulonglong_From_Integer(PyObject *obj)
         else if (error < 0) {
             VALUE_ERROR("a non-negative value is required");
         }
-        return (unsigned PY_LONG_LONG)-1;
+        return (unsigned PY_LONG_LONG)(-1);
     }
 }
 

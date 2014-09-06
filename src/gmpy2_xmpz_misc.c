@@ -399,7 +399,7 @@ GMPy_Iter_Next(GMPy_Iter_Object *self) {
                 PyErr_SetNone(PyExc_StopIteration);
             else {
                 temp = mpz_scan1(self->bitmap->z, self->start);
-                if (temp == (mp_bitcnt_t)-1)
+                if (temp == (mp_bitcnt_t)(-1))
                     PyErr_SetNone(PyExc_StopIteration);
                 else {
                     self->start = temp + 1;

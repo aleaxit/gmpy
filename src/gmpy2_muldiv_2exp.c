@@ -34,8 +34,7 @@ GMPy_Real_Mul_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
     CHECK_CONTEXT(context);
 
     exp = c_ulong_From_Integer(y);
-    if (exp == (unsigned long)-1 && PyErr_Occurred()) {
-        VALUE_ERROR("a positive integer n is required");
+    if (exp == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
     
@@ -63,8 +62,7 @@ GMPy_Complex_Mul_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
     CHECK_CONTEXT(context);
 
     exp = c_ulong_From_Integer(y);
-    if (exp == (unsigned long)-1 && PyErr_Occurred()) {
-        VALUE_ERROR("a positive integer n is required");
+    if (exp == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
     
@@ -136,8 +134,7 @@ GMPy_Real_Div_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
     CHECK_CONTEXT(context);
 
     exp = c_ulong_From_Integer(y);
-    if (exp == (unsigned long)-1 && PyErr_Occurred()) {
-        VALUE_ERROR("a positive integer n is required");
+    if (exp == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
     
@@ -165,8 +162,7 @@ GMPy_Complex_Div_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
     CHECK_CONTEXT(context);
 
     exp = c_ulong_From_Integer(y);
-    if (exp == (unsigned long)-1 && PyErr_Occurred()) {
-        VALUE_ERROR("a positive integer n is required");
+    if (exp == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
     

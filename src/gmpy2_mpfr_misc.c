@@ -317,7 +317,6 @@ GMPy_MPFR_set_inf(PyObject *self, PyObject *args)
     if (PyTuple_Size(args) == 1) {
         s = c_long_From_Integer(PyTuple_GET_ITEM(args, 0));
         if (s == -1 && PyErr_Occurred()) {
-            TYPE_ERROR("inf() requires 'int' argument");
             return NULL;
         }
     }
@@ -345,7 +344,6 @@ GMPy_MPFR_set_zero(PyObject *self, PyObject *args)
     if (PyTuple_Size(args) == 1) {
         s = c_long_From_Integer(PyTuple_GET_ITEM(args, 0));
         if (s == -1 && PyErr_Occurred()) {
-            TYPE_ERROR("zero() requires 'int' argument");
             return NULL;
         }
     }
