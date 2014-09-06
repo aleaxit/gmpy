@@ -80,13 +80,6 @@ static PyObject *      GMPy_XMPZ_Repr_Slot(XMPZ_Object *self);
 static PyObject *      GMPy_PyStr_From_XMPZ(XMPZ_Object *self, int base, int option, CTXT_Object *context);
 static MPZ_Object *    GMPy_MPZ_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context);
 
-
-/* ======================================================================== *
- * Conversion between Integer objects and C types.                          *
- * ======================================================================== */
-
-static Py_ssize_t      ssize_t_From_Integer(PyObject *obj);
-
 /* ======================================================================== *
  * Conversion between native Python objects/MPZ/XMPZ and MPQ.               *
  * ======================================================================== */

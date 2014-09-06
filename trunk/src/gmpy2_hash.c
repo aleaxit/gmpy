@@ -164,8 +164,8 @@ _mpfr_hash(mpfr_t f)
     hash = ((hash << exp) & _PyHASH_MODULUS) | hash >> (_PyHASH_BITS - exp);
 
     hash *= sign;
-    if (hash == (Py_uhash_t)-1) {
-        hash = (Py_uhash_t)-2;
+    if (hash == (Py_uhash_t)(-1)) {
+        hash = (Py_uhash_t)(-2);
     }
     return (Py_hash_t)hash;
 #else
@@ -197,16 +197,16 @@ GMPy_MPC_Hash_Slot(MPC_Object *self)
     }
 
     hashreal = (Py_uhash_t)_mpfr_hash(mpc_realref(self->c));
-    if (hashreal == (Py_uhash_t)-1) {
+    if (hashreal == (Py_uhash_t)(-1)) {
         return -1;
     }
     hashimag = (Py_uhash_t)_mpfr_hash(mpc_imagref(self->c));
-    if (hashimag == (Py_uhash_t)-1) {
+    if (hashimag == (Py_uhash_t)(-1)) {
         return -1;
     }
     combined = hashreal + _PyHASH_IMAG * hashimag;
-    if (combined == (Py_uhash_t)-1) {
-        combined = (Py_uhash_t)-2;
+    if (combined == (Py_uhash_t)(-1)) {
+        combined = (Py_uhash_t)(-2);
     }
     self->hash_cache = combined;
     return (Py_hash_t)combined;

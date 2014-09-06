@@ -439,53 +439,6 @@ GMPy_XMPZ_Repr_Slot(XMPZ_Object *self)
 }
 
 /* ======================================================================== *
- * Conversion between Integer objects and C types.                          *
- * ======================================================================== */
-
-/*
- * Convert an Integer-like object (as determined by isInteger) to
- * a Py_ssize_t. Returns -1 and raises OverflowError if the the number is
- * too large. Returns -1 and raises TypeError if obj was not an
- * Integer-like object.
- */
-
-static Py_ssize_t
-ssize_t_From_Integer(PyObject *obj)
-{
-    Py_ssize_t val;
-    PyObject* temp;
-
-    if (PyLong_Check(obj)) {
-        return PyLong_AsSsize_t(obj);
-    }
-#ifdef PY2
-    else if (PyInt_Check(obj)) {
-        return PyInt_AsSsize_t(obj);
-    }
-#endif
-    else if (CHECK_MPZANY(obj)) {
-        if (mpz_fits_slong_p(MPZ(obj))) {
-            return (Py_ssize_t)mpz_get_si(MPZ(obj));
-        }
-        else {
-            /* This section should only be called on Win64. */
-            temp = mpz_get_PyLong(MPZ(obj));
-            if (!temp) {
-                TYPE_ERROR("conversion error in ssize_t_From_Integer");
-                return -1;
-            }
-            else {
-                val = PyLong_AsSsize_t(temp);
-                Py_DECREF(temp);
-                return val;
-            }
-        }
-    }
-    TYPE_ERROR("conversion error in ssize_t_From_Integer");
-    return -1;
-}
-
-/* ======================================================================== *
  * Conversion between native Python objects/MPZ/XMPZ and MPQ.               *
  * ======================================================================== */
 
