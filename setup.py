@@ -12,7 +12,7 @@ def writeln(s):
 # Some operating systems may use a different library directory under the
 # prefix specified by --prefix. It can be changed using the --lib64 option.
 
-lib_path = '/lib'
+lib_path = 'lib'
 
 # Extract the version from MPFR/MPC
 
@@ -113,23 +113,23 @@ class gmpy_build_ext(build_ext):
         mpc_version = (0,0,0)
 
         for adir in search_dirs:
-            lookin = adir + '/include'
+            lookin = os.path.join(adir, 'include')
 
             # For debugging information, uncomment the following lines.
             writeln('looking in: %s' % lookin)
-            writeln('mpfr.h found: %s' % os.path.isfile(lookin + '/mpfr.h'))
-            writeln('mpfr.h version %s' % repr(get_mpfr_version(lookin + '/mpfr.h')))
-            writeln('mpc.h found: %s' % os.path.isfile(lookin + '/mpc.h'))
-            writeln('mpc.h version %s' % repr(get_mpc_version(lookin + '/mpc.h')))
+            writeln('mpfr.h found: %s' % os.path.isfile(os.path.join(lookin, 'mpfr.h')))
+            writeln('mpfr.h version %s' % repr(get_mpfr_version(os.path.join(lookin, 'mpfr.h'))))
+            writeln('mpc.h found: %s' % os.path.isfile(os.path.join(lookin, 'mpc.h')))
+            writeln('mpc.h version %s' % repr(get_mpc_version(os.path.join(lookin, 'mpc.h'))))
 
-            if os.path.isfile(lookin + '/mpfr.h'):
-                v = get_mpfr_version(lookin + '/mpfr.h')
+            if os.path.isfile(os.path.join(lookin, 'mpfr.h')):
+                v = get_mpfr_version(os.path.join(lookin, 'mpfr.h'))
                 if v >= mpfr_version:
                     mpfr_found = adir
                     mpfr_version = v
 
-            if os.path.isfile(lookin + '/mpc.h'):
-                v = get_mpc_version(lookin + '/mpc.h')
+            if os.path.isfile(os.path.join(lookin, 'mpc.h')):
+                v = get_mpc_version(os.path.join(lookin, 'mpc.h'))
                 if v >= mpc_version:
                     mpc_found = adir
                     mpc_version = v
@@ -162,12 +162,12 @@ class gmpy_build_ext(build_ext):
                 continue
             if adir in base_dir:
                 continue
-            if adir + '/include' in self.extensions[0].include_dirs:
+            if os.path.join(adir, 'include') in self.extensions[0].include_dirs:
                 continue
-            self.extensions[0].include_dirs += [adir + '/include']
-            self.extensions[0].library_dirs += [adir + lib_path]
+            self.extensions[0].include_dirs += [os.path.join(adir, 'include')]
+            self.extensions[0].library_dirs += [os.path.join(adir, lib_path)]
             if not windows and adir not in base_dir:
-                self.extensions[0].runtime_library_dirs += [adir + lib_path]
+                self.extensions[0].runtime_library_dirs += [os.path.join(adir, lib_path)]
 
         # If the instance of Python used to compile gmpy2 not found in 'prefix',
         # then specify the Python shared library to use.
@@ -280,6 +280,7 @@ for token in sys.argv[:]:
     if token.lower() == '--msys2':
         msys2 = True
         mplib = 'gmp'
+        static = True
         defines.append( ('MSYS2', 1) )
         sys.argv.remove(token)
 
@@ -354,19 +355,19 @@ if mplib == 'mpir':
     defines.append( ('MPIR', None) )
     libs = ['mpir']
     if static:
-        extras.append(prefix + lib_path + '/libmpir.a')
+        extras.append(os.path.join(prefix, lib_path, 'libmpir.a'))
 else:
     libs = ['gmp']
     if static:
-        extras.append(prefix + lib_path + '/libgmp.a')
+        extras.append(os.path.join(prefix, lib_path, 'libgmp.a'))
 
 libs.append('mpfr')
 if static:
-    extras.append(prefix + lib_path + '/libmpfr.a')
+    extras.append(os.path.join(prefix, lib_path, 'libmpfr.a'))
 
 libs.append('mpc')
 if static:
-    extras.append(prefix + lib_path + '/libmpc.a')
+    extras.append(os.path.join(prefix, lib_path, 'libmpc.a'))
 
 # decomment next line (w/gcc, only!) to support gcov
 #   os.environ['CFLAGS'] = '-fprofile-arcs -ftest-coverage -O0'
@@ -376,7 +377,7 @@ if static:
 my_commands = {'clean' : gmpy_clean, 'build_ext' : gmpy_build_ext}
 
 gmpy2_ext = Extension('gmpy2',
-                      sources=['src/gmpy2.c'],
+                      sources=[os.path.join('src', 'gmpy2.c')],
                       include_dirs=incdirs,
                       library_dirs=libdirs,
                       libraries=libs,
