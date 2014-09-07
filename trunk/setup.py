@@ -116,11 +116,11 @@ class gmpy_build_ext(build_ext):
             lookin = os.path.join(adir, 'include')
 
             # For debugging information, uncomment the following lines.
-            writeln('looking in: %s' % lookin)
-            writeln('mpfr.h found: %s' % os.path.isfile(os.path.join(lookin, 'mpfr.h')))
-            writeln('mpfr.h version %s' % repr(get_mpfr_version(os.path.join(lookin, 'mpfr.h'))))
-            writeln('mpc.h found: %s' % os.path.isfile(os.path.join(lookin, 'mpc.h')))
-            writeln('mpc.h version %s' % repr(get_mpc_version(os.path.join(lookin, 'mpc.h'))))
+            # writeln('looking in: %s' % lookin)
+            # writeln('mpfr.h found: %s' % os.path.isfile(os.path.join(lookin, 'mpfr.h')))
+            # writeln('mpfr.h version %s' % repr(get_mpfr_version(os.path.join(lookin, 'mpfr.h'))))
+            # writeln('mpc.h found: %s' % os.path.isfile(os.path.join(lookin, 'mpc.h')))
+            # writeln('mpc.h version %s' % repr(get_mpc_version(os.path.join(lookin, 'mpc.h'))))
 
             if os.path.isfile(os.path.join(lookin, 'mpfr.h')):
                 v = get_mpfr_version(os.path.join(lookin, 'mpfr.h'))

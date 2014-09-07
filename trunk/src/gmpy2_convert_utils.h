@@ -48,18 +48,30 @@ static unsigned PY_LONG_LONG GMPy_Integer_AsUnsignedLongLongAndError(PyObject *v
 
 /* Support conversion to/from mp_bitcnt_t and Py_ssize_t. */
 
-#ifndef _WIN64
-#define mp_bitcnt_t_From_Integer c_ulong_From_Integer
-#define ssize_t_From_Integer c_long_From_Integer
+#if defined _WIN64 && MPIR
+# define mp_bitcnt_t_From_Integer c_ulonglong_From_Integer
 #else
-#define mp_bitcnt_t_From_Integer c_ulonglong_From_Integer
-#define ssize_t_From_Integer c_longlong_From_Integer
+# define mp_bitcnt_t_From_Integer c_ulong_From_Integer
+#endif
+
+/* This just requires that sizeof(mp_bitcnt_t) <= sizeof(size_t) */
+
+#ifdef PY2
+# define PyIntOrLong_From_mp_bitcnt_t PyInt_FromSize_t
+#else
+# define PyIntOrLong_From_mp_bitcnt_t PyLong_FromSize_t
+#endif
+
+#ifdef _WIN64
+# define ssize_t_From_Integer c_longlong_From_Integer
+#else
+# define ssize_t_From_Integer c_long_From_Integer
 #endif
 
 #ifdef PY2
-#define PyIntOrLong_From_mp_bitcnt_t PyInt_FromSize_t
+# define PyIntOrLong_From_mp_bitcnt_t PyInt_FromSize_t
 #else
-#define PyIntOrLong_From_mp_bitcnt_t PyLong_FromSize_t
+# define PyIntOrLong_From_mp_bitcnt_t PyLong_FromSize_t
 #endif
 
 #ifdef __cplusplus

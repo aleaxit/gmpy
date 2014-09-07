@@ -137,6 +137,12 @@ The Windows build environment
   "Mingw32CCompiler". In the "__init__" function comment out the line:
   "self.dll_libraries = get_msvcr()".
 
+  *Optional*
+  In the file "cygwincompiler.py", find the definition for the class
+  "Mingw32CCompiler". Under self.set_executables(...), change -O to -O2.
+  This enables strict-aliasing checks so "-Wstrict-aliasing=0" should be added.
+  Adding "-fwrapv" is probably a good idea, too.
+
 # Create a libpython.a file
   MinGW requires a libpythonXX.a file that contains information about the C-API
   functions that exist in pythonXX.dll. Follow these steps for your version of
@@ -159,5 +165,8 @@ The Windows build environment
 
 # To compile gmpy2
   py27 setup.py build_ext --msys2 --prefix=c:\msys64\opt
+
+# To install to a local Python installation (after compiling)
+  py27 setup.py install
 
 
