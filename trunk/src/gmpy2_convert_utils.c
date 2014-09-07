@@ -239,7 +239,7 @@ c_ulong_From_Integer(PyObject *obj)
             TYPE_ERROR("could not convert object to integer");
         }
         else if (error == 1) {
-            OVERFLOW_ERROR("value too large to convert to C long");
+            OVERFLOW_ERROR("value too large to convert to C unsigned long");
         }
         else if (error < 0) {
             VALUE_ERROR("a non-negative value is required");
@@ -318,7 +318,23 @@ GMPy_Integer_AsLongLongAndError(PyObject *vv, int *error)
     }
     
     if (CHECK_MPZANY(vv)) {
-        return 0;
+        res = 0;
+        sign = mpz_sgn(MPZ(vv));
+        if (sign) {
+            if (mpz_sizeinbase(MPZ(vv), 256) <= sizeof(x)) {
+                x = 0;
+                mpz_export(&x, NULL, 1, sizeof(x), 0, 0, MPZ(vv));
+            }
+            if (x <= (unsigned PY_LONG_LONG)PY_LLONG_MAX) {
+                res = (PY_LONG_LONG)x * sign;
+            }
+            else if (sign < 0 && x == PY_ABS_LLONG_MIN) {
+                res = PY_LLONG_MIN;
+            }
+            else {
+                *error = sign;
+            }
+        return res;
     }
 
     *error = 2;
@@ -378,7 +394,13 @@ GMPy_Integer_AsUnsignedLongLongAndError(PyObject *vv, int *error)
     }
     
     if (CHECK_MPZANY(vv)) {
-        return 0;
+        res = 0;
+        sign = mpz_sgn(MPZ(vv));
+        if (sign) {
+            if (mpz_sizeinbase(MPZ(vv), 256) <= sizeof(res)) {
+                mpz_export(&res, NULL, 1, sizeof(x), 0, 0, MPZ(vv));
+            }
+        return res;
     }
 
     *error = 2;
@@ -421,7 +443,7 @@ c_ulonglong_From_Integer(PyObject *obj)
             TYPE_ERROR("could not convert object to integer");
         }
         else if (error == 1) {
-            OVERFLOW_ERROR("value too large to convert to C long long");
+            OVERFLOW_ERROR("value too large to convert to C unsigned long long");
         }
         else if (error < 0) {
             VALUE_ERROR("a non-negative value is required");
