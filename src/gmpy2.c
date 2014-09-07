@@ -890,33 +890,28 @@ PyMODINIT_FUNC initgmpy2(void)
 
     /* Validate the sizes of the various typedef'ed integer types. */
 
-#ifdef _WIN64
-    if (sizeof(size_t) != sizeof(PY_LONG_LONG)) {
-        SYSTEM_ERROR("Size of PY_LONG_LONG and size_t not compatible (WIN64 only)");
+#if defined _WIN64 && MPIR
+    if (sizeof(mp_bitcnt_t) != sizeof(PY_LONG_LONG)) {
+        SYSTEM_ERROR("Size of PY_LONG_LONG and mp_bitcnt_t not compatible (_WIN64 && MPIR)");
         INITERROR;
     }
 #else
-    if (sizeof(size_t) != sizeof(long)) {
-        SYSTEM_ERROR("Size of long and size_t not compatible");
+    if (sizeof(mp_bitcnt_t) != sizeof(long)) {
+        SYSTEM_ERROR("Size of long and mp_bitcnt_t not compatible");
         INITERROR;
     }
 #endif
 
-    if (sizeof(mp_bitcnt_t) != sizeof(size_t)) {
-        if (sizeof(mp_bitcnt_t) == 4)
-            SYSTEM_ERROR("Size of mp_bitcnt_t (4) and size_t not compatible");
-        else
-            SYSTEM_ERROR("Size of mp_bitcnt_t (8) and size_t not compatible");
+    if (sizeof(mp_bitcnt_t) > sizeof(size_t)) {
+        SYSTEM_ERROR("Size of size_t and mp_bitcnt_t not compatible");
         INITERROR;
     }
-    if (sizeof(mp_size_t) != sizeof(size_t)) {
-        SYSTEM_ERROR("Size of mp_size_t and size_t not compatible");
-        INITERROR;
-    }
+
     if (sizeof(mpfr_prec_t) != sizeof(long)) {
         SYSTEM_ERROR("Size of mpfr_prec_t and long not compatible");
         INITERROR;
     }
+
     if (sizeof(mpfr_exp_t) != sizeof(long)) {
         SYSTEM_ERROR("Size of mpfr_exp_t and long not compatible");
         INITERROR;
