@@ -92,6 +92,17 @@ GMPy_Context_F2Q(PyObject *self, PyObject *args)
     }
 }
 
+PyDoc_STRVAR(GMPy_doc_mpfr_free_cache,
+"free_cache()\n\n"
+"Free the internal cache of constants maintained by MPFR.");
+
+static PyObject *
+GMPy_MPFR_Free_Cache(PyObject *self, PyObject *args)
+{
+    mpfr_free_cache();
+    Py_RETURN_NONE;
+}
+
 PyDoc_STRVAR(GMPy_doc_mpfr_get_emin_min,
 "get_emin_min() -> integer\n\n"
 "Return the minimum possible exponent that can be set for 'mpfr'.");

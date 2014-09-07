@@ -710,6 +710,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "fms", GMPy_Context_FMS, METH_VARARGS, GMPy_doc_function_fms },
     { "fmod", GMPy_Context_Fmod, METH_VARARGS, GMPy_doc_function_fmod },
     { "frac", GMPy_Context_Frac, METH_O, GMPy_doc_function_frac },
+    { "free_cache", GMPy_MPFR_Free_Cache, METH_NOARGS, GMPy_doc_mpfr_free_cache },
     { "frexp", GMPy_Context_Frexp, METH_O, GMPy_doc_function_frexp },
     { "fsum", GMPy_Context_Fsum, METH_O, GMPy_doc_function_fsum },
     { "gamma", GMPy_Context_Gamma, METH_O, GMPy_doc_function_gamma },
