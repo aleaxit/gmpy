@@ -17,7 +17,7 @@ MSYS2 installation instructions can be found at:
 
 http://sourceforge.net/p/msys2/wiki/MSYS2%20installation/
 
-After following the upgrade steps documented about, you will need to install
+After following the upgrade steps documented above, you will need to install
 the MinGW compiler toolchain. To install the 64-bit toolchain:
 
 $ pacman -S mingw-w64-x86_64-toolchain
@@ -28,7 +28,7 @@ $ pacman -S mingw-w64-i686-toolchain
 
 The following additional packages should also be installed:
 
-$ pacman -S patch m4 lzip wget tar make
+$ pacman -S patch m4 lzip wget tar make diff
 
 The MSYS2 build environment
 ===========================
@@ -157,6 +157,7 @@ The Windows build environment
   Search for the text #ifdef _MSC_VER earlier in the file. Paste in the
   cut-out lines, ABOVE the #ifdef _MSC_VER.
 
-#
+# To compile gmpy2
+  py27 setup.py build_ext --msys2 --prefix=c:\msys64\opt
 
 

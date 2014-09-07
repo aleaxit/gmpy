@@ -120,7 +120,7 @@ GMPy_Integer_AsLongAndError(PyObject *vv, int *error)
         }
         return res;
     }
-    
+
     if (CHECK_MPZANY(vv)) {
         if (mpz_fits_slong_p(MPZ(vv))) {
             res = mpz_get_si(MPZ(vv));
@@ -150,7 +150,7 @@ GMPy_Integer_AsUnsignedLongAndError(PyObject *vv, int *error)
         long temp = PyInt_AS_LONG(vv);
         if (temp < 0) {
             *error = -1;
-            return res;
+            return 0;
         }
         else {
             return (unsigned long)temp;
@@ -167,7 +167,7 @@ GMPy_Integer_AsUnsignedLongAndError(PyObject *vv, int *error)
             *error = -1;
             return res;
         }
-            
+
         switch (i) {
         case 0:
             break;
@@ -187,7 +187,7 @@ GMPy_Integer_AsUnsignedLongAndError(PyObject *vv, int *error)
         }
         return res;
     }
-    
+
     if (CHECK_MPZANY(vv)) {
         if (mpz_fits_ulong_p(MPZ(vv))) {
             res = mpz_get_ui(MPZ(vv));
@@ -223,7 +223,7 @@ c_long_From_Integer(PyObject *obj)
         return -1;
     }
 }
-        
+
 static unsigned long
 c_ulong_From_Integer(PyObject *obj)
 {
@@ -316,7 +316,7 @@ GMPy_Integer_AsLongLongAndError(PyObject *vv, int *error)
         }
         return res;
     }
-    
+
     if (CHECK_MPZANY(vv)) {
         res = 0;
         sign = mpz_sgn(MPZ(vv));
@@ -335,6 +335,7 @@ GMPy_Integer_AsLongLongAndError(PyObject *vv, int *error)
                 *error = sign;
             }
         return res;
+        }
     }
 
     *error = 2;
@@ -347,6 +348,7 @@ GMPy_Integer_AsUnsignedLongLongAndError(PyObject *vv, int *error)
     register PyLongObject *v;
     unsigned PY_LONG_LONG x, prev, res;
     Py_ssize_t i;
+    int sign;
 
     *error = 0;
 
@@ -372,7 +374,7 @@ GMPy_Integer_AsUnsignedLongLongAndError(PyObject *vv, int *error)
             *error = -1;
             return res;
         }
-            
+
         switch (i) {
         case 0:
             break;
@@ -392,15 +394,20 @@ GMPy_Integer_AsUnsignedLongLongAndError(PyObject *vv, int *error)
         }
         return res;
     }
-    
+
     if (CHECK_MPZANY(vv)) {
         res = 0;
         sign = mpz_sgn(MPZ(vv));
-        if (sign) {
+        if (sign < 0) {
+            *error = -1;
+            return res;
+        }
+        else if (sign) {
             if (mpz_sizeinbase(MPZ(vv), 256) <= sizeof(res)) {
                 mpz_export(&res, NULL, 1, sizeof(x), 0, 0, MPZ(vv));
             }
         return res;
+        }
     }
 
     *error = 2;
@@ -427,7 +434,7 @@ c_longlong_From_Integer(PyObject *obj)
         return -1;
     }
 }
-        
+
 static unsigned PY_LONG_LONG
 c_ulonglong_From_Integer(PyObject *obj)
 {

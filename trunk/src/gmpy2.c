@@ -342,7 +342,7 @@
  *   Add context methods (casevh)
  *   Major code refactoring required to properly support thread-safe
  *      contexts. (casevh)
- *   
+ *
  *
  ************************************************************************
  *
@@ -889,7 +889,7 @@ PyMODINIT_FUNC initgmpy2(void)
     PyObject *temp = NULL;
 
     /* Validate the sizes of the various typedef'ed integer types. */
-    
+
 #ifdef _WIN64
     if (sizeof(size_t) != sizeof(PY_LONG_LONG)) {
         SYSTEM_ERROR("Size of PY_LONG_LONG and size_t not compatible (WIN64 only)");
@@ -901,9 +901,12 @@ PyMODINIT_FUNC initgmpy2(void)
         INITERROR;
     }
 #endif
-        
+
     if (sizeof(mp_bitcnt_t) != sizeof(size_t)) {
-        SYSTEM_ERROR("Size of mp_bitcnt_t and size_t not compatible");
+        if (sizeof(mp_bitcnt_t) == 4)
+            SYSTEM_ERROR("Size of mp_bitcnt_t (4) and size_t not compatible");
+        else
+            SYSTEM_ERROR("Size of mp_bitcnt_t (8) and size_t not compatible");
         INITERROR;
     }
     if (sizeof(mp_size_t) != sizeof(size_t)) {
