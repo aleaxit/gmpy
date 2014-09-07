@@ -339,7 +339,10 @@
  *   MPFR and MPC are now required (casevh)
  *   Invalid Operation exception now raised for addition, etc. (casevh)
  *   inverse() now raises exception if inverse does not exist (casevh)
- *   Add context methods (casevh) (in progress)
+ *   Add context methods (casevh)
+ *   Major code refactoring required to properly support thread-safe
+ *      contexts. (casevh)
+ *   
  *
  ************************************************************************
  *
