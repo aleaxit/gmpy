@@ -55,8 +55,6 @@ _GMPy_MPZ_Minus(PyObject *x, CTXT_Object *context)
 {
     MPZ_Object *result;
 
-    CHECK_CONTEXT(context);
-
     if (!(result = GMPy_MPZ_New(context))) {
         return NULL;
     }
@@ -68,8 +66,6 @@ static PyObject *
 GMPy_Integer_Minus(PyObject *x, CTXT_Object *context)
 {
     PyObject *result, *tempx;
-
-    CHECK_CONTEXT(context);
 
     if (!(tempx = (PyObject*)GMPy_MPZ_From_Integer(x, context))) {
         return NULL;

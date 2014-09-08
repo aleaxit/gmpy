@@ -48,7 +48,7 @@ copyright = u'2012, 2013, 2014, Case Van Horsen'
 # built documents.
 #
 # The short X.Y version.
-version = '2.1.'
+version = '2.1'
 # The full version, including alpha/beta/rc tags.
 release = '2.1.0a0'
 

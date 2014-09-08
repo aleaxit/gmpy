@@ -139,9 +139,8 @@ The Windows build environment
 
   *Optional*
   In the file "cygwincompiler.py", find the definition for the class
-  "Mingw32CCompiler". Under self.set_executables(...), change -O to -O2.
-  This enables strict-aliasing checks so "-Wstrict-aliasing=0" should be added.
-  Adding "-fwrapv" is probably a good idea, too.
+  "Mingw32CCompiler". Under self.set_executables(...), change -O to -O2. To
+  match options used by Linux, also add "-fno-strict-aliasing" and "-fwrapv".
 
 # Create a libpython.a file
   MinGW requires a libpythonXX.a file that contains information about the C-API

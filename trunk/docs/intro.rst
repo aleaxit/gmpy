@@ -31,6 +31,36 @@ The following libraries are supported:
 
   mpz_prp: http://sourceforge.net/projects/mpzprp/
 
+Changes in gmpy2 2.1.0a1
+------------------------
+
+* Thread-safe contexts are now supported. Properly integrating thread-safe
+  contexts required an extensive rewrite of almost all internal functions.
+* MPFR and MPC are now required. It is no longer possible to build a version
+  of gmpy2 that only supports the GMP library.
+* The function inverse() now raises an exception if the inverse does not
+  exist.
+* Context methods have been added for MPFR/MPC related functions.
+
+
+Changes in gmpy2 2.0.4
+----------------------
+
+* Fix bit_scan0() for negative values.
+* Changes to setup.py to allow static linking.
+* Fix performance regression with mpmath and Python 3.
+
+Changes in gmpy2 2.0.3
+----------------------
+
+* Fix lucas2() and atanh(); they were returning incorrect values.
+
+Changes in gmpy2 2.0.2
+----------------------
+
+* Rebuild Windows binary installers due to MPIR 2.6.0 bug in next_prime().
+* Another fix for is_extra_strong_lucas_prp().
+
 Changes in gmpy2 2.0.1
 ----------------------
 
