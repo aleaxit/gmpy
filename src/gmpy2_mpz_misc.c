@@ -67,9 +67,6 @@ GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *args)
     Py_ssize_t argc;
     MPZ_Object *temp;
     PyObject *result;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     argc = PyTuple_GET_SIZE(args);
     if (argc == 0 || argc > 2) {
@@ -89,7 +86,7 @@ GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!(temp = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context))) {
+    if (!(temp = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
         return NULL;
     }
     
@@ -106,31 +103,22 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_iroot,
 static PyObject *
 GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
 {
-    long n;
-    int exact, error;
+    unsigned long n;
+    int exact;
     MPZ_Object *root, *tempx;
     PyObject *result;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("iroot() requires 'mpz','int' arguments");
         return NULL;
     }
     
-    n = GMPy_Integer_AsLongAndError(PyTuple_GET_ITEM(args, 1), &error);
-    if (error) {
-        TYPE_ERROR("iroot() requires 'mpz','int' arguments");
+    n = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 1));
+    if ((n == (unsigned long)(-1)) && PyErr_Occurred()) {
         return NULL;
     }
-
-    if (n <= 0) {
-        VALUE_ERROR("n must be > 0");
-        return NULL;
-    }
-    
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context))) {
+   
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
         return NULL;
     }
     
@@ -141,7 +129,7 @@ GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
     }
     
     result = PyTuple_New(2);
-    root = GMPy_MPZ_New(context);
+    root = GMPy_MPZ_New(NULL);
     if (!result || !root) {
         Py_DECREF((PyObject*)tempx);
         Py_XDECREF((PyObject*)root);
@@ -165,31 +153,21 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_iroot_rem,
 static PyObject *
 GMPy_MPZ_Function_IrootRem(PyObject *self, PyObject *args)
 {
-    long n;
-    int error;
+    unsigned long n;
     MPZ_Object *root, *rem, *tempx;
     PyObject *result;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("iroot_rem() requires 'mpz','int' arguments");
         return NULL;
     }
     
-    n = GMPy_Integer_AsLongAndError(PyTuple_GET_ITEM(args, 1), &error);
-    if (error) {
-        TYPE_ERROR("iroot_rem() requires 'mpz','int' arguments");
+    n = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 1));
+    if ((n == (unsigned long)(-1)) && PyErr_Occurred()) {
         return NULL;
     }
 
-    if (n <= 0) {
-        VALUE_ERROR("n must be > 0");
-        return NULL;
-    }
-    
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context))) {
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
         return NULL;
     }
     
@@ -200,8 +178,8 @@ GMPy_MPZ_Function_IrootRem(PyObject *self, PyObject *args)
     }
     
     result = PyTuple_New(2);
-    root = GMPy_MPZ_New(context);
-    rem = GMPy_MPZ_New(context);
+    root = GMPy_MPZ_New(NULL);
+    rem = GMPy_MPZ_New(NULL);
     if (!root || !rem || !result) {
         Py_DECREF((PyObject*)tempx);
         Py_XDECREF(result);
@@ -253,7 +231,6 @@ GMPy_MPZ_Method_Round(PyObject *self, PyObject *args)
     Py_ssize_t round_digits;
     MPZ_Object *result;
     mpz_t temp, rem;
-    CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) == 0) {
         Py_INCREF(self);
@@ -278,7 +255,7 @@ GMPy_MPZ_Method_Round(PyObject *self, PyObject *args)
     
     round_digits = -round_digits;
 
-    if ((result = GMPy_MPZ_New(context))) {
+    if ((result = GMPy_MPZ_New(NULL))) {
         if (round_digits >= mpz_sizeinbase(MPZ(self), 10)) {
             mpz_set_ui(result->z, 0);
         }
@@ -318,21 +295,13 @@ GMPy_MPZ_NonZero_Slot(MPZ_Object *self)
 static PyObject *
 GMPy_MPZ_Oct_Slot(MPZ_Object *self)
 {
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
-
-    return GMPy_PyStr_From_MPZ(self, 8, 0, context);
+    return GMPy_PyStr_From_MPZ(self, 8, 0, NULL);
 }
 
 static PyObject *
 GMPy_MPZ_Hex_Slot(MPZ_Object *self)
 {
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
-
-    return GMPy_PyStr_From_MPZ(self, 16, 0, context);
+    return GMPy_PyStr_From_MPZ(self, 16, 0, NULL);
 }
 #endif
 
@@ -347,16 +316,13 @@ GMPy_MPZ_Function_GCD(PyObject *self, PyObject *args)
 {
     PyObject *arg0, *arg1;
     MPZ_Object *result, *tempa, *tempb;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("gcd() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    if (!(result = GMPy_MPZ_New(context))) {
+    if (!(result = GMPy_MPZ_New(NULL))) {
         return NULL;
     }
 
@@ -366,8 +332,8 @@ GMPy_MPZ_Function_GCD(PyObject *self, PyObject *args)
         mpz_gcd(result->z, MPZ(arg0), MPZ(arg1));
     }
     else {
-        tempa = GMPy_MPZ_From_Integer(arg0, context);
-        tempb = GMPy_MPZ_From_Integer(arg1, context);
+        tempa = GMPy_MPZ_From_Integer(arg0, NULL);
+        tempb = GMPy_MPZ_From_Integer(arg1, NULL);
         if (!tempa || !tempb) {
             TYPE_ERROR("gcd() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempa);
@@ -392,16 +358,13 @@ GMPy_MPZ_Function_LCM(PyObject *self, PyObject *args)
 {
     PyObject *arg0, *arg1;
     MPZ_Object *result, *tempa, *tempb;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if(PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("lcm() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    if (!(result = GMPy_MPZ_New(context))) {
+    if (!(result = GMPy_MPZ_New(NULL))) {
         return NULL;
     }
 
@@ -412,8 +375,8 @@ GMPy_MPZ_Function_LCM(PyObject *self, PyObject *args)
         mpz_lcm(result->z, MPZ(arg0), MPZ(arg1));
     }
     else {
-        tempa = GMPy_MPZ_From_Integer(arg0, context);
-        tempb = GMPy_MPZ_From_Integer(arg1, context);
+        tempa = GMPy_MPZ_From_Integer(arg0, NULL);
+        tempb = GMPy_MPZ_From_Integer(arg1, NULL);
         if (!tempa || !tempb) {
             TYPE_ERROR("lcm() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempa);
@@ -438,9 +401,6 @@ GMPy_MPZ_Function_GCDext(PyObject *self, PyObject *args)
 {
     PyObject *arg0, *arg1, *result;
     MPZ_Object *g, *s, *t, *tempa, *tempb;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if(PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("gcdext() requires 'mpz','mpz' arguments");
@@ -448,9 +408,9 @@ GMPy_MPZ_Function_GCDext(PyObject *self, PyObject *args)
     }
 
     result = PyTuple_New(3);
-    g = GMPy_MPZ_New(context);
-    s = GMPy_MPZ_New(context);
-    t = GMPy_MPZ_New(context);
+    g = GMPy_MPZ_New(NULL);
+    s = GMPy_MPZ_New(NULL);
+    t = GMPy_MPZ_New(NULL);
     if (!g || !s || !t || !result) {
         Py_XDECREF((PyObject*)g);
         Py_XDECREF((PyObject*)s);
@@ -466,8 +426,8 @@ GMPy_MPZ_Function_GCDext(PyObject *self, PyObject *args)
         mpz_gcdext(g->z, s->z, t->z, MPZ(arg0), MPZ(arg1));
     }
     else {
-        tempa = GMPy_MPZ_From_Integer(arg0, context);
-        tempb = GMPy_MPZ_From_Integer(arg1, context);
+        tempa = GMPy_MPZ_From_Integer(arg0, NULL);
+        tempb = GMPy_MPZ_From_Integer(arg1, NULL);
         if(!tempa || !tempb) {
             TYPE_ERROR("gcdext() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempa);
@@ -499,22 +459,19 @@ GMPy_MPZ_Function_Divm(PyObject *self, PyObject *args)
     MPZ_Object *result, *num, *den, *mod;
     mpz_t gcdz;
     int ok = 0;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if(PyTuple_GET_SIZE(args) != 3) {
         TYPE_ERROR("divm() requires 'mpz','mpz','mpz' arguments");
         return NULL;
     }
 
-    if (!(result = GMPy_MPZ_New(context))) {
+    if (!(result = GMPy_MPZ_New(NULL))) {
         return NULL;
     }
 
-    num = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context);
-    den = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), context);
-    mod = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2), context);
+    num = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    den = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
+    mod = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2), NULL);
 
     if(!num || !den || !mod) {
         TYPE_ERROR("divm() requires 'mpz','mpz','mpz' arguments");
@@ -664,23 +621,14 @@ static PyObject *
 GMPy_MPZ_Function_Fib(PyObject *self, PyObject *other)
 {
     MPZ_Object *result = NULL;
-    long  n;
-    int error;
+    unsigned long  n;
 
-    n = GMPy_Integer_AsUnsignedLongAndError(other, &error);
-    if (!error) {
-        if ((result = GMPy_MPZ_New(NULL))) {
-            mpz_fib_ui(result->z, n);
-        }
+    n = c_ulong_From_Integer(other);
+    if (n == (unsigned long)(-1) && PyErr_Occurred()) {
+        return NULL;
     }
-    else if (error == 2) {
-        TYPE_ERROR("fib() requires integer argument");
-    }
-    else if (error == 1) {
-        OVERFLOW_ERROR("value too large to convert to long");
-    }
-    else if (error < 0) {
-        VALUE_ERROR("fib() requires positive argument");
+    if ((result = GMPy_MPZ_New(NULL))) {
+        mpz_fib_ui(result->z, n);
     }
     return (PyObject*)result;
 }
@@ -694,34 +642,26 @@ GMPy_MPZ_Function_Fib2(PyObject *self, PyObject *other)
 {
     PyObject *result = NULL;
     MPZ_Object *fib1, *fib2;
-    long n;
-    int error;
+    unsigned long n;
 
-    n = GMPy_Integer_AsUnsignedLongAndError(other, &error);
-    if (!error) {
-        result = PyTuple_New(2);
-        fib1 = GMPy_MPZ_New(NULL);
-        fib2 = GMPy_MPZ_New(NULL);
-        if (!result || !fib1 || !fib2) {
-            Py_XDECREF(result);
-            Py_XDECREF((PyObject*)fib1);
-            Py_XDECREF((PyObject*)fib2);
-            result = NULL;
-        }
-        
-        mpz_fib2_ui(fib1->z, fib2->z, n);
-        PyTuple_SET_ITEM(result, 0, (PyObject*)fib1);
-        PyTuple_SET_ITEM(result, 1, (PyObject*)fib2);
+    n = c_ulong_From_Integer(other);
+    if (n == (unsigned long)(-1) && PyErr_Occurred()) {
+        return NULL;
     }
-    else if (error == 2) {
-        TYPE_ERROR("fib2() requires integer argument");
+
+    result = PyTuple_New(2);
+    fib1 = GMPy_MPZ_New(NULL);
+    fib2 = GMPy_MPZ_New(NULL);
+    if (!result || !fib1 || !fib2) {
+        Py_XDECREF(result);
+        Py_XDECREF((PyObject*)fib1);
+        Py_XDECREF((PyObject*)fib2);
+        result = NULL;
     }
-    else if (error == 1) {
-        OVERFLOW_ERROR("value too large to convert to long");
-    }
-    else if (error < 0) {
-        VALUE_ERROR("fib2() requires positive argument");
-    }
+    
+    mpz_fib2_ui(fib1->z, fib2->z, n);
+    PyTuple_SET_ITEM(result, 0, (PyObject*)fib1);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)fib2);
     return (PyObject*)result;
 }
 
@@ -733,23 +673,15 @@ static PyObject *
 GMPy_MPZ_Function_Lucas(PyObject *self, PyObject *other)
 {
     MPZ_Object *result = NULL;
-    long n;
-    int error;
+    unsigned long n;
 
-    n = GMPy_Integer_AsUnsignedLongAndError(other, &error);
-    if (!error) {
-        if ((result = GMPy_MPZ_New(NULL))) {
-            mpz_lucnum_ui(result->z, n);
-        }
+    n = c_ulong_From_Integer(other);
+    if (n == (unsigned long)(-1) && PyErr_Occurred()) {
+        return NULL;
     }
-    else if (error == 2) {
-        TYPE_ERROR("lucas() requires integer argument");
-    }
-    else if (error == 1) {
-        OVERFLOW_ERROR("value too large to convert to long");
-    }
-    else if (error < 0) {
-        VALUE_ERROR("lucas() requires positive argument");
+
+    if ((result = GMPy_MPZ_New(NULL))) {
+        mpz_lucnum_ui(result->z, n);
     }
     return (PyObject*)result;
 }
@@ -763,34 +695,26 @@ GMPy_MPZ_Function_Lucas2(PyObject *self, PyObject *other)
 {
     PyObject *result = NULL;
     MPZ_Object *luc1, *luc2;
-    long n;
-    int error;
+    unsigned long n;
 
-    n = GMPy_Integer_AsUnsignedLongAndError(other, &error);
-    if (!error) {
-        result = PyTuple_New(2);
-        luc1 = GMPy_MPZ_New(NULL);
-        luc2 = GMPy_MPZ_New(NULL);
-        if (!result || !luc1 || !luc2) {
-            Py_XDECREF(result);
-            Py_XDECREF((PyObject*)luc1);
-            Py_XDECREF((PyObject*)luc2);
-            result = NULL;
-        }
-        
-        mpz_lucnum2_ui(luc1->z, luc2->z, n);
-        PyTuple_SET_ITEM(result, 0, (PyObject*)luc1);
-        PyTuple_SET_ITEM(result, 1, (PyObject*)luc2);
+    n = c_ulong_From_Integer(other);
+    if (n == (unsigned long)(-1) && PyErr_Occurred()) {
+        return NULL;
     }
-    else if (error == 2) {
-        TYPE_ERROR("luc2() requires integer argument");
+
+    result = PyTuple_New(2);
+    luc1 = GMPy_MPZ_New(NULL);
+    luc2 = GMPy_MPZ_New(NULL);
+    if (!result || !luc1 || !luc2) {
+        Py_XDECREF(result);
+        Py_XDECREF((PyObject*)luc1);
+        Py_XDECREF((PyObject*)luc2);
+        result = NULL;
     }
-    else if (error == 1) {
-        OVERFLOW_ERROR("value too large to convert to long");
-    }
-    else if (error < 0) {
-        VALUE_ERROR("luc2() requires positive argument");
-    }
+    
+    mpz_lucnum2_ui(luc1->z, luc2->z, n);
+    PyTuple_SET_ITEM(result, 0, (PyObject*)luc1);
+    PyTuple_SET_ITEM(result, 1, (PyObject*)luc2);
     return result;
 }
 
@@ -808,7 +732,6 @@ GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args)
 {
     MPZ_Object *result = NULL, *tempx;
     unsigned long k;
-    int error;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("bincoef() requires two integer arguments");
@@ -819,24 +742,18 @@ GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    k = GMPy_Integer_AsUnsignedLongAndError(PyTuple_GET_ITEM(args, 1), &error);
-    if (!error) {
-        if(!(result = GMPy_MPZ_New(NULL))) {
-            Py_DECREF((PyObject*)tempx);
-        }
-        
-        mpz_bin_ui(result->z, tempx->z, k);
+    k = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 1));
+    if (k == (unsigned long)(-1) && PyErr_Occurred()) {
+        return NULL;
+    }
+    
+    if(!(result = GMPy_MPZ_New(NULL))) {
         Py_DECREF((PyObject*)tempx);
+        return NULL;
     }
-    else if (error == 2) {
-        TYPE_ERROR("bincoef() requires two integer arguments");
-    }
-    else if (error == 1) {
-        OVERFLOW_ERROR("value too large to convert to long");
-    }
-    else if (error < 0) {
-        VALUE_ERROR("bincoef() requires n >= 0");
-    }
+    
+    mpz_bin_ui(result->z, tempx->z, k);
+    Py_DECREF((PyObject*)tempx);
     return (PyObject*)result;
 }
 
@@ -848,21 +765,18 @@ static PyObject *
 GMPy_MPZ_Function_Isqrt(PyObject *self, PyObject *other)
 {
     MPZ_Object *result;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if (CHECK_MPZANY(other)) {
         if (mpz_sgn(MPZ(other)) < 0) {
             VALUE_ERROR("isqrt() of negative number");
             return NULL;
         }
-        if ((result = GMPy_MPZ_New(context))) {
+        if ((result = GMPy_MPZ_New(NULL))) {
             mpz_sqrt(result->z, MPZ(other));
         }
     }
     else {
-        if (!(result = GMPy_MPZ_From_Integer(other, context))) {
+        if (!(result = GMPy_MPZ_From_Integer(other, NULL))) {
             TYPE_ERROR("isqrt() requires 'mpz' argument");
             return NULL;
         }
@@ -886,9 +800,8 @@ GMPy_MPZ_Function_IsqrtRem(PyObject *self, PyObject *other)
 {
     MPZ_Object *root, *rem, *temp;
     PyObject *result;
-    CTXT_Object *context = NULL;
 
-    if (!(temp = GMPy_MPZ_From_Integer(other, context))) {
+    if (!(temp = GMPy_MPZ_From_Integer(other, NULL))) {
         TYPE_ERROR("isqrt_rem() requires 'mpz' argument");
         return NULL;
     }
@@ -900,8 +813,8 @@ GMPy_MPZ_Function_IsqrtRem(PyObject *self, PyObject *other)
     }
 
     result = PyTuple_New(2);
-    root = GMPy_MPZ_New(context);
-    rem = GMPy_MPZ_New(context);
+    root = GMPy_MPZ_New(NULL);
+    rem = GMPy_MPZ_New(NULL);
     if (!root || !rem || !result) {
         Py_DECREF((PyObject*)temp);
         Py_XDECREF(result);
@@ -929,16 +842,13 @@ GMPy_MPZ_Function_Remove(PyObject *self, PyObject *args)
     MPZ_Object *result, *tempx, *tempf;
     PyObject *x, *f;
     size_t multiplicity;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("remove() requires 'mpz','mpz' arguments");
         return NULL;
     }
     
-    if (!(result = GMPy_MPZ_New(context))) {
+    if (!(result = GMPy_MPZ_New(NULL))) {
         return NULL;
     }
     
@@ -955,8 +865,8 @@ GMPy_MPZ_Function_Remove(PyObject *self, PyObject *args)
         return Py_BuildValue("(Nk)", result, multiplicity);
     }
     else {
-        tempx = GMPy_MPZ_From_Integer(x, context);
-        tempf = GMPy_MPZ_From_Integer(f, context);
+        tempx = GMPy_MPZ_From_Integer(x, NULL);
+        tempf = GMPy_MPZ_From_Integer(f, NULL);
         if (!tempx || !tempf) {
             TYPE_ERROR("remove() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -987,16 +897,13 @@ GMPy_MPZ_Function_Invert(PyObject *self, PyObject *args)
     PyObject *x, *y;
     MPZ_Object *result, *tempx, *tempy;
     int success;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("invert() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    if (!(result = GMPy_MPZ_New(context))) {
+    if (!(result = GMPy_MPZ_New(NULL))) {
         return NULL;
     }
     
@@ -1017,8 +924,8 @@ GMPy_MPZ_Function_Invert(PyObject *self, PyObject *args)
         }
     }
     else {
-        tempx = GMPy_MPZ_From_Integer(x, context);
-        tempy = GMPy_MPZ_From_Integer(y, context);
+        tempx = GMPy_MPZ_From_Integer(x, NULL);
+        tempy = GMPy_MPZ_From_Integer(y, NULL);
         if (!tempx || !tempy) {
             TYPE_ERROR("invert() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -1055,16 +962,13 @@ GMPy_MPZ_Function_Divexact(PyObject *self, PyObject *args)
 {
     PyObject *x, *y;
     MPZ_Object *result, *tempx, *tempy;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if(PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("divexact() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    if (!(result = GMPy_MPZ_New(context))) {
+    if (!(result = GMPy_MPZ_New(NULL))) {
         return NULL;
     }
     
@@ -1080,8 +984,8 @@ GMPy_MPZ_Function_Divexact(PyObject *self, PyObject *args)
         mpz_divexact(result->z, MPZ(x), MPZ(y));
     }
     else {
-        tempx = GMPy_MPZ_From_Integer(x, context);
-        tempy = GMPy_MPZ_From_Integer(y, context);
+        tempx = GMPy_MPZ_From_Integer(x, NULL);
+        tempy = GMPy_MPZ_From_Integer(y, NULL);
         if (!tempx || !tempy) {
             TYPE_ERROR("divexact() requires 'mpz','mpz' arguments");
             Py_XDECREF((PyObject*)tempx);
@@ -1112,15 +1016,12 @@ GMPy_MPZ_Function_IsSquare(PyObject *self, PyObject *other)
 {
     int res;
     MPZ_Object *tempx;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if (MPZ_Check(other)) {
         res = mpz_perfect_square_p(MPZ(other));
     }
     else {
-        if (!(tempx = GMPy_MPZ_From_Integer(other, context))) {
+        if (!(tempx = GMPy_MPZ_From_Integer(other, NULL))) {
             TYPE_ERROR("is_square() requires 'mpz' argument");
             return NULL;
         }
@@ -1295,15 +1196,12 @@ GMPy_MPZ_Function_IsPower(PyObject *self, PyObject *other)
 {
     int res;
     MPZ_Object* tempx;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if (MPZ_Check(other)) {
         res = mpz_perfect_power_p(MPZ(other));
     }
     else {
-        if (!(tempx = GMPy_MPZ_From_Integer(other, context))) {
+        if (!(tempx = GMPy_MPZ_From_Integer(other, NULL))) {
             TYPE_ERROR("is_power() requires 'mpz' argument");
             return NULL;
         }
@@ -1329,11 +1227,8 @@ static PyObject *
 GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args)
 {
     int i, reps = 25;
+    MPZ_Object* tempx;
     Py_ssize_t argc;
-    MPZ_Object *tempx;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     argc = PyTuple_GET_SIZE(args);
 
@@ -1349,7 +1244,7 @@ GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args)
         }
     }
     
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context))) {
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
         return NULL;
     }
 
@@ -1376,18 +1271,15 @@ static PyObject *
 GMPy_MPZ_Function_NextPrime(PyObject *self, PyObject *other)
 {
     MPZ_Object *result;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if(MPZ_Check(other)) {
-        if(!(result = GMPy_MPZ_New(context))) {
+        if(!(result = GMPy_MPZ_New(NULL))) {
             return NULL;
         }
         mpz_nextprime(result->z, MPZ(other));
     }
     else {
-        if (!(result = GMPy_MPZ_From_Integer(other, context))) {
+        if (!(result = GMPy_MPZ_From_Integer(other, NULL))) {
             TYPE_ERROR("next_prime() requires 'mpz' argument");
             return NULL;
         }
@@ -1407,17 +1299,14 @@ GMPy_MPZ_Function_Jacobi(PyObject *self, PyObject *args)
 {
     MPZ_Object *tempx, *tempy;
     long res;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("jacobi() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context);
-    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), context);
+    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
     if (!tempx || !tempy) {
         Py_XDECREF((PyObject*)tempx);
         Py_XDECREF((PyObject*)tempy);
@@ -1446,17 +1335,14 @@ GMPy_MPZ_Function_Legendre(PyObject *self, PyObject *args)
 {
     MPZ_Object *tempx, *tempy;
     long res;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("legendre() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context);
-    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), context);
+    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
     if (!tempx || !tempy) {
         Py_XDECREF((PyObject*)tempx);
         Py_XDECREF((PyObject*)tempy);
@@ -1485,17 +1371,14 @@ GMPy_MPZ_Function_Kronecker(PyObject *self, PyObject *args)
 {
     MPZ_Object *tempx, *tempy;
     long res;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("kronecker() requires 'mpz','mpz' arguments");
         return NULL;
     }
     
-    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), context);
-    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), context);
+    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
+    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
     if (!tempx || !tempy) {
         Py_XDECREF((PyObject*)tempx);
         Py_XDECREF((PyObject*)tempy);
@@ -1517,15 +1400,12 @@ GMPy_MPZ_Function_IsEven(PyObject *self, PyObject *other)
 {
     int res;
     MPZ_Object *tempx;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if (MPZ_Check(other)) {
         res = mpz_even_p(MPZ(other));
     }
     else {
-        if (!(tempx = GMPy_MPZ_From_Integer(other, context))) {
+        if (!(tempx = GMPy_MPZ_From_Integer(other, NULL))) {
             TYPE_ERROR("is_even() requires 'mpz' argument");
             return NULL;
         }
@@ -1550,15 +1430,12 @@ GMPy_MPZ_Function_IsOdd(PyObject *self, PyObject *other)
 {
     int res;
     MPZ_Object *tempx;
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
 
     if (CHECK_MPZANY(other)) {
         res = mpz_odd_p(MPZ(other));
     }
     else {
-        if (!(tempx = GMPy_MPZ_From_Integer(other, context))) {
+        if (!(tempx = GMPy_MPZ_From_Integer(other, NULL))) {
             TYPE_ERROR("is_odd() requires 'mpz' argument");
             return NULL;
         }
@@ -1587,10 +1464,6 @@ GMPy_MPZ_Method_Length(MPZ_Object *self)
 static PyObject *
 GMPy_MPZ_Method_SubScript(MPZ_Object *self, PyObject *item)
 {
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
-
     if (PyIndex_Check(item)) {
         Py_ssize_t i;
 
@@ -1622,7 +1495,7 @@ GMPy_MPZ_Method_SubScript(MPZ_Object *self, PyObject *item)
             stop = start;
         }
 
-        if (!(result = GMPy_MPZ_New(context))) {
+        if (!(result = GMPy_MPZ_New(NULL))) {
             return NULL;
         }
 
@@ -1653,11 +1526,8 @@ static PyObject *
 GMPy_MPZ_Attrib_GetDenom(MPQ_Object *self, void *closure)
 {
     MPZ_Object *result;
-    CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT(context);
-
-    if ((result = GMPy_MPZ_New(context))) {
+    if ((result = GMPy_MPZ_New(NULL))) {
         mpz_set_ui(result->z, 1);
     }
     return (PyObject*)result;
