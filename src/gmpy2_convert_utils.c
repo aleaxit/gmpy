@@ -184,6 +184,7 @@ GMPy_Integer_AsUnsignedLongAndError(PyObject *vv, int *error)
                     return res;
                 }
             }
+            res = x;
         }
         return res;
     }
@@ -391,6 +392,7 @@ GMPy_Integer_AsUnsignedLongLongAndError(PyObject *vv, int *error)
                     return res;
                 }
             }
+            res = x;
         }
         return res;
     }
