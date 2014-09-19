@@ -203,14 +203,13 @@ mpz_ascii(mpz_t z, int base, int option, int which)
      * minus sign and trailing NULL byte (2)
      * 'xmpz()' tag                      (6)
      * '0x' prefix                       (2)
-     * 'L' suffix                        (1)
      *                                  -----
-     *                                   11
+     *                                   10
      *
      * And add one more to be sure...
      */
 
-    size = mpz_sizeinbase(z, base) + 12;
+    size = mpz_sizeinbase(z, base) + 11;
     TEMP_ALLOC(buffer, size);
 
     if (mpz_sgn(z) < 0) {
@@ -257,11 +256,6 @@ mpz_ascii(mpz_t z, int base, int option, int which)
     /* Call GMP. */
     mpz_get_str(p, base, z);
     p = buffer + strlen(buffer);
-
-#ifdef PY2
-    if ((option & 1) && !mpz_fits_slong_p(z))
-        *(p++) = 'L';
-#endif
 
     if (option & 1)
         *(p++) = ')';

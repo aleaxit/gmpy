@@ -342,6 +342,7 @@
  *   Add context methods (casevh)
  *   Major code refactoring required to properly support thread-safe
  *      contexts. (casevh)
+ *   __str__ and __repr__ no longer append "L" on Python 2 (casevh)
  *
  *
  ************************************************************************
