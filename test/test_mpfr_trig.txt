@@ -9,6 +9,7 @@ MPFR Functionality
 >>> def _cmp(x,y):
 ...   return x.as_integer_ratio() == y.as_integer_ratio()
 ...
+>>> import sys
 
 Test trigonometric operations
 =============================
@@ -246,7 +247,7 @@ Test cos
 >>> gmpy2.set_context(gmpy2.context())
 >>> _cmp(gmpy2.cos(mpfr("0.2")), math.cos(0.2))
 True
->>> _cmp(gmpy2.cos(mpfr("20")), math.cos(20))
+>>> _cmp(gmpy2.cos(mpfr("20")), math.cos(20)) == (sys.platform != 'win32')
 True
 >>> _cmp(gmpy2.cos(mpfr("2000")), math.cos(2000))
 True
@@ -317,8 +318,8 @@ Test cot
 False
 >>> gmpy2.cot(mpfr("0.2")).as_integer_ratio()
 (mpz(173569956714485), mpz(35184372088832))
->>> (1/math.tan(0.2)).as_integer_ratio()
-(5554238614863519, 1125899906842624)
+>>> (1/math.tan(0.2)).as_integer_ratio() == (5554238614863519, 1125899906842624)
+True
 >>> _cmp(gmpy2.cot(gmpy2.const_pi()), 1/math.tan(math.pi))
 True
 >>> gmpy2.cot(1)
