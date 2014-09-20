@@ -17,8 +17,13 @@ MSYS2 installation instructions can be found at:
 
 http://sourceforge.net/p/msys2/wiki/MSYS2%20installation/
 
-After following the upgrade steps documented above, you will need to install
-the MinGW compiler toolchain. To install the 64-bit toolchain:
+Some of the examples assume the 64-bit version of MSYS2 is installed. If you
+install the 32-bit version of MSYS2, you will need to change any references
+of C:\msys64 to C:\msys32.
+
+After following the installation and upgrade steps documented above, you will
+need to install the MinGW compiler toolchain(s). Both toolchains can be
+installed at the same time. To install the 64-bit toolchain:
 
 $ pacman -S mingw-w64-x86_64-toolchain
 
@@ -28,7 +33,7 @@ $ pacman -S mingw-w64-i686-toolchain
 
 The following additional packages should also be installed:
 
-$ pacman -S patch m4 lzip wget tar make diff
+$ pacman -S patch m4 lzip wget tar make diffutils
 
 The MSYS2 build environment
 ===========================
@@ -37,7 +42,7 @@ The build process is split into two phases. During phase 1 we use the MSYS2
 environment to build statically linked versions of GMP, MPFR, and MPC. Once
 those libraries are build, we will use the Windows command prompt to build
 the actual gmpy2 extension (DLL). We do not use the versions of Python
-included with MSYS2 to compile gmpy2.
+included with MSYS2 or MinGW to compile gmpy2.
 
 Commands that must be executed from an MSYS2 shell are preceded by "$".
 Commands that must be executed from a Windows command prompt are preceded
@@ -51,18 +56,28 @@ environments.
  * mingw64_shell.bat provides access to the 64-bit MinGW compiler suite.
  * mingw32_shell.bat provides access to the 32-bit MinGW compiler suite.
 
- MSYS2 does include versions of GMP, MPFR, and MPC but we will compile our
- own version directly from the source. We will specify the options that are
- appropriate for building a statically linked Windows DLL.
+MSYS2 does include versions of GMP, MPFR, and MPC but we will compile our
+own version directly from the source. We will specify the options that are
+appropriate for building a statically linked Windows DLL.
+
+MSYS2 can support both MinGW32 and MinGW64 toolchains simultaneously. We
+use /mingw32/opt and /mingw64/opt as the destinations for the 32-bit and
+64-bit versions of GMP, MPFR, and MPC. The sources for GMP, MPFR, and MPC
+will be placed in ~/src
 
 # Start the appropriate shell: mingw64_shell.bat or mingw32_shell.bat.
 
-# Create a new directory for our custom builds.
-  $ mkdir /opt
-  $ mkdir /opt/src
+# Create a new directies as the destinations for GMP, MPFR, and MPC. Use
+  either minngw32 or mingw64 (it must match the version used in the shell
+  batch file).
+
+  $ mkdir /mingw32/opt
+    -- or --
+  $ mkdir /mingw64/opt
+  $ mkdir ~/src
 
 # Download and uncompress GMP, MPFR, and MPC
-  $ cd /opt/src
+  $ cd ~/src
 
 # Download GMP
   $ wget https://gmplib.org/download/gmp/gmp-6.0.0a.tar.lz
@@ -70,6 +85,7 @@ environments.
 
 # Download MPFR and any patches
   $ wget http://www.mpfr.org/mpfr-current/mpfr-3.1.2.tar.bz2
+  $ tar xf mpfr-3.1.2.tar.bz2
   $ cd mpfr-3.1.2/
   $ wget http://www.mpfr.org/mpfr-current/allpatches
   $ patch -N -Z -p1 < allpatches
@@ -81,7 +97,12 @@ environments.
 
 # Compile GMP
   $ cd gmp-6.0.0/
-  $ ./configure --prefix=/opt --enable-static --disable-shared --enable-fat --with-pic
+  $ make distclean (only needed when compiling for a second time)
+
+  $ ./configure --prefix=/mingw32/opt --enable-static --disable-shared --enable-fat --with-pic
+    -- or --
+  $ ./configure --prefix=/mingw64/opt --enable-static --disable-shared --enable-fat --with-pic
+
   $ make
   $ make check
   $ make install
@@ -89,7 +110,12 @@ environments.
 
 # Compile MPFR
   $ cd mpfr-3.1.2/
-  $ ./configure --prefix=/opt --enable-static --disable-shared --with-pic --with-gmp=/opt
+  $ make distclean (only needed when compiling for a second time)
+
+  $ ./configure --prefix=/mingw32/opt --enable-static --disable-shared --with-pic --with-gmp=/mingw32/opt
+    -- or --
+  $ ./configure --prefix=/mingw64/opt --enable-static --disable-shared --with-pic --with-gmp=/mingw64/opt
+
   $ make
   $ make check
   $ make install
@@ -97,7 +123,12 @@ environments.
 
 # Compile MPC
   $ cd mpc-1.0.2/
-  $ ./configure --prefix=/opt --enable-static --disable-shared --with-pic --with-gmp=/opt --with-mpfr=/opt
+  $ make distclean (only needed when compiling for a second time)
+
+  $ ./configure --prefix=/mingw32/opt --enable-static --disable-shared --with-pic --with-gmp=/mingw32/opt --with-mpfr=/mingw32/opt
+    -- or --
+  $ ./configure --prefix=/mingw64/opt --enable-static --disable-shared --with-pic --with-gmp=/mingw64/opt --with-mpfr=/mingw64/opt
+
   $ make
   $ make check
   $ make install
@@ -106,7 +137,7 @@ environments.
 The Windows build environment
 =============================
 
-# Configure Windows command prompt
+# Configure Windows command prompt - GCC
   The MinGW toolchain must be accessible by the normal Windows installation of
   Python. The 64-bit MinGW toolchain is located in C:\msys64\mingw64\bin. The
   32-bit MinGW toolchain is located in C:\msys64\mingw32\bin. The MinGW
@@ -125,6 +156,36 @@ The Windows build environment
   Note: All the remaining instructions assume this step has been completed and
         that "gcc -v" returns information for the correct version of gcc.
 
+# Configure Windows command prompt - Python
+  The Python interpreter does not need to be accessible via the path. You can
+  specify the full path name to start a particular version. To simplify the
+  compilation of multiple versions of gmpy2, I have adopted the following
+  approach:
+
+  # 32-bit versions of Python are installed in C:\32
+  # 64-bit versions of Python are installed in C:\64
+  # Aliases are defined to create shortcuts for invoking a Python interpreter
+
+  I use the following batch file to configure a command prompt for 32-bit builds:
+
+  @echo off
+  doskey py26=C:\32\Python26\python.exe $*
+  doskey py27=C:\32\Python27\python.exe $*
+  doskey py32=C:\32\Python32\python.exe $*
+  doskey py33=C:\32\Python33\python.exe $*
+  doskey py34=C:\32\Python34\python.exe $*
+  set Path=C:\msys64\mingw32\bin;%Path%
+
+  I use the following batch file to configure a command prompt for 64-bit builds:
+
+  @echo off
+  doskey py26=C:\64\Python26\python.exe $*
+  doskey py27=C:\64\Python27\python.exe $*
+  doskey py32=C:\64\Python32\python.exe $*
+  doskey py33=C:\64\Python33\python.exe $*
+  doskey py34=C:\64\Python34\python.exe $*
+  set Path=C:\msys64\mingw64\bin;%Path%
+
 # Modify distutils library
   The gmpy2 extension is built using the distutils module. Recent versions of
   the gcc compiler no longer support an option that is used by older versions
@@ -137,19 +198,17 @@ The Windows build environment
   "Mingw32CCompiler". In the "__init__" function comment out the line:
   "self.dll_libraries = get_msvcr()".
 
-  *Optional*
   In the file "cygwincompiler.py", find the definition for the class
-  "Mingw32CCompiler". Under self.set_executables(...), change -O to -O2. To
-  match options used by Linux, also add "-fno-strict-aliasing" and "-fwrapv".
+  "Mingw32CCompiler". Under self.set_executables(...), change -O to -O2 and
+  add "-fno-strict-aliasing" and "-fwrapv". After changes, it should look like
 
-# Create a libpython.a file
-  MinGW requires a libpythonXX.a file that contains information about the C-API
-  functions that exist in pythonXX.dll. Follow these steps for your version of
-  Python.
-
-  > cd C:\Python27\libs
-  > gendef c:\Windows\System32\python27.dll
-  > dlltool --dllname c:\Windows\System32\python27.dll --def python27.def --output-lib libpython27.a
+    self.set_executables(compiler='gcc -O2 -Wall -fno-strict-aliasing -fwrapv',
+                         compiler_so='gcc -mdll -O2 -Wall -fno-strict-aliasing -fwrapv',
+                         compiler_cxx='g++ -O2 -Wall -fno-strict-aliasing -fwrapv',
+                         linker_exe='gcc',
+                         linker_so='%s %s %s'
+                                    % (self.linker_dll, shared_option,
+                                       entry_point))
 
 # Patch C:\Python27\include\pyconfig.h
   In that file search for the text #ifdef _WIN64 and cut out the following
@@ -162,10 +221,59 @@ The Windows build environment
   Search for the text #ifdef _MSC_VER earlier in the file. Paste in the
   cut-out lines, ABOVE the #ifdef _MSC_VER.
 
+# Create a libpython.a file
+  MinGW requires a libpythonXX.a file that contains information about the C-API
+  functions that exist in pythonXX.dll. Follow these steps for your version of
+  Python.
+
+  Note: The DLL locations are from a Windows 7 64-bit system with both 32-bit
+        and 64-bit versions of a Python version installed. Your location may
+        vary.
+
+  # For a 32-bit versions (with mingw32 on the path)
+  > cd C:\32\Python27\libs
+  > gendef c:\Windows\SysWOW64\python27.dll
+  > dlltool --dllname c:\Windows\SysWOW64\python27.dll --def python27.def --output-lib libpython27.a
+
+  # For a 64-bit version (with mingw64 on the path)
+  > cd C:\64\Python27\libs
+  > gendef c:\Windows\System32\python27.dll
+  > dlltool --dllname c:\Windows\System32\python27.dll --def python27.def --output-lib libpython27.a
+
 # To compile gmpy2
-  py27 setup.py build_ext --msys2 --prefix=c:\msys64\opt
+  py27 setup.py build_ext --msys2 --prefix=c:\msys64\mingwXX\opt
 
 # To install to a local Python installation (after compiling)
   py27 setup.py install
 
 
+-------------------
+
+misc
+
+cd C:\32\Python27\libs
+gendef c:\Windows\SysWOW64\python27.dll
+dlltool --dllname c:\Windows\SysWOW64\python27.dll --def python27.def --output-lib libpython27.a
+cd C:\32\Python32\libs
+gendef c:\Windows\SysWOW64\python32.dll
+dlltool --dllname c:\Windows\SysWOW64\python32.dll --def python32.def --output-lib libpython32.a
+cd C:\32\Python33\libs
+gendef c:\Windows\SysWOW64\python33.dll
+dlltool --dllname c:\Windows\SysWOW64\python33.dll --def python33.def --output-lib libpython33.a
+cd C:\32\Python34\libs
+gendef c:\Windows\SysWOW64\python34.dll
+dlltool --dllname c:\Windows\SysWOW64\python34.dll --def python34.def --output-lib libpython34.a
+
+
+cd C:\64\Python27\libs
+gendef c:\Windows\System32\python27.dll
+dlltool --dllname c:\Windows\System32\python27.dll --def python27.def --output-lib libpython27.a
+cd C:\64\Python32\libs
+gendef c:\Windows\System32\python32.dll
+dlltool --dllname c:\Windows\System32\python32.dll --def python32.def --output-lib libpython32.a
+cd C:\64\Python33\libs
+gendef c:\Windows\System32\python33.dll
+dlltool --dllname c:\Windows\System32\python33.dll --def python33.def --output-lib libpython33.a
+cd C:\64\Python34\libs
+gendef c:\Windows\System32\python34.dll
+dlltool --dllname c:\Windows\System32\python34.dll --def python34.def --output-lib libpython34.a
