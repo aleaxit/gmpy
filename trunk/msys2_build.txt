@@ -72,12 +72,15 @@ will be placed in ~/src
   batch file).
 
   $ mkdir /mingw32/opt
+  $ mkdir /mingw32/src
     -- or --
   $ mkdir /mingw64/opt
-  $ mkdir ~/src
+  $ mkdir /mingw64/src
 
 # Download and uncompress GMP, MPFR, and MPC
-  $ cd ~/src
+  $ cd /mingw32/src
+    -- or --
+  $ cd /mingw64/src
 
 # Download GMP
   $ wget https://gmplib.org/download/gmp/gmp-6.0.0a.tar.lz
@@ -97,11 +100,21 @@ will be placed in ~/src
 
 # Compile GMP
   $ cd gmp-6.0.0/
-  $ make distclean (only needed when compiling for a second time)
 
   $ ./configure --prefix=/mingw32/opt --enable-static --disable-shared --enable-fat --with-pic
     -- or --
   $ ./configure --prefix=/mingw64/opt --enable-static --disable-shared --enable-fat --with-pic
+
+    *Experimental for mingw64 build*
+    mp_bitcnt_t should really be a 64-bit unsigned integer. In gmp.h, find:
+
+    typedef unsigned long int mp_bitcnt_t;
+
+    and change it to:
+
+    typedef unsigned long long int	mp_bitcnt_t;
+
+    This will require changes to gmpy2 source also. See gmpy2_convert_utils.h.
 
   $ make
   $ make check
@@ -110,7 +123,6 @@ will be placed in ~/src
 
 # Compile MPFR
   $ cd mpfr-3.1.2/
-  $ make distclean (only needed when compiling for a second time)
 
   $ ./configure --prefix=/mingw32/opt --enable-static --disable-shared --with-pic --with-gmp=/mingw32/opt
     -- or --
@@ -123,7 +135,6 @@ will be placed in ~/src
 
 # Compile MPC
   $ cd mpc-1.0.2/
-  $ make distclean (only needed when compiling for a second time)
 
   $ ./configure --prefix=/mingw32/opt --enable-static --disable-shared --with-pic --with-gmp=/mingw32/opt --with-mpfr=/mingw32/opt
     -- or --

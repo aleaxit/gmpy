@@ -891,7 +891,7 @@ PyMODINIT_FUNC initgmpy2(void)
 
     /* Validate the sizes of the various typedef'ed integer types. */
 
-#if defined _WIN64 && MPIR
+#if defined _WIN64 && (MPIR || MSYS2)
     if (sizeof(mp_bitcnt_t) != sizeof(PY_LONG_LONG)) {
         SYSTEM_ERROR("Size of PY_LONG_LONG and mp_bitcnt_t not compatible (_WIN64 && MPIR)");
         INITERROR;

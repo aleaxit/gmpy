@@ -197,10 +197,6 @@ class gmpy_build_ext(build_ext):
         for i,d in enumerate(self.extensions[0].define_macros[:]):
             if d[0] == 'MSYS2':
                 self.compiler = 'mingw32'
-                try:
-                    self.extensions[0].define_macros.remove(d)
-                except ValueError:
-                    pass
 
 # Several command line options can be used to modify compilation of GMPY2. To
 # maintain backwards compatibility with older versions of setup.py, the old
