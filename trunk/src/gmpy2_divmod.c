@@ -316,7 +316,7 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
             }
             else {
                 mpfr_set_si(quo->f, 0, MPFR_RNDN);
-                rem->rc = mpfr_set(rem->f, tempx->f, GET_MPFR_ROUND(context));
+                rem->rc = mpfr_set(rem->f, tempx->f, MPFR_RNDN);
             }
         }
         else {
@@ -325,27 +325,25 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
             if (!(temp = GMPy_MPFR_New(0, context))) {
                 goto error;
             }
-            mpfr_fmod(rem->f, tempx->f, tempy->f, GET_MPFR_ROUND(context));
-            mpfr_sub(temp->f, tempx->f, rem->f, GET_MPFR_ROUND(context));
-            mpfr_div(quo->f, temp->f, tempy->f, GET_MPFR_ROUND(context));
+            mpfr_fmod(rem->f, tempx->f, tempy->f, MPFR_RNDN);
+            mpfr_sub(temp->f, tempx->f, rem->f, MPFR_RNDN);
+            mpfr_div(quo->f, temp->f, tempy->f, MPFR_RNDN);
 
             if (!mpfr_zero_p(rem->f)) {
                 if ((mpfr_sgn(tempy->f) < 0) != (mpfr_sgn(rem->f) < 0)) {
-                    mpfr_add(rem->f, rem->f, tempy->f, GET_MPFR_ROUND(context));
-                    mpfr_sub_ui(quo->f, quo->f, 1, GET_MPFR_ROUND(context));
+                    mpfr_add(rem->f, rem->f, tempy->f, MPFR_RNDN);
+                    mpfr_sub_ui(quo->f, quo->f, 1, MPFR_RNDN);
                 }
             }
             else {
-                mpfr_copysign(rem->f, rem->f, tempy->f, GET_MPFR_ROUND(context));
+                mpfr_copysign(rem->f, rem->f, tempy->f, MPFR_RNDN);
             }
 
             if (!mpfr_zero_p(quo->f)) {
                 mpfr_round(quo->f, quo->f);
             }
             else {
-                mpfr_setsign(quo->f, quo->f,
-                             mpfr_sgn(tempx->f) * mpfr_sgn(tempy->f) - 1,
-                             GET_MPFR_ROUND(context));
+                mpfr_setsign(quo->f, quo->f, mpfr_sgn(tempx->f) * mpfr_sgn(tempy->f) - 1, MPFR_RNDN);
             }
             Py_DECREF((PyObject*)temp);
         }
@@ -403,9 +401,11 @@ GMPy_MPC_DivMod_Slot(PyObject *x, PyObject *y)
 
 PyDoc_STRVAR(GMPy_doc_divmod,
 "div_mod(x, y) -> (quotient, remainder)\n\n"
-"Return divmod(x, y); uses alternate spelling to avoid naming conflicts.\n"
-"Note: overflow, underflow, and inexact exceptions are not supported for\n"
-"mpfr arguments to div_mod().");
+"Return divmod(x, y); uses alternate spelling to avoid naming conflicts.\n\n"
+"Note for mpfr arguments:\n"
+"  The context rounding mode is ignored; all calculations are done using\n"
+"  RoundToNearest. Overflow, underflow, and inexact exceptions are not\n"
+"  supported. Special values are handled as per Python's behavior.");
 
 static PyObject *
 GMPy_Number_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
