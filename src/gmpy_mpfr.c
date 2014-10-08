@@ -2513,7 +2513,7 @@ Pympfr_fsum(PyObject *self, PyObject *other)
         temp = (PympfrObject*)PyList_GET_ITEM(other, i);
         tab[i] = temp->f;
     }
-    result->rc = mpfr_sum(result->f, tab, seq_length, context->ctx.mpfr_round);
+    result->rc = mpfr_sum(result->f, tab, (unsigned long)seq_length, context->ctx.mpfr_round);
     Py_DECREF(other);
     GMPY_FREE(tab);
 

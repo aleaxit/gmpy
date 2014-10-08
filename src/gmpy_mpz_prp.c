@@ -958,7 +958,7 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
     mpir_ui r = 0;
     mpir_si q = 1;
     int ret = 0;
-    int j = 0;
+    size_t j = 0;
 
     if (PyTuple_Size(args) != 2) {
         TYPE_ERROR("is_extra_strong_lucas_prp() requires 2 integer arguments");

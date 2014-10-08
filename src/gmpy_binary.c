@@ -680,7 +680,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
         }
         case 0x03: {
             PympqObject *result;
-            size_t numlen = 0, sizesize = 4, i;
+            Py_ssize_t numlen = 0, sizesize = 4, i;
             mpz_t num, den;
 
             if (!(result = (PympqObject*)Pympq_new()))
@@ -730,7 +730,7 @@ Pympany_From_Binary(PyObject *self, PyObject *other)
         }
 #else
             PympfrObject *result;
-            size_t sizemant = 0, sizesize = 4, i, newmant;
+            Py_ssize_t sizemant = 0, sizesize = 4, i, newmant;
             mpfr_prec_t precision = 0;
             mpfr_exp_t exponent = 0;
             mp_limb_t templimb;
