@@ -339,6 +339,9 @@
  *   Changes to setup.py to allow static linking (casevh)
  *   Fix performance regression with mpmath and Python 3 (casevh)
  *
+ *   2.0.4
+ *   Fix bug in divm() that can mutate input (casevh)
+ *
  ************************************************************************
  *
  * Discussion on sizes of C integer types.
@@ -408,7 +411,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.0.4b1";
+char gmpy_version[] = "2.0.4";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -857,7 +860,7 @@ _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] =
-"gmpy2 2.0.4b1 - General Multiple-precision arithmetic for Python\n"
+"gmpy2 2.0.4 - General Multiple-precision arithmetic for Python\n"
 "\n"
 "gmpy2 supports several multiple-precision libraries. Integer and\n"
 "rational arithmetic is provided by either the GMP or MPIR libraries.\n"
