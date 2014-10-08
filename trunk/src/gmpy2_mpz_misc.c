@@ -457,10 +457,10 @@ static PyObject *
 GMPy_MPZ_Function_Divm(PyObject *self, PyObject *args)
 {
     MPZ_Object *result, *num, *den, *mod;
-    mpz_t gcdz;
+    mpz_t numz, denz, modz, gcdz;
     int ok = 0;
 
-    if(PyTuple_GET_SIZE(args) != 3) {
+    if (PyTuple_GET_SIZE(args) != 3) {
         TYPE_ERROR("divm() requires 'mpz','mpz','mpz' arguments");
         return NULL;
     }
@@ -473,7 +473,7 @@ GMPy_MPZ_Function_Divm(PyObject *self, PyObject *args)
     den = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
     mod = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 2), NULL);
 
-    if(!num || !den || !mod) {
+    if (!num || !den || !mod) {
         TYPE_ERROR("divm() requires 'mpz','mpz','mpz' arguments");
         Py_XDECREF((PyObject*)num);
         Py_XDECREF((PyObject*)den);
@@ -482,34 +482,45 @@ GMPy_MPZ_Function_Divm(PyObject *self, PyObject *args)
         return NULL;
     }
 
+    /* Make copies so we don't destroy the input. */
+    mpz_inoc(numz);
+    mpz_inoc(denz);
+    mpz_inoc(modz);
+    mpz_set(numz, num->z);
+    mpz_set(denz, den->z);
+    mpz_set(modz, mod->z);
+    Py_DECREF((PyObject*)num);
+    Py_DECREF((PyObject*)den);
+    Py_DECREF((PyObject*)mod);
+
     if (mpz_invert(result->z, den->z, mod->z)) { /* inverse exists */
         ok = 1;
     }
     else {
         /* last-ditch attempt: do num, den AND mod have a gcd>1 ? */
         mpz_inoc(gcdz);
-        mpz_gcd(gcdz, num->z, den->z);
-        mpz_gcd(gcdz, gcdz, mod->z);
-        mpz_divexact(num->z, num->z, gcdz);
-        mpz_divexact(den->z, den->z, gcdz);
-        mpz_divexact(mod->z, mod->z, gcdz);
+        mpz_gcd(gcdz, numz, denz);
+        mpz_gcd(gcdz, gcdz, modz);
+        mpz_divexact(numz, numz, gcdz);
+        mpz_divexact(denz, denz, gcdz);
+        mpz_divexact(modz, modz, gcdz);
         mpz_cloc(gcdz);
-        ok = mpz_invert(result->z, den->z, mod->z);
+        ok = mpz_invert(result->z, denz, modz);
     }
 
     if (ok) {
-        mpz_mul(result->z, result->z, num->z);
-        mpz_mod(result->z, result->z, mod->z);
-        Py_DECREF((PyObject*)num);
-        Py_DECREF((PyObject*)den);
-        Py_DECREF((PyObject*)mod);
+        mpz_mul(result->z, result->z, numz);
+        mpz_mod(result->z, result->z, modz);
+        mpz_cloc(numz);
+        mpz_cloc(denz);
+        mpz_cloc(modz);
         return (PyObject*)result;
     }
     else {
         ZERO_ERROR("not invertible");
-        Py_DECREF((PyObject*)num);
-        Py_DECREF((PyObject*)den);
-        Py_DECREF((PyObject*)mod);
+        mpz_cloc(numz);
+        mpz_cloc(denz);
+        mpz_cloc(modz);
         Py_DECREF((PyObject*)result);
         return NULL;
     }
