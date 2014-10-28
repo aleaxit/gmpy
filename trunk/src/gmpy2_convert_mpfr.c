@@ -636,7 +636,43 @@ stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz, CT
 static MPQ_Object *
 GMPy_MPQ_From_MPFR(MPFR_Object *self, CTXT_Object *context)
 {
-    return (MPQ_Object*)stern_brocot((MPFR_Object*)self, 0, 0, 0, context);
+    mpfr_exp_t temp, twocount;
+    MPQ_Object *result;
+
+    CHECK_CONTEXT(context);
+
+    if (mpfr_nan_p(self->f)) {
+        VALUE_ERROR("can not convert NaN to MPQ");
+        return NULL;
+    }
+
+    if (mpfr_inf_p(self->f)) {
+        OVERFLOW_ERROR("can not convert Infinity to MPQ");
+        return NULL;
+    }
+
+    if (!(result = GMPy_MPQ_New(context))) {
+        return NULL;
+    }
+
+    if (mpfr_zero_p(self->f)) {
+        mpz_set_ui(mpq_numref(result->q), 0);
+        mpz_set_ui(mpq_denref(result->q), 1);
+    }
+    else {
+        temp = mpfr_get_z_2exp(mpq_numref(result->q), self->f);
+        twocount = (mpfr_exp_t)mpz_scan1(mpq_numref(result->q), 0);
+        if (twocount) {
+            temp += twocount;
+            mpz_div_2exp(mpq_numref(result->q), mpq_numref(result->q), twocount);
+        }
+        mpz_set_ui(mpq_denref(result->q), 1);
+        if (temp > 0)
+            mpz_mul_2exp(mpq_numref(result->q), mpq_numref(result->q), temp);
+        else if (temp < 0)
+            mpz_mul_2exp(mpq_denref(result->q), mpq_denref(result->q), -temp);
+    }
+    return result;
 }
 
 static PyObject *

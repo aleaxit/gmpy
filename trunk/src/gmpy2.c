@@ -333,6 +333,8 @@
  *   Added copy() method to contexts (casevh)
  *   get_context() no longer supports keyword arguments (casevh)
  *
+ ************************************************************************
+ * 
  *   2.1.0
  *   Improvements to setup.py (casevh)
  *   Add thread-safe contexts (casevh)
@@ -343,7 +345,7 @@
  *   Major code refactoring required to properly support thread-safe
  *      contexts. (casevh)
  *   __str__ and __repr__ no longer append "L" on Python 2 (casevh)
- *
+ *   mpq(mpfr) now returns the exact result (casevh)
  *
  ************************************************************************
  *
