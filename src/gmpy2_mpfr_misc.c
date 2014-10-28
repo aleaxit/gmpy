@@ -370,6 +370,10 @@ PyDoc_STRVAR(GMPy_doc_method_integer_ratio,
 "Return the exact rational equivalent of an mpfr. Value is a tuple\n"
 "for compatibility with Python's float.as_integer_ratio().");
 
+/* Note: almost identical code exists in gmpy2_convert_mpfr.c as the
+ * function GMPy_MPQ_From_MPFR. They should be refactored.
+ */
+
 static PyObject *
 GMPy_MPFR_Integer_Ratio_Method(PyObject *self, PyObject *args)
 {
