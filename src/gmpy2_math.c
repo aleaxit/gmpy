@@ -1833,3 +1833,71 @@ GMPy_Context_Fsum(PyObject *self, PyObject *other)
     return (PyObject*)result;
 }
 
+#if 0
+
+/* The following code was a test case for creating a gmpy2 function that would
+ * apply an MPFR function to all the elements of a list. It was slightly faster
+ * than map(gmpy2.list, <<list>>) but not enough to justify the effort. The
+ * code is left for possible future use.
+ */ 
+
+PyDoc_STRVAR(GMPy_doc_function_vector,
+"vector(iterable) -> list\n\n"
+"Template for applying a function to an iterable..");
+
+PyDoc_STRVAR(GMPy_doc_context_vector,
+"vector(iterable) -> list\n\n"
+"Template for applying a function to an iterable.");
+
+static PyObject *
+GMPy_Context_Vector(PyObject *self, PyObject *other)
+{
+    PyObject *result, *tempres;
+    Py_ssize_t i, seq_length;
+    
+    CTXT_Object *context = NULL;
+
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
+    }
+    else {
+        CHECK_CONTEXT(context);
+    }
+
+    if (!(other = PySequence_List(other))) {
+        TYPE_ERROR("argument must be an iterable");
+        return NULL;
+    }
+
+    /* other contains a new list containing all the values from the
+     * iterable. Create a list to store the results.
+     */
+
+    seq_length = PyList_GET_SIZE(other);
+    if (!(result = PyList_New(seq_length))) {
+        Py_DECREF(other);
+        return NULL;
+    }
+
+    /* Iterate through the list. */
+    
+    for (i=0; i < seq_length; i++) {
+        if (!(tempres = GMPy_Number_Sin(PyList_GET_ITEM(other, i), context))) {
+            Py_DECREF(other);
+            Py_DECREF(result);
+            TYPE_ERROR("all items in iterable must be numbers");
+            return NULL;
+        }
+
+        if (PyList_SetItem(result, i, tempres) < 0) {
+            Py_DECREF(other);
+            Py_DECREF(result);
+            return NULL;
+        }
+    }
+
+    Py_DECREF(other);
+
+    return (PyObject*)result;
+}
+#endif
