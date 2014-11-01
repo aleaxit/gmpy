@@ -68,8 +68,8 @@ Test mpz construction
     mpz(0)
     >>> mpz(D("1"))
     mpz(1)
-    >>> mpz(D("1e10"))
-    mpz(10000000000)
+    >>> mpz(D("1e10")) == mpz(10000000000)
+    True
     >>> mpz(D("nan"))
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
