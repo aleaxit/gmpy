@@ -18,6 +18,7 @@ Contents:
    mpq
    mpfr
    mpc
+   history
 
 Indices and tables
 ==================
