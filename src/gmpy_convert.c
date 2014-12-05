@@ -2309,7 +2309,7 @@ Pympfr_To_Str(PympfrObject *self)
 {
     PyObject *result, *temp;
     long precision;
-    char fmtstr[30];
+    char fmtstr[60];
 
     precision = (long)(log10(2) * (double)mpfr_get_prec(Pympfr_AS_MPFR(self))) + 2;
 
@@ -2328,7 +2328,7 @@ Pympfr_To_Repr(PympfrObject *self)
 {
     PyObject *result, *temp;
     long precision, bits;
-    char fmtstr[30];
+    char fmtstr[60];
 
     bits = mpfr_get_prec(Pympfr_AS_MPFR(self));
     precision = (long)(log10(2) * (double)bits) + 2;
@@ -2803,7 +2803,7 @@ Pympc_To_Str(PympcObject *self)
     PyObject *result, *temp;
     mpfr_prec_t rbits, ibits;
     long rprec, iprec;
-    char fmtstr[30];
+    char fmtstr[60];
 
     mpc_get_prec2(&rbits, &ibits, Pympc_AS_MPC(self));
     rprec = (long)(log10(2) * (double)rbits) + 2;
@@ -2825,7 +2825,7 @@ Pympc_To_Repr(PympcObject *self)
     PyObject *result, *temp;
     mpfr_prec_t rbits, ibits;
     long rprec, iprec;
-    char fmtstr[30];
+    char fmtstr[60];
 
     mpc_get_prec2(&rbits, &ibits, Pympc_AS_MPC(self));
     rprec = (long)(log10(2) * (double)rbits) + 2;
