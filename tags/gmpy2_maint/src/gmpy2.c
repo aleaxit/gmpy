@@ -342,6 +342,9 @@
  *   2.0.4
  *   Fix bug in divm() that can mutate input (casevh)
  *
+ *   2.0.5
+ *   Fix crashing bug in repr(mpc) for precision >99 bits (casevh)
+ *
  ************************************************************************
  *
  * Discussion on sizes of C integer types.
