@@ -11,7 +11,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\gmpy.h">
+    <ClInclude Include="..\..\src\gmpy2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
