@@ -47,6 +47,54 @@ GMPy_MPQ_Attrib_GetDenom(MPQ_Object *self, void *closure)
     return (PyObject*)result;
 }
 
+PyDoc_STRVAR(GMPy_doc_mpq_function_numer,
+"numer(x) -> mpz\n\n"
+"Return the numerator of x.");
+
+static PyObject *
+GMPy_MPQ_Function_Numer(PyObject *self, PyObject *other)
+{
+    MPZ_Object *result;
+    MPQ_Object *tempq;
+    CTXT_Object *context = NULL;
+
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New(context)))
+        return NULL;
+
+    if (!(tempq = GMPy_MPQ_From_Rational(other, context))) {
+        Py_DECREF((PyObject*)result);
+        return NULL;
+    }
+
+    mpz_set(result->z, mpq_numref(tempq->q));
+    Py_DECREF((PyObject*)tempq);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(GMPy_doc_mpq_function_denom,
+"denom(x) -> mpz\n\n"
+"Return the denominator of x.");
+
+static PyObject *
+GMPy_MPQ_Function_Denom(PyObject *self, PyObject *other)
+{
+    MPZ_Object *result;
+    MPQ_Object *tempq;
+    CTXT_Object *context = NULL;
+
+    if (!(result = (MPZ_Object*)GMPy_MPZ_New(context)))
+        return NULL;
+
+    if (!(tempq = GMPy_MPQ_From_Rational(other, context))) {
+        Py_DECREF((PyObject*)result);
+        return NULL;
+    }
+
+    mpz_set(result->z, mpq_denref(tempq->q));
+    Py_DECREF((PyObject*)tempq);
+    return (PyObject*)result;
+}
+
 PyDoc_STRVAR(GMPy_doc_function_qdiv,
 "qdiv(x[, y=1]) -> number\n\n"
 "Return x/y as 'mpz' if possible, or as 'mpq' if x is not exactly\n"
