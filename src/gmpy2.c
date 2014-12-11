@@ -343,7 +343,9 @@
  *   Fix bug in divm() that can mutate input (casevh)
  *
  *   2.0.5
- *   Fix crashing bug in repr(mpc) for precision >99 bits (casevh)
+ *   Fix crashing bug in repr(mpc) for precision >325 bits (casevh)
+ *   Fix bug in qdiv() when denominator is a Python long larger than a
+ *     C long (casevh)
  *
  ************************************************************************
  *
