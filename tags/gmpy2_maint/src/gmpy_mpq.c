@@ -229,6 +229,9 @@ PyDoc_STRVAR(doc_qdivg,
 
 static int isOne(PyObject* obj)
 {
+    int overflow = 0;
+    long temp;
+    
     if (!obj)
         return 1;
 
@@ -256,7 +259,11 @@ static int isOne(PyObject* obj)
         return PyFloat_AS_DOUBLE(obj)==1.0;
     }
     else if (PyLong_Check(obj)) {
-        return PyLong_AsLong(obj)==1;
+        temp = PyLong_AsLongAndOverflow(obj, &overflow);
+        if (!overflow && temp == 1)
+            return 1;
+        else
+            return 0;
     }
     return 0;
 }
