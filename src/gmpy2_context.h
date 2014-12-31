@@ -62,6 +62,8 @@ typedef struct {
     int rational_division;   /* if 1, mpz/mpz returns an mpq result */
     int guard_bits;          /* number of additional guard bits to use */
                              /*   must be less than MAX_GUARD_BITS     */
+    int convert_exact;       /* if 1, str -> mpfr via mpq */
+    int floor_div_exact;     /* if 1, mpfr floor division uses mpq */
 } gmpy_context;
 
 typedef struct {
@@ -125,6 +127,9 @@ static PyTypeObject CTXT_Manager_Type;
 #define GET_DIV_MODE(c) (c->ctx.rational_division)
 #define GET_GUARD_BITS(c) (c->ctx.guard_bits)
 #define MAX_GUARD_BITS 1000
+
+#define GET_CONVERT_EXACT(c) (c->ctx.convert_exact)
+#define GET_FLOOR_DIV_EXACT(c) (c->ctx.floor_div_exact)
 
 static PyObject *    GMPy_CTXT_Manager_New(void);
 static void          GMPy_CTXT_Manager_Dealloc(CTXT_Manager_Object *self);

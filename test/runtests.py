@@ -65,7 +65,8 @@ mpq_doctests = ["test_mpq.txt", "test_mpq_to_from_binary.txt"]
 
 mpfr_doctests = ["test_mpfr_create.txt", "test_mpfr.txt",
                  "test_mpfr_trig.txt", "test_mpfr_min_max.txt",
-                 "test_mpfr_to_from_binary.txt", "test_context.txt"]
+                 "test_mpfr_to_from_binary.txt", "test_context.txt",
+                 "test_mpfr_subnormalize.txt"]
 
 mpc_doctests = ["test_mpc_create.txt", "test_mpc.txt",
                 "test_mpc_to_from_binary.txt"]
