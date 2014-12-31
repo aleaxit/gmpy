@@ -467,6 +467,7 @@ GMPy_MPQ_From_PyStr(PyObject *s, int base, CTXT_Object *context)
 {
     MPQ_Object *result;
     char *cp;
+    char exp_char = 'E';
     Py_ssize_t len, i;
     PyObject *ascii_str = NULL;
     long expt = 0;
@@ -504,6 +505,11 @@ GMPy_MPQ_From_PyStr(PyObject *s, int base, CTXT_Object *context)
         char *whereslash = strchr((char*)cp, '/');
         char *wheredot = strchr((char*)cp, '.');
         char *whereexp = strchr((char*)cp, 'E');
+        
+        if (!whereexp) {
+            whereexp = strchr((char*)cp, 'e');
+            exp_char = 'e';
+        }
 
         if (whereslash && wheredot) {
             VALUE_ERROR("illegal string: both . and / found");
@@ -551,7 +557,7 @@ GMPy_MPQ_From_PyStr(PyObject *s, int base, CTXT_Object *context)
                     *wheredot = '.';
                 /* Restore the exponent! */
                 if (whereexp && !whereslash && (base == 10))
-                    *whereexp = 'E';
+                    *whereexp = exp_char;
                 VALUE_ERROR("invalid digits");
                 goto error;
             }
@@ -573,7 +579,7 @@ GMPy_MPQ_From_PyStr(PyObject *s, int base, CTXT_Object *context)
 
             /* Restore the exponent! */
             if (whereexp && (base == 10))
-                *whereexp = 'E';
+                *whereexp = exp_char;
 
             goto finish;
         }
@@ -617,7 +623,7 @@ GMPy_MPQ_From_PyStr(PyObject *s, int base, CTXT_Object *context)
             }
             mpq_canonicalize(result->q);
             if (whereexp && (base == 10))
-                *whereexp = 'E';
+                *whereexp = exp_char;
         }
     }
 

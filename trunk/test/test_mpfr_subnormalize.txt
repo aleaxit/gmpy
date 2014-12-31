@@ -1,0 +1,14 @@
+MPFR Subnormalize
+==================
+
+>>> import gmpy2
+>>> gmpy2.set_context(gmpy2.ieee(64))
+>>> zeroes = '0.' + '0' * 323
+>>> gmpy2.mpfr(zeroes + '2470328229206232720')
+mpfr('0.0')
+>>> gmpy2.mpfr(zeroes + '2470328229206232721')
+mpfr('4.9406564584124654e-324')
+>>> gmpy2.mpfr(zeroes + '247032822920623272088')
+mpfr('0.0')
+>>> gmpy2.mpfr(zeroes + '247032822920623272089')
+mpfr('4.9406564584124654e-324')
