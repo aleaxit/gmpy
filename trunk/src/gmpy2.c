@@ -346,6 +346,7 @@
  *      contexts. (casevh)
  *   __str__ and __repr__ no longer append "L" on Python 2 (casevh)
  *   mpq(mpfr) now returns the exact result (casevh)
+ *   Fix repr(mpc) for precision >325 bits.
  *
  ************************************************************************
  *
