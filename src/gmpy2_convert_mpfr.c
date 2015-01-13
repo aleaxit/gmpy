@@ -902,7 +902,7 @@ GMPy_MPFR_Str_Slot(MPFR_Object *self)
 {
     PyObject *result, *temp;
     long precision;
-    char fmtstr[30];
+    char fmtstr[60];
 
     precision = (long)(log10(2) * (double)mpfr_get_prec(MPFR(self))) + 2;
 
@@ -921,7 +921,7 @@ GMPy_MPFR_Repr_Slot(MPFR_Object *self)
 {
     PyObject *result, *temp;
     long precision, bits;
-    char fmtstr[30];
+    char fmtstr[60];
 
     bits = mpfr_get_prec(MPFR(self));
     precision = (long)(log10(2) * (double)bits) + 2;
