@@ -251,13 +251,27 @@ GMPy_MPQ_DivMod_Slot(PyObject *x, PyObject *y)
     Py_RETURN_NOTIMPLEMENTED;
 }
 
-/* Compute the quotient and remainder of two mpfr numbers. Match Python's
- * behavior for handling signs and special values. Returns Py_NotImplemented
- * if both objects are not valid reals.
+/* There are two different approaches used to calculate divmod(mpfr, mpfr).
+ * GMPy_Real_DivMod_1() uses the same algorithm as Python. When using ieee(64)
+ * context, it should produce the identical results as Python. Unfortunately,
+ * the results are not always accurate. GMPy_Real_DivMod_2() converts the mpfr
+ * values to mpq and calculates the exact results. But the second method should
+ * be used cautiously with mpfr values that have large exponents.
  */
 
 static PyObject *
 GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
+{
+    CHECK_CONTEXT(context);
+
+    if (GET_FLOOR_DIV_EXACT(context))
+        return GMPy_Real_DivMod_2(x, y, context);
+    else
+        return GMPy_Real_DivMod_1(x, y, context);
+}
+
+static PyObject *
+GMPy_Real_DivMod_1(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *tempx = NULL, *tempy = NULL, *quo, *rem;
     PyObject *result;
@@ -355,6 +369,138 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
+        PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
+        PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
+        return (PyObject*)result;
+    }
+
+    Py_DECREF((PyObject*)rem);
+    Py_DECREF((PyObject*)quo);
+    Py_DECREF(result);
+    Py_RETURN_NOTIMPLEMENTED;
+
+  error:
+    Py_XDECREF((PyObject*)tempx);
+    Py_XDECREF((PyObject*)tempy);
+    Py_DECREF((PyObject*)rem);
+    Py_DECREF((PyObject*)quo);
+    Py_DECREF(result);
+    return NULL;
+}
+
+static PyObject *
+GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context)
+{
+    MPFR_Object *tempx = NULL, *tempy = NULL, *quo = NULL, *rem = NULL;
+    PyObject *result;
+
+    CHECK_CONTEXT(context);
+
+    if (!(result = PyTuple_New(2)) ||
+        !(rem = GMPy_MPFR_New(0, context)) ||
+        !(quo = GMPy_MPFR_New(0, context))
+        ) {
+            
+        Py_XDECREF((PyObject*)result);
+        Py_XDECREF((PyObject*)quo);
+        Py_XDECREF((PyObject*)rem);
+        return NULL;
+    }
+
+    if (IS_REAL(x) && IS_REAL(y)) {
+        if (!(tempx = GMPy_MPFR_From_Real(x, 1, context)) ||
+            !(tempy = GMPy_MPFR_From_Real(y, 1, context))
+            ) {
+            
+            goto error;
+        }
+
+        if (mpfr_zero_p(tempy->f)) {
+            context->ctx.divzero = 1;
+            if (context->ctx.traps & TRAP_DIVZERO) {
+                GMPY_DIVZERO("divmod() division by zero");
+                goto error;
+            }
+        }
+
+        if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
+            context->ctx.invalid = 1;
+            if (context->ctx.traps & TRAP_INVALID) {
+                GMPY_INVALID("divmod() invalid operation");
+                goto error;
+            }
+            else {
+                mpfr_set_nan(quo->f);
+                mpfr_set_nan(rem->f);
+            }
+        }
+        else if (mpfr_inf_p(tempy->f)) {
+            context->ctx.invalid = 1;
+            if (context->ctx.traps & TRAP_INVALID) {
+                GMPY_INVALID("divmod() invalid operation");
+                goto error;
+            }
+            if (mpfr_zero_p(tempx->f)) {
+                mpfr_set_zero(quo->f, mpfr_sgn(tempy->f));
+                mpfr_set_zero(rem->f, mpfr_sgn(tempy->f));
+            }
+            else if ((mpfr_signbit(tempx->f)) != (mpfr_signbit(tempy->f))) {
+                mpfr_set_si(quo->f, -1, MPFR_RNDN);
+                mpfr_set_inf(rem->f, mpfr_sgn(tempy->f));
+            }
+            else {
+                mpfr_set_si(quo->f, 0, MPFR_RNDN);
+                rem->rc = mpfr_set(rem->f, tempx->f, MPFR_RNDN);
+            }
+        }
+        else {
+            MPQ_Object *mpqx = NULL, *mpqy = NULL;
+            PyObject *temp;
+
+            Py_DECREF((PyObject*)rem);
+            Py_DECREF((PyObject*)quo);
+            
+            if (!(mpqx = GMPy_MPQ_From_MPFR(tempx, context)) ||
+                !(mpqy = GMPy_MPQ_From_MPFR(tempy, context))
+                ) {
+
+                Py_XDECREF((PyObject*)mpqx);
+                Py_XDECREF((PyObject*)mpqy);
+                Py_DECREF((PyObject*)tempx);
+                Py_DECREF((PyObject*)tempy);
+                Py_DECREF(result);
+                return NULL;
+            }
+            
+            Py_DECREF((PyObject*)tempx);
+            Py_DECREF((PyObject*)tempy);
+                
+            if (!(temp = GMPy_Rational_DivMod((PyObject*)mpqx, (PyObject*)mpqy, context))) {
+                Py_DECREF((PyObject*)mpqx);
+                Py_DECREF((PyObject*)mpqy);
+                Py_DECREF(result);
+                return NULL;
+            }
+
+            Py_DECREF((PyObject*)mpqx);
+            Py_DECREF((PyObject*)mpqy);
+            rem = NULL;
+            quo = NULL;
+            
+            if (!(quo = GMPy_MPFR_From_Real(PyTuple_GET_ITEM(temp, 0), 0, context)) ||
+                !(rem = GMPy_MPFR_From_Real(PyTuple_GET_ITEM(temp, 1), 0, context))
+                ) {
+                    
+                Py_XDECREF((PyObject*)quo);
+                Py_XDECREF((PyObject*)rem);
+                Py_DECREF(temp);
+                Py_DECREF(result);
+                return NULL;
+            }
+                    
+            Py_DECREF(temp);
+        }
+
         PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
         PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
         return (PyObject*)result;
