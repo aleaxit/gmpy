@@ -85,7 +85,7 @@ GMPy_CTXT_New(void)
         result->ctx.rational_division = 0;
         result->ctx.guard_bits = 0;
         result->ctx.convert_exact = 0;
-        result->ctx.floor_div_exact = 0;
+        result->ctx.mpfr_divmod_exact = 0;
 
 #ifndef WITHOUT_THREADS
         result->tstate = NULL;
@@ -344,7 +344,7 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
             "        rational_division=%s,\n"
             "        guard_bits=%s,\n"
             "        convert_exact=%s,\n"
-            "        floor_div_exact=%s)"
+            "        mpfr_divmod_exact=%s)"
             );
     if (!format) {
         Py_DECREF(tuple);
@@ -382,7 +382,7 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.rational_division));
     PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.guard_bits));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.convert_exact));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.floor_div_exact));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.mpfr_divmod_exact));
 
     if (!PyErr_Occurred())
         result = Py2or3String_Format(format, tuple);
@@ -445,7 +445,7 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero", "allow_complex",
         "rational_division", "guard_bits", "convert_exact",
-        "floor_div_exact", NULL };
+        "mpfr_divmod_exact", NULL };
 
     /* Create an empty dummy tuple to use for args. */
 
@@ -483,7 +483,7 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
             &ctxt->ctx.rational_division,
             &ctxt->ctx.guard_bits,
             &ctxt->ctx.convert_exact,
-            &ctxt->ctx.floor_div_exact))) {
+            &ctxt->ctx.mpfr_divmod_exact))) {
         VALUE_ERROR("invalid keyword arguments in local_context()");
         Py_DECREF(args);
         return 0;
@@ -675,7 +675,7 @@ PyDoc_STRVAR(GMPy_doc_context,
 "                       can't be converted exactly\n"
 "    convert_exact:     if True, string to mpfr/mpc conversions are done\n"
 "                       exactly by intermediate conversion to mpq\n"
-"    floor_div_exact:   if True, // and divmod() calculations are done\n"
+"    mpfr_divmod_exact: if True, divmod(mpfr,mpfr) calculations are done\n"
 "                       exactly by intermediate conversion to mpq.\n");
 #if 0
 "\nMethods\n"
@@ -938,7 +938,7 @@ GETSET_BOOLEAN_BIT(trap_divzero, TRAP_DIVZERO);
 GETSET_BOOLEAN(allow_complex)
 GETSET_BOOLEAN(rational_division)
 GETSET_BOOLEAN(convert_exact)
-GETSET_BOOLEAN(floor_div_exact)
+GETSET_BOOLEAN(mpfr_divmod_exact)
 
 static PyObject *
 GMPy_CTXT_Get_precision(CTXT_Object *self, void *closure)
@@ -1239,7 +1239,7 @@ static PyGetSetDef GMPyContext_getseters[] = {
     ADD_GETSET(rational_division),
     ADD_GETSET(guard_bits),
     ADD_GETSET(convert_exact),
-    ADD_GETSET(floor_div_exact),
+    ADD_GETSET(mpfr_divmod_exact),
     {NULL}
 };
 

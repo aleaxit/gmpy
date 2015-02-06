@@ -264,7 +264,7 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     CHECK_CONTEXT(context);
 
-    if (GET_FLOOR_DIV_EXACT(context))
+    if (GET_DIVMOD_EXACT(context))
         return GMPy_Real_DivMod_2(x, y, context);
     else
         return GMPy_Real_DivMod_1(x, y, context);
@@ -292,7 +292,6 @@ GMPy_Real_DivMod_1(PyObject *x, PyObject *y, CTXT_Object *context)
         tempx = GMPy_MPFR_From_Real(x, 1, context);
         tempy = GMPy_MPFR_From_Real(y, 1, context);
         if (!tempx || !tempy) {
-            SYSTEM_ERROR("could not convert Real to mpfr");
             goto error;
         }
         if (mpfr_zero_p(tempy->f)) {
@@ -454,11 +453,8 @@ GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context)
             }
         }
         else {
-            MPQ_Object *mpqx = NULL, *mpqy = NULL;
-            PyObject *temp;
-
-            Py_DECREF((PyObject*)rem);
-            Py_DECREF((PyObject*)quo);
+            MPQ_Object *mpqx = NULL, *mpqy = NULL, *temp_rem = NULL;
+            MPZ_Object *temp_quo = NULL;
             
             if (!(mpqx = GMPy_MPQ_From_MPFR(tempx, context)) ||
                 !(mpqy = GMPy_MPQ_From_MPFR(tempy, context))
@@ -474,36 +470,37 @@ GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context)
             
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
-                
-            if (!(temp = GMPy_Rational_DivMod((PyObject*)mpqx, (PyObject*)mpqy, context))) {
+
+            temp_rem = GMPy_MPQ_New(context);
+            temp_quo = GMPy_MPZ_New(context);
+            if (!(temp_rem = GMPy_MPQ_New(context)) ||
+                !(temp_quo = GMPy_MPZ_New(context))
+                ) {
+
+                Py_XDECREF((PyObject*)temp_rem);
+                Py_XDECREF((PyObject*)temp_quo);
                 Py_DECREF((PyObject*)mpqx);
                 Py_DECREF((PyObject*)mpqy);
                 Py_DECREF(result);
                 return NULL;
             }
 
+            mpq_div(temp_rem->q, mpqx->q, mpqy->q);
+            mpz_fdiv_q(temp_quo->z, mpq_numref(temp_rem->q), mpq_denref(temp_rem->q));
+            /* Need to calculate x - quo * y. */
+            mpq_set_z(temp_rem->q, temp_quo->z);
+            mpq_mul(temp_rem->q, temp_rem->q, mpqy->q);
+            mpq_sub(temp_rem->q, mpqx->q, temp_rem->q);
             Py_DECREF((PyObject*)mpqx);
             Py_DECREF((PyObject*)mpqy);
-            rem = NULL;
-            quo = NULL;
-            
-            if (!(quo = GMPy_MPFR_From_Real(PyTuple_GET_ITEM(temp, 0), 0, context)) ||
-                !(rem = GMPy_MPFR_From_Real(PyTuple_GET_ITEM(temp, 1), 0, context))
-                ) {
-                    
-                Py_XDECREF((PyObject*)quo);
-                Py_XDECREF((PyObject*)rem);
-                Py_DECREF(temp);
-                Py_DECREF(result);
-                return NULL;
-            }
-                    
-            Py_DECREF(temp);
+            quo->rc = mpfr_set_z(quo->f, temp_quo->z, MPFR_RNDD);
+            rem->rc = mpfr_set_q(rem->f, temp_rem->q, MPFR_RNDN);
+            Py_DECREF((PyObject*)temp_rem);
+            Py_DECREF((PyObject*)temp_quo);
+            PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
+            PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
+            return result;
         }
-
-        PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
-        PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
-        return (PyObject*)result;
     }
 
     Py_DECREF((PyObject*)rem);
