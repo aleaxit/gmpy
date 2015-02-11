@@ -37,6 +37,7 @@ static PyObject * GMPy_Number_F2Q(PyObject *x, PyObject *y, CTXT_Object *context
 static PyObject * GMPy_Context_F2Q(PyObject *self, PyObject *args);
 
 static PyObject * GMPy_MPFR_Free_Cache(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPFR_Can_Round(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPFR_get_emax_max(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPFR_get_max_precision(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPFR_get_exp(PyObject *self, PyObject *other);

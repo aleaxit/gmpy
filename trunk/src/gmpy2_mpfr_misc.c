@@ -103,6 +103,49 @@ GMPy_MPFR_Free_Cache(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+PyDoc_STRVAR(GMPy_doc_mpfr_can_round,
+"can_round(b, err, rnd1, rnd2, prec)\n\n"
+"Let b be an approximation to an unknown number x that is rounded\n"
+"according to rnd1. Assume the b has an error at most two to the power\n"
+"of E(b)-err where E(b) is the exponent of b. Then return true if x\n"
+"can be rounded correctly to prec bits with rounding mode rnd2.");
+
+static PyObject *
+GMPy_MPFR_Can_Round(PyObject *self, PyObject *args)
+{
+    int rnd1, rnd2;
+    long err, prec;
+    PyObject *b;
+
+    if (!PyArg_ParseTuple(args, "O!liil", &MPFR_Type, &b, &err, &rnd1, &rnd2, &prec)) {
+        return NULL;
+    }
+
+    if (!(rnd1 == MPFR_RNDN || rnd1 == MPFR_RNDZ ||
+          rnd1 == MPFR_RNDU || rnd1 == MPFR_RNDD ||
+          rnd1 == MPFR_RNDA)) {
+        VALUE_ERROR("invalid value for rounding mode");
+        return NULL;
+    }
+
+    if (!(rnd2 == MPFR_RNDN || rnd2 == MPFR_RNDZ ||
+          rnd2 == MPFR_RNDU || rnd2 == MPFR_RNDD ||
+          rnd2 == MPFR_RNDA)) {
+        VALUE_ERROR("invalid value for rounding mode");
+        return NULL;
+    }
+
+    if (prec < MPFR_PREC_MIN || prec > MPFR_PREC_MAX) {
+        VALUE_ERROR("invalid value for precision");
+        return NULL;
+    }
+
+    if (mpfr_can_round(MPFR(b), err, rnd1, rnd2, prec))
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
 PyDoc_STRVAR(GMPy_doc_mpfr_get_emin_min,
 "get_emin_min() -> integer\n\n"
 "Return the minimum possible exponent that can be set for 'mpfr'.");
