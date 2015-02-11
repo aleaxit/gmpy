@@ -687,6 +687,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "atan", GMPy_Context_Atan, METH_O, GMPy_doc_function_atan },
     { "atanh", GMPy_Context_Atanh, METH_O, GMPy_doc_function_atanh },
     { "atan2", GMPy_Context_Atan2, METH_VARARGS, GMPy_doc_function_atan2 },
+    { "can_round", GMPy_MPFR_Can_Round, METH_VARARGS, GMPy_doc_mpfr_can_round },
     { "cbrt", GMPy_Context_Cbrt, METH_O, GMPy_doc_function_cbrt },
     { "ceil", GMPy_Context_Ceil, METH_O, GMPy_doc_function_ceil },
     { "check_range", GMPy_Context_CheckRange, METH_O, GMPy_doc_function_check_range },
