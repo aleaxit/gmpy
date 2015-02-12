@@ -9,9 +9,6 @@ def writeln(s):
     sys.stdout.write('%s\n' % s)
     sys.stdout.flush()
 
-# Some operating systems may use a different library directory under the
-# prefix specified by --prefix. It can be changed using the --lib64 option.
-
 lib_path = 'lib'
 
 # Extract the version from MPFR/MPC
@@ -70,10 +67,10 @@ class gmpy_build_ext(build_ext):
         # versions of MPFR and MPC are available. If so, add entries to the
         # appropriate lists
 
-        # Find the directory specfied for PREFIX.
+        # Find the directory specfied for non-standard library location.
         prefix = ''
         for i,d in enumerate(self.extensions[0].define_macros[:]):
-            if d[0] == 'PREFIX':
+            if d[0] in ('SHARED', 'STATIC'):
                 prefix = d[1]
                 try:
                     self.extensions[0].define_macros.remove(d)
@@ -169,12 +166,6 @@ class gmpy_build_ext(build_ext):
             if not windows and adir not in base_dir:
                 self.extensions[0].runtime_library_dirs += [os.path.join(adir, lib_path)]
 
-        # If the instance of Python used to compile gmpy2 not found in 'prefix',
-        # then specify the Python shared library to use.
-        #~ if not windows and not get_python_lib(standard_lib=True).startswith(prefix):
-            #~ self.extensions[0].libraries = [get_python_lib(standard_lib=True)] \
-                                            #~ + self.extensions[0].libraries
-
         # For debugging information, uncomment the following lines.
         # writeln([mpfr_found, mpc_found])
         # writeln(self.extensions[0].include_dirs)
@@ -214,10 +205,11 @@ class gmpy_build_ext(build_ext):
 #  --nompc         -> was disable MPC support in 2.0.x
 #                     MPFR and MPC are required 2.1.x
 #  --lib64         -> use /prefix/lib64 instead of /prefix/lib
-#  --prefix=<...>  -> add the specified directory prefix to the beginning of
+#  --shared=<...>  -> add the specified directory prefix to the beginning of
 #                     the list of directories that are searched for GMP, MPFR,
-#                     and MPC
-#  --static        -> create a statically linked library
+#                     and MPC shared libraries
+#  --static=<...>  -> create a statically linked library using libraries from
+#                     specified path
 #
 # Old-stype options
 #
@@ -262,7 +254,7 @@ for token in sys.argv[:]:
         sys.argv.remove(token)
 
     if token.lower() == '--lib64':
-        lib_path = '/lib64'
+        lib_path = 'lib64'
         sys.argv.remove(token)
 
     if token.lower() == '--mpir':
@@ -288,15 +280,19 @@ for token in sys.argv[:]:
         writeln('--nompfr is no longer supported. MPFR is required.')
         sys.argv.remove(token)
 
-    if token.lower().startswith('--prefix'):
+    if token.lower().startswith('--shared'):
         try:
-            defines.append( ('PREFIX', token.split('=')[1]) )
+            defines.append( ('SHARED', token.split('=')[1]) )
         except:
             writeln('Please include a directory location.')
         sys.argv.remove(token)
 
-    if token.lower() == '--static':
-        static = True
+    if token.lower().startswith('--static'):
+        try:
+            defines.append( ('STATIC', token.split('=')[1]) )
+            static = True
+        except:
+            writeln('Please include a directory location.')
         sys.argv.remove(token)
 
     # The following options are deprecated and will be removed in the future.
@@ -320,11 +316,11 @@ for token in sys.argv[:]:
 
     if token.upper().startswith('-DDIR'):
         try:
-            defines.append( ('PREFIX', token.split('=')[1]) )
+            defines.append( ('SHARED', token.split('=')[1]) )
         except:
             writeln('Please include a directory location.')
         sys.argv.remove(token)
-        writeln('The -DDIR option is deprecated. Use --prefix instead.')
+        writeln('The -DDIR option is deprecated. Use --shared instead.')
 
 incdirs = ['./src']
 libdirs = []
@@ -344,7 +340,7 @@ mp_found = False
 
 prefix = ''
 for i,d in enumerate(defines):
-    if d[0] == 'PREFIX':
+    if d[0] in ('SHARED', 'STATIC'):
         prefix = d[1]
 
 if mplib == 'mpir':
