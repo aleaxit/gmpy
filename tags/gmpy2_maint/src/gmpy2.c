@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013 Case Van Horsen            *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -347,6 +348,9 @@
  *   Fix bug in qdiv() when denominator is a Python long larger than a
  *     C long (casevh)
  *
+ *   2.0.6
+ *   Fix setup.py to not override --prefix (casevh)
+ *
  ************************************************************************
  *
  * Discussion on sizes of C integer types.
@@ -416,7 +420,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.0.5";
+char gmpy_version[] = "2.0.6";
 
 char _gmpy_cvs[] = "$Id$";
 
@@ -865,7 +869,7 @@ _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] =
-"gmpy2 2.0.5 - General Multiple-precision arithmetic for Python\n"
+"gmpy2 2.0.6 - General Multiple-precision arithmetic for Python\n"
 "\n"
 "gmpy2 supports several multiple-precision libraries. Integer and\n"
 "rational arithmetic is provided by either the GMP or MPIR libraries.\n"

@@ -4,7 +4,7 @@
  * Python interface to the GMP or MPIR, MPFR, and MPC multiple precision   *
  * libraries.                                                              *
  *                                                                         *
- * Copyright 2012 Case Van Horsen                                          *
+ * Copyright 2012, 2013, 2014, 2015 Case Van Horsen                        *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
