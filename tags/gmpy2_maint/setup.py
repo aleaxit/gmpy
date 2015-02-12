@@ -10,7 +10,7 @@ def writeln(s):
     sys.stdout.flush()
 
 # Some operating systems may use a different library directory under the
-# prefix specified by --prefix. It must be manually changed.
+# prefix specified by --shared. It must be manually changed.
 
 lib_path = '/lib'
 
@@ -74,10 +74,10 @@ class gmpy_build_ext(build_ext):
         # versions of MPFR and MPC are available. If so, add entries to the
         # appropriate lists
 
-        # Find the directory specfied for PREFIX.
+        # Find the directory specfied for SHARED or STATIC.
         prefix = ''
         for i,d in enumerate(self.extensions[0].define_macros[:]):
-            if d[0] == 'PREFIX':
+            if d[0] in ('SHARED', 'STATIC'):
                 prefix = d[1]
                 try:
                     self.extensions[0].define_macros.remove(d)
@@ -221,11 +221,12 @@ class gmpy_build_ext(build_ext):
 #  --gmp           -> use GMP instead of MPIR
 #  --nompfr        -> disable MPFR and MPC library support
 #  --nompc         -> disable MPC support (MPFR should still work)
-#  --lib64         -> use /prefix/lib64 instead of /prefix/lib
+#  --lib64         -> use /<...>/lib64 instead of /<...>/lib
 #  --prefix=<...>  -> add the specified directory prefix to the beginning of
 #                     the list of directories that are searched for GMP, MPFR,
-#                     and MPC
-#  --static        -> create a statically linked library
+#                     and MPC shared libraries
+#  --static=<...>  -> create a statically linked library using static files from
+#                     the specified directory
 #
 # Old-stype options
 #
@@ -290,16 +291,19 @@ for token in sys.argv[:]:
         use_mpc = False
         sys.argv.remove(token)
 
-    if token.lower().startswith('--prefix'):
+    if token.lower().startswith('--shared'):
         try:
-            defines.append( ('PREFIX', token.split('=')[1]) )
-
+            defines.append( ('SHARED', token.split('=')[1]) )
         except:
             writeln('Please include a directory location.')
         sys.argv.remove(token)
 
-    if token.lower() == '--static':
-        static = True
+    if token.lower().startswith('--static'):
+        try:
+            defines.append( ('STATIC', token.split('=')[1]) )
+            static = True
+        except:
+            writeln('Please include a directory location.')
         sys.argv.remove(token)
 
     # The following options are deprecated and will be removed in the future.
@@ -326,11 +330,11 @@ for token in sys.argv[:]:
 
     if token.upper().startswith('-DDIR'):
         try:
-            defines.append( ('PREFIX', token.split('=')[1]) )
+            defines.append( ('SHARED', token.split('=')[1]) )
         except:
             writeln('Please include a directory location.')
         sys.argv.remove(token)
-        writeln('The -DDIR option is deprecated. Use --prefix instead.')
+        writeln('The -DDIR option is deprecated. Use --shared instead.')
 
 incdirs = ['./src']
 libdirs = []
@@ -348,7 +352,7 @@ mp_found = False
 
 prefix = ''
 for i,d in enumerate(defines):
-    if d[0] == 'PREFIX':
+    if d[0] in ('SHARED', 'STATIC'):
         prefix = d[1]
 
 if mplib == 'mpir':
@@ -391,7 +395,7 @@ gmpy2_ext = Extension('gmpy2',
                       extra_link_args = my_extra_link_args)
 
 setup(name = "gmpy2",
-      version = "2.0.5",
+      version = "2.0.6",
       maintainer = "Case Van Horsen",
       maintainer_email = "casevh@gmail.com",
       url = "http://code.google.com/p/gmpy/",
