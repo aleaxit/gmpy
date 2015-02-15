@@ -11,38 +11,6 @@ def writeln(s):
 
 lib_path = 'lib'
 
-# Extract the version from MPFR/MPC
-
-def get_mpfr_version(fname):
-    result = []
-    try:
-        with open(fname) as f:
-            for line in f:
-                if line.startswith('#define MPFR_VERSION_MAJOR'):
-                    result.append(int(line.split()[-1]))
-                if line.startswith('#define MPFR_VERSION_MINOR'):
-                    result.append(int(line.split()[-1]))
-                if line.startswith('#define MPFR_VERSION_PATCHLEVEL'):
-                    result.append(int(line.split()[-1]))
-        return tuple(result)
-    except:
-        return (0,0,0)
-
-def get_mpc_version(fname):
-    result = []
-    try:
-        with open(fname) as f:
-            for line in f:
-                if line.startswith('#define MPC_VERSION_MAJOR'):
-                    result.append(int(line.split()[-1]))
-                if line.startswith('#define MPC_VERSION_MINOR'):
-                    result.append(int(line.split()[-1]))
-                if line.startswith('#define MPC_VERSION_PATCHLEVEL'):
-                    result.append(int(line.split()[-1]))
-        return tuple(result)
-    except:
-        return (0,0,0)
-
 # Fail gracefully for old versions of Python.
 
 if sys.version[:3] < '2.6':
@@ -64,18 +32,18 @@ class gmpy_build_ext(build_ext):
 
     def check_versions(self):
         # Check the specified list of include directories to verify that valid
-        # versions of MPFR and MPC are available. If so, add entries to the
-        # appropriate lists
+        # header files for GMP, MPFR, and MPC exist.
 
         # Find the directory specfied for non-standard library location.
-        prefix = ''
-        for i,d in enumerate(self.extensions[0].define_macros[:]):
+        prefix = []
+        for d in self.extensions[0].define_macros[:]:
             if d[0] in ('SHARED', 'STATIC'):
-                prefix = d[1]
-                try:
-                    self.extensions[0].define_macros.remove(d)
-                except ValueError:
-                    pass
+                if d[1]:
+                    prefix.extend(map(os.path.expanduser, d[1].split(":")))
+                    try:
+                        self.extensions[0].define_macros.remove(d)
+                    except ValueError:
+                        pass
 
         if sys.version.find('MSC') == -1:
             windows = False
@@ -87,7 +55,7 @@ class gmpy_build_ext(build_ext):
             addin_dirs = []
 
         if prefix:
-            search_dirs = base_dir + addin_dirs + [prefix]
+            search_dirs = base_dir + addin_dirs + prefix
         else:
             search_dirs = base_dir + addin_dirs
 
@@ -96,18 +64,12 @@ class gmpy_build_ext(build_ext):
         else:
             mplib = 'mpir'
 
-        # Try to find a directory prefix that contains valid MPFR and MPC
-        # libraries. Only the version numbers of MPFR and MPC are checked.
-        # Don't bother checking for GMP version since it is effectively a
-        # prerequisite for MPFR and MPC.
-
         if not search_dirs:
             return
 
+        gmp_found = ''
         mpfr_found = ''
-        mpfr_version = (0,0,0)
         mpc_found = ''
-        mpc_version = (0,0,0)
 
         for adir in search_dirs:
             lookin = os.path.join(adir, 'include')
@@ -119,42 +81,20 @@ class gmpy_build_ext(build_ext):
             # writeln('mpc.h found: %s' % os.path.isfile(os.path.join(lookin, 'mpc.h')))
             # writeln('mpc.h version %s' % repr(get_mpc_version(os.path.join(lookin, 'mpc.h'))))
 
+            if os.path.isfile(os.path.join(lookin, mplib + '.h')):
+                gmp_found = adir
+                    
             if os.path.isfile(os.path.join(lookin, 'mpfr.h')):
-                v = get_mpfr_version(os.path.join(lookin, 'mpfr.h'))
-                if v >= mpfr_version:
-                    mpfr_found = adir
-                    mpfr_version = v
+                mpfr_found = adir
 
             if os.path.isfile(os.path.join(lookin, 'mpc.h')):
-                v = get_mpc_version(os.path.join(lookin, 'mpc.h'))
-                if v >= mpc_version:
-                    mpc_found = adir
-                    mpc_version = v
-
-        if mpfr_version < (3,1,0):
-            mpfr_found = False
-        if mpc_version < (1,0,0):
-            mpc_found = False
-
-        if not mpfr_found or not mpc_found:
-            writeln('----------------------------------------------------------------')
-            writeln('setup.py was not able to detect the required versions of MPFR')
-            writeln('and/or MPC. gmpy2 requires MPFR version 3.1.0 or greater and')
-            writeln('MPC version 1.0.0 or greater. To specify a directory prefix that')
-            writeln('contains the proper versions, use the --prefix=<dir> option.')
-            writeln('')
-            writeln('In some circumstances, the correct versions may be present and')
-            writeln('this warning can be ignored. If you have difficulties compiling')
-            writeln('or running gmpy2, please try compiling with the --prefix option.')
-            writeln('')
-            writeln('setup.py will still continue and attempt to compile gmpy2.')
-            writeln('-----------------------------------------------------------------')
+                mpc_found = adir
 
         # Add the directory information for location where valid versions were
         # found. This can cause confusion if there are multiple installations of
         # the same version of Python on the system.
 
-        for adir in (mpfr_found, mpc_found):
+        for adir in (gmp_found, mpfr_found, mpc_found):
             if not adir:
                 continue
             if adir in base_dir:
