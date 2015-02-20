@@ -30,50 +30,52 @@ If this fails, read on.
 
 ==Detailed Instructions==
 
-The following instructions are for *gmpy2* version 2.0.6 or later!
+----
+
+===The following instructions are for *gmpy2* version 2.0.6 or later!===
+
+===If you are compiling an earlier source version, please replace the existing setup.py with https://code.google.com/p/gmpy/source/browse/tags/gmpy2_maint/setup.py.===
+
+----
 
 If your Linux distribution does not support recent versions of GMP, MPFR, and MPC, you will need to compile your own versions. To avoid any possible conflict with existing libraries on your system, the following instructions install GMP, MPFR, and MPC to a location in your home directory. The *gmpy2* extension is also statically linked for easier installation.
 
 ===Compiling GMP, MPFR, and MPC===
 
-  # Create the desired destination directory for the GMP, MPFR, and MPC library files. The following instructions assume you are working in your home directory. Please replace _/home/username_ with your actual home directory name.
+  # Create the desired destination directory for the GMP, MPFR, and MPC library files. The following instructions use $HOME/static for the GMP, MPFR, and MPC static libraries. The instructions also assume the source for GMP, MPFR, and MPC is located in $HOME/src.
 {{{
-$ mkdir /home/username/static
+$ mkdir $HOME/static
 }}}
   # Download and un-tar the GMP source code. Change to GMP source directory and compile GMP.
 {{{
-$ cd ~/src/gmp-6.0.0
-$ ./configure --prefix=/home/username/static --enable-static --disable-shared --with-pic --enable-fat
+$ cd $HOME/src/gmp-6.0.0
+$ ./configure --prefix=$HOME/static --enable-static --disable-shared --with-pic --enable-fat
 $ make
 $ make check
 $ make install
 }}}
   # Download and un-tar the MPFR source code. Change to MPFR source directory and compile MPFR.
 {{{
-$ cd ~/src/mpfr-3.1.2
-$ ./configure --prefix=/home/username/static --enable-static --disable-shared --with-pic --with-gmp=/home/username/static
+$ cd $HOME/src/mpfr-3.1.2
+$ ./configure --prefix=$HOME/static --enable-static --disable-shared --with-pic --with-gmp=$HOME/static
 $ make
 $ make check
 $ make install
 }}}
   # Download and un-tar the MPC source code. Change to MPC source directory and compile MPC.
 {{{
-$ cd ~/src/mpc-1.0.1
-$ $ ./configure --prefix=/home/username/static --enable-static --disable-shared --with-pic --with-gmp=/home/username/static --with-mpfr=/home/username/static
+$ cd $HOME/src/mpc-1.0.1
+$ ./configure --prefix=$HOME/static --enable-static --disable-shared --with-pic --with-gmp=$HOME/static --with-mpfr=$HOME/static
 $ make
 $ make check
 $ make install
 }}}
   # Compile *gmpy2* and specify the location of GMP, MPFR, and MPC.
 {{{
-$ python setup.py build_ext --static=/home/username/static install
-}}}
-  # You can install using pip also.
-{{{
-$ pip install gmpy2 --global-option=build_ext --global-option=--static=/home/username/static
+$ python setup.py build_ext --static=$HOME/static install
 }}}
   # If you get a "permission denied" error message, you may need to use
 {{{
-$ python setup.py build_ext --static=/home/username/static
+$ python setup.py build_ext --static=$HOME/static
 $ sudo python setup.py install
 }}}
