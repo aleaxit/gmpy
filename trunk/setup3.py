@@ -47,17 +47,25 @@ else:
 #
 # The custom command line arguments are processed as follows:
 #
+#  --force is temporarily added to the list of defines and then removed by
+#  gmpy_build_ext. It is used to allow setup.py install --force to work as
+#  expected.
+#
 #  --msys2 is converted to -DMSYS2. Since MSYS2 needs to be defined as a macro
 #  to control options in the GMPY2 source code, this make sense.
 #
 #  --lib64 and --lib32 are removed from sys.argv and the global variable
 #  lib_path is set to 'lib64' or 'lib32' as appropriate.
 #
-#  --shared and --static are converted to -Dshared and -Dstatic.
+#  --shared and --static are converted to -DSHARED and -DSTATIC.
 
 defines = []
 
 for token in sys.argv[:]:
+    if token.lower() == '--force':
+        defines.append( ('FORCE', 1) )
+        sys.argv.remove(token)
+
     if token.lower() == '--lib64':
         lib_path = 'lib64'
         sys.argv.remove(token)
@@ -114,6 +122,13 @@ class gmpy_build_ext(build_ext):
                 self.compiler = 'mingw32'
                 msys2 = True
 
+            if d[0] == 'FORCE':
+                self.force = 1
+                try:
+                    self.extensions[0].define_macros.remove(d)
+                except ValueError:
+                    pass
+                    
             if d[0] in ('SHARED', 'STATIC'):
                 if d[0] == 'STATIC':
                     static = True
