@@ -9,7 +9,6 @@ def writeln(s):
     sys.stdout.write('%s\n' % s)
     sys.stdout.flush()
 
-lib_path = 'lib'
 
 # Fail gracefully for old versions of Python.
 
@@ -18,175 +17,49 @@ if sys.version[:3] < '2.6':
     writeln("Please use GMPY 1.x for earlier versions of Python.")
     sys.exit()
 
-# Improved clean command.
+# Initialize some global values.
 
-class gmpy_clean(clean):
+lib_path = 'lib'
 
-    def run(self):
-        self.all = True
-        clean.run(self)
+if sys.version.find('MSC') == -1:
+    windows = False
+else:
+    windows = True
 
-# Define a custom build class to force a new build.
-
-class gmpy_build_ext(build_ext):
-
-    def check_versions(self):
-        # Check the specified list of include directories to verify that valid
-        # header files for GMP, MPFR, and MPC exist.
-
-        # Find the directory specfied for non-standard library location.
-        prefix = []
-        for d in self.extensions[0].define_macros[:]:
-            if d[0] in ('SHARED', 'STATIC'):
-                if d[1]:
-                    prefix.extend(map(os.path.expanduser, d[1].split(":")))
-                    try:
-                        self.extensions[0].define_macros.remove(d)
-                    except ValueError:
-                        pass
-
-        if sys.version.find('MSC') == -1:
-            windows = False
-            base_dir = ['/usr']
-            addin_dirs = ['/usr/local']
-        else:
-            windows = True
-            base_dir = []
-            addin_dirs = []
-
-        if prefix:
-            search_dirs = base_dir + addin_dirs + prefix
-        else:
-            search_dirs = base_dir + addin_dirs
-
-        if 'gmp' in self.extensions[0].libraries:
-            mplib = 'gmp'
-        else:
-            mplib = 'mpir'
-
-        if not search_dirs:
-            return
-
-        gmp_found = ''
-        mpfr_found = ''
-        mpc_found = ''
-
-        for adir in search_dirs:
-            lookin = os.path.join(adir, 'include')
-
-            # For debugging information, uncomment the following lines.
-            # writeln('looking in: %s' % lookin)
-            # writeln('mpfr.h found: %s' % os.path.isfile(os.path.join(lookin, 'mpfr.h')))
-            # writeln('mpfr.h version %s' % repr(get_mpfr_version(os.path.join(lookin, 'mpfr.h'))))
-            # writeln('mpc.h found: %s' % os.path.isfile(os.path.join(lookin, 'mpc.h')))
-            # writeln('mpc.h version %s' % repr(get_mpc_version(os.path.join(lookin, 'mpc.h'))))
-
-            if os.path.isfile(os.path.join(lookin, mplib + '.h')):
-                gmp_found = adir
-                    
-            if os.path.isfile(os.path.join(lookin, 'mpfr.h')):
-                mpfr_found = adir
-
-            if os.path.isfile(os.path.join(lookin, 'mpc.h')):
-                mpc_found = adir
-
-        # Add the directory information for location where valid versions were
-        # found. This can cause confusion if there are multiple installations of
-        # the same version of Python on the system.
-
-        for adir in (gmp_found, mpfr_found, mpc_found):
-            if not adir:
-                continue
-            if adir in base_dir:
-                continue
-            if os.path.join(adir, 'include') in self.extensions[0].include_dirs:
-                continue
-            self.extensions[0].include_dirs += [os.path.join(adir, 'include')]
-            self.extensions[0].library_dirs += [os.path.join(adir, lib_path)]
-            if not windows and adir not in base_dir:
-                self.extensions[0].runtime_library_dirs += [os.path.join(adir, lib_path)]
-
-        # For debugging information, uncomment the following lines.
-        # writeln([mpfr_found, mpc_found])
-        # writeln(self.extensions[0].include_dirs)
-        # writeln(self.extensions[0].library_dirs)
-        # writeln(self.extensions[0].runtime_library_dirs)
-        # writeln(self.extensions[0].libraries)
-
-    def finalize_options(self):
-        build_ext.finalize_options(self)
-        gmpy_build_ext.check_versions(self)
-        # Check if --force was specified.
-        for i,d in enumerate(self.extensions[0].define_macros[:]):
-            if d[0] == 'FORCE':
-                self.force = 1
-                try:
-                    self.extensions[0].define_macros.remove(d)
-                except ValueError:
-                    pass
-        # Check if --msys2 was specified.
-        for i,d in enumerate(self.extensions[0].define_macros[:]):
-            if d[0] == 'MSYS2':
-                self.compiler = 'mingw32'
-
-# Several command line options can be used to modify compilation of GMPY2. To
-# maintain backwards compatibility with older versions of setup.py, the old
-# options are still supported.
+# Several command line options can be used to modify compilation of GMPY2. 
 #
-# New-style options
-#
-#  --force         -> ignore timestamps and recompile
-#  --mpir          -> use MPIR instead of GMP (GMP is the default on
-#                     non-Windows operating systems)
-#  --gmp           -> use GMP instead of MPIR
 #  --msys2         -> build on Windows using MSYS2, MinGW, and GMP
-#  --nompfr        -> was disable MPFR and MPC library support in 2.0.x
-#                     MPFR and MPC are required for 2.1.x
-#  --nompc         -> was disable MPC support in 2.0.x
-#                     MPFR and MPC are required 2.1.x
 #  --lib64         -> use /prefix/lib64 instead of /prefix/lib
+#  --lib32         -> use /prefix/lib32 instead of /prefix/lib
 #  --shared=<...>  -> add the specified directory prefix to the beginning of
 #                     the list of directories that are searched for GMP, MPFR,
 #                     and MPC shared libraries
 #  --static=<...>  -> create a statically linked library using libraries from
 #                     specified path
 #
-# Old-stype options
+# Ugly hack ahead. Sorry.
 #
-#   -DMPIR       -> use MPIR instead of GMP
-#   -DGMP        -> use GMP instead of MPIR
-#   -DNOMPFR     -> was disable MPFR and MPC library support in 2.0.x
-#                   MPFR and MPC are required for 2.1.x
-#   -DNOMPC      -> was disable MPC support (MPFR should still work)
-#                   MPFR and MPC are required for 2.1.x
-#   -Ddir=<...>  -> add the specified directory to beginning of the list of
-#                   directories that are searched for GMP, MPFR, and MPC
-
-# Windows build defaults to using MPIR. This will be over-written later if
-# --msys2 is given.
-
-if sys.version.find('MSC') == -1:
-    mplib='gmp'
-else:
-    mplib='mpir'
-
-# If 'clean' is the only argument to setup.py then we want to skip looking for
-# header files.
-
-if sys.argv[1].lower() in ['build', 'install']:
-    do_search = True
-else:
-    do_search = False
-
-# Parse command line arguments. If custom prefix location is specified, it is
-# passed as a define so it can be processed in the custom build_ext defined
-# above.
+# I haven't found any examples on how to extend distutils with user-defined
+# options. And the documentation is not helpful, either. So instead of fighting
+# distutils, soem of the options are converted into macro definitions. Macros
+# then get parsed by distutils and then a custom class reads the macros and
+# tweaks the setup.
+#
+# The custom command line arguments are processed as follows:
+#
+#  --force is temporarily added to the list of defines and then removed by
+#  gmpy_build_ext. It is used to allow setup.py install --force to work as
+#  expected.
+#
+#  --msys2 is converted to -DMSYS2. Since MSYS2 needs to be defined as a macro
+#  to control options in the GMPY2 source code, this make sense.
+#
+#  --lib64 and --lib32 are removed from sys.argv and the global variable
+#  lib_path is set to 'lib64' or 'lib32' as appropriate.
+#
+#  --shared and --static are converted to -DSHARED and -DSTATIC.
 
 defines = []
-
-force = False
-static = False
-msys2 = False
 
 for token in sys.argv[:]:
     if token.lower() == '--force':
@@ -197,109 +70,126 @@ for token in sys.argv[:]:
         lib_path = 'lib64'
         sys.argv.remove(token)
 
-    if token.lower() == '--mpir':
-        mplib = 'mpir'
-        sys.argv.remove(token)
-
-    if token.lower() == '--gmp':
-        mplib = 'gmp'
+    if token.lower() == '--lib32':
+        lib_path = 'lib32'
         sys.argv.remove(token)
 
     if token.lower() == '--msys2':
-        msys2 = True
-        mplib = 'gmp'
-        static = True
         defines.append( ('MSYS2', 1) )
-        sys.argv.remove(token)
-
-    if token.lower() == '--nompc':
-        writeln('--nompc is no longer supported. MPC is required.')
-        sys.argv.remove(token)
-
-    if token.lower() == '--nompfr':
-        writeln('--nompfr is no longer supported. MPFR is required.')
         sys.argv.remove(token)
 
     if token.lower().startswith('--shared'):
         try:
             defines.append( ('SHARED', token.split('=')[1]) )
-        except:
-            writeln('Please include a directory location.')
+        except IndexError:
+            pass
         sys.argv.remove(token)
 
     if token.lower().startswith('--static'):
         try:
             defines.append( ('STATIC', token.split('=')[1]) )
-            static = True
-        except:
-            writeln('Please include a directory location.')
+        except IndexError:
+            pass
         sys.argv.remove(token)
 
-    # The following options are deprecated and will be removed in the future.
-    if token.upper().startswith('-DMPIR'):
-        mplib='mpir'
-        sys.argv.remove(token)
-        writeln('The -DMPIR option is deprecated. Use --mpir instead.')
+# Improved clean command.
 
-    if token.upper().startswith('-DGMP'):
-        mplib='gmp'
-        sys.argv.remove(token)
-        writeln('The -DGMP option is deprecated. Use --gmp instead.')
+class gmpy_clean(clean):
 
-    if token.upper().startswith('-DNOMPC'):
-        writeln('-DNOMPC is no longer supported. MPC is required.')
-        sys.argv.remove(token)
+    def run(self):
+        self.all = True
+        clean.run(self)
 
-    if token.upper().startswith('-DNOMPFR'):
-        writeln('-DNOMPFR is no longer supported. MPFR is required.')
-        sys.argv.remove(token)
+# Define a custom build class that parses to the defined macros to alter the
+# build setup.
 
-    if token.upper().startswith('-DDIR'):
-        try:
-            defines.append( ('SHARED', token.split('=')[1]) )
-        except:
-            writeln('Please include a directory location.')
-        sys.argv.remove(token)
-        writeln('The -DDIR option is deprecated. Use --shared instead.')
+class gmpy_build_ext(build_ext):
 
-incdirs = ['./src']
-libdirs = []
-rundirs = []
-extras = []
+    def initialize_options(self):
+        build_ext.initialize_options(self)
+        
+    def doit(self):
+        # Find the directory specfied for non-standard library location.
+        search_dirs = []
+        static = False
+        msys2 = False
 
-# Specify extra link arguments for Windows.
+        # Assume that we will always want to use the GMP, MPFR, and MPC libraries.
+        self.extensions[0].libraries.extend(['gmp', 'mpfr', 'mpc'])
+        
+        for d in self.extensions[0].define_macros[:]:
+            if d[0] == 'MSYS2':
+                self.compiler = 'mingw32'
+                msys2 = True
 
-if sys.version.find('MSC') == -1 or msys2:
-    my_extra_link_args = None
-else:
-    my_extra_link_args = ["/MANIFEST"]
+            if d[0] == 'FORCE':
+                self.force = 1
+                try:
+                    self.extensions[0].define_macros.remove(d)
+                except ValueError:
+                    pass
+                    
+            if d[0] in ('SHARED', 'STATIC'):
+                if d[0] == 'STATIC':
+                    static = True
+                if d[0] == 'SHARED':
+                    static = False
+                if d[1]:
+                    search_dirs.extend(map(os.path.expanduser, d[1].split(":")))
+                    try:
+                        self.extensions[0].define_macros.remove(d)
+                    except ValueError:
+                        pass
 
-mp_found = False
+        # If non-default directories have been specified, we need to find the
+        # exact location of the libraries to allow static or runtime linking.
+        
+        gmp_found = ''
+        mpfr_found = ''
+        mpc_found = ''
+        if search_dirs:
 
-# Configure the defines...
+            for adir in search_dirs:
+                lookin = os.path.join(adir, 'include')
+                if os.path.isfile(os.path.join(lookin, 'gmp.h')):
+                    gmp_found = adir
+                if os.path.isfile(os.path.join(lookin, 'mpfr.h')):
+                    mpfr_found = adir
+                if os.path.isfile(os.path.join(lookin, 'mpc.h')):
+                    mpc_found = adir
 
-prefix = ''
-for i,d in enumerate(defines):
-    if d[0] in ('SHARED', 'STATIC'):
-        prefix = d[1]
+        # Add the directory information for location where valid versions were
+        # found. This can cause confusion if there are multiple installations of
+        # the same version of Python on the system.
 
-if mplib == 'mpir':
-    defines.append( ('MPIR', None) )
-    libs = ['mpir']
-    if static:
-        extras.append(os.path.join(prefix, lib_path, 'libmpir.a'))
-else:
-    libs = ['gmp']
-    if static:
-        extras.append(os.path.join(prefix, lib_path, 'libgmp.a'))
+        for adir in (gmp_found, mpfr_found, mpc_found):
+            if not adir:
+                continue
+            if os.path.join(adir, 'include') in self.extensions[0].include_dirs:
+                continue
+            self.extensions[0].include_dirs += [os.path.join(adir, 'include')]
+            self.extensions[0].library_dirs += [os.path.join(adir, lib_path)]
 
-libs.append('mpfr')
-if static:
-    extras.append(os.path.join(prefix, lib_path, 'libmpfr.a'))
+            # Add the runtime linking options.
+            if not static and not windows:
+                self.extensions[0].runtime_library_dirs += [os.path.join(adir, lib_path)]
 
-libs.append('mpc')
-if static:
-    extras.append(os.path.join(prefix, lib_path, 'libmpc.a'))
+        # Add the static linking options.
+        if static and gmp_found:
+            self.extensions[0].extra_objects.append(os.path.join(gmp_found, lib_path, 'libgmp.a'))
+        if static and mpfr_found:
+            self.extensions[0].extra_objects.append(os.path.join(mpfr_found, lib_path, 'libmpfr.a'))
+        if static and mpc_found:
+            self.extensions[0].extra_objects.append(os.path.join(mpc_found, lib_path, 'libmpc.a'))
+
+        # Add MSVC specific options.
+        if windows and not msys2:
+            self.extensions[0].extra_link_args.append('/MANIFEST')
+
+    def finalize_options(self):
+        build_ext.finalize_options(self)
+        gmpy_build_ext.doit(self)
+        
 
 # decomment next line (w/gcc, only!) to support gcov
 #   os.environ['CFLAGS'] = '-fprofile-arcs -ftest-coverage -O0'
@@ -310,13 +200,8 @@ my_commands = {'clean' : gmpy_clean, 'build_ext' : gmpy_build_ext}
 
 gmpy2_ext = Extension('gmpy2',
                       sources=[os.path.join('src', 'gmpy2.c')],
-                      include_dirs=incdirs,
-                      library_dirs=libdirs,
-                      libraries=libs,
-                      runtime_library_dirs=rundirs,
-                      define_macros = defines,
-                      extra_objects = extras,
-                      extra_link_args = my_extra_link_args)
+                      include_dirs=['./src'],
+                      define_macros = defines)
 
 setup(name = "gmpy2",
       version = "2.1.0a0",
