@@ -114,10 +114,11 @@ GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
     }
     
     n = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if ((n == (unsigned long)(-1)) && PyErr_Occurred()) {
+    if ((n == 0) || ((n == (unsigned long)(-1)) && PyErr_Occurred())) {
+        VALUE_ERROR("n must be > 0");
         return NULL;
     }
-   
+
     if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
         return NULL;
     }
@@ -163,7 +164,8 @@ GMPy_MPZ_Function_IrootRem(PyObject *self, PyObject *args)
     }
     
     n = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if ((n == (unsigned long)(-1)) && PyErr_Occurred()) {
+    if ((n == 0) || ((n == (unsigned long)(-1)) && PyErr_Occurred())) {
+        VALUE_ERROR("n must be > 0");
         return NULL;
     }
 
@@ -493,10 +495,11 @@ GMPy_MPZ_Function_Divm(PyObject *self, PyObject *args)
     Py_DECREF((PyObject*)den);
     Py_DECREF((PyObject*)mod);
 
-    if (mpz_invert(result->z, den->z, mod->z)) { /* inverse exists */
+    if (mpz_invert(result->z, denz, modz)) { /* inverse exists */
         ok = 1;
     }
     else {
+
         /* last-ditch attempt: do num, den AND mod have a gcd>1 ? */
         mpz_inoc(gcdz);
         mpz_gcd(gcdz, numz, denz);
