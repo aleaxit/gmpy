@@ -144,19 +144,50 @@ static MPFR_Object *
 GMPy_MPFR_From_PyIntOrLong(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
 {
     MPFR_Object *result = NULL;
-    MPZ_Object *tempz;
+    mpz_t tempz;
+    int error, was_one = 0;
+    long temp;
 
     assert(PyIntOrLong_Check(obj));
 
     CHECK_CONTEXT(context);
 
-    if (prec == 0 || prec == 1)
-        prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
+    if (prec == 0)
+        prec = GET_MPFR_PREC(context);
 
-    if ((tempz = GMPy_MPZ_From_PyIntOrLong(obj, context))) {
-        result = GMPy_MPFR_From_MPZ(tempz, prec, context);
-        Py_DECREF((PyObject*)tempz);
+    if (prec == 1) {
+        /* This should be made accurate, but is it worth the overhead? */
+        prec = 64;
+        was_one = 1;
     }
+
+    if (!(result = GMPy_MPFR_New(prec, context)))
+        return NULL;
+
+    temp = GMPy_Integer_AsLongAndError(obj, &error);
+
+    if (error) {
+        mpz_inoc(tempz);
+        mpz_set_PyIntOrLong(tempz, obj);
+        mpfr_clear_flags();
+        result->rc = mpfr_set_z(result->f, tempz, GET_MPFR_ROUND(context));
+        mpz_cloc(tempz);
+        if (!was_one) {
+            GMPY_MPFR_CHECK_RANGE(result, context);
+        }
+        GMPY_MPFR_SUBNORMALIZE(result, context);
+        GMPY_MPFR_EXCEPTIONS(result, context, "mpfr()");
+    }
+    else {
+        mpfr_clear_flags();
+        result->rc = mpfr_set_si(result->f, temp, GET_MPFR_ROUND(context));
+        if (!was_one) {
+            GMPY_MPFR_CHECK_RANGE(result, context);
+        }
+        GMPY_MPFR_SUBNORMALIZE(result, context);
+        GMPY_MPFR_EXCEPTIONS(result, context, "mpfr()");
+    }
+    
     return result;
 }
 
@@ -195,8 +226,8 @@ GMPy_MPFR_From_PyFloat(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
 
 /* If prec==0, then the precision of the current context is used.
  *
- * If prec==1, then the precision of the current context plus guard bits is
- * used.
+ * If prec==1, then an exact conversion is done by using the bit length of the
+ * argument as the precision.
  *
  * If prec>=2, then the specified precision is used.
  */
@@ -205,18 +236,26 @@ static MPFR_Object *
 GMPy_MPFR_From_MPZ(MPZ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
 {
     MPFR_Object *result;
+    int was_one = 0;
 
     assert(CHECK_MPZANY(obj));
 
     CHECK_CONTEXT(context);
 
-    if (prec == 0 || prec == 1)
-        prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
+    if (prec == 0)
+        prec = GET_MPFR_PREC(context);
+
+    if (prec == 1) {
+        prec = mpz_sizeinbase(obj->z, 2);
+        if (prec < MPFR_PREC_MIN)
+            prec = MPFR_PREC_MIN;
+        was_one = 1;
+    }
 
     if ((result = GMPy_MPFR_New(prec, context))) {
         mpfr_clear_flags();
         result->rc = mpfr_set_z(result->f, obj->z, GET_MPFR_ROUND(context));
-        if (prec != 1) {
+        if (!was_one) {
             GMPY_MPFR_CHECK_RANGE(result, context);
         }
         GMPY_MPFR_SUBNORMALIZE(result, context);
