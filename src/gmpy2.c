@@ -334,7 +334,7 @@
  *   get_context() no longer supports keyword arguments (casevh)
  *
  ************************************************************************
- * 
+ *
  *   2.1.0
  *   Improvements to setup.py (casevh)
  *   Add thread-safe contexts (casevh)
@@ -923,6 +923,10 @@ PyMODINIT_FUNC initgmpy2(void)
         SYSTEM_ERROR("Size of mpfr_exp_t and long not compatible");
         INITERROR;
     }
+
+    /* Configure MPFR to use the maximum possible exponent range. */
+    mpfr_set_emax(mpfr_get_emax_max());
+    mpfr_set_emin(mpfr_get_emin_min());
 
     /* Initialize the types. */
     if (PyType_Ready(&MPZ_Type) < 0)

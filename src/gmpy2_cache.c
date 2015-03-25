@@ -304,7 +304,7 @@ GMPy_MPC_New(mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context)
 {
     MPC_Object *self;
 
-    CHECK_CONTEXT_SET_EXPONENT(context);
+    CHECK_CONTEXT(context);
 
     if (rprec == 0 || rprec == 1)
         rprec = GET_REAL_PREC(context) + rprec * GET_GUARD_BITS(context);
