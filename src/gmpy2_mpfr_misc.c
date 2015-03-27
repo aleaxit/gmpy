@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -50,7 +51,7 @@ GMPy_Real_F2Q(PyObject *x, PyObject *y, CTXT_Object *context)
         Py_XDECREF((PyObject*)tempy);
         return NULL;
     }
-        
+
     result = stern_brocot(tempx, tempy, 0, 1, context);
     Py_DECREF((PyObject*)tempx);
     Py_XDECREF((PyObject*)tempy);
@@ -247,11 +248,11 @@ GMPy_MPFR_set_exp(PyObject *self, PyObject *args)
         VALUE_ERROR("exponent too large");
         return NULL;
     }
-    
+
     if (!(result = GMPy_MPFR_New(mpfr_get_prec(MPFR(temp)), context))) {
         return NULL;
     }
-    
+
     _oldemin = mpfr_get_emin();
     _oldemax = mpfr_get_emax();
     mpfr_set_emin(context->ctx.emin);
@@ -259,7 +260,7 @@ GMPy_MPFR_set_exp(PyObject *self, PyObject *args)
 
     mpfr_set(MPFR(result), MPFR(temp), GET_MPFR_ROUND(context));
     result->rc = mpfr_set_exp(MPFR(result), exp);
-    
+
     mpfr_set_emin(_oldemin);
     mpfr_set_emax(_oldemax);
 
@@ -293,7 +294,7 @@ GMPy_MPFR_set_sign(PyObject *self, PyObject *args)
         TYPE_ERROR("set_sign() requires 'mpfr', 'boolean' arguments");
         return NULL;
     }
-    
+
     if (!(result = GMPy_MPFR_New(0, context))) {
         return NULL;
     }
@@ -483,7 +484,7 @@ GMPy_MPFR_Mantissa_Exp_Method(PyObject *self, PyObject *args)
     CTXT_Object *context = NULL;
 
     CHECK_CONTEXT(context);
-    
+
     if (mpfr_nan_p(MPFR(self))) {
         VALUE_ERROR("Cannot pass NaN to mpfr.as_mantissa_exp.");
         return NULL;

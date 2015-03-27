@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -505,7 +506,7 @@ GMPy_MPQ_From_PyStr(PyObject *s, int base, CTXT_Object *context)
         char *whereslash = strchr((char*)cp, '/');
         char *wheredot = strchr((char*)cp, '.');
         char *whereexp = strchr((char*)cp, 'E');
-        
+
         if (!whereexp) {
             whereexp = strchr((char*)cp, 'e');
             exp_char = 'e';
@@ -915,7 +916,7 @@ GMPy_MPQ_From_DecimalRaw(PyObject* obj, CTXT_Object *context)
         SYSTEM_ERROR("Cannot convert Decimal to mpq");
         goto error;
     }
-    
+
     exp = PyIntOrLong_AsLong(d_exp);
     if (exp == -1 && PyErr_Occurred()) {
         SYSTEM_ERROR("Decimal _exp is not valid or overflow occurred");

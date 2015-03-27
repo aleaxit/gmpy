@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -117,14 +118,14 @@ GMPY_MPFR_MPC_UNIOP_EX(Acosh, acosh)
 
 /* Section 2:
  * These functions accept a single argument and return an mpfr result.
- * 
+ *
  * GMPY_MPFR_UNIOP(NAME, FUNC) creates the following functions:
  *     GMPy_Real_NAME(x, context)
  *     GMPy_Number_NAME(x, context)
  *     GMPy_Context_NAME(self, other)
  *     - called with METH_O
  */
- 
+
 PyDoc_STRVAR(GMPy_doc_context_sec,
 "context.sec(x) -> number\n\n"
 "Return secant of x; x in radians.");
@@ -466,7 +467,7 @@ GMPY_MPFR_UNIOP_EX(Ai, ai)
  * Since the expectional values vary between functions, the 'Real' and 'Complex'
  * functions do not use macros. However, they do use a macro to create the
  * higher-level functions.
- * 
+ *
  * GMPY_MPFR_MPC_UNIOP_TEMPLATE(NAME, FUNC) creates the following functions:
  *     GMPy_Number_NAME(x, context)
  *     - assumes GMPy_Real_NAME & GMPy_Complex_NAME exist
@@ -1233,9 +1234,9 @@ GMPy_Real_Round2(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *result, *tempx;
     long n = 0;
-    
+
     CHECK_CONTEXT(context);
-    
+
     if (y) {
         n = PyIntOrLong_AsLong(y);
         if ( (n == -1 && PyErr_Occurred()) || n < MPFR_PREC_MIN || n > MPFR_PREC_MAX) {
@@ -1243,7 +1244,7 @@ GMPy_Real_Round2(PyObject *x, PyObject *y, CTXT_Object *context)
             return NULL;
         }
     }
-    
+
     if (!(tempx = GMPy_MPFR_From_Real(x, 1, context))) {
         return NULL;
     }
@@ -1265,7 +1266,7 @@ GMPy_Number_Round2(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     if (IS_REAL(x) && (!y || PyIntOrLong_Check(y)))
         return GMPy_Real_Round2(x, y, context);
-        
+
     TYPE_ERROR("round2() argument type not supported");
     return NULL;
 }
@@ -1274,12 +1275,12 @@ static PyObject *
 GMPy_Context_Round2(PyObject *self, PyObject *args)
 {
     CTXT_Object *context = NULL;
-    
+
     if (PyTuple_GET_SIZE(args) < 1 || PyTuple_GET_SIZE(args) > 2) {
         TYPE_ERROR("round2() requires 1 or 2 arguments");
         return NULL;
     }
-    
+
     if (self && CTXT_Check(self)) {
         context = (CTXT_Object*)self;
     }
@@ -1424,12 +1425,12 @@ GMPy_Real_Modf(PyObject *x, CTXT_Object *context)
     mpfr_clear_flags();
     code = mpfr_modf(s->f, c->f, tempx->f, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
-    
+
     s->rc = code & 0x03;
     c->rc = code >> 2;
     if (s->rc == 2) s->rc = -1;
     if (c->rc == 2) c->rc = -1;
-    
+
     GMPY_MPFR_CLEANUP(s, context, "modf");
     GMPY_MPFR_CLEANUP(c, context, "modf");
 
@@ -1823,7 +1824,7 @@ GMPy_Context_Fsum(PyObject *self, PyObject *other)
         temp = (MPFR_Object*)PyList_GET_ITEM(other, i);
         tab[i] = temp->f;
     }
-    
+
     mpfr_clear_flags();
     result->rc = mpfr_sum(result->f, tab, seq_length, GET_MPFR_ROUND(context));
     Py_DECREF(other);
@@ -1839,7 +1840,7 @@ GMPy_Context_Fsum(PyObject *self, PyObject *other)
  * apply an MPFR function to all the elements of a list. It was slightly faster
  * than map(gmpy2.list, <<list>>) but not enough to justify the effort. The
  * code is left for possible future use.
- */ 
+ */
 
 PyDoc_STRVAR(GMPy_doc_function_vector,
 "vector(iterable) -> list\n\n"
@@ -1854,7 +1855,7 @@ GMPy_Context_Vector(PyObject *self, PyObject *other)
 {
     PyObject *result, *tempres;
     Py_ssize_t i, seq_length;
-    
+
     CTXT_Object *context = NULL;
 
     if (self && CTXT_Check(self)) {
@@ -1880,7 +1881,7 @@ GMPy_Context_Vector(PyObject *self, PyObject *other)
     }
 
     /* Iterate through the list. */
-    
+
     for (i=0; i < seq_length; i++) {
         if (!(tempres = GMPy_Number_Sin(PyList_GET_ITEM(other, i), context))) {
             Py_DECREF(other);

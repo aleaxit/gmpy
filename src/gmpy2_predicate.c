@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -59,7 +60,7 @@ GMPy_Real_Is_NAN(PyObject *x, CTXT_Object *context)
         res = mpfr_nan_p(tempx->f);
         Py_DECREF((PyObject*)tempx);
     }
-    
+
     if (res) {
         Py_RETURN_TRUE;
     }
@@ -79,7 +80,7 @@ GMPy_Complex_Is_NAN(PyObject *x, CTXT_Object *context)
 {
     MPC_Object *tempx;
     int res;
-    
+
     if (MPC_Check(x)) {
         res = MPC_IS_NAN_P(x);
     }
@@ -91,7 +92,7 @@ GMPy_Complex_Is_NAN(PyObject *x, CTXT_Object *context)
         res = MPC_IS_NAN_P(tempx);
         Py_DECREF((PyObject*)tempx);
     }
-    
+
     if (res) {
         Py_RETURN_TRUE;
     }
@@ -109,16 +110,16 @@ GMPy_MPC_Is_NAN_Method(PyObject *self, PyObject *args)
 /* This creates the following functions:
  *   GMPy_Number_Is_NAN(x, context)
  *   GMPy_Context_Is_NAN(self, other)
- * 
+ *
  * They assume the following functions have been defined above:
  *   GMPy_Real_Is_NAN(x, context)
  *   GMPy_Complex_Is_NAN(x, context)
- * 
+ *
  * In addition, the following function should also be defined:
  *   GMPy_Real_Is_NAN_Method(self, noargs)
  *   GMPy_Complex_Is_NAN_Method(self, noargs)
  */
- 
+
 GMPY_MPFR_MPC_UNIOP_TEMPLATE(Is_NAN, is_nan);
 
 PyDoc_STRVAR(GMPy_doc_function_is_infinite,
@@ -153,7 +154,7 @@ GMPy_Real_Is_Infinite(PyObject *x, CTXT_Object *context)
         res = mpfr_inf_p(tempx->f);
         Py_DECREF((PyObject*)tempx);
     }
-    
+
     if (res) {
         Py_RETURN_TRUE;
     }
@@ -173,7 +174,7 @@ GMPy_Complex_Is_Infinite(PyObject *x, CTXT_Object *context)
 {
     MPC_Object *tempx;
     int res;
-    
+
     if (MPC_Check(x)) {
         res = MPC_IS_INF_P(x);
     }
@@ -185,7 +186,7 @@ GMPy_Complex_Is_Infinite(PyObject *x, CTXT_Object *context)
         res = MPC_IS_INF_P(tempx);
         Py_DECREF((PyObject*)tempx);
     }
-    
+
     if (res) {
         Py_RETURN_TRUE;
     }
@@ -234,7 +235,7 @@ GMPy_Real_Is_Finite(PyObject *x, CTXT_Object *context)
         res = mpfr_number_p(tempx->f);
         Py_DECREF((PyObject*)tempx);
     }
-    
+
     if (res) {
         Py_RETURN_TRUE;
     }
@@ -254,7 +255,7 @@ GMPy_Complex_Is_Finite(PyObject *x, CTXT_Object *context)
 {
     MPC_Object *tempx;
     int res;
-    
+
     if (MPC_Check(x)) {
         res = MPC_IS_FINITE_P(x);
     }
@@ -266,7 +267,7 @@ GMPy_Complex_Is_Finite(PyObject *x, CTXT_Object *context)
         res = MPC_IS_FINITE_P(tempx);
         Py_DECREF((PyObject*)tempx);
     }
-    
+
     if (res) {
         Py_RETURN_TRUE;
     }
@@ -297,7 +298,7 @@ PyDoc_STRVAR(GMPy_doc_method_is_zero,
 "x.is_zero() -> boolean\n\n"
 "Return True if x is equal to 0. If x is an mpc, return True if both x.real\n"
 "and x.imag are equal to 0.");
-    
+
 static PyObject *
 GMPy_Real_Is_Zero(PyObject *x, CTXT_Object *context)
 {
@@ -315,7 +316,7 @@ GMPy_Real_Is_Zero(PyObject *x, CTXT_Object *context)
         res = mpfr_zero_p(tempx->f);
         Py_DECREF((PyObject*)tempx);
     }
-    
+
     if (res) {
         Py_RETURN_TRUE;
     }
@@ -335,7 +336,7 @@ GMPy_Complex_Is_Zero(PyObject *x, CTXT_Object *context)
 {
     MPC_Object *tempx;
     int res;
-    
+
     if (MPC_Check(x)) {
         res = MPC_IS_ZERO_P(x);
     }
@@ -347,7 +348,7 @@ GMPy_Complex_Is_Zero(PyObject *x, CTXT_Object *context)
         res = MPC_IS_ZERO_P(tempx);
         Py_DECREF((PyObject*)tempx);
     }
-    
+
     if (res) {
         Py_RETURN_TRUE;
     }
@@ -375,7 +376,7 @@ PyDoc_STRVAR(GMPy_doc_context_is_signed,
 PyDoc_STRVAR(GMPy_doc_method_is_signed,
 "x.is_signed() -> boolean\n\n"
 "Return True if the sign bit of x is set.");
-    
+
 static PyObject *
 GMPy_Real_Is_Signed(PyObject *x, CTXT_Object *context)
 {
@@ -393,7 +394,7 @@ GMPy_Real_Is_Signed(PyObject *x, CTXT_Object *context)
         res = mpfr_signbit(tempx->f);
         Py_DECREF((PyObject*)tempx);
     }
-    
+
     if (res) {
         Py_RETURN_TRUE;
     }
@@ -421,7 +422,7 @@ PyDoc_STRVAR(GMPy_doc_context_is_regular,
 PyDoc_STRVAR(GMPy_doc_method_is_regular,
 "x.is_regular() -> boolean\n\n"
 "Return True if x is not zero, NaN, or Infinity; False otherwise.");
-    
+
 static PyObject *
 GMPy_Real_Is_Regular(PyObject *x, CTXT_Object *context)
 {
@@ -439,7 +440,7 @@ GMPy_Real_Is_Regular(PyObject *x, CTXT_Object *context)
         res = mpfr_regular_p(tempx->f);
         Py_DECREF((PyObject*)tempx);
     }
-    
+
     if (res) {
         Py_RETURN_TRUE;
     }
@@ -467,7 +468,7 @@ PyDoc_STRVAR(GMPy_doc_context_is_integer,
 PyDoc_STRVAR(GMPy_doc_method_is_integer,
 "x.is_integer() -> boolean\n\n"
 "Return True if x is an integer; False otherwise.");
-    
+
 static PyObject *
 GMPy_Real_Is_Integer(PyObject *x, CTXT_Object *context)
 {
@@ -485,7 +486,7 @@ GMPy_Real_Is_Integer(PyObject *x, CTXT_Object *context)
         res = mpfr_integer_p(tempx->f);
         Py_DECREF((PyObject*)tempx);
     }
-    
+
     if (res) {
         Py_RETURN_TRUE;
     }
@@ -524,7 +525,7 @@ GMPy_Real_Is_LessGreater(PyObject *x, PyObject *y, CTXT_Object *context)
     res = mpfr_lessgreater_p(tempx->f, tempy->f);
     Py_DECREF((PyObject*)tempx);
     Py_DECREF((PyObject*)tempy);
-    
+
     if (res)
         Py_RETURN_TRUE;
     else
@@ -554,7 +555,7 @@ GMPy_Real_Is_Unordered(PyObject *x, PyObject *y, CTXT_Object *context)
     res = mpfr_unordered_p(tempx->f, tempy->f);
     Py_DECREF((PyObject*)tempx);
     Py_DECREF((PyObject*)tempy);
-    
+
     if (res)
         Py_RETURN_TRUE;
     else

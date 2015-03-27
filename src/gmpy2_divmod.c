@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -96,7 +97,7 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
             PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
             return result;
         }
-        
+
         if (CHECK_MPZANY(y)) {
             if (mpz_sgn(MPZ(y)) == 0) {
                 ZERO_ERROR("division or modulo by zero");
@@ -399,7 +400,7 @@ GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context)
         !(rem = GMPy_MPFR_New(0, context)) ||
         !(quo = GMPy_MPFR_New(0, context))
         ) {
-            
+
         Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)quo);
         Py_XDECREF((PyObject*)rem);
@@ -410,7 +411,7 @@ GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context)
         if (!(tempx = GMPy_MPFR_From_Real(x, 1, context)) ||
             !(tempy = GMPy_MPFR_From_Real(y, 1, context))
             ) {
-            
+
             goto error;
         }
 
@@ -455,7 +456,7 @@ GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context)
         else {
             MPQ_Object *mpqx = NULL, *mpqy = NULL, *temp_rem = NULL;
             MPZ_Object *temp_quo = NULL;
-            
+
             if (!(mpqx = GMPy_MPQ_From_MPFR(tempx, context)) ||
                 !(mpqy = GMPy_MPQ_From_MPFR(tempy, context))
                 ) {
@@ -467,7 +468,7 @@ GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context)
                 Py_DECREF(result);
                 return NULL;
             }
-            
+
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
 

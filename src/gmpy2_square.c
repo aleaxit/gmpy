@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -103,7 +104,7 @@ _GMPy_MPFR_Square(PyObject *x, CTXT_Object *context)
     MPFR_Object *result;
 
     CHECK_CONTEXT(context);
-    
+
     if (!(result = GMPy_MPFR_New(0, context))) {
         return NULL;
     }
@@ -120,7 +121,7 @@ GMPy_Real_Square(PyObject *x, CTXT_Object *context)
     PyObject *result, *tempx;
 
     CHECK_CONTEXT(context);
-    
+
     if (!(tempx = (PyObject*)GMPy_MPFR_From_Real(x, 1, context))) {
         return NULL;
     }
@@ -189,7 +190,7 @@ GMPy_Number_Square(PyObject *x, CTXT_Object *context)
 
     if (MPC_Check(x))
         return _GMPy_MPC_Square(x, context);
-        
+
     if (IS_INTEGER(x))
         return GMPy_Integer_Square(x, context);
 

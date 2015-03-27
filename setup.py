@@ -26,7 +26,7 @@ if sys.version.find('MSC') == -1:
 else:
     windows = True
 
-# Several command line options can be used to modify compilation of GMPY2. 
+# Several command line options can be used to modify compilation of GMPY2.
 #
 #  --msys2         -> build on Windows using MSYS2, MinGW, and GMP
 #  --lib64         -> use /prefix/lib64 instead of /prefix/lib
@@ -41,7 +41,7 @@ else:
 #
 # I haven't found any examples on how to extend distutils with user-defined
 # options. And the documentation is not helpful, either. So instead of fighting
-# distutils, soem of the options are converted into macro definitions. Macros
+# distutils, some of the options are converted into macro definitions. Macros
 # then get parsed by distutils and then a custom class reads the macros and
 # tweaks the setup.
 #
@@ -107,7 +107,7 @@ class gmpy_build_ext(build_ext):
 
     def initialize_options(self):
         build_ext.initialize_options(self)
-        
+
     def doit(self):
         # Find the directory specfied for non-standard library location.
         search_dirs = []
@@ -116,7 +116,7 @@ class gmpy_build_ext(build_ext):
 
         # Assume that we will always want to use the GMP, MPFR, and MPC libraries.
         self.extensions[0].libraries.extend(['gmp', 'mpfr', 'mpc'])
-        
+
         for d in self.extensions[0].define_macros[:]:
             if d[0] == 'MSYS2':
                 self.compiler = 'mingw32'
@@ -128,7 +128,7 @@ class gmpy_build_ext(build_ext):
                     self.extensions[0].define_macros.remove(d)
                 except ValueError:
                     pass
-                    
+
             if d[0] in ('SHARED', 'STATIC'):
                 if d[0] == 'STATIC':
                     static = True
@@ -143,7 +143,7 @@ class gmpy_build_ext(build_ext):
 
         # If non-default directories have been specified, we need to find the
         # exact location of the libraries to allow static or runtime linking.
-        
+
         gmp_found = ''
         mpfr_found = ''
         mpc_found = ''
@@ -189,7 +189,7 @@ class gmpy_build_ext(build_ext):
     def finalize_options(self):
         build_ext.finalize_options(self)
         gmpy_build_ext.doit(self)
-        
+
 
 # decomment next line (w/gcc, only!) to support gcov
 #   os.environ['CFLAGS'] = '-fprofile-arcs -ftest-coverage -O0'
@@ -210,7 +210,7 @@ setup(name = "gmpy2",
       url = "http://code.google.com/p/gmpy/",
       description = "GMP/MPIR, MPFR, and MPC interface to Python 2.6+ and 3.x",
       classifiers = [
-        'Development Status :: 4 - Beta',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research'
         'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',

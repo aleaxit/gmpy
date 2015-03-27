@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -267,7 +268,7 @@ GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context
     if (PyIntOrLong_Check(exp)) {
         int error;
         long temp_exp = GMPy_Integer_AsLongAndError(exp, &error);
-        
+
         if (!error) {
             result->rc = mpfr_pow_si(result->f, tempb->f, temp_exp, GET_MPFR_ROUND(context));
         }
@@ -348,7 +349,7 @@ GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *cont
     if (PyIntOrLong_Check(exp)) {
         int error;
         long temp_exp = GMPy_Integer_AsLongAndError(exp, &error);
-        
+
         if (!error) {
             result->rc = mpc_pow_si(result->c, tempb->c, temp_exp, GET_MPC_ROUND(context));
         }

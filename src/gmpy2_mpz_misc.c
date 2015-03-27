@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -80,7 +81,7 @@ GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *args)
             return NULL;
         }
     }
-        
+
     if ((base < 2) || (base > 62)) {
         VALUE_ERROR("base must be in the interval [2, 62]");
         return NULL;
@@ -89,7 +90,7 @@ GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *args)
     if (!(temp = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
         return NULL;
     }
-    
+
     result = PyIntOrLong_FromSize_t(mpz_sizeinbase(temp->z, (int)base));
     Py_DECREF((PyObject*)temp);
     return result;
@@ -112,7 +113,7 @@ GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
         TYPE_ERROR("iroot() requires 'mpz','int' arguments");
         return NULL;
     }
-    
+
     n = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 1));
     if ((n == 0) || ((n == (unsigned long)(-1)) && PyErr_Occurred())) {
         VALUE_ERROR("n must be > 0");
@@ -122,13 +123,13 @@ GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
     if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
         return NULL;
     }
-    
+
     if (mpz_sgn(tempx->z) < 0) {
         VALUE_ERROR("iroot() of negative number");
         Py_DECREF((PyObject*)tempx);
         return NULL;
     }
-    
+
     result = PyTuple_New(2);
     root = GMPy_MPZ_New(NULL);
     if (!result || !root) {
@@ -140,7 +141,7 @@ GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
 
     exact = mpz_root(root->z, tempx->z, n);
     Py_DECREF((PyObject*)tempx);
-    
+
     PyTuple_SET_ITEM(result, 0, (PyObject*)root);
     PyTuple_SET_ITEM(result, 1, (PyObject*)PyBool_FromLong(exact));
     return result;
@@ -162,7 +163,7 @@ GMPy_MPZ_Function_IrootRem(PyObject *self, PyObject *args)
         TYPE_ERROR("iroot_rem() requires 'mpz','int' arguments");
         return NULL;
     }
-    
+
     n = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 1));
     if ((n == 0) || ((n == (unsigned long)(-1)) && PyErr_Occurred())) {
         VALUE_ERROR("n must be > 0");
@@ -172,13 +173,13 @@ GMPy_MPZ_Function_IrootRem(PyObject *self, PyObject *args)
     if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
         return NULL;
     }
-    
+
     if (mpz_sgn(tempx->z) < 0) {
         VALUE_ERROR("iroot_rem() of negative number");
         Py_DECREF((PyObject*)tempx);
         return NULL;
     }
-    
+
     result = PyTuple_New(2);
     root = GMPy_MPZ_New(NULL);
     rem = GMPy_MPZ_New(NULL);
@@ -189,10 +190,10 @@ GMPy_MPZ_Function_IrootRem(PyObject *self, PyObject *args)
         Py_XDECREF((PyObject*)rem);
         return NULL;
     }
-    
+
     mpz_rootrem(root->z, rem->z, tempx->z, n);
     Py_DECREF((PyObject*)tempx);
-    
+
     PyTuple_SET_ITEM(result, 0, (PyObject*)root);
     PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
     return result;
@@ -254,7 +255,7 @@ GMPy_MPZ_Method_Round(PyObject *self, PyObject *args)
         Py_INCREF(self);
         return self;
     }
-    
+
     round_digits = -round_digits;
 
     if ((result = GMPy_MPZ_New(NULL))) {
@@ -343,7 +344,7 @@ GMPy_MPZ_Function_GCD(PyObject *self, PyObject *args)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        
+
         mpz_gcd(result->z, tempa->z, tempb->z);
         Py_DECREF((PyObject*)tempa);
         Py_DECREF((PyObject*)tempb);
@@ -544,7 +545,7 @@ GMPy_MPZ_Function_Fac(PyObject *self, PyObject *other)
     if (n == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
-    
+
     if ((result = GMPy_MPZ_New(NULL))) {
         mpz_fac_ui(result->z, n);
     }
@@ -588,7 +589,7 @@ GMPy_MPZ_Function_Primorial(PyObject *self, PyObject *other)
     if (n == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
-    
+
     if ((result = GMPy_MPZ_New(NULL))) {
         mpz_primorial_ui(result->z, n);
     }
@@ -615,7 +616,7 @@ GMPy_MPZ_Function_MultiFac(PyObject *self, PyObject *args)
     if (n == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
-    
+
     m = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (m == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
@@ -672,7 +673,7 @@ GMPy_MPZ_Function_Fib2(PyObject *self, PyObject *other)
         Py_XDECREF((PyObject*)fib2);
         result = NULL;
     }
-    
+
     mpz_fib2_ui(fib1->z, fib2->z, n);
     PyTuple_SET_ITEM(result, 0, (PyObject*)fib1);
     PyTuple_SET_ITEM(result, 1, (PyObject*)fib2);
@@ -725,7 +726,7 @@ GMPy_MPZ_Function_Lucas2(PyObject *self, PyObject *other)
         Py_XDECREF((PyObject*)luc2);
         result = NULL;
     }
-    
+
     mpz_lucnum2_ui(luc1->z, luc2->z, n);
     PyTuple_SET_ITEM(result, 0, (PyObject*)luc1);
     PyTuple_SET_ITEM(result, 1, (PyObject*)luc2);
@@ -751,7 +752,7 @@ GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args)
         TYPE_ERROR("bincoef() requires two integer arguments");
         return NULL;
     }
-    
+
     if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
         return NULL;
     }
@@ -760,12 +761,12 @@ GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args)
     if (k == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
-    
+
     if(!(result = GMPy_MPZ_New(NULL))) {
         Py_DECREF((PyObject*)tempx);
         return NULL;
     }
-    
+
     mpz_bin_ui(result->z, tempx->z, k);
     Py_DECREF((PyObject*)tempx);
     return (PyObject*)result;
@@ -861,11 +862,11 @@ GMPy_MPZ_Function_Remove(PyObject *self, PyObject *args)
         TYPE_ERROR("remove() requires 'mpz','mpz' arguments");
         return NULL;
     }
-    
+
     if (!(result = GMPy_MPZ_New(NULL))) {
         return NULL;
     }
-    
+
     x = PyTuple_GET_ITEM(args, 0);
     f = PyTuple_GET_ITEM(args, 1);
 
@@ -920,7 +921,7 @@ GMPy_MPZ_Function_Invert(PyObject *self, PyObject *args)
     if (!(result = GMPy_MPZ_New(NULL))) {
         return NULL;
     }
-    
+
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
 
@@ -985,7 +986,7 @@ GMPy_MPZ_Function_Divexact(PyObject *self, PyObject *args)
     if (!(result = GMPy_MPZ_New(NULL))) {
         return NULL;
     }
-    
+
     x = PyTuple_GET_ITEM(args, 0);
     y = PyTuple_GET_ITEM(args, 1);
 
@@ -1044,7 +1045,7 @@ GMPy_MPZ_Function_IsSquare(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)tempx);
         }
     }
-    
+
     if (res)
         Py_RETURN_TRUE;
     else
@@ -1061,7 +1062,7 @@ GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args)
     unsigned long temp;
     int error, res;
     MPZ_Object *tempx, *tempd;
-    
+
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("is_divisible() requires 2 integer arguments");
         return NULL;
@@ -1080,13 +1081,13 @@ GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args)
         else
             Py_RETURN_FALSE;
     }
-        
+
     if (!(tempd = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL))) {
         TYPE_ERROR("is_divisible() requires 2 integer arguments");
         Py_DECREF((PyObject*)tempx);
         return NULL;
     }
-    
+
     res = mpz_divisible_p(tempx->z, tempd->z);
     Py_DECREF((PyObject*)tempx);
     Py_DECREF((PyObject*)tempd);
@@ -1108,7 +1109,7 @@ GMPy_MPZ_Method_IsDivisible(PyObject *self, PyObject *other)
     MPZ_Object *tempd;
 
     assert(CHECK_MPZANY(self));
-    
+
     temp = GMPy_Integer_AsUnsignedLongAndError(other, &error);
     if (!error) {
         res = mpz_divisible_ui_p(MPZ(self), temp);
@@ -1117,12 +1118,12 @@ GMPy_MPZ_Method_IsDivisible(PyObject *self, PyObject *other)
         else
             Py_RETURN_FALSE;
     }
-   
+
     if (!(tempd = GMPy_MPZ_From_Integer(other, NULL))) {
         TYPE_ERROR("is_divisible() requires integer argument");
         return NULL;
     }
-    
+
     res = mpz_divisible_p(MPZ(self), tempd->z);
     Py_DECREF((PyObject*)tempd);
     if (res)
@@ -1140,7 +1141,7 @@ GMPy_MPZ_Function_IsCongruent(PyObject *self, PyObject *args)
 {
     int res;
     MPZ_Object *tempx, *tempy, *tempm;
-    
+
     if (PyTuple_GET_SIZE(args) != 3) {
         TYPE_ERROR("is_congruent() requires 3 integer arguments");
         return NULL;
@@ -1156,7 +1157,7 @@ GMPy_MPZ_Function_IsCongruent(PyObject *self, PyObject *args)
         TYPE_ERROR("is_congruent() requires 3 integer arguments");
         return NULL;
     }
-    
+
     res = mpz_congruent_p(tempx->z, tempy->z, tempm->z);
     Py_DECREF((PyObject*)tempx);
     Py_DECREF((PyObject*)tempy);
@@ -1176,7 +1177,7 @@ GMPy_MPZ_Method_IsCongruent(PyObject *self, PyObject *args)
 {
     int res;
     MPZ_Object *tempy, *tempm;
-    
+
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("is_congruent() requires 3 integer arguments");
         return NULL;
@@ -1190,7 +1191,7 @@ GMPy_MPZ_Method_IsCongruent(PyObject *self, PyObject *args)
         TYPE_ERROR("is_congruent() requires 3 integer arguments");
         return NULL;
     }
-    
+
     res = mpz_congruent_p(MPZ(self), tempy->z, tempm->z);
     Py_DECREF((PyObject*)tempy);
     Py_DECREF((PyObject*)tempm);
@@ -1224,7 +1225,7 @@ GMPy_MPZ_Function_IsPower(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)tempx);
         }
     }
-    
+
     if (res)
         Py_RETURN_TRUE;
     else
@@ -1248,16 +1249,16 @@ GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args)
 
     if (argc == 0 || argc > 2) {
         TYPE_ERROR("is_prime() requires 'mpz'[,'int'] arguments");
-        return NULL; 
+        return NULL;
     }
-        
+
     if (PyTuple_GET_SIZE(args) == 2) {
         reps = c_long_From_Integer(PyTuple_GET_ITEM(args, 1));
         if (reps == -1 && PyErr_Occurred()) {
-            return NULL; 
+            return NULL;
         }
     }
-    
+
     if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
         return NULL;
     }
@@ -1267,10 +1268,10 @@ GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args)
         Py_DECREF((PyObject*)tempx);
         return NULL;
     }
-    
+
     i = mpz_probab_prime_p(tempx->z, reps);
     Py_DECREF((PyObject*)tempx);
-    
+
     if (i)
         Py_RETURN_TRUE;
     else
@@ -1326,14 +1327,14 @@ GMPy_MPZ_Function_Jacobi(PyObject *self, PyObject *args)
         Py_XDECREF((PyObject*)tempy);
         return NULL;
     }
-    
+
     if (mpz_sgn(tempy->z) <= 0 || mpz_even_p(tempy->z)) {
         VALUE_ERROR("y must be odd and >0");
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         return NULL;
     }
-    
+
     res = (long)(mpz_jacobi(tempx->z, tempy->z));
     Py_DECREF((PyObject*)tempx);
     Py_DECREF((PyObject*)tempy);
@@ -1362,14 +1363,14 @@ GMPy_MPZ_Function_Legendre(PyObject *self, PyObject *args)
         Py_XDECREF((PyObject*)tempy);
         return NULL;
     }
-    
+
     if (mpz_sgn(tempy->z) <= 0 || mpz_even_p(tempy->z)) {
         VALUE_ERROR("y must be odd, prime, and >0");
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         return NULL;
     }
-    
+
     res = (long) mpz_legendre(tempx->z, tempy->z);
     Py_DECREF((PyObject*)tempx);
     Py_DECREF((PyObject*)tempy);
@@ -1390,7 +1391,7 @@ GMPy_MPZ_Function_Kronecker(PyObject *self, PyObject *args)
         TYPE_ERROR("kronecker() requires 'mpz','mpz' arguments");
         return NULL;
     }
-    
+
     tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
     if (!tempx || !tempy) {
@@ -1428,7 +1429,7 @@ GMPy_MPZ_Function_IsEven(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)tempx);
         }
     }
-    
+
     if (res)
         Py_RETURN_TRUE;
     else
@@ -1458,7 +1459,7 @@ GMPy_MPZ_Function_IsOdd(PyObject *self, PyObject *other)
             Py_DECREF((PyObject*)tempx);
         }
     }
-    
+
     if (res)
         Py_RETURN_TRUE;
     else

@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -272,7 +273,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             int error;
 
             temp = GMPy_Integer_AsLongAndError(y, &error);
-            
+
             if (error) {
                 mpz_inoc(tempz);
                 mpz_set_PyIntOrLong(tempz, y);

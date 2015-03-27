@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -37,7 +38,7 @@ GMPy_Real_Mul_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
     if (exp == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
-    
+
     result = GMPy_MPFR_New(0, context);
     tempx = GMPy_MPFR_From_Real(x, 1, context);
     if (!result || !tempx) {
@@ -65,7 +66,7 @@ GMPy_Complex_Mul_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
     if (exp == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
-    
+
     result = GMPy_MPC_New(0, 0, context);
     tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
     if (!result || !tempx) {
@@ -137,7 +138,7 @@ GMPy_Real_Div_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
     if (exp == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
-    
+
     result = GMPy_MPFR_New(0, context);
     tempx = GMPy_MPFR_From_Real(x, 1, context);
     if (!result || !tempx) {
@@ -165,7 +166,7 @@ GMPy_Complex_Div_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
     if (exp == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
-    
+
     result = GMPy_MPC_New(0, 0, context);
     tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
     if (!result || !tempx) {

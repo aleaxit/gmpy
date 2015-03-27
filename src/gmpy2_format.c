@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -670,7 +671,7 @@ GMPy_MPQ_Digits_Method(PyObject *self, PyObject *args)
     if (PyTuple_GET_SIZE(args) && !PyArg_ParseTuple(args, "|i", &base)) {
         return NULL;
     }
-    
+
     return GMPy_PyStr_From_MPQ((MPQ_Object*)self, base, 0, NULL);
 }
 
@@ -731,7 +732,7 @@ GMPy_Context_Digits(PyObject *self, PyObject *args)
         TYPE_ERROR("digits() requires at least one argument");
         return NULL;
     }
-    
+
     if (argc > 3) {
         TYPE_ERROR("digits() accepts at most three arguments");
         return NULL;
@@ -741,7 +742,7 @@ GMPy_Context_Digits(PyObject *self, PyObject *args)
     if (!(tuple = PyTuple_GetSlice(args, 1, argc))) {
         return NULL;
     }
-    
+
     if (IS_INTEGER(arg0)) {
         temp = (PyObject*)GMPy_MPZ_From_Integer(arg0, NULL);
         result = GMPy_MPZ_Digits_Method(temp, tuple);

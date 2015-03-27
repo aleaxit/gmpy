@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -55,7 +56,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
         if (PyIntOrLong_Check(b)) {
             int error;
             long temp = GMPy_Integer_AsLongAndError(b, &error);
-            
+
             if (!error) {
                 c = mpz_cmp_si(MPZ(a), temp);
             }
@@ -68,11 +69,11 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
             }
             return _cmp_to_object(c, op);
         }
-        
+
         if (CHECK_MPZANY(b)) {
             return _cmp_to_object(mpz_cmp(MPZ(a), MPZ(b)), op);
         }
-        
+
         if (IS_INTEGER(b)) {
             if (!(tempb = (PyObject*)GMPy_MPZ_From_Integer(b, context))) {
                 return NULL;
@@ -81,7 +82,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
             Py_DECREF(tempb);
             return _cmp_to_object(c, op);
         }
-        
+
         if (IS_RATIONAL(b)) {
             tempa = (PyObject*)GMPy_MPQ_From_Rational(a, context);
             tempb = (PyObject*)GMPy_MPQ_From_Rational(b, context);
@@ -95,7 +96,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
             Py_DECREF(tempb);
             return _cmp_to_object(c, op);
         }
-        
+
         if (PyFloat_Check(b)) {
             double d = PyFloat_AS_DOUBLE(b);
             if (Py_IS_NAN(d)) {
@@ -113,7 +114,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
                 return _cmp_to_object(mpz_cmp_d(MPZ(a), d), op);
             }
         }
-        
+
         if (IS_DECIMAL(b)) {
             tempa = (PyObject*)GMPy_MPQ_From_Rational(a, context);
             tempb = (PyObject*)GMPy_MPQ_From_Decimal(b, context);
@@ -149,12 +150,12 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
             }
         }
     }
-    
+
     if (MPQ_Check(a)) {
         if (MPQ_Check(b)) {
             return _cmp_to_object(mpq_cmp(MPQ(a), MPQ(b)), op);
         }
-        
+
         if (IS_RATIONAL(b)) {
             if (!(tempb = (PyObject*)GMPy_MPQ_From_Rational(b, context))) {
                 return NULL;
@@ -163,7 +164,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
             Py_DECREF(tempb);
             return _cmp_to_object(c, op);
         }
-        
+
         if (PyFloat_Check(b)) {
             double d = PyFloat_AS_DOUBLE(b);
             if (Py_IS_NAN(d)) {
@@ -187,7 +188,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
                 return _cmp_to_object(c, op);
             }
         }
-        
+
         if (IS_DECIMAL(b)) {
             if (!(tempb = (PyObject*)GMPy_MPQ_From_Decimal(b, context))) {
                 return NULL;
@@ -235,7 +236,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
                 return _cmp_to_object(c, op);
             }
         }
-        
+
         if (PyFloat_Check(b)) {
             double d = PyFloat_AS_DOUBLE(b);
             mpfr_clear_flags();
@@ -255,7 +256,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
                 return _cmp_to_object(c, op);
             }
         }
-        
+
         if (IS_INTEGER(b)) {
             if (!(tempb = (PyObject*)GMPy_MPZ_From_Integer(b, context)))  {
                 return NULL;
@@ -278,7 +279,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
                 return _cmp_to_object(c, op);
             }
         }
-        
+
         if (IS_RATIONAL(b)) {
             if (!(tempb = (PyObject*)GMPy_MPQ_From_Rational(b, context))) {
                 return NULL;
@@ -301,7 +302,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
                 return _cmp_to_object(c, op);
             }
         }
-        
+
         if (IS_DECIMAL(b)) {
             if (!(tempb = (PyObject*)GMPy_MPQ_From_Decimal(b, context))) {
                 return NULL;
@@ -347,7 +348,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
                 }
             }
         }
-        
+
         if (IS_REAL(b)) {
             if (!(tempb = (PyObject*)GMPy_MPFR_From_Real(b, 1, context))) {
                 return NULL;
@@ -395,7 +396,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
                 return _cmp_to_object(c, op);
             }
         }
-        
+
         if (PyComplex_Check(b)) {
             if (!(tempb = (PyObject*)GMPy_MPC_From_PyComplex(b, 1, 1, context))) {
                 return NULL;

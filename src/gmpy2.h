@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -69,7 +70,7 @@ typedef unsigned long Py_uhash_t;
 /* Define various macros to deal with differences between Python 2 and 3. */
 
 /* See gmpy2_convert_utils for definitions of mp_bitcnt_t_From_Integer and
- * PyIntOrLong_From_mp_bitcnt_t. 
+ * PyIntOrLong_From_mp_bitcnt_t.
  */
 
 #if (PY_MAJOR_VERSION == 3)

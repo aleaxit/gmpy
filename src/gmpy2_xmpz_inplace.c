@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -39,7 +40,7 @@ GMPy_XMPZ_IAdd_Slot(PyObject *self, PyObject *other)
     if (PyIntOrLong_Check(other)) {
         int error;
         long temp = GMPy_Integer_AsLongAndError(other, &error);
-        
+
         if (!error) {
             if (temp >= 0) {
                 mpz_add_ui(MPZ(self), MPZ(self), temp);
@@ -77,7 +78,7 @@ GMPy_XMPZ_ISub_Slot(PyObject *self, PyObject *other)
     if (PyIntOrLong_Check(other)) {
         int error;
         long temp = GMPy_Integer_AsLongAndError(other, &error);
-        
+
         if (!error) {
             if (temp >= 0) {
                 mpz_sub_ui(MPZ(self), MPZ(self), temp);
@@ -115,7 +116,7 @@ GMPy_XMPZ_IMul_Slot(PyObject *self, PyObject *other)
     if (PyIntOrLong_Check(other)) {
         int error;
         long temp = GMPy_Integer_AsLongAndError(other, &error);
-        
+
         if (!error) {
             mpz_mul_si(MPZ(self), MPZ(self), temp);
         }
@@ -150,7 +151,7 @@ GMPy_XMPZ_IFloorDiv_Slot(PyObject *self, PyObject *other)
     if (PyIntOrLong_Check(other)) {
         int error;
         long temp = GMPy_Integer_AsLongAndError(other, &error);
-        
+
         if (!error) {
             if (temp == 0) {
                 ZERO_ERROR("xmpz division by zero");
@@ -197,7 +198,7 @@ GMPy_XMPZ_IRem_Slot(PyObject *self, PyObject *other)
     if (PyIntOrLong_Check(other)) {
         int error;
         long temp = GMPy_Integer_AsLongAndError(other, &error);
-        
+
         if (!error) {
             if (temp > 0) {
                 mpz_fdiv_r_ui(MPZ(self), MPZ(self), temp);

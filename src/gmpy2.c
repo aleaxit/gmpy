@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -347,6 +348,8 @@
  *   __str__ and __repr__ no longer append "L" on Python 2 (casevh)
  *   mpq(mpfr) now returns the exact result (casevh)
  *   Fix repr(mpc) for precision >325 bits.
+ *   Intermediate conversions of Integer to mpfr are now done with the
+ *      full precision of the Integer. (casevh)
  *
  ************************************************************************
  *
@@ -406,8 +409,6 @@
 /* The following global strings are used by gmpy_misc.c. */
 
 char gmpy_version[] = "2.1.0a0";
-
-char _gmpy_cvs[] = "$Id$";
 
 char gmpy_license[] = "\
 The GMPY2 source code is licensed under LGPL 3 or later. The supported \
@@ -561,7 +562,6 @@ static PyObject *GMPyExc_Erange = NULL;
 
 static PyMethodDef Pygmpy_methods [] =
 {
-    { "_cvsid", GMPy_get_cvsid, METH_NOARGS, GMPy_doc_cvsid },
     { "_printf", GMPy_printf, METH_VARARGS, GMPy_doc_function_printf },
     { "add", GMPy_Context_Add, METH_VARARGS, GMPy_doc_function_add },
     { "bit_clear", GMPy_MPZ_bit_clear_function, METH_VARARGS, doc_bit_clear_function },

@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -34,7 +35,6 @@ extern "C" {
 
 static PyObject * GMPy_get_license(PyObject *self, PyObject *args);
 static PyObject * GMPy_get_version(PyObject *self, PyObject *args);
-static PyObject * GMPy_get_cvsid(PyObject *self, PyObject *args);
 static PyObject * GMPy_get_mp_version(PyObject *self, PyObject *args);
 static PyObject * GMPy_get_mpfr_version(PyObject *self, PyObject *args);
 static PyObject * GMPy_get_mpc_version(PyObject *self, PyObject *args);

@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -29,11 +30,11 @@ static PyObject *
 _GMPy_MPZ_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
     MPZ_Object *result;
-    
+
     if (!(result = GMPy_MPZ_New(context))) {
         return NULL;
     }
-    
+
     mpz_mul(result->z, MPZ(x), MPZ(y));
     mpz_add(result->z, result->z, MPZ(z));
     return (PyObject*)result;
@@ -43,7 +44,7 @@ static PyObject *
 GMPy_Integer_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
     PyObject *result, *tempx, *tempy, *tempz;
-    
+
     tempx = (PyObject*)GMPy_MPZ_From_Integer(x, context);
     tempy = (PyObject*)GMPy_MPZ_From_Integer(y, context);
     tempz = (PyObject*)GMPy_MPZ_From_Integer(z, context);
@@ -65,11 +66,11 @@ static PyObject *
 _GMPy_MPQ_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
     MPQ_Object *result;
-    
+
     if (!(result = GMPy_MPQ_New(context))) {
         return NULL;
     }
-    
+
     mpq_mul(result->q, MPQ(x), MPQ(y));
     mpq_add(result->q, result->q, MPQ(z));
     return (PyObject*)result;
@@ -79,7 +80,7 @@ static PyObject *
 GMPy_Rational_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
     PyObject *result, *tempx, *tempy, *tempz;
-    
+
     tempx = (PyObject*)GMPy_MPQ_From_Rational(x, context);
     tempy = (PyObject*)GMPy_MPQ_From_Rational(y, context);
     tempz = (PyObject*)GMPy_MPQ_From_Rational(z, context);
@@ -101,13 +102,13 @@ static PyObject *
 _GMPy_MPFR_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
     MPFR_Object *result;
-    
+
     CHECK_CONTEXT(context);
-    
+
     if (!(result = GMPy_MPFR_New(0, context))) {
         return NULL;
     }
-    
+
     mpfr_clear_flags();
     result->rc = mpfr_fma(result->f, MPFR(x), MPFR(y), MPFR(z), GET_MPFR_ROUND(context));
     GMPY_MPFR_CLEANUP(result, context, "fma()");
@@ -118,9 +119,9 @@ static PyObject *
 GMPy_Real_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
     PyObject *result, *tempx, *tempy, *tempz;
-    
+
     CHECK_CONTEXT(context);
-    
+
     tempx = (PyObject*)GMPy_MPFR_From_Real(x, 1, context);
     tempy = (PyObject*)GMPy_MPFR_From_Real(y, 1, context);
     tempz = (PyObject*)GMPy_MPFR_From_Real(z, 1, context);
@@ -141,13 +142,13 @@ static PyObject *
 _GMPy_MPC_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
     MPC_Object *result;
-    
+
     CHECK_CONTEXT(context);
-    
+
     if (!(result = GMPy_MPC_New(0, 0, context))) {
         return NULL;
     }
-    
+
     result->rc = mpc_fma(result->c, MPC(x), MPC(y), MPC(z), GET_MPC_ROUND(context));
     GMPY_MPC_CLEANUP(result, context, "fma()");
     return (PyObject*)result;
@@ -157,9 +158,9 @@ static PyObject *
 GMPy_Complex_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
     PyObject *result, *tempx, *tempy, *tempz;
-    
+
     CHECK_CONTEXT(context);
-    
+
     tempx = (PyObject*)GMPy_MPC_From_Complex(x, 1, 1, context);
     tempy = (PyObject*)GMPy_MPC_From_Complex(y, 1, 1, context);
     tempz = (PyObject*)GMPy_MPC_From_Complex(z, 1, 1, context);
@@ -190,11 +191,11 @@ static PyObject *
 _GMPy_MPZ_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
     MPZ_Object *result;
-    
+
     if (!(result = GMPy_MPZ_New(context))) {
         return NULL;
     }
-    
+
     mpz_mul(result->z, MPZ(x), MPZ(y));
     mpz_sub(result->z, result->z, MPZ(z));
     return (PyObject*)result;
@@ -204,7 +205,7 @@ static PyObject *
 GMPy_Integer_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
     PyObject *result, *tempx, *tempy, *tempz;
-    
+
     tempx = (PyObject*)GMPy_MPZ_From_Integer(x, context);
     tempy = (PyObject*)GMPy_MPZ_From_Integer(y, context);
     tempz = (PyObject*)GMPy_MPZ_From_Integer(z, context);
@@ -214,7 +215,7 @@ GMPy_Integer_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
         Py_XDECREF(tempz);
         return NULL;
     }
-    
+
     result = _GMPy_MPZ_FMS(tempx, tempy, tempz, context);
     Py_DECREF(tempx);
     Py_DECREF(tempy);
@@ -226,11 +227,11 @@ static PyObject *
 _GMPy_MPQ_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
     MPQ_Object *result;
-    
+
     if (!(result = GMPy_MPQ_New(context))) {
         return NULL;
     }
-    
+
     mpq_mul(result->q, MPQ(x), MPQ(y));
     mpq_sub(result->q, result->q, MPQ(z));
     return (PyObject*)result;
@@ -240,7 +241,7 @@ static PyObject *
 GMPy_Rational_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
     PyObject *result, *tempx, *tempy, *tempz;
-    
+
     tempx = (PyObject*)GMPy_MPQ_From_Rational(x, context);
     tempy = (PyObject*)GMPy_MPQ_From_Rational(y, context);
     tempz = (PyObject*)GMPy_MPQ_From_Rational(z, context);
@@ -262,13 +263,13 @@ static PyObject *
 _GMPy_MPFR_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
     MPFR_Object *result;
-    
+
     CHECK_CONTEXT(context);
-    
+
     if (!(result = GMPy_MPFR_New(0, context))) {
         return NULL;
     }
-    
+
     mpfr_clear_flags();
     result->rc = mpfr_fms(result->f, MPFR(x), MPFR(y), MPFR(z), GET_MPFR_ROUND(context));
     GMPY_MPFR_CLEANUP(result, context, "fms()");
@@ -279,9 +280,9 @@ static PyObject *
 GMPy_Real_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
     PyObject *result, *tempx, *tempy, *tempz;
-    
+
     CHECK_CONTEXT(context);
-    
+
     tempx = (PyObject*)GMPy_MPFR_From_Real(x, 1, context);
     tempy = (PyObject*)GMPy_MPFR_From_Real(y, 1, context);
     tempz = (PyObject*)GMPy_MPFR_From_Real(z, 1, context);
@@ -302,9 +303,9 @@ static PyObject *
 _GMPy_MPC_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
     MPC_Object *result;
-    
+
     CHECK_CONTEXT(context);
-    
+
     if (!(result = GMPy_MPC_New(0, 0, context))) {
         return NULL;
     }
@@ -320,9 +321,9 @@ static PyObject *
 GMPy_Complex_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 {
     PyObject *result, *tempx, *tempy, *tempz;
-    
+
     CHECK_CONTEXT(context);
-    
+
     tempx = (PyObject*)GMPy_MPC_From_Complex(x, 1, 1, context);
     tempy = (PyObject*)GMPy_MPC_From_Complex(y, 1, 1, context);
     tempz = (PyObject*)GMPy_MPC_From_Complex(z, 1, 1, context);

@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -56,14 +57,14 @@ GMPy_XMPZ_Factory(PyObject *self, PyObject *args, PyObject *keywds)
     CHECK_CONTEXT(context);
 
     argc = PyTuple_GET_SIZE(args);
-    
+
     if (argc == 0) {
         if ((result = GMPy_XMPZ_New(context))) {
             mpz_set_ui(result->z, 0);
         }
         return (PyObject*)result;
     }
-    
+
     if (argc == 1 && !keywds) {
         n = PyTuple_GET_ITEM(args, 0);
         if (IS_REAL(n)) {

@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -187,7 +188,7 @@ GMPy_MPFR_From_PyIntOrLong(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context
         GMPY_MPFR_SUBNORMALIZE(result, context);
         GMPY_MPFR_EXCEPTIONS(result, context, "mpfr()");
     }
-    
+
     return result;
 }
 
@@ -430,7 +431,7 @@ GMPy_MPFR_From_PyStrExact(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *
      * special values wasn't detected, then the string is converted to an mpq and
      * then a valid mpq is converted to an mpfr.
      */
-     
+
     if (!(result = GMPy_MPFR_New(47, context))) {
         Py_XDECREF(ascii_str);
         return NULL;
@@ -462,7 +463,7 @@ GMPy_MPFR_From_PyStrExact(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *
     mpfr_clear_flags();
     result->rc = mpfr_set_q(result->f, tempq->q, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempq);
-    
+
     if (prec != 1) {
         GMPY_MPFR_CHECK_RANGE(result, context);
     }

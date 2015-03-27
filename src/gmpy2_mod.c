@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -64,7 +65,7 @@ GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
         if (PyIntOrLong_Check(y)) {
             int error;
             long temp = GMPy_Integer_AsLongAndError(y, &error);
-            
+
             if (!error) {
                 if (temp > 0) {
                     mpz_fdiv_r_ui(result->z, MPZ(x), temp);
@@ -87,7 +88,7 @@ GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
             }
             return (PyObject*)result;
         }
-        
+
         if (CHECK_MPZANY(y)) {
             if (mpz_sgn(MPZ(y)) == 0) {
                 ZERO_ERROR("division or modulo by zero");
@@ -105,7 +106,7 @@ GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        
+
         if (PyIntOrLong_Check(x)) {
             mpz_t tempz;
             mpz_inoc(tempz);
@@ -118,7 +119,7 @@ GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
         MPZ_Object *tempx, *tempy;
-        
+
         tempx = GMPy_MPZ_From_Integer(x, context);
         tempy = GMPy_MPZ_From_Integer(y, context);
         if (!tempx || !tempy) {

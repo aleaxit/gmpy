@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -45,16 +46,6 @@ static PyObject *
 GMPy_get_version(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("s", gmpy_version);
-}
-
-PyDoc_STRVAR(GMPy_doc_cvsid,
-"_cvsid() -> string\n\n"
-"Return string giving current GMPY2 cvs Id.");
-
-static PyObject *
-GMPy_get_cvsid(PyObject *self, PyObject *args)
-{
-    return Py_BuildValue("s", _gmpy_cvs);
 }
 
 PyDoc_STRVAR(GMPy_doc_mp_version,

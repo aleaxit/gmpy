@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -169,7 +170,7 @@ GMPy_MPZ_unpack(PyObject *self, PyObject *args)
     else {
         total_bits = mpz_sizeinbase(tempx->z, 2);
     }
-    
+
     lst_count = total_bits / nbits;
     if ((total_bits % nbits) || !lst_count) {
         lst_count += 1;
@@ -196,7 +197,7 @@ GMPy_MPZ_unpack(PyObject *self, PyObject *args)
     guard_bit = nbits + (2 * mp_bits_per_limb);
     extra_bits = 0;
     index = 0;
-    
+
     while (lst_ptr < lst_count) {
         i = 0;
         temp_bits = 0;

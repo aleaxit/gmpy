@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -55,7 +56,7 @@
  *     - assumes GMPy_Real_NAME & GMPy_Complex_NAME exist
  *     GMPy_Context_NAME(self, other)
  *     - called with METH_O
- * 
+ *
  * GMPY_MPFR_MPC_TRIOP_EX(NAME, FUNC) creates the following functions:
  *     GMPy_Real_NAME(x, y, Z, context)
  *     GMPy_Complex_NAME(x, y, Z, context)
@@ -63,13 +64,13 @@
  *     - assumes GMPy_Integer_NAME & GMPy_Rational_NAME also exist
  *     GMPy_Context_NAME(self, args)
  *     - called with METH_VARARGS
- * 
+ *
  * GMPY_MPFR_MPC_UNIOP_TEMPLATE(NAME, FUNC) creates the following functions:
  *     GMPy_Number_NAME(x, context)
  *     - assumes GMPy_Real_NAME & GMPy_Complex_NAME exist
  *     GMPy_Context_NAME(self, other)
  *     - called with METH_O
- * 
+ *
  * GMPY_MPFR_UNIOP(NAME, FUNC) creates the following functions:
  *     GMPy_Real_NAME(x, context)
  *     GMPy_Number_NAME(x, context)
@@ -81,7 +82,7 @@
  *     - assumes GMPy_Real_NAME exists
  *     GMPy_Context_NAME(self, other)
  *     - called with METH_O
- * 
+ *
  * GMPY_MPFR_BINOP(NAME, FUNC) creates the following functions:
  *     GMPy_Real_NAME(x, y, context)
  *     GMPy_Number_NAME(x, y, context)

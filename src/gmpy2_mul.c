@@ -7,7 +7,8 @@
  * Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,               *
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
- * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014 Case Van Horsen      *
+ * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
+ *           2015 Case Van Horsen                                          *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -66,7 +67,7 @@ GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         if (PyIntOrLong_Check(y)) {
             int error;
             long temp = GMPy_Integer_AsLongAndError(y, &error);
-            
+
             if (!error) {
                 mpz_mul_si(result->z, MPZ(x), temp);
             }
@@ -90,7 +91,7 @@ GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         if (PyIntOrLong_Check(x)) {
             int error;
             long temp = GMPy_Integer_AsLongAndError(x, &error);
-            
+
             if (!error) {
                 mpz_mul_si(result->z, MPZ(y), temp);
             }
@@ -143,7 +144,7 @@ GMPy_MPZ_Mul_Slot(PyObject *x, PyObject *y)
         }
         return (PyObject*)result;
     }
-    
+
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Mul(x, y, NULL);
 
@@ -246,7 +247,7 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         if (PyIntOrLong_Check(y)) {
             int error;
             long temp = GMPy_Integer_AsLongAndError(y, &error);
-            
+
             if (!error) {
                 mpfr_clear_flags();
                 result->rc = mpfr_mul_si(result->f, MPFR(x), temp, GET_MPFR_ROUND(context));
