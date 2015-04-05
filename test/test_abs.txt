@@ -65,7 +65,9 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        guard_bits=0)
+        guard_bits=0,
+        convert_exact=False,
+        mpfr_divmod_exact=False)
 >>> ctx.clear_flags()
 >>> abs(mpfr('inf'))
 mpfr('inf')
@@ -82,7 +84,9 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        guard_bits=0)
+        guard_bits=0,
+        convert_exact=False,
+        mpfr_divmod_exact=False)
 >>> ctx.clear_flags()
 >>> abs(mpfr('-inf'))
 mpfr('inf')
@@ -99,7 +103,9 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        guard_bits=0)
+        guard_bits=0,
+        convert_exact=False,
+        mpfr_divmod_exact=False)
 >>> abs(mpc(-1,0))
 mpfr('1.0')
 >>> abs(-1+0j)
@@ -123,7 +129,9 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        guard_bits=0)
+        guard_bits=0,
+        convert_exact=False,
+        mpfr_divmod_exact=False)
 >>> abs(mpc('nan+0j'))
 mpfr('nan')
 >>> ctx
@@ -139,7 +147,9 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        guard_bits=0)
+        guard_bits=0,
+        convert_exact=False,
+        mpfr_divmod_exact=False)
 >>> ctx.clear_flags()
 >>> abs(mpc('nanj'))
 mpfr('nan')
@@ -156,7 +166,9 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        guard_bits=0)
+        guard_bits=0,
+        convert_exact=False,
+        mpfr_divmod_exact=False)
 >>> ctx.clear_flags()
 >>> abs(mpc('inf+10j'))
 mpfr('inf')
@@ -173,7 +185,9 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        guard_bits=0)
+        guard_bits=0,
+        convert_exact=False,
+        mpfr_divmod_exact=False)
 >>> ctx.clear_flags()
 >>> abs(mpc('-infj'))
 mpfr('inf')
@@ -190,7 +204,9 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        guard_bits=0)
+        guard_bits=0,
+        convert_exact=False,
+        mpfr_divmod_exact=False)
 >>> a=mpc('nan+infj')
 >>> ctx.clear_flags()
 >>> abs(a)
@@ -208,7 +224,9 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        guard_bits=0)
+        guard_bits=0,
+        convert_exact=False,
+        mpfr_divmod_exact=False)
 >>> a=mpc('-inf+nanj')
 >>> ctx.clear_flags()
 >>> abs(a)
@@ -226,7 +244,9 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        guard_bits=0)
+        guard_bits=0,
+        convert_exact=False,
+        mpfr_divmod_exact=False)
 >>> ctx=gmpy2.context()
 >>> ctx.abs(-1)
 mpz(1)
