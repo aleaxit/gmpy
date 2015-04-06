@@ -111,7 +111,7 @@ _GMPy_MPFR_Square(PyObject *x, CTXT_Object *context)
 
     mpfr_clear_flags();
     mpfr_mul(result->f, MPFR(x), MPFR(x), GET_MPFR_ROUND(context));
-    GMPY_MPFR_CLEANUP(result, context, "square()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -143,7 +143,7 @@ _GMPy_MPC_Square(PyObject *x, CTXT_Object *context)
     }
 
     mpc_mul(result->c, MPC(x), MPC(x), GET_MPC_ROUND(context));
-    GMPY_MPC_CLEANUP(result, context, "square()");
+    _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 static PyObject *

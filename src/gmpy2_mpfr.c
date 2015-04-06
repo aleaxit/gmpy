@@ -26,6 +26,77 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+
+/* General purpose functions are defined here. They are used as an alternative
+ * to code bloat via macro overuse.
+ */
+
+static void
+_GMPy_MPFR_Cleanup(MPFR_Object **v, CTXT_Object *ctext)
+{
+    /* GMPY_MPFR_CHECK_RANGE(V, CTX) */
+    if (mpfr_regular_p((*v)->f) &&
+        (!(((*v)->f->_mpfr_exp >= ctext->ctx.emin) &&
+           ((*v)->f->_mpfr_exp <= ctext->ctx.emax)))) {
+        mpfr_exp_t _oldemin, _oldemax;
+        _oldemin = mpfr_get_emin();
+        _oldemax = mpfr_get_emax();
+        mpfr_set_emin(ctext->ctx.emin);
+        mpfr_set_emax(ctext->ctx.emax); \
+        (*v)->rc = mpfr_check_range((*v)->f, (*v)->rc, GET_MPFR_ROUND(ctext));
+        mpfr_set_emin(_oldemin);
+        mpfr_set_emax(_oldemax);
+    }
+
+    /* GMPY_MPFR_SUBNORMALIZE(V, CTX) */
+    if (ctext->ctx.subnormalize &&
+        (*v)->f->_mpfr_exp >= ctext->ctx.emin &&
+        (*v)->f->_mpfr_exp <= ctext->ctx.emin + mpfr_get_prec((*v)->f) - 2) {
+        mpfr_exp_t _oldemin, _oldemax;
+        _oldemin = mpfr_get_emin();
+        _oldemax = mpfr_get_emax();
+        mpfr_set_emin(ctext->ctx.emin);
+        mpfr_set_emax(ctext->ctx.emax);
+        (*v)->rc = mpfr_subnormalize((*v)->f, (*v)->rc, GET_MPFR_ROUND(ctext));
+        mpfr_set_emin(_oldemin);
+        mpfr_set_emax(_oldemax);
+    }
+
+    /* GMPY_MPFR_EXCEPTIONS(V, CTX) */
+    ctext->ctx.underflow |= mpfr_underflow_p();
+    ctext->ctx.overflow |= mpfr_overflow_p();
+    ctext->ctx.invalid |= mpfr_nanflag_p();
+    ctext->ctx.inexact |= mpfr_inexflag_p();
+    ctext->ctx.divzero |= mpfr_divby0_p();
+    if (ctext->ctx.traps) {
+        if ((ctext->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) {
+            PyErr_SetString(GMPyExc_Underflow, "underflow");
+            Py_XDECREF((PyObject*)(*v));
+            (*v) = NULL;
+        }
+        if ((ctext->ctx.traps & TRAP_OVERFLOW) && mpfr_overflow_p()) {
+            PyErr_SetString(GMPyExc_Overflow, "overflow");
+            Py_XDECREF((PyObject*)(*v));
+            (*v) = NULL;
+        }
+        if ((ctext->ctx.traps & TRAP_INEXACT) && mpfr_inexflag_p()) {
+            PyErr_SetString(GMPyExc_Inexact, "inexact result");
+            Py_XDECREF((PyObject*)(*v));
+            (*v) = NULL;
+        }
+        if ((ctext->ctx.traps & TRAP_INVALID) && mpfr_nanflag_p()) {
+            PyErr_SetString(GMPyExc_Invalid, "invalid operation");
+            Py_XDECREF((PyObject*)(*v));
+            (*v) = NULL;
+        }
+        if ((ctext->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) {
+            PyErr_SetString(GMPyExc_DivZero, "division by zero");
+            Py_XDECREF((PyObject*)(*v));
+            (*v) = NULL;
+        }
+    }
+}
+
 PyDoc_STRVAR(GMPy_doc_mpfr_factory,
 "mpfr() -> mpfr(0.0)\n\n"
 "      If no argument is given, return mpfr(0.0).\n\n"

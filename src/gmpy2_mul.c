@@ -362,7 +362,7 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     Py_RETURN_NOTIMPLEMENTED;
 
   done:
-    GMPY_MPFR_CLEANUP(result, context, "multiplication");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -423,7 +423,7 @@ GMPy_Complex_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     Py_RETURN_NOTIMPLEMENTED;
 
   done:
-    GMPY_MPC_CLEANUP(result, context, "multiplication");
+    _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 

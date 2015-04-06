@@ -310,7 +310,7 @@ GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context
         return (PyObject*)mpc_result;
     }
 
-    GMPY_MPFR_CLEANUP(result, context, "pow()");
+    _GMPy_MPFR_Cleanup(&result, context);
     Py_XDECREF((PyObject*)tempz);
     Py_XDECREF((PyObject*)tempe);
     Py_XDECREF((PyObject*)tempb);
@@ -380,7 +380,7 @@ GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *cont
         result->rc = mpc_pow(result->c, tempb->c, tempe->c, GET_MPC_ROUND(context));
     }
 
-    GMPY_MPC_CLEANUP(result, context, "pow()");
+    _GMPy_MPC_Cleanup(&result, context);
     Py_XDECREF((PyObject*)tempz);
     Py_XDECREF((PyObject*)tempf);
     Py_XDECREF((PyObject*)tempe);

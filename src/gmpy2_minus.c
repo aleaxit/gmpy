@@ -133,7 +133,7 @@ _GMPy_MPFR_Minus(PyObject *x, CTXT_Object *context)
 
     mpfr_clear_flags();
     result->rc = mpfr_neg(result->f, MPFR(x), GET_MPFR_ROUND(context));
-    GMPY_MPFR_CLEANUP(result, context, "minus()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -171,7 +171,7 @@ _GMPy_MPC_Minus(PyObject *x, CTXT_Object *context)
     }
 
     result->rc = mpc_neg(result->c, MPC(x), GET_MPC_ROUND(context));
-    GMPY_MPC_CLEANUP(result, context, "minus()");
+    _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 

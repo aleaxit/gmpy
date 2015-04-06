@@ -488,8 +488,6 @@ _GMPy_MPFR_Acos(PyObject *x, CTXT_Object *context)
 {
     MPFR_Object *result;
 
-    CHECK_CONTEXT(context);
-
     if (!mpfr_nan_p(MPFR(x)) &&
             (mpfr_cmp_si(MPFR(x), 1) > 0 || mpfr_cmp_si(MPFR(x), -1) < 0) &&
             context->ctx.allow_complex
@@ -503,7 +501,7 @@ _GMPy_MPFR_Acos(PyObject *x, CTXT_Object *context)
 
     mpfr_clear_flags();
     result->rc = mpfr_acos(result->f, MPFR(x), GET_MPFR_ROUND(context));
-    GMPY_MPFR_CLEANUP(result, context, "acos()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -535,7 +533,7 @@ _GMPy_MPC_Acos(PyObject *x, CTXT_Object *context)
     }
 
     result->rc = mpc_acos(result->c, MPC(x), GET_MPC_ROUND(context));
-    GMPY_MPC_CLEANUP(result, context, "acos()");
+    _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -585,7 +583,7 @@ _GMPy_MPFR_Asin(PyObject *x, CTXT_Object *context)
 
     mpfr_clear_flags();
     result->rc = mpfr_asin(result->f, MPFR(x), GET_MPFR_ROUND(context));
-    GMPY_MPFR_CLEANUP(result, context, "asin()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -617,7 +615,7 @@ _GMPy_MPC_Asin(PyObject *x, CTXT_Object *context)
     }
 
     result->rc = mpc_asin(result->c, MPC(x), GET_MPC_ROUND(context));
-    GMPY_MPC_CLEANUP(result, context, "asin()");
+    _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -667,7 +665,7 @@ _GMPy_MPFR_Atanh(PyObject *x, CTXT_Object *context)
 
     mpfr_clear_flags();
     result->rc = mpfr_atanh(result->f, MPFR(x), GET_MPFR_ROUND(context));
-    GMPY_MPFR_CLEANUP(result, context, "atanh()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -699,7 +697,7 @@ _GMPy_MPC_Atanh(PyObject *x, CTXT_Object *context)
     }
 
     result->rc = mpc_atanh(result->c, MPC(x), GET_MPC_ROUND(context));
-    GMPY_MPC_CLEANUP(result, context, "atanh()");
+    _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -768,8 +766,8 @@ _GMPy_MPFR_Sin_Cos(PyObject *x, CTXT_Object *context)
     if (s->rc == 2) s->rc = -1;
     if (c->rc == 2) c->rc = -1;
 
-    GMPY_MPFR_CLEANUP(s, context, "sin_cos()");
-    GMPY_MPFR_CLEANUP(c, context, "sin_cos()");
+    _GMPy_MPFR_Cleanup(&s, context);
+    _GMPy_MPFR_Cleanup(&c, context);
 
     if (!s || !c) {
         Py_XDECREF((PyObject*)s);
@@ -823,8 +821,8 @@ _GMPy_MPC_Sin_Cos(PyObject *x, CTXT_Object *context)
     s->rc = MPC_INEX1(code);
     c->rc = MPC_INEX2(code);
 
-    GMPY_MPC_CLEANUP(s, context, "sin_cos()");
-    GMPY_MPC_CLEANUP(c, context, "sin_cos()");
+    _GMPy_MPC_Cleanup(&s, context);
+    _GMPy_MPC_Cleanup(&c, context);
 
     if (!s || !c) {
         Py_XDECREF((PyObject*)s);
@@ -891,8 +889,8 @@ _GMPy_MPFR_Sinh_Cosh(PyObject *x, CTXT_Object *context)
     if (s->rc == 2) s->rc = -1;
     if (c->rc == 2) c->rc = -1;
 
-    GMPY_MPFR_CLEANUP(s, context, "sinh_cosh()");
-    GMPY_MPFR_CLEANUP(c, context, "sinh_cosh()");
+    _GMPy_MPFR_Cleanup(&s, context);
+    _GMPy_MPFR_Cleanup(&c, context);
 
     if (!s || !c) {
         Py_XDECREF((PyObject*)s);
@@ -973,7 +971,7 @@ GMPy_Context_Degrees(PyObject *self, PyObject *other)
 
     Py_DECREF((PyObject*)temp);
     Py_DECREF((PyObject*)tempx);
-    GMPY_MPFR_CLEANUP(result, context, "degrees()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -1016,7 +1014,7 @@ GMPy_Context_Radians(PyObject *self, PyObject *other)
 
     Py_DECREF((PyObject*)temp);
     Py_DECREF((PyObject*)tempx);
-    GMPY_MPFR_CLEANUP(result, context, "radians()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -1075,7 +1073,7 @@ _GMPy_MPFR_Sqrt(PyObject *x, CTXT_Object *context)
 
     mpfr_clear_flags();
     result->rc = mpfr_sqrt(result->f, MPFR(x), GET_MPFR_ROUND(context));
-    GMPY_MPFR_CLEANUP(result, context, "sqrt()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -1107,7 +1105,7 @@ _GMPy_MPC_Sqrt(PyObject *x, CTXT_Object *context)
     }
 
     result->rc = mpc_sqrt(result->c, MPC(x), GET_MPFR_ROUND(context));
-    GMPY_MPC_CLEANUP(result, context, "sqrt()");
+    _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -1257,7 +1255,7 @@ GMPy_Real_Round2(PyObject *x, PyObject *y, CTXT_Object *context)
     Py_DECREF((PyObject*)tempx);
     mpfr_clear_flags();
     result->rc = mpfr_prec_round(result->f, n, GET_MPFR_ROUND(context));
-    GMPY_MPFR_CLEANUP(result, context, "round2()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -1326,7 +1324,7 @@ GMPy_Real_RelDiff(PyObject *x, PyObject *y, CTXT_Object *context)
     mpfr_clear_flags();
     mpfr_reldiff(result->f, tempx->f, tempy->f, GET_MPFR_ROUND(context));
     result->rc = 0;
-    GMPY_MPFR_CLEANUP(result, context, "rediff()")
+    _GMPy_MPFR_Cleanup(&result, context);
     Py_DECREF((PyObject*)tempx);
     Py_DECREF((PyObject*)tempy);
     return (PyObject*)result;
@@ -1431,8 +1429,8 @@ GMPy_Real_Modf(PyObject *x, CTXT_Object *context)
     if (s->rc == 2) s->rc = -1;
     if (c->rc == 2) c->rc = -1;
 
-    GMPY_MPFR_CLEANUP(s, context, "modf");
-    GMPY_MPFR_CLEANUP(c, context, "modf");
+    _GMPy_MPFR_Cleanup(&s, context);
+    _GMPy_MPFR_Cleanup(&c, context);
 
     if (!s || !c) {
         Py_XDECREF((PyObject*)s);
@@ -1481,7 +1479,7 @@ GMPy_Real_Lgamma(PyObject *x, CTXT_Object *context)
     value->rc = mpfr_lgamma(value->f, &signp, tempx->f, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
 
-    GMPY_MPFR_CLEANUP(value, context, "lgamma")
+    _GMPy_MPFR_Cleanup(&value, context);
 
     if (!value) {
         Py_DECREF(result);
@@ -1530,7 +1528,7 @@ GMPy_Real_RemQuo(PyObject *x, PyObject *y, CTXT_Object *context)
     value->rc = mpfr_remquo(value->f, &quobits, tempx->f, tempy->f, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
     Py_DECREF((PyObject*)tempy);
-    GMPY_MPFR_CLEANUP(value, context, "remquo()");
+    _GMPy_MPFR_Cleanup(&value, context);
 
     PyTuple_SET_ITEM(result, 0, (PyObject*)value);
     PyTuple_SET_ITEM(result, 1, PyIntOrLong_FromLong(quobits));
@@ -1569,7 +1567,7 @@ GMPy_Real_Frexp(PyObject *x, CTXT_Object *context)
     mpfr_clear_flags();
     value->rc = mpfr_frexp(&exp, value->f, tempx->f, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
-    GMPY_MPFR_CLEANUP(value, context, "frexp()");
+    _GMPy_MPFR_Cleanup(&value, context);
 
     PyTuple_SET_ITEM(result, 0, PyIntOrLong_FromSsize_t((Py_ssize_t)exp));
     PyTuple_SET_ITEM(result, 1, (PyObject*)value);
@@ -1627,7 +1625,7 @@ GMPy_Context_NextToward(PyObject *self, PyObject *args)
     result->rc = 0;
     Py_DECREF((PyObject*)tempx);
     Py_DECREF((PyObject*)tempy);
-    GMPY_MPFR_CLEANUP(result, context, "next_toward()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -1667,7 +1665,7 @@ GMPy_Context_NextAbove(PyObject *self, PyObject *other)
     Py_DECREF((PyObject*)tempx);
     mpfr_nextabove(result->f);
     result->rc = 0;
-    GMPY_MPFR_CLEANUP(result, context, "next_above()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -1707,7 +1705,7 @@ GMPy_Context_NextBelow(PyObject *self, PyObject *other)
     Py_DECREF((PyObject*)tempx);
     mpfr_nextbelow(result->f);
     result->rc = 0;
-    GMPY_MPFR_CLEANUP(result, context, "next_below()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -1753,7 +1751,7 @@ GMPy_Context_Factorial(PyObject *self, PyObject *other)
     mpfr_clear_flags();
     mpfr_fac_ui(result->f, n, GET_MPFR_ROUND(context));
 
-    GMPY_MPFR_CLEANUP(result, context, "factorial()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -1830,7 +1828,7 @@ GMPy_Context_Fsum(PyObject *self, PyObject *other)
     Py_DECREF(other);
     GMPY_FREE(tab);
 
-    GMPY_MPFR_CLEANUP(result, context, "fsum()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 

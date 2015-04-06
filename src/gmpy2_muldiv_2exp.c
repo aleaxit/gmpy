@@ -50,7 +50,7 @@ GMPy_Real_Mul_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
     mpfr_clear_flags();
     result->rc = mpfr_mul_2ui(result->f, tempx->f, exp, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
-    GMPY_MPFR_CLEANUP(result, context, "mul_2exp()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -77,7 +77,7 @@ GMPy_Complex_Mul_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
 
     result->rc = mpc_mul_2ui(result->c, tempx->c, exp, GET_MPC_ROUND(context));
     Py_DECREF((PyObject*)tempx);
-    GMPY_MPC_CLEANUP(result, context, "mul_2exp()");
+    _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -150,7 +150,7 @@ GMPy_Real_Div_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
     mpfr_clear_flags();
     result->rc = mpfr_div_2ui(result->f, tempx->f, exp, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
-    GMPY_MPFR_CLEANUP(result, context, "div_2exp()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -177,7 +177,7 @@ GMPy_Complex_Div_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
 
     result->rc = mpc_div_2ui(result->c, tempx->c, exp, GET_MPC_ROUND(context));
     Py_DECREF((PyObject*)tempx);
-    GMPY_MPC_CLEANUP(result, context, "div_2exp()");
+    _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 

@@ -124,11 +124,10 @@ GMPy_MPFR_From_MPFR(MPFR_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
         return obj;
     }
 
-
     if ((result = GMPy_MPFR_New(prec, context))) {
         mpfr_clear_flags();
         result->rc = mpfr_set(result->f, obj->f, GET_MPFR_ROUND(context));
-        GMPY_MPFR_CLEANUP(result, context, "mpfr()");
+        _GMPy_MPFR_Cleanup(&result, context);
     }
     return result;
 }
@@ -177,7 +176,7 @@ GMPy_MPFR_From_PyIntOrLong(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context
             GMPY_MPFR_CHECK_RANGE(result, context);
         }
         GMPY_MPFR_SUBNORMALIZE(result, context);
-        GMPY_MPFR_EXCEPTIONS(result, context, "mpfr()");
+        GMPY_MPFR_EXCEPTIONS(result, context);
     }
     else {
         mpfr_clear_flags();
@@ -186,7 +185,7 @@ GMPy_MPFR_From_PyIntOrLong(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context
             GMPY_MPFR_CHECK_RANGE(result, context);
         }
         GMPY_MPFR_SUBNORMALIZE(result, context);
-        GMPY_MPFR_EXCEPTIONS(result, context, "mpfr()");
+        GMPY_MPFR_EXCEPTIONS(result, context);
     }
 
     return result;
@@ -220,7 +219,7 @@ GMPy_MPFR_From_PyFloat(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
             GMPY_MPFR_CHECK_RANGE(result, context);
         }
         GMPY_MPFR_SUBNORMALIZE(result, context);
-        GMPY_MPFR_EXCEPTIONS(result, context, "mpfr()");
+        GMPY_MPFR_EXCEPTIONS(result, context);
     }
     return result;
 }
@@ -260,7 +259,7 @@ GMPy_MPFR_From_MPZ(MPZ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
             GMPY_MPFR_CHECK_RANGE(result, context);
         }
         GMPY_MPFR_SUBNORMALIZE(result, context);
-        GMPY_MPFR_EXCEPTIONS(result, context, "mpfr()");
+        GMPY_MPFR_EXCEPTIONS(result, context);
     }
 
     return result;
@@ -293,7 +292,7 @@ GMPy_MPFR_From_MPQ(MPQ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
             GMPY_MPFR_CHECK_RANGE(result, context);
         }
         GMPY_MPFR_SUBNORMALIZE(result, context);
-        GMPY_MPFR_EXCEPTIONS(result, context, "mpfr()");
+        GMPY_MPFR_EXCEPTIONS(result, context);
     }
 
     return result;
@@ -468,7 +467,7 @@ GMPy_MPFR_From_PyStrExact(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *
         GMPY_MPFR_CHECK_RANGE(result, context);
     }
     GMPY_MPFR_SUBNORMALIZE(result, context);
-    GMPY_MPFR_EXCEPTIONS(result, context, "mpfr()");
+    GMPY_MPFR_EXCEPTIONS(result, context);
     return result;
 }
 
@@ -526,7 +525,7 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
         GMPY_MPFR_CHECK_RANGE(result, context);
     }
     GMPY_MPFR_SUBNORMALIZE(result, context);
-    GMPY_MPFR_EXCEPTIONS(result, context, "mpfr()");
+    GMPY_MPFR_EXCEPTIONS(result, context);
 
     return result;
 }

@@ -621,7 +621,7 @@ GMPy_MPFR_CheckRange(PyObject *x, CTXT_Object *context)
     if ((result = GMPy_MPFR_New(mpfr_get_prec(MPFR(x)), context))) {
         mpfr_set(result->f, MPFR(x), GET_MPFR_ROUND(context));
         mpfr_clear_flags();
-        GMPY_MPFR_CLEANUP(result, context, "check_range()")
+        _GMPy_MPFR_Cleanup(&result, context);
     }
     return (PyObject*)result;
 }

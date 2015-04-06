@@ -111,7 +111,7 @@ _GMPy_MPFR_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 
     mpfr_clear_flags();
     result->rc = mpfr_fma(result->f, MPFR(x), MPFR(y), MPFR(z), GET_MPFR_ROUND(context));
-    GMPY_MPFR_CLEANUP(result, context, "fma()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -150,7 +150,7 @@ _GMPy_MPC_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
     }
 
     result->rc = mpc_fma(result->c, MPC(x), MPC(y), MPC(z), GET_MPC_ROUND(context));
-    GMPY_MPC_CLEANUP(result, context, "fma()");
+    _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -272,7 +272,7 @@ _GMPy_MPFR_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 
     mpfr_clear_flags();
     result->rc = mpfr_fms(result->f, MPFR(x), MPFR(y), MPFR(z), GET_MPFR_ROUND(context));
-    GMPY_MPFR_CLEANUP(result, context, "fms()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -313,7 +313,7 @@ _GMPy_MPC_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
     mpc_neg(MPC(z), MPC(z), GET_MPC_ROUND(context));
     result->rc = mpc_fma(result->c, MPC(x), MPC(y), MPC(z), GET_MPC_ROUND(context));
     mpc_neg(MPC(z), MPC(z), GET_MPC_ROUND(context));
-    GMPY_MPC_CLEANUP(result, context, "fms()");
+    _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 

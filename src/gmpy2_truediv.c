@@ -104,7 +104,7 @@ GMPy_Integer_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         mpq_clear(tempq);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
-        GMPY_MPFR_CLEANUP(result, context, "division");
+        _GMPy_MPFR_Cleanup(&result, context);
         return (PyObject*)result;
     }
 
@@ -330,7 +330,7 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     Py_RETURN_NOTIMPLEMENTED;
 
   done:
-    GMPY_MPFR_CLEANUP(result, context, "division");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -392,7 +392,7 @@ GMPy_Complex_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     Py_RETURN_NOTIMPLEMENTED;
 
   done:
-    GMPY_MPC_CLEANUP(result, context, "division");
+    _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 

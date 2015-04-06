@@ -35,7 +35,8 @@ else:
 #                     the list of directories that are searched for GMP, MPFR,
 #                     and MPC shared libraries
 #  --static=<...>  -> create a statically linked library using libraries from
-#                     specified path
+#                     specified path, or from the operating system's default
+#                     library location if no path is specified
 #
 # Ugly hack ahead. Sorry.
 #
@@ -58,6 +59,12 @@ else:
 #  lib_path is set to 'lib64' or 'lib32' as appropriate.
 #
 #  --shared and --static are converted to -DSHARED and -DSTATIC.
+
+# Notes regarding coverage testing.
+#
+# The --gcov command line option configures GCC to collect code coverage data
+# for testing purposes. The raw collected data can be converted to .gcov files
+# with the command "gcov build/temp.linux-x86_64-3.4/src/gmpy2.gcno".
 
 defines = []
 
@@ -92,6 +99,10 @@ for token in sys.argv[:]:
             pass
         sys.argv.remove(token)
 
+    if token.lower() == '--gcov':
+        defines.append( ('GCOV', 1) )
+        sys.argv.remove(token)
+
 # Improved clean command.
 
 class gmpy_clean(clean):
@@ -121,6 +132,11 @@ class gmpy_build_ext(build_ext):
             if d[0] == 'MSYS2':
                 self.compiler = 'mingw32'
                 msys2 = True
+
+            if d[0] == 'GCOV':
+                self.extensions[0].libraries.append('gcov')
+                self.extensions[0].extra_compile_args.extend(['-O0', '--coverage'])
+                self.extensions[0].define_macros.remove(d)
 
             if d[0] == 'FORCE':
                 self.force = 1
@@ -189,10 +205,6 @@ class gmpy_build_ext(build_ext):
     def finalize_options(self):
         build_ext.finalize_options(self)
         gmpy_build_ext.doit(self)
-
-
-# decomment next line (w/gcc, only!) to support gcov
-#   os.environ['CFLAGS'] = '-fprofile-arcs -ftest-coverage -O0'
 
 # prepare the extension for building
 

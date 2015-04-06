@@ -148,7 +148,7 @@ static PyTypeObject MPC_Type;
         V->rc = MPC_INEX(rcr, rci); \
     }
 
-#define GMPY_MPC_EXCEPTIONS(V, CTX, NAME) \
+#define GMPY_MPC_EXCEPTIONS(V, CTX) \
     do { \
         int _invalid = 0, _underflow = 0, _overflow = 0, _inexact = 0; \
         int rcr, rci; \
@@ -172,34 +172,36 @@ static PyTypeObject MPC_Type;
         } \
         if (CTX->ctx.traps) { \
             if ((CTX->ctx.traps & TRAP_UNDERFLOW) && _underflow) { \
-                GMPY_UNDERFLOW(NAME" underflow"); \
+                GMPY_UNDERFLOW("underflow"); \
                 Py_XDECREF((PyObject*)V); \
                 V = NULL; \
             } \
             if ((CTX->ctx.traps & TRAP_OVERFLOW) && _overflow) { \
-                GMPY_OVERFLOW(NAME" overflow"); \
+                GMPY_OVERFLOW("overflow"); \
                 Py_XDECREF((PyObject*)V); \
                 V = NULL; \
             } \
             if ((CTX->ctx.traps & TRAP_INEXACT) && _inexact) { \
-                GMPY_INEXACT(NAME" inexact result"); \
+                GMPY_INEXACT("inexact result"); \
                 Py_XDECREF((PyObject*)V); \
                 V = NULL; \
             } \
             if ((CTX->ctx.traps & TRAP_INVALID) && _invalid) { \
-                GMPY_INVALID(NAME" invalid operation"); \
+                GMPY_INVALID("invalid operation"); \
                 Py_XDECREF((PyObject*)V); \
                 V = NULL; \
             } \
         } \
     } while(0); \
 
-#define GMPY_MPC_CLEANUP(V, CTX, NAME) \
+#define GMPY_MPC_CLEANUP(V, CTX) \
     GMPY_MPC_CHECK_RANGE(V, CTX); \
     GMPY_MPC_SUBNORMALIZE(V, CTX); \
-    GMPY_MPC_EXCEPTIONS(V, CTX, NAME); \
+    GMPY_MPC_EXCEPTIONS(V, CTX); \
 
 static PyObject * GMPy_MPC_Factory(PyObject *self, PyObject *args, PyObject *kwargs);
+
+static void _GMPy_MPC_Cleanup(MPC_Object **v, CTXT_Object *ctext);
 
 #ifdef __cplusplus
 }

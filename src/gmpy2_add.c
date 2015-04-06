@@ -385,7 +385,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     Py_RETURN_NOTIMPLEMENTED;
 
   done:
-    GMPY_MPFR_CLEANUP(result, context, "addition");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -447,7 +447,7 @@ GMPy_Complex_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     Py_RETURN_NOTIMPLEMENTED;
 
   done:
-    GMPY_MPC_CLEANUP(result, context, "addition");
+    _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 

@@ -385,7 +385,7 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     Py_RETURN_NOTIMPLEMENTED;
 
   done:
-    GMPY_MPFR_CLEANUP(result, context, "division");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -457,7 +457,6 @@ GMPy_Context_FloorDiv(PyObject *self, PyObject *args)
     else {
         CHECK_CONTEXT(context);
     }
-
 
     return GMPy_Number_FloorDiv(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1),
                                 context);

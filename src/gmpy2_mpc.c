@@ -26,6 +26,120 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+static void
+_GMPy_MPC_Cleanup(MPC_Object **v, CTXT_Object *ctext)
+{
+    /* GMPY_MPC_CHECK_RANGE(V, CTX) */
+    {
+        int rcr, rci;
+        rcr = MPC_INEX_RE((*v)->rc);
+        rci = MPC_INEX_IM((*v)->rc);
+        if (mpfr_regular_p(mpc_realref((*v)->c)) &&
+            (!((mpc_realref((*v)->c)->_mpfr_exp >= ctext->ctx.emin) &&
+               (mpc_realref((*v)->c)->_mpfr_exp <= ctext->ctx.emax)))) {
+            mpfr_exp_t _oldemin, _oldemax;
+            _oldemin = mpfr_get_emin();
+            _oldemax = mpfr_get_emax();
+            mpfr_set_emin(ctext->ctx.emin);
+            mpfr_set_emax(ctext->ctx.emax);
+            rcr = mpfr_check_range(mpc_realref((*v)->c), rcr, GET_REAL_ROUND(ctext));
+            mpfr_set_emin(_oldemin);
+            mpfr_set_emax(_oldemax);
+        }
+        if (mpfr_regular_p(mpc_imagref((*v)->c)) &&
+            (!((mpc_imagref((*v)->c)->_mpfr_exp >= ctext->ctx.emin) &&
+               (mpc_imagref((*v)->c)->_mpfr_exp <= ctext->ctx.emax)))) {
+            mpfr_exp_t _oldemin, _oldemax;
+            _oldemin = mpfr_get_emin();
+            _oldemax = mpfr_get_emax();
+            mpfr_set_emin(ctext->ctx.emin);
+            mpfr_set_emax(ctext->ctx.emax);
+            rci = mpfr_check_range(mpc_imagref((*v)->c), rci, GET_IMAG_ROUND(ctext));
+            mpfr_set_emin(_oldemin);
+            mpfr_set_emax(_oldemax);
+        }
+        (*v)->rc = MPC_INEX(rcr, rci);
+    }
+
+    /* GMPY_MPC_SUBNORMALIZE(V, CTX)  */
+    {
+        int rcr, rci;
+        rcr = MPC_INEX_RE((*v)->rc);
+        rci = MPC_INEX_IM((*v)->rc);
+        if (ctext->ctx.subnormalize &&
+            (!((mpc_realref((*v)->c)->_mpfr_exp >= ctext->ctx.emin) &&
+               (mpc_realref((*v)->c)->_mpfr_exp <= ctext->ctx.emin + mpfr_get_prec(mpc_realref((*v)->c)) - 2)))) {
+            mpfr_exp_t _oldemin, _oldemax;
+            _oldemin = mpfr_get_emin();
+            _oldemax = mpfr_get_emax();
+            mpfr_set_emin(ctext->ctx.emin);
+            mpfr_set_emax(ctext->ctx.emax);
+            rcr = mpfr_subnormalize(mpc_realref((*v)->c), rcr, GET_REAL_ROUND(ctext));
+            mpfr_set_emin(_oldemin);
+            mpfr_set_emax(_oldemax);
+        }
+        if (ctext->ctx.subnormalize &&
+            (!((mpc_imagref((*v)->c)->_mpfr_exp >= ctext->ctx.emin) &&
+               (mpc_imagref((*v)->c)->_mpfr_exp <= ctext->ctx.emin + mpfr_get_prec(mpc_imagref((*v)->c)) - 2)))) {
+            mpfr_exp_t _oldemin, _oldemax;
+            _oldemin = mpfr_get_emin();
+            _oldemax = mpfr_get_emax();
+            mpfr_set_emin(ctext->ctx.emin);
+            mpfr_set_emax(ctext->ctx.emax);
+            rci = mpfr_check_range(mpc_imagref((*v)->c), rci, GET_IMAG_ROUND(ctext));
+            mpfr_set_emin(_oldemin);
+            mpfr_set_emax(_oldemax);
+        }
+        (*v)->rc = MPC_INEX(rcr, rci);
+    }
+
+    /* GMPY_MPC_EXCEPTIONS(V, CTX) */
+    {
+        int _invalid = 0, _underflow = 0, _overflow = 0, _inexact = 0;
+        int rcr, rci;
+        rcr = MPC_INEX_RE((*v)->rc);
+        rci = MPC_INEX_IM((*v)->rc);
+        if (MPC_IS_NAN_P(*v)) {
+            ctext->ctx.invalid = 1;
+            _invalid = 1;
+        }
+        if ((*v)->rc) {
+            ctext->ctx.inexact = 1;
+            _inexact = 1;
+        }
+        if ((rcr && mpfr_zero_p(mpc_realref((*v)->c))) || (rci && mpfr_zero_p(mpc_imagref((*v)->c)))) {
+            ctext->ctx.underflow = 1;
+            _underflow = 1;
+        }
+        if ((rcr && mpfr_inf_p(mpc_realref((*v)->c))) || (rci && mpfr_inf_p(mpc_imagref((*v)->c)))) {
+            ctext->ctx.overflow = 1;
+            _overflow = 1;
+        }
+        if (ctext->ctx.traps) {
+            if ((ctext->ctx.traps & TRAP_UNDERFLOW) && _underflow) { \
+                GMPY_UNDERFLOW("underflow");
+                Py_XDECREF((PyObject*)(*v));
+                (*v) = NULL;
+            }
+            if ((ctext->ctx.traps & TRAP_OVERFLOW) && _overflow) {
+                GMPY_OVERFLOW("overflow");
+                Py_XDECREF((PyObject*)(*v));
+                (*v) = NULL;
+            }
+            if ((ctext->ctx.traps & TRAP_INEXACT) && _inexact) {
+                GMPY_INEXACT("inexact result");
+                Py_XDECREF((PyObject*)(*v));
+                (*v) = NULL;
+            }
+            if ((ctext->ctx.traps & TRAP_INVALID) && _invalid) {
+                GMPY_INVALID("invalid operation");
+                Py_XDECREF((PyObject*)(*v));
+                (*v) = NULL;
+            }
+        }
+    }
+}
+
 PyDoc_STRVAR(GMPy_doc_mpc_factory,
 "mpc() -> mpc(0.0+0.0j)\n\n"
 "      If no argument is given, return mpc(0.0+0.0j).\n\n"

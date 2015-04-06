@@ -61,15 +61,15 @@ mpfr('nan')
 >>> gmpy2.acos(mpfr("nan"))
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-InvalidOperationError: 'mpfr' invalid operation in acos()
+InvalidOperationError: invalid operation
 >>> gmpy2.acos(mpfr("inf"))
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-InvalidOperationError: 'mpfr' invalid operation in acos()
+InvalidOperationError: invalid operation
 >>> gmpy2.acos(mpfr("-inf"))
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-InvalidOperationError: 'mpfr' invalid operation in acos()
+InvalidOperationError: invalid operation
 >>> gmpy2.set_context(gmpy2.context(precision=100))
 >>> gmpy2.acos(mpfr("0.2"))
 mpfr('1.3694384060045658277761961394221',100)
@@ -128,15 +128,15 @@ mpfr('nan')
 >>> gmpy2.asin(mpfr("nan"))
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-InvalidOperationError: 'mpfr' invalid operation in asin()
+InvalidOperationError: invalid operation
 >>> gmpy2.asin(mpfr("inf"))
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-InvalidOperationError: 'mpfr' invalid operation in asin()
+InvalidOperationError: invalid operation
 >>> gmpy2.asin(mpfr("-inf"))
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-InvalidOperationError: 'mpfr' invalid operation in asin()
+InvalidOperationError: invalid operation
 >>> gmpy2.set_context(gmpy2.context(precision=100))
 >>> gmpy2.asin(mpfr("0.2"))
 mpfr('0.20135792079033079145512555221757',100)
@@ -197,7 +197,7 @@ mpfr('-1.5707963267948966')
 >>> gmpy2.atan(mpfr("nan"))
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-InvalidOperationError: 'mpfr' invalid operation in atan()
+InvalidOperationError: invalid operation
 >>> gmpy2.set_context(gmpy2.context(precision=100))
 >>> gmpy2.atan(mpfr("0.2"))
 mpfr('0.19739555984988075837004976519484',100)
@@ -289,15 +289,15 @@ mpfr('nan')
 >>> gmpy2.cos(mpfr("nan"))
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-InvalidOperationError: 'mpfr' invalid operation in cos()
+InvalidOperationError: invalid operation
 >>> gmpy2.cos(mpfr("inf"))
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-InvalidOperationError: 'mpfr' invalid operation in cos()
+InvalidOperationError: invalid operation
 >>> gmpy2.cos(mpfr("-inf"))
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-InvalidOperationError: 'mpfr' invalid operation in cos()
+InvalidOperationError: invalid operation
 >>> gmpy2.set_context(gmpy2.context(precision=100))
 >>> gmpy2.cos(mpfr("0.2"))
 mpfr('0.98006657784124163112419651674809',100)

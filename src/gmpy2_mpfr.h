@@ -101,7 +101,7 @@ static PyTypeObject MPFR_Type;
 /* Exceptions should be checked in order of least important to most important.
  */
 
-#define GMPY_MPFR_EXCEPTIONS(V, CTX, NAME) \
+#define GMPY_MPFR_EXCEPTIONS(V, CTX) \
     CTX->ctx.underflow |= mpfr_underflow_p(); \
     CTX->ctx.overflow |= mpfr_overflow_p(); \
     CTX->ctx.invalid |= mpfr_nanflag_p(); \
@@ -109,36 +109,36 @@ static PyTypeObject MPFR_Type;
     CTX->ctx.divzero |= mpfr_divby0_p(); \
     if (CTX->ctx.traps) { \
         if ((CTX->ctx.traps & TRAP_UNDERFLOW) && mpfr_underflow_p()) { \
-            GMPY_UNDERFLOW(NAME" underflow"); \
+            GMPY_UNDERFLOW("underflow"); \
             Py_XDECREF((PyObject*)V); \
             V = NULL; \
         } \
         if ((CTX->ctx.traps & TRAP_OVERFLOW) && mpfr_overflow_p()) { \
-            GMPY_OVERFLOW(NAME" overflow"); \
+            GMPY_OVERFLOW("overflow"); \
             Py_XDECREF((PyObject*)V); \
             V = NULL; \
         } \
         if ((CTX->ctx.traps & TRAP_INEXACT) && mpfr_inexflag_p()) { \
-            GMPY_INEXACT(NAME" inexact result"); \
+            GMPY_INEXACT("inexact result"); \
             Py_XDECREF((PyObject*)V); \
             V = NULL; \
         } \
         if ((CTX->ctx.traps & TRAP_INVALID) && mpfr_nanflag_p()) { \
-            GMPY_INVALID(NAME" invalid operation"); \
+            GMPY_INVALID("invalid operation"); \
             Py_XDECREF((PyObject*)V); \
             V = NULL; \
         } \
         if ((CTX->ctx.traps & TRAP_DIVZERO) && mpfr_divby0_p()) { \
-            GMPY_DIVZERO(NAME" division by zero"); \
+            GMPY_DIVZERO("division by zero"); \
             Py_XDECREF((PyObject*)V); \
             V = NULL; \
         } \
     }
 
-#define GMPY_MPFR_CLEANUP(V, CTX, NAME) \
+#define GMPY_MPFR_CLEANUP(V, CTX) \
     GMPY_MPFR_CHECK_RANGE(V, CTX); \
     GMPY_MPFR_SUBNORMALIZE(V, CTX); \
-    GMPY_MPFR_EXCEPTIONS(V, CTX, NAME); \
+    GMPY_MPFR_EXCEPTIONS(V, CTX);
 
 #define GMPY_CHECK_ERANGE(V, CTX, MSG) \
     CTX->ctx.erange |= mpfr_erangeflag_p(); \
@@ -151,6 +151,8 @@ static PyTypeObject MPFR_Type;
     } \
 
 static PyObject * GMPy_MPFR_Factory(PyObject *self, PyObject *args, PyObject *keywds);
+
+static void _GMPy_MPFR_Cleanup(MPFR_Object **v, CTXT_Object *ctext);
 
 #ifdef __cplusplus
 }

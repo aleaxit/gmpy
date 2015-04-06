@@ -51,7 +51,7 @@ GMPy_Complex_Phase(PyObject *x, CTXT_Object *context)
     result->rc = mpc_arg(result->f, tempx->c, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
 
-    GMPY_MPFR_CLEANUP(result, context, "phase()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -113,7 +113,7 @@ GMPy_Complex_Norm(PyObject *x, CTXT_Object *context)
     result->rc = mpc_norm(result->f, tempx->c, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
 
-    GMPY_MPFR_CLEANUP(result, context, "norm()");
+    _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -248,7 +248,7 @@ GMPy_Complex_Rect(PyObject *x, PyObject *y, CTXT_Object *context)
     Py_DECREF((PyObject*)tempx);
     Py_DECREF((PyObject*)tempy);
 
-    GMPY_MPC_CLEANUP(result, context, "rect()");
+    _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -306,7 +306,7 @@ GMPy_Complex_Proj(PyObject *x, CTXT_Object *context)
     result->rc = mpc_proj(result->c, tempx->c, GET_MPC_ROUND(context));
     Py_DECREF((PyObject*)tempx);
 
-    GMPY_MPC_CLEANUP(result, context, "proj()");
+    _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -359,7 +359,7 @@ GMPy_MPC_Conjugate_Method(PyObject *self, PyObject *args)
 
     result->rc = mpc_conj(result->c, MPC(self), GET_MPC_ROUND(context));
 
-    GMPY_MPC_CLEANUP(result, context, "conjugate()");
+    _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
@@ -394,7 +394,7 @@ GMPy_MPC_GetImag_Attrib(MPC_Object *self, void *closure)
 
     if ((result = GMPy_MPFR_New(0, context))) {
         result->rc = mpc_imag(result->f, self->c, GET_MPFR_ROUND(context));
-        GMPY_MPFR_CLEANUP(result, context, "imag()");
+        _GMPy_MPFR_Cleanup(&result, context);
     }
     return (PyObject*)result;
 }
@@ -411,7 +411,7 @@ GMPy_MPC_GetReal_Attrib(MPC_Object *self, void *closure)
 
     if ((result = GMPy_MPFR_New(0, context))) {
         result->rc = mpc_real(result->f, self->c, context->ctx.mpfr_round);
-        GMPY_MPFR_CLEANUP(result, context, "real()");
+        _GMPy_MPFR_Cleanup(&result, context);
     }
     return (PyObject*)result;
 }

@@ -80,7 +80,7 @@ GMPy_MPC_From_MPC(MPC_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 
     if ((result = GMPy_MPC_New(rprec, iprec, context))) {
         result->rc = mpc_set(result->c, obj->c, GET_MPC_ROUND(context));
-        GMPY_MPC_CLEANUP(result, context, "mpc()");
+        _GMPy_MPC_Cleanup(&result, context);
     }
     return result;
 }
@@ -112,7 +112,7 @@ GMPy_MPC_From_PyComplex(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
             GMPY_MPC_CHECK_RANGE(result, context);
         }
         GMPY_MPC_SUBNORMALIZE(result, context);
-        GMPY_MPC_EXCEPTIONS(result, context, "mpc()");
+        GMPY_MPC_EXCEPTIONS(result, context);
     }
     return result;
 }
@@ -143,7 +143,7 @@ GMPy_MPC_From_MPFR(MPFR_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
             GMPY_MPC_CHECK_RANGE(result, context);
         }
         GMPY_MPC_SUBNORMALIZE(result, context);
-        GMPY_MPC_EXCEPTIONS(result, context, "mpc()");
+        GMPY_MPC_EXCEPTIONS(result, context);
     }
     return result;
 }
@@ -175,7 +175,7 @@ GMPy_MPC_From_PyFloat(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
             GMPY_MPC_CHECK_RANGE(result, context);
         }
         GMPY_MPC_SUBNORMALIZE(result, context);
-        GMPY_MPC_EXCEPTIONS(result, context, "mpc()");
+        GMPY_MPC_EXCEPTIONS(result, context);
     }
     return result;
 }
@@ -202,7 +202,7 @@ GMPy_MPC_From_MPZ(MPZ_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
             GMPY_MPC_CHECK_RANGE(result, context);
         }
         GMPY_MPC_SUBNORMALIZE(result, context);
-        GMPY_MPC_EXCEPTIONS(result, context, "mpc()");
+        GMPY_MPC_EXCEPTIONS(result, context);
     }
     return result;
 }
@@ -229,7 +229,7 @@ GMPy_MPC_From_MPQ(MPQ_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
             GMPY_MPC_CHECK_RANGE(result, context);
         }
         GMPY_MPC_SUBNORMALIZE(result, context);
-        GMPY_MPC_EXCEPTIONS(result, context, "mpc()");
+        GMPY_MPC_EXCEPTIONS(result, context);
     }
     return result;
 }
@@ -429,7 +429,7 @@ GMPy_MPC_From_PyStr(PyObject *s, int base, mpfr_prec_t rprec, mpfr_prec_t iprec,
         GMPY_MPC_CHECK_RANGE(result, context);
     }
     GMPY_MPC_SUBNORMALIZE(result, context);
-    GMPY_MPC_EXCEPTIONS(result, context, "mpc()");
+    GMPY_MPC_EXCEPTIONS(result, context);
 
     return result;
 
