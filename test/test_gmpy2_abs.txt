@@ -1,0 +1,147 @@
+Absolute value
+==============
+
+Test abs() and context.abs().
+
+>>> import gmpy2
+>>> from gmpy2 import mpz, xmpz, mpq, mpfr, mpc
+>>> from fractions import Fraction as F
+>>> from decimal import Decimal as D
+
+>>> a=mpz(123)
+>>> b=abs(a)
+>>> a is b
+True
+>>> a=xmpz(123)
+>>> b=abs(a)
+>>> a is b
+False
+>>> a=mpz(-123)
+>>> b=abs(a)
+>>> b
+mpz(123)
+>>> a is b
+False
+>>> a
+mpz(-123)
+>>> a=mpq(12,7)
+>>> b=abs(a)
+>>> a is b
+True
+>>> a=mpq(-12,7)
+>>> b=abs(a)
+>>> b
+mpq(12,7)
+>>> a
+mpq(-12,7)
+>>> a=xmpz(-123)
+>>> b=abs(a)
+>>> b
+>>> a
+xmpz(123)
+>>> b is None
+True
+>>> b = abs(a)
+>>> b is None
+True
+>>> a=mpfr(1.0)
+>>> b=abs(a)
+>>> a is b
+False
+>>> abs(mpfr(1, precision=100))
+mpfr('1.0')
+>>> ctx = gmpy2.get_context()
+>>> ctx.clear_flags()
+>>> abs(mpfr('nan'))
+mpfr('nan')
+>>> ctx.invalid
+True
+>>> ctx.clear_flags()
+>>> abs(mpfr('inf'))
+mpfr('inf')
+>>> ctx.overflow
+False
+>>> ctx.clear_flags()
+>>> abs(mpfr('-inf'))
+mpfr('inf')
+>>> ctx.overflow
+False
+>>> abs(mpc(-1,0))
+mpfr('1.0')
+>>> abs(-1+0j)
+1.0
+>>> abs(mpc(1,1))
+mpfr('1.4142135623730951')
+>>> ctx=gmpy2.get_context()
+>>> ctx.clear_flags()
+>>> mpc('nan+0j')
+mpc('nan+0.0j')
+>>> ctx.invalid
+True
+>>> abs(mpc('nan+0j'))
+mpfr('nan')
+>>> ctx.invalid
+True
+>>> ctx.clear_flags()
+>>> abs(mpc('nanj'))
+mpfr('nan')
+>>> ctx.invalid
+True
+>>> ctx.clear_flags()
+>>> abs(mpc('inf+10j'))
+mpfr('inf')
+>>> ctx.overflow
+False
+>>> ctx.clear_flags()
+>>> abs(mpc('-infj'))
+mpfr('inf')
+>>> ctx.overflow
+False
+>>> a = mpc('nan+infj')
+>>> ctx.clear_flags()
+>>> abs(a)
+mpfr('inf')
+>>> ctx.overflow
+False
+>>> ctx.invalid
+False
+>>> a=mpc('-inf+nanj')
+>>> ctx.clear_flags()
+>>> abs(a)
+mpfr('inf')
+>>> ctx.overflow
+False
+>>> ctx.invalid
+False
+
+
+>>> ctx=gmpy2.context()
+>>> ctx.abs('a')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: ** message detail varies **
+>>> ctx.abs(-1)
+mpz(1)
+>>> ctx.abs(0)
+mpz(0)
+>>> ctx.abs(1)
+mpz(1)
+>>> ctx.abs(mpz(8))
+mpz(8)
+>>> ctx.abs(mpz(-8))
+mpz(8)
+>>> ctx.abs(-1.0)
+mpfr('1.0')
+>>> ctx.abs(mpfr(-2))
+mpfr('2.0')
+>>> ctx.abs(2+3j)
+mpfr('3.6055512754639891')
+>>> ctx.abs(mpc(2+3j))
+mpfr('3.6055512754639891')
+>>> ctx.abs(F(1,2))
+mpq(1,2)
+>>> ctx.abs(F(-1,2))
+mpq(1,2)
+>>> ctx.abs(D(-1))
+mpfr('1.0')
+
