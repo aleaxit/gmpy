@@ -62,8 +62,11 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPZ_Object *result;
 
-    if (!(result = GMPy_MPZ_New(context)))
+    if (!(result = GMPy_MPZ_New(context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     if (CHECK_MPZANY(x)) {
         if (PyIntOrLong_Check(y)) {
@@ -122,13 +125,14 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
         MPZ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPZ_From_Integer(x, context);
-        tempy = GMPy_MPZ_From_Integer(y, context);
-        if (!tempx || !tempy) {
+        if (!(tempx = GMPy_MPZ_From_Integer(x, context)) ||
+            !(tempy = GMPy_MPZ_From_Integer(y, context))) {
+            /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
 
         mpz_add(result->z, tempx->z, tempy->z);
@@ -137,8 +141,14 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         return (PyObject*)result;
     }
 
+    /* The last two lines should not be reachable if this function is called
+     * via MPZ_Add_Slot or Number_Add, but they are left behind just-in-case.
+     */
+
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     Py_RETURN_NOTIMPLEMENTED;
+    /* LCOV_EXCL_STOP */
 }
 
 /* Implement __add__ for MPZ_Object. On entry, one of the two arguments must
@@ -183,8 +193,11 @@ GMPy_Rational_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPQ_Object *result;
 
-    if (!(result = GMPy_MPQ_New(context)))
+    if (!(result = GMPy_MPQ_New(context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     if (MPQ_Check(x) && MPQ_Check(y)) {
         mpq_add(result->q, MPQ(x), MPQ(y));
@@ -194,13 +207,14 @@ GMPy_Rational_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPQ_From_Number(x, context);
-        tempy = GMPy_MPQ_From_Number(y, context);
-        if (!tempx || !tempy) {
+        if (!(tempx = GMPy_MPQ_From_Number(x, context)) ||
+            !(tempy = GMPy_MPQ_From_Number(y, context))) {
+            /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
 
         mpq_add(result->q, tempx->q, tempy->q);
@@ -209,8 +223,10 @@ GMPy_Rational_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     Py_RETURN_NOTIMPLEMENTED;
+    /* LCOV_EXCL_STOP */
 }
 
 /* Implement __add__ for Pympq. On entry, one of the two arguments must
@@ -257,8 +273,11 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 
     CHECK_CONTEXT(context);
 
-    if (!(result = GMPy_MPFR_New(0, context)))
+    if (!(result = GMPy_MPFR_New(0, context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     if (MPFR_Check(x) && MPFR_Check(y)) {
         mpfr_clear_flags();
@@ -299,9 +318,12 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             MPQ_Object *tempy;
 
             if (!(tempy = GMPy_MPQ_From_Number(y, context))) {
+                /* LCOV_EXCL_START */
                 Py_DECREF((PyObject*)result);
                 return NULL;
+                /* LCOV_EXCL_STOP */
             }
+
             mpfr_clear_flags();
             result->rc = mpfr_add_q(result->f, MPFR(x), tempy->q, GET_MPFR_ROUND(context));
             Py_DECREF((PyObject*)tempy);
@@ -347,9 +369,12 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             MPQ_Object *tempx;
 
             if (!(tempx = GMPy_MPQ_From_Number(x, context))) {
+                /* LCOV_EXCL_START */
                 Py_DECREF((PyObject*)result);
                 return NULL;
+                /* LCOV_EXCL_STOP */
             }
+
             mpfr_clear_flags();
             result->rc = mpfr_add_q(result->f, MPFR(y), tempx->q, GET_MPFR_ROUND(context));
             Py_DECREF((PyObject*)tempx);
@@ -366,14 +391,17 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_REAL(x) && IS_REAL(y)) {
         MPFR_Object *tempx, *tempy;
 
-        tempx = GMPy_MPFR_From_Real(x, 1, context);
-        tempy = GMPy_MPFR_From_Real(y, 1, context);
-        if (!tempx || !tempy) {
+
+        if (!(tempx = GMPy_MPFR_From_Real(x, 1, context)) ||
+            !(tempy = GMPy_MPFR_From_Real(y, 1, context))) {
+            /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
+
         mpfr_clear_flags();
         result->rc = mpfr_add(result->f, MPFR(tempx), MPFR(tempy), GET_MPFR_ROUND(context));
         Py_DECREF((PyObject*)tempx);
@@ -381,8 +409,10 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         goto done;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     Py_RETURN_NOTIMPLEMENTED;
+    /* LCOV_EXCL_STOP */
 
   done:
     _GMPy_MPFR_Cleanup(&result, context);
@@ -418,37 +448,42 @@ GMPy_Complex_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 
     CHECK_CONTEXT(context);
 
-    if (!(result = GMPy_MPC_New(0, 0, context)))
+    if (!(result = GMPy_MPC_New(0, 0, context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     if (MPC_Check(x) && MPC_Check(y)) {
         result->rc = mpc_add(result->c, MPC(x), MPC(y), GET_MPC_ROUND(context));
-        goto done;
+        _GMPy_MPC_Cleanup(&result, context);
+        return (PyObject*)result;
     }
 
     if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
         MPC_Object *tempx, *tempy;
 
-        tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
-        tempy = GMPy_MPC_From_Complex(y, 1, 1, context);
-        if (!tempx || !tempy) {
+        if (!(tempx = GMPy_MPC_From_Complex(x, 1, 1, context)) ||
+            !(tempy = GMPy_MPC_From_Complex(y, 1, 1, context))) {
+            /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
+
         result->rc = mpc_add(result->c, tempx->c, tempy->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
-        goto done;
+        _GMPy_MPC_Cleanup(&result, context);
+        return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
     Py_RETURN_NOTIMPLEMENTED;
-
-  done:
-    _GMPy_MPC_Cleanup(&result, context);
-    return (PyObject*)result;
+    /* LCOV_EXCL_STOP */
 }
 
 /* GMPy_MPC_Add_Slot() is called by mpc.__add__. It just gets a borrowed reference
@@ -494,20 +529,12 @@ PyDoc_STRVAR(GMPy_doc_context_add,
 static PyObject *
 GMPy_Context_Add(PyObject *self, PyObject *args)
 {
-    CTXT_Object *context = NULL;
-
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("add() requires 2 arguments.");
         return NULL;
     }
 
-    if (self && CTXT_Check(self)) {
-        context = (CTXT_Object*)self;
-    }
-    else {
-        CHECK_CONTEXT(context);
-    }
-
-    return GMPy_Number_Add(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context);
+    return GMPy_Number_Add(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1),
+                           (CTXT_Object*)self);
 }
 

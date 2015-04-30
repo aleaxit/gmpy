@@ -134,12 +134,13 @@ GMPy_Real_Abs(PyObject *x, CTXT_Object *context)
 
     CHECK_CONTEXT(context);
 
-    tempx = GMPy_MPFR_From_Real(x, 1, context);
-    result = GMPy_MPFR_New(0, context);
-    if (!tempx || !result) {
+    if (!(tempx = GMPy_MPFR_From_Real(x, 1, context)) ||
+        !(result = GMPy_MPFR_New(0, context))) {
+        /* LCOV_EXCL_START */
         Py_XDECREF((PyObject*)tempx);
         Py_XDECREF((PyObject*)result);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     mpfr_clear_flags();
@@ -163,10 +164,14 @@ GMPy_Complex_Abs(PyObject *x, CTXT_Object *context)
 
     CHECK_CONTEXT(context);
 
-    tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
-    result = GMPy_MPFR_New(0, context);
-    if (!tempx || !result)
-        goto err;
+    if (!(tempx = GMPy_MPC_From_Complex(x, 1, 1, context)) ||
+        !(result = GMPy_MPFR_New(0, context))) {
+        /* LCOV_EXCL_START */
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)result);
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     mpfr_clear_flags();
     result->rc = mpc_abs(result->f, tempx->c, GET_MPC_ROUND(context));
@@ -174,10 +179,6 @@ GMPy_Complex_Abs(PyObject *x, CTXT_Object *context)
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 
-  err:
-    Py_XDECREF((PyObject*)tempx);
-    Py_XDECREF((PyObject*)result);
-    return NULL;
 }
 
 static PyObject *
@@ -215,15 +216,6 @@ PyDoc_STRVAR(GMPy_doc_context_abs,
 static PyObject *
 GMPy_Context_Abs(PyObject *self, PyObject *other)
 {
-    CTXT_Object *context = NULL;
-
-    if (self && CTXT_Check(self)) {
-        context = (CTXT_Object*)self;
-    }
-    else {
-        CHECK_CONTEXT(context);
-    }
-
-    return GMPy_Number_Abs(other, context);
+    return GMPy_Number_Abs(other, (CTXT_Object*)self);
 }
 

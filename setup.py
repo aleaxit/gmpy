@@ -64,7 +64,20 @@ else:
 #
 # The --gcov command line option configures GCC to collect code coverage data
 # for testing purposes. The raw collected data can be converted to .gcov files
-# with the command "gcov build/temp.linux-x86_64-3.4/src/gmpy2.gcno".
+# with the command "gcov build/temp.linux-x86_64-3.4/src/gmpy2.gcno". To create
+# a tidy HTML summary, use "gcovr -s -r . --html -o coverage.html". When tests
+# are completed, delete the .gcov and coverage.html files.
+#
+# The following commands show the use of lcov to analyze the coverage data.
+#
+#   py34 setup.py clean
+#   py34 setup.py install --gcov --force
+#   py34 test/runtests.py
+#   lcov --capture --directory build/temp.linux-x86_64-3.4/src/gmpy2.gcno --output-file build/coverage.info
+#   genhtml build/coverage.info --output-directory build/out
+#   firefox build/out/index.html
+#
+# Remember to remove the *.gcov file and the out sub-directory.
 
 defines = []
 
@@ -136,6 +149,7 @@ class gmpy_build_ext(build_ext):
             if d[0] == 'GCOV':
                 self.extensions[0].libraries.append('gcov')
                 self.extensions[0].extra_compile_args.extend(['-O0', '--coverage'])
+                self.extensions[0].extra_link_args.append('--coverage')
                 self.extensions[0].define_macros.remove(d)
 
             if d[0] == 'FORCE':
