@@ -50,8 +50,11 @@ GMPy_MPZ_From_Old_Binary(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = GMPy_MPZ_New(NULL)))
+    if (!(result = GMPy_MPZ_New(NULL))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     len = PyBytes_Size(other);
     cp = (unsigned char*)PyBytes_AsString(other);
@@ -84,8 +87,11 @@ GMPy_MPQ_From_Old_Binary(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = GMPy_MPQ_New(NULL)))
+    if (!(result = GMPy_MPQ_New(NULL))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     len = PyBytes_Size(other);
     cp = (unsigned char*)PyBytes_AsString(other);
@@ -176,8 +182,11 @@ GMPy_MPFR_From_Old_Binary(PyObject *self, PyObject *other)
 
     /* mpfr zero has a very compact (1-byte) binary encoding!-) */
     if (resuzero) {
-        if (!(result = GMPy_MPFR_New(prec, context)))
+        if (!(result = GMPy_MPFR_New(prec, context))) {
+            /* LCOV_EXCL_START */
             return NULL;
+            /* LCOV_EXCL_STOP */
+        }
         result->rc = mpfr_set_ui(result->f, 0, MPFR_RNDN);
         return (PyObject*)result;
     }
@@ -190,8 +199,11 @@ GMPy_MPFR_From_Old_Binary(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (!(result = GMPy_MPFR_New(prec, context)))
+    if (!(result = GMPy_MPFR_New(prec, context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     /* reconstruct exponent */
     for (i = 4 + precilen; i > precilen; --i) {
@@ -338,8 +350,14 @@ GMPy_MPQ_To_Binary(MPQ_Object *self)
 
     /* Check if sizenum larger than 32 bits. */
     if ((sizenum >> 16) >> 16) {
+        /* Current versions of GMP do not allow values to be this large. The
+         * test is left to (possibly) support future versions that support
+         * larger values.
+         */
+        /* LCOV_EXCL_START */
         large = 0x04;
         sizesize = 8;
+        /* LCOV_EXCL_STOP */
     }
     size += sizesize;
 
@@ -360,17 +378,21 @@ GMPy_MPQ_To_Binary(MPQ_Object *self)
     mpz_export(buffer+sizesize+2, &count, -1,
                sizeof(char), 0, 0, mpq_numref(self->q));
     if (count != sizenum) {
+        /* LCOV_EXCL_START */
         SYSTEM_ERROR("internal error in Pympq_To_Binary");
         TEMP_FREE(buffer, size);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
     count = 0;
     mpz_export(buffer+sizenum+sizesize+2, &count, -1,
                sizeof(char), 0, 0, mpq_denref(self->q));
     if (count != sizeden) {
+        /* LCOV_EXCL_START */
         SYSTEM_ERROR("internal error in Pympq_To_Binary");
         TEMP_FREE(buffer, size);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
 
@@ -443,6 +465,9 @@ GMPy_MPFR_To_Binary(MPFR_Object *self)
     if (((exponent >> 16) >> 16) ||
         ((precision >> 16) >> 16) ||
         ((sizemant >> 16) >> 16)) {
+        /* This can only be tested on 64-bit platforms. lcov will report the
+         * code as not tested until 64-bit specific tests are created.
+         */
         sizesize = 8;
         large = 0x04;
     }
@@ -502,10 +527,13 @@ GMPy_MPFR_To_Binary(MPFR_Object *self)
     /* Save the limb size. */
     if ((mp_bits_per_limb >> 3) == 8)
         buffer[1] |= 0x40;
+    /* This branch can only be reached on 32-bit platforms. */
     else if ((mp_bits_per_limb >> 3) != 4) {
+        /* LCOV_EXCL_START */
         SYSTEM_ERROR("cannot support current limb size");
         TEMP_FREE(buffer, size);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     /* Save the result code. */
@@ -590,27 +618,33 @@ GMPy_MPC_To_Binary(MPC_Object *obj)
     CHECK_CONTEXT(context);
 
     mpc_get_prec2(&rprec, &iprec, obj->c);
-    real = GMPy_MPFR_New(rprec, context);
-    imag = GMPy_MPFR_New(iprec, context);
-    if (!real || !imag) {
+
+    if (!(real = GMPy_MPFR_New(rprec, context)) ||
+        !(imag = GMPy_MPFR_New(iprec, context))) {
+        /* LCOV_EXCL_START */
         Py_XDECREF((PyObject*)real);
         Py_XDECREF((PyObject*)imag);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     mpfr_set(real->f, mpc_realref(obj->c), MPFR_RNDN);
     mpfr_set(imag->f, mpc_imagref(obj->c), MPFR_RNDN);
     real->rc = obj->rc;
 
-    result = GMPy_MPFR_To_Binary(real);
-    temp = GMPy_MPFR_To_Binary(imag);
-    Py_DECREF((PyObject*)real);
-    Py_DECREF((PyObject*)imag);
-    if (!result || !temp) {
+    if (!(result = GMPy_MPFR_To_Binary(real)) ||
+        !(temp = GMPy_MPFR_To_Binary(imag))) {
+        /* LCOV_EXCL_START */
         Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)temp);
+        Py_DECREF((PyObject*)real);
+        Py_DECREF((PyObject*)imag);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
+
+    Py_DECREF((PyObject*)real);
+    Py_DECREF((PyObject*)imag);
 
     PyBytes_AS_STRING(result)[0] = 0x05;
     PyBytes_AS_STRING(temp)[0] = 0x05;
@@ -651,8 +685,11 @@ GMPy_MPANY_From_Binary(PyObject *self, PyObject *other)
         case 0x01: {
             MPZ_Object *result;
 
-            if (!(result = GMPy_MPZ_New(NULL)))
+            if (!(result = GMPy_MPZ_New(NULL))) {
+                /* LCOV_EXCL_START */
                 return NULL;
+                /* LCOV_EXCL_STOP */
+            }
             if (cp[1] == 0x00) {
                 mpz_set_ui(result->z, 0);
                 return (PyObject*)result;
@@ -666,8 +703,11 @@ GMPy_MPANY_From_Binary(PyObject *self, PyObject *other)
         case 0x02: {
             XMPZ_Object *result;
 
-            if (!(result = GMPy_XMPZ_New(NULL)))
+            if (!(result = GMPy_XMPZ_New(NULL))) {
+                /* LCOV_EXCL_START */
                 return NULL;
+                /* LCOV_EXCL_STOP */
+            }
             if (cp[1] == 0x00) {
                 mpz_set_ui(result->z, 0);
                 return (PyObject*)result;
@@ -683,8 +723,11 @@ GMPy_MPANY_From_Binary(PyObject *self, PyObject *other)
             size_t numlen = 0, sizesize = 4, i;
             mpz_t num, den;
 
-            if (!(result = GMPy_MPQ_New(NULL)))
+            if (!(result = GMPy_MPQ_New(NULL))) {
+                /* LCOV_EXCL_START */
                 return NULL;
+                /* LCOV_EXCL_STOP */
+            }
             if (cp[1] == 0x00) {
                 mpq_set_ui(result->q, 0, 1);
                 return (PyObject*)result;
@@ -755,8 +798,11 @@ GMPy_MPANY_From_Binary(PyObject *self, PyObject *other)
             if (cp[1] & 0x40) limbsize = 8;
 
 
-            if (!(result = GMPy_MPFR_New(precision, context)))
+            if (!(result = GMPy_MPFR_New(precision, context))) {
+                /* LCOV_EXCL_START */
                 return NULL;
+                /* LCOV_EXCL_STOP */
+            }
 
             /* Restore the original result code and rounding mode. */
 
@@ -913,8 +959,11 @@ GMPy_MPANY_From_Binary(PyObject *self, PyObject *other)
             if (cp[1] & 0x02) sgn = -1;
             if (cp[1] & 0x20) expsgn = -1;
             if (cp[1] & 0x40) limbsize = 8;
-            if (!(real = GMPy_MPFR_New(precision, context)))
+            if (!(real = GMPy_MPFR_New(precision, context))) {
+                /* LCOV_EXCL_START */
                 return NULL;
+                /* LCOV_EXCL_STOP */
+            }
             if (cp[2] == 0)      real->rc = 0;
             else if (cp[2] == 1) real->rc = 1;
             else                 real->rc = -1;
@@ -1037,8 +1086,12 @@ GMPy_MPANY_From_Binary(PyObject *self, PyObject *other)
             if (cp[1] & 0x02) sgn = -1;
             if (cp[1] & 0x20) expsgn = -1;
             if (cp[1] & 0x40) limbsize = 8;
-            if (!(imag = GMPy_MPFR_New(precision, context)))
+            if (!(imag = GMPy_MPFR_New(precision, context))) {
+                /* LCOV_EXCL_START */
+                Py_DECREF((PyObject*)real);
                 return NULL;
+                /* LCOV_EXCL_STOP */
+            }
             if (cp[2] == 0)      imag->rc = 0;
             else if (cp[2] == 1) imag->rc = 1;
             else                 imag->rc = -1;
@@ -1139,9 +1192,11 @@ GMPy_MPANY_From_Binary(PyObject *self, PyObject *other)
             }
   alldone:
             if (!(result = (MPC_Object*)GMPy_MPC_New(0, 0, context))) {
+                /* LCOV_EXCL_START */
                 Py_DECREF((PyObject*)real);
                 Py_DECREF((PyObject*)imag);
                 return NULL;
+                /* LCOV_EXCL_STOP */
             }
             mpfr_swap(mpc_realref(result->c), real->f);
             mpfr_swap(mpc_imagref(result->c), imag->f);

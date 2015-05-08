@@ -1,0 +1,212 @@
+Test gmpy2_binary.c
+===================
+
+>>> import gmpy2
+>>> from gmpy2 import mpz, xmpz, mpq, mpfr, mpc, to_binary, from_binary
+
+>>> gmpy2.mpz_from_old_binary(b'\x15\xcd[\x07')
+mpz(123456789)
+>>> gmpy2.mpz_from_old_binary(b'\x15\xcd[\x07\xff')
+mpz(-123456789)
+>>> gmpy2.mpz_from_old_binary(1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: ** message detail varies **
+
+>>> gmpy2.mpq_from_old_binary(b'\x01\x00\x00\x00)\x98')
+mpq(41,152)
+>>> gmpy2.mpq_from_old_binary(b'\x01\x00\x00\x80)\x98')
+mpq(-41,152)
+>>> gmpy2.mpq_from_old_binary(1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: ** message detail varies **
+>>> gmpy2.mpq_from_old_binary(b'aa')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: ** message detail varies **
+>>> gmpy2.mpq_from_old_binary(b'aaaaaaaaa')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: ** message detail varies **
+
+>>> gmpy2.mpfr_from_old_binary(b'\x085\x00\x00\x00\x02\x00\x00\x0009\xac\xcc\xcc\xcc\xcc\xcc\xd0')
+mpfr('12345.674999999999')
+>>> gmpy2.mpfr_from_old_binary(b'\t5\x00\x00\x00\x02\x00\x00\x0009\xac\xcc\xcc\xcc\xcc\xcc\xd0')
+mpfr('-12345.674999999999')
+>>> gmpy2.mpfr_from_old_binary(b'\n5\x00\x00\x00\x06\x00\x00\x00\x01\x14\xb3\x7fKQ\xf7\x0en')
+mpfr('1.5e-17')
+>>> gmpy2.mpfr_from_old_binary(1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: ** message detail varies **
+>>> gmpy2.mpfr_from_old_binary(b'aaaaa')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: ** message detail varies **
+>>> gmpy2.mpfr_from_old_binary(b'\x04')
+mpfr('0.0')
+
+>>> from_binary(to_binary(xmpz(1)))
+xmpz(1)
+>>> from_binary(to_binary(xmpz(0)))
+xmpz(0)
+>>> from_binary(to_binary(xmpz(-1)))
+xmpz(-1)
+>>> from_binary(to_binary(xmpz(1234567890123456789)))
+xmpz(1234567890123456789)
+
+>>> from_binary(1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: ** message detail varies **
+>>> from_binary(b'a')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: ** message detail varies **
+
+>>> from_binary(to_binary(mpz(1)))
+mpz(1)
+>>> from_binary(to_binary(mpz(0)))
+mpz(0)
+>>> from_binary(to_binary(mpz(-1)))
+mpz(-1)
+>>> from_binary(to_binary(mpz(1234567890123456789)))
+mpz(1234567890123456789)
+
+>>> x=mpq(0,1);x==from_binary(to_binary(x))
+True
+>>> x=mpq(1,1);x==from_binary(to_binary(x))
+True
+>>> x=mpq(-1,2);x==from_binary(to_binary(x))
+True
+>>> x=mpq(123456789123456789,9876);x==from_binary(to_binary(x))
+True
+
+>>> x=mpfr("0");x==from_binary(to_binary(x))
+True
+>>> x=mpfr("1");x==from_binary(to_binary(x))
+True
+>>> x=mpfr("-1");x==from_binary(to_binary(x))
+True
+>>> x=mpfr("inf");x==from_binary(to_binary(x))
+True
+>>> x=mpfr("-inf");x==from_binary(to_binary(x))
+True
+>>> x=mpfr("nan");gmpy2.is_nan(from_binary(to_binary(x)))
+True
+>>> x=mpfr(1.345);x==from_binary(to_binary(x))
+True
+>>> x=mpfr("1.345e1000");x==from_binary(to_binary(x))
+True
+>>> x=mpfr("-1.345e1000");x==from_binary(to_binary(x))
+True
+>>> x=mpfr("1.345e-1000");x==from_binary(to_binary(x))
+True
+>>> x=mpfr("-1.345e-1000");x==from_binary(to_binary(x))
+True
+>>> x=mpfr("1e1234567890123456789");x=from_binary(to_binary(x))
+>>> x.rc
+1
+>>> x=mpfr("-1e1234567890123456789");x=from_binary(to_binary(x))
+>>> x.rc
+-1
+>>> x=gmpy2.const_pi()
+>>> x.rc
+-1
+>>> y=from_binary(to_binary(x))
+>>> x==y
+True
+>>> y.rc
+-1
+>>> x=gmpy2.const_pi(precision=104)
+>>> x.rc
+1
+>>> y=from_binary(to_binary(x))
+>>> x==y
+True
+>>> y.rc
+1
+>>> gmpy2.get_context().precision=20
+>>> x=gmpy2.const_pi();x==from_binary(to_binary(x))
+True
+>>> gmpy2.get_context().precision=100
+>>> x=gmpy2.const_pi();x==from_binary(to_binary(x))
+True
+>>> gmpy2.get_context().precision=200
+>>> x=mpfr(gmpy2.const_pi());x==from_binary(to_binary(x))
+True
+>>> gmpy2.get_context().precision=200
+>>> x=gmpy2.const_pi()
+>>> gmpy2.get_context().precision=300
+>>> x=from_binary(to_binary(x))
+>>> x.precision
+200
+>>> gmpy2.set_context(gmpy2.context())
+
+
+
+
+>>> x=mpc("0+0j");x==from_binary(to_binary(x))
+True
+>>> x=mpc("1+0j");x==from_binary(to_binary(x))
+True
+>>> x=mpc("-1+0j");x==from_binary(to_binary(x))
+True
+>>> x=mpc("0+1j");x==from_binary(to_binary(x))
+True
+>>> x=mpc("0-1j");x==from_binary(to_binary(x))
+True
+>>> x=mpc("inf+0j");x==from_binary(to_binary(x))
+True
+>>> x=mpc("0+infj");x==from_binary(to_binary(x))
+True
+>>> x=mpc("inf-infj");x==from_binary(to_binary(x))
+True
+>>> x=mpc("inf+nanj")
+>>> y=from_binary(to_binary(x))
+>>> x.real==y.real
+True
+>>> gmpy2.is_nan(y.imag)
+True
+>>> x=mpc("-inf+0j");x==from_binary(to_binary(x))
+True
+>>> x=mpc("0-infj");x==from_binary(to_binary(x))
+True
+>>> x=mpc("-inf-infj");x==from_binary(to_binary(x))
+True
+>>> x=mpc("-inf+nanj")
+>>> y=from_binary(to_binary(x))
+>>> x.real==y.real
+True
+>>> gmpy2.is_nan(y.imag)
+True
+>>> x=mpc("nan+0j")
+>>> y=from_binary(to_binary(x))
+>>> x.imag==y.imag
+True
+>>> gmpy2.is_nan(y.real)
+True
+>>> x=mpc("0+nanj")
+>>> y=from_binary(to_binary(x))
+>>> x.real==y.real
+True
+>>> gmpy2.is_nan(y.imag)
+True
+>>> x=mpc("nan-infj")
+>>> y=from_binary(to_binary(x))
+>>> x.imag==y.imag
+True
+>>> gmpy2.is_nan(y.real)
+True
+>>> x=mpc("nan+nanj")
+>>> y=from_binary(to_binary(x))
+>>> gmpy2.is_nan(y.real)
+True
+>>> gmpy2.is_nan(y.imag)
+True
+>>> gmpy2.get_context().real_prec=100
+>>> gmpy2.get_context().imag_prec=110
+>>> from_binary(to_binary(mpc("1.3-4.7j")))
+mpc('1.2999999999999999999999999999994-4.7000000000000000000000000000000025j',(100,110))
+>>> gmpy2.set_context(gmpy2.context())

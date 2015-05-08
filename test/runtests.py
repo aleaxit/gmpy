@@ -59,19 +59,18 @@ if sys.version.startswith('3.1'):
     print()
 
 mpz_doctests = ["test_mpz_create.txt", "test_mpz.txt", "test_mpz_io.txt",
-                "test_mpz_pack_unpack.txt", "test_mpz_to_from_binary.txt"]
+                "test_mpz_pack_unpack.txt"]
 
-mpq_doctests = ["test_mpq.txt", "test_mpq_to_from_binary.txt"]
+mpq_doctests = ["test_mpq.txt"]
 
 mpfr_doctests = ["test_mpfr_create.txt", "test_mpfr.txt",
                  "test_mpfr_trig.txt", "test_mpfr_min_max.txt",
-                 "test_mpfr_to_from_binary.txt", "test_context.txt",
-                 "test_mpfr_subnormalize.txt"]
+                 "test_context.txt", "test_mpfr_subnormalize.txt"]
 
-mpc_doctests = ["test_mpc_create.txt", "test_mpc.txt",
-                "test_mpc_to_from_binary.txt"]
+mpc_doctests = ["test_mpc_create.txt", "test_mpc.txt"]
 
-gmpy2_tests = ["test_misc.txt", "test_gmpy2_abs.txt", "test_gmpy2_add.txt"]
+gmpy2_tests = ["test_misc.txt", "test_gmpy2_abs.txt", "test_gmpy2_add.txt",
+               "test_gmpy2_binary.txt"]
 
 # The following tests will only pass on Python 3.2+.
 py32_doctests = ["test_py32_hash.txt"]
