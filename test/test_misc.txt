@@ -1,22 +1,39 @@
 Miscellaneous Functions
 -----------------------
 
-    >>> import gmpy2
-    >>> gmpy2.version()
-    '2.1.0a0'
-    >>> gmpy2.mp_limbsize() in (32,64)
-    True
-    >>> gmpy2.mp_version().split()[0] in ['GMP', 'MPIR']
-    True
-    >>> check_gmp = gmpy2.mp_version().startswith('GMP') and '5.0.0' <= gmpy2.mp_version().split()[1]
-    >>> check_mpir = gmpy2.mp_version().startswith('MPIR') and '2.4.0' <= gmpy2.mp_version().split()[1]
-    >>> check_gmp or check_mpir
-    True
-    >>> gmpy2.mpfr_version() and gmpy2.mpfr_version().startswith('MPFR')
-    True
-    >>> gmpy2.mpfr_version() and '3.1.0' <= gmpy2.mpfr_version().split()[1]
-    True
-    >>> gmpy2.mpc_version() and gmpy2.mpc_version().startswith('MPC')
-    True
-    >>> gmpy2.mpc_version() and '1.0' <= gmpy2.mpc_version().split()[1]
-    True
+>>> import gmpy2
+>>> gmpy2.version()
+'2.1.0a0'
+>>> gmpy2.mp_limbsize() in (32,64)
+True
+>>> gmpy2.mp_version().split()[0] in ['GMP', 'MPIR']
+True
+>>> check_gmp = gmpy2.mp_version().startswith('GMP') and '5.0.0' <= gmpy2.mp_version().split()[1]
+>>> check_mpir = gmpy2.mp_version().startswith('MPIR') and '2.4.0' <= gmpy2.mp_version().split()[1]
+>>> check_gmp or check_mpir
+True
+>>> gmpy2.mpfr_version() and gmpy2.mpfr_version().startswith('MPFR')
+True
+>>> gmpy2.mpfr_version() and '3.1.0' <= gmpy2.mpfr_version().split()[1]
+True
+>>> gmpy2.mpc_version() and gmpy2.mpc_version().startswith('MPC')
+True
+>>> gmpy2.mpc_version() and '1.0' <= gmpy2.mpc_version().split()[1]
+True
+
+>>> gmpy2.get_cache()
+(100, 128)
+>>> gmpy2.set_cache(2,128)
+>>> gmpy2.get_cache()
+(2, 128)
+>>> a=list([gmpy2.mpz(1) << i for i in range(20)])
+>>> del(a)
+>>> gmpy2.set_cache(100,128)
+>>> gmpy2.get_cache()
+(100, 128)
+>>> a=list([gmpy2.mpz(1) << i for i in range(20)])
+>>> del(a)
+>>> gmpy2.set_cache(2,128)
+>>> gmpy2.set_cache(100,128)
+>>> gmpy2.get_cache()
+(100, 128)

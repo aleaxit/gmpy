@@ -35,23 +35,15 @@ extern "C" {
 #endif
 
 static PyObject * GMPy_Function_Const_Pi(PyObject *self, PyObject *args, PyObject *keywds);
-static PyObject * GMPy_Real_Const_Pi(CTXT_Object *context);
-static PyObject * GMPy_Number_Const_Pi(CTXT_Object *context);
 static PyObject * GMPy_Context_Const_Pi(PyObject *self, PyObject *args);
 
 static PyObject * GMPy_Function_Const_Euler(PyObject *self, PyObject *args, PyObject *keywds);
-static PyObject * GMPy_Real_Const_Euler(CTXT_Object *context);
-static PyObject * GMPy_Number_Const_Euler(CTXT_Object *context);
 static PyObject * GMPy_Context_Const_Euler(PyObject *self, PyObject *args);
 
 static PyObject * GMPy_Function_Const_Log2(PyObject *self, PyObject *args, PyObject *keywds);
-static PyObject * GMPy_Real_Const_Log2(CTXT_Object *context);
-static PyObject * GMPy_Number_Const_Log2(CTXT_Object *context);
 static PyObject * GMPy_Context_Const_Log2(PyObject *self, PyObject *args);
 
 static PyObject * GMPy_Function_Const_Catalan(PyObject *self, PyObject *args, PyObject *keywds);
-static PyObject * GMPy_Real_Const_Catalan(CTXT_Object *context);
-static PyObject * GMPy_Number_Const_Catalan(CTXT_Object *context);
 static PyObject * GMPy_Context_Const_Catalan(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus

@@ -31,46 +31,185 @@ PyDoc_STRVAR(GMPy_doc_function_const_pi,
 "Return the constant pi using the specified precision. If no\n"
 "precision is specified, the default precision is used.");
 
+static PyObject *
+GMPy_Function_Const_Pi(PyObject *self, PyObject *args, PyObject *keywds)
+{
+    MPFR_Object *result = NULL;
+    mpfr_prec_t bits = 0;
+    static char *kwlist[] = {"precision", NULL};
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|l", kwlist, &bits)) {
+        return NULL;
+    }
+
+    if ((result = GMPy_MPFR_New(bits, context))) {
+        mpfr_clear_flags();
+        result->rc = mpfr_const_pi(result->f, GET_MPFR_ROUND(context));
+        _GMPy_MPFR_Cleanup(&result, context);
+    }
+
+    return (PyObject*)result;
+}
+
 PyDoc_STRVAR(GMPy_doc_context_const_pi,
 "context.const_pi() -> number\n\n"
 "Return the constant pi using the context's precision.");
 
-GMPY_MPFR_CONST(Const_Pi, const_pi)
-GMPY_MPFR_NOOP(Const_Pi, const_pi)
+static PyObject *
+GMPy_Context_Const_Pi(PyObject *self, PyObject *args)
+{
+    MPFR_Object *result = NULL;
+    CTXT_Object *context = (CTXT_Object*)self;
+
+    if ((result = GMPy_MPFR_New(0, context))) {
+        mpfr_clear_flags();
+        result->rc = mpfr_const_pi(result->f, GET_MPFR_ROUND(context));
+        _GMPy_MPFR_Cleanup(&result, context);
+    }
+
+    return (PyObject*)result;
+}
 
 PyDoc_STRVAR(GMPy_doc_function_const_euler,
 "const_euler([precision=0]) -> number\n\n"
 "Return the euler constant using the specified precision. If no\n"
 "precision is specified, the default precision is used.");
 
+static PyObject *
+GMPy_Function_Const_Euler(PyObject *self, PyObject *args, PyObject *keywds)
+{
+    MPFR_Object *result = NULL;
+    mpfr_prec_t bits = 0;
+    static char *kwlist[] = {"precision", NULL};
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|l", kwlist, &bits)) {
+        return NULL;
+    }
+
+    if ((result = GMPy_MPFR_New(bits, context))) {
+        mpfr_clear_flags();
+        result->rc = mpfr_const_euler(result->f, GET_MPFR_ROUND(context));
+        _GMPy_MPFR_Cleanup(&result, context);
+    }
+
+    return (PyObject*)result;
+}
+
 PyDoc_STRVAR(GMPy_doc_context_const_euler,
 "context.const_euler() -> number\n\n"
 "Return the euler constant using the context's precision.");
 
-GMPY_MPFR_CONST(Const_Euler, const_euler)
-GMPY_MPFR_NOOP(Const_Euler, const_euler)
+static PyObject *
+GMPy_Context_Const_Euler(PyObject *self, PyObject *args)
+{
+    MPFR_Object *result = NULL;
+    CTXT_Object *context = (CTXT_Object*)self;
+
+    if ((result = GMPy_MPFR_New(0, context))) {
+        mpfr_clear_flags();
+        result->rc = mpfr_const_euler(result->f, GET_MPFR_ROUND(context));
+        _GMPy_MPFR_Cleanup(&result, context);
+    }
+
+    return (PyObject*)result;
+}
 
 PyDoc_STRVAR(GMPy_doc_function_const_log2,
 "const_log2([precision=0]) -> number\n\n"
 "Return the log2 constant using the specified precision. If no\n"
 "precision is specified, the default precision is used.");
 
+static PyObject *
+GMPy_Function_Const_Log2(PyObject *self, PyObject *args, PyObject *keywds)
+{
+    MPFR_Object *result = NULL;
+    mpfr_prec_t bits = 0;
+    static char *kwlist[] = {"precision", NULL};
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|l", kwlist, &bits)) {
+        return NULL;
+    }
+
+    if ((result = GMPy_MPFR_New(bits, context))) {
+        mpfr_clear_flags();
+        result->rc = mpfr_const_log2(result->f, GET_MPFR_ROUND(context));
+        _GMPy_MPFR_Cleanup(&result, context);
+    }
+
+    return (PyObject*)result;
+}
+
 PyDoc_STRVAR(GMPy_doc_context_const_log2,
 "context.const_log2() -> number\n\n"
 "Return the log2 constant using the context's precision.");
 
-GMPY_MPFR_CONST(Const_Log2, const_log2)
-GMPY_MPFR_NOOP(Const_Log2, const_log2)
+static PyObject *
+GMPy_Context_Const_Log2(PyObject *self, PyObject *args)
+{
+    MPFR_Object *result = NULL;
+    CTXT_Object *context = (CTXT_Object*)self;
+
+    if ((result = GMPy_MPFR_New(0, context))) {
+        mpfr_clear_flags();
+        result->rc = mpfr_const_log2(result->f, GET_MPFR_ROUND(context));
+        _GMPy_MPFR_Cleanup(&result, context);
+    }
+
+    return (PyObject*)result;
+}
 
 PyDoc_STRVAR(GMPy_doc_function_const_catalan,
 "const_catalan([precision=0]) -> number\n\n"
 "Return the catalan constant using the specified precision. If no\n"
 "precision is specified, the default precision is used.");
 
+static PyObject *
+GMPy_Function_Const_Catalan(PyObject *self, PyObject *args, PyObject *keywds)
+{
+    MPFR_Object *result = NULL;
+    mpfr_prec_t bits = 0;
+    static char *kwlist[] = {"precision", NULL};
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|l", kwlist, &bits)) {
+        return NULL;
+    }
+
+    if ((result = GMPy_MPFR_New(bits, context))) {
+        mpfr_clear_flags();
+        result->rc = mpfr_const_catalan(result->f, GET_MPFR_ROUND(context));
+        _GMPy_MPFR_Cleanup(&result, context);
+    }
+
+    return (PyObject*)result;
+}
+
 PyDoc_STRVAR(GMPy_doc_context_const_catalan,
 "context.const_catalan() -> number\n\n"
 "Return the catalan constant using the context's precision.");
 
-GMPY_MPFR_CONST(Const_Catalan, const_catalan)
-GMPY_MPFR_NOOP(Const_Catalan, const_catalan)
+static PyObject *
+GMPy_Context_Const_Catalan(PyObject *self, PyObject *args)
+{
+    MPFR_Object *result = NULL;
+    CTXT_Object *context = (CTXT_Object*)self;
 
+    if ((result = GMPy_MPFR_New(0, context))) {
+        mpfr_clear_flags();
+        result->rc = mpfr_const_catalan(result->f, GET_MPFR_ROUND(context));
+        _GMPy_MPFR_Cleanup(&result, context);
+    }
+
+    return (PyObject*)result;
+}

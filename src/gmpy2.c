@@ -815,8 +815,11 @@ gmpy_allocate(size_t size)
 {
     void *res;
 
-    if (!(res = GMPY_MALLOC(size)))
+    if (!(res = GMPY_MALLOC(size))) {
+        /* LCOV_EXCL_START */
         Py_FatalError("Insufficient memory");
+        /* LCOV_EXCL_STOP */
+    }
 
     return res;
 }
@@ -826,8 +829,11 @@ gmpy_reallocate(void *ptr, size_t old_size, size_t new_size)
 {
     void *res;
 
-    if (!(res = GMPY_REALLOC(ptr, new_size)))
+    if (!(res = GMPY_REALLOC(ptr, new_size))) {
+        /* LCOV_EXCL_START */
         Py_FatalError("Insufficient memory");
+        /* LCOV_EXCL_STOP */
+    }
 
     return res;
 }
@@ -891,37 +897,47 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
 PyMODINIT_FUNC initgmpy2(void)
 #endif
 {
-    PyObject* gmpy_module = NULL;
-    PyObject* copy_reg_module = NULL;
+    PyObject *gmpy_module = NULL;
+    PyObject *copy_reg_module = NULL;
     PyObject *temp = NULL;
 
     /* Validate the sizes of the various typedef'ed integer types. */
 
 #if defined _WIN64 && (MPIR || MSYS2)
     if (sizeof(mp_bitcnt_t) != sizeof(PY_LONG_LONG)) {
+        /* LCOV_EXCL_START */
         SYSTEM_ERROR("Size of PY_LONG_LONG and mp_bitcnt_t not compatible (_WIN64 && MPIR)");
         INITERROR;
+        /* LCOV_EXCL_STOP */
     }
 #else
     if (sizeof(mp_bitcnt_t) != sizeof(long)) {
+        /* LCOV_EXCL_START */
         SYSTEM_ERROR("Size of long and mp_bitcnt_t not compatible");
         INITERROR;
+        /* LCOV_EXCL_STOP */
     }
 #endif
 
     if (sizeof(mp_bitcnt_t) > sizeof(size_t)) {
+        /* LCOV_EXCL_START */
         SYSTEM_ERROR("Size of size_t and mp_bitcnt_t not compatible");
         INITERROR;
+        /* LCOV_EXCL_STOP */
     }
 
     if (sizeof(mpfr_prec_t) != sizeof(long)) {
+        /* LCOV_EXCL_START */
         SYSTEM_ERROR("Size of mpfr_prec_t and long not compatible");
         INITERROR;
+        /* LCOV_EXCL_STOP */
     }
 
     if (sizeof(mpfr_exp_t) != sizeof(long)) {
+        /* LCOV_EXCL_START */
         SYSTEM_ERROR("Size of mpfr_exp_t and long not compatible");
         INITERROR;
+        /* LCOV_EXCL_STOP */
     }
 
     /* Configure MPFR to use the maximum possible exponent range. */
@@ -929,22 +945,46 @@ PyMODINIT_FUNC initgmpy2(void)
     mpfr_set_emin(mpfr_get_emin_min());
 
     /* Initialize the types. */
-    if (PyType_Ready(&MPZ_Type) < 0)
+    if (PyType_Ready(&MPZ_Type) < 0) {
+        /* LCOV_EXCL_START */
         INITERROR;
-    if (PyType_Ready(&MPQ_Type) < 0)
+        /* LCOV_EXCL_STOP */
+    }
+    if (PyType_Ready(&MPQ_Type) < 0) {
+        /* LCOV_EXCL_START */
         INITERROR;
-    if (PyType_Ready(&XMPZ_Type) < 0)
+        /* LCOV_EXCL_STOP */
+    }
+    if (PyType_Ready(&XMPZ_Type) < 0) {
+        /* LCOV_EXCL_START */
         INITERROR;
-    if (PyType_Ready(&GMPy_Iter_Type) < 0)
+        /* LCOV_EXCL_STOP */
+    }
+    if (PyType_Ready(&GMPy_Iter_Type) < 0) {
+        /* LCOV_EXCL_START */
         INITERROR;
-    if (PyType_Ready(&MPFR_Type) < 0)
+        /* LCOV_EXCL_STOP */
+    }
+    if (PyType_Ready(&MPFR_Type) < 0) {
+        /* LCOV_EXCL_START */
         INITERROR;
-    if (PyType_Ready(&CTXT_Type) < 0)
+        /* LCOV_EXCL_STOP */
+    }
+    if (PyType_Ready(&CTXT_Type) < 0) {
+        /* LCOV_EXCL_START */
         INITERROR;
-    if (PyType_Ready(&CTXT_Manager_Type) < 0)
+        /* LCOV_EXCL_STOP */
+    }
+    if (PyType_Ready(&CTXT_Manager_Type) < 0) {
+        /* LCOV_EXCL_START */
         INITERROR;
-    if (PyType_Ready(&MPC_Type) < 0)
+        /* LCOV_EXCL_STOP */
+    }
+    if (PyType_Ready(&MPC_Type) < 0) {
+        /* LCOV_EXCL_START */
         INITERROR;
+        /* LCOV_EXCL_STOP */
+    }
 
     /* Initialize the custom memory handlers. */
     mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
@@ -958,48 +998,68 @@ PyMODINIT_FUNC initgmpy2(void)
     set_gmpympccache();
 
     /* Initialize exceptions. */
-    GMPyExc_GmpyError = PyErr_NewException("gmpy2.gmpyError",
-                                           PyExc_ArithmeticError, NULL);
-    if (!GMPyExc_GmpyError)
+    GMPyExc_GmpyError = PyErr_NewException("gmpy2.gmpyError", PyExc_ArithmeticError, NULL);
+    if (!GMPyExc_GmpyError) {
+        /* LCOV_EXCL_START */
         INITERROR;
+        /* LCOV_EXCL_STOP */
+    }
 
-    GMPyExc_Erange = PyErr_NewException("gmpy2.RangeError",
-                                        GMPyExc_GmpyError, NULL);
-    if (!GMPyExc_Erange)
+    GMPyExc_Erange = PyErr_NewException("gmpy2.RangeError", GMPyExc_GmpyError, NULL);
+    if (!GMPyExc_Erange) {
+        /* LCOV_EXCL_START */
         INITERROR;
+        /* LCOV_EXCL_STOP */
+    }
 
-    GMPyExc_Inexact = PyErr_NewException("gmpy2.InexactResultError",
-                                         GMPyExc_GmpyError, NULL);
-    if (!GMPyExc_Inexact)
+    GMPyExc_Inexact = PyErr_NewException("gmpy2.InexactResultError", GMPyExc_GmpyError, NULL);
+    if (!GMPyExc_Inexact) {
+        /* LCOV_EXCL_START */
         INITERROR;
+        /* LCOV_EXCL_STOP */
+    }
 
-    GMPyExc_Overflow = PyErr_NewException("gmpy2.OverflowResultError",
-                                          GMPyExc_Inexact, NULL);
-    if (!GMPyExc_Overflow)
+    GMPyExc_Overflow = PyErr_NewException("gmpy2.OverflowResultError", GMPyExc_Inexact, NULL);
+    if (!GMPyExc_Overflow) {
+        /* LCOV_EXCL_START */
         INITERROR;
+        /* LCOV_EXCL_STOP */
+    }
 
-    GMPyExc_Underflow = PyErr_NewException("gmpy2.UnderflowResultError",
-                                           GMPyExc_Inexact, NULL);
-    if (!GMPyExc_Underflow)
+    GMPyExc_Underflow = PyErr_NewException("gmpy2.UnderflowResultError", GMPyExc_Inexact, NULL);
+    if (!GMPyExc_Underflow) {
+        /* LCOV_EXCL_START */
         INITERROR;
+        /* LCOV_EXCL_STOP */
+    }
 
     temp = PyTuple_Pack(2, GMPyExc_GmpyError, PyExc_ValueError);
-    if (!temp)
+    if (!temp) {
+        /* LCOV_EXCL_START */
         INITERROR;
-    GMPyExc_Invalid = PyErr_NewException("gmpy2.InvalidOperationError",
-                                         temp, NULL);
+        /* LCOV_EXCL_STOP */
+    }
+    GMPyExc_Invalid = PyErr_NewException("gmpy2.InvalidOperationError", temp, NULL);
     Py_DECREF(temp);
-    if (!GMPyExc_Invalid)
+    if (!GMPyExc_Invalid) {
+        /* LCOV_EXCL_START */
         INITERROR;
+        /* LCOV_EXCL_STOP */
+    }
 
     temp = PyTuple_Pack(2, GMPyExc_GmpyError, PyExc_ZeroDivisionError);
-    if (!temp)
+    if (!temp) {
+        /* LCOV_EXCL_START */
         INITERROR;
-    GMPyExc_DivZero = PyErr_NewException("gmpy2.DivisionByZeroError",
-                                         temp, NULL);
+        /* LCOV_EXCL_STOP */
+    }
+    GMPyExc_DivZero = PyErr_NewException("gmpy2.DivisionByZeroError", temp, NULL);
     Py_DECREF(temp);
-    if (!GMPyExc_DivZero)
+    if (!GMPyExc_DivZero) {
+        /* LCOV_EXCL_START */
         INITERROR;
+        /* LCOV_EXCL_STOP */
+    }
 
 
 #ifdef PY3
@@ -1008,72 +1068,112 @@ PyMODINIT_FUNC initgmpy2(void)
     gmpy_module = Py_InitModule3("gmpy2", Pygmpy_methods, _gmpy_docs);
 #endif
 
-    if (gmpy_module == NULL)
+    if (gmpy_module == NULL) {
+        /* LCOV_EXCL_START */
         INITERROR;
+        /* LCOV_EXCL_STOP */
+    }
 
     /* Initialize thread local contexts. */
 #ifdef WITHOUT_THREADS
     module_context = (CTXT_Object*)GMPy_CTXT_New();
-    if (!module_context)
+    if (!module_context) {
+        /* LCOV_EXCL_START */
         INITERROR;
+        /* LCOV_EXCL_STOP */
+    }
     Py_INCREF(Py_False);
     if (PyModule_AddObject(gmpy_module, "HAVE_THREADS", Py_False) < 0) {
+        /* LCOV_EXCL_START */
         Py_DECREF(Py_False);
         INITERROR;
+        /* LCOV_EXCL_STOP */
     }
 #else
     tls_context_key = PyUnicode_FromString("__GMPY2_CTX__");
     Py_INCREF(Py_True);
     if (PyModule_AddObject(gmpy_module, "HAVE_THREADS", Py_True) < 0) {
+        /* LCOV_EXCL_START */
         Py_DECREF(Py_True);
         INITERROR;
+        /* LCOV_EXCL_STOP */
     }
 #endif
 
     /* Add the constants for defining rounding modes. */
-    if (PyModule_AddIntConstant(gmpy_module, "RoundToNearest", MPFR_RNDN) < 0)
+    if (PyModule_AddIntConstant(gmpy_module, "RoundToNearest", MPFR_RNDN) < 0) {
+        /* LCOV_EXCL_START */
         INITERROR;
-    if (PyModule_AddIntConstant(gmpy_module, "RoundToZero", MPFR_RNDZ) < 0)
+        /* LCOV_EXCL_STOP */
+    }
+    if (PyModule_AddIntConstant(gmpy_module, "RoundToZero", MPFR_RNDZ) < 0) {
+        /* LCOV_EXCL_START */
         INITERROR;
-    if (PyModule_AddIntConstant(gmpy_module, "RoundUp", MPFR_RNDU) < 0)
+        /* LCOV_EXCL_STOP */
+    }
+    if (PyModule_AddIntConstant(gmpy_module, "RoundUp", MPFR_RNDU) < 0) {
+        /* LCOV_EXCL_START */
         INITERROR;
-    if (PyModule_AddIntConstant(gmpy_module, "RoundDown", MPFR_RNDD) < 0)
+        /* LCOV_EXCL_STOP */
+    }
+    if (PyModule_AddIntConstant(gmpy_module, "RoundDown", MPFR_RNDD) < 0) {
+        /* LCOV_EXCL_START */
         INITERROR;
-    if (PyModule_AddIntConstant(gmpy_module, "RoundAwayZero", MPFR_RNDA) < 0)
+        /* LCOV_EXCL_STOP */
+    }
+    if (PyModule_AddIntConstant(gmpy_module, "RoundAwayZero", MPFR_RNDA) < 0) {
+        /* LCOV_EXCL_START */
         INITERROR;
-    if (PyModule_AddIntConstant(gmpy_module, "Default", GMPY_DEFAULT) < 0)
+        /* LCOV_EXCL_STOP */
+    }
+    if (PyModule_AddIntConstant(gmpy_module, "Default", GMPY_DEFAULT) < 0) {
+        /* LCOV_EXCL_START */
         INITERROR;
+        /* LCOV_EXCL_STOP */
+    }
 
     /* Add the exceptions. */
     Py_INCREF(GMPyExc_DivZero);
     if (PyModule_AddObject(gmpy_module, "DivisionByZeroError", GMPyExc_DivZero) < 0) {
+        /* LCOV_EXCL_START */
         Py_DECREF(GMPyExc_DivZero);
         INITERROR;
+        /* LCOV_EXCL_STOP */
     }
     Py_INCREF(GMPyExc_Inexact);
     if (PyModule_AddObject(gmpy_module, "InexactResultError", GMPyExc_Inexact) < 0) {
+        /* LCOV_EXCL_START */
         Py_DECREF(GMPyExc_Inexact);
         INITERROR;
+        /* LCOV_EXCL_STOP */
     }
     Py_INCREF(GMPyExc_Invalid);
     if (PyModule_AddObject(gmpy_module, "InvalidOperationError", GMPyExc_Invalid) < 0 ) {
+        /* LCOV_EXCL_START */
         Py_DECREF(GMPyExc_Invalid);
         INITERROR;
+        /* LCOV_EXCL_STOP */
     }
     Py_INCREF(GMPyExc_Overflow);
     if (PyModule_AddObject(gmpy_module, "OverflowResultError", GMPyExc_Overflow) < 0) {
+        /* LCOV_EXCL_START */
         Py_DECREF(GMPyExc_Overflow);
         INITERROR;
+        /* LCOV_EXCL_STOP */
     }
     Py_INCREF(GMPyExc_Underflow);
     if (PyModule_AddObject(gmpy_module, "UnderflowResultError", GMPyExc_Underflow) < 0) {
+        /* LCOV_EXCL_START */
         Py_DECREF(GMPyExc_Underflow);
         INITERROR;
+        /* LCOV_EXCL_STOP */
     }
     Py_INCREF(GMPyExc_Erange);
     if (PyModule_AddObject(gmpy_module, "RangeError", GMPyExc_Erange) < 0) {
+        /* LCOV_EXCL_START */
         Py_DECREF(GMPyExc_Erange);
         INITERROR;
+        /* LCOV_EXCL_STOP */
     }
 
     /* Add support for pickling. */
@@ -1092,16 +1192,20 @@ PyMODINIT_FUNC initgmpy2(void)
         PyDict_SetItemString(namespace, "copyreg", copy_reg_module);
         PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
         PyDict_SetItemString(namespace, "type", (PyObject*)&PyType_Type);
-        result = PyRun_String(enable_pickle, Py_file_input,
-                              namespace, namespace);
-        if (!result)
+        result = PyRun_String(enable_pickle, Py_file_input, namespace, namespace);
+        if (!result) {
+            /* LCOV_EXCL_START */
             PyErr_Clear();
+            /* LCOV_EXCL_STOP */
+        }
         Py_DECREF(namespace);
         Py_DECREF(copy_reg_module);
         Py_XDECREF(result);
     }
     else {
+        /* LCOV_EXCL_START */
         PyErr_Clear();
+        /* LCOV_EXCL_STOP */
     }
 #else
     copy_reg_module = PyImport_ImportModule("copy_reg");
@@ -1119,16 +1223,20 @@ PyMODINIT_FUNC initgmpy2(void)
         PyDict_SetItemString(namespace, "copy_reg", copy_reg_module);
         PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
         PyDict_SetItemString(namespace, "type", (PyObject*)&PyType_Type);
-        result = PyRun_String(enable_pickle, Py_file_input,
-                              namespace, namespace);
-        if (!result)
+        result = PyRun_String(enable_pickle, Py_file_input, namespace, namespace);
+        if (!result) {
+            /* LCOV_EXCL_START */
             PyErr_Clear();
+            /* LCOV_EXCL_STOP */
+        }
         Py_DECREF(namespace);
         Py_DECREF(copy_reg_module);
         Py_XDECREF(result);
     }
     else {
+        /* LCOV_EXCL_START */
         PyErr_Clear();
+        /* LCOV_EXCL_STOP */
     }
 #endif
 

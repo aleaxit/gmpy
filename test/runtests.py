@@ -70,7 +70,7 @@ mpfr_doctests = ["test_mpfr_create.txt", "test_mpfr.txt",
 mpc_doctests = ["test_mpc_create.txt", "test_mpc.txt"]
 
 gmpy2_tests = ["test_misc.txt", "test_gmpy2_abs.txt", "test_gmpy2_add.txt",
-               "test_gmpy2_binary.txt"]
+               "test_gmpy2_binary.txt", "test_gmpy2_const.txt"]
 
 # The following tests will only pass on Python 3.2+.
 py32_doctests = ["test_py32_hash.txt"]
