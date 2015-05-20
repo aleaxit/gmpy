@@ -1,6 +1,8 @@
 from __future__ import print_function, division
 
 import sys
+import os
+import glob
 import doctest
 import gmpy2
 
@@ -59,7 +61,7 @@ if sys.version.startswith('3.1'):
     print()
 
 mpz_doctests = ["test_mpz_create.txt", "test_mpz.txt", "test_mpz_io.txt",
-                "test_mpz_pack_unpack.txt"]
+                "test_mpz_pack_unpack.txt", "test_misc.txt"]
 
 mpq_doctests = ["test_mpq.txt"]
 
@@ -69,8 +71,7 @@ mpfr_doctests = ["test_mpfr_create.txt", "test_mpfr.txt",
 
 mpc_doctests = ["test_mpc_create.txt", "test_mpc.txt"]
 
-gmpy2_tests = ["test_misc.txt", "test_gmpy2_abs.txt", "test_gmpy2_add.txt",
-               "test_gmpy2_binary.txt", "test_gmpy2_const.txt"]
+gmpy2_tests = [os.path.basename(i) for i in glob.glob(os.path.join(os.path.dirname(__file__), "test_gmpy2*.txt"))]
 
 # The following tests will only pass on Python 3.2+.
 py32_doctests = ["test_py32_hash.txt"]

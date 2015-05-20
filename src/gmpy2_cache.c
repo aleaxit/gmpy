@@ -103,8 +103,11 @@ GMPy_MPZ_New(CTXT_Object *context)
         _Py_NewReference((PyObject*)result);
     }
     else {
-        if (!(result = PyObject_New(MPZ_Object, &MPZ_Type)))
+        if (!(result = PyObject_New(MPZ_Object, &MPZ_Type))) {
+            /* LCOV_EXCL_START */
             return NULL;
+            /* LCOV_EXCL_STOP */
+        }
         mpz_inoc(result->z);
     }
     result->hash_cache = -1;
@@ -152,8 +155,11 @@ GMPy_XMPZ_New(CTXT_Object *context)
         _Py_NewReference((PyObject*)result);
     }
     else {
-        if (!(result = PyObject_New(XMPZ_Object, &XMPZ_Type)))
+        if (!(result = PyObject_New(XMPZ_Object, &XMPZ_Type))) {
+            /* LCOV_EXCL_START */
             return NULL;
+            /* LCOV_EXCL_STOP */
+        }
         mpz_inoc(result->z);
     }
     return result;
@@ -200,8 +206,11 @@ GMPy_MPQ_New(CTXT_Object *context)
         _Py_NewReference((PyObject*)result);
     }
     else {
-        if (!(result = PyObject_New(MPQ_Object, &MPQ_Type)))
+        if (!(result = PyObject_New(MPQ_Object, &MPQ_Type))) {
+            /* LCOV_EXCL_START */
             return NULL;
+            /* LCOV_EXCL_STOP */
+        }
         mpq_init(result->q);
     }
     result->hash_cache = -1;
@@ -259,8 +268,11 @@ GMPy_MPFR_New(mpfr_prec_t bits, CTXT_Object *context)
         mpfr_set_prec(result->f, bits);
     }
     else {
-        if (!(result = PyObject_New(MPFR_Object, &MPFR_Type)))
+        if (!(result = PyObject_New(MPFR_Object, &MPFR_Type))) {
+            /* LCOV_EXCL_START */
             return NULL;
+            /* LCOV_EXCL_STOP */
+        }
         mpfr_init2(result->f, bits);
     }
     result->hash_cache = -1;
@@ -331,8 +343,11 @@ GMPy_MPC_New(mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context)
         }
     }
     else {
-        if (!(self = PyObject_New(MPC_Object, &MPC_Type)))
+        if (!(self = PyObject_New(MPC_Object, &MPC_Type))) {
+            /* LCOV_EXCL_START */
             return NULL;
+            /* LCOV_EXCL_STOP */
+        }
         mpc_init3(self->c, rprec, iprec);
     }
     self->hash_cache = -1;

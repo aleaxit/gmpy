@@ -1,0 +1,819 @@
+Test gmpy2_mpz_misc.c
+=====================
+
+>>> import gmpy2
+>>> from gmpy2 import mpz
+>>> import math
+>>> a = mpz(123)
+>>> b = mpz(456)
+
+Test num_digits
+---------------
+>>> mpz(123456).num_digits()
+6
+>>> mpz(123456).num_digits(2)
+17
+>>> mpz(123456).num_digits(-1)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> mpz(123456).num_digits(9999999999999999999999999999999999)
+Traceback (most recent call last):
+  ...
+OverflowError:
+>>> mpz(123456).num_digits(100)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.num_digits(123456,-1,7)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.num_digits(123456,-1)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.num_digits('123456')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.num_digits(123456,100)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.num_digits(123456,'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.num_digits(123456)
+6
+>>> gmpy2.num_digits(123456,2)
+17
+
+Test math.ceil (__ceil__)
+-------------------------
+>>> math.ceil(a)
+mpz(123)
+>>> math.ceil(a) is a
+True
+
+Test math.floor (__floor__)
+---------------------------
+>>> math.floor(a)
+mpz(123)
+>>> math.floor(a) is a
+True
+
+Test math.trunc (__trunc__)
+---------------------------
+>>> math.trunc(a)
+mpz(123)
+>>> math.trunc(a) is a
+True
+
+Test round (__round__)
+----------------------
+>>> round(mpz(123456),'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> round(mpz(123456),'a',4)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> round(mpz(123456), 2)
+mpz(123456)
+>>> round(mpz(123456), -22)
+mpz(0)
+>>> round(mpz(123456), -2)
+mpz(123500)
+>>> round(mpz(123456), -1)
+mpz(123460)
+>>> round(mpz(123455), -1)
+mpz(123460)
+>>> round(mpz(123454), -1)
+mpz(123450)
+>>> round(mpz(123445), -1)
+mpz(123440)
+>>> round(mpz(123445))
+mpz(123445)
+
+Test bool
+---------
+>>> bool(mpz(100))
+True
+>>> bool(mpz(0))
+False
+>>> bool(mpz(-100))
+True
+
+Test gcd
+--------
+>>> gmpy2.gcd(1,2,3)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.gcd(1,'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.gcd(123,456)
+mpz(3)
+>>> gmpy2.gcd(a,b)
+mpz(3)
+
+Test lcm
+--------
+>>> gmpy2.lcm(1,2,3)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.lcm(1,'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.lcm(a,b)
+mpz(18696)
+>>> gmpy2.lcm(123,456)
+mpz(18696)
+
+Test gcdext
+-----------
+>>> gmpy2.gcdext(1,2,3)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.gcdext(1,'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> temp=gmpy2.gcdext(a,b)
+>>> temp[0]==a*temp[1]+b*temp[2]
+True
+>>> temp=gmpy2.gcdext(123,456)
+>>> temp[0]==a*temp[1]+b*temp[2]
+True
+>>> del temp
+
+Test divm
+---------
+>>> gmpy2.divm(b,a,20)
+mpz(12)
+>>> gmpy2.divm(a,b,100,5)
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.divm(a,b,'a')
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.divm(a,b,100)
+Traceback (innermost last):
+  ...
+ZeroDivisionError:
+>>> gmpy2.divm(6,12,14)
+mpz(4)
+>>> gmpy2.divm(0,1,2)
+mpz(0)
+>>> gmpy2.divm(4,8,20)
+mpz(3)
+
+Test fac
+--------
+>>> gmpy2.fac(-7)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.fac('a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.fac(7)
+mpz(5040)
+
+Test double_fac
+---------------
+>>> gmpy2.double_fac(-7)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.double_fac('a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.double_fac(7)
+mpz(105)
+>>> gmpy2.double_fac(7) * gmpy2.double_fac(8)
+mpz(40320)
+>>> gmpy2.fac(8)
+mpz(40320)
+
+Test primorial
+--------------
+>>> gmpy2.primorial(-7)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.primorial('a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.primorial(7)
+mpz(210)
+
+Test multi_fac
+--------------
+>>> gmpy2.multi_fac(-7)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.multi_fac(7,'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.multi_fac(7,-1)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.multi_fac(-7,1)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.multi_fac('a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.multi_fac(10)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.multi_fac(10,11,12)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.multi_fac(17,4)
+mpz(9945)
+
+Test fib
+--------
+>>> gmpy2.fib(-2)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.fib(17)
+mpz(1597)
+
+Test fib2
+---------
+>>> gmpy2.fib2(-2)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.fib2(17)
+(mpz(1597), mpz(987))
+
+Test lucas
+----------
+>>> gmpy2.lucas(-2)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.lucas(17)
+mpz(3571)
+
+Test lucas2
+-----------
+>>> gmpy2.lucas2(-2)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.lucas2(17)
+(mpz(3571), mpz(2207))
+
+Test bincoef
+------------
+>>> gmpy2.bincoef(1)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.bincoef(1,2,3)
+Traceback (most recent call last):
+  ...
+TypeError:
+
+>>> for i in range(10):
+...     print(gmpy2.bincoef(10,i))
+...
+1
+10
+45
+120
+210
+252
+210
+120
+45
+10
+
+Test comb
+---------
+>>> gmpy2.comb(3,-1)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.comb('a',4)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.comb(8,4)
+mpz(70)
+
+Test isqrt
+----------
+>>> print(gmpy2.isqrt(a))
+11
+>>> print(gmpy2.isqrt(123))
+11
+>>> gmpy2.isqrt(-1)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.isqrt(mpz(-1))
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.isqrt('a')
+Traceback (most recent call last):
+  ...
+TypeError:
+
+Test isqrt_rem
+--------------
+>>> print(gmpy2.isqrt_rem(a))
+(mpz(11), mpz(2))
+>>> print(gmpy2.isqrt_rem(b))
+(mpz(21), mpz(15))
+>>> gmpy2.isqrt_rem(-1)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.isqrt_rem(mpz(-1))
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.isqrt_rem('a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.isqrt_rem(mpz(-1))
+Traceback (most recent call last):
+  ...
+ValueError:
+
+Test remove
+-----------
+>>> gmpy2.remove(a,2)
+(mpz(123), 0)
+>>> gmpy2.remove(a,mpz(2))
+(mpz(123), 0)
+>>> gmpy2.remove(a,3)
+(mpz(41), 1)
+>>> gmpy2.remove(b,2)
+(mpz(57), 3)
+>>> gmpy2.remove(b,3)
+(mpz(152), 1)
+>>> gmpy2.remove(b,1)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.remove(b,mpz(1))
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.remove(b,0)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.remove(b,789)
+(mpz(456), 0)
+>>> gmpy2.remove(b,-3)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError:
+>>> gmpy2.remove(b,float('NaN'))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError:
+>>> gmpy2.remove(3,-1)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.remove(3)
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.remove()
+Traceback (innermost last):
+  ...
+TypeError:
+
+Test invert
+-----------
+>>> gmpy2.invert(a,100)
+mpz(87)
+>>> gmpy2.invert(a,mpz(100))
+mpz(87)
+>>> gmpy2.invert(b,mpz(100))
+Traceback (most recent call last):
+  ...
+ZeroDivisionError:
+>>> gmpy2.invert(b,mpz(0))
+Traceback (most recent call last):
+  ...
+ZeroDivisionError:
+>>> gmpy2.invert(3)
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.invert()
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.invert(456,0)
+Traceback (most recent call last):
+  ...
+ZeroDivisionError:
+>>> gmpy2.invert(456,'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.invert(456,100)
+Traceback (most recent call last):
+  ...
+ZeroDivisionError:
+>>> gmpy2.invert(123,100)
+mpz(87)
+
+Test divexact
+-------------
+>>> gmpy2.divexact(2)
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.divexact(2, 'a')
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.divexact(a,0)
+Traceback (most recent call last):
+  ...
+ZeroDivisionError:
+>>> gmpy2.divexact(a,mpz(0))
+Traceback (most recent call last):
+  ...
+ZeroDivisionError:
+>>> gmpy2.divexact(123,0)
+Traceback (most recent call last):
+  ...
+ZeroDivisionError:
+>>> aa=gmpy2.mpz('1234567912345678912345679')
+>>> bb=gmpy2.mpz('789789789789789789789789')
+>>> cc=aa*bb
+>>> print(gmpy2.divexact(cc,aa))
+789789789789789789789789
+>>> aa=1234567912345678912345679
+>>> bb=789789789789789789789789
+>>> cc=aa*bb
+>>> print(gmpy2.divexact(cc,aa))
+789789789789789789789789
+>>> del aa,bb,cc
+
+Test is_square
+--------------
+>>> gmpy2.is_square('a')
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.is_square(mpz(9))
+True
+>>> gmpy2.is_square(10)
+False
+>>> mpz(16).is_square()
+True
+>>> mpz(17).is_square()
+False
+
+Test is_divisible
+-----------------
+>>> gmpy2.is_divisible()
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.is_divisible('a',2)
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.is_divisible(2,'a')
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.is_divisible(12,2)
+True
+>>> gmpy2.is_divisible(12,7)
+False
+>>> mpz(12).is_divisible(2)
+True
+>>> mpz(12).is_divisible(7)
+False
+>>> gmpy2.is_divisible(mpz(123456789123456789123456789),123456789123456789123456789)
+True
+>>> gmpy2.is_divisible(mpz(1234567891234567891234567897),123456789123456789123456789)
+False
+>>> mpz(12).is_divisible('a')
+Traceback (innermost last):
+  ...
+TypeError:
+>>> mpz(123456789123456789123456789).is_divisible(123456789123456789123456789)
+True
+>>> mpz(1234567891234567891234567897).is_divisible(123456789123456789123456789)
+False
+
+Test is_congruent
+-----------------
+>>> gmpy2.is_congruent(1)
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.is_congruent(1,'a',3)
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.is_congruent(7*3+2, 7*11+2, 7)
+True
+>>> gmpy2.is_congruent(7*3+2, 7*11+5, 7)
+False
+>>> mpz(7*3+2).is_congruent(1)
+Traceback (innermost last):
+  ...
+TypeError:
+>>> mpz(7*3+2).is_congruent('a',7)
+Traceback (innermost last):
+  ...
+TypeError:
+>>> mpz(7*3+2).is_congruent(7*11+2,7)
+True
+>>> mpz(7*3+2).is_congruent(7*11+5,7)
+False
+
+Test is_power
+-------------
+>>> gmpy2.is_power()
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.is_power('a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> a.is_power()
+False
+>>> mpz(123**11).is_power()
+True
+>>> gmpy2.is_power(a)
+False
+>>> gmpy2.is_power(99*99*99)
+True
+>>> gmpy2.is_power(99*98)
+False
+
+Test is_prime
+-------------
+>>> gmpy2.is_prime(3,-3)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.is_prime()
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.is_prime(1,2,3)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.is_prime('a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.is_prime(12345)
+False
+>>> gmpy2.is_prime(80**81 + 81**80)
+True
+>>> gmpy2.is_prime(80**81 + 81**80, 10000)
+True
+>>> mpz(129).is_prime(1,2)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> mpz(129).is_prime(-7)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> mpz(129).is_prime(10000)
+False
+>>> mpz(80**81 + 81**80).is_prime()
+True
+>>> mpz(1234567890).is_prime()
+False
+
+Test next_prime
+---------------
+>>> gmpy2.next_prime('a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.next_prime(mpz(2))
+mpz(3)
+>>> gmpy2.next_prime(2)
+mpz(3)
+>>> gmpy2.next_prime(2357*7069-1) == 2357*7069
+False
+
+Test iroot
+----------
+>>> gmpy2.iroot(1,2,3)
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.iroot(-9,2)
+Traceback (innermost last):
+  ...
+ValueError:
+>>> gmpy2.iroot(9,0)
+Traceback (innermost last):
+  ...
+ValueError:
+>>> for i in range(5):
+...    print(gmpy2.iroot(a,i+1),gmpy2.iroot(b,i+1))
+...
+(mpz(123), True) (mpz(456), True)
+(mpz(11), False) (mpz(21), False)
+(mpz(4), False) (mpz(7), False)
+(mpz(3), False) (mpz(4), False)
+(mpz(2), False) (mpz(3), False)
+>>> gmpy2.iroot(9,2)
+(mpz(3), True)
+
+Test iroot_rem
+--------------
+>>> gmpy2.iroot_rem(1,2,3)
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.iroot_rem(-9,2)
+Traceback (innermost last):
+  ...
+ValueError:
+>>> gmpy2.iroot_rem(9,0)
+Traceback (innermost last):
+  ...
+ValueError:
+>>> gmpy2.iroot_rem(a,2)
+(mpz(11), mpz(2))
+>>> gmpy2.iroot_rem(a,3)
+(mpz(4), mpz(59))
+>>> gmpy2.iroot_rem(a*a,2)
+(mpz(123), mpz(0))
+
+Test is_even
+------------
+>>> gmpy2.is_even('a')
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.is_even(a)
+False
+>>> gmpy2.is_even(b)
+True
+>>> a.is_even()
+False
+>>> b.is_even()
+True
+>>> gmpy2.is_even(11)
+False
+>>> gmpy2.is_even(14)
+True
+
+Test is_odd
+-----------
+>>> gmpy2.is_odd('a')
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.is_odd(a)
+True
+>>> gmpy2.is_odd(b)
+False
+>>> a.is_odd()
+True
+>>> b.is_odd()
+False
+>>> gmpy2.is_odd(11)
+True
+>>> gmpy2.is_odd(14)
+False
+
+Test jacobi
+-----------
+>>> gmpy2.jacobi('a', 10)
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.jacobi(10,-3)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.jacobi(3)
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.jacobi()
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.jacobi(10,3)
+1
+
+Test kronecker
+--------------
+>>> gmpy2.kronecker('a', 10)
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.kronecker(10,3)
+1
+>>> gmpy2.kronecker(10,-3)
+1
+>>> gmpy2.kronecker(3)
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.kronecker()
+Traceback (innermost last):
+  ...
+TypeError:
+>>> aaa = 10**20
+>>> bbb = aaa+39
+>>> gmpy2.jacobi(aaa,bbb)
+1
+>>> gmpy2.legendre(aaa,bbb)
+1
+>>> gmpy2.kronecker(aaa,bbb)
+1
+>>> del aaa,bbb
+
+Test legendre
+-------------
+>>> gmpy2.legendre('a', 10)
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.legendre(10,3)
+1
+>>> gmpy2.legendre(10,-3)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.legendre(3)
+Traceback (innermost last):
+  ...
+TypeError:
+>>> gmpy2.legendre()
+Traceback (innermost last):
+  ...
+TypeError:
+
+Test __length__
+---------------
+>>> len(mpz(0))
+1
+>>> len(mpz(1))
+1
+>>> len(mpz(17))
+5
+
+Test numerator
+--------------
+>>> a.numerator
+mpz(123)
+
+Test denominator
+----------------
+>>> a.denominator
+mpz(1)
+
+Test __sizeof__
+---------------
+>>> import sys
+>>> temp = sys.getsizeof(a)
+
+

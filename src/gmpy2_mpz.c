@@ -213,6 +213,11 @@ static PyMethodDef GMPy_MPZ_methods [] =
     { "digits", GMPy_MPZ_Digits_Method, METH_VARARGS, GMPy_doc_mpz_digits_method },
     { "is_congruent", GMPy_MPZ_Method_IsCongruent, METH_VARARGS, GMPy_doc_mpz_method_is_congruent },
     { "is_divisible", GMPy_MPZ_Method_IsDivisible, METH_O, GMPy_doc_mpz_method_is_divisible },
+    { "is_even", GMPy_MPZ_Method_IsEven, METH_NOARGS, GMPy_doc_mpz_method_is_even },
+    { "is_odd", GMPy_MPZ_Method_IsOdd, METH_NOARGS, GMPy_doc_mpz_method_is_odd },
+    { "is_power", GMPy_MPZ_Method_IsPower, METH_NOARGS, GMPy_doc_mpz_method_is_power },
+    { "is_prime", GMPy_MPZ_Method_IsPrime, METH_VARARGS, GMPy_doc_mpz_method_is_prime },
+    { "is_square", GMPy_MPZ_Method_IsSquare, METH_NOARGS, GMPy_doc_mpz_method_is_square },
     { "num_digits", GMPy_MPZ_Method_NumDigits, METH_VARARGS, GMPy_doc_mpz_method_num_digits },
     { NULL, NULL, 1 }
 };

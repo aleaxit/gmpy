@@ -165,7 +165,7 @@ GMPy_printf(PyObject *self, PyObject *args)
             generic = MPZ(x);
         else
             generic = MPQ(x);
-        buflen = gmp_asprintf(&buffer, fmtcode, generic);
+        buflen = mpfr_asprintf(&buffer, fmtcode, generic);
         if (buflen < 0) {
             VALUE_ERROR("_printf() could not format the 'mpz' or 'mpq' object");
         }

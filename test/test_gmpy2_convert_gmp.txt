@@ -1,0 +1,16 @@
+Test converson code to/from GMP
+===============================
+
+>>> import gmpy2
+>>> from gmpy2 import mpz, mpq
+
+>>> float(mpz(1))
+1.0
+>>> float(mpq(1,2))
+0.5
+>>> float(mpz(99**199))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+OverflowError: ** message detail varies **
+>>> mpz(gmpy2.xmpz(1))
+mpz(1)

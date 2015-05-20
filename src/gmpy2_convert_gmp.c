@@ -48,8 +48,11 @@ GMPy_MPZ_From_PyIntOrLong(PyObject *obj, CTXT_Object *context)
 
     assert(PyIntOrLong_Check(obj));
 
-    if(!(result = GMPy_MPZ_New(context)))
+    if(!(result = GMPy_MPZ_New(context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     mpz_set_PyIntOrLong(result->z, obj);
     return result;
@@ -60,8 +63,11 @@ GMPy_MPZ_From_PyStr(PyObject *s, int base, CTXT_Object *context)
 {
     MPZ_Object *result;
 
-    if (!(result = GMPy_MPZ_New(context)))
+    if (!(result = GMPy_MPZ_New(context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     if (mpz_set_PyStr(result->z, s, base) == -1) {
         Py_DECREF((PyObject*)result);
@@ -473,8 +479,11 @@ GMPy_MPQ_From_PyStr(PyObject *s, int base, CTXT_Object *context)
     PyObject *ascii_str = NULL;
     long expt = 0;
 
-    if (!(result = GMPy_MPQ_New(context)))
+    if (!(result = GMPy_MPQ_New(context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     if (PyBytes_Check(s)) {
         len = PyBytes_Size(s);
@@ -727,8 +736,11 @@ GMPy_PyLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
 
     temp = GMPy_MPZ_From_MPQ(obj, context);
 
-    if (!temp)
+    if (!temp) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     result = GMPy_PyLong_From_MPZ(temp, context);
     Py_DECREF((PyObject*)temp);
@@ -753,8 +765,11 @@ GMPy_PyIntOrLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
 
     temp = GMPy_MPZ_From_MPQ(obj, context);
 
-    if (!temp)
+    if (!temp) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     result = GMPy_PyIntOrLong_From_MPZ(temp, context);
     Py_DECREF((PyObject*)temp);
@@ -777,8 +792,11 @@ GMPy_PyStr_From_MPQ(MPQ_Object *obj, int base, int option, CTXT_Object *context)
     char buffer[50], *p;
 
     numstr = mpz_ascii(mpq_numref(obj->q), base, 0, 0);
-    if (!numstr)
+    if (!numstr) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     /* Check if denominator is 1 and no tag is requested. If so, just
      * return the numerator.
@@ -788,8 +806,10 @@ GMPy_PyStr_From_MPQ(MPQ_Object *obj, int base, int option, CTXT_Object *context)
 
     denstr = mpz_ascii(mpq_denref(obj->q), base, 0, 0);
     if (!denstr) {
+        /* LCOV_EXCL_START */
         Py_DECREF(numstr);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     /* Build the format string. */
@@ -882,8 +902,11 @@ GMPy_MPQ_From_DecimalRaw(PyObject* obj, CTXT_Object *context)
     long exp;
     const char *string;
 
-    if (!(result = GMPy_MPQ_New(context)))
+    if (!(result = GMPy_MPQ_New(context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
     mpq_set_si(result->q, 0, 1);
 
     d_exp = PyObject_GetAttrString(obj, "_exp");
@@ -1075,8 +1098,11 @@ GMPy_MPQ_From_Fraction(PyObject* obj, CTXT_Object *context)
     MPQ_Object *result;
     PyObject *num, *den;
 
-    if (!(result = GMPy_MPQ_New(context)))
+    if (!(result = GMPy_MPQ_New(context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
     mpq_set_si(result->q, 0, 1);
 
     num = PyObject_GetAttrString(obj, "numerator");

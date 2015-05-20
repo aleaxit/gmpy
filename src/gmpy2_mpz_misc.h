@@ -35,13 +35,25 @@ extern "C" {
 
 
 static int        GMPy_MPZ_NonZero_Slot(MPZ_Object *self);
+
 static PyObject * GMPy_MPZ_Attrib_GetNumer(MPZ_Object *self, void *closure);
 static PyObject * GMPy_MPZ_Attrib_GetDenom(MPQ_Object *self, void *closure);
+
 static PyObject * GMPy_MPZ_Method_Ceil(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_Floor(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_Trunc(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_Round(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_NumDigits(PyObject *self, PyObject *args);
+static Py_ssize_t GMPy_MPZ_Method_Length(MPZ_Object *self);
+static PyObject * GMPy_MPZ_Method_SubScript(MPZ_Object *self, PyObject *item);
+static PyObject * GMPy_MPZ_Method_IsSquare(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_Method_IsDivisible(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_Method_IsCongruent(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Method_IsPower(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_Method_IsPrime(PyObject *self, PyObject *args);
+static PyObject * GMPy_MPZ_Method_IsEven(PyObject *self, PyObject *other);
+static PyObject * GMPy_MPZ_Method_IsOdd(PyObject *self, PyObject *other);
+
 static PyObject * GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_IrootRem(PyObject *self, PyObject *args);
@@ -64,13 +76,8 @@ static PyObject * GMPy_MPZ_Function_Remove(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_Invert(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_Divexact(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_IsSquare(PyObject *self, PyObject *other);
-
 static PyObject * GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_Method_IsDivisible(PyObject *self, PyObject *other);
-
 static PyObject * GMPy_MPZ_Function_IsCongruent(PyObject *self, PyObject *args);
-static PyObject * GMPy_MPZ_Method_IsCongruent(PyObject *self, PyObject *args);
-
 static PyObject * GMPy_MPZ_Function_IsPower(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_NextPrime(PyObject *self, PyObject *other);
@@ -79,8 +86,6 @@ static PyObject * GMPy_MPZ_Function_Legendre(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_Kronecker(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_IsEven(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Function_IsOdd(PyObject *self, PyObject *other);
-static Py_ssize_t GMPy_MPZ_Method_Length(MPZ_Object *self);
-static PyObject * GMPy_MPZ_Method_SubScript(MPZ_Object *self, PyObject *item);
 
 #if PY_MAJOR_VERSION < 3
 static PyObject * GMPy_MPZ_Oct_Slot(MPZ_Object *self);

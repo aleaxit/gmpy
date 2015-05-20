@@ -116,3 +116,36 @@ Traceback (most recent call last):
 TypeError: mpz() with non-string argument needs exactly 1 argument
 >>> mpz('12', base=16)
 mpz(18)
+>>> mpz('\xff')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: ** message detail varies **
+>>> mpz('\x0cf')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: ** message detail varies **
+>>> mpz('\0xff')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: ** message detail varies **
+>>> mpz(b'12')
+mpz(12)
+>>> mpz(None)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: ** message detail varies **
+>>> mpz(None,base=10)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: ** message detail varies **
+>>> mpz('99',base=100)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: ** message detail varies **
+>>> mpz('99',base='a')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: ** message detail varies **
+>>> mpz('99',base=10)
+mpz(99)
+
