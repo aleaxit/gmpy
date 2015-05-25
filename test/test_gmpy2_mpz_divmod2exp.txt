@@ -1,0 +1,232 @@
+Test gmpy2_mpz_divmod.c
+=====================
+
+>>> import gmpy2
+>>> from gmpy2 import mpz
+>>> a = mpz(123456)
+
+Test c_divmod_2exp
+------------------
+>>> gmpy2.c_divmod_2exp(1)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.c_divmod_2exp(1, 'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.c_divmod_2exp('a', 16)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.c_divmod_2exp(a,-16)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.c_divmod_2exp(a,0)
+(mpz(123456), mpz(0))
+>>> gmpy2.c_divmod_2exp(a,16)
+(mpz(2), mpz(-7616))
+>>> gmpy2.c_divmod_2exp(-a,16)
+(mpz(-1), mpz(-57920))
+
+Test c_div_2exp
+---------------
+>>> gmpy2.c_div_2exp(1)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.c_div_2exp(1, 'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.c_div_2exp('a', 16)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.c_div_2exp(a, -16)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.c_div_2exp(a,0)
+mpz(123456)
+>>> gmpy2.c_div_2exp(a,16)
+mpz(2)
+>>> gmpy2.c_div_2exp(-a,16)
+mpz(-1)
+
+Test c_mod_2exp
+---------------
+>>> gmpy2.c_mod_2exp(1)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.c_mod_2exp(1, 'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.c_mod_2exp('a', 16)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.c_mod_2exp(a, -16)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.c_mod_2exp(a,0)
+mpz(0)
+>>> gmpy2.c_mod_2exp(a,16)
+mpz(-7616)
+>>> gmpy2.c_mod_2exp(-a,16)
+mpz(-57920)
+
+Test f_divmod_2exp
+------------------
+>>> gmpy2.f_divmod_2exp(1)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.f_divmod_2exp(1, 'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.f_divmod_2exp('a', 16)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.f_divmod_2exp(a,-16)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.f_divmod_2exp(a,0)
+(mpz(123456), mpz(0))
+>>> gmpy2.f_divmod_2exp(a,16)
+(mpz(1), mpz(57920))
+>>> gmpy2.f_divmod_2exp(-a,16)
+(mpz(-2), mpz(7616))
+
+Test f_div_2exp
+---------------
+>>> gmpy2.f_div_2exp(1)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.f_div_2exp(1, 'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.f_div_2exp('a', 16)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.f_div_2exp(a, -16)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.f_div_2exp(a,0)
+mpz(123456)
+>>> gmpy2.f_div_2exp(a,16)
+mpz(1)
+>>> gmpy2.f_div_2exp(-a,16)
+mpz(-2)
+
+Test f_mod_2exp
+---------------
+>>> gmpy2.f_mod_2exp(1)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.f_mod_2exp(1, 'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.f_mod_2exp('a', 16)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.f_mod_2exp(a, -16)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.f_mod_2exp(a,0)
+mpz(0)
+>>> gmpy2.f_mod_2exp(a,16)
+mpz(57920)
+>>> gmpy2.f_mod_2exp(-a,16)
+mpz(7616)
+
+Test t_divmod_2exp
+------------------
+>>> gmpy2.t_divmod_2exp(1)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.t_divmod_2exp(1, 'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.t_divmod_2exp('a', 16)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.t_divmod_2exp(a,-16)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.t_divmod_2exp(a,0)
+(mpz(123456), mpz(0))
+>>> gmpy2.t_divmod_2exp(a,16)
+(mpz(1), mpz(57920))
+>>> gmpy2.t_divmod_2exp(-a,16)
+(mpz(-1), mpz(-57920))
+
+Test t_div_2exp
+---------------
+>>> gmpy2.t_div_2exp(1)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.t_div_2exp(1, 'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.t_div_2exp('a', 16)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.t_div_2exp(a, -16)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.t_div_2exp(a,0)
+mpz(123456)
+>>> gmpy2.t_div_2exp(a,16)
+mpz(1)
+>>> gmpy2.t_div_2exp(-a,16)
+mpz(-1)
+
+Test t_mod_2exp
+---------------
+>>> gmpy2.t_mod_2exp(1)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.t_mod_2exp(1, 'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.t_mod_2exp('a', 16)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.t_mod_2exp(a, -16)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.t_mod_2exp(a,0)
+mpz(0)
+>>> gmpy2.t_mod_2exp(a,16)
+mpz(57920)
+>>> gmpy2.t_mod_2exp(-a,16)
+mpz(-57920)
+

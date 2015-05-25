@@ -54,20 +54,19 @@
 static PyObject *
 GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    PyObject *result;
-    MPZ_Object *tempx, *tempy, *rem, *quo;
+    PyObject *result = NULL;
+    MPZ_Object *tempx = NULL, *tempy = NULL, *rem = NULL, *quo = NULL;
     mpz_t tempz;
     long temp;
     int error;
 
-    result = PyTuple_New(2);
-    rem = GMPy_MPZ_New(context);
-    quo = GMPy_MPZ_New(context);
-    if (!result || !rem || !quo) {
-        Py_XDECREF((PyObject*)rem);
-        Py_XDECREF((PyObject*)quo);
-        Py_XDECREF(result);
-        return NULL;
+    if (!(result = PyTuple_New(2)) ||
+        !(rem = GMPy_MPZ_New(context)) ||
+        !(quo = GMPy_MPZ_New(context))) {
+
+        /* LCOV_EXCL_START */
+        goto error;
+        /* LCOV_EXCL_STOP */
     }
 
     if (CHECK_MPZANY(x)) {
@@ -84,10 +83,7 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
             }
             else if (temp == 0) {
                 ZERO_ERROR("division or modulo by zero");
-                Py_DECREF((PyObject*)rem);
-                Py_DECREF((PyObject*)quo);
-                Py_DECREF(result);
-                return NULL;
+                goto error;
             }
             else {
                 mpz_cdiv_qr_ui(quo->z, rem->z, MPZ(x), -temp);
@@ -101,10 +97,7 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         if (CHECK_MPZANY(y)) {
             if (mpz_sgn(MPZ(y)) == 0) {
                 ZERO_ERROR("division or modulo by zero");
-                Py_DECREF((PyObject*)rem);
-                Py_DECREF((PyObject*)quo);
-                Py_DECREF(result);
-                return NULL;
+                goto error;
             }
             mpz_fdiv_qr(quo->z, rem->z, MPZ(x), MPZ(y));
             PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
@@ -116,10 +109,7 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
     if (CHECK_MPZANY(y) && PyIntOrLong_Check(x)) {
         if (mpz_sgn(MPZ(y)) == 0) {
             ZERO_ERROR("division or modulo by zero");
-            Py_DECREF((PyObject*)rem);
-            Py_DECREF((PyObject*)quo);
-            Py_DECREF(result);
-            return NULL;
+            goto error;
         }
         mpz_inoc(tempz);
         mpz_set_PyIntOrLong(tempz, x);
@@ -131,25 +121,17 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
-        tempx = GMPy_MPZ_From_Integer(x, context);
-        tempy = GMPy_MPZ_From_Integer(y, context);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("could not convert Integer to mpz");
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            Py_DECREF((PyObject*)rem);
-            Py_DECREF((PyObject*)quo);
-            Py_DECREF(result);
-            return NULL;
+
+        if (!(tempx = GMPy_MPZ_From_Integer(x, context)) ||
+            !(tempy = GMPy_MPZ_From_Integer(y, context))) {
+
+            /* LCOV_EXCL_START */
+            goto error;
+            /* LCOV_EXCL_STOP */
         }
         if (mpz_sgn(tempy->z) == 0) {
             ZERO_ERROR("division or modulo by zero");
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            Py_DECREF((PyObject*)rem);
-            Py_DECREF((PyObject*)quo);
-            Py_DECREF(result);
-            return NULL;
+            goto error;
         }
         mpz_fdiv_qr(quo->z, rem->z, tempx->z, tempy->z);
         Py_DECREF((PyObject*)tempx);
@@ -159,8 +141,16 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         return result;
     }
 
-    Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
+    /* LCOV_EXCL_START */
+    SYSTEM_ERROR("Internal error in GMPy_Integer_DivMod().");
+    /* LCOV_EXCL_STOP */
+  error:
+    Py_XDECREF((PyObject*)tempx);
+    Py_XDECREF((PyObject*)tempy);
+    Py_XDECREF((PyObject*)rem);
+    Py_XDECREF((PyObject*)quo);
+    Py_XDECREF(result);
+    return NULL;
 }
 
 static PyObject *
@@ -184,28 +174,26 @@ GMPy_MPZ_DivMod_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Rational_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    MPQ_Object *tempx, *tempy, *rem;
-    MPZ_Object *quo;
-    PyObject *result;
+    MPQ_Object *tempx = NULL, *tempy = NULL, *rem = NULL;
+    MPZ_Object *quo = NULL;
+    PyObject *result = NULL;
 
-    CHECK_CONTEXT(context);
+    if (!(result = PyTuple_New(2)) ||
+        !(rem = GMPy_MPQ_New(context)) ||
+        !(quo = GMPy_MPZ_New(context))) {
 
-    result = PyTuple_New(2);
-    rem = GMPy_MPQ_New(context);
-    quo = GMPy_MPZ_New(context);
-    if (!result || !rem || !quo) {
-        Py_XDECREF(result);
-        Py_XDECREF((PyObject*)rem);
-        Py_XDECREF((PyObject*)quo);
-        return NULL;
+        /* LCOV_EXCL_START */
+        goto error;
+        /* LCOV_EXCL_STOP */
     }
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
-        tempx = GMPy_MPQ_From_Number(x, context);
-        tempy = GMPy_MPQ_From_Number(y, context);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("could not convert Rational to mpq");
+        if (!(tempx = GMPy_MPQ_From_Number(x, context)) ||
+            !(tempy = GMPy_MPQ_From_Number(y, context))) {
+
+            /* LCOV_EXCL_START */
             goto error;
+            /* LCOV_EXCL_STOP */
         }
         if (mpq_sgn(tempy->q) == 0) {
             ZERO_ERROR("division or modulo by zero");
@@ -225,16 +213,16 @@ GMPy_Rational_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         return result;
     }
 
-    Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
-
+    /* LCOV_EXCL_START */
+    SYSTEM_ERROR("Internal error in GMPy_Rational_DivMod().");
   error:
     Py_XDECREF((PyObject*)tempx);
     Py_XDECREF((PyObject*)tempy);
-    Py_DECREF((PyObject*)rem);
-    Py_DECREF((PyObject*)quo);
-    Py_DECREF(result);
+    Py_XDECREF((PyObject*)rem);
+    Py_XDECREF((PyObject*)quo);
+    Py_XDECREF(result);
     return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 static PyObject *
@@ -274,26 +262,28 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_Real_DivMod_1(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    MPFR_Object *tempx = NULL, *tempy = NULL, *quo, *rem;
-    PyObject *result;
+    MPFR_Object *tempx = NULL, *tempy = NULL, *quo = NULL, *rem = NULL;
+    PyObject *result = NULL;
 
     CHECK_CONTEXT(context);
 
-    result = PyTuple_New(2);
-    rem = GMPy_MPFR_New(0, context);
-    quo = GMPy_MPFR_New(0, context);
-    if (!result || !rem || !quo) {
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)quo);
-        Py_XDECREF((PyObject*)rem);
-        return NULL;
+    if (!(result = PyTuple_New(2)) ||
+        !(rem = GMPy_MPFR_New(0, context)) ||
+        !(quo = GMPy_MPFR_New(0, context))) {
+
+        /* LCOV_EXCL_START */
+        goto error;
+        /* LCOV_EXCL_STOP */
     }
 
     if (IS_REAL(x) && IS_REAL(y)) {
-        tempx = GMPy_MPFR_From_Real(x, 1, context);
-        tempy = GMPy_MPFR_From_Real(y, 1, context);
-        if (!tempx || !tempy) {
+
+        if (!(tempx = GMPy_MPFR_From_Real(x, 1, context)) ||
+            !(tempy = GMPy_MPFR_From_Real(y, 1, context))) {
+
+            /* LCOV_EXCL_START */
             goto error;
+            /* LCOV_EXCL_STOP */
         }
         if (mpfr_zero_p(tempy->f)) {
             context->ctx.divzero = 1;
@@ -337,7 +327,9 @@ GMPy_Real_DivMod_1(PyObject *x, PyObject *y, CTXT_Object *context)
             MPFR_Object *temp;
 
             if (!(temp = GMPy_MPFR_New(0, context))) {
+                /* LCOV_EXCL_START */
                 goto error;
+                /* LCOV_EXCL_STOP */
             }
             mpfr_fmod(rem->f, tempx->f, tempy->f, MPFR_RNDN);
             mpfr_sub(temp->f, tempx->f, rem->f, MPFR_RNDN);
@@ -361,11 +353,11 @@ GMPy_Real_DivMod_1(PyObject *x, PyObject *y, CTXT_Object *context)
             }
             Py_DECREF((PyObject*)temp);
         }
+
         GMPY_MPFR_CHECK_RANGE(quo, context);
         GMPY_MPFR_CHECK_RANGE(rem, context);
         GMPY_MPFR_SUBNORMALIZE(quo, context);
         GMPY_MPFR_SUBNORMALIZE(rem, context);
-
 
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
@@ -374,45 +366,42 @@ GMPy_Real_DivMod_1(PyObject *x, PyObject *y, CTXT_Object *context)
         return (PyObject*)result;
     }
 
-    Py_DECREF((PyObject*)rem);
-    Py_DECREF((PyObject*)quo);
-    Py_DECREF(result);
-    Py_RETURN_NOTIMPLEMENTED;
-
+    /* LCOV_EXCL_START */
+    SYSTEM_ERROR("Internal error in GMPy_Real_DivMod_1().");
   error:
     Py_XDECREF((PyObject*)tempx);
     Py_XDECREF((PyObject*)tempy);
-    Py_DECREF((PyObject*)rem);
-    Py_DECREF((PyObject*)quo);
-    Py_DECREF(result);
+    Py_XDECREF((PyObject*)rem);
+    Py_XDECREF((PyObject*)quo);
+    Py_XDECREF(result);
     return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 static PyObject *
 GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     MPFR_Object *tempx = NULL, *tempy = NULL, *quo = NULL, *rem = NULL;
-    PyObject *result;
+    PyObject *result = NULL;
 
     CHECK_CONTEXT(context);
 
     if (!(result = PyTuple_New(2)) ||
         !(rem = GMPy_MPFR_New(0, context)) ||
-        !(quo = GMPy_MPFR_New(0, context))
-        ) {
+        !(quo = GMPy_MPFR_New(0, context))) {
 
-        Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)quo);
-        Py_XDECREF((PyObject*)rem);
-        return NULL;
+        /* LCOV_EXCL_START */
+        goto error;
+        /* LCOV_EXCL_STOP */
     }
 
     if (IS_REAL(x) && IS_REAL(y)) {
         if (!(tempx = GMPy_MPFR_From_Real(x, 1, context)) ||
-            !(tempy = GMPy_MPFR_From_Real(y, 1, context))
-            ) {
+            !(tempy = GMPy_MPFR_From_Real(y, 1, context))) {
 
+            /* LCOV_EXCL_START */
             goto error;
+            /* LCOV_EXCL_STOP */
         }
 
         if (mpfr_zero_p(tempy->f)) {
@@ -458,33 +447,29 @@ GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context)
             MPZ_Object *temp_quo = NULL;
 
             if (!(mpqx = GMPy_MPQ_From_MPFR(tempx, context)) ||
-                !(mpqy = GMPy_MPQ_From_MPFR(tempy, context))
-                ) {
+                !(mpqy = GMPy_MPQ_From_MPFR(tempy, context))) {
 
+                /* LCOV_EXCL_START */
                 Py_XDECREF((PyObject*)mpqx);
                 Py_XDECREF((PyObject*)mpqy);
-                Py_DECREF((PyObject*)tempx);
-                Py_DECREF((PyObject*)tempy);
-                Py_DECREF(result);
-                return NULL;
+                goto error;
+                /* LCOV_EXCL_STOP */
+            }
+
+            if (!(temp_rem = GMPy_MPQ_New(context)) ||
+                !(temp_quo = GMPy_MPZ_New(context))) {
+
+                /* LCOV_EXCL_START */
+                Py_XDECREF((PyObject*)temp_rem);
+                Py_XDECREF((PyObject*)temp_quo);
+                Py_XDECREF((PyObject*)mpqx);
+                Py_XDECREF((PyObject*)mpqy);
+                goto error;
+                /* LCOV_EXCL_STOP */
             }
 
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
-
-            temp_rem = GMPy_MPQ_New(context);
-            temp_quo = GMPy_MPZ_New(context);
-            if (!(temp_rem = GMPy_MPQ_New(context)) ||
-                !(temp_quo = GMPy_MPZ_New(context))
-                ) {
-
-                Py_XDECREF((PyObject*)temp_rem);
-                Py_XDECREF((PyObject*)temp_quo);
-                Py_DECREF((PyObject*)mpqx);
-                Py_DECREF((PyObject*)mpqy);
-                Py_DECREF(result);
-                return NULL;
-            }
 
             mpq_div(temp_rem->q, mpqx->q, mpqy->q);
             mpz_fdiv_q(temp_quo->z, mpq_numref(temp_rem->q), mpq_denref(temp_rem->q));
@@ -492,30 +477,37 @@ GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context)
             mpq_set_z(temp_rem->q, temp_quo->z);
             mpq_mul(temp_rem->q, temp_rem->q, mpqy->q);
             mpq_sub(temp_rem->q, mpqx->q, temp_rem->q);
+
             Py_DECREF((PyObject*)mpqx);
             Py_DECREF((PyObject*)mpqy);
+
             quo->rc = mpfr_set_z(quo->f, temp_quo->z, MPFR_RNDD);
             rem->rc = mpfr_set_q(rem->f, temp_rem->q, MPFR_RNDN);
+
             Py_DECREF((PyObject*)temp_rem);
             Py_DECREF((PyObject*)temp_quo);
+
+            GMPY_MPFR_CHECK_RANGE(quo, context);
+            GMPY_MPFR_CHECK_RANGE(rem, context);
+            GMPY_MPFR_SUBNORMALIZE(quo, context);
+            GMPY_MPFR_SUBNORMALIZE(rem, context);
+
             PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
             PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
             return result;
         }
     }
 
-    Py_DECREF((PyObject*)rem);
-    Py_DECREF((PyObject*)quo);
-    Py_DECREF(result);
-    Py_RETURN_NOTIMPLEMENTED;
-
+    /* LCOV_EXCL_START */
+    SYSTEM_ERROR("Internal error in GMPy_Real_DivMod_2().");
   error:
     Py_XDECREF((PyObject*)tempx);
     Py_XDECREF((PyObject*)tempy);
-    Py_DECREF((PyObject*)rem);
-    Py_DECREF((PyObject*)quo);
-    Py_DECREF(result);
+    Py_XDECREF((PyObject*)rem);
+    Py_XDECREF((PyObject*)quo);
+    Py_XDECREF(result);
     return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 static PyObject *
@@ -542,14 +534,6 @@ GMPy_MPC_DivMod_Slot(PyObject *x, PyObject *y)
 {
     return GMPy_Complex_DivMod(x, y, NULL);
 }
-
-PyDoc_STRVAR(GMPy_doc_divmod,
-"div_mod(x, y) -> (quotient, remainder)\n\n"
-"Return divmod(x, y); uses alternate spelling to avoid naming conflicts.\n\n"
-"Note for mpfr arguments:\n"
-"  The context rounding mode is ignored; all calculations are done using\n"
-"  RoundToNearest. Overflow, underflow, and inexact exceptions are not\n"
-"  supported. Special values are handled as per Python's behavior.");
 
 static PyObject *
 GMPy_Number_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
@@ -579,21 +563,13 @@ PyDoc_STRVAR(GMPy_doc_context_divmod,
 static PyObject *
 GMPy_Context_DivMod(PyObject *self, PyObject *args)
 {
-    CTXT_Object *context = NULL;
-
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("divmod() requires 2 arguments.");
+        TYPE_ERROR("divmod() requires 2 arguments");
         return NULL;
     }
 
-    if (self && CTXT_Check(self)) {
-        context = (CTXT_Object*)self;
-    }
-    else {
-        CHECK_CONTEXT(context);
-    }
-
-    return GMPy_Number_DivMod(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1),
-                              context);
+    return GMPy_Number_DivMod(PyTuple_GET_ITEM(args, 0),
+                              PyTuple_GET_ITEM(args, 1),
+                              (CTXT_Object*)self);
 }
 

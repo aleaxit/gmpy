@@ -44,23 +44,24 @@ PyDoc_STRVAR(doc_c_divmod,
 static PyObject *
 GMPy_MPZ_c_divmod(PyObject *self, PyObject *args)
 {
-    PyObject *result;
-    MPZ_Object *q, *r, *tempx, *tempy;
+    PyObject *result = NULL;
+    MPZ_Object *q = NULL, *r = NULL, *tempx = NULL, *tempy = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("c_divmod() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
-    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
-    q = GMPy_MPZ_New(NULL);
-    r = GMPy_MPZ_New(NULL);
-    result = PyTuple_New(2);
-    if (!tempx || !tempy || !q || !r || !result)
-        goto err;
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)) ||
+        !(tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL)) ||
+        !(q = GMPy_MPZ_New(NULL)) ||
+        !(r = GMPy_MPZ_New(NULL)) ||
+        !(result = PyTuple_New(2))) {
 
-    if(mpz_sgn(tempy->z) == 0) {
+        goto err;
+    }
+
+    if (mpz_sgn(tempy->z) == 0) {
         ZERO_ERROR("c_divmod() division by 0");
         goto err;
     }
@@ -90,18 +91,19 @@ PyDoc_STRVAR(doc_c_div,
 static PyObject *
 GMPy_MPZ_c_div(PyObject *self, PyObject *args)
 {
-    MPZ_Object *q, *tempx, *tempy;
+    MPZ_Object *q = NULL, *tempx = NULL, *tempy = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("c_div() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
-    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
-    q = GMPy_MPZ_New(NULL);
-    if (!tempx || !tempy || !q)
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)) ||
+        !(tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL)) ||
+        !(q = GMPy_MPZ_New(NULL))) {
+
         goto err;
+    }
 
     if (mpz_sgn(tempy->z) == 0) {
         ZERO_ERROR("c_div() division by 0");
@@ -129,18 +131,19 @@ PyDoc_STRVAR(doc_c_mod,
 static PyObject *
 GMPy_MPZ_c_mod(PyObject *self, PyObject *args)
 {
-    MPZ_Object *r, *tempx, *tempy;
+    MPZ_Object *r = NULL, *tempx = NULL, *tempy = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("c_mod() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
-    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
-    r = GMPy_MPZ_New(NULL);
-    if (!tempx || !tempy || !r)
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)) ||
+        !(tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL)) ||
+        !(r = GMPy_MPZ_New(NULL))) {
+
         goto err;
+    }
 
     if (mpz_sgn(tempy->z) == 0) {
         ZERO_ERROR("c_mod() division by 0");
@@ -175,21 +178,22 @@ PyDoc_STRVAR(doc_f_divmod,
 static PyObject *
 GMPy_MPZ_f_divmod(PyObject *self, PyObject *args)
 {
-    PyObject *result;
-    MPZ_Object *q, *r, *tempx, *tempy;
+    PyObject *result = NULL;
+    MPZ_Object *q = NULL, *r = NULL, *tempx = NULL, *tempy = NULL;
 
-    if(PyTuple_GET_SIZE(args) != 2) {
+    if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("f_divmod() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
-    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
-    q = GMPy_MPZ_New(NULL);
-    r = GMPy_MPZ_New(NULL);
-    result = PyTuple_New(2);
-    if (!tempx || !tempy || !q || !r || !result)
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)) ||
+        !(tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL)) ||
+        !(q = GMPy_MPZ_New(NULL)) ||
+        !(r = GMPy_MPZ_New(NULL)) ||
+        !(result = PyTuple_New(2))) {
+
         goto err;
+    }
 
     if (mpz_sgn(tempy->z) == 0) {
         ZERO_ERROR("f_divmod() division by 0");
@@ -221,18 +225,19 @@ PyDoc_STRVAR(doc_f_div,
 static PyObject *
 GMPy_MPZ_f_div(PyObject *self, PyObject *args)
 {
-    MPZ_Object *q, *tempx, *tempy;
+    MPZ_Object *q = NULL, *tempx = NULL, *tempy = NULL;
 
     if(PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("f_div() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
-    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
-    q = GMPy_MPZ_New(NULL);
-    if (!tempx || !tempy || !q)
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)) ||
+        !(tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL)) ||
+        !(q = GMPy_MPZ_New(NULL))) {
+
         goto err;
+    }
 
     if (mpz_sgn(tempy->z) == 0) {
         ZERO_ERROR("f_div() division by 0");
@@ -260,18 +265,19 @@ PyDoc_STRVAR(doc_f_mod,
 static PyObject *
 GMPy_MPZ_f_mod(PyObject *self, PyObject *args)
 {
-    MPZ_Object *r, *tempx, *tempy;
+    MPZ_Object *r = NULL, *tempx = NULL, *tempy = NULL;
 
-    if(PyTuple_GET_SIZE(args) != 2) {
+    if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("f_mod() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
-    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
-    r = GMPy_MPZ_New(NULL);
-    if (!tempx || !tempy || !r)
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)) ||
+        !(tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL)) ||
+        !(r = GMPy_MPZ_New(NULL))) {
+
         goto err;
+    }
 
     if (mpz_sgn(tempy->z) == 0) {
         ZERO_ERROR("f_mod() division by 0");
@@ -306,21 +312,22 @@ PyDoc_STRVAR(doc_t_divmod,
 static PyObject *
 GMPy_MPZ_t_divmod(PyObject *self, PyObject *args)
 {
-    PyObject *result;
-    MPZ_Object *q, *r, *tempx, *tempy;
+    PyObject *result = NULL;
+    MPZ_Object *q = NULL, *r = NULL, *tempx = NULL, *tempy = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("t_divmod() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
-    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
-    q = GMPy_MPZ_New(NULL);
-    r = GMPy_MPZ_New(NULL);
-    result = PyTuple_New(2);
-    if (!tempx || !tempy || !q || !r || !result)
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)) ||
+        !(tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL)) ||
+        !(q = GMPy_MPZ_New(NULL)) ||
+        !(r = GMPy_MPZ_New(NULL)) ||
+        !(result = PyTuple_New(2))) {
+
         goto err;
+    }
 
     if (mpz_sgn(tempy->z) == 0) {
         ZERO_ERROR("t_divmod() division by 0");
@@ -352,18 +359,22 @@ PyDoc_STRVAR(doc_t_div,
 static PyObject *
 GMPy_MPZ_t_div(PyObject *self, PyObject *args)
 {
-    MPZ_Object *q, *tempx, *tempy;
+    MPZ_Object *q = NULL, *tempx = NULL, *tempy = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("t_div() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
-    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
-    q = GMPy_MPZ_New(NULL);
-    if (!tempx || !tempy || !q)
+
+
+
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)) ||
+        !(tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL)) ||
+        !(q = GMPy_MPZ_New(NULL))) {
+
         goto err;
+    }
 
     if (mpz_sgn(tempy->z) == 0) {
         ZERO_ERROR("t_div() division by 0");
@@ -391,18 +402,19 @@ PyDoc_STRVAR(doc_t_mod,
 static PyObject *
 GMPy_MPZ_t_mod(PyObject *self, PyObject *args)
 {
-    MPZ_Object *r, *tempx, *tempy;
+    MPZ_Object *r = NULL, *tempx = NULL, *tempy = NULL;
 
-    if(PyTuple_GET_SIZE(args) != 2) {
+    if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("t_mod() requires 'mpz','mpz' arguments");
         return NULL;
     }
 
-    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
-    tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
-    r = GMPy_MPZ_New(NULL);
-    if (!tempx || !tempy || !r)
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)) ||
+        !(tempy = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL)) ||
+        !(r = GMPy_MPZ_New(NULL))) {
+
         goto err;
+    }
 
     if (mpz_sgn(tempy->z) == 0) {
         ZERO_ERROR("t_mod() division by 0");

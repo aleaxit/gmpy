@@ -1,0 +1,40 @@
+Test divmod
+============
+
+>>> import gmpy2
+>>> from gmpy2 import mpz, xmpz, mpq, mpfr, mpc
+>>> from decimal import Decimal as D
+>>> from fractions import Fraction as F
+>>> a = mpz(123)
+>>> b = mpz(456)
+>>> c = 12345678901234567890
+
+Test integer operations
+-----------------------
+
+>>> divmod(a,'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> ctx=gmpy2.context()
+>>> ctx.divmod('a',456)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> ctx.divmod(a,mpc(456))
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> ctx.divmod(mpc(1,2),mpc(3,4))
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> ctx.divmod(456, 0)
+Traceback (most recent call last):
+  ...
+ZeroDivisionError:
+>>> ctx.divmod(a,b)
+(mpz(0), mpz(123))
+>>> ctx.divmod(123,456)
+(mpz(0), mpz(123))
+

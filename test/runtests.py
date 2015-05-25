@@ -96,7 +96,7 @@ for test in sorted(all_doctests):
                                   optionflags=doctest.IGNORE_EXCEPTION_DETAIL |
                                               doctest.NORMALIZE_WHITESPACE |
                                               doctest.REPORT_NDIFF)
-        print("Results for:  {0:24}".format(test.split(".")[0]), end="")
+        print("Results for:  {0:25}".format(test.split(".")[0]), end="")
         print(" Attempted: {1:4d}   Failed: {0:4d}".format(*result), end="")
         if debug:
             print(" RefCount: {0:6d}".format(sys.gettotalrefcount()))
@@ -107,11 +107,11 @@ for test in sorted(all_doctests):
 
 
 print()
-print("                             Summary - Attempted: {0:4d}   Failed: {1:4d}".format(attempted, failed))
+print("                              Summary - Attempted: {0:4d}   Failed: {1:4d}".format(attempted, failed))
 print()
 print("Running external test programs.")
 
-print("Running {0:29}  ".format("test_pack.py"), end="")
+print("Running {0:30}  ".format("test_pack.py"), end="")
 import test_pack
 if test_pack.test():
     print("successful")
@@ -120,7 +120,7 @@ else:
     print("failed")
     failed += 1
 
-print("Running {0:29}  ".format("test_mpz_args.py"), end="")
+print("Running {0:30}  ".format("test_mpz_args.py"), end="")
 import test_mpz_args
 if test_mpz_args.test():
     print("successful")

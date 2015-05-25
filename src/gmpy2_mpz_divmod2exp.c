@@ -47,8 +47,8 @@ static PyObject *
 GMPy_MPZ_c_divmod_2exp(PyObject *self, PyObject *args)
 {
     mp_bitcnt_t nbits;
-    PyObject *result;
-    MPZ_Object *q, *r, *tempx;
+    PyObject *result = NULL;
+    MPZ_Object *q = NULL, *r = NULL, *tempx = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("c_divmod_2exp() requires 'mpz','int' arguments");
@@ -60,11 +60,11 @@ GMPy_MPZ_c_divmod_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
-    q = GMPy_MPZ_New(NULL);
-    r = GMPy_MPZ_New(NULL);
-    result = PyTuple_New(2);
-    if (!tempx || !q || !r || !result) {
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL)) ||
+        !(q = GMPy_MPZ_New(NULL)) ||
+        !(r = GMPy_MPZ_New(NULL)) ||
+        !(result = PyTuple_New(2))) {
+
         Py_XDECREF(result);
         Py_XDECREF((PyObject*)tempx);
         Py_XDECREF((PyObject*)q);

@@ -52,6 +52,8 @@
  *
  */
 
+#include "longintrepr.h"
+
 /* Add two Integer objects (see gmpy2_convert.h). If an error occurs, NULL
  * is returned and an exception is set. If either x or y can't be converted
  * into an mpz, Py_NotImplemented is returned.
@@ -60,11 +62,11 @@
 static PyObject *
 GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    MPZ_Object *result;
+    MPZ_Object *result = NULL, *tempx = NULL, *tempy = NULL;
 
     if (!(result = GMPy_MPZ_New(context))) {
         /* LCOV_EXCL_START */
-        return NULL;
+        goto error;
         /* LCOV_EXCL_STOP */
     }
 
@@ -123,15 +125,10 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
-        MPZ_Object *tempx, *tempy;
-
         if (!(tempx = GMPy_MPZ_From_Integer(x, context)) ||
             !(tempy = GMPy_MPZ_From_Integer(y, context))) {
             /* LCOV_EXCL_START */
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            Py_DECREF((PyObject*)result);
-            return NULL;
+            goto error;
             /* LCOV_EXCL_STOP */
         }
 
@@ -141,13 +138,13 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         return (PyObject*)result;
     }
 
-    /* The last two lines should not be reachable if this function is called
-     * via MPZ_Add_Slot or Number_Add, but they are left behind just-in-case.
-     */
-
     /* LCOV_EXCL_START */
-    Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
+    SYSTEM_ERROR("Internal error in GMPy_Integer_Add().");
+  error:
+    Py_XDECREF((PyObject*)tempx);
+    Py_XDECREF((PyObject*)tempy);
+    Py_XDECREF((PyObject*)result);
+    return NULL;
     /* LCOV_EXCL_STOP */
 }
 
@@ -160,13 +157,35 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPZ_Add_Slot(PyObject *x, PyObject *y)
 {
-    if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
-        MPZ_Object *result;
+    if (MPZ_Check(x)) {
+        MPZ_Object *result = NULL;
 
-        if ((result = GMPy_MPZ_New(NULL))) {
-            mpz_add(result->z, MPZ(x), MPZ(y));
+        if (!(result = GMPy_MPZ_New(NULL))) {
+            /* LCOV_EXCL_START */
+            return NULL;
+            /* LCOV_EXCL_STOP */
         }
-        return (PyObject*)result;
+
+        if (MPZ_Check(y)) {
+            mpz_add(result->z, MPZ(x), MPZ(y));
+            return (PyObject*)result;
+        }
+
+        if (PyLong_CheckExact(y)) {
+            switch (Py_SIZE((PyLongObject*)y)) {
+            case -1:
+                mpz_sub_ui(result->z, MPZ(x), ((PyLongObject*)y)->ob_digit[0]);
+                return (PyObject*)result;
+            case 0:
+                mpz_set(result->z, MPZ(x));
+                return (PyObject*)result;
+            case 1:
+                mpz_add_ui(result->z, MPZ(x), ((PyLongObject*)y)->ob_digit[0]);
+                return (PyObject*)result;
+            default:
+                break;
+            }
+        }
     }
 
     if (IS_INTEGER(x) && IS_INTEGER(y))
@@ -191,11 +210,11 @@ GMPy_MPZ_Add_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Rational_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    MPQ_Object *result;
+    MPQ_Object *result = NULL, *tempx = NULL, *tempy = NULL;
 
     if (!(result = GMPy_MPQ_New(context))) {
         /* LCOV_EXCL_START */
-        return NULL;
+        goto error;
         /* LCOV_EXCL_STOP */
     }
 
@@ -205,15 +224,10 @@ GMPy_Rational_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
-        MPQ_Object *tempx, *tempy;
-
         if (!(tempx = GMPy_MPQ_From_Number(x, context)) ||
             !(tempy = GMPy_MPQ_From_Number(y, context))) {
             /* LCOV_EXCL_START */
-            Py_XDECREF((PyObject*)tempx);
-            Py_XDECREF((PyObject*)tempy);
-            Py_DECREF((PyObject*)result);
-            return NULL;
+            goto error;
             /* LCOV_EXCL_STOP */
         }
 
@@ -224,8 +238,12 @@ GMPy_Rational_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     /* LCOV_EXCL_START */
-    Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
+    SYSTEM_ERROR("Internal error in GMPy_Rational_Add().");
+  error:
+    Py_XDECREF((PyObject*)tempx);
+    Py_XDECREF((PyObject*)tempy);
+    Py_XDECREF((PyObject*)result);
+    return NULL;
     /* LCOV_EXCL_STOP */
 }
 
@@ -411,7 +429,8 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 
     /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
+    SYSTEM_ERROR("Internal error in GMPy_Real_Add().");
+    return NULL;
     /* LCOV_EXCL_STOP */
 
   done:
@@ -482,7 +501,8 @@ GMPy_Complex_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 
     /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
+    SYSTEM_ERROR("Internal error in GMPy_Complex_Add().");
+    return NULL;
     /* LCOV_EXCL_STOP */
 }
 
@@ -494,7 +514,10 @@ GMPy_Complex_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPC_Add_Slot(PyObject *x, PyObject *y)
 {
-    return GMPy_Complex_Add(x, y, NULL);
+    if (IS_COMPLEX(x) && IS_COMPLEX(y))
+        return GMPy_Complex_Add(x, y, NULL);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 static PyObject *
@@ -530,11 +553,12 @@ static PyObject *
 GMPy_Context_Add(PyObject *self, PyObject *args)
 {
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("add() requires 2 arguments.");
+        TYPE_ERROR("add() requires 2 arguments");
         return NULL;
     }
 
-    return GMPy_Number_Add(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1),
+    return GMPy_Number_Add(PyTuple_GET_ITEM(args, 0),
+                           PyTuple_GET_ITEM(args, 1),
                            (CTXT_Object*)self);
 }
 

@@ -585,7 +585,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "div", GMPy_Context_TrueDiv, METH_VARARGS, GMPy_doc_truediv },
     { "divexact", GMPy_MPZ_Function_Divexact, METH_VARARGS, GMPy_doc_mpz_function_divexact },
     { "divm", GMPy_MPZ_Function_Divm, METH_VARARGS, GMPy_doc_mpz_function_divm },
-    { "div_mod", GMPy_Context_DivMod, METH_VARARGS, GMPy_doc_divmod },
     { "double_fac", GMPy_MPZ_Function_DoubleFac, METH_O, GMPy_doc_mpz_function_double_fac },
     { "fac", GMPy_MPZ_Function_Fac, METH_O, GMPy_doc_mpz_function_fac },
     { "fib", GMPy_MPZ_Function_Fib, METH_O, GMPy_doc_mpz_function_fib },

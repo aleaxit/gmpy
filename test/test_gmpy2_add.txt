@@ -158,6 +158,10 @@ True
 
 Test complex operations
 -----------------------
+>>> mpc(1,2) + 'a'
+Traceback (most recent call last):
+  ...
+TypeError:
 >>> mpfr(1) + mpc(1,2)
 mpc('2.0+2.0j')
 >>> mpc(1,2) + mpfr(1)
