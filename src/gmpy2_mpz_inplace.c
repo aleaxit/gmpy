@@ -34,36 +34,62 @@
 static PyObject *
 GMPy_MPZ_IAdd_Slot(PyObject *self, PyObject *other)
 {
-    MPZ_Object *rz;
+    MPZ_Object *result = NULL;
 
-    if (!(rz =  GMPy_MPZ_New(NULL)))
+    if (!(result =  GMPy_MPZ_New(NULL)))
         return NULL;
 
+    if (PyLong_CheckExact(other)) {
+        switch (Py_SIZE((PyLongObject*)other)) {
+        case -1:
+            if ((result = GMPy_MPZ_New(NULL))) {
+                mpz_sub_ui(result->z, MPZ(self), ((PyLongObject*)other)->ob_digit[0]);
+            }
+            return (PyObject*)result;
+        case 0:
+            if ((result = GMPy_MPZ_New(NULL))) {
+                mpz_set(result->z, MPZ(self));
+            }
+            return (PyObject*)result;
+        case 1:
+            if ((result = GMPy_MPZ_New(NULL))) {
+                mpz_add_ui(result->z, MPZ(self), ((PyLongObject*)other)->ob_digit[0]);
+            }
+            return (PyObject*)result;
+        default:
+            break;
+        }
+    }
+
     if (CHECK_MPZANY(other)) {
-        mpz_add(rz->z, MPZ(self), MPZ(other));
-        return (PyObject*)rz;
+        if ((result = GMPy_MPZ_New(NULL))) {
+            mpz_add(result->z, MPZ(self), MPZ(other));
+            return (PyObject*)result;
+        }
     }
 
     if (PyIntOrLong_Check(other)) {
         int error;
         long temp = GMPy_Integer_AsLongAndError(other, &error);
 
-        if (!error) {
-            if (temp >= 0) {
-                mpz_add_ui(rz->z, MPZ(self), temp);
+        if ((result = GMPy_MPZ_New(NULL))) {
+            if (!error) {
+                if (temp >= 0) {
+                    mpz_add_ui(result->z, MPZ(self), temp);
+                }
+                else {
+                    mpz_sub_ui(result->z, MPZ(self), -temp);
+                }
             }
             else {
-                mpz_sub_ui(rz->z, MPZ(self), -temp);
+                mpz_t tempz;
+                mpz_inoc(tempz);
+                mpz_set_PyIntOrLong(tempz, other);
+                mpz_add(result->z, MPZ(self), tempz);
+                mpz_cloc(tempz);
             }
         }
-        else {
-            mpz_t tempz;
-            mpz_inoc(tempz);
-            mpz_set_PyIntOrLong(tempz, other);
-            mpz_add(rz->z, MPZ(self), tempz);
-            mpz_cloc(tempz);
-        }
-        return (PyObject*)rz;
+        return (PyObject*)result;
     }
 
     Py_RETURN_NOTIMPLEMENTED;

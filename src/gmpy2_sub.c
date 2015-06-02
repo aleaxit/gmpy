@@ -148,14 +148,39 @@ GMPy_Integer_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPZ_Sub_Slot(PyObject *x, PyObject *y)
 {
-    if (CHECK_MPZANY(x) && CHECK_MPZANY(y)) {
-        MPZ_Object *result;
+    if (MPZ_Check(x)) {
+        MPZ_Object *result = NULL;
 
-        if ((result = GMPy_MPZ_New(NULL))) {
-            mpz_sub(result->z, MPZ(x), MPZ(y));
+        if (MPZ_Check(y)) {
+            if ((result = GMPy_MPZ_New(NULL))) {
+                mpz_sub(result->z, MPZ(x), MPZ(y));
+                return (PyObject*)result;
+            }
         }
-        return (PyObject*)result;
+
+        if (PyLong_CheckExact(y)) {
+            switch (Py_SIZE((PyLongObject*)y)) {
+            case -1:
+                if ((result = GMPy_MPZ_New(NULL))) {
+                    mpz_add_ui(result->z, MPZ(x), ((PyLongObject*)y)->ob_digit[0]);
+                    return (PyObject*)result;
+                }
+            case 0:
+                if ((result = GMPy_MPZ_New(NULL))) {
+                    mpz_set(result->z, MPZ(x));
+                    return (PyObject*)result;
+                }
+            case 1:
+                if ((result = GMPy_MPZ_New(NULL))) {
+                    mpz_sub_ui(result->z, MPZ(x), ((PyLongObject*)y)->ob_digit[0]);
+                    return (PyObject*)result;
+                }
+            default:
+                break;
+            }
+        }
     }
+
 
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Sub(x, y, NULL);
