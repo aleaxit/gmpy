@@ -1,9 +1,9 @@
-Test GMPY2 Addition
+Test gmpy2MPY2 Addition
 ===================
 
 Test all code in the file gmpy2_add.c.
 
->>> import gmpy2 as G
+>>> import gmpy2 as gmpy2
 >>> from gmpy2 import mpz, xmpz, mpq, mpfr, mpc
 >>> from decimal import Decimal as D
 >>> from fractions import Fraction as F
@@ -41,7 +41,7 @@ mpz(-333)
 >>> (-b)+a
 mpz(-333)
 
->>> ctx=G.context()
+>>> ctx=gmpy2.context()
 >>> ctx.add(a,b) == a+b
 True
 >>> ctx.add(c,c) == c+c
@@ -67,6 +67,8 @@ Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: ** message detail varies **
 
+>>> gmpy2.add(1,1)
+mpz(2)
 
 >>> a+'b'
 Traceback (most recent call last):
@@ -103,7 +105,7 @@ mpc('1.0+0.0j')
 >>> mpc(0) + mpq(1,1)
 mpc('1.0+0.0j')
 
->>> ctx=G.context()
+>>> ctx=gmpy2.context()
 >>> ctx.add(mpq(1,2), mpq(3,2))
 mpq(2,1)
 >>> ctx.add(mpq(1,2), F(3,2))
