@@ -58,12 +58,15 @@
 static PyObject *
 GMPy_Integer_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    MPZ_Object *result;
+    MPZ_Object *result = NULL;
 
-    if (!(result = GMPy_MPZ_New(context)))
+    if (!(result = GMPy_MPZ_New(context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
-    if (CHECK_MPZANY(x)) {
+    if (MPZ_Check(x)) {
         if (PyIntOrLong_Check(y)) {
             int error;
             long temp = GMPy_Integer_AsLongAndError(y, &error);
@@ -86,13 +89,13 @@ GMPy_Integer_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
             return (PyObject*)result;
         }
 
-        if (CHECK_MPZANY(y)) {
+        if (MPZ_Check(y)) {
             mpz_sub(result->z, MPZ(x), MPZ(y));
             return (PyObject*)result;
         }
     }
 
-    if (CHECK_MPZANY(y)) {
+    if (MPZ_Check(y)) {
         if (PyIntOrLong_Check(x)) {
             int error;
             long temp = GMPy_Integer_AsLongAndError(x, &error);
@@ -118,15 +121,16 @@ GMPy_Integer_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
-        MPZ_Object *tempx, *tempy;
+        MPZ_Object *tempx = NULL, *tempy = NULL;
 
-        tempx = GMPy_MPZ_From_Integer(x, context);
-        tempy = GMPy_MPZ_From_Integer(y, context);
-        if (!tempx || !tempy) {
+        if (!(tempx = GMPy_MPZ_From_Integer(x, context)) ||
+            !(tempy = GMPy_MPZ_From_Integer(y, context))) {
+            /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
 
         mpz_sub(result->z, tempx->z, tempy->z);
@@ -135,8 +139,11 @@ GMPy_Integer_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
+    SYSTEM_ERROR("Internal error in GMPy_Integer_Sub().");
     Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
+    return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 /* Implement __sub__ for MPZ_Object. On entry, one of the two arguments must
@@ -148,39 +155,14 @@ GMPy_Integer_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPZ_Sub_Slot(PyObject *x, PyObject *y)
 {
-    if (MPZ_Check(x)) {
+    if (MPZ_Check(x) && MPZ_Check(y)) {
         MPZ_Object *result = NULL;
 
-        if (MPZ_Check(y)) {
-            if ((result = GMPy_MPZ_New(NULL))) {
-                mpz_sub(result->z, MPZ(x), MPZ(y));
-                return (PyObject*)result;
-            }
+        if ((result = GMPy_MPZ_New(NULL))) {
+            mpz_sub(result->z, MPZ(x), MPZ(y));
         }
-
-        if (PyLong_CheckExact(y)) {
-            switch (Py_SIZE((PyLongObject*)y)) {
-            case -1:
-                if ((result = GMPy_MPZ_New(NULL))) {
-                    mpz_add_ui(result->z, MPZ(x), ((PyLongObject*)y)->ob_digit[0]);
-                    return (PyObject*)result;
-                }
-            case 0:
-                if ((result = GMPy_MPZ_New(NULL))) {
-                    mpz_set(result->z, MPZ(x));
-                    return (PyObject*)result;
-                }
-            case 1:
-                if ((result = GMPy_MPZ_New(NULL))) {
-                    mpz_sub_ui(result->z, MPZ(x), ((PyLongObject*)y)->ob_digit[0]);
-                    return (PyObject*)result;
-                }
-            default:
-                break;
-            }
-        }
+        return (PyObject*)result;
     }
-
 
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Sub(x, y, NULL);
@@ -204,10 +186,13 @@ GMPy_MPZ_Sub_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Rational_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    MPQ_Object *result;
+    MPQ_Object *result = NULL;
 
-    if (!(result = GMPy_MPQ_New(context)))
+    if (!(result = GMPy_MPQ_New(context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     if (MPQ_Check(x) && MPQ_Check(y)) {
         mpq_sub(result->q, MPQ(x), MPQ(y));
@@ -215,15 +200,16 @@ GMPy_Rational_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
-        MPQ_Object *tempx, *tempy;
+        MPQ_Object *tempx = NULL, *tempy = NULL;
 
-        tempx = GMPy_MPQ_From_Rational(x, context);
-        tempy = GMPy_MPQ_From_Rational(y, context);
-        if (!tempx || !tempy) {
+        if (!(tempx = GMPy_MPQ_From_Number(x, context)) ||
+            !(tempy = GMPy_MPQ_From_Number(y, context))) {
+            /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
 
         mpq_sub(result->q, tempx->q, tempy->q);
@@ -232,8 +218,11 @@ GMPy_Rational_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
+    SYSTEM_ERROR("Internal error in GMPy_Rational_Sub().");
     Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
+    return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 /* Implement __sub__ for MPQ_Object. On entry, one of the two arguments must
@@ -271,15 +260,15 @@ GMPy_MPQ_Sub_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    MPFR_Object *result;
+    MPFR_Object *result = NULL;
 
     CHECK_CONTEXT(context);
 
-    if (!(result = GMPy_MPFR_New(0, context)))
+    if (!(result = GMPy_MPFR_New(0, context))) {
+        /* LCOV_EXCL_START */
         return NULL;
-
-    /* This only processes mpfr if the exponent is still in-bounds. Need
-     * to handle the rare case at the end. */
+        /* LCOV_EXCL_STOP */
+    }
 
     if (MPFR_Check(x) && MPFR_Check(y)) {
         mpfr_clear_flags();
@@ -291,6 +280,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
         if (PyIntOrLong_Check(y)) {
             int error;
             long temp = GMPy_Integer_AsLongAndError(y, &error);
+
             if (!error) {
                 mpfr_clear_flags();
                 result->rc = mpfr_sub_si(result->f, MPFR(x), temp, GET_MPFR_ROUND(context));
@@ -314,12 +304,15 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         if (IS_RATIONAL(y)) {
-            MPQ_Object *tempy;
+            MPQ_Object *tempy = NULL;
 
             if (!(tempy = GMPy_MPQ_From_Number(y, context))) {
+                /* LCOV_EXCL_START */
                 Py_DECREF((PyObject*)result);
                 return NULL;
+                /* LCOV_EXCL_STOP */
             }
+
             mpfr_clear_flags();
             result->rc = mpfr_sub_q(result->f, MPFR(x), tempy->q, GET_MPFR_ROUND(context));
             Py_DECREF((PyObject*)tempy);
@@ -337,6 +330,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
         if (PyIntOrLong_Check(x)) {
             int error;
             long temp = GMPy_Integer_AsLongAndError(x, &error);
+
             if (!error) {
                 mpfr_clear_flags();
                 result->rc = mpfr_sub_si(result->f, MPFR(y), temp, GET_MPFR_ROUND(context));
@@ -363,12 +357,15 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         if (IS_RATIONAL(x)) {
-            MPQ_Object *tempx;
+            MPQ_Object *tempx = NULL;
 
             if (!(tempx = GMPy_MPQ_From_Number(x, context))) {
+                /* LCOV_EXCL_START */
                 Py_DECREF((PyObject*)result);
                 return NULL;
+                /* LCOV_EXCL_STOP */
             }
+
             mpfr_clear_flags();
             result->rc = mpfr_sub_q(result->f, MPFR(y), tempx->q, GET_MPFR_ROUND(context));
             mpfr_neg(result->f, result->f, GET_MPFR_ROUND(context));
@@ -385,16 +382,18 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     if (IS_REAL(x) && IS_REAL(y)) {
-        MPFR_Object *tempx, *tempy;
+        MPFR_Object *tempx = NULL, *tempy = NULL;
 
-        tempx = GMPy_MPFR_From_Real(x, 1, context);
-        tempy = GMPy_MPFR_From_Real(y, 1, context);
-        if (!tempx || !tempy) {
+        if (!(tempx = GMPy_MPFR_From_Real(x, 1, context)) ||
+            !(tempy = GMPy_MPFR_From_Real(y, 1, context))) {
+            /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
+
         mpfr_clear_flags();
         result->rc = mpfr_sub(result->f, MPFR(tempx), MPFR(tempy), GET_MPFR_ROUND(context));
         Py_DECREF((PyObject*)tempx);
@@ -402,8 +401,11 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
         goto done;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
+    SYSTEM_ERROR("Internal error in GMPy_Real_Sub().");
+    return NULL;
+    /* LCOV_EXCL_STOP */
 
   done:
     _GMPy_MPFR_Cleanup(&result, context);
@@ -439,38 +441,43 @@ GMPy_Complex_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 
     CHECK_CONTEXT(context);
 
-    if (!(result = GMPy_MPC_New(0, 0, context)))
+    if (!(result = GMPy_MPC_New(0, 0, context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     if (MPC_Check(x) && MPC_Check(y)) {
-        result->rc = mpc_sub(result->c, MPC(x), MPC(y),
-                             GET_MPC_ROUND(context));
-        goto done;
+        result->rc = mpc_sub(result->c, MPC(x), MPC(y), GET_MPC_ROUND(context));
+        _GMPy_MPC_Cleanup(&result, context);
+        return (PyObject*)result;
     }
 
     if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
-        MPC_Object *tempx, *tempy;
+        MPC_Object *tempx = NULL, *tempy = NULL;
 
-        tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
-        tempy = GMPy_MPC_From_Complex(y, 1, 1, context);
-        if (!tempx || !tempy) {
+        if (!(tempx = GMPy_MPC_From_Complex(x, 1, 1, context)) ||
+            !(tempy = GMPy_MPC_From_Complex(y, 1, 1, context))) {
+            /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
+
         result->rc = mpc_sub(result->c, tempx->c, tempy->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
-        goto done;
+        _GMPy_MPC_Cleanup(&result, context);
+        return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
-
-  done:
-    _GMPy_MPC_Cleanup(&result, context);
-    return (PyObject*)result;
+    SYSTEM_ERROR("Internal error in GMPy_Complex_Sub().");
+    return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 /* Pympc_sub_fast() is called by mpc.__sub__. It just gets a borrowed reference
@@ -481,7 +488,10 @@ GMPy_Complex_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPC_Sub_Slot(PyObject *x, PyObject *y)
 {
-    return GMPy_Complex_Sub(x, y, NULL);
+    if (IS_COMPLEX(x) && IS_COMPLEX(y))
+        return GMPy_Complex_Sub(x, y, NULL);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 static PyObject *
@@ -530,7 +540,8 @@ GMPy_Context_Sub(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_Sub(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1),
+    return GMPy_Number_Sub(PyTuple_GET_ITEM(args, 0),
+                           PyTuple_GET_ITEM(args, 1),
                            context);
 }
 

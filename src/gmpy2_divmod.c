@@ -56,9 +56,6 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
     PyObject *result = NULL;
     MPZ_Object *tempx = NULL, *tempy = NULL, *rem = NULL, *quo = NULL;
-    mpz_t tempz;
-    long temp;
-    int error;
 
     if (!(result = PyTuple_New(2)) ||
         !(rem = GMPy_MPZ_New(context)) ||
@@ -71,8 +68,11 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 
     if (CHECK_MPZANY(x)) {
         if (PyIntOrLong_Check(y)) {
-            temp = GMPy_Integer_AsLongAndError(y, &error);
+            int error;
+            long temp = GMPy_Integer_AsLongAndError(y, &error);
+
             if (error) {
+                mpz_t tempz;
                 mpz_inoc(tempz);
                 mpz_set_PyIntOrLong(tempz, y);
                 mpz_fdiv_qr(quo->z, rem->z, MPZ(x), tempz);
@@ -111,13 +111,16 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
             ZERO_ERROR("division or modulo by zero");
             goto error;
         }
-        mpz_inoc(tempz);
-        mpz_set_PyIntOrLong(tempz, x);
-        mpz_fdiv_qr(quo->z, rem->z, tempz, MPZ(y));
-        mpz_cloc(tempz);
-        PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
-        PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
-        return (PyObject*)result;
+        else {
+            mpz_t tempz;
+            mpz_inoc(tempz);
+            mpz_set_PyIntOrLong(tempz, x);
+            mpz_fdiv_qr(quo->z, rem->z, tempz, MPZ(y));
+            mpz_cloc(tempz);
+            PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
+            PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
+            return (PyObject*)result;
+        }
     }
 
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
@@ -188,6 +191,7 @@ GMPy_Rational_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
+
         if (!(tempx = GMPy_MPQ_From_Number(x, context)) ||
             !(tempy = GMPy_MPQ_From_Number(y, context))) {
 
@@ -563,13 +567,22 @@ PyDoc_STRVAR(GMPy_doc_context_divmod,
 static PyObject *
 GMPy_Context_DivMod(PyObject *self, PyObject *args)
 {
+    CTXT_Object *context = NULL;
+
     if (PyTuple_GET_SIZE(args) != 2) {
-        TYPE_ERROR("divmod() requires 2 arguments");
+        TYPE_ERROR("div_mod() requires 2 arguments");
         return NULL;
+    }
+
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
+    }
+    else {
+        CHECK_CONTEXT(context);
     }
 
     return GMPy_Number_DivMod(PyTuple_GET_ITEM(args, 0),
                               PyTuple_GET_ITEM(args, 1),
-                              (CTXT_Object*)self);
+                              context);
 }
 

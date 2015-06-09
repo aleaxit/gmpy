@@ -36,35 +36,29 @@ GMPy_MPZ_IAdd_Slot(PyObject *self, PyObject *other)
 {
     MPZ_Object *result = NULL;
 
-    if (!(result =  GMPy_MPZ_New(NULL)))
-        return NULL;
-
-    if (PyLong_CheckExact(other)) {
-        switch (Py_SIZE((PyLongObject*)other)) {
-        case -1:
-            if ((result = GMPy_MPZ_New(NULL))) {
-                mpz_sub_ui(result->z, MPZ(self), ((PyLongObject*)other)->ob_digit[0]);
-            }
-            return (PyObject*)result;
-        case 0:
-            if ((result = GMPy_MPZ_New(NULL))) {
-                mpz_set(result->z, MPZ(self));
-            }
-            return (PyObject*)result;
-        case 1:
-            if ((result = GMPy_MPZ_New(NULL))) {
-                mpz_add_ui(result->z, MPZ(self), ((PyLongObject*)other)->ob_digit[0]);
-            }
-            return (PyObject*)result;
-        default:
-            break;
-        }
-    }
-
     if (CHECK_MPZANY(other)) {
         if ((result = GMPy_MPZ_New(NULL))) {
             mpz_add(result->z, MPZ(self), MPZ(other));
-            return (PyObject*)result;
+        }
+        return (PyObject*)result;
+    }
+
+    if (PyLong_CheckExact(other)) {
+        if ((result = GMPy_MPZ_New(NULL))) {
+            switch (Py_SIZE((PyLongObject*)other)) {
+            case -1:
+                mpz_sub_ui(result->z, MPZ(self), ((PyLongObject*)other)->ob_digit[0]);
+                return (PyObject*)result;
+            case 0:
+            case 1:
+                mpz_add_ui(result->z, MPZ(self), ((PyLongObject*)other)->ob_digit[0]);
+                return (PyObject*)result;
+            default:
+                break;
+            }
+        }
+        else {
+            return NULL;
         }
     }
 

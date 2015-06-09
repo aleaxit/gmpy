@@ -58,12 +58,15 @@
 static PyObject *
 GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    MPZ_Object *result;
+    MPZ_Object *result = NULL;
 
-    if (!(result = GMPy_MPZ_New(context)))
+    if (!(result = GMPy_MPZ_New(context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
-    if (CHECK_MPZANY(x)) {
+    if (MPZ_Check(x)) {
         if (PyIntOrLong_Check(y)) {
             int error;
             long temp = GMPy_Integer_AsLongAndError(y, &error);
@@ -81,13 +84,13 @@ GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
             return (PyObject*)result;
         }
 
-        if (CHECK_MPZANY(y)) {
+        if (MPZ_Check(y)) {
             mpz_mul(result->z, MPZ(x), MPZ(y));
             return (PyObject*)result;
         }
     }
 
-    if (CHECK_MPZANY(y)) {
+    if (MPZ_Check(y)) {
         if (PyIntOrLong_Check(x)) {
             int error;
             long temp = GMPy_Integer_AsLongAndError(x, &error);
@@ -107,15 +110,16 @@ GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     if (IS_INTEGER(x) && IS_INTEGER(y)) {
-        MPZ_Object *tempx, *tempy;
+        MPZ_Object *tempx = NULL, *tempy = NULL;
 
-        tempx = GMPy_MPZ_From_Integer(x, context);
-        tempy = GMPy_MPZ_From_Integer(y, context);
-        if (!tempx || !tempy) {
+        if (!(tempx = GMPy_MPZ_From_Integer(x, context)) ||
+            !(tempy = GMPy_MPZ_From_Integer(y, context))) {
+            /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
 
         mpz_mul(result->z, tempx->z, tempy->z);
@@ -124,8 +128,11 @@ GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
+    SYSTEM_ERROR("Internal error in GMPy_Integer_Mul().");
     Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
+    return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 /* Implement __mul__ for MPZ_Object. On entry, one of the two arguments must
@@ -136,37 +143,13 @@ GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPZ_Mul_Slot(PyObject *x, PyObject *y)
 {
-    if (MPZ_Check(x)) {
+    if (MPZ_Check(x) && MPZ_Check(y)) {
         MPZ_Object *result = NULL;
 
-        if (MPZ_Check(y)) {
-            if ((result = GMPy_MPZ_New(NULL))) {
-                mpz_mul(result->z, MPZ(x), MPZ(y));
-                return (PyObject*)result;
-            }
+        if ((result = GMPy_MPZ_New(NULL))) {
+            mpz_mul(result->z, MPZ(x), MPZ(y));
         }
-
-        if (PyLong_CheckExact(y)) {
-            switch (Py_SIZE((PyLongObject*)y)) {
-            case -1:
-                if ((result = GMPy_MPZ_New(NULL))) {
-                    mpz_mul_si(result->z, MPZ(x), -(sdigit)((PyLongObject*)y)->ob_digit[0]);
-                    return (PyObject*)result;
-                }
-            case 0:
-                if ((result = GMPy_MPZ_New(NULL))) {
-                    mpz_set_si(result->z, 0);
-                    return (PyObject*)result;
-                }
-            case 1:
-                if ((result = GMPy_MPZ_New(NULL))) {
-                    mpz_mul_si(result->z, MPZ(x), ((PyLongObject*)y)->ob_digit[0]);
-                    return (PyObject*)result;
-                }
-            default:
-                break;
-            }
-        }
+        return (PyObject*)result;
     }
 
     if (IS_INTEGER(x) && IS_INTEGER(y))
@@ -191,10 +174,13 @@ GMPy_MPZ_Mul_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Rational_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    MPQ_Object *result;
+    MPQ_Object *result = NULL;
 
-    if (!(result = GMPy_MPQ_New(context)))
+    if (!(result = GMPy_MPQ_New(context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     if (MPQ_Check(x) && MPQ_Check(y)) {
         mpq_mul(result->q, MPQ(x), MPQ(y));
@@ -202,15 +188,16 @@ GMPy_Rational_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
-        MPQ_Object *tempx, *tempy;
+        MPQ_Object *tempx = NULL, *tempy = NULL;
 
-        tempx = GMPy_MPQ_From_Number(x, context);
-        tempy = GMPy_MPQ_From_Number(y, context);
-        if (!tempx || !tempy) {
+        if (!(tempx = GMPy_MPQ_From_Number(x, context)) ||
+            !(tempy = GMPy_MPQ_From_Number(y, context))) {
+            /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
 
         mpq_mul(result->q, tempx->q, tempy->q);
@@ -219,8 +206,11 @@ GMPy_Rational_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
+    SYSTEM_ERROR("Internal error in GMPy_Rational_Mul().");
     Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
+    return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
 /* Implement __mul__ for Pympq. On entry, one of the two arguments must
@@ -250,20 +240,19 @@ GMPy_MPQ_Mul_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    MPFR_Object *result;
+    MPFR_Object *result = NULL;
 
     CHECK_CONTEXT(context);
 
-    if (!(result = GMPy_MPFR_New(0, context)))
+    if (!(result = GMPy_MPFR_New(0, context))) {
+        /* LCOV_EXCL_START */
         return NULL;
-
-    /* This only processes mpfr if the exponent is still in-bounds. Need
-     * to handle the rare case at the end. */
+        /* LCOV_EXCL_STOP */
+    }
 
     if (MPFR_Check(x) && MPFR_Check(y)) {
         mpfr_clear_flags();
-        result->rc = mpfr_mul(result->f, MPFR(x), MPFR(y),
-                              GET_MPFR_ROUND(context));
+        result->rc = mpfr_mul(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
         goto done;
     }
 
@@ -295,12 +284,15 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         if (IS_RATIONAL(y)) {
-            MPQ_Object *tempy;
+            MPQ_Object *tempy = NULL;
 
             if (!(tempy = GMPy_MPQ_From_Number(y, context))) {
-                Py_DECREF(result);
+                /* LCOV_EXCL_START */
+                Py_DECREF((PyObject*)result);
                 return NULL;
+                /* LCOV_EXCL_STOP */
             }
+
             mpfr_clear_flags();
             result->rc = mpfr_mul_q(result->f, MPFR(x), tempy->q, GET_MPFR_ROUND(context));
             Py_DECREF((PyObject*)tempy);
@@ -318,6 +310,7 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         if (PyIntOrLong_Check(x)) {
             int error;
             long temp = GMPy_Integer_AsLongAndError(x, &error);
+
             if (!error) {
                 mpfr_clear_flags();
                 result->rc = mpfr_mul_si(result->f, MPFR(y), temp, GET_MPFR_ROUND(context));
@@ -341,12 +334,15 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         if (IS_RATIONAL(x)) {
-            MPQ_Object *tempx;
+            MPQ_Object *tempx = NULL;
 
             if (!(tempx = GMPy_MPQ_From_Number(x, context))) {
-                Py_DECREF(result);
+                /* LCOV_EXCL_START */
+                Py_DECREF((PyObject*)result);
                 return NULL;
+                /* LCOV_EXCL_STOP */
             }
+
             mpfr_clear_flags();
             result->rc = mpfr_mul_q(result->f, MPFR(y), tempx->q, GET_MPFR_ROUND(context));
             Py_DECREF((PyObject*)tempx);
@@ -360,21 +356,19 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         }
     }
 
-    /* In addition to handling PyFloat + PyFloat, the rare case when the
-     * exponent bounds have been changed is handled here.
-     */
-
     if (IS_REAL(x) && IS_REAL(y)) {
-        MPFR_Object *tempx, *tempy;
+        MPFR_Object *tempx = NULL, *tempy = NULL;
 
-        tempx = GMPy_MPFR_From_Real(x, 1, context);
-        tempy = GMPy_MPFR_From_Real(y, 1, context);
-        if (!tempx || !tempy) {
+        if (!(tempx = GMPy_MPFR_From_Real(x, 1, context)) ||
+            !(tempy = GMPy_MPFR_From_Real(y, 1, context))) {
+            /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
-            Py_DECREF(result);
+            Py_DECREF((PyObject*)result);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
+
         mpfr_clear_flags();
         result->rc = mpfr_mul(result->f, MPFR(tempx), MPFR(tempy), GET_MPFR_ROUND(context));
         Py_DECREF((PyObject*)tempx);
@@ -382,8 +376,11 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         goto done;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
+    SYSTEM_ERROR("Internal error in GMPy_Real_Mul().");
+    return NULL;
+    /* LCOV_EXCL_STOP */
 
   done:
     _GMPy_MPFR_Cleanup(&result, context);
@@ -418,40 +415,46 @@ GMPy_Complex_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 
     CHECK_CONTEXT(context);
 
-    if (!(result = GMPy_MPC_New(0, 0, context)))
+    if (!(result = GMPy_MPC_New(0, 0, context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     if (MPC_Check(x) && MPC_Check(y)) {
         result->rc = mpc_mul(result->c, MPC(x), MPC(y), GET_MPC_ROUND(context));
-        goto done;
+        _GMPy_MPC_Cleanup(&result, context);
+        return (PyObject*)result;
     }
 
     if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
-        MPC_Object *tempx, *tempy;
+        MPC_Object *tempx = NULL, *tempy = NULL;
 
-        tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
-        tempy = GMPy_MPC_From_Complex(y, 1, 1, context);
-        if (!tempx || !tempy) {
+        if (!(tempx = GMPy_MPC_From_Complex(x, 1, 1, context)) ||
+            !(tempy = GMPy_MPC_From_Complex(y, 1, 1, context))) {
+            /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
+
         result->rc = mpc_mul(result->c, tempx->c, tempy->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
-        goto done;
+        _GMPy_MPC_Cleanup(&result, context);
+        return (PyObject*)result;
     }
 
+    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
-
-  done:
-    _GMPy_MPC_Cleanup(&result, context);
-    return (PyObject*)result;
+    SYSTEM_ERROR("Internal error in GMPy_Complex_Mul().");
+    return NULL;
+    /* LCOV_EXCL_STOP */
 }
 
-/* Pympc_mul_fast() is called by mpc.__mul__. It just gets a borrowed reference
+/* GMPy_MPZ_Mul_Slot() is called by mpc.__mul__. It just gets a borrowed reference
  * to the current context and call Pympc_Mul_Complex(). Since mpc is the last
  * step of the numeric ladder, the NotImplemented return value from
  * Pympc_Add_Complex() is correct and is just passed on. */
@@ -459,7 +462,10 @@ GMPy_Complex_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPC_Mul_Slot(PyObject *x, PyObject *y)
 {
-    return GMPy_Complex_Mul(x, y, NULL);
+    if (IS_COMPLEX(x) && IS_COMPLEX(y))
+        return GMPy_Complex_Mul(x, y, NULL);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 static PyObject *
@@ -481,7 +487,7 @@ GMPy_Number_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     return NULL;
 }
 
-/* Implement context.add() and gmpy2.add(). */
+/* Implement context.mul() and gmpy2.mul(). */
 
 PyDoc_STRVAR(GMPy_doc_function_mul,
 "mul(x, y) -> number\n\n"
@@ -508,6 +514,8 @@ GMPy_Context_Mul(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_Mul(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context);
+    return GMPy_Number_Mul(PyTuple_GET_ITEM(args, 0),
+                           PyTuple_GET_ITEM(args, 1),
+                           context);
 }
 
