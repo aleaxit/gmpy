@@ -46,6 +46,7 @@ PyDoc_STRVAR(GMPy_doc_mpz_format,
 "        'b' -> binary format\n"
 "        'o' -> octal format\n"
 "        'x' -> hex format\n"
+"        'X' -> upper-case hex format\n"
 "The default format is 'd'.");
 
 /* Formatting occurs in two phases. Pympz_ascii() is used to create a string

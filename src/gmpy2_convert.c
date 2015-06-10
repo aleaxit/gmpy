@@ -210,7 +210,7 @@ mpz_ascii(mpz_t z, int base, int option, int which)
      * And add one more to be sure...
      */
 
-    size = mpz_sizeinbase(z, base) + 11;
+    size = mpz_sizeinbase(z, (base < 0 ? -base : base)) + 11;
     TEMP_ALLOC(buffer, size);
 
     if (mpz_sgn(z) < 0) {
