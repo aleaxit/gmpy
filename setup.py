@@ -29,6 +29,7 @@ else:
 # Several command line options can be used to modify compilation of GMPY2.
 #
 #  --msys2         -> build on Windows using MSYS2, MinGW, and GMP
+#  --vector        -> build the unsupport/development vector functions
 #  --lib64         -> use /prefix/lib64 instead of /prefix/lib
 #  --lib32         -> use /prefix/lib32 instead of /prefix/lib
 #  --shared=<...>  -> add the specified directory prefix to the beginning of
@@ -92,6 +93,10 @@ for token in sys.argv[:]:
 
     if token.lower() == '--lib32':
         lib_path = 'lib32'
+        sys.argv.remove(token)
+
+    if token.lower() == '--vector':
+        defines.append( ('VECTOR', 1) )
         sys.argv.remove(token)
 
     if token.lower() == '--msys2':

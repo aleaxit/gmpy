@@ -1356,6 +1356,10 @@ static PyMethodDef GMPyContext_methods[] =
     { "tan", GMPy_Context_Tan, METH_O, GMPy_doc_context_tan },
     { "tanh", GMPy_Context_Tanh, METH_O, GMPy_doc_context_tanh },
     { "trunc", GMPy_Context_Trunc, METH_O, GMPy_doc_context_trunc },
+#ifdef VECTOR
+    { "vector", GMPy_Context_Vector, METH_O, GMPy_doc_context_vector },
+    { "vector2", GMPy_Context_Vector2, METH_VARARGS, GMPy_doc_context_vector2 },
+#endif
     { "yn", GMPy_Context_Yn, METH_VARARGS, GMPy_doc_context_yn },
     { "y0", GMPy_Context_Y0, METH_O, GMPy_doc_context_y0 },
     { "y1", GMPy_Context_Y1, METH_O, GMPy_doc_context_y1 },

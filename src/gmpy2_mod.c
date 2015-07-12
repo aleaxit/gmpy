@@ -149,6 +149,20 @@ GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPZ_Mod_Slot(PyObject *x, PyObject *y)
 {
+    if (MPZ_Check(x) && MPZ_Check(y)) {
+        MPZ_Object *result = NULL;
+
+        if ((result = GMPy_MPZ_New(NULL))) {
+            if (mpz_sgn(MPZ(y)) == 0) {
+                ZERO_ERROR("division or modulo by zero");
+                Py_DECREF((PyObject*)result);
+                return NULL;
+            }
+            mpz_fdiv_r(result->z, MPZ(x), MPZ(y));
+        }
+        return (PyObject*)result;
+    }
+
     if (IS_INTEGER(x) && IS_INTEGER(y))
         return GMPy_Integer_Mod(x, y, NULL);
 

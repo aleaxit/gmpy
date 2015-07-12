@@ -350,10 +350,6 @@ static PyObject * GMPy_Context_Factorial(PyObject *self, PyObject *other);
 
 static PyObject * GMPy_Context_Fsum(PyObject *self, PyObject *other);
 
-#if 0
-static PyObject * GMPy_Context_Vector(PyObject *self, PyObject *other);
-#endif
-
 #ifdef __cplusplus
 }
 #endif

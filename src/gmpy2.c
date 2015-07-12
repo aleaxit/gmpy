@@ -550,6 +550,10 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_mpz_misc.c"
 #include "gmpy2_xmpz_misc.c"
 
+#ifdef VECTOR
+#include "gmpy2_vector.c"
+#endif
+
 /* Include gmpy_context last to avoid adding doc names to .h files. */
 
 #include "gmpy2_mpz.c"
@@ -789,6 +793,10 @@ static PyMethodDef Pygmpy_methods [] =
     { "tan", GMPy_Context_Tan, METH_O, GMPy_doc_function_tan },
     { "tanh", GMPy_Context_Tanh, METH_O, GMPy_doc_function_tanh },
     { "trunc", GMPy_Context_Trunc, METH_O, GMPy_doc_function_trunc},
+#ifdef VECTOR
+    { "vector", GMPy_Context_Vector, METH_O, GMPy_doc_function_vector},
+    { "vector2", GMPy_Context_Vector2, METH_VARARGS, GMPy_doc_function_vector2},
+#endif
     { "yn", GMPy_Context_Yn, METH_VARARGS, GMPy_doc_function_yn },
     { "y0", GMPy_Context_Y0, METH_O, GMPy_doc_function_y0 },
     { "y1", GMPy_Context_Y1, METH_O, GMPy_doc_function_y1 },

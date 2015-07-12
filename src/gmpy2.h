@@ -309,6 +309,10 @@ typedef unsigned long Py_uhash_t;
 #include "gmpy2_mpz_misc.h"
 #include "gmpy2_xmpz_misc.h"
 
+#ifdef VECTOR
+#include "gmpy2_vector.h"
+#endif
+
 #ifdef __cplusplus
 }
 #endif
