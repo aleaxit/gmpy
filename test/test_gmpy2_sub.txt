@@ -1,4 +1,4 @@
-Test gmpy2MPY2 Subtraction
+Test gmpy2 Subtraction
 ======================
 
 Test all code in the file gmpy2_sub.c.
