@@ -1,0 +1,136 @@
+Test gmpy2 Multiplication
+=========================
+
+Test all code in the file gmpy2_sub.c.
+
+>>> import gmpy2 as gmpy2
+>>> from gmpy2 import mpz, xmpz, mpq, mpfr, mpc
+>>> from decimal import Decimal as D
+>>> from fractions import Fraction as F
+>>> a = mpz(123)
+>>> b = mpz(456)
+>>> c = 12345678901234567890
+
+Test integer operations
+-----------------------
+
+>>> gmpy2.mul(2,1)
+mpz(2)
+
+>>> ctx=gmpy2.context()
+>>> ctx.mul(a,b) == a*b
+True
+>>> ctx.mul(c,c) == c*c
+True
+>>> ctx.mul(a, mpq(1))
+mpq(123,1)
+>>> ctx.mul(a, mpfr(1))
+mpfr('123.0')
+>>> ctx.mul(a, mpc(1))
+mpc('123.0+0.0j')
+>>> ctx.mul(1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: ** message detail varies **
+>>> ctx.mul(1,2,3)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: ** message detail varies **
+
+Test rational operations
+------------------------
+
+>>> mpq(1,2) * F(3,2)
+mpq(3,4)
+>>> F(1,2) * mpq(3,2)
+mpq(3,4)
+>>> mpq(1,2) * mpq(3,2)
+mpq(3,4)
+>>> mpq(1,2) * 0
+mpq(0,1)
+>>> mpq(1,2) * mpz(1)
+mpq(1,2)
+>>> mpq(1,2) * (-1)
+mpq(-1,2)
+>>> mpq(1,1) * mpc(1,0)
+mpc('1.0+0.0j')
+>>> mpc(1,0) * mpq(1,1)
+mpc('1.0+0.0j')
+
+>>> ctx=gmpy2.context()
+>>> ctx.mul(mpq(1,2), mpq(3,2))
+mpq(3,4)
+>>> ctx.mul(mpq(1,2), F(3,2))
+mpq(3,4)
+>>> ctx.mul(F(1,2), mpq(3,2))
+mpq(3,4)
+>>> ctx.mul(F(1,2), F(3,2))
+mpq(3,4)
+>>> ctx.mul(1,'a')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: ** message detail varies **
+
+>>> mpq(1,2) * 'a'
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: ** message detail varies **
+>>> 'a' * mpq(1,2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: ** message detail varies **
+
+Test real operations
+--------------------
+
+>>> mpfr(10) * 1
+mpfr('10.0')
+>>> 10 * mpfr(1)
+mpfr('10.0')
+>>> mpfr(10) * mpz(1)
+mpfr('10.0')
+>>> mpz(10) * mpfr(1)
+mpfr('10.0')
+>>> mpfr(10) * mpfr(1)
+mpfr('10.0')
+>>> mpfr(10) * mpq(1,1)
+mpfr('10.0')
+>>> mpq(10,1) * mpfr(1)
+mpfr('10.0')
+>>> mpfr(10) * F(1,1)
+mpfr('10.0')
+>>> F(10,1) * mpfr(1)
+mpfr('10.0')
+>>> mpfr(10) * 1.0
+mpfr('10.0')
+>>> 10.0 * mpfr(1)
+mpfr('10.0')
+>>> mpfr(1) * c == mpfr(c)
+True
+>>> c * mpfr(1) == mpfr(c)
+True
+>>> mpfr(10) * 'a'
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: ** message detail varies **
+>>> 'a' * mpfr(10)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: ** message detail varies **
+
+Test complex operations
+-----------------------
+>>> mpc(1,2) * 'a'
+Traceback (most recent call last):
+  ...
+TypeError: ** message detail varies **
+>>> mpfr(1) * mpc(1,2)
+mpc('1.0+2.0j')
+>>> mpc(1,2) * mpfr(1)
+mpc('1.0+2.0j')
+>>> mpc(1,2) * mpfr(-1)
+mpc('-1.0-2.0j')
+>>> mpc(1,2) * (1+0j)
+mpc('1.0+2.0j')
+>>> (1+0j) * mpc(1,2)
+mpc('1.0+2.0j')
