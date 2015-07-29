@@ -756,39 +756,47 @@ GMPy_MPZ_Function_Lucas2(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_bincoef,
-"bincoef(x, n) -> mpz\n\n"
-"Return the binomial coefficient ('x over n'). n >= 0.");
+"bincoef(n, k) -> mpz\n\n"
+"Return the binomial coefficient ('n choose k'). k >= 0.");
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_comb,
-"comb(x, n) -> mpz\n\n"
-"Return the number of combinations of 'x things, taking n at a\n"
-"time'. n >= 0. Same as bincoef(x, n)");
+"comb(n, k) -> mpz\n\n"
+"Return the number of combinations of 'n things, taking k at a\n"
+"time'. k >= 0. Same as bincoef(n, k)");
 
 static PyObject *
 GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args)
 {
     MPZ_Object *result = NULL, *tempx;
-    unsigned long k;
+    unsigned long n, k;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("bincoef() requires two integer arguments");
         return NULL;
     }
 
-    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
+    if (!(result = GMPy_MPZ_New(NULL))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
     k = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 1));
     if (k == (unsigned long)(-1) && PyErr_Occurred()) {
+        Py_DECREF((PyObject*)result);
         return NULL;
     }
 
-    if(!(result = GMPy_MPZ_New(NULL))) {
-        /* LCOV_EXCL_START */
-        Py_DECREF((PyObject*)tempx);
+    n = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 0));
+    if (!(n == (unsigned long)(-1) && PyErr_Occurred())) {
+        /* Use mpz_bin_uiui which should be faster. */
+        mpz_bin_uiui(result->z, n, k);
+        return (PyObject*)result;
+    }
+
+    if (!(tempx = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL))) {
+        Py_DECREF((PyObject*)result);
         return NULL;
-        /* LCOV_EXCL_STOP */
     }
 
     mpz_bin_ui(result->z, tempx->z, k);
