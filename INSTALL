@@ -1,0 +1,89 @@
+Installing gmpy2 on Unix/Linux
+------------------------------
+
+Many Linux distributions provide gmpy2 in their repositories. Please check
+your distribution's repositories first.
+
+Requirements
+------------
+
+gmpy2 requires recent versions of GMP, MPFR and MPC. Specfically, gmpy2
+requires GMP 5.0.0 or later, MPFR 3.1.0 or later, and MPC 1.0.0 or later.
+
+Quick Instructions
+------------------
+
+To manually compile gmpy2, you will need to install the development libraries
+for Python, GMP, MPFR, and MPC are installed. The package names vary between
+distributions. "python-dev", "python2-dev", or "python3.4-dev" are typical
+package names for the Python development files. Installing the MPC development
+package should automatically install the GMP and MPFR development packages.
+"libmpc-dev" is a typical name for the MPC development package.
+
+Once the required development libraries have been installed, compiling should
+be as simple as:
+
+    $ cd <gmpy2 source directory>
+    $ python setup.py build_ext
+    $ sudo python setup.py install
+
+If this fails, read on.
+
+Detailed Instructions
+---------------------
+
+If your Linux distribution does not support recent versions of GMP, MPFR and
+MPC, you will need to compile your own versions. To avoid any possible conflict
+with existing libraries on your system, it is recommended to build a statically
+linked version of gmpy2. The following instructions assume the GMP, MPFR, MPC,
+and gmpy2 source files are all located in $HOME/src and the static libraries
+are installed into $HOME/static
+
+1. Create the desired destination directory for the GMP, MPFR, and MPC
+   libraries.
+
+    $ mkdir $HOME/static
+
+2. Download and un-tar the GMP source code. Change to GMP source directory and
+   compile GMP.
+
+    $ cd $HOME/src/gmp-6.0.0
+    $ ./configure --prefix=$HOME/static --enable-static --disable-shared --with-pic
+    $ make
+    $ make check
+    $ make install
+
+3. Download and un-tar the MPFR source code. Change to MPFR source directory
+   and compile MPFR.
+
+    $ cd $HOME/src/mpfr-3.1.2
+    $ ./configure --prefix=$HOME/static --enable-static --disable-shared --with-pic --with-gmp=$HOME/static
+    $ make
+    $ make check
+    $ make install
+
+4. Download and un-tar the MPC source code. Change to MPC source directory
+   and compile MPC.
+
+    $ cd $HOME/src/mpc-1.0.3
+    $ ./configure --prefix=$HOME/static --enable-static --disable-shared --with-pic --with-gmp=$HOME/static --with-mpfr=$HOME/static
+    $ make
+    $ make check
+    $ make install
+
+5. Compile gmpy2 and specify the location of GMP, MPFR and MPC.
+
+    $ cd $HOME/src/gmpy2-2.1.0
+    $ python setup.py build_ext --static=$HOME/static install
+
+If you get a "permission denied" error message, you may need to use:
+
+    $ python setup.py build_ext --static=$HOME/static
+    $ sudo python setup.py install
+
+Installing gmpy2 on Windows
+---------------------------
+
+Please see msys2_build.txt.
+
+
