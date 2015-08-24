@@ -113,7 +113,7 @@ Context Attributes
     result. If the value is ``Default``, then the value of real_prec is used.
 
 **round**
-    There are five rounding modes availble to *mpfr* types:
+    There are five rounding modes available to *mpfr* types:
 
     ``RoundAwayZero``
         The result is rounded away from 0.0.

@@ -241,7 +241,7 @@ mpz Functions
 
 **is_prime(...)**
     is_prime(x[, n=25]) returns True if *x* is **probably** prime. False
-    is returned if *x* is definately composite. *x* is checked for small
+    is returned if *x* is definitely composite. *x* is checked for small
     divisors and up to *n* Miller-Rabin tests are performed. The actual tests
     performed may vary based on version of GMP or MPIR used.
 
