@@ -43,15 +43,9 @@
  * If bits (or prec) is set to 1, the precision of the result depends on the
  * type of the source.
  *
- *   1) if the source number is already a radix-2 floating point number,
- *      the precision is not changed. In practical terms, this only applies
- *      to sources operands that are either an mpfr or Python double.
- *
- *   2) otherwise, the source is converted to an mpfr using a precision of
- *      (context.precison + context.guard_bits). guard_bits is
- *      set to 0 by default but can be changed to provide additional
- *      precision for creating temporary mpfr instances that are used
- *      are arguments for MPFR functions.
+ *   If the source number is already a radix-2 floating point number,
+ *   the precision is not changed. In practical terms, this only applies
+ *   to sources operands that are either an mpfr or Python double.
  *
  * In addition, the exponent range is taken from the global emin/emax values
  * set in the MPFR library.
@@ -132,19 +126,11 @@ GMPy_MPFR_From_MPFR(MPFR_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
     return result;
 }
 
-/* If prec==0, then the precision of the current context is used.
- *
- * If prec==1, then the precision of the current context plus guard bits is
- * used.
- *
- * If prec>=2, then the specified precision is used.
- */
-
 static MPFR_Object *
 GMPy_MPFR_From_PyIntOrLong(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
 {
     MPFR_Object *result = NULL;
-    mpz_t tempz;
+    MPZ_Object *tempx = NULL;
     int error, was_one = 0;
     long temp;
 
@@ -157,34 +143,31 @@ GMPy_MPFR_From_PyIntOrLong(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context
 
     if (prec == 1) {
         /* This should be made accurate, but is it worth the overhead? */
+        /* It is only used if the value fits in a C long. */
         prec = 64;
         was_one = 1;
     }
 
-    if (!(result = GMPy_MPFR_New(prec, context)))
-        return NULL;
-
     temp = GMPy_Integer_AsLongAndError(obj, &error);
 
     if (error) {
-        mpz_inoc(tempz);
-        mpz_set_PyIntOrLong(tempz, obj);
-        mpfr_clear_flags();
-        result->rc = mpfr_set_z(result->f, tempz, GET_MPFR_ROUND(context));
-        mpz_cloc(tempz);
-        if (!was_one) {
-            GMPY_MPFR_CHECK_RANGE(result, context);
+        if (!(tempx = GMPy_MPZ_From_PyIntOrLong(obj, context))) {
+            return NULL;
         }
-        GMPY_MPFR_SUBNORMALIZE(result, context);
-        GMPY_MPFR_EXCEPTIONS(result, context);
+        if (was_one)
+            prec = 1;
+        result = GMPy_MPFR_From_MPZ(tempx, prec, context);
+        Py_DECREF((PyObject*)tempx);
+        return result;
     }
     else {
+        if (!(result = GMPy_MPFR_New(prec, context)))
+            return NULL;
         mpfr_clear_flags();
         result->rc = mpfr_set_si(result->f, temp, GET_MPFR_ROUND(context));
         if (!was_one) {
             GMPY_MPFR_CHECK_RANGE(result, context);
         }
-        GMPY_MPFR_SUBNORMALIZE(result, context);
         GMPY_MPFR_EXCEPTIONS(result, context);
     }
 
@@ -265,10 +248,7 @@ GMPy_MPFR_From_MPZ(MPZ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
     return result;
 }
 
-/* If prec==0, then the precision of the current context is used.
- *
- * If prec==1, then the precision of the current context plus guard bits is
- * used.
+/* If prec<2, then the precision of the current context is used.
  *
  * If prec>=2, then the specified precision is used.
  */
@@ -282,15 +262,13 @@ GMPy_MPFR_From_MPQ(MPQ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
 
     CHECK_CONTEXT(context);
 
-    if (prec == 0 || prec == 1)
-        prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
+    if (prec < 2)
+        prec = GET_MPFR_PREC(context);
 
     if ((result = GMPy_MPFR_New(prec, context))) {
         mpfr_clear_flags();
         result->rc = mpfr_set_q(result->f, obj->q, GET_MPFR_ROUND(context));
-        if (prec != 1) {
-            GMPY_MPFR_CHECK_RANGE(result, context);
-        }
+        GMPY_MPFR_CHECK_RANGE(result, context);
         GMPY_MPFR_SUBNORMALIZE(result, context);
         GMPY_MPFR_EXCEPTIONS(result, context);
     }
@@ -298,10 +276,7 @@ GMPy_MPFR_From_MPQ(MPQ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
     return result;
 }
 
-/* If prec==0, then the precision of the current context is used.
- *
- * If prec==1, then the precision of the current context plus guard bits is
- * used.
+/* If prec<2, then the precision of the current context is used.
  *
  * If prec>=2, then the specified precision is used.
  */
@@ -316,9 +291,6 @@ GMPy_MPFR_From_Fraction(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
 
     CHECK_CONTEXT(context);
 
-    if (prec == 0 || prec == 1)
-        prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
-
     if ((tempq = GMPy_MPQ_From_Fraction(obj, context))) {
         result = GMPy_MPFR_From_MPQ(tempq, prec, context);
         Py_DECREF((PyObject*)tempq);
@@ -327,10 +299,7 @@ GMPy_MPFR_From_Fraction(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
     return result;
 }
 
-/* If prec==0, then the precision of the current context is used.
- *
- * If prec==1, then the precision of the current context plus guard bits is
- * used.
+/* If prec<2, then the precision of the current context is used.
  *
  * If prec>=2, then the specified precision is used.
  */
@@ -345,8 +314,8 @@ GMPy_MPFR_From_Decimal(PyObject* obj, mpfr_prec_t prec, CTXT_Object *context)
 
     CHECK_CONTEXT(context);
 
-    if (prec == 0 || prec == 1)
-        prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
+    if (prec < 2)
+        prec = GET_MPFR_PREC(context);
 
     result = GMPy_MPFR_New(prec, context);
     temp = GMPy_MPQ_From_DecimalRaw(obj, context);
@@ -381,10 +350,7 @@ GMPy_MPFR_From_Decimal(PyObject* obj, mpfr_prec_t prec, CTXT_Object *context)
     return result;
 }
 
-/* If prec==0, then the precision of the current context is used.
- *
- * If prec==1, then the precision of the current context plus guard bits is
- * used.
+/* If prec<2, then the precision of the current context is used.
  *
  * If prec>=2, then the specified precision is used.
  *
@@ -403,8 +369,8 @@ GMPy_MPFR_From_PyStrExact(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *
 
     CHECK_CONTEXT(context);
 
-    if (prec == 0 || prec == 1)
-        prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
+    if (prec < 2)
+        prec = GET_MPFR_PREC(context);
 
     if (PyBytes_Check(s)) {
         len = PyBytes_Size(s);
@@ -463,9 +429,7 @@ GMPy_MPFR_From_PyStrExact(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *
     result->rc = mpfr_set_q(result->f, tempq->q, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempq);
 
-    if (prec != 1) {
-        GMPY_MPFR_CHECK_RANGE(result, context);
-    }
+    GMPY_MPFR_CHECK_RANGE(result, context);
     GMPY_MPFR_SUBNORMALIZE(result, context);
     GMPY_MPFR_EXCEPTIONS(result, context);
     return result;
@@ -484,8 +448,8 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
     if (GET_CONVERT_EXACT(context) && base == 10)
         return GMPy_MPFR_From_PyStrExact(s, base, prec, context);
 
-    if (prec == 0 || prec == 1)
-        prec = GET_MPFR_PREC(context) + prec * GET_GUARD_BITS(context);
+    if (prec < 2)
+        prec = GET_MPFR_PREC(context);
 
     if (PyBytes_Check(s)) {
         len = PyBytes_Size(s);
@@ -521,9 +485,7 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
         return NULL;
     }
 
-    if (prec != 1) {
-        GMPY_MPFR_CHECK_RANGE(result, context);
-    }
+    GMPY_MPFR_CHECK_RANGE(result, context);
     GMPY_MPFR_SUBNORMALIZE(result, context);
     GMPY_MPFR_EXCEPTIONS(result, context);
 
@@ -535,9 +497,9 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
  * If prec==0, then the result has the precision of the current context.
  *
  * If prec==1 and the value can be converted exactly (i.e. the input value is
- * a floating-point number using radix-2 representation), then the conversion
- * is done with the maximum possible precision. If the input value can't be
- * converted exactly, then the context precision plus guard bits is used.
+ * a floating-point number using radix-2 representation or an integer), then
+ * the conversion is done with the maximum possible precision. If the input
+ * value can't be converted exactly, then the context precision is used.
  *
  * If prec >=2, then the specified precision is used.
  *

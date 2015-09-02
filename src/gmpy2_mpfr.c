@@ -120,8 +120,8 @@ PyDoc_STRVAR(GMPy_doc_mpfr_factory,
 "      these rules:\n"
 "        1) If n is a radix-2 floating point number, then the full\n"
 "           precision of n is retained.\n"
-"        2) For all other n, the precision of the result is the context\n"
-"           precision + guard_bits.\n" );
+"        2) If n is an integer, then the precision is the bit length\n"
+"           of the integer.\n" );
 
 static PyObject *
 GMPy_MPFR_Factory(PyObject *self, PyObject *args, PyObject *keywds)

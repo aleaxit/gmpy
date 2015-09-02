@@ -61,8 +61,6 @@ typedef struct {
     mpfr_rnd_t imag_round;   /* current rounding mode for Im(MPC) */
     int allow_complex;       /* if 1, allow mpfr functions to return an mpc */
     int rational_division;   /* if 1, mpz/mpz returns an mpq result */
-    int guard_bits;          /* number of additional guard bits to use */
-                             /*   must be less than MAX_GUARD_BITS     */
     int convert_exact;       /* if 1, str -> mpfr via mpq */
     int mpfr_divmod_exact;   /* if 1, divmod(mpfr, mpfr) uses mpq */
 } gmpy_context;
@@ -108,8 +106,6 @@ static PyTypeObject CTXT_Manager_Type;
 #define GET_MPC_ROUND(c) (MPC_RND(GET_REAL_ROUND(c), GET_IMAG_ROUND(c)))
 
 #define GET_DIV_MODE(c) (c->ctx.rational_division)
-#define GET_GUARD_BITS(c) (c->ctx.guard_bits)
-#define MAX_GUARD_BITS 1000
 
 #define GET_CONVERT_EXACT(c) (c->ctx.convert_exact)
 #define GET_DIVMOD_EXACT(c) (c->ctx.mpfr_divmod_exact)

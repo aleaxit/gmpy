@@ -84,7 +84,6 @@ GMPy_CTXT_New(void)
         result->ctx.imag_round = -1;
         result->ctx.allow_complex = 0;
         result->ctx.rational_division = 0;
-        result->ctx.guard_bits = 0;
         result->ctx.convert_exact = 0;
         result->ctx.mpfr_divmod_exact = 0;
 
@@ -326,7 +325,7 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
     PyObject *result = NULL;
     int i = 0;
 
-    tuple = PyTuple_New(26);
+    tuple = PyTuple_New(25);
     if (!tuple)
         return NULL;
 
@@ -343,7 +342,6 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
             "        trap_divzero=%s, divzero=%s,\n"
             "        allow_complex=%s,\n"
             "        rational_division=%s,\n"
-            "        guard_bits=%s,\n"
             "        convert_exact=%s,\n"
             "        mpfr_divmod_exact=%s)"
             );
@@ -381,7 +379,6 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.divzero));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.allow_complex));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.rational_division));
-    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.guard_bits));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.convert_exact));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.mpfr_divmod_exact));
 
@@ -445,8 +442,7 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
         "real_round", "imag_round", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero", "allow_complex",
-        "rational_division", "guard_bits", "convert_exact",
-        "mpfr_divmod_exact", NULL };
+        "rational_division", "convert_exact", "mpfr_divmod_exact", NULL };
 
     /* Create an empty dummy tuple to use for args. */
 
@@ -464,7 +460,7 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
     x_trap_divzero = ctxt->ctx.traps & TRAP_DIVZERO;
 
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|llliiilliiiiiiiiiiii", kwlist,
+            "|llliiilliiiiiiiiiii", kwlist,
             &ctxt->ctx.mpfr_prec,
             &ctxt->ctx.real_prec,
             &ctxt->ctx.imag_prec,
@@ -482,7 +478,6 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
             &x_trap_divzero,
             &ctxt->ctx.allow_complex,
             &ctxt->ctx.rational_division,
-            &ctxt->ctx.guard_bits,
             &ctxt->ctx.convert_exact,
             &ctxt->ctx.mpfr_divmod_exact))) {
         VALUE_ERROR("invalid keyword arguments in local_context()");
@@ -570,12 +565,6 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
     if (ctxt->ctx.emax < mpfr_get_emax_min() ||
         ctxt->ctx.emax > mpfr_get_emax_max()) {
         VALUE_ERROR("invalid value for emax");
-        return 0;
-    }
-
-    if (ctxt->ctx.guard_bits < 0 ||
-        ctxt->ctx.guard_bits > MAX_GUARD_BITS) {
-        VALUE_ERROR("invalid value for guard_bits");
         return 0;
     }
 
@@ -672,8 +661,6 @@ PyDoc_STRVAR(GMPy_doc_context,
 "                       if False, mpfr functions cannot return an mpc\n"
 "    rational_division: if True, mpz/mpz returns an mpq\n"
 "                       if False, mpz/mpz follows default behavior\n"
-"    guard_bits:        added to precision for temporary objects that\n"
-"                       can't be converted exactly\n"
 "    convert_exact:     if True, string to mpfr/mpc conversions are done\n"
 "                       exactly by intermediate conversion to mpq\n"
 "    mpfr_divmod_exact: if True, divmod(mpfr,mpfr) calculations are done\n"
@@ -1023,33 +1010,6 @@ GMPy_CTXT_Set_imag_prec(CTXT_Object *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-GMPy_CTXT_Get_guard_bits(CTXT_Object *self, void *closure)
-{
-    return PyIntOrLong_FromSsize_t((Py_ssize_t)(GET_GUARD_BITS(self)));
-}
-
-static int
-GMPy_CTXT_Set_guard_bits(CTXT_Object *self, PyObject *value, void *closure)
-{
-    Py_ssize_t temp;
-
-    if (!(PyIntOrLong_Check(value))) {
-        TYPE_ERROR("guard_bits must be Python integer");
-        return -1;
-    }
-    temp = PyIntOrLong_AsSsize_t(value);
-    /* A return value of -1 indicates an error has occurred. Since -1 is not
-     * a legal value, we don't specifically check for an error condition.
-     */
-    if (temp < 0 || temp > MAX_GUARD_BITS) {
-        VALUE_ERROR("invalid value for guard_bits");
-        return -1;
-    }
-    self->ctx.guard_bits = (mpfr_prec_t)temp;
-    return 0;
-}
-
-static PyObject *
 GMPy_CTXT_Get_round(CTXT_Object *self, void *closure)
 {
     return PyIntOrLong_FromLong((long)(self->ctx.mpfr_round));
@@ -1238,7 +1198,6 @@ static PyGetSetDef GMPyContext_getseters[] = {
     ADD_GETSET(trap_divzero),
     ADD_GETSET(allow_complex),
     ADD_GETSET(rational_division),
-    ADD_GETSET(guard_bits),
     ADD_GETSET(convert_exact),
     ADD_GETSET(mpfr_divmod_exact),
     {NULL}

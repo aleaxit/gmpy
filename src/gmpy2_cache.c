@@ -252,8 +252,9 @@ GMPy_MPFR_New(mpfr_prec_t bits, CTXT_Object *context)
 {
     MPFR_Object *result;
 
-    if (bits == 0 || bits == 1)
-        bits = GET_MPFR_PREC(context) + bits * GET_GUARD_BITS(context);
+    if (bits < 2) {
+        bits = GET_MPFR_PREC(context);
+    }
 
     if (bits < MPFR_PREC_MIN || bits > MPFR_PREC_MAX) {
         VALUE_ERROR("invalid value for precision");
@@ -319,10 +320,13 @@ GMPy_MPC_New(mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context)
 
     CHECK_CONTEXT(context);
 
-    if (rprec == 0 || rprec == 1)
-        rprec = GET_REAL_PREC(context) + rprec * GET_GUARD_BITS(context);
-    if (iprec == 0 || iprec == 1)
-        iprec = GET_IMAG_PREC(context) + iprec * GET_GUARD_BITS(context);
+    if (rprec < 2) {
+        rprec = GET_REAL_PREC(context);
+    }
+
+    if (iprec < 2) {
+        iprec = GET_IMAG_PREC(context);
+    }
 
     if (rprec < MPFR_PREC_MIN || rprec > MPFR_PREC_MAX ||
         iprec < MPFR_PREC_MIN || iprec > MPFR_PREC_MAX) {

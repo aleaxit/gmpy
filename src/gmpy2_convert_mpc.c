@@ -190,11 +190,13 @@ GMPy_MPC_From_MPZ(MPZ_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 
     CHECK_CONTEXT(context);
 
-    if (rprec == 0 || rprec == 1)
-        rprec = GET_REAL_PREC(context) + rprec * GET_GUARD_BITS(context);
+    if (rprec < 2) {
+        rprec = GET_REAL_PREC(context);
+    }
 
-    if (iprec == 0 || iprec == 1)
-        iprec = GET_IMAG_PREC(context) + iprec * GET_GUARD_BITS(context);
+    if (iprec < 2) {
+        iprec = GET_IMAG_PREC(context);
+    }
 
     if ((result = GMPy_MPC_New(rprec, iprec, context))) {
         result->rc = mpc_set_z(result->c, obj->z, GET_MPC_ROUND(context));
@@ -217,11 +219,13 @@ GMPy_MPC_From_MPQ(MPQ_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 
     CHECK_CONTEXT(context);
 
-    if (rprec == 0 || rprec == 1)
-        rprec = GET_REAL_PREC(context) + rprec * GET_GUARD_BITS(context);
+    if (rprec < 2) {
+        rprec = GET_REAL_PREC(context);
+    }
 
-    if (iprec == 0 || iprec == 1)
-        iprec = GET_IMAG_PREC(context) + iprec * GET_GUARD_BITS(context);
+    if (iprec < 2) {
+        iprec = GET_IMAG_PREC(context);
+    }
 
     if ((result = GMPy_MPC_New(rprec, iprec, context))) {
         result->rc = mpc_set_q(result->c, obj->q, GET_MPC_ROUND(context));
