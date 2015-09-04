@@ -6,7 +6,6 @@ Test abs() and context.abs().
 >>> import gmpy2
 >>> from gmpy2 import mpz, xmpz, mpq, mpfr, mpc
 >>> from fractions import Fraction as F
->>> from decimal import Decimal as D
 
 >>> a=mpz(123)
 >>> b=abs(a)
@@ -142,6 +141,4 @@ mpfr('3.6055512754639891')
 mpq(1,2)
 >>> ctx.abs(F(-1,2))
 mpq(1,2)
->>> ctx.abs(D(-1))
-mpfr('1.0')
 

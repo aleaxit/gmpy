@@ -3,7 +3,6 @@ MPZ related input/output
 
     >>> import gmpy2 as G
     >>> from gmpy2 import mpz, mpq, mpfr, mpc
-    >>> from decimal import Decimal as D
     >>> from fractions import Fraction as F
     >>> a = mpz(123)
     >>> b = mpz(456)
@@ -62,32 +61,6 @@ Test mpz construction
     mpz(-1)
     >>> mpz(F(3,2))
     mpz(1)
-    >>> mpz(D("0"))
-    mpz(0)
-    >>> mpz(D("-0"))
-    mpz(0)
-    >>> mpz(D("1"))
-    mpz(1)
-    >>> mpz(D("1e10"))
-    mpz(10000000000)
-    >>> mpz(D("nan"))
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-      File "/opt/local/lib/python3.2/decimal.py", line 1564, in __int__
-        raise ValueError("Cannot convert NaN to integer")
-    ValueError: Cannot convert NaN to integer
-    >>> mpz(D("inf"))
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-      File "/opt/local/lib/python3.2/decimal.py", line 1566, in __int__
-        raise OverflowError("Cannot convert infinity to integer")
-    OverflowError: Cannot convert infinity to integer
-    >>> mpz(D("-inf"))
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-      File "/opt/local/lib/python3.2/decimal.py", line 1566, in __int__
-        raise OverflowError("Cannot convert infinity to integer")
-    OverflowError: Cannot convert infinity to integer
     >>> G.mpz('043')
     mpz(43)
     >>> G.mpz('43',0)

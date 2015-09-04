@@ -50,12 +50,6 @@
  * In addition, the exponent range is taken from the global emin/emax values
  * set in the MPFR library.
  *
- * Support for the Decimal type is a challenge. For the basic operations, it
- * is most accurate to convert a Decimal instance into an mpq and then use
- * MPFR's functions to accurately operate on an mpfr and mpq. This approach is
- * challenging because (1) a large exponent can create a very large mpq and
- * (2) the changes made to C-coded version of Decimal in Python 3.3. See
- * gmpy2_convert_gmp.c for the code to convert a Decimal to an mpq exactly.
  */
 
 /* If prec == 0:
@@ -302,57 +296,6 @@ GMPy_MPFR_From_Fraction(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
 /* If prec<2, then the precision of the current context is used.
  *
  * If prec>=2, then the specified precision is used.
- */
-
-static MPFR_Object *
-GMPy_MPFR_From_Decimal(PyObject* obj, mpfr_prec_t prec, CTXT_Object *context)
-{
-    MPFR_Object *result;
-    MPQ_Object *temp;
-
-    assert(IS_DECIMAL(obj));
-
-    CHECK_CONTEXT(context);
-
-    if (prec < 2)
-        prec = GET_MPFR_PREC(context);
-
-    result = GMPy_MPFR_New(prec, context);
-    temp = GMPy_MPQ_From_DecimalRaw(obj, context);
-
-    if (!temp || !result) {
-        Py_XDECREF((PyObject*)temp);
-        Py_XDECREF((PyObject*)result);
-        return NULL;
-    }
-
-    if (!mpz_cmp_si(mpq_numref(temp->q), 0)) {
-        if (!mpz_cmp_si(mpq_denref(temp->q), 0)) {
-            mpfr_set_nan(result->f);
-        }
-        else {
-            mpfr_set_zero(result->f, mpz_sgn(mpq_denref(temp->q)));
-        }
-    }
-    else if (!mpz_cmp_si(mpq_denref(temp->q), 0)) {
-        if (mpz_cmp_si(mpq_numref(temp->q), 0) < 0) {
-            mpfr_set_inf(result->f, -1);
-        }
-        else {
-            mpfr_set_inf(result->f, 1);
-        }
-    }
-    else {
-        Py_DECREF((PyObject*)result);
-        result = GMPy_MPFR_From_MPQ(temp, prec, context);
-    }
-    Py_DECREF((PyObject*)temp);
-    return result;
-}
-
-/* If prec<2, then the precision of the current context is used.
- *
- * If prec>=2, then the specified precision is used.
  *
  * If context.convert_exact is set, then str->mpfr conversion is done via
  * exact conversion to mpq and then mpq->mpfr conversion.
@@ -525,9 +468,6 @@ GMPy_MPFR_From_Real(PyObject *obj, mp_prec_t prec, CTXT_Object *context)
 
     if (PyIntOrLong_Check(obj))
         return GMPy_MPFR_From_PyIntOrLong(obj, prec, context);
-
-    if (IS_DECIMAL(obj))
-        return GMPy_MPFR_From_Decimal(obj, prec, context);
 
     if (IS_FRACTION(obj))
         return GMPy_MPFR_From_Fraction(obj, prec, context);

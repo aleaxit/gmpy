@@ -6,7 +6,6 @@ This file tests the mpfr() function that is used to create mpfr instances.
 >>> import gmpy2
 >>> from gmpy2 import mpz, mpq, mpfr
 >>> import decimal
->>> from decimal import Decimal as D
 >>> import fractions
 >>> from fractions import Fraction as F
 
@@ -64,24 +63,6 @@ True
 >>> c = mpfr(b)
 >>> b is c
 True
->>> mpfr(D("inf"))
-mpfr('inf')
->>> mpfr(D("-inf"))
-mpfr('-inf')
->>> mpfr(D("nan"))
-mpfr('nan')
->>> mpfr(D("0"))
-mpfr('0.0')
->>> mpfr(D("-0"))
-mpfr('-0.0')
->>> mpfr(D("1.2345678901234567890"))
-mpfr('1.2345678901234567')
->>> mpfr(D("-1.234567890e9999"))
-mpfr('-1.23456789e+9999')
->>> mpfr(D("-1.234567890e-9999"))
-mpfr('-1.2345678899999999e-9999')
->>> mpfr(D("-1.234567890e-9999"),10)
-mpfr('-1.234e-9999',10)
 >>> mpfr(F(0,1))
 mpfr('0.0')
 >>> mpfr(F(0,-1))

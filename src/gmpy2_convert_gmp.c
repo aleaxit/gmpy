@@ -201,16 +201,6 @@ GMPy_MPZ_From_Number(PyObject *obj, CTXT_Object *context)
     if (XMPZ_Check(obj))
         return GMPy_MPZ_From_XMPZ((XMPZ_Object*)obj, context);
 
-    if (IS_DECIMAL(obj)) {
-        PyObject *temp = PyNumber_Long(obj);
-
-        if (temp) {
-            result = GMPy_MPZ_From_PyIntOrLong(temp, context);
-            Py_DECREF(temp);
-        }
-        return result;
-    }
-
     if (IS_FRACTION(obj)) {
         MPQ_Object *temp = GMPy_MPQ_From_Fraction(obj, context);
 
@@ -405,16 +395,6 @@ GMPy_XMPZ_From_Number(PyObject *obj, CTXT_Object *context)
 
     if (XMPZ_Check(obj))
         return GMPy_XMPZ_From_XMPZ((XMPZ_Object*)obj, context);
-
-    if (IS_DECIMAL(obj)) {
-        PyObject *temp = PyNumber_Long(obj);
-
-        if (temp) {
-            result = GMPy_XMPZ_From_PyIntOrLong(temp, context);
-            Py_DECREF(temp);
-        }
-        return result;
-    }
 
     if (IS_FRACTION(obj)) {
         MPQ_Object *temp = GMPy_MPQ_From_Fraction(obj, context);
@@ -879,219 +859,6 @@ GMPy_MPQ_Float_Slot(MPQ_Object *self)
     return GMPy_PyFloat_From_MPQ(self, NULL);
 }
 
-/* NOTE: Pympq_From_DecimalRaw returns an invalid mpq object when attempting to
- *       convert a NaN or inifinity. If the denominator is 0, then interpret
- *       the numerator as:
- *         -1: -Infinity
- *          0: Nan
- *          1: Infinity
- *
- *       If the numerator is 0 and the denominator is negative, then the value
- *       is -0.
- *
- *       These conventions are not supported by GMP/MPIR, but are used by
- *       MPFR.
- */
-
-#if PY_VERSION_HEX < 0x03030000
-static MPQ_Object*
-GMPy_MPQ_From_DecimalRaw(PyObject* obj, CTXT_Object *context)
-{
-    MPQ_Object *result;
-    PyObject *d_exp, *d_int, *d_sign, *d_is_special;
-    long exp;
-    const char *string;
-
-    if (!(result = GMPy_MPQ_New(context))) {
-        /* LCOV_EXCL_START */
-        return NULL;
-        /* LCOV_EXCL_STOP */
-    }
-    mpq_set_si(result->q, 0, 1);
-
-    d_exp = PyObject_GetAttrString(obj, "_exp");
-    d_int = PyObject_GetAttrString(obj, "_int");
-    d_sign = PyObject_GetAttrString(obj, "_sign");
-    d_is_special = PyObject_GetAttrString(obj, "_is_special");
-    if (!d_exp || !d_int || !d_sign || !d_is_special) {
-        SYSTEM_ERROR("Object does not appear to be Decimal");
-        goto error;
-    }
-
-    if (PyObject_IsTrue(d_is_special)) {
-        string = Py2or3String_AsString(d_exp);
-        if (string[0] == 'N' || string[0] == 'n') {
-            mpz_set_si(mpq_denref(result->q), 0);
-            goto okay;
-        }
-        if (string[0] == 'F') {
-            if (PyObject_IsTrue(d_sign))
-                mpq_set_si(result->q, -1, 0);
-            else
-                mpq_set_si(result->q, 1, 0);
-            goto okay;
-        }
-        SYSTEM_ERROR("Cannot convert Decimal to mpq");
-        goto error;
-    }
-
-    if (mpz_set_PyStr(mpq_numref(result->q), d_int, 10) == -1) {
-        SYSTEM_ERROR("Cannot convert Decimal to mpq");
-        goto error;
-    }
-
-    exp = PyIntOrLong_AsLong(d_exp);
-    if (exp == -1 && PyErr_Occurred()) {
-        SYSTEM_ERROR("Decimal _exp is not valid or overflow occurred");
-        goto error;
-    }
-
-    if (exp <= 0)
-        mpz_ui_pow_ui(mpq_denref(result->q), 10, (unsigned long)(-exp));
-    else {
-        mpz_ui_pow_ui(mpq_denref(result->q), 10, (unsigned long)(exp));
-        mpz_mul(mpq_numref(result->q), mpq_numref(result->q), mpq_denref(result->q));
-        mpz_set_si(mpq_denref(result->q), 1);
-    }
-
-    mpq_canonicalize(result->q);
-
-    /* For -0, we need a negative denominator. */
-    if (PyObject_IsTrue(d_sign)) {
-        if (!mpz_cmp_si(mpq_numref(result->q), 0))
-            mpz_set_si(mpq_denref(result->q), -1);
-        else
-            mpz_mul_si(mpq_numref(result->q), mpq_numref(result->q), -1);
-    }
-
-  okay:
-    Py_DECREF(d_exp);
-    Py_DECREF(d_int);
-    Py_DECREF(d_sign);
-    Py_DECREF(d_is_special);
-    return result;
-
-  error:
-    Py_XDECREF(d_exp);
-    Py_XDECREF(d_int);
-    Py_XDECREF(d_sign);
-    Py_XDECREF(d_is_special);
-    Py_DECREF((PyObject*)result);
-    return NULL;
-
-}
-#else
-static MPQ_Object*
-GMPy_MPQ_From_DecimalRaw(PyObject* obj, CTXT_Object *context)
-{
-    MPQ_Object *result;
-    PyObject *temp = NULL, *d_is_inf = NULL, *d_is_nan = NULL;
-    PyObject *d_is_zero = NULL, *d_is_signed = NULL, *s = NULL;
-
-    if (!(result = GMPy_MPQ_New(context)))
-        return NULL;
-    mpq_set_si(result->q, 0, 1);
-
-    d_is_inf = PyObject_GetAttrString(obj, "is_infinite");
-    d_is_nan = PyObject_GetAttrString(obj, "is_nan");
-    d_is_zero = PyObject_GetAttrString(obj, "is_zero");
-    d_is_signed = PyObject_GetAttrString(obj, "is_signed");
-    if (!d_is_inf || !d_is_nan || !d_is_zero || !d_is_signed) {
-        SYSTEM_ERROR("Object does not appear to be Decimal");
-        goto error;
-    }
-
-    if (!(temp = PyObject_CallFunctionObjArgs(d_is_nan, NULL)))
-        goto error;
-    if (PyObject_IsTrue(temp)) {
-        mpz_set_si(mpq_denref(result->q), 0);
-        goto okay;
-    }
-    Py_DECREF(temp);
-
-    if (!(temp = PyObject_CallFunctionObjArgs(d_is_inf, NULL)))
-        goto error;
-    if (PyObject_IsTrue(temp)) {
-        Py_DECREF(temp);
-        if (!(temp = PyObject_CallFunctionObjArgs(d_is_signed, NULL)))
-            goto error;
-        if (PyObject_IsTrue(temp)) {
-            mpq_set_si(result->q, -1, 0);
-        }
-        else {
-            mpq_set_si(result->q, 1, 0);
-        }
-        goto okay;
-    }
-    Py_DECREF(temp);
-
-    if (!(temp = PyObject_CallFunctionObjArgs(d_is_zero, NULL)))
-        goto error;
-    if (PyObject_IsTrue(temp)) {
-        Py_DECREF(temp);
-        if (!(temp = PyObject_CallFunctionObjArgs(d_is_signed, NULL)))
-            goto error;
-        if (PyObject_IsTrue(temp)) {
-            mpz_set_si(mpq_denref(result->q), -1);
-        }
-        goto okay;
-    }
-
-    Py_DECREF((PyObject*)result);
-
-    s = PyObject_Str(obj);
-    if (s) {
-        result = GMPy_MPQ_From_PyStr(s, 10, context);
-        Py_DECREF(s);
-    }
-
-  okay:
-    Py_DECREF(temp);
-    Py_DECREF(d_is_inf);
-    Py_DECREF(d_is_nan);
-    Py_DECREF(d_is_zero);
-    Py_DECREF(d_is_signed);
-    return result;
-
-  error:
-    Py_XDECREF(temp);
-    Py_XDECREF(d_is_inf);
-    Py_XDECREF(d_is_nan);
-    Py_XDECREF(d_is_zero);
-    Py_XDECREF(d_is_signed);
-    Py_DECREF((PyObject*)result);
-    return NULL;
-}
-#endif
-
-static MPQ_Object*
-GMPy_MPQ_From_Decimal(PyObject* obj, CTXT_Object *context)
-{
-    MPQ_Object *result;
-
-    if ((result = GMPy_MPQ_From_DecimalRaw(obj, context))) {
-        if (!mpz_cmp_si(mpq_numref(result->q), 0)) {
-            if (mpz_cmp_si(mpq_denref(result->q), 0) < 0) {
-                VALUE_ERROR("'mpq' does not support -0");
-                goto error;
-            }
-            else if (mpz_cmp_si(mpq_denref(result->q), 0) == 0) {
-                VALUE_ERROR("'mpq' does not support NaN");
-                goto error;
-            }
-        }
-        else if (!mpz_cmp_si(mpq_denref(result->q), 0)) {
-            OVERFLOW_ERROR("'mpq' does not support Infinity");
-            goto error;
-        }
-    }
-    return result;
-
-  error:
-    Py_DECREF((PyObject*)result);
-    return NULL;
-}
-
 static MPQ_Object*
 GMPy_MPQ_From_Fraction(PyObject* obj, CTXT_Object *context)
 {
@@ -1143,9 +910,6 @@ GMPy_MPQ_From_Number(PyObject *obj, CTXT_Object *context)
 
     if (XMPZ_Check(obj))
         return GMPy_MPQ_From_XMPZ((XMPZ_Object*)obj, context);
-
-    if (IS_DECIMAL(obj))
-        return GMPy_MPQ_From_Decimal(obj, context);
 
     if (IS_FRACTION(obj))
         return GMPy_MPQ_From_Fraction(obj, context);

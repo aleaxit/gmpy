@@ -257,45 +257,6 @@ GMPy_MPC_From_Fraction(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 }
 
 static MPC_Object *
-GMPy_MPC_From_Decimal(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
-                      CTXT_Object *context)
-{
-    MPC_Object *result = NULL;
-    MPFR_Object *tempf;
-    mpfr_prec_t oldmpfr, oldreal;
-    int oldmpfr_round, oldreal_round;
-
-    assert(IS_DECIMAL(obj));
-
-    CHECK_CONTEXT(context);
-
-    oldmpfr = GET_MPFR_PREC(context);
-    oldreal = GET_REAL_PREC(context);
-    oldmpfr_round = GET_MPFR_ROUND(context);
-    oldreal_round = GET_REAL_ROUND(context);
-
-    context->ctx.mpfr_prec = oldreal;
-    context->ctx.mpfr_round = oldreal_round;
-
-    tempf = GMPy_MPFR_From_Decimal(obj, rprec, context);
-
-    context->ctx.mpfr_prec = oldmpfr;
-    context->ctx.mpfr_round = oldmpfr_round;
-
-    result = GMPy_MPC_New(0, 0, context);
-    if (!tempf || !result) {
-        Py_XDECREF((PyObject*)tempf);
-        Py_XDECREF((PyObject*)result);
-        return NULL;
-    }
-
-    result->rc = MPC_INEX(tempf->rc, 0);
-    mpfr_swap(mpc_realref(result->c), tempf->f);
-    Py_DECREF(tempf);
-    return result;
-}
-
-static MPC_Object *
 GMPy_MPC_From_PyIntOrLong(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
                           CTXT_Object *context)
 {
@@ -472,9 +433,6 @@ GMPy_MPC_From_Complex(PyObject* obj, mp_prec_t rprec, mp_prec_t iprec,
 
     if (PyIntOrLong_Check(obj))
         return GMPy_MPC_From_PyIntOrLong(obj, rprec, iprec, context);
-
-    if (IS_DECIMAL(obj))
-        return GMPy_MPC_From_Decimal(obj, rprec, iprec, context);
 
     if (IS_FRACTION(obj))
         return GMPy_MPC_From_Fraction(obj, rprec, iprec, context);

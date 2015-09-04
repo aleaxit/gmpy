@@ -48,13 +48,7 @@ extern "C" {
 #define IS_RATIONAL_ONLY(x) (MPQ_Check(x) || IS_FRACTION(x))
 #define IS_RATIONAL(x) (IS_INTEGER(x) || IS_RATIONAL_ONLY(x))
 
-#if PY_VERSION_HEX < 0x03030000
-#define IS_DECIMAL(x) (!strcmp(Py_TYPE(x)->tp_name, "Decimal"))
-#else
-#define IS_DECIMAL(x) (!strcmp(Py_TYPE(x)->tp_name, "decimal.Decimal"))
-#endif
-
-#define IS_REAL_ONLY(x) (MPFR_Check(x) || PyFloat_Check(x) || IS_DECIMAL(x))
+#define IS_REAL_ONLY(x) (MPFR_Check(x) || PyFloat_Check(x))
 #define IS_REAL(x) (IS_RATIONAL(x) || IS_REAL_ONLY(x))
 
 #define IS_COMPLEX_ONLY(x) (MPC_Check(x) || PyComplex_Check(x))
@@ -74,10 +68,7 @@ static int GMPy_isFraction(PyObject *obj);
 /* Combined mpq, isInteger() and isFraction() check. */
 static int GMPy_isRational(PyObject *obj);
 
-/* Checks for the Decimal type included with Python. */
-static int GMPy_isDecimal(PyObject *obj);
-
-/* Combined mpfr, PyFloat, isDecimal() and isRational() check. */
+/* Combined mpfr, PyFloat, and isRational() check. */
 static int GMPy_isReal(PyObject *obj);
 
 /* Combined mpc, PyComplex, and isReal() check. */

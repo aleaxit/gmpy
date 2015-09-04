@@ -35,13 +35,6 @@
  * identifies the numeric type before conversion before conversion to a gmpy2
  * type. The basic operations (+, -, *, /) are optimized to directly work with
  * some basic types such as C longs or doubles.
- *
- * Support for the Decimal type is a challenge. For the basic operations, it
- * is most accurate to convert a Decimal instance into an mpq and then use
- * MPFR's functions to accurately operate on an mpfr and mpq. This approach is
- * challenging because (1) a large exponent can create a very large mpq and
- * (2) the changes made to C-coded version of Decimal in Python 3.3.
- *
  */
 
 /* ======================================================================== *
@@ -61,15 +54,6 @@ static int GMPy_isInteger(PyObject *obj)
 static int GMPy_isFraction(PyObject *obj)
 {
     return (!strcmp(Py_TYPE(obj)->tp_name, "Fraction")) ? 1 : 0;
-}
-
-static int GMPy_isDecimal(PyObject *obj)
-{
-#if PY_VERSION_HEX < 0x03030000
-    return (!strcmp(Py_TYPE(obj)->tp_name, "Decimal")) ? 1 : 0;
-#else
-    return (!strcmp(Py_TYPE(obj)->tp_name, "decimal.Decimal")) ? 1 : 0;
-#endif
 }
 
 static int GMPy_isRational(PyObject *obj)

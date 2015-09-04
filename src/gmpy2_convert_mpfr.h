@@ -43,7 +43,6 @@ static MPFR_Object *    GMPy_MPFR_From_PyFloat(PyObject *obj, mpfr_prec_t prec, 
 static MPFR_Object *    GMPy_MPFR_From_MPZ(MPZ_Object *obj, mpfr_prec_t prec, CTXT_Object *context);
 static MPFR_Object *    GMPy_MPFR_From_MPQ(MPQ_Object *obj, mpfr_prec_t prec, CTXT_Object *context);
 static MPFR_Object *    GMPy_MPFR_From_Fraction(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context);
-static MPFR_Object *    GMPy_MPFR_From_Decimal(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context);
 static MPFR_Object *    GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *context);
 static MPFR_Object *    GMPy_MPFR_From_Real(PyObject* obj, mpfr_prec_t prec, CTXT_Object *context);
 

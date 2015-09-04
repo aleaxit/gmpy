@@ -92,19 +92,6 @@ static MPQ_Object *    GMPy_MPQ_From_Fraction(PyObject *obj, CTXT_Object *contex
 static MPQ_Object *    GMPy_MPQ_From_MPZ(MPZ_Object *obj, CTXT_Object *context);
 static MPQ_Object *    GMPy_MPQ_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context);
 
-/* NOTE: GMPy_MPQ_From_DecimalRaw returns an invalid mpq object when
- *       attempting to convert a NaN or Infinity. If the denominator is 0,
- *       then interpret the numerator as:
- *         -1: -Infinity
- *          0: Nan
- *          1: Infinity
- *
- *       If the numerator is 0 and the denominator is not 0, then the sign of
- *       the denominator is the sign of the 0.
- */
-static MPQ_Object *    GMPy_MPQ_From_DecimalRaw(PyObject* obj, CTXT_Object *context);
-static MPQ_Object *    GMPy_MPQ_From_Decimal(PyObject* obj, CTXT_Object *context);
-
 static MPQ_Object *    GMPy_MPQ_From_Rational(PyObject* obj, CTXT_Object *context);
 static MPQ_Object *    GMPy_MPQ_From_Number(PyObject* obj, CTXT_Object *context);
 

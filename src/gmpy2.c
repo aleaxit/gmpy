@@ -350,6 +350,7 @@
  *   Fix repr(mpc) for precision >325 bits.
  *   Intermediate conversions of Integer to mpfr are now done with the
  *      full precision of the Integer. (casevh)
+ *   Remove support for interaction with Decimal type. (casevh)
  *
  ************************************************************************
  *
