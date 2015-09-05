@@ -82,11 +82,8 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
                 }
             }
             else {
-                mpz_t tempz;
-                mpz_init(tempz);
-                mpz_set_PyIntOrLong(tempz, y);
-                mpz_add(result->z, MPZ(x), tempz);
-                mpz_clear(tempz);
+                mpz_set_PyIntOrLong(global.tempz, y);
+                mpz_add(result->z, MPZ(x), global.tempz);
             }
             return (PyObject*)result;
         }
@@ -111,11 +108,8 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
                 }
             }
             else {
-                mpz_t tempz;
-                mpz_init(tempz);
-                mpz_set_PyIntOrLong(tempz, x);
-                mpz_add(result->z, MPZ(y), tempz);
-                mpz_clear(tempz);
+                mpz_set_PyIntOrLong(global.tempz, x);
+                mpz_add(result->z, MPZ(y), global.tempz);
             }
             return (PyObject*)result;
         }
@@ -293,12 +287,9 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
                 goto done;
             }
             else {
-                mpz_t tempz;
-                mpz_init(tempz);
-                mpz_set_PyIntOrLong(tempz, y);
+                mpz_set_PyIntOrLong(global.tempz, y);
                 mpfr_clear_flags();
-                result->rc = mpfr_add_z(result->f, MPFR(x), tempz, GET_MPFR_ROUND(context));
-                mpz_clear(tempz);
+                result->rc = mpfr_add_z(result->f, MPFR(x), global.tempz, GET_MPFR_ROUND(context));
                 goto done;
             }
         }
@@ -343,12 +334,9 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
                 goto done;
             }
             else {
-                mpz_t tempz;
-                mpz_init(tempz);
-                mpz_set_PyIntOrLong(tempz, x);
+                mpz_set_PyIntOrLong(global.tempz, x);
                 mpfr_clear_flags();
-                result->rc = mpfr_add_z(result->f, MPFR(y), tempz, GET_MPFR_ROUND(context));
-                mpz_clear(tempz);
+                result->rc = mpfr_add_z(result->f, MPFR(y), global.tempz, GET_MPFR_ROUND(context));
                 goto done;
             }
         }

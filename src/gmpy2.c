@@ -419,28 +419,28 @@ LGPL 3 or later.";
 /* The following global structures are used by gmpy_cache.c.
  */
 
-static struct gmpy_global {
+struct gmpy_global {
     int cache_size;          /* size of cache, for all caches */
     int cache_obsize;        /* maximum size of the objects that are cached */
-} global = {
-    100,                     /* cache_size */
-    128,                     /* cache_obsize */
+    mpz_t tempz;             /* Temporary variable used for integer conversions */
+
+    MPZ_Object **gmpympzcache;
+    int in_gmpympzcache;
+
+    XMPZ_Object **gmpyxmpzcache;
+    int in_gmpyxmpzcache;
+
+    MPQ_Object **gmpympqcache;
+    int in_gmpympqcache;
+
+    MPFR_Object **gmpympfrcache;
+    int in_gmpympfrcache;
+
+    MPC_Object **gmpympccache;
+    int in_gmpympccache;
 };
 
-static MPZ_Object **gmpympzcache;
-static int in_gmpympzcache;
-
-static XMPZ_Object **gmpyxmpzcache;
-static int in_gmpyxmpzcache;
-
-static MPQ_Object **gmpympqcache;
-static int in_gmpympqcache;
-
-static MPFR_Object **gmpympfrcache;
-static int in_gmpympfrcache;
-
-static MPC_Object **gmpympccache;
-static int in_gmpympccache;
+static struct gmpy_global global;
 
 /* Support for context manager. */
 
@@ -993,6 +993,11 @@ PyMODINIT_FUNC initgmpy2(void)
 
     /* Initialize the custom memory handlers. */
     mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
+
+    /* Initialize the global structure. Eventually this should be module local. */
+    global.cache_size = 100;
+    global.cache_obsize = 128;
+    mpz_init(global.tempz);
 
     /* Initialize object caching. */
     set_gmpympzcache();

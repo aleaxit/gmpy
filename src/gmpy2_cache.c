@@ -41,15 +41,15 @@
 static void
 set_gmpympzcache(void)
 {
-    if (in_gmpympzcache > global.cache_size) {
+    if (global.in_gmpympzcache > global.cache_size) {
         int i;
-        for (i = global.cache_size; i < in_gmpympzcache; ++i) {
-            mpz_clear(gmpympzcache[i]->z);
-            PyObject_Del(gmpympzcache[i]);
+        for (i = global.cache_size; i < global.in_gmpympzcache; ++i) {
+            mpz_clear(global.gmpympzcache[i]->z);
+            PyObject_Del(global.gmpympzcache[i]);
         }
-        in_gmpympzcache = global.cache_size;
+        global.in_gmpympzcache = global.cache_size;
     }
-    gmpympzcache = GMPY_REALLOC(gmpympzcache, sizeof(MPZ_Object)*global.cache_size);
+    global.gmpympzcache = GMPY_REALLOC(global.gmpympzcache, sizeof(MPZ_Object)*global.cache_size);
 }
 
 static MPZ_Object *
@@ -57,8 +57,8 @@ GMPy_MPZ_New(CTXT_Object *context)
 {
     MPZ_Object *result = NULL;
 
-    if (in_gmpympzcache) {
-        result = gmpympzcache[--in_gmpympzcache];
+    if (global.in_gmpympzcache) {
+        result = global.gmpympzcache[--(global.in_gmpympzcache)];
         /* Py_INCREF does not set the debugging pointers, so need to use
          * _Py_NewReference instead. */
         _Py_NewReference((PyObject*)result);
@@ -76,9 +76,9 @@ GMPy_MPZ_New(CTXT_Object *context)
 static void
 GMPy_MPZ_Dealloc(MPZ_Object *self)
 {
-    if (in_gmpympzcache < global.cache_size &&
+    if (global.in_gmpympzcache < global.cache_size &&
         self->z->_mp_alloc <= global.cache_obsize) {
-        gmpympzcache[in_gmpympzcache++] = self;
+        global.gmpympzcache[(global.in_gmpympzcache)++] = self;
     }
     else {
         mpz_clear(self->z);
@@ -91,15 +91,15 @@ GMPy_MPZ_Dealloc(MPZ_Object *self)
 static void
 set_gmpyxmpzcache(void)
 {
-    if (in_gmpyxmpzcache > global.cache_size) {
+    if (global.in_gmpyxmpzcache > global.cache_size) {
         int i;
-        for (i = global.cache_size; i < in_gmpyxmpzcache; ++i) {
-            mpz_clear(gmpyxmpzcache[i]->z);
-            PyObject_Del(gmpyxmpzcache[i]);
+        for (i = global.cache_size; i < global.in_gmpyxmpzcache; ++i) {
+            mpz_clear(global.gmpyxmpzcache[i]->z);
+            PyObject_Del(global.gmpyxmpzcache[i]);
         }
-        in_gmpyxmpzcache = global.cache_size;
+        global.in_gmpyxmpzcache = global.cache_size;
     }
-    gmpyxmpzcache = GMPY_REALLOC(gmpyxmpzcache, sizeof(XMPZ_Object)*global.cache_size);
+    global.gmpyxmpzcache = GMPY_REALLOC(global.gmpyxmpzcache, sizeof(XMPZ_Object)*global.cache_size);
 }
 
 static XMPZ_Object *
@@ -107,8 +107,8 @@ GMPy_XMPZ_New(CTXT_Object *context)
 {
     XMPZ_Object *result;
 
-    if (in_gmpyxmpzcache) {
-        result = gmpyxmpzcache[--in_gmpyxmpzcache];
+    if (global.in_gmpyxmpzcache) {
+        result = global.gmpyxmpzcache[--(global.in_gmpyxmpzcache)];
         /* Py_INCREF does not set the debugging pointers, so need to use
          * _Py_NewReference instead. */
         _Py_NewReference((PyObject*)result);
@@ -127,9 +127,9 @@ GMPy_XMPZ_New(CTXT_Object *context)
 static void
 GMPy_XMPZ_Dealloc(XMPZ_Object *obj)
 {
-    if (in_gmpyxmpzcache < global.cache_size &&
+    if (global.in_gmpyxmpzcache < global.cache_size &&
         obj->z->_mp_alloc <= global.cache_obsize) {
-        gmpyxmpzcache[in_gmpyxmpzcache++] = obj;
+        global.gmpyxmpzcache[(global.in_gmpyxmpzcache)++] = obj;
     }
     else {
         mpz_clear(obj->z);
@@ -142,15 +142,15 @@ GMPy_XMPZ_Dealloc(XMPZ_Object *obj)
 static void
 set_gmpympqcache(void)
 {
-    if (in_gmpympqcache > global.cache_size) {
+    if (global.in_gmpympqcache > global.cache_size) {
         int i;
-        for (i = global.cache_size; i < in_gmpympqcache; ++i) {
-            mpq_clear(gmpympqcache[i]->q);
-            PyObject_Del(gmpympqcache[i]);
+        for (i = global.cache_size; i < global.in_gmpympqcache; ++i) {
+            mpq_clear(global.gmpympqcache[i]->q);
+            PyObject_Del(global.gmpympqcache[i]);
         }
-        in_gmpympqcache = global.cache_size;
+        global.in_gmpympqcache = global.cache_size;
     }
-    gmpympqcache = GMPY_REALLOC(gmpympqcache, sizeof(MPQ_Object)*global.cache_size);
+    global.gmpympqcache = GMPY_REALLOC(global.gmpympqcache, sizeof(MPQ_Object)*global.cache_size);
 }
 
 static MPQ_Object *
@@ -158,8 +158,8 @@ GMPy_MPQ_New(CTXT_Object *context)
 {
     MPQ_Object *result;
 
-    if (in_gmpympqcache) {
-        result = gmpympqcache[--in_gmpympqcache];
+    if (global.in_gmpympqcache) {
+        result = global.gmpympqcache[--(global.in_gmpympqcache)];
         /* Py_INCREF does not set the debugging pointers, so need to use
            _Py_NewReference instead. */
         _Py_NewReference((PyObject*)result);
@@ -179,10 +179,10 @@ GMPy_MPQ_New(CTXT_Object *context)
 static void
 GMPy_MPQ_Dealloc(MPQ_Object *self)
 {
-    if (in_gmpympqcache<global.cache_size &&
+    if (global.in_gmpympqcache<global.cache_size &&
         mpq_numref(self->q)->_mp_alloc <= global.cache_obsize &&
         mpq_denref(self->q)->_mp_alloc <= global.cache_obsize) {
-        gmpympqcache[in_gmpympqcache++] = self;
+        global.gmpympqcache[(global.in_gmpympqcache)++] = self;
     }
     else {
         mpq_clear(self->q);
@@ -195,15 +195,15 @@ GMPy_MPQ_Dealloc(MPQ_Object *self)
 static void
 set_gmpympfrcache(void)
 {
-    if (in_gmpympfrcache > global.cache_size) {
+    if (global.in_gmpympfrcache > global.cache_size) {
         int i;
-        for (i = global.cache_size; i < in_gmpympfrcache; ++i) {
-            mpfr_clear(gmpympfrcache[i]->f);
-            PyObject_Del(gmpympfrcache[i]);
+        for (i = global.cache_size; i < global.in_gmpympfrcache; ++i) {
+            mpfr_clear(global.gmpympfrcache[i]->f);
+            PyObject_Del(global.gmpympfrcache[i]);
         }
-        in_gmpympfrcache = global.cache_size;
+        global.in_gmpympfrcache = global.cache_size;
     }
-    gmpympfrcache = GMPY_REALLOC(gmpympfrcache, sizeof(MPFR_Object)*global.cache_size);
+    global.gmpympfrcache = GMPY_REALLOC(global.gmpympfrcache, sizeof(MPFR_Object)*global.cache_size);
 }
 
 static MPFR_Object *
@@ -220,8 +220,8 @@ GMPy_MPFR_New(mpfr_prec_t bits, CTXT_Object *context)
         return NULL;
     }
 
-    if (in_gmpympfrcache) {
-        result = gmpympfrcache[--in_gmpympfrcache];
+    if (global.in_gmpympfrcache) {
+        result = global.gmpympfrcache[--(global.in_gmpympfrcache)];
         /* Py_INCREF does not set the debugging pointers, so need to use
            _Py_NewReference instead. */
         _Py_NewReference((PyObject*)result);
@@ -247,9 +247,9 @@ GMPy_MPFR_Dealloc(MPFR_Object *self)
 
     /* Calculate the number of limbs in the mantissa. */
     msize = (self->f->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
-    if (in_gmpympfrcache < global.cache_size &&
+    if (global.in_gmpympfrcache < global.cache_size &&
         msize <= (size_t)global.cache_obsize) {
-        gmpympfrcache[in_gmpympfrcache++] = self;
+        global.gmpympfrcache[(global.in_gmpympfrcache)++] = self;
     }
     else {
         mpfr_clear(self->f);
@@ -260,15 +260,15 @@ GMPy_MPFR_Dealloc(MPFR_Object *self)
 static void
 set_gmpympccache(void)
 {
-    if (in_gmpympccache > global.cache_size) {
+    if (global.in_gmpympccache > global.cache_size) {
         int i;
-        for (i = global.cache_size; i < in_gmpympccache; ++i) {
-            mpc_clear(gmpympccache[i]->c);
-            PyObject_Del(gmpympccache[i]);
+        for (i = global.cache_size; i < global.in_gmpympccache; ++i) {
+            mpc_clear(global.gmpympccache[i]->c);
+            PyObject_Del(global.gmpympccache[i]);
         }
-        in_gmpympccache = global.cache_size;
+        global.in_gmpympccache = global.cache_size;
     }
-    gmpympccache = GMPY_REALLOC(gmpympccache, sizeof(MPC_Object)*global.cache_size);
+    global.gmpympccache = GMPY_REALLOC(global.gmpympccache, sizeof(MPC_Object)*global.cache_size);
 }
 
 
@@ -292,8 +292,8 @@ GMPy_MPC_New(mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context)
         VALUE_ERROR("invalid value for precision");
         return NULL;
     }
-    if (in_gmpympccache) {
-        self = gmpympccache[--in_gmpympccache];
+    if (global.in_gmpympccache) {
+        self = global.gmpympccache[--(global.in_gmpympccache)];
         /* Py_INCREF does not set the debugging pointers, so need to use
            _Py_NewReference instead. */
         _Py_NewReference((PyObject*)self);
@@ -326,9 +326,9 @@ GMPy_MPC_Dealloc(MPC_Object *self)
     /* Calculate the number of limbs in the mantissa. */
     msize = (mpc_realref(self->c)->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
     msize += (mpc_imagref(self->c)->_mpfr_prec + mp_bits_per_limb - 1) / mp_bits_per_limb;
-    if (in_gmpympccache < global.cache_size &&
+    if (global.in_gmpympccache < global.cache_size &&
         msize <= (size_t)global.cache_obsize) {
-        gmpympccache[in_gmpympccache++] = self;
+        global.gmpympccache[(global.in_gmpympccache)++] = self;
     }
     else {
         mpc_clear(self->c);

@@ -80,11 +80,8 @@ GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
                 }
             }
             else {
-                mpz_t tempz;
-                mpz_init(tempz);
-                mpz_set_PyIntOrLong(tempz, y);
-                mpz_fdiv_r(result->z, MPZ(x), tempz);
-                mpz_clear(tempz);
+                mpz_set_PyIntOrLong(global.tempz, y);
+                mpz_fdiv_r(result->z, MPZ(x), global.tempz);
             }
             return (PyObject*)result;
         }
@@ -108,11 +105,8 @@ GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         if (PyIntOrLong_Check(x)) {
-            mpz_t tempz;
-            mpz_init(tempz);
-            mpz_set_PyIntOrLong(tempz, x);
-            mpz_fdiv_r(result->z, tempz, MPZ(y));
-            mpz_clear(tempz);
+            mpz_set_PyIntOrLong(global.tempz, x);
+            mpz_fdiv_r(result->z, global.tempz, MPZ(y));
             return (PyObject*)result;
         }
     }
@@ -181,7 +175,6 @@ GMPy_MPZ_Mod_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Rational_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    mpz_t tempz;
     MPQ_Object *tempx, *tempy, *result;
 
     CHECK_CONTEXT(context);
@@ -201,14 +194,12 @@ GMPy_Rational_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
             goto error;
         }
 
-        mpz_init(tempz);
         mpq_div(result->q, tempx->q, tempy->q);
-        mpz_fdiv_q(tempz, mpq_numref(result->q), mpq_denref(result->q));
+        mpz_fdiv_q(global.tempz, mpq_numref(result->q), mpq_denref(result->q));
         /* Need to calculate x - tempz * y. */
-        mpq_set_z(result->q, tempz);
+        mpq_set_z(result->q, global.tempz);
         mpq_mul(result->q, result->q, tempy->q);
         mpq_sub(result->q, tempx->q, result->q);
-        mpz_clear(tempz);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         return (PyObject*)result;

@@ -80,11 +80,8 @@ GMPy_Integer_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
                 }
             }
             else {
-                mpz_t tempz;
-                mpz_init(tempz);
-                mpz_set_PyIntOrLong(tempz, y);
-                mpz_fdiv_q(result->z, MPZ(x), tempz);
-                mpz_clear(tempz);
+                mpz_set_PyIntOrLong(global.tempz, y);
+                mpz_fdiv_q(result->z, MPZ(x), global.tempz);
             }
             return (PyObject*)result;
         }
@@ -108,11 +105,8 @@ GMPy_Integer_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         if (PyIntOrLong_Check(x)) {
-            mpz_t tempz;
-            mpz_init(tempz);
-            mpz_set_PyIntOrLong(tempz, x);
-            mpz_fdiv_q(result->z, tempz, MPZ(y));
-            mpz_clear(tempz);
+            mpz_set_PyIntOrLong(global.tempz, x);
+            mpz_fdiv_q(result->z, global.tempz, MPZ(y));
             return (PyObject*)result;
         }
     }
@@ -295,12 +289,9 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
                 goto done;
             }
             else {
-                mpz_t tempz;
-                mpz_init(tempz);
-                mpz_set_PyIntOrLong(tempz, y);
+                mpz_set_PyIntOrLong(global.tempz, y);
                 mpfr_clear_flags();
-                result->rc = mpfr_div_z(result->f, MPFR(x), tempz, GET_MPFR_ROUND(context));
-                mpz_clear(tempz);
+                result->rc = mpfr_div_z(result->f, MPFR(x), global.tempz, GET_MPFR_ROUND(context));
                 result->rc = mpfr_floor(result->f, result->f);
                 goto done;
             }

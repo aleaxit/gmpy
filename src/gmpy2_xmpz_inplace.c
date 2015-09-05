@@ -50,11 +50,8 @@ GMPy_XMPZ_IAdd_Slot(PyObject *self, PyObject *other)
             }
         }
         else {
-            mpz_t tempz;
-            mpz_init(tempz);
-            mpz_set_PyIntOrLong(tempz, other);
-            mpz_add(MPZ(self), MPZ(self), tempz);
-            mpz_clear(tempz);
+            mpz_set_PyIntOrLong(global.tempz, other);
+            mpz_add(MPZ(self), MPZ(self), global.tempz);
         }
         Py_INCREF(self);
         return self;
@@ -88,11 +85,8 @@ GMPy_XMPZ_ISub_Slot(PyObject *self, PyObject *other)
             }
         }
         else {
-            mpz_t tempz;
-            mpz_init(tempz);
-            mpz_set_PyIntOrLong(tempz, other);
-            mpz_sub(MPZ(self), MPZ(self), tempz);
-            mpz_clear(tempz);
+            mpz_set_PyIntOrLong(global.tempz, other);
+            mpz_sub(MPZ(self), MPZ(self), global.tempz);
         }
         Py_INCREF(self);
         return self;
@@ -121,11 +115,8 @@ GMPy_XMPZ_IMul_Slot(PyObject *self, PyObject *other)
             mpz_mul_si(MPZ(self), MPZ(self), temp);
         }
         else {
-            mpz_t tempz;
-            mpz_init(tempz);
-            mpz_set_PyIntOrLong(tempz, other);
-            mpz_mul(MPZ(self), MPZ(self), tempz);
-            mpz_clear(tempz);
+            mpz_set_PyIntOrLong(global.tempz, other);
+            mpz_mul(MPZ(self), MPZ(self), global.tempz);
         }
         Py_INCREF(self);
         return self;
@@ -166,11 +157,8 @@ GMPy_XMPZ_IFloorDiv_Slot(PyObject *self, PyObject *other)
             }
         }
         else {
-            mpz_t tempz;
-            mpz_init(tempz);
-            mpz_set_PyIntOrLong(tempz, other);
-            mpz_fdiv_q(MPZ(self), MPZ(self), tempz);
-            mpz_clear(tempz);
+            mpz_set_PyIntOrLong(global.tempz, other);
+            mpz_fdiv_q(MPZ(self), MPZ(self), global.tempz);
         }
         Py_INCREF(self);
         return self;
@@ -212,11 +200,8 @@ GMPy_XMPZ_IRem_Slot(PyObject *self, PyObject *other)
             }
         }
         else {
-            mpz_t tempz;
-            mpz_init(tempz);
-            mpz_set_PyIntOrLong(tempz, other);
-            mpz_fdiv_r(MPZ(self), MPZ(self), tempz);
-            mpz_clear(tempz);
+            mpz_set_PyIntOrLong(global.tempz, other);
+            mpz_fdiv_r(MPZ(self), MPZ(self), global.tempz);
         }
         Py_INCREF(self);
         return self;
@@ -302,8 +287,6 @@ GMPy_XMPZ_IPow_Slot(PyObject *self, PyObject *other, PyObject *mod)
 static PyObject *
 GMPy_XMPZ_IAnd_Slot(PyObject *self, PyObject *other)
 {
-    mpz_t tempz;
-
     if (CHECK_MPZANY(other)) {
         mpz_and(MPZ(self), MPZ(self), MPZ(other));
         Py_INCREF(self);
@@ -311,10 +294,8 @@ GMPy_XMPZ_IAnd_Slot(PyObject *self, PyObject *other)
     }
 
     if (PyIntOrLong_Check(other)) {
-        mpz_init(tempz);
-        mpz_set_PyIntOrLong(tempz, other);
-        mpz_and(MPZ(self), MPZ(self), tempz);
-        mpz_clear(tempz);
+        mpz_set_PyIntOrLong(global.tempz, other);
+        mpz_and(MPZ(self), MPZ(self), global.tempz);
         Py_INCREF(self);
         return self;
     }
@@ -328,8 +309,6 @@ GMPy_XMPZ_IAnd_Slot(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_XMPZ_IXor_Slot(PyObject *self, PyObject *other)
 {
-    mpz_t tempz;
-
     if(CHECK_MPZANY(other)) {
         mpz_xor(MPZ(self), MPZ(self), MPZ(other));
         Py_INCREF(self);
@@ -337,10 +316,8 @@ GMPy_XMPZ_IXor_Slot(PyObject *self, PyObject *other)
     }
 
     if(PyIntOrLong_Check(other)) {
-        mpz_init(tempz);
-        mpz_set_PyIntOrLong(tempz, other);
-        mpz_xor(MPZ(self), MPZ(self), tempz);
-        mpz_clear(tempz);
+        mpz_set_PyIntOrLong(global.tempz, other);
+        mpz_xor(MPZ(self), MPZ(self), global.tempz);
         Py_INCREF(self);
         return self;
     }
@@ -354,8 +331,6 @@ GMPy_XMPZ_IXor_Slot(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_XMPZ_IIor_Slot(PyObject *self, PyObject *other)
 {
-    mpz_t tempz;
-
     if(CHECK_MPZANY(other)) {
         mpz_ior(MPZ(self), MPZ(self), MPZ(other));
         Py_INCREF(self);
@@ -363,10 +338,8 @@ GMPy_XMPZ_IIor_Slot(PyObject *self, PyObject *other)
     }
 
     if(PyIntOrLong_Check(other)) {
-        mpz_init(tempz);
-        mpz_set_PyIntOrLong(tempz, other);
-        mpz_ior(MPZ(self), MPZ(self), tempz);
-        mpz_clear(tempz);
+        mpz_set_PyIntOrLong(global.tempz, other);
+        mpz_ior(MPZ(self), MPZ(self), global.tempz);
         Py_INCREF(self);
         return self;
     }

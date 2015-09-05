@@ -249,12 +249,9 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
                 goto done;
             }
             else {
-                mpz_t tempz;
-                mpz_init(tempz);
-                mpz_set_PyIntOrLong(tempz, y);
+                mpz_set_PyIntOrLong(global.tempz, y);
                 mpfr_clear_flags();
-                result->rc = mpfr_div_z(result->f, MPFR(x), tempz, GET_MPFR_ROUND(context));
-                mpz_clear(tempz);
+                result->rc = mpfr_div_z(result->f, MPFR(x), global.tempz, GET_MPFR_ROUND(context));
                 goto done;
             }
         }
