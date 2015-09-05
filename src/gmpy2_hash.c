@@ -65,17 +65,17 @@ GMPy_MPQ_Hash_Slot(MPQ_Object *self)
         return self->hash_cache;
     }
 
-    mpz_inoc(temp);
-    mpz_inoc(temp1);
-    mpz_inoc(mask);
+    mpz_init(temp);
+    mpz_init(temp1);
+    mpz_init(mask);
     mpz_set_si(mask, 1);
     mpz_mul_2exp(mask, mask, _PyHASH_BITS);
     mpz_sub_ui(mask, mask, 1);
 
     if (!mpz_invert(temp, mpq_denref(self->q), mask)) {
-        mpz_cloc(temp);
-        mpz_cloc(temp1);
-        mpz_cloc(mask);
+        mpz_clear(temp);
+        mpz_clear(temp1);
+        mpz_clear(mask);
         hash = _PyHASH_INF;
         if (mpz_sgn(mpq_numref(self->q)) < 0) {
             hash = -hash;
@@ -97,9 +97,9 @@ GMPy_MPQ_Hash_Slot(MPQ_Object *self)
     if (hash == -1) {
         hash = -2;
     }
-    mpz_cloc(temp);
-    mpz_cloc(temp1);
-    mpz_cloc(mask);
+    mpz_clear(temp);
+    mpz_clear(temp1);
+    mpz_clear(mask);
     self->hash_cache = hash;
     return hash;
 #else

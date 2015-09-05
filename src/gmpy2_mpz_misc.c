@@ -274,8 +274,8 @@ GMPy_MPZ_Method_Round(PyObject *self, PyObject *args)
             mpz_set_ui(result->z, 0);
         }
         else {
-            mpz_inoc(temp);
-            mpz_inoc(rem);
+            mpz_init(temp);
+            mpz_init(rem);
             mpz_ui_pow_ui(temp, 10, round_digits);
             mpz_fdiv_qr(result->z, rem, MPZ(self), temp);
             mpz_mul_2exp(rem, rem, 1);
@@ -288,8 +288,8 @@ GMPy_MPZ_Method_Round(PyObject *self, PyObject *args)
                 }
             }
             mpz_mul(result->z, result->z, temp);
-            mpz_cloc(rem);
-            mpz_cloc(temp);
+            mpz_clear(rem);
+            mpz_clear(temp);
         }
     }
 
@@ -504,9 +504,9 @@ GMPy_MPZ_Function_Divm(PyObject *self, PyObject *args)
     }
 
     /* Make copies so we don't destroy the input. */
-    mpz_inoc(numz);
-    mpz_inoc(denz);
-    mpz_inoc(modz);
+    mpz_init(numz);
+    mpz_init(denz);
+    mpz_init(modz);
     mpz_set(numz, num->z);
     mpz_set(denz, den->z);
     mpz_set(modz, mod->z);
@@ -520,29 +520,29 @@ GMPy_MPZ_Function_Divm(PyObject *self, PyObject *args)
     else {
 
         /* last-ditch attempt: do num, den AND mod have a gcd>1 ? */
-        mpz_inoc(gcdz);
+        mpz_init(gcdz);
         mpz_gcd(gcdz, numz, denz);
         mpz_gcd(gcdz, gcdz, modz);
         mpz_divexact(numz, numz, gcdz);
         mpz_divexact(denz, denz, gcdz);
         mpz_divexact(modz, modz, gcdz);
-        mpz_cloc(gcdz);
+        mpz_clear(gcdz);
         ok = mpz_invert(result->z, denz, modz);
     }
 
     if (ok) {
         mpz_mul(result->z, result->z, numz);
         mpz_mod(result->z, result->z, modz);
-        mpz_cloc(numz);
-        mpz_cloc(denz);
-        mpz_cloc(modz);
+        mpz_clear(numz);
+        mpz_clear(denz);
+        mpz_clear(modz);
         return (PyObject*)result;
     }
     else {
         ZERO_ERROR("not invertible");
-        mpz_cloc(numz);
-        mpz_cloc(denz);
-        mpz_cloc(modz);
+        mpz_clear(numz);
+        mpz_clear(denz);
+        mpz_clear(modz);
         Py_DECREF((PyObject*)result);
         return NULL;
     }

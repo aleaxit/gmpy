@@ -51,15 +51,12 @@ GMPY_mpz_lucasu(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
-     * avoid memory allocations. */
-
-    mpz_inoc(uh);
-    mpz_inoc(vl);
-    mpz_inoc(vh);
-    mpz_inoc(ql);
-    mpz_inoc(qh);
-    mpz_inoc(tmp);
+    mpz_init(uh);
+    mpz_init(vl);
+    mpz_init(vh);
+    mpz_init(ql);
+    mpz_init(qh);
+    mpz_init(tmp);
 
     p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
@@ -171,12 +168,12 @@ GMPY_mpz_lucasu(PyObject *self, PyObject *args)
     mpz_set(result->z, uh);
 
   cleanup:
-    mpz_cloc(uh);
-    mpz_cloc(vl);
-    mpz_cloc(vh);
-    mpz_cloc(ql);
-    mpz_cloc(qh);
-    mpz_cloc(tmp);
+    mpz_clear(uh);
+    mpz_clear(vl);
+    mpz_clear(vh);
+    mpz_clear(ql);
+    mpz_clear(qh);
+    mpz_clear(tmp);
     Py_XDECREF((PyObject*)p);
     Py_XDECREF((PyObject*)q);
     Py_XDECREF((PyObject*)k);
@@ -208,15 +205,12 @@ GMPY_mpz_lucasu_mod(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
-     * avoid memory allocations. */
-
-    mpz_inoc(uh);
-    mpz_inoc(vl);
-    mpz_inoc(vh);
-    mpz_inoc(ql);
-    mpz_inoc(qh);
-    mpz_inoc(tmp);
+    mpz_init(uh);
+    mpz_init(vl);
+    mpz_init(vh);
+    mpz_init(ql);
+    mpz_init(qh);
+    mpz_init(tmp);
 
     p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
@@ -346,12 +340,12 @@ GMPY_mpz_lucasu_mod(PyObject *self, PyObject *args)
     mpz_mod(result->z, uh, n->z);
 
   cleanup:
-    mpz_cloc(uh);
-    mpz_cloc(vl);
-    mpz_cloc(vh);
-    mpz_cloc(ql);
-    mpz_cloc(qh);
-    mpz_cloc(tmp);
+    mpz_clear(uh);
+    mpz_clear(vl);
+    mpz_clear(vh);
+    mpz_clear(ql);
+    mpz_clear(qh);
+    mpz_clear(tmp);
     Py_XDECREF((PyObject*)p);
     Py_XDECREF((PyObject*)q);
     Py_XDECREF((PyObject*)k);
@@ -382,14 +376,11 @@ GMPY_mpz_lucasv(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
-     * avoid memory allocations. */
-
-    mpz_inoc(vl);
-    mpz_inoc(vh);
-    mpz_inoc(ql);
-    mpz_inoc(qh);
-    mpz_inoc(tmp);
+    mpz_init(vl);
+    mpz_init(vh);
+    mpz_init(ql);
+    mpz_init(qh);
+    mpz_init(tmp);
 
     p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
@@ -486,11 +477,11 @@ GMPY_mpz_lucasv(PyObject *self, PyObject *args)
     mpz_set(result->z, vl);
 
   cleanup:
-    mpz_cloc(vl);
-    mpz_cloc(vh);
-    mpz_cloc(ql);
-    mpz_cloc(qh);
-    mpz_cloc(tmp);
+    mpz_clear(vl);
+    mpz_clear(vh);
+    mpz_clear(ql);
+    mpz_clear(qh);
+    mpz_clear(tmp);
     Py_XDECREF((PyObject*)p);
     Py_XDECREF((PyObject*)q);
     Py_XDECREF((PyObject*)k);
@@ -522,14 +513,11 @@ GMPY_mpz_lucasv_mod(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
-     * avoid memory allocations. */
-
-    mpz_inoc(vl);
-    mpz_inoc(vh);
-    mpz_inoc(ql);
-    mpz_inoc(qh);
-    mpz_inoc(tmp);
+    mpz_init(vl);
+    mpz_init(vh);
+    mpz_init(ql);
+    mpz_init(qh);
+    mpz_init(tmp);
 
     p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     q = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
@@ -641,11 +629,11 @@ GMPY_mpz_lucasv_mod(PyObject *self, PyObject *args)
     mpz_mod(result->z, vl, n->z);
 
   cleanup:
-    mpz_cloc(vl);
-    mpz_cloc(vh);
-    mpz_cloc(ql);
-    mpz_cloc(qh);
-    mpz_cloc(tmp);
+    mpz_clear(vl);
+    mpz_clear(vh);
+    mpz_clear(ql);
+    mpz_clear(qh);
+    mpz_clear(tmp);
     Py_XDECREF((PyObject*)p);
     Py_XDECREF((PyObject*)q);
     Py_XDECREF((PyObject*)k);

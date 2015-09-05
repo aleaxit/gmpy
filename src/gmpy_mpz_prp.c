@@ -62,11 +62,8 @@ GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args)
         goto cleanup;
     }
 
-    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
-     * avoid memory allocations. */
-
-    mpz_inoc(res);
-    mpz_inoc(nm1);
+    mpz_init(res);
+    mpz_init(nm1);
 
     /* Require a >= 2. */
     if (mpz_cmp_ui(a->z, 2) < 0) {
@@ -114,8 +111,8 @@ GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args)
 
   cleanup:
     Py_XINCREF(result);
-    mpz_cloc(res);
-    mpz_cloc(nm1);
+    mpz_clear(res);
+    mpz_clear(nm1);
     Py_XDECREF((PyObject*)a);
     Py_XDECREF((PyObject*)n);
     return result;
@@ -157,11 +154,8 @@ GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
         goto cleanup;
     }
 
-    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
-     * avoid memory allocations. */
-
-    mpz_inoc(res);
-    mpz_inoc(exp);
+    mpz_init(res);
+    mpz_init(exp);
 
     /* Require a >= 2. */
     if (mpz_cmp_ui(a->z, 2) < 0) {
@@ -218,8 +212,8 @@ GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
 
   cleanup:
     Py_XINCREF(result);
-    mpz_cloc(res);
-    mpz_cloc(exp);
+    mpz_clear(res);
+    mpz_clear(exp);
     Py_XDECREF((PyObject*)a);
     Py_XDECREF((PyObject*)n);
     return result;
@@ -264,12 +258,9 @@ GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args)
         goto cleanup;
     }
 
-    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
-     * avoid memory allocations. */
-
-    mpz_inoc(s);
-    mpz_inoc(nm1);
-    mpz_inoc(mpz_test);
+    mpz_init(s);
+    mpz_init(nm1);
+    mpz_init(mpz_test);
 
     /* Require a >= 2. */
     if (mpz_cmp_ui(a->z, 2) < 0) {
@@ -334,9 +325,9 @@ GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args)
     result = Py_False;
   cleanup:
     Py_XINCREF(result);
-    mpz_cloc(s);
-    mpz_cloc(nm1);
-    mpz_cloc(mpz_test);
+    mpz_clear(s);
+    mpz_clear(nm1);
+    mpz_clear(mpz_test);
     Py_XDECREF((PyObject*)a);
     Py_XDECREF((PyObject*)n);
     return result;
@@ -374,16 +365,13 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
-     * avoid memory allocations. */
-
-    mpz_inoc(pmodn);
-    mpz_inoc(zP);
-    mpz_inoc(vl);
-    mpz_inoc(vh);
-    mpz_inoc(ql);
-    mpz_inoc(qh);
-    mpz_inoc(tmp);
+    mpz_init(pmodn);
+    mpz_init(zP);
+    mpz_init(vl);
+    mpz_init(vh);
+    mpz_init(ql);
+    mpz_init(qh);
+    mpz_init(tmp);
 
     n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
@@ -515,13 +503,13 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
 
   cleanup:
     Py_XINCREF(result);
-    mpz_cloc(pmodn);
-    mpz_cloc(zP);
-    mpz_cloc(vl);
-    mpz_cloc(vh);
-    mpz_cloc(ql);
-    mpz_cloc(qh);
-    mpz_cloc(tmp);
+    mpz_clear(pmodn);
+    mpz_clear(zP);
+    mpz_clear(vl);
+    mpz_clear(vh);
+    mpz_clear(ql);
+    mpz_clear(qh);
+    mpz_clear(tmp);
     Py_XDECREF((PyObject*)p);
     Py_XDECREF((PyObject*)q);
     Py_XDECREF((PyObject*)n);
@@ -561,18 +549,15 @@ GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
-     * avoid memory allocations. */
-
-    mpz_inoc(zD);
-    mpz_inoc(res);
-    mpz_inoc(index);
-    mpz_inoc(uh);
-    mpz_inoc(vl);
-    mpz_inoc(vh);
-    mpz_inoc(ql);
-    mpz_inoc(qh);
-    mpz_inoc(tmp);
+    mpz_init(zD);
+    mpz_init(res);
+    mpz_init(index);
+    mpz_init(uh);
+    mpz_init(vl);
+    mpz_init(vh);
+    mpz_init(ql);
+    mpz_init(qh);
+    mpz_init(tmp);
 
     n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
@@ -778,19 +763,16 @@ GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
-     * avoid memory allocations. */
-
-    mpz_inoc(zD);
-    mpz_inoc(s);
-    mpz_inoc(nmj);
-    mpz_inoc(res);
-    mpz_inoc(uh);
-    mpz_inoc(vl);
-    mpz_inoc(vh);
-    mpz_inoc(ql);
-    mpz_inoc(qh);
-    mpz_inoc(tmp);
+    mpz_init(zD);
+    mpz_init(s);
+    mpz_init(nmj);
+    mpz_init(res);
+    mpz_init(uh);
+    mpz_init(vl);
+    mpz_init(vh);
+    mpz_init(ql);
+    mpz_init(qh);
+    mpz_init(tmp);
 
     n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
@@ -1006,20 +988,17 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
-     * avoid memory allocations. */
-
-    mpz_inoc(zD);
-    mpz_inoc(s);
-    mpz_inoc(nmj);
-    mpz_inoc(nm2);
-    mpz_inoc(res);
-    mpz_inoc(uh);
-    mpz_inoc(vl);
-    mpz_inoc(vh);
-    mpz_inoc(ql);
-    mpz_inoc(qh);
-    mpz_inoc(tmp);
+    mpz_init(zD);
+    mpz_init(s);
+    mpz_init(nmj);
+    mpz_init(nm2);
+    mpz_init(res);
+    mpz_init(uh);
+    mpz_init(vl);
+    mpz_init(vh);
+    mpz_init(ql);
+    mpz_init(qh);
+    mpz_init(tmp);
 
     n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     p = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
@@ -1228,10 +1207,7 @@ GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
-     * avoid memory allocations. */
-
-    mpz_inoc(zD);
+    mpz_init(zD);
 
     n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     if (!n) {
@@ -1321,7 +1297,7 @@ GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args)
   cleanup:
     Py_XINCREF(result);
   return_result:
-    mpz_cloc(zD);
+    mpz_clear(zD);
     Py_DECREF((PyObject*)n);
     return result;
 }
@@ -1356,10 +1332,7 @@ GMPY_mpz_is_strongselfridge_prp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    /* Take advantage of the cache of mpz_t objects maintained by GMPY2 to
-     * avoid memory allocations. */
-
-    mpz_inoc(zD);
+    mpz_init(zD);
 
     n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     if (!n) {
@@ -1450,7 +1423,7 @@ GMPY_mpz_is_strongselfridge_prp(PyObject *self, PyObject *args)
   cleanup:
     Py_XINCREF(result);
   return_result:
-    mpz_cloc(zD);
+    mpz_clear(zD);
     Py_DECREF((PyObject*)n);
     return result;
 }

@@ -132,7 +132,6 @@ GMPy_set_cache(PyObject *self, PyObject *args)
 
     global.cache_size = newcache;
     global.cache_obsize = newsize;
-    set_zcache();
     set_gmpympzcache();
     set_gmpympqcache();
     set_gmpyxmpzcache();

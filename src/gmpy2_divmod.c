@@ -73,10 +73,10 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 
             if (error) {
                 mpz_t tempz;
-                mpz_inoc(tempz);
+                mpz_init(tempz);
                 mpz_set_PyIntOrLong(tempz, y);
                 mpz_fdiv_qr(quo->z, rem->z, MPZ(x), tempz);
-                mpz_cloc(tempz);
+                mpz_clear(tempz);
             }
             else if (temp > 0) {
                 mpz_fdiv_qr_ui(quo->z, rem->z, MPZ(x), temp);
@@ -113,10 +113,10 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         }
         else {
             mpz_t tempz;
-            mpz_inoc(tempz);
+            mpz_init(tempz);
             mpz_set_PyIntOrLong(tempz, x);
             mpz_fdiv_qr(quo->z, rem->z, tempz, MPZ(y));
-            mpz_cloc(tempz);
+            mpz_clear(tempz);
             PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
             PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
             return (PyObject*)result;

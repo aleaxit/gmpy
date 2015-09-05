@@ -727,7 +727,7 @@ GMPy_MPFR_Method_Round10(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    mpz_inoc(temp);
+    mpz_init(temp);
     mpz_ui_pow_ui(temp, 10, digits > 0 ? digits : -digits);
     if (digits >= 0) {
         mpfr_mul_z(resultf->f, MPFR(self), temp, MPFR_RNDN);
@@ -746,7 +746,7 @@ GMPy_MPFR_Method_Round10(PyObject *self, PyObject *args)
     }
     mpfr_prec_round(resultf->f, mpfr_get_prec(MPFR(self)), MPFR_RNDN);
 
-    mpz_cloc(temp);
+    mpz_clear(temp);
     return((PyObject*)resultf);
 }
 

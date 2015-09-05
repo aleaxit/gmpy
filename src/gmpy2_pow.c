@@ -117,19 +117,19 @@ GMPy_Integer_Pow(PyObject *b, PyObject *e, PyObject *m, CTXT_Object *context)
             goto err;
         }
 
-        mpz_inoc(mm);
+        mpz_init(mm);
         mpz_abs(mm, tempm->z);
 
         /* A negative exponent is allowed if inverse exists. */
         if (mpz_sgn(tempe->z) < 0) {
-            mpz_inoc(base);
-            mpz_inoc(exp);
+            mpz_init(base);
+            mpz_init(exp);
 
             if (!mpz_invert(base, tempb->z, mm)) {
                 VALUE_ERROR("pow() base not invertible");
-                mpz_cloc(base);
-                mpz_cloc(exp);
-                mpz_cloc(mm);
+                mpz_clear(base);
+                mpz_clear(exp);
+                mpz_clear(mm);
                 goto err;
             }
             else {
@@ -137,13 +137,13 @@ GMPy_Integer_Pow(PyObject *b, PyObject *e, PyObject *m, CTXT_Object *context)
             }
 
             mpz_powm(result->z, base, exp, mm);
-            mpz_cloc(base);
-            mpz_cloc(exp);
+            mpz_clear(base);
+            mpz_clear(exp);
         }
         else {
             mpz_powm(result->z, tempb->z, tempe->z, mm);
         }
-        mpz_cloc(mm);
+        mpz_clear(mm);
 
         /* Python uses a rather peculiar convention for negative modulos
          * If the modulo is negative, result should be in the interval
@@ -274,10 +274,10 @@ GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context
         }
         else {
             mpz_t tempzz;
-            mpz_inoc(tempzz);
+            mpz_init(tempzz);
             mpz_set_PyIntOrLong(tempzz, exp);
             result->rc = mpfr_pow_z(result->f, tempb->f, tempzz, GET_MPFR_ROUND(context));
-            mpz_cloc(tempzz);
+            mpz_clear(tempzz);
         }
     }
     else if (IS_INTEGER(exp)) {
@@ -355,10 +355,10 @@ GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *cont
         }
         else {
             mpz_t tempzz;
-            mpz_inoc(tempzz);
+            mpz_init(tempzz);
             mpz_set_PyIntOrLong(tempzz, exp);
             result->rc = mpc_pow_z(result->c, tempb->c, tempzz, GET_MPC_ROUND(context));
-            mpz_cloc(tempzz);
+            mpz_clear(tempzz);
         }
     }
     else if (IS_INTEGER(exp)) {

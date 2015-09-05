@@ -77,10 +77,10 @@ GMPy_MPZ_IAdd_Slot(PyObject *self, PyObject *other)
             }
             else {
                 mpz_t tempz;
-                mpz_inoc(tempz);
+                mpz_init(tempz);
                 mpz_set_PyIntOrLong(tempz, other);
                 mpz_add(result->z, MPZ(self), tempz);
-                mpz_cloc(tempz);
+                mpz_clear(tempz);
             }
         }
         return (PyObject*)result;
@@ -116,10 +116,10 @@ GMPy_MPZ_ISub_Slot(PyObject *self, PyObject *other)
         }
         else {
             mpz_t tempz;
-            mpz_inoc(tempz);
+            mpz_init(tempz);
             mpz_set_PyIntOrLong(tempz, other);
             mpz_sub(rz->z, MPZ(self), tempz);
-            mpz_cloc(tempz);
+            mpz_clear(tempz);
         }
         return (PyObject*)rz;
     }
@@ -149,10 +149,10 @@ GMPy_MPZ_IMul_Slot(PyObject *self, PyObject *other)
         }
         else {
             mpz_t tempz;
-            mpz_inoc(tempz);
+            mpz_init(tempz);
             mpz_set_PyIntOrLong(tempz, other);
             mpz_mul(rz->z, MPZ(self), tempz);
-            mpz_cloc(tempz);
+            mpz_clear(tempz);
         }
         return (PyObject*)rz;
     }
@@ -201,10 +201,10 @@ GMPy_MPZ_IFloorDiv_Slot(PyObject *self, PyObject *other)
         }
         else {
             mpz_t tempz;
-            mpz_inoc(tempz);
+            mpz_init(tempz);
             mpz_set_PyIntOrLong(tempz, other);
             mpz_fdiv_q(rz->z, MPZ(self), tempz);
-            mpz_cloc(tempz);
+            mpz_clear(tempz);
         }
         return (PyObject*)rz;
     }
@@ -247,10 +247,10 @@ GMPy_MPZ_IRem_Slot(PyObject *self, PyObject *other)
         }
         else {
             mpz_t tempz;
-            mpz_inoc(tempz);
+            mpz_init(tempz);
             mpz_set_PyIntOrLong(tempz, other);
             mpz_fdiv_r(rz->z, MPZ(self), tempz);
-            mpz_cloc(tempz);
+            mpz_clear(tempz);
         }
         return (PyObject*)rz;
     }

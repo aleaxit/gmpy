@@ -31,10 +31,6 @@
  * memory allocation or object construction. There are two different types of
  * object caches used in gmpy2.
  *
- * "zcache" is used to cache mpz_t objects. The cache is accessed via the
- * functions mpz_inoc/mpz_cloc. The function set_zcache is used to change
- * the size of the array used to store the cached objects.
- *
  * The "py???cache" is used to cache Py??? objects. The cache is accessed
  * via Py???_new/Py???_dealloc. The functions set_py???cache and
  * set_py???cache are used to change the size of the array used to the store
@@ -47,10 +43,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-static void          set_zcache(void);
-static void          mpz_inoc(mpz_t newo);
-static void          mpz_cloc(mpz_t oldo);
 
 static void          set_gmpympzcache(void);
 static MPZ_Object *  GMPy_MPZ_New(CTXT_Object *context);

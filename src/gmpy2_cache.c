@@ -28,52 +28,13 @@
 
 
 /* gmpy2 caches objects so they can be reused quickly without involving a new
- * memory allocation or object construction. There are two different types of
- * object caches used in gmpy2.
- *
- * "zcache" is used to cache mpz_t objects. The cache is accessed via the
- * functions mpz_inoc/mpz_cloc. The function set_zcache is used to change
- * the size of the array used to store the cached objects.
+ * memory allocation or object construction.
  *
  * The "py???cache" is used to cache Py??? objects. The cache is accessed
  * via Py???_new/Py???_dealloc. The functions set_py???cache and
  * set_py???cache are used to change the size of the array used to the store
  * the cached objects.
  */
-
-static void
-set_zcache(void)
-{
-    if (in_zcache > global.cache_size) {
-        int i;
-        for(i = global.cache_size; i < in_zcache; ++i)
-            mpz_clear(zcache[i]);
-        in_zcache = global.cache_size;
-    }
-    zcache = GMPY_REALLOC(zcache, sizeof(mpz_t) * global.cache_size);
-}
-
-static void
-mpz_inoc(mpz_t newo)
-{
-    if (in_zcache) {
-        newo[0] = (zcache[--in_zcache])[0];
-    }
-    else {
-        mpz_init(newo);
-    }
-}
-
-static void
-mpz_cloc(mpz_t oldo)
-{
-    if (in_zcache<global.cache_size && oldo->_mp_alloc <= global.cache_obsize) {
-        (zcache[in_zcache++])[0] = oldo[0];
-    }
-    else {
-        mpz_clear(oldo);
-    }
-}
 
 /* Caching logic for Pympz. */
 
@@ -83,7 +44,7 @@ set_gmpympzcache(void)
     if (in_gmpympzcache > global.cache_size) {
         int i;
         for (i = global.cache_size; i < in_gmpympzcache; ++i) {
-            mpz_cloc(gmpympzcache[i]->z);
+            mpz_clear(gmpympzcache[i]->z);
             PyObject_Del(gmpympzcache[i]);
         }
         in_gmpympzcache = global.cache_size;
@@ -94,23 +55,21 @@ set_gmpympzcache(void)
 static MPZ_Object *
 GMPy_MPZ_New(CTXT_Object *context)
 {
-    MPZ_Object *result;
+    MPZ_Object *result = NULL;
 
     if (in_gmpympzcache) {
         result = gmpympzcache[--in_gmpympzcache];
         /* Py_INCREF does not set the debugging pointers, so need to use
          * _Py_NewReference instead. */
         _Py_NewReference((PyObject*)result);
+        result->hash_cache = -1;
     }
     else {
-        if (!(result = PyObject_New(MPZ_Object, &MPZ_Type))) {
-            /* LCOV_EXCL_START */
-            return NULL;
-            /* LCOV_EXCL_STOP */
+        if ((result = PyObject_New(MPZ_Object, &MPZ_Type))) {
+            mpz_init(result->z);
+            result->hash_cache = -1;
         }
-        mpz_inoc(result->z);
     }
-    result->hash_cache = -1;
     return result;
 }
 
@@ -122,7 +81,7 @@ GMPy_MPZ_Dealloc(MPZ_Object *self)
         gmpympzcache[in_gmpympzcache++] = self;
     }
     else {
-        mpz_cloc(self->z);
+        mpz_clear(self->z);
         PyObject_Del(self);
     }
 }
@@ -135,7 +94,7 @@ set_gmpyxmpzcache(void)
     if (in_gmpyxmpzcache > global.cache_size) {
         int i;
         for (i = global.cache_size; i < in_gmpyxmpzcache; ++i) {
-            mpz_cloc(gmpyxmpzcache[i]->z);
+            mpz_clear(gmpyxmpzcache[i]->z);
             PyObject_Del(gmpyxmpzcache[i]);
         }
         in_gmpyxmpzcache = global.cache_size;
@@ -160,7 +119,7 @@ GMPy_XMPZ_New(CTXT_Object *context)
             return NULL;
             /* LCOV_EXCL_STOP */
         }
-        mpz_inoc(result->z);
+        mpz_init(result->z);
     }
     return result;
 }
@@ -173,7 +132,7 @@ GMPy_XMPZ_Dealloc(XMPZ_Object *obj)
         gmpyxmpzcache[in_gmpyxmpzcache++] = obj;
     }
     else {
-        mpz_cloc(obj->z);
+        mpz_clear(obj->z);
         PyObject_Del((PyObject*)obj);
     }
 }

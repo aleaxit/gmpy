@@ -85,7 +85,7 @@ GMPy_MPZ_pack(PyObject *self, PyObject *args)
     mpz_set_ui(result->z, 0);
     mpz_setbit(result->z, total_bits + (mp_bits_per_limb * 2));
 
-    mpz_inoc(temp);
+    mpz_init(temp);
     mpz_set_ui(temp, 0);
     limb_count = 0;
     tempx_bits = 0;
@@ -95,7 +95,7 @@ GMPy_MPZ_pack(PyObject *self, PyObject *args)
             || (mpz_sgn(tempx->z) < 0)
             || (mpz_sizeinbase(tempx->z,2) > (size_t)nbits)) {
             TYPE_ERROR("pack() requires list elements be positive integers < 2^n bits");
-            mpz_cloc(temp);
+            mpz_clear(temp);
             Py_XDECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)result);
             return NULL;
@@ -124,7 +124,7 @@ GMPy_MPZ_pack(PyObject *self, PyObject *args)
     }
     result->z->_mp_d[limb_count] = mpz_getlimbn(temp, 0);
     mpz_clrbit(result->z, total_bits + (mp_bits_per_limb * 2));
-    mpz_cloc(temp);
+    mpz_clear(temp);
     return (PyObject*)result;
 }
 
@@ -193,7 +193,7 @@ GMPy_MPZ_unpack(PyObject *self, PyObject *args)
         return result;
     }
 
-    mpz_inoc(temp);
+    mpz_init(temp);
     guard_bit = nbits + (2 * mp_bits_per_limb);
     extra_bits = 0;
     index = 0;
@@ -220,7 +220,7 @@ GMPy_MPZ_unpack(PyObject *self, PyObject *args)
 
         while ((lst_ptr < lst_count) && (temp_bits >= nbits)) {
             if(!(item = GMPy_MPZ_New(context))) {
-                mpz_cloc(temp);
+                mpz_clear(temp);
                 Py_DECREF((PyObject*)tempx);
                 Py_DECREF(result);
                 return NULL;
@@ -234,7 +234,7 @@ GMPy_MPZ_unpack(PyObject *self, PyObject *args)
         extra_bits = temp_bits;
     }
     Py_DECREF((PyObject*)tempx);
-    mpz_cloc(temp);
+    mpz_clear(temp);
     return result;
 }
 

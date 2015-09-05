@@ -83,10 +83,10 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             }
             else {
                 mpz_t tempz;
-                mpz_inoc(tempz);
+                mpz_init(tempz);
                 mpz_set_PyIntOrLong(tempz, y);
                 mpz_add(result->z, MPZ(x), tempz);
-                mpz_cloc(tempz);
+                mpz_clear(tempz);
             }
             return (PyObject*)result;
         }
@@ -112,10 +112,10 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             }
             else {
                 mpz_t tempz;
-                mpz_inoc(tempz);
+                mpz_init(tempz);
                 mpz_set_PyIntOrLong(tempz, x);
                 mpz_add(result->z, MPZ(y), tempz);
-                mpz_cloc(tempz);
+                mpz_clear(tempz);
             }
             return (PyObject*)result;
         }
@@ -294,11 +294,11 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             }
             else {
                 mpz_t tempz;
-                mpz_inoc(tempz);
+                mpz_init(tempz);
                 mpz_set_PyIntOrLong(tempz, y);
                 mpfr_clear_flags();
                 result->rc = mpfr_add_z(result->f, MPFR(x), tempz, GET_MPFR_ROUND(context));
-                mpz_cloc(tempz);
+                mpz_clear(tempz);
                 goto done;
             }
         }
@@ -344,11 +344,11 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             }
             else {
                 mpz_t tempz;
-                mpz_inoc(tempz);
+                mpz_init(tempz);
                 mpz_set_PyIntOrLong(tempz, x);
                 mpfr_clear_flags();
                 result->rc = mpfr_add_z(result->f, MPFR(y), tempz, GET_MPFR_ROUND(context));
-                mpz_cloc(tempz);
+                mpz_clear(tempz);
                 goto done;
             }
         }

@@ -272,7 +272,7 @@ GMPy_MPQ_Method_Round(PyObject *self, PyObject *args)
             return NULL;
         }
 
-        mpz_inoc(rem);
+        mpz_init(rem);
         mpz_fdiv_qr(resultz->z, rem, mpq_numref(MPQ(self)), mpq_denref(MPQ(self)));
         mpz_mul_2exp(rem, rem, 1);
         if (mpz_cmp(rem, mpq_denref(MPQ(self))) > 0) {
@@ -283,7 +283,7 @@ GMPy_MPQ_Method_Round(PyObject *self, PyObject *args)
                 mpz_add_ui(resultz->z, resultz->z, 1);
             }
         }
-        mpz_cloc(rem);
+        mpz_clear(rem);
         return (PyObject*)resultz;
     }
 
@@ -304,7 +304,7 @@ GMPy_MPQ_Method_Round(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    mpz_inoc(temp);
+    mpz_init(temp);
     mpz_ui_pow_ui(temp, 10, round_digits > 0 ? round_digits : -round_digits);
 
     mpq_set(resultq->q, MPQ(self));
@@ -312,26 +312,26 @@ GMPy_MPQ_Method_Round(PyObject *self, PyObject *args)
         mpz_mul(mpq_numref(resultq->q), mpq_numref(resultq->q), temp);
         mpq_canonicalize(resultq->q);
         if (!(resultz = (MPZ_Object*)GMPy_MPQ_Method_Round((PyObject*)resultq, NULL))) {
-            mpz_cloc(temp);
+            mpz_clear(temp);
             return NULL;
         }
         mpz_set(mpq_numref(resultq->q), resultz->z);
         Py_DECREF((PyObject*)resultz);
         mpz_set(mpq_denref(resultq->q), temp);
-        mpz_cloc(temp);
+        mpz_clear(temp);
         mpq_canonicalize(resultq->q);
     }
     else {
         mpz_mul(mpq_denref(resultq->q), mpq_denref(resultq->q), temp);
         mpq_canonicalize(resultq->q);
         if (!(resultz = (MPZ_Object*)GMPy_MPQ_Method_Round((PyObject*)resultq, NULL))) {
-            mpz_cloc(temp);
+            mpz_clear(temp);
             return NULL;
         }
         mpq_set_ui(resultq->q, 0, 1);
         mpz_mul(mpq_numref(resultq->q), resultz->z, temp);
         Py_DECREF((PyObject*)resultz);
-        mpz_cloc(temp);
+        mpz_clear(temp);
         mpq_canonicalize(resultq->q);
     }
     return (PyObject*)resultq;

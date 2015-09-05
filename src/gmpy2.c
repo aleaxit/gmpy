@@ -427,9 +427,6 @@ static struct gmpy_global {
     128,                     /* cache_obsize */
 };
 
-static mpz_t* zcache;
-static int in_zcache;
-
 static MPZ_Object **gmpympzcache;
 static int in_gmpympzcache;
 
@@ -998,7 +995,6 @@ PyMODINIT_FUNC initgmpy2(void)
     mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
 
     /* Initialize object caching. */
-    set_zcache();
     set_gmpympzcache();
     set_gmpympqcache();
     set_gmpyxmpzcache();

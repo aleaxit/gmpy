@@ -111,8 +111,8 @@ GMPy_MPQ_From_Old_Binary(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    mpz_inoc(numerator);
-    mpz_inoc(denominator);
+    mpz_init(numerator);
+    mpz_init(denominator);
     mpz_import(numerator, numlen, -1, sizeof(char), 0, 0, cp+4);
     mpz_import(denominator, len-4-numlen, -1, sizeof(char), 0, 0, cp+4+numlen);
     if (negative)
@@ -121,8 +121,8 @@ GMPy_MPQ_From_Old_Binary(PyObject *self, PyObject *other)
     mpq_set_num(result->q, numerator);
     mpq_set_den(result->q, denominator);
     mpq_canonicalize(result->q);
-    mpz_cloc(numerator);
-    mpz_cloc(denominator);
+    mpz_clear(numerator);
+    mpz_clear(denominator);
     return (PyObject*)result;
 }
 
@@ -749,8 +749,8 @@ GMPy_MPANY_From_Binary(PyObject *self, PyObject *other)
                 return NULL;
             }
 
-            mpz_inoc(num);
-            mpz_inoc(den);
+            mpz_init(num);
+            mpz_init(den);
             mpz_import(num, numlen, -1,
                        sizeof(char), 0, 0, cp+sizesize+2);
             mpz_import(den, len-numlen-sizesize-2, -1,
@@ -758,8 +758,8 @@ GMPy_MPANY_From_Binary(PyObject *self, PyObject *other)
             mpq_set_num(result->q, num);
             mpq_set_den(result->q, den);
             mpq_canonicalize(result->q);
-            mpz_cloc(num);
-            mpz_cloc(den);
+            mpz_clear(num);
+            mpz_clear(den);
 
             if (cp[1] == 0x02)
                 mpq_neg(result->q, result->q);
