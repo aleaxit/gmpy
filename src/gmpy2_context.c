@@ -232,12 +232,14 @@ GMPy_CTXT_Set(PyObject *self, PyObject *other)
 PyDoc_STRVAR(GMPy_doc_context_ieee,
 "ieee(bitwidth) -> context\n\n"
 "Return a new context corresponding to a standard IEEE floating point\n"
-"format. The currently supported precisions are 32, 64, and 128 bits.");
+"format. The currently supported precisions are 16, 32, 64, 128 and\n"
+"multiples of 32 greater than 128 bits.");
 
 static PyObject *
 GMPy_CTXT_ieee(PyObject *self, PyObject *other)
 {
     long bitwidth;
+    double bitlog2;
     CTXT_Object *result;
 
     bitwidth = PyIntOrLong_AsLong(other);
@@ -246,40 +248,41 @@ GMPy_CTXT_ieee(PyObject *self, PyObject *other)
         return NULL;
     }
 
-    if (bitwidth == 32) {
-        result = (CTXT_Object*)GMPy_CTXT_New();
-        if (result) {
-            result->ctx.subnormalize = 1;
-            result->ctx.mpfr_prec = 24;
-            result->ctx.emax = 128;
-            result->ctx.emin = -148;
-        }
-        return (PyObject*)result;
-    }
-    else if (bitwidth == 64) {
-        result = (CTXT_Object*)GMPy_CTXT_New();
-        if (result) {
-            result->ctx.subnormalize = 1;
-            result->ctx.mpfr_prec = 53;
-            result->ctx.emax = 1024;
-            result->ctx.emin = -1073;
-        }
-        return (PyObject*)result;
-    }
-    else if (bitwidth == 128) {
-        result = (CTXT_Object*)GMPy_CTXT_New();
-        if (result) {
-            result->ctx.subnormalize = 1;
-            result->ctx.mpfr_prec = 113;
-            result->ctx.emax = 16384;
-            result->ctx.emin = -16493;
-        }
-        return (PyObject*)result;
-    }
-    else {
-        VALUE_ERROR("bitwidth must be 32, 64, or 128");
+    if (!(result = (CTXT_Object*)GMPy_CTXT_New())) {
         return NULL;
     }
+
+
+    if (bitwidth == 16) {
+        result->ctx.mpfr_prec = 11;
+        result->ctx.emax = 16;
+    }
+    else if (bitwidth == 32) {
+        result->ctx.mpfr_prec = 24;
+        result->ctx.emax = 128;
+    }
+    else if (bitwidth == 64) {
+        result->ctx.mpfr_prec = 53;
+        result->ctx.emax = 1024;
+    }
+    else if (bitwidth == 128) {
+        result->ctx.mpfr_prec = 113;
+        result->ctx.emax = 16384;
+    }
+    else {
+        if ((bitwidth < 128) && (bitwidth & 31)) {
+            VALUE_ERROR("bitwidth must be 16, 32, 64, 128; or must be greater than 128 and divisible by 32.");
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+        bitlog2 = round(4 * log2(bitwidth));
+        result->ctx.mpfr_prec = bitwidth - (long)(bitlog2) + 13;
+        result->ctx.emax = 1 << (bitwidth - result->ctx.mpfr_prec - 1);
+    }
+
+    result->ctx.subnormalize = 1;
+    result->ctx.emin = 4 - result->ctx.emax - result->ctx.mpfr_prec;
+    return (PyObject*)result;
 }
 
 /* Create and delete ContextManager objects. */

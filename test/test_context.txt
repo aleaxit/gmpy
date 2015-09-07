@@ -52,6 +52,29 @@ context(precision=113, real_prec=Default, imag_prec=Default,
         rational_division=False,
         convert_exact=False,
         mpfr_divmod_exact=False)
+>>> gmpy2.ieee(256)
+context(precision=237, real_prec=Default, imag_prec=Default,
+        round=RoundToNearest, real_round=Default, imag_round=Default,
+        emax=262144, emin=-262377,
+        subnormalize=True,
+        trap_underflow=False, underflow=False,
+        trap_overflow=False, overflow=False,
+        trap_inexact=False, inexact=False,
+        trap_invalid=False, invalid=False,
+        trap_erange=False, erange=False,
+        trap_divzero=False, divzero=False,
+        allow_complex=False,
+        rational_division=False,
+        convert_exact=False,
+        mpfr_divmod_exact=False)
+>>> gmpy2.ieee(-1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: bitwidth must be 16, 32, 64, 128; or must be greater than 128 and divisible by 32.
+>>> gmpy2.ieee("a")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: ieee() requires 'int' argument
 >>> set_context(ieee(32))
 >>> gmpy2.const_pi().digits(2)
 ('110010010000111111011011', 2, 24)
