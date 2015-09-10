@@ -69,10 +69,6 @@ typedef unsigned long Py_uhash_t;
 
 /* Define various macros to deal with differences between Python 2 and 3. */
 
-/* See gmpy2_convert_utils for definitions of mp_bitcnt_t_From_Integer and
- * PyIntOrLong_From_mp_bitcnt_t.
- */
-
 #if (PY_MAJOR_VERSION == 3)
 #define PY3
 #define Py2or3String_FromString     PyUnicode_FromString
@@ -106,10 +102,13 @@ typedef unsigned long Py_uhash_t;
 /* Support MPIR, if requested. */
 
 #ifdef MPIR
-#  include "mpir.h"
+#  include <mpir.h>
 #else
-#  include "gmp.h"
+#  include <gmp.h>
 #endif
+
+#include <mpfr.h>
+#include <mpc.h>
 
 #if defined(MS_WIN32) && defined(_MSC_VER)
    /* so one won't need to link explicitly to gmp.lib...: */
@@ -177,7 +176,7 @@ typedef unsigned long Py_uhash_t;
  */
 
 #ifdef USE_PYMEM
-#  define GMPY_FREE(NAME) PyMem_FR(NAME)
+#  define GMPY_FREE(NAME) PyMem_Free(NAME)
 #  define GMPY_MALLOC(NAME) PyMem_Malloc(NAME)
 #  define GMPY_REALLOC(NAME, SIZE) PyMem_Realloc(NAME, SIZE)
 #else
@@ -218,11 +217,6 @@ typedef unsigned long Py_uhash_t;
 #ifndef Py_TYPE
 #define Py_TYPE(ob)     (((PyObject*)(ob))->ob_type)
 #endif
-
-/* The gmpy_args.h file includes macros that are used for argument
- * processing.
- */
-#include "mpfr.h"
 
 #ifdef UNSAFE
 
@@ -274,8 +268,6 @@ __MPFR_DECLSPEC extern MPFR_THREAD_ATTR mpfr_exp_t   __gmpfr_emax;
  */
 
 #endif
-
-#include "mpc.h"
 
 #include "gmpy2_macros.h"
 
