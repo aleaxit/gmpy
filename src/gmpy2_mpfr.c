@@ -128,7 +128,7 @@ GMPy_MPFR_Factory(PyObject *self, PyObject *args, PyObject *keywds)
 {
     MPFR_Object *result = NULL;
     PyObject *arg0 = NULL;
-    int base = 10;
+    int base = 0;
     Py_ssize_t argc, keywdc = 0;
     CTXT_Object *context = NULL;
 

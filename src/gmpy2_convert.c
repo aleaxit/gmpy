@@ -115,7 +115,7 @@ mpz_set_PyStr(mpz_ptr z, PyObject *s, int base)
 
     /* Check for leading base indicators. */
     if (base == 0) {
-        if (cp[0] == '0') {
+        if (len > 2 && cp[0] == '0') {
             if (cp[1] == 'b')      { base = 2;  cp += 2; }
             else if (cp[1] == 'o') { base = 8;  cp += 2; }
             else if (cp[1] == 'x') { base = 16; cp += 2; }
