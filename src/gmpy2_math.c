@@ -1591,6 +1591,8 @@ GMPy_Context_NextToward(PyObject *self, PyObject *args)
 {
     MPFR_Object *result, *tempx, *tempy;
     CTXT_Object *context = NULL;
+    int direction;
+    mpfr_rnd_t temp_round;
 
     if (self && CTXT_Check(self)) {
         context = (CTXT_Object*)self;
@@ -1623,9 +1625,16 @@ GMPy_Context_NextToward(PyObject *self, PyObject *args)
     mpfr_set(result->f, tempx->f, GET_MPFR_ROUND(context));
     mpfr_nexttoward(result->f, tempy->f);
     result->rc = 0;
+    direction = mpfr_signbit(tempy->f);
     Py_DECREF((PyObject*)tempx);
     Py_DECREF((PyObject*)tempy);
+    temp_round = GET_MPFR_ROUND(context);
+    if (direction)
+        context->ctx.mpfr_round = MPFR_RNDD;
+    else
+         context->ctx.mpfr_round = MPFR_RNDU;
     _GMPy_MPFR_Cleanup(&result, context);
+    context->ctx.mpfr_round = temp_round;
     return (PyObject*)result;
 }
 
@@ -1642,6 +1651,7 @@ GMPy_Context_NextAbove(PyObject *self, PyObject *other)
 {
     MPFR_Object *result, *tempx;
     CTXT_Object *context = NULL;
+    mpfr_rnd_t temp_round;
 
     if (self && CTXT_Check(self)) {
         context = (CTXT_Object*)self;
@@ -1661,11 +1671,14 @@ GMPy_Context_NextAbove(PyObject *self, PyObject *other)
     }
 
     mpfr_clear_flags();
-    mpfr_set(result->f, MPFR(self), context->ctx.mpfr_round);
+    mpfr_set(result->f, tempx->f, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
     mpfr_nextabove(result->f);
     result->rc = 0;
+    temp_round = GET_MPFR_ROUND(context);
+    context->ctx.mpfr_round = MPFR_RNDU;
     _GMPy_MPFR_Cleanup(&result, context);
+    context->ctx.mpfr_round = temp_round;
     return (PyObject*)result;
 }
 
@@ -1682,6 +1695,7 @@ GMPy_Context_NextBelow(PyObject *self, PyObject *other)
 {
     MPFR_Object *result, *tempx;
     CTXT_Object *context = NULL;
+    mpfr_rnd_t temp_round;
 
     if (self && CTXT_Check(self)) {
         context = (CTXT_Object*)self;
@@ -1705,7 +1719,10 @@ GMPy_Context_NextBelow(PyObject *self, PyObject *other)
     Py_DECREF((PyObject*)tempx);
     mpfr_nextbelow(result->f);
     result->rc = 0;
+    temp_round = GET_MPFR_ROUND(context);
+    context->ctx.mpfr_round = MPFR_RNDD;
     _GMPy_MPFR_Cleanup(&result, context);
+    context->ctx.mpfr_round = temp_round;
     return (PyObject*)result;
 }
 
