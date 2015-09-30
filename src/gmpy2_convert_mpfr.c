@@ -293,16 +293,8 @@ GMPy_MPFR_From_Fraction(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
     return result;
 }
 
-/* If prec<2, then the precision of the current context is used.
- *
- * If prec>=2, then the specified precision is used.
- *
- * If context.convert_exact is set, then str->mpfr conversion is done via
- * exact conversion to mpq and then mpq->mpfr conversion.
- */
-
 static MPFR_Object *
-GMPy_MPFR_From_PyStrExact(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *context)
+GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *context)
 {
     MPFR_Object *result;
     MPQ_Object *tempq;
@@ -311,85 +303,6 @@ GMPy_MPFR_From_PyStrExact(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *
     PyObject *ascii_str = NULL;
 
     CHECK_CONTEXT(context);
-
-    if (prec < 2)
-        prec = GET_MPFR_PREC(context);
-
-    if (PyBytes_Check(s)) {
-        len = PyBytes_Size(s);
-        cp = PyBytes_AsString(s);
-    }
-    else if (PyUnicode_Check(s)) {
-        ascii_str = PyUnicode_AsASCIIString(s);
-        if (!ascii_str) {
-            VALUE_ERROR("string contains non-ASCII characters");
-            return NULL;
-        }
-        len = PyBytes_Size(ascii_str);
-        cp = PyBytes_AsString(ascii_str);
-    }
-    else {
-        TYPE_ERROR("object is not string or Unicode");
-        return NULL;
-    }
-
-    /* To detect +-0, +-Inf, and NaN, we first convert the string to low precision
-     * mpfr. 47 bits was chosen to be "different" from 53 to make it easy to detect
-     * if the low precision value leaks out. Assuming no error occurred, one of the
-     * special values wasn't detected, then the string is converted to an mpq and
-     * then a valid mpq is converted to an mpfr.
-     */
-
-    if (!(result = GMPy_MPFR_New(47, context))) {
-        Py_XDECREF(ascii_str);
-        return NULL;
-    }
-
-    /* delegate the rest to MPFR */
-    mpfr_clear_flags();
-    result->rc = mpfr_strtofr(result->f, cp, &endptr, base, GET_MPFR_ROUND(context));
-    Py_XDECREF(ascii_str);
-
-    if (len != (Py_ssize_t)(endptr - cp)) {
-        VALUE_ERROR("invalid digits");
-        Py_DECREF((PyObject*)result);
-        return NULL;
-    }
-
-    if (!(result->rc) && !mpfr_regular_p(result->f)) {
-        /* Change the precision of the exact result and return it. */
-        mpfr_prec_round(result->f, prec, GET_MPFR_ROUND(context));
-        return result;
-    }
-
-    if (!(tempq = GMPy_MPQ_From_PyStr(s, base, context))) {
-        Py_DECREF((PyObject*)result);
-        return NULL;
-    }
-
-    mpfr_set_prec(result->f, prec);
-    mpfr_clear_flags();
-    result->rc = mpfr_set_q(result->f, tempq->q, GET_MPFR_ROUND(context));
-    Py_DECREF((PyObject*)tempq);
-
-    GMPY_MPFR_CHECK_RANGE(result, context);
-    GMPY_MPFR_SUBNORMALIZE(result, context);
-    GMPY_MPFR_EXCEPTIONS(result, context);
-    return result;
-}
-
-static MPFR_Object *
-GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *context)
-{
-    MPFR_Object *result;
-    char *cp, *endptr;
-    Py_ssize_t len;
-    PyObject *ascii_str = NULL;
-
-    CHECK_CONTEXT(context);
-
-    if (GET_CONVERT_EXACT(context) && (base == 10 || base == 0))
-        return GMPy_MPFR_From_PyStrExact(s, base, prec, context);
 
     if (prec < 2)
         prec = GET_MPFR_PREC(context);
@@ -431,12 +344,6 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
         else if (cp[1] =='x' && base == 16) { cp += 2; len -= 2; }
     }
 
-    /* This isn't very efficient but exact conversion isn't expected to be... */
-
-    if (GET_CONVERT_EXACT(context) && base == 10) {
-        Py_XDECREF(ascii_str);
-        return GMPy_MPFR_From_PyStrExact(s, base, prec, context);
-    }
 
     if (!(result = GMPy_MPFR_New(prec, context))) {
         Py_XDECREF(ascii_str);
@@ -452,6 +359,32 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
         VALUE_ERROR("invalid digits");
         Py_DECREF((PyObject*)result);
         return NULL;
+    }
+
+    /* If the context requests subnormals and the result is in the range for subnormals,
+     * we use exact conversion via conversion to an mpq.
+     * 
+     * The sticky bit returned by MPFR's string conversion appears to only reflect the
+     * portion of the string needed to compute the correctly rounded result. It does not
+     * accurately reflect whether or not the result is larger or smaller than the entire
+     * input string. A correct sticky bit is needed by mfpr_subnormalize. Converting the
+     * string to an mpq and then converting the mpq to an mpfr does properly set the
+     * sticky bit.
+     */
+
+    if (base == 10 &&
+        context->ctx.subnormalize &&
+        result->f->_mpfr_exp <= context->ctx.emin + mpfr_get_prec(result->f) - 1)
+        {
+
+        if (!(tempq = GMPy_MPQ_From_PyStr(s, base, context))) {
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+
+        mpfr_clear_flags();
+        result->rc = mpfr_set_q(result->f, tempq->q, GET_MPFR_ROUND(context));
+        Py_DECREF((PyObject*)tempq);
     }
 
     GMPY_MPFR_CHECK_RANGE(result, context);

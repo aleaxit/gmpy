@@ -84,7 +84,6 @@ GMPy_CTXT_New(void)
         result->ctx.imag_round = -1;
         result->ctx.allow_complex = 0;
         result->ctx.rational_division = 0;
-        result->ctx.convert_exact = 0;
         result->ctx.mpfr_divmod_exact = 0;
 
 #ifndef WITHOUT_THREADS
@@ -328,7 +327,7 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
     PyObject *result = NULL;
     int i = 0;
 
-    tuple = PyTuple_New(25);
+    tuple = PyTuple_New(24);
     if (!tuple)
         return NULL;
 
@@ -345,7 +344,6 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
             "        trap_divzero=%s, divzero=%s,\n"
             "        allow_complex=%s,\n"
             "        rational_division=%s,\n"
-            "        convert_exact=%s,\n"
             "        mpfr_divmod_exact=%s)"
             );
     if (!format) {
@@ -382,7 +380,6 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.divzero));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.allow_complex));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.rational_division));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.convert_exact));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.mpfr_divmod_exact));
 
     if (!PyErr_Occurred())
@@ -445,7 +442,7 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
         "real_round", "imag_round", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero", "allow_complex",
-        "rational_division", "convert_exact", "mpfr_divmod_exact", NULL };
+        "rational_division", "mpfr_divmod_exact", NULL };
 
     /* Create an empty dummy tuple to use for args. */
 
@@ -481,7 +478,6 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
             &x_trap_divzero,
             &ctxt->ctx.allow_complex,
             &ctxt->ctx.rational_division,
-            &ctxt->ctx.convert_exact,
             &ctxt->ctx.mpfr_divmod_exact))) {
         VALUE_ERROR("invalid keyword arguments in local_context()");
         Py_DECREF(args);
@@ -664,8 +660,6 @@ PyDoc_STRVAR(GMPy_doc_context,
 "                       if False, mpfr functions cannot return an mpc\n"
 "    rational_division: if True, mpz/mpz returns an mpq\n"
 "                       if False, mpz/mpz follows default behavior\n"
-"    convert_exact:     if True, string to mpfr/mpc conversions are done\n"
-"                       exactly by intermediate conversion to mpq\n"
 "    mpfr_divmod_exact: if True, divmod(mpfr,mpfr) calculations are done\n"
 "                       exactly by intermediate conversion to mpq.\n");
 #if 0
@@ -928,7 +922,6 @@ GETSET_BOOLEAN_BIT(trap_erange, TRAP_ERANGE);
 GETSET_BOOLEAN_BIT(trap_divzero, TRAP_DIVZERO);
 GETSET_BOOLEAN(allow_complex)
 GETSET_BOOLEAN(rational_division)
-GETSET_BOOLEAN(convert_exact)
 GETSET_BOOLEAN(mpfr_divmod_exact)
 
 static PyObject *
@@ -1201,7 +1194,6 @@ static PyGetSetDef GMPyContext_getseters[] = {
     ADD_GETSET(trap_divzero),
     ADD_GETSET(allow_complex),
     ADD_GETSET(rational_division),
-    ADD_GETSET(convert_exact),
     ADD_GETSET(mpfr_divmod_exact),
     {NULL}
 };

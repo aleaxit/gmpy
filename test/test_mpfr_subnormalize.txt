@@ -11,9 +11,6 @@ mpfr('4.9406564584124654e-324')
 >>> gmpy2.mpfr(zeroes + '247032822920623272088')
 mpfr('0.0')
 >>> gmpy2.mpfr(zeroes + '247032822920623272089')
-mpfr('0.0')
->>> gmpy2.get_context().convert_exact=True
->>> gmpy2.mpfr(zeroes + '247032822920623272089')
 mpfr('4.9406564584124654e-324')
 
 

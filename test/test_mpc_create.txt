@@ -21,6 +21,5 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        convert_exact=False,
         mpfr_divmod_exact=False)
 

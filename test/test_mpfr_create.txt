@@ -107,7 +107,6 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        convert_exact=False,
         mpfr_divmod_exact=False)
 >>> ctx.clear_flags()
 >>> a=mpfr("1.25")
@@ -126,7 +125,6 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        convert_exact=False,
         mpfr_divmod_exact=False)
 >>> ctx.clear_flags()
 >>> a=mpfr('nan')
@@ -143,7 +141,6 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        convert_exact=False,
         mpfr_divmod_exact=False)
 >>> ctx.clear_flags()
 >>> mpfr(a)
@@ -161,7 +158,6 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        convert_exact=False,
         mpfr_divmod_exact=False)
 >>> ctx.clear_flags()
 >>> mpfr(float('nan'))
@@ -179,7 +175,6 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        convert_exact=False,
         mpfr_divmod_exact=False)
 
 Create using extended precision
