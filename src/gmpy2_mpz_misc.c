@@ -938,6 +938,8 @@ GMPy_MPZ_Function_Remove(PyObject *self, PyObject *args)
             return NULL;
         }
         multiplicity = mpz_remove(result->z, tempx->z, tempf->z);
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempf);
         return Py_BuildValue("(Nk)", result, multiplicity);
     }
 }
