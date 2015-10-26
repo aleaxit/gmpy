@@ -43,14 +43,20 @@ GMPy_Real_F2Q(PyObject *x, PyObject *y, CTXT_Object *context)
 
     if (y) {
         if (!(tempy = GMPy_MPFR_From_Real(y, 1, context))) {
+            /* LCOV_EXCL_START */
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
     }
 
     if (!(tempx = GMPy_MPFR_From_Real(x, 1, context))) {
+        /* LCOV_EXCL_START */
         Py_XDECREF((PyObject*)tempy);
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
+
+    /* See gmpy2_convert_mpfr for stern_brocot(). */
 
     result = stern_brocot(tempx, tempy, 0, 1, context);
     Py_DECREF((PyObject*)tempx);
@@ -79,7 +85,9 @@ GMPy_Context_F2Q(PyObject *self, PyObject *args)
     }
 
     if (self && CTXT_Check(self)) {
+        /* LCOV_EXCL_START */
         context = (CTXT_Object*)self;
+        /* LCOV_EXCL_STOP */
     }
     else {
         CHECK_CONTEXT(context);

@@ -12,7 +12,87 @@ Test divmod
 Test integer operations
 -----------------------
 
->>> divmod(a,'a')
+>>> divmod(mpz(123),'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> divmod(mpq(1,2),'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> divmod(mpfr(1),'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> divmod(mpc(1),'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> ctx=gmpy2.context()
+>>> ctx.divmod('a',456)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> ctx.divmod(a,mpc(456))
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> ctx.divmod(mpc(1,2),mpc(3,4))
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> ctx.divmod(mpfr(2),mpfr(1))
+(mpfr('2.0'), mpfr('0.0'))
+>>> ctx.divmod(mpq(3,2),mpq(3,7))
+(mpz(3), mpq(3,14))
+>>> ctx.divmod(1,2,3)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> ctx.divmod(456, 0)
+Traceback (most recent call last):
+  ...
+ZeroDivisionError:
+>>> ctx.divmod(a,b)
+(mpz(0), mpz(123))
+>>> ctx.divmod(123,456)
+(mpz(0), mpz(123))
+>>> divmod(mpz(1), mpc(1,2))
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> divmod(mpq(1,2), mpc(1,2))
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> divmod(mpfr(1), mpc(1,2))
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> divmod(mpc(1,2), mpc(1,2))
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> divmod(mpfr(1.2), mpfr(0.7))
+(mpfr('1.0'), mpfr('0.5'))
+
+
+>>> ctx=gmpy2.ieee(64)
+>>> ctx.mpfr_divmod_exact=True
+>>> gmpy2.set_context(ctx)
+>>> divmod(mpz(123),'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> divmod(mpq(1,2),'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> divmod(mpfr(1),'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> divmod(mpc(1),'a')
 Traceback (most recent call last):
   ...
 TypeError:
@@ -33,8 +113,13 @@ TypeError:
 Traceback (most recent call last):
   ...
 ZeroDivisionError:
->>> ctx.divmod(a,b)
-(mpz(0), mpz(123))
->>> ctx.divmod(123,456)
-(mpz(0), mpz(123))
+>>> divmod(mpfr(1.2), mpfr(0.7))
+(mpfr('1.0'), mpfr('0.5'))
+>>> ctx.clear_flags()
+>>> ctx.divzero
+False
+>>> divmod(mpfr(1.2), mpfr(0))
+(mpfr('nan'), mpfr('nan'))
+>>>
+>>> gmpy2.set_context(gmpy2.context())
 

@@ -260,7 +260,7 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_Real_DivMod_1(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    MPFR_Object *tempx = NULL, *tempy = NULL, *quo = NULL, *rem = NULL;
+    MPFR_Object *tempx = NULL, *tempy = NULL, *quo = NULL, *rem = NULL, *temp;
     PyObject *result = NULL;
 
     CHECK_CONTEXT(context);
@@ -289,6 +289,9 @@ GMPy_Real_DivMod_1(PyObject *x, PyObject *y, CTXT_Object *context)
                 GMPY_DIVZERO("divmod() division by zero");
                 goto error;
             }
+            mpfr_set_nan(quo->f);
+            mpfr_set_nan(rem->f);
+            goto okay;
         }
 
         if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
@@ -297,12 +300,12 @@ GMPy_Real_DivMod_1(PyObject *x, PyObject *y, CTXT_Object *context)
                 GMPY_INVALID("divmod() invalid operation");
                 goto error;
             }
-            else {
-                mpfr_set_nan(quo->f);
-                mpfr_set_nan(rem->f);
-            }
+            mpfr_set_nan(quo->f);
+            mpfr_set_nan(rem->f);
+            goto okay;
         }
-        else if (mpfr_inf_p(tempy->f)) {
+
+        if (mpfr_inf_p(tempy->f)) {
             context->ctx.invalid = 1;
             if (context->ctx.traps & TRAP_INVALID) {
                 GMPY_INVALID("divmod() invalid operation");
@@ -320,43 +323,41 @@ GMPy_Real_DivMod_1(PyObject *x, PyObject *y, CTXT_Object *context)
                 mpfr_set_si(quo->f, 0, MPFR_RNDN);
                 rem->rc = mpfr_set(rem->f, tempx->f, MPFR_RNDN);
             }
+            goto okay;
+        }
+
+        if (!(temp = GMPy_MPFR_New(0, context))) {
+            /* LCOV_EXCL_START */
+            goto error;
+            /* LCOV_EXCL_STOP */
+        }
+        mpfr_fmod(rem->f, tempx->f, tempy->f, MPFR_RNDN);
+        mpfr_sub(temp->f, tempx->f, rem->f, MPFR_RNDN);
+        mpfr_div(quo->f, temp->f, tempy->f, MPFR_RNDN);
+
+        if (!mpfr_zero_p(rem->f)) {
+            if ((mpfr_sgn(tempy->f) < 0) != (mpfr_sgn(rem->f) < 0)) {
+                mpfr_add(rem->f, rem->f, tempy->f, MPFR_RNDN);
+                mpfr_sub_ui(quo->f, quo->f, 1, MPFR_RNDN);
+            }
         }
         else {
-            MPFR_Object *temp;
-
-            if (!(temp = GMPy_MPFR_New(0, context))) {
-                /* LCOV_EXCL_START */
-                goto error;
-                /* LCOV_EXCL_STOP */
-            }
-            mpfr_fmod(rem->f, tempx->f, tempy->f, MPFR_RNDN);
-            mpfr_sub(temp->f, tempx->f, rem->f, MPFR_RNDN);
-            mpfr_div(quo->f, temp->f, tempy->f, MPFR_RNDN);
-
-            if (!mpfr_zero_p(rem->f)) {
-                if ((mpfr_sgn(tempy->f) < 0) != (mpfr_sgn(rem->f) < 0)) {
-                    mpfr_add(rem->f, rem->f, tempy->f, MPFR_RNDN);
-                    mpfr_sub_ui(quo->f, quo->f, 1, MPFR_RNDN);
-                }
-            }
-            else {
-                mpfr_copysign(rem->f, rem->f, tempy->f, MPFR_RNDN);
-            }
-
-            if (!mpfr_zero_p(quo->f)) {
-                mpfr_round(quo->f, quo->f);
-            }
-            else {
-                mpfr_setsign(quo->f, quo->f, mpfr_sgn(tempx->f) * mpfr_sgn(tempy->f) - 1, MPFR_RNDN);
-            }
-            Py_DECREF((PyObject*)temp);
+            mpfr_copysign(rem->f, rem->f, tempy->f, MPFR_RNDN);
         }
+
+        if (!mpfr_zero_p(quo->f)) {
+            mpfr_round(quo->f, quo->f);
+        }
+        else {
+            mpfr_setsign(quo->f, quo->f, mpfr_sgn(tempx->f) * mpfr_sgn(tempy->f) - 1, MPFR_RNDN);
+        }
+        Py_DECREF((PyObject*)temp);
 
         GMPY_MPFR_CHECK_RANGE(quo, context);
         GMPY_MPFR_CHECK_RANGE(rem, context);
         GMPY_MPFR_SUBNORMALIZE(quo, context);
         GMPY_MPFR_SUBNORMALIZE(rem, context);
-
+      okay:
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
@@ -403,11 +404,15 @@ GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         if (mpfr_zero_p(tempy->f)) {
+            printf("here we are\n");
             context->ctx.divzero = 1;
             if (context->ctx.traps & TRAP_DIVZERO) {
                 GMPY_DIVZERO("divmod() division by zero");
                 goto error;
             }
+            mpfr_set_nan(quo->f);
+            mpfr_set_nan(rem->f);
+            goto okay;
         }
 
         if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
@@ -416,12 +421,12 @@ GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context)
                 GMPY_INVALID("divmod() invalid operation");
                 goto error;
             }
-            else {
-                mpfr_set_nan(quo->f);
-                mpfr_set_nan(rem->f);
-            }
+            mpfr_set_nan(quo->f);
+            mpfr_set_nan(rem->f);
+            goto okay;
         }
-        else if (mpfr_inf_p(tempy->f)) {
+
+        if (mpfr_inf_p(tempy->f)) {
             context->ctx.invalid = 1;
             if (context->ctx.traps & TRAP_INVALID) {
                 GMPY_INVALID("divmod() invalid operation");
@@ -439,6 +444,7 @@ GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context)
                 mpfr_set_si(quo->f, 0, MPFR_RNDN);
                 rem->rc = mpfr_set(rem->f, tempx->f, MPFR_RNDN);
             }
+            goto okay;
         }
         else {
             MPQ_Object *mpqx = NULL, *mpqy = NULL, *temp_rem = NULL;
@@ -466,8 +472,6 @@ GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context)
                 /* LCOV_EXCL_STOP */
             }
 
-            Py_DECREF((PyObject*)tempx);
-            Py_DECREF((PyObject*)tempy);
 
             mpq_div(temp_rem->q, mpqx->q, mpqy->q);
             mpz_fdiv_q(temp_quo->z, mpq_numref(temp_rem->q), mpq_denref(temp_rem->q));
@@ -489,7 +493,9 @@ GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context)
             GMPY_MPFR_CHECK_RANGE(rem, context);
             GMPY_MPFR_SUBNORMALIZE(quo, context);
             GMPY_MPFR_SUBNORMALIZE(rem, context);
-
+          okay:
+            Py_DECREF((PyObject*)tempx);
+            Py_DECREF((PyObject*)tempy);
             PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
             PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
             return result;

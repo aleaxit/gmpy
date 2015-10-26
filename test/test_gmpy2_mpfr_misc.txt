@@ -1,0 +1,34 @@
+Test gmpy2_mpfr_misc
+====================
+
+>>> import gmpy2
+>>> from gmpy2 import mpz, mpq, mpfr, mpc
+>>> a = mpfr('123.456')
+>>> gmpy2.f2q('a')
+Traceback (most recent call last):
+  ....
+TypeError: f2q() argument types not supported
+>>> gmpy2.f2q(1,2,3,4)
+Traceback (most recent call last):
+  ....
+TypeError: f2q() requires 1 or 2 arguments
+>>> gmpy2.f2q(a,0.1)
+mpz(123)
+>>> gmpy2.f2q(a,0.01)
+mpz(123)
+>>> gmpy2.f2q(a,0.001)
+mpq(247,2)
+>>> gmpy2.f2q(a,0.0001)
+mpq(1358,11)
+>>> gmpy2.f2q(a,0.00001)
+mpq(7037,57)
+>>> gmpy2.f2q(a,0.000001)
+mpq(15432,125)
+>>> gmpy2.f2q(a,0.0000001)
+mpq(15432,125)
+>>> gmpy2.f2q(a)
+mpq(15432,125)
+
+
+>>> gmpy2.free_cache()
+>>>
