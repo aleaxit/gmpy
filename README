@@ -8,13 +8,13 @@ gmpy2 is based on the original gmpy module. gmpy2 adds support for correctly
 rounded multiple-precison real (using the MPFR library) and complex (using
 the MPC library) arthmetic.
 
-The gmpy2 2.0.x series is stable version that it only receiving bug fixes.
+The gmpy2 2.0.x series is a stable version that is only receiving bug fixes.
 The main development branch (2.1.x) was extensively refactored. The most
 significant changes are support for thread-safe contexts and context methods.
 
 gmpy2 2.0.x is available at https://pypi.python.org/pypi/gmpy2.
 
-To install install a development version of gmpy2 2.1.x, just close or copy
+To install a development version of gmpy2 2.1.x, just clone or copy
 the repository and follow the instructions in the INSTALL file. Detailed
 instructions for building on Windows using the MSYS2/MINGW-W64 tool chain
 can be found in msys2_build.txt
