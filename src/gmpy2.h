@@ -110,6 +110,10 @@ typedef unsigned long Py_uhash_t;
 #include <mpfr.h>
 #include <mpc.h>
 
+#ifndef ABS
+#define ABS(a)  (((a) < 0) ? -(a) : (a))
+#endif
+
 #if defined(MS_WIN32) && defined(_MSC_VER)
    /* so one won't need to link explicitly to gmp.lib...: */
 #  if defined(MPIR)
@@ -218,11 +222,11 @@ typedef unsigned long Py_uhash_t;
 #define Py_TYPE(ob)     (((PyObject*)(ob))->ob_type)
 #endif
 
-#ifdef UNSAFE
+#ifdef FAST
 
 /* Very bad code ahead. I've copied portions of mpfr-impl.h and
  * hacked them so they work. This code will only be enabled if you
- * specify the --unsafe option.
+ * specify the --fast option.
  */
 
 #define MPFR_THREAD_ATTR __thread

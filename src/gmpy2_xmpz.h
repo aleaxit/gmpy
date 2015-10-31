@@ -46,7 +46,7 @@ static PyTypeObject XMPZ_Type;
 typedef struct {
     PyObject_HEAD
     XMPZ_Object *bitmap;
-    Py_ssize_t start, stop;
+    mp_bitcnt_t start, stop;
     int iter_type;
 } GMPy_Iter_Object;
 

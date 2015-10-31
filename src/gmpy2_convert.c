@@ -82,8 +82,7 @@ static int
 mpz_set_PyStr(mpz_ptr z, PyObject *s, int base)
 {
     char *cp;
-    Py_ssize_t len;
-    size_t i;
+    Py_ssize_t len, i;
     PyObject *ascii_str = NULL;
 
     if (PyBytes_Check(s)) {

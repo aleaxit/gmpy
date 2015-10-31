@@ -267,10 +267,11 @@ GMPy_MPZ_Method_Round(PyObject *self, PyObject *args)
         return self;
     }
 
+    /* We can now assume round_digits > 0. */
     round_digits = -round_digits;
 
     if ((result = GMPy_MPZ_New(NULL))) {
-        if (round_digits >= mpz_sizeinbase(MPZ(self), 10)) {
+        if ((unsigned)round_digits >= mpz_sizeinbase(MPZ(self), 10)) {
             mpz_set_ui(result->z, 0);
         }
         else {
@@ -1337,7 +1338,7 @@ GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args)
 
     if (PyTuple_GET_SIZE(args) == 2) {
         reps = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 1));
-        if (reps == -1 && PyErr_Occurred()) {
+        if (reps == (unsigned long)(-1) && PyErr_Occurred()) {
             return NULL;
         }
         /* Silently limit n to a reasonable value. */
@@ -1381,7 +1382,7 @@ GMPy_MPZ_Method_IsPrime(PyObject *self, PyObject *args)
 
     if (PyTuple_GET_SIZE(args) == 1) {
         reps = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 0));
-        if (reps == -1 && PyErr_Occurred()) {
+        if (reps == (unsigned long)(-1) && PyErr_Occurred()) {
             return NULL;
         }
         /* Silently limit n to a reasonable value. */

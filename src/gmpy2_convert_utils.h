@@ -55,17 +55,13 @@ static unsigned PY_LONG_LONG GMPy_Integer_AsUnsignedLongLongAndError(PyObject *v
 
 #if defined _WIN64 && (MPIR || MSYS2)
 # define mp_bitcnt_t_From_Integer c_ulonglong_From_Integer
+# define GMPy_Integer_AsMpBitCntAndError GMPy_Integer_AsUnsignedLongLongAndError
 #else
 # define mp_bitcnt_t_From_Integer c_ulong_From_Integer
+# define GMPy_Integer_AsMpBitCntAndError GMPy_Integer_AsUnsignedLongAndError
 #endif
 
 /* This just requires that sizeof(mp_bitcnt_t) <= sizeof(size_t) */
-
-#ifdef PY2
-# define PyIntOrLong_From_mp_bitcnt_t PyInt_FromSize_t
-#else
-# define PyIntOrLong_From_mp_bitcnt_t PyLong_FromSize_t
-#endif
 
 #ifdef _WIN64
 # define ssize_t_From_Integer c_longlong_From_Integer
