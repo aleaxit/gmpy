@@ -80,7 +80,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         /* Need better error-checking here. Under Python 3.0, overflow into
            C-long is possible. */
         sign = GMPy_Integer_AsLongAndError(PyTuple_GET_ITEM(args, 0), &err1);
-        man = (MPZ_Object *)PyTuple_GET_ITEM(args, 1);
+        man = (MPZ_Object*)PyTuple_GET_ITEM(args, 1);
         exp = PyTuple_GET_ITEM(args, 2);
         bc = GMPy_Integer_AsMpBitCntAndError(PyTuple_GET_ITEM(args, 3), &err2);
         prec = GMPy_Integer_AsMpBitCntAndError(PyTuple_GET_ITEM(args, 4), &err3);
@@ -115,6 +115,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         return mpmath_build_mpf(0, man, 0, 0);
     }
 
+
     /* if bc <= prec and the number is odd return it */
     if ((bc <= prec) && mpz_odd_p(man->z)) {
         Py_INCREF((PyObject*)man);
@@ -127,8 +128,8 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         Py_XDECREF((PyObject*)lower);
     }
 
-    shift = bc - prec;
-    if (shift>0) {
+    if (bc > prec) {
+        shift = bc - prec;
         switch (rnd) {
             case 'f':
                 if(sign) {
@@ -277,17 +278,20 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     }
 
     /* Extract sign, make man positive, and set bit count */
+
     sign = (mpz_sgn(man->z) == -1);
     mpz_abs(upper->z, man->z);
     bc = mpz_sizeinbase(upper->z, 2);
 
-    if (!prec) prec = bc;
+    if (!prec) {
+        prec = bc;
+    }
 
-    shift = bc - prec;
-    if (shift > 0) {
+    if (bc > prec) {
+        shift = bc - prec;
         switch (rnd[0]) {
             case 'f':
-                if(sign) {
+                if (sign) {
                     mpz_cdiv_q_2exp(upper->z, upper->z, shift);
                 }
                 else {
@@ -295,7 +299,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                 }
                 break;
             case 'c':
-                if(sign) {
+                if (sign) {
                     mpz_fdiv_q_2exp(upper->z, upper->z, shift);
                 }
                 else {
@@ -326,8 +330,9 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                         }
                     }
                 }
-                if (carry)
+                if (carry) {
                     mpz_add_ui(upper->z, upper->z, 1);
+                }
         }
         if (!(tmp = PyIntOrLong_FromLong(shift))) {
             Py_DECREF((PyObject*)upper);
