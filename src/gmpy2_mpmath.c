@@ -69,7 +69,8 @@ static PyObject *
 Pympz_mpmath_normalize(PyObject *self, PyObject *args)
 {
     long sign = 0;
-    long bc = 0, prec = 0, shift, zbits, carry = 0;
+    mp_bitcnt_t zbits, bc = 0, prec = 0, shift;
+    long carry = 0;
     PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0, *rndstr = 0;
     MPZ_Object *man = 0, *upper = 0, *lower = 0;
     char rnd = 0;
@@ -81,8 +82,8 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         sign = GMPy_Integer_AsLongAndError(PyTuple_GET_ITEM(args, 0), &err1);
         man = (MPZ_Object *)PyTuple_GET_ITEM(args, 1);
         exp = PyTuple_GET_ITEM(args, 2);
-        bc = GMPy_Integer_AsLongAndError(PyTuple_GET_ITEM(args, 3), &err2);
-        prec = GMPy_Integer_AsLongAndError(PyTuple_GET_ITEM(args, 4), &err3);
+        bc = GMPy_Integer_AsMpBitCntAndError(PyTuple_GET_ITEM(args, 3), &err2);
+        prec = GMPy_Integer_AsMpBitCntAndError(PyTuple_GET_ITEM(args, 4), &err3);
         rndstr = PyTuple_GET_ITEM(args, 5);
         if (err1 || err2 || err3) {
             TYPE_ERROR("arguments long, MPZ_Object*, PyObject*, long, long, char needed");
@@ -230,7 +231,8 @@ static PyObject *
 Pympz_mpmath_create(PyObject *self, PyObject *args)
 {
     long sign;
-    long bc, shift, zbits, carry = 0, prec = 0;
+    mp_bitcnt_t zbits, bc = 0, prec = 0, shift;
+    long carry = 0;
     PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0;
     MPZ_Object *man = 0, *upper = 0, *lower = 0;
     int error;
@@ -246,7 +248,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
         case 4:
             rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 3));
         case 3:
-            prec = GMPy_Integer_AsLongAndError(PyTuple_GET_ITEM(args, 2), &error);
+            prec = GMPy_Integer_AsMpBitCntAndError(PyTuple_GET_ITEM(args, 2), &error);
             if (error)
                 return NULL;
             prec = ABS(prec);

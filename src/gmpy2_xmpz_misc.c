@@ -360,7 +360,7 @@ GMPy_Iter_New(void)
                                &GMPy_Iter_Type))) {
         result->bitmap = NULL;
         result->start = 0;
-        result->stop = -1;
+        result->stop = (mp_bitcnt_t)-1;
         result->iter_type = 1;
     }
     return result;
@@ -376,10 +376,9 @@ GMPy_Iter_Dealloc(GMPy_Iter_Object *self)
 static PyObject *
 GMPy_Iter_Next(GMPy_Iter_Object *self) {
     PyObject *result = 0;
-    mp_bitcnt_t temp;
-    Py_ssize_t current_stop;
+    mp_bitcnt_t temp, current_stop;
 
-    if (self->stop < 0)
+    if (self->stop == (mp_bitcnt_t)(-1))
         current_stop = mpz_sizeinbase(self->bitmap->z, 2);
     else
         current_stop = self->stop;

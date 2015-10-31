@@ -61,7 +61,7 @@ GMPy_MPZ_pack(PyObject *self, PyObject *args)
     }
 
     nbits = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if (nbits == -1 && PyErr_Occurred()) {
+    if (nbits == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
         return NULL;
     }
 
@@ -105,7 +105,7 @@ GMPy_MPZ_pack(PyObject *self, PyObject *args)
         tempx_bits += nbits;
         i = 0;
         temp_bits = mpz_sizeinbase(temp, 2) * mpz_sgn(temp);
-        while (tempx_bits >= mp_bits_per_limb) {
+        while (tempx_bits >= (mp_bitcnt_t)mp_bits_per_limb) {
             if (temp_bits > 0) {
                 result->z->_mp_d[limb_count] = mpz_getlimbn(temp, i);
             }
@@ -150,7 +150,7 @@ GMPy_MPZ_unpack(PyObject *self, PyObject *args)
     }
 
     nbits = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if (nbits == -1 && PyErr_Occurred()) {
+    if (nbits == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
         return NULL;
     }
 

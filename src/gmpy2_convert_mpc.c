@@ -315,7 +315,7 @@ GMPy_MPC_From_PyStr(PyObject *s, int base, mpfr_prec_t rprec, mpfr_prec_t iprec,
     }
 
     /* Don't allow NULL characters */
-    if (strlen(cp) != len) {
+    if ((Py_ssize_t)strlen(cp) != len) {
         VALUE_ERROR("string without NULL characters expected");
         Py_XDECREF(ascii_str);
         return NULL;

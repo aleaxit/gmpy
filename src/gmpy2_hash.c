@@ -45,12 +45,20 @@ GMPy_MPZ_Hash_Slot(MPZ_Object *self)
     }
     return (self->hash_cache = hash);
 #else
+    unsigned long x;
+
     if (self->hash_cache != -1) {
         return self->hash_cache;
     }
-    else {
-        return (self->hash_cache = mpz_pythonhash(self->z));
+
+    x = (unsigned long)mpn_mod_1(self->z->_mp_d, mpz_size(self->z), ULONG_MAX);
+    if (mpz_sgn(self->z) < 0) {
+        x = x * -1;
     }
+    if (x == (unsigned long)-1) {
+        x = (unsigned long)-2;
+    }
+    return (self->hash_cache = (long)x);
 #endif
 }
 

@@ -480,10 +480,6 @@ static PyObject *GMPyExc_Erange = NULL;
 
 #include "gmpy2_misc.c"
 
-/* Include fast mpz to/from PyLong conversion from sage. */
-
-#include "mpz_pylong.c"
-
 /* Support for conversion to/from binary representation. */
 
 #include "gmpy2_binary.c"

@@ -45,6 +45,9 @@ static MPZ_Object *
 GMPy_MPZ_From_PyIntOrLong(PyObject *obj, CTXT_Object *context)
 {
     MPZ_Object *result;
+    int negative;
+    Py_ssize_t len;
+    PyLongObject *templong = (PyLongObject*)obj;
 
     assert(PyIntOrLong_Check(obj));
 
@@ -54,8 +57,88 @@ GMPy_MPZ_From_PyIntOrLong(PyObject *obj, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    mpz_set_PyIntOrLong(result->z, obj);
+#ifdef PY2
+    if (PyInt_Check(obj)) {
+        mpz_set_si(result->z, PyInt_AS_LONG(obj));
+        return result;
+    }
+#endif
+
+    switch (Py_SIZE(templong)) {
+    case -1:
+        mpz_set_si(result->z, -(sdigit)templong->ob_digit[0]);
+        break;
+    case 0:
+        mpz_set_si(result->z, 0);
+        break;
+    case 1:
+        mpz_set_si(result->z, templong->ob_digit[0]);
+        break;
+    default:
+        mpz_set_si(result->z, 0);
+
+        if (Py_SIZE(templong) < 0) {
+            len = - Py_SIZE(templong);
+            negative = 1;
+        } else {
+            len = Py_SIZE(templong);
+            negative = 0;
+        }
+
+        mpz_import(result->z, len, -1, sizeof(templong->ob_digit[0]), 0,
+                   sizeof(templong->ob_digit[0])*8 - PyLong_SHIFT, templong->ob_digit);
+
+        if (negative) {
+            mpz_neg(result->z, result->z);
+        }
+    }
     return result;
+}
+
+/* To support creation of temporary mpz objects. */
+static void
+mpz_set_PyIntOrLong(mpz_t z, PyObject *obj)
+{
+    int negative;
+    Py_ssize_t len;
+    PyLongObject *templong = (PyLongObject*)obj;
+
+#ifdef PY2
+    if (PyInt_Check(obj)) {
+        mpz_set_si(z, PyInt_AS_LONG(obj));
+        return;
+    }
+#endif
+
+    switch (Py_SIZE(templong)) {
+    case -1:
+        mpz_set_si(z, -(sdigit)templong->ob_digit[0]);
+        break;
+    case 0:
+        mpz_set_si(z, 0);
+        break;
+    case 1:
+        mpz_set_si(z, templong->ob_digit[0]);
+        break;
+    default:
+        mpz_set_si(z, 0);
+
+        if (Py_SIZE(templong) < 0) {
+            len = - Py_SIZE(templong);
+            negative = 1;
+        } else {
+            len = Py_SIZE(templong);
+            negative = 0;
+        }
+
+        mpz_import(z, len, -1, sizeof(templong->ob_digit[0]), 0,
+                   sizeof(templong->ob_digit[0])*8 - PyLong_SHIFT, templong->ob_digit);
+
+        if (negative) {
+            mpz_neg(z, z);
+        }
+    }
+    return;
 }
 
 static MPZ_Object *
@@ -101,15 +184,53 @@ GMPy_MPZ_From_PyFloat(PyObject *obj, CTXT_Object *context)
     return result;
 }
 
-#ifdef PY2
 static PyObject *
 GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
 {
+    int negative;
+    size_t count, size;
+    PyLongObject *result;
+
     assert(CHECK_MPZANY(obj));
 
-    return mpz_get_PyLong(obj->z);
+    /* Assume gmp uses limbs as least as large as the builtin longs do */
+    assert(mp_bits_per_limb >= SHIFT);
+
+    if (mpz_sgn(obj->z) < 0) {
+        negative = 1;
+    } else {
+        negative = 0;
+    }
+
+    size = (mpz_sizeinbase(obj->z, 2) + PyLong_SHIFT - 1) / PyLong_SHIFT;
+
+    if (!(result = _PyLong_New(size))) {
+        /* LCOV_EXCL_START */
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
+
+    mpz_export(result->ob_digit, &count, -1, sizeof(result->ob_digit[0]), 0,
+               sizeof(result->ob_digit[0])*8 - PyLong_SHIFT, obj->z);
+
+    if (count == 0) {
+        result->ob_digit[0] = 0;
+    }
+
+    /* long_normalize() is file-static so we must reimplement it */
+    /* longobjp = long_normalize(longobjp); */
+    while ((size>0) && (result->ob_digit[size-1] == 0)) {
+        size--;
+    }
+    Py_SIZE(result) = size;
+
+    if (negative) {
+        Py_SIZE(result) = - Py_SIZE(result);
+    }
+    return (PyObject*)result;
 }
 
+#ifdef PY2
 static PyObject *
 GMPy_MPZ_Long_Slot(MPZ_Object *self)
 {
@@ -128,15 +249,14 @@ GMPy_PyIntOrLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
 {
     assert(CHECK_MPZANY(obj));
 
-#ifdef PY3
-    return mpz_get_PyLong(obj->z);
-#else
-    if (mpz_fits_slong_p(obj->z))
+#ifdef PY2
+    if (mpz_fits_slong_p(obj->z)) {
         /* cast is safe since we know it fits in a signed long */
         return PyInt_FromLong((long)mpz_get_si(obj->z));
-    else
-        return mpz_get_PyLong(obj->z);
+    }
 #endif
+
+    return GMPy_PyLong_From_MPZ(obj, context);
 }
 
 static PyObject *
@@ -276,13 +396,53 @@ static XMPZ_Object *
 GMPy_XMPZ_From_PyIntOrLong(PyObject *obj, CTXT_Object *context)
 {
     XMPZ_Object *result;
+    int negative;
+    Py_ssize_t len;
+    PyLongObject *templong = (PyLongObject*)obj;
 
     assert(PyIntOrLong_Check(obj));
 
-    if(!(result = GMPy_XMPZ_New(context)))
+    if(!(result = GMPy_XMPZ_New(context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
-    mpz_set_PyIntOrLong(result->z, obj);
+#ifdef PY2
+    if (PyInt_Check(obj)) {
+        mpz_set_si(result->z, PyInt_AS_LONG(obj));
+        return result;
+    }
+#endif
+
+    switch (Py_SIZE(templong)) {
+    case -1:
+        mpz_set_si(result->z, -(sdigit)templong->ob_digit[0]);
+        break;
+    case 0:
+        mpz_set_si(result->z, 0);
+        break;
+    case 1:
+        mpz_set_si(result->z, templong->ob_digit[0]);
+        break;
+    default:
+        mpz_set_si(result->z, 0);
+
+        if (Py_SIZE(templong) < 0) {
+            len = - Py_SIZE(templong);
+            negative = 1;
+        } else {
+            len = Py_SIZE(templong);
+            negative = 0;
+        }
+
+        mpz_import(result->z, len, -1, sizeof(templong->ob_digit[0]), 0,
+                   sizeof(templong->ob_digit[0])*8 - PyLong_SHIFT, templong->ob_digit);
+
+        if (negative) {
+            mpz_neg(result->z, result->z);
+        }
+    }
     return result;
 }
 
