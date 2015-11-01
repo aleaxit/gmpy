@@ -404,7 +404,6 @@ GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         if (mpfr_zero_p(tempy->f)) {
-            printf("here we are\n");
             context->ctx.divzero = 1;
             if (context->ctx.traps & TRAP_DIVZERO) {
                 GMPY_DIVZERO("divmod() division by zero");
