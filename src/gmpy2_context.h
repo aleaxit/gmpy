@@ -62,6 +62,9 @@ typedef struct {
     int allow_complex;       /* if 1, allow mpfr functions to return an mpc */
     int rational_division;   /* if 1, mpz/mpz returns an mpq result */
     int mpfr_divmod_exact;   /* if 1, divmod(mpfr, mpfr) uses mpq */
+    int quiet_nan;           /* if 1, NaN exception not set if input is Nan */
+    /* The following field is for internal use only. */
+    int was_nan;             /* if 1, at least one of the inputs was NaN */
 } gmpy_context;
 
 typedef struct {

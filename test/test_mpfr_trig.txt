@@ -83,7 +83,8 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 
 Test asin
 ---------
@@ -146,7 +147,8 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 
 Test atan
 ---------
@@ -203,7 +205,8 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 
 Test atan2
 ----------
@@ -299,7 +302,8 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 
 Test cot
 --------

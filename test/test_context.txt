@@ -20,7 +20,8 @@ context(precision=24, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=True)
 >>> ieee(64)
 context(precision=53, real_prec=Default, imag_prec=Default,
         round=RoundToNearest, real_round=Default, imag_round=Default,
@@ -34,7 +35,8 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=True)
 >>> ieee(128)
 context(precision=113, real_prec=Default, imag_prec=Default,
         round=RoundToNearest, real_round=Default, imag_round=Default,
@@ -48,7 +50,8 @@ context(precision=113, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=True)
 >>> gmpy2.ieee(256)
 context(precision=237, real_prec=Default, imag_prec=Default,
         round=RoundToNearest, real_round=Default, imag_round=Default,
@@ -62,7 +65,8 @@ context(precision=237, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=True)
 >>> gmpy2.ieee(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -97,7 +101,8 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 >>> context(precision=100)
 context(precision=100, real_prec=Default, imag_prec=Default,
         round=RoundToNearest, real_round=Default, imag_round=Default,
@@ -111,7 +116,8 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 >>> context(real_prec=100)
 context(precision=53, real_prec=100, imag_prec=Default,
         round=RoundToNearest, real_round=Default, imag_round=Default,
@@ -125,7 +131,8 @@ context(precision=53, real_prec=100, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 >>> context(real_prec=100,imag_prec=200)
 context(precision=53, real_prec=100, imag_prec=200,
         round=RoundToNearest, real_round=Default, imag_round=Default,
@@ -139,7 +146,8 @@ context(precision=53, real_prec=100, imag_prec=200,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 
 Test get_context()
 ------------------
@@ -158,7 +166,8 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 >>> a=get_context()
 >>> a.precision=100
 >>> a
@@ -174,7 +183,8 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 >>> get_context()
 context(precision=100, real_prec=Default, imag_prec=Default,
         round=RoundToNearest, real_round=Default, imag_round=Default,
@@ -188,7 +198,8 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 >>> b=a.copy()
 >>> b.precision=200
 >>> b
@@ -204,7 +215,8 @@ context(precision=200, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 >>> a
 context(precision=100, real_prec=Default, imag_prec=Default,
         round=RoundToNearest, real_round=Default, imag_round=Default,
@@ -218,7 +230,8 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 >>> get_context()
 context(precision=100, real_prec=Default, imag_prec=Default,
         round=RoundToNearest, real_round=Default, imag_round=Default,
@@ -232,7 +245,8 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 
 Test local_context()
 --------------------
@@ -258,7 +272,8 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 >>> with local_context(ieee(64)) as ctx:
 ...   print(ctx)
 ...
@@ -274,7 +289,8 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=True)
 >>> get_context()
 context(precision=53, real_prec=Default, imag_prec=Default,
         round=RoundToNearest, real_round=Default, imag_round=Default,
@@ -288,7 +304,8 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 >>> with get_context() as ctx:
 ...   print(ctx.precision)
 ...   ctx.precision+=100
@@ -309,7 +326,8 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 >>> with local_context(precision=200) as ctx:
 ...   print(ctx.precision)
 ...   ctx.precision+=100
@@ -330,6 +348,7 @@ context(precision=53, real_prec=Default, imag_prec=Default,
         trap_divzero=False, divzero=False,
         allow_complex=False,
         rational_division=False,
-        mpfr_divmod_exact=False)
+        mpfr_divmod_exact=False,
+        quiet_nan=False)
 
 
