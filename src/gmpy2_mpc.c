@@ -99,7 +99,7 @@ _GMPy_MPC_Cleanup(MPC_Object **v, CTXT_Object *ctext)
         int rcr, rci;
         rcr = MPC_INEX_RE((*v)->rc);
         rci = MPC_INEX_IM((*v)->rc);
-        if (MPC_IS_NAN_P(*v)) {
+        if (!(ctext->ctx.quiet_nan && ctext->ctx.was_nan) && MPC_IS_NAN_P(*v)) {
             ctext->ctx.invalid = 1;
             _invalid = 1;
         }
@@ -131,7 +131,7 @@ _GMPy_MPC_Cleanup(MPC_Object **v, CTXT_Object *ctext)
                 Py_XDECREF((PyObject*)(*v));
                 (*v) = NULL;
             }
-            if ((ctext->ctx.traps & TRAP_INVALID) && _invalid) {
+            if ((ctext->ctx.traps & TRAP_INVALID) && !(ctext->ctx.quiet_nan && ctext->ctx.was_nan) && _invalid) {
                 GMPY_INVALID("invalid operation");
                 Py_XDECREF((PyObject*)(*v));
                 (*v) = NULL;

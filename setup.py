@@ -40,8 +40,8 @@ else:
 #                     library location if no path is specified
 #  --vector        -> include the vector_XXX() functions; they are unstable
 #                     and under active development
-#  --unsafe        -> depend on MPFR internal implementations details (even
-#                     more than the standard build)
+#  --fast          -> depend on MPFR and MPC internal implementations details
+#                     (even more than the standard build)
 #
 # Ugly hack ahead. Sorry.
 #
@@ -103,8 +103,8 @@ for token in sys.argv[:]:
         defines.append( ('VECTOR', 1) )
         sys.argv.remove(token)
 
-    if token.lower() == '--unsafe':
-        defines.append( ('UNSAFE', 1) )
+    if token.lower() == '--fast':
+        defines.append( ('FAST', 1) )
         sys.argv.remove(token)
 
     if token.lower() == '--msys2':

@@ -60,7 +60,7 @@ static PyTypeObject MPC_Type;
 
 /*
  * Define macros for comparing with zero, checking if either component is
- * 'nan' or 'inf', etc.
+ * 'nan' or 'inf', etc. Based on the macros found in mpc-impl.h.
  */
 
 #define MPC_IS_ZERO_P(x) \
@@ -68,8 +68,8 @@ static PyTypeObject MPC_Type;
      mpfr_zero_p(mpc_imagref(MPC(x))))
 
 #define MPC_IS_NAN_P(x) \
-    (mpfr_nan_p(mpc_realref(MPC(x))) || \
-     mpfr_nan_p(mpc_imagref(MPC(x))))
+    ((mpfr_nan_p(mpc_realref(MPC(x))) && !mpfr_inf_p(mpc_imagref(MPC(x)))) || \
+     (mpfr_nan_p(mpc_imagref(MPC(x))) && !mpfr_inf_p(mpc_realref(MPC(x)))))
 
 #define MPC_IS_INF_P(x) \
     (mpfr_inf_p(mpc_realref(MPC(x))) || \

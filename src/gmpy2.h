@@ -246,8 +246,6 @@ __MPFR_DECLSPEC extern MPFR_THREAD_ATTR mpfr_exp_t   __gmpfr_emax;
 /* Replace some common functions for direct access to the global vars */
 #define mpfr_get_emin() (__gmpfr_emin + 0)
 #define mpfr_get_emax() (__gmpfr_emax + 0)
-#define mpfr_get_default_rounding_mode() (__gmpfr_default_rounding_mode + 0)
-#define mpfr_get_default_prec() (__gmpfr_default_fp_bit_precision + 0)
 
 #define mpfr_clear_flags()      ((void) (__gmpfr_flags = 0))
 #define mpfr_clear_underflow()  ((void) (__gmpfr_flags &= MPFR_FLAGS_ALL ^ MPFR_FLAGS_UNDERFLOW))

@@ -111,6 +111,14 @@ static PyTypeObject CTXT_Manager_Type;
 
 #define GET_DIVMOD_EXACT(c) (c->ctx.mpfr_divmod_exact)
 
+#define CLEAR_WAS_NAN(c) (c->ctx.was_nan = 0)
+#define GET_WAS_NAN(c) (c->ctx.was_nan)
+#define SET_MPFR_WAS_NAN(c, x) (c->ctx.was_nan |= mpfr_nan_p(((MPFR_Object*)(x))->f))
+#define SET_MPFR2_WAS_NAN(c, x, y) (c->ctx.was_nan |= (mpfr_nan_p(((MPFR_Object*)(x))->f) || mpfr_nan_p(((MPFR_Object*)(y))->f)))
+#define SET_FLOAT_WAS_NAN(c, x) (c->ctx.was_nan |= Py_IS_NAN(PyFloat_AS_DOUBLE(x)))
+#define SET_MPC_WAS_NAN(c, x) (c->ctx.was_nan |= MPC_IS_NAN_P(x))
+#define SET_MPC2_WAS_NAN(c, x, y) (c->ctx.was_nan |= (MPC_IS_NAN_P(x) || MPC_IS_NAN_P(y)))
+
 static PyObject *    GMPy_CTXT_Manager_New(void);
 static void          GMPy_CTXT_Manager_Dealloc(CTXT_Manager_Object *self);
 static PyObject *    GMPy_CTXT_Manager_Repr_Slot(CTXT_Manager_Object *self);
