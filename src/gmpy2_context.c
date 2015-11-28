@@ -231,28 +231,59 @@ GMPy_CTXT_Set(PyObject *self, PyObject *other)
 #endif
 
 PyDoc_STRVAR(GMPy_doc_context_ieee,
-"ieee(bitwidth) -> context\n\n"
+"ieee(size[,quiet_nan=True[,subnormalize=True]]) -> context\n\n"
 "Return a new context corresponding to a standard IEEE floating point\n"
-"format. The currently supported precisions are 16, 32, 64, 128 and\n"
-"multiples of 32 greater than 128 bits.");
+"format. The supported sizes are 16, 32, 64, 128, and multiples of\n"
+"32 greater than 128.");
 
 static PyObject *
-GMPy_CTXT_ieee(PyObject *self, PyObject *other)
+GMPy_CTXT_ieee(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     long bitwidth;
     double bitlog2;
+    int quiet_mode=1, sub_mode=1;
+    PyObject *temp;
     CTXT_Object *result;
+    static char *kwlist[] = {"subnormalize", "quiet_nan", NULL};
 
-    bitwidth = PyIntOrLong_AsLong(other);
+    if (PyTuple_GET_SIZE(args) != 1) {
+        TYPE_ERROR("ieee() requires 'int' argument");
+        return NULL;
+    }
+
+    bitwidth = PyIntOrLong_AsLong(PyTuple_GET_ITEM(args, 0));
     if (bitwidth == -1 && PyErr_Occurred()) {
         TYPE_ERROR("ieee() requires 'int' argument");
         return NULL;
     }
 
-    if (!(result = (CTXT_Object*)GMPy_CTXT_New())) {
+    if (bitwidth <= 0) {
+        VALUE_ERROR("ieee() requires positive value for size");
         return NULL;
     }
 
+    /* Process just the two keyword arguments. */
+
+    if (!(temp = PyTuple_New(0))) {
+        return NULL;
+    }
+
+    if (!(PyArg_ParseTupleAndKeywords(temp, kwargs,
+            "|ii", kwlist, &sub_mode, &quiet_mode))) {
+        VALUE_ERROR("invalid keyword arguments for ieee()");
+        Py_DECREF(temp);
+        return NULL;
+    }
+    Py_DECREF(temp);
+
+    if (sub_mode)
+        sub_mode = 1;
+    if (quiet_mode)
+        quiet_mode = 1;
+
+    if (!(result = (CTXT_Object*)GMPy_CTXT_New())) {
+        return NULL;
+    }
 
     if (bitwidth == 16) {
         result->ctx.mpfr_prec = 11;
@@ -281,8 +312,8 @@ GMPy_CTXT_ieee(PyObject *self, PyObject *other)
         result->ctx.emax = 1 << (bitwidth - result->ctx.mpfr_prec - 1);
     }
 
-    result->ctx.subnormalize = 1;
-    result->ctx.quiet_nan = 1;
+    result->ctx.subnormalize = sub_mode;
+    result->ctx.quiet_nan = quiet_mode;
     result->ctx.emin = 4 - result->ctx.emax - result->ctx.mpfr_prec;
     return (PyObject*)result;
 }
@@ -451,8 +482,9 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
 
     /* Create an empty dummy tuple to use for args. */
 
-    if (!(args = PyTuple_New(0)))
+    if (!(args = PyTuple_New(0))) {
         return 0;
+    }
 
     /* Convert the trap bit positions into ints for the benefit of
      * PyArg_ParseTupleAndKeywords().
@@ -465,7 +497,7 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
     x_trap_divzero = ctxt->ctx.traps & TRAP_DIVZERO;
 
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|llliiilliiiiiiiiiiii", kwlist,
+            "|llliiilliiiiiiiiiii", kwlist,
             &ctxt->ctx.mpfr_prec,
             &ctxt->ctx.real_prec,
             &ctxt->ctx.imag_prec,
@@ -504,6 +536,11 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
         ctxt->ctx.traps |= TRAP_ERANGE;
     if (x_trap_divzero)
         ctxt->ctx.traps |= TRAP_DIVZERO;
+
+    if (ctxt->ctx.subnormalize)
+        ctxt->ctx.subnormalize = 1;
+    if (ctxt->ctx.quiet_nan)
+        ctxt->ctx.quiet_nan = 1;
 
     /* Sanity check for values. */
     if (ctxt->ctx.mpfr_prec < MPFR_PREC_MIN ||

@@ -229,11 +229,16 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
     CHECK_CONTEXT(context);
 
-    if (!(result = GMPy_MPFR_New(0, context)))
+    if (!(result = GMPy_MPFR_New(0, context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     if (MPFR_Check(x) && MPFR_Check(y)) {
         mpfr_clear_flags();
+        SET_MPFR_MPFR_WAS_NAN(context, x, y);
+
         result->rc = mpfr_div(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
         goto done;
     }
@@ -245,12 +250,16 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
             if (!error) {
                 mpfr_clear_flags();
+                SET_MPFR_WAS_NAN(context, x);
+
                 result->rc = mpfr_div_si(result->f, MPFR(x), temp, GET_MPFR_ROUND(context));
                 goto done;
             }
             else {
                 mpz_set_PyIntOrLong(global.tempz, y);
                 mpfr_clear_flags();
+                SET_MPFR_WAS_NAN(context, x);
+
                 result->rc = mpfr_div_z(result->f, MPFR(x), global.tempz, GET_MPFR_ROUND(context));
                 goto done;
             }
@@ -258,6 +267,8 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (CHECK_MPZANY(y)) {
             mpfr_clear_flags();
+            SET_MPFR_WAS_NAN(context, x);
+
             result->rc = mpfr_div_z(result->f, MPFR(x), MPZ(y), GET_MPFR_ROUND(context));
             goto done;
         }
@@ -270,6 +281,8 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
                 return NULL;
             }
             mpfr_clear_flags();
+            SET_MPFR_WAS_NAN(context, x);
+
             result->rc = mpfr_div_q(result->f, MPFR(x), tempy->q, GET_MPFR_ROUND(context));
             Py_DECREF((PyObject*)tempy);
             goto done;
@@ -277,6 +290,8 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (PyFloat_Check(y)) {
             mpfr_clear_flags();
+            SET_MPFR_FLOAT_WAS_NAN(context, x, y);
+
             result->rc = mpfr_div_d(result->f, MPFR(x), PyFloat_AS_DOUBLE(y), GET_MPFR_ROUND(context));
             goto done;
         }
@@ -289,6 +304,8 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
             if (!error) {
                 mpfr_clear_flags();
+                SET_MPFR_WAS_NAN(context, y);
+
                 result->rc = mpfr_si_div(result->f, temp, MPFR(y), GET_MPFR_ROUND(context));
                 goto done;
             }
@@ -299,6 +316,8 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (PyFloat_Check(x)) {
             mpfr_clear_flags();
+            SET_MPFR_FLOAT_WAS_NAN(context, y, x);
+
             result->rc = mpfr_d_div(result->f, PyFloat_AS_DOUBLE(x), MPFR(y), GET_MPFR_ROUND(context));
             goto done;
         }
@@ -316,8 +335,9 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
             return NULL;
         }
         mpfr_clear_flags();
-        result->rc = mpfr_div(result->f, tempx->f, tempy->f,
-                              GET_MPFR_ROUND(context));
+        SET_MPFR_MPFR_WAS_NAN(context, tempx, tempy);
+
+        result->rc = mpfr_div(result->f, tempx->f, tempy->f, GET_MPFR_ROUND(context));
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         goto done;
@@ -354,6 +374,8 @@ GMPy_Complex_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         return NULL;
 
     if (MPC_Check(x) && MPC_Check(y)) {
+        SET_MPC_MPC_WAS_NAN(context, x, y);
+
         if (MPC_IS_ZERO_P(y)) {
             context->ctx.divzero = 1;
             if (context->ctx.traps & TRAP_DIVZERO) {
@@ -362,8 +384,7 @@ GMPy_Complex_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
                 return NULL;
             }
         }
-        result->rc = mpc_div(result->c, MPC(x), MPC(y),
-                             GET_MPC_ROUND(context));
+        result->rc = mpc_div(result->c, MPC(x), MPC(y), GET_MPC_ROUND(context));
         goto done;
     }
 
@@ -378,8 +399,9 @@ GMPy_Complex_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        result->rc = mpc_div(result->c, tempx->c, tempy->c,
-                             GET_MPC_ROUND(context));
+        SET_MPC_MPC_WAS_NAN(context, tempx, tempy);
+
+        result->rc = mpc_div(result->c, tempx->c, tempy->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         goto done;

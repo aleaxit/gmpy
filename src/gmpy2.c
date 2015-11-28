@@ -727,7 +727,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "get_exp", GMPy_MPFR_get_exp, METH_O, GMPy_doc_mpfr_get_exp },
     { "get_max_precision", GMPy_MPFR_get_max_precision, METH_NOARGS, GMPy_doc_mpfr_get_max_precision },
     { "hypot", GMPy_Context_Hypot, METH_VARARGS, GMPy_doc_function_hypot },
-    { "ieee", GMPy_CTXT_ieee, METH_O, GMPy_doc_context_ieee },
+    { "ieee", (PyCFunction)GMPy_CTXT_ieee, METH_VARARGS | METH_KEYWORDS, GMPy_doc_context_ieee },
     { "inf", GMPy_MPFR_set_inf, METH_VARARGS, GMPy_doc_mpfr_set_inf },
     { "is_finite", GMPy_Context_Is_Finite, METH_O, GMPy_doc_function_is_finite },
     { "is_infinite", GMPy_Context_Is_Infinite, METH_O, GMPy_doc_function_is_infinite },

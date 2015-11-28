@@ -272,8 +272,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 
     if (MPFR_Check(x) && MPFR_Check(y)) {
         mpfr_clear_flags();
-        CLEAR_WAS_NAN(context);
-        SET_MPFR2_WAS_NAN(context, x, y);
+        SET_MPFR_MPFR_WAS_NAN(context, x, y);
 
         result->rc = mpfr_add(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
         goto done;
@@ -286,7 +285,6 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 
             if (!error) {
                 mpfr_clear_flags();
-                CLEAR_WAS_NAN(context);
                 SET_MPFR_WAS_NAN(context, x);
 
                 result->rc = mpfr_add_si(result->f, MPFR(x), temp, GET_MPFR_ROUND(context));
@@ -295,7 +293,6 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             else {
                 mpz_set_PyIntOrLong(global.tempz, y);
                 mpfr_clear_flags();
-                CLEAR_WAS_NAN(context);
                 SET_MPFR_WAS_NAN(context, x);
 
                 result->rc = mpfr_add_z(result->f, MPFR(x), global.tempz, GET_MPFR_ROUND(context));
@@ -305,7 +302,6 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (CHECK_MPZANY(y)) {
             mpfr_clear_flags();
-            CLEAR_WAS_NAN(context);
             SET_MPFR_WAS_NAN(context, x);
 
             result->rc = mpfr_add_z(result->f, MPFR(x), MPZ(y), GET_MPFR_ROUND(context));
@@ -323,7 +319,6 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             }
 
             mpfr_clear_flags();
-            CLEAR_WAS_NAN(context);
             SET_MPFR_WAS_NAN(context, x);
 
             result->rc = mpfr_add_q(result->f, MPFR(x), tempy->q, GET_MPFR_ROUND(context));
@@ -333,9 +328,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (PyFloat_Check(y)) {
             mpfr_clear_flags();
-            CLEAR_WAS_NAN(context);
-            SET_MPFR_WAS_NAN(context, x);
-            SET_FLOAT_WAS_NAN(context, y);
+            SET_MPFR_FLOAT_WAS_NAN(context, x, y);
 
             result->rc = mpfr_add_d(result->f, MPFR(x), PyFloat_AS_DOUBLE(y), GET_MPFR_ROUND(context));
             goto done;
@@ -349,7 +342,6 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 
             if (!error) {
                 mpfr_clear_flags();
-                CLEAR_WAS_NAN(context);
                 SET_MPFR_WAS_NAN(context, y);
 
                 result->rc = mpfr_add_si(result->f, MPFR(y), temp, GET_MPFR_ROUND(context));
@@ -358,7 +350,6 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             else {
                 mpz_set_PyIntOrLong(global.tempz, x);
                 mpfr_clear_flags();
-                CLEAR_WAS_NAN(context);
                 SET_MPFR_WAS_NAN(context, y);
 
                 result->rc = mpfr_add_z(result->f, MPFR(y), global.tempz, GET_MPFR_ROUND(context));
@@ -368,7 +359,6 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (CHECK_MPZANY(x)) {
             mpfr_clear_flags();
-            CLEAR_WAS_NAN(context);
             SET_MPFR_WAS_NAN(context, y);
 
             result->rc = mpfr_add_z(result->f, MPFR(y), MPZ(x), GET_MPFR_ROUND(context));
@@ -386,7 +376,6 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             }
 
             mpfr_clear_flags();
-            CLEAR_WAS_NAN(context);
             SET_MPFR_WAS_NAN(context, y);
 
             result->rc = mpfr_add_q(result->f, MPFR(y), tempx->q, GET_MPFR_ROUND(context));
@@ -396,9 +385,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (PyFloat_Check(x)) {
             mpfr_clear_flags();
-            CLEAR_WAS_NAN(context);
-            SET_MPFR_WAS_NAN(context, y);
-            SET_FLOAT_WAS_NAN(context, x);
+            SET_MPFR_FLOAT_WAS_NAN(context, y, x);
 
             result->rc = mpfr_add_d(result->f, MPFR(y), PyFloat_AS_DOUBLE(x), GET_MPFR_ROUND(context));
             goto done;
@@ -419,8 +406,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         mpfr_clear_flags();
-        CLEAR_WAS_NAN(context);
-        SET_MPFR2_WAS_NAN(context, tempx, tempy);
+        SET_MPFR_MPFR_WAS_NAN(context, tempx, tempy);
 
         result->rc = mpfr_add(result->f, MPFR(tempx), MPFR(tempy), GET_MPFR_ROUND(context));
         Py_DECREF((PyObject*)tempx);
@@ -455,8 +441,7 @@ GMPy_MPFR_Add_Slot(PyObject *x, PyObject *y)
 
         if ((result = GMPy_MPFR_New(0, context))) {
             mpfr_clear_flags();
-            CLEAR_WAS_NAN(context);
-            SET_MPFR2_WAS_NAN(context, x, y);
+            SET_MPFR_MPFR_WAS_NAN(context, x, y);
 
             result->rc = mpfr_add(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
             _GMPy_MPFR_Cleanup(&result, context);
@@ -492,8 +477,7 @@ GMPy_Complex_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     if (MPC_Check(x) && MPC_Check(y)) {
-        CLEAR_WAS_NAN(context);
-        SET_MPC2_WAS_NAN(context, x, y);
+        SET_MPC_MPC_WAS_NAN(context, x, y);
 
         result->rc = mpc_add(result->c, MPC(x), MPC(y), GET_MPC_ROUND(context));
 
@@ -513,8 +497,7 @@ GMPy_Complex_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             return NULL;
             /* LCOV_EXCL_STOP */
         }
-        CLEAR_WAS_NAN(context);
-        SET_MPC2_WAS_NAN(context, tempx, tempy);
+        SET_MPC_MPC_WAS_NAN(context, tempx, tempy);
 
         result->rc = mpc_add(result->c, tempx->c, tempy->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)tempx);

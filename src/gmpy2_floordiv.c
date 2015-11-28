@@ -264,14 +264,18 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
     CHECK_CONTEXT(context);
 
-    if (!(result = GMPy_MPFR_New(0, context)))
+    if (!(result = GMPy_MPFR_New(0, context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
     /* This only processes mpfr if the exponent is still in-bounds. Need
      * to handle the rare case at the end. */
 
     if (MPFR_Check(x) && MPFR_Check(y)) {
         mpfr_clear_flags();
+
         result->rc = mpfr_div(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
         result->rc = mpfr_floor(result->f, result->f);
         goto done;
@@ -284,6 +288,7 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
             if (!error) {
                 mpfr_clear_flags();
+
                 result->rc = mpfr_div_si(result->f, MPFR(x), tempi, GET_MPFR_ROUND(context));
                 result->rc = mpfr_floor(result->f, result->f);
                 goto done;
@@ -291,6 +296,7 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
             else {
                 mpz_set_PyIntOrLong(global.tempz, y);
                 mpfr_clear_flags();
+
                 result->rc = mpfr_div_z(result->f, MPFR(x), global.tempz, GET_MPFR_ROUND(context));
                 result->rc = mpfr_floor(result->f, result->f);
                 goto done;
@@ -299,6 +305,7 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (CHECK_MPZANY(y)) {
             mpfr_clear_flags();
+
             result->rc = mpfr_div_z(result->f, MPFR(x), MPZ(y), GET_MPFR_ROUND(context));
             result->rc = mpfr_floor(result->f, result->f);
             goto done;
@@ -312,6 +319,7 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
                 return NULL;
             }
             mpfr_clear_flags();
+
             result->rc = mpfr_div_q(result->f, MPFR(x), tempy->q, GET_MPFR_ROUND(context));
             result->rc = mpfr_floor(result->f, result->f);
             Py_DECREF((PyObject*)tempy);
@@ -320,6 +328,7 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (PyFloat_Check(y)) {
             mpfr_clear_flags();
+
             result->rc = mpfr_div_d(result->f, MPFR(x), PyFloat_AS_DOUBLE(y), GET_MPFR_ROUND(context));
             result->rc = mpfr_floor(result->f, result->f);
             goto done;
@@ -332,6 +341,7 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
             long tempi = GMPy_Integer_AsLongAndError(x, &error);
             if (!error) {
                 mpfr_clear_flags();
+
                 result->rc = mpfr_si_div(result->f, tempi, MPFR(y), GET_MPFR_ROUND(context));
                 result->rc = mpfr_floor(result->f, result->f);
                 goto done;
@@ -343,6 +353,7 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (PyFloat_Check(x)) {
             mpfr_clear_flags();
+
             result->rc = mpfr_d_div(result->f, PyFloat_AS_DOUBLE(x), MPFR(y), GET_MPFR_ROUND(context));
             result->rc = mpfr_floor(result->f, result->f);
             goto done;
@@ -365,6 +376,7 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
             return NULL;
         }
         mpfr_clear_flags();
+
         result->rc = mpfr_div(result->f, MPFR(tempx), MPFR(tempy), GET_MPFR_ROUND(context));
         result->rc = mpfr_floor(result->f, result->f);
         Py_DECREF((PyObject*)tempx);

@@ -1,0 +1,177 @@
+Test Quiet NaNs and related
+===========================
+
+>>> import gmpy2
+>>> from gmpy2 import mpfr, mpc, ieee, get_context, set_context, context
+>>> set_context(context(quiet_nan=True))
+>>> get_context().quiet_nan
+True
+>>> get_context().quiet_nan=False
+>>> get_context().quiet_nan
+False
+>>> ieee(64).quiet_nan
+True
+>>> ieee(64, quiet_nan=True).quiet_nan
+True
+>>> ieee(64, quiet_nan=2).quiet_nan
+True
+>>> ieee(64, quiet_nan=False).quiet_nan
+False
+>>> a = mpfr(1)
+>>> n = gmpy2.nan()
+>>> set_context(context())
+>>> get_context().quiet_nan
+False
+>>> a + n
+mpfr('nan')
+>>> get_context().invalid
+True
+>>> get_context().clear_flags()
+>>> n + a
+mpfr('nan')
+>>> get_context().invalid
+True
+>>> get_context().clear_flags()
+>>> get_context().quiet_nan = True
+>>> a + n
+mpfr('nan')
+>>> get_context().invalid
+False
+>>> get_context().clear_flags()
+>>> n + a
+mpfr('nan')
+>>> get_context().invalid
+False
+
+
+>>> set_context(context())
+>>> get_context().quiet_nan
+False
+>>> a - n
+mpfr('nan')
+>>> get_context().invalid
+True
+>>> get_context().clear_flags()
+>>> n - a
+mpfr('nan')
+>>> get_context().invalid
+True
+>>> get_context().clear_flags()
+>>> get_context().quiet_nan = True
+>>> a - n
+mpfr('nan')
+>>> get_context().invalid
+False
+>>> get_context().clear_flags()
+>>> n - a
+mpfr('nan')
+>>> get_context().invalid
+False
+
+
+>>> set_context(context())
+>>> get_context().quiet_nan
+False
+>>> a * n
+mpfr('nan')
+>>> get_context().invalid
+True
+>>> get_context().clear_flags()
+>>> n * a
+mpfr('nan')
+>>> get_context().invalid
+True
+>>> get_context().clear_flags()
+>>> get_context().quiet_nan = True
+>>> a * n
+mpfr('nan')
+>>> get_context().invalid
+False
+>>> get_context().clear_flags()
+>>> n * a
+mpfr('nan')
+>>> get_context().invalid
+False
+
+
+>>> set_context(context())
+>>> get_context().quiet_nan
+False
+>>> a / n
+mpfr('nan')
+>>> get_context().invalid
+True
+>>> get_context().clear_flags()
+>>> n / a
+mpfr('nan')
+>>> get_context().invalid
+True
+>>> get_context().clear_flags()
+>>> get_context().quiet_nan = True
+>>> a / n
+mpfr('nan')
+>>> get_context().invalid
+False
+>>> get_context().clear_flags()
+>>> n / a
+mpfr('nan')
+>>> get_context().invalid
+False
+
+
+>>> set_context(context())
+>>> get_context().quiet_nan
+False
+>>> a // n
+mpfr('nan')
+>>> get_context().invalid
+True
+>>> get_context().clear_flags()
+>>> n // a
+mpfr('nan')
+>>> get_context().invalid
+True
+>>> get_context().clear_flags()
+>>> get_context().quiet_nan = True
+>>> a // n
+mpfr('nan')
+>>> get_context().invalid
+False
+>>> get_context().clear_flags()
+>>> n // a
+mpfr('nan')
+>>> get_context().invalid
+False
+
+
+>>> set_context(context())
+>>> get_context().quiet_nan
+False
+>>> a % n
+mpfr('nan')
+>>> get_context().invalid
+True
+>>> get_context().clear_flags()
+>>> n % a
+mpfr('nan')
+>>> get_context().invalid
+True
+>>> get_context().clear_flags()
+>>> get_context().quiet_nan = True
+>>> a % n
+mpfr('nan')
+>>> get_context().invalid
+False
+>>> get_context().clear_flags()
+>>> n % a
+mpfr('nan')
+>>> get_context().invalid
+False
+
+
+
+
+
+
+
+>>> set_context(context())
