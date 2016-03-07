@@ -98,6 +98,7 @@ GMPy_Integer_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         mpq_canonicalize(tempq);
 
         mpfr_clear_flags();
+        CLEAR_WAS_NAN(context);
 
         result->rc = mpfr_set_q(result->f, tempq, GET_MPFR_ROUND(context));
 

@@ -110,6 +110,8 @@ _GMPy_MPFR_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
+    SET_MPFR_MPFR_MPFR_WAS_NAN(context, x, y, z);
+
     result->rc = mpfr_fma(result->f, MPFR(x), MPFR(y), MPFR(z), GET_MPFR_ROUND(context));
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
@@ -271,6 +273,8 @@ _GMPy_MPFR_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
+    SET_MPFR_MPFR_MPFR_WAS_NAN(context, x, y, z);
+
     result->rc = mpfr_fms(result->f, MPFR(x), MPFR(y), MPFR(z), GET_MPFR_ROUND(context));
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;

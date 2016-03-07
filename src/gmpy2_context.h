@@ -112,21 +112,31 @@ static PyTypeObject CTXT_Manager_Type;
 #define GET_DIVMOD_EXACT(c) (c->ctx.mpfr_divmod_exact)
 
 #define GET_QUIET_NAN(c) (c->ctx.quiet_nan)
-#define XXX_CLEAR_WAS_NAN(c) (c->ctx.was_nan = 0)
+#define CLEAR_WAS_NAN(c) (c->ctx.was_nan = 0)
 #define GET_WAS_NAN(c) (c->ctx.was_nan)
 
 #define SET_MPFR_WAS_NAN(c, x) \
     if (GET_QUIET_NAN(c)) c->ctx.was_nan = mpfr_nan_p(((MPFR_Object*)(x))->f);
+
 #define SET_MPFR_MPFR_WAS_NAN(c, x, y) \
     if (GET_QUIET_NAN(c)) c->ctx.was_nan = (mpfr_nan_p(((MPFR_Object*)(x))->f) || mpfr_nan_p(((MPFR_Object*)(y))->f));
+
+#define SET_MPFR_MPFR_MPFR_WAS_NAN(c, x, y, z) \
+    if (GET_QUIET_NAN(c)) c->ctx.was_nan = (mpfr_nan_p(((MPFR_Object*)(x))->f) || mpfr_nan_p(((MPFR_Object*)(y))->f) || mpfr_nan_p(((MPFR_Object*)(z))->f));
+
 #define SET_MPFR_FLOAT_WAS_NAN(c, x, y) \
     if (GET_QUIET_NAN(c)) c->ctx.was_nan = (mpfr_nan_p(((MPFR_Object*)(x))->f) || Py_IS_NAN(PyFloat_AS_DOUBLE(y)));
-#define XXX_SET_FLOAT_WAS_NAN(c, x) (c->ctx.was_nan = Py_IS_NAN(PyFloat_AS_DOUBLE(x)))
+
+#define SET_FLOAT_WAS_NAN(c, x) (c->ctx.was_nan = Py_IS_NAN(PyFloat_AS_DOUBLE(x)))
 
 #define SET_MPC_WAS_NAN(c, x) \
     if (GET_QUIET_NAN(c)) c->ctx.was_nan = MPC_IS_NAN_P(x);
+
 #define SET_MPC_MPC_WAS_NAN(c, x, y) \
     if (GET_QUIET_NAN(c)) c->ctx.was_nan = (MPC_IS_NAN_P(x) || MPC_IS_NAN_P(y));
+
+#define SET_MPC_MPFR_WAS_NAN(c, x, y) \
+    if (GET_QUIET_NAN(c)) c->ctx.was_nan = (MPC_IS_NAN_P(x) || (mpfr_nan_p(((MPFR_Object*)(y))->f)));
 
 static PyObject *    GMPy_CTXT_Manager_New(void);
 static void          GMPy_CTXT_Manager_Dealloc(CTXT_Manager_Object *self);

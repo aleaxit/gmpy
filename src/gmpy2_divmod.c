@@ -295,10 +295,12 @@ GMPy_Real_DivMod_1(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
-            context->ctx.invalid = 1;
-            if (context->ctx.traps & TRAP_INVALID) {
-                GMPY_INVALID("divmod() invalid operation");
-                goto error;
+            if (!(context->ctx.quiet_nan && context->ctx.was_nan)) {
+                context->ctx.invalid = 1;
+                if (context->ctx.traps & TRAP_INVALID) {
+                    GMPY_INVALID("divmod() invalid operation");
+                    goto error;
+                }
             }
             mpfr_set_nan(quo->f);
             mpfr_set_nan(rem->f);
@@ -415,10 +417,12 @@ GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
-            context->ctx.invalid = 1;
-            if (context->ctx.traps & TRAP_INVALID) {
-                GMPY_INVALID("divmod() invalid operation");
-                goto error;
+            if (!(context->ctx.quiet_nan && context->ctx.was_nan)) {
+                context->ctx.invalid = 1;
+                if (context->ctx.traps & TRAP_INVALID) {
+                    GMPY_INVALID("divmod() invalid operation");
+                    goto error;
+                }
             }
             mpfr_set_nan(quo->f);
             mpfr_set_nan(rem->f);
