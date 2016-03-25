@@ -388,17 +388,19 @@
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
 
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <math.h>
+#include <float.h>
+#include <ctype.h>
+
 /*
  * we do have a dependence on Python's internals, specifically:
  * how Python "long int"s are internally represented.
  */
 #include "longintrepr.h"
-
-#include <assert.h>
-#include <math.h>
-#include <float.h>
-#include <stdio.h>
-#include <ctype.h>
 
 #include "gmpy2.h"
 
@@ -495,6 +497,8 @@ static PyObject *GMPyExc_Erange = NULL;
 /* Support for random numbers. */
 
 #include "gmpy2_random.c"
+
+#include "./posix64/mpz_aprcl.c"
 
 /* Support for Lucas sequences. */
 
@@ -604,6 +608,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "iroot_rem", GMPy_MPZ_Function_IrootRem, METH_VARARGS, GMPy_doc_mpz_function_iroot_rem },
     { "isqrt", GMPy_MPZ_Function_Isqrt, METH_O, GMPy_doc_mpz_function_isqrt },
     { "isqrt_rem", GMPy_MPZ_Function_IsqrtRem, METH_O, GMPy_doc_mpz_function_isqrt_rem },
+    { "is_aprcl_prime", GMPy_MPZ_is_aprcl_prime, METH_O, doc_mpz_is_aprcl_prime },
     { "is_bpsw_prp", GMPY_mpz_is_bpsw_prp, METH_VARARGS, doc_mpz_is_bpsw_prp },
     { "is_congruent", GMPy_MPZ_Function_IsCongruent, METH_VARARGS, GMPy_doc_mpz_function_is_congruent },
     { "is_divisible", GMPy_MPZ_Function_IsDivisible, METH_VARARGS, GMPy_doc_mpz_function_is_divisible },
