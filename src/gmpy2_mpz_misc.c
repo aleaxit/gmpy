@@ -324,7 +324,7 @@ GMPy_MPZ_Hex_Slot(MPZ_Object *self)
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_gcd,
 "gcd(a, b) -> mpz\n\n"
-"Return the greatest common denominator of integers a and b.");
+"Return the greatest common divisor of integers a and b.");
 
 static PyObject *
 GMPy_MPZ_Function_GCD(PyObject *self, PyObject *args)

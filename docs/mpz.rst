@@ -204,7 +204,7 @@ mpz Functions
     numbers.
 
 **gcd(...)**
-    gcd(a, b) returns the greatest common denominator of integers *a* and
+    gcd(a, b) returns the greatest common divisor of integers *a* and
     *b*.
 
 **gcdext(...)**
