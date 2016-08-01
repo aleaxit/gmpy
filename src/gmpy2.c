@@ -991,6 +991,11 @@ PyMODINIT_FUNC initgmpy2(void)
         INITERROR;
         /* LCOV_EXCL_STOP */
     }
+    if (PyType_Ready(&RandomState_Type) < 0) {
+        /* LCOV_EXCL_START */
+        INITERROR;
+        /* LCOV_EXCL_STOP */
+    }
 
     /* Initialize the custom memory handlers. */
     mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
