@@ -94,10 +94,16 @@ extern "C" {
  */
 
 #define PARSE_ONE_MPFR_OTHER(msg) \
-    if (self && Pympfr_CheckAndExp(self)) { \
-        Py_INCREF(self); \
+    if (self && Pympfr_Check(self)) { \
+        if (Pympfr_CheckAndExp(self)) { \
+            Py_INCREF(self); \
+        } \
+        else if (!(self = (PyObject*)Pympfr_From_Real(self, 0))) { \
+            PyErr_SetString(PyExc_TypeError, msg); \
+            return NULL; \
+        } \
     } \
-    else if (Pympfr_CheckAndExp(other)) { \
+    else if (other && Pympfr_CheckAndExp(other)) { \
         self = other; \
         Py_INCREF((PyObject*)self); \
     } \

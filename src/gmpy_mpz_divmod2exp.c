@@ -459,7 +459,7 @@ Pygmpy_pack(PyObject *self, PyObject *args)
 {
     Py_ssize_t nbits, total_bits, index, lst_count, i, temp_bits, limb_count, tempx_bits;
     PyObject *lst;
-    mpz_t temp;
+    mpz_t temp, temp1;
     PympzObject *result, *tempx = 0;
 
     if (PyTuple_GET_SIZE(args) != 2) {
@@ -494,6 +494,7 @@ Pygmpy_pack(PyObject *self, PyObject *args)
     mpz_setbit(result->z, total_bits + (mp_bits_per_limb * 2));
 
     mpz_inoc(temp);
+    mpz_inoc(temp1);
     mpz_set_ui(temp, 0);
     limb_count = 0;
     tempx_bits = 0;
@@ -508,8 +509,8 @@ Pygmpy_pack(PyObject *self, PyObject *args)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        mpz_mul_2exp(tempx->z, tempx->z, tempx_bits);
-        mpz_add(temp, temp, tempx->z);
+        mpz_mul_2exp(temp1, tempx->z, tempx_bits);
+        mpz_add(temp, temp, temp1);
         tempx_bits += nbits;
         i = 0;
         temp_bits = mpz_sizeinbase(temp, 2) * mpz_sgn(temp);
@@ -533,6 +534,7 @@ Pygmpy_pack(PyObject *self, PyObject *args)
     result->z->_mp_d[limb_count] = mpz_getlimbn(temp, 0);
     mpz_clrbit(result->z, total_bits + (mp_bits_per_limb * 2));
     mpz_cloc(temp);
+    mpz_cloc(temp1);
     return (PyObject*)result;
 }
 

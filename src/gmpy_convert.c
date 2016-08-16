@@ -428,7 +428,7 @@ mpz_ascii(mpz_t z, int base, int option)
      *                                  -----
      *                                   10
      */
-    size = mpz_sizeinbase(z, base) + 11;
+    size = mpz_sizeinbase(z, (base < 0 ? -base : base)) + 11;
     TEMP_ALLOC(buffer, size);
 
     if (mpz_sgn(z) < 0) {
@@ -1156,6 +1156,7 @@ Pympq_From_PyStr(PyObject *stringarg, int base)
 {
     PympqObject *newob;
     unsigned char *cp;
+    char exp_char = 'E';
     Py_ssize_t len;
     int i;
     PyObject *ascii_str = NULL;
@@ -1191,6 +1192,11 @@ Pympq_From_PyStr(PyObject *stringarg, int base)
         char *whereslash = strchr((char*)cp, '/');
         char *wheredot = strchr((char*)cp, '.');
         char *whereexp = strchr((char*)cp, 'E');
+
+        if (!whereexp) {
+            whereexp = strchr((char*)cp, 'e');
+            exp_char = 'e';
+        }
 
         if (whereslash && wheredot) {
             VALUE_ERROR("illegal string: both . and / found");
@@ -1229,7 +1235,7 @@ Pympq_From_PyStr(PyObject *stringarg, int base)
                     *wheredot = '.';
                 /* Restore the exponent! */
                 if (whereexp && (base == 10))
-                    *whereexp = '\0';
+                    *whereexp = exp_char;
                 VALUE_ERROR("invalid digits");
                 goto error;
             }
@@ -1252,13 +1258,13 @@ Pympq_From_PyStr(PyObject *stringarg, int base)
 
             /* Restore the exponent! */
             if (whereexp && !whereslash && (base == 10))
-                *whereexp = '\0';
+                *whereexp = exp_char;
 
             goto finish;
         }
 
         if (whereslash)
-            *whereslash = 0;
+            *whereslash = '\0';
         if (-1 == mpz_set_str(mpq_numref(newob->q), (char*)cp, base)) {
             if (whereslash)
                 *whereslash = '/';
@@ -1290,7 +1296,7 @@ Pympq_From_PyStr(PyObject *stringarg, int base)
             mpz_cloc(temp);
             mpq_canonicalize(newob->q);
             if (whereexp && (base == 10))
-                *whereexp = 'E';
+                *whereexp = exp_char;
         }
     }
 
@@ -1843,7 +1849,7 @@ Pympfr_To_Pympz(PyObject *self)
             return NULL;
         }
         /* return code is ignored */
-        mpfr_get_z(result->z, Pympfr_AS_MPFR(self), context->ctx.mpfr_round);
+        mpfr_get_z(result->z, Pympfr_AS_MPFR(self), MPFR_RNDZ);
     }
 
     return result;
@@ -1866,7 +1872,7 @@ Pympfr_To_Pyxmpz(PyObject *self)
             return NULL;
         }
         /* return code is ignored */
-        mpfr_get_z(result->z, Pympfr_AS_MPFR(self), context->ctx.mpfr_round);
+        mpfr_get_z(result->z, Pympfr_AS_MPFR(self), MPFR_RNDZ);
     }
 
     return result;
@@ -2059,6 +2065,7 @@ static PympfrObject *
 Pympfr_From_PyStr(PyObject *s, int base, mpfr_prec_t bits)
 {
     PympfrObject *result;
+    PympqObject *tempq;
     char *cp, *endptr;
     mpfr_prec_t prec;
     Py_ssize_t len;
@@ -2068,7 +2075,7 @@ Pympfr_From_PyStr(PyObject *s, int base, mpfr_prec_t bits)
         len = PyBytes_Size(s);
         cp = PyBytes_AsString(s);
     }
-    else {
+    else if (PyUnicode_Check(s)) {
         ascii_str = PyUnicode_AsASCIIString(s);
         if (!ascii_str) {
             VALUE_ERROR("string contains non-ASCII characters");
@@ -2077,11 +2084,34 @@ Pympfr_From_PyStr(PyObject *s, int base, mpfr_prec_t bits)
         len = PyBytes_Size(ascii_str);
         cp = PyBytes_AsString(ascii_str);
     }
+    else {
+        TYPE_ERROR("object is not string or Unicode");
+        return NULL;
+    }
 
     if (bits > 0)
         prec = bits;
     else
         prec = context->ctx.mpfr_prec;
+
+    /* Check for leading base indicators. */
+    if (base == 0) {
+        if (len > 2 && cp[0] == '0') {
+            if (cp[1] == 'b')      { base = 2;  cp += 2; len -= 2; }
+            else if (cp[1] == 'x') { base = 16; cp += 2; len -= 2; }
+            else                   { base = 10; }
+        }
+        else {
+            base = 10;
+        }
+    }
+    else if (cp[0] == '0') {
+        /* If the specified base matches the leading base indicators, then
+         * we need to skip the base indicators.
+         */
+        if (cp[1] =='b' && base == 2)       { cp += 2; len -= 2; }
+        else if (cp[1] =='x' && base == 16) { cp += 2; len -= 2; }
+    }
 
     if (!(result = (PympfrObject*)Pympfr_new(prec))) {
         Py_XDECREF(ascii_str);
@@ -2089,16 +2119,72 @@ Pympfr_From_PyStr(PyObject *s, int base, mpfr_prec_t bits)
     }
 
     /* delegate the rest to MPFR */
-    result->rc = mpfr_strtofr(result->f, cp, &endptr, base,
-                              context->ctx.mpfr_round);
+    mpfr_clear_flags();
+    result->rc = mpfr_strtofr(result->f, cp, &endptr, base, context->ctx.mpfr_round);
+    Py_XDECREF(ascii_str);
 
     if (len != (Py_ssize_t)(endptr - cp)) {
         VALUE_ERROR("invalid digits");
         Py_DECREF((PyObject*)result);
-        Py_XDECREF(ascii_str);
         return NULL;
     }
-    Py_XDECREF(ascii_str);
+
+    /* If the context requests subnormals and the result is in the range for subnormals,
+     * we use exact conversion via conversion to an mpq.
+     *
+     * The sticky bit returned by MPFR's string conversion appears to only reflect the
+     * portion of the string needed to compute the correctly rounded result. It does not
+     * accurately reflect whether or not the result is larger or smaller than the entire
+     * input string. A correct sticky bit is needed by mfpr_subnormalize. Converting the
+     * string to an mpq and then converting the mpq to an mpfr does properly set the
+     * sticky bit.
+     */
+
+    if (base == 10 &&
+        context->ctx.subnormalize &&
+        result->f->_mpfr_exp <= context->ctx.emin + mpfr_get_prec(result->f) - 1)
+        {
+
+        if (!(tempq = Pympq_From_PyStr(s, base))) {
+            Py_DECREF((PyObject*)result);
+            return NULL;
+        }
+
+        mpfr_clear_flags();
+        result->rc = mpfr_set_q(result->f, tempq->q, context->ctx.mpfr_round);
+        Py_DECREF((PyObject*)tempq);
+    }
+
+    if (context->ctx.subnormalize) {
+        result->rc = mpfr_subnormalize(result->f, result->rc, context->ctx.mpfr_round);
+    }
+
+#define GMPY_MPFR_EXCEPTIONS(result, context)
+
+    context->ctx.underflow |= mpfr_underflow_p();
+    context->ctx.overflow |= mpfr_overflow_p();
+    context->ctx.invalid |= mpfr_nanflag_p();
+    context->ctx.inexact |= mpfr_inexflag_p();
+    if ((context->ctx.trap_underflow) && mpfr_underflow_p()) {
+        GMPY_UNDERFLOW("underflow");
+        Py_XDECREF((PyObject*)result);
+        result = NULL;
+    }
+    if ((context->ctx.trap_overflow) && mpfr_overflow_p()) {
+        GMPY_OVERFLOW("overflow");
+        Py_XDECREF((PyObject*)result);
+        result = NULL;
+    }
+    if ((context->ctx.trap_inexact) && mpfr_inexflag_p()) {
+        GMPY_INEXACT("inexact result");
+        Py_XDECREF((PyObject*)result);
+        result = NULL;
+    }
+    if ((context->ctx.trap_invalid) && mpfr_nanflag_p()) {
+        GMPY_INVALID("invalid operation");
+        Py_XDECREF((PyObject*)result);
+        result = NULL;
+    }
 
     return result;
 }
@@ -2495,7 +2581,7 @@ Pympc_From_PyStr(PyObject *s, int base, mpfr_prec_t rbits, mpfr_prec_t ibits)
 {
     PympcObject *newob;
     PyObject *ascii_str = NULL;
-    Py_ssize_t len;
+    Py_ssize_t i, len;
     char *cp, *unwind, *tempchar, *lastchar;
     int firstp = 0, lastp = 0, real_rc = 0, imag_rc = 0;
 
@@ -2523,11 +2609,12 @@ Pympc_From_PyStr(PyObject *s, int base, mpfr_prec_t rbits, mpfr_prec_t ibits)
     }
 
     /* Don't allow NULL characters */
-    if (strlen(cp) != len) {
-        VALUE_ERROR("string without NULL characters expected");
-        Py_DECREF((PyObject*)newob);
-        Py_XDECREF(ascii_str);
-        return NULL;
+    for (i=0; i<len; i++) {
+        if (cp[i] == '\0') {
+            VALUE_ERROR("string without NULL characters expected");
+            Py_XDECREF(ascii_str);
+            return NULL;
+        }
     }
 
     /* Get a pointer to the last valid character (ignoring trailing

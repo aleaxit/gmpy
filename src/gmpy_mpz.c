@@ -1127,8 +1127,8 @@ Pympz_rshift(PyObject *self, PyObject *other)
 
   err:
     Py_DECREF((PyObject*)result);
-    Py_DECREF((PyObject*)tempa);
-    Py_DECREF((PyObject*)tempb);
+    Py_XDECREF((PyObject*)tempa);
+    Py_XDECREF((PyObject*)tempb);
     return NULL;
 }
 
@@ -1185,8 +1185,8 @@ Pympz_lshift(PyObject *self, PyObject *other)
 
   err:
     Py_DECREF((PyObject*)result);
-    Py_DECREF((PyObject*)tempa);
-    Py_DECREF((PyObject*)tempb);
+    Py_XDECREF((PyObject*)tempa);
+    Py_XDECREF((PyObject*)tempb);
     return NULL;
 }
 
@@ -1231,7 +1231,7 @@ Pympz_hash(PympzObject *self)
 /* Miscellaneous gmpy functions */
 PyDoc_STRVAR(doc_gcd,
 "gcd(a, b) -> mpz\n\n"
-"Return the greatest common denominator of integers a and b.");
+"Return the greatest common divisor of integers a and b.");
 
 static PyObject *
 Pygmpy_gcd(PyObject *self, PyObject *args)
@@ -1928,7 +1928,7 @@ Pympz_is_power(PyObject *self, PyObject *other)
 PyDoc_STRVAR(doc_is_primeg,
 "is_prime(x[, n=25]) -> bool\n\n"
 "Return True if x is _probably_ prime, else False if x is\n"
-"definately composite. x is checked for small divisors and up\n"
+"definitely composite. x is checked for small divisors and up\n"
 "to n Miller-Rabin tests are performed.");
 
 static PyObject *

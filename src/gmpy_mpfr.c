@@ -109,14 +109,18 @@ Pygmpy_mpfr(PyObject *self, PyObject *args, PyObject *keywds)
                 result = Pympfr_From_PyStr(arg0, base, bits);
             }
         }
-        SUBNORMALIZE(result);
+        if (result) {
+            SUBNORMALIZE(result);
+        }
         return (PyObject*)result;
     }
 
     /* Optimize the common case */
     if (isReal(arg0) && argc == 1 && !keywds) {
         result = Pympfr_From_Real(arg0, bits);
-        SUBNORMALIZE(result);
+        if (result) {
+            SUBNORMALIZE(result);
+        }
         return (PyObject*)result;
     }
 

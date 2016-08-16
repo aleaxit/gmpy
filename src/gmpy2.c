@@ -351,6 +351,23 @@
  *   2.0.6
  *   Fix setup.py to not override --prefix (casevh)
  *
+ *   2.0.7
+ *   Fix math.floor(gmpy2.mpfr('inf')) to not segfault (casevh)
+ *
+ *   2.0.8
+ *   Fix ref. counting bug in right-shift and left-shift (casevh)
+ *   Fix crash after error in converting string to mpfr and
+ *     subnormalization is active (casevh)
+ *   Corrected typos in documentation (casevh)
+ *   Fix int(mpfr) to match int(float) for negative values (casevh)
+ *   Fix data corruption bug in pack() when input list includes
+ *     mpz/data type (casevh)
+ *
+ *   2.0.9
+ *   Fix rounding error when converting string to mpfr and
+ *     subnormalization is active (casevh)
+ *   Fix initialization of random state type (casevh)
+ *
  ************************************************************************
  *
  * Discussion on sizes of C integer types.
@@ -420,9 +437,9 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.0.6";
+char gmpy_version[] = "2.0.9";
 
-char _gmpy_cvs[] = "$Id$";
+char _gmpy_cvs[] = "$Id: gmpy2.c 1043 2015-08-18 04:22:42Z casevh $";
 
 char gmpy_license[] = "\
 The GMPY2 source code is licensed under LGPL 3 or later. The supported \
@@ -869,7 +886,7 @@ _PyInitGMP(void)
 }
 
 static char _gmpy_docs[] =
-"gmpy2 2.0.6 - General Multiple-precision arithmetic for Python\n"
+"gmpy2 2.0.9 - General Multiple-precision arithmetic for Python\n"
 "\n"
 "gmpy2 supports several multiple-precision libraries. Integer and\n"
 "rational arithmetic is provided by either the GMP or MPIR libraries.\n"
@@ -949,6 +966,8 @@ PyMODINIT_FUNC initgmpy2(void)
     if (PyType_Ready(&Pympq_Type) < 0)
         INITERROR;
     if (PyType_Ready(&Pyxmpz_Type) < 0)
+        INITERROR;
+    if (PyType_Ready(&GMPYRandomState_Type) < 0)
         INITERROR;
     if (PyType_Ready(&GMPYIter_Type) < 0)
         INITERROR;

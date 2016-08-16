@@ -87,7 +87,7 @@ class gmpy_build_ext(build_ext):
 
             if os.path.isfile(os.path.join(lookin, mplib + '.h')):
                 gmp_found = adir
-                    
+
             if os.path.isfile(os.path.join(lookin, 'mpfr.h')):
                 mpfr_found = adir
 
@@ -307,13 +307,13 @@ gmpy2_ext = Extension('gmpy2',
                       extra_link_args = my_extra_link_args)
 
 setup(name = "gmpy2",
-      version = "2.0.6",
+      version = "2.0.9",
       maintainer = "Case Van Horsen",
       maintainer_email = "casevh@gmail.com",
-      url = "http://code.google.com/p/gmpy/",
+      url = "https://github.com/aleaxit/gmpy",
       description = "GMP/MPIR, MPFR, and MPC interface to Python 2.6+ and 3.x",
       classifiers = [
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research'
         'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',

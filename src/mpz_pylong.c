@@ -222,7 +222,7 @@ mpn_pythonhash (mp_ptr up, mp_size_t un)
           /* Shifting to the right by more than wordsize bits
              actually shifts by (wordsize % 32) bits -- which is
              *not* the intended behavior here. */
-      if (bit_pos <= 8*sizeof(mp_limb_t))
+      if (bit_pos <= (ssize_t)(8*sizeof(mp_limb_t)))
             x += (n1 >> bit_pos) & (long)PyLong_MASK;
           bit_pos -= PyLong_SHIFT;
         }

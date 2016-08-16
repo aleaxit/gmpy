@@ -157,9 +157,9 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
                 mpz_tdiv_q_2exp(upper->z, man->z, shift);
                 if (mpz_sgn(lower->z)) {
                     /* lower is not 0 so it must have at least 1 bit set */
-                    if (mpz_sizeinbase(lower->z, 2) == shift) {
+                    if (mpz_sizeinbase(lower->z, 2) == (mpir_ui)shift) {
                         /* lower is >= 1/2 */
-                        if (mpz_scan1(lower->z, 0) == shift-1) {
+                        if (mpz_scan1(lower->z, 0) == (mpir_ui)(shift-1)) {
                             /* lower is exactly 1/2 */
                             if (mpz_odd_p(upper->z))
                                 carry = 1;
@@ -311,9 +311,9 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                 mpz_tdiv_q_2exp(upper->z, upper->z, shift);
                 if (mpz_sgn(lower->z)) {
                     /* lower is not 0 so it must have at least 1 bit set */
-                    if (mpz_sizeinbase(lower->z, 2)==shift) {
+                    if (mpz_sizeinbase(lower->z, 2)==(mpir_ui)shift) {
                         /* lower is >= 1/2 */
-                        if (mpz_scan1(lower->z, 0)==shift-1) {
+                        if (mpz_scan1(lower->z, 0)==(mpir_ui)(shift-1)) {
                             /* lower is exactly 1/2 */
                             if (mpz_odd_p(upper->z))
                                 carry = 1;
