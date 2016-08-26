@@ -935,6 +935,15 @@ Pympz_pow(PyObject *b, PyObject *e, PyObject *m)
             VALUE_ERROR("pow() exponent cannot be negative");
             goto err;
         }
+
+        if (!mpz_sgn(tempb->z)) {
+            mpz_set_ui(result->z, 0);
+            Py_XDECREF((PyObject*)tempb);
+            Py_XDECREF((PyObject*)tempe);
+            Py_XDECREF((PyObject*)tempm);
+            return (PyObject*)result;
+        }
+
         if (!mpz_fits_ui_p(tempe->z)) {
             VALUE_ERROR("pow() outrageous exponent");
             goto err;
@@ -1391,7 +1400,7 @@ Pygmpy_divm(PyObject *self, PyObject *args)
     num = Pympz_From_Integer(PyTuple_GET_ITEM(args, 0));
     den = Pympz_From_Integer(PyTuple_GET_ITEM(args, 1));
     mod = Pympz_From_Integer(PyTuple_GET_ITEM(args, 2));
-    
+
     if(!num || !den || !mod) {
         TYPE_ERROR("divm() requires 'mpz','mpz','mpz' arguments");
         Py_XDECREF((PyObject*)num);
