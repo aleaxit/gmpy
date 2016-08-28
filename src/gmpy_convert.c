@@ -1388,16 +1388,12 @@ Pympq_To_PyStr(PympqObject *self, int base, int option)
 #ifdef PY2
     *(p++) = '%';
     *(p++) = 's';
-    if (!mpz_fits_slong_p(mpq_numref(self->q)))
-        *(p++) = 'L';
     if (option & 1)
         *(p++) = ',';
     else
         *(p++) = '/';
     *(p++) = '%';
     *(p++) = 's';
-    if (!mpz_fits_slong_p(mpq_denref(self->q)))
-        *(p++) = 'L';
     if (option & 1)
         *(p++) = ')';
     *(p++) = '\00';

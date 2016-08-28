@@ -936,12 +936,26 @@ Pympz_pow(PyObject *b, PyObject *e, PyObject *m)
             goto err;
         }
 
-        if (!mpz_sgn(tempb->z)) {
+        /* Catch -1, 0, 1 getting raised to large exponents. */
+
+        if (mpz_cmp_si(tempb->z, 0) == 0) {
             mpz_set_ui(result->z, 0);
-            Py_XDECREF((PyObject*)tempb);
-            Py_XDECREF((PyObject*)tempe);
-            Py_XDECREF((PyObject*)tempm);
-            return (PyObject*)result;
+            goto done;
+        }
+
+        if (mpz_cmp_si(tempb->z, 1) == 0) {
+            mpz_set_ui(result->z, 1);
+            goto done;
+        }
+
+        if (mpz_cmp_si(tempb->z, -1) == 0) {
+            if (mpz_even_p(tempe->z)) {
+                mpz_set_ui(result->z, 1);
+            }
+            else {
+                mpz_set_si(result->z, -1);
+            }
+            goto done;
         }
 
         if (!mpz_fits_ui_p(tempe->z)) {
@@ -950,6 +964,7 @@ Pympz_pow(PyObject *b, PyObject *e, PyObject *m)
         }
         el = mpz_get_ui(tempe->z);
         mpz_pow_ui(result->z, tempb->z, el);
+        goto done;
     }
     else { /* Modulo exponentiation */
         int sign;
@@ -993,6 +1008,8 @@ Pympz_pow(PyObject *b, PyObject *e, PyObject *m)
             mpz_add(result->z, result->z, tempm->z);
         }
     }
+
+  done:
     Py_XDECREF((PyObject*)tempb);
     Py_XDECREF((PyObject*)tempe);
     Py_XDECREF((PyObject*)tempm);

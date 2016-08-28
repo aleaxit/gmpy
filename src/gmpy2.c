@@ -367,6 +367,8 @@
  *   Fix rounding error when converting string to mpfr and
  *     subnormalization is active (casevh)
  *   Fix initialization of random state type (casevh)
+ *   Fix mpz(-1|0|1) raised to very large power (casevh)
+ *   Remove trailing 'L' from str(mpq) and repr(mpq) (casevh)
  *
  ************************************************************************
  *
