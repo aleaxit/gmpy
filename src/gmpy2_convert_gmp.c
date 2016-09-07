@@ -962,16 +962,12 @@ GMPy_PyStr_From_MPQ(MPQ_Object *obj, int base, int option, CTXT_Object *context)
 #ifdef PY2
     *(p++) = '%';
     *(p++) = 's';
-    if (!mpz_fits_slong_p(mpq_numref(obj->q)))
-        *(p++) = 'L';
     if (option & 1)
         *(p++) = ',';
     else
         *(p++) = '/';
     *(p++) = '%';
     *(p++) = 's';
-    if (!mpz_fits_slong_p(mpq_denref(obj->q)))
-        *(p++) = 'L';
     if (option & 1)
         *(p++) = ')';
     *(p++) = '\00';

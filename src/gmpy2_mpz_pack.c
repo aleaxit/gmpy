@@ -51,7 +51,7 @@ GMPy_MPZ_pack(PyObject *self, PyObject *args)
     mp_bitcnt_t nbits, total_bits, tempx_bits;
     Py_ssize_t index, lst_count, i, temp_bits, limb_count;
     PyObject *lst;
-    mpz_t temp;
+    mpz_t temp, temp1;
     MPZ_Object *result, *tempx = 0;
     CTXT_Object *context = NULL;
 
@@ -86,6 +86,7 @@ GMPy_MPZ_pack(PyObject *self, PyObject *args)
     mpz_setbit(result->z, total_bits + (mp_bits_per_limb * 2));
 
     mpz_init(temp);
+    mpz_init(temp1);
     mpz_set_ui(temp, 0);
     limb_count = 0;
     tempx_bits = 0;
@@ -100,8 +101,8 @@ GMPy_MPZ_pack(PyObject *self, PyObject *args)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        mpz_mul_2exp(tempx->z, tempx->z, tempx_bits);
-        mpz_add(temp, temp, tempx->z);
+        mpz_mul_2exp(temp1, tempx->z, tempx_bits);
+        mpz_add(temp, temp, temp1);
         tempx_bits += nbits;
         i = 0;
         temp_bits = mpz_sizeinbase(temp, 2) * mpz_sgn(temp);
@@ -125,6 +126,7 @@ GMPy_MPZ_pack(PyObject *self, PyObject *args)
     result->z->_mp_d[limb_count] = mpz_getlimbn(temp, 0);
     mpz_clrbit(result->z, total_bits + (mp_bits_per_limb * 2));
     mpz_clear(temp);
+    mpz_clear(temp1);
     return (PyObject*)result;
 }
 

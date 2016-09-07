@@ -98,6 +98,28 @@ GMPy_Integer_Pow(PyObject *b, PyObject *e, PyObject *m, CTXT_Object *context)
             goto err;
         }
 
+        /* Catch -1, 0, 1 getting raised to large exponents. */
+
+        if (mpz_cmp_si(tempb->z, 0) == 0) {
+            mpz_set_ui(result->z, 0);
+            goto done;
+        }
+
+        if (mpz_cmp_si(tempb->z, 1) == 0) {
+            mpz_set_ui(result->z, 1);
+            goto done;
+        }
+
+        if (mpz_cmp_si(tempb->z, -1) == 0) {
+            if (mpz_even_p(tempe->z)) {
+                mpz_set_ui(result->z, 1);
+            }
+            else {
+                mpz_set_si(result->z, -1);
+            }
+            goto done;
+        }
+
         if (!mpz_fits_ulong_p(tempe->z)) {
             VALUE_ERROR("pow() outrageous exponent");
             goto err;
@@ -105,6 +127,7 @@ GMPy_Integer_Pow(PyObject *b, PyObject *e, PyObject *m, CTXT_Object *context)
 
         el = mpz_get_ui(tempe->z);
         mpz_pow_ui(result->z, tempb->z, el);
+        goto done;
     }
     else {
         /* Modulo is present. */
@@ -153,6 +176,8 @@ GMPy_Integer_Pow(PyObject *b, PyObject *e, PyObject *m, CTXT_Object *context)
             mpz_add(result->z, result->z, tempm->z);
         }
     }
+
+  done:
     Py_XDECREF((PyObject*)tempb);
     Py_XDECREF((PyObject*)tempe);
     Py_XDECREF((PyObject*)tempm);
