@@ -152,7 +152,7 @@ class gmpy_build_ext(build_ext):
         msys2 = False
 
         # Assume that we will always want to use the GMP, MPFR, and MPC libraries.
-        self.extensions[0].libraries.extend(['gmp', 'mpfr', 'mpc'])
+        self.extensions[0].libraries.extend(['mpc', 'mpfr', 'gmp'])
 
         for d in self.extensions[0].define_macros[:]:
             if d[0] == 'MSYS2':
