@@ -45,6 +45,7 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
 {
     PympzObject *result = 0;
     PyObject *n = 0;
+    PyObject *temp = 0;
     int base = 0;
     Py_ssize_t argc;
     static char *kwlist[] = {"n", "base", NULL };
@@ -91,8 +92,20 @@ Pygmpy_mpz(PyObject *self, PyObject *args, PyObject *keywds)
                        "1 argument");
         else {
             result = Pympz_From_Number(n);
-            if (!result && !PyErr_Occurred())
-                TYPE_ERROR("mpz() requires numeric or string argument");
+            if (!result && !PyErr_Occurred()) {
+                /* Try converting n to a PyLong */
+                temp = PyNumber_Long(n);
+                if (temp) {
+                    result = Pympz_From_Number(temp);
+                    if (!result && !PyErr_Occurred())
+                        TYPE_ERROR("mpz() requires numeric or string argument");
+                    Py_DECREF(temp);
+                    return (PyObject*)result;
+                }
+                else {
+                    TYPE_ERROR("mpz() requires numeric or string argument");
+                }
+            }
         }
     }
     return (PyObject*)result;
