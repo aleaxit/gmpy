@@ -369,6 +369,9 @@
  *   Fix initialization of random state type (casevh)
  *   Fix mpz(-1|0|1) raised to very large power (casevh)
  *   Remove trailing 'L' from str(mpq) and repr(mpq) (casevh)
+ *   Have mpz(x) call int(x) if mpz() does not know how to
+ *      convert x directly (casevh)
+ *   Add support for __new__ to mpz type (casevh)
  *
  ************************************************************************
  *

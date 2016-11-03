@@ -111,6 +111,32 @@ Pympz_new(void)
     return (PyObject*)self;
 }
 
+static PyObject *
+Pympz_new2(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PympzObject *self;
+
+    if (type != &Pympz_Type) {
+        TYPE_ERROR("mpz.__new__() requires mpz type");
+        return NULL;
+    }
+
+    if (in_pympzcache) {
+        self = pympzcache[--in_pympzcache];
+        /* Py_INCREF does not set the debugging pointers, so need to use
+         * _Py_NewReference instead. */
+        _Py_NewReference((PyObject*)self);
+        mpz_set_ui(self->z, 0);
+    }
+    else {
+        if (!(self = PyObject_New(PympzObject, &Pympz_Type)))
+            return NULL;
+        mpz_inoc(self->z);
+    }
+    self->hash_cache = -1;
+    return (PyObject*)self;
+}
+
 static void
 Pympz_dealloc(PympzObject *self)
 {

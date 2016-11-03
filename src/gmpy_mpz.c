@@ -2611,5 +2611,14 @@ static PyTypeObject Pympz_Type =
     Pympz_methods,                          /* tp_methods       */
         0,                                  /* tp_members       */
     Pympz_getseters,                        /* tp_getset        */
+        0,                                  /* tp_base          */
+        0,                                  /* tp_dict          */
+        0,                                  /* tp_descr_get     */
+        0,                                  /* tp_descr_set     */
+        0,                                  /* tp_dictoffset    */
+        0,                                  /* tp_init          */
+        0,                                  /* tp_alloc         */
+    Pympz_new2,                             /* tp_new           */
+        0,                                  /* tp_free          */
 };
 
