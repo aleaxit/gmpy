@@ -2509,7 +2509,7 @@ Pympfr_fsum(PyObject *self, PyObject *other)
 
     /* create an array of pointers to the mpfr_t field of a Pympfr object */
 
-    if (!(tab = (mpfr_ptr *)GMPY_MALLOC((sizeof(mpfr_srcptr) * seq_length)))) {
+    if (!(tab = (mpfr_ptr *)malloc((sizeof(mpfr_srcptr) * seq_length)))) {
         Py_DECREF(other);
         Py_DECREF((PyObject*)result);
         return PyErr_NoMemory();
@@ -2520,7 +2520,7 @@ Pympfr_fsum(PyObject *self, PyObject *other)
     }
     result->rc = mpfr_sum(result->f, tab, (unsigned long)seq_length, context->ctx.mpfr_round);
     Py_DECREF(other);
-    GMPY_FREE(tab);
+    free(tab);
 
     return (PyObject*)result;
 }
@@ -2732,7 +2732,7 @@ Pympfr_format(PyObject *self, PyObject *args)
     /* If there isn't a decimal point in the output and the output
      * only consists of digits, then append .0 */
     if (strlen(buffer) == strspn(buffer, "+- 0123456789")) {
-        newbuf = GMPY_MALLOC(buflen + 3);
+        newbuf = malloc(buflen + 3);
         if (!newbuf) {
             mpfr_free_str(buffer);
             return PyErr_NoMemory();
@@ -2742,7 +2742,7 @@ Pympfr_format(PyObject *self, PyObject *args)
         strcat(newbuf, ".0");
         mpfr_free_str(buffer);
         mpfrstr = Py_BuildValue("s", newbuf);
-        GMPY_FREE(newbuf);
+        free(newbuf);
     }
     else {
         mpfrstr = Py_BuildValue("s", buffer);

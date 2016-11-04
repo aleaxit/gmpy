@@ -457,7 +457,7 @@ Pympc_format(PyObject *self, PyObject *args)
      * Include space for '(', ' ', and 'j)' and possibly appending '.0' twice.
      */
 
-    tempbuf = GMPY_MALLOC(rbuflen + ibuflen + 10);
+    tempbuf = malloc(rbuflen + ibuflen + 10);
     if (!tempbuf) {
         mpfr_free_str(realbuf);
         mpfr_free_str(imagbuf);
@@ -501,7 +501,7 @@ Pympc_format(PyObject *self, PyObject *args)
 
     tempstr = Py_BuildValue("s", tempbuf);
     if (!tempstr) {
-        GMPY_FREE(tempbuf);
+        free(tempbuf);
         return NULL;
     }
 

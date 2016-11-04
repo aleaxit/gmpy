@@ -185,40 +185,28 @@ typedef long                mpir_si;
  * here. The default value is 100.*/
 #define MAX_CACHE 1000
 
-/* Choose which memory manager is used: Python or C.
- * NOTE: The use of PyMem is not compatible with Sage, therefore it is
- * disabled by default.
- * Use -DUSE_PYMEM to enable.
- */
-
-#ifdef USE_PYMEM
-#  define GMPY_FREE(NAME) PyMem_FR(NAME)
-#  define GMPY_MALLOC(NAME) PyMem_Malloc(NAME)
-#  define GMPY_REALLOC(NAME, SIZE) PyMem_Realloc(NAME, SIZE)
-#else
-#  define GMPY_FREE(NAME) free(NAME)
-#  define GMPY_MALLOC(NAME) malloc(NAME)
-#  define GMPY_REALLOC(NAME, SIZE) realloc(NAME, SIZE)
-#endif
+#  define XGMPY_FREE(NAME) free(NAME)
+#  define XGMPY_MALLOC(NAME) malloc(NAME)
+#  define XGMPY_REALLOC(NAME, SIZE) realloc(NAME, SIZE)
 
 #ifdef USE_ALLOCA
 #  define TEMP_ALLOC(B, S) \
     if(S < ALLOC_THRESHOLD) { \
         B = alloca(S); \
     } else { \
-        if(!(B = GMPY_MALLOC(S))) { \
+        if(!(B = malloc(S))) { \
             PyErr_NoMemory(); \
             return NULL; \
         } \
     }
-#  define TEMP_FREE(B, S) if(S >= ALLOC_THRESHOLD) GMPY_FREE(B)
+#  define TEMP_FREE(B, S) if(S >= ALLOC_THRESHOLD) free(B)
 #else
 #  define TEMP_ALLOC(B, S) \
-    if(!(B = GMPY_MALLOC(S)))  { \
+    if(!(B = malloc(S)))  { \
         PyErr_NoMemory(); \
         return NULL; \
     }
-#  define TEMP_FREE(B, S) GMPY_FREE(B)
+#  define TEMP_FREE(B, S) free(B)
 #endif
 
 /* Various defs to mask differences between Python versions. */

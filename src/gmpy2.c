@@ -451,6 +451,21 @@ The GMPY2 source code is licensed under LGPL 3 or later. The supported \
 versions of the GMP/MPIR, MPFR, and MPC libraries are also licensed under \
 LGPL 3 or later.";
 
+/* Because gmpy2 may execute in an environment where alternate memory functions
+ * may be be active in GMP, we need to use the proper memory function to free
+ * any strings returned by GMP (and MPFR and MPC). The MPFR library provides a
+ * function 'mpfr_free_str' for this purpose but it is technically possible,
+ * although unsupported, to build gmpy2 with MPFR and MPC. So here we define our
+ * own gmpy2_free_str function.
+ */
+
+static void gmpy2_free_str (char *str)
+{
+  void (*freefunc) (void *, size_t);
+  mp_get_memory_functions (NULL, NULL, &freefunc);
+  (*freefunc) (str, strlen (str) + 1);
+}
+
 /* The following global structures are used by gmpy_cache.c.
  */
 
@@ -813,46 +828,12 @@ static PyMethodDef Pygmpy_methods [] =
     { NULL, NULL, 1}
 };
 
-/* The custom memory allocation routines either use PyMem_* or the standard
- * libraries. See gmpy.h for defines.
- */
-
-static void *
-gmpy_allocate(size_t size)
-{
-    void *res;
-
-    if (!(res = GMPY_MALLOC(size)))
-        Py_FatalError("Insufficient memory");
-
-    return res;
-}
-
-static void *
-gmpy_reallocate(void *ptr, size_t old_size, size_t new_size)
-{
-    void *res;
-
-    if (!(res = GMPY_REALLOC(ptr, new_size)))
-        Py_FatalError("Insufficient memory");
-
-    return res;
-}
-
-static void
-gmpy_free( void *ptr, size_t size)
-{
-    GMPY_FREE(ptr);
-}
-
 static void
 _PyInitGMP(void)
 {
 #ifdef WITHMPFR
     PyObject *temp = NULL;
 #endif
-
-    mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
 
     set_zcache();
     set_pympzcache();
