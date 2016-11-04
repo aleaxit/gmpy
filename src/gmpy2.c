@@ -372,6 +372,8 @@
  *   Have mpz(x) call int(x) if mpz() does not know how to
  *      convert x directly (casevh)
  *   Add support for __new__ to mpz type (casevh)
+ *   No longer change the GMP memory functions (casevh)
+ *   Register gmpy2 types with the numeric tower (casevh)
  *
  ************************************************************************
  *
@@ -920,8 +922,11 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
 PyMODINIT_FUNC initgmpy2(void)
 #endif
 {
+    PyObject* result = NULL;
+    PyObject* namespace = NULL;
     PyObject* gmpy_module = NULL;
     PyObject* copy_reg_module = NULL;
+    PyObject* numbers_module = NULL;
 
     /* Validate the sizes of the various typedef'ed integer types. */
     if (sizeof(mp_limb_t) != sizeof(mpir_si)) {
@@ -1025,8 +1030,9 @@ PyMODINIT_FUNC initgmpy2(void)
             "copyreg.pickle(type(gmpy2.mpc(0,0)), gmpy2_reducer)\n"
 #endif
         ;
-        PyObject* namespace = PyDict_New();
-        PyObject* result = NULL;
+        namespace = PyDict_New();
+        result = NULL;
+
         PyDict_SetItemString(namespace, "copyreg", copy_reg_module);
         PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
         PyDict_SetItemString(namespace, "type", (PyObject*)&PyType_Type);
@@ -1056,8 +1062,8 @@ PyMODINIT_FUNC initgmpy2(void)
             "copy_reg.pickle(type(gmpy2.mpc(0,0)), gmpy2_reducer)\n"
 #endif
         ;
-        PyObject* namespace = PyDict_New();
-        PyObject* result = NULL;
+        namespace = PyDict_New();
+        result = NULL;
 
         PyDict_SetItemString(namespace, "copy_reg", copy_reg_module);
         PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
@@ -1074,6 +1080,35 @@ PyMODINIT_FUNC initgmpy2(void)
         PyErr_Clear();
     }
 #endif
+
+    /* Register the gmpy2 types with the numeric tower. */
+
+    numbers_module = PyImport_ImportModule("numbers");
+    if (numbers_module) {
+        char* register_numbers =
+            "numbers.Integral.register(type(gmpy2.mpz()))\n"
+            "numbers.Rational.register(type(gmpy2.mpq()))\n"
+            "numbers.Real.register(type(gmpy2.mpfr()))\n"
+            "numbers.Complex.register(type(gmpy2.mpc()))\n"
+        ;
+        namespace = PyDict_New();
+        result = NULL;
+
+        PyDict_SetItemString(namespace, "numbers", numbers_module);
+        PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
+        PyDict_SetItemString(namespace, "type", (PyObject*)&PyType_Type);
+        result = PyRun_String(register_numbers, Py_file_input,
+                              namespace, namespace);
+        if (!result)
+            PyErr_Clear();
+        Py_DECREF(namespace);
+        Py_DECREF(numbers_module);
+        Py_XDECREF(result);
+    }
+    else {
+        PyErr_Clear();
+    }
+
 
 #ifdef PY3
     return gmpy_module;

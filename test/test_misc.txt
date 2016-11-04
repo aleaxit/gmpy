@@ -2,6 +2,7 @@ Miscellaneous Functions
 -----------------------
 
     >>> import gmpy2
+    >>> import numbers
     >>> gmpy2.version()
     '2.0.9'
     >>> gmpy2.mp_limbsize() in (32,64)
@@ -19,4 +20,36 @@ Miscellaneous Functions
     >>> gmpy2.mpc_version() and gmpy2.mpc_version().startswith('MPC')
     True
     >>> gmpy2.mpc_version() and '1.0' <= gmpy2.mpc_version().split()[1]
+    True
+    >>> isinstance(gmpy2.mpz(23), numbers.Integral)
+    True
+    >>> isinstance(gmpy2.mpz(23), numbers.Rational)
+    True
+    >>> isinstance(gmpy2.mpz(23), numbers.Real)
+    True
+    >>> isinstance(gmpy2.mpz(23), numbers.Complex)
+    True
+    >>> isinstance(gmpy2.mpq(2,3), numbers.Integral)
+    False
+    >>> isinstance(gmpy2.mpq(2,3), numbers.Rational)
+    True
+    >>> isinstance(gmpy2.mpz(23), numbers.Real)
+    True
+    >>> isinstance(gmpy2.mpz(23), numbers.Complex)
+    True
+    >>> isinstance(gmpy2.mpfr(2.0), numbers.Integral)
+    False
+    >>> isinstance(gmpy2.mpfr(2.0), numbers.Rational)
+    False
+    >>> isinstance(gmpy2.mpfr(2.0), numbers.Real)
+    True
+    >>> isinstance(gmpy2.mpfr(2.0), numbers.Complex)
+    True
+    >>> isinstance(gmpy2.mpc(2,3), numbers.Integral)
+    False
+    >>> isinstance(gmpy2.mpc(2,3), numbers.Rational)
+    False
+    >>> isinstance(gmpy2.mpc(2,3), numbers.Real)
+    False
+    >>> isinstance(gmpy2.mpc(2,3), numbers.Complex)
     True
