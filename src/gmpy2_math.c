@@ -1879,7 +1879,7 @@ GMPy_Context_Fsum(PyObject *self, PyObject *other)
 
     /* create an array of pointers to the mpfr_t field of a Pympfr object */
 
-    if (!(tab = (mpfr_ptr *)GMPY_MALLOC((sizeof(mpfr_srcptr) * seq_length)))) {
+    if (!(tab = (mpfr_ptr *)malloc((sizeof(mpfr_srcptr) * seq_length)))) {
         Py_DECREF(other);
         Py_DECREF((PyObject*)result);
         return PyErr_NoMemory();
@@ -1894,7 +1894,7 @@ GMPy_Context_Fsum(PyObject *self, PyObject *other)
 
     result->rc = mpfr_sum(result->f, tab, seq_length, GET_MPFR_ROUND(context));
     Py_DECREF(other);
-    GMPY_FREE(tab);
+    free(tab);
 
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;

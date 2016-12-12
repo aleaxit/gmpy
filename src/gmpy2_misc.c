@@ -170,7 +170,7 @@ GMPy_printf(PyObject *self, PyObject *args)
         }
         else {
             result = Py_BuildValue("s", buffer);
-            GMPY_FREE(buffer);
+            mpfr_free_str(buffer);
         }
         return result;
     }
@@ -182,7 +182,7 @@ GMPy_printf(PyObject *self, PyObject *args)
         }
         else {
             result = Py_BuildValue("s", buffer);
-            GMPY_FREE(buffer);
+            mpfr_free_str(buffer);
         }
         return result;
     }

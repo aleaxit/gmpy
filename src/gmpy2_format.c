@@ -323,7 +323,7 @@ GMPy_MPFR_Format(PyObject *self, PyObject *args)
     /* If there isn't a decimal point in the output and the output
      * only consists of digits, then append .0 */
     if (strlen(buffer) == strspn(buffer, "+- 0123456789")) {
-        newbuf = GMPY_MALLOC(buflen + 3);
+        newbuf = malloc(buflen + 3);
         if (!newbuf) {
             mpfr_free_str(buffer);
             return PyErr_NoMemory();
@@ -333,7 +333,7 @@ GMPy_MPFR_Format(PyObject *self, PyObject *args)
         strcat(newbuf, ".0");
         mpfr_free_str(buffer);
         mpfrstr = Py_BuildValue("s", newbuf);
-        GMPY_FREE(newbuf);
+        free(newbuf);
     }
     else {
         mpfrstr = Py_BuildValue("s", buffer);
@@ -573,7 +573,7 @@ GMPy_MPC_Format(PyObject *self, PyObject *args)
      * Include space for '(', ' ', and 'j)' and possibly appending '.0' twice.
      */
 
-    tempbuf = GMPY_MALLOC(rbuflen + ibuflen + 10);
+    tempbuf = malloc(rbuflen + ibuflen + 10);
     if (!tempbuf) {
         mpfr_free_str(realbuf);
         mpfr_free_str(imagbuf);
@@ -617,7 +617,7 @@ GMPy_MPC_Format(PyObject *self, PyObject *args)
 
     tempstr = Py_BuildValue("s", tempbuf);
     if (!tempstr) {
-        GMPY_FREE(tempbuf);
+        free(tempbuf);
         return NULL;
     }
 

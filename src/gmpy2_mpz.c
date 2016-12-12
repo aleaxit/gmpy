@@ -43,7 +43,8 @@ static PyObject *
 GMPy_MPZ_Factory(PyObject *self, PyObject *args, PyObject *keywds)
 {
     MPZ_Object *result = NULL;
-    PyObject *n;
+    PyObject *n = NULL;
+    PyObject *temp = NULL;
     int base = 0;
     Py_ssize_t argc;
     static char *kwlist[] = {"s", "base", NULL };
@@ -71,7 +72,15 @@ GMPy_MPZ_Factory(PyObject *self, PyObject *args, PyObject *keywds)
             result = GMPy_MPZ_From_PyStr(n, base, context);
         }
         else {
-            TYPE_ERROR("mpz() requires numeric or string argument");
+            /* Try converting to integer. */
+            temp = PyNumber_Long(n);
+            if (temp) {
+                result = GMPy_MPZ_From_PyIntOrLong(temp, context);
+                Py_DECREF(temp);
+            }
+            else {
+                TYPE_ERROR("mpz() requires numeric or string argument");
+            }
         }
         return (PyObject*)result;
     }
@@ -263,8 +272,17 @@ static PyTypeObject MPZ_Type =
         0,                                  /* tp_weaklistoffset*/
         0,                                  /* tp_iter          */
         0,                                  /* tp_iternext      */
-    GMPy_MPZ_methods,                          /* tp_methods       */
+    GMPy_MPZ_methods,                       /* tp_methods       */
         0,                                  /* tp_members       */
-    GMPy_MPZ_getseters,                        /* tp_getset        */
+    GMPy_MPZ_getseters,                     /* tp_getset        */
+        0,                                  /* tp_base          */
+        0,                                  /* tp_dict          */
+        0,                                  /* tp_descr_get     */
+        0,                                  /* tp_descr_set     */
+        0,                                  /* tp_dictoffset    */
+        0,                                  /* tp_init          */
+        0,                                  /* tp_alloc         */
+    GMPy_MPZ_New2,                          /* tp_new           */
+        0,                                  /* tp_free          */
 };
 

@@ -49,7 +49,7 @@ set_gmpympzcache(void)
         }
         global.in_gmpympzcache = global.cache_size;
     }
-    global.gmpympzcache = GMPY_REALLOC(global.gmpympzcache, sizeof(MPZ_Object)*global.cache_size);
+    global.gmpympzcache = realloc(global.gmpympzcache, sizeof(MPZ_Object)*global.cache_size);
 }
 
 static MPZ_Object *
@@ -71,6 +71,35 @@ GMPy_MPZ_New(CTXT_Object *context)
         }
     }
     return result;
+}
+
+static PyObject *
+GMPy_MPZ_New2(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    MPZ_Object *result = NULL;
+
+    if (type != &MPZ_Type) {
+        TYPE_ERROR("mpz.__new__() requires mpz type");
+        return NULL;
+    }
+
+    if (global.in_gmpympzcache) {
+        result = global.gmpympzcache[--(global.in_gmpympzcache)];
+        /* Py_INCREF does not set the debugging pointers, so need to use
+         * _Py_NewReference instead. */
+        _Py_NewReference((PyObject*)result);
+        mpz_set_ui(result->z, 0);
+        result->hash_cache = -1;
+    }
+    else {
+        if ((result = PyObject_New(MPZ_Object, &MPZ_Type))) {
+            mpz_init(result->z);
+            mpz_set_ui(result->z, 0);
+            result->hash_cache = -1;
+            result->hash_cache = -1;
+        }
+    }
+    return (PyObject*)result;
 }
 
 static void
@@ -99,7 +128,7 @@ set_gmpyxmpzcache(void)
         }
         global.in_gmpyxmpzcache = global.cache_size;
     }
-    global.gmpyxmpzcache = GMPY_REALLOC(global.gmpyxmpzcache, sizeof(XMPZ_Object)*global.cache_size);
+    global.gmpyxmpzcache = realloc(global.gmpyxmpzcache, sizeof(XMPZ_Object)*global.cache_size);
 }
 
 static XMPZ_Object *
@@ -150,7 +179,7 @@ set_gmpympqcache(void)
         }
         global.in_gmpympqcache = global.cache_size;
     }
-    global.gmpympqcache = GMPY_REALLOC(global.gmpympqcache, sizeof(MPQ_Object)*global.cache_size);
+    global.gmpympqcache = realloc(global.gmpympqcache, sizeof(MPQ_Object)*global.cache_size);
 }
 
 static MPQ_Object *
@@ -203,7 +232,7 @@ set_gmpympfrcache(void)
         }
         global.in_gmpympfrcache = global.cache_size;
     }
-    global.gmpympfrcache = GMPY_REALLOC(global.gmpympfrcache, sizeof(MPFR_Object)*global.cache_size);
+    global.gmpympfrcache = realloc(global.gmpympfrcache, sizeof(MPFR_Object)*global.cache_size);
 }
 
 static MPFR_Object *
@@ -268,7 +297,7 @@ set_gmpympccache(void)
         }
         global.in_gmpympccache = global.cache_size;
     }
-    global.gmpympccache = GMPY_REALLOC(global.gmpympccache, sizeof(MPC_Object)*global.cache_size);
+    global.gmpympccache = realloc(global.gmpympccache, sizeof(MPC_Object)*global.cache_size);
 }
 
 

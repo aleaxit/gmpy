@@ -242,14 +242,14 @@ static mpz_t TestNbr;
 static void allocate_vars(void)
 {
   int i = 0;
-  aiJS = GMPY_MALLOC(PWmax * sizeof(mpz_t));
-  aiJW = GMPY_MALLOC(PWmax * sizeof(mpz_t));
-  aiJX = GMPY_MALLOC(PWmax * sizeof(mpz_t));
-  aiJ0 = GMPY_MALLOC(PWmax * sizeof(mpz_t));
-  aiJ1 = GMPY_MALLOC(PWmax * sizeof(mpz_t));
-  aiJ2 = GMPY_MALLOC(PWmax * sizeof(mpz_t));
-  aiJ00 = GMPY_MALLOC(PWmax * sizeof(mpz_t));
-  aiJ01 = GMPY_MALLOC(PWmax * sizeof(mpz_t));
+  aiJS = malloc(PWmax * sizeof(mpz_t));
+  aiJW = malloc(PWmax * sizeof(mpz_t));
+  aiJX = malloc(PWmax * sizeof(mpz_t));
+  aiJ0 = malloc(PWmax * sizeof(mpz_t));
+  aiJ1 = malloc(PWmax * sizeof(mpz_t));
+  aiJ2 = malloc(PWmax * sizeof(mpz_t));
+  aiJ00 = malloc(PWmax * sizeof(mpz_t));
+  aiJ01 = malloc(PWmax * sizeof(mpz_t));
   for (i = 0 ; i < PWmax; i++)
   {
     mpz_init(aiJS[i]);
@@ -287,14 +287,14 @@ static void free_vars(void)
     mpz_clear(aiJ00[i]);
     mpz_clear(aiJ01[i]);
   }
-  GMPY_FREE(aiJS);
-  GMPY_FREE(aiJW);
-  GMPY_FREE(aiJX);
-  GMPY_FREE(aiJ0);
-  GMPY_FREE(aiJ1);
-  GMPY_FREE(aiJ2);
-  GMPY_FREE(aiJ00);
-  GMPY_FREE(aiJ01);
+  free(aiJS);
+  free(aiJW);
+  free(aiJX);
+  free(aiJ0);
+  free(aiJ1);
+  free(aiJ2);
+  free(aiJ00);
+  free(aiJ01);
 
   mpz_clear(TestNbr);
   mpz_clear(biN);

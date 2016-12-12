@@ -337,20 +337,25 @@
  ************************************************************************
  *
  *   2.1.0
- *   Improvements to setup.py (casevh)
- *   Add thread-safe contexts (casevh)
- *   MPFR and MPC are now required (casevh)
- *   Invalid Operation exception now raised for addition, etc. (casevh)
- *   inverse() now raises exception if inverse does not exist (casevh)
- *   Add context methods (casevh)
+ *   Improvements to setup.py.
+ *   Add thread-safe contexts.
+ *   MPFR and MPC are now required.
+ *   Invalid Operation exception now raised for addition, etc.
+ *   inverse() now raises exception if inverse does not exist.
+ *   Add context methods.
  *   Major code refactoring required to properly support thread-safe
- *      contexts. (casevh)
- *   __str__ and __repr__ no longer append "L" on Python 2 (casevh)
- *   mpq(mpfr) now returns the exact result (casevh)
+ *      contexts.
+ *   __str__ and __repr__ no longer append "L" on Python 2.
+ *   mpq(mpfr) now returns the exact result.
  *   Fix repr(mpc) for precision >325 bits.
  *   Intermediate conversions of Integer to mpfr are now done with the
- *      full precision of the Integer. (casevh)
- *   Remove support for interaction with Decimal type. (casevh)
+ *      full precision of the Integer.
+ *   Remove support for interaction with Decimal type.
+ *   No longer attempt to override the memory allocation functions.
+ *   Register gmpy2 types into the numeric tower.
+ *   mpz(x) call int(x) if mpz() does not know how to convert x
+ *      directly.
+ *   Add support for __new__ to mpz() type.
  *
  ************************************************************************
  *
@@ -812,44 +817,6 @@ static PyMethodDef Pygmpy_methods [] =
     { NULL, NULL, 1}
 };
 
-/* The custom memory allocation routines either use PyMem_* or the standard
- * libraries. See gmpy.h for defines.
- */
-
-static void *
-gmpy_allocate(size_t size)
-{
-    void *res;
-
-    if (!(res = GMPY_MALLOC(size))) {
-        /* LCOV_EXCL_START */
-        Py_FatalError("Insufficient memory");
-        /* LCOV_EXCL_STOP */
-    }
-
-    return res;
-}
-
-static void *
-gmpy_reallocate(void *ptr, size_t old_size, size_t new_size)
-{
-    void *res;
-
-    if (!(res = GMPY_REALLOC(ptr, new_size))) {
-        /* LCOV_EXCL_START */
-        Py_FatalError("Insufficient memory");
-        /* LCOV_EXCL_STOP */
-    }
-
-    return res;
-}
-
-static void
-gmpy_free( void *ptr, size_t size)
-{
-    GMPY_FREE(ptr);
-}
-
 static char _gmpy_docs[] =
 "gmpy2 2.1.0a0 - General Multiple-precision arithmetic for Python\n"
 "\n"
@@ -903,9 +870,12 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
 PyMODINIT_FUNC initgmpy2(void)
 #endif
 {
+    PyObject *result = NULL;
+    PyObject *namespace = NULL;
     PyObject *gmpy_module = NULL;
     PyObject *copy_reg_module = NULL;
     PyObject *temp = NULL;
+    PyObject *numbers_module = NULL;
 
     /* Validate the sizes of the various typedef'ed integer types. */
 
@@ -996,9 +966,6 @@ PyMODINIT_FUNC initgmpy2(void)
         INITERROR;
         /* LCOV_EXCL_STOP */
     }
-
-    /* Initialize the custom memory handlers. */
-    mp_set_memory_functions(gmpy_allocate, gmpy_reallocate, gmpy_free);
 
     /* Initialize the global structure. Eventually this should be module local. */
     global.cache_size = 100;
@@ -1202,8 +1169,10 @@ PyMODINIT_FUNC initgmpy2(void)
             "copyreg.pickle(type(gmpy2.mpq(0)), gmpy2_reducer)\n"
             "copyreg.pickle(type(gmpy2.mpfr(0)), gmpy2_reducer)\n"
             "copyreg.pickle(type(gmpy2.mpc(0,0)), gmpy2_reducer)\n";
-        PyObject* namespace = PyDict_New();
-        PyObject* result = NULL;
+
+        namespace = PyDict_New();
+        result = NULL;
+
         PyDict_SetItemString(namespace, "copyreg", copy_reg_module);
         PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
         PyDict_SetItemString(namespace, "type", (PyObject*)&PyType_Type);
@@ -1232,6 +1201,7 @@ PyMODINIT_FUNC initgmpy2(void)
             "copy_reg.pickle(type(gmpy2.mpq(0)), gmpy2_reducer)\n"
             "copy_reg.pickle(type(gmpy2.mpfr(0)), gmpy2_reducer)\n"
             "copy_reg.pickle(type(gmpy2.mpc(0,0)), gmpy2_reducer)\n";
+
         PyObject* namespace = PyDict_New();
         PyObject* result = NULL;
 
@@ -1254,6 +1224,36 @@ PyMODINIT_FUNC initgmpy2(void)
         /* LCOV_EXCL_STOP */
     }
 #endif
+
+    /* Register the gmpy2 types with the numeric tower. */
+
+    numbers_module = PyImport_ImportModule("numbers");
+    if (numbers_module) {
+        char* register_numbers =
+            "numbers.Integral.register(type(gmpy2.mpz()))\n"
+            "numbers.Rational.register(type(gmpy2.mpq()))\n"
+            "numbers.Real.register(type(gmpy2.mpfr()))\n"
+            "numbers.Complex.register(type(gmpy2.mpc()))\n"
+        ;
+        namespace = PyDict_New();
+        result = NULL;
+
+        PyDict_SetItemString(namespace, "numbers", numbers_module);
+        PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
+        PyDict_SetItemString(namespace, "type", (PyObject*)&PyType_Type);
+        result = PyRun_String(register_numbers, Py_file_input,
+                              namespace, namespace);
+        if (!result) {
+            PyErr_Clear();
+        }
+
+        Py_DECREF(namespace);
+        Py_DECREF(numbers_module);
+        Py_XDECREF(result);
+    }
+    else {
+        PyErr_Clear();
+    }
 
 #ifdef PY3
     return gmpy_module;
