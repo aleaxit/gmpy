@@ -52,6 +52,12 @@ set_gmpympzcache(void)
     global.gmpympzcache = realloc(global.gmpympzcache, sizeof(MPZ_Object)*global.cache_size);
 }
 
+/* GMPy_MPZ_New returns a reference to an MPZ_Object that can be modified.
+ * Due to the caching that is used, the object will likely have a random
+ * value. The object returned should only be used as a destination of a call
+ * into the GMP/MPFR/MPC libraries.
+ */
+
 static MPZ_Object *
 GMPy_MPZ_New(CTXT_Object *context)
 {
@@ -73,33 +79,113 @@ GMPy_MPZ_New(CTXT_Object *context)
     return result;
 }
 
+/* GMPy_MPZ_NewInit returns a reference to an initialized MPZ_Object. It is
+ * used by mpz.__new__ to replace the old mpz() factory function.
+ */
+
 static PyObject *
-GMPy_MPZ_New2(PyTypeObject *type, PyObject *args, PyObject *kwds)
+GMPy_MPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
 {
     MPZ_Object *result = NULL;
+    PyObject *n = NULL;
+    PyObject *temp = NULL;
+    int base = 0;
+    Py_ssize_t argc;
+    static char *kwlist[] = {"s", "base", NULL };
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context)
 
     if (type != &MPZ_Type) {
         TYPE_ERROR("mpz.__new__() requires mpz type");
         return NULL;
     }
 
-    if (global.in_gmpympzcache) {
-        result = global.gmpympzcache[--(global.in_gmpympzcache)];
-        /* Py_INCREF does not set the debugging pointers, so need to use
-         * _Py_NewReference instead. */
-        _Py_NewReference((PyObject*)result);
-        mpz_set_ui(result->z, 0);
-        result->hash_cache = -1;
+    /* Optimize the most common use cases first; either 0 or 1 argument */
+
+    argc = PyTuple_GET_SIZE(args);
+
+    if (argc == 0) {
+        if ((result = GMPy_MPZ_New(context))) {
+            mpz_set_ui(result->z, 0);
+        }
+        return (PyObject*)result;
+    }
+
+    if (argc == 1 && !keywds) {
+        n = PyTuple_GET_ITEM(args, 0);
+
+        if (MPZ_Check(n)) {
+            Py_INCREF(n);
+            return n;
+        }
+
+        if (PyIntOrLong_Check(n)) {
+            return (PyObject*)GMPy_MPZ_From_PyIntOrLong(n, context);
+        }
+
+        if (MPQ_Check(n)) {
+            return (PyObject*)GMPy_MPZ_From_MPQ((MPQ_Object*)n, context);
+        }
+
+        if (MPFR_Check(n)) {
+            return (PyObject*)GMPy_MPZ_From_MPFR((MPFR_Object*)n, context);
+        }
+
+        if (PyFloat_Check(n)) {
+            return (PyObject*)GMPy_MPZ_From_PyFloat(n, context);
+        }
+
+        if (XMPZ_Check(n)) {
+            return (PyObject*)GMPy_MPZ_From_XMPZ((XMPZ_Object*)n, context);
+        }
+
+        if (IS_FRACTION(n)) {
+            MPQ_Object *temp = GMPy_MPQ_From_Fraction(n, context);
+
+            if (temp) {
+                result = GMPy_MPZ_From_MPQ(temp, context);
+                Py_DECREF((PyObject*)temp);
+            }
+            return (PyObject*)result;
+        }
+
+        if (PyStrOrUnicode_Check(n)) {
+            return (PyObject*)GMPy_MPZ_From_PyStr(n, base, context);
+        }
+
+        /* Try converting to integer. */
+        temp = PyNumber_Long(n);
+        if (temp) {
+            result = GMPy_MPZ_From_PyIntOrLong(temp, context);
+            Py_DECREF(temp);
+            return (PyObject*)result;
+        }
+
+        TYPE_ERROR("mpz() requires numeric or string argument");
+        return NULL;
+    }
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwlist, &n, &base)) {
+        return NULL;
+    }
+
+    if ((base != 0) && ((base < 2)|| (base > 62))) {
+        VALUE_ERROR("base for mpz() must be 0 or in the interval [2, 62]");
+        return NULL;
+    }
+
+    if (PyStrOrUnicode_Check(n)) {
+        return (PyObject*)GMPy_MPZ_From_PyStr(n, base, context);
+    }
+
+    if (IS_REAL(n)) {
+        TYPE_ERROR("mpz() with number argument only takes 1 argument");
     }
     else {
-        if ((result = PyObject_New(MPZ_Object, &MPZ_Type))) {
-            mpz_init(result->z);
-            mpz_set_ui(result->z, 0);
-            result->hash_cache = -1;
-            result->hash_cache = -1;
-        }
+        TYPE_ERROR("mpz() requires numeric or string (and optional base) arguments");
     }
-    return (PyObject*)result;
+    return NULL;
 }
 
 static void

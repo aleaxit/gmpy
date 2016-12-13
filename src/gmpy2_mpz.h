@@ -43,8 +43,6 @@ static PyTypeObject MPZ_Type;
 #define MPZ(obj) (((MPZ_Object*)(obj))->z)
 #define MPZ_Check(v) (((PyObject*)v)->ob_type == &MPZ_Type)
 
-static PyObject * GMPy_MPZ_Factory(PyObject *self, PyObject *args, PyObject *keywds);
-
 #ifdef __cplusplus
 }
 #endif

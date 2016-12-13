@@ -355,7 +355,9 @@
  *   Register gmpy2 types into the numeric tower.
  *   mpz(x) call int(x) if mpz() does not know how to convert x
  *      directly.
- *   Add support for __new__ to mpz() type.
+ *   Convert `mpz` to a type using __new__ instead of a factory
+ *      function.
+ *
  *
  ************************************************************************
  *
@@ -650,7 +652,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "mpfr_version", GMPy_get_mpfr_version, METH_NOARGS, GMPy_doc_mpfr_version },
     { "mpq", (PyCFunction)GMPy_MPQ_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_mpq_factory },
     { "mpq_from_old_binary", GMPy_MPQ_From_Old_Binary, METH_O, doc_mpq_from_old_binary },
-    { "mpz", (PyCFunction)GMPy_MPZ_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_mpz_factory },
     { "mpz_from_old_binary", GMPy_MPZ_From_Old_Binary, METH_O, doc_mpz_from_old_binary },
     { "mpz_random", GMPy_MPZ_random_Function, METH_VARARGS, GMPy_doc_mpz_random_function },
     { "mpz_rrandomb", GMPy_MPZ_rrandomb_Function, METH_VARARGS, GMPy_doc_mpz_rrandomb_function },
@@ -1055,6 +1056,11 @@ PyMODINIT_FUNC initgmpy2(void)
         INITERROR;
         /* LCOV_EXCL_STOP */
     }
+
+    /* Add the mpz type to the module namespace. */
+
+    Py_INCREF(&MPZ_Type);
+    PyModule_AddObject(gmpy_module, "mpz", (PyObject*)&MPZ_Type);
 
     /* Initialize thread local contexts. */
 #ifdef WITHOUT_THREADS

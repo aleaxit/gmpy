@@ -46,6 +46,7 @@ extern "C" {
 
 static void          set_gmpympzcache(void);
 static MPZ_Object *  GMPy_MPZ_New(CTXT_Object *context);
+static PyObject *    GMPy_MPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds);
 static void          GMPy_MPZ_Dealloc(MPZ_Object *self);
 
 static void          set_gmpyxmpzcache(void);
