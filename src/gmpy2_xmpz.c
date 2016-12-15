@@ -26,7 +26,7 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-PyDoc_STRVAR(GMPy_doc_xmpz_factory,
+PyDoc_STRVAR(GMPy_doc_xmpz,
 "xmpz() -> xmpz(0)\n\n"
 "     If no argument is given, return xmpz(0).\n\n"
 "xmpz(n) -> xmpz\n\n"
@@ -38,66 +38,11 @@ PyDoc_STRVAR(GMPy_doc_xmpz_factory,
 "     are recognized by leading 0b, 0o, or 0x characters, otherwise\n"
 "     the string is assumed to be decimal. Values for base can range\n"
 "     between 2 and 62.\n\n"
-"     Note: 'xmpz' is a mutable integer. It can be faster for when\n"
-"     used for augmented assignment (+=, *=, etc.). 'xmpz' objects\n"
-"     cannot be used as dictionary keys. The use of 'mpz' objects is\n"
-"     recommended in most cases.");
+"     Note: 'xmpz' is a mutable integer. It can be faster when used\n"
+"     for augmented assignment (+=, *=, etc.). 'xmpz' objects cannot\n"
+"     be used as dictionary keys. The use of 'mpz' objects is recommended\n"
+"     in most cases.");
 
-static PyObject *
-GMPy_XMPZ_Factory(PyObject *self, PyObject *args, PyObject *keywds)
-{
-    XMPZ_Object *result = 0;
-    PyObject *n = 0;
-    int base = 0;
-    Py_ssize_t argc;
-    static char *kwlist[] = {"n", "base", NULL };
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
-
-    argc = PyTuple_GET_SIZE(args);
-
-    if (argc == 0) {
-        if ((result = GMPy_XMPZ_New(context))) {
-            mpz_set_ui(result->z, 0);
-        }
-        return (PyObject*)result;
-    }
-
-    if (argc == 1 && !keywds) {
-        n = PyTuple_GET_ITEM(args, 0);
-        if (IS_REAL(n)) {
-            result = GMPy_XMPZ_From_Number(n, context);
-        }
-        else if (PyStrOrUnicode_Check(n)) {
-            result = GMPy_XMPZ_From_PyStr(n, base, context);
-        }
-        else {
-            TYPE_ERROR("xmpz() requires numeric or string argument");
-        }
-        return (PyObject*)result;
-    }
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwlist, &n, &base)) {
-        return NULL;
-    }
-
-    if ((base != 0) && ((base < 2)|| (base > 62))) {
-        VALUE_ERROR("base for xmpz() must be 0 or in the interval [2, 62]");
-        return NULL;
-    }
-
-    if (PyStrOrUnicode_Check(n)) {
-        result = GMPy_XMPZ_From_PyStr(n, base, context);
-    }
-    else if (IS_REAL(n)) {
-        TYPE_ERROR("xmpz() with number argument only takes 1 argument");
-    }
-    else {
-        TYPE_ERROR("xmpz() requires numeric or string (and optional base) arguments");
-    }
-    return (PyObject*)result;
-}
 
 #ifdef PY3
 static PyNumberMethods GMPy_XMPZ_number_methods =
@@ -189,6 +134,13 @@ static PyMappingMethods GMPy_XMPZ_mapping_methods = {
     (objobjargproc)GMPy_XMPZ_Method_AssignSubScript
 };
 
+static PyGetSetDef GMPy_XMPZ_getseters[] =
+{
+    { "numerator", (getter)GMPy_XMPZ_Attrib_GetNumer, NULL, "numerator", NULL },
+    { "denominator", (getter)GMPy_XMPZ_Attrib_GetDenom, NULL, "denominator", NULL },
+    {NULL}
+};
+
 static PyMethodDef GMPy_XMPZ_methods [] =
 {
     { "__format__", GMPy_MPZ_Format, METH_VARARGS, GMPy_doc_mpz_format },
@@ -214,7 +166,7 @@ static PyTypeObject XMPZ_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
 #ifdef PY3
-    PyVarObject_HEAD_INIT(0, 0)
+    PyVarObject_HEAD_INIT(NULL, 0)
 #else
     PyObject_HEAD_INIT(0)
         0,                                  /* ob_size          */
@@ -245,7 +197,7 @@ static PyTypeObject XMPZ_Type =
     Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_CLASS| \
     Py_TPFLAGS_HAVE_INPLACEOPS,
 #endif
-    "Multiple precision integer",           /* tp_doc           */
+    GMPy_doc_xmpz,                          /* tp_doc           */
         0,                                  /* tp_traverse      */
         0,                                  /* tp_clear         */
     (richcmpfunc)&GMPy_RichCompare_Slot,    /* tp_richcompare   */
@@ -253,6 +205,17 @@ static PyTypeObject XMPZ_Type =
         0,                                  /* tp_iter          */
         0,                                  /* tp_iternext      */
     GMPy_XMPZ_methods,                      /* tp_methods       */
+        0,                                  /* tp_members       */
+    GMPy_XMPZ_getseters,                    /* tp_getset        */
+        0,                                  /* tp_base          */
+        0,                                  /* tp_dict          */
+        0,                                  /* tp_descr_get     */
+        0,                                  /* tp_descr_set     */
+        0,                                  /* tp_dictoffset    */
+        0,                                  /* tp_init          */
+        0,                                  /* tp_alloc         */
+    GMPy_XMPZ_NewInit,                       /* tp_new           */
+        0,                                  /* tp_free          */
 };
 
 

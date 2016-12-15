@@ -1695,7 +1695,7 @@ GMPy_MPZ_Attrib_GetNumer(MPZ_Object *self, void *closure)
 }
 
 static PyObject *
-GMPy_MPZ_Attrib_GetDenom(MPQ_Object *self, void *closure)
+GMPy_MPZ_Attrib_GetDenom(MPZ_Object *self, void *closure)
 {
     MPZ_Object *result;
 

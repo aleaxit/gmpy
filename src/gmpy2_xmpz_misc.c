@@ -123,7 +123,7 @@ PyDoc_STRVAR(GMPy_doc_xmpz_method_make_mpz,
 "xmpz.make_mpz() -> mpz\n\n"
 "Return an mpz by converting an 'xmpz' to an 'mpz' as quickly as\n"
 "possible.\n\n"
-"NOTE: Optimized for speed so the original xmpz is set to 0!.");
+"NOTE: Optimized for speed so the original xmpz is set to 0!");
 
 static PyObject *
 GMPy_XMPZ_Method_MakeMPZ(PyObject *self, PyObject *other)
@@ -530,6 +530,24 @@ GMPy_XMPZ_Method_IterClear(PyObject *self, PyObject *args, PyObject *kwargs)
     Py_INCREF(self);
     result->start = start;
     result->stop = stop;
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPy_XMPZ_Attrib_GetNumer(XMPZ_Object *self, void *closure)
+{
+    Py_INCREF((PyObject*)self);
+    return (PyObject*)self;
+}
+
+static PyObject *
+GMPy_XMPZ_Attrib_GetDenom(XMPZ_Object *self, void *closure)
+{
+    XMPZ_Object *result;
+
+    if ((result = GMPy_XMPZ_New(NULL))) {
+        mpz_set_ui(result->z, 1);
+    }
     return (PyObject*)result;
 }
 

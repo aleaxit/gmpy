@@ -682,7 +682,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "unpack", GMPy_MPZ_unpack, METH_VARARGS, doc_unpack },
     { "version", GMPy_get_version, METH_NOARGS, GMPy_doc_version },
     { "xbit_mask", GMPy_XMPZ_Function_XbitMask, METH_O, GMPy_doc_xmpz_function_xbit_mask },
-    { "xmpz", (PyCFunction)GMPy_XMPZ_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_xmpz_factory },
     { "_mpmath_normalize", Pympz_mpmath_normalize, METH_VARARGS, doc_mpmath_normalizeg },
     { "_mpmath_create", Pympz_mpmath_create, METH_VARARGS, doc_mpmath_createg },
 
@@ -1063,6 +1062,11 @@ PyMODINIT_FUNC initgmpy2(void)
 
     Py_INCREF(&MPZ_Type);
     PyModule_AddObject(gmpy_module, "mpz", (PyObject*)&MPZ_Type);
+
+    /* Add the xmpz type to the module namespace. */
+
+    Py_INCREF(&XMPZ_Type);
+    PyModule_AddObject(gmpy_module, "xmpz", (PyObject*)&XMPZ_Type);
 
     /* Initialize thread local contexts. */
 #ifdef WITHOUT_THREADS

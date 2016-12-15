@@ -287,9 +287,23 @@ __MPFR_DECLSPEC extern MPFR_THREAD_ATTR mpfr_exp_t   __gmpfr_emax;
 #define GMPy_MPZ_ConvertArg_RETURN  int
 #define GMPy_MPZ_ConvertArg_PROTO   (PyObject *arg, PyObject **ptr)
 
+/* The following functions are found in gmpy2_cache. */
+
+#define GMPy_XMPZ_New_NUM           15
+#define GMPy_XMPZ_New_RETURN        XMPZ_Object *
+#define GMPy_XMPZ_New_PROTO         (CTXT_Object *context)
+
+#define GMPy_XMPZ_NewInit_NUM       16
+#define GMPy_XMPZ_NewInit_RETURN    PyObject *
+#define GMPy_XMPZ_NewInit_PROTO     (PyTypeObject *type, PyObject *args, PyObject *keywds)
+
+#define GMPy_XMPZ_Dealloc_NUM       17
+#define GMPy_XMPZ_Dealloc_RETURN    void
+#define GMPy_XMPZ_Dealloc_PROTO     (XMPZ_Object *self)
+
 /* Total number of C-API pointers. */
 
-#define GMPy_API_pointers 15
+#define GMPy_API_pointers 18
 
 #ifdef GMPY2_MODULE
 

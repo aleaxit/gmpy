@@ -69,13 +69,9 @@ static XMPZ_Object *   GMPy_XMPZ_From_PyFloat(PyObject *self, CTXT_Object *conte
 static XMPZ_Object *   GMPy_XMPZ_From_MPZ(MPZ_Object *obj, CTXT_Object *context);
 static XMPZ_Object *   GMPy_XMPZ_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context);
 
-static XMPZ_Object *   GMPy_XMPZ_From_Number(PyObject *obj, CTXT_Object *context);
-
 static PyObject *      GMPy_XMPZ_Str_Slot(XMPZ_Object *self);
 static PyObject *      GMPy_XMPZ_Repr_Slot(XMPZ_Object *self);
 
-//~ static PyObject *      GMPy_PyLong_From_XMPZ(XMPZ_Object *self, CTXT_Object *context);
-//~ static PyObject *      GMPy_PyIntOrLong_From_XMPZ(XMPZ_Object *self, CTXT_Object *context);
 static PyObject *      GMPy_PyStr_From_XMPZ(XMPZ_Object *self, int base, int option, CTXT_Object *context);
 static MPZ_Object *    GMPy_MPZ_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context);
 

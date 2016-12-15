@@ -53,8 +53,6 @@ typedef struct {
 static PyTypeObject GMPy_Iter_Type;
 #define GMPy_Iter_Check(v) (((PyObject*)v)->ob_type == &GMPy_Iter_Type)
 
-static PyObject * GMPy_XMPZ_Factory(PyObject *self, PyObject *args, PyObject *keywds);
-
 #ifdef __cplusplus
 }
 #endif

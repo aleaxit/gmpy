@@ -493,43 +493,6 @@ GMPy_MPZ_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context)
     return result;
 }
 
-static XMPZ_Object*
-GMPy_XMPZ_From_Number(PyObject *obj, CTXT_Object *context)
-{
-    XMPZ_Object *result = NULL;
-
-    if (MPZ_Check(obj))
-        return GMPy_XMPZ_From_MPZ((MPZ_Object*)obj, context);
-
-    if (PyIntOrLong_Check(obj))
-        return GMPy_XMPZ_From_PyIntOrLong(obj, context);
-
-    if (MPQ_Check(obj))
-        return GMPy_XMPZ_From_MPQ((MPQ_Object*)obj, context);
-
-    if (MPFR_Check(obj))
-        return GMPy_XMPZ_From_MPFR((MPFR_Object*)obj, context);
-
-    if (PyFloat_Check(obj))
-        return GMPy_XMPZ_From_PyFloat(obj, context);
-
-    if (XMPZ_Check(obj))
-        return GMPy_XMPZ_From_XMPZ((XMPZ_Object*)obj, context);
-
-    if (IS_FRACTION(obj)) {
-        MPQ_Object *temp = GMPy_MPQ_From_Fraction(obj, context);
-
-        if (temp) {
-            result = GMPy_XMPZ_From_MPQ(temp, context);
-            Py_DECREF((PyObject*)temp);
-        }
-        return result;
-    }
-
-    TYPE_ERROR("cannot convert object to xmpz");
-    return result;
-}
-
 /* str and repr implementations for xmpz */
 static PyObject *
 GMPy_XMPZ_Str_Slot(XMPZ_Object *self)

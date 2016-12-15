@@ -48,15 +48,19 @@ static void          set_gmpympccache(void);
 
 /* C-API functions */
 
-/* static MPZ_Object *  GMPy_MPZ_New(void); */
+/* static MPZ_Object *  GMPy_MPZ_New(CTXT_Object *context); */
 /* static PyObject *    GMPy_MPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds); */
 /* static void          GMPy_MPZ_Dealloc(MPZ_Object *self); */
 static GMPy_MPZ_New_RETURN     GMPy_MPZ_New     GMPy_MPZ_New_PROTO;
 static GMPy_MPZ_NewInit_RETURN GMPy_MPZ_NewInit GMPy_MPZ_NewInit_PROTO;
 static GMPy_MPZ_Dealloc_RETURN GMPy_MPZ_Dealloc GMPy_MPZ_Dealloc_PROTO;
 
-static XMPZ_Object * GMPy_XMPZ_New(CTXT_Object *context);
-static void          GMPy_XMPZ_Dealloc(XMPZ_Object *self);
+/* static XMPZ_Object *  GMPy_XMPZ_New(CTXT_Object *context); */
+/* static PyObject *     GMPy_XMPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds); */
+/* static void           GMPy_XMPZ_Dealloc(XMPZ_Object *self); */
+static GMPy_XMPZ_New_RETURN     GMPy_XMPZ_New     GMPy_XMPZ_New_PROTO;
+static GMPy_XMPZ_NewInit_RETURN GMPy_XMPZ_NewInit GMPy_XMPZ_NewInit_PROTO;
+static GMPy_XMPZ_Dealloc_RETURN GMPy_XMPZ_Dealloc GMPy_XMPZ_Dealloc_PROTO;
 
 static MPQ_Object *  GMPy_MPQ_New(CTXT_Object *context);
 static void          GMPy_MPQ_Dealloc(MPQ_Object *self);
