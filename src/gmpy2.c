@@ -876,8 +876,10 @@ PyMODINIT_FUNC initgmpy2(void)
     PyObject *copy_reg_module = NULL;
     PyObject *temp = NULL;
     PyObject *numbers_module = NULL;
+#ifdef SHARED
     static void *GMPy_C_API[GMPy_API_pointers];
     PyObject *c_api_object;
+#endif
 
     /* Validate the sizes of the various typedef'ed integer types. */
 
@@ -1170,6 +1172,7 @@ PyMODINIT_FUNC initgmpy2(void)
         /* LCOV_EXCL_STOP */
     }
 
+#ifdef SHARED
     /* Create the Capsule for the C-API. */
 
     GMPy_C_API[MPZ_Type_NUM] = (void*)&MPZ_Type;
@@ -1194,6 +1197,7 @@ PyMODINIT_FUNC initgmpy2(void)
     if (c_api_object != NULL) {
         PyModule_AddObject(gmpy_module, "_C_API", c_api_object);
     }
+#endif
 
     /* Add support for pickling. */
 #ifdef PY3

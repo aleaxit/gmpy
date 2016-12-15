@@ -55,8 +55,10 @@ static PyObject *      GMPy_PyIntOrLong_From_MPZ(MPZ_Object *obj, CTXT_Object *c
 static PyObject *      GMPy_PyFloat_From_MPZ(MPZ_Object *obj, CTXT_Object *context);
 static PyObject *      GMPy_PyStr_From_MPZ(MPZ_Object *obj, int base, int option, CTXT_Object *context);
 
+#ifdef SHARED
 /* static int             GMPy_MPZ_ConvertArg(PyObject *arg, PyObject **ptr); */
 static GMPy_MPZ_ConvertArg_RETURN GMPy_MPZ_ConvertArg GMPy_MPZ_ConvertArg_PROTO;
+#endif
 
 
 /* ======================================================================== *

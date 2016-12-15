@@ -396,6 +396,7 @@ __MPFR_DECLSPEC extern MPFR_THREAD_ATTR mpfr_exp_t   __gmpfr_emax;
 #endif
 
 #else
+#ifdef SHARED
 /* This section is used for other C-coded modules that use gmpy2's API. */
 
 static void **GMPy_C_API;
@@ -420,6 +421,9 @@ import_gmpy2(void)
     GMPy_C_API = (void **)PyCapsule_Import("gmpy2._C_API", 0);
     return (GMPy_C_API != NULL) ? 0 : -1;
 }
+#else
+#  error "Use of the C-API requires a 'shared' build."
+#endif
 
 #endif
 

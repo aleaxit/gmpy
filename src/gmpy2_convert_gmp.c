@@ -331,7 +331,8 @@ GMPy_MPZ_Repr_Slot(MPZ_Object *self)
     return GMPy_PyStr_From_MPZ(self, 10, 1, NULL);
 }
 
-/* Helper function for argument parsing. Not currently used. */
+#ifdef SHARED
+/* Helper function for argument parsing. Not used in static build. */
 
 static int
 GMPy_MPZ_ConvertArg(PyObject *arg, PyObject **ptr)
@@ -347,6 +348,7 @@ GMPy_MPZ_ConvertArg(PyObject *arg, PyObject **ptr)
         return 0;
     }
 }
+#endif
 
 /* ======================================================================== *
  * Conversion between native Python objects/MPZ and XMPZ.                   *

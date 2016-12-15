@@ -85,6 +85,7 @@ else:
 # Remember to remove the *.gcov file and the out sub-directory.
 
 defines = []
+build_type_specified = False
 
 for token in sys.argv[:]:
     if token.lower() == '--force':
@@ -112,22 +113,28 @@ for token in sys.argv[:]:
         sys.argv.remove(token)
 
     if token.lower().startswith('--shared'):
+        build_type_specified = True
         try:
             defines.append( ('SHARED', token.split('=')[1]) )
         except IndexError:
-            pass
+            defines.append( ('SHARED', 1) )
         sys.argv.remove(token)
 
     if token.lower().startswith('--static'):
+        build_type_specified = True
         try:
             defines.append( ('STATIC', token.split('=')[1]) )
         except IndexError:
-            pass
+            defines.append( ('STATIC', 1) )
         sys.argv.remove(token)
 
     if token.lower() == '--gcov':
         defines.append( ('GCOV', 1) )
         sys.argv.remove(token)
+
+if not build_type_specified:
+        defines.append( ('SHARED', 1) )
+
 
 # Improved clean command.
 
@@ -177,12 +184,8 @@ class gmpy_build_ext(build_ext):
                     static = True
                 if d[0] == 'SHARED':
                     static = False
-                if d[1]:
+                if d[1] and d[1] != 1:
                     search_dirs.extend(map(os.path.expanduser, d[1].split(":")))
-                    try:
-                        self.extensions[0].define_macros.remove(d)
-                    except ValueError:
-                        pass
 
         # If non-default directories have been specified, we need to find the
         # exact location of the libraries to allow static or runtime linking.
