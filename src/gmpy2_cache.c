@@ -52,10 +52,8 @@ set_gmpympzcache(void)
     global.gmpympzcache = realloc(global.gmpympzcache, sizeof(MPZ_Object)*global.cache_size);
 }
 
-/* GMPy_MPZ_New returns a reference to an MPZ_Object that can be modified.
- * Due to the caching that is used, the object will likely have a random
- * value. The object returned should only be used as a destination of a call
- * into the GMP/MPFR/MPC libraries.
+/* GMPy_MPZ_New returns a reference to a new MPZ_Object. Its value
+ * is initialized to 0.
  */
 
 static MPZ_Object *
@@ -95,8 +93,6 @@ GMPy_MPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
     static char *kwlist[] = {"s", "base", NULL };
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT(context)
-
     if (type != &MPZ_Type) {
         TYPE_ERROR("mpz.__new__() requires mpz type");
         return NULL;
@@ -107,10 +103,7 @@ GMPy_MPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
     argc = PyTuple_GET_SIZE(args);
 
     if (argc == 0) {
-        if ((result = GMPy_MPZ_New(context))) {
-            mpz_set_ui(result->z, 0);
-        }
-        return (PyObject*)result;
+        return (PyObject*)GMPy_MPZ_New(context);
     }
 
     if (argc == 1 && !keywds) {
