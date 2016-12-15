@@ -395,7 +395,6 @@
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -409,6 +408,7 @@
  */
 #include "longintrepr.h"
 
+#define GMPY2_MODULE
 #include "gmpy2.h"
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -877,6 +877,8 @@ PyMODINIT_FUNC initgmpy2(void)
     PyObject *copy_reg_module = NULL;
     PyObject *temp = NULL;
     PyObject *numbers_module = NULL;
+    static void *GMPy_C_API[GMPy_API_pointers];
+    PyObject *c_api_object;
 
     /* Validate the sizes of the various typedef'ed integer types. */
 
@@ -981,7 +983,7 @@ PyMODINIT_FUNC initgmpy2(void)
     set_gmpympccache();
 
     /* Initialize exceptions. */
-    GMPyExc_GmpyError = PyErr_NewException("gmpy2.gmpyError", PyExc_ArithmeticError, NULL);
+    GMPyExc_GmpyError = PyErr_NewException("gmpy2.gmpy2Error", PyExc_ArithmeticError, NULL);
     if (!GMPyExc_GmpyError) {
         /* LCOV_EXCL_START */
         INITERROR;
@@ -1162,6 +1164,31 @@ PyMODINIT_FUNC initgmpy2(void)
         Py_DECREF(GMPyExc_Erange);
         INITERROR;
         /* LCOV_EXCL_STOP */
+    }
+
+    /* Create the Capsule for the C-API. */
+
+    GMPy_C_API[MPZ_Type_NUM] = (void*)&MPZ_Type;
+    GMPy_C_API[XMPZ_Type_NUM] = (void*)&XMPZ_Type;
+    GMPy_C_API[MPQ_Type_NUM] = (void*)&MPQ_Type;
+    GMPy_C_API[XMPQ_Type_NUM] = (void*)&MPQ_Type;
+    GMPy_C_API[MPFR_Type_NUM] = (void*)&MPFR_Type;
+    GMPy_C_API[XMPFR_Type_NUM] = (void*)&MPFR_Type;
+    GMPy_C_API[MPC_Type_NUM] = (void*)&MPC_Type;
+    GMPy_C_API[XMPC_Type_NUM] = (void*)&MPC_Type;
+    GMPy_C_API[CTXT_Type_NUM] = (void*)&CTXT_Type;
+    GMPy_C_API[CTXT_Manager_Type_NUM] = (void*)&CTXT_Manager_Type;
+    GMPy_C_API[RandomState_Type_NUM] = (void*)&RandomState_Type;
+
+    GMPy_C_API[GMPy_MPZ_New_NUM] = (void*)GMPy_MPZ_New;
+    GMPy_C_API[GMPy_MPZ_NewInit_NUM] = (void*)GMPy_MPZ_NewInit;
+    GMPy_C_API[GMPy_MPZ_Dealloc_NUM] = (void*)GMPy_MPZ_Dealloc;
+    GMPy_C_API[GMPy_MPZ_ConvertArg_NUM] = (void*)GMPy_MPZ_ConvertArg;
+
+    c_api_object = PyCapsule_New((void *)GMPy_C_API, "gmpy2._C_API", NULL);
+
+    if (c_api_object != NULL) {
+        PyModule_AddObject(gmpy_module, "_C_API", c_api_object);
     }
 
     /* Add support for pickling. */

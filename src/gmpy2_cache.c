@@ -68,6 +68,7 @@ GMPy_MPZ_New(CTXT_Object *context)
         /* Py_INCREF does not set the debugging pointers, so need to use
          * _Py_NewReference instead. */
         _Py_NewReference((PyObject*)result);
+        mpz_set_ui(result->z, 0);
         result->hash_cache = -1;
     }
     else {

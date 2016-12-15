@@ -253,6 +253,46 @@ __MPFR_DECLSPEC extern MPFR_THREAD_ATTR mpfr_exp_t   __gmpfr_emax;
 
 #endif
 
+/* Start of the C-API definitions */
+
+#define MPZ_Type_NUM          0
+#define XMPZ_Type_NUM         1
+#define MPQ_Type_NUM          2
+#define XMPQ_Type_NUM         3
+#define MPFR_Type_NUM         4
+#define XMPFR_Type_NUM        5
+#define MPC_Type_NUM          6
+#define XMPC_Type_NUM         7
+#define CTXT_Type_NUM         8
+#define CTXT_Manager_Type_NUM 9
+#define RandomState_Type_NUM  10
+
+/* The following functions are found in gmpy2_cache. */
+
+#define GMPy_MPZ_New_NUM            11
+#define GMPy_MPZ_New_RETURN         MPZ_Object *
+#define GMPy_MPZ_New_PROTO          (CTXT_Object *context)
+
+#define GMPy_MPZ_NewInit_NUM        12
+#define GMPy_MPZ_NewInit_RETURN     PyObject *
+#define GMPy_MPZ_NewInit_PROTO      (PyTypeObject *type, PyObject *args, PyObject *keywds)
+
+#define GMPy_MPZ_Dealloc_NUM        13
+#define GMPy_MPZ_Dealloc_RETURN     void
+#define GMPy_MPZ_Dealloc_PROTO      (MPZ_Object *self)
+
+/* The following function is found in gmpy2_convert_mpz. */
+
+#define GMPy_MPZ_ConvertArg_NUM     14
+#define GMPy_MPZ_ConvertArg_RETURN  int
+#define GMPy_MPZ_ConvertArg_PROTO   (PyObject *arg, PyObject **ptr)
+
+/* Total number of C-API pointers. */
+
+#define GMPy_API_pointers 15
+
+#ifdef GMPY2_MODULE
+
 #include "gmpy2_macros.h"
 
 #include "gmpy2_context.h"
@@ -339,6 +379,34 @@ __MPFR_DECLSPEC extern MPFR_THREAD_ATTR mpfr_exp_t   __gmpfr_emax;
 
 #ifdef VECTOR
 #include "gmpy2_vector.h"
+#endif
+
+#else
+/* This section is used for other C-coded modules that use gmpy2's API. */
+
+static void **GMPy_C_API;
+
+#define MPZ_Check(op)    ((op)->ob_type == (PyTypeObject*)GMPy_C_API[MPZ_Type_NUM])
+#define XMPZ_Check(op)   ((op)->ob_type == (PyTypeObject*)GMPy_C_API[XMPZ_Type_NUM])
+#define MPQ_Check(op)    ((op)->ob_type == (PyTypeObject*)GMPy_C_API[MPQ_Type_NUM])
+#define XMPQ_Check(op)   ((op)->ob_type == (PyTypeObject*)GMPy_C_API[XMPQ_Type_NUM])
+#define MPFR_Check(op)   ((op)->ob_type == (PyTypeObject*)GMPy_C_API[MPFR_Type_NUM])
+#define XMPFR_Check(op)  ((op)->ob_type == (PyTypeObject*)GMPy_C_API[XMPFR_Type_NUM])
+#define MPC_Check(op)    ((op)->ob_type == (PyTypeObject*)GMPy_C_API[MPC_Type_NUM])
+#define XMPC_Check(op)   ((op)->ob_type == (PyTypeObject*)GMPy_C_API[XMPC_Type_NUM])
+
+#define GMPy_MPZ_New        (*(GMPy_MPZ_New_RETURN        (*)GMPy_MPZ_New_PROTO)        GMPy_C_API[GMPy_MPZ_New_NUM])
+#define GMPy_MPZ_NewInit    (*(GMPy_MPZ_NewInit_RETURN    (*)GMPy_MPZ_NewInit_PROTO)    GMPy_C_API[GMPy_MPZ_NewInit_NUM])
+#define GMPy_MPZ_Dealloc    (*(GMPy_MPZ_Dealloc_RETURN    (*)GMPy_MPZ_Dealloc_PROTO)    GMPy_C_API[GMPy_MPZ_Dealloc_NUM])
+#define GMPy_MPZ_ConvertArg (*(GMPy_MPZ_ConvertArg_RETURN (*)GMPy_MPZ_ConvertArg_PROTO) GMPy_C_API[GMPy_MPZ_ConvertArg_NUM])
+
+static int
+import_gmpy2(void)
+{
+    GMPy_C_API = (void **)PyCapsule_Import("gmpy2._C_API", 0);
+    return (GMPy_C_API != NULL) ? 0 : -1;
+}
+
 #endif
 
 #ifdef __cplusplus

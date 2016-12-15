@@ -333,9 +333,8 @@ GMPy_MPZ_Repr_Slot(MPZ_Object *self)
 
 /* Helper function for argument parsing. Not currently used. */
 
-#if 0
 static int
-GMPy_MPZ_convert_arg(PyObject *arg, PyObject **ptr)
+GMPy_MPZ_ConvertArg(PyObject *arg, PyObject **ptr)
 {
     MPZ_Object *result = GMPy_MPZ_From_Integer(arg, NULL);
 
@@ -348,7 +347,7 @@ GMPy_MPZ_convert_arg(PyObject *arg, PyObject **ptr)
         return 0;
     }
 }
-#endif
+
 /* ======================================================================== *
  * Conversion between native Python objects/MPZ and XMPZ.                   *
  * ======================================================================== */
