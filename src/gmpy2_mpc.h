@@ -47,13 +47,6 @@ extern "C" {
 #  pragma comment(lib,"mpc.lib")
 #endif
 
-typedef struct {
-    PyObject_HEAD
-    mpc_t c;
-    Py_hash_t hash_cache;
-    int rc;
-} MPC_Object;
-
 static PyTypeObject MPC_Type;
 #define MPC(obj) (((MPC_Object *)(obj))->c)
 #define MPC_Check(v) (((PyObject*)v)->ob_type == &MPC_Type)

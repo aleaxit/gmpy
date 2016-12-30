@@ -876,7 +876,7 @@ PyMODINIT_FUNC initgmpy2(void)
     PyObject *copy_reg_module = NULL;
     PyObject *temp = NULL;
     PyObject *numbers_module = NULL;
-#ifdef SHARED
+#ifndef STATIC
     static void *GMPy_C_API[GMPy_API_pointers];
     PyObject *c_api_object;
 #endif
@@ -1172,7 +1172,7 @@ PyMODINIT_FUNC initgmpy2(void)
         /* LCOV_EXCL_STOP */
     }
 
-#ifdef SHARED
+#ifndef STATIC
     /* Create the Capsule for the C-API. */
 
     GMPy_C_API[MPZ_Type_NUM] = (void*)&MPZ_Type;

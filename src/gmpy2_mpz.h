@@ -33,12 +33,6 @@
 extern "C" {
 #endif
 
-typedef struct {
-    PyObject_HEAD
-    mpz_t z;
-    Py_hash_t hash_cache;
-} MPZ_Object;
-
 static PyTypeObject MPZ_Type;
 #define MPZ(obj) (((MPZ_Object*)(obj))->z)
 #define MPZ_Check(v) (((PyObject*)v)->ob_type == &MPZ_Type)

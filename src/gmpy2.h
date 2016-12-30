@@ -204,54 +204,11 @@ typedef unsigned long Py_uhash_t;
 #define Py_TYPE(ob)     (((PyObject*)(ob))->ob_type)
 #endif
 
-#ifdef FAST
-
-/* Very bad code ahead. I've copied portions of mpfr-impl.h and
- * hacked them so they work. This code will only be enabled if you
- * specify the --fast option.
+/* Include the typedefs for all the custom types. They are required to be
+ * available even when using gmpy2's C-API.
  */
 
-#define MPFR_THREAD_ATTR __thread
-__MPFR_DECLSPEC extern MPFR_THREAD_ATTR unsigned int __gmpfr_flags;
-__MPFR_DECLSPEC extern MPFR_THREAD_ATTR mpfr_exp_t   __gmpfr_emin;
-__MPFR_DECLSPEC extern MPFR_THREAD_ATTR mpfr_exp_t   __gmpfr_emax;
-
-/* Flags of __gmpfr_flags */
-#define MPFR_FLAGS_UNDERFLOW 1
-#define MPFR_FLAGS_OVERFLOW 2
-#define MPFR_FLAGS_NAN 4
-#define MPFR_FLAGS_INEXACT 8
-#define MPFR_FLAGS_ERANGE 16
-#define MPFR_FLAGS_DIVBY0 32
-#define MPFR_FLAGS_ALL 63
-
-/* Replace some common functions for direct access to the global vars */
-#define mpfr_get_emin() (__gmpfr_emin + 0)
-#define mpfr_get_emax() (__gmpfr_emax + 0)
-
-#define mpfr_clear_flags()      ((void) (__gmpfr_flags = 0))
-#define mpfr_clear_underflow()  ((void) (__gmpfr_flags &= MPFR_FLAGS_ALL ^ MPFR_FLAGS_UNDERFLOW))
-#define mpfr_clear_overflow()   ((void) (__gmpfr_flags &= MPFR_FLAGS_ALL ^ MPFR_FLAGS_OVERFLOW))
-#define mpfr_clear_nanflag()    ((void) (__gmpfr_flags &= MPFR_FLAGS_ALL ^ MPFR_FLAGS_NAN))
-#define mpfr_clear_inexflag()   ((void) (__gmpfr_flags &= MPFR_FLAGS_ALL ^ MPFR_FLAGS_INEXACT))
-#define mpfr_clear_erangeflag() ((void) (__gmpfr_flags &= MPFR_FLAGS_ALL ^ MPFR_FLAGS_ERANGE))
-#define mpfr_clear_divby0()     ((void) (__gmpfr_flags &= MPFR_FLAGS_ALL ^ MPFR_FLAGS_DIVBY0))
-#define mpfr_underflow_p()      ((int) (__gmpfr_flags & MPFR_FLAGS_UNDERFLOW))
-#define mpfr_overflow_p()       ((int) (__gmpfr_flags & MPFR_FLAGS_OVERFLOW))
-#define mpfr_nanflag_p()        ((int) (__gmpfr_flags & MPFR_FLAGS_NAN))
-#define mpfr_inexflag_p()       ((int) (__gmpfr_flags & MPFR_FLAGS_INEXACT))
-#define mpfr_erangeflag_p()     ((int) (__gmpfr_flags & MPFR_FLAGS_ERANGE))
-#define mpfr_divby0_p()         ((int) (__gmpfr_flags & MPFR_FLAGS_DIVBY0))
-
-#define mpfr_check_range(x,t,r) \
- ((((x)->_mpfr_exp) >= __gmpfr_emin && ((x)->_mpfr_exp) <= __gmpfr_emax) \
-  ? ((t) ? (__gmpfr_flags |= MPFR_FLAGS_INEXACT, (t)) : 0)                   \
-  : mpfr_check_range(x,t,r))
-
-/* End of the really bad code. Hopefully.
- */
-
-#endif
+#include "gmpy2_types.h"
 
 /* Start of the C-API definitions */
 
@@ -307,36 +264,21 @@ __MPFR_DECLSPEC extern MPFR_THREAD_ATTR mpfr_exp_t   __gmpfr_emax;
 
 #ifdef GMPY2_MODULE
 
+/* Import a collection of general purpose macros. */
+
 #include "gmpy2_macros.h"
 
-#include "gmpy2_context.h"
+/* Import the files that complete the definition of the types defined above. */
 
 #include "gmpy2_mpz.h"
 #include "gmpy2_xmpz.h"
-#include "gmpy2_mpz_divmod.h"
-#include "gmpy2_mpz_divmod2exp.h"
-#include "gmpy2_mpz_pack.h"
-#include "gmpy2_mpz_bitops.h"
-#include "gmpy2_mpz_inplace.h"
-#include "gmpy2_xmpz_inplace.h"
-
 #include "gmpy2_mpq.h"
-
 #include "gmpy2_mpfr.h"
-#if MPFR_VERSION < 0x030100
-#  error gmpy2 requires MPFR 3.1.0 or later
-#endif
-
 #include "gmpy2_mpc.h"
-#if MPC_VERSION < 0x010000
-#  error gmpy2 requires MPC 1.0.0 or later
-#endif
+#include "gmpy2_context.h"
+#include "gmpy2_random.h"
 
-#include "gmpy2_convert.h"
-#include "gmpy2_convert_utils.h"
-#include "gmpy2_convert_gmp.h"
-#include "gmpy2_convert_mpfr.h"
-#include "gmpy2_convert_mpc.h"
+/* Import the header files that provide the various functions. */
 
 /* Support object caching, creation, and deletion. */
 
@@ -350,9 +292,35 @@ __MPFR_DECLSPEC extern MPFR_THREAD_ATTR mpfr_exp_t   __gmpfr_emax;
 
 #include "gmpy2_binary.h"
 
-/* Support random number generators. */
+/* Support for mpz/xmpz specific functions. */
 
-#include "gmpy2_random.h"
+#include "gmpy2_convert.h"
+#include "gmpy2_convert_utils.h"
+#include "gmpy2_convert_gmp.h"
+#include "gmpy2_convert_mpfr.h"
+#include "gmpy2_convert_mpc.h"
+
+#include "gmpy2_mpz_divmod.h"
+#include "gmpy2_mpz_divmod2exp.h"
+#include "gmpy2_mpz_pack.h"
+#include "gmpy2_mpz_bitops.h"
+#include "gmpy2_mpz_inplace.h"
+#include "gmpy2_mpz_misc.h"
+
+#include "gmpy2_xmpz_inplace.h"
+#include "gmpy2_xmpz_misc.h"
+
+/* Support for mpq specific functions. */
+
+#include "gmpy2_mpq_misc.h"
+
+/* Support for mpfr specific functions. */
+
+#include "gmpy2_mpfr_misc.h"
+
+/* Support for mpc specific functions. */
+
+#include "gmpy2_mpc_misc.h"
 
 /* Support Lucas sequences. */
 
@@ -362,7 +330,9 @@ __MPFR_DECLSPEC extern MPFR_THREAD_ATTR mpfr_exp_t   __gmpfr_emax;
 
 #include "gmpy_mpz_prp.h"
 
-/* Begin includes for refactored code. */
+/* Support higher-level Python methods and functions; generally not
+ * specific to a single typel.
+ */
 
 #include "gmpy2_abs.h"
 #include "gmpy2_add.h"
@@ -385,18 +355,13 @@ __MPFR_DECLSPEC extern MPFR_THREAD_ATTR mpfr_exp_t   __gmpfr_emax;
 #include "gmpy2_predicate.h"
 #include "gmpy2_sign.h"
 #include "gmpy2_richcompare.h"
-#include "gmpy2_mpc_misc.h"
-#include "gmpy2_mpfr_misc.h"
-#include "gmpy2_mpq_misc.h"
-#include "gmpy2_mpz_misc.h"
-#include "gmpy2_xmpz_misc.h"
 
 #ifdef VECTOR
 #include "gmpy2_vector.h"
-#endif
+#endif /* defined(VECTOR) */
 
-#else
-#ifdef SHARED
+#else /* defined(GMPY2_MODULE) */
+
 /* This section is used for other C-coded modules that use gmpy2's API. */
 
 static void **GMPy_C_API;
@@ -421,13 +386,10 @@ import_gmpy2(void)
     GMPy_C_API = (void **)PyCapsule_Import("gmpy2._C_API", 0);
     return (GMPy_C_API != NULL) ? 0 : -1;
 }
-#else
-#  error "Use of the C-API requires a 'shared' build."
-#endif
 
-#endif
+#endif /* defined(GMPY2_MODULE) */
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* defined(__cplusplus */
 #endif /* !defined(Py_GMPYMODULE_H */

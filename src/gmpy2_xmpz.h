@@ -33,11 +33,6 @@
 extern "C" {
 #endif
 
-typedef struct {
-    PyObject_HEAD
-    mpz_t z;
-} XMPZ_Object;
-
 static PyTypeObject XMPZ_Type;
 #define XMPZ(obj) (((XMPZ_Object*)(obj))->z)
 #define XMPZ_Check(v) (((PyObject*)v)->ob_type == &XMPZ_Type)

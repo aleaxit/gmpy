@@ -33,12 +33,6 @@
 extern "C" {
 #endif
 
-typedef struct {
-    PyObject_HEAD
-    mpq_t q;
-    Py_hash_t  hash_cache;
-} MPQ_Object;
-
 static PyTypeObject MPQ_Type;
 #define MPQ(obj) (((MPQ_Object *)(obj))->q)
 #define MPQ_Check(v) (((PyObject*)v)->ob_type == &MPQ_Type)

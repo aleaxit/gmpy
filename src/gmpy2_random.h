@@ -42,11 +42,6 @@ extern "C" {
  * This file is expected to be included from gmpy.h
  */
 
-typedef struct {
-    PyObject_HEAD
-    gmp_randstate_t state;
-} RandomState_Object;
-
 static PyTypeObject RandomState_Type;
 #define RANDOM_STATE(obj) (((RandomState_Object *)(obj))->state)
 #define RandomState_Check(v) (((PyObject*)v)->ob_type == &RandomState_Type)
