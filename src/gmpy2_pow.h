@@ -36,6 +36,7 @@ extern "C" {
 /* Private API */
 
 static PyObject * GMPy_MPANY_Pow_Slot(PyObject *base, PyObject *exp, PyObject *mod);
+static PyObject * GMPy_MPFR_Pow_Slot(PyObject *base, PyObject *exp, PyObject *mod);
 
 static PyObject * GMPy_Integer_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context);
 static PyObject * GMPy_Rational_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context);

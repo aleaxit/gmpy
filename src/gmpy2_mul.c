@@ -407,6 +407,22 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPFR_Mul_Slot(PyObject *x, PyObject *y)
 {
+    if (MPFR_Check(x) && MPFR_Check(y)) {
+        MPFR_Object *result;
+        CTXT_Object *context = NULL;
+
+        CHECK_CONTEXT(context);
+
+        if ((result = GMPy_MPFR_New(0, context))) {
+            mpfr_clear_flags();
+            SET_MPFR_MPFR_WAS_NAN(context, x, y);
+
+            result->rc = mpfr_mul(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
+            _GMPy_MPFR_Cleanup(&result, context);
+        }
+        return (PyObject*)result;
+    }
+
     if (IS_REAL(x) && IS_REAL(y))
         return GMPy_Real_Mul(x, y, NULL);
 
