@@ -1,6 +1,8 @@
 Building gmpy2 with MSYS2
 =========================
 
+Note: These instructions are a work in progress!
+
 From the MSYS2 home page:
 
 http://sourceforge.net/projects/msys2/
