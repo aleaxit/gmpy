@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015 Case Van Horsen                                          *
+ *           2015, 2016, 2017 Case Van Horsen                              *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -260,15 +260,19 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
             }
         }
 
+        mpfr_clear_flags();
+        SET_MPFR_MPFR_WAS_NAN(context, tempx, tempy);
+
         if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
-            context->ctx.invalid = 1;
-            if (context->ctx.traps & TRAP_INVALID) {
-                GMPY_INVALID("mod() invalid operation");
-                goto error;
+
+            if (!(context->ctx.quiet_nan && context->ctx.was_nan)) {
+                context->ctx.invalid = 1;
+                if (context->ctx.traps & TRAP_INVALID) {
+                    GMPY_INVALID("mod() invalid operation");
+                    goto error;
+                }
             }
-            else {
-                mpfr_set_nan(result->f);
-            }
+            mpfr_set_nan(result->f);
         }
         else if (mpfr_inf_p(tempy->f)) {
             context->ctx.invalid = 1;
@@ -298,8 +302,7 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 
             Py_DECREF((PyObject*)temp);
         }
-        GMPY_MPFR_CHECK_RANGE(result, context);
-        GMPY_MPFR_SUBNORMALIZE(result, context);
+        _GMPy_MPFR_Cleanup(&result, context);
 
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);

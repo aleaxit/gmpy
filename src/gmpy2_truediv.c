@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015 Case Van Horsen                                          *
+ *           2015, 2016, 2017 Case Van Horsen                              *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -355,7 +355,23 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPFR_TrueDiv_Slot(PyObject *x, PyObject *y)
 {
-    if (IS_REAL(x) && IS_REAL(y))
+     if (MPFR_Check(x) && MPFR_Check(y)) {
+        MPFR_Object *result;
+        CTXT_Object *context = NULL;
+
+        CHECK_CONTEXT(context);
+
+        if ((result = GMPy_MPFR_New(0, context))) {
+            mpfr_clear_flags();
+            SET_MPFR_MPFR_WAS_NAN(context, x, y);
+
+            result->rc = mpfr_div(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
+            _GMPy_MPFR_Cleanup(&result, context);
+        }
+        return (PyObject*)result;
+    }
+
+   if (IS_REAL(x) && IS_REAL(y))
         return GMPy_Real_TrueDiv(x, y, NULL);
 
     if (IS_COMPLEX(x) && IS_COMPLEX(y))

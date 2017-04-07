@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015 Case Van Horsen                                          *
+ *           2015, 2016, 2017 Case Van Horsen                              *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -511,6 +511,49 @@ GMPy_MPANY_Pow_Slot(PyObject *base, PyObject *exp, PyObject *mod)
 
     if (IS_RATIONAL(base) && IS_RATIONAL(exp))
         return GMPy_Rational_Pow(base, exp, mod, NULL);
+
+    if (IS_REAL(base) && IS_REAL(exp))
+        return GMPy_Real_Pow(base, exp, mod, NULL);
+
+    if (IS_COMPLEX(base) && IS_COMPLEX(exp))
+        return GMPy_Complex_Pow(base, exp, mod, NULL);
+
+    Py_RETURN_NOTIMPLEMENTED;
+}
+
+static PyObject *
+GMPy_MPFR_Pow_Slot(PyObject *base, PyObject *exp, PyObject *mod)
+{
+    if (MPFR_Check(base) && (PyIntOrLong_Check(exp)) && (mod == Py_None)) {
+        MPFR_Object *result = NULL;
+        int error = 0;
+        long temp_exp;
+        CTXT_Object *context = NULL;
+
+        CHECK_CONTEXT(context);
+
+        if ((result = GMPy_MPFR_New(0, context))) {
+            mpfr_clear_flags();
+            CLEAR_WAS_NAN(context);
+
+            temp_exp = GMPy_Integer_AsLongAndError(exp, &error);
+
+            if (!error) {
+                SET_MPFR_WAS_NAN(context, base);
+                result->rc = mpfr_pow_si(result->f, MPFR(base), temp_exp, GET_MPFR_ROUND(context));
+            }
+            else {
+                mpz_t tempzz;
+                mpz_init(tempzz);
+                mpz_set_PyIntOrLong(tempzz, exp);
+                SET_MPFR_WAS_NAN(context, base);
+                result->rc = mpfr_pow_z(result->f, MPFR(base), tempzz, GET_MPFR_ROUND(context));
+                mpz_clear(tempzz);
+            }
+            _GMPy_MPFR_Cleanup(&result, context);
+        }
+        return (PyObject*)result;
+    }
 
     if (IS_REAL(base) && IS_REAL(exp))
         return GMPy_Real_Pow(base, exp, mod, NULL);

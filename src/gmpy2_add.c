@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015 Case Van Horsen                                          *
+ *           2015, 2016, 2017 Case Van Horsen                              *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -270,15 +270,15 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    if (MPFR_Check(x) && MPFR_Check(y)) {
-        mpfr_clear_flags();
-        SET_MPFR_MPFR_WAS_NAN(context, x, y);
-
-        result->rc = mpfr_add(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
-        goto done;
-    }
-
     if (MPFR_Check(x)) {
+        if (MPFR_Check(y)) {
+            mpfr_clear_flags();
+            SET_MPFR_MPFR_WAS_NAN(context, x, y);
+
+            result->rc = mpfr_add(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
+            goto done;
+        }
+
         if (PyIntOrLong_Check(y)) {
             int error;
             long temp = GMPy_Integer_AsLongAndError(y, &error);
@@ -433,7 +433,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPFR_Add_Slot(PyObject *x, PyObject *y)
 {
-    if (MPFR_Check(x) && MPFR_Check(y)) {
+    if ((MPFR_Check(x)) && MPFR_Check(y)) {
         MPFR_Object *result;
         CTXT_Object *context = NULL;
 

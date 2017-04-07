@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015 Case Van Horsen                                          *
+ *           2015, 2016, 2017 Case Van Horsen                              *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -36,6 +36,7 @@ extern "C" {
 /* Private API */
 
 static PyObject * GMPy_MPANY_Pow_Slot(PyObject *base, PyObject *exp, PyObject *mod);
+static PyObject * GMPy_MPFR_Pow_Slot(PyObject *base, PyObject *exp, PyObject *mod);
 
 static PyObject * GMPy_Integer_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context);
 static PyObject * GMPy_Rational_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context);

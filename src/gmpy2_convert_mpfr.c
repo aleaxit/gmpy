@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015 Case Van Horsen                                          *
+ *           2015, 2016, 2017 Case Van Horsen                              *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -363,7 +363,7 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
 
     /* If the context requests subnormals and the result is in the range for subnormals,
      * we use exact conversion via conversion to an mpq.
-     * 
+     *
      * The sticky bit returned by MPFR's string conversion appears to only reflect the
      * portion of the string needed to compute the correctly rounded result. It does not
      * accurately reflect whether or not the result is larger or smaller than the entire
