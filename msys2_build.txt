@@ -63,58 +63,50 @@ appropriate for building a statically linked Windows DLL.
 MSYS2 can support both MinGW32 and MinGW64 toolchains simultaneously. We
 use /mingw32/opt and /mingw64/opt as the destinations for the 32-bit and
 64-bit versions of GMP, MPFR, and MPC. The sources for GMP, MPFR, and MPC
-will be placed in ~/src
+will be placed in /mingw32/src or /mingw64/opt.
 
-# Start the appropriate shell: mingw64_shell.bat or mingw32_shell.bat.
+64-bit Build
+============
 
-# Create a new directies as the destinations for GMP, MPFR, and MPC. Use
-  either minngw32 or mingw64 (it must match the version used in the shell
-  batch file).
+# Start the appropriate shell: MSYS2 WinGW 64-bit
 
-  $ mkdir /mingw32/opt
-  $ mkdir /mingw32/src
-    -- or --
+# Create a new directies as the destinations for GMP, MPFR, and MPC.
+
   $ mkdir /mingw64/opt
   $ mkdir /mingw64/src
 
 # Download and uncompress GMP, MPFR, and MPC
-  $ cd /mingw32/src
-    -- or --
   $ cd /mingw64/src
 
 # Download GMP
-  $ wget https://gmplib.org/download/gmp/gmp-6.0.0a.tar.lz
-  $ tar xf gmp-6.0.0a.tar.lz
+  $ wget https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
+  $ tar xf gmp-6.1.2.tar.lz
 
 # Download MPFR and any patches
-  $ wget http://www.mpfr.org/mpfr-current/mpfr-3.1.2.tar.bz2
-  $ tar xf mpfr-3.1.2.tar.bz2
-  $ cd mpfr-3.1.2/
+  $ wget http://www.mpfr.org/mpfr-current/mpfr-3.1.5.tar.bz2
+  $ tar xf mpfr-3.1.5.tar.bz2
+  $ cd mpfr-3.1.5/
   $ wget http://www.mpfr.org/mpfr-current/allpatches
   $ patch -N -Z -p1 < allpatches
   $ cd ..
 
 # Download MPC
-  $ wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.0.2.tar.gz
-  $ tar xf mpc-1.0.2.tar.gz
+  $ wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.0.3.tar.gz
+  $ tar xf mpc-1.0.3.tar.gz
 
 # Compile GMP
-  $ cd gmp-6.0.0/
-
-  $ ./configure --prefix=/mingw32/opt --enable-static --disable-shared --enable-fat --with-pic
-    -- or --
+  $ cd gmp-6.1.2/
   $ ./configure --prefix=/mingw64/opt --enable-static --disable-shared --enable-fat --with-pic
 
     *Experimental for mingw64 build*
-    mp_bitcnt_t should really be a 64-bit unsigned integer. In gmp.h, find:
 
-    typedef unsigned long int mp_bitcnt_t;
-
-    and change it to:
-
-    typedef unsigned long long int	mp_bitcnt_t;
+    mp_bitcnt_t should really be a 64-bit unsigned integer. The following sed
+    command makes the change. It should only be used for 64-bit builds.
 
     This will require changes to gmpy2 source also. See gmpy2_convert_utils.h.
+
+  $ mv gmp.h gmp.original
+  $ sed 's/typedef\s*unsigned\s*long\s*int\s*mp_bitcnt_t/typedef unsigned long long int  mp_bitcnt_t/g' gmp.original > gmp.h
 
   $ make
   $ make check
@@ -122,33 +114,80 @@ will be placed in ~/src
   $ cd ..
 
 # Compile MPFR
-  $ cd mpfr-3.1.2/
-
-  $ ./configure --prefix=/mingw32/opt --enable-static --disable-shared --with-pic --with-gmp=/mingw32/opt
-    -- or --
-  $ ./configure --prefix=/mingw64/opt --enable-static --disable-shared --with-pic --with-gmp=/mingw64/opt
-
+  $ cd mpfr-3.1.5/
+  $ ./configure --prefix=/mingw64/opt --enable-static --disable-shared --disable-thread-safe --enable-gmp-internals --with-pic --with-gmp=/mingw64/opt
   $ make
   $ make check
   $ make install
   $ cd ..
 
 # Compile MPC
-  $ cd mpc-1.0.2/
-
-  $ ./configure --prefix=/mingw32/opt --enable-static --disable-shared --with-pic --with-gmp=/mingw32/opt --with-mpfr=/mingw32/opt
-    -- or --
+  $ cd mpc-1.0.3/
   $ ./configure --prefix=/mingw64/opt --enable-static --disable-shared --with-pic --with-gmp=/mingw64/opt --with-mpfr=/mingw64/opt
-
   $ make
   $ make check
   $ make install
   $ cd ..
 
+32-bit Build
+============
+
+# Start the appropriate shell: MSYS2 WinGW 32-bit
+
+# Create a new directies as the destinations for GMP, MPFR, and MPC/
+
+  $ mkdir /mingw32/opt
+  $ mkdir /mingw32/src
+
+# Download and uncompress GMP, MPFR, and MPC
+  $ cd /mingw32/src
+
+# Download GMP
+  $ wget https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
+  $ tar xf gmp-6.1.2.tar.lz
+
+# Download MPFR and any patches
+  $ wget http://www.mpfr.org/mpfr-current/mpfr-3.1.5.tar.bz2
+  $ tar xf mpfr-3.1.5.tar.bz2
+  $ cd mpfr-3.1.5/
+  $ wget http://www.mpfr.org/mpfr-current/allpatches
+  $ patch -N -Z -p1 < allpatches
+  $ cd ..
+
+# Download MPC
+  $ wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.0.3.tar.gz
+  $ tar xf mpc-1.0.3.tar.gz
+
+# Compile GMP
+  $ cd gmp-6.1.2/
+  $ ./configure --prefix=/mingw32/opt --enable-static --disable-shared --enable-fat --with-pic
+  $ make
+  $ make check
+  $ make install
+  $ cd ..
+
+# Compile MPFR
+  $ cd mpfr-3.1.5/
+  $ ./configure --prefix=/mingw32/opt --enable-static --disable-shared --disable-thread-safe --enable-gmp-internals --with-pic --with-gmp=/mingw32/opt
+  $ make
+  $ make check
+  $ make install
+  $ cd ..
+
+# Compile MPC
+  $ cd mpc-1.0.3/
+  $ ./configure --prefix=/mingw32/opt --enable-static --disable-shared --with-pic --with-gmp=/mingw32/opt --with-mpfr=/mingw32/opt
+  $ make
+  $ make check
+  $ make install
+  $ cd ..
+
+
 The Windows build environment
 =============================
 
 # Configure Windows command prompt - GCC
+
   The MinGW toolchain must be accessible by the normal Windows installation of
   Python. The 64-bit MinGW toolchain is located in C:\msys64\mingw64\bin. The
   32-bit MinGW toolchain is located in C:\msys64\mingw32\bin. The MinGW
@@ -182,9 +221,9 @@ The Windows build environment
   @echo off
   doskey py26=C:\32\Python26\python.exe $*
   doskey py27=C:\32\Python27\python.exe $*
-  doskey py32=C:\32\Python32\python.exe $*
-  doskey py33=C:\32\Python33\python.exe $*
   doskey py34=C:\32\Python34\python.exe $*
+  doskey py35=C:\32\Python35\python.exe $*
+  doskey py36=C:\32\Python36\python.exe $*
   set Path=C:\msys64\mingw32\bin;%Path%
 
   I use the following batch file to configure a command prompt for 64-bit builds:
@@ -192,12 +231,13 @@ The Windows build environment
   @echo off
   doskey py26=C:\64\Python26\python.exe $*
   doskey py27=C:\64\Python27\python.exe $*
-  doskey py32=C:\64\Python32\python.exe $*
-  doskey py33=C:\64\Python33\python.exe $*
   doskey py34=C:\64\Python34\python.exe $*
+  doskey py35=C:\64\Python35\python.exe $*
+  doskey py36=C:\64\Python36\python.exe $*
   set Path=C:\msys64\mingw64\bin;%Path%
 
 # Modify distutils library
+
   The gmpy2 extension is built using the distutils module. Recent versions of
   the gcc compiler no longer support an option that is used by older versions
   of distutils. In the file "cygwincompiler.py", remove all occurences of the
@@ -222,7 +262,8 @@ The Windows build environment
                                        entry_point))
 
 # Patch C:\Python27\include\pyconfig.h
-  In that file search for the text #ifdef _WIN64 and cut out the following
+
+  In that file, search for the text #ifdef _WIN64 and cut out the following
   three lines:
 
   #ifdef _WIN64
@@ -233,11 +274,12 @@ The Windows build environment
   cut-out lines, ABOVE the #ifdef _MSC_VER.
 
 # Create a libpython.a file
+
   MinGW requires a libpythonXX.a file that contains information about the C-API
   functions that exist in pythonXX.dll. Follow these steps for your version of
   Python.
 
-  Note: The DLL locations are from a Windows 7 64-bit system with both 32-bit
+  Note: The DLL locations are from a Windows 10 64-bit system with both 32-bit
         and 64-bit versions of a Python version installed. Your location may
         vary.
 
@@ -252,6 +294,7 @@ The Windows build environment
   > dlltool --dllname c:\Windows\System32\python27.dll --def python27.def --output-lib libpython27.a
 
 # To compile gmpy2
+
   py27 setup.py build_ext --msys2 --prefix=c:\msys64\mingwXX\opt
 
 # To install to a local Python installation (after compiling)
