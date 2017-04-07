@@ -1990,7 +1990,6 @@ Pympfr_frexp(PyObject *self, PyObject *other)
 
   done:
     Py_DECREF(self);
-    Py_DECREF(other);
     if (PyErr_Occurred()) {
         Py_XDECREF(result);
         Py_XDECREF((PyObject*)value);
@@ -2541,7 +2540,7 @@ Pympfr_degrees(PyObject *self, PyObject *other)
     if (!result || !temp) {
         Py_XDECREF((PyObject*)temp);
         Py_XDECREF((PyObject*)result);
-        Py_DECREF(other);
+        Py_DECREF(self);
         return NULL;
     }
 
@@ -2569,7 +2568,7 @@ Pympfr_radians(PyObject *self, PyObject *other)
     if (!result || !temp) {
         Py_XDECREF((PyObject*)temp);
         Py_XDECREF((PyObject*)result);
-        Py_DECREF(other);
+        Py_DECREF(self);
         return NULL;
     }
 
