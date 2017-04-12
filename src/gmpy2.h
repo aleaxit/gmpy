@@ -238,7 +238,7 @@ typedef unsigned long Py_uhash_t;
 #define GMPy_MPZ_Dealloc_RETURN     void
 #define GMPy_MPZ_Dealloc_PROTO      (MPZ_Object *self)
 
-/* The following function is found in gmpy2_convert_mpz. */
+/* The following function is found in gmpy2_convert_gmp. */
 
 #define GMPy_MPZ_ConvertArg_NUM     14
 #define GMPy_MPZ_ConvertArg_RETURN  int
@@ -258,9 +258,29 @@ typedef unsigned long Py_uhash_t;
 #define GMPy_XMPZ_Dealloc_RETURN    void
 #define GMPy_XMPZ_Dealloc_PROTO     (XMPZ_Object *self)
 
+/* The following functions are found in gmpy2_cache. */
+
+#define GMPy_MPQ_New_NUM            18
+#define GMPy_MPQ_New_RETURN         MPQ_Object *
+#define GMPy_MPQ_New_PROTO          (CTXT_Object *context)
+
+#define GMPy_MPQ_NewInit_NUM        19
+#define GMPy_MPQ_NewInit_RETURN     PyObject *
+#define GMPy_MPQ_NewInit_PROTO      (PyTypeObject *type, PyObject *args, PyObject *keywds)
+
+#define GMPy_MPQ_Dealloc_NUM        20
+#define GMPy_MPQ_Dealloc_RETURN     void
+#define GMPy_MPQ_Dealloc_PROTO      (MPQ_Object *self)
+
+/* The following function is found in gmpy2_convert_gmp. */
+
+#define GMPy_MPQ_ConvertArg_NUM     21
+#define GMPy_MPQ_ConvertArg_RETURN  int
+#define GMPy_MPQ_ConvertArg_PROTO   (PyObject *arg, PyObject **ptr)
+
 /* Total number of C-API pointers. */
 
-#define GMPy_API_pointers 18
+#define GMPy_API_pointers 22
 
 #ifdef GMPY2_MODULE
 

@@ -37,8 +37,6 @@ static PyTypeObject MPQ_Type;
 #define MPQ(obj) (((MPQ_Object *)(obj))->q)
 #define MPQ_Check(v) (((PyObject*)v)->ob_type == &MPQ_Type)
 
-static PyObject * GMPy_MPQ_Factory(PyObject *self, PyObject *args, PyObject *keywds);
-
 #ifdef __cplusplus
 }
 #endif

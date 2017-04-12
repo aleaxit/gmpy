@@ -107,8 +107,10 @@ static PyObject *      GMPy_PyLong_From_MPQ(MPQ_Object *obj, CTXT_Object *contex
 static PyObject *      GMPy_MPQ_Long_Slot(MPQ_Object *obj);
 #endif
 
-/* Miscellaneous rational conversion functions. */
-int GMPy_MPQ_convert_arg(PyObject *arg, PyObject **ptr);
+#ifdef SHARED
+/* int GMPy_MPQ_convert_arg(PyObject *arg, PyObject **ptr); */
+static GMPy_MPQ_ConvertArg_RETURN GMPy_MPQ_ConvertArg GMPy_MPQ_ConvertArg_PROTO;
+#endif
 
 #ifdef __cplusplus
 }

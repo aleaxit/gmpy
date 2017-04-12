@@ -1027,8 +1027,11 @@ GMPy_MPQ_From_Rational(PyObject *obj, CTXT_Object *context)
  * coerce any number to a mpq
  */
 
+#ifdef SHARED
+/* Helper function for argument parsing. Not used in static build. */
+
 int
-GMPy_MPQ_convert_arg(PyObject *arg, PyObject **ptr)
+GMPy_MPQ_ConvertArg(PyObject *arg, PyObject **ptr)
 {
     MPQ_Object* result = GMPy_MPQ_From_Number(arg, NULL);
 
@@ -1043,6 +1046,8 @@ GMPy_MPQ_convert_arg(PyObject *arg, PyObject **ptr)
         return 0;
     }
 }
+
+#endif
 
 /* str and repr implementations for mpq */
 static PyObject *

@@ -650,7 +650,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "mp_limbsize", GMPy_get_mp_limbsize, METH_NOARGS, GMPy_doc_mp_limbsize },
     { "mpc_version", GMPy_get_mpc_version, METH_NOARGS, GMPy_doc_mpc_version },
     { "mpfr_version", GMPy_get_mpfr_version, METH_NOARGS, GMPy_doc_mpfr_version },
-    { "mpq", (PyCFunction)GMPy_MPQ_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_mpq_factory },
     { "mpq_from_old_binary", GMPy_MPQ_From_Old_Binary, METH_O, doc_mpq_from_old_binary },
     { "mpz_from_old_binary", GMPy_MPZ_From_Old_Binary, METH_O, doc_mpz_from_old_binary },
     { "mpz_random", GMPy_MPZ_random_Function, METH_VARARGS, GMPy_doc_mpz_random_function },
@@ -1070,6 +1069,11 @@ PyMODINIT_FUNC initgmpy2(void)
     Py_INCREF(&XMPZ_Type);
     PyModule_AddObject(gmpy_module, "xmpz", (PyObject*)&XMPZ_Type);
 
+    /* Add the MPQ type to the module namespace. */
+
+    Py_INCREF(&MPQ_Type);
+    PyModule_AddObject(gmpy_module, "mpq", (PyObject*)&MPQ_Type);
+
     /* Initialize thread local contexts. */
 #ifdef WITHOUT_THREADS
     module_context = (CTXT_Object*)GMPy_CTXT_New();
@@ -1191,6 +1195,15 @@ PyMODINIT_FUNC initgmpy2(void)
     GMPy_C_API[GMPy_MPZ_NewInit_NUM] = (void*)GMPy_MPZ_NewInit;
     GMPy_C_API[GMPy_MPZ_Dealloc_NUM] = (void*)GMPy_MPZ_Dealloc;
     GMPy_C_API[GMPy_MPZ_ConvertArg_NUM] = (void*)GMPy_MPZ_ConvertArg;
+
+    GMPy_C_API[GMPy_XMPZ_New_NUM] = (void*)GMPy_XMPZ_New;
+    GMPy_C_API[GMPy_XMPZ_NewInit_NUM] = (void*)GMPy_XMPZ_NewInit;
+    GMPy_C_API[GMPy_XMPZ_Dealloc_NUM] = (void*)GMPy_XMPZ_Dealloc;
+
+    GMPy_C_API[GMPy_MPQ_New_NUM] = (void*)GMPy_MPQ_New;
+    GMPy_C_API[GMPy_MPQ_NewInit_NUM] = (void*)GMPy_MPQ_NewInit;
+    GMPy_C_API[GMPy_MPQ_Dealloc_NUM] = (void*)GMPy_MPQ_Dealloc;
+    GMPy_C_API[GMPy_MPQ_ConvertArg_NUM] = (void*)GMPy_MPQ_ConvertArg;
 
     c_api_object = PyCapsule_New((void *)GMPy_C_API, "gmpy2._C_API", NULL);
 

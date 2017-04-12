@@ -363,7 +363,7 @@ set_gmpympqcache(void)
 static MPQ_Object *
 GMPy_MPQ_New(CTXT_Object *context)
 {
-    MPQ_Object *result;
+    MPQ_Object *result = NULL;
 
     if (global.in_gmpympqcache) {
         result = global.gmpympqcache[--(global.in_gmpympqcache)];
@@ -381,6 +381,94 @@ GMPy_MPQ_New(CTXT_Object *context)
     }
     result->hash_cache = -1;
     return result;
+}
+
+static PyObject *
+GMPy_MPQ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
+{
+    MPQ_Object *result = NULL, *temp = NULL;
+    PyObject *n = NULL, *m = NULL;
+    int base = 10;
+    Py_ssize_t argc, keywdc = 0;
+    static char *kwlist[] = {"s", "base", NULL };
+    CTXT_Object *context = NULL;
+
+    argc = PyTuple_Size(args);
+    if (keywds) {
+        keywdc = PyDict_Size(keywds);
+    }
+
+    if (argc + keywdc > 2) {
+        TYPE_ERROR("mpq() takes at most 2 arguments");
+        return NULL;
+    }
+
+    if (argc + keywdc == 0) {
+        if ((result = GMPy_MPQ_New(context))) {
+            mpq_set_ui(result->q, 0, 1);
+        }
+        return (PyObject*)result;
+    }
+
+    if (argc == 0) {
+        TYPE_ERROR("mpq() requires at least one non-keyword argument");
+        return NULL;
+    }
+
+    n = PyTuple_GetItem(args, 0);
+
+    /* Handle the case where the first argument is a string. */
+    if (PyStrOrUnicode_Check(n)) {
+        /* keyword base is legal */
+        if (keywdc || argc > 1) {
+            if (!(PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwlist, &n, &base))) {
+                return NULL;
+            }
+        }
+
+        if ((base != 0) && ((base < 2) || (base > 62))) {
+            VALUE_ERROR("base for mpq() must be 0 or in the interval [2, 62]");
+            return NULL;
+        }
+
+        return (PyObject*)GMPy_MPQ_From_PyStr(n, base, context);
+    }
+
+    /* Handle 1 argument. It must be non-complex number. */
+    if (argc == 1) {
+        if (IS_REAL(n)) {
+            return (PyObject*)GMPy_MPQ_From_Number(n, context);
+        }
+    }
+
+    /* Handle 2 arguments. Both arguments must be integer or rational. */
+    if (argc == 2) {
+        m = PyTuple_GetItem(args, 1);
+
+        if (IS_RATIONAL(n) && IS_RATIONAL(m)) {
+           result = GMPy_MPQ_From_Rational(n, context);
+           temp = GMPy_MPQ_From_Rational(m, context);
+           if (!result || !temp) {
+               Py_XDECREF((PyObject*)result);
+               Py_XDECREF((PyObject*)temp);
+               return NULL;
+            }
+
+            if (mpq_sgn(temp->q) == 0) {
+                ZERO_ERROR("zero denominator in mpq()");
+                Py_DECREF((PyObject*)result);
+                Py_DECREF((PyObject*)temp);
+                return NULL;
+            }
+
+            mpq_div(result->q, result->q, temp->q);
+            Py_DECREF((PyObject*)temp);
+            return (PyObject*)result;
+        }
+    }
+
+    TYPE_ERROR("mpq() requires numeric or string argument");
+    return NULL;
 }
 
 static void
