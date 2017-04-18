@@ -400,6 +400,11 @@ static void **GMPy_C_API;
 #define GMPy_MPZ_Dealloc    (*(GMPy_MPZ_Dealloc_RETURN    (*)GMPy_MPZ_Dealloc_PROTO)    GMPy_C_API[GMPy_MPZ_Dealloc_NUM])
 #define GMPy_MPZ_ConvertArg (*(GMPy_MPZ_ConvertArg_RETURN (*)GMPy_MPZ_ConvertArg_PROTO) GMPy_C_API[GMPy_MPZ_ConvertArg_NUM])
 
+#define GMPy_MPQ_New        (*(GMPy_MPQ_New_RETURN        (*)GMPy_MPQ_New_PROTO)        GMPy_C_API[GMPy_MPQ_New_NUM])
+#define GMPy_MPQ_NewInit    (*(GMPy_MPQ_NewInit_RETURN    (*)GMPy_MPQ_NewInit_PROTO)    GMPy_C_API[GMPy_MPQ_NewInit_NUM])
+#define GMPy_MPQ_Dealloc    (*(GMPy_MPQ_Dealloc_RETURN    (*)GMPy_MPQ_Dealloc_PROTO)    GMPy_C_API[GMPy_MPQ_Dealloc_NUM])
+#define GMPy_MPQ_ConvertArg (*(GMPy_MPQ_ConvertArg_RETURN (*)GMPy_MPQ_ConvertArg_PROTO) GMPy_C_API[GMPy_MPQ_ConvertArg_NUM])
+
 static int
 import_gmpy2(void)
 {
