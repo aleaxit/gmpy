@@ -48,7 +48,6 @@ extern "C" {
 #endif
 
 static PyTypeObject MPC_Type;
-#define MPC(obj) (((MPC_Object *)(obj))->c)
 #define MPC_Check(v) (((PyObject*)v)->ob_type == &MPC_Type)
 
 /*

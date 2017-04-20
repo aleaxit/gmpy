@@ -101,7 +101,6 @@ __MPFR_DECLSPEC extern MPFR_THREAD_ATTR mpfr_exp_t   __gmpfr_emax;
 #endif
 
 static PyTypeObject MPFR_Type;
-#define MPFR(obj) (((MPFR_Object *)(obj))->f)
 #define MPFR_Check(v) (((PyObject*)v)->ob_type == &MPFR_Type)
 
 #define GMPY_DIVZERO(msg) PyErr_SetString(GMPyExc_DivZero, msg)

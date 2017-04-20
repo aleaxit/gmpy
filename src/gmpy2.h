@@ -55,51 +55,25 @@
 extern "C" {
 #endif
 
-/* Check for Python version requirements. */
+/* Structure of gmpy2.h
+ *
+ * Revised 17-APR-2017 casevh
+ *
+ * 1. Checks for specific Python versions.
+ * 2. Include headers for GMP/MPIR, MPFR, and MPC.
+ * 3. Define public C-API.
+ *    1. Define gmpy2 types.
+ *    2. Define the public API.
+ *
+ */
+
+/* Check for minimum Python version requirements. */
 
 #if PY_VERSION_HEX < 0x02060000
 #  error "GMPY2 requires Python 2.6 or later."
 #endif
 
-#if PY_VERSION_HEX < 0x030200A4
-typedef long Py_hash_t;
-typedef unsigned long Py_uhash_t;
-#  define _PyHASH_IMAG 1000003
-#endif
-
-/* Define various macros to deal with differences between Python 2 and 3. */
-
-#if (PY_MAJOR_VERSION == 3)
-#define PY3
-#define Py2or3String_FromString     PyUnicode_FromString
-#define Py2or3String_FromFormat     PyUnicode_FromFormat
-#define Py2or3String_Check          PyUnicode_Check
-#define Py2or3String_Format         PyUnicode_Format
-#define Py2or3String_AsString       PyUnicode_AS_DATA
-#define PyStrOrUnicode_Check(op)    (PyBytes_Check(op) || PyUnicode_Check(op))
-#define PyIntOrLong_FromLong        PyLong_FromLong
-#define PyIntOrLong_Check(op)       PyLong_Check(op)
-#define PyIntOrLong_FromSize_t      PyLong_FromSize_t
-#define PyIntOrLong_FromSsize_t     PyLong_FromSsize_t
-#define PyIntOrLong_AsSsize_t       PyLong_AsSsize_t
-#define PyIntOrLong_AsLong          PyLong_AsLong
-#else
-#define PY2
-#define Py2or3String_FromString     PyString_FromString
-#define Py2or3String_FromFormat     PyString_FromFormat
-#define Py2or3String_Check          PyString_Check
-#define Py2or3String_Format         PyString_Format
-#define Py2or3String_AsString       PyString_AsString
-#define PyStrOrUnicode_Check(op)    (PyString_Check(op) || PyUnicode_Check(op))
-#define PyIntOrLong_FromLong        PyInt_FromLong
-#define PyIntOrLong_Check(op)       (PyInt_Check(op) || PyLong_Check(op))
-#define PyIntOrLong_FromSize_t      PyInt_FromSize_t
-#define PyIntOrLong_FromSsize_t     PyInt_FromSsize_t
-#define PyIntOrLong_AsSsize_t       PyInt_AsSsize_t
-#define PyIntOrLong_AsLong          PyInt_AsLong
-#endif
-
-/* Support MPIR, if requested. */
+/* Include headers for GMP/MPIR, MPFR, and MPC. */
 
 #ifdef MPIR
 #  include <mpir.h>
@@ -110,105 +84,104 @@ typedef unsigned long Py_uhash_t;
 #include <mpfr.h>
 #include <mpc.h>
 
-#ifndef ABS
-#define ABS(a)  (((a) < 0) ? -(a) : (a))
-#endif
+/* GMPY2 Public API */
 
-#if defined(MS_WIN32) && defined(_MSC_VER)
-   /* so one won't need to link explicitly to gmp.lib...: */
-#  if defined(MPIR)
-#    pragma comment(lib,"mpir.lib")
-#  else
-#    pragma comment(lib,"gmp.lib")
-#  endif
-#  define isnan _isnan
-#  define isinf !_finite
-#  define USE_ALLOCA 1
-#  define inline __inline
-#endif
-
-#ifdef __GNUC__
-#  define USE_ALLOCA 1
-#endif
-
-#ifndef alloca
-# ifdef __GNUC__
-#  define alloca __builtin_alloca
-# else
-#   ifdef _MSC_VER
-#    include <malloc.h>
-#    define alloca _alloca
-#   else
-#    if HAVE_ALLOCA_H
-#     include <alloca.h>
-#    else
-       char *alloca ();
-#    endif
-#   endif
-# endif
-#endif
-
-#define ALLOC_THRESHOLD 8192
-
-#define INDEX_ERROR(msg) PyErr_SetString(PyExc_IndexError, msg)
-#define TYPE_ERROR(msg) PyErr_SetString(PyExc_TypeError, msg)
-#define VALUE_ERROR(msg) PyErr_SetString(PyExc_ValueError, msg)
-#define ZERO_ERROR(msg) PyErr_SetString(PyExc_ZeroDivisionError, msg)
-#define SYSTEM_ERROR(msg) PyErr_SetString(PyExc_SystemError, msg)
-#define OVERFLOW_ERROR(msg) PyErr_SetString(PyExc_OverflowError, msg)
-#define RUNTIME_ERROR(msg) PyErr_SetString(PyExc_RuntimeError, msg)
-
-#define GMPY_DEFAULT -1
-
-/* To prevent excessive memory usage, we don't want to save very large
- * numbers in the cache. The default value specified in the options
- * structure is 128 words (512 bytes on 32-bit platforms, 1024 bytes on
- * 64-bit platforms).
- */
-#define MAX_CACHE_LIMBS 16384
-
-/* The maximum number of objects that can be saved in a cache is specified
- * here. The default value is 100.*/
-#define MAX_CACHE 1000
-
-#ifdef USE_ALLOCA
-#  define TEMP_ALLOC(B, S) \
-    if(S < ALLOC_THRESHOLD) { \
-        B = alloca(S); \
-    } else { \
-        if(!(B = malloc(S))) { \
-            PyErr_NoMemory(); \
-            return NULL; \
-        } \
-    }
-#  define TEMP_FREE(B, S) if(S >= ALLOC_THRESHOLD) free(B)
-#else
-#  define TEMP_ALLOC(B, S) \
-    if(!(B = malloc(S)))  { \
-        PyErr_NoMemory(); \
-        return NULL; \
-    }
-#  define TEMP_FREE(B, S) free(B)
-#endif
-
-/* Various defs to mask differences between Python versions. */
-
-#define Py_RETURN_NOTIMPLEMENTED\
-    return Py_INCREF(Py_NotImplemented), Py_NotImplemented
-
-#ifndef Py_SIZE
-#define Py_SIZE(ob)     (((PyVarObject*)(ob))->ob_size)
-#endif
-
-#ifndef Py_TYPE
-#define Py_TYPE(ob)     (((PyObject*)(ob))->ob_type)
-#endif
-
-/* Include the typedefs for all the custom types. They are required to be
- * available even when using gmpy2's C-API.
+/* Types
+ *    MPZ_Object
+ *    XMPZ_Object        (mutable version of MPZ_Object)
+ *    MPQ_Object
+ *    XMPQ_Object        (mutable version of MPQ_Object)
+ *    MPFR_Object
+ *    XMPFR_Object       (mutable version of MPFR_Object)
+ *    MPC_Object
+ *    XMPC_Object        (mutable version of MPC_Object)
+ *    CTXT_Object
+ *    CTXT_Manager_Object
+ *    RandomState_Object
  */
 
-#include "gmpy2_types.h"
+typedef struct {
+    PyObject_HEAD
+    mpz_t z;
+    Py_hash_t hash_cache;
+} MPZ_Object;
+
+typedef struct {
+    PyObject_HEAD
+    mpz_t z;
+} XMPZ_Object;
+
+typedef struct {
+    PyObject_HEAD
+    mpq_t q;
+    Py_hash_t  hash_cache;
+} MPQ_Object;
+
+typedef struct {
+    PyObject_HEAD
+    mpfr_t f;
+    Py_hash_t hash_cache;
+    int rc;
+} MPFR_Object;
+
+typedef struct {
+    PyObject_HEAD
+    mpc_t c;
+    Py_hash_t hash_cache;
+    int rc;
+} MPC_Object;
+
+typedef struct {
+    PyObject_HEAD
+    gmp_randstate_t state;
+} RandomState_Object;
+
+typedef struct {
+    mpfr_prec_t mpfr_prec;   /* current precision in bits, for MPFR */
+    mpfr_rnd_t mpfr_round;   /* current rounding mode for float (MPFR) */
+    mpfr_exp_t emax;         /* maximum exponent */
+    mpfr_exp_t emin;         /* minimum exponent */
+    int subnormalize;        /* if 1, subnormalization is performed */
+    int underflow;           /* did an underflow occur? */
+    int overflow;            /* did an overflow occur? */
+    int inexact;             /* was the result inexact? */
+    int invalid;             /* invalid operation (i.e. NaN)? */
+    int erange;              /* did a range error occur? */
+    int divzero;             /* divided by zero? */
+    int traps;               /* if 0, do not trap any exceptions */
+                             /* if not 0, then raise traps per bits above  */
+    mpfr_prec_t real_prec;   /* current precision in bits, for Re(MPC) */
+    mpfr_prec_t imag_prec;   /* current precision in bits, for Im(MPC) */
+    mpfr_rnd_t real_round;   /* current rounding mode for Re(MPC) */
+    mpfr_rnd_t imag_round;   /* current rounding mode for Im(MPC) */
+    int allow_complex;       /* if 1, allow mpfr functions to return an mpc */
+    int rational_division;   /* if 1, mpz/mpz returns an mpq result */
+    int mpfr_divmod_exact;   /* if 1, divmod(mpfr, mpfr) uses mpq */
+    int quiet_nan;           /* if 1, NaN exception not set if input is Nan */
+    /* The following field is for internal use only. */
+    int was_nan;             /* if 1, at least one of the inputs was NaN */
+} gmpy_context;
+
+typedef struct {
+    PyObject_HEAD
+    gmpy_context ctx;
+#ifndef WITHOUT_THREADS
+    PyThreadState *tstate;
+#endif
+} CTXT_Object;
+
+typedef struct {
+    PyObject_HEAD
+    CTXT_Object *new_context; /* Context that will be returned when
+                               * __enter__ is called. */
+    CTXT_Object *old_context; /* Context that will restored when
+                               * __exit__ is called. */
+} CTXT_Manager_Object;
+
+#define MPZ(obj)  (((MPZ_Object*)(obj))->z)
+#define MPQ(obj)  (((MPQ_Object*)(obj))->q)
+#define MPFR(obj) (((MPFR_Object*)(obj))->f)
+#define MPC(obj)  (((MPC_Object*)(obj))->c)
 
 /* Start of the C-API definitions */
 
@@ -282,7 +255,141 @@ typedef unsigned long Py_uhash_t;
 
 #define GMPy_API_pointers 22
 
+/* End of C-API definitions. */
+
 #ifdef GMPY2_MODULE
+
+/* Define various macros to deal with differences between Python 2 and 3. */
+
+#if (PY_MAJOR_VERSION == 3)
+#define PY3
+#define Py2or3String_FromString     PyUnicode_FromString
+#define Py2or3String_FromFormat     PyUnicode_FromFormat
+#define Py2or3String_Check          PyUnicode_Check
+#define Py2or3String_Format         PyUnicode_Format
+#define Py2or3String_AsString       PyUnicode_AS_DATA
+#define PyStrOrUnicode_Check(op)    (PyBytes_Check(op) || PyUnicode_Check(op))
+#define PyIntOrLong_FromLong        PyLong_FromLong
+#define PyIntOrLong_Check(op)       PyLong_Check(op)
+#define PyIntOrLong_FromSize_t      PyLong_FromSize_t
+#define PyIntOrLong_FromSsize_t     PyLong_FromSsize_t
+#define PyIntOrLong_AsSsize_t       PyLong_AsSsize_t
+#define PyIntOrLong_AsLong          PyLong_AsLong
+#else
+#define PY2
+#define Py2or3String_FromString     PyString_FromString
+#define Py2or3String_FromFormat     PyString_FromFormat
+#define Py2or3String_Check          PyString_Check
+#define Py2or3String_Format         PyString_Format
+#define Py2or3String_AsString       PyString_AsString
+#define PyStrOrUnicode_Check(op)    (PyString_Check(op) || PyUnicode_Check(op))
+#define PyIntOrLong_FromLong        PyInt_FromLong
+#define PyIntOrLong_Check(op)       (PyInt_Check(op) || PyLong_Check(op))
+#define PyIntOrLong_FromSize_t      PyInt_FromSize_t
+#define PyIntOrLong_FromSsize_t     PyInt_FromSsize_t
+#define PyIntOrLong_AsSsize_t       PyInt_AsSsize_t
+#define PyIntOrLong_AsLong          PyInt_AsLong
+#endif
+
+#if PY_VERSION_HEX < 0x030200A4
+typedef long Py_hash_t;
+typedef unsigned long Py_uhash_t;
+#  define _PyHASH_IMAG 1000003
+#endif
+
+#ifndef ABS
+#  define ABS(a)  (((a) < 0) ? -(a) : (a))
+#endif
+
+#if defined(MS_WIN32) && defined(_MSC_VER)
+   /* so one won't need to link explicitly to gmp.lib...: */
+#  if defined(MPIR)
+#    pragma comment(lib,"mpir.lib")
+#  else
+#    pragma comment(lib,"gmp.lib")
+#  endif
+#  define isnan _isnan
+#  define isinf !_finite
+#  define USE_ALLOCA 1
+#  define inline __inline
+#endif
+
+#ifdef __GNUC__
+#  define USE_ALLOCA 1
+#endif
+
+#ifndef alloca
+# ifdef __GNUC__
+#  define alloca __builtin_alloca
+# else
+#   ifdef _MSC_VER
+#    include <malloc.h>
+#    define alloca _alloca
+#   else
+#    if HAVE_ALLOCA_H
+#     include <alloca.h>
+#    else
+       char *alloca ();
+#    endif
+#   endif
+# endif
+#endif
+
+#define ALLOC_THRESHOLD 8192
+
+#define INDEX_ERROR(msg)    PyErr_SetString(PyExc_IndexError, msg)
+#define TYPE_ERROR(msg)     PyErr_SetString(PyExc_TypeError, msg)
+#define VALUE_ERROR(msg)    PyErr_SetString(PyExc_ValueError, msg)
+#define ZERO_ERROR(msg)     PyErr_SetString(PyExc_ZeroDivisionError, msg)
+#define SYSTEM_ERROR(msg)   PyErr_SetString(PyExc_SystemError, msg)
+#define OVERFLOW_ERROR(msg) PyErr_SetString(PyExc_OverflowError, msg)
+#define RUNTIME_ERROR(msg)  PyErr_SetString(PyExc_RuntimeError, msg)
+
+#define GMPY_DEFAULT -1
+
+/* To prevent excessive memory usage, we don't want to save very large
+ * numbers in the cache. The default value specified in the options
+ * structure is 128 words (512 bytes on 32-bit platforms, 1024 bytes on
+ * 64-bit platforms).
+ */
+#define MAX_CACHE_LIMBS 16384
+
+/* The maximum number of objects that can be saved in a cache is specified
+ * here. The default value is 100.*/
+#define MAX_CACHE 1000
+
+#ifdef USE_ALLOCA
+#  define TEMP_ALLOC(B, S)     \
+    if(S < ALLOC_THRESHOLD) {  \
+        B = alloca(S);         \
+    } else {                   \
+        if(!(B = malloc(S))) { \
+            PyErr_NoMemory();  \
+            return NULL;       \
+        }                      \
+    }
+#  define TEMP_FREE(B, S) if(S >= ALLOC_THRESHOLD) free(B)
+#else
+#  define TEMP_ALLOC(B, S)     \
+    if(!(B = malloc(S)))  {    \
+        PyErr_NoMemory();      \
+        return NULL;           \
+    }
+#  define TEMP_FREE(B, S) free(B)
+#endif
+
+/* Various defs to mask differences between Python versions. */
+
+#define Py_RETURN_NOTIMPLEMENTED \
+    return Py_INCREF(Py_NotImplemented), Py_NotImplemented
+
+#ifndef Py_SIZE
+#  define Py_SIZE(ob)     (((PyVarObject*)(ob))->ob_size)
+#endif
+
+#ifndef Py_TYPE
+#  define Py_TYPE(ob)     (((PyObject*)(ob))->ob_type)
+#endif
 
 /* Import a collection of general purpose macros. */
 
@@ -351,7 +458,7 @@ typedef unsigned long Py_uhash_t;
 #include "gmpy_mpz_prp.h"
 
 /* Support higher-level Python methods and functions; generally not
- * specific to a single typel.
+ * specific to a single type.
  */
 
 #include "gmpy2_abs.h"
@@ -377,7 +484,7 @@ typedef unsigned long Py_uhash_t;
 #include "gmpy2_richcompare.h"
 
 #ifdef VECTOR
-#include "gmpy2_vector.h"
+#  include "gmpy2_vector.h"
 #endif /* defined(VECTOR) */
 
 #else /* defined(GMPY2_MODULE) */
@@ -395,10 +502,19 @@ static void **GMPy_C_API;
 #define MPC_Check(op)    ((op)->ob_type == (PyTypeObject*)GMPy_C_API[MPC_Type_NUM])
 #define XMPC_Check(op)   ((op)->ob_type == (PyTypeObject*)GMPy_C_API[XMPC_Type_NUM])
 
-#define GMPy_MPZ_New        (*(GMPy_MPZ_New_RETURN        (*)GMPy_MPZ_New_PROTO)        GMPy_C_API[GMPy_MPZ_New_NUM])
-#define GMPy_MPZ_NewInit    (*(GMPy_MPZ_NewInit_RETURN    (*)GMPy_MPZ_NewInit_PROTO)    GMPy_C_API[GMPy_MPZ_NewInit_NUM])
-#define GMPy_MPZ_Dealloc    (*(GMPy_MPZ_Dealloc_RETURN    (*)GMPy_MPZ_Dealloc_PROTO)    GMPy_C_API[GMPy_MPZ_Dealloc_NUM])
-#define GMPy_MPZ_ConvertArg (*(GMPy_MPZ_ConvertArg_RETURN (*)GMPy_MPZ_ConvertArg_PROTO) GMPy_C_API[GMPy_MPZ_ConvertArg_NUM])
+#define GMPy_MPZ_New         (*(GMPy_MPZ_New_RETURN         (*)GMPy_MPZ_New_PROTO)         GMPy_C_API[GMPy_MPZ_New_NUM])
+#define GMPy_MPZ_NewInit     (*(GMPy_MPZ_NewInit_RETURN     (*)GMPy_MPZ_NewInit_PROTO)     GMPy_C_API[GMPy_MPZ_NewInit_NUM])
+#define GMPy_MPZ_Dealloc     (*(GMPy_MPZ_Dealloc_RETURN     (*)GMPy_MPZ_Dealloc_PROTO)     GMPy_C_API[GMPy_MPZ_Dealloc_NUM])
+#define GMPy_MPZ_ConvertArg  (*(GMPy_MPZ_ConvertArg_RETURN  (*)GMPy_MPZ_ConvertArg_PROTO)  GMPy_C_API[GMPy_MPZ_ConvertArg_NUM])
+
+#define GMPy_XMPZ_New        (*(GMPy_XMPZ_New_RETURN        (*)GMPy_XMPZ_New_PROTO)        GMPy_C_API[GMPy_XMPZ_New_NUM])
+#define GMPy_XMPZ_NewInit    (*(GMPy_XMPZ_NewInit_RETURN    (*)GMPy_XMPZ_NewInit_PROTO)    GMPy_C_API[GMPy_XMPZ_NewInit_NUM])
+#define GMPy_XMPZ_Dealloc    (*(GMPy_XMPZ_Dealloc_RETURN    (*)GMPy_XMPZ_Dealloc_PROTO)    GMPy_C_API[GMPy_XMPZ_Dealloc_NUM])
+
+#define GMPy_MPQ_New         (*(GMPy_MPQ_New_RETURN         (*)GMPy_MPQ_New_PROTO)         GMPy_C_API[GMPy_MPQ_New_NUM])
+#define GMPy_MPQ_NewInit     (*(GMPy_MPQ_NewInit_RETURN     (*)GMPy_MPQ_NewInit_PROTO)     GMPy_C_API[GMPy_MPQ_NewInit_NUM])
+#define GMPy_MPQ_Dealloc     (*(GMPy_MPQ_Dealloc_RETURN     (*)GMPy_MPQ_Dealloc_PROTO)     GMPy_C_API[GMPy_MPQ_Dealloc_NUM])
+#define GMPy_MPQ_ConvertArg  (*(GMPy_MPQ_ConvertArg_RETURN  (*)GMPy_MPQ_ConvertArg_PROTO)  GMPy_C_API[GMPy_MPQ_ConvertArg_NUM])
 
 static int
 import_gmpy2(void)

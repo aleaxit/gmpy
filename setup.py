@@ -253,7 +253,7 @@ setup(name = "gmpy2",
       description = "GMP/MPIR, MPFR, and MPC interface to Python 2.6+ and 3.x",
       packages = ['gmpy2'],
       package_dir = {'gmpy2': 'src'},
-      package_data = {'gmpy2': ['*.h']},
+      package_data = {'gmpy2': ['gmpy2.h']},
       classifiers = [
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',

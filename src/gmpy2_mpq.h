@@ -34,7 +34,6 @@ extern "C" {
 #endif
 
 static PyTypeObject MPQ_Type;
-#define MPQ(obj) (((MPQ_Object *)(obj))->q)
 #define MPQ_Check(v) (((PyObject*)v)->ob_type == &MPQ_Type)
 
 #ifdef __cplusplus
