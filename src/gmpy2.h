@@ -84,6 +84,12 @@ extern "C" {
 #include <mpfr.h>
 #include <mpc.h>
 
+#if PY_VERSION_HEX < 0x030200A4
+typedef long Py_hash_t;
+typedef unsigned long Py_uhash_t;
+#  define _PyHASH_IMAG 1000003
+#endif
+
 /* GMPY2 Public API */
 
 /* Types
@@ -289,12 +295,6 @@ typedef struct {
 #define PyIntOrLong_FromSsize_t     PyInt_FromSsize_t
 #define PyIntOrLong_AsSsize_t       PyInt_AsSsize_t
 #define PyIntOrLong_AsLong          PyInt_AsLong
-#endif
-
-#if PY_VERSION_HEX < 0x030200A4
-typedef long Py_hash_t;
-typedef unsigned long Py_uhash_t;
-#  define _PyHASH_IMAG 1000003
 #endif
 
 #ifndef ABS
