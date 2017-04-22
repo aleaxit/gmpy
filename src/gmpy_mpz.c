@@ -952,7 +952,12 @@ Pympz_pow(PyObject *b, PyObject *e, PyObject *m)
         /* Catch -1, 0, 1 getting raised to large exponents. */
 
         if (mpz_cmp_si(tempb->z, 0) == 0) {
-            mpz_set_ui(result->z, 0);
+            if (mpz_cmp_si(tempe->z, 0) == 0) {
+                mpz_set_ui(result->z, 1);
+            }
+            else {
+                mpz_set_ui(result->z, 0);
+            }
             goto done;
         }
 
