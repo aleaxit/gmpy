@@ -148,6 +148,10 @@ GMPy_MPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
             return (PyObject*)GMPy_MPZ_From_PyStr(n, base, context);
         }
 
+        if (PyObject_HasAttrString(n, "__mpz__")) {
+             return (PyObject*) PyObject_CallMethod(n, "__mpz__", NULL);
+        }
+
         /* Try converting to integer. */
         temp = PyNumber_Long(n);
         if (temp) {
@@ -434,11 +438,16 @@ GMPy_MPQ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         return (PyObject*)GMPy_MPQ_From_PyStr(n, base, context);
     }
 
-    /* Handle 1 argument. It must be non-complex number. */
+    /* Handle 1 argument. It must be non-complex number or an object with a __mpq__ method. */
     if (argc == 1) {
         if (IS_REAL(n)) {
             return (PyObject*)GMPy_MPQ_From_Number(n, context);
         }
+
+        if (PyObject_HasAttrString(n, "__mpq__")) {
+             return (PyObject*) PyObject_CallMethod(n, "__mpq__", NULL);
+        }
+
     }
 
     /* Handle 2 arguments. Both arguments must be integer or rational. */
