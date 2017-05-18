@@ -231,6 +231,9 @@ class gmpy_build_ext(build_ext):
         # Add MSVC specific options.
         if windows and not msys2:
             self.extensions[0].extra_link_args.append('/MANIFEST')
+            self.extensions[0].define_macros.append(("MPIR", 1))
+            if not static:
+                self.extensions[0].define_macros.append(("MSC_USE_DLL", None))
 
     def finalize_options(self):
         build_ext.finalize_options(self)
