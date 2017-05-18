@@ -191,13 +191,17 @@ GMPy_XMPZ_Method_SubScript(XMPZ_Object* self, PyObject* item)
 
 #if PY_VERSION_HEX > 0x030200A4
         if (PySlice_GetIndicesEx(item,
-#else
-        if (PySlice_GetIndicesEx((PySliceObject*)item,
-#endif
                          mpz_sizeinbase(self->z, 2),
                          &start, &stop, &step, &slicelength) < 0) {
             return NULL;
         }
+#else
+        if (PySlice_GetIndicesEx((PySliceObject*)item,
+                         mpz_sizeinbase(self->z, 2),
+                         &start, &stop, &step, &slicelength) < 0) {
+            return NULL;
+        }
+#endif
 
         if ((step < 0 && start < stop) || (step > 0 && start > stop)) {
             stop = start;
@@ -280,13 +284,17 @@ GMPy_XMPZ_Method_AssignSubScript(XMPZ_Object* self, PyObject* item, PyObject* va
 
 #if PY_VERSION_HEX > 0x030200A4
         if (PySlice_GetIndicesEx(item,
-#else
-        if (PySlice_GetIndicesEx((PySliceObject*)item,
-#endif
                         seq_len,
                         &start, &stop, &step, &slicelength) < 0) {
             return -1;
         }
+#else
+        if (PySlice_GetIndicesEx((PySliceObject*)item,
+                        seq_len,
+                        &start, &stop, &step, &slicelength) < 0) {
+            return -1;
+        }
+#endif
 
         if ((step < 0 && start < stop) || (step > 0 && start > stop)) {
             stop = start;
