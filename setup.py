@@ -251,9 +251,12 @@ setup(name = "gmpy2",
       maintainer_email = "casevh@gmail.com",
       url = "http://code.google.com/p/gmpy/",
       description = "GMP/MPIR, MPFR, and MPC interface to Python 2.6+ and 3.x",
-      packages = ['gmpy2'],
-      package_dir = {'gmpy2': 'src'},
-      package_data = {'gmpy2': ['gmpy2.h']},
+      headers = ['src/gmpy2.h'],
+#     Keep the package options for future reference. It may be used to install
+#     a gmpy2.pxd file in the future.
+#      packages = ['gmpy2'],
+#      package_dir = {'gmpy2': 'src'},
+#      package_data = {'gmpy2': ['gmpy2.h']},
       classifiers = [
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
