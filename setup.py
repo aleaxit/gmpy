@@ -3,6 +3,7 @@ import os
 from distutils.core import setup, Extension
 from distutils.command.clean import clean
 from distutils.command.build_ext import build_ext
+from distutils.command.install_data import install_data
 from distutils.sysconfig import get_python_inc, get_python_lib
 
 def writeln(s):
@@ -236,14 +237,25 @@ class gmpy_build_ext(build_ext):
         build_ext.finalize_options(self)
         gmpy_build_ext.doit(self)
 
+# custom install data in order that data_files
+# get installed together with the .so
+
+class gmpy_install_data(install_data):
+    def finalize_options(self):
+        install_data.finalize_options(self)
+        install = self.distribution.get_command_obj('install')
+        self.install_dir = install.install_purelib
+
 # prepare the extension for building
 
-my_commands = {'clean' : gmpy_clean, 'build_ext' : gmpy_build_ext}
+my_commands = {'clean' : gmpy_clean, 'build_ext' : gmpy_build_ext, 'install_data' : gmpy_install_data}
 
 gmpy2_ext = Extension('gmpy2',
                       sources=[os.path.join('src', 'gmpy2.c')],
                       include_dirs=['./src'],
                       define_macros = defines)
+
+headers = [os.path.join('src', filename) for filename in os.listdir('src') if filename.endswith('.h')]
 
 setup(name = "gmpy2",
       version = "2.1.0a0",
@@ -251,12 +263,8 @@ setup(name = "gmpy2",
       maintainer_email = "casevh@gmail.com",
       url = "http://code.google.com/p/gmpy/",
       description = "GMP/MPIR, MPFR, and MPC interface to Python 2.6+ and 3.x",
-      headers = ['src/gmpy2.h'],
-#     Keep the package options for future reference. It may be used to install
-#     a gmpy2.pxd file in the future.
-#      packages = ['gmpy2'],
-#      package_dir = {'gmpy2': 'src'},
-#      package_data = {'gmpy2': ['gmpy2.h']},
+      data_files = [('', ['src/gmpy2.pxd']),
+                     ('gmpy2', headers)],
       classifiers = [
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
