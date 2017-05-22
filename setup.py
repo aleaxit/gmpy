@@ -258,16 +258,13 @@ gmpy2_ext = Extension('gmpy2',
                       include_dirs=['./src'],
                       define_macros = defines)
 
-headers = [os.path.join('src', filename) for filename in os.listdir('src') if filename.endswith('.h')]
-
 setup(name = "gmpy2",
       version = "2.1.0a0",
       maintainer = "Case Van Horsen",
       maintainer_email = "casevh@gmail.com",
       url = "http://code.google.com/p/gmpy/",
       description = "GMP/MPIR, MPFR, and MPC interface to Python 2.6+ and 3.x",
-      data_files = [('', ['src/gmpy2.pxd']),
-                     ('gmpy2', headers)],
+      data_files = [('', ['src/gmpy2.pxd']), ('gmpy2', ['src/gmpy2.h'])],
       classifiers = [
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
