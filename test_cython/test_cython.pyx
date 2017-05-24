@@ -1,7 +1,6 @@
 # distutils: libraries = gmp
 from __future__ import print_function
 from gmpy2 cimport *
-from cpython.object cimport PyObject
 
 import_gmpy2()
 
