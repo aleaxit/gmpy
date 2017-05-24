@@ -35,7 +35,9 @@ try:
     old_path = os.getcwd()
     tempdir_path = tempfile.mkdtemp()
 
-    os.chdir(os.path.dirname(__file__))
+    dirname = os.path.dirname(__file__)
+    if dirname != '':
+        os.chdir(dirname)
     copy_tree('./', tempdir_path)
     os.chdir(tempdir_path)
 

@@ -84,6 +84,18 @@ cdef extern from "gmpy2/gmpy2.h":
     # access to the mpc_t field of a gmpy2 mpc
     cdef mpc_t MPC(MPC_Object *)
 
+    # check if "param" is a MPZ_Object
+    cdef bint MPZ_Check(PyObject *)
+
+    # check if "param" is a MPQ_Object
+    cdef bint MPQ_Check(PyObject *)
+
+    # check if "param" is a MPFR_Object
+    cdef bint MPFR_Check(PyObject *)
+
+    # check if "param" is a MPC_Object
+    cdef bint MPC_Check(PyObject *)
+
 # Build a gmpy2 mpz from a gmp mpz
 cdef inline GMPy_MPZ_From_mpz(mpz_srcptr z):
     cdef MPZ_Object * res = GMPy_MPZ_New(NULL)
