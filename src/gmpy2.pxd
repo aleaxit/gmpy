@@ -1,5 +1,8 @@
 from cpython.object cimport PyObject
 
+cdef extern from "Python.h":
+    void Py_DECREF(PyObject *)
+
 cdef extern from "gmp.h":
     # gmp integers
     ctypedef struct __mpz_struct:
@@ -54,22 +57,18 @@ cdef extern from "gmpy2/gmpy2.h":
     ctypedef struct MPC_Object:
         pass
 
-    # construct a new gmpy2 mpz
-    # (equivalent to mpz.__new__(mpz)
+    # WARNING: this function might cause memory leak if not used
+    # appropriately. Prefer MPZ_New() declared below.
     cdef (MPZ_Object *) GMPy_MPZ_New(void *)
 
-    # construct a new gmpy2 mpq
-    # (equivalent of mpq.__new__(mpq)
+    # WARNING: this function might cause memory leak if not used
+    # appropriately. Prefer MPQ_New() declared below.
     cdef (MPQ_Object *) GMPy_MPQ_New(void *)
 
     # TODO
-    # construct a new gmpy2 mpfr
-    # (equivalent of mpfr.__new__(mpfr)
     # cdef (MPFR_Object *) GMPy_MPFR_New(void *)
 
     # TODO
-    # construct a new gmpy mpc
-    # (equivalent of mpc.__new__(mpc)
     # cdef (MPC_Object *) GMPy_MPC_New(void *)
 
     # access to the mpz_t field of a gmpy2 mpz
@@ -96,24 +95,38 @@ cdef extern from "gmpy2/gmpy2.h":
     # check if "param" is a MPC_Object
     cdef bint MPC_Check(PyObject *)
 
+# Return a new gmpy2 mpz object
+# equivalent to mpz.__new__(mpz)
+cdef inline MPZ_New():
+    res = <object> GMPy_MPZ_New(NULL)  # Cython increases refcount!
+    Py_DECREF(<PyObject *> res)
+    return res
+
+# Return a new gmpy2 mpq object
+# equivalent to mpq.__new__(mpq)
+cdef inline MPQ_New():
+    res = <object> GMPy_MPQ_New(NULL)  # Cython increases refcount!
+    Py_DECREF(<PyObject *> res)
+    return res
+
 # Build a gmpy2 mpz from a gmp mpz
 cdef inline GMPy_MPZ_From_mpz(mpz_srcptr z):
-    cdef MPZ_Object * res = GMPy_MPZ_New(NULL)
-    mpz_set(MPZ(res), z)
-    return <object> res
+    res = MPZ_New()
+    mpz_set(MPZ(<MPZ_Object *> res), z)
+    return res
 
 # Build a gmpy2 mpq from a gmp mpq
 cdef inline GMPy_MPQ_From_mpq(mpq_srcptr q):
-    cdef MPQ_Object * res = GMPy_MPQ_New(NULL)
-    mpq_set(MPQ(res), q)
-    return <object> res
+    res = MPQ_New()
+    mpq_set(MPQ(<MPQ_Object *> res), q)
+    return res
 
 # Build a gmpy2 mpq from gmp mpz numerator and denominator
 cdef inline GMPy_MPQ_From_mpz(mpz_srcptr num, mpz_srcptr den):
-    cdef MPQ_Object * res = GMPy_MPQ_New(NULL)
-    mpq_set_num(MPQ(res), num)
-    mpq_set_den(MPQ(res), den)
-    return <object> res
+    res = MPQ_New()
+    mpq_set_num(MPQ(<MPQ_Object *> res), num)
+    mpq_set_den(MPQ(<MPQ_Object *> res), den)
+    return res
 
 # TODO
 # Build a gmpy2 mpfr from a mpfr
