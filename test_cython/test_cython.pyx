@@ -1,6 +1,7 @@
 # distutils: libraries = gmp
 from __future__ import print_function
 from gmpy2 cimport *
+from cpython.object cimport PyObject
 
 import_gmpy2()
 
@@ -18,6 +19,8 @@ mpz_set_si(MPZ(<MPZ_Object *> y), 2)
 z = x + y + 1  # python operation!
 assert z == 6
 
+assert MPZ_Check(<PyObject *>x)
+
 x = <object> GMPy_MPQ_New(NULL)
 y = <object> GMPy_MPQ_New(NULL)
 
@@ -26,3 +29,7 @@ mpq_set_si(MPQ(<MPQ_Object *> y), -3, 7)
 
 z = x + y - 1 # python operation!
 assert 28 * z == -33
+
+assert MPQ_Check(<PyObject *>y)
+
+
