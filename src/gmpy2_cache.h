@@ -69,8 +69,12 @@ static GMPy_MPQ_New_RETURN     GMPy_MPQ_New     GMPy_MPQ_New_PROTO;
 static GMPy_MPQ_NewInit_RETURN GMPy_MPQ_NewInit GMPy_MPQ_NewInit_PROTO;
 static GMPy_MPQ_Dealloc_RETURN GMPy_MPQ_Dealloc GMPy_MPQ_Dealloc_PROTO;
 
-static MPFR_Object * GMPy_MPFR_New(mpfr_prec_t bits, CTXT_Object *context);
-static void          GMPy_MPFR_Dealloc(MPFR_Object *self);
+/* static MPFR_Object * GMPy_MPFR_New(CTXT_Object *context); */
+/* static PyObject *    GMPy_MPFR_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds); */
+/* static void          GMPy_MPFR_Dealloc(MPFR_Object *self); */
+static GMPy_MPFR_New_RETURN     GMPy_MPFR_New     GMPy_MPFR_New_PROTO;
+static GMPy_MPFR_NewInit_RETURN GMPy_MPFR_NewInit GMPy_MPFR_NewInit_PROTO;
+static GMPy_MPFR_Dealloc_RETURN GMPy_MPFR_Dealloc GMPy_MPFR_Dealloc_PROTO;
 
 static MPC_Object *  GMPy_MPC_New(mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
 static void          GMPy_MPC_Dealloc(MPC_Object *self);
