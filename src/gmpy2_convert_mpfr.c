@@ -775,13 +775,13 @@ GMPy_PyStr_From_MPFR(MPFR_Object *self, int base, int digits, CTXT_Object *conte
     return result;
 }
 
-#if 0
+#ifdef SHARED
 /*
  * coerce any number to a mpf
  */
 
 int
-GMPy_MPFR_convert_arg(PyObject *arg, PyObject **ptr)
+GMPy_MPFR_ConvertArg(PyObject *arg, PyObject **ptr)
 {
     MPFR_Object* newob = GMPy_MPFR_From_Real(arg, 1, NULL);
 

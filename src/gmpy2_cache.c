@@ -544,6 +544,91 @@ GMPy_MPFR_New(mpfr_prec_t bits, CTXT_Object *context)
     return result;
 }
 
+static PyObject *
+GMPy_MPFR_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
+{
+    MPFR_Object *result = NULL;
+    CTXT_Object *context = NULL;
+    Py_ssize_t argc, keywdc = 0;
+    PyObject *arg0 = NULL;
+    int base = 0;
+
+    /* Assumes mpfr_prec_t is the same as a long. */
+    mpfr_prec_t prec = 0;
+
+    static char *kwlist_s[] = {"s", "precision", "base", "context", NULL};
+    static char *kwlist_n[] = {"n", "precision", "context", NULL};
+
+    argc = PyTuple_Size(args);
+    if (keywds) {
+        keywdc = PyDict_Size(keywds);
+    }
+
+    if (argc + keywdc > 4) {
+        TYPE_ERROR("mpfr() takes at most 4 arguments");
+        return NULL;
+    }
+
+    if (argc + keywdc == 0) {
+        CHECK_CONTEXT(context);
+        if ((result = GMPy_MPFR_New(0, context))) {
+            mpfr_set_ui(result->f, 0, MPFR_RNDN);
+        }
+        return (PyObject*)result;
+    }
+
+    if (argc == 0) {
+        TYPE_ERROR("mpfr() requires at least one non-keyword argument");
+        return NULL;
+    }
+
+    arg0 = PyTuple_GET_ITEM(args, 0);
+
+    /* A string can have precision, base, and context as additional arguments. */
+    if (PyStrOrUnicode_Check(arg0)) {
+        if (keywdc || argc > 1) {
+            if (!(PyArg_ParseTupleAndKeywords(args, keywds, "O|liO", kwlist_s,
+                                              &arg0, &prec, &base, &context)))
+                return NULL;
+        }
+
+        if (prec < 0) {
+            VALUE_ERROR("precision for mpfr() must be >= 0");
+            return NULL;
+        }
+
+        if (base != 0 && (base < 2 || base > 62)) {
+            VALUE_ERROR("base for mpfr() must be 0 or in the interval [2, 62]");
+            return NULL;
+        }
+
+        return (PyObject*)GMPy_MPFR_From_PyStr(arg0, base, prec, context);
+    }
+
+    /* A number can only have precision and context as additional arguments. */
+    if (IS_REAL(arg0)) {
+        if (keywdc || argc > 1) {
+            if (!(PyArg_ParseTupleAndKeywords(args, keywds, "O|lO", kwlist_n,
+                                              &arg0, &prec, &context)))
+                return NULL;
+        }
+
+        if (prec < 0) {
+            VALUE_ERROR("precision for mpfr() must be >= 0");
+            return NULL;
+        }
+
+        return (PyObject*)GMPy_MPFR_From_Real(arg0, prec, context);
+    }
+
+    if (PyObject_HasAttrString(arg0, "__mpfr__")) {
+         return (PyObject*) PyObject_CallMethod(arg0, "__mpz__", NULL);
+    }
+
+    TYPE_ERROR("mpfr() requires numeric or string argument");
+    return NULL;
+}
+
 static void
 GMPy_MPFR_Dealloc(MPFR_Object *self)
 {

@@ -257,9 +257,29 @@ typedef struct {
 #define GMPy_MPQ_ConvertArg_RETURN  int
 #define GMPy_MPQ_ConvertArg_PROTO   (PyObject *arg, PyObject **ptr)
 
+/* The following functions are found in gmpy2_cache. */
+
+#define GMPy_MPFR_New_NUM           22
+#define GMPy_MPFR_New_RETURN        MPFR_Object *
+#define GMPy_MPFR_New_PROTO         (mpfr_prec_t bits, CTXT_Object *context)
+
+#define GMPy_MPFR_NewInit_NUM       23
+#define GMPy_MPFR_NewInit_RETURN    PyObject *
+#define GMPy_MPFR_NewInit_PROTO     (PyTypeObject *type, PyObject *args, PyObject *keywds)
+
+#define GMPy_MPFR_Dealloc_NUM       24
+#define GMPy_MPFR_Dealloc_RETURN    void
+#define GMPy_MPFR_Dealloc_PROTO     (MPFR_Object *self)
+
+/* The following function is found in gmpy2_convert_gmp. */
+
+#define GMPy_MPFR_ConvertArg_NUM    25
+#define GMPy_MPFR_ConvertArg_RETURN int
+#define GMPy_MPFR_ConvertArg_PROTO  (PyObject *arg, PyObject **ptr)
+
 /* Total number of C-API pointers. */
 
-#define GMPy_API_pointers 22
+#define GMPy_API_pointers 26
 
 /* End of C-API definitions. */
 

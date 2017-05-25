@@ -99,13 +99,13 @@ _GMPy_MPFR_Cleanup(MPFR_Object **v, CTXT_Object *ctext)
     }
 }
 
-PyDoc_STRVAR(GMPy_doc_mpfr_factory,
+PyDoc_STRVAR(GMPy_doc_mpfr,
 "mpfr() -> mpfr(0.0)\n\n"
 "      If no argument is given, return mpfr(0.0).\n\n"
-"mpfr(n [, precision=0]) -> mpfr\n\n"
+"mpfr(n [, precision=0 [, context]]) -> mpfr\n\n"
 "      Return an 'mpfr' object after converting a numeric value. See\n"
 "      below for the interpretation of precision.\n\n"
-"mpfr(s [, precision=0 [, base=0]]) -> mpfr\n\n"
+"mpfr(s [, precision=0 [, base=0 [, context]]]) -> mpfr\n\n"
 "      Return a new 'mpfr' object by converting a string s made of\n"
 "      digits in the given base, possibly with fraction-part (with a\n"
 "      period as a separator) and/or exponent-part (with an exponent\n"
@@ -116,101 +116,14 @@ PyDoc_STRVAR(GMPy_doc_mpfr_factory,
 "      is assumed.\n\n"
 "Note: If a precision greater than or equal to 2 is specified, then it\n"
 "      is used.\n\n"
-"      A precision of 0 (the default) implies the precision of the\n"
-"      current context is used.\n\n"
+"      A precision of 0 (the default) implies the precision of either\n"
+"      specified context or the current context is used.\n\n"
 "      A precision of 1 minimizes the loss of precision by following\n"
 "      these rules:\n"
 "        1) If n is a radix-2 floating point number, then the full\n"
 "           precision of n is retained.\n"
 "        2) If n is an integer, then the precision is the bit length\n"
 "           of the integer.\n" );
-
-static PyObject *
-GMPy_MPFR_Factory(PyObject *self, PyObject *args, PyObject *keywds)
-{
-    MPFR_Object *result = NULL;
-    PyObject *arg0 = NULL;
-    int base = 0;
-    Py_ssize_t argc, keywdc = 0;
-    CTXT_Object *context = NULL;
-
-    /* Assumes mpfr_prec_t is the same as a long. */
-    mpfr_prec_t prec = 0;
-
-    static char *kwlist_s[] = {"s", "precision", "base", NULL};
-    static char *kwlist_n[] = {"n", "precision", NULL};
-
-    if (self && CTXT_Check(self)) {
-        context = (CTXT_Object*)self;
-    }
-    else {
-        CHECK_CONTEXT(context);
-    }
-
-    argc = PyTuple_Size(args);
-    if (keywds) {
-        keywdc = PyDict_Size(keywds);
-    }
-
-    if (argc + keywdc > 3) {
-        TYPE_ERROR("mpfr() takes at most 3 arguments");
-        return NULL;
-    }
-
-    if (argc + keywdc == 0) {
-        if ((result = GMPy_MPFR_New(0, context))) {
-            mpfr_set_ui(result->f, 0, MPFR_RNDN);
-        }
-        return (PyObject*)result;
-    }
-
-    if (argc == 0) {
-        TYPE_ERROR("mpfr() requires at least one non-keyword argument");
-        return NULL;
-    }
-
-    arg0 = PyTuple_GET_ITEM(args, 0);
-
-    /* A string can have both precision and base additional arguments. */
-    if (PyStrOrUnicode_Check(arg0)) {
-        if (keywdc || argc > 1) {
-            if (!(PyArg_ParseTupleAndKeywords(args, keywds, "O|li", kwlist_s,
-                                              &arg0, &prec, &base)))
-                return NULL;
-        }
-
-        if (prec < 0) {
-            VALUE_ERROR("precision for mpfr() must be >= 0");
-            return NULL;
-        }
-
-        if (base != 0 && (base < 2 || base > 62)) {
-            VALUE_ERROR("base for mpfr() must be 0 or in the interval [2, 62]");
-            return NULL;
-        }
-
-        return (PyObject*)GMPy_MPFR_From_PyStr(arg0, base, prec, context);
-    }
-
-    /* A number can only have precision additional argument. */
-    if (IS_REAL(arg0)) {
-        if (keywdc || argc > 1) {
-            if (!(PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist_n,
-                                              &arg0, &prec)))
-                return NULL;
-        }
-
-        if (prec < 0) {
-            VALUE_ERROR("precision for mpfr() must be >= 0");
-            return NULL;
-        }
-
-        return (PyObject*)GMPy_MPFR_From_Real(arg0, prec, context);
-    }
-
-    TYPE_ERROR("mpfr() requires numeric or string argument");
-    return NULL;
-}
 
 #ifdef PY3
 static PyNumberMethods mpfr_number_methods =
@@ -359,7 +272,7 @@ static PyTypeObject MPFR_Type =
 #else
     Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,  /* tp_flags */
 #endif
-    "Multiple precision real",              /* tp_doc           */
+    GMPy_doc_mpfr,                          /* tp_doc           */
         0,                                  /* tp_traverse      */
         0,                                  /* tp_clear         */
     (richcmpfunc)&GMPy_RichCompare_Slot,    /* tp_richcompare   */
@@ -369,5 +282,14 @@ static PyTypeObject MPFR_Type =
     Pympfr_methods,                         /* tp_methods       */
         0,                                  /* tp_members       */
     Pympfr_getseters,                       /* tp_getset        */
+        0,                                  /* tp_base          */
+        0,                                  /* tp_dict          */
+        0,                                  /* tp_descr_get     */
+        0,                                  /* tp_descr_set     */
+        0,                                  /* tp_dictoffset    */
+        0,                                  /* tp_init          */
+        0,                                  /* tp_alloc         */
+    GMPy_MPFR_NewInit,                      /* tp_new           */
+        0,                                  /* tp_free          */
 };
 
