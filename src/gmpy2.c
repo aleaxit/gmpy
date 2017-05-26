@@ -505,8 +505,6 @@ static PyObject *GMPyExc_Erange = NULL;
 
 #include "gmpy2_random.c"
 
-#include "./posix64/mpz_aprcl.c"
-
 /* Support for Lucas sequences. */
 
 #include "gmpy_mpz_lucas.c"
@@ -615,7 +613,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "iroot_rem", GMPy_MPZ_Function_IrootRem, METH_VARARGS, GMPy_doc_mpz_function_iroot_rem },
     { "isqrt", GMPy_MPZ_Function_Isqrt, METH_O, GMPy_doc_mpz_function_isqrt },
     { "isqrt_rem", GMPy_MPZ_Function_IsqrtRem, METH_O, GMPy_doc_mpz_function_isqrt_rem },
-    { "is_aprcl_prime", GMPy_MPZ_is_aprcl_prime, METH_O, doc_mpz_is_aprcl_prime },
     { "is_bpsw_prp", GMPY_mpz_is_bpsw_prp, METH_VARARGS, doc_mpz_is_bpsw_prp },
     { "is_congruent", GMPy_MPZ_Function_IsCongruent, METH_VARARGS, GMPy_doc_mpz_function_is_congruent },
     { "is_divisible", GMPy_MPZ_Function_IsDivisible, METH_VARARGS, GMPy_doc_mpz_function_is_divisible },
