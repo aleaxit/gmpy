@@ -243,7 +243,7 @@ Test cos
 >>> gmpy2.set_context(gmpy2.context())
 >>> _cmp(gmpy2.cos(mpfr("0.2")), math.cos(0.2))
 True
->>> _cmp(gmpy2.cos(mpfr("20")), math.cos(20)) == (sys.platform != 'win32')
+>>> _cmp(gmpy2.cos(mpfr("20")), math.cos(20)) or (sys.platform == 'win32')
 True
 >>> _cmp(gmpy2.cos(mpfr("2000")), math.cos(2000))
 True
