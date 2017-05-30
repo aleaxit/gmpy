@@ -32,6 +32,8 @@ cdef extern from "mpfr.h":
     ctypedef __mpfr_struct *mpfr_ptr
     ctypedef const __mpfr_struct *mpfr_srcptr
 
+    ctypedef long mpfr_prec_t
+
 
 cdef extern from "mpc.h":
     # mpc complexes
@@ -65,8 +67,9 @@ cdef extern from "gmpy2/gmpy2.h":
     # appropriately. Prefer MPQ_New() declared below.
     cdef (MPQ_Object *) GMPy_MPQ_New(void *)
 
-    # TODO
-    # cdef (MPFR_Object *) GMPy_MPFR_New(void *)
+    # WARNING: this function might cause memory leak if not used
+    # appropriately. Prefer MPFR_New() declared below.
+    cdef (MPFR_Object *) GMPy_MPFR_New(mpfr_prec_t prec, void *)
 
     # TODO
     # cdef (MPC_Object *) GMPy_MPC_New(void *)
@@ -106,6 +109,13 @@ cdef inline MPZ_New():
 # equivalent to mpq.__new__(mpq)
 cdef inline MPQ_New():
     res = <object> GMPy_MPQ_New(NULL)  # Cython increases refcount!
+    Py_DECREF(<PyObject *> res)
+    return res
+
+# Return a new gmpy2 mpfr object
+# equivalent to mpfr.__new__(mpfr)
+cdef inline MPFR_New(mpfr_prec_t prec):
+    res = <object> GMPy_MPFR_New(prec, NULL)  # Cython increases refcount!
     Py_DECREF(<PyObject *> res)
     return res
 
