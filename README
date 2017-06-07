@@ -80,11 +80,11 @@ versions of GMP, MPFR, and MPC do not need to be installed the system library
 directories. The prefix directory is added to the beginning of the directories
 that are checked so it will be found first.
 
-    $ python setup.py install --prefix=/home/case/local
+    $ python setup.py install --shared=/home/case/local
 
 If you get a "permission denied" error message, you may need to use:
 
-    $ python setup.py build --prefix=/home/case/local
-    $ sudo python setup.py install --prefix=/home/case/local
+    $ python setup.py build --shared=/home/case/local
+    $ sudo python setup.py install --shared=/home/case/local
 
 
