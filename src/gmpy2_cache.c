@@ -88,6 +88,7 @@ GMPy_MPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
     MPZ_Object *result = NULL;
     PyObject *n = NULL;
     PyObject *temp = NULL;
+    PyObject *out = NULL;
     int base = 0;
     Py_ssize_t argc;
     static char *kwlist[] = {"s", "base", NULL };
@@ -149,7 +150,14 @@ GMPy_MPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         }
 
         if (PyObject_HasAttrString(n, "__mpz__")) {
-             return (PyObject*) PyObject_CallMethod(n, "__mpz__", NULL);
+             out = (PyObject*) PyObject_CallMethod(n, "__mpz__", NULL);
+             if (!MPZ_Check(out)) {
+                 PyErr_Format(PyExc_TypeError,
+                              "object of type '%.200s' can not be interpreted as mpz",
+                              out->ob_type->tp_name);
+                 return NULL;
+             }
+             return out;
         }
 
         /* Try converting to integer. */
@@ -392,6 +400,7 @@ GMPy_MPQ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
 {
     MPQ_Object *result = NULL, *temp = NULL;
     PyObject *n = NULL, *m = NULL;
+    PyObject *out = NULL;
     int base = 10;
     Py_ssize_t argc, keywdc = 0;
     static char *kwlist[] = {"s", "base", NULL };
@@ -445,7 +454,14 @@ GMPy_MPQ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         }
 
         if (PyObject_HasAttrString(n, "__mpq__")) {
-             return (PyObject*) PyObject_CallMethod(n, "__mpq__", NULL);
+             out = (PyObject*) PyObject_CallMethod(n, "__mpq__", NULL);
+             if (!MPQ_Check(out)) {
+                 PyErr_Format(PyExc_TypeError,
+                              "object of type '%.200s' can not be interpreted as mpq",
+                              out->ob_type->tp_name);
+                 return NULL;
+             }
+             return out;
         }
 
     }
@@ -551,6 +567,7 @@ GMPy_MPFR_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
     CTXT_Object *context = NULL;
     Py_ssize_t argc, keywdc = 0;
     PyObject *arg0 = NULL;
+    PyObject *out = NULL;
     int base = 0;
 
     /* Assumes mpfr_prec_t is the same as a long. */
@@ -622,7 +639,14 @@ GMPy_MPFR_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
     }
 
     if (PyObject_HasAttrString(arg0, "__mpfr__")) {
-         return (PyObject*) PyObject_CallMethod(arg0, "__mpz__", NULL);
+         out = (PyObject*) PyObject_CallMethod(arg0, "__mpfr__", NULL);
+         if (!MPFR_Check(out)) {
+             PyErr_Format(PyExc_TypeError,
+                          "object of type '%.200s' can not be interpreted as mpfr",
+                          out->ob_type->tp_name);
+             return NULL;
+         }
+         return out;
     }
 
     TYPE_ERROR("mpfr() requires numeric or string argument");

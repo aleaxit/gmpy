@@ -1,0 +1,57 @@
+Test constructors via special methods
+=====================================
+
+>>> from gmpy2 import mpz, mpq, mpfr, mpc
+>>> class A:
+...     def __mpz__(self): return mpz(1)
+...     def __mpq__(self): return mpq(3,2)
+...     def __mpfr__(self): return mpfr(1.5)
+>>> class B:
+...     def __mpz__(self): return 'hello'
+...     def __mpq__(self): return 'hello'
+...     def __mpfr__(self): return 'hello'
+>>> a = A()
+>>> b = B()
+
+Test mpz conversion
+-------------------
+
+>>> x = mpz(a)
+>>> isinstance(x, mpz)
+True
+>>> x == 1
+True
+
+>>> mpz(b)
+Traceback (most recent call last):
+...
+TypeError: object of type 'str' can not be interpreted as mpz
+
+Test mpq conversion
+-------------------
+
+>>> x = mpq(a)
+>>> isinstance(x, mpq)
+True
+>>> 2*x == 3
+True
+
+>>> mpq(b)
+Traceback (most recent call last):
+...
+TypeError: object of type 'str' can not be interpreted as mpq
+
+Test mpfr conversion
+--------------------
+
+>>> x = mpfr(a)
+>>> isinstance(x, mpfr)
+True
+>>> x == 1.5
+True
+
+>>> mpfr(b)
+Traceback (most recent call last):
+...
+TypeError: object of type 'str' can not be interpreted as mpfr
+
