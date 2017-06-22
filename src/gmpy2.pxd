@@ -34,6 +34,21 @@ cdef extern from "mpfr.h":
 
     ctypedef long mpfr_prec_t
 
+    ctypedef enum mpfr_rnd_t:
+        MPFR_RNDN
+        MPFR_RNDZ
+        MPFR_RNDU
+        MPFR_RNDD
+        MPFR_RNDA
+        MPFR_RNDF
+        MPFR_RNDNA
+        GMP_RNDN
+        GMP_RNDZ
+        GMP_RNDU
+        GMP_RNDD
+
+    mpfr_prec_t mpfr_get_prec (mpfr_t x)
+    int mpfr_set (mpfr_t rop, mpfr_t op, mpfr_rnd_t rnd)
 
 cdef extern from "mpc.h":
     # mpc complexes
@@ -119,6 +134,11 @@ cdef inline MPFR_New(mpfr_prec_t prec):
     Py_DECREF(<PyObject *> res)
     return res
 
+# TODO
+# Return a new gmpy2 mpc object
+# equivalent to mpc.__new__(mpc)
+# cdef inline GMPy_MPC_New(...)
+
 # Build a gmpy2 mpz from a gmp mpz
 cdef inline GMPy_MPZ_From_mpz(mpz_srcptr z):
     res = MPZ_New()
@@ -138,9 +158,11 @@ cdef inline GMPy_MPQ_From_mpz(mpz_srcptr num, mpz_srcptr den):
     mpq_set_den(MPQ(<MPQ_Object *> res), den)
     return res
 
-# TODO
 # Build a gmpy2 mpfr from a mpfr
-# cdef inline GMPy_MPQ_From_mpfr(mpfr_srcptr x)
+cdef inline GMPy_MPFR_From_mpfr(mpfr_srcptr x):
+    res = MPFR_New(mpfr_get_prec(x))
+    mpfr_set(MPFR(<MPFR_Object *> res), x, MPFR_RNDN)
+    return res
 
 # TODO
 # Build a gmpy2 mpc from a mpc
