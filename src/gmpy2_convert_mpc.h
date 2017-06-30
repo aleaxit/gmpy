@@ -33,14 +33,8 @@
 extern "C" {
 #endif
 
-/* The following functions identify and classify the numeric types that are
- * supported by gmpy2.
- *
- * These checks are currently implemented as functions but may be
- * implemented as macros in the future.
- */
+/* Conversions with Pympc */
 
-    /* Conversions with Pympc */
 static MPC_Object *   GMPy_MPC_From_MPC(MPC_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
 static MPC_Object *   GMPy_MPC_From_PyComplex(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
 static MPC_Object *   GMPy_MPC_From_MPFR(MPFR_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
@@ -64,8 +58,10 @@ static PyObject *     GMPy_MPC_Str_Slot(MPC_Object *self);
 static PyObject *     GMPy_MPC_Repr_Slot(MPC_Object *self);
 
 /* Miscellaneous */
-#if 0
-static int            GMPy_MPC_convert_arg(PyObject *arg, PyObject **ptr);
+#ifdef SHARED
+/* static int            GMPy_MPC_convert_arg(PyObject *arg, PyObject **ptr); */
+static GMPy_MPC_ConvertArg_RETURN GMPy_MPC_ConvertArg GMPy_MPC_ConvertArg_PROTO;
+
 #endif
 
 #ifdef __cplusplus

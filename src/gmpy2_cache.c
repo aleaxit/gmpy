@@ -397,6 +397,11 @@ GMPy_MPQ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
     static char *kwlist[] = {"s", "base", NULL };
     CTXT_Object *context = NULL;
 
+    if (type != &MPQ_Type) {
+        TYPE_ERROR("mpq.__new__() requires mpq type");
+        return NULL;
+    }
+
     argc = PyTuple_Size(args);
     if (keywds) {
         keywdc = PyDict_Size(keywds);
@@ -515,7 +520,9 @@ GMPy_MPFR_New(mpfr_prec_t bits, CTXT_Object *context)
 {
     MPFR_Object *result;
 
+
     if (bits < 2) {
+        CHECK_CONTEXT(context);
         bits = GET_MPFR_PREC(context);
     }
 
@@ -553,11 +560,19 @@ GMPy_MPFR_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
     PyObject *arg0 = NULL;
     int base = 0;
 
+
     /* Assumes mpfr_prec_t is the same as a long. */
     mpfr_prec_t prec = 0;
 
     static char *kwlist_s[] = {"s", "precision", "base", "context", NULL};
     static char *kwlist_n[] = {"n", "precision", "context", NULL};
+
+    if (type != &MPFR_Type) {
+        TYPE_ERROR("mpfr.__new__() requires mpfr type");
+        return NULL;
+    }
+
+    CHECK_CONTEXT(context);
 
     argc = PyTuple_Size(args);
     if (keywds) {
@@ -570,7 +585,6 @@ GMPy_MPFR_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
     }
 
     if (argc + keywdc == 0) {
-        CHECK_CONTEXT(context);
         if ((result = GMPy_MPFR_New(0, context))) {
             mpfr_set_ui(result->f, 0, MPFR_RNDN);
         }
@@ -592,6 +606,11 @@ GMPy_MPFR_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
                 return NULL;
         }
 
+        if (!CTXT_Check(context)) {
+            TYPE_ERROR("context argument is not a valid context");
+            return NULL;
+        }
+
         if (prec < 0) {
             VALUE_ERROR("precision for mpfr() must be >= 0");
             return NULL;
@@ -611,6 +630,11 @@ GMPy_MPFR_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
             if (!(PyArg_ParseTupleAndKeywords(args, keywds, "O|lO", kwlist_n,
                                               &arg0, &prec, &context)))
                 return NULL;
+        }
+
+        if (!CTXT_Check(context)) {
+            TYPE_ERROR("context argument is not a valid context");
+            return NULL;
         }
 
         if (prec < 0) {
@@ -666,13 +690,13 @@ GMPy_MPC_New(mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context)
 {
     MPC_Object *self;
 
-    CHECK_CONTEXT(context);
-
     if (rprec < 2) {
+        CHECK_CONTEXT(context);
         rprec = GET_REAL_PREC(context);
     }
 
     if (iprec < 2) {
+        CHECK_CONTEXT(context);
         iprec = GET_IMAG_PREC(context);
     }
 
@@ -705,6 +729,227 @@ GMPy_MPC_New(mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context)
     self->hash_cache = -1;
     self->rc = 0;
     return self;
+}
+
+static PyObject *
+GMPy_MPC_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
+{
+    MPC_Object *result = NULL;
+    MPFR_Object *tempreal = NULL, *tempimag = NULL;
+    PyObject *arg0 = NULL, *arg1 = NULL, *prec = NULL, *out = NULL;
+    int base = 10;
+    Py_ssize_t argc = 0, keywdc = 0;
+    CTXT_Object *context = NULL;
+
+    /* Assumes mpfr_prec_t is the same as a long. */
+    mpfr_prec_t rprec = 0, iprec = 0;
+
+    static char *kwlist_c[] = {"c", "precision", "context", NULL};
+    static char *kwlist_r[] = {"real", "imag", "precision", "context", NULL};
+    static char *kwlist_s[] = {"s", "precision", "base", "context", NULL};
+
+    if (type != &MPC_Type) {
+        TYPE_ERROR("mpc.__new__() requires mpc type");
+        return NULL;
+    }
+
+    CHECK_CONTEXT(context);
+
+    argc = PyTuple_Size(args);
+    if (keywds) {
+        keywdc = PyDict_Size(keywds);
+    }
+
+    if (argc + keywdc > 4) {
+        TYPE_ERROR("mpc() takes at most 4 arguments");
+        return NULL;
+    }
+
+    if (argc + keywdc == 0) {
+        if ((result = GMPy_MPC_New(0, 0, context))) {
+            mpc_set_ui(result->c, 0, GET_MPC_ROUND(context));
+        }
+        return (PyObject*)result;
+    }
+
+    if (argc == 0) {
+        TYPE_ERROR("mpc() requires at least one non-keyword argument");
+        return NULL;
+    }
+
+    arg0 = PyTuple_GET_ITEM(args, 0);
+
+    /* A string can have precision, base, and context as additional arguments.
+     */
+
+    if (PyStrOrUnicode_Check(arg0)) {
+        if (keywdc || argc > 1) {
+            if (!(PyArg_ParseTupleAndKeywords(args, keywds, "O|OiO", kwlist_s,
+                                              &arg0, &prec, &base, &context)))
+                return NULL;
+        }
+
+        if (!CTXT_Check(context)) {
+            TYPE_ERROR("context argument is not a valid context");
+            return NULL;
+        }
+
+        if (prec) {
+            if (PyIntOrLong_Check(prec)) {
+                rprec = (mpfr_prec_t)PyIntOrLong_AsLong(prec);
+                iprec = rprec;
+            }
+            else if (PyTuple_Check(prec) && PyTuple_Size(prec) == 2) {
+                rprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 0));
+                iprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 1));
+            }
+            else {
+                TYPE_ERROR("precision for mpc() must be integer or tuple");
+                return NULL;
+            }
+
+            if (rprec < 0 || iprec < 0) {
+                if (PyErr_Occurred()) {
+                    VALUE_ERROR("invalid value for precision in mpc()");
+                }
+                else {
+                    VALUE_ERROR("precision for mpc() must be >= 0");
+                }
+                return NULL;
+            }
+        }
+
+        if (base < 2 || base > 36) {
+            VALUE_ERROR("base for mpc() must be in the interval [2,36]");
+            return NULL;
+        }
+
+        return (PyObject*)GMPy_MPC_From_PyStr(arg0, base, rprec, iprec, context);
+    }
+
+    /* Should special case PyFLoat to avoid double rounding. */
+
+    if (IS_REAL(arg0)) {
+        if (keywdc || argc > 1) {
+            if (!(PyArg_ParseTupleAndKeywords(args, keywds, "O|OOO", kwlist_r,
+                                            &arg0, &arg1, &prec, &context)))
+                return NULL;
+        }
+
+        if (!CTXT_Check(context)) {
+            TYPE_ERROR("context argument is not a valid context");
+            return NULL;
+        }
+
+        if (prec) {
+            if (PyIntOrLong_Check(prec)) {
+                rprec = (mpfr_prec_t)PyIntOrLong_AsLong(prec);
+                iprec = rprec;
+            }
+            else if (PyTuple_Check(prec) && PyTuple_Size(prec) == 2) {
+                rprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 0));
+                iprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 1));
+            }
+            else {
+                TYPE_ERROR("precision for mpc() must be integer or tuple");
+                return NULL;
+            }
+
+            if (rprec < 0 || iprec < 0) {
+                if (PyErr_Occurred()) {
+                    VALUE_ERROR("invalid value for precision in mpc()");
+                }
+                else {
+                    VALUE_ERROR("precision for mpc() must be >= 0");
+                }
+                return NULL;
+            }
+        }
+
+        if (arg1 && !IS_REAL(arg1)) {
+            TYPE_ERROR("invalid type for imaginary component in mpc()");
+            return NULL;
+        }
+
+        tempreal = GMPy_MPFR_From_Real(arg0, rprec, context);
+        if (arg1) {
+            tempimag = GMPy_MPFR_From_Real(arg1, iprec, context);
+        }
+        else {
+            if ((tempimag = GMPy_MPFR_New(iprec, context))) {
+                mpfr_set_ui(tempimag->f, 0, MPFR_RNDN);
+            }
+        }
+
+        result = GMPy_MPC_New(rprec, iprec, context);
+        if (!tempreal || !tempimag || !result) {
+            Py_XDECREF(tempreal);
+            Py_XDECREF(tempimag);
+            Py_XDECREF(result);
+            TYPE_ERROR("mpc() requires string or numeric argument.");
+            return NULL;
+        }
+
+        mpc_set_fr_fr(result->c, tempreal->f, tempimag->f, GET_MPC_ROUND(context));
+        Py_DECREF(tempreal);
+        Py_DECREF(tempimag);
+        return (PyObject*)result;
+    }
+
+    if (IS_COMPLEX_ONLY(arg0)) {
+        if (keywdc || argc > 1) {
+            if (!(PyArg_ParseTupleAndKeywords(args, keywds, "O|O", kwlist_c,
+                                          &arg0, &prec)))
+            return NULL;
+        }
+
+        if (prec) {
+            if (PyIntOrLong_Check(prec)) {
+                rprec = (mpfr_prec_t)PyIntOrLong_AsLong(prec);
+                iprec = rprec;
+            }
+            else if (PyTuple_Check(prec) && PyTuple_Size(prec) == 2) {
+                rprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 0));
+                iprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 1));
+            }
+            else {
+                TYPE_ERROR("precision for mpc() must be integer or tuple");
+                return NULL;
+            }
+
+            if (rprec < 0 || iprec < 0) {
+                if (PyErr_Occurred()) {
+                    VALUE_ERROR("invalid value for precision in mpc()");
+                }
+                else {
+                    VALUE_ERROR("precision for mpc() must be >= 0");
+                }
+                return NULL;
+            }
+        }
+
+        if (PyComplex_Check(arg0)) {
+            result = GMPy_MPC_From_PyComplex(arg0, rprec, iprec, context);
+        }
+        else {
+            result = GMPy_MPC_From_MPC((MPC_Object*)arg0, rprec, iprec, context);
+        }
+        return (PyObject*)result;
+    }
+
+    if (PyObject_HasAttrString(arg0, "__mpc__")) {
+        out = (PyObject*) PyObject_CallMethod(arg0, "__mpc__", NULL);
+        if (!MPC_Check(out)) {
+            PyErr_Format(PyExc_TypeError,
+                         "object of type '%.200s' can not be interpreted as mpc",
+                         out->ob_type->tp_name);
+            return NULL;
+        }
+        return out;
+    }
+
+    TYPE_ERROR("mpc() requires numeric or string argument");
+    return NULL;
 }
 
 static void
