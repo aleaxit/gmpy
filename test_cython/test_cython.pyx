@@ -1,4 +1,4 @@
-# distutils: libraries = gmp mpfr
+# distutils: libraries = gmp mpfr mpc
 from __future__ import print_function
 from gmpy2 cimport *
 
@@ -27,6 +27,12 @@ cdef extern from "mpfr.h":
     void mpfr_clear (mpfr_t x)
 
     int mpfr_set_si (mpfr_t rop, long int op, mpfr_rnd_t rnd)
+
+cdef extern from "mpc.h":
+    void mpc_init2 (mpc_ptr x, mpfr_prec_t rnd);
+    void mpc_clear (mpc_ptr x)
+
+    int mpc_set_si_si (mpc_ptr rop, long int re, long int im, mpc_rnd_t rnd)
 
 def test_mpz():
     sys.stdout.write('test mpz... ')
@@ -139,14 +145,19 @@ def test_mpfr():
 
     x = MPFR_New(100)
     y = MPFR_New(123)
+    z = MPFR_New(0)
 
     # Check that the refcount is appropriate
     assert Py_REFCNT(<PyObject *> x) == 1
     assert Py_REFCNT(<PyObject *> y) == 1
+    assert Py_REFCNT(<PyObject *> z) == 1
 
     mpfr_set_si(MPFR(<MPFR_Object *> x), 2741, MPFR_RNDN)
     y = x + 1
     assert y == 2742
+
+    z = y + 1
+    assert z == 2743
 
     sys.stdout.write('done\n')
     sys.stdout.flush()
@@ -171,6 +182,73 @@ def test_mpfr_from_mpfr():
     sys.stdout.write('done\n')
     sys.stdout.flush()
 
+def test_mpc():
+    sys.stdout.write('test mpc... ')
+    sys.stdout.flush()
+
+    x = MPC_New(56, 56)
+    y = MPC_New(0, 0)
+
+    # Check that the refcount is appropriate
+    assert Py_REFCNT(<PyObject *> x) == 1
+    assert Py_REFCNT(<PyObject *> y) == 1
+
+    mpc_set_si_si(MPC(<MPC_Object *> x), 42, 30, MPC_RNDNN)
+    y = x * 2
+    assert y == 84+60j
+
+    sys.stdout.write('done\n')
+    sys.stdout.flush()
+
+def test_mpc_from_mpc():
+    sys.stdout.write('test mpc from mpc... ')
+    sys.stdout.flush()
+
+    cdef mpc_t x
+    mpc_init2(x, 100)
+    mpc_set_si_si(x, 2341, 42, MPC_RNDNN)
+    a = GMPy_MPC_From_mpc(x)
+    mpc_clear(x)
+
+    # Check that the refcount is appropriate
+    assert Py_REFCNT(<PyObject *> a) == 1
+
+    assert a == 2341+43j
+
+    del a
+
+    sys.stdout.write('done\n')
+    sys.stdout.flush()
+
+def test_mpc_from_mpfr():
+    sys.stdout.write('test mpfr from mpfr... ')
+    sys.stdout.flush()
+
+    cdef mpfr_t r
+    cdef mpfr_t i
+
+    mpfr_init2(r, 50)
+    mpfr_init2(i, 50)
+
+    mpfr_set_si(r, 49, MPFR_RNDN)
+    mpfr_set_si(i, 49, MPFR_RNDN)
+
+    c = GMPy_MPC_From_mpfr(r, i)
+
+    mpfr_clear(r)
+    mpfr_clear(i)
+
+    # Check that the refcount is appropriate
+    assert Py_REFCNT(<PyObject *> c) == 1
+
+    assert c == 49 + 49j
+
+    del c
+
+    sys.stdout.write('done\n')
+    sys.stdout.flush()
+
+
 def test_check():
     sys.stdout.write('test check... ')
     sys.stdout.flush()
@@ -178,6 +256,7 @@ def test_check():
     x = MPZ_New()
     y = MPQ_New()
     z = MPFR_New(53)
+    c = MPC_New(55, 87)
 
     # Checktypes functions with a MPZ_Object
     assert MPZ_Check(<PyObject *>  x)
@@ -196,6 +275,12 @@ def test_check():
     assert not MPQ_Check(<PyObject *> z)
     assert not MPC_Check(<PyObject *> z)
     assert MPFR_Check(<PyObject *> z)
+
+    # Checktypes functions with a MPC_Object
+    assert not MPZ_Check(<PyObject *>  c)
+    assert not MPQ_Check(<PyObject *> c)
+    assert MPC_Check(<PyObject *> c)
+    assert not MPFR_Check(<PyObject *> c)
 
     # Checktypes functions with a python integer
     cdef object i = 5
@@ -211,10 +296,11 @@ def test_py_check():
     sys.stdout.write('test py check... ')
     sys.stdout.flush()
 
-    from gmpy2 import mpz, mpq, mpfr
+    from gmpy2 import mpz, mpq, mpfr, mpc
     x = mpz()
     y = mpq()
     z = mpfr(53)
+    c = mpc(56, 89, 10)
 
     # Checktypes functions with a MPZ_Object
     assert MPZ_Check(<PyObject *>  x)
@@ -233,6 +319,12 @@ def test_py_check():
     assert not MPQ_Check(<PyObject *> z)
     assert not MPC_Check(<PyObject *> z)
     assert MPFR_Check(<PyObject *> z)
+
+    # Checktypes functions with a MPC_Object
+    assert not MPZ_Check(<PyObject *>  c)
+    assert not MPQ_Check(<PyObject *> c)
+    assert MPC_Check(<PyObject *> c)
+    assert not MPFR_Check(<PyObject *> c)
 
     # Checktypes functions with a python integer
     cdef object i = 5
@@ -251,5 +343,6 @@ test_mpq()
 test_mpq_from_mpq()
 test_mpfr()
 test_mpfr_from_mpfr()
+test_mpc()
 test_check()
 test_py_check()
