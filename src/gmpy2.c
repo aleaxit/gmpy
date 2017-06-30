@@ -802,7 +802,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "zero", GMPy_MPFR_set_zero, METH_VARARGS, GMPy_doc_mpfr_set_zero },
     { "zeta", GMPy_Context_Zeta, METH_O, GMPy_doc_function_zeta },
 
-    { "mpc", (PyCFunction)GMPy_MPC_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_mpc_factory },
     { "mpc_random", GMPy_MPC_random_Function, METH_VARARGS, GMPy_doc_mpc_random_function },
     { "norm", GMPy_Context_Norm, METH_O, GMPy_doc_function_norm },
     { "polar", GMPy_Context_Polar, METH_O, GMPy_doc_function_polar },
@@ -1075,6 +1074,11 @@ PyMODINIT_FUNC initgmpy2(void)
     Py_INCREF(&MPFR_Type);
     PyModule_AddObject(gmpy_module, "mpfr", (PyObject*)&MPFR_Type);
 
+    /* Add the MPC type to the module namespace. */
+
+    Py_INCREF(&MPC_Type);
+    PyModule_AddObject(gmpy_module, "mpc", (PyObject*)&MPC_Type);
+
     /* Initialize thread local contexts. */
 #ifdef WITHOUT_THREADS
     module_context = (CTXT_Object*)GMPy_CTXT_New();
@@ -1210,6 +1214,11 @@ PyMODINIT_FUNC initgmpy2(void)
     GMPy_C_API[GMPy_MPFR_NewInit_NUM] = (void*)GMPy_MPFR_NewInit;
     GMPy_C_API[GMPy_MPFR_Dealloc_NUM] = (void*)GMPy_MPFR_Dealloc;
     GMPy_C_API[GMPy_MPFR_ConvertArg_NUM] = (void*)GMPy_MPFR_ConvertArg;
+
+    GMPy_C_API[GMPy_MPC_New_NUM] = (void*)GMPy_MPC_New;
+    GMPy_C_API[GMPy_MPC_NewInit_NUM] = (void*)GMPy_MPC_NewInit;
+    GMPy_C_API[GMPy_MPC_Dealloc_NUM] = (void*)GMPy_MPC_Dealloc;
+    GMPy_C_API[GMPy_MPC_ConvertArg_NUM] = (void*)GMPy_MPC_ConvertArg;
 
     c_api_object = PyCapsule_New((void *)GMPy_C_API, "gmpy2._C_API", NULL);
 

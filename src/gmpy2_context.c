@@ -1314,7 +1314,6 @@ static PyMethodDef GMPyContext_methods[] =
     { "log1p", GMPy_Context_Log1p, METH_O, GMPy_doc_context_log1p },
     { "log2", GMPy_Context_Log2, METH_O, GMPy_doc_context_log2 },
     { "maxnum", GMPy_Context_Maxnum, METH_VARARGS, GMPy_doc_context_maxnum },
-    { "mpc", (PyCFunction)GMPy_MPC_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_mpc_factory },
     { "minnum", GMPy_Context_Minnum, METH_VARARGS, GMPy_doc_context_minnum },
     { "minus", GMPy_Context_Minus, METH_VARARGS, GMPy_doc_context_minus },
     { "mod", GMPy_Context_Mod, METH_VARARGS, GMPy_doc_context_mod },

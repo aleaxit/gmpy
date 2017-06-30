@@ -191,8 +191,6 @@ static PyTypeObject MPC_Type;
     GMPY_MPC_SUBNORMALIZE(V, CTX); \
     GMPY_MPC_EXCEPTIONS(V, CTX); \
 
-static PyObject * GMPy_MPC_Factory(PyObject *self, PyObject *args, PyObject *kwargs);
-
 static void _GMPy_MPC_Cleanup(MPC_Object **v, CTXT_Object *ctext);
 
 #ifdef __cplusplus

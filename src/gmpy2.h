@@ -277,9 +277,29 @@ typedef struct {
 #define GMPy_MPFR_ConvertArg_RETURN int
 #define GMPy_MPFR_ConvertArg_PROTO  (PyObject *arg, PyObject **ptr)
 
+/* The following functions are found in gmpy2_cache. */
+
+#define GMPy_MPC_New_NUM             26
+#define GMPy_MPC_New_RETURN          MPC_Object *
+#define GMPy_MPC_New_PROTO           (mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context)
+
+#define GMPy_MPC_NewInit_NUM         27
+#define GMPy_MPC_NewInit_RETURN      PyObject *
+#define GMPy_MPC_NewInit_PROTO       (PyTypeObject *type, PyObject *args, PyObject *keywds)
+
+#define GMPy_MPC_Dealloc_NUM        28
+#define GMPy_MPC_Dealloc_RETURN     void
+#define GMPy_MPC_Dealloc_PROTO      (MPC_Object *self)
+
+/* The following function is found in gmpy2_convert_gmp. */
+
+#define GMPy_MPC_ConvertArg_NUM     29
+#define GMPy_MPC_ConvertArg_RETURN  int
+#define GMPy_MPC_ConvertArg_PROTO   (PyObject *arg, PyObject **ptr)
+
 /* Total number of C-API pointers. */
 
-#define GMPy_API_pointers 26
+#define GMPy_API_pointers 30
 
 /* End of C-API definitions. */
 
@@ -540,6 +560,11 @@ static void **GMPy_C_API;
 #define GMPy_MPFR_NewInit    (*(GMPy_MPFR_NewInit_RETURN    (*)GMPy_MPFR_NewInit_PROTO)    GMPy_C_API[GMPy_MPFR_NewInit_NUM])
 #define GMPy_MPFR_Dealloc    (*(GMPy_MPFR_Dealloc_RETURN    (*)GMPy_MPFR_Dealloc_PROTO)    GMPy_C_API[GMPy_MPFR_Dealloc_NUM])
 #define GMPy_MPFR_ConvertArg (*(GMPy_MPFR_ConvertArg_RETURN (*)GMPy_MPFR_ConvertArg_PROTO) GMPy_C_API[GMPy_MPFR_ConvertArg_NUM])
+
+#define GMPy_MPC_New         (*(GMPy_MPC_New_RETURN         (*)GMPy_MPC_New_PROTO)         GMPy_C_API[GMPy_MPC_New_NUM])
+#define GMPy_MPC_NewInit     (*(GMPy_MPC_NewInit_RETURN     (*)GMPy_MPC_NewInit_PROTO)     GMPy_C_API[GMPy_MPC_NewInit_NUM])
+#define GMPy_MPC_Dealloc     (*(GMPy_MPC_Dealloc_RETURN     (*)GMPy_MPC_Dealloc_PROTO)     GMPy_C_API[GMPy_MPC_Dealloc_NUM])
+#define GMPy_MPC_ConvertArg  (*(GMPy_MPC_ConvertArg_RETURN  (*)GMPy_MPC_ConvertArg_PROTO)  GMPy_C_API[GMPy_MPC_ConvertArg_NUM])
 
 static int
 import_gmpy2(void)

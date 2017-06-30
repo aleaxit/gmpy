@@ -515,13 +515,13 @@ GMPy_MPC_Int_Slot(PyObject *self)
     return NULL;
 }
 
+#ifdef SHARED
 /*
  * coerce any number to a mpc
  */
 
-#if 0
 int
-GMPy_MPC_convert_arg(PyObject *arg, PyObject **ptr)
+GMPy_MPC_ConvertArg(PyObject *arg, PyObject **ptr)
 {
     MPC_Object *newob = GMPy_MPC_From_Complex(arg, 0, 0, NULL);
 
