@@ -108,7 +108,7 @@ cdef extern from "gmpy2/gmpy2.h":
     cdef (MPFR_Object *) GMPy_MPFR_New(mpfr_prec_t prec, void *)
 
     # WARNING: this function might cause memory leak if not used
-    # appropriately. Prefer MPFR_New() declared below.
+    # appropriately. Prefer MPC_New() declared below.
     cdef (MPC_Object *) GMPy_MPC_New(mpfr_prec_t rprec, mpfr_prec_t iprec, void *)
 
     # access to the mpz_t field of a gmpy2 mpz
@@ -190,9 +190,10 @@ cdef inline GMPy_MPFR_From_mpfr(mpfr_srcptr x):
 
 # Build a gmpy2 mpc from a mpc
 cdef inline GMPy_MPC_From_mpc(mpc_srcptr c):
-    cdef mpfr_prec_t *pr, *pi
-    mpc_get_prec2(pr, pi, c)
-    res = MPC_New(pr[0], pi[0])
+    cdef mpfr_prec_t pr
+    cdef mpfr_prec_t pi
+    mpc_get_prec2(&pr, &pi, c)
+    res = MPC_New(pr, pi)
     mpc_set(MPC(<MPC_Object *> res), c, MPC_RNDNN)
     return res
 
