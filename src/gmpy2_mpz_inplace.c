@@ -64,7 +64,7 @@ GMPy_MPZ_IAdd_Slot(PyObject *self, PyObject *other)
 
     if (PyIntOrLong_Check(other)) {
         int error;
-        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        native_si temp = GMPy_Integer_AsNative_siAndError(other, &error);
 
         if ((result = GMPy_MPZ_New(NULL))) {
             if (!error) {
@@ -101,7 +101,7 @@ GMPy_MPZ_ISub_Slot(PyObject *self, PyObject *other)
 
     if (PyIntOrLong_Check(other)) {
         int error;
-        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        native_si temp = GMPy_Integer_AsNative_siAndError(other, &error);
 
         if (!error) {
             if (temp >= 0) {
@@ -136,7 +136,7 @@ GMPy_MPZ_IMul_Slot(PyObject *self, PyObject *other)
 
     if (PyIntOrLong_Check(other)) {
         int error;
-        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        native_si temp = GMPy_Integer_AsNative_siAndError(other, &error);
 
         if (!error) {
             mpz_mul_si(rz->z, MPZ(self), temp);
@@ -175,7 +175,7 @@ GMPy_MPZ_IFloorDiv_Slot(PyObject *self, PyObject *other)
 
     if (PyIntOrLong_Check(other)) {
         int error;
-        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        native_si temp = GMPy_Integer_AsNative_siAndError(other, &error);
 
         if (!error) {
             if (temp == 0) {
@@ -219,7 +219,7 @@ GMPy_MPZ_IRem_Slot(PyObject *self, PyObject *other)
 
    if (PyIntOrLong_Check(other)) {
         int error;
-        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        native_si temp = GMPy_Integer_AsNative_siAndError(other, &error);
 
         if (!error) {
             if (temp > 0) {

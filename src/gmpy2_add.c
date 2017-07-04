@@ -71,7 +71,7 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     if (MPZ_Check(x)) {
         if (PyIntOrLong_Check(y)) {
             int error;
-            long temp = GMPy_Integer_AsLongAndError(y, &error);
+            native_si temp = GMPy_Integer_AsNative_siAndError(y, &error);
 
             if (!error) {
                 if (temp >= 0) {
@@ -97,7 +97,7 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     if (MPZ_Check(y)) {
         if (PyIntOrLong_Check(x)) {
             int error;
-            long temp = GMPy_Integer_AsLongAndError(x, &error);
+            native_si temp = GMPy_Integer_AsNative_siAndError(x, &error);
 
             if (!error) {
                 if (temp >= 0) {
@@ -281,7 +281,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (PyIntOrLong_Check(y)) {
             int error;
-            long temp = GMPy_Integer_AsLongAndError(y, &error);
+            native_si temp = GMPy_Integer_AsNative_siAndError(y, &error);
 
             if (!error) {
                 mpfr_clear_flags();
@@ -338,7 +338,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     if (MPFR_Check(y)) {
         if (PyIntOrLong_Check(x)) {
             int error;
-            long temp = GMPy_Integer_AsLongAndError(x, &error);
+            native_si temp = GMPy_Integer_AsNative_siAndError(x, &error);
 
             if (!error) {
                 mpfr_clear_flags();

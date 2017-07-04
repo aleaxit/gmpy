@@ -90,6 +90,22 @@ typedef unsigned long Py_uhash_t;
 #  define _PyHASH_IMAG 1000003
 #endif
 
+/* The native_si and native_ui types correspond to long long on Windows 64. They
+ * should only be used with the MPIR library (not MPFR/MPC).
+ */
+
+#if defined(MPIR) && defined(_WIN64)
+typedef long long native_si;
+typedef unsigned long long native_ui;
+#define GMPy_Integer_AsNative_siAndError GMPy_Integer_AsLongLongAndError
+#define GMPy_Integer_AsNative_uiAndError GMPy_Integer_AsUnsignedLongLongAndError
+#else
+typedef long native_si;
+typedef unsigned long native_ui;
+#define GMPy_Integer_AsNative_siAndError GMPy_Integer_AsLongAndError
+#define GMPy_Integer_AsNative_uiAndError GMPy_Integer_AsUnsignedLongAndError
+#endif
+
 /* GMPY2 Public API */
 
 /* Types

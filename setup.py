@@ -29,7 +29,8 @@ else:
 
 # Several command line options can be used to modify compilation of GMPY2.
 #
-#  --msys2         -> build on Windows using MSYS2, MinGW, and GMP
+#  --msys2         -> build on Windows using MSYS2, MinGW, and GMP/MPFR/MPC
+#  --mpir          -> build on Windows using Visual Studio and GMP/MPFR/MPC
 #  --vector        -> build the unsupport/development vector functions
 #  --lib64         -> use /prefix/lib64 instead of /prefix/lib
 #  --lib32         -> use /prefix/lib32 instead of /prefix/lib
@@ -59,6 +60,9 @@ else:
 #  expected.
 #
 #  --msys2 is converted to -DMSYS2. Since MSYS2 needs to be defined as a macro
+#  to control options in the GMPY2 source code, this make sense.
+#
+#  --mpir is converted to -DMPIR. Since MPI needs to be defined as a macro
 #  to control options in the GMPY2 source code, this make sense.
 #
 #  --lib64 and --lib32 are removed from sys.argv and the global variable
@@ -113,6 +117,10 @@ for token in sys.argv[:]:
         defines.append( ('MSYS2', 1) )
         sys.argv.remove(token)
 
+    if token.lower() == '--mpir':
+        defines.append( ('MPIR', 1) )
+        sys.argv.remove(token)
+
     if token.lower().startswith('--shared'):
         build_type_specified = True
         try:
@@ -158,14 +166,15 @@ class gmpy_build_ext(build_ext):
         search_dirs = []
         static = False
         msys2 = False
-
-        # Assume that we will always want to use the GMP, MPFR, and MPC libraries.
-        self.extensions[0].libraries.extend(['gmp', 'mpfr', 'mpc'])
+        mpir = False
 
         for d in self.extensions[0].define_macros[:]:
             if d[0] == 'MSYS2':
                 self.compiler = 'mingw32'
                 msys2 = True
+
+            if d[0] == 'MPIR':
+                mpir = True
 
             if d[0] == 'GCOV':
                 self.extensions[0].libraries.append('gcov')
@@ -188,18 +197,27 @@ class gmpy_build_ext(build_ext):
                 if d[1] and d[1] != 1:
                     search_dirs.extend(map(os.path.expanduser, d[1].split(":")))
 
+        if mpir:
+            self.extensions[0].libraries.extend(['mpir', 'mpfr', 'mpc'])
+        else:
+            self.extensions[0].libraries.extend(['gmp', 'mpfr', 'mpc'])
+
         # If non-default directories have been specified, we need to find the
         # exact location of the libraries to allow static or runtime linking.
 
-        gmp_found = ''
+        mp_found = ''
         mpfr_found = ''
         mpc_found = ''
         if search_dirs:
 
             for adir in search_dirs:
                 lookin = os.path.join(adir, 'include')
-                if os.path.isfile(os.path.join(lookin, 'gmp.h')):
-                    gmp_found = adir
+                if mpir:
+                    if os.path.isfile(os.path.join(lookin, 'mpir.h')):
+                        mp_found = adir
+                else:
+                    if os.path.isfile(os.path.join(lookin, 'gmp.h')):
+                        mp_found = adir
                 if os.path.isfile(os.path.join(lookin, 'mpfr.h')):
                     mpfr_found = adir
                 if os.path.isfile(os.path.join(lookin, 'mpc.h')):
@@ -209,7 +227,7 @@ class gmpy_build_ext(build_ext):
         # found. This can cause confusion if there are multiple installations of
         # the same version of Python on the system.
 
-        for adir in (gmp_found, mpfr_found, mpc_found):
+        for adir in (mp_found, mpfr_found, mpc_found):
             if not adir:
                 continue
             if os.path.join(adir, 'include') in self.extensions[0].include_dirs:
@@ -222,8 +240,12 @@ class gmpy_build_ext(build_ext):
                 self.extensions[0].runtime_library_dirs += [os.path.join(adir, lib_path)]
 
         # Add the static linking options.
-        if static and gmp_found:
-            self.extensions[0].extra_objects.append(os.path.join(gmp_found, lib_path, 'libgmp.a'))
+        if mpir:
+            if static and mp_found:
+                self.extensions[0].extra_objects.append(os.path.join(mp_found, lib_path, 'libmpir.a'))
+        else:
+            if static and mp_found:
+                self.extensions[0].extra_objects.append(os.path.join(mp_found, lib_path, 'libgmp.a'))
         if static and mpfr_found:
             self.extensions[0].extra_objects.append(os.path.join(mpfr_found, lib_path, 'libmpfr.a'))
         if static and mpc_found:

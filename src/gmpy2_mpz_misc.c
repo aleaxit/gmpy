@@ -1126,7 +1126,7 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_is_divisible,
 static PyObject *
 GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args)
 {
-    unsigned long temp;
+    native_ui temp;
     int error, res;
     MPZ_Object *tempx, *tempd;
 
@@ -1139,7 +1139,7 @@ GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    temp = GMPy_Integer_AsUnsignedLongAndError(PyTuple_GET_ITEM(args, 1), &error);
+    temp = GMPy_Integer_AsNative_uiAndError(PyTuple_GET_ITEM(args, 1), &error);
     if (!error) {
         res = mpz_divisible_ui_p(tempx->z, temp);
         Py_DECREF((PyObject*)tempx);
@@ -1171,11 +1171,11 @@ PyDoc_STRVAR(GMPy_doc_mpz_method_is_divisible,
 static PyObject *
 GMPy_MPZ_Method_IsDivisible(PyObject *self, PyObject *other)
 {
-    unsigned long temp;
+    native_ui temp;
     int error, res;
     MPZ_Object *tempd;
 
-    temp = GMPy_Integer_AsUnsignedLongAndError(other, &error);
+    temp = GMPy_Integer_AsNative_uiAndError(other, &error);
     if (!error) {
         res = mpz_divisible_ui_p(MPZ(self), temp);
         if (res)
