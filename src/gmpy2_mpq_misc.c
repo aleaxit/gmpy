@@ -180,9 +180,18 @@ GMPy_MPQ_Function_Qdiv(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    mpq_div(tempx->q, tempx->q, tempy->q);
-    Py_DECREF((PyObject*)tempy);
-
+	if ((result = (PyObject*)GMPy_MPQ_New(context))) {
+		mpq_div(MPQ(result), tempx->q, tempy->q);
+		Py_DECREF(tempx);
+		Py_DECREF(tempy);
+		return result;
+	}
+	else {
+		Py_DECREF(tempx);
+		Py_DECREF(tempy);
+		return NULL;
+	};
+		
     if (mpz_cmp_ui(mpq_denref(tempx->q), 1) == 0) {
         if ((result = (PyObject*)GMPy_MPZ_New(context))) {
             mpz_set(MPZ(result), mpq_numref(tempx->q));
