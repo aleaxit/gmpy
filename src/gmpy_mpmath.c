@@ -94,10 +94,19 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     }
 
     if (!Pympz_Check(man)) {
-        TYPE_ERROR("argument is not an mpz");
-        return NULL;
+		/* Try to convert to an mpz... */
+		if (PyIntOrLong_Check((PyObject*)man)) {
+			if (!(man = Pympz_From_Number((PyObject*)man))) {
+				TYPE_ERROR("argument is not an mpz");
+				return NULL;
+			}
+		}
+		else {
+			TYPE_ERROR("argument is not an mpz");
+			return NULL;
+		}
     }
-
+    
     /* If rndstr really is a string, extract the first character. */
     if (Py2or3String_Check(rndstr)) {
         rnd = Py2or3String_AsString(rndstr)[0];
