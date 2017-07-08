@@ -96,8 +96,11 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     }
 
     if (!MPZ_Check(man)) {
-        TYPE_ERROR("argument is not an mpz");
-        return NULL;
+		/* Try to convert to an mpz... */
+		if (!(man = GMPy_MPZ_From_Integer((PyObject*)man, NULL))) {
+			TYPE_ERROR("argument is not an mpz");
+			return NULL;
+		}
     }
 
     /* If rndstr really is a string, extract the first character. */
