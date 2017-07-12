@@ -18,6 +18,7 @@ Contents:
    mpq
    mpfr
    mpc
+   cython
    history
 
 Indices and tables
