@@ -13,28 +13,22 @@ In order to use the C-API you need to make one call to the function **void impor
 Types
 -----
 
-The mpz, mpq, mpfr and mpc Python types correspond to the C struct
-
-**struct MPZ_Object ***
-
-**struct MPQ_Object ***
-
-**struct MPFR_Object ***
-
-**struct MPC_Object ***
+The types **mpz**, **mpq**, **mpfr** and **mpc** are declared as extension
+types in gmpy2.pxd. They correspond respectively to the C structures
+**MPZ_Object**, **MPQ_Object**, **MPFR_Object** and **MPC_Object**.
 
 Fast type checking can be done with the following C functions
 
-**bint MPZ_Check(PyObject * obj)**
+**bint MPZ_Check(object)**
     equivalent to **isinstance(obj, mpz)**
 
-**bint MPQ_Check(PyObject * obj)**
+**bint MPQ_Check(object)**
     equivalent to **isinstance(obj, mpq)**
 
-**bint MPFR_Check(PyObject * obj)**
+**bint MPFR_Check(object)**
     equivalent to **isinstance(obj, mpfr)**
 
-**bint MPC_Check(PyObject * obj)**
+**bint MPC_Check(object)**
     equivalent to **isinstance(obj, mpc)**
 
 Object creation
@@ -42,38 +36,40 @@ Object creation
 
 To create a new gmpy2 types there are four basic functions
 
-**object MPZ_New()**
-    create a new mpz object
+**mpz GMPy_MPZ_New(void * ctx)**
+    create a new mpz object from a given context ctx
 
-**object MPQ_New()**
-    create a new mpq object
+**mpq GMPy_MPQ_New(void * ctx)**
+    create a new mpq object from a given context ctx
 
-**object MPFR_New(mpfr_prec_t prec)**
-    create a new mpfr object with given precision prec
+**mpfr MPFR_New(void * ctx, mpfr_prec_t prec)**
+    create a new mpfr object with given context ctx and precision prec
 
-**object  MPC_New(mpfr_prec_t rprec, mpfr_prec_t iprec)**
-    create a new mpc object with given precisions rprec and iprec of
+**mpc MPC_New(void * ctx, mpfr_prec_t rprec, mpfr_prec_t iprec)**
+    create a new mpc object with given context ctx, precisions rprec and iprec of
     respectively real and imaginary parts
+
+The context can be set to **NULL** and controls the default behavior (e.g. precision).
 
 The gmpy2.pxd header also provides convenience macro to wrap a (copy of) a mpz_t, mpq_t, mpfr_t
 or a mpc_t object into the corresponding gmpy2 type.
 
-**object GMPy_MPZ_From_mpz(mpz_srcptr z)**
+**mpz GMPy_MPZ_From_mpz(mpz_srcptr z)**
     return a new mpz object with a given mpz_t value z
 
-**object GMPy_MPQ_From_mpq(mpq_srcptr q)**
+**mpq GMPy_MPQ_From_mpq(mpq_srcptr q)**
     return a new mpq object from a given mpq_t value q
 
-**object GMPy_MPQ_From_mpz(mpz_srcptr num, mpz_srcptr den)**
+**mpq GMPy_MPQ_From_mpz(mpz_srcptr num, mpz_srcptr den)**
     return a new mpq object with a given mpz_t numerator num and mpz_t denominator den
 
-**object GMPy_MPFR_From_mpfr(mpfr_srcptr x)**
+**mpfr GMPy_MPFR_From_mpfr(mpfr_srcptr x)**
     return a new mpfr object with a given mpfr_t value x
 
-**object GMPy_MPC_From_mpc(mpc_srcptr c)**
+**mpc GMPy_MPC_From_mpc(mpc_srcptr c)**
     return a new mpc object with a given mpc_t value c
 
-**object GMPy_MPC_From_mpfr(mpfr_srcptr re, mpfr_srcptr im)**
+**mpc GMPy_MPC_From_mpfr(mpfr_srcptr re, mpfr_srcptr im)**
     return a new mpc object with a given mpfr_t real part re and mpfr_t imaginary part im
 
 Access to the underlying C type
@@ -82,13 +78,13 @@ Access to the underlying C type
 Each of the gmpy2 objects has a field corresponding to the underlying C
 type. The following functions give access to this field
 
-**mpz_t MPZ(MPZ_Object *)**
+**mpz_t MPZ(mpz)**
 
-**mpq_t MPQ(MPQ_OBJECT *)**
+**mpq_t MPQ(mpq)**
 
-**mpfr_t MPFR(MPFR_Object *)**
+**mpfr_t MPFR(mpfr)**
 
-**mpc_t MPC(MPC_Object *)**
+**mpc_t MPC(mpc)**
 
 Compilation
 ------------
@@ -132,8 +128,8 @@ The corresponding setup.py is given below.
 
     import_gmpy2()   # needed to initialize the C-API
 
-    z = MPZ_New()
-    mpz_set_si(MPZ(<MPZ_Object *> z), -7)
+    cdef mpz z = GMPy_MPZ_New(NULL)
+    mpz_set_si(MPZ(z), -7)
 
     print(z + 3)
 
