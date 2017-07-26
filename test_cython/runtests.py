@@ -44,7 +44,8 @@ try:
     if subprocess.call([sys.executable, 'setup_cython.py', 'build_ext', '--inplace']):
         raise SystemExit('compilation failed')
 
-    if subprocess.call([sys.executable, '-c', 'import test_cython']):
+
+    if subprocess.call([sys.executable, '-c', 'import test_cython; test_cython.run()']):
         raise SystemExit('cython test failed')
 
 finally:

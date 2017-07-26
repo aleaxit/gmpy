@@ -85,120 +85,71 @@ cdef extern from "gmpy2/gmpy2.h":
     # need to be called before any other functions
     cdef int import_gmpy2()
 
-    # object types
-    ctypedef struct MPZ_Object:
+    # Object types
+    ctypedef class gmpy2.mpz [object MPZ_Object]:
         pass
-    ctypedef struct MPQ_Object:
+    ctypedef class gmpy2.mpq [object MPQ_Object]:
         pass
-    ctypedef struct MPFR_Object:
+    ctypedef class gmpy2.mpfr [object MPFR_Object]:
         pass
-    ctypedef struct MPC_Object:
+    ctypedef class gmpy2.mpc [object MPC_Object]:
         pass
 
-    # WARNING: this function might cause memory leak if not used
-    # appropriately. Prefer MPZ_New() declared below.
-    cdef (MPZ_Object *) GMPy_MPZ_New(void *)
+    # Object creation
+    cdef mpz GMPy_MPZ_New(void *)
+    cdef mpq GMPy_MPQ_New(void *)
+    cdef mpfr GMPy_MPFR_New(mpfr_prec_t prec, void *)
+    cdef mpc GMPy_MPC_New(mpfr_prec_t rprec, mpfr_prec_t iprec, void *)
 
-    # WARNING: this function might cause memory leak if not used
-    # appropriately. Prefer MPQ_New() declared below.
-    cdef (MPQ_Object *) GMPy_MPQ_New(void *)
+    # C field access
+    cdef mpz_t MPZ(mpz)
+    cdef mpq_t MPQ(mpq)
+    cdef mpfr_t MPFR(mpfr)
+    cdef mpc_t MPC(mpc)
 
-    # WARNING: this function might cause memory leak if not used
-    # appropriately. Prefer MPFR_New() declared below.
-    cdef (MPFR_Object *) GMPy_MPFR_New(mpfr_prec_t prec, void *)
+    # Type check
+    cdef bint MPZ_Check(object)
+    cdef bint MPQ_Check(object)
+    cdef bint MPFR_Check(object)
+    cdef bint MPC_Check(object)
 
-    # WARNING: this function might cause memory leak if not used
-    # appropriately. Prefer MPC_New() declared below.
-    cdef (MPC_Object *) GMPy_MPC_New(mpfr_prec_t rprec, mpfr_prec_t iprec, void *)
-
-    # access to the mpz_t field of a gmpy2 mpz
-    cdef mpz_t MPZ(MPZ_Object *)
-
-    # access to the mpq_t field of a gmpy2 mpq
-    cdef mpq_t MPQ(MPQ_Object *)
-
-    # access to the mpfr_t field of a gmpy2 mpfr
-    cdef mpfr_t MPFR(MPFR_Object *)
-
-    # access to the mpc_t field of a gmpy2 mpc
-    cdef mpc_t MPC(MPC_Object *)
-
-    # check if "param" is a MPZ_Object
-    cdef bint MPZ_Check(PyObject *)
-
-    # check if "param" is a MPQ_Object
-    cdef bint MPQ_Check(PyObject *)
-
-    # check if "param" is a MPFR_Object
-    cdef bint MPFR_Check(PyObject *)
-
-    # check if "param" is a MPC_Object
-    cdef bint MPC_Check(PyObject *)
-
-# Return a new gmpy2 mpz object
-# equivalent to mpz.__new__(mpz)
-cdef inline MPZ_New():
-    res = <object> GMPy_MPZ_New(NULL)  # Cython increases refcount!
-    Py_DECREF(<PyObject *> res)
-    return res
-
-# Return a new gmpy2 mpq object
-# equivalent to mpq.__new__(mpq)
-cdef inline MPQ_New():
-    res = <object> GMPy_MPQ_New(NULL)  # Cython increases refcount!
-    Py_DECREF(<PyObject *> res)
-    return res
-
-# Return a new gmpy2 mpfr object
-# equivalent to mpfr.__new__(mpfr)
-cdef inline MPFR_New(mpfr_prec_t prec):
-    res = <object> GMPy_MPFR_New(prec, NULL)  # Cython increases refcount!
-    Py_DECREF(<PyObject *> res)
-    return res
-
-# Return a new gmpy2 mpc object
-# equivalent to mpc.__new__(mpc)
-cdef inline MPC_New(mpfr_prec_t rprec, mpfr_prec_t iprec):
-    res = <object> GMPy_MPC_New(rprec, iprec, NULL)  # Cython increases refcount!
-    Py_DECREF(<PyObject *> res)
-    return res
 
 # Build a gmpy2 mpz from a gmp mpz
-cdef inline GMPy_MPZ_From_mpz(mpz_srcptr z):
-    res = MPZ_New()
-    mpz_set(MPZ(<MPZ_Object *> res), z)
+cdef inline mpz GMPy_MPZ_From_mpz(mpz_srcptr z):
+    cdef mpz res =  GMPy_MPZ_New(NULL)
+    mpz_set(MPZ(res), z)
     return res
 
 # Build a gmpy2 mpq from a gmp mpq
-cdef inline GMPy_MPQ_From_mpq(mpq_srcptr q):
-    res = MPQ_New()
-    mpq_set(MPQ(<MPQ_Object *> res), q)
+cdef inline mpq GMPy_MPQ_From_mpq(mpq_srcptr q):
+    cdef mpq res = GMPy_MPQ_New(NULL)
+    mpq_set(MPQ(res), q)
     return res
 
 # Build a gmpy2 mpq from gmp mpz numerator and denominator
-cdef inline GMPy_MPQ_From_mpz(mpz_srcptr num, mpz_srcptr den):
-    res = MPQ_New()
-    mpq_set_num(MPQ(<MPQ_Object *> res), num)
-    mpq_set_den(MPQ(<MPQ_Object *> res), den)
+cdef inline mpq GMPy_MPQ_From_mpz(mpz_srcptr num, mpz_srcptr den):
+    cdef mpq res =  GMPy_MPQ_New(NULL)
+    mpq_set_num(MPQ(res), num)
+    mpq_set_den(MPQ(res), den)
     return res
 
 # Build a gmpy2 mpfr from a mpfr
-cdef inline GMPy_MPFR_From_mpfr(mpfr_srcptr x):
-    res = MPFR_New(mpfr_get_prec(x))
-    mpfr_set(MPFR(<MPFR_Object *> res), x, MPFR_RNDN)
+cdef inline mpfr GMPy_MPFR_From_mpfr(mpfr_srcptr x):
+    cdef mpfr res =  GMPy_MPFR_New(mpfr_get_prec(x), NULL)
+    mpfr_set(MPFR(res), x, MPFR_RNDN)
     return res
 
 # Build a gmpy2 mpc from a mpc
-cdef inline GMPy_MPC_From_mpc(mpc_srcptr c):
+cdef inline mpc GMPy_MPC_From_mpc(mpc_srcptr c):
     cdef mpfr_prec_t pr
     cdef mpfr_prec_t pi
     mpc_get_prec2(&pr, &pi, c)
-    res = MPC_New(pr, pi)
-    mpc_set(MPC(<MPC_Object *> res), c, MPC_RNDNN)
+    cdef mpc res = GMPy_MPC_New(pr, pi, NULL)
+    mpc_set(MPC(res), c, MPC_RNDNN)
     return res
 
 # Build a gmpy2 mpc from a real part mpfr and an imaginary part mpfr
-cdef inline GMPy_MPC_From_mpfr(mpfr_srcptr re, mpfr_srcptr im):
-    res = MPC_New(mpfr_get_prec(re), mpfr_get_prec(im))
-    mpc_set_fr_fr (MPC(<MPC_Object *> res), re, im, MPC_RNDNN)
+cdef inline mpc GMPy_MPC_From_mpfr(mpfr_srcptr re, mpfr_srcptr im):
+    cdef mpc res =  GMPy_MPC_New(mpfr_get_prec(re), mpfr_get_prec(im), NULL)
+    mpc_set_fr_fr (MPC(res), re, im, MPC_RNDNN)
     return res
