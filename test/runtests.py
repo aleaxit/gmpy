@@ -91,6 +91,10 @@ if sys.version >= "3.2":
     all_doctests += py32_doctests
 
 for test in sorted(all_doctests):
+    if test.endswith("py2.txt") and sys.version >= "3":
+        continue
+    if test.endswith("py3.txt") and sys.version < "3":
+        continue
     for r in range(repeat):
         result = doctest.testfile(test, globs=globals(),
                                   optionflags=doctest.IGNORE_EXCEPTION_DETAIL |

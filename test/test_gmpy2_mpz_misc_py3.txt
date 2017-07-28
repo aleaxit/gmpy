@@ -1,0 +1,50 @@
+Test gmpy2_mpz_misc_py3.c
+=========================
+
+# Test Python 3.x specific behavior for mpz objects.
+
+>>> import gmpy2
+>>> from gmpy2 import mpz
+>>> import math
+>>> a = mpz(123)
+>>> b = mpz(456)
+
+Test math.ceil (__ceil__)
+-------------------------
+>>> math.ceil(a)
+mpz(123)
+>>> math.ceil(a) is a
+True
+
+Test math.floor (__floor__)
+---------------------------
+>>> math.floor(a)
+mpz(123)
+>>> math.floor(a) is a
+True
+
+Test math.trunc (__trunc__)
+---------------------------
+>>> math.trunc(a)
+mpz(123)
+>>> math.trunc(a) is a
+True
+
+Test round (__round__)
+----------------------
+>>> round(mpz(123456), 2)
+mpz(123456)
+>>> round(mpz(123456), -22)
+mpz(0)
+>>> round(mpz(123456), -2)
+mpz(123500)
+>>> round(mpz(123456), -1)
+mpz(123460)
+>>> round(mpz(123455), -1)
+mpz(123460)
+>>> round(mpz(123454), -1)
+mpz(123450)
+>>> round(mpz(123445), -1)
+mpz(123440)
+>>> round(mpz(123445))
+mpz(123445)
