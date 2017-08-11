@@ -55,6 +55,7 @@ build: off
 test_script:
     - cmd: python setup.py install --shared=%CONDA_PREFIX%\Library
     - cmd: cd test && python runtests.py
+    - cmd: cd ..
 
 after_test:
     - cmd: python setup.py bdist_wheel
