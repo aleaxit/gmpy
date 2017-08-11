@@ -57,30 +57,3 @@ Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 ValueError: ** message detail varies **
 
->>> gmpy2._printf("%.5RNf")
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-TypeError: ** message detail varies **
->>> gmpy2._printf("%.5RNf",1)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-TypeError:  ** message detail varies **
->>> gmpy2._printf("%Zl", gmpy2.mpz(1))
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-ValueError: ** message detail varies **
->>> gmpy2._printf("%Zl", gmpy2.mpc(1))
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-TypeError: ** message detail varies **
->>> gmpy2._printf("%Zd", gmpy2.mpz(1))
-'1'
->>> gmpy2._printf("%Qd", gmpy2.mpq(1,2))
-'1/2'
->>> gmpy2._printf("%.5RN", gmpy2.mpfr(1.23))
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-ValueError: ** message detail varies **
->>> gmpy2._printf("%.5RNf", gmpy2.mpfr(1.23))
-'1.23000'
-

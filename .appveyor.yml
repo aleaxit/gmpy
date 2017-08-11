@@ -2,6 +2,14 @@ environment:
 
   matrix:
     - TARGET_ARCH: x86
+      PYTHON_VERSION: 2.7
+      CONDA_INSTALL_LOCN: C:\\Miniconda35
+
+    - TARGET_ARCH: x64
+      PYTHON_VERSION: 2.7
+      CONDA_INSTALL_LOCN: C:\\Miniconda35-x64
+
+    - TARGET_ARCH: x86
       PYTHON_VERSION: 3.5
       CONDA_INSTALL_LOCN: C:\\Miniconda35
 
@@ -39,3 +47,9 @@ build: off
 test_script:
     - cmd: python setup.py install --shared=%CONDA_PREFIX%\Library
     - cmd: cd test && python runtests.py
+
+after_test:
+    - cmd: python setup.py bdist_wheel
+
+artifacts:
+    - path: dist\*
