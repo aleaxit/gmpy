@@ -307,7 +307,7 @@ GMPy_CTXT_ieee(PyObject *self, PyObject *args, PyObject *kwargs)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        bitlog2 = round(4 * log2(bitwidth));
+        bitlog2 = floor((4 * log(bitwidth) / log(2.0)) + 0.5);
         result->ctx.mpfr_prec = bitwidth - (long)(bitlog2) + 13;
         result->ctx.emax = 1 << (bitwidth - result->ctx.mpfr_prec - 1);
     }
