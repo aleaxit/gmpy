@@ -41,9 +41,6 @@ install:
     - cmd: conda create -n test python=%PYTHON_VERSION% mpir mpfr mpc
     - cmd: call activate test
 
-    # Add support for building wheels.
-    - cmd: python.exe -m pip install wheel
-
 # Skip .NET project specific build phase.
 build: off
 
@@ -53,7 +50,7 @@ test_script:
     - cmd: cd ..
 
 after_test:
-    - cmd: python setup.py build_ext bdist_wheel
+    - cmd: python setup.py build_ext bdist_wininst
 
 artifacts:
     - path: dist\*
