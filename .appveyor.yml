@@ -10,14 +10,6 @@ environment:
       CONDA_INSTALL_LOCN: C:\\Miniconda-x64
 
     - TARGET_ARCH: x86
-      PYTHON_VERSION: 3.4
-      CONDA_INSTALL_LOCN: C:\\Miniconda3
-
-    - TARGET_ARCH: x64
-      PYTHON_VERSION: 3.4
-      CONDA_INSTALL_LOCN: C:\\Miniconda3-x64
-
-    - TARGET_ARCH: x86
       PYTHON_VERSION: 3.5
       CONDA_INSTALL_LOCN: C:\\Miniconda35
 
@@ -61,7 +53,7 @@ test_script:
     - cmd: cd ..
 
 after_test:
-    - cmd: python setup.py bdist_wheel
+    - cmd: python setup.py build_ext bdist_wheel
 
 artifacts:
     - path: dist\*
