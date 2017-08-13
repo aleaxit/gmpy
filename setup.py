@@ -1,10 +1,15 @@
 import sys
 import os
-from distutils.core import setup, Extension
-from distutils.command.clean import clean
-from distutils.command.build_ext import build_ext
-from distutils.command.install_data import install_data
-from distutils.sysconfig import get_python_inc, get_python_lib
+try:
+    from setuptools.core import setup, Extension
+    from setuptools.command.clean import clean
+    from setuptools.command.build_ext import build_ext
+    from setuptools.command.install_data import install_data
+except ImportError:
+    from distutils.core import setup, Extension
+    from distutils.command.clean import clean
+    from distutils.command.build_ext import build_ext
+    from distutils.command.install_data import install_data
 
 def writeln(s):
     sys.stdout.write('%s\n' % s)
