@@ -50,7 +50,7 @@ test_script:
     - cmd: cd ..
 
 after_test:
-    - cmd: python setup.py build_ext bdist_wininst
+    - cmd: python setup.py bdist_wheel
 
 artifacts:
     - path: dist\*
