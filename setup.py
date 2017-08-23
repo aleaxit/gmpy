@@ -18,8 +18,8 @@ def writeln(s):
 
 # Fail gracefully for old versions of Python.
 
-if sys.version[:3] < '2.6':
-    writeln("GMPY2 requires Python 2.6 or later.")
+if sys.version[:3] < '2.7':
+    writeln("GMPY2 requires Python 2.7 or later.")
     writeln("Please use GMPY 1.x for earlier versions of Python.")
     sys.exit()
 
@@ -287,10 +287,11 @@ gmpy2_ext = Extension('gmpy2',
 
 setup(name = "gmpy2",
       version = "2.1.0a0",
-      maintainer = "Case Van Horsen",
-      maintainer_email = "casevh@gmail.com",
-      url = "http://code.google.com/p/gmpy/",
-      description = "GMP/MPIR, MPFR, and MPC interface to Python 2.6+ and 3.x",
+      author = "Case Van Horsen",
+      author_email = "casevh@gmail.com",
+      license = "LGPL-3.0+",
+      url = "https:https://github.com/aleaxit/gmpy",
+      description = "gmpy2 interface to GMP/MPIR, MPFR, and MPC for Python 2.7 and 3.4+",
       data_files = [('', ['src/gmpy2.pxd']), ('gmpy2', ['src/gmpy2.h'])],
       classifiers = [
         'Development Status :: 3 - Alpha',
@@ -303,11 +304,16 @@ setup(name = "gmpy2",
         'Operating System :: POSIX',
         'Programming Language :: C',
         'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: CPython',
         'Topic :: Scientific/Engineering :: Mathematics',
         'Topic :: Software Development :: Libraries :: Python Modules',
       ],
+      keywords = "gmp mpir mpfr mpc multiple-precision arbitrary-precision precision bignum",
       cmdclass = my_commands,
       ext_modules = [gmpy2_ext]
 )
