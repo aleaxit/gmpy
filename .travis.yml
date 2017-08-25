@@ -1,47 +1,29 @@
-language: generic
-
-os:
-  - linux
-  - osx
-
-osx_image: xcode6.4
-
-env:
-  matrix:
-    
-    - PYTHON_VERSION=2.7
-    - PYTHON_VERSION=3.5
-    - PYTHON_VERSION=3.6
-
+dist: trusty
+sudo: required
+language: python
+cache:
+  directories:
+    - $HOME/.ccache
+notifications:
+  slack:
+    on_success: never
+    on_failure : never
+python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+before_install:
+  - export PATH="/usr/lib/ccache:$PATH"
+  - ccache -M 256M && ccache -s
+  - sudo apt-get install libgmp-dev libmpfr-dev libmpfi-dev libmpc-dev python-sphinx cython
 install:
-    # Install Miniconda.
-    - |
-      echo ""
-      echo "Installing a fresh version of Miniconda."
-      MINICONDA_URL="https://repo.continuum.io/miniconda"
-      if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-        MINICONDA_FILE="Miniconda3-latest-Linux-x86_64.sh"
-      else
-        MINICONDA_FILE="Miniconda3-latest-MacOSX-x86_64.sh"
-      fi
-      curl -L -O "${MINICONDA_URL}/${MINICONDA_FILE}"
-      bash $MINICONDA_FILE -b
-
-    # Configure conda.
-    - |
-      echo ""
-      echo "Configuring conda."
-      source $HOME/miniconda3/bin/activate root
-      conda config --add channels conda-forge
-      conda config --set show_channel_urls true
-      conda config --set always_yes yes --set changeps1 no
-
-    - |
-      echo ""
-      echo "Creating conda environment"
-      conda create -n test python=${PYTHON_VERSION} gmp mpfr mpc
-      source activate test
-
+  - pip install --verbose .
+# command to run tests
 script:
-    - python setup.py install --shared=$CONDA_PREFIX
-    - cd test && python runtests.py
+  - python test/runtests.py
+  - python test_cython/runtests.py
+# disable the docs for now... got
+# Could not import extension sphinx.ext.imgmath (exception: No module named imgmath)
+# - cd docs/ && make html
+
