@@ -45,7 +45,7 @@ install:
 build: off
 
 test_script:
-    - cmd: python setup.py install --static=%CONDA_PREFIX%\Library
+    - cmd: python setup.py install --mpir --static=%CONDA_PREFIX%\Library
     - cmd: cd test && python runtests.py
     - cmd: cd ..
 
