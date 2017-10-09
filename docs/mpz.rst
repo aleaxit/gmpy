@@ -53,7 +53,7 @@ mpz Methods
     complement format), then None is returned. *n* must be >= 0.
 
 **bit_set(...)**
-    x.bit_set(n) returns a copy of *x* with bit *n* set to 0.
+    x.bit_set(n) returns a copy of *x* with bit *n* set to 1.
 
 **bit_test(...)**
     x.bit_test(n) returns True if bit *n* of *x* is set, and False if it
@@ -112,7 +112,7 @@ mpz Functions
     complement format), then None is returned. *n* must be >= 0.
 
 **bit_set(...)**
-    bit_set(x, n) returns a copy of *x* with bit *n* set to 0.
+    bit_set(x, n) returns a copy of *x* with bit *n* set to 1.
 
 **bit_test(...)**
     bit_test(x, n) returns True if bit *n* of *x* is set, and False if it
