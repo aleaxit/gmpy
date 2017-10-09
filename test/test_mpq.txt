@@ -109,6 +109,10 @@ Test division
     mpz(0)
     >>> 0/a
     mpq(0,1)
+    >>> mpq(355, 113) // 2
+    mpz(1)
+    >>> mpq(355, 113) // mpz(2)
+    mpz(1)
 
 Test modulo
 -----------
