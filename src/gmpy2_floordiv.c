@@ -222,7 +222,7 @@ GMPy_Rational_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         mpq_div(tempq->q, tempx->q, tempy->q);
-        mpz_fdiv_q(result->z, mpq_numref(tempx->q), mpq_denref(tempy->q));
+        mpz_fdiv_q(result->z, mpq_numref(tempq->q), mpq_denref(tempq->q));
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         Py_DECREF((PyObject*)tempq);
