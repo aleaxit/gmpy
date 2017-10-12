@@ -16,14 +16,15 @@ python:
 before_install:
   - export PATH="/usr/lib/ccache:$PATH"
   - ccache -M 256M && ccache -s
-  - sudo apt-get install libgmp-dev libmpfr-dev libmpfi-dev libmpc-dev python-sphinx cython
+  - sudo apt-get install libgmp-dev libmpfr-dev libmpfi-dev libmpc-dev cython texlive texlive-latex-extra latexmk
+  # note: sphinx in ubuntu is version 1.2.2 that does not support
+  # sphinx.ext.imgmath. We just install the last version.
+  - pip install sphinx
 install:
   - pip install --verbose .
-# command to run tests
 script:
   - python test/runtests.py
   - python test_cython/runtests.py
-# disable the docs for now... got
-# Could not import extension sphinx.ext.imgmath (exception: No module named imgmath)
-# - cd docs/ && make html
-
+  - cd docs/
+  - make html
+  - make latexpdf
