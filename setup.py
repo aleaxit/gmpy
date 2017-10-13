@@ -1,15 +1,27 @@
 import sys
 import os
-try:
-    from setuptools.core import setup, Extension
-    from setuptools.command.clean import clean
-    from setuptools.command.build_ext import build_ext
-    from setuptools.command.install_data import install_data
-except ImportError:
+
+if sys.version.find('MSC') == -1:
+    windows = False
+else:
+    windows = True
+
+# <rant>
+# Setuptools is broken on Linux. The command "python setup.py install" no
+# longer works. Only use setuptools on Windows to keep Appveyor happy.
+# </rant>
+
+if windows:
+    try:
+        from setuptools import setup, Extension
+    except ImportError:
+        from distutils.core import setup, Extension
+else:
     from distutils.core import setup, Extension
-    from distutils.command.clean import clean
-    from distutils.command.build_ext import build_ext
-    from distutils.command.install_data import install_data
+
+from distutils.command.clean import clean
+from distutils.command.build_ext import build_ext
+from distutils.command.install_data import install_data
 
 def writeln(s):
     sys.stdout.write('%s\n' % s)
@@ -18,8 +30,8 @@ def writeln(s):
 
 # Fail gracefully for old versions of Python.
 
-if sys.version[:3] < '2.7':
-    writeln("GMPY2 requires Python 2.7 or later.")
+if sys.version[:3] < '2.6':
+    writeln("GMPY2 requires Python 2.6 or later.")
     writeln("Please use GMPY 1.x for earlier versions of Python.")
     sys.exit()
 
@@ -27,15 +39,10 @@ if sys.version[:3] < '2.7':
 
 lib_path = 'lib'
 
-if sys.version.find('MSC') == -1:
-    windows = False
-else:
-    windows = True
-
 # Several command line options can be used to modify compilation of GMPY2.
 #
 #  --msys2         -> build on Windows using MSYS2, MinGW, and GMP/MPFR/MPC
-#  --mpir          -> build on Windows using Visual Studio and GMP/MPFR/MPC
+#  --mpir          -> build on Windows using Visual Studio and MPIR/MPFR/MPC
 #  --vector        -> build the unsupport/development vector functions
 #  --lib64         -> use /prefix/lib64 instead of /prefix/lib
 #  --lib32         -> use /prefix/lib32 instead of /prefix/lib
