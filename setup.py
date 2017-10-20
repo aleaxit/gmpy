@@ -252,23 +252,25 @@ class gmpy_build_ext(build_ext):
                 self.extensions[0].runtime_library_dirs += [os.path.join(adir, lib_path)]
 
         # Add the static linking options.
-        if mpir:
-            if static and mp_found:
-                self.extensions[0].extra_objects.append(os.path.join(mp_found, lib_path, 'libmpir.a'))
-        else:
-            if static and mp_found:
-                self.extensions[0].extra_objects.append(os.path.join(mp_found, lib_path, 'libgmp.a'))
-        if static and mpfr_found:
-            self.extensions[0].extra_objects.append(os.path.join(mpfr_found, lib_path, 'libmpfr.a'))
-        if static and mpc_found:
-            self.extensions[0].extra_objects.append(os.path.join(mpc_found, lib_path, 'libmpc.a'))
-
+        
         # Add MSVC specific options.
         if windows and not msys2:
             self.extensions[0].extra_link_args.append('/MANIFEST')
             self.extensions[0].define_macros.append(("MPIR", 1))
             if not static:
                 self.extensions[0].define_macros.append(("MSC_USE_DLL", None))
+        else:
+            if mpir:
+                if static and mp_found:
+                    self.extensions[0].extra_objects.append(os.path.join(mp_found, lib_path, 'libmpir.a'))
+            else:
+                if static and mp_found:
+                    self.extensions[0].extra_objects.append(os.path.join(mp_found, lib_path, 'libgmp.a'))
+            if static and mpfr_found:
+                self.extensions[0].extra_objects.append(os.path.join(mpfr_found, lib_path, 'libmpfr.a'))
+            if static and mpc_found:
+                self.extensions[0].extra_objects.append(os.path.join(mpc_found, lib_path, 'libmpc.a'))
+
 
     def finalize_options(self):
         build_ext.finalize_options(self)
