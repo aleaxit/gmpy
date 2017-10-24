@@ -134,7 +134,7 @@ GMPy_Integer_Pow(PyObject *b, PyObject *e, PyObject *m, CTXT_Object *context)
             goto err;
         }
 
-        el = mpz_get_ui(tempe->z);
+        el = (unsigned long) mpz_get_ui(tempe->z);
         mpz_pow_ui(result->z, tempb->z, el);
         goto done;
     }
@@ -233,7 +233,7 @@ GMPy_Rational_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *con
             Py_DECREF((PyObject*)tempez);
             return NULL;
         }
-        tempexp = mpz_get_si(tempez->z);
+        tempexp = (long) mpz_get_si(tempez->z);
 
         if (tempexp == 0) {
             mpq_set_si(resultq->q, 1, 1);
