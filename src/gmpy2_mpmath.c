@@ -255,7 +255,6 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
             prec = GMPy_Integer_AsMpBitCntAndError(PyTuple_GET_ITEM(args, 2), &error);
             if (error)
                 return NULL;
-            prec = ABS(prec);
         case 2:
             exp = PyTuple_GET_ITEM(args, 1);
         case 1:
