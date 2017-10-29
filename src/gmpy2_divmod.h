@@ -42,8 +42,6 @@ static PyObject * GMPy_Number_DivMod(PyObject *x, PyObject *y, CTXT_Object *cont
 static PyObject * GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Rational_DivMod(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Real_DivMod_1(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Real_DivMod_2(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Complex_DivMod(PyObject *x, PyObject *y, CTXT_Object *context);
 
 static PyObject * GMPy_MPZ_DivMod_Slot(PyObject *x, PyObject *y);
