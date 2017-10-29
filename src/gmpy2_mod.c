@@ -265,12 +265,10 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
 
-            if (!(context->ctx.quiet_nan && context->ctx.was_nan)) {
-                context->ctx.invalid = 1;
-                if (context->ctx.traps & TRAP_INVALID) {
-                    GMPY_INVALID("mod() invalid operation");
-                    goto error;
-                }
+            context->ctx.invalid = 1;
+            if (context->ctx.traps & TRAP_INVALID) {
+                GMPY_INVALID("mod() invalid operation");
+                goto error;
             }
             mpfr_set_nan(result->f);
         }
