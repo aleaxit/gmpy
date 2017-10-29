@@ -124,7 +124,7 @@ GMPy_Integer_AsLongAndError(PyObject *vv, int *error)
 
     if (CHECK_MPZANY(vv)) {
         if (mpz_fits_slong_p(MPZ(vv))) {
-            res = mpz_get_si(MPZ(vv));
+            res = (long) mpz_get_si(MPZ(vv));
         }
         else {
             *error = mpz_sgn(MPZ(vv));
@@ -192,7 +192,7 @@ GMPy_Integer_AsUnsignedLongAndError(PyObject *vv, int *error)
 
     if (CHECK_MPZANY(vv)) {
         if (mpz_fits_ulong_p(MPZ(vv))) {
-            res = mpz_get_ui(MPZ(vv));
+            res = (unsigned long) mpz_get_ui(MPZ(vv));
         }
         else {
             *error = mpz_sgn(MPZ(vv));
