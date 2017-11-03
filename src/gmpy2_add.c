@@ -56,6 +56,10 @@
  * is returned and an exception is set. If either x or y can't be converted
  * into an mpz, Py_NotImplemented is returned.
  */
+#ifndef SIGNED_FITS_SLONG
+#define SIGNED_FITS_SLONG(x)  ((x >= LONG_MIN && x <= LONG_MAX) ? 1 : 0)
+#endif
+
 
 static PyObject *
 GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
@@ -283,7 +287,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             int error;
             native_si temp = GMPy_Integer_AsNative_siAndError(y, &error);
 
-            if (!error) {
+            if (!error && SIGNED_FITS_SLONG(temp)) {
                 mpfr_clear_flags();
                 SET_MPFR_WAS_NAN(context, x);
 
@@ -340,7 +344,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             int error;
             native_si temp = GMPy_Integer_AsNative_siAndError(x, &error);
 
-            if (!error) {
+            if (!error && SIGNED_FITS_SLONG(temp)) {
                 mpfr_clear_flags();
                 SET_MPFR_WAS_NAN(context, y);
 
