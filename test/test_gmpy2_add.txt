@@ -157,6 +157,10 @@ mpfr('2.0')
 True
 >>> (1 << 100) + mpfr(0) == mpfr('1p100', base=2)
 True
+>>> gmpy2.add(2147483648, mpfr(3))
+mpfr('2147483651.0')
+>>> gmpy2.add(mpfr(3), 2147483648)
+mpfr('2147483651.0')
 
 Test complex operations
 -----------------------
