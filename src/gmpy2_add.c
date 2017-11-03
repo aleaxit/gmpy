@@ -291,7 +291,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
                 mpfr_clear_flags();
                 SET_MPFR_WAS_NAN(context, x);
 
-                result->rc = mpfr_add_si(result->f, MPFR(x), temp, GET_MPFR_ROUND(context));
+                result->rc = mpfr_add_si(result->f, MPFR(x), (long)temp, GET_MPFR_ROUND(context));
                 goto done;
             }
             else {
@@ -348,7 +348,7 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
                 mpfr_clear_flags();
                 SET_MPFR_WAS_NAN(context, y);
 
-                result->rc = mpfr_add_si(result->f, MPFR(y), temp, GET_MPFR_ROUND(context));
+                result->rc = mpfr_add_si(result->f, MPFR(y), (long)temp, GET_MPFR_ROUND(context));
                 goto done;
             }
             else {
