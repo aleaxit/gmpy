@@ -1898,7 +1898,8 @@ GMPy_Context_Fsum(PyObject *self, PyObject *other)
     mpfr_clear_flags();
     CLEAR_WAS_NAN(context);
 
-    result->rc = mpfr_sum(result->f, tab, seq_length, GET_MPFR_ROUND(context));
+    /* The cast is safe since we have compared seq_length to LONG_MAX. */
+    result->rc = mpfr_sum(result->f, tab, (unsigned long)seq_length, GET_MPFR_ROUND(context));
     Py_DECREF(other);
     free(tab);
 
