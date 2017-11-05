@@ -30,7 +30,7 @@
 /* Internal helper function for mpmath. */
 
 static PyObject *
-mpmath_build_mpf(long sign, MPZ_Object *man, PyObject *exp, long bc)
+mpmath_build_mpf(long sign, MPZ_Object *man, PyObject *exp, mp_bitcnt_t bc)
 {
     PyObject *tup, *tsign, *tbc;
 
@@ -47,7 +47,7 @@ mpmath_build_mpf(long sign, MPZ_Object *man, PyObject *exp, long bc)
         return NULL;
     }
 
-    if (!(tbc = PyIntOrLong_FromLong(bc))) {
+    if (!(tbc = PyIntOrLong_FromMpBitCnt(bc))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
@@ -178,7 +178,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
                     mpz_add_ui(upper->z, upper->z, 1);
         }
 
-        if (!(tmp = PyIntOrLong_FromLong(shift))) {
+        if (!(tmp = PyIntOrLong_FromMpBitCnt(shift))) {
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
@@ -203,7 +203,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     if ((zbits = mpz_scan1(upper->z, 0)))
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
-    if (!(tmp = PyIntOrLong_FromLong(zbits))) {
+    if (!(tmp = PyIntOrLong_FromMpBitCnt(zbits))) {
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
         Py_DECREF(newexp);
@@ -336,7 +336,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                     mpz_add_ui(upper->z, upper->z, 1);
                 }
         }
-        if (!(tmp = PyIntOrLong_FromLong(shift))) {
+        if (!(tmp = PyIntOrLong_FromMpBitCnt(shift))) {
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
@@ -360,7 +360,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     if ((zbits = mpz_scan1(upper->z, 0)))
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
-    if (!(tmp = PyIntOrLong_FromLong(zbits))) {
+    if (!(tmp = PyIntOrLong_FromMpBitCnt(zbits))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);

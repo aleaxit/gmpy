@@ -70,9 +70,9 @@ static unsigned PY_LONG_LONG GMPy_Integer_AsUnsignedLongLongAndError(PyObject *v
 #endif
 
 #ifdef PY2
-# define PyIntOrLong_From_mp_bitcnt_t PyInt_FromSize_t
+# define PyIntOrLong_FromMpBitCnt PyInt_FromSize_t
 #else
-# define PyIntOrLong_From_mp_bitcnt_t PyLong_FromSize_t
+# define PyIntOrLong_FromMpBitCnt PyLong_FromSize_t
 #endif
 
 #ifdef __cplusplus
