@@ -360,8 +360,6 @@ typedef struct {
 #  else
 #    pragma comment(lib,"gmp.lib")
 #  endif
-#  define isnan _isnan
-#  define isinf !_finite
 #  define USE_ALLOCA 1
 #  define inline __inline
 #endif

@@ -1860,6 +1860,12 @@ GMPy_Context_Fsum(PyObject *self, PyObject *other)
      */
 
     seq_length = PyList_GET_SIZE(other);
+    if (seq_length > LONG_MAX) {
+        OVERFLOW_ERROR("temporary array is too large");
+	Py_DECREF(other);
+	Py_DECREF((PyObject*)result);
+	return NULL;
+    }
     for (i=0; i < seq_length; i++) {
         if (!(temp = GMPy_MPFR_From_Real(PyList_GET_ITEM(other, i), 1, context))) {
             Py_DECREF(other);

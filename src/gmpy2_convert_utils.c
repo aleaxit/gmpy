@@ -348,7 +348,7 @@ static unsigned PY_LONG_LONG
 GMPy_Integer_AsUnsignedLongLongAndError(PyObject *vv, int *error)
 {
     register PyLongObject *v;
-    unsigned PY_LONG_LONG x, prev, res;
+    unsigned PY_LONG_LONG x, prev, res = 0;
     Py_ssize_t i;
     int sign;
 
@@ -368,7 +368,6 @@ GMPy_Integer_AsUnsignedLongLongAndError(PyObject *vv, int *error)
 #endif
 
     if (PyLong_Check(vv)) {
-        res = 0;
         v = (PyLongObject *)vv;
         i = Py_SIZE(v);
 
@@ -399,7 +398,6 @@ GMPy_Integer_AsUnsignedLongLongAndError(PyObject *vv, int *error)
     }
 
     if (CHECK_MPZANY(vv)) {
-        res = 0;
         sign = mpz_sgn(MPZ(vv));
         if (sign < 0) {
             *error = -1;
