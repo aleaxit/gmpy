@@ -56,6 +56,10 @@
  * is returned and an exception is set. If either x or y can't be converted
  * into an mpz, Py_NotImplemented is returned.
  */
+#ifndef SIGNED_FITS_SLONG
+#define SIGNED_FITS_SLONG(x)  ((x >= LONG_MIN && x <= LONG_MAX) ? 1 : 0)
+#endif
+
 
 static PyObject *
 GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
@@ -283,11 +287,11 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             int error;
             long temp = GMPy_Integer_AsLongAndError(y, &error);
 
-            if (!error) {
+            if (!error && SIGNED_FITS_SLONG(temp)) {
                 mpfr_clear_flags();
                 SET_MPFR_WAS_NAN(context, x);
 
-                result->rc = mpfr_add_si(result->f, MPFR(x), temp, GET_MPFR_ROUND(context));
+                result->rc = mpfr_add_si(result->f, MPFR(x), (long)temp, GET_MPFR_ROUND(context));
                 goto done;
             }
             else {
@@ -340,11 +344,11 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             int error;
             long temp = GMPy_Integer_AsLongAndError(x, &error);
 
-            if (!error) {
+            if (!error && SIGNED_FITS_SLONG(temp)) {
                 mpfr_clear_flags();
                 SET_MPFR_WAS_NAN(context, y);
 
-                result->rc = mpfr_add_si(result->f, MPFR(y), temp, GET_MPFR_ROUND(context));
+                result->rc = mpfr_add_si(result->f, MPFR(y), (long)temp, GET_MPFR_ROUND(context));
                 goto done;
             }
             else {
