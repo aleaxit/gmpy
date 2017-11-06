@@ -2,12 +2,8 @@ MPFR Functionality
 ==================
 
 >>> import gmpy2
->>> import math
 >>> from gmpy2 import mpfr, mpq, mpz
 >>> from fractions import Fraction as F
->>> def _cmp(x,y):
-...   return x.as_integer_ratio() == y.as_integer_ratio()
-...
 >>> import sys
 
 Test trigonometric operations
@@ -26,8 +22,8 @@ Test acos
 ---------
 
 >>> gmpy2.set_context(gmpy2.context())
->>> _cmp(gmpy2.acos(mpfr("0.2")), math.acos(0.2))
-True
+>>> gmpy2.acos(mpfr("0.2")).as_integer_ratio()
+(mpz(6167402294989009), mpz(4503599627370496))
 >>> gmpy2.acos()
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -88,8 +84,8 @@ Test asin
 ---------
 
 >>> gmpy2.set_context(gmpy2.context())
->>> _cmp(gmpy2.asin(mpfr("0.2")), math.asin(0.2))
-True
+>>> gmpy2.asin(mpfr("0.2")).as_integer_ratio()
+(mpz(7254683656315453), mpz(36028797018963968))
 >>> gmpy2.asin()
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -150,10 +146,10 @@ Test atan
 ---------
 
 >>> gmpy2.set_context(gmpy2.context())
->>> _cmp(gmpy2.atan(mpfr("0.2")), math.atan(0.2))
-True
->>> _cmp(gmpy2.atan(mpfr("100")), math.atan(100))
-True
+>>> gmpy2.atan(mpfr("0.2")).as_integer_ratio()
+(mpz(1777981139569027), mpz(9007199254740992))
+>>> gmpy2.atan(mpfr("100")).as_integer_ratio()
+(mpz(3514601628432273), mpz(2251799813685248))
 >>> gmpy2.atan()
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -206,41 +202,41 @@ Test atan2
 ----------
 
 >>> gmpy2.set_context(gmpy2.context())
->>> _cmp(gmpy2.atan2(1,2), math.atan2(1,2))
-True
->>> _cmp(gmpy2.atan2(-1,2), math.atan2(-1,2))
-True
->>> _cmp(gmpy2.atan2(1,-2), math.atan2(1,-2))
-True
->>> _cmp(gmpy2.atan2(-1,-2), math.atan2(-1,-2))
-True
->>> _cmp(gmpy2.atan2(float("0"),float("0")), math.atan2(float("0"),float("0")))
-True
->>> _cmp(gmpy2.atan2(float("-0"),float("0")), math.atan2(float("-0"),float("0")))
-True
->>> _cmp(gmpy2.atan2(float("0"),float("-0")), math.atan2(float("0"),float("-0")))
-True
->>> _cmp(gmpy2.atan2(float("-0"),float("-0")), math.atan2(float("-0"),float("-0")))
-True
->>> _cmp(gmpy2.atan2(float("inf"),float("inf")), math.atan2(float("inf"),float("inf")))
-True
->>> _cmp(gmpy2.atan2(float("-inf"),float("inf")), math.atan2(float("-inf"),float("inf")))
-True
->>> _cmp(gmpy2.atan2(float("inf"),float("-inf")), math.atan2(float("inf"),float("-inf")))
-True
->>> _cmp(gmpy2.atan2(float("-inf"),float("-inf")), math.atan2(float("-inf"),float("-inf")))
-True
+>>> gmpy2.atan2(1,2).as_integer_ratio()
+(mpz(8352332796509007), mpz(18014398509481984))
+>>> gmpy2.atan2(-1,2).as_integer_ratio()
+(mpz(-8352332796509007), mpz(18014398509481984))
+>>> gmpy2.atan2(1,-2).as_integer_ratio()
+(mpz(3015098076232407), mpz(1125899906842624))
+>>> gmpy2.atan2(-1,-2).as_integer_ratio()
+(mpz(-3015098076232407), mpz(1125899906842624))
+>>> gmpy2.atan2(float("0"),float("0")).as_integer_ratio()
+(mpz(0), mpz(1))
+>>> gmpy2.atan2(float("-0"),float("0")).as_integer_ratio()
+(mpz(0), mpz(1))
+>>> gmpy2.atan2(float("0"),float("-0")).as_integer_ratio()
+(mpz(884279719003555), mpz(281474976710656))
+>>> gmpy2.atan2(float("-0"),float("-0")).as_integer_ratio()
+(mpz(-884279719003555), mpz(281474976710656))
+>>> gmpy2.atan2(float("inf"),float("inf")).as_integer_ratio()
+(mpz(884279719003555), mpz(1125899906842624))
+>>> gmpy2.atan2(float("-inf"),float("inf")).as_integer_ratio()
+(mpz(-884279719003555), mpz(1125899906842624))
+>>> gmpy2.atan2(float("inf"),float("-inf")).as_integer_ratio()
+(mpz(2652839157010665), mpz(1125899906842624))
+>>> gmpy2.atan2(float("-inf"),float("-inf")).as_integer_ratio()
+(mpz(-2652839157010665), mpz(1125899906842624))
 
 Test cos
 --------
 
 >>> gmpy2.set_context(gmpy2.context())
->>> _cmp(gmpy2.cos(mpfr("0.2")), math.cos(0.2))
+>>> gmpy2.cos(mpfr("0.2")).as_integer_ratio()
+(mpz(4413827474764093), mpz(4503599627370496))
+>>> gmpy2.cos(mpfr("20")).as_integer_ratio() == (mpz(7351352886077503), mpz(18014398509481984)) or (sys.platform == 'win32')
 True
->>> _cmp(gmpy2.cos(mpfr("20")), math.cos(20)) or (sys.platform == 'win32')
-True
->>> _cmp(gmpy2.cos(mpfr("2000")), math.cos(2000))
-True
+>>> gmpy2.cos(mpfr("2000")).as_integer_ratio()
+(mpz(-3309781376808469), mpz(9007199254740992))
 >>> gmpy2.cos()
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -301,14 +297,10 @@ Test cot
 --------
 
 >>> gmpy2.set_context(gmpy2.context())
->>> _cmp(gmpy2.cot(mpfr("0.2")), 1/math.tan(0.2))
-False
->>> gmpy2.cot(mpfr("0.2")).as_integer_ratio() == (mpz(173569956714485), mpz(35184372088832))
-True
->>> (1/math.tan(0.2)).as_integer_ratio() == (5554238614863519, 1125899906842624)
-True
->>> _cmp(gmpy2.cot(gmpy2.const_pi()), 1/math.tan(math.pi))
-True
+>>> gmpy2.cot(mpfr("0.2")).as_integer_ratio()
+(mpz(173569956714485), mpz(35184372088832))
+>>> gmpy2.cot(gmpy2.const_pi()).as_integer_ratio()
+(mpz(-8165619676597685), mpz(1))
 >>> gmpy2.cot(1)
 mpfr('0.64209261593433076')
 >>> gmpy2.cot(float('0'))
