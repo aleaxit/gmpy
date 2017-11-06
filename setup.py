@@ -252,7 +252,7 @@ class gmpy_build_ext(build_ext):
                 self.extensions[0].runtime_library_dirs += [os.path.join(adir, lib_path)]
 
         # Add the static linking options.
-        
+
         # Add MSVC specific options.
         if windows and not msys2:
             self.extensions[0].extra_link_args.append('/MANIFEST')
@@ -295,12 +295,12 @@ gmpy2_ext = Extension('gmpy2',
                       define_macros = defines)
 
 setup(name = "gmpy2",
-      version = "2.1.0a0",
+      version = "2.1.0a1",
       author = "Case Van Horsen",
       author_email = "casevh@gmail.com",
       license = "LGPL-3.0+",
       url = "https://github.com/aleaxit/gmpy",
-      description = "gmpy2 interface to GMP/MPIR, MPFR, and MPC for Python 2.7 and 3.4+",
+      description = "gmpy2 interface to GMP/MPIR, MPFR, and MPC for Python 2.6+ and 3.4+",
       data_files = [('', ['src/gmpy2.pxd']), ('gmpy2', ['src/gmpy2.h'])],
       classifiers = [
         'Development Status :: 3 - Alpha',
@@ -313,6 +313,7 @@ setup(name = "gmpy2",
         'Operating System :: POSIX',
         'Programming Language :: C',
         'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',

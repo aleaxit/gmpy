@@ -84,6 +84,6 @@ If you get a "permission denied" error message, you may need to use:
 Installing gmpy2 on Windows
 ---------------------------
 
-Please see msys2_build.txt.
+Please see windows_build.txt (preferred) or msys2_build.txt (alpha).
 
 

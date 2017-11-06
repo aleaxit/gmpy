@@ -1,7 +1,7 @@
 Changes for gmpy2 releases
 ==========================
 
-Changes in gmpy2 2.1.0a0
+Changes in gmpy2 2.1.0a1
 ------------------------
 
 * Thread-safe contexts are now supported. Properly integrating thread-safe

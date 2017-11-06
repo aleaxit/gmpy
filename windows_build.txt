@@ -1,15 +1,33 @@
 Assumptions
 ===========
 
-The build files for MPIR, MPFR, and MPC only support VS 2010. However, if
-VS 2008 is also installed, the "Platform Toolset" setting can be used to select
-a specific compiler: v100 = VS 2010, v90 = VS 2008.
+The solution files for MPIR, MPFR, and MPC support VS 2015/2017.
+However, if VS 2008 and/or VS 2010 is installed, the "Platform
+Toolset" setting can be used to select a specific compiler:
+   - v90  = VS 2008, Python 2.6 and 2.7
+   - v100 = VS 2010, Python 3.3 and 3.4
+   - v140 = VS 2015, Python 3.5, 3.6, and 3.7
+   - v141 = VS 2017
 
 Assumes MPIR is placed in c:\src\mpir. (No version number.)
 Assumes MPFR is placed in c:\src\mpfr. (No version number.)
 Assumes MPC is placed in c:\src\mpc. (No version number.)
 Assumes gmpy2 is placed in c:\src\gmpy2. (No version number.)
 Assumes vsyasm is installed.
+
+Compatibility note for vsyasm
+=============================
+
+VS 2015/2017 change the platform identifier for 32-bit builds from
+"win32" to "Win32". To work around the issue with vsyasm v1.3.0, edit
+the "vsyasm.props" file. After the following line:
+
+<CommandLineTemplate>"$(YasmPath)"vsyasm.exe -Xvc -f $(Platform) [AllOptions] [AdditionalOptions] [Inputs] </CommandLineOptions>
+
+add this line:
+
+<CommandLineTemplate Condition="'$(Platform)' == 'Win32'">"$(YasmPath)"vsyasm.exe -Xvc -f win32 [AllOptions] [AdditionalOptions] [Inputs] </CommandLineOptions>
+
 
 Compiling MPIR
 ==============
@@ -145,17 +163,21 @@ xcopy /y c:\src\mpc\lib\x64\Release\*.lib c:\src\64\vs2015\lib\
 Compile gmpy2
 =============
 
-c:\32\Python26\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2008 bdist_wininst
-c:\32\Python27\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2008 bdist_wininst
-c:\32\Python34\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2010 bdist_wininst
-c:\32\Python35\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2015 bdist_wininst
-c:\32\Python36\python.exe setup.py build_ext -f -Ddir=c:\src\32\vs2015 bdist_wininst
+c:\32\Python26\python.exe setup.py build_ext --force --mpir --static=c:\src\32\vs2008 bdist_wininst
+c:\32\Python27\python.exe setup.py build_ext --force --mpir --static=c:\src\32\vs2008 bdist_wininst
+c:\32\Python33\python.exe setup.py build_ext --force --mpir --static=c:\src\32\vs2010 bdist_wininst
+c:\32\Python34\python.exe setup.py build_ext --force --mpir --static=c:\src\32\vs2010 bdist_wininst
+c:\32\Python35\python.exe setup.py build_ext --force --mpir --static=c:\src\32\vs2015 bdist_wininst
+c:\32\Python36\python.exe setup.py build_ext --force --mpir --static=c:\src\32\vs2015 bdist_wininst
+c:\32\Python37\python.exe setup.py build_ext --force --mpir --static=c:\src\32\vs2015 bdist_wininst
 
-c:\64\Python26\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2008 bdist_wininst
-c:\64\Python27\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2008 bdist_wininst
-c:\64\Python34\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2010 bdist_wininst
-c:\64\Python35\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2015 bdist_wininst
-c:\64\Python36\python.exe setup.py build_ext -f -Ddir=c:\src\64\vs2015 bdist_wininst
+c:\64\Python26\python.exe setup.py build_ext --force --mpir --static=c:\src\64\vs2008 bdist_wininst
+c:\64\Python27\python.exe setup.py build_ext --force --mpir --static=c:\src\64\vs2008 bdist_wininst
+c:\64\Python33\python.exe setup.py build_ext --force --mpir --static=c:\src\64\vs2010 bdist_wininst
+c:\64\Python34\python.exe setup.py build_ext --force --mpir --static=c:\src\64\vs2010 bdist_wininst
+c:\64\Python35\python.exe setup.py build_ext --force --mpir --static=c:\src\64\vs2015 bdist_wininst
+c:\64\Python36\python.exe setup.py build_ext --force --mpir --static=c:\src\64\vs2015 bdist_wininst
+c:\64\Python37\python.exe setup.py build_ext --force --mpir --static=c:\src\64\vs2015 bdist_wininst
 
 
 

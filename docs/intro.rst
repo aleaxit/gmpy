@@ -47,7 +47,7 @@ Enhancements in gmpy2 2.1
 
 The most significant changes in gmpy2 2.1 are:
 
-Changes in gmpy2 2.1.0a0
+Changes in gmpy2 2.1.0a1
 ------------------------
 
 * Thread-safe contexts are now supported. Properly integrating thread-safe
@@ -66,12 +66,10 @@ Changes in gmpy2 2.1.0a0
 * In previous versions of gmpy2, *gmpy2.mpz* was a factory function that
   returned an  *mpz* instance. *gmpy2.mpz* is now an actual type. The same
   is true for the other gmpy2 types.
-* If a Python object has an __mpz__ method, it will be called bye *mpz()* to
+* If a Python object has an __mpz__ method, it will be called by *mpz()* to
   allow an unrecognized type to be converted to an mpz instance. The same is
   true for the other gmpy2 types.
 * Support for Cython via the addition of a C-API and a gmpy2.pxd file.
-
-Please see the detailed change list
 
 Installation
 ============
@@ -82,10 +80,9 @@ wheel format.
 Installing gmpy2 on Windows
 ---------------------------
 
-Pre-compiled versions of gmpy2 are available at `Downloads
-<http://code.google.com/p/gmpy/downloads/list>`_ . Please
-select the installer that corresponds to the version of Python installed on
-your computer. Note that either a 32 or 64-bit version of Python can be
+Pre-compiled versions of gmpy2 are available at `https://pypi.python.org/pypi/gmpy2`.
+Please select the installer that corresponds to the version of Python installed
+on your computer. Note that either a 32 or 64-bit version of Python can be
 installed on a 64-bit version of Windows. If you get an error message
 stating that Python could not be found in the registry, you have the wrong
 version of the gmpy2 installer.
@@ -200,8 +197,11 @@ Options for setup.py
     Force the use of GMP instead of MPIR. MPIR is the default library on Windows
     operating systems.
 
-**--prefix=<...>**
-    Specify the directory prefix where GMP/MPIR, MPFR, and MPC are located. For
-    example, **--prefix=/opt/local** instructs setup.py to search /opt/local/include
-    for header files and /opt/local/lib for libraries.
+**--shared=<...>**
+    Add the specified directory prefix to the beginning of the list of
+    directories that are searched for GMP, MPFR, and MPC shared libraries.
+
+**--static=<...>**
+    Create a statically linked library using libraries from the specified path,
+    or from the operating system's default library location if no path is specified
 
