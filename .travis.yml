@@ -68,8 +68,6 @@ install:
       sudo apt-get install libgmp-dev libmpfr-dev libmpfi-dev libmpc-dev cython texlive texlive-latex-extra latexmk
       pip install --verbose .
     fi
-    # note: sphinx in ubuntu is version 1.2.2 that does not support
-    # sphinx.ext.imgmath. We just install the last version.
     pip install sphinx
 
 script:
