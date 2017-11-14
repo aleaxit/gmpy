@@ -1,8 +1,3 @@
-from cpython.object cimport PyObject
-
-cdef extern from "Python.h":
-    void Py_DECREF(PyObject *)
-
 cdef extern from "gmp.h":
     # gmp integers
     ctypedef struct __mpz_struct:
@@ -11,7 +6,7 @@ cdef extern from "gmp.h":
     ctypedef __mpz_struct *mpz_ptr
     ctypedef const __mpz_struct *mpz_srcptr
 
-    # gmp rationnals
+    # gmp rationals
     ctypedef struct __mpq_struct:
         pass
     ctypedef __mpq_struct mpq_t[1]
@@ -20,8 +15,8 @@ cdef extern from "gmp.h":
 
     void mpz_set(mpz_t rop, mpz_t op)
     void mpq_set(mpq_ptr rop, mpq_srcptr op)
-    void mpq_set_num (mpq_t rational, mpz_t numerator)
-    void mpq_set_den (mpq_t rational, mpz_t denominator)
+    void mpq_set_num(mpq_t rational, mpz_t numerator)
+    void mpq_set_den(mpq_t rational, mpz_t denominator)
 
 
 cdef extern from "mpfr.h":
@@ -42,13 +37,10 @@ cdef extern from "mpfr.h":
         MPFR_RNDA
         MPFR_RNDF
         MPFR_RNDNA
-        GMP_RNDN
-        GMP_RNDZ
-        GMP_RNDU
-        GMP_RNDD
 
-    mpfr_prec_t mpfr_get_prec (mpfr_t x)
-    int mpfr_set (mpfr_t rop, mpfr_t op, mpfr_rnd_t rnd)
+    mpfr_prec_t mpfr_get_prec(mpfr_t x)
+    int mpfr_set(mpfr_t rop, mpfr_t op, mpfr_rnd_t rnd)
+
 
 cdef extern from "mpc.h":
     # mpc complexes
@@ -75,25 +67,29 @@ cdef extern from "mpc.h":
         MPC_RNDDU
         MPC_RNDDD
 
-    mpfr_prec_t mpc_get_prec (mpc_srcptr x)
-    void mpc_get_prec2 (mpfr_prec_t *pr, mpfr_prec_t *pi, mpc_srcptr x)
-    int  mpc_set (mpc_ptr rop, mpc_srcptr op, mpc_rnd_t rnd)
-    int  mpc_set_fr_fr (mpc_ptr rop, mpfr_srcptr rp, mpfr_srcptr ip, mpc_rnd_t rnd)
+    mpfr_prec_t mpc_get_prec(mpc_srcptr x)
+    void mpc_get_prec2(mpfr_prec_t *pr, mpfr_prec_t *pi, mpc_srcptr x)
+    int mpc_set(mpc_ptr rop, mpc_srcptr op, mpc_rnd_t rnd)
+    int mpc_set_fr_fr(mpc_ptr rop, mpfr_srcptr rp, mpfr_srcptr ip, mpc_rnd_t rnd)
+
 
 cdef extern from "gmpy2/gmpy2.h":
-    # initialize the C-API
-    # need to be called before any other functions
-    cdef int import_gmpy2()
+    # Initialize the C-API
+    # This must be called before any other functions, but not to access
+    # the types.
+    cdef int import_gmpy2() except -1
 
     # Object types
     ctypedef class gmpy2.mpz [object MPZ_Object]:
-        pass
+        cdef mpz_t z
     ctypedef class gmpy2.mpq [object MPQ_Object]:
-        pass
+        cdef mpq_t q
     ctypedef class gmpy2.mpfr [object MPFR_Object]:
-        pass
+        cdef mpfr_t f
+        cdef int rc
     ctypedef class gmpy2.mpc [object MPC_Object]:
-        pass
+        cdef mpc_t c
+        cdef int rc
 
     # Object creation
     cdef mpz GMPy_MPZ_New(void *)
@@ -116,27 +112,27 @@ cdef extern from "gmpy2/gmpy2.h":
 
 # Build a gmpy2 mpz from a gmp mpz
 cdef inline mpz GMPy_MPZ_From_mpz(mpz_srcptr z):
-    cdef mpz res =  GMPy_MPZ_New(NULL)
-    mpz_set(MPZ(res), z)
+    cdef mpz res = GMPy_MPZ_New(NULL)
+    mpz_set(res.z, z)
     return res
 
 # Build a gmpy2 mpq from a gmp mpq
 cdef inline mpq GMPy_MPQ_From_mpq(mpq_srcptr q):
     cdef mpq res = GMPy_MPQ_New(NULL)
-    mpq_set(MPQ(res), q)
+    mpq_set(res.q, q)
     return res
 
 # Build a gmpy2 mpq from gmp mpz numerator and denominator
 cdef inline mpq GMPy_MPQ_From_mpz(mpz_srcptr num, mpz_srcptr den):
-    cdef mpq res =  GMPy_MPQ_New(NULL)
-    mpq_set_num(MPQ(res), num)
-    mpq_set_den(MPQ(res), den)
+    cdef mpq res = GMPy_MPQ_New(NULL)
+    mpq_set_num(res.q, num)
+    mpq_set_den(res.q, den)
     return res
 
 # Build a gmpy2 mpfr from a mpfr
 cdef inline mpfr GMPy_MPFR_From_mpfr(mpfr_srcptr x):
-    cdef mpfr res =  GMPy_MPFR_New(mpfr_get_prec(x), NULL)
-    mpfr_set(MPFR(res), x, MPFR_RNDN)
+    cdef mpfr res = GMPy_MPFR_New(mpfr_get_prec(x), NULL)
+    mpfr_set(res.f, x, MPFR_RNDN)
     return res
 
 # Build a gmpy2 mpc from a mpc
@@ -145,11 +141,11 @@ cdef inline mpc GMPy_MPC_From_mpc(mpc_srcptr c):
     cdef mpfr_prec_t pi
     mpc_get_prec2(&pr, &pi, c)
     cdef mpc res = GMPy_MPC_New(pr, pi, NULL)
-    mpc_set(MPC(res), c, MPC_RNDNN)
+    mpc_set(res.c, c, MPC_RNDNN)
     return res
 
 # Build a gmpy2 mpc from a real part mpfr and an imaginary part mpfr
 cdef inline mpc GMPy_MPC_From_mpfr(mpfr_srcptr re, mpfr_srcptr im):
-    cdef mpc res =  GMPy_MPC_New(mpfr_get_prec(re), mpfr_get_prec(im), NULL)
-    mpc_set_fr_fr (MPC(res), re, im, MPC_RNDNN)
+    cdef mpc res = GMPy_MPC_New(mpfr_get_prec(re), mpfr_get_prec(im), NULL)
+    mpc_set_fr_fr(res.c, re, im, MPC_RNDNN)
     return res
