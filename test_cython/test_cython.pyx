@@ -78,8 +78,8 @@ def test_mpz():
     assert Py_REFCNT(<PyObject *> x) == 1
     assert Py_REFCNT(<PyObject *> y) == 1
 
-    mpz_set_si(MPZ(x), 3)
-    mpz_set_si(MPZ(y), 2)
+    mpz_set_si(x.z, 3)
+    mpz_set_si(y.z, 2)
 
     assert x != y and y < x and x > y
     assert not ((y == x) or (y >= x))
@@ -91,7 +91,7 @@ def test_mpz():
 def test_mpz_cmp():
     cdef mpz z = GMPy_MPZ_New(NULL)
 
-    mpz_set_si(MPZ(z), 3)
+    mpz_set_si(z.z, 3)
 
     assert z == 3 and 3 == z
     assert z == mpz(3) and mpz(3) == z
@@ -122,8 +122,8 @@ def test_mpq():
     assert Py_REFCNT(<PyObject *> x) == 1
     assert Py_REFCNT(<PyObject *> y) == 1
 
-    mpq_set_si(MPQ(x), 1, 4)
-    mpq_set_si(MPQ(y), -3, 7)
+    mpq_set_si(x.q, 1, 4)
+    mpq_set_si(y.q, -3, 7)
 
     assert x != y
 
@@ -134,7 +134,7 @@ def test_mpq():
 def test_mpq_cmp():
     cdef mpq q = GMPy_MPQ_New(NULL)
 
-    mpq_set_si(MPQ(q), 1, 1)
+    mpq_set_si(q.q, 1, 1)
 
     assert q == 1 and 1 == q
     assert q == mpz(1) and mpz(1) == q
@@ -181,7 +181,7 @@ def test_mpfr():
     assert Py_REFCNT(<PyObject *> y) == 1
     assert Py_REFCNT(<PyObject *> z) == 1
 
-    mpfr_set_si(MPFR(x), 2741, MPFR_RNDN)
+    mpfr_set_si(x.f, 2741, MPFR_RNDN)
     y = x + 1
     z = y + 1
 
@@ -191,7 +191,7 @@ def test_mpfr():
 def test_mpfr_cmp():
     cdef mpfr x = GMPy_MPFR_New(53, NULL)
 
-    mpfr_set_si(MPFR(x), 1, MPFR_RNDN)
+    mpfr_set_si(x.f, 1, MPFR_RNDN)
 
     assert x == 1 and 1 == x
     assert x == mpz(1) and mpz(1) == x
@@ -221,7 +221,7 @@ def test_mpc():
     assert Py_REFCNT(<PyObject *> x) == 1
     assert Py_REFCNT(<PyObject *> y) == 1
 
-    mpc_set_si_si(MPC(x), 42, 30, MPC_RNDNN)
+    mpc_set_si_si(x.c, 42, 30, MPC_RNDNN)
     y = x * 2
 
     # work around Cython issue 1776 that prevents testing
@@ -230,7 +230,7 @@ def test_mpc():
 
 def test_mpc_cmp():
     cdef mpc x = GMPy_MPC_New(0, 0, NULL)
-    mpc_set_si_si(MPC(x), 0, 0, MPC_RNDNN)
+    mpc_set_si_si(x.c, 0, 0, MPC_RNDNN)
 
     assert x == 0 and 0 == x
     assert x == mpz(0) and mpz(0) == x
