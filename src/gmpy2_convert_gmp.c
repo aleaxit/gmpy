@@ -194,7 +194,7 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
     assert(CHECK_MPZANY(obj));
 
     /* Assume gmp uses limbs as least as large as the builtin longs do */
-    assert(mp_bits_per_limb >= SHIFT);
+    assert(mp_bits_per_limb >= PyLong_SHIFT);
 
     if (mpz_sgn(obj->z) < 0) {
         negative = 1;
