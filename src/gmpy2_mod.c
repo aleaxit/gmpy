@@ -261,7 +261,6 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         mpfr_clear_flags();
-        SET_MPFR_MPFR_WAS_NAN(context, tempx, tempy);
 
         if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
 

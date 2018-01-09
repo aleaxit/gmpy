@@ -109,7 +109,6 @@ static PyTypeObject MPFR_Type;
 #define GMPY_OVERFLOW(msg) PyErr_SetString(GMPyExc_Overflow, msg)
 #define GMPY_UNDERFLOW(msg) PyErr_SetString(GMPyExc_Underflow, msg)
 #define GMPY_ERANGE(msg) PyErr_SetString(GMPyExc_Erange, msg)
-#define GMPY_EXPBOUND(msg) PyErr_SetString(GMPyExc_ExpBound, msg)
 
 #define GMPY_MPFR_CHECK_RANGE(V, CTX) \
     if (mpfr_regular_p(V->f) && \
