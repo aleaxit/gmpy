@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018 Case Van Horsen                        *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -191,7 +191,7 @@ GMPy_MPQ_Function_Qdiv(PyObject *self, PyObject *args)
 		Py_DECREF(tempy);
 		return NULL;
 	};
-		
+
     if (mpz_cmp_ui(mpq_denref(tempx->q), 1) == 0) {
         if ((result = (PyObject*)GMPy_MPZ_New(context))) {
             mpz_set(MPZ(result), mpq_numref(tempx->q));
