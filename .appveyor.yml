@@ -45,7 +45,7 @@ install:
 build: off
 
 test_script:
-    - cmd: python setup.py install --mpir --static=%CONDA_PREFIX%\Library
+    - cmd: python setup.py install build_ext --mpir --include-dirs=%CONDA_PREFIX%\Library\include --library-dirs=%CONDA_PREFIX%\Library\lib
     - cmd: cd test && python runtests.py
     - cmd: cd ..
 
