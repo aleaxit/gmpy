@@ -35,52 +35,7 @@ if sys.version[:3] < '2.6':
     writeln("Please use GMPY 1.x for earlier versions of Python.")
     sys.exit()
 
-# Initialize some global values.
-
-lib_path = 'lib'
-
-# Several command line options can be used to modify compilation of GMPY2.
-#
-#  --msys2         -> build on Windows using MSYS2, MinGW, and GMP/MPFR/MPC
-#  --mpir          -> build on Windows using Visual Studio and MPIR/MPFR/MPC
-#  --vector        -> build the unsupport/development vector functions
-#  --lib64         -> use /prefix/lib64 instead of /prefix/lib
-#  --lib32         -> use /prefix/lib32 instead of /prefix/lib
-#  --shared=<...>  -> add the specified directory prefix to the beginning of
-#                     the list of directories that are searched for GMP, MPFR,
-#                     and MPC shared libraries
-#  --static=<...>  -> create a statically linked library using libraries from
-#                     specified path, or from the operating system's default
-#                     library location if no path is specified
-#  --vector        -> include the vector_XXX() functions; they are unstable
-#                     and under active development
-#  --fast          -> depend on MPFR and MPC internal implementations details
-#                     (even more than the standard build)
-#
-# Ugly hack ahead. Sorry.
-#
-# I haven't found any examples on how to extend distutils with user-defined
-# options. And the documentation is not helpful, either. So instead of fighting
-# distutils, some of the options are converted into macro definitions. Macros
-# then get parsed by distutils and then a custom class reads the macros and
-# tweaks the setup.
-#
-# The custom command line arguments are processed as follows:
-#
-#  --force is temporarily added to the list of defines and then removed by
-#  gmpy_build_ext. It is used to allow setup.py install --force to work as
-#  expected.
-#
-#  --msys2 is converted to -DMSYS2. Since MSYS2 needs to be defined as a macro
-#  to control options in the GMPY2 source code, this make sense.
-#
-#  --mpir is converted to -DMPIR. Since MPI needs to be defined as a macro
-#  to control options in the GMPY2 source code, this make sense.
-#
-#  --lib64 and --lib32 are removed from sys.argv and the global variable
-#  lib_path is set to 'lib64' or 'lib32' as appropriate.
-#
-#  --shared and --static are converted to -DSHARED and -DSTATIC.
+# Run python setup.py build_ext --help for build options
 
 # Notes regarding coverage testing.
 #
@@ -101,61 +56,6 @@ lib_path = 'lib'
 #
 # Remember to remove the *.gcov file and the out sub-directory.
 
-defines = []
-build_type_specified = False
-
-for token in sys.argv[:]:
-    if token.lower() == '--force':
-        defines.append( ('FORCE', 1) )
-        sys.argv.remove(token)
-
-    if token.lower() == '--lib64':
-        lib_path = 'lib64'
-        sys.argv.remove(token)
-
-    if token.lower() == '--lib32':
-        lib_path = 'lib32'
-        sys.argv.remove(token)
-
-    if token.lower() == '--vector':
-        defines.append( ('VECTOR', 1) )
-        sys.argv.remove(token)
-
-    if token.lower() == '--fast':
-        defines.append( ('FAST', 1) )
-        sys.argv.remove(token)
-
-    if token.lower() == '--msys2':
-        defines.append( ('MSYS2', 1) )
-        sys.argv.remove(token)
-
-    if token.lower() == '--mpir':
-        defines.append( ('MPIR', 1) )
-        sys.argv.remove(token)
-
-    if token.lower().startswith('--shared'):
-        build_type_specified = True
-        try:
-            defines.append( ('SHARED', token.split('=')[1]) )
-        except IndexError:
-            defines.append( ('SHARED', 1) )
-        sys.argv.remove(token)
-
-    if token.lower().startswith('--static'):
-        build_type_specified = True
-        try:
-            defines.append( ('STATIC', token.split('=')[1]) )
-        except IndexError:
-            defines.append( ('STATIC', 1) )
-        sys.argv.remove(token)
-
-    if token.lower() == '--gcov':
-        defines.append( ('GCOV', 1) )
-        sys.argv.remove(token)
-
-if not build_type_specified:
-        defines.append( ('SHARED', 1) )
-
 
 # Improved clean command.
 
@@ -165,13 +65,33 @@ class gmpy_clean(clean):
         self.all = True
         clean.run(self)
 
+build_options = [
+    ('mpir', None, 'Build using mpir'),
+    ('msys2', None, 'Build in msys2 environment'),
+    ('gcov', None, 'configure GCC to collect code coverage data for testing purposes'),
+    ('fast', None, 'depend on MPFR and MPC internal implementations details'),
+    ('vector', None, 'include the vector_XXX() functions; they are unstable and under active development'),
+    ('shared', None, 'Build using shared libraries'),
+    ('static', None, 'Build using static libraries'),
+]
+
 # Define a custom build class that parses to the defined macros to alter the
 # build setup.
 
 class gmpy_build_ext(build_ext):
+    default_opts = build_ext.user_options
+    user_options = list(build_options)
+    user_options.extend(default_opts)
 
     def initialize_options(self):
         build_ext.initialize_options(self)
+        self.mpir = False
+        self.msys2 = False
+        self.gcov = False
+        self.fast = False
+        self.vector = False
+        self.static = None
+        self.shared = None
 
     def doit(self):
         # Find the directory specfied for non-standard library location.
@@ -180,96 +100,47 @@ class gmpy_build_ext(build_ext):
         msys2 = False
         mpir = False
 
-        for d in self.extensions[0].define_macros[:]:
-            if d[0] == 'MSYS2':
-                self.compiler = 'mingw32'
-                msys2 = True
+        defines = []
 
-            if d[0] == 'MPIR':
-                mpir = True
+        if self.static is None and self.shared is None:
+            self.shared = True
 
-            if d[0] == 'GCOV':
-                self.extensions[0].libraries.append('gcov')
-                self.extensions[0].extra_compile_args.extend(['-O0', '--coverage'])
-                self.extensions[0].extra_link_args.append('--coverage')
-                self.extensions[0].define_macros.remove(d)
+        if self.gcov:
+            self.extensions[0].libraries.append('gcov')
+            self.extensions[0].extra_compile_args.extend(['-O0', '--coverage'])
+            self.extensions[0].extra_link_args.append('--coverage')
 
-            if d[0] == 'FORCE':
-                self.force = 1
-                try:
-                    self.extensions[0].define_macros.remove(d)
-                except ValueError:
-                    pass
+        if self.vector:
+            defines.append(('VECTOR', 1))
 
-            if d[0] in ('SHARED', 'STATIC'):
-                if d[0] == 'STATIC':
-                    static = True
-                if d[0] == 'SHARED':
-                    static = False
-                if d[1] and d[1] != 1:
-                    search_dirs.extend(map(os.path.expanduser, d[1].split(":")))
+        if self.fast:
+            defines.append(('FAST', 1))
 
-        if mpir:
+        if self.msys2:
+            defines.append(('MSYS2', 1))
+
+        if self.mpir:
+            defines.append(('MPIR', 1))
+
+        if self.shared:
+            defines.append(('SHARED', 1))
+
+        if self.static:
+            defines.append(('STATIC', 1))
+
+        if self.mpir:
             self.extensions[0].libraries.extend(['mpir', 'mpfr', 'mpc'])
         else:
             self.extensions[0].libraries.extend(['gmp', 'mpfr', 'mpc'])
 
-        # If non-default directories have been specified, we need to find the
-        # exact location of the libraries to allow static or runtime linking.
-
-        mp_found = ''
-        mpfr_found = ''
-        mpc_found = ''
-        if search_dirs:
-
-            for adir in search_dirs:
-                lookin = os.path.join(adir, 'include')
-                if mpir:
-                    if os.path.isfile(os.path.join(lookin, 'mpir.h')):
-                        mp_found = adir
-                else:
-                    if os.path.isfile(os.path.join(lookin, 'gmp.h')):
-                        mp_found = adir
-                if os.path.isfile(os.path.join(lookin, 'mpfr.h')):
-                    mpfr_found = adir
-                if os.path.isfile(os.path.join(lookin, 'mpc.h')):
-                    mpc_found = adir
-
-        # Add the directory information for location where valid versions were
-        # found. This can cause confusion if there are multiple installations of
-        # the same version of Python on the system.
-
-        for adir in (mp_found, mpfr_found, mpc_found):
-            if not adir:
-                continue
-            if os.path.join(adir, 'include') in self.extensions[0].include_dirs:
-                continue
-            self.extensions[0].include_dirs += [os.path.join(adir, 'include')]
-            self.extensions[0].library_dirs += [os.path.join(adir, lib_path)]
-
-            # Add the runtime linking options.
-            if not static and not windows:
-                self.extensions[0].runtime_library_dirs += [os.path.join(adir, lib_path)]
-
-        # Add the static linking options.
-
         # Add MSVC specific options.
-        if windows and not msys2:
+        if windows and not self.msys2:
             self.extensions[0].extra_link_args.append('/MANIFEST')
-            self.extensions[0].define_macros.append(("MPIR", 1))
+            defines.append(("MPIR", 1))
             if not static:
-                self.extensions[0].define_macros.append(("MSC_USE_DLL", None))
-        else:
-            if mpir:
-                if static and mp_found:
-                    self.extensions[0].extra_objects.append(os.path.join(mp_found, lib_path, 'libmpir.a'))
-            else:
-                if static and mp_found:
-                    self.extensions[0].extra_objects.append(os.path.join(mp_found, lib_path, 'libgmp.a'))
-            if static and mpfr_found:
-                self.extensions[0].extra_objects.append(os.path.join(mpfr_found, lib_path, 'libmpfr.a'))
-            if static and mpc_found:
-                self.extensions[0].extra_objects.append(os.path.join(mpc_found, lib_path, 'libmpc.a'))
+                defines.append(("MSC_USE_DLL", None))
+
+        self.extensions[0].define_macros.extend(defines)
 
 
     def finalize_options(self):
@@ -291,8 +162,7 @@ my_commands = {'clean' : gmpy_clean, 'build_ext' : gmpy_build_ext, 'install_data
 
 gmpy2_ext = Extension('gmpy2',
                       sources=[os.path.join('src', 'gmpy2.c')],
-                      include_dirs=['./src'],
-                      define_macros = defines)
+                      include_dirs=['./src'])
 
 setup(name = "gmpy2",
       version = "2.1.0a1",
