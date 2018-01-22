@@ -1,1 +1,7 @@
-include README INSTALL COPYING COPYING.LESSER *.txt *.py docs/* src/* test/*
+include README
+include INSTALL
+include COPYING
+include docs/*
+include test/*
+include COPYING.LESSER
+include src/*
