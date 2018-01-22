@@ -61,7 +61,7 @@ install:
       echo ""
       echo "Installing latex"
       port install texlive texlive-latex-extra
-      python setup.py install build_ext --include-dirs=$CONDA_PREFIX/include --library-dirs=$CONDA_PREFIX/lib ;
+      python setup.py install build_ext -I$CONDA_PREFIX/include -L$CONDA_PREFIX/lib ;
     else # Linux
       export PATH="/usr/lib/ccache:$PATH"
       ccache -M 256M && ccache -s

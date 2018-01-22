@@ -95,10 +95,6 @@ class gmpy_build_ext(build_ext):
 
     def doit(self):
         # Find the directory specfied for non-standard library location.
-        search_dirs = []
-        static = False
-        msys2 = False
-        mpir = False
 
         defines = []
 
@@ -137,7 +133,7 @@ class gmpy_build_ext(build_ext):
         if windows and not self.msys2:
             self.extensions[0].extra_link_args.append('/MANIFEST')
             defines.append(("MPIR", 1))
-            if not static:
+            if not self.static:
                 defines.append(("MSC_USE_DLL", None))
 
         self.extensions[0].define_macros.extend(defines)
