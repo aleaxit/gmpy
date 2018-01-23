@@ -2,14 +2,13 @@ import platform
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 
-
-_comp_args = ["-DSHARED=1"]
-link_args = []
 ON_WINDOWS = platform.system() == 'Windows'
+_comp_args = ["-DSHARED=1"] if not ON_WINDOWS else ["-DSTATIC=1"]
+link_args = []
 
 sources = ['src/gmpy2.c']
-_libs = ['gmp', 'mpfr', 'mpc'] if not ON_WINDOWS else [
-    'libmpir', 'libmpfr', 'libmpc']
+_libs = ['mpfr', 'mpc'] if not ON_WINDOWS else [
+    'libmpfr', 'libmpc']
 
 
 class Gmpy2Build(build_ext):
@@ -52,12 +51,7 @@ class Gmpy2Build(build_ext):
             _libs.append('gcov')
         if self.vector:
             _comp_args.append('-DVECTOR=1')
-        if self.mpir or ON_WINDOWS:
-            _comp_args.append('-DMPIR=1')
-        if self.mpir and not ON_WINDOWS:
-            _libs.remove('gmp')
-            _libs.append('mpir')
-        if self.static or ON_WINDOWS:
+        if self.static and not ON_WINDOWS:
             _comp_args.remove('-DSHARED=1')
             _comp_args.append('-DSTATIC=1')
         if self.gdb:
@@ -67,6 +61,21 @@ class Gmpy2Build(build_ext):
         compiler = self.compiler.compiler_type
         if compiler == 'mingw32':
             _comp_args.append('-DMSYS2=1')
+            if self.mpir:
+                _comp_args.append('-DMPIR=1')
+                _libs.append('libmpir')
+            else:
+                # Should library names include 'lib' on mingw32/msys2?
+                _libs.append('libgmp')
+        elif self.mpir or ON_WINDOWS:
+            # --mpir or on Windows and MSVC
+            _comp_args.append('-DMPIR=1')
+            if ON_WINDOWS:
+                _libs.append('libmpir')
+            else:
+                _libs.append('mpir')
+        else:
+            _libs.append('gmp')
         build_ext.build_extensions(self)
 
 
