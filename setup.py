@@ -3,7 +3,7 @@ from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 
 ON_WINDOWS = platform.system() == 'Windows'
-_comp_args = ["-DSHARED=1"] if not ON_WINDOWS else ["-DSTATIC=1"]
+_comp_args = ["DSHARED=1"]
 link_args = []
 
 sources = ['src/gmpy2.c']
@@ -22,9 +22,8 @@ class Gmpy2Build(build_ext):
          "they are unstable and under active development"),
         ('mpir', None, "Enable use of mpir library instead of gmp."
          "gmp is the default on Posix systems while mpir the default on"
-         "Windows"),
-        ('static', None, "Enable static linking compile time options."
-         "Static options are enabled by default on Windows platforms only."),
+         "Windows and MSVC"),
+        ('static', None, "Enable static linking compile time options."),
         ('gdb', None, "Build with debug symbols."),
     ]
 
@@ -40,49 +39,59 @@ class Gmpy2Build(build_ext):
     def finalize_options(self):
         build_ext.finalize_options(self)
         if self.fast:
-            _comp_args.append('-DFAST=1')
+            _comp_args.append('DFAST=1')
         if self.gcov:
             if ON_WINDOWS:
                 raise ValueError("Cannot enable GCC code coverage on Windows")
-            _comp_args.append('-DGCOV=1')
-            _comp_args.append('-O0')
+            _comp_args.append('DGCOV=1')
+            _comp_args.append('O0')
             _comp_args.append('--coverage')
             link_args.append('--coverage')
             _libs.append('gcov')
         if self.vector:
-            _comp_args.append('-DVECTOR=1')
-        if self.static and not ON_WINDOWS:
-            _comp_args.remove('-DSHARED=1')
-            _comp_args.append('-DSTATIC=1')
+            _comp_args.append('DVECTOR=1')
+        if self.static:
+            _comp_args.remove('DSHARED=1')
+            _comp_args.append('DSTATIC=1')
         if self.gdb:
-            _comp_args.append('-ggdb')
+            _comp_args.append('ggdb')
 
     def build_extensions(self):
         compiler = self.compiler.compiler_type
         if compiler == 'mingw32':
-            _comp_args.append('-DMSYS2=1')
+            # Library names should not include 'lib' on mingw32/msys2
+            _libs.remove('libmpfr')
+            _libs.remove('libmpc')
+            _libs.append('mpfr')
+            _libs.append('mpc')
+            _comp_args.append('DMSYS2=1')
             if self.mpir:
-                _comp_args.append('-DMPIR=1')
-                _libs.append('libmpir')
+                _comp_args.append('DMPIR=1')
+                _libs.append('mpir')
             else:
-                # Should library names include 'lib' on mingw32/msys2?
-                _libs.append('libgmp')
+                _libs.append('gmp')
         elif self.mpir or ON_WINDOWS:
             # --mpir or on Windows and MSVC
-            _comp_args.append('-DMPIR=1')
+            _comp_args.append('DMPIR=1')
             if ON_WINDOWS:
                 _libs.append('libmpir')
+                # MSVC shared build
+                if not self.static:
+                    _comp_args.append('MSC_USE_DLL')
             else:
                 _libs.append('mpir')
         else:
             _libs.append('gmp')
+        _prefix = '-' if not ON_WINDOWS or compiler == 'mingw32' else '/'
+        for i in range(len(_comp_args)):
+            _comp_args[i] = ''.join([_prefix, _comp_args[i]])
         build_ext.build_extensions(self)
 
 
 extensions = [
     Extension('gmpy2.gmpy2',
               sources=sources,
-              include_dirs=["/usr/local/include", './src'],
+              include_dirs=['./src'],
               libraries=_libs,
               extra_compile_args=_comp_args,
               extra_link_args=link_args,
