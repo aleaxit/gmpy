@@ -7,9 +7,7 @@ _comp_args = ["DSHARED=1"]
 link_args = []
 
 sources = ['src/gmpy2.c']
-_libs = ['mpfr', 'mpc'] if not ON_WINDOWS else [
-    'libmpfr', 'libmpc']
-
+_libs = ['mpfr', 'mpc']
 
 class Gmpy2Build(build_ext):
     description = "Build gmpy2 with custom build options"
@@ -59,9 +57,6 @@ class Gmpy2Build(build_ext):
     def build_extensions(self):
         compiler = self.compiler.compiler_type
         if compiler == 'mingw32':
-            # Library names should not include 'lib' on mingw32/msys2
-            _libs.remove('libmpfr')
-            _libs.remove('libmpc')
             _libs.append('mpfr')
             _libs.append('mpc')
             _comp_args.append('DMSYS2=1')
@@ -73,16 +68,13 @@ class Gmpy2Build(build_ext):
         elif self.mpir or ON_WINDOWS:
             # --mpir or on Windows and MSVC
             _comp_args.append('DMPIR=1')
-            if ON_WINDOWS:
-                _libs.append('libmpir')
+            _libs.append('mpir')
+            if ON_WINDOWS and not self.static:
                 # MSVC shared build
-                if not self.static:
-                    _comp_args.append('MSC_USE_DLL')
-            else:
-                _libs.append('mpir')
+                _comp_args.append('MSC_USE_DLL')
         else:
             _libs.append('gmp')
-        _prefix = '-' if not ON_WINDOWS or compiler == 'mingw32' else '/'
+        _prefix = '-' if compiler != 'msvc' else '/'
         for i in range(len(_comp_args)):
             _comp_args[i] = ''.join([_prefix, _comp_args[i]])
         build_ext.build_extensions(self)
