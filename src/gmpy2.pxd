@@ -164,5 +164,9 @@ cdef inline mpc GMPy_MPC_From_mpc(mpc_srcptr c):
 # Build a gmpy2 mpc from a real part mpfr and an imaginary part mpfr
 cdef inline mpc GMPy_MPC_From_mpfr(mpfr_srcptr re, mpfr_srcptr im):
     cdef mpc res = GMPy_MPC_New(mpfr_get_prec(re), mpfr_get_prec(im), NULL)
-    mpc_set_fr_fr(res.c, re, im, MPC_RNDNN)
+    # We intentionally use MPFR funtions instead of MPC functions here
+    # in order not to add an unneeded dependency on MPC. It's probably
+    # faster too this way.
+    mpfr_set(res.c.re, re, MPFR_RNDN)
+    mpfr_set(res.c.im, im, MPFR_RNDN)
     return res
