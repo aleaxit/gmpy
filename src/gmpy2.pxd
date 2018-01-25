@@ -1,14 +1,21 @@
 cdef extern from "gmp.h":
     # gmp integers
+    ctypedef long mp_limb_t
+
     ctypedef struct __mpz_struct:
-        pass
+        int _mp_alloc
+        int _mp_size
+        mp_limb_t* _mp_d
+
     ctypedef __mpz_struct mpz_t[1]
     ctypedef __mpz_struct *mpz_ptr
     ctypedef const __mpz_struct *mpz_srcptr
 
     # gmp rationals
     ctypedef struct __mpq_struct:
-        pass
+        __mpz_struct _mp_num
+        __mpz_struct _mp_den
+
     ctypedef __mpq_struct mpq_t[1]
     ctypedef __mpq_struct *mpq_ptr
     ctypedef const __mpq_struct *mpq_srcptr
@@ -21,8 +28,16 @@ cdef extern from "gmp.h":
 
 cdef extern from "mpfr.h":
     # mpfr reals
+    ctypedef int mpfr_sign_t
+    ctypedef long mpfr_prec_t
+    ctypedef long mpfr_exp_t
+
     ctypedef struct __mpfr_struct:
-        pass
+        mpfr_prec_t _mpfr_prec
+        mpfr_sign_t _mpfr_sign
+        mpfr_exp_t _mpfr_exp
+        mp_limb_t* _mpfr_d
+
     ctypedef __mpfr_struct mpfr_t[1]
     ctypedef __mpfr_struct *mpfr_ptr
     ctypedef const __mpfr_struct *mpfr_srcptr
@@ -45,7 +60,9 @@ cdef extern from "mpfr.h":
 cdef extern from "mpc.h":
     # mpc complexes
     ctypedef struct __mpc_struct:
-        pass
+        mpfr_t re
+        mpfr_t im
+
     ctypedef __mpc_struct mpc_t[1];
     ctypedef __mpc_struct *mpc_ptr;
     ctypedef const __mpc_struct *mpc_srcptr;
