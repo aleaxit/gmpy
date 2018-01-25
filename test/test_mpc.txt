@@ -199,4 +199,12 @@ False
 >>> G.is_finite(mpc("inf+3j"))
 False
 
-
+Test mpc misc
+-------------
+>>> c=mpc('67+87j', precision=70)
+>>> c.precision
+(70, 70)
+>>> c.real.precision
+70
+>>> c.imag.precision
+70
