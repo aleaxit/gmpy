@@ -208,3 +208,13 @@ Test mpc misc
 70
 >>> c.imag.precision
 70
+>>> c = mpc('42e56+42.909j', precision=(45,300))
+>>> c.precision
+(45, 300)
+>>> c.real.precision
+45
+>>> c.imag.precision
+300
+>>> x = mpc("1.3142123+4.3e-1001j", precision=(70,37))
+>>> mpc(x.real, x.imag, precision=(70,37)) == x
+True
