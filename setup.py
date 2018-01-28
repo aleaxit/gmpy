@@ -105,7 +105,7 @@ setup(
     zip_safe=False,
     include_package_data=True,
     package_data={'gmpy2': [
-        'gmpy2.pxd',
+        '*.pxd',
         'gmpy2.h',
     ]},
     packages=find_packages(),
