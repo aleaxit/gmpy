@@ -6,7 +6,7 @@ The xmpz type
 
 gmpy2 provides access to an experimental integer type called *xmpz*. The
 *xmpz* type is a mutable integer type. In-place operations (+=, //=, etc.)
-modify the orignal object and do not create a new object. Instances of
+modify the original object and do not create a new object. Instances of
 *xmpz* cannot be used as dictionary keys.
 
 ::
@@ -171,7 +171,7 @@ http://www.pseudoprime.com/pseudo.html
     |     a**(n-1) == 1 (mod n)
 
 **is_fibonacci_prp(...)**
-    is_fibonacci_prp(n,p,q) will return True if *n* is an Fibonacci
+    is_fibonacci_prp(n,p,q) will return True if *n* is a Fibonacci
     probable prime with parameters (p,q).
 
     | Assuming:
@@ -223,7 +223,7 @@ http://www.pseudoprime.com/pseudo.html
     |     lucasv(p,q,s*(2**t)) == 0 (mod n) for some t, 0 <= t < r
 
 **is_strong_prp(...)**
-    is_strong_prp(n,a) will return True if *n* is an strong (also known as
+    is_strong_prp(n,a) will return True if *n* is a strong (also known as
     Miller-Rabin) probable prime to the base a.
 
     | Assuming:

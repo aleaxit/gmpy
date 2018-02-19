@@ -71,7 +71,7 @@ mpz Methods
 **num_digits(...)**
     x.num_digits([base=10]) returns the length of the string representing
     the absolute value of *x* in radix *base*. The result is correct if base is
-    a power of 2. For other other bases, the result is usually correct but may
+    a power of 2. For other bases, the result is usually correct but may
     be 1 too large. *base* can range between 2 and 62, inclusive.
 
 mpz Functions
@@ -284,7 +284,7 @@ mpz Functions
     not an integer, it will be truncated to an integer.
 
     mpz(s[, base=0]) returns a new *mpz* object from a string *s* made of
-    digits in the given base. If base = 0, thn binary, octal, or hex Python
+    digits in the given base. If base = 0, then binary, octal, or hex Python
     strings are recognized by leading 0b, 0o, or 0x characters. Otherwise the
     string is assumed to be decimal. Values for base can range between 2 and 62.
 
@@ -313,7 +313,7 @@ mpz Functions
 **num_digits(...)**
     num_digits(x[, base=10]) returns the length of the string representing
     the absolute value of *x* in radix *base*. The result is correct if base is
-    a power of 2. For other other bases, the result is usually correct but may
+    a power of 2. For other bases, the result is usually correct but may
     be 1 too large. *base* can range between 2 and 62, inclusive.
 
 **popcount(...)**
@@ -321,7 +321,7 @@ mpz Functions
     the number of bits with value 1 is infinite so -1 is returned in that case.
 
 **powmod(...)**
-    powmod(x, y, m) returns (*x* ** *y*) mod *m*. The exponenent *y* can be
+    powmod(x, y, m) returns (*x* ** *y*) mod *m*. The exponent *y* can be
     negative, and the correct result will be returned if the inverse of *x*
     mod *m* exists. Otherwise, a ValueError is raised.
 
