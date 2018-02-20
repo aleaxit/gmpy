@@ -90,7 +90,7 @@ cdef extern from "mpc.h":
     int mpc_set_fr_fr(mpc_ptr rop, mpfr_srcptr rp, mpfr_srcptr ip, mpc_rnd_t rnd)
 
 
-cdef extern from "gmpy2/gmpy2.h":
+cdef extern from "gmpy2.h":
     # Initialize the C-API
     # This must be called before any other functions, but not to access
     # the types.
