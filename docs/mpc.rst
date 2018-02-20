@@ -3,7 +3,7 @@ Multiple-precision Complex
 
 gmpy2 adds a multiple-precision complex type called *mpc* that is based on the
 MPC library. The context manager settings for *mpfr* arithmetic are applied to
-*mpc* arithmetic by default. It is possible to specifiy different precision and
+*mpc* arithmetic by default. It is possible to specify different precision and
 rounding modes for both the real and imaginary components of an *mpc*.
 
 ::
@@ -77,7 +77,7 @@ mpc Attributes
     Returns the imaginary component.
 
 **precision**
-    Returns a 2-tuple containing the the precision of the real and imaginary
+    Returns a 2-tuple containing the precision of the real and imaginary
     components.
 
 **rc**
@@ -117,7 +117,7 @@ mpc Functions
     atanh(x) returns the inverse hyperbolic tangent of x.
 
 **cos(...)**
-    cos(x) seturns the cosine of x.
+    cos(x) returns the cosine of x.
 
 **cosh(...)**
     cosh(x) returns the hyperbolic cosine of x.
