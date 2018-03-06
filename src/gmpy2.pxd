@@ -42,8 +42,6 @@ cdef extern from "mpfr.h":
     ctypedef __mpfr_struct *mpfr_ptr
     ctypedef const __mpfr_struct *mpfr_srcptr
 
-    ctypedef long mpfr_prec_t
-
     ctypedef enum mpfr_rnd_t:
         MPFR_RNDN
         MPFR_RNDZ
