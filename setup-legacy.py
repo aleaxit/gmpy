@@ -6,11 +6,6 @@ if sys.version.find('MSC') == -1:
 else:
     windows = True
 
-# <rant>
-# Setuptools is broken on Linux. The command "python setup.py install" no
-# longer works. Only use setuptools on Windows to keep Appveyor happy.
-# </rant>
-
 if windows:
     try:
         from setuptools import setup, Extension
@@ -27,6 +22,9 @@ def writeln(s):
     sys.stdout.write('%s\n' % s)
     sys.stdout.flush()
 
+# Utility function to read the contents of the README file.
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 # Fail gracefully for old versions of Python.
 
@@ -161,12 +159,13 @@ gmpy2_ext = Extension('gmpy2',
                       include_dirs=['./src'])
 
 setup(name = "gmpy2",
-      version = "2.1.0a1",
+      version = "2.1.0a2",
       author = "Case Van Horsen",
       author_email = "casevh@gmail.com",
       license = "LGPL-3.0+",
       url = "https://github.com/aleaxit/gmpy",
       description = "gmpy2 interface to GMP/MPIR, MPFR, and MPC for Python 2.6+ and 3.4+",
+      long_description = read('README'),
       data_files = [('', ['src/gmpy2.pxd']), ('gmpy2', ['src/gmpy2.h'])],
       classifiers = [
         'Development Status :: 3 - Alpha',

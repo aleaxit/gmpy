@@ -1,4 +1,5 @@
 import platform
+import os
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 
@@ -8,6 +9,10 @@ link_args = []
 
 sources = ['src/gmpy2.c']
 _libs = ['mpfr', 'mpc']
+
+# Utility function to read the contents of the README file.
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 class Gmpy2Build(build_ext):
     description = "Build gmpy2 with custom build options"
@@ -94,7 +99,7 @@ cmdclass = {'build_ext': Gmpy2Build}
 
 setup(
     name="gmpy2",
-    version="2.1.0a1",
+    version="2.1.0a2",
     author="Case Van Horsen",
     author_email="casevh@gmail.com",
     cmdclass=cmdclass,
@@ -102,6 +107,7 @@ setup(
     url="https://github.com/aleaxit/gmpy",
     description="gmpy2 interface to GMP/MPIR, MPFR, "
     "and MPC for Python 2.6+ and 3.4+",
+    long_description=read('README'),
     zip_safe=False,
     include_package_data=True,
     package_data={'gmpy2': [

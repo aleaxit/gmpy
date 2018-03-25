@@ -12,7 +12,9 @@ The gmpy2 2.0.x series is a stable version that is only receiving bug fixes.
 The main development branch (2.1.x) was extensively refactored. The most
 significant changes are support for thread-safe contexts and context methods.
 
-gmpy2 2.0.x is available at https://pypi.python.org/pypi/gmpy2.
+gmpy2 is available at https://pypi.python.org/pypi/gmpy2
+
+Documentation is available at https://gmpy2.readthedocs.io/en/latest/
 
 To install a development version of gmpy2 2.1.x, just clone or copy
 the repository and follow the instructions in the INSTALL file. Detailed
