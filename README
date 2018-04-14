@@ -1,22 +1,13 @@
-Welcome to gmpy2 project!
--------------------------
-
-gmpy2 provides fast multiple-precision arithmetic to Python. gmpy2 is an
-optimized C extension that supports the GMP, MPFR, and MPC libraries.
-
-gmpy2 is based on the original gmpy module. gmpy2 adds support for correctly
-rounded multiple-precision real (using the MPFR library) and complex (using
-the MPC library) arithmetic.
+gmpy2 is an optimized, C-coded Python extension module that supports fast
+multiple-precision arithmetic.  gmpy2 is based on the original gmpy module.
+gmpy2 adds support for correctly rounded multiple-precision real arithmetic
+(using the MPFR library) and complex arithmetic (using the MPC library).
 
 The gmpy2 2.0.x series is a stable version that is only receiving bug fixes.
 The main development branch (2.1.x) was extensively refactored. The most
 significant changes are support for thread-safe contexts and context methods.
 
-gmpy2 is available at https://pypi.python.org/pypi/gmpy2
+gmpy2 is available at https://pypi.python.org/pypi/gmpy2/
 
 Documentation is available at https://gmpy2.readthedocs.io/en/latest/
 
-To install a development version of gmpy2 2.1.x, just clone or copy
-the repository and follow the instructions in the INSTALL file. Detailed
-instructions for building on Windows using the MSYS2/MINGW-W64 tool chain
-can be found in msys2_build.txt
