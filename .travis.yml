@@ -65,7 +65,8 @@ install:
     else # Linux
       export PATH="/usr/lib/ccache:$PATH"
       ccache -M 256M && ccache -s
-      sudo apt-get install libgmp-dev libmpfr-dev libmpfi-dev libmpc-dev cython texlive texlive-latex-extra latexmk
+      sudo apt-get install libgmp-dev libmpfr-dev libmpfi-dev libmpc-dev texlive texlive-latex-extra latexmk
+      pip install Cython --verbose --disable-pip-version-check
       pip install --verbose .
     fi
     pip install sphinx
