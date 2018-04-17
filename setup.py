@@ -87,7 +87,7 @@ class Gmpy2Build(build_ext):
 
 
 extensions = [
-    Extension('gmpy2.gmpy2',
+    Extension('gmpy2',
               sources=sources,
               include_dirs=['./src'],
               libraries=_libs,
@@ -117,7 +117,6 @@ setup(
     long_description=read('README'),
     zip_safe=False,
     data_files = [('', ['src/gmpy2.pxd']), ('', ['src/gmpy2.h'])],
-    packages=find_packages(),
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
