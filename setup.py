@@ -2,6 +2,7 @@ import platform
 import os
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
+from distutils.command.install_data import install_data
 
 ON_WINDOWS = platform.system() == 'Windows'
 _comp_args = ["DSHARED=1"]
@@ -95,7 +96,13 @@ extensions = [
               )
 ]
 
-cmdclass = {'build_ext': Gmpy2Build}
+class gmpy_install_data(install_data):
+    def finalize_options(self):
+        install_data.finalize_options(self)
+        install = self.distribution.get_command_obj('install')
+        self.install_dir = install.install_purelib
+
+cmdclass = {'build_ext': Gmpy2Build, 'install_data' : gmpy_install_data}
 
 setup(
     name="gmpy2",
@@ -109,11 +116,7 @@ setup(
     "and MPC for Python 2.6+ and 3.4+",
     long_description=read('README'),
     zip_safe=False,
-    include_package_data=True,
-    package_data={'gmpy2': [
-        '*.pxd',
-        'gmpy2.h',
-    ]},
+    data_files = [('', ['src/gmpy2.pxd']), ('', ['src/gmpy2.h'])],
     packages=find_packages(),
     classifiers=[
         'Development Status :: 3 - Alpha',
