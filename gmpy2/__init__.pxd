@@ -1,1 +1,1 @@
-from gmpy2 cimport *
+from gmpy2.gmpy2 cimport *
