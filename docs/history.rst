@@ -89,7 +89,7 @@ Known issues in gmpy2 2.0.0b4
 -----------------------------
 
 * The new test suite (test/runtest.py) is incomplete and some tests fail on
-  Python 2.x due to formating issues.
+  Python 2.x due to formatting issues.
 
 
 Changes in gmpy2 2.0.0b3

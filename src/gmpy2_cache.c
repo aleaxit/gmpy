@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018 Case Van Horsen                        *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -150,14 +150,17 @@ GMPy_MPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         }
 
         if (PyObject_HasAttrString(n, "__mpz__")) {
-             out = (PyObject*) PyObject_CallMethod(n, "__mpz__", NULL);
-             if (!MPZ_Check(out)) {
-                 PyErr_Format(PyExc_TypeError,
-                              "object of type '%.200s' can not be interpreted as mpz",
-                              out->ob_type->tp_name);
-                 return NULL;
-             }
-             return out;
+            out = (PyObject *) PyObject_CallMethod(n, "__mpz__", NULL);
+
+            if (out == NULL)
+                return out;
+            if (!MPZ_Check(out)) {
+                PyErr_Format(PyExc_TypeError,
+                             "object of type '%.200s' can not be interpreted as mpz",
+                             out->ob_type->tp_name);
+                return NULL;
+            }
+            return out;
         }
 
         /* Try converting to integer. */
@@ -455,18 +458,20 @@ GMPy_MPQ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
     /* Handle 1 argument. It must be non-complex number or an object with a __mpq__ method. */
     if (argc == 1) {
         if (IS_REAL(n)) {
-            return (PyObject*)GMPy_MPQ_From_Number(n, context);
+            return (PyObject *) GMPy_MPQ_From_Number(n, context);
         }
 
         if (PyObject_HasAttrString(n, "__mpq__")) {
-             out = (PyObject*) PyObject_CallMethod(n, "__mpq__", NULL);
-             if (!MPQ_Check(out)) {
-                 PyErr_Format(PyExc_TypeError,
-                              "object of type '%.200s' can not be interpreted as mpq",
-                              out->ob_type->tp_name);
-                 return NULL;
-             }
-             return out;
+            out = (PyObject *) PyObject_CallMethod(n, "__mpq__", NULL);
+            if (out == NULL)
+                return out;
+            if (!MPQ_Check(out)) {
+                PyErr_Format(PyExc_TypeError,
+                             "object of type '%.200s' can not be interpreted as mpq",
+                             out->ob_type->tp_name);
+                return NULL;
+            }
+            return out;
         }
 
     }
@@ -663,14 +668,17 @@ GMPy_MPFR_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
     }
 
     if (PyObject_HasAttrString(arg0, "__mpfr__")) {
-         out = (PyObject*) PyObject_CallMethod(arg0, "__mpfr__", NULL);
-         if (!MPFR_Check(out)) {
-             PyErr_Format(PyExc_TypeError,
-                          "object of type '%.200s' can not be interpreted as mpfr",
-                          out->ob_type->tp_name);
-             return NULL;
-         }
-         return out;
+        out = (PyObject *) PyObject_CallMethod(arg0, "__mpfr__", NULL);
+
+        if(out == NULL)
+            return out;
+        if (!MPFR_Check(out)) {
+            PyErr_Format(PyExc_TypeError,
+                         "object of type '%.200s' can not be interpreted as mpfr",
+                         out->ob_type->tp_name);
+            return NULL;
+        }
+        return out;
     }
 
     TYPE_ERROR("mpfr() requires numeric or string argument");
@@ -963,6 +971,8 @@ GMPy_MPC_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
 
     if (PyObject_HasAttrString(arg0, "__mpc__")) {
         out = (PyObject*) PyObject_CallMethod(arg0, "__mpc__", NULL);
+        if(out == NULL)
+            return out;
         if (!MPC_Check(out)) {
             PyErr_Format(PyExc_TypeError,
                          "object of type '%.200s' can not be interpreted as mpc",

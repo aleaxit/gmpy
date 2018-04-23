@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018 Case Van Horsen                        *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -47,8 +47,6 @@ GMPy_Complex_Phase(PyObject *x, CTXT_Object *context)
     if (!result || !tempx) {
         return NULL;
     }
-
-    SET_MPC_WAS_NAN(context, tempx);
 
     result->rc = mpc_arg(result->f, tempx->c, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
@@ -112,7 +110,6 @@ GMPy_Complex_Norm(PyObject *x, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    SET_MPC_WAS_NAN(context, tempx);
 
     result->rc = mpc_norm(result->f, tempx->c, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
@@ -245,8 +242,6 @@ GMPy_Complex_Rect(PyObject *x, PyObject *y, CTXT_Object *context)
         return NULL;
     }
 
-    SET_MPFR_MPFR_WAS_NAN(context, tempx, tempy);
-
     mpfr_cos(mpc_realref(result->c), tempy->f, GET_REAL_ROUND(context));
     mpfr_mul(mpc_realref(result->c), mpc_realref(result->c), tempx->f, GET_REAL_ROUND(context));
     mpfr_sin(mpc_imagref(result->c), tempy->f, GET_IMAG_ROUND(context));
@@ -309,8 +304,6 @@ GMPy_Complex_Proj(PyObject *x, CTXT_Object *context)
         return NULL;
     }
 
-    SET_MPC_WAS_NAN(context, tempx);
-
     result->rc = mpc_proj(result->c, tempx->c, GET_MPC_ROUND(context));
     Py_DECREF((PyObject*)tempx);
 
@@ -365,8 +358,6 @@ GMPy_MPC_Conjugate_Method(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    SET_MPC_WAS_NAN(context, self);
-
     result->rc = mpc_conj(result->c, MPC(self), GET_MPC_ROUND(context));
 
     _GMPy_MPC_Cleanup(&result, context);
@@ -402,8 +393,10 @@ GMPy_MPC_GetImag_Attrib(MPC_Object *self, void *closure)
 
     CHECK_CONTEXT(context);
 
-    if ((result = GMPy_MPFR_New(0, context))) {
-        SET_MPC_WAS_NAN(context, self);
+    mpfr_prec_t rprec = 0, iprec = 0;
+    mpc_get_prec2(&rprec, &iprec, self->c);
+
+    if ((result = GMPy_MPFR_New(iprec, context))) {
         result->rc = mpc_imag(result->f, self->c, GET_MPFR_ROUND(context));
         _GMPy_MPFR_Cleanup(&result, context);
     }
@@ -420,8 +413,10 @@ GMPy_MPC_GetReal_Attrib(MPC_Object *self, void *closure)
 
     CHECK_CONTEXT(context);
 
-    if ((result = GMPy_MPFR_New(0, context))) {
-        SET_MPC_WAS_NAN(context, self);
+    mpfr_prec_t rprec = 0, iprec = 0;
+    mpc_get_prec2(&rprec, &iprec, self->c);
+
+    if ((result = GMPy_MPFR_New(rprec, context))) {
         result->rc = mpc_real(result->f, self->c, context->ctx.mpfr_round);
         _GMPy_MPFR_Cleanup(&result, context);
     }

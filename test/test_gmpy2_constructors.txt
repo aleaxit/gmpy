@@ -14,10 +14,16 @@ Test constructors via special methods
 ...     def __mpc__(self): return 'hello'
 >>> class C:
 ...     pass
+>>> class D:
+...     def __mpz__(self): raise TypeError
+...     def __mpq__(self): raise TypeError
+...     def __mpfr__(self): raise TypeError
+...     def __mpc__(self): raise TypeError
 
 >>> a = A()
 >>> b = B()
 >>> c = C()
+>>> d = D()
 
 Test mpz conversion
 -------------------
@@ -94,3 +100,23 @@ TypeError: object of type 'str' can not be interpreted as mpc
 Traceback (most recent call last):
 ...
 TypeError: mpc() requires numeric or string argument
+
+Test special methods raising errors
+--------------------
+>>> mpz(d)
+Traceback (most recent call last):
+...
+TypeError
+>>> mpq(d)
+Traceback (most recent call last):
+...
+TypeError
+>>> mpfr(d)
+Traceback (most recent call last):
+...
+TypeError
+>>> mpc(d)
+Traceback (most recent call last):
+...
+TypeError
+

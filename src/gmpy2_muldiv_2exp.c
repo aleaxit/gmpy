@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018 Case Van Horsen                        *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -48,7 +48,6 @@ GMPy_Real_Mul_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    SET_MPFR_WAS_NAN(context, tempx);
 
     result->rc = mpfr_mul_2ui(result->f, tempx->f, exp, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
@@ -76,8 +75,6 @@ GMPy_Complex_Mul_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
         Py_XDECREF((PyObject*)tempx);
         return NULL;
     }
-
-    SET_MPC_WAS_NAN(context, tempx);
 
     result->rc = mpc_mul_2ui(result->c, tempx->c, exp, GET_MPC_ROUND(context));
     Py_DECREF((PyObject*)tempx);
@@ -152,7 +149,6 @@ GMPy_Real_Div_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    SET_MPFR_WAS_NAN(context, tempx);
 
     result->rc = mpfr_div_2ui(result->f, tempx->f, exp, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
@@ -180,8 +176,6 @@ GMPy_Complex_Div_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
         Py_XDECREF((PyObject*)tempx);
         return NULL;
     }
-
-    SET_MPC_WAS_NAN(context, tempx);
 
     result->rc = mpc_div_2ui(result->c, tempx->c, exp, GET_MPC_ROUND(context));
     Py_DECREF((PyObject*)tempx);

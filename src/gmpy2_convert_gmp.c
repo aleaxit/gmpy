@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018 Case Van Horsen                        *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -194,7 +194,7 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
     assert(CHECK_MPZANY(obj));
 
     /* Assume gmp uses limbs as least as large as the builtin longs do */
-    assert(mp_bits_per_limb >= SHIFT);
+    assert(mp_bits_per_limb >= PyLong_SHIFT);
 
     if (mpz_sgn(obj->z) < 0) {
         negative = 1;

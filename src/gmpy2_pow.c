@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018 Case Van Horsen                        *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -298,21 +298,18 @@ GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context
     }
 
     mpfr_clear_flags();
-    CLEAR_WAS_NAN(context);
 
     if (PyIntOrLong_Check(exp)) {
         int error;
         long temp_exp = GMPy_Integer_AsLongAndError(exp, &error);
 
         if (!error) {
-            SET_MPFR_WAS_NAN(context, tempb);
             result->rc = mpfr_pow_si(result->f, tempb->f, temp_exp, GET_MPFR_ROUND(context));
         }
         else {
             mpz_t tempzz;
             mpz_init(tempzz);
             mpz_set_PyIntOrLong(tempzz, exp);
-            SET_MPFR_WAS_NAN(context, tempb);
             result->rc = mpfr_pow_z(result->f, tempb->f, tempzz, GET_MPFR_ROUND(context));
             mpz_clear(tempzz);
         }
@@ -321,19 +318,17 @@ GMPy_Real_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *context
         if (!(tempz = GMPy_MPZ_From_Integer(exp, context))) {
             goto err;
         }
-        SET_MPFR_WAS_NAN(context, tempb);
         result->rc = mpfr_pow_z(result->f, tempb->f, tempz->z, GET_MPFR_ROUND(context));
     }
     else {
         if (!(tempe = GMPy_MPFR_From_Real(exp, 1, context))) {
             goto err;
         }
-        SET_MPFR_MPFR_WAS_NAN(context, tempb, tempe);
         result->rc = mpfr_pow(result->f, tempb->f, tempe->f, GET_MPFR_ROUND(context));
     }
 
     /* If the result is NaN, check if a complex result works. */
-    if ((!GET_WAS_NAN(context)) && result && mpfr_nanflag_p() && context->ctx.allow_complex) {
+    if (mpfr_nanflag_p() && context->ctx.allow_complex) {
         mpc_result = (MPC_Object*)GMPy_Complex_Pow(base, exp, Py_None, context);
         if (!mpc_result || MPC_IS_NAN_P(mpc_result)) {
             Py_XDECREF((PyObject*)mpc_result);
@@ -384,21 +379,18 @@ GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *cont
     }
 
     mpfr_clear_flags();
-    CLEAR_WAS_NAN(context);
 
     if (PyIntOrLong_Check(exp)) {
         int error;
         long temp_exp = GMPy_Integer_AsLongAndError(exp, &error);
 
         if (!error) {
-            SET_MPC_WAS_NAN(context, tempb);
             result->rc = mpc_pow_si(result->c, tempb->c, temp_exp, GET_MPC_ROUND(context));
         }
         else {
             mpz_t tempzz;
             mpz_init(tempzz);
             mpz_set_PyIntOrLong(tempzz, exp);
-            SET_MPC_WAS_NAN(context, tempb);
             result->rc = mpc_pow_z(result->c, tempb->c, tempzz, GET_MPC_ROUND(context));
             mpz_clear(tempzz);
         }
@@ -407,14 +399,12 @@ GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *cont
         if (!(tempz = GMPy_MPZ_From_Integer(exp, context))) {
             goto err;
         }
-        SET_MPC_WAS_NAN(context, tempb);
         result->rc = mpc_pow_z(result->c, tempb->c, tempz->z, GET_MPC_ROUND(context));
     }
     else if (IS_REAL(exp)) {
         if (!(tempf = GMPy_MPFR_From_Real(exp, 1, context))) {
             goto err;
         }
-        SET_MPC_MPFR_WAS_NAN(context, tempb, tempf);
 
         result->rc = mpc_pow_fr(result->c, tempb->c, tempf->f, GET_MPC_ROUND(context));
     }
@@ -422,7 +412,6 @@ GMPy_Complex_Pow(PyObject *base, PyObject *exp, PyObject *mod, CTXT_Object *cont
         if (!(tempe = GMPy_MPC_From_Complex(exp, 1, 1, context))) {
             goto err;
         }
-        SET_MPC_MPC_WAS_NAN(context, tempb, tempe);
 
         result->rc = mpc_pow(result->c, tempb->c, tempe->c, GET_MPC_ROUND(context));
     }
@@ -543,19 +532,16 @@ GMPy_MPFR_Pow_Slot(PyObject *base, PyObject *exp, PyObject *mod)
 
         if ((result = GMPy_MPFR_New(0, context))) {
             mpfr_clear_flags();
-            CLEAR_WAS_NAN(context);
 
             temp_exp = GMPy_Integer_AsLongAndError(exp, &error);
 
             if (!error) {
-                SET_MPFR_WAS_NAN(context, base);
                 result->rc = mpfr_pow_si(result->f, MPFR(base), temp_exp, GET_MPFR_ROUND(context));
             }
             else {
                 mpz_t tempzz;
                 mpz_init(tempzz);
                 mpz_set_PyIntOrLong(tempzz, exp);
-                SET_MPFR_WAS_NAN(context, base);
                 result->rc = mpfr_pow_z(result->f, MPFR(base), tempzz, GET_MPFR_ROUND(context));
                 mpz_clear(tempzz);
             }

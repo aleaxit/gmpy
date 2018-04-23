@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018 Case Van Horsen                        *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -68,27 +68,6 @@ static PyTypeObject CTXT_Manager_Type;
 
 #define GET_DIV_MODE(c) (c->ctx.rational_division)
 
-#define GET_DIVMOD_EXACT(c) (c->ctx.mpfr_divmod_exact)
-
-#define GET_QUIET_NAN(c) (0)
-#define CLEAR_WAS_NAN(c) ;
-#define GET_WAS_NAN(c) (0)
-
-#define SET_MPFR_WAS_NAN(c, x) ;
-
-#define SET_MPFR_MPFR_WAS_NAN(c, x, y) ;
-
-#define SET_MPFR_MPFR_MPFR_WAS_NAN(c, x, y, z) ;
-
-#define SET_MPFR_FLOAT_WAS_NAN(c, x, y) ;
-
-#define SET_FLOAT_WAS_NAN(c, x) ;
-
-#define SET_MPC_WAS_NAN(c, x) ;
-
-#define SET_MPC_MPC_WAS_NAN(c, x, y) ;
-
-#define SET_MPC_MPFR_WAS_NAN(c, x, y) ;
 
 static PyObject *    GMPy_CTXT_Manager_New(void);
 static void          GMPy_CTXT_Manager_Dealloc(CTXT_Manager_Object *self);

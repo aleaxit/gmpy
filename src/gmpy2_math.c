@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018 Case Van Horsen                        *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -500,7 +500,6 @@ _GMPy_MPFR_Acos(PyObject *x, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    SET_MPFR_WAS_NAN(context, x);
 
     result->rc = mpfr_acos(result->f, MPFR(x), GET_MPFR_ROUND(context));
     _GMPy_MPFR_Cleanup(&result, context);
@@ -533,8 +532,6 @@ _GMPy_MPC_Acos(PyObject *x, CTXT_Object *context)
     if (!(result = GMPy_MPC_New(0, 0, context))) {
         return NULL;
     }
-
-    SET_MPC_WAS_NAN(context, x);
 
     result->rc = mpc_acos(result->c, MPC(x), GET_MPC_ROUND(context));
     _GMPy_MPC_Cleanup(&result, context);
@@ -586,7 +583,6 @@ _GMPy_MPFR_Asin(PyObject *x, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    SET_MPFR_WAS_NAN(context, x);
 
     result->rc = mpfr_asin(result->f, MPFR(x), GET_MPFR_ROUND(context));
     _GMPy_MPFR_Cleanup(&result, context);
@@ -619,8 +615,6 @@ _GMPy_MPC_Asin(PyObject *x, CTXT_Object *context)
     if (!(result = GMPy_MPC_New(0, 0, context))) {
         return NULL;
     }
-
-    SET_MPC_WAS_NAN(context, x);
 
     result->rc = mpc_asin(result->c, MPC(x), GET_MPC_ROUND(context));
     _GMPy_MPC_Cleanup(&result, context);
@@ -672,7 +666,6 @@ _GMPy_MPFR_Atanh(PyObject *x, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    SET_MPFR_WAS_NAN(context, x);
 
     result->rc = mpfr_atanh(result->f, MPFR(x), GET_MPFR_ROUND(context));
     _GMPy_MPFR_Cleanup(&result, context);
@@ -705,8 +698,6 @@ _GMPy_MPC_Atanh(PyObject *x, CTXT_Object *context)
     if (!(result = GMPy_MPC_New(0, 0, context))) {
         return NULL;
     }
-
-    SET_MPC_WAS_NAN(context, x);
 
     result->rc = mpc_atanh(result->c, MPC(x), GET_MPC_ROUND(context));
     _GMPy_MPC_Cleanup(&result, context);
@@ -771,7 +762,6 @@ _GMPy_MPFR_Sin_Cos(PyObject *x, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    SET_MPFR_MPFR_WAS_NAN(context, s, c);
 
     code = mpfr_sin_cos(s->f, c->f, MPFR(x), GET_MPFR_ROUND(context));
 
@@ -829,8 +819,6 @@ _GMPy_MPC_Sin_Cos(PyObject *x, CTXT_Object *context)
         Py_XDECREF(result);
         return NULL;
     }
-
-    SET_MPC_MPC_WAS_NAN(context, s, c);
 
     code = mpc_sin_cos(s->c, c->c, MPC(x), GET_MPC_ROUND(context), GET_MPC_ROUND(context));
 
@@ -898,7 +886,6 @@ _GMPy_MPFR_Sinh_Cosh(PyObject *x, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    SET_MPFR_MPFR_WAS_NAN(context, s, c);
 
     code = mpfr_sinh_cosh(s->f, c->f, MPFR(x), GET_MPFR_ROUND(context));
 
@@ -985,7 +972,6 @@ GMPy_Context_Degrees(PyObject *self, PyObject *other)
     mpfr_ui_div(temp->f, 180, temp->f, MPFR_RNDN);
 
     mpfr_clear_flags();
-    SET_MPFR_WAS_NAN(context, tempx);
 
     mpfr_mul(result->f, temp->f, tempx->f, MPFR_RNDN);
 
@@ -1032,7 +1018,6 @@ GMPy_Context_Radians(PyObject *self, PyObject *other)
     mpfr_div_ui(temp->f, temp->f, 180, MPFR_RNDN);
 
     mpfr_clear_flags();
-    SET_MPFR_WAS_NAN(context, tempx);
 
     mpfr_mul(result->f, MPFR(self), temp->f, MPFR_RNDN);
 
@@ -1096,7 +1081,6 @@ _GMPy_MPFR_Sqrt(PyObject *x, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    SET_MPFR_WAS_NAN(context, x);
 
     result->rc = mpfr_sqrt(result->f, MPFR(x), GET_MPFR_ROUND(context));
     _GMPy_MPFR_Cleanup(&result, context);
@@ -1129,8 +1113,6 @@ _GMPy_MPC_Sqrt(PyObject *x, CTXT_Object *context)
     if (!(result = GMPy_MPC_New(0, 0, context))) {
         return NULL;
     }
-
-    SET_MPC_WAS_NAN(context, x);
 
     result->rc = mpc_sqrt(result->c, MPC(x), GET_MPFR_ROUND(context));
     _GMPy_MPC_Cleanup(&result, context);
@@ -1283,7 +1265,6 @@ GMPy_Real_Round2(PyObject *x, PyObject *y, CTXT_Object *context)
     Py_DECREF((PyObject*)tempx);
 
     mpfr_clear_flags();
-    SET_MPFR_WAS_NAN(context, result);
 
     result->rc = mpfr_prec_round(result->f, n, GET_MPFR_ROUND(context));
     _GMPy_MPFR_Cleanup(&result, context);
@@ -1353,7 +1334,6 @@ GMPy_Real_RelDiff(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    SET_MPFR_MPFR_WAS_NAN(context, tempx, tempy);
 
     mpfr_reldiff(result->f, tempx->f, tempy->f, GET_MPFR_ROUND(context));
     result->rc = 0;
@@ -1454,7 +1434,6 @@ GMPy_Real_Modf(PyObject *x, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    SET_MPFR_WAS_NAN(context, tempx);
 
     code = mpfr_modf(s->f, c->f, tempx->f, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
@@ -1511,7 +1490,6 @@ GMPy_Real_Lgamma(PyObject *x, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    SET_MPFR_WAS_NAN(context, tempx);
 
     value->rc = mpfr_lgamma(value->f, &signp, tempx->f, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
@@ -1562,7 +1540,6 @@ GMPy_Real_RemQuo(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    SET_MPFR_MPFR_WAS_NAN(context, tempx, tempy);
 
     value->rc = mpfr_remquo(value->f, &quobits, tempx->f, tempy->f, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
@@ -1604,7 +1581,6 @@ GMPy_Real_Frexp(PyObject *x, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    SET_MPFR_WAS_NAN(context, tempx);
 
     value->rc = mpfr_frexp(&exp, value->f, tempx->f, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
@@ -1663,7 +1639,6 @@ GMPy_Context_NextToward(PyObject *self, PyObject *args)
     }
 
     mpfr_clear_flags();
-    SET_MPFR_MPFR_WAS_NAN(context, tempx, tempy);
 
     mpfr_set(result->f, tempx->f, GET_MPFR_ROUND(context));
     mpfr_nexttoward(result->f, tempy->f);
@@ -1714,7 +1689,6 @@ GMPy_Context_NextAbove(PyObject *self, PyObject *other)
     }
 
     mpfr_clear_flags();
-    SET_MPFR_WAS_NAN(context, tempx);
 
     mpfr_set(result->f, tempx->f, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
@@ -1760,7 +1734,6 @@ GMPy_Context_NextBelow(PyObject *self, PyObject *other)
     }
 
     mpfr_clear_flags();
-    SET_MPFR_WAS_NAN(context, tempx);
 
     mpfr_set(result->f, tempx->f, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
@@ -1813,7 +1786,6 @@ GMPy_Context_Factorial(PyObject *self, PyObject *other)
     }
 
     mpfr_clear_flags();
-    CLEAR_WAS_NAN(context);
 
     mpfr_fac_ui(result->f, n, GET_MPFR_ROUND(context));
 
@@ -1896,7 +1868,6 @@ GMPy_Context_Fsum(PyObject *self, PyObject *other)
     }
 
     mpfr_clear_flags();
-    CLEAR_WAS_NAN(context);
 
     /* The cast is safe since we have compared seq_length to LONG_MAX. */
     result->rc = mpfr_sum(result->f, tab, (unsigned long)seq_length, GET_MPFR_ROUND(context));

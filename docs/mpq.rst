@@ -27,7 +27,7 @@ mpq Attributes
 --------------
 
 **denominator**
-    x.denomintor returns the denominator of *x*.
+    x.denominator returns the denominator of *x*.
 
 **numerator**
     x.numerator returns the numerator of *x*.
@@ -47,7 +47,7 @@ mpq Functions
     f2q(x[, err]) returns the best *mpq* approximating *x* to within
     relative error *err*. Default is the precision of *x*. If *x* is not an
     *mpfr*, it is converted to an *mpfr*. Uses Stern-Brocot tree to find the
-    best approximation. An *mpz* is returned if the the denominator is 1. If
+    best approximation. An *mpz* is returned if the denominator is 1. If
     *err* < 0, then the relative error sought is 2.0 ** *err*.
 
 **mpq(...)**
