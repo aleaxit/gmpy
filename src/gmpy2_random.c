@@ -214,6 +214,84 @@ GMPy_MPFR_random_Function(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
+#if MPFR_VERSION_MAJOR == 4
+PyDoc_STRVAR(GMPy_doc_mpfr_nrandom_function,
+"mpfr_nrandom(random_state) -> (mpfr)\n\n"
+"Return a random number with gaussian distribution.");
+
+static PyObject *
+GMPy_MPFR_nrandom_Function(PyObject *self, PyObject *args)
+{
+    MPFR_Object *result;
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
+
+    if (PyTuple_GET_SIZE(args) != 1) {
+        TYPE_ERROR("mpfr_nrandom() requires 1 argument");
+        return NULL;
+    }
+
+    if (!RandomState_Check(PyTuple_GET_ITEM(args, 0))) {
+        TYPE_ERROR("mpfr_nrandom() requires 'random_state' argument");
+        return NULL;
+    }
+
+    if (result = GMPy_MPFR_New(0, context)) {
+        mpfr_grandom(result->f,
+                    RANDOM_STATE(PyTuple_GET_ITEM(args, 0)),
+                    GET_MPFR_ROUND(context));
+    }
+    return result;
+}
+
+PyDoc_STRVAR(GMPy_doc_mpfr_grandom_function,
+"mpfr_grandom(random_state) -> (mpfr, mpfr)\n\n"
+"Return two random numbers with gaussian distribution.");
+
+static PyObject *
+GMPy_MPFR_grandom_Function(PyObject *self, PyObject *args)
+{
+    MPFR_Object *result1, *result2;
+    PyObject *result;
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
+
+    if (PyTuple_GET_SIZE(args) != 1) {
+        TYPE_ERROR("mpfr_grandom() requires 1 argument");
+        return NULL;
+    }
+
+    if (!RandomState_Check(PyTuple_GET_ITEM(args, 0))) {
+        TYPE_ERROR("mpfr_grandom() requires 'random_state' argument");
+        return NULL;
+    }
+
+    result1 = GMPy_MPFR_New(0, context);
+    result2 = GMPy_MPFR_New(0, context);
+    if (!result1 || !result2) {
+        Py_XDECREF((PyObject*)result1);
+        Py_XDECREF((PyObject*)result2);
+        return NULL;
+    }
+
+    mpfr_nrandom(result1->f,
+                 RANDOM_STATE(PyTuple_GET_ITEM(args, 0)),
+                 GET_MPFR_ROUND(context));
+
+    mpfr_nrandom(result2->f,
+                 RANDOM_STATE(PyTuple_GET_ITEM(args, 0)),
+                 GET_MPFR_ROUND(context));
+
+    result = Py_BuildValue("(NN)", (PyObject*)result1, (PyObject*)result2);
+    if (!result) {
+        Py_DECREF((PyObject*)result1);
+        Py_DECREF((PyObject*)result2);
+    }
+    return result;
+}
+#else
 PyDoc_STRVAR(GMPy_doc_mpfr_grandom_function,
 "mpfr_grandom(random_state) -> (mpfr, mpfr)\n\n"
 "Return two random numbers with gaussian distribution.");
@@ -256,6 +334,8 @@ GMPy_MPFR_grandom_Function(PyObject *self, PyObject *args)
     }
     return result;
 }
+#endif
+
 
 PyDoc_STRVAR(GMPy_doc_mpc_random_function,
 "mpc_random(random_state) -> mpc\n\n"
