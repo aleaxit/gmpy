@@ -1139,13 +1139,209 @@ GMPY_MPFR_MPC_UNIOP_TEMPLATE_EX(Sqrt, sqrt)
 
 PyDoc_STRVAR(GMPy_doc_function_root,
 "root(x, n) -> mpfr\n\n"
-"Return n-th root of x. The result always an 'mpfr'.");
+"Return n-th root of x. The result always an 'mpfr'.\n"
+"Note: not IEEE 754-2008 compliant; result differs when\n"
+"x = -0 and n is even. See rootn().");
 
 PyDoc_STRVAR(GMPy_doc_context_root,
 "context.root(x, n) -> mpfr\n\n"
-"Return n-th root of x. The result always an 'mpfr'.");
+"Return n-th root of x. The result always an 'mpfr'.\n"
+"Note: not IEEE 754-2008 compliant; result differs when\n"
+"x = -0 and n is even. See rootn().");
 
-GMPY_MPFR_BINOP_REAL_ULONG(Root, root)
+PyDoc_STRVAR(GMPy_doc_function_rootn,
+"rootn(x, n) -> mpfr\n\n"
+"Return n-th root of x. The result always an 'mpfr'.\n"
+"Note: this is IEEE 754-2008 compliant version of root().");
+
+PyDoc_STRVAR(GMPy_doc_context_rootn,
+"context.rootn(x, n) -> mpfr\n\n"
+"Return n-th root of x. The result always an 'mpfr'.\n"
+"Note: this is IEEE 754-2008 compliant version of root().");
+
+#if MPFR_VERSION_MAJOR > 3
+
+/* Since mpfr_root is deprecated in MPFR 4, we use mpfr_rootn_ui to
+ * mimic the behavior of mpfr_root. And the converse will be true when
+ * using MPFR 3.
+ */
+
+static PyObject *
+GMPy_Real_Rootn(PyObject *x, PyObject *y, CTXT_Object *context)
+{
+    MPFR_Object *result = NULL, *tempx = NULL;
+    unsigned long n;
+
+    CHECK_CONTEXT(context);
+
+    result = GMPy_MPFR_New(0, context);
+    tempx = GMPy_MPFR_From_Real(x, 1, context);
+    n = c_ulong_From_Integer(y);
+
+    if (!result || !tempx || (n == (unsigned long)(-1) && PyErr_Occurred())) {
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)result);
+        return NULL;
+    }
+
+    mpfr_clear_flags();
+    result->rc = mpfr_rootn_ui(result->f, tempx->f, n, GET_MPFR_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
+    _GMPy_MPFR_Cleanup(&result, context);
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPy_Real_Root(PyObject *x, PyObject *y, CTXT_Object *context)
+{
+    MPFR_Object *result = NULL, *tempx = NULL;
+    unsigned long n;
+
+    CHECK_CONTEXT(context);
+
+    result = GMPy_MPFR_New(0, context);
+    tempx = GMPy_MPFR_From_Real(x, 1, context);
+    n = c_ulong_From_Integer(y);
+
+    if (!result || !tempx || (n == (unsigned long)(-1) && PyErr_Occurred())) {
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)result);
+        return NULL;
+    }
+
+    mpfr_clear_flags();
+
+    /* Mimic the non-compliant IEEE 752-2008 behavior. */
+
+    if ((mpfr_zero_p(tempx->f) && (mpfr_sgn(tempx->f) < 0))) {
+        mpfr_set_zero(result->f, -1);
+    }
+
+    result->rc = mpfr_rootn_ui(result->f, tempx->f, n, GET_MPFR_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
+    _GMPy_MPFR_Cleanup(&result, context);
+    return (PyObject*)result;
+}
+#else
+static PyObject *
+GMPy_Real_Rootn(PyObject *x, PyObject *y, CTXT_Object *context)
+{
+    MPFR_Object *result = NULL, *tempx = NULL;
+    unsigned long n;
+
+    CHECK_CONTEXT(context);
+
+    result = GMPy_MPFR_New(0, context);
+    tempx = GMPy_MPFR_From_Real(x, 1, context);
+    n = c_ulong_From_Integer(y);
+
+    if (!result || !tempx || (n == (unsigned long)(-1) && PyErr_Occurred())) {
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)result);
+        return NULL;
+    }
+
+    mpfr_clear_flags();
+
+    /* Mimic the compliant IEEE 752-2008 behavior. */
+
+    if ((mpfr_zero_p(tempx->f) && (mpfr_sgn(tempx->f) < 0))) {
+        if ((n & 1)) {
+            /* Odd, so result is -0. */
+            mpfr_set_zero(result->f, -1);
+        }
+        else {
+            /* Even, so result is 0. */
+            mpfr_set_zero(result->f, 1);
+        }
+    }
+
+    result->rc = mpfr_root(result->f, tempx->f, n, GET_MPFR_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
+    _GMPy_MPFR_Cleanup(&result, context);
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPy_Real_Root(PyObject *x, PyObject *y, CTXT_Object *context)
+{
+    MPFR_Object *result = NULL, *tempx = NULL;
+    unsigned long n;
+
+    CHECK_CONTEXT(context);
+
+    result = GMPy_MPFR_New(0, context);
+    tempx = GMPy_MPFR_From_Real(x, 1, context);
+    n = c_ulong_From_Integer(y);
+
+    if (!result || !tempx || (n == (unsigned long)(-1) && PyErr_Occurred())) {
+        Py_XDECREF((PyObject*)tempx);
+        Py_XDECREF((PyObject*)result);
+        return NULL;
+    }
+
+    mpfr_clear_flags();
+    result->rc = mpfr_root(result->f, tempx->f, n, GET_MPFR_ROUND(context));
+    Py_DECREF((PyObject*)tempx);
+    _GMPy_MPFR_Cleanup(&result, context);
+    return (PyObject*)result;
+}
+#endif
+
+static PyObject *
+GMPy_Number_Rootn(PyObject *x, PyObject *y, CTXT_Object *context)
+{
+    if (IS_REAL(x) && PyIntOrLong_Check(y))
+        return GMPy_Real_Rootn(x, y, context);
+    TYPE_ERROR("rootn() argument type not supported");
+    return NULL;
+}
+
+static PyObject *
+GMPy_Context_Rootn(PyObject *self, PyObject *args)
+{
+    CTXT_Object *context = NULL;
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("rootn() requires 2 arguments");
+        return NULL;
+    }
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
+    }
+    else {
+        CHECK_CONTEXT(context);
+    }
+    return GMPy_Number_Rootn(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context);
+}
+
+static PyObject *
+GMPy_Number_Root(PyObject *x, PyObject *y, CTXT_Object *context)
+{
+    if (IS_REAL(x) && PyIntOrLong_Check(y))
+        return GMPy_Real_Root(x, y, context);
+    TYPE_ERROR("root() argument type not supported");
+    return NULL;
+}
+
+static PyObject *
+GMPy_Context_Root(PyObject *self, PyObject *args)
+{
+    CTXT_Object *context = NULL;
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("root() requires 2 arguments");
+        return NULL;
+    }
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
+    }
+    else {
+        CHECK_CONTEXT(context);
+    }
+    return GMPy_Number_Root(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context);
+}
+
+
+
 
 PyDoc_STRVAR(GMPy_doc_function_jn,
 "jn(x,n) -> mpfr\n\n"

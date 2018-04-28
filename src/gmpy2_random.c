@@ -214,7 +214,8 @@ GMPy_MPFR_random_Function(PyObject *self, PyObject *args)
     return (PyObject*)result;
 }
 
-#if MPFR_VERSION_MAJOR == 4
+#if MPFR_VERSION_MAJOR > 3
+
 PyDoc_STRVAR(GMPy_doc_mpfr_nrandom_function,
 "mpfr_nrandom(random_state) -> (mpfr)\n\n"
 "Return a random number with gaussian distribution.");
@@ -237,12 +238,12 @@ GMPy_MPFR_nrandom_Function(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (result = GMPy_MPFR_New(0, context)) {
-        mpfr_grandom(result->f,
+    if ((result = GMPy_MPFR_New(0, context))) {
+        mpfr_nrandom(result->f,
                     RANDOM_STATE(PyTuple_GET_ITEM(args, 0)),
                     GET_MPFR_ROUND(context));
     }
-    return result;
+    return (PyObject*)result;
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_grandom_function,
