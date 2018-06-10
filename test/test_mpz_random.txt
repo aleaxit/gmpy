@@ -1,0 +1,31 @@
+Test gmpy2 Random Integers
+==========================
+
+>>> import gmpy2 as gmpy2
+>>> from gmpy2 import mpz, mpq, mpfr, mpc
+>>> from gmpy2 import random_state
+
+>>> r1=random_state(42)
+>>> r2=random_state(42)
+>>> gmpy2.mpz_random(r1, 2**88)
+mpz(171378365038768291737094841)
+>>> gmpy2.mpz_random(r2, 2**88)
+mpz(171378365038768291737094841)
+>>> gmpy2.mpz_random(r1, 2**88)
+mpz(62749575961297098445301393)
+>>> gmpy2.mpz_random(r2, 2**88)
+mpz(62749575961297098445301393)
+
+>>> gmpy2.mpz_urandomb(random_state(42),64).digits(2)
+'1100100011011011101100101001100100111110010111011100101010111001'
+>>> gmpy2.mpz_rrandomb(random_state(42),64).digits(2)
+'1111111111111111111111111100000000111111111111111111000000000000'
+
+>>> gmpy2.mpfr_grandom(random_state(42))
+(mpfr('-0.32898912492644183'), mpfr('0.03656576719642516'))
+>>> gmpy2.mpfr_nrandom(random_state(42))
+mpfr('-0.32898912492644183')
+
+>>> gmpy2.mpc_random(random_state(42))
+mpc('0.86555158787663011+0.4422082613292212j')
+

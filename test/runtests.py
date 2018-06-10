@@ -69,9 +69,17 @@ mpfr_doctests = ["test_mpfr_create.txt", "test_mpfr.txt",
                  "test_mpfr_trig.txt", "test_mpfr_min_max.txt",
                  "test_context.txt", "test_mpfr_subnormalize.txt"]
 
+# Some tests may differ between MPFR3 and MPFR4.
+mpfr_major_version = gmpy2.mpfr_version().split()[1].split('.')[0]
+mpfr_version_tests = [os.path.basename(i)
+                      for i in glob.glob(os.path.join(os.path.dirname(__file__),
+                                         "test_mpfr" + mpfr_major_version + "*.txt"))]
+
 mpc_doctests = ["test_mpc_create.txt", "test_mpc.txt"]
 
-gmpy2_tests = [os.path.basename(i) for i in glob.glob(os.path.join(os.path.dirname(__file__), "test_gmpy2*.txt"))]
+gmpy2_tests = [os.path.basename(i)
+               for i in glob.glob(os.path.join(os.path.dirname(__file__),
+                                  "test_gmpy2*.txt"))]
 
 # The following tests will only pass on Python 3.2+.
 py32_doctests = ["test_py32_hash.txt"]
@@ -81,10 +89,8 @@ attempted = 0
 
 all_doctests = gmpy2_tests + mpz_doctests + mpq_doctests
 
-# MPFR support is required.
-all_doctests += mpfr_doctests
+all_doctests += mpfr_doctests + mpfr_version_tests
 
-# MPC support is required.
 all_doctests += mpc_doctests
 
 if sys.version >= "3.2":
