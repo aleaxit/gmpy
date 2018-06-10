@@ -1247,7 +1247,7 @@ GMPy_Real_Rootn(PyObject *x, PyObject *y, CTXT_Object *context)
 
     /* Mimic the compliant IEEE 752-2008 behavior. */
 
-    if ((mpfr_zero_p(tempx->f) && (mpfr_sgn(tempx->f) < 0))) {
+    if (mpfr_zero_p(tempx->f) && mpfr_signbit(tempx->f)) {
         if ((n & 1)) {
             /* Odd, so result is -0. */
             mpfr_set_zero(result->f, -1);
@@ -1257,8 +1257,9 @@ GMPy_Real_Rootn(PyObject *x, PyObject *y, CTXT_Object *context)
             mpfr_set_zero(result->f, 1);
         }
     }
-
-    result->rc = mpfr_root(result->f, tempx->f, n, GET_MPFR_ROUND(context));
+    else {
+        result->rc = mpfr_root(result->f, tempx->f, n, GET_MPFR_ROUND(context));
+    }
     Py_DECREF((PyObject*)tempx);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
