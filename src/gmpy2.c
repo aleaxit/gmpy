@@ -367,6 +367,13 @@
  *   Cleanup of Cython interface.
  *
  *   2.1.0a3
+ *   Updates to setup.py.
+ *   Initial support for MPFR4
+ *     - Add nrandom()
+ *     - grandom() now calls nrandom twice; may return different values versus
+ *       MPFR3
+ *     - Add rootn(); same as root() except different sign when taking even root
+ *       of -0.0
  *
  ************************************************************************
  *

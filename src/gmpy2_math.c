@@ -1213,11 +1213,13 @@ GMPy_Real_Root(PyObject *x, PyObject *y, CTXT_Object *context)
 
     /* Mimic the non-compliant IEEE 752-2008 behavior. */
 
-    if ((mpfr_zero_p(tempx->f) && (mpfr_sgn(tempx->f) < 0))) {
-        mpfr_set_zero(result->f, -1);
+    if (mpfr_zero_p(tempx->f)) {
+        mpfr_set(result->f, tempx->f, GET_MPFR_ROUND(context));
+    }
+    else {
+        result->rc = mpfr_rootn_ui(result->f, tempx->f, n, GET_MPFR_ROUND(context));
     }
 
-    result->rc = mpfr_rootn_ui(result->f, tempx->f, n, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;

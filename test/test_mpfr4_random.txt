@@ -1,0 +1,19 @@
+Test gmpy2 Random mpfr and mpc based on MPFR4
+=============================================
+
+>>> import gmpy2 as gmpy2
+>>> from gmpy2 import mpz, mpq, mpfr, mpc
+>>> from gmpy2 import random_state
+
+>>> gmpy2.mpfr_random(random_state(42))
+mpfr('0.93002690534702315')
+
+
+>>> gmpy2.mpfr_grandom(random_state(42))
+(mpfr('-0.32898912492644183'), mpfr('0.03656576719642516'))
+>>> gmpy2.mpfr_nrandom(random_state(42))
+mpfr('-0.32898912492644183')
+
+>>> gmpy2.mpc_random(random_state(42))
+mpc('0.86555158787663011+0.4422082613292212j')
+
