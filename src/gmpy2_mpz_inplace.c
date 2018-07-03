@@ -50,6 +50,8 @@ GMPy_MPZ_IAdd_Slot(PyObject *self, PyObject *other)
                 mpz_sub_ui(result->z, MPZ(self), ((PyLongObject*)other)->ob_digit[0]);
                 return (PyObject*)result;
             case 0:
+                mpz_set(result->z, MPZ(self));
+                return (PyObject*)result;
             case 1:
                 mpz_add_ui(result->z, MPZ(self), ((PyLongObject*)other)->ob_digit[0]);
                 return (PyObject*)result;
