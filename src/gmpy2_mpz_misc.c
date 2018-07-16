@@ -789,7 +789,13 @@ GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args)
     }
 
     n = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 0));
-    if (!(n == (unsigned long)(-1) && PyErr_Occurred())) {
+    if (n == (unsigned long)(-1) && PyErr_Occurred()) {
+        /* Since we plan to skip the else clause and continue,
+         * we need to clear the error since we aren't acting on it.
+         */
+        PyErr_Clear();
+    }
+    else {
         /* Use mpz_bin_uiui which should be faster. */
         mpz_bin_uiui(result->z, n, k);
         return (PyObject*)result;
