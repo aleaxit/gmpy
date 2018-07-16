@@ -42,6 +42,10 @@ minor updates. Version 2.1 is currently under active development and includes
 several new capabilities. Most gmpy2 2.0 code should run unchanged with
 gmpy2 2.1.
 
+The most significant change in gmpy2 2.1 is support for thread-safe contexts.
+This change required extensive refactoring of almost all internal functions.
+
+
 Changes in gmpy2 2.1.0a1
 ------------------------
 
@@ -73,11 +77,19 @@ Changes in gmpy2 2.1.0a2
 * Removal of unused code/macros.
 * Cleanup of Cython interface.
 
+Changes in gmpy2 2.1.0a3
+------------------------
+
+* More updates to build system.
+* Work-around differences in MPFR 3 and 4 functions root/rootn and grandom.
+
 Installation
 ============
 
 Installing gmpy2 on Windows
 ---------------------------
+
+
 
 Pre-compiled versions of gmpy2 are available at `https://pypi.python.org/pypi/gmpy2`.
 Please select the installer that corresponds to the version of Python installed
@@ -101,8 +113,8 @@ Short Instructions
 ^^^^^^^^^^^^^^^^^^
 
 gmpy2 requires the development files for GMP, MPFR, and MPC. The actual package
-that provides these files varies between Linux distributions. Install "libmpc-dev"
-(or its equivalent) is usually sufficient.
+that provides these files varies between Linux distributions. Installing
+"libmpc-dev" (or its equivalent) is usually sufficient.
 
 If your system has the development libraries installed, compiling should be as
 simple as:
@@ -127,20 +139,7 @@ for the next alpha release.
 If your Linux distribution does not support recent versions of GMP, MPFR and
 MPC, you will need to compile your own versions. To avoid any possible conflict
 with existing libraries on your system, it is recommended to use a directory
-not normally used by your distribution. setup.py will automatically search the
-following directories for the required libraries:
-
-    #. /opt/local
-    #. /opt
-    #. /usr/local
-    #. /usr
-    #. /sw
-
-If you can't use one of these directories, you can use a directory located in
-your home directory. The examples will use /home/case/local. If you use one of
-standard directories (say /opt/local), then you won't need to specify
---prefix=/home/case/local to setup.py but you will need to specify the prefix
-when compiling GMP, MPFR, and MPC.
+not normally used by your distribution.
 
 Create the desired destination directory for GMP, MPFR, and MPC.
 ::
