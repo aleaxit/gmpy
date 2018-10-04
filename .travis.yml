@@ -61,13 +61,15 @@ install:
       echo ""
       echo "Installing latex"
       port install texlive texlive-latex-extra
-      python setup.py install build_ext -I$CONDA_PREFIX/include -L$CONDA_PREFIX/lib ;
+      python setup.py sdist
+      pip install --global-option=build_ext --global-option="-L$CONDA_PREFIX/lib" --global-option="-I$CONDA_PREFIX/include" dist/gmpy2-*.tar.gz
     else # Linux
       export PATH="/usr/lib/ccache:$PATH"
       ccache -M 256M && ccache -s
       sudo apt-get install libgmp-dev libmpfr-dev libmpfi-dev libmpc-dev texlive texlive-latex-extra latexmk
       pip install Cython --verbose --disable-pip-version-check
-      pip install --verbose .
+      python setup.py sdist
+      pip install dist/gmpy2-*.tar.gz
     fi
     pip install sphinx
 
