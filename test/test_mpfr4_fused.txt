@@ -1,0 +1,32 @@
+Test MPFR4 specific fused multiply/add functions
+================================================
+
+>>> import gmpy2
+>>> from gmpy2 import ieee, mpz, mpq, mpfr, mpc, fmma, fmms
+
+>>> fmma(2,3,4,5)
+mpz(26)
+>>> fmma(2,3,-4,5)
+mpz(-14)
+>>> fmma(2.0,3,-4, mpq(5))
+mpfr('-14.0')
+>>> fmma(2,3.0,-4,5)
+mpfr('-14.0')
+>>> fmma(2,3,-4.0,5)
+mpfr('-14.0')
+>>> fmma(2,mpfr(3),-4.0,5)
+mpfr('-14.0')
+>>> fmma(mpc(2),mpfr(3),-4.0,5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: fmma() argument type not supported
+>>> fmms(2,3,4,5)
+mpz(-14)
+>>> fmms(2,3,-4,5)
+mpz(26)
+
+>>> ieee(128).fmma(7,1/7,-1,3/11)
+mpfr('0.727272727272727237401994671017746441',113)
+>>> ieee(128).fmma(7,mpq(1,7),-1,mpq(3,11))
+mpq(8,11)
+

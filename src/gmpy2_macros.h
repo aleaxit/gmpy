@@ -279,8 +279,48 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
     else { \
         CHECK_CONTEXT(context); \
     } \
-    return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), \
+    return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), \
+                              PyTuple_GET_ITEM(args, 1), \
                               PyTuple_GET_ITEM(args, 2), context); \
+}
+
+#define GMPY_MPFR_QUADOP_TEMPLATE(NAME, FUNC) \
+static PyObject * \
+GMPy_Number_##NAME(PyObject *x, PyObject *y, PyObject *z, PyObject *t, CTXT_Object *context) \
+{ \
+    if (MPZ_Check(x) && MPZ_Check(y) && MPZ_Check(z) && MPZ_Check(t)) \
+        return _GMPy_MPZ_##NAME(x, y, z, t, context); \
+    if (MPQ_Check(x) && MPQ_Check(y) && MPQ_Check(z) && MPQ_Check(t)) \
+        return _GMPy_MPQ_##NAME(x, y, z, t, context); \
+    if (MPFR_Check(x) && MPFR_Check(y) && MPFR_Check(z) && MPFR_Check(t)) \
+        return _GMPy_MPFR_##NAME(x, y, z, t, context); \
+    if (IS_INTEGER(x) && IS_INTEGER(y) && IS_INTEGER(z) && IS_INTEGER(t)) \
+        return GMPy_Integer_##NAME(x, y, z, t, context); \
+    if (IS_RATIONAL(x) && IS_RATIONAL(y) && IS_RATIONAL(z) && IS_RATIONAL(t)) \
+        return GMPy_Rational_##NAME(x, y, z, t, context); \
+    if (IS_REAL(x) && IS_REAL(y) && IS_REAL(z) && IS_REAL(t)) \
+        return GMPy_Real_##NAME(x, y, z, t, context); \
+    TYPE_ERROR(#FUNC"() argument type not supported"); \
+    return NULL; \
+} \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *args) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (PyTuple_GET_SIZE(args) != 4) { \
+        TYPE_ERROR(#FUNC"() requires 4 arguments"); \
+        return NULL; \
+    } \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), \
+                              PyTuple_GET_ITEM(args, 1), \
+                              PyTuple_GET_ITEM(args, 2), \
+                              PyTuple_GET_ITEM(args, 3), context); \
 }
 
 #define GMPY_MPFR_UNIOP(NAME, FUNC) \

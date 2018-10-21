@@ -737,6 +737,10 @@ static PyMethodDef Pygmpy_methods [] =
     { "floor", GMPy_Context_Floor, METH_O, GMPy_doc_function_floor },
     { "fma", GMPy_Context_FMA, METH_VARARGS, GMPy_doc_function_fma },
     { "fms", GMPy_Context_FMS, METH_VARARGS, GMPy_doc_function_fms },
+#if MPFR_VERSION_MAJOR > 3
+    { "fmma", GMPy_Context_FMMA, METH_VARARGS, GMPy_doc_function_fmma },
+    { "fmms", GMPy_Context_FMMS, METH_VARARGS, GMPy_doc_function_fmms },
+#endif
     { "fmod", GMPy_Context_Fmod, METH_VARARGS, GMPy_doc_function_fmod },
     { "frac", GMPy_Context_Frac, METH_O, GMPy_doc_function_frac },
     { "free_cache", GMPy_MPFR_Free_Cache, METH_NOARGS, GMPy_doc_mpfr_free_cache },

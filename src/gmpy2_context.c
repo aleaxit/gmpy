@@ -1263,12 +1263,16 @@ static PyMethodDef GMPyContext_methods[] =
     { "expm1", GMPy_Context_Expm1, METH_O, GMPy_doc_context_expm1 },
     { "exp10", GMPy_Context_Exp10, METH_O, GMPy_doc_context_exp10 },
     { "exp2", GMPy_Context_Exp2, METH_O, GMPy_doc_context_exp2 },
+    { "factorial", GMPy_Context_Factorial, METH_O, GMPy_doc_context_factorial },
     { "floor", GMPy_Context_Floor, METH_O, GMPy_doc_context_floor },
     { "floor_div", GMPy_Context_FloorDiv, METH_VARARGS, GMPy_doc_context_floordiv },
     { "fma", GMPy_Context_FMA, METH_VARARGS, GMPy_doc_context_fma },
-    { "fmod", GMPy_Context_Fmod, METH_VARARGS, GMPy_doc_context_fmod },
     { "fms", GMPy_Context_FMS, METH_VARARGS, GMPy_doc_context_fms },
-    { "factorial", GMPy_Context_Factorial, METH_O, GMPy_doc_context_factorial },
+#if MPFR_VERSION_MAJOR > 3
+    { "fmma", GMPy_Context_FMMA, METH_VARARGS, GMPy_doc_context_fmma },
+    { "fmms", GMPy_Context_FMMS, METH_VARARGS, GMPy_doc_context_fmms },
+#endif
+    { "fmod", GMPy_Context_Fmod, METH_VARARGS, GMPy_doc_context_fmod },
     { "frac", GMPy_Context_Frac, METH_O, GMPy_doc_context_frac },
     { "frexp", GMPy_Context_Frexp, METH_O, GMPy_doc_context_frexp },
     { "fsum", GMPy_Context_Fsum, METH_O, GMPy_doc_context_fsum },

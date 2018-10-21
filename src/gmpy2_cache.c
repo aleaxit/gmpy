@@ -541,7 +541,6 @@ GMPy_MPFR_New(mpfr_prec_t bits, CTXT_Object *context)
 {
     MPFR_Object *result;
 
-
     if (bits < 2) {
         CHECK_CONTEXT(context);
         bits = GET_MPFR_PREC(context);

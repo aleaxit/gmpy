@@ -3,7 +3,7 @@ Test gmpy2MPY2 Addition
 
 Test all code in the file gmpy2_add.c.
 
->>> import gmpy2 as gmpy2
+>>> import gmpy2
 >>> from gmpy2 import mpz, xmpz, mpq, mpfr, mpc
 >>> from decimal import Decimal as D
 >>> from fractions import Fraction as F
@@ -48,6 +48,8 @@ True
 True
 >>> ctx.add(1, 1)
 mpz(2)
+>>> ctx.add(mpfr(1), mpfr(1))
+mpfr('2.0')
 >>> ctx.add(a, 1)
 mpz(124)
 >>> ctx.add(1, a)

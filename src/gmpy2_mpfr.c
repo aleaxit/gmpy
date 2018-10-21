@@ -115,7 +115,7 @@ PyDoc_STRVAR(GMPy_doc_mpfr,
 "Note: If a precision greater than or equal to 2 is specified, then it\n"
 "      is used.\n\n"
 "      A precision of 0 (the default) implies the precision of either\n"
-"      specified context or the current context is used.\n\n"
+"      the specified context or the current context is used.\n\n"
 "      A precision of 1 minimizes the loss of precision by following\n"
 "      these rules:\n"
 "        1) If n is a radix-2 floating point number, then the full\n"

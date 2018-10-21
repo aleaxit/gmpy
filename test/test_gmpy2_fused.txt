@@ -1,0 +1,45 @@
+Test gmpy2 fused multiply/add functions
+=======================================
+
+>>> import gmpy2
+>>> from gmpy2 import ieee, mpz, mpq, mpfr, mpc, fma, fms
+
+>>> fma(2,3,4)
+mpz(10)
+>>> fma(2,3,-4)
+mpz(2)
+>>> fma(2.0,3,-4)
+mpfr('2.0')
+>>> fma(2,3.0,-4)
+mpfr('2.0')
+>>> fma(2,3,-4.0)
+mpfr('2.0')
+>>> fma(2,mpfr(3),-4.0)
+mpfr('2.0')
+>>> fma(mpc(2),mpfr(3),-4.0)
+mpc('2.0+0.0j')
+>>> fms(2,3,4)
+mpz(2)
+>>> fms(2,3,-4)
+mpz(10)
+
+>>> ieee(128).fma(7,1/7,-1)
+mpfr('-5.55111512312578270211815834045410156e-17',113)
+>>> ieee(128).fma(7,mpq(1,7),-1)
+mpq(0,1)
+
+>>> fma(1,2,"r")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: fma() argument type not supported
+
+>>> fma(1,2,mpq(3,4))
+mpq(11,4)
+>>> fms(1,2,mpq(3,4))
+mpq(5,4)
+
+>>> fms(1,mpfr(2),3)
+mpfr('-1.0')
+
+>>> fms(1,mpc(2),3)
+mpc('-1.0+0.0j')
