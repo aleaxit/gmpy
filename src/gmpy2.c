@@ -375,6 +375,11 @@
  *     - Add rootn(); same as root() except different sign when taking even root
  *       of -0.0
  *
+ *    2.1.0a4
+ *    Fix issue 204; missing file for Cython.
+ *    Additional support for MPFR 4
+ *      - Add fmma() and fmms()
+ *
  ************************************************************************
  *
  * Discussion on sizes of C integer types.
@@ -434,7 +439,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.1.0a3";
+char gmpy_version[] = "2.1.0a4";
 
 char gmpy_license[] = "\
 The GMPY2 source code is licensed under LGPL 3 or later. The supported \
@@ -836,7 +841,7 @@ static PyMethodDef Pygmpy_methods [] =
 };
 
 static char _gmpy_docs[] =
-"gmpy2 2.1.0a3 - General Multiple-precision arithmetic for Python\n"
+"gmpy2 2.1.0a4 - General Multiple-precision arithmetic for Python\n"
 "\n"
 "gmpy2 supports several multiple-precision libraries. Integer and\n"
 "rational arithmetic is provided by either the GMP or MPIR libraries.\n"

@@ -495,6 +495,14 @@ mpfr Functions
 **fma(...)**
     fma(x, y, z) returns correctly rounded result of (x * y) + z.
 
+**fmma(...)**
+    fmma(x, y, z, t) returns correctly rounded result of (x * y) + (z * t).
+    Requires MPFR 4.
+
+**fmms(...)**
+    fmms(x, y, z, t) returns correctly rounded result of (x * y) - (z * t).
+    Requires MPFR 4.
+
 **fmod(...)**
     fmod(x, y) returns x - n*y where n is the integer quotient of x/y, rounded
     to 0.
