@@ -380,6 +380,9 @@
  *    Additional support for MPFR 4
  *      - Add fmma() and fmms()
  *
+ *    2.1.a05
+ *    Fix qdiv() not returning mpz() when it should.
+ *
  ************************************************************************
  *
  * Discussion on sizes of C integer types.
@@ -439,7 +442,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.1.0a4";
+char gmpy_version[] = "2.1.0a5";
 
 char gmpy_license[] = "\
 The GMPY2 source code is licensed under LGPL 3 or later. The supported \
@@ -841,7 +844,7 @@ static PyMethodDef Pygmpy_methods [] =
 };
 
 static char _gmpy_docs[] =
-"gmpy2 2.1.0a4 - General Multiple-precision arithmetic for Python\n"
+"gmpy2 2.1.0a5 - General Multiple-precision arithmetic for Python\n"
 "\n"
 "gmpy2 supports several multiple-precision libraries. Integer and\n"
 "rational arithmetic is provided by either the GMP or MPIR libraries.\n"

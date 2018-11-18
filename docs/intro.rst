@@ -91,6 +91,10 @@ Changes in gmpy2 2.1.0a4
 * Fix issue 204; missing Cython file.
 * Add support for fmma() and fmms() functions from MPFR 4.
 
+Changes in gmpy2 2.1.0a5
+------------------------
+* Fix issue 207; qdiv() not returning mpz when it should.
+
 Installation
 ============
 
