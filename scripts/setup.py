@@ -12,7 +12,7 @@ def writeln(s):
 # Some operating systems may use a different library directory under the
 # prefix specified by --shared. It must be manually changed.
 
-lib_path = 'lib'
+lib_path = '/lib'
 
 # Fail gracefully for old versions of Python.
 
