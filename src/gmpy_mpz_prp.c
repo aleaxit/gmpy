@@ -46,8 +46,8 @@ PyDoc_STRVAR(doc_mpz_is_fermat_prp,
 static PyObject *
 GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *a, *n;
-    PyObject *result = 0;
+    MPZ_Object *a = NULL, *n = NULL;
+    PyObject *result = NULL;
     mpz_t res, nm1;
 
     if (PyTuple_Size(args) != 2) {
@@ -55,15 +55,15 @@ GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args)
         return NULL;
     }
 
+    mpz_init(res);
+    mpz_init(nm1);
+
     n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     a = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
     if (!a || !n) {
         TYPE_ERROR("is_fermat_prp() requires 2 integer arguments");
         goto cleanup;
     }
-
-    mpz_init(res);
-    mpz_init(nm1);
 
     /* Require a >= 2. */
     if (mpz_cmp_ui(a->z, 2) < 0) {
