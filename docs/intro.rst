@@ -85,6 +85,16 @@ Changes in gmpy2 2.1.0a3
 * Fix for Cython interface.
 * Fix mpz += 0 bug.
 
+Changes in gmpy2 2.1.0a4
+------------------------
+
+* Fix issue 204; missing Cython file.
+* Add support for fmma() and fmms() functions from MPFR 4.
+
+Changes in gmpy2 2.1.0a5
+------------------------
+* Fix issue 207; qdiv() not returning mpz when it should.
+
 Installation
 ============
 
@@ -97,7 +107,7 @@ Pre-compiled versions of gmpy2 2.0.8 are available at
 
 A pre-compiled version of gmpy2 2.1.0a1 is available at
 `https://pypi.org/project/gmpy2/2.1.0a1/`. Updated Windows versions should be
-available again beginning with version 2.1.0a4.
+available again beginning with version 2.1.0b1.
 
 Installing gmpy2 on Unix/Linux
 ------------------------------

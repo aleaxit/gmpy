@@ -105,7 +105,6 @@ static PyObject *
 GMPy_MPQ_Function_Qdiv(PyObject *self, PyObject *args)
 {
     Py_ssize_t argc;
-    int isOne = 0;
     PyObject *result = NULL, *x, *y;
     MPQ_Object *tempx = NULL, *tempy = NULL;
     CTXT_Object *context = NULL;
@@ -114,41 +113,19 @@ GMPy_MPQ_Function_Qdiv(PyObject *self, PyObject *args)
 
     /* Validate the argument(s). */
 
+    /* If there is only one argument, it should be either an integer or
+     * rational type. If it is an integer, then immediately return an mpz().
+     * If it is a rational type, convert it to an mpq and check the denominator.
+     */
+
     argc = PyTuple_GET_SIZE(args);
     if (argc == 1) {
         x = PyTuple_GET_ITEM(args, 0);
-        isOne = 1;
+
         if (!IS_RATIONAL(x)) {
             goto arg_error;
         }
-    }
-    else if (argc == 2) {
-        x = PyTuple_GET_ITEM(args, 0);
-        y = PyTuple_GET_ITEM(args, 1);
-        if (!IS_RATIONAL(x) || !IS_RATIONAL(y)) {
-            goto arg_error;
-        }
-    }
-    else {
-        goto arg_error;
-    }
 
-    /* Convert the second argument first and see if it is 1. If the second
-     * argument is 1 (or didn't exist), then isOne is true and tempy does not
-     * contain a valid reference.
-     */
-
-    if (argc == 2) {
-        if (!(tempy = GMPy_MPQ_From_Rational(y, context))) {
-            return NULL;
-        }
-        if (mpq_cmp_ui(tempy->q, 1, 1) == 0) {
-            isOne = 1;
-            Py_DECREF((PyObject*)tempy);
-        }
-    }
-
-    if (isOne) {
         if (IS_INTEGER(x)) {
             return (PyObject*)GMPy_MPZ_From_Integer(x, context);
         }
@@ -169,38 +146,48 @@ GMPy_MPQ_Function_Qdiv(PyObject *self, PyObject *args)
         }
     }
 
-    if (mpq_sgn(tempy->q) == 0) {
-        Py_DECREF((PyObject*)tempy);
-        ZERO_ERROR("qdiv() division by zero");
-        return NULL;
-    }
+    /* If there are two rational arguments, just convert them both to mpq,
+     * divide, and then check the denominator.
+     */
 
-    if (!(tempx = GMPy_MPQ_From_Rational(x, context))) {
-        Py_DECREF((PyObject*)tempy);
-        return NULL;
-    }
+    if (argc == 2) {
+        x = PyTuple_GET_ITEM(args, 0);
+        y = PyTuple_GET_ITEM(args, 1);
 
-	if ((result = (PyObject*)GMPy_MPQ_New(context))) {
-		mpq_div(MPQ(result), tempx->q, tempy->q);
-		Py_DECREF(tempx);
-		Py_DECREF(tempy);
-		return result;
-	}
-	else {
-		Py_DECREF(tempx);
-		Py_DECREF(tempy);
-		return NULL;
-	};
-
-    if (mpz_cmp_ui(mpq_denref(tempx->q), 1) == 0) {
-        if ((result = (PyObject*)GMPy_MPZ_New(context))) {
-            mpz_set(MPZ(result), mpq_numref(tempx->q));
+        if (!IS_RATIONAL(x) || !IS_RATIONAL(y)) {
+            goto arg_error;
         }
-        Py_DECREF((PyObject*)tempx);
-        return result;
-    }
 
-    return (PyObject*)tempx;
+        if (!(tempx = GMPy_MPQ_From_Rational(x, context)) ||
+            !(tempy = GMPy_MPQ_From_Rational(y, context))) {
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            return NULL;
+        }
+
+        if (mpq_sgn(tempy->q) == 0) {
+            Py_DECREF((PyObject*)tempx);
+            Py_DECREF((PyObject*)tempy);
+            ZERO_ERROR("qdiv() division by zero");
+            return NULL;
+        }
+
+        /* tempx contains the result of the division. */
+
+        mpq_div(tempx->q, tempx->q, tempy->q);
+        if (mpz_cmp_ui(mpq_denref(tempx->q), 1) == 0) {
+            if ((result = (PyObject*)GMPy_MPZ_New(context))) {
+                mpz_set(MPZ(result), mpq_numref(tempx->q));
+            }
+            Py_DECREF((PyObject*)tempx);
+            Py_DECREF((PyObject*)tempy);
+            return result;
+        }
+        else {
+            Py_DECREF((PyObject*)tempy);
+            return (PyObject*)tempx;
+        };
+    }
 
   arg_error:
     TYPE_ERROR("qdiv() requires 1 or 2 integer or rational arguments");
