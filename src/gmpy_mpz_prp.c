@@ -137,8 +137,8 @@ PyDoc_STRVAR(doc_mpz_is_euler_prp,
 static PyObject *
 GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *a, *n;
-    PyObject *result = 0;
+    MPZ_Object *a = NULL, *n = NULL;
+    PyObject *result = NULL;
     mpz_t res, exp;
     int ret;
 
@@ -147,15 +147,15 @@ GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
         return NULL;
     }
 
+    mpz_init(res);
+    mpz_init(exp);
+
     n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     a = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
     if (!a || !n) {
         TYPE_ERROR("is_euler_prp() requires 2 integer arguments");
         goto cleanup;
     }
-
-    mpz_init(res);
-    mpz_init(exp);
 
     /* Require a >= 2. */
     if (mpz_cmp_ui(a->z, 2) < 0) {
@@ -241,8 +241,8 @@ PyDoc_STRVAR(doc_mpz_is_strong_prp,
 static PyObject *
 GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *a, *n;
-    PyObject *result = 0;
+    MPZ_Object *a = NULL, *n = NULL;
+    PyObject *result = NULL;
     mpz_t s, nm1, mpz_test;
     mp_bitcnt_t r = 0;
 
@@ -251,16 +251,16 @@ GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args)
         return NULL;
     }
 
+    mpz_init(s);
+    mpz_init(nm1);
+    mpz_init(mpz_test);
+
     n = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 0), NULL);
     a = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL);
     if (!a || !n) {
         TYPE_ERROR("is_strong_prp() requires 2 integer arguments");
         goto cleanup;
     }
-
-    mpz_init(s);
-    mpz_init(nm1);
-    mpz_init(mpz_test);
 
     /* Require a >= 2. */
     if (mpz_cmp_ui(a->z, 2) < 0) {
@@ -353,8 +353,8 @@ PyDoc_STRVAR(doc_mpz_is_fibonacci_prp,
 static PyObject *
 GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *n, *p, *q;
-    PyObject *result = 0;
+    MPZ_Object *n = NULL, *p = NULL, *q = NULL;
+    PyObject *result = NULL;
     mpz_t pmodn, zP;
     /* used for calculating the Lucas V sequence */
     mpz_t vl, vh, ql, qh, tmp;
@@ -536,8 +536,8 @@ PyDoc_STRVAR(doc_mpz_is_lucas_prp,
 static PyObject *
 GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *n, *p, *q;
-    PyObject *result = 0;
+    MPZ_Object *n = NULL, *p = NULL, *q = NULL;
+    PyObject *result = NULL;
     mpz_t zD, res, index;
     /* used for calculating the Lucas U sequence */
     mpz_t uh, vl, vh, ql, qh, tmp;
@@ -750,8 +750,8 @@ PyDoc_STRVAR(doc_mpz_is_stronglucas_prp,
 static PyObject *
 GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *n, *p, *q;
-    PyObject *result = 0;
+    MPZ_Object *n = NULL, *p= NULL, *q = NULL;
+    PyObject *result = NULL;
     mpz_t zD, s, nmj, res;
     /* these are needed for the LucasU and LucasV part of this function */
     mpz_t uh, vl, vh, ql, qh, tmp;
@@ -975,8 +975,8 @@ PyDoc_STRVAR(doc_mpz_is_extrastronglucas_prp,
 static PyObject *
 GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *n, *p;
-    PyObject *result = 0;
+    MPZ_Object *n = NULL, *p = NULL;
+    PyObject *result = NULL;
     mpz_t zD, s, nmj, nm2, res;
     /* these are needed for the LucasU and LucasV part of this function */
     mpz_t uh, vl, vh, ql, qh, tmp;
@@ -1196,8 +1196,8 @@ PyDoc_STRVAR(doc_mpz_is_selfridge_prp,
 static PyObject *
 GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *n;
-    PyObject *result = 0, *temp = 0;
+    MPZ_Object *n = NULL;
+    PyObject *result = NULL, *temp = NULL;
     long d = 5, p = 1, q = 0, max_d = 1000000;
     int jacobi = 0;
     mpz_t zD;
@@ -1321,8 +1321,8 @@ PyDoc_STRVAR(doc_mpz_is_strongselfridge_prp,
 static PyObject *
 GMPY_mpz_is_strongselfridge_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *n;
-    PyObject *result = 0, *temp = 0;
+    MPZ_Object *n = NULL;
+    PyObject *result = NULL, *temp = NULL;
     long d = 5, p = 1, q = 0, max_d = 1000000;
     int jacobi = 0;
     mpz_t zD;
@@ -1444,8 +1444,8 @@ PyDoc_STRVAR(doc_mpz_is_bpsw_prp,
 static PyObject *
 GMPY_mpz_is_bpsw_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *n;
-    PyObject *result = 0, *temp = 0;
+    MPZ_Object *n = NULL;
+    PyObject *result = NULL, *temp = NULL;
 
     if (PyTuple_Size(args) != 1) {
         TYPE_ERROR("is_bpsw_prp() requires 1 integer argument");
@@ -1523,8 +1523,8 @@ PyDoc_STRVAR(doc_mpz_is_strongbpsw_prp,
 static PyObject *
 GMPY_mpz_is_strongbpsw_prp(PyObject *self, PyObject *args)
 {
-    MPZ_Object *n;
-    PyObject *result = 0, *temp = 0;
+    MPZ_Object *n = NULL;
+    PyObject *result = NULL, *temp = NULL;
 
     if (PyTuple_Size(args) != 1) {
         TYPE_ERROR("is_strong_bpsw_prp() requires 1 integer argument");
