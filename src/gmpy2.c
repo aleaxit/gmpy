@@ -382,6 +382,7 @@
  *
  *    2.1.a05
  *    Fix qdiv() not returning mpz() when it should.
+ *    Added root_of_unity()
  *
  ************************************************************************
  *
@@ -839,6 +840,9 @@ static PyMethodDef Pygmpy_methods [] =
     { "polar", GMPy_Context_Polar, METH_O, GMPy_doc_function_polar },
     { "phase", GMPy_Context_Phase, METH_O, GMPy_doc_function_phase },
     { "proj", GMPy_Context_Proj, METH_O, GMPy_doc_function_proj },
+#ifdef MPC_110
+    { "root_of_unity", GMPy_Context_Root_Of_Unity, METH_VARARGS, GMPy_doc_function_root_of_unity },
+#endif
     { "rect", GMPy_Context_Rect, METH_VARARGS, GMPy_doc_function_rect },
     { NULL, NULL, 1}
 };

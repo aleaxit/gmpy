@@ -85,6 +85,75 @@ GMPy_Context_Phase(PyObject *self, PyObject *args)
     return GMPy_Number_Phase(PyTuple_GET_ITEM(args, 0), context);
 }
 
+#ifdef MPC_110
+PyDoc_STRVAR(GMPy_doc_context_root_of_unity,
+"context.root_of_unity(n, k) -> mpc\n\n"
+"Return the n-th root of mpc(1) raised to the k-th power..");
+
+PyDoc_STRVAR(GMPy_doc_function_root_of_unity,
+"root_of_unity(n, k) -> mpc\n\n"
+"Return the n-th root of mpc(1) raised to the k-th power..");
+
+static PyObject *
+GMPy_Complex_Root_Of_Unity(PyObject *n, PyObject *k, CTXT_Object *context)
+{
+    MPC_Object *result;
+    unsigned long n_val, k_val;
+
+    CHECK_CONTEXT(context)
+
+    result = GMPy_MPC_New(0, 0, context);
+    if (!result) {
+        return NULL;
+    }
+
+    n_val = c_ulong_From_Integer(n);
+    k_val = c_ulong_From_Integer(k);
+    if ((n_val == (unsigned long)(-1) && PyErr_Occurred()) ||
+        (k_val == (unsigned long)(-1) && PyErr_Occurred())) {
+        Py_DECREF((PyObject*)result);
+        VALUE_ERROR("root_of_unity() requires positive integer arguments.");
+        return NULL;
+    }
+
+    result->rc = mpc_rootofunity(result->c, n_val, k_val, GET_MPC_ROUND(context));
+
+    _GMPy_MPC_Cleanup(&result, context);
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPy_Number_Root_Of_Unity(PyObject *n, PyObject *k, CTXT_Object *context)
+{
+    if (IS_INTEGER(n) && IS_INTEGER(k))
+        return GMPy_Complex_Root_Of_Unity(n, k, context);
+
+    TYPE_ERROR("root_of_unity() requires integer arguments");
+    return NULL;
+}
+
+static PyObject *
+GMPy_Context_Root_Of_Unity(PyObject *self, PyObject *args)
+{
+    CTXT_Object *context = NULL;
+
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("root_of_unity() requires 2 arguments");
+        return NULL;
+    }
+
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
+    }
+    else {
+        CHECK_CONTEXT(context);
+    }
+
+    return GMPy_Number_Root_Of_Unity(PyTuple_GET_ITEM(args, 0),
+                                     PyTuple_GET_ITEM(args, 1), context);
+}
+#endif
+
 PyDoc_STRVAR(GMPy_doc_context_norm,
 "context.norm(x) -> mpfr\n\n"
 "Return the norm of a complex x. The norm(x) is defined as\n"

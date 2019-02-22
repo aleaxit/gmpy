@@ -94,6 +94,7 @@ Changes in gmpy2 2.1.0a4
 Changes in gmpy2 2.1.0a5
 ------------------------
 * Fix issue 207; qdiv() not returning mpz when it should.
+* Add complex root_of_unity() (if MPC 1.1.0 or later is available).
 
 Installation
 ============

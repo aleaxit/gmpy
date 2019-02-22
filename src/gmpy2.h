@@ -84,6 +84,17 @@ extern "C" {
 #include <mpfr.h>
 #include <mpc.h>
 
+/* Check MPFR and MPC versions. */
+
+#if (!defined(MPC_VERSION) || (MPC_VERSION < MPC_VERSION_NUM(1,0,3)))
+#  error "GMPY2 requires MPC 1.0.3 or later."
+#endif
+
+#if (defined(MPC_VERSION) && (MPC_VERSION >= MPC_VERSION_NUM(1,1,0)))
+#  define MPC_110
+#endif
+
+
 #if PY_VERSION_HEX < 0x030200A4
 typedef long Py_hash_t;
 typedef unsigned long Py_uhash_t;

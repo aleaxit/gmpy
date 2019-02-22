@@ -215,6 +215,10 @@ mpc Functions
     rect(x) returns the polar coordinate form of a complex x that is in
     rectangular form.
 
+**root_of_unity(...)**
+    root_of_unity(n, k) returns the n-th root of mpc(1) raised to the k-th
+    power. Requires MPC 1.1.0 or greater.
+
 **sin(...)**
     sin(x) returns the sine of x.
 
