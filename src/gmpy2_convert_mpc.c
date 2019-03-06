@@ -437,6 +437,34 @@ GMPy_MPC_From_Complex(PyObject* obj, mp_prec_t rprec, mp_prec_t iprec,
     if (IS_FRACTION(obj))
         return GMPy_MPC_From_Fraction(obj, rprec, iprec, context);
 
+    if (HAS_MPC_CONVERSION(obj)) {
+        MPC_Object * res = (MPC_Object *) PyObject_CallMethod(obj, "__mpc__", NULL);
+
+        if (res != NULL && MPC_Check(res))
+            return res;
+    }
+
+    if (HAS_MPFR_CONVERSION(obj)) {
+        MPFR_Object * res = (MPFR_Object *) PyObject_CallMethod(obj, "__mpfr__", NULL);
+
+        if (res != NULL && MPFR_Check(res))
+            return GMPy_MPC_From_MPFR(res, rprec, iprec, context);
+    }
+
+    if (HAS_MPQ_CONVERSION(obj)) {
+        MPQ_Object * res = (MPQ_Object *) PyObject_CallMethod(obj, "__mpq__", NULL);
+
+        if (res != NULL && MPQ_Check(res))
+            return GMPy_MPC_From_MPQ(res, rprec, iprec, context);
+    }
+
+    if (HAS_MPZ_CONVERSION(obj)) {
+        MPZ_Object * res = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (res != NULL && MPZ_Check(res))
+            return GMPy_MPC_From_MPZ(res, rprec, iprec, context);
+    }
+
     TYPE_ERROR("object could not be converted to 'mpc'");
     return NULL;
 }
