@@ -4,7 +4,7 @@ Conversion methods and gmpy2's numbers
 Conversion methods
 ------------------
 
-A python object could interact with gmpy2 if it implements one the following methods:
+A python object could interact with gmpy2 if it implements one of the following methods:
 
 - **__mpz__** : return an object of <type 'mpz'>.
 - **__mpq__** : return an object of <type 'mpq'>.
