@@ -23,6 +23,16 @@ Testing of mpfr functionality is split into multiple files.
     >>> a = mpfr("12.34")
     >>> b = mpfr("45.67")
     >>> c = 12345678901234567890
+    >>> class Z:
+    ...     def __mpz__(self): return mpz(2)
+    >>> class Q:
+    ...     def __mpz__(self): return mpz(1)
+    ...     def __mpq__(self): return mpq(1,2)
+    >>> class R:
+    ...     def __mpfr__(self): return mpfr(1.5)
+    >>> z = Z()
+    >>> q = Q()
+    >>> r = R()
 
 Test elementary operations
 ==========================
@@ -142,6 +152,13 @@ Test division
     mpfr('-inf')
     >>> a/b==12.34/45.67
     True
+    >>> mpfr(10) / z
+    mpfr('5.0')
+    >>> mpfr(10) / q
+    mpfr('20.0')
+    >>> mpfr(10) / r
+    mpfr('6.666666666666667')
+
 
 Test modulo
 -----------
@@ -150,6 +167,8 @@ Test modulo
     mpfr('0.33999999999999986')
     >>> 12.34%1
     0.33999999999999986
+    >>> a%z
+    mpfr('0.33999999999999986')
 
 Test divmod
 -----------

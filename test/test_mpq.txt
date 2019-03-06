@@ -18,6 +18,13 @@ Testing of mpq functionality is split into multiple files.
     >>> a = mpq(3,11)
     >>> b = mpq(1,2)
     >>> c = F(5,7)
+    >>> class Z:
+    ...     def __mpz__(self): return mpz(2)
+    >>> class Q:
+    ...     def __mpz__(self): return mpz(1)
+    ...     def __mpq__(self): return mpq(3,2)
+    >>> z = Z()
+    >>> q = Q()
 
 Test elementary operations
 ==========================
@@ -113,6 +120,14 @@ Test division
     mpz(1)
     >>> mpq(355, 113) // mpz(2)
     mpz(1)
+    >>> a / z
+    mpq(3,22)
+    >>> mpq(355, 113) // z
+    mpz(1)
+    >>> mpq(3,11) / q
+    mpq(2,11)
+    >>> mpq(3,11) // q
+    mpz(0)
 
 Test modulo
 -----------
@@ -121,6 +136,10 @@ Test modulo
     mpq(3,11)
     >>> b%a
     mpq(5,22)
+    >>> a%z
+    mpq(3,11)
+    >>> mpq(3,1) % q
+    mpq(0,1)
     >>> divmod(a,b)
     (mpz(0), mpq(3,11))
     >>> divmod(b,a)
