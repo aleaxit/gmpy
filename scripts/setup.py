@@ -3,7 +3,6 @@ import os
 from distutils.core import setup, Extension
 from distutils.command.clean import clean
 from distutils.command.build_ext import build_ext
-from distutils.sysconfig import get_python_inc, get_python_lib
 
 def writeln(s):
     sys.stdout.write('%s\n' % s)
@@ -68,8 +67,9 @@ class gmpy_build_ext(build_ext):
         else:
             mplib = 'mpir'
 
-        use_mpfr = 'mpfr' in self.extensions[0].libraries
-        use_mpc = 'mpc' in self.extensions[0].libraries
+        # these two lines were not used anywhere
+        # use_mpfr = 'mpfr' in self.extensions[0].libraries
+        # use_mpc = 'mpc' in self.extensions[0].libraries
 
         if not search_dirs:
             return
@@ -139,9 +139,9 @@ class gmpy_build_ext(build_ext):
 # Windows build defaults to using MPIR.
 
 if sys.version.find('MSC') == -1:
-    mplib='gmp'
+    mplib = 'gmp'
 else:
-    mplib='mpir'
+    mplib = 'mpir'
 
 # If 'clean' is the only argument to setup.py then we want to skip looking for
 # header files.
