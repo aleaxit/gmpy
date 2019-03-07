@@ -36,22 +36,34 @@ extern "C" {
 /* The following macros classify the numeric types that are supported by
  * gmpy2.
  */
+#define HAS_MPZ_CONVERSION(x) PyObject_HasAttrString(x, "__mpz__")
+#define HAS_MPQ_CONVERSION(x) PyObject_HasAttrString(x, "__mpq__")
+#define HAS_MPFR_CONVERSION(x) PyObject_HasAttrString(x, "__mpfr__")
+#define HAS_MPC_CONVERSION(x) PyObject_HasAttrString(x, "__mpc__")
+
+#define HAS_STRICT_MPZ_CONVERSION(x) HAS_MPZ_CONVERSION(x) && \
+                                     !HAS_MPQ_CONVERSION(x)
+#define HAS_STRICT_MPFR_CONVERSION(x) HAS_MPFR_CONVERSION(x) && \
+                                      !HAS_MPC_CONVERSION(x)
 
 #ifdef PY2
-#define IS_INTEGER(x) (MPZ_Check(x) || PyInt_Check(x) || PyLong_Check(x) || XMPZ_Check(x))
+#define IS_INTEGER(x) (MPZ_Check(x) || PyInt_Check(x) || \
+                        PyLong_Check(x) || XMPZ_Check(x) || \
+                        HAS_STRICT_MPZ_CONVERSION(x))
 #else
-#define IS_INTEGER(x) (MPZ_Check(x) || PyLong_Check(x) || XMPZ_Check(x))
+#define IS_INTEGER(x) (MPZ_Check(x) || PyLong_Check(x) || \
+                        XMPZ_Check(x) || HAS_STRICT_MPZ_CONVERSION(x))
 #endif
 
 #define IS_FRACTION(x) (!strcmp(Py_TYPE(x)->tp_name, "Fraction"))
 
-#define IS_RATIONAL_ONLY(x) (MPQ_Check(x) || IS_FRACTION(x))
+#define IS_RATIONAL_ONLY(x) (MPQ_Check(x) || IS_FRACTION(x) || HAS_MPQ_CONVERSION(x))
 #define IS_RATIONAL(x) (IS_INTEGER(x) || IS_RATIONAL_ONLY(x))
 
-#define IS_REAL_ONLY(x) (MPFR_Check(x) || PyFloat_Check(x))
+#define IS_REAL_ONLY(x) (MPFR_Check(x) || PyFloat_Check(x) || HAS_STRICT_MPFR_CONVERSION(x))
 #define IS_REAL(x) (IS_RATIONAL(x) || IS_REAL_ONLY(x))
 
-#define IS_COMPLEX_ONLY(x) (MPC_Check(x) || PyComplex_Check(x))
+#define IS_COMPLEX_ONLY(x) (MPC_Check(x) || PyComplex_Check(x) || HAS_MPC_CONVERSION(x))
 #define IS_COMPLEX(x) (IS_REAL(x) || IS_COMPLEX_ONLY(x))
 
 /* Since the macros are used in gmpy2's codebase, these functions are skipped

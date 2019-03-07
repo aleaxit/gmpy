@@ -10,10 +10,26 @@ Test all code in the file gmpy2_sub.c.
 >>> a = mpz(123)
 >>> b = mpz(456)
 >>> c = 12345678901234567890
+>>> class Z:
+...     def __mpz__(self): return mpz(2)
+>>> class Q:
+...     def __mpz__(self): return mpz(1)
+...     def __mpq__(self): return mpq(3,2)
+>>> class R:
+...     def __mpfr__(self): return mpfr(1.5)
+>>> class Cx:
+...     def __mpfr__(self): return mpfr(1.5)
+...     def __mpc__(self): return mpc(42,67)
+>>> z = Z()
+>>> q = Q()
+>>> r = R()
+>>> cx = Cx()
 
 Test integer operations
 -----------------------
 
+>>> mpz(2) * z
+mpz(4)
 >>> gmpy2.mul(2,1)
 mpz(2)
 
@@ -56,6 +72,10 @@ mpq(-1,2)
 mpc('1.0+0.0j')
 >>> mpc(1,0) * mpq(1,1)
 mpc('1.0+0.0j')
+>>> mpq(1,2) * z
+mpq(1,1)
+>>> mpq(1,2) * q
+mpq(3,4)
 
 >>> ctx=gmpy2.context()
 >>> ctx.mul(mpq(1,2), mpq(3,2))
@@ -109,6 +129,12 @@ mpfr('10.0')
 True
 >>> c * mpfr(1) == mpfr(c)
 True
+>>> mpfr(10) * z
+mpfr('20.0')
+>>> mpfr(10) * q
+mpfr('15.0')
+>>> mpfr(10) * r
+mpfr('15.0')
 >>> mpfr(10) * 'a'
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -134,3 +160,11 @@ mpc('-1.0-2.0j')
 mpc('1.0+2.0j')
 >>> (1+0j) * mpc(1,2)
 mpc('1.0+2.0j')
+>>> mpc(1,2) * z
+mpc('2.0+4.0j')
+>>> mpc(1,2) * q
+mpc('1.5+3.0j')
+>>> mpc(1,2) * r
+mpc('1.5+3.0j')
+>>> mpc(1,2) * cx
+mpc('-92.0+151.0j')

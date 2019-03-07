@@ -312,6 +312,13 @@ GMPy_MPZ_From_Integer(PyObject *obj, CTXT_Object *context)
     if (XMPZ_Check(obj))
         return GMPy_MPZ_From_XMPZ((XMPZ_Object*)obj, context);
 
+    if (HAS_STRICT_MPZ_CONVERSION(obj)) {
+        result = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (result != NULL && MPZ_Check(result))
+            return result;
+    }
+
     TYPE_ERROR("cannot convert object to mpz");
     return result;
 }
@@ -994,6 +1001,20 @@ GMPy_MPQ_From_Number(PyObject *obj, CTXT_Object *context)
 
     if (IS_FRACTION(obj))
         return GMPy_MPQ_From_Fraction(obj, context);
+
+    if (HAS_MPQ_CONVERSION(obj)) {
+        MPQ_Object * res = (MPQ_Object *) PyObject_CallMethod(obj, "__mpq__", NULL);
+
+        if (res != NULL && MPQ_Check(res))
+            return res;
+    }
+
+    if (HAS_MPZ_CONVERSION(obj)) {
+        MPZ_Object * res = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (res != NULL && MPZ_Check(res))
+            return GMPy_MPQ_From_MPZ(res, context);
+    }
 
     TYPE_ERROR("cannot convert object to mpq");
     return NULL;

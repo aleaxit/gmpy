@@ -19,6 +19,7 @@ Contents:
    mpfr
    mpc
    cython
+   conversion
    history
 
 Indices and tables

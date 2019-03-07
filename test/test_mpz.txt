@@ -22,6 +22,9 @@ Testing of mpz functionality is split into multiple files.
     >>> a = mpz(123)
     >>> b = mpz(456)
     >>> c = 12345678901234567890
+    >>> class Z:
+    ...     def __mpz__(self): return mpz(2)
+    >>> z = Z()
 
 Test elementary operations
 ==========================
@@ -136,6 +139,10 @@ Test division
     100371373180768844
     >>> a**10//c
     mpz(64)
+    >>> a / z
+    mpfr('61.5')
+    >>> a // z
+    mpz(61)
 
 Test modulo
 -----------
@@ -144,6 +151,8 @@ Test modulo
     mpz(123)
     >>> b%a
     mpz(87)
+    >>> a%z
+    mpz(1)
     >>> divmod(a,b)
     (mpz(0), mpz(123))
     >>> divmod(b,a)

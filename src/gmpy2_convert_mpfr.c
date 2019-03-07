@@ -437,6 +437,27 @@ GMPy_MPFR_From_Real(PyObject *obj, mp_prec_t prec, CTXT_Object *context)
     if (IS_FRACTION(obj))
         return GMPy_MPFR_From_Fraction(obj, prec, context);
 
+    if (HAS_MPFR_CONVERSION(obj)) {
+        MPFR_Object *res = (MPFR_Object *) PyObject_CallMethod(obj, "__mpfr__", NULL);
+
+        if (res != NULL && MPFR_Check(res))
+            return res;
+    }
+
+    if (HAS_MPQ_CONVERSION(obj)) {
+        MPQ_Object *res = (MPQ_Object *) PyObject_CallMethod(obj, "__mpq__", NULL);
+
+        if (res != NULL && MPQ_Check(res))
+            return GMPy_MPFR_From_MPQ(res, prec, context);
+    }
+
+    if (HAS_MPZ_CONVERSION(obj)) {
+        MPZ_Object *res = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (res != NULL && MPZ_Check(res))
+            return GMPy_MPFR_From_MPZ(res, prec, context);
+    }
+
     TYPE_ERROR("object could not be converted to 'mpfr'");
     return NULL;
 }

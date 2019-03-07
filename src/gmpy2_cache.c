@@ -149,7 +149,7 @@ GMPy_MPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
             return (PyObject*)GMPy_MPZ_From_PyStr(n, base, context);
         }
 
-        if (PyObject_HasAttrString(n, "__mpz__")) {
+        if (HAS_MPZ_CONVERSION(n)) {
             out = (PyObject *) PyObject_CallMethod(n, "__mpz__", NULL);
 
             if (out == NULL)
@@ -461,7 +461,7 @@ GMPy_MPQ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
             return (PyObject *) GMPy_MPQ_From_Number(n, context);
         }
 
-        if (PyObject_HasAttrString(n, "__mpq__")) {
+        if (HAS_MPQ_CONVERSION(n)) {
             out = (PyObject *) PyObject_CallMethod(n, "__mpq__", NULL);
             if (out == NULL)
                 return out;
@@ -645,6 +645,20 @@ GMPy_MPFR_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         return (PyObject*)GMPy_MPFR_From_PyStr(arg0, base, prec, context);
     }
 
+    if (HAS_MPFR_CONVERSION(arg0)) {
+        out = (PyObject *) PyObject_CallMethod(arg0, "__mpfr__", NULL);
+
+        if(out == NULL)
+            return out;
+        if (!MPFR_Check(out)) {
+            PyErr_Format(PyExc_TypeError,
+                         "object of type '%.200s' can not be interpreted as mpfr",
+                         out->ob_type->tp_name);
+            return NULL;
+        }
+        return out;
+    }
+
     /* A number can only have precision and context as additional arguments. */
     if (IS_REAL(arg0)) {
         if (keywdc || argc > 1) {
@@ -664,20 +678,6 @@ GMPy_MPFR_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         }
 
         return (PyObject*)GMPy_MPFR_From_Real(arg0, prec, context);
-    }
-
-    if (PyObject_HasAttrString(arg0, "__mpfr__")) {
-        out = (PyObject *) PyObject_CallMethod(arg0, "__mpfr__", NULL);
-
-        if(out == NULL)
-            return out;
-        if (!MPFR_Check(out)) {
-            PyErr_Format(PyExc_TypeError,
-                         "object of type '%.200s' can not be interpreted as mpfr",
-                         out->ob_type->tp_name);
-            return NULL;
-        }
-        return out;
     }
 
     TYPE_ERROR("mpfr() requires numeric or string argument");
@@ -858,6 +858,19 @@ GMPy_MPC_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         return (PyObject*)GMPy_MPC_From_PyStr(arg0, base, rprec, iprec, context);
     }
 
+    if (HAS_MPC_CONVERSION(arg0)) {
+        out = (PyObject*) PyObject_CallMethod(arg0, "__mpc__", NULL);
+        if(out == NULL)
+            return out;
+        if (!MPC_Check(out)) {
+            PyErr_Format(PyExc_TypeError,
+                         "object of type '%.200s' can not be interpreted as mpc",
+                         out->ob_type->tp_name);
+            return NULL;
+        }
+        return out;
+    }
+
     /* Should special case PyFLoat to avoid double rounding. */
 
     if (IS_REAL(arg0)) {
@@ -966,19 +979,6 @@ GMPy_MPC_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
             result = GMPy_MPC_From_MPC((MPC_Object*)arg0, rprec, iprec, context);
         }
         return (PyObject*)result;
-    }
-
-    if (PyObject_HasAttrString(arg0, "__mpc__")) {
-        out = (PyObject*) PyObject_CallMethod(arg0, "__mpc__", NULL);
-        if(out == NULL)
-            return out;
-        if (!MPC_Check(out)) {
-            PyErr_Format(PyExc_TypeError,
-                         "object of type '%.200s' can not be interpreted as mpc",
-                         out->ob_type->tp_name);
-            return NULL;
-        }
-        return out;
     }
 
     TYPE_ERROR("mpc() requires numeric or string argument");
