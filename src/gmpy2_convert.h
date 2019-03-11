@@ -41,10 +41,10 @@ extern "C" {
 #define HAS_MPFR_CONVERSION(x) PyObject_HasAttrString(x, "__mpfr__")
 #define HAS_MPC_CONVERSION(x) PyObject_HasAttrString(x, "__mpc__")
 
-#define HAS_STRICT_MPZ_CONVERSION(x) HAS_MPZ_CONVERSION(x) && \
-                                     !HAS_MPQ_CONVERSION(x)
-#define HAS_STRICT_MPFR_CONVERSION(x) HAS_MPFR_CONVERSION(x) && \
-                                      !HAS_MPC_CONVERSION(x)
+#define HAS_STRICT_MPZ_CONVERSION(x) (HAS_MPZ_CONVERSION(x) && \
+                                     !HAS_MPQ_CONVERSION(x))
+#define HAS_STRICT_MPFR_CONVERSION(x) (HAS_MPFR_CONVERSION(x) && \
+                                      !HAS_MPC_CONVERSION(x))
 
 #ifdef PY2
 #define IS_INTEGER(x) (MPZ_Check(x) || PyInt_Check(x) || \
