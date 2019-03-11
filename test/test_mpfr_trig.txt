@@ -327,8 +327,21 @@ Test sec
 Test sin
 --------
 
+>>> r = mpfr(5.6)
+>>> gmpy2.sin(r)
+mpfr('-0.63126663787232162')
+>>> gmpy2.sin(r) == gmpy2.sin(5.6)
+True
+
 Test sin_cos
 ------------
+
+>>> gmpy2.sin_cos(r)
+(mpfr('-0.63126663787232162'), mpfr('0.77556587851024961'))
+>>> gmpy2.sin_cos(r) == gmpy2.sin_cos(5.6)
+True
+>>> gmpy2.sin_cos(r) == (gmpy2.sin(r), gmpy2.cos(r))
+True
 
 Test tan
 --------
@@ -342,8 +355,18 @@ Test asinh
 Test atanh
 ----------
 
+>>> gmpy2.atanh(mpfr(0.365))
+mpfr('0.38264235436318422')
+>>> gmpy2.atanh(mpfr(0.365)) == gmpy2.atanh(0.365)
+True
+
 Test cosh
 ---------
+
+>>> gmpy2.cosh(r)
+mpfr('135.2150526449345')
+>>> gmpy2.cosh(r) == gmpy2.cosh(5.6)
+True
 
 Test coth
 ---------
@@ -363,8 +386,20 @@ Test sech
 Test sinh
 ---------
 
+>>> gmpy2.sinh(r)
+mpfr('135.21135478121803')
+>>> gmpy2.sinh(r) == gmpy2.sinh(5.6)
+True
+
 Test sinh_cosh
 --------------
+
+>>> gmpy2.sinh_cosh(r)
+(mpfr('135.21135478121803'), mpfr('135.2150526449345'))
+>>> gmpy2.sinh_cosh(r) == gmpy2.sinh_cosh(5.6)
+True
+>>> gmpy2.sinh_cosh(r) == (gmpy2.sinh(r), gmpy2.cosh(r))
+True
 
 Test tanh
 ---------

@@ -3,7 +3,9 @@ Test gmpy2_mpfr_misc
 
 >>> import gmpy2
 >>> from gmpy2 import mpz, mpq, mpfr, mpc
+>>> ctx = gmpy2.get_context()
 >>> a = mpfr('123.456')
+>>> r = mpfr(4.55)
 >>> gmpy2.f2q('a')
 Traceback (most recent call last):
   ....
@@ -31,4 +33,134 @@ mpq(15432,125)
 
 
 >>> gmpy2.free_cache()
->>>
+>>> gmpy2.get_emin_min()
+-4611686018427387903
+>>> gmpy2.get_emax_max()
+4611686018427387903
+>>> mprec = gmpy2.get_max_precision()
+>>> gmpy2.get_exp(mpfr(5.232))
+3
+>>> gmpy2.get_exp(0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: get_exp() requires 'mpfr' argument
+>>> gmpy2.get_exp(mpfr('inf'))
+0
+>>> gmpy2.get_exp(mpfr(0))
+0
+
+>>> gmpy2.set_exp(r, 4)
+mpfr('9.0999999999999996')
+>>> gmpy2.set_exp(r, mpz(4))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: set_exp() requires 'mpfr', 'integer' arguments
+
+>>> gmpy2.set_sign(r, False)
+mpfr('4.5499999999999998')
+>>> gmpy2.set_sign(r, True)
+mpfr('-4.5499999999999998')
+>>> gmpy2.set_sign(mpz(5), True)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: set_sign() requires 'mpfr', 'boolean' arguments
+>>> gmpy2.set_sign(r, 'oiio')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: set_sign() requires 'mpfr', 'boolean' arguments
+
+>>> gmpy2.copy_sign(mpfr(4), mpfr(-2))
+mpfr('-4.0')
+>>> gmpy2.copy_sign(mpfr(4), True)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: copy_sign() requires 'mpfr', 'mpfr' arguments
+
+>>> nan = gmpy2.nan(); nan
+mpfr('nan')
+>>> inf = gmpy2.inf(); inf
+mpfr('inf')
+>>> gmpy2.inf(-5)
+mpfr('-inf')
+>>> gmpy2.inf(mpfr(30))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: could not convert object to integer
+>>> gmpy2.inf(mpz(-30))
+mpfr('-inf')
+
+>>> nan.as_integer_ratio()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Cannot pass NaN to mpfr.as_integer_ratio.
+>>> inf.as_integer_ratio()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+OverflowError: Cannot pass Infinity to mpfr.as_integer_ratio.
+>>> mpfr(1.5).as_integer_ratio()
+(mpz(3), mpz(2))
+
+>>> r.as_mantissa_exp()
+(mpz(5122844576133939), mpz(-50))
+>>> inf.as_mantissa_exp()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+OverflowError: Cannot pass Infinity to mpfr.as_mantissa_exp.
+>>> nan.as_mantissa_exp()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Cannot pass NaN to mpfr.as_mantissa_exp.
+>>> mpfr(0).as_mantissa_exp()
+(mpz(0), mpz(1))
+
+>>> r.as_simple_fraction()
+mpq(91,20)
+>>> r.as_simple_fraction()
+mpq(91,20)
+>>> r.as_simple_fraction(precision=100)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Requested precision out-of-bounds.
+>>> r.as_simple_fraction(nosense=10)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: 'nosense' is an invalid keyword argument for this function
+
+>>> r.imag
+mpfr('0.0')
+>>> r.real
+mpfr('4.5499999999999998')
+>>> not mpfr(0)
+True
+>>> not mpfr(1)
+False
+>>> r.conjugate()
+mpfr('4.5499999999999998')
+>>> gmpy2.check_range(r)
+mpfr('4.5499999999999998')
+>>> ctx = gmpy2.get_context()
+>>> ctx.check_range(r)
+mpfr('4.5499999999999998')
+>>> ctx.check_range(mpz(5))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: check_range() argument types not supported
+>>> r.__sizeof__()
+72
+
+>>> r.__round__(1)
+mpfr('4.5')
+>>> mpfr('5.1').__round__()
+mpz(5)
+>>> nan.__round__()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: 'mpz' does not support NaN
+>>> inf.__round__()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+OverflowError: 'mpz' does not support Infinity
+>>> r.__round__(4,5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: __round__() requires 0 or 1 argument
