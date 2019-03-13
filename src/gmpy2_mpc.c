@@ -170,7 +170,7 @@ PyDoc_STRVAR(GMPy_doc_mpc,
 
 static PyMethodDef Pympc_methods[] =
 {
-    { "__complex__", GMPy_PyComplex_From_MPC, METH_O, GMPy_doc_mpc_complex },
+    { "__complex__", GMPy_PyComplex_From_MPC, METH_NOARGS, GMPy_doc_mpc_complex },
     { "__format__", GMPy_MPC_Format, METH_VARARGS, GMPy_doc_mpc_format },
     { "__sizeof__", GMPy_MPC_SizeOf_Method, METH_NOARGS, GMPy_doc_mpc_sizeof_method },
     { "conjugate", GMPy_MPC_Conjugate_Method, METH_NOARGS, GMPy_doc_mpc_conjugate_method },

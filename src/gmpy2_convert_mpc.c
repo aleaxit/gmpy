@@ -514,7 +514,7 @@ GMPy_MPC_Float_Slot(PyObject *self)
 PyDoc_STRVAR(GMPy_doc_mpc_complex, "Convert 'mpc' to 'complex'.");
 
 static PyObject *
-GMPy_PyComplex_From_MPC(PyObject *self, PyObject *other)
+GMPy_PyComplex_From_MPC(PyObject *self)
 {
     CTXT_Object *context = NULL;
     double real, imag;
