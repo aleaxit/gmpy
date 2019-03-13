@@ -241,3 +241,9 @@ Test mpc misc
 >>> x = mpc("1.3142123+4.3e-1001j", precision=(70,37))
 >>> mpc(x.real, x.imag, precision=(70,37)) == x
 True
+
+Convert from mpc
+----------------
+
+>>> complex(mpc(4,5))
+(4+5j)
