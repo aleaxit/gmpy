@@ -330,7 +330,7 @@ GMPy_MPFR_copy_sign(PyObject *self, PyObject *args)
     if (PyTuple_GET_SIZE(args) != 2 ||
         !MPFR_Check(PyTuple_GET_ITEM(args, 0)) ||
         !MPFR_Check(PyTuple_GET_ITEM(args, 1))) {
-        TYPE_ERROR("copy_sign() requires 'mpfr', 'boolean' arguments");
+        TYPE_ERROR("copy_sign() requires 'mpfr', 'mpfr' arguments");
         return NULL;
     }
 

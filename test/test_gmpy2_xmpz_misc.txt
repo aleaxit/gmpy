@@ -1,0 +1,44 @@
+Test gmpy2_xmpz_misc.c
+======================
+
+>>> import gmpy2
+>>> from gmpy2 import xmpz
+>>> z = xmpz(5)
+
+>>> gmpy2.xbit_mask(7)
+xmpz(127)
+>>> gmpy2.xbit_mask(z)
+xmpz(31)
+>>> gmpy2.xbit_mask(4.5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: xbit_mask() requires 'int' argumen
+>>> not xmpz(0)
+True
+>>> not z
+False
+>>> -z; z
+xmpz(-5)
+>>> -z; z
+xmpz(5)
+>>> +z; z
+xmpz(5)
+>>> z2 = z.copy()
+>>> z2 == z
+True
+>>> z2 is z
+False
+>>> z.copy().make_mpz()
+mpz(5)
+>>> xmpz(-100).make_mpz()
+mpz(-100)
+>>> z.__len__()
+3
+>>> xmpz(3000).__len__()
+12
+
+Test SubScript and AssignSubScript
+----------------------------------
+
+Test iterators
+--------------

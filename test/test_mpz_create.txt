@@ -3,7 +3,7 @@ MPZ Functionality
 
 Test the creation of mpz objects.
 
->>> from gmpy2 import mpz, mpq, mpfr, mpc
+>>> from gmpy2 import mpz, mpq, mpfr, mpc, xmpz
 >>> from decimal import Decimal as D
 >>> from fractions import Fraction as F
 >>> import gmpy2 as G
@@ -148,4 +148,6 @@ Traceback (most recent call last):
 TypeError: ** message detail varies **
 >>> mpz('99',base=10)
 mpz(99)
+>>> mpz(xmpz(5))
+mpz(5)
 

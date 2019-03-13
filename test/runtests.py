@@ -75,7 +75,7 @@ mpfr_version_tests = [os.path.basename(i)
                       for i in glob.glob(os.path.join(os.path.dirname(__file__),
                                          "test_mpfr" + mpfr_major_version + "*.txt"))]
 
-mpc_doctests = ["test_mpc_create.txt", "test_mpc.txt"]
+mpc_doctests = ["test_mpc_create.txt", "test_mpc.txt", "test_mpc_trig.txt"]
 
 gmpy2_tests = [os.path.basename(i)
                for i in glob.glob(os.path.join(os.path.dirname(__file__),
