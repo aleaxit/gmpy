@@ -160,7 +160,7 @@ GMPy_MPZ_bit_scan0_function(PyObject *self, PyObject *args)
   err:
     TYPE_ERROR("bit_scan0() requires 'mpz',['int'] arguments");
   err_index:
-    Py_DECREF((PyObject*)tempx);
+    Py_XDECREF((PyObject*)tempx);
     return NULL;
 }
 
@@ -232,9 +232,9 @@ GMPy_MPZ_bit_scan1_function(PyObject *self, PyObject *args)
     }
 
   err:
-    TYPE_ERROR("bit_scan0() requires 'mpz',['int'] arguments");
+    TYPE_ERROR("bit_scan1() requires 'mpz',['int'] arguments");
   err_index:
-    Py_DECREF((PyObject*)tempx);
+    Py_XDECREF((PyObject*)tempx);
     return NULL;
 }
 
@@ -274,7 +274,7 @@ GMPy_MPZ_bit_test_function(PyObject *self, PyObject *args)
   err:
     TYPE_ERROR("bit_test() requires 'mpz','int' arguments");
   err_index:
-    Py_DECREF((PyObject*)tempx);
+    Py_XDECREF((PyObject*)tempx);
     return NULL;
 }
 
@@ -441,6 +441,9 @@ GMPy_MPZ_bit_flip_function(PyObject *self, PyObject *args)
 
     mpz_set(result->z, tempx->z);
     mpz_combit(result->z, bit_index);
+
+    Py_DECREF((PyObject*)tempx);
+    return (PyObject*)result;
 
   err:
     TYPE_ERROR("bit_flip() requires 'mpz','int' arguments");
