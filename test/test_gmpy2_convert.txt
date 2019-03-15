@@ -147,5 +147,5 @@ Traceback (most recent call last):
 ValueError: invalid string in mpc()
 >>> str(mpc(5,6))
 '5.0+6.0j'
->>> mpc(4,5).__complex__(70)
+>>> mpc(4,5).__complex__()
 (4+5j)
