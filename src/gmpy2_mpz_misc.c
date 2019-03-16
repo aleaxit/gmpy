@@ -1705,12 +1705,30 @@ GMPy_MPZ_Attrib_GetNumer(MPZ_Object *self, void *closure)
 }
 
 static PyObject *
+GMPy_MPZ_Attrib_GetReal(MPZ_Object *self, void *closure)
+{
+    Py_INCREF((PyObject*)self);
+    return (PyObject*)self;
+}
+
+static PyObject *
 GMPy_MPZ_Attrib_GetDenom(MPZ_Object *self, void *closure)
 {
     MPZ_Object *result;
 
     if ((result = GMPy_MPZ_New(NULL))) {
         mpz_set_ui(result->z, 1);
+    }
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPy_MPZ_Attrib_GetImag(MPZ_Object *self, void *closure)
+{
+    MPZ_Object *result;
+
+    if ((result = GMPy_MPZ_New(NULL))) {
+        mpz_set_ui(result->z, 0);
     }
     return (PyObject*)result;
 }

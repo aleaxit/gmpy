@@ -127,8 +127,14 @@ static PyNumberMethods mpq_number_methods =
 
 static PyGetSetDef GMPy_MPQ_getseters[] =
 {
-    { "numerator", (getter)GMPy_MPQ_Attrib_GetNumer, NULL, "numerator", NULL },
-    { "denominator", (getter)GMPy_MPQ_Attrib_GetDenom, NULL, "denominator", NULL },
+    { "numerator", (getter)GMPy_MPQ_Attrib_GetNumer, NULL,
+        "the numerator of a rational number in lowest terms", NULL },
+    { "denominator", (getter)GMPy_MPQ_Attrib_GetDenom, NULL,
+        "the denominator of a rational number in lowest terms", NULL },
+    { "real", (getter)GMPy_MPQ_Attrib_GetReal, NULL,
+        "the real part of a complex number", NULL },
+    { "denominator", (getter)GMPy_MPQ_Attrib_GetImag, NULL,
+        "the imaginary part of a complex number", NULL },
     {NULL}
 };
 

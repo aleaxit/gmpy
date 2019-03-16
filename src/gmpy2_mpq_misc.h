@@ -35,6 +35,9 @@ extern "C" {
 
 static PyObject * GMPy_MPQ_Attrib_GetNumer(MPQ_Object *self, void *closure);
 static PyObject * GMPy_MPQ_Attrib_GetDenom(MPQ_Object *self, void *closure);
+static PyObject * GMPy_MPQ_Attrib_GetReal(MPQ_Object *self, void *closure);
+static PyObject * GMPy_MPQ_Attrib_GetImag(MPQ_Object *self, void *closure);
+
 static PyObject * GMPy_MPQ_Function_Numer(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPQ_Function_Denom(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPQ_Function_Qdiv(PyObject *self, PyObject *args);
