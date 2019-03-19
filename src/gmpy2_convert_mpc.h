@@ -52,7 +52,7 @@ static PyObject *     GMPy_MPC_Long_Slot(PyObject *self);
 #endif
 static PyObject *     GMPy_MPC_Int_Slot(PyObject *self);
 static PyObject *     GMPy_PyStr_From_MPC(MPC_Object *self, int base, int digits, CTXT_Object *context);
-static PyObject *     GMPy_PyComplex_From_MPC(PyObject *self);
+static PyObject *     GMPy_PyComplex_From_MPC(PyObject *self, PyObject *other);
 /* support str() and repr() */
 static PyObject *     GMPy_MPC_Str_Slot(MPC_Object *self);
 static PyObject *     GMPy_MPC_Repr_Slot(MPC_Object *self);
