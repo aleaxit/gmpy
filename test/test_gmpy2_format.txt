@@ -173,10 +173,10 @@ Tests xmpz digits method
 >>> x = xmpz(6)
 >>> x.digits()
 '6'
->>> x.digits(2)
-'0b110'
->>> x.digits(8)
-'0o6'
+>>> x.digits(2) # doctest: +ELLIPSIS
+'...110'
+>>> x.digits(8) # doctest: +ELLIPSIS
+'...6'
 >>> x.digits(16)
 '0x6'
 >>> xmpz(30).digits(16)
