@@ -75,20 +75,14 @@ mpz(3)
 Tests round
 -----------
 
->>> round(q)
-mpz(0)
->>> round(mpq(7/3))
-mpz(2)
+>>> mpq('7/2').__round__()
+mpz(4)
 >>> q.__round__(4)
 mpq(2,5)
 >>> q.__round__(4, 2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: Too many arguments for __round__()
->>> q.__round__(4.5)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-TypeError: __round__() requires 'int' argument
 
 Tests non zero operator
 -----------------------
