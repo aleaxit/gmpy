@@ -158,6 +158,7 @@ static PyMethodDef GMPy_XMPZ_methods [] =
     { "bit_scan1", GMPy_MPZ_bit_scan1_method, METH_VARARGS, doc_bit_scan1_method },
     { "bit_set", GMPy_MPZ_bit_set_method, METH_O, doc_bit_set_method },
     { "bit_test", GMPy_MPZ_bit_test_method, METH_O, doc_bit_test_method },
+    { "conjugate", GMPy_MP_Method_Conjugate, METH_NOARGS, GMPy_doc_mp_method_conjugate },
     { "copy", GMPy_XMPZ_Method_Copy, METH_NOARGS, GMPy_doc_xmpz_method_copy },
     { "digits", GMPy_XMPZ_Digits_Method, METH_VARARGS, GMPy_doc_mpz_digits_method },
     { "iter_bits", (PyCFunction)GMPy_XMPZ_Method_IterBits, METH_VARARGS | METH_KEYWORDS, GMPy_doc_xmpz_method_iter_bits },

@@ -430,4 +430,14 @@ Test operations involving NaN/Inf
     >>> divmod(mpfr('nan'), mpfr(0))
     (mpfr('nan'), mpfr('nan'))
 
+Test Number Protocol
+--------------------
+
+    >>> a.real
+    mpfr('12.34')
+    >>> a.imag
+    mpfr('0.0')
+    >>> a.conjugate()
+    mpfr('12.34')
+
 

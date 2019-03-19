@@ -133,7 +133,7 @@ static PyGetSetDef GMPy_MPQ_getseters[] =
         "the denominator of a rational number in lowest terms", NULL },
     { "real", (getter)GMPy_MPQ_Attrib_GetReal, NULL,
         "the real part of a complex number", NULL },
-    { "denominator", (getter)GMPy_MPQ_Attrib_GetImag, NULL,
+    { "imag", (getter)GMPy_MPQ_Attrib_GetImag, NULL,
         "the imaginary part of a complex number", NULL },
     {NULL}
 };
@@ -145,6 +145,7 @@ static PyMethodDef GMPy_MPQ_methods [] =
     { "__round__", GMPy_MPQ_Method_Round, METH_VARARGS, GMPy_doc_mpq_method_round },
     { "__sizeof__", GMPy_MPQ_Method_Sizeof, METH_NOARGS, GMPy_doc_mpq_method_sizeof },
     { "__trunc__", GMPy_MPQ_Method_Trunc, METH_NOARGS, GMPy_doc_mpq_method_trunc },
+    { "conjugate", GMPy_MP_Method_Conjugate, METH_NOARGS, GMPy_doc_mp_method_conjugate },
     { "digits", GMPy_MPQ_Digits_Method, METH_VARARGS, GMPy_doc_mpq_digits_method },
     { NULL, NULL, 1 }
 };

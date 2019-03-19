@@ -225,7 +225,7 @@ static PyMethodDef Pympfr_methods [] =
     { "as_integer_ratio", GMPy_MPFR_Integer_Ratio_Method, METH_NOARGS, GMPy_doc_method_integer_ratio },
     { "as_mantissa_exp", GMPy_MPFR_Mantissa_Exp_Method, METH_NOARGS, GMPy_doc_method_mantissa_exp },
     { "as_simple_fraction", (PyCFunction)GMPy_MPFR_Simple_Fraction_Method, METH_VARARGS | METH_KEYWORDS, GMPy_doc_method_simple_fraction },
-    { "conjugate", GMPy_MPFR_Conjugate_Method, METH_NOARGS, GMPy_doc_mpfr_conjugate_method },
+    { "conjugate", GMPy_MP_Method_Conjugate, METH_NOARGS, GMPy_doc_mp_method_conjugate },
     { "digits", GMPy_MPFR_Digits_Method, METH_VARARGS, GMPy_doc_mpfr_digits_method },
     { "is_finite", GMPy_MPFR_Is_Finite_Method, METH_NOARGS, GMPy_doc_method_is_finite },
     { "is_infinite", GMPy_MPFR_Is_Infinite_Method, METH_NOARGS, GMPy_doc_method_is_infinite },
