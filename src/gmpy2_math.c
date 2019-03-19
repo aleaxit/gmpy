@@ -1019,7 +1019,7 @@ GMPy_Context_Radians(PyObject *self, PyObject *other)
 
     mpfr_clear_flags();
 
-    mpfr_mul(result->f, MPFR(self), temp->f, MPFR_RNDN);
+    mpfr_mul(result->f, tempx->f, temp->f, MPFR_RNDN);
 
     Py_DECREF((PyObject*)temp);
     Py_DECREF((PyObject*)tempx);

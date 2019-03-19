@@ -315,14 +315,15 @@ mpfr('-inf')
 Test csc
 --------
 
-Test degrees
-------------
-
-Test radians
--------------
+>>> r2 = mpfr('5.6')
+>>> gmpy2.csc(r2)
+mpfr('-1.5841166632383596')
 
 Test sec
 --------
+
+>>> gmpy2.sec(r2)
+mpfr('1.2893811186238056')
 
 Test sin
 --------
@@ -346,11 +347,20 @@ True
 Test tan
 --------
 
+>>> gmpy2.tan(r)
+mpfr('-0.8139432836897027')
+
 Test acosh
 ----------
 
+>>> gmpy2.acosh(r)
+mpfr('2.4078447868719399')
+
 Test asinh
 ----------
+
+>>> gmpy2.asinh(r)
+mpfr('2.4237920435875173')
 
 Test atanh
 ----------
@@ -371,17 +381,51 @@ True
 Test coth
 ---------
 
+>>> gmpy2.coth(r)
+mpfr('1.0000273487661038')
+
 Test csch
 ---------
 
+>>> gmpy2.csch(r)
+mpfr('0.0073958285649757295')
+
+>>> gmpy2.csch(r)
+mpfr('0.0073958285649757295')
+
 Test degrees
 ------------
+>>> rad = mpfr(1.57)
+>>> ctx = gmpy2.get_context()
+>>> ctx.degrees(rad)
+mpfr('89.954373835539243')
+>>> gmpy2.degrees(rad)
+mpfr('89.954373835539243')
+>>> gmpy2.degrees(1)
+mpfr('57.295779513082323')
 
 Test radians
 -------------
 
+>>> deg = mpfr(90)
+>>> ctx.radians(deg)
+mpfr('1.5707963267948966')
+>>> gmpy2.radians(deg)
+mpfr('1.5707963267948966')
+>>> gmpy2.radians(45)
+mpfr('0.78539816339744828')
+>>> gmpy2.radians(mpz(20))
+mpfr('0.3490658503988659')
+>>> gmpy2.radians(mpfr('inf'))
+mpfr('inf')
+>>> gmpy2.radians(mpfr('nan'))
+mpfr('nan')
+
 Test sech
 ---------
+
+>>> gmpy2.sech(r)
+mpfr('0.0073956263037217584')
 
 Test sinh
 ---------
@@ -404,3 +448,5 @@ True
 Test tanh
 ---------
 
+>>> gmpy2.tanh(r)
+mpfr('0.99997265198183083')
