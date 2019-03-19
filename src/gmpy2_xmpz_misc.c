@@ -549,12 +549,30 @@ GMPy_XMPZ_Attrib_GetNumer(XMPZ_Object *self, void *closure)
 }
 
 static PyObject *
+GMPy_XMPZ_Attrib_GetReal(XMPZ_Object *self, void *closure)
+{
+    Py_INCREF((PyObject*)self);
+    return (PyObject*)self;
+}
+
+static PyObject *
 GMPy_XMPZ_Attrib_GetDenom(XMPZ_Object *self, void *closure)
 {
     XMPZ_Object *result;
 
     if ((result = GMPy_XMPZ_New(NULL))) {
         mpz_set_ui(result->z, 1);
+    }
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPy_XMPZ_Attrib_GetImag(XMPZ_Object *self, void *closure)
+{
+    XMPZ_Object *result;
+
+    if ((result = GMPy_XMPZ_New(NULL))) {
+        mpz_set_ui(result->z, 0);
     }
     return (PyObject*)result;
 }

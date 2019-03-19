@@ -1705,12 +1705,30 @@ GMPy_MPZ_Attrib_GetNumer(MPZ_Object *self, void *closure)
 }
 
 static PyObject *
+GMPy_MPZ_Attrib_GetReal(MPZ_Object *self, void *closure)
+{
+    Py_INCREF((PyObject*)self);
+    return (PyObject*)self;
+}
+
+static PyObject *
 GMPy_MPZ_Attrib_GetDenom(MPZ_Object *self, void *closure)
 {
     MPZ_Object *result;
 
     if ((result = GMPy_MPZ_New(NULL))) {
         mpz_set_ui(result->z, 1);
+    }
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPy_MPZ_Attrib_GetImag(MPZ_Object *self, void *closure)
+{
+    MPZ_Object *result;
+
+    if ((result = GMPy_MPZ_New(NULL))) {
+        mpz_set_ui(result->z, 0);
     }
     return (PyObject*)result;
 }
@@ -1726,4 +1744,23 @@ GMPy_MPZ_Method_SizeOf(PyObject *self, PyObject *other)
     return PyIntOrLong_FromSize_t(sizeof(MPZ_Object) + \
         (MPZ(self)->_mp_alloc * sizeof(mp_limb_t)));
 }
+
+/* Note: this particular function is also used for xmpz, mpq, and mpfr. Only
+ * mpc.conjugate() does more that just return another reference to the original
+ * object.
+ */
+
+PyDoc_STRVAR(GMPy_doc_mp_method_conjugate,
+"x.conjugate() -> mpfr\n\n"
+"Return the conjugate of x (which is just a new reference to x since x is\n"
+"not a complex number).");
+
+static PyObject *
+GMPy_MP_Method_Conjugate(PyObject *self, PyObject *args)
+{
+    Py_INCREF((PyObject*)self);
+    return (PyObject*)self;
+}
+
+
 

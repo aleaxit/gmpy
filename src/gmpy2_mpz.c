@@ -135,8 +135,14 @@ static PyMappingMethods GMPy_MPZ_mapping_methods = {
 
 static PyGetSetDef GMPy_MPZ_getseters[] =
 {
-    { "numerator", (getter)GMPy_MPZ_Attrib_GetNumer, NULL, "numerator", NULL },
-    { "denominator", (getter)GMPy_MPZ_Attrib_GetDenom, NULL, "denominator", NULL },
+    { "numerator", (getter)GMPy_MPZ_Attrib_GetNumer, NULL,
+        "the numerator of a rational number in lowest terms", NULL },
+    { "denominator", (getter)GMPy_MPZ_Attrib_GetDenom, NULL,
+        "the denominator of a rational number in lowest terms", NULL },
+    { "real", (getter)GMPy_MPZ_Attrib_GetReal, NULL,
+        "the real part of a complex number", NULL },
+    { "imag", (getter)GMPy_MPZ_Attrib_GetImag, NULL,
+        "the imaginary part of a complex number", NULL },
     {NULL}
 };
 
@@ -155,6 +161,7 @@ static PyMethodDef GMPy_MPZ_methods [] =
     { "bit_scan1", GMPy_MPZ_bit_scan1_method, METH_VARARGS, doc_bit_scan1_method },
     { "bit_set", GMPy_MPZ_bit_set_method, METH_O, doc_bit_set_method },
     { "bit_test", GMPy_MPZ_bit_test_method, METH_O, doc_bit_test_method },
+    { "conjugate", GMPy_MP_Method_Conjugate, METH_NOARGS, GMPy_doc_mp_method_conjugate },
     { "digits", GMPy_MPZ_Digits_Method, METH_VARARGS, GMPy_doc_mpz_digits_method },
     { "is_congruent", GMPy_MPZ_Method_IsCongruent, METH_VARARGS, GMPy_doc_mpz_method_is_congruent },
     { "is_divisible", GMPy_MPZ_Method_IsDivisible, METH_O, GMPy_doc_mpz_method_is_divisible },

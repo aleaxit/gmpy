@@ -595,20 +595,6 @@ GMPy_MPFR_NonZero_Slot(MPFR_Object *self)
     return !mpfr_zero_p(self->f);
 }
 
-/* Implement the conjugate() method. */
-
-PyDoc_STRVAR(GMPy_doc_mpfr_conjugate_method,
-"x.conjugate() -> mpfr\n\n"
-"Return the conjugate of x (which is just a new reference to x since x is\n"
-"not a complex number).");
-
-static PyObject *
-GMPy_MPFR_Conjugate_Method(PyObject *self, PyObject *args)
-{
-    Py_INCREF((PyObject*)self);
-    return (PyObject*)self;
-}
-
 PyDoc_STRVAR(GMPy_doc_function_check_range,
 "check_range(x) -> mpfr\n\n"
 "Return a new 'mpfr' with exponent that lies within the current range\n"

@@ -127,8 +127,14 @@ static PyNumberMethods mpq_number_methods =
 
 static PyGetSetDef GMPy_MPQ_getseters[] =
 {
-    { "numerator", (getter)GMPy_MPQ_Attrib_GetNumer, NULL, "numerator", NULL },
-    { "denominator", (getter)GMPy_MPQ_Attrib_GetDenom, NULL, "denominator", NULL },
+    { "numerator", (getter)GMPy_MPQ_Attrib_GetNumer, NULL,
+        "the numerator of a rational number in lowest terms", NULL },
+    { "denominator", (getter)GMPy_MPQ_Attrib_GetDenom, NULL,
+        "the denominator of a rational number in lowest terms", NULL },
+    { "real", (getter)GMPy_MPQ_Attrib_GetReal, NULL,
+        "the real part of a complex number", NULL },
+    { "imag", (getter)GMPy_MPQ_Attrib_GetImag, NULL,
+        "the imaginary part of a complex number", NULL },
     {NULL}
 };
 
@@ -139,6 +145,7 @@ static PyMethodDef GMPy_MPQ_methods [] =
     { "__round__", GMPy_MPQ_Method_Round, METH_VARARGS, GMPy_doc_mpq_method_round },
     { "__sizeof__", GMPy_MPQ_Method_Sizeof, METH_NOARGS, GMPy_doc_mpq_method_sizeof },
     { "__trunc__", GMPy_MPQ_Method_Trunc, METH_NOARGS, GMPy_doc_mpq_method_trunc },
+    { "conjugate", GMPy_MP_Method_Conjugate, METH_NOARGS, GMPy_doc_mp_method_conjugate },
     { "digits", GMPy_MPQ_Digits_Method, METH_VARARGS, GMPy_doc_mpq_digits_method },
     { NULL, NULL, 1 }
 };

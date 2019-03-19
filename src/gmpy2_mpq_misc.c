@@ -38,6 +38,13 @@ GMPy_MPQ_Attrib_GetNumer(MPQ_Object *self, void *closure)
 }
 
 static PyObject *
+GMPy_MPQ_Attrib_GetReal(MPQ_Object *self, void *closure)
+{
+    Py_INCREF((PyObject*)self);
+    return (PyObject*)self;
+}
+
+static PyObject *
 GMPy_MPQ_Attrib_GetDenom(MPQ_Object *self, void *closure)
 {
     MPZ_Object *result;
@@ -45,6 +52,17 @@ GMPy_MPQ_Attrib_GetDenom(MPQ_Object *self, void *closure)
 
     if ((result = GMPy_MPZ_New(context)))
         mpz_set(result->z, mpq_denref(self->q));
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPy_MPQ_Attrib_GetImag(MPQ_Object *self, void *closure)
+{
+    MPZ_Object *result;
+    CTXT_Object *context = NULL;
+
+    if ((result = GMPy_MPZ_New(context)))
+        mpz_set_ui(result->z, 0);
     return (PyObject*)result;
 }
 

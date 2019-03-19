@@ -492,3 +492,17 @@ Test conversions
     >>> int(G.mpz(-3))
     -3
 
+Test Number Protocol
+--------------------
+
+    >>> a.numerator
+    mpz(123)
+    >>> a.denominator
+    mpz(1)
+    >>> a.real
+    mpz(123)
+    >>> a.imag
+    mpz(0)
+    >>> a.conjugate()
+    mpz(123)
+

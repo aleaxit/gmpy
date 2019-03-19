@@ -413,4 +413,19 @@ mpq(9,4)
 >>> gmpy2.qdiv(gmpy2.mpq(3,4), gmpy2.mpq(1,4))
 mpz(3)
 
+Test Number Protocol
+--------------------
+
+    >>> a.numerator
+    mpz(3)
+    >>> a.denominator
+    mpz(11)
+    >>> a.real
+    mpq(3,11)
+    >>> a.imag
+    mpz(0)
+    >>> a.conjugate()
+    mpq(3,11)
+
+
 
