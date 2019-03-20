@@ -1,0 +1,7 @@
+Test file gmpy2_mpq_misc.c python2
+==================================
+
+>>> import gmpy2
+
+>>> gmpy2.mpq(7,3).__round__(4.5)
+mpq(23333,10000)
