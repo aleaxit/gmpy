@@ -36,8 +36,10 @@ extern "C" {
 static PyObject * GMPy_Complex_Phase(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Phase(PyObject *self, PyObject *other);
 
+#ifdef MPC_110
 static PyObject * GMPy_Complex_Root_Of_Unity(PyObject *n, PyObject *k, CTXT_Object *context);
 static PyObject * GMPy_Context_Root_Of_Unity(PyObject *self, PyObject *args);
+#endif
 
 static PyObject * GMPy_Complex_Norm(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Norm(PyObject *self, PyObject *other);
