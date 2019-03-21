@@ -37,16 +37,25 @@ PyDoc_STRVAR(GMPy_doc_function_phase,
 static PyObject *
 GMPy_Complex_Phase(PyObject *x, CTXT_Object *context)
 {
-    MPFR_Object *result;
-    MPC_Object *tempx;
+    MPFR_Object *result = NULL;
+    MPC_Object *tempx = NULL;
 
     CHECK_CONTEXT(context)
+
+    if (!(IS_COMPLEX_ONLY(x))) {
+        TYPE_ERROR("phase() argument type not supported");
+        return NULL;
+    }
 
     result = GMPy_MPFR_New(0, context);
     tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
     if (!result || !tempx) {
+        Py_XDECREF(result);
+        Py_XDECREF(tempx);
         return NULL;
     }
+
+    mpfr_clear_flags();
 
     result->rc = mpc_arg(result->f, tempx->c, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
@@ -56,24 +65,9 @@ GMPy_Complex_Phase(PyObject *x, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_Number_Phase(PyObject *x, CTXT_Object *context)
-{
-    if (IS_COMPLEX_ONLY(x))
-        return GMPy_Complex_Phase(x, context);
-
-    TYPE_ERROR("phase() argument type not supported");
-    return NULL;
-}
-
-static PyObject *
-GMPy_Context_Phase(PyObject *self, PyObject *args)
+GMPy_Context_Phase(PyObject *self, PyObject *other)
 {
     CTXT_Object *context = NULL;
-
-    if (PyTuple_GET_SIZE(args) != 1) {
-        TYPE_ERROR("phase() requires 1 argument");
-        return NULL;
-    }
 
     if (self && CTXT_Check(self)) {
         context = (CTXT_Object*)self;
@@ -82,7 +76,7 @@ GMPy_Context_Phase(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_Phase(PyTuple_GET_ITEM(args, 0), context);
+    return GMPy_Complex_Phase(other, context);
 }
 
 #ifdef MPC_110
@@ -123,18 +117,9 @@ GMPy_Complex_Root_Of_Unity(PyObject *n, PyObject *k, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_Number_Root_Of_Unity(PyObject *n, PyObject *k, CTXT_Object *context)
-{
-    if (IS_INTEGER(n) && IS_INTEGER(k))
-        return GMPy_Complex_Root_Of_Unity(n, k, context);
-
-    TYPE_ERROR("root_of_unity() requires integer arguments");
-    return NULL;
-}
-
-static PyObject *
 GMPy_Context_Root_Of_Unity(PyObject *self, PyObject *args)
 {
+    PyObject *n, *k;
     CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
@@ -149,8 +134,16 @@ GMPy_Context_Root_Of_Unity(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_Root_Of_Unity(PyTuple_GET_ITEM(args, 0),
-                                     PyTuple_GET_ITEM(args, 1), context);
+    n = PyTuple_GET_ITEM(args, 0);
+    k = PyTuple_GET_ITEM(args, 1);
+
+    if (IS_INTEGER(n) && IS_INTEGER(k)) {
+        return GMPy_Complex_Root_Of_Unity(n, k, context);
+    }
+    else {
+        TYPE_ERROR("root_of_unity() requires integer arguments");
+        return NULL;
+    }
 }
 #endif
 
@@ -167,14 +160,21 @@ PyDoc_STRVAR(GMPy_doc_function_norm,
 static PyObject *
 GMPy_Complex_Norm(PyObject *x, CTXT_Object *context)
 {
-    MPFR_Object *result;
-    MPC_Object *tempx;
+    MPFR_Object *result = NULL;
+    MPC_Object *tempx = NULL;
 
     CHECK_CONTEXT(context);
+
+    if (!(IS_COMPLEX_ONLY(x))) {
+        TYPE_ERROR("norm() argument type not supported");
+        return NULL;
+    }
 
     result = GMPy_MPFR_New(0, context);
     tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
     if (!result || !tempx) {
+        Py_XDECREF(result);
+        Py_XDECREF(tempx);
         return NULL;
     }
 
@@ -188,24 +188,9 @@ GMPy_Complex_Norm(PyObject *x, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_Number_Norm(PyObject *x, CTXT_Object *context)
-{
-    if (IS_COMPLEX_ONLY(x))
-        return GMPy_Complex_Norm(x, context);
-
-    TYPE_ERROR("norm() argument type not supported");
-    return NULL;
-}
-
-static PyObject *
-GMPy_Context_Norm(PyObject *self, PyObject *args)
+GMPy_Context_Norm(PyObject *self, PyObject *other)
 {
     CTXT_Object *context = NULL;
-
-    if (PyTuple_GET_SIZE(args) != 1) {
-        TYPE_ERROR("norm() requires 1 argument");
-        return NULL;
-    }
 
     if (self && CTXT_Check(self)) {
         context = (CTXT_Object*)self;
@@ -214,7 +199,7 @@ GMPy_Context_Norm(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_Norm(PyTuple_GET_ITEM(args, 0), context);
+    return GMPy_Complex_Norm(other, context);
 }
 
 PyDoc_STRVAR(GMPy_doc_context_polar,
@@ -234,6 +219,11 @@ GMPy_Complex_Polar(PyObject *x, CTXT_Object *context)
 
     CHECK_CONTEXT(context);
 
+    if (!(IS_COMPLEX_ONLY(x))) {
+        TYPE_ERROR("polar() argument type not supported");
+        return NULL;
+    }
+
     if (!(tempx = (PyObject*)GMPy_MPC_From_Complex(x, 1, 1, context))) {
         return NULL;
     }
@@ -248,30 +238,16 @@ GMPy_Complex_Polar(PyObject *x, CTXT_Object *context)
         Py_XDECREF(result);
         return NULL;
     }
+
     PyTuple_SET_ITEM(result, 0, abs);
     PyTuple_SET_ITEM(result, 1, phase);
     return result;
 }
 
 static PyObject *
-GMPy_Number_Polar(PyObject *x, CTXT_Object *context)
-{
-    if (IS_COMPLEX_ONLY(x))
-        return GMPy_Complex_Polar(x, context);
-
-    TYPE_ERROR("polar() argument type not supported");
-    return NULL;
-}
-
-static PyObject *
-GMPy_Context_Polar(PyObject *self, PyObject *args)
+GMPy_Context_Polar(PyObject *self, PyObject *other)
 {
     CTXT_Object *context = NULL;
-
-    if (PyTuple_GET_SIZE(args) != 1) {
-        TYPE_ERROR("polar() requires 1 argument");
-        return NULL;
-    }
 
     if (self && CTXT_Check(self)) {
         context = (CTXT_Object*)self;
@@ -280,7 +256,7 @@ GMPy_Context_Polar(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_Polar(PyTuple_GET_ITEM(args, 0), context);
+    return GMPy_Complex_Polar(other, context);
 }
 
 PyDoc_STRVAR(GMPy_doc_context_rect,
@@ -294,15 +270,15 @@ PyDoc_STRVAR(GMPy_doc_function_rect,
 "given in polar form.");
 
 static PyObject *
-GMPy_Complex_Rect(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Complex_Rect(PyObject *r, PyObject *phi, CTXT_Object *context)
 {
     MPFR_Object *tempx, *tempy;
     MPC_Object *result;
 
     CHECK_CONTEXT(context);
 
-    tempx = GMPy_MPFR_From_Real(x, 1, context);
-    tempy = GMPy_MPFR_From_Real(y, 1, context);
+    tempx = GMPy_MPFR_From_Real(r, 1, context);
+    tempy = GMPy_MPFR_From_Real(phi, 1, context);
     result = GMPy_MPC_New(0, 0, context);
     if (!tempx || !tempy || !result) {
         Py_XDECREF((PyObject*)tempx);
@@ -323,18 +299,9 @@ GMPy_Complex_Rect(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_Number_Rect(PyObject *x, PyObject *y, CTXT_Object *context)
-{
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Complex_Rect(x, y, context);
-
-    TYPE_ERROR("rect() argument type not supported");
-    return NULL;
-}
-
-static PyObject *
 GMPy_Context_Rect(PyObject *self, PyObject *args)
 {
+    PyObject *r, *phi;
     CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
@@ -349,7 +316,16 @@ GMPy_Context_Rect(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_Rect(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context);
+    r = PyTuple_GET_ITEM(args, 0);
+    phi = PyTuple_GET_ITEM(args, 1);
+
+    if (IS_REAL(r) && IS_REAL(phi)) {
+        return GMPy_Complex_Rect(r, phi, context);
+    }
+    else {
+        TYPE_ERROR("rect() argument type not supported");
+        return NULL;
+    }
 }
 
 PyDoc_STRVAR(GMPy_doc_context_proj,
@@ -363,15 +339,24 @@ PyDoc_STRVAR(GMPy_doc_function_proj,
 static PyObject *
 GMPy_Complex_Proj(PyObject *x, CTXT_Object *context)
 {
-    MPC_Object *result, *tempx;
+    MPC_Object *result = NULL, *tempx = NULL;
 
     CHECK_CONTEXT(context);
+
+    if (!(IS_COMPLEX_ONLY(x))) {
+        TYPE_ERROR("proj() argument type not supported");
+        return NULL;
+    }
 
     result = GMPy_MPC_New(0, 0, context);
     tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
     if (!result || !tempx) {
+        Py_XDECREF(result);
+        Py_XDECREF(tempx);
         return NULL;
     }
+
+    mpfr_clear_flags();
 
     result->rc = mpc_proj(result->c, tempx->c, GET_MPC_ROUND(context));
     Py_DECREF((PyObject*)tempx);
@@ -381,24 +366,9 @@ GMPy_Complex_Proj(PyObject *x, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_Number_Proj(PyObject *x, CTXT_Object *context)
-{
-    if (IS_COMPLEX_ONLY(x))
-        return GMPy_Complex_Proj(x, context);
-
-    TYPE_ERROR("proj() argument type not supported");
-    return NULL;
-}
-
-static PyObject *
-GMPy_Context_Proj(PyObject *self, PyObject *args)
+GMPy_Context_Proj(PyObject *self, PyObject *other)
 {
     CTXT_Object *context = NULL;
-
-    if (PyTuple_GET_SIZE(args) != 1) {
-        TYPE_ERROR("proj() requires 1 argument");
-        return NULL;
-    }
 
     if (self && CTXT_Check(self)) {
         context = (CTXT_Object*)self;
@@ -407,7 +377,7 @@ GMPy_Context_Proj(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_Proj(PyTuple_GET_ITEM(args, 0), context);
+    return GMPy_Complex_Proj(other, context);
 }
 /* Implement the conjugate() method. */
 

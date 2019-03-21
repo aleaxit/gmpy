@@ -1,7 +1,7 @@
 Test mpc elementary operations
 ------------------------------
 
->>> import gmpy2 as G
+>>> import gmpy2
 >>> from gmpy2 import mpz, mpq, mpfr, mpc
 >>> from fractions import Fraction as F
 >>> from decimal import Decimal as D
@@ -183,43 +183,43 @@ mpc('-inf+infj')
 Test is_XXX
 -----------
 
->>> G.is_zero(mpc("0+0j"))
+>>> gmpy2.is_zero(mpc("0+0j"))
 True
->>> G.is_zero(mpc("1+0j"))
+>>> gmpy2.is_zero(mpc("1+0j"))
 False
->>> G.is_zero(mpc("1+1j"))
+>>> gmpy2.is_zero(mpc("1+1j"))
 False
->>> G.is_zero(mpc("0+1j"))
+>>> gmpy2.is_zero(mpc("0+1j"))
 False
->>> G.is_nan(mpc("nan+1j"))
+>>> gmpy2.is_nan(mpc("nan+1j"))
 True
->>> G.is_nan(mpc("1+nanj"))
+>>> gmpy2.is_nan(mpc("1+nanj"))
 True
->>> G.is_nan(mpc("nan+nanj"))
+>>> gmpy2.is_nan(mpc("nan+nanj"))
 True
->>> G.is_nan(mpc("1+1j"))
+>>> gmpy2.is_nan(mpc("1+1j"))
 False
->>> G.is_infinite(mpc("inf+1j"))
+>>> gmpy2.is_infinite(mpc("inf+1j"))
 True
->>> G.is_infinite(mpc("-inf+1j"))
+>>> gmpy2.is_infinite(mpc("-inf+1j"))
 True
->>> G.is_infinite(mpc("1+infj"))
+>>> gmpy2.is_infinite(mpc("1+infj"))
 True
->>> G.is_infinite(mpc("1-infj"))
+>>> gmpy2.is_infinite(mpc("1-infj"))
 True
->>> G.is_infinite(mpc("inf-infj"))
+>>> gmpy2.is_infinite(mpc("inf-infj"))
 True
->>> G.is_infinite(mpc("1+1j"))
+>>> gmpy2.is_infinite(mpc("1+1j"))
 False
->>> G.is_finite(mpc("0+0j"))
+>>> gmpy2.is_finite(mpc("0+0j"))
 True
->>> G.is_finite(mpc("nan+0j"))
+>>> gmpy2.is_finite(mpc("nan+0j"))
 False
->>> G.is_finite(mpc("0+nanj"))
+>>> gmpy2.is_finite(mpc("0+nanj"))
 False
->>> G.is_finite(mpc("0+infj"))
+>>> gmpy2.is_finite(mpc("0+infj"))
 False
->>> G.is_finite(mpc("inf+3j"))
+>>> gmpy2.is_finite(mpc("inf+3j"))
 False
 
 Test mpc misc
@@ -247,3 +247,100 @@ Convert from mpc
 
 >>> complex(mpc(4,5))
 (4+5j)
+
+Test phase
+----------
+>>> gmpy2.phase()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: phase() takes exactly one argument (0 given)
+>>> gmpy2.phase(3)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: phase() argument type not supported
+>>> gmpy2.phase(mpc(4,5))
+mpfr('0.89605538457134393')
+>>> gmpy2.ieee(64).phase(mpc(4,5))
+mpfr('0.89605538457134393')
+
+Test root_of_unity
+------------------
+>>> gmpy2.root_of_unity(1,1)
+mpc('1.0+0.0j')
+>>> gmpy2.root_of_unity(1,2)
+mpc('1.0+0.0j')
+>>> gmpy2.root_of_unity(2,1)
+mpc('-1.0+0.0j')
+>>> gmpy2.root_of_unity(3,1)
+mpc('-0.5+0.8660254037844386j')
+>>> gmpy2.root_of_unity(3,2)
+mpc('-0.5-0.8660254037844386j')
+>>> gmpy2.root_of_unity(3,3)
+mpc('1.0+0.0j')
+>>> gmpy2.ieee(128).root_of_unity(3,1)
+mpc('-0.5+0.866025403784438646763723170752936161j',(113,113))
+>>> gmpy2.ieee(128).root_of_unity()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: root_of_unity() requires 2 arguments
+>>> gmpy2.ieee(128).root_of_unity('a','b')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: root_of_unity() requires integer arguments
+
+Test norm
+---------
+>>> gmpy2.norm()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: norm() takes exactly one argument (0 given)
+>>> gmpy2.norm(2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: norm() argument type not supported
+>>> gmpy2.norm(mpc(1,2))
+mpfr('5.0')
+>>> gmpy2.ieee(32).norm(mpc(1,2))
+mpfr('5.0',24)
+
+Test polar
+----------
+>>> gmpy2.polar()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: polar() takes exactly one argument (0 given)
+>>> gmpy2.polar(5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: polar() argument type not supported
+>>> gmpy2.polar(mpc(1,1))
+(mpfr('1.4142135623730951'), mpfr('0.78539816339744828'))
+
+Test rect
+---------
+>>> gmpy2.rect()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: rect() requires 2 arguments
+>>> gmpy2.rect(1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: rect() requires 2 arguments
+>>> gmpy2.rect(1,1)
+mpc('0.54030230586813977+0.8414709848078965j')
+
+Test proj
+---------
+>>> gmpy2.proj()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: proj() takes exactly one argument (0 given)
+>>> gmpy2.proj(1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: proj() argument type not supported
+>>> gmpy2.proj(mpc(1,1))
+mpc('1.0+1.0j')
+>>> gmpy2.proj(mpc(1,2))
+mpc('1.0+2.0j')
+
