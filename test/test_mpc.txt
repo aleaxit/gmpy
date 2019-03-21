@@ -265,25 +265,25 @@ mpfr('0.89605538457134393')
 
 Test root_of_unity
 ------------------
->>> gmpy2.root_of_unity(1,1)
+>>> gmpy2.root_of_unity(1,1) # doctest: +SKIP_NO_ROOT_OF_UNITY
 mpc('1.0+0.0j')
->>> gmpy2.root_of_unity(1,2)
+>>> gmpy2.root_of_unity(1,2) # doctest: +SKIP_NO_ROOT_OF_UNITY
 mpc('1.0+0.0j')
->>> gmpy2.root_of_unity(2,1)
+>>> gmpy2.root_of_unity(2,1) # doctest: +SKIP_NO_ROOT_OF_UNITY
 mpc('-1.0+0.0j')
->>> gmpy2.root_of_unity(3,1)
+>>> gmpy2.root_of_unity(3,1) # doctest: +SKIP_NO_ROOT_OF_UNITY
 mpc('-0.5+0.8660254037844386j')
->>> gmpy2.root_of_unity(3,2)
+>>> gmpy2.root_of_unity(3,2) # doctest: +SKIP_NO_ROOT_OF_UNITY
 mpc('-0.5-0.8660254037844386j')
->>> gmpy2.root_of_unity(3,3)
+>>> gmpy2.root_of_unity(3,3) # doctest: +SKIP_NO_ROOT_OF_UNITY
 mpc('1.0+0.0j')
->>> gmpy2.ieee(128).root_of_unity(3,1)
+>>> gmpy2.ieee(128).root_of_unity(3,1) # doctest: +SKIP_NO_ROOT_OF_UNITY
 mpc('-0.5+0.866025403784438646763723170752936161j',(113,113))
->>> gmpy2.ieee(128).root_of_unity()
+>>> gmpy2.ieee(128).root_of_unity() # doctest: +SKIP_NO_ROOT_OF_UNITY
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: root_of_unity() requires 2 arguments
->>> gmpy2.ieee(128).root_of_unity('a','b')
+>>> gmpy2.ieee(128).root_of_unity('a','b') # doctest: +SKIP_NO_ROOT_OF_UNITY
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: root_of_unity() requires integer arguments

@@ -4,6 +4,7 @@ import sys
 import os
 import glob
 import doctest
+from doctest import DocTestParser, Example, SKIP
 import gmpy2
 
 # *****************************************************************************
@@ -41,6 +42,24 @@ if debug:
         repeat = 1
 else:
     repeat = 1
+
+# If mpc version < 1.1.0 gmpy2.root_of_unity may not be defined.
+# We create a doctest flag to skip a doctest if root_of_unity is not defined
+SKIP_NO_ROOT_OF_UNITY = doctest.register_optionflag("SKIP_NO_ROOT_OF_UNITY")
+has_root_of_unity = 'root_of_unity' in dir(gmpy2)
+
+class Gmpy2DocTestParser(DocTestParser):
+    def parse(self, *args, **kwargs):
+        examples = DocTestParser.parse(self, *args, **kwargs)
+        for example in examples:
+            if not isinstance(example, Example):
+                continue
+            if not has_root_of_unity and SKIP_NO_ROOT_OF_UNITY in example.options:
+                example.options[SKIP] = True
+
+        return examples
+
+parser = Gmpy2DocTestParser()
 
 print()
 print("Unit tests for gmpy2 {0} with Python {1}".format(gmpy2.version(), sys.version.split()[0]))
@@ -105,7 +124,8 @@ for test in sorted(all_doctests):
         result = doctest.testfile(test, globs=globals(),
                                   optionflags=doctest.IGNORE_EXCEPTION_DETAIL |
                                               doctest.NORMALIZE_WHITESPACE |
-                                              doctest.REPORT_NDIFF)
+                                              doctest.REPORT_NDIFF,
+                                  parser=parser)
         print("Results for:  {0:25}".format(test.split(".")[0]), end="")
         print(" Attempted: {1:4d}   Failed: {0:4d}".format(*result), end="")
         if debug:
