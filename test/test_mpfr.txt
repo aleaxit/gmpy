@@ -19,7 +19,8 @@ Testing of mpfr functionality is split into multiple files.
         Test comparisons.
 
     >>> import gmpy2 as G
-    >>> from gmpy2 import mpz, mpq, mpfr
+    >>> ctx = G.get_context()
+    >>> from gmpy2 import mpz, mpq, mpfr, mpc
     >>> a = mpfr("12.34")
     >>> b = mpfr("45.67")
     >>> c = 12345678901234567890
@@ -140,6 +141,10 @@ Test division
     mpfr('0.0')
     >>> a/b
     mpfr('0.27019925552879348')
+    >>> gmpy2.div(a, b)
+    mpfr('0.27019925552879348')
+    >>> ctx.div(a, b)
+    mpfr('0.27019925552879348')
     >>> b//a
     mpfr('3.0')
     >>> b/a
@@ -158,6 +163,22 @@ Test division
     mpfr('20.0')
     >>> mpfr(10) / r
     mpfr('6.666666666666667')
+    >>> b / mpc(4, 4)
+    mpc('5.7087500000000002-5.7087500000000002j')
+    >>> ctx.div(b, mpc(4, 4))
+    mpc('5.7087500000000002-5.7087500000000002j')
+    >>> b / mpc(0, 0)
+    mpc('inf+nanj')
+    >>> ctx.div(b, mpc(0, 0))
+    mpc('inf+nanj')
+    >>> b / 'str'
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: unsupported operand type(s) for /: 'mpfr' and 'str'
+    >>> ctx.div(b, 'str')
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: div() argument type not supported
 
 
 Test modulo

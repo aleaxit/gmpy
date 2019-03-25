@@ -25,6 +25,7 @@ Testing of mpz functionality is split into multiple files.
     >>> class Z:
     ...     def __mpz__(self): return mpz(2)
     >>> z = Z()
+    >>> ctx = gmpy2.get_context()
 
 Test elementary operations
 ==========================
@@ -117,6 +118,10 @@ Test division
     mpz(0)
     >>> a/b
     mpfr('0.26973684210526316')
+    >>> gmpy2.div(a, b)
+    mpfr('0.26973684210526316')
+    >>> ctx.div(a, b)
+    mpfr('0.26973684210526316')
     >>> b//a
     mpz(3)
     >>> b/a
@@ -143,6 +148,18 @@ Test division
     mpfr('61.5')
     >>> a // z
     mpz(61)
+    >>> ctx.div(a, b, 5)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: div() requires 2 arguments.
+    >>> ctx.div(a, 'str')
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: div() argument type not supported
+    >>> a / 'str'
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: unsupported operand type(s) for /: 'mpz' and 'str'
 
 Test modulo
 -----------

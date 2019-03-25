@@ -13,8 +13,9 @@ Testing of mpq functionality is split into multiple files.
         Test comparisons.
 
     >>> import gmpy2 as G
+    >>> ctx = G.get_context()
     >>> from fractions import Fraction as F
-    >>> from gmpy2 import mpz, mpq, mpfr
+    >>> from gmpy2 import mpz, mpq, mpfr, mpc
     >>> a = mpq(3,11)
     >>> b = mpq(1,2)
     >>> c = F(5,7)
@@ -102,6 +103,10 @@ Test division
     mpz(1)
     >>> a/b
     mpq(6,11)
+    >>> gmpy2.div(a, b)
+    mpq(6,11)
+    >>> ctx.div(a, b)
+    mpq(6,11)
     >>> b/a
     mpq(11,6)
     >>> a/0
@@ -128,6 +133,16 @@ Test division
     mpq(2,11)
     >>> mpq(3,11) // q
     mpz(0)
+    >>> a / mpc(5, 4)
+    mpc('0.03325942350332594-0.02660753880266075j')
+    >>> a / mpq(0,1)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: division or modulo by zero
+    >>> a / 'str'
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: unsupported operand type(s) for /: 'mpq' and 'str'
 
 Test modulo
 -----------
