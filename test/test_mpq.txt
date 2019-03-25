@@ -163,12 +163,40 @@ Test modulo
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
     ZeroDivisionError: 'mpq' division or modulo by zero
+    >>> a % mpq(0,5)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: division or modulo by zero
+    >>> ctx.mod(a, mpfr(1.5))
+    mpfr('0.27272727272727271')
+    >>> ctx.mod(a, mpc(0.5, 2))
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: can't take mod of complex number
+    >>> ctx.mod(a, mpq(0, 2))
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: division or modulo by zero
     >>> divmod(17,a)
     (mpz(62), mpq(1,11))
     >>> divmod(mpz(17),a)
     (mpz(62), mpq(1,11))
     >>> divmod(a,c)
     (mpz(0), mpq(3,11))
+    >>> a % mpfr(1.5)
+    mpfr('0.27272727272727271')
+    >>> a % mpc(0.5, 2)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: can't take mod of complex number
+    >>> a % 'str'
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: unsupported operand type(s) for %: 'mpq' and 'str'
+    >>> ctx.mod(a, 'str')
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: mod() argument type not supported
 
 Test pickle
 -----------
