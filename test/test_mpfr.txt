@@ -541,4 +541,19 @@ Test Number Protocol
     >>> a.conjugate()
     mpfr('12.34')
 
+Test sign function
+------------------
+
+    >>> gmpy2.sign(-1.5)
+    -1
+    >>> gmpy2.sign(a)
+    1
+    >>> gmpy2.sign(mpfr(0))
+    0
+    >>> gmpy2.sign(mpfr('inf'))
+    1
+    >>> gmpy2.sign(mpfr('-inf'))
+    -1
+    >>> gmpy2.sign(mpfr('nan'))
+    0
 
