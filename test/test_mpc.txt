@@ -102,6 +102,8 @@ Test division
 
 >>> aj / bj
 mpc('0.34146341463414637+0.073170731707317069j')
+>>> gmpy2.div(aj, bj)
+mpc('0.34146341463414637+0.073170731707317069j')
 >>> aj // bj
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>

@@ -19,7 +19,8 @@ Testing of mpfr functionality is split into multiple files.
         Test comparisons.
 
     >>> import gmpy2 as G
-    >>> from gmpy2 import mpz, mpq, mpfr
+    >>> ctx = G.get_context()
+    >>> from gmpy2 import mpz, mpq, mpfr, mpc
     >>> a = mpfr("12.34")
     >>> b = mpfr("45.67")
     >>> c = 12345678901234567890
@@ -140,6 +141,10 @@ Test division
     mpfr('0.0')
     >>> a/b
     mpfr('0.27019925552879348')
+    >>> gmpy2.div(a, b)
+    mpfr('0.27019925552879348')
+    >>> ctx.div(a, b)
+    mpfr('0.27019925552879348')
     >>> b//a
     mpfr('3.0')
     >>> b/a
@@ -158,17 +163,113 @@ Test division
     mpfr('20.0')
     >>> mpfr(10) / r
     mpfr('6.666666666666667')
+    >>> b / mpc(4, 4)
+    mpc('5.7087500000000002-5.7087500000000002j')
+    >>> ctx.div(b, mpc(4, 4))
+    mpc('5.7087500000000002-5.7087500000000002j')
+    >>> b / mpc(0, 0)
+    mpc('inf+nanj')
+    >>> ctx.div(b, mpc(0, 0))
+    mpc('inf+nanj')
+    >>> b / 'str'
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: unsupported operand type(s) for /: 'mpfr' and 'str'
+    >>> ctx.div(b, 'str')
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: div() argument type not supported
 
 
 Test modulo
 -----------
 
-    >>> a%1
+    >>> a % 1
     mpfr('0.33999999999999986')
-    >>> 12.34%1
+    >>> 12.34 % 1
     0.33999999999999986
-    >>> a%z
+    >>> a % z
     mpfr('0.33999999999999986')
+    >>> b % 0
+    mpfr('nan')
+    >>> b % mpz(0)
+    mpfr('nan')
+    >>> ctx.mod(b, 0)
+    mpfr('nan')
+    >>> ctx.mod(b, mpz(0))
+    mpfr('nan')
+    >>> b % mpfr(0)
+    mpfr('nan')
+    >>> ctx.mod(b, mpfr(0))
+    mpfr('nan')
+    >>> ctx.trap_divzero = True
+    >>> b % 0
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    gmpy2.DivisionByZeroError: mod() modulo by zero
+    >>> b % mpz(0)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    gmpy2.DivisionByZeroError: mod() modulo by zero
+    >>> ctx.mod(b, 0)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    gmpy2.DivisionByZeroError: mod() modulo by zero
+    >>> ctx.mod(b, mpz(0))
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    gmpy2.DivisionByZeroError: mod() modulo by zero
+    >>> b % mpfr(0)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    gmpy2.DivisionByZeroError: mod() modulo by zero
+    >>> ctx.mod(b, mpfr(0))
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    gmpy2.DivisionByZeroError: mod() modulo by zero
+    >>> ctx.trap_divzero = False
+    >>> b % 'str'
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: unsupported operand type(s) for %: 'mpfr' and 'str'
+    >>> ctx.mod(b,'str')
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: mod() argument type not supported
+    >>> b % mpc(3, 5)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: can't take mod of complex number
+    >>> mpfr('nan') % a
+    mpfr('nan')
+    >>> a % mpfr('nan')
+    mpfr('nan')
+    >>> mpfr('inf') % a
+    mpfr('nan')
+    >>> a % mpfr('inf')
+    mpfr('12.34')
+    >>> ctx.trap_invalid = True
+    >>> mpfr('nan') % a
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    gmpy2.InvalidOperationError: invalid operation
+    >>> a % mpfr('nan')
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    gmpy2.InvalidOperationError: invalid operation
+    >>> mpfr('inf') % a
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    gmpy2.InvalidOperationError: mod() invalid operation
+    >>> a % mpfr('inf')
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    gmpy2.InvalidOperationError: mod() invalid operation
+    >>> ctx.trap_invalid = False
+    >>> ctx.mod(a, b, 5)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: mod() requires 2 arguments
 
 Test divmod
 -----------
@@ -440,4 +541,19 @@ Test Number Protocol
     >>> a.conjugate()
     mpfr('12.34')
 
+Test sign function
+------------------
+
+    >>> gmpy2.sign(-1.5)
+    -1
+    >>> gmpy2.sign(a)
+    1
+    >>> gmpy2.sign(mpfr(0))
+    0
+    >>> gmpy2.sign(mpfr('inf'))
+    1
+    >>> gmpy2.sign(mpfr('-inf'))
+    -1
+    >>> gmpy2.sign(mpfr('nan'))
+    0
 

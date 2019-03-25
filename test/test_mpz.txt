@@ -25,6 +25,7 @@ Testing of mpz functionality is split into multiple files.
     >>> class Z:
     ...     def __mpz__(self): return mpz(2)
     >>> z = Z()
+    >>> ctx = gmpy2.get_context()
 
 Test elementary operations
 ==========================
@@ -117,6 +118,10 @@ Test division
     mpz(0)
     >>> a/b
     mpfr('0.26973684210526316')
+    >>> gmpy2.div(a, b)
+    mpfr('0.26973684210526316')
+    >>> ctx.div(a, b)
+    mpfr('0.26973684210526316')
     >>> b//a
     mpz(3)
     >>> b/a
@@ -143,32 +148,86 @@ Test division
     mpfr('61.5')
     >>> a // z
     mpz(61)
+    >>> ctx.div(a, b, 5)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: div() requires 2 arguments.
+    >>> ctx.div(a, 'str')
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: div() argument type not supported
+    >>> a / 'str'
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: unsupported operand type(s) for /: 'mpz' and 'str'
 
 Test modulo
 -----------
 
-    >>> a%b
+    >>> a % b
     mpz(123)
-    >>> b%a
+    >>> b % a
     mpz(87)
-    >>> a%z
+    >>> gmpy2.mod(b, a)
+    mpz(87)
+    >>> ctx.mod(b, a)
+    mpz(87)
+    >>> a % z
     mpz(1)
     >>> divmod(a,b)
     (mpz(0), mpz(123))
     >>> divmod(b,a)
     (mpz(3), mpz(87))
+    >>> a % mpz(0)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: division or modulo by zero
     >>> divmod(a,0)
     Traceback (most recent call last):
       ...
     ZeroDivisionError: division or modulo by zero
-    >>> divmod(a,mpz(0))
+    >>> divmod(a, mpz(0))
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
     ZeroDivisionError: division or modulo by zero
-    >>> divmod(123,mpz(0))
+    >>> divmod(123, mpz(0))
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
     ZeroDivisionError: division or modulo by zero
+    >>> a % 0
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: division or modulo by zero
+    >>> 14 % mpz(0)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: division or modulo by zero
+    >>> gmpy2.mod(14, mpz(0))
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: division or modulo by zero
+    >>> gmpy2.mod(124, 0)
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: division or modulo by zero
+    >>> gmpy2.mod(b, mpz(0))
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: division or modulo by zero
+    >>> ctx.mod(b, mpz(0))
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    ZeroDivisionError: division or modulo by zero
+    >>> gmpy2.mod(124, 'str')
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: mod() argument type not supported
+    >>> a % 'str'
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: unsupported operand type(s) for %: 'mpz' and 'str'
+    >>> gmpy2.mod(124, mpz(5))
+    mpz(4)
     >>> divmod(b,123)
     (mpz(3), mpz(87))
     >>> divmod(a,c)
@@ -185,6 +244,10 @@ Test modulo
     (mpz(-123), mpz(-123))
     >>> print("%s %s" % divmod(int(a*(c-1)),-int(c)))
     -123 -123
+    >>> z % mpq(1,2)
+    mpq(0,1)
+    >>> a % mpq(2,3)
+    mpq(1,3)
 
 Test miscellaneous
 ------------------
