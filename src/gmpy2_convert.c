@@ -173,7 +173,6 @@ mpz_ascii(mpz_t z, int base, int option, int which)
 
     if (
         !(
-          (base == 0) ||
           ((base >= -36) && (base <= -2)) ||
           ((base >= 2) && (base <= 62))
          )

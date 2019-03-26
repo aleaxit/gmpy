@@ -166,6 +166,14 @@ Tests mpz digits method
 '-3'
 >>> mpz(15).digits(16)
 'f'
+>>> z1.digits(0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: base must be in the interval 2 ... 62
+>>> z1.digits(1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: base must be in the interval 2 ... 62
 
 Tests xmpz digits method
 -----------------------
@@ -181,6 +189,14 @@ Tests xmpz digits method
 '0x6'
 >>> xmpz(30).digits(16)
 '0x1e'
+>>> x.digits(0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: base must be in the interval 2 ... 62
+>>> x.digits(63)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: base must be in the interval 2 ... 62
 
 
 Tests mpfr digits method
@@ -200,6 +216,10 @@ Tests mpfr digits method
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: function takes at most 2 arguments (3 given)
+>>> r.digits(0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: base must be in the interval [2,62]
 
 Tests mpc digits method
 -----------------------
@@ -212,6 +232,10 @@ Tests mpc digits method
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 ValueError: digits must be 0 or >= 2
+>>> c.digits(0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: base must be in the interval [2,62]
 
 Tests mpq digits method
 -----------------------
@@ -224,6 +248,10 @@ Tests mpq digits method
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: function takes at most 1 argument (2 given)
+>>> q.digits(0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: base must be in the interval 2 ... 62
 
 Tests context digits
 --------------------
