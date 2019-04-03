@@ -230,6 +230,10 @@ True
 False
 >>> gmpy2.is_integer(float(5.6))
 False
+>>> ctx.is_integer(mpfr(5))
+True
+>>> ctx.is_integer(mpfr('5.6'))
+False
 
 
 Tests is_less_greater
