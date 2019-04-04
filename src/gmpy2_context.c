@@ -1283,7 +1283,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "hypot", GMPy_Context_Hypot, METH_VARARGS, GMPy_doc_context_hypot },
     { "is_finite", GMPy_Context_Is_Finite, METH_O, GMPy_doc_context_is_finite },
     { "is_infinite", GMPy_Context_Is_Infinite, METH_O, GMPy_doc_context_is_infinite },
-    { "is_integere", GMPy_Context_Is_Integer, METH_O, GMPy_doc_context_is_integer },
+    { "is_integer", GMPy_Context_Is_Integer, METH_O, GMPy_doc_context_is_integer },
     { "is_nan", GMPy_Context_Is_NAN, METH_O, GMPy_doc_context_is_nan },
     { "is_regular", GMPy_Context_Is_Regular, METH_O, GMPy_doc_context_is_regular },
     { "is_signed", GMPy_Context_Is_Signed, METH_O, GMPy_doc_context_is_signed },
