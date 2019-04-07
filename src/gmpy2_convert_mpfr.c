@@ -440,26 +440,71 @@ GMPy_MPFR_From_Real(PyObject *obj, mp_prec_t prec, CTXT_Object *context)
     if (HAS_MPFR_CONVERSION(obj)) {
         MPFR_Object *res = (MPFR_Object *) PyObject_CallMethod(obj, "__mpfr__", NULL);
 
-        if (res != NULL && MPFR_Check(res))
+        if (res != NULL && MPFR_Check(res)) {
             return res;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
     }
 
     if (HAS_MPQ_CONVERSION(obj)) {
         MPQ_Object *res = (MPQ_Object *) PyObject_CallMethod(obj, "__mpq__", NULL);
 
-        if (res != NULL && MPQ_Check(res))
+        if (res != NULL && MPQ_Check(res)) {
             return GMPy_MPFR_From_MPQ(res, prec, context);
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
     }
 
     if (HAS_MPZ_CONVERSION(obj)) {
         MPZ_Object *res = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
 
-        if (res != NULL && MPZ_Check(res))
+        if (res != NULL && MPZ_Check(res)) {
             return GMPy_MPFR_From_MPZ(res, prec, context);
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
     }
 
+  error:
     TYPE_ERROR("object could not be converted to 'mpfr'");
     return NULL;
+}
+
+
+static MPFR_Object *
+GMPy_MPFR_From_RealAndCopy(PyObject *obj, mp_prec_t prec, CTXT_Object *context)
+{
+    MPFR_Object *result = NULL, *temp = NULL;
+
+    result = GMPy_MPFR_From_Real(obj, prec, context);
+
+    if (result == NULL)
+        return result;
+
+    if (Py_REFCNT(result) == 1)
+        return result;
+
+    if (!(temp = GMPy_MPFR_New(mpfr_get_prec(result->f), context))) {
+        /* LCOV_EXCL_START */
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
+
+    /* Since the precision of temp is the same as the precision of result,
+     * there shouldn't be any rounding.
+     */
+
+    mpfr_set(temp->f, result->f, MPFR_RNDN);
+    Py_DECREF((PyObject*)result);
+    return temp;
 }
 
 static MPZ_Object *
