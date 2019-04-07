@@ -45,6 +45,9 @@ static MPC_Object *   GMPy_MPC_From_Fraction(PyObject *obj, mpfr_prec_t rprec, m
 static MPC_Object *   GMPy_MPC_From_PyIntOrLong(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
 static MPC_Object *   GMPy_MPC_From_PyStr(PyObject *s, int base, mpfr_prec_t rbits, mpfr_prec_t ibits, CTXT_Object *context);
 static MPC_Object *   GMPy_MPC_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
+#if 0
+static MPC_Object *   GMPy_MPC_From_ComplexAndCopy(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
+#endif
 
 static PyObject *     GMPy_MPC_Float_Slot(PyObject *self);
 #ifdef PY2

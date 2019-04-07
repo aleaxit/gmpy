@@ -45,6 +45,7 @@ static MPFR_Object *    GMPy_MPFR_From_MPQ(MPQ_Object *obj, mpfr_prec_t prec, CT
 static MPFR_Object *    GMPy_MPFR_From_Fraction(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context);
 static MPFR_Object *    GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *context);
 static MPFR_Object *    GMPy_MPFR_From_Real(PyObject* obj, mpfr_prec_t prec, CTXT_Object *context);
+static MPFR_Object *    GMPy_MPFR_From_RealAndCopy(PyObject* obj, mpfr_prec_t prec, CTXT_Object *context);
 
 static PyObject *       GMPy_PyIntOrLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context);
 static MPZ_Object *     GMPy_MPZ_From_MPFR(MPFR_Object *obj, CTXT_Object *context);

@@ -543,6 +543,7 @@ typedef struct {
 #include "gmpy2_predicate.h"
 #include "gmpy2_sign.h"
 #include "gmpy2_richcompare.h"
+#include "gmpy2_cmp.h"
 
 #ifdef VECTOR
 #  include "gmpy2_vector.h"
