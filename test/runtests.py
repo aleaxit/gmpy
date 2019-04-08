@@ -48,6 +48,8 @@ else:
 SKIP_NO_ROOT_OF_UNITY = doctest.register_optionflag("SKIP_NO_ROOT_OF_UNITY")
 has_root_of_unity = 'root_of_unity' in dir(gmpy2)
 
+SKIP_IN_DEBUG_MODE = doctest.register_optionflag("SKIP_IN_DEBUG_MODE")
+
 class Gmpy2DocTestParser(DocTestParser):
     def parse(self, *args, **kwargs):
         examples = DocTestParser.parse(self, *args, **kwargs)
@@ -55,6 +57,8 @@ class Gmpy2DocTestParser(DocTestParser):
             if not isinstance(example, Example):
                 continue
             if not has_root_of_unity and SKIP_NO_ROOT_OF_UNITY in example.options:
+                example.options[SKIP] = True
+            if debug and SKIP_IN_DEBUG_MODE in example.options:
                 example.options[SKIP] = True
 
         return examples
@@ -134,6 +138,8 @@ for test in sorted(all_doctests):
             print()
         failed += result[0]
         attempted += result[1]
+    if repeat > 1:
+        print()
 
 
 print()

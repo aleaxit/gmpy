@@ -349,8 +349,10 @@ GMPy_MPZ_bit_clear_method(PyObject *self, PyObject *other)
         return NULL;
 
     bit_index = mp_bitcnt_t_From_Integer(other);
-    if (bit_index == (mp_bitcnt_t)(-1) && PyErr_Occurred())
+    if (bit_index == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
+        Py_DECREF(result);
         return NULL;
+    }
 
     mpz_set(result->z, MPZ(self));
     mpz_clrbit(result->z, bit_index);
@@ -408,8 +410,10 @@ GMPy_MPZ_bit_set_method(PyObject *self, PyObject *other)
         return NULL;
 
     bit_index = mp_bitcnt_t_From_Integer(other);
-    if (bit_index == (mp_bitcnt_t)(-1) && PyErr_Occurred())
+    if (bit_index == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
+        Py_DECREF(result);
         return NULL;
+    }
 
     mpz_set(result->z, MPZ(self));
     mpz_setbit(result->z, bit_index);
@@ -467,8 +471,10 @@ GMPy_MPZ_bit_flip_method(PyObject *self, PyObject *other)
         return NULL;
 
     bit_index = mp_bitcnt_t_From_Integer(other);
-    if (bit_index == (mp_bitcnt_t)(-1) && PyErr_Occurred())
+    if (bit_index == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
+        Py_DECREF(result);
         return NULL;
+    }
 
     mpz_set(result->z, MPZ(self));
     mpz_combit(result->z, bit_index);

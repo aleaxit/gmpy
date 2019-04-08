@@ -93,8 +93,9 @@ GMPy_MPZ_ISub_Slot(PyObject *self, PyObject *other)
 {
     MPZ_Object *rz;
 
-    if (!(rz =  GMPy_MPZ_New(NULL)))
+    if (!(rz =  GMPy_MPZ_New(NULL))) {
         return NULL;
+    }
 
     if (CHECK_MPZANY(other)) {
         mpz_sub(rz->z, MPZ(self), MPZ(other));
@@ -120,6 +121,7 @@ GMPy_MPZ_ISub_Slot(PyObject *self, PyObject *other)
         return (PyObject*)rz;
     }
 
+    Py_DECREF(rz);
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -128,8 +130,9 @@ GMPy_MPZ_IMul_Slot(PyObject *self, PyObject *other)
 {
     MPZ_Object *rz;
 
-    if (!(rz =  GMPy_MPZ_New(NULL)))
+    if (!(rz =  GMPy_MPZ_New(NULL))) {
         return NULL;
+    }
 
     if (CHECK_MPZANY(other)) {
         mpz_mul(rz->z, MPZ(self), MPZ(other));
@@ -150,6 +153,7 @@ GMPy_MPZ_IMul_Slot(PyObject *self, PyObject *other)
         return (PyObject*)rz;
     }
 
+    Py_DECREF(rz);
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -163,12 +167,14 @@ GMPy_MPZ_IFloorDiv_Slot(PyObject *self, PyObject *other)
 {
     MPZ_Object *rz;
 
-    if (!(rz =  GMPy_MPZ_New(NULL)))
+    if (!(rz =  GMPy_MPZ_New(NULL))) {
         return NULL;
+    }
 
     if (CHECK_MPZANY(other)) {
         if (mpz_sgn(MPZ(other)) == 0) {
             ZERO_ERROR("mpz division by zero");
+            Py_DECREF(rz);
             return NULL;
         }
         mpz_fdiv_q(rz->z, MPZ(self), MPZ(other));
@@ -182,6 +188,7 @@ GMPy_MPZ_IFloorDiv_Slot(PyObject *self, PyObject *other)
         if (!error) {
             if (temp == 0) {
                 ZERO_ERROR("mpz division by zero");
+                Py_DECREF(rz);
                 return NULL;
             }
             else if(temp > 0) {
@@ -199,6 +206,7 @@ GMPy_MPZ_IFloorDiv_Slot(PyObject *self, PyObject *other)
         return (PyObject*)rz;
     }
 
+    Py_DECREF(rz);
     Py_RETURN_NOTIMPLEMENTED;
 }
 
@@ -207,12 +215,14 @@ GMPy_MPZ_IRem_Slot(PyObject *self, PyObject *other)
 {
     MPZ_Object *rz;
 
-    if (!(rz =  GMPy_MPZ_New(NULL)))
+    if (!(rz =  GMPy_MPZ_New(NULL))) {
         return NULL;
+    }
 
      if (CHECK_MPZANY(other)) {
         if (mpz_sgn(MPZ(other)) == 0) {
             ZERO_ERROR("mpz modulo by zero");
+            Py_DECREF(rz);
             return NULL;
         }
         mpz_fdiv_r(rz->z, MPZ(self), MPZ(other));
@@ -228,6 +238,7 @@ GMPy_MPZ_IRem_Slot(PyObject *self, PyObject *other)
                 mpz_fdiv_r_ui(rz->z, MPZ(self), temp);
             }
             else if (temp == 0) {
+                Py_DECREF(rz);
                 ZERO_ERROR("mpz modulo by zero");
                 return NULL;
             }
@@ -242,6 +253,7 @@ GMPy_MPZ_IRem_Slot(PyObject *self, PyObject *other)
         return (PyObject*)rz;
     }
 
+    Py_DECREF(rz);
     Py_RETURN_NOTIMPLEMENTED;
 }
 

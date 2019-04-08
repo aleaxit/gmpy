@@ -5,25 +5,12 @@ Test all code in the file gmpy2_sub.c.
 
 >>> import gmpy2 as gmpy2
 >>> from gmpy2 import mpz, xmpz, mpq, mpfr, mpc
+>>> from supportclasses import *
 >>> from decimal import Decimal as D
 >>> from fractions import Fraction as F
 >>> a = mpz(123)
 >>> b = mpz(456)
 >>> c = 12345678901234567890
->>> class Z:
-...     def __mpz__(self): return mpz(2)
->>> class Q:
-...     def __mpz__(self): return mpz(1)
-...     def __mpq__(self): return mpq(3,2)
->>> class R:
-...     def __mpfr__(self): return mpfr(1.5)
->>> class Cx:
-...     def __mpfr__(self): return mpfr(1.5)
-...     def __mpc__(self): return mpc(42,67)
->>> z = Z()
->>> q = Q()
->>> r = R()
->>> cx = Cx()
 
 Test integer operations
 -----------------------
@@ -52,6 +39,8 @@ TypeError: ** message detail varies **
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: ** message detail varies **
+>>> 1
+1
 
 Test rational operations
 ------------------------
@@ -90,6 +79,8 @@ mpq(3,4)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: ** message detail varies **
+>>> 1
+1
 
 >>> mpq(1,2) * 'a'
 Traceback (most recent call last):
@@ -99,6 +90,8 @@ TypeError: ** message detail varies **
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: ** message detail varies **
+>>> 1
+1
 
 Test real operations
 --------------------
@@ -143,6 +136,8 @@ TypeError: ** message detail varies **
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: ** message detail varies **
+>>> 1
+1
 
 Test complex operations
 -----------------------

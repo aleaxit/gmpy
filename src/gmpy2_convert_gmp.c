@@ -1050,7 +1050,9 @@ GMPy_MPQ_From_Number(PyObject *obj, CTXT_Object *context)
         MPZ_Object * res = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
 
         if (res != NULL && MPZ_Check(res)) {
-            return GMPy_MPQ_From_MPZ(res, context);
+            MPQ_Object * temp = GMPy_MPQ_From_MPZ(res, context);
+            Py_DECREF(res);
+            return temp;
         }
         else {
             Py_XDECREF((PyObject*)res);

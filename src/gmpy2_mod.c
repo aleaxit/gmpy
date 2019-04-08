@@ -233,15 +233,13 @@ GMPy_MPQ_Mod_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    MPFR_Object *tempx = NULL, *tempy = NULL, *temp, *result;
+    MPFR_Object *tempx = NULL, *tempy = NULL, *result;
 
     CHECK_CONTEXT(context);
 
     result = GMPy_MPFR_New(0, context);
-    temp = GMPy_MPFR_New(0, context);
-    if (!result || !temp) {
+    if (!result) {
         Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)temp);
         return NULL;
     }
 
@@ -296,8 +294,6 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
             else {
                 mpfr_copysign(result->f, result->f, tempy->f, GET_MPFR_ROUND(context));
             }
-
-            Py_DECREF((PyObject*)temp);
         }
         _GMPy_MPFR_Cleanup(&result, context);
 
@@ -306,14 +302,12 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
         return (PyObject*)result;
     }
 
-    Py_DECREF((PyObject*)temp);
     Py_DECREF((PyObject*)result);
     Py_RETURN_NOTIMPLEMENTED;
 
   error:
     Py_XDECREF((PyObject*)tempx);
     Py_XDECREF((PyObject*)tempy);
-    Py_DECREF((PyObject*)temp);
     Py_DECREF((PyObject*)result);
     return NULL;
 }

@@ -50,6 +50,8 @@ ValueError: pow() 3rd argument cannot be 0
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: pow() argument type not supported
+>>> 1
+1
 
 Test rational power
 -------------------
@@ -71,6 +73,8 @@ mpfr('0.72298118079846574')
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: pow() 3rd argument not allowed unless all arguments are integers
+>>> 1
+1
 
 Test real number power
 ----------------------
@@ -134,3 +138,5 @@ TypeError: powmod() requires 3 arguments.
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: powmod() argument types not supported
+>>> 1
+1

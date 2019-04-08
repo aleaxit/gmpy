@@ -71,3 +71,5 @@ mpc('0.5+0.5j')
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 ValueError: a non-negative value is required
+>>> 1
+1

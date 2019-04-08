@@ -23,6 +23,8 @@ Test bit_length
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: bit_length() requires 'mpz' argument
+>>> 1
+1
 
 Test bit_mask
 -------------
@@ -41,6 +43,8 @@ mpz(255)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 ValueError: a non-negative value is required
+>>> 1
+1
 
 Test bit_scan0
 --------------
@@ -83,6 +87,8 @@ TypeError: bit_scan0() requires 'mpz',['int'] arguments
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 ValueError: a non-negative value is required
+>>> 1
+1
 
 Test bit_scan1
 --------------
@@ -123,6 +129,8 @@ TypeError: bit_scan1() requires 'mpz',['int'] arguments
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 ValueError: a non-negative value is required
+>>> 1
+1
 
 Test bit_test
 -------------
@@ -157,6 +165,8 @@ TypeError: bit_test() requires 'mpz','int' arguments
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 ValueError: a non-negative value is required
+>>> 1
+1
 
 Test bit_clear
 --------------
@@ -189,6 +199,8 @@ TypeError: could not convert object to integer
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 ValueError: a non-negative value is required
+>>> 1
+1
 
 Test bit_set
 ------------
@@ -225,6 +237,8 @@ TypeError: could not convert object to integer
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 ValueError: a non-negative value is required
+>>> 1
+1
 
 Test bit_flip
 -------------
@@ -259,6 +273,8 @@ TypeError: could not convert object to integer
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 ValueError: a non-negative value is required
+>>> 1
+1
 
 Test and operator
 -----------------
@@ -292,6 +308,8 @@ True
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: popcount() requires 'mpz' argument
+>>> 1
+1
 
 Test hamdist
 ------------
@@ -310,3 +328,5 @@ TypeError: hamdist() requires 'mpz','mpz' arguments
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: hamdist() requires 'mpz','mpz' arguments
+>>> 1
+1

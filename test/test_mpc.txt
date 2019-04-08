@@ -3,6 +3,7 @@ Test mpc elementary operations
 
 >>> import gmpy2
 >>> from gmpy2 import mpz, mpq, mpfr, mpc
+>>> from supportclasses import *
 >>> from fractions import Fraction as F
 >>> from decimal import Decimal as D
 >>> a = mpz(123)
@@ -14,20 +15,6 @@ Test mpc elementary operations
 >>> bq = mpq(17,2)
 >>> aj = mpc(1+2j)
 >>> bj = mpc(4+5j)
->>> class Z:
-...     def __mpz__(self): return mpz(2)
->>> class Q:
-...     def __mpz__(self): return mpz(1)
-...     def __mpq__(self): return mpq(3,2)
->>> class R:
-...     def __mpfr__(self): return mpfr(1.5)
->>> class Cx:
-...     def __mpfr__(self): return mpfr(1.5)
-...     def __mpc__(self): return mpc(3,2)
->>> z = Z()
->>> q = Q()
->>> r = R()
->>> cx = Cx()
 
 Test addition
 -------------
@@ -121,7 +108,7 @@ mpc('1.3333333333333333+1.3333333333333333j')
 >>> mpc('2.0+2.0j') / r
 mpc('1.3333333333333333+1.3333333333333333j')
 >>> mpc(15,15) / cx
-mpc('5.7692307692307692+1.1538461538461537j')
+mpc('0.26147449224372299-0.059971213817367662j')
 
 
 Test modulo
@@ -143,6 +130,8 @@ TypeError: can't mod complex numbers
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: can't take floor or mod of complex number.
+>>> 1
+1
 
 Test operations involving NaN/Inf
 ---------------------------------
@@ -289,6 +278,8 @@ TypeError: root_of_unity() requires 2 arguments
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: root_of_unity() requires integer arguments
+>>> 1
+1
 
 Test norm
 ---------

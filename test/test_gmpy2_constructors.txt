@@ -2,28 +2,7 @@ Test constructors via special methods
 =====================================
 
 >>> from gmpy2 import mpz, mpq, mpfr, mpc
->>> class A:
-...     def __mpz__(self): return mpz(1)
-...     def __mpq__(self): return mpq(3,2)
-...     def __mpfr__(self): return mpfr(1.5)
-...     def __mpc__(self): return mpc(42,67)
->>> class B:
-...     def __mpz__(self): return 'hello'
-...     def __mpq__(self): return 'hello'
-...     def __mpfr__(self): return 'hello'
-...     def __mpc__(self): return 'hello'
->>> class C:
-...     pass
->>> class D:
-...     def __mpz__(self): raise TypeError
-...     def __mpq__(self): raise TypeError
-...     def __mpfr__(self): raise TypeError
-...     def __mpc__(self): raise TypeError
-
->>> a = A()
->>> b = B()
->>> c = C()
->>> d = D()
+>>> from supportclasses import *
 
 Test mpz conversion
 -------------------
@@ -33,16 +12,16 @@ Test mpz conversion
 True
 >>> x == 1
 True
-
 >>> mpz(b)
 Traceback (most recent call last):
 ...
 TypeError: object of type 'str' can not be interpreted as mpz
-
 >>> mpz(c)
 Traceback (most recent call last):
 ...
 TypeError: mpz() requires numeric or string argument
+>>> 1
+1
 
 Test mpq conversion
 -------------------
@@ -52,16 +31,16 @@ Test mpq conversion
 True
 >>> 2*x == 3
 True
-
 >>> mpq(b)
 Traceback (most recent call last):
 ...
 TypeError: object of type 'str' can not be interpreted as mpq
-
 >>> mpq(c)
 Traceback (most recent call last):
 ...
 TypeError: mpq() requires numeric or string argument
+>>> 1
+1
 
 Test mpfr conversion
 --------------------
@@ -71,16 +50,16 @@ Test mpfr conversion
 True
 >>> x == 1.5
 True
-
 >>> mpfr(b)
 Traceback (most recent call last):
 ...
 TypeError: object of type 'str' can not be interpreted as mpc
-
 >>> mpfr(c)
 Traceback (most recent call last):
 ...
 TypeError: mpfr() requires numeric or string argument
+>>> 1
+1
 
 Test mpc conversion
 --------------------
@@ -100,6 +79,8 @@ TypeError: object of type 'str' can not be interpreted as mpc
 Traceback (most recent call last):
 ...
 TypeError: mpc() requires numeric or string argument
+>>> 1
+1
 
 Test special methods raising errors
 --------------------
@@ -119,4 +100,6 @@ TypeError
 Traceback (most recent call last):
 ...
 TypeError
+>>> 1
+1
 

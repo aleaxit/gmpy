@@ -76,6 +76,8 @@ TypeError: can't take floor of complex number
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: unsupported operand type(s) for //: 'mpz' and 'str'
+>>> 1
+1
 
 Rational floor_div
 ------------------
@@ -122,6 +124,8 @@ TypeError: can't take floor of complex number
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: unsupported operand type(s) for //: 'mpq' and 'str'
+>>> 1
+1
 
 Real floor_div
 --------------
@@ -182,3 +186,5 @@ TypeError: can't take floor of complex number
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: unsupported operand type(s) for //: 'mpfr' and 'str'
+>>> 1
+1

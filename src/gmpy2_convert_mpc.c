@@ -453,7 +453,9 @@ GMPy_MPC_From_Complex(PyObject* obj, mp_prec_t rprec, mp_prec_t iprec,
         MPFR_Object * res = (MPFR_Object *) PyObject_CallMethod(obj, "__mpfr__", NULL);
 
         if (res != NULL && MPFR_Check(res)) {
-            return GMPy_MPC_From_MPFR(res, rprec, iprec, context);
+            MPC_Object * temp = GMPy_MPC_From_MPFR(res, rprec, iprec, context);
+            Py_DECREF(res);
+            return temp;
         }
         else {
             Py_XDECREF((PyObject*)res);
@@ -465,7 +467,9 @@ GMPy_MPC_From_Complex(PyObject* obj, mp_prec_t rprec, mp_prec_t iprec,
         MPQ_Object * res = (MPQ_Object *) PyObject_CallMethod(obj, "__mpq__", NULL);
 
         if (res != NULL && MPQ_Check(res)) {
-            return GMPy_MPC_From_MPQ(res, rprec, iprec, context);
+            MPC_Object * temp = GMPy_MPC_From_MPQ(res, rprec, iprec, context);
+            Py_DECREF(res);
+            return temp;
         }
         else {
             Py_XDECREF((PyObject*)res);
@@ -477,7 +481,9 @@ GMPy_MPC_From_Complex(PyObject* obj, mp_prec_t rprec, mp_prec_t iprec,
         MPZ_Object * res = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
 
         if (res != NULL && MPZ_Check(res)) {
-            return GMPy_MPC_From_MPZ(res, rprec, iprec, context);
+            MPC_Object * temp = GMPy_MPC_From_MPZ(res, rprec, iprec, context);
+            Py_DECREF(res);
+            return temp;
         }
         else {
             Py_XDECREF((PyObject*)res);

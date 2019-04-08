@@ -453,7 +453,9 @@ GMPy_MPFR_From_Real(PyObject *obj, mp_prec_t prec, CTXT_Object *context)
         MPQ_Object *res = (MPQ_Object *) PyObject_CallMethod(obj, "__mpq__", NULL);
 
         if (res != NULL && MPQ_Check(res)) {
-            return GMPy_MPFR_From_MPQ(res, prec, context);
+            MPFR_Object * temp =  GMPy_MPFR_From_MPQ(res, prec, context);
+            Py_DECREF(res);
+            return temp;
         }
         else {
             Py_XDECREF((PyObject*)res);
@@ -465,7 +467,9 @@ GMPy_MPFR_From_Real(PyObject *obj, mp_prec_t prec, CTXT_Object *context)
         MPZ_Object *res = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
 
         if (res != NULL && MPZ_Check(res)) {
-            return GMPy_MPFR_From_MPZ(res, prec, context);
+            MPFR_Object * temp =  GMPy_MPFR_From_MPZ(res, prec, context);
+            Py_DECREF(res);
+            return temp;
         }
         else {
             Py_XDECREF((PyObject*)res);

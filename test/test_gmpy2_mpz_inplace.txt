@@ -136,6 +136,8 @@ ValueError: a non-negative value is required
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 ValueError: a non-negative value is required
+>>> 1
+1
 
 Test ipow operator
 ------------------
@@ -155,6 +157,8 @@ mpz(390625)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: unsupported operand type(s) for ** or pow(): 'mpz' and 'mpfr'
+>>> 1
+1
 
 Test iand operator
 ------------------
@@ -172,6 +176,8 @@ mpz(4)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: cannot convert object to mpz
+>>> 1
+1
 
 
 Test ior operator
@@ -193,6 +199,8 @@ mpz(5)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: cannot convert object to mpz
+>>> 1
+1
 
 Test ixor operator
 ------------------
@@ -208,3 +216,5 @@ mpz(1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: cannot convert object to mpz
+>>> 1
+1

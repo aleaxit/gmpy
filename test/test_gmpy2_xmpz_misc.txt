@@ -120,5 +120,5 @@ xmpz(10)
 xmpz(1)
 >>> x.real
 xmpz(10)
->>> x.__sizeof__()
+>>> x.__sizeof__() # doctest: +SKIP_IN_DEBUG_MODE
 40

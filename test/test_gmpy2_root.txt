@@ -54,3 +54,5 @@ ValueError: a non-negative value is required
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: root() argument type not supported
+>>> 1
+1

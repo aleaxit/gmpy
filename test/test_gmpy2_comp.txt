@@ -152,3 +152,5 @@ TypeError: no ordering relation is defined for complex numbers
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: no ordering relation is defined for complex numbers
+>>> 1
+1

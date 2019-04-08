@@ -5,25 +5,12 @@ Test all code in the file gmpy2_sub.c.
 
 >>> import gmpy2 as gmpy2
 >>> from gmpy2 import mpz, xmpz, mpq, mpfr, mpc
+>>> from supportclasses import *
 >>> from decimal import Decimal as D
 >>> from fractions import Fraction as F
 >>> a = mpz(123)
 >>> b = mpz(456)
 >>> c = 12345678901234567890
->>> class Z:
-...     def __mpz__(self): return mpz(2)
->>> class Q:
-...     def __mpz__(self): return mpz(1)
-...     def __mpq__(self): return mpq(3,2)
->>> class R:
-...     def __mpfr__(self): return mpfr(1.5)
->>> class Cx:
-...     def __mpfr__(self): return mpfr(1.5)
-...     def __mpc__(self): return mpc(2,3)
->>> z = Z()
->>> q = Q()
->>> r = R()
->>> cx = Cx()
 
 Test integer operations
 -----------------------
@@ -36,7 +23,6 @@ mpz(124)
 mpz(-122)
 >>> (-1)-a
 mpz(-124)
-
 >>> print(a-c)
 -12345678901234567767
 >>> print(c-a)
@@ -45,7 +31,6 @@ mpz(-124)
 12345678901234568013
 >>> print((-c)-a)
 -12345678901234568013
-
 >>> a-b
 mpz(-333)
 >>> b-a
@@ -56,10 +41,8 @@ mpz(579)
 mpz(-579)
 >>> a-z
 mpz(121)
-
 >>> gmpy2.sub(2,1)
 mpz(1)
-
 >>> ctx=gmpy2.context()
 >>> ctx.sub(a,b) == a-b
 True
@@ -85,8 +68,6 @@ TypeError: ** message detail varies **
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: ** message detail varies **
-
-
 >>> a-'b'
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -95,6 +76,8 @@ TypeError: ** message detail varies **
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: ** message detail varies **
+>>> 1
+1
 
 Test rational operations
 ------------------------
@@ -139,7 +122,6 @@ mpq(-1,1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: ** message detail varies **
-
 >>> mpq(1,2) - 'a'
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -148,6 +130,8 @@ TypeError: ** message detail varies **
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: ** message detail varies **
+>>> 1
+1
 
 Test real operations
 --------------------
@@ -206,4 +190,4 @@ mpc('-0.5+2.0j')
 >>> mpc(1,2) - r
 mpc('-0.5+2.0j')
 >>> mpc(1,2) - cx
-mpc('-1.0-1.0j')
+mpc('-41.0-65.0j')

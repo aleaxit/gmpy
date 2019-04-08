@@ -68,6 +68,8 @@ TypeError: set_sign() requires 'mpfr', 'boolean' arguments
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: set_sign() requires 'mpfr', 'boolean' arguments
+>>> 1
+1
 
 >>> gmpy2.copy_sign(mpfr(4), mpfr(-2))
 mpfr('-4.0')
@@ -75,6 +77,8 @@ mpfr('-4.0')
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: copy_sign() requires 'mpfr', 'mpfr' arguments
+>>> 1
+1
 
 >>> nan = gmpy2.nan(); nan
 mpfr('nan')
@@ -125,6 +129,8 @@ ValueError: Requested precision out-of-bounds.
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: 'nosense' is an invalid keyword argument for this function
+>>> 1
+1
 
 >>> r.imag
 mpfr('0.0')
@@ -145,8 +151,10 @@ mpfr('4.5499999999999998')
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: check_range() argument types not supported
->>> r.__sizeof__()
+>>> r.__sizeof__() # doctest: +SKIP_IN_DEBUG_MODE
 72
+>>> 1
+1
 
 >>> r.__round__(1)
 mpfr('4.5')
@@ -164,3 +172,5 @@ OverflowError: 'mpz' does not support Infinity
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: __round__() requires 0 or 1 argument
+>>> 1
+1

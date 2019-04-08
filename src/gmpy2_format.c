@@ -773,6 +773,7 @@ GMPy_Context_Digits(PyObject *self, PyObject *args)
         return result;
     }
 
+    Py_DECREF(tuple);
     TYPE_ERROR("digits() argument type not supported");
     return NULL;
 }
