@@ -43,10 +43,11 @@ if debug:
 else:
     repeat = 1
 
-# If mpc version < 1.1.0 gmpy2.root_of_unity may not be defined.
-# We create a doctest flag to skip a doctest if root_of_unity is not defined
-SKIP_NO_ROOT_OF_UNITY = doctest.register_optionflag("SKIP_NO_ROOT_OF_UNITY")
-has_root_of_unity = 'root_of_unity' in dir(gmpy2)
+# If mpc version < 1.1.0 gmpy2.root_of_unity is defined and gmpy2.cmp_abs
+# doesn't manage complex parameters.
+# We create a doctest flag to skip a doctest when mpc version is < 1.1.0
+SKIP_MPC_LESS_THAN_110 = doctest.register_optionflag("SKIP_MPC_LESS_THAN_110")
+mpc_version_110 = 'root_of_unity' in dir(gmpy2) # True if mpc version >= 1.1.0
 
 SKIP_IN_DEBUG_MODE = doctest.register_optionflag("SKIP_IN_DEBUG_MODE")
 
@@ -56,7 +57,7 @@ class Gmpy2DocTestParser(DocTestParser):
         for example in examples:
             if not isinstance(example, Example):
                 continue
-            if not has_root_of_unity and SKIP_NO_ROOT_OF_UNITY in example.options:
+            if not mpc_version_110 and SKIP_MPC_LESS_THAN_110 in example.options:
                 example.options[SKIP] = True
             if debug and SKIP_IN_DEBUG_MODE in example.options:
                 example.options[SKIP] = True
