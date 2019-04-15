@@ -63,20 +63,20 @@ MPC Test comparisons
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: ** message detail varies **
->>> cmp_abs(mpc(1,2), mpc(3,4))
+>>> cmp_abs(mpc(1,2), mpc(3,4)) # doctest: +SKIP_MPC_LESS_THAN_110
 -1
->>> cmp_abs(mpc(1,2), mpc(1,2))
+>>> cmp_abs(mpc(1,2), mpc(1,2)) # doctest: +SKIP_MPC_LESS_THAN_110
 0
->>> cmp_abs(mpc(3,4), mpc(1,2))
+>>> cmp_abs(mpc(3,4), mpc(1,2)) # doctest: +SKIP_MPC_LESS_THAN_110
 1
 >>> gmpy2.get_context().clear_flags()
 >>> nan()
 mpfr('nan')
 >>> gmpy2.get_context().erange
 False
->>> cmp_abs(mpc(nan(),1), mpc(4.5))
+>>> cmp_abs(mpc(nan(),1), mpc(4.5)) # doctest: +SKIP_MPC_LESS_THAN_110
 0
->>> gmpy2.get_context().erange
+>>> gmpy2.get_context().erange # doctest: +SKIP_MPC_LESS_THAN_110
 True
 
 

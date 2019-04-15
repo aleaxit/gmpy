@@ -473,6 +473,10 @@ GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
         return result;
     }
 
+#ifndef MPC_110
+    TYPE_ERROR("cmp_abs() requires integer, rational, or real arguments");
+    return NULL;
+#else
     if (IS_COMPLEX(arg0) && IS_COMPLEX(arg1)) {
             MPC_Object *tempx = NULL;
             MPC_Object *tempy = NULL;
@@ -496,5 +500,6 @@ GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
 
     TYPE_ERROR("cmp_abs() requires integer, rational, real, or complex arguments");
     return NULL;
+#endif
 }
 
