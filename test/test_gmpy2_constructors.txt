@@ -31,6 +31,13 @@ Test mpq conversion
 True
 >>> 2*x == 3
 True
+>>> mpq(z, z)
+mpq(1,1)
+>>> class Three:
+...     def __mpz__(self): return mpz(3)
+...
+>>> mpq(z, Three())
+mpq(2,3)
 >>> mpq(b)
 Traceback (most recent call last):
 ...
