@@ -45,63 +45,13 @@ gmpy2 2.1.
 The most significant change in gmpy2 2.1 is support for thread-safe contexts.
 This change required extensive refactoring of almost all internal functions.
 
-
-Changes in gmpy2 2.1.0a1
-------------------------
-
-* Thread-safe contexts are now supported. Properly integrating thread-safe
-  contexts required an extensive rewrite of almost all internal functions.
-  Changing the active context in one thread will no longer change the behavior
-  in other threads.
-* MPFR and MPC are now required. It is no longer possible to build a version
-  of gmpy2 that only supports the GMP library.
-* The function inverse() now raises an exception if the inverse does not
-  exist.
-* Context methods have been added for MPFR/MPC related functions.
-* A new context option (*rational_division*) has been added that changes the
-  behavior of integer division involving *mpz* instances to return a rational
-  result instead of a floating point result.
-* gmpy2 types are now registered in the numeric tower.
-* In previous versions of gmpy2, *gmpy2.mpz* was a factory function that
-  returned an  *mpz* instance. *gmpy2.mpz* is now an actual type. The same
-  is true for the other gmpy2 types.
-* If a Python object has an __mpz__ method, it will be called by *mpz()* to
-  allow an unrecognized type to be converted to an mpz instance. The same is
-  true for the other gmpy2 types.
-* Support for Cython via the addition of a C-API and a gmpy2.pxd file.
-
-Changes in gmpy2 2.1.0a2
-------------------------
-
-* Revised build system.
-* Removal of unused code/macros.
-* Cleanup of Cython interface.
-
-Changes in gmpy2 2.1.0a3
-------------------------
-
-* More updates to build system.
-* Work-around differences in MPFR 3 and 4 functions root/rootn and grandom.
-* Fix for Cython interface.
-* Fix mpz += 0 bug.
-
-Changes in gmpy2 2.1.0a4
-------------------------
-
-* Fix issue 204; missing Cython file.
-* Add support for fmma() and fmms() functions from MPFR 4.
-
-Changes in gmpy2 2.1.0a5
-------------------------
-* Fix issue 207; qdiv() not returning mpz when it should.
-* Add complex root_of_unity() (if MPC 1.1.0 or later is available).
+Please see the History chapter for a detail list of the changes.
 
 Installation
 ============
 
 Installing gmpy2 on Windows
 ---------------------------
-
 
 Pre-compiled versions of gmpy2 2.0.8 are available at
 `https://pypi.org/project/gmpy2/`.
@@ -134,7 +84,7 @@ simple as:
 ::
 
     cd <gmpy2 source directory>
-    python setup.py install
+    python setup.py build_ext --force install --force
 
 If this fails, read on.
 
@@ -144,9 +94,6 @@ Detailed Instructions
 Note: You really shouldn't need to do this. Unless you need the capabilities
 provided a newer GMP/MPFR/MPC, you should use the versions provided by your
 distribution.
-
-Note: The following instructions are currently out-of-date and will be revised
-for the alpha4 release.
 
 If your Linux distribution does not support recent versions of GMP, MPFR and
 MPC, you will need to compile your own versions. To avoid any possible conflict

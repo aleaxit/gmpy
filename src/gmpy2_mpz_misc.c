@@ -1751,7 +1751,7 @@ GMPy_MPZ_Method_SizeOf(PyObject *self, PyObject *other)
  */
 
 PyDoc_STRVAR(GMPy_doc_mp_method_conjugate,
-"x.conjugate() -> mpfr\n\n"
+"x.conjugate() -> number\n\n"
 "Return the conjugate of x (which is just a new reference to x since x is\n"
 "not a complex number).");
 

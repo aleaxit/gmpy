@@ -1,6 +1,44 @@
 Changes for gmpy2 releases
 ==========================
 
+Changes in gmpy2 2.1.0b1
+------------------------
+
+* Added cmp() and cmp_abs().
+* Improved compatibility with _numbers_ protocol.
+* Many bug fixes.
+
+Changes in gmpy2 2.1.a05
+------------------------
+
+* Fix qdiv() not returning mpz() when it should.
+* Added root_of_unity().
+
+Changes in gmpy2 2.1.0a4
+------------------------
+
+* Fix issue 204; missing file for Cython.
+* Additional support for MPFR 4
+   - Add fmma() and fmms()
+
+Changes in gmpy2 2.1.0a3
+------------------------
+
+* Updates to setup.py.
+* Initial support for MPFR4
+   - Add nrandom()
+   - grandom() now calls nrandom twice; may return different values versus
+     MPFR3
+   - Add rootn(); same as root() except different sign when taking even root
+     of -0.0
+
+Changes in gmpy2 2.1.0a2
+------------------------
+
+* Revised build process.
+* Removal of unused code/macros.
+* Cleanup of Cython interface.
+
 Changes in gmpy2 2.1.0a1
 ------------------------
 

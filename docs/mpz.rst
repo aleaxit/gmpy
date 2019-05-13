@@ -59,20 +59,58 @@ mpz Methods
     x.bit_test(n) returns True if bit *n* of *x* is set, and False if it
     is not set.
 
+**conjugtae(...)**
+    Return the conjugate of x (which is just a new reference to x since x
+    not a complex number).
+
 **denominator(...)**
     x.denominator() returns mpz(1).
 
 **digits(...)**
     x.digits([base=10]) returns a string representing *x* in radix *base*.
 
-**numerator(...)**
-    x.numerator() returns a copy of x.
+**imag**
+    Return the imaginary component of an *mpz*. Always *mpz(0)*.
+
+**is_congruent(...)**
+    x.is_congruent(y, m) returns True if *x* is congruent to *y* modulo *m*,
+    else returns False.
+
+**is_divisible(...)**
+    x.is_divisible(d) returns True if *x* is divisible by *d*, else returns
+    False.
+
+**is_even(...)**
+    x.is_even() returns True if *x* is even, else returns False.
+
+**is_odd(...)**
+    x.is_odd() returns True if *x* is even, else returns False.
+
+**is_power(...)**
+    x.is_power() returns True if *x* is a perfect power (there exists integers
+    *y* and *n* > 1, such that x=y**n), else returns False.
+
+**is_prime(...)**
+    x.is_prime() returns True if *x* is _probably_ prime, else False if *x* is
+    definitely composite.
+
+    See the documentation for *gmpy2.is_prime* for details on the underlaying
+    primality tests that are performed.
+
+**is_square(...)**
+    x.is_square() returns True if *x* is a perfect square, else returns False.
 
 **num_digits(...)**
     x.num_digits([base=10]) returns the length of the string representing
     the absolute value of *x* in radix *base*. The result is correct if base is
     a power of 2. For other bases, the result is usually correct but may
     be 1 too large. *base* can range between 2 and 62, inclusive.
+
+**numerator(...)**
+    x.numerator() returns a copy of *x*.
+
+**real(...)**
+    x.real returns a copy of *x*.
 
 mpz Functions
 -------------
