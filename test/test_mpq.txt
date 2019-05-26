@@ -452,6 +452,11 @@ mpz(2)
 mpq(9,4)
 >>> gmpy2.qdiv(gmpy2.mpq(3,4), gmpy2.mpq(1,4))
 mpz(3)
+>>> args = gmpy2.mpq(2), 1/gmpy2.mpq(2)
+>>> gmpy2.qdiv(*args)
+mpz(4)
+>>> args == (gmpy2.mpq(2), 1/gmpy2.mpq(2))
+True
 
 Test Number Protocol
 --------------------

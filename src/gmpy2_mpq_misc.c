@@ -176,7 +176,7 @@ GMPy_MPQ_Function_Qdiv(PyObject *self, PyObject *args)
             goto arg_error;
         }
 
-        if (!(tempx = GMPy_MPQ_From_Rational(x, context)) ||
+        if (!(tempx = GMPy_MPQ_From_NumberAndCopy(x, context)) ||
             !(tempy = GMPy_MPQ_From_Rational(y, context))) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
