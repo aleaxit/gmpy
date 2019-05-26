@@ -58,7 +58,7 @@ TypeError: qdiv() requires 1 or 2 integer or rational arguments
 >>> gmpy2.qdiv(q, 2)
 mpq(2,5)
 >>> gmpy2.qdiv(10, q)
-mpz(25)
+mpq(25,2)
 >>> gmpy2.qdiv(1)
 mpz(1)
 
@@ -78,7 +78,7 @@ Tests round
 >>> mpq('7/2').__round__()
 mpz(4)
 >>> q.__round__(4)
-mpq(2,5)
+mpq(4,5)
 >>> q.__round__(4, 2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
