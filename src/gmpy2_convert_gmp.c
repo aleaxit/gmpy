@@ -1066,11 +1066,11 @@ GMPy_MPQ_From_Number(PyObject *obj, CTXT_Object *context)
 }
 
 static MPQ_Object*
-GMPy_MPQ_From_NumberAndCopy(PyObject *obj, CTXT_Object *context)
+GMPy_MPQ_From_RationalAndCopy(PyObject *obj, CTXT_Object *context)
 {
     MPQ_Object *result = NULL, *temp = NULL;
 
-    result = GMPy_MPQ_From_Number(obj, context);
+    result = GMPy_MPQ_From_Rational(obj, context);
 
     if (result == NULL)
         return result;

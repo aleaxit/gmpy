@@ -124,7 +124,7 @@ GMPy_MPQ_Function_Qdiv(PyObject *self, PyObject *args)
 {
     Py_ssize_t argc;
     PyObject *result = NULL, *x, *y;
-    MPQ_Object *tempx = NULL, *tempy = NULL;
+    MPQ_Object *tempx = NULL, *tempy = NULL, *tempr = NULL;
     CTXT_Object *context = NULL;
 
     CHECK_CONTEXT(context);
@@ -176,7 +176,7 @@ GMPy_MPQ_Function_Qdiv(PyObject *self, PyObject *args)
             goto arg_error;
         }
 
-        if (!(tempx = GMPy_MPQ_From_NumberAndCopy(x, context)) ||
+        if (!(tempx = GMPy_MPQ_From_Rational(x, context)) ||
             !(tempy = GMPy_MPQ_From_Rational(y, context))) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -190,20 +190,27 @@ GMPy_MPQ_Function_Qdiv(PyObject *self, PyObject *args)
             return NULL;
         }
 
-        /* tempx contains the result of the division. */
+        /* tempr contains the result of the division. */
 
-        mpq_div(tempx->q, tempx->q, tempy->q);
-        if (mpz_cmp_ui(mpq_denref(tempx->q), 1) == 0) {
-            if ((result = (PyObject*)GMPy_MPZ_New(context))) {
-                mpz_set(MPZ(result), mpq_numref(tempx->q));
-            }
+        if (!(tempr = GMPy_MPQ_New(context))) {
             Py_DECREF((PyObject*)tempx);
             Py_DECREF((PyObject*)tempy);
+            return NULL;
+        }
+
+        mpq_div(tempr->q, tempx->q, tempy->q);
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+
+        if (mpz_cmp_ui(mpq_denref(tempr->q), 1) == 0) {
+            if ((result = (PyObject*)GMPy_MPZ_New(context))) {
+                mpz_set(MPZ(result), mpq_numref(tempr->q));
+            }
+            Py_DECREF((PyObject*)tempr);
             return result;
         }
         else {
-            Py_DECREF((PyObject*)tempy);
-            return (PyObject*)tempx;
+            return (PyObject*)tempr;
         };
     }
 

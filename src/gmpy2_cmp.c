@@ -292,7 +292,7 @@ GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
         MPQ_Object *tempx = NULL;
         MPZ_Object *tempy = NULL;
 
-        if (!(tempx = GMPy_MPQ_From_NumberAndCopy(arg0, context)) ||
+        if (!(tempx = GMPy_MPQ_From_RationalAndCopy(arg0, context)) ||
             !(tempy = GMPy_MPZ_From_IntegerAndCopy(arg1, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
@@ -315,7 +315,7 @@ GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
         MPQ_Object *tempy = NULL;
 
         if (!(tempx = GMPy_MPZ_From_IntegerAndCopy(arg0, context)) ||
-            !(tempy = GMPy_MPQ_From_NumberAndCopy(arg1, context))) {
+            !(tempy = GMPy_MPQ_From_RationalAndCopy(arg1, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -335,8 +335,8 @@ GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
     if (IS_RATIONAL(arg0) && IS_RATIONAL(arg1)) {
         MPQ_Object *tempx = NULL, *tempy = NULL;
 
-        if (!(tempx = GMPy_MPQ_From_NumberAndCopy(arg0, context)) ||
-            !(tempy = GMPy_MPQ_From_NumberAndCopy(arg1, context))) {
+        if (!(tempx = GMPy_MPQ_From_RationalAndCopy(arg0, context)) ||
+            !(tempy = GMPy_MPQ_From_RationalAndCopy(arg1, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -385,7 +385,7 @@ GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
             MPQ_Object *tempy = NULL;
 
         if (!(tempx = GMPy_MPFR_From_RealAndCopy(arg0, 1, context)) ||
-            !(tempy = GMPy_MPQ_From_NumberAndCopy(arg1, context))) {
+            !(tempy = GMPy_MPQ_From_RationalAndCopy(arg1, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -453,7 +453,7 @@ GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
             MPQ_Object *tempx = NULL;
             MPFR_Object *tempy = NULL;
 
-        if (!(tempx = GMPy_MPQ_From_NumberAndCopy(arg0, context)) ||
+        if (!(tempx = GMPy_MPQ_From_RationalAndCopy(arg0, context)) ||
             !(tempy = GMPy_MPFR_From_RealAndCopy(arg1, 1, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
