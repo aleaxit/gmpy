@@ -47,12 +47,9 @@ extern "C" {
                                       !HAS_MPC_CONVERSION(x))
 
 #ifdef PY2
-#define IS_INTEGER(x) (MPZ_Check(x) || PyInt_Check(x) || \
-                        PyLong_Check(x) || XMPZ_Check(x) || \
-                        HAS_STRICT_MPZ_CONVERSION(x))
+#define IS_INTEGER(x) (MPZ_Check(x) || PyInt_Check(x) || PyLong_Check(x) || XMPZ_Check(x))
 #else
-#define IS_INTEGER(x) (MPZ_Check(x) || PyLong_Check(x) || \
-                        XMPZ_Check(x) || HAS_STRICT_MPZ_CONVERSION(x))
+#define IS_INTEGER(x) (MPZ_Check(x) || PyLong_Check(x) || XMPZ_Check(x))
 #endif
 
 #define IS_FRACTION(x) (!strcmp(Py_TYPE(x)->tp_name, "Fraction"))
