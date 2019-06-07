@@ -33,10 +33,10 @@ mpq(15432,125)
 
 
 >>> gmpy2.free_cache()
->>> gmpy2.get_emin_min()
--4611686018427387903
->>> gmpy2.get_emax_max()
-4611686018427387903
+>>> gmpy2.get_emin_min() in (-4611686018427387903, -1073741823)
+True
+>>> gmpy2.get_emax_max() in (4611686018427387903, 1073741823)
+True
 >>> mprec = gmpy2.get_max_precision()
 >>> gmpy2.get_exp(mpfr(5.232))
 3
@@ -151,8 +151,6 @@ mpfr('4.5499999999999998')
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: check_range() argument types not supported
->>> r.__sizeof__() # doctest: +SKIP_IN_DEBUG_MODE
-72
 >>> 1
 1
 

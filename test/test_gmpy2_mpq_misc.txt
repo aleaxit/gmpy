@@ -91,11 +91,3 @@ Tests non zero operator
 False
 >>> not mpq('0/5')
 True
-
-Tests sizeof
-------------
-
->>> q.__sizeof__() # doctest: +SKIP_IN_DEBUG_MODE
-88
->>> mpq(0/5).__sizeof__() # doctest: +SKIP_IN_DEBUG_MODE
-88

@@ -773,10 +773,3 @@ Test denominator
 ----------------
 >>> a.denominator
 mpz(1)
-
-Test __sizeof__
----------------
->>> import sys
->>> temp = sys.getsizeof(a)
-
-
