@@ -69,15 +69,17 @@ class Gmpy2Build(build_ext):
             if self.mpir:
                 _comp_args.append('DMPIR=1')
                 self.libraries.append('mpir')
-                self.libraries.remove('gmp')
+                if 'gmp' in self.libraries:
+                    self.libraries.remove('gmp')
         elif self.mpir or ON_WINDOWS:
             # --mpir or on Windows and MSVC
             _comp_args.append('DMPIR=1')
             self.libraries.append('mpir')
-            self.libraries.remove('gmp')
+            if 'gmp' in self.libraries:
+                self.libraries.remove('gmp')
             if ON_WINDOWS and not self.static:
                 # MSVC shared build
-                _comp_args.append('MSC_USE_DLL')
+                _comp_args.append('DMSC_USE_DLL')
         _prefix = '-' if compiler != 'msvc' else '/'
         for i in range(len(_comp_args)):
             _comp_args[i] = ''.join([_prefix, _comp_args[i]])
