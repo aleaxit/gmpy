@@ -117,7 +117,7 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         }
     }
 
-    if (IS_INTEGER(x) && IS_INTEGER(y)) {
+    if (IS_INTEGER(x) && (IS_INTEGER(y) || HAS_STRICT_MPZ_CONVERSION(y))) {
 
         if (!(tempx = GMPy_MPZ_From_Integer(x, context)) ||
             !(tempy = GMPy_MPZ_From_Integer(y, context))) {
@@ -153,10 +153,10 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPZ_DivMod_Slot(PyObject *x, PyObject *y)
 {
-    if (IS_INTEGER(x) && IS_INTEGER(y))
+    if (IS_INTEGER(x) && (IS_INTEGER(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Integer_DivMod(x, y, NULL);
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
+    if (IS_RATIONAL(x) && (IS_RATIONAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Rational_DivMod(x, y, NULL);
 
     if (IS_REAL(x) && IS_REAL(y))
@@ -184,7 +184,7 @@ GMPy_Rational_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
+    if (IS_RATIONAL(x) && (IS_RATIONAL(y) || HAS_STRICT_MPZ_CONVERSION(y))) {
 
         if (!(tempx = GMPy_MPQ_From_Number(x, context)) ||
             !(tempy = GMPy_MPQ_From_Number(y, context))) {
@@ -226,13 +226,13 @@ GMPy_Rational_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPQ_DivMod_Slot(PyObject *x, PyObject *y)
 {
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
+    if (IS_RATIONAL(x) && (IS_RATIONAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Rational_DivMod(x, y, NULL);
 
-    if (IS_REAL(x) && IS_REAL(y))
+    if (IS_REAL(x) && (IS_REAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Real_DivMod(x, y, NULL);
 
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
+    if (IS_COMPLEX(x) && (IS_COMPLEX(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Complex_DivMod(x, y, NULL);
 
     Py_RETURN_NOTIMPLEMENTED;
@@ -255,7 +255,7 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    if (IS_REAL(x) && IS_REAL(y)) {
+    if (IS_REAL(x) && (IS_REAL(y) || HAS_STRICT_MPZ_CONVERSION(y))) {
 
         if (!(tempx = GMPy_MPFR_From_Real(x, 1, context)) ||
             !(tempy = GMPy_MPFR_From_Real(y, 1, context))) {
@@ -361,10 +361,10 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPFR_DivMod_Slot(PyObject *x, PyObject *y)
 {
-    if (IS_REAL(x) && IS_REAL(y))
+    if (IS_REAL(x) && (IS_REAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Real_DivMod(x, y, NULL);
 
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
+    if (IS_COMPLEX(x) && (IS_COMPLEX(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Complex_DivMod(x, y, NULL);
 
     Py_RETURN_NOTIMPLEMENTED;

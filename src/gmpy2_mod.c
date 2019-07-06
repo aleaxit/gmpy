@@ -111,7 +111,7 @@ GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
         }
     }
 
-    if (IS_INTEGER(x) && IS_INTEGER(y)) {
+    if (IS_INTEGER(x) && (IS_INTEGER(y) || HAS_STRICT_MPZ_CONVERSION(y))) {
         MPZ_Object *tempx, *tempy;
 
         tempx = GMPy_MPZ_From_Integer(x, context);
@@ -157,10 +157,10 @@ GMPy_MPZ_Mod_Slot(PyObject *x, PyObject *y)
         return (PyObject*)result;
     }
 
-    if (IS_INTEGER(x) && IS_INTEGER(y))
+    if (IS_INTEGER(x) && (IS_INTEGER(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Integer_Mod(x, y, NULL);
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
+    if (IS_RATIONAL(x) && (IS_RATIONAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Rational_Mod(x, y, NULL);
 
     if (IS_REAL(x) && IS_REAL(y))
@@ -182,7 +182,7 @@ GMPy_Rational_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
     if (!(result = GMPy_MPQ_New(context)))
         return NULL;
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
+    if ((IS_RATIONAL(x) || HAS_STRICT_MPZ_CONVERSION(x)) && (IS_RATIONAL(y) || HAS_STRICT_MPZ_CONVERSION(y))) {
         tempx = GMPy_MPQ_From_Number(x, context);
         tempy = GMPy_MPQ_From_Number(y, context);
         if (!tempx || !tempy) {
@@ -218,13 +218,13 @@ GMPy_Rational_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPQ_Mod_Slot(PyObject *x, PyObject *y)
 {
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
+    if ((IS_RATIONAL(x) || HAS_STRICT_MPZ_CONVERSION(x)) && (IS_RATIONAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Rational_Mod(x, y, NULL);
 
-    if (IS_REAL(x) && IS_REAL(y))
+    if (IS_REAL(x) && (IS_REAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Real_Mod(x, y, NULL);
 
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
+    if (IS_COMPLEX(x) && (IS_COMPLEX(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Complex_Mod(x, y, NULL);
 
     Py_RETURN_NOTIMPLEMENTED;
@@ -243,7 +243,7 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
         return NULL;
     }
 
-    if (IS_REAL(x) && IS_REAL(y)) {
+    if (IS_REAL(x) && (IS_REAL(y) || HAS_STRICT_MPZ_CONVERSION(y))) {
         tempx = GMPy_MPFR_From_Real(x, 1, context);
         tempy = GMPy_MPFR_From_Real(y, 1, context);
         if (!tempx || !tempy) {
@@ -315,10 +315,10 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPFR_Mod_Slot(PyObject *x, PyObject *y)
 {
-    if (IS_REAL(x) && IS_REAL(y))
+    if (IS_REAL(x) && (IS_REAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Real_Mod(x, y, NULL);
 
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
+    if (IS_COMPLEX(x) && (IS_COMPLEX(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Complex_Mod(x, y, NULL);
 
     Py_RETURN_NOTIMPLEMENTED;

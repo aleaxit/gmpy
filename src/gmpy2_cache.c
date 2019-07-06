@@ -482,7 +482,7 @@ GMPy_MPQ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
     if (argc == 2) {
         m = PyTuple_GetItem(args, 1);
 
-        if (IS_RATIONAL(n) && IS_RATIONAL(m)) {
+        if ((IS_RATIONAL(n) || HAS_STRICT_MPZ_CONVERSION(n)) && (IS_RATIONAL(m) || HAS_STRICT_MPZ_CONVERSION(m))) {
            result = GMPy_MPQ_From_Number(n, context);
            temp = GMPy_MPQ_From_Number(m, context);
            if (!result || !temp) {

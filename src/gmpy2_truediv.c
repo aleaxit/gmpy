@@ -74,7 +74,7 @@ GMPy_Integer_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
 
-    if (IS_INTEGER(x) && IS_INTEGER(y)) {
+    if (IS_INTEGER(x) && (IS_INTEGER(y) || HAS_STRICT_MPZ_CONVERSION(y))) {
         tempx = GMPy_MPZ_From_Integer(x, context);
         tempy = GMPy_MPZ_From_Integer(y, context);
         if (!tempx || !tempy) {
@@ -121,10 +121,10 @@ GMPy_Integer_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPZ_TrueDiv_Slot(PyObject *x, PyObject *y)
 {
-    if (IS_INTEGER(x) && IS_INTEGER(y))
+    if (IS_INTEGER(x) && (IS_INTEGER(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Integer_TrueDiv(x, y, NULL);
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
+    if (IS_RATIONAL(x) && (IS_RATIONAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Rational_TrueDiv(x, y, NULL);
 
     if (IS_REAL(x) && IS_REAL(y))
@@ -140,10 +140,10 @@ GMPy_MPZ_TrueDiv_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_MPZ_Div2_Slot(PyObject *x, PyObject *y)
 {
-    if (IS_INTEGER(x) && IS_INTEGER(y))
+    if (IS_INTEGER(x) && (IS_INTEGER(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Integer_FloorDiv(x, y, NULL);
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
+    if (IS_RATIONAL(x) && (IS_RATIONAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Rational_TrueDiv(x, y, NULL);
 
     if (IS_REAL(x) && IS_REAL(y))
@@ -175,7 +175,7 @@ GMPy_Rational_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         return (PyObject*)result;
     }
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
+    if (IS_RATIONAL(x) && (IS_RATIONAL(y) || HAS_STRICT_MPZ_CONVERSION(y))) {
         tempx = GMPy_MPQ_From_Number(x, context);
         tempy = GMPy_MPQ_From_Number(y, context);
         if (!tempx || !tempy) {
@@ -206,13 +206,13 @@ GMPy_Rational_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPQ_TrueDiv_Slot(PyObject *x, PyObject *y)
 {
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
+    if (IS_RATIONAL(x) && (IS_RATIONAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Rational_TrueDiv(x, y, NULL);
 
-    if (IS_REAL(x) && IS_REAL(y))
+    if (IS_REAL(x) && (IS_REAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Real_TrueDiv(x, y, NULL);
 
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
+    if (IS_COMPLEX(x) && (IS_COMPLEX(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Complex_TrueDiv(x, y, NULL);
 
     Py_RETURN_NOTIMPLEMENTED;
@@ -269,7 +269,7 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
             goto done;
         }
 
-        if (IS_RATIONAL(y)) {
+        if (IS_RATIONAL(y) || HAS_STRICT_MPZ_CONVERSION(y)) {
             MPQ_Object *tempy;
 
             if (!(tempy = GMPy_MPQ_From_Number(y, context))) {
@@ -360,10 +360,10 @@ GMPy_MPFR_TrueDiv_Slot(PyObject *x, PyObject *y)
         return (PyObject*)result;
     }
 
-   if (IS_REAL(x) && IS_REAL(y))
+   if (IS_REAL(x) && (IS_REAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Real_TrueDiv(x, y, NULL);
 
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
+    if (IS_COMPLEX(x) && (IS_COMPLEX(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Complex_TrueDiv(x, y, NULL);
 
     Py_RETURN_NOTIMPLEMENTED;
@@ -393,7 +393,7 @@ GMPy_Complex_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         goto done;
     }
 
-    if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
+    if (IS_COMPLEX(x) && (IS_COMPLEX(y) || HAS_STRICT_MPZ_CONVERSION(y))) {
         MPC_Object *tempx, *tempy;
 
         tempx = GMPy_MPC_From_Complex(x, 1, 1, context);

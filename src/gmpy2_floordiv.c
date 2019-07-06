@@ -111,7 +111,7 @@ GMPy_Integer_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         }
     }
 
-    if (IS_INTEGER(x) && IS_INTEGER(y)) {
+    if (IS_INTEGER(x) && (IS_INTEGER(y) || HAS_STRICT_MPZ_CONVERSION(y))) {
         MPZ_Object *tempx, *tempy;
 
         tempx = GMPy_MPZ_From_Integer(x, context);
@@ -162,16 +162,16 @@ GMPy_MPZ_FloorDiv_Slot(PyObject *x, PyObject *y)
         return (PyObject*)result;
     }
 
-    if (IS_INTEGER(x) && IS_INTEGER(y))
+    if (IS_INTEGER(x) && (IS_INTEGER(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Integer_FloorDiv(x, y, NULL);
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
+    if (IS_RATIONAL(x) && (IS_RATIONAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Rational_FloorDiv(x, y, NULL);
 
-    if (IS_REAL(x) && IS_REAL(y))
+    if (IS_REAL(x) && (IS_REAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Real_FloorDiv(x, y, NULL);
 
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
+    if (IS_COMPLEX(x) && (IS_COMPLEX(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Complex_FloorDiv(x, y, NULL);
 
     Py_RETURN_NOTIMPLEMENTED;
@@ -204,7 +204,7 @@ GMPy_Rational_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         return (PyObject*)result;
     }
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
+    if (IS_RATIONAL(x) && (IS_RATIONAL(y) || HAS_STRICT_MPZ_CONVERSION(y))) {
         MPQ_Object *tempx, *tempy;
 
         tempx = GMPy_MPQ_From_Number(x, context);
@@ -241,13 +241,13 @@ GMPy_Rational_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPQ_FloorDiv_Slot(PyObject *x, PyObject *y)
 {
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
+    if (IS_RATIONAL(x) && (IS_RATIONAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Rational_FloorDiv(x, y, NULL);
 
-    if (IS_REAL(x) && IS_REAL(y))
+    if (IS_REAL(x) && (IS_REAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Real_FloorDiv(x, y, NULL);
 
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
+    if (IS_COMPLEX(x) && (IS_COMPLEX(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Complex_FloorDiv(x, y, NULL);
 
     Py_RETURN_NOTIMPLEMENTED;
@@ -308,7 +308,7 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
             goto done;
         }
 
-        if (IS_RATIONAL(y)) {
+        if (IS_RATIONAL(y) || HAS_STRICT_MPZ_CONVERSION(y)) {
             MPQ_Object *tempy;
 
             if (!(tempy = GMPy_MPQ_From_Number(y, context))) {
@@ -391,10 +391,10 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPFR_FloorDiv_Slot(PyObject *x, PyObject *y)
 {
-    if (IS_REAL(x) && IS_REAL(y))
+    if (IS_REAL(x) && (IS_REAL(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Real_FloorDiv(x, y, NULL);
 
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
+    if (IS_COMPLEX(x) && (IS_COMPLEX(y) || HAS_STRICT_MPZ_CONVERSION(y)))
         return GMPy_Complex_FloorDiv(x, y, NULL);
 
     Py_RETURN_NOTIMPLEMENTED;
