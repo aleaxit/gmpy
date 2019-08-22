@@ -64,7 +64,7 @@ class gmpy_clean(clean):
         clean.run(self)
 
 build_options = [
-    ('mpir', None, 'Build using mpir'),
+    ('mpir', None, 'Build using mpir; deprecated'),
     ('msys2', None, 'Build in msys2 environment'),
     ('gcov', None, 'configure GCC to collect code coverage data for testing purposes'),
     ('fast', None, 'depend on MPFR and MPC internal implementations details'),
@@ -159,12 +159,12 @@ gmpy2_ext = Extension('gmpy2',
                       include_dirs=['./src'])
 
 setup(name = "gmpy2",
-      version = "2.1.0b1",
+      version = "2.1.0b2",
       author = "Case Van Horsen",
       author_email = "casevh@gmail.com",
       license = "LGPL-3.0+",
       url = "https://github.com/aleaxit/gmpy",
-      description = "gmpy2 interface to GMP/MPIR, MPFR, and MPC for Python 2.6+ and 3.4+",
+      description = "gmpy2 interface to GMP, MPFR, and MPC for Python 2.7 and 3.4+",
       long_description = read('README'),
       data_files = [('', ['src/gmpy2.pxd']), ('gmpy2', ['src/gmpy2.h'])],
       classifiers = [
@@ -184,6 +184,7 @@ setup(name = "gmpy2",
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: CPython',
         'Topic :: Scientific/Engineering :: Mathematics',
         'Topic :: Software Development :: Libraries :: Python Modules',

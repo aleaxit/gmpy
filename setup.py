@@ -22,7 +22,7 @@ class Gmpy2Build(build_ext):
          "they are unstable and under active development"),
         ('mpir', None, "Enable use of mpir library instead of gmp."
          "gmp is the default on Posix systems while mpir the default on"
-         "Windows and MSVC"),
+         "Windows and MSVC. Deprecated; will be removed."),
         ('static', None, "Enable static linking compile time options."),
         ('static-dir=', None, "Enable static linking and specify location."),
         ('gdb', None, "Build with debug symbols."),
@@ -98,14 +98,14 @@ cmdclass = {'build_ext': Gmpy2Build}
 
 setup(
     name="gmpy2",
-    version="2.1.0b1",
+    version="2.1.0b2",
     author="Case Van Horsen",
     author_email="casevh@gmail.com",
     cmdclass=cmdclass,
     license="LGPL-3.0+",
     url="https://github.com/aleaxit/gmpy",
-    description="gmpy2 interface to GMP/MPIR, MPFR, "
-    "and MPC for Python 2.6+ and 3.4+",
+    description="gmpy2 interface to GMP, MPFR, "
+    "and MPC for Python 2.7 and 3.4+",
     long_description=read('README'),
     zip_safe=False,
     include_package_data=True,
@@ -125,17 +125,17 @@ setup(
         'Operating System :: POSIX',
         'Programming Language :: C',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: CPython',
         'Topic :: Scientific/Engineering :: Mathematics',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    keywords="gmp mpir mpfr mpc multiple-precision arbitrary-precision precision bignum",
+    keywords="gmp mpfr mpc multiple-precision arbitrary-precision precision bignum",
     ext_modules=extensions,
 )
