@@ -159,7 +159,7 @@ gmpy2_ext = Extension('gmpy2',
                       include_dirs=['./src'])
 
 setup(name = "gmpy2",
-      version = "2.1.0b2",
+      version = "2.1.0b3",
       author = "Case Van Horsen",
       author_email = "casevh@gmail.com",
       license = "LGPL-3.0+",
