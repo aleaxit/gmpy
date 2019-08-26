@@ -81,8 +81,8 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
         }
 
         if (IS_RATIONAL(b)) {
-            tempa = (PyObject*)GMPy_MPQ_From_Rational(a, context);
-            tempb = (PyObject*)GMPy_MPQ_From_Rational(b, context);
+            tempa = (PyObject*)GMPy_MPQ_From_Number(a, context);
+            tempb = (PyObject*)GMPy_MPQ_From_Number(b, context);
             if (!tempa || !tempb) {
                 Py_XDECREF(a);
                 Py_XDECREF(b);
@@ -119,7 +119,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
         }
 
         if (IS_RATIONAL(b)) {
-            if (!(tempb = (PyObject*)GMPy_MPQ_From_Rational(b, context))) {
+            if (!(tempb = (PyObject*)GMPy_MPQ_From_Number(b, context))) {
                 return NULL;
             }
             c = mpq_cmp(MPQ(a), MPQ(tempb));
@@ -216,7 +216,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
         }
 
         if (IS_RATIONAL(b)) {
-            if (!(tempb = (PyObject*)GMPy_MPQ_From_Rational(b, context))) {
+            if (!(tempb = (PyObject*)GMPy_MPQ_From_Number(b, context))) {
                 return NULL;
             }
             mpfr_clear_flags();

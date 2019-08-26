@@ -154,3 +154,40 @@ Traceback (most recent call last):
 TypeError: no ordering relation is defined for complex numbers
 >>> 1
 1
+
+Tests custom objects comparisons
+--------------------------------
+
+>>> class Z:
+...     def __mpz__(self): return mpz(1)
+>>> class Q:
+...     def __mpz__(self): return mpz(1)
+...     def __mpq__(self): return mpq(3,2)
+>>> class R:
+...     def __mpfr__(self): return mpfr(1.5)
+>>> class Cx:
+...     def __mpc__(self): return mpc(42,67)
+>>> z = Z()
+>>> q = Q()
+>>> r = R()
+>>> cx = Cx()
+>>> mpz(1) == z
+True
+>>> z == mpz(2)
+False
+>>> mpz(1) == q
+False
+>>> mpz(1) == mpz(q)
+True
+>>> mpq(3,2) == q
+True
+>>> q == mpq(3,5)
+False
+>>> mpfr(1.5) == q
+True
+>>> r == mpfr(1.5)
+True
+>>> r == a
+False
+>>> c == cx
+False

@@ -79,7 +79,35 @@ False
 >>> gmpy2.get_context().erange # doctest: +SKIP_MPC_LESS_THAN_110
 True
 
+Tests custom objects comparisons
+--------------------------------
 
-
-
-
+>>> class Z:
+...     def __mpz__(self): return mpz(1)
+>>> class Q:
+...     def __mpz__(self): return mpz(1)
+...     def __mpq__(self): return mpq(3,2)
+>>> class R:
+...     def __mpfr__(self): return mpfr(1.5)
+>>> class Cx:
+...     def __mpc__(self): return mpc(42,67)
+>>> z = Z()
+>>> q = Q()
+>>> r = R()
+>>> cx = Cx()
+>>> cmp(mpz(1), z)
+0
+>>> cmp(z, mpz(2))
+-1
+>>> cmp(mpz(1), q)
+-1
+>>> cmp(mpz(1), mpz(q))
+0
+>>> cmp(mpq(3,2), q)
+0
+>>> cmp(q, mpq(3,5))
+1
+>>> cmp(mpfr(1.5), q)
+0
+>>> cmp(r, mpfr(1.5))
+0
