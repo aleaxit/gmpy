@@ -154,3 +154,28 @@ Traceback (most recent call last):
 TypeError: no ordering relation is defined for complex numbers
 >>> 1
 1
+
+Tests custom objects comparisons
+--------------------------------
+
+>>> from supportclasses import *
+>>> mpz(2) == z
+True
+>>> z == mpz(3)
+False
+>>> mpz(1) == q
+False
+>>> mpz(1) == mpz(q)
+True
+>>> mpq(3,2) == q
+True
+>>> q == mpq(3,5)
+False
+>>> mpfr(1.5) == q
+True
+>>> r == mpfr(1.5)
+True
+>>> r == a
+False
+>>> c == cx
+False
