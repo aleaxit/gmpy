@@ -3,6 +3,7 @@ gmpy2 cmp and cmp_abs
 
 >>> import gmpy2
 >>> from gmpy2 import mpz, mpq, mpfr, mpc, cmp, cmp_abs, nan, inf, zero
+>>> from supportclasses import *
 
 MPZ Test comparisons
 --------------------
@@ -79,7 +80,22 @@ False
 >>> gmpy2.get_context().erange # doctest: +SKIP_MPC_LESS_THAN_110
 True
 
+Tests custom objects comparisons
+--------------------------------
 
-
-
-
+>>> cmp(mpz(2), z)
+0
+>>> cmp(z, mpz(3))
+-1
+>>> cmp(mpz(1), q)
+-1
+>>> cmp(mpz(1), mpz(q))
+0
+>>> cmp(mpq(3,2), q)
+0
+>>> cmp(q, mpq(3,5))
+1
+>>> cmp(mpfr(1.5), q)
+0
+>>> cmp(r, mpfr(1.5))
+0

@@ -183,8 +183,8 @@ GMPy_Rational_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
         return NULL;
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
-        tempx = GMPy_MPQ_From_Number(x, context);
-        tempy = GMPy_MPQ_From_Number(y, context);
+        tempx = GMPy_MPQ_From_Rational(x, context);
+        tempy = GMPy_MPQ_From_Rational(y, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("could not convert Rational to mpq");
             goto error;

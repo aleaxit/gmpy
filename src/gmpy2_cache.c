@@ -404,7 +404,6 @@ GMPy_MPQ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
 {
     MPQ_Object *result = NULL, *temp = NULL;
     PyObject *n = NULL, *m = NULL;
-    PyObject *out = NULL;
     int base = 10;
     Py_ssize_t argc, keywdc = 0;
     static char *kwlist[] = {"s", "base", NULL };
@@ -461,21 +460,6 @@ GMPy_MPQ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         if (IS_REAL(n)) {
             return (PyObject *) GMPy_MPQ_From_Number(n, context);
         }
-
-        if (HAS_MPQ_CONVERSION(n)) {
-            out = (PyObject *) PyObject_CallMethod(n, "__mpq__", NULL);
-            if (out == NULL)
-                return out;
-            if (!MPQ_Check(out)) {
-                PyErr_Format(PyExc_TypeError,
-                             "object of type '%.200s' can not be interpreted as mpq",
-                             out->ob_type->tp_name);
-                Py_DECREF(out);
-                return NULL;
-            }
-            return out;
-        }
-
     }
 
     /* Handle 2 arguments. Both arguments must be integer or rational. */
@@ -483,8 +467,8 @@ GMPy_MPQ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         m = PyTuple_GetItem(args, 1);
 
         if (IS_RATIONAL(n) && IS_RATIONAL(m)) {
-           result = GMPy_MPQ_From_Number(n, context);
-           temp = GMPy_MPQ_From_Number(m, context);
+           result = GMPy_MPQ_From_Rational(n, context);
+           temp = GMPy_MPQ_From_Rational(m, context);
            if (!result || !temp) {
                Py_XDECREF((PyObject*)result);
                Py_XDECREF((PyObject*)temp);

@@ -186,8 +186,8 @@ GMPy_Rational_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
 
-        if (!(tempx = GMPy_MPQ_From_Number(x, context)) ||
-            !(tempy = GMPy_MPQ_From_Number(y, context))) {
+        if (!(tempx = GMPy_MPQ_From_Rational(x, context)) ||
+            !(tempy = GMPy_MPQ_From_Rational(y, context))) {
 
             /* LCOV_EXCL_START */
             goto error;

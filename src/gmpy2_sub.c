@@ -196,8 +196,8 @@ GMPy_Rational_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx = NULL, *tempy = NULL;
 
-        if (!(tempx = GMPy_MPQ_From_Number(x, context)) ||
-            !(tempy = GMPy_MPQ_From_Number(y, context))) {
+        if (!(tempx = GMPy_MPQ_From_Rational(x, context)) ||
+            !(tempy = GMPy_MPQ_From_Rational(y, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -301,7 +301,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
         if (IS_RATIONAL(y)) {
             MPQ_Object *tempy = NULL;
 
-            if (!(tempy = GMPy_MPQ_From_Number(y, context))) {
+            if (!(tempy = GMPy_MPQ_From_Rational(y, context))) {
                 /* LCOV_EXCL_START */
                 Py_DECREF((PyObject*)result);
                 return NULL;
@@ -356,7 +356,7 @@ GMPy_Real_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
         if (IS_RATIONAL(x)) {
             MPQ_Object *tempx = NULL;
 
-            if (!(tempx = GMPy_MPQ_From_Number(x, context))) {
+            if (!(tempx = GMPy_MPQ_From_Rational(x, context))) {
                 /* LCOV_EXCL_START */
                 Py_DECREF((PyObject*)result);
                 return NULL;

@@ -207,8 +207,8 @@ GMPy_Rational_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPQ_From_Number(x, context);
-        tempy = GMPy_MPQ_From_Number(y, context);
+        tempx = GMPy_MPQ_From_Rational(x, context);
+        tempy = GMPy_MPQ_From_Rational(y, context);
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -311,7 +311,7 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         if (IS_RATIONAL(y)) {
             MPQ_Object *tempy;
 
-            if (!(tempy = GMPy_MPQ_From_Number(y, context))) {
+            if (!(tempy = GMPy_MPQ_From_Rational(y, context))) {
                 Py_DECREF((PyObject*)result);
                 return NULL;
             }
