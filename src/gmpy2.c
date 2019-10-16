@@ -43,7 +43,7 @@
 
 /*
  * originally written for GMP-2.0 (by AMK...?)
- * Rewritten by Niels Möller, May 1996
+ * Rewritten by Niels MÃ¶ller, May 1996
  *
  * Version for GMP-4, Python 2.X, with support for MSVC++6,
  * addition of mpf's, &c: Alex Martelli (now aleaxit@gmail.com, Nov 2000).
