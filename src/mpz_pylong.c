@@ -1,6 +1,6 @@
 /* mpz <-> pylong conversion and "pythonhash" for mpz
  *
- * Originally written for sage (http://sagemath.org) by Gonzalo Tornari≠a
+ * Originally written for sage (http://sagemath.org) by Gonzalo Tornar√≠a
  * <tornaria@math.utexas.edu>. If you improve on these functions, please
  * contribute them back to sage by posting to sage-devel@googlegroups.com
  * or by sending an email to the original author.
