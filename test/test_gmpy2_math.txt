@@ -217,22 +217,32 @@ mpfr('0.60000000000000009')
 Tests factorial
 ---------------
 
+>>> gmpy2.factorial(0)
+mpfr('1.0')
+>>> gmpy2.factorial(-0.0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: factorial() requires non-negative integer argument
+>>> gmpy2.factorial(2)
+mpfr('2.0')
+>>> gmpy2.factorial('fred')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: factorial() requires non-negative integer argument
+>>> gmpy2.factorial(123)
+mpfr('1.2146304367025329e+205')
+>>> gmpy2.factorial(123456)
+mpfr('2.6040699049291379e+574964')
+>>> gmpy2.factorial(123456789)
+mpfr('inf')
+>>> gmpy2.factorial(1234567899999999999999)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: factorial() argument too large
 >>> gmpy2.factorial(mpz(5))
-mpfr('120.0')
->>> gmpy2.factorial(r)
-mpfr('720.0')
->>> gmpy2.factorial(r2)
 mpfr('120.0')
 >>> ctx.factorial(4)
 mpfr('24.0')
->>> gmpy2.factorial(-r)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-ValueError: factorial() of negative number
->>> gmpy2.factorial(mpc(4,5))
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-TypeError: factorial() requires 'int' argument
 
 Tests fsum
 ----------
