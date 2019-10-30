@@ -1961,6 +1961,7 @@ GMPy_Context_Factorial(PyObject *self, PyObject *other)
 {
     MPFR_Object *result;
     long n;
+    int error;
     CTXT_Object *context = NULL;
 
     if (self && CTXT_Check(self)) {
@@ -1970,14 +1971,24 @@ GMPy_Context_Factorial(PyObject *self, PyObject *other)
         CHECK_CONTEXT(context);
     }
 
-    n = PyLong_AsLong(other);
-    if ((n == -1) && PyErr_Occurred()) {
-        TYPE_ERROR("factorial() requires 'int' argument");
+    if (!(IS_INTEGER(other))) {
+        TYPE_ERROR("factorial() requires non-negative integer argument");
         return NULL;
     }
 
-    if (n < 0) {
+    n = GMPy_Integer_AsLongAndError(other, &error);
+    if ((error == -1) || (n < 0)) {
         VALUE_ERROR("factorial() of negative number");
+        return NULL;
+    }
+
+    if (error == 1) {
+        VALUE_ERROR("factorial() argument too large");
+        return NULL;
+    }
+
+    if (error == 2) {
+        TYPE_ERROR("factorial() requires non-negative integer argument");
         return NULL;
     }
 
