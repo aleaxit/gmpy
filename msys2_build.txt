@@ -85,16 +85,16 @@ will be placed in /mingw32/src or /mingw64/opt.
   $ tar xf gmp-6.1.2.tar.lz
 
 # Download MPFR and any patches
-  $ wget http://www.mpfr.org/mpfr-current/mpfr-3.1.5.tar.bz2
-  $ tar xf mpfr-3.1.5.tar.bz2
-  $ cd mpfr-3.1.5/
+  $ wget http://www.mpfr.org/mpfr-current/mpfr-4.0.2.tar.bz2
+  $ tar xf mpfr-4.0.2.tar.bz2
+  $ cd mpfr-4.0.2/
   $ wget http://www.mpfr.org/mpfr-current/allpatches
   $ patch -N -Z -p1 < allpatches
   $ cd ..
 
 # Download MPC
-  $ wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.0.3.tar.gz
-  $ tar xf mpc-1.0.3.tar.gz
+  $ wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.1.0.tar.gz
+  $ tar xf mpc-1.1.0.tar.gz
 
 # Compile GMP
   $ cd gmp-6.1.2/
@@ -107,8 +107,8 @@ will be placed in /mingw32/src or /mingw64/opt.
 
     This will require changes to gmpy2 source also. See gmpy2_convert_utils.h.
 
-  $ mv gmp.h gmp.original
-  $ sed 's/typedef\s*unsigned\s*long\s*int\s*mp_bitcnt_t/typedef unsigned long long int  mp_bitcnt_t/g' gmp.original > gmp.h
+  $ mv gmp.h gmp.h.original
+  $ sed 's/typedef\s*unsigned\s*long\s*int\s*mp_bitcnt_t/typedef unsigned long long int  mp_bitcnt_t/g' gmp.h.original > gmp.h
 
   $ make
   $ make check
@@ -116,7 +116,7 @@ will be placed in /mingw32/src or /mingw64/opt.
   $ cd ..
 
 # Compile MPFR
-  $ cd mpfr-3.1.5/
+  $ cd mpfr-4.0.2/
   $ ./configure --prefix=/mingw64/opt --enable-static --disable-shared --disable-thread-safe --enable-gmp-internals --with-pic --with-gmp=/mingw64/opt
   $ make
   $ make check
@@ -124,7 +124,7 @@ will be placed in /mingw32/src or /mingw64/opt.
   $ cd ..
 
 # Compile MPC
-  $ cd mpc-1.0.3/
+  $ cd mpc-1.1.0/
   $ ./configure --prefix=/mingw64/opt --enable-static --disable-shared --with-pic --with-gmp=/mingw64/opt --with-mpfr=/mingw64/opt
   $ make
   $ make check
@@ -149,16 +149,16 @@ will be placed in /mingw32/src or /mingw64/opt.
   $ tar xf gmp-6.1.2.tar.lz
 
 # Download MPFR and any patches
-  $ wget http://www.mpfr.org/mpfr-current/mpfr-3.1.5.tar.bz2
-  $ tar xf mpfr-3.1.5.tar.bz2
-  $ cd mpfr-3.1.5/
+  $ wget http://www.mpfr.org/mpfr-current/mpfr-4.0.2.tar.bz2
+  $ tar xf mpfr-4.0.2.tar.bz2
+  $ cd mpfr-4.0.2/
   $ wget http://www.mpfr.org/mpfr-current/allpatches
   $ patch -N -Z -p1 < allpatches
   $ cd ..
 
 # Download MPC
-  $ wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.0.3.tar.gz
-  $ tar xf mpc-1.0.3.tar.gz
+  $ wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.1.0.tar.gz
+  $ tar xf mpc-1.1.0.tar.gz
 
 # Compile GMP
   $ cd gmp-6.1.2/
@@ -169,7 +169,7 @@ will be placed in /mingw32/src or /mingw64/opt.
   $ cd ..
 
 # Compile MPFR
-  $ cd mpfr-3.1.5/
+  $ cd mpfr-4.0.2/
   $ ./configure --prefix=/mingw32/opt --enable-static --disable-shared --disable-thread-safe --enable-gmp-internals --with-pic --with-gmp=/mingw32/opt
   $ make
   $ make check
@@ -177,7 +177,7 @@ will be placed in /mingw32/src or /mingw64/opt.
   $ cd ..
 
 # Compile MPC
-  $ cd mpc-1.0.3/
+  $ cd mpc-1.1.0/
   $ ./configure --prefix=/mingw32/opt --enable-static --disable-shared --with-pic --with-gmp=/mingw32/opt --with-mpfr=/mingw32/opt
   $ make
   $ make check
@@ -221,31 +221,24 @@ The Windows build environment
   I use the following batch file to configure a command prompt for 32-bit builds:
 
   @echo off
-  doskey py26=C:\32\Python26\python.exe $*
   doskey py27=C:\32\Python27\python.exe $*
-  doskey py34=C:\32\Python34\python.exe $*
   doskey py35=C:\32\Python35\python.exe $*
   doskey py36=C:\32\Python36\python.exe $*
+  doskey py37=C:\32\Python35\python.exe $*
+  doskey py38=C:\32\Python36\python.exe $*
   set Path=C:\msys64\mingw32\bin;%Path%
 
   I use the following batch file to configure a command prompt for 64-bit builds:
 
   @echo off
-  doskey py26=C:\64\Python26\python.exe $*
   doskey py27=C:\64\Python27\python.exe $*
-  doskey py34=C:\64\Python34\python.exe $*
   doskey py35=C:\64\Python35\python.exe $*
   doskey py36=C:\64\Python36\python.exe $*
+  doskey py37=C:\64\Python35\python.exe $*
+  doskey py38=C:\64\Python36\python.exe $*
   set Path=C:\msys64\mingw64\bin;%Path%
 
 # Modify distutils library
-
-  The gmpy2 extension is built using the distutils module. Recent versions of
-  the gcc compiler no longer support an option that is used by older versions
-  of distutils. In the file "cygwincompiler.py", remove all occurences of the
-  "-mno-cygwin" option. The "-mno-cygwin" option was already removed in Python
-  2.7.8, 3.3.5, and 3.4.1. The option was present in Python 2.6.6 and 3.2.5.
-  You will need to check your specific version.
 
   In the file "cygwincompiler.py", find the definition for the class
   "Mingw32CCompiler". In the "__init__" function comment out the line:
@@ -263,7 +256,7 @@ The Windows build environment
                                     % (self.linker_dll, shared_option,
                                        entry_point))
 
-# Patch C:\Python27\include\pyconfig.h
+# Patch <<...>>\include\pyconfig.h
 
   In that file, search for the text #ifdef _WIN64 and cut out the following
   three lines:
