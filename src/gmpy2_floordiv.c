@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -63,7 +63,7 @@ GMPy_Integer_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     if (CHECK_MPZANY(x)) {
         if (PyIntOrLong_Check(y)) {
             int error;
-            long temp = GMPy_Integer_AsLongAndError(y, &error);
+            native_si temp = GMPy_Integer_AsNative_siAndError(y, &error);
 
             if (!error) {
                 if (temp > 0) {
@@ -207,8 +207,8 @@ GMPy_Rational_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx, *tempy;
 
-        tempx = GMPy_MPQ_From_Number(x, context);
-        tempy = GMPy_MPQ_From_Number(y, context);
+        tempx = GMPy_MPQ_From_Rational(x, context);
+        tempy = GMPy_MPQ_From_Rational(y, context);
         if (!tempx || !tempy) {
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -222,7 +222,7 @@ GMPy_Rational_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         mpq_div(tempq->q, tempx->q, tempy->q);
-        mpz_fdiv_q(result->z, mpq_numref(tempx->q), mpq_denref(tempy->q));
+        mpz_fdiv_q(result->z, mpq_numref(tempq->q), mpq_denref(tempq->q));
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         Py_DECREF((PyObject*)tempq);
@@ -273,7 +273,6 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     if (MPFR_Check(x)) {
         if (MPFR_Check(y)) {
             mpfr_clear_flags();
-            SET_MPFR_MPFR_WAS_NAN(context, x, y);
 
             result->rc = mpfr_div(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
             result->rc = mpfr_floor(result->f, result->f);
@@ -286,7 +285,6 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
             if (!error) {
                 mpfr_clear_flags();
-                SET_MPFR_WAS_NAN(context, x);
 
                 result->rc = mpfr_div_si(result->f, MPFR(x), tempi, GET_MPFR_ROUND(context));
                 result->rc = mpfr_floor(result->f, result->f);
@@ -295,7 +293,6 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
             else {
                 mpz_set_PyIntOrLong(global.tempz, y);
                 mpfr_clear_flags();
-                SET_MPFR_WAS_NAN(context, x);
 
                 result->rc = mpfr_div_z(result->f, MPFR(x), global.tempz, GET_MPFR_ROUND(context));
                 result->rc = mpfr_floor(result->f, result->f);
@@ -305,7 +302,6 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (CHECK_MPZANY(y)) {
             mpfr_clear_flags();
-            SET_MPFR_WAS_NAN(context, x);
 
             result->rc = mpfr_div_z(result->f, MPFR(x), MPZ(y), GET_MPFR_ROUND(context));
             result->rc = mpfr_floor(result->f, result->f);
@@ -315,12 +311,11 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         if (IS_RATIONAL(y)) {
             MPQ_Object *tempy;
 
-            if (!(tempy = GMPy_MPQ_From_Number(y, context))) {
+            if (!(tempy = GMPy_MPQ_From_Rational(y, context))) {
                 Py_DECREF((PyObject*)result);
                 return NULL;
             }
             mpfr_clear_flags();
-            SET_MPFR_WAS_NAN(context, x);
 
             result->rc = mpfr_div_q(result->f, MPFR(x), tempy->q, GET_MPFR_ROUND(context));
             result->rc = mpfr_floor(result->f, result->f);
@@ -330,7 +325,6 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (PyFloat_Check(y)) {
             mpfr_clear_flags();
-            SET_MPFR_FLOAT_WAS_NAN(context, x, y);
 
             result->rc = mpfr_div_d(result->f, MPFR(x), PyFloat_AS_DOUBLE(y), GET_MPFR_ROUND(context));
             result->rc = mpfr_floor(result->f, result->f);
@@ -344,7 +338,6 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
             long tempi = GMPy_Integer_AsLongAndError(x, &error);
             if (!error) {
                 mpfr_clear_flags();
-                SET_MPFR_WAS_NAN(context, y);
 
                 result->rc = mpfr_si_div(result->f, tempi, MPFR(y), GET_MPFR_ROUND(context));
                 result->rc = mpfr_floor(result->f, result->f);
@@ -357,7 +350,6 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (PyFloat_Check(x)) {
             mpfr_clear_flags();
-            SET_MPFR_FLOAT_WAS_NAN(context, y, x);
 
             result->rc = mpfr_d_div(result->f, PyFloat_AS_DOUBLE(x), MPFR(y), GET_MPFR_ROUND(context));
             result->rc = mpfr_floor(result->f, result->f);
@@ -380,7 +372,6 @@ GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context)
             return NULL;
         }
         mpfr_clear_flags();
-        SET_MPFR_MPFR_WAS_NAN(context, tempx, tempy);
 
         result->rc = mpfr_div(result->f, MPFR(tempx), MPFR(tempy), GET_MPFR_ROUND(context));
         result->rc = mpfr_floor(result->f, result->f);

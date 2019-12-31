@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -105,52 +105,11 @@ GMPy_Real_##NAME(PyObject *x, CTXT_Object *context) \
         return NULL; \
     } \
     mpfr_clear_flags(); \
-    SET_MPFR_WAS_NAN(context, tempx); \
     result->rc = mpfr_##FUNC(result->f, tempx->f, GET_MPFR_ROUND(context)); \
     Py_DECREF((PyObject*)tempx); \
     _GMPy_MPFR_Cleanup(&result, context); \
     return (PyObject*)result; \
 } \
-static PyObject * \
-GMPy_Complex_##NAME(PyObject *x, CTXT_Object *context) \
-{ \
-    MPC_Object *result = NULL, *tempx = NULL; \
-    CHECK_CONTEXT(context); \
-    result = GMPy_MPC_New(0, 0, context); \
-    tempx = GMPy_MPC_From_Complex(x, 1, 1, context); \
-    if (!result || !tempx) { \
-        Py_XDECREF((PyObject*)result); \
-        Py_XDECREF((PyObject*)tempx); \
-        return NULL; \
-    } \
-    SET_MPC_WAS_NAN(context, tempx); \
-    result->rc = mpc_##FUNC(result->c, tempx->c, GET_MPC_ROUND(context)); \
-    Py_DECREF((PyObject*)tempx); \
-    _GMPy_MPC_Cleanup(&result, context); \
-    return (PyObject*)result; \
-} \
-static PyObject * \
-GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
-{ \
-    if (IS_REAL(x)) \
-        return GMPy_Real_##NAME(x, context); \
-    if (IS_COMPLEX(x)) \
-        return GMPy_Complex_##NAME(x, context); \
-    TYPE_ERROR(#FUNC"() argument type not supported"); \
-    return NULL; \
-} \
-static PyObject * \
-GMPy_Context_##NAME(PyObject *self, PyObject *other) \
-{ \
-    CTXT_Object *context = NULL; \
-    if (self && CTXT_Check(self)) { \
-        context = (CTXT_Object*)self; \
-    } \
-    else { \
-        CHECK_CONTEXT(context); \
-    } \
-    return GMPy_Number_##NAME(other, context); \
-}
 
 #define GMPY_MPFR_MPC_UNIOP_EX(NAME, FUNC) \
 static PyObject * \
@@ -162,7 +121,6 @@ _GMPy_MPFR_##NAME(PyObject *x, CTXT_Object *context) \
         return NULL; \
     } \
     mpfr_clear_flags(); \
-    SET_MPFR_WAS_NAN(context, x); \
     result->rc = mpfr_##FUNC(result->f, MPFR(x), GET_MPFR_ROUND(context)); \
     _GMPy_MPFR_Cleanup(&result, context); \
     return (PyObject*)result; \
@@ -188,7 +146,6 @@ _GMPy_MPC_##NAME(PyObject *x, CTXT_Object *context) \
     if (!(result = GMPy_MPC_New(0, 0, context))) { \
         return NULL; \
     } \
-    SET_MPC_WAS_NAN(context, x); \
     result->rc = mpc_##FUNC(result->c, MPC(x), GET_MPC_ROUND(context)); \
     _GMPy_MPC_Cleanup(&result, context); \
     return (PyObject*)result; \
@@ -322,8 +279,48 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
     else { \
         CHECK_CONTEXT(context); \
     } \
-    return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), \
+    return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), \
+                              PyTuple_GET_ITEM(args, 1), \
                               PyTuple_GET_ITEM(args, 2), context); \
+}
+
+#define GMPY_MPFR_QUADOP_TEMPLATE(NAME, FUNC) \
+static PyObject * \
+GMPy_Number_##NAME(PyObject *x, PyObject *y, PyObject *z, PyObject *t, CTXT_Object *context) \
+{ \
+    if (MPZ_Check(x) && MPZ_Check(y) && MPZ_Check(z) && MPZ_Check(t)) \
+        return _GMPy_MPZ_##NAME(x, y, z, t, context); \
+    if (MPQ_Check(x) && MPQ_Check(y) && MPQ_Check(z) && MPQ_Check(t)) \
+        return _GMPy_MPQ_##NAME(x, y, z, t, context); \
+    if (MPFR_Check(x) && MPFR_Check(y) && MPFR_Check(z) && MPFR_Check(t)) \
+        return _GMPy_MPFR_##NAME(x, y, z, t, context); \
+    if (IS_INTEGER(x) && IS_INTEGER(y) && IS_INTEGER(z) && IS_INTEGER(t)) \
+        return GMPy_Integer_##NAME(x, y, z, t, context); \
+    if (IS_RATIONAL(x) && IS_RATIONAL(y) && IS_RATIONAL(z) && IS_RATIONAL(t)) \
+        return GMPy_Rational_##NAME(x, y, z, t, context); \
+    if (IS_REAL(x) && IS_REAL(y) && IS_REAL(z) && IS_REAL(t)) \
+        return GMPy_Real_##NAME(x, y, z, t, context); \
+    TYPE_ERROR(#FUNC"() argument type not supported"); \
+    return NULL; \
+} \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *args) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (PyTuple_GET_SIZE(args) != 4) { \
+        TYPE_ERROR(#FUNC"() requires 4 arguments"); \
+        return NULL; \
+    } \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), \
+                              PyTuple_GET_ITEM(args, 1), \
+                              PyTuple_GET_ITEM(args, 2), \
+                              PyTuple_GET_ITEM(args, 3), context); \
 }
 
 #define GMPY_MPFR_UNIOP(NAME, FUNC) \
@@ -340,7 +337,6 @@ GMPy_Real_##NAME(PyObject *x, CTXT_Object *context) \
         return NULL; \
     } \
     mpfr_clear_flags(); \
-    SET_MPFR_WAS_NAN(context, tempx); \
     result->rc = mpfr_##FUNC(result->f, tempx->f, GET_MPFR_ROUND(context)); \
     Py_DECREF((PyObject*)tempx); \
     _GMPy_MPFR_Cleanup(&result, context); \
@@ -381,7 +377,6 @@ GMPy_Real_##NAME(PyObject *x, CTXT_Object *context) \
         return NULL; \
     } \
     mpfr_clear_flags(); \
-    SET_MPFR_WAS_NAN(context, tempx); \
     result->rc = mpfr_##FUNC(result->f, tempx->f); \
     Py_DECREF((PyObject*)tempx); \
     _GMPy_MPFR_Cleanup(&result, context); \
@@ -429,7 +424,6 @@ GMPy_Real_##NAME(PyObject *x, CTXT_Object *context) \
         return NULL; \
     } \
     mpfr_clear_flags(); \
-    SET_MPFR_WAS_NAN(context, tempx); \
     result->rc = mpfr_##FUNC(result->f, tempx->f); \
     Py_DECREF((PyObject*)tempx); \
     _GMPy_MPFR_Cleanup(&result, context); \
@@ -466,7 +460,6 @@ _GMPy_MPFR_##NAME(PyObject *x, CTXT_Object *context) \
         return NULL; \
     } \
     mpfr_clear_flags(); \
-    SET_MPFR_WAS_NAN(context, x); \
     result->rc = mpfr_##FUNC(result->f, MPFR(x), GET_MPFR_ROUND(context)); \
     _GMPy_MPFR_Cleanup(&result, context); \
     return (PyObject*)result; \
@@ -568,7 +561,6 @@ GMPy_Real_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
         return NULL; \
     } \
     mpfr_clear_flags(); \
-    SET_MPFR_MPFR_WAS_NAN(context, tempx, tempy); \
     result->rc = mpfr_##FUNC(result->f, tempx->f, tempy->f, GET_MPFR_ROUND(context)); \
     Py_DECREF((PyObject*)tempx); \
     Py_DECREF((PyObject*)tempy); \
@@ -620,7 +612,6 @@ GMPy_Real_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
         return NULL; \
     } \
     mpfr_clear_flags(); \
-    SET_MPFR_WAS_NAN(context, tempx); \
     result->rc = mpfr_##FUNC(result->f, tempx->f, n, GET_MPFR_ROUND(context)); \
     Py_DECREF((PyObject*)tempx); \
     _GMPy_MPFR_Cleanup(&result, context); \
@@ -672,7 +663,6 @@ GMPy_Real_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
         return NULL; \
     } \
     mpfr_clear_flags(); \
-    SET_MPFR_WAS_NAN(context, tempx); \
     result->rc = mpfr_##FUNC(result->f, n, tempx->f, GET_MPFR_ROUND(context)); \
     Py_DECREF((PyObject*)tempx); \
     _GMPy_MPFR_Cleanup(&result, context); \
@@ -739,7 +729,6 @@ _GMPy_MPFR_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
         return NULL; \
     } \
     mpfr_clear_flags(); \
-    SET_MPFR_MPFR_WAS_NAN(context, x, y); \
     result->rc = mpfr_##FUNC(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context)); \
     _GMPy_MPFR_Cleanup(&result, context); \
     return (PyObject*)result; \

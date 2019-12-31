@@ -1,0 +1,73 @@
+Test gmpy2 Lucas Functions
+==========================
+
+>>> import gmpy2
+>>> from gmpy2 import mpz
+
+# Test lucasu
+
+>>> import gmpy2
+>>> from gmpy2 import mpz
+
+>>> gmpy2.lucasu(2,4,1)
+mpz(1)
+>>> gmpy2.lucasu(2,1,1)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.lucasu(2,4,8)
+mpz(128)
+>>> gmpy2.lucasu('a',4,8)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.lucasu(2,'b',8)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.lucasu(2,4,None)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.lucasu(mpz(2), mpz(1), mpz(7))
+Traceback (most recent call last):
+  ...
+ValueError:
+
+>>> gmpy2.lucasu_mod(3,2,5,7)
+mpz(3)
+>>> gmpy2.lucasu_mod(3,2,555,777777777)
+mpz(387104641)
+>>> gmpy2.lucasu_mod(2,1,555,777777777)
+Traceback (most recent call last):
+  ...
+ValueError:
+
+>>> gmpy2.lucasv(2,1,4)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.lucasv('a',1,2)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.lucasv(4,'b',2)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.lucasv(4,3,'c')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.lucasv(4,3,7)
+mpz(2188)
+>>> gmpy2.lucasv(4,3,8)
+mpz(6562)
+
+>>> gmpy2.lucasv_mod(4,3,55,123456)
+mpz(35788)
+>>> gmpy2.lucasv_mod(4,3,56,123456)
+mpz(107362)
+>>> gmpy2.lucasv_mod(4,3,57,123456)
+mpz(75172)
+

@@ -1,0 +1,36 @@
+Test gmpy2_plus.c
+=================
+
+>>> import gmpy2
+>>> from gmpy2 import mpz, mpq, mpfr, mpc
+>>> from fractions import Fraction
+
+>>> ctx = gmpy2.get_context()
+>>> ctx.plus(5)
+mpz(5)
+>>> ctx.plus(-5)
+mpz(-5)
+>>> ctx.plus(Fraction(4,5))
+mpq(4,5)
+>>> ctx.plus(4.5)
+mpfr('4.5')
+>>> ctx.plus(complex(5.2,5))
+mpc('5.2000000000000002+5.0j')
+>>> ctx.plus(mpz(421))
+mpz(421)
+>>> ctx.plus('invalid')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: plus() argument type not supported
+>>> ctx.plus()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: plus() requires 1 argument.
+>>> + mpz(421)
+mpz(421)
+>>> + mpq('4/5')
+mpq(4,5)
+>>> + mpfr('inf')
+mpfr('inf')
+>>> + mpc(65.0, 45)
+mpc('65.0+45.0j')

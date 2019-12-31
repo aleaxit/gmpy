@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -33,14 +33,8 @@
 extern "C" {
 #endif
 
-/* The following functions identify and classify the numeric types that are
- * supported by gmpy2.
- *
- * These checks are currently implemented as functions but may be
- * implemented as macros in the future.
- */
+/* Conversions with Pympc */
 
-    /* Conversions with Pympc */
 static MPC_Object *   GMPy_MPC_From_MPC(MPC_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
 static MPC_Object *   GMPy_MPC_From_PyComplex(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
 static MPC_Object *   GMPy_MPC_From_MPFR(MPFR_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
@@ -51,6 +45,9 @@ static MPC_Object *   GMPy_MPC_From_Fraction(PyObject *obj, mpfr_prec_t rprec, m
 static MPC_Object *   GMPy_MPC_From_PyIntOrLong(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
 static MPC_Object *   GMPy_MPC_From_PyStr(PyObject *s, int base, mpfr_prec_t rbits, mpfr_prec_t ibits, CTXT_Object *context);
 static MPC_Object *   GMPy_MPC_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
+#if 0
+static MPC_Object *   GMPy_MPC_From_ComplexAndCopy(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
+#endif
 
 static PyObject *     GMPy_MPC_Float_Slot(PyObject *self);
 #ifdef PY2
@@ -64,8 +61,10 @@ static PyObject *     GMPy_MPC_Str_Slot(MPC_Object *self);
 static PyObject *     GMPy_MPC_Repr_Slot(MPC_Object *self);
 
 /* Miscellaneous */
-#if 0
-static int            GMPy_MPC_convert_arg(PyObject *arg, PyObject **ptr);
+#ifdef SHARED
+/* static int            GMPy_MPC_convert_arg(PyObject *arg, PyObject **ptr); */
+static GMPy_MPC_ConvertArg_RETURN GMPy_MPC_ConvertArg GMPy_MPC_ConvertArg_PROTO;
+
 #endif
 
 #ifdef __cplusplus

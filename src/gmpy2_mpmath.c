@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -30,7 +30,7 @@
 /* Internal helper function for mpmath. */
 
 static PyObject *
-mpmath_build_mpf(long sign, MPZ_Object *man, PyObject *exp, long bc)
+mpmath_build_mpf(long sign, MPZ_Object *man, PyObject *exp, mp_bitcnt_t bc)
 {
     PyObject *tup, *tsign, *tbc;
 
@@ -47,7 +47,7 @@ mpmath_build_mpf(long sign, MPZ_Object *man, PyObject *exp, long bc)
         return NULL;
     }
 
-    if (!(tbc = PyIntOrLong_FromLong(bc))) {
+    if (!(tbc = PyIntOrLong_FromMpBitCnt(bc))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
@@ -96,8 +96,11 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     }
 
     if (!MPZ_Check(man)) {
-        TYPE_ERROR("argument is not an mpz");
-        return NULL;
+		/* Try to convert to an mpz... */
+		if (!(man = GMPy_MPZ_From_Integer((PyObject*)man, NULL))) {
+			TYPE_ERROR("argument is not an mpz");
+			return NULL;
+		}
     }
 
     /* If rndstr really is a string, extract the first character. */
@@ -175,7 +178,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
                     mpz_add_ui(upper->z, upper->z, 1);
         }
 
-        if (!(tmp = PyIntOrLong_FromLong(shift))) {
+        if (!(tmp = PyIntOrLong_FromMpBitCnt(shift))) {
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
@@ -200,7 +203,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     if ((zbits = mpz_scan1(upper->z, 0)))
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
-    if (!(tmp = PyIntOrLong_FromLong(zbits))) {
+    if (!(tmp = PyIntOrLong_FromMpBitCnt(zbits))) {
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
         Py_DECREF(newexp);
@@ -252,7 +255,6 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
             prec = GMPy_Integer_AsMpBitCntAndError(PyTuple_GET_ITEM(args, 2), &error);
             if (error)
                 return NULL;
-            prec = ABS(prec);
         case 2:
             exp = PyTuple_GET_ITEM(args, 1);
         case 1:
@@ -334,7 +336,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                     mpz_add_ui(upper->z, upper->z, 1);
                 }
         }
-        if (!(tmp = PyIntOrLong_FromLong(shift))) {
+        if (!(tmp = PyIntOrLong_FromMpBitCnt(shift))) {
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
@@ -358,7 +360,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     if ((zbits = mpz_scan1(upper->z, 0)))
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
-    if (!(tmp = PyIntOrLong_FromLong(zbits))) {
+    if (!(tmp = PyIntOrLong_FromMpBitCnt(zbits))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);

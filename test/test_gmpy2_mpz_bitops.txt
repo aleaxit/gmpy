@@ -1,0 +1,332 @@
+Tests for gmpy2_mpz_bitops
+==========================
+
+>>> from gmpy2 import mpz, mpq, mpfr
+>>> import gmpy2
+
+Test bit_length
+---------------
+
+>>> mpz(0).bit_length()
+0
+>>> mpz(1).bit_length()
+1
+>>> mpz(5).bit_length()
+3
+>>> mpz(8).bit_length()
+4
+>>> gmpy2.bit_length(mpz(10**30))
+100
+>>> gmpy2.bit_length(56)
+6
+>>> gmpy2.bit_length(mpfr(4.0))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit_length() requires 'mpz' argument
+>>> 1
+1
+
+Test bit_mask
+-------------
+
+>>> gmpy2.bit_mask(mpz(0))
+mpz(0)
+>>> gmpy2.bit_mask(mpz(4))
+mpz(15)
+>>> gmpy2.bit_mask(mpz(3))
+mpz(7)
+>>> gmpy2.bit_mask(mpz(16))
+mpz(65535)
+>>> gmpy2.bit_mask(8)
+mpz(255)
+>>> gmpy2.bit_mask(-1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> 1
+1
+
+Test bit_scan0
+--------------
+
+>>> mpz(6).bit_scan0()
+0
+>>> mpz(7).bit_scan0()
+3
+>>> mpz(8).bit_scan0(2)
+2
+>>> mpz(7).bit_scan0(2)
+3
+>>> mpz(7).bit_scan0(-2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> gmpy2.bit_scan0(mpz(7), 2)
+3
+>>> gmpy2.bit_scan0(mpz(8), 2)
+2
+>>> gmpy2.bit_scan0(8)
+0
+>>> gmpy2.bit_scan0()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit_scan0() requires 'mpz',['int'] arguments
+>>> gmpy2.bit_scan0(mpz(7), 2.5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: could not convert object to integer
+>>> gmpy2.bit_scan0(mpz(7), 2, 5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit_scan0() requires 'mpz',['int'] arguments
+>>> gmpy2.bit_scan0(7.5, 0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit_scan0() requires 'mpz',['int'] arguments
+>>> gmpy2.bit_scan0(8, -2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> 1
+1
+
+Test bit_scan1
+--------------
+
+>>> mpz(7).bit_scan1()
+0
+>>> mpz(8).bit_scan1()
+3
+>>> mpz(7).bit_scan1(2)
+2
+>>> mpz(7).bit_scan1(-2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> gmpy2.bit_scan1(7)
+0
+>>> gmpy2.bit_scan1(8)
+3
+>>> gmpy2.bit_scan1(7, 2)
+2
+>>> gmpy2.bit_scan1(mpz(7), 2, 5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit_scan1() requires 'mpz',['int'] arguments
+>>> gmpy2.bit_scan1()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit_scan1() requires 'mpz',['int'] arguments
+>>> gmpy2.bit_scan1(mpz(6), 2.5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: could not convert object to integer
+>>> gmpy2.bit_scan1(7.5, 0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit_scan1() requires 'mpz',['int'] arguments
+>>> gmpy2.bit_scan1(8, -1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> 1
+1
+
+Test bit_test
+-------------
+
+>>> mpz(7).bit_test(2)
+True
+>>> mpz(8).bit_test(2)
+False
+>>> mpz(-8).bit_test(2)
+False
+>>> mpz(8).bit_test(-2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> gmpy2.bit_test(mpz(7), 2)
+True
+>>> gmpy2.bit_test(mpz(8), 2)
+False
+>>> gmpy2.bit_test()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit_test() requires 'mpz','int' arguments
+>>> gmpy2.bit_test(mpz(7), 2.5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: could not convert object to integer
+>>> gmpy2.bit_test(7.5, 2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit_test() requires 'mpz','int' arguments
+>>> gmpy2.bit_test(8, -2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> 1
+1
+
+Test bit_clear
+--------------
+
+>>> mpz(7).bit_clear(0)
+mpz(6)
+>>> mpz(7).bit_clear(2)
+mpz(3)
+>>> mpz(8).bit_clear(2)
+mpz(8)
+>>> mpz(8).bit_clear(-1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> gmpy2.bit_clear(4, 2)
+mpz(0)
+>>> gmpy2.bit_clear()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit_clear() requires 'mpz','int' arguments
+>>> gmpy2.bit_clear(7.2, 2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit_clear() requires 'mpz','int' arguments
+>>> gmpy2.bit_clear(mpz(4), 2.5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: could not convert object to integer
+>>> gmpy2.bit_clear(4, -2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> 1
+1
+
+Test bit_set
+------------
+
+>>> mpz(4).bit_set(0)
+mpz(5)
+>>> mpz(7).bit_set(3)
+mpz(15)
+>>> mpz(0).bit_set(2)
+mpz(4)
+>>> mpz(0).bit_set(-2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> gmpy2.bit_set(8, 1)
+mpz(10)
+>>> gmpy2.bit_set(0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit_set() requires 'mpz','int' arguments
+>>> gmpy2.bit_set()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit_set() requires 'mpz','int' arguments
+>>> gmpy2.bit_set(8.5, 1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit_set() requires 'mpz','int' arguments
+>>> gmpy2.bit_set(8, 1.5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: could not convert object to integer
+>>> gmpy2.bit_set(8, -1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> 1
+1
+
+Test bit_flip
+-------------
+
+>>> mpz(4).bit_flip(2)
+mpz(0)
+>>> mpz(4).bit_flip(1)
+mpz(6)
+>>> mpz(0).bit_flip(3)
+mpz(8)
+>>> mpz(5).bit_flip(-3)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> gmpy2.bit_flip(mpz(7), mpz(1))
+mpz(5)
+>>> gmpy2.bit_flip(mpz(7), 2)
+mpz(3)
+>>> gmpy2.bit_flip()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit_flip() requires 'mpz','int' arguments
+>>> gmpy2.bit_flip(4.5, 2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit_flip() requires 'mpz','int' arguments
+>>> gmpy2.bit_flip(4, 2.5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: could not convert object to integer
+>>> gmpy2.bit_flip(mpz(7), -2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> 1
+1
+
+Test and operator
+-----------------
+
+>>> mpz(0) and mpz(7)
+mpz(0)
+>>> mpz(7) and mpz(0)
+mpz(0)
+>>> mpz(7) and mpz(5)
+mpz(5)
+>>> mpz(0) and 5
+mpz(0)
+>>> mpz(7) and 5.2
+5.2
+>>> mpz(7) and None
+
+Test popcount
+-------------
+
+>>> gmpy2.popcount(-65) == -1
+True
+>>> gmpy2.popcount(7)
+3
+>>> gmpy2.popcount(8)
+1
+>>> gmpy2.popcount(15)
+4
+>>> gmpy2.popcount(mpz(0))
+0
+>>> gmpy2.popcount(4.5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: popcount() requires 'mpz' argument
+>>> 1
+1
+
+Test hamdist
+------------
+
+>>> gmpy2.hamdist(mpz(5), mpz(7))
+1
+>>> gmpy2.hamdist(mpz(0), mpz(7))
+3
+>>> gmpy2.hamdist(mpz(0), 7)
+3
+>>> gmpy2.hamdist(mpq(14,2), 5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: hamdist() requires 'mpz','mpz' arguments
+>>> gmpy2.hamdist(5,6,5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: hamdist() requires 'mpz','mpz' arguments
+>>> 1
+1

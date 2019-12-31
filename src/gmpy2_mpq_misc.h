@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -35,6 +35,9 @@ extern "C" {
 
 static PyObject * GMPy_MPQ_Attrib_GetNumer(MPQ_Object *self, void *closure);
 static PyObject * GMPy_MPQ_Attrib_GetDenom(MPQ_Object *self, void *closure);
+static PyObject * GMPy_MPQ_Attrib_GetReal(MPQ_Object *self, void *closure);
+static PyObject * GMPy_MPQ_Attrib_GetImag(MPQ_Object *self, void *closure);
+
 static PyObject * GMPy_MPQ_Function_Numer(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPQ_Function_Denom(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPQ_Function_Qdiv(PyObject *self, PyObject *args);

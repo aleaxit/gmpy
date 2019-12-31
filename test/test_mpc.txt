@@ -1,8 +1,9 @@
 Test mpc elementary operations
 ------------------------------
 
->>> import gmpy2 as G
+>>> import gmpy2
 >>> from gmpy2 import mpz, mpq, mpfr, mpc
+>>> from supportclasses import *
 >>> from fractions import Fraction as F
 >>> from decimal import Decimal as D
 >>> a = mpz(123)
@@ -88,6 +89,8 @@ Test division
 
 >>> aj / bj
 mpc('0.34146341463414637+0.073170731707317069j')
+>>> gmpy2.div(aj, bj)
+mpc('0.34146341463414637+0.073170731707317069j')
 >>> aj // bj
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -98,6 +101,15 @@ mpc('0.008130081300813009+0.016260162601626018j')
 mpc('24.600000000000001-49.200000000000003j')
 >>> aj / 0
 mpc('inf+infj')
+>>> mpc('2.0+2.0j') / z
+mpc('1.0+1.0j')
+>>> mpc('2.0+2.0j') / q
+mpc('1.3333333333333333+1.3333333333333333j')
+>>> mpc('2.0+2.0j') / r
+mpc('1.3333333333333333+1.3333333333333333j')
+>>> mpc(15,15) / cx
+mpc('0.26147449224372299-0.059971213817367662j')
+
 
 Test modulo
 -----------
@@ -118,6 +130,8 @@ TypeError: can't mod complex numbers
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: can't take floor or mod of complex number.
+>>> 1
+1
 
 Test operations involving NaN/Inf
 ---------------------------------
@@ -160,43 +174,166 @@ mpc('-inf+infj')
 Test is_XXX
 -----------
 
->>> G.is_zero(mpc("0+0j"))
+>>> gmpy2.is_zero(mpc("0+0j"))
 True
->>> G.is_zero(mpc("1+0j"))
+>>> gmpy2.is_zero(mpc("1+0j"))
 False
->>> G.is_zero(mpc("1+1j"))
+>>> gmpy2.is_zero(mpc("1+1j"))
 False
->>> G.is_zero(mpc("0+1j"))
+>>> gmpy2.is_zero(mpc("0+1j"))
 False
->>> G.is_nan(mpc("nan+1j"))
+>>> gmpy2.is_nan(mpc("nan+1j"))
 True
->>> G.is_nan(mpc("1+nanj"))
+>>> gmpy2.is_nan(mpc("1+nanj"))
 True
->>> G.is_nan(mpc("nan+nanj"))
+>>> gmpy2.is_nan(mpc("nan+nanj"))
 True
->>> G.is_nan(mpc("1+1j"))
+>>> gmpy2.is_nan(mpc("1+1j"))
 False
->>> G.is_infinite(mpc("inf+1j"))
+>>> gmpy2.is_infinite(mpc("inf+1j"))
 True
->>> G.is_infinite(mpc("-inf+1j"))
+>>> gmpy2.is_infinite(mpc("-inf+1j"))
 True
->>> G.is_infinite(mpc("1+infj"))
+>>> gmpy2.is_infinite(mpc("1+infj"))
 True
->>> G.is_infinite(mpc("1-infj"))
+>>> gmpy2.is_infinite(mpc("1-infj"))
 True
->>> G.is_infinite(mpc("inf-infj"))
+>>> gmpy2.is_infinite(mpc("inf-infj"))
 True
->>> G.is_infinite(mpc("1+1j"))
+>>> gmpy2.is_infinite(mpc("1+1j"))
 False
->>> G.is_finite(mpc("0+0j"))
+>>> gmpy2.is_finite(mpc("0+0j"))
 True
->>> G.is_finite(mpc("nan+0j"))
+>>> gmpy2.is_finite(mpc("nan+0j"))
 False
->>> G.is_finite(mpc("0+nanj"))
+>>> gmpy2.is_finite(mpc("0+nanj"))
 False
->>> G.is_finite(mpc("0+infj"))
+>>> gmpy2.is_finite(mpc("0+infj"))
 False
->>> G.is_finite(mpc("inf+3j"))
+>>> gmpy2.is_finite(mpc("inf+3j"))
 False
 
+Test mpc misc
+-------------
+>>> c=mpc('67+87j', precision=70)
+>>> c.precision
+(70, 70)
+>>> c.real.precision
+70
+>>> c.imag.precision
+70
+>>> c = mpc('42e56+42.909j', precision=(45,300))
+>>> c.precision
+(45, 300)
+>>> c.real.precision
+45
+>>> c.imag.precision
+300
+>>> x = mpc("1.3142123+4.3e-1001j", precision=(70,37))
+>>> mpc(x.real, x.imag, precision=(70,37)) == x
+True
+
+Convert from mpc
+----------------
+
+>>> complex(mpc(4,5))
+(4+5j)
+
+Test phase
+----------
+>>> gmpy2.phase()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: phase() takes exactly one argument (0 given)
+>>> gmpy2.phase(3)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: phase() argument type not supported
+>>> gmpy2.phase(mpc(4,5))
+mpfr('0.89605538457134393')
+>>> gmpy2.ieee(64).phase(mpc(4,5))
+mpfr('0.89605538457134393')
+
+Test root_of_unity
+------------------
+>>> gmpy2.root_of_unity(1,1) # doctest: +SKIP_MPC_LESS_THAN_110
+mpc('1.0+0.0j')
+>>> gmpy2.root_of_unity(1,2) # doctest: +SKIP_MPC_LESS_THAN_110
+mpc('1.0+0.0j')
+>>> gmpy2.root_of_unity(2,1) # doctest: +SKIP_MPC_LESS_THAN_110
+mpc('-1.0+0.0j')
+>>> gmpy2.root_of_unity(3,1) # doctest: +SKIP_MPC_LESS_THAN_110
+mpc('-0.5+0.8660254037844386j')
+>>> gmpy2.root_of_unity(3,2) # doctest: +SKIP_MPC_LESS_THAN_110
+mpc('-0.5-0.8660254037844386j')
+>>> gmpy2.root_of_unity(3,3) # doctest: +SKIP_MPC_LESS_THAN_110
+mpc('1.0+0.0j')
+>>> gmpy2.ieee(128).root_of_unity(3,1) # doctest: +SKIP_MPC_LESS_THAN_110
+mpc('-0.5+0.866025403784438646763723170752936161j',(113,113))
+>>> gmpy2.ieee(128).root_of_unity() # doctest: +SKIP_MPC_LESS_THAN_110
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: root_of_unity() requires 2 arguments
+>>> gmpy2.ieee(128).root_of_unity('a','b') # doctest: +SKIP_MPC_LESS_THAN_110
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: root_of_unity() requires integer arguments
+>>> 1
+1
+
+Test norm
+---------
+>>> gmpy2.norm()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: norm() takes exactly one argument (0 given)
+>>> gmpy2.norm(2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: norm() argument type not supported
+>>> gmpy2.norm(mpc(1,2))
+mpfr('5.0')
+>>> gmpy2.ieee(32).norm(mpc(1,2))
+mpfr('5.0',24)
+
+Test polar
+----------
+>>> gmpy2.polar()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: polar() takes exactly one argument (0 given)
+>>> gmpy2.polar(5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: polar() argument type not supported
+>>> gmpy2.polar(mpc(1,1))
+(mpfr('1.4142135623730951'), mpfr('0.78539816339744828'))
+
+Test rect
+---------
+>>> gmpy2.rect()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: rect() requires 2 arguments
+>>> gmpy2.rect(1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: rect() requires 2 arguments
+>>> gmpy2.rect(1,1)
+mpc('0.54030230586813977+0.8414709848078965j')
+
+Test proj
+---------
+>>> gmpy2.proj()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: proj() takes exactly one argument (0 given)
+>>> gmpy2.proj(1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: proj() argument type not supported
+>>> gmpy2.proj(mpc(1,1))
+mpc('1.0+1.0j')
+>>> gmpy2.proj(mpc(1,2))
+mpc('1.0+2.0j')
 

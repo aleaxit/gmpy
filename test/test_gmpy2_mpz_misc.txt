@@ -50,27 +50,6 @@ TypeError:
 >>> gmpy2.num_digits(123456,2)
 17
 
-Test math.ceil (__ceil__)
--------------------------
->>> math.ceil(a)
-mpz(123)
->>> math.ceil(a) is a
-True
-
-Test math.floor (__floor__)
----------------------------
->>> math.floor(a)
-mpz(123)
->>> math.floor(a) is a
-True
-
-Test math.trunc (__trunc__)
----------------------------
->>> math.trunc(a)
-mpz(123)
->>> math.trunc(a) is a
-True
-
 Test round (__round__)
 ----------------------
 >>> round(mpz(123456),'a')
@@ -81,22 +60,6 @@ TypeError:
 Traceback (most recent call last):
   ...
 TypeError:
->>> round(mpz(123456), 2)
-mpz(123456)
->>> round(mpz(123456), -22)
-mpz(0)
->>> round(mpz(123456), -2)
-mpz(123500)
->>> round(mpz(123456), -1)
-mpz(123460)
->>> round(mpz(123455), -1)
-mpz(123460)
->>> round(mpz(123454), -1)
-mpz(123450)
->>> round(mpz(123445), -1)
-mpz(123440)
->>> round(mpz(123445))
-mpz(123445)
 
 Test bool
 ---------
@@ -810,10 +773,3 @@ Test denominator
 ----------------
 >>> a.denominator
 mpz(1)
-
-Test __sizeof__
----------------
->>> import sys
->>> temp = sys.getsizeof(a)
-
-

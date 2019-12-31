@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -43,7 +43,7 @@
 
 /*
  * originally written for GMP-2.0 (by AMK...?)
- * Rewritten by Niels Möller, May 1996
+ * Rewritten by Niels MÃ¶ller, May 1996
  *
  * Version for GMP-4, Python 2.X, with support for MSVC++6,
  * addition of mpf's, &c: Alex Martelli (now aleaxit@gmail.com, Nov 2000).
@@ -358,6 +358,42 @@
  *   Convert `mpz` to a type using __new__ instead of a factory
  *      function.
  *
+ *   2.1.0a1
+ *   Initial release.
+ *
+ *   2.1.0a2
+ *   Revised build process.
+ *   Removal of unused code/macros.
+ *   Cleanup of Cython interface.
+ *
+ *   2.1.0a3
+ *   Updates to setup.py.
+ *   Initial support for MPFR4
+ *     - Add nrandom()
+ *     - grandom() now calls nrandom twice; may return different values versus
+ *       MPFR3
+ *     - Add rootn(); same as root() except different sign when taking even root
+ *       of -0.0
+ *
+ *    2.1.0a4
+ *    Fix issue 204; missing file for Cython.
+ *    Additional support for MPFR 4
+ *      - Add fmma() and fmms()
+ *
+ *    2.1.0a5
+ *    Fix qdiv() not returning mpz() when it should.
+ *    Added root_of_unity()
+ *
+ *    2.1.0b1
+ *    Added cmp() and cmp_abs().
+ *    Improved compatibility with _numbers_ protocol.
+ *    Many bug fixes.
+ *
+ *    2.1.0b2
+ *    Many bug fixes.
+ *
+ *    2.1.0b3
+ *    Version bump only.
  *
  ************************************************************************
  *
@@ -418,7 +454,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.1.0a0";
+char gmpy_version[] = "2.1.0b3";
 
 char gmpy_license[] = "\
 The GMPY2 source code is licensed under LGPL 3 or later. The supported \
@@ -505,8 +541,6 @@ static PyObject *GMPyExc_Erange = NULL;
 
 #include "gmpy2_random.c"
 
-#include "./posix64/mpz_aprcl.c"
-
 /* Support for Lucas sequences. */
 
 #include "gmpy_mpz_lucas.c"
@@ -549,6 +583,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_predicate.c"
 #include "gmpy2_sign.c"
 #include "gmpy2_richcompare.c"
+#include "gmpy2_cmp.c"
 #include "gmpy2_mpc_misc.c"
 #include "gmpy2_mpfr_misc.c"
 #include "gmpy2_mpq_misc.c"
@@ -582,6 +617,8 @@ static PyMethodDef Pygmpy_methods [] =
     { "bit_set", GMPy_MPZ_bit_set_function, METH_VARARGS, doc_bit_set_function },
     { "bit_test", GMPy_MPZ_bit_test_function, METH_VARARGS, doc_bit_test_function },
     { "bincoef", GMPy_MPZ_Function_Bincoef, METH_VARARGS, GMPy_doc_mpz_function_bincoef },
+    { "cmp", GMPy_MPANY_cmp, METH_VARARGS, GMPy_doc_mpany_cmp },
+    { "cmp_abs", GMPy_MPANY_cmp_abs, METH_VARARGS, GMPy_doc_mpany_cmp_abs },
     { "comb", GMPy_MPZ_Function_Bincoef, METH_VARARGS, GMPy_doc_mpz_function_comb },
     { "c_div", GMPy_MPZ_c_div, METH_VARARGS, doc_c_div },
     { "c_div_2exp", GMPy_MPZ_c_div_2exp, METH_VARARGS, doc_c_div_2exp },
@@ -615,7 +652,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "iroot_rem", GMPy_MPZ_Function_IrootRem, METH_VARARGS, GMPy_doc_mpz_function_iroot_rem },
     { "isqrt", GMPy_MPZ_Function_Isqrt, METH_O, GMPy_doc_mpz_function_isqrt },
     { "isqrt_rem", GMPy_MPZ_Function_IsqrtRem, METH_O, GMPy_doc_mpz_function_isqrt_rem },
-    { "is_aprcl_prime", GMPy_MPZ_is_aprcl_prime, METH_O, doc_mpz_is_aprcl_prime },
     { "is_bpsw_prp", GMPY_mpz_is_bpsw_prp, METH_VARARGS, doc_mpz_is_bpsw_prp },
     { "is_congruent", GMPy_MPZ_Function_IsCongruent, METH_VARARGS, GMPy_doc_mpz_function_is_congruent },
     { "is_divisible", GMPy_MPZ_Function_IsDivisible, METH_VARARGS, GMPy_doc_mpz_function_is_divisible },
@@ -650,7 +686,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "mp_limbsize", GMPy_get_mp_limbsize, METH_NOARGS, GMPy_doc_mp_limbsize },
     { "mpc_version", GMPy_get_mpc_version, METH_NOARGS, GMPy_doc_mpc_version },
     { "mpfr_version", GMPy_get_mpfr_version, METH_NOARGS, GMPy_doc_mpfr_version },
-    { "mpq", (PyCFunction)GMPy_MPQ_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_mpq_factory },
     { "mpq_from_old_binary", GMPy_MPQ_From_Old_Binary, METH_O, doc_mpq_from_old_binary },
     { "mpz_from_old_binary", GMPy_MPZ_From_Old_Binary, METH_O, doc_mpz_from_old_binary },
     { "mpz_random", GMPy_MPZ_random_Function, METH_VARARGS, GMPy_doc_mpz_random_function },
@@ -725,6 +760,10 @@ static PyMethodDef Pygmpy_methods [] =
     { "floor", GMPy_Context_Floor, METH_O, GMPy_doc_function_floor },
     { "fma", GMPy_Context_FMA, METH_VARARGS, GMPy_doc_function_fma },
     { "fms", GMPy_Context_FMS, METH_VARARGS, GMPy_doc_function_fms },
+#if MPFR_VERSION_MAJOR > 3
+    { "fmma", GMPy_Context_FMMA, METH_VARARGS, GMPy_doc_function_fmma },
+    { "fmms", GMPy_Context_FMMS, METH_VARARGS, GMPy_doc_function_fmms },
+#endif
     { "fmod", GMPy_Context_Fmod, METH_VARARGS, GMPy_doc_function_fmod },
     { "frac", GMPy_Context_Frac, METH_O, GMPy_doc_function_frac },
     { "free_cache", GMPy_MPFR_Free_Cache, METH_NOARGS, GMPy_doc_mpfr_free_cache },
@@ -762,10 +801,12 @@ static PyMethodDef Pygmpy_methods [] =
     { "maxnum", GMPy_Context_Maxnum, METH_VARARGS, GMPy_doc_function_maxnum },
     { "minnum", GMPy_Context_Minnum, METH_VARARGS, GMPy_doc_function_minnum },
     { "modf", GMPy_Context_Modf, METH_O, GMPy_doc_function_modf },
-    { "mpfr", (PyCFunction)GMPy_MPFR_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_mpfr_factory },
     { "mpfr_from_old_binary", GMPy_MPFR_From_Old_Binary, METH_O, doc_mpfr_from_old_binary },
     { "mpfr_random", GMPy_MPFR_random_Function, METH_VARARGS, GMPy_doc_mpfr_random_function },
     { "mpfr_grandom", GMPy_MPFR_grandom_Function, METH_VARARGS, GMPy_doc_mpfr_grandom_function },
+#if MPFR_VERSION_MAJOR > 3
+    { "mpfr_nrandom", GMPy_MPFR_nrandom_Function, METH_VARARGS, GMPy_doc_mpfr_nrandom_function },
+#endif
     { "mul_2exp", GMPy_Context_Mul_2exp, METH_VARARGS, GMPy_doc_function_mul_2exp },
     { "nan", GMPy_MPFR_set_nan, METH_NOARGS, GMPy_doc_mpfr_set_nan },
     { "next_above", GMPy_Context_NextAbove, METH_O, GMPy_doc_function_next_above },
@@ -782,6 +823,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "rint_round", GMPy_Context_RintRound, METH_O, GMPy_doc_function_rint_round },
     { "rint_trunc", GMPy_Context_RintTrunc, METH_O, GMPy_doc_function_rint_trunc },
     { "root", GMPy_Context_Root, METH_VARARGS, GMPy_doc_function_root },
+    { "rootn", GMPy_Context_Rootn, METH_VARARGS, GMPy_doc_function_rootn },
     { "round_away", GMPy_Context_RoundAway, METH_O, GMPy_doc_function_round_away },
     { "round2", GMPy_Context_Round2, METH_VARARGS, GMPy_doc_function_round2 },
     { "sec", GMPy_Context_Sec, METH_O, GMPy_doc_function_sec },
@@ -807,23 +849,25 @@ static PyMethodDef Pygmpy_methods [] =
     { "zero", GMPy_MPFR_set_zero, METH_VARARGS, GMPy_doc_mpfr_set_zero },
     { "zeta", GMPy_Context_Zeta, METH_O, GMPy_doc_function_zeta },
 
-    { "mpc", (PyCFunction)GMPy_MPC_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_mpc_factory },
     { "mpc_random", GMPy_MPC_random_Function, METH_VARARGS, GMPy_doc_mpc_random_function },
     { "norm", GMPy_Context_Norm, METH_O, GMPy_doc_function_norm },
     { "polar", GMPy_Context_Polar, METH_O, GMPy_doc_function_polar },
     { "phase", GMPy_Context_Phase, METH_O, GMPy_doc_function_phase },
     { "proj", GMPy_Context_Proj, METH_O, GMPy_doc_function_proj },
+#ifdef MPC_110
+    { "root_of_unity", GMPy_Context_Root_Of_Unity, METH_VARARGS, GMPy_doc_function_root_of_unity },
+#endif
     { "rect", GMPy_Context_Rect, METH_VARARGS, GMPy_doc_function_rect },
     { NULL, NULL, 1}
 };
 
 static char _gmpy_docs[] =
-"gmpy2 2.1.0a0 - General Multiple-precision arithmetic for Python\n"
+"gmpy2 2.1.0b2 - General Multiple-precision arithmetic for Python\n"
 "\n"
 "gmpy2 supports several multiple-precision libraries. Integer and\n"
-"rational arithmetic is provided by either the GMP or MPIR libraries.\n"
-"Real floating-point arithmetic is provided by the MPFR library.\n"
-"Complex floating-point arithmetic is provided by the MPC library.\n"
+"rational arithmetic is provided by the GMP library. Real floating-\n"
+"point arithmetic is provided by the MPFR library. Complex floating-\n"
+"point arithmetic is provided by the MPC library.\n"
 "\n"
 "The integer type 'mpz' has comparable functionality to Python's\n"
 "builtin integers, but is faster for operations on large numbers.\n"
@@ -1070,6 +1114,21 @@ PyMODINIT_FUNC initgmpy2(void)
     Py_INCREF(&XMPZ_Type);
     PyModule_AddObject(gmpy_module, "xmpz", (PyObject*)&XMPZ_Type);
 
+    /* Add the MPQ type to the module namespace. */
+
+    Py_INCREF(&MPQ_Type);
+    PyModule_AddObject(gmpy_module, "mpq", (PyObject*)&MPQ_Type);
+
+    /* Add the MPFR type to the module namespace. */
+
+    Py_INCREF(&MPFR_Type);
+    PyModule_AddObject(gmpy_module, "mpfr", (PyObject*)&MPFR_Type);
+
+    /* Add the MPC type to the module namespace. */
+
+    Py_INCREF(&MPC_Type);
+    PyModule_AddObject(gmpy_module, "mpc", (PyObject*)&MPC_Type);
+
     /* Initialize thread local contexts. */
 #ifdef WITHOUT_THREADS
     module_context = (CTXT_Object*)GMPy_CTXT_New();
@@ -1172,7 +1231,7 @@ PyMODINIT_FUNC initgmpy2(void)
         /* LCOV_EXCL_STOP */
     }
 
-#ifndef STATIC
+#ifdef SHARED
     /* Create the Capsule for the C-API. */
 
     GMPy_C_API[MPZ_Type_NUM] = (void*)&MPZ_Type;
@@ -1191,6 +1250,25 @@ PyMODINIT_FUNC initgmpy2(void)
     GMPy_C_API[GMPy_MPZ_NewInit_NUM] = (void*)GMPy_MPZ_NewInit;
     GMPy_C_API[GMPy_MPZ_Dealloc_NUM] = (void*)GMPy_MPZ_Dealloc;
     GMPy_C_API[GMPy_MPZ_ConvertArg_NUM] = (void*)GMPy_MPZ_ConvertArg;
+
+    GMPy_C_API[GMPy_XMPZ_New_NUM] = (void*)GMPy_XMPZ_New;
+    GMPy_C_API[GMPy_XMPZ_NewInit_NUM] = (void*)GMPy_XMPZ_NewInit;
+    GMPy_C_API[GMPy_XMPZ_Dealloc_NUM] = (void*)GMPy_XMPZ_Dealloc;
+
+    GMPy_C_API[GMPy_MPQ_New_NUM] = (void*)GMPy_MPQ_New;
+    GMPy_C_API[GMPy_MPQ_NewInit_NUM] = (void*)GMPy_MPQ_NewInit;
+    GMPy_C_API[GMPy_MPQ_Dealloc_NUM] = (void*)GMPy_MPQ_Dealloc;
+    GMPy_C_API[GMPy_MPQ_ConvertArg_NUM] = (void*)GMPy_MPQ_ConvertArg;
+
+    GMPy_C_API[GMPy_MPFR_New_NUM] = (void*)GMPy_MPFR_New;
+    GMPy_C_API[GMPy_MPFR_NewInit_NUM] = (void*)GMPy_MPFR_NewInit;
+    GMPy_C_API[GMPy_MPFR_Dealloc_NUM] = (void*)GMPy_MPFR_Dealloc;
+    GMPy_C_API[GMPy_MPFR_ConvertArg_NUM] = (void*)GMPy_MPFR_ConvertArg;
+
+    GMPy_C_API[GMPy_MPC_New_NUM] = (void*)GMPy_MPC_New;
+    GMPy_C_API[GMPy_MPC_NewInit_NUM] = (void*)GMPy_MPC_NewInit;
+    GMPy_C_API[GMPy_MPC_Dealloc_NUM] = (void*)GMPy_MPC_Dealloc;
+    GMPy_C_API[GMPy_MPC_ConvertArg_NUM] = (void*)GMPy_MPC_ConvertArg;
 
     c_api_object = PyCapsule_New((void *)GMPy_C_API, "gmpy2._C_API", NULL);
 

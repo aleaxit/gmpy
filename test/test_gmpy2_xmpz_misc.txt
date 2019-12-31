@@ -1,0 +1,122 @@
+Test gmpy2_xmpz_misc.c
+======================
+
+>>> import gmpy2
+>>> from gmpy2 import xmpz, mpz, mpfr
+>>> z = xmpz(5)
+
+>>> gmpy2.xbit_mask(7)
+xmpz(127)
+>>> gmpy2.xbit_mask(z)
+xmpz(31)
+>>> gmpy2.xbit_mask(4.5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: xbit_mask() requires 'int' argumen
+>>> not xmpz(0)
+True
+>>> not z
+False
+>>> -z; z
+xmpz(-5)
+>>> -z; z
+xmpz(5)
+>>> +z; z
+xmpz(5)
+>>> z2 = z.copy()
+>>> z2 == z
+True
+>>> z2 is z
+False
+>>> z.copy().make_mpz()
+mpz(5)
+>>> xmpz(-100).make_mpz()
+mpz(-100)
+>>> z.__len__()
+3
+>>> xmpz(3000).__len__()
+12
+
+Test SubScript and AssignSubScript
+----------------------------------
+
+>>> x = xmpz(10)
+>>> x[0] == x[2] == 0
+True
+>>> x[1] == x[3] == 1
+True
+>>> x[0] = 1
+>>> x
+xmpz(11)
+>>> x[0:2]
+mpz(3)
+>>> x[0:]
+mpz(11)
+>>> x[:4]
+mpz(11)
+>>> x[:4] = 14
+>>> x
+xmpz(14)
+>>> x[0]
+0
+>>> x[mpfr('inf')]
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit positions must be integers
+>>> x[3:0]
+mpz(0)
+>>> x[-1]
+1
+>>> x[-1] = 0; x
+xmpz(6)
+>>> x[0:4] = 15
+>>> x
+xmpz(15)
+>>> x[0] = 16
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: bit value must be 0 or 1
+>>> x[0:4] = 16; x
+xmpz(0)
+>>> x[0:4] = 15; x
+xmpz(15)
+>>> x[0:5] = 16; x
+xmpz(16)
+
+Test iterators
+--------------
+
+>>> x = xmpz(16)
+>>> iter = x.iter_bits()
+>>> [b for b in iter]
+[False, False, False, False, True]
+>>> x = xmpz(30)
+>>> iter = x.iter_bits()
+>>> [b for b in iter]
+[False, True, True, True, True]
+>>> iter = x.iter_bits(-1, 2)
+>>> [b for b in iter]
+[]
+>>> iter = x.iter_bits(1, 3)
+>>> [b for b in iter]
+[True, True]
+>>> iter = x.iter_set()
+>>> [b for b in iter]
+[1, 2, 3, 4]
+>>> iter = x.iter_clear()
+>>> [b for b in iter]
+[0]
+>>> x = xmpz(10)
+>>> iter = x.iter_clear()
+>>> [b for b in iter]
+[0, 2]
+
+Test attributes
+---------------
+
+>>> x.numerator
+xmpz(10)
+>>> x.denominator
+xmpz(1)
+>>> x.real
+xmpz(10)

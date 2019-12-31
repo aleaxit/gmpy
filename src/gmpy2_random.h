@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -55,6 +55,9 @@ static PyObject * GMPy_MPZ_urandomb_Function(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_rrandomb_Function(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_random_Function(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPFR_random_Function(PyObject *self, PyObject *args);
+#if MPFR_VERSION_MAJOR > 3
+static PyObject * GMPy_MPFR_nrandom_Function(PyObject *self, PyObject *args);
+#endif
 static PyObject * GMPy_MPFR_grandom_Function(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPC_random_Function(PyObject *self, PyObject *args);
 

@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -789,7 +789,13 @@ GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args)
     }
 
     n = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 0));
-    if (!(n == (unsigned long)(-1) && PyErr_Occurred())) {
+    if (n == (unsigned long)(-1) && PyErr_Occurred()) {
+        /* Since we plan to skip the else clause and continue,
+         * we need to clear the error since we aren't acting on it.
+         */
+        PyErr_Clear();
+    }
+    else {
         /* Use mpz_bin_uiui which should be faster. */
         mpz_bin_uiui(result->z, n, k);
         return (PyObject*)result;
@@ -1126,7 +1132,7 @@ PyDoc_STRVAR(GMPy_doc_mpz_function_is_divisible,
 static PyObject *
 GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args)
 {
-    unsigned long temp;
+    native_ui temp;
     int error, res;
     MPZ_Object *tempx, *tempd;
 
@@ -1139,7 +1145,7 @@ GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    temp = GMPy_Integer_AsUnsignedLongAndError(PyTuple_GET_ITEM(args, 1), &error);
+    temp = GMPy_Integer_AsNative_uiAndError(PyTuple_GET_ITEM(args, 1), &error);
     if (!error) {
         res = mpz_divisible_ui_p(tempx->z, temp);
         Py_DECREF((PyObject*)tempx);
@@ -1171,11 +1177,11 @@ PyDoc_STRVAR(GMPy_doc_mpz_method_is_divisible,
 static PyObject *
 GMPy_MPZ_Method_IsDivisible(PyObject *self, PyObject *other)
 {
-    unsigned long temp;
+    native_ui temp;
     int error, res;
     MPZ_Object *tempd;
 
-    temp = GMPy_Integer_AsUnsignedLongAndError(other, &error);
+    temp = GMPy_Integer_AsNative_uiAndError(other, &error);
     if (!error) {
         res = mpz_divisible_ui_p(MPZ(self), temp);
         if (res)
@@ -1655,13 +1661,17 @@ GMPy_MPZ_Method_SubScript(MPZ_Object *self, PyObject *item)
 
 #if PY_VERSION_HEX > 0x030200A4
         if (PySlice_GetIndicesEx(item,
-#else
-        if (PySlice_GetIndicesEx((PySliceObject*)item,
-#endif
                         mpz_sizeinbase(self->z, 2),
                         &start, &stop, &step, &slicelength) < 0) {
             return NULL;
         }
+#else
+        if (PySlice_GetIndicesEx((PySliceObject*)item,
+                        mpz_sizeinbase(self->z, 2),
+                        &start, &stop, &step, &slicelength) < 0) {
+            return NULL;
+        }
+#endif
 
         if ((step < 0 && start < stop) || (step > 0 && start > stop)) {
             stop = start;
@@ -1695,12 +1705,30 @@ GMPy_MPZ_Attrib_GetNumer(MPZ_Object *self, void *closure)
 }
 
 static PyObject *
+GMPy_MPZ_Attrib_GetReal(MPZ_Object *self, void *closure)
+{
+    Py_INCREF((PyObject*)self);
+    return (PyObject*)self;
+}
+
+static PyObject *
 GMPy_MPZ_Attrib_GetDenom(MPZ_Object *self, void *closure)
 {
     MPZ_Object *result;
 
     if ((result = GMPy_MPZ_New(NULL))) {
         mpz_set_ui(result->z, 1);
+    }
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPy_MPZ_Attrib_GetImag(MPZ_Object *self, void *closure)
+{
+    MPZ_Object *result;
+
+    if ((result = GMPy_MPZ_New(NULL))) {
+        mpz_set_ui(result->z, 0);
     }
     return (PyObject*)result;
 }
@@ -1716,4 +1744,23 @@ GMPy_MPZ_Method_SizeOf(PyObject *self, PyObject *other)
     return PyIntOrLong_FromSize_t(sizeof(MPZ_Object) + \
         (MPZ(self)->_mp_alloc * sizeof(mp_limb_t)));
 }
+
+/* Note: this particular function is also used for xmpz, mpq, and mpfr. Only
+ * mpc.conjugate() does more that just return another reference to the original
+ * object.
+ */
+
+PyDoc_STRVAR(GMPy_doc_mp_method_conjugate,
+"x.conjugate() -> number\n\n"
+"Return the conjugate of x (which is just a new reference to x since x is\n"
+"not a complex number).");
+
+static PyObject *
+GMPy_MP_Method_Conjugate(PyObject *self, PyObject *args)
+{
+    Py_INCREF((PyObject*)self);
+    return (PyObject*)self;
+}
+
+
 

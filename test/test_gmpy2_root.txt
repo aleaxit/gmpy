@@ -1,0 +1,58 @@
+Test gmpy2 root and rootn
+=========================
+
+>>> import gmpy2 as gmpy2
+>>> from gmpy2 import mpz, mpq, mpfr, mpc, root, rootn, zero
+
+>>> root(zero(1), 2)
+mpfr('0.0')
+
+>>> root(zero(-1), 2)
+mpfr('-0.0')
+>>> root(zero(-1), 3)
+mpfr('-0.0')
+>>> root(zero(-1), 4)
+mpfr('-0.0')
+>>> root(zero(-1), 5)
+mpfr('-0.0')
+>>> root(zero(-1), 6)
+mpfr('-0.0')
+
+>>> rootn(zero(1), 2)
+mpfr('0.0')
+
+>>> rootn(zero(-1), 2)
+mpfr('0.0')
+>>> rootn(zero(-1), 3)
+mpfr('-0.0')
+>>> rootn(zero(-1), 4)
+mpfr('0.0')
+>>> rootn(zero(-1), 5)
+mpfr('-0.0')
+>>> rootn(zero(-1), 6)
+mpfr('0.0')
+
+>>> root(2,2)
+mpfr('1.4142135623730951')
+>>> root(mpz(2),2)
+mpfr('1.4142135623730951')
+>>> root(mpq(2),2)
+mpfr('1.4142135623730951')
+>>> root(mpfr(2),2)
+mpfr('1.4142135623730951')
+>>> root(mpc(2),2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: root() argument type not supported
+>>> root(-2,2)
+mpfr('nan')
+>>> root(2,-2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> root(2,0.5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: root() argument type not supported
+>>> 1
+1

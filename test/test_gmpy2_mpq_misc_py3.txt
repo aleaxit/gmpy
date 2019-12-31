@@ -1,0 +1,11 @@
+Test file gmpy2_mpq_misc.c python3
+==================================
+
+>>> import gmpy2
+
+>>> gmpy2.mpq(7,3).__round__(4.5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: __round__() requires 'int' argument
+>>> 1
+1

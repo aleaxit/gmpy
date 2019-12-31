@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -84,9 +84,6 @@ GMPy_CTXT_New(void)
         result->ctx.imag_round = -1;
         result->ctx.allow_complex = 0;
         result->ctx.rational_division = 0;
-        result->ctx.mpfr_divmod_exact = 0;
-        result->ctx.quiet_nan = 0;
-        result->ctx.was_nan = 0;
 
 #ifndef WITHOUT_THREADS
         result->tstate = NULL;
@@ -231,7 +228,7 @@ GMPy_CTXT_Set(PyObject *self, PyObject *other)
 #endif
 
 PyDoc_STRVAR(GMPy_doc_context_ieee,
-"ieee(size[,quiet_nan=True[,subnormalize=True]]) -> context\n\n"
+"ieee(size[,subnormalize=True]) -> context\n\n"
 "Return a new context corresponding to a standard IEEE floating point\n"
 "format. The supported sizes are 16, 32, 64, 128, and multiples of\n"
 "32 greater than 128.");
@@ -241,10 +238,10 @@ GMPy_CTXT_ieee(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     long bitwidth;
     double bitlog2;
-    int quiet_mode=1, sub_mode=1;
+    int sub_mode=1;
     PyObject *temp;
     CTXT_Object *result;
-    static char *kwlist[] = {"subnormalize", "quiet_nan", NULL};
+    static char *kwlist[] = {"subnormalize", NULL};
 
     if (PyTuple_GET_SIZE(args) != 1) {
         TYPE_ERROR("ieee() requires 'int' argument");
@@ -269,7 +266,7 @@ GMPy_CTXT_ieee(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (!(PyArg_ParseTupleAndKeywords(temp, kwargs,
-            "|ii", kwlist, &sub_mode, &quiet_mode))) {
+            "|ii", kwlist, &sub_mode))) {
         VALUE_ERROR("invalid keyword arguments for ieee()");
         Py_DECREF(temp);
         return NULL;
@@ -278,8 +275,6 @@ GMPy_CTXT_ieee(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (sub_mode)
         sub_mode = 1;
-    if (quiet_mode)
-        quiet_mode = 1;
 
     if (!(result = (CTXT_Object*)GMPy_CTXT_New())) {
         return NULL;
@@ -307,13 +302,12 @@ GMPy_CTXT_ieee(PyObject *self, PyObject *args, PyObject *kwargs)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
-        bitlog2 = round(4 * log2(bitwidth));
+        bitlog2 = floor((4 * log(bitwidth) / log(2.0)) + 0.5);
         result->ctx.mpfr_prec = bitwidth - (long)(bitlog2) + 13;
         result->ctx.emax = 1 << (bitwidth - result->ctx.mpfr_prec - 1);
     }
 
     result->ctx.subnormalize = sub_mode;
-    result->ctx.quiet_nan = quiet_mode;
     result->ctx.emin = 4 - result->ctx.emax - result->ctx.mpfr_prec;
     return (PyObject*)result;
 }
@@ -361,7 +355,7 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
     PyObject *result = NULL;
     int i = 0;
 
-    tuple = PyTuple_New(25);
+    tuple = PyTuple_New(23);
     if (!tuple)
         return NULL;
 
@@ -377,9 +371,7 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
             "        trap_erange=%s, erange=%s,\n"
             "        trap_divzero=%s, divzero=%s,\n"
             "        allow_complex=%s,\n"
-            "        rational_division=%s,\n"
-            "        mpfr_divmod_exact=%s,\n"
-            "        quiet_nan=%s)"
+            "        rational_division=%s)"
             );
     if (!format) {
         Py_DECREF(tuple);
@@ -415,8 +407,6 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.divzero));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.allow_complex));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.rational_division));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.mpfr_divmod_exact));
-    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.quiet_nan));
 
     if (!PyErr_Occurred())
         result = Py2or3String_Format(format, tuple);
@@ -478,7 +468,7 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
         "real_round", "imag_round", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero", "allow_complex",
-        "rational_division", "mpfr_divmod_exact", "quiet_nan", NULL };
+        "rational_division", NULL };
 
     /* Create an empty dummy tuple to use for args. */
 
@@ -497,7 +487,7 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
     x_trap_divzero = ctxt->ctx.traps & TRAP_DIVZERO;
 
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|llliiilliiiiiiiiiii", kwlist,
+            "|llliiilliiiiiiiii", kwlist,
             &ctxt->ctx.mpfr_prec,
             &ctxt->ctx.real_prec,
             &ctxt->ctx.imag_prec,
@@ -514,9 +504,7 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
             &x_trap_erange,
             &x_trap_divzero,
             &ctxt->ctx.allow_complex,
-            &ctxt->ctx.rational_division,
-            &ctxt->ctx.mpfr_divmod_exact,
-            &ctxt->ctx.quiet_nan))) {
+            &ctxt->ctx.rational_division))) {
         VALUE_ERROR("invalid keyword arguments for context");
         Py_DECREF(args);
         return 0;
@@ -539,8 +527,6 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
 
     if (ctxt->ctx.subnormalize)
         ctxt->ctx.subnormalize = 1;
-    if (ctxt->ctx.quiet_nan)
-        ctxt->ctx.quiet_nan = 1;
 
     /* Sanity check for values. */
     if (ctxt->ctx.mpfr_prec < MPFR_PREC_MIN ||
@@ -702,11 +688,7 @@ PyDoc_STRVAR(GMPy_doc_context,
 "    allow_complex:     if True, allow mpfr functions to return mpc\n"
 "                       if False, mpfr functions cannot return an mpc\n"
 "    rational_division: if True, mpz/mpz returns an mpq\n"
-"                       if False, mpz/mpz follows default behavior\n"
-"    mpfr_divmod_exact: if True, divmod(mpfr,mpfr) calculations are done\n"
-"                       exactly by intermediate conversion to mpq.\n"
-"    quiet_nan:         if True, the invalid flag is not set if one of\n"
-"                       arguments to a function is Nan.\n");
+"                       if False, mpz/mpz follows default behavior\n");
 #if 0
 "\nMethods\n"
 "    abs(x)          return absolute value of x\n"
@@ -791,6 +773,9 @@ PyDoc_STRVAR(GMPy_doc_context,
 "    rint_round(x)   ...\n"
 "    rint_trunc(x)   ...\n"
 "    root(x,n)       return the n-th of x\n"
+#ifdef MPC_110
+"    root_of_unity() return the k-th power of the n-th root of mpc(1)\n"
+#endif
 "    round2(x,n)     return x rounded to n bits.\n"
 "    round_away(x)   return x rounded to integer, ties away from 0\n"
 "    sec(x)          return secant of x\n"
@@ -967,8 +952,6 @@ GETSET_BOOLEAN_BIT(trap_erange, TRAP_ERANGE);
 GETSET_BOOLEAN_BIT(trap_divzero, TRAP_DIVZERO);
 GETSET_BOOLEAN(allow_complex)
 GETSET_BOOLEAN(rational_division)
-GETSET_BOOLEAN(mpfr_divmod_exact)
-GETSET_BOOLEAN(quiet_nan)
 
 static PyObject *
 GMPy_CTXT_Get_precision(CTXT_Object *self, void *closure)
@@ -1240,8 +1223,6 @@ static PyGetSetDef GMPyContext_getseters[] = {
     ADD_GETSET(trap_divzero),
     ADD_GETSET(allow_complex),
     ADD_GETSET(rational_division),
-    ADD_GETSET(mpfr_divmod_exact),
-    ADD_GETSET(quiet_nan),
     {NULL}
 };
 
@@ -1285,12 +1266,16 @@ static PyMethodDef GMPyContext_methods[] =
     { "expm1", GMPy_Context_Expm1, METH_O, GMPy_doc_context_expm1 },
     { "exp10", GMPy_Context_Exp10, METH_O, GMPy_doc_context_exp10 },
     { "exp2", GMPy_Context_Exp2, METH_O, GMPy_doc_context_exp2 },
+    { "factorial", GMPy_Context_Factorial, METH_O, GMPy_doc_context_factorial },
     { "floor", GMPy_Context_Floor, METH_O, GMPy_doc_context_floor },
     { "floor_div", GMPy_Context_FloorDiv, METH_VARARGS, GMPy_doc_context_floordiv },
     { "fma", GMPy_Context_FMA, METH_VARARGS, GMPy_doc_context_fma },
-    { "fmod", GMPy_Context_Fmod, METH_VARARGS, GMPy_doc_context_fmod },
     { "fms", GMPy_Context_FMS, METH_VARARGS, GMPy_doc_context_fms },
-    { "factorial", GMPy_Context_Factorial, METH_O, GMPy_doc_context_factorial },
+#if MPFR_VERSION_MAJOR > 3
+    { "fmma", GMPy_Context_FMMA, METH_VARARGS, GMPy_doc_context_fmma },
+    { "fmms", GMPy_Context_FMMS, METH_VARARGS, GMPy_doc_context_fmms },
+#endif
+    { "fmod", GMPy_Context_Fmod, METH_VARARGS, GMPy_doc_context_fmod },
     { "frac", GMPy_Context_Frac, METH_O, GMPy_doc_context_frac },
     { "frexp", GMPy_Context_Frexp, METH_O, GMPy_doc_context_frexp },
     { "fsum", GMPy_Context_Fsum, METH_O, GMPy_doc_context_fsum },
@@ -1298,7 +1283,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "hypot", GMPy_Context_Hypot, METH_VARARGS, GMPy_doc_context_hypot },
     { "is_finite", GMPy_Context_Is_Finite, METH_O, GMPy_doc_context_is_finite },
     { "is_infinite", GMPy_Context_Is_Infinite, METH_O, GMPy_doc_context_is_infinite },
-    { "is_integere", GMPy_Context_Is_Integer, METH_O, GMPy_doc_context_is_integer },
+    { "is_integer", GMPy_Context_Is_Integer, METH_O, GMPy_doc_context_is_integer },
     { "is_nan", GMPy_Context_Is_NAN, METH_O, GMPy_doc_context_is_nan },
     { "is_regular", GMPy_Context_Is_Regular, METH_O, GMPy_doc_context_is_regular },
     { "is_signed", GMPy_Context_Is_Signed, METH_O, GMPy_doc_context_is_signed },
@@ -1314,8 +1299,6 @@ static PyMethodDef GMPyContext_methods[] =
     { "log1p", GMPy_Context_Log1p, METH_O, GMPy_doc_context_log1p },
     { "log2", GMPy_Context_Log2, METH_O, GMPy_doc_context_log2 },
     { "maxnum", GMPy_Context_Maxnum, METH_VARARGS, GMPy_doc_context_maxnum },
-    { "mpc", (PyCFunction)GMPy_MPC_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_mpc_factory },
-    { "mpfr", (PyCFunction)GMPy_MPFR_Factory, METH_VARARGS | METH_KEYWORDS, GMPy_doc_mpfr_factory },
     { "minnum", GMPy_Context_Minnum, METH_VARARGS, GMPy_doc_context_minnum },
     { "minus", GMPy_Context_Minus, METH_VARARGS, GMPy_doc_context_minus },
     { "mod", GMPy_Context_Mod, METH_VARARGS, GMPy_doc_context_mod },
@@ -1343,6 +1326,10 @@ static PyMethodDef GMPyContext_methods[] =
     { "rint_round", GMPy_Context_RintRound, METH_O, GMPy_doc_context_rint_round },
     { "rint_trunc", GMPy_Context_RintTrunc, METH_O, GMPy_doc_context_rint_trunc },
     { "root", GMPy_Context_Root, METH_VARARGS, GMPy_doc_context_root },
+    { "rootn", GMPy_Context_Rootn, METH_VARARGS, GMPy_doc_context_rootn },
+#ifdef MPC_110
+    { "root_of_unity", GMPy_Context_Root_Of_Unity, METH_VARARGS, GMPy_doc_context_root_of_unity },
+#endif
     { "round2", GMPy_Context_Round2, METH_VARARGS, GMPy_doc_context_round2 },
     { "round_away", GMPy_Context_RoundAway, METH_O, GMPy_doc_context_round_away },
     { "sec", GMPy_Context_Sec, METH_O, GMPy_doc_context_sec },

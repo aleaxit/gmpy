@@ -2,12 +2,8 @@ MPFR Functionality
 ==================
 
 >>> import gmpy2
->>> import math
 >>> from gmpy2 import mpfr, mpq, mpz
 >>> from fractions import Fraction as F
->>> def _cmp(x,y):
-...   return x.as_integer_ratio() == y.as_integer_ratio()
-...
 >>> import sys
 
 Test trigonometric operations
@@ -26,8 +22,8 @@ Test acos
 ---------
 
 >>> gmpy2.set_context(gmpy2.context())
->>> _cmp(gmpy2.acos(mpfr("0.2")), math.acos(0.2))
-True
+>>> gmpy2.acos(mpfr("0.2")).as_integer_ratio()
+(mpz(6167402294989009), mpz(4503599627370496))
 >>> gmpy2.acos()
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -82,16 +78,14 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_erange=False, erange=False,
         trap_divzero=False, divzero=False,
         allow_complex=False,
-        rational_division=False,
-        mpfr_divmod_exact=False,
-        quiet_nan=False)
+        rational_division=False)
 
 Test asin
 ---------
 
 >>> gmpy2.set_context(gmpy2.context())
->>> _cmp(gmpy2.asin(mpfr("0.2")), math.asin(0.2))
-True
+>>> gmpy2.asin(mpfr("0.2")).as_integer_ratio()
+(mpz(7254683656315453), mpz(36028797018963968))
 >>> gmpy2.asin()
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -146,18 +140,16 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_erange=False, erange=False,
         trap_divzero=False, divzero=False,
         allow_complex=False,
-        rational_division=False,
-        mpfr_divmod_exact=False,
-        quiet_nan=False)
+        rational_division=False)
 
 Test atan
 ---------
 
 >>> gmpy2.set_context(gmpy2.context())
->>> _cmp(gmpy2.atan(mpfr("0.2")), math.atan(0.2))
-True
->>> _cmp(gmpy2.atan(mpfr("100")), math.atan(100))
-True
+>>> gmpy2.atan(mpfr("0.2")).as_integer_ratio()
+(mpz(1777981139569027), mpz(9007199254740992))
+>>> gmpy2.atan(mpfr("100")).as_integer_ratio()
+(mpz(3514601628432273), mpz(2251799813685248))
 >>> gmpy2.atan()
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -204,49 +196,47 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_erange=False, erange=False,
         trap_divzero=False, divzero=False,
         allow_complex=False,
-        rational_division=False,
-        mpfr_divmod_exact=False,
-        quiet_nan=False)
+        rational_division=False)
 
 Test atan2
 ----------
 
 >>> gmpy2.set_context(gmpy2.context())
->>> _cmp(gmpy2.atan2(1,2), math.atan2(1,2))
-True
->>> _cmp(gmpy2.atan2(-1,2), math.atan2(-1,2))
-True
->>> _cmp(gmpy2.atan2(1,-2), math.atan2(1,-2))
-True
->>> _cmp(gmpy2.atan2(-1,-2), math.atan2(-1,-2))
-True
->>> _cmp(gmpy2.atan2(float("0"),float("0")), math.atan2(float("0"),float("0")))
-True
->>> _cmp(gmpy2.atan2(float("-0"),float("0")), math.atan2(float("-0"),float("0")))
-True
->>> _cmp(gmpy2.atan2(float("0"),float("-0")), math.atan2(float("0"),float("-0")))
-True
->>> _cmp(gmpy2.atan2(float("-0"),float("-0")), math.atan2(float("-0"),float("-0")))
-True
->>> _cmp(gmpy2.atan2(float("inf"),float("inf")), math.atan2(float("inf"),float("inf")))
-True
->>> _cmp(gmpy2.atan2(float("-inf"),float("inf")), math.atan2(float("-inf"),float("inf")))
-True
->>> _cmp(gmpy2.atan2(float("inf"),float("-inf")), math.atan2(float("inf"),float("-inf")))
-True
->>> _cmp(gmpy2.atan2(float("-inf"),float("-inf")), math.atan2(float("-inf"),float("-inf")))
-True
+>>> gmpy2.atan2(1,2).as_integer_ratio()
+(mpz(8352332796509007), mpz(18014398509481984))
+>>> gmpy2.atan2(-1,2).as_integer_ratio()
+(mpz(-8352332796509007), mpz(18014398509481984))
+>>> gmpy2.atan2(1,-2).as_integer_ratio()
+(mpz(3015098076232407), mpz(1125899906842624))
+>>> gmpy2.atan2(-1,-2).as_integer_ratio()
+(mpz(-3015098076232407), mpz(1125899906842624))
+>>> gmpy2.atan2(float("0"),float("0")).as_integer_ratio()
+(mpz(0), mpz(1))
+>>> gmpy2.atan2(float("-0"),float("0")).as_integer_ratio()
+(mpz(0), mpz(1))
+>>> gmpy2.atan2(float("0"),float("-0")).as_integer_ratio()
+(mpz(884279719003555), mpz(281474976710656))
+>>> gmpy2.atan2(float("-0"),float("-0")).as_integer_ratio()
+(mpz(-884279719003555), mpz(281474976710656))
+>>> gmpy2.atan2(float("inf"),float("inf")).as_integer_ratio()
+(mpz(884279719003555), mpz(1125899906842624))
+>>> gmpy2.atan2(float("-inf"),float("inf")).as_integer_ratio()
+(mpz(-884279719003555), mpz(1125899906842624))
+>>> gmpy2.atan2(float("inf"),float("-inf")).as_integer_ratio()
+(mpz(2652839157010665), mpz(1125899906842624))
+>>> gmpy2.atan2(float("-inf"),float("-inf")).as_integer_ratio()
+(mpz(-2652839157010665), mpz(1125899906842624))
 
 Test cos
 --------
 
 >>> gmpy2.set_context(gmpy2.context())
->>> _cmp(gmpy2.cos(mpfr("0.2")), math.cos(0.2))
+>>> gmpy2.cos(mpfr("0.2")).as_integer_ratio()
+(mpz(4413827474764093), mpz(4503599627370496))
+>>> gmpy2.cos(mpfr("20")).as_integer_ratio() == (mpz(7351352886077503), mpz(18014398509481984)) or (sys.platform == 'win32')
 True
->>> _cmp(gmpy2.cos(mpfr("20")), math.cos(20)) == (sys.platform != 'win32')
-True
->>> _cmp(gmpy2.cos(mpfr("2000")), math.cos(2000))
-True
+>>> gmpy2.cos(mpfr("2000")).as_integer_ratio()
+(mpz(-3309781376808469), mpz(9007199254740992))
 >>> gmpy2.cos()
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -301,22 +291,16 @@ context(precision=100, real_prec=Default, imag_prec=Default,
         trap_erange=False, erange=False,
         trap_divzero=False, divzero=False,
         allow_complex=False,
-        rational_division=False,
-        mpfr_divmod_exact=False,
-        quiet_nan=False)
+        rational_division=False)
 
 Test cot
 --------
 
 >>> gmpy2.set_context(gmpy2.context())
->>> _cmp(gmpy2.cot(mpfr("0.2")), 1/math.tan(0.2))
-False
 >>> gmpy2.cot(mpfr("0.2")).as_integer_ratio()
 (mpz(173569956714485), mpz(35184372088832))
->>> (1/math.tan(0.2)).as_integer_ratio() == (5554238614863519, 1125899906842624)
-True
->>> _cmp(gmpy2.cot(gmpy2.const_pi()), 1/math.tan(math.pi))
-True
+>>> gmpy2.cot(gmpy2.const_pi()).as_integer_ratio()
+(mpz(-8165619676597685), mpz(1))
 >>> gmpy2.cot(1)
 mpfr('0.64209261593433076')
 >>> gmpy2.cot(float('0'))
@@ -331,57 +315,138 @@ mpfr('-inf')
 Test csc
 --------
 
-Test degrees
-------------
-
-Test radians
--------------
+>>> r2 = mpfr('5.6')
+>>> gmpy2.csc(r2)
+mpfr('-1.5841166632383596')
 
 Test sec
 --------
 
+>>> gmpy2.sec(r2)
+mpfr('1.2893811186238056')
+
 Test sin
 --------
+
+>>> r = mpfr(5.6)
+>>> gmpy2.sin(r)
+mpfr('-0.63126663787232162')
+>>> gmpy2.sin(r) == gmpy2.sin(5.6)
+True
 
 Test sin_cos
 ------------
 
+>>> gmpy2.sin_cos(r)
+(mpfr('-0.63126663787232162'), mpfr('0.77556587851024961'))
+>>> gmpy2.sin_cos(r) == gmpy2.sin_cos(5.6)
+True
+>>> gmpy2.sin_cos(r) == (gmpy2.sin(r), gmpy2.cos(r))
+True
+
 Test tan
 --------
+
+>>> gmpy2.tan(r)
+mpfr('-0.8139432836897027')
 
 Test acosh
 ----------
 
+>>> gmpy2.acosh(r)
+mpfr('2.4078447868719399')
+
 Test asinh
 ----------
+
+>>> gmpy2.asinh(r)
+mpfr('2.4237920435875173')
 
 Test atanh
 ----------
 
+>>> gmpy2.atanh(mpfr(0.365))
+mpfr('0.38264235436318422')
+>>> gmpy2.atanh(mpfr(0.365)) == gmpy2.atanh(0.365)
+True
+
 Test cosh
 ---------
+
+>>> gmpy2.cosh(r)
+mpfr('135.2150526449345')
+>>> gmpy2.cosh(r) == gmpy2.cosh(5.6)
+True
 
 Test coth
 ---------
 
+>>> gmpy2.coth(r)
+mpfr('1.0000273487661038')
+
 Test csch
 ---------
 
+>>> gmpy2.csch(r)
+mpfr('0.0073958285649757295')
+
+>>> gmpy2.csch(r)
+mpfr('0.0073958285649757295')
+
 Test degrees
 ------------
+>>> rad = mpfr(1.57)
+>>> ctx = gmpy2.get_context()
+>>> ctx.degrees(rad)
+mpfr('89.954373835539243')
+>>> gmpy2.degrees(rad)
+mpfr('89.954373835539243')
+>>> gmpy2.degrees(1)
+mpfr('57.295779513082323')
 
 Test radians
 -------------
 
+>>> deg = mpfr(90)
+>>> ctx.radians(deg)
+mpfr('1.5707963267948966')
+>>> gmpy2.radians(deg)
+mpfr('1.5707963267948966')
+>>> gmpy2.radians(45)
+mpfr('0.78539816339744828')
+>>> gmpy2.radians(mpz(20))
+mpfr('0.3490658503988659')
+>>> gmpy2.radians(mpfr('inf'))
+mpfr('inf')
+>>> gmpy2.radians(mpfr('nan'))
+mpfr('nan')
+
 Test sech
 ---------
+
+>>> gmpy2.sech(r)
+mpfr('0.0073956263037217584')
 
 Test sinh
 ---------
 
+>>> gmpy2.sinh(r)
+mpfr('135.21135478121803')
+>>> gmpy2.sinh(r) == gmpy2.sinh(5.6)
+True
+
 Test sinh_cosh
 --------------
+
+>>> gmpy2.sinh_cosh(r)
+(mpfr('135.21135478121803'), mpfr('135.2150526449345'))
+>>> gmpy2.sinh_cosh(r) == gmpy2.sinh_cosh(5.6)
+True
+>>> gmpy2.sinh_cosh(r) == (gmpy2.sinh(r), gmpy2.cosh(r))
+True
 
 Test tanh
 ---------
 
+>>> gmpy2.tanh(r)
+mpfr('0.99997265198183083')

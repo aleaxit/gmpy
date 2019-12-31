@@ -1,1 +1,9 @@
-include README INSTALL COPYING COPYING.LESSER *.txt *.py docs/* src/* test/* test2/*.py test3/*.py build.vc10/* build.vc9/*
+include README
+include INSTALL
+include COPYING
+include docs/*
+include test/*
+include COPYING.LESSER
+include src/*
+include gmpy2/gmpy2.h
+include gmpy2/*.pxd

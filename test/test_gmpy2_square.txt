@@ -1,0 +1,37 @@
+Test gmpy2 Square
+=================
+
+Test code in the file gmpy2_square.c
+
+>>> import gmpy2
+>>> from gmpy2 import mpz, xmpz, mpq, mpfr, mpc, square
+
+>>> z = mpz(2)
+>>> square(z)
+mpz(4)
+>>> square(z) == z * z
+True
+>>> q = mpq(2,3)
+>>> square(q)
+mpq(4,9)
+>>> square(q) == q * q
+True
+>>> r = mpfr(5.3)
+>>> square(r)
+mpfr('28.09')
+>>> square(r) == r * r
+True
+>>> c = mpc(2,3)
+>>> square(c)
+mpc('-5.0+12.0j')
+>>> square(c) == c * c
+True
+>>> square(2) == square(z)
+True
+>>> from fractions import Fraction
+>>> square(Fraction(2,3)) == square(q)
+True
+>>> square(5.3) == square(r)
+True
+>>> square(complex(2,3)) == square(c)
+True

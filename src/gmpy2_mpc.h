@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -48,7 +48,6 @@ extern "C" {
 #endif
 
 static PyTypeObject MPC_Type;
-#define MPC(obj) (((MPC_Object *)(obj))->c)
 #define MPC_Check(v) (((PyObject*)v)->ob_type == &MPC_Type)
 
 /*
@@ -191,8 +190,6 @@ static PyTypeObject MPC_Type;
     GMPY_MPC_CHECK_RANGE(V, CTX); \
     GMPY_MPC_SUBNORMALIZE(V, CTX); \
     GMPY_MPC_EXCEPTIONS(V, CTX); \
-
-static PyObject * GMPy_MPC_Factory(PyObject *self, PyObject *args, PyObject *kwargs);
 
 static void _GMPy_MPC_Cleanup(MPC_Object **v, CTXT_Object *ctext);
 

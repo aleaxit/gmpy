@@ -4,13 +4,13 @@ Miscellaneous Functions
 >>> import gmpy2
 >>> from gmpy2 import mpz
 >>> gmpy2.version()
-'2.1.0a0'
+'2.1.0b3'
 >>> gmpy2.mp_limbsize() in (32,64)
 True
 >>> gmpy2.mp_version().split()[0] in ['GMP', 'MPIR']
 True
 >>> check_gmp = gmpy2.mp_version().startswith('GMP') and '5.0.0' <= gmpy2.mp_version().split()[1]
->>> check_mpir = gmpy2.mp_version().startswith('MPIR') and '2.4.0' <= gmpy2.mp_version().split()[1]
+>>> check_mpir = gmpy2.mp_version().startswith('MPIR') and '3.0.0' <= gmpy2.mp_version().split()[1]
 >>> check_gmp or check_mpir
 True
 >>> gmpy2.mpfr_version() and gmpy2.mpfr_version().startswith('MPFR')
@@ -56,31 +56,6 @@ ValueError: ** message detail varies **
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 ValueError: ** message detail varies **
-
->>> gmpy2._printf("%.5RNf")
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-TypeError: ** message detail varies **
->>> gmpy2._printf("%.5RNf",1)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-TypeError:  ** message detail varies **
->>> gmpy2._printf("%Zl", gmpy2.mpz(1))
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-ValueError: ** message detail varies **
->>> gmpy2._printf("%Zl", gmpy2.mpc(1))
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-TypeError: ** message detail varies **
->>> gmpy2._printf("%Zd", gmpy2.mpz(1))
-'1'
->>> gmpy2._printf("%Qd", gmpy2.mpq(1,2))
-'1/2'
->>> gmpy2._printf("%.5RN", gmpy2.mpfr(1.23))
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-ValueError: ** message detail varies **
->>> gmpy2._printf("%.5RNf", gmpy2.mpfr(1.23))
-'1.23000'
+>>> 1
+1
 

@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -38,6 +38,8 @@ static int        GMPy_MPZ_NonZero_Slot(MPZ_Object *self);
 
 static PyObject * GMPy_MPZ_Attrib_GetNumer(MPZ_Object *self, void *closure);
 static PyObject * GMPy_MPZ_Attrib_GetDenom(MPZ_Object *self, void *closure);
+static PyObject * GMPy_MPZ_Attrib_GetReal(MPZ_Object *self, void *closure);
+static PyObject * GMPy_MPZ_Attrib_GetImag(MPZ_Object *self, void *closure);
 
 static PyObject * GMPy_MPZ_Method_Ceil(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_Floor(PyObject *self, PyObject *other);
@@ -53,6 +55,7 @@ static PyObject * GMPy_MPZ_Method_IsPower(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_IsPrime(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Method_IsEven(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_IsOdd(PyObject *self, PyObject *other);
+static PyObject * GMPy_MP_Method_Conjugate(PyObject *self, PyObject *args);
 
 static PyObject * GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args);
@@ -86,6 +89,7 @@ static PyObject * GMPy_MPZ_Function_Legendre(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_Kronecker(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPZ_Function_IsEven(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Function_IsOdd(PyObject *self, PyObject *other);
+
 
 #if PY_MAJOR_VERSION < 3
 static PyObject * GMPy_MPZ_Oct_Slot(MPZ_Object *self);

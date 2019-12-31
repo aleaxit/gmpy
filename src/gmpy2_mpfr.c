@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -65,9 +65,7 @@ _GMPy_MPFR_Cleanup(MPFR_Object **v, CTXT_Object *ctext)
     /* GMPY_MPFR_EXCEPTIONS(V, CTX) */
     ctext->ctx.underflow |= mpfr_underflow_p();
     ctext->ctx.overflow |= mpfr_overflow_p();
-    if (!(ctext->ctx.quiet_nan && ctext->ctx.was_nan)) {
-        ctext->ctx.invalid |= mpfr_nanflag_p();
-    }
+    ctext->ctx.invalid |= mpfr_nanflag_p();
     ctext->ctx.inexact |= mpfr_inexflag_p();
     ctext->ctx.divzero |= mpfr_divby0_p();
     if (ctext->ctx.traps) {
@@ -86,7 +84,7 @@ _GMPy_MPFR_Cleanup(MPFR_Object **v, CTXT_Object *ctext)
             Py_XDECREF((PyObject*)(*v));
             (*v) = NULL;
         }
-        if ((ctext->ctx.traps & TRAP_INVALID) && !(ctext->ctx.quiet_nan && ctext->ctx.was_nan) && mpfr_nanflag_p()) {
+        if ((ctext->ctx.traps & TRAP_INVALID) && mpfr_nanflag_p()) {
             PyErr_SetString(GMPyExc_Invalid, "invalid operation");
             Py_XDECREF((PyObject*)(*v));
             (*v) = NULL;
@@ -99,13 +97,13 @@ _GMPy_MPFR_Cleanup(MPFR_Object **v, CTXT_Object *ctext)
     }
 }
 
-PyDoc_STRVAR(GMPy_doc_mpfr_factory,
+PyDoc_STRVAR(GMPy_doc_mpfr,
 "mpfr() -> mpfr(0.0)\n\n"
 "      If no argument is given, return mpfr(0.0).\n\n"
-"mpfr(n [, precision=0]) -> mpfr\n\n"
+"mpfr(n [, precision=0 [, context]]) -> mpfr\n\n"
 "      Return an 'mpfr' object after converting a numeric value. See\n"
 "      below for the interpretation of precision.\n\n"
-"mpfr(s [, precision=0 [, base=0]]) -> mpfr\n\n"
+"mpfr(s [, precision=0 [, base=0 [, context]]]) -> mpfr\n\n"
 "      Return a new 'mpfr' object by converting a string s made of\n"
 "      digits in the given base, possibly with fraction-part (with a\n"
 "      period as a separator) and/or exponent-part (with an exponent\n"
@@ -116,101 +114,14 @@ PyDoc_STRVAR(GMPy_doc_mpfr_factory,
 "      is assumed.\n\n"
 "Note: If a precision greater than or equal to 2 is specified, then it\n"
 "      is used.\n\n"
-"      A precision of 0 (the default) implies the precision of the\n"
-"      current context is used.\n\n"
+"      A precision of 0 (the default) implies the precision of either\n"
+"      the specified context or the current context is used.\n\n"
 "      A precision of 1 minimizes the loss of precision by following\n"
 "      these rules:\n"
 "        1) If n is a radix-2 floating point number, then the full\n"
 "           precision of n is retained.\n"
 "        2) If n is an integer, then the precision is the bit length\n"
 "           of the integer.\n" );
-
-static PyObject *
-GMPy_MPFR_Factory(PyObject *self, PyObject *args, PyObject *keywds)
-{
-    MPFR_Object *result = NULL;
-    PyObject *arg0 = NULL;
-    int base = 0;
-    Py_ssize_t argc, keywdc = 0;
-    CTXT_Object *context = NULL;
-
-    /* Assumes mpfr_prec_t is the same as a long. */
-    mpfr_prec_t prec = 0;
-
-    static char *kwlist_s[] = {"s", "precision", "base", NULL};
-    static char *kwlist_n[] = {"n", "precision", NULL};
-
-    if (self && CTXT_Check(self)) {
-        context = (CTXT_Object*)self;
-    }
-    else {
-        CHECK_CONTEXT(context);
-    }
-
-    argc = PyTuple_Size(args);
-    if (keywds) {
-        keywdc = PyDict_Size(keywds);
-    }
-
-    if (argc + keywdc > 3) {
-        TYPE_ERROR("mpfr() takes at most 3 arguments");
-        return NULL;
-    }
-
-    if (argc + keywdc == 0) {
-        if ((result = GMPy_MPFR_New(0, context))) {
-            mpfr_set_ui(result->f, 0, MPFR_RNDN);
-        }
-        return (PyObject*)result;
-    }
-
-    if (argc == 0) {
-        TYPE_ERROR("mpfr() requires at least one non-keyword argument");
-        return NULL;
-    }
-
-    arg0 = PyTuple_GET_ITEM(args, 0);
-
-    /* A string can have both precision and base additional arguments. */
-    if (PyStrOrUnicode_Check(arg0)) {
-        if (keywdc || argc > 1) {
-            if (!(PyArg_ParseTupleAndKeywords(args, keywds, "O|li", kwlist_s,
-                                              &arg0, &prec, &base)))
-                return NULL;
-        }
-
-        if (prec < 0) {
-            VALUE_ERROR("precision for mpfr() must be >= 0");
-            return NULL;
-        }
-
-        if (base != 0 && (base < 2 || base > 62)) {
-            VALUE_ERROR("base for mpfr() must be 0 or in the interval [2, 62]");
-            return NULL;
-        }
-
-        return (PyObject*)GMPy_MPFR_From_PyStr(arg0, base, prec, context);
-    }
-
-    /* A number can only have precision additional argument. */
-    if (IS_REAL(arg0)) {
-        if (keywdc || argc > 1) {
-            if (!(PyArg_ParseTupleAndKeywords(args, keywds, "O|l", kwlist_n,
-                                              &arg0, &prec)))
-                return NULL;
-        }
-
-        if (prec < 0) {
-            VALUE_ERROR("precision for mpfr() must be >= 0");
-            return NULL;
-        }
-
-        return (PyObject*)GMPy_MPFR_From_Real(arg0, prec, context);
-    }
-
-    TYPE_ERROR("mpfr() requires numeric or string argument");
-    return NULL;
-}
 
 #ifdef PY3
 static PyNumberMethods mpfr_number_methods =
@@ -259,7 +170,7 @@ static PyNumberMethods mpfr_number_methods =
     (binaryfunc) GMPy_MPFR_TrueDiv_Slot,     /* nb_divide               */
     (binaryfunc) GMPy_MPFR_Mod_Slot,         /* nb_remainder            */
     (binaryfunc) GMPy_MPFR_DivMod_Slot,      /* nb_divmod               */
-    (ternaryfunc) GMPy_MPANY_Pow_Slot,       /* nb_power                */
+    (ternaryfunc) GMPy_MPFR_Pow_Slot,        /* nb_power                */
     (unaryfunc) GMPy_MPFR_Minus_Slot,        /* nb_negative             */
     (unaryfunc) GMPy_MPFR_Plus_Slot,         /* nb_positive             */
     (unaryfunc) GMPy_MPFR_Abs_Slot,          /* nb_absolute             */
@@ -314,7 +225,7 @@ static PyMethodDef Pympfr_methods [] =
     { "as_integer_ratio", GMPy_MPFR_Integer_Ratio_Method, METH_NOARGS, GMPy_doc_method_integer_ratio },
     { "as_mantissa_exp", GMPy_MPFR_Mantissa_Exp_Method, METH_NOARGS, GMPy_doc_method_mantissa_exp },
     { "as_simple_fraction", (PyCFunction)GMPy_MPFR_Simple_Fraction_Method, METH_VARARGS | METH_KEYWORDS, GMPy_doc_method_simple_fraction },
-    { "conjugate", GMPy_MPFR_Conjugate_Method, METH_NOARGS, GMPy_doc_mpfr_conjugate_method },
+    { "conjugate", GMPy_MP_Method_Conjugate, METH_NOARGS, GMPy_doc_mp_method_conjugate },
     { "digits", GMPy_MPFR_Digits_Method, METH_VARARGS, GMPy_doc_mpfr_digits_method },
     { "is_finite", GMPy_MPFR_Is_Finite_Method, METH_NOARGS, GMPy_doc_method_is_finite },
     { "is_infinite", GMPy_MPFR_Is_Infinite_Method, METH_NOARGS, GMPy_doc_method_is_infinite },
@@ -359,7 +270,7 @@ static PyTypeObject MPFR_Type =
 #else
     Py_TPFLAGS_HAVE_RICHCOMPARE|Py_TPFLAGS_CHECKTYPES,  /* tp_flags */
 #endif
-    "Multiple precision real",              /* tp_doc           */
+    GMPy_doc_mpfr,                          /* tp_doc           */
         0,                                  /* tp_traverse      */
         0,                                  /* tp_clear         */
     (richcmpfunc)&GMPy_RichCompare_Slot,    /* tp_richcompare   */
@@ -369,5 +280,14 @@ static PyTypeObject MPFR_Type =
     Pympfr_methods,                         /* tp_methods       */
         0,                                  /* tp_members       */
     Pympfr_getseters,                       /* tp_getset        */
+        0,                                  /* tp_base          */
+        0,                                  /* tp_dict          */
+        0,                                  /* tp_descr_get     */
+        0,                                  /* tp_descr_set     */
+        0,                                  /* tp_dictoffset    */
+        0,                                  /* tp_init          */
+        0,                                  /* tp_alloc         */
+    GMPy_MPFR_NewInit,                      /* tp_new           */
+        0,                                  /* tp_free          */
 };
 

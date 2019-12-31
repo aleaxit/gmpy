@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -70,9 +70,9 @@ static unsigned PY_LONG_LONG GMPy_Integer_AsUnsignedLongLongAndError(PyObject *v
 #endif
 
 #ifdef PY2
-# define PyIntOrLong_From_mp_bitcnt_t PyInt_FromSize_t
+# define PyIntOrLong_FromMpBitCnt PyInt_FromSize_t
 #else
-# define PyIntOrLong_From_mp_bitcnt_t PyLong_FromSize_t
+# define PyIntOrLong_FromMpBitCnt PyLong_FromSize_t
 #endif
 
 #ifdef __cplusplus

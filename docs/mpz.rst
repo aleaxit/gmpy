@@ -53,11 +53,15 @@ mpz Methods
     complement format), then None is returned. *n* must be >= 0.
 
 **bit_set(...)**
-    x.bit_set(n) returns a copy of *x* with bit *n* set to 0.
+    x.bit_set(n) returns a copy of *x* with bit *n* set to 1.
 
 **bit_test(...)**
     x.bit_test(n) returns True if bit *n* of *x* is set, and False if it
     is not set.
+
+**conjugtae(...)**
+    Return the conjugate of x (which is just a new reference to x since x
+    not a complex number).
 
 **denominator(...)**
     x.denominator() returns mpz(1).
@@ -65,14 +69,48 @@ mpz Methods
 **digits(...)**
     x.digits([base=10]) returns a string representing *x* in radix *base*.
 
-**numerator(...)**
-    x.numerator() returns a copy of x.
+**imag**
+    Return the imaginary component of an *mpz*. Always *mpz(0)*.
+
+**is_congruent(...)**
+    x.is_congruent(y, m) returns True if *x* is congruent to *y* modulo *m*,
+    else returns False.
+
+**is_divisible(...)**
+    x.is_divisible(d) returns True if *x* is divisible by *d*, else returns
+    False.
+
+**is_even(...)**
+    x.is_even() returns True if *x* is even, else returns False.
+
+**is_odd(...)**
+    x.is_odd() returns True if *x* is even, else returns False.
+
+**is_power(...)**
+    x.is_power() returns True if *x* is a perfect power (there exists integers
+    *y* and *n* > 1, such that x=y**n), else returns False.
+
+**is_prime(...)**
+    x.is_prime() returns True if *x* is _probably_ prime, else False if *x* is
+    definitely composite.
+
+    See the documentation for *gmpy2.is_prime* for details on the underlaying
+    primality tests that are performed.
+
+**is_square(...)**
+    x.is_square() returns True if *x* is a perfect square, else returns False.
 
 **num_digits(...)**
     x.num_digits([base=10]) returns the length of the string representing
     the absolute value of *x* in radix *base*. The result is correct if base is
-    a power of 2. For other other bases, the result is usually correct but may
+    a power of 2. For other bases, the result is usually correct but may
     be 1 too large. *base* can range between 2 and 62, inclusive.
+
+**numerator(...)**
+    x.numerator() returns a copy of *x*.
+
+**real(...)**
+    x.real returns a copy of *x*.
 
 mpz Functions
 -------------
@@ -112,7 +150,7 @@ mpz Functions
     complement format), then None is returned. *n* must be >= 0.
 
 **bit_set(...)**
-    bit_set(x, n) returns a copy of *x* with bit *n* set to 0.
+    bit_set(x, n) returns a copy of *x* with bit *n* set to 1.
 
 **bit_test(...)**
     bit_test(x, n) returns True if bit *n* of *x* is set, and False if it
@@ -284,7 +322,7 @@ mpz Functions
     not an integer, it will be truncated to an integer.
 
     mpz(s[, base=0]) returns a new *mpz* object from a string *s* made of
-    digits in the given base. If base = 0, thn binary, octal, or hex Python
+    digits in the given base. If base = 0, then binary, octal, or hex Python
     strings are recognized by leading 0b, 0o, or 0x characters. Otherwise the
     string is assumed to be decimal. Values for base can range between 2 and 62.
 
@@ -313,7 +351,7 @@ mpz Functions
 **num_digits(...)**
     num_digits(x[, base=10]) returns the length of the string representing
     the absolute value of *x* in radix *base*. The result is correct if base is
-    a power of 2. For other other bases, the result is usually correct but may
+    a power of 2. For other bases, the result is usually correct but may
     be 1 too large. *base* can range between 2 and 62, inclusive.
 
 **popcount(...)**
@@ -321,7 +359,7 @@ mpz Functions
     the number of bits with value 1 is infinite so -1 is returned in that case.
 
 **powmod(...)**
-    powmod(x, y, m) returns (*x* ** *y*) mod *m*. The exponenent *y* can be
+    powmod(x, y, m) returns (*x* ** *y*) mod *m*. The exponent *y* can be
     negative, and the correct result will be returned if the inverse of *x*
     mod *m* exists. Otherwise, a ValueError is raised.
 

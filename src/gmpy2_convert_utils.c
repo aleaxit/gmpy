@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -31,12 +31,10 @@
  * ======================================================================== *
  *
  * Optimized routines for converting an Integer object (Python's integer
- * type(s) plus mpz) to various C types.
+ * type(s), mpz, plus types defining __mpz__) to various C types.
  *
  * Note: These functions will not set any exceptions!
  *
- * Note: These functions assume the input is either a PyInt, PyLong, or an
- *       mpz. No attempt is made to convert any other type!
  */
 
 #include "longintrepr.h"
@@ -51,36 +49,35 @@
  *   3) If error is 2, then the argument is not a recognized type.
  *   4) If error is 0, then a valid result has been returned.
  *
- * Note: The original Python functions will accept any object and attempt to
- *       convert the object to a PyLong. We do not do this. It is assumed that
- *       the argument is a Python integer or a GMPY2 mpz.
+ * The functions special-case the most common paths and then call the
+ * corresponding Python functions to support the general case.
  *
- *       These functions will not set any exceptions. A return value of -1 does
- *       NOT indicate a possible exception.
  */
 
-/* The following functions are based on PyLong_AsLongAndOverflow(). */
+/* The following functions test the most common cases as quickly as
+ * possible and then defer to PyLong_AsLongAndOverflow().
+ */
 
 static long
-GMPy_Integer_AsLongAndError(PyObject *vv, int *error)
+GMPy_Integer_AsLongAndError(PyObject *obj, int *error)
 {
     register PyLongObject *v;
+    MPZ_Object *temp_mpz = NULL;
     unsigned long x, prev;
-    long res;
+    long res = 0;
     Py_ssize_t i;
     int sign;
 
     *error = 0;
 
 #ifdef PY2
-    if (PyInt_Check(vv)) {
-        return PyInt_AS_LONG(vv);
+    if (PyInt_Check(obj)) {
+        return PyInt_AS_LONG(obj);
     }
 #endif
 
-    if (PyLong_Check(vv)) {
-        res = 0;
-        v = (PyLongObject *)vv;
+    if (PyLong_Check(obj)) {
+        v = (PyLongObject *)obj;
         i = Py_SIZE(v);
 
         switch (i) {
@@ -122,33 +119,71 @@ GMPy_Integer_AsLongAndError(PyObject *vv, int *error)
         return res;
     }
 
-    if (CHECK_MPZANY(vv)) {
-        if (mpz_fits_slong_p(MPZ(vv))) {
-            res = mpz_get_si(MPZ(vv));
+    if (CHECK_MPZANY(obj)) {
+        if (mpz_fits_slong_p(MPZ(obj))) {
+            res = (long) mpz_get_si(MPZ(obj));
         }
         else {
-            *error = mpz_sgn(MPZ(vv));
+            *error = mpz_sgn(MPZ(obj));
             res = 0;
         }
         return res;
     }
 
+    if (HAS_STRICT_MPZ_CONVERSION(obj)) {
+        temp_mpz = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (temp_mpz != NULL && MPZ_Check(temp_mpz)) {
+            if (mpz_fits_slong_p(MPZ(temp_mpz))) {
+                res = (long) mpz_get_si(MPZ(temp_mpz));
+            }
+            else {
+                *error = mpz_sgn(MPZ(temp_mpz));
+                res = 0;
+            }
+        }
+        Py_XDECREF((PyObject*)temp_mpz);
+        return res;
+    }
+
     *error = 2;
     return 0;
+    /* Fall back to using PyLong_AsLongAndOverFlow. This allows gmpy2 to
+     * follow the same semantics as Python for conversion.
+     */
+
+/*    res = PyLong_AsLongAndOverflow(obj, error);
+
+    if ((res == -1) && PyErr_Occurred()) {
+        PyErr_Clear();
+        *error = 2;
+        return 0;
+    }
+    else {
+        if (*error) {
+            return 0;
+        }
+        else {
+            return res;
+        }
+    }
+*/
 }
 
 static unsigned long
-GMPy_Integer_AsUnsignedLongAndError(PyObject *vv, int *error)
+GMPy_Integer_AsUnsignedLongAndError(PyObject *obj, int *error)
 {
     register PyLongObject *v;
-    unsigned long x, prev, res;
+    MPZ_Object *temp_mpz = NULL;
+    unsigned long x, prev;
+    unsigned long res = 0;
     Py_ssize_t i;
 
     *error = 0;
 
 #ifdef PY2
-    if (PyInt_Check(vv)) {
-        long temp = PyInt_AS_LONG(vv);
+    if (PyInt_Check(obj)) {
+        long temp = PyInt_AS_LONG(obj);
         if (temp < 0) {
             *error = -1;
             return 0;
@@ -159,9 +194,8 @@ GMPy_Integer_AsUnsignedLongAndError(PyObject *vv, int *error)
     }
 #endif
 
-    if (PyLong_Check(vv)) {
-        res = 0;
-        v = (PyLongObject *)vv;
+    if (PyLong_Check(obj)) {
+        v = (PyLongObject *)obj;
         i = Py_SIZE(v);
 
         if (i < 0) {
@@ -190,14 +224,30 @@ GMPy_Integer_AsUnsignedLongAndError(PyObject *vv, int *error)
         return res;
     }
 
-    if (CHECK_MPZANY(vv)) {
-        if (mpz_fits_ulong_p(MPZ(vv))) {
-            res = mpz_get_ui(MPZ(vv));
+    if (CHECK_MPZANY(obj)) {
+        if (mpz_fits_ulong_p(MPZ(obj))) {
+            res = (unsigned long) mpz_get_ui(MPZ(obj));
         }
         else {
-            *error = mpz_sgn(MPZ(vv));
+            *error = mpz_sgn(MPZ(obj));
             res = 0;
         }
+        return res;
+    }
+
+    if (HAS_STRICT_MPZ_CONVERSION(obj)) {
+        temp_mpz = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (temp_mpz != NULL && MPZ_Check(temp_mpz)) {
+            if (mpz_fits_ulong_p(MPZ(temp_mpz))) {
+                res = (unsigned long) mpz_get_ui(MPZ(temp_mpz));
+            }
+            else {
+                *error = mpz_sgn(MPZ(temp_mpz));
+                res = 0;
+            }
+        }
+        Py_XDECREF((PyObject*)temp_mpz);
         return res;
     }
 
@@ -259,25 +309,25 @@ c_ulong_From_Integer(PyObject *obj)
 #define PY_ABS_LLONG_MIN (0-(unsigned PY_LONG_LONG)PY_LLONG_MIN)
 
 static PY_LONG_LONG
-GMPy_Integer_AsLongLongAndError(PyObject *vv, int *error)
+GMPy_Integer_AsLongLongAndError(PyObject *obj, int *error)
 {
     register PyLongObject *v;
+    MPZ_Object *temp_mpz = NULL;
     unsigned PY_LONG_LONG x, prev;
-    PY_LONG_LONG res;
+    PY_LONG_LONG res = 0;
     Py_ssize_t i;
     int sign;
 
     *error = 0;
 
 #ifdef PY2
-    if (PyInt_Check(vv)) {
-        return (PY_LONG_LONG)PyInt_AS_LONG(vv);
+    if (PyInt_Check(obj)) {
+        return (PY_LONG_LONG)PyInt_AS_LONG(obj);
     }
 #endif
 
-    if (PyLong_Check(vv)) {
-        res = 0;
-        v = (PyLongObject *)vv;
+    if (PyLong_Check(obj)) {
+        v = (PyLongObject *)obj;
         i = Py_SIZE(v);
 
         switch (i) {
@@ -319,13 +369,12 @@ GMPy_Integer_AsLongLongAndError(PyObject *vv, int *error)
         return res;
     }
 
-    if (CHECK_MPZANY(vv)) {
-        res = 0;
-        sign = mpz_sgn(MPZ(vv));
+    if (CHECK_MPZANY(obj)) {
+        sign = mpz_sgn(MPZ(obj));
         if (sign) {
-            if (mpz_sizeinbase(MPZ(vv), 256) <= sizeof(x)) {
+            if (mpz_sizeinbase(MPZ(obj), 256) <= sizeof(x)) {
                 x = 0;
-                mpz_export(&x, NULL, 1, sizeof(x), 0, 0, MPZ(vv));
+                mpz_export(&x, NULL, 1, sizeof(x), 0, 0, MPZ(obj));
             }
             if (x <= (unsigned PY_LONG_LONG)PY_LLONG_MAX) {
                 res = (PY_LONG_LONG)x * sign;
@@ -340,23 +389,49 @@ GMPy_Integer_AsLongLongAndError(PyObject *vv, int *error)
         }
     }
 
+    if (HAS_STRICT_MPZ_CONVERSION(obj)) {
+        temp_mpz = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (temp_mpz != NULL && MPZ_Check(temp_mpz)) {
+            sign = mpz_sgn(MPZ(obj));
+            if (sign) {
+                if (mpz_sizeinbase(MPZ(obj), 256) <= sizeof(x)) {
+                    x = 0;
+                    mpz_export(&x, NULL, 1, sizeof(x), 0, 0, MPZ(obj));
+                }
+                if (x <= (unsigned PY_LONG_LONG)PY_LLONG_MAX) {
+                    res = (PY_LONG_LONG)x * sign;
+                }
+                else if (sign < 0 && x == PY_ABS_LLONG_MIN) {
+                    res = PY_LLONG_MIN;
+                }
+                else {
+                    *error = sign;
+                }
+            }
+            Py_XDECREF((PyObject*)temp_mpz);
+            return res;
+        }
+    }
+
     *error = 2;
     return 0;
 }
 
 static unsigned PY_LONG_LONG
-GMPy_Integer_AsUnsignedLongLongAndError(PyObject *vv, int *error)
+GMPy_Integer_AsUnsignedLongLongAndError(PyObject *obj, int *error)
 {
     register PyLongObject *v;
-    unsigned PY_LONG_LONG x, prev, res;
+    MPZ_Object *temp_mpz = NULL;
+    unsigned PY_LONG_LONG x, prev, res = 0;
     Py_ssize_t i;
     int sign;
 
     *error = 0;
 
 #ifdef PY2
-    if (PyInt_Check(vv)) {
-        long temp = PyInt_AS_LONG(vv);
+    if (PyInt_Check(obj)) {
+        long temp = PyInt_AS_LONG(obj);
         if (temp < 0) {
             *error = -1;
             return res;
@@ -367,9 +442,8 @@ GMPy_Integer_AsUnsignedLongLongAndError(PyObject *vv, int *error)
     }
 #endif
 
-    if (PyLong_Check(vv)) {
-        res = 0;
-        v = (PyLongObject *)vv;
+    if (PyLong_Check(obj)) {
+        v = (PyLongObject *)obj;
         i = Py_SIZE(v);
 
         if (i < 0) {
@@ -398,18 +472,41 @@ GMPy_Integer_AsUnsignedLongLongAndError(PyObject *vv, int *error)
         return res;
     }
 
-    if (CHECK_MPZANY(vv)) {
-        res = 0;
-        sign = mpz_sgn(MPZ(vv));
+    if (CHECK_MPZANY(obj)) {
+        sign = mpz_sgn(MPZ(obj));
         if (sign < 0) {
             *error = -1;
             return res;
         }
         else if (sign) {
-            if (mpz_sizeinbase(MPZ(vv), 256) <= sizeof(res)) {
-                mpz_export(&res, NULL, 1, sizeof(x), 0, 0, MPZ(vv));
+            if (mpz_sizeinbase(MPZ(obj), 256) <= sizeof(res)) {
+                mpz_export(&res, NULL, 1, sizeof(x), 0, 0, MPZ(obj));
+            }
+            else {
+                *error = 1;
             }
         return res;
+        }
+    }
+
+    if (HAS_STRICT_MPZ_CONVERSION(obj)) {
+        temp_mpz = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (temp_mpz != NULL && MPZ_Check(temp_mpz)) {
+            sign = mpz_sgn(MPZ(obj));
+            if (sign < 0) {
+                *error = -1;
+            }
+            else if (sign) {
+                if (mpz_sizeinbase(MPZ(obj), 256) <= sizeof(res)) {
+                    mpz_export(&res, NULL, 1, sizeof(x), 0, 0, MPZ(obj));
+                }
+            }
+            else {
+                *error = 1;
+            }
+            Py_XDECREF((PyObject*)temp_mpz);
+            return res;
         }
     }
 

@@ -1,0 +1,7 @@
+scripts/readme
+
+This directory contains scripts tailored for specialized build scenarios. They
+are generally needed.
+
+The files are currently under active development. Unless otherwise documented,
+they should be assumed to be broken.

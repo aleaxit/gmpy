@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -214,6 +214,7 @@ GMPy_MPFR_From_MPZ(MPZ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
 {
     MPFR_Object *result;
     int was_one = 0;
+    size_t bitlen;
 
     assert(CHECK_MPZANY(obj));
 
@@ -223,9 +224,15 @@ GMPy_MPFR_From_MPZ(MPZ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
         prec = GET_MPFR_PREC(context);
 
     if (prec == 1) {
-        prec = mpz_sizeinbase(obj->z, 2);
-        if (prec < MPFR_PREC_MIN)
-            prec = MPFR_PREC_MIN;
+        bitlen = mpz_sizeinbase(obj->z, 2);
+        if (bitlen < MPFR_PREC_MIN) {
+            bitlen = MPFR_PREC_MIN;
+	}
+	if (bitlen > MPFR_PREC_MAX) {
+	    OVERFLOW_ERROR("'mpz' to large to convert to 'mpfr'\n");
+	    return NULL;
+	}
+	prec = (mpfr_prec_t)bitlen;
         was_one = 1;
     }
 
@@ -235,7 +242,6 @@ GMPy_MPFR_From_MPZ(MPZ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
         if (!was_one) {
             GMPY_MPFR_CHECK_RANGE(result, context);
         }
-        GMPY_MPFR_SUBNORMALIZE(result, context);
         GMPY_MPFR_EXCEPTIONS(result, context);
     }
 
@@ -431,8 +437,78 @@ GMPy_MPFR_From_Real(PyObject *obj, mp_prec_t prec, CTXT_Object *context)
     if (IS_FRACTION(obj))
         return GMPy_MPFR_From_Fraction(obj, prec, context);
 
+    if (HAS_MPFR_CONVERSION(obj)) {
+        MPFR_Object *res = (MPFR_Object *) PyObject_CallMethod(obj, "__mpfr__", NULL);
+
+        if (res != NULL && MPFR_Check(res)) {
+            return res;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+    if (HAS_MPQ_CONVERSION(obj)) {
+        MPQ_Object *res = (MPQ_Object *) PyObject_CallMethod(obj, "__mpq__", NULL);
+
+        if (res != NULL && MPQ_Check(res)) {
+            MPFR_Object * temp =  GMPy_MPFR_From_MPQ(res, prec, context);
+            Py_DECREF(res);
+            return temp;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+    if (HAS_MPZ_CONVERSION(obj)) {
+        MPZ_Object *res = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (res != NULL && MPZ_Check(res)) {
+            MPFR_Object * temp =  GMPy_MPFR_From_MPZ(res, prec, context);
+            Py_DECREF(res);
+            return temp;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+  error:
     TYPE_ERROR("object could not be converted to 'mpfr'");
     return NULL;
+}
+
+
+static MPFR_Object *
+GMPy_MPFR_From_RealAndCopy(PyObject *obj, mp_prec_t prec, CTXT_Object *context)
+{
+    MPFR_Object *result = NULL, *temp = NULL;
+
+    result = GMPy_MPFR_From_Real(obj, prec, context);
+
+    if (result == NULL)
+        return result;
+
+    if (Py_REFCNT(result) == 1)
+        return result;
+
+    if (!(temp = GMPy_MPFR_New(mpfr_get_prec(result->f), context))) {
+        /* LCOV_EXCL_START */
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
+
+    /* Since the precision of temp is the same as the precision of result,
+     * there shouldn't be any rounding.
+     */
+
+    mpfr_set(temp->f, result->f, MPFR_RNDN);
+    Py_DECREF((PyObject*)result);
+    return temp;
 }
 
 static MPZ_Object *
@@ -775,13 +851,13 @@ GMPy_PyStr_From_MPFR(MPFR_Object *self, int base, int digits, CTXT_Object *conte
     return result;
 }
 
-#if 0
+#ifdef SHARED
 /*
  * coerce any number to a mpf
  */
 
 int
-GMPy_MPFR_convert_arg(PyObject *arg, PyObject **ptr)
+GMPy_MPFR_ConvertArg(PyObject *arg, PyObject **ptr)
 {
     MPFR_Object* newob = GMPy_MPFR_From_Real(arg, 1, NULL);
 

@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -173,7 +173,6 @@ mpz_ascii(mpz_t z, int base, int option, int which)
 
     if (
         !(
-          (base == 0) ||
           ((base >= -36) && (base <= -2)) ||
           ((base >= 2) && (base <= 62))
          )

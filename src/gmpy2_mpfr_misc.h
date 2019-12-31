@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -55,7 +55,6 @@ static PyObject * GMPy_MPFR_GetRc_Attrib(MPFR_Object *self, void *closure);
 static PyObject * GMPy_MPFR_GetImag_Attrib(MPFR_Object *self, void *closure);
 static PyObject * GMPy_MPFR_GetReal_Attrib(MPFR_Object *self, void *closure);
 static int        GMPy_MPFR_NonZero_Slot(MPFR_Object *self);
-static PyObject * GMPy_MPFR_Conjugate_Method(PyObject *self, PyObject *args);
 static PyObject * GMPy_MPFR_SizeOf_Method(PyObject *self, PyObject *other);
 
 static PyObject * GMPy_MPFR_CheckRange(PyObject *x, CTXT_Object *context);

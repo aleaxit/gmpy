@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -38,6 +38,13 @@ GMPy_MPQ_Attrib_GetNumer(MPQ_Object *self, void *closure)
 }
 
 static PyObject *
+GMPy_MPQ_Attrib_GetReal(MPQ_Object *self, void *closure)
+{
+    Py_INCREF((PyObject*)self);
+    return (PyObject*)self;
+}
+
+static PyObject *
 GMPy_MPQ_Attrib_GetDenom(MPQ_Object *self, void *closure)
 {
     MPZ_Object *result;
@@ -45,6 +52,17 @@ GMPy_MPQ_Attrib_GetDenom(MPQ_Object *self, void *closure)
 
     if ((result = GMPy_MPZ_New(context)))
         mpz_set(result->z, mpq_denref(self->q));
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPy_MPQ_Attrib_GetImag(MPQ_Object *self, void *closure)
+{
+    MPZ_Object *result;
+    CTXT_Object *context = NULL;
+
+    if ((result = GMPy_MPZ_New(context)))
+        mpz_set_ui(result->z, 0);
     return (PyObject*)result;
 }
 
@@ -105,50 +123,27 @@ static PyObject *
 GMPy_MPQ_Function_Qdiv(PyObject *self, PyObject *args)
 {
     Py_ssize_t argc;
-    int isOne = 0;
     PyObject *result = NULL, *x, *y;
-    MPQ_Object *tempx = NULL, *tempy = NULL;
+    MPQ_Object *tempx = NULL, *tempy = NULL, *tempr = NULL;
     CTXT_Object *context = NULL;
 
     CHECK_CONTEXT(context);
 
     /* Validate the argument(s). */
 
+    /* If there is only one argument, it should be either an integer or
+     * rational type. If it is an integer, then immediately return an mpz().
+     * If it is a rational type, convert it to an mpq and check the denominator.
+     */
+
     argc = PyTuple_GET_SIZE(args);
     if (argc == 1) {
         x = PyTuple_GET_ITEM(args, 0);
-        isOne = 1;
+
         if (!IS_RATIONAL(x)) {
             goto arg_error;
         }
-    }
-    else if (argc == 2) {
-        x = PyTuple_GET_ITEM(args, 0);
-        y = PyTuple_GET_ITEM(args, 1);
-        if (!IS_RATIONAL(x) || !IS_RATIONAL(y)) {
-            goto arg_error;
-        }
-    }
-    else {
-        goto arg_error;
-    }
 
-    /* Convert the second argument first and see if it is 1. If the second
-     * argument is 1 (or didn't exist), then isOne is true and tempy does not
-     * contain a valid reference.
-     */
-
-    if (argc == 2) {
-        if (!(tempy = GMPy_MPQ_From_Rational(y, context))) {
-            return NULL;
-        }
-        if (mpq_cmp_ui(tempy->q, 1, 1) == 0) {
-            isOne = 1;
-            Py_DECREF((PyObject*)tempy);
-        }
-    }
-
-    if (isOne) {
         if (IS_INTEGER(x)) {
             return (PyObject*)GMPy_MPZ_From_Integer(x, context);
         }
@@ -169,29 +164,55 @@ GMPy_MPQ_Function_Qdiv(PyObject *self, PyObject *args)
         }
     }
 
-    if (mpq_sgn(tempy->q) == 0) {
-        Py_DECREF((PyObject*)tempy);
-        ZERO_ERROR("qdiv() division by zero");
-        return NULL;
-    }
+    /* If there are two rational arguments, just convert them both to mpq,
+     * divide, and then check the denominator.
+     */
 
-    if (!(tempx = GMPy_MPQ_From_Rational(x, context))) {
-        Py_DECREF((PyObject*)tempy);
-        return NULL;
-    }
+    if (argc == 2) {
+        x = PyTuple_GET_ITEM(args, 0);
+        y = PyTuple_GET_ITEM(args, 1);
 
-    mpq_div(tempx->q, tempx->q, tempy->q);
-    Py_DECREF((PyObject*)tempy);
-
-    if (mpz_cmp_ui(mpq_denref(tempx->q), 1) == 0) {
-        if ((result = (PyObject*)GMPy_MPZ_New(context))) {
-            mpz_set(MPZ(result), mpq_numref(tempx->q));
+        if (!IS_RATIONAL(x) || !IS_RATIONAL(y)) {
+            goto arg_error;
         }
-        Py_DECREF((PyObject*)tempx);
-        return result;
-    }
 
-    return (PyObject*)tempx;
+        if (!(tempx = GMPy_MPQ_From_Rational(x, context)) ||
+            !(tempy = GMPy_MPQ_From_Rational(y, context))) {
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            return NULL;
+        }
+
+        if (mpq_sgn(tempy->q) == 0) {
+            Py_DECREF((PyObject*)tempx);
+            Py_DECREF((PyObject*)tempy);
+            ZERO_ERROR("qdiv() division by zero");
+            return NULL;
+        }
+
+        /* tempr contains the result of the division. */
+
+        if (!(tempr = GMPy_MPQ_New(context))) {
+            Py_DECREF((PyObject*)tempx);
+            Py_DECREF((PyObject*)tempy);
+            return NULL;
+        }
+
+        mpq_div(tempr->q, tempx->q, tempy->q);
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempy);
+
+        if (mpz_cmp_ui(mpq_denref(tempr->q), 1) == 0) {
+            if ((result = (PyObject*)GMPy_MPZ_New(context))) {
+                mpz_set(MPZ(result), mpq_numref(tempr->q));
+            }
+            Py_DECREF((PyObject*)tempr);
+            return result;
+        }
+        else {
+            return (PyObject*)tempr;
+        };
+    }
 
   arg_error:
     TYPE_ERROR("qdiv() requires 1 or 2 integer or rational arguments");

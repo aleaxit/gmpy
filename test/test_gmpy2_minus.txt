@@ -1,0 +1,28 @@
+Test gmpy2_minus.c
+==================
+
+>>> from gmpy2 import mpz, mpq, mpfr, mpc
+>>> import gmpy2
+>>> from fractions import Fraction
+
+>>> ctx = gmpy2.get_context()
+>>> ctx.minus(mpz(5))
+mpz(-5)
+>>> ctx.minus(mpq(4,5))
+mpq(-4,5)
+>>> ctx.minus(mpfr(4,5))
+mpfr('-4.0')
+>>> ctx.minus(mpfr('inf'))
+mpfr('-inf')
+>>> ctx.minus(mpc(15,3))
+mpc('-15.0-3.0j')
+>>> ctx.minus(65)
+mpz(-65)
+>>> ctx.minus(5.5)
+mpfr('-5.5')
+>>> ctx.minus(Fraction(2,3))
+mpq(-2,3)
+>>> ctx.minus(complex(15,3))
+mpc('-15.0-3.0j')
+>>> - mpc(5,5)
+mpc('-5.0-5.0j')

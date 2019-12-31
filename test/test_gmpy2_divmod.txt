@@ -78,7 +78,6 @@ TypeError:
 
 
 >>> ctx=gmpy2.ieee(64)
->>> ctx.mpfr_divmod_exact=True
 >>> gmpy2.set_context(ctx)
 >>> divmod(mpz(123),'a')
 Traceback (most recent call last):

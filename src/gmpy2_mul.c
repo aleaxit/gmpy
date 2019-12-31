@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -69,7 +69,7 @@ GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     if (MPZ_Check(x)) {
         if (PyIntOrLong_Check(y)) {
             int error;
-            long temp = GMPy_Integer_AsLongAndError(y, &error);
+            native_si temp = GMPy_Integer_AsNative_siAndError(y, &error);
 
             if (!error) {
                 mpz_mul_si(result->z, MPZ(x), temp);
@@ -90,7 +90,7 @@ GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     if (MPZ_Check(y)) {
         if (PyIntOrLong_Check(x)) {
             int error;
-            long temp = GMPy_Integer_AsLongAndError(x, &error);
+            native_si temp = GMPy_Integer_AsNative_siAndError(x, &error);
 
             if (!error) {
                 mpz_mul_si(result->z, MPZ(y), temp);
@@ -184,8 +184,8 @@ GMPy_Rational_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
         MPQ_Object *tempx = NULL, *tempy = NULL;
 
-        if (!(tempx = GMPy_MPQ_From_Number(x, context)) ||
-            !(tempy = GMPy_MPQ_From_Number(y, context))) {
+        if (!(tempx = GMPy_MPQ_From_Rational(x, context)) ||
+            !(tempy = GMPy_MPQ_From_Rational(y, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -246,7 +246,6 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 
     if (MPFR_Check(x) && MPFR_Check(y)) {
         mpfr_clear_flags();
-        SET_MPFR_MPFR_WAS_NAN(context, x, y);
 
         result->rc = mpfr_mul(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
         goto done;
@@ -259,7 +258,6 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 
             if (!error) {
                 mpfr_clear_flags();
-                SET_MPFR_WAS_NAN(context, x);
 
                 result->rc = mpfr_mul_si(result->f, MPFR(x), temp, GET_MPFR_ROUND(context));
                 goto done;
@@ -267,7 +265,6 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
             else {
                 mpz_set_PyIntOrLong(global.tempz, y);
                 mpfr_clear_flags();
-                SET_MPFR_WAS_NAN(context, x);
 
                 result->rc = mpfr_mul_z(result->f, MPFR(x), global.tempz, GET_MPFR_ROUND(context));
                 goto done;
@@ -276,7 +273,6 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (CHECK_MPZANY(y)) {
             mpfr_clear_flags();
-            SET_MPFR_WAS_NAN(context, x);
 
             result->rc = mpfr_mul_z(result->f, MPFR(x), MPZ(y), GET_MPFR_ROUND(context));
             goto done;
@@ -285,7 +281,7 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         if (IS_RATIONAL(y)) {
             MPQ_Object *tempy = NULL;
 
-            if (!(tempy = GMPy_MPQ_From_Number(y, context))) {
+            if (!(tempy = GMPy_MPQ_From_Rational(y, context))) {
                 /* LCOV_EXCL_START */
                 Py_DECREF((PyObject*)result);
                 return NULL;
@@ -293,7 +289,6 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
             }
 
             mpfr_clear_flags();
-            SET_MPFR_WAS_NAN(context, x);
 
             result->rc = mpfr_mul_q(result->f, MPFR(x), tempy->q, GET_MPFR_ROUND(context));
             Py_DECREF((PyObject*)tempy);
@@ -302,7 +297,6 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (PyFloat_Check(y)) {
             mpfr_clear_flags();
-            SET_MPFR_FLOAT_WAS_NAN(context, x, y);
 
             result->rc = mpfr_mul_d(result->f, MPFR(x), PyFloat_AS_DOUBLE(y), GET_MPFR_ROUND(context));
             goto done;
@@ -316,7 +310,6 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 
             if (!error) {
                 mpfr_clear_flags();
-                SET_MPFR_WAS_NAN(context, y);
 
                 result->rc = mpfr_mul_si(result->f, MPFR(y), temp, GET_MPFR_ROUND(context));
                 goto done;
@@ -324,7 +317,6 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
             else {
                 mpz_set_PyIntOrLong(global.tempz, x);
                 mpfr_clear_flags();
-                SET_MPFR_WAS_NAN(context, y);
 
                 result->rc = mpfr_mul_z(result->f, MPFR(y), global.tempz, GET_MPFR_ROUND(context));
                 goto done;
@@ -333,7 +325,6 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (CHECK_MPZANY(x)) {
             mpfr_clear_flags();
-            SET_MPFR_WAS_NAN(context, y);
 
             result->rc = mpfr_mul_z(result->f, MPFR(y), MPZ(x), GET_MPFR_ROUND(context));
             goto done;
@@ -342,7 +333,7 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         if (IS_RATIONAL(x)) {
             MPQ_Object *tempx = NULL;
 
-            if (!(tempx = GMPy_MPQ_From_Number(x, context))) {
+            if (!(tempx = GMPy_MPQ_From_Rational(x, context))) {
                 /* LCOV_EXCL_START */
                 Py_DECREF((PyObject*)result);
                 return NULL;
@@ -350,7 +341,6 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
             }
 
             mpfr_clear_flags();
-            SET_MPFR_WAS_NAN(context, y);
 
             result->rc = mpfr_mul_q(result->f, MPFR(y), tempx->q, GET_MPFR_ROUND(context));
             Py_DECREF((PyObject*)tempx);
@@ -359,7 +349,6 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 
         if (PyFloat_Check(x)) {
             mpfr_clear_flags();
-            SET_MPFR_FLOAT_WAS_NAN(context, y, x);
 
             result->rc = mpfr_mul_d(result->f, MPFR(y), PyFloat_AS_DOUBLE(x), GET_MPFR_ROUND(context));
             goto done;
@@ -380,7 +369,6 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         mpfr_clear_flags();
-        SET_MPFR_MPFR_WAS_NAN(context, tempx, tempy);
 
         result->rc = mpfr_mul(result->f, MPFR(tempx), MPFR(tempy), GET_MPFR_ROUND(context));
         Py_DECREF((PyObject*)tempx);
@@ -415,7 +403,6 @@ GMPy_MPFR_Mul_Slot(PyObject *x, PyObject *y)
 
         if ((result = GMPy_MPFR_New(0, context))) {
             mpfr_clear_flags();
-            SET_MPFR_MPFR_WAS_NAN(context, x, y);
 
             result->rc = mpfr_mul(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
             _GMPy_MPFR_Cleanup(&result, context);
@@ -450,7 +437,6 @@ GMPy_Complex_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     if (MPC_Check(x) && MPC_Check(y)) {
-        SET_MPC_MPC_WAS_NAN(context, x, y);
 
         result->rc = mpc_mul(result->c, MPC(x), MPC(y), GET_MPC_ROUND(context));
 
@@ -470,7 +456,6 @@ GMPy_Complex_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
             return NULL;
             /* LCOV_EXCL_STOP */
         }
-        SET_MPC_MPC_WAS_NAN(context, tempx, tempy);
 
         result->rc = mpc_mul(result->c, tempx->c, tempy->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)tempx);

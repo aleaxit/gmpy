@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -37,18 +37,25 @@ PyDoc_STRVAR(GMPy_doc_function_phase,
 static PyObject *
 GMPy_Complex_Phase(PyObject *x, CTXT_Object *context)
 {
-    MPFR_Object *result;
-    MPC_Object *tempx;
+    MPFR_Object *result = NULL;
+    MPC_Object *tempx = NULL;
 
     CHECK_CONTEXT(context)
+
+    if (!(IS_COMPLEX_ONLY(x))) {
+        TYPE_ERROR("phase() argument type not supported");
+        return NULL;
+    }
 
     result = GMPy_MPFR_New(0, context);
     tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
     if (!result || !tempx) {
+        Py_XDECREF(result);
+        Py_XDECREF(tempx);
         return NULL;
     }
 
-    SET_MPC_WAS_NAN(context, tempx);
+    mpfr_clear_flags();
 
     result->rc = mpc_arg(result->f, tempx->c, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
@@ -58,22 +65,65 @@ GMPy_Complex_Phase(PyObject *x, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_Number_Phase(PyObject *x, CTXT_Object *context)
-{
-    if (IS_COMPLEX_ONLY(x))
-        return GMPy_Complex_Phase(x, context);
-
-    TYPE_ERROR("phase() argument type not supported");
-    return NULL;
-}
-
-static PyObject *
-GMPy_Context_Phase(PyObject *self, PyObject *args)
+GMPy_Context_Phase(PyObject *self, PyObject *other)
 {
     CTXT_Object *context = NULL;
 
-    if (PyTuple_GET_SIZE(args) != 1) {
-        TYPE_ERROR("phase() requires 1 argument");
+    if (self && CTXT_Check(self)) {
+        context = (CTXT_Object*)self;
+    }
+    else {
+        CHECK_CONTEXT(context);
+    }
+
+    return GMPy_Complex_Phase(other, context);
+}
+
+#ifdef MPC_110
+PyDoc_STRVAR(GMPy_doc_context_root_of_unity,
+"context.root_of_unity(n, k) -> mpc\n\n"
+"Return the n-th root of mpc(1) raised to the k-th power..");
+
+PyDoc_STRVAR(GMPy_doc_function_root_of_unity,
+"root_of_unity(n, k) -> mpc\n\n"
+"Return the n-th root of mpc(1) raised to the k-th power..");
+
+static PyObject *
+GMPy_Complex_Root_Of_Unity(PyObject *n, PyObject *k, CTXT_Object *context)
+{
+    MPC_Object *result;
+    unsigned long n_val, k_val;
+
+    CHECK_CONTEXT(context)
+
+    result = GMPy_MPC_New(0, 0, context);
+    if (!result) {
+        return NULL;
+    }
+
+    n_val = c_ulong_From_Integer(n);
+    k_val = c_ulong_From_Integer(k);
+    if ((n_val == (unsigned long)(-1) && PyErr_Occurred()) ||
+        (k_val == (unsigned long)(-1) && PyErr_Occurred())) {
+        Py_DECREF((PyObject*)result);
+        VALUE_ERROR("root_of_unity() requires positive integer arguments.");
+        return NULL;
+    }
+
+    result->rc = mpc_rootofunity(result->c, n_val, k_val, GET_MPC_ROUND(context));
+
+    _GMPy_MPC_Cleanup(&result, context);
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPy_Context_Root_Of_Unity(PyObject *self, PyObject *args)
+{
+    PyObject *n, *k;
+    CTXT_Object *context = NULL;
+
+    if (PyTuple_GET_SIZE(args) != 2) {
+        TYPE_ERROR("root_of_unity() requires 2 arguments");
         return NULL;
     }
 
@@ -84,8 +134,18 @@ GMPy_Context_Phase(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_Phase(PyTuple_GET_ITEM(args, 0), context);
+    n = PyTuple_GET_ITEM(args, 0);
+    k = PyTuple_GET_ITEM(args, 1);
+
+    if (IS_INTEGER(n) && IS_INTEGER(k)) {
+        return GMPy_Complex_Root_Of_Unity(n, k, context);
+    }
+    else {
+        TYPE_ERROR("root_of_unity() requires integer arguments");
+        return NULL;
+    }
 }
+#endif
 
 PyDoc_STRVAR(GMPy_doc_context_norm,
 "context.norm(x) -> mpfr\n\n"
@@ -100,19 +160,25 @@ PyDoc_STRVAR(GMPy_doc_function_norm,
 static PyObject *
 GMPy_Complex_Norm(PyObject *x, CTXT_Object *context)
 {
-    MPFR_Object *result;
-    MPC_Object *tempx;
+    MPFR_Object *result = NULL;
+    MPC_Object *tempx = NULL;
 
     CHECK_CONTEXT(context);
+
+    if (!(IS_COMPLEX_ONLY(x))) {
+        TYPE_ERROR("norm() argument type not supported");
+        return NULL;
+    }
 
     result = GMPy_MPFR_New(0, context);
     tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
     if (!result || !tempx) {
+        Py_XDECREF(result);
+        Py_XDECREF(tempx);
         return NULL;
     }
 
     mpfr_clear_flags();
-    SET_MPC_WAS_NAN(context, tempx);
 
     result->rc = mpc_norm(result->f, tempx->c, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
@@ -122,24 +188,9 @@ GMPy_Complex_Norm(PyObject *x, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_Number_Norm(PyObject *x, CTXT_Object *context)
-{
-    if (IS_COMPLEX_ONLY(x))
-        return GMPy_Complex_Norm(x, context);
-
-    TYPE_ERROR("norm() argument type not supported");
-    return NULL;
-}
-
-static PyObject *
-GMPy_Context_Norm(PyObject *self, PyObject *args)
+GMPy_Context_Norm(PyObject *self, PyObject *other)
 {
     CTXT_Object *context = NULL;
-
-    if (PyTuple_GET_SIZE(args) != 1) {
-        TYPE_ERROR("norm() requires 1 argument");
-        return NULL;
-    }
 
     if (self && CTXT_Check(self)) {
         context = (CTXT_Object*)self;
@@ -148,7 +199,7 @@ GMPy_Context_Norm(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_Norm(PyTuple_GET_ITEM(args, 0), context);
+    return GMPy_Complex_Norm(other, context);
 }
 
 PyDoc_STRVAR(GMPy_doc_context_polar,
@@ -168,6 +219,11 @@ GMPy_Complex_Polar(PyObject *x, CTXT_Object *context)
 
     CHECK_CONTEXT(context);
 
+    if (!(IS_COMPLEX_ONLY(x))) {
+        TYPE_ERROR("polar() argument type not supported");
+        return NULL;
+    }
+
     if (!(tempx = (PyObject*)GMPy_MPC_From_Complex(x, 1, 1, context))) {
         return NULL;
     }
@@ -182,30 +238,16 @@ GMPy_Complex_Polar(PyObject *x, CTXT_Object *context)
         Py_XDECREF(result);
         return NULL;
     }
+
     PyTuple_SET_ITEM(result, 0, abs);
     PyTuple_SET_ITEM(result, 1, phase);
     return result;
 }
 
 static PyObject *
-GMPy_Number_Polar(PyObject *x, CTXT_Object *context)
-{
-    if (IS_COMPLEX_ONLY(x))
-        return GMPy_Complex_Polar(x, context);
-
-    TYPE_ERROR("polar() argument type not supported");
-    return NULL;
-}
-
-static PyObject *
-GMPy_Context_Polar(PyObject *self, PyObject *args)
+GMPy_Context_Polar(PyObject *self, PyObject *other)
 {
     CTXT_Object *context = NULL;
-
-    if (PyTuple_GET_SIZE(args) != 1) {
-        TYPE_ERROR("polar() requires 1 argument");
-        return NULL;
-    }
 
     if (self && CTXT_Check(self)) {
         context = (CTXT_Object*)self;
@@ -214,7 +256,7 @@ GMPy_Context_Polar(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_Polar(PyTuple_GET_ITEM(args, 0), context);
+    return GMPy_Complex_Polar(other, context);
 }
 
 PyDoc_STRVAR(GMPy_doc_context_rect,
@@ -228,15 +270,15 @@ PyDoc_STRVAR(GMPy_doc_function_rect,
 "given in polar form.");
 
 static PyObject *
-GMPy_Complex_Rect(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Complex_Rect(PyObject *r, PyObject *phi, CTXT_Object *context)
 {
     MPFR_Object *tempx, *tempy;
     MPC_Object *result;
 
     CHECK_CONTEXT(context);
 
-    tempx = GMPy_MPFR_From_Real(x, 1, context);
-    tempy = GMPy_MPFR_From_Real(y, 1, context);
+    tempx = GMPy_MPFR_From_Real(r, 1, context);
+    tempy = GMPy_MPFR_From_Real(phi, 1, context);
     result = GMPy_MPC_New(0, 0, context);
     if (!tempx || !tempy || !result) {
         Py_XDECREF((PyObject*)tempx);
@@ -244,8 +286,6 @@ GMPy_Complex_Rect(PyObject *x, PyObject *y, CTXT_Object *context)
         Py_XDECREF((PyObject*)result);
         return NULL;
     }
-
-    SET_MPFR_MPFR_WAS_NAN(context, tempx, tempy);
 
     mpfr_cos(mpc_realref(result->c), tempy->f, GET_REAL_ROUND(context));
     mpfr_mul(mpc_realref(result->c), mpc_realref(result->c), tempx->f, GET_REAL_ROUND(context));
@@ -259,18 +299,9 @@ GMPy_Complex_Rect(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_Number_Rect(PyObject *x, PyObject *y, CTXT_Object *context)
-{
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Complex_Rect(x, y, context);
-
-    TYPE_ERROR("rect() argument type not supported");
-    return NULL;
-}
-
-static PyObject *
 GMPy_Context_Rect(PyObject *self, PyObject *args)
 {
+    PyObject *r, *phi;
     CTXT_Object *context = NULL;
 
     if (PyTuple_GET_SIZE(args) != 2) {
@@ -285,7 +316,16 @@ GMPy_Context_Rect(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_Rect(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context);
+    r = PyTuple_GET_ITEM(args, 0);
+    phi = PyTuple_GET_ITEM(args, 1);
+
+    if (IS_REAL(r) && IS_REAL(phi)) {
+        return GMPy_Complex_Rect(r, phi, context);
+    }
+    else {
+        TYPE_ERROR("rect() argument type not supported");
+        return NULL;
+    }
 }
 
 PyDoc_STRVAR(GMPy_doc_context_proj,
@@ -299,17 +339,24 @@ PyDoc_STRVAR(GMPy_doc_function_proj,
 static PyObject *
 GMPy_Complex_Proj(PyObject *x, CTXT_Object *context)
 {
-    MPC_Object *result, *tempx;
+    MPC_Object *result = NULL, *tempx = NULL;
 
     CHECK_CONTEXT(context);
+
+    if (!(IS_COMPLEX_ONLY(x))) {
+        TYPE_ERROR("proj() argument type not supported");
+        return NULL;
+    }
 
     result = GMPy_MPC_New(0, 0, context);
     tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
     if (!result || !tempx) {
+        Py_XDECREF(result);
+        Py_XDECREF(tempx);
         return NULL;
     }
 
-    SET_MPC_WAS_NAN(context, tempx);
+    mpfr_clear_flags();
 
     result->rc = mpc_proj(result->c, tempx->c, GET_MPC_ROUND(context));
     Py_DECREF((PyObject*)tempx);
@@ -319,24 +366,9 @@ GMPy_Complex_Proj(PyObject *x, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_Number_Proj(PyObject *x, CTXT_Object *context)
-{
-    if (IS_COMPLEX_ONLY(x))
-        return GMPy_Complex_Proj(x, context);
-
-    TYPE_ERROR("proj() argument type not supported");
-    return NULL;
-}
-
-static PyObject *
-GMPy_Context_Proj(PyObject *self, PyObject *args)
+GMPy_Context_Proj(PyObject *self, PyObject *other)
 {
     CTXT_Object *context = NULL;
-
-    if (PyTuple_GET_SIZE(args) != 1) {
-        TYPE_ERROR("proj() requires 1 argument");
-        return NULL;
-    }
 
     if (self && CTXT_Check(self)) {
         context = (CTXT_Object*)self;
@@ -345,7 +377,7 @@ GMPy_Context_Proj(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_Proj(PyTuple_GET_ITEM(args, 0), context);
+    return GMPy_Complex_Proj(other, context);
 }
 /* Implement the conjugate() method. */
 
@@ -364,8 +396,6 @@ GMPy_MPC_Conjugate_Method(PyObject *self, PyObject *args)
     if (!(result = GMPy_MPC_New(0, 0, context))) {
         return NULL;
     }
-
-    SET_MPC_WAS_NAN(context, self);
 
     result->rc = mpc_conj(result->c, MPC(self), GET_MPC_ROUND(context));
 
@@ -402,8 +432,10 @@ GMPy_MPC_GetImag_Attrib(MPC_Object *self, void *closure)
 
     CHECK_CONTEXT(context);
 
-    if ((result = GMPy_MPFR_New(0, context))) {
-        SET_MPC_WAS_NAN(context, self);
+    mpfr_prec_t rprec = 0, iprec = 0;
+    mpc_get_prec2(&rprec, &iprec, self->c);
+
+    if ((result = GMPy_MPFR_New(iprec, context))) {
         result->rc = mpc_imag(result->f, self->c, GET_MPFR_ROUND(context));
         _GMPy_MPFR_Cleanup(&result, context);
     }
@@ -420,8 +452,10 @@ GMPy_MPC_GetReal_Attrib(MPC_Object *self, void *closure)
 
     CHECK_CONTEXT(context);
 
-    if ((result = GMPy_MPFR_New(0, context))) {
-        SET_MPC_WAS_NAN(context, self);
+    mpfr_prec_t rprec = 0, iprec = 0;
+    mpc_get_prec2(&rprec, &iprec, self->c);
+
+    if ((result = GMPy_MPFR_New(rprec, context))) {
         result->rc = mpc_real(result->f, self->c, context->ctx.mpfr_round);
         _GMPy_MPFR_Cleanup(&result, context);
     }

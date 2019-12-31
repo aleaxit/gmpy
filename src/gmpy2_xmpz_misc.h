@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -44,8 +44,11 @@ static PyObject * GMPy_XMPZ_Method_Copy(PyObject *self, PyObject *other);
 static Py_ssize_t GMPy_XMPZ_Method_Length(XMPZ_Object *obj);
 static PyObject * GMPy_XMPZ_Method_SubScript(XMPZ_Object* self, PyObject* item);
 static int        GMPy_XMPZ_Method_AssignSubScript(XMPZ_Object* self, PyObject* item, PyObject* value);
+
 static PyObject * GMPy_XMPZ_Attrib_GetNumer(XMPZ_Object *self, void *closure);
 static PyObject * GMPy_XMPZ_Attrib_GetDenom(XMPZ_Object *self, void *closure);
+static PyObject * GMPy_XMPZ_Attrib_GetReal(XMPZ_Object *self, void *closure);
+static PyObject * GMPy_XMPZ_Attrib_GetImag(XMPZ_Object *self, void *closure);
 
 static GMPy_Iter_Object * GMPy_Iter_New(void);
 static void               GMPy_Iter_Dealloc(GMPy_Iter_Object *self);

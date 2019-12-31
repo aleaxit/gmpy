@@ -1,0 +1,56 @@
+environment:
+
+  matrix:
+    - TARGET_ARCH: x86
+      PYTHON_VERSION: 2.7
+      CONDA_INSTALL_LOCN: C:\\Miniconda
+
+    - TARGET_ARCH: x64
+      PYTHON_VERSION: 2.7
+      CONDA_INSTALL_LOCN: C:\\Miniconda-x64
+
+    - TARGET_ARCH: x86
+      PYTHON_VERSION: 3.5
+      CONDA_INSTALL_LOCN: C:\\Miniconda35
+
+    - TARGET_ARCH: x64
+      PYTHON_VERSION: 3.5
+      CONDA_INSTALL_LOCN: C:\\Miniconda35-x64
+
+    - TARGET_ARCH: x86
+      PYTHON_VERSION: 3.6
+      CONDA_INSTALL_LOCN: C:\\Miniconda36
+
+    - TARGET_ARCH: x64
+      PYTHON_VERSION: 3.6
+      CONDA_INSTALL_LOCN: C:\\Miniconda36-x64
+
+platform:
+    - x64
+
+install:
+    # Activate `conda`
+    - cmd: call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
+
+    # Configure conda
+    - cmd: conda config --add channels conda-forge
+    - cmd: conda config --set show_channel_urls true
+    - cmd: conda config --set always_yes yes --set changeps1 no
+
+    # Create conda environment
+    - cmd: conda create -n test python=%PYTHON_VERSION% mpir mpfr mpc
+    - cmd: call activate test
+
+# Skip .NET project specific build phase.
+build: off
+
+test_script:
+    - cmd: python setup.py install build_ext --mpir -I%CONDA_PREFIX%\Library\include -L%CONDA_PREFIX%\Library\lib
+    - cmd: cd test && python runtests.py
+    - cmd: cd ..
+
+after_test:
+    - cmd: python setup.py bdist_wheel
+
+artifacts:
+    - path: dist\*

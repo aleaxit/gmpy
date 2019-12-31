@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -437,9 +437,97 @@ GMPy_MPC_From_Complex(PyObject* obj, mp_prec_t rprec, mp_prec_t iprec,
     if (IS_FRACTION(obj))
         return GMPy_MPC_From_Fraction(obj, rprec, iprec, context);
 
+    if (HAS_MPC_CONVERSION(obj)) {
+        MPC_Object * res = (MPC_Object *) PyObject_CallMethod(obj, "__mpc__", NULL);
+
+        if (res != NULL && MPC_Check(res)) {
+            return res;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+    if (HAS_MPFR_CONVERSION(obj)) {
+        MPFR_Object * res = (MPFR_Object *) PyObject_CallMethod(obj, "__mpfr__", NULL);
+
+        if (res != NULL && MPFR_Check(res)) {
+            MPC_Object * temp = GMPy_MPC_From_MPFR(res, rprec, iprec, context);
+            Py_DECREF(res);
+            return temp;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+    if (HAS_MPQ_CONVERSION(obj)) {
+        MPQ_Object * res = (MPQ_Object *) PyObject_CallMethod(obj, "__mpq__", NULL);
+
+        if (res != NULL && MPQ_Check(res)) {
+            MPC_Object * temp = GMPy_MPC_From_MPQ(res, rprec, iprec, context);
+            Py_DECREF(res);
+            return temp;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+    if (HAS_MPZ_CONVERSION(obj)) {
+        MPZ_Object * res = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (res != NULL && MPZ_Check(res)) {
+            MPC_Object * temp = GMPy_MPC_From_MPZ(res, rprec, iprec, context);
+            Py_DECREF(res);
+            return temp;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+  error:
     TYPE_ERROR("object could not be converted to 'mpc'");
     return NULL;
 }
+
+#if 0
+static MPC_Object *
+GMPy_MPC_From_ComplexAndCopy(PyObject* obj, mp_prec_t rprec, mp_prec_t iprec,
+                           CTXT_Object *context)
+{
+    MPC_Object *result = NULL, *temp = NULL;
+
+    result = GMPy_MPC_From_Complex(obj, rprec, iprec, context);
+
+    if (result == NULL)
+        return result;
+
+    if (Py_REFCNT(result) == 1)
+        return result;
+
+    if (!(temp = GMPy_MPC_New(rprec = mpfr_get_prec(mpc_realref(result->c)),
+                              iprec = mpfr_get_prec(mpc_imagref(result->c)),
+                              context))) {
+        /* LCOV_EXCL_START */
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
+
+    /* Since the precision of temp is the same as the precision of result,
+     * there shouldn't be any rounding.
+     */
+
+    mpc_set(temp->c, result->c, MPFR_RNDN);
+    Py_DECREF((PyObject*)result);
+    return temp;
+}
+#endif
 
 static PyObject *
 GMPy_PyStr_From_MPC(MPC_Object *self, int base, int digits, CTXT_Object *context)
@@ -515,13 +603,13 @@ GMPy_MPC_Int_Slot(PyObject *self)
     return NULL;
 }
 
+#ifdef SHARED
 /*
  * coerce any number to a mpc
  */
 
-#if 0
 int
-GMPy_MPC_convert_arg(PyObject *arg, PyObject **ptr)
+GMPy_MPC_ConvertArg(PyObject *arg, PyObject **ptr)
 {
     MPC_Object *newob = GMPy_MPC_From_Complex(arg, 0, 0, NULL);
 

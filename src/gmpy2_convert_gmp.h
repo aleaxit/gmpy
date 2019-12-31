@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -42,6 +42,7 @@ static MPZ_Object *    GMPy_MPZ_From_PyStr(PyObject *s, int base, CTXT_Object *c
 static MPZ_Object *    GMPy_MPZ_From_PyFloat(PyObject *obj, CTXT_Object *context);
 
 static MPZ_Object *    GMPy_MPZ_From_Integer(PyObject *obj, CTXT_Object *context);
+static MPZ_Object *    GMPy_MPZ_From_IntegerAndCopy(PyObject *obj, CTXT_Object *context);
 
 static PyObject *      GMPy_MPZ_Str_Slot(MPZ_Object *self);
 static PyObject *      GMPy_MPZ_Repr_Slot(MPZ_Object *self);
@@ -90,6 +91,7 @@ static MPQ_Object *    GMPy_MPQ_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context
 
 static MPQ_Object *    GMPy_MPQ_From_Rational(PyObject* obj, CTXT_Object *context);
 static MPQ_Object *    GMPy_MPQ_From_Number(PyObject* obj, CTXT_Object *context);
+static MPQ_Object *    GMPy_MPQ_From_RationalAndCopy(PyObject* obj, CTXT_Object *context);
 
 static PyObject *      GMPy_PyIntOrLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context);
 static PyObject *      GMPy_PyStr_From_MPQ(MPQ_Object *obj, int base, int option, CTXT_Object *context);
@@ -107,8 +109,10 @@ static PyObject *      GMPy_PyLong_From_MPQ(MPQ_Object *obj, CTXT_Object *contex
 static PyObject *      GMPy_MPQ_Long_Slot(MPQ_Object *obj);
 #endif
 
-/* Miscellaneous rational conversion functions. */
-int GMPy_MPQ_convert_arg(PyObject *arg, PyObject **ptr);
+#ifdef SHARED
+/* int GMPy_MPQ_convert_arg(PyObject *arg, PyObject **ptr); */
+static GMPy_MPQ_ConvertArg_RETURN GMPy_MPQ_ConvertArg GMPy_MPQ_ConvertArg_PROTO;
+#endif
 
 #ifdef __cplusplus
 }

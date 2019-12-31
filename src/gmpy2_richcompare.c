@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -55,7 +55,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
     if (CHECK_MPZANY(a)) {
         if (PyIntOrLong_Check(b)) {
             int error;
-            long temp = GMPy_Integer_AsLongAndError(b, &error);
+            native_si temp = GMPy_Integer_AsNative_siAndError(b, &error);
 
             if (!error) {
                 c = mpz_cmp_si(MPZ(a), temp);

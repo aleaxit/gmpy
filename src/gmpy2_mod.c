@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -64,7 +64,7 @@ GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
     if (CHECK_MPZANY(x)) {
         if (PyIntOrLong_Check(y)) {
             int error;
-            long temp = GMPy_Integer_AsLongAndError(y, &error);
+            native_si temp = GMPy_Integer_AsNative_siAndError(y, &error);
 
             if (!error) {
                 if (temp > 0) {
@@ -183,8 +183,8 @@ GMPy_Rational_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
         return NULL;
 
     if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
-        tempx = GMPy_MPQ_From_Number(x, context);
-        tempy = GMPy_MPQ_From_Number(y, context);
+        tempx = GMPy_MPQ_From_Rational(x, context);
+        tempy = GMPy_MPQ_From_Rational(y, context);
         if (!tempx || !tempy) {
             SYSTEM_ERROR("could not convert Rational to mpq");
             goto error;
@@ -233,15 +233,13 @@ GMPy_MPQ_Mod_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    MPFR_Object *tempx = NULL, *tempy = NULL, *temp, *result;
+    MPFR_Object *tempx = NULL, *tempy = NULL, *result;
 
     CHECK_CONTEXT(context);
 
     result = GMPy_MPFR_New(0, context);
-    temp = GMPy_MPFR_New(0, context);
-    if (!result || !temp) {
+    if (!result) {
         Py_XDECREF((PyObject*)result);
-        Py_XDECREF((PyObject*)temp);
         return NULL;
     }
 
@@ -261,16 +259,13 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         mpfr_clear_flags();
-        SET_MPFR_MPFR_WAS_NAN(context, tempx, tempy);
 
         if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
 
-            if (!(context->ctx.quiet_nan && context->ctx.was_nan)) {
-                context->ctx.invalid = 1;
-                if (context->ctx.traps & TRAP_INVALID) {
-                    GMPY_INVALID("mod() invalid operation");
-                    goto error;
-                }
+            context->ctx.invalid = 1;
+            if (context->ctx.traps & TRAP_INVALID) {
+                GMPY_INVALID("mod() invalid operation");
+                goto error;
             }
             mpfr_set_nan(result->f);
         }
@@ -299,8 +294,6 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
             else {
                 mpfr_copysign(result->f, result->f, tempy->f, GET_MPFR_ROUND(context));
             }
-
-            Py_DECREF((PyObject*)temp);
         }
         _GMPy_MPFR_Cleanup(&result, context);
 
@@ -309,14 +302,12 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
         return (PyObject*)result;
     }
 
-    Py_DECREF((PyObject*)temp);
     Py_DECREF((PyObject*)result);
     Py_RETURN_NOTIMPLEMENTED;
 
   error:
     Py_XDECREF((PyObject*)tempx);
     Py_XDECREF((PyObject*)tempy);
-    Py_DECREF((PyObject*)temp);
     Py_DECREF((PyObject*)result);
     return NULL;
 }

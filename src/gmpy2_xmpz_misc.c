@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -191,13 +191,17 @@ GMPy_XMPZ_Method_SubScript(XMPZ_Object* self, PyObject* item)
 
 #if PY_VERSION_HEX > 0x030200A4
         if (PySlice_GetIndicesEx(item,
-#else
-        if (PySlice_GetIndicesEx((PySliceObject*)item,
-#endif
                          mpz_sizeinbase(self->z, 2),
                          &start, &stop, &step, &slicelength) < 0) {
             return NULL;
         }
+#else
+        if (PySlice_GetIndicesEx((PySliceObject*)item,
+                         mpz_sizeinbase(self->z, 2),
+                         &start, &stop, &step, &slicelength) < 0) {
+            return NULL;
+        }
+#endif
 
         if ((step < 0 && start < stop) || (step > 0 && start > stop)) {
             stop = start;
@@ -280,13 +284,17 @@ GMPy_XMPZ_Method_AssignSubScript(XMPZ_Object* self, PyObject* item, PyObject* va
 
 #if PY_VERSION_HEX > 0x030200A4
         if (PySlice_GetIndicesEx(item,
-#else
-        if (PySlice_GetIndicesEx((PySliceObject*)item,
-#endif
                         seq_len,
                         &start, &stop, &step, &slicelength) < 0) {
             return -1;
         }
+#else
+        if (PySlice_GetIndicesEx((PySliceObject*)item,
+                        seq_len,
+                        &start, &stop, &step, &slicelength) < 0) {
+            return -1;
+        }
+#endif
 
         if ((step < 0 && start < stop) || (step > 0 && start > stop)) {
             stop = start;
@@ -541,12 +549,30 @@ GMPy_XMPZ_Attrib_GetNumer(XMPZ_Object *self, void *closure)
 }
 
 static PyObject *
+GMPy_XMPZ_Attrib_GetReal(XMPZ_Object *self, void *closure)
+{
+    Py_INCREF((PyObject*)self);
+    return (PyObject*)self;
+}
+
+static PyObject *
 GMPy_XMPZ_Attrib_GetDenom(XMPZ_Object *self, void *closure)
 {
     XMPZ_Object *result;
 
     if ((result = GMPy_XMPZ_New(NULL))) {
         mpz_set_ui(result->z, 1);
+    }
+    return (PyObject*)result;
+}
+
+static PyObject *
+GMPy_XMPZ_Attrib_GetImag(XMPZ_Object *self, void *closure)
+{
+    XMPZ_Object *result;
+
+    if ((result = GMPy_XMPZ_New(NULL))) {
+        mpz_set_ui(result->z, 0);
     }
     return (PyObject*)result;
 }

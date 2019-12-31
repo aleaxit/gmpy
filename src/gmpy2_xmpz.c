@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -136,8 +136,14 @@ static PyMappingMethods GMPy_XMPZ_mapping_methods = {
 
 static PyGetSetDef GMPy_XMPZ_getseters[] =
 {
-    { "numerator", (getter)GMPy_XMPZ_Attrib_GetNumer, NULL, "numerator", NULL },
-    { "denominator", (getter)GMPy_XMPZ_Attrib_GetDenom, NULL, "denominator", NULL },
+    { "numerator", (getter)GMPy_XMPZ_Attrib_GetNumer, NULL,
+        "the numerator of a rational number in lowest terms", NULL },
+    { "denominator", (getter)GMPy_XMPZ_Attrib_GetDenom, NULL,
+        "the denominator of a rational number in lowest terms", NULL },
+    { "real", (getter)GMPy_XMPZ_Attrib_GetReal, NULL,
+        "the real part of a complex number", NULL },
+    { "denominator", (getter)GMPy_XMPZ_Attrib_GetImag, NULL,
+        "the imaginary part of a complex number", NULL },
     {NULL}
 };
 
@@ -152,6 +158,7 @@ static PyMethodDef GMPy_XMPZ_methods [] =
     { "bit_scan1", GMPy_MPZ_bit_scan1_method, METH_VARARGS, doc_bit_scan1_method },
     { "bit_set", GMPy_MPZ_bit_set_method, METH_O, doc_bit_set_method },
     { "bit_test", GMPy_MPZ_bit_test_method, METH_O, doc_bit_test_method },
+    { "conjugate", GMPy_MP_Method_Conjugate, METH_NOARGS, GMPy_doc_mp_method_conjugate },
     { "copy", GMPy_XMPZ_Method_Copy, METH_NOARGS, GMPy_doc_xmpz_method_copy },
     { "digits", GMPy_XMPZ_Digits_Method, METH_VARARGS, GMPy_doc_mpz_digits_method },
     { "iter_bits", (PyCFunction)GMPy_XMPZ_Method_IterBits, METH_VARARGS | METH_KEYWORDS, GMPy_doc_xmpz_method_iter_bits },

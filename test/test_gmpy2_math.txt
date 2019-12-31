@@ -1,0 +1,416 @@
+Tests for functions and methods of gmpy2_math.c
+===============================================
+
+Note: tests for trigonometric operations are in
+files test_mpfr_trig.txt and test_mpc_trig.txt.
+
+>>> from gmpy2 import mpz, mpq, mpfr, mpc
+>>> import gmpy2
+>>> ctx = gmpy2.get_context()
+
+>>> ctx.log(mpfr(2))
+mpfr('0.69314718055994529')
+>>> ctx.log(mpfr(1))
+mpfr('0.0')
+>>> gmpy2.log10(mpfr(10))
+mpfr('1.0')
+>>> ctx.exp(10.5)
+mpfr('36315.502674246636')
+>>> gmpy2.exp(mpfr(1))
+mpfr('2.7182818284590451')
+
+Tests sqrt
+----------
+
+>>> gmpy2.sqrt(float(25))
+mpfr('5.0')
+>>> 19.5 ** 2
+380.25
+>>> ctx.sqrt(mpfr(380.25))
+mpfr('19.5')
+>>> ctx.allow_complex = True
+>>> ctx.sqrt(mpfr(-380.25))
+mpc('0.0+19.5j')
+>>> ctx.allow_complex = False
+>>> ctx.sqrt(mpfr(-380.25))
+mpfr('nan')
+>>> ctx.sqrt(complex(16,4))
+mpc('4.0306589103067649+0.4961967868047123j')
+>>> ctx.sqrt(mpc(16,4))
+mpc('4.0306589103067649+0.4961967868047123j')
+>>> gmpy2.rec_sqrt(mpfr('380.25'))
+mpfr('0.05128205128205128')
+
+Tests root
+----------
+
+>>> ctx.rootn(5.5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: rootn() requires 2 arguments
+>>> ctx.rootn(mpc(4,1), 4)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: rootn() argument type not supported
+>>> ctx.rootn(mpfr(25), 4)
+mpfr('2.2360679774997898')
+>>> ctx.rootn(mpfr(25), 4.0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: rootn() argument type not supported
+>>> ctx.root(mpfr(25))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: root() requires 2 arguments
+
+Tests other binary operations
+-----------------------------
+
+>>> gmpy2.jn(43.2, 5)
+mpfr('-0.11672089168206982')
+>>> gmpy2.jn(43.2, 1.2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: jn() argument type not supported
+>>> gmpy2.yn(43.2, 5)
+mpfr('-0.034805474763124698')
+>>> gmpy2.yn(43.2, 5.5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: yn() argument type not supported
+>>> gmpy2.agm(mpc(4,4), 5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: agm() argument type not supported
+>>> gmpy2.fmod(mpfr(25), mpfr(2.5))
+mpfr('0.0')
+>>> gmpy2.fmod(mpfr(25), 5.0)
+mpfr('0.0')
+>>> gmpy2.fmod(mpfr(25))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: fmod() requires 2 arguments
+
+Tests round2
+------------
+
+>>> r = mpfr(1.65656565)
+>>> gmpy2.round2(r, 2)
+mpfr('1.5',2)
+>>> gmpy2.round2(r, 5)
+mpfr('1.69',5)
+>>> gmpy2.round2(r)
+mpfr('1.6565656499999999')
+>>> gmpy2.round2(mpq('1/3'))
+mpfr('0.33333333333333331')
+>>> gmpy2.round2(mpq('1/3'), 30)
+mpfr('0.33333333349',30)
+>>> gmpy2.round2(r, -5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: invalid precision
+>>> gmpy2.round2(mpc(4, 4), 5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: round2() argument type not supported
+>>> gmpy2.round2(mpz(5), 5)
+mpfr('5.0',5)
+>>> gmpy2.round2(5, 6, 5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: round2() requires 1 or 2 arguments
+>>> gmpy2.round2()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: round2() requires 1 or 2 arguments
+
+Tests reldiff ( abs(x-y)/x )
+----------------------------
+
+>>> gmpy2.reldiff(mpfr(2.5), mpfr(17.5))
+mpfr('6.0')
+
+Tests modf
+----------
+
+>>> r, r2 = mpfr('5.6'), mpfr(5.4)
+>>> f = 0.6
+>>> gmpy2.modf(r, r2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: modf() takes exactly one argument (2 given)
+>>> gmpy2.modf(0.8)
+(mpfr('0.0'), mpfr('0.80000000000000004'))
+>>> gmpy2.modf(r)
+(mpfr('5.0'), mpfr('0.59999999999999964'))
+>>> gmpy2.modf(-r2)
+(mpfr('-5.0'), mpfr('-0.40000000000000036'))
+
+Tests remquo
+------------
+
+>>> gmpy2.remquo()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: remquo() requires 2 arguments
+>>> gmpy2.remquo(r)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: remquo() requires 2 arguments
+>>> gmpy2.remquo(r, f)
+(mpfr('0.19999999999999984'), 9)
+>>> gmpy2.remquo(r, r2)
+(mpfr('0.19999999999999929'), 1)
+
+Tests frexp
+-----------
+
+>>> gmpy2.frexp()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: frexp() takes exactly one argument (0 given)
+>>> gmpy2.frexp(r, r2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: frexp() takes exactly one argument (2 given)
+>>> gmpy2.frexp(r)
+(3, mpfr('0.69999999999999996'))
+>>> gmpy2.frexp(r2)
+(3, mpfr('0.67500000000000004'))
+>>> gmpy2.frexp(f)
+(0, mpfr('0.59999999999999998'))
+
+Tests next_toward
+-----------------
+
+>>> gmpy2.next_toward()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: next_toward() requires 2 arguments
+>>> gmpy2.next_toward(r)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: next_toward() requires 2 arguments
+>>> gmpy2.next_toward(r, r2)
+mpfr('5.5999999999999988')
+>>> gmpy2.next_toward(r, f)
+mpfr('5.5999999999999988')
+
+Tests next_above
+-----------------
+
+>>> gmpy2.next_above()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: next_above() takes exactly one argument (0 given)
+>>> gmpy2.next_above(r, r2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: next_above() takes exactly one argument (2 given)
+>>> gmpy2.next_above(r)
+mpfr('5.6000000000000005')
+>>> gmpy2.next_above(r2)
+mpfr('5.4000000000000012')
+>>> gmpy2.next_above(f)
+mpfr('0.60000000000000009')
+
+Tests factorial
+---------------
+
+>>> gmpy2.factorial(0)
+mpfr('1.0')
+>>> gmpy2.factorial(-0.0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: factorial() requires non-negative integer argument
+>>> gmpy2.factorial(2)
+mpfr('2.0')
+>>> gmpy2.factorial('fred')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: factorial() requires non-negative integer argument
+>>> gmpy2.factorial(123)
+mpfr('1.2146304367025329e+205')
+>>> gmpy2.factorial(123456)
+mpfr('2.6040699049291379e+574964')
+>>> gmpy2.factorial(123456789)
+mpfr('inf')
+>>> gmpy2.factorial(1234567899999999999999)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: factorial() argument too large
+>>> gmpy2.factorial(mpz(5))
+mpfr('120.0')
+>>> ctx.factorial(4)
+mpfr('24.0')
+
+Tests fsum
+----------
+
+>>> gmpy2.fsum([])
+mpfr('0.0')
+>>> gmpy2.fsum([4, 5, 6])
+mpfr('15.0')
+>>> gmpy2.fsum(range(13))
+mpfr('78.0')
+>>> gmpy2.fsum(r)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: argument must be an iterable
+
+Tests round, floor ceil and trunc
+---------------------------------
+
+>>> gmpy2.rint(r)
+mpfr('6.0')
+>>> gmpy2.rint(r2)
+mpfr('5.0')
+>>> gmpy2.rint_ceil(r)
+mpfr('6.0')
+>>> gmpy2.rint_ceil(r2)
+mpfr('6.0')
+>>> gmpy2.rint_ceil(f)
+mpfr('1.0')
+>>> gmpy2.rint_floor(r)
+mpfr('5.0')
+>>> gmpy2.rint_floor(r2)
+mpfr('5.0')
+>>> gmpy2.rint_floor(f)
+mpfr('0.0')
+>>> gmpy2.rint_round(r)
+mpfr('6.0')
+>>> gmpy2.rint_round(r2)
+mpfr('5.0')
+>>> gmpy2.rint_round(f)
+mpfr('1.0')
+>>> gmpy2.rint_trunc(r)
+mpfr('5.0')
+>>> gmpy2.rint_trunc(r2)
+mpfr('5.0')
+>>> gmpy2.rint_trunc(f)
+mpfr('0.0')
+>>> gmpy2.ceil(r)
+mpfr('6.0')
+>>> gmpy2.ceil(r2)
+mpfr('6.0')
+>>> gmpy2.ceil(f)
+mpfr('1.0')
+>>> gmpy2.floor(r)
+mpfr('5.0')
+>>> gmpy2.floor(r2)
+mpfr('5.0')
+>>> gmpy2.floor(f)
+mpfr('0.0')
+>>> gmpy2.trunc(r)
+mpfr('5.0')
+>>> gmpy2.trunc(r2)
+mpfr('5.0')
+>>> gmpy2.trunc(f)
+mpfr('0.0')
+>>> gmpy2.round_away(r)
+mpfr('6.0')
+>>> gmpy2.round_away(r2)
+mpfr('5.0')
+>>> gmpy2.round_away(f)
+mpfr('1.0')
+
+
+
+Tests exp functions
+-------------------
+
+>>> gmpy2.exp2(r)
+mpfr('48.502930128332729')
+>>> gmpy2.exp10(r)
+mpfr('398107.17055349692')
+>>> gmpy2.exp2(r2)
+mpfr('42.224253144732629')
+>>> gmpy2.exp10(r2)
+mpfr('251188.6431509582')
+>>> gmpy2.exp2(f)
+mpfr('1.515716566510398')
+>>> gmpy2.exp10(f)
+mpfr('3.9810717055349722')
+>>> gmpy2.expm1(r)
+mpfr('269.42640742615254')
+>>> gmpy2.expm1(r2)
+mpfr('220.40641620418717')
+>>> gmpy2.expm1(f)
+mpfr('0.82211880039050889')
+>>> gmpy2.eint(r)
+mpfr('63.101785974299247')
+
+Tests gamma functions
+---------------------
+
+>>> gmpy2.gamma(r)
+mpfr('61.55391500628923')
+>>> gmpy2.lngamma(r)
+mpfr('4.1199134575335288')
+>>> gmpy2.digamma(r)
+mpfr('1.6308319195144647')
+>>> gmpy2.lgamma()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: lgamma() takes exactly one argument (0 given)
+>>> gmpy2.lgamma(r, r2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: lgamma() takes exactly one argument (2 given)
+>>> gmpy2.lgamma(r)
+(mpfr('4.1199134575335288'), 1)
+>>> gmpy2.lgamma(mpfr('nan'))
+(mpfr('nan'), 1)
+>>> gmpy2.lgamma(mpfr('inf'))
+(mpfr('inf'), 1)
+
+Tests Bessel functions
+----------------------
+>>> gmpy2.j0(r)
+mpfr('0.026970884685114358')
+>>> gmpy2.j1(r)
+mpfr('-0.33433283629100752')
+>>> gmpy2.y0(r)
+mpfr('-0.33544418124531583')
+>>> gmpy2.y1(r)
+mpfr('-0.056805614399479849')
+
+Other tests
+-----------
+
+>>> gmpy2.frac(r)
+mpfr('0.59999999999999964')
+>>> gmpy2.frac(r2)
+mpfr('0.40000000000000036')
+>>> gmpy2.frac(f)
+mpfr('0.59999999999999998')
+>>> gmpy2.cbrt(r)
+mpfr('1.7758080034852013')
+>>> gmpy2.cbrt(r2)
+mpfr('1.7544106429277198')
+>>> gmpy2.cbrt(f)
+mpfr('0.84343266530174921')
+>>> gmpy2.log2(r)
+mpfr('2.4854268271702415')
+>>> gmpy2.log2(r2)
+mpfr('2.4329594072761065')
+>>> gmpy2.log2(f)
+mpfr('-0.73696559416620622')
+>>> gmpy2.log1p(r)
+mpfr('1.8870696490323797')
+>>> gmpy2.log1p(r2)
+mpfr('1.8562979903656263')
+>>> gmpy2.log1p(f)
+mpfr('0.47000362924573552')
+>>> gmpy2.li2(r)
+mpfr('1.6186578451141254')
+>>> gmpy2.zeta(r)
+mpfr('1.02337547922703')
+>>> gmpy2.erf(r)
+mpfr('0.99999999999999767')
+>>> gmpy2.erfc(r)
+mpfr('2.382836284583028e-15')
+>>> gmpy2.ai(r)
+mpfr('2.6500613296849995e-05')
+>>> gmpy2.remainder(mpfr(5), mpfr(3.2))
+mpfr('-1.4000000000000004')

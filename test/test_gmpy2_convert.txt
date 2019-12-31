@@ -1,0 +1,151 @@
+Test conversion code to/from GMP
+================================
+
+>>> import gmpy2
+>>> from gmpy2 import mpz, mpq, mpfr, mpc, xmpz
+>>> from fractions import Fraction
+
+Test conversion to/from MPZ
+---------------------------
+
+>>> float(mpz(1))
+1.0
+>>> float(mpz(99**199))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+OverflowError: ** message detail varies **
+>>> mpz(gmpy2.xmpz(1))
+mpz(1)
+
+
+Test conversion to/from XMPZ
+----------------------------
+
+>>> xmpz('5')
+xmpz(5)
+>>> xmpz('5')
+xmpz(5)
+>>> xmpz('not')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: invalid digits
+>>> xmpz(-3.5)
+xmpz(-3)
+>>> xmpz(float('inf'))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+OverflowError: 'xmpz' does not support Infinity
+>>> xmpz(mpz(100))
+xmpz(100)
+>>> xmpz(xmpz(100))
+xmpz(100)
+>>> xmpz(mpq(30,2))
+xmpz(15)
+>>> str(xmpz(100))
+'100'
+
+Test conversion to/from MPQ
+---------------------------
+
+>>> mpq(u'2/3')
+mpq(2,3)
+>>> mpq(b'2/3')
+mpq(2,3)
+>>> mpq('2,3')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: invalid digits
+>>> mpq('2/a')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: invalid digits
+>>> mpq('2.3')
+mpq(23,10)
+>>> mpq('2.3/10')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: illegal string: both . and / found
+>>> mpq(4.5)
+mpq(9,2)
+>>> mpq(float('inf'))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+OverflowError: 'mpq' does not support Infinity
+>>> mpq(xmpz(15))
+mpq(15,1)
+>>> mpq(mpfr(4.5))
+mpq(9,2)
+>>> mpq(dict())
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: mpq() requires numeric or string argument
+>>> float(mpq(1,2))
+0.5
+>>> int(mpq(15,2))
+7
+
+Test conversion to/from MPFR
+----------------------------
+
+>>> mpz(mpfr('inf'))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+OverflowError: 'mpz' does not support Infinity
+>>> mpz(mpfr(5.51))
+mpz(6)
+>>> xmpz(mpfr('inf'))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+OverflowError: 'xmpz' does not support Infinity
+>>> xmpz(mpfr(5.51))
+xmpz(6)
+>>> mpq(mpfr('inf'))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+OverflowError: can not convert Infinity to MPQ
+>>> mpq(mpfr(4.5))
+mpq(9,2)
+>>> mpq(mpfr(0))
+mpq(0,1)
+>>> int(mpfr(5.3))
+5
+>>> float(mpfr(5.3))
+5.3
+>>> str(float('5.656'))
+'5.656'
+
+Test conversion to/from MPC
+---------------------------
+
+>>> mpc(mpfr(5.6), precision=(0,0))
+mpc('5.5999999999999996+0.0j')
+>>> mpc(Fraction(4,5))
+mpc('0.80000000000000004+0.0j')
+>>> mpc(b'5+6j')
+mpc('5.0+6.0j')
+>>> mpc(u'5+6j')
+mpc('5.0+6.0j')
+>>> mpc(u'\xc3')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: string contains non-ASCII characters
+>>> mpc('notanumber')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: invalid string in mpc()
+>>> mpc(u'\0')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: string without NULL characters expected
+>>> mpc('(5+6j)')
+mpc('5.0+6.0j')
+>>> mpc('   5+6j   ')
+mpc('5.0+6.0j')
+>>> mpc('5+6ji')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: invalid string in mpc()
+>>> str(mpc(5,6))
+'5.0+6.0j'
+>>> mpc(4,5).__complex__()
+(4+5j)

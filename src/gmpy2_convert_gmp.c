@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -194,7 +194,7 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
     assert(CHECK_MPZANY(obj));
 
     /* Assume gmp uses limbs as least as large as the builtin longs do */
-    assert(mp_bits_per_limb >= SHIFT);
+    assert(mp_bits_per_limb >= PyLong_SHIFT);
 
     if (mpz_sgn(obj->z) < 0) {
         negative = 1;
@@ -312,8 +312,47 @@ GMPy_MPZ_From_Integer(PyObject *obj, CTXT_Object *context)
     if (XMPZ_Check(obj))
         return GMPy_MPZ_From_XMPZ((XMPZ_Object*)obj, context);
 
+    if (HAS_STRICT_MPZ_CONVERSION(obj)) {
+        result = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (result != NULL && MPZ_Check(result)) {
+            return result;
+        }
+        else {
+            Py_XDECREF((PyObject*)result);
+            goto error;
+        }
+    }
+
+  error:
     TYPE_ERROR("cannot convert object to mpz");
-    return result;
+    return NULL;
+}
+
+
+
+static MPZ_Object *
+GMPy_MPZ_From_IntegerAndCopy(PyObject *obj, CTXT_Object *context)
+{
+    MPZ_Object *result = NULL, *temp = NULL;
+
+    result = GMPy_MPZ_From_Integer(obj, context);
+
+    if (result == NULL)
+        return result;
+
+    if (Py_REFCNT(result) == 1)
+        return result;
+
+    if (!(temp = GMPy_MPZ_New(context))) {
+        /* LCOV_EXCL_START */
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
+
+    mpz_set(temp->z, result->z);
+    Py_DECREF((PyObject*)result);
+    return temp;
 }
 
 /* str and repr implementations for mpz */
@@ -995,8 +1034,59 @@ GMPy_MPQ_From_Number(PyObject *obj, CTXT_Object *context)
     if (IS_FRACTION(obj))
         return GMPy_MPQ_From_Fraction(obj, context);
 
+    if (HAS_MPQ_CONVERSION(obj)) {
+        MPQ_Object * res = (MPQ_Object *) PyObject_CallMethod(obj, "__mpq__", NULL);
+
+        if (res != NULL && MPQ_Check(res)) {
+            return res;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+    if (HAS_MPZ_CONVERSION(obj)) {
+        MPZ_Object * res = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (res != NULL && MPZ_Check(res)) {
+            MPQ_Object * temp = GMPy_MPQ_From_MPZ(res, context);
+            Py_DECREF(res);
+            return temp;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+  error:
     TYPE_ERROR("cannot convert object to mpq");
     return NULL;
+}
+
+static MPQ_Object*
+GMPy_MPQ_From_RationalAndCopy(PyObject *obj, CTXT_Object *context)
+{
+    MPQ_Object *result = NULL, *temp = NULL;
+
+    result = GMPy_MPQ_From_Rational(obj, context);
+
+    if (result == NULL)
+        return result;
+
+    if (Py_REFCNT(result) == 1)
+        return result;
+
+    if (!(temp = GMPy_MPQ_New(context))) {
+        /* LCOV_EXCL_START */
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
+
+    mpq_set(temp->q, result->q);
+    Py_DECREF((PyObject*)result);
+    return temp;
 }
 
 static MPQ_Object*
@@ -1019,6 +1109,33 @@ GMPy_MPQ_From_Rational(PyObject *obj, CTXT_Object *context)
     if (IS_FRACTION(obj))
         return GMPy_MPQ_From_Fraction(obj, context);
 
+    if (HAS_MPQ_CONVERSION(obj)) {
+        MPQ_Object * res = (MPQ_Object *) PyObject_CallMethod(obj, "__mpq__", NULL);
+
+        if (res != NULL && MPQ_Check(res)) {
+            return res;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+    if (HAS_MPZ_CONVERSION(obj)) {
+        MPZ_Object * res = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (res != NULL && MPZ_Check(res)) {
+            MPQ_Object * temp = GMPy_MPQ_From_MPZ(res, context);
+            Py_DECREF(res);
+            return temp;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+  error:
     TYPE_ERROR("cannot convert object to mpq");
     return NULL;
 }
@@ -1027,8 +1144,11 @@ GMPy_MPQ_From_Rational(PyObject *obj, CTXT_Object *context)
  * coerce any number to a mpq
  */
 
+#ifdef SHARED
+/* Helper function for argument parsing. Not used in static build. */
+
 int
-GMPy_MPQ_convert_arg(PyObject *arg, PyObject **ptr)
+GMPy_MPQ_ConvertArg(PyObject *arg, PyObject **ptr)
 {
     MPQ_Object* result = GMPy_MPQ_From_Number(arg, NULL);
 
@@ -1043,6 +1163,8 @@ GMPy_MPQ_convert_arg(PyObject *arg, PyObject **ptr)
         return 0;
     }
 }
+
+#endif
 
 /* str and repr implementations for mpq */
 static PyObject *

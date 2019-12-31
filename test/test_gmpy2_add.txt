@@ -1,10 +1,11 @@
-Test gmpy2MPY2 Addition
+Test gmpy2 Addition
 ===================
 
 Test all code in the file gmpy2_add.c.
 
->>> import gmpy2 as gmpy2
+>>> import gmpy2
 >>> from gmpy2 import mpz, xmpz, mpq, mpfr, mpc
+>>> from supportclasses import *
 >>> from decimal import Decimal as D
 >>> from fractions import Fraction as F
 >>> a = mpz(123)
@@ -40,6 +41,8 @@ mpz(579)
 mpz(-333)
 >>> (-b)+a
 mpz(-333)
+>>> a+z
+mpz(125)
 
 >>> ctx=gmpy2.context()
 >>> ctx.add(a,b) == a+b
@@ -48,6 +51,8 @@ True
 True
 >>> ctx.add(1, 1)
 mpz(2)
+>>> ctx.add(mpfr(1), mpfr(1))
+mpfr('2.0')
 >>> ctx.add(a, 1)
 mpz(124)
 >>> ctx.add(1, a)
@@ -104,6 +109,10 @@ mpq(3,2)
 mpc('1.0+0.0j')
 >>> mpc(0) + mpq(1,1)
 mpc('1.0+0.0j')
+>>> mpq(1,2) + z
+mpq(5,2)
+>>> mpq(1,2) + q
+mpq(2,1)
 
 >>> ctx=gmpy2.context()
 >>> ctx.add(mpq(1,2), mpq(3,2))
@@ -157,6 +166,12 @@ mpfr('2.0')
 True
 >>> (1 << 100) + mpfr(0) == mpfr('1p100', base=2)
 True
+>>> mpfr(1) + z
+mpfr('3.0')
+>>> mpfr(0.5) + q
+mpfr('2.0')
+>>> mpfr(1.5) + r
+mpfr('3.0')
 
 Test complex operations
 -----------------------
@@ -172,3 +187,11 @@ mpc('2.0+2.0j')
 mpc('2.0+2.0j')
 >>> 1+0j + mpc(1,2)
 mpc('2.0+2.0j')
+>>> mpc(1,2) + cx
+mpc('43.0+69.0j')
+>>> mpc(1,2) + r
+mpc('2.5+2.0j')
+>>> mpc(1,2) + q
+mpc('2.5+2.0j')
+>>> mpc(1,2) + z
+mpc('3.0+2.0j')

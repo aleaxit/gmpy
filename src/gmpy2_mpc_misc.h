@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -34,23 +34,23 @@ extern "C" {
 #endif
 
 static PyObject * GMPy_Complex_Phase(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Number_Phase(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Phase(PyObject *self, PyObject *other);
 
+#ifdef MPC_110
+static PyObject * GMPy_Complex_Root_Of_Unity(PyObject *n, PyObject *k, CTXT_Object *context);
+static PyObject * GMPy_Context_Root_Of_Unity(PyObject *self, PyObject *args);
+#endif
+
 static PyObject * GMPy_Complex_Norm(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Number_Norm(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Norm(PyObject *self, PyObject *other);
 
 static PyObject * GMPy_Complex_Polar(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Number_Polar(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Polar(PyObject *self, PyObject *other);
 
-static PyObject * GMPy_Complex_Rect(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Number_Rect(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Complex_Rect(PyObject *r, PyObject *phi, CTXT_Object *context);
 static PyObject * GMPy_Context_Rect(PyObject *self, PyObject *args);
 
 static PyObject * GMPy_Complex_Proj(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Number_Proj(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Proj(PyObject *self, PyObject *other);
 
 static PyObject * GMPy_MPC_Conjugate_Method(PyObject *self, PyObject *args);

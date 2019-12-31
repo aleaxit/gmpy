@@ -484,7 +484,7 @@ initgmpy2_demo(void)
     import_gmpy2();
 
 #if PY_MAJOR_VERSION >= 3
-    return Pygmpy2_demobolicext_module;
+    return gmpy2_demo_module;
 #endif
 }
 

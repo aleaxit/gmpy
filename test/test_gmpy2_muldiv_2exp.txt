@@ -1,0 +1,75 @@
+Test gmpy2_muldiv_2exp.c
+========================
+
+
+>>> import gmpy2
+>>> ctx = gmpy2.get_context()
+>>> from gmpy2 import mpz, mpq, mpfr, mpc
+>>> r = mpfr(7.6)
+>>> z = mpz(3)
+>>> c = mpc(4,4)
+
+
+Tests multiplication
+--------------------
+
+>>> gmpy2.mul_2exp(r, z)
+mpfr('60.799999999999997')
+>>> gmpy2.mul_2exp(r, 3)
+mpfr('60.799999999999997')
+>>> gmpy2.mul_2exp(r, -5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> gmpy2.mul_2exp(z, r)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: could not convert object to integer
+>>> gmpy2.mul_2exp('not', 5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: mul_2exp() argument type not supported
+>>> ctx.mul_2exp(r, z, 45)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: mul_2exp() requires 2 arguments
+>>> ctx.mul_2exp(c, z)
+mpc('32.0+32.0j')
+>>> ctx.mul_2exp(c, -5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> ctx.mul_2exp(r, 0)
+mpfr('7.5999999999999996')
+
+Tests division
+--------------
+
+>>> gmpy2.div_2exp(r, z)
+mpfr('0.94999999999999996')
+>>> gmpy2.div_2exp(r, 3)
+mpfr('0.94999999999999996')
+>>> gmpy2.div_2exp(r, -5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> gmpy2.div_2exp(z, r)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: could not convert object to integer
+>>> gmpy2.div_2exp('not', 5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: div_2exp() argument type not supported
+>>> ctx.div_2exp(r, z, 45)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: div_2exp() requires 2 arguments
+>>> ctx.div_2exp(c, z)
+mpc('0.5+0.5j')
+>>> ctx.div_2exp(c, -5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> 1
+1

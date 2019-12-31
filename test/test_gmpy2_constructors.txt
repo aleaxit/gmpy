@@ -1,0 +1,112 @@
+Test constructors via special methods
+=====================================
+
+>>> from gmpy2 import mpz, mpq, mpfr, mpc
+>>> from supportclasses import *
+
+Test mpz conversion
+-------------------
+
+>>> x = mpz(a)
+>>> isinstance(x, mpz)
+True
+>>> x == 1
+True
+>>> mpz(b)
+Traceback (most recent call last):
+...
+TypeError: object of type 'str' can not be interpreted as mpz
+>>> mpz(c)
+Traceback (most recent call last):
+...
+TypeError: mpz() requires numeric or string argument
+>>> 1
+1
+
+Test mpq conversion
+-------------------
+
+>>> x = mpq(a)
+>>> isinstance(x, mpq)
+True
+>>> 2*x == 3
+True
+>>> mpq(z, z)
+mpq(1,1)
+>>> class Three:
+...     def __mpz__(self): return mpz(3)
+...
+>>> mpq(z, Three())
+mpq(2,3)
+>>> mpq(b)
+Traceback (most recent call last):
+...
+TypeError: object of type 'str' can not be interpreted as mpq
+>>> mpq(c)
+Traceback (most recent call last):
+...
+TypeError: mpq() requires numeric or string argument
+>>> 1
+1
+
+Test mpfr conversion
+--------------------
+
+>>> x = mpfr(a)
+>>> isinstance(x, mpfr)
+True
+>>> x == 1.5
+True
+>>> mpfr(b)
+Traceback (most recent call last):
+...
+TypeError: object of type 'str' can not be interpreted as mpc
+>>> mpfr(c)
+Traceback (most recent call last):
+...
+TypeError: mpfr() requires numeric or string argument
+>>> 1
+1
+
+Test mpc conversion
+--------------------
+
+>>> x = mpc(a)
+>>> isinstance(x, mpc)
+True
+>>> x == 42+67j
+True
+
+>>> mpc(b)
+Traceback (most recent call last):
+...
+TypeError: object of type 'str' can not be interpreted as mpc
+
+>>> mpc(c)
+Traceback (most recent call last):
+...
+TypeError: mpc() requires numeric or string argument
+>>> 1
+1
+
+Test special methods raising errors
+--------------------
+>>> mpz(d)
+Traceback (most recent call last):
+...
+TypeError
+>>> mpq(d)
+Traceback (most recent call last):
+...
+TypeError
+>>> mpfr(d)
+Traceback (most recent call last):
+...
+TypeError
+>>> mpc(d)
+Traceback (most recent call last):
+...
+TypeError
+>>> 1
+1
+

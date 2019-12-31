@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -45,6 +45,7 @@ static MPFR_Object *    GMPy_MPFR_From_MPQ(MPQ_Object *obj, mpfr_prec_t prec, CT
 static MPFR_Object *    GMPy_MPFR_From_Fraction(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context);
 static MPFR_Object *    GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *context);
 static MPFR_Object *    GMPy_MPFR_From_Real(PyObject* obj, mpfr_prec_t prec, CTXT_Object *context);
+static MPFR_Object *    GMPy_MPFR_From_RealAndCopy(PyObject* obj, mpfr_prec_t prec, CTXT_Object *context);
 
 static PyObject *       GMPy_PyIntOrLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context);
 static MPZ_Object *     GMPy_MPZ_From_MPFR(MPFR_Object *obj, CTXT_Object *context);
@@ -64,11 +65,12 @@ static PyObject *       GMPy_MPFR_Int_Slot(MPFR_Object *self);
 static PyObject *       GMPy_MPFR_Float_Slot(MPFR_Object *self);
 
 /* Miscellaneous */
-#if 0
-static int              GMPy_MPFR_convert_arg(PyObject *arg, PyObject **ptr);
+#ifdef SHARED
+/* static int           GMPy_MPFR_ConvertArg(PyObject *arg, PyObject **ptr); */
+static GMPy_MPFR_ConvertArg_RETURN GMPy_MPFR_ConvertArg GMPy_MPFR_ConvertArg_PROTO;
 #endif
-static PyObject *       stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz, CTXT_Object *context);
 
+static PyObject *       stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t prec, int mayz, CTXT_Object *context);
 static PyObject *       mpfr_ascii(mpfr_t self, int base, int digits, int round);
 
 #ifdef __cplusplus

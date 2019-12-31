@@ -1,0 +1,83 @@
+sudo: required
+language: generic
+
+cache:
+  directories:
+    - $HOME/.ccache
+notifications:
+  slack:
+    on_success: never
+    on_failure : never
+
+matrix:
+  include:
+    - os: linux
+      dist: xenial
+      language: python
+      python: 2.7
+
+    - os: linux
+      dist: xenial
+      language: python
+      python: 3.5
+
+    - os: linux
+      dist: xenial
+      language: python
+      python: 3.6
+
+    - os: osx
+      env: PYTHON_VERSION=2.7
+      osx_image: xcode6.4
+
+    - os: osx
+      env: PYTHON_VERSION=3.5
+      osx_image: xcode6.4
+
+    - os: osx
+      env: PYTHON_VERSION=3.6
+      osx_image: xcode6.4
+
+install:
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      echo ""
+      echo "Installing a fresh version of Miniconda."
+      MINICONDA_URL="https://repo.continuum.io/miniconda"
+      MINICONDA_FILE="Miniconda3-latest-MacOSX-x86_64.sh"
+      curl -L -O "${MINICONDA_URL}/${MINICONDA_FILE}"
+      bash $MINICONDA_FILE -b
+      # Configure conda.
+      echo ""
+      echo "Configuring conda."
+      source $HOME/miniconda3/bin/activate root
+      conda config --add channels conda-forge
+      conda config --set show_channel_urls true
+      conda config --set always_yes yes --set changeps1 no
+      echo ""
+      echo "Creating conda environment"
+      conda create -n test python=${PYTHON_VERSION} gmp mpfr mpc
+      source activate test
+      echo ""
+      echo "Installing latex"
+      port install texlive texlive-latex-extra
+      python setup.py sdist
+      pip install --global-option=build_ext --global-option="-L$CONDA_PREFIX/lib" --global-option="-I$CONDA_PREFIX/include" dist/gmpy2-*.tar.gz
+    else # Linux
+      export PATH="/usr/lib/ccache:$PATH"
+      ccache -M 256M && ccache -s
+      sudo apt-get install libgmp-dev libmpfr-dev libmpfi-dev libmpc-dev texlive texlive-latex-extra latexmk
+      pip install Cython --verbose --disable-pip-version-check
+      python setup.py sdist
+      pip install dist/gmpy2-*.tar.gz
+    fi
+    pip install sphinx
+
+script:
+  - python test/runtests.py
+  - python test_cython/runtests.py
+  - cd docs/
+  - make html
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      make latexpdf;
+    fi

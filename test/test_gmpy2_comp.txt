@@ -1,0 +1,181 @@
+gmpy2 numbers comparisons
+=========================
+
+>>> import gmpy2 as G
+>>> from gmpy2 import mpz, mpq, mpfr, mpc
+>>> a = mpz(123)
+>>> b = mpz(456)
+>>> q = mpq(4, 5)
+
+MPZ Test comparisons
+--------------------
+
+>>> c=G.mpz(a)
+>>> a
+mpz(123)
+>>> b
+mpz(456)
+>>> c is a
+True
+>>> c==a
+True
+>>> c>a
+False
+>>> c<a
+False
+>>> a>b
+False
+>>> a<b
+True
+>>> not G.mpz(0)
+True
+>>> not a
+False
+>>> G.mpz(1) == None
+False
+>>> G.mpz(1) == '1'
+False
+>>> G.mpz(1) == 'abc'
+False
+>>> [G.mpz(23), None].count(None)
+1
+>>> a == q, a != q, a > q, a >= q, a < q, a <= q
+(False, True, True, True, False, False)
+>>> q = mpq(123, 1)
+>>> a == q, a != q, a > q, a >= q, a < q, a <= q
+(True, False, False, True, False, True)
+
+Test MPZ comparisons with NaN/Inf
+---------------------------------
+
+>>> G.context().trap_divzero == False
+True
+>>> f = float('inf')
+>>> a == f, a != f, a > f, a >= f, a < f, a <= f
+(False, True, False, False, True, True)
+>>> f == a, f != a, f > a, f >= a, f < a, f <= a
+(False, True, True, True, False, False)
+>>> f = float('-inf')
+>>> a == f, a != f, a > f, a >= f, a < f, a <= f
+(False, True, True, True, False, False)
+>>> f == a, f != a, f > a, f >= a, f < a, f <= a
+(False, True, False, False, True, True)
+>>> f = float('nan')
+>>> a == f, a != f, a > f, a >= f, a < f, a <= f
+(False, True, False, False, False, False)
+>>> f == a, f != a, f > a, f >= a, f < a, f <= a
+(False, True, False, False, False, False)
+>>> r = mpfr('inf')
+>>> a == r, a != r, a > r, a >= r, a < r, a <= r
+(False, True, False, False, True, True)
+>>> r = mpfr('-inf')
+>>> a == r, a != r, a > r, a >= r, a < r, a <= r
+(False, True, True, True, False, False)
+>>> r = mpfr('nan')
+>>> a == r, a != r, a > r, a >= r, a < r, a <= r
+(False, True, False, False, False, False)
+
+MPQ Tests comparisons
+---------------------
+
+>>> q = mpq(4, 5)
+>>> q == a, q != a, q > a, q >= a, q < a, q <= a
+(False, True, False, False, True, True)
+>>> mpq(246,2) != a
+False
+>>> f = float(0.7)
+>>> q == f, q != f, q > f, q >= f, q < f, q <= f
+(False, True, True, True, False, False)
+>>> f = float('nan')
+>>> q == f, q != f, q > f, q >= f, q < f, q <= f
+(False, True, False, False, False, False)
+>>> f = float('inf')
+>>> q == f, q != f, q > f, q >= f, q < f, q <= f
+(False, True, False, False, True, True)
+>>> f = -f
+>>> q == f, q != f, q > f, q >= f, q < f, q <= f
+(False, True, True, True, False, False)
+
+Tests MPFR comparisons
+----------------------
+
+>>> r = mpfr('inf')
+>>> q = mpq('45/7')
+>>> f = float(0.7)
+>>> r2 = mpfr(454.6)
+>>> r == a, r != a, r > a, r >= a, r < a, r <= a
+(False, True, True, True, False, False)
+>>> r = mpfr('-inf')
+>>> r == a, r != a, r > a, r >= a, r < a, r <= a
+(False, True, False, False, True, True)
+>>> r = mpfr('nan')
+>>> r == a, r != a, r > a, r >= a, r < a, r <= a
+(False, True, False, False, False, False)
+>>> r == q, r != q, r > q, r >= q, r < q, r <= q
+(False, True, False, False, False, False)
+>>> r == f, r != f, r > f, r >= f, r < f, r <= f
+(False, True, False, False, False, False)
+>>> r == r2, r != r2, r > r2, r >= r2, r < r2, r <= r2
+(False, True, False, False, False, False)
+>>> r = mpfr(126.5)
+>>> r == a, r != a, r > a, r >= a, r < a, r <= a
+(False, True, True, True, False, False)
+>>> r == q, r != q, r > q, r >= q, r < q, r <= q
+(False, True, True, True, False, False)
+>>> f = float(126.5)
+>>> r == f, r != f, r > f, r >= f, r < f, r <= f
+(True, False, False, True, False, True)
+>>> r == r2, r != r2, r > r2, r >= r2, r < r2, r <= r2
+(False, True, False, False, True, True)
+
+Tests MPC comparisons
+---------------------
+
+>>> c = mpc(4.5,6)
+>>> c == a, c != a
+(False, True)
+>>> c < a
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: no ordering relation is defined for complex numbers
+>>> cnan = mpc(mpfr('nan'), 6)
+>>> c == cnan, c != cnan
+(False, True)
+>>> c > cnan
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: no ordering relation is defined for complex numbers
+>>> cx = complex(4.5,6)
+>>> c == cx, c != cx
+(True, False)
+>>> c > cx
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: no ordering relation is defined for complex numbers
+>>> 1
+1
+
+Tests custom objects comparisons
+--------------------------------
+
+>>> from supportclasses import *
+>>> mpz(2) == z
+True
+>>> z == mpz(3)
+False
+>>> mpz(1) == q
+False
+>>> mpz(1) == mpz(q)
+True
+>>> mpq(3,2) == q
+True
+>>> q == mpq(3,5)
+False
+>>> mpfr(1.5) == q
+True
+>>> r == mpfr(1.5)
+True
+>>> r == a
+False
+>>> c == cx
+False

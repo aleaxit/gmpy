@@ -1,0 +1,142 @@
+Test gmpy2 Power
+================
+
+>>> import gmpy2
+>>> from gmpy2 import mpz, mpq, mpfr, mpc, powmod
+>>> from fractions import Fraction
+>>> ctx = gmpy2.get_context()
+
+Test integer power
+------------------
+
+>>> z1, z2 = mpz(5), mpz(2)
+>>> z1 ** z2
+mpz(25)
+>>> ctx.pow(z1, z2)
+mpz(25)
+>>> z1 ** -z2
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: pow() exponent cannot be negative
+>>> z1 ** 0
+mpz(1)
+>>> mpz(0) ** 32
+mpz(0)
+>>> mpz(-1) ** 32
+mpz(1)
+>>> mpz(1) ** mpz(324)
+mpz(1)
+>>> mpz(0) ** 0
+mpz(1)
+>>> mpz(-1) ** 3
+mpz(-1)
+>>> z1 ** 2 == pow(z1, 2)
+True
+>>> pow(z1, 2, 19)
+mpz(6)
+>>> pow(z1, -2, 19)
+mpz(16)
+>>> pow(mpz(0), -2, 19)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: pow() base not invertible
+>>> pow(z1, 2, -19)
+mpz(-13)
+>>> pow(5, 2, 0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: pow() 3rd argument cannot be 0
+>>> ctx.pow(z1, 'invalid')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: pow() argument type not supported
+>>> 1
+1
+
+Test rational power
+-------------------
+
+>>> q = mpq(2,3)
+>>> q ** 2
+mpq(4,9)
+>>> q ** 0
+mpq(1,1)
+>>> q ** -5
+mpq(243,32)
+>>> ctx.pow(Fraction(2,3),2) == q ** 2
+True
+>>> mpq(-5,8) ** 5
+mpq(-3125,32768)
+>>> q ** mpq(4,5)
+mpfr('0.72298118079846574')
+>>> pow(q, 5, 2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: pow() 3rd argument not allowed unless all arguments are integers
+>>> 1
+1
+
+Test real number power
+----------------------
+
+>>> r1, r2 = mpfr(5.0), mpfr(2.5)
+>>> r1 ** mpz(2)
+mpfr('25.0')
+>>> pow(r1, r2)
+mpfr('55.901699437494742')
+>>> ctx.pow(r1, r2)
+mpfr('55.901699437494742')
+>>> ctx.pow(r1, r2) == r1 ** r2
+True
+>>> pow(r1, r2, 5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: pow() 3rd argument not allowed unless all arguments are integers
+>>> ctx.pow(r1, r2, 5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: pow() requires 2 arguments.
+>>> pow(r1, 4)
+mpfr('625.0')
+>>> ctx.pow(r1, 4)
+mpfr('625.0')
+
+
+Test complex power
+------------------
+
+>>> ctx.pow(complex(2,5), complex(5,2))
+mpc('-416.55882051164394+44.334999625388825j')
+>>> c1, c2 = mpc(2,5), mpc(5,2)
+>>> pow(c1, c2)
+mpc('-416.55882051164394+44.334999625388825j')
+>>> ctx.pow(c1, c2)
+mpc('-416.55882051164394+44.334999625388825j')
+>>> ctx.pow(c1, c2) == c1 ** c2
+True
+>>> pow(c1, c2, 5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: pow() 3rd argument not allowed unless all arguments are integers
+>>> pow(c1, 5)
+mpc('4282.0-1475.0j')
+>>> c1 ** mpz(5)
+mpc('4282.0-1475.0j')
+>>> c1 ** mpfr(2.5)
+mpc('-66.373652915897722+11.111336616269842j')
+
+Test powmod
+-----------
+
+>>> powmod(z1, z2, 4) == pow(z1, z2, 4)
+True
+>>> powmod(z1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: powmod() requires 3 arguments.
+>>> powmod(z1, q, 4)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: powmod() argument types not supported
+>>> 1
+1

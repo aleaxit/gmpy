@@ -1,0 +1,304 @@
+Tests for gmpy2_format.c
+========================
+
+>>> from gmpy2 import mpz, xmpz, mpq, mpfr, mpc
+>>> import gmpy2
+>>> z1, z2 = mpz(-3), mpz(5)
+>>> r, r1, r2 = mpfr(5.6), mpfr(-3), mpfr(5)
+>>> q = mpq(2/3)
+
+
+Tests mpz format
+----------------
+
+>>> z1.__format__('<5')
+'-3   '
+>>> z2.__format__('>+5')
+'   +5'
+>>> z1.__format__('5+')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Invalid conversion specification
+>>> z2.__format__('>-4')
+'   5'
+>>> z1.__format__('<-4')
+'-3  '
+>>> z1.__format__('>4-')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Invalid conversion specification
+>>> z1.__format__('<4 ')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Invalid conversion specification
+>>> z1.__format__('#x')
+'-0x3'
+>>> z1.__format__('#o')
+'-0o3'
+>>> z1.__format__('>5#')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Invalid conversion specification
+>>> z1.__format__('~')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Invalid conversion specification
+>>> 1
+1
+
+Tests mpfr format
+-----------------
+
+>>> r1.__format__('<30')
+'-3.000000                     '
+>>> r2.__format__('>+20')
+'           +5.000000'
+>>> r2.__format__('>-15')
+'       5.000000'
+>>> r1.__format__('>-15')
+'      -3.000000'
+>>> r.__format__('U')
+'5.600000'
+>>> r.__format__('U-')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Invalid conversion specification
+>>> r.__format__('Z')
+'5.599999'
+>>> r.__format__('Z+')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Invalid conversion specification
+>>> r.__format__('+Z')
+'+5.599999'
+>>> r.__format__('Z ')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Invalid conversion specification
+>>> r.__format__('.10f')
+'5.6000000000'
+>>> r.__format__('.10f.')
+'5.6000000000'
+>>> r.__format__('Z.')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Invalid conversion specification
+>>> r.__format__('->')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Invalid conversion specification
+>>> r.__format__('YZ')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Invalid conversion specification
+>>> 1
+1
+
+Tests mpc format
+----------------
+
+>>> c = mpc(mpq(1/3), 5)
+>>> c.__format__()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: function takes exactly 1 argument (0 given)
+>>> c.__format__('>20')
+'  0.333333+5.000000j'
+>>> c.__format__('<20')
+'0.333333+5.000000j  '
+>>> c.__format__('^20')
+' 0.333333+5.000000j '
+>>> c.__format__('<20', 'xx')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: function takes exactly 1 argument (2 given)
+>>> c.__format__('<<20')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Invalid conversion specification
+>>> c.__format__('>+20')
+' +0.333333+5.000000j'
+>>> c.__format__('+^20')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Invalid conversion specification
+>>> c.__format__('.10f')
+'0.3333333333+5.0000000000j'
+>>> c.__format__('Z.10f')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Invalid conversion specification
+>>> c.__format__('Z 10')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Invalid conversion specification
+>>> c.__format__('Z')
+'0.333333+5.000000j'
+>>> c.__format__('U')
+'0.333334+5.000000j'
+>>> c.__format__('PU')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Invalid conversion specification
+>>> c.__format__('UP')
+'0.333334+5.000000j'
+>>> c.__format__('PP')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: Invalid conversion specification
+>>> c.__format__('G')
+'0.333333+5.0j'
+>>> c.__format__('M')
+'(0.333333 5.000000)'
+>>> c.__format__('b')
+'1.0101010101010101010101010101010101010101010101010101p-2+1.01p+2j'
+>>> c.__format__('a')
+'0x5.5555555555554p-4+0x5p+0j'
+>>> c.__format__('e')
+'3.3333333333333331e-01+5e+00j'
+>>> mpc(-1.0, -2.0).__format__('M')
+'(-1.000000 -2.000000)'
+
+Tests mpz digits method
+-----------------------
+
+>>> z1.digits()
+'-3'
+>>> z1.digits(2)
+'-11'
+>>> z1.digits(8)
+'-3'
+>>> mpz(15).digits(16)
+'f'
+>>> z1.digits(0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: base must be in the interval 2 ... 62
+>>> z1.digits(1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: base must be in the interval 2 ... 62
+>>> 1
+1
+
+Tests xmpz digits method
+-----------------------
+
+>>> x = xmpz(6)
+>>> x.digits()
+'6'
+>>> x.digits(2) # doctest: +ELLIPSIS
+'...110'
+>>> x.digits(8) # doctest: +ELLIPSIS
+'...6'
+>>> x.digits(16)
+'0x6'
+>>> xmpz(30).digits(16)
+'0x1e'
+>>> x.digits(0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: base must be in the interval 2 ... 62
+>>> x.digits(63)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: base must be in the interval 2 ... 62
+>>> 1
+1
+
+
+Tests mpfr digits method
+------------------------
+
+>>> r.digits()
+('55999999999999996', 1, 53)
+>>> r.digits(2)
+('10110011001100110011001100110011001100110011001100110', 3, 53)
+>>> r.digits(2,54)
+('101100110011001100110011001100110011001100110011001100', 3, 53)
+>>> r.digits(10,54)
+('559999999999999964472863211994990706443786621093750000', 1, 53)
+>>> r2.digits(2)
+('10100000000000000000000000000000000000000000000000000', 3, 53)
+>>> r2.digits(2,5,6)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: function takes at most 2 arguments (3 given)
+>>> r.digits(0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: base must be in the interval [2,62]
+>>> 1
+1
+
+Tests mpc digits method
+-----------------------
+
+>>> c.digits(8)
+(('2525252525252525250', 0, 53), ('5000000000000000000', 1, 53))
+>>> c.digits(8, 2)
+(('25', 0, 53), ('50', 1, 53))
+>>> c.digits(8, -2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: digits must be 0 or >= 2
+>>> c.digits(0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: base must be in the interval [2,62]
+>>> 1
+1
+
+Tests mpq digits method
+-----------------------
+
+>>> q.digits()
+'6004799503160661/9007199254740992'
+>>> q.digits(16)
+'0x15555555555555/0x20000000000000'
+>>> q.digits(16,5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: function takes at most 1 argument (2 given)
+>>> q.digits(0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: base must be in the interval 2 ... 62
+>>> 1
+1
+
+Tests context digits
+--------------------
+
+>>> gmpy2.digits()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: digits() requires at least one argument
+>>> gmpy2.digits(5, 5, 4, 5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: digits() accepts at most three arguments
+>>> gmpy2.digits(z2)
+'5'
+>>> gmpy2.digits(z2, 2)
+'101'
+>>> gmpy2.digits(z2, 2, 5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: function takes at most 1 argument (2 given)
+>>> gmpy2.digits(mpq(3,5))
+'3/5'
+>>> gmpy2.digits(mpq(3,5), 4)
+'3/11'
+>>> gmpy2.digits(mpfr(3,5), 4)
+('300', 1, 5)
+>>> gmpy2.digits(mpfr(3,5), 4, 5)
+('30000', 1, 5)
+>>> gmpy2.digits(complex(5,5), 4, 5)
+(('11000', 2, 53), ('11000', 2, 53))
+>>> gmpy2.digits('string', 4, 5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: digits() argument type not supported
+>>> 1
+1

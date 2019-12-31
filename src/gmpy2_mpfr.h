@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -101,7 +101,6 @@ __MPFR_DECLSPEC extern MPFR_THREAD_ATTR mpfr_exp_t   __gmpfr_emax;
 #endif
 
 static PyTypeObject MPFR_Type;
-#define MPFR(obj) (((MPFR_Object *)(obj))->f)
 #define MPFR_Check(v) (((PyObject*)v)->ob_type == &MPFR_Type)
 
 #define GMPY_DIVZERO(msg) PyErr_SetString(GMPyExc_DivZero, msg)
@@ -110,7 +109,6 @@ static PyTypeObject MPFR_Type;
 #define GMPY_OVERFLOW(msg) PyErr_SetString(GMPyExc_Overflow, msg)
 #define GMPY_UNDERFLOW(msg) PyErr_SetString(GMPyExc_Underflow, msg)
 #define GMPY_ERANGE(msg) PyErr_SetString(GMPyExc_Erange, msg)
-#define GMPY_EXPBOUND(msg) PyErr_SetString(GMPyExc_ExpBound, msg)
 
 #define GMPY_MPFR_CHECK_RANGE(V, CTX) \
     if (mpfr_regular_p(V->f) && \
@@ -191,8 +189,6 @@ static PyTypeObject MPFR_Type;
             V = NULL; \
         } \
     } \
-
-static PyObject * GMPy_MPFR_Factory(PyObject *self, PyObject *args, PyObject *keywds);
 
 static void _GMPy_MPFR_Cleanup(MPFR_Object **v, CTXT_Object *ctext);
 

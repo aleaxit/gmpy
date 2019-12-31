@@ -8,7 +8,7 @@ rounding modes, and many trigonometric, exponential, and special functions. A
 behavior of exceptions.
 
 The default precision of an *mpfr* is 53 bits - the same precision as Python's
-*float* type. If the precison is changed, then ``mpfr(float('1.2'))`` differs
+*float* type. If the precision is changed, then ``mpfr(float('1.2'))`` differs
 from ``mpfr('1.2')``. To take advantage of the higher precision provided by
 the *mpfr* type, always pass constants as strings.
 
@@ -264,7 +264,7 @@ original settings when the block of code exits.
 ``gmpy2.local_context()`` first save the current context and then creates a new
 context based on a context passed as the first argument, or the current context
 if no context is passed. The new context is modified if any optional keyword
-arguments are given. The orginal active context is restored when the block
+arguments are given. The original active context is restored when the block
 completes.
 
 In the following example, the current context is saved by ``gmpy2.local_context()``
@@ -315,7 +315,7 @@ mpfr Methods
     Returns a 2-tuple containing the mantissa and exponent.
 
 **as_simple_fraction()**
-    Returns an *mpq* containing the simpliest rational value that approximates
+    Returns an *mpq* containing the simplest rational value that approximates
     the *mpfr* value with an error less than 1/(2**precision).
 
 **conjugate()**
@@ -404,12 +404,12 @@ mpfr Functions
     current range of emin and emax.
 
 **const_catalan(...)**
-    const_catalan([precision=0]) returns the catalan constant using the
+    const_catalan([precision=0]) returns the Catalan's constant using the
     specified precision. If no precision is specified, the default precision
     is used.
 
 **const_euler(...)**
-    const_euler([precision=0]) returns the euler constant using the specified
+    const_euler([precision=0]) returns the Euler's constant using the specified
     precision. If no precision is specified, the default precision is used.
 
 **const_log2(...)**
@@ -425,7 +425,7 @@ mpfr Functions
     arithmetic.
 
 **cos(...)**
-    cos(x) seturns the cosine of x. x is measured in radians.
+    cos(x) returns the cosine of x. x is measured in radians.
 
 **cosh(...)**
     cosh(x) returns the hyperbolic cosine of x.
@@ -480,7 +480,7 @@ mpfr Functions
 **f2q(...)**
     f2q(x[,err]) returns the simplest *mpq* approximating x to within relative
     error err. Default is the precision of x. Uses Stern-Brocot tree to find
-    the simplist approximation. An *mpz* is returned if the the denominator
+    the simplest approximation. An *mpz* is returned if the denominator
     is 1. If err<0, error sought is 2.0 ** err.
 
 **factorial(...)**
@@ -494,6 +494,14 @@ mpfr Functions
 
 **fma(...)**
     fma(x, y, z) returns correctly rounded result of (x * y) + z.
+
+**fmma(...)**
+    fmma(x, y, z, t) returns correctly rounded result of (x * y) + (z * t).
+    Requires MPFR 4.
+
+**fmms(...)**
+    fmms(x, y, z, t) returns correctly rounded result of (x * y) - (z * t).
+    Requires MPFR 4.
 
 **fmod(...)**
     fmod(x, y) returns x - n*y where n is the integer quotient of x/y, rounded
@@ -614,7 +622,7 @@ mpfr Functions
 **mpfr(...)**
     mpfr() returns and *mpfr* object set to 0.0.
 
-    mpfr(n[, precison=0]) returns an *mpfr* object after converting a numeric
+    mpfr(n[, precision=0]) returns an *mpfr* object after converting a numeric
     value n. If no precision, or a precision of 0, is specified; the precision
     is taken from the current context.
 
@@ -622,7 +630,7 @@ mpfr Functions
     a string 's' made up of digits in the given base, possibly with fractional
     part (with period as a separator) and/or exponent (with exponent marker
     'e' for base<=10, else '@'). If no precision, or a precision of 0, is
-    specified; the precison is taken from the current context. The base of the
+    specified; the precision is taken from the current context. The base of the
     string representation must be 0 or in the interval 2 ... 62. If the base
     is 0, the leading digits of the string are used to identify the base: 0b
     implies base=2, 0x implies base=16, otherwise base=10 is assumed.
@@ -633,7 +641,7 @@ mpfr Functions
     from a binary format.
 
 **mpfr_grandom(...)**
-    mpfr_grandom(random_state) returns two random numbers with gaussian
+    mpfr_grandom(random_state) returns two random numbers with Gaussian
     distribution. The parameter *random_state* must be created by random_state()
     first.
 
@@ -776,7 +784,7 @@ mpfr Functions
     yn(x,n) returns the Bessel function of the second kind of order n of x.
 
 **zero(...)**
-    zero(n) returns an *mpfr* inialized to 0.0 with the same sign as n.
+    zero(n) returns an *mpfr* initialized to 0.0 with the same sign as n.
     If n is not given, +0.0 is returned.
 
 **zeta(...)**

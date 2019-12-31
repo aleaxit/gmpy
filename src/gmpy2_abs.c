@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -144,7 +144,6 @@ GMPy_Real_Abs(PyObject *x, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    SET_MPFR_WAS_NAN(context, tempx);
 
     result->rc = mpfr_abs(result->f, tempx->f, GET_MPFR_ROUND(context));
     Py_DECREF((PyObject*)tempx);
@@ -177,7 +176,6 @@ GMPy_Complex_Abs(PyObject *x, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    SET_MPC_WAS_NAN(context, tempx);
 
     result->rc = mpc_abs(result->f, tempx->c, GET_MPC_ROUND(context));
     Py_DECREF((PyObject*)tempx);

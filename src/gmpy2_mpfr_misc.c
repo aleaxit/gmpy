@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -330,7 +330,7 @@ GMPy_MPFR_copy_sign(PyObject *self, PyObject *args)
     if (PyTuple_GET_SIZE(args) != 2 ||
         !MPFR_Check(PyTuple_GET_ITEM(args, 0)) ||
         !MPFR_Check(PyTuple_GET_ITEM(args, 1))) {
-        TYPE_ERROR("copy_sign() requires 'mpfr', 'boolean' arguments");
+        TYPE_ERROR("copy_sign() requires 'mpfr', 'mpfr' arguments");
         return NULL;
     }
 
@@ -595,20 +595,6 @@ GMPy_MPFR_NonZero_Slot(MPFR_Object *self)
     return !mpfr_zero_p(self->f);
 }
 
-/* Implement the conjugate() method. */
-
-PyDoc_STRVAR(GMPy_doc_mpfr_conjugate_method,
-"x.conjugate() -> mpfr\n\n"
-"Return the conjugate of x (which is just a new reference to x since x is\n"
-"not a complex number).");
-
-static PyObject *
-GMPy_MPFR_Conjugate_Method(PyObject *self, PyObject *args)
-{
-    Py_INCREF((PyObject*)self);
-    return (PyObject*)self;
-}
-
 PyDoc_STRVAR(GMPy_doc_function_check_range,
 "check_range(x) -> mpfr\n\n"
 "Return a new 'mpfr' with exponent that lies within the current range\n"
@@ -629,7 +615,6 @@ GMPy_MPFR_CheckRange(PyObject *x, CTXT_Object *context)
     if ((result = GMPy_MPFR_New(mpfr_get_prec(MPFR(x)), context))) {
         mpfr_set(result->f, MPFR(x), GET_MPFR_ROUND(context));
         mpfr_clear_flags();
-        SET_MPFR_WAS_NAN(context, x);
         _GMPy_MPFR_Cleanup(&result, context);
     }
     return (PyObject*)result;

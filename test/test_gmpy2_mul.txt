@@ -5,6 +5,7 @@ Test all code in the file gmpy2_sub.c.
 
 >>> import gmpy2 as gmpy2
 >>> from gmpy2 import mpz, xmpz, mpq, mpfr, mpc
+>>> from supportclasses import *
 >>> from decimal import Decimal as D
 >>> from fractions import Fraction as F
 >>> a = mpz(123)
@@ -14,6 +15,8 @@ Test all code in the file gmpy2_sub.c.
 Test integer operations
 -----------------------
 
+>>> mpz(2) * z
+mpz(4)
 >>> gmpy2.mul(2,1)
 mpz(2)
 
@@ -36,6 +39,8 @@ TypeError: ** message detail varies **
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: ** message detail varies **
+>>> 1
+1
 
 Test rational operations
 ------------------------
@@ -56,6 +61,10 @@ mpq(-1,2)
 mpc('1.0+0.0j')
 >>> mpc(1,0) * mpq(1,1)
 mpc('1.0+0.0j')
+>>> mpq(1,2) * z
+mpq(1,1)
+>>> mpq(1,2) * q
+mpq(3,4)
 
 >>> ctx=gmpy2.context()
 >>> ctx.mul(mpq(1,2), mpq(3,2))
@@ -70,6 +79,8 @@ mpq(3,4)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: ** message detail varies **
+>>> 1
+1
 
 >>> mpq(1,2) * 'a'
 Traceback (most recent call last):
@@ -79,6 +90,8 @@ TypeError: ** message detail varies **
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: ** message detail varies **
+>>> 1
+1
 
 Test real operations
 --------------------
@@ -109,6 +122,12 @@ mpfr('10.0')
 True
 >>> c * mpfr(1) == mpfr(c)
 True
+>>> mpfr(10) * z
+mpfr('20.0')
+>>> mpfr(10) * q
+mpfr('15.0')
+>>> mpfr(10) * r
+mpfr('15.0')
 >>> mpfr(10) * 'a'
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -117,6 +136,8 @@ TypeError: ** message detail varies **
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: ** message detail varies **
+>>> 1
+1
 
 Test complex operations
 -----------------------
@@ -134,3 +155,11 @@ mpc('-1.0-2.0j')
 mpc('1.0+2.0j')
 >>> (1+0j) * mpc(1,2)
 mpc('1.0+2.0j')
+>>> mpc(1,2) * z
+mpc('2.0+4.0j')
+>>> mpc(1,2) * q
+mpc('1.5+3.0j')
+>>> mpc(1,2) * r
+mpc('1.5+3.0j')
+>>> mpc(1,2) * cx
+mpc('-92.0+151.0j')

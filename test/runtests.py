@@ -4,6 +4,7 @@ import sys
 import os
 import glob
 import doctest
+from doctest import DocTestParser, Example, SKIP
 import gmpy2
 
 # *****************************************************************************
@@ -42,6 +43,29 @@ if debug:
 else:
     repeat = 1
 
+# If mpc version < 1.1.0 gmpy2.root_of_unity is defined and gmpy2.cmp_abs
+# doesn't manage complex parameters.
+# We create a doctest flag to skip a doctest when mpc version is < 1.1.0
+SKIP_MPC_LESS_THAN_110 = doctest.register_optionflag("SKIP_MPC_LESS_THAN_110")
+mpc_version_110 = 'root_of_unity' in dir(gmpy2) # True if mpc version >= 1.1.0
+
+SKIP_IN_DEBUG_MODE = doctest.register_optionflag("SKIP_IN_DEBUG_MODE")
+
+class Gmpy2DocTestParser(DocTestParser):
+    def parse(self, *args, **kwargs):
+        examples = DocTestParser.parse(self, *args, **kwargs)
+        for example in examples:
+            if not isinstance(example, Example):
+                continue
+            if not mpc_version_110 and SKIP_MPC_LESS_THAN_110 in example.options:
+                example.options[SKIP] = True
+            if debug and SKIP_IN_DEBUG_MODE in example.options:
+                example.options[SKIP] = True
+
+        return examples
+
+parser = Gmpy2DocTestParser()
+
 print()
 print("Unit tests for gmpy2 {0} with Python {1}".format(gmpy2.version(), sys.version.split()[0]))
 print("  Mutliple-precision library:     {0}".format(gmpy2.mp_version()))
@@ -69,9 +93,17 @@ mpfr_doctests = ["test_mpfr_create.txt", "test_mpfr.txt",
                  "test_mpfr_trig.txt", "test_mpfr_min_max.txt",
                  "test_context.txt", "test_mpfr_subnormalize.txt"]
 
-mpc_doctests = ["test_mpc_create.txt", "test_mpc.txt"]
+# Some tests may differ between MPFR3 and MPFR4.
+mpfr_major_version = gmpy2.mpfr_version().split()[1].split('.')[0]
+mpfr_version_tests = [os.path.basename(i)
+                      for i in glob.glob(os.path.join(os.path.dirname(__file__),
+                                         "test_mpfr" + mpfr_major_version + "*.txt"))]
 
-gmpy2_tests = [os.path.basename(i) for i in glob.glob(os.path.join(os.path.dirname(__file__), "test_gmpy2*.txt"))]
+mpc_doctests = ["test_mpc_create.txt", "test_mpc.txt", "test_mpc_trig.txt"]
+
+gmpy2_tests = [os.path.basename(i)
+               for i in glob.glob(os.path.join(os.path.dirname(__file__),
+                                  "test_gmpy2*.txt"))]
 
 # The following tests will only pass on Python 3.2+.
 py32_doctests = ["test_py32_hash.txt"]
@@ -81,21 +113,24 @@ attempted = 0
 
 all_doctests = gmpy2_tests + mpz_doctests + mpq_doctests
 
-# MPFR support is required.
-all_doctests += mpfr_doctests
+all_doctests += mpfr_doctests + mpfr_version_tests
 
-# MPC support is required.
 all_doctests += mpc_doctests
 
 if sys.version >= "3.2":
     all_doctests += py32_doctests
 
 for test in sorted(all_doctests):
+    if test.endswith("py2.txt") and sys.version >= "3":
+        continue
+    if test.endswith("py3.txt") and sys.version < "3":
+        continue
     for r in range(repeat):
         result = doctest.testfile(test, globs=globals(),
                                   optionflags=doctest.IGNORE_EXCEPTION_DETAIL |
                                               doctest.NORMALIZE_WHITESPACE |
-                                              doctest.REPORT_NDIFF)
+                                              doctest.REPORT_NDIFF,
+                                  parser=parser)
         print("Results for:  {0:25}".format(test.split(".")[0]), end="")
         print(" Attempted: {1:4d}   Failed: {0:4d}".format(*result), end="")
         if debug:
@@ -104,6 +139,8 @@ for test in sorted(all_doctests):
             print()
         failed += result[0]
         attempted += result[1]
+    if repeat > 1:
+        print()
 
 
 print()

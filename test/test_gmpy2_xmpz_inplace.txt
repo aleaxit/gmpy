@@ -1,0 +1,205 @@
+Tests for gmpy2_xmpz_inplace functions
+======================================
+
+>>> import gmpy2
+>>> from gmpy2 import mpz, xmpz, mpfr
+
+Test iadd operator
+------------------
+
+>>> x = xmpz(5)
+>>> x += mpz(6); x
+xmpz(11)
+>>> x += 7; x
+xmpz(18)
+>>> x += -6; x
+xmpz(12)
+>>> x += mpfr(2.5); x
+mpfr('14.5')
+
+Test isub operator
+------------------
+
+>>> x = xmpz(7)
+>>> x -= xmpz(1); x
+xmpz(6)
+>>> x -= 1; x
+xmpz(5)
+>>> x -= mpz(7); x
+xmpz(-2)
+>>> x -= -5; x
+xmpz(3)
+>>> x -= -mpfr(5); x
+mpfr('8.0')
+
+Test imul operator
+------------------
+
+>>> x = xmpz(2)
+>>> x *= xmpz(2); x
+xmpz(4)
+>>> x *= 2; x
+xmpz(8)
+>>> x *= mpz(3); x
+xmpz(24)
+>>> x *= -1; x
+xmpz(-24)
+>>> x *= mpfr(-0.5); x
+mpfr('12.0')
+
+Test ifloordiv operator
+-----------------------
+
+>>> x = xmpz(49)
+>>> x //= xmpz(3); x
+xmpz(16)
+>>> x //= mpz(3); x
+xmpz(5)
+>>> x //= 2; x
+xmpz(2)
+>>> x //= 0;
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ZeroDivisionError: xmpz division by zero
+>>> x
+xmpz(2)
+>>> x //= mpfr(-0.5); x
+mpfr('-4.0')
+
+Test imod operator
+------------------
+
+>>> x = xmpz(45)
+>>> x %= xmpz(18); x
+xmpz(9)
+>>> x %= mpz(2); x
+xmpz(1)
+>>> x = xmpz(40)
+>>> x %= 21; x
+xmpz(19)
+>>> x %= 0
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ZeroDivisionError: mpz modulo by zero
+>>> x
+xmpz(19)
+>>> x %= mpfr(10); x
+mpfr('9.0')
+
+Test irshift and ilshift operators
+----------------------------------
+
+>>> x = xmpz(63)
+>>> x >>= xmpz(63); x
+xmpz(0)
+>>> x = xmpz(63)
+>>> x >>= xmpz(1); x
+xmpz(31)
+>>> x >>= mpz(2); x
+xmpz(7)
+>>> x >>= 1; x
+xmpz(3)
+>>> x <<= xmpz(2); x
+xmpz(12)
+>>> x <<= mpz(1); x
+xmpz(24)
+>>> x <<= 0; x
+xmpz(24)
+>>> x >>= mpfr(2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: could not convert object to integer
+>>> x <<= mpfr(2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: could not convert object to integer
+>>> x >>= -1
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> x <<= -5
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: a non-negative value is required
+>>> 1
+1
+
+Test ipow operator
+------------------
+
+>>> x = xmpz(5)
+>>> x **= xmpz(2); x
+xmpz(25)
+>>> x **= mpz(2); x
+xmpz(625)
+>>> x **= -2
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: unsupported operand type(s) for ** or pow(): 'xmpz' and 'int'
+>>> x **= 2; x
+xmpz(390625)
+>>> x **= mpfr(2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: unsupported operand type(s) for ** or pow(): 'xmpz' and 'mpfr'
+>>> 1
+1
+
+Test iand operator
+------------------
+>>> x = xmpz(7)
+>>> x &= xmpz(5); x
+xmpz(5)
+>>> x &= mpz(4); x
+xmpz(4)
+>>> x &= 9; x
+xmpz(0)
+>>> x = mpz(4)
+>>> x &= 12; x
+mpz(4)
+>>> x &= mpfr(4)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: cannot convert object to mpz
+>>> 1
+1
+
+
+Test ior operator
+-----------------
+
+>>> x = xmpz(0)
+>>> x |= xmpz(1)
+>>> x
+xmpz(1)
+>>> x |= xmpz(0)
+>>> x
+xmpz(1)
+>>> x = xmpz(0)
+>>> x |= xmpz(0); x
+xmpz(0)
+>>> x |= 5; x
+xmpz(5)
+>>> x |= mpfr(3)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: cannot convert object to mpz
+>>> 1
+1
+
+Test ixor operator
+------------------
+
+>>> x = xmpz(1)
+>>> x ^= xmpz(0); x
+xmpz(1)
+>>> x ^= mpz(1); x
+xmpz(0)
+>>> x ^= 1; x
+xmpz(1)
+>>> x ^= mpfr(0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: cannot convert object to mpz
+>>> 1
+1

@@ -1,0 +1,93 @@
+Test file gmpy2_mpq_misc.c
+==========================
+
+>>> import gmpy2
+>>> from gmpy2 import mpz, mpq, mpfr, mpc
+>>> from fractions import Fraction
+
+Tests numer and denom
+---------------------
+
+>>> q = mpq('4/5')
+>>> pyq = Fraction(4, 5)
+>>> q.numerator
+mpz(4)
+>>> q.denominator
+mpz(5)
+>>> gmpy2.numer(q)
+mpz(4)
+>>> gmpy2.denom(q)
+mpz(5)
+>>> gmpy2.numer(6.2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: cannot convert object to mpq
+>>> gmpy2.denom(5.6)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: cannot convert object to mpq
+>>> gmpy2.denom(mpfr(5))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: cannot convert object to mpq
+>>> gmpy2.numer(pyq)
+mpz(4)
+>>> gmpy2.denom(pyq)
+mpz(5)
+
+Tests qdiv
+----------
+>>> gmpy2.qdiv(q)
+mpq(4,5)
+>>> gmpy2.qdiv(pyq)
+mpq(4,5)
+>>> gmpy2.qdiv(5)
+mpz(5)
+>>> gmpy2.qdiv(mpc(4, 5))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: qdiv() requires 1 or 2 integer or rational arguments
+>>> gmpy2.qdiv(4, 5, 4)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: qdiv() requires 1 or 2 integer or rational arguments
+>>> gmpy2.qdiv(4, 5.6)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: qdiv() requires 1 or 2 integer or rational arguments
+>>> gmpy2.qdiv(q, 2)
+mpq(2,5)
+>>> gmpy2.qdiv(10, q)
+mpq(25,2)
+>>> gmpy2.qdiv(1)
+mpz(1)
+
+Tests rational floor, ceil, trunc
+---------------------------------
+
+>>> mpq('7/2').__trunc__()
+mpz(3)
+>>> mpq('7/2').__ceil__()
+mpz(4)
+>>> mpq('7/2').__floor__()
+mpz(3)
+
+Tests round
+-----------
+
+>>> mpq('7/2').__round__()
+mpz(4)
+>>> q.__round__(4)
+mpq(4,5)
+>>> q.__round__(4, 2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: Too many arguments for __round__()
+
+Tests non zero operator
+-----------------------
+
+>>> not q
+False
+>>> not mpq('0/5')
+True

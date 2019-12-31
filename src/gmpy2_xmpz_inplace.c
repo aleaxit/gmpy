@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -39,7 +39,7 @@ GMPy_XMPZ_IAdd_Slot(PyObject *self, PyObject *other)
     /* Try to make mpz + small_int faster */
     if (PyIntOrLong_Check(other)) {
         int error;
-        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        native_si temp = GMPy_Integer_AsNative_siAndError(other, &error);
 
         if (!error) {
             if (temp >= 0) {
@@ -74,7 +74,7 @@ GMPy_XMPZ_ISub_Slot(PyObject *self, PyObject *other)
 {
     if (PyIntOrLong_Check(other)) {
         int error;
-        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        native_si temp = GMPy_Integer_AsNative_siAndError(other, &error);
 
         if (!error) {
             if (temp >= 0) {
@@ -109,7 +109,7 @@ GMPy_XMPZ_IMul_Slot(PyObject *self, PyObject *other)
 {
     if (PyIntOrLong_Check(other)) {
         int error;
-        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        native_si temp = GMPy_Integer_AsNative_siAndError(other, &error);
 
         if (!error) {
             mpz_mul_si(MPZ(self), MPZ(self), temp);
@@ -141,7 +141,7 @@ GMPy_XMPZ_IFloorDiv_Slot(PyObject *self, PyObject *other)
 {
     if (PyIntOrLong_Check(other)) {
         int error;
-        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        native_si temp = GMPy_Integer_AsNative_siAndError(other, &error);
 
         if (!error) {
             if (temp == 0) {
@@ -185,7 +185,7 @@ GMPy_XMPZ_IRem_Slot(PyObject *self, PyObject *other)
 {
     if (PyIntOrLong_Check(other)) {
         int error;
-        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        native_si temp = GMPy_Integer_AsNative_siAndError(other, &error);
 
         if (!error) {
             if (temp > 0) {

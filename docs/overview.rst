@@ -5,7 +5,7 @@ Tutorial
 --------
 
 The *mpz* type is compatible with Python's built-in int/long type but is
-significanly faster for large values. The cutover point for performance varies,
+significantly faster for large values. The cutover point for performance varies,
 but can be as low as 20 to 40 digits. A variety of additional integer functions
 are provided.
 ::
@@ -121,7 +121,7 @@ Miscellaneous gmpy2 Functions
 
 **mp_limbsize(...)**
     mp_limbsize() returns the number of bits per limb used by the GMP or MPIR
-    libarary.
+    library.
 
 **mp_version(...)**
     mp_version() returns the version of the GMP or MPIR library.

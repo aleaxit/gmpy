@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -36,22 +36,41 @@ extern "C" {
 /* The following macros classify the numeric types that are supported by
  * gmpy2.
  */
+#define HAS_MPZ_CONVERSION(x) PyObject_HasAttrString(x, "__mpz__")
+#define HAS_MPQ_CONVERSION(x) PyObject_HasAttrString(x, "__mpq__")
+#define HAS_MPFR_CONVERSION(x) PyObject_HasAttrString(x, "__mpfr__")
+#define HAS_MPC_CONVERSION(x) PyObject_HasAttrString(x, "__mpc__")
 
-#ifdef PY2
-#define IS_INTEGER(x) (MPZ_Check(x) || PyInt_Check(x) || PyLong_Check(x) || XMPZ_Check(x))
-#else
-#define IS_INTEGER(x) (MPZ_Check(x) || PyLong_Check(x) || XMPZ_Check(x))
-#endif
+#define HAS_STRICT_MPZ_CONVERSION(x) (HAS_MPZ_CONVERSION(x) && \
+                                     !HAS_MPQ_CONVERSION(x))
+#define HAS_STRICT_MPFR_CONVERSION(x) (HAS_MPFR_CONVERSION(x) && \
+                                      !HAS_MPC_CONVERSION(x))
 
 #define IS_FRACTION(x) (!strcmp(Py_TYPE(x)->tp_name, "Fraction"))
 
-#define IS_RATIONAL_ONLY(x) (MPQ_Check(x) || IS_FRACTION(x))
-#define IS_RATIONAL(x) (IS_INTEGER(x) || IS_RATIONAL_ONLY(x))
+#define IS_RATIONAL_ONLY(x) (MPQ_Check(x) || IS_FRACTION(x) || HAS_MPQ_CONVERSION(x))
 
-#define IS_REAL_ONLY(x) (MPFR_Check(x) || PyFloat_Check(x))
+#ifdef PY2
+#define IS_INTEGER(x) (MPZ_Check(x) || PyInt_Check(x) || \
+                        PyLong_Check(x) || XMPZ_Check(x) || \
+                        HAS_STRICT_MPZ_CONVERSION(x))
+#define IS_RATIONAL(x) (MPQ_Check(x) || IS_FRACTION(x) || \
+                        MPZ_Check(x) || PyInt_Check(x) || PyLong_Check(x) || \
+                        XMPZ_Check(x) || HAS_MPQ_CONVERSION(x) || \
+                        HAS_MPZ_CONVERSION(x))
+#else
+#define IS_INTEGER(x) (MPZ_Check(x) || PyLong_Check(x) || \
+                        XMPZ_Check(x) || HAS_STRICT_MPZ_CONVERSION(x))
+#define IS_RATIONAL(x) (MPQ_Check(x) || IS_FRACTION(x) || \
+                        MPZ_Check(x) || PyLong_Check(x) || \
+                        XMPZ_Check(x) || HAS_MPQ_CONVERSION(x) || \
+                        HAS_MPZ_CONVERSION(x))
+#endif
+
+#define IS_REAL_ONLY(x) (MPFR_Check(x) || PyFloat_Check(x) || HAS_STRICT_MPFR_CONVERSION(x))
 #define IS_REAL(x) (IS_RATIONAL(x) || IS_REAL_ONLY(x))
 
-#define IS_COMPLEX_ONLY(x) (MPC_Check(x) || PyComplex_Check(x))
+#define IS_COMPLEX_ONLY(x) (MPC_Check(x) || PyComplex_Check(x) || HAS_MPC_CONVERSION(x))
 #define IS_COMPLEX(x) (IS_REAL(x) || IS_COMPLEX_ONLY(x))
 
 /* Since the macros are used in gmpy2's codebase, these functions are skipped

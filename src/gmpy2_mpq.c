@@ -8,7 +8,7 @@
  *           2008, 2009 Alex Martelli                                      *
  *                                                                         *
  * Copyright 2008, 2009, 2010, 2011, 2012, 2013, 2014,                     *
- *           2015, 2016, 2017 Case Van Horsen                              *
+ *           2015, 2016, 2017, 2018, 2019 Case Van Horsen                  *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -26,7 +26,7 @@
  * License along with GMPY2; if not, see <http://www.gnu.org/licenses/>    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-PyDoc_STRVAR(GMPy_doc_mpq_factory,
+PyDoc_STRVAR(GMPy_doc_mpq,
 "mpq() -> mpq(0,1)\n\n"
 "     If no argument is given, return mpq(0,1).\n\n"
 "mpq(n) -> mpq\n\n"
@@ -39,100 +39,9 @@ PyDoc_STRVAR(GMPy_doc_mpq_factory,
 "     the given base. s may be made up of two numbers in the same\n"
 "     base separated by a '/' character.\n");
 
-static PyObject *
-GMPy_MPQ_Factory(PyObject *self, PyObject *args, PyObject *keywds)
-{
-    MPQ_Object *result, *temp;
-    PyObject *n, *m;
-    int base = 10;
-    Py_ssize_t argc, keywdc = 0;
-    static char *kwlist[] = {"s", "base", NULL };
-    CTXT_Object *context = NULL;
-
-    if (self && CTXT_Check(self)) {
-        context = (CTXT_Object*)self;
-    }
-    else {
-        CHECK_CONTEXT(context);
-    }
-
-    argc = PyTuple_Size(args);
-    if (keywds) {
-        keywdc = PyDict_Size(keywds);
-    }
-
-    if (argc + keywdc > 2) {
-        TYPE_ERROR("mpq() takes at most 2 arguments");
-        return NULL;
-    }
-
-    if (argc + keywdc == 0) {
-        if ((result = GMPy_MPQ_New(context))) {
-            mpq_set_ui(result->q, 0, 1);
-        }
-        return (PyObject*)result;
-    }
-
-    if (argc == 0) {
-        TYPE_ERROR("mpq() requires at least one non-keyword argument");
-        return NULL;
-    }
-
-    n = PyTuple_GetItem(args, 0);
-
-    /* Handle the case where the first argument is a string. */
-    if (PyStrOrUnicode_Check(n)) {
-        /* keyword base is legal */
-        if (keywdc || argc > 1) {
-            if (!(PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwlist, &n, &base))) {
-                return NULL;
-            }
-        }
-
-        if ((base != 0) && ((base < 2) || (base > 62))) {
-            VALUE_ERROR("base for mpq() must be 0 or in the interval [2, 62]");
-            return NULL;
-        }
-
-        return (PyObject*)GMPy_MPQ_From_PyStr(n, base, context);
-    }
-
-    /* Handle 1 argument. It must be non-complex number. */
-    if (argc == 1) {
-        if (IS_REAL(n)) {
-            return (PyObject*)GMPy_MPQ_From_Number(n, context);
-        }
-    }
-
-    /* Handle 2 arguments. Both arguments must be integer or rational. */
-    if (argc == 2) {
-        m = PyTuple_GetItem(args, 1);
-
-        if (IS_RATIONAL(n) && IS_RATIONAL(m)) {
-           result = GMPy_MPQ_From_Rational(n, context);
-           temp = GMPy_MPQ_From_Rational(m, context);
-           if (!result || !temp) {
-               Py_XDECREF((PyObject*)result);
-               Py_XDECREF((PyObject*)temp);
-               return NULL;
-            }
-
-            if (mpq_sgn(temp->q) == 0) {
-                ZERO_ERROR("zero denominator in mpq()");
-                Py_DECREF((PyObject*)result);
-                Py_DECREF((PyObject*)temp);
-                return NULL;
-            }
-
-            mpq_div(result->q, result->q, temp->q);
-            Py_DECREF((PyObject*)temp);
-            return (PyObject*)result;
-        }
-    }
-
-    TYPE_ERROR("mpq() requires numeric or string argument");
-    return NULL;
-}
+/* Since `gmpy2.mpq` is now a type and no longer a factory function, see
+ * gmpy2_cache.c/GMPy_MPQ_NewInit for details on creation.
+ */
 
 #ifdef PY3
 static PyNumberMethods mpq_number_methods =
@@ -218,8 +127,14 @@ static PyNumberMethods mpq_number_methods =
 
 static PyGetSetDef GMPy_MPQ_getseters[] =
 {
-    { "numerator", (getter)GMPy_MPQ_Attrib_GetNumer, NULL, "numerator", NULL },
-    { "denominator", (getter)GMPy_MPQ_Attrib_GetDenom, NULL, "denominator", NULL },
+    { "numerator", (getter)GMPy_MPQ_Attrib_GetNumer, NULL,
+        "the numerator of a rational number in lowest terms", NULL },
+    { "denominator", (getter)GMPy_MPQ_Attrib_GetDenom, NULL,
+        "the denominator of a rational number in lowest terms", NULL },
+    { "real", (getter)GMPy_MPQ_Attrib_GetReal, NULL,
+        "the real part of a complex number", NULL },
+    { "imag", (getter)GMPy_MPQ_Attrib_GetImag, NULL,
+        "the imaginary part of a complex number", NULL },
     {NULL}
 };
 
@@ -230,6 +145,7 @@ static PyMethodDef GMPy_MPQ_methods [] =
     { "__round__", GMPy_MPQ_Method_Round, METH_VARARGS, GMPy_doc_mpq_method_round },
     { "__sizeof__", GMPy_MPQ_Method_Sizeof, METH_NOARGS, GMPy_doc_mpq_method_sizeof },
     { "__trunc__", GMPy_MPQ_Method_Trunc, METH_NOARGS, GMPy_doc_mpq_method_trunc },
+    { "conjugate", GMPy_MP_Method_Conjugate, METH_NOARGS, GMPy_doc_mp_method_conjugate },
     { "digits", GMPy_MPQ_Digits_Method, METH_VARARGS, GMPy_doc_mpq_digits_method },
     { NULL, NULL, 1 }
 };
@@ -268,7 +184,7 @@ static PyTypeObject MPQ_Type =
     Py_TPFLAGS_HAVE_RICHCOMPARE |
         Py_TPFLAGS_CHECKTYPES,              /* tp_flags         */
 #endif
-    "Multiple precision rational",          /* tp_doc           */
+    GMPy_doc_mpq,                           /* tp_doc           */
         0,                                  /* tp_traverse      */
         0,                                  /* tp_clear         */
     (richcmpfunc)&GMPy_RichCompare_Slot,    /* tp_richcompare   */
@@ -278,5 +194,14 @@ static PyTypeObject MPQ_Type =
     GMPy_MPQ_methods,                       /* tp_methods       */
         0,                                  /* tp_members       */
     GMPy_MPQ_getseters,                     /* tp_getset        */
+        0,                                  /* tp_base          */
+        0,                                  /* tp_dict          */
+        0,                                  /* tp_descr_get     */
+        0,                                  /* tp_descr_set     */
+        0,                                  /* tp_dictoffset    */
+        0,                                  /* tp_init          */
+        0,                                  /* tp_alloc         */
+    GMPy_MPQ_NewInit,                       /* tp_new           */
+        0,                                  /* tp_free          */
 };
 

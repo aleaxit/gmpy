@@ -1,0 +1,277 @@
+Tests for gmpy2_predicate.c
+===========================
+
+>>> from gmpy2 import mpz, mpq, mpfr, mpc
+>>> import gmpy2
+>>> ctx = gmpy2.get_context()
+>>> pynan = float('nan')
+>>> pyinf = float('inf')
+>>> rnan = mpfr('nan')
+>>> rinf = mpfr('inf')
+>>> z5 = mpz(5)
+
+Tests is_nan
+------------
+
+>>> r = mpfr(4)
+>>> r.is_nan()
+False
+>>> rnan.is_nan()
+True
+>>> gmpy2.is_nan(r)
+False
+>>> gmpy2.is_nan(rnan)
+True
+>>> ctx.is_nan(r)
+False
+>>> ctx.is_nan(rnan)
+True
+>>> ctx.is_nan(pynan)
+True
+>>> ctx.is_nan(pyinf)
+False
+>>> mpc(rnan).is_nan()
+True
+>>> mpc('4.0').is_nan()
+False
+>>> ctx.is_nan(complex(pynan))
+True
+
+Tests is_infinite
+-----------------
+
+>>> gmpy2.is_infinite(5)
+False
+>>> gmpy2.is_infinite(z5)
+False
+>>> gmpy2.is_infinite(rinf)
+True
+>>> gmpy2.is_infinite(pyinf)
+True
+>>> gmpy2.is_infinite(complex(pyinf))
+True
+>>> ctx.is_infinite(rinf)
+True
+>>> ctx.is_infinite(pyinf)
+True
+>>> ctx.is_infinite(pynan)
+False
+>>> ctx.is_infinite(rnan)
+False
+>>> rnan.is_infinite()
+False
+>>> rinf.is_infinite()
+True
+>>> mpc(pyinf).is_infinite()
+True
+>>> mpc(3, 4).is_infinite()
+False
+
+
+Tests is_finite
+---------------
+
+>>> gmpy2.is_finite(5)
+True
+>>> gmpy2.is_finite(z5)
+True
+>>> gmpy2.is_finite(rinf)
+False
+>>> gmpy2.is_finite(pyinf)
+False
+>>> gmpy2.is_finite(complex(pyinf))
+False
+>>> ctx.is_finite(rinf)
+False
+>>> ctx.is_finite(pyinf)
+False
+>>> ctx.is_finite(pynan)
+False
+>>> ctx.is_finite(rnan)
+False
+>>> rnan.is_finite()
+False
+>>> rinf.is_finite()
+False
+>>> q = mpq(2,3)
+>>> ctx.is_finite(q)
+True
+>>> mpc(pyinf).is_finite()
+False
+>>> mpc(3, 4).is_finite()
+True
+
+Tests is_zero
+-------------
+
+>>> gmpy2.is_zero(float(0))
+True
+>>> gmpy2.is_zero(mpfr(0))
+True
+>>> gmpy2.is_zero(pynan)
+False
+>>> gmpy2.is_zero(rinf)
+False
+>>> gmpy2.is_zero(mpfr(5))
+False
+>>> gmpy2.is_zero(float(5))
+False
+>>> gmpy2.is_zero(None)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: is_zero() argument type not supported
+>>> ctx.is_zero(float(0))
+True
+>>> ctx.is_zero(mpfr(0))
+True
+>>> ctx.is_zero(pynan)
+False
+>>> ctx.is_zero(rinf)
+False
+>>> ctx.is_zero(mpfr(5))
+False
+>>> ctx.is_zero(float(5))
+False
+>>> ctx.is_zero(mpc(4,4))
+False
+>>> ctx.is_zero(mpc(0,4))
+False
+>>> ctx.is_zero(mpc(0,0))
+True
+>>> ctx.is_zero(complex(0,0))
+True
+>>> ctx.is_zero(complex(0,5))
+False
+>>> mpfr(0).is_zero()
+True
+>>> rinf.is_zero()
+False
+>>> mpfr(-5).is_zero()
+False
+>>> mpc(0, 0).is_zero()
+True
+>>> mpc(0, 4).is_zero()
+False
+
+Tests is_signed
+---------------
+
+>>> rinf.is_signed()
+False
+>>> rnan.is_signed()
+False
+>>> mpfr(-5).is_signed()
+True
+>>> mpfr(0).is_signed()
+False
+>>> gmpy2.is_signed(5)
+False
+>>> gmpy2.is_signed(-5)
+True
+>>> gmpy2.is_signed(float(5))
+False
+>>> gmpy2.is_signed(mpfr(5))
+False
+
+Tests is_regular
+----------------
+
+>>> gmpy2.is_regular(rnan)
+False
+>>> gmpy2.is_regular(rinf)
+False
+>>> gmpy2.is_regular(mpfr(0))
+False
+>>> gmpy2.is_regular(pyinf)
+False
+>>> gmpy2.is_regular(mpfr(5))
+True
+>>> gmpy2.is_regular(z5)
+True
+>>> gmpy2.is_regular(-0.6)
+True
+>>> gmpy2.is_regular(pynan)
+False
+>>> ctx.is_regular(rnan)
+False
+>>> ctx.is_regular(rinf)
+False
+>>> ctx.is_regular(mpfr(0))
+False
+>>> ctx.is_regular(pyinf)
+False
+>>> ctx.is_regular(mpfr(5))
+True
+>>> ctx.is_regular(z5)
+True
+>>> ctx.is_regular(-0.6)
+True
+>>> ctx.is_regular(pynan)
+False
+
+Tests is_integer
+----------------
+
+>>> rinf.is_integer()
+False
+>>> rnan.is_integer()
+False
+>>> mpfr(0).is_integer()
+True
+>>> mpfr(-42).is_integer()
+True
+>>> mpfr(-42.65).is_integer()
+False
+>>> gmpy2.is_integer(pyinf)
+False
+>>> gmpy2.is_integer(5)
+True
+>>> gmpy2.is_integer(5.6)
+False
+>>> gmpy2.is_integer(float(5.6))
+False
+>>> ctx.is_integer(mpfr(5))
+True
+>>> ctx.is_integer(mpfr('5.6'))
+False
+
+
+Tests is_less_greater
+---------------------
+
+>>> gmpy2.is_lessgreater(rnan, pynan)
+False
+>>> gmpy2.is_lessgreater(rnan, 5)
+False
+>>> gmpy2.is_lessgreater(5, pynan)
+False
+>>> gmpy2.is_lessgreater(5, 5)
+False
+>>> gmpy2.is_lessgreater(5, mpq(5/1))
+False
+>>> gmpy2.is_lessgreater(-5, float(-5))
+False
+>>> gmpy2.is_lessgreater(-5, mpfr(4))
+True
+>>> gmpy2.is_lessgreater(mpfr(0), mpc(4,1))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: is_lessgreater() argument type not supported
+
+Tests is_unordered
+------------------
+
+>>> gmpy2.is_unordered(-5, float(-5))
+False
+>>> gmpy2.is_unordered(mpfr(0), mpc(4,1))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: is_unordered() argument type not supported
+>>> gmpy2.is_unordered(-rinf, 0.0)
+False
+>>> gmpy2.is_unordered(rnan, pynan)
+True
+>>> gmpy2.is_unordered(rnan, 5)
+True
+>>> gmpy2.is_unordered(5, pynan)
+True

@@ -18,6 +18,8 @@ Contents:
    mpq
    mpfr
    mpc
+   cython
+   conversion
    history
 
 Indices and tables

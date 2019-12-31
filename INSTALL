@@ -7,7 +7,7 @@ your distribution's repositories first.
 Requirements
 ------------
 
-gmpy2 requires recent versions of GMP, MPFR and MPC. Specfically, gmpy2
+gmpy2 requires recent versions of GMP, MPFR and MPC. Specifically, gmpy2
 requires GMP 5.0.0 or later, MPFR 3.1.0 or later, and MPC 1.0.0 or later.
 
 Quick Instructions
@@ -84,6 +84,6 @@ If you get a "permission denied" error message, you may need to use:
 Installing gmpy2 on Windows
 ---------------------------
 
-Please see msys2_build.txt.
+Please see windows_build.txt (preferred) or msys2_build.txt (alpha).
 
 

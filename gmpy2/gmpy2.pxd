@@ -1,0 +1,1 @@
+../src/gmpy2.pxd

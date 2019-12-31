@@ -1,0 +1,190 @@
+Test gmpy2's floordiv
+=====================
+
+>>> import gmpy2
+>>> ctx = gmpy2.get_context()
+>>> from gmpy2 import mpz, xmpz, mpq, mpfr, mpc
+>>> from fractions import Fraction
+>>> a, b = mpz(45), mpz(6)
+>>> r, r2 = mpfr(45), mpfr(3.1)
+>>> q, q2 = mpq(118,18), mpq(3,2)
+>>> pyq, pyq2 = Fraction(118,18), Fraction(3,2)
+>>> c, c2 = mpc(51, 65), mpc(4, 6)
+
+Tests integer floordiv
+----------------------
+
+>>> ctx.floor_div(a, 6)
+mpz(7)
+>>> ctx.floor_div(a, b)
+mpz(7)
+>>> ctx.floor_div(a, 0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ZeroDivisionError: division or modulo by zero
+>>> ctx.floor_div(a, mpz(0))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ZeroDivisionError: division or modulo by zero
+>>> ctx.floor_div(45, b)
+mpz(7)
+>>> ctx.floor_div(45, 0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ZeroDivisionError: division or modulo by zero
+>>> ctx.floor_div(45, mpz(0))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ZeroDivisionError: division or modulo by zero
+>>> ctx.floor_div()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: floor_div() requires 2 arguments
+>>> gmpy2.floor_div(4,5,6)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: floor_div() requires 2 arguments
+>>> a // b
+mpz(7)
+>>> a // 0
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ZeroDivisionError: division or modulo by zero
+>>> a // mpz(0)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ZeroDivisionError: division or modulo by zero
+>>> ctx.floor_div(a, q2)
+mpz(30)
+>>> ctx.floor_div(a, r2)
+mpfr('14.0')
+>>> ctx.floor_div(a, c)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: can't take floor of complex number
+>>> a // b
+mpz(7)
+>>> a // q
+mpz(6)
+>>> a // r2
+mpfr('14.0')
+>>> a // c2
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: can't take floor of complex number
+>>> a // 'not'
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: unsupported operand type(s) for //: 'mpz' and 'str'
+>>> 1
+1
+
+Rational floor_div
+------------------
+
+>>> ctx.floor_div(q, q2)
+mpz(4)
+>>> ctx.floor_div(q, pyq2)
+mpz(4)
+>>> ctx.floor_div(q, pyq)
+mpz(1)
+>>> ctx.floor_div(pyq, q2)
+mpz(4)
+>>> ctx.floor_div(pyq, pyq2)
+mpz(4)
+>>> ctx.floor_div(pyq, q)
+mpz(1)
+>>> ctx.floor_div(q, mpq(0,1))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ZeroDivisionError: division or modulo by zero
+>>> ctx.floor_div(q, Fraction(0))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ZeroDivisionError: division or modulo by zero
+>>> ctx.floor_div(pyq, mpq(0,1))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ZeroDivisionError: division or modulo by zero
+>>> ctx.floor_div(pyq, Fraction(0))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ZeroDivisionError: division or modulo by zero
+>>> q // b
+mpz(1)
+>>> q // q2
+mpz(4)
+>>> q // r2
+mpfr('2.0')
+>>> q // c2
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: can't take floor of complex number
+>>> q // 'not'
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: unsupported operand type(s) for //: 'mpq' and 'str'
+>>> 1
+1
+
+Real floor_div
+--------------
+
+>>> ctx.floor_div(r, r2)
+mpfr('14.0')
+>>> ctx.floor_div(r, r2)
+mpfr('14.0')
+>>> ctx.floor_div(r, 3.1)
+mpfr('14.0')
+>>> ctx.floor_div(r, 4)
+mpfr('11.0')
+>>> ctx.floor_div(r, b)
+mpfr('7.0')
+>>> ctx.floor_div(r, q2)
+mpfr('30.0')
+>>> ctx.floor_div(r, pyq2)
+mpfr('30.0')
+>>> ctx.floor_div(r, 0)
+mpfr('inf')
+>>> ctx.floor_div(r, mpz(0))
+mpfr('inf')
+>>> ctx.floor_div(45.0, r2)
+mpfr('14.0')
+>>> ctx.floor_div(45.0, r2)
+mpfr('14.0')
+>>> ctx.floor_div(45.0, 3.1)
+mpfr('14.0')
+>>> ctx.floor_div(45.0, 4)
+mpfr('11.0')
+>>> ctx.floor_div(45.0, b)
+mpfr('7.0')
+>>> ctx.floor_div(45.0, q2)
+mpfr('30.0')
+>>> ctx.floor_div(45.0, pyq2)
+mpfr('30.0')
+>>> ctx.floor_div(45.0, 0)
+mpfr('inf')
+>>> ctx.floor_div(45.0, mpz(0))
+mpfr('inf')
+>>> ctx.floor_div(45, r2)
+mpfr('14.0')
+>>> ctx.floor_div(r, 'not')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: floor_div() argument type not supported
+>>> r // b
+mpfr('7.0')
+>>> r // q2
+mpfr('30.0')
+>>> r // r2
+mpfr('14.0')
+>>> r // c2
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: can't take floor of complex number
+>>> r // 'not'
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: unsupported operand type(s) for //: 'mpfr' and 'str'
+>>> 1
+1

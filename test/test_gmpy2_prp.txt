@@ -1,0 +1,197 @@
+Test gmpy2 Prime Testing Functions
+==================================
+
+>>> import gmpy2
+>>> from gmpy2 import mpz
+
+# Test if_fermat_prp
+
+>>> gmpy2.is_fermat_prp(12345,2)
+False
+>>> gmpy2.is_fermat_prp(113,2)
+True
+>>> gmpy2.is_fermat_prp(1234,2)
+False
+>>> gmpy2.is_fermat_prp(1234,'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.is_fermat_prp(1234, 2, 3)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.is_fermat_prp(113, 1)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.is_fermat_prp(-113, 3)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.is_fermat_prp(339, 3)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.is_fermat_prp(mpz(12345),2)
+False
+>>> gmpy2.is_fermat_prp(113,mpz(2))
+True
+
+'''
+# Test is_euler_prp
+
+>>> gmpy2.is_euler_prp(12345,2)
+False
+>>> gmpy2.is_euler_prp(113,2)
+True
+>>> gmpy2.is_euler_prp(1234,2)
+False
+>>> gmpy2.is_euler_prp(1234,'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.is_euler_prp(1234, 2, 3)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.is_euler_prp(113, 1)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.is_euler_prp(-113, 3)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.is_euler_prp(339, 3)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.is_euler_prp(mpz(12345),2)
+False
+>>> gmpy2.is_euler_prp(113,mpz(2))
+True
+
+
+# Test is_strong_prp
+
+>>> gmpy2.is_strong_prp(12345,2)
+False
+>>> gmpy2.is_strong_prp(113,2)
+True
+>>> gmpy2.is_strong_prp(1234,2)
+False
+>>> gmpy2.is_strong_prp(1234,'a')
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.is_strong_prp(1234, 2, 3)
+Traceback (most recent call last):
+  ...
+TypeError:
+>>> gmpy2.is_strong_prp(113, 1)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.is_strong_prp(-113, 3)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.is_strong_prp(339, 3)
+Traceback (most recent call last):
+  ...
+ValueError:
+>>> gmpy2.is_strong_prp(mpz(12345),2)
+False
+>>> gmpy2.is_strong_prp(113,mpz(2))
+True
+
+# Test is_fibonacci_prp
+
+>>> gmpy2.is_fibonacci_prp(12345, 3, 1)
+False
+>>> gmpy2.is_fibonacci_prp(113, 3, 1)
+True
+>>> gmpy2.is_fibonacci_prp(12345, 3, -1)
+False
+>>> gmpy2.is_fibonacci_prp(113, 3, -1)
+True
+>>> gmpy2.is_fibonacci_prp(113, 3, 2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError:
+>>> gmpy2.is_fibonacci_prp('a', 3, 2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: 
+>>> gmpy2.is_fibonacci_prp(113, 2, 1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError:
+>>> gmpy2.is_fibonacci_prp(113, 2, -1)
+True
+
+# Test is_lucas_prp
+
+>>> gmpy2.is_lucas_prp(12345, 5, 2)
+False
+>>> gmpy2.is_lucas_prp(113, 5, 2)
+True
+>>> gmpy2.is_lucas_prp(12345, 3, 5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError:
+
+
+# Test is_stronglucas_prp
+
+>>> gmpy2.is_strong_lucas_prp(12345, 5, 2)
+False
+>>> gmpy2.is_strong_lucas_prp(113, 5, 2)
+True
+>>> gmpy2.is_strong_lucas_prp(12345, 3, 5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError:
+
+# Test is_extra_strong_lucas_prp
+
+>>> gmpy2.is_extra_strong_lucas_prp(12345, 9)
+False
+>>> gmpy2.is_extra_strong_lucas_prp(113, 5)
+True
+>>> gmpy2.is_extra_strong_lucas_prp(12345, 3)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError:
+
+# Test is_selfridge_prp
+
+>>> gmpy2.is_selfridge_prp(12345)
+False
+>>> gmpy2.is_selfridge_prp(113)
+True
+
+# Test is_strong_selfridge_prp
+
+>>> gmpy2.is_strong_selfridge_prp(12345)
+False
+>>> gmpy2.is_strong_selfridge_prp(113)
+True
+
+# Test is_bpsw_prp
+
+>>> gmpy2.is_bpsw_prp(12345)
+False
+>>> gmpy2.is_bpsw_prp(113)
+True
+
+# Test is_strong_bpsw_prp
+
+>>> gmpy2.is_strong_bpsw_prp(12345)
+False
+>>> gmpy2.is_strong_bpsw_prp(113)
+True
+
+'''
+
+
