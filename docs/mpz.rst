@@ -203,6 +203,9 @@ mpz Functions
     divm(a, b, m) returns *x* such that *b* * *x* == *a* modulo *m*. Raises
     a ZeroDivisionError exception if no such value *x* exists.
 
+**double_fac(...)**
+    double_fac(n) returns the exact double factorial of *n*.
+
 **f_div(...)**
     f_div(x, y) returns the quotient of *x* divided by *y*. The quotient
     is rounded towards -Inf (floor rounding). *x* and *y* must be integers.
@@ -345,6 +348,9 @@ mpz Functions
     mul(x, y) returns *x* \* *y*. The result type depends on the input
     types.
 
+**multi_fac(...)**
+    multi_fac(n, m) returns the m-multi-factorial of *n* i.e n!^m.
+
 **next_prime(...)**
     next_prime(x) returns the next **probable** prime number > *x*.
 
@@ -362,6 +368,10 @@ mpz Functions
     powmod(x, y, m) returns (*x* ** *y*) mod *m*. The exponent *y* can be
     negative, and the correct result will be returned if the inverse of *x*
     mod *m* exists. Otherwise, a ValueError is raised.
+
+**primorial(...)**
+    primorial(n) returns the exact primorial of *n*, i.e. the product of all
+    positive prime numbers <= *n*.
 
 **remove(...)**
     remove(x, f) will remove the factor *f* from *x* as many times as possible
