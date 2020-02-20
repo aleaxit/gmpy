@@ -166,6 +166,11 @@ static PyMethodDef GMPy_XMPZ_methods [] =
     { "iter_set", (PyCFunction)GMPy_XMPZ_Method_IterSet, METH_VARARGS | METH_KEYWORDS, GMPy_doc_xmpz_method_iter_set },
     { "make_mpz", GMPy_XMPZ_Method_MakeMPZ, METH_NOARGS, GMPy_doc_xmpz_method_make_mpz },
     { "num_digits", GMPy_MPZ_Method_NumDigits, METH_VARARGS, GMPy_doc_mpz_method_num_digits },
+    { "num_limbs", GMPy_XMPZ_Method_NumLimbs, METH_NOARGS, GMPy_doc_xmpz_method_num_limbs },
+    { "limbs_read", GMPy_XMPZ_Method_LimbsRead, METH_NOARGS, GMPy_doc_xmpz_method_limbs_read },
+    { "limbs_write", GMPy_XMPZ_Method_LimbsWrite, METH_O, GMPy_doc_xmpz_method_limbs_write },
+    { "limbs_modify", GMPy_XMPZ_Method_LimbsModify, METH_O, GMPy_doc_xmpz_method_limbs_modify },
+    { "limbs_finish", GMPy_XMPZ_Method_LimbsFinish, METH_O, GMPy_doc_xmpz_method_limbs_finish },
     { NULL, NULL, 1 }
 };
 
