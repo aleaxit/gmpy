@@ -497,6 +497,7 @@ typedef struct {
 
 #include "gmpy2_xmpz_inplace.h"
 #include "gmpy2_xmpz_misc.h"
+#include "gmpy2_xmpz_limbs.h"
 
 /* Support for mpq specific functions. */
 

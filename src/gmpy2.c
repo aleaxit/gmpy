@@ -594,6 +594,7 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_mpq_misc.c"
 #include "gmpy2_mpz_misc.c"
 #include "gmpy2_xmpz_misc.c"
+#include "gmpy2_xmpz_limbs.c"
 
 #ifdef VECTOR
 #include "gmpy2_vector.c"
@@ -1118,6 +1119,11 @@ PyMODINIT_FUNC initgmpy2(void)
 
     Py_INCREF(&XMPZ_Type);
     PyModule_AddObject(gmpy_module, "xmpz", (PyObject*)&XMPZ_Type);
+
+    PyObject* xmpz = XMPZ_Type.tp_dict;
+    PyObject* limb_size = PyIntOrLong_FromSize_t(sizeof(mp_limb_t));
+    PyDict_SetItemString(xmpz, "limb_size", limb_size);
+    Py_DECREF(limb_size);
 
     /* Add the MPQ type to the module namespace. */
 
