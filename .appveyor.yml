@@ -3,27 +3,33 @@ environment:
   matrix:
     - TARGET_ARCH: x86
       PYTHON_VERSION: 2.7
-      CONDA_INSTALL_LOCN: C:\\Miniconda
+      CONDA_INSTALL_LOCN: C:\\Miniconda36
+      PYTHON_LOCN: C:\\Python27
 
     - TARGET_ARCH: x64
       PYTHON_VERSION: 2.7
-      CONDA_INSTALL_LOCN: C:\\Miniconda-x64
+      CONDA_INSTALL_LOCN: C:\\Miniconda36-x64
+      PYTHON_LOCN: C:\\Python27-x64
 
     - TARGET_ARCH: x86
       PYTHON_VERSION: 3.5
-      CONDA_INSTALL_LOCN: C:\\Miniconda35
+      CONDA_INSTALL_LOCN: C:\\Miniconda36
+      PYTHON_LOCN: C:\\Python35
 
     - TARGET_ARCH: x64
       PYTHON_VERSION: 3.5
-      CONDA_INSTALL_LOCN: C:\\Miniconda35-x64
+      CONDA_INSTALL_LOCN: C:\\Miniconda36-x64
+      PYTHON_LOCN: C:\\Python35-x64
 
     - TARGET_ARCH: x86
       PYTHON_VERSION: 3.6
       CONDA_INSTALL_LOCN: C:\\Miniconda36
+      PYTHON_LOCN: C:\\Python36
 
     - TARGET_ARCH: x64
       PYTHON_VERSION: 3.6
       CONDA_INSTALL_LOCN: C:\\Miniconda36-x64
+      PYTHON_LOCN: C:\\Python36-x64
 
 platform:
     - x64
@@ -38,8 +44,11 @@ install:
     - cmd: conda config --set always_yes yes --set changeps1 no
 
     # Create conda environment
-    - cmd: conda create -n test python=%PYTHON_VERSION% mpir mpfr mpc
+    - cmd: conda create -n test mpir "mpfr>=4" mpc
     - cmd: call activate test
+    
+    # Setup python environment
+    - cmd: set "PATH=%PYTHON_LOCN%;%PYTHON_LOCN%\\Scripts;%PATH%"
 
 # Skip .NET project specific build phase.
 build: off
