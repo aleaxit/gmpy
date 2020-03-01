@@ -429,11 +429,10 @@ GMPy_MPC_GetImag_Attrib(MPC_Object *self, void *closure)
 {
     MPFR_Object *result = NULL;
     CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
-
     mpfr_prec_t rprec = 0, iprec = 0;
     mpc_get_prec2(&rprec, &iprec, self->c);
+
+    CHECK_CONTEXT(context);
 
     if ((result = GMPy_MPFR_New(iprec, context))) {
         result->rc = mpc_imag(result->f, self->c, GET_MPFR_ROUND(context));
@@ -449,11 +448,10 @@ GMPy_MPC_GetReal_Attrib(MPC_Object *self, void *closure)
 {
     MPFR_Object *result = NULL;
     CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
-
     mpfr_prec_t rprec = 0, iprec = 0;
     mpc_get_prec2(&rprec, &iprec, self->c);
+
+    CHECK_CONTEXT(context);
 
     if ((result = GMPy_MPFR_New(rprec, context))) {
         result->rc = mpc_real(result->f, self->c, context->ctx.mpfr_round);
