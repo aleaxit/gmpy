@@ -3,7 +3,7 @@ PyDoc_STRVAR(GMPy_doc_xmpz_method_num_limbs,
 "     Return the number of limbs of 'xmpz'.");
 static PyObject* GMPy_XMPZ_Method_NumLimbs(PyObject* obj, PyObject* other)
 {
-  return PyIntOrLong_FromSize_t(mpz_size(XMPZ(obj)));
+    return PyIntOrLong_FromSize_t(mpz_size(XMPZ(obj)));
 }
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_limbs_read,
@@ -12,8 +12,8 @@ PyDoc_STRVAR(GMPy_doc_xmpz_method_limbs_read,
 "     limbs of 'xmpz'.");
 static PyObject* GMPy_XMPZ_Method_LimbsRead(PyObject* obj, PyObject* args)
 {
-  const mp_limb_t* limbs = mpz_limbs_read(XMPZ(obj));
-  return PyLong_FromVoidPtr((void *) limbs);
+    const mp_limb_t* limbs = mpz_limbs_read(XMPZ(obj));
+    return PyLong_FromVoidPtr((void *) limbs);
 }
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_limbs_write,
@@ -26,13 +26,16 @@ PyDoc_STRVAR(GMPy_doc_xmpz_method_limbs_write,
 "              value of 'xmpz'");
 static PyObject* GMPy_XMPZ_Method_LimbsWrite(PyObject* obj, PyObject* other)
 {
+
     if (!PyIntOrLong_Check(other)) {
-      TYPE_ERROR("number of limbs must be an int or a long");
-      return NULL;
+        TYPE_ERROR("number of limbs must be an int or a long");
+        return NULL;
     }
-    size_t num_limbs = (size_t) PyIntOrLong_AsSsize_t(other);
-    mp_limb_t * limbs = mpz_limbs_write(XMPZ(obj), (mp_size_t) num_limbs);
-    return PyLong_FromVoidPtr((void *) limbs);
+    else {
+        size_t num_limbs = (size_t) PyIntOrLong_AsSsize_t(other);
+        mp_limb_t * limbs = mpz_limbs_write(XMPZ(obj), (mp_size_t) num_limbs);
+        return PyLong_FromVoidPtr((void *) limbs);
+    }
 }
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_limbs_modify,
@@ -44,12 +47,14 @@ PyDoc_STRVAR(GMPy_doc_xmpz_method_limbs_modify,
 static PyObject* GMPy_XMPZ_Method_LimbsModify(PyObject* obj, PyObject* other)
 {
     if (!PyIntOrLong_Check(other)) {
-      TYPE_ERROR("number of limbs must be an int or a long");
-      return NULL;
+        TYPE_ERROR("number of limbs must be an int or a long");
+        return NULL;
     }
-    size_t num_limbs = (size_t) PyIntOrLong_AsSsize_t(other);
-    mp_limb_t * limbs = mpz_limbs_modify(XMPZ(obj), (mp_size_t) num_limbs);
-    return PyLong_FromVoidPtr((void *) limbs);
+    else {
+        size_t num_limbs = (size_t) PyIntOrLong_AsSsize_t(other);
+        mp_limb_t * limbs = mpz_limbs_modify(XMPZ(obj), (mp_size_t) num_limbs);
+        return PyLong_FromVoidPtr((void *) limbs);
+    }
 }
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_limbs_finish,
@@ -59,11 +64,13 @@ PyDoc_STRVAR(GMPy_doc_xmpz_method_limbs_finish,
 "     the limbs of 'xpmz'.");
 static PyObject* GMPy_XMPZ_Method_LimbsFinish(PyObject* obj, PyObject* other)
 {
-  if (!PyIntOrLong_Check(other)) {
-    TYPE_ERROR("number of limbs must be an int or long");
-    return NULL;
-  }
-  size_t num_limbs = (size_t) PyIntOrLong_AsSsize_t(other);
-  mpz_limbs_finish(XMPZ(obj), num_limbs);
-  Py_RETURN_NONE;
+    if (!PyIntOrLong_Check(other)) {
+        TYPE_ERROR("number of limbs must be an int or long");
+        return NULL;
+    }
+    else {
+        size_t num_limbs = (size_t) PyIntOrLong_AsSsize_t(other);
+        mpz_limbs_finish(XMPZ(obj), num_limbs);
+        Py_RETURN_NONE;
+    }
 }
