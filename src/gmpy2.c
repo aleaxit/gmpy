@@ -926,6 +926,10 @@ PyMODINIT_FUNC initgmpy2(void)
     PyObject *copy_reg_module = NULL;
     PyObject *temp = NULL;
     PyObject *numbers_module = NULL;
+    PyObject* xmpz = NULL;
+    PyObject* limb_size = NULL;
+
+
 #ifndef STATIC
     static void *GMPy_C_API[GMPy_API_pointers];
     PyObject *c_api_object;
@@ -1120,8 +1124,8 @@ PyMODINIT_FUNC initgmpy2(void)
     Py_INCREF(&XMPZ_Type);
     PyModule_AddObject(gmpy_module, "xmpz", (PyObject*)&XMPZ_Type);
 
-    PyObject* xmpz = XMPZ_Type.tp_dict;
-    PyObject* limb_size = PyIntOrLong_FromSize_t(sizeof(mp_limb_t));
+    xmpz = XMPZ_Type.tp_dict;
+    limb_size = PyIntOrLong_FromSize_t(sizeof(mp_limb_t));
     PyDict_SetItemString(xmpz, "limb_size", limb_size);
     Py_DECREF(limb_size);
 
