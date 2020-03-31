@@ -31,6 +31,26 @@ environment:
       CONDA_INSTALL_LOCN: C:\\Miniconda36-x64
       PYTHON_LOCN: C:\\Python36-x64
 
+    - TARGET_ARCH: x86
+      PYTHON_VERSION: 3.7
+      CONDA_INSTALL_LOCN: C:\\Miniconda37
+      PYTHON_LOCN: C:\\Python37
+
+    - TARGET_ARCH: x64
+      PYTHON_VERSION: 3.7
+      CONDA_INSTALL_LOCN: C:\\Miniconda37-x64
+      PYTHON_LOCN: C:\\Python37-x64
+
+    - TARGET_ARCH: x86
+      PYTHON_VERSION: 3.8
+      CONDA_INSTALL_LOCN: C:\\Miniconda38
+      PYTHON_LOCN: C:\\Python38
+
+    - TARGET_ARCH: x64
+      PYTHON_VERSION: 3.8
+      CONDA_INSTALL_LOCN: C:\\Miniconda38-x64
+      PYTHON_LOCN: C:\\Python38-x64
+
 platform:
     - x64
 
@@ -46,7 +66,7 @@ install:
     # Create conda environment
     - cmd: conda create -n test mpir "mpfr>=4" mpc
     - cmd: call activate test
-    
+
     # Setup python environment
     - cmd: set "PATH=%PYTHON_LOCN%;%PYTHON_LOCN%\\Scripts;%PATH%"
 
