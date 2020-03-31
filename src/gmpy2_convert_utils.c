@@ -385,8 +385,8 @@ GMPy_Integer_AsLongLongAndError(PyObject *obj, int *error)
             else {
                 *error = sign;
             }
-        return res;
         }
+        return res;
     }
 
     if (HAS_STRICT_MPZ_CONVERSION(obj)) {
@@ -410,8 +410,8 @@ GMPy_Integer_AsLongLongAndError(PyObject *obj, int *error)
                 }
             }
             Py_XDECREF((PyObject*)temp_mpz);
-            return res;
         }
+        return res;
     }
 
     *error = 2;
@@ -485,8 +485,8 @@ GMPy_Integer_AsUnsignedLongLongAndError(PyObject *obj, int *error)
             else {
                 *error = 1;
             }
-        return res;
         }
+        return res;
     }
 
     if (HAS_STRICT_MPZ_CONVERSION(obj)) {
@@ -506,8 +506,8 @@ GMPy_Integer_AsUnsignedLongLongAndError(PyObject *obj, int *error)
                 *error = 1;
             }
             Py_XDECREF((PyObject*)temp_mpz);
-            return res;
         }
+        return res;
     }
 
     *error = 2;

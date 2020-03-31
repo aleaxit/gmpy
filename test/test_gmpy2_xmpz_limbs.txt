@@ -8,7 +8,7 @@ Testing of gmpy2 mpz limbs
 Test limbs_read/limbs_write/limbs_finish
 ----------------------------------------
 
-    >>> x=xmpz(123456789L);y=xmpz(0);
+    >>> x=xmpz(123456789);y=xmpz(0);
     >>> x_limbs, num_limbs=x.limbs_read(),x.num_limbs();
     >>> x_limbs != 0
     True
@@ -20,13 +20,13 @@ Test limbs_read/limbs_write/limbs_finish
     >>> memmove(y_limbs, x_limbs, num_limbs * xmpz.limb_size) > 0
     True
     >>> y.limbs_finish(num_limbs)
-    >>> long(y)
-    123456789L
+    >>> int(y)
+    123456789
 
 Test limbs_read/limbs_modify/limbs_finish
 -----------------------------------------
 
-    >>> x=xmpz(987654321L);y=xmpz(0);
+    >>> x=xmpz(987654321);y=xmpz(0);
     >>> x_limbs, num_limbs=x.limbs_read(),x.num_limbs();
     >>> x_limbs != 0
     True
@@ -38,5 +38,5 @@ Test limbs_read/limbs_modify/limbs_finish
     >>> memmove(y_limbs, x_limbs, num_limbs * xmpz.limb_size) > 0
     True
     >>> y.limbs_finish(num_limbs)
-    >>> long(y)
-    987654321L
+    >>> int(y)
+    987654321
