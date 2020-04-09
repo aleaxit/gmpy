@@ -1,51 +1,33 @@
-sudo: required
-language: generic
+arch: amd64
+os: linux
+dist: xenial
+language: python
 
 cache:
   directories:
     - $HOME/.ccache
-notifications:
-  slack:
-    on_success: never
-    on_failure : never
 
-matrix:
+jobs:
   include:
-    - os: linux
-      arch: amd64
-      dist: xenial
-      language: python
+    - arch: amd64
+      python: 2.7
+    - arch: arm64
       python: 2.7
 
-    - os: linux
-      arch: arm64
-      dist: xenial
-      language: python
-      python: 2.7
-
-    - os: linux
-      arch: amd64
-      dist: xenial
-      language: python
+    - arch: amd64
+      python: 3.5
+    - arch: arm64
       python: 3.5
 
-    - os: linux
-      arch: arm64
-      dist: xenial
-      language: python
-      python: 3.5
-
-    - os: linux
-      arch: amd64
-      dist: xenial
-      language: python
+    - arch: amd64
+      python: 3.6
+    - arch: arm64
       python: 3.6
 
-    - os: linux
-      arch: arm64
-      dist: xenial
-      language: python
-      python: 3.6
+    - arch: amd64
+      python: 3.8
+    - arch: arm64
+      python: 3.8
 
     - os: osx
       env: PYTHON_VERSION=3.5
@@ -54,6 +36,10 @@ matrix:
     - os: osx
       env: PYTHON_VERSION=3.6
       osx_image: xcode6.4
+
+    - os: osx
+      env: PYTHON_VERSION=3.8
+      osx_image: xcode11.3
 
 install:
   - |
@@ -98,3 +84,8 @@ script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       make latexpdf;
     fi
+
+notifications:
+  slack:
+    on_success: never
+    on_failure : never
