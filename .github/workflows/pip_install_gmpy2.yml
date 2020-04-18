@@ -1,0 +1,23 @@
+name: pip_install_gmpy2
+on:
+  pull_request:
+  push:
+  #  branches: [master]
+jobs:
+  pip_install_gmpy2:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: [2.7, 3.5, 3.6, 3.7, 3.8, pypy3]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@master
+        with:
+          python-version: ${{ matrix.python-version }}
+      # Try stable, latest beta, master
+      # See: https://pypi.org/project/gmpy2/#history
+      - run: pip install gmpy2 || true  # Passes on macOS but fails on Linux and Windows
+      - run: pip install gmpy2>=2.1.0b4 || true
+      - run: pip install git+https://github.com/aleaxit/gmpy.git@master
