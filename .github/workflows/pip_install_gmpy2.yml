@@ -40,7 +40,7 @@ jobs:
       # Only test master for now...
       # - run: pip install gmpy2 || true
       # - run: pip install gmpy2>=2.1.0b4 || true
-      # - run: sudo apt-get install libmpc-dev texlive texlive-latex-extra latexmk
+      - run: sudo apt-get install libmpc-dev texlive texlive-latex-extra latexmk
       - run: pip --verbose install -e .
       - run: python test/runtests.py
 
