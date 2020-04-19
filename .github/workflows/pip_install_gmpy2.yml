@@ -20,7 +20,8 @@ jobs:
       # Only test master for now...
       # - run: pip install gmpy2 || true
       # - run: pip install gmpy2>=2.1.0b4 || true
-      - run: pip install git+https://github.com/aleaxit/gmpy.git@master
+      - run: pip install -e .
+      - run: python test/runtests.py
 
   linux:
     strategy:
@@ -40,5 +41,6 @@ jobs:
       # - run: pip install gmpy2 || true
       # - run: pip install gmpy2>=2.1.0b4 || true
       # - run: sudo apt-get install libmpc-dev texlive texlive-latex-extra latexmk
-      - run: ls
+      - run: pip install -e .
+      - run: python test/runtests.py
 
