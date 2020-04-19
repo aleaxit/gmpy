@@ -27,7 +27,6 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [2.7, 3.5, 3.6, 3.7, 3.8]
-        architecture: [x64, x86]
         os: [ubuntu-16.04, ubuntu-18.04]
     runs-on: ${{ matrix.os }}
     steps:
@@ -35,7 +34,6 @@ jobs:
       - uses: actions/setup-python@master
         with:
           python-version: ${{ matrix.python-version }}
-          architecture: ${{ matrix.architecture }}
       # Try stable, latest beta, master
       # See: https://pypi.org/project/gmpy2/#history
       # Only test master for now...
