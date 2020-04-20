@@ -44,3 +44,23 @@ jobs:
       - run: pip --verbose install -e .
       - run: python test/runtests.py
 
+  windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [2.7, 3.7]
+      runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-conda@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+          conda-channels: conda-forge
+      # - uses: actions/setup-python@master
+      #   with:
+      #     python-version: ${{ matrix.python-version }}
+      #     architecture: ${{ matrix.architecture }}
+      - run: conda --version
+      - run: which python
+
+
