@@ -60,7 +60,7 @@ jobs:
       #   with:
       #     python-version: ${{ matrix.python-version }}
       #     architecture: ${{ matrix.architecture }}
-      - run: conda create -n test install mpir "mpfr>=4" mpc
+      - run: conda create -n test mpir "mpfr>=4" mpc
       - run: conda activate test
       - run: python setup.py install build_ext --mpir -I%CONDA%\Library\include -L%CONDA%\Library\lib
       - run: cd test && python runtests.py
