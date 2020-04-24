@@ -59,7 +59,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: |
           conda info
-          cd c:/
+          cd "c:\Miniconda3"
           dir /s mp*.h
 
   windows:
