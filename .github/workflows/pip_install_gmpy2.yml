@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [2.7, 3.7]
+        python-version: [3.7]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@master
@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [2.7, 3.7]
+        python-version: [3.7]
         os: [ubuntu-16.04, ubuntu-18.04]
     runs-on: ${{ matrix.os }}
     steps:
@@ -57,12 +57,12 @@ jobs:
           miniconda-version: "latest"
           channels: "conda-forge"
           python-version: ${{ matrix.python-version }}
-      - name: Conda Setup
+      - name: Conda Info
         shell: pwsh
-        run: |
-          conda info
-          cd "c:\Miniconda3"
-          dir /s mp*.h
+        run: conda info
+      - name: PowerShell
+        shell: pwsh
+        run: dir
 
   windows:
     strategy:
