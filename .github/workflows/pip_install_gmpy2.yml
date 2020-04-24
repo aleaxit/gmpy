@@ -59,7 +59,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: |
           conda info
-          conda install mpir mpfr mpc
           cd c:/
           dir /s mp*.h
 
@@ -81,7 +80,7 @@ jobs:
         run: |
           conda info
           conda install mpir "mpfr>=4" mpc
-          python setup.py install build_ext --mpir
+          python setup.py build_ext --mpir install
           cd test && python runtests.py
           cd ..
 
