@@ -52,17 +52,17 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@master
-      - uses: s-weigand/setup-conda@v1
+      - uses: goanpeca/setup-miniconda@v1
         with:
+          auto-update-conda: false
           python-version: ${{ matrix.python-version }}
-          conda-channels: conda-forge
-      # - uses: actions/setup-python@master
-      #   with:
-      #     python-version: ${{ matrix.python-version }}
-      #     architecture: ${{ matrix.architecture }}
-      - run: conda create -n test mpir "mpfr>=4" mpc
-      - run: call %CONDA%\Scripts\activate.bat test
-      - run: python setup.py install build_ext --mpir -I%CONDA%\Library\include -L%CONDA%\Library\lib
-      - run: cd test && python runtests.py
-      - run: cd ..
+      - name: conda info
+        shell: bash -l {0}
+        run: conda info
+     #    conda-channels: conda-forge
+     # - run: conda create -n test mpir "mpfr>=4" mpc
+     # - run: call %CONDA%\Scripts\activate.bat test
+     # - run: python setup.py install build_ext --mpir -I%CONDA%\Library\include -L%CONDA%\Library\lib
+     # - run: cd test && python runtests.py
+     # - run: cd ..
 
