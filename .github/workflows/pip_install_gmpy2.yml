@@ -62,7 +62,7 @@ jobs:
         run: conda info
       - name: Command.exe
         shell: cmd /C CALL {0}
-        run: dir /s C:\\Miniconda3\\*.h
+        run: dir /s C:\Miniconda3
 
   windows:
     strategy:
