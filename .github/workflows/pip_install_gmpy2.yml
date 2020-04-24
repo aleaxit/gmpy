@@ -57,14 +57,11 @@ jobs:
           miniconda-version: "latest"
           channels: "conda-forge"
           python-version: ${{ matrix.python-version }}
-      - name: conda info
-        shell: bash -l {0}
-        run: |
+      - run: |
           conda info
-          conda install mpir "mpfr>=4" mpc
-          python setup.py install build_ext --mpir -I%CONDA%\Library\include -L%CONDA%\Library\lib
-          cd test && python runtests.py
-          cd ..
+          conda install mpir mpfr mpc
+          cd c:/
+          dir /s mp*.h
 
   windows:
     strategy:
@@ -84,7 +81,7 @@ jobs:
         run: |
           conda info
           conda install mpir "mpfr>=4" mpc
-          python setup.py install build_ext --mpir -I%CONDA%\Library\include -L%CONDA%\Library\lib
+          python setup.py install build_ext --mpir
           cd test && python runtests.py
           cd ..
 
