@@ -59,9 +59,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: conda info
         shell: bash -l {0}
-        run: conda info
-     #    conda-channels: conda-forge
-     # - run: conda create -n test mpir "mpfr>=4" mpc
+        run: |
+          conda info
+          conda install mpir "mpfr>=4" mpc
+          python --version
      # - run: call %CONDA%\Scripts\activate.bat test
      # - run: python setup.py install build_ext --mpir -I%CONDA%\Library\include -L%CONDA%\Library\lib
      # - run: cd test && python runtests.py
