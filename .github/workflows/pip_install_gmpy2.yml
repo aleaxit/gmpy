@@ -62,7 +62,7 @@ jobs:
         run: conda info
       - name: PowerShell
         shell: pwsh
-        run: dir
+        run: dir c:\Minconda3\mp*.h
 
   windows:
     strategy:
