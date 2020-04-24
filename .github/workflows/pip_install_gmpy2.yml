@@ -62,7 +62,7 @@ jobs:
         run: conda info
       - name: PowerShell
         shell: pwsh
-        run: dir c:\Minconda3\
+        run: dir /s c:\
 
   windows:
     strategy:
@@ -82,7 +82,7 @@ jobs:
         run: |
           conda info
           conda install mpir "mpfr>=4" mpc
-          python setup.py build_ext --mpir install
-          cd test && python runtests.py
-          cd ..
+          dir
+          dir c:
+
 
