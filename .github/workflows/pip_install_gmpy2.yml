@@ -44,11 +44,11 @@ jobs:
       - run: pip --verbose install -e .
       - run: python test/runtests.py
 
-  windows:
+  windows2:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [2.7, 3.7]
+        python-version: [2.7]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@master
@@ -60,9 +60,31 @@ jobs:
           activate-environment: "test"
           channels: "conda-forge"
           python-version: ${{ matrix.python-version }}
-      - name: Run Build
+      - name: Install libraries
         shell: cmd /C CALL {0}
         run: |
           conda install mpir "mpfr>=4" mpc conda=4.6.14
-          run: dir /s C:\Miniconda3\mp*.h
+          dir /s C:\Miniconda2\mp*.h
+
+  windows3:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.7]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: goanpeca/setup-miniconda@v1
+        with:
+          miniconda-version: 4.6.14
+          auto-update-conda: false
+          auto-activate-base: false
+          activate-environment: "test"
+          channels: "conda-forge"
+          python-version: ${{ matrix.python-version }}
+      - name: Install libraries
+        shell: cmd /C CALL {0}
+        run: |
+          conda install mpir "mpfr>=4" mpc conda=4.6.14
+          dir /s C:\Miniconda3\mp*.h
 
