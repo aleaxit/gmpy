@@ -55,6 +55,7 @@ jobs:
       - uses: goanpeca/setup-miniconda@v1
         with:
           miniconda-version: 4.6.14
+          auto-update-conda: false
           auto-activate-base: false
           activate-environment: "test"
           channels: "conda-forge"
@@ -62,7 +63,6 @@ jobs:
       - name: Run Build
         shell: cmd /C CALL {0}
         run: |
-          conda config --set auto_update_conda false
-          conda install mpir "mpfr>=4" mpc
+          conda install mpir "mpfr>=4" mpc conda=4.6.14
           run: dir /s C:\Miniconda3\mp*.h
 
