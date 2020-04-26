@@ -54,13 +54,12 @@ jobs:
       - uses: actions/checkout@master
       - uses: goanpeca/setup-miniconda@v1
         with:
-          miniconda-version: 4.6.14
+          miniconda-version: "latest"
           channels: "conda-forge"
           python-version: ${{ matrix.python-version }}
-      - name: Command.exe
+      - name: Run Build
         shell: cmd /C CALL {0}
-        run: conda install mpir mpfr mpc
-      - name: Command.exe
-        shell: cmd /C CALL {0}
-        run: dir /s C:\Miniconda3\*.h
+        run: |
+          conda install mpir "mpfr>=4" mpc
+          run: dir /s C:\Miniconda3\mp*.h
 
