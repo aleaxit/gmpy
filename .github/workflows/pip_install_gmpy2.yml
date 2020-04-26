@@ -62,12 +62,15 @@ jobs:
       - name: Install libraries
         shell: cmd /C CALL {0}
         run: conda install mpir "mpfr>=4" mpc conda=4.6.14
-      - name: Verify file location
-        shell: cmd /C CALL {0}
-        run: dir /s C:\Miniconda2\mpir*
       - name: Display environment
         shell: cmd /C CALL {0}
         run: set
+      - name: Activate
+        shell: cmd /C CALL {0}
+        run: call activate test
+      - name: Verify file location
+        shell: cmd /C CALL {0}
+        run: dir /s %CONDA%\mpir*
       - name: Compile gmpy2
         shell: cmd /C CALL {0}
         run: python setup.py install build_ext --mpir
@@ -98,5 +101,5 @@ jobs:
         run: set
       - name: Compile gmpy2
         shell: cmd /C CALL {0}
-        run: python setup.py install build_ext --mpir -IC:\Miniconda3\env\test\Library\include
+        run: python setup.py install build_ext --mpir -I%CONDA%\envs\test\Library\include -l%CONDA%\envs\test\Library\lib
 
