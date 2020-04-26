@@ -55,11 +55,19 @@ jobs:
       - uses: goanpeca/setup-miniconda@v1
         with:
           miniconda-version: 4.6.14
-          auto-update-conda: false
           auto-activate-base: false
           activate-environment: "test"
           channels: "conda-forge"
           python-version: ${{ matrix.python-version }}
+      - name: Install libraries
+        shell: cmd /C CALL {0}
+        run: conda install mpir "mpfr>=4" mpc conda=4.6.14
+      - name: Verify file location
+        shell: cmd /C CALL {0}
+        run: dir /s C:\Miniconda\mp*.h
+      - name: Compile gmpy2
+        shell: cmd /C CALL {0}
+        run: python setup.py install build_ext --mpir
 
   windows3:
     strategy:
@@ -72,7 +80,6 @@ jobs:
       - uses: goanpeca/setup-miniconda@v1
         with:
           miniconda-version: 4.6.14
-          auto-update-conda: false
           auto-activate-base: false
           activate-environment: "test"
           channels: "conda-forge"
@@ -83,4 +90,7 @@ jobs:
       - name: Verify file location
         shell: cmd /C CALL {0}
         run: dir /s C:\Miniconda3\mp*.h
+      - name: Compile gmpy2
+        shell: cmd /C CALL {0}
+        run: python setup.py install build_ext --mpir
 
