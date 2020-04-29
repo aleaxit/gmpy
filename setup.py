@@ -20,9 +20,8 @@ class Gmpy2Build(build_ext):
         ('gcov', None, "Enable GCC code coverage collection"),
         ('vector', None, "Include the vector_XXX() functions;"
          "they are unstable and under active development"),
-        ('mpir', None, "Enable use of mpir library instead of gmp."
-         "gmp is the default on Posix systems while mpir the default on"
-         "Windows and MSVC. Deprecated; will be removed."),
+        ('mpir', None, "Specifies use of MPIR and MSVC on Windows."
+         "Ignored on other operating systems."),
         ('static', None, "Enable static linking compile time options."),
         ('static-dir=', None, "Enable static linking and specify location."),
         ('gdb', None, "Build with debug symbols."),
@@ -64,20 +63,12 @@ class Gmpy2Build(build_ext):
 
     def build_extensions(self):
         compiler = self.compiler.compiler_type
-        if compiler == 'mingw32':
-            _comp_args.append('DMSYS2=1')
-            if self.mpir:
-                _comp_args.append('DMPIR=1')
-                self.libraries.append('mpir')
-                if 'gmp' in self.libraries:
-                    self.libraries.remove('gmp')
-        elif self.mpir or ON_WINDOWS:
-            # --mpir or on Windows and MSVC
+        if self.mpir and compiler == 'msvc':
             _comp_args.append('DMPIR=1')
             self.libraries.append('mpir')
             if 'gmp' in self.libraries:
                 self.libraries.remove('gmp')
-            if ON_WINDOWS and not self.static:
+            if not self.static:
                 # MSVC shared build
                 _comp_args.append('DMSC_USE_DLL')
         _prefix = '-' if compiler != 'msvc' else '/'

@@ -49,11 +49,7 @@ static unsigned PY_LONG_LONG GMPy_Integer_AsUnsignedLongLongAndError(PyObject *v
 
 /* Support conversion to/from mp_bitcnt_t and Py_ssize_t. */
 
-/* The following code assumes that the typedef in gmp.h for mingw64 based
- * builds has been changed to unsigned long long int.
- */
-
-#if defined _WIN64 && (MPIR || MSYS2)
+#if defined _WIN64 && MPIR
 # define mp_bitcnt_t_From_Integer c_ulonglong_From_Integer
 # define GMPy_Integer_AsMpBitCntAndError GMPy_Integer_AsUnsignedLongLongAndError
 #else

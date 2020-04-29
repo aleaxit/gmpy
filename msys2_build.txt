@@ -99,17 +99,6 @@ will be placed in /mingw32/src or /mingw64/opt.
 # Compile GMP
   $ cd gmp-6.1.2/
   $ ./configure --prefix=/mingw64/opt --enable-static --disable-shared --enable-fat --with-pic
-
-    *Experimental for mingw64 build*
-
-    mp_bitcnt_t should really be a 64-bit unsigned integer. The following sed
-    command makes the change. It should only be used for 64-bit builds.
-
-    This will require changes to gmpy2 source also. See gmpy2_convert_utils.h.
-
-  $ mv gmp.h gmp.h.original
-  $ sed 's/typedef\s*unsigned\s*long\s*int\s*mp_bitcnt_t/typedef unsigned long long int  mp_bitcnt_t/g' gmp.h.original > gmp.h
-
   $ make
   $ make check
   $ make install
