@@ -1,8 +1,23 @@
 name: pip_install_gmpy2
 on:
   pull_request:
+    branches:
+      - master
+    paths:
+      - 'src/**'
+      - 'test/**'
+      - 'test_cython/**'
+      - '**.py'
+
   push:
-  #  branches: [master]
+    branches:
+      - master
+    paths:
+      - 'src/**'
+      - 'test/**'
+      - 'test_cython/**'
+      - '**.py'
+
 jobs:
   osx:
     strategy:
@@ -15,11 +30,6 @@ jobs:
       - uses: actions/setup-python@master
         with:
           python-version: ${{ matrix.python-version }}
-      # Try stable, latest beta, master
-      # See: https://pypi.org/project/gmpy2/#history
-      # Only test master for now...
-      # - run: pip install gmpy2 || true
-      # - run: pip install gmpy2>=2.1.0b4 || true
       - run: pip --verbose install -e .
       - run: python test/runtests.py
 
@@ -35,12 +45,9 @@ jobs:
       - uses: actions/setup-python@master
         with:
           python-version: ${{ matrix.python-version }}
-      # Try stable, latest beta, master
-      # See: https://pypi.org/project/gmpy2/#history
-      # Only test master for now...
-      # - run: pip install gmpy2 || true
-      # - run: pip install gmpy2>=2.1.0b4 || true
-      - run: sudo apt-get install libmpc-dev texlive texlive-latex-extra latexmk
+      #   Don't build documentation by default.
+      # - run: sudo apt-get install libmpc-dev texlive texlive-latex-extra latexmk
+      - run: sudo apt-get install libmpc-dev
       - run: pip --verbose install -e .
       - run: python test/runtests.py
 
