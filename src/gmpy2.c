@@ -404,6 +404,7 @@
  *        is 32-bits and argument is >= 44787929.
  *    Fixed testing bugs with Python 2.7.
  *    Fixed mpz(0) to C long or long long.
+ *    Fixed incorrect results in f2q().
  *
  *
  ************************************************************************
