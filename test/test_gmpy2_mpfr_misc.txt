@@ -127,8 +127,6 @@ ValueError: Cannot pass NaN to mpfr.as_mantissa_exp.
 
 >>> r.as_simple_fraction()
 mpq(91,20)
->>> r.as_simple_fraction()
-mpq(91,20)
 >>> r.as_simple_fraction(precision=100)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
