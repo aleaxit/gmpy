@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      -'build-wheels.conf'
+      - 'build-wheels.conf'
 
 jobs:
   build_wheels:
