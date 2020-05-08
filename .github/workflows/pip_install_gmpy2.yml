@@ -76,8 +76,9 @@ jobs:
         run: conda install mpir "mpfr>=4" mpc conda=4.6.14
 
       - name: Activate test
-        run: activate test
-        run: python --version
+        run: |
+          activate test
+          python --version
 
       - name: Compile gmpy2
         run: python setup.py install build_ext --mpir --static -I%CONDA_PREFIX%\Library\include -L%CONDA_PREFIX%\Library\lib
