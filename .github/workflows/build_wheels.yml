@@ -54,7 +54,6 @@ jobs:
         with:
           miniconda-version: 4.6.14
           auto-activate-base: false
-          activate-environment: "test"
           channels: "conda-forge"
           python-version: ${{ matrix.python-version }}
 
@@ -62,10 +61,10 @@ jobs:
         run: conda install mpir "mpfr>=4" mpc conda=4.6.14
 
       - name: Activate
-        run: call activate test
+        run: activate
 
       - name: Compile gmpy2
-        run: python setup.py install build_ext --mpir -I%CONDA_PREFIX%\Library\include -L%CONDA_PREFIX%\Library\lib
+        run: python setup.py install build_ext --mpir --static -I%CONDA_PREFIX%\Library\include -L%CONDA_PREFIX%\Library\lib
 
       - name: Build Windows Wheels
         run: python setup.py bdist_wheel
