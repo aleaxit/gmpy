@@ -62,7 +62,7 @@ jobs:
     runs-on: windows-latest
     defaults:
       run:
-        shell: cmd /C CALL {0}
+        shell: pwsh
     steps:
       - uses: actions/checkout@master
       - uses: goanpeca/setup-miniconda@v1
