@@ -77,9 +77,6 @@ jobs:
 
       - run: conda info --envs
 
-      - name: Activate test
-        run: activate test
-
       - run: python --version
 
       - name: Compile gmpy2
