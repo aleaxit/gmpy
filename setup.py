@@ -64,6 +64,7 @@ class Gmpy2Build(build_ext):
     def build_extensions(self):
         self.libraries.append('mpc')
         self.libraries.append('mpfr')
+        self.libraries.append('gmp')
         compiler = self.compiler.compiler_type
         if self.mpir and compiler == 'msvc':
             _comp_args.append('DMPIR=1')
