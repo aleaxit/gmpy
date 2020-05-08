@@ -66,7 +66,7 @@ class Gmpy2Build(build_ext):
         if compiler == 'msvc':
             if self.mpir:
                 if self.static:
-                    self.extensions[0].libraries.extend(['mpir-static', 'mpfr-static', 'mpc-static'])
+                    self.extensions[0].libraries.extend(['mpir_static', 'mpfr_static', 'mpc_static'])
                 else:
                     self.extensions[0].libraries.extend(['mpir', 'mpfr', 'mpc'])
             else:
