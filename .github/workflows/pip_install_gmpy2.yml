@@ -77,7 +77,7 @@ jobs:
         run: call activate test
 
       - name: Compile gmpy2
-        run: python setup.py install build_ext --mpir -I%CONDA_PREFIX%\Library\include -L%CONDA_PREFIX%\Library\lib
+        run: python setup.py install build_ext --mpir --static -I%CONDA_PREFIX%\Library\include -L%CONDA_PREFIX%\Library\lib
 
       - name: Run tests
         run: cd test && python runtests.py
