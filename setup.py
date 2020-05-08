@@ -62,6 +62,8 @@ class Gmpy2Build(build_ext):
             self.library_dirs.append(self.static_dir + '/lib')
 
     def build_extensions(self):
+        self.libraries.append('mpc')
+        self.libraries.append('mpfr')
         compiler = self.compiler.compiler_type
         if self.mpir and compiler == 'msvc':
             _comp_args.append('DMPIR=1')
@@ -80,7 +82,6 @@ extensions = [
     Extension('gmpy2.gmpy2',
               sources=sources,
               include_dirs=['./src'],
-              libraries=['mpc','mpfr','gmp'],
               extra_compile_args=_comp_args,
               )
 ]

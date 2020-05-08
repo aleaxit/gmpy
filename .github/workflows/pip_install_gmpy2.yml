@@ -72,7 +72,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install libraries
-        run: conda install mpir "mpfr>=4" mpc conda=4.6.14
+        run: |
+          conda install mpir "mpfr>=4" mpc conda=4.6.14
+          dir /s C:\Miniconda3\*mp*.lib
 
       - name: Activate
         run: call activate test
