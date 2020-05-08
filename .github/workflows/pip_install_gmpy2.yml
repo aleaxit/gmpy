@@ -56,7 +56,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [2.7, 3.7]
+        python-version: [3.7]
     runs-on: windows-latest
     defaults:
       run:
@@ -67,17 +67,18 @@ jobs:
         with:
           miniconda-version: 4.6.14
           auto-activate-base: false
-          activate-environment: "test"
+          activate-environment: test
           channels: "conda-forge"
           python-version: ${{ matrix.python-version }}
 
       - name: Install libraries
-        run: |
-          conda install mpir "mpfr>=4" mpc conda=4.6.14
-          dir /s C:\Miniconda3\*mp*.lib
+        run: conda install mpir "mpfr>=4" mpc conda=4.6.14
+
+      - name: Look for libs
+        run:  dir /s C:\Miniconda3\*mp*.lib
 
       - name: Activate
-        run: call activate test
+        run: activate test
 
       - name: Compile gmpy2
         run: python setup.py install build_ext --mpir --static -I%CONDA_PREFIX%\Library\include -L%CONDA_PREFIX%\Library\lib
