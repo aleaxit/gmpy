@@ -63,14 +63,18 @@ class Gmpy2Build(build_ext):
 
     def build_extensions(self):
         compiler = self.compiler.compiler_type
-        if self.mpir and compiler == 'msvc':
+        if compiler == 'msvc':
+            if self.mpir:
+                self.extensions[0].libraries.extend(['mpir', 'mpfr', 'mpc'])
+            else:
+                self.extensions[0].libraries.extend(['gmp', 'mpfr', 'mpc'])
             _comp_args.append('DMPIR=1')
-            self.libraries.append('mpir')
-            if 'gmp' in self.libraries:
-                self.libraries.remove('gmp')
             if not self.static:
                 # MSVC shared build
                 _comp_args.append('DMSC_USE_DLL')
+        else:
+            self.extensions[0].libraries.extend(['gmp', 'mpfr', 'mpc'])
+
         _prefix = '-' if compiler != 'msvc' else '/'
         for i in range(len(_comp_args)):
             _comp_args[i] = ''.join([_prefix, _comp_args[i]])
@@ -79,7 +83,6 @@ class Gmpy2Build(build_ext):
 extensions = [
     Extension('gmpy2.gmpy2',
               sources=sources,
-              libraries = ['mpc', 'mpfr', 'gmp'],
               include_dirs=['./src'],
               extra_compile_args=_comp_args,
               )
