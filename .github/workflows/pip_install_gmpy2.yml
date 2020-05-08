@@ -17,6 +17,7 @@ on:
       - 'test/**'
       - 'test_cython/**'
       - '**.py'
+      - '.github/workflows/**.yml'
 
 jobs:
   osx:
