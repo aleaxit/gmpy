@@ -67,7 +67,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: goanpeca/setup-miniconda@v1
         with:
-#          miniconda-version: 4.6.14
+          miniconda-version: 4.6.14
           auto-activate-base: false
           activate-environment: test
           channels: "conda-forge"
@@ -76,7 +76,7 @@ jobs:
       - run: |
           python --version
           conda info --envs
-          conda install mpir "mpfr>=4" mpc conda=4.6.14
+          conda install mpir "mpfr>=4" mpc conda=4.6.14 python=${{ matrix.python-version }}
           python --version
 
 
