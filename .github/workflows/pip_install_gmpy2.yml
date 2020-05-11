@@ -67,7 +67,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: goanpeca/setup-miniconda@v1
         with:
-          miniconda-version: 4.6.14
+          #miniconda-version: 4.6.14
           auto-activate-base: false
           #activate-environment: test
           channels: "conda-forge"
