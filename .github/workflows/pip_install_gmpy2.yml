@@ -58,7 +58,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [2.7, 3.7]
+        python-version: [2.7]
     runs-on: windows-latest
     defaults:
       run:
@@ -76,7 +76,7 @@ jobs:
       - run: |
           python --version
           conda info --envs
-          conda install mpir "mpfr>=4" mpc conda=4.6.14 python=${{ matrix.python-version }}
+          conda install mpir mpfr mpc conda=4.6.14 python=${{ matrix.python-version }}
           python --version
 
 
