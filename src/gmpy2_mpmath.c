@@ -73,7 +73,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     long carry = 0;
     PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0, *rndstr = 0;
     MPZ_Object *man = 0, *upper = 0, *lower = 0;
-    char rnd = 0;
+    Py2or3String_Type rnd = 0;
     int err1, err2, err3;
 
     if (PyTuple_GET_SIZE(args) == 6) {
@@ -105,7 +105,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
 
     /* If rndstr really is a string, extract the first character. */
     if (Py2or3String_Check(rndstr)) {
-        rnd = Py2or3String_AsString(rndstr)[0];
+        rnd = Py2or3String_1Char(rndstr);
     }
     else {
         VALUE_ERROR("invalid rounding mode specified");
@@ -134,7 +134,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     if (bc > prec) {
         shift = bc - prec;
         switch (rnd) {
-            case 'f':
+            case (Py2or3String_Type)'f':
                 if(sign) {
                     mpz_cdiv_q_2exp(upper->z, man->z, shift);
                 }
@@ -142,7 +142,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
                     mpz_fdiv_q_2exp(upper->z, man->z, shift);
                 }
                 break;
-            case 'c':
+            case (Py2or3String_Type)'c':
                 if(sign) {
                     mpz_fdiv_q_2exp(upper->z, man->z, shift);
                 }
@@ -150,13 +150,13 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
                     mpz_cdiv_q_2exp(upper->z, man->z, shift);
                 }
                 break;
-            case 'd':
+            case (Py2or3String_Type)'d':
                 mpz_fdiv_q_2exp(upper->z, man->z, shift);
                 break;
-            case 'u':
+            case (Py2or3String_Type)'u':
                 mpz_cdiv_q_2exp(upper->z, man->z, shift);
                 break;
-            case 'n':
+            case (Py2or3String_Type)'n':
             default:
                 mpz_tdiv_r_2exp(lower->z, man->z, shift);
                 mpz_tdiv_q_2exp(upper->z, man->z, shift);
@@ -241,7 +241,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     MPZ_Object *man = 0, *upper = 0, *lower = 0;
     int error;
 
-    const char *rnd = "f";
+    Py2or3String_Type rnd = (Py2or3String_Type)'f';
 
     if (PyTuple_GET_SIZE(args) < 2) {
         TYPE_ERROR("mpmath_create() expects 'mpz','int'[,'int','str'] arguments");
@@ -250,7 +250,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
 
     switch (PyTuple_GET_SIZE(args)) {
         case 4:
-            rnd = Py2or3String_AsString(PyTuple_GET_ITEM(args, 3));
+            rnd = Py2or3String_1Char(PyTuple_GET_ITEM(args, 3));
         case 3:
             prec = GMPy_Integer_AsMpBitCntAndError(PyTuple_GET_ITEM(args, 2), &error);
             if (error)
@@ -291,8 +291,8 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
 
     if (bc > prec) {
         shift = bc - prec;
-        switch (rnd[0]) {
-            case 'f':
+        switch (rnd) {
+            case (Py2or3String_Type)'f':
                 if (sign) {
                     mpz_cdiv_q_2exp(upper->z, upper->z, shift);
                 }
@@ -300,7 +300,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                     mpz_fdiv_q_2exp(upper->z, upper->z, shift);
                 }
                 break;
-            case 'c':
+            case (Py2or3String_Type)'c':
                 if (sign) {
                     mpz_fdiv_q_2exp(upper->z, upper->z, shift);
                 }
@@ -308,13 +308,13 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                     mpz_cdiv_q_2exp(upper->z, upper->z, shift);
                 }
                 break;
-            case 'd':
+            case (Py2or3String_Type)'d':
                 mpz_fdiv_q_2exp(upper->z, upper->z, shift);
                 break;
-            case 'u':
+            case (Py2or3String_Type)'u':
                 mpz_cdiv_q_2exp(upper->z, upper->z, shift);
                 break;
-            case 'n':
+            case (Py2or3String_Type)'n':
             default:
                 mpz_tdiv_r_2exp(lower->z, upper->z, shift);
                 mpz_tdiv_q_2exp(upper->z, upper->z, shift);
