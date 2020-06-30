@@ -336,7 +336,8 @@ typedef struct {
 #define Py2or3String_FromFormat     PyUnicode_FromFormat
 #define Py2or3String_Check          PyUnicode_Check
 #define Py2or3String_Format         PyUnicode_Format
-#define Py2or3String_AsString       PyUnicode_AS_DATA
+#define Py2or3String_Type           Py_UCS4
+#define Py2or3String_1Char(obj)     (PyUnicode_READY(obj) ? (Py_UCS4)0 : PyUnicode_READ_CHAR(obj, 0))
 #define PyStrOrUnicode_Check(op)    (PyBytes_Check(op) || PyUnicode_Check(op))
 #define PyIntOrLong_FromLong        PyLong_FromLong
 #define PyIntOrLong_Check(op)       PyLong_Check(op)
@@ -350,7 +351,8 @@ typedef struct {
 #define Py2or3String_FromFormat     PyString_FromFormat
 #define Py2or3String_Check          PyString_Check
 #define Py2or3String_Format         PyString_Format
-#define Py2or3String_AsString       PyString_AsString
+#define Py2or3String_Type           char
+#define Py2or3String_1Char(obj)     PyString_AsString(obj)[0]
 #define PyStrOrUnicode_Check(op)    (PyString_Check(op) || PyUnicode_Check(op))
 #define PyIntOrLong_FromLong        PyInt_FromLong
 #define PyIntOrLong_Check(op)       (PyInt_Check(op) || PyLong_Check(op))
