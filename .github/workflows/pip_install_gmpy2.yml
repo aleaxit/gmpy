@@ -2,7 +2,7 @@ name: pip_install_gmpy2
 on:
   pull_request:
     branches:
-      - master
+      - do-not-run
     paths:
       - 'src/**'
       - 'test/**'

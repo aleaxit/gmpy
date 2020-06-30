@@ -3,7 +3,7 @@ name: Build Wheels
 on:
   push:
     branches:
-      - master
+      - do-not-run
     paths:
       - 'build-wheels.conf'
 
@@ -43,7 +43,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [2.7, 3.7]
+        python-version: [3.7]
     runs-on: windows-latest
     defaults:
       run:
