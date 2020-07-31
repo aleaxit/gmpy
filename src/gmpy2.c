@@ -405,6 +405,7 @@
  *    Fixed testing bugs with Python 2.7.
  *    Fixed mpz(0) to C long or long long.
  *    Fixed incorrect results in f2q().
+ *    Adjust test suite to reflect changes in output in MPFR 4.1.0.
  *
  *
  ************************************************************************
