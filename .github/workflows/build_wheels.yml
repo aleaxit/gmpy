@@ -3,7 +3,7 @@ name: Build Wheels
 on:
   push:
     branches:
-      - do-not-run
+      - master
     paths:
       - 'build-wheels.conf'
 
