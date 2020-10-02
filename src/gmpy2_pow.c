@@ -522,36 +522,125 @@ GMPy_MPANY_Pow_Slot(PyObject *base, PyObject *exp, PyObject *mod)
 static PyObject *
 GMPy_MPFR_Pow_Slot(PyObject *base, PyObject *exp, PyObject *mod)
 {
-    if (MPFR_Check(base) && (PyIntOrLong_Check(exp)) && (mod == Py_None)) {
-        MPFR_Object *result = NULL;
-        int error = 0;
-        long temp_exp;
-        CTXT_Object *context = NULL;
+    if (MPFR_Check(base) && (mod == Py_None)) {
+        if (PyIntOrLong_Check(exp)) {
+            MPFR_Object *result = NULL;
+            int error = 0;
+            long temp_exp;
+            CTXT_Object *context = NULL;
 
-        CHECK_CONTEXT(context);
+            CHECK_CONTEXT(context);
 
-        if ((result = GMPy_MPFR_New(0, context))) {
-            mpfr_clear_flags();
+            if ((result = GMPy_MPFR_New(0, context))) {
+                mpfr_clear_flags();
 
-            temp_exp = GMPy_Integer_AsLongAndError(exp, &error);
+                temp_exp = GMPy_Integer_AsLongAndError(exp, &error);
 
-            if (!error) {
-                result->rc = mpfr_pow_si(result->f, MPFR(base), temp_exp, GET_MPFR_ROUND(context));
+                if (!error) {
+                    result->rc = mpfr_pow_si(result->f, MPFR(base), temp_exp, GET_MPFR_ROUND(context));
+                }
+                else {
+                    mpz_t tempzz;
+                    mpz_init(tempzz);
+                    mpz_set_PyIntOrLong(tempzz, exp);
+                    result->rc = mpfr_pow_z(result->f, MPFR(base), tempzz, GET_MPFR_ROUND(context));
+                    mpz_clear(tempzz);
+                }
+                _GMPy_MPFR_Cleanup(&result, context);
             }
-            else {
-                mpz_t tempzz;
-                mpz_init(tempzz);
-                mpz_set_PyIntOrLong(tempzz, exp);
-                result->rc = mpfr_pow_z(result->f, MPFR(base), tempzz, GET_MPFR_ROUND(context));
-                mpz_clear(tempzz);
-            }
-            _GMPy_MPFR_Cleanup(&result, context);
+            return (PyObject*)result;
         }
-        return (PyObject*)result;
+
+        if (MPFR_Check(exp)) {
+            MPFR_Object *result = NULL;
+            CTXT_Object *context = NULL;
+
+            CHECK_CONTEXT(context);
+
+            if ((result = GMPy_MPFR_New(0, context))) {
+                mpfr_clear_flags();
+
+                result->rc = mpfr_pow(result->f, MPFR(base), MPFR(exp), GET_MPFR_ROUND(context));
+
+                _GMPy_MPFR_Cleanup(&result, context);
+            }
+            return (PyObject*)result;
+        }
     }
 
     if (IS_REAL(base) && IS_REAL(exp))
         return GMPy_Real_Pow(base, exp, mod, NULL);
+
+    if (IS_COMPLEX(base) && IS_COMPLEX(exp))
+        return GMPy_Complex_Pow(base, exp, mod, NULL);
+
+    Py_RETURN_NOTIMPLEMENTED;
+}
+
+static PyObject *
+GMPy_MPC_Pow_Slot(PyObject *base, PyObject *exp, PyObject *mod)
+{
+    if (MPC_Check(base) && (mod == Py_None)) {
+        if (PyIntOrLong_Check(exp)) {
+            MPC_Object *result = NULL;
+            int error = 0;
+            long temp_exp;
+            CTXT_Object *context = NULL;
+
+            CHECK_CONTEXT(context);
+
+            if ((result = GMPy_MPC_New(0, 0, context))) {
+                mpfr_clear_flags();
+
+                temp_exp = GMPy_Integer_AsLongAndError(exp, &error);
+
+                if (!error) {
+                    result->rc = mpc_pow_si(result->c, MPC(base), temp_exp, GET_MPC_ROUND(context));
+                }
+                else {
+                    mpz_t tempzz;
+                    mpz_init(tempzz);
+                    mpz_set_PyIntOrLong(tempzz, exp);
+                    result->rc = mpc_pow_z(result->c, MPC(base), tempzz, GET_MPC_ROUND(context));
+                    mpz_clear(tempzz);
+                }
+                _GMPy_MPC_Cleanup(&result, context);
+            }
+            return (PyObject*)result;
+        }
+
+        if (MPC_Check(exp)) {
+            MPC_Object *result = NULL;
+            CTXT_Object *context = NULL;
+
+            CHECK_CONTEXT(context);
+
+            if ((result = GMPy_MPC_New(0, 0, context))) {
+                mpfr_clear_flags();
+
+                result->rc = mpc_pow(result->c, MPC(base), MPC(exp), GET_MPC_ROUND(context));
+
+                _GMPy_MPC_Cleanup(&result, context);
+            }
+            return (PyObject*)result;
+        }
+
+        if (MPZ_Check(exp)) {
+            MPC_Object *result = NULL;
+            CTXT_Object *context = NULL;
+
+            CHECK_CONTEXT(context);
+
+            if ((result = GMPy_MPC_New(0, 0, context))) {
+                mpfr_clear_flags();
+
+                result->rc = mpc_pow_z(result->c, MPC(base), MPZ(exp), GET_MPC_ROUND(context));
+
+                _GMPy_MPC_Cleanup(&result, context);
+            }
+            return (PyObject*)result;
+        }
+    }
 
     if (IS_COMPLEX(base) && IS_COMPLEX(exp))
         return GMPy_Complex_Pow(base, exp, mod, NULL);

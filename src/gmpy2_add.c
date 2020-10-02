@@ -507,6 +507,21 @@ GMPy_Complex_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPC_Add_Slot(PyObject *x, PyObject *y)
 {
+    if ((MPC_Check(x)) && MPC_Check(y)) {
+        MPC_Object *result;
+        CTXT_Object *context = NULL;
+
+        CHECK_CONTEXT(context);
+
+        if ((result = GMPy_MPC_New(0, 0, context))) {
+            mpfr_clear_flags();
+
+            result->rc = mpc_add(result->c, MPC(x), MPC(y), GET_MPC_ROUND(context));
+            _GMPy_MPC_Cleanup(&result, context);
+        }
+        return (PyObject*)result;
+    }
+
     if (IS_COMPLEX(x) && IS_COMPLEX(y))
         return GMPy_Complex_Add(x, y, NULL);
 
