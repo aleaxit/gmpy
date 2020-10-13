@@ -69,7 +69,7 @@ GMPy_Integer_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
     if (MPZ_Check(x)) {
         if (PyIntOrLong_Check(y)) {
             int error;
-            native_si temp = GMPy_Integer_AsNative_siAndError(y, &error);
+            long temp = GMPy_Integer_AsLongAndError(y, &error);
 
             if (!error) {
                 if (temp >= 0) {
@@ -95,7 +95,7 @@ GMPy_Integer_Sub(PyObject *x, PyObject *y, CTXT_Object *context)
     if (MPZ_Check(y)) {
         if (PyIntOrLong_Check(x)) {
             int error;
-            native_si temp = GMPy_Integer_AsNative_siAndError(x, &error);
+            long temp = GMPy_Integer_AsLongAndError(x, &error);
 
             if (!error) {
                 if (temp >= 0) {

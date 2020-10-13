@@ -101,22 +101,6 @@ typedef unsigned long Py_uhash_t;
 #  define _PyHASH_IMAG 1000003
 #endif
 
-/* The native_si and native_ui types correspond to long long on Windows 64. They
- * should only be used with the MPIR library (not MPFR/MPC).
- */
-
-#if defined(MPIR) && defined(_WIN64)
-typedef long long native_si;
-typedef unsigned long long native_ui;
-#define GMPy_Integer_AsNative_siAndError GMPy_Integer_AsLongLongAndError
-#define GMPy_Integer_AsNative_uiAndError GMPy_Integer_AsUnsignedLongLongAndError
-#else
-typedef long native_si;
-typedef unsigned long native_ui;
-#define GMPy_Integer_AsNative_siAndError GMPy_Integer_AsLongAndError
-#define GMPy_Integer_AsNative_uiAndError GMPy_Integer_AsUnsignedLongAndError
-#endif
-
 /* GMPY2 Public API */
 
 /* Types
@@ -341,6 +325,7 @@ typedef struct {
 #define PyStrOrUnicode_Check(op)    (PyBytes_Check(op) || PyUnicode_Check(op))
 #define PyIntOrLong_FromLong        PyLong_FromLong
 #define PyIntOrLong_Check(op)       PyLong_Check(op)
+#define PyIntOrLong_CheckExact(op)  PyLong_CheckExact(op)
 #define PyIntOrLong_FromSize_t      PyLong_FromSize_t
 #define PyIntOrLong_FromSsize_t     PyLong_FromSsize_t
 #define PyIntOrLong_AsSsize_t       PyLong_AsSsize_t
@@ -356,6 +341,7 @@ typedef struct {
 #define PyStrOrUnicode_Check(op)    (PyString_Check(op) || PyUnicode_Check(op))
 #define PyIntOrLong_FromLong        PyInt_FromLong
 #define PyIntOrLong_Check(op)       (PyInt_Check(op) || PyLong_Check(op))
+#define PyIntOrLong_CheckExact(op)  (PyInt_CheckExact(op) || PyLong_CheckExact(op))
 #define PyIntOrLong_FromSize_t      PyInt_FromSize_t
 #define PyIntOrLong_FromSsize_t     PyInt_FromSsize_t
 #define PyIntOrLong_AsSsize_t       PyInt_AsSsize_t

@@ -69,7 +69,7 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
     if (CHECK_MPZANY(x)) {
         if (PyIntOrLong_Check(y)) {
             int error;
-            native_si temp = GMPy_Integer_AsNative_siAndError(y, &error);
+            long temp = GMPy_Integer_AsLongAndError(y, &error);
 
             if (error) {
                 mpz_set_PyIntOrLong(global.tempz, y);

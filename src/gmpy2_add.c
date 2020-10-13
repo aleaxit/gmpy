@@ -71,7 +71,7 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     if (MPZ_Check(x)) {
         if (PyIntOrLong_Check(y)) {
             int error;
-            native_si temp = GMPy_Integer_AsNative_siAndError(y, &error);
+            long temp = GMPy_Integer_AsLongAndError(y, &error);
 
             if (!error) {
                 if (temp >= 0) {
@@ -97,7 +97,7 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     if (MPZ_Check(y)) {
         if (PyIntOrLong_Check(x)) {
             int error;
-            native_si temp = GMPy_Integer_AsNative_siAndError(x, &error);
+            long temp = GMPy_Integer_AsLongAndError(x, &error);
 
             if (!error) {
                 if (temp >= 0) {
@@ -150,13 +150,64 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_MPZ_Add_Slot(PyObject *x, PyObject *y)
 {
-    if (MPZ_Check(x) && MPZ_Check(y)) {
-        MPZ_Object *result = NULL;
+    if (MPZ_Check(x)) {
 
-        if ((result = GMPy_MPZ_New(NULL))) {
-            mpz_add(result->z, MPZ(x), MPZ(y));
+        if (MPZ_Check(y)) {
+            MPZ_Object *result = NULL;
+
+            if ((result = GMPy_MPZ_New(NULL))) {
+                mpz_add(result->z, MPZ(x), MPZ(y));
+            }
+            return (PyObject*)result;
         }
-        return (PyObject*)result;
+
+        if (PyIntOrLong_CheckExact(y)) {
+            MPZ_Object *result = NULL;
+
+            if ((result = GMPy_MPZ_New(NULL))) {
+                int error;
+                long temp = GMPy_IntOrLongExact_AsLongAndError(y, &error);
+
+                if (!error) {
+                    if (temp >= 0) {
+                        mpz_add_ui(result->z, MPZ(x), temp);
+                    }
+                    else {
+                        mpz_sub_ui(result->z, MPZ(x), -temp);
+                    }
+                }
+                else {
+                    mpz_set_PyIntOrLong(global.tempz, y);
+                    mpz_add(result->z, MPZ(x), global.tempz);
+                }
+            }
+            return (PyObject*)result;
+        }
+    }
+
+    if (MPZ_Check(y)) {
+        if (PyLong_CheckExact(x)) {
+            MPZ_Object *result = NULL;
+
+            if ((result = GMPy_MPZ_New(NULL))) {
+                int error;
+                long temp = GMPy_Integer_AsLongAndError(x, &error);
+
+                if (!error) {
+                    if (temp >= 0) {
+                        mpz_add_ui(result->z, MPZ(y), temp);
+                    }
+                    else {
+                        mpz_sub_ui(result->z, MPZ(y), -temp);
+                    }
+                }
+                else {
+                    mpz_set_PyIntOrLong(global.tempz, x);
+                    mpz_add(result->z, MPZ(y), global.tempz);
+                }
+            }
+            return (PyObject*)result;
+        }
     }
 
     if (IS_INTEGER(x) && IS_INTEGER(y))
