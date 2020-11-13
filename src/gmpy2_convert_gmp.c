@@ -222,10 +222,18 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
     while ((size>0) && (result->ob_digit[size-1] == 0)) {
         size--;
     }
+#if PY_VERSION_HEX >= 0x030900A4
+    Py_SET_SIZE(result, size);
+#else
     Py_SIZE(result) = size;
+#endif
 
     if (negative) {
+#if PY_VERSION_HEX >= 0x030900A4
+        Py_SET_SIZE(result, - Py_SIZE(result));
+#else
         Py_SIZE(result) = - Py_SIZE(result);
+#endif
     }
     return (PyObject*)result;
 }

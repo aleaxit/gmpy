@@ -75,7 +75,7 @@ print("  Caching Values: (Cache size)    {0}".format(gmpy2.get_cache()[0]))
 print("  Caching Values: (Size in limbs) {0}".format(gmpy2.get_cache()[1]))
 print()
 
-if sys.version.startswith('3.1'):
+if sys.version.startswith('3.1.'):
     print("Due to differences in formatting of exceptions and Python 3.x, there")
     print("will be test failures for exception handling when the tests are run")
     print("with Python 3.1. The doctest module in Python 3.2 and later does not")
