@@ -46,7 +46,7 @@ PyDoc_STRVAR(GMPy_doc_mpq,
 #ifdef PY3
 static PyNumberMethods mpq_number_methods =
 {
-    (binaryfunc) GMPy_MPQ_Add_Slot,         /* nb_add                  */
+    (binaryfunc) GMPy_Number_Add_Slot,      /* nb_add                  */
     (binaryfunc) GMPy_MPQ_Sub_Slot,         /* nb_subtract             */
     (binaryfunc) GMPy_MPQ_Mul_Slot,         /* nb_multiply             */
     (binaryfunc) GMPy_MPQ_Mod_Slot,         /* nb_remainder            */
@@ -84,7 +84,7 @@ static PyNumberMethods mpq_number_methods =
 #else
 static PyNumberMethods mpq_number_methods =
 {
-    (binaryfunc) GMPy_MPQ_Add_Slot,         /* nb_add                  */
+    (binaryfunc) GMPy_Number_Add_Slot,      /* nb_add                  */
     (binaryfunc) GMPy_MPQ_Sub_Slot,         /* nb_subtract             */
     (binaryfunc) GMPy_MPQ_Mul_Slot,         /* nb_multiply             */
     (binaryfunc) GMPy_MPQ_TrueDiv_Slot,     /* nb_divide               */

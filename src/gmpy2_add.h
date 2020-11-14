@@ -39,16 +39,12 @@ static PyObject * GMPy_Number_Add(PyObject *x, PyObject *y, CTXT_Object *context
 
 /* Private API */
 
-static PyObject * GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Rational_Add(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Complex_Add(PyObject *x, PyObject *y, CTXT_Object *context);
-
-static PyObject * GMPy_MPZ_Add_Slot(PyObject *x, PyObject *y);
-static PyObject * GMPy_MPQ_Add_Slot(PyObject *x, PyObject *y);
-static PyObject * GMPy_MPFR_Add_Slot(PyObject *x, PyObject *y);
-static PyObject * GMPy_MPC_Add_Slot(PyObject *x, PyObject *y);
-
+static PyObject * GMPy_Number_Add_X(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Integer_Add_X(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Rational_Add_X(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Real_Add_X(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Complex_Add_X(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Number_Add_Slot(PyObject *x, PyObject *y);
 static PyObject * GMPy_Context_Add(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus

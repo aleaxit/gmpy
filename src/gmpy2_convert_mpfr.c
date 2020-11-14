@@ -484,6 +484,75 @@ GMPy_MPFR_From_Real(PyObject *obj, mp_prec_t prec, CTXT_Object *context)
 
 
 static MPFR_Object *
+GMPy_MPFR_From_Real_X(PyObject *obj, int xtype, mp_prec_t prec, CTXT_Object *context)
+{
+    CHECK_CONTEXT(context);
+
+    if (MPFR_Check(obj))
+        return GMPy_MPFR_From_MPFR((MPFR_Object*)obj, prec, context);
+
+    if (PyFloat_Check(obj))
+        return GMPy_MPFR_From_PyFloat(obj, prec, context);
+
+    if (MPQ_Check(obj))
+        return GMPy_MPFR_From_MPQ((MPQ_Object*)obj, prec, context);
+
+    if (MPZ_Check(obj) || XMPZ_Check(obj))
+        return GMPy_MPFR_From_MPZ((MPZ_Object*)obj, prec, context);
+
+    if (PyIntOrLong_Check(obj))
+        return GMPy_MPFR_From_PyIntOrLong(obj, prec, context);
+
+    if (IS_FRACTION(obj))
+        return GMPy_MPFR_From_Fraction(obj, prec, context);
+
+    if (HAS_MPFR_CONVERSION(obj)) {
+        MPFR_Object *res = (MPFR_Object *) PyObject_CallMethod(obj, "__mpfr__", NULL);
+
+        if (res != NULL && MPFR_Check(res)) {
+            return res;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+    if (HAS_MPQ_CONVERSION(obj)) {
+        MPQ_Object *res = (MPQ_Object *) PyObject_CallMethod(obj, "__mpq__", NULL);
+
+        if (res != NULL && MPQ_Check(res)) {
+            MPFR_Object * temp =  GMPy_MPFR_From_MPQ(res, prec, context);
+            Py_DECREF(res);
+            return temp;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+    if (HAS_MPZ_CONVERSION(obj)) {
+        MPZ_Object *res = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (res != NULL && MPZ_Check(res)) {
+            MPFR_Object * temp =  GMPy_MPFR_From_MPZ(res, prec, context);
+            Py_DECREF(res);
+            return temp;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+  error:
+    TYPE_ERROR("object could not be converted to 'mpfr'");
+    return NULL;
+}
+
+
+static MPFR_Object *
 GMPy_MPFR_From_RealAndCopy(PyObject *obj, mp_prec_t prec, CTXT_Object *context)
 {
     MPFR_Object *result = NULL, *temp = NULL;

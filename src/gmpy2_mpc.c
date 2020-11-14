@@ -186,7 +186,7 @@ static PyMethodDef Pympc_methods[] =
 #ifdef PY3
 static PyNumberMethods mpc_number_methods =
 {
-    (binaryfunc) GMPy_MPC_Add_Slot,      /* nb_add                  */
+    (binaryfunc) GMPy_Number_Add_Slot,   /* nb_add                  */
     (binaryfunc) GMPy_MPC_Sub_Slot,      /* nb_subtract             */
     (binaryfunc) GMPy_MPC_Mul_Slot,      /* nb_multiply             */
     (binaryfunc) GMPy_MPC_Mod_Slot,      /* nb_remainder            */
@@ -224,7 +224,7 @@ static PyNumberMethods mpc_number_methods =
 #else
 static PyNumberMethods mpc_number_methods =
 {
-    (binaryfunc) GMPy_MPC_Add_Slot,      /* nb_add                  */
+    (binaryfunc) GMPy_Number_Add_Slot,   /* nb_add                  */
     (binaryfunc) GMPy_MPC_Sub_Slot,      /* nb_subtract             */
     (binaryfunc) GMPy_MPC_Mul_Slot,      /* nb_multiply             */
     (binaryfunc) GMPy_MPC_TrueDiv_Slot,  /* nb_divide               */

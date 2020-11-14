@@ -329,6 +329,39 @@ GMPy_MPZ_From_Integer(PyObject *obj, CTXT_Object *context)
     return NULL;
 }
 
+static MPZ_Object *
+GMPy_MPZ_From_Integer_X(PyObject *obj, int xtype, CTXT_Object *context)
+{
+    MPZ_Object *result = NULL;
+
+    if (MPZ_Check(obj)) {
+        Py_INCREF(obj);
+        return (MPZ_Object*)obj;
+    }
+
+    if (xtype == OBJ_TYPE_PyInteger)
+        return GMPy_MPZ_From_PyIntOrLong(obj, context);
+
+    if (XMPZ_Check(obj))
+        return GMPy_MPZ_From_XMPZ((XMPZ_Object*)obj, context);
+
+    if (xtype == OBJ_TYPE_HAS_MPZ) {
+        result = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (result != NULL && MPZ_Check(result)) {
+            return result;
+        }
+        else {
+            Py_XDECREF((PyObject*)result);
+            goto error;
+        }
+    }
+
+  error:
+    TYPE_ERROR("cannot convert object to mpz");
+    return NULL;
+}
+
 
 
 static MPZ_Object *
@@ -1066,6 +1099,63 @@ GMPy_MPQ_From_Number(PyObject *obj, CTXT_Object *context)
 }
 
 static MPQ_Object*
+GMPy_MPQ_From_Number_X(PyObject *obj, int xtype, CTXT_Object *context)
+{
+    if (MPQ_Check(obj)) {
+        Py_INCREF(obj);
+        return (MPQ_Object*)obj;
+    }
+
+    if (MPZ_Check(obj))
+        return GMPy_MPQ_From_MPZ((MPZ_Object*)obj, context);
+
+    if (MPFR_Check(obj))
+        return GMPy_MPQ_From_MPFR((MPFR_Object*)obj, context);
+
+    if (PyFloat_Check(obj))
+        return GMPy_MPQ_From_PyFloat(obj, context);
+
+    if (PyIntOrLong_Check(obj))
+        return GMPy_MPQ_From_PyIntOrLong(obj, context);
+
+    if (XMPZ_Check(obj))
+        return GMPy_MPQ_From_XMPZ((XMPZ_Object*)obj, context);
+
+    if (IS_FRACTION(obj))
+        return GMPy_MPQ_From_Fraction(obj, context);
+
+    if (HAS_MPQ_CONVERSION(obj)) {
+        MPQ_Object * res = (MPQ_Object *) PyObject_CallMethod(obj, "__mpq__", NULL);
+
+        if (res != NULL && MPQ_Check(res)) {
+            return res;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+    if (HAS_MPZ_CONVERSION(obj)) {
+        MPZ_Object * res = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (res != NULL && MPZ_Check(res)) {
+            MPQ_Object * temp = GMPy_MPQ_From_MPZ(res, context);
+            Py_DECREF(res);
+            return temp;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+  error:
+    TYPE_ERROR("cannot convert object to mpq");
+    return NULL;
+}
+
+static MPQ_Object*
 GMPy_MPQ_From_RationalAndCopy(PyObject *obj, CTXT_Object *context)
 {
     MPQ_Object *result = NULL, *temp = NULL;
@@ -1091,6 +1181,57 @@ GMPy_MPQ_From_RationalAndCopy(PyObject *obj, CTXT_Object *context)
 
 static MPQ_Object*
 GMPy_MPQ_From_Rational(PyObject *obj, CTXT_Object *context)
+{
+    if (MPQ_Check(obj)) {
+        Py_INCREF(obj);
+        return (MPQ_Object*)obj;
+    }
+
+    if (MPZ_Check(obj))
+        return GMPy_MPQ_From_MPZ((MPZ_Object*)obj, context);
+
+    if (PyIntOrLong_Check(obj))
+        return GMPy_MPQ_From_PyIntOrLong(obj, context);
+
+    if (XMPZ_Check(obj))
+        return GMPy_MPQ_From_XMPZ((XMPZ_Object*)obj, context);
+
+    if (IS_FRACTION(obj))
+        return GMPy_MPQ_From_Fraction(obj, context);
+
+    if (HAS_MPQ_CONVERSION(obj)) {
+        MPQ_Object * res = (MPQ_Object *) PyObject_CallMethod(obj, "__mpq__", NULL);
+
+        if (res != NULL && MPQ_Check(res)) {
+            return res;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+    if (HAS_MPZ_CONVERSION(obj)) {
+        MPZ_Object * res = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (res != NULL && MPZ_Check(res)) {
+            MPQ_Object * temp = GMPy_MPQ_From_MPZ(res, context);
+            Py_DECREF(res);
+            return temp;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+  error:
+    TYPE_ERROR("cannot convert object to mpq");
+    return NULL;
+}
+
+static MPQ_Object*
+GMPy_MPQ_From_Rational_X(PyObject *obj, int xtype, CTXT_Object *context)
 {
     if (MPQ_Check(obj)) {
         Py_INCREF(obj);

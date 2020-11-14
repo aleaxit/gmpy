@@ -36,10 +36,10 @@ extern "C" {
 /* The following macros classify the numeric types that are supported by
  * gmpy2.
  */
-#define HAS_MPZ_CONVERSION(x) PyObject_HasAttrString(x, "__mpz__")
-#define HAS_MPQ_CONVERSION(x) PyObject_HasAttrString(x, "__mpq__")
-#define HAS_MPFR_CONVERSION(x) PyObject_HasAttrString(x, "__mpfr__")
-#define HAS_MPC_CONVERSION(x) PyObject_HasAttrString(x, "__mpc__")
+#define HAS_MPZ_CONVERSION(x) (PyObject_HasAttrString(x, "__mpz__"))
+#define HAS_MPQ_CONVERSION(x) (PyObject_HasAttrString(x, "__mpq__"))
+#define HAS_MPFR_CONVERSION(x) (PyObject_HasAttrString(x, "__mpfr__"))
+#define HAS_MPC_CONVERSION(x) (PyObject_HasAttrString(x, "__mpc__"))
 
 #define HAS_STRICT_MPZ_CONVERSION(x) (HAS_MPZ_CONVERSION(x) && \
                                      !HAS_MPQ_CONVERSION(x))
@@ -72,6 +72,30 @@ extern "C" {
 
 #define IS_COMPLEX_ONLY(x) (MPC_Check(x) || PyComplex_Check(x) || HAS_MPC_CONVERSION(x))
 #define IS_COMPLEX(x) (IS_REAL(x) || IS_COMPLEX_ONLY(x))
+
+/* Define constants used in gmpy2_convert.c->GMPy_ObjectType. */
+
+#define OBJ_TYPE_MPZ        1
+#define OBJ_TYPE_PyInteger  2
+/* 3 TO 14 reserved for additional integer types. */
+#define OBJ_TYPE_HAS_MPZ    15
+
+#define OBJ_TYPE_MPQ        16
+#define OBJ_TYPE_PyFraction 17
+/* 18 to 30 reserved for additional rational types. */
+#define OBJ_TYPE_HAS_MPQ    31
+
+#define OBJ_TYPE_MPFR       32
+#define OBJ_TYPE_PyFloat    33
+/* 34 to 46 reserved for additional real types. */
+#define OBJ_TYPE_HAS_MPFR   47
+
+#define OBJ_TYPE_MPC        48
+#define OBJ_TYPE_PyComplex  49
+/* 50 to 62 reserved for additional complex types. */
+#define OBJ_TYPE_HAS_MPC    63
+
+#define OBJ_TYPE_MAX        64
 
 /* Since the macros are used in gmpy2's codebase, these functions are skipped
  * until they are needed for the C API in the future.

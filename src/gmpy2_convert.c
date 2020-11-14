@@ -72,6 +72,113 @@ static int GMPy_isComplex(PyObject *obj)
 }
 #endif
 
+/* GMPy_ObjectType(PyObject *obj) returns an integer that identifies the
+ * object's type. The return values are:
+ *
+ *    0:       unknown type
+ *    1:       MPZ or XMPZ type
+ *    2:       Python Integer (for Python 2.x) or Long type
+ *    3:       Has __mpz__ method
+ *    4 - 15:  Future use for other integer types
+ *    16:      MPQ type
+ *    17:      Python Fraction type
+ *    18:      Has __mpq__ method
+ *    19 - 31: Future use for other integer types
+ *    32:      MPFR type
+ *    33:      PyFloat type
+ *    34:      Has __mpfr__ method
+ *    35 - 47: Future use for other real floating point types
+ *    48:      MPC type
+ *    49:      PyComplex type
+ *    50:      Has __mpc__ method
+ *    51 - 63: Future use for other complex float point types
+ *
+ * Exceptions are never raised.
+ */
+
+static int GMPy_ObjectType(PyObject *obj)
+{
+    /* Tests are sorted by order by (best guess of) most common argument type.
+     * Complete tests are done last.
+     */
+
+    /* We only check for exact Python types first. */
+
+    if MPZ_Check(obj) {
+        return OBJ_TYPE_MPZ;
+    }
+
+    if PyIntOrLong_CheckExact(obj) {
+        return OBJ_TYPE_PyInteger;
+    }
+
+    if MPFR_Check(obj) {
+        return OBJ_TYPE_MPFR;
+    }
+
+    if PyFloat_CheckExact(obj) {
+        return OBJ_TYPE_PyFloat;
+    }
+
+    if MPC_Check(obj) {
+        return OBJ_TYPE_MPC;
+    }
+
+    if PyComplex_CheckExact(obj) {
+        return OBJ_TYPE_PyComplex;
+    }
+
+    if MPQ_Check(obj) {
+        return OBJ_TYPE_MPQ;
+    }
+
+    if IS_FRACTION(obj) {
+        return OBJ_TYPE_PyFraction;
+    }
+
+    if XMPZ_Check(obj) {
+        return OBJ_TYPE_MPZ;
+    }
+
+    /* Now we do the non-Exact type check for native types. */
+
+    if PyIntOrLong_Check(obj) {
+        return OBJ_TYPE_PyInteger;
+    }
+
+    if PyFloat_Check(obj) {
+        return OBJ_TYPE_PyFloat;
+    }
+
+    if PyComplex_Check(obj) {
+        return OBJ_TYPE_PyComplex;
+    }
+
+    /* Now we look for the presence of __mpz__, __mpq__, __mpfr__, and __mpc__.
+     * Since a type may define more than one of the special methods, we perform
+     * the checks in reverse order.
+     */
+
+    if HAS_MPC_CONVERSION(obj) {
+        return OBJ_TYPE_HAS_MPC;
+    }
+
+    if HAS_MPFR_CONVERSION(obj) {
+        return OBJ_TYPE_HAS_MPFR;
+    }
+
+    if HAS_MPQ_CONVERSION(obj) {
+        return OBJ_TYPE_HAS_MPQ;
+    }
+
+    if HAS_MPZ_CONVERSION(obj) {
+        return OBJ_TYPE_HAS_MPZ;
+    }
+
+    return 0;
+}
+
+
 /* mpz_set_PyStr converts a Python "string" into a mpz_t structure. It accepts
  * a sequence of bytes (i.e. str in Python 2, bytes in Python 3) or a Unicode
  * string (i.e. unicode in Python 3, str in Python 3). Returns -1 on error,

@@ -27,38 +27,15 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* This file implements the + operator, gmpy2.add(), and context.add().
- *
- * Public API
- * ==========
- * The following function is available as part of GMPY2's C API. A NULL
- * value for context implies the function should use the currently active
- * context.
- *
- *   GMPy_Number_Add(Number, Number, context|NULL)
- *
- * Private API
- * ===========
- *   GMPy_MPZ_Add_Slot
- *   GMPy_MPQ_Add_Slot
- *   GMPy_MPFR_Add_Slot
- *   GMPy_MPC_Add_Slot
- *
- *   GMPy_Integer_Add(Integer, Integer, context|NULL)
- *   GMPy_Rational_Add(Rational, Rational, context|NULL)
- *   GMPy_Real_Add(Real, Real, context|NULL)
- *   GMPy_Complex_Add(Complex, Complex, context|NULL)
- *
- *   GMPy_Context_Add(context, args)
- *
  */
 
 /* Add two Integer objects (see gmpy2_convert.h). If an error occurs, NULL
  * is returned and an exception is set. If either x or y can't be converted
- * into an mpz, Py_NotImplemented is returned.
+ * into an mpz, a type error is returned.
  */
 
 static PyObject *
-GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Integer_Add_X(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context)
 {
     MPZ_Object *result = NULL;
 
@@ -68,10 +45,15 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    if (MPZ_Check(x)) {
-        if (PyIntOrLong_Check(y)) {
+    if (xtype == OBJ_TYPE_MPZ) {
+        if (ytype == OBJ_TYPE_MPZ) {
+            mpz_add(result->z, MPZ(x), MPZ(y));
+            return (PyObject*)result;
+        }
+
+        if (ytype == OBJ_TYPE_PyInteger) {
             int error;
-            long temp = GMPy_Integer_AsLongAndError(y, &error);
+            long temp = PyLong_AsLongAndOverflow(y, &error);
 
             if (!error) {
                 if (temp >= 0) {
@@ -82,22 +64,31 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
                 }
             }
             else {
-                mpz_set_PyIntOrLong(global.tempz, y);
-                mpz_add(result->z, MPZ(x), global.tempz);
+                mpz_set_PyIntOrLong(result->z, y);
+                mpz_add(result->z, MPZ(x), result->z);
             }
             return (PyObject*)result;
         }
 
-        if (MPZ_Check(y)) {
-            mpz_add(result->z, MPZ(x), MPZ(y));
+        if (ytype == OBJ_TYPE_HAS_MPZ) {
+            MPZ_Object *tempy = NULL;
+
+            if (!(tempy = GMPy_MPZ_From_Integer_X(y, ytype, context))) {
+                /* Conversion of y to MPZ failed. */
+                Py_DECREF((PyObject*)result);
+                return NULL;
+            }
+
+            mpz_add(result->z, MPZ(x), MPZ(tempy));
+            Py_DECREF((PyObject*)tempy);
             return (PyObject*)result;
         }
     }
 
-    if (MPZ_Check(y)) {
-        if (PyIntOrLong_Check(x)) {
+    if (ytype == OBJ_TYPE_MPZ) {
+        if (xtype == OBJ_TYPE_PyInteger) {
             int error;
-            long temp = GMPy_Integer_AsLongAndError(x, &error);
+            long temp = PyLong_AsLongAndOverflow(x, &error);
 
             if (!error) {
                 if (temp >= 0) {
@@ -108,18 +99,32 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
                 }
             }
             else {
-                mpz_set_PyIntOrLong(global.tempz, x);
-                mpz_add(result->z, MPZ(y), global.tempz);
+                mpz_set_PyIntOrLong(result->z, x);
+                mpz_add(result->z, result->z, MPZ(y));
             }
+            return (PyObject*)result;
+        }
+
+        if (xtype == OBJ_TYPE_HAS_MPZ) {
+            MPZ_Object *tempx = NULL;
+
+            if (!(tempx = GMPy_MPZ_From_Integer_X(x, xtype, context))) {
+                /* Conversion of x to MPZ failed. */
+                Py_DECREF((PyObject*)result);
+                return NULL;
+            }
+
+            mpz_add(result->z, MPZ(tempx), MPZ(y));
+            Py_DECREF((PyObject*)tempx);
             return (PyObject*)result;
         }
     }
 
-    if (IS_INTEGER(x) && IS_INTEGER(y)) {
+    if ((xtype <= OBJ_TYPE_HAS_MPZ) && (ytype <= OBJ_TYPE_HAS_MPZ)) {
         MPZ_Object *tempx = NULL, *tempy = NULL;
 
-        if (!(tempx = GMPy_MPZ_From_Integer(x, context)) ||
-            !(tempy = GMPy_MPZ_From_Integer(y, context))) {
+        if (!(tempx = GMPy_MPZ_From_Integer_X(x, xtype, context)) ||
+            !(tempy = GMPy_MPZ_From_Integer_X(y, ytype, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -134,103 +139,13 @@ GMPy_Integer_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         return (PyObject*)result;
     }
 
-    /* LCOV_EXCL_START */
-    SYSTEM_ERROR("Internal error in GMPy_Integer_Add().");
     Py_DECREF((PyObject*)result);
+    TYPE_ERROR("add() argument type not supported");
     return NULL;
-    /* LCOV_EXCL_STOP */
 }
 
-/* Implement __add__ for MPZ_Object. On entry, one of the two arguments must
- * be an MPZ_Object. If the other object is an Integer, add and return an
- * MPZ_Object. If the other object isn't an MPZ_Object, call the appropriate
- * function. If no appropriate function can be found, return NotImplemented.
- */
-
 static PyObject *
-GMPy_MPZ_Add_Slot(PyObject *x, PyObject *y)
-{
-    if (MPZ_Check(x)) {
-
-        if (MPZ_Check(y)) {
-            MPZ_Object *result = NULL;
-
-            if ((result = GMPy_MPZ_New(NULL))) {
-                mpz_add(result->z, MPZ(x), MPZ(y));
-            }
-            return (PyObject*)result;
-        }
-
-        if (PyIntOrLong_CheckExact(y)) {
-            MPZ_Object *result = NULL;
-
-            if ((result = GMPy_MPZ_New(NULL))) {
-                int error;
-                long temp = GMPy_IntOrLongExact_AsLongAndError(y, &error);
-
-                if (!error) {
-                    if (temp >= 0) {
-                        mpz_add_ui(result->z, MPZ(x), temp);
-                    }
-                    else {
-                        mpz_sub_ui(result->z, MPZ(x), -temp);
-                    }
-                }
-                else {
-                    mpz_set_PyIntOrLong(global.tempz, y);
-                    mpz_add(result->z, MPZ(x), global.tempz);
-                }
-            }
-            return (PyObject*)result;
-        }
-    }
-
-    if (MPZ_Check(y)) {
-        if (PyLong_CheckExact(x)) {
-            MPZ_Object *result = NULL;
-
-            if ((result = GMPy_MPZ_New(NULL))) {
-                int error;
-                long temp = GMPy_Integer_AsLongAndError(x, &error);
-
-                if (!error) {
-                    if (temp >= 0) {
-                        mpz_add_ui(result->z, MPZ(y), temp);
-                    }
-                    else {
-                        mpz_sub_ui(result->z, MPZ(y), -temp);
-                    }
-                }
-                else {
-                    mpz_set_PyIntOrLong(global.tempz, x);
-                    mpz_add(result->z, MPZ(y), global.tempz);
-                }
-            }
-            return (PyObject*)result;
-        }
-    }
-
-    if (IS_INTEGER(x) && IS_INTEGER(y))
-        return GMPy_Integer_Add(x, y, NULL);
-
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return GMPy_Rational_Add(x, y, NULL);
-
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_Add(x, y, NULL);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_Add(x, y, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-/* Add two Rational objects (see gmpy2_convert.h). Returns None and
- * raises TypeError if both objects are not valid rationals. GMPy_Rational_Add
- * is intended to be called from GMPy_Number_Add(). */
-
-static PyObject *
-GMPy_Rational_Add(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Rational_Add_X(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context)
 {
     MPQ_Object *result = NULL;
 
@@ -240,12 +155,12 @@ GMPy_Rational_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    if (MPQ_Check(x) && MPQ_Check(y)) {
+    if ((xtype == OBJ_TYPE_MPQ) && (ytype == OBJ_TYPE_MPQ)) {
         mpq_add(result->q, MPQ(x), MPQ(y));
         return (PyObject*)result;
     }
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
+    if ((xtype <= OBJ_TYPE_HAS_MPQ) && (ytype <= OBJ_TYPE_HAS_MPQ)) {
         MPQ_Object *tempx = NULL, *tempy = NULL;
 
         if (!(tempx = GMPy_MPQ_From_Rational(x, context)) ||
@@ -264,31 +179,9 @@ GMPy_Rational_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         return (PyObject*)result;
     }
 
-    /* LCOV_EXCL_START */
-    SYSTEM_ERROR("Internal error in GMPy_Rational_Add().");
     Py_DECREF((PyObject*)result);
+    TYPE_ERROR("add() argument type not supported");
     return NULL;
-    /* LCOV_EXCL_STOP */
-}
-
-/* Implement __add__ for Pympq. On entry, one of the two arguments must
- * be a Pympq. If the other object is a Rational, add and return a Pympq.
- * If the other object isn't a Pympq, call the appropriate function. If
- * no appropriate function can be found, return NotImplemented. */
-
-static PyObject *
-GMPy_MPQ_Add_Slot(PyObject *x, PyObject *y)
-{
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return GMPy_Rational_Add(x, y, NULL);
-
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_Add(x, y, NULL);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_Add(x, y, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Addition can be performed by the equivalent of mpfr.__add__ or by
@@ -309,7 +202,7 @@ GMPy_MPQ_Add_Slot(PyObject *x, PyObject *y)
  * are not valid reals.  */
 
 static PyObject *
-GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Real_Add_X(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context)
 {
     MPFR_Object *result = NULL;
 
@@ -321,17 +214,17 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    if (MPFR_Check(x)) {
-        if (MPFR_Check(y)) {
+    if (xtype == OBJ_TYPE_MPFR) {
+        if (ytype == OBJ_TYPE_MPFR) {
             mpfr_clear_flags();
 
             result->rc = mpfr_add(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
             goto done;
         }
 
-        if (PyIntOrLong_Check(y)) {
+        if (ytype == OBJ_TYPE_PyInteger) {
             int error;
-            long temp = GMPy_Integer_AsLongAndError(y, &error);
+            long temp = PyLong_AsLongAndOverflow(y, &error);
 
             if (!error) {
                 mpfr_clear_flags();
@@ -348,14 +241,35 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             }
         }
 
-        if (CHECK_MPZANY(y)) {
+        if (ytype == OBJ_TYPE_MPZ) {
             mpfr_clear_flags();
 
             result->rc = mpfr_add_z(result->f, MPFR(x), MPZ(y), GET_MPFR_ROUND(context));
             goto done;
         }
 
-        if (IS_RATIONAL(y)) {
+        if (ytype == OBJ_TYPE_HAS_MPZ) {
+            MPZ_Object *tempy = NULL;
+
+            if (!(tempy = GMPy_MPZ_From_Integer_X(y, ytype, context))) {
+                /* Conversion of y to MPZ failed. */
+                Py_DECREF((PyObject*)result);
+                return NULL;
+            }
+
+            mpfr_add_z(result->f, MPFR(x), MPZ(tempy), GET_MPFR_ROUND(context));
+            Py_DECREF((PyObject*)tempy);
+            goto done;
+        }
+
+        if (ytype == OBJ_TYPE_MPQ) {
+            mpfr_clear_flags();
+
+            result->rc = mpfr_add_q(result->f, MPFR(x), MPQ(y), GET_MPFR_ROUND(context));
+            goto done;
+        }
+
+        if (ytype == OBJ_TYPE_HAS_MPQ) {
             MPQ_Object *tempy = NULL;
 
             if (!(tempy = GMPy_MPQ_From_Rational(y, context))) {
@@ -372,18 +286,35 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             goto done;
         }
 
-        if (PyFloat_Check(y)) {
+        if (ytype == OBJ_TYPE_PyFloat) {
             mpfr_clear_flags();
 
             result->rc = mpfr_add_d(result->f, MPFR(x), PyFloat_AS_DOUBLE(y), GET_MPFR_ROUND(context));
             goto done;
         }
+
+        if (ytype == OBJ_TYPE_HAS_MPFR) {
+            MPFR_Object *tempy = NULL;
+
+            if (!(tempy = GMPy_MPFR_From_Real(y, 1, context))) {
+                /* LCOV_EXCL_START */
+                Py_DECREF((PyObject*)result);
+                return NULL;
+                /* LCOV_EXCL_STOP */
+            }
+
+            mpfr_clear_flags();
+
+            result->rc = mpfr_add(result->f, MPFR(x), tempy->f, GET_MPFR_ROUND(context));
+            Py_DECREF((PyObject*)tempy);
+            goto done;
+        }
     }
 
-    if (MPFR_Check(y)) {
-        if (PyIntOrLong_Check(x)) {
+    if (ytype == OBJ_TYPE_MPFR) {
+        if (xtype == OBJ_TYPE_PyInteger) {
             int error;
-            long temp = GMPy_Integer_AsLongAndError(x, &error);
+            long temp = PyLong_AsLongAndOverflow(x, &error);
 
             if (!error) {
                 mpfr_clear_flags();
@@ -400,14 +331,35 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             }
         }
 
-        if (CHECK_MPZANY(x)) {
+        if (xtype == OBJ_TYPE_MPZ) {
             mpfr_clear_flags();
 
             result->rc = mpfr_add_z(result->f, MPFR(y), MPZ(x), GET_MPFR_ROUND(context));
             goto done;
         }
 
-        if (IS_RATIONAL(x)) {
+        if (xtype == OBJ_TYPE_HAS_MPZ) {
+            MPZ_Object *tempx = NULL;
+
+            if (!(tempx = GMPy_MPZ_From_Integer_X(x, xtype, context))) {
+                /* Conversion of x to MPZ failed. */
+                Py_DECREF((PyObject*)result);
+                return NULL;
+            }
+
+            mpfr_add_z(result->f, MPFR(y), MPZ(tempx), GET_MPFR_ROUND(context));
+            Py_DECREF((PyObject*)tempx);
+            goto done;
+        }
+
+        if (xtype == OBJ_TYPE_MPQ) {
+            mpfr_clear_flags();
+
+            result->rc = mpfr_add_q(result->f, MPFR(y), MPQ(x), GET_MPFR_ROUND(context));
+            goto done;
+        }
+
+        if (xtype == OBJ_TYPE_HAS_MPQ) {
             MPQ_Object *tempx = NULL;
 
             if (!(tempx = GMPy_MPQ_From_Rational(x, context))) {
@@ -424,10 +376,26 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
             goto done;
         }
 
-        if (PyFloat_Check(x)) {
+        if (xtype == OBJ_TYPE_PyFloat) {
             mpfr_clear_flags();
 
             result->rc = mpfr_add_d(result->f, MPFR(y), PyFloat_AS_DOUBLE(x), GET_MPFR_ROUND(context));
+            goto done;
+        }
+        if (xtype == OBJ_TYPE_HAS_MPFR) {
+            MPFR_Object *tempx = NULL;
+
+            if (!(tempx = GMPy_MPFR_From_Real_X(x, xtype, 1, context))) {
+                /* LCOV_EXCL_START */
+                Py_DECREF((PyObject*)result);
+                return NULL;
+                /* LCOV_EXCL_STOP */
+            }
+
+            mpfr_clear_flags();
+
+            result->rc = mpfr_add(result->f, MPFR(y), tempx->f, GET_MPFR_ROUND(context));
+            Py_DECREF((PyObject*)tempx);
             goto done;
         }
     }
@@ -464,45 +432,14 @@ GMPy_Real_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     return (PyObject*)result;
 }
 
-/* Implement __add__ for Pympfr. On entry, one of the two arguments must
- * be a Pympfr. If the other object is a Real, add and return a Pympfr.
- * If the other object isn't a Pympfr, call the appropriate function. If
- * no appropriate function can be found, return NotImplemented. */
-
-static PyObject *
-GMPy_MPFR_Add_Slot(PyObject *x, PyObject *y)
-{
-    if ((MPFR_Check(x)) && MPFR_Check(y)) {
-        MPFR_Object *result;
-        CTXT_Object *context = NULL;
-
-        CHECK_CONTEXT(context);
-
-        if ((result = GMPy_MPFR_New(0, context))) {
-            mpfr_clear_flags();
-
-            result->rc = mpfr_add(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
-            _GMPy_MPFR_Cleanup(&result, context);
-        }
-        return (PyObject*)result;
-    }
-
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_Add(x, y, NULL);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_Add(x, y, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
 /* GMPy_Complex_Add(x, y, context) returns x+y using the provided context. If
  * context is NULL, then the current context is used. If an error occurs, NULL
  * is returned and an exception is set. If either x or y can't be converted to
  * an mpc, then Py_NotImplemented is returned. */
 
+
 static PyObject *
-GMPy_Complex_Add(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Complex_Add_X(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context)
 {
     MPC_Object *result = NULL;
 
@@ -550,31 +487,25 @@ GMPy_Complex_Add(PyObject *x, PyObject *y, CTXT_Object *context)
     /* LCOV_EXCL_STOP */
 }
 
-/* GMPy_MPC_Add_Slot() is called by mpc.__add__. It just gets a borrowed reference
- * to the current context and call Pympc_Add_Complex(). Since mpc is the last
- * step of the numeric ladder, the NotImplemented return value from
- * Pympc_Add_Complex() is correct and is just passed on. */
-
 static PyObject *
-GMPy_MPC_Add_Slot(PyObject *x, PyObject *y)
+GMPy_Number_Add_X(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context)
 {
-    if ((MPC_Check(x)) && MPC_Check(y)) {
-        MPC_Object *result;
-        CTXT_Object *context = NULL;
-
-        CHECK_CONTEXT(context);
-
-        if ((result = GMPy_MPC_New(0, 0, context))) {
-            mpfr_clear_flags();
-
-            result->rc = mpc_add(result->c, MPC(x), MPC(y), GET_MPC_ROUND(context));
-            _GMPy_MPC_Cleanup(&result, context);
-        }
-        return (PyObject*)result;
+    if ((!xtype) || (!ytype)) {
+        TYPE_ERROR("add() argument type not supported");
+        return NULL;
     }
 
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_Add(x, y, NULL);
+    if ((xtype < OBJ_TYPE_MPQ) && (ytype < OBJ_TYPE_MPQ))
+        return GMPy_Integer_Add_X(x, xtype, y, ytype, context);
+
+    if ((xtype < OBJ_TYPE_MPFR) && (ytype < OBJ_TYPE_MPFR))
+        return GMPy_Rational_Add_X(x, xtype, y, ytype, context);
+
+    if ((xtype < OBJ_TYPE_MPC) && (ytype < OBJ_TYPE_MPC))
+        return GMPy_Real_Add_X(x, xtype, y, ytype, context);
+
+    if ((xtype < OBJ_TYPE_MAX) && (ytype < OBJ_TYPE_MAX))
+        return GMPy_Complex_Add_X(x, xtype, y, ytype, context);
 
     Py_RETURN_NOTIMPLEMENTED;
 }
@@ -582,20 +513,25 @@ GMPy_MPC_Add_Slot(PyObject *x, PyObject *y)
 static PyObject *
 GMPy_Number_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    if (IS_INTEGER(x) && IS_INTEGER(y))
-        return GMPy_Integer_Add(x, y, context);
+    int xtype = GMPy_ObjectType(x);
+    int ytype = GMPy_ObjectType(y);
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return GMPy_Rational_Add(x, y, context);
+    return GMPy_Number_Add_X(x, xtype, y, ytype, context);
+}
 
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_Add(x, y, context);
+/* Implement all the slot methods here. */
 
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_Add(x, y, context);
+static PyObject *
+GMPy_Number_Add_Slot(PyObject *x, PyObject *y)
+{
+    int xtype = GMPy_ObjectType(x);
+    int ytype = GMPy_ObjectType(y);
 
-    TYPE_ERROR("add() argument type not supported");
-    return NULL;
+    if (!xtype || !ytype) {
+        Py_RETURN_NOTIMPLEMENTED;
+    }
+
+    return GMPy_Number_Add_X(x, xtype, y, ytype, NULL);
 }
 
 /* Implement context.add() and gmpy2.add(). */
