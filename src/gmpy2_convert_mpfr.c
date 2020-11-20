@@ -82,8 +82,6 @@ GMPy_MPFR_From_MPFR(MPFR_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
 {
     MPFR_Object *result = NULL;
 
-    assert(MPFR_Check(obj));
-
     /* Optimize the critical case when prec==1 or obj is NaN or Inf. */
 
     if (prec == 1 || !mpfr_number_p(obj->f)) {
@@ -127,8 +125,6 @@ GMPy_MPFR_From_PyIntOrLong(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context
     MPZ_Object *tempx = NULL;
     int error, was_one = 0;
     long temp;
-
-    assert(PyIntOrLong_Check(obj));
 
     CHECK_CONTEXT(context);
 
@@ -180,8 +176,6 @@ GMPy_MPFR_From_PyFloat(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
 {
     MPFR_Object *result;
 
-    assert(PyFloat_Check(obj));
-
     CHECK_CONTEXT(context);
 
     if (prec == 0)
@@ -215,8 +209,6 @@ GMPy_MPFR_From_MPZ(MPZ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
     MPFR_Object *result;
     int was_one = 0;
     size_t bitlen;
-
-    assert(CHECK_MPZANY(obj));
 
     CHECK_CONTEXT(context);
 
@@ -258,8 +250,6 @@ GMPy_MPFR_From_MPQ(MPQ_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
 {
     MPFR_Object *result;
 
-    assert(MPQ_Check(obj));
-
     CHECK_CONTEXT(context);
 
     if (prec < 2)
@@ -286,8 +276,6 @@ GMPy_MPFR_From_Fraction(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
 {
     MPFR_Object *result = NULL;
     MPQ_Object *tempq;
-
-    assert(IS_RATIONAL(obj));
 
     CHECK_CONTEXT(context);
 
@@ -415,149 +403,86 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
  */
 
 static MPFR_Object *
+GMPy_MPFR_From_RealWithType(PyObject *obj, int xtype, mp_prec_t prec, CTXT_Object *context)
+{
+    CHECK_CONTEXT(context);
+
+    if (IS_TYPE_MPFR(xtype))
+        return GMPy_MPFR_From_MPFR((MPFR_Object*)obj, prec, context);
+
+    if (IS_TYPE_PyFloat(xtype))
+        return GMPy_MPFR_From_PyFloat(obj, prec, context);
+
+    if (IS_TYPE_MPQ(xtype))
+        return GMPy_MPFR_From_MPQ((MPQ_Object*)obj, prec, context);
+
+    if (IS_TYPE_MPZANY(xtype))
+        return GMPy_MPFR_From_MPZ((MPZ_Object*)obj, prec, context);
+
+    if (IS_TYPE_PyInteger(xtype))
+        return GMPy_MPFR_From_PyIntOrLong(obj, prec, context);
+
+    if (IS_TYPE_PyFraction(xtype))
+        return GMPy_MPFR_From_Fraction(obj, prec, context);
+
+    if (IS_TYPE_HAS_MPFR(xtype)) {
+        MPFR_Object *res = (MPFR_Object *) PyObject_CallMethod(obj, "__mpfr__", NULL);
+
+        if (res != NULL && MPFR_Check(res)) {
+            return res;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+    if (IS_TYPE_HAS_MPQ(xtype)) {
+        MPQ_Object *res = (MPQ_Object *) PyObject_CallMethod(obj, "__mpq__", NULL);
+
+        if (res != NULL && MPQ_Check(res)) {
+            MPFR_Object * temp =  GMPy_MPFR_From_MPQ(res, prec, context);
+            Py_DECREF(res);
+            return temp;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+    if (IS_TYPE_HAS_MPZ(xtype)) {
+        MPZ_Object *res = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (res != NULL && MPZ_Check(res)) {
+            MPFR_Object * temp =  GMPy_MPFR_From_MPZ(res, prec, context);
+            Py_DECREF(res);
+            return temp;
+        }
+        else {
+            Py_XDECREF((PyObject*)res);
+            goto error;
+        }
+    }
+
+  error:
+    TYPE_ERROR("object could not be converted to 'mpfr'");
+    return NULL;
+}
+
+static MPFR_Object *
 GMPy_MPFR_From_Real(PyObject *obj, mp_prec_t prec, CTXT_Object *context)
 {
-    CHECK_CONTEXT(context);
-
-    if (MPFR_Check(obj))
-        return GMPy_MPFR_From_MPFR((MPFR_Object*)obj, prec, context);
-
-    if (PyFloat_Check(obj))
-        return GMPy_MPFR_From_PyFloat(obj, prec, context);
-
-    if (MPQ_Check(obj))
-        return GMPy_MPFR_From_MPQ((MPQ_Object*)obj, prec, context);
-
-    if (MPZ_Check(obj) || XMPZ_Check(obj))
-        return GMPy_MPFR_From_MPZ((MPZ_Object*)obj, prec, context);
-
-    if (PyIntOrLong_Check(obj))
-        return GMPy_MPFR_From_PyIntOrLong(obj, prec, context);
-
-    if (IS_FRACTION(obj))
-        return GMPy_MPFR_From_Fraction(obj, prec, context);
-
-    if (HAS_MPFR_CONVERSION(obj)) {
-        MPFR_Object *res = (MPFR_Object *) PyObject_CallMethod(obj, "__mpfr__", NULL);
-
-        if (res != NULL && MPFR_Check(res)) {
-            return res;
-        }
-        else {
-            Py_XDECREF((PyObject*)res);
-            goto error;
-        }
-    }
-
-    if (HAS_MPQ_CONVERSION(obj)) {
-        MPQ_Object *res = (MPQ_Object *) PyObject_CallMethod(obj, "__mpq__", NULL);
-
-        if (res != NULL && MPQ_Check(res)) {
-            MPFR_Object * temp =  GMPy_MPFR_From_MPQ(res, prec, context);
-            Py_DECREF(res);
-            return temp;
-        }
-        else {
-            Py_XDECREF((PyObject*)res);
-            goto error;
-        }
-    }
-
-    if (HAS_MPZ_CONVERSION(obj)) {
-        MPZ_Object *res = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
-
-        if (res != NULL && MPZ_Check(res)) {
-            MPFR_Object * temp =  GMPy_MPFR_From_MPZ(res, prec, context);
-            Py_DECREF(res);
-            return temp;
-        }
-        else {
-            Py_XDECREF((PyObject*)res);
-            goto error;
-        }
-    }
-
-  error:
-    TYPE_ERROR("object could not be converted to 'mpfr'");
-    return NULL;
+    return GMPy_MPFR_From_RealWithType(obj, GMPy_ObjectType(obj),
+                                      prec, context);
 }
 
-
 static MPFR_Object *
-GMPy_MPFR_From_Real_X(PyObject *obj, int xtype, mp_prec_t prec, CTXT_Object *context)
-{
-    CHECK_CONTEXT(context);
-
-    if (MPFR_Check(obj))
-        return GMPy_MPFR_From_MPFR((MPFR_Object*)obj, prec, context);
-
-    if (PyFloat_Check(obj))
-        return GMPy_MPFR_From_PyFloat(obj, prec, context);
-
-    if (MPQ_Check(obj))
-        return GMPy_MPFR_From_MPQ((MPQ_Object*)obj, prec, context);
-
-    if (MPZ_Check(obj) || XMPZ_Check(obj))
-        return GMPy_MPFR_From_MPZ((MPZ_Object*)obj, prec, context);
-
-    if (PyIntOrLong_Check(obj))
-        return GMPy_MPFR_From_PyIntOrLong(obj, prec, context);
-
-    if (IS_FRACTION(obj))
-        return GMPy_MPFR_From_Fraction(obj, prec, context);
-
-    if (HAS_MPFR_CONVERSION(obj)) {
-        MPFR_Object *res = (MPFR_Object *) PyObject_CallMethod(obj, "__mpfr__", NULL);
-
-        if (res != NULL && MPFR_Check(res)) {
-            return res;
-        }
-        else {
-            Py_XDECREF((PyObject*)res);
-            goto error;
-        }
-    }
-
-    if (HAS_MPQ_CONVERSION(obj)) {
-        MPQ_Object *res = (MPQ_Object *) PyObject_CallMethod(obj, "__mpq__", NULL);
-
-        if (res != NULL && MPQ_Check(res)) {
-            MPFR_Object * temp =  GMPy_MPFR_From_MPQ(res, prec, context);
-            Py_DECREF(res);
-            return temp;
-        }
-        else {
-            Py_XDECREF((PyObject*)res);
-            goto error;
-        }
-    }
-
-    if (HAS_MPZ_CONVERSION(obj)) {
-        MPZ_Object *res = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
-
-        if (res != NULL && MPZ_Check(res)) {
-            MPFR_Object * temp =  GMPy_MPFR_From_MPZ(res, prec, context);
-            Py_DECREF(res);
-            return temp;
-        }
-        else {
-            Py_XDECREF((PyObject*)res);
-            goto error;
-        }
-    }
-
-  error:
-    TYPE_ERROR("object could not be converted to 'mpfr'");
-    return NULL;
-}
-
-
-static MPFR_Object *
-GMPy_MPFR_From_RealAndCopy(PyObject *obj, mp_prec_t prec, CTXT_Object *context)
+GMPy_MPFR_From_RealAndCopyWithType(PyObject *obj, int xtype, mp_prec_t prec, CTXT_Object *context)
 {
     MPFR_Object *result = NULL, *temp = NULL;
 
-    result = GMPy_MPFR_From_Real(obj, prec, context);
+    result = GMPy_MPFR_From_RealWithType(obj, xtype, prec, context);
 
     if (result == NULL)
         return result;
@@ -580,12 +505,17 @@ GMPy_MPFR_From_RealAndCopy(PyObject *obj, mp_prec_t prec, CTXT_Object *context)
     return temp;
 }
 
+static MPFR_Object *
+GMPy_MPFR_From_RealAndCopy(PyObject *obj, mp_prec_t prec, CTXT_Object *context)
+{
+    return GMPy_MPFR_From_RealAndCopyWithType(obj, GMPy_ObjectType(obj),
+                                              prec, context);
+}
+
 static MPZ_Object *
 GMPy_MPZ_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
 {
     MPZ_Object *result;
-
-    assert(MPFR_Check(obj));
 
     CHECK_CONTEXT(context);
 
@@ -927,7 +857,6 @@ GMPy_PyStr_From_MPFR(MPFR_Object *self, int base, int digits, CTXT_Object *conte
     CHECK_CONTEXT(context);
 
     /* check arguments are valid */
-    assert(MPFR_Check((PyObject*)self));
     if (!((base >= 2) && (base <= 62))) {
         VALUE_ERROR("base must be in the interval [2,62]");
         return NULL;
@@ -977,7 +906,8 @@ GMPy_PyStr_From_MPFR(MPFR_Object *self, int base, int digits, CTXT_Object *conte
 int
 GMPy_MPFR_ConvertArg(PyObject *arg, PyObject **ptr)
 {
-    MPFR_Object* newob = GMPy_MPFR_From_Real(arg, 1, NULL);
+    MPFR_Object* newob = GMPy_MPFR_From_RealWithType(arg, GMPy_ObjectType(arg),
+                                                     1, NULL);
 
     if (newob) {
         *ptr = (PyObject*)newob;

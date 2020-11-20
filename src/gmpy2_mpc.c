@@ -230,7 +230,7 @@ static PyNumberMethods mpc_number_methods =
     (binaryfunc) GMPy_MPC_TrueDiv_Slot,  /* nb_divide               */
     (binaryfunc) GMPy_MPC_Mod_Slot,      /* nb_remainder            */
     (binaryfunc) GMPy_MPC_DivMod_Slot,   /* nb_divmod               */
-    (ternaryfunc) GMPy_MPANY_Pow_Slot,   /* nb_power                */
+    (ternaryfunc) GMPy_MPC_Pow_Slot,     /* nb_power                */
     (unaryfunc) GMPy_MPC_Minus_Slot,     /* nb_negative             */
     (unaryfunc) GMPy_MPC_Plus_Slot,      /* nb_positive             */
     (unaryfunc) GMPy_MPC_Abs_Slot,       /* nb_absolute             */

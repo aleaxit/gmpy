@@ -43,20 +43,20 @@
  *   GMPy_MPFR_Abs_Slot
  *   GMPy_MPC_Abs_Slot
  *
- *   GMPy_Integer_Abs(Integer, context|NULL)
- *   GMPy_Rational_Abs(Rational, context|NULL)
- *   GMPy_Real_Abs(Real, context|NULL)
- *   GMPy_Complex_Abs(Complex, context|NULL)
+ *   GMPy_Integer_AbsWithType(Integer, xtype, context|NULL)
+ *   GMPy_Rational_AbsWithType(Rational, xtype, context|NULL)
+ *   GMPy_Real_AbsWithType(Real, xtype, context|NULL)
+ *   GMPy_Complex_AbsWithType(Complex, xtype, context|NULL)
  *
  *   GMPy_Context_Abs(context, obj)
  */
 
 static PyObject *
-GMPy_Integer_Abs(PyObject *x, CTXT_Object *context)
+GMPy_Integer_AbsWithType(PyObject *x, int xtype, CTXT_Object *context)
 {
     MPZ_Object *result = NULL;
 
-    if (MPZ_Check(x)) {
+    if (IS_TYPE_MPZ(xtype)) {
         if (mpz_sgn(MPZ(x)) >= 0) {
             Py_INCREF(x);
             return x;
@@ -76,7 +76,7 @@ GMPy_Integer_Abs(PyObject *x, CTXT_Object *context)
      *      if passed an MPZ).
      */
 
-    if ((result = GMPy_MPZ_From_Integer(x, context))) {
+    if ((result = GMPy_MPZ_From_IntegerWithType(x, xtype, context))) {
         mpz_abs(result->z, result->z);
     }
 
@@ -86,15 +86,15 @@ GMPy_Integer_Abs(PyObject *x, CTXT_Object *context)
 static PyObject *
 GMPy_MPZ_Abs_Slot(MPZ_Object *x)
 {
-    return GMPy_Integer_Abs((PyObject*)x, NULL);
+    return GMPy_Integer_AbsWithType((PyObject*)x, OBJ_TYPE_MPZ, NULL);
 }
 
 static PyObject *
-GMPy_Rational_Abs(PyObject *x, CTXT_Object *context)
+GMPy_Rational_AbsWithType(PyObject *x, int xtype, CTXT_Object *context)
 {
     MPQ_Object *result = NULL;
 
-    if (MPQ_Check(x)) {
+    if (IS_TYPE_MPQ(xtype)) {
         if (mpz_sgn(mpq_numref(MPQ(x))) >= 0) {
             Py_INCREF(x);
             return x;
@@ -114,7 +114,7 @@ GMPy_Rational_Abs(PyObject *x, CTXT_Object *context)
      * would do if passed an MPQ).
      */
 
-    if ((result = GMPy_MPQ_From_Rational(x, context))) {
+    if ((result = GMPy_MPQ_From_RationalWithType(x, xtype, context))) {
         mpz_abs(mpq_numref(result->q), mpq_numref(result->q));
     }
 
@@ -124,17 +124,17 @@ GMPy_Rational_Abs(PyObject *x, CTXT_Object *context)
 static PyObject *
 GMPy_MPQ_Abs_Slot(MPQ_Object *x)
 {
-    return GMPy_Rational_Abs((PyObject*)x, NULL);
+    return GMPy_Rational_AbsWithType((PyObject*)x, OBJ_TYPE_MPQ, NULL);
 }
 
 static PyObject *
-GMPy_Real_Abs(PyObject *x, CTXT_Object *context)
+GMPy_Real_AbsWithType(PyObject *x, int xtype, CTXT_Object *context)
 {
     MPFR_Object *result = NULL, *tempx = NULL;
 
     CHECK_CONTEXT(context);
 
-    if (!(tempx = GMPy_MPFR_From_Real(x, 1, context)) ||
+    if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context)) ||
         !(result = GMPy_MPFR_New(0, context))) {
         /* LCOV_EXCL_START */
         Py_XDECREF((PyObject*)tempx);
@@ -155,18 +155,18 @@ GMPy_Real_Abs(PyObject *x, CTXT_Object *context)
 static PyObject *
 GMPy_MPFR_Abs_Slot(MPFR_Object *x)
 {
-    return GMPy_Real_Abs((PyObject*)x, NULL);
+    return GMPy_Real_AbsWithType((PyObject*)x, OBJ_TYPE_MPFR, NULL);
 }
 
 static PyObject *
-GMPy_Complex_Abs(PyObject *x, CTXT_Object *context)
+GMPy_Complex_AbsWithType(PyObject *x, int xtype, CTXT_Object *context)
 {
     MPFR_Object *result = NULL;
     MPC_Object *tempx = NULL;
 
     CHECK_CONTEXT(context);
 
-    if (!(tempx = GMPy_MPC_From_Complex(x, 1, 1, context)) ||
+    if (!(tempx = GMPy_MPC_From_ComplexWithType(x, xtype, 1, 1, context)) ||
         !(result = GMPy_MPFR_New(0, context))) {
         /* LCOV_EXCL_START */
         Py_XDECREF((PyObject*)tempx);
@@ -182,32 +182,37 @@ GMPy_Complex_Abs(PyObject *x, CTXT_Object *context)
 
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
-
 }
 
 static PyObject *
 GMPy_MPC_Abs_Slot(MPC_Object *x)
 {
-    return GMPy_Complex_Abs((PyObject*)x, NULL);
+    return GMPy_Complex_AbsWithType((PyObject*)x, OBJ_TYPE_MPC, NULL);
+}
+
+static PyObject *
+GMPy_Number_AbsWithType(PyObject *x, int xtype, CTXT_Object *context)
+{
+    if (IS_TYPE_INTEGER(xtype))
+        return GMPy_Integer_AbsWithType(x, xtype, context);
+
+    if (IS_TYPE_RATIONAL(xtype))
+        return GMPy_Rational_AbsWithType(x, xtype, context);
+
+    if (IS_TYPE_REAL(xtype))
+        return GMPy_Real_AbsWithType(x, xtype, context);
+
+    if (IS_TYPE_COMPLEX(xtype))
+        return GMPy_Complex_AbsWithType(x, xtype, context);
+
+    TYPE_ERROR("abs() argument type not supported");
+    return NULL;
 }
 
 static PyObject *
 GMPy_Number_Abs(PyObject *x, CTXT_Object *context)
 {
-    if (IS_INTEGER(x))
-        return GMPy_Integer_Abs(x, context);
-
-    if (IS_RATIONAL_ONLY(x))
-        return GMPy_Rational_Abs(x, context);
-
-    if (IS_REAL_ONLY(x))
-        return GMPy_Real_Abs(x, context);
-
-    if (IS_COMPLEX_ONLY(x))
-        return GMPy_Complex_Abs(x, context);
-
-    TYPE_ERROR("abs() argument type not supported");
-    return NULL;
+    return GMPy_Number_AbsWithType(x, GMPy_ObjectType(x), context);
 }
 
 /* Implement context.abs(). The following code assumes it used a as method of

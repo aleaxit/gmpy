@@ -48,54 +48,102 @@ extern "C" {
 
 #define IS_FRACTION(x) (!strcmp(Py_TYPE(x)->tp_name, "Fraction"))
 
-#define IS_RATIONAL_ONLY(x) (MPQ_Check(x) || IS_FRACTION(x) || HAS_MPQ_CONVERSION(x))
+#define IS_RATIONAL_ONLY(x) (MPQ_Check(x) || IS_FRACTION(x) || \
+                             HAS_MPQ_CONVERSION(x))
 
 #ifdef PY2
 #define IS_INTEGER(x) (MPZ_Check(x) || PyInt_Check(x) || \
-                        PyLong_Check(x) || XMPZ_Check(x) || \
-                        HAS_STRICT_MPZ_CONVERSION(x))
+                       PyLong_Check(x) || XMPZ_Check(x) || \
+                       HAS_STRICT_MPZ_CONVERSION(x))
 #define IS_RATIONAL(x) (MPQ_Check(x) || IS_FRACTION(x) || \
-                        MPZ_Check(x) || PyInt_Check(x) || PyLong_Check(x) || \
-                        XMPZ_Check(x) || HAS_MPQ_CONVERSION(x) || \
-                        HAS_MPZ_CONVERSION(x))
+                        MPZ_Check(x) || PyInt_Check(x) || \
+                        PyLong_Check(x)  || XMPZ_Check(x) || \
+                        HAS_MPQ_CONVERSION(x) || HAS_MPZ_CONVERSION(x))
 #else
 #define IS_INTEGER(x) (MPZ_Check(x) || PyLong_Check(x) || \
-                        XMPZ_Check(x) || HAS_STRICT_MPZ_CONVERSION(x))
+                       XMPZ_Check(x) || HAS_STRICT_MPZ_CONVERSION(x))
 #define IS_RATIONAL(x) (MPQ_Check(x) || IS_FRACTION(x) || \
                         MPZ_Check(x) || PyLong_Check(x) || \
                         XMPZ_Check(x) || HAS_MPQ_CONVERSION(x) || \
                         HAS_MPZ_CONVERSION(x))
 #endif
 
-#define IS_REAL_ONLY(x) (MPFR_Check(x) || PyFloat_Check(x) || HAS_STRICT_MPFR_CONVERSION(x))
+#define IS_REAL_ONLY(x) (MPFR_Check(x) || PyFloat_Check(x) || \
+                         HAS_STRICT_MPFR_CONVERSION(x))
 #define IS_REAL(x) (IS_RATIONAL(x) || IS_REAL_ONLY(x))
 
-#define IS_COMPLEX_ONLY(x) (MPC_Check(x) || PyComplex_Check(x) || HAS_MPC_CONVERSION(x))
+#define IS_COMPLEX_ONLY(x) (MPC_Check(x) || PyComplex_Check(x) || \
+                            HAS_MPC_CONVERSION(x))
 #define IS_COMPLEX(x) (IS_REAL(x) || IS_COMPLEX_ONLY(x))
 
 /* Define constants used in gmpy2_convert.c->GMPy_ObjectType. */
 
-#define OBJ_TYPE_MPZ        1
-#define OBJ_TYPE_PyInteger  2
-/* 3 TO 14 reserved for additional integer types. */
-#define OBJ_TYPE_HAS_MPZ    15
+#define OBJ_TYPE_UNKNOWN        0
+#define OBJ_TYPE_MPZ            1
+#define OBJ_TYPE_XMPZ           2
+#define OBJ_TYPE_PyInteger      3
+#define OBJ_TYPE_HAS_MPZ        4
+/* 5 TO 14 reserved for additional integer types. */
+#define OBJ_TYPE_INTEGER        15
 
-#define OBJ_TYPE_MPQ        16
-#define OBJ_TYPE_PyFraction 17
-/* 18 to 30 reserved for additional rational types. */
-#define OBJ_TYPE_HAS_MPQ    31
+#define OBJ_TYPE_MPQ            16
+#define OBJ_TYPE_PyFraction     17
+#define OBJ_TYPE_HAS_MPQ        18
+/* 19 to 30 reserved for additional rational types. */
+#define OBJ_TYPE_RATIONAL       31
 
-#define OBJ_TYPE_MPFR       32
-#define OBJ_TYPE_PyFloat    33
-/* 34 to 46 reserved for additional real types. */
-#define OBJ_TYPE_HAS_MPFR   47
+#define OBJ_TYPE_MPFR           32
+#define OBJ_TYPE_PyFloat        33
+#define OBJ_TYPE_HAS_MPFR       34
+/* 35 to 46 reserved for additional real types. */
+#define OBJ_TYPE_REAL           47
 
-#define OBJ_TYPE_MPC        48
-#define OBJ_TYPE_PyComplex  49
+#define OBJ_TYPE_MPC            48
+#define OBJ_TYPE_PyComplex      49
+#define OBJ_TYPE_HAS_MPC        50
 /* 50 to 62 reserved for additional complex types. */
-#define OBJ_TYPE_HAS_MPC    63
+#define OBJ_TYPE_COMPLEX        63
 
-#define OBJ_TYPE_MAX        64
+#define OBJ_TYPE_MAX            64
+
+/* The following macros are the recommended method to check the result of the
+ * object type check.
+ */
+
+#define IS_TYPE_UNKNOWN(x)          (!OBJ_TYPE_UNKNOWN)
+#define IS_TYPE_MPZ(x)              (x == OBJ_TYPE_MPZ)
+#define IS_TYPE_XMPZ(x)             (x == OBJ_TYPE_XMPZ)
+#define IS_TYPE_MPZANY(x)           ((x == OBJ_TYPE_MPZ) || \
+                                     (x == OBJ_TYPE_XMPZ))
+#define IS_TYPE_PyInteger(x)        (x == OBJ_TYPE_PyInteger)
+#define IS_TYPE_HAS_MPZ(x)          (x == OBJ_TYPE_HAS_MPZ)
+#define IS_TYPE_INTEGER(x)          ((x > OBJ_TYPE_UNKNOWN) &&  \
+                                     (x < OBJ_TYPE_INTEGER))
+
+#define IS_TYPE_MPQ(x)              (x == OBJ_TYPE_MPQ)
+#define IS_TYPE_PyFraction(x)       (x == OBJ_TYPE_PyFraction)
+#define IS_TYPE_HAS_MPQ(x)          (x == OBJ_TYPE_HAS_MPQ)
+#define IS_TYPE_RATIONAL(x)         ((x > OBJ_TYPE_UNKNOWN) && \
+                                     (x < OBJ_TYPE_RATIONAL))
+#define IS_TYPE_RATIONAL_ONLY(x)    ((x > OBJ_TYPE_INTEGER) && \
+                                     (x < OBJ_TYPE_RATIONAL))
+
+#define IS_TYPE_MPFR(x)             (x == OBJ_TYPE_MPFR)
+#define IS_TYPE_PyFloat(x)          (x == OBJ_TYPE_PyFloat)
+#define IS_TYPE_HAS_MPFR(x)         (x == OBJ_TYPE_HAS_MPFR)
+#define IS_TYPE_REAL(x)             ((x > OBJ_TYPE_UNKNOWN) && \
+                                     (x < OBJ_TYPE_REAL))
+#define IS_TYPE_REAL_ONLY(x)        ((x > OBJ_TYPE_RATIONAL) && \
+                                     (x < OBJ_TYPE_REAL))
+
+#define IS_TYPE_MPC(x)              (x == OBJ_TYPE_MPC)
+#define IS_TYPE_PyComplex(x)        (x == OBJ_TYPE_PyComplex)
+#define IS_TYPE_HAS_MPC(x)          (x == OBJ_TYPE_HAS_MPC)
+#define IS_TYPE_COMPLEX(x)          ((x > OBJ_TYPE_UNKNOWN) && \
+                                     (x < OBJ_TYPE_COMPLEX))
+#define IS_TYPE_COMPLEX_ONLY(x)     ((x > OBJ_TYPE_REAL) && \
+                                     (x < OBJ_TYPE_COMPLEX))
+
 
 /* Since the macros are used in gmpy2's codebase, these functions are skipped
  * until they are needed for the C API in the future.

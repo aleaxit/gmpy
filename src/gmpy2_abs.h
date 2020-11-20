@@ -39,10 +39,10 @@ static PyObject * GMPy_Number_Abs(PyObject *x, CTXT_Object *context);
 
 /* Private API */
 
-static PyObject * GMPy_Integer_Abs(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Rational_Abs(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Real_Abs(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Complex_Abs(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Integer_AbsWithType(PyObject *x, int xtype, CTXT_Object *context);
+static PyObject * GMPy_Rational_AbsWithType(PyObject *x, int xtype, CTXT_Object *context);
+static PyObject * GMPy_Real_AbsWithType(PyObject *x, int xtype, CTXT_Object *context);
+static PyObject * GMPy_Complex_AbsWithType(PyObject *x, int xtype, CTXT_Object *context);
 
 static PyObject * GMPy_MPZ_Abs_Slot(MPZ_Object *x);
 static PyObject * GMPy_MPQ_Abs_Slot(MPQ_Object *x);

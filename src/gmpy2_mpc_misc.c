@@ -228,7 +228,7 @@ GMPy_Complex_Polar(PyObject *x, CTXT_Object *context)
         return NULL;
     }
 
-    abs = GMPy_Complex_Abs(tempx, context);
+    abs = GMPy_Complex_AbsWithType(tempx, OBJ_TYPE_MPC, context);
     phase = GMPy_Complex_Phase(tempx, context);
     Py_DECREF(tempx);
     result = PyTuple_New(2);

@@ -85,7 +85,7 @@ static PyNumberMethods GMPy_MPZ_number_methods =
 #else
 static PyNumberMethods GMPy_MPZ_number_methods =
 {
-    (binaryfunc) GMPy_MPZ_Add_Slot,        /* nb_add                  */
+    (binaryfunc) GMPy_Number_Add_Slot,     /* nb_add                  */
     (binaryfunc) GMPy_MPZ_Sub_Slot,        /* nb_subtract             */
     (binaryfunc) GMPy_MPZ_Mul_Slot,        /* nb_multiply             */
     (binaryfunc) GMPy_MPZ_Div2_Slot,       /* nb_divide               */
