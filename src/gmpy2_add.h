@@ -39,7 +39,6 @@ static PyObject * GMPy_Number_Add(PyObject *x, PyObject *y, CTXT_Object *context
 
 /* Private API */
 
-static PyObject * GMPy_Number_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
 static PyObject * GMPy_Integer_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
 static PyObject * GMPy_Rational_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
 static PyObject * GMPy_Real_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);

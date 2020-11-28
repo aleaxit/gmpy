@@ -27,28 +27,6 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* This file implements the * operator, gmpy2.mul() and context.mul().
- *
- * Public API
- * ==========
- * The following function is available as part of GMPY2's C API. A NULL value
- * for context implies the function should use the currently active context.
- *
- *   GMPy_Number_Mul(Number, Number, context|NULL)
- *
- * Private API
- * ===========
- *   GMPy_MPZ_Mul_Slot
- *   GMPy_MPQ_Mul_Slot
- *   GMPy_MPFR_Mul_Slot
- *   GMPy_MPC_Mul_Slot
- *
- *   GMPy_Integer_Mul(Integer, Integer, context|NULL)
- *   GMPy_Rational_Mul(Rational, Rational, context|NULL)
- *   GMPy_Real_Mul(Real, Real, context|NULL)
- *   GMPy_Complex_Mul(Complex, Complex, context|NULL)
- *
- *   GMPy_Context_Mul(context, args)
- *
  */
 
 /* Multiply two Integer objects (see gmpy2_convert.c). If an error occurs,
@@ -56,7 +34,8 @@
  * converted into an mpz, Py_NotImplemented is returned. */
 
 static PyObject *
-GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Integer_MulWithType(PyObject *x, int xtype, PyObject *y, int ytype, 
+                         CTXT_Object *context)
 {
     MPZ_Object *result = NULL;
 
@@ -66,48 +45,48 @@ GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    if (MPZ_Check(x)) {
-        if (PyIntOrLong_Check(y)) {
-            int error;
-            long temp = GMPy_Integer_AsLongAndError(y, &error);
-
-            if (!error) {
-                mpz_mul_si(result->z, MPZ(x), temp);
-            }
-            else {
-                mpz_set_PyIntOrLong(global.tempz, y);
-                mpz_mul(result->z, MPZ(x), global.tempz);
-            }
+    if (IS_TYPE_MPZANY(xtype)) {
+        if (IS_TYPE_MPZANY(ytype)) {
+            mpz_mul(result->z, MPZ(x), MPZ(y));
             return (PyObject*)result;
         }
 
-        if (MPZ_Check(y)) {
-            mpz_mul(result->z, MPZ(x), MPZ(y));
+        if (IS_TYPE_PyInteger(ytype)) {
+            int error;
+            long temp = PyLong_AsLongAndOverflow(y, &error);
+
+            if (!error) {
+                 mpz_mul_si(result->z, MPZ(x), temp);
+            }
+            else {
+                mpz_set_PyIntOrLong(result->z, y);
+                mpz_mul(result->z, MPZ(x), result->z);
+            }
             return (PyObject*)result;
         }
     }
 
-    if (MPZ_Check(y)) {
-        if (PyIntOrLong_Check(x)) {
+    if (IS_TYPE_MPZANY(ytype)) {
+        if (IS_TYPE_PyInteger(xtype)) {
             int error;
-            long temp = GMPy_Integer_AsLongAndError(x, &error);
+            long temp = PyLong_AsLongAndOverflow(x, &error);
 
             if (!error) {
                 mpz_mul_si(result->z, MPZ(y), temp);
             }
             else {
-                mpz_set_PyIntOrLong(global.tempz, x);
-                mpz_mul(result->z, MPZ(y), global.tempz);
+                mpz_set_PyIntOrLong(result->z, x);
+                mpz_mul(result->z, result->z, MPZ(y));
             }
             return (PyObject*)result;
         }
     }
 
-    if (IS_INTEGER(x) && IS_INTEGER(y)) {
+    if (IS_TYPE_INTEGER(xtype) && (IS_TYPE_INTEGER(ytype))) {
         MPZ_Object *tempx = NULL, *tempy = NULL;
 
-        if (!(tempx = GMPy_MPZ_From_Integer(x, context)) ||
-            !(tempy = GMPy_MPZ_From_Integer(y, context))) {
+        if (!(tempx = GMPy_MPZ_From_IntegerWithType(x, xtype, context)) ||
+            !(tempy = GMPy_MPZ_From_IntegerWithType(y, ytype, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -122,51 +101,14 @@ GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         return (PyObject*)result;
     }
 
-    /* LCOV_EXCL_START */
-    SYSTEM_ERROR("Internal error in GMPy_Integer_Mul().");
     Py_DECREF((PyObject*)result);
+    TYPE_ERROR("mul() argument type not supported");
     return NULL;
-    /* LCOV_EXCL_STOP */
 }
 
-/* Implement __mul__ for MPZ_Object. On entry, one of the two arguments must
- * be an MPZ_Object. If the other object is an Integer, add and return an
- * MPZ_Object. If the other object isn't an MPZ_Object, call the appropriate
- * function. If no appropriate function can be found, return NotImplemented. */
-
 static PyObject *
-GMPy_MPZ_Mul_Slot(PyObject *x, PyObject *y)
-{
-    if (MPZ_Check(x) && MPZ_Check(y)) {
-        MPZ_Object *result = NULL;
-
-        if ((result = GMPy_MPZ_New(NULL))) {
-            mpz_mul(result->z, MPZ(x), MPZ(y));
-        }
-        return (PyObject*)result;
-    }
-
-    if (IS_INTEGER(x) && IS_INTEGER(y))
-        return GMPy_Integer_Mul(x, y, NULL);
-
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return GMPy_Rational_Mul(x, y, NULL);
-
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_Mul(x, y, NULL);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_Mul(x, y, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-/* Multiply two Rational objects (see convert.c/IS_RATIONAL). Returns None and
- * raises TypeError if both objects are not valid rationals. GMPy_Rational_Mul
- * is intended to be called from GMPy_Number_Mul. */
-
-static PyObject *
-GMPy_Rational_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Rational_MulWithType(PyObject *x, int xtype, PyObject *y, int ytype,
+                          CTXT_Object *context)
 {
     MPQ_Object *result = NULL;
 
@@ -176,16 +118,16 @@ GMPy_Rational_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    if (MPQ_Check(x) && MPQ_Check(y)) {
+    if (IS_TYPE_MPQ(xtype) && IS_TYPE_MPQ(ytype)) {
         mpq_mul(result->q, MPQ(x), MPQ(y));
         return (PyObject*)result;
     }
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype)) {
         MPQ_Object *tempx = NULL, *tempy = NULL;
 
-        if (!(tempx = GMPy_MPQ_From_Rational(x, context)) ||
-            !(tempy = GMPy_MPQ_From_Rational(y, context))) {
+        if (!(tempx = GMPy_MPQ_From_RationalWithType(x, xtype, context)) ||
+            !(tempy = GMPy_MPQ_From_RationalWithType(y, ytype, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -200,39 +142,14 @@ GMPy_Rational_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         return (PyObject*)result;
     }
 
-    /* LCOV_EXCL_START */
-    SYSTEM_ERROR("Internal error in GMPy_Rational_Mul().");
     Py_DECREF((PyObject*)result);
+    TYPE_ERROR("mul() argument type not supported");
     return NULL;
-    /* LCOV_EXCL_STOP */
 }
 
-/* Implement __mul__ for Pympq. On entry, one of the two arguments must
- * be a Pympq. If the other object is a Rational, add and return a Pympq.
- * If the other object isn't a Pympq, call the appropriate function. If
- * no appropriate function can be found, return NotImplemented. */
-
 static PyObject *
-GMPy_MPQ_Mul_Slot(PyObject *x, PyObject *y)
-{
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return GMPy_Rational_Mul(x, y, NULL);
-
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_Mul(x, y, NULL);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_Mul(x, y, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-/* Attempt to multiply two numbers and return an mpfr. The code path is
- * optimized by checking for mpfr objects first. Returns Py_NotImplemented if
- * both objects are not valid reals.  */
-
-static PyObject *
-GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Real_MulWithType(PyObject *x, int xtype, PyObject *y, int ytype,
+                      CTXT_Object *context)
 {
     MPFR_Object *result = NULL;
 
@@ -244,122 +161,18 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    if (MPFR_Check(x) && MPFR_Check(y)) {
+    if (IS_TYPE_MPFR(xtype) && IS_TYPE_MPFR(ytype)) {
         mpfr_clear_flags();
-
         result->rc = mpfr_mul(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
-        goto done;
+        _GMPy_MPFR_Cleanup(&result, context);
+        return (PyObject*)result;
     }
 
-    if (MPFR_Check(x)) {
-        if (PyIntOrLong_Check(y)) {
-            int error;
-            long temp = GMPy_Integer_AsLongAndError(y, &error);
-
-            if (!error) {
-                mpfr_clear_flags();
-
-                result->rc = mpfr_mul_si(result->f, MPFR(x), temp, GET_MPFR_ROUND(context));
-                goto done;
-            }
-            else {
-                mpz_set_PyIntOrLong(global.tempz, y);
-                mpfr_clear_flags();
-
-                result->rc = mpfr_mul_z(result->f, MPFR(x), global.tempz, GET_MPFR_ROUND(context));
-                goto done;
-            }
-        }
-
-        if (CHECK_MPZANY(y)) {
-            mpfr_clear_flags();
-
-            result->rc = mpfr_mul_z(result->f, MPFR(x), MPZ(y), GET_MPFR_ROUND(context));
-            goto done;
-        }
-
-        if (IS_RATIONAL(y)) {
-            MPQ_Object *tempy = NULL;
-
-            if (!(tempy = GMPy_MPQ_From_Rational(y, context))) {
-                /* LCOV_EXCL_START */
-                Py_DECREF((PyObject*)result);
-                return NULL;
-                /* LCOV_EXCL_STOP */
-            }
-
-            mpfr_clear_flags();
-
-            result->rc = mpfr_mul_q(result->f, MPFR(x), tempy->q, GET_MPFR_ROUND(context));
-            Py_DECREF((PyObject*)tempy);
-            goto done;
-        }
-
-        if (PyFloat_Check(y)) {
-            mpfr_clear_flags();
-
-            result->rc = mpfr_mul_d(result->f, MPFR(x), PyFloat_AS_DOUBLE(y), GET_MPFR_ROUND(context));
-            goto done;
-        }
-    }
-
-    if (MPFR_Check(y)) {
-        if (PyIntOrLong_Check(x)) {
-            int error;
-            long temp = GMPy_Integer_AsLongAndError(x, &error);
-
-            if (!error) {
-                mpfr_clear_flags();
-
-                result->rc = mpfr_mul_si(result->f, MPFR(y), temp, GET_MPFR_ROUND(context));
-                goto done;
-            }
-            else {
-                mpz_set_PyIntOrLong(global.tempz, x);
-                mpfr_clear_flags();
-
-                result->rc = mpfr_mul_z(result->f, MPFR(y), global.tempz, GET_MPFR_ROUND(context));
-                goto done;
-            }
-        }
-
-        if (CHECK_MPZANY(x)) {
-            mpfr_clear_flags();
-
-            result->rc = mpfr_mul_z(result->f, MPFR(y), MPZ(x), GET_MPFR_ROUND(context));
-            goto done;
-        }
-
-        if (IS_RATIONAL(x)) {
-            MPQ_Object *tempx = NULL;
-
-            if (!(tempx = GMPy_MPQ_From_Rational(x, context))) {
-                /* LCOV_EXCL_START */
-                Py_DECREF((PyObject*)result);
-                return NULL;
-                /* LCOV_EXCL_STOP */
-            }
-
-            mpfr_clear_flags();
-
-            result->rc = mpfr_mul_q(result->f, MPFR(y), tempx->q, GET_MPFR_ROUND(context));
-            Py_DECREF((PyObject*)tempx);
-            goto done;
-        }
-
-        if (PyFloat_Check(x)) {
-            mpfr_clear_flags();
-
-            result->rc = mpfr_mul_d(result->f, MPFR(y), PyFloat_AS_DOUBLE(x), GET_MPFR_ROUND(context));
-            goto done;
-        }
-    }
-
-    if (IS_REAL(x) && IS_REAL(y)) {
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype)) {
         MPFR_Object *tempx = NULL, *tempy = NULL;
 
-        if (!(tempx = GMPy_MPFR_From_Real(x, 1, context)) ||
-            !(tempy = GMPy_MPFR_From_Real(y, 1, context))) {
+        if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context)) ||
+            !(tempy = GMPy_MPFR_From_RealWithType(y, ytype, 1, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -369,54 +182,16 @@ GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         mpfr_clear_flags();
-
         result->rc = mpfr_mul(result->f, MPFR(tempx), MPFR(tempy), GET_MPFR_ROUND(context));
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
-        goto done;
-    }
-
-    /* LCOV_EXCL_START */
-    Py_DECREF((PyObject*)result);
-    SYSTEM_ERROR("Internal error in GMPy_Real_Mul().");
-    return NULL;
-    /* LCOV_EXCL_STOP */
-
-  done:
-    _GMPy_MPFR_Cleanup(&result, context);
-    return (PyObject*)result;
-}
-
-/* Implement __mul__ for Pympfr. On entry, one of the two arguments must
- * be a Pympfr. If the other object is a Real, add and return a Pympfr.
- * If the other object isn't a Pympfr, call the appropriate function. If
- * no appropriate function can be found, return NotImplemented. */
-
-static PyObject *
-GMPy_MPFR_Mul_Slot(PyObject *x, PyObject *y)
-{
-    if (MPFR_Check(x) && MPFR_Check(y)) {
-        MPFR_Object *result;
-        CTXT_Object *context = NULL;
-
-        CHECK_CONTEXT(context);
-
-        if ((result = GMPy_MPFR_New(0, context))) {
-            mpfr_clear_flags();
-
-            result->rc = mpfr_mul(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
-            _GMPy_MPFR_Cleanup(&result, context);
-        }
+        _GMPy_MPFR_Cleanup(&result, context);
         return (PyObject*)result;
     }
 
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_Mul(x, y, NULL);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_Mul(x, y, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
+    Py_DECREF((PyObject*)result);
+    TYPE_ERROR("mul() argument type not supported");
+    return NULL;
 }
 
 /* GMPy_Complex_Mul(x, y, context) returns x*y using the provided context. If
@@ -424,7 +199,8 @@ GMPy_MPFR_Mul_Slot(PyObject *x, PyObject *y)
  * y can't be converted to an mpc, then Py_NotImplemented is returned. */
 
 static PyObject *
-GMPy_Complex_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Complex_MulWithType(PyObject *x, int xtype, PyObject *y, int ytype,
+                         CTXT_Object *context)
 {
     MPC_Object *result = NULL;
 
@@ -436,19 +212,17 @@ GMPy_Complex_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    if (MPC_Check(x) && MPC_Check(y)) {
-
+    if (IS_TYPE_MPC(xtype) && IS_TYPE_MPC(ytype)) {
         result->rc = mpc_mul(result->c, MPC(x), MPC(y), GET_MPC_ROUND(context));
-
         _GMPy_MPC_Cleanup(&result, context);
         return (PyObject*)result;
     }
 
-    if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
+    if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype)) {
         MPC_Object *tempx = NULL, *tempy = NULL;
 
-        if (!(tempx = GMPy_MPC_From_Complex(x, 1, 1, context)) ||
-            !(tempy = GMPy_MPC_From_Complex(y, 1, 1, context))) {
+        if (!(tempx = GMPy_MPC_From_ComplexWithType(x, xtype, 1, 1, context)) ||
+            !(tempy = GMPy_MPC_From_ComplexWithType(y, ytype, 1, 1, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -456,53 +230,61 @@ GMPy_Complex_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
             return NULL;
             /* LCOV_EXCL_STOP */
         }
-
         result->rc = mpc_mul(result->c, tempx->c, tempy->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
-
         _GMPy_MPC_Cleanup(&result, context);
         return (PyObject*)result;
     }
 
-    /* LCOV_EXCL_START */
     Py_DECREF((PyObject*)result);
-    SYSTEM_ERROR("Internal error in GMPy_Complex_Mul().");
+    TYPE_ERROR("mul() argument type not supported");
     return NULL;
-    /* LCOV_EXCL_STOP */
-}
-
-/* GMPy_MPZ_Mul_Slot() is called by mpc.__mul__. It just gets a borrowed reference
- * to the current context and call Pympc_Mul_Complex(). Since mpc is the last
- * step of the numeric ladder, the NotImplemented return value from
- * Pympc_Add_Complex() is correct and is just passed on. */
-
-static PyObject *
-GMPy_MPC_Mul_Slot(PyObject *x, PyObject *y)
-{
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_Mul(x, y, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
 }
 
 static PyObject *
 GMPy_Number_Mul(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    if (IS_INTEGER(x) && IS_INTEGER(y))
-        return GMPy_Integer_Mul(x, y, context);
+    int xtype = GMPy_ObjectType(x);
+    int ytype = GMPy_ObjectType(y);
+    
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
+        return GMPy_Integer_MulWithType(x, xtype, y, ytype, context);
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return GMPy_Rational_Mul(x, y, context);
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype))
+        return GMPy_Rational_MulWithType(x, xtype, y, ytype, context);
 
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_Mul(x, y, context);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_Mul(x, y, context);
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
+        return GMPy_Real_MulWithType(x, xtype, y, ytype, context);
+        
+    if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
+        return GMPy_Complex_MulWithType(x, xtype, y, ytype, context);
 
     TYPE_ERROR("mul() argument type not supported");
     return NULL;
+}
+
+/* Implement all the slot methods here. */
+
+static PyObject *
+GMPy_Number_Mul_Slot(PyObject *x, PyObject *y)
+{
+    int xtype = GMPy_ObjectType(x);
+    int ytype = GMPy_ObjectType(y);
+    
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
+        return GMPy_Integer_MulWithType(x, xtype, y, ytype, NULL);
+
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype))
+        return GMPy_Rational_MulWithType(x, xtype, y, ytype, NULL);
+
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
+        return GMPy_Real_MulWithType(x, xtype, y, ytype, NULL);
+        
+    if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
+        return GMPy_Complex_MulWithType(x, xtype, y, ytype, NULL);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Implement context.mul() and gmpy2.mul(). */

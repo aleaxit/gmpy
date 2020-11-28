@@ -39,16 +39,11 @@ static PyObject * GMPy_Number_Mul(PyObject *x, PyObject *y, CTXT_Object *context
 
 /* Private API */
 
-static PyObject * GMPy_Integer_Mul(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Rational_Mul(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Real_Mul(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Complex_Mul(PyObject *x, PyObject *y, CTXT_Object *context);
-
-static PyObject * GMPy_MPZ_Mul_Slot(PyObject *x, PyObject *y);
-static PyObject * GMPy_MPQ_Mul_Slot(PyObject *x, PyObject *y);
-static PyObject * GMPy_MPFR_Mul_Slot(PyObject *x, PyObject *y);
-static PyObject * GMPy_MPC_Mul_Slot(PyObject *x, PyObject *y);
-
+static PyObject * GMPy_Integer_MulWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Rational_MulWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Real_MulWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Complex_MulWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Number_Mul_Slot(PyObject *x, PyObject *y);
 static PyObject * GMPy_Context_Mul(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
