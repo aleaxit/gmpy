@@ -126,8 +126,8 @@ PyDoc_STRVAR(GMPy_doc_mpfr,
 #ifdef PY3
 static PyNumberMethods mpfr_number_methods =
 {
-    (binaryfunc) GMPy_MPFR_Add_Slot,         /* nb_add                  */
-    (binaryfunc) GMPy_MPFR_Sub_Slot,         /* nb_subtract             */
+    (binaryfunc) GMPy_Number_Add_Slot,       /* nb_add                  */
+    (binaryfunc) GMPy_Number_Sub_Slot,       /* nb_subtract             */
     (binaryfunc) GMPy_MPFR_Mul_Slot,         /* nb_multiply             */
     (binaryfunc) GMPy_MPFR_Mod_Slot,         /* nb_remainder            */
     (binaryfunc) GMPy_MPFR_DivMod_Slot,      /* nb_divmod               */
@@ -164,8 +164,8 @@ static PyNumberMethods mpfr_number_methods =
 #else
 static PyNumberMethods mpfr_number_methods =
 {
-    (binaryfunc) GMPy_MPFR_Add_Slot,         /* nb_add                  */
-    (binaryfunc) GMPy_MPFR_Sub_Slot,         /* nb_subtract             */
+    (binaryfunc) GMPy_Number_Add_Slot,       /* nb_add                  */
+    (binaryfunc) GMPy_Number_Sub_Slot,       /* nb_subtract             */
     (binaryfunc) GMPy_MPFR_Mul_Slot,         /* nb_multiply             */
     (binaryfunc) GMPy_MPFR_TrueDiv_Slot,     /* nb_divide               */
     (binaryfunc) GMPy_MPFR_Mod_Slot,         /* nb_remainder            */
