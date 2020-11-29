@@ -478,7 +478,7 @@ GMPy_MPFR_From_Real(PyObject *obj, mp_prec_t prec, CTXT_Object *context)
 }
 
 static MPFR_Object *
-GMPy_MPFR_From_RealAndCopyWithType(PyObject *obj, int xtype, mp_prec_t prec, CTXT_Object *context)
+GMPy_MPFR_From_RealWithTypeAndCopy(PyObject *obj, int xtype, mp_prec_t prec, CTXT_Object *context)
 {
     MPFR_Object *result = NULL, *temp = NULL;
 
@@ -503,13 +503,6 @@ GMPy_MPFR_From_RealAndCopyWithType(PyObject *obj, int xtype, mp_prec_t prec, CTX
     mpfr_set(temp->f, result->f, MPFR_RNDN);
     Py_DECREF((PyObject*)result);
     return temp;
-}
-
-static MPFR_Object *
-GMPy_MPFR_From_RealAndCopy(PyObject *obj, mp_prec_t prec, CTXT_Object *context)
-{
-    return GMPy_MPFR_From_RealAndCopyWithType(obj, GMPy_ObjectType(obj),
-                                              prec, context);
 }
 
 static MPZ_Object *

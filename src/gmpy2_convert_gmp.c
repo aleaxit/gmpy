@@ -359,11 +359,11 @@ GMPy_MPZ_From_IntegerWithType(PyObject *obj, int xtype, CTXT_Object *context)
 }
 
 static MPZ_Object *
-GMPy_MPZ_From_IntegerAndCopy(PyObject *obj, CTXT_Object *context)
+GMPy_MPZ_From_IntegerWithTypeAndCopy(PyObject *obj, int xtype, CTXT_Object *context)
 {
     MPZ_Object *result = NULL, *temp = NULL;
 
-    result = GMPy_MPZ_From_Integer(obj, context);
+    result = GMPy_MPZ_From_IntegerWithType(obj, xtype, context);
 
     if (result == NULL)
         return result;
@@ -1119,11 +1119,11 @@ GMPy_MPQ_From_NumberWithType(PyObject *obj, int xtype, CTXT_Object *context)
 }
 
 static MPQ_Object*
-GMPy_MPQ_From_RationalAndCopy(PyObject *obj, CTXT_Object *context)
+GMPy_MPQ_From_RationalWithTypeAndCopy(PyObject *obj, int xtype, CTXT_Object *context)
 {
     MPQ_Object *result = NULL, *temp = NULL;
 
-    result = GMPy_MPQ_From_Rational(obj, context);
+    result = GMPy_MPQ_From_RationalWithType(obj, xtype, context);
 
     if (result == NULL)
         return result;

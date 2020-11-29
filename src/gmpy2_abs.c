@@ -191,8 +191,10 @@ GMPy_MPC_Abs_Slot(MPC_Object *x)
 }
 
 static PyObject *
-GMPy_Number_AbsWithType(PyObject *x, int xtype, CTXT_Object *context)
+GMPy_Number_Abs(PyObject *x, CTXT_Object *context)
 {
+    int xtype = GMPy_ObjectType(x);
+    
     if (IS_TYPE_INTEGER(xtype))
         return GMPy_Integer_AbsWithType(x, xtype, context);
 
@@ -207,12 +209,6 @@ GMPy_Number_AbsWithType(PyObject *x, int xtype, CTXT_Object *context)
 
     TYPE_ERROR("abs() argument type not supported");
     return NULL;
-}
-
-static PyObject *
-GMPy_Number_Abs(PyObject *x, CTXT_Object *context)
-{
-    return GMPy_Number_AbsWithType(x, GMPy_ObjectType(x), context);
 }
 
 /* Implement context.abs(). The following code assumes it used a as method of

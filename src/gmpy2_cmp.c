@@ -49,7 +49,8 @@ static PyObject * _return_negated_cmp(int c)
 static PyObject *
 GMPy_MPANY_cmp(PyObject *self, PyObject *args)
 {
-    PyObject *arg0, *arg1, *result = NULL;
+    PyObject *x, *y, *result = NULL;
+    int xtype, ytype;
     CTXT_Object *context = NULL;
 
     CHECK_CONTEXT(context);
@@ -59,14 +60,17 @@ GMPy_MPANY_cmp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    arg0 = PyTuple_GET_ITEM(args, 0);
-    arg1 = PyTuple_GET_ITEM(args, 1);
+    x = PyTuple_GET_ITEM(args, 0);
+    y = PyTuple_GET_ITEM(args, 1);
+    
+    xtype = GMPy_ObjectType(x);
+    ytype = GMPy_ObjectType(y);
 
-    if (IS_INTEGER(arg0) && IS_INTEGER(arg1)) {
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype)) {
         MPZ_Object *tempx = NULL, *tempy = NULL;
 
-        if (!(tempx = GMPy_MPZ_From_Integer(arg0, context)) ||
-            !(tempy = GMPy_MPZ_From_Integer(arg1, context))) {
+        if (!(tempx = GMPy_MPZ_From_IntegerWithType(x, xtype, context)) ||
+            !(tempy = GMPy_MPZ_From_IntegerWithType(y, ytype, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -80,12 +84,12 @@ GMPy_MPANY_cmp(PyObject *self, PyObject *args)
         return result;
     }
 
-    if (IS_RATIONAL(arg0) && IS_INTEGER(arg1)) {
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_INTEGER(ytype)) {
         MPQ_Object *tempx = NULL;
         MPZ_Object *tempy = NULL;
 
-        if (!(tempx = GMPy_MPQ_From_Rational(arg0, context)) ||
-            !(tempy = GMPy_MPZ_From_Integer(arg1, context))) {
+        if (!(tempx = GMPy_MPQ_From_RationalWithType(x, xtype, context)) ||
+            !(tempy = GMPy_MPZ_From_IntegerWithType(y, ytype, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -99,12 +103,12 @@ GMPy_MPANY_cmp(PyObject *self, PyObject *args)
         return result;
     }
 
-    if (IS_INTEGER(arg0) && IS_RATIONAL(arg1)) {
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_RATIONAL(ytype)) {
         MPZ_Object *tempx = NULL;
         MPQ_Object *tempy = NULL;
 
-        if (!(tempx = GMPy_MPZ_From_Integer(arg0, context)) ||
-            !(tempy = GMPy_MPQ_From_Rational(arg1, context))) {
+        if (!(tempx = GMPy_MPZ_From_IntegerWithType(x, xtype, context)) ||
+            !(tempy = GMPy_MPQ_From_RationalWithType(y, ytype, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -118,11 +122,11 @@ GMPy_MPANY_cmp(PyObject *self, PyObject *args)
         return result;
     }
 
-    if (IS_RATIONAL(arg0) && IS_RATIONAL(arg1)) {
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype)) {
         MPQ_Object *tempx = NULL, *tempy = NULL;
 
-        if (!(tempx = GMPy_MPQ_From_Rational(arg0, context)) ||
-            !(tempy = GMPy_MPQ_From_Rational(arg1, context))) {
+        if (!(tempx = GMPy_MPQ_From_RationalWithType(x, xtype, context)) ||
+            !(tempy = GMPy_MPQ_From_RationalWithType(y, ytype, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -139,12 +143,12 @@ GMPy_MPANY_cmp(PyObject *self, PyObject *args)
     /* We perform exact comparisons between the mpz, mpq, and mpfr types.
      */
 
-    if (IS_REAL(arg0) && IS_INTEGER(arg1)) {
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_INTEGER(ytype)) {
             MPFR_Object *tempx = NULL;
             MPZ_Object *tempy = NULL;
 
-        if (!(tempx = GMPy_MPFR_From_Real(arg0, 1, context)) ||
-            !(tempy = GMPy_MPZ_From_Integer(arg1, context))) {
+        if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context)) ||
+            !(tempy = GMPy_MPZ_From_IntegerWithType(y, ytype, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -160,12 +164,12 @@ GMPy_MPANY_cmp(PyObject *self, PyObject *args)
         return result;
     }
 
-    if (IS_REAL(arg0) && IS_RATIONAL(arg1)) {
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_RATIONAL(ytype)) {
             MPFR_Object *tempx = NULL;
             MPQ_Object *tempy = NULL;
 
-        if (!(tempx = GMPy_MPFR_From_Real(arg0, 1, context)) ||
-            !(tempy = GMPy_MPQ_From_Rational(arg1, context))) {
+        if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context)) ||
+            !(tempy = GMPy_MPQ_From_RationalWithType(y, ytype, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -181,12 +185,12 @@ GMPy_MPANY_cmp(PyObject *self, PyObject *args)
         return result;
     }
 
-    if (IS_REAL(arg0) && IS_REAL(arg1)) {
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype)) {
             MPFR_Object *tempx = NULL;
             MPFR_Object *tempy = NULL;
 
-        if (!(tempx = GMPy_MPFR_From_Real(arg0, 1, context)) ||
-            !(tempy = GMPy_MPFR_From_Real(arg1, 1, context))) {
+        if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context)) ||
+            !(tempy = GMPy_MPFR_From_RealWithType(y, ytype, 1, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -202,12 +206,12 @@ GMPy_MPANY_cmp(PyObject *self, PyObject *args)
         return result;
     }
 
-    if (IS_INTEGER(arg0) && IS_REAL(arg1)) {
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_REAL(ytype)) {
             MPZ_Object *tempx = NULL;
             MPFR_Object *tempy = NULL;
 
-        if (!(tempx = GMPy_MPZ_From_Integer(arg0, context)) ||
-            !(tempy = GMPy_MPFR_From_Real(arg1, 1, context))) {
+        if (!(tempx = GMPy_MPZ_From_IntegerWithType(x, xtype, context)) ||
+            !(tempy = GMPy_MPFR_From_RealWithType(y, ytype, 1, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -223,12 +227,12 @@ GMPy_MPANY_cmp(PyObject *self, PyObject *args)
         return result;
     }
 
-    if (IS_RATIONAL(arg0) && IS_REAL(arg1)) {
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_REAL(ytype)) {
             MPQ_Object *tempx = NULL;
             MPFR_Object *tempy = NULL;
 
-        if (!(tempx = GMPy_MPQ_From_Rational(arg0, context)) ||
-            !(tempy = GMPy_MPFR_From_Real(arg1, 1, context))) {
+        if (!(tempx = GMPy_MPQ_From_RationalWithType(x, xtype, context)) ||
+            !(tempy = GMPy_MPFR_From_RealWithType(y, ytype, 1, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -244,7 +248,6 @@ GMPy_MPANY_cmp(PyObject *self, PyObject *args)
         return result;
     }
 
-
     TYPE_ERROR("cmp() requires integer, rational, or real arguments");
     return NULL;
 }
@@ -257,7 +260,8 @@ PyDoc_STRVAR(GMPy_doc_mpany_cmp_abs,
 static PyObject *
 GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
 {
-    PyObject *arg0, *arg1, *result = NULL;
+    PyObject *x, *y, *result = NULL;
+    int xtype, ytype;
     CTXT_Object *context = NULL;
 
     CHECK_CONTEXT(context);
@@ -267,14 +271,17 @@ GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    arg0 = PyTuple_GET_ITEM(args, 0);
-    arg1 = PyTuple_GET_ITEM(args, 1);
+    x = PyTuple_GET_ITEM(args, 0);
+    y = PyTuple_GET_ITEM(args, 1);
 
-    if (IS_INTEGER(arg0) && IS_INTEGER(arg1)) {
+    xtype = GMPy_ObjectType(x);
+    ytype = GMPy_ObjectType(y);
+
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype)) {
         MPZ_Object *tempx = NULL, *tempy = NULL;
 
-        if (!(tempx = GMPy_MPZ_From_Integer(arg0, context)) ||
-            !(tempy = GMPy_MPZ_From_Integer(arg1, context))) {
+        if (!(tempx = GMPy_MPZ_From_IntegerWithType(x, xtype, context)) ||
+            !(tempy = GMPy_MPZ_From_IntegerWithType(y, ytype, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -288,12 +295,12 @@ GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
         return result;
     }
 
-    if (IS_RATIONAL(arg0) && IS_INTEGER(arg1)) {
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_INTEGER(ytype)) {
         MPQ_Object *tempx = NULL;
         MPZ_Object *tempy = NULL;
 
-        if (!(tempx = GMPy_MPQ_From_RationalAndCopy(arg0, context)) ||
-            !(tempy = GMPy_MPZ_From_IntegerAndCopy(arg1, context))) {
+        if (!(tempx = GMPy_MPQ_From_RationalWithTypeAndCopy(x, xtype, context)) ||
+            !(tempy = GMPy_MPZ_From_IntegerWithTypeAndCopy(y, ytype, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -310,12 +317,12 @@ GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
         return result;
     }
 
-    if (IS_INTEGER(arg0) && IS_RATIONAL(arg1)) {
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_RATIONAL(ytype)) {
         MPZ_Object *tempx = NULL;
         MPQ_Object *tempy = NULL;
 
-        if (!(tempx = GMPy_MPZ_From_IntegerAndCopy(arg0, context)) ||
-            !(tempy = GMPy_MPQ_From_RationalAndCopy(arg1, context))) {
+        if (!(tempx = GMPy_MPZ_From_IntegerWithTypeAndCopy(x,xtype, context)) ||
+            !(tempy = GMPy_MPQ_From_RationalWithTypeAndCopy(y, ytype, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -332,11 +339,11 @@ GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
         return result;
     }
 
-    if (IS_RATIONAL(arg0) && IS_RATIONAL(arg1)) {
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype)) {
         MPQ_Object *tempx = NULL, *tempy = NULL;
 
-        if (!(tempx = GMPy_MPQ_From_RationalAndCopy(arg0, context)) ||
-            !(tempy = GMPy_MPQ_From_RationalAndCopy(arg1, context))) {
+        if (!(tempx = GMPy_MPQ_From_RationalWithTypeAndCopy(x, xtype, context)) ||
+            !(tempy = GMPy_MPQ_From_RationalWithTypeAndCopy(y, ytype, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -356,12 +363,12 @@ GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
     /* We perform exact comparisons between the mpz, mpq, and mpfr types.
      */
 
-    if (IS_REAL(arg0) && IS_INTEGER(arg1)) {
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_INTEGER(ytype)) {
             MPFR_Object *tempx = NULL;
             MPZ_Object *tempy = NULL;
 
-        if (!(tempx = GMPy_MPFR_From_RealAndCopy(arg0, 1, context)) ||
-            !(tempy = GMPy_MPZ_From_IntegerAndCopy(arg1, context))) {
+        if (!(tempx = GMPy_MPFR_From_RealWithTypeAndCopy(x, xtype, 1, context)) ||
+            !(tempy = GMPy_MPZ_From_IntegerWithTypeAndCopy(y, ytype, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -380,12 +387,12 @@ GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
         return result;
     }
 
-    if (IS_REAL(arg0) && IS_RATIONAL(arg1)) {
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_RATIONAL(ytype)) {
             MPFR_Object *tempx = NULL;
             MPQ_Object *tempy = NULL;
 
-        if (!(tempx = GMPy_MPFR_From_RealAndCopy(arg0, 1, context)) ||
-            !(tempy = GMPy_MPQ_From_RationalAndCopy(arg1, context))) {
+        if (!(tempx = GMPy_MPFR_From_RealWithTypeAndCopy(x, xtype, 1, context)) ||
+            !(tempy = GMPy_MPQ_From_RationalWithTypeAndCopy(y, ytype, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -404,12 +411,12 @@ GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
         return result;
     }
 
-    if (IS_REAL(arg0) && IS_REAL(arg1)) {
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype)) {
             MPFR_Object *tempx = NULL;
             MPFR_Object *tempy = NULL;
 
-        if (!(tempx = GMPy_MPFR_From_Real(arg0, 1, context)) ||
-            !(tempy = GMPy_MPFR_From_Real(arg1, 1, context))) {
+        if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context)) ||
+            !(tempy = GMPy_MPFR_From_RealWithType(y, ytype, 1, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -425,12 +432,12 @@ GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
         return result;
     }
 
-    if (IS_INTEGER(arg0) && IS_REAL(arg1)) {
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_REAL(ytype)) {
             MPZ_Object *tempx = NULL;
             MPFR_Object *tempy = NULL;
 
-        if (!(tempx = GMPy_MPZ_From_IntegerAndCopy(arg0, context)) ||
-            !(tempy = GMPy_MPFR_From_RealAndCopy(arg1, 1, context))) {
+        if (!(tempx = GMPy_MPZ_From_IntegerWithTypeAndCopy(x, xtype, context)) ||
+            !(tempy = GMPy_MPFR_From_RealWithTypeAndCopy(y, ytype, 1, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -449,12 +456,12 @@ GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
         return result;
     }
 
-    if (IS_RATIONAL(arg0) && IS_REAL(arg1)) {
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_REAL(ytype)) {
             MPQ_Object *tempx = NULL;
             MPFR_Object *tempy = NULL;
 
-        if (!(tempx = GMPy_MPQ_From_RationalAndCopy(arg0, context)) ||
-            !(tempy = GMPy_MPFR_From_RealAndCopy(arg1, 1, context))) {
+        if (!(tempx = GMPy_MPQ_From_RationalWithTypeAndCopy(x, xtype, context)) ||
+            !(tempy = GMPy_MPFR_From_RealWithTypeAndCopy(y, xtype, 1, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
@@ -477,12 +484,12 @@ GMPy_MPANY_cmp_abs(PyObject *self, PyObject *args)
     TYPE_ERROR("cmp_abs() requires integer, rational, or real arguments");
     return NULL;
 #else
-    if (IS_COMPLEX(arg0) && IS_COMPLEX(arg1)) {
+    if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype)) {
             MPC_Object *tempx = NULL;
             MPC_Object *tempy = NULL;
 
-        if (!(tempx = GMPy_MPC_From_Complex(arg0, 1, 1, context)) ||
-            !(tempy = GMPy_MPC_From_Complex(arg1, 1, 1, context))) {
+        if (!(tempx = GMPy_MPC_From_ComplexWithType(x, xtype, 1, 1, context)) ||
+            !(tempy = GMPy_MPC_From_ComplexWithType(y, ytype, 1, 1, context))) {
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
