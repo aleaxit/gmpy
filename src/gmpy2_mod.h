@@ -39,16 +39,11 @@ static PyObject * GMPy_Number_Mod(PyObject *x, PyObject *y, CTXT_Object *context
 
 /* Private API */
 
-static PyObject * GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Rational_Mod(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Complex_Mod(PyObject *x, PyObject *y, CTXT_Object *context);
-
-static PyObject * GMPy_MPZ_Mod_Slot(PyObject *x, PyObject *y);
-static PyObject * GMPy_MPQ_Mod_Slot(PyObject *x, PyObject *y);
-static PyObject * GMPy_MPFR_Mod_Slot(PyObject *x, PyObject *y);
-static PyObject * GMPy_MPC_Mod_Slot(PyObject *x, PyObject *y);
-
+static PyObject * GMPy_Integer_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Rational_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Real_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Complex_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Number_Mod_Slot(PyObject *x, PyObject *y);
 static PyObject * GMPy_Context_Mod(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus

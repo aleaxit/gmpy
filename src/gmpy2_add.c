@@ -270,28 +270,6 @@ GMPy_Complex_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
     return NULL;
 }
 
-static PyObject *
-GMPy_Number_Add(PyObject *x, PyObject *y, CTXT_Object *context)
-{
-    int xtype = GMPy_ObjectType(x);
-    int ytype = GMPy_ObjectType(y);
-    
-    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
-        return GMPy_Integer_AddWithType(x, xtype, y, ytype, context);
-
-    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype))
-        return GMPy_Rational_AddWithType(x, xtype, y, ytype, context);
-
-    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
-        return GMPy_Real_AddWithType(x, xtype, y, ytype, context);
-        
-    if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
-        return GMPy_Complex_AddWithType(x, xtype, y, ytype, context);
-
-    TYPE_ERROR("add() argument type not supported");
-    return NULL;
-}
-
 /* Implement all the slot methods here. */
 
 static PyObject *
@@ -320,6 +298,28 @@ GMPy_Number_Add_Slot(PyObject *x, PyObject *y)
 PyDoc_STRVAR(GMPy_doc_function_add,
 "add(x, y) -> number\n\n"
 "Return x + y.");
+
+static PyObject *
+GMPy_Number_Add(PyObject *x, PyObject *y, CTXT_Object *context)
+{
+    int xtype = GMPy_ObjectType(x);
+    int ytype = GMPy_ObjectType(y);
+    
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
+        return GMPy_Integer_AddWithType(x, xtype, y, ytype, context);
+
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype))
+        return GMPy_Rational_AddWithType(x, xtype, y, ytype, context);
+
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
+        return GMPy_Real_AddWithType(x, xtype, y, ytype, context);
+        
+    if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
+        return GMPy_Complex_AddWithType(x, xtype, y, ytype, context);
+
+    TYPE_ERROR("add() argument type not supported");
+    return NULL;
+}
 
 PyDoc_STRVAR(GMPy_doc_context_add,
 "context.add(x, y) -> number\n\n"

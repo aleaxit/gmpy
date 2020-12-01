@@ -27,44 +27,36 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* This file implements __mod__, gmpy2.mod(), and context.mod().
- *
- * Public API
- * ==========
- * The following function is available as part of GMPY2's C API. A NULL value
- * for context implies the function should use the currently active context.
- *
- *   GMPy_Number_Mod(Number, Number, context|NULL)
- *
- * Private API
- * ===========
- *   GMPy_MPZ_Mod_Slot
- *   GMPy_MPQ_Mod_Slot
- *   GMPy_MPFR_Mod_Slot
- *   GMPy_MPC_Mod_Slot
- *
- *   GMPy_Integer_Mod(Integer, Integer, context|NULL)
- *   GMPy_Rational_Mod(Rational, Rational, context|NULL)
- *   GMPy_Real_Mod(Real, Real, context|NULL)
- *   GMPy_Complex_Mod(Complex, Complex, context|NULL)
- *
- *   GMPy_Context_Mod(context, args)
- *
  */
 
 static PyObject *
-GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Integer_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype, 
+                         CTXT_Object *context)
 {
     MPZ_Object *result;
 
     CHECK_CONTEXT(context);
 
-    if (!(result = GMPy_MPZ_New(context)))
+    if (!(result = GMPy_MPZ_New(context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
-    if (CHECK_MPZANY(x)) {
-        if (PyIntOrLong_Check(y)) {
+    if (IS_TYPE_MPZANY(xtype)) {
+        if (IS_TYPE_MPZANY(ytype)) {
+            if (mpz_sgn(MPZ(y)) == 0) {
+                ZERO_ERROR("division or modulo by zero");
+                Py_DECREF((PyObject*)result);
+                return NULL;
+            }
+            mpz_fdiv_r(result->z, MPZ(x), MPZ(y));
+            return (PyObject*)result;
+        }
+
+        if (IS_TYPE_PyInteger(ytype)) {
             int error;
-            long temp = GMPy_Integer_AsLongAndError(y, &error);
+            long temp = PyLong_AsLongAndOverflow(y, &error);
 
             if (!error) {
                 if (temp > 0) {
@@ -80,24 +72,15 @@ GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
                 }
             }
             else {
-                mpz_set_PyIntOrLong(global.tempz, y);
-                mpz_fdiv_r(result->z, MPZ(x), global.tempz);
+                mpz_set_PyIntOrLong(result->z, y);
+                mpz_fdiv_r(result->z, MPZ(x), result->z);
             }
             return (PyObject*)result;
         }
 
-        if (CHECK_MPZANY(y)) {
-            if (mpz_sgn(MPZ(y)) == 0) {
-                ZERO_ERROR("division or modulo by zero");
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-            mpz_fdiv_r(result->z, MPZ(x), MPZ(y));
-            return (PyObject*)result;
-        }
     }
 
-    if (CHECK_MPZANY(y)) {
+    if (IS_TYPE_MPZANY(ytype)) {
         if (mpz_sgn(MPZ(y)) == 0) {
             ZERO_ERROR("division or modulo by zero");
             Py_DECREF((PyObject*)result);
@@ -105,24 +88,25 @@ GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
         }
 
         if (PyIntOrLong_Check(x)) {
-            mpz_set_PyIntOrLong(global.tempz, x);
-            mpz_fdiv_r(result->z, global.tempz, MPZ(y));
+            mpz_set_PyIntOrLong(result->z, x);
+            mpz_fdiv_r(result->z, result->z, MPZ(y));
             return (PyObject*)result;
         }
     }
 
-    if (IS_INTEGER(x) && IS_INTEGER(y)) {
-        MPZ_Object *tempx, *tempy;
+    if (IS_TYPE_INTEGER(xtype) && (IS_TYPE_INTEGER(ytype))) {
+        MPZ_Object *tempx = NULL, *tempy = NULL;
 
-        tempx = GMPy_MPZ_From_Integer(x, context);
-        tempy = GMPy_MPZ_From_Integer(y, context);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("could not convert Integer to mpz");
+        if (!(tempx = GMPy_MPZ_From_IntegerWithType(x, xtype, context)) ||
+            !(tempy = GMPy_MPZ_From_IntegerWithType(y, ytype, context))) {
+            /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
+
         if (mpz_sgn(tempy->z) == 0) {
             ZERO_ERROR("division or modulo by zero");
             Py_XDECREF((PyObject*)tempx);
@@ -137,61 +121,39 @@ GMPy_Integer_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
+    TYPE_ERROR("mod() argument type not supported");
+    return NULL;
 }
 
 static PyObject *
-GMPy_MPZ_Mod_Slot(PyObject *x, PyObject *y)
+GMPy_Rational_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
+                          CTXT_Object *context)
 {
-    if (MPZ_Check(x) && MPZ_Check(y)) {
-        MPZ_Object *result = NULL;
+    MPQ_Object *tempx = NULL, *tempy = NULL, *result = NULL;
 
-        if ((result = GMPy_MPZ_New(NULL))) {
-            if (mpz_sgn(MPZ(y)) == 0) {
-                ZERO_ERROR("division or modulo by zero");
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-            mpz_fdiv_r(result->z, MPZ(x), MPZ(y));
-        }
-        return (PyObject*)result;
-    }
-
-    if (IS_INTEGER(x) && IS_INTEGER(y))
-        return GMPy_Integer_Mod(x, y, NULL);
-
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return GMPy_Rational_Mod(x, y, NULL);
-
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_Mod(x, y, NULL);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_Mod(x, y, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-static PyObject *
-GMPy_Rational_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
-{
-    MPQ_Object *tempx, *tempy, *result;
-
-    CHECK_CONTEXT(context);
-
-    if (!(result = GMPy_MPQ_New(context)))
+    if (!(result = GMPy_MPQ_New(context))) {
+        /* LCOV_EXCL_START */
         return NULL;
-
-    if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
-        tempx = GMPy_MPQ_From_Rational(x, context);
-        tempy = GMPy_MPQ_From_Rational(y, context);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("could not convert Rational to mpq");
-            goto error;
+        /* LCOV_EXCL_STOP */
+    }
+    
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype)) {
+        if (!(tempx = GMPy_MPQ_From_RationalWithType(x, xtype, context)) ||
+            !(tempy = GMPy_MPQ_From_RationalWithType(y, ytype, context))) {
+            /* LCOV_EXCL_START */
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF((PyObject*)result);
+            return NULL;
+            /* LCOV_EXCL_STOP */
         }
+
         if (mpq_sgn(tempy->q) == 0) {
             ZERO_ERROR("division or modulo by zero");
-            goto error;
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF((PyObject*)result);
+            return NULL;
         }
 
         mpq_div(result->q, tempx->q, tempy->q);
@@ -206,50 +168,32 @@ GMPy_Rational_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
-
-  error:
-    Py_XDECREF((PyObject*)tempx);
-    Py_XDECREF((PyObject*)tempy);
-    Py_DECREF((PyObject*)result);
+    TYPE_ERROR("mod() argument type not supported");
     return NULL;
 }
 
 static PyObject *
-GMPy_MPQ_Mod_Slot(PyObject *x, PyObject *y)
+GMPy_Real_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
+                      CTXT_Object *context)
 {
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return GMPy_Rational_Mod(x, y, NULL);
-
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_Mod(x, y, NULL);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_Mod(x, y, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-static PyObject *
-GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
-{
-    MPFR_Object *tempx = NULL, *tempy = NULL, *result;
+    MPFR_Object *tempx = NULL, *tempy = NULL, *result = NULL;
 
     CHECK_CONTEXT(context);
 
-    result = GMPy_MPFR_New(0, context);
-    if (!result) {
-        Py_XDECREF((PyObject*)result);
+    if (!(result = GMPy_MPFR_New(0, context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
     }
 
-    if (IS_REAL(x) && IS_REAL(y)) {
-        tempx = GMPy_MPFR_From_Real(x, 1, context);
-        tempy = GMPy_MPFR_From_Real(y, 1, context);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("could not convert Real to mpfr");
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype)) {
+        if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context)) ||
+            !(tempy = GMPy_MPFR_From_RealWithType(y, ytype, 1, context))) {
+            /* LCOV_EXCL_START */
             goto error;
+            /* LCOV_EXCL_STOP */
         }
+
         if (mpfr_zero_p(tempy->f)) {
             context->ctx.divzero = 1;
             if (context->ctx.traps & TRAP_DIVZERO) {
@@ -261,7 +205,6 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
         mpfr_clear_flags();
 
         if (mpfr_nan_p(tempx->f) || mpfr_nan_p(tempy->f) || mpfr_inf_p(tempx->f)) {
-
             context->ctx.invalid = 1;
             if (context->ctx.traps & TRAP_INVALID) {
                 GMPY_INVALID("mod() invalid operation");
@@ -303,7 +246,8 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
+    TYPE_ERROR("mod() argument type not supported");
+    return NULL;
 
   error:
     Py_XDECREF((PyObject*)tempx);
@@ -313,28 +257,32 @@ GMPy_Real_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_MPFR_Mod_Slot(PyObject *x, PyObject *y)
-{
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_Mod(x, y, NULL);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_Mod(x, y, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-static PyObject *
-GMPy_Complex_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Complex_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
+                         CTXT_Object *context)
 {
     TYPE_ERROR("can't take mod of complex number");
     return NULL;
 }
 
 static PyObject *
-GMPy_MPC_Mod_Slot(PyObject *x, PyObject *y)
+GMPy_Number_Mod_Slot(PyObject *x, PyObject *y)
 {
-    return GMPy_Complex_Mod(x, y, NULL);
+    int xtype = GMPy_ObjectType(x);
+    int ytype = GMPy_ObjectType(y);
+    
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
+        return GMPy_Integer_ModWithType(x, xtype, y, ytype, NULL);
+
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype))
+        return GMPy_Rational_ModWithType(x, xtype, y, ytype, NULL);
+
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
+        return GMPy_Real_ModWithType(x, xtype, y, ytype, NULL);
+        
+    if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
+        return GMPy_Complex_ModWithType(x, xtype, y, ytype, NULL);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 PyDoc_STRVAR(GMPy_doc_mod,
@@ -346,17 +294,20 @@ PyDoc_STRVAR(GMPy_doc_mod,
 static PyObject *
 GMPy_Number_Mod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    if (IS_INTEGER(x) && IS_INTEGER(y))
-        return GMPy_Integer_Mod(x, y, context);
+    int xtype = GMPy_ObjectType(x);
+    int ytype = GMPy_ObjectType(y);
+    
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
+        return GMPy_Integer_ModWithType(x, xtype, y, ytype, context);
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return GMPy_Rational_Mod(x, y, context);
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype))
+        return GMPy_Rational_ModWithType(x, xtype, y, ytype, context);
 
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_Mod(x, y, context);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_Mod(x, y, context);
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
+        return GMPy_Real_ModWithType(x, xtype, y, ytype, context);
+        
+    if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
+        return GMPy_Complex_ModWithType(x, xtype, y, ytype, context);
 
     TYPE_ERROR("mod() argument type not supported");
     return NULL;
@@ -385,6 +336,8 @@ GMPy_Context_Mod(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_Mod(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context);
+    return GMPy_Number_Mod(PyTuple_GET_ITEM(args, 0),
+                           PyTuple_GET_ITEM(args, 1),
+                           context);
 }
 
