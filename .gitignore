@@ -4,4 +4,4 @@ dist/
 docs/_build
 gmpy2.egg-info/
 MANIFEST
-
+.vscode/
