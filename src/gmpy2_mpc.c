@@ -213,55 +213,55 @@ static PyNumberMethods mpc_number_methods =
         0,                               /* nb_inplace_lshift       */
         0,                               /* nb_inplace_rshift       */
         0,                               /* nb_inplace_and          */
-        0,                               /* nb_inplace_xor          */
-        0,                               /* nb_inplace_or           */
-    (binaryfunc) GMPy_MPC_FloorDiv_Slot, /* nb_floor_divide         */
-    (binaryfunc) GMPy_MPC_TrueDiv_Slot,  /* nb_true_divide          */
-        0,                               /* nb_inplace_floor_divide */
-        0,                               /* nb_inplace_true_divide  */
-        0,                               /* nb_index                */
+        0,                                  /* nb_inplace_xor          */
+        0,                                  /* nb_inplace_or           */
+    (binaryfunc) GMPy_Number_FloorDiv_Slot, /* nb_floor_divide         */
+    (binaryfunc) GMPy_Number_TrueDiv_Slot,  /* nb_true_divide          */
+        0,                                  /* nb_inplace_floor_divide */
+        0,                                  /* nb_inplace_true_divide  */
+        0,                                  /* nb_index                */
 };
 #else
 static PyNumberMethods mpc_number_methods =
 {
-    (binaryfunc) GMPy_Number_Add_Slot,   /* nb_add                  */
-    (binaryfunc) GMPy_Number_Sub_Slot,   /* nb_subtract             */
-    (binaryfunc) GMPy_Number_Mul_Slot,   /* nb_multiply             */
-    (binaryfunc) GMPy_MPC_TrueDiv_Slot,  /* nb_divide               */
-    (binaryfunc) GMPy_Number_Mod_Slot,   /* nb_remainder            */
-    (binaryfunc) GMPy_MPC_DivMod_Slot,   /* nb_divmod               */
-    (ternaryfunc) GMPy_MPC_Pow_Slot,     /* nb_power                */
-    (unaryfunc) GMPy_MPC_Minus_Slot,     /* nb_negative             */
-    (unaryfunc) GMPy_MPC_Plus_Slot,      /* nb_positive             */
-    (unaryfunc) GMPy_MPC_Abs_Slot,       /* nb_absolute             */
-    (inquiry) GMPy_MPC_NonZero_Slot,     /* nb_bool                 */
-        0,                               /* nb_invert               */
-        0,                               /* nb_lshift               */
-        0,                               /* nb_rshift               */
-        0,                               /* nb_and                  */
-        0,                               /* nb_xor                  */
-        0,                               /* nb_or                   */
-        0,                               /* nb_coerce               */
-    (unaryfunc) GMPy_MPC_Int_Slot,       /* nb_int                  */
-    (unaryfunc) GMPy_MPC_Long_Slot,      /* nb_long                 */
-    (unaryfunc) GMPy_MPC_Float_Slot,     /* nb_float                */
-        0,                               /* nb_oct                  */
-        0,                               /* nb_hex                  */
-        0,                               /* nb_inplace_add          */
-        0,                               /* nb_inplace_subtract     */
-        0,                               /* nb_inplace_multiply     */
-        0,                               /* nb_inplace_divide       */
-        0,                               /* nb_inplace_remainder    */
-        0,                               /* nb_inplace_power        */
-        0,                               /* nb_inplace_lshift       */
-        0,                               /* nb_inplace_rshift       */
-        0,                               /* nb_inplace_and          */
-        0,                               /* nb_inplace_xor          */
-        0,                               /* nb_inplace_or           */
-    (binaryfunc) GMPy_MPC_FloorDiv_Slot, /* nb_floor_divide         */
-    (binaryfunc) GMPy_MPC_TrueDiv_Slot,  /* nb_true_divide          */
-        0,                               /* nb_inplace_floor_divide */
-        0,                               /* nb_inplace_true_divide  */
+    (binaryfunc) GMPy_Number_Add_Slot,      /* nb_add                  */
+    (binaryfunc) GMPy_Number_Sub_Slot,      /* nb_subtract             */
+    (binaryfunc) GMPy_Number_Mul_Slot,      /* nb_multiply             */
+    (binaryfunc) GMPy_Number_TrueDiv_Slot,  /* nb_divide               */
+    (binaryfunc) GMPy_Number_Mod_Slot,      /* nb_remainder            */
+    (binaryfunc) GMPy_MPC_DivMod_Slot,      /* nb_divmod               */
+    (ternaryfunc) GMPy_MPC_Pow_Slot,        /* nb_power                */
+    (unaryfunc) GMPy_MPC_Minus_Slot,        /* nb_negative             */
+    (unaryfunc) GMPy_MPC_Plus_Slot,         /* nb_positive             */
+    (unaryfunc) GMPy_MPC_Abs_Slot,          /* nb_absolute             */
+    (inquiry) GMPy_MPC_NonZero_Slot,        /* nb_bool                 */
+        0,                                  /* nb_invert               */
+        0,                                  /* nb_lshift               */
+        0,                                  /* nb_rshift               */
+        0,                                  /* nb_and                  */
+        0,                                  /* nb_xor                  */
+        0,                                  /* nb_or                   */
+        0,                                  /* nb_coerce               */
+    (unaryfunc) GMPy_MPC_Int_Slot,          /* nb_int                  */
+    (unaryfunc) GMPy_MPC_Long_Slot,         /* nb_long                 */
+    (unaryfunc) GMPy_MPC_Float_Slot,        /* nb_float                */
+        0,                                  /* nb_oct                  */
+        0,                                  /* nb_hex                  */
+        0,                                  /* nb_inplace_add          */
+        0,                                  /* nb_inplace_subtract     */
+        0,                                  /* nb_inplace_multiply     */
+        0,                                  /* nb_inplace_divide       */
+        0,                                  /* nb_inplace_remainder    */
+        0,                                  /* nb_inplace_power        */
+        0,                                  /* nb_inplace_lshift       */
+        0,                                  /* nb_inplace_rshift       */
+        0,                                  /* nb_inplace_and          */
+        0,                                  /* nb_inplace_xor          */
+        0,                                  /* nb_inplace_or           */
+    (binaryfunc) GMPy_MPC_FloorDiv_Slot,    /* nb_floor_divide         */
+    (binaryfunc) GMPy_MPC_TrueDiv_Slot,     /* nb_true_divide          */
+        0,                                  /* nb_inplace_floor_divide */
+        0,                                  /* nb_inplace_true_divide  */
 };
 #endif
 

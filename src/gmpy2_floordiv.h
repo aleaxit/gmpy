@@ -39,16 +39,11 @@ static PyObject * GMPy_Number_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *co
 
 /* Private API */
 
-static PyObject * GMPy_Integer_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Rational_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Real_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Complex_FloorDiv(PyObject *x, PyObject *y, CTXT_Object *context);
-
-static PyObject * GMPy_MPZ_FloorDiv_Slot(PyObject *x, PyObject *y);
-static PyObject * GMPy_MPQ_FloorDiv_Slot(PyObject *x, PyObject *y);
-static PyObject * GMPy_MPFR_FloorDiv_Slot(PyObject *x, PyObject *y);
-static PyObject * GMPy_MPC_FloorDiv_Slot(PyObject *x, PyObject *y);
-
+static PyObject * GMPy_Integer_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Rational_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Real_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Complex_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Number_FloorDiv_Slot(PyObject *x, PyObject *y);
 static PyObject * GMPy_Context_FloorDiv(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus

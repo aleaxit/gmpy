@@ -32,58 +32,39 @@
  * ==========
  * The following function is available as part of GMPY2's C API. A NULL value
  * for context implies the function should use the currently active context.
- *
- *   GMPy_Number_TrueDiv(Number, Number, context|NULL)
- *
- * Private API
- * ===========
- *   GMPy_MPZ_TrueDiv_Slot
- *   GMPy_MPQ_TrueDiv_Slot
- *   GMPy_MPFR_TrueDiv_Slot
- *   GMPy_MPC_TrueDiv_Slot
- *
- *   GMPy_Integer_TrueDiv(Integer, Integer, context|NULL)
- *   GMPy_Rational_TrueDiv(Rational, Rational, context|NULL)
- *   GMPy_Real_TrueDiv(Real, Real, context|NULL)
- *   GMPy_Complex_TrueDiv(Complex, Complex, context|NULL)
- *
- *   GMPy_Context_TrueDiv(context, args)
- *
  */
-
-/* Multiply two Integer objects (see gmpy2_convert.c). If an error occurs,
- * NULL is returned and an exception is set. If either x or y can't be
- * converted into an mpz, Py_NotImplemented is returned. */
 
 /* Divide two Integer objects (see convert.c/isInteger) using true division.
  * If an error occurs, NULL is returned and an exception is set. If either x
  * or y can't be converted into an mpz, Py_NotImplemented is returned. */
 
 static PyObject *
-GMPy_Integer_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Integer_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype, 
+                             CTXT_Object *context)
 {
-    MPZ_Object *tempx, *tempy;
+    MPZ_Object *tempx = NULL, *tempy = NULL;
     mpq_t tempq;
-    MPFR_Object *result;
+    MPFR_Object *result = NULL;
 
     CHECK_CONTEXT(context);
 
     if (GET_DIV_MODE(context))
-        return GMPy_Rational_TrueDiv(x, y, context);
+        return GMPy_Rational_TrueDivWithType(x, xtype, y, ytype, context);
 
     if (!(result = GMPy_MPFR_New(0, context)))
         return NULL;
 
-    if (IS_INTEGER(x) && IS_INTEGER(y)) {
-        tempx = GMPy_MPZ_From_Integer(x, context);
-        tempy = GMPy_MPZ_From_Integer(y, context);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("could not convert Integer to mpz");
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype)) {
+        if (!(tempx = GMPy_MPZ_From_IntegerWithType(x, xtype, context)) ||
+            !(tempy = GMPy_MPZ_From_IntegerWithType(y, ytype, context))) {
+            /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
+          
         if (mpz_sgn(tempy->z) == 0) {
             ZERO_ERROR("division or modulo by zero");
             Py_XDECREF((PyObject*)tempx);
@@ -109,82 +90,49 @@ GMPy_Integer_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
+    TYPE_ERROR("div() argument type not supported");
+    return NULL;
 }
-
-/* Implement true division for MPZ_Object. On entry, one of the two arguments
- * must be an MPZ_Object. If the other object is an Integer, return an
- * MPZ_Object. If the other object isn't an MPZ_Object, call the appropriate
- * function. If no appropriate function can be found, return NotImplemented.
- */
-
 static PyObject *
-GMPy_MPZ_TrueDiv_Slot(PyObject *x, PyObject *y)
+GMPy_Rational_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
+                              CTXT_Object *context)
 {
-    if (IS_INTEGER(x) && IS_INTEGER(y))
-        return GMPy_Integer_TrueDiv(x, y, NULL);
-
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return GMPy_Rational_TrueDiv(x, y, NULL);
-
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_TrueDiv(x, y, NULL);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_TrueDiv(x, y, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-#ifdef PY2
-static PyObject *
-GMPy_MPZ_Div2_Slot(PyObject *x, PyObject *y)
-{
-    if (IS_INTEGER(x) && IS_INTEGER(y))
-        return GMPy_Integer_FloorDiv(x, y, NULL);
-
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return GMPy_Rational_TrueDiv(x, y, NULL);
-
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_TrueDiv(x, y, NULL);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_TrueDiv(x, y, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-#endif
-
-static PyObject *
-GMPy_Rational_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
-{
-    MPQ_Object *result, *tempx = NULL, *tempy = NULL;
+    MPQ_Object *result = NULL, *tempx = NULL, *tempy = NULL;
 
     CHECK_CONTEXT(context);
 
     if (!(result = GMPy_MPQ_New(context)))
         return NULL;
 
-    if (MPQ_Check(x) && MPQ_Check(y)) {
+    if (IS_TYPE_MPQ(xtype) && IS_TYPE_MPQ(ytype)) {
         if (mpq_sgn(MPQ(y)) == 0) {
             ZERO_ERROR("division or modulo by zero");
-            goto error;
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF((PyObject*)result);
+            return NULL;
         }
         mpq_div(result->q, MPQ(x), MPQ(y));
         return (PyObject*)result;
     }
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
-        tempx = GMPy_MPQ_From_Rational(x, context);
-        tempy = GMPy_MPQ_From_Rational(y, context);
-        if (!tempx || !tempy) {
-            SYSTEM_ERROR("could not convert Rational to mpq");
-            goto error;
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype)) {
+        if (!(tempx = GMPy_MPQ_From_RationalWithType(x, xtype, context)) ||
+            !(tempy = GMPy_MPQ_From_RationalWithType(y, ytype, context))) {
+            /* LCOV_EXCL_START */
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF((PyObject*)result);
+            return NULL;
+            /* LCOV_EXCL_STOP */
         }
+
         if (mpq_sgn(tempy->q) == 0) {
             ZERO_ERROR("division or modulo by zero");
-            goto error;
+            Py_XDECREF((PyObject*)tempx);
+            Py_XDECREF((PyObject*)tempy);
+            Py_DECREF((PyObject*)result);
+            return NULL;
         }
 
         mpq_div(result->q, tempx->q, tempy->q);
@@ -194,28 +142,8 @@ GMPy_Rational_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
-
-  error:
-    Py_XDECREF((PyObject*)tempx);
-    Py_XDECREF((PyObject*)tempy);
-    Py_DECREF((PyObject*)result);
+    TYPE_ERROR("div() argument type not supported");
     return NULL;
-}
-
-static PyObject *
-GMPy_MPQ_TrueDiv_Slot(PyObject *x, PyObject *y)
-{
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return GMPy_Rational_TrueDiv(x, y, NULL);
-
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_TrueDiv(x, y, NULL);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_TrueDiv(x, y, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Attempt true division of two numbers and return an mpfr. The code path is
@@ -223,9 +151,10 @@ GMPy_MPQ_TrueDiv_Slot(PyObject *x, PyObject *y)
  * both objects are not valid reals.  */
 
 static PyObject *
-GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Real_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
+                          CTXT_Object *context)
 {
-    MPFR_Object *result;
+    MPFR_Object *result = NULL;
 
     CHECK_CONTEXT(context);
 
@@ -235,151 +164,55 @@ GMPy_Real_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    if (MPFR_Check(x) && MPFR_Check(y)) {
+    if (IS_TYPE_MPFR(xtype) && IS_TYPE_MPFR(ytype)) {
         mpfr_clear_flags();
 
         result->rc = mpfr_div(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
-        goto done;
+        _GMPy_MPFR_Cleanup(&result, context);
+        return (PyObject*)result;
     }
 
-    if (MPFR_Check(x)) {
-        if (PyIntOrLong_Check(y)) {
-            int error;
-            long temp = GMPy_Integer_AsLongAndError(y, &error);
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype)) {
+        MPFR_Object *tempx = NULL, *tempy = NULL;
 
-            if (!error) {
-                mpfr_clear_flags();
-
-                result->rc = mpfr_div_si(result->f, MPFR(x), temp, GET_MPFR_ROUND(context));
-                goto done;
-            }
-            else {
-                mpz_set_PyIntOrLong(global.tempz, y);
-                mpfr_clear_flags();
-
-                result->rc = mpfr_div_z(result->f, MPFR(x), global.tempz, GET_MPFR_ROUND(context));
-                goto done;
-            }
-        }
-
-        if (CHECK_MPZANY(y)) {
-            mpfr_clear_flags();
-
-            result->rc = mpfr_div_z(result->f, MPFR(x), MPZ(y), GET_MPFR_ROUND(context));
-            goto done;
-        }
-
-        if (IS_RATIONAL(y)) {
-            MPQ_Object *tempy;
-
-            if (!(tempy = GMPy_MPQ_From_Rational(y, context))) {
-                Py_DECREF((PyObject*)result);
-                return NULL;
-            }
-            mpfr_clear_flags();
-
-            result->rc = mpfr_div_q(result->f, MPFR(x), tempy->q, GET_MPFR_ROUND(context));
-            Py_DECREF((PyObject*)tempy);
-            goto done;
-        }
-
-        if (PyFloat_Check(y)) {
-            mpfr_clear_flags();
-
-            result->rc = mpfr_div_d(result->f, MPFR(x), PyFloat_AS_DOUBLE(y), GET_MPFR_ROUND(context));
-            goto done;
-        }
-    }
-
-    if (MPFR_Check(y)) {
-        if (PyIntOrLong_Check(x)) {
-            int error;
-            long temp = GMPy_Integer_AsLongAndError(x, &error);
-
-            if (!error) {
-                mpfr_clear_flags();
-
-                result->rc = mpfr_si_div(result->f, temp, MPFR(y), GET_MPFR_ROUND(context));
-                goto done;
-            }
-        }
-
-        /* Since mpfr_z_div does not exist, this combination is handled at the
-         * end by converting x to an mpfr. Ditto for rational.*/
-
-        if (PyFloat_Check(x)) {
-            mpfr_clear_flags();
-
-            result->rc = mpfr_d_div(result->f, PyFloat_AS_DOUBLE(x), MPFR(y), GET_MPFR_ROUND(context));
-            goto done;
-        }
-    }
-
-    if (IS_REAL(x) && IS_REAL(y)) {
-        MPFR_Object *tempx, *tempy;
-
-        tempx = GMPy_MPFR_From_Real(x, 1, context);
-        tempy = GMPy_MPFR_From_Real(y, 1, context);
-        if (!tempx || !tempy) {
+        if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context)) ||
+            !(tempy = GMPy_MPFR_From_RealWithType(y, ytype, 1, context))) {
+            /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
-        mpfr_clear_flags();
 
+        mpfr_clear_flags();
         result->rc = mpfr_div(result->f, tempx->f, tempy->f, GET_MPFR_ROUND(context));
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
-        goto done;
-    }
-
-    Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
-
-  done:
-    _GMPy_MPFR_Cleanup(&result, context);
-    return (PyObject*)result;
-}
-
-static PyObject *
-GMPy_MPFR_TrueDiv_Slot(PyObject *x, PyObject *y)
-{
-     if (MPFR_Check(x) && MPFR_Check(y)) {
-        MPFR_Object *result;
-        CTXT_Object *context = NULL;
-
-        CHECK_CONTEXT(context);
-
-        if ((result = GMPy_MPFR_New(0, context))) {
-            mpfr_clear_flags();
-
-            result->rc = mpfr_div(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
-            _GMPy_MPFR_Cleanup(&result, context);
-        }
+        _GMPy_MPFR_Cleanup(&result, context);
         return (PyObject*)result;
     }
 
-   if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_TrueDiv(x, y, NULL);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_TrueDiv(x, y, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
+    Py_DECREF((PyObject*)result);
+    TYPE_ERROR("div() argument type not supported");
+    return NULL;
 }
 
 static PyObject *
-GMPy_Complex_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Complex_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
+                             CTXT_Object *context)
 {
     MPC_Object *result = NULL;
 
     CHECK_CONTEXT(context);
 
-    if (!(result = GMPy_MPC_New(0, 0, context)))
+    if (!(result = GMPy_MPC_New(0, 0, context))) {
+        /* LCOV_EXCL_START */
         return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
-    if (MPC_Check(x) && MPC_Check(y)) {
+    if (IS_TYPE_MPC(xtype) && IS_TYPE_MPC(ytype)) {
 
         if (MPC_IS_ZERO_P(y)) {
             context->ctx.divzero = 1;
@@ -390,40 +223,81 @@ GMPy_Complex_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
             }
         }
         result->rc = mpc_div(result->c, MPC(x), MPC(y), GET_MPC_ROUND(context));
-        goto done;
+        _GMPy_MPC_Cleanup(&result, context);
+        return (PyObject*)result;
     }
 
-    if (IS_COMPLEX(x) && IS_COMPLEX(y)) {
-        MPC_Object *tempx, *tempy;
+    if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype)) {
+        MPC_Object *tempx = NULL, *tempy = NULL;
 
-        tempx = GMPy_MPC_From_Complex(x, 1, 1, context);
-        tempy = GMPy_MPC_From_Complex(y, 1, 1, context);
-        if (!tempx || !tempy) {
+        if (!(tempx = GMPy_MPC_From_ComplexWithType(x, xtype, 1, 1, context)) ||
+            !(tempy = GMPy_MPC_From_ComplexWithType(y, ytype, 1, 1, context))) {
+            /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
             Py_DECREF((PyObject*)result);
             return NULL;
+            /* LCOV_EXCL_STOP */
         }
 
         result->rc = mpc_div(result->c, tempx->c, tempy->c, GET_MPC_ROUND(context));
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
-        goto done;
+        _GMPy_MPC_Cleanup(&result, context);
+        return (PyObject*)result;
     }
 
     Py_DECREF((PyObject*)result);
-    Py_RETURN_NOTIMPLEMENTED;
-
-  done:
-    _GMPy_MPC_Cleanup(&result, context);
-    return (PyObject*)result;
+    TYPE_ERROR("div() argument type not supported");
+    return NULL;
 }
+
+/* Implement all the slot methods here. */
 
 static PyObject *
-GMPy_MPC_TrueDiv_Slot(PyObject *x, PyObject *y)
+GMPy_Number_TrueDiv_Slot(PyObject *x, PyObject *y)
 {
-    return GMPy_Complex_TrueDiv(x, y, NULL);
+    int xtype = GMPy_ObjectType(x);
+    int ytype = GMPy_ObjectType(y);
+    
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
+        return GMPy_Integer_TrueDivWithType(x, xtype, y, ytype, NULL);
+
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype))
+        return GMPy_Rational_TrueDivWithType(x, xtype, y, ytype, NULL);
+
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
+        return GMPy_Real_TrueDivWithType(x, xtype, y, ytype, NULL);
+        
+    if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
+        return GMPy_Complex_TrueDivWithType(x, xtype, y, ytype, NULL);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
+
+#ifdef PY2
+static PyObject *
+GMPy_MPZ_Div2_Slot(PyObject *x, PyObject *y)
+{
+    int xtype = GMPy_ObjectType(x);
+    int ytype = GMPy_ObjectType(y);
+    
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
+        return GMPy_Integer_FloorDivWithType(x, xtype, y, ytype, NULL);
+
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype))
+        return GMPy_Rational_TrueDivWithType(x, xtype, y, ytype, NULL);
+
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
+        return GMPy_Real_TrueDivWithType(x, xtype, y, ytype, NULL);
+        
+    if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
+        return GMPy_Complex_TrueDivWithType(x, xtype, y, ytype, NULL);
+
+    Py_RETURN_NOTIMPLEMENTED;
+}
+#endif
+
 
 PyDoc_STRVAR(GMPy_doc_truediv,
 "div(x, y) -> number\n\n"
@@ -432,17 +306,20 @@ PyDoc_STRVAR(GMPy_doc_truediv,
 static PyObject *
 GMPy_Number_TrueDiv(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    if (IS_INTEGER(x) && IS_INTEGER(y))
-        return GMPy_Integer_TrueDiv(x, y, context);
+    int xtype = GMPy_ObjectType(x);
+    int ytype = GMPy_ObjectType(y);
+    
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
+        return GMPy_Integer_TrueDivWithType(x, xtype, y, ytype, NULL);
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return GMPy_Rational_TrueDiv(x, y, context);
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype))
+        return GMPy_Rational_TrueDivWithType(x, xtype, y, ytype, NULL);
 
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_TrueDiv(x, y, context);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_TrueDiv(x, y, context);
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
+        return GMPy_Real_TrueDivWithType(x, xtype, y, ytype, NULL);
+        
+    if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
+        return GMPy_Complex_TrueDivWithType(x, xtype, y, ytype, NULL);
 
     TYPE_ERROR("div() argument type not supported");
     return NULL;
@@ -469,7 +346,9 @@ GMPy_Context_TrueDiv(PyObject *self, PyObject *args)
         CHECK_CONTEXT(context);
     }
 
-    return GMPy_Number_TrueDiv(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1),
+    return GMPy_Number_TrueDiv(PyTuple_GET_ITEM(args, 0),
+                               PyTuple_GET_ITEM(args, 1),
                                context);
 }
+
 

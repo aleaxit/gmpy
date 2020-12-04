@@ -75,8 +75,8 @@ static PyNumberMethods mpq_number_methods =
         0,                                  /* nb_inplace_and          */
         0,                                  /* nb_inplace_xor          */
         0,                                  /* nb_inplace_or           */
-    (binaryfunc) GMPy_MPQ_FloorDiv_Slot,    /* nb_floor_divide         */
-    (binaryfunc) GMPy_MPQ_TrueDiv_Slot,     /* nb_true_divide          */
+    (binaryfunc) GMPy_Number_FloorDiv_Slot,    /* nb_floor_divide         */
+    (binaryfunc) GMPy_Number_TrueDiv_Slot,     /* nb_true_divide          */
         0,                                  /* nb_inplace_floor_divide */
         0,                                  /* nb_inplace_true_divide  */
         0,                                  /* nb_index                */
@@ -118,8 +118,8 @@ static PyNumberMethods mpq_number_methods =
         0,                                  /* nb_inplace_and          */
         0,                                  /* nb_inplace_xor          */
         0,                                  /* nb_inplace_or           */
-    (binaryfunc) GMPy_MPQ_FloorDiv_Slot,    /* nb_floor_divide         */
-    (binaryfunc) GMPy_MPQ_TrueDiv_Slot,     /* nb_true_divide          */
+    (binaryfunc) GMPy_Number_FloorDiv_Slot,    /* nb_floor_divide         */
+    (binaryfunc) GMPy_Number_TrueDiv_Slot,     /* nb_true_divide          */
         0,                                  /* nb_inplace_floor_divide */
         0,                                  /* nb_inplace_true_divide  */
 };
