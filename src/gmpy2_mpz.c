@@ -51,7 +51,7 @@ static PyNumberMethods GMPy_MPZ_number_methods =
     (binaryfunc) GMPy_Number_Mul_Slot,     /* nb_multiply             */
     (binaryfunc) GMPy_Number_Mod_Slot,     /* nb_remainder            */
     (binaryfunc) GMPy_MPZ_DivMod_Slot,     /* nb_divmod               */
-    (ternaryfunc) GMPy_MPANY_Pow_Slot,     /* nb_power                */
+    (ternaryfunc) GMPy_Number_Pow_Slot,     /* nb_power                */
     (unaryfunc) GMPy_MPZ_Minus_Slot,       /* nb_negative             */
     (unaryfunc) GMPy_MPZ_Plus_Slot,        /* nb_positive             */
     (unaryfunc) GMPy_MPZ_Abs_Slot,         /* nb_absolute             */
@@ -91,7 +91,7 @@ static PyNumberMethods GMPy_MPZ_number_methods =
     (binaryfunc) GMPy_Number_Div2_Slot,       /* nb_divide               */
     (binaryfunc) GMPy_Number_Mod_Slot,     /* nb_remainder            */
     (binaryfunc) GMPy_MPZ_DivMod_Slot,     /* nb_divmod               */
-    (ternaryfunc) GMPy_MPANY_Pow_Slot,     /* nb_power                */
+    (ternaryfunc) GMPy_Number_Pow_Slot,     /* nb_power                */
     (unaryfunc) GMPy_MPZ_Minus_Slot,       /* nb_negative             */
     (unaryfunc) GMPy_MPZ_Plus_Slot,        /* nb_positive             */
     (unaryfunc) GMPy_MPZ_Abs_Slot,         /* nb_absolute             */
