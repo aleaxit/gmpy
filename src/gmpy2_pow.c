@@ -357,7 +357,7 @@ GMPy_Complex_PowWithType(PyObject *base, int btype, PyObject *exp, int etype,
     }
     
     if (IS_TYPE_REAL(etype)) {
-        if (!(tempf = GMPy_MPFR_From_RealWithTYpe(exp, etype, 1, context))) {
+        if (!(tempf = GMPy_MPFR_From_RealWithType(exp, etype, 1, context))) {
             goto err;
         }
 
@@ -418,10 +418,10 @@ GMPy_Integer_PowMod(PyObject *self, PyObject *args)
     ytype = GMPy_ObjectType(y);
     mtype = GMPy_ObjectType(m);
     
-    if (IS_TYPE_INTEGER(x) &&
-        IS_TYPE_INTEGER(y) &&
-        IS_TYPE_INTEGER(m)) {
-        return GMPy_Integer_Pow(x, y, m, NULL);
+    if (IS_TYPE_INTEGER(xtype) &&
+        IS_TYPE_INTEGER(ytype) &&
+        IS_TYPE_INTEGER(mtype)) {
+        return GMPy_Integer_PowWithType(x, xtype, y, ytype, m, NULL);
     }
 
     TYPE_ERROR("powmod() argument types not supported");
@@ -435,16 +435,16 @@ GMPy_Number_Pow(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
     int ytype = GMPy_ObjectType(y);
     
     if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
-        return GMPy_Integer_PowWithType(x, xtype, y, ytype, context);
+        return GMPy_Integer_PowWithType(x, xtype, y, ytype, z, context);
 
     if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype))
-        return GMPy_Rational_PowWithType(x, xtype, y, ytype, context);
+        return GMPy_Rational_PowWithType(x, xtype, y, ytype, z, context);
 
     if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
-        return GMPy_Real_PowWithType(x, xtype, y, ytype, context);
+        return GMPy_Real_PowWithType(x, xtype, y, ytype, z, context);
         
     if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
-        return GMPy_Complex_PosWithType(x, xtype, y, ytype, context);
+        return GMPy_Complex_PowWithType(x, xtype, y, ytype, z, context);
 
     TYPE_ERROR("pow() argument type not supported");
     return NULL;
@@ -478,19 +478,19 @@ GMPy_Context_Pow(PyObject *self, PyObject *args)
 static PyObject *
 GMPy_Number_Pow_Slot(PyObject *base, PyObject *exp, PyObject *mod)
 {
-    int btype = GMPy_ObjectType(x);
-    int etype = GMPy_ObjectType(y);
+    int btype = GMPy_ObjectType(base);
+    int etype = GMPy_ObjectType(exp);
 
-    if (IS_TYPE_INTEGER(base) && IS_TYPE_INTEGER(exp))
+    if (IS_TYPE_INTEGER(btype) && IS_TYPE_INTEGER(etype))
         return GMPy_Integer_PowWithType(base, btype, exp, etype, mod, NULL);
 
-    if (IS_TYPE_RATIONAL(base) && IS_TYPE_RATIONAL(exp))
+    if (IS_TYPE_RATIONAL(btype) && IS_TYPE_RATIONAL(etype))
         return GMPy_Rational_PowWithType(base, btype, exp, etype, mod, NULL);
 
-    if (IS_TYPE_REAL(base) && IS_TYPE_REAL(exp))
+    if (IS_TYPE_REAL(btype) && IS_TYPE_REAL(etype))
         return GMPy_Real_PowWithType(base, btype, exp, etype, mod, NULL);
 
-    if (IS_TYPE_COMPLEX(base) && IS_TYPE_COMPLEX(exp))
+    if (IS_TYPE_COMPLEX(btype) && IS_TYPE_COMPLEX(etype))
         return GMPy_Complex_PowWithType(base, btype, exp, etype, mod, NULL);
 
     Py_RETURN_NOTIMPLEMENTED;
