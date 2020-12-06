@@ -27,32 +27,11 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* This file implements __divmod__ and context.divmod().
- *
- * Public API
- * ==========
- * The following function is available as part of GMPY2's C API. A NULL value
- * for context implies the function should use the currently active context.
- *
- *   GMPy_Number_DivMod(Number, Number, context|NULL)
- *
- * Private API
- * ===========
- *   GMPy_MPZ_DivMod_Slot
- *   GMPy_MPQ_DivMod_Slot
- *   GMPy_MPFR_DivMod_Slot
- *   GMPy_MPC_DivMod_Slot
- *
- *   GMPy_Integer_DivMod(Integer, Integer, context|NULL)
- *   GMPy_Rational_DivMod(Rational, Rational, context|NULL)
- *   GMPy_Real_DivMod(Real, Real, context|NULL)
- *   GMPy_Complex_DivMod(Complex, Complex, context|NULL)
- *
- *   GMPy_Context_DivMod(context, args)
- *
  */
 
 static PyObject *
-GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Integer_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
+                            CTXT_Object *context)
 {
     PyObject *result = NULL;
     MPZ_Object *tempx = NULL, *tempy = NULL, *rem = NULL, *quo = NULL;
@@ -66,14 +45,26 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    if (CHECK_MPZANY(x)) {
-        if (PyIntOrLong_Check(y)) {
+    if (IS_TYPE_MPZANY(xtype)) {
+        if (IS_TYPE_MPZANY(ytype)) {
+            if (mpz_sgn(MPZ(y)) == 0) {
+                ZERO_ERROR("division or modulo by zero");
+                goto error;
+            }
+            mpz_fdiv_qr(quo->z, rem->z, MPZ(x), MPZ(y));
+            PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
+            PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
+            return result;
+        }
+
+        if (IS_TYPE_PyInteger(ytype)) {
             int error;
-            long temp = GMPy_Integer_AsLongAndError(y, &error);
+            long temp = PyLong_AsLongAndOverflow(y, &error);
 
             if (error) {
-                mpz_set_PyIntOrLong(global.tempz, y);
-                mpz_fdiv_qr(quo->z, rem->z, MPZ(x), global.tempz);
+                /* Use quo->z as a temporary variable. */
+                mpz_set_PyIntOrLong(quo->z, y);
+                mpz_fdiv_qr(quo->z, rem->z, MPZ(x), quo->z);
             }
             else if (temp > 0) {
                 mpz_fdiv_qr_ui(quo->z, rem->z, MPZ(x), temp);
@@ -90,37 +81,28 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
             PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
             return result;
         }
+    }
 
-        if (CHECK_MPZANY(y)) {
+    if (IS_TYPE_MPZANY(ytype)) {
+        if (IS_TYPE_PyInteger(xtype)) {
             if (mpz_sgn(MPZ(y)) == 0) {
                 ZERO_ERROR("division or modulo by zero");
                 goto error;
             }
-            mpz_fdiv_qr(quo->z, rem->z, MPZ(x), MPZ(y));
-            PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
-            PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
-            return result;
+            else {
+                mpz_set_PyIntOrLong(quo->z, x);
+                mpz_fdiv_qr(quo->z, rem->z, quo->z, MPZ(y));
+                PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
+                PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
+                return (PyObject*)result;
+            }
         }
     }
 
-    if (CHECK_MPZANY(y) && PyIntOrLong_Check(x)) {
-        if (mpz_sgn(MPZ(y)) == 0) {
-            ZERO_ERROR("division or modulo by zero");
-            goto error;
-        }
-        else {
-            mpz_set_PyIntOrLong(global.tempz, x);
-            mpz_fdiv_qr(quo->z, rem->z, global.tempz, MPZ(y));
-            PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
-            PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
-            return (PyObject*)result;
-        }
-    }
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype)) {
 
-    if (IS_INTEGER(x) && IS_INTEGER(y)) {
-
-        if (!(tempx = GMPy_MPZ_From_Integer(x, context)) ||
-            !(tempy = GMPy_MPZ_From_Integer(y, context))) {
+        if (!(tempx = GMPy_MPZ_From_IntegerWithType(x, xtype, context)) ||
+            !(tempy = GMPy_MPZ_From_IntegerWithType(y, ytype, context))) {
 
             /* LCOV_EXCL_START */
             goto error;
@@ -139,7 +121,7 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     /* LCOV_EXCL_START */
-    SYSTEM_ERROR("Internal error in GMPy_Integer_DivMod().");
+    TYPE_ERROR("divmod() arguments not supported");
     /* LCOV_EXCL_STOP */
   error:
     Py_XDECREF((PyObject*)tempx);
@@ -151,25 +133,8 @@ GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_MPZ_DivMod_Slot(PyObject *x, PyObject *y)
-{
-    if (IS_INTEGER(x) && IS_INTEGER(y))
-        return GMPy_Integer_DivMod(x, y, NULL);
-
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return GMPy_Rational_DivMod(x, y, NULL);
-
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_DivMod(x, y, NULL);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_DivMod(x, y, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-static PyObject *
-GMPy_Rational_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Rational_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype, 
+                             CTXT_Object *context)
 {
     MPQ_Object *tempx = NULL, *tempy = NULL, *rem = NULL;
     MPZ_Object *quo = NULL;
@@ -184,10 +149,10 @@ GMPy_Rational_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y)) {
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype)) {
 
-        if (!(tempx = GMPy_MPQ_From_Rational(x, context)) ||
-            !(tempy = GMPy_MPQ_From_Rational(y, context))) {
+        if (!(tempx = GMPy_MPQ_From_RationalWithType(x, xtype, context)) ||
+            !(tempy = GMPy_MPQ_From_RationalWithType(y, ytype, context))) {
 
             /* LCOV_EXCL_START */
             goto error;
@@ -212,7 +177,7 @@ GMPy_Rational_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     /* LCOV_EXCL_START */
-    SYSTEM_ERROR("Internal error in GMPy_Rational_DivMod().");
+    TYPE_ERROR("divmod() arguments not supported");
   error:
     Py_XDECREF((PyObject*)tempx);
     Py_XDECREF((PyObject*)tempy);
@@ -224,22 +189,8 @@ GMPy_Rational_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_MPQ_DivMod_Slot(PyObject *x, PyObject *y)
-{
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return GMPy_Rational_DivMod(x, y, NULL);
-
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_DivMod(x, y, NULL);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_DivMod(x, y, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-static PyObject *
-GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Real_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype, 
+                         CTXT_Object *context)
 {
     MPFR_Object *tempx = NULL, *tempy = NULL, *quo = NULL, *rem = NULL, *temp;
     PyObject *result = NULL;
@@ -255,10 +206,10 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    if (IS_REAL(x) && IS_REAL(y)) {
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype)) {
 
-        if (!(tempx = GMPy_MPFR_From_Real(x, 1, context)) ||
-            !(tempy = GMPy_MPFR_From_Real(y, 1, context))) {
+        if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context)) ||
+            !(tempy = GMPy_MPFR_From_RealWithType(y, ytype, 1, context))) {
 
             /* LCOV_EXCL_START */
             goto error;
@@ -315,6 +266,7 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         mpfr_fmod(rem->f, tempx->f, tempy->f, MPFR_RNDN);
         mpfr_sub(temp->f, tempx->f, rem->f, MPFR_RNDN);
         mpfr_div(quo->f, temp->f, tempy->f, MPFR_RNDN);
+        Py_DECREF((PyObject*)temp);
 
         if (!mpfr_zero_p(rem->f)) {
             if ((mpfr_sgn(tempy->f) < 0) != (mpfr_sgn(rem->f) < 0)) {
@@ -332,7 +284,6 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
         else {
             mpfr_setsign(quo->f, quo->f, mpfr_sgn(tempx->f) * mpfr_sgn(tempy->f) - 1, MPFR_RNDN);
         }
-        Py_DECREF((PyObject*)temp);
 
         GMPY_MPFR_CHECK_RANGE(quo, context);
         GMPY_MPFR_CHECK_RANGE(rem, context);
@@ -347,7 +298,7 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     /* LCOV_EXCL_START */
-    SYSTEM_ERROR("Internal error in GMPy_Real_DivMod_1().");
+    TYPE_ERROR("divmod() arguments not supported");
   error:
     Py_XDECREF((PyObject*)tempx);
     Py_XDECREF((PyObject*)tempy);
@@ -359,44 +310,51 @@ GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_MPFR_DivMod_Slot(PyObject *x, PyObject *y)
-{
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_DivMod(x, y, NULL);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_DivMod(x, y, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-
-static PyObject *
-GMPy_Complex_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_Complex_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype, 
+                            CTXT_Object *context)
 {
     TYPE_ERROR("can't take floor or mod of complex number.");
     return NULL;
 }
 
 static PyObject *
-GMPy_MPC_DivMod_Slot(PyObject *x, PyObject *y)
+GMPy_Number_DivMod_Slot(PyObject *x, PyObject *y)
 {
-    return GMPy_Complex_DivMod(x, y, NULL);
+    int xtype = GMPy_ObjectType(x);
+    int ytype = GMPy_ObjectType(y);
+    
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
+        return GMPy_Integer_DivModWithType(x, xtype, y, ytype, NULL);
+
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype))
+        return GMPy_Rational_DivModWithType(x, xtype, y, ytype, NULL);
+
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
+        return GMPy_Real_DivModWithType(x, xtype, y, ytype, NULL);
+        
+    if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
+        return GMPy_Complex_DivModWithType(x, xtype, y, ytype, NULL);
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 static PyObject *
 GMPy_Number_DivMod(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    if (IS_INTEGER(x) && IS_INTEGER(y))
-        return GMPy_Integer_DivMod(x, y, context);
+    int xtype = GMPy_ObjectType(x);
+    int ytype = GMPy_ObjectType(y);
+    
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
+        return GMPy_Integer_DivModWithType(x, xtype, y, ytype, NULL);
 
-    if (IS_RATIONAL(x) && IS_RATIONAL(y))
-        return GMPy_Rational_DivMod(x, y, context);
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype))
+        return GMPy_Rational_DivModWithType(x, xtype, y, ytype, NULL);
 
-    if (IS_REAL(x) && IS_REAL(y))
-        return GMPy_Real_DivMod(x, y, context);
-
-    if (IS_COMPLEX(x) && IS_COMPLEX(y))
-        return GMPy_Complex_DivMod(x, y, context);
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
+        return GMPy_Real_DivModWithType(x, xtype, y, ytype, NULL);
+        
+    if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
+        return GMPy_Complex_DivModWithType(x, xtype, y, ytype, NULL);
 
     TYPE_ERROR("divmod() argument type not supported");
     return NULL;

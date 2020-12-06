@@ -186,11 +186,11 @@ static PyMethodDef Pympc_methods[] =
 #ifdef PY3
 static PyNumberMethods mpc_number_methods =
 {
-    (binaryfunc) GMPy_Number_Add_Slot,   /* nb_add                  */
-    (binaryfunc) GMPy_Number_Sub_Slot,   /* nb_subtract             */
-    (binaryfunc) GMPy_Number_Mul_Slot,   /* nb_multiply             */
-    (binaryfunc) GMPy_Number_Mod_Slot,   /* nb_remainder            */
-    (binaryfunc) GMPy_MPC_DivMod_Slot,   /* nb_divmod               */
+    (binaryfunc) GMPy_Number_Add_Slot,      /* nb_add                  */
+    (binaryfunc) GMPy_Number_Sub_Slot,      /* nb_subtract             */
+    (binaryfunc) GMPy_Number_Mul_Slot,      /* nb_multiply             */
+    (binaryfunc) GMPy_Number_Mod_Slot,      /* nb_remainder            */
+    (binaryfunc) GMPy_Number_DivMod_Slot,   /* nb_divmod               */
     (ternaryfunc) GMPy_Number_Pow_Slot,     /* nb_power                */
     (unaryfunc) GMPy_MPC_Minus_Slot,     /* nb_negative             */
     (unaryfunc) GMPy_MPC_Plus_Slot,      /* nb_positive             */
@@ -229,7 +229,7 @@ static PyNumberMethods mpc_number_methods =
     (binaryfunc) GMPy_Number_Mul_Slot,      /* nb_multiply             */
     (binaryfunc) GMPy_Number_TrueDiv_Slot,  /* nb_divide               */
     (binaryfunc) GMPy_Number_Mod_Slot,      /* nb_remainder            */
-    (binaryfunc) GMPy_MPC_DivMod_Slot,      /* nb_divmod               */
+    (binaryfunc) GMPy_Number_DivMod_Slot,      /* nb_divmod               */
     (ternaryfunc) GMPy_Number_Pow_Slot,        /* nb_power                */
     (unaryfunc) GMPy_MPC_Minus_Slot,        /* nb_negative             */
     (unaryfunc) GMPy_MPC_Plus_Slot,         /* nb_positive             */
@@ -258,8 +258,8 @@ static PyNumberMethods mpc_number_methods =
         0,                                  /* nb_inplace_and          */
         0,                                  /* nb_inplace_xor          */
         0,                                  /* nb_inplace_or           */
-    (binaryfunc) GMPy_MPC_FloorDiv_Slot,    /* nb_floor_divide         */
-    (binaryfunc) GMPy_MPC_TrueDiv_Slot,     /* nb_true_divide          */
+    (binaryfunc) GMPy_Number_FloorDiv_Slot,    /* nb_floor_divide         */
+    (binaryfunc) GMPy_Number_TrueDiv_Slot,     /* nb_true_divide          */
         0,                                  /* nb_inplace_floor_divide */
         0,                                  /* nb_inplace_true_divide  */
 };

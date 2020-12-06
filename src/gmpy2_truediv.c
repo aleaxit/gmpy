@@ -277,7 +277,7 @@ GMPy_Number_TrueDiv_Slot(PyObject *x, PyObject *y)
 
 #ifdef PY2
 static PyObject *
-GMPy_MPZ_Div2_Slot(PyObject *x, PyObject *y)
+GMPy_Number_Div2_Slot(PyObject *x, PyObject *y)
 {
     int xtype = GMPy_ObjectType(x);
     int ytype = GMPy_ObjectType(y);

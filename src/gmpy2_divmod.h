@@ -39,16 +39,12 @@ static PyObject * GMPy_Number_DivMod(PyObject *x, PyObject *y, CTXT_Object *cont
 
 /* Private API */
 
-static PyObject * GMPy_Integer_DivMod(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Rational_DivMod(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Real_DivMod(PyObject *x, PyObject *y, CTXT_Object *context);
-static PyObject * GMPy_Complex_DivMod(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_Integer_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Rational_DivModWithType(PyObject *x, int xtype,  PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Real_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
+static PyObject * GMPy_Complex_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
 
-static PyObject * GMPy_MPZ_DivMod_Slot(PyObject *x, PyObject *y);
-static PyObject * GMPy_MPQ_DivMod_Slot(PyObject *x, PyObject *y);
-static PyObject * GMPy_MPFR_DivMod_Slot(PyObject *x, PyObject *y);
-static PyObject * GMPy_MPC_DivMod_Slot(PyObject *x, PyObject *y);
-
+static PyObject * GMPy_Number_DivMod_Slot(PyObject *x, PyObject *y);
 static PyObject * GMPy_Context_DivMod(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus
