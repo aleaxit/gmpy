@@ -152,8 +152,8 @@ static PyObject * GMPy_Complex_Exp(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Number_Exp(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Exp(PyObject *self, PyObject *other);
 
-static PyObject * GMPy_Real_Sqrt(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Complex_Sqrt(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_RealWithType_Sqrt(PyObject *x, int xtype, CTXT_Object *context);
+static PyObject * GMPy_ComplexWithType_Sqrt(PyObject *x, int xtype, CTXT_Object *context);
 static PyObject * GMPy_Number_Sqrt(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Sqrt(PyObject *self, PyObject *other);
 

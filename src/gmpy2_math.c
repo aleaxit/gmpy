@@ -1066,47 +1066,61 @@ PyDoc_STRVAR(GMPy_doc_function_sqrt,
 "Return the square root of x.");
 
 static PyObject *
-_GMPy_MPFR_Sqrt(PyObject *x, CTXT_Object *context)
+GMPy_RealWithType_Sqrt(PyObject *x, int xtype, CTXT_Object *context)
 {
-    MPFR_Object *result;
+    MPFR_Object *result = NULL;
 
     CHECK_CONTEXT(context);
 
-    if (mpfr_sgn(MPFR(x)) < 0 && context->ctx.allow_complex) {
-        return GMPy_Complex_Sqrt(x, context);
+    if (IS_TYPE_MPFR(xtype)) {
+        if (mpfr_sgn(MPFR(x)) < 0 && context->ctx.allow_complex) {
+            return GMPy_ComplexWithType_Sqrt(x, xtype, context);
+        }
+       
+        if (!(result = GMPy_MPFR_New(0, context))) {
+            return NULL;
+        }
+
+        mpfr_clear_flags();
+        result->rc = mpfr_sqrt(result->f, MPFR(x), GET_MPFR_ROUND(context));
+        _GMPy_MPFR_Cleanup(&result, context);
+        return (PyObject*)result;
     }
 
-    if (!(result = GMPy_MPFR_New(0, context))) {
-        return NULL;
+    if (IS_TYPE_REAL(xtype)) {
+        MPFR_Object *tempx = NULL;
+
+        if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context))) {
+            return NULL;
+        }
+
+        if (mpfr_sgn(MPFR(tempx)) < 0 && context->ctx.allow_complex) {
+            PyObject *res = NULL;
+            
+            res = GMPy_ComplexWithType_Sqrt((PyObject*)tempx, OBJ_TYPE_MPFR, context);
+            Py_DECREF(tempx);
+            return res;
+        }   
+        if (!(result = GMPy_MPFR_New(0, context))) {
+            Py_DECREF((PyObject*)tempx);
+            return NULL;
+        }
+        
+        mpfr_clear_flags();
+        result->rc = mpfr_sqrt(result->f, MPFR(tempx), GET_MPFR_ROUND(context));
+        Py_DECREF((PyObject*)tempx);
+        _GMPy_MPFR_Cleanup(&result, context);
+        return (PyObject*)result;
     }
 
-    mpfr_clear_flags();
-
-    result->rc = mpfr_sqrt(result->f, MPFR(x), GET_MPFR_ROUND(context));
-    _GMPy_MPFR_Cleanup(&result, context);
-    return (PyObject*)result;
+    TYPE_ERROR("sqrt() argument type not supported");
+    return NULL;
 }
 
 static PyObject *
-GMPy_Real_Sqrt(PyObject *x, CTXT_Object *context)
+GMPy_ComplexWithType_Sqrt(PyObject *x, int xtype, CTXT_Object *context)
 {
-    PyObject *result, *tempx;
-
-    CHECK_CONTEXT(context);
-
-    if (!(tempx = (PyObject*)GMPy_MPFR_From_Real(x, 1, context))) {
-        return NULL;
-    }
-
-    result = _GMPy_MPFR_Sqrt(tempx, context);
-    Py_DECREF(tempx);
-    return result;
-}
-
-static PyObject *
-_GMPy_MPC_Sqrt(PyObject *x, CTXT_Object *context)
-{
-    MPC_Object *result;
+    MPC_Object *result = NULL;
 
     CHECK_CONTEXT(context);
 
@@ -1114,28 +1128,31 @@ _GMPy_MPC_Sqrt(PyObject *x, CTXT_Object *context)
         return NULL;
     }
 
-    result->rc = mpc_sqrt(result->c, MPC(x), GET_MPFR_ROUND(context));
-    _GMPy_MPC_Cleanup(&result, context);
-    return (PyObject*)result;
-}
-
-static PyObject *
-GMPy_Complex_Sqrt(PyObject *x, CTXT_Object *context)
-{
-    PyObject *result, *tempx;
-
-    CHECK_CONTEXT(context);
-
-    if (!(tempx = (PyObject*)GMPy_MPC_From_Complex(x, 1, 1, context))) {
-        return NULL;
+    if (IS_TYPE_MPC(xtype)) {
+        result->rc = mpc_sqrt(result->c, MPC(x), GET_MPFR_ROUND(context));
+        _GMPy_MPC_Cleanup(&result, context);
+        return (PyObject*)result;
     }
 
-    result = _GMPy_MPC_Sqrt(tempx, context);
-    Py_DECREF(tempx);
-    return result;
+    if (IS_TYPE_COMPLEX(xtype)) {
+        MPC_Object *tempx = NULL;
+                
+        if (!(tempx = GMPy_MPC_From_ComplexWithType(x, xtype, 1, 1, context))) {
+            Py_DECREF(result);
+            return NULL;
+        }
+
+        result->rc = mpc_sqrt(result->c, MPC(tempx), GET_MPFR_ROUND(context));
+        Py_DECREF(tempx);
+        _GMPy_MPC_Cleanup(&result, context);
+        return (PyObject*)result;
+    }
+
+    TYPE_ERROR("sqrt() argument type not supported");
+    return NULL;
 }
 
-GMPY_MPFR_MPC_UNIOP_TEMPLATE_EX(Sqrt, sqrt)
+GMPY_MPFR_MPC_UNIOP_TEMPLATE_EXWT(Sqrt, sqrt)
 
 PyDoc_STRVAR(GMPy_doc_function_root,
 "root(x, n) -> mpfr\n\n"

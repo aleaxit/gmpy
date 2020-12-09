@@ -44,7 +44,6 @@ static PyObject * GMPy_Rational_TrueDivWithType(PyObject *x, int xtype, PyObject
 static PyObject * GMPy_Real_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
 static PyObject * GMPy_Complex_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
 static PyObject * GMPy_Number_TrueDiv_Slot(PyObject *x, PyObject *y);
-static PyObject * GMPy_Number_Div2_Slot(PyObject *x, PyObject *y);
 static PyObject * GMPy_Context_TrueDiv(PyObject *self, PyObject *args);
 
 #ifdef __cplusplus

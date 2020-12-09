@@ -242,6 +242,32 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
     return GMPy_Number_##NAME(other, context); \
 }
 
+#define GMPY_MPFR_MPC_UNIOP_TEMPLATE_EXWT(NAME, FUNC) \
+static PyObject * \
+GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
+{ \
+    int xtype = GMPy_ObjectType(x); \
+    if (IS_TYPE_REAL(xtype)) \
+        return GMPy_RealWithType_##NAME(x, xtype, context); \
+    if (IS_TYPE_COMPLEX(xtype)) \
+        return GMPy_ComplexWithType_##NAME(x, xtype, context); \
+    TYPE_ERROR(#FUNC"() argument type not supported"); \
+    return NULL; \
+} \
+static PyObject * \
+GMPy_Context_##NAME(PyObject *self, PyObject *other) \
+{ \
+    CTXT_Object *context = NULL; \
+    if (self && CTXT_Check(self)) { \
+        context = (CTXT_Object*)self; \
+    } \
+    else { \
+        CHECK_CONTEXT(context); \
+    } \
+    return GMPy_Number_##NAME(other, context); \
+}
+
+
 #define GMPY_MPFR_MPC_TRIOP_TEMPLATE(NAME, FUNC) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context) \

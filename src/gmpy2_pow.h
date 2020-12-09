@@ -39,7 +39,6 @@ static PyObject * GMPy_Number_Pow_Slot(PyObject *base, PyObject *exp, PyObject *
 
 static PyObject * GMPy_Integer_PowWithType(PyObject *base, int btype, PyObject *exp, int etype, PyObject *mod, CTXT_Object *context);
 static PyObject * GMPy_Rational_PowWithType(PyObject *base, int btype, PyObject *exp, int etype, PyObject *mod, CTXT_Object *context);
-static PyObject * GMPy_Rational_PowWithType(PyObject *base, int btype, PyObject *exp, int etype, PyObject *mod, CTXT_Object *context);
 static PyObject * GMPy_Real_PowWithType(PyObject *base, int btype, PyObject *exp, int etype, PyObject *mod, CTXT_Object *context);
 static PyObject * GMPy_Complex_PowWithType(PyObject *base, int btype, PyObject *exp, int etype, PyObject *mod, CTXT_Object *context);
 static PyObject * GMPy_Integer_PowMod(PyObject *self, PyObject *args);
