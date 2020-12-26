@@ -681,14 +681,14 @@ stern_brocot(MPFR_Object* self, MPFR_Object *err, mpfr_prec_t bits, int mayz, CT
         mpfr_floor(a, al);
         mpfr_swap(r1[0], r1[1]);
         mpfr_swap(r1[1], r1[2]);
-        mpfr_fma(r1[2], r1[1], a, r1[0], MPFR_RNDN);
-        //mpfr_mul(r1[2], r1[1], a, MPFR_RNDN);
-        //mpfr_add(r1[2], r1[2], r1[0], MPFR_RNDN);
+        //mpfr_fma(r1[2], r1[1], a, r1[0], MPFR_RNDN);
+        mpfr_mul(r1[2], r1[1], a, MPFR_RNDN);
+        mpfr_add(r1[2], r1[2], r1[0], MPFR_RNDN);
         mpfr_swap(r2[0], r2[1]);
         mpfr_swap(r2[1], r2[2]);
-        mpfr_fma(r2[2], r2[1], a, r2[0], MPFR_RNDN);
-        //mpfr_mul(r2[2], r2[1], a, MPFR_RNDN);
-        //mpfr_add(r2[2], r2[2], r2[0], MPFR_RNDN);
+        //mpfr_fma(r2[2], r2[1], a, r2[0], MPFR_RNDN);
+        mpfr_mul(r2[2], r2[1], a, MPFR_RNDN);
+        mpfr_add(r2[2], r2[2], r2[0], MPFR_RNDN);
         mpfr_div(temp, r2[2], r1[2], MPFR_RNDN);
         mpfr_reldiff(newerr, f, temp, MPFR_RNDN);
         if(mpfr_cmp(curerr, newerr) <= 0) {
