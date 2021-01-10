@@ -7,7 +7,7 @@
  * Copyright 2011 David Cleaver                                            *
  *                                                                         *
  * Copyright 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019,               *
- *           2020 Case Van Horsen                                          *
+ *           2020. 2021 Case Van Horsen                                    *
  *                                                                         *
  * The original file is available at:                                      *
  *   <http://sourceforge.net/projects/mpzlucas/files/>                     *
