@@ -409,7 +409,7 @@
  *    Improve argument type processing by saving type information to 
  *        decrease the number of type check calls. Especially helpful
  *        for mpfr and mpc types. (Not complete but common operations
- *        are done.
+ *        are done.)
  *    Resolve bug in mpfr to mpq conversion; issue #287.
  *
  ************************************************************************
