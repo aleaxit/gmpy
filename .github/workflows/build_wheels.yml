@@ -26,10 +26,12 @@ jobs:
 
       - name: Install cibuildwheel
         run: |
+          python --version
           python -m pip install cibuildwheel
 
       - name: Build wheel
         run: |
+          python --version
           python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_BEFORE_BUILD: bash scripts/before_ci_build.sh
