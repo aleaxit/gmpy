@@ -277,7 +277,24 @@ GMPy_Real_PowWithType(PyObject *base, int btype, PyObject *exp, int etype,
 
     mpfr_clear_flags();
 
-   if (IS_TYPE_INTEGER(etype)) {
+    if (IS_TYPE_PyInteger(etype)) {
+        int error;
+        unsigned long intb;
+        long temp;
+
+        if (mpfr_fits_ulong_p(tempb->f, MPFR_RNDF)) {
+            intb = mpfr_get_ui(tempb->f, MPFR_RNDF);
+            temp = PyLong_AsLongAndOverflow(exp, &error);
+            if (!error) {
+                if (temp >= 0) {
+                    result->rc = mpfr_ui_pow_ui(result->f, intb, temp, GET_MPFR_ROUND(context));
+                    goto done;
+                }
+            }
+        }
+    }
+
+    if (IS_TYPE_INTEGER(etype)) {
         if (!(tempz = GMPy_MPZ_From_IntegerWithType(exp, etype, context))) {
             goto err;
         }
