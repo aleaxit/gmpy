@@ -82,6 +82,7 @@ GMPy_CTXT_New(void)
         result->ctx.imag_round = -1;
         result->ctx.allow_complex = 0;
         result->ctx.rational_division = 0;
+        result->ctx.allow_release_gil = 0;
 
 #ifndef WITHOUT_THREADS
         result->tstate = NULL;
@@ -353,7 +354,7 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
     PyObject *result = NULL;
     int i = 0;
 
-    tuple = PyTuple_New(23);
+    tuple = PyTuple_New(24);
     if (!tuple)
         return NULL;
 
@@ -369,7 +370,8 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
             "        trap_erange=%s, erange=%s,\n"
             "        trap_divzero=%s, divzero=%s,\n"
             "        allow_complex=%s,\n"
-            "        rational_division=%s)"
+            "        rational_division=%s,\n"
+            "        allow_release_gil=%s)"
             );
     if (!format) {
         Py_DECREF(tuple);
@@ -405,6 +407,7 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.divzero));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.allow_complex));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.rational_division));
+    PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.allow_release_gil));
 
     if (!PyErr_Occurred())
         result = Py2or3String_Format(format, tuple);
@@ -466,7 +469,7 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
         "real_round", "imag_round", "emax", "emin", "subnormalize",
         "trap_underflow", "trap_overflow", "trap_inexact",
         "trap_invalid", "trap_erange", "trap_divzero", "allow_complex",
-        "rational_division", NULL };
+        "rational_division", "allow_release_gil", NULL };
 
     /* Create an empty dummy tuple to use for args. */
 
@@ -485,7 +488,7 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
     x_trap_divzero = ctxt->ctx.traps & TRAP_DIVZERO;
 
     if (!(PyArg_ParseTupleAndKeywords(args, kwargs,
-            "|llliiilliiiiiiiii", kwlist,
+            "|llliiilliiiiiiiiii", kwlist,
             &ctxt->ctx.mpfr_prec,
             &ctxt->ctx.real_prec,
             &ctxt->ctx.imag_prec,
@@ -502,7 +505,8 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
             &x_trap_erange,
             &x_trap_divzero,
             &ctxt->ctx.allow_complex,
-            &ctxt->ctx.rational_division))) {
+            &ctxt->ctx.rational_division,
+            &ctxt->ctx.allow_release_gil))) {
         VALUE_ERROR("invalid keyword arguments for context");
         Py_DECREF(args);
         return 0;
@@ -686,7 +690,9 @@ PyDoc_STRVAR(GMPy_doc_context,
 "    allow_complex:     if True, allow mpfr functions to return mpc\n"
 "                       if False, mpfr functions cannot return an mpc\n"
 "    rational_division: if True, mpz/mpz returns an mpq\n"
-"                       if False, mpz/mpz follows default behavior\n");
+"                       if False, mpz/mpz follows default behavior\n"
+"    allow_release_gil: if True, mpq operations may release the GIL\n"
+"                       if False, mpq operations may not release the GIL\n");
 #if 0
 "\nMethods\n"
 "    abs(x)          return absolute value of x\n"
@@ -950,6 +956,7 @@ GETSET_BOOLEAN_BIT(trap_erange, TRAP_ERANGE);
 GETSET_BOOLEAN_BIT(trap_divzero, TRAP_DIVZERO);
 GETSET_BOOLEAN(allow_complex)
 GETSET_BOOLEAN(rational_division)
+GETSET_BOOLEAN(allow_release_gil)
 
 static PyObject *
 GMPy_CTXT_Get_precision(CTXT_Object *self, void *closure)
@@ -1221,6 +1228,7 @@ static PyGetSetDef GMPyContext_getseters[] = {
     ADD_GETSET(trap_divzero),
     ADD_GETSET(allow_complex),
     ADD_GETSET(rational_division),
+    ADD_GETSET(allow_release_gil),
     {NULL}
 };
 

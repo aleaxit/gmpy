@@ -66,6 +66,8 @@ static PyTypeObject CTXT_Manager_Type;
 
 #define GET_DIV_MODE(c) (c->ctx.rational_division)
 
+#define GET_THREAD_MODE(c) (c->ctx.allow_release_gil)
+
 
 static PyObject *    GMPy_CTXT_Manager_New(void);
 static void          GMPy_CTXT_Manager_Dealloc(CTXT_Manager_Object *self);
