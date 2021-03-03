@@ -1,0 +1,8 @@
+include README
+include INSTALL
+include COPYING
+include docs/*
+include test/*
+include COPYING.LESSER
+include src/*
+include gmpy2/*.dll
