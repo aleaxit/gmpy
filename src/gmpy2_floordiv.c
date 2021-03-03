@@ -47,7 +47,9 @@ GMPy_Integer_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
                 Py_DECREF((PyObject*)result);
                 return NULL;
             }
+            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_fdiv_q(result->z, MPZ(x), MPZ(y));
+            GMPY_MAYBE_END_ALLOW_THREADS(context);
             return (PyObject*)result;
         }
 
