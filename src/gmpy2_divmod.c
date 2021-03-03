@@ -49,7 +49,9 @@ GMPy_Integer_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
                 ZERO_ERROR("division or modulo by zero");
                 goto error;
             }
+            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_fdiv_qr(quo->z, rem->z, MPZ(x), MPZ(y));
+            GMPY_MAYBE_END_ALLOW_THREADS(context);
             PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
             PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
             return result;

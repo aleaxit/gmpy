@@ -45,7 +45,9 @@ GMPy_Integer_MulWithType(PyObject *x, int xtype, PyObject *y, int ytype,
 
     if (IS_TYPE_MPZANY(xtype)) {
         if (IS_TYPE_MPZANY(ytype)) {
+            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_mul(result->z, MPZ(x), MPZ(y));
+            GMPY_MAYBE_END_ALLOW_THREADS(context);
             return (PyObject*)result;
         }
 
