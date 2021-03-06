@@ -48,7 +48,9 @@ GMPy_Integer_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
                 Py_DECREF((PyObject*)result);
                 return NULL;
             }
+            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_fdiv_r(result->z, MPZ(x), MPZ(y));
+            GMPY_MAYBE_END_ALLOW_THREADS(context);
             return (PyObject*)result;
         }
 
@@ -71,7 +73,9 @@ GMPy_Integer_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             }
             else {
                 mpz_set_PyIntOrLong(result->z, y);
+                GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
                 mpz_fdiv_r(result->z, MPZ(x), result->z);
+                GMPY_MAYBE_END_ALLOW_THREADS(context);
             }
             return (PyObject*)result;
         }
@@ -112,7 +116,9 @@ GMPy_Integer_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             Py_DECREF((PyObject*)result);
             return NULL;
         }
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_fdiv_r(result->z, tempx->z, tempy->z);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         return (PyObject*)result;
@@ -128,9 +134,15 @@ GMPy_Rational_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
                           CTXT_Object *context)
 {
     MPQ_Object *tempx = NULL, *tempy = NULL, *result = NULL;
+    MPZ_Object *tempz = NULL;
 
-    if (!(result = GMPy_MPQ_New(context))) {
+    CHECK_CONTEXT(context);
+
+    if (!(result = GMPy_MPQ_New(context)) ||
+        !(tempz = GMPy_MPZ_New(context))) {
         /* LCOV_EXCL_START */
+        Py_XDECREF((PyObject*)tempz);
+        Py_XDECREF((PyObject*)result);
         return NULL;
         /* LCOV_EXCL_STOP */
     }
@@ -141,6 +153,7 @@ GMPy_Rational_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             /* LCOV_EXCL_START */
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
+            Py_DECREF((PyObject*)tempz);
             Py_DECREF((PyObject*)result);
             return NULL;
             /* LCOV_EXCL_STOP */
@@ -150,18 +163,22 @@ GMPy_Rational_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             ZERO_ERROR("division or modulo by zero");
             Py_XDECREF((PyObject*)tempx);
             Py_XDECREF((PyObject*)tempy);
+            Py_DECREF((PyObject*)tempz);
             Py_DECREF((PyObject*)result);
             return NULL;
         }
 
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpq_div(result->q, tempx->q, tempy->q);
-        mpz_fdiv_q(global.tempz, mpq_numref(result->q), mpq_denref(result->q));
+        mpz_fdiv_q(tempz->z, mpq_numref(result->q), mpq_denref(result->q));
         /* Need to calculate x - tempz * y. */
-        mpq_set_z(result->q, global.tempz);
+        mpq_set_z(result->q, tempz->z);
         mpq_mul(result->q, result->q, tempy->q);
         mpq_sub(result->q, tempx->q, result->q);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
+        Py_DECREF((PyObject*)tempz);
         return (PyObject*)result;
     }
 
@@ -225,6 +242,7 @@ GMPy_Real_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             }
         }
         else {
+            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpfr_fmod(result->f, tempx->f, tempy->f, GET_MPFR_ROUND(context));
 
             if (!mpfr_zero_p(result->f)) {
@@ -235,6 +253,7 @@ GMPy_Real_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             else {
                 mpfr_copysign(result->f, result->f, tempy->f, GET_MPFR_ROUND(context));
             }
+            GMPY_MAYBE_END_ALLOW_THREADS(context);
         }
         _GMPy_MPFR_Cleanup(&result, context);
 

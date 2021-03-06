@@ -38,6 +38,8 @@ GMPy_Integer_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
 {
     MPZ_Object *result = NULL;
 
+    CHECK_CONTEXT(context);
+
     if (!(result = GMPy_MPZ_New(context))) {
         /* LCOV_EXCL_START */
         return NULL;
@@ -66,7 +68,9 @@ GMPy_Integer_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             }
             else {
                 mpz_set_PyIntOrLong(result->z, y);
+                GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
                 mpz_add(result->z, MPZ(x), result->z);
+                GMPY_MAYBE_END_ALLOW_THREADS(context);
             }
             return (PyObject*)result;
         }
@@ -87,7 +91,9 @@ GMPy_Integer_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             }
             else {
                 mpz_set_PyIntOrLong(result->z, x);
+                GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
                 mpz_add(result->z, result->z, MPZ(y));
+                GMPY_MAYBE_END_ALLOW_THREADS(context);
             }
             return (PyObject*)result;
         }
@@ -106,7 +112,9 @@ GMPy_Integer_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             /* LCOV_EXCL_STOP */
         }
 
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_add(result->z, tempx->z, tempy->z);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         return (PyObject*)result;
@@ -123,6 +131,8 @@ GMPy_Rational_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
 {
     MPQ_Object *result = NULL;
 
+    CHECK_CONTEXT(context);
+
     if (!(result = GMPy_MPQ_New(context))) {
         /* LCOV_EXCL_START */
         return NULL;
@@ -130,7 +140,9 @@ GMPy_Rational_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
     }
 
     if (IS_TYPE_MPQ(xtype) && IS_TYPE_MPQ(ytype)) {
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpq_add(result->q, MPQ(x), MPQ(y));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         return (PyObject*)result;
     }
 
@@ -147,7 +159,9 @@ GMPy_Rational_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             /* LCOV_EXCL_STOP */
         }
 
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpq_add(result->q, tempx->q, tempy->q);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         return (PyObject*)result;
@@ -189,7 +203,9 @@ GMPy_Real_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
 
     if (IS_TYPE_MPFR(xtype) && IS_TYPE_MPFR(ytype)) {
         mpfr_clear_flags();
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         result->rc = mpfr_add(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         _GMPy_MPFR_Cleanup(&result, context);
         return (PyObject*)result;
     }
@@ -208,7 +224,9 @@ GMPy_Real_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         }
 
         mpfr_clear_flags();
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         result->rc = mpfr_add(result->f, MPFR(tempx), MPFR(tempy), GET_MPFR_ROUND(context));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         _GMPy_MPFR_Cleanup(&result, context);
@@ -241,7 +259,9 @@ GMPy_Complex_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
     }
 
     if (IS_TYPE_MPC(xtype) && IS_TYPE_MPC(ytype)) {
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         result->rc = mpc_add(result->c, MPC(x), MPC(y), GET_MPC_ROUND(context));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         _GMPy_MPC_Cleanup(&result, context);
         return (PyObject*)result;
     }
@@ -258,7 +278,9 @@ GMPy_Complex_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             return NULL;
             /* LCOV_EXCL_STOP */
         }
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         result->rc = mpc_add(result->c, tempx->c, tempy->c, GET_MPC_ROUND(context));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         _GMPy_MPC_Cleanup(&result, context);

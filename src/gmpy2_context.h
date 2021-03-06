@@ -52,7 +52,6 @@ static PyTypeObject CTXT_Manager_Type;
 #define CURRENT_CONTEXT(obj) obj = GMPy_current_context();
 #define GMPY_MAYBE_BEGIN_ALLOW_THREADS(context) { \
         PyThreadState *_save; \
-        CHECK_CONTEXT(context); \
         _save = GET_THREAD_MODE(context) ? PyEval_SaveThread() : NULL;
 #define GMPY_MAYBE_END_ALLOW_THREADS(context) \
         if (_save) PyEval_RestoreThread(_save); \

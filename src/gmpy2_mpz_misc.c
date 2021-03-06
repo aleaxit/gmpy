@@ -133,8 +133,6 @@ GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
         return NULL;
     }
 
-
-
     if (!(result = PyTuple_New(2)) ||
         !(root = GMPy_MPZ_New(NULL))) {
 
@@ -329,6 +327,9 @@ GMPy_MPZ_Function_GCD(PyObject *self, PyObject *args)
 {
     PyObject *arg0, *arg1;
     MPZ_Object *result = NULL, *tempa = NULL, *tempb = NULL;
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("gcd() requires 'mpz','mpz' arguments");
@@ -344,7 +345,9 @@ GMPy_MPZ_Function_GCD(PyObject *self, PyObject *args)
     arg0 = PyTuple_GET_ITEM(args, 0);
     arg1 = PyTuple_GET_ITEM(args, 1);
     if (MPZ_Check(arg0) && MPZ_Check(arg1)) {
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_gcd(result->z, MPZ(arg0), MPZ(arg1));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
     }
     else {
         if (!(tempa = GMPy_MPZ_From_Integer(arg0, NULL)) ||
@@ -357,7 +360,9 @@ GMPy_MPZ_Function_GCD(PyObject *self, PyObject *args)
             return NULL;
         }
 
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_gcd(result->z, tempa->z, tempb->z);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempa);
         Py_DECREF((PyObject*)tempb);
     }
@@ -373,6 +378,9 @@ GMPy_MPZ_Function_LCM(PyObject *self, PyObject *args)
 {
     PyObject *arg0, *arg1;
     MPZ_Object *result = NULL, *tempa = NULL, *tempb = NULL;
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     if(PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("lcm() requires 'mpz','mpz' arguments");
@@ -389,7 +397,9 @@ GMPy_MPZ_Function_LCM(PyObject *self, PyObject *args)
     arg1 = PyTuple_GET_ITEM(args, 1);
 
     if (MPZ_Check(arg0) && MPZ_Check(arg1)) {
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_lcm(result->z, MPZ(arg0), MPZ(arg1));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
     }
     else {
         if (!(tempa = GMPy_MPZ_From_Integer(arg0, NULL)) ||
@@ -401,7 +411,9 @@ GMPy_MPZ_Function_LCM(PyObject *self, PyObject *args)
             Py_DECREF((PyObject*)result);
             return NULL;
         }
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_lcm(result->z, tempa->z, tempb->z);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempa);
         Py_DECREF((PyObject*)tempb);
     }
@@ -418,6 +430,9 @@ GMPy_MPZ_Function_GCDext(PyObject *self, PyObject *args)
 {
     PyObject *arg0, *arg1, *result = NULL;
     MPZ_Object *g = NULL, *s = NULL, *t = NULL, *tempa = NULL, *tempb = NULL;
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     if(PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("gcdext() requires 'mpz','mpz' arguments");
@@ -442,7 +457,9 @@ GMPy_MPZ_Function_GCDext(PyObject *self, PyObject *args)
     arg1 = PyTuple_GET_ITEM(args, 1);
 
     if (MPZ_Check(arg0) && MPZ_Check(arg1)) {
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_gcdext(g->z, s->z, t->z, MPZ(arg0), MPZ(arg1));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
     }
     else {
         if(!(tempa = GMPy_MPZ_From_Integer(arg0, NULL)) ||
@@ -457,7 +474,9 @@ GMPy_MPZ_Function_GCDext(PyObject *self, PyObject *args)
             Py_DECREF(result);
             return NULL;
         }
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_gcdext(g->z, s->z, t->z, tempa->z, tempb->z);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempa);
         Py_DECREF((PyObject*)tempb);
     }
@@ -478,6 +497,9 @@ GMPy_MPZ_Function_Divm(PyObject *self, PyObject *args)
     MPZ_Object *result = NULL, *num = NULL, *den = NULL, *mod = NULL;
     mpz_t numz, denz, modz, gcdz;
     int ok = 0;
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 3) {
         TYPE_ERROR("divm() requires 'mpz','mpz','mpz' arguments");
@@ -513,12 +535,14 @@ GMPy_MPZ_Function_Divm(PyObject *self, PyObject *args)
     Py_DECREF((PyObject*)den);
     Py_DECREF((PyObject*)mod);
 
-    if (mpz_invert(result->z, denz, modz)) { /* inverse exists */
-        ok = 1;
-    }
-    else {
 
+    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
+    ok = mpz_invert(result->z, denz, modz);
+    GMPY_MAYBE_END_ALLOW_THREADS(context);
+
+    if (!ok) {
         /* last-ditch attempt: do num, den AND mod have a gcd>1 ? */
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_init(gcdz);
         mpz_gcd(gcdz, numz, denz);
         mpz_gcd(gcdz, gcdz, modz);
@@ -527,14 +551,17 @@ GMPy_MPZ_Function_Divm(PyObject *self, PyObject *args)
         mpz_divexact(modz, modz, gcdz);
         mpz_clear(gcdz);
         ok = mpz_invert(result->z, denz, modz);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
     }
 
     if (ok) {
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_mul(result->z, result->z, numz);
         mpz_mod(result->z, result->z, modz);
         mpz_clear(numz);
         mpz_clear(denz);
         mpz_clear(modz);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         return (PyObject*)result;
     }
     else {

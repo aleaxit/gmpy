@@ -34,6 +34,8 @@ GMPy_Integer_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
     PyObject *result = NULL;
     MPZ_Object *tempx = NULL, *tempy = NULL, *rem = NULL, *quo = NULL;
 
+    CHECK_CONTEXT(context);
+
     if (!(result = PyTuple_New(2)) ||
         !(rem = GMPy_MPZ_New(context)) ||
         !(quo = GMPy_MPZ_New(context))) {
@@ -64,7 +66,9 @@ GMPy_Integer_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             if (error) {
                 /* Use quo->z as a temporary variable. */
                 mpz_set_PyIntOrLong(quo->z, y);
+                GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
                 mpz_fdiv_qr(quo->z, rem->z, MPZ(x), quo->z);
+                GMPY_MAYBE_END_ALLOW_THREADS(context);
             }
             else if (temp > 0) {
                 mpz_fdiv_qr_ui(quo->z, rem->z, MPZ(x), temp);
@@ -91,7 +95,9 @@ GMPy_Integer_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             }
             else {
                 mpz_set_PyIntOrLong(quo->z, x);
+                GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
                 mpz_fdiv_qr(quo->z, rem->z, quo->z, MPZ(y));
+                GMPY_MAYBE_END_ALLOW_THREADS(context);
                 PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
                 PyTuple_SET_ITEM(result, 1, (PyObject*)rem);
                 return (PyObject*)result;
@@ -112,7 +118,9 @@ GMPy_Integer_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             ZERO_ERROR("division or modulo by zero");
             goto error;
         }
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_fdiv_qr(quo->z, rem->z, tempx->z, tempy->z);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
@@ -140,6 +148,8 @@ GMPy_Rational_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
     MPZ_Object *quo = NULL;
     PyObject *result = NULL;
 
+    CHECK_CONTEXT(context);
+
     if (!(result = PyTuple_New(2)) ||
         !(rem = GMPy_MPQ_New(context)) ||
         !(quo = GMPy_MPZ_New(context))) {
@@ -163,12 +173,14 @@ GMPy_Rational_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             goto error;
         }
 
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpq_div(rem->q, tempx->q, tempy->q);
         mpz_fdiv_q(quo->z, mpq_numref(rem->q), mpq_denref(rem->q));
         /* Need to calculate x - quo * y. */
         mpq_set_z(rem->q, quo->z);
         mpq_mul(rem->q, rem->q, tempy->q);
         mpq_sub(rem->q, tempx->q, rem->q);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         PyTuple_SET_ITEM(result, 0, (PyObject*)quo);
@@ -263,9 +275,11 @@ GMPy_Real_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             goto error;
             /* LCOV_EXCL_STOP */
         }
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpfr_fmod(rem->f, tempx->f, tempy->f, MPFR_RNDN);
         mpfr_sub(temp->f, tempx->f, rem->f, MPFR_RNDN);
         mpfr_div(quo->f, temp->f, tempy->f, MPFR_RNDN);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)temp);
 
         if (!mpfr_zero_p(rem->f)) {

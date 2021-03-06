@@ -71,6 +71,7 @@ GMPy_Integer_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             return NULL;
         }
 
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpq_init(tempq);
         mpq_set_num(tempq, tempx->z);
         mpq_set_den(tempq, tempy->z);
@@ -81,6 +82,8 @@ GMPy_Integer_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         result->rc = mpfr_set_q(result->f, tempq, GET_MPFR_ROUND(context));
 
         mpq_clear(tempq);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
+        
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         _GMPy_MPFR_Cleanup(&result, context);
@@ -110,7 +113,9 @@ GMPy_Rational_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             Py_DECREF((PyObject*)result);
             return NULL;
         }
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpq_div(result->q, MPQ(x), MPQ(y));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         return (PyObject*)result;
     }
 
@@ -133,7 +138,9 @@ GMPy_Rational_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             return NULL;
         }
 
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpq_div(result->q, tempx->q, tempy->q);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         return (PyObject*)result;
@@ -165,7 +172,9 @@ GMPy_Real_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
     if (IS_TYPE_MPFR(xtype) && IS_TYPE_MPFR(ytype)) {
         mpfr_clear_flags();
 
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         result->rc = mpfr_div(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         _GMPy_MPFR_Cleanup(&result, context);
         return (PyObject*)result;
     }
@@ -184,7 +193,9 @@ GMPy_Real_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         }
 
         mpfr_clear_flags();
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         result->rc = mpfr_div(result->f, tempx->f, tempy->f, GET_MPFR_ROUND(context));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         _GMPy_MPFR_Cleanup(&result, context);
@@ -220,7 +231,9 @@ GMPy_Complex_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
                 return NULL;
             }
         }
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         result->rc = mpc_div(result->c, MPC(x), MPC(y), GET_MPC_ROUND(context));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         _GMPy_MPC_Cleanup(&result, context);
         return (PyObject*)result;
     }
@@ -238,7 +251,9 @@ GMPy_Complex_TrueDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             /* LCOV_EXCL_STOP */
         }
 
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         result->rc = mpc_div(result->c, tempx->c, tempy->c, GET_MPC_ROUND(context));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         _GMPy_MPC_Cleanup(&result, context);

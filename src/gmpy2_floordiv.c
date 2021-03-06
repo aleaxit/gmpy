@@ -34,6 +34,8 @@ GMPy_Integer_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
 {
     MPZ_Object *result = NULL;
 
+    CHECK_CONTEXT(context);
+
     if (!(result = GMPy_MPZ_New(context))) {
         /* LCOV_EXCL_START */
         return NULL;
@@ -73,7 +75,9 @@ GMPy_Integer_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             }
             else {
                 mpz_set_PyIntOrLong(result->z, y);
+                GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
                 mpz_fdiv_q(result->z, MPZ(x), result->z);
+                GMPY_MAYBE_END_ALLOW_THREADS(context);
             }
             return (PyObject*)result;
         }
@@ -88,7 +92,9 @@ GMPy_Integer_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
 
         if (IS_TYPE_PyInteger(xtype)) {
             mpz_set_PyIntOrLong(result->z, x);
+            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_fdiv_q(result->z, result->z, MPZ(y));
+            GMPY_MAYBE_END_ALLOW_THREADS(context);
             return (PyObject*)result;
         }
     }
@@ -114,7 +120,9 @@ GMPy_Integer_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             return NULL;
         }
 
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_fdiv_q(result->z, tempx->z, tempy->z);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         return (PyObject*)result;
@@ -150,8 +158,10 @@ GMPy_Rational_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             Py_DECREF((PyObject*)tempq);
             return NULL;
         }
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpq_div(tempq->q, MPQ(x), MPQ(y));
         mpz_fdiv_q(result->z, mpq_numref(tempq->q), mpq_denref(tempq->q));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempq);
         return (PyObject*)result;
     }
@@ -179,8 +189,10 @@ GMPy_Rational_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             return NULL;
         }
 
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpq_div(tempq->q, tempx->q, tempy->q);
         mpz_fdiv_q(result->z, mpq_numref(tempq->q), mpq_denref(tempq->q));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
         Py_DECREF((PyObject*)tempq);
@@ -214,8 +226,10 @@ GMPy_Real_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
     if (IS_TYPE_MPFR(xtype) && IS_TYPE_MPFR(ytype)) {
             mpfr_clear_flags();
 
+            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             result->rc = mpfr_div(result->f, MPFR(x), MPFR(y), GET_MPFR_ROUND(context));
             result->rc = mpfr_floor(result->f, result->f);
+            GMPY_MAYBE_END_ALLOW_THREADS(context);
             _GMPy_MPFR_Cleanup(&result, context);
             return (PyObject*)result;
         }
@@ -237,12 +251,14 @@ GMPy_Real_FloorDivWithType(PyObject *x, int xtype, PyObject *y, int ytype,
         }
 
         mpfr_clear_flags();
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         result->rc = mpfr_div(result->f, MPFR(tempx), MPFR(tempy), GET_MPFR_ROUND(context));
         result->rc = mpfr_floor(result->f, result->f);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)tempx);
         Py_DECREF((PyObject*)tempy);
-            _GMPy_MPFR_Cleanup(&result, context);
-            return (PyObject*)result;
+        _GMPy_MPFR_Cleanup(&result, context);
+        return (PyObject*)result;
     }
 
     Py_DECREF((PyObject*)result);
