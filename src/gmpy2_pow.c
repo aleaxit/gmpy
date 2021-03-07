@@ -46,6 +46,8 @@ GMPy_Integer_PowWithType(PyObject *b, int btype, PyObject *e, int etype,
     MPZ_Object *result = NULL, *tempb = NULL, *tempe = NULL, *tempm = NULL;
     int has_mod, mtype;
 
+    CHECK_CONTEXT(context);
+
     /* Try to parse the modulus value first. */
 
     if (m == Py_None) {
@@ -113,12 +115,14 @@ GMPy_Integer_PowWithType(PyObject *b, int btype, PyObject *e, int etype,
         }
 
         el = (unsigned long) mpz_get_ui(tempe->z);
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_pow_ui(result->z, tempb->z, el);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         goto done;
     }
     else {
         /* Modulo is present. */
-        int sign;
+        int sign, has_inverse;
         mpz_t mm, base, exp;
 
         sign = mpz_sgn(tempm->z);
@@ -135,32 +139,46 @@ GMPy_Integer_PowWithType(PyObject *b, int btype, PyObject *e, int etype,
             mpz_init(base);
             mpz_init(exp);
 
-            if (!mpz_invert(base, tempb->z, mm)) {
-                VALUE_ERROR("pow() base not invertible");
-                mpz_clear(base);
-                mpz_clear(exp);
-                mpz_clear(mm);
-                goto err;
-            }
-            else {
-                mpz_abs(exp, tempe->z);
-            }
+            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
 
-            mpz_powm(result->z, base, exp, mm);
+            has_inverse = mpz_invert(base, tempb->z, mm);
+            if (has_inverse) {
+                mpz_abs(exp, tempe->z);
+                mpz_powm(result->z, base, exp, mm);
+            }
             mpz_clear(base);
             mpz_clear(exp);
+            mpz_clear(mm);
+
+            /* Python uses a rather peculiar convention for negative modulos
+            * If the modulo is negative, result should be in the interval
+            * m < r <= 0 .
+            */
+            if ((sign < 0) && (mpz_sgn(result->z) > 0)) {
+                mpz_add(result->z, result->z, tempm->z);
+            }
+
+            GMPY_MAYBE_END_ALLOW_THREADS(context);
+
+            if (!has_inverse) {
+                VALUE_ERROR("pow() base not invertible");
+                goto err;
+            }
         }
         else {
+            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_powm(result->z, tempb->z, tempe->z, mm);
-        }
-        mpz_clear(mm);
+            mpz_clear(mm);
 
-        /* Python uses a rather peculiar convention for negative modulos
-         * If the modulo is negative, result should be in the interval
-         * m < r <= 0 .
-         */
-        if ((sign < 0) && (mpz_sgn(MPZ(result)) > 0)) {
-            mpz_add(result->z, result->z, tempm->z);
+            /* Python uses a rather peculiar convention for negative modulos
+            * If the modulo is negative, result should be in the interval
+            * m < r <= 0 .
+            */
+            if ((sign < 0) && (mpz_sgn(result->z) > 0)) {
+                mpz_add(result->z, result->z, tempm->z);
+            }
+
+            GMPY_MAYBE_END_ALLOW_THREADS(context);
         }
     }
 
