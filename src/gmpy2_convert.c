@@ -82,36 +82,36 @@ static int GMPy_ObjectType(PyObject *obj)
      * Tests that require attribute lookups are done last.
      */
 
-    if MPZ_Check(obj) return OBJ_TYPE_MPZ;
+    if (MPZ_Check(obj)) return OBJ_TYPE_MPZ;
 
-    if MPFR_Check(obj) return OBJ_TYPE_MPFR;
+    if (MPFR_Check(obj)) return OBJ_TYPE_MPFR;
 
-    if MPC_Check(obj)  return OBJ_TYPE_MPC;
+    if (MPC_Check(obj))  return OBJ_TYPE_MPC;
     
-    if MPQ_Check(obj)  return OBJ_TYPE_MPQ;
+    if (MPQ_Check(obj))  return OBJ_TYPE_MPQ;
 
-    if XMPZ_Check(obj) return OBJ_TYPE_XMPZ;
+    if (XMPZ_Check(obj)) return OBJ_TYPE_XMPZ;
 
-    if PyIntOrLong_Check(obj) return OBJ_TYPE_PyInteger;
+    if (PyIntOrLong_Check(obj)) return OBJ_TYPE_PyInteger;
 
-    if PyFloat_Check(obj) return OBJ_TYPE_PyFloat;
+    if (PyFloat_Check(obj)) return OBJ_TYPE_PyFloat;
 
-    if PyComplex_Check(obj) return OBJ_TYPE_PyComplex;
+    if (PyComplex_Check(obj)) return OBJ_TYPE_PyComplex;
 
-    if IS_FRACTION(obj) return OBJ_TYPE_PyFraction;
+    if (IS_FRACTION(obj)) return OBJ_TYPE_PyFraction;
 
     /* Now we look for the presence of __mpz__, __mpq__, __mpfr__, and __mpc__.
      * Since a type may define more than one of the special methods, we perform
      * the checks in reverse order.
      */
 
-    if HAS_MPC_CONVERSION(obj) return OBJ_TYPE_HAS_MPC;
+    if (HAS_MPC_CONVERSION(obj)) return OBJ_TYPE_HAS_MPC;
 
-    if HAS_MPFR_CONVERSION(obj) return OBJ_TYPE_HAS_MPFR;
+    if (HAS_MPFR_CONVERSION(obj)) return OBJ_TYPE_HAS_MPFR;
 
-    if HAS_MPQ_CONVERSION(obj) return OBJ_TYPE_HAS_MPQ;
+    if (HAS_MPQ_CONVERSION(obj)) return OBJ_TYPE_HAS_MPQ;
 
-    if HAS_MPZ_CONVERSION(obj) return OBJ_TYPE_HAS_MPZ;
+    if (HAS_MPZ_CONVERSION(obj)) return OBJ_TYPE_HAS_MPZ;
 
     return OBJ_TYPE_UNKNOWN;
 }

@@ -427,9 +427,10 @@ typedef struct {
 #endif
 
 /* Various defs to mask differences between Python versions. */
-
+#if PY_VERSION_HEX < 0x03050000
 #define Py_RETURN_NOTIMPLEMENTED \
     return Py_INCREF(Py_NotImplemented), Py_NotImplemented
+#endif
 
 #ifndef Py_SIZE
 #  define Py_SIZE(ob)     (((PyVarObject*)(ob))->ob_size)
@@ -479,7 +480,6 @@ typedef struct {
 #include "gmpy2_mpz_divmod2exp.h"
 #include "gmpy2_mpz_pack.h"
 #include "gmpy2_mpz_bitops.h"
-#include "gmpy2_mpz_inplace.h"
 #include "gmpy2_mpz_misc.h"
 
 #include "gmpy2_xmpz_inplace.h"

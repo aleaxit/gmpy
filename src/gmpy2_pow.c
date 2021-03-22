@@ -57,7 +57,8 @@ GMPy_Integer_PowWithType(PyObject *b, int btype, PyObject *e, int etype,
         has_mod = 1;
         mtype = GMPy_ObjectType(m);
         if (!IS_TYPE_INTEGER(mtype)) {
-            Py_RETURN_NOTIMPLEMENTED;
+            TYPE_ERROR("pow() modulus must be an integer");
+            return NULL;
         }
         else {
             if (!(tempm = GMPy_MPZ_From_IntegerWithType(m, mtype, context))) {
@@ -78,8 +79,11 @@ GMPy_Integer_PowWithType(PyObject *b, int btype, PyObject *e, int etype,
         unsigned long el;
 
         if (mpz_sgn(tempe->z) < 0) {
-            VALUE_ERROR("pow() exponent cannot be negative");
-            goto err;
+            Py_DECREF((PyObject*)result);
+            Py_DECREF((PyObject*)tempb);
+            Py_DECREF((PyObject*)tempe);
+            /* This should return an mpfr result. */
+            return GMPy_Real_PowWithType(b, btype, e, etype, m, context);
         }
 
         /* Catch -1, 0, 1 getting raised to large exponents. */
@@ -526,6 +530,7 @@ GMPy_Number_Pow_Slot(PyObject *base, PyObject *exp, PyObject *mod)
     if (IS_TYPE_COMPLEX(btype) && IS_TYPE_COMPLEX(etype))
         return GMPy_Complex_PowWithType(base, btype, exp, etype, mod, NULL);
 
-    Py_RETURN_NOTIMPLEMENTED;
+    TYPE_ERROR("unsupported operand type(s) for ** or pow()");
+    return NULL;
 }
 

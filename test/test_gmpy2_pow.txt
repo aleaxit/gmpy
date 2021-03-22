@@ -15,9 +15,7 @@ mpz(25)
 >>> ctx.pow(z1, z2)
 mpz(25)
 >>> z1 ** -z2
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-ValueError: pow() exponent cannot be negative
+mpfr('0.040000000000000001')
 >>> z1 ** 0
 mpz(1)
 >>> mpz(0) ** 32

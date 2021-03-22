@@ -135,7 +135,7 @@ xmpz(625)
 >>> x **= -2
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-TypeError: unsupported operand type(s) for ** or pow(): 'xmpz' and 'int'
+ValueError: a non-negative value is required
 >>> x **= 2; x
 xmpz(390625)
 >>> x **= mpfr(2)

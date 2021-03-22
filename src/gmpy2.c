@@ -398,8 +398,8 @@
  *    Fixes for some uncommon integer conversions scenarios.
  *
  *    2.1.0b5
- *    Avoid MPFR bug in mfr_fac_ui (gmpy2.factorial) on platforms where long
- *        is 32-bits and argument is >= 44787929.
+ *    Avoid MPFR bug in mfr_fac_ui (gmpy2.factorial) on platforms where
+ *        long is 32-bits and argument is >= 44787929.
  *    Fixed testing bugs with Python 2.7.
  *    Fixed mpz(0) to C long or long long.
  *    Fixed incorrect results in f2q().
@@ -411,6 +411,10 @@
  *        for mpfr and mpc types. (Not complete but common operations
  *        are done.)
  *    Resolve bug in mpfr to mpq conversion; issue #287.
+ *    Added limited support for releasing the GIL; disabled by default;
+ *        see context.allow_release_gil.
+ *    Refactored handling of inplace operations for mpz and xmpz types;
+ *        inplace operations on xmpz will only return an xmpz result.
  *
  ************************************************************************
  *
@@ -574,7 +578,6 @@ static PyObject *GMPyExc_Erange = NULL;
 #include "gmpy2_mpz_divmod2exp.c"
 #include "gmpy2_mpz_pack.c"
 #include "gmpy2_mpz_bitops.c"
-#include "gmpy2_mpz_inplace.c"
 #include "gmpy2_xmpz_inplace.c"
 
 /* Begin includes of refactored code. */

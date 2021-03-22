@@ -147,18 +147,16 @@ Test ipow operator
 mpz(25)
 >>> x **= xmpz(2); x
 mpz(625)
->>> x **= -2
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-TypeError: unsupported operand type(s) for ** or pow(): 'mpz' and 'int'
+>>> x **= -2; x
+mpfr('2.5600000000000001e-06')
+>>> x = mpz(625)
 >>> x **= 2; x
 mpz(390625)
->>> x **= mpfr(2)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-TypeError: unsupported operand type(s) for ** or pow(): 'mpz' and 'mpfr'
->>> 1
-1
+>>> x **= mpfr(2); x
+mpfr('152587890625.0')
+>>> x = mpz(390625)
+>>> x **= mpfr(-2); x
+mpfr('6.5535999999999999e-12')
 
 Test iand operator
 ------------------

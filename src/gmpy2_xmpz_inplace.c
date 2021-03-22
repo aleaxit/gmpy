@@ -269,14 +269,14 @@ GMPy_XMPZ_IPow_Slot(PyObject *self, PyObject *other, PyObject *mod)
     mp_bitcnt_t exp;
 
     exp = mp_bitcnt_t_From_Integer(other);
-    if (exp == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
-        PyErr_Clear();
-        Py_RETURN_NOTIMPLEMENTED;
-    }
+    if (exp == (mp_bitcnt_t)(-1) && PyErr_Occurred())
+        return NULL;
 
     mpz_pow_ui(MPZ(self), MPZ(self), exp);
     Py_INCREF((PyObject*)self);
     return (PyObject*)self;
+
+    Py_RETURN_NOTIMPLEMENTED;
 }
 
 /* Inplace xmpz and.

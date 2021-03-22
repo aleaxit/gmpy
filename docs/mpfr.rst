@@ -1,11 +1,10 @@
 Multiple-precision Reals
 ========================
 
-gmpy2 replaces the *mpf* type from gmpy 1.x with a new *mpfr* type based on
-the MPFR library. The new *mpfr* type supports correct rounding, selectable
-rounding modes, and many trigonometric, exponential, and special functions. A
-*context manager* is used to control precision, rounding modes, and the
-behavior of exceptions.
+The *mpfr* type is based on the MPFR library. The new *mpfr* type supports
+correct rounding, selectable rounding modes, and many trigonometric,
+exponential, and special functions. A *context manager* is used to control
+precision, rounding modes, and the behavior of exceptions.
 
 The default precision of an *mpfr* is 53 bits - the same precision as Python's
 *float* type. If the precision is changed, then ``mpfr(float('1.2'))`` differs
@@ -29,10 +28,6 @@ the *mpfr* type, always pass constants as strings.
 
 Contexts
 --------
-
-.. warning::
-    Contexts and context managers are not thread-safe! Modifying the context
-    in one thread will impact all other threads.
 
 A *context* is used to control the behavior of *mpfr* and *mpc* arithmetic.
 In addition to controlling the precision, the rounding mode can be specified,
@@ -66,7 +61,8 @@ be discussed later.
             trap_erange=False, erange=False,
             trap_divzero=False, divzero=False,
             trap_expbound=False,
-            allow_complex=False)
+            allow_complex=False,
+            allow_release_gil=False)
     >>> gmpy2.sqrt(5)
     mpfr('2.2360679774997898')
     >>> gmpy2.get_context().precision=100
