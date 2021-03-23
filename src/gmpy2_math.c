@@ -466,9 +466,9 @@ GMPY_MPFR_UNIOP_EX(Ai, ai)
  * functions do not use macros. However, they do use a macro to create the
  * higher-level functions.
  *
- * GMPY_MPFR_MPC_UNIOP_TEMPLATE(NAME, FUNC) creates the following functions:
+ * GMPY_MPFR_MPC_UNIOP_TEMPLATE_EXWT(NAME, FUNC) creates the following functions:
  *     GMPy_Number_NAME(x, context)
- *     - assumes GMPy_Real_NAME & GMPy_Complex_NAME exist
+ *     - assumes GMPy_RealWithType_NAME & GMPy_ComplexWithType_NAME exist
  *     GMPy_Context_NAME(self, other)
  *     - called with METH_O
  */

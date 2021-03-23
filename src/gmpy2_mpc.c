@@ -173,10 +173,10 @@ static PyMethodDef Pympc_methods[] =
     { "__sizeof__", GMPy_MPC_SizeOf_Method, METH_NOARGS, GMPy_doc_mpc_sizeof_method },
     { "conjugate", GMPy_MPC_Conjugate_Method, METH_NOARGS, GMPy_doc_mpc_conjugate_method },
     { "digits", GMPy_MPC_Digits_Method, METH_VARARGS, GMPy_doc_mpc_digits_method },
-    { "is_finite", GMPy_MPC_Is_Finite_Method, METH_NOARGS, GMPy_doc_method_is_finite },
-    { "is_infinite", GMPy_MPC_Is_Infinite_Method, METH_NOARGS, GMPy_doc_method_is_infinite },
-    { "is_nan", GMPy_MPC_Is_NAN_Method, METH_NOARGS, GMPy_doc_method_is_nan },
-    { "is_zero", GMPy_MPC_Is_Zero_Method, METH_NOARGS, GMPy_doc_method_is_zero },
+    { "is_finite", GMPy_Number_Method_Is_Finite, METH_NOARGS, GMPy_doc_method_is_finite },
+    { "is_infinite", GMPy_Number_Method_Is_Infinite, METH_NOARGS, GMPy_doc_method_is_infinite },
+    { "is_nan", GMPy_Number_Method_Is_NAN, METH_NOARGS, GMPy_doc_method_is_nan },
+    { "is_zero", GMPy_Number_Method_Is_Zero, METH_NOARGS, GMPy_doc_method_is_zero },
     { NULL, NULL, 1 }
 };
 

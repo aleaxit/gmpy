@@ -41,9 +41,11 @@
  *     GMPy_Context_NAME(self, other)
  *     - called with METH_O
  *
- * GMPY_MPFR_MPC_UNIOP_TEMPLATE(NAME, FUNC) creates the following functions:
+ * Note: the following macro is only used for is_xxx tests so it does 
+ *       not release the GIL.
+ * GMPY_MPFR_MPC_UNIOP_TEMPLATEWT(NAME, FUNC) creates the following functions:
  *     GMPy_Number_NAME(x, context)
- *     - assumes GMPy_Real_NAME & GMPy_Complex_NAME exist
+ *     - assumes GMPy_RealWithType_NAME & GMPy_ComplexWithType_NAME exist
  *     GMPy_Context_NAME(self, other)
  *     - called with METH_O
  *
@@ -86,7 +88,6 @@ static PyObject * \
 GMPy_RealWithType_##NAME(PyObject *x, int xtype, CTXT_Object *context) \
 { \
     MPFR_Object *result = NULL, *tempx = NULL; \
-    CHECK_CONTEXT(context); \
     if (IS_TYPE_MPFR(xtype)) { \
         if (!(result = GMPy_MPFR_New(0, context))) return NULL; \
         mpfr_clear_flags(); \
@@ -116,7 +117,6 @@ static PyObject * \
 GMPy_ComplexWithType_##NAME(PyObject *x, int xtype, CTXT_Object *context) \
 { \
     MPC_Object *result = NULL, *tempx = NULL; \
-    CHECK_CONTEXT(context); \
     if (IS_TYPE_MPC(xtype)) { \
         if (!(result = GMPy_MPC_New(0, 0, context))) return NULL; \
         GMPY_MAYBE_BEGIN_ALLOW_THREADS(context); \
@@ -143,6 +143,7 @@ GMPy_ComplexWithType_##NAME(PyObject *x, int xtype, CTXT_Object *context) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
 { \
+    CHECK_CONTEXT(context); \
     int xtype = GMPy_ObjectType(x);\
     if (IS_TYPE_REAL(xtype)) \
         return GMPy_RealWithType_##NAME(x, xtype, context); \
@@ -164,14 +165,18 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
     return GMPy_Number_##NAME(other, context); \
 }
 
-#define GMPY_MPFR_MPC_UNIOP_TEMPLATE(NAME, FUNC) \
+/*********************************************************************/
+
+#define GMPY_MPFR_MPC_UNIOP_TEMPLATEWT(NAME, FUNC) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
 { \
-    if (IS_REAL(x)) \
-        return GMPy_Real_##NAME(x, context); \
-    if (IS_COMPLEX(x)) \
-        return GMPy_Complex_##NAME(x, context); \
+    CHECK_CONTEXT(context); \
+    int xtype = GMPy_ObjectType(x); \
+    if (IS_TYPE_REAL(xtype)) \
+        return GMPy_RealWithType_##NAME(x, xtype, context); \
+    if (IS_TYPE_COMPLEX(xtype)) \
+        return GMPy_ComplexWithType_##NAME(x, xtype, context); \
     TYPE_ERROR(#FUNC"() argument type not supported"); \
     return NULL; \
 } \
@@ -186,7 +191,14 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
         CHECK_CONTEXT(context); \
     } \
     return GMPy_Number_##NAME(other, context); \
-}
+} \
+static PyObject * \
+GMPy_Number_Method_##NAME(PyObject *self, PyObject *args) \
+{ \
+    return GMPy_Number_##NAME(self, NULL); \
+} \
+
+/*********************************************************************/
 
 #define GMPY_MPFR_MPC_UNIOP_TEMPLATE_EX(NAME, FUNC) \
 static PyObject * \
@@ -216,6 +228,8 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
     return GMPy_Number_##NAME(other, context); \
 }
 
+/*********************************************************************/
+
 #define GMPY_MPFR_MPC_UNIOP_TEMPLATE_EXWT(NAME, FUNC) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
@@ -241,6 +255,7 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
     return GMPy_Number_##NAME(other, context); \
 }
 
+/*********************************************************************/
 
 #define GMPY_MPFR_MPC_TRIOP_TEMPLATE(NAME, FUNC) \
 static PyObject * \
@@ -284,6 +299,8 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
                               PyTuple_GET_ITEM(args, 2), context); \
 }
 
+/*********************************************************************/
+
 #define GMPY_MPFR_QUADOP_TEMPLATE(NAME, FUNC) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, PyObject *y, PyObject *z, PyObject *t, CTXT_Object *context) \
@@ -322,6 +339,8 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
                               PyTuple_GET_ITEM(args, 2), \
                               PyTuple_GET_ITEM(args, 3), context); \
 }
+
+/*********************************************************************/
 
 #define GMPY_MPFR_UNIOP_NOROUND(NAME, FUNC) \
 static PyObject * \
@@ -370,6 +389,8 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
     return GMPy_Number_##NAME(other, context); \
 }
 
+/*********************************************************************/
+
 #define GMPY_MPFR_UNIOP_NOROUND_NOMETHOD(NAME, FUNC) \
 static PyObject * \
 GMPy_Real_##NAME(PyObject *x, CTXT_Object *context) \
@@ -409,6 +430,8 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
     } \
     return GMPy_Number_##NAME(other, context); \
 }
+
+/*********************************************************************/
 
 #define GMPY_MPFR_UNIOP_EX(NAME, FUNC) \
 static PyObject * \
@@ -459,6 +482,8 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
     return GMPy_Number_##NAME(other, context); \
 }
 
+/*********************************************************************/
+
 #define GMPY_MPFR_UNIOP_TEMPLATE(NAME, FUNC) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
@@ -480,6 +505,8 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
     } \
     return GMPy_Number_##NAME(other, context); \
 }
+
+/*********************************************************************/
 
 #define GMPY_MPFR_UNIOP_TEMPLATE_EX(NAME, FUNC) \
 static PyObject * \
@@ -504,6 +531,8 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
     } \
     return GMPy_Number_##NAME(other, context); \
 }
+
+/*********************************************************************/
 
 #define GMPY_MPFR_BINOP(NAME, FUNC) \
 static PyObject * \
@@ -556,6 +585,8 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
  * More precisely, the first argument must pass IS_REAL() and the second
  * argument must pass IS_INTEGER(). */
 
+/*********************************************************************/
+
 #define GMPY_MPFR_BINOP_REAL_ULONG(NAME, FUNC) \
 static PyObject * \
 GMPy_Real_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
@@ -607,6 +638,8 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
  * argument must pass IS_INTEGER(). The calling sequence passes n first
  * to the MPFR library.*/
 
+/*********************************************************************/
+
 #define GMPY_MPFR_BINOP_REAL_LONG(NAME, FUNC) \
 static PyObject * \
 GMPy_Real_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
@@ -653,6 +686,8 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
     return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context); \
 } \
 
+/*********************************************************************/
+
 #define GMPY_MPFR_BINOP_TEMPLATE(NAME, FUNC) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, PyObject *y, CTXT_Object *context) \
@@ -678,6 +713,8 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
     } \
     return GMPy_Number_##NAME(PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1), context); \
 } \
+
+/*********************************************************************/
 
 #define GMPY_MPFR_BINOP_EX(NAME, FUNC) \
 static PyObject * \
