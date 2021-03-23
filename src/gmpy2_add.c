@@ -38,8 +38,6 @@ GMPy_Integer_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
 {
     MPZ_Object *result = NULL;
 
-    CHECK_CONTEXT(context);
-
     if (!(result = GMPy_MPZ_New(context))) {
         /* LCOV_EXCL_START */
         return NULL;
@@ -131,8 +129,6 @@ GMPy_Rational_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
 {
     MPQ_Object *result = NULL;
 
-    CHECK_CONTEXT(context);
-
     if (!(result = GMPy_MPQ_New(context))) {
         /* LCOV_EXCL_START */
         return NULL;
@@ -193,8 +189,6 @@ GMPy_Real_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
 {
     MPFR_Object *result = NULL;
 
-    CHECK_CONTEXT(context);
-
     if (!(result = GMPy_MPFR_New(0, context))) {
         /* LCOV_EXCL_START */
         return NULL;
@@ -250,8 +244,6 @@ GMPy_Complex_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
 {
     MPC_Object *result = NULL;
 
-    CHECK_CONTEXT(context);
-
     if (!(result = GMPy_MPC_New(0, 0, context))) {
         /* LCOV_EXCL_START */
         return NULL;
@@ -297,20 +289,23 @@ GMPy_Complex_AddWithType(PyObject *x, int xtype, PyObject *y, int ytype,
 static PyObject *
 GMPy_Number_Add_Slot(PyObject *x, PyObject *y)
 {
+    CTXT_Object *context = NULL;
+    CHECK_CONTEXT(context);
+
     int xtype = GMPy_ObjectType(x);
     int ytype = GMPy_ObjectType(y);
     
     if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
-        return GMPy_Integer_AddWithType(x, xtype, y, ytype, NULL);
+        return GMPy_Integer_AddWithType(x, xtype, y, ytype, context);
 
     if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype))
-        return GMPy_Rational_AddWithType(x, xtype, y, ytype, NULL);
+        return GMPy_Rational_AddWithType(x, xtype, y, ytype, context);
 
     if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
-        return GMPy_Real_AddWithType(x, xtype, y, ytype, NULL);
+        return GMPy_Real_AddWithType(x, xtype, y, ytype, context);
         
     if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
-        return GMPy_Complex_AddWithType(x, xtype, y, ytype, NULL);
+        return GMPy_Complex_AddWithType(x, xtype, y, ytype, context);
 
     Py_RETURN_NOTIMPLEMENTED;
 }
