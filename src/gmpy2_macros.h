@@ -234,6 +234,7 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
 { \
+    CHECK_CONTEXT(context); \
     int xtype = GMPy_ObjectType(x); \
     if (IS_TYPE_REAL(xtype)) \
         return GMPy_RealWithType_##NAME(x, xtype, context); \
@@ -253,7 +254,10 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
         CHECK_CONTEXT(context); \
     } \
     return GMPy_Number_##NAME(other, context); \
-}
+} \
+
+/*********************************************************************/
+
 
 /*********************************************************************/
 

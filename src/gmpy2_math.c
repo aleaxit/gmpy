@@ -481,16 +481,17 @@ PyDoc_STRVAR(GMPy_doc_function_acos,
 "acos(x) -> number\n\n"
 "Return inverse cosine of x; result in radians.");
 
+/* Helper function assumes x is of type mpfr. */
 static PyObject *
 _GMPy_MPFR_Acos(PyObject *x, CTXT_Object *context)
 {
-    MPFR_Object *result;
+    MPFR_Object *result = NULL;
 
     if (!mpfr_nan_p(MPFR(x)) &&
             (mpfr_cmp_si(MPFR(x), 1) > 0 || mpfr_cmp_si(MPFR(x), -1) < 0) &&
             context->ctx.allow_complex
        ) {
-        return GMPy_Complex_Acos(x, context);
+        return GMPy_ComplexWithType_Acos(x, OBJ_TYPE_MPFR, context);
     }
 
     if (!(result = GMPy_MPFR_New(0, context))) {
@@ -498,61 +499,70 @@ _GMPy_MPFR_Acos(PyObject *x, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-
+    
+    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpfr_acos(result->f, MPFR(x), GET_MPFR_ROUND(context));
+    GMPY_MAYBE_END_ALLOW_THREADS(context);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
-static PyObject *
-GMPy_Real_Acos(PyObject *x, CTXT_Object *context)
-{
-    PyObject *result, *tempx;
-
-    CHECK_CONTEXT(context);
-
-    if (!(tempx = (PyObject*)GMPy_MPFR_From_Real(x, 1, context))) {
-        return NULL;
-    }
-
-    result = _GMPy_MPFR_Acos(tempx, context);
-    Py_DECREF(tempx);
-    return result;
-}
-
+/* Helper function assumes x is of type mpc. */
 static PyObject *
 _GMPy_MPC_Acos(PyObject *x, CTXT_Object *context)
 {
     MPC_Object *result = NULL;
 
-    CHECK_CONTEXT(context);
-
     if (!(result = GMPy_MPC_New(0, 0, context))) {
         return NULL;
     }
 
+    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpc_acos(result->c, MPC(x), GET_MPC_ROUND(context));
+    GMPY_MAYBE_END_ALLOW_THREADS(context);
     _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
 static PyObject *
-GMPy_Complex_Acos(PyObject *x, CTXT_Object *context)
+GMPy_RealWithType_Acos(PyObject *x, int xtype, CTXT_Object *context)
 {
-    PyObject *result, *tempx;
+    MPFR_Object *tempx = NULL;
+    PyObject *result = NULL;
 
-    CHECK_CONTEXT(context);
-
-    if (!(tempx = (PyObject*)GMPy_MPC_From_Complex(x, 1, 1, context))) {
-        return NULL;
+    if (IS_TYPE_MPFR(xtype)) {
+        return _GMPy_MPFR_Acos(x, context);
     }
-
-    result = _GMPy_MPC_Acos(tempx, context);
-    Py_DECREF(tempx);
-    return result;
+    else {
+        if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context))) {
+            return NULL;
+        }
+        result = _GMPy_MPFR_Acos((PyObject*)tempx, context);
+        Py_DECREF(tempx);
+        return result;
+    }
 }
 
-GMPY_MPFR_MPC_UNIOP_TEMPLATE_EX(Acos, acos)
+static PyObject *
+GMPy_ComplexWithType_Acos(PyObject *x, int xtype, CTXT_Object *context)
+{
+    MPC_Object *tempx = NULL;
+    PyObject *result = NULL;
+
+    if (IS_TYPE_MPC(xtype)) {
+        return _GMPy_MPC_Acos(x, context);
+    }
+    else {
+        if (!(tempx = GMPy_MPC_From_ComplexWithType(x, xtype, 1, 1, context))) {
+            return NULL;
+        }
+        result = _GMPy_MPC_Acos((PyObject*)tempx, context);
+        Py_DECREF(tempx);
+        return result;
+    }
+}
+
+GMPY_MPFR_MPC_UNIOP_TEMPLATE_EXWT(Acos, acos)
 
 PyDoc_STRVAR(GMPy_doc_context_asin,
 "context.asin(x) -> number\n\n"
@@ -565,15 +575,13 @@ PyDoc_STRVAR(GMPy_doc_function_asin,
 static PyObject *
 _GMPy_MPFR_Asin(PyObject *x, CTXT_Object *context)
 {
-    MPFR_Object *result;
-
-    CHECK_CONTEXT(context);
+    MPFR_Object *result = NULL;
 
     if (!mpfr_nan_p(MPFR(x)) &&
             (mpfr_cmp_si(MPFR(x), 1) > 0 || mpfr_cmp_si(MPFR(x), -1) < 0) &&
             context->ctx.allow_complex
        ) {
-        return GMPy_Complex_Asin(x, context);
+        return GMPy_ComplexWithType_Asin(x, OBJ_TYPE_MPFR, context);
     }
 
     if (!(result = GMPy_MPFR_New(0, context))) {
@@ -582,60 +590,68 @@ _GMPy_MPFR_Asin(PyObject *x, CTXT_Object *context)
 
     mpfr_clear_flags();
 
+    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpfr_asin(result->f, MPFR(x), GET_MPFR_ROUND(context));
+    GMPY_MAYBE_END_ALLOW_THREADS(context);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
 static PyObject *
-GMPy_Real_Asin(PyObject *x, CTXT_Object *context)
-{
-    PyObject *result, *tempx;
-
-    CHECK_CONTEXT(context);
-
-    if (!(tempx = (PyObject*)GMPy_MPFR_From_Real(x, 1, context))) {
-        return NULL;
-    }
-
-    result = _GMPy_MPFR_Asin(tempx, context);
-    Py_DECREF(tempx);
-    return result;
-}
-
-static PyObject *
 _GMPy_MPC_Asin(PyObject *x, CTXT_Object *context)
 {
-    MPC_Object *result;
-
-    CHECK_CONTEXT(context);
+    MPC_Object *result = NULL;
 
     if (!(result = GMPy_MPC_New(0, 0, context))) {
         return NULL;
     }
 
+    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpc_asin(result->c, MPC(x), GET_MPC_ROUND(context));
+    GMPY_MAYBE_END_ALLOW_THREADS(context);
     _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
 static PyObject *
-GMPy_Complex_Asin(PyObject *x, CTXT_Object *context)
+GMPy_RealWithType_Asin(PyObject *x, int xtype, CTXT_Object *context)
 {
-    PyObject *result, *tempx;
+    MPFR_Object *tempx = NULL;
+    PyObject *result = NULL;
 
-    CHECK_CONTEXT(context);
-
-    if (!(tempx = (PyObject*)GMPy_MPC_From_Complex(x, 1, 1, context))) {
-        return NULL;
+    if (IS_TYPE_MPFR(xtype)) {
+        return _GMPy_MPFR_Asin(x, context);
     }
-
-    result = _GMPy_MPC_Asin(tempx, context);
-    Py_DECREF(tempx);
-    return result;
+    else {
+        if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context))) {
+            return NULL;
+        }
+        result = _GMPy_MPFR_Asin((PyObject*)tempx, context);
+        Py_DECREF(tempx);
+        return result;
+    }
 }
 
-GMPY_MPFR_MPC_UNIOP_TEMPLATE_EX(Asin, asin)
+static PyObject *
+GMPy_ComplexWithType_Asin(PyObject *x, int xtype, CTXT_Object *context)
+{
+    MPC_Object *tempx = NULL;
+    PyObject *result = NULL;
+
+    if (IS_TYPE_MPC(xtype)) {
+        return _GMPy_MPC_Asin(x, context);
+    }
+    else {
+        if (!(tempx = GMPy_MPC_From_ComplexWithType(x, xtype, 1, 1, context))) {
+            return NULL;
+        }
+        result = _GMPy_MPC_Asin((PyObject*)tempx, context);
+        Py_DECREF(tempx);
+        return result;
+    }
+}
+
+GMPY_MPFR_MPC_UNIOP_TEMPLATE_EXWT(Asin, asin)
 
 PyDoc_STRVAR(GMPy_doc_context_atanh,
 "context.atanh(x) -> number\n\n"
@@ -648,15 +664,13 @@ PyDoc_STRVAR(GMPy_doc_function_atanh,
 static PyObject *
 _GMPy_MPFR_Atanh(PyObject *x, CTXT_Object *context)
 {
-    MPFR_Object *result;
-
-    CHECK_CONTEXT(context);
+    MPFR_Object *result = NULL;
 
     if (!mpfr_nan_p(MPFR(x)) &&
             (mpfr_cmp_si(MPFR(x), 1) > 0 || mpfr_cmp_si(MPFR(x), -1) < 0) &&
             context->ctx.allow_complex
        ) {
-        return GMPy_Complex_Atanh(x, context);
+        return GMPy_ComplexWithType_Atanh(x, OBJ_TYPE_MPFR, context);
     }
 
     if (!(result = GMPy_MPFR_New(0, context))) {
@@ -665,60 +679,68 @@ _GMPy_MPFR_Atanh(PyObject *x, CTXT_Object *context)
 
     mpfr_clear_flags();
 
+    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpfr_atanh(result->f, MPFR(x), GET_MPFR_ROUND(context));
+    GMPY_MAYBE_END_ALLOW_THREADS(context);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
 static PyObject *
-GMPy_Real_Atanh(PyObject *x, CTXT_Object *context)
-{
-    PyObject *result, *tempx;
-
-    CHECK_CONTEXT(context);
-
-    if (!(tempx = (PyObject*)GMPy_MPFR_From_Real(x, 1, context))) {
-        return NULL;
-    }
-
-    result = _GMPy_MPFR_Atanh(tempx, context);
-    Py_DECREF(tempx);
-    return result;
-}
-
-static PyObject *
 _GMPy_MPC_Atanh(PyObject *x, CTXT_Object *context)
 {
-    MPC_Object *result;
-
-    CHECK_CONTEXT(context);
+    MPC_Object *result = NULL;
 
     if (!(result = GMPy_MPC_New(0, 0, context))) {
         return NULL;
     }
 
+    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpc_atanh(result->c, MPC(x), GET_MPC_ROUND(context));
+    GMPY_MAYBE_END_ALLOW_THREADS(context);
     _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
 
 static PyObject *
-GMPy_Complex_Atanh(PyObject *x, CTXT_Object *context)
+GMPy_RealWithType_Atanh(PyObject *x, int xtype, CTXT_Object *context)
 {
-    PyObject *result, *tempx;
+    MPFR_Object *tempx = NULL;
+    PyObject *result = NULL;
 
-    CHECK_CONTEXT(context);
-
-    if (!(tempx = (PyObject*)GMPy_MPC_From_Complex(x, 1, 1, context))) {
-        return NULL;
+    if (IS_TYPE_MPFR(xtype)) {
+        return _GMPy_MPFR_Atanh(x, context);
     }
-
-    result = _GMPy_MPC_Atanh(tempx, context);
-    Py_DECREF(tempx);
-    return result;
+    else {
+        if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context))) {
+            return NULL;
+        }
+        result = _GMPy_MPFR_Atanh((PyObject*)tempx, context);
+        Py_DECREF(tempx);
+        return result;
+    }
 }
 
-GMPY_MPFR_MPC_UNIOP_TEMPLATE_EX(Atanh, atanh)
+static PyObject *
+GMPy_ComplexWithType_Atanh(PyObject *x, int xtype, CTXT_Object *context)
+{
+    MPC_Object *tempx = NULL;
+    PyObject *result = NULL;
+
+    if (IS_TYPE_MPC(xtype)) {
+        return _GMPy_MPC_Atanh(x, context);
+    }
+    else {
+        if (!(tempx = GMPy_MPC_From_ComplexWithType(x, xtype, 1, 1, context))) {
+            return NULL;
+        }
+        result = _GMPy_MPC_Atanh((PyObject*)tempx, context);
+        Py_DECREF(tempx);
+        return result;
+    }
+}
+
+GMPY_MPFR_MPC_UNIOP_TEMPLATE_EXWT(Atanh, atanh)
 
 PyDoc_STRVAR(GMPy_doc_function_atan2,
 "atan2(y, x) -> number\n\n"
