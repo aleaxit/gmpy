@@ -54,17 +54,17 @@ static PyObject * GMPy_Number_Method_Is_Zero(PyObject *self, PyObject *args);
 static PyObject * GMPy_Number_Is_Zero(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Is_Zero(PyObject *self, PyObject *other);
 
-static PyObject * GMPy_Real_Is_Signed(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_RealWithType_Is_Signed(PyObject *x, int xtype, CTXT_Object *context);
 static PyObject * GMPy_MPFR_Is_Signed_Method(PyObject *self, PyObject *args);
 static PyObject * GMPy_Number_Is_Signed(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Is_Signed(PyObject *self, PyObject *other);
 
-static PyObject * GMPy_Real_Is_Regular(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_RealWithType_Is_Regular(PyObject *x, int xtype, CTXT_Object *context);
 static PyObject * GMPy_MPFR_Is_Regular_Method(PyObject *self, PyObject *args);
 static PyObject * GMPy_Number_Is_Regular(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Is_Regular(PyObject *self, PyObject *other);
 
-static PyObject * GMPy_Real_Is_Integer(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_RealWithType_Is_Integer(PyObject *x, int xtype, CTXT_Object *context);
 static PyObject * GMPy_MPFR_Is_Integer_Method(PyObject *self, PyObject *args);
 static PyObject * GMPy_Number_Is_Integer(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Is_Integer(PyObject *self, PyObject *other);

@@ -31,19 +31,32 @@
 extern "C" {
 #endif
 
-static PyObject * GMPy_Integer_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
-static PyObject * GMPy_Rational_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
-static PyObject * GMPy_Real_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
-static PyObject * GMPy_Complex_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
+static PyObject * GMPy_IntegerWithType_FMA(PyObject *x, int xtype, PyObject *y, int ytype, PyObject *z, int ztype, CTXT_Object *context);
+static PyObject * GMPy_RationalWithType_FMA(PyObject *x, int xtype, PyObject *y, int ytype, PyObject *z, int ztype, CTXT_Object *context);
+static PyObject * GMPy_RealWithType_FMA(PyObject *x, int xtype, PyObject *y, int ytype, PyObject *z, int ztype, CTXT_Object *context);
+static PyObject * GMPy_ComplexWithType_FMA(PyObject *x, int xtype, PyObject *y, int ytype, PyObject *z, int ztype, CTXT_Object *context);
 static PyObject * GMPy_Number_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
 static PyObject * GMPy_Context_FMA(PyObject *self, PyObject *args);
 
-static PyObject * GMPy_Integer_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
-static PyObject * GMPy_Rational_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
-static PyObject * GMPy_Real_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
-static PyObject * GMPy_Complex_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
+static PyObject * GMPy_IntegerWithType_FMS(PyObject *x, int xtype, PyObject *y, int ytype, PyObject *z, int ztype, CTXT_Object *context);
+static PyObject * GMPy_RationalWithType_FMS(PyObject *x, int xtype, PyObject *y, int ytype, PyObject *z, int ztype, CTXT_Object *context);
+static PyObject * GMPy_RealWithType_FMS(PyObject *x, int xtype, PyObject *y, int ytype, PyObject *z, int ztype, CTXT_Object *context);
+static PyObject * GMPy_ComplexWithType_FMS(PyObject *x, int xtype, PyObject *y, int ytype, PyObject *z, int ztype, CTXT_Object *context);
 static PyObject * GMPy_Number_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
 static PyObject * GMPy_Context_FMS(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_IntegerWithType_FMMA(PyObject *x, int xtype, PyObject *y, int ytype, PyObject *z, int ztype, PyObject *t, int ttype, CTXT_Object *context);
+static PyObject * GMPy_RationalWithType_FMMA(PyObject *x, int xtype, PyObject *y, int ytype, PyObject *z, int ztype, PyObject *t, int ttype,CTXT_Object *context);
+static PyObject * GMPy_RealWithType_FMMA(PyObject *x, int xtype, PyObject *y, int ytype, PyObject *z, int ztype, PyObject *t, int ttype,CTXT_Object *context);
+static PyObject * GMPy_Number_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
+static PyObject * GMPy_Context_FMA(PyObject *self, PyObject *args);
+
+static PyObject * GMPy_IntegerWithType_FMMS(PyObject *x, int xtype, PyObject *y, int ytype, PyObject *z, int ztype, PyObject *t, int ttype, CTXT_Object *context);
+static PyObject * GMPy_RationalWithType_FMMS(PyObject *x, int xtype, PyObject *y, int ytype, PyObject *z, int ztype, PyObject *t, int ttype,CTXT_Object *context);
+static PyObject * GMPy_RealWithType_FMMS(PyObject *x, int xtype, PyObject *y, int ytype, PyObject *z, int ztype, PyObject *t, int ttype,CTXT_Object *context);
+static PyObject * GMPy_Number_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);
+static PyObject * GMPy_Context_FMS(PyObject *self, PyObject *args);
+
 
 #ifdef __cplusplus
 }

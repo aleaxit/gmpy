@@ -200,36 +200,6 @@ GMPy_Number_Method_##NAME(PyObject *self, PyObject *args) \
 
 /*********************************************************************/
 
-#define GMPY_MPFR_MPC_UNIOP_TEMPLATE_EX(NAME, FUNC) \
-static PyObject * \
-GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
-{ \
-    if (MPFR_Check(x)) \
-        return _GMPy_MPFR_##NAME(x, context); \
-    if (MPC_Check(x)) \
-        return _GMPy_MPC_##NAME(x, context); \
-    if (IS_REAL(x)) \
-        return GMPy_Real_##NAME(x, context); \
-    if (IS_COMPLEX(x)) \
-        return GMPy_Complex_##NAME(x, context); \
-    TYPE_ERROR(#FUNC"() argument type not supported"); \
-    return NULL; \
-} \
-static PyObject * \
-GMPy_Context_##NAME(PyObject *self, PyObject *other) \
-{ \
-    CTXT_Object *context = NULL; \
-    if (self && CTXT_Check(self)) { \
-        context = (CTXT_Object*)self; \
-    } \
-    else { \
-        CHECK_CONTEXT(context); \
-    } \
-    return GMPy_Number_##NAME(other, context); \
-}
-
-/*********************************************************************/
-
 #define GMPY_MPFR_MPC_UNIOP_TEMPLATE_EXWT(NAME, FUNC) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
@@ -258,29 +228,30 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
 
 /*********************************************************************/
 
-
-/*********************************************************************/
-
-#define GMPY_MPFR_MPC_TRIOP_TEMPLATE(NAME, FUNC) \
+#define GMPY_MPFR_MPC_TRIOP_TEMPLATEWT(NAME, FUNC) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context) \
 { \
-    if (MPZ_Check(x) && MPZ_Check(y) && MPZ_Check(z)) \
+    CHECK_CONTEXT(context); \
+    int xtype = GMPy_ObjectType(x); \
+    int ytype = GMPy_ObjectType(y); \
+    int ztype = GMPy_ObjectType(z); \
+    if (IS_TYPE_MPZ(xtype) && IS_TYPE_MPZ(ytype) && IS_TYPE_MPZ(ztype)) \
         return _GMPy_MPZ_##NAME(x, y, z, context); \
-    if (MPQ_Check(x) && MPQ_Check(y) && MPQ_Check(z)) \
-        return _GMPy_MPQ_##NAME(x, y, z, context); \
-    if (MPFR_Check(x) && MPFR_Check(y) && MPFR_Check(z)) \
+    if (IS_TYPE_MPQ(xtype) && IS_TYPE_MPQ(ytype) && IS_TYPE_MPQ(ztype)) \
+        return _GMPy_MPQ_##NAME(x, y,  z, context); \
+    if (IS_TYPE_MPFR(xtype) && IS_TYPE_MPFR(ytype) && IS_TYPE_MPFR(ztype)) \
         return _GMPy_MPFR_##NAME(x, y, z, context); \
-    if (MPC_Check(x) && MPC_Check(y) && MPC_Check(z)) \
+    if (IS_TYPE_MPC(xtype) && IS_TYPE_MPC(ytype) && IS_TYPE_MPC(ztype)) \
         return _GMPy_MPC_##NAME(x, y, z, context); \
-    if (IS_INTEGER(x) && IS_INTEGER(y) && IS_INTEGER(z)) \
-        return GMPy_Integer_##NAME(x, y, z, context); \
-    if (IS_RATIONAL(x) && IS_RATIONAL(y) && IS_RATIONAL(z)) \
-        return GMPy_Rational_##NAME(x, y, z, context); \
-    if (IS_REAL(x) && IS_REAL(y) && IS_REAL(z)) \
-        return GMPy_Real_##NAME(x, y, z, context); \
-    if (IS_COMPLEX(x) && IS_COMPLEX(y) && IS_COMPLEX(z)) \
-        return GMPy_Complex_##NAME(x, y, z, context); \
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype) && IS_TYPE_INTEGER(ztype)) \
+        return GMPy_IntegerWithType_##NAME(x, xtype, y, ytype, z, ztype, context); \
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype) && IS_TYPE_RATIONAL(ztype)) \
+        return GMPy_RationalWithType_##NAME(x, xtype, y, ytype, z, ztype, context); \
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype) && IS_TYPE_REAL(ztype)) \
+        return GMPy_RealWithType_##NAME(x, xtype, y, ytype, z, ztype, context); \
+    if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype) && IS_TYPE_COMPLEX(ztype)) \
+        return GMPy_ComplexWithType_##NAME(x, xtype, y, ytype, z, ztype, context); \
     TYPE_ERROR(#FUNC"() argument type not supported"); \
     return NULL; \
 } \
@@ -305,22 +276,27 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
 
 /*********************************************************************/
 
-#define GMPY_MPFR_QUADOP_TEMPLATE(NAME, FUNC) \
+#define GMPY_MPFR_QUADOP_TEMPLATEWT(NAME, FUNC) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, PyObject *y, PyObject *z, PyObject *t, CTXT_Object *context) \
 { \
-    if (MPZ_Check(x) && MPZ_Check(y) && MPZ_Check(z) && MPZ_Check(t)) \
+    CHECK_CONTEXT(context); \
+    int xtype = GMPy_ObjectType(x); \
+    int ytype = GMPy_ObjectType(y); \
+    int ztype = GMPy_ObjectType(z); \
+    int ttype = GMPy_ObjectType(t); \
+    if (IS_TYPE_MPZ(xtype) && IS_TYPE_MPZ(ytype) && IS_TYPE_MPZ(ztype) && IS_TYPE_MPZ(ttype)) \
         return _GMPy_MPZ_##NAME(x, y, z, t, context); \
-    if (MPQ_Check(x) && MPQ_Check(y) && MPQ_Check(z) && MPQ_Check(t)) \
-        return _GMPy_MPQ_##NAME(x, y, z, t, context); \
-    if (MPFR_Check(x) && MPFR_Check(y) && MPFR_Check(z) && MPFR_Check(t)) \
+    if (IS_TYPE_MPQ(xtype) && IS_TYPE_MPQ(ytype) && IS_TYPE_MPQ(ztype) && IS_TYPE_MPQ(ttype)) \
+        return _GMPy_MPQ_##NAME(x, y,  z, t, context); \
+    if (IS_TYPE_MPFR(xtype) && IS_TYPE_MPFR(ytype) && IS_TYPE_MPFR(ztype) && IS_TYPE_MPFR(ttype)) \
         return _GMPy_MPFR_##NAME(x, y, z, t, context); \
-    if (IS_INTEGER(x) && IS_INTEGER(y) && IS_INTEGER(z) && IS_INTEGER(t)) \
-        return GMPy_Integer_##NAME(x, y, z, t, context); \
-    if (IS_RATIONAL(x) && IS_RATIONAL(y) && IS_RATIONAL(z) && IS_RATIONAL(t)) \
-        return GMPy_Rational_##NAME(x, y, z, t, context); \
-    if (IS_REAL(x) && IS_REAL(y) && IS_REAL(z) && IS_REAL(t)) \
-        return GMPy_Real_##NAME(x, y, z, t, context); \
+    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype) && IS_TYPE_INTEGER(ztype) && IS_TYPE_INTEGER(ttype)) \
+        return GMPy_IntegerWithType_##NAME(x, xtype, y, ytype, z, ztype, t, ttype, context); \
+    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype) && IS_TYPE_RATIONAL(ztype) && IS_TYPE_RATIONAL(ttype)) \
+        return GMPy_RationalWithType_##NAME(x, xtype, y, ytype, z, ztype, t, ttype, context); \
+    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype) && IS_TYPE_REAL(ztype) && IS_TYPE_REAL(ttype)) \
+        return GMPy_RealWithType_##NAME(x, xtype, y, ytype, z, ztype, t, ttype, context); \
     TYPE_ERROR(#FUNC"() argument type not supported"); \
     return NULL; \
 } \
@@ -346,14 +322,13 @@ GMPy_Context_##NAME(PyObject *self, PyObject *args) \
 
 /*********************************************************************/
 
-#define GMPY_MPFR_UNIOP_NOROUND(NAME, FUNC) \
+#define GMPY_MPFR_UNIOP_NOROUNDWT(NAME, FUNC) \
 static PyObject * \
-GMPy_Real_##NAME(PyObject *x, CTXT_Object *context) \
+GMPy_RealWithType_##NAME(PyObject *x, int xtype, CTXT_Object *context) \
 { \
-    MPFR_Object *result, *tempx; \
-    CHECK_CONTEXT(context); \
+    MPFR_Object *result = NULL, *tempx = NULL; \
     result = GMPy_MPFR_New(0, context); \
-    tempx = GMPy_MPFR_From_Real(x, 1, context); \
+    tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context); \
     if (!result || !tempx) { \
         Py_XDECREF((PyObject*)result); \
         Py_XDECREF((PyObject*)tempx); \
@@ -368,8 +343,9 @@ GMPy_Real_##NAME(PyObject *x, CTXT_Object *context) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
 { \
-    if (IS_REAL(x)) \
-        return GMPy_Real_##NAME(x, context); \
+    int xtype = GMPy_ObjectType(x); \
+    if (IS_TYPE_REAL(xtype)) \
+        return GMPy_RealWithType_##NAME(x, xtype, context); \
     TYPE_ERROR(#FUNC"() argument type not supported"); \
     return NULL; \
 } \
@@ -395,14 +371,13 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
 
 /*********************************************************************/
 
-#define GMPY_MPFR_UNIOP_NOROUND_NOMETHOD(NAME, FUNC) \
+#define GMPY_MPFR_UNIOP_NOROUND_NOMETHODWT(NAME, FUNC) \
 static PyObject * \
-GMPy_Real_##NAME(PyObject *x, CTXT_Object *context) \
+GMPy_RealWithType_##NAME(PyObject *x, int xtype, CTXT_Object *context) \
 { \
-    MPFR_Object *result, *tempx; \
-    CHECK_CONTEXT(context); \
+    MPFR_Object *result = NULL, *tempx = NULL; \
     result = GMPy_MPFR_New(0, context); \
-    tempx = GMPy_MPFR_From_Real(x, 1, context); \
+    tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context); \
     if (!result || !tempx) { \
         Py_XDECREF((PyObject*)result); \
         Py_XDECREF((PyObject*)tempx); \
@@ -417,8 +392,9 @@ GMPy_Real_##NAME(PyObject *x, CTXT_Object *context) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
 { \
-    if (IS_REAL(x)) \
-        return GMPy_Real_##NAME(x, context); \
+    int xtype = GMPy_ObjectType(x); \
+    if (IS_TYPE_REAL(xtype)) \
+        return GMPy_RealWithType_##NAME(x, xtype, context); \
     TYPE_ERROR(#FUNC"() argument type not supported"); \
     return NULL; \
 } \
@@ -437,39 +413,43 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
 
 /*********************************************************************/
 
-#define GMPY_MPFR_UNIOP_EX(NAME, FUNC) \
+#define GMPY_MPFR_UNIOP_EXWT(NAME, FUNC) \
 static PyObject * \
-_GMPy_MPFR_##NAME(PyObject *x, CTXT_Object *context) \
+GMPy_RealWithType_##NAME(PyObject *x, int xtype, CTXT_Object *context) \
 { \
-    MPFR_Object *result; \
-    CHECK_CONTEXT(context); \
-    if (!(result = GMPy_MPFR_New(0, context))) { \
-        return NULL; \
+    MPFR_Object *result = NULL, *tempx = NULL; \
+    if (IS_TYPE_MPFR(xtype)) { \
+        if (!(result = GMPy_MPFR_New(0, context))) return NULL; \
+        mpfr_clear_flags(); \
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context); \
+        result->rc = mpfr_##FUNC(result->f, MPFR(x), GET_MPFR_ROUND(context)); \
+        GMPY_MAYBE_END_ALLOW_THREADS(context); \
+        _GMPy_MPFR_Cleanup(&result, context); \
+        return (PyObject*)result; \
     } \
-    mpfr_clear_flags(); \
-    result->rc = mpfr_##FUNC(result->f, MPFR(x), GET_MPFR_ROUND(context)); \
-    _GMPy_MPFR_Cleanup(&result, context); \
-    return (PyObject*)result; \
-} \
-static PyObject * \
-GMPy_Real_##NAME(PyObject *x, CTXT_Object *context) \
-{ \
-    PyObject *result, *tempx; \
-    CHECK_CONTEXT(context); \
-    if (!(tempx = (PyObject*)GMPy_MPFR_From_Real(x, 1, context))) { \
-        return NULL; \
+    if (IS_TYPE_REAL(xtype)) { \
+        if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context))) return NULL; \
+        if (!(result = GMPy_MPFR_New(0, context))) { \
+            Py_DECREF(tempx); \
+            return NULL; \
+        } \
+        mpfr_clear_flags(); \
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context); \
+        result->rc = mpfr_##FUNC(result->f, MPFR(tempx), GET_MPFR_ROUND(context)); \
+        GMPY_MAYBE_END_ALLOW_THREADS(context); \
+        _GMPy_MPFR_Cleanup(&result, context); \
+        return (PyObject*)result; \
     } \
-    result = _GMPy_MPFR_##NAME(tempx, context); \
-    Py_DECREF(tempx); \
-    return result; \
+    TYPE_ERROR(#FUNC"() argument type not supported"); \
+    return NULL; \
 } \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
 { \
-    if (MPFR_Check(x)) \
-        return _GMPy_MPFR_##NAME(x, context); \
-    if (IS_REAL(x)) \
-        return GMPy_Real_##NAME(x, context); \
+    CHECK_CONTEXT(context); \
+    int xtype = GMPy_ObjectType(x);\
+    if (IS_TYPE_REAL(xtype)) \
+        return GMPy_RealWithType_##NAME(x, xtype, context); \
     TYPE_ERROR(#FUNC"() argument type not supported"); \
     return NULL; \
 } \
@@ -488,12 +468,14 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
 
 /*********************************************************************/
 
-#define GMPY_MPFR_UNIOP_TEMPLATE(NAME, FUNC) \
+#define GMPY_MPFR_UNIOP_TEMPLATEWT(NAME, FUNC) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
 { \
-    if (IS_REAL(x)) \
-        return GMPy_Real_##NAME(x, context); \
+    CHECK_CONTEXT(context); \
+    int xtype = GMPy_ObjectType(x);\
+    if (IS_TYPE_REAL(xtype)) \
+        return GMPy_RealWithType_##NAME(x, xtype, context); \
     TYPE_ERROR(#FUNC"() argument type not supported"); \
     return NULL; \
 } \
@@ -512,7 +494,7 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
 
 /*********************************************************************/
 
-#define GMPY_MPFR_UNIOP_TEMPLATE_EX(NAME, FUNC) \
+#define GMPY_MPFR_UNIOP_TEMPLATE_EXWT(NAME, FUNC) \
 static PyObject * \
 GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
 { \

@@ -487,14 +487,13 @@ GMPy_MPC_From_Complex(PyObject* obj, mp_prec_t rprec, mp_prec_t iprec,
                                          rprec, iprec, context);
 }
 
-#if 0
 static MPC_Object *
-GMPy_MPC_From_ComplexAndCopy(PyObject* obj, mp_prec_t rprec, mp_prec_t iprec,
-                             CTXT_Object *context)
+GMPy_MPC_From_ComplexWithTypeAndCopy(PyObject* obj, int xtype, mp_prec_t rprec,
+                                     mp_prec_t iprec, CTXT_Object *context)
 {
     MPC_Object *result = NULL, *temp = NULL;
 
-    result = GMPy_MPC_From_Complex(obj, rprec, iprec, context);
+    result = GMPy_MPC_From_ComplexWithType(obj, xtype, rprec, iprec, context);
 
     if (result == NULL)
         return result;
@@ -506,6 +505,7 @@ GMPy_MPC_From_ComplexAndCopy(PyObject* obj, mp_prec_t rprec, mp_prec_t iprec,
                               iprec = mpfr_get_prec(mpc_imagref(result->c)),
                               context))) {
         /* LCOV_EXCL_START */
+        Py_DECREF(result);
         return NULL;
         /* LCOV_EXCL_STOP */
     }
@@ -518,7 +518,6 @@ GMPy_MPC_From_ComplexAndCopy(PyObject* obj, mp_prec_t rprec, mp_prec_t iprec,
     Py_DECREF((PyObject*)result);
     return temp;
 }
-#endif
 
 static PyObject *
 GMPy_PyStr_From_MPC(MPC_Object *self, int base, int digits, CTXT_Object *context)

@@ -293,17 +293,16 @@ PyDoc_STRVAR(GMPy_doc_method_is_signed,
 "Return True if the sign bit of x is set.");
 
 static PyObject *
-GMPy_Real_Is_Signed(PyObject *x, CTXT_Object *context)
+GMPy_RealWithType_Is_Signed(PyObject *x, int xtype, CTXT_Object *context)
 {
-    MPFR_Object *tempx;
+    MPFR_Object *tempx = NULL;
     int res;
 
-    if (MPFR_Check(x)) {
+    if (IS_TYPE_MPFR(xtype)) {
         res = mpfr_signbit(MPFR(x));
     }
     else {
-        CHECK_CONTEXT(context);
-        if (!(tempx = GMPy_MPFR_From_Real(x, 1, context))) {
+        if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context))) {
             return NULL;
         }
         res = mpfr_signbit(tempx->f);
@@ -321,10 +320,10 @@ GMPy_Real_Is_Signed(PyObject *x, CTXT_Object *context)
 static PyObject *
 GMPy_MPFR_Is_Signed_Method(PyObject *self, PyObject *args)
 {
-    return GMPy_Real_Is_Signed(self, NULL);
+    return GMPy_Number_Is_Signed(self, NULL);
 }
 
-GMPY_MPFR_UNIOP_TEMPLATE(Is_Signed, is_signed);
+GMPY_MPFR_UNIOP_TEMPLATEWT(Is_Signed, is_signed);
 
 PyDoc_STRVAR(GMPy_doc_function_is_regular,
 "is_regular(x) -> boolean\n\n"
@@ -339,17 +338,16 @@ PyDoc_STRVAR(GMPy_doc_method_is_regular,
 "Return True if x is not zero, NaN, or Infinity; False otherwise.");
 
 static PyObject *
-GMPy_Real_Is_Regular(PyObject *x, CTXT_Object *context)
+GMPy_RealWithType_Is_Regular(PyObject *x, int xtype, CTXT_Object *context)
 {
-    MPFR_Object *tempx;
+    MPFR_Object *tempx = NULL;
     int res;
 
-    if (MPFR_Check(x)) {
+    if (IS_TYPE_MPFR(xtype)) {
         res = mpfr_regular_p(MPFR(x));
     }
     else {
-        CHECK_CONTEXT(context);
-        if (!(tempx = GMPy_MPFR_From_Real(x, 1, context))) {
+        if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context))) {
             return NULL;
         }
         res = mpfr_regular_p(tempx->f);
@@ -367,10 +365,10 @@ GMPy_Real_Is_Regular(PyObject *x, CTXT_Object *context)
 static PyObject *
 GMPy_MPFR_Is_Regular_Method(PyObject *self, PyObject *args)
 {
-    return GMPy_Real_Is_Regular(self, NULL);
+    return GMPy_Number_Is_Regular(self, NULL);
 }
 
-GMPY_MPFR_UNIOP_TEMPLATE(Is_Regular, is_regular);
+GMPY_MPFR_UNIOP_TEMPLATEWT(Is_Regular, is_regular);
 
 PyDoc_STRVAR(GMPy_doc_function_is_integer,
 "is_integer(x) -> boolean\n\n"
@@ -385,17 +383,16 @@ PyDoc_STRVAR(GMPy_doc_method_is_integer,
 "Return True if x is an integer; False otherwise.");
 
 static PyObject *
-GMPy_Real_Is_Integer(PyObject *x, CTXT_Object *context)
+GMPy_RealWithType_Is_Integer(PyObject *x, int xtype, CTXT_Object *context)
 {
-    MPFR_Object *tempx;
+    MPFR_Object *tempx = NULL;
     int res;
 
-    if (MPFR_Check(x)) {
+    if (IS_TYPE_MPFR(xtype)) {
         res = mpfr_integer_p(MPFR(x));
     }
     else {
-        CHECK_CONTEXT(context);
-        if (!(tempx = GMPy_MPFR_From_Real(x, 1, context))) {
+        if (!(tempx = GMPy_MPFR_From_RealWithType(x, xtype,  1, context))) {
             return NULL;
         }
         res = mpfr_integer_p(tempx->f);
@@ -413,10 +410,10 @@ GMPy_Real_Is_Integer(PyObject *x, CTXT_Object *context)
 static PyObject *
 GMPy_MPFR_Is_Integer_Method(PyObject *self, PyObject *args)
 {
-    return GMPy_Real_Is_Integer(self, NULL);
+    return GMPy_Number_Is_Integer(self, NULL);
 }
 
-GMPY_MPFR_UNIOP_TEMPLATE(Is_Integer, is_integer);
+GMPY_MPFR_UNIOP_TEMPLATEWT(Is_Integer, is_integer);
 
 PyDoc_STRVAR(GMPy_doc_function_is_lessgreater,
 "is_lessgreater(x,y) -> boolean\n\n"
