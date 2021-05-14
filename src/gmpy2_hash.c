@@ -145,7 +145,12 @@ _mpfr_hash(mpfr_t f)
             }
         }
         else {
+#if PY_VERSION_HEX >= 0x030A00A0
+            // Python 3.10
+            return _Py_HashPointer(f);
+#else
             return _PyHASH_NAN;
+#endif
         }
     }
 
