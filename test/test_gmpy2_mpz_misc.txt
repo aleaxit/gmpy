@@ -146,7 +146,7 @@ Test fac
 >>> gmpy2.fac(-7)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.fac('a')
 Traceback (most recent call last):
   ...
@@ -159,7 +159,7 @@ Test double_fac
 >>> gmpy2.double_fac(-7)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.double_fac('a')
 Traceback (most recent call last):
   ...
@@ -176,7 +176,7 @@ Test primorial
 >>> gmpy2.primorial(-7)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.primorial('a')
 Traceback (most recent call last):
   ...
@@ -197,11 +197,11 @@ TypeError:
 >>> gmpy2.multi_fac(7,-1)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.multi_fac(-7,1)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.multi_fac('a')
 Traceback (most recent call last):
   ...
@@ -222,7 +222,7 @@ Test fib
 >>> gmpy2.fib(-2)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.fib(17)
 mpz(1597)
 
@@ -231,7 +231,7 @@ Test fib2
 >>> gmpy2.fib2(-2)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.fib2(17)
 (mpz(1597), mpz(987))
 
@@ -240,7 +240,7 @@ Test lucas
 >>> gmpy2.lucas(-2)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.lucas(17)
 mpz(3571)
 
@@ -249,7 +249,7 @@ Test lucas2
 >>> gmpy2.lucas2(-2)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.lucas2(17)
 (mpz(3571), mpz(2207))
 
@@ -283,7 +283,7 @@ Test comb
 >>> gmpy2.comb(3,-1)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.comb('a',4)
 Traceback (most recent call last):
   ...
@@ -554,7 +554,7 @@ Test is_prime
 >>> gmpy2.is_prime(3,-3)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.is_prime()
 Traceback (most recent call last):
   ...
@@ -580,7 +580,7 @@ TypeError:
 >>> mpz(129).is_prime(-7)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> mpz(129).is_prime(10000)
 False
 >>> mpz(80**81 + 81**80).is_prime()

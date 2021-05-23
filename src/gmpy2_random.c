@@ -92,26 +92,30 @@ static PyObject *
 GMPy_MPZ_urandomb_Function(PyObject *self, PyObject *args)
 {
     MPZ_Object *result;
-    mp_bitcnt_t len;
+    PyObject *temp0, *temp1;
+    unsigned long len;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("mpz_urandomb() requires 2 arguments");
         return NULL;
     }
 
-    if (!RandomState_Check(PyTuple_GET_ITEM(args, 0))) {
+    temp0 = PyTuple_GET_ITEM(args, 0);
+    temp1 = PyTuple_GET_ITEM(args, 1);
+
+    if (!RandomState_Check(temp0)) {
         TYPE_ERROR("mpz_urandomb() requires 'random_state' and 'bit_count' arguments");
         return NULL;
     }
 
-    len = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
-    if (len == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
+    len = GMPy_Integer_AsUnsignedLongWithType(temp1, GMPy_ObjectType(temp1));
+    if (len == (unsigned long)(-1) && PyErr_Occurred()) {
         TYPE_ERROR("mpz_urandomb() requires 'random_state' and 'bit_count' arguments");
         return NULL;
     }
 
     if ((result = GMPy_MPZ_New(NULL))) {
-        mpz_urandomb(result->z, RANDOM_STATE(PyTuple_GET_ITEM(args, 0)), len);
+        mpz_urandomb(result->z, RANDOM_STATE(temp0), len);
     }
 
     return (PyObject*)result;
@@ -126,26 +130,30 @@ static PyObject *
 GMPy_MPZ_rrandomb_Function(PyObject *self, PyObject *args)
 {
     MPZ_Object *result;
-    mp_bitcnt_t len;
+    PyObject *temp0, *temp1;
+    unsigned long len;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("mpz_rrandomb() requires 2 arguments");
         return NULL;
     }
 
-    if (!RandomState_Check(PyTuple_GET_ITEM(args, 0))) {
+    temp0 = PyTuple_GET_ITEM(args, 0);
+    temp1 = PyTuple_GET_ITEM(args, 1);
+
+    if (!RandomState_Check(temp0)) {
         TYPE_ERROR("mpz_rrandomb() requires 'random_state' and 'bit_count' arguments");
         return NULL;
     }
 
-    len = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
+    len = GMPy_Integer_AsUnsignedLongWithType(temp1, GMPy_ObjectType(temp1));
     if (len == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
         TYPE_ERROR("mpz_rrandomb() requires 'random_state' and 'bit_count' arguments");
         return NULL;
     }
 
     if ((result = GMPy_MPZ_New(NULL))) {
-        mpz_rrandomb(result->z, RANDOM_STATE(PyTuple_GET_ITEM(args, 0)), len);
+        mpz_rrandomb(result->z, RANDOM_STATE(temp0), len);
     }
 
     return (PyObject*)result;
@@ -159,18 +167,22 @@ static PyObject *
 GMPy_MPZ_random_Function(PyObject *self, PyObject *args)
 {
     MPZ_Object *result, *temp;
+    PyObject *temp0, *temp1;
 
     if (PyTuple_GET_SIZE(args) != 2) {
         TYPE_ERROR("mpz_random() requires 2 arguments");
         return NULL;
     }
 
-    if (!RandomState_Check(PyTuple_GET_ITEM(args, 0))) {
+    temp0 = PyTuple_GET_ITEM(args, 0);
+    temp1 = PyTuple_GET_ITEM(args, 1);
+
+    if (!RandomState_Check(temp0)) {
         TYPE_ERROR("mpz_random() requires 'random_state' and 'int' arguments");
         return NULL;
     }
 
-    if (!(temp = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL))) {
+    if (!(temp = GMPy_MPZ_From_IntegerWithType(temp1, GMPy_ObjectType(temp1), NULL))) {
         TYPE_ERROR("mpz_random() requires 'random_state' and 'int' arguments");
         return NULL;
     }

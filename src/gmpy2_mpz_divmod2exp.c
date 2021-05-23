@@ -53,7 +53,7 @@ GMPy_MPZ_c_divmod_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
+    nbits = GMPy_Integer_AsMpBitCnt(PyTuple_GET_ITEM(args, 1));
     if (nbits == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -95,7 +95,7 @@ GMPy_MPZ_c_div_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
+    nbits = GMPy_Integer_AsMpBitCnt(PyTuple_GET_ITEM(args, 1));
     if (nbits == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -129,7 +129,7 @@ GMPy_MPZ_c_mod_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
+    nbits = GMPy_Integer_AsMpBitCnt(PyTuple_GET_ITEM(args, 1));
     if (nbits == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -171,7 +171,7 @@ GMPy_MPZ_f_divmod_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
+    nbits = GMPy_Integer_AsMpBitCnt(PyTuple_GET_ITEM(args, 1));
     if (nbits == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -213,7 +213,7 @@ GMPy_MPZ_f_div_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
+    nbits = GMPy_Integer_AsMpBitCnt(PyTuple_GET_ITEM(args, 1));
     if (nbits == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -247,7 +247,7 @@ GMPy_MPZ_f_mod_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
+    nbits = GMPy_Integer_AsMpBitCnt(PyTuple_GET_ITEM(args, 1));
     if (nbits == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -289,7 +289,7 @@ GMPy_MPZ_t_divmod_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
+    nbits = GMPy_Integer_AsMpBitCnt(PyTuple_GET_ITEM(args, 1));
     if (nbits == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -331,7 +331,7 @@ GMPy_MPZ_t_div_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
+    nbits = GMPy_Integer_AsMpBitCnt(PyTuple_GET_ITEM(args, 1));
     if (nbits == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -365,7 +365,7 @@ GMPy_MPZ_t_mod_2exp(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
+    nbits = GMPy_Integer_AsMpBitCnt(PyTuple_GET_ITEM(args, 1));
     if (nbits == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
         return NULL;
     }

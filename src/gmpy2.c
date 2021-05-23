@@ -415,6 +415,8 @@
  *        see context.allow_release_gil.
  *    Refactored handling of inplace operations for mpz and xmpz types;
  *        inplace operations on xmpz will only return an xmpz result.
+ *    Refactored handling of conversion to C integer types. Some
+ *        exception types changes to reflect Python types.
  *
  ************************************************************************
  *

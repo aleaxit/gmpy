@@ -541,11 +541,11 @@ mpz(61)
 >>> a<<-1
 Traceback (innermost last):
   ...
-ValueError: negative shift count
+OverflowError: can't convert negative value to unsigned long
 >>> a>>-2
 Traceback (innermost last):
   ...
-ValueError: negative shift count
+OverflowError: can't convert negative value to unsigned long
 >>> a<<0
 mpz(123)
 >>> a>>0

@@ -20,7 +20,7 @@ mpfr('60.799999999999997')
 >>> gmpy2.mul_2exp(r, -5)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.mul_2exp(z, r)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -38,7 +38,7 @@ mpc('32.0+32.0j')
 >>> ctx.mul_2exp(c, -5)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> ctx.mul_2exp(r, 0)
 mpfr('7.5999999999999996')
 
@@ -52,7 +52,7 @@ mpfr('0.94999999999999996')
 >>> gmpy2.div_2exp(r, -5)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.div_2exp(z, r)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -70,6 +70,6 @@ mpc('0.5+0.5j')
 >>> ctx.div_2exp(c, -5)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> 1
 1

@@ -99,8 +99,8 @@ GMPy_Complex_Root_Of_Unity(PyObject *n, PyObject *k, CTXT_Object *context)
         return NULL;
     }
 
-    n_val = c_ulong_From_Integer(n);
-    k_val = c_ulong_From_Integer(k);
+    n_val = GMPy_Integer_AsUnsignedLong(n);
+    k_val = GMPy_Integer_AsUnsignedLong(k);
     if ((n_val == (unsigned long)(-1) && PyErr_Occurred()) ||
         (k_val == (unsigned long)(-1) && PyErr_Occurred())) {
         Py_DECREF((PyObject*)result);

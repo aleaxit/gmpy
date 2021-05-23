@@ -37,7 +37,7 @@ GMPy_XMPZ_Function_XbitMask(PyObject *self, PyObject *other)
 
     CHECK_CONTEXT(context);
 
-    i = ssize_t_From_Integer(other);
+    i = GMPy_Integer_AsSsize_t(other);
     if (i == -1 && PyErr_Occurred()) {
         TYPE_ERROR("xbit_mask() requires 'int' argument");
         return NULL;

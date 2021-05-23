@@ -60,30 +60,53 @@ mpmath_build_mpf(long sign, MPZ_Object *man, PyObject *exp, mp_bitcnt_t bc)
     return tup;
 }
 
+static long
+mpmath_get_sign(PyObject *x)
+{
+    /* Assume properly normalized arguments. A value of 0 implies positive, and
+     * value of 1 implies negative.
+     */
+
+    if (PyIntOrLong_Check(x)) {
+        return PyIntOrLong_AsLong(x);
+    }
+
+    if (MPZ_Check(x)) {
+        if (mpz_sgn(MPZ(x)) < 0) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+       
+    TYPE_ERROR("could not convert object to integer");
+    return (long)-1; 
+}
+
 PyDoc_STRVAR(doc_mpmath_normalizeg,
 "_mpmath_normalize(...): helper function for mpmath.");
 
 static PyObject *
 Pympz_mpmath_normalize(PyObject *self, PyObject *args)
 {
-    long sign = 0;
-    mp_bitcnt_t zbits, bc = 0, prec = 0, shift;
-    long carry = 0;
-    PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0, *rndstr = 0;
-    MPZ_Object *man = 0, *upper = 0, *lower = 0;
+    long sign = 0, zbits, bc = 0, prec = 0, carry = 0;
+    mp_bitcnt_t shift = 0;
+    PyObject *exp = NULL, *newexp = NULL, *newexp2 = NULL, *tmp = NULL, *rndstr = NULL;
+    MPZ_Object *man = NULL, *upper = NULL, *lower = NULL;
     Py2or3String_Type rnd = 0;
-    int err1, err2, err3;
 
     if (PyTuple_GET_SIZE(args) == 6) {
         /* Need better error-checking here. Under Python 3.0, overflow into
            C-long is possible. */
-        sign = GMPy_Integer_AsLongAndError(PyTuple_GET_ITEM(args, 0), &err1);
+        sign = mpmath_get_sign(PyTuple_GET_ITEM(args, 0));
         man = (MPZ_Object*)PyTuple_GET_ITEM(args, 1);
         exp = PyTuple_GET_ITEM(args, 2);
-        bc = GMPy_Integer_AsMpBitCntAndError(PyTuple_GET_ITEM(args, 3), &err2);
-        prec = GMPy_Integer_AsMpBitCntAndError(PyTuple_GET_ITEM(args, 4), &err3);
+        bc = GMPy_Integer_AsLong(PyTuple_GET_ITEM(args, 3));
+        prec = GMPy_Integer_AsLong(PyTuple_GET_ITEM(args, 4));
         rndstr = PyTuple_GET_ITEM(args, 5);
-        if (err1 || err2 || err3) {
+
+        if ((sign == -1) || (bc == -1) || (prec == -1)) {
             TYPE_ERROR("arguments long, MPZ_Object*, PyObject*, long, long, char needed");
             return NULL;
         }
@@ -116,7 +139,6 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
         return mpmath_build_mpf(0, man, 0, 0);
     }
 
-
     /* if bc <= prec and the number is odd return it */
     if ((bc <= prec) && mpz_odd_p(man->z)) {
         Py_INCREF((PyObject*)man);
@@ -127,6 +149,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     if (!(upper = GMPy_MPZ_New(NULL)) || !(lower = GMPy_MPZ_New(NULL))) {
         Py_XDECREF((PyObject*)upper);
         Py_XDECREF((PyObject*)lower);
+        return NULL;
     }
 
     if (bc > prec) {
@@ -176,7 +199,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
                     mpz_add_ui(upper->z, upper->z, 1);
         }
 
-        if (!(tmp = PyIntOrLong_FromMpBitCnt(shift))) {
+        if (!(tmp = PyLong_FromUnsignedLong((unsigned long)shift))) {
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
@@ -201,7 +224,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     if ((zbits = mpz_scan1(upper->z, 0)))
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
-    if (!(tmp = PyIntOrLong_FromMpBitCnt(zbits))) {
+    if (!(tmp = PyIntOrLong_FromLong(zbits))) {
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
         Py_DECREF(newexp);
@@ -232,12 +255,10 @@ PyDoc_STRVAR(doc_mpmath_createg,
 static PyObject *
 Pympz_mpmath_create(PyObject *self, PyObject *args)
 {
-    long sign;
-    mp_bitcnt_t zbits, bc = 0, prec = 0, shift;
-    long carry = 0;
-    PyObject *exp = 0, *newexp = 0, *newexp2 = 0, *tmp = 0;
-    MPZ_Object *man = 0, *upper = 0, *lower = 0;
-    int error;
+    long sign, zbits, bc = 0, prec = 0, carry = 0;
+    mp_bitcnt_t shift = 0;
+    PyObject *exp = NULL, *newexp = NULL, *newexp2 = NULL, *tmp = NULL;
+    MPZ_Object *man = NULL, *upper = NULL, *lower = NULL;
 
     Py2or3String_Type rnd = (Py2or3String_Type)'f';
 
@@ -250,9 +271,11 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
         case 4:
             rnd = Py2or3String_1Char(PyTuple_GET_ITEM(args, 3));
         case 3:
-            prec = GMPy_Integer_AsMpBitCntAndError(PyTuple_GET_ITEM(args, 2), &error);
-            if (error)
+            prec = GMPy_Integer_AsLong(PyTuple_GET_ITEM(args, 2));
+            if (prec == -1) {
+                VALUE_ERROR("could not convert prec to positive int");
                 return NULL;
+            }
         case 2:
             exp = PyTuple_GET_ITEM(args, 1);
         case 1:
@@ -334,7 +357,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                     mpz_add_ui(upper->z, upper->z, 1);
                 }
         }
-        if (!(tmp = PyIntOrLong_FromMpBitCnt(shift))) {
+        if (!(tmp = PyLong_FromUnsignedLong((unsigned long)shift))) {
             Py_DECREF((PyObject*)upper);
             Py_DECREF((PyObject*)lower);
             return NULL;
@@ -358,7 +381,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     if ((zbits = mpz_scan1(upper->z, 0)))
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
-    if (!(tmp = PyIntOrLong_FromMpBitCnt(zbits))) {
+    if (!(tmp = PyIntOrLong_FromLong(zbits))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);

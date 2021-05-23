@@ -238,7 +238,7 @@ mpfr('inf')
 >>> gmpy2.factorial(1234567899999999999999)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: factorial() argument too large
+OverflowError: long int too large to convert
 >>> gmpy2.factorial(mpz(5))
 mpfr('120.0')
 >>> ctx.factorial(4)

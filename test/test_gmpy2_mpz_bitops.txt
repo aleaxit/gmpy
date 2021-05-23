@@ -42,7 +42,7 @@ mpz(255)
 >>> gmpy2.bit_mask(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> 1
 1
 
@@ -60,7 +60,7 @@ Test bit_scan0
 >>> mpz(7).bit_scan0(-2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.bit_scan0(mpz(7), 2)
 3
 >>> gmpy2.bit_scan0(mpz(8), 2)
@@ -86,7 +86,7 @@ TypeError: bit_scan0() requires 'mpz',['int'] arguments
 >>> gmpy2.bit_scan0(8, -2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> 1
 1
 
@@ -102,7 +102,7 @@ Test bit_scan1
 >>> mpz(7).bit_scan1(-2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.bit_scan1(7)
 0
 >>> gmpy2.bit_scan1(8)
@@ -128,7 +128,7 @@ TypeError: bit_scan1() requires 'mpz',['int'] arguments
 >>> gmpy2.bit_scan1(8, -1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> 1
 1
 
@@ -144,7 +144,7 @@ False
 >>> mpz(8).bit_test(-2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.bit_test(mpz(7), 2)
 True
 >>> gmpy2.bit_test(mpz(8), 2)
@@ -164,7 +164,7 @@ TypeError: bit_test() requires 'mpz','int' arguments
 >>> gmpy2.bit_test(8, -2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> 1
 1
 
@@ -180,7 +180,7 @@ mpz(8)
 >>> mpz(8).bit_clear(-1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.bit_clear(4, 2)
 mpz(0)
 >>> gmpy2.bit_clear()
@@ -198,7 +198,7 @@ TypeError: could not convert object to integer
 >>> gmpy2.bit_clear(4, -2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> 1
 1
 
@@ -214,7 +214,7 @@ mpz(4)
 >>> mpz(0).bit_set(-2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.bit_set(8, 1)
 mpz(10)
 >>> gmpy2.bit_set(0)
@@ -236,7 +236,7 @@ TypeError: could not convert object to integer
 >>> gmpy2.bit_set(8, -1)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> 1
 1
 
@@ -252,7 +252,7 @@ mpz(8)
 >>> mpz(5).bit_flip(-3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.bit_flip(mpz(7), mpz(1))
 mpz(5)
 >>> gmpy2.bit_flip(mpz(7), 2)
@@ -272,7 +272,7 @@ TypeError: could not convert object to integer
 >>> gmpy2.bit_flip(mpz(7), -2)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> 1
 1
 

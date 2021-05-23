@@ -58,7 +58,7 @@ GMPy_MPZ_pack(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
+    nbits = GMPy_Integer_AsMpBitCnt(PyTuple_GET_ITEM(args, 1));
     if (nbits == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -149,7 +149,7 @@ GMPy_MPZ_unpack(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    nbits = mp_bitcnt_t_From_Integer(PyTuple_GET_ITEM(args, 1));
+    nbits = GMPy_Integer_AsMpBitCnt(PyTuple_GET_ITEM(args, 1));
     if (nbits == (mp_bitcnt_t)(-1) && PyErr_Occurred()) {
         return NULL;
     }

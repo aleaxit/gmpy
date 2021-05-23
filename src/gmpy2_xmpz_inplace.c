@@ -35,9 +35,15 @@ static PyObject *
 GMPy_XMPZ_IAdd_Slot(PyObject *self, PyObject *other)
 {
     /* Try to make mpz + small_int faster */
-    if (PyIntOrLong_Check(other)) {
+
+    CTXT_Object *context = NULL;
+    CHECK_CONTEXT(context);
+
+    int ytype = GMPy_ObjectType(other);
+
+    if (IS_TYPE_PyInteger(ytype)) {
         int error;
-        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        long temp = PyLong_AsLongAndOverflow(other, &error);
 
         if (!error) {
             if (temp >= 0) {
@@ -49,14 +55,18 @@ GMPy_XMPZ_IAdd_Slot(PyObject *self, PyObject *other)
         }
         else {
             mpz_set_PyIntOrLong(global.tempz, other);
+            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_add(MPZ(self), MPZ(self), global.tempz);
+            GMPY_MAYBE_END_ALLOW_THREADS(context);
         }
         Py_INCREF(self);
         return self;
     }
 
-    if (CHECK_MPZANY(other)) {
+    if (IS_TYPE_MPZANY(ytype)) {
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_add(MPZ(self), MPZ(self), MPZ(other));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_INCREF(self);
         return self;
     }
@@ -70,9 +80,14 @@ GMPy_XMPZ_IAdd_Slot(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_XMPZ_ISub_Slot(PyObject *self, PyObject *other)
 {
-    if (PyIntOrLong_Check(other)) {
+    CTXT_Object *context = NULL;
+    CHECK_CONTEXT(context);
+
+    int ytype = GMPy_ObjectType(other);
+
+    if (IS_TYPE_PyInteger(ytype)) {
         int error;
-        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        long temp = PyLong_AsLongAndOverflow(other, &error);
 
         if (!error) {
             if (temp >= 0) {
@@ -84,14 +99,18 @@ GMPy_XMPZ_ISub_Slot(PyObject *self, PyObject *other)
         }
         else {
             mpz_set_PyIntOrLong(global.tempz, other);
+            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_sub(MPZ(self), MPZ(self), global.tempz);
+            GMPY_MAYBE_END_ALLOW_THREADS(context);
         }
         Py_INCREF(self);
         return self;
     }
 
-    if (CHECK_MPZANY(other)) {
+    if (IS_TYPE_MPZANY(ytype)) {
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_sub(MPZ(self), MPZ(self), MPZ(other));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_INCREF(self);
         return self;
     }
@@ -105,23 +124,32 @@ GMPy_XMPZ_ISub_Slot(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_XMPZ_IMul_Slot(PyObject *self, PyObject *other)
 {
-    if (PyIntOrLong_Check(other)) {
+    CTXT_Object *context = NULL;
+    CHECK_CONTEXT(context);
+
+    int ytype = GMPy_ObjectType(other);
+
+    if (IS_TYPE_PyInteger(ytype)) {
         int error;
-        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        long temp = PyLong_AsLongAndOverflow(other, &error);
 
         if (!error) {
             mpz_mul_si(MPZ(self), MPZ(self), temp);
         }
         else {
             mpz_set_PyIntOrLong(global.tempz, other);
+            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_mul(MPZ(self), MPZ(self), global.tempz);
+            GMPY_MAYBE_END_ALLOW_THREADS(context);
         }
         Py_INCREF(self);
         return self;
     }
 
-    if (CHECK_MPZANY(other)) {
+    if (IS_TYPE_MPZANY(ytype)) {
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_mul(MPZ(self), MPZ(self), MPZ(other));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_INCREF(self);
         return self;
     }
@@ -137,16 +165,21 @@ GMPy_XMPZ_IMul_Slot(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_XMPZ_IFloorDiv_Slot(PyObject *self, PyObject *other)
 {
-    if (PyIntOrLong_Check(other)) {
+    CTXT_Object *context = NULL;
+    CHECK_CONTEXT(context);
+
+    int ytype = GMPy_ObjectType(other);
+
+    if (IS_TYPE_PyInteger(ytype)) {
         int error;
-        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        long temp = PyLong_AsLongAndOverflow(other, &error);
 
         if (!error) {
             if (temp == 0) {
                 ZERO_ERROR("xmpz division by zero");
                 return NULL;
             }
-            else if(temp > 0) {
+            else if (temp > 0) {
                 mpz_fdiv_q_ui(MPZ(self), MPZ(self), temp);
             }
             else {
@@ -156,18 +189,22 @@ GMPy_XMPZ_IFloorDiv_Slot(PyObject *self, PyObject *other)
         }
         else {
             mpz_set_PyIntOrLong(global.tempz, other);
+            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_fdiv_q(MPZ(self), MPZ(self), global.tempz);
+            GMPY_MAYBE_END_ALLOW_THREADS(context);
         }
         Py_INCREF(self);
         return self;
     }
 
-    if (CHECK_MPZANY(other)) {
+    if (IS_TYPE_MPZANY(ytype)) {
         if (mpz_sgn(MPZ(other)) == 0) {
             ZERO_ERROR("xmpz division by zero");
             return NULL;
         }
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_fdiv_q(MPZ(self), MPZ(self), MPZ(other));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_INCREF(self);
         return self;
     }
@@ -181,9 +218,14 @@ GMPy_XMPZ_IFloorDiv_Slot(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_XMPZ_IRem_Slot(PyObject *self, PyObject *other)
 {
-    if (PyIntOrLong_Check(other)) {
+    CTXT_Object *context = NULL;
+    CHECK_CONTEXT(context);
+
+    int ytype = GMPy_ObjectType(other);
+
+    if (IS_TYPE_PyInteger(ytype)) {
         int error;
-        long temp = GMPy_Integer_AsLongAndError(other, &error);
+        long temp = PyLong_AsLongAndOverflow(other, &error);
 
         if (!error) {
             if (temp > 0) {
@@ -199,18 +241,22 @@ GMPy_XMPZ_IRem_Slot(PyObject *self, PyObject *other)
         }
         else {
             mpz_set_PyIntOrLong(global.tempz, other);
+            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_fdiv_r(MPZ(self), MPZ(self), global.tempz);
+            GMPY_MAYBE_END_ALLOW_THREADS(context);
         }
         Py_INCREF(self);
         return self;
     }
 
-    if (CHECK_MPZANY(other)) {
+    if (IS_TYPE_MPZANY(ytype)) {
         if(mpz_sgn(MPZ(other)) == 0) {
             ZERO_ERROR("xmpz modulo by zero");
             return NULL;
         }
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_fdiv_r(MPZ(self), MPZ(self), MPZ(other));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_INCREF(self);
         return self;
     }
@@ -224,17 +270,13 @@ GMPy_XMPZ_IRem_Slot(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_XMPZ_IRshift_Slot(PyObject *self, PyObject *other)
 {
-    mp_bitcnt_t shift;
+    mp_bitcnt_t shift = GMPy_Integer_AsMpBitCnt(other);
+    if (shift == (mp_bitcnt_t)(-1) && PyErr_Occurred())
+        return NULL;
 
-    if (IS_INTEGER(other)) {
-        shift = mp_bitcnt_t_From_Integer(other);
-        if (shift == (mp_bitcnt_t)(-1) && PyErr_Occurred())
-            return NULL;
-
-        mpz_fdiv_q_2exp(MPZ(self), MPZ(self), shift);
-        Py_INCREF(self);
-        return self;
-    }
+    mpz_fdiv_q_2exp(MPZ(self), MPZ(self), shift);
+    Py_INCREF(self);
+    return self;
 
     Py_RETURN_NOTIMPLEMENTED;
 }
@@ -245,17 +287,13 @@ GMPy_XMPZ_IRshift_Slot(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_XMPZ_ILshift_Slot(PyObject *self, PyObject *other)
 {
-    mp_bitcnt_t shift;
+    mp_bitcnt_t shift = GMPy_Integer_AsMpBitCnt(other);
+    if (shift == (mp_bitcnt_t)(-1) && PyErr_Occurred())
+        return NULL;
 
-    if (IS_INTEGER(other)) {
-        shift = mp_bitcnt_t_From_Integer(other);
-        if (shift == (mp_bitcnt_t)(-1) && PyErr_Occurred())
-            return NULL;
-
-        mpz_mul_2exp(MPZ(self), MPZ(self), shift);
-        Py_INCREF(self);
-        return self;
-    }
+    mpz_mul_2exp(MPZ(self), MPZ(self), shift);
+    Py_INCREF(self);
+    return self;
 
     Py_RETURN_NOTIMPLEMENTED;
 }
@@ -266,15 +304,13 @@ GMPy_XMPZ_ILshift_Slot(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_XMPZ_IPow_Slot(PyObject *self, PyObject *other, PyObject *mod)
 {
-    mp_bitcnt_t exp;
-
-    exp = mp_bitcnt_t_From_Integer(other);
+    mp_bitcnt_t exp = GMPy_Integer_AsMpBitCnt(other);
     if (exp == (mp_bitcnt_t)(-1) && PyErr_Occurred())
         return NULL;
 
     mpz_pow_ui(MPZ(self), MPZ(self), exp);
     Py_INCREF((PyObject*)self);
-    return (PyObject*)self;
+    return self;
 
     Py_RETURN_NOTIMPLEMENTED;
 }
@@ -285,15 +321,22 @@ GMPy_XMPZ_IPow_Slot(PyObject *self, PyObject *other, PyObject *mod)
 static PyObject *
 GMPy_XMPZ_IAnd_Slot(PyObject *self, PyObject *other)
 {
+    CTXT_Object *context = NULL;
+    CHECK_CONTEXT(context);
+
     if (CHECK_MPZANY(other)) {
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_and(MPZ(self), MPZ(self), MPZ(other));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_INCREF(self);
         return self;
     }
 
     if (PyIntOrLong_Check(other)) {
         mpz_set_PyIntOrLong(global.tempz, other);
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_and(MPZ(self), MPZ(self), global.tempz);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_INCREF(self);
         return self;
     }
@@ -307,15 +350,22 @@ GMPy_XMPZ_IAnd_Slot(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_XMPZ_IXor_Slot(PyObject *self, PyObject *other)
 {
+    CTXT_Object *context = NULL;
+    CHECK_CONTEXT(context);
+
     if(CHECK_MPZANY(other)) {
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_xor(MPZ(self), MPZ(self), MPZ(other));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_INCREF(self);
         return self;
     }
 
     if(PyIntOrLong_Check(other)) {
         mpz_set_PyIntOrLong(global.tempz, other);
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_xor(MPZ(self), MPZ(self), global.tempz);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_INCREF(self);
         return self;
     }
@@ -329,15 +379,22 @@ GMPy_XMPZ_IXor_Slot(PyObject *self, PyObject *other)
 static PyObject *
 GMPy_XMPZ_IIor_Slot(PyObject *self, PyObject *other)
 {
+    CTXT_Object *context = NULL;
+    CHECK_CONTEXT(context);
+
     if(CHECK_MPZANY(other)) {
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_ior(MPZ(self), MPZ(self), MPZ(other));
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_INCREF(self);
         return self;
     }
 
     if(PyIntOrLong_Check(other)) {
         mpz_set_PyIntOrLong(global.tempz, other);
+        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_ior(MPZ(self), MPZ(self), global.tempz);
+        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_INCREF(self);
         return self;
     }

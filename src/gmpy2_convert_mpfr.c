@@ -121,7 +121,7 @@ GMPy_MPFR_From_PyIntOrLong(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context
 {
     MPFR_Object *result = NULL;
     MPZ_Object *tempx = NULL;
-    int error, was_one = 0;
+    int was_one = 0;
     long temp;
 
     CHECK_CONTEXT(context);
@@ -136,9 +136,10 @@ GMPy_MPFR_From_PyIntOrLong(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context
         was_one = 1;
     }
 
-    temp = GMPy_Integer_AsLongAndError(obj, &error);
+    temp = GMPy_Integer_AsLongWithType(obj, GMPy_ObjectType(obj));
 
-    if (error) {
+    if ((temp == -1) && PyErr_Occurred()) {
+        PyErr_Clear();
         if (!(tempx = GMPy_MPZ_From_PyIntOrLong(obj, context))) {
             return NULL;
         }

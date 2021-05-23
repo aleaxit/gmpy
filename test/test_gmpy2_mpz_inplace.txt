@@ -131,11 +131,11 @@ TypeError: could not convert object to integer
 >>> x >>= -1
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> x <<= -5
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-ValueError: a non-negative value is required
+OverflowError: can't convert negative value to unsigned long
 >>> 1
 1
 

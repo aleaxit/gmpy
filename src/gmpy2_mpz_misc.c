@@ -115,7 +115,7 @@ GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    n = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 1));
+    n = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 1));
     if ((n == 0) || ((n == (unsigned long)(-1)) && PyErr_Occurred())) {
         VALUE_ERROR("n must be > 0");
         return NULL;
@@ -172,7 +172,7 @@ GMPy_MPZ_Function_IrootRem(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    n = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 1));
+    n = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 1));
     if ((n == 0) || ((n == (unsigned long)(-1)) && PyErr_Occurred())) {
         VALUE_ERROR("n must be > 0");
         return NULL;
@@ -252,7 +252,7 @@ GMPy_MPZ_Method_Round(PyObject *self, PyObject *args)
         return self;
     }
 
-    round_digits = ssize_t_From_Integer(PyTuple_GET_ITEM(args, 0));
+    round_digits = GMPy_Integer_AsSsize_t(PyTuple_GET_ITEM(args, 0));
     if (round_digits == -1 && PyErr_Occurred()) {
         TYPE_ERROR("__round__() requires 'int' argument");
         return NULL;
@@ -585,7 +585,7 @@ GMPy_MPZ_Function_Fac(PyObject *self, PyObject *other)
     MPZ_Object *result = NULL;
     unsigned long n;
 
-    n = c_ulong_From_Integer(other);
+    n = GMPy_Integer_AsUnsignedLong(other);
     if (n == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -607,7 +607,7 @@ GMPy_MPZ_Function_DoubleFac(PyObject *self, PyObject *other)
     MPZ_Object *result = NULL;
     unsigned long n;
 
-    n = c_ulong_From_Integer(other);
+    n = GMPy_Integer_AsUnsignedLong(other);
     if (n == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -629,7 +629,7 @@ GMPy_MPZ_Function_Primorial(PyObject *self, PyObject *other)
     MPZ_Object *result = NULL;
     unsigned long n;
 
-    n = c_ulong_From_Integer(other);
+    n = GMPy_Integer_AsUnsignedLong(other);
     if (n == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -656,12 +656,12 @@ GMPy_MPZ_Function_MultiFac(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    n = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 0));
+    n = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 0));
     if (n == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
 
-    m = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 1));
+    m = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 1));
     if (m == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -682,7 +682,7 @@ GMPy_MPZ_Function_Fib(PyObject *self, PyObject *other)
     MPZ_Object *result = NULL;
     unsigned long  n;
 
-    n = c_ulong_From_Integer(other);
+    n = GMPy_Integer_AsUnsignedLong(other);
     if (n == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -703,7 +703,7 @@ GMPy_MPZ_Function_Fib2(PyObject *self, PyObject *other)
     MPZ_Object *fib1 = NULL, *fib2 = NULL;
     unsigned long n;
 
-    n = c_ulong_From_Integer(other);
+    n = GMPy_Integer_AsUnsignedLong(other);
     if (n == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -736,7 +736,7 @@ GMPy_MPZ_Function_Lucas(PyObject *self, PyObject *other)
     MPZ_Object *result = NULL;
     unsigned long n;
 
-    n = c_ulong_From_Integer(other);
+    n = GMPy_Integer_AsUnsignedLong(other);
     if (n == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -758,7 +758,7 @@ GMPy_MPZ_Function_Lucas2(PyObject *self, PyObject *other)
     MPZ_Object *luc1 = NULL, *luc2 = NULL;
     unsigned long n;
 
-    n = c_ulong_From_Integer(other);
+    n = GMPy_Integer_AsUnsignedLong(other);
     if (n == (unsigned long)(-1) && PyErr_Occurred()) {
         return NULL;
     }
@@ -807,13 +807,13 @@ GMPy_MPZ_Function_Bincoef(PyObject *self, PyObject *args)
         /* LCOV_EXCL_STOP */
     }
 
-    k = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 1));
+    k = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 1));
     if (k == (unsigned long)(-1) && PyErr_Occurred()) {
         Py_DECREF((PyObject*)result);
         return NULL;
     }
 
-    n = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 0));
+    n = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 0));
     if (n == (unsigned long)(-1) && PyErr_Occurred()) {
         /* Since we plan to skip the else clause and continue,
          * we need to clear the error since we aren't acting on it.
@@ -890,9 +890,6 @@ GMPy_MPZ_Function_IsqrtRem(PyObject *self, PyObject *other)
         Py_DECREF((PyObject*)temp);
         return NULL;
     }
-
-
-
 
     if (!(result = PyTuple_New(2)) ||
         !(root = GMPy_MPZ_New(NULL)) ||
@@ -1158,7 +1155,7 @@ static PyObject *
 GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args)
 {
     unsigned long temp;
-    int error, res;
+    int res = 0;
     MPZ_Object *tempx, *tempd;
 
     if (PyTuple_GET_SIZE(args) != 2) {
@@ -1170,25 +1167,27 @@ GMPy_MPZ_Function_IsDivisible(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    temp = GMPy_Integer_AsUnsignedLongAndError(PyTuple_GET_ITEM(args, 1), &error);
-    if (!error) {
+    temp = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 1));
+    if (temp == (unsigned long)-1 && PyErr_Occurred()) {
+        PyErr_Clear();
+        /* Implement mpz_divisible_p here. */
+
+        if (!(tempd = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL))) {
+            TYPE_ERROR("is_divisible() requires 2 integer arguments");
+            Py_DECREF((PyObject*)tempx);
+            return NULL;
+        }
+
+        res = mpz_divisible_p(tempx->z, tempd->z);
+        Py_DECREF((PyObject*)tempx);
+        Py_DECREF((PyObject*)tempd);
+    }
+    else {
+        /* Implement mpz_divisible_ui_p here. */
+
         res = mpz_divisible_ui_p(tempx->z, temp);
         Py_DECREF((PyObject*)tempx);
-        if (res)
-            Py_RETURN_TRUE;
-        else
-            Py_RETURN_FALSE;
     }
-
-    if (!(tempd = GMPy_MPZ_From_Integer(PyTuple_GET_ITEM(args, 1), NULL))) {
-        TYPE_ERROR("is_divisible() requires 2 integer arguments");
-        Py_DECREF((PyObject*)tempx);
-        return NULL;
-    }
-
-    res = mpz_divisible_p(tempx->z, tempd->z);
-    Py_DECREF((PyObject*)tempx);
-    Py_DECREF((PyObject*)tempd);
     if (res)
         Py_RETURN_TRUE;
     else
@@ -1203,25 +1202,27 @@ static PyObject *
 GMPy_MPZ_Method_IsDivisible(PyObject *self, PyObject *other)
 {
     unsigned long temp;
-    int error, res;
+    int res;
     MPZ_Object *tempd;
 
-    temp = GMPy_Integer_AsUnsignedLongAndError(other, &error);
-    if (!error) {
+    temp = GMPy_Integer_AsUnsignedLong(other);
+    if (temp == (unsigned long)-1 && PyErr_Occurred()) {
+        PyErr_Clear();
+        /* Implement mpz_divisible_p here. */
+
+        if (!(tempd = GMPy_MPZ_From_Integer(other, NULL))) {
+            TYPE_ERROR("is_divisible() requires 2 integer arguments");
+            return NULL;
+        }
+
+        res = mpz_divisible_p(MPZ(self), tempd->z);
+        Py_DECREF((PyObject*)tempd);
+    }
+    else {
+        /* Implement mpz_divisible_ui_p here. */
+
         res = mpz_divisible_ui_p(MPZ(self), temp);
-        if (res)
-            Py_RETURN_TRUE;
-        else
-            Py_RETURN_FALSE;
     }
-
-    if (!(tempd = GMPy_MPZ_From_Integer(other, NULL))) {
-        TYPE_ERROR("is_divisible() requires integer argument");
-        return NULL;
-    }
-
-    res = mpz_divisible_p(MPZ(self), tempd->z);
-    Py_DECREF((PyObject*)tempd);
     if (res)
         Py_RETURN_TRUE;
     else
@@ -1368,7 +1369,7 @@ GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args)
     }
 
     if (PyTuple_GET_SIZE(args) == 2) {
-        reps = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 1));
+        reps = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 1));
         if (reps == (unsigned long)(-1) && PyErr_Occurred()) {
             return NULL;
         }
@@ -1412,7 +1413,7 @@ GMPy_MPZ_Method_IsPrime(PyObject *self, PyObject *args)
     }
 
     if (PyTuple_GET_SIZE(args) == 1) {
-        reps = c_ulong_From_Integer(PyTuple_GET_ITEM(args, 0));
+        reps = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 0));
         if (reps == (unsigned long)(-1) && PyErr_Occurred()) {
             return NULL;
         }

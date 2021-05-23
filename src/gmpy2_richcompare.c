@@ -53,7 +53,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
     if (CHECK_MPZANY(a)) {
         if (PyIntOrLong_Check(b)) {
             int error;
-            long temp = GMPy_Integer_AsLongAndError(b, &error);
+            long temp = PyLong_AsLongAndOverflow(b, &error);
 
             if (!error) {
                 c = mpz_cmp_si(MPZ(a), temp);

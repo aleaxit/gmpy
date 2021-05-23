@@ -22,7 +22,7 @@ TypeError:
 >>> gmpy2.c_divmod_2exp(a,-16)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.c_divmod_2exp(a,0)
 (mpz(123456), mpz(0))
 >>> gmpy2.c_divmod_2exp(a,16)
@@ -47,7 +47,7 @@ TypeError:
 >>> gmpy2.c_div_2exp(a, -16)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.c_div_2exp(a,0)
 mpz(123456)
 >>> gmpy2.c_div_2exp(a,16)
@@ -72,7 +72,7 @@ TypeError:
 >>> gmpy2.c_mod_2exp(a, -16)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.c_mod_2exp(a,0)
 mpz(0)
 >>> gmpy2.c_mod_2exp(a,16)
@@ -97,7 +97,7 @@ TypeError:
 >>> gmpy2.f_divmod_2exp(a,-16)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.f_divmod_2exp(a,0)
 (mpz(123456), mpz(0))
 >>> gmpy2.f_divmod_2exp(a,16)
@@ -122,7 +122,7 @@ TypeError:
 >>> gmpy2.f_div_2exp(a, -16)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.f_div_2exp(a,0)
 mpz(123456)
 >>> gmpy2.f_div_2exp(a,16)
@@ -147,7 +147,7 @@ TypeError:
 >>> gmpy2.f_mod_2exp(a, -16)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.f_mod_2exp(a,0)
 mpz(0)
 >>> gmpy2.f_mod_2exp(a,16)
@@ -172,7 +172,7 @@ TypeError:
 >>> gmpy2.t_divmod_2exp(a,-16)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.t_divmod_2exp(a,0)
 (mpz(123456), mpz(0))
 >>> gmpy2.t_divmod_2exp(a,16)
@@ -197,7 +197,7 @@ TypeError:
 >>> gmpy2.t_div_2exp(a, -16)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.t_div_2exp(a,0)
 mpz(123456)
 >>> gmpy2.t_div_2exp(a,16)
@@ -222,7 +222,7 @@ TypeError:
 >>> gmpy2.t_mod_2exp(a, -16)
 Traceback (most recent call last):
   ...
-ValueError:
+OverflowError: can't convert negative value to unsigned long
 >>> gmpy2.t_mod_2exp(a,0)
 mpz(0)
 >>> gmpy2.t_mod_2exp(a,16)
