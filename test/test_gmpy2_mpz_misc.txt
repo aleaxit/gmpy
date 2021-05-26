@@ -73,9 +73,9 @@ True
 Test gcd
 --------
 >>> gmpy2.gcd(1,2,3)
-Traceback (most recent call last):
-  ...
-TypeError:
+mpz(1)
+>>> gmpy2.gcd(2, 4, 6)
+mpz(2)
 >>> gmpy2.gcd(1,'a')
 Traceback (most recent call last):
   ...
@@ -88,9 +88,9 @@ mpz(3)
 Test lcm
 --------
 >>> gmpy2.lcm(1,2,3)
-Traceback (most recent call last):
-  ...
-TypeError:
+mpz(6)
+>>> gmpy2.lcm(2, 3, 4)
+mpz(12)
 >>> gmpy2.lcm(1,'a')
 Traceback (most recent call last):
   ...
