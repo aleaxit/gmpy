@@ -991,10 +991,6 @@ PyMODINIT_FUNC initgmpy2(void)
         /* LCOV_EXCL_STOP */
     }
 
-    /* Configure MPFR to use the maximum possible exponent range. */
-    mpfr_set_emax(mpfr_get_emax_max());
-    mpfr_set_emin(mpfr_get_emin_min());
-
     /* Initialize the types. */
     if (PyType_Ready(&MPZ_Type) < 0) {
         /* LCOV_EXCL_START */
