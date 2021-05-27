@@ -1270,7 +1270,11 @@ GMPy_Real_Rootn(PyObject *x, PyObject *y, CTXT_Object *context)
         }
     }
     else {
+#if MPFR_VERSION_MAJOR > 3
+        result->rc = mpfr_rootn_ui(result->f, tempx->f, n, GET_MPFR_ROUND(context));
+#else
         result->rc = mpfr_root(result->f, tempx->f, n, GET_MPFR_ROUND(context));
+#endif
     }
     Py_DECREF((PyObject*)tempx);
     _GMPy_MPFR_Cleanup(&result, context);
@@ -1296,7 +1300,11 @@ GMPy_Real_Root(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
+#if MPFR_VERSION_MAJOR > 3
+    result->rc = mpfr_rootn_ui(result->f, tempx->f, n, GET_MPFR_ROUND(context));
+#else
     result->rc = mpfr_root(result->f, tempx->f, n, GET_MPFR_ROUND(context));
+#endif
     Py_DECREF((PyObject*)tempx);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
