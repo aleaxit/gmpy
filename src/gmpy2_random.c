@@ -334,7 +334,7 @@ GMPy_MPFR_grandom_Function(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    mpfr_grandom(result1->f, result2->f,
+    mpfr_urandom(result1->f,
                  RANDOM_STATE(PyTuple_GET_ITEM(args, 0)),
                  GET_MPFR_ROUND(context));
 
