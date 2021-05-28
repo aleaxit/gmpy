@@ -626,7 +626,16 @@ GMPy_MPFR_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
             return NULL;
         }
 
-        return (PyObject*)GMPy_MPFR_From_PyStr(arg0, base, prec, context);
+        result = GMPy_MPFR_From_PyStr(arg0, base, prec, context);
+        if (!result && (base == 10 || base == 0)) {
+            /* Try float()'s string parsing. */
+            PyErr_Clear();
+            PyObject *fval = PyFloat_FromString(arg0);
+            if (!fval)
+                return NULL;
+            result = GMPy_MPFR_From_PyFloat(fval, prec, context);
+        }
+        return (PyObject*)result;
     }
 
     if (HAS_MPFR_CONVERSION(arg0)) {
