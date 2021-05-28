@@ -150,4 +150,5 @@ TypeError: ** message detail varies **
 mpz(99)
 >>> mpz(xmpz(5))
 mpz(5)
-
+>>> mpz('1_2_3')
+mpz(123)

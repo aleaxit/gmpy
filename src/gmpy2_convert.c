@@ -116,6 +116,8 @@ static int GMPy_ObjectType(PyObject *obj)
     return OBJ_TYPE_UNKNOWN;
 }
 
+static void mpz_set_PyIntOrLong(mpz_t, PyObject *);
+
 /* mpz_set_PyStr converts a Python "string" into a mpz_t structure. It accepts
  * a sequence of bytes (i.e. str in Python 2, bytes in Python 3) or a Unicode
  * string (i.e. unicode in Python 3, str in Python 3). Returns -1 on error,
@@ -123,9 +125,9 @@ static int GMPy_ObjectType(PyObject *obj)
  */
 
 static int
-mpz_set_PyStr(mpz_ptr z, PyObject *s, int base)
+mpz_set_PyStr(mpz_t z, PyObject *s, int base)
 {
-    char *cp;
+    char *cp, *cp_bak;
     Py_ssize_t len, i;
     PyObject *ascii_str = NULL;
 
@@ -156,6 +158,8 @@ mpz_set_PyStr(mpz_ptr z, PyObject *s, int base)
         }
     }
 
+    cp_bak = cp;
+
     /* Check for leading base indicators. */
     if (base == 0) {
         if (len > 2 && cp[0] == '0') {
@@ -179,9 +183,14 @@ mpz_set_PyStr(mpz_ptr z, PyObject *s, int base)
 
     /* delegate rest to GMP's _set_str function */
     if (-1 == mpz_set_str(z, cp, base)) {
-        VALUE_ERROR("invalid digits");
-        Py_XDECREF(ascii_str);
-        return -1;
+        /* Try int() parsing. */
+        PyObject* ival = PyLong_FromString(cp_bak, NULL, base);
+        if (!ival) {
+            VALUE_ERROR("invalid digits");
+            Py_XDECREF(ascii_str);
+            return -1;
+        }
+        mpz_set_PyIntOrLong(z, ival);
     }
     Py_XDECREF(ascii_str);
     return 1;
