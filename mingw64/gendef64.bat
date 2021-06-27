@@ -21,3 +21,7 @@ dlltool --dllname c:\Windows\System32\python38.dll --def python38.def --output-l
 cd C:\64\Python39\libs
 gendef c:\64\Python39\python39.dll
 dlltool --dllname c:\Windows\System32\python39.dll --def python39.def --output-lib libpython39.a
+
+cd C:\64\Python310\libs
+gendef c:\64\Python310\python310.dll
+dlltool --dllname c:\Windows\System32\python310.dll --def python310.def --output-lib libpython310.a

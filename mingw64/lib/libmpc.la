@@ -14,7 +14,7 @@ library_names=''
 old_library='libmpc.a'
 
 # Linker flags that cannot go in dependency_libs.
-inherited_linker_flags=' -pthread'
+inherited_linker_flags=''
 
 # Libraries that this one depends upon.
 dependency_libs=' -L/home/casev/64/static/lib /home/casev/64/static/lib/libmpfr.la /home/casev/64/static/lib/libgmp.la'
