@@ -97,8 +97,8 @@ Compiling GMP, MPFR, and MPC
   $ cd ..
 
 # Download MPC
-  $ wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.1.0.tar.gz
-  $ tar xf mpc-1.1.0.tar.gz
+  $ wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.2.0.tar.gz
+  $ tar xf mpc-1.2.0.tar.gz
 
 # Compile GMP
   $ cd gmp-6.2.0/
@@ -117,7 +117,7 @@ Compiling GMP, MPFR, and MPC
   $ cd ..
 
 # Compile MPC
-  $ cd mpc-1.1.0/
+  $ cd mpc-1.2.0/
   $ ./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=$HOME/64/static --enable-static --disable-shared --with-pic --with-gmp=$HOME/64/static --with-mpfr=$HOME/64/static
   $ make
   $ make check
