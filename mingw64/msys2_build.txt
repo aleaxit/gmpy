@@ -1,3 +1,18 @@
+TODO: Things to remember to document or automate
+* Properly handle symlinks in <<source>>/gmpy2 directory for:
+  * gmpy2.h (all platforms)
+  * gmpy2.pxd (all platforms)
+  * various support DLLs (Windows)
+* Force older versions of setuptools (probably not needed)
+  * 47.1.0 seems to be okay (maybe) (probably not needed)
+* Make MANIFEST.in include all dll files in gmpy2 sub-directory
+  * Also, make sure to copy the dll
+* pip install wheel
+* Convert .egg format to .whl format
+  * cd dist
+  * py27 -m wheel convert *.egg
+
+
 Building gmpy2 with MSYS2 and MinGW-w64
 =======================================
 
@@ -175,7 +190,16 @@ py36 -m pip install --upgrade setuptools
   py27 setup.py install
 
 
-py27 setup.py build_ext -cmingw32 -Ic:\64\static\include -Lc:\64\static\lib
+py27 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib
 
 
-py27 setup.py build_ext -cmingw32 -Ic:\64\static\include -Lc:\64\static\lib -f install
+py27 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
+
+Complile and create an egg file
+
+>py310 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
+
+Convert to whl format
+
+>cd dist
+>py310 -m wheel convert *.egg
