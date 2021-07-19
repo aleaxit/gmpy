@@ -1,3 +1,5 @@
+PATH="/c/mingw64/bin:"$PATH
+
 cd $HOME
 
 mkdir $HOME/64
@@ -16,7 +18,7 @@ if [ ! -f mpfr-4.1.0.tar.bz2 ]; then
 fi
 tar xf mpfr-4.1.0.tar.bz2
 cd mpfr-4.1.0/
-#wget https://www.mpfr.org/mpfr-current/allpatches
+wget https://www.mpfr.org/mpfr-current/allpatches
 patch -N -Z -p1 < allpatches
 cd ..
 

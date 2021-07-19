@@ -417,6 +417,8 @@
  *        inplace operations on xmpz will only return an xmpz result.
  *    Refactored handling of conversion to C integer types. Some
  *        exception types changes to reflect Python types.
+ *    mpz() and lcm() now support more than two arguments to align with
+ *        the corresponding functions in the math module.
  *
  ************************************************************************
  *

@@ -184,6 +184,11 @@ GMPy_Integer_AsLongLongWithType(PyObject *x, int xtype)
     TYPE_ERROR("could not convert object to integer");
     return -1;
 }
+static PY_LONG_LONG
+GMPy_Integer_AsLongLong(PyObject *x)
+{
+    return GMPy_Integer_AsLongLongWithType(x, GMPy_ObjectType(x));
+}
 
 static unsigned PY_LONG_LONG
 GMPy_Integer_AsUnsignedLongLongWithType(PyObject *x, int xtype)
@@ -230,6 +235,12 @@ GMPy_Integer_AsUnsignedLongLongWithType(PyObject *x, int xtype)
     }
     TYPE_ERROR("could not convert object to integer");
     return -1;
+}
+
+static unsigned PY_LONG_LONG
+GMPy_Integer_AsUnsignedLongLong(PyObject *x)
+{
+    return GMPy_Integer_AsUnsignedLongLongWithType(x, GMPy_ObjectType(x));
 }
 
 #endif

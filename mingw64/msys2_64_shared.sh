@@ -1,3 +1,5 @@
+PATH="/c/mingw64/bin:"$PATH
+
 cd $HOME
 
 mkdir $HOME/64

@@ -83,7 +83,7 @@ def get_msvcr():
             # VS2010 / MSVC 10.0
             return ['msvcr100']
         else:
-            raise ValueError("Unknown MS Compiler version %s " % msc_ver)
+            return ['']
 
 
 class CygwinCCompiler(UnixCCompiler):

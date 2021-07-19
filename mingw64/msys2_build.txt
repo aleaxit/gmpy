@@ -1,3 +1,18 @@
+TODO: Things to remember to document or automate
+* Properly handle symlinks in <<source>>/gmpy2 directory for:
+  * gmpy2.h (all platforms)
+  * gmpy2.pxd (all platforms)
+  * various support DLLs (Windows)
+* Force older versions of setuptools (probably not needed)
+  * 47.1.0 seems to be okay (maybe) (probably not needed)
+* Make MANIFEST.in include all dll files in gmpy2 sub-directory
+  * Also, make sure to copy the dll
+* pip install wheel
+* Convert .egg format to .whl format
+  * cd dist
+  * py27 -m wheel convert *.egg
+
+
 Building gmpy2 with MSYS2 and MinGW-w64
 =======================================
 
@@ -5,7 +20,7 @@ Note: These instructions are a work in progress!
 
 From the MSYS2 home page:
 
-http://sourceforge.net/projects/msys2/
+https://www.msys2.org/
 
 MSYS2 is a Cygwin-derived Posix-like environment for Windows. The name is a
 contraction of Minimal SYStem 2, and aims to provide support to facilitate
@@ -15,9 +30,9 @@ building native Windows applications using MinGW-w64 toolchains.
 Installing MSYS2
 ================
 
-MSYS2 installation instructions can be found at:
+Detailed MSYS2 installation instructions can be found at:
 
-http://sourceforge.net/p/msys2/wiki/MSYS2%20installation/
+https://www.msys2.org/wiki/MSYS2-installation/
 
 The examples assume the 64-bit version of MSYS2 is installed.
 
@@ -29,45 +44,35 @@ Installing MinGW-w64
 ====================
 
 MSYS2 follows a "rolling-release" model. New versions of applications,
-including MinGW-w64, are released frequently. The continual releases makes
-it difficult to provide a reproducible compliler. We will be using MinGW-w64
-as distributed by http://winlibs.com/. This documentation was based on the
-following version:
+including the MinGW-w64 compiler suite, are released frequently. The continual
+release cycles makeit difficult to provide a reproducible compliler. We will 
+be using MinGW-w64 as distributed by http://winlibs.com/. This documentation
+was based on the following version:
 
-https://github.com/brechtsanders/winlibs_mingw/releases/download/10.2.0-11.0.0-8.0.0-r7/winlibs-x86_64-posix-seh-gcc-10.2.0-mingw-w64-8.0.0-r7.7z
+https://github.com/brechtsanders/winlibs_mingw/releases/download/10.3.0-12.0.0-9.0.0-r2/winlibs-x86_64-posix-seh-gcc-10.3.0-llvm-12.0.0-mingw-w64-9.0.0-r2.7z
 
-Unzip the downloaded file and copy and copy the "mingw64" to the desired
-location. The documentation assumes the files are copied to C:\mingw64.
+Unzip the downloaded file and copy the "mingw64" to the desired location.
+The following documentation assumes the files are copied to C:\mingw64.
 
 The build environment
 =====================
 
 The build process is split into two phases. During phase 1 we use the MSYS2
 shell environment and winlibs.com MinGW-w64 compiler suite to build GMP, MPFR,
-and MPC. Once those libraries are build, we will use the Windows command prompt
+and MPC. Once those libraries are built, we will use the Windows command prompt
 and the same compiler to build the actual gmpy2 extension (DLL). 
 
 Commands that must be executed from an MSYS2 shell are preceded by "$".
 Commands that must be executed from a Windows command prompt are preceded
 by ">". You will need to run the commands *after* "$" or ">".
 
-The MSYS2 environment provides three different command line operating
-environments.
+The MSYS2 environment provides different command line operating
+environments. We will just use the generic "MSYS2 MSYS" environment.
 
  * MSYS2 MSYS
    This is the general-purpose MSYS shell but it does not provide
    access to the MinGW compiler suite. We will use this shell and
    manually add the location of the winlibs.com version.
-
- * MSYS2 MinGW 64-bit
-   This provides access to the 64-bit MinGW (optionally installed
-   through MSYS2) compiler suite. We will not use this because we can't 
-   recreate the identical environment in the future.
-   
- * MSYS2 MinGW 32-bit
-   This provides access to the 32-bit MinGW (optionally installed
-   through MSYS2) compiler suite. We will not use this because we can't 
-   recreate the identical environment in the future.
 
 MSYS2 does include versions of GMP, MPFR, and MPC but we will compile our
 own version directly from the source. We do this so we can create reproducible
@@ -107,8 +112,8 @@ Compiling GMP, MPFR, and MPC
   $ cd ..
 
 # Download MPC
-  $ wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.1.0.tar.gz
-  $ tar xf mpc-1.1.0.tar.gz
+  $ wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.2.0.tar.gz
+  $ tar xf mpc-1.2.0.tar.gz
 
 # Compile GMP
   $ cd gmp-6.2.0/
@@ -127,7 +132,7 @@ Compiling GMP, MPFR, and MPC
   $ cd ..
 
 # Compile MPC
-  $ cd mpc-1.1.0/
+  $ cd mpc-1.2.0/
   $ ./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=$HOME/64/static --enable-static --disable-shared --with-pic --with-gmp=$HOME/64/static --with-mpfr=$HOME/64/static
   $ make
   $ make check
@@ -185,7 +190,16 @@ py36 -m pip install --upgrade setuptools
   py27 setup.py install
 
 
-py27 setup.py build_ext -cmingw32 -Ic:\64\static\include -Lc:\64\static\lib
+py27 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib
 
 
-py27 setup.py build_ext -cmingw32 -Ic:\64\static\include -Lc:\64\static\lib -f install
+py27 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
+
+Complile and create an egg file
+
+>py310 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
+
+Convert to whl format
+
+>cd dist
+>py310 -m wheel convert *.egg
