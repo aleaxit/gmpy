@@ -287,18 +287,21 @@ GMPy_MPFR_From_Fraction(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
 }
 
 static MPFR_Object *
-GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *context)
+GMPy_MPFR_From_PyStr(PyObject *s_orig, int base, mpfr_prec_t prec, CTXT_Object *context)
 {
     MPFR_Object *result;
     MPQ_Object *tempq;
     char *cp, *endptr;
     Py_ssize_t len;
     PyObject *ascii_str = NULL;
+    PyObject *s;
 
     CHECK_CONTEXT(context);
 
     if (prec < 2)
         prec = GET_MPFR_PREC(context);
+
+    s = PyUnicode_Replace(s_orig, PyUnicode_FromString("_"), PyUnicode_FromString(""), -1);
 
     if (PyBytes_Check(s)) {
         len = PyBytes_Size(s);
