@@ -91,9 +91,7 @@ GMPy_RealWithType_##NAME(PyObject *x, int xtype, CTXT_Object *context) \
     if (IS_TYPE_MPFR(xtype)) { \
         if (!(result = GMPy_MPFR_New(0, context))) return NULL; \
         mpfr_clear_flags(); \
-        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context); \
         result->rc = mpfr_##FUNC(result->f, MPFR(x), GET_MPFR_ROUND(context)); \
-        GMPY_MAYBE_END_ALLOW_THREADS(context); \
         _GMPy_MPFR_Cleanup(&result, context); \
         return (PyObject*)result; \
     } \
@@ -104,10 +102,9 @@ GMPy_RealWithType_##NAME(PyObject *x, int xtype, CTXT_Object *context) \
             return NULL; \
         } \
         mpfr_clear_flags(); \
-        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context); \
         result->rc = mpfr_##FUNC(result->f, MPFR(tempx), GET_MPFR_ROUND(context)); \
-        GMPY_MAYBE_END_ALLOW_THREADS(context); \
         _GMPy_MPFR_Cleanup(&result, context); \
+        Py_DECREF(tempx); \
         return (PyObject*)result; \
     } \
     TYPE_ERROR(#FUNC"() argument type not supported"); \
@@ -119,9 +116,7 @@ GMPy_ComplexWithType_##NAME(PyObject *x, int xtype, CTXT_Object *context) \
     MPC_Object *result = NULL, *tempx = NULL; \
     if (IS_TYPE_MPC(xtype)) { \
         if (!(result = GMPy_MPC_New(0, 0, context))) return NULL; \
-        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context); \
         result->rc = mpc_##FUNC(result->c, MPC(x), GET_MPC_ROUND(context)); \
-        GMPY_MAYBE_END_ALLOW_THREADS(context); \
         _GMPy_MPC_Cleanup(&result, context); \
         return (PyObject*)result; \
     } \
@@ -131,10 +126,9 @@ GMPy_ComplexWithType_##NAME(PyObject *x, int xtype, CTXT_Object *context) \
             Py_DECREF(tempx); \
             return NULL; \
         } \
-        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context); \
         result->rc = mpc_##FUNC(result->c, MPC(tempx), GET_MPC_ROUND(context)); \
-        GMPY_MAYBE_END_ALLOW_THREADS(context); \
         _GMPy_MPC_Cleanup(&result, context); \
+        Py_DECREF(tempx); \
         return (PyObject*)result; \
     } \
     TYPE_ERROR(#FUNC"() argument type not supported"); \
@@ -421,9 +415,7 @@ GMPy_RealWithType_##NAME(PyObject *x, int xtype, CTXT_Object *context) \
     if (IS_TYPE_MPFR(xtype)) { \
         if (!(result = GMPy_MPFR_New(0, context))) return NULL; \
         mpfr_clear_flags(); \
-        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context); \
         result->rc = mpfr_##FUNC(result->f, MPFR(x), GET_MPFR_ROUND(context)); \
-        GMPY_MAYBE_END_ALLOW_THREADS(context); \
         _GMPy_MPFR_Cleanup(&result, context); \
         return (PyObject*)result; \
     } \
@@ -434,9 +426,8 @@ GMPy_RealWithType_##NAME(PyObject *x, int xtype, CTXT_Object *context) \
             return NULL; \
         } \
         mpfr_clear_flags(); \
-        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context); \
         result->rc = mpfr_##FUNC(result->f, MPFR(tempx), GET_MPFR_ROUND(context)); \
-        GMPY_MAYBE_END_ALLOW_THREADS(context); \
+        Py_DECREF(tempx); \
         _GMPy_MPFR_Cleanup(&result, context); \
         return (PyObject*)result; \
     } \
@@ -535,9 +526,7 @@ GMPy_RealWithType_##NAME(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Ob
         return NULL; \
     } \
     mpfr_clear_flags(); \
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context); \
     result->rc = mpfr_##FUNC(result->f, tempx->f, tempy->f, GET_MPFR_ROUND(context)); \
-    GMPY_MAYBE_END_ALLOW_THREADS(context); \
     Py_DECREF((PyObject*)tempx); \
     Py_DECREF((PyObject*)tempy); \
     _GMPy_MPFR_Cleanup(&result, context); \
@@ -593,9 +582,7 @@ GMPy_RealWithType_##NAME(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Ob
         return NULL; \
     } \
     mpfr_clear_flags(); \
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context); \
     result->rc = mpfr_##FUNC(result->f, n, tempx->f, GET_MPFR_ROUND(context)); \
-    GMPY_MAYBE_END_ALLOW_THREADS(context); \
     Py_DECREF((PyObject*)tempx); \
     _GMPy_MPFR_Cleanup(&result, context); \
     return (PyObject*)result; \

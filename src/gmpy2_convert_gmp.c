@@ -590,9 +590,10 @@ GMPy_MPQ_From_PyStr(PyObject *s, int base, CTXT_Object *context)
     MPQ_Object *result;
     char *cp;
     char exp_char = 'E';
-    Py_ssize_t len, i;
-    PyObject *ascii_str = NULL;
     long expt = 0;
+    PyObject *ascii_str = ascii_str = GMPy_RemoveUnderscoreASCII(s);
+
+    if (!ascii_str) return NULL;
 
     if (!(result = GMPy_MPQ_New(context))) {
         /* LCOV_EXCL_START */
@@ -600,32 +601,8 @@ GMPy_MPQ_From_PyStr(PyObject *s, int base, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    if (PyBytes_Check(s)) {
-        len = PyBytes_Size(s);
-        cp = PyBytes_AsString(s);
-    }
-    else if (PyUnicode_Check(s)) {
-        ascii_str = PyUnicode_AsASCIIString(s);
-        if (!ascii_str) {
-            VALUE_ERROR("string contains non-ASCII characters");
-            goto error;
-        }
-        len = PyBytes_Size(ascii_str);
-        cp = PyBytes_AsString(ascii_str);
-    }
-    else {
-        TYPE_ERROR("object is not string or Unicode");
-        goto error;
-    }
-
-    /* Don't allow NULL characters */
-    for (i = 0; i < len; i++) {
-        if (cp[i] == '\0') {
-            VALUE_ERROR("string contains NULL characters");
-            goto error;
-        }
-    }
-
+    cp = PyBytes_AsString(ascii_str);
+    
     {
         char *whereslash = strchr((char*)cp, '/');
         char *wheredot = strchr((char*)cp, '.');

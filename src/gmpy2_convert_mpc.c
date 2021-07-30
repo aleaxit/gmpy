@@ -272,37 +272,17 @@ GMPy_MPC_From_PyStr(PyObject *s, int base, mpfr_prec_t rprec, mpfr_prec_t iprec,
                     CTXT_Object *context)
 {
     MPC_Object *result;
-    PyObject *ascii_str = NULL;
     Py_ssize_t len;
     char *cp, *unwind, *tempchar, *lastchar;
     int firstp = 0, lastp = 0, real_rc = 0, imag_rc = 0;
+    PyObject *ascii_str = ascii_str = GMPy_RemoveUnderscoreASCII(s);
 
+    if (!ascii_str) return NULL;
+
+    len = PyBytes_Size(ascii_str);
+    cp = (char*)PyBytes_AsString(ascii_str);
+ 
     CHECK_CONTEXT(context);
-
-    if (PyBytes_Check(s)) {
-        len = PyBytes_Size(s);
-        cp = (char*)PyBytes_AsString(s);
-    }
-    else if (PyUnicode_Check(s)) {
-        ascii_str = PyUnicode_AsASCIIString(s);
-        if (!ascii_str) {
-            VALUE_ERROR("string contains non-ASCII characters");
-            return NULL;
-        }
-        len = PyBytes_Size(ascii_str);
-        cp = (char*)PyBytes_AsString(ascii_str);
-    }
-    else {
-        TYPE_ERROR("string required");
-        return NULL;
-    }
-
-    /* Don't allow NULL characters */
-    if ((Py_ssize_t)strlen(cp) != len) {
-        VALUE_ERROR("string without NULL characters expected");
-        Py_XDECREF(ascii_str);
-        return NULL;
-    }
 
     if (!(result = GMPy_MPC_New(rprec, iprec, context))) {
         Py_XDECREF(ascii_str);

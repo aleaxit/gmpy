@@ -293,30 +293,17 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
     MPQ_Object *tempq;
     char *cp, *endptr;
     Py_ssize_t len;
-    PyObject *ascii_str = NULL;
+    PyObject *ascii_str = ascii_str = GMPy_RemoveUnderscoreASCII(s);
+
+    if (!ascii_str) return NULL;
 
     CHECK_CONTEXT(context);
 
     if (prec < 2)
         prec = GET_MPFR_PREC(context);
 
-    if (PyBytes_Check(s)) {
-        len = PyBytes_Size(s);
-        cp = PyBytes_AsString(s);
-    }
-    else if (PyUnicode_Check(s)) {
-        ascii_str = PyUnicode_AsASCIIString(s);
-        if (!ascii_str) {
-            VALUE_ERROR("string contains non-ASCII characters");
-            return NULL;
-        }
-        len = PyBytes_Size(ascii_str);
-        cp = PyBytes_AsString(ascii_str);
-    }
-    else {
-        TYPE_ERROR("object is not string or Unicode");
-        return NULL;
-    }
+    len = PyBytes_Size(ascii_str);
+    cp = PyBytes_AsString(ascii_str);
 
     /* Check for leading base indicators. */
     if (base == 0) {

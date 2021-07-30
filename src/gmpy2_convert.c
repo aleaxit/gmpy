@@ -116,6 +116,49 @@ static int GMPy_ObjectType(PyObject *obj)
     return OBJ_TYPE_UNKNOWN;
 }
 
+static PyObject *
+GMPy_RemoveUnderscoreASCII(PyObject *s)
+{
+    PyObject *ascii_str = NULL, *temp = NULL, *filtered = NULL, *under = NULL, *blank = NULL;
+
+    if (PyBytes_CheckExact(s)) {
+        temp = PyUnicode_DecodeASCII(PyBytes_AS_STRING(s), PyBytes_GET_SIZE(s), "strict");
+        if (!temp) {
+            VALUE_ERROR("string contains non-ASCII characters");
+            return NULL;
+        }
+    }
+    else if (PyUnicode_Check(s)) {
+        Py_INCREF(s);
+        temp = s;
+    }
+    else {
+        TYPE_ERROR("object is not string or Unicode");
+        return NULL;
+    }
+    
+    if ((under = PyUnicode_FromString("_")) &&
+        (blank = PyUnicode_FromString(""))) {
+        filtered = PyUnicode_Replace(temp, under, blank, -1);
+    }
+    Py_XDECREF(under);
+    Py_XDECREF(blank);
+    Py_XDECREF(temp);
+        
+    if (!filtered) {
+        return NULL;
+    }
+
+    ascii_str = PyUnicode_AsASCIIString(filtered);
+    Py_DECREF(filtered);
+    if (!ascii_str) {
+        VALUE_ERROR("string contains non-ASCII characters");
+        return NULL;
+    }
+
+    return ascii_str;
+}
+
 /* mpz_set_PyStr converts a Python "string" into a mpz_t structure. It accepts
  * a sequence of bytes (i.e. str in Python 2, bytes in Python 3) or a Unicode
  * string (i.e. unicode in Python 3, str in Python 3). Returns -1 on error,
@@ -126,35 +169,14 @@ static int
 mpz_set_PyStr(mpz_ptr z, PyObject *s, int base)
 {
     char *cp;
-    Py_ssize_t len, i;
-    PyObject *ascii_str = NULL;
+    Py_ssize_t len;
+    PyObject *ascii_str = ascii_str = GMPy_RemoveUnderscoreASCII(s);
 
-    if (PyBytes_Check(s)) {
-        len = PyBytes_Size(s);
-        cp = PyBytes_AsString(s);
-    }
-    else if (PyUnicode_Check(s)) {
-        ascii_str = PyUnicode_AsASCIIString(s);
-        if (!ascii_str) {
-            VALUE_ERROR("string contains non-ASCII characters");
-            return -1;
-        }
-        len = PyBytes_Size(ascii_str);
-        cp = PyBytes_AsString(ascii_str);
-    }
-    else {
-        TYPE_ERROR("object is not string or Unicode");
-        return -1;
-    }
+    if (!ascii_str) return -1;
 
-    /* Don't allow NULL characters */
-    for (i = 0; i < len; i++) {
-        if (cp[i] == '\0') {
-            VALUE_ERROR("string contains NULL characters");
-            Py_XDECREF(ascii_str);
-            return -1;
-        }
-    }
+    len = PyBytes_Size(ascii_str);
+    cp = PyBytes_AsString(ascii_str);
+
 
     /* Check for leading base indicators. */
     if (base == 0) {
@@ -180,10 +202,10 @@ mpz_set_PyStr(mpz_ptr z, PyObject *s, int base)
     /* delegate rest to GMP's _set_str function */
     if (-1 == mpz_set_str(z, cp, base)) {
         VALUE_ERROR("invalid digits");
-        Py_XDECREF(ascii_str);
+        Py_DECREF(ascii_str);
         return -1;
     }
-    Py_XDECREF(ascii_str);
+    Py_DECREF(ascii_str);
     return 1;
 }
 
