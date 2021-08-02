@@ -773,3 +773,14 @@ Test denominator
 ----------------
 >>> a.denominator
 mpz(1)
+
+Test underscore
+---------------
+>>> mpz('1_2')
+mpz(12)
+>>> mpz('_1_2')
+mpz(12)
+>>> mpz('1 2')
+mpz(12)
+>>> mpz(' 1 2')
+mpz(12) 

@@ -205,3 +205,10 @@ Traceback (most recent call last):
 TypeError: __round__() requires 0 or 1 argument
 >>> 1
 1
+
+Test underscore
+---------------
+>>> mpfr('1._3_5e4_5')
+mpfr('1.3499999999999999e+45')
+>>> mpc('1_2+4_5j')
+mpc('12.0+45.0j')

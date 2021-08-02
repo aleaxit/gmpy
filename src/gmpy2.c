@@ -420,6 +420,10 @@
  *    mpz() and lcm() now support more than two arguments to align with
  *        the corresponding functions in the math module.
  *
+ *    2.1.0rc1
+ *    Added support for embedded underscore characters in string
+ *        literals.
+  *
  ************************************************************************
  *
  * Discussion on sizes of C integer types.

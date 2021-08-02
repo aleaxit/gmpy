@@ -20,11 +20,17 @@ Examples
     mpz(9)
     >>> gmpy2.is_prime(17)
     True
+    >>> mpz('1_2')
+    mpz(12)
 
 .. note::
     The use of ``from gmpy2 import *`` is not recommended. The names in gmpy2
     have been chosen to avoid conflict with Python's builtin names but gmpy2
     does use names that may conflict with other modules or variable names.
+
+.. note::
+   gmpy2.mpz() ignores all embedded underscore characters. It does not attempt
+   to be 100% compatible with all Python exceptions.
 
 mpz Methods
 -----------

@@ -91,3 +91,10 @@ Tests non zero operator
 False
 >>> not mpq('0/5')
 True
+
+Test underscore
+---------------
+>>> mpq('1/1')
+mpq(1,1)
+>>> mpq('1_/_1')
+mpq(1,1)
