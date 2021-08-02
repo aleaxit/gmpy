@@ -275,11 +275,9 @@ GMPy_Real_DivModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             goto error;
             /* LCOV_EXCL_STOP */
         }
-        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpfr_fmod(rem->f, tempx->f, tempy->f, MPFR_RNDN);
         mpfr_sub(temp->f, tempx->f, rem->f, MPFR_RNDN);
         mpfr_div(quo->f, temp->f, tempy->f, MPFR_RNDN);
-        GMPY_MAYBE_END_ALLOW_THREADS(context);
         Py_DECREF((PyObject*)temp);
 
         if (!mpfr_zero_p(rem->f)) {

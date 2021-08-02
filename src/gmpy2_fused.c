@@ -119,9 +119,7 @@ _GMPy_MPFR_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 
     mpfr_clear_flags();
 
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpfr_fma(result->f, MPFR(x), MPFR(y), MPFR(z), GET_MPFR_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
@@ -160,9 +158,7 @@ _GMPy_MPC_FMA(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpc_fma(result->c, MPC(x), MPC(y), MPC(z), GET_MPC_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
@@ -295,9 +291,7 @@ _GMPy_MPFR_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
 
     mpfr_clear_flags();
 
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpfr_fms(result->f, MPFR(x), MPFR(y), MPFR(z), GET_MPFR_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
@@ -339,9 +333,7 @@ _GMPy_MPC_FMS(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context)
     temp = GMPy_MPC_From_ComplexWithTypeAndCopy(z, OBJ_TYPE_MPC, 1, 1, context);
 
     mpc_neg(MPC(temp), MPC(temp), GET_MPC_ROUND(context));
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpc_fma(result->c, MPC(x), MPC(y), MPC(temp), GET_MPC_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     Py_DECREF(temp);
     _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
@@ -496,9 +488,7 @@ _GMPy_MPFR_FMMA(PyObject *x, PyObject *y, PyObject *z, PyObject *t, CTXT_Object 
 
     mpfr_clear_flags();
     
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpfr_fmma(result->f, MPFR(x), MPFR(y), MPFR(z), MPFR(t), GET_MPFR_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
@@ -653,9 +643,7 @@ _GMPy_MPFR_FMMS(PyObject *x, PyObject *y, PyObject *z, PyObject *t, CTXT_Object 
 
     mpfr_clear_flags();
 
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpfr_fmms(result->f, MPFR(x), MPFR(y), MPFR(z), MPFR(t), GET_MPFR_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }

@@ -500,9 +500,7 @@ _GMPy_MPFR_Acos(PyObject *x, CTXT_Object *context)
 
     mpfr_clear_flags();
     
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpfr_acos(result->f, MPFR(x), GET_MPFR_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
@@ -517,9 +515,7 @@ _GMPy_MPC_Acos(PyObject *x, CTXT_Object *context)
         return NULL;
     }
 
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpc_acos(result->c, MPC(x), GET_MPC_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
@@ -590,9 +586,7 @@ _GMPy_MPFR_Asin(PyObject *x, CTXT_Object *context)
 
     mpfr_clear_flags();
 
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpfr_asin(result->f, MPFR(x), GET_MPFR_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
@@ -606,9 +600,7 @@ _GMPy_MPC_Asin(PyObject *x, CTXT_Object *context)
         return NULL;
     }
 
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpc_asin(result->c, MPC(x), GET_MPC_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
@@ -679,9 +671,7 @@ _GMPy_MPFR_Atanh(PyObject *x, CTXT_Object *context)
 
     mpfr_clear_flags();
 
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpfr_atanh(result->f, MPFR(x), GET_MPFR_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
 }
@@ -695,9 +685,7 @@ _GMPy_MPC_Atanh(PyObject *x, CTXT_Object *context)
         return NULL;
     }
 
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpc_atanh(result->c, MPC(x), GET_MPC_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     _GMPy_MPC_Cleanup(&result, context);
     return (PyObject*)result;
 }
@@ -781,9 +769,7 @@ _GMPy_MPFR_Sin_Cos(PyObject *x, CTXT_Object *context)
 
     mpfr_clear_flags();
     
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     code = mpfr_sin_cos(s->f, c->f, MPFR(x), GET_MPFR_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
 
     s->rc = code & 0x03;
     c->rc = code >> 2;
@@ -836,9 +822,7 @@ _GMPy_MPC_Sin_Cos(PyObject *x, CTXT_Object *context)
         return NULL;
     }
 
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     code = mpc_sin_cos(s->c, c->c, MPC(x), GET_MPC_ROUND(context), GET_MPC_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
 
     s->rc = MPC_INEX1(code);
     c->rc = MPC_INEX2(code);
@@ -900,9 +884,7 @@ _GMPy_MPFR_Sinh_Cosh(PyObject *x, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     code = mpfr_sinh_cosh(s->f, c->f, MPFR(x), GET_MPFR_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
 
     s->rc = code & 0x03;
     c->rc = code >> 2;
@@ -1215,9 +1197,7 @@ GMPy_Real_Rootn(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpfr_rootn_ui(result->f, tempx->f, n, GET_MPFR_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     Py_DECREF((PyObject*)tempx);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
@@ -1249,9 +1229,7 @@ GMPy_Real_Root(PyObject *x, PyObject *y, CTXT_Object *context)
         mpfr_set(result->f, tempx->f, GET_MPFR_ROUND(context));
     }
     else {
-        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         result->rc = mpfr_rootn_ui(result->f, tempx->f, n, GET_MPFR_ROUND(context));
-        GMPY_MAYBE_END_ALLOW_THREADS(context);
     }
 
     Py_DECREF((PyObject*)tempx);
@@ -1292,9 +1270,7 @@ GMPy_Real_Rootn(PyObject *x, PyObject *y, CTXT_Object *context)
         }
     }
     else {
-        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         result->rc = mpfr_root(result->f, tempx->f, n, GET_MPFR_ROUND(context));
-        GMPY_MAYBE_END_ALLOW_THREADS(context);
     }
     Py_DECREF((PyObject*)tempx);
     _GMPy_MPFR_Cleanup(&result, context);
@@ -1320,9 +1296,7 @@ GMPy_Real_Root(PyObject *x, PyObject *y, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpfr_root(result->f, tempx->f, n, GET_MPFR_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     Py_DECREF((PyObject*)tempx);
     _GMPy_MPFR_Cleanup(&result, context);
     return (PyObject*)result;
@@ -1668,9 +1642,7 @@ GMPy_RealWithType_Modf(PyObject *x, int xtype, CTXT_Object *context)
 
     mpfr_clear_flags();
     
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     code = mpfr_modf(s->f, c->f, tempx->f, GET_MPFR_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     Py_DECREF((PyObject*)tempx);
 
     s->rc = code & 0x03;
@@ -1724,9 +1696,7 @@ GMPy_RealWithType_Lgamma(PyObject *x, int xtype, CTXT_Object *context)
 
     mpfr_clear_flags();
 
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     value->rc = mpfr_lgamma(value->f, &signp, tempx->f, GET_MPFR_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     Py_DECREF((PyObject*)tempx);
 
     _GMPy_MPFR_Cleanup(&value, context);
@@ -1814,9 +1784,7 @@ GMPy_RealWithType_Frexp(PyObject *x, int xtype, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     value->rc = mpfr_frexp(&exp, value->f, tempx->f, GET_MPFR_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     Py_DECREF((PyObject*)tempx);
     _GMPy_MPFR_Cleanup(&value, context);
 
@@ -2026,9 +1994,7 @@ GMPy_Context_Factorial(PyObject *self, PyObject *other)
         mpfr_set_overflow();
     }
     else {
-        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpfr_fac_ui(result->f, n, GET_MPFR_ROUND(context));
-        GMPY_MAYBE_END_ALLOW_THREADS(context);
     }
 
     _GMPy_MPFR_Cleanup(&result, context);
@@ -2112,9 +2078,7 @@ GMPy_Context_Fsum(PyObject *self, PyObject *other)
     mpfr_clear_flags();
 
     /* The cast is safe since we have compared seq_length to LONG_MAX. */
-    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     result->rc = mpfr_sum(result->f, tab, (unsigned long)seq_length, GET_MPFR_ROUND(context));
-    GMPY_MAYBE_END_ALLOW_THREADS(context);
     Py_DECREF(other);
     free(tab);
 

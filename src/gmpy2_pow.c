@@ -119,9 +119,7 @@ GMPy_Integer_PowWithType(PyObject *b, int btype, PyObject *e, int etype,
         }
 
         el = (unsigned long) mpz_get_ui(tempe->z);
-        GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_pow_ui(result->z, tempb->z, el);
-        GMPY_MAYBE_END_ALLOW_THREADS(context);
         goto done;
     }
     else {
@@ -143,7 +141,6 @@ GMPy_Integer_PowWithType(PyObject *b, int btype, PyObject *e, int etype,
             mpz_init(base);
             mpz_init(exp);
 
-            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
 
             has_inverse = mpz_invert(base, tempb->z, mm);
             if (has_inverse) {
@@ -162,7 +159,6 @@ GMPy_Integer_PowWithType(PyObject *b, int btype, PyObject *e, int etype,
                 mpz_add(result->z, result->z, tempm->z);
             }
 
-            GMPY_MAYBE_END_ALLOW_THREADS(context);
 
             if (!has_inverse) {
                 VALUE_ERROR("pow() base not invertible");
@@ -170,7 +166,6 @@ GMPy_Integer_PowWithType(PyObject *b, int btype, PyObject *e, int etype,
             }
         }
         else {
-            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_powm(result->z, tempb->z, tempe->z, mm);
             mpz_clear(mm);
 
@@ -182,7 +177,6 @@ GMPy_Integer_PowWithType(PyObject *b, int btype, PyObject *e, int etype,
                 mpz_add(result->z, result->z, tempm->z);
             }
 
-            GMPY_MAYBE_END_ALLOW_THREADS(context);
         }
     }
 

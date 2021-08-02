@@ -242,7 +242,6 @@ GMPy_Real_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             }
         }
         else {
-            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpfr_fmod(result->f, tempx->f, tempy->f, GET_MPFR_ROUND(context));
 
             if (!mpfr_zero_p(result->f)) {
@@ -253,7 +252,6 @@ GMPy_Real_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             else {
                 mpfr_copysign(result->f, result->f, tempy->f, GET_MPFR_ROUND(context));
             }
-            GMPY_MAYBE_END_ALLOW_THREADS(context);
         }
         _GMPy_MPFR_Cleanup(&result, context);
 

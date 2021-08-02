@@ -423,6 +423,7 @@
  *    2.1.0rc1
  *    Added support for embedded underscore characters in string
  *        literals.
+ *    Allow GIL release for mpz/xmpz/mpq types only.
   *
  ************************************************************************
  *
