@@ -4,7 +4,7 @@ Miscellaneous Functions
 >>> import gmpy2
 >>> from gmpy2 import mpz
 >>> gmpy2.version()
-'2.1.0b6'
+'2.1.0rc1'
 >>> gmpy2.mp_limbsize() in (32,64)
 True
 >>> gmpy2.mp_version().split()[0] in ['GMP', 'MPIR']
