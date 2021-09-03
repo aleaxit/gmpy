@@ -144,6 +144,9 @@ The Windows build environment
 
 # Configure Windows command prompt - GCC
 
+  Note: The following command is automatically run by the 64bit.bat file
+        documented below.
+
   > set Path=C:\mingw64\bin;%Path%
 
   To verfiy the MinGW toolchain is accessible, the command "gcc -v" should
@@ -153,6 +156,7 @@ The Windows build environment
         that "gcc -v" returns information for the correct version of gcc.
 
 # Configure Windows command prompt - Python
+
   The Python interpreter does not need to be accessible via the path. You can
   specify the full path name to start a particular version. To simplify the
   compilation of multiple versions of gmpy2, I have adopted the following
@@ -170,36 +174,73 @@ The Windows build environment
   doskey py37=C:\64\Python37\python.exe $*
   doskey py38=C:\64\Python38\python.exe $*
   doskey py39=C:\64\Python39\python.exe $*
+  doskey py310=C:\64\Python310\python.exe $*
   set Path=C:\mingw64\bin;%Path%
+
+  A copy of the batch file can be found in <<gmpy2 source>>\mingw64\64bit.bat
 
 # Upgrade pip and setuptools
 
-# Repeat as needed for different versions
-py36 -m pip install --upgrade pip
-py36 -m pip install --upgrade setuptools
+  Repeat as needed for different versions
 
+  py36 -m pip install --upgrade pip
+  py36 -m pip install --upgrade setuptools
+
+# Update the contents of the <<gmpy2 sourc>>\gmpy2 to support a Windows binary
+# build.
+
+ copy /y src\gmpy2.h gmpy2\gmpy2.h
+ copy /y src\gmpy2pxd gmpy2\gmpy2.pxd
+ copy /y mingw64\dll\*.* gmpy2\.
 
 # Replace Python's cygwinccompiler.py with the numpy.distutils verion
 # located in the <<gmpy2 source>>\ming64\distutils directory.
 
+  copy /y mingw64\distutils\cygwinccompiler.py C:\64\Python27\Lib\distutils\.
+  copy /y mingw64\distutils\cygwinccompiler.py C:\64\Python35\Lib\distutils\.
+  copy /y mingw64\distutils\cygwinccompiler.py C:\64\Python36\Lib\distutils\.
+  copy /y mingw64\distutils\cygwinccompiler.py C:\64\Python37\Lib\distutils\.
+  copy /y mingw64\distutils\cygwinccompiler.py C:\64\Python38\Lib\distutils\.
+  copy /y mingw64\distutils\cygwinccompiler.py C:\64\Python39\Lib\distutils\.
+  copy /y mingw64\distutils\cygwinccompiler.py C:\64\Python310\Lib\distutils\.
+
+# Replace the standard gmpy2 MANIFEST.in file with the version in the mingw64
+  directory
+
+  copy /y mingw64\MANIFEST.in .
+
 # To compile gmpy2
 
-  py27 setup.py build_ext --msys2 --prefix=c:\msys64\mingwXX\opt
-
-# To install to a local Python installation (after compiling)
-  py27 setup.py install
-
-
-py27 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib
-
+# Complile and create an egg file.
 
 py27 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
+py35 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
+py36 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
+py37 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
+py38 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
+py39 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
+py310 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
 
-Complile and create an egg file
+# Convert to whl format
 
->py310 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
+cd dist
+py310 -m wheel convert *.egg
 
-Convert to whl format
+# Delete the .egg files after conversion to .whl format.
 
->cd dist
->py310 -m wheel convert *.egg
+# Rename the file to align with current pip conventions.
+
+rename gmpy2-2.1.0rc1-py27-cp27-win_amd64.whl gmpy2-2.1.0rc1-cp27-cp27-win_amd64.whl
+rename gmpy2-2.1.0rc1-py35-cp35-win_amd64.whl gmpy2-2.1.0rc1-cp35-cp35-win_amd64.whl
+rename gmpy2-2.1.0rc1-py36-cp36-win_amd64.whl gmpy2-2.1.0rc1-cp36-cp36-win_amd64.whl
+rename gmpy2-2.1.0rc1-py37-cp37-win_amd64.whl gmpy2-2.1.0rc1-cp37-cp37-win_amd64.whl
+rename gmpy2-2.1.0rc1-py38-cp38-win_amd64.whl gmpy2-2.1.0rc1-cp38-cp38-win_amd64.whl
+rename gmpy2-2.1.0rc1-py39-cp39-win_amd64.whl gmpy2-2.1.0rc1-cp39-cp39-win_amd64.whl
+rename gmpy2-2.1.0rc1-py310-cp310-win_amd64.whl gmpy2-2.1.0rc1-cp310-cp310-win_amd64.whl
+
+# Test installation of the locally created .whl file.
+
+# Leave the dist subdirectory
+cd ..\test
+py310 -m pip install ..\dist\gmpy2-2.1.0rc1-cp310-cp310-win_amd64.whl --force-reinstall
+py310 runtests.py

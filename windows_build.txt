@@ -1,3 +1,9 @@
++---------------------------------------------------------------------------------------------+
+|  This file is left for historical reference.  The official binary wheels for Windows are    |
+|  created using the MSYS2 and the Mingw64 compiler suite.  Please see the mingw64 directory  |
+|  for more information.                                                                      |
++---------------------------------------------------------------------------------------------+
+
 Assumptions
 ===========
 
