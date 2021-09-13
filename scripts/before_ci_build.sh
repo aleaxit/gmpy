@@ -1,4 +1,6 @@
 GMP_VERSION=6.2.1
+MPFR_VERSION=4.1.0
+MPC_VERSION=1.2.1
 if [ ! -f finish_before_ci_build ]; then
   if [[ "$OSTYPE" == "linux-gnu" ]]; then
     yum install -y wget lzip
@@ -9,12 +11,12 @@ if [ ! -f finish_before_ci_build ]; then
     # comes with autotools which is micro-architecture agnostic.
     # config.guess is a custom gmp script which knows about micro-architectures.
     cd gmp-${GMP_VERSION} && ./configure --enable-fat --host=$(./configfsf.guess) && make -j4 && make install && cd ../
-    wget https://ftp.gnu.org/gnu/mpfr/mpfr-4.1.0.tar.gz
-    tar -xvf mpfr-4.1.0.tar.gz
-    cd mpfr-4.1.0 && ./configure && make -j4 && make install && cd ../
-    wget https://ftp.gnu.org/gnu/mpc/mpc-1.2.1.tar.gz
-    tar -xvf mpc-1.2.1.tar.gz
-    cd mpc-1.2.1 && ./configure && make -j4 && make install && cd ../
+    wget https://ftp.gnu.org/gnu/mpfr/mpfr-${MPFR_VERSION}.tar.gz
+    tar -xvf mpfr-${MPFR_VERSION}.tar.gz
+    cd mpfr-${MPFR_VERSION} && ./configure && make -j4 && make install && cd ../
+    wget https://ftp.gnu.org/gnu/mpc/mpc-${MPC_VERSION}.tar.gz
+    tar -xvf mpc-${MPC_VERSION}.tar.gz
+    cd mpc-${MPC_VERSION} && ./configure && make -j4 && make install && cd ../
     pip install Cython
   elif [[ "$OSTYPE" == "darwin"* ]]; then
     brew install gmp mpfr libmpc
