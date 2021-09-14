@@ -14,7 +14,7 @@ if [ ! -f finish_before_ci_build ]; then
     # wget https://ftp.gnu.org/gnu/mpc/mpc-1.2.1.tar.gz
     # tar -xvf mpc-1.2.1.tar.gz
     # cd mpc-1.2.1 && ./configure && make -j4 && make install && cd ../
-    yum install -y libmpc-dev
+    yum install -y libmpc-devel
     pip install Cython
   elif [[ "$OSTYPE" == "darwin"* ]]; then
     brew install gmp mpfr libmpc
