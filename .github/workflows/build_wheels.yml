@@ -1,11 +1,6 @@
 name: Build Wheels
 
-on:
-  push:
-    branches:
-      - master
-    paths:
-      - 'build-wheels.conf'
+on: [push, pull_request]
 
 jobs:
   build_wheels:
