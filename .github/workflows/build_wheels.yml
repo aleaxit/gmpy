@@ -36,6 +36,8 @@ jobs:
           CIBW_PRERELEASE_PYTHONS: True
           CIBW_BEFORE_BUILD: bash scripts/before_ci_build.sh
           CIBW_SKIP: pp*
+          CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux_2_24_x86_64
+          CIBW_MANYLINUX_I686_IMAGE: quay.io/pypa/manylinux_2_24_i686
 
       - uses: actions/upload-artifact@v1
         with:
