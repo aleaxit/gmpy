@@ -2,8 +2,12 @@ GMP_VERSION=6.2.1
 MPFR_VERSION=4.1.0
 MPC_VERSION=1.2.1
 if [ ! -f finish_before_ci_build ]; then
-  if [[ "$OSTYPE" == "linux-gnu" ]]; then
-    yum install -y wget lzip
+  if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "darwin"* ]]; then
+    if [ "$OSTYPE" == "linux-gnu" ]; then
+      yum install -y wget lzip
+    else
+      brew install wget
+    fi
     wget https://gmplib.org/download/gmp/gmp-${GMP_VERSION}.tar.lz
     tar -xvf gmp-${GMP_VERSION}.tar.lz
     # need to set host to the oldest triple to avoid building binaries
@@ -18,8 +22,6 @@ if [ ! -f finish_before_ci_build ]; then
     tar -xvf mpc-${MPC_VERSION}.tar.gz
     cd mpc-${MPC_VERSION} && ./configure && make -j4 && make install && cd ../
     pip install Cython
-  elif [[ "$OSTYPE" == "darwin"* ]]; then
-    brew install gmp mpfr libmpc
   fi
   touch finish_before_ci_build
 else
