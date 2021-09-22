@@ -1,6 +1,62 @@
 Changes for gmpy2 releases
 ==========================
 
+Changes in gmpy2 2.1.0rc2
+-------------------------
+
+* Documentation updates.
+* Improvements to build environment.
+
+Changes in gmpy2 2.1.0rc1
+-------------------------
+
+* Added support for embedded underscore characters in string
+      literals.
+* Allow GIL release for mpz/xmpz/mpq types only.
+
+Changes in gmpy2 2.1.0b6
+------------------------
+
+* Improve argument type processing by saving type information to 
+      decrease the number of type check calls. Especially helpful
+      for mpfr and mpc types. (Not complete but common operations
+      are done.)
+* Resolve bug in mpfr to mpq conversion; issue #287.
+* Added limited support for releasing the GIL; disabled by default;
+      see context.allow_release_gil.
+* Refactored handling of inplace operations for mpz and xmpz types;
+      inplace operations on xmpz will only return an xmpz result.
+* Refactored handling of conversion to C integer types. Some
+      exception types changes to reflect Python types.
+* gcd() and lcm() now support more than two arguments to align with
+      the corresponding functions in the math module.
+ 
+Changes in gmpy2 2.1.0b5
+------------------------
+
+* Avoid MPFR bug in mfr_fac_ui (gmpy2.factorial) on platforms where
+      long is 32-bits and argument is >= 44787929.
+* Fixed testing bugs with Python 2.7.
+* Fixed mpz(0) to C long or long long.
+* Fixed incorrect results in f2q().
+* Adjust test suite to reflect changes in output in MPFR 4.1.0.
+
+Changes in gmpy2 2.1.0b4
+------------------------
+
+* Fix comparisons with mpq and custom rational objects.
+* Fixes for some uncommon integer conversions scenarios.
+ 
+Changes in gmpy2 2.1.0b3
+------------------------
+
+* Version bump only.
+ 
+Changes in gmpy2 2.1.0b2
+------------------------
+
+* Many bug fixes.
+ 
 Changes in gmpy2 2.1.0b1
 ------------------------
 

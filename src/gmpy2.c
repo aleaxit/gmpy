@@ -417,14 +417,17 @@
  *        inplace operations on xmpz will only return an xmpz result.
  *    Refactored handling of conversion to C integer types. Some
  *        exception types changes to reflect Python types.
- *    mpz() and lcm() now support more than two arguments to align with
+ *    gcd() and lcm() now support more than two arguments to align with
  *        the corresponding functions in the math module.
  *
  *    2.1.0rc1
  *    Added support for embedded underscore characters in string
  *        literals.
  *    Allow GIL release for mpz/xmpz/mpq types only.
-  *
+ *
+ *    2.1.0rc2
+ *    Updates to builds.
+ *
  ************************************************************************
  *
  * Discussion on sizes of C integer types.
@@ -892,7 +895,7 @@ static PyMethodDef Pygmpy_methods [] =
 };
 
 static char _gmpy_docs[] =
-"gmpy2 2.1.0rc1 - General Multiple-precision arithmetic for Python\n"
+"gmpy2 2.1.0rc2 - General Multiple-precision arithmetic for Python\n"
 "\n"
 "gmpy2 supports several multiple-precision libraries. Integer and\n"
 "rational arithmetic is provided by the GMP library. Real floating-\n"
