@@ -120,7 +120,7 @@ GMPy_Integer_AsUnsignedLong(PyObject *x)
 }
 
 
-#ifdef _WIN64
+#ifdef GMPY2_64BIT_BITCNT
 
 #define PY_ABS_LLONG_MIN (0-(unsigned PY_LONG_LONG)PY_LLONG_MIN)
 
@@ -148,7 +148,7 @@ GMPy_Integer_AsLongLongWithType(PyObject *x, int xtype)
                 result = PY_LLONG_MIN;
             }
             else {
-                OVERFLOW_ERROR("value could not be converted to C long");
+                OVERFLOW_ERROR("value could not be converted to C long long");
                 result = -1;
             }
         }
@@ -173,7 +173,7 @@ GMPy_Integer_AsLongLongWithType(PyObject *x, int xtype)
                     result = PY_LLONG_MIN;
                 }
                 else {
-                    OVERFLOW_ERROR("value could not be converted to C long");
+                    OVERFLOW_ERROR("value could not be converted to C long long");
                     result = -1;
                 }
             }
@@ -206,7 +206,7 @@ GMPy_Integer_AsUnsignedLongLongWithType(PyObject *x, int xtype)
                 mpz_export(&xtemp, NULL, 1, sizeof(xtemp), 0, 0, MPZ(x));
             }
             else {
-                OVERFLOW_ERROR("value could not be converted to C long");
+                OVERFLOW_ERROR("value could not be converted to C long long");
                 xtemp = (unsigned PY_LONG_LONG)-1;
             }
         }
@@ -225,7 +225,7 @@ GMPy_Integer_AsUnsignedLongLongWithType(PyObject *x, int xtype)
                     mpz_export(&xtemp, NULL, 1, sizeof(xtemp), 0, 0, MPZ(x));
                 }
                 else {
-                    OVERFLOW_ERROR("value could not be converted to C long");
+                    OVERFLOW_ERROR("value could not be converted to C long long");
                     xtemp = (unsigned PY_LONG_LONG)-1;
                 }
             }

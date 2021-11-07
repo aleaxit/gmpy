@@ -54,9 +54,16 @@ static unsigned PY_LONG_LONG GMPy_Integer_AsUnsignedLongLong(PyObject *x);
  */
 
 #ifdef _WIN64
+
 #define GMPy_Integer_AsSsize_t (Py_ssize_t)GMPy_Integer_AsLongLong
 #define GMPy_Integer_AsSize_t (size_t)GMPy_Integer_AsUnsignedLongLong
+
+#ifdef GMPY2_64BIT_BITCNT
+#define GMPy_Integer_AsMpBitCnt (mp_bitcnt_t)GMPy_Integer_AsUnsignedLongLong
+#else
 #define GMPy_Integer_AsMpBitCnt (mp_bitcnt_t)GMPy_Integer_AsUnsignedLong
+#endif
+
 #else
 #define GMPy_Integer_AsSsize_t (Py_ssize_t)GMPy_Integer_AsLong
 #define GMPy_Integer_AsSize_t (size_t)GMPy_Integer_AsUnsignedLong

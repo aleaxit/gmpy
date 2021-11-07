@@ -16,6 +16,25 @@ TODO: Things to remember to document or automate
 Building gmpy2 with MSYS2 and MinGW-w64
 =======================================
 
+High-level overview
+-------------------
+
+1.  Compile the GMP, MPFR, and MPC libraries
+    1.  Install the MSYS2 environment
+    2.  Install the MinGW-w64 compiler tools
+
+        The MSYS2 version of MinGW-w64 or a version from winlibs.com can be used.
+
+    3.  Dowload and compile GMP, MPFR, and MPC
+
+2.  Prepare Windows environment
+    1.  Install Python versions as needed
+    2.  Update pip, setuptools, wheel, and (optionally) pytest
+    3.  Replace cygwincompiler.py with patched version
+    4.  Create def files for Python version that are installed
+
+3.  Update build environment and compile gmpy2
+
 Note: These instructions are a work in progress!
 
 From the MSYS2 home page:
@@ -30,6 +49,9 @@ building native Windows applications using MinGW-w64 toolchains.
 Installing MSYS2
 ================
 
+Note: The following instructions assume MSYS2 and MinGW-w64 are installed as
+      D:\msys2 and D:\mingw64, respectively. 
+
 Detailed MSYS2 installation instructions can be found at:
 
 https://www.msys2.org/wiki/MSYS2-installation/
@@ -38,7 +60,7 @@ The examples assume the 64-bit version of MSYS2 is installed.
 
 The following additional packages should also be installed:
 
-$ pacman -S patch m4 lzip wget tar make diffutils
+pacman -S patch m4 lzip wget tar make diffutils
 
 Installing MinGW-w64
 ====================
@@ -52,7 +74,7 @@ was based on the following version:
 https://github.com/brechtsanders/winlibs_mingw/releases/download/10.3.0-12.0.0-9.0.0-r2/winlibs-x86_64-posix-seh-gcc-10.3.0-llvm-12.0.0-mingw-w64-9.0.0-r2.7z
 
 Unzip the downloaded file and copy the "mingw64" to the desired location.
-The following documentation assumes the files are copied to C:\mingw64.
+The following documentation assumes the files are copied to D:\mingw64.
 
 The build environment
 =====================
@@ -85,59 +107,61 @@ Compiling GMP, MPFR, and MPC
 
 # Add the MinGW-w64 compiler to the PATH.
 
-  $ PATH="/c/mingw64/bin:"$PATH
+  PATH="/c/mingw64/bin:"$PATH
 
 # In you home directory, create directories for the various files that
 # are created.
 
-  $ mkdir $HOME/64
-  $ mkdir $HOME/64/src
-  $ mkdir $HOME/64/static
-  $ mkdir $HOME/64/shared
+  mkdir $HOME/64
+  mkdir $HOME/64/src
+  mkdir $HOME/64/static
+  mkdir $HOME/64/shared
 
 # Download and uncompress GMP, MPFR, and MPC
 
-  $ cd $HOME/64/src
+  The following instructions build GMP, MPFR, and MPC shared libraries that are redistributed with gmpy2.
+
+  cd $HOME/64/src
 
 # Download GMP
-  $ wget https://gmplib.org/download/gmp/gmp-6.2.1.tar.lz
-  $ tar xf gmp-6.2.1.tar.lz
+  wget https://gmplib.org/download/gmp/gmp-6.2.1.tar.lz
+  tar xf gmp-6.2.1.tar.lz
 
 # Download MPFR and any patches
-  $ wget http://www.mpfr.org/mpfr-current/mpfr-4.1.0.tar.bz2
-  $ tar xf mpfr-4.1.0.tar.bz2
-  $ cd mpfr-4.1.0/
-  $ wget http://www.mpfr.org/mpfr-current/allpatches
-  $ patch -N -Z -p1 < allpatches
-  $ cd ..
+  wget http://www.mpfr.org/mpfr-current/mpfr-4.1.0.tar.bz2
+  tar xf mpfr-4.1.0.tar.bz2
+  cd mpfr-4.1.0/
+  wget http://www.mpfr.org/mpfr-current/allpatches
+  patch -N -Z -p1 < allpatches
+  cd ..
 
 # Download MPC
-  $ wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.2.0.tar.gz
-  $ tar xf mpc-1.2.0.tar.gz
+  wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.2.0.tar.gz
+  tar xf mpc-1.2.0.tar.gz
 
 # Compile GMP
-  $ cd gmp-6.2.0/
-  $ ./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=$HOME/64/static --enable-static --disable-shared --enable-fat --with-pic
-  $ make
-  $ make check
-  $ make install
-  $ cd ..
+  cd gmp-6.2.1/
+  ./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=$HOME/64/static --enable-shared --disable-static --enable-fat --with-pic
+  make
+  make check
+  make install
+  cd ..
 
 # Compile MPFR
-  $ cd mpfr-4.1.0/
-  $ ./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=$HOME/64/static --enable-static --disable-shared --disable-decimal-float --disable-float128 --with-pic --with-gmp=$HOME/64/static
-  $ make
-  $ make check
-  $ make install
-  $ cd ..
+  cd mpfr-4.1.0/
+  ./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=$HOME/64/static --enable-static --disable-shared --disable-decimal-float --disable-float128 --with-pic --with-gmp=$HOME/64/static
+  make
+  make check
+  make install
+  cd ..
 
 # Compile MPC
-  $ cd mpc-1.2.0/
-  $ ./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=$HOME/64/static --enable-static --disable-shared --with-pic --with-gmp=$HOME/64/static --with-mpfr=$HOME/64/static
-  $ make
-  $ make check
-  $ make install
-  $ cd ..
+  cd mpc-1.2.0/
+  ./configure --build=x86_64-pc-mingw64 --host=x86_64-pc-mingw64 --prefix=$HOME/64/static --enable-static --disable-shared --with-pic --with-gmp=$HOME/64/static --with-mpfr=$HOME/64/static
+  make
+  make check
+  make install
+  cd ..
 
 The Windows build environment
 =============================
@@ -147,7 +171,7 @@ The Windows build environment
   Note: The following command is automatically run by the 64bit.bat file
         documented below.
 
-  > set Path=C:\mingw64\bin;%Path%
+  > set Path=D:\mingw64\bin;%Path%
 
   To verfiy the MinGW toolchain is accessible, the command "gcc -v" should
   return information about the gcc compiler.
@@ -162,52 +186,55 @@ The Windows build environment
   compilation of multiple versions of gmpy2, I have adopted the following
   approach:
 
-  # 64-bit versions of Python are installed in C:\64
+  # 64-bit versions of Python are installed in D:\64
   # Aliases are defined to create shortcuts for invoking a Python interpreter
 
   I use the following batch file to configure a command prompt for 64-bit builds:
 
   @echo off
-  doskey py27=C:\64\Python27\python.exe $*
-  doskey py35=C:\64\Python35\python.exe $*
-  doskey py36=C:\64\Python36\python.exe $*
-  doskey py37=C:\64\Python37\python.exe $*
-  doskey py38=C:\64\Python38\python.exe $*
-  doskey py39=C:\64\Python39\python.exe $*
-  doskey py310=C:\64\Python310\python.exe $*
-  set Path=C:\mingw64\bin;%Path%
+  doskey py27=D:\64\Python27\python.exe $*
+  doskey py35=D:\64\Python35\python.exe $*
+  doskey py36=D:\64\Python36\python.exe $*
+  doskey py37=D:\64\Python37\python.exe $*
+  doskey py38=D:\64\Python38\python.exe $*
+  doskey py39=D:\64\Python39\python.exe $*
+  doskey py310=D:\64\Python310\python.exe $*
+  set Path=D:\mingw64\bin;%Path%
 
   A copy of the batch file can be found in <<gmpy2 source>>\mingw64\64bit.bat
 
 # Upgrade pip and setuptools
 
-  Repeat as needed for different versions
+  Repeat as needed for different versions of Python
 
   py36 -m pip install --upgrade pip
   py36 -m pip install --upgrade setuptools
-
-# Update the contents of the <<gmpy2 sourc>>\gmpy2 to support a Windows binary
-# build.
-
- copy /y src\gmpy2.h gmpy2\gmpy2.h
- copy /y src\gmpy2pxd gmpy2\gmpy2.pxd
- copy /y mingw64\dll\*.* gmpy2\.
+  py36 -m pip install pytest wheel
 
 # Replace Python's cygwinccompiler.py with the numpy.distutils verion
 # located in the <<gmpy2 source>>\ming64\distutils directory.
 
-  copy /y mingw64\distutils\cygwinccompiler.py C:\64\Python27\Lib\distutils\.
-  copy /y mingw64\distutils\cygwinccompiler.py C:\64\Python35\Lib\distutils\.
-  copy /y mingw64\distutils\cygwinccompiler.py C:\64\Python36\Lib\distutils\.
-  copy /y mingw64\distutils\cygwinccompiler.py C:\64\Python37\Lib\distutils\.
-  copy /y mingw64\distutils\cygwinccompiler.py C:\64\Python38\Lib\distutils\.
-  copy /y mingw64\distutils\cygwinccompiler.py C:\64\Python39\Lib\distutils\.
-  copy /y mingw64\distutils\cygwinccompiler.py C:\64\Python310\Lib\distutils\.
+  copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python27\Lib\distutils\.
+  copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python35\Lib\distutils\.
+  copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python36\Lib\distutils\.
+  copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python37\Lib\distutils\.
+  copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python38\Lib\distutils\.
+  copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python39\Lib\distutils\.
+  copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python310\Lib\distutils\.
 
 # Replace the standard gmpy2 MANIFEST.in file with the version in the mingw64
   directory
 
   copy /y mingw64\MANIFEST.in .
+
+# Copy the libgcc_s_seh-1.dll file form the mingw64 distribution to the
+# <<gmpy2 source>>\mingw64\dll directory.
+
+copy /y D:\mingw64\bin\libgcc_s_seh-1.dll D:\64\gmpy2\mingw64\dll
+
+# Copy the result of the compilation to the <<gmpy2 source>>\mingw64\shared directory
+
+xcopy /s /y D:\64\shared D:\temp\shared
 
 # To compile gmpy2
 
