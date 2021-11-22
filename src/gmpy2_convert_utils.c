@@ -120,7 +120,7 @@ GMPy_Integer_AsUnsignedLong(PyObject *x)
 }
 
 
-#ifdef GMPY2_64BIT_BITCNT
+#ifdef _WIN64
 
 #define PY_ABS_LLONG_MIN (0-(unsigned PY_LONG_LONG)PY_LLONG_MIN)
 

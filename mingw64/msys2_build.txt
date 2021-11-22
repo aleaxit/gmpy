@@ -222,8 +222,38 @@ The Windows build environment
   copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python39\Lib\distutils\.
   copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python310\Lib\distutils\.
 
+# Create the appropriate libpythonNN.a files. See gendef64.bat
+
+cd D:\64\Python27\libs
+gendef C:\Windows\System32\python27.dll
+dlltool --dllname C:\Windows\System32\python27.dll --def python27.def --output-lib libpython27.a
+
+cd D:\64\Python35\libs
+gendef D:\64\Python35\python35.dll
+dlltool --dllname D:\64\Python35\python35.dll --def python35.def --output-lib libpython35.a
+
+cd D:\64\Python36\libs
+gendef D:\64\Python36\python36.dll
+dlltool --dllname D:\64\Python36\python36.dll --def python36.def --output-lib libpython36.a
+
+cd D:\64\Python37\libs
+gendef D:\64\Python37\python37.dll
+dlltool --dllname D:\64\Python37\python37.dll --def python37.def --output-lib libpython37.a
+
+cd D:\64\Python38\libs
+gendef D:\64\Python38\python38.dll
+dlltool --dllname D:\64\Python38\python38.dll --def python38.def --output-lib libpython38.a
+
+cd D:\64\Python39\libs
+gendef D:\64\Python39\python39.dll
+dlltool --dllname D:\64\Python39\python39.dll --def python39.def --output-lib libpython39.a
+
+cd D:\64\Python310\libs
+gendef D:\64\Python310\python310.dll
+dlltool --dllname D:\64\Python310\python310.dll --def python310.def --output-lib libpython310.a
+
 # Replace the standard gmpy2 MANIFEST.in file with the version in the mingw64
-  directory
+# directory
 
   copy /y mingw64\MANIFEST.in .
 
@@ -234,40 +264,16 @@ copy /y D:\mingw64\bin\libgcc_s_seh-1.dll D:\64\gmpy2\mingw64\dll
 
 # Copy the result of the compilation to the <<gmpy2 source>>\mingw64\shared directory
 
-xcopy /s /y D:\64\shared D:\temp\shared
+xcopy /s /y D:\64\shared D:\64\gmpy2\mingw64\shared
 
 # To compile gmpy2
 
-# Complile and create an egg file.
+# Complile and create a binary wheel.
 
-py27 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
-py35 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
-py36 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
-py37 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
-py38 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
-py39 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
-py310 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f install
-
-# Convert to whl format
-
-cd dist
-py310 -m wheel convert *.egg
-
-# Delete the .egg files after conversion to .whl format.
-
-# Rename the file to align with current pip conventions.
-
-rename gmpy2-2.1.0rc1-py27-cp27-win_amd64.whl gmpy2-2.1.0rc1-cp27-cp27-win_amd64.whl
-rename gmpy2-2.1.0rc1-py35-cp35-win_amd64.whl gmpy2-2.1.0rc1-cp35-cp35-win_amd64.whl
-rename gmpy2-2.1.0rc1-py36-cp36-win_amd64.whl gmpy2-2.1.0rc1-cp36-cp36-win_amd64.whl
-rename gmpy2-2.1.0rc1-py37-cp37-win_amd64.whl gmpy2-2.1.0rc1-cp37-cp37-win_amd64.whl
-rename gmpy2-2.1.0rc1-py38-cp38-win_amd64.whl gmpy2-2.1.0rc1-cp38-cp38-win_amd64.whl
-rename gmpy2-2.1.0rc1-py39-cp39-win_amd64.whl gmpy2-2.1.0rc1-cp39-cp39-win_amd64.whl
-rename gmpy2-2.1.0rc1-py310-cp310-win_amd64.whl gmpy2-2.1.0rc1-cp310-cp310-win_amd64.whl
-
-# Test installation of the locally created .whl file.
-
-# Leave the dist subdirectory
-cd ..\test
-py310 -m pip install ..\dist\gmpy2-2.1.0rc1-cp310-cp310-win_amd64.whl --force-reinstall
-py310 runtests.py
+py27 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
+py35 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
+py36 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
+py37 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
+py38 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
+py39 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
+py310 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
