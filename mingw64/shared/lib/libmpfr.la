@@ -17,7 +17,7 @@ old_library=''
 inherited_linker_flags=''
 
 # Libraries that this one depends upon.
-dependency_libs=' -L/home/casev/64/shared/lib /home/casev/64/shared/lib/libgmp.la'
+dependency_libs=' -L/d/64/shared/lib /d/64/shared/lib/libgmp.la'
 
 # Names of additional weak libraries provided by this library
 weak_library_names=''
@@ -38,4 +38,4 @@ dlopen=''
 dlpreopen=''
 
 # Directory that this library needs to be installed in:
-libdir='/home/casev/64/shared/lib'
+libdir='/d/64/shared/lib'
