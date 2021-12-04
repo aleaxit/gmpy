@@ -85,13 +85,14 @@ setup(
     license="LGPL-3.0+",
     url="https://github.com/aleaxit/gmpy",
     description="gmpy2 interface to GMP/MPIR, MPFR, "
-    "and MPC for Python 2.6+ and 3.4+",
+    "and MPC for Python 2.7 and 3.5+",
     long_description=read('README'),
     zip_safe=False,
     include_package_data=True,
     package_data={'gmpy2': [
         '*.pxd',
         'gmpy2.h',
+        '*.dll',
     ]},
     packages=find_packages(),
     classifiers=[

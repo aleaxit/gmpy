@@ -252,21 +252,25 @@ cd D:\64\Python310\libs
 gendef D:\64\Python310\python310.dll
 dlltool --dllname D:\64\Python310\python310.dll --def python310.def --output-lib libpython310.a
 
-# Replace the standard gmpy2 MANIFEST.in file with the version in the mingw64
-# directory
-
-  copy /y mingw64\MANIFEST.in .
-
-# Copy the libgcc_s_seh-1.dll file form the mingw64 distribution to the
-# <<gmpy2 source>>\mingw64\dll directory.
-
-copy /y D:\mingw64\bin\libgcc_s_seh-1.dll D:\64\gmpy2\mingw64\dll
-
 # Copy the result of the compilation to the <<gmpy2 source>>\mingw64\shared directory
 
 xcopy /s /y D:\64\shared D:\64\gmpy2\mingw64\shared
 
+# Copy the libgcc_s_seh-1.dll file from the mingw64 distribution to the
+# <<gmpy2 source>>\mingw64\shared\bin directory.
+
+copy /y D:\mingw64\bin\libgcc_s_seh-1.dll D:\64\gmpy2\mingw64\shared\bin
+
+# Copy the libwinpthread-1.dll file from the mingw64 distribution to the 
+# <<gmpy2 source>>\mingw64\shared\bin directory.
+
+copy /y D:\mingw64\bin\libwinpthread-1.dll D:\64\gmpy2\mingw64\shared\bin
+
 # To compile gmpy2
+
+# Copy the additional DLL files to <<gmpy2 source>>\gmpy2
+
+xcopy /y D:\64\gmpy2\mingw64\shared\bin\. D:\64\gmpy2\gmpy2\
 
 # Complile and create a binary wheel.
 

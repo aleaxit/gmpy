@@ -190,7 +190,7 @@ GMPy_Integer_AsLongLong(PyObject *x)
     return GMPy_Integer_AsLongLongWithType(x, GMPy_ObjectType(x));
 }
 
-static unsigned PY_LONG_LONG
+/* static unsigned PY_LONG_LONG
 GMPy_Integer_AsUnsignedLongLongWithType(PyObject *x, int xtype)
 {
     if IS_TYPE_PyInteger(xtype) {
@@ -242,5 +242,7 @@ GMPy_Integer_AsUnsignedLongLong(PyObject *x)
 {
     return GMPy_Integer_AsUnsignedLongLongWithType(x, GMPy_ObjectType(x));
 }
+
+*/
 
 #endif
