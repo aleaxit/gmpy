@@ -299,12 +299,18 @@ GMPy_Real_PowWithType(PyObject *base, int btype, PyObject *exp, int etype,
         long temp;
 
         if (mpfr_fits_ulong_p(tempb->f, MPFR_RNDF)) {
+            /* Need to check the inexact flag to verify that tempb is an integer. */
             intb = mpfr_get_ui(tempb->f, MPFR_RNDF);
-            temp = PyLong_AsLongAndOverflow(exp, &error);
-            if (!error) {
-                if (temp >= 0) {
-                    result->rc = mpfr_ui_pow_ui(result->f, intb, temp, GET_MPFR_ROUND(context));
-                    goto done;
+            if (mpfr_inexflag_p()) {
+                mpfr_clear_inexflag();
+            }
+            else {
+                temp = PyLong_AsLongAndOverflow(exp, &error);
+                if (!error) {
+                    if (temp >= 0) {
+                        result->rc = mpfr_ui_pow_ui(result->f, intb, temp, GET_MPFR_ROUND(context));
+                        goto done;
+                    }
                 }
             }
         }

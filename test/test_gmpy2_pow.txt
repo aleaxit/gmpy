@@ -80,6 +80,10 @@ Test real number power
 >>> r1, r2 = mpfr(5.0), mpfr(2.5)
 >>> r1 ** mpz(2)
 mpfr('25.0')
+>>> r2 ** mpz(2)
+mpfr('6.25')
+>>> r2 ** 2
+mpfr('6.25')
 >>> pow(r1, r2)
 mpfr('55.901699437494742')
 >>> ctx.pow(r1, r2)
