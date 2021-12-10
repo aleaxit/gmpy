@@ -476,7 +476,7 @@
  * how Python "long int"s are internally represented.
  */
 
-#if PY_VERSION_HEX < 0x030A0000
+#if PY_VERSION_HEX < 0x030B0000
 # include "longintrepr.h"
 #else
 # include "cpython/longintrepr.h"
