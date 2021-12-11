@@ -78,7 +78,7 @@ cmdclass = {'build_ext': Gmpy2Build}
 
 setup(
     name="gmpy2",
-    version="2.1.0rc2",
+    version="2.1.0",
     author="Case Van Horsen",
     author_email="casevh@gmail.com",
     cmdclass=cmdclass,
@@ -118,6 +118,6 @@ setup(
         'Topic :: Scientific/Engineering :: Mathematics',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    keywords="gmp mpir mpfr mpc multiple-precision arbitrary-precision precision bignum",
+    keywords="gmp mpfr mpc multiple-precision arbitrary-precision precision bignum",
     ext_modules=extensions,
 )

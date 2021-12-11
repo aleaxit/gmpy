@@ -3,9 +3,12 @@ multiple-precision arithmetic.  gmpy2 is based on the original gmpy module.
 gmpy2 adds support for correctly rounded multiple-precision real arithmetic
 (using the MPFR library) and complex arithmetic (using the MPC library).
 
-The gmpy2 2.0.x series is a stable version that is only receiving bug fixes.
-The main development branch (2.1.x) was extensively refactored. The most
-significant changes are support for thread-safe contexts and context methods.
+gmpy2 2.1 was extensively refactored. Some of the significant changes are:
+
+  * Support for thread-safe contexts and context methods
+  * Interoperability with Cython extensions
+  * mpz and mpq operation can release the GIL (controlled by the conntext)
+  * Improved argument processing
 
 gmpy2 is available at https://pypi.python.org/pypi/gmpy2/
 

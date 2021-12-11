@@ -428,6 +428,10 @@
  *    2.1.0rc2
  *    Updates to builds.
  *
+ *    2.1.0
+ *    Bug fix for <<small mpfr>> ** <<small Python integer>>.
+ *    Compile with Python 3.11.
+ *
  ************************************************************************
  *
  * Discussion on sizes of C integer types.
@@ -492,11 +496,11 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.1.0rc2";
+char gmpy_version[] = "2.1.0";
 
 char gmpy_license[] = "\
 The GMPY2 source code is licensed under LGPL 3 or later. The supported \
-versions of the GMP/MPIR, MPFR, and MPC libraries are also licensed under \
+versions of the GMP, MPFR, and MPC libraries are also licensed under \
 LGPL 3 or later.";
 
 /* The following global structures are used by gmpy_cache.c.
@@ -900,7 +904,7 @@ static PyMethodDef Pygmpy_methods [] =
 };
 
 static char _gmpy_docs[] =
-"gmpy2 2.1.0rc2 - General Multiple-precision arithmetic for Python\n"
+"gmpy2 2.1.0 - General Multiple-precision arithmetic for Python\n"
 "\n"
 "gmpy2 supports several multiple-precision libraries. Integer and\n"
 "rational arithmetic is provided by the GMP library. Real floating-\n"

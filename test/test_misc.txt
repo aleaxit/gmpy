@@ -4,7 +4,7 @@ Miscellaneous Functions
 >>> import gmpy2
 >>> from gmpy2 import mpz
 >>> gmpy2.version()
-'2.1.0rc2'
+'2.1.0'
 >>> gmpy2.mp_limbsize() in (32,64)
 True
 >>> gmpy2.mp_version().split()[0] in ['GMP', 'MPIR']
@@ -22,7 +22,7 @@ True
 >>> gmpy2.mpc_version() and '1.0' <= gmpy2.mpc_version().split()[1]
 True
 >>> gmpy2.license()
-'The GMPY2 source code is licensed under LGPL 3 or later. The supported versions of the GMP/MPIR, MPFR, and MPC libraries are also licensed under LGPL 3 or later.'
+'The GMPY2 source code is licensed under LGPL 3 or later. The supported versions of the GMP, MPFR, and MPC libraries are also licensed under LGPL 3 or later.'
 
 >>> gmpy2.get_cache()
 (100, 128)
