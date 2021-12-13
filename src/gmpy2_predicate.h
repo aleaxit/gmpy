@@ -69,11 +69,11 @@ static PyObject * GMPy_MPFR_Is_Integer_Method(PyObject *self, PyObject *args);
 static PyObject * GMPy_Number_Is_Integer(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Is_Integer(PyObject *self, PyObject *other);
 
-static PyObject * GMPy_Real_Is_LessGreater(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_RealWithType_Is_LessGreater(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
 static PyObject * GMPy_Number_Is_LessGreater(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Context_Is_LessGreater(PyObject *self, PyObject *args);
 
-static PyObject * GMPy_Real_Is_Unordered(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_RealWithType_Is_Unordered(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
 static PyObject * GMPy_Number_Is_Unordered(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Context_Is_Unordered(PyObject *self, PyObject *args);
 

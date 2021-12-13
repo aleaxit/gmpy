@@ -738,7 +738,7 @@ PyDoc_STRVAR(GMPy_doc_context_atan2,
 "context.atan2(y, x) -> number\n\n"
 "Return arc-tangent of (y/x); result in radians.");
 
-GMPY_MPFR_BINOP_EX(Atan2, atan2)
+GMPY_MPFR_BINOP_EXWT(Atan2, atan2)
 
 PyDoc_STRVAR(GMPy_doc_function_hypot,
 "hypot(x, y) -> number\n\n"
@@ -748,28 +748,31 @@ PyDoc_STRVAR(GMPy_doc_context_hypot,
 "context.hypot(x, y) -> number\n\n"
 "Return square root of (x**2 + y**2).");
 
-GMPY_MPFR_BINOP_EX(Hypot, hypot)
+GMPY_MPFR_BINOP_EXWT(Hypot, hypot)
 
 static PyObject *
-_GMPy_MPFR_Sin_Cos(PyObject *x, CTXT_Object *context)
+GMPy_RealWithType_Sin_Cos(PyObject *x, int xtype, CTXT_Object *context)
 {
-    MPFR_Object *s = NULL, *c = NULL;
+    MPFR_Object *s = NULL, *c = NULL, *tempx = NULL;
     PyObject *result = NULL;
     int code;
 
     s = GMPy_MPFR_New(0, context);
     c = GMPy_MPFR_New(0, context);
+    tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context);
     result = PyTuple_New(2);
-    if (!s || !c || !result) {
-        Py_XDECREF((PyObject*)s);
-        Py_XDECREF((PyObject*)c);
+    if (!s || !c || !tempx || !result) {
+        Py_XDECREF(s);
+        Py_XDECREF(c);
+        Py_XDECREF(tempx);
         Py_XDECREF(result);
         return NULL;
     }
 
     mpfr_clear_flags();
     
-    code = mpfr_sin_cos(s->f, c->f, MPFR(x), GET_MPFR_ROUND(context));
+    code = mpfr_sin_cos(s->f, c->f, tempx->f, GET_MPFR_ROUND(context));
+    Py_DECREF(tempx);
 
     s->rc = code & 0x03;
     c->rc = code >> 2;
@@ -788,20 +791,6 @@ _GMPy_MPFR_Sin_Cos(PyObject *x, CTXT_Object *context)
 
     PyTuple_SET_ITEM(result, 0, (PyObject*)s);
     PyTuple_SET_ITEM(result, 1, (PyObject*)c);
-    return result;
-}
-
-static PyObject *
-GMPy_RealWithType_Sin_Cos(PyObject *x, int xtype, CTXT_Object *context)
-{
-    PyObject *result = NULL, *tempx = NULL;
-
-    if (!(tempx = (PyObject*)GMPy_MPFR_From_RealWithType(x, xtype, 1, context))) {
-        return NULL;
-    }
-
-    result = _GMPy_MPFR_Sin_Cos(tempx, context);
-    Py_DECREF(tempx);
     return result;
 }
 
@@ -867,16 +856,17 @@ PyDoc_STRVAR(GMPy_doc_function_sin_cos,
 GMPY_MPFR_MPC_UNIOP_TEMPLATE_EXWT(Sin_Cos, sin_cos)
 
 static PyObject *
-_GMPy_MPFR_Sinh_Cosh(PyObject *x, CTXT_Object *context)
+GMPy_RealWithType_Sinh_Cosh(PyObject *x, int xtype, CTXT_Object *context)
 {
-    MPFR_Object *s = NULL, *c = NULL;
+    MPFR_Object *s = NULL, *c = NULL, *tempx = NULL;
     PyObject *result = NULL;
     int code;
 
     s = GMPy_MPFR_New(0, context);
     c = GMPy_MPFR_New(0, context);
+    tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context);
     result = PyTuple_New(2);
-    if (!s || !c || !result) {
+    if (!s || !c || !tempx || !result) {
         Py_XDECREF((PyObject*)s);
         Py_XDECREF((PyObject*)c);
         Py_XDECREF(result);
@@ -884,7 +874,8 @@ _GMPy_MPFR_Sinh_Cosh(PyObject *x, CTXT_Object *context)
     }
 
     mpfr_clear_flags();
-    code = mpfr_sinh_cosh(s->f, c->f, MPFR(x), GET_MPFR_ROUND(context));
+    code = mpfr_sinh_cosh(s->f, c->f, tempx->f, GET_MPFR_ROUND(context));
+    Py_DECREF(tempx);
 
     s->rc = code & 0x03;
     c->rc = code >> 2;
@@ -897,26 +888,12 @@ _GMPy_MPFR_Sinh_Cosh(PyObject *x, CTXT_Object *context)
     if (!s || !c) {
         Py_XDECREF((PyObject*)s);
         Py_XDECREF((PyObject*)c);
-        Py_XDECREF(result);
+        Py_DECREF(result);
         return NULL;
     }
 
     PyTuple_SET_ITEM(result, 0, (PyObject*)s);
     PyTuple_SET_ITEM(result, 1, (PyObject*)c);
-    return result;
-}
-
-static PyObject *
-GMPy_RealWithType_Sinh_Cosh(PyObject *x, int xtype, CTXT_Object *context)
-{
-    PyObject *result = NULL, *tempx = NULL;
-
-    if (!(tempx = (PyObject*)GMPy_MPFR_From_RealWithType(x, xtype, 1, context))) {
-        return NULL;
-    }
-
-    result = _GMPy_MPFR_Sinh_Cosh(tempx, context);
-    Py_DECREF(tempx);
     return result;
 }
 
@@ -1526,15 +1503,15 @@ PyDoc_STRVAR(GMPy_doc_context_reldiff,
 "abs(x-y)/x.");
 
 static PyObject *
-GMPy_Real_RelDiff(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_RealWithType_RelDiff(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context)
 {
-    MPFR_Object *tempx, *tempy, *result;
+    MPFR_Object *tempx = NULL, *tempy = NULL, *result = NULL;
 
     CHECK_CONTEXT(context);
 
     result = GMPy_MPFR_New(0, context);
-    tempx = GMPy_MPFR_From_Real(x, 1, context);
-    tempy = GMPy_MPFR_From_Real(y, 1, context);
+    tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context);
+    tempy = GMPy_MPFR_From_RealWithType(y, ytype, 1, context);
     if (!result || !tempx || !tempy) {
         Py_XDECREF((PyObject*)result);
         Py_XDECREF((PyObject*)tempx);
@@ -1552,7 +1529,7 @@ GMPy_Real_RelDiff(PyObject *x, PyObject *y, CTXT_Object *context)
     return (PyObject*)result;
 }
 
-GMPY_MPFR_BINOP_TEMPLATE(RelDiff, reldiff)
+GMPY_MPFR_BINOP_TEMPLATEWT(RelDiff, reldiff)
 
 PyDoc_STRVAR(GMPy_doc_mpfr_ceil_method,
 "x.__ceil__() -> mpfr\n\n"
@@ -1724,7 +1701,7 @@ PyDoc_STRVAR(GMPy_doc_context_remquo,
 "quotient.");
 
 static PyObject *
-GMPy_Real_RemQuo(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_RealWithType_RemQuo(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context)
 {
     PyObject *result;
     MPFR_Object *value, *tempx, *tempy;
@@ -1733,8 +1710,8 @@ GMPy_Real_RemQuo(PyObject *x, PyObject *y, CTXT_Object *context)
     CHECK_CONTEXT(context);
 
     value = GMPy_MPFR_New(0, context);
-    tempx = GMPy_MPFR_From_Real(x, 1, context);
-    tempy = GMPy_MPFR_From_Real(y, 1, context);
+    tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context);
+    tempy = GMPy_MPFR_From_RealWithType(y, ytype, 1, context);
     result = PyTuple_New(2);
     if (!value || !tempx || !tempx || !result) {
         Py_XDECREF((PyObject*)tempx);
@@ -1756,7 +1733,7 @@ GMPy_Real_RemQuo(PyObject *x, PyObject *y, CTXT_Object *context)
     return result;
 }
 
-GMPY_MPFR_BINOP_TEMPLATE(RemQuo, remquo);
+GMPY_MPFR_BINOP_TEMPLATEWT(RemQuo, remquo);
 
 PyDoc_STRVAR(GMPy_doc_function_frexp,
 "frexp(x) -> (int, mpfr)\n\n"

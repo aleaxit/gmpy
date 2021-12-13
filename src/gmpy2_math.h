@@ -124,11 +124,11 @@ static PyObject * GMPy_RealWithType_Sinh_Cosh(PyObject *x, int xtype, CTXT_Objec
 static PyObject * GMPy_Number_Sinh_Cosh(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Sinh_Cosh(PyObject *self, PyObject *other);
 
-static PyObject * GMPy_Real_Atan2(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_RealWithType_Atan2(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
 static PyObject * GMPy_Number_Atan2(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Context_Atan2(PyObject *self, PyObject *args);
 
-static PyObject * GMPy_Real_Hypot(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_RealWithType_Hypot(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
 static PyObject * GMPy_Number_Hypot(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Context_Hypot(PyObject *self, PyObject *args);
 
@@ -287,7 +287,7 @@ static PyObject * GMPy_RealWithType_Fmod(PyObject *x, int xtype, PyObject *y, in
 static PyObject * GMPy_Number_Fmod(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Context_Fmod(PyObject *self, PyObject *args);
 
-static PyObject * GMPy_Real_RelDiff(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_RealWithType_RelDiff(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
 static PyObject * GMPy_Number_RelDiff(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Context_RelDiff(PyObject *self, PyObject *args);
 
@@ -322,7 +322,7 @@ static PyObject * GMPy_RealWithType_Lgamma(PyObject *x, int xtype, CTXT_Object *
 static PyObject * GMPy_Number_Lgamma(PyObject *x, CTXT_Object *context);
 static PyObject * GMPy_Context_Lgamma(PyObject *self, PyObject *other);
 
-static PyObject * GMPy_Real_RemQuo(PyObject *x, PyObject *y, CTXT_Object *context);
+static PyObject * GMPy_RealWithType_RemQuo(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context);
 static PyObject * GMPy_Number_RemQuo(PyObject *x, PyObject *y, CTXT_Object *context);
 static PyObject * GMPy_Context_RemQuo(PyObject *self, PyObject *other);
 

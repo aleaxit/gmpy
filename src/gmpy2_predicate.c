@@ -421,16 +421,16 @@ PyDoc_STRVAR(GMPy_doc_function_is_lessgreater,
 "and/or y is NaN.");
 
 static PyObject *
-GMPy_Real_Is_LessGreater(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_RealWithType_Is_LessGreater(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context)
 {
-    MPFR_Object *tempx, *tempy;
+    MPFR_Object *tempx = NULL, *tempy = NULL;
     int res;
 
-    CHECK_CONTEXT(context);
-
-    tempx = GMPy_MPFR_From_Real(x, 1, context);
-    tempy = GMPy_MPFR_From_Real(y, 1, context);
+    tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context);
+    tempy = GMPy_MPFR_From_RealWithType(y, ytype, 1, context);
     if (!tempx || !tempy) {
+        Py_XDECREF(tempx);
+        Py_XDECREF(tempy);
         return NULL;
     }
 
@@ -444,23 +444,23 @@ GMPy_Real_Is_LessGreater(PyObject *x, PyObject *y, CTXT_Object *context)
         Py_RETURN_FALSE;
 }
 
-GMPY_MPFR_BINOP_TEMPLATE(Is_LessGreater, is_lessgreater)
+GMPY_MPFR_BINOP_TEMPLATEWT(Is_LessGreater, is_lessgreater)
 
 PyDoc_STRVAR(GMPy_doc_function_is_unordered,
 "is_unordered(x,y) -> boolean\n\n"
 "Return True if either x and/or y is NaN.");
 
 static PyObject *
-GMPy_Real_Is_Unordered(PyObject *x, PyObject *y, CTXT_Object *context)
+GMPy_RealWithType_Is_Unordered(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context)
 {
-    MPFR_Object *tempx, *tempy;
+    MPFR_Object *tempx = NULL, *tempy = NULL;
     int res;
 
-    CHECK_CONTEXT(context);
-
-    tempx = GMPy_MPFR_From_Real(x, 1, context);
-    tempy = GMPy_MPFR_From_Real(y, 1, context);
+    tempx = GMPy_MPFR_From_RealWithType(x, xtype, 1, context);
+    tempy = GMPy_MPFR_From_RealWithType(y, ytype, 1, context);
     if (!tempx || !tempy) {
+        Py_XDECREF(tempx);
+        Py_XDECREF(tempy);
         return NULL;
     }
 
@@ -474,5 +474,5 @@ GMPy_Real_Is_Unordered(PyObject *x, PyObject *y, CTXT_Object *context)
         Py_RETURN_FALSE;
 }
 
-GMPY_MPFR_BINOP_TEMPLATE(Is_Unordered, is_unordered)
+GMPY_MPFR_BINOP_TEMPLATEWT(Is_Unordered, is_unordered)
 
