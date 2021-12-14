@@ -432,7 +432,7 @@
  *    Bug fix for <<small mpfr>> ** <<small Python integer>>.
  *    Compile with Python 3.11.
  *
- *    2.1.1b0
+ *    2.1.1
  *    Code cleanup.
  *    Properly return NOTIMPLEMENTED for unsupported arguments in **.
  *        Issue 319.
@@ -501,7 +501,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.1.1b0";
+char gmpy_version[] = "2.1.1";
 
 char gmpy_license[] = "\
 The GMPY2 source code is licensed under LGPL 3 or later. The supported \
