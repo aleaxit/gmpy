@@ -530,7 +530,6 @@ GMPy_Number_Pow_Slot(PyObject *base, PyObject *exp, PyObject *mod)
     if (IS_TYPE_COMPLEX(btype) && IS_TYPE_COMPLEX(etype))
         return GMPy_Complex_PowWithType(base, btype, exp, etype, mod, NULL);
 
-    TYPE_ERROR("unsupported operand type(s) for ** or pow()");
-    return NULL;
+    Py_RETURN_NOTIMPLEMENTED;
 }
 

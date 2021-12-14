@@ -434,6 +434,8 @@
  *
  *    2.1.1b0
  *    Code cleanup.
+ *    Properly return NOTIMPLEMENTED for unsupported arguments in **.
+ *        Issue 319.
  *
  ************************************************************************
  *
