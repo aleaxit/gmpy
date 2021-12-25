@@ -30,7 +30,7 @@ jobs:
         env:
           CIBW_PRERELEASE_PYTHONS: True
           CIBW_BEFORE_BUILD: bash scripts/before_ci_build_apple_silicon.sh
-          CIBW_SKIP: pp* cp36-* cp37-*
+          CIBW_SKIP: pp*
           CIBW_ARCHS_MACOS: "arm64"
 
       - uses: actions/upload-artifact@v2
