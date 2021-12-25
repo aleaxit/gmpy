@@ -1,0 +1,39 @@
+name: Build Wheels Apple Silicon
+
+on: [push, pull_request]
+
+jobs:
+  build_wheels:
+    name: Build wheel on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest]
+        python-version: ["3.7"]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install cibuildwheel
+        run: |
+          python -m pip install cibuildwheel==2.3.1
+
+      - name: Build wheel
+        run: |
+          python --version
+          python -m cibuildwheel --output-dir wheelhouse
+        env:
+          CIBW_PRERELEASE_PYTHONS: True
+          CIBW_BEFORE_BUILD: bash scripts/before_ci_build_apple_silicon.sh
+          CIBW_SKIP: pp* cp36-* cp37-*
+          CIBW_ARCHS_MACOS: "arm64"
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: wheels
+          path: ./wheelhouse
