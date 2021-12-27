@@ -725,6 +725,7 @@ GMPy_Context_Digits(PyObject *self, PyObject *args)
 {
     PyObject *arg0, *tuple, *temp, *result;
     Py_ssize_t argc;
+    int xtype;
 
     argc = PyTuple_GET_SIZE(args);
     if (argc == 0) {
@@ -738,33 +739,51 @@ GMPy_Context_Digits(PyObject *self, PyObject *args)
     }
 
     arg0 = PyTuple_GET_ITEM(args, 0);
+    xtype = GMPy_ObjectType(arg0);
+
     if (!(tuple = PyTuple_GetSlice(args, 1, argc))) {
         return NULL;
     }
 
-    if (IS_INTEGER(arg0)) {
-        temp = (PyObject*)GMPy_MPZ_From_Integer(arg0, NULL);
+    if (IS_TYPE_INTEGER(xtype)) {
+        temp = (PyObject*)GMPy_MPZ_From_IntegerWithType(arg0, xtype, NULL);
+        if (!temp) {
+            Py_DECREF(tuple);
+            return NULL;
+        }
         result = GMPy_MPZ_Digits_Method(temp, tuple);
         Py_DECREF(temp);
         Py_DECREF(tuple);
         return result;
     }
-    if (IS_RATIONAL(arg0)) {
-        temp = (PyObject*)GMPy_MPQ_From_Rational(arg0, NULL);
+    if (IS_TYPE_RATIONAL(xtype)) {
+        temp = (PyObject*)GMPy_MPQ_From_RationalWithType(arg0, xtype, NULL);
+        if (!temp) {
+            Py_DECREF(tuple);
+            return NULL;
+        }
         result = GMPy_MPQ_Digits_Method(temp, tuple);
         Py_DECREF(temp);
         Py_DECREF(tuple);
         return result;
     }
-    if (IS_REAL(arg0)) {
-        temp = (PyObject*)GMPy_MPFR_From_Real(arg0, 1, NULL);
+    if (IS_TYPE_REAL(xtype)) {
+        temp = (PyObject*)GMPy_MPFR_From_RealWithType(arg0, xtype, 1, NULL);
+        if (!temp) {
+            Py_DECREF(tuple);
+            return NULL;
+        }
         result = GMPy_MPFR_Digits_Method(temp, tuple);
         Py_DECREF(temp);
         Py_DECREF(tuple);
         return result;
     }
-    if (IS_COMPLEX(arg0)) {
-        temp = (PyObject*)GMPy_MPC_From_Complex(arg0, 1, 1, NULL);
+    if (IS_TYPE_COMPLEX(xtype)) {
+        temp = (PyObject*)GMPy_MPC_From_ComplexWithType(arg0, xtype, 1, 1, NULL);
+        if (!temp) {
+            Py_DECREF(tuple);
+            return NULL;
+        }
         result = GMPy_MPC_Digits_Method(temp, tuple);
         Py_DECREF(temp);
         Py_DECREF(tuple);

@@ -37,10 +37,10 @@ static PyObject * GMPy_Number_Minus(PyObject *x, CTXT_Object *context);
 
 /* Private API */
 
-static PyObject * GMPy_Integer_Minus(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Rational_Minus(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Real_Minus(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Complex_Minus(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Integer_MinusWithType(PyObject *x, int xtype, CTXT_Object *context);
+static PyObject * GMPy_Rational_MinusWithType(PyObject *x, int xtype, CTXT_Object *context);
+static PyObject * GMPy_Real_MinusWithType(PyObject *x, int xtype, CTXT_Object *context);
+static PyObject * GMPy_Complex_MinusWithType(PyObject *x, int xtype, CTXT_Object *context);
 
 static PyObject * GMPy_MPZ_Minus_Slot(MPZ_Object *x);
 static PyObject * GMPy_MPQ_Minus_Slot(MPQ_Object *x);

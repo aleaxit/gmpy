@@ -62,11 +62,11 @@ _GMPy_MPZ_Minus(PyObject *x, CTXT_Object *context)
     return (PyObject*)result;
 }
 static PyObject *
-GMPy_Integer_Minus(PyObject *x, CTXT_Object *context)
+GMPy_Integer_MinusWithType(PyObject *x, int xtype, CTXT_Object *context)
 {
     PyObject *result, *tempx;
 
-    if (!(tempx = (PyObject*)GMPy_MPZ_From_Integer(x, context))) {
+    if (!(tempx = (PyObject*)GMPy_MPZ_From_IntegerWithType(x, xtype, context))) {
         return NULL;
     }
 
@@ -97,13 +97,13 @@ _GMPy_MPQ_Minus(PyObject *x, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_Rational_Minus(PyObject *x, CTXT_Object *context)
+GMPy_Rational_MinusWithType(PyObject *x, int xtype, CTXT_Object *context)
 {
     PyObject *result, *tempx;
 
     CHECK_CONTEXT(context);
 
-    if (!(tempx = (PyObject*)GMPy_MPQ_From_Rational(x, context))) {
+    if (!(tempx = (PyObject*)GMPy_MPQ_From_RationalWithType(x, xtype, context))) {
         return NULL;
     }
 
@@ -137,13 +137,13 @@ _GMPy_MPFR_Minus(PyObject *x, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_Real_Minus(PyObject *x, CTXT_Object *context)
+GMPy_Real_MinusWithType(PyObject *x, int xtype, CTXT_Object *context)
 {
     PyObject *result, *tempx;
 
     CHECK_CONTEXT(context);
 
-    if (!(tempx = (PyObject*)GMPy_MPFR_From_Real(x, 1, context))) {
+    if (!(tempx = (PyObject*)GMPy_MPFR_From_RealWithType(x, xtype, 1, context))) {
         return NULL;
     }
 
@@ -175,13 +175,13 @@ _GMPy_MPC_Minus(PyObject *x, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_Complex_Minus(PyObject *x, CTXT_Object *context)
+GMPy_Complex_MinusWithType(PyObject *x, int xtype, CTXT_Object *context)
 {
     PyObject *result, *tempx;
 
     CHECK_CONTEXT(context);
 
-    if (!(tempx = (PyObject*)GMPy_MPC_From_Complex(x, 1, 1, context))) {
+    if (!(tempx = (PyObject*)GMPy_MPC_From_ComplexWithType(x, xtype, 1, 1, context))) {
         return NULL;
     }
 
@@ -199,29 +199,31 @@ GMPy_MPC_Minus_Slot(MPC_Object *x)
 static PyObject *
 GMPy_Number_Minus(PyObject *x, CTXT_Object *context)
 {
-    if (MPZ_Check(x))
+    int xtype = GMPy_ObjectType(x);
+
+    if (IS_TYPE_MPZ(xtype))
         return _GMPy_MPZ_Minus(x, context);
 
-    if (MPQ_Check(x))
+    if (IS_TYPE_MPQ(xtype))
         return _GMPy_MPQ_Minus(x, context);
 
-    if (MPFR_Check(x))
+    if (IS_TYPE_MPFR(xtype))
         return _GMPy_MPFR_Minus(x, context);
 
-    if (MPC_Check(x))
+    if (IS_TYPE_MPC(xtype))
         return _GMPy_MPC_Minus(x, context);
 
-    if (IS_INTEGER(x))
-        return GMPy_Integer_Minus(x, context);
+    if (IS_TYPE_INTEGER(xtype))
+        return GMPy_Integer_MinusWithType(x, xtype, context);
 
-    if (IS_RATIONAL_ONLY(x))
-        return GMPy_Rational_Minus(x, context);
+    if (IS_TYPE_RATIONAL(xtype))
+        return GMPy_Rational_MinusWithType(x, xtype, context);
 
-    if (IS_REAL_ONLY(x))
-        return GMPy_Real_Minus(x, context);
+    if (IS_TYPE_REAL(xtype))
+        return GMPy_Real_MinusWithType(x, xtype, context);
 
-    if (IS_COMPLEX_ONLY(x))
-        return GMPy_Complex_Minus(x, context);
+    if (IS_TYPE_COMPLEX(xtype))
+        return GMPy_Complex_MinusWithType(x, xtype, context);
 
     TYPE_ERROR("minus() argument type not supported");
     return NULL;

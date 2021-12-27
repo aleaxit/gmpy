@@ -37,10 +37,10 @@ static PyObject * GMPy_Number_Plus(PyObject *x, CTXT_Object *context);
 
 /* Private API */
 
-static PyObject * GMPy_Integer_Plus(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Rational_Plus(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Real_Plus(PyObject *x, CTXT_Object *context);
-static PyObject * GMPy_Complex_Plus(PyObject *x, CTXT_Object *context);
+static PyObject * GMPy_Integer_PlusWithType(PyObject *x, int xtype, CTXT_Object *context);
+static PyObject * GMPy_Rational_PlusWithType(PyObject *x, int xtype, CTXT_Object *context);
+static PyObject * GMPy_Real_PlusWithType(PyObject *x, int xtype, CTXT_Object *context);
+static PyObject * GMPy_Complex_PlusWithType(PyObject *x, int xtype, CTXT_Object *context);
 
 static PyObject * GMPy_MPZ_Plus_Slot(MPZ_Object *x);
 static PyObject * GMPy_MPQ_Plus_Slot(MPQ_Object *x);

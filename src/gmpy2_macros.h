@@ -485,32 +485,6 @@ GMPy_Context_##NAME(PyObject *self, PyObject *other) \
 
 /*********************************************************************/
 
-#define GMPY_MPFR_UNIOP_TEMPLATE_EXWT(NAME, FUNC) \
-static PyObject * \
-GMPy_Number_##NAME(PyObject *x, CTXT_Object *context) \
-{ \
-    if (MPFR_Check(x)) \
-        return _GMPy_MPFR_##NAME(x, context); \
-    if (IS_REAL(x)) \
-        return GMPy_Real_##NAME(x, context); \
-    TYPE_ERROR(#FUNC"() argument type not supported"); \
-    return NULL; \
-} \
-static PyObject * \
-GMPy_Context_##NAME(PyObject *self, PyObject *other) \
-{ \
-    CTXT_Object *context = NULL; \
-    if (self && CTXT_Check(self)) { \
-        context = (CTXT_Object*)self; \
-    } \
-    else { \
-        CHECK_CONTEXT(context); \
-    } \
-    return GMPy_Number_##NAME(other, context); \
-}
-
-/*********************************************************************/
-
 #define GMPY_MPFR_BINOPWT(NAME, FUNC) \
 static PyObject * \
 GMPy_RealWithType_##NAME(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Object *context) \

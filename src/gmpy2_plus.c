@@ -50,9 +50,9 @@
  */
 
 static PyObject *
-GMPy_Integer_Plus(PyObject *x, CTXT_Object *context)
+GMPy_Integer_PlusWithType(PyObject *x, int xtype, CTXT_Object *context)
 {
-    return (PyObject*)GMPy_MPZ_From_Integer(x, context);
+    return (PyObject*)GMPy_MPZ_From_IntegerWithType(x, xtype, context);
 }
 
 static PyObject *
@@ -63,9 +63,9 @@ GMPy_MPZ_Plus_Slot(MPZ_Object *x)
 }
 
 static PyObject *
-GMPy_Rational_Plus(PyObject *x, CTXT_Object *context)
+GMPy_Rational_PlusWithType(PyObject *x, int xtype, CTXT_Object *context)
 {
-    return (PyObject*)GMPy_MPQ_From_Rational(x, context);
+    return (PyObject*)GMPy_MPQ_From_RationalWithType(x, xtype, context);
 }
 
 static PyObject *
@@ -76,9 +76,9 @@ GMPy_MPQ_Plus_Slot(MPQ_Object *x)
 }
 
 static PyObject *
-GMPy_Real_Plus(PyObject *x, CTXT_Object *context)
+GMPy_Real_PlusWithType(PyObject *x, int xtype, CTXT_Object *context)
 {
-    return (PyObject*)GMPy_MPFR_From_Real(x, 0, context);
+    return (PyObject*)GMPy_MPFR_From_RealWithType(x, xtype, 0, context);
 }
 
 static PyObject *
@@ -88,9 +88,9 @@ GMPy_MPFR_Plus_Slot(MPFR_Object *x)
 }
 
 static PyObject *
-GMPy_Complex_Plus(PyObject *x, CTXT_Object *context)
+GMPy_Complex_PlusWithType(PyObject *x, int xtype, CTXT_Object *context)
 {
-    return (PyObject*)GMPy_MPC_From_Complex(x, 0, 0, context);
+    return (PyObject*)GMPy_MPC_From_ComplexWithType(x, xtype, 0, 0, context);
 }
 
 static PyObject *
@@ -102,17 +102,19 @@ GMPy_MPC_Plus_Slot(MPC_Object *x)
 static PyObject *
 GMPy_Number_Plus(PyObject *x, CTXT_Object *context)
 {
-    if (IS_INTEGER(x))
-        return GMPy_Integer_Plus(x, context);
+    int xtype = GMPy_ObjectType(x);
 
-    if (IS_RATIONAL_ONLY(x))
-        return GMPy_Rational_Plus(x, context);
+    if (IS_TYPE_INTEGER(xtype))
+        return GMPy_Integer_PlusWithType(x, xtype, context);
 
-    if (IS_REAL_ONLY(x))
-        return GMPy_Real_Plus(x, context);
+    if (IS_TYPE_RATIONAL(xtype))
+        return GMPy_Rational_PlusWithType(x, xtype, context);
 
-    if (IS_COMPLEX_ONLY(x))
-        return GMPy_Complex_Plus(x, context);
+    if (IS_TYPE_REAL(xtype))
+        return GMPy_Real_PlusWithType(x, xtype, context);
+
+    if (IS_TYPE_COMPLEX(xtype))
+        return GMPy_Complex_PlusWithType(x, xtype, context);
 
     TYPE_ERROR("plus() argument type not supported");
     return NULL;

@@ -69,9 +69,9 @@ GMPy_Integer_AbsWithType(PyObject *x, int xtype, CTXT_Object *context)
     /* This is safe because result is not an incremented reference to an
      * existing value. Why?
      *   1) No values are interned like Python's integers.
-     *   2) MPZ is already handled so GMPy_MPZ_From_Integer() can't return
-     *      an incremented reference to an existing value (which it would do
-     *      if passed an MPZ).
+     *   2) MPZ is already handled so GMPy_MPZ_From_IntegerWithType() can't
+     *      return an incremented reference to an existing value (which it
+     *      would do if passed an MPZ).
      */
 
     if ((result = GMPy_MPZ_From_IntegerWithType(x, xtype, context))) {
