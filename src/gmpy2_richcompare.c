@@ -44,14 +44,17 @@ static PyObject *_cmp_to_object(int c, int op)
 static PyObject *
 GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
 {
-    int c;
+    int atype, btype, c;
     PyObject *tempa = NULL, *tempb = NULL, *result = NULL;
     CTXT_Object *context = NULL;
 
     CHECK_CONTEXT(context);
 
-    if (CHECK_MPZANY(a)) {
-        if (PyIntOrLong_Check(b)) {
+    atype = GMPy_ObjectType(a);
+    btype = GMPy_ObjectType(b);
+
+    if (IS_TYPE_MPZANY(atype)) {
+        if (IS_TYPE_PyInteger(btype)) {
             int error;
             long temp = PyLong_AsLongAndOverflow(b, &error);
 
@@ -65,12 +68,12 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(c, op);
         }
 
-        if (CHECK_MPZANY(b)) {
+        if (IS_TYPE_MPZANY(btype)) {
             return _cmp_to_object(mpz_cmp(MPZ(a), MPZ(b)), op);
         }
 
-        if (IS_INTEGER(b)) {
-            if (!(tempb = (PyObject*)GMPy_MPZ_From_Integer(b, context))) {
+        if (IS_TYPE_INTEGER(btype)) {
+            if (!(tempb = (PyObject*)GMPy_MPZ_From_IntegerWithType(b, btype, context))) {
                 return NULL;
             }
             c = mpz_cmp(MPZ(a), MPZ(tempb));
@@ -78,9 +81,9 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(c, op);
         }
 
-        if (IS_RATIONAL(b)) {
-            tempa = (PyObject*)GMPy_MPQ_From_Rational(a, context);
-            tempb = (PyObject*)GMPy_MPQ_From_Rational(b, context);
+        if (IS_TYPE_RATIONAL(btype)) {
+            tempa = (PyObject*)GMPy_MPQ_From_RationalWithType(a, atype, context);
+            tempb = (PyObject*)GMPy_MPQ_From_RationalWithType(b, btype, context);
             if (!tempa || !tempb) {
                 Py_XDECREF(a);
                 Py_XDECREF(b);
@@ -92,7 +95,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(c, op);
         }
 
-        if (PyFloat_Check(b)) {
+        if (IS_TYPE_PyFloat(btype)) {
             double d = PyFloat_AS_DOUBLE(b);
             if (Py_IS_NAN(d)) {
                 result = (op == Py_NE) ? Py_True : Py_False;
@@ -111,13 +114,13 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
         }
     }
 
-    if (MPQ_Check(a)) {
-        if (MPQ_Check(b)) {
+    if (IS_TYPE_MPQ(atype)) {
+        if (IS_TYPE_MPQ(btype)) {
             return _cmp_to_object(mpq_cmp(MPQ(a), MPQ(b)), op);
         }
 
-        if (IS_RATIONAL(b)) {
-            if (!(tempb = (PyObject*)GMPy_MPQ_From_Rational(b, context))) {
+        if (IS_TYPE_RATIONAL(btype)) {
+            if (!(tempb = (PyObject*)GMPy_MPQ_From_RationalWithType(b, btype, context))) {
                 return NULL;
             }
             c = mpq_cmp(MPQ(a), MPQ(tempb));
@@ -125,7 +128,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
             return _cmp_to_object(c, op);
         }
 
-        if (PyFloat_Check(b)) {
+        if (IS_TYPE_PyFloat(btype)) {
             double d = PyFloat_AS_DOUBLE(b);
             if (Py_IS_NAN(d)) {
                 result = (op == Py_NE) ? Py_True : Py_False;
@@ -150,8 +153,8 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
         }
     }
 
-    if (MPFR_Check(a)) {
-        if (MPFR_Check(b)) {
+    if (IS_TYPE_MPFR(atype)) {
+        if (IS_TYPE_MPFR(btype)) {
             mpfr_clear_flags();
             c = mpfr_cmp(MPFR(a), MPFR(b));
             if (mpfr_erangeflag_p()) {
@@ -170,7 +173,7 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
             }
         }
 
-        if (PyFloat_Check(b)) {
+        if (IS_TYPE_PyFloat(btype)) {
             double d = PyFloat_AS_DOUBLE(b);
             mpfr_clear_flags();
             c = mpfr_cmp_d(MPFR(a), d);
@@ -190,8 +193,8 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
             }
         }
 
-        if (IS_INTEGER(b)) {
-            if (!(tempb = (PyObject*)GMPy_MPZ_From_Integer(b, context)))  {
+        if (IS_TYPE_INTEGER(btype)) {
+            if (!(tempb = (PyObject*)GMPy_MPZ_From_IntegerWithType(b, btype, context)))  {
                 return NULL;
             }
             mpfr_clear_flags();
@@ -213,8 +216,8 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
             }
         }
 
-        if (IS_RATIONAL(b)) {
-            if (!(tempb = (PyObject*)GMPy_MPQ_From_Rational(b, context))) {
+        if (IS_TYPE_RATIONAL(btype)) {
+            if (!(tempb = (PyObject*)GMPy_MPQ_From_RationalWithType(b, btype, context))) {
                 return NULL;
             }
             mpfr_clear_flags();
@@ -236,8 +239,8 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
             }
         }
 
-        if (IS_REAL(b)) {
-            if (!(tempb = (PyObject*)GMPy_MPFR_From_Real(b, 1, context))) {
+        if (IS_TYPE_REAL(btype)) {
+            if (!(tempb = (PyObject*)GMPy_MPFR_From_RealWithType(b, btype, 1, context))) {
                 return NULL;
             }
             mpfr_clear_flags();
@@ -260,12 +263,12 @@ GMPy_RichCompare_Slot(PyObject *a, PyObject *b, int op)
         }
     }
 
-    if (MPC_Check(a)) {
+    if (IS_TYPE_MPC(atype)) {
         if (!(op == Py_EQ || op == Py_NE)) {
             TYPE_ERROR("no ordering relation is defined for complex numbers");
             return NULL;
         }
-        if (MPC_Check(b)) {
+        if (IS_TYPE_MPC(btype)) {
             mpfr_clear_flags();
             c = mpc_cmp(MPC(a), MPC(b));
             if (mpfr_erangeflag_p()) {

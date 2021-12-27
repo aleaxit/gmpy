@@ -76,7 +76,7 @@ static int GMPy_isComplex(PyObject *obj)
  * Exceptions are never raised.
  */
 
-static int GMPy_ObjectType(PyObject *obj)
+static inline int GMPy_ObjectType(PyObject *obj)
 {
     /* Tests are sorted by order by (best guess of) most common argument type.
      * Tests that require attribute lookups are done last.
