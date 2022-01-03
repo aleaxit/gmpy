@@ -6,7 +6,7 @@
  *                                                                         *
  * Copyright 2000 - 2009 Alex Martelli                                     *
  *                                                                         *
- * Copyright 2008 - 2021 Case Van Horsen                                   *
+ * Copyright 2008 - 2022 Case Van Horsen                                   *
  *                                                                         *
  * This file is part of GMPY2.                                             *
  *                                                                         *
@@ -438,6 +438,8 @@
  *        Issue 319.
  *
  *    2.1.2
+ *    Code cleanup.
+ *    Support Apple Silicon binary wheels.
  *
  ************************************************************************
  *
