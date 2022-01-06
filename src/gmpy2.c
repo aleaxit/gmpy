@@ -440,6 +440,7 @@
  *    2.1.2
  *    Code cleanup.
  *    Support Apple Silicon binary wheels.
+ *    is_prime(-2) now returns False. Issue 312.
  *
  ************************************************************************
  *
