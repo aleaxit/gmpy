@@ -1419,6 +1419,10 @@ GMPy_MPZ_Method_IsPrime(PyObject *self, PyObject *args)
         }
     }
 
+    if (mpz_sgn(MPZ(self)) == -1) {
+        Py_RETURN_FALSE;        
+    }
+
     i = mpz_probab_prime_p(MPZ(self), (int)reps);
 
     if (i)

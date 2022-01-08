@@ -29,7 +29,7 @@
  * to code bloat via macro overuse.
  */
 
-static void
+static inline void
 _GMPy_MPFR_Cleanup(MPFR_Object **v, CTXT_Object *ctext)
 {
     /* GMPY_MPFR_CHECK_RANGE(V, CTX) */
@@ -40,7 +40,7 @@ _GMPy_MPFR_Cleanup(MPFR_Object **v, CTXT_Object *ctext)
         _oldemin = mpfr_get_emin();
         _oldemax = mpfr_get_emax();
         mpfr_set_emin(ctext->ctx.emin);
-        mpfr_set_emax(ctext->ctx.emax); \
+        mpfr_set_emax(ctext->ctx.emax);
         (*v)->rc = mpfr_check_range((*v)->f, (*v)->rc, GET_MPFR_ROUND(ctext));
         mpfr_set_emin(_oldemin);
         mpfr_set_emax(_oldemax);

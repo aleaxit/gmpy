@@ -442,6 +442,9 @@
  *    Support Apple Silicon binary wheels.
  *    is_prime(-2) now returns False. Issue 312.
  *
+ *    2.1.3
+ *    Fix mpz(-3).is_prime()
+ *
  ************************************************************************
  *
  * Discussion on sizes of C integer types.
@@ -506,7 +509,7 @@
 
 /* The following global strings are used by gmpy_misc.c. */
 
-char gmpy_version[] = "2.1.2";
+char gmpy_version[] = "2.1.3";
 
 char gmpy_license[] = "\
 The GMPY2 source code is licensed under LGPL 3 or later. The supported \
@@ -914,7 +917,7 @@ static PyMethodDef Pygmpy_methods [] =
 };
 
 static char _gmpy_docs[] =
-"gmpy2 2.1.2 - General Multiple-precision arithmetic for Python\n"
+"gmpy2 2.1.3 - General Multiple-precision arithmetic for Python\n"
 "\n"
 "gmpy2 supports several multiple-precision libraries. Integer and\n"
 "rational arithmetic is provided by the GMP library. Real floating-\n"
