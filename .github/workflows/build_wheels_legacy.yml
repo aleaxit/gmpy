@@ -1,4 +1,4 @@
-name: Build Wheels py27
+name: Build Wheels legacy
 
 on: [push, pull_request]
 
@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-18.04, macos-latest]
+        os: [ubuntu-18.04, macos-10.15]
         python-version: ["3.7"]
 
     steps:
@@ -31,7 +31,7 @@ jobs:
           CIBW_PRERELEASE_PYTHONS: True
           CIBW_BEFORE_BUILD: bash scripts/before_ci_build.sh
           CIBW_SKIP: pp*
-          CIBW_BUILD: cp27*
+          CIBW_BUILD: cp27* cp35*
 
       - uses: actions/upload-artifact@v2
         with:
