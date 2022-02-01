@@ -7,7 +7,7 @@ gmpy2 2.1 was extensively refactored. Some of the significant changes are:
 
   * Support for thread-safe contexts and context methods
   * Interoperability with Cython extensions
-  * mpz and mpq operation can release the GIL (controlled by the conntext)
+  * mpz and mpq operation can release the GIL (controlled by the context)
   * Improved argument processing
 
 gmpy2 is available at https://pypi.python.org/pypi/gmpy2/
