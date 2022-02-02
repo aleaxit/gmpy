@@ -40,6 +40,7 @@ static PyObject * GMPy_Rational_PowWithType(PyObject *base, int btype, PyObject 
 static PyObject * GMPy_Real_PowWithType(PyObject *base, int btype, PyObject *exp, int etype, PyObject *mod, CTXT_Object *context);
 static PyObject * GMPy_Complex_PowWithType(PyObject *base, int btype, PyObject *exp, int etype, PyObject *mod, CTXT_Object *context);
 static PyObject * GMPy_Integer_PowMod(PyObject *self, PyObject *args);
+static PyObject * GMPy_Integer_PowMod_Sec(PyObject *self, PyObject *args);
 
 static PyObject * GMPy_Context_Pow(PyObject *self, PyObject *args);
 static PyObject * GMPy_Number_Pow(PyObject *x, PyObject *y, PyObject *z, CTXT_Object *context);

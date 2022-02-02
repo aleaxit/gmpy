@@ -2,7 +2,7 @@ Test gmpy2 Power
 ================
 
 >>> import gmpy2
->>> from gmpy2 import mpz, mpq, mpfr, mpc, powmod
+>>> from gmpy2 import mpz, mpq, mpfr, mpc, powmod, powmod_sec
 >>> from fractions import Fraction
 >>> ctx = gmpy2.get_context()
 
@@ -140,5 +140,27 @@ TypeError: powmod() requires 3 arguments.
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: powmod() argument types not supported
+>>> 1
+1
+
+Test powmod_sec
+---------------
+
+>>> powmod_sec(3,3,7)
+mpz(6)
+>>> powmod_sec(-3,3,7)
+mpz(1)
+>>> powmod(-3,3,7)
+mpz(1)
+>>> powmod(3,-3,7)
+mpz(6)
+>>> powmod_sec(3,-3,7)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: powmod_sec() exponent must be > 0.
+>>> powmod_sec(3,4,8)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: powmod_sec() modulus must be odd.
 >>> 1
 1

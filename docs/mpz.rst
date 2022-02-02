@@ -375,6 +375,11 @@ mpz Functions
     negative, and the correct result will be returned if the inverse of *x*
     mod *m* exists. Otherwise, a ValueError is raised.
 
+**powmod_sec(...)**
+    powmod_sec(x, y, m) returns (*x* ** *y*) mod *m*. The calculation uses a
+    constant time algorithm to reduce the risk of side channel attacks. y must
+    be an integer >0. m must be an odd integer.
+
 **primorial(...)**
     primorial(n) returns the exact primorial of *n*, i.e. the product of all
     positive prime numbers <= *n*.
