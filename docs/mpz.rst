@@ -131,6 +131,10 @@ mpz Functions
 **bit_clear(...)**
     bit_clear(x, n) returns a copy of *x* with bit *n* set to 0.
 
+**bit_count(...)**
+    bit_count(x) returns a the number of 1 bits in the binary 
+    representation of *x*. Differs from popcount() for x <0.
+
 **bit_flip(...)**
     bit_flip(x, n) returns a copy of *x* with bit *n* inverted.
 

@@ -330,3 +330,24 @@ Traceback (most recent call last):
 TypeError: hamdist() requires 'mpz','mpz' arguments
 >>> 1
 1
+
+Test bit_count
+--------------
+
+>>> a=mpz(10009)
+>>> a.bit_count()
+7
+>>> gmpy2.popcount(a)
+7
+>>> gmpy2.bit_count(a)
+7
+>>> a=-a
+>>> a
+mpz(-10009)
+>>> a.bit_count()
+7
+>>> gmpy2.bit_count(a)
+7
+>>> gmpy2.popcount(a) == -1
+True
+>>> 

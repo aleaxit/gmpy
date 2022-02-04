@@ -7,8 +7,8 @@
  * Copyright 2000 - 2009 Alex Martelli                                     *
  *                                                                         *
  * Copyright 2008 - 2022 Case Van Horsen                                   *
- *                                                                         *
- * This file is part of GMPY2.                                             *
+ *                                                                         * If x<0, the number of\n"
+"1-bits is infinite so -1 is returned in that case.
  *                                                                         *
  * GMPY2 is free software: you can redistribute it and/or modify it under  *
  * the terms of the GNU Lesser General Public License as published by the  *

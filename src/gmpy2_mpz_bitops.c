@@ -659,6 +659,76 @@ GMPy_MPZ_popcount(PyObject *self, PyObject *other)
     }
 }
 
+PyDoc_STRVAR(doc_bit_count_method,
+"x.bit_count() -> int\n\n"
+"Return the number of 1-bits set in abs(x).");
+
+static PyObject *
+GMPy_MPZ_bit_count_method(PyObject *self, PyObject *other)
+{
+    mp_bitcnt_t n = 0;
+    MPZ_Object *temppos = NULL;
+
+    /* Since tempx could just be an additional reference to
+     * an existing mpz, we need to make a copy to change the
+     * sign.
+     */
+    
+    if (mpz_sgn(MPZ(self)) == -1) {
+        if (!(temppos = GMPy_MPZ_New(NULL))) {
+            /* LCOV_EXCL_START */
+            return NULL;
+            /* LCOV_EXCL_STOP */
+        }
+        mpz_abs(MPZ(temppos), MPZ(self));
+        n = mpz_popcount(MPZ(temppos));
+        Py_DECREF((PyObject*)temppos);
+    }
+    else {
+        n = mpz_popcount(MPZ(self));
+    }
+    return PyIntOrLong_FromMpBitCnt(n);
+}
+
+PyDoc_STRVAR(doc_bit_count,
+"bit_count(x) -> int\n\n"
+"Return the number of 1-bits set in abs(x).");
+
+static PyObject *
+GMPy_MPZ_bit_count(PyObject *self, PyObject *other)
+{
+    mp_bitcnt_t n;
+    MPZ_Object *tempx = NULL, *temppos = NULL;
+
+
+    if ((tempx = GMPy_MPZ_From_Integer(other, NULL))) {
+        /* Since tempx could just be an additional reference to
+         * an existing mpz, we need to make a copy to change the
+         * sign.
+         */
+        if (mpz_sgn(MPZ(tempx)) == -1) {
+            if (!(temppos = GMPy_MPZ_New(NULL))) {
+                /* LCOV_EXCL_START */
+                return NULL;
+                /* LCOV_EXCL_STOP */
+            }
+            mpz_abs(MPZ(temppos), MPZ(tempx));
+            n = mpz_popcount(MPZ(temppos));
+            Py_DECREF((PyObject*)tempx);
+            Py_DECREF((PyObject*)temppos);
+        }
+        else {
+            n = mpz_popcount(MPZ(tempx));
+            Py_DECREF((PyObject*)tempx);
+        }
+        return PyIntOrLong_FromMpBitCnt(n);
+    }
+    else {
+        TYPE_ERROR("bit_count() requires 'mpz' argument");
+        return NULL;
+    }
+}
+
 PyDoc_STRVAR(doc_hamdist,
 "hamdist(x, y) -> int\n\n"
 "Return the Hamming distance (number of bit-positions where the\n"

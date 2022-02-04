@@ -153,6 +153,7 @@ static PyMethodDef GMPy_MPZ_methods [] =
     { "__sizeof__", GMPy_MPZ_Method_SizeOf, METH_NOARGS, GMPy_doc_mpz_method_sizeof },
     { "__trunc__", GMPy_MPZ_Method_Trunc, METH_NOARGS, GMPy_doc_mpz_method_trunc },
     { "bit_clear", GMPy_MPZ_bit_clear_method, METH_O, doc_bit_clear_method },
+    { "bit_count", GMPy_MPZ_bit_count_method, METH_NOARGS, doc_bit_count_method },
     { "bit_flip", GMPy_MPZ_bit_flip_method, METH_O, doc_bit_flip_method },
     { "bit_length", GMPy_MPZ_bit_length_method, METH_NOARGS, doc_bit_length_method },
     { "bit_scan0", GMPy_MPZ_bit_scan0_method, METH_VARARGS, doc_bit_scan0_method },

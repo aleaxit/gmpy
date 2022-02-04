@@ -665,6 +665,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "_printf", GMPy_printf, METH_VARARGS, GMPy_doc_function_printf },
     { "add", GMPy_Context_Add, METH_VARARGS, GMPy_doc_function_add },
     { "bit_clear", GMPy_MPZ_bit_clear_function, METH_VARARGS, doc_bit_clear_function },
+    { "bit_count", GMPy_MPZ_bit_count, METH_O, doc_bit_count },
     { "bit_flip", GMPy_MPZ_bit_flip_function, METH_VARARGS, doc_bit_flip_function },
     { "bit_length", GMPy_MPZ_bit_length_function, METH_O, doc_bit_length_function },
     { "bit_mask", GMPy_MPZ_bit_mask, METH_O, doc_bit_mask },
