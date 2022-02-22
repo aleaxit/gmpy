@@ -445,6 +445,7 @@
  *    2.1.3
  *    Fix mpz(-3).is_prime()
  *    Add powmod_sec()
+ *    Fix mpfr('inf') and mpfr('nan') if subnormalization is enabled
  *
  ************************************************************************
  *

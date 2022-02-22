@@ -342,7 +342,7 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
     }
 
     /* If the context requests subnormals and the result is in the range for subnormals,
-     * we use exact conversion via conversion to an mpq.
+     * we use exact conversion via intermediate conversion to an mpq.
      *
      * The sticky bit returned by MPFR's string conversion appears to only reflect the
      * portion of the string needed to compute the correctly rounded result. It does not
@@ -352,7 +352,8 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
      * sticky bit.
      */
 
-    if (base == 10 &&
+    if (mpfr_number_p(result->f) &&
+        base == 10 &&
         context->ctx.subnormalize &&
         result->f->_mpfr_exp <= context->ctx.emin + mpfr_get_prec(result->f) - 1)
         {
