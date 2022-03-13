@@ -166,6 +166,7 @@ GMPy_Integer_PowWithType(PyObject *b, int btype, PyObject *e, int etype,
             }
         }
         else {
+            GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
             mpz_powm(result->z, tempb->z, tempe->z, mm);
             mpz_clear(mm);
 
@@ -176,7 +177,7 @@ GMPy_Integer_PowWithType(PyObject *b, int btype, PyObject *e, int etype,
             if ((sign < 0) && (mpz_sgn(result->z) > 0)) {
                 mpz_add(result->z, result->z, tempm->z);
             }
-
+            GMPY_MAYBE_END_ALLOW_THREADS(context);
         }
     }
 
@@ -478,6 +479,9 @@ GMPy_Integer_PowMod_Sec(PyObject *self, PyObject *args)
     PyObject *x, *y, *m;
     int xtype, ytype, mtype;
     MPZ_Object *tempx = NULL, *tempy = NULL, *tempm = NULL, *result = NULL;
+    CTXT_Object *context = NULL;
+
+    CHECK_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) != 3) {
         TYPE_ERROR("powmod_sec() requires 3 arguments.");
@@ -538,7 +542,9 @@ GMPy_Integer_PowMod_Sec(PyObject *self, PyObject *args)
         goto err;
     }
 
+    GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
     mpz_powm_sec(result->z, tempx->z, tempy->z, tempm->z);
+    GMPY_MAYBE_END_ALLOW_THREADS(context);
     
     Py_DECREF(tempx);
     Py_DECREF(tempy);
