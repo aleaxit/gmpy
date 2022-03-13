@@ -85,7 +85,7 @@ GMPy_Integer_AsUnsignedLongWithType(PyObject *x, int xtype)
 
     if (IS_TYPE_MPZANY(xtype)) {
         if (mpz_fits_ulong_p(MPZ(x))) {
-            return (unsigned long) mpz_get_si(MPZ(x));
+            return (unsigned long) mpz_get_ui(MPZ(x));
         }
         else {
             OVERFLOW_ERROR("value could not be converted to C long");
