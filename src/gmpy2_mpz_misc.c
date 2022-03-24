@@ -115,7 +115,7 @@ GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    n = GMPy_Integer_AsUnsignedLong(PyTuple_GET_ITEM(args, 1));
+    n = GMPy_Integer_AsUnsignedLong_v2(PyTuple_GET_ITEM(args, 1));
     if ((n == 0) || ((n == (unsigned long)(-1)) && PyErr_Occurred())) {
         VALUE_ERROR("n must be > 0");
         return NULL;
