@@ -174,9 +174,9 @@ GMPy_Integer_PowWithType(PyObject *b, int btype, PyObject *e, int etype,
             * If the modulo is negative, result should be in the interval
             * m < r <= 0 .
             */
-            if ((sign < 0) && (mpz_sgn(result->z) > 0)) {
+            if ((sign < 0) && (mpz_sgn(result->z) > 0))
                 mpz_add(result->z, result->z, tempm->z);
-            }
+
             GMPY_MAYBE_END_ALLOW_THREADS(context);
         }
     }

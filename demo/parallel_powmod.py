@@ -46,30 +46,33 @@ def powmod_list(lst, e, m, release_gil = True):
 # Create the main function.
 # Execute the powmod_list function across multiple threads.
 def run_test(big_list, e, m, threads, release_gil = True):
-    split_list = partition_list(big_list, threads)
+    split_list = partition_list(big_list, threads * 11)
     total_thread_time = 0
     walltime_start = time.time()
-    with concurrent.futures.ThreadPoolExecutor(max_workers = threads) as executor:
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers = threads)
+    with executor:
         tasks = []
         for slist in split_list:
-            tasks.append(executor.submit(powmod_list, slist, e, m))
+            tasks.append(executor.submit(powmod_list, slist, e, m, release_gil))
         for task in concurrent.futures.as_completed(tasks):
             total_thread_time += task.result()
     return time.time() - walltime_start, total_thread_time
 
 if __name__ == "__main__":
-    big_list, e, m = create_tests(10000, 2000)
+    big_list, e, m = create_tests(100000, 1000)
     # Specify the number of threads to use.
     # Note: 0 indicates a single thread that does not release the GIL.
-    test_threads = [0, 1, 2, 4]
-    while test_threads[-1] < 2 * multiprocessing.cpu_count():
-        test_threads.append(test_threads[-1] + 4)
-    for t in test_threads:
-        if t == 0:
-            print("Executing reference test without threading or releasing the GIL.")
-            print("Elapsed time: ", powmod_list(big_list, e, m, False))
-            print()
-        else:
-            print("Executing tests with threading and releasing the GIL.")
-            print("Number of threads: ", t)
-            print("Wall time, CPU time: ", run_test(big_list, e, m, t, True))
+    test_threads = [0, 1, 2, 4, 6, 8, 10, 12, 14, 15, 16, 17, 24, 30, 31, 32]
+    # while test_threads[-1] < 32:
+    #     test_threads.append(test_threads[-1] + 4)
+    for i in range(1000):
+        print()
+        print("pass: ", i + 1)
+        for t in test_threads:
+            if t == 0:
+                print("Executing reference test without threading or releasing the GIL.")
+                print("Elapsed time: ", powmod_list(big_list, e, m, False))
+            else:
+                # print("Executing tests with threading and releasing the GIL.")
+                print("Number of threads: ", t, end = '')
+                print(" Wall time, CPU time: ", run_test(big_list, e, m, t, True))
