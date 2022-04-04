@@ -40,6 +40,7 @@ static MPZ_Object *    GMPy_MPZ_From_PyStr(PyObject *s, int base, CTXT_Object *c
 static MPZ_Object *    GMPy_MPZ_From_PyFloat(PyObject *obj, CTXT_Object *context);
 
 static MPZ_Object *    GMPy_MPZ_From_Integer(PyObject *obj, CTXT_Object *context);
+static MPZ_Object *    GMPy_MPZ_From_IntegerAndCopy(PyObject *obj, CTXT_Object *context);
 static MPZ_Object *    GMPy_MPZ_From_IntegerWithType(PyObject *obj, int xtype, CTXT_Object *context);
 static MPZ_Object *    GMPy_MPZ_From_IntegerWithTypeAndCopy(PyObject *obj, int xtype, CTXT_Object *context);
 

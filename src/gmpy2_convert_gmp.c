@@ -324,6 +324,44 @@ GMPy_MPZ_From_Integer(PyObject *obj, CTXT_Object *context)
 }
 
 static MPZ_Object *
+GMPy_MPZ_From_IntegerAndCopy(PyObject *obj, CTXT_Object *context)
+{
+    MPZ_Object *result = NULL;
+
+    if (MPZ_Check(obj)) {
+        if (!(result = GMPy_MPZ_New(context))) {
+            /* LCOV_EXCL_START */
+            return NULL;
+            /* LCOV_EXCL_STOP */
+        }
+        mpz_set(result->z, MPZ(obj));
+        return result;
+    }
+
+    if (PyIntOrLong_Check(obj))
+        return GMPy_MPZ_From_PyIntOrLong(obj, context);
+
+    if (XMPZ_Check(obj))
+        return GMPy_MPZ_From_XMPZ((XMPZ_Object*)obj, context);
+
+    if (HAS_STRICT_MPZ_CONVERSION(obj)) {
+        result = (MPZ_Object *) PyObject_CallMethod(obj, "__mpz__", NULL);
+
+        if (result != NULL && MPZ_Check(result)) {
+            return result;
+        }
+        else {
+            Py_XDECREF((PyObject*)result);
+            goto error;
+        }
+    }
+
+  error:
+    TYPE_ERROR("cannot convert object to mpz");
+    return NULL;
+}
+
+static MPZ_Object *
 GMPy_MPZ_From_IntegerWithType(PyObject *obj, int xtype, CTXT_Object *context)
 {
     MPZ_Object *result = NULL;

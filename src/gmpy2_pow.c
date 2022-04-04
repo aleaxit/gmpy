@@ -196,6 +196,108 @@ GMPy_Integer_PowWithType(PyObject *b, int btype, PyObject *e, int etype,
 }
 
 static PyObject *
+GMPy_Integer_PowModListWithType(PyObject *lst, PyObject *e, int etype,
+                                PyObject *m, int mtype)
+{
+    MPZ_Object *tempe = NULL, *tempm = NULL, *tempres = NULL;
+    PyObject *result = NULL, *temp = NULL;
+    Py_ssize_t i, seq_length;
+
+    if (!(tempm = GMPy_MPZ_From_IntegerWithType(m, mtype, NULL)) ||
+        !(tempe = GMPy_MPZ_From_IntegerWithType(e, etype, NULL))) {
+        return NULL;
+    }
+
+    if (mpz_sgn(tempm->z) < 1) {
+        VALUE_ERROR("powmod_list() 'mod' must be > 0");
+        Py_DECREF((PyObject*)tempm);
+        Py_DECREF((PyObject*)tempe);
+        return NULL;
+    }
+
+    /* Convert lst to a true list. */
+
+    if (!(lst = PySequence_Fast(lst, "argument must be an iterable"))) {
+        return NULL;
+    }
+
+    /* Try to convert all items of lst to an mpz.
+     * 
+     * Note: MUST USE GMPy_MPZ_From_IntegerAndCopy()
+     *       since the value it changes in-place.
+     */
+
+    seq_length = PySequence_Fast_GET_SIZE(lst);
+    if (!(result = PyList_New(seq_length))) {
+        Py_DECREF((PyObject*)tempe);
+        Py_DECREF((PyObject*)tempm);
+        Py_DECREF((PyObject*)lst);
+        return NULL;
+    }
+
+    for (i=0; i < seq_length; i++) {
+        if (!(tempres = GMPy_MPZ_From_IntegerAndCopy(PySequence_Fast_GET_ITEM(lst, i), NULL))) {
+            Py_DECREF((PyObject*)tempe);
+            Py_DECREF((PyObject*)tempm);
+            Py_DECREF(lst);
+            Py_DECREF(result);
+            TYPE_ERROR("all items in iterable must be integers");
+            return NULL;
+        }
+
+        if (PyList_SetItem(result, i, (PyObject*)tempres) < 0) {
+            Py_DECREF((PyObject*)tempe);
+            Py_DECREF((PyObject*)tempm);
+            Py_DECREF(lst);
+            Py_DECREF(result);
+            return NULL;
+        }
+    }
+
+    Py_BEGIN_ALLOW_THREADS;
+    for (i=0; i < seq_length; i++) {
+        temp = PySequence_Fast_GET_ITEM(result, i);
+        mpz_powm(MPZ(temp), MPZ(temp), tempe->z, tempm->z);
+    }
+    Py_END_ALLOW_THREADS;
+
+    Py_DECREF((PyObject*)tempe);
+    Py_DECREF((PyObject*)tempm);
+    Py_DECREF((PyObject*)lst);
+    return (PyObject*)result;
+}
+
+PyDoc_STRVAR(GMPy_doc_integer_powmod_list,
+"powmod_list(lst, exp, mod) -> list\n\n"
+"Returns list(powmod(i, exp, mod) for i in lst). Will always release\n"
+"the GIL. (Experimental in gmpy2 2.1.x).");
+
+static PyObject *
+GMPy_Integer_PowMod_List(PyObject *self, PyObject *args)
+{
+    if (PyTuple_GET_SIZE(args) != 3) {
+        TYPE_ERROR("powmod_list requires 3 arguments");
+        return NULL;
+    }
+
+    if (!PySequence_Check(PyTuple_GET_ITEM(args, 0))) {
+        TYPE_ERROR("the first argument to powmod_list must be a sequence");
+        return NULL;
+    }
+        
+    int etype = GMPy_ObjectType(PyTuple_GET_ITEM(args, 1));
+    int mtype = GMPy_ObjectType(PyTuple_GET_ITEM(args, 2));
+    
+    if (IS_TYPE_INTEGER(etype) && IS_TYPE_INTEGER(mtype))
+        return GMPy_Integer_PowModListWithType(PyTuple_GET_ITEM(args, 0),
+                                               PyTuple_GET_ITEM(args, 1), etype,
+                                               PyTuple_GET_ITEM(args, 2), mtype);
+
+    TYPE_ERROR("powmod_list() requires integer arguments");
+    return NULL;
+}
+
+static PyObject *
 GMPy_Rational_PowWithType(PyObject *base, int btype, PyObject *exp, int etype,
                          PyObject *mod, CTXT_Object *context)
 {
