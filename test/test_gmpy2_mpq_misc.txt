@@ -98,3 +98,14 @@ Test underscore
 mpq(1,1)
 >>> mpq('1_/_1')
 mpq(1,1)
+
+Test for issue #334
+-------------------
+>>> x=mpq(3,2)
+>>> y=mpq(x,2)
+>>> x
+mpq(3,2)
+>>> y
+mpq(3,4)
+>>> id(x) == id(y)
+False

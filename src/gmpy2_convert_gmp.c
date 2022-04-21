@@ -1207,6 +1207,31 @@ GMPy_MPQ_From_Rational(PyObject *obj, CTXT_Object *context)
 }
 
 static MPQ_Object*
+GMPy_MPQ_From_RationalAndCopy(PyObject *obj, CTXT_Object *context)
+{
+    MPQ_Object *result = NULL, *temp = NULL;
+
+    result = GMPy_MPQ_From_Rational(obj, context);
+
+    if (result == NULL)
+        return result;
+
+    if (Py_REFCNT(result) == 1)
+        return result;
+
+    if (!(temp = GMPy_MPQ_New(context))) {
+        /* LCOV_EXCL_START */
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
+
+    mpq_set(temp->q, result->q);
+    Py_DECREF((PyObject*)result);
+    return temp;
+}
+
+
+static MPQ_Object*
 GMPy_MPQ_From_RationalWithType(PyObject *obj, int xtype, CTXT_Object *context)
 {
     if (IS_TYPE_MPQ(xtype)) {

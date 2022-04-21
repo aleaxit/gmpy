@@ -448,6 +448,8 @@
  *    Fix mpfr('inf') and mpfr('nan') if subnormalization is enabled.
  *    powmod() and powmod_sec() release the GIL.
  *    Fix error messages for iroot(x,n) for large n.
+ *    Add powmod_list (experimental).
+ *    Fix gmpy2.mpq(mpq, int).
  *
  ************************************************************************
  *

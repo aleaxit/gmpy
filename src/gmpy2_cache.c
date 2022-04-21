@@ -465,7 +465,7 @@ GMPy_MPQ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         m = PyTuple_GetItem(args, 1);
 
         if (IS_RATIONAL(n) && IS_RATIONAL(m)) {
-           result = GMPy_MPQ_From_Rational(n, context);
+           result = GMPy_MPQ_From_RationalAndCopy(n, context);
            temp = GMPy_MPQ_From_Rational(m, context);
            if (!result || !temp) {
                Py_XDECREF((PyObject*)result);
