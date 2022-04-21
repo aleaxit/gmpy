@@ -13,7 +13,7 @@ if [ ! -f finish_before_ci_build ]; then
     # comes with autotools which is micro-architecture agnostic.
     # config.guess is a custom gmp script which knows about micro-architectures.
     cd gmp-${GMP_VERSION} && ./configure --enable-fat --host=$(./configfsf.guess) && make -j4 && make install && cd ../
-    curl -O https://www.mpfr.org/mpfr-current/mpfr-${MPFR_VERSION}.tar.gz
+    curl -O -k https://www.mpfr.org/mpfr-current/mpfr-${MPFR_VERSION}.tar.gz
     tar -xvf mpfr-${MPFR_VERSION}.tar.gz
     cd mpfr-${MPFR_VERSION} && ./configure && make -j4 && make install && cd ../
     curl -O https://ftp.gnu.org/gnu/mpc/mpc-${MPC_VERSION}.tar.gz
