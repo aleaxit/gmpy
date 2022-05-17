@@ -227,7 +227,7 @@ GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_mpz_is_strong_prp,
 "is_strong_prp(n,a) -> boolean\n\n"
-"Return True if n is an strong (also known as Miller-Rabin)\n"
+"Return True if n is a strong (also known as Miller-Rabin)\n"
 "probable prime to the base a.\n"
 "Assuming:\n"
 "    gcd(n,a) == 1\n"
@@ -342,7 +342,7 @@ GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(doc_mpz_is_fibonacci_prp,
 "is_fibonacci_prp(n,p,q) -> boolean\n\n"
-"Return True if n is an Fibonacci probable prime with parameters (p,q).\n"
+"Return True if n is a Fibonacci probable prime with parameters (p,q).\n"
 "Assuming:\n"
 "    n is odd\n"
 "    p > 0, q = +/-1\n"
