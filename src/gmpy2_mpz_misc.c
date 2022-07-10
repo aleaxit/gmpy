@@ -611,7 +611,7 @@ GMPy_MPZ_Function_DoubleFac(PyObject *self, PyObject *other)
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_primorial,
 "primorial(n) -> mpz\n\n"
-"Return the product of all positive prime numbers less than or"
+"Return the product of all positive prime numbers less than or\n"
 "equal to n.");
 
 static PyObject *

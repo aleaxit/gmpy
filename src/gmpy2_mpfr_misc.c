@@ -28,7 +28,7 @@ PyDoc_STRVAR(GMPy_doc_function_f2q,
 "f2q(x,[err]) -> mpq\n\n"
 "Return the 'best' mpq approximating x to within relative error 'err'.\n"
 "Default is the precision of x. Uses Stern-Brocot tree to find the\n"
-"'best' approximation. An 'mpz' is returned if the the denominator\n"
+"'best' approximation. An 'mpz' is returned if the denominator\n"
 "is 1. If 'err'<0, relative error is 2.0 ** err.");
 
 static PyObject *
@@ -391,7 +391,7 @@ GMPy_MPFR_set_inf(PyObject *self, PyObject *args)
 
 PyDoc_STRVAR(GMPy_doc_mpfr_set_zero,
 "zero(n) -> mpfr\n\n"
-"Return an 'mpfr' inialized to 0.0 with the same sign as n.\n"
+"Return an 'mpfr' initialized to 0.0 with the same sign as n.\n"
 "If n is not given, +0.0 is returned.");
 
 static PyObject *
