@@ -12,7 +12,8 @@ rounding modes for both the real and imaginary components of an *mpc*.
     >>> from gmpy2 import mpc
     >>> gmpy2.sqrt(mpc("1+2j"))
     mpc('1.272019649514069+0.78615137775742328j')
-    >>> gmpy2.get_context(real_prec=100,imag_prec=200)
+    >>> gmpy2.set_context(gmpy2.context(real_prec=100,imag_prec=200))
+    >>> gmpy2.get_context()
     context(precision=53, real_prec=100, imag_prec=200,
             round=RoundToNearest, real_round=Default, imag_round=Default,
             emax=1073741823, emin=-1073741823,
@@ -39,19 +40,7 @@ setting allow_complex to True, complex results will be returned.
     >>> from gmpy2 import mpc
     >>> gmpy2.sqrt(-4)
     mpfr('nan')
-    >>> gmpy2.get_context(allow_complex=True)
-    context(precision=53, real_prec=Default, imag_prec=Default,
-            round=RoundToNearest, real_round=Default, imag_round=Default,
-            emax=1073741823, emin=-1073741823,
-            subnormalize=False,
-            trap_underflow=False, underflow=False,
-            trap_overflow=False, overflow=False,
-            trap_inexact=False, inexact=False,
-            trap_invalid=False, invalid=True,
-            trap_erange=False, erange=False,
-            trap_divzero=False, divzero=False,
-            trap_expbound=False,
-            allow_complex=True)
+    >>> gmpy2.get_context().allow_complex=True
     >>> gmpy2.sqrt(-4)
     mpc('0.0+2.0j')
 
