@@ -75,15 +75,6 @@ print("  Caching Values: (Cache size)    {0}".format(gmpy2.get_cache()[0]))
 print("  Caching Values: (Size in limbs) {0}".format(gmpy2.get_cache()[1]))
 print()
 
-if sys.version.startswith('3.1.'):
-    print("Due to differences in formatting of exceptions and Python 3.x, there")
-    print("will be test failures for exception handling when the tests are run")
-    print("with Python 3.1. The doctest module in Python 3.2 and later does not")
-    print("have this issue.")
-    print()
-    input("Press ENTER to continue.. ")
-    print()
-
 mpz_doctests = ["test_mpz_create.txt", "test_mpz.txt", "test_mpz_io.txt",
                 "test_mpz_pack_unpack.txt", "test_misc.txt"]
 
@@ -117,13 +108,13 @@ all_doctests += mpfr_doctests + mpfr_version_tests
 
 all_doctests += mpc_doctests
 
-if sys.version >= "3.2":
+if sys.version_info > (3,1):
     all_doctests += py32_doctests
 
 for test in sorted(all_doctests):
-    if test.endswith("py2.txt") and sys.version >= "3":
+    if test.endswith("py2.txt") and sys.version_info[0] >= 3:
         continue
-    if test.endswith("py3.txt") and sys.version < "3":
+    if test.endswith("py3.txt") and sys.version_info[0] < 3:
         continue
     for r in range(repeat):
         result = doctest.testfile(test, globs=globals(),

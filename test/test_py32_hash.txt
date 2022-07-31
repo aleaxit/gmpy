@@ -27,8 +27,6 @@ This test is only applicable for Python 3.2 and later.
     True
     >>> hash(mpfr('-0')) == hash(float('-0'))
     True
-    >>> hash(mpfr('NaN')) == hash(float('NaN'))
-    True
     >>> hash(mpfr('123.456')) == hash(Decimal('123.456'))
     False
     >>> hash(mpfr('123.5')) == hash(Decimal('123.5'))
