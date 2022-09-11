@@ -1,6 +1,7 @@
 pushd D:\64\Python27\libs
 gendef C:\Windows\System32\python27.dll
-popd dlltool --dllname C:\Windows\System32\python27.dll --def python27.def --output-lib libpython27.a
+dlltool --dllname C:\Windows\System32\python27.dll --def python27.def --output-lib libpython27.a
+popd
 
 pushd D:\64\Python35\libs
 gendef D:\64\Python35\python35.dll
@@ -30,4 +31,9 @@ popd
 pushd D:\64\Python310\libs
 gendef D:\64\Python310\python310.dll
 dlltool --dllname D:\64\Python310\python310.dll --def python310.def --output-lib libpython310.a
+popd
+
+pushd D:\64\Python311\libs
+gendef D:\64\Python311\python311.dll
+dlltool --dllname D:\64\Python310\python311.dll --def python311.def --output-lib libpython311.a
 popd

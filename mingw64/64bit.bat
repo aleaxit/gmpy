@@ -6,4 +6,5 @@
  doskey py38=D:\64\Python38\python.exe $*
  doskey py39=D:\64\Python39\python.exe $*
  doskey py310=D:\64\Python310\python.exe $*
+ doskey py311=D:\64\Python311\python.exe $*
  set Path=D:\mingw64\bin;%Path%

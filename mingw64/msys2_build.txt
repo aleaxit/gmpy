@@ -221,6 +221,7 @@ The Windows build environment
   copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python38\Lib\distutils\.
   copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python39\Lib\distutils\.
   copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python310\Lib\distutils\.
+  copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python311\Lib\site-packages\setuptools\_distutils\.
 
 # Create the appropriate libpythonNN.a files. See gendef64.bat
 
@@ -281,3 +282,4 @@ py37 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib 
 py38 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
 py39 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
 py310 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel
+py311 setup.py build_ext -cmingw32 -Imingw64\shared\include -Lmingw64\shared\lib -f bdist_wheel

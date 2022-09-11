@@ -92,8 +92,13 @@ extern "C" {
 #  define MPC_110
 #endif
 
+#if (PY_MAJOR_VERSION == 3)
+#  define PY3
+#else
+#  define PY2
+#endif
 
-#if PY_VERSION_HEX < 0x030200A4
+#ifdef PY2
 typedef long Py_hash_t;
 typedef unsigned long Py_uhash_t;
 #  define _PyHASH_IMAG 1000003
@@ -313,8 +318,7 @@ typedef struct {
 
 /* Define various macros to deal with differences between Python 2 and 3. */
 
-#if (PY_MAJOR_VERSION == 3)
-#define PY3
+#ifdef PY3
 #define Py2or3String_FromString     PyUnicode_FromString
 #define Py2or3String_FromFormat     PyUnicode_FromFormat
 #define Py2or3String_Check          PyUnicode_Check
@@ -330,7 +334,6 @@ typedef struct {
 #define PyIntOrLong_AsSsize_t       PyLong_AsSsize_t
 #define PyIntOrLong_AsLong          PyLong_AsLong
 #else
-#define PY2
 #define Py2or3String_FromString     PyString_FromString
 #define Py2or3String_FromFormat     PyString_FromFormat
 #define Py2or3String_Check          PyString_Check

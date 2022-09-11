@@ -4,6 +4,9 @@ import time
 
 # Test parallel computation of gmpy2.powmod()
 
+# The demo code is not (yet) optimal since it doesn't take advantage of
+# read-only access to data list that is shared across all threads.
+
 # Create a set of test values.
 def create_tests(num_items = 100000, bits = 1000):
     rand = gmpy2.random_state(42)
@@ -72,15 +75,18 @@ if __name__ == "__main__":
     print("Baseline test without releasing the GIL. ", powmod_list_gil(big_list, e, m)[0])
 
     # Specify the number of threads to use.
-    test_threads = [1, 2, 4, 8, 15, 16, 17, 32]
-    for i in range(1):
+    test_threads = list(range(1,33))
+    # The following demo code is disabled by default. It high-lights the inefficiency of 
+    # releasing the GIL for functions that execute fairly quicky
+    for i in range(0):
         print("Threaded, list-based, releasing the GIL, pass: ", i + 1)
         for t in test_threads:
             # print("Executing tests with threading and releasing the GIL.")
             print("Number of threads: ", t, end = '')
             print(" Wall time, CPU time: ", run_test(powmod_list_nogil, big_list, e, m, t, True))
 
-    for i in range(1):
+    # Repeat the tests multiple times to try to trigger a crash.
+    for i in range(10):
         print("Threaded, vector-based, releasing the GIL, pass: ", i + 1)
         for t in test_threads:
             # print("Executing tests with threading and releasing the GIL.")
