@@ -450,6 +450,8 @@
  *    Fix error messages for iroot(x,n) for large n.
  *    Add powmod_list (experimental).
  *    Fix gmpy2.mpq(mpq, int).
+ *    Fix issues with INF, NAN, and mpfr("-0") when subnormalization
+ *      is True
  *
  ************************************************************************
  *

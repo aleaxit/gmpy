@@ -352,7 +352,7 @@ GMPy_MPFR_From_PyStr(PyObject *s, int base, mpfr_prec_t prec, CTXT_Object *conte
      * sticky bit.
      */
 
-    if (mpfr_number_p(result->f) &&
+    if (mpfr_regular_p(result->f) &&
         base == 10 &&
         context->ctx.subnormalize &&
         result->f->_mpfr_exp <= context->ctx.emin + mpfr_get_prec(result->f) - 1)
