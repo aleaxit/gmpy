@@ -1,0 +1,43 @@
+[build-system]
+requires = ['pip>=20.3', 'setuptools>=61', 'wheel']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = 'gmpy2'
+version = '2.1.3'
+description = 'gmpy2 interface to GMP/MPIR, MPFR, and MPC for Python 3.7+'
+keywords = ['gmp', 'mpfr', 'mpc', 'multiple-precision',
+            'arbitrary-precision', 'precision', 'bignum']
+license = {text = 'LGPL-3.0+'}
+readme = 'README'
+authors = [{name = 'Case Van Horsen'}]
+maintainers = [{name = 'Case Van Horsen', email = 'casevh@gmail.com'}]
+classifiers = ['Development Status :: 4 - Beta',
+               'Intended Audience :: Developers',
+               'Intended Audience :: Science/Research',
+               'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
+               'Natural Language :: English',
+               'Operating System :: MacOS :: MacOS X',
+               'Operating System :: Microsoft :: Windows',
+               'Operating System :: POSIX',
+               'Programming Language :: C',
+               'Programming Language :: Python :: 3',
+               'Programming Language :: Python :: 3.7',
+               'Programming Language :: Python :: 3.8',
+               'Programming Language :: Python :: 3.9',
+               'Programming Language :: Python :: 3.10',
+               'Programming Language :: Python :: 3.11',
+               'Programming Language :: Python :: Implementation :: CPython',
+               'Topic :: Scientific/Engineering :: Mathematics',
+               'Topic :: Software Development :: Libraries :: Python Modules']
+requires-python = '>=3.7'
+[project.urls]
+Homepage = 'https://github.com/aleaxit/gmpy'
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+[tool.setuptools.packages]
+find = {namespaces = false}
+[tool.setuptools.package-data]
+gmpy2 = ['*.pxd', 'gmpy2.h', '*.dll']
