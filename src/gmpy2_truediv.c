@@ -280,30 +280,6 @@ GMPy_Number_TrueDiv_Slot(PyObject *x, PyObject *y)
     Py_RETURN_NOTIMPLEMENTED;
 }
 
-#ifdef PY2
-static PyObject *
-GMPy_Number_Div2_Slot(PyObject *x, PyObject *y)
-{
-    int xtype = GMPy_ObjectType(x);
-    int ytype = GMPy_ObjectType(y);
-    
-    if (IS_TYPE_INTEGER(xtype) && IS_TYPE_INTEGER(ytype))
-        return GMPy_Integer_FloorDivWithType(x, xtype, y, ytype, NULL);
-
-    if (IS_TYPE_RATIONAL(xtype) && IS_TYPE_RATIONAL(ytype))
-        return GMPy_Rational_TrueDivWithType(x, xtype, y, ytype, NULL);
-
-    if (IS_TYPE_REAL(xtype) && IS_TYPE_REAL(ytype))
-        return GMPy_Real_TrueDivWithType(x, xtype, y, ytype, NULL);
-        
-    if (IS_TYPE_COMPLEX(xtype) && IS_TYPE_COMPLEX(ytype))
-        return GMPy_Complex_TrueDivWithType(x, xtype, y, ytype, NULL);
-
-    Py_RETURN_NOTIMPLEMENTED;
-}
-#endif
-
-
 PyDoc_STRVAR(GMPy_doc_truediv,
 "div(x, y) -> number\n\n"
 "Return x / y; uses true division.");

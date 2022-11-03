@@ -379,12 +379,7 @@ GMPy_MPC_random_Function(PyObject *self, PyObject *args)
 
 static PyTypeObject RandomState_Type =
 {
-#ifdef PY3
     PyVarObject_HEAD_INIT(0, 0)
-#else
-    PyObject_HEAD_INIT(0)
-        0,                                  /* ob_size          */
-#endif
     "gmpy2 random state",                   /* tp_name          */
     sizeof(RandomState_Object),             /* tp_basicsize     */
         0,                                  /* tp_itemsize      */

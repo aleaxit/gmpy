@@ -49,22 +49,12 @@ extern "C" {
 #define IS_RATIONAL_ONLY(x) (MPQ_Check(x) || IS_FRACTION(x) || \
                              HAS_MPQ_CONVERSION(x))
 
-#ifdef PY2
-#define IS_INTEGER(x) (MPZ_Check(x) || PyInt_Check(x) || \
-                       PyLong_Check(x) || XMPZ_Check(x) || \
-                       HAS_STRICT_MPZ_CONVERSION(x))
-#define IS_RATIONAL(x) (MPQ_Check(x) || IS_FRACTION(x) || \
-                        MPZ_Check(x) || PyInt_Check(x) || \
-                        PyLong_Check(x)  || XMPZ_Check(x) || \
-                        HAS_MPQ_CONVERSION(x) || HAS_MPZ_CONVERSION(x))
-#else
 #define IS_INTEGER(x) (MPZ_Check(x) || PyLong_Check(x) || \
                        XMPZ_Check(x) || HAS_STRICT_MPZ_CONVERSION(x))
 #define IS_RATIONAL(x) (MPQ_Check(x) || IS_FRACTION(x) || \
                         MPZ_Check(x) || PyLong_Check(x) || \
                         XMPZ_Check(x) || HAS_MPQ_CONVERSION(x) || \
                         HAS_MPZ_CONVERSION(x))
-#endif
 
 #define IS_REAL_ONLY(x) (MPFR_Check(x) || PyFloat_Check(x) || \
                          HAS_STRICT_MPFR_CONVERSION(x))

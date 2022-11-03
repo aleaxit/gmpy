@@ -332,7 +332,7 @@ GMPy_XMPZ_IAnd_Slot(PyObject *self, PyObject *other)
         return self;
     }
 
-    if (PyIntOrLong_Check(other)) {
+    if (PyLong_Check(other)) {
         mpz_set_PyIntOrLong(global.tempz, other);
         GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_and(MPZ(self), MPZ(self), global.tempz);
@@ -361,7 +361,7 @@ GMPy_XMPZ_IXor_Slot(PyObject *self, PyObject *other)
         return self;
     }
 
-    if(PyIntOrLong_Check(other)) {
+    if(PyLong_Check(other)) {
         mpz_set_PyIntOrLong(global.tempz, other);
         GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_xor(MPZ(self), MPZ(self), global.tempz);
@@ -390,7 +390,7 @@ GMPy_XMPZ_IIor_Slot(PyObject *self, PyObject *other)
         return self;
     }
 
-    if(PyIntOrLong_Check(other)) {
+    if(PyLong_Check(other)) {
         mpz_set_PyIntOrLong(global.tempz, other);
         GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
         mpz_ior(MPZ(self), MPZ(self), global.tempz);

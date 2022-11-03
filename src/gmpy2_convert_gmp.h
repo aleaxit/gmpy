@@ -47,11 +47,6 @@ static MPZ_Object *    GMPy_MPZ_From_IntegerWithTypeAndCopy(PyObject *obj, int x
 static PyObject *      GMPy_MPZ_Str_Slot(MPZ_Object *self);
 static PyObject *      GMPy_MPZ_Repr_Slot(MPZ_Object *self);
 
-#ifdef PY2
-static PyObject *      GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context);
-static PyObject *      GMPy_MPZ_Long_Slot(MPZ_Object *self);
-#endif
-
 static PyObject *      GMPy_PyIntOrLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context);
 static PyObject *      GMPy_PyFloat_From_MPZ(MPZ_Object *obj, CTXT_Object *context);
 static PyObject *      GMPy_PyStr_From_MPZ(MPZ_Object *obj, int base, int option, CTXT_Object *context);
@@ -106,10 +101,6 @@ static PyObject *      GMPy_MPQ_Str_Slot(MPQ_Object *obj);
 static PyObject *      GMPy_MPQ_Repr_Slot(MPQ_Object *obj);
 static PyObject *      GMPy_MPQ_Float_Slot(MPQ_Object *obj);
 static PyObject *      GMPy_MPQ_Int_Slot(MPQ_Object *obj);
-#ifdef PY2
-static PyObject *      GMPy_PyLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context);
-static PyObject *      GMPy_MPQ_Long_Slot(MPQ_Object *obj);
-#endif
 
 #ifdef SHARED
 /* int GMPy_MPQ_convert_arg(PyObject *arg, PyObject **ptr); */

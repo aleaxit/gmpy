@@ -312,7 +312,7 @@ GMPy_MPQ_Method_Round(PyObject *self, PyObject *args)
     }
 
     if (PyTuple_GET_SIZE(args) == 1) {
-        round_digits = PyIntOrLong_AsSsize_t(PyTuple_GET_ITEM(args, 0));
+        round_digits = PyLong_AsSsize_t(PyTuple_GET_ITEM(args, 0));
         if (round_digits == -1 && PyErr_Occurred()) {
             TYPE_ERROR("__round__() requires 'int' argument");
             return NULL;
@@ -370,7 +370,7 @@ PyDoc_STRVAR(GMPy_doc_mpq_method_sizeof,
 static PyObject *
 GMPy_MPQ_Method_Sizeof(PyObject *self, PyObject *other)
 {
-    return PyIntOrLong_FromSize_t(sizeof(MPQ_Object) + \
+    return PyLong_FromSize_t(sizeof(MPQ_Object) + \
         (mpq_numref(MPQ(self))->_mp_alloc * sizeof(mp_limb_t)) + \
         (mpq_denref(MPQ(self))->_mp_alloc * sizeof(mp_limb_t)));
 }

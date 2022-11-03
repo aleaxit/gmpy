@@ -160,7 +160,7 @@ PyDoc_STRVAR(GMPy_doc_mpfr_get_emin_min,
 static PyObject *
 GMPy_MPFR_get_emin_min(PyObject *self, PyObject *args)
 {
-    return PyIntOrLong_FromSsize_t((Py_ssize_t)mpfr_get_emin_min());
+    return PyLong_FromSsize_t((Py_ssize_t)mpfr_get_emin_min());
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_get_emax_max,
@@ -170,7 +170,7 @@ PyDoc_STRVAR(GMPy_doc_mpfr_get_emax_max,
 static PyObject *
 GMPy_MPFR_get_emax_max(PyObject *self, PyObject *args)
 {
-    return PyIntOrLong_FromSsize_t((Py_ssize_t)mpfr_get_emax_max());
+    return PyLong_FromSsize_t((Py_ssize_t)mpfr_get_emax_max());
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_get_max_precision,
@@ -182,7 +182,7 @@ PyDoc_STRVAR(GMPy_doc_mpfr_get_max_precision,
 static PyObject *
 GMPy_MPFR_get_max_precision(PyObject *self, PyObject *args)
 {
-    return PyIntOrLong_FromSsize_t((Py_ssize_t)MPFR_PREC_MAX);
+    return PyLong_FromSsize_t((Py_ssize_t)MPFR_PREC_MAX);
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_get_exp,
@@ -207,10 +207,10 @@ GMPy_MPFR_get_exp(PyObject *self, PyObject *other)
 
     if (mpfr_regular_p(MPFR(other))) {
         exp = (Py_ssize_t)mpfr_get_exp(MPFR(other));
-        result = PyIntOrLong_FromSsize_t(exp);
+        result = PyLong_FromSsize_t(exp);
     }
     else if (mpfr_zero_p(MPFR(other))) {
-        result = PyIntOrLong_FromSsize_t(0);
+        result = PyLong_FromSsize_t(0);
     }
     else {
         context->ctx.erange = 1;
@@ -218,7 +218,7 @@ GMPy_MPFR_get_exp(PyObject *self, PyObject *other)
             GMPY_ERANGE("Can not get exponent from NaN or Infinity.");
         }
         else {
-            result = PyIntOrLong_FromSsize_t(0);
+            result = PyLong_FromSsize_t(0);
         }
     }
     return result;
@@ -243,13 +243,13 @@ GMPy_MPFR_set_exp(PyObject *self, PyObject *args)
 
     if (PyTuple_GET_SIZE(args) != 2 ||
         !MPFR_Check(PyTuple_GET_ITEM(args, 0)) ||
-        !PyIntOrLong_Check(PyTuple_GET_ITEM(args, 1))) {
+        !PyLong_Check(PyTuple_GET_ITEM(args, 1))) {
         TYPE_ERROR("set_exp() requires 'mpfr', 'integer' arguments");
         return NULL;
     }
 
     temp = PyTuple_GET_ITEM(args, 0);
-    exp = (mpfr_exp_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(args, 1));
+    exp = (mpfr_exp_t)PyLong_AsLong(PyTuple_GET_ITEM(args, 1));
     if (exp == -1 && PyErr_Occurred()) {
         VALUE_ERROR("exponent too large");
         return NULL;
@@ -296,7 +296,7 @@ GMPy_MPFR_set_sign(PyObject *self, PyObject *args)
 
     if (PyTuple_GET_SIZE(args) != 2 ||
         !MPFR_Check(PyTuple_GET_ITEM(args, 0)) ||
-        !PyIntOrLong_Check(PyTuple_GET_ITEM(args, 1))) {
+        !PyLong_Check(PyTuple_GET_ITEM(args, 1))) {
         TYPE_ERROR("set_sign() requires 'mpfr', 'boolean' arguments");
         return NULL;
     }
@@ -552,7 +552,7 @@ GMPy_MPFR_Simple_Fraction_Method(PyObject *self, PyObject *args, PyObject *keywd
 static PyObject *
 GMPy_MPFR_GetPrec_Attrib(MPFR_Object *self, void *closure)
 {
-    return PyIntOrLong_FromSsize_t((Py_ssize_t)mpfr_get_prec(self->f));
+    return PyLong_FromSsize_t((Py_ssize_t)mpfr_get_prec(self->f));
 }
 
 /* Implement the .rc attribute of an mpfr. */
@@ -560,7 +560,7 @@ GMPy_MPFR_GetPrec_Attrib(MPFR_Object *self, void *closure)
 static PyObject *
 GMPy_MPFR_GetRc_Attrib(MPFR_Object *self, void *closure)
 {
-    return PyIntOrLong_FromLong((long)self->rc);
+    return PyLong_FromLong((long)self->rc);
 }
 
 /* Implement the .imag attribute of an mpfr. */
@@ -652,7 +652,7 @@ PyDoc_STRVAR(GMPy_doc_mpfr_sizeof_method,
 static PyObject *
 GMPy_MPFR_SizeOf_Method(PyObject *self, PyObject *other)
 {
-    return PyIntOrLong_FromSize_t(sizeof(MPFR_Object) + \
+    return PyLong_FromSize_t(sizeof(MPFR_Object) + \
         (((MPFR(self))->_mpfr_prec + mp_bits_per_limb - 1) / \
         mp_bits_per_limb) * sizeof(mp_limb_t));
 }
@@ -706,7 +706,7 @@ GMPy_MPFR_Method_Round10(PyObject *self, PyObject *args)
     }
 
     if (PyTuple_GET_SIZE(args) == 1) {
-        digits = PyIntOrLong_AsLong(PyTuple_GET_ITEM(args, 0));
+        digits = PyLong_AsLong(PyTuple_GET_ITEM(args, 0));
         if (digits == -1 && PyErr_Occurred()) {
             TYPE_ERROR("__round__() requires 'int' argument");
             return NULL;

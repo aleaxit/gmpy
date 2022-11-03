@@ -55,9 +55,9 @@ static PyObject *
 GMPy_get_mp_version(PyObject *self, PyObject *args)
 {
 #ifndef __MPIR_VERSION
-    return Py2or3String_FromFormat("%s %s", "GMP", gmp_version);
+    return PyUnicode_FromFormat("%s %s", "GMP", gmp_version);
 #else
-    return Py2or3String_FromFormat("%s %s", "MPIR", mpir_version);
+    return PyUnicode_FromFormat("%s %s", "MPIR", mpir_version);
 #endif
 }
 
@@ -68,7 +68,7 @@ PyDoc_STRVAR(GMPy_doc_mpfr_version,
 static PyObject *
 GMPy_get_mpfr_version(PyObject *self, PyObject *args)
 {
-    return Py2or3String_FromFormat("%s %s", "MPFR", MPFR_VERSION_STRING);
+    return PyUnicode_FromFormat("%s %s", "MPFR", MPFR_VERSION_STRING);
 }
 
 PyDoc_STRVAR(GMPy_doc_mpc_version,
@@ -78,7 +78,7 @@ PyDoc_STRVAR(GMPy_doc_mpc_version,
 static PyObject *
 GMPy_get_mpc_version(PyObject *self, PyObject *args)
 {
-    return Py2or3String_FromFormat("%s %s", "MPC", MPC_VERSION_STRING);
+    return PyUnicode_FromFormat("%s %s", "MPC", MPC_VERSION_STRING);
 }
 
 PyDoc_STRVAR(GMPy_doc_mp_limbsize,

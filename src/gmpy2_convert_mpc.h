@@ -48,9 +48,6 @@ static MPC_Object *   GMPy_MPC_From_ComplexAndCopy(PyObject* obj, mpfr_prec_t rp
 #endif
 
 static PyObject *     GMPy_MPC_Float_Slot(PyObject *self);
-#ifdef PY2
-static PyObject *     GMPy_MPC_Long_Slot(PyObject *self);
-#endif
 static PyObject *     GMPy_MPC_Int_Slot(PyObject *self);
 static PyObject *     GMPy_PyStr_From_MPC(MPC_Object *self, int base, int digits, CTXT_Object *context);
 static PyObject *     GMPy_PyComplex_From_MPC(PyObject *self, PyObject *other);

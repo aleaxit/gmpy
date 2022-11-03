@@ -27,7 +27,7 @@ PyDoc_STRVAR(GMPy_doc_xmpz_method_num_limbs,
 "     Return the number of limbs of 'xmpz'.");
 static PyObject* GMPy_XMPZ_Method_NumLimbs(PyObject* obj, PyObject* other)
 {
-    return PyIntOrLong_FromSize_t(mpz_size(XMPZ(obj)));
+    return PyLong_FromSize_t(mpz_size(XMPZ(obj)));
 }
 
 PyDoc_STRVAR(GMPy_doc_xmpz_method_limbs_read,
@@ -51,12 +51,12 @@ PyDoc_STRVAR(GMPy_doc_xmpz_method_limbs_write,
 static PyObject* GMPy_XMPZ_Method_LimbsWrite(PyObject* obj, PyObject* other)
 {
 
-    if (!PyIntOrLong_Check(other)) {
+    if (!PyLong_Check(other)) {
         TYPE_ERROR("number of limbs must be an int or a long");
         return NULL;
     }
     else {
-        size_t num_limbs = (size_t) PyIntOrLong_AsSsize_t(other);
+        size_t num_limbs = (size_t) PyLong_AsSsize_t(other);
         mp_limb_t * limbs = mpz_limbs_write(XMPZ(obj), (mp_size_t) num_limbs);
         return PyLong_FromVoidPtr((void *) limbs);
     }
@@ -70,12 +70,12 @@ PyDoc_STRVAR(GMPy_doc_xmpz_method_limbs_modify,
 "     the returned address in order for the changes to take effect.");
 static PyObject* GMPy_XMPZ_Method_LimbsModify(PyObject* obj, PyObject* other)
 {
-    if (!PyIntOrLong_Check(other)) {
+    if (!PyLong_Check(other)) {
         TYPE_ERROR("number of limbs must be an int or a long");
         return NULL;
     }
     else {
-        size_t num_limbs = (size_t) PyIntOrLong_AsSsize_t(other);
+        size_t num_limbs = (size_t) PyLong_AsSsize_t(other);
         mp_limb_t * limbs = mpz_limbs_modify(XMPZ(obj), (mp_size_t) num_limbs);
         return PyLong_FromVoidPtr((void *) limbs);
     }
@@ -88,12 +88,12 @@ PyDoc_STRVAR(GMPy_doc_xmpz_method_limbs_finish,
 "     the limbs of 'xpmz'.");
 static PyObject* GMPy_XMPZ_Method_LimbsFinish(PyObject* obj, PyObject* other)
 {
-    if (!PyIntOrLong_Check(other)) {
+    if (!PyLong_Check(other)) {
         TYPE_ERROR("number of limbs must be an int or long");
         return NULL;
     }
     else {
-        size_t num_limbs = (size_t) PyIntOrLong_AsSsize_t(other);
+        size_t num_limbs = (size_t) PyLong_AsSsize_t(other);
         mpz_limbs_finish(XMPZ(obj), num_limbs);
         Py_RETURN_NONE;
     }

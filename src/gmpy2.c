@@ -958,7 +958,6 @@ static char _gmpy_docs[] =
  * implemented. No per-module state has been defined.
  */
 
-#ifdef PY3
 #define INITERROR return NULL
 static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
@@ -971,15 +970,8 @@ static struct PyModuleDef moduledef = {
         NULL, /* gmpy_clear */
         NULL
 };
-#else
-#define INITERROR return
-#endif
 
-#ifdef PY3
 PyMODINIT_FUNC PyInit_gmpy2(void)
-#else
-PyMODINIT_FUNC initgmpy2(void)
-#endif
 {
     PyObject *result = NULL;
     PyObject *namespace = NULL;
@@ -1159,11 +1151,7 @@ PyMODINIT_FUNC initgmpy2(void)
     }
 
 
-#ifdef PY3
     gmpy_module = PyModule_Create(&moduledef);
-#else
-    gmpy_module = Py_InitModule3("gmpy2", Pygmpy_methods, _gmpy_docs);
-#endif
 
     if (gmpy_module == NULL) {
         /* LCOV_EXCL_START */
@@ -1182,7 +1170,7 @@ PyMODINIT_FUNC initgmpy2(void)
     PyModule_AddObject(gmpy_module, "xmpz", (PyObject*)&XMPZ_Type);
 
     xmpz = XMPZ_Type.tp_dict;
-    limb_size = PyIntOrLong_FromSize_t(sizeof(mp_limb_t));
+    limb_size = PyLong_FromSize_t(sizeof(mp_limb_t));
     PyDict_SetItemString(xmpz, "limb_size", limb_size);
     Py_DECREF(limb_size);
 
@@ -1350,7 +1338,6 @@ PyMODINIT_FUNC initgmpy2(void)
 #endif
 
     /* Add support for pickling. */
-#ifdef PY3
     copy_reg_module = PyImport_ImportModule("copyreg");
     if (copy_reg_module) {
         char* enable_pickle =
@@ -1382,39 +1369,6 @@ PyMODINIT_FUNC initgmpy2(void)
         PyErr_Clear();
         /* LCOV_EXCL_STOP */
     }
-#else
-    copy_reg_module = PyImport_ImportModule("copy_reg");
-    if (copy_reg_module) {
-        char* enable_pickle =
-            "def gmpy2_reducer(x): return (gmpy2.from_binary, (gmpy2.to_binary(x),))\n"
-            "copy_reg.pickle(type(gmpy2.mpz(0)), gmpy2_reducer)\n"
-            "copy_reg.pickle(type(gmpy2.xmpz(0)), gmpy2_reducer)\n"
-            "copy_reg.pickle(type(gmpy2.mpq(0)), gmpy2_reducer)\n"
-            "copy_reg.pickle(type(gmpy2.mpfr(0)), gmpy2_reducer)\n"
-            "copy_reg.pickle(type(gmpy2.mpc(0,0)), gmpy2_reducer)\n";
-
-        PyObject* namespace = PyDict_New();
-        PyObject* result = NULL;
-
-        PyDict_SetItemString(namespace, "copy_reg", copy_reg_module);
-        PyDict_SetItemString(namespace, "gmpy2", gmpy_module);
-        PyDict_SetItemString(namespace, "type", (PyObject*)&PyType_Type);
-        result = PyRun_String(enable_pickle, Py_file_input, namespace, namespace);
-        if (!result) {
-            /* LCOV_EXCL_START */
-            PyErr_Clear();
-            /* LCOV_EXCL_STOP */
-        }
-        Py_DECREF(namespace);
-        Py_DECREF(copy_reg_module);
-        Py_XDECREF(result);
-    }
-    else {
-        /* LCOV_EXCL_START */
-        PyErr_Clear();
-        /* LCOV_EXCL_STOP */
-    }
-#endif
 
     /* Register the gmpy2 types with the numeric tower. */
 
@@ -1446,7 +1400,5 @@ PyMODINIT_FUNC initgmpy2(void)
         PyErr_Clear();
     }
 
-#ifdef PY3
     return gmpy_module;
-#endif
 }
