@@ -1,23 +1,6 @@
 name: pip_install_gmpy2
-on:
-  pull_request:
-    branches:
-      - master
-    paths:
-      - 'src/**'
-      - 'test/**'
-      - 'test_cython/**'
-      - '**.py'
 
-  push:
-    branches:
-      - master
-    paths:
-      - 'src/**'
-      - 'test/**'
-      - 'test_cython/**'
-      - '**.py'
-      - '.github/workflows/**.yml'
+on: [push, pull_request]
 
 jobs:
   osx:
@@ -53,36 +36,3 @@ jobs:
       - run: pip install --upgrade pip
       - run: pip --verbose install -e .
       - run: python test/runtests.py
-
-#  windows:
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        python-version: [3.7]
-#    runs-on: windows-latest
-#    defaults:
-#      run:
-#        shell: pwsh
-#    steps:
-#      - uses: actions/checkout@master
-#      - uses: goanpeca/setup-miniconda@v1
-#    with:
-#          #miniconda-version: 4.6.14
-#          auto-activate-base: false
-#          #activate-environment: test
-#          channels: "conda-forge"
-#          python-version: ${{ matrix.python-version }}
-#
-#
-#      - run: |
-#          python --version
-#          conda info --envs
-#          conda install mpir "mpfr>=4" mpc conda=4.6.14 python=${{ matrix.python-version }}
-#          python --version
-#
-#
-#      - name: Compile gmpy2
-#        run: python setup.py install build_ext --mpir --static -I%CONDA_PREFIX%\Library\include -L%CONDA_PREFIX%\Library\lib
-#
-#      - name: Run tests
-#        run: cd test && python runtests.py
