@@ -486,7 +486,7 @@ mpfr Functions
     See fac(n) to get the exact integer result.
 
 **floor(...)**
-    floor(x) returns the 'mpfr' that is the smallest integer <= x.
+    floor(x) returns the 'mpfr' that is the largest integer <= x.
 
 **fma(...)**
     fma(x, y, z) returns correctly rounded result of (x * y) + z.
