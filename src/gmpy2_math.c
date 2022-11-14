@@ -1547,15 +1547,15 @@ GMPY_MPFR_UNIOP_NOROUNDWT(Ceil, ceil)
 
 PyDoc_STRVAR(GMPy_doc_mpfr_floor_method,
 "x.__floor__() -> mpfr\n\n"
-"Return an 'mpfr' that is the smallest integer <= x.");
+"Return an 'mpfr' that is the largest integer <= x.");
 
 PyDoc_STRVAR(GMPy_doc_function_floor,
 "floor(x) -> mpfr\n\n"
-"Return an 'mpfr' that is the smallest integer <= x.");
+"Return an 'mpfr' that is the largest integer <= x.");
 
 PyDoc_STRVAR(GMPy_doc_context_floor,
 "context.floor(x) -> mpfr\n\n"
-"Return an 'mpfr' that is the smallest integer <= x.");
+"Return an 'mpfr' that is the largest integer <= x.");
 
 GMPY_MPFR_UNIOP_NOROUNDWT(Floor, floor);
 
