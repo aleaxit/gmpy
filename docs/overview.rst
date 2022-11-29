@@ -8,6 +8,10 @@ The *mpz* type is compatible with Python's built-in int/long type but is
 significantly faster for large values. The cutover point for performance varies,
 but can be as low as 20 to 40 digits. A variety of additional integer functions
 are provided.
+
+Operator overloading is fully supported. Coversion from native Python types is
+optimized for performance.
+
 ::
 
     >>> import gmpy2
@@ -24,6 +28,12 @@ are provided.
     mpz(3)
     >>> gmpy2.lcm(123,27)
     mpz(1107)
+    >>> (mpz(123) + 12) / 5
+    mpfr('27.0')
+    >>> (mpz(123) + 12) // 5
+    mpz(27)
+    >>> (mpz(123) + 12) / 5.0
+    mpfr('27.0')
 
 The *mpq* type is compatible with the *fractions.Fraction* type included with
 Python.
@@ -34,10 +44,10 @@ Python.
     >>> mpq(45,3) * mpq(11,8)
     mpq(165,8)
 
-The most significant new features in gmpy2 are support for correctly rounded
-arbitrary precision real and complex arithmetic based on the MPFR and MPC
-libraries. Floating point contexts are used to control exceptional conditions.
-For example, division by zero can either return an Infinity or raise an exception.
+gmpy2 supports correctly rounded arbitrary precision real and complex arithmetic
+via the MPFR and MPC libraries. Floating point contexts are used to control precision,
+rounding modes, and exceptional conditions. For example, division by zero can either
+return an Infinity or raise an exception.
 ::
 
     >>> mpfr(1)/7
@@ -120,11 +130,10 @@ Miscellaneous gmpy2 Functions
     license() returns the gmpy2 license information.
 
 **mp_limbsize(...)**
-    mp_limbsize() returns the number of bits per limb used by the GMP or MPIR
-    library.
+    mp_limbsize() returns the number of bits per limb used by the GMP library.
 
 **mp_version(...)**
-    mp_version() returns the version of the GMP or MPIR library.
+    mp_version() returns the version of the GMP library.
 
 **mpc_version(...)**
     mpc_version() returns the version of the MPC library.
