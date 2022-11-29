@@ -44,11 +44,11 @@ def powmod_list_nogil(index, lst, e, m):
     result = [gmpy2.powmod(i, e, m) for i in lst]
     return time.time() - start, index, result
 
-# This function uses the vector version powmod_list and releases the GIL.
+# This function uses the vector version powmod_base_list and releases the GIL.
 def powmod_vector_nogil(index, vector, e, m):
     gmpy2.get_context().allow_release_gil = True
     start = time.time()
-    result = gmpy2.powmod_list(vector, e, m)
+    result = gmpy2.powmod_base_list(vector, e, m)
     return time.time() - start, index, result
 
 # Run threaded versions.
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     # print("Baseline test without releasing the GIL. ", powmod_list_gil(big_list, e, m)[0])
 
     # Specify the number of threads to use.
-    test_threads = [4,8,15,16,24,31,32]
+    test_threads = [1,2,4,8,15,16,24,31,32]
     # The following demo code is disabled by default. It high-lights the inefficiency of 
     # releasing the GIL for functions that execute fairly quicky
     for i in range(0):

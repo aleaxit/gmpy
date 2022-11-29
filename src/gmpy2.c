@@ -448,7 +448,7 @@
  *    Fix mpfr('inf') and mpfr('nan') if subnormalization is enabled.
  *    powmod() and powmod_sec() release the GIL.
  *    Fix error messages for iroot(x,n) for large n.
- *    Add powmod_list (experimental).
+ *    Add powmod_base_list() and powmod_exp_list() (experimental).
  *    Fix gmpy2.mpq(mpq, int).
  *    Fix issues with INF, NAN, and mpfr("-0") when subnormalization
  *      is True
@@ -763,7 +763,7 @@ static PyMethodDef Pygmpy_methods [] =
     { "pack", GMPy_MPZ_pack, METH_VARARGS, doc_pack },
     { "popcount", GMPy_MPZ_popcount, METH_O, doc_popcount },
     { "powmod", GMPy_Integer_PowMod, METH_VARARGS, GMPy_doc_integer_powmod },
-    { "powmod_list", GMPy_Integer_PowMod_List, METH_VARARGS, GMPy_doc_integer_powmod_list },
+    { "powmod_base_list", GMPy_Integer_PowMod_Base_List, METH_VARARGS, GMPy_doc_integer_powmod_base_list },
     { "powmod_exp_list", GMPy_Integer_PowMod_Exp_List, METH_VARARGS, GMPy_doc_integer_powmod_exp_list },
     { "powmod_sec", GMPy_Integer_PowMod_Sec, METH_VARARGS, GMPy_doc_integer_powmod_sec },
     { "primorial", GMPy_MPZ_Function_Primorial, METH_O, GMPy_doc_mpz_function_primorial },
