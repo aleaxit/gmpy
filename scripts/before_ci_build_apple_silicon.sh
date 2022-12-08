@@ -1,5 +1,5 @@
 GMP_VERSION=6.2.1
-MPFR_VERSION=4.1.0
+MPFR_VERSION=4.1.1
 MPC_VERSION=1.2.1
 export CPPFLAGS=" --target=arm64-apple-macos11"
 export LDFLAGS=" -arch arm64"
@@ -13,7 +13,7 @@ if [ ! -f finish_before_ci_build ]; then
     # comes with autotools which is micro-architecture agnostic.
     # config.guess is a custom gmp script which knows about micro-architectures.
     cd gmp-${GMP_VERSION} && ./configure $EXTRA --enable-fat && make -j4 && make install && cd ../
-    curl -O https://www.mpfr.org/mpfr-current/mpfr-${MPFR_VERSION}.tar.gz
+    curl -O -k https://ftp.gnu.org/gnu/mpfr/mpfr-${MPFR_VERSION}.tar.gz
     tar -xf mpfr-${MPFR_VERSION}.tar.gz
     cd mpfr-${MPFR_VERSION} && ./configure $EXTRA && make -j4 && make install && cd ../
     curl -O https://ftp.gnu.org/gnu/mpc/mpc-${MPC_VERSION}.tar.gz
