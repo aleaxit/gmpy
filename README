@@ -20,6 +20,8 @@ gmpy2 2.1 was extensively refactored. Some of the significant changes are:
 The gmpy2 2.1 series will be the last to offer compatibility with Python 2.7.
 Release 2.1.3 is the last planned release of the 2.1 series.
 
+Note: 2.1.4 was released to address wheel build issues. There are no code changes.
+
 Version 2.2 Plans
 -----------------
 
