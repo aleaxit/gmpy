@@ -5,5 +5,5 @@ include docs/*
 include test/*
 include COPYING.LESSER
 include src/*
-include gmpy2/gmpy2.h
+include gmpy2/*.h
 include gmpy2/*.pxd
