@@ -9,6 +9,7 @@ if [ ! -f finish_before_ci_build ]; then
     echo $PWD
     curl -O https://gmplib.org/download/gmp/gmp-${GMP_VERSION}.tar.xz
     tar -xf gmp-${GMP_VERSION}.tar.xz
+    patch -N -Z -p0 < scripts/patch-arm64.diff
     # need to set host to the oldest triple to avoid building binaries
     # that use build machine micro-architecure. configfsf.guess is the one that
     # comes with autotools which is micro-architecture agnostic.
@@ -16,7 +17,6 @@ if [ ! -f finish_before_ci_build ]; then
     cd gmp-${GMP_VERSION} && ./configure $EXTRA --enable-fat && make -j4 && make install && cd ../
     curl -O -k https://ftp.gnu.org/gnu/mpfr/mpfr-${MPFR_VERSION}.tar.gz
     tar -xf mpfr-${MPFR_VERSION}.tar.gz
-    patch -N -Z -p0 < scripts/patch-arm64.diff
     cd mpfr-${MPFR_VERSION} && ./configure $EXTRA && make -j4 && make install && cd ../
     curl -O https://ftp.gnu.org/gnu/mpc/mpc-${MPC_VERSION}.tar.gz
     tar -xf mpc-${MPC_VERSION}.tar.gz
