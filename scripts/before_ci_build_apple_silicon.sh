@@ -9,7 +9,9 @@ if [ ! -f finish_before_ci_build ]; then
     echo $PWD
     curl -O https://gmplib.org/download/gmp/gmp-${GMP_VERSION}.tar.xz
     tar -xf gmp-${GMP_VERSION}.tar.xz
+    cd gmp-${GMP_VERSION}
     patch -N -Z -p0 < scripts/patch-arm64.diff
+    cd ..
     # need to set host to the oldest triple to avoid building binaries
     # that use build machine micro-architecure. configfsf.guess is the one that
     # comes with autotools which is micro-architecture agnostic.
