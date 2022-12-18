@@ -38,6 +38,9 @@ mpz Methods
 **bit_clear(...)**
     x.bit_clear(n) returns a copy of *x* with bit *n* set to 0.
 
+**bit_count(...)**
+    x.bit_count() returns the number of 1-bits set in abs(x).
+
 **bit_flip(...)**
     x.bit_flip(n) returns a copy of *x* with bit *n* inverted.
 
@@ -255,8 +258,7 @@ mpz Functions
     numbers.
 
 **gcd(...)**
-    gcd(a, b) returns the greatest common divisor of integers *a* and
-    *b*.
+    gcd(...) returns the greatest common multiple of a sequence of integers.
 
 **gcdext(...)**
     gcdext(a, b) returns a 3-element tuple (*g*, *s*, *t*) such that
@@ -281,8 +283,79 @@ mpz Functions
     the integer *n*-th root of *x* and *x* = y**n + *r*. *x* must be >= 0 and
     *n* must be > 0.
 
+**is_bpsw_prp(...)**
+    is_bpsw_prp(n) returns True if *n* is a Baillie-Pomerance-Selfridge-Wagstaff
+    probable prime. A BPSW probable prime passes both the is_strong_prp() test 
+    with base 2 and the is_selfridge_prp() test.
+
+**is_congruent(...)**
+    is_congurent(x, y, m) returns True if *x* is congruent to *y* modulo *m*, 
+    else return False.
+
+**is_divisible(...)**
+    is_divisible(x, d) returns True if *x* is divisible by *d*, else return False.
+
+**is_euler_prp(...)**
+    is_euler_prp(n, a) returns True if *n* is an Euler probable prime to the
+    base *a*.
+
+    Assuming:
+        gcd(n, a) == 1
+        n is odd
+    then "n* is an Euler prp if:
+        a**((n-1)/2) == 1 (mod n)
+
 **is_even(...)**
     is_even(x) returns True if *x* is even, False otherwise.
+
+**is_extra_strong_lucas_prp(...)**
+    is_extra_strong_lucas_prp(n, p) returns True if n is an extra strong Lucas probable
+    prime with parameters (p, 1). 
+    
+    Assuming:
+        n is odd
+        D = p*p - 4
+        D != 0
+        gcd(n, 2*D) == 1
+        n = s*(2**r) + Jacobi(D,n), s odd
+    then *n* is an extra strong Lucas probable prime if:
+        lucasu(p,1,s) == 0 (mod n)
+        or
+        lucasv(p,1,s) == +/-2 (mod n)
+        or
+        lucasv(p,1,s*(2**t)) == 0 (mod n) for some t, 0 <= t < r
+
+**is_fermat_prp(...)**
+    is_fermat_prp(n ,a) returns True if *n* is a Fermat probable prime
+    to the base *a*.
+
+    Assuming:
+        gcd(n,a) == 1
+    then *n* is a Fermat probable prime if:
+        a**(n-1) == 1 (mod n)
+
+**is_fibonacci_prp(...)**
+    is_fibonacci_prp(n,p,q) returns True if *n* is a Fibonacci probable prime
+    with parameters (p,q).
+
+    Assuming:
+        n is odd
+        p > 0
+        q = +/-1
+        p*p - 4*q != 0
+    then *n* is a Fibonacci probable prime if:
+        lucasv(p,q,n) == p (mod n).
+
+**is_lucas_prp(...)**
+    is_lucas_prp(n,p,q) returns True if *n* is a Lucas probable prime with 
+    parameters (p,q).
+
+    Assuming:
+        n is odd
+        D = p*p - 4*q, D != 0
+        gcd(n, 2*q*D) == 1
+    then *n* is a Lucas probable prime if:
+        lucasu(p,q,n - Jacobi(D,n)) == 0 (mod n)
 
 **is_odd(...)**
     is_odd(x) returns True if *x* is odd, False otherwise.
@@ -294,10 +367,56 @@ mpz Functions
     is_prime(x[, n=25]) returns True if *x* is **probably** prime. False
     is returned if *x* is definitely composite. *x* is checked for small
     divisors and up to *n* Miller-Rabin tests are performed. The actual tests
-    performed may vary based on version of GMP or MPIR used.
+    performed may vary based on version of GMP used.
+
+**is_selfridge_prp(...)**
+    is_selfridge_prp(n) returns True if *n* is a Lucas probable prime with
+    Selfidge parameters (p,q). The Selfridge parameters are chosen by finding
+    the first element D in the sequence {5, -7, 9, -11, 13, ...} such that
+    Jacobi(D,n) == -1. Then let p=1 and q=(1-D)/4 and perform the Lucas probable
+    prime test.
 
 **is_square(...)**
     is_square(x) returns True if *x* is a perfect square, False otherwise.
+
+**is_strong_bpsw_prp(...)**
+    is_strong_bpsw_prp(n) returns True if *n* is a strong Baillie-Pomerance-
+    Selfridge-Wagstaff probable prime. A strong BPSW probable prime passes the
+    is_strong_prp() test with base 2 and the is_strong_selfridge_prp() test.
+
+**is_strong_lucas_prp(...)**
+    is_strong_lucas_prp(n,p,q) returns True if *n* is a strong Lucas probable
+    prime with parameters (p,q).
+
+    Assuming:
+        n is odd
+        D = p*p - 4*q, D != 0
+        gcd(n, 2*q*D) == 1
+        n = s*(2**r) + Jacobi(D,n), s odd
+    then *n* is a strong Lucas probable prime if:
+        lucasu(p,q,s) == 0 (mod n)
+        or
+        lucasv(p,q,s*(2**t)) == 0 (mod n) for some t, 0 <= t < r
+
+**is_strong_prp(...)**
+    is_strong_prp(n,a) returns True if *n* is a strong (also known as
+    Miller-Rabin) probable prime to the base *a*.
+
+    Assuming:
+        gcd(n,a) == 1
+        n is odd
+        n = s*(2**r) + 1, with s odd
+    then *n* is a strong probable prime if:
+        a**s == 1 (mod n)
+        or
+        a**(s*(2**t)) == -1 (mod n) for some t, 0 <= t < r.
+
+**is_strong_selfridge_prp(...)**
+    is_strong_selfridge_prp(n) returns True if *n* is a strong Lucas
+    probable prime with Selfidge parameters (p,q). The Selfridge parameters
+    are chosen by finding the first element D in the sequence {5, -7, 9, -11,
+    13, ...} such that Jacobi(D,n) == -1. Then let p=1 and q = (1-D)/4 and
+    perform a strong Lucas probable prime test.
 
 **isqrt(...)**
     isqrt(x) returns the integer square root of an integer *x*. *x* must be
@@ -315,7 +434,7 @@ mpz Functions
     kronecker(x, y) returns the Kronecker-Jacobi symbol (*x* | *y*).
 
 **lcm(...)**
-    lcm(a, b) returns the lowest common multiple of integers *a* and *b*.
+    lcm(...) returns the lowest common multiple of a sequence of integers.
 
 **legendre(...)**
     legendre(x, y) returns the Legendre symbol (*x* | *y*). *y* is assumed
@@ -327,6 +446,24 @@ mpz Functions
 **lucas2(...)**
     lucas2(n) returns a 2-tuple with the (*n*-1)-th and *n*-th Lucas
     numbers.
+
+**lucasu(...)**
+    lucasu(p,q,k) returns the *k*-th element of the Lucas U sequence defined
+    by (p,q). p*p - 4*q must not equal 0; *k* must be greater than or equal to 0.
+
+**lucasu_mod(...)**
+    lucasu_mod(p,q,k,n) returns the *k*-th element of the Lucas U sequence defined
+    by (p,q) modulo *n*. p*p - 4*q must not equal 0; *k* must be greater than or
+    equal to 0; *n* must be greater than 0.
+
+**lucasv(...)**
+    lucasv(p,q,k) returns the *k*-th element of the Lucas V sequence defined
+    by (p,q). p*p - 4*q must not equal 0; *k* must be greater than or equal to 0.
+
+**lucasv_mod(...)**
+    lucasv_mod(p,q,k,n) returns the *k*-th element of the Lucas V sequence defined
+    by (p,q) modulo *n*. p*p - 4*q must not equal 0; *k* must be greater than or
+    equal to 0; *n* must be greater than 0.
 
 **mpz(...)**
     mpz() returns a new *mpz* object set to 0.
@@ -379,10 +516,24 @@ mpz Functions
     negative, and the correct result will be returned if the inverse of *x*
     mod *m* exists. Otherwise, a ValueError is raised.
 
+**powmod_exp_list(...)**
+    powmod_exp_list(base, exp_lst, mod) returns list(powmod(base, i, mod) for i in exp_lst).
+    Releases the GIL so can be easily run in multiple threads. 
+    
+    Experimental in gmpy2 2.1.x. The capability will continue to exist in future
+    versions but the name may change.
+
+**powmod_base_list(...)**
+    powmod_base_list(base_list, exp, mod) returns list(powmod(i, exp, mod) for i in lst).
+    Releases the GIL so can be easily run in multiple threads. 
+    
+    Experimental in gmpy2 2.1.x. The capability will continue to exist in future
+    versions but the name may change.
+
 **powmod_sec(...)**
     powmod_sec(x, y, m) returns (*x* ** *y*) mod *m*. The calculation uses a
-    constant time algorithm to reduce the risk of side channel attacks. y must
-    be an integer >0. m must be an odd integer.
+    constant time algorithm to reduce the risk of side channel attacks. *y* must
+    be an integer >0. *m* must be an odd integer.
 
 **primorial(...)**
     primorial(n) returns the exact primorial of *n*, i.e. the product of all
@@ -425,5 +576,3 @@ mpz Functions
     t_mod_2exp(x, n) returns the remainder of *x* divided by 2**n. The
     remainder will have the same sign as *x*. *x* must be an integer and *n*
     must be > 0.
-
-

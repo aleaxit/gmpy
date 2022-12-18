@@ -147,12 +147,6 @@ Context Attributes
     The minimum exponent is platform dependent and can be retrieved with
     **get_emin_min()**.
 
-.. note::
-    It is possible to change the values of emin/emax such that previous *mpfr*
-    values are no longer valid numbers but should either underflow to +/-0.0 or
-    overflow to +/-Infinity. To raise an exception if this occurs, see
-    **trap_expbound**.
-
 **subnormalize**
     The usual IEEE-754 floating point representation supports gradual underflow
     when the minimum exponent is reached. The MFPR library does not enable
@@ -232,23 +226,256 @@ Context Attributes
     This flag is not user controllable. It is automatically set if a division
     by zero occurred and NaN result was returned.
 
-**trap_expbound**
-    This attribute controls whether or not an ``ExponentOutOfBoundsError``
-    exception is raised if exponents in an operand are outside the current
-    emin/emax limits.
-
 **allow_complex**
     This attribute controls whether or not an *mpc* result can be returned if
     an *mpfr* result would normally not be possible.
 
+**rational_division**
+    If set to ``True``, *mpz* / *mpz* will return an *mpq* instead of an *mpfr*.
+
+**allow_release_gil**
+    If set to ``True``, many *mpz* and *mpq* computations will release the GIL.
+
+    This is considered an experimental feature.
+
 Context Methods
 ---------------
+
+**abs**
+
+**acos**
+
+**acosh**
+
+**add**
+
+**agm**
+
+**ai**
+
+**asin**
+
+**asinh**
+
+**atan**
+
+**atan2**
+
+**atanh**
+
+**cbrt**
+
+**ceil**
+
+**check_range**
 
 **clear_flags()**
     Clear the underflow, overflow, inexact, invalid, erange, and divzero flags.
 
+**const_catalan**
+
+**const_euler**
+
+**const_log**
+
+**const_pi**
+
 **copy()**
     Return a copy of the context.
+
+**cos**
+
+**cosh**
+
+**cot**
+
+**coth**
+
+**csc**
+
+**degrees**
+
+**digamma**
+
+**div**
+
+**div_2exp**
+
+**divmod**
+
+**eint**
+
+**erf**
+
+**erfc**
+
+**exp**
+
+**exp10**
+
+**exp2**
+
+**expm1**
+
+**factorial**
+
+**floor**
+
+**floor_div**
+
+**fma**
+
+**fmma**
+
+**fmms**
+
+**fmod**
+
+**fms**
+
+**frac**
+
+**frexp**
+
+**fsum**
+
+**gamma**
+
+**hypot**
+
+**is_finite**
+
+**is_infinite**
+
+**is_integer**
+
+**is_nan**
+
+**is _regular**
+
+**is_signed**
+
+**is_zero**
+
+**j0**
+
+**j1**
+
+**jn**
+
+**lgamma**
+
+**li2**
+
+**lngamma**
+
+**log**
+
+**log10**
+
+**log1p**
+
+**log2**
+
+**maxnum**
+
+**minnum**
+
+**minus**
+
+**mod**
+
+**modf**
+
+**mul**
+
+**mul_2exp**
+
+**next_above**
+
+**next_below**
+
+**next_toward**
+
+**norm**
+
+**phase**
+
+**plus**
+
+**polar**
+
+**pow**
+
+**proj**
+
+**radians**
+
+**rec_sqrt**
+
+**rect**
+
+**reldiff**
+
+**remainder**
+
+**remquo**
+
+**rint**
+
+**rint_ceil**
+
+**rint_floor**
+
+**rint_round**
+
+**rint_trunc**
+
+**root**
+
+**root_of_unity**
+
+**rootn**
+
+**round**
+
+**round2**
+
+**round_away**
+
+**sec**
+
+**sech**
+
+**sin**
+
+**sin_cos**
+
+**sinh**
+
+**sinh_cosh**
+
+**sqrt**
+
+**square**
+
+**sub**
+
+**subnormalize**
+
+**tan**
+
+**tanh**
+
+**trunc**
+
+**y0**
+
+**y1**
+
+**yn**
+
+**zeta**
 
 Contexts and the with statement
 -------------------------------

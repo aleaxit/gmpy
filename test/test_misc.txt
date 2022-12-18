@@ -3,7 +3,7 @@ Miscellaneous Functions
 
 >>> import gmpy2
 >>> from gmpy2 import mpz
->>> gmpy2.version().startswith('2.1.3')
+>>> gmpy2.version().startswith('2.1.5')
 True
 >>> gmpy2.mp_limbsize() in (32,64)
 True
