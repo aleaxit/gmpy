@@ -73,5 +73,6 @@ extensions = [
 cmdclass = {'build_ext': Gmpy2Build}
 
 setup(
+    cmdclass=cmdclass,
     ext_modules=extensions,
 )

@@ -4,8 +4,8 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = 'gmpy2'
-version = '2.1.3'
-description = 'gmpy2 interface to GMP/MPIR, MPFR, and MPC for Python 3.7+'
+version = '2.2.0a1'
+description = 'gmpy2 interface to GMP, MPFR, and MPC for Python 3.7+'
 keywords = ['gmp', 'mpfr', 'mpc', 'multiple-precision',
             'arbitrary-precision', 'precision', 'bignum']
 license = {text = 'LGPL-3.0+'}
