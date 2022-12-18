@@ -173,7 +173,7 @@ GMPy_XMPZ_Method_SubScript(XMPZ_Object* self, PyObject* item)
     if (PyIndex_Check(item)) {
         Py_ssize_t i;
 
-        i = PyIntOrLong_AsSsize_t(item);
+        i = PyLong_AsSsize_t(item);
         if (i == -1 && PyErr_Occurred()) {
             INDEX_ERROR("argument too large to be converted to an index");
             return NULL;
@@ -181,25 +181,17 @@ GMPy_XMPZ_Method_SubScript(XMPZ_Object* self, PyObject* item)
         if (i < 0) {
             i += mpz_sizeinbase(self->z, 2);
         }
-        return PyIntOrLong_FromLong(mpz_tstbit(self->z, i));
+        return PyLong_FromLong(mpz_tstbit(self->z, i));
     }
     else if (PySlice_Check(item)) {
         Py_ssize_t start, stop, step, slicelength, cur, i;
         MPZ_Object *result;
 
-#if PY_VERSION_HEX > 0x030200A4
         if (PySlice_GetIndicesEx(item,
                          mpz_sizeinbase(self->z, 2),
                          &start, &stop, &step, &slicelength) < 0) {
             return NULL;
         }
-#else
-        if (PySlice_GetIndicesEx((PySliceObject*)item,
-                         mpz_sizeinbase(self->z, 2),
-                         &start, &stop, &step, &slicelength) < 0) {
-            return NULL;
-        }
-#endif
 
         if ((step < 0 && start < stop) || (step > 0 && start > stop)) {
             stop = start;
@@ -235,7 +227,7 @@ GMPy_XMPZ_Method_AssignSubScript(XMPZ_Object* self, PyObject* item, PyObject* va
     if (PyIndex_Check(item)) {
         Py_ssize_t bit_value, i;
 
-        i = PyIntOrLong_AsSsize_t(item);
+        i = PyLong_AsSsize_t(item);
         if (i == -1 && PyErr_Occurred()) {
             INDEX_ERROR("argument too large to be converted to an index");
             return -1;
@@ -244,7 +236,7 @@ GMPy_XMPZ_Method_AssignSubScript(XMPZ_Object* self, PyObject* item, PyObject* va
             i += mpz_sizeinbase(self->z, 2);
         }
 
-        bit_value = PyIntOrLong_AsSsize_t(value);
+        bit_value = PyLong_AsSsize_t(value);
         if (bit_value == -1 && PyErr_Occurred()) {
             VALUE_ERROR("bit value must be 0 or 1");
             return -1;
@@ -271,7 +263,7 @@ GMPy_XMPZ_Method_AssignSubScript(XMPZ_Object* self, PyObject* item, PyObject* va
              * than the length of the xmpz object, allow the underlying xmpz
              * object to be made larger.
              */
-            temp = PyIntOrLong_AsSsize_t(((PySliceObject*)item)->stop);
+            temp = PyLong_AsSsize_t(((PySliceObject*)item)->stop);
             if (temp == -1  && PyErr_Occurred()) {
                 return 0;
             }
@@ -280,19 +272,11 @@ GMPy_XMPZ_Method_AssignSubScript(XMPZ_Object* self, PyObject* item, PyObject* va
             }
         }
 
-#if PY_VERSION_HEX > 0x030200A4
         if (PySlice_GetIndicesEx(item,
                         seq_len,
                         &start, &stop, &step, &slicelength) < 0) {
             return -1;
         }
-#else
-        if (PySlice_GetIndicesEx((PySliceObject*)item,
-                        seq_len,
-                        &start, &stop, &step, &slicelength) < 0) {
-            return -1;
-        }
-#endif
 
         if ((step < 0 && start < stop) || (step > 0 && start > stop)) {
             stop = start;
@@ -409,7 +393,7 @@ GMPy_Iter_Next(GMPy_Iter_Object *self) {
                     PyErr_SetNone(PyExc_StopIteration);
                 else {
                     self->start = temp + 1;
-                    result = PyIntOrLong_FromSsize_t(temp);
+                    result = PyLong_FromSsize_t(temp);
                 }
             }
             break;
@@ -422,7 +406,7 @@ GMPy_Iter_Next(GMPy_Iter_Object *self) {
                     PyErr_SetNone(PyExc_StopIteration);
                 else {
                     self->start = temp + 1;
-                    result = PyIntOrLong_FromSsize_t(temp);
+                    result = PyLong_FromSsize_t(temp);
                 }
             }
             break;
@@ -583,18 +567,13 @@ PyDoc_STRVAR(GMPy_doc_xmpz_method_sizeof,
 static PyObject *
 GMPy_XMPZ_Method_SizeOf(PyObject *self, PyObject *other)
 {
-    return PyIntOrLong_FromSize_t(sizeof(XMPZ_Object) + \
+    return PyLong_FromSize_t(sizeof(XMPZ_Object) + \
         (MPZ(self)->_mp_alloc * sizeof(mp_limb_t)));
 }
 
 static PyTypeObject GMPy_Iter_Type =
 {
-#ifdef PY3
     PyVarObject_HEAD_INIT(0, 0)
-#else
-    PyObject_HEAD_INIT(0)
-        0,                                  /* ob_size          */
-#endif
     "gmpy2 iterator",                       /* tp_name          */
     sizeof(GMPy_Iter_Object),               /* tp_basicsize     */
         0,                                  /* tp_itemsize      */

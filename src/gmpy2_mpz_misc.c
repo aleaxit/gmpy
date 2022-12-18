@@ -44,7 +44,7 @@ GMPy_MPZ_Method_NumDigits(PyObject *self, PyObject *args)
     PyObject *result;
 
     if (PyTuple_GET_SIZE(args) == 1) {
-        base = PyIntOrLong_AsLong(PyTuple_GET_ITEM(args, 0));
+        base = PyLong_AsLong(PyTuple_GET_ITEM(args, 0));
         if (base == -1 && PyErr_Occurred()) {
             return NULL;
         }
@@ -55,7 +55,7 @@ GMPy_MPZ_Method_NumDigits(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    result = PyIntOrLong_FromSize_t(mpz_sizeinbase(MPZ(self), (int)base));
+    result = PyLong_FromSize_t(mpz_sizeinbase(MPZ(self), (int)base));
     return result;
 }
 
@@ -74,7 +74,7 @@ GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *args)
     }
 
     if (argc == 2) {
-        base = PyIntOrLong_AsLong(PyTuple_GET_ITEM(args, 1));
+        base = PyLong_AsLong(PyTuple_GET_ITEM(args, 1));
         if (base == -1 && PyErr_Occurred()) {
             return NULL;
         }
@@ -89,7 +89,7 @@ GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    result = PyIntOrLong_FromSize_t(mpz_sizeinbase(temp->z, (int)base));
+    result = PyLong_FromSize_t(mpz_sizeinbase(temp->z, (int)base));
     Py_DECREF((PyObject*)temp);
     return result;
 }
@@ -1493,7 +1493,7 @@ GMPy_MPZ_Function_Jacobi(PyObject *self, PyObject *args)
     res = (long)(mpz_jacobi(tempx->z, tempy->z));
     Py_DECREF((PyObject*)tempx);
     Py_DECREF((PyObject*)tempy);
-    return PyIntOrLong_FromLong(res);
+    return PyLong_FromLong(res);
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_legendre,
@@ -1529,7 +1529,7 @@ GMPy_MPZ_Function_Legendre(PyObject *self, PyObject *args)
     res = (long)(mpz_legendre(tempx->z, tempy->z));
     Py_DECREF((PyObject*)tempx);
     Py_DECREF((PyObject*)tempy);
-    return PyIntOrLong_FromLong(res);
+    return PyLong_FromLong(res);
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_kronecker,
@@ -1558,7 +1558,7 @@ GMPy_MPZ_Function_Kronecker(PyObject *self, PyObject *args)
     res = (long)(mpz_kronecker(tempx->z, tempy->z));
     Py_DECREF((PyObject*)tempx);
     Py_DECREF((PyObject*)tempy);
-    return PyIntOrLong_FromLong(res);
+    return PyLong_FromLong(res);
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_even,
@@ -1671,7 +1671,7 @@ GMPy_MPZ_Method_SubScript(MPZ_Object *self, PyObject *item)
     if (PyIndex_Check(item)) {
         Py_ssize_t i;
 
-        i = PyIntOrLong_AsSsize_t(item);
+        i = PyLong_AsSsize_t(item);
         if (i == -1 && PyErr_Occurred()) {
             INDEX_ERROR("argument too large to convert to an index");
             return NULL;
@@ -1679,25 +1679,17 @@ GMPy_MPZ_Method_SubScript(MPZ_Object *self, PyObject *item)
         if (i < 0) {
             i += mpz_sizeinbase(self->z, 2);
         }
-        return PyIntOrLong_FromLong(mpz_tstbit(self->z, i));
+        return PyLong_FromLong(mpz_tstbit(self->z, i));
     }
     else if (PySlice_Check(item)) {
         Py_ssize_t start, stop, step, slicelength, cur, i;
         MPZ_Object *result;
 
-#if PY_VERSION_HEX > 0x030200A4
         if (PySlice_GetIndicesEx(item,
                         mpz_sizeinbase(self->z, 2),
                         &start, &stop, &step, &slicelength) < 0) {
             return NULL;
         }
-#else
-        if (PySlice_GetIndicesEx((PySliceObject*)item,
-                        mpz_sizeinbase(self->z, 2),
-                        &start, &stop, &step, &slicelength) < 0) {
-            return NULL;
-        }
-#endif
 
         if ((step < 0 && start < stop) || (step > 0 && start > stop)) {
             stop = start;
@@ -1767,7 +1759,7 @@ PyDoc_STRVAR(GMPy_doc_mpz_method_sizeof,
 static PyObject *
 GMPy_MPZ_Method_SizeOf(PyObject *self, PyObject *other)
 {
-    return PyIntOrLong_FromSize_t(sizeof(MPZ_Object) + \
+    return PyLong_FromSize_t(sizeof(MPZ_Object) + \
         (MPZ(self)->_mp_alloc * sizeof(mp_limb_t)));
 }
 

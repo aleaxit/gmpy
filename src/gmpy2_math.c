@@ -1283,7 +1283,7 @@ GMPy_Real_Root(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_Number_Rootn(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    if (IS_REAL(x) && PyIntOrLong_Check(y))
+    if (IS_REAL(x) && PyLong_Check(y))
         return GMPy_Real_Rootn(x, y, context);
     TYPE_ERROR("rootn() argument type not supported");
     return NULL;
@@ -1309,7 +1309,7 @@ GMPy_Context_Rootn(PyObject *self, PyObject *args)
 static PyObject *
 GMPy_Number_Root(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    if (IS_REAL(x) && PyIntOrLong_Check(y))
+    if (IS_REAL(x) && PyLong_Check(y))
         return GMPy_Real_Root(x, y, context);
     TYPE_ERROR("root() argument type not supported");
     return NULL;
@@ -1432,7 +1432,7 @@ GMPy_Real_Round2(PyObject *x, PyObject *y, CTXT_Object *context)
     n = GET_MPFR_PREC(context);
 
     if (y) {
-        n = PyIntOrLong_AsLong(y);
+        n = PyLong_AsLong(y);
         if ( (n == -1 && PyErr_Occurred()) || n < MPFR_PREC_MIN || n > MPFR_PREC_MAX) {
             VALUE_ERROR("invalid precision");
             return NULL;
@@ -1460,7 +1460,7 @@ GMPy_Real_Round2(PyObject *x, PyObject *y, CTXT_Object *context)
 static PyObject *
 GMPy_Number_Round2(PyObject *x, PyObject *y, CTXT_Object *context)
 {
-    if (IS_REAL(x) && (!y || PyIntOrLong_Check(y)))
+    if (IS_REAL(x) && (!y || PyLong_Check(y)))
         return GMPy_Real_Round2(x, y, context);
 
     TYPE_ERROR("round2() argument type not supported");
@@ -1684,7 +1684,7 @@ GMPy_RealWithType_Lgamma(PyObject *x, int xtype, CTXT_Object *context)
     }
 
     PyTuple_SET_ITEM(result, 0, (PyObject*)value);
-    PyTuple_SET_ITEM(result, 1, PyIntOrLong_FromLong((long)signp));
+    PyTuple_SET_ITEM(result, 1, PyLong_FromLong((long)signp));
     return result;
 }
 
@@ -1729,7 +1729,7 @@ GMPy_RealWithType_RemQuo(PyObject *x, int xtype, PyObject *y, int ytype, CTXT_Ob
     _GMPy_MPFR_Cleanup(&value, context);
 
     PyTuple_SET_ITEM(result, 0, (PyObject*)value);
-    PyTuple_SET_ITEM(result, 1, PyIntOrLong_FromLong(quobits));
+    PyTuple_SET_ITEM(result, 1, PyLong_FromLong(quobits));
     return result;
 }
 
@@ -1765,7 +1765,7 @@ GMPy_RealWithType_Frexp(PyObject *x, int xtype, CTXT_Object *context)
     Py_DECREF((PyObject*)tempx);
     _GMPy_MPFR_Cleanup(&value, context);
 
-    PyTuple_SET_ITEM(result, 0, PyIntOrLong_FromSsize_t((Py_ssize_t)exp));
+    PyTuple_SET_ITEM(result, 0, PyLong_FromSsize_t((Py_ssize_t)exp));
     PyTuple_SET_ITEM(result, 1, (PyObject*)value);
     return result;
 }

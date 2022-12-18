@@ -38,7 +38,7 @@ mpmath_build_mpf(long sign, MPZ_Object *man, PyObject *exp, mp_bitcnt_t bc)
         return NULL;
     }
 
-    if (!(tsign = PyIntOrLong_FromLong(sign))) {
+    if (!(tsign = PyLong_FromLong(sign))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
@@ -55,7 +55,7 @@ mpmath_build_mpf(long sign, MPZ_Object *man, PyObject *exp, mp_bitcnt_t bc)
 
     PyTuple_SET_ITEM(tup, 0, tsign);
     PyTuple_SET_ITEM(tup, 1, (PyObject*)man);
-    PyTuple_SET_ITEM(tup, 2, (exp)?exp:PyIntOrLong_FromLong(0));
+    PyTuple_SET_ITEM(tup, 2, (exp)?exp:PyLong_FromLong(0));
     PyTuple_SET_ITEM(tup, 3, tbc);
     return tup;
 }
@@ -67,8 +67,8 @@ mpmath_get_sign(PyObject *x)
      * value of 1 implies negative.
      */
 
-    if (PyIntOrLong_Check(x)) {
-        return PyIntOrLong_AsLong(x);
+    if (PyLong_Check(x)) {
+        return PyLong_AsLong(x);
     }
 
     if (MPZ_Check(x)) {
@@ -94,7 +94,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     mp_bitcnt_t shift = 0;
     PyObject *exp = NULL, *newexp = NULL, *newexp2 = NULL, *tmp = NULL, *rndstr = NULL;
     MPZ_Object *man = NULL, *upper = NULL, *lower = NULL;
-    Py2or3String_Type rnd = 0;
+    Py_UCS4 rnd = 0;
 
     if (PyTuple_GET_SIZE(args) == 6) {
         /* Need better error-checking here. Under Python 3.0, overflow into
@@ -125,7 +125,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     }
 
     /* If rndstr really is a string, extract the first character. */
-    if (Py2or3String_Check(rndstr)) {
+    if (PyUnicode_Check(rndstr)) {
         rnd = Py2or3String_1Char(rndstr);
     }
     else {
@@ -155,7 +155,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     if (bc > prec) {
         shift = bc - prec;
         switch (rnd) {
-            case (Py2or3String_Type)'f':
+            case (Py_UCS4)'f':
                 if(sign) {
                     mpz_cdiv_q_2exp(upper->z, man->z, shift);
                 }
@@ -163,7 +163,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
                     mpz_fdiv_q_2exp(upper->z, man->z, shift);
                 }
                 break;
-            case (Py2or3String_Type)'c':
+            case (Py_UCS4)'c':
                 if(sign) {
                     mpz_fdiv_q_2exp(upper->z, man->z, shift);
                 }
@@ -171,13 +171,13 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
                     mpz_cdiv_q_2exp(upper->z, man->z, shift);
                 }
                 break;
-            case (Py2or3String_Type)'d':
+            case (Py_UCS4)'d':
                 mpz_fdiv_q_2exp(upper->z, man->z, shift);
                 break;
-            case (Py2or3String_Type)'u':
+            case (Py_UCS4)'u':
                 mpz_cdiv_q_2exp(upper->z, man->z, shift);
                 break;
-            case (Py2or3String_Type)'n':
+            case (Py_UCS4)'n':
             default:
                 mpz_tdiv_r_2exp(lower->z, man->z, shift);
                 mpz_tdiv_q_2exp(upper->z, man->z, shift);
@@ -224,7 +224,7 @@ Pympz_mpmath_normalize(PyObject *self, PyObject *args)
     if ((zbits = mpz_scan1(upper->z, 0)))
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
-    if (!(tmp = PyIntOrLong_FromLong(zbits))) {
+    if (!(tmp = PyLong_FromLong(zbits))) {
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);
         Py_DECREF(newexp);
@@ -260,7 +260,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     PyObject *exp = NULL, *newexp = NULL, *newexp2 = NULL, *tmp = NULL;
     MPZ_Object *man = NULL, *upper = NULL, *lower = NULL;
 
-    Py2or3String_Type rnd = (Py2or3String_Type)'f';
+    Py_UCS4 rnd = (Py_UCS4)'f';
 
     if (PyTuple_GET_SIZE(args) < 2) {
         TYPE_ERROR("mpmath_create() expects 'mpz','int'[,'int','str'] arguments");
@@ -313,7 +313,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     if (bc > prec) {
         shift = bc - prec;
         switch (rnd) {
-            case (Py2or3String_Type)'f':
+            case (Py_UCS4)'f':
                 if (sign) {
                     mpz_cdiv_q_2exp(upper->z, upper->z, shift);
                 }
@@ -321,7 +321,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                     mpz_fdiv_q_2exp(upper->z, upper->z, shift);
                 }
                 break;
-            case (Py2or3String_Type)'c':
+            case (Py_UCS4)'c':
                 if (sign) {
                     mpz_fdiv_q_2exp(upper->z, upper->z, shift);
                 }
@@ -329,13 +329,13 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
                     mpz_cdiv_q_2exp(upper->z, upper->z, shift);
                 }
                 break;
-            case (Py2or3String_Type)'d':
+            case (Py_UCS4)'d':
                 mpz_fdiv_q_2exp(upper->z, upper->z, shift);
                 break;
-            case (Py2or3String_Type)'u':
+            case (Py_UCS4)'u':
                 mpz_cdiv_q_2exp(upper->z, upper->z, shift);
                 break;
-            case (Py2or3String_Type)'n':
+            case (Py_UCS4)'n':
             default:
                 mpz_tdiv_r_2exp(lower->z, upper->z, shift);
                 mpz_tdiv_q_2exp(upper->z, upper->z, shift);
@@ -381,7 +381,7 @@ Pympz_mpmath_create(PyObject *self, PyObject *args)
     if ((zbits = mpz_scan1(upper->z, 0)))
         mpz_tdiv_q_2exp(upper->z, upper->z, zbits);
 
-    if (!(tmp = PyIntOrLong_FromLong(zbits))) {
+    if (!(tmp = PyLong_FromLong(zbits))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF((PyObject*)upper);
         Py_DECREF((PyObject*)lower);

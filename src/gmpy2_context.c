@@ -141,17 +141,11 @@ current_context_from_dict(void)
         return NULL;
     }
 
-#ifdef PY3
     tl_context = PyDict_GetItemWithError(dict, tls_context_key);
-#else
-    tl_context = PyDict_GetItem(dict, tls_context_key);
-#endif
     if (!tl_context) {
-#ifdef PY3
         if (PyErr_Occurred()) {
             return NULL;
         }
-#endif
 
         /* Set up a new thread local context. */
         tl_context = GMPy_CTXT_New();
@@ -247,7 +241,7 @@ GMPy_CTXT_ieee(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-    bitwidth = PyIntOrLong_AsLong(PyTuple_GET_ITEM(args, 0));
+    bitwidth = PyLong_AsLong(PyTuple_GET_ITEM(args, 0));
     if (bitwidth == -1 && PyErr_Occurred()) {
         TYPE_ERROR("ieee() requires 'int' argument");
         return NULL;
@@ -337,12 +331,12 @@ GMPy_CTXT_Manager_Dealloc(CTXT_Manager_Object *self)
 static PyObject *
 _round_to_name(int val)
 {
-    if (val == MPFR_RNDN) return Py2or3String_FromString("RoundToNearest");
-    if (val == MPFR_RNDZ) return Py2or3String_FromString("RoundToZero");
-    if (val == MPFR_RNDU) return Py2or3String_FromString("RoundUp");
-    if (val == MPFR_RNDD) return Py2or3String_FromString("RoundDown");
-    if (val == MPFR_RNDA) return Py2or3String_FromString("RoundAwayZero");
-    if (val == GMPY_DEFAULT) return Py2or3String_FromString("Default");
+    if (val == MPFR_RNDN) return PyUnicode_FromString("RoundToNearest");
+    if (val == MPFR_RNDZ) return PyUnicode_FromString("RoundToZero");
+    if (val == MPFR_RNDU) return PyUnicode_FromString("RoundUp");
+    if (val == MPFR_RNDD) return PyUnicode_FromString("RoundDown");
+    if (val == MPFR_RNDA) return PyUnicode_FromString("RoundAwayZero");
+    if (val == GMPY_DEFAULT) return PyUnicode_FromString("Default");
     return NULL;
 }
 
@@ -358,7 +352,7 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
     if (!tuple)
         return NULL;
 
-    format = Py2or3String_FromString(
+    format = PyUnicode_FromString(
             "context(precision=%s, real_prec=%s, imag_prec=%s,\n"
             "        round=%s, real_round=%s, imag_round=%s,\n"
             "        emax=%s, emin=%s,\n"
@@ -378,20 +372,20 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
         return NULL;
     }
 
-    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.mpfr_prec));
+    PyTuple_SET_ITEM(tuple, i++, PyLong_FromLong(self->ctx.mpfr_prec));
     if (self->ctx.real_prec == GMPY_DEFAULT)
-        PyTuple_SET_ITEM(tuple, i++, Py2or3String_FromString("Default"));
+        PyTuple_SET_ITEM(tuple, i++, PyUnicode_FromString("Default"));
     else
-        PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.real_prec));
+        PyTuple_SET_ITEM(tuple, i++, PyLong_FromLong(self->ctx.real_prec));
     if (self->ctx.imag_prec == GMPY_DEFAULT)
-        PyTuple_SET_ITEM(tuple, i++, Py2or3String_FromString("Default"));
+        PyTuple_SET_ITEM(tuple, i++, PyUnicode_FromString("Default"));
     else
-        PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.imag_prec));
+        PyTuple_SET_ITEM(tuple, i++, PyLong_FromLong(self->ctx.imag_prec));
     PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->ctx.mpfr_round));
     PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->ctx.real_round));
     PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->ctx.imag_round));
-    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.emax));
-    PyTuple_SET_ITEM(tuple, i++, PyIntOrLong_FromLong(self->ctx.emin));
+    PyTuple_SET_ITEM(tuple, i++, PyLong_FromLong(self->ctx.emax));
+    PyTuple_SET_ITEM(tuple, i++, PyLong_FromLong(self->ctx.emin));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.subnormalize));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.traps & TRAP_UNDERFLOW));
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.underflow));
@@ -410,7 +404,7 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
     PyTuple_SET_ITEM(tuple, i++, PyBool_FromLong(self->ctx.allow_release_gil));
 
     if (!PyErr_Occurred())
-        result = Py2or3String_Format(format, tuple);
+        result = PyUnicode_Format(format, tuple);
     else
         SYSTEM_ERROR("internal error in GMPy_CTXT_Repr");
 
@@ -961,7 +955,7 @@ GETSET_BOOLEAN(allow_release_gil)
 static PyObject *
 GMPy_CTXT_Get_precision(CTXT_Object *self, void *closure)
 {
-    return PyIntOrLong_FromSsize_t((Py_ssize_t)(self->ctx.mpfr_prec));
+    return PyLong_FromSsize_t((Py_ssize_t)(self->ctx.mpfr_prec));
 }
 
 static int
@@ -969,11 +963,11 @@ GMPy_CTXT_Set_precision(CTXT_Object *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
-    if (!(PyIntOrLong_Check(value))) {
+    if (!(PyLong_Check(value))) {
         TYPE_ERROR("precision must be Python integer");
         return -1;
     }
-    temp = PyIntOrLong_AsSsize_t(value);
+    temp = PyLong_AsSsize_t(value);
     /* A return value of -1 indicates an error has occurred. Since -1 is not
      * a legal value, we don't specifically check for an error condition.
      */
@@ -988,7 +982,7 @@ GMPy_CTXT_Set_precision(CTXT_Object *self, PyObject *value, void *closure)
 static PyObject *
 GMPy_CTXT_Get_real_prec(CTXT_Object *self, void *closure)
 {
-    return PyIntOrLong_FromSsize_t((Py_ssize_t)(GET_REAL_PREC(self)));
+    return PyLong_FromSsize_t((Py_ssize_t)(GET_REAL_PREC(self)));
 }
 
 static int
@@ -996,11 +990,11 @@ GMPy_CTXT_Set_real_prec(CTXT_Object *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
-    if (!(PyIntOrLong_Check(value))) {
+    if (!(PyLong_Check(value))) {
         TYPE_ERROR("real_prec must be Python integer");
         return -1;
     }
-    temp = PyIntOrLong_AsSsize_t(value);
+    temp = PyLong_AsSsize_t(value);
     /* A return value of -1 indicates an error has occurred. Since -1 is not
      * a legal value, we don't specifically check for an error condition.
      */
@@ -1015,7 +1009,7 @@ GMPy_CTXT_Set_real_prec(CTXT_Object *self, PyObject *value, void *closure)
 static PyObject *
 GMPy_CTXT_Get_imag_prec(CTXT_Object *self, void *closure)
 {
-    return PyIntOrLong_FromSsize_t((Py_ssize_t)(GET_IMAG_PREC(self)));
+    return PyLong_FromSsize_t((Py_ssize_t)(GET_IMAG_PREC(self)));
 }
 
 static int
@@ -1023,11 +1017,11 @@ GMPy_CTXT_Set_imag_prec(CTXT_Object *self, PyObject *value, void *closure)
 {
     Py_ssize_t temp;
 
-    if (!(PyIntOrLong_Check(value))) {
+    if (!(PyLong_Check(value))) {
         TYPE_ERROR("imag_prec must be Python integer");
         return -1;
     }
-    temp = PyIntOrLong_AsSsize_t(value);
+    temp = PyLong_AsSsize_t(value);
     /* A return value of -1 indicates an error has occurred. Since -1 is not
      * a legal value, we don't specifically check for an error condition.
      */
@@ -1042,7 +1036,7 @@ GMPy_CTXT_Set_imag_prec(CTXT_Object *self, PyObject *value, void *closure)
 static PyObject *
 GMPy_CTXT_Get_round(CTXT_Object *self, void *closure)
 {
-    return PyIntOrLong_FromLong((long)(self->ctx.mpfr_round));
+    return PyLong_FromLong((long)(self->ctx.mpfr_round));
 }
 
 static int
@@ -1050,11 +1044,11 @@ GMPy_CTXT_Set_round(CTXT_Object *self, PyObject *value, void *closure)
 {
     long temp;
 
-    if (!(PyIntOrLong_Check(value))) {
+    if (!(PyLong_Check(value))) {
         TYPE_ERROR("round mode must be Python integer");
         return -1;
     }
-    temp = PyIntOrLong_AsLong(value);
+    temp = PyLong_AsLong(value);
     if (temp == -1 && PyErr_Occurred()) {
         VALUE_ERROR("invalid value for round mode");
         return -1;
@@ -1084,7 +1078,7 @@ GMPy_CTXT_Set_round(CTXT_Object *self, PyObject *value, void *closure)
 static PyObject *
 GMPy_CTXT_Get_real_round(CTXT_Object *self, void *closure)
 {
-    return PyIntOrLong_FromLong((long)GET_REAL_ROUND(self));
+    return PyLong_FromLong((long)GET_REAL_ROUND(self));
 }
 
 static int
@@ -1092,11 +1086,11 @@ GMPy_CTXT_Set_real_round(CTXT_Object *self, PyObject *value, void *closure)
 {
     long temp;
 
-    if (!(PyIntOrLong_Check(value))) {
+    if (!(PyLong_Check(value))) {
         TYPE_ERROR("round mode must be Python integer");
         return -1;
     }
-    temp = PyIntOrLong_AsLong(value);
+    temp = PyLong_AsLong(value);
     if (temp == -1 && PyErr_Occurred()) {
         VALUE_ERROR("invalid value for round mode");
         return -1;
@@ -1115,7 +1109,7 @@ GMPy_CTXT_Set_real_round(CTXT_Object *self, PyObject *value, void *closure)
 static PyObject *
 GMPy_CTXT_Get_imag_round(CTXT_Object *self, void *closure)
 {
-    return PyIntOrLong_FromLong((long)GET_IMAG_ROUND(self));
+    return PyLong_FromLong((long)GET_IMAG_ROUND(self));
 }
 
 static int
@@ -1123,11 +1117,11 @@ GMPy_CTXT_Set_imag_round(CTXT_Object *self, PyObject *value, void *closure)
 {
     long temp;
 
-    if (!(PyIntOrLong_Check(value))) {
+    if (!(PyLong_Check(value))) {
         TYPE_ERROR("round mode must be Python integer");
         return -1;
     }
-    temp = PyIntOrLong_AsLong(value);
+    temp = PyLong_AsLong(value);
     if (temp == -1 && PyErr_Occurred()) {
         VALUE_ERROR("invalid value for round mode");
         return -1;
@@ -1146,7 +1140,7 @@ GMPy_CTXT_Set_imag_round(CTXT_Object *self, PyObject *value, void *closure)
 static PyObject *
 GMPy_CTXT_Get_emin(CTXT_Object *self, void *closure)
 {
-    return PyIntOrLong_FromLong(self->ctx.emin);
+    return PyLong_FromLong(self->ctx.emin);
 }
 
 static int
@@ -1154,11 +1148,11 @@ GMPy_CTXT_Set_emin(CTXT_Object *self, PyObject *value, void *closure)
 {
     long exp;
 
-    if (!(PyIntOrLong_Check(value))) {
+    if (!(PyLong_Check(value))) {
         TYPE_ERROR("emin must be Python integer");
         return -1;
     }
-    exp = PyIntOrLong_AsLong(value);
+    exp = PyLong_AsLong(value);
     if (exp == -1 && PyErr_Occurred()) {
         VALUE_ERROR("requested minimum exponent is invalid");
         return -1;
@@ -1174,7 +1168,7 @@ GMPy_CTXT_Set_emin(CTXT_Object *self, PyObject *value, void *closure)
 static PyObject *
 GMPy_CTXT_Get_emax(CTXT_Object *self, void *closure)
 {
-    return PyIntOrLong_FromLong(self->ctx.emax);
+    return PyLong_FromLong(self->ctx.emax);
 }
 
 static int
@@ -1182,11 +1176,11 @@ GMPy_CTXT_Set_emax(CTXT_Object *self, PyObject *value, void *closure)
 {
     long exp;
 
-    if (!(PyIntOrLong_Check(value))) {
+    if (!(PyLong_Check(value))) {
         TYPE_ERROR("emax must be Python integer");
         return -1;
     }
-    exp = PyIntOrLong_AsLong(value);
+    exp = PyLong_AsLong(value);
     if (exp == -1 && PyErr_Occurred()) {
         VALUE_ERROR("requested maximum exponent is invalid");
         return -1;
@@ -1365,12 +1359,7 @@ static PyMethodDef GMPyContext_methods[] =
 
 static PyTypeObject CTXT_Type =
 {
-#ifdef PY3
     PyVarObject_HEAD_INIT(0, 0)
-#else
-    PyObject_HEAD_INIT(0)
-        0,                                  /* ob_size          */
-#endif
     "gmpy2 context",                        /* tp_name          */
     sizeof(CTXT_Object),                    /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
@@ -1411,12 +1400,7 @@ static PyMethodDef GMPyContextManager_methods[] =
 
 static PyTypeObject CTXT_Manager_Type =
 {
-#ifdef PY3
     PyVarObject_HEAD_INIT(0, 0)
-#else
-    PyObject_HEAD_INIT(0)
-        0,                                   /* ob_size          */
-#endif
     "gmpy2 context",                         /* tp_name          */
     sizeof(CTXT_Manager_Object),             /* tp_basicsize     */
         0,                                   /* tp_itemsize      */

@@ -280,13 +280,6 @@ mpz_set_PyIntOrLong(mpz_ptr z, PyObject *lsrc)
     register PyLongObject *lptr = (PyLongObject*)lsrc;
     ssize_t size;
 
-#ifdef PY2
-    if (PyInt_Check(lsrc)) {
-        mpz_set_si(z, PyInt_AS_LONG(lsrc));
-        return;
-    }
-#endif
-
     size = (ssize_t)mpn_size_from_pylong(lptr->ob_digit, ABS(Py_SIZE(lptr)));
 
     if (z->_mp_alloc < size)

@@ -52,13 +52,6 @@ GMPy_MPZ_From_PyIntOrLong(PyObject *obj, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-#ifdef PY2
-    if (PyInt_Check(obj)) {
-        mpz_set_si(result->z, PyInt_AS_LONG(obj));
-        return result;
-    }
-#endif
-
     switch (Py_SIZE(templong)) {
     case -1:
         mpz_set_si(result->z, -(sdigit)templong->ob_digit[0]);
@@ -97,13 +90,6 @@ mpz_set_PyIntOrLong(mpz_t z, PyObject *obj)
     int negative;
     Py_ssize_t len;
     PyLongObject *templong = (PyLongObject*)obj;
-
-#ifdef PY2
-    if (PyInt_Check(obj)) {
-        mpz_set_si(z, PyInt_AS_LONG(obj));
-        return;
-    }
-#endif
 
     switch (Py_SIZE(templong)) {
     case -1:
@@ -228,14 +214,6 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
     return (PyObject*)result;
 }
 
-#ifdef PY2
-static PyObject *
-GMPy_MPZ_Long_Slot(MPZ_Object *self)
-{
-    return GMPy_PyLong_From_MPZ(self, NULL);
-}
-#endif
-
 /* The PyIntOrLong functions should be used when converting a number back
  * to a Python value since is automatically returns an "int" or "long" when
  * using Python 2.x. The PyLong_From functions (above) should only be used
@@ -245,14 +223,6 @@ GMPy_MPZ_Long_Slot(MPZ_Object *self)
 static PyObject *
 GMPy_PyIntOrLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
 {
-
-#ifdef PY2
-    if (mpz_fits_slong_p(obj->z)) {
-        /* cast is safe since we know it fits in a signed long */
-        return PyInt_FromLong((long)mpz_get_si(obj->z));
-    }
-#endif
-
     return GMPy_PyLong_From_MPZ(obj, context);
 }
 
@@ -299,7 +269,7 @@ GMPy_MPZ_From_Integer(PyObject *obj, CTXT_Object *context)
         return (MPZ_Object*)obj;
     }
 
-    if (PyIntOrLong_Check(obj))
+    if (PyLong_Check(obj))
         return GMPy_MPZ_From_PyIntOrLong(obj, context);
 
     if (XMPZ_Check(obj))
@@ -337,7 +307,7 @@ GMPy_MPZ_From_IntegerAndCopy(PyObject *obj, CTXT_Object *context)
         return result;
     }
 
-    if (PyIntOrLong_Check(obj))
+    if (PyLong_Check(obj))
         return GMPy_MPZ_From_PyIntOrLong(obj, context);
 
     if (XMPZ_Check(obj))
@@ -468,13 +438,6 @@ GMPy_XMPZ_From_PyIntOrLong(PyObject *obj, CTXT_Object *context)
         return NULL;
         /* LCOV_EXCL_STOP */
     }
-
-#ifdef PY2
-    if (PyInt_Check(obj)) {
-        mpz_set_si(result->z, PyInt_AS_LONG(obj));
-        return result;
-    }
-#endif
 
     switch (Py_SIZE(templong)) {
     case -1:
@@ -843,33 +806,6 @@ GMPy_XMPZ_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
 
     return result;
 }
-#ifdef PY2
-static PyObject *
-GMPy_PyLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
-{
-    PyObject *result;
-    MPZ_Object *temp;
-
-    temp = GMPy_MPZ_From_MPQ(obj, context);
-
-    if (!temp) {
-        /* LCOV_EXCL_START */
-        return NULL;
-        /* LCOV_EXCL_STOP */
-    }
-
-    result = GMPy_PyLong_From_MPZ(temp, context);
-    Py_DECREF((PyObject*)temp);
-
-    return result;
-}
-
-static PyObject *
-GMPy_MPQ_Long_Slot(MPQ_Object *self)
-{
-    return GMPy_PyLong_From_MPQ(self, NULL);
-}
-#endif
 
 static PyObject *
 GMPy_PyIntOrLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
@@ -933,21 +869,6 @@ GMPy_PyStr_From_MPQ(MPQ_Object *obj, int base, int option, CTXT_Object *context)
         p += strlen(p);
     }
 
-#ifdef PY2
-    *(p++) = '%';
-    *(p++) = 's';
-    if (option & 1)
-        *(p++) = ',';
-    else
-        *(p++) = '/';
-    *(p++) = '%';
-    *(p++) = 's';
-    if (option & 1)
-        *(p++) = ')';
-    *(p++) = '\00';
-    result = PyString_FromFormat(buffer, PyString_AS_STRING(numstr),
-                                 PyString_AS_STRING(denstr));
-#else
     *(p++) = '%';
     *(p++) = 'U';
     if (option & 1)
@@ -960,7 +881,6 @@ GMPy_PyStr_From_MPQ(MPQ_Object *obj, int base, int option, CTXT_Object *context)
         *(p++) = ')';
     *(p++) = '\00';
     result = PyUnicode_FromFormat(buffer, numstr, denstr);
-#endif
     Py_DECREF(numstr);
     Py_DECREF(denstr);
     return result;
@@ -1002,7 +922,7 @@ GMPy_MPQ_From_Fraction(PyObject* obj, CTXT_Object *context)
 
     num = PyObject_GetAttrString(obj, "numerator");
     den = PyObject_GetAttrString(obj, "denominator");
-    if (!num || !PyIntOrLong_Check(num) || !den || !PyIntOrLong_Check(den)) {
+    if (!num || !PyLong_Check(num) || !den || !PyLong_Check(den)) {
         SYSTEM_ERROR("Object does not appear to be Fraction");
         Py_XDECREF(num);
         Py_XDECREF(den);
@@ -1033,7 +953,7 @@ GMPy_MPQ_From_Number(PyObject *obj, CTXT_Object *context)
     if (PyFloat_Check(obj))
         return GMPy_MPQ_From_PyFloat(obj, context);
 
-    if (PyIntOrLong_Check(obj))
+    if (PyLong_Check(obj))
         return GMPy_MPQ_From_PyIntOrLong(obj, context);
 
     if (XMPZ_Check(obj))
@@ -1165,7 +1085,7 @@ GMPy_MPQ_From_Rational(PyObject *obj, CTXT_Object *context)
     if (MPZ_Check(obj))
         return GMPy_MPQ_From_MPZ((MPZ_Object*)obj, context);
 
-    if (PyIntOrLong_Check(obj))
+    if (PyLong_Check(obj))
         return GMPy_MPQ_From_PyIntOrLong(obj, context);
 
     if (XMPZ_Check(obj))

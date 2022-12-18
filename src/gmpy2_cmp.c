@@ -32,16 +32,16 @@ PyDoc_STRVAR(GMPy_doc_mpany_cmp,
 
 static PyObject * _return_cmp(int c)
 {
-    if (c < 0) return PyIntOrLong_FromLong(-1);
-    if (c > 0) return PyIntOrLong_FromLong(1);
-    return PyIntOrLong_FromLong(0);
+    if (c < 0) return PyLong_FromLong(-1);
+    if (c > 0) return PyLong_FromLong(1);
+    return PyLong_FromLong(0);
 }
 
 static PyObject * _return_negated_cmp(int c)
 {
-    if (c < 0) return PyIntOrLong_FromLong(1);
-    if (c > 0) return PyIntOrLong_FromLong(-1);
-    return PyIntOrLong_FromLong(0);
+    if (c < 0) return PyLong_FromLong(1);
+    if (c > 0) return PyLong_FromLong(-1);
+    return PyLong_FromLong(0);
 }
 
 static PyObject *

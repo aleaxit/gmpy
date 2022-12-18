@@ -92,7 +92,7 @@ static inline int GMPy_ObjectType(PyObject *obj)
 
     if (XMPZ_Check(obj)) return OBJ_TYPE_XMPZ;
 
-    if (PyIntOrLong_Check(obj)) return OBJ_TYPE_PyInteger;
+    if (PyLong_Check(obj)) return OBJ_TYPE_PyInteger;
 
     if (PyFloat_Check(obj)) return OBJ_TYPE_PyFloat;
 
@@ -292,12 +292,8 @@ mpz_ascii(mpz_t z, int base, int option, int which)
         else if (base == -16) { *(p++) = '0'; *(p++) = 'X'; }
     }
     else if (!(option & 24)) {
-    #ifdef PY2
-        if (base == 8)        { *(p++) = '0'; }
-    #else
         if (base == 2)        { *(p++) = '0'; *(p++) = 'b'; }
         else if (base == 8)   { *(p++) = '0'; *(p++) = 'o'; }
-    #endif
         else if (base == 16)  { *(p++) = '0'; *(p++) = 'x'; }
         else if (base == -16) { *(p++) = '0'; *(p++) = 'X'; }
     }

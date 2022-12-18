@@ -42,7 +42,6 @@ PyDoc_STRVAR(GMPy_doc_xmpz,
 "     in most cases.");
 
 
-#ifdef PY3
 static PyNumberMethods GMPy_XMPZ_number_methods =
 {
     (binaryfunc) GMPy_Number_Add_Slot,       /* nb_add                  */
@@ -80,51 +79,6 @@ static PyNumberMethods GMPy_XMPZ_number_methods =
         0,                                   /* nb_inplace_true_divide  */
     (unaryfunc) GMPy_MPZ_Int_Slot,           /* nb_index                */
 };
-
-#else
-static PyNumberMethods GMPy_XMPZ_number_methods =
-{
-    (binaryfunc) GMPy_Number_Add_Slot,       /* nb_add                  */
-    (binaryfunc) GMPy_Number_Sub_Slot,       /* nb_subtract             */
-    (binaryfunc) GMPy_Number_Mul_Slot,       /* nb_multiply             */
-    (binaryfunc) GMPy_Number_Div2_Slot,      /* nb_divide               */
-    (binaryfunc) GMPy_Number_Mod_Slot,       /* nb_remainder            */
-    (binaryfunc) GMPy_Number_DivMod_Slot,    /* nb_divmod               */
-    (ternaryfunc) GMPy_Number_Pow_Slot,      /* nb_power                */
-    (unaryfunc) GMPy_XMPZ_Neg_Slot,          /* nb_negative             */
-    (unaryfunc) GMPy_XMPZ_Pos_Slot,          /* nb_positive             */
-    (unaryfunc) GMPy_XMPZ_Abs_Slot,          /* nb_absolute             */
-    (inquiry) GMPy_XMPZ_NonZero_Slot,        /* nb_bool                 */
-    (unaryfunc) GMPy_XMPZ_Com_Slot,          /* nb_invert               */
-    (binaryfunc) GMPy_MPZ_Lshift_Slot,       /* nb_lshift               */
-    (binaryfunc) GMPy_MPZ_Rshift_Slot,       /* nb_rshift               */
-    (binaryfunc) GMPy_MPZ_And_Slot,          /* nb_and                  */
-    (binaryfunc) GMPy_MPZ_Xor_Slot,          /* nb_xor                  */
-    (binaryfunc) GMPy_MPZ_Ior_Slot,          /* nb_or                   */
-        0,                                   /* nb_coerce               */
-    (unaryfunc) GMPy_MPZ_Int_Slot,           /* nb_int                  */
-    (unaryfunc) GMPy_MPZ_Long_Slot,          /* nb_long                 */
-    (unaryfunc) GMPy_MPZ_Float_Slot,         /* nb_float                */
-    (unaryfunc) GMPy_XMPZ_Oct_Slot,          /* nb_oct                  */
-    (unaryfunc) GMPy_XMPZ_Hex_Slot,          /* nb_hex                  */
-    (binaryfunc) GMPy_XMPZ_IAdd_Slot,        /* nb_inplace_add          */
-    (binaryfunc) GMPy_XMPZ_ISub_Slot,        /* nb_inplace_subtract     */
-    (binaryfunc) GMPy_XMPZ_IMul_Slot,        /* nb_inplace_multiply     */
-        0,                                   /* nb_inplace_divide       */
-    (binaryfunc) GMPy_XMPZ_IRem_Slot,        /* nb_inplace_remainder    */
-    (ternaryfunc) GMPy_XMPZ_IPow_Slot,       /* nb_inplace_power        */
-    (binaryfunc) GMPy_XMPZ_ILshift_Slot,     /* nb_inplace_lshift       */
-    (binaryfunc) GMPy_XMPZ_IRshift_Slot,     /* nb_inplace_rshift       */
-    (binaryfunc) GMPy_XMPZ_IAnd_Slot,        /* nb_inplace_and          */
-    (binaryfunc) GMPy_XMPZ_IXor_Slot,        /* nb_inplace_xor          */
-    (binaryfunc) GMPy_XMPZ_IIor_Slot,        /* nb_inplace_or           */
-    (binaryfunc) GMPy_Number_FloorDiv_Slot,  /* nb_floor_divide         */
-    (binaryfunc) GMPy_Number_TrueDiv_Slot,   /* nb_true_divide          */
-    (binaryfunc) GMPy_XMPZ_IFloorDiv_Slot,   /* nb_inplace_floor_divide */
-        0,                                   /* nb_inplace_true_divide  */
-    (unaryfunc) GMPy_MPZ_Int_Slot,           /* nb_index                */
-};
-#endif
 
 static PyMappingMethods GMPy_XMPZ_mapping_methods = {
     (lenfunc)GMPy_XMPZ_Method_Length,
@@ -175,12 +129,7 @@ static PyMethodDef GMPy_XMPZ_methods [] =
 static PyTypeObject XMPZ_Type =
 {
     /* PyObject_HEAD_INIT(&PyType_Type) */
-#ifdef PY3
     PyVarObject_HEAD_INIT(NULL, 0)
-#else
-    PyObject_HEAD_INIT(0)
-        0,                                  /* ob_size          */
-#endif
     "xmpz",                                 /* tp_name          */
     sizeof(XMPZ_Object),                    /* tp_basicsize     */
         0,                                  /* tp_itemsize      */
@@ -200,13 +149,7 @@ static PyTypeObject XMPZ_Type =
         0,                                  /* tp_getattro      */
         0,                                  /* tp_setattro      */
         0,                                  /* tp_as_buffer     */
-#ifdef PY3
     Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
-#else
-    Py_TPFLAGS_HAVE_INDEX|Py_TPFLAGS_HAVE_RICHCOMPARE| \
-    Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_CLASS| \
-    Py_TPFLAGS_HAVE_INPLACEOPS,
-#endif
     GMPy_doc_xmpz,                          /* tp_doc           */
         0,                                  /* tp_traverse      */
         0,                                  /* tp_clear         */

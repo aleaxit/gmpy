@@ -36,7 +36,7 @@ GMPy_Integer_Sign(PyObject *x, CTXT_Object *context)
     else {
         res = mpz_sgn(tempx->z);
         Py_DECREF((PyObject*)tempx);
-        return PyIntOrLong_FromLong(res);
+        return PyLong_FromLong(res);
     }
 }
 
@@ -52,7 +52,7 @@ GMPy_Rational_Sign(PyObject *x, CTXT_Object *context)
     else {
         res = mpq_sgn(tempx->q);
         Py_DECREF((PyObject*)tempx);
-        return PyIntOrLong_FromLong(res);
+        return PyLong_FromLong(res);
     }
 }
 
@@ -72,7 +72,7 @@ GMPy_Real_Sign(PyObject *x, CTXT_Object *context)
         mpfr_clear_flags();
         sign = mpfr_sgn(tempx->f);
         Py_DECREF((PyObject*)tempx);
-        result = PyIntOrLong_FromLong(sign);
+        result = PyLong_FromLong(sign);
         GMPY_CHECK_ERANGE(result, context, "sign() of invalid value (NaN)");
         return result;
     }

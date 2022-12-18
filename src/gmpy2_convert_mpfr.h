@@ -52,11 +52,6 @@ static MPQ_Object  *    GMPy_MPQ_From_MPFR(MPFR_Object *self, CTXT_Object *conte
 static PyObject *       GMPy_PyFloat_From_MPFR(MPFR_Object *self, CTXT_Object *context);
 static PyObject *       GMPy_PyStr_From_MPFR(MPFR_Object *self, int base, int digits, CTXT_Object *context);
 
-#ifdef PY2
-static PyObject *       GMPy_PyLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context);
-static PyObject *       GMPy_MPFR_Long_Slot(MPFR_Object *self);
-#endif
-
 static PyObject *       GMPy_MPFR_Str_Slot(MPFR_Object *self);
 static PyObject *       GMPy_MPFR_Repr_Slot(MPFR_Object *self);
 static PyObject *       GMPy_MPFR_Int_Slot(MPFR_Object *self);

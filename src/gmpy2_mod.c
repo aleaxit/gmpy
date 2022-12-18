@@ -89,7 +89,7 @@ GMPy_Integer_ModWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             return NULL;
         }
 
-        if (PyIntOrLong_Check(x)) {
+        if (PyLong_Check(x)) {
             mpz_set_PyIntOrLong(result->z, x);
             mpz_fdiv_r(result->z, result->z, MPZ(y));
             return (PyObject*)result;

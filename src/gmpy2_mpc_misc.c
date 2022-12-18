@@ -473,7 +473,7 @@ PyDoc_STRVAR(GMPy_doc_mpc_sizeof_method,
 static PyObject *
 GMPy_MPC_SizeOf_Method(PyObject *self, PyObject *other)
 {
-    return PyIntOrLong_FromSize_t(sizeof(MPC_Object) + \
+    return PyLong_FromSize_t(sizeof(MPC_Object) + \
         (((mpc_realref(MPC(self))->_mpfr_prec + mp_bits_per_limb - 1) / \
         mp_bits_per_limb) * sizeof(mp_limb_t)) + \
         (((mpc_imagref(MPC(self))->_mpfr_prec + mp_bits_per_limb - 1) / \

@@ -1,15 +1,11 @@
 import platform
-import os
-from setuptools import setup, find_packages, Extension
+from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
 ON_WINDOWS = platform.system() == 'Windows'
 _comp_args = ["DSHARED=1"]
 sources = ['src/gmpy2.c']
 
-# Utility function to read the contents of the README file.
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 class Gmpy2Build(build_ext):
     description = "Build gmpy2 with custom build options"
@@ -77,48 +73,5 @@ extensions = [
 cmdclass = {'build_ext': Gmpy2Build}
 
 setup(
-    name="gmpy2",
-    version="2.1.5",
-    author="Case Van Horsen",
-    author_email="casevh@gmail.com",
-    cmdclass=cmdclass,
-    license="LGPL-3.0+",
-    url="https://github.com/aleaxit/gmpy",
-    description="gmpy2 interface to GMP/MPIR, MPFR, "
-    "and MPC for Python 2.7 and 3.5+",
-    long_description=read('README'),
-    zip_safe=False,
-    include_package_data=True,
-    package_data={'gmpy2': [
-        '*.pxd',
-        'gmpy2.h',
-        '*.dll',
-    ]},
-    packages=find_packages(),
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
-        'Natural Language :: English',
-        'Operating System :: MacOS :: MacOS X',
-        'Operating System :: Microsoft :: Windows',
-        'Operating System :: POSIX',
-        'Programming Language :: C',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: 3.11',
-        'Programming Language :: Python :: Implementation :: CPython',
-        'Topic :: Scientific/Engineering :: Mathematics',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-    ],
-    keywords="gmp mpfr mpc multiple-precision arbitrary-precision precision bignum",
     ext_modules=extensions,
 )

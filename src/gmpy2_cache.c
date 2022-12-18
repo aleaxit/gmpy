@@ -113,7 +113,7 @@ GMPy_MPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
             return n;
         }
 
-        if (PyIntOrLong_Check(n)) {
+        if (PyLong_Check(n)) {
             return (PyObject*)GMPy_MPZ_From_PyIntOrLong(n, context);
         }
 
@@ -277,7 +277,7 @@ GMPy_XMPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
             return n;
         }
 
-        if (PyIntOrLong_Check(n)) {
+        if (PyLong_Check(n)) {
             return (PyObject*)GMPy_XMPZ_From_PyIntOrLong(n, context);
         }
 
@@ -811,13 +811,13 @@ GMPy_MPC_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         }
 
         if (prec) {
-            if (PyIntOrLong_Check(prec)) {
-                rprec = (mpfr_prec_t)PyIntOrLong_AsLong(prec);
+            if (PyLong_Check(prec)) {
+                rprec = (mpfr_prec_t)PyLong_AsLong(prec);
                 iprec = rprec;
             }
             else if (PyTuple_Check(prec) && PyTuple_Size(prec) == 2) {
-                rprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 0));
-                iprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 1));
+                rprec = (mpfr_prec_t)PyLong_AsLong(PyTuple_GET_ITEM(prec, 0));
+                iprec = (mpfr_prec_t)PyLong_AsLong(PyTuple_GET_ITEM(prec, 1));
             }
             else {
                 TYPE_ERROR("precision for mpc() must be integer or tuple");
@@ -872,13 +872,13 @@ GMPy_MPC_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         }
 
         if (prec) {
-            if (PyIntOrLong_Check(prec)) {
-                rprec = (mpfr_prec_t)PyIntOrLong_AsLong(prec);
+            if (PyLong_Check(prec)) {
+                rprec = (mpfr_prec_t)PyLong_AsLong(prec);
                 iprec = rprec;
             }
             else if (PyTuple_Check(prec) && PyTuple_Size(prec) == 2) {
-                rprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 0));
-                iprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 1));
+                rprec = (mpfr_prec_t)PyLong_AsLong(PyTuple_GET_ITEM(prec, 0));
+                iprec = (mpfr_prec_t)PyLong_AsLong(PyTuple_GET_ITEM(prec, 1));
             }
             else {
                 TYPE_ERROR("precision for mpc() must be integer or tuple");
@@ -934,13 +934,13 @@ GMPy_MPC_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         }
 
         if (prec) {
-            if (PyIntOrLong_Check(prec)) {
-                rprec = (mpfr_prec_t)PyIntOrLong_AsLong(prec);
+            if (PyLong_Check(prec)) {
+                rprec = (mpfr_prec_t)PyLong_AsLong(prec);
                 iprec = rprec;
             }
             else if (PyTuple_Check(prec) && PyTuple_Size(prec) == 2) {
-                rprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 0));
-                iprec = (mpfr_prec_t)PyIntOrLong_AsLong(PyTuple_GET_ITEM(prec, 1));
+                rprec = (mpfr_prec_t)PyLong_AsLong(PyTuple_GET_ITEM(prec, 0));
+                iprec = (mpfr_prec_t)PyLong_AsLong(PyTuple_GET_ITEM(prec, 1));
             }
             else {
                 TYPE_ERROR("precision for mpc() must be integer or tuple");
