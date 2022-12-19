@@ -564,15 +564,10 @@ static struct gmpy_global global;
 
 /* Support for context manager. */
 
-#ifdef WITHOUT_THREADS
-/* Use a module-level context. */
-static CTXT_Object *module_context = NULL;
-#else
 /* Key for thread state dictionary */
 static PyObject *tls_context_key = NULL;
 /* Invariant: NULL or the most recently accessed thread local context */
 static CTXT_Object *cached_context = NULL;
-#endif
 
 
 /* Define gmpy2 specific errors for mpfr and mpc data types. No change will
@@ -1196,22 +1191,9 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     PyModule_AddObject(gmpy_module, "mpc", (PyObject*)&MPC_Type);
 
     /* Initialize thread local contexts. */
-#ifdef WITHOUT_THREADS
-    module_context = (CTXT_Object*)GMPy_CTXT_New();
-    if (!module_context) {
-        /* LCOV_EXCL_START */
-        INITERROR;
-        /* LCOV_EXCL_STOP */
-    }
-    Py_INCREF(Py_False);
-    if (PyModule_AddObject(gmpy_module, "HAVE_THREADS", Py_False) < 0) {
-        /* LCOV_EXCL_START */
-        Py_DECREF(Py_False);
-        INITERROR;
-        /* LCOV_EXCL_STOP */
-    }
-#else
     tls_context_key = PyUnicode_FromString("__GMPY2_CTX__");
+
+    #if 0
     Py_INCREF(Py_True);
     if (PyModule_AddObject(gmpy_module, "HAVE_THREADS", Py_True) < 0) {
         /* LCOV_EXCL_START */
@@ -1219,7 +1201,7 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
         INITERROR;
         /* LCOV_EXCL_STOP */
     }
-#endif
+    #endif
 
     /* Add the constants for defining rounding modes. */
     if (PyModule_AddIntConstant(gmpy_module, "RoundToNearest", MPFR_RNDN) < 0) {

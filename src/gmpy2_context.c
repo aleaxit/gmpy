@@ -83,10 +83,8 @@ GMPy_CTXT_New(void)
         result->ctx.allow_complex = 0;
         result->ctx.rational_division = 0;
         result->ctx.allow_release_gil = 0;
-
-#ifndef WITHOUT_THREADS
+        /* Hidden reference to thread state. */
         result->tstate = NULL;
-#endif
 
     }
     return (PyObject*)result;
@@ -105,25 +103,6 @@ GMPy_CTXT_Dealloc(CTXT_Object *self)
 PyDoc_STRVAR(GMPy_doc_set_context,
 "set_context(context)\n\n"
 "Activate a context object controlling gmpy2 arithmetic.\n");
-
-#ifdef WITHOUT_THREADS
-
-static PyObject *
-GMPy_CTXT_Set(PyObject *self, PyObject *other)
-{
-    if (!CTXT_Check(other)) {
-        VALUE_ERROR("set_context() requires a context argument");
-        return NULL;
-    }
-
-    Py_DECREF((PyObject*)module_context);
-    Py_INCREF((PyObject*)other);
-    module_context = (CTXT_Object*)other;
-
-    Py_RETURN_NONE;
-}
-
-#else
 
 /* Begin support for thread local contexts. */
 
@@ -218,7 +197,6 @@ GMPy_CTXT_Set(PyObject *self, PyObject *other)
 
     Py_RETURN_NONE;
 }
-#endif
 
 PyDoc_STRVAR(GMPy_doc_context_ieee,
 "ieee(size[,subnormalize=True]) -> context\n\n"

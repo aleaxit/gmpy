@@ -182,9 +182,7 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     gmpy_context ctx;
-#ifndef WITHOUT_THREADS
     PyThreadState *tstate;
-#endif
 } CTXT_Object;
 
 typedef struct {
