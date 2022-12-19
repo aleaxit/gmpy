@@ -77,7 +77,6 @@ GMPy_Context_Phase(PyObject *self, PyObject *other)
     return GMPy_Complex_Phase(other, context);
 }
 
-#ifdef MPC_110
 PyDoc_STRVAR(GMPy_doc_context_root_of_unity,
 "context.root_of_unity(n, k) -> mpc\n\n"
 "Return the n-th root of mpc(1) raised to the k-th power..");
@@ -143,7 +142,6 @@ GMPy_Context_Root_Of_Unity(PyObject *self, PyObject *args)
         return NULL;
     }
 }
-#endif
 
 PyDoc_STRVAR(GMPy_doc_context_norm,
 "context.norm(x) -> mpfr\n\n"

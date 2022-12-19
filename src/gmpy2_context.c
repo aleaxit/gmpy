@@ -771,9 +771,7 @@ PyDoc_STRVAR(GMPy_doc_context,
 "    rint_round(x)   ...\n"
 "    rint_trunc(x)   ...\n"
 "    root(x,n)       return the n-th of x\n"
-#ifdef MPC_110
 "    root_of_unity() return the k-th power of the n-th root of mpc(1)\n"
-#endif
 "    round2(x,n)     return x rounded to n bits.\n"
 "    round_away(x)   return x rounded to integer, ties away from 0\n"
 "    sec(x)          return secant of x\n"
@@ -1327,9 +1325,7 @@ static PyMethodDef GMPyContext_methods[] =
     { "rint_trunc", GMPy_Context_RintTrunc, METH_O, GMPy_doc_context_rint_trunc },
     { "root", GMPy_Context_Root, METH_VARARGS, GMPy_doc_context_root },
     { "rootn", GMPy_Context_Rootn, METH_VARARGS, GMPy_doc_context_rootn },
-#ifdef MPC_110
     { "root_of_unity", GMPy_Context_Root_Of_Unity, METH_VARARGS, GMPy_doc_context_root_of_unity },
-#endif
     { "round2", GMPy_Context_Round2, METH_VARARGS, GMPy_doc_context_round2 },
     { "round_away", GMPy_Context_RoundAway, METH_O, GMPy_doc_context_round_away },
     { "sec", GMPy_Context_Sec, METH_O, GMPy_doc_context_sec },

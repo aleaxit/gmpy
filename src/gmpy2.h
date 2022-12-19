@@ -71,25 +71,37 @@ extern "C" {
 #  error "GMPY2 requires Python 3.7 or later."
 #endif
 
-/* Include headers for GMP/MPIR, MPFR, and MPC. */
+/* Include headers for GMP, MPFR, and MPC. */
 
-#ifdef MPIR
-#  include <mpir.h>
-#else
-#  include <gmp.h>
-#endif
-
+#include <gmp.h>
 #include <mpfr.h>
 #include <mpc.h>
 
 /* Check MPFR and MPC versions. */
 
-#if (!defined(MPC_VERSION) || (MPC_VERSION < MPC_VERSION_NUM(1,0,3)))
-#  error "GMPY2 requires MPC 1.0.3 or later."
+/* gmpy2 supports the two most recent major versions of MPFR and MPC.
+ *
+ * As of gmpy2 2.2.0, the code assumes the MPFR version is at least 4.1.0
+ * and new features included in 4.2.0 are guarded by #ifdef MPFR_420.
+ * For MPC, the minumum version is assumed to 1.2.1 and new features
+ * included in 1.3.0 are guarded by #ifdef MPC_130.
+ *
+ */
+
+#if (!defined(MPFR_VERSION) || (MPFR_VERSION < MPFR_VERSION_NUM(4,1,0)))
+#  error "GMPY2 requires MPFR 4.1.0 or later."
 #endif
 
-#if (defined(MPC_VERSION) && (MPC_VERSION >= MPC_VERSION_NUM(1,1,0)))
-#  define MPC_110
+#if (defined(MPFR_VERSION) && (MPFR_VERSION >= MPFR_VERSION_NUM(4,2,0)))
+#  define MPFR_420
+#endif
+
+#if (!defined(MPC_VERSION) || (MPC_VERSION < MPC_VERSION_NUM(1,2,1)))
+#  error "GMPY2 requires MPC 1.2.1 or later."
+#endif
+
+#if (defined(MPC_VERSION) && (MPC_VERSION == MPC_VERSION_NUM(1,3,0)))
+#  define MPC_130
 #endif
 
 /* GMPY2 Public API */
