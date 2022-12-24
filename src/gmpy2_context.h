@@ -44,16 +44,31 @@ extern "C" {
 static PyTypeObject CTXT_Type;
 static PyTypeObject CTXT_Manager_Type;
 
-#define CURRENT_CONTEXT(obj) obj = GMPy_current_context();
+/* CHECK_CONTEXT returns a borrowed reference. */
+#define CHECK_CONTEXT(context)                          \
+    if (!context) {                                     \
+        context = (CTXT_Object*)GMPy_current_context(); \
+        if (context == NULL) {                          \
+            return NULL;                                \
+        }                                               \
+        Py_DECREF(context);                             \
+    }
+
+#define CHECK_CONTEXT_M1(context)                          \
+    if (!context) {                                        \
+        context = (CTXT_Object*)GMPy_current_context();    \
+        if (context == NULL) {                             \
+            return -1;                                     \
+        }                                                  \
+        Py_DECREF(context);                                \
+    }
+
 #define GMPY_MAYBE_BEGIN_ALLOW_THREADS(context) { \
         PyThreadState *_save; \
         _save = GET_THREAD_MODE(context) ? PyEval_SaveThread() : NULL;
 #define GMPY_MAYBE_END_ALLOW_THREADS(context) \
         if (_save) PyEval_RestoreThread(_save); \
-    }
-
-#define CHECK_CONTEXT(context) \
-    if (!context) CURRENT_CONTEXT(context);
+    } \
 
 #define CTXT_Check(v) (((PyObject*)v)->ob_type == &CTXT_Type)
 #define CTXT_Manager_Check(v) (((PyObject*)v)->ob_type == &CTXT_Manager_Type)
@@ -90,9 +105,7 @@ static PyObject *    GMPy_CTXT_ieee(PyObject *self, PyObject *args, PyObject *kw
 static PyObject *    GMPy_CTXT_Enter(PyObject *self, PyObject *args);
 static PyObject *    GMPy_CTXT_Exit(PyObject *self, PyObject *args);
 
-#ifndef WITHOUT_THREADS
-static CTXT_Object * GMPy_current_context(void);
-#endif
+static PyObject *    GMPy_current_context(void);
 
 #ifdef __cplusplus
 }

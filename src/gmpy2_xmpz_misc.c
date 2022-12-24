@@ -222,7 +222,7 @@ GMPy_XMPZ_Method_AssignSubScript(XMPZ_Object* self, PyObject* item, PyObject* va
 {
     CTXT_Object *context = NULL;
 
-    CHECK_CONTEXT(context);
+    CHECK_CONTEXT_M1(context);
 
     if (PyIndex_Check(item)) {
         Py_ssize_t bit_value, i;

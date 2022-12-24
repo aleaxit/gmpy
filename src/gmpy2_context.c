@@ -83,9 +83,6 @@ GMPy_CTXT_New(void)
         result->ctx.allow_complex = 0;
         result->ctx.rational_division = 0;
         result->ctx.allow_release_gil = 0;
-        /* Hidden reference to thread state. */
-        result->tstate = NULL;
-
     }
     return (PyObject*)result;
 };
@@ -96,104 +93,62 @@ GMPy_CTXT_Dealloc(CTXT_Object *self)
     PyObject_Del(self);
 };
 
-/* Support for global and thread local contexts. */
-
-/* Doc-string, alternate definitions below. */
-
 PyDoc_STRVAR(GMPy_doc_set_context,
 "set_context(context)\n\n"
 "Activate a context object controlling gmpy2 arithmetic.\n");
 
-/* Begin support for thread local contexts. */
+/* Begin support for context vars. */
 
-/* Get the context from the thread state dictionary. */
-static CTXT_Object *
-current_context_from_dict(void)
+static PyObject *
+GMPy_init_current_context(void)
 {
-    PyObject *dict;
-    PyObject *tl_context;
-    PyThreadState *tstate;
-
-    dict = PyThreadState_GetDict();
-    if (dict == NULL) {
-        RUNTIME_ERROR("cannot get thread state");
+    PyObject *tl_context = GMPy_CTXT_New();
+    if (tl_context == NULL) {
         return NULL;
     }
 
-    tl_context = PyDict_GetItemWithError(dict, tls_context_key);
-    if (!tl_context) {
-        if (PyErr_Occurred()) {
-            return NULL;
-        }
-
-        /* Set up a new thread local context. */
-        tl_context = GMPy_CTXT_New();
-        if (!tl_context) {
-            return NULL;
-        }
-
-        if (PyDict_SetItem(dict, tls_context_key, tl_context) < 0) {
-            Py_DECREF(tl_context);
-            return NULL;
-        }
+    PyObject *tok = PyContextVar_Set(current_context_var, tl_context);
+    if (tok == NULL) {
         Py_DECREF(tl_context);
+        return NULL;
     }
+    Py_DECREF(tok);
 
-    /* Cache the context of the current thread, assuming that it
-     * will be accessed several times before a thread switch. */
-    tstate = PyThreadState_GET();
-    if (tstate) {
-        cached_context = (CTXT_Object*)tl_context;
-        cached_context->tstate = tstate;
-    }
-
-    /* Borrowed reference with refcount==1 */
-    return (CTXT_Object*)tl_context;
+    return tl_context;
 }
 
-/* Return borrowed reference to thread local context. */
-static CTXT_Object *
+static inline PyObject *
 GMPy_current_context(void)
 {
-    PyThreadState *tstate = PyThreadState_GET();
-
-    if (cached_context && cached_context->tstate == tstate) {
-        return (CTXT_Object*)cached_context;
+    PyObject *tl_context;
+    if (PyContextVar_Get(current_context_var, NULL, &tl_context) < 0) {
+        return NULL;
     }
 
-    return current_context_from_dict();
+    if (tl_context != NULL) {
+        return tl_context;
+    }
+
+    return GMPy_init_current_context();
 }
 
 /* Set the thread local context to a new context, decrement old reference */
 static PyObject *
-GMPy_CTXT_Set(PyObject *self, PyObject *other)
+GMPy_CTXT_Set(PyObject *self, PyObject *v)
 {
-    PyObject *dict;
-    PyThreadState *tstate;
-
-    if (!CTXT_Check(other)) {
+    if (!CTXT_Check(v)) {
         VALUE_ERROR("set_context() requires a context argument");
         return NULL;
     }
 
-    dict = PyThreadState_GetDict();
-    if (dict == NULL) {
-        RUNTIME_ERROR("cannot get thread state");
+    Py_INCREF(v);
+    PyObject *tok = PyContextVar_Set(current_context_var, v);
+    Py_DECREF(v);
+
+    if (tok == NULL) {
         return NULL;
     }
-
-    if (PyDict_SetItem(dict, tls_context_key, other) < 0) {
-        return NULL;
-    }
-
-    /* Cache the context of the current thread, assuming that it
-     * will be accessed several times before a thread switch. */
-    cached_context = NULL;
-    tstate = PyThreadState_GET();
-    if (tstate) {
-        cached_context = (CTXT_Object*)other;
-        cached_context->tstate = tstate;
-    }
+    Py_DECREF(tok);
 
     Py_RETURN_NONE;
 }
@@ -359,6 +314,7 @@ GMPy_CTXT_Repr_Slot(CTXT_Object *self)
         PyTuple_SET_ITEM(tuple, i++, PyUnicode_FromString("Default"));
     else
         PyTuple_SET_ITEM(tuple, i++, PyLong_FromLong(self->ctx.imag_prec));
+
     PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->ctx.mpfr_round));
     PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->ctx.real_round));
     PyTuple_SET_ITEM(tuple, i++, _round_to_name(self->ctx.imag_round));
@@ -406,8 +362,9 @@ GMPy_CTXT_Get(PyObject *self, PyObject *args)
 {
     CTXT_Object *context;
 
-    CURRENT_CONTEXT(context);
-    Py_XINCREF((PyObject*)context);
+    context = (CTXT_Object *)GMPy_current_context();
+
+    /* Py_XINCREF((PyObject*)context);*/
     return (PyObject*)context;
 }
 
@@ -586,9 +543,9 @@ GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     CTXT_Manager_Object *result;
     int arg_context = 0;
-    CTXT_Object *context, *temp;
+    CTXT_Object *context = NULL, *temp;
 
-    CURRENT_CONTEXT(context);
+    CHECK_CONTEXT(context);
 
     if (PyTuple_GET_SIZE(args) == 1 && CTXT_Check(PyTuple_GET_ITEM(args, 0))) {
         arg_context = 1;

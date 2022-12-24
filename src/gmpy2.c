@@ -459,17 +459,19 @@
  *    2.1.5
  *    Version bump to fix wheel issues. No code changes.
  *
+ *
  ************************************************************************
  *
  *    2.2.0
  *    Remove support for versions of Python < 3.7.
  *    Support more modern build tools.
+ *    Use contextvars to manage gmpy2 contexts.
  *
  ************************************************************************
  *
  * Discussion on sizes of C integer types.
  *
- * GMP, MPIR, MPFR, and MPC use typedef to create integer objects with
+ * GMP, MPFR, and MPC use typedef to create integer objects with
  * different sizes. It can become confusing to map the different types
  * onto the standard C types used by Python's C API. Below are external
  * types and how they map to C types. The assumptions are verified when
@@ -562,13 +564,11 @@ struct gmpy_global {
 
 static struct gmpy_global global;
 
-/* Support for context manager. */
+/* Support for context manager using context vars.
+ * Requires Python 3.7 or later.
+ */
 
-/* Key for thread state dictionary */
-static PyObject *tls_context_key = NULL;
-/* Invariant: NULL or the most recently accessed thread local context */
-static CTXT_Object *cached_context = NULL;
-
+static PyObject *current_context_var = NULL;
 
 /* Define gmpy2 specific errors for mpfr and mpc data types. No change will
  * be made the exceptions raised by mpz, xmpz, and mpq.
@@ -959,7 +959,6 @@ static char _gmpy_docs[] =
  * implemented. No per-module state has been defined.
  */
 
-#define INITERROR return NULL
 static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
         "gmpy2",
@@ -995,14 +994,14 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     if (sizeof(mp_bitcnt_t) != sizeof(PY_LONG_LONG)) {
         /* LCOV_EXCL_START */
         SYSTEM_ERROR("Size of PY_LONG_LONG and mp_bitcnt_t not compatible (_WIN64 && MPIR)");
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
 #else
     if (sizeof(mp_bitcnt_t) != sizeof(long)) {
         /* LCOV_EXCL_START */
         SYSTEM_ERROR("Size of long and mp_bitcnt_t not compatible");
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
 #endif
@@ -1010,68 +1009,68 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     if (sizeof(mp_bitcnt_t) > sizeof(size_t)) {
         /* LCOV_EXCL_START */
         SYSTEM_ERROR("Size of size_t and mp_bitcnt_t not compatible");
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
 
     if (sizeof(mpfr_prec_t) != sizeof(long)) {
         /* LCOV_EXCL_START */
         SYSTEM_ERROR("Size of mpfr_prec_t and long not compatible");
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
 
     if (sizeof(mpfr_exp_t) != sizeof(long)) {
         /* LCOV_EXCL_START */
         SYSTEM_ERROR("Size of mpfr_exp_t and long not compatible");
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
 
     /* Initialize the types. */
     if (PyType_Ready(&MPZ_Type) < 0) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     if (PyType_Ready(&MPQ_Type) < 0) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     if (PyType_Ready(&XMPZ_Type) < 0) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     if (PyType_Ready(&GMPy_Iter_Type) < 0) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     if (PyType_Ready(&MPFR_Type) < 0) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     if (PyType_Ready(&CTXT_Type) < 0) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     if (PyType_Ready(&CTXT_Manager_Type) < 0) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     if (PyType_Ready(&MPC_Type) < 0) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     if (PyType_Ready(&RandomState_Type) < 0) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
 
@@ -1091,63 +1090,63 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     GMPyExc_GmpyError = PyErr_NewException("gmpy2.gmpy2Error", PyExc_ArithmeticError, NULL);
     if (!GMPyExc_GmpyError) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
 
     GMPyExc_Erange = PyErr_NewException("gmpy2.RangeError", GMPyExc_GmpyError, NULL);
     if (!GMPyExc_Erange) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
 
     GMPyExc_Inexact = PyErr_NewException("gmpy2.InexactResultError", GMPyExc_GmpyError, NULL);
     if (!GMPyExc_Inexact) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
 
     GMPyExc_Overflow = PyErr_NewException("gmpy2.OverflowResultError", GMPyExc_Inexact, NULL);
     if (!GMPyExc_Overflow) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
 
     GMPyExc_Underflow = PyErr_NewException("gmpy2.UnderflowResultError", GMPyExc_Inexact, NULL);
     if (!GMPyExc_Underflow) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
 
     temp = PyTuple_Pack(2, GMPyExc_GmpyError, PyExc_ValueError);
     if (!temp) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     GMPyExc_Invalid = PyErr_NewException("gmpy2.InvalidOperationError", temp, NULL);
     Py_DECREF(temp);
     if (!GMPyExc_Invalid) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
 
     temp = PyTuple_Pack(2, GMPyExc_GmpyError, PyExc_ZeroDivisionError);
     if (!temp) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     GMPyExc_DivZero = PyErr_NewException("gmpy2.DivisionByZeroError", temp, NULL);
     Py_DECREF(temp);
     if (!GMPyExc_DivZero) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
 
@@ -1156,7 +1155,7 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
 
     if (gmpy_module == NULL) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
 
@@ -1190,48 +1189,40 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     Py_INCREF(&MPC_Type);
     PyModule_AddObject(gmpy_module, "mpc", (PyObject*)&MPC_Type);
 
-    /* Initialize thread local contexts. */
-    tls_context_key = PyUnicode_FromString("__GMPY2_CTX__");
-
-    #if 0
-    Py_INCREF(Py_True);
-    if (PyModule_AddObject(gmpy_module, "HAVE_THREADS", Py_True) < 0) {
-        /* LCOV_EXCL_START */
-        Py_DECREF(Py_True);
-        INITERROR;
-        /* LCOV_EXCL_STOP */
+    /* Initialize context var. */
+    if (!(current_context_var = PyContextVar_New("gmpy2_context", NULL))) {
+        return NULL;
     }
-    #endif
 
     /* Add the constants for defining rounding modes. */
     if (PyModule_AddIntConstant(gmpy_module, "RoundToNearest", MPFR_RNDN) < 0) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     if (PyModule_AddIntConstant(gmpy_module, "RoundToZero", MPFR_RNDZ) < 0) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     if (PyModule_AddIntConstant(gmpy_module, "RoundUp", MPFR_RNDU) < 0) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     if (PyModule_AddIntConstant(gmpy_module, "RoundDown", MPFR_RNDD) < 0) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     if (PyModule_AddIntConstant(gmpy_module, "RoundAwayZero", MPFR_RNDA) < 0) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     if (PyModule_AddIntConstant(gmpy_module, "Default", GMPY_DEFAULT) < 0) {
         /* LCOV_EXCL_START */
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
 
@@ -1240,42 +1231,42 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     if (PyModule_AddObject(gmpy_module, "DivisionByZeroError", GMPyExc_DivZero) < 0) {
         /* LCOV_EXCL_START */
         Py_DECREF(GMPyExc_DivZero);
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     Py_INCREF(GMPyExc_Inexact);
     if (PyModule_AddObject(gmpy_module, "InexactResultError", GMPyExc_Inexact) < 0) {
         /* LCOV_EXCL_START */
         Py_DECREF(GMPyExc_Inexact);
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     Py_INCREF(GMPyExc_Invalid);
     if (PyModule_AddObject(gmpy_module, "InvalidOperationError", GMPyExc_Invalid) < 0 ) {
         /* LCOV_EXCL_START */
         Py_DECREF(GMPyExc_Invalid);
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     Py_INCREF(GMPyExc_Overflow);
     if (PyModule_AddObject(gmpy_module, "OverflowResultError", GMPyExc_Overflow) < 0) {
         /* LCOV_EXCL_START */
         Py_DECREF(GMPyExc_Overflow);
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     Py_INCREF(GMPyExc_Underflow);
     if (PyModule_AddObject(gmpy_module, "UnderflowResultError", GMPyExc_Underflow) < 0) {
         /* LCOV_EXCL_START */
         Py_DECREF(GMPyExc_Underflow);
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
     Py_INCREF(GMPyExc_Erange);
     if (PyModule_AddObject(gmpy_module, "RangeError", GMPyExc_Erange) < 0) {
         /* LCOV_EXCL_START */
         Py_DECREF(GMPyExc_Erange);
-        INITERROR;
+        return NULL;;
         /* LCOV_EXCL_STOP */
     }
 

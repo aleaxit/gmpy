@@ -87,12 +87,12 @@ typedef struct {
     mpfr_rnd_t imag_round;   /* current rounding mode for Im(MPC) */
     int allow_complex;       /* if 1, allow mpfr functions to return an mpc */
     int rational_division;   /* if 1, mpz/mpz returns an mpq result */
+    int allow_release_gil;   /* if 1, release GIL for mpz operations */
 } gmpy_context;
 
 typedef struct {
     PyObject_HEAD
     gmpy_context ctx;
-    PyThreadState *tstate;
 } CTXT_Object;
 
 typedef struct {
