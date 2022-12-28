@@ -501,7 +501,7 @@
  ************************************************************************
  */
 #define PY_SSIZE_T_CLEAN
-#include "Python.h"
+#include <Python.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -516,9 +516,9 @@
  */
 
 #if PY_VERSION_HEX < 0x030B0000
-# include "longintrepr.h"
+# include <longintrepr.h>
 #else
-# include "cpython/longintrepr.h"
+# include <cpython/longintrepr.h>
 #endif
 
 #define GMPY2_MODULE

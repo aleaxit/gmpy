@@ -41,42 +41,28 @@ PyDoc_STRVAR(GMPy_doc_mpz,
  * gmpy2_cache.c/GMPy_MPZ_NewInit for details on creation.
  */
 
-static PyNumberMethods GMPy_MPZ_number_methods =
-{
-    (binaryfunc) GMPy_Number_Add_Slot,        /* nb_add                  */
-    (binaryfunc) GMPy_Number_Sub_Slot,        /* nb_subtract             */
-    (binaryfunc) GMPy_Number_Mul_Slot,        /* nb_multiply             */
-    (binaryfunc) GMPy_Number_Mod_Slot,        /* nb_remainder            */
-    (binaryfunc) GMPy_Number_DivMod_Slot,     /* nb_divmod               */
-    (ternaryfunc) GMPy_Number_Pow_Slot,       /* nb_power                */
-    (unaryfunc) GMPy_MPZ_Minus_Slot,          /* nb_negative             */
-    (unaryfunc) GMPy_MPZ_Plus_Slot,           /* nb_positive             */
-    (unaryfunc) GMPy_MPZ_Abs_Slot,            /* nb_absolute             */
-    (inquiry) GMPy_MPZ_NonZero_Slot,          /* nb_bool                 */
-    (unaryfunc) GMPy_MPZ_Invert_Slot,         /* nb_invert               */
-    (binaryfunc) GMPy_MPZ_Lshift_Slot,        /* nb_lshift               */
-    (binaryfunc) GMPy_MPZ_Rshift_Slot,        /* nb_rshift               */
-    (binaryfunc) GMPy_MPZ_And_Slot,           /* nb_and                  */
-    (binaryfunc) GMPy_MPZ_Xor_Slot,           /* nb_xor                  */
-    (binaryfunc) GMPy_MPZ_Ior_Slot,           /* nb_or                   */
-    (unaryfunc) GMPy_MPZ_Int_Slot,            /* nb_int                  */
-        0,                                    /* nb_reserved             */
-    (unaryfunc) GMPy_MPZ_Float_Slot,          /* nb_float                */
-        0,                                    /* nb_inplace_add          */
-        0,                                    /* nb_inplace_subtract     */
-        0,                                    /* nb_inplace_multiply     */
-        0,                                    /* nb_inplace_remainder    */
-        0,                                    /* nb_inplace_power        */
-        0,                                    /* nb_inplace_lshift       */
-        0,                                    /* nb_inplace_rshift       */
-        0,                                    /* nb_inplace_and          */
-        0,                                    /* nb_inplace_xor          */
-        0,                                    /* nb_inplace_or           */
-    (binaryfunc) GMPy_Number_FloorDiv_Slot,   /* nb_floor_divide         */
-    (binaryfunc) GMPy_Number_TrueDiv_Slot,    /* nb_true_divide          */
-        0,                                    /* nb_inplace_floor_divide */
-        0,                                    /* nb_inplace_true_divide  */
-    (unaryfunc) GMPy_MPZ_Int_Slot,            /* nb_index                */
+static PyNumberMethods GMPy_MPZ_number_methods = {
+    .nb_add = (binaryfunc) GMPy_Number_Add_Slot,       
+    .nb_subtract = (binaryfunc) GMPy_Number_Sub_Slot,   
+    .nb_multiply = (binaryfunc) GMPy_Number_Mul_Slot,  
+    .nb_remainder = (binaryfunc) GMPy_Number_Mod_Slot, 
+    .nb_divmod = (binaryfunc) GMPy_Number_DivMod_Slot, 
+    .nb_power = (ternaryfunc) GMPy_Number_Pow_Slot,    
+    .nb_negative = (unaryfunc) GMPy_MPZ_Minus_Slot,    
+    .nb_positive = (unaryfunc) GMPy_MPZ_Plus_Slot,     
+    .nb_absolute = (unaryfunc) GMPy_MPZ_Abs_Slot,      
+    .nb_bool = (inquiry) GMPy_MPZ_NonZero_Slot,        
+    .nb_invert = (unaryfunc) GMPy_MPZ_Invert_Slot,     
+    .nb_lshift = (binaryfunc) GMPy_MPZ_Lshift_Slot,    
+    .nb_rshift = (binaryfunc) GMPy_MPZ_Rshift_Slot,    
+    .nb_and = (binaryfunc) GMPy_MPZ_And_Slot,          
+    .nb_xor = (binaryfunc) GMPy_MPZ_Xor_Slot,          
+    .nb_or = (binaryfunc) GMPy_MPZ_Ior_Slot,           
+    .nb_int = (unaryfunc) GMPy_MPZ_Int_Slot,           
+    .nb_float = (unaryfunc) GMPy_MPZ_Float_Slot,       
+    .nb_floor_divide = (binaryfunc) GMPy_Number_FloorDiv_Slot, 
+    .nb_true_divide = (binaryfunc) GMPy_Number_TrueDiv_Slot,
+    .nb_index = (unaryfunc) GMPy_MPZ_Int_Slot,
 };
 
 static PyMappingMethods GMPy_MPZ_mapping_methods = {
@@ -85,8 +71,7 @@ static PyMappingMethods GMPy_MPZ_mapping_methods = {
     NULL
 };
 
-static PyGetSetDef GMPy_MPZ_getseters[] =
-{
+static PyGetSetDef GMPy_MPZ_getseters[] = {
     { "numerator", (getter)GMPy_MPZ_Attrib_GetNumer, NULL,
         "the numerator of a rational number in lowest terms", NULL },
     { "denominator", (getter)GMPy_MPZ_Attrib_GetDenom, NULL,
@@ -98,8 +83,7 @@ static PyGetSetDef GMPy_MPZ_getseters[] =
     {NULL}
 };
 
-static PyMethodDef GMPy_MPZ_methods [] =
-{
+static PyMethodDef GMPy_MPZ_methods[] = {
     { "__format__", GMPy_MPZ_Format, METH_VARARGS, GMPy_doc_mpz_format },
     { "__ceil__", GMPy_MPZ_Method_Ceil, METH_NOARGS, GMPy_doc_mpz_method_ceil },
     { "__floor__", GMPy_MPZ_Method_Floor, METH_NOARGS, GMPy_doc_mpz_method_floor },
@@ -127,48 +111,22 @@ static PyMethodDef GMPy_MPZ_methods [] =
     { NULL, NULL, 1 }
 };
 
-static PyTypeObject MPZ_Type =
-{
+static PyTypeObject MPZ_Type = {
     /* PyObject_HEAD_INIT(&PyType_Type) */
     PyVarObject_HEAD_INIT(NULL, 0)
-    "mpz",                                  /* tp_name          */
-    sizeof(MPZ_Object),                     /* tp_basicsize     */
-        0,                                  /* tp_itemsize      */
-    /* methods */
-    (destructor) GMPy_MPZ_Dealloc,          /* tp_dealloc       */
-        0,                                  /* tp_print         */
-        0,                                  /* tp_getattr       */
-        0,                                  /* tp_setattr       */
-        0,                                  /* tp_reserved      */
-    (reprfunc) GMPy_MPZ_Repr_Slot,          /* tp_repr          */
-    &GMPy_MPZ_number_methods,               /* tp_as_number     */
-        0,                                  /* tp_as_sequence   */
-    &GMPy_MPZ_mapping_methods,              /* tp_as_mapping    */
-    (hashfunc) GMPy_MPZ_Hash_Slot,          /* tp_hash          */
-        0,                                  /* tp_call          */
-    (reprfunc) GMPy_MPZ_Str_Slot,           /* tp_str           */
-        0,                                  /* tp_getattro      */
-        0,                                  /* tp_setattro      */
-        0,                                  /* tp_as_buffer     */
-    Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
-    GMPy_doc_mpz,                           /* tp_doc           */
-        0,                                  /* tp_traverse      */
-        0,                                  /* tp_clear         */
-    (richcmpfunc)&GMPy_RichCompare_Slot,    /* tp_richcompare   */
-        0,                                  /* tp_weaklistoffset*/
-        0,                                  /* tp_iter          */
-        0,                                  /* tp_iternext      */
-    GMPy_MPZ_methods,                       /* tp_methods       */
-        0,                                  /* tp_members       */
-    GMPy_MPZ_getseters,                     /* tp_getset        */
-        0,                                  /* tp_base          */
-        0,                                  /* tp_dict          */
-        0,                                  /* tp_descr_get     */
-        0,                                  /* tp_descr_set     */
-        0,                                  /* tp_dictoffset    */
-        0,                                  /* tp_init          */
-        0,                                  /* tp_alloc         */
-    GMPy_MPZ_NewInit,                       /* tp_new           */
-        0,                                  /* tp_free          */
+    .tp_name = "gmpy2.mpz",
+    .tp_basicsize = sizeof(MPZ_Object),
+    .tp_dealloc = (destructor) GMPy_MPZ_Dealloc,
+    .tp_repr = (reprfunc) GMPy_MPZ_Repr_Slot,
+    .tp_as_number = &GMPy_MPZ_number_methods,
+    .tp_as_mapping = &GMPy_MPZ_mapping_methods,
+    .tp_hash = (hashfunc) GMPy_MPZ_Hash_Slot,
+    .tp_str = (reprfunc) GMPy_MPZ_Str_Slot,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_doc = GMPy_doc_mpz,
+    .tp_richcompare = (richcmpfunc)&GMPy_RichCompare_Slot,
+    .tp_methods = GMPy_MPZ_methods,
+    .tp_getset = GMPy_MPZ_getseters,
+    .tp_new = GMPy_MPZ_NewInit,
 };
 

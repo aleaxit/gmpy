@@ -1290,36 +1290,15 @@ static PyMethodDef GMPyContext_methods[] =
 
 static PyTypeObject CTXT_Type =
 {
-    PyVarObject_HEAD_INIT(0, 0)
-    "gmpy2 context",                        /* tp_name          */
-    sizeof(CTXT_Object),                    /* tp_basicsize     */
-        0,                                  /* tp_itemsize      */
-    (destructor) GMPy_CTXT_Dealloc,         /* tp_dealloc       */
-        0,                                  /* tp_print         */
-        0,                                  /* tp_getattr       */
-        0,                                  /* tp_setattr       */
-        0,                                  /* tp_reserved      */
-    (reprfunc) GMPy_CTXT_Repr_Slot,         /* tp_repr          */
-        0,                                  /* tp_as_number     */
-        0,                                  /* tp_as_sequence   */
-        0,                                  /* tp_as_mapping    */
-        0,                                  /* tp_hash          */
-        0,                                  /* tp_call          */
-        0,                                  /* tp_str           */
-        0,                                  /* tp_getattro      */
-        0,                                  /* tp_setattro      */
-        0,                                  /* tp_as_buffer     */
-    Py_TPFLAGS_DEFAULT,                     /* tp_flags         */
-    "GMPY2 Context Object",                 /* tp_doc           */
-        0,                                  /* tp_traverse      */
-        0,                                  /* tp_clear         */
-        0,                                  /* tp_richcompare   */
-        0,                                  /* tp_weaklistoffset*/
-        0,                                  /* tp_iter          */
-        0,                                  /* tp_iternext      */
-    GMPyContext_methods,                    /* tp_methods       */
-        0,                                  /* tp_members       */
-    GMPyContext_getseters,                  /* tp_getset        */
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name = "gmpy2.context",    
+    .tp_basicsize = sizeof(CTXT_Object),    
+    .tp_dealloc = (destructor) GMPy_CTXT_Dealloc,      
+    .tp_repr = (reprfunc) GMPy_CTXT_Repr_Slot,       
+    .tp_flags = Py_TPFLAGS_DEFAULT,                   
+    .tp_doc = "GMPY2 Context Object",               
+    .tp_methods = GMPyContext_methods,                
+    .tp_getset = GMPyContext_getseters,                
 };
 
 static PyMethodDef GMPyContextManager_methods[] =
@@ -1331,34 +1310,12 @@ static PyMethodDef GMPyContextManager_methods[] =
 
 static PyTypeObject CTXT_Manager_Type =
 {
-    PyVarObject_HEAD_INIT(0, 0)
-    "gmpy2 context",                         /* tp_name          */
-    sizeof(CTXT_Manager_Object),             /* tp_basicsize     */
-        0,                                   /* tp_itemsize      */
-    (destructor) GMPy_CTXT_Manager_Dealloc,  /* tp_dealloc       */
-        0,                                   /* tp_print         */
-        0,                                   /* tp_getattr       */
-        0,                                   /* tp_setattr       */
-        0,                                   /* tp_reserved      */
-    (reprfunc) GMPy_CTXT_Manager_Repr_Slot,  /* tp_repr          */
-        0,                                   /* tp_as_number     */
-        0,                                   /* tp_as_sequence   */
-        0,                                   /* tp_as_mapping    */
-        0,                                   /* tp_hash          */
-        0,                                   /* tp_call          */
-        0,                                   /* tp_str           */
-        0,                                   /* tp_getattro      */
-        0,                                   /* tp_setattro      */
-        0,                                   /* tp_as_buffer     */
-    Py_TPFLAGS_DEFAULT,                      /* tp_flags         */
-    "GMPY2 Context manager",                 /* tp_doc           */
-        0,                                   /* tp_traverse      */
-        0,                                   /* tp_clear         */
-        0,                                   /* tp_richcompare   */
-        0,                                   /* tp_weaklistoffset*/
-        0,                                   /* tp_iter          */
-        0,                                   /* tp_iternext      */
-    GMPyContextManager_methods,              /* tp_methods       */
-        0,                                   /* tp_members       */
-        0,                                   /* tp_getset        */
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name = "gmpy2.ContextManagerObject",               
+    .tp_basicsize = sizeof(CTXT_Manager_Object),
+    .tp_dealloc = (destructor) GMPy_CTXT_Manager_Dealloc,
+    .tp_repr = (reprfunc) GMPy_CTXT_Manager_Repr_Slot,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_doc = "GMPY2 Context manager",
+    .tp_methods = GMPyContextManager_methods,
 };
