@@ -38,12 +38,6 @@ extern "C" {
 
 /* Private functions */
 
-static void          set_gmpympzcache(void);
-static void          set_gmpyxmpzcache(void);
-static void          set_gmpympqcache(void);
-static void          set_gmpympfrcache(void);
-static void          set_gmpympccache(void);
-
 /* C-API functions */
 
 /* static MPZ_Object *  GMPy_MPZ_New(CTXT_Object *context); */

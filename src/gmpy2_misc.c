@@ -91,53 +91,6 @@ GMPy_get_mp_limbsize(PyObject *self, PyObject *args)
     return Py_BuildValue("i", mp_bits_per_limb);
 }
 
-/*
- * access cache options
- */
-
-PyDoc_STRVAR(GMPy_doc_get_cache,
-"get_cache() -> (cache_size, object_size)\n\n\
-Return the current cache size (number of objects) and maximum size\n\
-per object (number of limbs) for all GMPY2 objects.");
-
-static PyObject *
-GMPy_get_cache(PyObject *self, PyObject *args)
-{
-    return Py_BuildValue("(ii)", global.cache_size, global.cache_obsize);
-}
-
-PyDoc_STRVAR(GMPy_doc_set_cache,
-"set_cache(cache_size, object_size)\n\n\
-Set the current cache size (number of objects) and the maximum size\n\
-per object (number of limbs). Raises ValueError if cache size exceeds\n\
-1000 or object size exceeds 16384.");
-
-static PyObject *
-GMPy_set_cache(PyObject *self, PyObject *args)
-{
-    int newcache = -1, newsize = -1;
-
-    if (!PyArg_ParseTuple(args, "ii", &newcache, &newsize))
-        return NULL;
-    if (newcache<0 || newcache>MAX_CACHE) {
-        VALUE_ERROR("cache size must between 0 and 1000");
-        return NULL;
-    }
-    if (newsize<0 || newsize>MAX_CACHE_LIMBS) {
-        VALUE_ERROR("object size must between 0 and 16384");
-        return NULL;
-    }
-
-    global.cache_size = newcache;
-    global.cache_obsize = newsize;
-    set_gmpympzcache();
-    set_gmpympqcache();
-    set_gmpyxmpzcache();
-    set_gmpympfrcache();
-    set_gmpympccache();
-    Py_RETURN_NONE;
-}
-
 PyDoc_STRVAR(GMPy_doc_function_printf,
 "_printf(fmt, x) -> string\n\n"
 "Return a Python string by formatting 'x' using the format string\n"

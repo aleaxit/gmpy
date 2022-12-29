@@ -71,8 +71,6 @@ print("Unit tests for gmpy2 {0} with Python {1}".format(gmpy2.version(), sys.ver
 print("  Mutliple-precision library:     {0}".format(gmpy2.mp_version()))
 print("  Floating-point library:         {0}".format(gmpy2.mpfr_version()))
 print("  Complex library:                {0}".format(gmpy2.mpc_version()))
-print("  Caching Values: (Cache size)    {0}".format(gmpy2.get_cache()[0]))
-print("  Caching Values: (Size in limbs) {0}".format(gmpy2.get_cache()[1]))
 print()
 
 mpz_doctests = ["test_mpz_create.txt", "test_mpz.txt", "test_mpz_io.txt",

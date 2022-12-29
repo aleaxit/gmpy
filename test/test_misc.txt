@@ -24,38 +24,3 @@ True
 >>> gmpy2.license()
 'The GMPY2 source code is licensed under LGPL 3 or later. The supported versions of the GMP, MPFR, and MPC libraries are also licensed under LGPL 3 or later.'
 
->>> gmpy2.get_cache()
-(100, 128)
->>> gmpy2.divm(5,7,13)
-mpz(10)
->>> gmpy2.set_cache(0,16)
->>> gmpy2.get_cache()
-(0, 16)
->>> for i in range(1000): a=mpz(i)
->>> del(a)
->>> gmpy2.set_cache(100,128)
->>> gmpy2.get_cache()
-(100, 128)
->>> gmpy2.set_cache('a', 128)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-TypeError: ** message detail varies **
->>> gmpy2.set_cache(-10, 128)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-ValueError: ** message detail varies **
->>> gmpy2.set_cache(10000, 128)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-ValueError: ** message detail varies **
->>> gmpy2.set_cache(100, -1)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-ValueError: ** message detail varies **
->>> gmpy2.set_cache(100, 100000)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-ValueError: ** message detail varies **
->>> 1
-1
-

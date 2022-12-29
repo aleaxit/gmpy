@@ -541,28 +541,36 @@ LGPL 3 or later.";
 /* The following global structures are used by gmpy_cache.c.
  */
 
-struct gmpy_global {
-    int cache_size;          /* size of cache, for all caches */
-    int cache_obsize;        /* maximum size of the objects that are cached */
+#define CACHE_SIZE (100)
+#define MAX_CACHE_MPZ_LIMBS (64)
+#define MAX_CACHE_MPFR_BITS (1024)
+
+typedef struct {
     mpz_t tempz;             /* Temporary variable used for integer conversions */
 
-    MPZ_Object **gmpympzcache;
+    MPZ_Object *gmpympzcache[CACHE_SIZE];
     int in_gmpympzcache;
 
-    XMPZ_Object **gmpyxmpzcache;
+    XMPZ_Object *gmpyxmpzcache[CACHE_SIZE];
     int in_gmpyxmpzcache;
 
-    MPQ_Object **gmpympqcache;
+    MPQ_Object *gmpympqcache[CACHE_SIZE];
     int in_gmpympqcache;
 
-    MPFR_Object **gmpympfrcache;
+    MPFR_Object *gmpympfrcache[CACHE_SIZE];
     int in_gmpympfrcache;
 
-    MPC_Object **gmpympccache;
+    MPC_Object *gmpympccache[CACHE_SIZE];
     int in_gmpympccache;
-};
+} gmpy_global;
 
-static struct gmpy_global global;
+static gmpy_global global = {
+    .in_gmpympzcache = 0,
+    .in_gmpyxmpzcache = 0,
+    .in_gmpympqcache = 0,
+    .in_gmpympfrcache = 0,
+    .in_gmpympccache = 0,
+};
 
 /* Support for context manager using context vars.
  * Requires Python 3.7 or later.
@@ -716,7 +724,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "f_mod_2exp", GMPy_MPZ_f_mod_2exp, METH_VARARGS, doc_f_mod_2exp },
     { "gcd", GMPy_MPZ_Function_GCD, METH_VARARGS, GMPy_doc_mpz_function_gcd },
     { "gcdext", GMPy_MPZ_Function_GCDext, METH_VARARGS, GMPy_doc_mpz_function_gcdext },
-    { "get_cache", GMPy_get_cache, METH_NOARGS, GMPy_doc_get_cache },
     { "hamdist", GMPy_MPZ_hamdist, METH_VARARGS, doc_hamdist },
     { "invert", GMPy_MPZ_Function_Invert, METH_VARARGS, GMPy_doc_mpz_function_invert },
     { "iroot", GMPy_MPZ_Function_Iroot, METH_VARARGS, GMPy_doc_mpz_function_iroot },
@@ -777,7 +784,6 @@ static PyMethodDef Pygmpy_methods [] =
     { "qdiv", GMPy_MPQ_Function_Qdiv, METH_VARARGS, GMPy_doc_function_qdiv },
     { "remove", GMPy_MPZ_Function_Remove, METH_VARARGS, GMPy_doc_mpz_function_remove },
     { "random_state", GMPy_RandomState_Factory, METH_VARARGS, GMPy_doc_random_state_factory },
-    { "set_cache", GMPy_set_cache, METH_VARARGS, GMPy_doc_set_cache },
     { "sign", GMPy_Context_Sign, METH_O, GMPy_doc_function_sign },
     { "square", GMPy_Context_Square, METH_O, GMPy_doc_function_square },
     { "sub", GMPy_Context_Sub, METH_VARARGS, GMPy_doc_sub },
@@ -1075,16 +1081,7 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
     }
 
     /* Initialize the global structure. Eventually this should be module local. */
-    global.cache_size = 100;
-    global.cache_obsize = 128;
     mpz_init(global.tempz);
-
-    /* Initialize object caching. */
-    set_gmpympzcache();
-    set_gmpympqcache();
-    set_gmpyxmpzcache();
-    set_gmpympfrcache();
-    set_gmpympccache();
 
     /* Initialize exceptions. */
     GMPyExc_GmpyError = PyErr_NewException("gmpy2.gmpy2Error", PyExc_ArithmeticError, NULL);
