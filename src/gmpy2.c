@@ -1080,9 +1080,6 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
         /* LCOV_EXCL_STOP */
     }
 
-    /* Initialize the global structure. Eventually this should be module local. */
-    mpz_init(global.tempz);
-
     /* Initialize exceptions. */
     GMPyExc_GmpyError = PyErr_NewException("gmpy2.gmpy2Error", PyExc_ArithmeticError, NULL);
     if (!GMPyExc_GmpyError) {
