@@ -40,4 +40,4 @@ include-package-data = true
 [tool.setuptools.packages]
 find = {namespaces = false}
 [tool.setuptools.package-data]
-gmpy2 = ['*.pxd', 'gmpy2.h', '*.dll']
+gmpy2 = ['*.pxd', 'gmpy2.h', '*.dll', 'vector.py']
