@@ -9,7 +9,6 @@ description = 'gmpy2 interface to GMP, MPFR, and MPC for Python 3.7+'
 keywords = ['gmp', 'mpfr', 'mpc', 'multiple-precision',
             'arbitrary-precision', 'precision', 'bignum']
 license = {text = 'LGPL-3.0+'}
-readme = 'README'
 authors = [{name = 'Case Van Horsen'}]
 maintainers = [{name = 'Case Van Horsen', email = 'casevh@gmail.com'}]
 classifiers = ['Development Status :: 4 - Beta',
@@ -31,6 +30,9 @@ classifiers = ['Development Status :: 4 - Beta',
                'Topic :: Scientific/Engineering :: Mathematics',
                'Topic :: Software Development :: Libraries :: Python Modules']
 requires-python = '>=3.7'
+[project.readme]
+file = 'README.rst'
+content-type = 'text/x-rst'
 [project.urls]
 Homepage = 'https://github.com/aleaxit/gmpy'
 
