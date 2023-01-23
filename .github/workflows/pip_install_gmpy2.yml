@@ -30,9 +30,16 @@ jobs:
       - uses: actions/setup-python@master
         with:
           python-version: ${{ matrix.python-version }}
-      #   Don't build documentation by default.
-      # - run: sudo apt-get install libmpc-dev texlive texlive-latex-extra latexmk
-      - run: sudo apt-get install libmpc-dev
+      - run: sudo apt-get install libmpc-dev texlive texlive-latex-extra latexmk
       - run: pip install --upgrade pip
-      - run: pip --verbose install -e .
+      - run: pip --verbose install -e .[docs]
       - run: python test/runtests.py
+      - run: sphinx-build --color -W --keep-going -b html docs build/sphinx/html
+      - run: sphinx-build --color -W --keep-going -b latex docs build/sphinx/latex
+      - run: make -C build/sphinx/latex all-pdf
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: |
+            build/sphinx/html/
+            build/sphinx/latex/gmpy2.pdf
