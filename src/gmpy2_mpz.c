@@ -25,6 +25,8 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_mpz,
+"gmpy2.mpz"
+"\n\n"
 "mpz() -> mpz(0)\n\n"
 "     If no argument is given, return mpz(0).\n\n"
 "mpz(n) -> mpz\n\n"
