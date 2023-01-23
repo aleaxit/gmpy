@@ -72,8 +72,8 @@ mpz Methods
     Return the conjugate of x (which is just a new reference to x since x
     not a complex number).
 
-**denominator(...)**
-    x.denominator() returns mpz(1).
+**denominator**
+    x.denominator returns mpz(1).
 
 **digits(...)**
     x.digits([base=10]) returns a string representing *x* in radix *base*.
@@ -115,10 +115,10 @@ mpz Methods
     a power of 2. For other bases, the result is usually correct but may
     be 1 too large. *base* can range between 2 and 62, inclusive.
 
-**numerator(...)**
-    x.numerator() returns a copy of *x*.
+**numerator**
+    x.numerator returns a copy of *x*.
 
-**real(...)**
+**real**
     x.real returns a copy of *x*.
 
 mpz Functions
