@@ -36,8 +36,9 @@ source_suffix = '.rst'
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'
 
-# The master toctree document.
-master_doc = 'index'
+# The document name of the “root” document, that is, the document that
+# contains the root toctree directive.
+#root_doc = 'index'
 
 # General information about the project.
 project = u'gmpy2'
