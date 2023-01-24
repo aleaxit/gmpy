@@ -627,7 +627,7 @@ GMPy_MPC_Format(PyObject *self, PyObject *args)
 
 /* produce digits for an mpz in requested base, default 10 */
 PyDoc_STRVAR(GMPy_doc_mpz_digits_method,
-"x.digits([base=10]) -> string\n\n"
+"x.digits([base=10]) -> str\n\n"
 "Return Python string representing x in the given base. Values for\n"
 "base can range between 2 to 62. A leading '-' is present if x<0\n"
 "but no leading '+' is present if x>=0.");
@@ -716,7 +716,7 @@ GMPy_MPC_Digits_Method(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_digits,
-"digits(x[, base[, prec]]) -> string\n\n"
+"digits(x[, base[, prec]]) -> str\n\n"
 "Return string representing x. Calls mpz.digits, mpq.digits,\n"
 "mpfr.digits, or mpc.digits as appropriate.");
 

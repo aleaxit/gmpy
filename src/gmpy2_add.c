@@ -305,7 +305,7 @@ GMPy_Number_Add_Slot(PyObject *x, PyObject *y)
 /* Implement context.add() and gmpy2.add(). */
 
 PyDoc_STRVAR(GMPy_doc_function_add,
-"add(x, y) -> number\n\n"
+"add(x, y) -> numbers.Number\n\n"
 "Return x + y.");
 
 static PyObject *
