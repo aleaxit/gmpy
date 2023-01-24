@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.7]
+        python-version: [3.11]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@master
@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.7]
+        python-version: [3.11]
         os: [ubuntu-22.04]
     runs-on: ${{ matrix.os }}
     steps:
