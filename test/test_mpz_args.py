@@ -2,13 +2,7 @@
 # This test should be run whenever optimizations are made to the handling of
 # arguments.
 
-import sys
 import gmpy2
-
-if sys.version.startswith('3'):
-    intTypes = (int,)
-else:
-    intTypes = (int, long)
 
 
 valueList = [0, 1, 2, 3, 4, 5]
@@ -23,9 +17,8 @@ valueList.append('10000000000000000000000000000000000000000000000000000000000000
 testValues = []
 mpzValues = []
 for i in valueList:
-    for t in intTypes:
-        testValues.append(t(i))
-        testValues.append(-t(i))
+    testValues.append(int(i))
+    testValues.append(-int(i))
     mpzValues.append(gmpy2.mpz(i))
     mpzValues.append(-gmpy2.mpz(i))
 

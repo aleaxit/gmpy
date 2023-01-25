@@ -192,7 +192,6 @@ The Windows build environment
   I use the following batch file to configure a command prompt for 64-bit builds:
 
   @echo off
-  doskey py27=D:\64\Python27\python.exe $*
   doskey py35=D:\64\Python35\python.exe $*
   doskey py36=D:\64\Python36\python.exe $*
   doskey py37=D:\64\Python37\python.exe $*
@@ -214,7 +213,6 @@ The Windows build environment
 # Replace Python's cygwinccompiler.py with the numpy.distutils verion
 # located in the <<gmpy2 source>>\ming64\distutils directory.
 
-  copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python27\Lib\distutils\.
   copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python35\Lib\distutils\.
   copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python36\Lib\distutils\.
   copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python37\Lib\distutils\.
@@ -224,10 +222,6 @@ The Windows build environment
   copy /y mingw64\distutils\cygwinccompiler.py D:\64\Python311\Lib\site-packages\setuptools\_distutils\.
 
 # Create the appropriate libpythonNN.a files. See gendef64.bat
-
-cd D:\64\Python27\libs
-gendef C:\Windows\System32\python27.dll
-dlltool --dllname C:\Windows\System32\python27.dll --def python27.def --output-lib libpython27.a
 
 cd D:\64\Python35\libs
 gendef D:\64\Python35\python35.dll

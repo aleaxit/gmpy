@@ -85,7 +85,7 @@ Test format
     'mpz(123)'
     >>> hex(a)
     '0x7b'
-    >>> oct(a) == ('0o173' if sys.version_info[0] == 3 else '0173')
+    >>> oct(a) == '0o173'
     True
     >>> G.mpz('123')
     mpz(123)

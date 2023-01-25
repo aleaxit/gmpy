@@ -1,8 +1,3 @@
-pushd D:\64\Python27\libs
-gendef C:\Windows\System32\python27.dll
-dlltool --dllname C:\Windows\System32\python27.dll --def python27.def --output-lib libpython27.a
-popd
-
 pushd D:\64\Python35\libs
 gendef D:\64\Python35\python35.dll
 dlltool --dllname D:\64\Python35\python35.dll --def python35.def --output-lib libpython35.a

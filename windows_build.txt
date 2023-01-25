@@ -169,22 +169,14 @@ xcopy /y c:\src\mpc\lib\x64\Release\*.lib c:\src\64\vs2015\lib\
 Compile gmpy2
 =============
 
-c:\32\Python26\python.exe setup.py build_ext --force --mpir --static=c:\src\32\vs2008 bdist_wininst
-c:\32\Python27\python.exe setup.py build_ext --force --mpir --static=c:\src\32\vs2008 bdist_wininst
 c:\32\Python33\python.exe setup.py build_ext --force --mpir --static=c:\src\32\vs2010 bdist_wininst
 c:\32\Python34\python.exe setup.py build_ext --force --mpir --static=c:\src\32\vs2010 bdist_wininst
 c:\32\Python35\python.exe setup.py build_ext --force --mpir --static=c:\src\32\vs2015 bdist_wininst
 c:\32\Python36\python.exe setup.py build_ext --force --mpir --static=c:\src\32\vs2015 bdist_wininst
 c:\32\Python37\python.exe setup.py build_ext --force --mpir --static=c:\src\32\vs2015 bdist_wininst
 
-c:\64\Python26\python.exe setup.py build_ext --force --mpir --static=c:\src\64\vs2008 bdist_wininst
-c:\64\Python27\python.exe setup.py build_ext --force --mpir --static=c:\src\64\vs2008 bdist_wininst
 c:\64\Python33\python.exe setup.py build_ext --force --mpir --static=c:\src\64\vs2010 bdist_wininst
 c:\64\Python34\python.exe setup.py build_ext --force --mpir --static=c:\src\64\vs2010 bdist_wininst
 c:\64\Python35\python.exe setup.py build_ext --force --mpir --static=c:\src\64\vs2015 bdist_wininst
 c:\64\Python36\python.exe setup.py build_ext --force --mpir --static=c:\src\64\vs2015 bdist_wininst
 c:\64\Python37\python.exe setup.py build_ext --force --mpir --static=c:\src\64\vs2015 bdist_wininst
-
-
-
-

@@ -15,7 +15,7 @@ Quick Instructions
 
 To manually compile gmpy2, you will need to install the development libraries
 for Python, GMP, MPFR, and MPC are installed. The package names vary between
-distributions. "python-dev", "python2-dev", or "python3.4-dev" are typical
+distributions. "python-dev" or "python3.4-dev" are typical
 package names for the Python development files. Installing the MPC development
 package should automatically install the GMP and MPFR development packages.
 "libmpc-dev" is a typical name for the MPC development package.

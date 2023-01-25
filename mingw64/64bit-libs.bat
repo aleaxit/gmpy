@@ -1,7 +1,3 @@
-cd D:\64\Python27\libs
-gendef c:\Windows\System32\python27.dll
-dlltool --dllname c:\Windows\System32\python27.dll --def python27.def --output-lib libpython27.a
-
 cd D:\64\Python35\libs
 gendef ..\python35.dll
 dlltool --dllname ..\python35.dll --def python35.def --output-lib libpython35.a

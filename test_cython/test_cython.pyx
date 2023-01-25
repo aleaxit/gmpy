@@ -1,5 +1,4 @@
 # distutils: libraries = gmp mpfr mpc
-from __future__ import print_function, absolute_import
 from gmpy2 cimport *
 
 import_gmpy2()
