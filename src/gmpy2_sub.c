@@ -334,7 +334,7 @@ GMPy_Number_Sub_Slot(PyObject *x, PyObject *y)
 /* Implement context.sub() and gmpy2.sub(). */
 
 PyDoc_STRVAR(GMPy_doc_sub,
-"sub(x, y) -> number\n\n"
+"sub(x, y) -> numbers.Number\n\n"
 "Return x - y.");
 
 PyDoc_STRVAR(GMPy_doc_context_sub,

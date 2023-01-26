@@ -95,7 +95,7 @@ GMPy_MPZ_Function_NumDigits(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_iroot,
-"iroot(x,n) -> (number, boolean)\n\n"
+"iroot(x,n) -> tuple[mpz, bool]\n\n"
 "Return the integer n-th root of x and boolean value that is True\n"
 "iff the root is exact. x >= 0. n > 0.");
 
@@ -153,7 +153,7 @@ GMPy_MPZ_Function_Iroot(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_iroot_rem,
-"iroot_rem(x,n) -> (number, number)\n\n"
+"iroot_rem(x,n) -> tuple[mpz, mpz]\n\n"
 "Return a 2-element tuple (y,r), such that y is the integer n-th\n"
 "root of x and x=y**n + r. x >= 0. n > 0.");
 
@@ -412,7 +412,7 @@ GMPy_MPZ_Function_LCM(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_gcdext,
-"gcdext(a, b) - > tuple\n\n"
+"gcdext(a, b) -> tuple[mpz, mpz, mpz]\n\n"
 "Return a 3-element tuple (g,s,t) such that\n"
 "    g == gcd(a,b) and g == a*s + b*t");
 
@@ -684,7 +684,7 @@ GMPy_MPZ_Function_Fib(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_fib2,
-"fib2(n) -> tuple\n\n"
+"fib2(n) -> tuple[mpz, mpz]\n\n"
 "Return a 2-tuple with the (n-1)-th and n-th Fibonacci numbers.");
 
 static PyObject *
@@ -739,7 +739,7 @@ GMPy_MPZ_Function_Lucas(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_lucas2,
-"lucas2(n) -> tuple\n\n"
+"lucas2(n) -> tuple[mpz, mpz]\n\n"
 "Return a 2-tuple with the (n-1)-th and n-th Lucas numbers.");
 
 static PyObject *
@@ -861,7 +861,7 @@ GMPy_MPZ_Function_Isqrt(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_isqrt_rem,
-"isqrt_rem(x) -> tuple\n\n"
+"isqrt_rem(x) -> (mpz, mpz)\n\n"
 "Return a 2-element tuple (s,t) such that s=isqrt(x) and t=x-s*s.\n"
 "x >=0.");
 
@@ -903,7 +903,7 @@ GMPy_MPZ_Function_IsqrtRem(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_remove,
-"remove(x, f) -> tuple\n\n"
+"remove(x, f) -> tuple[mpz, mpz]\n\n"
 "Return a 2-element tuple (y,m) such that x=y*(f**m) and f does\n"
 "not divide y. Remove the factor f from x as many times as\n"
 "possible. m is the multiplicity f in x. f > 1.");
@@ -1769,7 +1769,7 @@ GMPy_MPZ_Method_SizeOf(PyObject *self, PyObject *other)
  */
 
 PyDoc_STRVAR(GMPy_doc_mp_method_conjugate,
-"x.conjugate() -> number\n\n"
+"x.conjugate() -> mpz\n\n"
 "Return the conjugate of x (which is just a new reference to x since x is\n"
 "not a complex number).");
 

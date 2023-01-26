@@ -27,24 +27,24 @@
 PyDoc_STRVAR(GMPy_doc_mpz_format,
 "x.__format__(fmt) -> string\n\n"
 "Return a Python string by formatting mpz 'x' using the format string\n"
-"'fmt'. A valid format string consists of:\n"
-"     optional alignment code:\n"
+"'fmt'. A valid format string consists of:\n\n"
+"     optional alignment code:\n\n"
 "        '<' -> left shifted in field\n"
 "        '>' -> right shifted in field\n"
-"        '^' -> centered in field\n"
-"     optional leading sign code:\n"
+"        '^' -> centered in field\n\n"
+"     optional leading sign code:\n\n"
 "        '+' -> always display leading sign\n"
 "        '-' -> only display minus sign\n"
-"        ' ' -> minus for negative values, space for positive values\n"
-"     optional base indicator\n"
-"        '#' -> precede binary, octal, or hex with 0b, 0o or 0x\n"
-"     optional width\n"
-"     optional conversion code:\n"
+"        ' ' -> minus for negative values, space for positive values\n\n"
+"     optional base indicator\n\n"
+"        '#' -> precede binary, octal, or hex with 0b, 0o or 0x\n\n"
+"     optional width\n\n"
+"     optional conversion code:\n\n"
 "        'd' -> decimal format\n"
 "        'b' -> binary format\n"
 "        'o' -> octal format\n"
 "        'x' -> hex format\n"
-"        'X' -> upper-case hex format\n"
+"        'X' -> upper-case hex format\n\n"
 "The default format is 'd'.");
 
 /* Formatting occurs in two phases. Pympz_ascii() is used to create a string
@@ -627,7 +627,7 @@ GMPy_MPC_Format(PyObject *self, PyObject *args)
 
 /* produce digits for an mpz in requested base, default 10 */
 PyDoc_STRVAR(GMPy_doc_mpz_digits_method,
-"x.digits([base=10]) -> string\n\n"
+"x.digits([base=10]) -> str\n\n"
 "Return Python string representing x in the given base. Values for\n"
 "base can range between 2 to 62. A leading '-' is present if x<0\n"
 "but no leading '+' is present if x>=0.");
@@ -716,7 +716,7 @@ GMPy_MPC_Digits_Method(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_digits,
-"digits(x[, base[, prec]]) -> string\n\n"
+"digits(x[, base[, prec]]) -> str\n\n"
 "Return string representing x. Calls mpz.digits, mpq.digits,\n"
 "mpfr.digits, or mpc.digits as appropriate.");
 

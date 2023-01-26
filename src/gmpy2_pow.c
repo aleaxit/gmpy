@@ -269,7 +269,7 @@ GMPy_Integer_PowModBaseListWithType(PyObject *base_lst,
 }
 
 PyDoc_STRVAR(GMPy_doc_integer_powmod_base_list,
-"powmod_base_list(base_lst, exp, mod) -> list\n\n"
+"powmod_base_list(base_lst, exp, mod) -> list[mpz, ...]\n\n"
 "Returns list(powmod(i, exp, mod) for i in base_lst). Will always release\n"
 "the GIL. (Experimental in gmpy2 2.1.x).");
 
@@ -372,7 +372,7 @@ GMPy_Integer_PowModExpListWithType(PyObject *b, int btype,
 }
 
 PyDoc_STRVAR(GMPy_doc_integer_powmod_exp_list,
-"powmod_exp_list(base, exp_lst, mod) -> list\n\n"
+"powmod_exp_list(base, exp_lst, mod) -> list[mpz, ...]\n\n"
 "Returns list(powmod(base, i, mod) for i in exp_lst). Will always release\n"
 "the GIL. (Experimental in gmpy2 2.1.x).");
 

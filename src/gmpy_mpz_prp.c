@@ -36,11 +36,11 @@
  * ******************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_fermat_prp,
-"is_fermat_prp(n,a) -> boolean\n\n"
+"is_fermat_prp(n,a) -> bool\n\n"
 "Return True if n is a Fermat probable prime to the base a.\n"
-"Assuming:\n"
-"    gcd(n,a) == 1\n"
-"Then a Fermat probable prime requires:\n"
+"Assuming:\n\n"
+"    gcd(n,a) == 1\n\n"
+"Then a Fermat probable prime requires:\n\n"
 "    a**(n-1) == 1 (mod n)");
 
 static PyObject *
@@ -125,13 +125,13 @@ GMPY_mpz_is_fermat_prp(PyObject *self, PyObject *args)
  * *************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_euler_prp,
-"is_euler_prp(n,a) -> boolean\n\n"
+"is_euler_prp(n,a) -> bool\n\n"
 "Return True if n is an Euler (also known as Solovay-Strassen)\n"
 "probable prime to the base a.\n"
-"Assuming:\n"
+"Assuming:\n\n"
 "    gcd(n,a) == 1\n"
-"    n is odd\n"
-"Then an Euler probable prime requires:\n"
+"    n is odd\n\n"
+"Then an Euler probable prime requires:\n\n"
 "    a**((n-1)/2) == 1 (mod n)");
 
 static PyObject *
@@ -226,14 +226,14 @@ GMPY_mpz_is_euler_prp(PyObject *self, PyObject *args)
  * *********************************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_strong_prp,
-"is_strong_prp(n,a) -> boolean\n\n"
+"is_strong_prp(n,a) -> bool\n\n"
 "Return True if n is a strong (also known as Miller-Rabin)\n"
 "probable prime to the base a.\n"
-"Assuming:\n"
+"Assuming:\n\n"
 "    gcd(n,a) == 1\n"
 "    n is odd\n"
-"    n = s*(2**r) + 1, with s odd\n"
-"Then a strong probable prime requires one of the following is true:\n"
+"    n = s*(2**r) + 1, with s odd\n\n"
+"Then a strong probable prime requires one of the following is true:\n\n"
 "    a**s == 1 (mod n)\n"
 "    or\n"
 "    a**(s*(2**t)) == -1 (mod n) for some t, 0 <= t < r.");
@@ -341,13 +341,13 @@ GMPY_mpz_is_strong_prp(PyObject *self, PyObject *args)
  * *************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_fibonacci_prp,
-"is_fibonacci_prp(n,p,q) -> boolean\n\n"
+"is_fibonacci_prp(n,p,q) -> bool\n\n"
 "Return True if n is a Fibonacci probable prime with parameters (p,q).\n"
-"Assuming:\n"
+"Assuming:\n\n"
 "    n is odd\n"
 "    p > 0, q = +/-1\n"
-"    p*p - 4*q != 0\n"
-"Then a Fibonacci probable prime requires:\n"
+"    p*p - 4*q != 0\n\n"
+"Then a Fibonacci probable prime requires:\n\n"
 "    lucasv(p,q,n) == p (mod n).");
 
 static PyObject *
@@ -524,13 +524,13 @@ GMPY_mpz_is_fibonacci_prp(PyObject *self, PyObject *args)
  * *******************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_lucas_prp,
-"is_lucas_prp(n,p,q) -> boolean\n\n"
+"is_lucas_prp(n,p,q) -> bool\n\n"
 "Return True if n is a Lucas probable prime with parameters (p,q).\n"
-"Assuming:\n"
+"Assuming:\n\n"
 "    n is odd\n"
 "    D = p*p - 4*q, D != 0\n"
-"    gcd(n, 2*q*D) == 1\n"
-"Then a Lucas probable prime requires:\n"
+"    gcd(n, 2*q*D) == 1\n\n"
+"Then a Lucas probable prime requires:\n\n"
 "    lucasu(p,q,n - Jacobi(D,n)) == 0 (mod n)");
 
 static PyObject *
@@ -735,14 +735,14 @@ GMPY_mpz_is_lucas_prp(PyObject *self, PyObject *args)
  * *********************************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_stronglucas_prp,
-"is_strong_lucas_prp(n,p,q) -> boolean\n\n"
+"is_strong_lucas_prp(n,p,q) -> bool\n\n"
 "Return True if n is a strong Lucas probable prime with parameters (p,q).\n"
-"Assuming:\n"
+"Assuming:\n\n"
 "    n is odd\n"
 "    D = p*p - 4*q, D != 0\n"
 "    gcd(n, 2*q*D) == 1\n"
-"    n = s*(2**r) + Jacobi(D,n), s odd\n"
-"Then a strong Lucas probable prime requires:\n"
+"    n = s*(2**r) + Jacobi(D,n), s odd\n\n"
+"Then a strong Lucas probable prime requires:\n\n"
 "    lucasu(p,q,s) == 0 (mod n)\n"
 "    or\n"
 "    lucasv(p,q,s*(2**t)) == 0 (mod n) for some t, 0 <= t < r");
@@ -958,14 +958,14 @@ GMPY_mpz_is_stronglucas_prp(PyObject *self, PyObject *args)
  * *******************************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_extrastronglucas_prp,
-"is_extra_strong_lucas_prp(n,p) -> boolean\n\n"
+"is_extra_strong_lucas_prp(n,p) -> bool\n\n"
 "Return True if n is an extra strong Lucas probable prime with parameters\n"
-"(p,1). Assuming:\n"
+"(p,1). Assuming:\n\n"
 "    n is odd\n"
 "    D = p*p - 4, D != 0\n"
 "    gcd(n, 2*D) == 1\n"
-"    n = s*(2**r) + Jacobi(D,n), s odd\n"
-"Then an extra strong Lucas probable prime requires:\n"
+"    n = s*(2**r) + Jacobi(D,n), s odd\n\n"
+"Then an extra strong Lucas probable prime requires:\n\n"
 "    lucasu(p,1,s) == 0 (mod n)\n"
 "    or\n"
 "    lucasv(p,1,s) == +/-2 (mod n)\n"
@@ -1186,7 +1186,7 @@ GMPY_mpz_is_extrastronglucas_prp(PyObject *self, PyObject *args)
  * ***********************************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_selfridge_prp,
-"is_selfridge_prp(n) -> boolean\n\n"
+"is_selfridge_prp(n) -> bool\n\n"
 "Return True if n is a Lucas probable prime with Selfidge parameters\n"
 "(p,q). The Selfridge parameters are chosen by finding the first\n"
 "element D in the sequence {5, -7, 9, -11, 13, ...} such that\n"
@@ -1311,7 +1311,7 @@ GMPY_mpz_is_selfridge_prp(PyObject *self, PyObject *args)
  * **********************************************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_strongselfridge_prp,
-"is_strong_selfridge_prp(n) -> boolean\n\n"
+"is_strong_selfridge_prp(n) -> bool\n\n"
 "Return True if n is a strong Lucas probable prime with Selfidge\n"
 "parameters (p,q). The Selfridge parameters are chosen by finding\n"
 "the first element D in the sequence {5, -7, 9, -11, 13, ...} such\n"
@@ -1436,7 +1436,7 @@ GMPY_mpz_is_strongselfridge_prp(PyObject *self, PyObject *args)
  * **********************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_bpsw_prp,
-"is_bpsw_prp(n) -> boolean\n\n"
+"is_bpsw_prp(n) -> bool\n\n"
 "Return True if n is a Baillie-Pomerance-Selfridge-Wagstaff probable \n"
 "prime. A BPSW probable prime passes the is_strong_prp() test with base\n"
 "2 and the is_selfridge_prp() test.\n");
@@ -1515,7 +1515,7 @@ GMPY_mpz_is_bpsw_prp(PyObject *self, PyObject *args)
  * ****************************************************************************************/
 
 PyDoc_STRVAR(doc_mpz_is_strongbpsw_prp,
-"is_strong_bpsw_prp(n) -> boolean\n\n"
+"is_strong_bpsw_prp(n) -> bool\n\n"
 "Return True if n is a strong Baillie-Pomerance-Selfridge-Wagstaff\n"
 "probable prime. A strong BPSW probable prime passes the is_strong_prp()\n"
 "test with base and the is_strong_selfridge_prp() test.\n");
