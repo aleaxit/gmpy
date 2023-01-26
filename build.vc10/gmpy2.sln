@@ -1,11 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmpy2.python27", "gmpy2.python27\gmpy2.python27.vcxproj", "{2410C45F-AA6C-4F9E-9B4F-E1F9356C3DFE}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmpy2.python31", "gmpy2.python31\gmpy2.python31.vcxproj", "{EC1A078B-F935-4FE6-9558-C90EDFD1E0FC}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmpy2.python26", "gmpy2.python26\gmpy2.python26.vcxproj", "{BA1902F2-29B2-4F1B-8C67-2977E7EFE8D4}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmpy2.python32", "gmpy2.python32\gmpy2.python32.vcxproj", "{B7EF078D-1DE7-45B7-9764-D1BF1BB57EE6}"
 EndProject

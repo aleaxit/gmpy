@@ -1,4 +1,3 @@
-from __future__ import print_function
 import gmpy2
 
 def test(repeat=1):

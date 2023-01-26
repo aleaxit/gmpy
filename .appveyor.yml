@@ -2,16 +2,6 @@ environment:
 
   matrix:
     - TARGET_ARCH: x86
-      PYTHON_VERSION: 2.7
-      CONDA_INSTALL_LOCN: C:\\Miniconda36
-      PYTHON_LOCN: C:\\Python27
-
-    - TARGET_ARCH: x64
-      PYTHON_VERSION: 2.7
-      CONDA_INSTALL_LOCN: C:\\Miniconda36-x64
-      PYTHON_LOCN: C:\\Python27-x64
-
-    - TARGET_ARCH: x86
       PYTHON_VERSION: 3.5
       CONDA_INSTALL_LOCN: C:\\Miniconda36
       PYTHON_LOCN: C:\\Python35

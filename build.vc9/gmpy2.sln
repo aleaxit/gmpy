@@ -1,11 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmpy2.python27", "gmpy2.python27\gmpy2.python27.vcproj", "{3960600D-E796-4080-A23D-299A7B6A1098}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmpy2.python31", "gmpy2.python31\gmpy2.python31.vcproj", "{2EB66D8F-F107-41CD-AB07-B5512523935C}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmpy2.python26", "gmpy2.python26\gmpy2.python26.vcproj", "{4A305DD3-5FE9-4B76-AB1F-8C0C2263BEF8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

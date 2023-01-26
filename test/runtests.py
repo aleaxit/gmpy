@@ -1,5 +1,3 @@
-from __future__ import print_function, division
-
 import sys
 import os
 import glob
@@ -106,14 +104,9 @@ all_doctests += mpfr_doctests + mpfr_version_tests
 
 all_doctests += mpc_doctests
 
-if sys.version_info > (3,1):
-    all_doctests += py32_doctests
+all_doctests += py32_doctests
 
 for test in sorted(all_doctests):
-    if test.endswith("py2.txt") and sys.version_info[0] >= 3:
-        continue
-    if test.endswith("py3.txt") and sys.version_info[0] < 3:
-        continue
     for r in range(repeat):
         result = doctest.testfile(test, globs=globals(),
                                   optionflags=doctest.IGNORE_EXCEPTION_DETAIL |
