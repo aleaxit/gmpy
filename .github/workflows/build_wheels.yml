@@ -21,6 +21,7 @@ jobs:
           CIBW_BEFORE_ALL_MACOS: brew install libmpc
           CIBW_BEFORE_BUILD: bash scripts/before_ci_build.sh
           CIBW_ARCHS_MACOS: "auto arm64"
+          CIBW_TEST_COMMAND: "python {package}/test/runtests.py"
 
       - uses: actions/upload-artifact@v3
         with:
