@@ -657,7 +657,7 @@ GMPy_XMPZ_Digits_Method(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpq_digits_method,
-"x.digits([base=10]) -> string\n\n"
+"x.digits([base=10]) -> str\n\n"
 "Return a Python string representing x in the given base (2 to 62,\n"
 "default is 10). A leading '-' is present if x<0, but no leading '+'\n"
 "is present if x>=0.\n");

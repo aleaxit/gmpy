@@ -25,14 +25,13 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_mpq,
-"mpq() -> mpq(0,1)\n\n"
-"     If no argument is given, return mpq(0,1).\n\n"
-"mpq(n) -> mpq\n\n"
+"gmpy2.mpq\n\n"
+"mpq([n=0])\n\n"
 "     Return an 'mpq' object with a numeric value n. Fraction values\n"
 "     are converted exactly.\n\n"
-"mpq(n,m) -> mpq\n\n"
+"mpq(n,m)\n\n"
 "     Return an 'mpq' object with a numeric value n/m.\n\n"
-"mpq(s[, base=10]) -> mpq\n\n"
+"mpq(s[, base=10])\n\n"
 "     Return an 'mpq' object from a string s made up of digits in\n"
 "     the given base. s may be made up of two numbers in the same\n"
 "     base separated by a '/' character.\n");
