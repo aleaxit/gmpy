@@ -6,7 +6,6 @@ Python's fractions.Fraction module.
 
 ::
 
-    >>> import gmpy2
     >>> from gmpy2 import mpq
     >>> mpq(1,7)
     mpq(1,7)

@@ -1050,7 +1050,6 @@ formatting.
 
 ::
 
-    >>> import gmpy2
     >>> from gmpy2 import mpfr
     >>> a=mpfr("1.23456")
     >>> "{0:15.3f}".format(a)

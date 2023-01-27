@@ -11,7 +11,6 @@ modify the original object and do not create a new object. Instances of
 
 ::
 
-    >>> import gmpy2
     >>> from gmpy2 import xmpz
     >>> a = xmpz(123)
     >>> b = a
