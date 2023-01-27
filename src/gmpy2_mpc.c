@@ -139,15 +139,16 @@ _GMPy_MPC_Cleanup(MPC_Object **v, CTXT_Object *ctext)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpc,
+"gmpy2.mpc\n\n"
 "mpc() -> mpc(0.0+0.0j)\n\n"
 "      If no argument is given, return mpc(0.0+0.0j).\n\n"
-"mpc(c [, precision=0]) -> mpc\n\n"
+"mpc(c [, precision=0])\n\n"
 "      Return a new 'mpc' object from an existing complex number (either\n"
 "      a Python complex object or another 'mpc' object).\n\n"
-"mpc(real [,imag=0 [, precision=0]]) -> mpc\n\n"
+"mpc(real [,imag=0 [, precision=0]])\n\n"
 "      Return a new 'mpc' object by converting two non-complex numbers\n"
 "      into the real and imaginary components of an 'mpc' object.\n\n"
-"mpc(s [, precision=0 [, base=10]]) -> mpc\n\n"
+"mpc(s [, precision=0 [, base=10]])\n\n"
 "      Return a new 'mpc' object by converting a string s into a complex\n"
 "      number. If base is omitted, then a base-10 representation is\n"
 "      assumed otherwise the base must be in the interval [2,36].\n\n"
@@ -160,7 +161,7 @@ PyDoc_STRVAR(GMPy_doc_mpc,
 "      A precision of 0 (the default) implies the precision of the\n"
 "      current context is used.\n\n"
 "      A precision of 1 minimizes the loss of precision by following\n"
-"      these rules:\n"
+"      these rules:\n\n"
 "        1) If n is a radix-2 floating point number, then the full\n"
 "           precision of n is retained.\n"
 "        2) If n is an integer, then the precision is the bit length\n"

@@ -85,8 +85,8 @@ PyDoc_STRVAR(GMPy_doc_context_mul_2exp,
 "Return 'mpfr' or 'mpc' multiplied by 2**n.");
 
 PyDoc_STRVAR(GMPy_doc_function_mul_2exp,
-"mul_2exp(x, n) -> number\n\n"
-"Return 'mpfr' or 'mpc' multiplied by 2**n.");
+"mul_2exp(x, n) -> mpfr | mpc\n\n"
+"Return x multiplied by 2**n.");
 
 static PyObject *
 GMPy_Number_Mul_2exp(PyObject *x, PyObject *y, CTXT_Object *context)
@@ -186,8 +186,8 @@ PyDoc_STRVAR(GMPy_doc_context_div_2exp,
 "Return 'mpfr' or 'mpc' divided by 2**n.");
 
 PyDoc_STRVAR(GMPy_doc_function_div_2exp,
-"div_2exp(x, n) -> number\n\n"
-"Return 'mpfr' or 'mpc' divided by 2**n.");
+"div_2exp(x, n) -> mpfr | mpc\n\n"
+"Return x divided by 2**n.");
 
 static PyObject *
 GMPy_Number_Div_2exp(PyObject *x, PyObject *y, CTXT_Object *context)

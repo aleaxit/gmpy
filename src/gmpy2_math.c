@@ -29,7 +29,7 @@ PyDoc_STRVAR(GMPy_doc_context_sin,
 "Return sine of x; x in radians.");
 
 PyDoc_STRVAR(GMPy_doc_function_sin,
-"sin(x) -> number\n\n"
+"sin(x) -> mpfr | mpc\n\n"
 "Return sine of x; x in radians.");
 
 GMPY_MPFR_MPC_UNIOP_EXWT(Sin, sin)
@@ -39,7 +39,7 @@ PyDoc_STRVAR(GMPy_doc_context_cos,
 "Return cosine of x; x in radians.");
 
 PyDoc_STRVAR(GMPy_doc_function_cos,
-"cos(x) -> number\n\n"
+"cos(x) -> mpfr | mpc\n\n"
 "Return cosine of x; x in radians.");
 
 GMPY_MPFR_MPC_UNIOP_EXWT(Cos, cos)
@@ -49,7 +49,7 @@ PyDoc_STRVAR(GMPy_doc_context_tan,
 "Return tangent of x; x in radians.");
 
 PyDoc_STRVAR(GMPy_doc_function_tan,
-"tan(x) -> number\n\n"
+"tan(x) -> mpfr | mpc\n\n"
 "Return tangent of x; x in radians.");
 
 GMPY_MPFR_MPC_UNIOP_EXWT(Tan, tan)
@@ -59,13 +59,13 @@ PyDoc_STRVAR(GMPy_doc_context_atan,
 "Return inverse tangent of x; result in radians.");
 
 PyDoc_STRVAR(GMPy_doc_function_atan,
-"atan(x) -> number\n\n"
+"atan(x) -> mpfr | mpc\n\n"
 "Return inverse tangent of x; result in radians.");
 
 GMPY_MPFR_MPC_UNIOP_EXWT(Atan, atan)
 
 PyDoc_STRVAR(GMPy_doc_context_sinh,
-"context.sinh(x) -> number\n\n"
+"context.sinh(x) -> mpfr | mpc\n\n"
 "Return hyperbolic sine of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_sinh,
@@ -79,7 +79,7 @@ PyDoc_STRVAR(GMPy_doc_context_cosh,
 "Return hyperbolic cosine of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_cosh,
-"cosh(x) -> number\n\n"
+"cosh(x) -> mpfr | mpc\n\n"
 "Return hyperbolic cosine of x.");
 
 GMPY_MPFR_MPC_UNIOP_EXWT(Cosh, cosh)
@@ -89,7 +89,7 @@ PyDoc_STRVAR(GMPy_doc_context_tanh,
 "Return hyperbolic tangent of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_tanh,
-"tanh(x) -> number\n\n"
+"tanh(x) -> mpfr | mpc\n\n"
 "Return hyperbolic tangent of x.");
 
 GMPY_MPFR_MPC_UNIOP_EXWT(Tanh, tanh)
@@ -99,7 +99,7 @@ PyDoc_STRVAR(GMPy_doc_context_asinh,
 "Return inverse hyperbolic sine of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_asinh,
-"asinh(x) -> number\n\n"
+"asinh(x) -> mpfr | mpc\n\n"
 "Return inverse hyperbolic sine of x.");
 
 GMPY_MPFR_MPC_UNIOP_EXWT(Asinh, asinh)
@@ -109,7 +109,7 @@ PyDoc_STRVAR(GMPy_doc_context_acosh,
 "Return inverse hyperbolic cosine of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_acosh,
-"acosh(x) -> number\n\n"
+"acosh(x) -> mpfr | mpc\n\n"
 "Return inverse hyperbolic cosine of x.");
 
 GMPY_MPFR_MPC_UNIOP_EXWT(Acosh, acosh)
@@ -478,7 +478,7 @@ PyDoc_STRVAR(GMPy_doc_context_acos,
 "Return inverse cosine of x; result in radians.");
 
 PyDoc_STRVAR(GMPy_doc_function_acos,
-"acos(x) -> number\n\n"
+"acos(x) -> mpfr | mpc\n\n"
 "Return inverse cosine of x; result in radians.");
 
 /* Helper function assumes x is of type mpfr. */
@@ -565,7 +565,7 @@ PyDoc_STRVAR(GMPy_doc_context_asin,
 "Return inverse sine of x; result in radians.");
 
 PyDoc_STRVAR(GMPy_doc_function_asin,
-"asin(x) -> number\n\n"
+"asin(x) -> mpfr | mpc\n\n"
 "Return inverse sine of x; result in radians.");
 
 static PyObject *
@@ -650,7 +650,7 @@ PyDoc_STRVAR(GMPy_doc_context_atanh,
 "Return inverse hyperbolic tanget of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_atanh,
-"atanh(x) -> number\n\n"
+"atanh(x) -> mpfr | mpc\n\n"
 "Return inverse hyperbolic tangent of x.");
 
 static PyObject *
@@ -1004,7 +1004,7 @@ PyDoc_STRVAR(GMPy_doc_context_log10,
 "Return the base-10 logarithm of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_log10,
-"log10(x) -> number\n\n"
+"log10(x) -> mpfr | mpc\n\n"
 "Return the base-10 logarithm of x.");
 
 GMPY_MPFR_MPC_UNIOP_EXWT(Log10, log10)
@@ -1014,7 +1014,7 @@ PyDoc_STRVAR(GMPy_doc_context_log,
 "Return the natural logarithm of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_log,
-"log(x) -> number\n\n"
+"log(x) -> mpfr | mpc\n\n"
 "Return the natural logarithm of x.");
 
 GMPY_MPFR_MPC_UNIOP_EXWT(Log, log)
@@ -1024,7 +1024,7 @@ PyDoc_STRVAR(GMPy_doc_context_exp,
 "Return the exponential of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_exp,
-"exp(x) -> number\n\n"
+"exp(x) -> mpfr | mpc\n\n"
 "Return the exponential of x.");
 
 GMPY_MPFR_MPC_UNIOP_EXWT(Exp, exp)
@@ -1034,7 +1034,7 @@ PyDoc_STRVAR(GMPy_doc_context_sqrt,
 "Return the square root of x.");
 
 PyDoc_STRVAR(GMPy_doc_function_sqrt,
-"sqrt(x) -> number\n\n"
+"sqrt(x) -> mpfr | mpc\n\n"
 "Return the square root of x.");
 
 static PyObject *
