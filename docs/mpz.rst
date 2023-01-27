@@ -42,7 +42,6 @@ mpz type
 mpz Functions
 -------------
 
-.. autofunction:: add
 .. autofunction:: bincoef
 .. autofunction:: bit_clear
 .. autofunction:: bit_count
@@ -61,7 +60,6 @@ mpz Functions
 .. autofunction:: c_mod_2exp
 .. autofunction:: comb
 .. autofunction:: digits
-.. autofunction:: div
 .. autofunction:: divexact
 .. autofunction:: divm
 .. autofunction:: double_fac
@@ -98,7 +96,6 @@ mpz Functions
 .. autofunction:: mpz_random
 .. autofunction:: mpz_rrandomb
 .. autofunction:: mpz_urandomb
-.. autofunction:: mul
 .. autofunction:: multi_fac
 .. autofunction:: next_prime
 .. autofunction:: num_digits
@@ -109,7 +106,6 @@ mpz Functions
 .. autofunction:: powmod_sec
 .. autofunction:: primorial
 .. autofunction:: remove
-.. autofunction:: sub
 .. autofunction:: t_div
 .. autofunction:: t_div_2exp
 .. autofunction:: t_divmod

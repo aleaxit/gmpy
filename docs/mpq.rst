@@ -25,13 +25,5 @@ mpq type
 mpq Functions
 -------------
 
-.. autofunction:: add
-   :noindex:
-.. autofunction:: div
-   :noindex:
 .. autofunction:: f2q
-.. autofunction:: mul
-   :noindex:
 .. autofunction:: qdiv
-.. autofunction:: sub
-   :noindex:

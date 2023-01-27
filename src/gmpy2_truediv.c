@@ -281,7 +281,7 @@ GMPy_Number_TrueDiv_Slot(PyObject *x, PyObject *y)
 }
 
 PyDoc_STRVAR(GMPy_doc_truediv,
-"div(x, y) -> numbers.Number\n\n"
+"div(x, y) -> mpz | mpfr | mpc\n\n"
 "Return x / y; uses true division.");
 
 static PyObject *

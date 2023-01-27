@@ -127,3 +127,11 @@ Miscellaneous gmpy2 Functions
 .. autofunction:: random_state
 .. autofunction:: to_binary
 .. autofunction:: version
+
+Generic gmpy2 Functions
+-----------------------
+
+.. autofunction:: add
+.. autofunction:: div
+.. autofunction:: mul
+.. autofunction:: sub

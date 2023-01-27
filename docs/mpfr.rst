@@ -587,10 +587,6 @@ mpfr Functions
 **acosh(...)**
     acosh(x) returns the inverse hyperbolic cosine of x.
 
-**add(...)**
-    add(x, y) returns x + y. The type of the result is based on the types of
-    the arguments.
-
 **agm(...)**
     agm(x, y) returns the arithmetic-geometric mean of x and y.
 
@@ -670,10 +666,6 @@ mpfr Functions
 
 **digamma(...)**
     digamma(x) returns the digamma of x.
-
-**div(...)**
-    div(x, y) returns x / y. The type of the result is based on the types of
-    the arguments.
 
 **div_2exp(...)**
     div_2exp(x, n) returns an 'mpfr' or 'mpc' divided by 2**n.
@@ -872,10 +864,6 @@ mpfr Functions
     mpfr_random(random_state) returns a uniformly distributed number between
     [0,1]. The parameter *random_state* must be created by random_state() first.
 
-**mul(...)**
-    mul(x, y) returns x * y. The type of the result is based on the types of
-    the arguments.
-
 **mul_2exp(...)**
     mul_2exp(x, n) returns 'mpfr' or 'mpc' multiplied by 2**n.
 
@@ -981,10 +969,6 @@ mpfr Functions
 
 **square(...)**
     square(x) returns x * x. The type of the result is based on the types of
-    the arguments.
-
-**sub(...)**
-    sub(x, y) returns x - y. The type of the result is based on the types of
     the arguments.
 
 **tan(...)**
