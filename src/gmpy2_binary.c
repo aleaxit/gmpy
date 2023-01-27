@@ -652,7 +652,7 @@ GMPy_MPC_To_Binary(MPC_Object *obj)
 }
 
 PyDoc_STRVAR(doc_from_binary,
-"from_binary(bytes) -> gmpy2 object\n"
+"from_binary(bytes) -> mpz | xmpz | mpq | mpfr | mpc\n\n"
 "Return a Python object from a byte sequence created by\n"
 "gmpy2.to_binary().");
 
@@ -1210,7 +1210,7 @@ GMPy_MPANY_From_Binary(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(doc_to_binary,
-"to_binary(x) -> bytes\n"
+"to_binary(x) -> bytes\n\n"
 "Return a Python byte sequence that is a portable binary\n"
 "representation of a gmpy2 object x. The byte sequence can\n"
 "be passed to gmpy2.from_binary() to obtain an exact copy of\n"

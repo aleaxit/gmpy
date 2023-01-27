@@ -27,7 +27,7 @@
 /* Miscellaneous module-level functions and helper functions. */
 
 PyDoc_STRVAR(GMPy_doc_license,
-"license() -> string\n\n"
+"license() -> str\n\n"
 "Return string giving license information.");
 
 static PyObject *
@@ -37,7 +37,7 @@ GMPy_get_license(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_version,
-"version() -> string\n\n"
+"version() -> str\n\n"
 "Return string giving current GMPY2 version.");
 
 static PyObject *
@@ -47,7 +47,7 @@ GMPy_get_version(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mp_version,
-"mp_version() -> string\n\n"
+"mp_version() -> str\n\n"
 "Return string giving the name and version of the multiple precision\n"
 "library used.");
 
@@ -62,7 +62,7 @@ GMPy_get_mp_version(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_version,
-"mpfr_version() -> string\n\n"
+"mpfr_version() -> str\n\n"
 "Return string giving current MPFR version.");
 
 static PyObject *
@@ -72,7 +72,7 @@ GMPy_get_mpfr_version(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpc_version,
-"mpc_version() -> string\n\n"
+"mpc_version() -> str\n\n"
 "Return string giving current MPC version.");
 
 static PyObject *
@@ -82,7 +82,7 @@ GMPy_get_mpc_version(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mp_limbsize,
-"mp_limbsize() -> integer\n\n\
+"mp_limbsize() -> int\n\n\
 Return the number of bits per limb.");
 
 static PyObject *
