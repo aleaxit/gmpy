@@ -119,10 +119,6 @@ mpc Functions
 **fms(...)**
     fms(x, y, z) returns correctly rounded result of (x * y) - z.
 
-**is_inf(...)**
-    is_inf(x) returns True if either the real or imaginary component of x is
-    Infinity or -Infinity.
-
 **is_nan(...)**
     is_nan(x) returns True if either the real or imaginary component of x is
     NaN (Not-A-Number).
