@@ -6,13 +6,13 @@ Conversion methods
 
 A python object could interact with gmpy2 if it implements one of the following methods:
 
-- **__mpz__** : return an object of <type 'mpz'>.
-- **__mpq__** : return an object of <type 'mpq'>.
-- **__mpfr__** : return an object of <type 'mpfr'>.
-- **__mpc__** : return an object of <type 'mpc'>.
+- ``__mpz__`` : return an object of type :class:`mpz`.
+- ``__mpq__`` : return an object of type :class:`mpq`.
+- ``__mpfr__`` : return an object of type :class:`mpfr`.
+- ``__mpc__`` : return an object of type :class:`mpc`.
 
-| Implementing on of these methods allow gmpy2 to convert a python object into a gmpy2 type.
-| Example::
+Implementing on of these methods allow gmpy2 to convert a python object into a gmpy2 type.
+Example::
 
     >>> from gmpy2 import mpz
     >>> class CustInt:
@@ -25,19 +25,20 @@ A python object could interact with gmpy2 if it implements one of the following 
     >>> z = mpz(ci); z
     mpz(5)
     >>> type(z)
-    <type 'mpz'>
+    <class 'gmpy2.mpz'>
 
 Arithmetic operations
 ---------------------
 
-| gmpy2 allow arithmetic operations between gmpy2 numbers and objects with conversion methods.
-| Operation with object that implements floating conversion and exact conversion methods are not supported.
-| That means that only the following cases are supported:
+gmpy2 allow arithmetic operations between gmpy2 numbers and objects with
+conversion methods.  Operation with object that implements floating conversion
+and exact conversion methods are not supported.  That means that only the
+following cases are supported:
 
-- An integer type have to implement **__mpz__**
-- A rational type have to implement **__mpq__** and can implement **__mpz__**
-- A real type have to implement **__mpfr__**
-- A complex type have to implement **__mpc__** and can implement **__mpfr__**
+- An integer type have to implement ``__mpz__``
+- A rational type have to implement ``__mpq__`` and can implement ``__mpz__``
+- A real type have to implement ``__mpfr__``
+- A complex type have to implement ``__mpc__`` and can implement ``__mpfr__``
 
 Examples::
 
