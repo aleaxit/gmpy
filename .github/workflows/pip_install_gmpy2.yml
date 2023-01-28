@@ -15,8 +15,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install --upgrade pip
-      - run: pip --verbose install -e .
+      - run: pip --verbose install -e .[cython]
       - run: python test/runtests.py
+      - run: PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
 
   linux:
     strategy:
@@ -32,8 +33,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: sudo apt-get install libmpc-dev texlive texlive-latex-extra latexmk
       - run: pip install --upgrade pip
-      - run: pip --verbose install -e .[docs]
+      - run: pip --verbose install -e .[cython,docs]
       - run: python test/runtests.py
+      - run: PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
       - run: sphinx-build --color -W --keep-going -b html docs build/sphinx/html
       - run: sphinx-build --color -W --keep-going -b latex docs build/sphinx/latex
       - run: make -C build/sphinx/latex all-pdf

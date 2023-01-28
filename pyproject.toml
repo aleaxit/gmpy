@@ -35,6 +35,7 @@ file = 'README.rst'
 content-type = 'text/x-rst'
 [project.optional-dependencies]
 docs = ['sphinx>=4', 'sphinx-rtd-theme>=1']
+cython = ['cython']
 [project.urls]
 Homepage = 'https://github.com/aleaxit/gmpy'
 
