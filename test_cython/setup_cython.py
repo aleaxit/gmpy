@@ -11,5 +11,6 @@ extensions = [
 
 setup(
     name="cython_gmpy_test",
-    ext_modules=cythonize(extensions, include_path=sys.path)
+    ext_modules=cythonize(extensions, include_path=sys.path,
+                          compiler_directives={'language_level' : "3"})
 )
