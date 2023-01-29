@@ -1,5 +1,4 @@
-from distutils.core import setup
-from distutils.extension import Extension
+from setuptools import Extension, setup
 from Cython.Build import cythonize
 import sys
 
@@ -11,5 +10,6 @@ extensions = [
 
 setup(
     name="cython_gmpy_test",
-    ext_modules=cythonize(extensions, include_path=sys.path)
+    ext_modules=cythonize(extensions, include_path=sys.path,
+                          compiler_directives={'language_level' : "3"})
 )
