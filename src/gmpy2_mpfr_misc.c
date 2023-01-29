@@ -25,7 +25,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_function_f2q,
-"f2q(x,[err]) -> mpq\n\n"
+"f2q(x,[err]) -> mpz | mpq\n\n"
 "Return the 'best' mpq approximating x to within relative error 'err'.\n"
 "Default is the precision of x. Uses Stern-Brocot tree to find the\n"
 "'best' approximation. An 'mpz' is returned if the denominator\n"

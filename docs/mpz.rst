@@ -42,7 +42,6 @@ mpz type
 mpz Functions
 -------------
 
-.. autofunction:: add
 .. autofunction:: bincoef
 .. autofunction:: bit_clear
 .. autofunction:: bit_count
@@ -61,7 +60,6 @@ mpz Functions
 .. autofunction:: c_mod_2exp
 .. autofunction:: comb
 .. autofunction:: digits
-.. autofunction:: div
 .. autofunction:: divexact
 .. autofunction:: divm
 .. autofunction:: double_fac
@@ -80,24 +78,13 @@ mpz Functions
 .. autofunction:: invert
 .. autofunction:: iroot
 .. autofunction:: iroot_rem
-.. autofunction:: is_bpsw_prp
 .. autofunction:: is_congruent
 .. autofunction:: is_divisible
-.. autofunction:: is_euler_prp
 .. autofunction:: is_even
-.. autofunction:: is_extra_strong_lucas_prp
-.. autofunction:: is_fermat_prp
-.. autofunction:: is_fibonacci_prp
-.. autofunction:: is_lucas_prp
 .. autofunction:: is_odd
 .. autofunction:: is_power
 .. autofunction:: is_prime
-.. autofunction:: is_selfridge_prp
 .. autofunction:: is_square
-.. autofunction:: is_strong_bpsw_prp
-.. autofunction:: is_strong_lucas_prp
-.. autofunction:: is_strong_prp
-.. autofunction:: is_strong_selfridge_prp
 .. autofunction:: isqrt
 .. autofunction:: isqrt_rem
 .. autofunction:: jacobi
@@ -106,14 +93,9 @@ mpz Functions
 .. autofunction:: legendre
 .. autofunction:: lucas
 .. autofunction:: lucas2
-.. autofunction:: lucasu
-.. autofunction:: lucasu_mod
-.. autofunction:: lucasv
-.. autofunction:: lucasv_mod
 .. autofunction:: mpz_random
 .. autofunction:: mpz_rrandomb
 .. autofunction:: mpz_urandomb
-.. autofunction:: mul
 .. autofunction:: multi_fac
 .. autofunction:: next_prime
 .. autofunction:: num_digits
@@ -124,7 +106,6 @@ mpz Functions
 .. autofunction:: powmod_sec
 .. autofunction:: primorial
 .. autofunction:: remove
-.. autofunction:: sub
 .. autofunction:: t_div
 .. autofunction:: t_div_2exp
 .. autofunction:: t_divmod

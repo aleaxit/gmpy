@@ -25,9 +25,8 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_xmpz,
-"xmpz() -> xmpz(0)\n\n"
-"     If no argument is given, return xmpz(0).\n\n"
-"xmpz(n) -> xmpz\n\n"
+"gmpy2.xmpz\n\n"
+"xmpz([n=0])\n\n"
 "     Return an 'xmpz' object with a numeric value 'n' (truncating n\n"
 "     to its integer part if it's a Fraction, 'mpq', float or 'mpfr').\n\n"
 "xmpz(s[, base=0]):\n\n"
@@ -37,7 +36,7 @@ PyDoc_STRVAR(GMPy_doc_xmpz,
 "     the string is assumed to be decimal. Values for base can range\n"
 "     between 2 and 62.\n\n"
 "     Note: 'xmpz' is a mutable integer. It can be faster when used\n"
-"     for augmented assignment (+=, *=, etc.). 'xmpz' objects cannot\n"
+"     for augmented assignment (+=, -=, etc). 'xmpz' objects cannot\n"
 "     be used as dictionary keys. The use of 'mpz' objects is recommended\n"
 "     in most cases.");
 

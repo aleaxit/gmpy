@@ -89,10 +89,6 @@ mpc Functions
 **acosh(...)**
     acosh(x) returns the inverse hyperbolic cosine of x.
 
-**add(...)**
-    add(x, y) returns x + y. The type of the result is based on the types of
-    the arguments.
-
 **asin(...)**
     asin(x) returns the arc-sine of x.
 
@@ -111,10 +107,6 @@ mpc Functions
 **cosh(...)**
     cosh(x) returns the hyperbolic cosine of x.
 
-**div(...)**
-    div(x, y) returns x / y. The type of the result is based on the types of
-    the arguments.
-
 **div_2exp(...)**
     div_2exp(x, n) returns an 'mpfr' or 'mpc' divided by 2**n.
 
@@ -126,10 +118,6 @@ mpc Functions
 
 **fms(...)**
     fms(x, y, z) returns correctly rounded result of (x * y) - z.
-
-**is_inf(...)**
-    is_inf(x) returns True if either the real or imaginary component of x is
-    Infinity or -Infinity.
 
 **is_nan(...)**
     is_nan(x) returns True if either the real or imaginary component of x is
@@ -179,10 +167,6 @@ mpc Functions
     unit square [0,1]x[0,1]. The parameter *random_state* must be created by
     random_state() first.
 
-**mul(...)**
-    mul(x, y) returns x * y. The type of the result is based on the types of
-    the arguments.
-
 **mul_2exp(...)**
     mul_2exp(x, n) returns 'mpfr' or 'mpc' multiplied by 2**n.
 
@@ -222,10 +206,6 @@ mpc Functions
 
 **square(...)**
     square(x) returns x * x. The type of the result is based on the types of
-    the arguments.
-
-**sub(...)**
-    sub(x, y) returns x - y. The type of the result is based on the types of
     the arguments.
 
 **tan(...)**

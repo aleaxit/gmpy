@@ -47,7 +47,7 @@ PyDoc_STRVAR(GMPy_doc_xmpz_method_limbs_write,
 "     Must be followed by a call to 'xmpz.limbs_finish(n)' after writing to\n"
 "     the returned address in order for the changes to take effect.\n"
 "     WARNING: this operation is destructive and may destroy the old \n"
-"              value of 'xmpz'");
+"     value of 'xmpz'");
 static PyObject* GMPy_XMPZ_Method_LimbsWrite(PyObject* obj, PyObject* other)
 {
 
