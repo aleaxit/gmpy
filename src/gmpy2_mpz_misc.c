@@ -1751,6 +1751,97 @@ GMPy_MPZ_Method_As_Integer_Ratio(PyObject *self, PyObject *args)
                         GMPy_MPZ_Attrib_GetDenom((MPZ_Object*)self, NULL));
 }
 
+PyDoc_STRVAR(GMPy_doc_mpz_method_to_bytes,
+"x.to_bytes(length=1, byteorder=\'big\', *, signed=False) -> bytes\n\n"
+"Return an array of bytes representing an integer.\n\n"
+"  length\n"
+"    Length of bytes object to use.  An OverflowError is raised if the\n"
+"    integer is not representable with the given number of bytes.  Default\n"
+"    is length 1.\n"
+"  byteorder\n"
+"    The byte order used to represent the integer.  If byteorder is \'big\',\n"
+"    the most significant byte is at the beginning of the byte array.  If\n"
+"    byteorder is \'little\', the most significant byte is at the end of the\n"
+"    byte array.  To request the native byte order of the host system, use\n"
+"    `sys.byteorder` as the byte order value.  Default is to use \'big\'.\n"
+"  signed\n"
+"    Determines whether two\'s complement is used to represent the integer.\n"
+"    If signed is False and a negative integer is given, an OverflowError\n"
+"    is raised.");
+static PyObject *
+GMPy_MPZ_Method_To_Bytes(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    char endian, is_negative, is_signed = 0;
+    Py_ssize_t i, self_size, length = 1;
+    PyObject *byteorder = NULL;
+    PyObject *bytes;
+    char* buffer;
+    static char *kwlist[] = { "length", "byteorder", "signed", NULL };
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|iUb", kwlist,
+                                     &length, &byteorder, &is_signed))
+        return NULL;
+
+    if (byteorder == NULL)
+        endian = 1;
+    else if (PyUnicode_CompareWithASCIIString(byteorder, "little") == 0)
+        endian = -1;
+    else if (PyUnicode_CompareWithASCIIString(byteorder, "big") == 0)
+        endian = 1;
+    else {
+        VALUE_ERROR("byteorder must be either 'little' or 'big'");
+        return NULL;
+    }
+
+    if (length < 0) {
+        VALUE_ERROR("length argument must be non-negative");
+        return NULL;
+    }
+
+    is_negative = mpz_sgn(MPZ(self)) < 0;
+    self_size = mpz_sizeinbase(MPZ(self), 256);
+
+    if (!is_signed && is_negative) {
+        OVERFLOW_ERROR("can't convert negative int to unsigned");
+        return NULL;
+    }
+
+    if (self_size > length) {
+        OVERFLOW_ERROR("int too big to convert");
+        return NULL;
+    }
+
+    TEMP_ALLOC(buffer, length);
+
+    if (endian == -1) {
+        mpz_export(buffer, NULL, endian,
+                   sizeof(unsigned char), 0, 0, MPZ(self));
+        for (i = 0; i < length - self_size; i++)
+            buffer[length - 1 - i] = 0;
+    } else {
+        mpz_export(buffer + length - self_size, NULL, endian,
+                   sizeof(unsigned char), 0, 0, MPZ(self));
+        for (i = 0; i < length - self_size; i++)
+            buffer[i] = 0;
+    }
+    if (is_negative) {
+        for (i = 0; i < length; i++)
+            buffer[i] ^= UCHAR_MAX;
+        if (endian == -1)
+            buffer[0] += 1;
+        else
+            buffer[length - 1] += 1;
+    }
+
+    bytes = PyBytes_FromStringAndSize(buffer, length);
+    if (bytes == NULL)
+		return NULL;
+
+    TEMP_FREE(buffer, length);
+
+    return bytes;
+}
+
 static PyObject *
 GMPy_MPZ_Attrib_GetImag(MPZ_Object *self, void *closure)
 {
@@ -1790,6 +1881,3 @@ GMPy_MP_Method_Conjugate(PyObject *self, PyObject *args)
     Py_INCREF((PyObject*)self);
     return (PyObject*)self;
 }
-
-
-

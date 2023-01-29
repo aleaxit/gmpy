@@ -779,6 +779,40 @@ Test as_integer_ratio
 >>> gmpy2.mpz(3).as_integer_ratio()
 (mpz(3), mpz(1))
 
+Test to_bytes
+-------------
+
+>>> mpz(1000).to_bytes()  # doctest: +IGNORE_EXCEPTION_DETAIL +ELLIPSIS
+Traceback (most recent call last):
+..
+OverflowError: int too big to convert
+>>> mpz(1000).to_bytes(2)
+b'\x03\xe8'
+>>> mpz(1000).to_bytes(length=2)
+b'\x03\xe8'
+>>> mpz(1000).to_bytes(length=2, byteorder='little')
+b'\xe8\x03'
+>>> mpz(-1000).to_bytes(length=2)  # doctest: +IGNORE_EXCEPTION_DETAIL +ELLIPSIS
+Traceback (most recent call last):
+..
+OverflowError: can't convert negative int to unsigned
+>>> mpz(-1000).to_bytes(length=2, signed=True)
+b'\xfc\x18'
+>>> mpz(-1000).to_bytes(length=2, byteorder='little', signed=True)
+b'\x18\xfc'
+>>> mpz(-1000).to_bytes(length=2, byteorder='spam', signed=True)  # doctest: +IGNORE_EXCEPTION_DETAIL +ELLIPSIS
+Traceback (most recent call last):
+...
+ValueError: byteorder must be either 'little' or 'big'
+>>> mpz(1000).to_bytes(length=3)
+b'\x00\x03\xe8'
+>>> mpz(1000).to_bytes(length=3, byteorder='little')
+b'\xe8\x03\x00'
+>>> mpz(-1000).to_bytes(length=3, signed=True)
+b'\xff\xfc\x18'
+>>> mpz(-1000).to_bytes(length=3, byteorder='little', signed=True)
+b'\x18\xfc\xff'
+
 Test underscore
 ---------------
 >>> mpz('1_2')
