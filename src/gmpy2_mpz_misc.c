@@ -1842,6 +1842,70 @@ GMPy_MPZ_Method_To_Bytes(PyObject *self, PyObject *args, PyObject *kwds)
     return bytes;
 }
 
+PyDoc_STRVAR(GMPy_doc_mpz_method_from_bytes,
+"mpz.from_bytes(bytes, byteorder=\'big\', *, signed=False) -> mpz\n\n"
+"Return the integer represented by the given array of bytes.\n\n"
+"  bytes\n"
+"    Holds the array of bytes to convert.  The argument must either\n"
+"    support the buffer protocol or be an iterable object producing bytes.\n"
+"    Bytes and bytearray are examples of built-in objects that support the\n"
+"    buffer protocol.\n"
+"  byteorder\n"
+"    The byte order used to represent the integer.  If byteorder is \'big\',\n"
+"    the most significant byte is at the beginning of the byte array.  If\n"
+"    byteorder is \'little\', the most significant byte is at the end of the\n"
+"    byte array.  To request the native byte order of the host system, use\n"
+"    `sys.byteorder` as the byte order value.  Default is to use \'big\'.\n"
+"  signed\n"
+"    Indicates whether two\'s complement is used to represent the integer.");
+static PyObject *
+GMPy_MPZ_Method_From_Bytes(PyTypeObject *type, PyObject *args,
+                           PyObject *kwds)
+{
+    char endian, is_signed = 0;
+    PyObject *byteorder = NULL;
+    Py_ssize_t i;
+    Py_buffer bytes;
+    static char *kwlist[] = { "bytes", "byteorder", "signed", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "y*|Ub", kwlist,
+                                     &bytes, &byteorder, &is_signed))
+        return NULL;
+
+    if (byteorder == NULL)
+        endian = 1;
+    else if (PyUnicode_CompareWithASCIIString(byteorder, "little") == 0)
+        endian = -1;
+    else if (PyUnicode_CompareWithASCIIString(byteorder, "big") == 0)
+        endian = 1;
+    else {
+        VALUE_ERROR("byteorder must be either 'little' or 'big'");
+        return NULL;
+    }
+
+    if (PyBytes_FromStringAndSize(bytes.buf, bytes.len) < 0)
+        return NULL;
+
+    if (is_signed) {
+        for (i = 0; i < bytes.len; i++)
+            ((unsigned char*)bytes.buf)[i] ^= UCHAR_MAX;
+        if (endian == -1)
+            ((unsigned char*)bytes.buf)[0] += 1;
+        else
+            ((unsigned char*)bytes.buf)[bytes.len - 1] += 1;
+    }
+
+    MPZ_Object *result;
+
+    if ((result = GMPy_MPZ_New(NULL))) {
+       mpz_import(result->z, bytes.len, endian, sizeof(unsigned char),
+                  0, 0, bytes.buf);
+       if (is_signed)
+           mpz_neg(result->z, result->z);
+    }
+    return (PyObject*)result;
+}
+
 static PyObject *
 GMPy_MPZ_Attrib_GetImag(MPZ_Object *self, void *closure)
 {

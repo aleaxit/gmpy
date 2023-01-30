@@ -110,6 +110,7 @@ static PyMethodDef GMPy_MPZ_methods[] = {
     { "num_digits", GMPy_MPZ_Method_NumDigits, METH_VARARGS, GMPy_doc_mpz_method_num_digits },
     { "as_integer_ratio", GMPy_MPZ_Method_As_Integer_Ratio, METH_NOARGS, GMPy_doc_mpz_method_as_integer_ratio },
     { "to_bytes", (PyCFunction)GMPy_MPZ_Method_To_Bytes, METH_VARARGS | METH_KEYWORDS, GMPy_doc_mpz_method_to_bytes },
+    { "from_bytes", (PyCFunction)GMPy_MPZ_Method_From_Bytes, METH_VARARGS | METH_KEYWORDS | METH_CLASS, GMPy_doc_mpz_method_from_bytes },
     { NULL, NULL, 1 }
 };
 

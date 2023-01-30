@@ -813,6 +813,28 @@ b'\xff\xfc\x18'
 >>> mpz(-1000).to_bytes(length=3, byteorder='little', signed=True)
 b'\x18\xfc\xff'
 
+Test from_bytes
+---------------
+
+>>> mpz.from_bytes(int(10).to_bytes(1, 'big'))
+mpz(10)
+>>> mpz.from_bytes(int(-10).to_bytes(1, 'big', signed=True), signed=True)
+mpz(-10)
+>>> mpz.from_bytes(int(-12).to_bytes(1, 'big', signed=True), signed=True)
+mpz(-12)
+>>> mpz.from_bytes(int(-112).to_bytes(1, 'big', signed=True), signed=True)
+mpz(-112)
+>>> mpz.from_bytes(int(-122).to_bytes(1, 'big', signed=True), signed=True)
+mpz(-122)
+>>> mpz.from_bytes(int(-122).to_bytes(length=2, byteorder='big', signed=True), signed=True)
+mpz(-122)
+>>> mpz.from_bytes(int(-122).to_bytes(length=2, byteorder='little', signed=True), signed=True)
+mpz(-30977)
+>>> mpz.from_bytes(int(-122).to_bytes(length=2, byteorder='little', signed=True), byteorder='little', signed=True)
+mpz(-122)
+>>> mpz.from_bytes(mpz(-122).to_bytes(length=2, byteorder='little', signed=True), byteorder='little', signed=True)
+mpz(-122)
+
 Test underscore
 ---------------
 >>> mpz('1_2')
