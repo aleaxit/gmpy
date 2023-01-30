@@ -18,7 +18,6 @@ if [ ! -f finish_before_ci_build ]; then
     curl -s -O https://ftp.gnu.org/gnu/mpc/mpc-${MPC_VERSION}.tar.gz
     tar -xf mpc-${MPC_VERSION}.tar.gz
     cd mpc-${MPC_VERSION} && ./configure && make -j4 && make install && cd ../
-    pip install Cython
   fi
   touch finish_before_ci_build
 else
