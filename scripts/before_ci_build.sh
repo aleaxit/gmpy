@@ -1,12 +1,10 @@
-set -e
+set -e -x
 
 GMP_VERSION=6.2.1
 MPFR_VERSION=4.1.1
 MPC_VERSION=1.2.1
 if [ ! -f finish_before_ci_build ]; then
   if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "linux-musl" || "$OSTYPE" == "darwin"* ]]; then
-	echo "Run scripts/before_ci_build.sh on $OSTYPE"
-    set
     curl -s -O https://ftp.gnu.org/gnu/gmp/gmp-${GMP_VERSION}.tar.xz
     tar -xf gmp-${GMP_VERSION}.tar.xz
     cd gmp-${GMP_VERSION}
