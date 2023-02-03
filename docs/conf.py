@@ -9,7 +9,8 @@ import sys, os
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.imgmath',
-              'sphinx.ext.intersphinx', 'sphinx_rtd_theme']
+              'sphinx.ext.intersphinx', 'sphinx_rtd_theme',
+              'sphinx.ext.doctest']
 
 # Contains mapping the locations and names of other projects that
 # should be linked to in this documentation.

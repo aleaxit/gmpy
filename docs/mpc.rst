@@ -9,7 +9,7 @@ applied to :class:`mpc` arithmetic by default. It is possible to specify
 different precision and rounding modes for both the real and imaginary
 components of an :class:`mpc`.
 
-::
+.. doctest::
 
     >>> import gmpy2
     >>> from gmpy2 import mpc
@@ -39,7 +39,7 @@ is not defined over the reals; for example, ``sqrt(-4)`` will raise an
 exception. The default context in gmpy2 implements the same behavior but by
 setting allow_complex to True, complex results will be returned.
 
-::
+.. doctest::
 
     >>> import gmpy2
     >>> from gmpy2 import mpc
@@ -52,7 +52,7 @@ setting allow_complex to True, complex results will be returned.
 The :class:`mpc` type supports the :meth:`~mpc.__format__` special method to
 allow custom output formatting.
 
-::
+.. doctest::
 
     >>> import gmpy2
     >>> from gmpy2 import mpc

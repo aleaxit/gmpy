@@ -14,7 +14,7 @@ functions are provided.
 Operator overloading is fully supported. Coversion from native Python types is
 optimized for performance.
 
-::
+.. doctest::
 
     >>> import gmpy2
     >>> from gmpy2 import mpz,mpq,mpfr,mpc
@@ -39,7 +39,8 @@ optimized for performance.
 
 The :class:`mpq` type is compatible with the :class:`~fractions.Fraction` type
 included with Python.
-::
+
+.. doctest::
 
     >>> mpq(3,7)/7
     mpq(3,49)
@@ -50,8 +51,10 @@ gmpy2 supports correctly rounded arbitrary precision real and complex arithmetic
 via the MPFR and MPC libraries. Floating point contexts are used to control precision,
 rounding modes, and exceptional conditions. For example, division by zero can either
 return an Infinity or raise an exception.
-::
 
+.. doctest::
+
+    >>> gmpy2.set_context(gmpy2.context())
     >>> mpfr(1)/7
     mpfr('0.14285714285714285')
     >>> gmpy2.get_context().precision=200
@@ -112,7 +115,6 @@ return an Infinity or raise an exception.
     3.1415926535897932384626433831
     >>> print(gmpy2.const_pi())
     3.1415926535897931
-    >>>
 
 
 Miscellaneous gmpy2 Functions

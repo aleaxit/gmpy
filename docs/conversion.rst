@@ -12,7 +12,9 @@ A python object could interact with gmpy2 if it implements one of the following 
 - ``__mpc__`` : return an object of type :class:`mpc`.
 
 Implementing on of these methods allow gmpy2 to convert a python object into a gmpy2 type.
-Example::
+Example:
+
+.. doctest::
 
     >>> from gmpy2 import mpz
     >>> class CustInt:
@@ -40,7 +42,9 @@ following cases are supported:
 - A real type have to implement ``__mpfr__``
 - A complex type have to implement ``__mpc__`` and can implement ``__mpfr__``
 
-Examples::
+Examples:
+
+.. doctest::
 
     >>> from gmpy2 import mpz, mpq, mpfr, mpc
     >>> class Q:
