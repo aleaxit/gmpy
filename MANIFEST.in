@@ -1,4 +1,4 @@
-include README
+include README.rst
 include INSTALL
 include COPYING
 include docs/*
