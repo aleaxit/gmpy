@@ -140,7 +140,7 @@ GMPy_MPFR_From_PyIntOrLong(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context
 
     if ((temp == -1) && PyErr_Occurred()) {
         PyErr_Clear();
-        if (!(tempx = GMPy_MPZ_From_PyIntOrLong(obj, context))) {
+        if (!(tempx = GMPy_MPZ_From_PyLong(obj, context))) {
             return NULL;
         }
         if (was_one)

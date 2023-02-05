@@ -39,7 +39,7 @@
  * ======================================================================== */
 
 static MPZ_Object *
-GMPy_MPZ_From_PyIntOrLong(PyObject *obj, CTXT_Object *context)
+GMPy_MPZ_From_PyLong(PyObject *obj, CTXT_Object *context)
 {
     MPZ_Object *result;
     int negative;
@@ -270,7 +270,7 @@ GMPy_MPZ_From_Integer(PyObject *obj, CTXT_Object *context)
     }
 
     if (PyLong_Check(obj))
-        return GMPy_MPZ_From_PyIntOrLong(obj, context);
+        return GMPy_MPZ_From_PyLong(obj, context);
 
     if (XMPZ_Check(obj))
         return GMPy_MPZ_From_XMPZ((XMPZ_Object*)obj, context);
@@ -308,7 +308,7 @@ GMPy_MPZ_From_IntegerAndCopy(PyObject *obj, CTXT_Object *context)
     }
 
     if (PyLong_Check(obj))
-        return GMPy_MPZ_From_PyIntOrLong(obj, context);
+        return GMPy_MPZ_From_PyLong(obj, context);
 
     if (XMPZ_Check(obj))
         return GMPy_MPZ_From_XMPZ((XMPZ_Object*)obj, context);
@@ -341,7 +341,7 @@ GMPy_MPZ_From_IntegerWithType(PyObject *obj, int xtype, CTXT_Object *context)
     }
 
     if (IS_TYPE_PyInteger(xtype))
-        return GMPy_MPZ_From_PyIntOrLong(obj, context);
+        return GMPy_MPZ_From_PyLong(obj, context);
 
     if (IS_TYPE_XMPZ(xtype))
         return GMPy_MPZ_From_XMPZ((XMPZ_Object*)obj, context);
@@ -572,7 +572,7 @@ GMPy_MPQ_From_PyIntOrLong(PyObject *obj, CTXT_Object *context)
     MPQ_Object *result;
     MPZ_Object *temp;
 
-    temp = GMPy_MPZ_From_PyIntOrLong(obj, context);
+    temp = GMPy_MPZ_From_PyLong(obj, context);
 
     if (!temp)
         return NULL;

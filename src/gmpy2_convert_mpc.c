@@ -250,7 +250,7 @@ GMPy_MPC_From_PyIntOrLong(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 
     CHECK_CONTEXT(context);
 
-    if ((tempz = GMPy_MPZ_From_PyIntOrLong(obj, context))) {
+    if ((tempz = GMPy_MPZ_From_PyLong(obj, context))) {
         result = GMPy_MPC_From_MPZ(tempz, rprec, iprec, context);
         Py_DECREF((PyObject*)tempz);
     }

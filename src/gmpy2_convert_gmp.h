@@ -35,7 +35,7 @@ extern "C" {
  * Conversion between native Python objects and MPZ.                        *
  * ======================================================================== */
 
-static MPZ_Object *    GMPy_MPZ_From_PyIntOrLong(PyObject *obj, CTXT_Object *context);
+static MPZ_Object *    GMPy_MPZ_From_PyLong(PyObject *obj, CTXT_Object *context);
 static MPZ_Object *    GMPy_MPZ_From_PyStr(PyObject *s, int base, CTXT_Object *context);
 static MPZ_Object *    GMPy_MPZ_From_PyFloat(PyObject *obj, CTXT_Object *context);
 
