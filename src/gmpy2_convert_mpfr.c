@@ -775,7 +775,7 @@ GMPy_PyIntOrLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
     if (!(tempz = GMPy_MPZ_From_MPFR(obj, context)))
         return NULL;
 
-    result = GMPy_PyIntOrLong_From_MPZ(tempz, context);
+    result = GMPy_PyLong_From_MPZ(tempz, context);
     Py_DECREF((PyObject*)tempz);
 
     return result;

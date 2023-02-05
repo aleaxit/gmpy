@@ -214,22 +214,10 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
     return (PyObject*)result;
 }
 
-/* The PyIntOrLong functions should be used when converting a number back
- * to a Python value since is automatically returns an "int" or "long" when
- * using Python 2.x. The PyLong_From functions (above) should only be used
- * when a PyLong is specifically needed for Python 2.x.
- */
-
-static PyObject *
-GMPy_PyIntOrLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
-{
-    return GMPy_PyLong_From_MPZ(obj, context);
-}
-
 static PyObject *
 GMPy_MPZ_Int_Slot(MPZ_Object *self)
 {
-    return GMPy_PyIntOrLong_From_MPZ(self, NULL);
+    return GMPy_PyLong_From_MPZ(self, NULL);
 }
 
 static PyObject *
@@ -821,7 +809,7 @@ GMPy_PyIntOrLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    result = GMPy_PyIntOrLong_From_MPZ(temp, context);
+    result = GMPy_PyLong_From_MPZ(temp, context);
     Py_DECREF((PyObject*)temp);
 
     return result;

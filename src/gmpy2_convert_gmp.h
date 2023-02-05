@@ -47,7 +47,7 @@ static MPZ_Object *    GMPy_MPZ_From_IntegerWithTypeAndCopy(PyObject *obj, int x
 static PyObject *      GMPy_MPZ_Str_Slot(MPZ_Object *self);
 static PyObject *      GMPy_MPZ_Repr_Slot(MPZ_Object *self);
 
-static PyObject *      GMPy_PyIntOrLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context);
+static PyObject *      GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context);
 static PyObject *      GMPy_PyFloat_From_MPZ(MPZ_Object *obj, CTXT_Object *context);
 static PyObject *      GMPy_PyStr_From_MPZ(MPZ_Object *obj, int base, int option, CTXT_Object *context);
 
