@@ -796,7 +796,7 @@ GMPy_XMPZ_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_PyIntOrLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
+GMPy_PyLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
 {
     PyObject *result;
     MPZ_Object *temp;
@@ -818,7 +818,7 @@ GMPy_PyIntOrLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context)
 static PyObject *
 GMPy_MPQ_Int_Slot(MPQ_Object *self)
 {
-    return GMPy_PyIntOrLong_From_MPQ(self, NULL);
+    return GMPy_PyLong_From_MPQ(self, NULL);
 }
 
 static char* _qtag = "mpq(";

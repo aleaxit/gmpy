@@ -90,7 +90,7 @@ static MPQ_Object *    GMPy_MPQ_From_NumberWithType(PyObject* obj, int xtype, CT
 static MPQ_Object *    GMPy_MPQ_From_Number(PyObject* obj, CTXT_Object *context);
 static MPQ_Object *    GMPy_MPQ_From_RationalWithTypeAndCopy(PyObject* obj, int xtype, CTXT_Object *context);
 static MPQ_Object *    GMPy_MPQ_From_RationalWithType(PyObject *obj, int xtype, CTXT_Object *context);
-static PyObject *      GMPy_PyIntOrLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context);
+static PyObject *      GMPy_PyLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context);
 static PyObject *      GMPy_PyStr_From_MPQ(MPQ_Object *obj, int base, int option, CTXT_Object *context);
 static PyObject *      GMPy_PyFloat_From_MPQ(MPQ_Object *obj, CTXT_Object *context);
 static MPZ_Object *    GMPy_MPZ_From_MPQ(MPQ_Object *obj, CTXT_Object *context);
