@@ -450,7 +450,6 @@ static PyMethodDef Pygmpy2_demo_methods [] =
     { NULL, NULL}
 };
 
-#if PY_MAJOR_VERSION >= 3
 #define INITERROR return NULL
 static struct PyModuleDef Pygmpy2_demo_module = {
     PyModuleDef_HEAD_INIT,
@@ -468,23 +467,11 @@ __declspec(dllexport)
 #endif
 PyObject *
 PyInit_gmpy2_demo(void)
-#else
-#define INITERROR return
-DL_EXPORT(void)
-initgmpy2_demo(void)
-#endif
 {
-#if PY_MAJOR_VERSION >= 3
     PyObject *gmpy2_demo_module = NULL;
     gmpy2_demo_module = PyModule_Create(&Pygmpy2_demo_module);
-#else
-    Py_InitModule("gmpy2_demo", Pygmpy2_demo_methods);
-#endif
 
     import_gmpy2();
 
-#if PY_MAJOR_VERSION >= 3
     return gmpy2_demo_module;
-#endif
 }
-

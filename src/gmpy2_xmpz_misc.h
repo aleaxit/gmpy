@@ -58,12 +58,6 @@ static PyObject *         GMPy_XMPZ_Method_IterClear(PyObject *self, PyObject *a
 static PyObject *         GMPy_XMPZ_Method_SizeOf(PyObject *self, PyObject *other);
 
 
-#if PY_MAJOR_VERSION < 3
-/* hex/oct formatting (mpz-only) */
-static PyObject * GMPy_XMPZ_Oct_Slot(XMPZ_Object *self);
-static PyObject * GMPy_XMPZ_Hex_Slot(XMPZ_Object *self);
-#endif
-
 #ifdef __cplusplus
 }
 #endif

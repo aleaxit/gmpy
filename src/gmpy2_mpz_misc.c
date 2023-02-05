@@ -299,23 +299,6 @@ GMPy_MPZ_NonZero_Slot(MPZ_Object *self)
     return mpz_sgn(self->z) != 0;
 }
 
-#if PY_MAJOR_VERSION < 3
-
-/* hex/oct formatting (mpz-only) */
-
-static PyObject *
-GMPy_MPZ_Oct_Slot(MPZ_Object *self)
-{
-    return GMPy_PyStr_From_MPZ(self, 8, 0, NULL);
-}
-
-static PyObject *
-GMPy_MPZ_Hex_Slot(MPZ_Object *self)
-{
-    return GMPy_PyStr_From_MPZ(self, 16, 0, NULL);
-}
-#endif
-
 /* Miscellaneous gmpy functions */
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_gcd,

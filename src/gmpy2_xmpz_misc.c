@@ -94,29 +94,6 @@ GMPy_XMPZ_Com_Slot(XMPZ_Object *x)
     Py_RETURN_NONE;
 }
 
-#if PY_MAJOR_VERSION < 3
-/* hex/oct formatting (mpz-only) */
-static PyObject *
-GMPy_XMPZ_Oct_Slot(XMPZ_Object *self)
-{
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
-
-    return GMPy_PyStr_From_XMPZ(self, 8, 0, context);
-}
-
-static PyObject *
-GMPy_XMPZ_Hex_Slot(XMPZ_Object *self)
-{
-    CTXT_Object *context = NULL;
-
-    CHECK_CONTEXT(context);
-
-    return GMPy_PyStr_From_XMPZ(self, 16, 0, context);
-}
-#endif
-
 PyDoc_STRVAR(GMPy_doc_xmpz_method_make_mpz,
 "xmpz.make_mpz() -> mpz\n\n"
 "Return an mpz by converting an 'xmpz' to an 'mpz' as quickly as\n"
