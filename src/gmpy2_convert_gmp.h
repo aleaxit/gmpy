@@ -77,7 +77,7 @@ static MPZ_Object *    GMPy_MPZ_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context
  * Conversion between native Python objects/MPZ/XMPZ and MPQ.               *
  * ======================================================================== */
 
-static MPQ_Object *    GMPy_MPQ_From_PyIntOrLong(PyObject *obj, CTXT_Object *context);
+static MPQ_Object *    GMPy_MPQ_From_PyLong(PyObject *obj, CTXT_Object *context);
 static MPQ_Object *    GMPy_MPQ_From_PyStr(PyObject *s, int base, CTXT_Object *context);
 static MPQ_Object *    GMPy_MPQ_From_PyFloat(PyObject *obj, CTXT_Object *context);
 static MPQ_Object *    GMPy_MPQ_From_Fraction(PyObject *obj, CTXT_Object *context);
