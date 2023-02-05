@@ -85,7 +85,7 @@ GMPy_MPZ_From_PyLong(PyObject *obj, CTXT_Object *context)
 
 /* To support creation of temporary mpz objects. */
 static void
-mpz_set_PyIntOrLong(mpz_t z, PyObject *obj)
+mpz_set_PyLong(mpz_t z, PyObject *obj)
 {
     int negative;
     Py_ssize_t len;
@@ -929,8 +929,8 @@ GMPy_MPQ_From_Fraction(PyObject* obj, CTXT_Object *context)
         Py_DECREF((PyObject*)result);
         return NULL;
     }
-    mpz_set_PyIntOrLong(mpq_numref(result->q), num);
-    mpz_set_PyIntOrLong(mpq_denref(result->q), den);
+    mpz_set_PyLong(mpq_numref(result->q), num);
+    mpz_set_PyLong(mpq_denref(result->q), den);
     Py_DECREF(num);
     Py_DECREF(den);
     return result;

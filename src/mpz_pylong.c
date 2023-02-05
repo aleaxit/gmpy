@@ -275,7 +275,7 @@ mpz_get_PyLong(mpz_srcptr z)
 
 /* pylong -> mpz conversion */
 void
-mpz_set_PyIntOrLong(mpz_ptr z, PyObject *lsrc)
+mpz_set_PyLong(mpz_ptr z, PyObject *lsrc)
 {
     register PyLongObject *lptr = (PyLongObject*)lsrc;
     ssize_t size;
