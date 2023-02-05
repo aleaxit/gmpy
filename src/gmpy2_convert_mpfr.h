@@ -36,7 +36,7 @@ extern "C" {
 /* Conversions with Pympfr */
 
 static MPFR_Object *    GMPy_MPFR_From_MPFR(MPFR_Object *obj, mpfr_prec_t prec, CTXT_Object *context);
-static MPFR_Object *    GMPy_MPFR_From_PyIntOrLong(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context);
+static MPFR_Object *    GMPy_MPFR_From_PyLong(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context);
 static MPFR_Object *    GMPy_MPFR_From_PyFloat(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context);
 static MPFR_Object *    GMPy_MPFR_From_MPZ(MPZ_Object *obj, mpfr_prec_t prec, CTXT_Object *context);
 static MPFR_Object *    GMPy_MPFR_From_MPQ(MPQ_Object *obj, mpfr_prec_t prec, CTXT_Object *context);

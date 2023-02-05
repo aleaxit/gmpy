@@ -117,7 +117,7 @@ GMPy_MPFR_From_MPFR(MPFR_Object *obj, mpfr_prec_t prec, CTXT_Object *context)
 }
 
 static MPFR_Object *
-GMPy_MPFR_From_PyIntOrLong(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
+GMPy_MPFR_From_PyLong(PyObject *obj, mpfr_prec_t prec, CTXT_Object *context)
 {
     MPFR_Object *result = NULL;
     MPZ_Object *tempx = NULL;
@@ -407,7 +407,7 @@ GMPy_MPFR_From_RealWithType(PyObject *obj, int xtype, mp_prec_t prec, CTXT_Objec
         return GMPy_MPFR_From_MPZ((MPZ_Object*)obj, prec, context);
 
     if (IS_TYPE_PyInteger(xtype))
-        return GMPy_MPFR_From_PyIntOrLong(obj, prec, context);
+        return GMPy_MPFR_From_PyLong(obj, prec, context);
 
     if (IS_TYPE_PyFraction(xtype))
         return GMPy_MPFR_From_Fraction(obj, prec, context);
