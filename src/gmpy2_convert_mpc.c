@@ -242,7 +242,7 @@ GMPy_MPC_From_Fraction(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
 }
 
 static MPC_Object *
-GMPy_MPC_From_PyIntOrLong(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
+GMPy_MPC_From_PyLong(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec,
                           CTXT_Object *context)
 {
     MPC_Object *result = NULL;
@@ -395,7 +395,7 @@ GMPy_MPC_From_ComplexWithType(PyObject* obj, int xtype, mp_prec_t rprec,
         return GMPy_MPC_From_MPZ((MPZ_Object*)obj, rprec, iprec, context);
 
     if (IS_TYPE_PyInteger(xtype))
-        return GMPy_MPC_From_PyIntOrLong(obj, rprec, iprec, context);
+        return GMPy_MPC_From_PyLong(obj, rprec, iprec, context);
 
     if (IS_TYPE_PyFraction(xtype))
         return GMPy_MPC_From_Fraction(obj, rprec, iprec, context);

@@ -40,7 +40,7 @@ static MPC_Object *   GMPy_MPC_From_PyFloat(PyObject *obj, mpfr_prec_t rprec, mp
 static MPC_Object *   GMPy_MPC_From_MPZ(MPZ_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
 static MPC_Object *   GMPy_MPC_From_MPQ(MPQ_Object *obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
 static MPC_Object *   GMPy_MPC_From_Fraction(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
-static MPC_Object *   GMPy_MPC_From_PyIntOrLong(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
+static MPC_Object *   GMPy_MPC_From_PyLong(PyObject *obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
 static MPC_Object *   GMPy_MPC_From_PyStr(PyObject *s, int base, mpfr_prec_t rbits, mpfr_prec_t ibits, CTXT_Object *context);
 static MPC_Object *   GMPy_MPC_From_Complex(PyObject* obj, mpfr_prec_t rprec, mpfr_prec_t iprec, CTXT_Object *context);
 #if 0
