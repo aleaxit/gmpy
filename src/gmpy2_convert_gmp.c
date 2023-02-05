@@ -414,7 +414,7 @@ GMPy_MPZ_ConvertArg(PyObject *arg, PyObject **ptr)
  * ======================================================================== */
 
 static XMPZ_Object *
-GMPy_XMPZ_From_PyIntOrLong(PyObject *obj, CTXT_Object *context)
+GMPy_XMPZ_From_PyLong(PyObject *obj, CTXT_Object *context)
 {
     XMPZ_Object *result;
     int negative;

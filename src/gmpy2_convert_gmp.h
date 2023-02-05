@@ -61,7 +61,7 @@ static GMPy_MPZ_ConvertArg_RETURN GMPy_MPZ_ConvertArg GMPy_MPZ_ConvertArg_PROTO;
  * Conversion between native Python objects/MPZ and XMPZ.                   *
  * ======================================================================== */
 
-static XMPZ_Object *   GMPy_XMPZ_From_PyIntOrLong(PyObject *obj, CTXT_Object *context);
+static XMPZ_Object *   GMPy_XMPZ_From_PyLong(PyObject *obj, CTXT_Object *context);
 static XMPZ_Object *   GMPy_XMPZ_From_PyStr(PyObject *s, int base, CTXT_Object *context);
 static XMPZ_Object *   GMPy_XMPZ_From_PyFloat(PyObject *self, CTXT_Object *context);
 static XMPZ_Object *   GMPy_XMPZ_From_MPZ(MPZ_Object *obj, CTXT_Object *context);
