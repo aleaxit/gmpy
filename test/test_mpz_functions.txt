@@ -526,11 +526,11 @@ Test gmpy2.next_prime
 Test gmpy2.numdigits
 --------------------
 
-    >>> G.numdigits(23)
+    >>> G.num_digits(23)
     2
-    >>> G.numdigits(23,2)
+    >>> G.num_digits(23,2)
     5
-    >>> G.numdigits(23,99)
+    >>> G.num_digits(23,99)
     Traceback (most recent call last):
       ...
     ValueError: base must be either 0 or in the interval 2 ... 62
