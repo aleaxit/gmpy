@@ -765,7 +765,7 @@ GMPy_MPQ_From_MPFR(MPFR_Object *self, CTXT_Object *context)
 }
 
 static PyObject *
-GMPy_PyIntOrLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
+GMPy_PyLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
 {
     PyObject *result;
     MPZ_Object *tempz;
@@ -783,7 +783,7 @@ GMPy_PyIntOrLong_From_MPFR(MPFR_Object *obj, CTXT_Object *context)
 
 static PyObject *
 GMPy_MPFR_Int_Slot(MPFR_Object *self) {
-    return GMPy_PyIntOrLong_From_MPFR(self, NULL);
+    return GMPy_PyLong_From_MPFR(self, NULL);
 }
 
 static PyObject *
