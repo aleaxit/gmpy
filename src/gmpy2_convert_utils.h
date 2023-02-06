@@ -72,7 +72,7 @@ static PY_LONG_LONG          GMPy_Integer_AsLongLong(PyObject *x);
 #define GMPy_Integer_AsMpBitCnt (mp_bitcnt_t)GMPy_Integer_AsUnsignedLong
 #endif
 
-#define PyIntOrLong_FromMpBitCnt PyLong_FromSize_t
+#define PyLong_FromMpBitCnt PyLong_FromSize_t
 
 #ifdef __cplusplus
 }

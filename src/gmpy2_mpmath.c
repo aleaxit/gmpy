@@ -45,7 +45,7 @@ mpmath_build_mpf(long sign, MPZ_Object *man, PyObject *exp, mp_bitcnt_t bc)
         return NULL;
     }
 
-    if (!(tbc = PyIntOrLong_FromMpBitCnt(bc))) {
+    if (!(tbc = PyLong_FromMpBitCnt(bc))) {
         Py_DECREF((PyObject*)man);
         Py_DECREF(exp);
         Py_DECREF(tup);
