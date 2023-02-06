@@ -46,7 +46,7 @@ jobs:
           python setup.py clean
           CFLAGS="-coverage" python setup.py develop
           python test/runtests.py
-          lcov --capture --directory . --output-file build/coverage.info
+          lcov --capture --directory . --no-external --output-file build/coverage.info
           genhtml build/coverage.info --output-directory build/coverage
       - name: Archive build artifacts
         uses: actions/upload-artifact@v3
