@@ -48,6 +48,12 @@ jobs:
           python test/runtests.py
           lcov --capture --directory . --no-external --output-file build/coverage.info
           genhtml build/coverage.info --output-directory build/coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          gcov: true
+          gcov_include: src/*.c
+          gcov_args: --no-external
       - name: Archive build artifacts
         uses: actions/upload-artifact@v3
         with:
