@@ -31,7 +31,7 @@ jobs:
       - uses: actions/setup-python@master
         with:
           python-version: ${{ matrix.python-version }}
-      - run: sudo apt-get install libmpc-dev texlive texlive-latex-extra latexmk
+      - run: sudo apt-get install libmpc-dev texlive texlive-latex-extra latexmk lcov
       - run: pip install --upgrade pip
       - run: pip --verbose install -e .[cython,docs]
       - run: python test/runtests.py
@@ -39,9 +39,19 @@ jobs:
       - run: sphinx-build --color -W --keep-going -b html docs build/sphinx/html
       - run: sphinx-build --color -W --keep-going -b latex docs build/sphinx/latex
       - run: make -C build/sphinx/latex all-pdf
+      - name: Run coverage tests
+        # XXX: why this doesn't work with pip install --editable above?
+        run: |
+          pip uninstall -y gmpy2
+          python setup.py clean
+          CFLAGS="-coverage" python setup.py develop
+          python test/runtests.py
+          lcov --capture --directory . --output-file build/coverage.info
+          genhtml build/coverage.info --output-directory build/coverage
       - name: Archive build artifacts
         uses: actions/upload-artifact@v3
         with:
           path: |
             build/sphinx/html/
             build/sphinx/latex/gmpy2.pdf
+            build/coverage/
