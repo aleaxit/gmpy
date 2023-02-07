@@ -93,7 +93,7 @@ GMPy_Number_Sign(PyObject *x, CTXT_Object *context)
 }
 
 PyDoc_STRVAR(GMPy_doc_function_sign,
-"sign(x) -> number\n\n"
+"sign(x) -> int\n\n"
 "Return -1 if x < 0, 0 if x == 0, or +1 if x >0.");
 
 static PyObject *

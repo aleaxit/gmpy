@@ -171,25 +171,25 @@ GMPy_MPZ_Format(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_format,
-"x.__format__(fmt) -> string\n\n"
+"x.__format__(fmt) -> str\n\n"
 "Return a Python string by formatting 'x' using the format string\n"
-"'fmt'. A valid format string consists of:\n"
-"     optional alignment code:\n"
+"'fmt'. A valid format string consists of:\n\n"
+"     optional alignment code:\n\n"
 "        '<' -> left shifted in field\n"
 "        '>' -> right shifted in field\n"
-"        '^' -> centered in field\n"
-"     optional leading sign code\n"
+"        '^' -> centered in field\n\n"
+"     optional leading sign code\n\n"
 "        '+' -> always display leading sign\n"
 "        '-' -> only display minus for negative values\n"
-"        ' ' -> minus for negative values, space for positive values\n"
-"     optional width.precision\n"
-"     optional rounding mode:\n"
+"        ' ' -> minus for negative values, space for positive values\n\n"
+"     optional width.precision\n\n"
+"     optional rounding mode:\n\n"
 "        'U' -> round toward plus Infinity\n"
 "        'D' -> round toward minus Infinity\n"
 "        'Y' -> round away from zero\n"
 "        'Z' -> round toward zero\n"
-"        'N' -> round to nearest\n"
-"     optional conversion code:\n"
+"        'N' -> round to nearest\n\n"
+"     optional conversion code:\n\n"
 "        'a','A' -> hex format\n"
 "        'b'     -> binary format\n"
 "        'e','E' -> scientific format\n"
@@ -676,7 +676,7 @@ GMPy_MPQ_Digits_Method(PyObject *self, PyObject *args)
 
 
 PyDoc_STRVAR(GMPy_doc_mpfr_digits_method,
-"x.digits([base=10[, prec=0]]) -> (mantissa, exponent, bits)\n\n"
+"x.digits([base=10[, prec=0]]) -> tuple[str, int, int]\n\n"
 "Returns up to 'prec' digits in the given base. If 'prec' is 0, as many\n"
 "digits that are available are returned. No more digits than available\n"
 "given x's precision are returned. 'base' must be between 2 and 62,\n"
@@ -794,5 +794,3 @@ GMPy_Context_Digits(PyObject *self, PyObject *args)
     TYPE_ERROR("digits() argument type not supported");
     return NULL;
 }
-
-

@@ -257,7 +257,7 @@ GMPy_MPFR_nrandom_Function(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_grandom_function,
-"mpfr_grandom(random_state) -> (mpfr, mpfr)\n\n"
+"mpfr_grandom(random_state) -> tuple[mpfr, mpfr]\n\n"
 "Return two random numbers with gaussian distribution.");
 
 static PyObject *

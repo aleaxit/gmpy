@@ -96,12 +96,13 @@ _GMPy_MPFR_Cleanup(MPFR_Object **v, CTXT_Object *ctext)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr,
-"mpfr() -> mpfr(0.0)\n\n"
+"gmpy2.mpfr\n\n"
+"mpfr()\n\n"
 "      If no argument is given, return mpfr(0.0).\n\n"
-"mpfr(n [, precision=0 [, context]]) -> mpfr\n\n"
+"mpfr(n [, precision=0 [, context]])\n\n"
 "      Return an 'mpfr' object after converting a numeric value. See\n"
 "      below for the interpretation of precision.\n\n"
-"mpfr(s [, precision=0 [, base=0 [, context]]]) -> mpfr\n\n"
+"mpfr(s [, precision=0 [, base=0 [, context]]])\n\n"
 "      Return a new 'mpfr' object by converting a string s made of\n"
 "      digits in the given base, possibly with fraction-part (with a\n"
 "      period as a separator) and/or exponent-part (with an exponent\n"
@@ -111,11 +112,11 @@ PyDoc_STRVAR(GMPy_doc_mpfr,
 "      base: 0b implies base=2, 0x implies base=16, otherwise base=10\n"
 "      is assumed.\n\n"
 "Note: If a precision greater than or equal to 2 is specified, then it\n"
-"      is used.\n\n"
+"is used.\n\n"
 "      A precision of 0 (the default) implies the precision of either\n"
 "      the specified context or the current context is used.\n\n"
 "      A precision of 1 minimizes the loss of precision by following\n"
-"      these rules:\n"
+"      these rules:\n\n"
 "        1) If n is a radix-2 floating point number, then the full\n"
 "           precision of n is retained.\n"
 "        2) If n is an integer, then the precision is the bit length\n"
@@ -165,7 +166,7 @@ static PyMethodDef Pympfr_methods [] =
     { "is_infinite", GMPy_Number_Method_Is_Infinite, METH_NOARGS, GMPy_doc_method_is_infinite },
     { "is_integer", GMPy_MPFR_Is_Integer_Method, METH_NOARGS, GMPy_doc_method_is_integer },
     { "is_nan", GMPy_Number_Method_Is_NAN, METH_NOARGS, GMPy_doc_method_is_nan },
-    { "is_signed", GMPy_MPFR_Is_Regular_Method, METH_NOARGS, GMPy_doc_method_is_regular },
+    { "is_regular", GMPy_MPFR_Is_Regular_Method, METH_NOARGS, GMPy_doc_method_is_regular },
     { "is_signed", GMPy_MPFR_Is_Signed_Method, METH_NOARGS, GMPy_doc_method_is_signed },
     { "is_zero", GMPy_Number_Method_Is_Zero, METH_NOARGS, GMPy_doc_method_is_zero },
     { NULL, NULL, 1 }

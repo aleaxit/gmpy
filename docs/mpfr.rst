@@ -1,15 +1,17 @@
 Multiple-precision Reals
 ========================
 
-The *mpfr* type is based on the MPFR library. The new *mpfr* type supports
+.. currentmodule:: gmpy2
+
+The :class:`mpfr` type is based on the MPFR library. The new :class:`mpfr` type supports
 correct rounding, selectable rounding modes, and many trigonometric,
 exponential, and special functions. A *context manager* is used to control
 precision, rounding modes, and the behavior of exceptions.
 
-The default precision of an *mpfr* is 53 bits - the same precision as Python's
-*float* type. If the precision is changed, then ``mpfr(float('1.2'))`` differs
+The default precision of an :class:`mpfr` is 53 bits - the same precision as Python's
+:class:`float` type. If the precision is changed, then ``mpfr(float('1.2'))`` differs
 from ``mpfr('1.2')``. To take advantage of the higher precision provided by
-the *mpfr* type, always pass constants as strings.
+the :class:`mpfr` type, always pass constants as strings.
 
 .. doctest::
 
@@ -25,10 +27,28 @@ the *mpfr* type, always pass constants as strings.
     >>> mpfr(float('1.2'))
     mpfr('1.1999999999999999555910790149937',100)
 
+The :class:`mpfr` type supports the :meth:`~mpfr.__format__` special method to
+allow custom output formatting.
+
+.. doctest::
+
+    >>> from gmpy2 import mpfr
+    >>> a=mpfr("1.23456")
+    >>> "{0:15.3f}".format(a)
+    '          1.235'
+    >>> "{0:15.3Uf}".format(a)
+    '          1.235'
+    >>> "{0:15.3Df}".format(a)
+    '          1.234'
+    >>> "{0:.3Df}".format(a)
+    '1.234'
+    >>> "{0:+.3Df}".format(a)
+    '+1.234'
+
 Contexts
 --------
 
-A *context* is used to control the behavior of *mpfr* and *mpc* arithmetic.
+A *context* is used to control the behavior of :class:`mpfr` and :class:`mpc` arithmetic.
 In addition to controlling the precision, the rounding mode can be specified,
 minimum and maximum exponent values can be changed, various exceptions can be
 raised or ignored, gradual underflow can be enabled, and returning complex
@@ -523,512 +543,144 @@ is equivalent to:
 Contexts that implement the standard *single*, *double*, and *quadruple* precision
 floating point types can be created using **ieee()**.
 
+mpfr Type
+---------
 
-mpfr Methods
-------------
-
-**as_integer_ratio()**
-    Returns a 2-tuple containing the numerator and denominator after converting
-    the *mpfr* object into the exact rational equivalent. The return 2-tuple
-    is equivalent to Python's as_integer_ratio() method of built-in float
-    objects.
-
-**as_mantissa_exp()**
-    Returns a 2-tuple containing the mantissa and exponent.
-
-**as_simple_fraction()**
-    Returns an *mpq* containing the simplest rational value that approximates
-    the *mpfr* value with an error less than 1/(2**precision).
-
-**conjugate()**
-    Returns the complex conjugate. For *mpfr* objects, returns a copy of the
-    original object.
-
-**digits()**
-    Returns a 3-tuple containing the mantissa, the exponent, and the number
-    of bits of precision. The mantissa is represented as a string in the
-    specified base with up to 'prec' digits. If 'prec' is 0, as many digits
-    that are available are returned. No more digits than available given x's
-    precision are returned. 'base' must be between 2 and 62, inclusive.
-
-**is_integer()**
-    Returns True if the *mpfr* object is an integer.
-
-mpfr Attributes
----------------
-
-**imag**
-    Returns the imaginary component. For *mpfr* objects, returns 0.
-
-**precision**
-    Returns the precision of the *mpfr* object.
-
-**rc**
-    The result code (also known as ternary value in the MPFR documentation)
-    is 0 if the value of the *mpfr* object is exactly equal to the exact,
-    infinite precision value. If the result code is 1, then the value of the
-    *mpfr* object is greater than the exact value. If the result code is -1,
-    then the value of the *mpfr* object is less than the exact, infinite
-    precision value.
-
-**real**
-    Returns the real component. For *mpfr* objects, returns a copy of the
-    original object.
+.. autoclass:: mpfr
+   :members:
+   :special-members: __format__
 
 mpfr Functions
 --------------
 
-**acos(...)**
-    acos(x) returns the arc-cosine of x. x is measured in radians. If
-    context.allow_complex is True, then an *mpc* result will be returned for
-    abs(x) > 1.
-
-**acosh(...)**
-    acosh(x) returns the inverse hyperbolic cosine of x.
-
-**agm(...)**
-    agm(x, y) returns the arithmetic-geometric mean of x and y.
-
-**ai(...)**
-    ai(x) returns the Airy function of x.
-
-**asin(...)**
-    asin(x) returns the arc-sine of x. x is measured in radians. If
-    context.allow_complex is True, then an *mpc* result will be returned for
-    abs(x) > 1.
-
-**asinh(...)**
-    asinh(x) return the inverse hyperbolic sine of x.
-
-**atan(...)**
-    atan(x) returns the arc-tangent of x. x is measured in radians.
-
-**atan2(...)**
-    atan2(y, x) returns the arc-tangent of (y/x).
-
-**atanh(...)**
-    atanh(x) returns the inverse hyperbolic tangent of x. If
-    context.allow_complex is True, then an *mpc* result will be returned for
-    abs(x) > 1.
-
-**cbrt(...)**
-    cbrt(x) returns the cube root of x.
-
-**ceil(...)**
-    ceil(x) returns the 'mpfr' that is the smallest integer >= x.
-
-**check_range(...)**
-    check_range(x) return a new 'mpfr' with exponent that lies within the
-    current range of emin and emax.
-
-**const_catalan(...)**
-    const_catalan([precision=0]) returns the Catalan's constant using the
-    specified precision. If no precision is specified, the default precision
-    is used.
-
-**const_euler(...)**
-    const_euler([precision=0]) returns the Euler's constant using the specified
-    precision. If no precision is specified, the default precision is used.
-
-**const_log2(...)**
-    const_log2([precision=0]) returns the log2 constant using the specified
-    precision. If no precision is specified, the default precision is used.
-
-**const_pi(...)**
-    const_pi([precision=0]) returns the constant pi using the specified
-    precision. If no precision is specified, the default precision is used.
-
-**context(...)**
-    context() returns a new context manager controlling MPFR and MPC
-    arithmetic.
-
-**cos(...)**
-    cos(x) returns the cosine of x. x is measured in radians.
-
-**cosh(...)**
-    cosh(x) returns the hyperbolic cosine of x.
-
-**cot(...)**
-    cot(x) returns the cotangent of x. x is measured in radians.
-
-**coth(...)**
-    coth(x) returns the hyperbolic cotangent of x.
-
-**csc(...)**
-    csc(x) returns the cosecant of x. x is measured in radians.
-
-**csch(...)**
-    csch(x) returns the hyperbolic cosecant of x.
-
-**degrees(...)**
-    degrees(x) converts an angle measurement x from radians to degrees.
-
-**digamma(...)**
-    digamma(x) returns the digamma of x.
-
-**div_2exp(...)**
-    div_2exp(x, n) returns an 'mpfr' or 'mpc' divided by 2**n.
-
-**eint(...)**
-    eint(x) returns the exponential integral of x.
-
-**erf(...)**
-    erf(x) returns the error function of x.
-
-**erfc(...)**
-    erfc(x) returns the complementary error function of x.
-
-**exp(...)**
-    exp(x) returns e**x.
-
-**exp10(...)**
-    exp10(x) returns 10**x.
-
-**exp2(...)**
-    exp2(x) returns 2**x.
-
-**expm1(...)**
-    expm1(x) returns e**x - 1. expm1() is more accurate than exp(x) - 1 when
-    x is small.
-
-**f2q(...)**
-    f2q(x[,err]) returns the simplest *mpq* approximating x to within relative
-    error err. Default is the precision of x. Uses Stern-Brocot tree to find
-    the simplest approximation. An *mpz* is returned if the denominator
-    is 1. If err<0, error sought is 2.0 ** err.
-
-**factorial(...)**
-    factorial(n) returns the floating-point approximation to the factorial
-    of n.
-
-    See fac(n) to get the exact integer result.
-
-**floor(...)**
-    floor(x) returns the 'mpfr' that is the largest integer <= x.
-
-**fma(...)**
-    fma(x, y, z) returns correctly rounded result of (x * y) + z.
-
-**fmma(...)**
-    fmma(x, y, z, t) returns correctly rounded result of (x * y) + (z * t).
-    Requires MPFR 4.
-
-**fmms(...)**
-    fmms(x, y, z, t) returns correctly rounded result of (x * y) - (z * t).
-    Requires MPFR 4.
-
-**fmod(...)**
-    fmod(x, y) returns x - n*y where n is the integer quotient of x/y, rounded
-    to 0.
-
-**fms(...)**
-    fms(x, y, z) returns correctly rounded result of (x * y) - z.
-
-**frac(...)**
-    frac(x) returns the fractional part of x.
-
-**frexp(...)**
-    frexp(x) returns a tuple containing the exponent and mantissa of x.
-
-**fsum(...)**
-    fsum(iterable) returns the accurate sum of the values in the iterable.
-
-**gamma(...)**
-    gamma(x) returns the gamma of x.
-
-**get_exp(...)**
-    get_exp(mpfr) returns the exponent of an *mpfr*. Returns 0 for NaN or
-    Infinity and sets the erange flag and will raise an exception if trap_erange
-    is set.
-
-**hypot(...)**
-    hypot(y, x) returns square root of (x**2 + y**2).
-
-**ieee(...)**
-    ieee(bitwidth) returns a context with settings for 32-bit (aka single),
-    64-bit (aka double), or 128-bit (aka quadruple) precision floating
-    point types.
-
-**inf(...)**
-    inf(n) returns an *mpfr* initialized to Infinity with the same sign as n.
-    If n is not given, +Infinity is returned.
-
-**is_finite(...)**
-    is_finite(x) returns True if x is an actual number (i.e. not NaN or
-    Infinity).
-
-**is_infinite(...)**
-    is_infinite(x) returns True if x Infinity or -Infinity.
-
-**is_nan(...)**
-    is_nan(x) returns True if x is NaN (Not-A-Number).
-
-**is_regular(...)**
-    is_regular(x) returns True if x is not zero, NaN, or Infinity.
-
-**is_signed(...)**
-    is_signed(x) returns True if the sign bit of x is set.
-
-**is_unordered(...)**
-    is_unordered(x,y) returns True if either x and/or y is NaN.
-
-**is_zero(...)**
-    is_zero(x) returns True if x is zero.
-
-**j0(...)**
-    j0(x) returns the Bessel function of the first kind of order 0 of x.
-
-**j1(...)**
-    j1(x) returns the Bessel function of the first kind of order 1 of x.
-
-**jn(...)**
-    jn(x,n) returns the Bessel function of the first kind of order n of x.
-
-**lgamma(...)**
-    lgamma(x) returns a tuple containing the logarithm of the absolute value of
-    gamma(x) and the sign of gamma(x)
-
-**li2(...)**
-    li2(x) returns the real part of dilogarithm of x.
-
-**lngamma(...)**
-    lngamma(x) returns the logarithm of gamma(x).
-
-**log(...)**
-    log(x) returns the natural logarithm of x.
-
-**log10(...)**
-    log10(x) returns the base-10 logarithm of x.
-
-**log1p(...)**
-    log1p(x) returns the natural logarithm of (1+x).
-
-**log2(...)**
-    log2(x) returns the base-2 logarithm of x.
-
-**max2(...)**
-    max2(x, y) returns the maximum of x and y. The result may be rounded to
-    match the current context. Use the builtin max() to get an exact copy of
-    the largest object without any rounding.
-
-**min2(...)**
-    min2(x, y) returns the minimum of x and y. The result may be rounded to
-    match the current context. Use the builtin min() to get an exact copy of
-    the smallest object without any rounding.
-
-**modf(...)**
-    modf(x) returns a tuple containing the integer and fractional portions
-    of x.
-
-**mpfr(...)**
-    mpfr() returns and *mpfr* object set to 0.0.
-
-    mpfr(n[, precision=0]) returns an *mpfr* object after converting a numeric
-    value n. If no precision, or a precision of 0, is specified; the precision
-    is taken from the current context.
-
-    mpfr(s[, precision=0[, [base=0]]) returns an *mpfr* object after converting
-    a string 's' made up of digits in the given base, possibly with fractional
-    part (with period as a separator) and/or exponent (with exponent marker
-    'e' for base<=10, else '@'). If no precision, or a precision of 0, is
-    specified; the precision is taken from the current context. The base of the
-    string representation must be 0 or in the interval 2 ... 62. If the base
-    is 0, the leading digits of the string are used to identify the base: 0b
-    implies base=2, 0x implies base=16, otherwise base=10 is assumed.
-
-**mpfr_from_old_binary(...)**
-    mpfr_from_old_binary(string) returns an *mpfr* from a GMPY 1.x binary mpf
-    format. Please use to_binary()/from_binary() to convert GMPY2 objects to or
-    from a binary format.
-
-**mpfr_grandom(...)**
-    mpfr_grandom(random_state) returns two random numbers with Gaussian
-    distribution. The parameter *random_state* must be created by random_state()
-    first.
-
-**mpfr_random(...)**
-    mpfr_random(random_state) returns a uniformly distributed number between
-    [0,1]. The parameter *random_state* must be created by random_state() first.
-
-**mul_2exp(...)**
-    mul_2exp(x, n) returns 'mpfr' or 'mpc' multiplied by 2**n.
-
-**nan(...)**
-    nan() returns an 'mpfr' initialized to NaN (Not-A-Number).
-
-**next_above(...)**
-    next_above(x) returns the next 'mpfr' from x toward +Infinity.
-
-**next_below(...)**
-    next_below(x) returns the next 'mpfr' from x toward -Infinity.
-
-**radians(...)**
-    radians(x) converts an angle measurement x from degrees to radians.
-
-**rec_sqrt(...)**
-    rec_sqrt(x) returns the reciprocal of the square root of x.
-
-**reldiff(...)**
-    reldiff(x, y) returns the relative difference between x and y. Result is
-    equal to abs(x-y)/x.
-
-**remainder(...)**
-    remainder(x, y) returns x - n*y where n is the integer quotient of x/y,
-    rounded to the nearest integer and ties rounded to even.
-
-**remquo(...)**
-    remquo(x, y) returns a tuple containing the remainder(x,y) and the low bits
-    of the quotient.
-
-**rint(...)**
-    rint(x) returns x rounded to the nearest integer using the current rounding
-    mode.
-
-**rint_ceil(...)**
-    rint_ceil(x) returns x rounded to the nearest integer by first rounding to
-    the next higher or equal integer and then, if needed, using the current
-    rounding mode.
-
-**rint_floor(...)**
-    rint_floor(x) returns x rounded to the nearest integer by first rounding to
-    the next lower or equal integer and then, if needed, using the current
-    rounding mode.
-
-**rint_round(...)**
-    rint_round(x) returns x rounded to the nearest integer by first rounding to
-    the nearest integer (ties away from 0) and then, if needed, using the
-    current rounding mode.
-
-**rint_trunc(...)**
-    rint_trunc(x) returns x rounded to the nearest integer by first rounding
-    towards zero and then, if needed, using the current rounding mode.
-
-**root(...)**
-    root(x, n) returns n-th root of x. The result always an *mpfr*.
-
-**round2(...)**
-    round2(x[, n]) returns x rounded to n bits. Uses default precision if n is
-    not specified. See round_away() to access the mpfr_round() function. Use
-    the builtin round() to round x to n decimal digits.
-
-**round_away(...)**
-    round_away(x) returns an *mpfr* by rounding x the nearest integer, with
-    ties rounded away from 0.
-
-**sec(...)**
-    sec(x) returns the secant of x. x is measured in radians.
-
-**sech(...)**
-    sech(x) returns the hyperbolic secant of x.
-
-**set_exp(...)**
-    set_exp(x, n) sets the exponent of a given *mpfr* to n. If n is outside the
-    range of valid exponents, set_exp() will set the erange flag and either
-    return the original value or raise an exception if trap_erange is set.
-
-**set_sign(...)**
-    set_sign(x, bool) returns a copy of x with it's sign bit set if *bool*
-    evaluates to True.
-
-**sign(...)**
-    sign(x) returns -1 if x < 0, 0 if x == 0, or +1 if x >0.
-
-**sin(...)**
-    sin(x) returns the sine of x. x is measured in radians.
-
-**sin_cos(...)**
-    sin_cos(x) returns a tuple containing the sine and cosine of x. x is
-    measured in radians.
-
-**sinh(...)**
-    sinh(x) returns the hyberbolic sine of x.
-
-**sinh_cosh(...)**
-    sinh_cosh(x) returns a tuple containing the hyperbolic sine and cosine of
-    x.
-
-**sqrt(...)**
-    sqrt(x) returns the square root of x. If x is integer, rational, or real,
-    then an *mpfr* will be returned. If x is complex, then an *mpc* will
-    be returned. If context.allow_complex is True, negative values of x
-    will return an *mpc*.
-
-**square(...)**
-    square(x) returns x * x. The type of the result is based on the types of
-    the arguments.
-
-**tan(...)**
-    tan(x) returns the tangent of x. x is measured in radians.
-
-**tanh(...)**
-    tanh(x) returns the hyperbolic tangent of x.
-
-**trunc(...)**
-    trunc(x) returns an 'mpfr' that is x truncated towards 0. Same as
-    x.floor() if x>=0 or x.ceil() if x<0.
-
-**y0(...)**
-    y0(x) returns the Bessel function of the second kind of order 0 of x.
-
-**y1(...)**
-    y1(x) returns the Bessel function of the second kind of order 1 of x.
-
-**yn(...)**
-    yn(x,n) returns the Bessel function of the second kind of order n of x.
-
-**zero(...)**
-    zero(n) returns an *mpfr* initialized to 0.0 with the same sign as n.
-    If n is not given, +0.0 is returned.
-
-**zeta(...)**
-    zeta(x) returns the Riemann zeta of x.
-
-mpfr Formatting
----------------
-
-The *mpfr* type supports the __format__() special method to allow custom output
-formatting.
-
-**__format__(...)**
-    x.__format__(fmt) returns a Python string by formatting 'x' using the
-    format string 'fmt'. A valid format string consists of:
-
-    |     optional alignment code:
-    |        '<' -> left shifted in field
-    |        '>' -> right shifted in field
-    |        '^' -> centered in field
-    |     optional leading sign code
-    |        '+' -> always display leading sign
-    |        '-' -> only display minus for negative values
-    |        ' ' -> minus for negative values, space for positive values
-    |     optional width.precision
-    |     optional rounding mode:
-    |        'U' -> round toward plus infinity
-    |        'D' -> round toward minus infinity
-    |        'Y' -> round away from zero
-    |        'Z' -> round toward zero
-    |        'N' -> round to nearest
-    |     optional conversion code:
-    |        'a','A' -> hex format
-    |        'b'     -> binary format
-    |        'e','E' -> scientific format
-    |        'f','F' -> fixed point format
-    |        'g','G' -> fixed or scientific format
-
-    .. note::
-        The formatting codes must be specified in the order shown above.
-
-.. doctest::
-
-    >>> from gmpy2 import mpfr
-    >>> a=mpfr("1.23456")
-    >>> "{0:15.3f}".format(a)
-    '          1.235'
-    >>> "{0:15.3Uf}".format(a)
-    '          1.235'
-    >>> "{0:15.3Df}".format(a)
-    '          1.234'
-    >>> "{0:.3Df}".format(a)
-    '1.234'
-    >>> "{0:+.3Df}".format(a)
-    '+1.234'
+.. autofunction:: acos
+   :noindex:
+.. autofunction:: acosh
+   :noindex:
+.. autofunction:: agm
+.. autofunction:: ai
+.. autofunction:: asin
+   :noindex:
+.. autofunction:: asinh
+   :noindex:
+.. autofunction:: atan
+   :noindex:
+.. autofunction:: atan2
+.. autofunction:: atanh
+   :noindex:
+.. autofunction:: cbrt
+.. autofunction:: ceil
+.. autofunction:: check_range
+.. autofunction:: const_catalan
+.. autofunction:: const_euler
+.. autofunction:: const_log2
+.. autofunction:: const_pi
+.. autofunction:: cos
+   :noindex:
+.. autofunction:: cosh
+   :noindex:
+.. autofunction:: cot
+.. autofunction:: coth
+.. autofunction:: csc
+.. autofunction:: csch
+.. autofunction:: degrees
+.. autofunction:: digamma
+.. autofunction:: div_2exp
+   :noindex:
+.. autofunction:: eint
+.. autofunction:: erf
+.. autofunction:: erfc
+.. autofunction:: exp
+   :noindex:
+.. autofunction:: exp10
+.. autofunction:: exp2
+.. autofunction:: expm1
+.. autofunction:: f2q
+   :noindex:
+.. autofunction:: factorial
+.. autofunction:: floor
+.. autofunction:: fma
+   :noindex:
+.. autofunction:: fmma
+.. autofunction:: fmms
+.. autofunction:: fmod
+.. autofunction:: fms
+   :noindex:
+.. autofunction:: frac
+.. autofunction:: frexp
+.. autofunction:: fsum
+.. autofunction:: gamma
+.. autofunction:: get_exp
+.. autofunction:: hypot
+.. autofunction:: ieee
+.. autofunction:: inf
+.. autofunction:: is_finite
+.. autofunction:: is_infinite
+.. autofunction:: is_nan
+   :noindex:
+.. autofunction:: is_regular
+.. autofunction:: is_signed
+.. autofunction:: is_unordered
+.. autofunction:: is_zero
+   :noindex:
+.. autofunction:: j0
+.. autofunction:: j1
+.. autofunction:: jn
+.. autofunction:: lgamma
+.. autofunction:: li2
+.. autofunction:: lngamma
+.. autofunction:: log
+   :noindex:
+.. autofunction:: log10
+   :noindex:
+.. autofunction:: log1p
+.. autofunction:: log2
+.. autofunction:: maxnum
+.. autofunction:: minnum
+.. autofunction:: modf
+.. autofunction:: mpfr_from_old_binary
+.. autofunction:: mpfr_grandom
+.. autofunction:: mpfr_random
+.. autofunction:: mul_2exp
+   :noindex:
+.. autofunction:: nan
+.. autofunction:: next_above
+.. autofunction:: next_below
+.. autofunction:: radians
+.. autofunction:: rec_sqrt
+.. autofunction:: reldiff
+.. autofunction:: remainder
+.. autofunction:: remquo
+.. autofunction:: rint
+.. autofunction:: rint_ceil
+.. autofunction:: rint_floor
+.. autofunction:: rint_round
+.. autofunction:: rint_trunc
+.. autofunction:: root
+.. autofunction:: round2
+.. autofunction:: round_away
+.. autofunction:: sec
+.. autofunction:: sech
+.. autofunction:: set_exp
+.. autofunction:: set_sign
+.. autofunction:: sign
+.. autofunction:: sin
+   :noindex:
+.. autofunction:: sin_cos
+.. autofunction:: sinh
+   :noindex:
+.. autofunction:: sinh_cosh
+.. autofunction:: sqrt
+   :noindex:
+.. autofunction:: square
+   :noindex:
+.. autofunction:: tan
+   :noindex:
+.. autofunction:: tanh
+   :noindex:
+.. autofunction:: trunc
+.. autofunction:: y0
+.. autofunction:: y1
+.. autofunction:: yn
+.. autofunction:: zero
+.. autofunction:: zeta

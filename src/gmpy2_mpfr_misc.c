@@ -186,7 +186,7 @@ GMPy_MPFR_get_max_precision(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_get_exp,
-"get_exp(mpfr) -> integer\n\n"
+"get_exp(mpfr) -> int\n\n"
 "Return the exponent of an mpfr. Returns 0 for NaN or Infinity and\n"
 "sets the erange flag and will raise an exception if trap_erange\n"
 "is set.");
@@ -418,7 +418,7 @@ GMPy_MPFR_set_zero(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_method_integer_ratio,
-"x.as_integer_ratio() -> (num, den)\n\n"
+"x.as_integer_ratio() -> tuple[mpz, mpz]\n\n"
 "Return the exact rational equivalent of an mpfr. Value is a tuple\n"
 "for compatibility with Python's float.as_integer_ratio().");
 
@@ -480,7 +480,7 @@ GMPy_MPFR_Integer_Ratio_Method(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_method_mantissa_exp,
-"x.as_mantissa_exp() -> (mantissa,exponent)\n\n"
+"x.as_mantissa_exp() -> tuple[mpz, mpz]\n\n"
 "Return the mantissa and exponent of an mpfr.");
 
 static PyObject *
