@@ -46,7 +46,9 @@ Examples:
 
 .. doctest::
 
+    >>> import gmpy2
     >>> from gmpy2 import mpz, mpq, mpfr, mpc
+    >>> gmpy2.set_context(gmpy2.context())
     >>> class Q:
     ...     def __mpz__(self): return mpz(1)
     ...     def __mpq__(self): return mpq(3,2)

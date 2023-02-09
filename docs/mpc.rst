@@ -13,6 +13,7 @@ components of an :class:`mpc`.
 
     >>> import gmpy2
     >>> from gmpy2 import mpc
+    >>> gmpy2.set_context(gmpy2.context())
     >>> gmpy2.sqrt(mpc("1+2j"))
     mpc('1.272019649514069+0.78615137775742328j')
     >>> gmpy2.set_context(gmpy2.context(real_prec=60,imag_prec=70))

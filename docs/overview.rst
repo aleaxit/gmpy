@@ -18,6 +18,7 @@ optimized for performance.
 
     >>> import gmpy2
     >>> from gmpy2 import mpz,mpq,mpfr,mpc
+    >>> gmpy2.set_context(gmpy2.context())
     >>> mpz(99) * 43
     mpz(4257)
     >>> pow(mpz(99), 37, 59)
