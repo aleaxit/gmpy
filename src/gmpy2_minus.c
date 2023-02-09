@@ -230,7 +230,7 @@ GMPy_Number_Minus(PyObject *x, CTXT_Object *context)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_minus,
-"context.minus(x) -> mpz | mpq | mpfr | mpc\n\n"
+"context.minus(x, /) -> mpz | mpq | mpfr | mpc\n\n"
 "Return -x. The context is applied to the result.");
 
 static PyObject *

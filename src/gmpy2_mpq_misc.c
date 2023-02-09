@@ -65,7 +65,7 @@ GMPy_MPQ_Attrib_GetImag(MPQ_Object *self, void *closure)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpq_function_numer,
-"numer(x) -> mpz\n\n"
+"numer(x, /) -> mpz\n\n"
 "Return the numerator of x.");
 
 static PyObject *
@@ -89,7 +89,7 @@ GMPy_MPQ_Function_Numer(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpq_function_denom,
-"denom(x) -> mpz\n\n"
+"denom(x, /) -> mpz\n\n"
 "Return the denominator of x.");
 
 static PyObject *
@@ -113,7 +113,7 @@ GMPy_MPQ_Function_Denom(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_function_qdiv,
-"qdiv(x, y=1) -> mpz | mpq\n\n"
+"qdiv(x, y=1, /) -> mpz | mpq\n\n"
 "Return x/y as 'mpz' if possible, or as 'mpq' if x is not exactly\n"
 "divisible by y.");
 

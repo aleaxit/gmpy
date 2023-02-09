@@ -92,7 +92,7 @@ GMPy_get_mp_limbsize(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_function_printf,
-"_printf(fmt, x) -> string\n\n"
+"_printf(fmt, x, /) -> string\n\n"
 "Return a Python string by formatting 'x' using the format string\n"
 "'fmt'.\n\n"
 "WARNING: Invalid format strings will cause a crash. Please see the\n"

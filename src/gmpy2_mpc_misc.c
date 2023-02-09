@@ -25,11 +25,11 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_context_phase,
-"context.phase(x) -> mpfr\n\n"
+"context.phase(x, /) -> mpfr\n\n"
 "Return the phase angle, also known as argument, of a complex x.");
 
 PyDoc_STRVAR(GMPy_doc_function_phase,
-"phase(x) -> mpfr\n\n"
+"phase(x, /) -> mpfr\n\n"
 "Return the phase angle, also known as argument, of a complex x.");
 
 static PyObject *
@@ -78,11 +78,11 @@ GMPy_Context_Phase(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_root_of_unity,
-"context.root_of_unity(n, k) -> mpc\n\n"
+"context.root_of_unity(n, k, /) -> mpc\n\n"
 "Return the n-th root of mpc(1) raised to the k-th power..");
 
 PyDoc_STRVAR(GMPy_doc_function_root_of_unity,
-"root_of_unity(n, k) -> mpc\n\n"
+"root_of_unity(n, k, /) -> mpc\n\n"
 "Return the n-th root of mpc(1) raised to the k-th power..");
 
 static PyObject *
@@ -144,12 +144,12 @@ GMPy_Context_Root_Of_Unity(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_norm,
-"context.norm(x) -> mpfr\n\n"
+"context.norm(x, /) -> mpfr\n\n"
 "Return the norm of a complex x. The norm(x) is defined as\n"
 "x.real**2 + x.imag**2. abs(x) is the square root of norm(x).\n");
 
 PyDoc_STRVAR(GMPy_doc_function_norm,
-"norm(x) -> mpfr\n\n"
+"norm(x, /) -> mpfr\n\n"
 "Return the norm of a complex x. The norm(x) is defined as\n"
 "x.real**2 + x.imag**2. abs(x) is the square root of norm(x).\n");
 
@@ -199,12 +199,12 @@ GMPy_Context_Norm(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_polar,
-"context.polar(x) -> tuple[mpfr, mpfr]\n\n"
+"context.polar(x, /) -> tuple[mpfr, mpfr]\n\n"
 "Return the polar coordinate form of a complex x that is in\n"
 "rectangular form.");
 
 PyDoc_STRVAR(GMPy_doc_function_polar,
-"polar(x) -> tuple[mpfr, mpfr]\n\n"
+"polar(x, /) -> tuple[mpfr, mpfr]\n\n"
 "Return the polar coordinate form of a complex x that is in\n"
 "rectangular form.");
 
@@ -256,12 +256,12 @@ GMPy_Context_Polar(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_rect,
-"context.rect(r, phi) -> mpc\n\n"
+"context.rect(r, phi, /) -> mpc\n\n"
 "Return the rectangular coordinate form of a complex number that is\n"
 "given in polar form.");
 
 PyDoc_STRVAR(GMPy_doc_function_rect,
-"rect(r, phi) -> mpc\n\n"
+"rect(r, phi, /) -> mpc\n\n"
 "Return the rectangular coordinate form of a complex number that is\n"
 "given in polar form.");
 
@@ -325,11 +325,11 @@ GMPy_Context_Rect(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_proj,
-"context.proj(x) -> mpc\n\n"
+"context.proj(x, /) -> mpc\n\n"
 "Returns the projection of a complex x on to the Riemann sphere.");
 
 PyDoc_STRVAR(GMPy_doc_function_proj,
-"proj(x) -> mpc\n\n"
+"proj(x, /) -> mpc\n\n"
 "Returns the projection of a complex x on to the Riemann sphere.");
 
 static PyObject *

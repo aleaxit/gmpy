@@ -30,7 +30,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(doc_mpz_lucasu,
-"lucasu(p,q,k) -> mpz\n\n"
+"lucasu(p,q,k,/) -> mpz\n\n"
 "Return the k-th element of the Lucas U sequence defined by p,q.\n"
 "p*p - 4*q must not equal 0; k must be greater than or equal to 0.");
 
@@ -182,7 +182,7 @@ GMPY_mpz_lucasu(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_mpz_lucasu_mod,
-"lucasu_mod(p,q,k,n) -> mpz\n\n"
+"lucasu_mod(p,q,k,n,/) -> mpz\n\n"
 "Return the k-th element of the Lucas U sequence defined by p,q (mod n).\n"
 "p*p - 4*q must not equal 0; k must be greater than or equal to 0;\n"
 "n must be greater than 0.");
@@ -355,7 +355,7 @@ GMPY_mpz_lucasu_mod(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_mpz_lucasv,
-"lucasv(p,q,k) -> mpz\n\n"
+"lucasv(p,q,k,/) -> mpz\n\n"
 "Return the k-th element of the Lucas V sequence defined by p,q.\n"
 "p*p - 4*q must not equal 0; k must be greater than or equal to 0.");
 
@@ -490,7 +490,7 @@ GMPY_mpz_lucasv(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(doc_mpz_lucasv_mod,
-"lucasv_mod(p,q,k,n) -> mpz\n\n"
+"lucasv_mod(p,q,k,n,/) -> mpz\n\n"
 "Return the k-th element of the Lucas V sequence defined by p,q (mod n).\n"
 "p*p - 4*q must not equal 0; k must be greater than or equal to 0;\n"
 "n must be greater than 0.");
