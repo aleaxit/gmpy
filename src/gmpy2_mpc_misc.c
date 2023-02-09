@@ -204,7 +204,7 @@ PyDoc_STRVAR(GMPy_doc_context_polar,
 "rectangular form.");
 
 PyDoc_STRVAR(GMPy_doc_function_polar,
-"polar(x) -> (abs(x), phase(x))\n\n"
+"polar(x) -> tuple[mpfr, mpfr]\n\n"
 "Return the polar coordinate form of a complex x that is in\n"
 "rectangular form.");
 
@@ -261,7 +261,7 @@ PyDoc_STRVAR(GMPy_doc_context_rect,
 "given in polar form.");
 
 PyDoc_STRVAR(GMPy_doc_function_rect,
-"rect(r, phi) -> mpc\n\n"
+"rect(r, phi) -> tuple[mpfr, mpfr]\n\n"
 "Return the rectangular coordinate form of a complex number that is\n"
 "given in polar form.");
 

@@ -6,7 +6,7 @@ Multiple-precision Rationals
 gmpy2 provides a rational type :class:`mpq`. It should be a replacement for
 Python's :class:`~fractions.Fraction` class.
 
-::
+.. doctest::
 
     >>> from gmpy2 import mpq
     >>> mpq(1,7)

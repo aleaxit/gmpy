@@ -11,7 +11,7 @@ gmpy2 provides access to an experimental integer type called :class:`xmpz`. The
 etc.) modify the original object and do not create a new object. Instances of
 :class:`xmpz` cannot be used as dictionary keys.
 
-::
+.. doctest::
 
     >>> from gmpy2 import xmpz
     >>> a = xmpz(123)
@@ -25,7 +25,9 @@ etc.) modify the original object and do not create a new object. Instances of
 The ability to change an :class:`xmpz` object in-place allows for efficient and
 rapid bit manipulation.
 
-Individual bits can be set or cleared::
+Individual bits can be set or cleared:
+
+.. doctest::
 
     >>> a[10]=1
     >>> a
@@ -42,7 +44,7 @@ If a value for *stop* is specified in a slice assignment and the actual
 bit-length of the :class:`xmpz` is less than *stop*, then the destination
 :class:`xmpz` is logically padded with 0-bits to length *stop*.
 
-::
+.. doctest::
 
     >>> a=xmpz(0)
     >>> a[8:16] = ~0
@@ -52,8 +54,11 @@ bit-length of the :class:`xmpz` is less than *stop*, then the destination
     >>> bin(a)
     '0b1111000011110000'
 
-Bits can be reversed::
+Bits can be reversed:
 
+.. doctest::
+
+    >>> a = xmpz(1148)
     >>> bin(a)
     '0b10001111100'
     >>> a[::] = a[::-1]
@@ -68,7 +73,7 @@ beginning and ending bit positions that are used. To mimic the behavior of
 slices. the bit positions checked include *start* but the last position checked
 is *stop* - 1.
 
-::
+.. doctest::
 
     >>> a=xmpz(117)
     >>> bin(a)
@@ -85,7 +90,7 @@ is *stop* - 1.
 The following program uses the Sieve of Eratosthenes to generate a list of
 prime numbers.
 
-::
+.. code-block:: python
 
     import time
     import gmpy2

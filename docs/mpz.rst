@@ -12,7 +12,7 @@ supported.
 Examples
 --------
 
-::
+.. doctest::
 
     >>> from gmpy2 import is_prime, mpz
     >>> mpz('123') + 1

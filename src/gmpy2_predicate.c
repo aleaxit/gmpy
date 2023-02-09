@@ -30,7 +30,7 @@
  */
 
 PyDoc_STRVAR(GMPy_doc_function_is_nan,
-"is_nan(x) -> boolean\n\n"
+"is_nan(x) -> bool\n\n"
 "Return True if x is NaN (Not-A-Number) else False.");
 
 PyDoc_STRVAR(GMPy_doc_context_is_nan,
@@ -38,7 +38,7 @@ PyDoc_STRVAR(GMPy_doc_context_is_nan,
 "Return True if x is NaN (Not-A-Number) else False.");
 
 PyDoc_STRVAR(GMPy_doc_method_is_nan,
-"x.is_nan() -> boolean\n\n"
+"x.is_nan() -> bool\n\n"
 "Return True if x is NaN (Not-A-Number) else False.");
 
 static PyObject *
@@ -108,7 +108,7 @@ PyDoc_STRVAR(GMPy_doc_context_is_infinite,
 "if either x.real or x.imag is infinite. Otherwise return False.");
 
 PyDoc_STRVAR(GMPy_doc_method_is_infinite,
-"x.is_infinite() -> boolean\n\n"
+"x.is_infinite() -> bool\n\n"
 "Return True if x is +Infinity or -Infinity. If x is an mpc, return True\n"
 "if either x.real or x.imag is infinite. Otherwise return False.");
 
@@ -169,7 +169,7 @@ PyDoc_STRVAR(GMPy_doc_context_is_finite,
 "an mpc, return True if both x.real and x.imag are finite.");
 
 PyDoc_STRVAR(GMPy_doc_method_is_finite,
-"x.is_finite() -> boolean\n\n"
+"x.is_finite() -> bool\n\n"
 "Return True if x is an actual number (i.e. non NaN or Infinity). If x is\n"
 "an mpc, return True if both x.real and x.imag are finite.");
 
@@ -220,7 +220,7 @@ GMPy_ComplexWithType_Is_Finite(PyObject *x, int xtype, CTXT_Object *context)
 GMPY_MPFR_MPC_UNIOP_TEMPLATEWT(Is_Finite, is_finite);
 
 PyDoc_STRVAR(GMPy_doc_function_is_zero,
-"is_zero(x) -> boolean\n\n"
+"is_zero(x) -> bool\n\n"
 "Return True if x is equal to 0. If x is an mpc, return True if both x.real\n"
 "and x.imag are equal to 0.");
 
@@ -230,7 +230,7 @@ PyDoc_STRVAR(GMPy_doc_context_is_zero,
 "and x.imag are equal to 0.");
 
 PyDoc_STRVAR(GMPy_doc_method_is_zero,
-"x.is_zero() -> boolean\n\n"
+"x.is_zero() -> bool\n\n"
 "Return True if x is equal to 0. If x is an mpc, return True if both x.real\n"
 "and x.imag are equal to 0.");
 

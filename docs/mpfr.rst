@@ -11,7 +11,7 @@ The default precision of an *mpfr* is 53 bits - the same precision as Python's
 from ``mpfr('1.2')``. To take advantage of the higher precision provided by
 the *mpfr* type, always pass constants as strings.
 
-::
+.. doctest::
 
     >>> import gmpy2
     >>> from gmpy2 import mpfr
@@ -24,7 +24,6 @@ the *mpfr* type, always pass constants as strings.
     mpfr('1.2000000000000000000000000000006',100)
     >>> mpfr(float('1.2'))
     mpfr('1.1999999999999999555910790149937',100)
-    >>>
 
 Contexts
 --------
@@ -46,7 +45,7 @@ context.
 The following example just modifies the precision. The remaining options will
 be discussed later.
 
-::
+.. doctest::
 
     >>> gmpy2.set_context(gmpy2.context())
     >>> gmpy2.get_context()
@@ -60,8 +59,8 @@ be discussed later.
             trap_invalid=False, invalid=False,
             trap_erange=False, erange=False,
             trap_divzero=False, divzero=False,
-            trap_expbound=False,
             allow_complex=False,
+            rational_division=False,
             allow_release_gil=False)
     >>> gmpy2.sqrt(5)
     mpfr('2.2360679774997898')
@@ -84,7 +83,6 @@ be discussed later.
     >>> gmpy2.set_context(ctx)
     >>> gmpy2.sqrt(5)
     mpfr('2.2360679774997896964091736687312762354406183596116',160)
-    >>>
 
 Context Attributes
 ------------------
@@ -201,7 +199,7 @@ Context Attributes
     Setting trap_erange to ``True`` can be used to raise an exception if
     comparisons are attempted with a NaN.
 
-    ::
+    .. doctest::
 
         >>> gmpy2.set_context(gmpy2.context())
         >>> mpfr('nan') == mpfr('nan')
@@ -211,7 +209,7 @@ Context Attributes
         Traceback (most recent call last):
           File "<stdin>", line 1, in <module>
         gmpy2.RangeError: comparison with NaN
-        >>>
+        >>> gmpy2.set_context(gmpy2.context())
 
 **erange**
     This flag is not user controllable. It is automatically set if an erange
@@ -494,7 +492,7 @@ In the following example, the current context is saved by ``gmpy2.local_context(
 and then the block begins with a copy of the default context and the precision
 set to 100. When the block is finished, the original context is restored.
 
-::
+.. doctest::
 
     >>> with gmpy2.local_context(gmpy2.context(), precision=100) as ctx:
     ...   print(gmpy2.sqrt(2))
@@ -503,7 +501,6 @@ set to 100. When the block is finished, the original context is restored.
     ...
     1.4142135623730950488016887242092
     1.4142135623730950488016887242096980785696718753769480731766796
-    >>>
 
 A context object can also be used directly to create a context manager block.
 However, instead of restoring the context to the active context when the
@@ -512,12 +509,14 @@ before any keyword argument modifications.
 
 The code:
 
-::
+.. code-block:: python
+
     with gmpy2.ieee(64) as ctx:
 
 is equivalent to:
 
-::
+.. code-block:: python
+
     gmpy2.set_context(gmpy2.ieee(64))
     with gmpy2.local_context() as ctx:
 
@@ -1019,7 +1018,7 @@ formatting.
     .. note::
         The formatting codes must be specified in the order shown above.
 
-::
+.. doctest::
 
     >>> from gmpy2 import mpfr
     >>> a=mpfr("1.23456")
@@ -1033,6 +1032,3 @@ formatting.
     '1.234'
     >>> "{0:+.3Df}".format(a)
     '+1.234'
-
-
-
