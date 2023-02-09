@@ -35,7 +35,7 @@ extern "C" {
  * Conversion between native Python objects and MPZ.                        *
  * ======================================================================== */
 
-static MPZ_Object *    GMPy_MPZ_From_PyIntOrLong(PyObject *obj, CTXT_Object *context);
+static MPZ_Object *    GMPy_MPZ_From_PyLong(PyObject *obj, CTXT_Object *context);
 static MPZ_Object *    GMPy_MPZ_From_PyStr(PyObject *s, int base, CTXT_Object *context);
 static MPZ_Object *    GMPy_MPZ_From_PyFloat(PyObject *obj, CTXT_Object *context);
 
@@ -47,7 +47,7 @@ static MPZ_Object *    GMPy_MPZ_From_IntegerWithTypeAndCopy(PyObject *obj, int x
 static PyObject *      GMPy_MPZ_Str_Slot(MPZ_Object *self);
 static PyObject *      GMPy_MPZ_Repr_Slot(MPZ_Object *self);
 
-static PyObject *      GMPy_PyIntOrLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context);
+static PyObject *      GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context);
 static PyObject *      GMPy_PyFloat_From_MPZ(MPZ_Object *obj, CTXT_Object *context);
 static PyObject *      GMPy_PyStr_From_MPZ(MPZ_Object *obj, int base, int option, CTXT_Object *context);
 
@@ -61,7 +61,7 @@ static GMPy_MPZ_ConvertArg_RETURN GMPy_MPZ_ConvertArg GMPy_MPZ_ConvertArg_PROTO;
  * Conversion between native Python objects/MPZ and XMPZ.                   *
  * ======================================================================== */
 
-static XMPZ_Object *   GMPy_XMPZ_From_PyIntOrLong(PyObject *obj, CTXT_Object *context);
+static XMPZ_Object *   GMPy_XMPZ_From_PyLong(PyObject *obj, CTXT_Object *context);
 static XMPZ_Object *   GMPy_XMPZ_From_PyStr(PyObject *s, int base, CTXT_Object *context);
 static XMPZ_Object *   GMPy_XMPZ_From_PyFloat(PyObject *self, CTXT_Object *context);
 static XMPZ_Object *   GMPy_XMPZ_From_MPZ(MPZ_Object *obj, CTXT_Object *context);
@@ -77,7 +77,7 @@ static MPZ_Object *    GMPy_MPZ_From_XMPZ(XMPZ_Object *obj, CTXT_Object *context
  * Conversion between native Python objects/MPZ/XMPZ and MPQ.               *
  * ======================================================================== */
 
-static MPQ_Object *    GMPy_MPQ_From_PyIntOrLong(PyObject *obj, CTXT_Object *context);
+static MPQ_Object *    GMPy_MPQ_From_PyLong(PyObject *obj, CTXT_Object *context);
 static MPQ_Object *    GMPy_MPQ_From_PyStr(PyObject *s, int base, CTXT_Object *context);
 static MPQ_Object *    GMPy_MPQ_From_PyFloat(PyObject *obj, CTXT_Object *context);
 static MPQ_Object *    GMPy_MPQ_From_Fraction(PyObject *obj, CTXT_Object *context);
@@ -90,7 +90,7 @@ static MPQ_Object *    GMPy_MPQ_From_NumberWithType(PyObject* obj, int xtype, CT
 static MPQ_Object *    GMPy_MPQ_From_Number(PyObject* obj, CTXT_Object *context);
 static MPQ_Object *    GMPy_MPQ_From_RationalWithTypeAndCopy(PyObject* obj, int xtype, CTXT_Object *context);
 static MPQ_Object *    GMPy_MPQ_From_RationalWithType(PyObject *obj, int xtype, CTXT_Object *context);
-static PyObject *      GMPy_PyIntOrLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context);
+static PyObject *      GMPy_PyLong_From_MPQ(MPQ_Object *obj, CTXT_Object *context);
 static PyObject *      GMPy_PyStr_From_MPQ(MPQ_Object *obj, int base, int option, CTXT_Object *context);
 static PyObject *      GMPy_PyFloat_From_MPQ(MPQ_Object *obj, CTXT_Object *context);
 static MPZ_Object *    GMPy_MPZ_From_MPQ(MPQ_Object *obj, CTXT_Object *context);

@@ -89,11 +89,6 @@ static PyObject * GMPy_MPZ_Function_IsEven(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Function_IsOdd(PyObject *self, PyObject *other);
 
 
-#if PY_MAJOR_VERSION < 3
-static PyObject * GMPy_MPZ_Oct_Slot(MPZ_Object *self);
-static PyObject * GMPy_MPZ_Hex_Slot(MPZ_Object *self);
-#endif
-
 #ifdef __cplusplus
 }
 #endif

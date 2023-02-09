@@ -63,7 +63,7 @@ GMPy_Integer_SubWithType(PyObject *x, int xtype, PyObject *y, int ytype,
                 }
             }
             else {
-                mpz_set_PyIntOrLong(result->z, y);
+                mpz_set_PyLong(result->z, y);
                 GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
                 mpz_sub(result->z, MPZ(x), result->z);
                 GMPY_MAYBE_END_ALLOW_THREADS(context);
@@ -88,7 +88,7 @@ GMPy_Integer_SubWithType(PyObject *x, int xtype, PyObject *y, int ytype,
             }
             else {
                 GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
-                mpz_set_PyIntOrLong(result->z, x);
+                mpz_set_PyLong(result->z, x);
                 mpz_sub(result->z, result->z, MPZ(y));
                 GMPY_MAYBE_END_ALLOW_THREADS(context);
             }

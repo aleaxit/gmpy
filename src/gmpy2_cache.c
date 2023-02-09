@@ -94,7 +94,7 @@ GMPy_MPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         }
 
         if (PyLong_Check(n)) {
-            return (PyObject*)GMPy_MPZ_From_PyIntOrLong(n, context);
+            return (PyObject*)GMPy_MPZ_From_PyLong(n, context);
         }
 
         if (MPQ_Check(n)) {
@@ -145,7 +145,7 @@ GMPy_MPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         /* Try converting to integer. */
         temp = PyNumber_Long(n);
         if (temp) {
-            result = GMPy_MPZ_From_PyIntOrLong(temp, context);
+            result = GMPy_MPZ_From_PyLong(temp, context);
             Py_DECREF(temp);
             return (PyObject*)result;
         }
@@ -245,7 +245,7 @@ GMPy_XMPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         }
 
         if (PyLong_Check(n)) {
-            return (PyObject*)GMPy_XMPZ_From_PyIntOrLong(n, context);
+            return (PyObject*)GMPy_XMPZ_From_PyLong(n, context);
         }
 
         if (MPQ_Check(n)) {
@@ -281,7 +281,7 @@ GMPy_XMPZ_NewInit(PyTypeObject *type, PyObject *args, PyObject *keywds)
         /* Try converting to integer. */
         temp = PyNumber_Long(n);
         if (temp) {
-            result = GMPy_XMPZ_From_PyIntOrLong(temp, context);
+            result = GMPy_XMPZ_From_PyLong(temp, context);
             Py_DECREF(temp);
             return (PyObject*)result;
         }

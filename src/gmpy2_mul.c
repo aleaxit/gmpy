@@ -59,7 +59,7 @@ GMPy_Integer_MulWithType(PyObject *x, int xtype, PyObject *y, int ytype,
                  mpz_mul_si(result->z, MPZ(x), temp);
             }
             else {
-                mpz_set_PyIntOrLong(result->z, y);
+                mpz_set_PyLong(result->z, y);
                 GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
                 mpz_mul(result->z, MPZ(x), result->z);
                 GMPY_MAYBE_END_ALLOW_THREADS(context);
@@ -77,7 +77,7 @@ GMPy_Integer_MulWithType(PyObject *x, int xtype, PyObject *y, int ytype,
                 mpz_mul_si(result->z, MPZ(y), temp);
             }
             else {
-                mpz_set_PyIntOrLong(result->z, x);
+                mpz_set_PyLong(result->z, x);
                 GMPY_MAYBE_BEGIN_ALLOW_THREADS(context);
                 mpz_mul(result->z, result->z, MPZ(y));
                 GMPY_MAYBE_END_ALLOW_THREADS(context);
