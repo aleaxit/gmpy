@@ -309,11 +309,11 @@ GMPy_Number_Mul_Slot(PyObject *x, PyObject *y)
 /* Implement context.mul() and gmpy2.mul(). */
 
 PyDoc_STRVAR(GMPy_doc_function_mul,
-"mul(x, y) -> mpz | mpq | mpfr | mpc\n\n"
+"mul(x, y, /) -> mpz | mpq | mpfr | mpc\n\n"
 "Return x * y.");
 
 PyDoc_STRVAR(GMPy_doc_context_mul,
-"context.mul(x, y) -> mpz | mpq | mpfr | mpc\n\n"
+"context.mul(x, y, /) -> mpz | mpq | mpfr | mpc\n\n"
 "Return x * y.");
 
 static PyObject *
@@ -337,4 +337,3 @@ GMPy_Context_Mul(PyObject *self, PyObject *args)
                            PyTuple_GET_ITEM(args, 1),
                            context);
 }
-

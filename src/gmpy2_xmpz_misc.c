@@ -25,7 +25,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_xmpz_function_xbit_mask,
-"xbit_mask(n) -> xmpz\n\n"
+"xbit_mask(n, /) -> xmpz\n\n"
 "Return an 'xmpz' exactly n bits in length with all bits set.\n");
 
 static PyObject *

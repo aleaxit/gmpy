@@ -25,7 +25,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_function_f2q,
-"f2q(x, err=0) -> mpz | mpq\n\n"
+"f2q(x, err=0, /) -> mpz | mpq\n\n"
 "Return the 'best' mpq approximating x to within relative error 'err'.\n"
 "Default is the precision of x. Uses Stern-Brocot tree to find the\n"
 "'best' approximation. An 'mpz' is returned if the denominator\n"
@@ -111,7 +111,7 @@ GMPy_MPFR_Free_Cache(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_can_round,
-"can_round(b, err, rnd1, rnd2, prec) -> bool\n\n"
+"can_round(b, err, rnd1, rnd2, prec, /) -> bool\n\n"
 "Let b be an approximation to an unknown number x that is rounded\n"
 "according to rnd1. Assume the b has an error at most two to the power\n"
 "of E(b)-err where E(b) is the exponent of b. Then return true if x\n"
@@ -186,7 +186,7 @@ GMPy_MPFR_get_max_precision(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_get_exp,
-"get_exp(mpfr) -> int\n\n"
+"get_exp(mpfr, /) -> int\n\n"
 "Return the exponent of an mpfr. Returns 0 for NaN or Infinity and\n"
 "sets the erange flag and will raise an exception if trap_erange\n"
 "is set.");
@@ -225,7 +225,7 @@ GMPy_MPFR_get_exp(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_set_exp,
-"set_exp(mpfr, n) -> mpfr\n\n"
+"set_exp(mpfr, n, /) -> mpfr\n\n"
 "Set the exponent of an mpfr to n. If n is outside the range of\n"
 "valid exponents, set_exp() will set the erange flag and either\n"
 "return the original value or raise an exception if trap_erange\n"
@@ -283,7 +283,7 @@ GMPy_MPFR_set_exp(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_set_sign,
-"set_sign(mpfr, bool) -> mpfr\n\n"
+"set_sign(mpfr, bool, /) -> mpfr\n\n"
 "If 'bool' is True, then return an 'mpfr' with the sign bit set.");
 
 static PyObject *
@@ -313,7 +313,7 @@ GMPy_MPFR_set_sign(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_copy_sign,
-"copy_sign(mpfr, mpfr) -> mpfr\n\n"
+"copy_sign(mpfr, mpfr, /) -> mpfr\n\n"
 "Return an 'mpfr' composed of the first argument with the sign of the\n"
 "second argument.");
 
@@ -362,7 +362,7 @@ GMPy_MPFR_set_nan(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_set_inf,
-"inf(n) -> mpfr\n\n"
+"inf(n, /) -> mpfr\n\n"
 "Return an 'mpfr' initialized to Infinity with the same sign as n.\n"
 "If n is not given, +Infinity is returned.");
 
@@ -390,7 +390,7 @@ GMPy_MPFR_set_inf(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_set_zero,
-"zero(n) -> mpfr\n\n"
+"zero(n, /) -> mpfr\n\n"
 "Return an 'mpfr' initialized to 0.0 with the same sign as n.\n"
 "If n is not given, +0.0 is returned.");
 
@@ -596,12 +596,12 @@ GMPy_MPFR_NonZero_Slot(MPFR_Object *self)
 }
 
 PyDoc_STRVAR(GMPy_doc_function_check_range,
-"check_range(x) -> mpfr\n\n"
+"check_range(x, /) -> mpfr\n\n"
 "Return a new 'mpfr' with exponent that lies within the current range\n"
 "of emin and emax.");
 
 PyDoc_STRVAR(GMPy_doc_context_check_range,
-"context.check_range(x) -> mpfr\n\n"
+"context.check_range(x, /) -> mpfr\n\n"
 "Return a new 'mpfr' with exponent that lies within the range of emin\n"
 "and emax specified by context.");
 
