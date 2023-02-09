@@ -1291,7 +1291,7 @@ static PyMethodDef GMPyContext_methods[] =
 static PyTypeObject CTXT_Type =
 {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "gmpy2.context",    
+    .tp_name = "gmpy2._context",
     .tp_basicsize = sizeof(CTXT_Object),    
     .tp_dealloc = (destructor) GMPy_CTXT_Dealloc,      
     .tp_repr = (reprfunc) GMPy_CTXT_Repr_Slot,       

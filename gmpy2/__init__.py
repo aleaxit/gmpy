@@ -1,4 +1,5 @@
 from .gmpy2 import *
+from .gmpy2 import _context
 # Internal variables/functions are not imported by * above.
 # These are used by some python level functions and are needed
 # at the top level.

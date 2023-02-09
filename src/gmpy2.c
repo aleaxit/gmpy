@@ -1154,6 +1154,12 @@ PyMODINIT_FUNC PyInit_gmpy2(void)
         /* LCOV_EXCL_STOP */
     }
 
+
+    /* Add the context type to the module namespace. */
+
+    Py_INCREF(&CTXT_Type);
+    PyModule_AddObject(gmpy_module, "_context", (PyObject*)&CTXT_Type);
+
     /* Add the mpz type to the module namespace. */
 
     Py_INCREF(&MPZ_Type);

@@ -1,6 +1,8 @@
 Contexts
 ========
 
+.. currentmodule:: gmpy2
+
 A *context* is used to control the behavior of :class:`mpfr` and :class:`mpc` arithmetic.
 In addition to controlling the precision, the rounding mode can be specified,
 minimum and maximum exponent values can be changed, various exceptions can be
@@ -59,6 +61,12 @@ be discussed later.
     >>> gmpy2.sqrt(5)
     mpfr('2.2360679774997896964091736687312762354406183596116',160)
     >>> gmpy2.set_context(gmpy2.context())
+
+Context Type
+------------
+
+.. autoclass:: _context
+   :members:
 
 Context Attributes
 ------------------
