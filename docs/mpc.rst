@@ -89,8 +89,6 @@ mpc Functions
 .. autofunction:: cosh
 .. autofunction:: div_2exp
 .. autofunction:: exp
-.. autofunction:: fma
-.. autofunction:: fms
 .. autofunction:: is_nan
 .. autofunction:: is_zero
 .. autofunction:: log
@@ -104,8 +102,8 @@ mpc Functions
 .. autofunction:: rect
 .. autofunction:: root_of_unity
 .. autofunction:: sin
+.. autofunction:: sin_cos
 .. autofunction:: sinh
 .. autofunction:: sqrt
-.. autofunction:: square
 .. autofunction:: tan
 .. autofunction:: tanh

@@ -56,21 +56,9 @@ mpfr Type
 mpfr Functions
 --------------
 
-.. autofunction:: acos
-   :noindex:
-.. autofunction:: acosh
-   :noindex:
 .. autofunction:: agm
 .. autofunction:: ai
-.. autofunction:: asin
-   :noindex:
-.. autofunction:: asinh
-   :noindex:
-.. autofunction:: atan
-   :noindex:
 .. autofunction:: atan2
-.. autofunction:: atanh
-   :noindex:
 .. autofunction:: cbrt
 .. autofunction:: ceil
 .. autofunction:: check_range
@@ -78,37 +66,23 @@ mpfr Functions
 .. autofunction:: const_euler
 .. autofunction:: const_log2
 .. autofunction:: const_pi
-.. autofunction:: cos
-   :noindex:
-.. autofunction:: cosh
-   :noindex:
 .. autofunction:: cot
 .. autofunction:: coth
 .. autofunction:: csc
 .. autofunction:: csch
 .. autofunction:: degrees
 .. autofunction:: digamma
-.. autofunction:: div_2exp
-   :noindex:
 .. autofunction:: eint
 .. autofunction:: erf
 .. autofunction:: erfc
-.. autofunction:: exp
-   :noindex:
 .. autofunction:: exp10
 .. autofunction:: exp2
 .. autofunction:: expm1
-.. autofunction:: f2q
-   :noindex:
 .. autofunction:: factorial
 .. autofunction:: floor
-.. autofunction:: fma
-   :noindex:
 .. autofunction:: fmma
 .. autofunction:: fmms
 .. autofunction:: fmod
-.. autofunction:: fms
-   :noindex:
 .. autofunction:: frac
 .. autofunction:: frexp
 .. autofunction:: fsum
@@ -119,23 +93,15 @@ mpfr Functions
 .. autofunction:: inf
 .. autofunction:: is_finite
 .. autofunction:: is_infinite
-.. autofunction:: is_nan
-   :noindex:
 .. autofunction:: is_regular
 .. autofunction:: is_signed
 .. autofunction:: is_unordered
-.. autofunction:: is_zero
-   :noindex:
 .. autofunction:: j0
 .. autofunction:: j1
 .. autofunction:: jn
 .. autofunction:: lgamma
 .. autofunction:: li2
 .. autofunction:: lngamma
-.. autofunction:: log
-   :noindex:
-.. autofunction:: log10
-   :noindex:
 .. autofunction:: log1p
 .. autofunction:: log2
 .. autofunction:: maxnum
@@ -144,8 +110,6 @@ mpfr Functions
 .. autofunction:: mpfr_from_old_binary
 .. autofunction:: mpfr_grandom
 .. autofunction:: mpfr_random
-.. autofunction:: mul_2exp
-   :noindex:
 .. autofunction:: nan
 .. autofunction:: next_above
 .. autofunction:: next_below
@@ -167,20 +131,7 @@ mpfr Functions
 .. autofunction:: set_exp
 .. autofunction:: set_sign
 .. autofunction:: sign
-.. autofunction:: sin
-   :noindex:
-.. autofunction:: sin_cos
-.. autofunction:: sinh
-   :noindex:
 .. autofunction:: sinh_cosh
-.. autofunction:: sqrt
-   :noindex:
-.. autofunction:: square
-   :noindex:
-.. autofunction:: tan
-   :noindex:
-.. autofunction:: tanh
-   :noindex:
 .. autofunction:: trunc
 .. autofunction:: y0
 .. autofunction:: y1
