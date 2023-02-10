@@ -774,6 +774,11 @@ Test denominator
 >>> a.denominator
 mpz(1)
 
+Test as_integer_ratio
+---------------------
+>>> gmpy2.mpz(3).as_integer_ratio()
+(mpz(3), mpz(1))
+
 Test underscore
 ---------------
 >>> mpz('1_2')

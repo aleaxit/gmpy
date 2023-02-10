@@ -1723,6 +1723,18 @@ GMPy_MPZ_Attrib_GetDenom(MPZ_Object *self, void *closure)
     return (PyObject*)result;
 }
 
+PyDoc_STRVAR(GMPy_doc_mpz_method_as_integer_ratio,
+"x.as_integer_ratio() -> tuple[mpz, mpz]\n\n"
+"Return a pair of integers, whose ratio is exactly equal to the\n"
+"original number and with a positive denominator.");
+static PyObject *
+GMPy_MPZ_Method_As_Integer_Ratio(PyObject *self, PyObject *args)
+{
+    return PyTuple_Pack(2,
+                        GMPy_MPZ_Attrib_GetNumer((MPZ_Object*)self, NULL),
+                        GMPy_MPZ_Attrib_GetDenom((MPZ_Object*)self, NULL));
+}
+
 static PyObject *
 GMPy_MPZ_Attrib_GetImag(MPZ_Object *self, void *closure)
 {
