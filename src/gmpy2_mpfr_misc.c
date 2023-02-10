@@ -25,7 +25,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_function_f2q,
-"f2q(x,[err]) -> mpz | mpq\n\n"
+"f2q(x, err=0) -> mpz | mpq\n\n"
 "Return the 'best' mpq approximating x to within relative error 'err'.\n"
 "Default is the precision of x. Uses Stern-Brocot tree to find the\n"
 "'best' approximation. An 'mpz' is returned if the denominator\n"
@@ -528,7 +528,7 @@ GMPy_MPFR_Mantissa_Exp_Method(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_method_simple_fraction,
-"x.as_simple_fraction([precision=0]) -> mpq\n\n"
+"x.as_simple_fraction(precision=0) -> mpq\n\n"
 "Return a simple rational approximation to x. The result will be\n"
 "accurate to 'precision' bits. If 'precision' is 0, the precision\n"
 "of 'x' will be used.");

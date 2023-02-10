@@ -26,13 +26,13 @@
 
 /* return number-of-digits for an mpz in requested base, default 10 */
 PyDoc_STRVAR(GMPy_doc_mpz_method_num_digits,
-"x.num_digits([base]) -> int\n\n"
+"x.num_digits(base=10) -> int\n\n"
 "Return length of string representing the absolute value of x in\n"
 "the given base. Values  for base can range between 2 and 62. The\n"
 "value returned may be 1 too large.");
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_num_digits,
-"num_digits(x[, base]) -> int\n\n"
+"num_digits(x, base=10) -> int\n\n"
 "Return length of string representing the absolute value of x in\n"
 "the given base. Values  for base can range between 2 and 62. The\n"
 "value returned may be 1 too large.");
@@ -1322,7 +1322,7 @@ GMPy_MPZ_Method_IsPower(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_function_is_prime,
-"is_prime(x[, n=25]) -> bool\n\n"
+"is_prime(x, n=25) -> bool\n\n"
 "Return True if x is _probably_ prime, else False if x is\n"
 "definitely composite. x is checked for small divisors and up\n"
 "to n Miller-Rabin tests are performed.");
@@ -1372,7 +1372,7 @@ GMPy_MPZ_Function_IsPrime(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpz_method_is_prime,
-"x.is_prime([n=25]) -> bool\n\n"
+"x.is_prime(n=25) -> bool\n\n"
 "Return True if x is _probably_ prime, else False if x is\n"
 "definitely composite. x is checked for small divisors and up\n"
 "to n Miller-Rabin tests are performed.");

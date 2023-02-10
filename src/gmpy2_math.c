@@ -1413,7 +1413,8 @@ PyDoc_STRVAR(GMPy_doc_context_fmod,
 GMPY_MPFR_BINOPWT(Fmod, fmod)
 
 PyDoc_STRVAR(GMPy_doc_function_round2,
-"round2(x[, n]) -> mpfr\n\n"
+"round2(x) -> mpfr\n"
+"round2(x, n) -> mpfr\n\n"
 "Return x rounded to n bits. Uses default precision if n is not\n"
 "specified. See round_away() to access the mpfr_round() function.");
 

@@ -25,7 +25,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_function_const_pi,
-"const_pi([precision=0]) -> mpfr\n\n"
+"const_pi(precision=0) -> mpfr\n\n"
 "Return the constant pi using the specified precision. If no\n"
 "precision is specified, the default precision is used.");
 
@@ -72,7 +72,7 @@ GMPy_Context_Const_Pi(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_function_const_euler,
-"const_euler([precision=0]) -> mpfr\n\n"
+"const_euler(precision=0) -> mpfr\n\n"
 "Return the euler constant using the specified precision. If no\n"
 "precision is specified, the default precision is used.");
 
@@ -119,7 +119,7 @@ GMPy_Context_Const_Euler(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_function_const_log2,
-"const_log2([precision=0]) -> mpfr\n\n"
+"const_log2(precision=0) -> mpfr\n\n"
 "Return the log2 constant using the specified precision. If no\n"
 "precision is specified, the default precision is used.");
 
@@ -166,7 +166,7 @@ GMPy_Context_Const_Log2(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_function_const_catalan,
-"const_catalan([precision=0]) -> mpfr\n\n"
+"const_catalan(precision=0) -> mpfr\n\n"
 "Return the catalan constant using the specified precision. If no\n"
 "precision is specified, the default precision is used.");
 

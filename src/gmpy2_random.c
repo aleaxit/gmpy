@@ -49,7 +49,7 @@ GMPy_RandomState_Repr(RandomState_Object *self)
 };
 
 PyDoc_STRVAR(GMPy_doc_random_state_factory,
-"random_state([seed]) -> object\n\n"
+"random_state(seed=0) -> object\n\n"
 "Return new object containing state information for the random number\n"
 "generator. An optional integer can be specified as the seed value.");
 
