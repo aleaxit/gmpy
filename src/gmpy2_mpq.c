@@ -25,16 +25,13 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_mpq,
-"gmpy2.mpq\n\n"
-"mpq([n=0])\n\n"
-"     Return an 'mpq' object with a numeric value n. Fraction values\n"
-"     are converted exactly.\n\n"
-"mpq(n,m)\n\n"
-"     Return an 'mpq' object with a numeric value n/m.\n\n"
-"mpq(s[, base=10])\n\n"
-"     Return an 'mpq' object from a string s made up of digits in\n"
-"     the given base. s may be made up of two numbers in the same\n"
-"     base separated by a '/' character.\n");
+"mpq(n=0)\n"
+"mpq(n, m)\n"
+"mpq(s, base=10)\n\n"
+"Return an mpq object constructed from a numeric value n (Fraction values\n"
+"are converted exactly) or from a numeric value n/m or from a string s \n"
+"made up of digits in the given base. s may be made up of two numbers \n"
+"in the same base separated by a '/' character.\n");
 
 /* Since `gmpy2.mpq` is now a type and no longer a factory function, see
  * gmpy2_cache.c/GMPy_MPQ_NewInit for details on creation.
