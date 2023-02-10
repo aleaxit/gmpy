@@ -39,6 +39,8 @@ static PyObject * GMPy_MPZ_Attrib_GetDenom(MPZ_Object *self, void *closure);
 static PyObject * GMPy_MPZ_Attrib_GetReal(MPZ_Object *self, void *closure);
 static PyObject * GMPy_MPZ_Attrib_GetImag(MPZ_Object *self, void *closure);
 
+static PyObject * GMPy_MPZ_Method_As_Integer_Ratio(PyObject *self, PyObject *args);
+
 static PyObject * GMPy_MPZ_Method_Ceil(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_Floor(PyObject *self, PyObject *other);
 static PyObject * GMPy_MPZ_Method_Trunc(PyObject *self, PyObject *other);
