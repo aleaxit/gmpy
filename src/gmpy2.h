@@ -317,7 +317,7 @@ typedef struct {
 
 #ifdef GMPY2_MODULE
 
-#define Py2or3String_1Char(obj)     (PyUnicode_READY(obj) ? (Py_UCS4)0 : PyUnicode_READ_CHAR(obj, 0))
+#define PyString_1Char(obj)     (PyUnicode_READY(obj) ? (Py_UCS4)0 : PyUnicode_READ_CHAR(obj, 0))
 #define PyStrOrUnicode_Check(op)    (PyBytes_Check(op) || PyUnicode_Check(op))
 
 #ifndef ABS
