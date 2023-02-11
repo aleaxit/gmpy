@@ -7,8 +7,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.11]
-    runs-on: macos-latest
+        python-version: [3.11, '3.12-dev']
+        os: [macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-python@master
@@ -18,6 +19,7 @@ jobs:
       - run: pip --verbose install -e .[cython]
       - run: python test/runtests.py
       - run: PYTHONPATH=`pwd`/gmpy2 python test_cython/runtests.py
+        if: ${{ matrix.python-version == '3.11' }}
 
   linux:
     strategy:
