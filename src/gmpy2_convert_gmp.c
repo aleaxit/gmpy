@@ -34,6 +34,12 @@
  * some basic types such as C longs or doubles.
  */
 
+#if PY_VERSION_HEX >= 0x030C0000
+#  define GET_OB_DIGIT(obj) obj->long_value.ob_digit
+#else
+#  define GET_OB_DIGIT(obj) obj->ob_digit
+#endif
+
 /* ======================================================================== *
  * Conversion between native Python objects and MPZ.                        *
  * ======================================================================== */
@@ -54,13 +60,13 @@ GMPy_MPZ_From_PyLong(PyObject *obj, CTXT_Object *context)
 
     switch (Py_SIZE(templong)) {
     case -1:
-        mpz_set_si(result->z, -(sdigit)templong->ob_digit[0]);
+        mpz_set_si(result->z, -(sdigit)GET_OB_DIGIT(templong)[0]);
         break;
     case 0:
         mpz_set_si(result->z, 0);
         break;
     case 1:
-        mpz_set_si(result->z, templong->ob_digit[0]);
+        mpz_set_si(result->z, GET_OB_DIGIT(templong)[0]);
         break;
     default:
         mpz_set_si(result->z, 0);
@@ -73,8 +79,8 @@ GMPy_MPZ_From_PyLong(PyObject *obj, CTXT_Object *context)
             negative = 0;
         }
 
-        mpz_import(result->z, len, -1, sizeof(templong->ob_digit[0]), 0,
-                   sizeof(templong->ob_digit[0])*8 - PyLong_SHIFT, templong->ob_digit);
+        mpz_import(result->z, len, -1, sizeof(GET_OB_DIGIT(templong)[0]), 0,
+                   sizeof(GET_OB_DIGIT(templong)[0])*8 - PyLong_SHIFT, GET_OB_DIGIT(templong));
 
         if (negative) {
             mpz_neg(result->z, result->z);
@@ -93,13 +99,13 @@ mpz_set_PyLong(mpz_t z, PyObject *obj)
 
     switch (Py_SIZE(templong)) {
     case -1:
-        mpz_set_si(z, -(sdigit)templong->ob_digit[0]);
+        mpz_set_si(z, -(sdigit)GET_OB_DIGIT(templong)[0]);
         break;
     case 0:
         mpz_set_si(z, 0);
         break;
     case 1:
-        mpz_set_si(z, templong->ob_digit[0]);
+        mpz_set_si(z, GET_OB_DIGIT(templong)[0]);
         break;
     default:
         mpz_set_si(z, 0);
@@ -112,8 +118,8 @@ mpz_set_PyLong(mpz_t z, PyObject *obj)
             negative = 0;
         }
 
-        mpz_import(z, len, -1, sizeof(templong->ob_digit[0]), 0,
-                   sizeof(templong->ob_digit[0])*8 - PyLong_SHIFT, templong->ob_digit);
+        mpz_import(z, len, -1, sizeof(GET_OB_DIGIT(templong)[0]), 0,
+                   sizeof(GET_OB_DIGIT(templong)[0])*8 - PyLong_SHIFT, GET_OB_DIGIT(templong));
 
         if (negative) {
             mpz_neg(z, z);
@@ -186,16 +192,16 @@ GMPy_PyLong_From_MPZ(MPZ_Object *obj, CTXT_Object *context)
         /* LCOV_EXCL_STOP */
     }
 
-    mpz_export(result->ob_digit, &count, -1, sizeof(result->ob_digit[0]), 0,
-               sizeof(result->ob_digit[0])*8 - PyLong_SHIFT, obj->z);
+    mpz_export(GET_OB_DIGIT(result), &count, -1, sizeof(GET_OB_DIGIT(result)[0]), 0,
+               sizeof(GET_OB_DIGIT(result)[0])*8 - PyLong_SHIFT, obj->z);
 
     if (count == 0) {
-        result->ob_digit[0] = 0;
+        GET_OB_DIGIT(result)[0] = 0;
     }
 
     /* long_normalize() is file-static so we must reimplement it */
     /* longobjp = long_normalize(longobjp); */
-    while ((size>0) && (result->ob_digit[size-1] == 0)) {
+    while ((size>0) && (GET_OB_DIGIT(result)[size-1] == 0)) {
         size--;
     }
 #if PY_VERSION_HEX >= 0x030900A4
@@ -429,13 +435,13 @@ GMPy_XMPZ_From_PyLong(PyObject *obj, CTXT_Object *context)
 
     switch (Py_SIZE(templong)) {
     case -1:
-        mpz_set_si(result->z, -(sdigit)templong->ob_digit[0]);
+        mpz_set_si(result->z, -(sdigit)GET_OB_DIGIT(templong)[0]);
         break;
     case 0:
         mpz_set_si(result->z, 0);
         break;
     case 1:
-        mpz_set_si(result->z, templong->ob_digit[0]);
+        mpz_set_si(result->z, GET_OB_DIGIT(templong)[0]);
         break;
     default:
         mpz_set_si(result->z, 0);
@@ -448,8 +454,8 @@ GMPy_XMPZ_From_PyLong(PyObject *obj, CTXT_Object *context)
             negative = 0;
         }
 
-        mpz_import(result->z, len, -1, sizeof(templong->ob_digit[0]), 0,
-                   sizeof(templong->ob_digit[0])*8 - PyLong_SHIFT, templong->ob_digit);
+        mpz_import(result->z, len, -1, sizeof(GET_OB_DIGIT(templong)[0]), 0,
+                   sizeof(GET_OB_DIGIT(templong)[0])*8 - PyLong_SHIFT, GET_OB_DIGIT(templong));
 
         if (negative) {
             mpz_neg(result->z, result->z);
