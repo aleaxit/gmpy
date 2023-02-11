@@ -154,7 +154,7 @@ GMPy_CTXT_Set(PyObject *self, PyObject *v)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_ieee,
-"ieee(size[,subnormalize=True]) -> context\n\n"
+"ieee(size, subnormalize=True) -> context\n\n"
 "Return a new context corresponding to a standard IEEE floating point\n"
 "format. The supported sizes are 16, 32, 64, 128, and multiples of\n"
 "32 greater than 128.");

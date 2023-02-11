@@ -525,7 +525,7 @@ PyDoc_STRVAR(GMPy_doc_context_fmma,
 "Return correctly rounded result of (x * y) + (z * t).");
 
 PyDoc_STRVAR(GMPy_doc_function_fmma,
-"fmma(x, y, z, t) -> number\n\n"
+"fmma(x, y, z, t) -> mpfr\n\n"
 "Return correctly rounded result of (x * y) + (z + t).");
 
 GMPY_MPFR_QUADOP_TEMPLATEWT(FMMA, fmma);
@@ -680,7 +680,7 @@ PyDoc_STRVAR(GMPy_doc_context_fmms,
 "Return correctly rounded result of (x * y) - (z * t).");
 
 PyDoc_STRVAR(GMPy_doc_function_fmms,
-"fmms(x, y, z, t) -> number\n\n"
+"fmms(x, y, z, t) -> mpfr\n\n"
 "Return correctly rounded result of (x * y) - (z + t).");
 
 GMPY_MPFR_QUADOP_TEMPLATEWT(FMMS, fmms);

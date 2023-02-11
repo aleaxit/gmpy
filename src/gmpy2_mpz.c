@@ -25,17 +25,13 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PyDoc_STRVAR(GMPy_doc_mpz,
-"gmpy2.mpz"
-"\n\n"
-"mpz([n=0]):\n\n"
-"     Return an 'mpz' object with a numeric value 'n' (truncating n\n"
-"     to its integer part if it's a Fraction, 'mpq', float or 'mpfr').\n\n"
-"mpz(s[, base=0]):\n\n"
-"     Return an 'mpz' object from a string 's' made of digits in the\n"
-"     given base.  If base=0, binary, octal, or hex Python strings\n"
-"     are recognized by leading 0b, 0o, or 0x characters, otherwise\n"
-"     the string is assumed to be decimal. Values for base can range\n"
-"     between 2 and 62.");
+"mpz(n=0)\n"
+"mpz(s, base=0)\n\n"
+"Return an mpz object constructed from a numeric value n (truncating \n"
+"n to its integer part) or a string s made of digits in the given base. \n"
+"If base=0, binary, octal, or hex Python strings are recognized by \n"
+"leading 0b, 0o, or 0x characters, otherwise the string is assumed to \n"
+"be decimal. Values for base can range between 2 and 62.");
 
 /* Since `gmpy2.mpz` is now a type and no longer a factory function, see
  * gmpy2_cache.c/GMPy_MPZ_NewInit for details on creation.

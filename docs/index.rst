@@ -16,6 +16,7 @@ Contents:
    mpz
    advmpz
    mpq
+   contexts
    mpfr
    mpc
    cython

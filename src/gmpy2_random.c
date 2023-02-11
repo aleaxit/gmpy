@@ -49,7 +49,7 @@ GMPy_RandomState_Repr(RandomState_Object *self)
 };
 
 PyDoc_STRVAR(GMPy_doc_random_state_factory,
-"random_state([seed]) -> object\n\n"
+"random_state(seed=0) -> object\n\n"
 "Return new object containing state information for the random number\n"
 "generator. An optional integer can be specified as the seed value.");
 
@@ -257,7 +257,7 @@ GMPy_MPFR_nrandom_Function(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_grandom_function,
-"mpfr_grandom(random_state) -> (mpfr, mpfr)\n\n"
+"mpfr_grandom(random_state) -> tuple[mpfr, mpfr]\n\n"
 "Return two random numbers with gaussian distribution.");
 
 static PyObject *

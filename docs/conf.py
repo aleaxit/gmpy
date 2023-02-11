@@ -12,6 +12,11 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.imgmath',
               'sphinx.ext.intersphinx', 'sphinx_rtd_theme',
               'sphinx.ext.doctest']
 
+# This value selects if automatically documented members are sorted
+# alphabetical (value 'alphabetical'), by member type (value 'groupwise')
+# or by source order (value 'bysource').
+autodoc_member_order = 'groupwise'
+
 # Contains mapping the locations and names of other projects that
 # should be linked to in this documentation.
 intersphinx_mapping = {'python': ('https://docs.python.org/3/', None)}

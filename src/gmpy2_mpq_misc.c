@@ -113,7 +113,7 @@ GMPy_MPQ_Function_Denom(PyObject *self, PyObject *other)
 }
 
 PyDoc_STRVAR(GMPy_doc_function_qdiv,
-"qdiv(x[, y=1]) -> mpz | mpq\n\n"
+"qdiv(x, y=1) -> mpz | mpq\n\n"
 "Return x/y as 'mpz' if possible, or as 'mpq' if x is not exactly\n"
 "divisible by y.");
 

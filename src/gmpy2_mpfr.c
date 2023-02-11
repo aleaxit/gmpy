@@ -96,30 +96,29 @@ _GMPy_MPFR_Cleanup(MPFR_Object **v, CTXT_Object *ctext)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr,
-"mpfr() -> mpfr(0.0)\n\n"
-"      If no argument is given, return mpfr(0.0).\n\n"
-"mpfr(n [, precision=0 [, context]]) -> mpfr\n\n"
-"      Return an 'mpfr' object after converting a numeric value. See\n"
-"      below for the interpretation of precision.\n\n"
-"mpfr(s [, precision=0 [, base=0 [, context]]]) -> mpfr\n\n"
-"      Return a new 'mpfr' object by converting a string s made of\n"
-"      digits in the given base, possibly with fraction-part (with a\n"
-"      period as a separator) and/or exponent-part (with an exponent\n"
-"      marker 'e' for base<=10, else '@'). The base of the string\n"
-"      representation must be 0 or in the interval [2,62]. If the base\n"
-"      is 0, the leading digits of the string are used to identify the\n"
-"      base: 0b implies base=2, 0x implies base=16, otherwise base=10\n"
-"      is assumed.\n\n"
+"mpfr(n=0, precision=0)\n"
+"mpfr(n, precision, context)\n"
+"mpfr(s, precision=0, base=0)\n"
+"mpfr(s, precision, base, context)\n\n"
+"Return an mpfr object after converting a numeric value n or \n"
+"a string s made of digits in the given base, possibly with \n"
+"fraction-part (with a period as a separator) and/or exponent-part \n"
+"(with an exponent marker 'e' for base<=10, else '@'). See below \n"
+"for the interpretation of precision. The base of the string\n"
+"representation must be 0 or in the interval [2,62]. If the base\n"
+"is 0, the leading digits of the string are used to identify the\n"
+"base: 0b implies base=2, 0x implies base=16, otherwise base=10\n"
+"is assumed.\n\n"
 "Note: If a precision greater than or equal to 2 is specified, then it\n"
-"      is used.\n\n"
-"      A precision of 0 (the default) implies the precision of either\n"
-"      the specified context or the current context is used.\n\n"
-"      A precision of 1 minimizes the loss of precision by following\n"
-"      these rules:\n"
-"        1) If n is a radix-2 floating point number, then the full\n"
-"           precision of n is retained.\n"
-"        2) If n is an integer, then the precision is the bit length\n"
-"           of the integer.\n" );
+"is used.\n"
+"A precision of 0 (the default) implies the precision of either\n"
+"the specified context or the current context is used.\n\n"
+"A precision of 1 minimizes the loss of precision by following\n"
+"these rules:\n\n"
+"    1) If n is a radix-2 floating point number, then the full\n"
+"       precision of n is retained.\n"
+"    2) If n is an integer, then the precision is the bit length\n"
+"       of the integer.\n" );
 
 static PyNumberMethods mpfr_number_methods =
 {
@@ -165,7 +164,7 @@ static PyMethodDef Pympfr_methods [] =
     { "is_infinite", GMPy_Number_Method_Is_Infinite, METH_NOARGS, GMPy_doc_method_is_infinite },
     { "is_integer", GMPy_MPFR_Is_Integer_Method, METH_NOARGS, GMPy_doc_method_is_integer },
     { "is_nan", GMPy_Number_Method_Is_NAN, METH_NOARGS, GMPy_doc_method_is_nan },
-    { "is_signed", GMPy_MPFR_Is_Regular_Method, METH_NOARGS, GMPy_doc_method_is_regular },
+    { "is_regular", GMPy_MPFR_Is_Regular_Method, METH_NOARGS, GMPy_doc_method_is_regular },
     { "is_signed", GMPy_MPFR_Is_Signed_Method, METH_NOARGS, GMPy_doc_method_is_signed },
     { "is_zero", GMPy_Number_Method_Is_Zero, METH_NOARGS, GMPy_doc_method_is_zero },
     { NULL, NULL, 1 }

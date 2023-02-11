@@ -25,5 +25,4 @@ mpq type
 mpq Functions
 -------------
 
-.. autofunction:: f2q
 .. autofunction:: qdiv
