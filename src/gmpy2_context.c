@@ -94,7 +94,7 @@ GMPy_CTXT_Dealloc(CTXT_Object *self)
 };
 
 PyDoc_STRVAR(GMPy_doc_set_context,
-"set_context(context)\n\n"
+"set_context(context) -> None\n\n"
 "Activate a context object controlling gmpy2 arithmetic.\n");
 
 /* Begin support for context vars. */
@@ -154,7 +154,7 @@ GMPy_CTXT_Set(PyObject *self, PyObject *v)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_ieee,
-"ieee(size, subnormalize=True) -> context\n\n"
+"ieee(size, subnormalize=True) -> gmpy2._context\n\n"
 "Return a new context corresponding to a standard IEEE floating point\n"
 "format. The supported sizes are 16, 32, 64, 128, and multiples of\n"
 "32 greater than 128.");
@@ -354,7 +354,7 @@ GMPy_CTXT_Manager_Repr_Slot(CTXT_Manager_Object *self)
 }
 
 PyDoc_STRVAR(GMPy_doc_get_context,
-"get_context() -> gmpy2 context\n\n"
+"get_context() -> gmpy2._context\n\n"
 "Return a reference to the current context.");
 
 static PyObject *
@@ -531,7 +531,7 @@ _parse_context_args(CTXT_Object *ctxt, PyObject *kwargs)
 }
 
 PyDoc_STRVAR(GMPy_doc_local_context,
-"local_context([context[,keywords]]) -> context manager\n\n"
+"local_context(context, **kwargs) -> gmpy2._context\n\n"
 "Create a context manager object that will restore the current context\n"
 "when the 'with ...' block terminates. The temporary context for the\n"
 "'with ...' block is based on the current context if no context is\n"
@@ -586,42 +586,29 @@ GMPy_CTXT_Local(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 PyDoc_STRVAR(GMPy_doc_context,
-"context() -> context manager\n\n"
+"context() -> gmpy2._context\n\n"
 "Return a new context for controlling MPFR and MPC arithmetic. To load\n"
 "the new context, use set_context(). Options can only be specified as\n"
-"keyword arguments. \n"
-"\nOptions\n"
-"    precision:         precision, in bits, of an MPFR result\n"
-"    real_prec:         precision, in bits, of Re(MPC)\n"
-"                         -1 implies use mpfr_prec\n"
-"    imag_prec:         precision, in bits, of Im(MPC)\n"
-"                         -1 implies use real_prec\n"
-"    round:             rounding mode for MPFR\n"
-"    real_round:        rounding mode for Re(MPC)\n"
-"                         -1 implies use mpfr_round\n"
-"    imag_round:        rounding mode for Im(MPC)\n"
-"                         -1 implies use real_round\n"
-"    e_max:             maximum allowed exponent\n"
-"    e_min:             minimum allowed exponent\n"
-"    subnormalize:      if True, subnormalized results can be returned\n"
-"    trap_underflow:    if True, raise exception for underflow\n"
-"                       if False, set underflow flag\n"
-"    trap_overflow:     if True, raise exception for overflow\n"
-"                       if False, set overflow flag and return Inf or -Inf\n"
-"    trap_inexact:      if True, raise exception for inexact result\n"
-"                       if False, set inexact flag\n"
-"    trap_invalid:      if True, raise exception for invalid operation\n"
-"                       if False, set invalid flag and return NaN\n"
-"    trap_erange:       if True, raise exception for range error\n"
-"                       if False, set erange flag\n"
-"    trap_divzero:      if True, raise exception for division by zero\n"
-"                       if False, set divzero flag and return Inf or -Inf\n"
-"    allow_complex:     if True, allow mpfr functions to return mpc\n"
-"                       if False, mpfr functions cannot return an mpc\n"
-"    rational_division: if True, mpz/mpz returns an mpq\n"
-"                       if False, mpz/mpz follows default behavior\n"
-"    allow_release_gil: if True, mpq operations may release the GIL\n"
-"                       if False, mpq operations may not release the GIL\n");
+"keyword arguments. \n\n"
+"Options\n"
+" * precision:         precision, in bits, of an MPFR result\n"
+" * real_prec:         precision, in bits, of Re(MPC); -1 implies use mpfr_prec\n"
+" * imag_prec:         precision, in bits, of Im(MPC); -1 implies use real_prec\n"
+" * round:             rounding mode for MPFR\n"
+" * real_round:        rounding mode for Re(MPC); -1 implies use mpfr_round\n"
+" * imag_round:        rounding mode for Im(MPC); -1 implies use real_round\n"
+" * e_max:             maximum allowed exponent\n"
+" * e_min:             minimum allowed exponent\n"
+" * subnormalize:      if True, subnormalized results can be returned\n"
+" * trap_underflow:    if True, raise exception for underflow; if False, set underflow flag\n"
+" * trap_overflow:     if True, raise exception for overflow; if False, set overflow flag and return Inf or -Inf\n"
+" * trap_inexact:      if True, raise exception for inexact result; if False, set inexact flag\n"
+" * trap_invalid:      if True, raise exception for invalid operation; if False, set invalid flag and return NaN\n"
+" * trap_erange:       if True, raise exception for range error; if False, set erange flag\n"
+" * trap_divzero:      if True, raise exception for division by zero; if False, set divzero flag and return Inf or -Inf\n"
+" * allow_complex:     if True, allow mpfr functions to return mpc; if False, mpfr functions cannot return an mpc\n"
+" * rational_division: if True, mpz/mpz returns an mpq; if False, mpz/mpz follows default behavior\n"
+" * allow_release_gil: if True, mpq operations may release the GIL; if False, mpq operations may not release the GIL\n");
 #if 0
 "\nMethods\n"
 "    abs(x)          return absolute value of x\n"

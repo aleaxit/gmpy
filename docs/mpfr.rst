@@ -89,7 +89,6 @@ mpfr Functions
 .. autofunction:: gamma
 .. autofunction:: get_exp
 .. autofunction:: hypot
-.. autofunction:: ieee
 .. autofunction:: inf
 .. autofunction:: is_finite
 .. autofunction:: is_infinite
