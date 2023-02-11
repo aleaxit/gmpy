@@ -369,7 +369,7 @@ GMPy_CTXT_Get(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_copy,
-"context.copy() -> gmpy2 context\n\n"
+"context.copy() -> gmpy2._context\n\n"
 "Return a copy of a context.");
 
 static PyObject *
@@ -810,7 +810,7 @@ GMPy_CTXT_Exit(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_clear_flags,
-"clear_flags()\n\n"
+"clear_flags() -> None\n\n"
 "Clear all MPFR exception flags.");
 
 static PyObject *

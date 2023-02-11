@@ -305,7 +305,7 @@ GMPy_Number_Add_Slot(PyObject *x, PyObject *y)
 /* Implement context.add() and gmpy2.add(). */
 
 PyDoc_STRVAR(GMPy_doc_function_add,
-"add(x, y) -> mpz | mpfr | mpc\n\n"
+"add(x, y) -> mpz | mpq | mpfr | mpc\n\n"
 "Return x + y.");
 
 static PyObject *
@@ -331,7 +331,7 @@ GMPy_Number_Add(PyObject *x, PyObject *y, CTXT_Object *context)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_add,
-"context.add(x, y) -> number\n\n"
+"context.add(x, y) -> mpz | mpq | mpfr | mpc\n\n"
 "Return x + y.");
 
 static PyObject *

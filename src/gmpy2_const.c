@@ -53,7 +53,7 @@ GMPy_Function_Const_Pi(PyObject *self, PyObject *args, PyObject *keywds)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_const_pi,
-"context.const_pi() -> number\n\n"
+"context.const_pi() -> mpfr\n\n"
 "Return the constant pi using the context's precision.");
 
 static PyObject *
@@ -100,7 +100,7 @@ GMPy_Function_Const_Euler(PyObject *self, PyObject *args, PyObject *keywds)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_const_euler,
-"context.const_euler() -> number\n\n"
+"context.const_euler() -> mpfr\n\n"
 "Return the euler constant using the context's precision.");
 
 static PyObject *
@@ -147,7 +147,7 @@ GMPy_Function_Const_Log2(PyObject *self, PyObject *args, PyObject *keywds)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_const_log2,
-"context.const_log2() -> number\n\n"
+"context.const_log2() -> mpfr\n\n"
 "Return the log2 constant using the context's precision.");
 
 static PyObject *
@@ -194,7 +194,7 @@ GMPy_Function_Const_Catalan(PyObject *self, PyObject *args, PyObject *keywds)
 }
 
 PyDoc_STRVAR(GMPy_doc_context_const_catalan,
-"context.const_catalan() -> number\n\n"
+"context.const_catalan() -> mpfr\n\n"
 "Return the catalan constant using the context's precision.");
 
 static PyObject *

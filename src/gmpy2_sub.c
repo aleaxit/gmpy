@@ -334,11 +334,11 @@ GMPy_Number_Sub_Slot(PyObject *x, PyObject *y)
 /* Implement context.sub() and gmpy2.sub(). */
 
 PyDoc_STRVAR(GMPy_doc_sub,
-"sub(x, y) -> mpz | mpfr | mpc\n\n"
+"sub(x, y) -> mpz | mpq | mpfr | mpc\n\n"
 "Return x - y.");
 
 PyDoc_STRVAR(GMPy_doc_context_sub,
-"context.sub(x, y) -> number\n\n"
+"context.sub(x, y) -> mpz | mpq | mpfr | mpc\n\n"
 "Return x - y.");
 
 static PyObject *

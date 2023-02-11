@@ -34,7 +34,7 @@ PyDoc_STRVAR(GMPy_doc_function_is_nan,
 "Return True if x is NaN (Not-A-Number) else False.");
 
 PyDoc_STRVAR(GMPy_doc_context_is_nan,
-"context.is_nan(x) -> boolean\n\n"
+"context.is_nan(x) -> bool\n\n"
 "Return True if x is NaN (Not-A-Number) else False.");
 
 PyDoc_STRVAR(GMPy_doc_method_is_nan,
@@ -103,7 +103,7 @@ PyDoc_STRVAR(GMPy_doc_function_is_infinite,
 "if either x.real or x.imag is infinite. Otherwise return False.");
 
 PyDoc_STRVAR(GMPy_doc_context_is_infinite,
-"context.is_infinite(x) -> boolean\n\n"
+"context.is_infinite(x) -> bool\n\n"
 "Return True if x is +Infinity or -Infinity. If x is an mpc, return True\n"
 "if either x.real or x.imag is infinite. Otherwise return False.");
 
@@ -164,7 +164,7 @@ PyDoc_STRVAR(GMPy_doc_function_is_finite,
 "an mpc, return True if both x.real and x.imag are finite.");
 
 PyDoc_STRVAR(GMPy_doc_context_is_finite,
-"context.is_finite(x) -> boolean\n\n"
+"context.is_finite(x) -> bool\n\n"
 "Return True if x is an actual number (i.e. non NaN or Infinity). If x is\n"
 "an mpc, return True if both x.real and x.imag are finite.");
 
@@ -225,7 +225,7 @@ PyDoc_STRVAR(GMPy_doc_function_is_zero,
 "and x.imag are equal to 0.");
 
 PyDoc_STRVAR(GMPy_doc_context_is_zero,
-"context.is_zero(x) -> boolean\n\n"
+"context.is_zero(x) -> bool\n\n"
 "Return True if x is equal to 0. If x is an mpc, return True if both x.real\n"
 "and x.imag are equal to 0.");
 
@@ -285,7 +285,7 @@ PyDoc_STRVAR(GMPy_doc_function_is_signed,
 "Return True if the sign bit of x is set.");
 
 PyDoc_STRVAR(GMPy_doc_context_is_signed,
-"context.is_signed(x) -> boolean\n\n"
+"context.is_signed(x) -> bool\n\n"
 "Return True if the sign bit of x is set.");
 
 PyDoc_STRVAR(GMPy_doc_method_is_signed,
@@ -330,7 +330,7 @@ PyDoc_STRVAR(GMPy_doc_function_is_regular,
 "Return True if x is not zero, NaN, or Infinity; False otherwise.");
 
 PyDoc_STRVAR(GMPy_doc_context_is_regular,
-"context.is_regular(x) -> boolean\n\n"
+"context.is_regular(x) -> bool\n\n"
 "Return True if x is not zero, NaN, or Infinity; False otherwise.");
 
 PyDoc_STRVAR(GMPy_doc_method_is_regular,
@@ -371,11 +371,11 @@ GMPy_MPFR_Is_Regular_Method(PyObject *self, PyObject *args)
 GMPY_MPFR_UNIOP_TEMPLATEWT(Is_Regular, is_regular);
 
 PyDoc_STRVAR(GMPy_doc_function_is_integer,
-"is_integer(x) -> boolean\n\n"
+"is_integer(x) -> bool\n\n"
 "Return True if x is an integer; False otherwise.");
 
 PyDoc_STRVAR(GMPy_doc_context_is_integer,
-"context.is_integer(x) -> boolean\n\n"
+"context.is_integer(x) -> bool\n\n"
 "Return True if x is an integer; False otherwise.");
 
 PyDoc_STRVAR(GMPy_doc_method_is_integer,
@@ -416,7 +416,7 @@ GMPy_MPFR_Is_Integer_Method(PyObject *self, PyObject *args)
 GMPY_MPFR_UNIOP_TEMPLATEWT(Is_Integer, is_integer);
 
 PyDoc_STRVAR(GMPy_doc_function_is_lessgreater,
-"is_lessgreater(x,y) -> boolean\n\n"
+"is_lessgreater(x,y) -> bool\n\n"
 "Return True if x > y or x < y. Return False if x == y or either x\n"
 "and/or y is NaN.");
 
@@ -475,4 +475,3 @@ GMPy_RealWithType_Is_Unordered(PyObject *x, int xtype, PyObject *y, int ytype, C
 }
 
 GMPY_MPFR_BINOP_TEMPLATEWT(Is_Unordered, is_unordered)
-
