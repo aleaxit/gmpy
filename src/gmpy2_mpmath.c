@@ -126,7 +126,7 @@ Pympz_mpmath_normalize_fast(PyObject *self, PyObject *const *args, Py_ssize_t na
 
     /* If rndstr really is a string, extract the first character. */
     if (PyUnicode_Check(rndstr)) {
-        rnd = Py2or3String_1Char(rndstr);
+        rnd = PyString_1Char(rndstr);
     }
     else {
         VALUE_ERROR("invalid rounding mode specified");
@@ -272,7 +272,7 @@ Pympz_mpmath_create_fast(PyObject *self, PyObject *const *args, Py_ssize_t nargs
 
     switch (n) {
         case 4:
-            rnd = Py2or3String_1Char(args[3]);
+            rnd = PyString_1Char(args[3]);
         case 3:
             prec = GMPy_Integer_AsLong(args[2]);
             if (prec == -1) {
