@@ -571,3 +571,27 @@ mpz(0)
 >>> a.conjugate()
 mpz(123)
 
+Sequence Protocol
+-----------------
+
+>>> a = mpz(10)
+>>> a[1]
+1
+>>> a[-1]
+1
+>>> a[-2]
+0
+>>> a[0:2]
+mpz(2)
+>>> a[0:3]
+mpz(2)
+>>> a[0:3:-1]
+mpz(0)
+>>> a[111111111111111111111]
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+IndexError: argument too large to convert to an index
+>>> a["spam"]
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: bit positions must be integers
