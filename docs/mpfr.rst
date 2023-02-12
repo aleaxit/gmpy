@@ -137,3 +137,9 @@ mpfr Functions
 .. autofunction:: yn
 .. autofunction:: zero
 .. autofunction:: zeta
+.. autofunction:: get_max_precision
+.. autofunction:: get_emax_max
+.. autofunction:: get_emin_min
+.. autofunction:: copy_sign
+.. autofunction:: can_round
+.. autofunction:: free_cache

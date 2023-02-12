@@ -100,7 +100,7 @@ GMPy_Context_F2Q(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_free_cache,
-"free_cache()\n\n"
+"free_cache() -> None\n\n"
 "Free the internal cache of constants maintained by MPFR.");
 
 static PyObject *
@@ -111,7 +111,7 @@ GMPy_MPFR_Free_Cache(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_can_round,
-"can_round(b, err, rnd1, rnd2, prec)\n\n"
+"can_round(b, err, rnd1, rnd2, prec) -> bool\n\n"
 "Let b be an approximation to an unknown number x that is rounded\n"
 "according to rnd1. Assume the b has an error at most two to the power\n"
 "of E(b)-err where E(b) is the exponent of b. Then return true if x\n"
@@ -154,7 +154,7 @@ GMPy_MPFR_Can_Round(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_get_emin_min,
-"get_emin_min() -> integer\n\n"
+"get_emin_min() -> int\n\n"
 "Return the minimum possible exponent that can be set for 'mpfr'.");
 
 static PyObject *
@@ -164,7 +164,7 @@ GMPy_MPFR_get_emin_min(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_get_emax_max,
-"get_emax_max() -> integer\n\n"
+"get_emax_max() -> int\n\n"
 "Return the maximum possible exponent that can be set for 'mpfr'.");
 
 static PyObject *
@@ -174,7 +174,7 @@ GMPy_MPFR_get_emax_max(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(GMPy_doc_mpfr_get_max_precision,
-"get_max_precision() -> integer\n\n"
+"get_max_precision() -> int\n\n"
 "Return the maximum bits of precision that can be used for calculations.\n"
 "Note: to allow extra precision for intermediate calculations, avoid\n"
 "setting precision close the maximum precision.");
