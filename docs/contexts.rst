@@ -79,9 +79,9 @@ Context Functions
 Contexts and the with statement
 -------------------------------
 
-Contexts can also be used in conjunction with Python's ``with ...`` statement to
-temporarily change the context settings for a block of code and then restore the
-original settings when the block of code exits.
+Contexts can also be used in conjunction with Python's :keyword:`with`
+statement to temporarily change the context settings for a block of code and
+then restore the original settings when the block of code exits.
 
 :func:`local_context` first save the current context and then creates a new
 context based on a context passed as the first argument, or the current context
@@ -95,6 +95,8 @@ set to 100. When the block is finished, the original context is restored.
 
 .. doctest::
 
+    >>> print(gmpy2.sqrt(2))
+    1.4142135623730951
     >>> with gmpy2.local_context(gmpy2.context(), precision=100) as ctx:
     ...   print(gmpy2.sqrt(2))
     ...   ctx.precision += 100
@@ -102,24 +104,8 @@ set to 100. When the block is finished, the original context is restored.
     ...
     1.4142135623730950488016887242092
     1.4142135623730950488016887242096980785696718753769480731766796
+    >>> print(gmpy2.sqrt(2))
+    1.4142135623730951
 
-A context object can also be used directly to create a context manager block.
-However, instead of restoring the context to the active context when the
-``with ...`` statement is executed, the restored context is the context used
-before any keyword argument modifications.
-
-The code:
-
-.. code-block:: python
-
-    with gmpy2.ieee(64) as ctx:
-
-is equivalent to:
-
-.. code-block:: python
-
-    gmpy2.set_context(gmpy2.ieee(64))
-    with gmpy2.local_context() as ctx:
-
-Contexts that implement the standard *single*, *double*, and *quadruple* precision
-floating point types can be created using **ieee()**.
+Contexts that implement the standard *single*, *double*, and *quadruple*
+precision floating point types can be created using :func:`ieee`.
